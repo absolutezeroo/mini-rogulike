@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="WeaponDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="1_5pter"]
+
+[resource]
+script = ExtResource("1_5pter")
+damage = 5
+cooldown = 0.42
+reach = 30.0
+slot = 0
+id = &"rusty_sword"
+display_name = "Rusty Sword"
+description = "Seen better days. Still cuts."
+glyph = "/"
+color = Color(0.7882353, 0.8, 0.81960785, 1)
+spawn_weight = 0

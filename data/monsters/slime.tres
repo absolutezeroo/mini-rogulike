@@ -1,0 +1,53 @@
+[gd_resource type="Resource" script_class="MonsterDef" load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="1_xulun"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="2_d6j8p"]
+[ext_resource type="Resource" path="res://data/items/armors/leather_cap.tres" id="3_ulqam"]
+[ext_resource type="Resource" path="res://data/items/consumables/haste_draught.tres" id="4_o1lla"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="5_x47od"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="6_q2gc3"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_8maa8"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="8_ygyn7"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/slime_slam.tres" id="9_74j3i"]
+
+[sub_resource type="Resource" id="Resource_gdqej"]
+script = ExtResource("1_xulun")
+item = ExtResource("2_d6j8p")
+weight = 8
+
+[sub_resource type="Resource" id="Resource_d8qmv"]
+script = ExtResource("1_xulun")
+item = ExtResource("3_ulqam")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_trupp"]
+script = ExtResource("1_xulun")
+item = ExtResource("4_o1lla")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_yrb4w"]
+script = ExtResource("5_x47od")
+drop_chance = 0.25
+entries = Array[ExtResource("1_xulun")]([SubResource("Resource_gdqej"), SubResource("Resource_d8qmv"), SubResource("Resource_trupp")])
+
+[sub_resource type="Resource" id="Resource_3tq7s"]
+script = ExtResource("8_ygyn7")
+max_hp = 26
+defense = 1
+move_speed = 55.0
+
+[resource]
+script = ExtResource("6_q2gc3")
+stats = SubResource("Resource_3tq7s")
+weapon = ExtResource("9_74j3i")
+radius = 14.0
+detect_radius = 200.0
+attack_windup = 0.5
+attack_recovery = 0.4
+loot = SubResource("Resource_yrb4w")
+id = &"slime"
+display_name = "Slime"
+description = "Slow, tough, hits all around itself."
+glyph = "s"
+color = Color(0.5019608, 0.92941177, 0.6, 1)
+spawn_weight = 8

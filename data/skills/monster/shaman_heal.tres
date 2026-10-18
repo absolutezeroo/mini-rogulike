@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="SkillDef" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_1le8e"]
+[ext_resource type="Script" path="res://src/definitions/effects/heal_effect.gd" id="2_5diws"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_4xua7"]
+
+[sub_resource type="Resource" id="Resource_omwuk"]
+script = ExtResource("2_5diws")
+amount = 0
+max_hp_ratio = 0.3
+
+[resource]
+script = ExtResource("3_4xua7")
+id = &"shaman_heal"
+display_name = "Dark Mending"
+short_label = ""
+color = Color(0.7019608, 0.53333336, 0.92156863, 1)
+cooldown = 8.0
+effects = Array[ExtResource("1_1le8e")]([SubResource("Resource_omwuk")])
+ai_max_range = 9999.0
+ai_below_hp_ratio = 0.6

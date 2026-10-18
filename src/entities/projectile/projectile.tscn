@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/entities/projectile/projectile.gd" id="1_projectile"]
+
+[node name="Projectile" type="Area2D"]
+monitorable = false
+script = ExtResource("1_projectile")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]

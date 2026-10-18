@@ -1,0 +1,9 @@
+# Godot cache and imports (regenerated automatically)
+.godot/
+*.tmp
+
+# Exports
+/build/
+/android/
+*.apk
+*.aab

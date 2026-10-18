@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="WeaponDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="1_noi8k"]
+
+[resource]
+script = ExtResource("1_noi8k")
+kind = 1
+damage = 5
+cooldown = 0.6
+reach = 380.0
+knockback = 90.0
+projectile_speed = 360.0
+projectile_radius = 7.0
+projectile_count = 3
+spread_degrees = 26.0
+slot = 0
+id = &"ember_staff"
+display_name = "Ember Staff"
+description = "Spits three embers at once."
+glyph = "*"
+color = Color(1, 0.54901963, 0.25882354, 1)
+min_depth = 4
+spawn_weight = 3

@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="ConsumableDef" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_6xxu4"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="2_nf1kg"]
+[ext_resource type="Script" path="res://src/definitions/items/consumable_def.gd" id="3_lrfgs"]
+
+[sub_resource type="Resource" id="Resource_2ayt1"]
+script = ExtResource("2_nf1kg")
+radius = 110.0
+damage_multiplier = 0.0
+flat_damage = 25
+knockback = 350.0
+color = Color(1, 0.62352943, 0.10980392, 1)
+
+[resource]
+script = ExtResource("3_lrfgs")
+effects = Array[ExtResource("1_6xxu4")]([SubResource("Resource_2ayt1")])
+id = &"bomb"
+display_name = "Bomb"
+description = "Explodes around you. Deals 25 damage."
+glyph = "o"
+color = Color(1, 0.62352943, 0.10980392, 1)
+min_depth = 2
+spawn_weight = 5

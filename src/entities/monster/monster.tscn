@@ -1,0 +1,26 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/entities/monster/monster.gd" id="1_monster"]
+[ext_resource type="Script" path="res://src/ai/state_machine.gd" id="2_machine"]
+[ext_resource type="Script" path="res://src/ai/states/idle_state.gd" id="3_idle"]
+[ext_resource type="Script" path="res://src/ai/states/chase_state.gd" id="4_chase"]
+[ext_resource type="Script" path="res://src/ai/states/attack_state.gd" id="5_attack"]
+
+[node name="Monster" type="CharacterBody2D"]
+motion_mode = 1
+script = ExtResource("1_monster")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("2_machine")
+initial_state = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="StateMachine"]
+script = ExtResource("3_idle")
+
+[node name="Chase" type="Node" parent="StateMachine"]
+script = ExtResource("4_chase")
+
+[node name="Attack" type="Node" parent="StateMachine"]
+script = ExtResource("5_attack")

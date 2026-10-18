@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="SkillDef" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_imrmb"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="2_8v5j6"]
+[ext_resource type="Script" path="res://src/definitions/effects/buff_effect.gd" id="3_1u6b3"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_w33vd"]
+
+[sub_resource type="Resource" id="Resource_nke3q"]
+script = ExtResource("2_8v5j6")
+attack = 4
+move_speed = 40.0
+
+[sub_resource type="Resource" id="Resource_qiskq"]
+script = ExtResource("3_1u6b3")
+bonuses = SubResource("Resource_nke3q")
+duration = 5.0
+
+[resource]
+script = ExtResource("4_w33vd")
+id = &"war_cry"
+display_name = "War Cry"
+short_label = ""
+color = Color(0.9372549, 0.2784314, 0.43529412, 1)
+cooldown = 12.0
+effects = Array[ExtResource("1_imrmb")]([SubResource("Resource_qiskq")])
+ai_max_range = 200.0

@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ConsumableDef" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_k485o"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="2_onf28"]
+[ext_resource type="Script" path="res://src/definitions/effects/buff_effect.gd" id="3_73xtb"]
+[ext_resource type="Script" path="res://src/definitions/items/consumable_def.gd" id="4_mn8kf"]
+
+[sub_resource type="Resource" id="Resource_8nygd"]
+script = ExtResource("2_onf28")
+move_speed = 90.0
+
+[sub_resource type="Resource" id="Resource_muiul"]
+script = ExtResource("3_73xtb")
+bonuses = SubResource("Resource_8nygd")
+color = Color(0, 0.73333335, 0.9764706, 1)
+
+[resource]
+script = ExtResource("4_mn8kf")
+effects = Array[ExtResource("1_k485o")]([SubResource("Resource_muiul")])
+id = &"haste_draught"
+display_name = "Haste Draught"
+description = "Run much faster for 6 seconds."
+glyph = "!"
+color = Color(0, 0.73333335, 0.9764706, 1)
+spawn_weight = 4

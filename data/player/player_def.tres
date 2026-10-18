@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="PlayerDef" load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_kisdg"]
+[ext_resource type="Script" path="res://src/definitions/player_def.gd" id="2_bnges"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_vrhwe"]
+[ext_resource type="Resource" path="res://data/skills/player/dash.tres" id="4_mcj0m"]
+[ext_resource type="Resource" path="res://data/skills/player/whirlwind.tres" id="5_ohl2f"]
+[ext_resource type="Resource" path="res://data/skills/player/fireball.tres" id="6_isphs"]
+[ext_resource type="Script" path="res://src/definitions/items/equipment_def.gd" id="7_s5y61"]
+[ext_resource type="Resource" path="res://data/items/weapons/rusty_sword.tres" id="8_nyj2y"]
+[ext_resource type="Script" path="res://src/definitions/items/item_def.gd" id="9_5ekve"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="10_prejf"]
+
+[sub_resource type="Resource" id="Resource_23thu"]
+script = ExtResource("1_kisdg")
+max_hp = 60
+move_speed = 170.0
+crit_chance = 0.05
+
+[sub_resource type="Resource" id="Resource_j77us"]
+script = ExtResource("1_kisdg")
+max_hp = 8
+attack = 1
+
+[resource]
+script = ExtResource("2_bnges")
+base_stats = SubResource("Resource_23thu")
+starting_equipment = Array[ExtResource("7_s5y61")]([ExtResource("8_nyj2y")])
+starting_items = Array[ExtResource("9_5ekve")]([ExtResource("10_prejf"), ExtResource("10_prejf")])
+skills = Array[ExtResource("3_vrhwe")]([ExtResource("4_mcj0m"), ExtResource("5_ohl2f"), ExtResource("6_isphs")])
+xp_growth = 1.45
+level_bonus = SubResource("Resource_j77us")

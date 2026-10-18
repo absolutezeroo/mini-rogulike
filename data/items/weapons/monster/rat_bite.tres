@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="WeaponDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="1_n4jgn"]
+
+[resource]
+script = ExtResource("1_n4jgn")
+damage = 3
+cooldown = 0.9
+reach = 14.0
+knockback = 60.0
+arc_degrees = 90.0
+slot = 0
+id = &"rat_bite"
+display_name = "Bite"
+glyph = "^"
+color = Color(0.6509804, 0.5411765, 0.39215687, 1)
+spawn_weight = 0

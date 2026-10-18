@@ -1,0 +1,25 @@
+class_name MonsterDef
+extends ContentDef
+## Everything that makes a monster type: stats, weapon, skills, behaviour and rewards.
+
+@export var stats: StatBlock
+## Monsters attack with a regular weapon, just like the player.
+@export var weapon: WeaponDef
+@export var skills: Array[SkillDef] = []
+
+@export_group("Body")
+@export var radius: float = 12.0
+
+@export_group("Behaviour")
+## Distance at which the monster notices the player (needs line of sight).
+@export var detect_radius: float = 260.0
+## Telegraph time before each attack: the player's window to dodge.
+@export var attack_windup: float = 0.35
+## Pause after attacking.
+@export var attack_recovery: float = 0.3
+## Ranged monsters back off when the player is closer than this. 0 = always close in.
+@export var keep_distance: float = 0.0
+
+@export_group("Rewards")
+@export var xp_reward: int = 5
+@export var loot: LootTable

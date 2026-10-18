@@ -1,0 +1,97 @@
+class_name Hud
+extends CanvasLayer
+## In-game overlay: bars, stats, messages and the touch controls.
+
+signal inventory_requested
+
+const SKILL_ACTIONS: Array[StringName] = [&"skill_1", &"skill_2", &"skill_3"]
+
+var _player: Player
+
+@onready var _hp_bar: StatBar = %HpBar
+@onready var _xp_bar: StatBar = %XpBar
+@onready var _info_label: Label = %InfoLabel
+@onready var _depth_banner: Label = %DepthBanner
+@onready var _message_log: MessageLog = %MessageLog
+@onready var _attack_button: ActionButton = %AttackButton
+@onready var _quick_item_button: ActionButton = %QuickItemButton
+@onready var _skill_buttons: Array[ActionButton] = [%Skill1Button, %Skill2Button, %Skill3Button]
+
+
+func _ready() -> void:
+	%BagButton.pressed.connect(func() -> void: inventory_requested.emit())
+	Events.depth_changed.connect(_on_depth_changed)
+	_depth_banner.modulate.a = 0.0
+
+
+func bind_player(player: Player) -> void:
+	if _player:
+		_player.health_changed.disconnect(_on_health_changed)
+		_player.stats_changed.disconnect(_refresh_info)
+		_player.xp_changed.disconnect(_on_xp_changed)
+		_player.equipment.changed.disconnect(_refresh_info)
+	_player = player
+	_player.health_changed.connect(_on_health_changed)
+	_player.stats_changed.connect(_refresh_info)
+	_player.xp_changed.connect(_on_xp_changed)
+	_player.equipment.changed.connect(_refresh_info)
+	_message_log.clear()
+
+	for i in _skill_buttons.size():
+		var button := _skill_buttons[i]
+		var has_skill := i < player.skills.skills.size()
+		button.visible = has_skill
+		if has_skill:
+			var skill := player.skills.skills[i]
+			button.label = skill.short_label
+			button.color = skill.color
+
+	_on_health_changed(player.hp, player.get_max_hp())
+	_on_xp_changed(player.xp, player.xp_to_next_level(), player.level)
+	_refresh_info()
+
+
+func _process(_delta: float) -> void:
+	if _player == null:
+		return
+	for i in _skill_buttons.size():
+		if _skill_buttons[i].visible:
+			_skill_buttons[i].cooldown_ratio = _player.skills.cooldown_ratio(i)
+	var potion := _player.inventory.first_consumable()
+	_quick_item_button.visible = potion != null
+	if potion:
+		_quick_item_button.label = potion.glyph
+		_quick_item_button.color = potion.color
+		_quick_item_button.counter = _player.inventory.count_of(potion)
+	var weapon := _player.get_weapon()
+	_attack_button.label = weapon.glyph if weapon else "-"
+
+
+func _on_health_changed(current: int, maximum: int) -> void:
+	_hp_bar.set_values(current, maximum, "%d / %d" % [current, maximum])
+
+
+func _on_xp_changed(xp: int, needed: int, level: int) -> void:
+	_xp_bar.set_values(xp, needed, "Lv %d" % level)
+
+
+func _refresh_info() -> void:
+	if _player == null:
+		return
+	var stats := _player.get_stats()
+	var weapon := _player.get_weapon()
+	_info_label.text = "Depth %d   ATK %d   DEF %d   %s" % [
+		_player.world.depth if _player.world else 1,
+		_player.get_power(),
+		stats.defense,
+		weapon.display_name if weapon else "Bare hands",
+	]
+
+
+func _on_depth_changed(depth: int) -> void:
+	_refresh_info()
+	_depth_banner.text = "Depth %d" % depth
+	var tween := create_tween()
+	_depth_banner.modulate.a = 1.0
+	tween.tween_interval(1.2)
+	tween.tween_property(_depth_banner, "modulate:a", 0.0, 0.6)

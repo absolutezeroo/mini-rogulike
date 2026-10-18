@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="WeaponDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="1_f3sed"]
+
+[resource]
+script = ExtResource("1_f3sed")
+kind = 1
+reach = 420.0
+knockback = 90.0
+projectile_speed = 540.0
+projectile_radius = 4.0
+slot = 0
+id = &"short_bow"
+display_name = "Short Bow"
+description = "Keep your distance."
+glyph = "}"
+color = Color(0.9137255, 0.76862746, 0.41568628, 1)
+spawn_weight = 6

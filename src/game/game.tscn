@@ -1,0 +1,26 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/game/game.gd" id="1_game"]
+[ext_resource type="Resource" path="res://data/content_db.tres" id="2_content"]
+[ext_resource type="PackedScene" path="res://src/world/world.tscn" id="3_world"]
+[ext_resource type="PackedScene" path="res://src/ui/hud/hud.tscn" id="4_hud"]
+[ext_resource type="PackedScene" path="res://src/ui/inventory/inventory_panel.tscn" id="5_inventory"]
+[ext_resource type="PackedScene" path="res://src/ui/game_over/game_over_panel.tscn" id="6_game_over"]
+
+[node name="Game" type="Node"]
+process_mode = 3
+script = ExtResource("1_game")
+content = ExtResource("2_content")
+
+[node name="World" parent="." instance=ExtResource("3_world")]
+process_mode = 1
+
+[node name="Hud" parent="." instance=ExtResource("4_hud")]
+process_mode = 1
+
+[node name="Menus" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="InventoryPanel" parent="Menus" instance=ExtResource("5_inventory")]
+
+[node name="GameOverPanel" parent="Menus" instance=ExtResource("6_game_over")]

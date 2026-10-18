@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="SkillDef" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_pettb"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_j70xv"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_drixo"]
+
+[sub_resource type="Resource" id="Resource_pjtvv"]
+script = ExtResource("2_j70xv")
+damage_multiplier = 1.5
+flat_damage = 6
+speed = 420.0
+radius = 9.0
+explosion_radius = 70.0
+color = Color(1, 0.41960785, 0.20784314, 1)
+
+[resource]
+script = ExtResource("3_drixo")
+id = &"fireball"
+display_name = "Fireball"
+description = "Explodes on impact."
+short_label = "FIRE"
+color = Color(1, 0.41960785, 0.20784314, 1)
+cooldown = 4.0
+effects = Array[ExtResource("1_pettb")]([SubResource("Resource_pjtvv")])

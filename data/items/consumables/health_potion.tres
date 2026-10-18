@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="ConsumableDef" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_hstsq"]
+[ext_resource type="Script" path="res://src/definitions/effects/heal_effect.gd" id="2_6y471"]
+[ext_resource type="Script" path="res://src/definitions/items/consumable_def.gd" id="3_hhalm"]
+
+[sub_resource type="Resource" id="Resource_vtud2"]
+script = ExtResource("2_6y471")
+amount = 0
+max_hp_ratio = 0.35
+
+[resource]
+script = ExtResource("3_hhalm")
+effects = Array[ExtResource("1_hstsq")]([SubResource("Resource_vtud2")])
+id = &"health_potion"
+display_name = "Health Potion"
+description = "Restores 35% of your HP."
+glyph = "!"
+color = Color(0.9372549, 0.2784314, 0.43529412, 1)
+spawn_weight = 14

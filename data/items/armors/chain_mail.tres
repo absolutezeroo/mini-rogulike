@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="ArmorDef" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_bp5xa"]
+[ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="2_26fmo"]
+
+[sub_resource type="Resource" id="Resource_u33xh"]
+script = ExtResource("1_bp5xa")
+defense = 3
+move_speed = -15.0
+
+[resource]
+script = ExtResource("2_26fmo")
+bonuses = SubResource("Resource_u33xh")
+id = &"chain_mail"
+display_name = "Chain Mail"
+description = "Good protection, slows you down a little."
+glyph = "["
+color = Color(0.6784314, 0.70980394, 0.7411765, 1)
+min_depth = 2
+spawn_weight = 4

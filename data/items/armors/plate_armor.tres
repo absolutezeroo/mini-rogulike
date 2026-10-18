@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ArmorDef" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_scuta"]
+[ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="2_xtjqw"]
+
+[sub_resource type="Resource" id="Resource_xtesj"]
+script = ExtResource("1_scuta")
+max_hp = 20
+defense = 5
+move_speed = -30.0
+
+[resource]
+script = ExtResource("2_xtjqw")
+bonuses = SubResource("Resource_xtesj")
+id = &"plate_armor"
+display_name = "Plate Armor"
+description = "A walking fortress."
+glyph = "["
+color = Color(0.9137255, 0.9254902, 0.9372549, 1)
+min_depth = 5
+spawn_weight = 2

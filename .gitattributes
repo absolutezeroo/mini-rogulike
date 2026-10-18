@@ -1,0 +1,7 @@
+# Normalize line endings so files look the same on every device.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ogg binary
+*.wav binary
+*.ttf binary

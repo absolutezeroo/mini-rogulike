@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="ConsumableDef" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_1lfsn"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="2_5nifc"]
+[ext_resource type="Script" path="res://src/definitions/effects/buff_effect.gd" id="3_ben6g"]
+[ext_resource type="Script" path="res://src/definitions/items/consumable_def.gd" id="4_umncj"]
+
+[sub_resource type="Resource" id="Resource_kd7xq"]
+script = ExtResource("2_5nifc")
+attack = 5
+crit_chance = 0.15
+
+[sub_resource type="Resource" id="Resource_r8406"]
+script = ExtResource("3_ben6g")
+bonuses = SubResource("Resource_kd7xq")
+duration = 8.0
+color = Color(0.9372549, 0.2784314, 0.43529412, 1)
+
+[resource]
+script = ExtResource("4_umncj")
+effects = Array[ExtResource("1_1lfsn")]([SubResource("Resource_r8406")])
+id = &"rage_elixir"
+display_name = "Elixir of Rage"
+description = "+5 ATK and +15% crit for 8 seconds."
+glyph = "!"
+color = Color(0.94509804, 0.35686275, 0.70980394, 1)
+min_depth = 2
+spawn_weight = 4

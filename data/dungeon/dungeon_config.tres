@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="DungeonConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/dungeon_config.gd" id="1_yhlbr"]
+
+[resource]
+script = ExtResource("1_yhlbr")

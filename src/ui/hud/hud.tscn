@@ -1,0 +1,137 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/ui/hud/hud.gd" id="1_hud"]
+[ext_resource type="Script" path="res://src/ui/controls/touch_joystick.gd" id="2_joystick"]
+[ext_resource type="Script" path="res://src/ui/hud/stat_bar.gd" id="3_bar"]
+[ext_resource type="Script" path="res://src/ui/hud/message_log.gd" id="4_log"]
+[ext_resource type="Script" path="res://src/ui/controls/action_button.gd" id="5_button"]
+
+[node name="Hud" type="CanvasLayer"]
+layer = 5
+script = ExtResource("1_hud")
+
+[node name="Joystick" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_joystick")
+
+[node name="TopLeft" type="VBoxContainer" parent="."]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 436.0
+offset_bottom = 300.0
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="HpBar" type="Control" parent="TopLeft"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 30)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("3_bar")
+
+[node name="XpBar" type="Control" parent="TopLeft"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 16)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("3_bar")
+fill_color = Color(1, 0.82, 0.4, 1)
+
+[node name="InfoLabel" type="Label" parent="TopLeft"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 18
+text = "Depth 1"
+
+[node name="MessageLog" type="VBoxContainer" parent="TopLeft"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+script = ExtResource("4_log")
+
+[node name="BagButton" type="Button" parent="."]
+unique_name_in_owner = true
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -156.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 80.0
+grow_horizontal = 0
+focus_mode = 0
+text = "Bag"
+
+[node name="DepthBanner" type="Label" parent="."]
+unique_name_in_owner = true
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -300.0
+offset_top = 110.0
+offset_right = 300.0
+offset_bottom = 180.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.4, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 52
+text = "Depth 1"
+horizontal_alignment = 1
+
+[node name="Controls" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="AttackButton" type="TouchScreenButton" parent="Controls"]
+unique_name_in_owner = true
+position = Vector2(-130, -130)
+action = "attack"
+script = ExtResource("5_button")
+radius = 74.0
+color = Color(1, 0.42, 0.42, 1)
+
+[node name="Skill1Button" type="TouchScreenButton" parent="Controls"]
+unique_name_in_owner = true
+position = Vector2(-300, -84)
+action = "skill_1"
+script = ExtResource("5_button")
+radius = 46.0
+
+[node name="Skill2Button" type="TouchScreenButton" parent="Controls"]
+unique_name_in_owner = true
+position = Vector2(-272, -238)
+action = "skill_2"
+script = ExtResource("5_button")
+radius = 46.0
+
+[node name="Skill3Button" type="TouchScreenButton" parent="Controls"]
+unique_name_in_owner = true
+position = Vector2(-130, -306)
+action = "skill_3"
+script = ExtResource("5_button")
+radius = 46.0
+
+[node name="QuickItemButton" type="TouchScreenButton" parent="Controls"]
+unique_name_in_owner = true
+position = Vector2(-430, -70)
+action = "quick_item"
+script = ExtResource("5_button")
+radius = 38.0

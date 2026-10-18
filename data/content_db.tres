@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="ContentDB" load_steps=31 format=3]
+
+[ext_resource type="Resource" path="res://data/dungeon/dungeon_config.tres" id="1_717q4"]
+[ext_resource type="Script" path="res://src/definitions/items/item_def.gd" id="2_lriu4"]
+[ext_resource type="Resource" path="res://data/items/weapons/dagger.tres" id="3_xqouf"]
+[ext_resource type="Resource" path="res://data/items/weapons/spear.tres" id="4_688d4"]
+[ext_resource type="Resource" path="res://data/items/weapons/war_axe.tres" id="5_mw7ec"]
+[ext_resource type="Resource" path="res://data/items/weapons/short_bow.tres" id="6_q2vv8"]
+[ext_resource type="Resource" path="res://data/items/weapons/crossbow.tres" id="7_cewcx"]
+[ext_resource type="Resource" path="res://data/items/weapons/ember_staff.tres" id="8_kwdc3"]
+[ext_resource type="Resource" path="res://data/items/armors/leather_cap.tres" id="9_7ya5d"]
+[ext_resource type="Resource" path="res://data/items/armors/iron_helm.tres" id="10_pbmnr"]
+[ext_resource type="Resource" path="res://data/items/armors/leather_armor.tres" id="11_m0rk7"]
+[ext_resource type="Resource" path="res://data/items/armors/chain_mail.tres" id="12_ecbkd"]
+[ext_resource type="Resource" path="res://data/items/armors/shadow_cloak.tres" id="13_m5vms"]
+[ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="14_8li55"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="15_ng0jj"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="16_te2ty"]
+[ext_resource type="Resource" path="res://data/items/consumables/bomb.tres" id="17_prpil"]
+[ext_resource type="Resource" path="res://data/items/consumables/fire_scroll.tres" id="18_q2763"]
+[ext_resource type="Resource" path="res://data/items/consumables/rage_elixir.tres" id="19_3wmne"]
+[ext_resource type="Resource" path="res://data/items/consumables/haste_draught.tres" id="20_rjx6h"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="21_h0egv"]
+[ext_resource type="Resource" path="res://data/monsters/rat.tres" id="22_hbtgr"]
+[ext_resource type="Resource" path="res://data/monsters/slime.tres" id="23_jjy75"]
+[ext_resource type="Resource" path="res://data/monsters/goblin.tres" id="24_lnxyg"]
+[ext_resource type="Resource" path="res://data/monsters/skeleton_archer.tres" id="25_vfprf"]
+[ext_resource type="Resource" path="res://data/monsters/goblin_shaman.tres" id="26_nlt3e"]
+[ext_resource type="Resource" path="res://data/monsters/orc_brute.tres" id="27_7cyc7"]
+[ext_resource type="Resource" path="res://data/monsters/wraith.tres" id="28_2j2up"]
+[ext_resource type="Resource" path="res://data/player/player_def.tres" id="29_urwiy"]
+[ext_resource type="Script" path="res://src/definitions/content_db.gd" id="30_sw1r8"]
+
+[resource]
+script = ExtResource("30_sw1r8")
+player = ExtResource("29_urwiy")
+dungeon = ExtResource("1_717q4")
+monsters = Array[ExtResource("21_h0egv")]([ExtResource("22_hbtgr"), ExtResource("23_jjy75"), ExtResource("24_lnxyg"), ExtResource("25_vfprf"), ExtResource("26_nlt3e"), ExtResource("27_7cyc7"), ExtResource("28_2j2up")])
+items = Array[ExtResource("2_lriu4")]([ExtResource("3_xqouf"), ExtResource("4_688d4"), ExtResource("5_mw7ec"), ExtResource("6_q2vv8"), ExtResource("7_cewcx"), ExtResource("8_kwdc3"), ExtResource("9_7ya5d"), ExtResource("10_pbmnr"), ExtResource("11_m0rk7"), ExtResource("12_ecbkd"), ExtResource("13_m5vms"), ExtResource("14_8li55"), ExtResource("15_ng0jj"), ExtResource("16_te2ty"), ExtResource("17_prpil"), ExtResource("18_q2763"), ExtResource("19_3wmne"), ExtResource("20_rjx6h")])

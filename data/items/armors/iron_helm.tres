@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ArmorDef" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_ygn1m"]
+[ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="2_08hwp"]
+
+[sub_resource type="Resource" id="Resource_lw5uy"]
+script = ExtResource("1_ygn1m")
+max_hp = 10
+defense = 2
+
+[resource]
+script = ExtResource("2_08hwp")
+slot = 1
+bonuses = SubResource("Resource_lw5uy")
+id = &"iron_helm"
+display_name = "Iron Helm"
+description = "Solid and heavy."
+glyph = "^"
+color = Color(0.6784314, 0.70980394, 0.7411765, 1)
+min_depth = 3
+spawn_weight = 4

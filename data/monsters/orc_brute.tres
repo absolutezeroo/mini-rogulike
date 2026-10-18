@@ -1,0 +1,68 @@
+[gd_resource type="Resource" script_class="MonsterDef" load_steps=20 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="1_2flcl"]
+[ext_resource type="Resource" path="res://data/items/armors/chain_mail.tres" id="2_ggapl"]
+[ext_resource type="Resource" path="res://data/items/weapons/war_axe.tres" id="3_parqd"]
+[ext_resource type="Resource" path="res://data/items/armors/iron_helm.tres" id="4_txvav"]
+[ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="5_nvkxu"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="6_n6bpc"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="7_fjwti"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="8_53j5b"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_mmeo6"]
+[ext_resource type="Resource" path="res://data/skills/monster/war_cry.tres" id="10_qqetv"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_gfsjm"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/orc_club.tres" id="12_7j54x"]
+
+[sub_resource type="Resource" id="Resource_4dkts"]
+script = ExtResource("1_2flcl")
+item = ExtResource("2_ggapl")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_ss0gy"]
+script = ExtResource("1_2flcl")
+item = ExtResource("3_parqd")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_cswip"]
+script = ExtResource("1_2flcl")
+item = ExtResource("4_txvav")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_gcvby"]
+script = ExtResource("1_2flcl")
+item = ExtResource("5_nvkxu")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_7djcn"]
+script = ExtResource("1_2flcl")
+item = ExtResource("6_n6bpc")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_4pg75"]
+script = ExtResource("7_fjwti")
+drop_chance = 0.5
+entries = Array[ExtResource("1_2flcl")]([SubResource("Resource_4dkts"), SubResource("Resource_ss0gy"), SubResource("Resource_cswip"), SubResource("Resource_gcvby"), SubResource("Resource_7djcn")])
+
+[sub_resource type="Resource" id="Resource_lxk85"]
+script = ExtResource("11_gfsjm")
+max_hp = 60
+defense = 3
+move_speed = 70.0
+
+[resource]
+script = ExtResource("8_53j5b")
+stats = SubResource("Resource_lxk85")
+weapon = ExtResource("12_7j54x")
+skills = Array[ExtResource("9_mmeo6")]([ExtResource("10_qqetv")])
+radius = 16.0
+attack_windup = 0.7
+attack_recovery = 0.6
+xp_reward = 20
+loot = SubResource("Resource_4pg75")
+id = &"orc_brute"
+display_name = "Orc Brute"
+description = "Huge, slow, hits like a truck. Watch the wind-up."
+glyph = "O"
+color = Color(0.34509805, 0.5058824, 0.34117648, 1)
+min_depth = 4
+spawn_weight = 6

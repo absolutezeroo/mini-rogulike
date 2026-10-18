@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="MonsterDef" load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="1_1ewkp"]
+[ext_resource type="Resource" path="res://data/items/consumables/fire_scroll.tres" id="2_lghh6"]
+[ext_resource type="Resource" path="res://data/items/weapons/ember_staff.tres" id="3_jbjqu"]
+[ext_resource type="Resource" path="res://data/items/consumables/rage_elixir.tres" id="4_1133d"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="5_ds1l8"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="6_swf06"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="7_igtpq"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_d3s0f"]
+[ext_resource type="Resource" path="res://data/skills/monster/shaman_heal.tres" id="9_nl5de"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_ha4qx"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/shaman_bolt.tres" id="11_al0yb"]
+
+[sub_resource type="Resource" id="Resource_m7gmb"]
+script = ExtResource("1_1ewkp")
+item = ExtResource("2_lghh6")
+weight = 4
+
+[sub_resource type="Resource" id="Resource_pd0i1"]
+script = ExtResource("1_1ewkp")
+item = ExtResource("3_jbjqu")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_mcvvi"]
+script = ExtResource("1_1ewkp")
+item = ExtResource("4_1133d")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_40rsh"]
+script = ExtResource("1_1ewkp")
+item = ExtResource("5_ds1l8")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_lgufg"]
+script = ExtResource("6_swf06")
+drop_chance = 0.4
+entries = Array[ExtResource("1_1ewkp")]([SubResource("Resource_m7gmb"), SubResource("Resource_pd0i1"), SubResource("Resource_mcvvi"), SubResource("Resource_40rsh")])
+
+[sub_resource type="Resource" id="Resource_44kjn"]
+script = ExtResource("10_ha4qx")
+max_hp = 22
+move_speed = 85.0
+
+[resource]
+script = ExtResource("7_igtpq")
+stats = SubResource("Resource_44kjn")
+weapon = ExtResource("11_al0yb")
+skills = Array[ExtResource("8_d3s0f")]([ExtResource("9_nl5de")])
+radius = 11.0
+detect_radius = 300.0
+attack_windup = 0.6
+attack_recovery = 0.4
+keep_distance = 180.0
+xp_reward = 12
+loot = SubResource("Resource_lgufg")
+id = &"goblin_shaman"
+display_name = "Goblin Shaman"
+description = "Casts hexes and heals itself."
+glyph = "G"
+color = Color(0.7019608, 0.53333336, 0.92156863, 1)
+min_depth = 3
+spawn_weight = 6

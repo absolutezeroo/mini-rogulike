@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="MonsterDef" load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="1_eu2rj"]
+[ext_resource type="Resource" path="res://data/items/armors/shadow_cloak.tres" id="2_t23kn"]
+[ext_resource type="Resource" path="res://data/items/consumables/rage_elixir.tres" id="3_3n03t"]
+[ext_resource type="Resource" path="res://data/items/weapons/crossbow.tres" id="4_dh3mh"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="5_3ktfs"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="6_onesl"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="7_ljfmr"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_3xvhp"]
+[ext_resource type="Resource" path="res://data/skills/monster/blink.tres" id="9_8oe26"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_faoiy"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/wraith_claw.tres" id="11_5nycl"]
+
+[sub_resource type="Resource" id="Resource_700d3"]
+script = ExtResource("1_eu2rj")
+item = ExtResource("2_t23kn")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_w57gx"]
+script = ExtResource("1_eu2rj")
+item = ExtResource("3_3n03t")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_pr7g5"]
+script = ExtResource("1_eu2rj")
+item = ExtResource("4_dh3mh")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_0kln1"]
+script = ExtResource("1_eu2rj")
+item = ExtResource("5_3ktfs")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_rsp0s"]
+script = ExtResource("6_onesl")
+drop_chance = 0.4
+entries = Array[ExtResource("1_eu2rj")]([SubResource("Resource_700d3"), SubResource("Resource_w57gx"), SubResource("Resource_pr7g5"), SubResource("Resource_0kln1")])
+
+[sub_resource type="Resource" id="Resource_opsay"]
+script = ExtResource("10_faoiy")
+max_hp = 30
+defense = 1
+move_speed = 120.0
+crit_chance = 0.1
+
+[resource]
+script = ExtResource("7_ljfmr")
+stats = SubResource("Resource_opsay")
+weapon = ExtResource("11_5nycl")
+skills = Array[ExtResource("8_3xvhp")]([ExtResource("9_8oe26")])
+radius = 11.0
+detect_radius = 300.0
+attack_windup = 0.3
+xp_reward = 16
+loot = SubResource("Resource_rsp0s")
+id = &"wraith"
+display_name = "Wraith"
+description = "Blinks towards you out of nowhere."
+glyph = "W"
+color = Color(0.6039216, 0.81960785, 0.83137256, 1)
+min_depth = 4
+spawn_weight = 5

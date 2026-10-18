@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="MonsterDef" load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="1_bmyh7"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="2_eq5tu"]
+[ext_resource type="Resource" path="res://data/items/weapons/dagger.tres" id="3_mkjxp"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="4_xj14y"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="5_rhken"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="6_2cht0"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="7_7rf2c"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/rat_bite.tres" id="8_8awh6"]
+
+[sub_resource type="Resource" id="Resource_mw2wu"]
+script = ExtResource("1_bmyh7")
+item = ExtResource("2_eq5tu")
+
+[sub_resource type="Resource" id="Resource_v46om"]
+script = ExtResource("1_bmyh7")
+item = ExtResource("3_mkjxp")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_eodk3"]
+script = ExtResource("4_xj14y")
+drop_chance = 0.15
+entries = Array[ExtResource("1_bmyh7")]([SubResource("Resource_mw2wu"), SubResource("Resource_v46om")])
+
+[sub_resource type="Resource" id="Resource_hqlxc"]
+script = ExtResource("7_7rf2c")
+max_hp = 10
+move_speed = 125.0
+
+[resource]
+script = ExtResource("5_rhken")
+stats = SubResource("Resource_hqlxc")
+weapon = ExtResource("8_8awh6")
+radius = 9.0
+detect_radius = 220.0
+attack_windup = 0.25
+attack_recovery = 0.25
+xp_reward = 3
+loot = SubResource("Resource_eodk3")
+id = &"rat"
+display_name = "Giant Rat"
+description = "Fast and weak. Comes in numbers."
+glyph = "r"
+color = Color(0.6509804, 0.5411765, 0.39215687, 1)
+spawn_weight = 12
