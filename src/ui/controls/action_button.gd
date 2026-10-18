@@ -42,15 +42,20 @@ func _ready() -> void:
 	released.connect(queue_redraw)
 
 
+const BASE: Texture2D = preload("res://assets/ui/sphere/backgroundwood.png")
+const BASE_PRESSED: Texture2D = preload("res://assets/ui/sphere/backgroundiron.png")
+
+
 func _draw() -> void:
 	var size := Vector2(radius, radius) * 2.0
-	var base := UiAtlas.large(UiAtlas.ROUND_BUTTON_PRESSED if is_pressed() else UiAtlas.ROUND_BUTTON)
-	var tint := color.lerp(Color.WHITE, 0.35)
-	tint.a = 0.85
-	draw_texture_rect(base, Rect2(-size * 0.5, size), false, tint)
+	var tint := color.lerp(Color.WHITE, 0.55)
+	tint.a = 0.9
+	draw_texture_rect(BASE_PRESSED if is_pressed() else BASE, Rect2(-size * 0.5, size), false, tint)
 
 	if icon:
-		var icon_size := Vector2(radius, radius) * 1.1
+		# Pixel icons: scale by a whole number so pixels stay square.
+		var icon_scale := maxf(1.0, floorf(radius * 1.1 / maxf(icon.get_width(), icon.get_height())))
+		var icon_size := icon.get_size() * icon_scale
 		var offset := Vector2(0, 2) if is_pressed() else Vector2.ZERO
 		draw_texture_rect(icon, Rect2(-icon_size * 0.5 + offset, icon_size), false, icon_tint)
 	elif not label.is_empty():
@@ -58,7 +63,7 @@ func _draw() -> void:
 		var font_size := 16 if radius < 60.0 else 24
 		var text_size := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
 		var pos := Vector2(-text_size.x * 0.5, font_size * 0.35)
-		draw_string_outline(font, pos, label, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 6, Color("3f2631"))
+		draw_string_outline(font, pos, label, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 6, Color("2b1d24"))
 		draw_string(font, pos, label, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color.WHITE)
 
 	if cooldown_ratio > 0.01:
@@ -66,12 +71,13 @@ func _draw() -> void:
 		var steps := 32
 		for i in steps + 1:
 			var angle := -PI * 0.5 + TAU * cooldown_ratio * i / steps
-			points.append(Vector2.from_angle(angle) * (radius - 4.0))
-		draw_colored_polygon(points, Color(0.1, 0.05, 0.08, 0.6))
+			points.append(Vector2.from_angle(angle) * (radius - 6.0))
+		draw_colored_polygon(points, Color(0.08, 0.04, 0.06, 0.65))
 
 	if counter >= 0:
 		var badge := Vector2(radius * 0.7, -radius * 0.7)
-		draw_texture_rect(UiAtlas.small(80), Rect2(badge - Vector2(14, 14), Vector2(28, 28)), false)
+		draw_circle(badge, 14.0, Color("2b1d24"))
+		draw_circle(badge, 14.0, Color("e9a85a"), false, 2.0)
 		var count_text := str(counter)
 		var count_size := Fonts.MAIN.get_string_size(count_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 16)
 		draw_string(Fonts.MAIN, badge + Vector2(-count_size.x * 0.5, 6.0), count_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color.WHITE)

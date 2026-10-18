@@ -12,6 +12,8 @@ extends Effect
 @export var color: Color = Color(1.0, 0.8, 0.3)
 ## Fire, smoke and screen shake instead of a simple ring.
 @export var explosive: bool = false
+## Effect sheet (frames in a row) played on the area, e.g. a circular slash.
+@export var fx: Texture2D
 
 
 func apply(user: Actor, aim: Vector2) -> void:
@@ -20,6 +22,7 @@ func apply(user: Actor, aim: Vector2) -> void:
 	Combat.damage_area(user.world, user, center, radius, base, knockback)
 	if explosive:
 		Vfx.explosion(user.world, center, radius)
+	elif fx:
+		user.world.spawn_vfx(SheetVfx.create(fx, center, 0.0, radius * 2.0 / fx.get_height()))
 	else:
 		user.world.spawn_vfx(RingVfx.create(center, radius, color))
-		user.world.spawn_vfx(SlashVfx.create(center, aim, radius, 360.0, color))

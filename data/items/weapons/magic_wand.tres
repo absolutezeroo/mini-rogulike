@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="SpriteFrames" path="res://data/visuals/weapons/magic_wand.tres" id="1_u8taf"]
+[ext_resource type="AudioStream" path="res://data/audio/magic.tres" id="2_4ppbn"]
+[ext_resource type="Texture2D" path="res://assets/weapons/magic_wand.png" id="3_12kch"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/energyball.png" id="4_q53vu"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="5_86yvw"]
+
+[resource]
+script = ExtResource("5_86yvw")
+kind = 1
+cooldown = 0.4
+reach = 420.0
+attack_animation = 3
+attack_frames = ExtResource("1_u8taf")
+attack_sound = ExtResource("2_4ppbn")
+projectile_texture = ExtResource("4_q53vu")
+projectile_speed = 520.0
+projectile_radius = 6.0
+slot = 0
+id = &"magic_wand"
+display_name = "Spark Wand"
+description = "Fires quick magic sparks."
+icon = ExtResource("3_12kch")
+glyph = "S"
+color = Color(0.47843137, 0.827451, 1, 1)
+spawn_weight = 6

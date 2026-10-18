@@ -58,7 +58,9 @@ func _draw() -> void:
 	glow.a = 0.18 + 0.08 * sin(_time * 4.0)
 	draw_circle(bob, 14.0, glow)
 	if item.icon:
-		var size := item.icon.get_size() * Actor.SPRITE_SCALE
+		# Small item sprites at 2x like the rest of the art; bigger UI-style icons at 1x.
+		var icon_scale := Actor.SPRITE_SCALE if maxf(item.icon.get_width(), item.icon.get_height()) <= 18.0 else 1.0
+		var size := item.icon.get_size() * icon_scale
 		draw_texture_rect(item.icon, Rect2(bob - size * 0.5, size), false, item.icon_tint)
 	else:
 		var font := Fonts.MAIN

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/fx/claw.png" id="1_bte2e"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="2_kb3y8"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="3_dpq6u"]
+
+[resource]
+script = ExtResource("3_dpq6u")
+damage = 3
+cooldown = 0.9
+reach = 14.0
+knockback = 60.0
+attack_fx = ExtResource("1_bte2e")
+arc_degrees = 90.0
+attack_sound = ExtResource("2_kb3y8")
+slot = 0
+id = &"bite"
+display_name = "Bite"
+glyph = "B"
+color = Color(0.6509804, 0.5411765, 0.39215687, 1)
+spawn_weight = 0

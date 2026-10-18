@@ -1,12 +1,8 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
 [ext_resource type="AudioStream" path="res://data/audio/bolt.tres" id="1_ouls4"]
-[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="2_vx8a8"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/shurikenmagic.png" id="2_vx8a8"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="3_vucee"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_u87cl"]
-atlas = ExtResource("2_vx8a8")
-region = Rect2(160, 160, 16, 16)
 
 [resource]
 script = ExtResource("3_vucee")
@@ -14,16 +10,14 @@ kind = 1
 damage = 6
 cooldown = 1.8
 reach = 360.0
-knockback = 90.0
+attack_animation = 3
 attack_sound = ExtResource("1_ouls4")
+projectile_texture = ExtResource("2_vx8a8")
 projectile_speed = 260.0
 projectile_radius = 7.0
 slot = 0
 id = &"hex_staff"
 display_name = "Hex Bolt"
-icon = SubResource("AtlasTexture_u87cl")
-icon_tint = Color(0.8, 0.5, 1, 1)
-glyph = "*"
-color = Color(0.78039217, 0.49019608, 1, 1)
+glyph = "H"
+color = Color(1, 0.48235294, 0.32941177, 1)
 spawn_weight = 0
-attack_animation = 3

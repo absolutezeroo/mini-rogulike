@@ -1,52 +1,55 @@
 [gd_resource type="Resource" script_class="MonsterDef" format=3]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="1_eq5tu"]
-[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="2_mkjxp"]
-[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="3_xj14y"]
-[ext_resource type="Resource" path="res://data/items/weapons/dagger.tres" id="4_rhken"]
-[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="5_2cht0"]
-[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="6_7rf2c"]
-[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_8awh6"]
-[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="8_mw2wu"]
-[ext_resource type="Resource" path="res://data/items/weapons/monster/rat_bite.tres" id="9_v46om"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/rat.tres" id="1_mkjxp"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/rat.png" id="2_xj14y"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="3_rhken"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="4_2cht0"]
+[ext_resource type="Resource" path="res://data/items/weapons/sai.tres" id="5_7rf2c"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="6_8awh6"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="7_mw2wu"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_v46om"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="9_eodk3"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/bite.tres" id="10_hqlxc"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_eodk3"]
-atlas = ExtResource("1_eq5tu")
-region = Rect2(48, 160, 16, 16)
-
-[sub_resource type="Resource" id="Resource_hqlxc"]
-script = ExtResource("2_mkjxp")
-item = ExtResource("3_xj14y")
+[sub_resource type="AtlasTexture" id="AtlasTexture_bnwhf"]
+atlas = ExtResource("2_xj14y")
+region = Rect2(0, 0, 16, 16)
 
 [sub_resource type="Resource" id="Resource_vnalh"]
-script = ExtResource("2_mkjxp")
-item = ExtResource("4_rhken")
-weight = 2
+script = ExtResource("3_rhken")
+item = ExtResource("4_2cht0")
 
 [sub_resource type="Resource" id="Resource_ri0ee"]
-script = ExtResource("5_2cht0")
-drop_chance = 0.15
-entries = Array[ExtResource("2_mkjxp")]([SubResource("Resource_hqlxc"), SubResource("Resource_vnalh")])
+script = ExtResource("3_rhken")
+item = ExtResource("5_7rf2c")
+weight = 2
 
 [sub_resource type="Resource" id="Resource_gx67v"]
-script = ExtResource("8_mw2wu")
+script = ExtResource("6_8awh6")
+drop_chance = 0.15
+entries = Array[ExtResource("3_rhken")]([SubResource("Resource_vnalh"), SubResource("Resource_ri0ee")])
+
+[sub_resource type="Resource" id="Resource_fiwct"]
+script = ExtResource("9_eodk3")
 max_hp = 10
 move_speed = 125.0
 
 [resource]
-script = ExtResource("6_7rf2c")
-stats = SubResource("Resource_gx67v")
-weapon = ExtResource("9_v46om")
+script = ExtResource("7_mw2wu")
+stats = SubResource("Resource_fiwct")
+weapon = ExtResource("10_hqlxc")
 radius = 9.0
+frames = ExtResource("1_mkjxp")
+frames_offset = Vector2(0, -8)
 detect_radius = 220.0
 attack_windup = 0.25
 attack_recovery = 0.25
 xp_reward = 3
-loot = SubResource("Resource_ri0ee")
+loot = SubResource("Resource_gx67v")
 id = &"rat"
-display_name = "Giant Rat"
+display_name = "Cave Mouse"
 description = "Fast and weak. Comes in numbers."
-icon = SubResource("AtlasTexture_eodk3")
-glyph = "r"
+icon = SubResource("AtlasTexture_bnwhf")
+glyph = "C"
 color = Color(0.6509804, 0.5411765, 0.39215687, 1)
 spawn_weight = 12

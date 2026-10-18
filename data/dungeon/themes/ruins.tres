@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="DungeonTheme" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="1_se2r6"]
+[ext_resource type="Texture2D" path="res://assets/tiles/interior_floor.png" id="2_5qbir"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/dungeon.ogg" id="3_i3780"]
+[ext_resource type="Script" path="res://src/definitions/dungeon_theme.gd" id="4_a6tc8"]
+[ext_resource type="Texture2D" path="res://assets/tiles/dungeon.png" id="5_e5cvi"]
+[ext_resource type="Texture2D" path="res://assets/tiles/relief.png" id="6_vc6jx"]
+
+[resource]
+script = ExtResource("4_a6tc8")
+tint = Color(1, 0.92, 0.85, 1)
+music = ExtResource("3_i3780")
+floor_atlas = ExtResource("2_5qbir")
+floor_tiles = PackedInt32Array(166, 166, 166, 168)
+decor_atlas = ExtResource("1_se2r6")
+decor_tiles = PackedInt32Array(4, 5, 6, 7, 13, 14, 15)
+decor_chance = 0.04
+wall_atlas = ExtResource("6_vc6jx")
+wall_top_color = Color(1, 0.79607844, 0.5529412, 1)
+stairs_atlas = ExtResource("5_e5cvi")

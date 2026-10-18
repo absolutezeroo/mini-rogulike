@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_ben6g"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="2_umncj"]
 [ext_resource type="Script" path="res://src/definitions/effects/buff_effect.gd" id="3_kd7xq"]
-[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="4_r8406"]
+[ext_resource type="Texture2D" path="res://assets/items/milkpot.png" id="4_r8406"]
 [ext_resource type="Script" path="res://src/definitions/items/consumable_def.gd" id="5_uvvcw"]
 [ext_resource type="AudioStream" path="res://data/audio/buff.tres" id="6_pu4jm"]
 
@@ -18,10 +18,6 @@ bonuses = SubResource("Resource_cyu0t")
 duration = 8.0
 color = Color(0.9372549, 0.2784314, 0.43529412, 1)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_xbrao"]
-atlas = ExtResource("4_r8406")
-region = Rect2(96, 160, 16, 16)
-
 [resource]
 script = ExtResource("5_uvvcw")
 effects = Array[ExtResource("1_ben6g")]([SubResource("Resource_u4etc")])
@@ -29,8 +25,9 @@ sound = ExtResource("6_pu4jm")
 id = &"rage_elixir"
 display_name = "Elixir of Rage"
 description = "+5 ATK and +15% crit for 8 seconds."
-icon = SubResource("AtlasTexture_xbrao")
-glyph = "!"
+icon = ExtResource("4_r8406")
+icon_tint = Color(1, 0.55, 0.55, 1)
+glyph = "E"
 color = Color(0.94509804, 0.35686275, 0.70980394, 1)
 min_depth = 2
 spawn_weight = 4

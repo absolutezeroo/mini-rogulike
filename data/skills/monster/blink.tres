@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_ttfka"]
 [ext_resource type="Script" path="res://src/definitions/effects/dash_effect.gd" id="2_bxy3w"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_1iaai"]
-[ext_resource type="AudioStream" path="res://data/audio/dash.tres" id="4_gdygr"]
+[ext_resource type="AudioStream" path="res://data/audio/spirit.tres" id="4_gdygr"]
 
 [sub_resource type="Resource" id="Resource_qq6me"]
 script = ExtResource("2_bxy3w")

@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="ArmorDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_vdxp6"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/chest_armor.png" id="2_d1dkw"]
+[ext_resource type="Texture2D" path="res://assets/items/armor.png" id="2_d1dkw"]
 [ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="3_l6en4"]
 
 [sub_resource type="Resource" id="Resource_dyygk"]
@@ -17,8 +17,8 @@ id = &"shadow_cloak"
 display_name = "Shadow Cloak"
 description = "Move fast, strike true."
 icon = ExtResource("2_d1dkw")
-icon_tint = Color(0.72, 0.5, 1, 1)
-glyph = "["
-color = Color(0.48235294, 0.17254902, 0.7490196, 1)
+icon_tint = Color(0.75, 0.55, 1, 1)
+glyph = "S"
+color = Color(0.6156863, 0.30588236, 0.8666667, 1)
 min_depth = 3
 spawn_weight = 3

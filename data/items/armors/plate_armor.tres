@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="ArmorDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_xtjqw"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/chest_armor.png" id="2_xtesj"]
+[ext_resource type="Texture2D" path="res://assets/items/armor.png" id="2_xtesj"]
 [ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="3_uqsin"]
 
 [sub_resource type="Resource" id="Resource_a2kbh"]
@@ -18,7 +18,7 @@ display_name = "Plate Armor"
 description = "A walking fortress."
 icon = ExtResource("2_xtesj")
 icon_tint = Color(1, 0.95, 0.75, 1)
-glyph = "["
+glyph = "P"
 color = Color(0.9137255, 0.9254902, 0.9372549, 1)
 min_depth = 5
 spawn_weight = 2

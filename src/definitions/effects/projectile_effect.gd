@@ -15,6 +15,8 @@ extends Effect
 ## Greater than 0: the projectile explodes on impact and hits everything around.
 @export var explosion_radius: float = 0.0
 @export var color: Color = Color(1.0, 0.5, 0.2)
+## Sprite (or frames in a row) of the projectile. Without one, a glowing dot is drawn.
+@export var texture: Texture2D
 
 
 func apply(user: Actor, aim: Vector2) -> void:
@@ -29,4 +31,5 @@ func apply(user: Actor, aim: Vector2) -> void:
 	spec.knockback = knockback
 	spec.explosion_radius = explosion_radius
 	spec.color = color
+	spec.texture = texture
 	user.world.fire_projectiles(user, aim, spec)

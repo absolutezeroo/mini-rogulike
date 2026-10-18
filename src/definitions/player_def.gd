@@ -3,7 +3,8 @@ extends Resource
 ## Starting setup and progression of the player character.
 
 @export var display_name: String = "Hero"
-@export var sprite: Texture2D
+@export var frames: SpriteFrames
+@export var frames_offset: Vector2 = Vector2(0, -9)
 @export var color: Color = Color("4fd1c5")
 @export var radius: float = 11.0
 @export var base_stats: StatBlock

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_nf1kg"]
 [ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="2_lrfgs"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/bomb.png" id="3_2ayt1"]
+[ext_resource type="Texture2D" path="res://assets/items/bomb.png" id="3_2ayt1"]
 [ext_resource type="Script" path="res://src/definitions/items/consumable_def.gd" id="4_caecy"]
 
 [sub_resource type="Resource" id="Resource_1hy1o"]
@@ -11,7 +11,6 @@ radius = 110.0
 damage_multiplier = 0.0
 flat_damage = 25
 knockback = 350.0
-color = Color(1, 0.62352943, 0.10980392, 1)
 explosive = true
 
 [resource]
@@ -21,7 +20,7 @@ id = &"bomb"
 display_name = "Bomb"
 description = "Explodes around you. Deals 25 damage."
 icon = ExtResource("3_2ayt1")
-glyph = "o"
+glyph = "B"
 color = Color(1, 0.62352943, 0.10980392, 1)
 min_depth = 2
 spawn_weight = 5

@@ -30,7 +30,6 @@ static func melee_strike(attacker: Actor, direction: Vector2, weapon: WeaponDef)
 	var world := attacker.world
 	var reach := attacker.radius + weapon.reach
 	var half_arc := deg_to_rad(weapon.arc_degrees) * 0.5
-	world.spawn_vfx(SlashVfx.create(attacker.global_position, direction, reach, weapon.arc_degrees, attacker.body_color.lightened(0.4)))
 
 	for target in world.get_hostiles(attacker.faction):
 		var to_target := target.global_position - attacker.global_position
@@ -71,4 +70,5 @@ static func spec_from_weapon(attacker: Actor, weapon: WeaponDef) -> ProjectileSp
 	spec.pierce = weapon.pierce
 	spec.knockback = weapon.knockback
 	spec.color = weapon.color
+	spec.texture = weapon.projectile_texture
 	return spec

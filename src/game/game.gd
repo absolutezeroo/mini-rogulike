@@ -63,6 +63,8 @@ func _unhandled_input(event: InputEvent) -> void:
 func _enter_floor() -> void:
 	world.build_floor(depth, content)
 	world.place_player(player)
+	if world.theme:
+		Sfx.play_music(world.theme.music)
 	Events.depth_changed.emit(depth)
 	Events.log_message("Depth %d. Find the stairs!" % depth, Color("ffd166"))
 

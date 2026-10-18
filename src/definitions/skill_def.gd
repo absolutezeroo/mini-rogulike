@@ -8,6 +8,7 @@ extends Resource
 @export_multiline var description: String
 ## Very short text drawn on the skill button.
 @export var short_label: String = "SK"
+@export var icon: Texture2D
 @export var color: Color = Color.WHITE
 @export var cooldown: float = 6.0
 @export var effects: Array[Effect] = []

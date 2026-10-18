@@ -30,7 +30,8 @@ func setup(player_def: PlayerDef) -> void:
 	free_on_death = false
 	display_name = def.display_name
 	body_color = def.color
-	sprite = def.sprite
+	frames = def.frames
+	frames_offset = def.frames_offset
 	set_body_radius(def.radius)
 	collision_layer = Layers.PLAYER
 	collision_mask = Layers.WORLD | Layers.MONSTERS
@@ -197,8 +198,7 @@ func gain_xp(amount: int) -> void:
 		health_changed.emit(hp, get_max_hp())
 		Events.log_message("Level up! You are now level %d" % level, Color("ffd166"))
 		world.spawn_floating_text(head_position() + Vector2(0, -10), "LEVEL UP", Color("ffd166"))
-		world.spawn_vfx(RingVfx.create(global_position, 70.0, Color("ffd166")))
-		Vfx.sparkles(world, global_position, Color("ffd166"))
+		Vfx.magic(world, global_position, Color("ffd166"))
 		Sfx.play_ui(Sfx.bank.level_up)
 	xp_changed.emit(xp, xp_to_next_level(), level)
 

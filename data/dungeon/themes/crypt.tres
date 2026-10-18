@@ -1,15 +1,33 @@
 [gd_resource type="Resource" script_class="DungeonTheme" format=3]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="1_27hi3"]
-[ext_resource type="Script" path="res://src/definitions/dungeon_theme.gd" id="2_07j2e"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="1_i7j6o"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor.png" id="2_178nh"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/crypt.ogg" id="3_f8yeq"]
+[ext_resource type="Script" path="res://src/definitions/dungeon_theme.gd" id="4_krtwc"]
+[ext_resource type="Texture2D" path="res://assets/tiles/dungeon.png" id="5_0mvvr"]
+[ext_resource type="Texture2D" path="res://assets/tiles/relief.png" id="6_irmas"]
 
 [resource]
-script = ExtResource("2_07j2e")
-atlas = ExtResource("1_27hi3")
-tint = Color(0.7, 0.78, 1, 1)
-floor_tiles = PackedInt32Array(48)
-floor_decor_tiles = PackedInt32Array(42, 49)
-floor_decor_chance = 0.12
-wall_face_tiles = PackedInt32Array(40)
-wall_face_decor_tiles = PackedInt32Array(28, 14)
-wall_top_decor_tiles = PackedInt32Array(12, 24)
+script = ExtResource("4_krtwc")
+tint = Color(0.82, 0.86, 1, 1)
+music = ExtResource("3_f8yeq")
+floor_atlas = ExtResource("2_178nh")
+floor_tiles = PackedInt32Array(429, 430, 431, 432, 433)
+decor_atlas = ExtResource("1_i7j6o")
+decor_tiles = PackedInt32Array(4, 5, 6, 7, 13, 14, 15)
+decor_chance = 0.04
+wall_atlas = ExtResource("6_irmas")
+wall_top_color = Color(0.9490196, 0.91764706, 0.94509804, 1)
+wall_top_left = 1
+wall_top = 2
+wall_top_right = 3
+wall_left = 21
+wall_center = 22
+wall_right = 23
+wall_bottom_left = 41
+wall_bottom = 42
+wall_bottom_right = 43
+face_left = 44
+face = 45
+face_right = 46
+stairs_atlas = ExtResource("5_0mvvr")

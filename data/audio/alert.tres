@@ -3,7 +3,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/creatures/alert.ogg" id="1_a00wo"]
 
 [resource]
-random_pitch = 1.15
+random_pitch = 1.1
 random_volume_offset_db = 1.0
 streams_count = 1
 stream_0/stream = ExtResource("1_a00wo")

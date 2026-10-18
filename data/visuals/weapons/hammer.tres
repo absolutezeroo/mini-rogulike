@@ -1,0 +1,138 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/weapons/attack/hammer.png" id="1_s7car"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xeb07"]
+atlas = ExtResource("1_s7car")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ytt60"]
+atlas = ExtResource("1_s7car")
+region = Rect2(0, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5gg6q"]
+atlas = ExtResource("1_s7car")
+region = Rect2(0, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bc5tr"]
+atlas = ExtResource("1_s7car")
+region = Rect2(0, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jyogu"]
+atlas = ExtResource("1_s7car")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8aere"]
+atlas = ExtResource("1_s7car")
+region = Rect2(128, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qf80t"]
+atlas = ExtResource("1_s7car")
+region = Rect2(128, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lhu1j"]
+atlas = ExtResource("1_s7car")
+region = Rect2(128, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qfu1p"]
+atlas = ExtResource("1_s7car")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p1eas"]
+atlas = ExtResource("1_s7car")
+region = Rect2(192, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fuoqj"]
+atlas = ExtResource("1_s7car")
+region = Rect2(192, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qtnjd"]
+atlas = ExtResource("1_s7car")
+region = Rect2(192, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uoq3x"]
+atlas = ExtResource("1_s7car")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2drku"]
+atlas = ExtResource("1_s7car")
+region = Rect2(64, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ycbyq"]
+atlas = ExtResource("1_s7car")
+region = Rect2(64, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_26n1u"]
+atlas = ExtResource("1_s7car")
+region = Rect2(64, 192, 64, 64)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xeb07")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ytt60")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5gg6q")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bc5tr")
+}],
+"loop": 0,
+"name": &"attack_down",
+"speed": 14.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jyogu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8aere")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qf80t")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lhu1j")
+}],
+"loop": 0,
+"name": &"attack_left",
+"speed": 14.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qfu1p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p1eas")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fuoqj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qtnjd")
+}],
+"loop": 0,
+"name": &"attack_right",
+"speed": 14.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uoq3x")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2drku")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ycbyq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_26n1u")
+}],
+"loop": 0,
+"name": &"attack_up",
+"speed": 14.0
+}]

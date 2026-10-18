@@ -1,0 +1,71 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/sorcerer.tres" id="1_rwa3p"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/sorcerer.png" id="2_1pgqb"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="3_cf017"]
+[ext_resource type="Resource" path="res://data/items/weapons/magic_wand.tres" id="4_40efi"]
+[ext_resource type="Resource" path="res://data/items/weapons/stick.tres" id="5_k50ql"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="6_oivik"]
+[ext_resource type="Resource" path="res://data/items/armors/iron_helm.tres" id="7_jbs8a"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="8_hgjb8"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="9_b87ng"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="10_3084y"]
+[ext_resource type="Resource" path="res://data/skills/monster/volley.tres" id="11_icgja"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="12_1b2gv"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/shadow_staff.tres" id="13_tfprk"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4v1u7"]
+atlas = ExtResource("2_1pgqb")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_24xvs"]
+script = ExtResource("3_cf017")
+item = ExtResource("4_40efi")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_q6lbp"]
+script = ExtResource("3_cf017")
+item = ExtResource("5_k50ql")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_rvyi5"]
+script = ExtResource("3_cf017")
+item = ExtResource("6_oivik")
+weight = 5
+
+[sub_resource type="Resource" id="Resource_grlxr"]
+script = ExtResource("3_cf017")
+item = ExtResource("7_jbs8a")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_x7j7m"]
+script = ExtResource("8_hgjb8")
+drop_chance = 0.35
+entries = Array[ExtResource("3_cf017")]([SubResource("Resource_24xvs"), SubResource("Resource_q6lbp"), SubResource("Resource_rvyi5"), SubResource("Resource_grlxr")])
+
+[sub_resource type="Resource" id="Resource_gxdsf"]
+script = ExtResource("12_1b2gv")
+max_hp = 18
+move_speed = 80.0
+
+[resource]
+script = ExtResource("9_b87ng")
+stats = SubResource("Resource_gxdsf")
+weapon = ExtResource("13_tfprk")
+skills = Array[ExtResource("10_3084y")]([ExtResource("11_icgja")])
+radius = 10.0
+frames = ExtResource("1_rwa3p")
+frames_offset = Vector2(0, -8)
+detect_radius = 320.0
+attack_windup = 0.5
+keep_distance = 160.0
+xp_reward = 9
+loot = SubResource("Resource_x7j7m")
+id = &"sorcerer"
+display_name = "Dark Sorcerer"
+description = "Keeps its distance and throws shadow bolts."
+icon = SubResource("AtlasTexture_4v1u7")
+glyph = "D"
+color = Color(0.7019608, 0.53333336, 0.92156863, 1)
+min_depth = 2
+spawn_weight = 7

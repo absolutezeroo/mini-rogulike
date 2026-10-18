@@ -1,21 +1,23 @@
 [gd_resource type="Resource" script_class="SkillDef" format=3]
 
-[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_0ij3a"]
-[ext_resource type="Script" path="res://src/definitions/effects/dash_effect.gd" id="2_fpsr2"]
-[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_iutog"]
-[ext_resource type="AudioStream" path="res://data/audio/dash.tres" id="4_mbcfi"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_fpsr2"]
+[ext_resource type="Script" path="res://src/definitions/effects/dash_effect.gd" id="2_iutog"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/counter.png" id="3_mbcfi"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_r2jq6"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="5_iptyl"]
 
-[sub_resource type="Resource" id="Resource_r2jq6"]
-script = ExtResource("2_fpsr2")
-duration = 0.15
+[sub_resource type="Resource" id="Resource_kmosl"]
+script = ExtResource("2_iutog")
+duration = 0.18
 
 [resource]
-script = ExtResource("3_iutog")
+script = ExtResource("4_r2jq6")
 id = &"dash"
-display_name = "Dash"
-description = "Quick invulnerable dash in the direction you move."
-short_label = "DASH"
+display_name = "Roll"
+description = "Quick invulnerable roll in the direction you move."
+short_label = "ROLL"
+icon = ExtResource("3_mbcfi")
 color = Color(0.30980393, 0.81960785, 0.77254903, 1)
 cooldown = 1.6
-effects = Array[ExtResource("1_0ij3a")]([SubResource("Resource_r2jq6")])
-sound = ExtResource("4_mbcfi")
+effects = Array[ExtResource("1_fpsr2")]([SubResource("Resource_kmosl")])
+sound = ExtResource("5_iptyl")

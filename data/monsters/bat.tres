@@ -1,53 +1,58 @@
 [gd_resource type="Resource" script_class="MonsterDef" format=3]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="1_sqbt0"]
-[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="2_8eet1"]
-[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="3_geoxi"]
-[ext_resource type="Resource" path="res://data/items/consumables/haste_draught.tres" id="4_gbuch"]
-[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="5_b7x41"]
-[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="6_t8mxg"]
-[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_3r317"]
-[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="8_b2jjr"]
-[ext_resource type="Resource" path="res://data/items/weapons/monster/bat_bite.tres" id="9_86u6v"]
+[ext_resource type="AudioStream" path="res://data/audio/wings.tres" id="1_geoxi"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/bat.tres" id="2_gbuch"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/bat.png" id="3_b7x41"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="4_t8mxg"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="5_3r317"]
+[ext_resource type="Resource" path="res://data/items/consumables/haste_draught.tres" id="6_b2jjr"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="7_86u6v"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="8_e2wfv"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_53uvr"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_5q88n"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/bite.tres" id="11_56nqc"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_e2wfv"]
-atlas = ExtResource("1_sqbt0")
-region = Rect2(0, 160, 16, 16)
-
-[sub_resource type="Resource" id="Resource_53uvr"]
-script = ExtResource("2_8eet1")
-item = ExtResource("3_geoxi")
-weight = 6
-
-[sub_resource type="Resource" id="Resource_5q88n"]
-script = ExtResource("2_8eet1")
-item = ExtResource("4_gbuch")
-weight = 2
-
-[sub_resource type="Resource" id="Resource_56nqc"]
-script = ExtResource("5_b7x41")
-drop_chance = 0.1
-entries = Array[ExtResource("2_8eet1")]([SubResource("Resource_53uvr"), SubResource("Resource_5q88n")])
+[sub_resource type="AtlasTexture" id="AtlasTexture_778km"]
+atlas = ExtResource("3_b7x41")
+region = Rect2(0, 0, 16, 16)
 
 [sub_resource type="Resource" id="Resource_ev24f"]
-script = ExtResource("8_b2jjr")
+script = ExtResource("4_t8mxg")
+item = ExtResource("5_3r317")
+weight = 6
+
+[sub_resource type="Resource" id="Resource_5mpsc"]
+script = ExtResource("4_t8mxg")
+item = ExtResource("6_b2jjr")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_lblpk"]
+script = ExtResource("7_86u6v")
+drop_chance = 0.1
+entries = Array[ExtResource("4_t8mxg")]([SubResource("Resource_ev24f"), SubResource("Resource_5mpsc")])
+
+[sub_resource type="Resource" id="Resource_fcuj1"]
+script = ExtResource("10_5q88n")
 max_hp = 7
 move_speed = 155.0
 
 [resource]
-script = ExtResource("6_t8mxg")
-stats = SubResource("Resource_ev24f")
-weapon = ExtResource("9_86u6v")
+script = ExtResource("8_e2wfv")
+stats = SubResource("Resource_fcuj1")
+weapon = ExtResource("11_56nqc")
 radius = 8.0
+frames = ExtResource("2_gbuch")
+frames_offset = Vector2(0, -8)
 detect_radius = 240.0
 attack_windup = 0.2
 attack_recovery = 0.2
+death_sound = ExtResource("1_geoxi")
 xp_reward = 3
-loot = SubResource("Resource_56nqc")
+loot = SubResource("Resource_lblpk")
 id = &"bat"
-display_name = "Cave Bat"
+display_name = "Blue Bat"
 description = "Fragile, fast and erratic."
-icon = SubResource("AtlasTexture_e2wfv")
-glyph = "b"
-color = Color(0.7372549, 0.5411765, 0.37254903, 1)
+icon = SubResource("AtlasTexture_778km")
+glyph = "B"
+color = Color(0.29803923, 0.7882353, 0.9411765, 1)
 spawn_weight = 8

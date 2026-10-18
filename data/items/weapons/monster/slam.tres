@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/fx/circularslash.png" id="1_ievnt"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="2_4gysj"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="3_ojium"]
+
+[resource]
+script = ExtResource("3_ojium")
+damage = 5
+cooldown = 1.4
+reach = 18.0
+knockback = 220.0
+attack_animation = 2
+attack_fx = ExtResource("1_ievnt")
+arc_degrees = 360.0
+attack_sound = ExtResource("2_4gysj")
+slot = 0
+id = &"slam"
+display_name = "Slam"
+glyph = "S"
+color = Color(0.5019608, 0.92941177, 0.6, 1)
+spawn_weight = 0

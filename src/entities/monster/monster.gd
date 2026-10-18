@@ -19,8 +19,8 @@ func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
 	display_name = def.display_name
 	glyph = def.glyph
 	body_color = def.color
-	sprite = def.icon
-	sprite_tint = def.icon_tint
+	frames = def.frames
+	frames_offset = def.frames_offset
 	set_body_radius(def.radius)
 	collision_layer = Layers.MONSTERS
 	collision_mask = Layers.WORLD | Layers.PLAYER | Layers.MONSTERS

@@ -1,7 +1,7 @@
 [gd_resource type="AudioStreamRandomizer" format=3]
 
-[ext_resource type="AudioStream" path="res://assets/audio/sfx/items/pickup_000.ogg" id="1_q5icr"]
-[ext_resource type="AudioStream" path="res://assets/audio/sfx/items/pickup_001.ogg" id="2_uo4jb"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/items/pickup_0.ogg" id="1_q5icr"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/items/pickup_1.ogg" id="2_uo4jb"]
 
 [resource]
 random_pitch = 1.1

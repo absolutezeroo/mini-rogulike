@@ -5,8 +5,7 @@ extends CanvasLayer
 signal inventory_requested
 
 const SKILL_ACTIONS: Array[StringName] = [&"skill_1", &"skill_2", &"skill_3"]
-const TILESET: Texture2D = preload("res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png")
-const BAG_ICON_REGION := Rect2(80, 112, 16, 16)  # treasure chest
+const BAG_ICON: Texture2D = preload("res://assets/ui/icons/bag.png")
 
 var _player: Player
 
@@ -23,10 +22,7 @@ var _player: Player
 
 func _ready() -> void:
 	%BagButton.pressed.connect(func() -> void: inventory_requested.emit())
-	var bag_icon := AtlasTexture.new()
-	bag_icon.atlas = TILESET
-	bag_icon.region = BAG_ICON_REGION
-	%BagButton.icon = bag_icon
+	%BagButton.icon = BAG_ICON
 	Events.depth_changed.connect(_on_depth_changed)
 	_depth_banner.modulate.a = 0.0
 
@@ -54,6 +50,7 @@ func bind_player(player: Player) -> void:
 		if has_skill:
 			var skill := player.skills.skills[i]
 			button.label = skill.short_label
+			button.icon = skill.icon
 			button.color = skill.color
 
 	_on_health_changed(player.hp, player.get_max_hp())

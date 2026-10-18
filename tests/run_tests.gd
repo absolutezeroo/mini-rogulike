@@ -160,42 +160,48 @@ func _test_gameplay() -> void:
 	await _frames(30)
 
 	# Equip / unequip / drop round trip.
-	var bow: WeaponDef = load("res://data/items/weapons/spark_wand.tres")
+	var bow: WeaponDef = load("res://data/items/weapons/magic_wand.tres")
 	check(player.pick_up(bow), "pick up a bow")
 	player.use_item(bow)
 	check(player.get_weapon() == bow, "bow equipped")
 	check(player.inventory.items.size() > 0, "old weapon went to the bag")
 	player.unequip(EquipmentDef.Slot.WEAPON)
 	check(player.get_weapon() == null, "weapon unequipped")
-	player.use_item(load("res://data/items/weapons/rusty_sword.tres"))
+	player.use_item(load("res://data/items/weapons/katana.tres"))
 	check(player.get_weapon() != null, "re-equipped a weapon")
 	var count := player.inventory.items.size()
 	player.drop_item(bow)
 	check(player.inventory.items.size() == count - 1, "dropped item left the bag")
 	await _frames(5)
 
-	# Animations: the rig plays the right animation for each weapon and faces the target.
+	# Animations: frame-by-frame attack in the aimed direction, weapon in hand synced with the body.
 	var rig := player.rig
 	check(rig != null and rig.visible, "player has a visible rig")
 	player._attack_cooldown = 0.0
 	player.attack(Vector2.LEFT)
-	check(rig.weapon_animator.current_animation == &"slash", "a sword attack plays 'slash'")
-	await _frames(2)
-	check(rig.visual.scale.x < 0.0, "the rig turns toward the attack")
+	check(rig.direction == &"left", "the rig turns toward the attack")
+	check(rig.body.animation == &"attack_left", "the body plays attack_left (got %s)" % rig.body.animation)
+	check(rig.weapon.visible and rig.weapon.animation == &"attack_left", "the katana is drawn in hand, synced")
 	await _frames(40)
-	check(rig.weapon_animator.current_animation == &"rest", "the weapon goes back to rest")
+	check(not rig.weapon.visible, "the weapon is put away after the attack")
+	check(String(rig.body.animation).begins_with("idle") or String(rig.body.animation).begins_with("walk"), "back to idle/walk")
+	player._attack_cooldown = 0.0
+	player.attack(Vector2.UP)
+	check(rig.weapon.get_index() < rig.body.get_index(), "facing up: weapon drawn behind the body")
+	await _frames(40)
 	var rat := world.spawn_monster(load("res://data/monsters/rat.tres"), player.global_position + Vector2(200, 0))
 	await _frames(1)
+	check(rat.rig.body.animation.begins_with("idle") or rat.rig.body.animation.begins_with("walk"), "monsters animate")
 	rat.attack(Vector2.LEFT)
-	check(rat.rig.body_animator.current_animation == &"lunge", "a bite (no weapon sprite) makes the monster lunge")
+	check(not rat.rig.weapon.visible, "a bite shows no weapon sprite")
 	rat.queue_free()
-	var spear: WeaponDef = load("res://data/items/weapons/spear.tres")
+	var spear: WeaponDef = load("res://data/items/weapons/lance.tres")
 	player.inventory.add(spear)
 	player.use_item(spear)
 	player._attack_cooldown = 0.0
 	player.attack(Vector2.RIGHT)
-	check(rig.weapon_animator.current_animation == &"thrust", "a spear attack plays 'thrust'")
-	player.use_item(load("res://data/items/weapons/rusty_sword.tres"))
+	check(rig.weapon.visible and rig.weapon.animation == &"attack_right", "the lance has baked attack frames")
+	player.use_item(load("res://data/items/weapons/katana.tres"))
 	await _frames(30)
 
 	# Inventory screen opens, lists items, uses them, pauses, and closes.
@@ -271,8 +277,8 @@ func _test_gameplay() -> void:
 	# Monsters must be able to hurt a player who just stands there.
 	var victim: Player = game.player
 	var hp_before := victim.hp
-	var bandit: MonsterDef = load("res://data/monsters/bandit.tres")
-	game.world.spawn_monster(bandit, victim.global_position + Vector2(40, 0))
+	var skeleton: MonsterDef = load("res://data/monsters/skeleton.tres")
+	game.world.spawn_monster(skeleton, victim.global_position + Vector2(40, 0))
 	await _frames(60 * 4)
 	check(victim.hp < hp_before, "monsters damage the player")
 

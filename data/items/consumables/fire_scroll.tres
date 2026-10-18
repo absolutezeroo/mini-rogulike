@@ -1,28 +1,31 @@
 [gd_resource type="Resource" script_class="ConsumableDef" format=3]
 
-[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_7qpeo"]
-[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_udsat"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/scroll.png" id="3_5yqhx"]
-[ext_resource type="Script" path="res://src/definitions/items/consumable_def.gd" id="4_uo686"]
-[ext_resource type="AudioStream" path="res://data/audio/fire_cast.tres" id="5_g5h38"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_udsat"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_5yqhx"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/fireball.png" id="3_uo686"]
+[ext_resource type="Texture2D" path="res://assets/items/scrollfire.png" id="4_g5h38"]
+[ext_resource type="Script" path="res://src/definitions/items/consumable_def.gd" id="5_t02o5"]
+[ext_resource type="AudioStream" path="res://data/audio/fireball.tres" id="6_4hamn"]
 
-[sub_resource type="Resource" id="Resource_t02o5"]
-script = ExtResource("2_udsat")
+[sub_resource type="Resource" id="Resource_47gn4"]
+script = ExtResource("2_5yqhx")
 damage_multiplier = 0.0
 flat_damage = 20
 speed = 420.0
 radius = 10.0
 explosion_radius = 80.0
 color = Color(1, 0.41960785, 0.20784314, 1)
+texture = ExtResource("3_uo686")
 
 [resource]
-script = ExtResource("4_uo686")
-effects = Array[ExtResource("1_7qpeo")]([SubResource("Resource_t02o5")])
-sound = ExtResource("5_g5h38")
+script = ExtResource("5_t02o5")
+effects = Array[ExtResource("1_udsat")]([SubResource("Resource_47gn4")])
+sound = ExtResource("6_4hamn")
 id = &"fire_scroll"
 display_name = "Scroll of Fire"
 description = "Launches an exploding fireball at the nearest enemy."
-icon = ExtResource("3_5yqhx")
+icon = ExtResource("4_g5h38")
+glyph = "S"
 color = Color(1, 0.41960785, 0.20784314, 1)
 min_depth = 2
 spawn_weight = 5

@@ -1,0 +1,72 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/shaman.tres" id="1_iv72c"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/shaman.png" id="2_4qbf7"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="3_s714k"]
+[ext_resource type="Resource" path="res://data/items/consumables/fire_scroll.tres" id="4_x2inp"]
+[ext_resource type="Resource" path="res://data/items/weapons/book.tres" id="5_q0svr"]
+[ext_resource type="Resource" path="res://data/items/consumables/rage_elixir.tres" id="6_a811h"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="7_a4nnd"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="8_nf3dn"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="9_f1h2d"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="10_784a8"]
+[ext_resource type="Resource" path="res://data/skills/monster/shaman_heal.tres" id="11_avh8w"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="12_2s8xm"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/hex_staff.tres" id="13_umnx4"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_etdlf"]
+atlas = ExtResource("2_4qbf7")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_momta"]
+script = ExtResource("3_s714k")
+item = ExtResource("4_x2inp")
+weight = 4
+
+[sub_resource type="Resource" id="Resource_0sq1y"]
+script = ExtResource("3_s714k")
+item = ExtResource("5_q0svr")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_lx16f"]
+script = ExtResource("3_s714k")
+item = ExtResource("6_a811h")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_3g4wj"]
+script = ExtResource("3_s714k")
+item = ExtResource("7_a4nnd")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_huyru"]
+script = ExtResource("8_nf3dn")
+drop_chance = 0.4
+entries = Array[ExtResource("3_s714k")]([SubResource("Resource_momta"), SubResource("Resource_0sq1y"), SubResource("Resource_lx16f"), SubResource("Resource_3g4wj")])
+
+[sub_resource type="Resource" id="Resource_i7q4o"]
+script = ExtResource("12_2s8xm")
+max_hp = 22
+move_speed = 85.0
+
+[resource]
+script = ExtResource("9_f1h2d")
+stats = SubResource("Resource_i7q4o")
+weapon = ExtResource("13_umnx4")
+skills = Array[ExtResource("10_784a8")]([ExtResource("11_avh8w")])
+radius = 10.0
+frames = ExtResource("1_iv72c")
+frames_offset = Vector2(0, -8)
+detect_radius = 300.0
+attack_windup = 0.6
+attack_recovery = 0.4
+keep_distance = 180.0
+xp_reward = 12
+loot = SubResource("Resource_huyru")
+id = &"shaman"
+display_name = "Fire Shaman"
+description = "Casts hexes and heals itself."
+icon = SubResource("AtlasTexture_etdlf")
+glyph = "F"
+color = Color(1, 0.48235294, 0.32941177, 1)
+min_depth = 3
+spawn_weight = 6

@@ -12,3 +12,4 @@ var pierce: int = 0
 var knockback: float = 100.0
 var explosion_radius: float = 0.0
 var color := Color.WHITE
+var texture: Texture2D

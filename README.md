@@ -8,17 +8,23 @@ keyboard or gamepad.
 ## Project layout
 
 ```
-assets/              Art, audio, fonts and the UI theme
-  sprites/             Kenney Tiny Dungeon tileset + custom item sprites (items/)
-  ui/                  Kenney UI Pack Pixel Adventure (upscaled 2x)
-  fonts/               Kenney Mini pixel font
-  audio/               Sound effects (sfx/) and jingles, loudness-balanced
+assets/              Art, audio, fonts and the UI theme (Ninja Adventure pack)
+  characters/          Hero and monster sprite sheets (4 directions, frame by frame)
+  weapons/             Weapon icons + attack/ sheets (the weapon in hand, per direction and frame)
+  fx/                  Sprite-sheet effects: slashes, claws, explosion, smoke, magic
+  projectiles/         Arrows, fireballs, magic bolts
+  items/               Item icons
+  tiles/               Dungeon floors, cliffs and walls
+  ui/                  Wood UI, round buttons (sphere/), icons, emotes
+  fonts/               Pixel font
+  audio/               Sound effects (sfx/), music (one track per floor theme) and jingles
   shaders/             Screen effects (damage vignette)
   theme/               main_theme.tres: pixel UI theme used by every Control
 data/                Game content as .tres resources (no code)
   content_db.tres      Index of everything that can spawn
   player/              Starting stats, kit, skills, leveling
   dungeon/             Floor size, room count, difficulty curve, floor themes (themes/)
+  visuals/             SpriteFrames: hero.tres, monsters/, weapons/ (the animations themselves)
   audio/               Sounds as AudioStreamRandomizer (variations + pitch) and sound_bank.tres
   monsters/            One file per monster type
   items/weapons/       Player weapons (monster/ = monster-only weapons)
@@ -38,7 +44,7 @@ src/
   components/          Inventory, Equipment, SkillSet
   combat/              Damage rules, hits, projectile specs
   ai/                  StateMachine + monster states (Idle, Chase, Attack)
-  vfx/                 Particles (particles/), slashes, rings, afterimages, damage numbers; Vfx helpers
+  vfx/                 Particles (particles/), sprite-sheet FX, emotes, afterimages, damage numbers; Vfx helpers
   ui/                  HUD, touch controls, inventory, game over
   game/                Game: main scene, run and floor flow
 tests/               Headless test suite with a bot that plays the game
@@ -64,41 +70,55 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 
 ## Game feel
 
-- **VFX**: pixel particles for hits, deaths, smoke, dust, explosions and sparkles
-  (`src/vfx/particles/*.tscn`, edit them in the inspector), dash afterimages, projectile trails,
+- **VFX**: hand-drawn sprite-sheet effects (slashes, claws, explosions, smoke, magic circles,
+  "!" emote when a monster spots you) plus pixel particles for hits, dust and sparkles
+  (`src/vfx/particles/*.tscn`, edit them in the inspector), dash afterimages, animated projectiles,
   squash on hit, popping damage numbers, red vignette when hurt or low on HP.
   Gameplay code spawns them in one line through `Vfx` (`Vfx.hit(...)`, `Vfx.explosion(...)`).
 - **SFX**: the `Sfx` autoload plays world sounds (positional) and UI sounds. Weapons have attack and hit
   sounds, monsters hurt and death sounds, skills and consumables a use sound; everything else comes
   from `data/audio/sound_bank.tres`. Each sound is an `AudioStreamRandomizer` listing its variations.
-  Buses: Master > SFX, UI, Music (`default_bus_layout.tres`).
+  Buses: Master > SFX, UI, Music (`default_bus_layout.tres`). Each floor theme has its own music.
 - **Hit stop**: a few frames of freeze on impacts (`HitStop.freeze(seconds)`).
 
 ## Animations
+
+Animations are **frame by frame**, like in Zelda-style RPGs: every character has a drawing for each
+direction (down, up, left, right) and each pose, and the weapon is drawn *in the hand* for each
+attack frame. Nothing is rotated or moved by code, so the weapon never floats or goes through the body.
 
 Every actor (player and monsters) has a **rig**: `src/entities/rig/actor_rig.tscn`.
 
 ```
 Rig                  at the actor's feet
-├── Visual           flips left/right, flash shader, scaled 2x (units = art pixels)
-│   └── Squash       squash & stretch on hits
-│       ├── Body     character sprite          <- BodyAnimator
-│       └── Aim      turned toward the target while attacking
-│           └── Hand                            <- WeaponAnimator
-│               └── Weapon (sprite)
-├── BodyAnimator     idle, walk, dash, lunge, windup, death
-└── WeaponAnimator   rest, slash, thrust, smash, shoot, windup_* (anticipation poses)
+└── Visual           flash shader, scaled 2x (units = art pixels)
+    └── Squash       squash & stretch on hits
+        ├── Body     AnimatedSprite2D: the character (SpriteFrames from the data)
+        └── Weapon   AnimatedSprite2D: the weapon in hand, same animation and frame as Body
 ```
 
-The weapon is held in the hand and only moves when attacking. Each `WeaponDef` picks its
-**attack animation** (slash for swords, thrust for daggers and spears, smash for axes and hammers,
-shoot for wands and staves); the animation is sped up to fit the weapon's attack speed.
-Monsters hold an anticipation pose during their wind-up, and creatures without a weapon sprite
-(rats, bats, spiders...) lunge instead.
+The animations live in `SpriteFrames` resources in `data/visuals/`, named `<pose>_<direction>`:
 
-To tweak an animation, open `actor_rig.tscn`, select BodyAnimator or WeaponAnimator and edit the keys
-in the Animation panel. In the Hand track, rotation 0 = weapon pointing up, 1.57 = pointing at the target.
-The actor scripts never touch animations directly: they call `rig.play_attack()`, `rig.flash()`, etc.
+| Animation | When |
+|---|---|
+| `idle_*`, `walk_*` | standing, moving |
+| `attack_*` | attacking (sped up to fit the weapon's attack speed) |
+| `dash_*` | rolling |
+| `hit_*` | taking a hit |
+| `dead` | dying |
+
+A missing animation falls back to a simpler one (`attack_left` > `attack`), and creatures with no
+attack pose lunge instead. Monsters freeze in their attack pose and shake during their wind-up,
+so you can see the strike coming.
+
+**Weapons**: each `WeaponDef` has `attack_frames` (a SpriteFrames with `attack_down/up/left/right`).
+The sheets in `assets/weapons/attack/` are 64x64 cells, one column per direction, one row per frame,
+drawn so the handle sits in the hero's hand on that frame. The weapon is drawn behind the body when
+facing up. `attack_fx` is the slash effect played in front of the actor.
+
+To tweak an animation, open a file in `data/visuals/` and use the SpriteFrames panel
+(add frames, change the speed, toggle loop). The actor scripts never touch animations directly:
+they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 
 ## Adding content
 
@@ -111,9 +131,10 @@ The actor scripts never touch animations directly: they call `rig.play_attack()`
 | A new kind of effect | New script in `src/definitions/effects/` extending `Effect`, override `apply()` |
 | A new monster behaviour | New state script in `src/ai/states/`, add a node for it in `monster.tscn` |
 
-Each piece of content has an **icon** (any `Texture2D`, usually an `AtlasTexture` pointing into
-`tilemap_packed.png`) and an **icon tint** to recolor it. To change a sprite, edit the icon's region
-in the inspector or drop in your own 16x16 PNG.
+Each piece of content has an **icon** (any `Texture2D`) and an **icon tint** to recolor it.
+Monsters and the player also have `frames` (their SpriteFrames in `data/visuals/`): a new monster
+can reuse an existing one, or you can make a new SpriteFrames from a sheet in `assets/characters/`.
+Floor looks (tiles, decor, tint, music) are `DungeonTheme` files in `data/dungeon/themes/`.
 
 `min_depth` and `spawn_weight` control where and how often something appears.
 A `spawn_weight` of 0 means it never spawns on its own (starting gear, loot-only items, monster weapons).
@@ -142,13 +163,12 @@ The exit code is the number of failures.
 
 ## Art and credits
 
-All third-party assets are CC0 (public domain) by [Kenney](https://kenney.nl):
-Tiny Dungeon, UI Pack - Pixel Adventure, Kenney Fonts, Impact Sounds, Interface Sounds, RPG Audio,
-Digital Audio, Sci-Fi Sounds and Music Jingles. Licenses are next to each asset folder.
-The swing whooshes were synthesized for this project.
-The armor, bomb and scroll sprites in `assets/sprites/items/` were drawn for this project in the same palette.
+Art, sound effects and music: **[Ninja Adventure](https://pixel-boy.itch.io/ninja-adventure-asset-pack)**
+by Pixel-boy and AAA, CC0 (public domain). License in `assets/LICENSE_NinjaAdventure.txt`.
+Footstep sounds: Kenney Impact Sounds, CC0 ([kenney.nl](https://kenney.nl)).
+The weapon attack sheets were composed from the pack's weapon sprites to match the hero's attack frames.
 
-Pixel art is 16x16, drawn at 2x in the world, with nearest filtering
+Pixel art is drawn at 2x in the world, with nearest filtering
 (Project Settings > Rendering > Textures > Default Texture Filter).
 
 ## Conventions

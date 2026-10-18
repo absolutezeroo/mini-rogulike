@@ -1,57 +1,60 @@
 [gd_resource type="Resource" script_class="MonsterDef" format=3]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="1_7yb47"]
-[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="2_bgtfo"]
-[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="3_ymugr"]
-[ext_resource type="Resource" path="res://data/items/consumables/rage_elixir.tres" id="4_26d32"]
-[ext_resource type="Resource" path="res://data/items/weapons/dagger.tres" id="5_sduke"]
-[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="6_yvca2"]
-[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="7_rrxpn"]
-[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_43dxd"]
-[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="9_5nchv"]
-[ext_resource type="Resource" path="res://data/items/weapons/monster/spider_bite.tres" id="10_doylg"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/spider.tres" id="1_bgtfo"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/spider.png" id="2_ymugr"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="3_26d32"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="4_sduke"]
+[ext_resource type="Resource" path="res://data/items/consumables/rage_elixir.tres" id="5_yvca2"]
+[ext_resource type="Resource" path="res://data/items/weapons/sai.tres" id="6_rrxpn"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="7_43dxd"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="8_5nchv"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_doylg"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_ltxyb"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/claws.tres" id="11_ko2y6"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_ltxyb"]
-atlas = ExtResource("1_7yb47")
-region = Rect2(32, 160, 16, 16)
-
-[sub_resource type="Resource" id="Resource_ko2y6"]
-script = ExtResource("2_bgtfo")
-item = ExtResource("3_ymugr")
-weight = 5
+[sub_resource type="AtlasTexture" id="AtlasTexture_kvyjr"]
+atlas = ExtResource("2_ymugr")
+region = Rect2(0, 0, 16, 16)
 
 [sub_resource type="Resource" id="Resource_s1j6i"]
-script = ExtResource("2_bgtfo")
-item = ExtResource("4_26d32")
-weight = 2
+script = ExtResource("3_26d32")
+item = ExtResource("4_sduke")
+weight = 5
 
 [sub_resource type="Resource" id="Resource_6lbkg"]
-script = ExtResource("2_bgtfo")
-item = ExtResource("5_sduke")
+script = ExtResource("3_26d32")
+item = ExtResource("5_yvca2")
 weight = 2
 
 [sub_resource type="Resource" id="Resource_d8p5f"]
-script = ExtResource("6_yvca2")
-entries = Array[ExtResource("2_bgtfo")]([SubResource("Resource_ko2y6"), SubResource("Resource_s1j6i"), SubResource("Resource_6lbkg")])
+script = ExtResource("3_26d32")
+item = ExtResource("6_rrxpn")
+weight = 2
 
 [sub_resource type="Resource" id="Resource_fg7oy"]
-script = ExtResource("9_5nchv")
+script = ExtResource("7_43dxd")
+entries = Array[ExtResource("3_26d32")]([SubResource("Resource_s1j6i"), SubResource("Resource_6lbkg"), SubResource("Resource_d8p5f")])
+
+[sub_resource type="Resource" id="Resource_jrffg"]
+script = ExtResource("10_ltxyb")
 max_hp = 18
 move_speed = 135.0
 
 [resource]
-script = ExtResource("7_rrxpn")
-stats = SubResource("Resource_fg7oy")
-weapon = ExtResource("10_doylg")
+script = ExtResource("8_5nchv")
+stats = SubResource("Resource_jrffg")
+weapon = ExtResource("11_ko2y6")
 radius = 10.0
+frames = ExtResource("1_bgtfo")
+frames_offset = Vector2(0, -8)
 attack_windup = 0.3
 xp_reward = 9
-loot = SubResource("Resource_d8p5f")
+loot = SubResource("Resource_fg7oy")
 id = &"spider"
-display_name = "Giant Spider"
+display_name = "Red Spider"
 description = "Skitters in fast. Nasty bite."
-icon = SubResource("AtlasTexture_ltxyb")
-glyph = "x"
+icon = SubResource("AtlasTexture_kvyjr")
+glyph = "R"
 color = Color(0.75686276, 0.07058824, 0.12156863, 1)
 min_depth = 3
 spawn_weight = 7

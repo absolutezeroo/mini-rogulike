@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="ArmorDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_b34o5"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/helmet.png" id="2_gefwd"]
+[ext_resource type="Texture2D" path="res://assets/items/helmet.png" id="2_gefwd"]
 [ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="3_eb33e"]
 
 [sub_resource type="Resource" id="Resource_s8jn1"]
@@ -16,7 +16,7 @@ id = &"leather_cap"
 display_name = "Leather Cap"
 description = "Better than nothing."
 icon = ExtResource("2_gefwd")
-icon_tint = Color(1, 0.7, 0.48, 1)
-glyph = "^"
+icon_tint = Color(1, 0.75, 0.55, 1)
+glyph = "L"
 color = Color(0.7372549, 0.5411765, 0.37254903, 1)
 spawn_weight = 6

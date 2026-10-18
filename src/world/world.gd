@@ -167,8 +167,8 @@ func _build_pathfinding() -> void:
 
 func _spawn_stairs() -> void:
 	var stairs := STAIRS_SCENE.instantiate() as Stairs
-	if theme and theme.stairs_tile >= 0:
-		stairs.texture = theme.tile_texture(theme.stairs_tile)
+	if theme:
+		stairs.texture = theme.stairs_texture()
 	stairs.position = map.cell_to_world(map.stairs_cell)
 	stairs.reached.connect(func() -> void: stairs_reached.emit())
 	_entities.add_child(stairs)

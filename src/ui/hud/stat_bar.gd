@@ -14,8 +14,8 @@ var _frame: StyleBoxTexture
 
 func _ready() -> void:
 	_frame = StyleBoxTexture.new()
-	_frame.texture = UiAtlas.small(UiAtlas.BAR_FRAME)
-	_frame.set_texture_margin_all(8)
+	_frame.texture = preload("res://assets/ui/wood/nine_path_bg.png")
+	_frame.set_texture_margin_all(9)
 
 
 func set_values(value: float, max_value: float, text: String = "") -> void:

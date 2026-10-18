@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="SpriteFrames" path="res://data/visuals/weapons/sai.tres" id="1_iwvpw"]
+[ext_resource type="Texture2D" path="res://assets/fx/cut.png" id="2_3is3w"]
+[ext_resource type="AudioStream" path="res://data/audio/slash.tres" id="3_okemv"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="4_14pce"]
+[ext_resource type="AudioStream" path="res://data/audio/hit.tres" id="5_sbson"]
+[ext_resource type="Texture2D" path="res://assets/weapons/sai.png" id="6_174so"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="7_rqmo2"]
+
+[sub_resource type="Resource" id="Resource_46fwj"]
+script = ExtResource("4_14pce")
+move_speed = 10.0
+crit_chance = 0.1
+
+[resource]
+script = ExtResource("7_rqmo2")
+damage = 3
+cooldown = 0.22
+reach = 26.0
+knockback = 70.0
+attack_animation = 1
+attack_frames = ExtResource("1_iwvpw")
+attack_fx = ExtResource("2_3is3w")
+attack_fx_rotation = 45.0
+arc_degrees = 60.0
+attack_sound = ExtResource("3_okemv")
+hit_sound = ExtResource("5_sbson")
+slot = 0
+bonuses = SubResource("Resource_46fwj")
+id = &"sai"
+display_name = "Sai"
+description = "Very fast stabs. Easy to crit."
+icon = ExtResource("6_174so")
+glyph = "S"
+color = Color(0.62352943, 0.827451, 1, 1)
+spawn_weight = 8

@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="SpriteFrames" path="res://data/visuals/weapons/katana.tres" id="1_5k6wr"]
+[ext_resource type="AudioStream" path="res://data/audio/slash.tres" id="2_gj8km"]
+[ext_resource type="AudioStream" path="res://data/audio/hit.tres" id="3_2uv4q"]
+[ext_resource type="Texture2D" path="res://assets/weapons/katana.png" id="4_akday"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="5_r15cl"]
+
+[resource]
+script = ExtResource("5_r15cl")
+damage = 5
+cooldown = 0.38
+reach = 32.0
+attack_frames = ExtResource("1_5k6wr")
+arc_degrees = 120.0
+attack_sound = ExtResource("2_gj8km")
+hit_sound = ExtResource("3_2uv4q")
+slot = 0
+id = &"katana"
+display_name = "Katana"
+description = "Quick and reliable."
+icon = ExtResource("4_akday")
+glyph = "K"
+color = Color(0.84705883, 0.8862745, 0.9098039, 1)
+spawn_weight = 0

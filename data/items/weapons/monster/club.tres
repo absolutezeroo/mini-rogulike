@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/fx/slashdoublecurved.png" id="1_vpt6n"]
+[ext_resource type="AudioStream" path="res://data/audio/slash_heavy.tres" id="2_ovl1u"]
+[ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="3_73u87"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="4_quofp"]
+
+[resource]
+script = ExtResource("4_quofp")
+damage = 12
+cooldown = 1.8
+reach = 34.0
+knockback = 320.0
+attack_animation = 2
+attack_fx = ExtResource("1_vpt6n")
+arc_degrees = 140.0
+attack_sound = ExtResource("2_ovl1u")
+hit_sound = ExtResource("3_73u87")
+slot = 0
+id = &"club"
+display_name = "Cyclops Club"
+glyph = "C"
+color = Color(0.9137255, 0.76862746, 0.41568628, 1)
+spawn_weight = 0

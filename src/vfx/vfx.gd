@@ -8,6 +8,10 @@ const SMOKE: PackedScene = preload("res://src/vfx/particles/smoke.tscn")
 const DUST: PackedScene = preload("res://src/vfx/particles/dust.tscn")
 const FIRE: PackedScene = preload("res://src/vfx/particles/fire.tscn")
 const SPARKLES: PackedScene = preload("res://src/vfx/particles/sparkles.tscn")
+const EXPLOSION_SHEET: Texture2D = preload("res://assets/fx/explosion.png")
+const SMOKE_SHEET: Texture2D = preload("res://assets/fx/smoke.png")
+const MAGIC_CIRCLE_SHEET: Texture2D = preload("res://assets/fx/magic_circle.png")
+const ALERT_EMOTE: Texture2D = preload("res://assets/ui/emotes/emote22.png")
 
 
 static func burst(world: World, scene: PackedScene, at: Vector2, color: Color = Color.WHITE, direction: Vector2 = Vector2.ZERO, size: float = 1.0) -> void:
@@ -32,14 +36,14 @@ static func hit(world: World, at: Vector2, direction: Vector2, color: Color = Co
 ## Chunks in the monster's color plus a puff of smoke.
 static func death(world: World, at: Vector2, color: Color) -> void:
 	burst(world, DEATH_CHUNKS, at, color)
-	burst(world, SMOKE, at)
+	world.spawn_vfx(SheetVfx.create(SMOKE_SHEET, at + Vector2(0, -12), 0.0, 2.0, 14.0))
 
 
 static func explosion(world: World, at: Vector2, radius: float) -> void:
 	var size := clampf(radius / 80.0, 0.6, 1.6)
-	burst(world, FIRE, at, Color.WHITE, Vector2.ZERO, size)
-	burst(world, SMOKE, at, Color.WHITE, Vector2.ZERO, size * 1.3)
-	world.spawn_vfx(RingVfx.create(at, radius, Color("ffd166")))
+	world.spawn_vfx(SheetVfx.create(EXPLOSION_SHEET, at, 0.0, radius * 2.2 / EXPLOSION_SHEET.get_height(), 18.0))
+	burst(world, FIRE, at, Color.WHITE, Vector2.ZERO, size * 0.7)
+	burst(world, SMOKE, at, Color.WHITE, Vector2.ZERO, size)
 	Sfx.play_at(Sfx.bank.explosion, at)
 	if world.player and world.player.global_position.distance_to(at) < 600.0:
 		world.player.camera.shake(0.45 * size)
@@ -47,6 +51,17 @@ static func explosion(world: World, at: Vector2, radius: float) -> void:
 
 static func sparkles(world: World, at: Vector2, color: Color) -> void:
 	burst(world, SPARKLES, at, color)
+
+
+## Magic circle on the ground (heals, buffs, level up).
+static func magic(world: World, at: Vector2, color: Color) -> void:
+	world.spawn_vfx(SheetVfx.create(MAGIC_CIRCLE_SHEET, at, 0.0, 2.5, 12.0).with_color(color))
+	sparkles(world, at + Vector2(0, -10), color)
+
+
+## "!" bubble above a monster that just noticed the player.
+static func alert(world: World, at: Vector2) -> void:
+	world.spawn_vfx(EmoteVfx.create(ALERT_EMOTE, at))
 
 
 static func dust(world: World, at: Vector2, size: float = 1.0) -> void:

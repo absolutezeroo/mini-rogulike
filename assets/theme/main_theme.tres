@@ -1,98 +1,82 @@
 [gd_resource type="Theme" format=3]
 
-[ext_resource type="Texture2D" path="res://assets/ui/kenney_pixel_adventure/large_tiles_2x.png" id="1_4001u"]
-[ext_resource type="FontFile" path="res://assets/fonts/kenney_mini.ttf" id="2_thknt"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_4001u"]
-atlas = ExtResource("1_4001u")
-region = Rect2(192, 64, 64, 64)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_thknt"]
-content_margin_left = 14.0
-content_margin_top = 10.0
-content_margin_right = 14.0
-content_margin_bottom = 10.0
-texture = SubResource("AtlasTexture_4001u")
-texture_margin_left = 14.0
-texture_margin_top = 14.0
-texture_margin_right = 14.0
-texture_margin_bottom = 14.0
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_tnish"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_b85mk"]
-atlas = ExtResource("1_4001u")
-region = Rect2(192, 64, 64, 64)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_0vr3v"]
-content_margin_left = 14.0
-content_margin_top = 10.0
-content_margin_right = 14.0
-content_margin_bottom = 10.0
-texture = SubResource("AtlasTexture_b85mk")
-texture_margin_left = 14.0
-texture_margin_top = 14.0
-texture_margin_right = 14.0
-texture_margin_bottom = 14.0
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ryqvi"]
-atlas = ExtResource("1_4001u")
-region = Rect2(192, 0, 64, 64)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_vdebs"]
-content_margin_left = 14.0
-content_margin_top = 10.0
-content_margin_right = 14.0
-content_margin_bottom = 10.0
-texture = SubResource("AtlasTexture_ryqvi")
-texture_margin_left = 14.0
-texture_margin_top = 14.0
-texture_margin_right = 14.0
-texture_margin_bottom = 14.0
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_tjmdt"]
-atlas = ExtResource("1_4001u")
-region = Rect2(128, 0, 64, 64)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_xamdb"]
-content_margin_left = 14.0
-content_margin_top = 12.0
-content_margin_right = 14.0
-content_margin_bottom = 12.0
-texture = SubResource("AtlasTexture_tjmdt")
-texture_margin_left = 14.0
-texture_margin_top = 14.0
-texture_margin_right = 14.0
-texture_margin_bottom = 14.0
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_kvm4y"]
-atlas = ExtResource("1_4001u")
-region = Rect2(64, 0, 64, 64)
+[ext_resource type="Texture2D" path="res://assets/ui/wood/button_disabled.png" id="1_0vr3v"]
+[ext_resource type="Texture2D" path="res://assets/ui/wood/button_hover.png" id="2_ryqvi"]
+[ext_resource type="Texture2D" path="res://assets/ui/wood/button_normal.png" id="3_vdebs"]
+[ext_resource type="Texture2D" path="res://assets/ui/wood/button_pressed.png" id="4_tjmdt"]
+[ext_resource type="Texture2D" path="res://assets/ui/wood/nine_path_panel_2.png" id="5_xamdb"]
+[ext_resource type="FontFile" path="res://assets/fonts/normal_font.ttf" id="6_kvm4y"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_5hith"]
-content_margin_left = 8.0
+content_margin_left = 14.0
 content_margin_top = 8.0
-content_margin_right = 8.0
+content_margin_right = 14.0
 content_margin_bottom = 8.0
-texture = SubResource("AtlasTexture_kvm4y")
+texture = ExtResource("1_0vr3v")
+texture_margin_left = 9.0
+texture_margin_top = 9.0
+texture_margin_right = 9.0
+texture_margin_bottom = 9.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dywde"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_aq6m1"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+texture = ExtResource("2_ryqvi")
+texture_margin_left = 9.0
+texture_margin_top = 9.0
+texture_margin_right = 9.0
+texture_margin_bottom = 9.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_p3esg"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+texture = ExtResource("3_vdebs")
+texture_margin_left = 9.0
+texture_margin_top = 9.0
+texture_margin_right = 9.0
+texture_margin_bottom = 9.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_4i3ft"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+texture = ExtResource("4_tjmdt")
+texture_margin_left = 9.0
+texture_margin_top = 9.0
+texture_margin_right = 9.0
+texture_margin_bottom = 9.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_xbixd"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+texture = ExtResource("5_xamdb")
 texture_margin_left = 18.0
 texture_margin_top = 18.0
-texture_margin_right = 18.0
-texture_margin_bottom = 18.0
+texture_margin_right = 15.0
+texture_margin_bottom = 15.0
 
 [resource]
-default_font = ExtResource("2_thknt")
+default_font = ExtResource("6_kvm4y")
 default_font_size = 16
-Button/colors/font_color = Color(1, 1, 1, 1)
-Button/colors/font_hover_color = Color(1, 1, 1, 1)
-Button/colors/font_outline_color = Color(0.24705882, 0.14901961, 0.19215687, 1)
-Button/colors/font_pressed_color = Color(0.24705882, 0.14901961, 0.19215687, 1)
+Button/colors/font_color = Color(0.16862746, 0.11372549, 0.14117648, 1)
+Button/colors/font_disabled_color = Color(0.16862746, 0.11372549, 0.14117648, 0.5)
+Button/colors/font_hover_color = Color(0.16862746, 0.11372549, 0.14117648, 1)
+Button/colors/font_pressed_color = Color(1, 1, 1, 1)
 Button/constants/h_separation = 10
-Button/constants/outline_size = 4
-Button/styles/disabled = SubResource("StyleBoxTexture_thknt")
-Button/styles/focus = SubResource("StyleBoxEmpty_tnish")
-Button/styles/hover = SubResource("StyleBoxTexture_0vr3v")
-Button/styles/normal = SubResource("StyleBoxTexture_vdebs")
-Button/styles/pressed = SubResource("StyleBoxTexture_xamdb")
-Label/colors/font_outline_color = Color(0.24705882, 0.14901961, 0.19215687, 1)
-PanelContainer/styles/panel = SubResource("StyleBoxTexture_5hith")
+Button/styles/disabled = SubResource("StyleBoxTexture_5hith")
+Button/styles/focus = SubResource("StyleBoxEmpty_dywde")
+Button/styles/hover = SubResource("StyleBoxTexture_aq6m1")
+Button/styles/normal = SubResource("StyleBoxTexture_p3esg")
+Button/styles/pressed = SubResource("StyleBoxTexture_4i3ft")
+Label/colors/font_outline_color = Color(0.16862746, 0.11372549, 0.14117648, 1)
+Label/constants/outline_size = 4
+PanelContainer/styles/panel = SubResource("StyleBoxTexture_xbixd")

@@ -1,0 +1,74 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/spirit.tres" id="1_wp4is"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/spirit.tres" id="2_e2ui1"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/spirit.png" id="3_6v0f1"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="4_wgrrx"]
+[ext_resource type="Resource" path="res://data/items/armors/shadow_cloak.tres" id="5_dxmkn"]
+[ext_resource type="Resource" path="res://data/items/consumables/rage_elixir.tres" id="6_4a1p4"]
+[ext_resource type="Resource" path="res://data/items/weapons/stick.tres" id="7_srljk"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="8_eesh1"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="9_5ud0h"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="10_wfxmm"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="11_yuhyf"]
+[ext_resource type="Resource" path="res://data/skills/monster/blink.tres" id="12_27a71"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="13_prruu"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/spirit_touch.tres" id="14_a5nog"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jljmj"]
+atlas = ExtResource("3_6v0f1")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_ugojv"]
+script = ExtResource("4_wgrrx")
+item = ExtResource("5_dxmkn")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_5ifrj"]
+script = ExtResource("4_wgrrx")
+item = ExtResource("6_4a1p4")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_8eqba"]
+script = ExtResource("4_wgrrx")
+item = ExtResource("7_srljk")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_aaojr"]
+script = ExtResource("4_wgrrx")
+item = ExtResource("8_eesh1")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_544it"]
+script = ExtResource("9_5ud0h")
+drop_chance = 0.4
+entries = Array[ExtResource("4_wgrrx")]([SubResource("Resource_ugojv"), SubResource("Resource_5ifrj"), SubResource("Resource_8eqba"), SubResource("Resource_aaojr")])
+
+[sub_resource type="Resource" id="Resource_xm6bo"]
+script = ExtResource("13_prruu")
+max_hp = 30
+defense = 1
+move_speed = 120.0
+crit_chance = 0.1
+
+[resource]
+script = ExtResource("10_wfxmm")
+stats = SubResource("Resource_xm6bo")
+weapon = ExtResource("14_a5nog")
+skills = Array[ExtResource("11_yuhyf")]([ExtResource("12_27a71")])
+radius = 10.0
+frames = ExtResource("2_e2ui1")
+frames_offset = Vector2(0, -8)
+detect_radius = 300.0
+attack_windup = 0.3
+death_sound = ExtResource("1_wp4is")
+xp_reward = 16
+loot = SubResource("Resource_544it")
+id = &"spirit"
+display_name = "Spirit"
+description = "Blinks towards you out of nowhere."
+icon = SubResource("AtlasTexture_jljmj")
+glyph = "S"
+color = Color(0.6039216, 0.81960785, 0.83137256, 1)
+min_depth = 4
+spawn_weight = 5

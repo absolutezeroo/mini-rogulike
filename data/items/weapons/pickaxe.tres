@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="SpriteFrames" path="res://data/visuals/weapons/pickaxe.tres" id="1_4okwp"]
+[ext_resource type="AudioStream" path="res://data/audio/slash.tres" id="2_pmjir"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="3_apxa1"]
+[ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="4_153jf"]
+[ext_resource type="Texture2D" path="res://assets/weapons/pickaxe.png" id="5_ebxw1"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="6_vabj2"]
+
+[sub_resource type="Resource" id="Resource_p1snk"]
+script = ExtResource("3_apxa1")
+attack = 2
+crit_chance = 0.05
+
+[resource]
+script = ExtResource("6_vabj2")
+damage = 8
+cooldown = 0.6
+reach = 32.0
+knockback = 180.0
+attack_frames = ExtResource("1_4okwp")
+arc_degrees = 100.0
+attack_sound = ExtResource("2_pmjir")
+hit_sound = ExtResource("4_153jf")
+slot = 0
+bonuses = SubResource("Resource_p1snk")
+id = &"pickaxe"
+display_name = "Pickaxe"
+description = "A miner's tool. Pierces armor."
+icon = ExtResource("5_ebxw1")
+glyph = "P"
+color = Color(0.7882353, 0.8, 0.81960785, 1)
+min_depth = 2
+spawn_weight = 4

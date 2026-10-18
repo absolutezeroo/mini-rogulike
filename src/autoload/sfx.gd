@@ -15,6 +15,7 @@ var bank := SoundBank.new()
 ## Master switch (the headless tests turn sound off).
 var enabled := true
 
+var _music: AudioStreamPlayer
 var _pool_2d: Array[AudioStreamPlayer2D] = []
 var _pool_ui: Array[AudioStreamPlayer] = []
 var _next_2d := 0
@@ -31,6 +32,10 @@ func _ready() -> void:
 		player.attenuation = 1.5
 		add_child(player)
 		_pool_2d.append(player)
+	_music = AudioStreamPlayer.new()
+	_music.bus = &"Music"
+	_music.volume_db = -8.0
+	add_child(_music)
 	for i in POOL_UI_SIZE:
 		var player := AudioStreamPlayer.new()
 		player.bus = &"UI"
@@ -96,8 +101,30 @@ func _allowed(stream: AudioStream) -> bool:
 	return true
 
 
+## Starts a looping music track, fading from the current one. Same track = keeps playing.
+func play_music(stream: AudioStream, volume_db: float = -8.0) -> void:
+	if not enabled or stream == null or (_music.stream == stream and _music.playing):
+		return
+	if stream is AudioStreamOggVorbis:
+		(stream as AudioStreamOggVorbis).loop = true
+	var tween := create_tween()
+	if _music.playing:
+		tween.tween_property(_music, "volume_db", -40.0, 0.6)
+	tween.tween_callback(func() -> void:
+		_music.stream = stream
+		_music.volume_db = -40.0
+		_music.play())
+	tween.tween_property(_music, "volume_db", volume_db, 1.0)
+
+
+func stop_music() -> void:
+	_music.stop()
+
+
 ## Stops everything (used before quitting or when restarting).
 func stop_all() -> void:
+	_music.stop()
+	_music.stream = null
 	for player in _pool_2d:
 		player.stop()
 		player.stream = null

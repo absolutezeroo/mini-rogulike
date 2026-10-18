@@ -12,5 +12,4 @@ func apply(user: Actor, _aim: Vector2) -> void:
 		return
 	user.add_timed_bonus(bonuses, duration)
 	user.world.spawn_floating_text(user.head_position(), bonuses.describe(), color)
-	user.world.spawn_vfx(RingVfx.create(user.global_position, user.radius * 2.5, color))
-	Vfx.sparkles(user.world, user.global_position, color)
+	Vfx.magic(user.world, user.global_position, color)

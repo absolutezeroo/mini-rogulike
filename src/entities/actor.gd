@@ -22,8 +22,9 @@ const AFTERIMAGE_INTERVAL := 0.03
 var faction: Faction = Faction.MONSTER
 var world: World
 var display_name := "Actor"
-var sprite: Texture2D
-var sprite_tint := Color.WHITE
+## Animations of the body (see ActorRig). Without frames, a simple shape is drawn.
+var frames: SpriteFrames
+var frames_offset := Vector2(0, -8)
 ## Fallback drawing when there is no sprite.
 var glyph := ""
 var body_color := Color.WHITE
@@ -60,9 +61,9 @@ func _init() -> void:
 func _ready() -> void:
 	if rig == null:
 		return
-	rig.visible = sprite != null
+	rig.visible = frames != null
 	rig.position = Vector2(0, _feet_y())
-	rig.setup(sprite, sprite_tint)
+	rig.setup(frames, frames_offset)
 	rig.set_weapon(get_weapon())
 	equipment.changed.connect(func() -> void: rig.set_weapon(get_weapon()))
 
@@ -171,8 +172,7 @@ func take_hit(hit: HitInfo) -> void:
 	_knockback += hit.knockback
 	_flash_time = FLASH_TIME
 	if rig:
-		rig.flash()
-		rig.squash()
+		rig.play_hurt()
 	var spark_direction := hit.knockback.normalized() if hit.knockback != Vector2.ZERO else Vector2.UP
 	Vfx.hit(world, global_position + Vector2(0, -radius * 0.5), spark_direction, _hit_spark_color(hit))
 	Sfx.play_at(_hurt_sound(hit), global_position)
@@ -260,9 +260,9 @@ func _physics_process(delta: float) -> void:
 		_dash_time -= delta
 		velocity = _dash_velocity
 		_afterimage_timer -= delta
-		if _afterimage_timer <= 0.0 and rig and rig.visible:
+		if _afterimage_timer <= 0.0 and rig and rig.visible and rig.current_frame():
 			_afterimage_timer = AFTERIMAGE_INTERVAL
-			world.spawn_vfx(AfterimageVfx.from_sprite(rig.body_sprite(), Color(0.7, 0.9, 1.2)))
+			world.spawn_vfx(AfterimageVfx.from_body(rig, Color(0.7, 0.9, 1.2)))
 	else:
 		velocity = _get_desired_velocity() + _knockback
 	_knockback = _knockback.move_toward(Vector2.ZERO, KNOCKBACK_FRICTION * delta)
@@ -293,8 +293,8 @@ func _tick_timers(delta: float) -> void:
 
 ## Point above the actor's head, in world space (for damage numbers, labels...).
 func head_position() -> Vector2:
-	if sprite:
-		return global_position + Vector2(0, _feet_y() - sprite.get_size().y * SPRITE_SCALE)
+	if frames:
+		return global_position + Vector2(0, _feet_y() - 34.0)
 	return global_position + Vector2(0, -radius - 6.0)
 
 
@@ -315,7 +315,7 @@ func _draw() -> void:
 	draw_set_transform(Vector2(0, _feet_y() - 1.0), 0.0, Vector2(1.0, 0.4))
 	draw_circle(Vector2.ZERO, radius, Color(0, 0, 0, 0.35))
 	draw_set_transform(Vector2.ZERO)
-	if sprite == null:
+	if frames == null:
 		var color := Color.WHITE if _flash_time > 0.0 else body_color * _body_modulate()
 		_draw_fallback_body(color)
 

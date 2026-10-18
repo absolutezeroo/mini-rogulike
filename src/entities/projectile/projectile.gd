@@ -96,6 +96,9 @@ func _explode() -> void:
 
 
 func _draw() -> void:
+	if _spec and _spec.texture:
+		_draw_sprite()
+		return
 	var r := _spec.radius if _spec else 5.0
 	var color := _spec.color if _spec else Color.WHITE
 	# Fading trail of squares behind the shot (pixel style).
@@ -112,3 +115,19 @@ func _draw() -> void:
 	draw_circle(Vector2.ZERO, r * 1.8, glow)
 	draw_circle(Vector2.ZERO, r, color)
 	draw_circle(Vector2.ZERO, r * 0.5, color.lightened(0.7))
+
+
+## Sprite projectiles: frames side by side (square), animated, pointing along the flight direction.
+func _draw_sprite() -> void:
+	var texture := _spec.texture
+	var height := texture.get_height()
+	var frame_count := texture.get_width() / height if texture.get_width() % height == 0 else 1
+	var frame_width := texture.get_width() / frame_count
+	var frame := int(_travelled / 40.0) % frame_count
+	var size := Vector2(frame_width, height) * 2.0
+	var source := Rect2(frame * frame_width, 0, frame_width, height)
+	# Faint trail behind it.
+	var glow := _spec.color
+	glow.a = 0.25
+	draw_circle(Vector2(-size.x * 0.3, 0), size.y * 0.3, glow)
+	draw_texture_rect_region(texture, Rect2(-size * 0.5, size), source, Color.WHITE)

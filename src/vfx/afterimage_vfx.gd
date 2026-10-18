@@ -22,14 +22,15 @@ static func create(at: Vector2, texture: Texture2D, rect: Rect2, flip: float, co
 	return vfx
 
 
-## Copies a Sprite2D as it is right now (texture, transform, flip).
-static func from_sprite(sprite: Sprite2D, color: Color) -> AfterimageVfx:
+## Copies the frame an ActorRig is showing right now.
+static func from_body(rig: ActorRig, color: Color) -> AfterimageVfx:
 	var vfx := AfterimageVfx.new()
-	vfx.transform = sprite.get_global_transform()
-	vfx._texture = sprite.texture
-	var size := sprite.texture.get_size()
-	vfx._rect = Rect2(sprite.offset - size * 0.5, size)
-	vfx._color = sprite.self_modulate * color
+	var texture := rig.current_frame()
+	vfx.transform = rig.body.get_global_transform()
+	vfx._texture = texture
+	var size := texture.get_size()
+	vfx._rect = Rect2(rig.body.offset - size * 0.5, size)
+	vfx._color = color
 	vfx.z_index = -1
 	return vfx
 

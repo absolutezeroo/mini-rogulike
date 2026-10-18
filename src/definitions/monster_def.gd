@@ -9,6 +9,10 @@ extends ContentDef
 
 @export_group("Body")
 @export var radius: float = 12.0
+## Animations: idle_/walk_/attack_/hit_ + down, up, left, right, and "dead". Missing ones fall back.
+@export var frames: SpriteFrames
+## Moves the sprite so its feet stand on the actor's position (art pixels).
+@export var frames_offset: Vector2 = Vector2(0, -7)
 
 @export_group("Behaviour")
 ## Distance at which the monster notices the player (needs line of sight).

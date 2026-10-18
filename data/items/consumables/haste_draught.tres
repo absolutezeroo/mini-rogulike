@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_73xtb"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="2_mn8kf"]
 [ext_resource type="Script" path="res://src/definitions/effects/buff_effect.gd" id="3_8nygd"]
-[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="4_muiul"]
+[ext_resource type="Texture2D" path="res://assets/items/waterpot.png" id="4_muiul"]
 [ext_resource type="Script" path="res://src/definitions/items/consumable_def.gd" id="5_iort1"]
 [ext_resource type="AudioStream" path="res://data/audio/buff.tres" id="6_8wqre"]
 
@@ -16,10 +16,6 @@ script = ExtResource("3_8nygd")
 bonuses = SubResource("Resource_aw8yx")
 color = Color(0, 0.73333335, 0.9764706, 1)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_l7ouq"]
-atlas = ExtResource("4_muiul")
-region = Rect2(128, 144, 16, 16)
-
 [resource]
 script = ExtResource("5_iort1")
 effects = Array[ExtResource("1_73xtb")]([SubResource("Resource_uwjra")])
@@ -27,7 +23,7 @@ sound = ExtResource("6_8wqre")
 id = &"haste_draught"
 display_name = "Haste Draught"
 description = "Run much faster for 6 seconds."
-icon = SubResource("AtlasTexture_l7ouq")
-glyph = "!"
+icon = ExtResource("4_muiul")
+glyph = "H"
 color = Color(0, 0.73333335, 0.9764706, 1)
 spawn_weight = 4

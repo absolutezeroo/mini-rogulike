@@ -15,8 +15,8 @@ func enter() -> void:
 	actor.facing = _aim
 	_phase = Phase.WINDUP
 	_timer = actor.def.attack_windup
-	if actor.rig and actor.get_weapon():
-		actor.rig.play_windup(actor.get_weapon(), _aim, actor.def.attack_windup)
+	if actor.rig:
+		actor.rig.play_windup(_aim, actor.def.attack_windup)
 
 
 func exit() -> void:

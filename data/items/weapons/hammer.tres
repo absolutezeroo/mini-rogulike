@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="SpriteFrames" path="res://data/visuals/weapons/hammer.tres" id="1_muuec"]
+[ext_resource type="AudioStream" path="res://data/audio/slash_heavy.tres" id="2_dlb3h"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="3_5gd55"]
+[ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="4_ippst"]
+[ext_resource type="Texture2D" path="res://assets/weapons/hammer.png" id="5_hgxcw"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="6_jfn3b"]
+
+[sub_resource type="Resource" id="Resource_scl1l"]
+script = ExtResource("3_5gd55")
+move_speed = -20.0
+
+[resource]
+script = ExtResource("6_jfn3b")
+damage = 14
+cooldown = 0.95
+reach = 34.0
+knockback = 420.0
+attack_animation = 2
+attack_frames = ExtResource("1_muuec")
+arc_degrees = 120.0
+attack_sound = ExtResource("2_dlb3h")
+hit_sound = ExtResource("4_ippst")
+slot = 0
+bonuses = SubResource("Resource_scl1l")
+id = &"hammer"
+display_name = "War Hammer"
+description = "Crushing blows that send enemies flying."
+icon = ExtResource("5_hgxcw")
+glyph = "W"
+color = Color(0.6784314, 0.70980394, 0.7411765, 1)
+min_depth = 3
+spawn_weight = 4

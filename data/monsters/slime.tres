@@ -1,61 +1,64 @@
 [gd_resource type="Resource" script_class="MonsterDef" format=3]
 
-[ext_resource type="AudioStream" path="res://data/audio/slime.tres" id="1_ulqam"]
-[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="2_o1lla"]
-[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="3_x47od"]
-[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="4_q2gc3"]
-[ext_resource type="Resource" path="res://data/items/armors/leather_cap.tres" id="5_8maa8"]
-[ext_resource type="Resource" path="res://data/items/consumables/haste_draught.tres" id="6_ygyn7"]
-[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="7_74j3i"]
-[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="8_gdqej"]
-[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_d8qmv"]
-[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_trupp"]
-[ext_resource type="Resource" path="res://data/items/weapons/monster/slime_slam.tres" id="11_yrb4w"]
+[ext_resource type="AudioStream" path="res://data/audio/slime.tres" id="1_o1lla"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/slime.tres" id="2_x47od"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/slime.png" id="3_q2gc3"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="4_8maa8"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="5_ygyn7"]
+[ext_resource type="Resource" path="res://data/items/armors/leather_cap.tres" id="6_74j3i"]
+[ext_resource type="Resource" path="res://data/items/consumables/haste_draught.tres" id="7_gdqej"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="8_d8qmv"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="9_trupp"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="10_yrb4w"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_3tq7s"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/slam.tres" id="12_07oxk"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_3tq7s"]
-atlas = ExtResource("2_o1lla")
-region = Rect2(0, 144, 16, 16)
-
-[sub_resource type="Resource" id="Resource_07oxk"]
-script = ExtResource("3_x47od")
-item = ExtResource("4_q2gc3")
-weight = 8
+[sub_resource type="AtlasTexture" id="AtlasTexture_0sooj"]
+atlas = ExtResource("3_q2gc3")
+region = Rect2(0, 0, 16, 16)
 
 [sub_resource type="Resource" id="Resource_ny2r1"]
-script = ExtResource("3_x47od")
-item = ExtResource("5_8maa8")
-weight = 3
+script = ExtResource("4_8maa8")
+item = ExtResource("5_ygyn7")
+weight = 8
 
 [sub_resource type="Resource" id="Resource_3pdn1"]
-script = ExtResource("3_x47od")
-item = ExtResource("6_ygyn7")
-weight = 2
+script = ExtResource("4_8maa8")
+item = ExtResource("6_74j3i")
+weight = 3
 
 [sub_resource type="Resource" id="Resource_nwy4h"]
-script = ExtResource("7_74j3i")
-drop_chance = 0.25
-entries = Array[ExtResource("3_x47od")]([SubResource("Resource_07oxk"), SubResource("Resource_ny2r1"), SubResource("Resource_3pdn1")])
+script = ExtResource("4_8maa8")
+item = ExtResource("7_gdqej")
+weight = 2
 
 [sub_resource type="Resource" id="Resource_jskkk"]
-script = ExtResource("10_trupp")
+script = ExtResource("8_d8qmv")
+drop_chance = 0.25
+entries = Array[ExtResource("4_8maa8")]([SubResource("Resource_ny2r1"), SubResource("Resource_3pdn1"), SubResource("Resource_nwy4h")])
+
+[sub_resource type="Resource" id="Resource_il8q7"]
+script = ExtResource("11_3tq7s")
 max_hp = 26
 defense = 1
 move_speed = 55.0
 
 [resource]
-script = ExtResource("8_gdqej")
-stats = SubResource("Resource_jskkk")
-weapon = ExtResource("11_yrb4w")
-radius = 13.0
+script = ExtResource("9_trupp")
+stats = SubResource("Resource_il8q7")
+weapon = ExtResource("12_07oxk")
+frames = ExtResource("2_x47od")
+frames_offset = Vector2(0, -8)
 detect_radius = 200.0
 attack_windup = 0.5
 attack_recovery = 0.4
-death_sound = ExtResource("1_ulqam")
-loot = SubResource("Resource_nwy4h")
+hurt_sound = ExtResource("1_o1lla")
+death_sound = ExtResource("1_o1lla")
+loot = SubResource("Resource_jskkk")
 id = &"slime"
 display_name = "Slime"
 description = "Slow, tough, hits all around itself."
-icon = SubResource("AtlasTexture_3tq7s")
-glyph = "s"
-color = Color(0.5019608, 0.92941177, 0.6, 1)
+icon = SubResource("AtlasTexture_0sooj")
+glyph = "S"
+color = Color(0.47843137, 0.827451, 1, 1)
 spawn_weight = 8
