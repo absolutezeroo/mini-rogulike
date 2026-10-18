@@ -206,9 +206,16 @@ The hero has **4 skill buttons**:
 
 | Style | Weapons | Their skills |
 |---|---|---|
-| Warrior | Katana, Sai, Lance, Battle Axe, War Hammer, Pickaxe | Whirlwind, Iaido Dash, Flurry, Shadow Step, Piercing Thrust, Spear Throw, Cleave, Ground Slam, Fissure, Rock Spike |
+| Warrior | Katana, Sai, Lance, Battle Axe, War Hammer, Pickaxe, Greatsword, Whip | Whirlwind, Iaido Dash, Flurry, Shadow Step, Piercing Thrust, Spear Throw, Cleave, Ground Slam, Fissure, Rock Spike, Sundering Blow, Lash, Battle Cry |
+| Ninja | Ninjaku, Shuriken (3 stars a throw) | Kunai Fan, Shuriken Storm (a ring of 16), Shadow Step |
+| Duelist | Rapier (fast, crits) | Riposte (leap back, then crits and speed), Piercing Thrust |
+| Archer | Bow (arrows pierce one enemy) | Volley (5 arrows), Arrow Rain (4 hits on an area ahead) |
 | Mage | Spark Wand, Frost Staff, Ember Tome | Spark Nova, Arcane Bolt, Frost Nova (slow), Ice Shards (slow), Fireball, Fire Wave (burn) |
 | Paladin | Templar Sword | Smite (damage + heal), Holy Shield (DEF + heal) |
+
+The weapon in the hero's hand is animated frame by frame with the attack. For weapons without a
+hand-drawn sheet, the sheet is baked from the item sprite rotated around its handle (a swing,
+a heavy swing, a thrust, a lash or an aim; 4 directions x 4 frames, `assets/weapons/attack/`).
 
 Tomes (found on the floor, dropped by casters and bosses) teach Holy Light, Battle Cry, Frost Nova,
 Fireball, Blink or Thunder, whatever weapon you hold: a warrior can heal, a mage can blink.

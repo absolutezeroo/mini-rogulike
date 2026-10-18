@@ -578,6 +578,7 @@ func _test_gameplay() -> void:
 	await _test_souls(game)
 	await _test_comfort(game)
 	await _test_loot_and_gold(game)
+	await _test_weapon_kits(game)
 
 	await _test_boss_fight(game)
 
@@ -1351,6 +1352,40 @@ func _test_comfort(game: Node) -> void:
 	full_map.tapped.emit()
 	check(not full_map.visible, "tapping again closes it")
 	game.player.xp = 0
+
+
+## Every weapon swings or shoots, and both its skills work, in the real game.
+func _test_weapon_kits(game: Node) -> void:
+	var player: Player = game.player
+	var world: World = game.world
+	player.xp = -1000000
+	var weapon_before := player.get_weapon()
+	var target := world.spawn_monster(load("res://data/monsters/slime.tres"), world.map.cell_to_world(_open_cell_near(world, player.global_position, 2)))
+	target.dormant = true
+	target.base_stats.max_hp = 100000
+	target.invalidate_stats()
+	target.hp = 100000
+	player.global_position = target.global_position + Vector2(-50, 0)
+	for id in ["ninjaku", "rapier", "big_sword", "whip", "bow", "shuriken"]:
+		var weapon: WeaponDef = load("res://data/items/weapons/%s.tres" % id)
+		check(CONTENT.items.has(weapon), "%s can be found" % id)
+		player.equipment.equip(weapon)
+		check(player.skills.skills[1] == weapon.skills[0] and player.skills.skills[2] == weapon.skills[1], "%s gives its two skills" % id)
+		var hp_before := target.hp
+		player._attack_cooldown = 0.0
+		check(player.attack(Vector2.RIGHT) and player.rig.weapon.visible, "%s attacks with the weapon in hand" % id)
+		await _frames(30)
+		for slot in [1, 2]:
+			player.skills._cooldowns[slot] = 0.0
+			player.use_skill(slot)
+			check(player.skills.cooldown_ratio(slot) > 0.0, "%s: %s is used" % [id, weapon.skills[slot - 1].id])
+			await _frames(50)
+		check(target.hp < hp_before, "%s hurts" % id)
+		player.global_position = target.global_position + Vector2(-50, 0)
+	target.queue_free()
+	player.equipment.equip(weapon_before)
+	player.xp = 0
+	await _frames(5)
 
 
 ## Magic, Rare and Epic equipment, gold, and the merchant.

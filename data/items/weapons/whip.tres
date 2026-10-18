@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_7ev7n"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/weapons/whip.tres" id="2_412tk"]
+[ext_resource type="Texture2D" path="res://assets/fx/cut.png" id="3_8oy1s"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="4_gp56s"]
+[ext_resource type="AudioStream" path="res://data/audio/hit.tres" id="5_inecs"]
+[ext_resource type="Texture2D" path="res://assets/weapons/whip.png" id="6_unjqi"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="7_uhab8"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_05to4"]
+[ext_resource type="Resource" path="res://data/skills/player/lash.tres" id="9_extgn"]
+[ext_resource type="Resource" path="res://data/skills/player/battle_cry.tres" id="10_32a85"]
+
+[resource]
+script = ExtResource("7_uhab8")
+damage = 5
+cooldown = 0.42
+reach = 74.0
+knockback = 240.0
+attack_animation = 1
+attack_frames = ExtResource("2_412tk")
+attack_fx = ExtResource("3_8oy1s")
+attack_fx_rotation = 45.0
+skills = Array[ExtResource("8_05to4")]([ExtResource("9_extgn"), ExtResource("10_32a85")])
+arc_degrees = 22.0
+attack_sound = ExtResource("4_gp56s")
+hit_sound = ExtResource("5_inecs")
+slot = 0
+value = 40
+id = &"whip"
+display_name = "Whip"
+description = "Long reach, thin and stinging. Keep them at a distance."
+icon = ExtResource("6_unjqi")
+glyph = "W"
+color = Color(0.83137256, 0.6392157, 0.4509804, 1)
+min_depth = 2
+spawn_weight = 5

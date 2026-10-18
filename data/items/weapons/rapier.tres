@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_7oon0"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/weapons/rapier.tres" id="2_66l2u"]
+[ext_resource type="Texture2D" path="res://assets/fx/cut.png" id="3_dlls5"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="4_1jhcp"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="5_xqm3c"]
+[ext_resource type="AudioStream" path="res://data/audio/hit.tres" id="6_3bv1y"]
+[ext_resource type="Texture2D" path="res://assets/weapons/rapier.png" id="7_gif74"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="8_de2vx"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_lobrh"]
+[ext_resource type="Resource" path="res://data/skills/player/riposte.tres" id="10_a65b0"]
+[ext_resource type="Resource" path="res://data/skills/player/piercing_thrust.tres" id="11_b0na8"]
+
+[sub_resource type="Resource" id="Resource_xbxxo"]
+script = ExtResource("5_xqm3c")
+crit_chance = 0.15
+
+[resource]
+script = ExtResource("8_de2vx")
+damage = 3
+cooldown = 0.19
+reach = 42.0
+knockback = 60.0
+attack_animation = 1
+attack_frames = ExtResource("2_66l2u")
+attack_fx = ExtResource("3_dlls5")
+attack_fx_rotation = 45.0
+skills = Array[ExtResource("9_lobrh")]([ExtResource("10_a65b0"), ExtResource("11_b0na8")])
+arc_degrees = 30.0
+attack_sound = ExtResource("4_1jhcp")
+hit_sound = ExtResource("6_3bv1y")
+slot = 0
+bonuses = SubResource("Resource_xbxxo")
+value = 40
+id = &"rapier"
+display_name = "Rapier"
+description = "A fencer's blade: lightning thrusts that find the weak spots."
+icon = ExtResource("7_gif74")
+glyph = "R"
+color = Color(0.95686275, 0.827451, 0.36862746, 1)
+min_depth = 2
+spawn_weight = 6

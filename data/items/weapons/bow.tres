@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_yyyii"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/weapons/bow.tres" id="2_iu3jd"]
+[ext_resource type="AudioStream" path="res://data/audio/launch.tres" id="3_d1n4l"]
+[ext_resource type="AudioStream" path="res://data/audio/impact_light.tres" id="4_mt01t"]
+[ext_resource type="Texture2D" path="res://assets/weapons/bow.png" id="5_xamar"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/bow_arrow.png" id="6_6xh4s"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="7_wbbmo"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_eswvm"]
+[ext_resource type="Resource" path="res://data/skills/player/volley.tres" id="9_cg45v"]
+[ext_resource type="Resource" path="res://data/skills/player/arrow_rain.tres" id="10_dy2j0"]
+
+[resource]
+script = ExtResource("7_wbbmo")
+kind = 1
+cooldown = 0.42
+reach = 460.0
+knockback = 90.0
+attack_animation = 3
+attack_frames = ExtResource("2_iu3jd")
+skills = Array[ExtResource("8_eswvm")]([ExtResource("9_cg45v"), ExtResource("10_dy2j0")])
+attack_sound = ExtResource("3_d1n4l")
+hit_sound = ExtResource("4_mt01t")
+projectile_texture = ExtResource("6_6xh4s")
+projectile_speed = 600.0
+pierce = 1
+slot = 0
+value = 40
+id = &"bow"
+display_name = "Bow"
+description = "Arrows that go through the first enemy."
+icon = ExtResource("5_xamar")
+glyph = "B"
+color = Color(0.654902, 0.7882353, 0.34117648, 1)
+spawn_weight = 6

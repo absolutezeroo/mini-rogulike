@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_wi7x8"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/weapons/shuriken.tres" id="2_83h33"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="3_nuxq8"]
+[ext_resource type="AudioStream" path="res://data/audio/impact_light.tres" id="4_xjoqy"]
+[ext_resource type="Texture2D" path="res://assets/weapons/shuriken.png" id="5_6wfog"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/shuriken.png" id="6_qhtk1"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="7_o0nko"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_8gwpx"]
+[ext_resource type="Resource" path="res://data/skills/player/shuriken_storm.tres" id="9_c1b58"]
+[ext_resource type="Resource" path="res://data/skills/player/shadow_step.tres" id="10_kden6"]
+
+[resource]
+script = ExtResource("7_o0nko")
+kind = 1
+damage = 2
+cooldown = 0.32
+reach = 340.0
+knockback = 60.0
+attack_animation = 3
+attack_frames = ExtResource("2_83h33")
+skills = Array[ExtResource("8_8gwpx")]([ExtResource("9_c1b58"), ExtResource("10_kden6")])
+attack_sound = ExtResource("3_nuxq8")
+hit_sound = ExtResource("4_xjoqy")
+projectile_texture = ExtResource("6_qhtk1")
+projectile_speed = 520.0
+projectile_count = 3
+spread_degrees = 24.0
+slot = 0
+value = 40
+id = &"shuriken"
+display_name = "Shuriken"
+description = "Throwing stars, three at a time. The ninja's way."
+icon = ExtResource("5_6wfog")
+glyph = "S"
+color = Color(0.8784314, 0.88235295, 0.8666667, 1)
+spawn_weight = 6

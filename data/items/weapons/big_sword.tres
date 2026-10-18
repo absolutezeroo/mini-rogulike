@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_a2s60"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/weapons/big_sword.tres" id="2_3jtjh"]
+[ext_resource type="Texture2D" path="res://assets/fx/cut.png" id="3_prss1"]
+[ext_resource type="AudioStream" path="res://data/audio/slash_heavy.tres" id="4_6su5s"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="5_teqs5"]
+[ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="6_b5b1k"]
+[ext_resource type="Texture2D" path="res://assets/weapons/big_sword.png" id="7_nf27i"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="8_i07dq"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_06n4e"]
+[ext_resource type="Resource" path="res://data/skills/player/sundering_blow.tres" id="10_c0h1f"]
+[ext_resource type="Resource" path="res://data/skills/player/whirlwind.tres" id="11_0cbet"]
+
+[sub_resource type="Resource" id="Resource_rbsyd"]
+script = ExtResource("5_teqs5")
+max_hp = 10
+move_speed = -10.0
+
+[resource]
+script = ExtResource("8_i07dq")
+damage = 12
+cooldown = 0.8
+reach = 44.0
+knockback = 320.0
+attack_frames = ExtResource("2_3jtjh")
+attack_fx = ExtResource("3_prss1")
+attack_fx_rotation = 45.0
+skills = Array[ExtResource("9_06n4e")]([ExtResource("10_c0h1f"), ExtResource("11_0cbet")])
+arc_degrees = 170.0
+attack_sound = ExtResource("4_6su5s")
+hit_sound = ExtResource("6_b5b1k")
+slot = 0
+bonuses = SubResource("Resource_rbsyd")
+value = 40
+id = &"big_sword"
+display_name = "Greatsword"
+description = "Huge and slow. Everything in front of you goes flying."
+icon = ExtResource("7_nf27i")
+glyph = "G"
+color = Color(1, 0.62352943, 0.10980392, 1)
+min_depth = 3
+spawn_weight = 5

@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_gtxs6"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="2_a7rls"]
+[ext_resource type="Texture2D" path="res://assets/ui/skills/arrow_rain.png" id="3_1d4yu"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_7jll4"]
+[ext_resource type="AudioStream" path="res://data/audio/launch.tres" id="5_vvhm4"]
+
+[sub_resource type="Resource" id="Resource_bvet8"]
+script = ExtResource("2_a7rls")
+damage_multiplier = 0.8
+offset = 170.0
+knockback = 60.0
+color = Color(0.654902, 0.7882353, 0.34117648, 1)
+delay = 0.2
+
+[sub_resource type="Resource" id="Resource_h2j5w"]
+script = ExtResource("2_a7rls")
+damage_multiplier = 0.8
+offset = 170.0
+knockback = 60.0
+color = Color(0.654902, 0.7882353, 0.34117648, 1)
+delay = 0.42000000000000004
+
+[sub_resource type="Resource" id="Resource_ubonu"]
+script = ExtResource("2_a7rls")
+damage_multiplier = 0.8
+offset = 170.0
+knockback = 60.0
+color = Color(0.654902, 0.7882353, 0.34117648, 1)
+delay = 0.64
+
+[sub_resource type="Resource" id="Resource_hqco8"]
+script = ExtResource("2_a7rls")
+damage_multiplier = 0.8
+offset = 170.0
+knockback = 60.0
+color = Color(0.654902, 0.7882353, 0.34117648, 1)
+delay = 0.8600000000000001
+
+[resource]
+script = ExtResource("4_7jll4")
+id = &"arrow_rain"
+display_name = "Arrow Rain"
+description = "Arrows fall on the area ahead, four times."
+short_label = "RAIN"
+icon = ExtResource("3_1d4yu")
+color = Color(0.654902, 0.7882353, 0.34117648, 1)
+cooldown = 8.0
+effects = Array[ExtResource("1_gtxs6")]([SubResource("Resource_bvet8"), SubResource("Resource_h2j5w"), SubResource("Resource_ubonu"), SubResource("Resource_hqco8")])
+sound = ExtResource("5_vvhm4")

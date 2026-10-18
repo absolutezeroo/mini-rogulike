@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_kbckd"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="2_gaddb"]
+[ext_resource type="Texture2D" path="res://assets/ui/skills/sundering_blow.png" id="3_l0jio"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_o7suf"]
+[ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="5_4c1p6"]
+
+[sub_resource type="Resource" id="Resource_bsh7n"]
+script = ExtResource("2_gaddb")
+radius = 70.0
+damage_multiplier = 3.0
+offset = 60.0
+knockback = 360.0
+explosive = true
+delay = 0.15
+
+[resource]
+script = ExtResource("4_o7suf")
+id = &"sundering_blow"
+display_name = "Sundering Blow"
+description = "A crushing blow that bursts the ground in front of you."
+short_label = "SUNDER"
+icon = ExtResource("3_l0jio")
+color = Color(1, 0.62352943, 0.10980392, 1)
+cooldown = 7.0
+effects = Array[ExtResource("1_kbckd")]([SubResource("Resource_bsh7n")])
+sound = ExtResource("5_4c1p6")

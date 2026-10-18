@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_1l7r4"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_2drmf"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/shuriken.png" id="3_gxs7d"]
+[ext_resource type="Texture2D" path="res://assets/ui/skills/shuriken_storm.png" id="4_y34me"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_arucj"]
+[ext_resource type="AudioStream" path="res://data/audio/launch.tres" id="6_3chmw"]
+
+[sub_resource type="Resource" id="Resource_l6puj"]
+script = ExtResource("2_2drmf")
+damage_multiplier = 0.6
+speed = 480.0
+radius = 6.0
+count = 16
+spread_degrees = 360.0
+pierce = 1
+knockback = 100.0
+color = Color(0.8784314, 0.88235295, 0.8666667, 1)
+texture = ExtResource("3_gxs7d")
+
+[resource]
+script = ExtResource("5_arucj")
+id = &"shuriken_storm"
+display_name = "Shuriken Storm"
+description = "Sixteen shuriken fly out all around you."
+short_label = "STORM"
+icon = ExtResource("4_y34me")
+color = Color(0.8784314, 0.88235295, 0.8666667, 1)
+cooldown = 7.0
+effects = Array[ExtResource("1_1l7r4")]([SubResource("Resource_l6puj")])
+sound = ExtResource("6_3chmw")

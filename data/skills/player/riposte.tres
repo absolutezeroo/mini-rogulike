@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_my214"]
+[ext_resource type="Script" path="res://src/definitions/effects/dash_effect.gd" id="2_fmmxt"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="3_tfaix"]
+[ext_resource type="Script" path="res://src/definitions/effects/buff_effect.gd" id="4_oym64"]
+[ext_resource type="Texture2D" path="res://assets/ui/skills/riposte.png" id="5_5u4ln"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="6_fhmbd"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="7_5fqol"]
+
+[sub_resource type="Resource" id="Resource_8b4td"]
+script = ExtResource("2_fmmxt")
+direction = 2
+distance = 90.0
+duration = 0.14
+
+[sub_resource type="Resource" id="Resource_iu0tg"]
+script = ExtResource("3_tfaix")
+crit_chance = 0.5
+attack_speed = 0.4
+
+[sub_resource type="Resource" id="Resource_5c4oc"]
+script = ExtResource("4_oym64")
+bonuses = SubResource("Resource_iu0tg")
+duration = 3.0
+color = Color(0.95686275, 0.827451, 0.36862746, 1)
+
+[resource]
+script = ExtResource("6_fhmbd")
+id = &"riposte"
+display_name = "Riposte"
+description = "Leap back, then strike faster and deadlier for 3 s."
+short_label = "RIPOSTE"
+icon = ExtResource("5_5u4ln")
+color = Color(0.95686275, 0.827451, 0.36862746, 1)
+cooldown = 7.0
+effects = Array[ExtResource("1_my214")]([SubResource("Resource_8b4td"), SubResource("Resource_5c4oc")])
+sound = ExtResource("7_5fqol")

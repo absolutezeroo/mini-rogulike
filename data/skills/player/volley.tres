@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_e8bct"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_7l0py"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/bow_arrow.png" id="3_cfdh6"]
+[ext_resource type="Texture2D" path="res://assets/ui/skills/volley.png" id="4_q1fw3"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_r1gq3"]
+[ext_resource type="AudioStream" path="res://data/audio/launch.tres" id="6_gq1bo"]
+
+[sub_resource type="Resource" id="Resource_8bym5"]
+script = ExtResource("2_7l0py")
+damage_multiplier = 0.9
+speed = 560.0
+radius = 6.0
+count = 5
+spread_degrees = 40.0
+pierce = 1
+knockback = 100.0
+color = Color(0.654902, 0.7882353, 0.34117648, 1)
+texture = ExtResource("3_cfdh6")
+
+[resource]
+script = ExtResource("5_r1gq3")
+id = &"volley"
+display_name = "Volley"
+description = "Loose five arrows at once."
+short_label = "VOLLEY"
+icon = ExtResource("4_q1fw3")
+color = Color(0.654902, 0.7882353, 0.34117648, 1)
+cooldown = 4.0
+effects = Array[ExtResource("1_e8bct")]([SubResource("Resource_8bym5")])
+sound = ExtResource("6_gq1bo")

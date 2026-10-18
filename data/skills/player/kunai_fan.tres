@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_a3phn"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_vb6vc"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/kunai.png" id="3_j51su"]
+[ext_resource type="Texture2D" path="res://assets/ui/skills/kunai_fan.png" id="4_fupvp"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_bb25o"]
+[ext_resource type="AudioStream" path="res://data/audio/launch.tres" id="6_2c5ss"]
+
+[sub_resource type="Resource" id="Resource_gxi8n"]
+script = ExtResource("2_vb6vc")
+damage_multiplier = 0.7
+speed = 520.0
+radius = 6.0
+count = 5
+spread_degrees = 50.0
+knockback = 100.0
+color = Color(0.7529412, 0.8392157, 0.8745098, 1)
+texture = ExtResource("3_j51su")
+
+[resource]
+script = ExtResource("5_bb25o")
+id = &"kunai_fan"
+display_name = "Kunai Fan"
+description = "Throw five kunai in a fan."
+short_label = "KUNAI"
+icon = ExtResource("4_fupvp")
+color = Color(0.7529412, 0.8392157, 0.8745098, 1)
+cooldown = 5.0
+effects = Array[ExtResource("1_a3phn")]([SubResource("Resource_gxi8n")])
+sound = ExtResource("6_2c5ss")

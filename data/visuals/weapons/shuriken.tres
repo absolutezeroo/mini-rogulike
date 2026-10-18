@@ -1,0 +1,138 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/weapons/attack/shuriken.png" id="1_m4bvt"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vv7yb"]
+atlas = ExtResource("1_m4bvt")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b1k70"]
+atlas = ExtResource("1_m4bvt")
+region = Rect2(0, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fguqs"]
+atlas = ExtResource("1_m4bvt")
+region = Rect2(0, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4hq4e"]
+atlas = ExtResource("1_m4bvt")
+region = Rect2(0, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nqtp4"]
+atlas = ExtResource("1_m4bvt")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_curu2"]
+atlas = ExtResource("1_m4bvt")
+region = Rect2(128, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_67lso"]
+atlas = ExtResource("1_m4bvt")
+region = Rect2(128, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v13b7"]
+atlas = ExtResource("1_m4bvt")
+region = Rect2(128, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hgusb"]
+atlas = ExtResource("1_m4bvt")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bsted"]
+atlas = ExtResource("1_m4bvt")
+region = Rect2(192, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_r47sm"]
+atlas = ExtResource("1_m4bvt")
+region = Rect2(192, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cvbfd"]
+atlas = ExtResource("1_m4bvt")
+region = Rect2(192, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ypak6"]
+atlas = ExtResource("1_m4bvt")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b62nq"]
+atlas = ExtResource("1_m4bvt")
+region = Rect2(64, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_im3aw"]
+atlas = ExtResource("1_m4bvt")
+region = Rect2(64, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ggx46"]
+atlas = ExtResource("1_m4bvt")
+region = Rect2(64, 192, 64, 64)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vv7yb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b1k70")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fguqs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4hq4e")
+}],
+"loop": 0,
+"name": &"attack_down",
+"speed": 14.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nqtp4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_curu2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_67lso")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v13b7")
+}],
+"loop": 0,
+"name": &"attack_left",
+"speed": 14.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hgusb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bsted")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_r47sm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cvbfd")
+}],
+"loop": 0,
+"name": &"attack_right",
+"speed": 14.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ypak6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b62nq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_im3aw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ggx46")
+}],
+"loop": 0,
+"name": &"attack_up",
+"speed": 14.0
+}]
