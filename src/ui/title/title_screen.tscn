@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://src/ui/title/title_screen.gd" id="1_title"]
 [ext_resource type="Resource" path="res://data/content_db.tres" id="2_content"]
 [ext_resource type="Script" path="res://src/ui/title/shrine_panel.gd" id="3_shrine"]
+[ext_resource type="Script" path="res://src/ui/title/difficulty_panel.gd" id="4_difficulty"]
 
 [node name="TitleScreen" type="Control"]
 layout_mode = 3
@@ -168,3 +169,57 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
+
+[node name="DifficultyPanel" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("4_difficulty")
+
+[node name="Dim" type="ColorRect" parent="DifficultyPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.03, 0.06, 0.92)
+
+[node name="Center" type="CenterContainer" parent="DifficultyPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="DifficultyPanel/Center"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Title" type="Label" parent="DifficultyPanel/Center/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.4, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 40
+text = "Choose a difficulty"
+horizontal_alignment = 1
+
+[node name="DifficultyCards" type="HBoxContainer" parent="DifficultyPanel/Center/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="BackButton" type="Button" parent="DifficultyPanel/Center/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+theme_override_font_sizes/font_size = 20
+text = "Back"

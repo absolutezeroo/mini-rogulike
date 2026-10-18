@@ -20,6 +20,7 @@ var dormant := false
 
 var _phases_done := 0
 var _windup_multiplier := 1.0
+var _damage_multiplier := 1.0
 var _phase_tint := Color.WHITE
 
 
@@ -41,11 +42,27 @@ func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
 	var levels := depth - 1
 	base_stats.max_hp = roundi(base_stats.max_hp * (1.0 + config.monster_hp_scale_per_depth * levels))
 	base_stats.attack += config.monster_attack_per_depth * levels
+	var difficulty := world.difficulty if world else null
+	if difficulty:
+		base_stats.max_hp = roundi(base_stats.max_hp * (difficulty.boss_hp if def is BossDef else difficulty.monster_hp))
+		base_stats.move_speed *= difficulty.monster_speed
+		_damage_multiplier = difficulty.monster_damage
+		_windup_multiplier = difficulty.telegraph_time
 	if def.weapon:
 		equipment.equip(def.weapon)
 	skills.set_skills(def.skills)
 	invalidate_stats()
 	hp = get_max_hp()
+
+
+## Attacks and skills hit harder (or softer) with the difficulty.
+func get_power() -> int:
+	return maxi(1, roundi(super.get_power() * _damage_multiplier))
+
+
+## Wind-ups and casts last longer on easy, shorter on hard (and in late boss phases).
+func get_telegraph_scale() -> float:
+	return _windup_multiplier
 
 
 func is_boss() -> bool:
@@ -180,7 +197,7 @@ func _on_died(killer: Actor) -> void:
 	_death_burst()
 	_death_spawns()
 	if def.loot:
-		for item in def.loot.roll(world.rng):
+		for item in def.loot.roll(world.rng, world.loot_scale()):
 			var offset := Vector2.from_angle(randf() * TAU) * randf_range(4.0, 14.0)
 			world.spawn_item(item, global_position + offset)
 
@@ -192,7 +209,7 @@ func _death_burst() -> void:
 	var at := global_position
 	var target_world := world
 	var monster_def := def
-	var damage := def.death_burst_damage + target_world.depth
+	var damage := roundi((def.death_burst_damage + target_world.depth) * target_world.damage_scale())
 	target_world.spawn_vfx(RingVfx.create(at, def.death_burst_radius, Color(1.0, 0.3, 0.2, 0.8)))
 	target_world.get_tree().create_timer(DEATH_BURST_FUSE, false).timeout.connect(func() -> void:
 		if not is_instance_valid(target_world):

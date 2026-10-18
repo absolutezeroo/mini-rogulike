@@ -77,7 +77,7 @@ func _break() -> void:
 	Vfx.burst(world, Vfx.DEATH_CHUNKS, global_position, def.debris_color)
 	Vfx.puff(world, global_position + Vector2(0, 8))
 	if def.loot:
-		for item in def.loot.roll(world.rng):
+		for item in def.loot.roll(world.rng, world.loot_scale()):
 			world.spawn_item(item, global_position)
 	broken.emit(self)
 	queue_free()

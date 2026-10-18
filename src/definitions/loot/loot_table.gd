@@ -8,10 +8,11 @@ extends Resource
 @export var entries: Array[LootEntry] = []
 
 
-func roll(rng: RandomNumberGenerator) -> Array[ItemDef]:
+## `chance_scale` multiplies the drop chance (difficulty).
+func roll(rng: RandomNumberGenerator, chance_scale: float = 1.0) -> Array[ItemDef]:
 	var drops: Array[ItemDef] = []
 	for i in rolls:
-		if rng.randf() < drop_chance:
+		if rng.randf() < drop_chance * chance_scale:
 			var item := pick(rng)
 			if item:
 				drops.append(item)

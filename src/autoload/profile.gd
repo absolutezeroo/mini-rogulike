@@ -12,6 +12,10 @@ var levels := {}
 var runs := 0
 var victories := 0
 var best_depth := 0
+## Difficulty picked on the title screen (DifficultyDef id).
+var difficulty: StringName = &"normal"
+## Victories per difficulty id (unlocks the next difficulty).
+var wins := {}
 ## Empty = nothing is read or written (tests).
 var save_path := SAVE_PATH
 
@@ -39,16 +43,28 @@ func buy(upgrade: UpgradeDef) -> bool:
 	return true
 
 
-## Souls for a run: monsters, depth reached, bosses, and a big bonus for winning.
-static func souls_for_run(kills: int, depth: int, bosses: int, won: bool) -> int:
-	return kills + (depth - 1) * 5 + bosses * 20 + (100 if won else 0)
+## Souls for a run: monsters, depth reached, bosses, a big bonus for winning, times the difficulty.
+static func souls_for_run(kills: int, depth: int, bosses: int, won: bool, multiplier: float = 1.0) -> int:
+	return roundi((kills + (depth - 1) * 5 + bosses * 20 + (100 if won else 0)) * multiplier)
 
 
-func record_run(earned: int, depth: int, won: bool) -> void:
+func is_unlocked(def: DifficultyDef) -> bool:
+	return def.unlocked_by == null or wins.get(String(def.unlocked_by.id), 0) > 0
+
+
+func select_difficulty(def: DifficultyDef) -> void:
+	difficulty = def.id
+	save_profile()
+	changed.emit()
+
+
+func record_run(earned: int, depth: int, won: bool, difficulty_id: StringName = &"") -> void:
 	souls += earned
 	best_depth = maxi(best_depth, depth)
 	if won:
 		victories += 1
+		if difficulty_id != &"":
+			wins[String(difficulty_id)] = wins.get(String(difficulty_id), 0) + 1
 	save_profile()
 	changed.emit()
 
@@ -64,6 +80,8 @@ func reset() -> void:
 	runs = 0
 	victories = 0
 	best_depth = 0
+	difficulty = &"normal"
+	wins = {}
 	changed.emit()
 
 
@@ -76,6 +94,7 @@ func save_profile() -> void:
 		return
 	file.store_string(JSON.stringify({
 		"souls": souls, "levels": levels, "runs": runs, "victories": victories, "best_depth": best_depth,
+		"difficulty": String(difficulty), "wins": wins,
 	}, "\t"))
 
 
@@ -93,3 +112,7 @@ func load_profile() -> void:
 	runs = int(data.get("runs", 0))
 	victories = int(data.get("victories", 0))
 	best_depth = int(data.get("best_depth", 0))
+	difficulty = StringName(data.get("difficulty", "normal"))
+	wins = data.get("wins", {})
+	for key in wins:
+		wins[key] = int(wins[key])

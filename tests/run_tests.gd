@@ -313,12 +313,37 @@ func _test_profile() -> void:
 	CONTENT.unlocked_items.clear()
 	Profile.reset()
 
+	# Difficulties
+	check(CONTENT.difficulties.size() == 4 and CONTENT.default_difficulty.id == &"normal", "4 difficulties, Normal by default")
+	var hard := CONTENT.get_difficulty(&"hard")
+	var nightmare := CONTENT.get_difficulty(&"nightmare")
+	check(Profile.is_unlocked(CONTENT.get_difficulty(&"easy")) and Profile.is_unlocked(hard), "Easy to Hard are open")
+	check(not Profile.is_unlocked(nightmare), "Nightmare starts locked")
+	Profile.record_run(0, 9, true, &"normal")
+	check(not Profile.is_unlocked(nightmare), "a Normal win doesn't unlock Nightmare")
+	Profile.record_run(0, 9, true, &"hard")
+	check(Profile.is_unlocked(nightmare), "a Hard win unlocks Nightmare")
+	check(Profile.souls_for_run(10, 5, 1, false, nightmare.souls) > Profile.souls_for_run(10, 5, 1, false), "harder difficulties give more souls")
+	var previous := 0.0
+	for difficulty in CONTENT.difficulties:
+		check(difficulty.monster_hp >= previous, "difficulties get harder in order (%s)" % difficulty.id)
+		previous = difficulty.monster_hp
+	Profile.reset()
+
 
 func _test_title_screen() -> void:
 	var title: TitleScreen = load("res://src/ui/title/title_screen.tscn").instantiate()
 	add_child(title)
 	await _frames(2)
 	check(title.get_node("%PlayButton").visible, "the title screen has a Play button")
+	(title.get_node("%PlayButton") as Button).pressed.emit()
+	await _frames(2)
+	var cards: HBoxContainer = title.get_node("%DifficultyCards")
+	check(title.get_node("%DifficultyPanel").visible and cards.get_child_count() == 4, "Play asks for a difficulty")
+	check((cards.get_child(3) as Button).disabled and not (cards.get_child(2) as Button).disabled, "Nightmare locked, Hard open")
+	(title.get_node("%BackButton") as Button).pressed.emit()
+	await _frames(1)
+	check(not title.get_node("%DifficultyPanel").visible, "back to the title")
 	Profile.souls = 500
 	(title.get_node("%ShrineButton") as Button).pressed.emit()
 	await _frames(2)
@@ -352,6 +377,7 @@ func _test_gameplay() -> void:
 	await _test_world_objects(game, world, player)
 	await _test_skills(game, world, player)
 	await _test_bestiary(world, player)
+	await _test_difficulty_in_game(game, world, player)
 
 	var kills := [0]
 	var depth_changes := [0]
@@ -510,8 +536,18 @@ func _test_gameplay() -> void:
 	check(Profile.souls >= souls_before_death and (game.game_over_panel.get_node("%Summary") as Label).text.contains("souls"), "the end of a run shows its souls")
 	# Shrine upgrades apply to the next run.
 	Profile.levels = { "vitality": 2, "provisions": 1, "second_chance": 1, "paladin_oath": 1 }
+	Profile.difficulty = &"easy"
 	game.start_run()
 	await _frames(5)
+	check(game.difficulty.id == &"easy" and game.world.difficulty == game.difficulty, "the run uses the chosen difficulty")
+	check((game.hud.get_node("%InfoLabel") as Label).text.contains("Easy"), "the HUD shows the difficulty")
+	Profile.difficulty = &"nightmare"
+	game.start_run()
+	await _frames(3)
+	check(game.difficulty == CONTENT.default_difficulty, "a locked difficulty falls back to Normal")
+	Profile.difficulty = &"normal"
+	game.start_run()
+	await _frames(3)
 	check(game.player != player and not game.player.is_dead, "restart creates a fresh player")
 	check(game.player.get_max_hp() == CONTENT.player.base_stats.max_hp + 2 * _upgrade("vitality").bonuses.max_hp, "Vitality raises max HP")
 	check(game.player.inventory.count_of(load("res://data/items/consumables/health_potion.tres")) == CONTENT.player.starting_items.size() + 1, "Provisions add a potion")
@@ -637,6 +673,26 @@ func _test_perks_in_game(game: Node, world: World, player: Player) -> void:
 	for entry in player.perks.entries:
 		total_levels += entry.stacks
 	check(not get_tree().paused and total_levels == 3, "both perks taken (%d perk levels), game resumed" % total_levels)
+
+
+## Difficulty multipliers reach monsters; the run uses the difficulty picked on the title screen.
+func _test_difficulty_in_game(game: Node, world: World, player: Player) -> void:
+	var skeleton: MonsterDef = load("res://data/monsters/skeleton.tres")
+	var spot := world.find_open_point_near(player.global_position, 150.0)
+	check(world.difficulty == CONTENT.default_difficulty, "a run without choice is Normal")
+	var normal_one := world.spawn_monster(skeleton, spot)
+	world.difficulty = CONTENT.get_difficulty(&"nightmare")
+	var nightmare_one := world.spawn_monster(skeleton, spot)
+	world.difficulty = CONTENT.get_difficulty(&"easy")
+	var easy_one := world.spawn_monster(skeleton, spot)
+	world.difficulty = CONTENT.default_difficulty
+	await _frames(1)
+	check(nightmare_one.get_max_hp() > normal_one.get_max_hp() and easy_one.get_max_hp() < normal_one.get_max_hp(), "monster HP follows the difficulty")
+	check(nightmare_one.get_power() > normal_one.get_power() and easy_one.get_power() < normal_one.get_power(), "monster damage follows the difficulty")
+	check(nightmare_one.get_attack_windup() < normal_one.get_attack_windup() and easy_one.get_attack_windup() > normal_one.get_attack_windup(), "less time to dodge on harder difficulties")
+	for monster in [normal_one, nightmare_one, easy_one]:
+		monster.queue_free()
+	await _frames(2)
 
 
 ## New monster abilities: poison, death bursts, splitting, charges.

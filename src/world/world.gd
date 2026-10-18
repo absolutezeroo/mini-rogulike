@@ -19,6 +19,8 @@ var theme: DungeonTheme
 var player: Player
 var depth := 1
 var rng := RandomNumberGenerator.new()
+## Difficulty of the run (set by the game before building floors).
+var difficulty: DifficultyDef
 ## Boss floors only: the arena and its boss (null on normal floors).
 var arena: BossArena
 
@@ -46,6 +48,8 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 		map = DungeonGenerator.generate(content.dungeon, rng)
 	theme = content.dungeon.theme_for_depth(depth)
 	_ambient.color = theme.ambient if theme else Color.WHITE
+	if difficulty:
+		_ambient.color = Color(_ambient.color * difficulty.light, 1.0)
 	_view.show_map(map, theme)
 	_build_walls()
 	_build_pathfinding()
@@ -176,6 +180,16 @@ func get_hostiles(faction: Actor.Faction) -> Array[Actor]:
 	elif player and not player.is_dead:
 		result.append(player)
 	return result
+
+
+## Multiplier for damage dealt by the dungeon itself (monsters, traps): the difficulty.
+func damage_scale() -> float:
+	return difficulty.monster_damage if difficulty else 1.0
+
+
+## Multiplier for drop chances.
+func loot_scale() -> float:
+	return difficulty.loot_chance if difficulty else 1.0
 
 
 ## Every living actor, whatever its side (traps and explosions hurt everyone).

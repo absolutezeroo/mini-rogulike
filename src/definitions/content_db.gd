@@ -11,6 +11,10 @@ extends Resource
 @export var items: Array[ItemDef] = []
 ## Perks offered on level up (common) and after bosses (rare relics).
 @export var perks: Array[PerkDef] = []
+## Difficulties, easiest first (picked on the title screen).
+@export var difficulties: Array[DifficultyDef] = []
+## Used when nothing was picked yet (tests, first launch).
+@export var default_difficulty: DifficultyDef
 ## Permanent upgrades sold at the shrine (title screen).
 @export var upgrades: Array[UpgradeDef] = []
 ## Items that only appear in the dungeon once a shrine upgrade unlocked them.
@@ -29,6 +33,13 @@ func pick_monster(depth: int, rng: RandomNumberGenerator) -> MonsterDef:
 	for monster in act.monsters:
 		weights.append(monster.spawn_weight if monster else 0)
 	return RandomUtils.pick_weighted(act.monsters, weights, rng)
+
+
+func get_difficulty(id: StringName) -> DifficultyDef:
+	for difficulty in difficulties:
+		if difficulty.id == id:
+			return difficulty
+	return default_difficulty
 
 
 ## Every monster of every act (bosses excluded).

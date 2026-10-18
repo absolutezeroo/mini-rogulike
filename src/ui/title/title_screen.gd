@@ -24,7 +24,10 @@ func _ready() -> void:
 	var spot: Control = %HeroSpot
 	spot.resized.connect(func() -> void: _hero.position.x = spot.size.x * 0.5)
 	_build_boss_row()
-	%PlayButton.pressed.connect(play)
+	%PlayButton.pressed.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_open)
+		(%DifficultyPanel as DifficultyPanel).open(content.difficulties))
+	(%DifficultyPanel as DifficultyPanel).chosen.connect(func(_difficulty: DifficultyDef) -> void: play())
 	%ShrineButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		_shrine.open(content.upgrades))
@@ -59,5 +62,7 @@ func _build_boss_row() -> void:
 
 
 func _refresh() -> void:
-	_records.text = "Souls: %d     Runs: %d     Victories: %d     Deepest floor: %d" % [
-		Profile.souls, Profile.runs, Profile.victories, Profile.best_depth]
+	var difficulty := content.get_difficulty(Profile.difficulty)
+	_records.text = "Souls: %d     Runs: %d     Victories: %d     Deepest floor: %d     Difficulty: %s" % [
+		Profile.souls, Profile.runs, Profile.victories, Profile.best_depth,
+		difficulty.display_name if difficulty else "Normal"]

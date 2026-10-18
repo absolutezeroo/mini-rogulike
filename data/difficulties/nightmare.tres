@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="DifficultyDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/difficulty_def.gd" id="1_fi0hd"]
+[ext_resource type="Resource" path="res://data/difficulties/hard.tres" id="2_pc4ak"]
+
+[resource]
+script = ExtResource("1_fi0hd")
+id = &"nightmare"
+display_name = "Nightmare"
+description = "Darkness, crowds, and very little time to react."
+color = Color(0.9019608, 0.22352941, 0.27450982, 1)
+unlocked_by = ExtResource("2_pc4ak")
+monster_hp = 1.7
+monster_damage = 1.8
+monster_speed = 1.15
+telegraph_time = 0.7
+extra_monsters = 2
+boss_hp = 1.6
+loot_chance = 0.9
+souls = 2.5
+light = 0.75

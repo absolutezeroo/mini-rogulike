@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DifficultyDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/difficulty_def.gd" id="1_3nm6n"]
+
+[resource]
+script = ExtResource("1_3nm6n")
+id = &"normal"
+display_name = "Normal"
+description = "The game as designed."
+color = Color(1, 0.81960785, 0.4, 1)

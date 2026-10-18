@@ -12,6 +12,7 @@ const RELIC_DELAY := 1.6
 
 var depth := 1
 var kills := 0
+var difficulty: DifficultyDef
 var bosses_slain := 0
 var player: Player
 ## The last act's boss fell this run (the rest is endless mode).
@@ -59,6 +60,10 @@ func start_run() -> void:
 		player.queue_free()
 
 	world.rng.randomize()
+	difficulty = content.get_difficulty(Profile.difficulty)
+	if difficulty and not Profile.is_unlocked(difficulty):
+		difficulty = content.default_difficulty
+	world.difficulty = difficulty
 	depth = 1
 	kills = 0
 	bosses_slain = 0
@@ -102,10 +107,10 @@ func _apply_profile() -> void:
 
 ## Adds this run's souls to the profile (only what was not added yet).
 func _award_souls(won_now: bool) -> int:
-	var total := Profile.souls_for_run(kills, depth, bosses_slain, has_won)
+	var total := Profile.souls_for_run(kills, depth, bosses_slain, has_won, difficulty.souls if difficulty else 1.0)
 	var earned := total - _souls_awarded
 	_souls_awarded = total
-	Profile.record_run(earned, depth, won_now)
+	Profile.record_run(earned, depth, won_now, difficulty.id if difficulty else &"")
 	return earned
 
 
@@ -136,6 +141,8 @@ func _set_paused(paused: bool) -> void:
 func _enter_floor() -> void:
 	world.build_floor(depth, content)
 	world.place_player(player)
+	if depth > 1 and difficulty and difficulty.heal_on_new_floor > 0.0:
+		player.heal(roundi(player.get_max_hp() * difficulty.heal_on_new_floor))
 	if world.theme:
 		Sfx.play_music(world.theme.music)
 	Events.depth_changed.emit(depth)
@@ -210,8 +217,8 @@ func _souls_text(earned: int) -> String:
 
 func _run_summary() -> String:
 	var act := content.dungeon.act_for_depth(depth)
-	return "%s, depth %d, level %d\n%d monsters slain, %d bosses" % [
-		act.title if act else "Dungeon", depth, player.level, kills, bosses_slain]
+	return "%s - %s, depth %d, level %d\n%d monsters slain, %d bosses" % [
+		difficulty.display_name if difficulty else "Normal", act.title if act else "Dungeon", depth, player.level, kills, bosses_slain]
 
 
 # --- Perks -------------------------------------------------------------------

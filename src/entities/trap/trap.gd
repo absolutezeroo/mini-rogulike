@@ -95,7 +95,7 @@ func _hurt_overlapping() -> void:
 		if actor == null or actor.is_dead or _hit_this_time.has(actor):
 			continue
 		_hit_this_time.append(actor)
-		var hit := Combat.make_secondary_hit(null, def.damage + world.depth)
+		var hit := Combat.make_secondary_hit(null, roundi((def.damage + world.depth) * world.damage_scale()))
 		hit.knockback = global_position.direction_to(actor.global_position) * def.knockback
 		actor.take_hit(hit)
 		if def.burn_damage > 0:

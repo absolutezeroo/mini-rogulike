@@ -25,9 +25,13 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 			_place_traps(world, trap, map.rooms[rng.randi_range(1, map.rooms.size() - 1)], taken)
 
 	var extra := floori(config.extra_monsters_per_depth * (depth - 1))
+	var max_per_room := config.max_monsters_per_room
+	if world.difficulty:
+		extra += world.difficulty.extra_monsters
+		max_per_room += world.difficulty.extra_monsters
 	for i in range(1, map.rooms.size()):
 		var room := map.rooms[i]
-		var count := mini(rng.randi_range(config.monsters_per_room_min, config.monsters_per_room_max) + extra, config.max_monsters_per_room)
+		var count := mini(rng.randi_range(config.monsters_per_room_min, config.monsters_per_room_max) + extra, max_per_room)
 		for n in count:
 			var def := content.pick_monster(depth, rng)
 			if def:

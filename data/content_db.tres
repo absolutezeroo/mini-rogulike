@@ -1,9 +1,14 @@
 [gd_resource type="Resource" script_class="ContentDB" format=3]
 
+[ext_resource type="Resource" path="res://data/difficulties/normal.tres" id="1_p1yhy"]
 [ext_resource type="Resource" path="res://data/dungeon/dungeon_config.tres" id="1_q2vv8"]
 [ext_resource type="Script" path="res://src/definitions/items/item_def.gd" id="2_cewcx"]
+[ext_resource type="Script" path="res://src/definitions/difficulty_def.gd" id="2_rjcke"]
 [ext_resource type="Resource" path="res://data/items/weapons/sai.tres" id="3_kwdc3"]
+[ext_resource type="Resource" path="res://data/difficulties/easy.tres" id="3_v3gsm"]
 [ext_resource type="Resource" path="res://data/items/weapons/lance.tres" id="4_7ya5d"]
+[ext_resource type="Resource" path="res://data/difficulties/hard.tres" id="4_s1peu"]
+[ext_resource type="Resource" path="res://data/difficulties/nightmare.tres" id="5_du3p3"]
 [ext_resource type="Resource" path="res://data/items/weapons/axe.tres" id="5_pbmnr"]
 [ext_resource type="Resource" path="res://data/items/weapons/hammer.tres" id="6_m0rk7"]
 [ext_resource type="Resource" path="res://data/items/weapons/pickaxe.tres" id="7_ecbkd"]
@@ -155,6 +160,8 @@ dungeon = ExtResource("1_q2vv8")
 sounds = ExtResource("35_vxbuw")
 items = Array[ExtResource("2_cewcx")]([ExtResource("3_kwdc3"), ExtResource("4_7ya5d"), ExtResource("5_pbmnr"), ExtResource("6_m0rk7"), ExtResource("7_ecbkd"), ExtResource("8_m5vms"), ExtResource("9_8li55"), ExtResource("10_ng0jj"), ExtResource("11_te2ty"), ExtResource("12_prpil"), ExtResource("13_q2763"), ExtResource("14_3wmne"), ExtResource("15_rjx6h"), ExtResource("16_h0egv"), ExtResource("17_hbtgr"), ExtResource("18_jjy75"), ExtResource("19_lnxyg"), ExtResource("20_vfprf"), ExtResource("21_nlt3e"), ExtResource("22_7cyc7"), ExtResource("23_dianq"), SubResource("Resource_du3p3"), SubResource("Resource_to1jy"), SubResource("Resource_8pk3k"), SubResource("Resource_v6cij"), SubResource("Resource_til0v"), SubResource("Resource_mym40")])
 perks = Array[ExtResource("33_lnxyg")]([ExtResource("34_vfprf"), ExtResource("35_nlt3e"), ExtResource("36_7cyc7"), ExtResource("37_2j2up"), ExtResource("38_urwiy"), ExtResource("39_sw1r8"), ExtResource("40_qfpny"), ExtResource("41_d3nxt"), ExtResource("42_yjg1c"), ExtResource("43_dianq"), ExtResource("44_kqkbc"), ExtResource("45_xx7nh"), ExtResource("46_6esje"), ExtResource("47_bx8nx"), ExtResource("48_tx8pl"), ExtResource("49_vxbuw"), ExtResource("50_qapwd"), ExtResource("58_e0sb6"), ExtResource("59_y15mf"), ExtResource("60_5rwny"), ExtResource("61_mmfdi")])
+difficulties = Array[ExtResource("2_rjcke")]([ExtResource("3_v3gsm"), ExtResource("1_p1yhy"), ExtResource("4_s1peu"), ExtResource("5_du3p3")])
+default_difficulty = ExtResource("1_p1yhy")
 upgrades = Array[ExtResource("73_0tw7m")]([ExtResource("74_pgsf5"), ExtResource("75_6v54u"), ExtResource("76_p1yhy"), ExtResource("77_rjcke"), ExtResource("78_v3gsm"), ExtResource("79_s1peu"), ExtResource("80_du3p3"), ExtResource("81_to1jy"), ExtResource("82_8pk3k"), ExtResource("83_v6cij"), ExtResource("84_til0v")])
 locked_items = Array[ExtResource("2_cewcx")]([ExtResource("23_dianq"), ExtResource("10_ng0jj"), ExtResource("37_gyds2"), ExtResource("38_1b8ag"), ExtResource("16_h0egv"), ExtResource("15_rjx6h")])
 props = Array[ExtResource("52_yjg1c")]([ExtResource("53_dianq"), ExtResource("54_kqkbc"), ExtResource("55_xx7nh"), ExtResource("56_6esje")])

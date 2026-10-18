@@ -32,6 +32,7 @@ data/                Game content as .tres resources (no code)
   monsters/            One file per monster type, bosses in bosses/
   perks/               Level-up perks (common/) and boss relics (relics/)
   upgrades/            Shrine upgrades (bought with souls between runs)
+  difficulties/        Easy, Normal, Hard, Nightmare
   props/               Breakable props and the lantern
   traps/               Spike traps, pressure plates, flame vents
   items/weapons/       Player weapons (monster/ = monster-only weapons)
@@ -181,6 +182,27 @@ skills (telegraphed casts: spore clouds, dives, charges, ink rings...), and what
 die: a **death burst** (a flame spirit explodes, a frost skull freezes everything around, after a
 short warning) or **death spawns** (a giant slime splits in two).
 
+## Difficulty
+
+Pressing Play asks for a difficulty (`data/difficulties/`, `DifficultyDef`). Every value multiplies
+the normal game:
+
+| | Easy | Normal | Hard | Nightmare |
+|---|---|---|---|---|
+| Monster HP | x0.7 | x1 | x1.3 | x1.7 |
+| Monster damage (attacks, skills, traps, bursts) | x0.6 | x1 | x1.35 | x1.8 |
+| Time to dodge (wind-ups, casts) | x1.35 | x1 | x0.85 | x0.7 |
+| Monster speed | x0.9 | x1 | x1.05 | x1.15 |
+| Extra monsters per room | 0 | 0 | +1 | +2 |
+| Boss HP | x0.7 | x1 | x1.3 | x1.6 |
+| Drop chance | x1.4 | x1 | x1 | x0.9 |
+| Heal on each new floor | 25% | - | - | - |
+| Light | brighter | - | darker | much darker |
+| Souls | x0.5 | x1 | x1.6 | x2.5 |
+
+Easy, Normal and Hard are open; **Nightmare unlocks after a win on Hard** (`unlocked_by`).
+The last choice is remembered, shown in the HUD and on the end-of-run screen.
+
 ## Between runs
 
 The game opens on the **title screen** (`src/ui/title/`): play, visit the shrine, see your records.
@@ -287,6 +309,7 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 | A new kind of perk | New script in `src/definitions/passives/` extending `Passive`, override the hooks you need |
 | A boss | New `BossDef` in `data/monsters/bosses/`, set it as an act's Boss |
 | A shrine upgrade | New `UpgradeDef` in `data/upgrades/`, add it to `content_db.tres` > Upgrades |
+| A difficulty | New `DifficultyDef` in `data/difficulties/`, add it to `content_db.tres` > Difficulties |
 | A prop | New `PropDef` in `data/props/` (sprite, hits, loot, explosion, light), add it to `content_db.tres` > Props |
 | A trap | New `TrapDef` in `data/traps/` (trigger, art, timing, damage), add it to `content_db.tres` > Traps |
 

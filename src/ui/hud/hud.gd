@@ -100,7 +100,9 @@ func _refresh_info() -> void:
 		return
 	var stats := _player.get_stats()
 	var weapon := _player.get_weapon()
-	_info_label.text = "Depth %d   ATK %d   DEF %d   %s" % [
+	var difficulty := _player.world.difficulty if _player.world else null
+	_info_label.text = "%sDepth %d   ATK %d   DEF %d   %s" % [
+		(difficulty.display_name + "   ") if difficulty else "",
 		_player.world.depth if _player.world else 1,
 		_player.get_power(),
 		stats.defense,

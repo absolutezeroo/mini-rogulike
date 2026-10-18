@@ -16,7 +16,7 @@ func enter() -> void:
 	actor.move_direction = Vector2.ZERO
 	_aim = actor.global_position.direction_to(actor.target.global_position)
 	actor.facing = _aim
-	_cast_time = skill.cast_time
+	_cast_time = skill.cast_time * actor.get_telegraph_scale()
 	_timer = _cast_time
 	if actor.rig:
 		actor.rig.play_cast(_aim, _cast_time)
