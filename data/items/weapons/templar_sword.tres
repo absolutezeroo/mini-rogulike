@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_6y3is"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/weapons/templar_sword.tres" id="1_p6dig"]
 [ext_resource type="Texture2D" path="res://assets/fx/slashcurved.png" id="2_6y3is"]
 [ext_resource type="AudioStream" path="res://data/audio/slash.tres" id="3_fftq5"]
@@ -28,6 +29,7 @@ attack_sound = ExtResource("3_fftq5")
 hit_sound = ExtResource("5_ryp70")
 slot = 0
 bonuses = SubResource("Resource_b6irp")
+value = 50
 id = &"templar_sword"
 display_name = "Templar Sword"
 description = "A paladin's blade, blessed with holy skills."

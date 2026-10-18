@@ -25,6 +25,8 @@ extends Resource
 @export var props: Array[PropDef] = []
 ## What makes elite monsters special (Swift, Vampiric, Explosive...).
 @export var elite_affixes: Array[EliteAffixDef] = []
+## Random bonuses on found equipment (Magic, Rare and Epic items).
+@export var item_affixes: Array[ItemAffixDef] = []
 
 
 ## A monster of the act holding `depth`, by spawn weight.

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemAffixDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_ycxk1"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="2_75cdq"]
+
+[sub_resource type="Resource" id="Resource_fu8v1"]
+script = ExtResource("1_ycxk1")
+crit_chance = 0.08
+
+[resource]
+script = ExtResource("2_75cdq")
+slots = 1
+bonuses = SubResource("Resource_fu8v1")
+id = &"precise"
+display_name = "Precise"
+spawn_weight = 9

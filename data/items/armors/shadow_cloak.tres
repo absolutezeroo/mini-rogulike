@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorDef" format=3]
 
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_l6en4"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_vdxp6"]
 [ext_resource type="Texture2D" path="res://assets/items/armor.png" id="2_d1dkw"]
 [ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="3_l6en4"]
@@ -17,6 +18,7 @@ script = ExtResource("3_l6en4")
 wear_frames = ExtResource("4_d1dkw")
 wear_color = Color(0.45, 0.36, 0.66, 1)
 bonuses = SubResource("Resource_dyygk")
+value = 45
 id = &"shadow_cloak"
 display_name = "Shadow Cloak"
 description = "Move fast, strike true."

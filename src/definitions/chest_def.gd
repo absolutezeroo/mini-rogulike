@@ -7,6 +7,10 @@ extends ContentDef
 
 @export_range(0, 8) var items_min: int = 1
 @export_range(0, 8) var items_max: int = 2
+## How good the items are (see LootRoller): 1 = like a monster's drop.
+@export var loot_quality: float = 1.5
+## Coins inside (plus one per floor).
+@export var gold: Vector2i = Vector2i(5, 15)
 @export var open_sound: AudioStream
 
 @export_group("Trap")

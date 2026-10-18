@@ -21,6 +21,7 @@ texture = ExtResource("3_uo686")
 script = ExtResource("5_t02o5")
 effects = Array[ExtResource("1_udsat")]([SubResource("Resource_47gn4")])
 sound = ExtResource("6_4hamn")
+value = 25
 id = &"fire_scroll"
 display_name = "Scroll of Fire"
 description = "Launches an exploding fireball at the nearest enemy."

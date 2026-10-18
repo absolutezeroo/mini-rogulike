@@ -11,5 +11,5 @@ func on_kill(owner: Actor, victim: Actor, perk: PerkSet.Entry) -> void:
 		return
 	var item := monster.def.loot.pick(owner.world.rng)
 	if item:
-		owner.world.spawn_item(item, monster.global_position)
+		owner.world.spawn_loot(item, monster.global_position)
 		Vfx.sparkles(owner.world, monster.global_position, Color("ffd166"))

@@ -10,6 +10,7 @@ signal leveled_up(level: int)
 signal damaged(amount: int)
 ## The skill buttons changed (new weapon, new spell learned).
 signal skills_changed
+signal gold_changed(gold: int)
 
 const HIT_INVULNERABILITY := 0.6
 const AIM_HOLD_TIME := 0.35         ## Keep facing the aim direction this long after attacking.
@@ -31,6 +32,8 @@ var level := 1
 var xp := 0
 ## Skill taught by the last tome read (last skill button).
 var learned_skill: SkillDef
+## Coins found during this run (spent at the merchant).
+var gold := 0
 
 var _move_direction := Vector2.ZERO
 var _aim_hold := 0.0
@@ -258,6 +261,22 @@ func gain_xp(amount: int) -> void:
 	xp_changed.emit(xp, xp_to_next_level(), level)
 
 
+# --- Gold -------------------------------------------------------------------
+
+func add_gold(amount: int) -> void:
+	gold += amount
+	gold_changed.emit(gold)
+
+
+## Returns false (and spends nothing) if there is not enough.
+func spend_gold(amount: int) -> bool:
+	if amount > gold:
+		return false
+	gold -= amount
+	gold_changed.emit(gold)
+	return true
+
+
 # --- Saving -----------------------------------------------------------------
 
 ## Everything about the hero a saved run needs (see RunSave).
@@ -266,14 +285,15 @@ func save_state() -> Dictionary:
 	for slot: EquipmentDef.Slot in EquipmentDef.Slot.values():
 		var item := equipment.get_item(slot)
 		if item:
-			gear[str(slot)] = RunSave.ref(item)
+			gear[str(slot)] = LootRoller.to_data(item)
 	return {
 		"level": level,
 		"xp": xp,
 		"hp": hp,
 		"base_stats": base_stats.to_dict(),
 		"equipment": gear,
-		"inventory": RunSave.refs(inventory.items),
+		"inventory": inventory.items.map(LootRoller.to_data),
+		"gold": gold,
 		"perks": perks.to_data(),
 		"learned_skill": RunSave.ref(learned_skill),
 	}
@@ -288,12 +308,13 @@ func load_state(data: Dictionary) -> void:
 		equipment.unequip(slot)
 	var gear: Dictionary = data.get("equipment", {})
 	for key: String in gear:
-		var item := RunSave.load_ref(gear[key]) as EquipmentDef
+		var item := LootRoller.from_data(gear[key]) as EquipmentDef
 		if item:
 			equipment.equip(item)
 	inventory.items.clear()
-	for reference: Variant in data.get("inventory", []):
-		var item := RunSave.load_ref(reference) as ItemDef
+	gold = int(data.get("gold", 0))
+	for saved_item: Variant in data.get("inventory", []):
+		var item := LootRoller.from_data(saved_item)
 		if item:
 			inventory.add(item)
 	perks.load_data(data.get("perks", []))
@@ -303,6 +324,7 @@ func load_state(data: Dictionary) -> void:
 	hp = clampi(int(data.get("hp", get_max_hp())), 1, get_max_hp())
 	health_changed.emit(hp, get_max_hp())
 	xp_changed.emit(xp, xp_to_next_level(), level)
+	gold_changed.emit(gold)
 
 
 # --- Holes ------------------------------------------------------------------

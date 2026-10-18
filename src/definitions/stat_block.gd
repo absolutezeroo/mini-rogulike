@@ -43,6 +43,24 @@ func times(count: int) -> StatBlock:
 	return result
 
 
+## Returns a new block with every stat multiplied by `factor` (ints rounded, at least the sign kept).
+func scaled(factor: float) -> StatBlock:
+	var result := StatBlock.new()
+	result.max_hp = _scale_int(max_hp, factor)
+	result.attack = _scale_int(attack, factor)
+	result.defense = _scale_int(defense, factor)
+	result.move_speed = move_speed * factor
+	result.crit_chance = crit_chance * factor
+	result.attack_speed = attack_speed * factor
+	result.skill_power = skill_power * factor
+	result.cooldown_reduction = cooldown_reduction * factor
+	return result
+
+
+static func _scale_int(value: int, factor: float) -> int:
+	return roundi(value * factor) if value != 0 else 0
+
+
 ## The stats as a Dictionary (for save files).
 func to_dict() -> Dictionary:
 	var data := {}

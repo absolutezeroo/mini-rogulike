@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
 [ext_resource type="SpriteFrames" path="res://data/visuals/weapons/katana.tres" id="1_5k6wr"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_r15cl"]
 [ext_resource type="AudioStream" path="res://data/audio/slash.tres" id="2_gj8km"]
 [ext_resource type="AudioStream" path="res://data/audio/hit.tres" id="3_2uv4q"]
 [ext_resource type="Texture2D" path="res://assets/weapons/katana.png" id="4_akday"]
@@ -20,6 +21,7 @@ arc_degrees = 120.0
 attack_sound = ExtResource("2_gj8km")
 hit_sound = ExtResource("3_2uv4q")
 slot = 0
+value = 35
 id = &"katana"
 display_name = "Katana"
 description = "Quick and reliable."

@@ -119,6 +119,39 @@ func spawn_monster(def: MonsterDef, at: Vector2) -> Monster:
 	return monster
 
 
+## Found loot: equipment may come out Magic, Rare or Epic (see LootRoller). `quality` above 1
+## for better sources (elites, chests, bosses).
+func spawn_loot(item: ItemDef, at: Vector2, quality: float = 1.0) -> ItemPickup:
+	return spawn_item(roll_item(item, quality), at)
+
+
+## `item`, or a better rolled copy of it if it is equipment.
+func roll_item(item: ItemDef, quality: float = 1.0) -> ItemDef:
+	return LootRoller.roll(item, depth, quality, config(), _content.item_affixes, rng)
+
+
+## Coins on the floor, split in a few piles that fly to the hero when close.
+func spawn_gold(at: Vector2, amount: int) -> void:
+	if amount <= 0:
+		return
+	var piles := clampi(ceili(amount / 4.0), 1, 6)
+	for i in piles:
+		var share := floori(float(amount) / piles) + (1 if i < amount % piles else 0)
+		if share <= 0:
+			continue
+		var coin := GoldPickup.create(at, share, self)
+		_entities.add_child.call_deferred(coin)
+
+
+func spawn_merchant(def: ShopDef, cell: Vector2i) -> Merchant:
+	var merchant := Merchant.new()
+	merchant.setup(def, self)
+	merchant.position = map.cell_to_world(cell)
+	_entities.add_child(merchant)
+	set_cell_blocked(cell, true)
+	return merchant
+
+
 func spawn_item(item: ItemDef, at: Vector2, armed: bool = true) -> ItemPickup:
 	var pickup := PICKUP_SCENE.instantiate() as ItemPickup
 	pickup.setup(item, armed)

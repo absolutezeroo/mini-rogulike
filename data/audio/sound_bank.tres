@@ -9,6 +9,7 @@
 [ext_resource type="AudioStream" path="res://data/audio/boss_roar.tres" id="3_uw11l"]
 [ext_resource type="AudioStream" path="res://data/audio/game_over.tres" id="4_gg4jp"]
 [ext_resource type="AudioStream" path="res://data/audio/level_up.tres" id="5_ii3yv"]
+[ext_resource type="AudioStream" path="res://data/audio/coin.tres" id="5_rbjxk"]
 [ext_resource type="AudioStream" path="res://data/audio/alert.tres" id="6_r7xlo"]
 [ext_resource type="AudioStream" path="res://data/audio/fall.tres" id="7_7ru6g"]
 [ext_resource type="AudioStream" path="res://data/audio/death.tres" id="7_lqsaf"]
@@ -40,6 +41,7 @@ monster_alert = ExtResource("6_r7xlo")
 projectile_impact = ExtResource("12_gdxse")
 explosion = ExtResource("2_s2fju")
 pickup = ExtResource("9_7ru6g")
+coin = ExtResource("5_rbjxk")
 equip = ExtResource("1_es6rg")
 stairs = ExtResource("14_mv3sf")
 game_over = ExtResource("4_gg4jp")

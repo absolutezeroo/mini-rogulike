@@ -16,6 +16,7 @@ explosive = true
 [resource]
 script = ExtResource("4_caecy")
 effects = Array[ExtResource("1_nf1kg")]([SubResource("Resource_1hy1o")])
+value = 18
 id = &"bomb"
 display_name = "Bomb"
 description = "Explodes around you. Deals 25 damage."

@@ -78,7 +78,9 @@ func _break() -> void:
 	Vfx.puff(world, global_position + Vector2(0, 8))
 	if def.loot:
 		for item in def.loot.roll(world.rng, world.loot_scale()):
-			world.spawn_item(item, global_position)
+			world.spawn_loot(item, global_position)
+		if world.rng.randf() < world.config().prop_gold_chance:
+			world.spawn_gold(global_position, world.rng.randi_range(1, 3) + floori(world.depth * 0.5))
 	broken.emit(self)
 	queue_free()
 

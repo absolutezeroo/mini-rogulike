@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemAffixDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_irtid"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="2_3eh0v"]
+
+[sub_resource type="Resource" id="Resource_bqu41"]
+script = ExtResource("1_irtid")
+move_speed = 12.0
+
+[resource]
+script = ExtResource("2_3eh0v")
+slots = 6
+bonuses = SubResource("Resource_bqu41")
+id = &"light"
+display_name = "Light"
+spawn_weight = 8

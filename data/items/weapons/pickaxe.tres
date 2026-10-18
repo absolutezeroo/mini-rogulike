@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
 [ext_resource type="SpriteFrames" path="res://data/visuals/weapons/pickaxe.tres" id="1_4okwp"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_ebxw1"]
 [ext_resource type="AudioStream" path="res://data/audio/slash.tres" id="2_pmjir"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="3_apxa1"]
 [ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="4_153jf"]
@@ -28,6 +29,7 @@ attack_sound = ExtResource("2_pmjir")
 hit_sound = ExtResource("4_153jf")
 slot = 0
 bonuses = SubResource("Resource_p1snk")
+value = 35
 id = &"pickaxe"
 display_name = "Pickaxe"
 description = "A miner's tool. Pierces armor."

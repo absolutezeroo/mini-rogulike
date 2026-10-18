@@ -8,6 +8,8 @@
 script = ExtResource("3_cjry4")
 items_min = 3
 items_max = 4
+loot_quality = 3.0
+gold = Vector2i(20, 40)
 open_sound = ExtResource("2_vk3k3")
 id = &"big_chest"
 display_name = "Big Chest"

@@ -53,7 +53,8 @@ func _init() -> void:
 
 
 func get_type_label() -> String:
-	return "Melee weapon" if kind == Kind.MELEE else "Ranged weapon"
+	var label := "Melee weapon" if kind == Kind.MELEE else "Ranged weapon"
+	return "%s %s" % [ItemRarity.NAMES[rarity], label.to_lower()] if rarity > ItemRarity.COMMON else label
 
 
 func get_details() -> String:
@@ -67,5 +68,7 @@ func get_details() -> String:
 		for skill in skills:
 			names.append(skill.display_name)
 		text += "\nSkills: " + ", ".join(names)
+	if on_hit and not (base_item and (base_item as WeaponDef).on_hit):
+		text += "\n" + on_hit.describe()
 	var base := super.get_details()
 	return text + ("\n" + base if not base.is_empty() else "")

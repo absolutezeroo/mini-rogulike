@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffixDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_rxhir"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="2_d4p82"]
+
+[sub_resource type="Resource" id="Resource_3h6jv"]
+script = ExtResource("1_rxhir")
+attack = 2
+
+[resource]
+script = ExtResource("2_d4p82")
+slots = 1
+bonuses = SubResource("Resource_3h6jv")
+id = &"sharp"
+display_name = "Sharp"

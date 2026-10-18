@@ -16,6 +16,15 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 	if map.rooms.size() < 2:
 		return
 
+	# The merchant waits in a quiet room (no monsters, no hazards, no props around).
+	var merchant_index := -1
+	if config.merchant and rng.randf() < config.merchant_chance:
+		merchant_index = _pick_quiet_room(map, rng, -1)
+		if merchant_index >= 0:
+			var cell := map.rooms[merchant_index].get_center()
+			world.spawn_merchant(config.merchant, cell)
+			_reserve_rect(taken, map.rooms[merchant_index])
+
 	for i in map.rooms.size():
 		_place_props(world, content, depth, map.rooms[i], taken)
 	var act := config.act_for_depth(depth)
@@ -28,7 +37,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 	# One quiet room may be an ambush: no monsters in it until the hero walks in.
 	var ambush_index := -1
 	if rng.randf() < config.ambush_chance:
-		ambush_index = _pick_ambush_room(map, rng)
+		ambush_index = _pick_quiet_room(map, rng, merchant_index)
 		if ambush_index >= 0:
 			world.spawn_ambush(map.rooms[ambush_index])
 
@@ -46,7 +55,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 		extra += world.difficulty.extra_monsters
 		max_per_room += world.difficulty.extra_monsters
 	for i in range(1, map.rooms.size()):
-		if i == ambush_index:
+		if i == ambush_index or i == merchant_index:
 			continue
 		var room := map.rooms[i]
 		var count := mini(rng.randi_range(config.monsters_per_room_min, config.monsters_per_room_max) + extra, max_per_room)
@@ -60,15 +69,15 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 		var room := map.rooms[rng.randi_range(1, map.rooms.size() - 1)]
 		var item := content.pick_item(depth, rng)
 		if item:
-			world.spawn_item(item, _free_point_in(map, room, rng, taken))
+			world.spawn_loot(item, _free_point_in(map, room, rng, taken))
 
 
-## A big enough room, not the first one and without the stairs (-1 if none).
-static func _pick_ambush_room(map: DungeonMap, rng: RandomNumberGenerator) -> int:
+## A big enough room, not the first one, without the stairs and not `except` (-1 if none).
+static func _pick_quiet_room(map: DungeonMap, rng: RandomNumberGenerator, except: int) -> int:
 	var candidates: Array[int] = []
 	for i in range(1, map.rooms.size()):
 		var room := map.rooms[i]
-		if room.size.x >= 7 and room.size.y >= 7 and not room.grow(1).has_point(map.stairs_cell):
+		if i != except and room.size.x >= 7 and room.size.y >= 7 and not room.grow(1).has_point(map.stairs_cell):
 			candidates.append(i)
 	return candidates[rng.randi_range(0, candidates.size() - 1)] if not candidates.is_empty() else -1
 
@@ -138,6 +147,12 @@ static func _is_edge(map: DungeonMap, room: Rect2i, cell: Vector2i) -> bool:
 			if map.is_floor(near) and not room.has_point(near):
 				return false
 	return true
+
+
+static func _reserve_rect(taken: Dictionary, rect: Rect2i) -> void:
+	for y in range(rect.position.y, rect.end.y):
+		for x in range(rect.position.x, rect.end.x):
+			taken[Vector2i(x, y)] = true
 
 
 static func _reserve_around(taken: Dictionary, center: Vector2i, radius: int) -> void:

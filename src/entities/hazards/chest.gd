@@ -62,6 +62,7 @@ func open() -> void:
 	is_open = true
 	queue_redraw()
 	opened.emit(self)
+	world.spawn_gold(global_position + Vector2(0, 14), world.rng.randi_range(def.gold.x, def.gold.y) + world.depth)
 	if trapped:
 		_spring()
 		_drop_items(1)
@@ -109,7 +110,7 @@ func _drop_items(count: int) -> void:
 		var item := world.pick_random_item()
 		if item:
 			var angle := toward.angle() + (i - (count - 1) * 0.5) * 0.6
-			world.spawn_item(item, global_position + Vector2.from_angle(angle) * 26.0, true)
+			world.spawn_loot(item, global_position + Vector2.from_angle(angle) * 26.0, def.loot_quality)
 
 
 func _draw() -> void:

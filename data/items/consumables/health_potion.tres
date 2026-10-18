@@ -15,6 +15,7 @@ max_hp_ratio = 0.35
 script = ExtResource("4_p06fw")
 effects = Array[ExtResource("1_hhalm")]([SubResource("Resource_mn6we")])
 sound = ExtResource("5_1w5uu")
+value = 12
 id = &"health_potion"
 display_name = "Health Potion"
 description = "Restores 35% of your HP."

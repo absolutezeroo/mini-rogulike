@@ -39,6 +39,7 @@ var _shown_offer := {}
 @onready var perk_panel: PerkChoicePanel = $Menus/PerkChoicePanel
 @onready var game_over_panel: GameOverPanel = $Menus/GameOverPanel
 @onready var pause_menu: PauseMenu = $Menus/PauseMenu
+@onready var shop_panel: ShopPanel = $Menus/ShopPanel
 @onready var screen_fx: ScreenEffects = $ScreenFx/Effects
 @onready var ambience: Ambience = $Ambience
 @onready var _fade: ColorRect = $Fade/Black
@@ -66,6 +67,8 @@ func _ready() -> void:
 		player.perks.clear()  # no last-second save from a relic
 		player.take_hit(Combat.make_secondary_hit(null, player.get_max_hp() * 100)))
 	inventory_panel.closed.connect(_on_menu_closed)
+	shop_panel.closed.connect(_on_menu_closed)
+	Events.shop_requested.connect(open_shop)
 	perk_panel.chosen.connect(_on_perk_chosen)
 	game_over_panel.restart_requested.connect(start_run)
 	game_over_panel.continue_requested.connect(_on_continue_endless)
@@ -104,6 +107,7 @@ func _begin_run(saved: Dictionary) -> void:
 	_fade.color.a = 0.0
 	game_over_panel.hide()
 	inventory_panel.hide()
+	shop_panel.hide()
 	perk_panel.hide()
 	_pending_offers.clear()
 	_shown_offer = {}
@@ -197,7 +201,16 @@ func _award_souls(won_now: bool) -> int:
 
 
 func is_menu_open() -> bool:
-	return inventory_panel.visible or perk_panel.visible or game_over_panel.visible or pause_menu.visible
+	return inventory_panel.visible or perk_panel.visible or game_over_panel.visible or pause_menu.visible \
+		or shop_panel.visible
+
+
+func open_shop(merchant: Merchant) -> void:
+	if player == null or player.is_dead or is_menu_open():
+		return
+	Sfx.play_ui(Sfx.bank.ui_open)
+	_set_paused(true)
+	shop_panel.open(merchant, player)
 
 
 func open_pause_menu() -> void:
@@ -230,6 +243,8 @@ func _back() -> void:
 		pause_menu.back()
 	elif inventory_panel.visible:
 		inventory_panel.close()
+	elif shop_panel.visible:
+		shop_panel.close()
 	elif not is_menu_open():
 		open_pause_menu()
 

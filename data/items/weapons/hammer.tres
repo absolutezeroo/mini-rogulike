@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_hgxcw"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/weapons/hammer.tres" id="1_muuec"]
 [ext_resource type="AudioStream" path="res://data/audio/slash_heavy.tres" id="2_dlb3h"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="3_5gd55"]
@@ -28,6 +29,7 @@ attack_sound = ExtResource("2_dlb3h")
 hit_sound = ExtResource("4_ippst")
 slot = 0
 bonuses = SubResource("Resource_scl1l")
+value = 35
 id = &"hammer"
 display_name = "War Hammer"
 description = "Crushing blows that send enemies flying."

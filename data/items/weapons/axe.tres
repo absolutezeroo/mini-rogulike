@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_5isy5"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/weapons/axe.tres" id="1_43o4g"]
 [ext_resource type="AudioStream" path="res://data/audio/slash_heavy.tres" id="2_uvoya"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="3_6wfb0"]
@@ -27,6 +28,7 @@ attack_sound = ExtResource("2_uvoya")
 hit_sound = ExtResource("4_067vu")
 slot = 0
 bonuses = SubResource("Resource_bx67p")
+value = 35
 id = &"axe"
 display_name = "Battle Axe"
 description = "Slow, wide and brutal."

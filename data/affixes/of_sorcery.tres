@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemAffixDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_niwud"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="2_3vnlk"]
+
+[sub_resource type="Resource" id="Resource_qw5v6"]
+script = ExtResource("1_niwud")
+skill_power = 0.15
+
+[resource]
+script = ExtResource("2_3vnlk")
+is_prefix = false
+bonuses = SubResource("Resource_qw5v6")
+id = &"of_sorcery"
+display_name = "of Sorcery"
+spawn_weight = 9

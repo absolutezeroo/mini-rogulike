@@ -43,6 +43,8 @@ data/                Game content as .tres resources (no code)
   hazards/             Traps, arrow traps, holes, crumbling floor, quicksand and mud
   chests/              Chests (some trapped) and the big chest of ambushes
   elites/              Elite affixes (Swift, Vampiric, Explosive...)
+  affixes/             Item affixes for Magic, Rare and Epic equipment (Sharp, of the Bear...)
+  shop/                The merchant (stock, prices, look)
   items/weapons/       Player weapons (monster/ = monster-only weapons)
   items/armors/        Head and body armor
   items/consumables/   Potions, scrolls, bombs...
@@ -176,6 +178,20 @@ monsters down there feed on them; the three bosses are its wardens.
 
 The game's texts are in English; the name stays French. The project's internal name is still
 "Mini Roguelike" (`project.godot`), on purpose: the save file's folder depends on it.
+
+## Loot, gold and the merchant
+
+- **Rarity**: found equipment can come out **Magic** (blue, 1 affix), **Rare** (yellow, 2) or
+  **Epic** (purple, 3), with more damage and bonuses (`ItemRarity`). Affixes (`data/affixes/`,
+  `ItemAffixDef`) add stats ("Sharp", "of the Bear"...) or set enemies on fire, poison or slow
+  them ("Burning", "Venomous", "Frozen"). Rare and Epic items on the floor shine with a beam.
+  `LootRoller` makes rolled copies; the plain .tres is the Common version. Chances grow with depth
+  (`dungeon_config.tres` > Loot) and with the source: elites, chests and bosses drop better.
+- **Gold** drops from monsters (always from elites and bosses), chests and sometimes crates, and
+  flies to you. It lasts one run.
+- **The merchant** (`data/shop/merchant.tres`, `Merchant`, `ShopPanel`) waits in a quiet room on
+  some floors: walk up to him to buy equipment (better than average), potions and sometimes a
+  tome, or to sell what you carry. Every item has a `value`; the price grows with rarity and depth.
 
 ## Skills and builds
 
@@ -382,6 +398,7 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 | A new kind of hazard | New script in `src/definitions/hazards/` extending `HazardDef`, override `place()` |
 | An elite affix | New `EliteAffixDef` in `data/elites/` (name, color, a perk), add it to `content_db.tres` > Elite Affixes |
 | A chest | New `ChestDef` in `data/chests/`, set it in `dungeon_config.tres` > Chests |
+| An item affix | New `ItemAffixDef` in `data/affixes/` (prefix or suffix, slots, stats or on-hit), add it to `content_db.tres` > Item Affixes |
 | Story texts | Edit `data/story/story.tres` (intro pages, death lines...); an act's line is its `ActDef` > Lore |
 
 Each piece of content has an **icon** (any `Texture2D`) and an **icon tint** to recolor it.

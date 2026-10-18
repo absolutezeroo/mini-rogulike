@@ -274,14 +274,24 @@ func _on_died(killer: Actor) -> void:
 		(killer as Player).gain_xp(def.xp_reward * _xp_multiplier)
 	_death_burst()
 	_death_spawns()
+	var config := world.config()
+	var quality := config.boss_loot_quality if is_boss() else (config.elite_loot_quality if elite else 1.0)
 	if def.loot:
 		for item in def.loot.roll(world.rng, world.loot_scale()):
 			var offset := Vector2.from_angle(randf() * TAU) * randf_range(4.0, 14.0)
-			world.spawn_item(item, global_position + offset)
+			world.spawn_loot(item, global_position + offset, quality)
 	for i in _bonus_drops:
 		var item := world.pick_random_item()
 		if item:
-			world.spawn_item(item, global_position + Vector2.from_angle(randf() * TAU) * randf_range(6.0, 16.0))
+			world.spawn_loot(item, global_position + Vector2.from_angle(randf() * TAU) * randf_range(6.0, 16.0), quality)
+	_drop_gold()
+
+
+func _drop_gold() -> void:
+	var config := world.config()
+	var multiplier := config.boss_gold_multiplier if is_boss() else (config.elite_gold_multiplier if elite else 1.0)
+	if multiplier > 1.0 or world.rng.randf() < config.gold_drop_chance:
+		world.spawn_gold(global_position, config.gold_for_kill(world.depth, multiplier, world.rng))
 
 
 ## The souls it fed on fly back to the hero's lantern (bosses hold many).

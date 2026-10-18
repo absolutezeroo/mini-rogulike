@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemAffixDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_uq8i0"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="2_3p1uj"]
+
+[sub_resource type="Resource" id="Resource_eliba"]
+script = ExtResource("1_uq8i0")
+max_hp = 25
+
+[resource]
+script = ExtResource("2_3p1uj")
+is_prefix = false
+bonuses = SubResource("Resource_eliba")
+id = &"of_the_titan"
+display_name = "of the Titan"
+min_depth = 5
+spawn_weight = 5

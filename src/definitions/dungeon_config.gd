@@ -50,6 +50,36 @@ extends Resource
 ## Reward for clearing an ambush.
 @export var ambush_chest: ChestDef
 
+@export_group("Loot")
+## Chances for found equipment to be Common, Magic, Rare or Epic (relative weights), and how
+## the better ones grow per floor. Bosses, elites and chests multiply the better ones (quality).
+@export var common_weight: float = 70.0
+@export var magic_weight: float = 22.0
+@export var magic_weight_per_depth: float = 1.0
+@export var rare_weight: float = 5.0
+@export var rare_weight_per_depth: float = 1.0
+@export var epic_weight: float = 0.6
+@export var epic_weight_per_depth: float = 0.4
+## Quality of what elites, chests and bosses drop (1 = a common monster).
+@export var elite_loot_quality: float = 2.5
+@export var boss_loot_quality: float = 5.0
+
+@export_group("Gold")
+## Chance for a monster to drop gold (elites and bosses always do).
+@export_range(0.0, 1.0) var gold_drop_chance: float = 0.45
+@export var gold_per_kill: Vector2i = Vector2i(1, 4)
+## Extra gold per floor below the first.
+@export var gold_per_depth: float = 0.6
+@export var elite_gold_multiplier: float = 4.0
+@export var boss_gold_multiplier: float = 15.0
+## Crates and pots sometimes hold a few coins.
+@export_range(0.0, 1.0) var prop_gold_chance: float = 0.25
+
+@export_group("Merchant")
+## Chance for a floor to have the merchant (never on boss floors).
+@export_range(0.0, 1.0) var merchant_chance: float = 0.55
+@export var merchant: ShopDef
+
 @export_group("Elites")
 ## Chance for a monster to be an elite on the first floor, and more per floor below.
 @export_range(0.0, 1.0) var elite_chance: float = 0.04
@@ -73,6 +103,12 @@ extends Resource
 ## Chance for a monster spawned at `depth` to be an elite, before the difficulty.
 func elite_chance_at(depth: int) -> float:
 	return elite_chance + elite_chance_per_depth * (depth - 1)
+
+
+## Gold dropped by a monster at `depth` (`multiplier`: elites, bosses).
+func gold_for_kill(depth: int, multiplier: float, rng: RandomNumberGenerator) -> int:
+	var base := rng.randi_range(gold_per_kill.x, gold_per_kill.y) + gold_per_depth * (depth - 1)
+	return roundi(base * multiplier)
 
 
 ## Floors in one pass through every act.

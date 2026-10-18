@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemAffixDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_a2s6t"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="2_fk245"]
+
+[sub_resource type="Resource" id="Resource_8rxcb"]
+script = ExtResource("1_a2s6t")
+attack = 4
+
+[resource]
+script = ExtResource("2_fk245")
+slots = 1
+bonuses = SubResource("Resource_8rxcb")
+id = &"brutal"
+display_name = "Brutal"
+min_depth = 4
+spawn_weight = 6

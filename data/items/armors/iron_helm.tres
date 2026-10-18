@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorDef" format=3]
 
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_2wqtb"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_08hwp"]
 [ext_resource type="Texture2D" path="res://assets/items/helmet.png" id="2_lw5uy"]
 [ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="3_2wqtb"]
@@ -16,6 +17,7 @@ wear_frames = ExtResource("4_lw5uy")
 wear_color = Color(0.86, 0.9, 1, 1)
 slot = 1
 bonuses = SubResource("Resource_yecxy")
+value = 30
 id = &"iron_helm"
 display_name = "Iron Helm"
 description = "Solid and heavy."

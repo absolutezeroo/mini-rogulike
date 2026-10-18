@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ShopDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/characters/npc/merchant_face.png" id="1_h4tit"]
+[ext_resource type="Script" path="res://src/definitions/shop_def.gd" id="2_8oh83"]
+[ext_resource type="Texture2D" path="res://assets/characters/npc/merchant.png" id="3_k0nem"]
+
+[resource]
+script = ExtResource("2_8oh83")
+display_name = "Old Wanderer"
+greetings = PackedStringArray("I sell what the Well\'s victims left behind. No refunds.", "Gold is useless down here... but I like it anyway.", "Still alive? Good. Dead people don\'t buy much.", "The wardens never come to this room. I wonder why.")
+sprite_sheet = ExtResource("3_k0nem")
+portrait = ExtResource("1_h4tit")

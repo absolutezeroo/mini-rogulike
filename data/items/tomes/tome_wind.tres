@@ -7,6 +7,7 @@
 [resource]
 script = ExtResource("2_e3rdu")
 skill = ExtResource("3_cnhbr")
+value = 45
 id = &"tome_wind"
 display_name = "Tome of Wind"
 description = "Read it to learn a skill (last skill button)."

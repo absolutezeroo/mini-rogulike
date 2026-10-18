@@ -23,3 +23,15 @@ func apply_to(target: Actor, source: Actor) -> void:
 		target.statuses.apply_dot(&"poison", poison_damage, 1.0, poison_duration, source, Color("80ed99"))
 	if slow > 0.0:
 		target.statuses.apply_slow(slow, slow_duration)
+
+
+## e.g. "Burns (2 / 0.5 s), slows 30%".
+func describe() -> String:
+	var parts := PackedStringArray()
+	if burn_damage > 0:
+		parts.append("Burns (%d every 0.5 s)" % burn_damage)
+	if poison_damage > 0:
+		parts.append("Poisons (%d per second)" % poison_damage)
+	if slow > 0.0:
+		parts.append("Slows %d%%" % roundi(slow * 100.0))
+	return ", ".join(parts)

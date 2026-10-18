@@ -112,6 +112,10 @@ func _test_content() -> void:
 		if item is SkillTomeDef:
 			check(item.skill != null and item.skill.icon != null, "%s teaches a skill" % item.id)
 	check(CONTENT.items.any(func(i: ItemDef) -> bool: return i is SkillTomeDef), "tomes can be found")
+	for item in CONTENT.items + CONTENT.locked_items:
+		check(item.resource_path.begins_with("res://data/items/") and not item.resource_path.contains("::"), "%s is its own file (saves point to it)" % item.id)
+		check(item.value > 0, "%s has a price" % item.id)
+	check(CONTENT.item_affixes.size() >= 10 and CONTENT.dungeon.merchant != null, "affixes and the merchant are set")
 	check(CONTENT.props.size() >= 3, "props listed")
 	for prop in CONTENT.props:
 		check(prop.icon != null and prop.is_breakable(), "%s is a breakable prop with a sprite" % prop.id)
@@ -573,6 +577,7 @@ func _test_gameplay() -> void:
 	await _test_act_card(game)
 	await _test_souls(game)
 	await _test_comfort(game)
+	await _test_loot_and_gold(game)
 
 	await _test_boss_fight(game)
 
@@ -1346,6 +1351,80 @@ func _test_comfort(game: Node) -> void:
 	full_map.tapped.emit()
 	check(not full_map.visible, "tapping again closes it")
 	game.player.xp = 0
+
+
+## Magic, Rare and Epic equipment, gold, and the merchant.
+func _test_loot_and_gold(game: Node) -> void:
+	var world: World = game.world
+	var player: Player = game.player
+	player.xp = -1000000
+	var katana: WeaponDef = load("res://data/items/weapons/katana.tres")
+	var sharp: ItemAffixDef = load("res://data/affixes/sharp.tres")
+	var bear: ItemAffixDef = load("res://data/affixes/of_the_bear.tres")
+	var burning: ItemAffixDef = load("res://data/affixes/burning.tres")
+	var damage_before := katana.damage
+	var rare := LootRoller.make(katana, ItemRarity.RARE, [sharp, bear] as Array[ItemAffixDef]) as WeaponDef
+	check(rare.display_name == "Sharp Katana of the Bear" and rare.rarity_color() == ItemRarity.COLORS[ItemRarity.RARE], "a rare item has its name and color")
+	check(rare.damage > katana.damage and rare.bonuses.attack >= 2 and rare.bonuses.max_hp >= 12, "affixes and rarity make it stronger")
+	check(katana.damage == damage_before and katana.base_item == null, "the plain item is untouched")
+	check(rare.get_type_label().begins_with("Rare"), "the type says how rare it is")
+	var magic := LootRoller.make(katana, ItemRarity.MAGIC, [burning] as Array[ItemAffixDef]) as WeaponDef
+	check(magic.on_hit != null and magic.on_hit.burn_damage > 0, "a Burning weapon sets enemies on fire")
+	var back := LootRoller.from_data(JSON.parse_string(JSON.stringify(LootRoller.to_data(rare)))) as WeaponDef
+	check(back and back.display_name == rare.display_name and back.damage == rare.damage and back.rarity == ItemRarity.RARE, "rolled items survive a save")
+	for affix in CONTENT.item_affixes:
+		check(affix.bonuses != null or affix.on_hit != null, "%s does something" % affix.id)
+	var low := [0, 0, 0, 0]
+	var high := [0, 0, 0, 0]
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	for i in 400:
+		low[LootRoller.pick_rarity(1, 1.0, CONTENT.dungeon, rng)] += 1
+		high[LootRoller.pick_rarity(9, CONTENT.dungeon.boss_loot_quality, CONTENT.dungeon, rng)] += 1
+	check(low[0] > low[1] and low[1] > low[2] and low[2] >= low[3], "better items are rarer (%s)" % str(low))
+	check(high[3] > low[3] and high[0] < low[0], "deeper and from bosses, loot gets better (%s)" % str(high))
+	var potion: ItemDef = load("res://data/items/consumables/health_potion.tres")
+	check(world.roll_item(potion, 10.0) == potion, "potions are never rolled")
+
+	# Gold flies to the hero.
+	var gold_before := player.gold
+	world.spawn_gold(player.global_position + Vector2(30, 0), 10)
+	await _frames(60)
+	check(player.gold == gold_before + 10, "coins fly into the hero's purse")
+	check((game.hud.get_node("%GoldLabel") as Label).text == "Gold %d" % player.gold, "the HUD shows the gold")
+	var elite := world.spawn_monster(load("res://data/monsters/slime.tres"), world.map.cell_to_world(_open_cell_near(world, player.global_position, 1)))
+	elite.dormant = true
+	world.make_elite(elite)
+	elite.take_hit(Combat.make_secondary_hit(player, 99999))
+	await _frames(2)
+	check(get_tree().get_nodes_in_group("gold").size() > 0, "elites always drop gold")
+
+	# The merchant: buying, selling, the shop opening when walking up.
+	var cell := _open_cell_near(world, player.global_position, 2)
+	var merchant := world.spawn_merchant(CONTENT.dungeon.merchant, cell)
+	check(merchant.stock.size() >= CONTENT.dungeon.merchant.equipment_count, "the merchant has stock")
+	player.gold = 0
+	check(not merchant.sell_to(player, 0), "no gold, no deal")
+	player.add_gold(9999)
+	var bag_before := player.inventory.items.size()
+	var bought: ItemDef = merchant.stock[0].item
+	var price: int = merchant.stock[0].price
+	check(merchant.sell_to(player, 0) and player.inventory.items.has(bought) and player.gold == 9999 - price, "buying puts the item in the bag")
+	player.inventory.add(potion)
+	var stock_before := merchant.stock.size()
+	var gold_now := player.gold
+	check(merchant.buy_from(player, potion) and player.gold > gold_now and merchant.stock.size() == stock_before + 1, "selling gives gold back")
+	player.global_position = merchant.global_position + Vector2(0, 40)
+	await _frames(3)
+	check(game.shop_panel.visible and get_tree().paused, "walking up to the merchant opens the shop")
+	check(game.shop_panel.get_node("%ForSale").get_child_count() == merchant.stock.size(), "the shop lists the stock")
+	game._back()
+	await _frames(1)
+	check(not game.shop_panel.visible and not get_tree().paused, "leaving the shop resumes the game")
+	player.global_position = merchant.global_position + Vector2(0, 160)
+	player.inventory.items.resize(bag_before)
+	player.xp = 0
+	await _frames(5)
 
 
 ## Floor ambience: data per theme, footprints, low health heartbeat and muffled music.

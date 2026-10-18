@@ -26,35 +26,39 @@
 [ext_resource type="Resource" path="res://data/elites/spiked.tres" id="13_mym40"]
 [ext_resource type="Resource" path="res://data/items/armors/leather_armor.tres" id="13_q2763"]
 [ext_resource type="Resource" path="res://data/items/armors/chain_mail.tres" id="14_3wmne"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="14_y455n"]
 [ext_resource type="Resource" path="res://data/items/armors/shadow_cloak.tres" id="15_rjx6h"]
+[ext_resource type="Resource" path="res://data/affixes/sharp.tres" id="15_xepax"]
 [ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="16_h0egv"]
+[ext_resource type="Resource" path="res://data/affixes/brutal.tres" id="16_uppjc"]
 [ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="17_hbtgr"]
+[ext_resource type="Resource" path="res://data/affixes/swift.tres" id="17_k7n23"]
+[ext_resource type="Resource" path="res://data/affixes/precise.tres" id="18_iw61m"]
 [ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="18_jjy75"]
+[ext_resource type="Resource" path="res://data/affixes/burning.tres" id="19_1nigv"]
 [ext_resource type="Resource" path="res://data/items/consumables/bomb.tres" id="19_lnxyg"]
+[ext_resource type="Resource" path="res://data/affixes/venomous.tres" id="20_j2x0q"]
 [ext_resource type="Resource" path="res://data/items/consumables/fire_scroll.tres" id="20_vfprf"]
+[ext_resource type="Resource" path="res://data/affixes/frozen.tres" id="21_go5c6"]
 [ext_resource type="Resource" path="res://data/items/consumables/rage_elixir.tres" id="21_nlt3e"]
 [ext_resource type="Resource" path="res://data/items/consumables/haste_draught.tres" id="22_7cyc7"]
+[ext_resource type="Resource" path="res://data/affixes/sturdy.tres" id="22_vqxcy"]
 [ext_resource type="Resource" path="res://data/items/weapons/templar_sword.tres" id="23_dianq"]
-[ext_resource type="Texture2D" path="res://assets/items/tome_healing.png" id="24_s3a73"]
-[ext_resource type="Script" path="res://src/definitions/items/skill_tome_def.gd" id="25_kh0os"]
-[ext_resource type="Resource" path="res://data/skills/player/holy_light.tres" id="26_m2fdx"]
-[ext_resource type="Texture2D" path="res://assets/items/tome_war.png" id="27_bddnx"]
-[ext_resource type="Resource" path="res://data/skills/player/battle_cry.tres" id="28_gyds2"]
-[ext_resource type="Texture2D" path="res://assets/items/tome_frost.png" id="29_1b8ag"]
-[ext_resource type="Resource" path="res://data/skills/player/frost_nova.tres" id="30_0tw7m"]
-[ext_resource type="Texture2D" path="res://assets/items/tome_fire.png" id="31_pgsf5"]
-[ext_resource type="Resource" path="res://data/skills/player/fireball.tres" id="32_6v54u"]
+[ext_resource type="Resource" path="res://data/affixes/fortified.tres" id="23_yb7ug"]
+[ext_resource type="Resource" path="res://data/affixes/light.tres" id="24_ud7y0"]
+[ext_resource type="Resource" path="res://data/affixes/of_the_bear.tres" id="25_f8vur"]
+[ext_resource type="Resource" path="res://data/affixes/of_the_titan.tres" id="26_cnpc5"]
+[ext_resource type="Resource" path="res://data/affixes/of_the_fox.tres" id="27_38uwr"]
+[ext_resource type="Resource" path="res://data/affixes/of_sorcery.tres" id="28_riqfl"]
+[ext_resource type="Resource" path="res://data/affixes/of_haste.tres" id="29_vv2q4"]
+[ext_resource type="Resource" path="res://data/affixes/of_fury.tres" id="30_xabxg"]
 [ext_resource type="Resource" path="res://data/player/player_def.tres" id="33_bx8nx"]
 [ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="33_lnxyg"]
-[ext_resource type="Texture2D" path="res://assets/items/tome_wind.png" id="33_p1yhy"]
-[ext_resource type="Resource" path="res://data/skills/player/blink.tres" id="34_rjcke"]
 [ext_resource type="Script" path="res://src/definitions/content_db.gd" id="34_tx8pl"]
 [ext_resource type="Resource" path="res://data/perks/common/vitality.tres" id="34_vfprf"]
 [ext_resource type="Resource" path="res://data/perks/common/strength.tres" id="35_nlt3e"]
-[ext_resource type="Texture2D" path="res://assets/items/tome_thunder.png" id="35_v3gsm"]
 [ext_resource type="Resource" path="res://data/audio/sound_bank.tres" id="35_vxbuw"]
 [ext_resource type="Resource" path="res://data/perks/common/iron_skin.tres" id="36_7cyc7"]
-[ext_resource type="Resource" path="res://data/skills/player/thunder.tres" id="36_s1peu"]
 [ext_resource type="Resource" path="res://data/perks/common/swiftness.tres" id="37_2j2up"]
 [ext_resource type="Resource" path="res://data/items/tomes/tome_thunder.tres" id="37_gyds2"]
 [ext_resource type="Resource" path="res://data/items/tomes/tome_wind.tres" id="38_1b8ag"]
@@ -73,9 +77,13 @@
 [ext_resource type="Resource" path="res://data/perks/relics/war_banner.tres" id="50_qapwd"]
 [ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="52_yjg1c"]
 [ext_resource type="Resource" path="res://data/props/crate.tres" id="53_dianq"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_healing.tres" id="53_q206c"]
 [ext_resource type="Resource" path="res://data/props/barrel.tres" id="54_kqkbc"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_war.tres" id="54_xvm7b"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_frost.tres" id="55_ptr0g"]
 [ext_resource type="Resource" path="res://data/props/vase.tres" id="55_xx7nh"]
 [ext_resource type="Resource" path="res://data/props/tnt.tres" id="56_6esje"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_fire.tres" id="56_h4mc1"]
 [ext_resource type="Resource" path="res://data/perks/common/arcane_focus.tres" id="58_e0sb6"]
 [ext_resource type="Resource" path="res://data/perks/common/arcane_power.tres" id="59_y15mf"]
 [ext_resource type="Resource" path="res://data/perks/common/devotion.tres" id="60_5rwny"]
@@ -94,76 +102,13 @@
 [ext_resource type="Resource" path="res://data/upgrades/forbidden_library.tres" id="83_v6cij"]
 [ext_resource type="Resource" path="res://data/upgrades/master_smith.tres" id="84_til0v"]
 
-[sub_resource type="Resource" id="Resource_du3p3"]
-script = ExtResource("25_kh0os")
-skill = ExtResource("26_m2fdx")
-id = &"tome_healing"
-display_name = "Tome of Holy Light"
-description = "Read it to learn a skill (last skill button)."
-icon = ExtResource("24_s3a73")
-color = Color(1, 0.9529412, 0.6901961, 1)
-spawn_weight = 3
-
-[sub_resource type="Resource" id="Resource_to1jy"]
-script = ExtResource("25_kh0os")
-skill = ExtResource("28_gyds2")
-id = &"tome_war"
-display_name = "Tome of Battle"
-description = "Read it to learn a skill (last skill button)."
-icon = ExtResource("27_bddnx")
-color = Color(0.9372549, 0.2784314, 0.43529412, 1)
-spawn_weight = 3
-
-[sub_resource type="Resource" id="Resource_8pk3k"]
-script = ExtResource("25_kh0os")
-skill = ExtResource("30_0tw7m")
-id = &"tome_frost"
-display_name = "Tome of Frost"
-description = "Read it to learn a skill (last skill button)."
-icon = ExtResource("29_1b8ag")
-color = Color(0.5568628, 0.7921569, 0.9019608, 1)
-min_depth = 2
-spawn_weight = 3
-
-[sub_resource type="Resource" id="Resource_v6cij"]
-script = ExtResource("25_kh0os")
-skill = ExtResource("32_6v54u")
-id = &"tome_fire"
-display_name = "Tome of Fire"
-description = "Read it to learn a skill (last skill button)."
-icon = ExtResource("31_pgsf5")
-color = Color(1, 0.41960785, 0.20784314, 1)
-spawn_weight = 3
-
-[sub_resource type="Resource" id="Resource_til0v"]
-script = ExtResource("25_kh0os")
-skill = ExtResource("34_rjcke")
-id = &"tome_wind"
-display_name = "Tome of Wind"
-description = "Read it to learn a skill (last skill button)."
-icon = ExtResource("33_p1yhy")
-color = Color(0.6039216, 0.81960785, 0.83137256, 1)
-min_depth = 2
-spawn_weight = 3
-
-[sub_resource type="Resource" id="Resource_mym40"]
-script = ExtResource("25_kh0os")
-skill = ExtResource("36_s1peu")
-id = &"tome_thunder"
-display_name = "Tome of Thunder"
-description = "Read it to learn a skill (last skill button)."
-icon = ExtResource("35_v3gsm")
-color = Color(1, 0.9019608, 0.42745098, 1)
-min_depth = 3
-spawn_weight = 3
-
 [resource]
 script = ExtResource("34_tx8pl")
 player = ExtResource("33_bx8nx")
 dungeon = ExtResource("1_q2vv8")
 sounds = ExtResource("35_vxbuw")
 story = ExtResource("81_du3p3")
-items = Array[ExtResource("2_cewcx")]([ExtResource("3_kwdc3"), ExtResource("4_7ya5d"), ExtResource("5_pbmnr"), ExtResource("6_m0rk7"), ExtResource("7_ecbkd"), ExtResource("8_m5vms"), ExtResource("9_8li55"), ExtResource("10_ng0jj"), ExtResource("11_te2ty"), ExtResource("12_prpil"), ExtResource("13_q2763"), ExtResource("14_3wmne"), ExtResource("15_rjx6h"), ExtResource("16_h0egv"), ExtResource("17_hbtgr"), ExtResource("18_jjy75"), ExtResource("19_lnxyg"), ExtResource("20_vfprf"), ExtResource("21_nlt3e"), ExtResource("22_7cyc7"), ExtResource("23_dianq"), SubResource("Resource_du3p3"), SubResource("Resource_to1jy"), SubResource("Resource_8pk3k"), SubResource("Resource_v6cij"), SubResource("Resource_til0v"), SubResource("Resource_mym40")])
+items = Array[ExtResource("2_cewcx")]([ExtResource("3_kwdc3"), ExtResource("4_7ya5d"), ExtResource("5_pbmnr"), ExtResource("6_m0rk7"), ExtResource("7_ecbkd"), ExtResource("8_m5vms"), ExtResource("9_8li55"), ExtResource("10_ng0jj"), ExtResource("11_te2ty"), ExtResource("12_prpil"), ExtResource("13_q2763"), ExtResource("14_3wmne"), ExtResource("15_rjx6h"), ExtResource("16_h0egv"), ExtResource("17_hbtgr"), ExtResource("18_jjy75"), ExtResource("19_lnxyg"), ExtResource("20_vfprf"), ExtResource("21_nlt3e"), ExtResource("22_7cyc7"), ExtResource("23_dianq"), ExtResource("53_q206c"), ExtResource("54_xvm7b"), ExtResource("55_ptr0g"), ExtResource("56_h4mc1"), ExtResource("38_1b8ag"), ExtResource("37_gyds2")])
 perks = Array[ExtResource("33_lnxyg")]([ExtResource("34_vfprf"), ExtResource("35_nlt3e"), ExtResource("36_7cyc7"), ExtResource("37_2j2up"), ExtResource("38_urwiy"), ExtResource("39_sw1r8"), ExtResource("40_qfpny"), ExtResource("41_d3nxt"), ExtResource("42_yjg1c"), ExtResource("43_dianq"), ExtResource("44_kqkbc"), ExtResource("45_xx7nh"), ExtResource("46_6esje"), ExtResource("47_bx8nx"), ExtResource("48_tx8pl"), ExtResource("49_vxbuw"), ExtResource("50_qapwd"), ExtResource("58_e0sb6"), ExtResource("59_y15mf"), ExtResource("60_5rwny"), ExtResource("61_mmfdi")])
 difficulties = Array[ExtResource("2_rjcke")]([ExtResource("3_v3gsm"), ExtResource("1_p1yhy"), ExtResource("4_s1peu"), ExtResource("5_du3p3")])
 default_difficulty = ExtResource("1_p1yhy")
@@ -171,3 +116,4 @@ upgrades = Array[ExtResource("73_0tw7m")]([ExtResource("74_pgsf5"), ExtResource(
 locked_items = Array[ExtResource("2_cewcx")]([ExtResource("23_dianq"), ExtResource("10_ng0jj"), ExtResource("37_gyds2"), ExtResource("38_1b8ag"), ExtResource("16_h0egv"), ExtResource("15_rjx6h")])
 props = Array[ExtResource("52_yjg1c")]([ExtResource("53_dianq"), ExtResource("54_kqkbc"), ExtResource("55_xx7nh"), ExtResource("56_6esje")])
 elite_affixes = Array[ExtResource("7_s1peu")]([ExtResource("8_du3p3"), ExtResource("9_to1jy"), ExtResource("10_8pk3k"), ExtResource("11_v6cij"), ExtResource("12_til0v"), ExtResource("13_mym40")])
+item_affixes = Array[ExtResource("14_y455n")]([ExtResource("15_xepax"), ExtResource("16_uppjc"), ExtResource("17_k7n23"), ExtResource("18_iw61m"), ExtResource("19_1nigv"), ExtResource("20_j2x0q"), ExtResource("21_go5c6"), ExtResource("22_vqxcy"), ExtResource("23_yb7ug"), ExtResource("24_ud7y0"), ExtResource("25_f8vur"), ExtResource("26_cnpc5"), ExtResource("27_38uwr"), ExtResource("28_riqfl"), ExtResource("29_vv2q4"), ExtResource("30_xabxg")])

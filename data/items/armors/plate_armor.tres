@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorDef" format=3]
 
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_uqsin"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_xtjqw"]
 [ext_resource type="Texture2D" path="res://assets/items/armor.png" id="2_xtesj"]
 [ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="3_uqsin"]
@@ -16,6 +17,7 @@ script = ExtResource("3_uqsin")
 wear_frames = ExtResource("4_xtesj")
 wear_color = Color(0.92, 0.94, 1, 1)
 bonuses = SubResource("Resource_a2kbh")
+value = 45
 id = &"plate_armor"
 display_name = "Plate Armor"
 description = "A walking fortress."

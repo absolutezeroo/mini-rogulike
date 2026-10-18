@@ -55,9 +55,16 @@ func _draw() -> void:
 	draw_set_transform(Vector2(0, 8), 0.0, Vector2(1.0, 0.4))
 	draw_circle(Vector2.ZERO, 9.0, Color(0, 0, 0, 0.3))
 	draw_set_transform(Vector2.ZERO)
-	var glow := item.color
-	glow.a = 0.18 + 0.08 * sin(_time * 4.0)
-	draw_circle(bob, 14.0, glow)
+	var rarity := (item as EquipmentDef).rarity if item is EquipmentDef else ItemRarity.COMMON
+	var glow := item.rarity_color() if rarity > ItemRarity.COMMON else item.color
+	glow.a = 0.18 + 0.08 * sin(_time * 4.0) + 0.08 * rarity
+	draw_circle(bob, 14.0 + 2.0 * rarity, glow)
+	if rarity >= ItemRarity.RARE:
+		# A beam of light: rare and epic items are seen from afar.
+		var beam := item.rarity_color()
+		beam.a = 0.22 + 0.1 * sin(_time * 5.0)
+		draw_rect(Rect2(-3, -70, 6, 70), beam)
+		draw_rect(Rect2(-1, -90, 2, 90), Color(beam, beam.a * 1.5))
 	if item.icon:
 		# Small item sprites at 2x like the rest of the art; bigger UI-style icons at 1x.
 		var icon_scale := Actor.SPRITE_SCALE if maxf(item.icon.get_width(), item.icon.get_height()) <= 18.0 else 1.0

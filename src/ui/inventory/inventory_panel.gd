@@ -79,6 +79,7 @@ func _refresh() -> void:
 		var item: ItemDef = entry.item
 		var button := Button.new()
 		button.text = "%s%s" % [item.display_name, "  x%d" % entry.count if entry.count > 1 else ""]
+		button.add_theme_color_override("font_color", item.rarity_color())
 		_set_icon(button, item)
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -109,6 +110,7 @@ func _refresh_details() -> void:
 		_item_details.text = ""
 		return
 	_item_name.text = item.display_name
+	_item_name.add_theme_color_override("font_color", item.rarity_color())
 	_item_type.text = item.get_type_label()
 	_item_details.text = item.get_details()
 	if _selected_slot != NO_SLOT:

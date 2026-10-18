@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="ArmorDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_26fmo"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_erldy"]
 [ext_resource type="Texture2D" path="res://assets/items/armor.png" id="2_u33xh"]
 [ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="3_erldy"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/wear/mail.tres" id="4_u33xh"]
@@ -15,6 +16,7 @@ script = ExtResource("3_erldy")
 wear_frames = ExtResource("4_u33xh")
 wear_color = Color(0.78, 0.82, 0.9, 1)
 bonuses = SubResource("Resource_pr1ng")
+value = 35
 id = &"chain_mail"
 display_name = "Chain Mail"
 description = "Good protection, slows you down a little."

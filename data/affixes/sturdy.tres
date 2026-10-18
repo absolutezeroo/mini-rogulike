@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffixDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_rvk24"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="2_57mdl"]
+
+[sub_resource type="Resource" id="Resource_vqv2y"]
+script = ExtResource("1_rvk24")
+defense = 2
+
+[resource]
+script = ExtResource("2_57mdl")
+slots = 6
+bonuses = SubResource("Resource_vqv2y")
+id = &"sturdy"
+display_name = "Sturdy"

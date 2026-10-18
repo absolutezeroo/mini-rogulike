@@ -25,6 +25,8 @@ extends Resource
 
 @export_group("Items")
 @export var pickup: AudioStream
+## Gold picked up, bought or sold.
+@export var coin: AudioStream
 @export var equip: AudioStream
 
 @export_group("World")

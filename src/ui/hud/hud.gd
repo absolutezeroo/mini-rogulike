@@ -60,6 +60,7 @@ func bind_player(player: Player) -> void:
 		_player.xp_changed.disconnect(_on_xp_changed)
 		_player.equipment.changed.disconnect(_refresh_info)
 		_player.skills_changed.disconnect(_refresh_skill_buttons)
+		_player.gold_changed.disconnect(_on_gold_changed)
 	_player = player
 	_player.health_changed.connect(_on_health_changed)
 	_vignette.reset()
@@ -68,6 +69,8 @@ func bind_player(player: Player) -> void:
 	_player.xp_changed.connect(_on_xp_changed)
 	_player.equipment.changed.connect(_refresh_info)
 	_player.skills_changed.connect(_refresh_skill_buttons)
+	_player.gold_changed.connect(_on_gold_changed)
+	_on_gold_changed(player.gold)
 	_message_log.clear()
 	_perk_tray.bind(player.perks)
 	_boss_bar.hide_now()
@@ -132,6 +135,10 @@ func _refresh_info() -> void:
 		stats.defense,
 		weapon.display_name if weapon else "Bare hands",
 	]
+
+
+func _on_gold_changed(gold: int) -> void:
+	(%GoldLabel as Label).text = "Gold %d" % gold
 
 
 ## Souls gathered this run (what the shrine will get). `pulse` when a new one arrives.

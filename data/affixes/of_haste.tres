@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemAffixDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_yhwwj"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="2_gfg2l"]
+
+[sub_resource type="Resource" id="Resource_ap762"]
+script = ExtResource("1_yhwwj")
+cooldown_reduction = 0.08
+
+[resource]
+script = ExtResource("2_gfg2l")
+is_prefix = false
+bonuses = SubResource("Resource_ap762")
+id = &"of_haste"
+display_name = "of Haste"
+min_depth = 2
+spawn_weight = 7
