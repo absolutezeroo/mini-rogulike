@@ -20,6 +20,14 @@ use_parent_material = true
 [node name="Body" type="AnimatedSprite2D" parent="Visual/Squash" unique_id=951091079]
 use_parent_material = true
 
+[node name="BodyArmor" type="AnimatedSprite2D" parent="Visual/Squash" unique_id=1424959436]
+visible = false
+use_parent_material = true
+
+[node name="Helmet" type="AnimatedSprite2D" parent="Visual/Squash" unique_id=1424959437]
+visible = false
+use_parent_material = true
+
 [node name="Weapon" type="AnimatedSprite2D" parent="Visual/Squash" unique_id=1424959435]
 visible = false
 use_parent_material = true

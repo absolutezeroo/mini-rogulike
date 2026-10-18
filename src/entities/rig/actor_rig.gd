@@ -5,12 +5,15 @@ extends Node2D
 ##   Rig (this, at the actor's feet)
 ##   └── Visual        flash shader, scaled 2x (units inside = art pixels)
 ##       └── Squash    squash & stretch on hits, lunges
-##           ├── Body    AnimatedSprite2D: idle_/walk_/attack_/hit_/dash_ + down/up/left/right, dead,
-##           │           and for bosses cast (telegraphed skills) and intro (wakes up)
-##           └── Weapon  AnimatedSprite2D: the weapon in hand, attack_<dir>, synced frame by frame
+##           ├── Body       AnimatedSprite2D: idle_/walk_/attack_/hit_/dash_ + down/up/left/right, dead,
+##           │              and for bosses cast (telegraphed skills) and intro (wakes up)
+##           ├── BodyArmor  AnimatedSprite2D: worn body armor, same animation and frame as Body
+##           ├── Helmet     AnimatedSprite2D: worn helmet, same animation and frame as Body
+##           └── Weapon     AnimatedSprite2D: the weapon in hand, attack_<dir>, synced frame by frame
 ##
 ## Sprites are drawn per direction (no mirroring, no free rotation): the weapon sits in the hand
 ## of each attack frame and is drawn behind the body when facing up, exactly like in Zelda-likes.
+## Armor layers (paper doll) copy the body's animation and frame every frame, so they can never drift.
 ## Slash effects are separate sprite sheets played in front of the actor.
 ## The Actor only says what happens; the rig decides how it looks.
 
@@ -34,6 +37,8 @@ var _weapon_def: WeaponDef
 @onready var squash_node: Node2D = $Visual/Squash
 @onready var body: AnimatedSprite2D = $Visual/Squash/Body
 @onready var weapon: AnimatedSprite2D = $Visual/Squash/Weapon
+@onready var body_armor: AnimatedSprite2D = $Visual/Squash/BodyArmor
+@onready var helmet: AnimatedSprite2D = $Visual/Squash/Helmet
 
 
 func _ready() -> void:
@@ -43,9 +48,18 @@ func _ready() -> void:
 
 func setup(frames: SpriteFrames, offset: Vector2) -> void:
 	body.sprite_frames = frames
-	body.offset = offset
-	weapon.offset = offset
+	for sprite: AnimatedSprite2D in [body, body_armor, helmet, weapon]:
+		sprite.offset = offset
 	_play(&"idle")
+
+
+## Shows (or hides, with null frames) the armor worn on `slot` (HEAD or BODY).
+func set_wear(slot: EquipmentDef.Slot, frames: SpriteFrames, color: Color) -> void:
+	var layer := helmet if slot == EquipmentDef.Slot.HEAD else body_armor
+	layer.sprite_frames = frames
+	layer.self_modulate = color
+	layer.visible = frames != null
+	_sync_layers()
 
 
 func set_weapon(def: WeaponDef) -> void:
@@ -173,6 +187,20 @@ func _process(delta: float) -> void:
 	var t := _squash / SQUASH_TIME
 	squash_node.scale = Vector2(1.0 + 0.25 * t, 1.0 - 0.2 * t)
 	(visual.material as ShaderMaterial).set_shader_parameter("flash_amount", 1.0 if _flash > 0.0 else 0.0)
+	_sync_layers()
+
+
+## Armor layers show the same animation and frame as the body (hidden if they don't have it).
+func _sync_layers() -> void:
+	for layer: AnimatedSprite2D in [body_armor, helmet]:
+		if layer.sprite_frames == null:
+			continue
+		var shown := layer.sprite_frames.has_animation(body.animation)
+		layer.visible = shown
+		if shown:
+			if layer.animation != body.animation:
+				layer.animation = body.animation
+			layer.frame = body.frame
 
 
 # --- Helpers -----------------------------------------------------------------

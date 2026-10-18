@@ -138,8 +138,10 @@ Every actor (player and monsters) has a **rig**: `src/entities/rig/actor_rig.tsc
 Rig                  at the actor's feet
 └── Visual           flash shader, scaled 2x (units = art pixels)
     └── Squash       squash & stretch on hits
-        ├── Body     AnimatedSprite2D: the character (SpriteFrames from the data)
-        └── Weapon   AnimatedSprite2D: the weapon in hand, same animation and frame as Body
+        ├── Body       AnimatedSprite2D: the character (SpriteFrames from the data)
+        ├── BodyArmor  AnimatedSprite2D: worn body armor, same animation and frame as Body
+        ├── Helmet     AnimatedSprite2D: worn helmet, same animation and frame as Body
+        └── Weapon     AnimatedSprite2D: the weapon in hand, same animation and frame as Body
 ```
 
 The animations live in `SpriteFrames` resources in `data/visuals/`, named `<pose>_<direction>`:
@@ -161,6 +163,21 @@ so you can see the strike coming.
 The sheets in `assets/weapons/attack/` are 64x64 cells, one column per direction, one row per frame,
 drawn so the handle sits in the hero's hand on that frame. The weapon is drawn behind the body when
 facing up. `attack_fx` is the slash effect played in front of the actor.
+
+**Armor (paper doll)**: what you wear shows on the hero. Each `ArmorDef` has `wear_frames`, a layer
+with the same animations as the hero, and a `wear_color`. The layers copy the body's animation and
+frame every frame, so they can't drift. The layer sheets (`assets/characters/hero/wear/`) are grayscale
+and were made from the hero's own frames (hood and outfit pixels), so one style serves many armors:
+
+| Style (`data/visuals/wear/`) | Slot | Used by |
+|---|---|---|
+| hood | head | Leather Cap |
+| helm | head | Iron Helm |
+| tunic | body | Leather Armor, Shadow Cloak |
+| mail | body | Chain Mail |
+| plate | body | Plate Armor |
+
+A new armor = pick a style and a color in the inspector.
 
 To tweak an animation, open a file in `data/visuals/` and use the SpriteFrames panel
 (add frames, change the speed, toggle loop). The actor scripts never touch animations directly:

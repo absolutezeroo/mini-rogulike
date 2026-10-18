@@ -300,6 +300,33 @@ func _test_gameplay() -> void:
 	player.use_item(load("res://data/items/weapons/katana.tres"))
 	await _frames(30)
 
+	# Armor is drawn on the hero (paper doll), frame by frame with the body.
+	for armor_id in ["leather_cap", "iron_helm", "leather_armor", "chain_mail", "plate_armor", "shadow_cloak"]:
+		var armor: ArmorDef = load("res://data/items/armors/%s.tres" % armor_id)
+		check(armor.wear_frames != null, "%s has a worn look" % armor_id)
+		for animation in rig.body.sprite_frames.get_animation_names():
+			check(armor.wear_frames.has_animation(animation), "%s covers %s" % [armor_id, animation])
+	var helm: ArmorDef = load("res://data/items/armors/iron_helm.tres")
+	var mail: ArmorDef = load("res://data/items/armors/chain_mail.tres")
+	player.equipment.equip(helm)
+	player.equipment.equip(mail)
+	check(rig.helmet.visible and rig.body_armor.visible, "worn armor is visible")
+	check(rig.helmet.self_modulate == helm.wear_color, "the helmet takes the armor's color")
+	_set_move(Vector2.LEFT)
+	await _frames(13)
+	check(rig.body_armor.animation == rig.body.animation and rig.body_armor.frame == rig.body.frame, "body armor follows the walk frame by frame")
+	check(rig.helmet.animation == rig.body.animation and rig.helmet.frame == rig.body.frame, "helmet follows the walk frame by frame")
+	_set_move(Vector2.ZERO)
+	player._attack_cooldown = 0.0
+	player.attack(Vector2.UP)
+	await _frames(3)
+	check(rig.helmet.animation == &"attack_up" and rig.helmet.frame == rig.body.frame, "armor follows the attack")
+	check(rig.weapon.get_index() < rig.body_armor.get_index(), "facing up: weapon behind the armor too")
+	await _frames(40)
+	player.equipment.unequip(EquipmentDef.Slot.HEAD)
+	player.equipment.unequip(EquipmentDef.Slot.BODY)
+	check(not rig.helmet.visible and not rig.body_armor.visible, "removed armor disappears")
+
 	# Inventory screen opens, lists items, uses them, pauses, and closes.
 	player.inventory.add(load("res://data/items/armors/leather_cap.tres"))
 	game.open_inventory()

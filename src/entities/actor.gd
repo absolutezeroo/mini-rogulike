@@ -70,8 +70,19 @@ func _ready() -> void:
 	rig.visible = frames != null
 	rig.position = Vector2(0, _feet_y())
 	rig.setup(frames, frames_offset)
+	_refresh_look()
+	equipment.changed.connect(_refresh_look)
+
+
+## Weapon in hand and worn armor, from the equipment.
+func _refresh_look() -> void:
 	rig.set_weapon(get_weapon())
-	equipment.changed.connect(func() -> void: rig.set_weapon(get_weapon()))
+	for slot: EquipmentDef.Slot in [EquipmentDef.Slot.HEAD, EquipmentDef.Slot.BODY]:
+		var armor := equipment.get_item(slot) as ArmorDef
+		if armor and armor.wear_frames:
+			rig.set_wear(slot, armor.wear_frames, armor.wear_color)
+		else:
+			rig.set_wear(slot, null, Color.WHITE)
 
 
 # --- Stats -------------------------------------------------------------------

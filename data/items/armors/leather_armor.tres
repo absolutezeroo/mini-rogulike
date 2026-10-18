@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_lbnax"]
 [ext_resource type="Texture2D" path="res://assets/items/armor.png" id="2_62oo6"]
 [ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="3_o8uxg"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/wear/tunic.tres" id="4_62oo6"]
 
 [sub_resource type="Resource" id="Resource_b0ebn"]
 script = ExtResource("1_lbnax")
@@ -11,6 +12,8 @@ defense = 1
 
 [resource]
 script = ExtResource("3_o8uxg")
+wear_frames = ExtResource("4_62oo6")
+wear_color = Color(0.8, 0.55, 0.34, 1)
 bonuses = SubResource("Resource_b0ebn")
 id = &"leather_armor"
 display_name = "Leather Armor"
