@@ -26,3 +26,4 @@ icon_tint = Color(0.8, 0.5, 1, 1)
 glyph = "*"
 color = Color(0.78039217, 0.49019608, 1, 1)
 spawn_weight = 0
+attack_animation = 3

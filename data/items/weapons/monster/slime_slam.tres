@@ -19,3 +19,4 @@ display_name = "Slam"
 glyph = "o"
 color = Color(0.5019608, 0.92941177, 0.6, 1)
 spawn_weight = 0
+attack_animation = 2

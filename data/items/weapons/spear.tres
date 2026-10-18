@@ -27,3 +27,4 @@ glyph = "|"
 color = Color(0.9137255, 0.76862746, 0.41568628, 1)
 min_depth = 2
 spawn_weight = 6
+attack_animation = 1

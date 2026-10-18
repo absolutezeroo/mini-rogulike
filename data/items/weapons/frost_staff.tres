@@ -27,3 +27,4 @@ glyph = "+"
 color = Color(0.29803923, 0.7882353, 0.9411765, 1)
 min_depth = 3
 spawn_weight = 4
+attack_animation = 3

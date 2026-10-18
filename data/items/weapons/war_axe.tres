@@ -33,3 +33,4 @@ glyph = "T"
 color = Color(0.83137256, 0.6392157, 0.4509804, 1)
 min_depth = 2
 spawn_weight = 5
+attack_animation = 2

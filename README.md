@@ -74,6 +74,32 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   Buses: Master > SFX, UI, Music (`default_bus_layout.tres`).
 - **Hit stop**: a few frames of freeze on impacts (`HitStop.freeze(seconds)`).
 
+## Animations
+
+Every actor (player and monsters) has a **rig**: `src/entities/rig/actor_rig.tscn`.
+
+```
+Rig                  at the actor's feet
+├── Visual           flips left/right, flash shader, scaled 2x (units = art pixels)
+│   └── Squash       squash & stretch on hits
+│       ├── Body     character sprite          <- BodyAnimator
+│       └── Aim      turned toward the target while attacking
+│           └── Hand                            <- WeaponAnimator
+│               └── Weapon (sprite)
+├── BodyAnimator     idle, walk, dash, lunge, windup, death
+└── WeaponAnimator   rest, slash, thrust, smash, shoot, windup_* (anticipation poses)
+```
+
+The weapon is held in the hand and only moves when attacking. Each `WeaponDef` picks its
+**attack animation** (slash for swords, thrust for daggers and spears, smash for axes and hammers,
+shoot for wands and staves); the animation is sped up to fit the weapon's attack speed.
+Monsters hold an anticipation pose during their wind-up, and creatures without a weapon sprite
+(rats, bats, spiders...) lunge instead.
+
+To tweak an animation, open `actor_rig.tscn`, select BodyAnimator or WeaponAnimator and edit the keys
+in the Animation panel. In the Hand track, rotation 0 = weapon pointing up, 1.57 = pointing at the target.
+The actor scripts never touch animations directly: they call `rig.play_attack()`, `rig.flash()`, etc.
+
 ## Adding content
 
 | To add... | Do this |
@@ -130,5 +156,5 @@ Pixel art is 16x16, drawn at 2x in the world, with nearest filtering
 - Static typing everywhere, `class_name` for reusable types.
 - `snake_case` files and functions, `PascalCase` classes, `_private` members.
 - One scene per entity, its script next to it.
-- Entities draw their sprite in `_draw()` (flip, walk bob, weapon swing, hit flash) so a single
-  scene works for every monster type: the look comes from the data.
+- One monster scene for every monster type: the sprite, weapon and sounds come from the data,
+  the rig animates whatever it is given.

@@ -25,3 +25,4 @@ icon = SubResource("AtlasTexture_nsus4")
 glyph = "T"
 color = Color(0.34509805, 0.5058824, 0.34117648, 1)
 spawn_weight = 0
+attack_animation = 2

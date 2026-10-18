@@ -3,6 +3,7 @@ extends CharacterBody2D
 ## Base class for everything that moves and fights: the player and monsters.
 ## Handles stats, health, attacking, knockback, dashing and hit feedback.
 ## Subclasses decide where to go (_get_desired_velocity) and what to do (_think).
+## How it looks is the job of the ActorRig child ("Rig"): this script only tells it what happens.
 
 signal health_changed(current: int, maximum: int)
 signal stats_changed
@@ -16,11 +17,6 @@ const HIT_TEXT_COLOR := Color("ffffff")
 const CRIT_TEXT_COLOR := Color("ffd166")
 ## Pixel art is 16x16 and drawn at 2x.
 const SPRITE_SCALE := 2.0
-const WEAPON_SCALE := 1.5
-const SWING_TIME := 0.14
-## Very bright modulate = white-ish hit flash on sprites.
-const FLASH_MODULATE := Color(4.0, 4.0, 4.0, 1.0)
-const SQUASH_TIME := 0.12
 const AFTERIMAGE_INTERVAL := 0.03
 
 var faction: Faction = Faction.MONSTER
@@ -50,16 +46,25 @@ var _knockback := Vector2.ZERO
 var _dash_velocity := Vector2.ZERO
 var _dash_time := 0.0
 var _flash_time := 0.0
-var _swing_time := 0.0
-var _swing_arc := 0.0
-var _walk_time := 0.0
-var _squash_time := 0.0
 var _afterimage_timer := 0.0
+
+## Visual body (sprite, hand, weapon, animations). Null for actors without sprite.
+@onready var rig: ActorRig = get_node_or_null("Rig")
 
 
 func _init() -> void:
 	motion_mode = MOTION_MODE_FLOATING
 	equipment.changed.connect(invalidate_stats)
+
+
+func _ready() -> void:
+	if rig == null:
+		return
+	rig.visible = sprite != null
+	rig.position = Vector2(0, _feet_y())
+	rig.setup(sprite, sprite_tint)
+	rig.set_weapon(get_weapon())
+	equipment.changed.connect(func() -> void: rig.set_weapon(get_weapon()))
 
 
 # --- Stats -------------------------------------------------------------------
@@ -129,9 +134,9 @@ func attack(direction: Vector2) -> bool:
 		facing = direction.normalized()
 	_attack_cooldown = weapon.cooldown
 	Sfx.play_at(weapon.attack_sound, global_position)
+	if rig:
+		rig.play_attack(weapon, facing, weapon.cooldown)
 	if weapon.kind == WeaponDef.Kind.MELEE:
-		_swing_time = SWING_TIME
-		_swing_arc = deg_to_rad(minf(weapon.arc_degrees, 200.0))
 		Combat.melee_strike(self, facing, weapon)
 	else:
 		world.fire_projectiles(self, facing, Combat.spec_from_weapon(self, weapon))
@@ -165,7 +170,9 @@ func take_hit(hit: HitInfo) -> void:
 	hp = maxi(hp - damage, 0)
 	_knockback += hit.knockback
 	_flash_time = FLASH_TIME
-	_squash_time = SQUASH_TIME
+	if rig:
+		rig.flash()
+		rig.squash()
 	var spark_direction := hit.knockback.normalized() if hit.knockback != Vector2.ZERO else Vector2.UP
 	Vfx.hit(world, global_position + Vector2(0, -radius * 0.5), spark_direction, _hit_spark_color(hit))
 	Sfx.play_at(_hurt_sound(hit), global_position)
@@ -197,6 +204,9 @@ func die(killer: Actor) -> void:
 	set_deferred("collision_layer", 0)
 	set_deferred("collision_mask", 0)
 	Sfx.play_at(_death_sound(), global_position)
+	if rig:
+		rig.play_death()
+		rig.modulate = _body_modulate()
 	_on_died(killer if is_instance_valid(killer) else null)
 	died.emit(self)
 	if free_on_death:
@@ -250,13 +260,16 @@ func _physics_process(delta: float) -> void:
 		_dash_time -= delta
 		velocity = _dash_velocity
 		_afterimage_timer -= delta
-		if _afterimage_timer <= 0.0 and sprite:
+		if _afterimage_timer <= 0.0 and rig and rig.visible:
 			_afterimage_timer = AFTERIMAGE_INTERVAL
-			world.spawn_vfx(AfterimageVfx.create(global_position, sprite, _sprite_rect(), _flip_sign(), sprite_tint * Color(0.7, 0.9, 1.2)))
+			world.spawn_vfx(AfterimageVfx.from_sprite(rig.body_sprite(), Color(0.7, 0.9, 1.2)))
 	else:
 		velocity = _get_desired_velocity() + _knockback
 	_knockback = _knockback.move_toward(Vector2.ZERO, KNOCKBACK_FRICTION * delta)
 	move_and_slide()
+	if rig:
+		rig.update_state(facing, velocity.length(), is_dashing(), delta)
+		rig.modulate = _body_modulate()
 	queue_redraw()
 
 
@@ -264,12 +277,6 @@ func _tick_timers(delta: float) -> void:
 	_attack_cooldown = maxf(_attack_cooldown - delta, 0.0)
 	_invulnerable_time = maxf(_invulnerable_time - delta, 0.0)
 	_flash_time = maxf(_flash_time - delta, 0.0)
-	_swing_time = maxf(_swing_time - delta, 0.0)
-	_squash_time = maxf(_squash_time - delta, 0.0)
-	if velocity.length() > 20.0:
-		_walk_time += delta
-	else:
-		_walk_time = 0.0
 	skills.tick(delta)
 
 	if not _timed_bonuses.is_empty():
@@ -296,73 +303,21 @@ func _feet_y() -> float:
 	return radius * 0.7 + 1.0
 
 
-## Colors the body: hit flash, death... Subclasses can add effects (blinking).
+## Tint of the whole body: death, blinking, telegraph glow... (the hit flash is a shader in the rig).
 func _body_modulate() -> Color:
 	if is_dead:
-		return Color(0.35, 0.3, 0.3, 1.0)
-	if _flash_time > 0.0:
-		return FLASH_MODULATE
+		return Color(0.45, 0.4, 0.4, 1.0)
 	return Color.WHITE
 
 
 func _draw() -> void:
-	# Shadow
+	# Shadow under the feet.
 	draw_set_transform(Vector2(0, _feet_y() - 1.0), 0.0, Vector2(1.0, 0.4))
 	draw_circle(Vector2.ZERO, radius, Color(0, 0, 0, 0.35))
 	draw_set_transform(Vector2.ZERO)
-
-	var modulate_color := _body_modulate()
 	if sprite == null:
-		_draw_fallback_body(body_color * modulate_color)
-		return
-
-	var weapon_behind := facing.y < -0.3
-	if weapon_behind:
-		_draw_weapon(modulate_color)
-	_draw_sprite(modulate_color)
-	if not weapon_behind:
-		_draw_weapon(modulate_color)
-
-
-func _draw_sprite(modulate_color: Color) -> void:
-	# Small hop while walking.
-	var bob := -absf(sin(_walk_time * 14.0)) * 2.0 if not is_dead else 0.0
-	# Squash on hit, anchored at the feet.
-	var squash := _squash_time / SQUASH_TIME
-	var squash_scale := Vector2(1.0 + 0.25 * squash, 1.0 - 0.2 * squash)
-	var feet := Vector2(0, _feet_y() + bob)
-	draw_set_transform(feet, 0.0, Vector2(_flip_sign() * squash_scale.x, squash_scale.y))
-	draw_texture_rect(sprite, Rect2(_sprite_rect().position - Vector2(0, _feet_y()), _sprite_rect().size), false, sprite_tint * modulate_color)
-	draw_set_transform(Vector2.ZERO)
-
-
-## Where the sprite is drawn, relative to the actor's position (feet on the collision circle).
-func _sprite_rect() -> Rect2:
-	var size := sprite.get_size() * SPRITE_SCALE
-	return Rect2(Vector2(-size.x * 0.5, _feet_y() - size.y), size)
-
-
-func _flip_sign() -> float:
-	return -1.0 if facing.x < -0.1 else 1.0
-
-
-## The equipped weapon, held in front and swung when attacking.
-func _draw_weapon(modulate_color: Color) -> void:
-	var weapon := get_weapon()
-	if weapon == null or weapon.icon == null or is_dead:
-		return
-	var angle := facing.angle()
-	if _swing_time > 0.0:
-		var progress := 1.0 - _swing_time / SWING_TIME
-		angle += lerpf(-_swing_arc * 0.5, _swing_arc * 0.5, ease(progress, 0.5))
-	else:
-		angle -= 0.35  # resting pose, slightly raised
-	var hand := Vector2(0, _feet_y() - sprite.get_size().y * SPRITE_SCALE * 0.4) + facing * radius * 0.6
-	var size := weapon.icon.get_size() * WEAPON_SCALE
-	# Icons point up: rotate so the tip follows the angle, handle in the hand.
-	draw_set_transform(hand, angle + PI * 0.5)
-	draw_texture_rect(weapon.icon, Rect2(Vector2(-size.x * 0.5, -size.y + 4.0), size), false, weapon.icon_tint * modulate_color)
-	draw_set_transform(Vector2.ZERO)
+		var color := Color.WHITE if _flash_time > 0.0 else body_color * _body_modulate()
+		_draw_fallback_body(color)
 
 
 func _draw_fallback_body(color: Color) -> void:

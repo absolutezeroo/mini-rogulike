@@ -174,6 +174,30 @@ func _test_gameplay() -> void:
 	check(player.inventory.items.size() == count - 1, "dropped item left the bag")
 	await _frames(5)
 
+	# Animations: the rig plays the right animation for each weapon and faces the target.
+	var rig := player.rig
+	check(rig != null and rig.visible, "player has a visible rig")
+	player._attack_cooldown = 0.0
+	player.attack(Vector2.LEFT)
+	check(rig.weapon_animator.current_animation == &"slash", "a sword attack plays 'slash'")
+	await _frames(2)
+	check(rig.visual.scale.x < 0.0, "the rig turns toward the attack")
+	await _frames(40)
+	check(rig.weapon_animator.current_animation == &"rest", "the weapon goes back to rest")
+	var rat := world.spawn_monster(load("res://data/monsters/rat.tres"), player.global_position + Vector2(200, 0))
+	await _frames(1)
+	rat.attack(Vector2.LEFT)
+	check(rat.rig.body_animator.current_animation == &"lunge", "a bite (no weapon sprite) makes the monster lunge")
+	rat.queue_free()
+	var spear: WeaponDef = load("res://data/items/weapons/spear.tres")
+	player.inventory.add(spear)
+	player.use_item(spear)
+	player._attack_cooldown = 0.0
+	player.attack(Vector2.RIGHT)
+	check(rig.weapon_animator.current_animation == &"thrust", "a spear attack plays 'thrust'")
+	player.use_item(load("res://data/items/weapons/rusty_sword.tres"))
+	await _frames(30)
+
 	# Inventory screen opens, lists items, uses them, pauses, and closes.
 	player.inventory.add(load("res://data/items/armors/leather_cap.tres"))
 	game.open_inventory()

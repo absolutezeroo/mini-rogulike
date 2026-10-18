@@ -22,6 +22,18 @@ static func create(at: Vector2, texture: Texture2D, rect: Rect2, flip: float, co
 	return vfx
 
 
+## Copies a Sprite2D as it is right now (texture, transform, flip).
+static func from_sprite(sprite: Sprite2D, color: Color) -> AfterimageVfx:
+	var vfx := AfterimageVfx.new()
+	vfx.transform = sprite.get_global_transform()
+	vfx._texture = sprite.texture
+	var size := sprite.texture.get_size()
+	vfx._rect = Rect2(sprite.offset - size * 0.5, size)
+	vfx._color = sprite.self_modulate * color
+	vfx.z_index = -1
+	return vfx
+
+
 func _process(delta: float) -> void:
 	_age += delta
 	if _age >= LIFETIME:

@@ -4,6 +4,9 @@ extends EquipmentDef
 ## Melee weapons hit everything in an arc; ranged weapons fire projectiles.
 
 enum Kind { MELEE, RANGED }
+## Which attack animation the wielder plays (see the WeaponAnimator in actor_rig.tscn).
+## A weapon without icon (claws, bites) makes the wielder lunge instead.
+enum AttackAnimation { SLASH, THRUST, SMASH, SHOOT }
 
 @export var kind: Kind = Kind.MELEE
 @export var damage: int = 4
@@ -12,6 +15,7 @@ enum Kind { MELEE, RANGED }
 ## Melee: reach beyond the body. Ranged: max projectile travel distance.
 @export var reach: float = 36.0
 @export var knockback: float = 140.0
+@export var attack_animation: AttackAnimation = AttackAnimation.SLASH
 
 @export_group("Melee")
 @export_range(10.0, 360.0) var arc_degrees: float = 110.0

@@ -33,3 +33,4 @@ icon = SubResource("AtlasTexture_870w0")
 glyph = "-"
 color = Color(0.62352943, 0.827451, 1, 1)
 spawn_weight = 8
+attack_animation = 1
