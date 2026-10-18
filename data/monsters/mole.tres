@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_055d0"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/mole.tres" id="2_mhmgb"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/mole.png" id="3_po8df"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="4_vmsge"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="5_vienb"]
+[ext_resource type="Resource" path="res://data/items/armors/leather_cap.tres" id="6_e3jlq"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="7_dha4h"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_pjnrp"]
+[ext_resource type="Resource" path="res://data/skills/monster/blink.tres" id="9_rp4ol"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_frenm"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/claws.tres" id="11_85mhb"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_iyyd1"]
+atlas = ExtResource("3_po8df")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_3vymt"]
+script = ExtResource("4_vmsge")
+item = ExtResource("5_vienb")
+weight = 6
+
+[sub_resource type="Resource" id="Resource_c6hu5"]
+script = ExtResource("4_vmsge")
+item = ExtResource("6_e3jlq")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_nmh1m"]
+script = ExtResource("7_dha4h")
+drop_chance = 0.25
+entries = Array[ExtResource("4_vmsge")]([SubResource("Resource_3vymt"), SubResource("Resource_c6hu5")])
+
+[sub_resource type="Resource" id="Resource_fvlp2"]
+script = ExtResource("10_frenm")
+max_hp = 26
+defense = 2
+move_speed = 70.0
+
+[resource]
+script = ExtResource("1_055d0")
+stats = SubResource("Resource_fvlp2")
+weapon = ExtResource("11_85mhb")
+skills = Array[ExtResource("8_pjnrp")]([ExtResource("9_rp4ol")])
+radius = 11.0
+frames = ExtResource("2_mhmgb")
+frames_offset = Vector2(0, -8)
+attack_windup = 0.4
+attack_recovery = 0.35
+xp_reward = 6
+loot = SubResource("Resource_nmh1m")
+id = &"mole"
+display_name = "Burrower"
+description = "Tough. Burrows under you when you keep away."
+icon = SubResource("AtlasTexture_iyyd1")
+glyph = "B"
+color = Color(0.7372549, 0.42352942, 0.14509805, 1)
+spawn_weight = 6

@@ -1,6 +1,6 @@
 class_name BossDef
 extends MonsterDef
-## A boss guards the arena of every Nth floor (see DungeonConfig.boss_every).
+## A boss guards the arena on the last floor of its act (see ActDef).
 ## It sleeps until the player walks into its arena, then the exits close.
 ## As it loses HP it goes through its phases: stronger, faster, new skills.
 

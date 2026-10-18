@@ -1,0 +1,57 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_rj0wb"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/mushroom.tres" id="2_xglpw"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/mushroom.png" id="3_hdlx3"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="4_8j8hi"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="5_wy17q"]
+[ext_resource type="Resource" path="res://data/items/consumables/haste_draught.tres" id="6_xd6jq"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="7_fwfeq"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_wulgo"]
+[ext_resource type="Resource" path="res://data/skills/monster/spore_cloud.tres" id="9_2l1lx"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_cxi3v"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/slam.tres" id="11_1mytu"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_isib2"]
+atlas = ExtResource("3_hdlx3")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_dtxbq"]
+script = ExtResource("4_8j8hi")
+item = ExtResource("5_wy17q")
+weight = 6
+
+[sub_resource type="Resource" id="Resource_qbs06"]
+script = ExtResource("4_8j8hi")
+item = ExtResource("6_xd6jq")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_plk8k"]
+script = ExtResource("7_fwfeq")
+drop_chance = 0.25
+entries = Array[ExtResource("4_8j8hi")]([SubResource("Resource_dtxbq"), SubResource("Resource_qbs06")])
+
+[sub_resource type="Resource" id="Resource_q7pk7"]
+script = ExtResource("10_cxi3v")
+max_hp = 22
+defense = 1
+move_speed = 45.0
+
+[resource]
+script = ExtResource("1_rj0wb")
+stats = SubResource("Resource_q7pk7")
+weapon = ExtResource("11_1mytu")
+skills = Array[ExtResource("8_wulgo")]([ExtResource("9_2l1lx")])
+radius = 11.0
+frames = ExtResource("2_xglpw")
+frames_offset = Vector2(0, -8)
+attack_windup = 0.5
+attack_recovery = 0.35
+loot = SubResource("Resource_plk8k")
+id = &"mushroom"
+display_name = "Spore Cap"
+description = "Slow. Puffs a cloud of spores that slows and poisons."
+icon = SubResource("AtlasTexture_isib2")
+glyph = "S"
+color = Color(0.8980392, 0.21960784, 0.23137255, 1)
+spawn_weight = 8

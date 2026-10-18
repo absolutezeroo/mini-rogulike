@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/bolt.tres" id="1_6qlgq"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/energyball.png" id="2_bgoar"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="3_djdeo"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_1v7oh"]
+
+[resource]
+script = ExtResource("3_djdeo")
+kind = 1
+damage = 5
+cooldown = 1.8
+reach = 340.0
+attack_animation = 3
+attack_sound = ExtResource("1_6qlgq")
+projectile_texture = ExtResource("2_bgoar")
+projectile_speed = 260.0
+projectile_radius = 7.0
+slot = 0
+id = &"ink_bolt"
+display_name = "Ink Bolt"
+glyph = "I"
+color = Color(0.42745098, 0.34901962, 0.47843137, 1)
+spawn_weight = 0

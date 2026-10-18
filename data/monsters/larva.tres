@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_hs12q"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/larva.tres" id="2_6trbu"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/larva.png" id="3_jumgv"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="4_b5dxn"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="5_0mlwk"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="6_ujmy2"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_ckn36"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="8_2u6dl"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/acid_spit.tres" id="9_632mt"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0i7ep"]
+atlas = ExtResource("3_jumgv")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_hx4ou"]
+script = ExtResource("4_b5dxn")
+item = ExtResource("5_0mlwk")
+weight = 6
+
+[sub_resource type="Resource" id="Resource_hjfpw"]
+script = ExtResource("6_ujmy2")
+drop_chance = 0.15
+entries = Array[ExtResource("4_b5dxn")]([SubResource("Resource_hx4ou")])
+
+[sub_resource type="Resource" id="Resource_ay0w0"]
+script = ExtResource("8_2u6dl")
+max_hp = 10
+move_speed = 60.0
+
+[resource]
+script = ExtResource("1_hs12q")
+stats = SubResource("Resource_ay0w0")
+weapon = ExtResource("9_632mt")
+radius = 9.0
+frames = ExtResource("2_6trbu")
+frames_offset = Vector2(0, -8)
+attack_windup = 0.5
+attack_recovery = 0.35
+keep_distance = 150.0
+xp_reward = 4
+loot = SubResource("Resource_hjfpw")
+id = &"larva"
+display_name = "Acid Larva"
+description = "Spits acid from a distance."
+icon = SubResource("AtlasTexture_0i7ep")
+glyph = "A"
+color = Color(0.654902, 0.7882353, 0.34117648, 1)
+spawn_weight = 7

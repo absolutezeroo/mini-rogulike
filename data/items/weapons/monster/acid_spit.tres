@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/slime.tres" id="1_gqkon"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="2_7th2p"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/energyball.png" id="3_htqrx"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="4_vutsi"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_xd424"]
+
+[sub_resource type="Resource" id="Resource_ky0pb"]
+script = ExtResource("2_7th2p")
+poison_damage = 1
+
+[resource]
+script = ExtResource("4_vutsi")
+kind = 1
+cooldown = 1.8
+reach = 300.0
+attack_animation = 3
+on_hit = SubResource("Resource_ky0pb")
+attack_sound = ExtResource("1_gqkon")
+projectile_texture = ExtResource("3_htqrx")
+projectile_speed = 220.0
+projectile_radius = 6.0
+slot = 0
+id = &"acid_spit"
+display_name = "Acid Spit"
+glyph = "A"
+color = Color(0.5019608, 0.92941177, 0.6, 1)
+spawn_weight = 0

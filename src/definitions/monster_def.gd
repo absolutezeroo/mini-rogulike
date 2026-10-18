@@ -31,6 +31,17 @@ extends ContentDef
 @export var hurt_sound: AudioStream
 @export var death_sound: AudioStream
 
+@export_group("On death")
+## Greater than 0: bursts a moment after dying, hurting everyone around (stay away!).
+@export var death_burst_radius: float = 0.0
+@export var death_burst_damage: int = 0
+@export var death_burst_status: OnHitStatus
+## Sheet played for the burst (square frames). Empty = an explosion.
+@export var death_burst_fx: Texture2D
+## Monsters that come out when it dies (a big slime splitting...).
+@export var death_spawns: Array[MonsterDef] = []
+@export_range(0, 8) var death_spawn_count: int = 0
+
 @export_group("Rewards")
 @export var xp_reward: int = 5
 @export var loot: LootTable

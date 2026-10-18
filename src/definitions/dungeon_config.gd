@@ -1,9 +1,10 @@
 class_name DungeonConfig
 extends Resource
-## Tuning for floor generation and difficulty.
+## The run (acts, in order) and tuning for floor generation and difficulty.
 
-## Floor looks, used in order: depth 1 uses the first, depth 2 the second, and so on (looping).
-@export var themes: Array[DungeonTheme] = []
+## The acts of a run, in order. Beating the last act's boss wins the run; after that the
+## acts loop (endless mode), harder every time because monsters scale with depth.
+@export var acts: Array[ActDef] = []
 
 @export_group("Layout")
 @export var tile_size: int = 32
@@ -34,10 +35,6 @@ extends Resource
 @export_range(0, 20) var trap_groups_max: int = 4
 
 @export_group("Bosses")
-## Every Nth floor is a boss arena (3 = floors 3, 6, 9...). 0 = no bosses.
-@export_range(0, 20) var boss_every: int = 3
-## Used in order on boss floors, looping: the first on floor 3, the second on floor 6...
-@export var bosses: Array[BossDef] = []
 ## Size of the arena room, in cells.
 @export var arena_size: Vector2i = Vector2i(21, 15)
 
@@ -47,14 +44,54 @@ extends Resource
 @export var monster_attack_per_depth: int = 1
 
 
+## Floors in one pass through every act.
+func total_floors() -> int:
+	var total := 0
+	for act in acts:
+		total += act.floors
+	return total
+
+
+## Index in `acts` of the act holding `depth` (looping after the last one).
+func act_index(depth: int) -> int:
+	if acts.is_empty():
+		return -1
+	var floor_number := (depth - 1) % maxi(total_floors(), 1)
+	for i in acts.size():
+		if floor_number < acts[i].floors:
+			return i
+		floor_number -= acts[i].floors
+	return acts.size() - 1
+
+
+func act_for_depth(depth: int) -> ActDef:
+	var index := act_index(depth)
+	return acts[index] if index >= 0 else null
+
+
+## 1 for the first floor of an act.
+func floor_in_act(depth: int) -> int:
+	var floor_number := (depth - 1) % maxi(total_floors(), 1)
+	for act in acts:
+		if floor_number < act.floors:
+			return floor_number + 1
+		floor_number -= act.floors
+	return 1
+
+
 func theme_for_depth(depth: int) -> DungeonTheme:
-	if themes.is_empty():
-		return null
-	return themes[(depth - 1) % themes.size()]
+	var act := act_for_depth(depth)
+	return act.theme if act else null
 
 
-## The boss guarding `depth`, or null when it is a normal floor.
+## The boss guarding `depth` (the last floor of each act), or null on a normal floor.
 func boss_for_depth(depth: int) -> BossDef:
-	if boss_every <= 0 or bosses.is_empty() or depth % boss_every != 0:
+	var act := act_for_depth(depth)
+	if act == null or floor_in_act(depth) != act.floors:
 		return null
-	return bosses[(depth / boss_every - 1) % bosses.size()]
+	return act.boss
+
+
+## The floor whose boss ends the run.
+func is_final_floor(depth: int) -> bool:
+	return depth == total_floors()

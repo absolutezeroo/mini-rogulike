@@ -1,0 +1,70 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_eaa5f"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/beast.tres" id="2_uxpjp"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/beast.png" id="3_k0n5e"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="4_5ati5"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="5_o081v"]
+[ext_resource type="Resource" path="res://data/items/weapons/hammer.tres" id="6_hri63"]
+[ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="7_3vsqx"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_war.tres" id="8_hq2yb"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="9_6b2ko"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="10_stxdv"]
+[ext_resource type="Resource" path="res://data/skills/monster/charge.tres" id="11_mqnv5"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="12_td4ek"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/maul.tres" id="13_vfchs"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a70lu"]
+atlas = ExtResource("3_k0n5e")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_ffxyr"]
+script = ExtResource("4_5ati5")
+item = ExtResource("5_o081v")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_aanti"]
+script = ExtResource("4_5ati5")
+item = ExtResource("6_hri63")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_ukg03"]
+script = ExtResource("4_5ati5")
+item = ExtResource("7_3vsqx")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_sas0y"]
+script = ExtResource("4_5ati5")
+item = ExtResource("8_hq2yb")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_s7qjp"]
+script = ExtResource("9_6b2ko")
+drop_chance = 0.5
+entries = Array[ExtResource("4_5ati5")]([SubResource("Resource_ffxyr"), SubResource("Resource_aanti"), SubResource("Resource_ukg03"), SubResource("Resource_sas0y")])
+
+[sub_resource type="Resource" id="Resource_2qjj6"]
+script = ExtResource("12_td4ek")
+max_hp = 55
+defense = 3
+move_speed = 75.0
+
+[resource]
+script = ExtResource("1_eaa5f")
+stats = SubResource("Resource_2qjj6")
+weapon = ExtResource("13_vfchs")
+skills = Array[ExtResource("10_stxdv")]([ExtResource("11_mqnv5")])
+radius = 14.0
+frames = ExtResource("2_uxpjp")
+frames_offset = Vector2(0, -8)
+attack_windup = 0.65
+attack_recovery = 0.35
+xp_reward = 16
+loot = SubResource("Resource_s7qjp")
+id = &"beast"
+display_name = "Horned Beast"
+description = "Huge. Charges, then crushes."
+icon = SubResource("AtlasTexture_a70lu")
+glyph = "H"
+color = Color(0.9098039, 0.3647059, 0.015686275, 1)
+spawn_weight = 5

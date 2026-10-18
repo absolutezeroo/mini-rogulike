@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_gmpbg"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="2_8llny"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_myaio"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_ar30v"]
+[ext_resource type="AudioStream" path="res://data/audio/slime.tres" id="5_gtt5l"]
+
+[sub_resource type="Resource" id="Resource_pnf4m"]
+script = ExtResource("3_myaio")
+poison_damage = 1
+slow = 0.5
+slow_duration = 2.5
+
+[sub_resource type="Resource" id="Resource_dpn75"]
+script = ExtResource("2_8llny")
+radius = 70.0
+damage_multiplier = 0.4
+knockback = 40.0
+color = Color(0.5019608, 0.92941177, 0.6, 1)
+status = SubResource("Resource_pnf4m")
+
+[resource]
+script = ExtResource("4_ar30v")
+id = &"spore_cloud"
+display_name = "Spore Cloud"
+color = Color(0.5019608, 0.92941177, 0.6, 1)
+cooldown = 5.0
+effects = Array[ExtResource("1_gmpbg")]([SubResource("Resource_dpn75")])
+sound = ExtResource("5_gtt5l")
+ai_max_range = 70.0
+cast_time = 0.6
+telegraph_radius = 70.0

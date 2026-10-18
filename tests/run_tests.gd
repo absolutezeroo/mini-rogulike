@@ -66,9 +66,9 @@ func _test_combat_rules() -> void:
 
 func _test_content() -> void:
 	check(CONTENT.player != null and CONTENT.dungeon != null, "content db has player and dungeon config")
-	check(CONTENT.monsters.size() >= 5, "content db lists monsters")
+	check(CONTENT.all_monsters().size() >= 20, "a big bestiary (%d monsters)" % CONTENT.all_monsters().size())
 	var ids := {}
-	for monster in CONTENT.monsters:
+	for monster in CONTENT.all_monsters():
 		check(monster.weapon != null, "%s has a weapon" % monster.id)
 		check(monster.stats != null and monster.stats.max_hp > 0, "%s has HP" % monster.id)
 		check(not ids.has(monster.id), "duplicate id %s" % monster.id)
@@ -81,7 +81,9 @@ func _test_content() -> void:
 	for depth in range(1, 8):
 		check(CONTENT.pick_monster(depth, rng) != null, "a monster can spawn at depth %d" % depth)
 		check(CONTENT.pick_item(depth, rng) != null, "an item can spawn at depth %d" % depth)
-	check(CONTENT.pick_monster(1, rng).min_depth == 1, "depth filter respected")
+	var act_one := CONTENT.dungeon.acts[0]
+	check(act_one.monsters.has(CONTENT.pick_monster(1, rng)), "floors spawn monsters of their act")
+	check(CONTENT.dungeon.acts[2].monsters.has(CONTENT.pick_monster(8, rng)), "act 3 floors spawn act 3 monsters")
 	check(CONTENT.sounds != null, "content db has a sound bank")
 	for property in CONTENT.sounds.get_property_list():
 		if property.type == TYPE_OBJECT and property.usage & PROPERTY_USAGE_SCRIPT_VARIABLE:
@@ -90,7 +92,8 @@ func _test_content() -> void:
 		if item is WeaponDef:
 			check(item.attack_sound != null, "%s has an attack sound" % item.id)
 		check(item.icon != null, "%s has an icon" % item.id)
-	for monster in CONTENT.monsters:
+	for monster in CONTENT.all_monsters():
+		check(monster.frames != null and monster.frames.has_animation(&"walk_down"), "%s is animated" % monster.id)
 		check(monster.icon != null, "%s has a sprite" % monster.id)
 	for item in CONTENT.items:
 		if item is WeaponDef:
@@ -224,11 +227,17 @@ func _test_perks() -> void:
 
 func _test_bosses() -> void:
 	var config := CONTENT.dungeon
-	check(config.bosses.size() >= 3, "three bosses")
+	check(config.acts.size() == 3 and config.total_floors() == 9, "3 acts of 3 floors")
+	var bosses: Array[BossDef] = []
+	for act in config.acts:
+		check(act.boss != null and act.theme != null and act.monsters.size() >= 6, "%s has a boss, a look and monsters" % act.title)
+		bosses.append(act.boss)
 	check(config.boss_for_depth(1) == null and config.boss_for_depth(2) == null and config.boss_for_depth(4) == null, "normal floors have no boss")
-	check(config.boss_for_depth(3) == config.bosses[0] and config.boss_for_depth(6) == config.bosses[1], "a boss every 3 floors, in order")
-	check(config.boss_for_depth(3 * (config.bosses.size() + 1)) == config.bosses[0], "bosses loop")
-	for boss in config.bosses:
+	check(config.boss_for_depth(3) == bosses[0] and config.boss_for_depth(6) == bosses[1] and config.boss_for_depth(9) == bosses[2], "each act ends with its boss")
+	check(config.act_for_depth(4) == config.acts[1] and config.floor_in_act(4) == 1, "floor 4 starts act 2")
+	check(config.is_final_floor(9) and not config.is_final_floor(6), "floor 9 ends the run")
+	check(config.act_for_depth(10) == config.acts[0] and config.boss_for_depth(12) == bosses[0], "endless mode loops the acts")
+	for boss in bosses:
 		check(boss.frames != null and boss.frames.has_animation(&"idle"), "%s has animations" % boss.id)
 		check(boss.portrait != null, "%s has a portrait" % boss.id)
 		check(boss.weapon != null and boss.loot != null, "%s has a weapon and loot" % boss.id)
@@ -275,6 +284,7 @@ func _test_gameplay() -> void:
 	await _test_perks_in_game(game, world, player)
 	await _test_world_objects(game, world, player)
 	await _test_skills(game, world, player)
+	await _test_bestiary(world, player)
 
 	var kills := [0]
 	var depth_changes := [0]
@@ -553,6 +563,57 @@ func _test_perks_in_game(game: Node, world: World, player: Player) -> void:
 	check(not get_tree().paused and total_levels == 3, "both perks taken (%d perk levels), game resumed" % total_levels)
 
 
+## New monster abilities: poison, death bursts, splitting, charges.
+func _test_bestiary(world: World, player: Player) -> void:
+	player.base_stats.defense = 0
+	player.invalidate_stats()
+	# Poison bite.
+	var snake := world.spawn_monster(load("res://data/monsters/snake.tres"), world.find_open_point_near(player.global_position, 30.0))
+	await _frames(1)
+	player._invulnerable_time = 0.0
+	snake._attack_cooldown = 0.0
+	snake.attack(snake.global_position.direction_to(player.global_position))
+	check(player.statuses.has(&"poison"), "a viper bite poisons")
+	var hp_poisoned := player.hp
+	await _frames(70)
+	check(player.hp < hp_poisoned, "poison hurts over time")
+	player.statuses.clear()
+	snake.die(null)
+
+	# A giant slime splits in two.
+	var big: MonsterDef = load("res://data/monsters/big_slime.tres")
+	var already_there := world.get_hostiles(player.faction)
+	var giant := world.spawn_monster(big, world.find_open_point_near(player.global_position, 120.0))
+	await _frames(1)
+	giant.die(null)
+	await _frames(3)
+	var newcomers := world.get_hostiles(player.faction).filter(func(m: Actor) -> bool: return not already_there.has(m))
+	check(newcomers.size() == big.death_spawn_count, "a giant slime splits when it dies")
+	for monster in newcomers:
+		monster.queue_free()
+	await _frames(2)
+
+	# A flame spirit explodes a moment after dying.
+	player.hp = player.get_max_hp()
+	var flam := world.spawn_monster(load("res://data/monsters/flam.tres"), world.find_open_point_near(player.global_position, 30.0))
+	await _frames(1)
+	var hp_before := player.hp
+	player._invulnerable_time = 0.0
+	flam.die(null)
+	check(player.hp == hp_before, "the burst waits (time to step away)")
+	await _frames(int(Monster.DEATH_BURST_FUSE * 60.0) + 4)
+	check(player.hp < hp_before, "a dying flame spirit explodes")
+	player.statuses.clear()
+
+	# Charges are telegraphed casts that cross the room.
+	var beast: MonsterDef = load("res://data/monsters/beast.tres")
+	check(beast.skills.any(func(skill: SkillDef) -> bool: return skill.cast_time > 0.0 and skill.effects[0] is DashStrikeEffect), "the beast charges (telegraphed)")
+	player.hp = player.get_max_hp()
+	player.base_stats.defense = 999
+	player.invalidate_stats()
+	await _frames(5)
+
+
 ## Skills come from the weapon and from tomes; statuses, delays, dash strikes, skill stats.
 func _test_skills(game: Node, world: World, player: Player) -> void:
 	var katana: WeaponDef = load("res://data/items/weapons/katana.tres")
@@ -796,6 +857,31 @@ func _test_boss_fight(game: Node) -> void:
 	game.perk_panel.choose(0)
 	await _frames(2)
 	check(player.perks.stacks_of(relics[0]) == 1 and not get_tree().paused, "relic taken, game resumed")
+
+	# The last act's boss wins the run; you may keep going (endless).
+	game.depth = 9
+	game._enter_floor()
+	await _frames(5)
+	check(world.arena != null and world.arena.boss.def == CONTENT.dungeon.acts[2].boss, "floor 9: the final boss")
+	player.global_position = world.map.cell_to_world(world.map.boss_room.get_center() + Vector2i(0, 4))
+	await _frames(5)
+	var final_hit := HitInfo.new()
+	final_hit.amount = 999999
+	world.arena.boss.take_hit(final_hit)
+	for attempt in 10:
+		await get_tree().create_timer(game.RELIC_DELAY * 0.5, true).timeout
+		if game.game_over_panel.visible:
+			break
+		if game.perk_panel.visible:
+			game.perk_panel.choose(0)
+	check(game.has_won and game.game_over_panel.visible and game.game_over_panel.get_node("%ContinueButton").visible, "beating the final boss wins the run")
+	(game.game_over_panel.get_node("%ContinueButton") as Button).pressed.emit()
+	await _frames(3)
+	check(not game.game_over_panel.visible, "keep going: endless mode")
+	if game.perk_panel.visible:
+		game.perk_panel.choose(0)
+	await _frames(3)
+	check(not get_tree().paused, "the game resumes after the victory")
 
 
 ## Projectiles must stop on walls and hurt enemies.

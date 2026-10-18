@@ -1,0 +1,69 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_obsip"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/reptile.tres" id="2_yf6x1"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/reptile.png" id="3_kkwdp"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="4_a2b3g"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="5_0o6kv"]
+[ext_resource type="Resource" path="res://data/items/weapons/lance.tres" id="6_nuubp"]
+[ext_resource type="Resource" path="res://data/items/armors/chain_mail.tres" id="7_fj7ag"]
+[ext_resource type="Resource" path="res://data/items/weapons/templar_sword.tres" id="8_52ut5"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="9_mb858"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="10_t1j0u"]
+[ext_resource type="Resource" path="res://data/skills/monster/charge.tres" id="11_kggex"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="12_ij762"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/scimitar.tres" id="13_drxyp"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tiqkg"]
+atlas = ExtResource("3_kkwdp")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_uoxug"]
+script = ExtResource("4_a2b3g")
+item = ExtResource("5_0o6kv")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_sy204"]
+script = ExtResource("4_a2b3g")
+item = ExtResource("6_nuubp")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_0cyg7"]
+script = ExtResource("4_a2b3g")
+item = ExtResource("7_fj7ag")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_dbpff"]
+script = ExtResource("4_a2b3g")
+item = ExtResource("8_52ut5")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_5tglx"]
+script = ExtResource("9_mb858")
+entries = Array[ExtResource("4_a2b3g")]([SubResource("Resource_uoxug"), SubResource("Resource_sy204"), SubResource("Resource_0cyg7"), SubResource("Resource_dbpff")])
+
+[sub_resource type="Resource" id="Resource_omiat"]
+script = ExtResource("12_ij762")
+max_hp = 26
+defense = 2
+move_speed = 95.0
+
+[resource]
+script = ExtResource("1_obsip")
+stats = SubResource("Resource_omiat")
+weapon = ExtResource("13_drxyp")
+skills = Array[ExtResource("10_t1j0u")]([ExtResource("11_kggex")])
+radius = 11.0
+frames = ExtResource("2_yf6x1")
+frames_offset = Vector2(0, -8)
+attack_windup = 0.4
+attack_recovery = 0.35
+xp_reward = 10
+loot = SubResource("Resource_5tglx")
+id = &"reptile"
+display_name = "Lizardman"
+description = "A warrior that charges across the room."
+icon = SubResource("AtlasTexture_tiqkg")
+glyph = "L"
+color = Color(0.32156864, 0.7176471, 0.53333336, 1)
+spawn_weight = 9

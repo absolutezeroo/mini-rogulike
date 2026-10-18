@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_dhfaq"]
+[ext_resource type="Script" path="res://src/definitions/effects/dash_strike_effect.gd" id="2_vh8ln"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_focnk"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="4_d24mo"]
+
+[sub_resource type="Resource" id="Resource_121sn"]
+script = ExtResource("2_vh8ln")
+distance = 240.0
+knockback = 260.0
+
+[resource]
+script = ExtResource("3_focnk")
+id = &"charge"
+display_name = "Charge"
+color = Color(0.83137256, 0.6392157, 0.4509804, 1)
+effects = Array[ExtResource("1_dhfaq")]([SubResource("Resource_121sn")])
+sound = ExtResource("4_d24mo")
+ai_min_range = 120.0
+ai_max_range = 300.0
+cast_time = 0.7

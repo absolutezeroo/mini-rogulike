@@ -4,6 +4,8 @@ extends Actor
 ## (res://src/ai/), which steers it through `move_direction`, `attack()` and skills.
 
 const HP_BAR_WIDTH := 26.0
+## Delay between a monster's death and its death burst (time to step away).
+const DEATH_BURST_FUSE := 0.35
 
 var def: MonsterDef
 var target: Actor
@@ -175,10 +177,50 @@ func _on_died(killer: Actor) -> void:
 		Vfx.death(world, global_position, def.color)
 	if killer is Player:
 		(killer as Player).gain_xp(def.xp_reward)
+	_death_burst()
+	_death_spawns()
 	if def.loot:
 		for item in def.loot.roll(world.rng):
 			var offset := Vector2.from_angle(randf() * TAU) * randf_range(4.0, 14.0)
 			world.spawn_item(item, global_position + offset)
+
+
+## A short warning ring, then the burst (the monster is already gone).
+func _death_burst() -> void:
+	if def.death_burst_radius <= 0.0:
+		return
+	var at := global_position
+	var target_world := world
+	var monster_def := def
+	var damage := def.death_burst_damage + target_world.depth
+	target_world.spawn_vfx(RingVfx.create(at, def.death_burst_radius, Color(1.0, 0.3, 0.2, 0.8)))
+	target_world.get_tree().create_timer(DEATH_BURST_FUSE, false).timeout.connect(func() -> void:
+		if not is_instance_valid(target_world):
+			return
+		if monster_def.death_burst_fx:
+			var size := monster_def.death_burst_radius * 2.0 / monster_def.death_burst_fx.get_height()
+			target_world.spawn_vfx(SheetVfx.create(monster_def.death_burst_fx, at, 0.0, size))
+			Sfx.play_at(Sfx.bank.explosion, at, -4.0)
+		else:
+			Vfx.explosion(target_world, at, monster_def.death_burst_radius)
+		Combat.blast(target_world, at, monster_def.death_burst_radius, damage, 260.0, null, monster_def.death_burst_status))
+
+
+func _death_spawns() -> void:
+	if def.death_spawns.is_empty() or def.death_spawn_count <= 0:
+		return
+	var at := global_position
+	var target_world := world
+	var spawns := def.death_spawns
+	var count := def.death_spawn_count
+	var hunted := target
+	# Deferred: we may be inside a physics callback.
+	(func() -> void:
+		for i in count:
+			var minion := target_world.spawn_monster(spawns.pick_random(), target_world.find_open_point_near(at, 24.0))
+			minion.target = hunted if is_instance_valid(hunted) else null
+			Vfx.puff(target_world, minion.global_position)
+	).call_deferred()
 
 
 func _draw() -> void:

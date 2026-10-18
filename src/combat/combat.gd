@@ -54,6 +54,7 @@ static func melee_strike(attacker: Actor, direction: Vector2, weapon: WeaponDef)
 		var hit := make_hit_from(attacker, attacker.get_power())
 		hit.knockback = to_target.normalized() * weapon.knockback
 		hit.sound = weapon.hit_sound
+		hit.status = weapon.on_hit
 		target.take_hit(hit)
 
 	# Crates, pots, barrels in the arc break too.
@@ -107,13 +108,14 @@ static func hit_props(world: World, source: Actor, center: Vector2, radius: floa
 
 ## An explosion that hurts everyone around, friend or foe, and breaks props
 ## (explosive barrels set each other off). `source` gets the credit for kills.
-static func blast(world: World, center: Vector2, radius: float, amount: int, knockback: float, source: Actor = null) -> void:
+static func blast(world: World, center: Vector2, radius: float, amount: int, knockback: float, source: Actor = null, status: OnHitStatus = null) -> void:
 	for target in world.get_actors():
 		var offset := target.global_position - center
 		if offset.length() > radius + target.radius:
 			continue
 		var hit := make_secondary_hit(source, amount)
 		hit.knockback = offset.normalized() * knockback
+		hit.status = status
 		target.take_hit(hit)
 	hit_props(world, source, center, radius)
 
@@ -130,4 +132,5 @@ static func spec_from_weapon(attacker: Actor, weapon: WeaponDef) -> ProjectileSp
 	spec.knockback = weapon.knockback
 	spec.color = weapon.color
 	spec.texture = weapon.projectile_texture
+	spec.status = weapon.on_hit
 	return spec

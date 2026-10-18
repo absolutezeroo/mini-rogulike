@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_t6jtq"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/snake.tres" id="2_o42tm"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/snake.png" id="3_1noo3"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="4_7116v"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="5_qh142"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="6_axcuy"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_541bk"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="8_lyddm"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/poison_fang.tres" id="9_yj48a"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0oh3o"]
+atlas = ExtResource("3_1noo3")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_442sp"]
+script = ExtResource("4_7116v")
+item = ExtResource("5_qh142")
+weight = 6
+
+[sub_resource type="Resource" id="Resource_dtmes"]
+script = ExtResource("6_axcuy")
+drop_chance = 0.15
+entries = Array[ExtResource("4_7116v")]([SubResource("Resource_442sp")])
+
+[sub_resource type="Resource" id="Resource_vssdy"]
+script = ExtResource("8_lyddm")
+max_hp = 12
+move_speed = 115.0
+
+[resource]
+script = ExtResource("1_t6jtq")
+stats = SubResource("Resource_vssdy")
+weapon = ExtResource("9_yj48a")
+radius = 9.0
+frames = ExtResource("2_o42tm")
+frames_offset = Vector2(0, -8)
+attack_windup = 0.3
+attack_recovery = 0.35
+xp_reward = 4
+loot = SubResource("Resource_dtmes")
+id = &"snake"
+display_name = "Viper"
+description = "Fast, and its bite is poisoned."
+icon = SubResource("AtlasTexture_0oh3o")
+glyph = "V"
+color = Color(0.5019608, 0.92941177, 0.6, 1)
+spawn_weight = 8

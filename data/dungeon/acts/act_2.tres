@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="ActDef" format=3]
+
+[ext_resource type="Resource" path="res://data/monsters/bosses/demon_cyclops.tres" id="1_0h4yv"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_etibi"]
+[ext_resource type="Resource" path="res://data/monsters/skeleton.tres" id="3_0slpj"]
+[ext_resource type="Resource" path="res://data/monsters/sorcerer.tres" id="4_dw8h1"]
+[ext_resource type="Resource" path="res://data/monsters/spirit.tres" id="5_yjv1g"]
+[ext_resource type="Resource" path="res://data/monsters/skull.tres" id="6_3r1nu"]
+[ext_resource type="Resource" path="res://data/monsters/eye.tres" id="7_rvqiy"]
+[ext_resource type="Resource" path="res://data/monsters/lantern.tres" id="8_4wi7y"]
+[ext_resource type="Resource" path="res://data/monsters/owl.tres" id="9_gxe60"]
+[ext_resource type="Resource" path="res://data/monsters/frost_skull.tres" id="10_wciqp"]
+[ext_resource type="Resource" path="res://data/monsters/bat.tres" id="11_lmuqr"]
+[ext_resource type="Script" path="res://src/definitions/act_def.gd" id="12_1aok4"]
+[ext_resource type="Resource" path="res://data/dungeon/themes/crypt.tres" id="13_wenk7"]
+
+[resource]
+script = ExtResource("12_1aok4")
+title = "Haunted Crypt"
+subtitle = "Act II"
+theme = ExtResource("13_wenk7")
+monsters = Array[ExtResource("2_etibi")]([ExtResource("3_0slpj"), ExtResource("4_dw8h1"), ExtResource("5_yjv1g"), ExtResource("6_3r1nu"), ExtResource("7_rvqiy"), ExtResource("8_4wi7y"), ExtResource("9_gxe60"), ExtResource("10_wciqp"), ExtResource("11_lmuqr")])
+boss = ExtResource("1_0h4yv")

@@ -27,6 +27,9 @@ enum AttackAnimation { SLASH, THRUST, SMASH, SHOOT }
 ## an axe a warrior... Monsters ignore them (their skills are in their MonsterDef).
 @export var skills: Array[SkillDef] = []
 
+## Statuses left on whatever this weapon hits (poison fangs, burning claws...).
+@export var on_hit: OnHitStatus
+
 @export_group("Melee")
 @export_range(10.0, 360.0) var arc_degrees: float = 110.0
 

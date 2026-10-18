@@ -11,7 +11,10 @@ const RELIC_DELAY := 1.6
 
 var depth := 1
 var kills := 0
+var bosses_slain := 0
 var player: Player
+## The last act's boss fell this run (the rest is endless mode).
+var has_won := false
 
 ## Perk choices waiting to be shown: [{ rarity, count, title, subtitle }]
 var _pending_offers: Array[Dictionary] = []
@@ -32,6 +35,7 @@ func _ready() -> void:
 	inventory_panel.closed.connect(_on_menu_closed)
 	perk_panel.chosen.connect(_on_perk_chosen)
 	game_over_panel.restart_requested.connect(start_run)
+	game_over_panel.continue_requested.connect(_on_continue_endless)
 	Events.monster_killed.connect(func(_monster: Monster) -> void: kills += 1)
 	Events.boss_started.connect(_on_boss_started)
 	Events.boss_defeated.connect(_on_boss_defeated)
@@ -51,6 +55,8 @@ func start_run() -> void:
 	world.rng.randomize()
 	depth = 1
 	kills = 0
+	bosses_slain = 0
+	has_won = false
 	player = PLAYER_SCENE.instantiate() as Player
 	player.setup(content.player)
 	player.died.connect(_on_player_died)
@@ -91,6 +97,11 @@ func _enter_floor() -> void:
 	if world.theme:
 		Sfx.play_music(world.theme.music)
 	Events.depth_changed.emit(depth)
+	var act := content.dungeon.act_for_depth(depth)
+	if act and content.dungeon.floor_in_act(depth) == 1:
+		# A new act: its name instead of the depth.
+		hud.show_banner(act.title)
+		Events.log_message("%s: %s" % [act.subtitle, act.title], Color("ffd166"))
 	if world.arena:
 		Events.log_message("Depth %d. Something big is waiting..." % depth, Color("ff6b6b"))
 	else:
@@ -117,18 +128,43 @@ func _on_boss_started(boss: Monster) -> void:
 
 
 func _on_boss_defeated(boss: Monster) -> void:
+	bosses_slain += 1
 	hud.show_banner("Victory!")
 	Sfx.play_ui(Sfx.bank.boss_defeated)
 	Events.log_message("%s is defeated! The way down is open." % boss.display_name, Color("ffd166"))
 	if world.theme:
 		Sfx.play_music(world.theme.music)
 	var def := boss.def as BossDef
+	var winner := player
+	await get_tree().create_timer(RELIC_DELAY, false).timeout
+	if player != winner or player.is_dead:
+		return  # the run ended in the meantime
+	if content.dungeon.is_final_floor(depth) and not has_won:
+		# The last boss: the run is won. Keep going offers the relic, then endless floors.
+		has_won = true
+		_set_paused(true)
+		Sfx.play_ui(Sfx.bank.stairs)
+		game_over_panel.show_victory(_run_summary())
+		return
+	_offer_relic(def)
+
+
+func _offer_relic(def: BossDef) -> void:
 	if def and def.relic_choices > 0:
-		var winner := player
-		await get_tree().create_timer(RELIC_DELAY, false).timeout
-		if player != winner or player.is_dead:
-			return  # the run ended in the meantime
 		_queue_offer(PerkDef.Rarity.RARE, def.relic_choices, "Relic", "The boss left a relic behind. Choose one.")
+
+
+func _on_continue_endless() -> void:
+	_set_paused(false)
+	var act := content.dungeon.act_for_depth(depth)
+	Events.log_message("Endless mode: the dungeon goes on, harder and harder.", Color("ff6b6b"))
+	_offer_relic(act.boss if act else null)
+
+
+func _run_summary() -> String:
+	var act := content.dungeon.act_for_depth(depth)
+	return "%s, depth %d, level %d\n%d monsters slain, %d bosses" % [
+		act.title if act else "Dungeon", depth, player.level, kills, bosses_slain]
 
 
 # --- Perks -------------------------------------------------------------------
@@ -173,4 +209,4 @@ func _on_player_died(_actor: Actor) -> void:
 	_pending_offers.clear()
 	await get_tree().create_timer(1.2).timeout
 	Sfx.play_ui(Sfx.bank.game_over)
-	game_over_panel.show_result(depth, player.level, kills)
+	game_over_panel.show_result(_run_summary())

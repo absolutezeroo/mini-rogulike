@@ -1,0 +1,56 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_7283e"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/kappa.tres" id="2_5t4rs"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/kappa.png" id="3_lnfw3"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="4_pbokj"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="5_7mpvh"]
+[ext_resource type="Resource" path="res://data/items/weapons/stick.tres" id="6_8ld63"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="7_fmu4x"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_pga11"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="9_o7jpk"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/water_jet.tres" id="10_ep740"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_arixd"]
+atlas = ExtResource("3_lnfw3")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_w8b4r"]
+script = ExtResource("4_pbokj")
+item = ExtResource("5_7mpvh")
+weight = 4
+
+[sub_resource type="Resource" id="Resource_45jdp"]
+script = ExtResource("4_pbokj")
+item = ExtResource("6_8ld63")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_7xeak"]
+script = ExtResource("7_fmu4x")
+entries = Array[ExtResource("4_pbokj")]([SubResource("Resource_w8b4r"), SubResource("Resource_45jdp")])
+
+[sub_resource type="Resource" id="Resource_lgsxq"]
+script = ExtResource("9_o7jpk")
+max_hp = 22
+defense = 1
+move_speed = 90.0
+
+[resource]
+script = ExtResource("1_7283e")
+stats = SubResource("Resource_lgsxq")
+weapon = ExtResource("10_ep740")
+radius = 10.0
+frames = ExtResource("2_5t4rs")
+frames_offset = Vector2(0, -8)
+attack_windup = 0.45
+attack_recovery = 0.35
+keep_distance = 180.0
+xp_reward = 9
+loot = SubResource("Resource_7xeak")
+id = &"kappa"
+display_name = "Kappa"
+description = "Water jets that slow you down."
+icon = SubResource("AtlasTexture_arixd")
+glyph = "K"
+color = Color(0.29803923, 0.7882353, 0.9411765, 1)
+spawn_weight = 7

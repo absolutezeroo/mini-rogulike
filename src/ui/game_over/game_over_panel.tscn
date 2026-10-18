@@ -34,6 +34,7 @@ layout_mode = 2
 theme_override_constants/separation = 24
 
 [node name="Title" type="Label" parent="Center/VBox"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.42, 0.42, 1)
 theme_override_font_sizes/font_size = 64
@@ -45,6 +46,16 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 horizontal_alignment = 1
+
+[node name="ContinueButton" type="Button" parent="Center/VBox"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(300, 72)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+theme_override_font_sizes/font_size = 24
+text = "Keep going (endless)"
 
 [node name="RestartButton" type="Button" parent="Center/VBox"]
 unique_name_in_owner = true

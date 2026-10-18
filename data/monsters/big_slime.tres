@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_3ubkx"]
+[ext_resource type="Resource" path="res://data/monsters/slime.tres" id="2_rwk6s"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/big_slime.tres" id="3_2npta"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/big_slime.png" id="4_33fvt"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="5_3drru"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="6_6s82v"]
+[ext_resource type="Resource" path="res://data/items/armors/leather_armor.tres" id="7_w85x2"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="8_v547r"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_04ywx"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_gswp0"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/slam.tres" id="11_aelic"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u7oaa"]
+atlas = ExtResource("4_33fvt")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_clkwb"]
+script = ExtResource("5_3drru")
+item = ExtResource("6_6s82v")
+weight = 6
+
+[sub_resource type="Resource" id="Resource_nr2au"]
+script = ExtResource("5_3drru")
+item = ExtResource("7_w85x2")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_y43qf"]
+script = ExtResource("8_v547r")
+entries = Array[ExtResource("5_3drru")]([SubResource("Resource_clkwb"), SubResource("Resource_nr2au")])
+
+[sub_resource type="Resource" id="Resource_wtasl"]
+script = ExtResource("10_gswp0")
+max_hp = 40
+defense = 1
+move_speed = 45.0
+
+[resource]
+script = ExtResource("1_3ubkx")
+stats = SubResource("Resource_wtasl")
+weapon = ExtResource("11_aelic")
+radius = 14.0
+frames = ExtResource("3_2npta")
+frames_offset = Vector2(0, -8)
+attack_windup = 0.55
+attack_recovery = 0.35
+death_spawns = Array[ExtResource("1_3ubkx")]([ExtResource("2_rwk6s")])
+death_spawn_count = 2
+xp_reward = 8
+loot = SubResource("Resource_y43qf")
+id = &"big_slime"
+display_name = "Giant Slime"
+description = "Splits into two slimes when it dies."
+icon = SubResource("AtlasTexture_u7oaa")
+glyph = "G"
+color = Color(0.29803923, 0.7882353, 0.9411765, 1)
+spawn_weight = 4

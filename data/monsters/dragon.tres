@@ -1,0 +1,62 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_q54vt"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/dragon.tres" id="2_remxe"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/dragon.png" id="3_dmkkd"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="4_ki5fp"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="5_wydhs"]
+[ext_resource type="Resource" path="res://data/items/weapons/book.tres" id="6_njxv2"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_fire.tres" id="7_ja3jf"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="8_rrunq"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_hbaf8"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_mgxmg"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/fire_breath.tres" id="11_incjs"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e2kya"]
+atlas = ExtResource("3_dmkkd")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_tjf5b"]
+script = ExtResource("4_ki5fp")
+item = ExtResource("5_wydhs")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_7qdoh"]
+script = ExtResource("4_ki5fp")
+item = ExtResource("6_njxv2")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_mxjx4"]
+script = ExtResource("4_ki5fp")
+item = ExtResource("7_ja3jf")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_j08t6"]
+script = ExtResource("8_rrunq")
+drop_chance = 0.35
+entries = Array[ExtResource("4_ki5fp")]([SubResource("Resource_tjf5b"), SubResource("Resource_7qdoh"), SubResource("Resource_mxjx4")])
+
+[sub_resource type="Resource" id="Resource_gpmuf"]
+script = ExtResource("10_mgxmg")
+max_hp = 30
+defense = 2
+move_speed = 70.0
+
+[resource]
+script = ExtResource("1_q54vt")
+stats = SubResource("Resource_gpmuf")
+weapon = ExtResource("11_incjs")
+frames = ExtResource("2_remxe")
+frames_offset = Vector2(0, -8)
+attack_windup = 0.55
+attack_recovery = 0.35
+keep_distance = 130.0
+xp_reward = 12
+loot = SubResource("Resource_j08t6")
+id = &"dragon"
+display_name = "Drakeling"
+description = "Breathes fire from a distance."
+icon = SubResource("AtlasTexture_e2kya")
+glyph = "D"
+color = Color(0.95686275, 0.54901963, 0.023529412, 1)
+spawn_weight = 6

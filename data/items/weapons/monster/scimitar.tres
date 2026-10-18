@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/fx/slashcurved.png" id="1_dlhek"]
+[ext_resource type="AudioStream" path="res://data/audio/slash.tres" id="2_85ov1"]
+[ext_resource type="AudioStream" path="res://data/audio/hit.tres" id="3_rksai"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="4_pbiuo"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_qp7su"]
+
+[resource]
+script = ExtResource("4_pbiuo")
+damage = 7
+cooldown = 1.0
+reach = 28.0
+attack_fx = ExtResource("1_dlhek")
+attack_sound = ExtResource("2_85ov1")
+hit_sound = ExtResource("3_rksai")
+slot = 0
+id = &"scimitar"
+display_name = "Scimitar"
+glyph = "S"
+color = Color(0.7882353, 0.8, 0.81960785, 1)
+spawn_weight = 0

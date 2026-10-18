@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_ccd0f"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/octopus.tres" id="2_bom10"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/octopus.png" id="3_m8p3q"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="4_3njxg"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="5_mc7tk"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_frost.tres" id="6_ugbnj"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="7_40a17"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_143tn"]
+[ext_resource type="Resource" path="res://data/skills/monster/ink_ring.tres" id="9_wy21n"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_fi5c1"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/ink_bolt.tres" id="11_urdm2"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kqvns"]
+atlas = ExtResource("3_m8p3q")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_kt1rh"]
+script = ExtResource("4_3njxg")
+item = ExtResource("5_mc7tk")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_dtoqb"]
+script = ExtResource("4_3njxg")
+item = ExtResource("6_ugbnj")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_eg42a"]
+script = ExtResource("7_40a17")
+entries = Array[ExtResource("4_3njxg")]([SubResource("Resource_kt1rh"), SubResource("Resource_dtoqb")])
+
+[sub_resource type="Resource" id="Resource_33iy0"]
+script = ExtResource("10_fi5c1")
+max_hp = 28
+defense = 1
+move_speed = 60.0
+
+[resource]
+script = ExtResource("1_ccd0f")
+stats = SubResource("Resource_33iy0")
+weapon = ExtResource("11_urdm2")
+skills = Array[ExtResource("8_143tn")]([ExtResource("9_wy21n")])
+radius = 11.0
+frames = ExtResource("2_bom10")
+frames_offset = Vector2(0, -8)
+attack_windup = 0.5
+attack_recovery = 0.35
+keep_distance = 160.0
+xp_reward = 10
+loot = SubResource("Resource_eg42a")
+id = &"octopus"
+display_name = "Ink Octopus"
+description = "Fires ink bolts and rings of ink."
+icon = SubResource("AtlasTexture_kqvns")
+glyph = "I"
+color = Color(0.42745098, 0.34901962, 0.47843137, 1)
+spawn_weight = 6

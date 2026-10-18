@@ -1,0 +1,56 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_5ymgg"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/owl.tres" id="2_pb5u1"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/owl.png" id="3_g7paq"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="4_vqnj7"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="5_iip40"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_wind.tres" id="6_oacut"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="7_5p4yi"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_gpecj"]
+[ext_resource type="Resource" path="res://data/skills/monster/dive.tres" id="9_rgybh"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_c0uxw"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/claws.tres" id="11_wyj4u"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7vg7p"]
+atlas = ExtResource("3_g7paq")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_ewsjn"]
+script = ExtResource("4_vqnj7")
+item = ExtResource("5_iip40")
+weight = 5
+
+[sub_resource type="Resource" id="Resource_dhedt"]
+script = ExtResource("4_vqnj7")
+item = ExtResource("6_oacut")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_c4tbc"]
+script = ExtResource("7_5p4yi")
+drop_chance = 0.2
+entries = Array[ExtResource("4_vqnj7")]([SubResource("Resource_ewsjn"), SubResource("Resource_dhedt")])
+
+[sub_resource type="Resource" id="Resource_1u356"]
+script = ExtResource("10_c0uxw")
+max_hp = 16
+move_speed = 110.0
+
+[resource]
+script = ExtResource("1_5ymgg")
+stats = SubResource("Resource_1u356")
+weapon = ExtResource("11_wyj4u")
+skills = Array[ExtResource("8_gpecj")]([ExtResource("9_rgybh")])
+radius = 10.0
+frames = ExtResource("2_pb5u1")
+frames_offset = Vector2(0, -8)
+attack_recovery = 0.35
+xp_reward = 8
+loot = SubResource("Resource_c4tbc")
+id = &"owl"
+display_name = "Night Owl"
+description = "Dives at you from afar. Watch the wind-up."
+icon = SubResource("AtlasTexture_7vg7p")
+glyph = "N"
+color = Color(0.70980394, 0.5137255, 0.5529412, 1)
+spawn_weight = 7

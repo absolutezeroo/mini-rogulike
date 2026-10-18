@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="1_rwjgx"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_7n526"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/flam.tres" id="3_y3bqx"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/flam.png" id="4_ivww6"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="5_bc60i"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="6_6lcwu"]
+[ext_resource type="Resource" path="res://data/items/consumables/fire_scroll.tres" id="7_5lb10"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="8_tpiwh"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_d5f1q"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_oo6bv"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/fire_touch.tres" id="11_6117i"]
+
+[sub_resource type="Resource" id="Resource_0bvgo"]
+script = ExtResource("1_rwjgx")
+burn_damage = 2
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_drbyk"]
+atlas = ExtResource("4_ivww6")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_atj7y"]
+script = ExtResource("5_bc60i")
+item = ExtResource("6_6lcwu")
+weight = 4
+
+[sub_resource type="Resource" id="Resource_yf5cb"]
+script = ExtResource("5_bc60i")
+item = ExtResource("7_5lb10")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_c6d81"]
+script = ExtResource("8_tpiwh")
+drop_chance = 0.15
+entries = Array[ExtResource("5_bc60i")]([SubResource("Resource_atj7y"), SubResource("Resource_yf5cb")])
+
+[sub_resource type="Resource" id="Resource_thu3f"]
+script = ExtResource("10_oo6bv")
+max_hp = 14
+move_speed = 120.0
+
+[resource]
+script = ExtResource("2_7n526")
+stats = SubResource("Resource_thu3f")
+weapon = ExtResource("11_6117i")
+radius = 10.0
+frames = ExtResource("3_y3bqx")
+frames_offset = Vector2(0, -8)
+attack_windup = 0.3
+attack_recovery = 0.35
+death_burst_radius = 70.0
+death_burst_damage = 8
+death_burst_status = SubResource("Resource_0bvgo")
+xp_reward = 7
+loot = SubResource("Resource_c6d81")
+id = &"flam"
+display_name = "Flame Spirit"
+description = "Burning touch, and it explodes when it dies."
+icon = SubResource("AtlasTexture_drbyk")
+glyph = "F"
+color = Color(1, 0.54901963, 0.25882354, 1)
+spawn_weight = 9

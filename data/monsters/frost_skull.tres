@@ -1,0 +1,66 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/fx/ice_burst.png" id="1_wwd4k"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="2_dpy18"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="3_6am12"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/frost_skull.tres" id="4_pu4nv"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/frost_skull.png" id="5_tomrc"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="6_n3wbm"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="7_whcsr"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_frost.tres" id="8_xabnt"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="9_1vel6"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="10_hi5x3"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_ynqh8"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/bite.tres" id="12_nxglq"]
+
+[sub_resource type="Resource" id="Resource_8xjqc"]
+script = ExtResource("2_dpy18")
+slow = 0.5
+slow_duration = 2.5
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x8vpe"]
+atlas = ExtResource("5_tomrc")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_d80wq"]
+script = ExtResource("6_n3wbm")
+item = ExtResource("7_whcsr")
+weight = 4
+
+[sub_resource type="Resource" id="Resource_nydhk"]
+script = ExtResource("6_n3wbm")
+item = ExtResource("8_xabnt")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_1k2a8"]
+script = ExtResource("9_1vel6")
+drop_chance = 0.15
+entries = Array[ExtResource("6_n3wbm")]([SubResource("Resource_d80wq"), SubResource("Resource_nydhk")])
+
+[sub_resource type="Resource" id="Resource_0du8f"]
+script = ExtResource("11_ynqh8")
+max_hp = 12
+move_speed = 130.0
+
+[resource]
+script = ExtResource("3_6am12")
+stats = SubResource("Resource_0du8f")
+weapon = ExtResource("12_nxglq")
+radius = 9.0
+frames = ExtResource("4_pu4nv")
+frames_offset = Vector2(0, -8)
+attack_windup = 0.25
+attack_recovery = 0.35
+death_burst_radius = 60.0
+death_burst_damage = 4
+death_burst_status = SubResource("Resource_8xjqc")
+death_burst_fx = ExtResource("1_wwd4k")
+xp_reward = 6
+loot = SubResource("Resource_1k2a8")
+id = &"frost_skull"
+display_name = "Frost Skull"
+description = "Bursts into ice when it dies: slows everything around."
+icon = SubResource("AtlasTexture_x8vpe")
+glyph = "F"
+color = Color(0.5568628, 0.7921569, 0.9019608, 1)
+spawn_weight = 6

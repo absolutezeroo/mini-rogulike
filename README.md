@@ -26,7 +26,7 @@ assets/              Art, audio, fonts and the UI theme (Ninja Adventure pack)
 data/                Game content as .tres resources (no code)
   content_db.tres      Index of everything that can spawn
   player/              Starting stats, kit, skills, leveling
-  dungeon/             Floor size, room count, difficulty curve, floor themes (themes/)
+  dungeon/             The run (acts/), floor size, difficulty curve, floor themes (themes/)
   visuals/             SpriteFrames: hero.tres, monsters/, weapons/ (the animations themselves)
   audio/               Sounds as AudioStreamRandomizer (variations + pitch) and sound_bank.tres
   monsters/            One file per monster type, bosses in bosses/
@@ -163,9 +163,26 @@ Damage caused by a passive (burn, thorns, shockwaves) is a *secondary* hit: it n
 other on-hit perks, so effects can't chain forever. Perks are stored per actor in a `PerkSet`,
 so monsters could use them too (elites, later).
 
+## The run
+
+A run is **3 acts of 3 floors** (`data/dungeon/acts/`, listed in `dungeon_config.tres`). Each act has
+its look, its own monsters and a boss on its last floor. Beating the last boss **wins the run**;
+you can then keep going in endless mode (the acts loop, monsters keep getting stronger with depth).
+
+| Act | Floors | Monsters | Boss |
+|---|---|---|---|
+| I. Mossy Caves | 1-3 | Cave Mouse, Blue Bat, Slime, Red Spider, Spore Cap, Viper, Acid Larva, Burrower, Giant Slime | King Slime |
+| II. Haunted Crypt | 4-6 | Skeleton, Dark Sorcerer, Spirit, Flying Skull, Watcher, Ghost Lantern, Night Owl, Frost Skull | Demon Cyclops |
+| III. Burning Ruins | 7-9 | Fire Shaman, Cyclops, Flame Spirit, Lizardman, Horned Beast, Drakeling, Kappa, Ink Octopus | Crimson Tengu |
+
+Monsters are data (`MonsterDef`): stats, a weapon (its `on_hit` status poisons, burns or slows),
+skills (telegraphed casts: spore clouds, dives, charges, ink rings...), and what happens when they
+die: a **death burst** (a flame spirit explodes, a frost skull freezes everything around, after a
+short warning) or **death spawns** (a giant slime splits in two).
+
 ## Bosses
 
-Floors 3, 6, 9... (`DungeonConfig.boss_every`) are a start room and one big arena. The boss sleeps
+The last floor of each act is a start room and one big arena. The boss sleeps
 in the middle; walking in closes the exits with spikes and wakes it up (boss music, health bar
 with its portrait). A `BossDef` is a `MonsterDef` plus:
 
@@ -178,8 +195,6 @@ with its portrait). A `BossDef` is a `MonsterDef` plus:
 | 3 | King Slime | 360° slams, slime rain, splits into slimes at half HP |
 | 6 | Demon Cyclops | heavy club, fire eye beam, quake, calls skeletons, berserk at 20% |
 | 9 | Crimson Tengu | fast blade, dashes, feather storms, calls spirits |
-
-After the last one they loop, stronger every time (monster HP and attack grow with depth).
 
 ## Animations
 
@@ -242,7 +257,8 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 
 | To add... | Do this |
 |---|---|
-| A monster | Duplicate a file in `data/monsters/`, edit it, add it to `content_db.tres` > Monsters |
+| A monster | Duplicate a file in `data/monsters/`, edit it, add it to an act's Monsters (`data/dungeon/acts/`) |
+| An act | New `ActDef` in `data/dungeon/acts/` (theme, monsters, boss), add it to `dungeon_config.tres` > Acts |
 | A weapon / armor / consumable | Duplicate a file in `data/items/...`, edit, add it to `content_db.tres` > Items |
 | A loot drop | Edit the monster's Loot table (items don't need to be in the DB to drop) |
 | A player skill | Create a `SkillDef` in `data/skills/player/`, put it in a weapon's Skills (max 2) or in a tome |

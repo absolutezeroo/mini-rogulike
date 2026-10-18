@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_ppyuk"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/eye.tres" id="2_mhj34"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/eye.png" id="3_2gh8m"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="4_2nxn4"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="5_t4qdi"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_thunder.tres" id="6_dgt22"]
+[ext_resource type="Resource" path="res://data/items/weapons/magic_wand.tres" id="7_4ow8v"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="8_gkfge"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_uxfhs"]
+[ext_resource type="Resource" path="res://data/skills/monster/volley.tres" id="10_y1d81"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_mnlim"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/eye_beam_bolt.tres" id="12_e8dg8"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i7mwh"]
+atlas = ExtResource("3_2gh8m")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_utunm"]
+script = ExtResource("4_2nxn4")
+item = ExtResource("5_t4qdi")
+weight = 4
+
+[sub_resource type="Resource" id="Resource_cepp7"]
+script = ExtResource("4_2nxn4")
+item = ExtResource("6_dgt22")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_57u3f"]
+script = ExtResource("4_2nxn4")
+item = ExtResource("7_4ow8v")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_ha7h0"]
+script = ExtResource("8_gkfge")
+entries = Array[ExtResource("4_2nxn4")]([SubResource("Resource_utunm"), SubResource("Resource_cepp7"), SubResource("Resource_57u3f")])
+
+[sub_resource type="Resource" id="Resource_dm8gw"]
+script = ExtResource("11_mnlim")
+max_hp = 18
+defense = 1
+move_speed = 40.0
+
+[resource]
+script = ExtResource("1_ppyuk")
+stats = SubResource("Resource_dm8gw")
+weapon = ExtResource("12_e8dg8")
+skills = Array[ExtResource("9_uxfhs")]([ExtResource("10_y1d81")])
+radius = 10.0
+frames = ExtResource("2_mhj34")
+frames_offset = Vector2(0, -8)
+attack_windup = 0.6
+attack_recovery = 0.35
+keep_distance = 220.0
+xp_reward = 8
+loot = SubResource("Resource_ha7h0")
+id = &"eye"
+display_name = "Watcher"
+description = "Floats at a distance and fires evil bolts."
+icon = SubResource("AtlasTexture_i7mwh")
+glyph = "W"
+color = Color(0.9372549, 0.2784314, 0.43529412, 1)
+spawn_weight = 7

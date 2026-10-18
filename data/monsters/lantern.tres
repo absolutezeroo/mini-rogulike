@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_pmvlh"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/lantern.tres" id="2_o3lwi"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/lantern.png" id="3_6ykpo"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="4_8qd3e"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="5_pcyjw"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_fire.tres" id="6_oq2mx"]
+[ext_resource type="Resource" path="res://data/items/weapons/book.tres" id="7_fhnix"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="8_ltklb"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_no3f0"]
+[ext_resource type="Resource" path="res://data/skills/monster/blink.tres" id="10_1swna"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_cgemb"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/ghost_flame.tres" id="12_1ckka"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hvwkp"]
+atlas = ExtResource("3_6ykpo")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_bk441"]
+script = ExtResource("4_8qd3e")
+item = ExtResource("5_pcyjw")
+weight = 4
+
+[sub_resource type="Resource" id="Resource_2perk"]
+script = ExtResource("4_8qd3e")
+item = ExtResource("6_oq2mx")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_hfujn"]
+script = ExtResource("4_8qd3e")
+item = ExtResource("7_fhnix")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_okuwt"]
+script = ExtResource("8_ltklb")
+entries = Array[ExtResource("4_8qd3e")]([SubResource("Resource_bk441"), SubResource("Resource_2perk"), SubResource("Resource_hfujn")])
+
+[sub_resource type="Resource" id="Resource_86cxn"]
+script = ExtResource("11_cgemb")
+max_hp = 16
+move_speed = 85.0
+
+[resource]
+script = ExtResource("1_pmvlh")
+stats = SubResource("Resource_86cxn")
+weapon = ExtResource("12_1ckka")
+skills = Array[ExtResource("9_no3f0")]([ExtResource("10_1swna")])
+radius = 10.0
+frames = ExtResource("2_o3lwi")
+frames_offset = Vector2(0, -8)
+attack_windup = 0.5
+attack_recovery = 0.35
+keep_distance = 180.0
+xp_reward = 8
+loot = SubResource("Resource_okuwt")
+id = &"lantern"
+display_name = "Ghost Lantern"
+description = "Throws ghost flames and blinks around."
+icon = SubResource("AtlasTexture_hvwkp")
+glyph = "G"
+color = Color(1, 0.41960785, 0.41960785, 1)
+spawn_weight = 6

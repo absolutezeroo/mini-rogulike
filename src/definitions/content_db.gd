@@ -1,12 +1,12 @@
 class_name ContentDB
 extends Resource
-## Index of all game content. To add a monster or an item, create its .tres
+## Index of all game content. To add an item, perk, prop or trap, create its .tres
 ## and add it to the matching list in res://data/content_db.tres.
+## Monsters are listed per act in the dungeon config (dungeon.acts > monsters).
 
 @export var player: PlayerDef
 @export var dungeon: DungeonConfig
 @export var sounds: SoundBank
-@export var monsters: Array[MonsterDef] = []
 ## Items that can be found lying on the floor. Loot tables can also reference items not listed here.
 @export var items: Array[ItemDef] = []
 ## Perks offered on level up (common) and after bosses (rare relics).
@@ -16,8 +16,25 @@ extends Resource
 @export var traps: Array[TrapDef] = []
 
 
+## A monster of the act holding `depth`, by spawn weight.
 func pick_monster(depth: int, rng: RandomNumberGenerator) -> MonsterDef:
-	return _pick(monsters, depth, rng)
+	var act := dungeon.act_for_depth(depth)
+	if act == null:
+		return null
+	var weights := PackedInt32Array()
+	for monster in act.monsters:
+		weights.append(monster.spawn_weight if monster else 0)
+	return RandomUtils.pick_weighted(act.monsters, weights, rng)
+
+
+## Every monster of every act (bosses excluded).
+func all_monsters() -> Array[MonsterDef]:
+	var result: Array[MonsterDef] = []
+	for act in dungeon.acts:
+		for monster in act.monsters:
+			if monster and not result.has(monster):
+				result.append(monster)
+	return result
 
 
 func pick_item(depth: int, rng: RandomNumberGenerator) -> ItemDef:

@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_cnnn4"]
+[ext_resource type="Texture2D" path="res://assets/fx/claw.png" id="2_sxx2u"]
+[ext_resource type="Script" path="res://src/definitions/effects/dash_strike_effect.gd" id="3_sxyn6"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_4qgge"]
+[ext_resource type="AudioStream" path="res://data/audio/wings.tres" id="5_sx5xi"]
+
+[sub_resource type="Resource" id="Resource_4yr8g"]
+script = ExtResource("3_sxyn6")
+distance = 220.0
+width = 24.0
+damage_multiplier = 1.2
+fx = ExtResource("2_sxx2u")
+
+[resource]
+script = ExtResource("4_4qgge")
+id = &"dive"
+display_name = "Dive"
+color = Color(0.70980394, 0.5137255, 0.5529412, 1)
+cooldown = 4.0
+effects = Array[ExtResource("1_cnnn4")]([SubResource("Resource_4yr8g")])
+sound = ExtResource("5_sx5xi")
+ai_min_range = 100.0
+ai_max_range = 260.0
+cast_time = 0.5

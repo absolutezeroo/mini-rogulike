@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="ActDef" format=3]
+
+[ext_resource type="Resource" path="res://data/monsters/bosses/crimson_tengu.tres" id="1_jy0od"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_0pn66"]
+[ext_resource type="Resource" path="res://data/monsters/shaman.tres" id="3_vlwa2"]
+[ext_resource type="Resource" path="res://data/monsters/cyclops.tres" id="4_7j4pw"]
+[ext_resource type="Resource" path="res://data/monsters/flam.tres" id="5_lokq4"]
+[ext_resource type="Resource" path="res://data/monsters/reptile.tres" id="6_b4bba"]
+[ext_resource type="Resource" path="res://data/monsters/beast.tres" id="7_7pb75"]
+[ext_resource type="Resource" path="res://data/monsters/dragon.tres" id="8_pcd8x"]
+[ext_resource type="Resource" path="res://data/monsters/kappa.tres" id="9_k1810"]
+[ext_resource type="Resource" path="res://data/monsters/octopus.tres" id="10_pa3y5"]
+[ext_resource type="Resource" path="res://data/monsters/spirit.tres" id="11_0hwi7"]
+[ext_resource type="Script" path="res://src/definitions/act_def.gd" id="12_4gi1q"]
+[ext_resource type="Resource" path="res://data/dungeon/themes/ruins.tres" id="13_uago2"]
+
+[resource]
+script = ExtResource("12_4gi1q")
+title = "Burning Ruins"
+subtitle = "Act III"
+theme = ExtResource("13_uago2")
+monsters = Array[ExtResource("2_0pn66")]([ExtResource("3_vlwa2"), ExtResource("4_7j4pw"), ExtResource("5_lokq4"), ExtResource("6_b4bba"), ExtResource("7_7pb75"), ExtResource("8_pcd8x"), ExtResource("9_k1810"), ExtResource("10_pa3y5"), ExtResource("11_0hwi7")])
+boss = ExtResource("1_jy0od")

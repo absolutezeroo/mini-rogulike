@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_oua6l"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/skull.tres" id="2_ia4dx"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/skull.png" id="3_0qrfo"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="4_uasoj"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="5_6bjp8"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="6_wwqsu"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_fykk1"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="8_g1ke5"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/bite.tres" id="9_obrm3"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_al67n"]
+atlas = ExtResource("3_0qrfo")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_a83th"]
+script = ExtResource("4_uasoj")
+item = ExtResource("5_6bjp8")
+weight = 6
+
+[sub_resource type="Resource" id="Resource_60uey"]
+script = ExtResource("6_wwqsu")
+drop_chance = 0.1
+entries = Array[ExtResource("4_uasoj")]([SubResource("Resource_a83th")])
+
+[sub_resource type="Resource" id="Resource_1pg8b"]
+script = ExtResource("8_g1ke5")
+max_hp = 10
+move_speed = 150.0
+
+[resource]
+script = ExtResource("1_oua6l")
+stats = SubResource("Resource_1pg8b")
+weapon = ExtResource("9_obrm3")
+radius = 9.0
+frames = ExtResource("2_ia4dx")
+frames_offset = Vector2(0, -8)
+attack_windup = 0.25
+attack_recovery = 0.35
+xp_reward = 4
+loot = SubResource("Resource_60uey")
+id = &"skull"
+display_name = "Flying Skull"
+description = "Fast and fragile. Comes in swarms."
+icon = SubResource("AtlasTexture_al67n")
+glyph = "F"
+color = Color(0.8784314, 0.88235295, 0.8666667, 1)
+spawn_weight = 9
