@@ -39,6 +39,21 @@ static func death(world: World, at: Vector2, color: Color) -> void:
 	world.spawn_vfx(SheetVfx.create(SMOKE_SHEET, at + Vector2(0, -12), 0.0, 2.0, 14.0))
 
 
+## Puff of smoke (something appears or vanishes).
+static func puff(world: World, at: Vector2) -> void:
+	world.spawn_vfx(SheetVfx.create(SMOKE_SHEET, at + Vector2(0, -12), 0.0, 2.0, 14.0))
+
+
+## A chain of explosions over a big body, for boss deaths.
+static func boss_death(world: World, at: Vector2, size: float) -> void:
+	for i in 6:
+		var offset := Vector2.from_angle(randf() * TAU) * randf_range(0.0, size)
+		var delay := 0.12 * i
+		world.get_tree().create_timer(delay, false).timeout.connect(func() -> void:
+			if is_instance_valid(world):
+				explosion(world, at + offset, 50.0 + 12.0 * i))
+
+
 static func explosion(world: World, at: Vector2, radius: float) -> void:
 	var size := clampf(radius / 80.0, 0.6, 1.6)
 	world.spawn_vfx(SheetVfx.create(EXPLOSION_SHEET, at, 0.0, radius * 2.2 / EXPLOSION_SHEET.get_height(), 18.0))

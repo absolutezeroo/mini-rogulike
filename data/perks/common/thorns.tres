@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="PerkDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_37ug1"]
+[ext_resource type="Texture2D" path="res://assets/ui/perks/thorns.png" id="2_cjs4s"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="3_3e5m7"]
+[ext_resource type="Script" path="res://src/definitions/passives/thorns_passive.gd" id="4_3rkmo"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="5_7gmcb"]
+
+[sub_resource type="Resource" id="Resource_c4jb8"]
+script = ExtResource("1_37ug1")
+defense = 1
+
+[sub_resource type="Resource" id="Resource_2uk3y"]
+script = ExtResource("4_3rkmo")
+
+[resource]
+script = ExtResource("5_7gmcb")
+id = &"thorns"
+display_name = "Thorns"
+description = "Enemies that hit you up close take 4 damage per level."
+icon = ExtResource("2_cjs4s")
+color = Color(0.7882353, 0.63529414, 0.15294118, 1)
+weight = 6
+bonuses = SubResource("Resource_c4jb8")
+passives = Array[ExtResource("3_3e5m7")]([SubResource("Resource_2uk3y")])

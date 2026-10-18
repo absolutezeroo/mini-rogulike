@@ -20,6 +20,15 @@ static func make_hit_from(attacker: Actor, base_amount: int) -> HitInfo:
 	return make_hit(base_amount, attacker.get_stats().crit_chance, attacker)
 
 
+## Damage from a side effect (burn, thorns...): no crit, no variance, no on-hit perks.
+static func make_secondary_hit(source: Actor, amount: int) -> HitInfo:
+	var hit := HitInfo.new()
+	hit.source = source
+	hit.amount = maxi(1, amount)
+	hit.is_secondary = true
+	return hit
+
+
 ## Each point of defense removes one damage, but a hit always does at least 1.
 static func mitigate(amount: int, defense: int) -> int:
 	return maxi(1, amount - defense)
@@ -48,14 +57,15 @@ static func melee_strike(attacker: Actor, direction: Vector2, weapon: WeaponDef)
 		target.take_hit(hit)
 
 
-## Hits every enemy of the attacker inside a circle.
-static func damage_area(world: World, attacker: Actor, center: Vector2, radius: float, base_amount: int, knockback: float) -> void:
+## Hits every enemy of the attacker inside a circle. `secondary`: see HitInfo.is_secondary.
+static func damage_area(world: World, attacker: Actor, center: Vector2, radius: float, base_amount: int, knockback: float, secondary: bool = false) -> void:
 	for target in world.get_hostiles(attacker.faction):
 		var offset := target.global_position - center
 		if offset.length() > radius + target.radius:
 			continue
 		var hit := make_hit_from(attacker, base_amount)
 		hit.knockback = offset.normalized() * knockback
+		hit.is_secondary = secondary
 		target.take_hit(hit)
 
 

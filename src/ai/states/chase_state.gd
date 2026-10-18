@@ -1,6 +1,7 @@
 extends State
 ## Goes after the target: straight line when it can see it, pathfinding around walls otherwise.
-## Uses skills when their conditions match and switches to Attack when in range.
+## Uses skills when their conditions match (through Cast when they have a cast time)
+## and switches to Attack when in range.
 
 const REPATH_INTERVAL := 0.4
 const GIVE_UP_AFTER := 4.0       ## Seconds without seeing the target before going back to Idle.
@@ -36,7 +37,9 @@ func physics_update(delta: float) -> void:
 		return
 
 	if sees:
-		if actor.try_use_skill(distance, aim):
+		var skill_index := actor.pick_skill(distance)
+		if skill_index >= 0:
+			_use_skill(skill_index, aim)
 			return
 		if distance <= actor.attack_range(target) and actor.can_attack():
 			machine.transition_to(&"Attack")
@@ -44,6 +47,17 @@ func physics_update(delta: float) -> void:
 		_move_in_sight(distance, aim)
 	else:
 		_follow_path(delta, target)
+
+
+## Telegraphed skills go through the Cast state, instant ones fire right away.
+func _use_skill(index: int, aim: Vector2) -> void:
+	actor.facing = aim
+	actor.move_direction = Vector2.ZERO
+	if actor.skills.skills[index].cast_time > 0.0:
+		actor.casting_index = index
+		machine.transition_to(&"Cast")
+	else:
+		actor.skills.try_use(index, actor, aim)
 
 
 func _move_in_sight(distance: float, aim: Vector2) -> void:

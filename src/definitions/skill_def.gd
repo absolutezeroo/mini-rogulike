@@ -20,6 +20,10 @@ extends Resource
 @export var ai_max_range: float = 240.0
 ## Monsters only use the skill below this fraction of their HP (1 = any time).
 @export_range(0.0, 1.0) var ai_below_hp_ratio: float = 1.0
+## Monsters: telegraph time before the skill goes off (glow, cast animation). 0 = instant.
+@export var cast_time: float = 0.0
+## Monsters: red circle drawn around the caster while casting (0 = none).
+@export var telegraph_radius: float = 0.0
 
 
 func activate(user: Actor, aim: Vector2) -> void:

@@ -1,7 +1,7 @@
 class_name Actor
 extends CharacterBody2D
 ## Base class for everything that moves and fights: the player and monsters.
-## Handles stats, health, attacking, knockback, dashing and hit feedback.
+## Handles stats, health, attacking, knockback, dashing, perks, statuses and hit feedback.
 ## Subclasses decide where to go (_get_desired_velocity) and what to do (_think).
 ## How it looks is the job of the ActorRig child ("Rig"): this script only tells it what happens.
 
@@ -15,6 +15,7 @@ const KNOCKBACK_FRICTION := 1400.0
 const FLASH_TIME := 0.1
 const HIT_TEXT_COLOR := Color("ffffff")
 const CRIT_TEXT_COLOR := Color("ffd166")
+const SECONDARY_TEXT_COLOR := Color("ffb26b")
 ## Pixel art is 16x16 and drawn at 2x.
 const SPRITE_SCALE := 2.0
 const AFTERIMAGE_INTERVAL := 0.03
@@ -25,6 +26,8 @@ var display_name := "Actor"
 ## Animations of the body (see ActorRig). Without frames, a simple shape is drawn.
 var frames: SpriteFrames
 var frames_offset := Vector2(0, -8)
+## Height of the sprite above the feet, in world pixels (damage numbers start there).
+var head_height := 34.0
 ## Fallback drawing when there is no sprite.
 var glyph := ""
 var body_color := Color.WHITE
@@ -35,6 +38,8 @@ var free_on_death := true
 var base_stats := StatBlock.new()
 var equipment := Equipment.new()
 var skills := SkillSet.new()
+var perks := PerkSet.new()
+var statuses := StatusSet.new()
 var hp := 1
 var facing := Vector2.RIGHT
 var is_dead := false
@@ -56,6 +61,7 @@ var _afterimage_timer := 0.0
 func _init() -> void:
 	motion_mode = MOTION_MODE_FLOATING
 	equipment.changed.connect(invalidate_stats)
+	perks.changed.connect(invalidate_stats)
 
 
 func _ready() -> void:
@@ -72,7 +78,7 @@ func _ready() -> void:
 
 func get_stats() -> StatBlock:
 	if _stats_cache == null:
-		var total := base_stats.plus(equipment.total_bonuses())
+		var total := base_stats.plus(equipment.total_bonuses()).plus(perks.total_bonuses())
 		for bonus in _timed_bonuses:
 			total = total.plus(bonus.stats)
 		_stats_cache = total
@@ -97,6 +103,11 @@ func get_move_speed() -> float:
 
 func get_weapon() -> WeaponDef:
 	return equipment.get_item(EquipmentDef.Slot.WEAPON) as WeaponDef
+
+
+## Seconds between two attacks with `weapon`, after attack speed bonuses.
+func get_attack_cooldown(weapon: WeaponDef) -> float:
+	return weapon.cooldown / maxf(1.0 + get_stats().attack_speed, 0.25)
 
 
 ## Base damage of this actor's attacks: weapon damage + attack stat.
@@ -133,10 +144,10 @@ func attack(direction: Vector2) -> bool:
 	var weapon := get_weapon()
 	if direction != Vector2.ZERO:
 		facing = direction.normalized()
-	_attack_cooldown = weapon.cooldown
+	_attack_cooldown = get_attack_cooldown(weapon)
 	Sfx.play_at(weapon.attack_sound, global_position)
 	if rig:
-		rig.play_attack(weapon, facing, weapon.cooldown)
+		rig.play_attack(weapon, facing, _attack_cooldown)
 	if weapon.kind == WeaponDef.Kind.MELEE:
 		Combat.melee_strike(self, facing, weapon)
 	else:
@@ -151,6 +162,7 @@ func start_dash(dash_velocity: Vector2, duration: float, invulnerable: bool) -> 
 	Vfx.dust(world, global_position + Vector2(0, _feet_y()), 1.4)
 	if invulnerable:
 		_invulnerable_time = maxf(_invulnerable_time, duration + 0.05)
+	perks.on_dash(self)
 
 
 func is_dashing() -> bool:
@@ -167,22 +179,27 @@ func get_move_direction() -> Vector2:
 func take_hit(hit: HitInfo) -> void:
 	if is_dead or _invulnerable_time > 0.0:
 		return
+	# Perks of the attacker can change the hit (direct hits only, see HitInfo.is_secondary).
+	var attacker := hit.source if is_instance_valid(hit.source) and not hit.is_secondary else null
+	if attacker:
+		attacker.perks.modify_outgoing_hit(attacker, self, hit)
 	var damage := Combat.mitigate(hit.amount, get_stats().defense)
 	hp = maxi(hp - damage, 0)
 	_knockback += hit.knockback
 	_flash_time = FLASH_TIME
 	if rig:
 		rig.play_hurt()
-	var spark_direction := hit.knockback.normalized() if hit.knockback != Vector2.ZERO else Vector2.UP
-	Vfx.hit(world, global_position + Vector2(0, -radius * 0.5), spark_direction, _hit_spark_color(hit))
-	Sfx.play_at(_hurt_sound(hit), global_position)
-	world.spawn_floating_text(
-		head_position(),
-		str(damage) + ("!" if hit.is_crit else ""),
-		CRIT_TEXT_COLOR if hit.is_crit else HIT_TEXT_COLOR)
+	if not hit.is_secondary:
+		var spark_direction := hit.knockback.normalized() if hit.knockback != Vector2.ZERO else Vector2.UP
+		Vfx.hit(world, global_position + Vector2(0, -radius * 0.5), spark_direction, _hit_spark_color(hit))
+		Sfx.play_at(_hurt_sound(hit), global_position)
+	world.spawn_floating_text(head_position(), str(damage) + ("!" if hit.is_crit else ""), _hit_text_color(hit))
 	health_changed.emit(hp, get_max_hp())
+	if attacker:
+		attacker.perks.on_hit_dealt(attacker, self, hit, damage)
 	_on_damaged(hit, damage)
-	if hp <= 0:
+	perks.on_damaged(self, hit, damage)
+	if hp <= 0 and not is_dead and not perks.prevent_death(self):
 		die(hit.source)
 
 
@@ -207,7 +224,11 @@ func die(killer: Actor) -> void:
 	if rig:
 		rig.play_death()
 		rig.modulate = _body_modulate()
-	_on_died(killer if is_instance_valid(killer) else null)
+	statuses.clear()
+	var valid_killer := killer if is_instance_valid(killer) else null
+	_on_died(valid_killer)
+	if valid_killer:
+		valid_killer.perks.on_kill(valid_killer, self)
 	died.emit(self)
 	if free_on_death:
 		var tween := create_tween()
@@ -246,12 +267,20 @@ func _hit_spark_color(hit: HitInfo) -> Color:
 	return CRIT_TEXT_COLOR if hit.is_crit else Color.WHITE
 
 
+func _hit_text_color(hit: HitInfo) -> Color:
+	if hit.is_secondary:
+		return SECONDARY_TEXT_COLOR
+	return CRIT_TEXT_COLOR if hit.is_crit else HIT_TEXT_COLOR
+
+
 # --- Frame update ------------------------------------------------------------
 
 func _physics_process(delta: float) -> void:
 	if is_dead:
 		return
 	_tick_timers(delta)
+	if is_dead:
+		return
 	_think(delta)
 	if is_dead:
 		return
@@ -278,6 +307,8 @@ func _tick_timers(delta: float) -> void:
 	_invulnerable_time = maxf(_invulnerable_time - delta, 0.0)
 	_flash_time = maxf(_flash_time - delta, 0.0)
 	skills.tick(delta)
+	if not statuses.is_empty():
+		statuses.tick(self, delta)
 
 	if not _timed_bonuses.is_empty():
 		var expired := false
@@ -294,7 +325,7 @@ func _tick_timers(delta: float) -> void:
 ## Point above the actor's head, in world space (for damage numbers, labels...).
 func head_position() -> Vector2:
 	if frames:
-		return global_position + Vector2(0, _feet_y() - 34.0)
+		return global_position + Vector2(0, _feet_y() - head_height)
 	return global_position + Vector2(0, -radius - 6.0)
 
 
@@ -307,6 +338,10 @@ func _feet_y() -> float:
 func _body_modulate() -> Color:
 	if is_dead:
 		return Color(0.45, 0.4, 0.4, 1.0)
+	if not statuses.is_empty():
+		# Burning, poisoned...: tinted, pulsing slightly.
+		var tint := statuses.tint()
+		return Color.WHITE.lerp(tint * 1.4, 0.35 + 0.15 * sin(Time.get_ticks_msec() * 0.02))
 	return Color.WHITE
 
 

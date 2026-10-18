@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="PerkDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_es52n"]
+[ext_resource type="Texture2D" path="res://assets/ui/perks/strength.png" id="2_10vs8"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="3_xxb3y"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_4ypqm"]
+
+[sub_resource type="Resource" id="Resource_f8dep"]
+script = ExtResource("1_es52n")
+attack = 2
+
+[resource]
+script = ExtResource("4_4ypqm")
+id = &"strength"
+display_name = "Strength"
+icon = ExtResource("2_10vs8")
+color = Color(0.9372549, 0.2784314, 0.43529412, 1)
+max_stacks = 5
+bonuses = SubResource("Resource_f8dep")

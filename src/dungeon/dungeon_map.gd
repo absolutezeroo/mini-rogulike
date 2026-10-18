@@ -12,6 +12,8 @@ var tiles := PackedByteArray()
 var rooms: Array[Rect2i] = []
 var start_cell := Vector2i.ZERO
 var stairs_cell := Vector2i.ZERO
+## Boss floors only: the arena (empty rect on normal floors).
+var boss_room := Rect2i()
 
 
 func _init(map_width: int, map_height: int, cell_size: int) -> void:

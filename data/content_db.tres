@@ -33,8 +33,26 @@
 [ext_resource type="Resource" path="res://data/monsters/cyclops.tres" id="31_xx7nh"]
 [ext_resource type="Resource" path="res://data/monsters/spirit.tres" id="32_6esje"]
 [ext_resource type="Resource" path="res://data/player/player_def.tres" id="33_bx8nx"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="33_lnxyg"]
 [ext_resource type="Script" path="res://src/definitions/content_db.gd" id="34_tx8pl"]
+[ext_resource type="Resource" path="res://data/perks/common/vitality.tres" id="34_vfprf"]
+[ext_resource type="Resource" path="res://data/perks/common/strength.tres" id="35_nlt3e"]
 [ext_resource type="Resource" path="res://data/audio/sound_bank.tres" id="35_vxbuw"]
+[ext_resource type="Resource" path="res://data/perks/common/iron_skin.tres" id="36_7cyc7"]
+[ext_resource type="Resource" path="res://data/perks/common/swiftness.tres" id="37_2j2up"]
+[ext_resource type="Resource" path="res://data/perks/common/precision.tres" id="38_urwiy"]
+[ext_resource type="Resource" path="res://data/perks/common/frenzy.tres" id="39_sw1r8"]
+[ext_resource type="Resource" path="res://data/perks/common/vampirism.tres" id="40_qfpny"]
+[ext_resource type="Resource" path="res://data/perks/common/thorns.tres" id="41_d3nxt"]
+[ext_resource type="Resource" path="res://data/perks/common/ignite.tres" id="42_yjg1c"]
+[ext_resource type="Resource" path="res://data/perks/common/thunderclap.tres" id="43_dianq"]
+[ext_resource type="Resource" path="res://data/perks/common/shock_roll.tres" id="44_kqkbc"]
+[ext_resource type="Resource" path="res://data/perks/common/fortune.tres" id="45_xx7nh"]
+[ext_resource type="Resource" path="res://data/perks/relics/phoenix_feather.tres" id="46_6esje"]
+[ext_resource type="Resource" path="res://data/perks/relics/multishot.tres" id="47_bx8nx"]
+[ext_resource type="Resource" path="res://data/perks/relics/executioner.tres" id="48_tx8pl"]
+[ext_resource type="Resource" path="res://data/perks/relics/guardian_ring.tres" id="49_vxbuw"]
+[ext_resource type="Resource" path="res://data/perks/relics/war_banner.tres" id="50_qapwd"]
 
 [resource]
 script = ExtResource("34_tx8pl")
@@ -43,3 +61,4 @@ dungeon = ExtResource("1_q2vv8")
 sounds = ExtResource("35_vxbuw")
 monsters = Array[ExtResource("23_2j2up")]([ExtResource("24_urwiy"), ExtResource("25_sw1r8"), ExtResource("26_qfpny"), ExtResource("27_d3nxt"), ExtResource("28_yjg1c"), ExtResource("29_dianq"), ExtResource("30_kqkbc"), ExtResource("31_xx7nh"), ExtResource("32_6esje")])
 items = Array[ExtResource("2_cewcx")]([ExtResource("3_kwdc3"), ExtResource("4_7ya5d"), ExtResource("5_pbmnr"), ExtResource("6_m0rk7"), ExtResource("7_ecbkd"), ExtResource("8_m5vms"), ExtResource("9_8li55"), ExtResource("10_ng0jj"), ExtResource("11_te2ty"), ExtResource("12_prpil"), ExtResource("13_q2763"), ExtResource("14_3wmne"), ExtResource("15_rjx6h"), ExtResource("16_h0egv"), ExtResource("17_hbtgr"), ExtResource("18_jjy75"), ExtResource("19_lnxyg"), ExtResource("20_vfprf"), ExtResource("21_nlt3e"), ExtResource("22_7cyc7")])
+perks = Array[ExtResource("33_lnxyg")]([ExtResource("34_vfprf"), ExtResource("35_nlt3e"), ExtResource("36_7cyc7"), ExtResource("37_2j2up"), ExtResource("38_urwiy"), ExtResource("39_sw1r8"), ExtResource("40_qfpny"), ExtResource("41_d3nxt"), ExtResource("42_yjg1c"), ExtResource("43_dianq"), ExtResource("44_kqkbc"), ExtResource("45_xx7nh"), ExtResource("46_6esje"), ExtResource("47_bx8nx"), ExtResource("48_tx8pl"), ExtResource("49_vxbuw"), ExtResource("50_qapwd")])

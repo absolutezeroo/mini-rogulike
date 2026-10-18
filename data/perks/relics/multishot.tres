@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="PerkDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/perks/multishot.png" id="1_rd3vk"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_o6fin"]
+[ext_resource type="Script" path="res://src/definitions/passives/extra_projectiles_passive.gd" id="3_4dmd0"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_uf1m7"]
+
+[sub_resource type="Resource" id="Resource_bu4ff"]
+script = ExtResource("3_4dmd0")
+
+[resource]
+script = ExtResource("4_uf1m7")
+id = &"multishot"
+display_name = "Multishot"
+description = "Everything you shoot fires 1 more projectile per level, fireballs included."
+icon = ExtResource("1_rd3vk")
+color = Color(0.47843137, 0.827451, 1, 1)
+rarity = 1
+max_stacks = 2
+passives = Array[ExtResource("2_o6fin")]([SubResource("Resource_bu4ff")])

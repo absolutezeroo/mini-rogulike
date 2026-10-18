@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="PerkDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/perks/fortune.png" id="1_efy47"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_5s2mt"]
+[ext_resource type="Script" path="res://src/definitions/passives/loot_on_kill_passive.gd" id="3_uq0ie"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_cy2a7"]
+
+[sub_resource type="Resource" id="Resource_hdrdr"]
+script = ExtResource("3_uq0ie")
+chance_per_stack = 0.12
+
+[resource]
+script = ExtResource("4_cy2a7")
+id = &"fortune"
+display_name = "Fortune"
+description = "Slain monsters have a 12% chance per level to drop extra loot."
+icon = ExtResource("1_efy47")
+color = Color(0.5019608, 0.92941177, 0.6, 1)
+weight = 5
+passives = Array[ExtResource("2_5s2mt")]([SubResource("Resource_hdrdr")])

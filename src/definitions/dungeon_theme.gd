@@ -37,8 +37,11 @@ extends Resource
 @export var face_right: int = 146
 
 @export_group("Objects")
-@export var stairs_atlas: Texture2D
+## 16x16 sheet holding the stairs and the gate spikes.
+@export var props_atlas: Texture2D
 @export var stairs_tile: int = 17
+## Spikes that close the exits of a boss arena.
+@export var gate_tile: int = 16
 
 
 static func region(atlas: Texture2D, index: int) -> Rect2:
@@ -47,11 +50,19 @@ static func region(atlas: Texture2D, index: int) -> Rect2:
 
 
 func stairs_texture() -> AtlasTexture:
-	if stairs_atlas == null:
+	return _prop(stairs_tile)
+
+
+func gate_texture() -> AtlasTexture:
+	return _prop(gate_tile)
+
+
+func _prop(index: int) -> AtlasTexture:
+	if props_atlas == null:
 		return null
 	var texture := AtlasTexture.new()
-	texture.atlas = stairs_atlas
-	texture.region = region(stairs_atlas, stairs_tile)
+	texture.atlas = props_atlas
+	texture.region = region(props_atlas, index)
 	return texture
 
 

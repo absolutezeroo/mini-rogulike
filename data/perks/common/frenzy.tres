@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="PerkDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_y5o5j"]
+[ext_resource type="Texture2D" path="res://assets/ui/perks/frenzy.png" id="2_fek4i"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="3_uhand"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_mkv7n"]
+
+[sub_resource type="Resource" id="Resource_6i2ld"]
+script = ExtResource("1_y5o5j")
+attack_speed = 0.12
+
+[resource]
+script = ExtResource("4_mkv7n")
+id = &"frenzy"
+display_name = "Frenzy"
+icon = ExtResource("2_fek4i")
+color = Color(0.95686275, 0.63529414, 0.38039216, 1)
+max_stacks = 4
+weight = 8
+bonuses = SubResource("Resource_6i2ld")

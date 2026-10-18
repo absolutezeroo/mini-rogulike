@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="PerkDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_6cj6c"]
+[ext_resource type="Texture2D" path="res://assets/ui/perks/thunderclap.png" id="2_tr6gc"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="3_767ow"]
+[ext_resource type="Script" path="res://src/definitions/passives/crit_shockwave_passive.gd" id="4_ombh6"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="5_lu8fu"]
+
+[sub_resource type="Resource" id="Resource_yl21y"]
+script = ExtResource("1_6cj6c")
+crit_chance = 0.03
+
+[sub_resource type="Resource" id="Resource_d6wmg"]
+script = ExtResource("4_ombh6")
+
+[resource]
+script = ExtResource("5_lu8fu")
+id = &"thunderclap"
+display_name = "Thunderclap"
+description = "Critical hits release a shockwave around the target."
+icon = ExtResource("2_tr6gc")
+color = Color(0.5568628, 0.7921569, 0.9019608, 1)
+weight = 6
+bonuses = SubResource("Resource_yl21y")
+passives = Array[ExtResource("3_767ow")]([SubResource("Resource_d6wmg")])

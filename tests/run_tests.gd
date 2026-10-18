@@ -21,6 +21,8 @@ func _ready() -> void:
 	_test_content()
 	_test_generation()
 	_test_inventory_and_equipment()
+	_test_perks()
+	_test_bosses()
 	await _test_gameplay()
 	print("\n%d checks, %d failed" % [_checks, _failures])
 	Sfx.stop_all()
@@ -49,6 +51,12 @@ func _test_stat_block() -> void:
 	check(sum.max_hp == 10 and sum.attack == 5 and sum.defense == 1, "StatBlock.plus adds every stat")
 	check(a.attack == 2, "StatBlock.plus does not modify its operands")
 	check(b.describe() == "+3 ATK  +1 DEF", "StatBlock.describe: got '%s'" % b.describe())
+	var tripled := b.times(3)
+	check(tripled.attack == 9 and tripled.defense == 3 and b.attack == 3, "StatBlock.times multiplies a copy")
+	var fast := StatBlock.new()
+	fast.attack_speed = 0.25
+	check(is_equal_approx(a.plus(fast).attack_speed, 0.25), "attack speed adds up")
+	check(fast.describe() == "+25% ATK SPEED", "attack speed is described: got '%s'" % fast.describe())
 
 
 func _test_combat_rules() -> void:
@@ -131,6 +139,93 @@ func _test_inventory_and_equipment() -> void:
 	check(equipment.total_bonuses().defense == helm.bonuses.defense, "bonuses come from equipped items")
 
 
+func _perk(id: String) -> PerkDef:
+	for perk in CONTENT.perks:
+		if perk.id == StringName(id):
+			return perk
+	push_error("no perk " + id)
+	return null
+
+
+func _test_perks() -> void:
+	check(CONTENT.perks.size() >= 12, "content db lists perks (%d)" % CONTENT.perks.size())
+	var ids := {}
+	var rares := 0
+	for perk in CONTENT.perks:
+		check(perk.icon != null and not perk.display_name.is_empty(), "%s has an icon and a name" % perk.id)
+		check(not perk.describe().is_empty(), "%s describes itself" % perk.id)
+		check(not ids.has(perk.id), "duplicate perk id %s" % perk.id)
+		ids[perk.id] = true
+		if perk.rarity == PerkDef.Rarity.RARE:
+			rares += 1
+	check(rares >= 3, "enough relics for a boss reward (%d)" % rares)
+
+	var owned := PerkSet.new()
+	var vitality := _perk("vitality")
+	owned.add(vitality)
+	owned.add(vitality)
+	check(owned.stacks_of(vitality) == 2 and owned.entries.size() == 1, "taking a perk again stacks it")
+	check(owned.total_bonuses().max_hp == vitality.bonuses.max_hp * 2, "stacked perks add their stats per level")
+	for i in 10:
+		owned.add(vitality)
+	check(owned.stacks_of(vitality) == vitality.max_stacks, "stacks are capped")
+	check(not owned.can_take(vitality), "a maxed perk can't be taken again")
+
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	for i in 30:
+		var offer := CONTENT.pick_perks(owned, 3, PerkDef.Rarity.COMMON, rng)
+		check(offer.size() == 3, "level up offers 3 perks")
+		check(not offer.has(vitality), "maxed perks are not offered")
+		check(offer[0] != offer[1] and offer[1] != offer[2] and offer[0] != offer[2], "offered perks are all different")
+		check(offer.all(func(p: PerkDef) -> bool: return p.rarity == PerkDef.Rarity.COMMON), "level up offers common perks")
+	var relics := CONTENT.pick_perks(owned, 3, PerkDef.Rarity.RARE, rng)
+	check(relics.all(func(p: PerkDef) -> bool: return p.rarity == PerkDef.Rarity.RARE), "bosses offer relics")
+	var everything := PerkSet.new()
+	for perk in CONTENT.perks:
+		if perk.rarity == PerkDef.Rarity.RARE:
+			for i in perk.max_stacks:
+				everything.add(perk)
+	var fallback := CONTENT.pick_perks(everything, 3, PerkDef.Rarity.RARE, rng)
+	check(fallback.size() == 3, "with every relic maxed, common perks fill the offer")
+
+
+func _test_bosses() -> void:
+	var config := CONTENT.dungeon
+	check(config.bosses.size() >= 3, "three bosses")
+	check(config.boss_for_depth(1) == null and config.boss_for_depth(2) == null and config.boss_for_depth(4) == null, "normal floors have no boss")
+	check(config.boss_for_depth(3) == config.bosses[0] and config.boss_for_depth(6) == config.bosses[1], "a boss every 3 floors, in order")
+	check(config.boss_for_depth(3 * (config.bosses.size() + 1)) == config.bosses[0], "bosses loop")
+	for boss in config.bosses:
+		check(boss.frames != null and boss.frames.has_animation(&"idle"), "%s has animations" % boss.id)
+		check(boss.portrait != null, "%s has a portrait" % boss.id)
+		check(boss.weapon != null and boss.loot != null, "%s has a weapon and loot" % boss.id)
+		check(not boss.phases.is_empty(), "%s has phases" % boss.id)
+		var last := 1.0
+		for phase in boss.phases:
+			check(phase.hp_ratio < last, "%s phases go down in HP" % boss.id)
+			last = phase.hp_ratio
+		for skill in boss.skills:
+			check(skill.cooldown > 0.0, "%s: %s has a cooldown" % [boss.id, skill.id])
+
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 99
+	for i in 40:
+		var map := DungeonGenerator.generate_arena(config, rng)
+		check(map.boss_room.size == config.arena_size, "arena has the configured size")
+		check(not map.boss_room.has_point(map.start_cell), "the player starts outside the arena")
+		var reachable := _flood(map, map.start_cell)
+		check(reachable.has(map.boss_room.get_center()), "arena reachable from the start")
+		# Exits of the arena: floor cells right around it. They must all be closable spikes.
+		var ring := map.boss_room.grow(1)
+		var exits := 0
+		for y in range(ring.position.y, ring.end.y):
+			for x in range(ring.position.x, ring.end.x):
+				if not map.boss_room.has_point(Vector2i(x, y)) and map.is_floor(Vector2i(x, y)):
+					exits += 1
+		check(exits >= 1 and exits <= ring.size.x + ring.size.y, "arena has a closable entrance (%d cells)" % exits)
+
+
 # --- Gameplay (bot) ----------------------------------------------------------
 
 func _test_gameplay() -> void:
@@ -144,6 +239,7 @@ func _test_gameplay() -> void:
 	check(player.get_weapon() != null, "player starts with a weapon")
 
 	await _test_projectiles(world, player)
+	await _test_perks_in_game(game, world, player)
 
 	var kills := [0]
 	var depth_changes := [0]
@@ -258,6 +354,8 @@ func _test_gameplay() -> void:
 	check(depth_changes[0] >= 1, "depth_changed emitted")
 	check(world.monster_count() > 0, "new floor populated")
 
+	await _test_boss_fight(game)
+
 	# Death and restart.
 	player.base_stats.defense = 0
 	player.invalidate_stats()
@@ -288,6 +386,176 @@ func _test_gameplay() -> void:
 	print("bot (depth 4, mortal): hp %d/%d, dead=%s" % [game.player.hp, game.player.get_max_hp(), game.player.is_dead])
 	game.queue_free()
 	await _frames(2)
+
+
+## Each kind of perk does its job in the real game, then the level-up screen works.
+func _test_perks_in_game(game: Node, world: World, player: Player) -> void:
+	var weapon := player.get_weapon()
+	player.perks.add(_perk("frenzy"))
+	check(player.get_attack_cooldown(weapon) < weapon.cooldown, "Frenzy makes attacks faster")
+	check(player.get_stats().attack_speed > 0.0, "perk stats count in the player's stats")
+
+	var free_spot := world.find_open_point_near(player.global_position, 90.0)
+	var rat := world.spawn_monster(load("res://data/monsters/rat.tres"), free_spot)
+	await _frames(1)
+	player.perks.add(_perk("vampirism"))
+	player.hp = 10
+	var kill := Combat.make_secondary_hit(player, 9999)
+	kill.is_secondary = false
+	rat.take_hit(kill)
+	check(rat.is_dead and player.hp > 10, "Vampirism heals on kill")
+
+	var slime := world.spawn_monster(load("res://data/monsters/slime.tres"), free_spot)
+	await _frames(1)
+	player.perks.add(_perk("ignite"))
+	var poke := HitInfo.new()
+	poke.amount = 1
+	poke.source = player
+	slime.take_hit(poke)
+	check(slime.statuses.has(&"burn"), "Ignite sets enemies on fire")
+	var hp_burning := slime.hp
+	await _frames(70)
+	check(slime.hp < hp_burning, "burning enemies lose HP over time")
+
+	player.perks.add(_perk("executioner"))
+	slime.hp = 1
+	slime.base_stats.max_hp = 100
+	slime.invalidate_stats()
+	slime.hp = 20
+	var finisher := HitInfo.new()
+	finisher.amount = 10
+	finisher.source = player
+	var before := slime.hp
+	slime.take_hit(finisher)
+	check(before - slime.hp > 10 - slime.get_stats().defense, "Executioner hits wounded enemies harder")
+	slime.die(null)
+
+	player.perks.add(_perk("thorns"))
+	var skeleton := world.spawn_monster(load("res://data/monsters/skeleton.tres"), free_spot)
+	await _frames(1)
+	var skeleton_hp := skeleton.hp
+	var stab := HitInfo.new()
+	stab.amount = 1
+	stab.source = skeleton
+	player._invulnerable_time = 0.0
+	player.take_hit(stab)
+	check(skeleton.hp < skeleton_hp, "Thorns hurt melee attackers")
+	skeleton.die(null)
+
+	player.perks.add(_perk("multishot"))
+	var volley := ProjectileSpec.new()
+	volley.max_distance = 10.0
+	world.fire_projectiles(player, Vector2.RIGHT, volley)
+	check(volley.count == 2 and volley.spread_degrees > 0.0, "Multishot adds a projectile")
+
+	var phoenix := _perk("phoenix_feather")
+	player.perks.add(phoenix)
+	player._invulnerable_time = 0.0
+	var lethal := HitInfo.new()
+	lethal.amount = 99999
+	player.take_hit(lethal)
+	check(not player.is_dead and player.hp >= player.get_max_hp() / 3, "Phoenix Feather survives a killing blow")
+	check(player.perks.get_entry(phoenix).memory.get(&"used", 0) == 1, "the feather is used up")
+	player.perks.clear()
+	player.hp = player.get_max_hp()
+	await _frames(10)
+
+	# Level up: the game pauses and offers 3 perks; two level ups = two choices in a row.
+	player.gain_xp(player.xp_to_next_level())
+	await _frames(2)
+	check(game.perk_panel.visible and get_tree().paused, "level up pauses and shows the perk choice")
+	var cards: HBoxContainer = game.perk_panel.get_node("%Cards")
+	check(cards.get_child_count() == 3, "three cards")
+	check((cards.get_child(0) as Button).disabled, "cards ignore taps for a moment (no accidental pick)")
+	await get_tree().create_timer(0.6, true).timeout
+	check(not (cards.get_child(0) as Button).disabled, "cards become pickable")
+	var offered: PerkDef = game.perk_panel.get_offered()[1]
+	(cards.get_child(1) as Button).pressed.emit()
+	await _frames(2)
+	check(player.perks.stacks_of(offered) == 1, "tapping a card gives its perk")
+	check(not game.perk_panel.visible and not get_tree().paused, "the game resumes after choosing")
+	check(game.hud.get_node("%PerkTray").get_child_count() == 1, "the HUD shows collected perks")
+
+	player.gain_xp(player.xp_to_next_level() + player.def.xp_to_next_level(player.level + 1))
+	await _frames(2)
+	check(game.perk_panel.visible, "first of two choices")
+	game.perk_panel.choose(0)
+	await _frames(2)
+	check(game.perk_panel.visible, "second choice follows right away")
+	game.perk_panel.choose(0)
+	await _frames(2)
+	check(not get_tree().paused and player.perks.entries.size() >= 2, "both perks taken, game resumed")
+
+
+## A boss floor from start to finish: arena, spikes, phases, skills, death, stairs and relic.
+func _test_boss_fight(game: Node) -> void:
+	game.depth = 3
+	game._enter_floor()
+	await _frames(5)
+	var world: World = game.world
+	var player: Player = game.player
+	var arena := world.arena
+	check(arena != null and arena.boss != null, "floor 3 is a boss arena")
+	if arena == null:
+		return
+	var boss := arena.boss
+	check(boss.is_boss() and boss.dormant, "the boss sleeps until you come in")
+	check(world.monster_count() == 1, "only the boss on its floor")
+	check(world.get_node("Entities").get_children().all(func(n: Node) -> bool: return not n is Stairs), "no stairs before the boss dies")
+	await _frames(30)
+	check(boss.target == null, "a dormant boss ignores the player")
+
+	player.global_position = world.map.cell_to_world(world.map.boss_room.get_center() + Vector2i(0, 4))
+	await _frames(5)
+	check(arena.is_started and arena.is_closed(), "walking in starts the fight and closes the exits")
+	check(not boss.dormant and boss.target == player, "the boss wakes up")
+	check(game.hud.get_node("%BossBar").visible, "boss health bar shown")
+	check(not arena.get_gate_cells().is_empty(), "the arena has spikes on its exits")
+
+	# Phase 2 at half HP: new skills.
+	var def := boss.def as BossDef
+	var hurt := HitInfo.new()
+	hurt.amount = boss.hp - roundi(boss.get_max_hp() * def.phases[0].hp_ratio) + 1 + boss.get_stats().defense
+	boss.take_hit(hurt)
+	check(boss.skills.skills == def.phases[0].skills, "below %d%% HP the boss enters its next phase" % roundi(def.phases[0].hp_ratio * 100))
+
+	# Telegraphed skill: cast, then a ring of projectiles.
+	world.get_node("Projectiles").get_children().map(func(n: Node) -> void: n.queue_free())
+	await _frames(2)
+	boss.casting_index = 0
+	boss.get_node("StateMachine").transition_to(&"Cast")
+	await _frames(2)
+	check(boss.telegraph > 0.0, "the boss telegraphs its skill")
+	await _frames(int(boss.skills.skills[0].cast_time * 60.0) + 6)
+	check(world.get_node("Projectiles").get_child_count() >= 8, "the skill fires a ring of projectiles")
+
+	var summon := SummonEffect.new()
+	summon.monsters = [load("res://data/monsters/slime.tres")]
+	summon.count = 2
+	var count_before := world.monster_count()
+	summon.apply(boss, Vector2.RIGHT)
+	check(world.monster_count() == count_before + 2, "summons appear")
+	for monster in world.get_hostiles(player.faction):
+		if monster != boss:
+			monster.die(null)
+
+	# Kill it: exits open, stairs appear, a relic is offered.
+	var finish := HitInfo.new()
+	finish.amount = 999999
+	finish.source = player
+	boss.take_hit(finish)
+	check(boss.is_dead, "the boss can die")
+	await _frames(5)
+	check(arena.is_defeated and not arena.is_closed(), "the exits open again")
+	check(world.get_node("Entities").get_children().any(func(n: Node) -> bool: return n is Stairs), "stairs appear after the boss")
+	await get_tree().create_timer(game.RELIC_DELAY + 0.3, false).timeout
+	await _frames(2)
+	check(game.perk_panel.visible, "a relic choice follows the victory")
+	var relics: Array[PerkDef] = game.perk_panel.get_offered()
+	check(not relics.is_empty() and relics.all(func(p: PerkDef) -> bool: return p.rarity == PerkDef.Rarity.RARE), "the boss offers relics")
+	game.perk_panel.choose(0)
+	await _frames(2)
+	check(player.perks.stacks_of(relics[0]) == 1 and not get_tree().paused, "relic taken, game resumed")
 
 
 ## Projectiles must stop on walls and hurt enemies.
@@ -340,6 +608,12 @@ func _bot_play(game: Node, frames: int) -> void:
 		var world: World = game.world
 		if player.is_dead:
 			break
+		if game.perk_panel.visible:
+			# Level up: take the first card, like a player tapping it.
+			await get_tree().create_timer(0.2, true).timeout
+			game.perk_panel.choose(0)
+			await get_tree().physics_frame
+			continue
 		var target := _nearest_monster(world, player)
 		var direction := Vector2.ZERO
 		if target:

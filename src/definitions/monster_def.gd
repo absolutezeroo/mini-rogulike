@@ -13,6 +13,8 @@ extends ContentDef
 @export var frames: SpriteFrames
 ## Moves the sprite so its feet stand on the actor's position (art pixels).
 @export var frames_offset: Vector2 = Vector2(0, -7)
+## Height of the sprite above the feet, in world pixels (for damage numbers and emotes).
+@export var head_height: float = 34.0
 
 @export_group("Behaviour")
 ## Distance at which the monster notices the player (needs line of sight).

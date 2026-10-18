@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_u6ejt"]
+[ext_resource type="Script" path="res://src/definitions/effects/dash_effect.gd" id="2_sikot"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_5vuyu"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="4_f7gf5"]
+
+[sub_resource type="Resource" id="Resource_r0s8q"]
+script = ExtResource("2_sikot")
+distance = 230.0
+
+[resource]
+script = ExtResource("3_5vuyu")
+id = &"tengu_dash"
+display_name = "Gale Step"
+color = Color(0.9019608, 0.22352941, 0.27450982, 1)
+cooldown = 3.5
+effects = Array[ExtResource("1_u6ejt")]([SubResource("Resource_r0s8q")])
+sound = ExtResource("4_f7gf5")
+ai_min_range = 120.0
+ai_max_range = 380.0

@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://src/ui/hud/hud.gd" id="1_hud"]
 [ext_resource type="Script" path="res://src/ui/controls/touch_joystick.gd" id="2_joystick"]
@@ -6,6 +6,8 @@
 [ext_resource type="Script" path="res://src/ui/hud/message_log.gd" id="4_log"]
 [ext_resource type="Script" path="res://src/ui/controls/action_button.gd" id="5_button"]
 [ext_resource type="Script" path="res://src/ui/hud/damage_vignette.gd" id="6_vignette"]
+[ext_resource type="Script" path="res://src/ui/hud/perk_tray.gd" id="7_perks"]
+[ext_resource type="Script" path="res://src/ui/hud/boss_bar.gd" id="8_boss"]
 
 [node name="Hud" type="CanvasLayer"]
 layer = 5
@@ -62,6 +64,14 @@ theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 16
 text = "Depth 1"
 
+[node name="PerkTray" type="HFlowContainer" parent="TopLeft"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+script = ExtResource("7_perks")
+
 [node name="MessageLog" type="VBoxContainer" parent="TopLeft"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -83,6 +93,52 @@ focus_mode = 0
 theme_override_font_sizes/font_size = 24
 text = "Bag"
 expand_icon = true
+
+[node name="BossBar" type="HBoxContainer" parent="."]
+unique_name_in_owner = true
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 14.0
+offset_right = 200.0
+offset_bottom = 78.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+script = ExtResource("8_boss")
+
+[node name="Portrait" type="TextureRect" parent="BossBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Column" type="VBoxContainer" parent="BossBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 2
+alignment = 1
+
+[node name="BossName" type="Label" parent="BossBar/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.4, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 20
+text = "Boss"
+
+[node name="BossHp" type="Control" parent="BossBar/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("3_bar")
+fill_color = Color(0.75, 0.13, 0.25, 1)
+show_text = false
 
 [node name="DepthBanner" type="Label" parent="."]
 unique_name_in_owner = true

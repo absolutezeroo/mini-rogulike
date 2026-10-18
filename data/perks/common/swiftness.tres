@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="PerkDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_vcjg0"]
+[ext_resource type="Texture2D" path="res://assets/ui/perks/swiftness.png" id="2_7gqvd"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="3_gx0f1"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_cfg3e"]
+
+[sub_resource type="Resource" id="Resource_xa3pa"]
+script = ExtResource("1_vcjg0")
+move_speed = 15.0
+
+[resource]
+script = ExtResource("4_cfg3e")
+id = &"swiftness"
+display_name = "Swiftness"
+icon = ExtResource("2_7gqvd")
+color = Color(0.30980393, 0.81960785, 0.77254903, 1)
+weight = 7
+bonuses = SubResource("Resource_xa3pa")

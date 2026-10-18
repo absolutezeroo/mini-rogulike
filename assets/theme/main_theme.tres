@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" path="res://assets/ui/wood/button_pressed.png" id="4_tjmdt"]
 [ext_resource type="Texture2D" path="res://assets/ui/wood/nine_path_panel_2.png" id="5_xamdb"]
 [ext_resource type="FontFile" path="res://assets/fonts/normal_font.ttf" id="6_kvm4y"]
+[ext_resource type="Texture2D" path="res://assets/ui/wood/nine_path_panel.png" id="7_card"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_5hith"]
 content_margin_left = 14.0
@@ -64,6 +65,28 @@ texture_margin_top = 18.0
 texture_margin_right = 15.0
 texture_margin_bottom = 15.0
 
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_card"]
+content_margin_left = 18.0
+content_margin_top = 18.0
+content_margin_right = 15.0
+content_margin_bottom = 15.0
+texture = ExtResource("5_xamdb")
+texture_margin_left = 18.0
+texture_margin_top = 18.0
+texture_margin_right = 15.0
+texture_margin_bottom = 15.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_card_hot"]
+content_margin_left = 18.0
+content_margin_top = 18.0
+content_margin_right = 15.0
+content_margin_bottom = 15.0
+texture = ExtResource("7_card")
+texture_margin_left = 18.0
+texture_margin_top = 18.0
+texture_margin_right = 15.0
+texture_margin_bottom = 15.0
+
 [resource]
 default_font = ExtResource("6_kvm4y")
 default_font_size = 16
@@ -80,3 +103,9 @@ Button/styles/pressed = SubResource("StyleBoxTexture_4i3ft")
 Label/colors/font_outline_color = Color(0.16862746, 0.11372549, 0.14117648, 1)
 Label/constants/outline_size = 4
 PanelContainer/styles/panel = SubResource("StyleBoxTexture_xbixd")
+PerkCard/base_type = &"Button"
+PerkCard/styles/disabled = SubResource("StyleBoxTexture_card")
+PerkCard/styles/focus = SubResource("StyleBoxTexture_card_hot")
+PerkCard/styles/hover = SubResource("StyleBoxTexture_card_hot")
+PerkCard/styles/normal = SubResource("StyleBoxTexture_card")
+PerkCard/styles/pressed = SubResource("StyleBoxTexture_card_hot")

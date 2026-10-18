@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="PerkDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_8rguv"]
+[ext_resource type="Texture2D" path="res://assets/ui/perks/guardian_ring.png" id="2_bo1ls"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="3_1w8bg"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_55n66"]
+
+[sub_resource type="Resource" id="Resource_ifdsv"]
+script = ExtResource("1_8rguv")
+max_hp = 25
+defense = 3
+
+[resource]
+script = ExtResource("4_55n66")
+id = &"guardian_ring"
+display_name = "Guardian Ring"
+icon = ExtResource("2_bo1ls")
+color = Color(0.65882355, 0.85490197, 0.8627451, 1)
+rarity = 1
+max_stacks = 1
+bonuses = SubResource("Resource_ifdsv")

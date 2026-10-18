@@ -30,4 +30,4 @@ wall_bottom_right = 43
 face_left = 44
 face = 45
 face_right = 46
-stairs_atlas = ExtResource("5_0mvvr")
+props_atlas = ExtResource("5_0mvvr")

@@ -14,9 +14,9 @@ func enter() -> void:
 	_aim = actor.global_position.direction_to(actor.target.global_position)
 	actor.facing = _aim
 	_phase = Phase.WINDUP
-	_timer = actor.def.attack_windup
+	_timer = actor.get_attack_windup()
 	if actor.rig:
-		actor.rig.play_windup(_aim, actor.def.attack_windup)
+		actor.rig.play_windup(_aim, _timer)
 
 
 func exit() -> void:
@@ -27,7 +27,7 @@ func physics_update(delta: float) -> void:
 	_timer -= delta
 	match _phase:
 		Phase.WINDUP:
-			actor.telegraph = 1.0 - clampf(_timer / maxf(actor.def.attack_windup, 0.001), 0.0, 1.0)
+			actor.telegraph = 1.0 - clampf(_timer / maxf(actor.get_attack_windup(), 0.001), 0.0, 1.0)
 			if _timer <= 0.0:
 				actor.telegraph = 0.0
 				actor.attack(_aim)

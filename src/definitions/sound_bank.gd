@@ -9,6 +9,8 @@ extends Resource
 @export var player_death: AudioStream
 @export var footstep: AudioStream
 @export var level_up: AudioStream
+## A perk or relic was chosen.
+@export var perk_chosen: AudioStream
 
 @export_group("Monsters")
 @export var monster_hurt: AudioStream
@@ -26,6 +28,15 @@ extends Resource
 @export_group("World")
 @export var stairs: AudioStream
 @export var game_over: AudioStream
+
+@export_group("Bosses")
+## The boss wakes up when you enter its arena.
+@export var boss_roar: AudioStream
+## Spikes rising or falling across the arena exits.
+@export var gate: AudioStream
+@export var boss_defeated: AudioStream
+## Played while fighting a boss (looped).
+@export var boss_music: AudioStream
 
 @export_group("Interface")
 @export var ui_click: AudioStream
