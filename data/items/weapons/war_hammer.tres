@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_oelc0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="2_kkx1n"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="3_m7buq"]
+
+[sub_resource type="Resource" id="Resource_506qh"]
+script = ExtResource("1_oelc0")
+move_speed = -20.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5q7st"]
+atlas = ExtResource("2_kkx1n")
+region = Rect2(144, 144, 16, 16)
+
+[resource]
+script = ExtResource("3_m7buq")
+damage = 14
+cooldown = 1.0
+reach = 34.0
+knockback = 420.0
+arc_degrees = 120.0
+slot = 0
+bonuses = SubResource("Resource_506qh")
+id = &"war_hammer"
+display_name = "War Hammer"
+description = "Crushing blows that send enemies flying."
+icon = SubResource("AtlasTexture_5q7st")
+glyph = "T"
+color = Color(0.6784314, 0.70980394, 0.7411765, 1)
+min_depth = 3
+spawn_weight = 4

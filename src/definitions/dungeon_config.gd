@@ -2,6 +2,9 @@ class_name DungeonConfig
 extends Resource
 ## Tuning for floor generation and difficulty.
 
+## Floor looks, used in order: depth 1 uses the first, depth 2 the second, and so on (looping).
+@export var themes: Array[DungeonTheme] = []
+
 @export_group("Layout")
 @export var tile_size: int = 32
 @export var width: int = 64
@@ -23,3 +26,9 @@ extends Resource
 ## Monster HP grows by this fraction per depth (0.15 = +15% per floor).
 @export var monster_hp_scale_per_depth: float = 0.15
 @export var monster_attack_per_depth: int = 1
+
+
+func theme_for_depth(depth: int) -> DungeonTheme:
+	if themes.is_empty():
+		return null
+	return themes[(depth - 1) % themes.size()]

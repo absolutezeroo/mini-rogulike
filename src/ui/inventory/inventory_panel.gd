@@ -59,7 +59,8 @@ func _refresh() -> void:
 		var item := _player.equipment.get_item(slot)
 		var button: Button = _slot_buttons[slot]
 		button.text = "%s: %s" % [EquipmentDef.SLOT_NAMES[slot], item.display_name if item else "-"]
-		button.add_theme_color_override("font_color", item.color if item else Color(0.6, 0.6, 0.6))
+		button.modulate = Color.WHITE if item else Color(1, 1, 1, 0.6)
+		_set_icon(button, item)
 
 	var stats := _player.get_stats()
 	_stats_label.text = "Level %d\nHP %d / %d\nPower %d   DEF %d\nSpeed %d   Crit %d%%" % [
@@ -73,15 +74,23 @@ func _refresh() -> void:
 	for entry in inventory.grouped():
 		var item: ItemDef = entry.item
 		var button := Button.new()
-		button.text = "%s  %s%s" % [item.glyph, item.display_name, "  x%d" % entry.count if entry.count > 1 else ""]
+		button.text = "%s%s" % [item.display_name, "  x%d" % entry.count if entry.count > 1 else ""]
+		_set_icon(button, item)
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.focus_mode = Control.FOCUS_NONE
-		button.add_theme_color_override("font_color", item.color)
+		button.custom_minimum_size.y = 52
 		button.pressed.connect(_select_item.bind(item))
 		_item_grid.add_child(button)
 
 	_refresh_details()
+
+
+func _set_icon(button: Button, item: ItemDef) -> void:
+	button.icon = item.icon if item else null
+	button.expand_icon = true
+	for state in ["icon_normal_color", "icon_hover_color", "icon_pressed_color"]:
+		button.add_theme_color_override(state, item.icon_tint if item else Color.WHITE)
 
 
 func _refresh_details() -> void:
@@ -96,7 +105,6 @@ func _refresh_details() -> void:
 		_item_details.text = ""
 		return
 	_item_name.text = item.display_name
-	_item_name.add_theme_color_override("font_color", item.color)
 	_item_type.text = item.get_type_label()
 	_item_details.text = item.get_details()
 	if _selected_slot != NO_SLOT:

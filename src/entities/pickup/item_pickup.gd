@@ -49,11 +49,18 @@ func _on_body_exited(body: Node2D) -> void:
 func _draw() -> void:
 	if item == null:
 		return
-	var bob := Vector2(0, sin(_time * 3.0) * 2.0)
+	var bob := Vector2(0, sin(_time * 3.0) * 2.0 - 4.0)
+	# Shadow on the ground, then a soft glow in the item's color.
+	draw_set_transform(Vector2(0, 8), 0.0, Vector2(1.0, 0.4))
+	draw_circle(Vector2.ZERO, 9.0, Color(0, 0, 0, 0.3))
+	draw_set_transform(Vector2.ZERO)
 	var glow := item.color
-	glow.a = 0.25 + 0.1 * sin(_time * 4.0)
-	draw_circle(bob, 11.0, glow)
-	draw_circle(bob, 8.0, Color(0.08, 0.08, 0.12))
-	var font := ThemeDB.fallback_font
-	var size := font.get_string_size(item.glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, 14)
-	draw_string(font, bob + Vector2(-size.x * 0.5, 5.0), item.glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, item.color)
+	glow.a = 0.18 + 0.08 * sin(_time * 4.0)
+	draw_circle(bob, 14.0, glow)
+	if item.icon:
+		var size := item.icon.get_size() * Actor.SPRITE_SCALE
+		draw_texture_rect(item.icon, Rect2(bob - size * 0.5, size), false, item.icon_tint)
+	else:
+		var font := Fonts.MAIN
+		var text_size := font.get_string_size(item.glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, 16)
+		draw_string(font, bob + Vector2(-text_size.x * 0.5, 6.0), item.glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, item.color)

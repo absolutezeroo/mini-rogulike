@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="1_wnf3u"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="2_ouls4"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vx8a8"]
+atlas = ExtResource("1_wnf3u")
+region = Rect2(160, 160, 16, 16)
+
+[resource]
+script = ExtResource("2_ouls4")
+kind = 1
+damage = 6
+cooldown = 1.8
+reach = 360.0
+knockback = 90.0
+projectile_speed = 260.0
+projectile_radius = 7.0
+slot = 0
+id = &"hex_staff"
+display_name = "Hex Bolt"
+icon = SubResource("AtlasTexture_vx8a8")
+icon_tint = Color(0.8, 0.5, 1, 1)
+glyph = "*"
+color = Color(0.78039217, 0.49019608, 1, 1)
+spawn_weight = 0

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SkillDef" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="SkillDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_p0auh"]
 [ext_resource type="Script" path="res://src/definitions/effects/dash_effect.gd" id="2_ttfka"]

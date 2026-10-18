@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="DungeonTheme" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="1_27hi3"]
+[ext_resource type="Script" path="res://src/definitions/dungeon_theme.gd" id="2_07j2e"]
+
+[resource]
+script = ExtResource("2_07j2e")
+atlas = ExtResource("1_27hi3")
+tint = Color(0.7, 0.78, 1, 1)
+floor_tiles = PackedInt32Array(48)
+floor_decor_tiles = PackedInt32Array(42, 49)
+floor_decor_chance = 0.12
+wall_face_tiles = PackedInt32Array(40)
+wall_face_decor_tiles = PackedInt32Array(28, 14)
+wall_top_decor_tiles = PackedInt32Array(12, 24)

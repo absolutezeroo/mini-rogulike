@@ -9,10 +9,14 @@ keyboard or gamepad.
 
 ```
 assets/              Art, audio, fonts and the UI theme
+  sprites/             Kenney Tiny Dungeon tileset + custom item sprites (items/)
+  ui/                  Kenney UI Pack Pixel Adventure (upscaled 2x)
+  fonts/               Kenney Mini pixel font
+  theme/               main_theme.tres: pixel UI theme used by every Control
 data/                Game content as .tres resources (no code)
   content_db.tres      Index of everything that can spawn
   player/              Starting stats, kit, skills, leveling
-  dungeon/             Floor size, room count, difficulty curve
+  dungeon/             Floor size, room count, difficulty curve, floor themes (themes/)
   monsters/            One file per monster type
   items/weapons/       Player weapons (monster/ = monster-only weapons)
   items/armors/        Head and body armor
@@ -66,6 +70,10 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 | A new kind of effect | New script in `src/definitions/effects/` extending `Effect`, override `apply()` |
 | A new monster behaviour | New state script in `src/ai/states/`, add a node for it in `monster.tscn` |
 
+Each piece of content has an **icon** (any `Texture2D`, usually an `AtlasTexture` pointing into
+`tilemap_packed.png`) and an **icon tint** to recolor it. To change a sprite, edit the icon's region
+in the inspector or drop in your own 16x16 PNG.
+
 `min_depth` and `spawn_weight` control where and how often something appears.
 A `spawn_weight` of 0 means it never spawns on its own (starting gear, loot-only items, monster weapons).
 
@@ -91,9 +99,19 @@ Checks the rules, the content database, 100 generated maps, inventory and equipm
 then a bot plays the real game (kills, level ups, stairs, death and restart).
 The exit code is the number of failures.
 
+## Art and credits
+
+All third-party assets are CC0 (public domain) by [Kenney](https://kenney.nl):
+Tiny Dungeon, UI Pack - Pixel Adventure and Kenney Fonts. Licenses are next to each asset folder.
+The armor, bomb and scroll sprites in `assets/sprites/items/` were drawn for this project in the same palette.
+
+Pixel art is 16x16, drawn at 2x in the world, with nearest filtering
+(Project Settings > Rendering > Textures > Default Texture Filter).
+
 ## Conventions
 
 - Static typing everywhere, `class_name` for reusable types.
 - `snake_case` files and functions, `PascalCase` classes, `_private` members.
 - One scene per entity, its script next to it.
-- Gameplay graphics are drawn with code for now (`_draw()`); replace with sprites inside each entity scene.
+- Entities draw their sprite in `_draw()` (flip, walk bob, weapon swing, hit flash) so a single
+  scene works for every monster type: the look comes from the data.

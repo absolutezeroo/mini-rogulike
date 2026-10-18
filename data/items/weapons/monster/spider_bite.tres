@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="1_fxufr"]
+
+[resource]
+script = ExtResource("1_fxufr")
+damage = 6
+cooldown = 0.9
+reach = 16.0
+knockback = 80.0
+arc_degrees = 90.0
+slot = 0
+id = &"spider_bite"
+display_name = "Venom Bite"
+glyph = "^"
+color = Color(0.5019608, 0.92941177, 0.6, 1)
+spawn_weight = 0

@@ -1,14 +1,21 @@
 class_name StatBar
 extends Control
-## Simple rounded bar with a centered text (HP, XP...).
+## Pixel-art bar with a centered text (HP, XP...).
 
-@export var fill_color := Color("ef476f")
-@export var back_color := Color(0, 0, 0, 0.55)
+@export var fill_color := Color("e84537")
 @export var show_text := true
+@export var font_size := 16
 
 var _value := 1.0
 var _max_value := 1.0
 var _text := ""
+var _frame: StyleBoxTexture
+
+
+func _ready() -> void:
+	_frame = StyleBoxTexture.new()
+	_frame.texture = UiAtlas.small(UiAtlas.BAR_FRAME)
+	_frame.set_texture_margin_all(8)
 
 
 func set_values(value: float, max_value: float, text: String = "") -> void:
@@ -20,21 +27,17 @@ func set_values(value: float, max_value: float, text: String = "") -> void:
 
 func _draw() -> void:
 	var rect := Rect2(Vector2.ZERO, size)
+	draw_style_box(_frame, rect)
+	var inner := rect.grow(-4.0)
 	var ratio := clampf(_value / _max_value, 0.0, 1.0)
-	_draw_rounded(rect, back_color)
 	if ratio > 0.0:
-		_draw_rounded(Rect2(rect.position, Vector2(rect.size.x * ratio, rect.size.y)), fill_color)
+		var fill := Rect2(inner.position, Vector2(inner.size.x * ratio, inner.size.y))
+		draw_rect(fill, fill_color)
+		draw_rect(Rect2(fill.position, Vector2(fill.size.x, 2.0)), fill_color.lightened(0.35))
+		draw_rect(Rect2(fill.position + Vector2(0, fill.size.y - 2.0), Vector2(fill.size.x, 2.0)), fill_color.darkened(0.3))
 	if show_text and not _text.is_empty():
-		var font := get_theme_default_font()
-		var font_size := roundi(size.y * 0.7)
+		var font := Fonts.MAIN
 		var text_size := font.get_string_size(_text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
 		var pos := Vector2((size.x - text_size.x) * 0.5, (size.y + font_size * 0.7) * 0.5)
-		draw_string_outline(font, pos, _text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 4, Color.BLACK)
+		draw_string_outline(font, pos, _text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 6, Color("3f2631"))
 		draw_string(font, pos, _text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color.WHITE)
-
-
-func _draw_rounded(rect: Rect2, color: Color) -> void:
-	var style := StyleBoxFlat.new()
-	style.bg_color = color
-	style.set_corner_radius_all(roundi(minf(rect.size.y * 0.5, 8.0)))
-	draw_style_box(style, rect)

@@ -28,6 +28,7 @@ func setup(player_def: PlayerDef) -> void:
 	free_on_death = false
 	display_name = def.display_name
 	body_color = def.color
+	sprite = def.sprite
 	set_body_radius(def.radius)
 	collision_layer = Layers.PLAYER
 	collision_mask = Layers.WORLD | Layers.MONSTERS
@@ -173,7 +174,7 @@ func gain_xp(amount: int) -> void:
 		hp = get_max_hp()
 		health_changed.emit(hp, get_max_hp())
 		Events.log_message("Level up! You are now level %d" % level, Color("ffd166"))
-		world.spawn_floating_text(global_position + Vector2(0, -radius - 10), "LEVEL UP", Color("ffd166"))
+		world.spawn_floating_text(head_position() + Vector2(0, -10), "LEVEL UP", Color("ffd166"))
 		world.spawn_vfx(RingVfx.create(global_position, 70.0, Color("ffd166")))
 	xp_changed.emit(xp, xp_to_next_level(), level)
 
@@ -190,11 +191,12 @@ func _on_died(_killer: Actor) -> void:
 	camera.shake(1.0)
 
 
-func _draw_body(color: Color) -> void:
+func _body_modulate() -> Color:
+	var color := super._body_modulate()
 	# Blink while invulnerable after a hit (but not during a dash).
 	if _invulnerable_time > 0.0 and not is_dashing() and not is_dead:
 		if int(_invulnerable_time * 20.0) % 2 == 0:
 			color.a = 0.35
 	if is_dashing():
-		color = color.lightened(0.4)
-	super._draw_body(color)
+		color = Color(1.6, 1.6, 1.8, 0.7)
+	return color

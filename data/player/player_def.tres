@@ -1,32 +1,38 @@
-[gd_resource type="Resource" script_class="PlayerDef" load_steps=13 format=3]
+[gd_resource type="Resource" script_class="PlayerDef" format=3]
 
-[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_kisdg"]
-[ext_resource type="Script" path="res://src/definitions/player_def.gd" id="2_bnges"]
-[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_vrhwe"]
-[ext_resource type="Resource" path="res://data/skills/player/dash.tres" id="4_mcj0m"]
-[ext_resource type="Resource" path="res://data/skills/player/whirlwind.tres" id="5_ohl2f"]
-[ext_resource type="Resource" path="res://data/skills/player/fireball.tres" id="6_isphs"]
-[ext_resource type="Script" path="res://src/definitions/items/equipment_def.gd" id="7_s5y61"]
-[ext_resource type="Resource" path="res://data/items/weapons/rusty_sword.tres" id="8_nyj2y"]
-[ext_resource type="Script" path="res://src/definitions/items/item_def.gd" id="9_5ekve"]
-[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="10_prejf"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_bnges"]
+[ext_resource type="Script" path="res://src/definitions/player_def.gd" id="2_vrhwe"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_mcj0m"]
+[ext_resource type="Resource" path="res://data/skills/player/dash.tres" id="4_ohl2f"]
+[ext_resource type="Resource" path="res://data/skills/player/whirlwind.tres" id="5_isphs"]
+[ext_resource type="Resource" path="res://data/skills/player/fireball.tres" id="6_s5y61"]
+[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="7_nyj2y"]
+[ext_resource type="Script" path="res://src/definitions/items/equipment_def.gd" id="8_5ekve"]
+[ext_resource type="Resource" path="res://data/items/weapons/rusty_sword.tres" id="9_prejf"]
+[ext_resource type="Script" path="res://src/definitions/items/item_def.gd" id="10_23thu"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="11_j77us"]
 
-[sub_resource type="Resource" id="Resource_23thu"]
-script = ExtResource("1_kisdg")
+[sub_resource type="Resource" id="Resource_wtmd1"]
+script = ExtResource("1_bnges")
 max_hp = 60
 move_speed = 170.0
 crit_chance = 0.05
 
-[sub_resource type="Resource" id="Resource_j77us"]
-script = ExtResource("1_kisdg")
+[sub_resource type="Resource" id="Resource_jnkeh"]
+script = ExtResource("1_bnges")
 max_hp = 8
 attack = 1
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_1007t"]
+atlas = ExtResource("7_nyj2y")
+region = Rect2(0, 128, 16, 16)
+
 [resource]
-script = ExtResource("2_bnges")
-base_stats = SubResource("Resource_23thu")
-starting_equipment = Array[ExtResource("7_s5y61")]([ExtResource("8_nyj2y")])
-starting_items = Array[ExtResource("9_5ekve")]([ExtResource("10_prejf"), ExtResource("10_prejf")])
-skills = Array[ExtResource("3_vrhwe")]([ExtResource("4_mcj0m"), ExtResource("5_ohl2f"), ExtResource("6_isphs")])
+script = ExtResource("2_vrhwe")
+sprite = SubResource("AtlasTexture_1007t")
+base_stats = SubResource("Resource_wtmd1")
+starting_equipment = Array[ExtResource("8_5ekve")]([ExtResource("9_prejf")])
+starting_items = Array[ExtResource("10_23thu")]([ExtResource("11_j77us"), ExtResource("11_j77us")])
+skills = Array[ExtResource("3_mcj0m")]([ExtResource("4_ohl2f"), ExtResource("5_isphs"), ExtResource("6_s5y61")])
 xp_growth = 1.45
-level_bonus = SubResource("Resource_j77us")
+level_bonus = SubResource("Resource_jnkeh")

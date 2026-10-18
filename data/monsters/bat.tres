@@ -1,0 +1,53 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="1_sqbt0"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="2_8eet1"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="3_geoxi"]
+[ext_resource type="Resource" path="res://data/items/consumables/haste_draught.tres" id="4_gbuch"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="5_b7x41"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="6_t8mxg"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_3r317"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="8_b2jjr"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/bat_bite.tres" id="9_86u6v"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e2wfv"]
+atlas = ExtResource("1_sqbt0")
+region = Rect2(0, 160, 16, 16)
+
+[sub_resource type="Resource" id="Resource_53uvr"]
+script = ExtResource("2_8eet1")
+item = ExtResource("3_geoxi")
+weight = 6
+
+[sub_resource type="Resource" id="Resource_5q88n"]
+script = ExtResource("2_8eet1")
+item = ExtResource("4_gbuch")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_56nqc"]
+script = ExtResource("5_b7x41")
+drop_chance = 0.1
+entries = Array[ExtResource("2_8eet1")]([SubResource("Resource_53uvr"), SubResource("Resource_5q88n")])
+
+[sub_resource type="Resource" id="Resource_ev24f"]
+script = ExtResource("8_b2jjr")
+max_hp = 7
+move_speed = 155.0
+
+[resource]
+script = ExtResource("6_t8mxg")
+stats = SubResource("Resource_ev24f")
+weapon = ExtResource("9_86u6v")
+radius = 8.0
+detect_radius = 240.0
+attack_windup = 0.2
+attack_recovery = 0.2
+xp_reward = 3
+loot = SubResource("Resource_56nqc")
+id = &"bat"
+display_name = "Cave Bat"
+description = "Fragile, fast and erratic."
+icon = SubResource("AtlasTexture_e2wfv")
+glyph = "b"
+color = Color(0.7372549, 0.5411765, 0.37254903, 1)
+spawn_weight = 8

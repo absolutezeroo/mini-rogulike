@@ -4,7 +4,11 @@ extends Area2D
 
 signal reached
 
-const SIZE := 30.0
+const SIZE := 32.0
+
+## Set by the World from the floor's theme. Falls back to a drawn shape.
+var texture: Texture2D
+var _time := 0.0
 
 
 func _ready() -> void:
@@ -16,6 +20,11 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 
 
+func _process(delta: float) -> void:
+	_time += delta
+	queue_redraw()
+
+
 func _on_body_entered(body: Node2D) -> void:
 	if body is Player and not (body as Player).is_dead:
 		reached.emit()
@@ -23,8 +32,12 @@ func _on_body_entered(body: Node2D) -> void:
 
 func _draw() -> void:
 	var half := SIZE * 0.5
-	draw_rect(Rect2(-half, -half, SIZE, SIZE), Color(0.02, 0.02, 0.04))
-	for i in 4:
-		var step := Rect2(-half + 3.0 + i * 3.0, -half + 3.0 + i * 6.0, SIZE - 6.0 - i * 6.0, 4.0)
-		draw_rect(step, Color(0.55, 0.5, 0.45).darkened(i * 0.2))
-	draw_rect(Rect2(-half, -half, SIZE, SIZE), Color("ffd166"), false, 2.0)
+	var rect := Rect2(-half, -half, SIZE, SIZE)
+	if texture:
+		draw_texture_rect(texture, rect, false)
+	else:
+		draw_rect(rect, Color(0.02, 0.02, 0.04))
+	# Pulsing golden frame so the exit is easy to spot.
+	var glow := Color("ffd166")
+	glow.a = 0.5 + 0.4 * sin(_time * 3.0)
+	draw_rect(rect.grow(2.0), glow, false, 2.0)

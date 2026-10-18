@@ -5,6 +5,8 @@ extends CanvasLayer
 signal inventory_requested
 
 const SKILL_ACTIONS: Array[StringName] = [&"skill_1", &"skill_2", &"skill_3"]
+const TILESET: Texture2D = preload("res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png")
+const BAG_ICON_REGION := Rect2(80, 112, 16, 16)  # treasure chest
 
 var _player: Player
 
@@ -20,6 +22,10 @@ var _player: Player
 
 func _ready() -> void:
 	%BagButton.pressed.connect(func() -> void: inventory_requested.emit())
+	var bag_icon := AtlasTexture.new()
+	bag_icon.atlas = TILESET
+	bag_icon.region = BAG_ICON_REGION
+	%BagButton.icon = bag_icon
 	Events.depth_changed.connect(_on_depth_changed)
 	_depth_banner.modulate.a = 0.0
 
@@ -60,10 +66,14 @@ func _process(_delta: float) -> void:
 	var potion := _player.inventory.first_consumable()
 	_quick_item_button.visible = potion != null
 	if potion:
+		_quick_item_button.icon = potion.icon
+		_quick_item_button.icon_tint = potion.icon_tint
 		_quick_item_button.label = potion.glyph
 		_quick_item_button.color = potion.color
 		_quick_item_button.counter = _player.inventory.count_of(potion)
 	var weapon := _player.get_weapon()
+	_attack_button.icon = weapon.icon if weapon else null
+	_attack_button.icon_tint = weapon.icon_tint if weapon else Color.WHITE
 	_attack_button.label = weapon.glyph if weapon else "-"
 
 

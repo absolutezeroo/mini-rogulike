@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="1_x2j8g"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="2_xlnmk"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_152wj"]
+atlas = ExtResource("1_x2j8g")
+region = Rect2(144, 160, 16, 16)
+
+[resource]
+script = ExtResource("2_xlnmk")
+kind = 1
+cooldown = 0.4
+reach = 420.0
+knockback = 90.0
+projectile_speed = 540.0
+slot = 0
+id = &"spark_wand"
+display_name = "Spark Wand"
+description = "Fires quick magic sparks."
+icon = SubResource("AtlasTexture_152wj")
+glyph = "}"
+color = Color(0.94509804, 0.35686275, 0.70980394, 1)
+spawn_weight = 6

@@ -10,6 +10,9 @@ extends Control
 @export var max_distance := 80.0
 @export_range(0.0, 0.9) var dead_zone := 0.15
 
+## Steel ring quarters in the large UI sheet: top-left, top-right, bottom-left, bottom-right.
+const RING_QUARTERS: Array[int] = [48, 49, 61, 62]
+
 var _finger := -1
 var _origin := Vector2.ZERO
 var _knob := Vector2.ZERO
@@ -71,7 +74,14 @@ func _notification(what: int) -> void:
 func _draw() -> void:
 	var base := _origin if _finger != -1 else Vector2(140.0, size.y - 140.0)
 	var knob := _knob if _finger != -1 else base
-	var alpha := 0.5 if _finger != -1 else 0.2
-	draw_circle(base, max_distance, Color(1, 1, 1, alpha * 0.25))
-	draw_arc(base, max_distance, 0.0, TAU, 48, Color(1, 1, 1, alpha), 3.0)
-	draw_circle(knob, max_distance * 0.4, Color(1, 1, 1, alpha + 0.2))
+	var alpha := 0.85 if _finger != -1 else 0.35
+	var modulate_color := Color(1, 1, 1, alpha)
+	draw_circle(base, max_distance - 6.0, Color(0, 0, 0, alpha * 0.25))
+	# The ring comes in four quarters in the UI sheet.
+	var quarter := Vector2(max_distance, max_distance)
+	draw_texture_rect(UiAtlas.large(RING_QUARTERS[0]), Rect2(base - quarter, quarter), false, modulate_color)
+	draw_texture_rect(UiAtlas.large(RING_QUARTERS[1]), Rect2(base + Vector2(0, -max_distance), quarter), false, modulate_color)
+	draw_texture_rect(UiAtlas.large(RING_QUARTERS[2]), Rect2(base + Vector2(-max_distance, 0), quarter), false, modulate_color)
+	draw_texture_rect(UiAtlas.large(RING_QUARTERS[3]), Rect2(base, quarter), false, modulate_color)
+	var knob_size := Vector2.ONE * max_distance * 0.9
+	draw_texture_rect(UiAtlas.large(UiAtlas.ROUND_BUTTON), Rect2(knob - knob_size * 0.5, knob_size), false, modulate_color)

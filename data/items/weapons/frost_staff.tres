@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="1_7r3k5"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="2_27pui"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wmmik"]
+atlas = ExtResource("1_7r3k5")
+region = Rect2(160, 160, 16, 16)
+
+[resource]
+script = ExtResource("2_27pui")
+kind = 1
+damage = 8
+cooldown = 0.8
+reach = 520.0
+knockback = 160.0
+projectile_speed = 700.0
+pierce = 1
+slot = 0
+id = &"frost_staff"
+display_name = "Frost Staff"
+description = "Ice shards that pierce a first enemy."
+icon = SubResource("AtlasTexture_wmmik")
+glyph = "+"
+color = Color(0.29803923, 0.7882353, 0.9411765, 1)
+min_depth = 3
+spawn_weight = 4

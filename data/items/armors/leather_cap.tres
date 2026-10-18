@@ -1,19 +1,22 @@
-[gd_resource type="Resource" script_class="ArmorDef" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="ArmorDef" format=3]
 
-[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_kft0p"]
-[ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="2_b34o5"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_b34o5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/helmet.png" id="2_gefwd"]
+[ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="3_eb33e"]
 
-[sub_resource type="Resource" id="Resource_gefwd"]
-script = ExtResource("1_kft0p")
+[sub_resource type="Resource" id="Resource_s8jn1"]
+script = ExtResource("1_b34o5")
 defense = 1
 
 [resource]
-script = ExtResource("2_b34o5")
+script = ExtResource("3_eb33e")
 slot = 1
-bonuses = SubResource("Resource_gefwd")
+bonuses = SubResource("Resource_s8jn1")
 id = &"leather_cap"
 display_name = "Leather Cap"
 description = "Better than nothing."
+icon = ExtResource("2_gefwd")
+icon_tint = Color(1, 0.7, 0.48, 1)
 glyph = "^"
 color = Color(0.7372549, 0.5411765, 0.37254903, 1)
 spawn_weight = 6

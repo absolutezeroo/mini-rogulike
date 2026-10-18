@@ -1,0 +1,80 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="1_6xotr"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="2_4l3tj"]
+[ext_resource type="Resource" path="res://data/items/armors/chain_mail.tres" id="3_x57ba"]
+[ext_resource type="Resource" path="res://data/items/weapons/war_axe.tres" id="4_k6081"]
+[ext_resource type="Resource" path="res://data/items/weapons/war_hammer.tres" id="5_ubyqn"]
+[ext_resource type="Resource" path="res://data/items/armors/iron_helm.tres" id="6_cqqtc"]
+[ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="7_08jl0"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="8_r8rof"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="9_q32m5"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="10_m4yc4"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="11_mvxnd"]
+[ext_resource type="Resource" path="res://data/skills/monster/war_cry.tres" id="12_1wald"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="13_3tvo1"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/cyclops_club.tres" id="14_rr105"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0xo7f"]
+atlas = ExtResource("1_6xotr")
+region = Rect2(16, 144, 16, 16)
+
+[sub_resource type="Resource" id="Resource_gmh11"]
+script = ExtResource("2_4l3tj")
+item = ExtResource("3_x57ba")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_g6ogb"]
+script = ExtResource("2_4l3tj")
+item = ExtResource("4_k6081")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_wlbvx"]
+script = ExtResource("2_4l3tj")
+item = ExtResource("5_ubyqn")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_pqhab"]
+script = ExtResource("2_4l3tj")
+item = ExtResource("6_cqqtc")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_qdeqt"]
+script = ExtResource("2_4l3tj")
+item = ExtResource("7_08jl0")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_ci2be"]
+script = ExtResource("2_4l3tj")
+item = ExtResource("8_r8rof")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_b64kh"]
+script = ExtResource("9_q32m5")
+drop_chance = 0.5
+entries = Array[ExtResource("2_4l3tj")]([SubResource("Resource_gmh11"), SubResource("Resource_g6ogb"), SubResource("Resource_wlbvx"), SubResource("Resource_pqhab"), SubResource("Resource_qdeqt"), SubResource("Resource_ci2be")])
+
+[sub_resource type="Resource" id="Resource_ox3wy"]
+script = ExtResource("13_3tvo1")
+max_hp = 60
+defense = 3
+move_speed = 70.0
+
+[resource]
+script = ExtResource("10_m4yc4")
+stats = SubResource("Resource_ox3wy")
+weapon = ExtResource("14_rr105")
+skills = Array[ExtResource("11_mvxnd")]([ExtResource("12_1wald")])
+radius = 15.0
+attack_windup = 0.7
+attack_recovery = 0.6
+xp_reward = 20
+loot = SubResource("Resource_b64kh")
+id = &"cyclops"
+display_name = "Cyclops"
+description = "Huge, slow, hits like a truck. Watch the wind-up."
+icon = SubResource("AtlasTexture_0xo7f")
+glyph = "O"
+color = Color(0.9137255, 0.76862746, 0.41568628, 1)
+min_depth = 4
+spawn_weight = 6

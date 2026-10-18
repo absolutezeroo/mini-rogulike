@@ -8,8 +8,13 @@ extends Resource
 @export_multiline var description: String
 
 @export_group("Look")
-## Character drawn on the entity until real sprites are added.
+## Sprite used in the world and in menus (16x16 pixel art, drawn at 2x).
+@export var icon: Texture2D
+## Multiplies the icon colors, to make variants out of one sprite.
+@export var icon_tint: Color = Color.WHITE
+## Fallback character drawn when there is no icon.
 @export var glyph: String = "?"
+## Accent color: names in menus, glows, messages.
 @export var color: Color = Color.WHITE
 
 @export_group("Spawning")

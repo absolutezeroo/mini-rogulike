@@ -1,9 +1,14 @@
-[gd_resource type="Resource" script_class="WeaponDef" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
 
-[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="1_f2iu6"]
+[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="1_3yqgd"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="2_ngdbj"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pk6m2"]
+atlas = ExtResource("1_3yqgd")
+region = Rect2(176, 160, 16, 16)
 
 [resource]
-script = ExtResource("1_f2iu6")
+script = ExtResource("2_ngdbj")
 damage = 7
 cooldown = 0.55
 reach = 62.0
@@ -13,6 +18,7 @@ slot = 0
 id = &"spear"
 display_name = "Spear"
 description = "Long reach, narrow thrust."
+icon = SubResource("AtlasTexture_pk6m2")
 glyph = "|"
 color = Color(0.9137255, 0.76862746, 0.41568628, 1)
 min_depth = 2

@@ -1,25 +1,31 @@
-[gd_resource type="Resource" script_class="ConsumableDef" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="ConsumableDef" format=3]
 
-[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_k485o"]
-[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="2_onf28"]
-[ext_resource type="Script" path="res://src/definitions/effects/buff_effect.gd" id="3_73xtb"]
-[ext_resource type="Script" path="res://src/definitions/items/consumable_def.gd" id="4_mn8kf"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_onf28"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="2_73xtb"]
+[ext_resource type="Script" path="res://src/definitions/effects/buff_effect.gd" id="3_mn8kf"]
+[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="4_8nygd"]
+[ext_resource type="Script" path="res://src/definitions/items/consumable_def.gd" id="5_muiul"]
 
-[sub_resource type="Resource" id="Resource_8nygd"]
-script = ExtResource("2_onf28")
+[sub_resource type="Resource" id="Resource_iort1"]
+script = ExtResource("2_73xtb")
 move_speed = 90.0
 
-[sub_resource type="Resource" id="Resource_muiul"]
-script = ExtResource("3_73xtb")
-bonuses = SubResource("Resource_8nygd")
+[sub_resource type="Resource" id="Resource_8wqre"]
+script = ExtResource("3_mn8kf")
+bonuses = SubResource("Resource_iort1")
 color = Color(0, 0.73333335, 0.9764706, 1)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_aw8yx"]
+atlas = ExtResource("4_8nygd")
+region = Rect2(128, 144, 16, 16)
+
 [resource]
-script = ExtResource("4_mn8kf")
-effects = Array[ExtResource("1_k485o")]([SubResource("Resource_muiul")])
+script = ExtResource("5_muiul")
+effects = Array[ExtResource("1_onf28")]([SubResource("Resource_8wqre")])
 id = &"haste_draught"
 display_name = "Haste Draught"
 description = "Run much faster for 6 seconds."
+icon = SubResource("AtlasTexture_aw8yx")
 glyph = "!"
 color = Color(0, 0.73333335, 0.9764706, 1)
 spawn_weight = 4

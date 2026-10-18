@@ -14,10 +14,19 @@ const KNOCKBACK_FRICTION := 1400.0
 const FLASH_TIME := 0.1
 const HIT_TEXT_COLOR := Color("ffffff")
 const CRIT_TEXT_COLOR := Color("ffd166")
+## Pixel art is 16x16 and drawn at 2x.
+const SPRITE_SCALE := 2.0
+const WEAPON_SCALE := 1.5
+const SWING_TIME := 0.14
+## Very bright modulate = white-ish hit flash on sprites.
+const FLASH_MODULATE := Color(4.0, 4.0, 4.0, 1.0)
 
 var faction: Faction = Faction.MONSTER
 var world: World
 var display_name := "Actor"
+var sprite: Texture2D
+var sprite_tint := Color.WHITE
+## Fallback drawing when there is no sprite.
 var glyph := ""
 var body_color := Color.WHITE
 var radius := 12.0
@@ -39,6 +48,9 @@ var _knockback := Vector2.ZERO
 var _dash_velocity := Vector2.ZERO
 var _dash_time := 0.0
 var _flash_time := 0.0
+var _swing_time := 0.0
+var _swing_arc := 0.0
+var _walk_time := 0.0
 
 
 func _init() -> void:
@@ -113,6 +125,8 @@ func attack(direction: Vector2) -> bool:
 		facing = direction.normalized()
 	_attack_cooldown = weapon.cooldown
 	if weapon.kind == WeaponDef.Kind.MELEE:
+		_swing_time = SWING_TIME
+		_swing_arc = deg_to_rad(minf(weapon.arc_degrees, 200.0))
 		Combat.melee_strike(self, facing, weapon)
 	else:
 		world.fire_projectiles(self, facing, Combat.spec_from_weapon(self, weapon))
@@ -145,7 +159,7 @@ func take_hit(hit: HitInfo) -> void:
 	_knockback += hit.knockback
 	_flash_time = FLASH_TIME
 	world.spawn_floating_text(
-		global_position + Vector2(0, -radius - 6),
+		head_position(),
 		str(damage) + ("!" if hit.is_crit else ""),
 		CRIT_TEXT_COLOR if hit.is_crit else HIT_TEXT_COLOR)
 	health_changed.emit(hp, get_max_hp())
@@ -222,6 +236,11 @@ func _tick_timers(delta: float) -> void:
 	_attack_cooldown = maxf(_attack_cooldown - delta, 0.0)
 	_invulnerable_time = maxf(_invulnerable_time - delta, 0.0)
 	_flash_time = maxf(_flash_time - delta, 0.0)
+	_swing_time = maxf(_swing_time - delta, 0.0)
+	if velocity.length() > 20.0:
+		_walk_time += delta
+	else:
+		_walk_time = 0.0
 	skills.tick(delta)
 
 	if not _timed_bonuses.is_empty():
@@ -236,27 +255,83 @@ func _tick_timers(delta: float) -> void:
 
 # --- Drawing -----------------------------------------------------------------
 
+## Point above the actor's head, in world space (for damage numbers, labels...).
+func head_position() -> Vector2:
+	if sprite:
+		return global_position + Vector2(0, _feet_y() - sprite.get_size().y * SPRITE_SCALE)
+	return global_position + Vector2(0, -radius - 6.0)
+
+
+## Collision is a circle at the actor's feet; the sprite stands on it.
+func _feet_y() -> float:
+	return radius * 0.7 + 1.0
+
+
+## Colors the body: hit flash, death... Subclasses can add effects (blinking).
+func _body_modulate() -> Color:
+	if is_dead:
+		return Color(0.35, 0.3, 0.3, 1.0)
+	if _flash_time > 0.0:
+		return FLASH_MODULATE
+	return Color.WHITE
+
+
 func _draw() -> void:
 	# Shadow
-	draw_set_transform(Vector2(0, radius * 0.7), 0.0, Vector2(1.0, 0.4))
+	draw_set_transform(Vector2(0, _feet_y() - 1.0), 0.0, Vector2(1.0, 0.4))
 	draw_circle(Vector2.ZERO, radius, Color(0, 0, 0, 0.35))
 	draw_set_transform(Vector2.ZERO)
 
-	var color := Color.WHITE if _flash_time > 0.0 else body_color
-	if is_dead:
-		color = color.darkened(0.6)
-	_draw_body(color)
+	var modulate_color := _body_modulate()
+	if sprite == null:
+		_draw_fallback_body(body_color * modulate_color)
+		return
+
+	var weapon_behind := facing.y < -0.3
+	if weapon_behind:
+		_draw_weapon(modulate_color)
+	_draw_sprite(modulate_color)
+	if not weapon_behind:
+		_draw_weapon(modulate_color)
 
 
-func _draw_body(color: Color) -> void:
+func _draw_sprite(modulate_color: Color) -> void:
+	var size := sprite.get_size() * SPRITE_SCALE
+	# Small hop while walking.
+	var bob := -absf(sin(_walk_time * 14.0)) * 2.0 if not is_dead else 0.0
+	var flip := -1.0 if facing.x < -0.1 else 1.0
+	draw_set_transform(Vector2(0, bob), 0.0, Vector2(flip, 1.0))
+	draw_texture_rect(sprite, Rect2(Vector2(-size.x * 0.5, _feet_y() - size.y), size), false, sprite_tint * modulate_color)
+	draw_set_transform(Vector2.ZERO)
+
+
+## The equipped weapon, held in front and swung when attacking.
+func _draw_weapon(modulate_color: Color) -> void:
+	var weapon := get_weapon()
+	if weapon == null or weapon.icon == null or is_dead:
+		return
+	var angle := facing.angle()
+	if _swing_time > 0.0:
+		var progress := 1.0 - _swing_time / SWING_TIME
+		angle += lerpf(-_swing_arc * 0.5, _swing_arc * 0.5, ease(progress, 0.5))
+	else:
+		angle -= 0.35  # resting pose, slightly raised
+	var hand := Vector2(0, _feet_y() - sprite.get_size().y * SPRITE_SCALE * 0.4) + facing * radius * 0.6
+	var size := weapon.icon.get_size() * WEAPON_SCALE
+	# Icons point up: rotate so the tip follows the angle, handle in the hand.
+	draw_set_transform(hand, angle + PI * 0.5)
+	draw_texture_rect(weapon.icon, Rect2(Vector2(-size.x * 0.5, -size.y + 4.0), size), false, weapon.icon_tint * modulate_color)
+	draw_set_transform(Vector2.ZERO)
+
+
+func _draw_fallback_body(color: Color) -> void:
 	draw_circle(Vector2.ZERO, radius, color)
 	draw_circle(Vector2.ZERO, radius, color.darkened(0.4), false, 2.0)
-	# Facing indicator
 	var tip := facing * (radius + 6.0)
 	var side := facing.orthogonal() * 4.0
 	draw_colored_polygon(PackedVector2Array([tip, facing * radius + side, facing * radius - side]), color.lightened(0.3))
 	if not glyph.is_empty():
-		var font := ThemeDB.fallback_font
-		var font_size := roundi(radius * 1.2)
-		var size := font.get_string_size(glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
-		draw_string(font, Vector2(-size.x * 0.5, font_size * 0.35), glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color.darkened(0.7))
+		var font := Fonts.MAIN
+		var font_size := 16
+		var text_size := font.get_string_size(glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
+		draw_string(font, Vector2(-text_size.x * 0.5, font_size * 0.35), glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color.darkened(0.7))

@@ -1,27 +1,33 @@
-[gd_resource type="Resource" script_class="ConsumableDef" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="ConsumableDef" format=3]
 
-[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_1lfsn"]
-[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="2_5nifc"]
-[ext_resource type="Script" path="res://src/definitions/effects/buff_effect.gd" id="3_ben6g"]
-[ext_resource type="Script" path="res://src/definitions/items/consumable_def.gd" id="4_umncj"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_5nifc"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="2_ben6g"]
+[ext_resource type="Script" path="res://src/definitions/effects/buff_effect.gd" id="3_umncj"]
+[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="4_kd7xq"]
+[ext_resource type="Script" path="res://src/definitions/items/consumable_def.gd" id="5_r8406"]
 
-[sub_resource type="Resource" id="Resource_kd7xq"]
-script = ExtResource("2_5nifc")
+[sub_resource type="Resource" id="Resource_uvvcw"]
+script = ExtResource("2_ben6g")
 attack = 5
 crit_chance = 0.15
 
-[sub_resource type="Resource" id="Resource_r8406"]
-script = ExtResource("3_ben6g")
-bonuses = SubResource("Resource_kd7xq")
+[sub_resource type="Resource" id="Resource_pu4jm"]
+script = ExtResource("3_umncj")
+bonuses = SubResource("Resource_uvvcw")
 duration = 8.0
 color = Color(0.9372549, 0.2784314, 0.43529412, 1)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_cyu0t"]
+atlas = ExtResource("4_kd7xq")
+region = Rect2(96, 160, 16, 16)
+
 [resource]
-script = ExtResource("4_umncj")
-effects = Array[ExtResource("1_1lfsn")]([SubResource("Resource_r8406")])
+script = ExtResource("5_r8406")
+effects = Array[ExtResource("1_5nifc")]([SubResource("Resource_pu4jm")])
 id = &"rage_elixir"
 display_name = "Elixir of Rage"
 description = "+5 ATK and +15% crit for 8 seconds."
+icon = SubResource("AtlasTexture_cyu0t")
 glyph = "!"
 color = Color(0.94509804, 0.35686275, 0.70980394, 1)
 min_depth = 2

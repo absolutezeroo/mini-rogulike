@@ -1,0 +1,69 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="1_5kd0b"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="2_t4e3u"]
+[ext_resource type="Resource" path="res://data/items/armors/shadow_cloak.tres" id="3_x31eg"]
+[ext_resource type="Resource" path="res://data/items/consumables/rage_elixir.tres" id="4_1lpi7"]
+[ext_resource type="Resource" path="res://data/items/weapons/frost_staff.tres" id="5_4yytt"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="6_qrqlf"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="7_jbbcv"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="8_mggkg"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_emg1p"]
+[ext_resource type="Resource" path="res://data/skills/monster/blink.tres" id="10_q5vth"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_rk5rj"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/ghost_claw.tres" id="12_a8yy1"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7b4nm"]
+atlas = ExtResource("1_5kd0b")
+region = Rect2(16, 160, 16, 16)
+
+[sub_resource type="Resource" id="Resource_oqm68"]
+script = ExtResource("2_t4e3u")
+item = ExtResource("3_x31eg")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_rahvx"]
+script = ExtResource("2_t4e3u")
+item = ExtResource("4_1lpi7")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_oeeoc"]
+script = ExtResource("2_t4e3u")
+item = ExtResource("5_4yytt")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_w01sa"]
+script = ExtResource("2_t4e3u")
+item = ExtResource("6_qrqlf")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_72yk8"]
+script = ExtResource("7_jbbcv")
+drop_chance = 0.4
+entries = Array[ExtResource("2_t4e3u")]([SubResource("Resource_oqm68"), SubResource("Resource_rahvx"), SubResource("Resource_oeeoc"), SubResource("Resource_w01sa")])
+
+[sub_resource type="Resource" id="Resource_f3mlp"]
+script = ExtResource("11_rk5rj")
+max_hp = 30
+defense = 1
+move_speed = 120.0
+crit_chance = 0.1
+
+[resource]
+script = ExtResource("8_mggkg")
+stats = SubResource("Resource_f3mlp")
+weapon = ExtResource("12_a8yy1")
+skills = Array[ExtResource("9_emg1p")]([ExtResource("10_q5vth")])
+radius = 11.0
+detect_radius = 300.0
+attack_windup = 0.3
+xp_reward = 16
+loot = SubResource("Resource_72yk8")
+id = &"ghost"
+display_name = "Ghost"
+description = "Blinks towards you out of nowhere."
+icon = SubResource("AtlasTexture_7b4nm")
+glyph = "W"
+color = Color(0.6039216, 0.81960785, 0.83137256, 1)
+min_depth = 4
+spawn_weight = 5

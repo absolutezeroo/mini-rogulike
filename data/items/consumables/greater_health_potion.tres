@@ -1,20 +1,26 @@
-[gd_resource type="Resource" script_class="ConsumableDef" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="ConsumableDef" format=3]
 
-[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_w187y"]
-[ext_resource type="Script" path="res://src/definitions/effects/heal_effect.gd" id="2_kv4l7"]
-[ext_resource type="Script" path="res://src/definitions/items/consumable_def.gd" id="3_idpcb"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_kv4l7"]
+[ext_resource type="Script" path="res://src/definitions/effects/heal_effect.gd" id="2_idpcb"]
+[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="3_fetds"]
+[ext_resource type="Script" path="res://src/definitions/items/consumable_def.gd" id="4_50m5f"]
 
-[sub_resource type="Resource" id="Resource_fetds"]
-script = ExtResource("2_kv4l7")
+[sub_resource type="Resource" id="Resource_5vn17"]
+script = ExtResource("2_idpcb")
 amount = 0
 max_hp_ratio = 0.7
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_8aes5"]
+atlas = ExtResource("3_fetds")
+region = Rect2(112, 160, 16, 16)
+
 [resource]
-script = ExtResource("3_idpcb")
-effects = Array[ExtResource("1_w187y")]([SubResource("Resource_fetds")])
+script = ExtResource("4_50m5f")
+effects = Array[ExtResource("1_kv4l7")]([SubResource("Resource_5vn17")])
 id = &"greater_health_potion"
 display_name = "Greater Health Potion"
 description = "Restores 70% of your HP."
+icon = SubResource("AtlasTexture_8aes5")
 glyph = "!"
 color = Color(1, 0, 0.43137255, 1)
 min_depth = 3

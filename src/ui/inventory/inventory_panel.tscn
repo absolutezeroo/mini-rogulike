@@ -52,7 +52,7 @@ layout_mode = 2
 [node name="Title" type="Label" parent="Panel/Margin/VBox/Header"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 32
 text = "Inventory"
 
 [node name="CloseButton" type="Button" parent="Panel/Margin/VBox/Header"]
@@ -73,7 +73,7 @@ layout_mode = 2
 
 [node name="EquippedTitle" type="Label" parent="Panel/Margin/VBox/Body/EquipmentColumn"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.75, 1)
+theme_override_colors/font_color = Color(1, 0.94, 0.82, 1)
 text = "Equipped"
 
 [node name="WeaponSlot" type="Button" parent="Panel/Margin/VBox/Body/EquipmentColumn"]
@@ -107,7 +107,7 @@ text = "Body: -"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 10
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 16
 text = "Stats"
 
 [node name="BagColumn" type="VBoxContainer" parent="Panel/Margin/VBox/Body"]
@@ -117,7 +117,7 @@ size_flags_horizontal = 3
 [node name="BagTitle" type="Label" parent="Panel/Margin/VBox/Body/BagColumn"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.75, 1)
+theme_override_colors/font_color = Color(1, 0.94, 0.82, 1)
 text = "Bag"
 
 [node name="Scroll" type="ScrollContainer" parent="Panel/Margin/VBox/Body/BagColumn"]
@@ -139,22 +139,22 @@ theme_override_constants/separation = 8
 [node name="ItemName" type="Label" parent="Panel/Margin/VBox/Body/DetailsColumn"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 26
+theme_override_font_sizes/font_size = 24
 autowrap_mode = 3
 text = "Select an item"
 
 [node name="ItemType" type="Label" parent="Panel/Margin/VBox/Body/DetailsColumn"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.6, 0.65, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(1, 0.86, 0.6, 1)
+theme_override_font_sizes/font_size = 16
 
 [node name="ItemDetails" type="Label" parent="Panel/Margin/VBox/Body/DetailsColumn"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 16
 autowrap_mode = 3
 
 [node name="UseButton" type="Button" parent="Panel/Margin/VBox/Body/DetailsColumn"]

@@ -128,6 +128,8 @@ func _test_gameplay() -> void:
 	check(world.monster_count() > 0, "monsters spawned (%d)" % world.monster_count())
 	check(player.get_weapon() != null, "player starts with a weapon")
 
+	await _test_projectiles(world, player)
+
 	var kills := [0]
 	var depth_changes := [0]
 	Events.monster_killed.connect(func(_m: Monster) -> void: kills[0] += 1)
@@ -143,7 +145,7 @@ func _test_gameplay() -> void:
 	await _frames(30)
 
 	# Equip / unequip / drop round trip.
-	var bow: WeaponDef = load("res://data/items/weapons/short_bow.tres")
+	var bow: WeaponDef = load("res://data/items/weapons/spark_wand.tres")
 	check(player.pick_up(bow), "pick up a bow")
 	player.use_item(bow)
 	check(player.get_weapon() == bow, "bow equipped")
@@ -230,8 +232,8 @@ func _test_gameplay() -> void:
 	# Monsters must be able to hurt a player who just stands there.
 	var victim: Player = game.player
 	var hp_before := victim.hp
-	var goblin: MonsterDef = load("res://data/monsters/goblin.tres")
-	game.world.spawn_monster(goblin, victim.global_position + Vector2(40, 0))
+	var bandit: MonsterDef = load("res://data/monsters/bandit.tres")
+	game.world.spawn_monster(bandit, victim.global_position + Vector2(40, 0))
 	await _frames(60 * 4)
 	check(victim.hp < hp_before, "monsters damage the player")
 
@@ -240,6 +242,48 @@ func _test_gameplay() -> void:
 	await _bot_play(game, 60 * 20)
 	print("bot (depth 4, mortal): hp %d/%d, dead=%s" % [game.player.hp, game.player.get_max_hp(), game.player.is_dead])
 	game.queue_free()
+	await _frames(2)
+
+
+## Projectiles must stop on walls and hurt enemies.
+func _test_projectiles(world: World, player: Player) -> void:
+	var map := world.map
+	var start := map.world_to_cell(player.global_position)
+	# Closest wall in a straight line from the player.
+	var best_dir := Vector2i.ZERO
+	var best_distance := 999
+	for dir: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+		var distance := 1
+		while map.is_floor(start + dir * distance):
+			distance += 1
+		if distance < best_distance:
+			best_distance = distance
+			best_dir = dir
+	var wall_cell := start + best_dir * best_distance
+	var wall_center := map.cell_to_world(wall_cell)
+
+	var spec := ProjectileSpec.new()
+	spec.speed = 400.0
+	spec.max_distance = 5000.0
+	world.fire_projectiles(player, Vector2(best_dir), spec)
+	var crossed := false
+	for i in 120:
+		await get_tree().physics_frame
+		for shot in world.get_node("Projectiles").get_children():
+			var past: float = ((shot as Node2D).global_position - wall_center).dot(Vector2(best_dir))
+			crossed = crossed or past > map.tile_size * 0.5
+	check(not crossed, "projectiles stop on walls")
+	check(world.get_node("Projectiles").get_child_count() == 0, "projectile removed after hitting a wall")
+
+	# Shoot a monster standing in the open.
+	var free_dir := -best_dir
+	var target := world.spawn_monster(load("res://data/monsters/slime.tres"), player.global_position + Vector2(free_dir) * 60.0)
+	var hp_before := target.hp
+	spec.damage = 5
+	world.fire_projectiles(player, Vector2(free_dir), spec)
+	await _frames(20)
+	check(target.hp < hp_before, "projectiles damage enemies")
+	target.queue_free()
 	await _frames(2)
 
 

@@ -1,0 +1,68 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="1_g6gkl"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="2_dcoxe"]
+[ext_resource type="Resource" path="res://data/items/weapons/spark_wand.tres" id="3_lotrj"]
+[ext_resource type="Resource" path="res://data/items/weapons/frost_staff.tres" id="4_vyov6"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="5_32qhb"]
+[ext_resource type="Resource" path="res://data/items/armors/iron_helm.tres" id="6_gk6nu"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="7_02kof"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="8_rbdnh"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_r8fls"]
+[ext_resource type="Resource" path="res://data/skills/monster/volley.tres" id="10_jqh33"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_nlyma"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/cultist_staff.tres" id="12_wc0lg"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w264k"]
+atlas = ExtResource("1_g6gkl")
+region = Rect2(48, 144, 16, 16)
+
+[sub_resource type="Resource" id="Resource_au7qm"]
+script = ExtResource("2_dcoxe")
+item = ExtResource("3_lotrj")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_p0cpk"]
+script = ExtResource("2_dcoxe")
+item = ExtResource("4_vyov6")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_sahxy"]
+script = ExtResource("2_dcoxe")
+item = ExtResource("5_32qhb")
+weight = 5
+
+[sub_resource type="Resource" id="Resource_pnmkr"]
+script = ExtResource("2_dcoxe")
+item = ExtResource("6_gk6nu")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_5a4f6"]
+script = ExtResource("7_02kof")
+drop_chance = 0.35
+entries = Array[ExtResource("2_dcoxe")]([SubResource("Resource_au7qm"), SubResource("Resource_p0cpk"), SubResource("Resource_sahxy"), SubResource("Resource_pnmkr")])
+
+[sub_resource type="Resource" id="Resource_ddc5d"]
+script = ExtResource("11_nlyma")
+max_hp = 18
+move_speed = 80.0
+
+[resource]
+script = ExtResource("8_rbdnh")
+stats = SubResource("Resource_ddc5d")
+weapon = ExtResource("12_wc0lg")
+skills = Array[ExtResource("9_r8fls")]([ExtResource("10_jqh33")])
+radius = 11.0
+detect_radius = 320.0
+attack_windup = 0.5
+keep_distance = 160.0
+xp_reward = 9
+loot = SubResource("Resource_5a4f6")
+id = &"cultist"
+display_name = "Cultist"
+description = "Keeps its distance and throws shadow bolts."
+icon = SubResource("AtlasTexture_w264k")
+glyph = "c"
+color = Color(0.7019608, 0.53333336, 0.92156863, 1)
+min_depth = 2
+spawn_weight = 7

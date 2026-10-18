@@ -11,6 +11,7 @@ const PROJECTILE_SCENE := preload("res://src/entities/projectile/projectile.tscn
 const STAIRS_SCENE := preload("res://src/entities/stairs/stairs.tscn")
 
 var map: DungeonMap
+var theme: DungeonTheme
 var player: Player
 var depth := 1
 var rng := RandomNumberGenerator.new()
@@ -32,7 +33,8 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 	depth = new_depth
 	_content = content
 	map = DungeonGenerator.generate(content.dungeon, rng)
-	_view.show_map(map, depth)
+	theme = content.dungeon.theme_for_depth(depth)
+	_view.show_map(map, theme)
 	_build_walls()
 	_build_pathfinding()
 	_spawn_stairs()
@@ -165,6 +167,8 @@ func _build_pathfinding() -> void:
 
 func _spawn_stairs() -> void:
 	var stairs := STAIRS_SCENE.instantiate() as Stairs
+	if theme and theme.stairs_tile >= 0:
+		stairs.texture = theme.tile_texture(theme.stairs_tile)
 	stairs.position = map.cell_to_world(map.stairs_cell)
 	stairs.reached.connect(func() -> void: stairs_reached.emit())
 	_entities.add_child(stairs)

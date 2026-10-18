@@ -1,6 +1,11 @@
-[gd_resource type="Resource" script_class="DungeonConfig" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="DungeonConfig" format=3]
 
-[ext_resource type="Script" path="res://src/definitions/dungeon_config.gd" id="1_yhlbr"]
+[ext_resource type="Script" path="res://src/definitions/dungeon_config.gd" id="1_qfnhp"]
+[ext_resource type="Script" path="res://src/definitions/dungeon_theme.gd" id="2_oi5f6"]
+[ext_resource type="Resource" path="res://data/dungeon/themes/sandstone.tres" id="3_pngbb"]
+[ext_resource type="Resource" path="res://data/dungeon/themes/crypt.tres" id="4_bf2ay"]
+[ext_resource type="Resource" path="res://data/dungeon/themes/ember.tres" id="5_0biys"]
 
 [resource]
-script = ExtResource("1_yhlbr")
+script = ExtResource("1_qfnhp")
+themes = Array[ExtResource("2_oi5f6")]([ExtResource("3_pngbb"), ExtResource("4_bf2ay"), ExtResource("5_0biys")])

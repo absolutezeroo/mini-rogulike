@@ -19,6 +19,8 @@ func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
 	display_name = def.display_name
 	glyph = def.glyph
 	body_color = def.color
+	sprite = def.icon
+	sprite_tint = def.icon_tint
 	set_body_radius(def.radius)
 	collision_layer = Layers.MONSTERS
 	collision_mask = Layers.WORLD | Layers.PLAYER | Layers.MONSTERS
@@ -106,9 +108,17 @@ func _draw() -> void:
 		_draw_telegraph()
 	super._draw()
 	if not is_dead and hp < get_max_hp():
-		var top_left := Vector2(-HP_BAR_WIDTH * 0.5, -radius - 9.0)
-		draw_rect(Rect2(top_left, Vector2(HP_BAR_WIDTH, 4.0)), Color(0, 0, 0, 0.6))
-		draw_rect(Rect2(top_left, Vector2(HP_BAR_WIDTH * hp / get_max_hp(), 4.0)), Color("ef476f"))
+		var top_left := head_position() - global_position + Vector2(-HP_BAR_WIDTH * 0.5, -6.0)
+		draw_rect(Rect2(top_left - Vector2.ONE, Vector2(HP_BAR_WIDTH + 2.0, 6.0)), Color("3f2631"))
+		draw_rect(Rect2(top_left, Vector2(HP_BAR_WIDTH * hp / get_max_hp(), 4.0)), Color("e84537"))
+
+
+## Glows red while winding up an attack, so the player sees it coming.
+func _body_modulate() -> Color:
+	var color := super._body_modulate()
+	if telegraph > 0.0 and _flash_time <= 0.0:
+		color = color.lerp(Color(2.0, 0.7, 0.7), telegraph)
+	return color
 
 
 func _draw_telegraph() -> void:
