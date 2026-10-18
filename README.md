@@ -90,7 +90,7 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 - **SFX**: the `Sfx` autoload plays world sounds (positional) and UI sounds. Weapons have attack and hit
   sounds, monsters hurt and death sounds, skills and consumables a use sound; everything else comes
   from `data/audio/sound_bank.tres`. Each sound is an `AudioStreamRandomizer` listing its variations.
-  Buses: Master > SFX, UI, Music (`default_bus_layout.tres`). Each floor theme has its own music.
+  Buses: Master > SFX, UI, Music, Ambience (`default_bus_layout.tres`). Each floor theme has its own music.
 - **Hit stop**: a few frames of freeze on impacts (`HitStop.freeze(seconds)`).
 - **Light**: each floor theme has an `ambient` darkness (a `CanvasModulate`); the hero's flickering torch,
   room lanterns, the hero's shots and fireballs, explosions and magic circles light it up (2D lights).
@@ -98,6 +98,13 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   dissolves monsters pixel by pixel when they die; lights fall off in flat, dithered steps
   (`assets/fx/light.png`); a full-screen shader (`ScreenFx` in `game.tscn`) adds a dithered vignette,
   a bit of contrast and saturation, and splits the colors by whole pixels when the hero takes a big hit.
+- **Ambience** (`AmbienceDef`, `data/dungeon/ambience/`, set on each floor theme): footsteps that sound
+  like the floor (dull in the caves, echoing in the crypt, crunchy in the ruins) and footprints that
+  fade, a looping background (wind, storm), random distant sounds around the hero (drops, whispers,
+  chains, roars), the SFX bus reverb of the place, floating particles (dust, ghost wisps, embers) and
+  drifting pixel fog. Played by `Ambience` (`src/world/ambience.tscn`) on the Ambience bus.
+  Big monsters and bosses shake the ground when they walk. Under 30% HP a heartbeat plays and the
+  music gets muffled (a low-pass filter on the Music bus). The screen fades to black on the stairs.
 
 ## Dungeon
 
@@ -351,6 +358,7 @@ The exit code is the number of failures.
 Art, sound effects and music: **[Ninja Adventure](https://pixel-boy.itch.io/ninja-adventure-asset-pack)**
 by Pixel-boy and AAA, CC0 (public domain). License in `assets/LICENSE_NinjaAdventure.txt`.
 Footstep sounds: Kenney Impact Sounds, CC0 ([kenney.nl](https://kenney.nl)).
+Ambience sounds (`assets/audio/ambience/`) are filtered versions of those sounds; the heartbeat is synthesized.
 The weapon attack sheets were composed from the pack's weapon sprites to match the hero's attack frames.
 
 Pixel art is drawn at 2x in the world, with nearest filtering

@@ -11,6 +11,8 @@ extends Resource
 ## White = no darkness.
 @export var ambient: Color = Color(0.6, 0.56, 0.66)
 @export var music: AudioStream
+## Footsteps, echo, background sounds, particles, fog.
+@export var ambience: AmbienceDef
 
 @export_group("Floor")
 @export var floor_atlas: Texture2D

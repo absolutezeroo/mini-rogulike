@@ -18,6 +18,11 @@ var casting_index := -1
 ## A dormant monster ignores the player (a boss waiting in its arena). See wake_up().
 var dormant := false
 
+## Big monsters shake the floor when they walk.
+const HEAVY_RADIUS := 14.0
+const HEAVY_STEP_INTERVAL := 0.45
+
+var _step_timer := 0.0
 var _phases_done := 0
 var _windup_multiplier := 1.0
 var _damage_multiplier := 1.0
@@ -130,7 +135,21 @@ func get_attack_windup() -> float:
 
 
 func _get_desired_velocity() -> Vector2:
+	_update_heavy_steps()
 	return move_direction * get_move_speed()
+
+
+func _update_heavy_steps() -> void:
+	if radius < HEAVY_RADIUS or move_direction.length() < 0.3:
+		return
+	_step_timer -= get_physics_process_delta_time()
+	if _step_timer > 0.0:
+		return
+	_step_timer = HEAVY_STEP_INTERVAL
+	Sfx.play_at(Sfx.bank.footstep, global_position, -6.0, 0.55)
+	Vfx.dust(world, global_position + Vector2(0, _feet_y()), 1.2)
+	if world.player and world.player.global_position.distance_to(global_position) < 260.0:
+		world.player.camera.shake(0.15 if not is_boss() else 0.3)
 
 
 func get_move_direction() -> Vector2:

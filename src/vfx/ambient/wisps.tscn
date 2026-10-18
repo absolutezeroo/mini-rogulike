@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3]
+
+[sub_resource type="Gradient" id="Gradient_fade"]
+offsets = PackedFloat32Array(0, 0.2, 0.75, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0.8, 1, 1, 1, 0)
+
+[sub_resource type="CanvasItemMaterial" id="Material_glow"]
+blend_mode = 1
+light_mode = 1
+
+[node name="Wisps" type="CPUParticles2D"]
+material = SubResource("Material_glow")
+z_index = 4
+amount = 26
+lifetime = 9.0
+preprocess = 9.0
+local_coords = false
+emission_shape = 3
+emission_rect_extents = Vector2(500, 300)
+direction = Vector2(1, 0)
+spread = 180.0
+gravity = Vector2(0, -4)
+initial_velocity_min = 2.0
+initial_velocity_max = 10.0
+scale_amount_min = 3.0
+scale_amount_max = 5.0
+color = Color(0.65, 0.95, 0.9, 0.5)
+color_ramp = SubResource("Gradient_fade")

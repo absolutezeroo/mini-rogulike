@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="AmbienceDef" format=3]
+
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/ruins/bed.ogg" id="1_niiv7"]
+[ext_resource type="Texture2D" path="res://assets/fx/fog.png" id="2_wegkt"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/ruins/step_0.ogg" id="3_qdcdp"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/ruins/step_1.ogg" id="4_y2wp8"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/ruins/step_2.ogg" id="5_v0uef"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/ruins/step_3.ogg" id="6_rkdmd"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/ruins/step_4.ogg" id="7_ecjvk"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/ruins/crackle_0.ogg" id="8_wih1q"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/ruins/crackle_1.ogg" id="9_8jn40"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/ruins/rumble.ogg" id="10_kmb5g"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/ruins/roar.ogg" id="11_mts82"]
+[ext_resource type="PackedScene" path="res://src/vfx/ambient/embers.tscn" id="12_xlcks"]
+[ext_resource type="Script" path="res://src/definitions/ambience_def.gd" id="13_eblmd"]
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_ssjq0"]
+random_pitch = 1.12
+random_volume_offset_db = 1.5
+streams_count = 5
+stream_0/stream = ExtResource("3_qdcdp")
+stream_1/stream = ExtResource("4_y2wp8")
+stream_2/stream = ExtResource("5_v0uef")
+stream_3/stream = ExtResource("6_rkdmd")
+stream_4/stream = ExtResource("7_ecjvk")
+
+[resource]
+script = ExtResource("13_eblmd")
+footstep = SubResource("AudioStreamRandomizer_ssjq0")
+footprint_color = Color(0.1, 0.08, 0.08, 0.3)
+bed = ExtResource("1_niiv7")
+bed_volume_db = -14.0
+one_shots = Array[AudioStream]([ExtResource("8_wih1q"), ExtResource("9_8jn40"), ExtResource("10_kmb5g"), ExtResource("11_mts82")])
+one_shot_every = Vector2(3, 8)
+reverb_room_size = 0.45
+reverb_wet = 0.1
+particles = ExtResource("12_xlcks")
+fog = ExtResource("2_wegkt")
+fog_color = Color(0.35, 0.25, 0.2, 0.06)
+fog_speed = Vector2(14, -4)

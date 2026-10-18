@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="DungeonTheme" format=3]
 
+[ext_resource type="Resource" path="res://data/dungeon/ambience/ruins.tres" id="1_5qbir"]
 [ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="1_se2r6"]
 [ext_resource type="Texture2D" path="res://assets/tiles/interior_floor.png" id="2_5qbir"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/dungeon.ogg" id="3_i3780"]
@@ -10,8 +11,9 @@
 [resource]
 script = ExtResource("4_a6tc8")
 tint = Color(1, 0.92, 0.85, 1)
-music = ExtResource("3_i3780")
 ambient = Color(0.46, 0.41, 0.4, 1)
+music = ExtResource("3_i3780")
+ambience = ExtResource("1_5qbir")
 floor_atlas = ExtResource("2_5qbir")
 floor_tiles = PackedInt32Array(166, 166, 166, 168)
 decor_atlas = ExtResource("1_se2r6")

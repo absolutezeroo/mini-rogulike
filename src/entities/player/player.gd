@@ -33,6 +33,7 @@ var learned_skill: SkillDef
 var _move_direction := Vector2.ZERO
 var _aim_hold := 0.0
 var _step_timer := 0.0
+var _left_foot := false
 
 @onready var camera: GameCamera = $Camera
 
@@ -93,8 +94,16 @@ func _update_footsteps(delta: float) -> void:
 	_step_timer -= delta
 	if _step_timer <= 0.0:
 		_step_timer = STEP_INTERVAL
-		Sfx.play_at(Sfx.bank.footstep, global_position, -12.0)
-		Vfx.dust(world, global_position + Vector2(0, _feet_y()), 0.6)
+		var ambience := world.theme.ambience if world.theme else null
+		var step_sound := ambience.footstep if ambience and ambience.footstep else Sfx.bank.footstep
+		Sfx.play_at(step_sound, global_position, -10.0)
+		var feet := global_position + Vector2(0, _feet_y())
+		Vfx.dust(world, feet, 0.6)
+		if ambience and ambience.footprint_color.a > 0.0:
+			# Left, right, left... on each side of the path.
+			_left_foot = not _left_foot
+			var side := _move_direction.orthogonal().normalized() * (3.0 if _left_foot else -3.0)
+			world.spawn_vfx(FootprintVfx.create(feet + side, _move_direction, ambience.footprint_color))
 
 
 func _get_desired_velocity() -> Vector2:

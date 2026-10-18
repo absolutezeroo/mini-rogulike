@@ -7,6 +7,8 @@ const TITLE_SCENE := "res://src/ui/title/title_screen.tscn"
 const PERK_CHOICES := 3
 ## Pause between the boss' death and the relic choice, to enjoy the explosions.
 const RELIC_DELAY := 1.6
+## Seconds of fade to black when taking the stairs.
+const FADE_TIME := 0.3
 
 @export var content: ContentDB
 
@@ -29,6 +31,8 @@ var _pending_offers: Array[Dictionary] = []
 @onready var perk_panel: PerkChoicePanel = $Menus/PerkChoicePanel
 @onready var game_over_panel: GameOverPanel = $Menus/GameOverPanel
 @onready var screen_fx: ScreenEffects = $ScreenFx/Effects
+@onready var ambience: Ambience = $Ambience
+@onready var _fade: ColorRect = $Fade/Black
 
 
 func _ready() -> void:
@@ -51,6 +55,7 @@ func _ready() -> void:
 
 func start_run() -> void:
 	_set_paused(false)
+	_fade.color.a = 0.0
 	game_over_panel.hide()
 	inventory_panel.hide()
 	perk_panel.hide()
@@ -141,6 +146,7 @@ func _set_paused(paused: bool) -> void:
 func _enter_floor() -> void:
 	world.build_floor(depth, content)
 	world.place_player(player)
+	ambience.play(world.theme.ambience if world.theme else null, world, player)
 	if depth > 1 and difficulty and difficulty.heal_on_new_floor > 0.0:
 		player.heal(roundi(player.get_max_hp() * difficulty.heal_on_new_floor))
 	if world.theme:
@@ -160,8 +166,19 @@ func _enter_floor() -> void:
 func _on_stairs_reached() -> void:
 	Sfx.play_ui(Sfx.bank.stairs)
 	depth += 1
-	# Deferred: we are inside a physics callback, where the level can't be rebuilt.
-	_enter_floor.call_deferred()
+	# Fade to black, build the next floor, fade back in.
+	# (Deferred: we are inside a physics callback, where the level can't be rebuilt.)
+	_descend.call_deferred()
+
+
+func _descend() -> void:
+	_set_paused(true)
+	var fade_out := create_tween()
+	fade_out.tween_property(_fade, "color:a", 1.0, FADE_TIME)
+	await fade_out.finished
+	_enter_floor()
+	_set_paused(false)
+	create_tween().tween_property(_fade, "color:a", 0.0, FADE_TIME * 1.5)
 
 
 # --- Bosses ------------------------------------------------------------------

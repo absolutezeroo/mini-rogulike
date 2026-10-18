@@ -516,8 +516,12 @@ func _test_gameplay() -> void:
 	player.global_position = world.map.cell_to_world(world.map.stairs_cell)
 	await _frames(10)
 	check(game.depth == depth_before + 1, "stairs lead to the next depth")
+	check(game._fade.color.a > 0.0, "taking the stairs fades to black")
+	await _frames(60)
 	check(depth_changes[0] >= 1, "depth_changed emitted")
 	check(world.monster_count() > 0, "new floor populated")
+	check(not get_tree().paused and game._fade.color.a < 0.05, "the fade clears on the new floor")
+	await _test_ambience(game)
 
 	await _test_boss_fight(game)
 
@@ -909,6 +913,43 @@ func _test_world_objects(game: Node, world: World, player: Player) -> void:
 	player.hp = player.get_max_hp()
 	plate_trap.queue_free()
 	await _frames(5)
+
+
+## Floor ambience: data per theme, footprints, low health heartbeat and muffled music.
+func _test_ambience(game: Node) -> void:
+	var world: World = game.world
+	var player: Player = game.player
+	for theme_id in ["cave", "crypt", "ruins"]:
+		var theme: DungeonTheme = load("res://data/dungeon/themes/%s.tres" % theme_id)
+		check(theme.ambience != null and theme.ambience.footstep != null and theme.ambience.bed != null, "%s has an ambience" % theme_id)
+		check(theme.ambience.one_shots.size() >= 3 and theme.ambience.particles != null, "%s ambience has sounds and particles" % theme_id)
+	check(world.theme.ambience != null, "the floor plays its theme ambience")
+	var reverb := AudioServer.get_bus_effect(AudioServer.get_bus_index(&"SFX"), 0) as AudioEffectReverb
+	check(reverb != null and is_equal_approx(reverb.wet, world.theme.ambience.reverb_wet), "the floor sets the reverb")
+
+	# Walking leaves footprints.
+	var prints_before := _count_footprints(world)
+	var dir := Vector2.RIGHT
+	for d in [Vector2.RIGHT, Vector2.LEFT, Vector2.DOWN, Vector2.UP]:
+		if world.map.is_floor(world.map.world_to_cell(player.global_position + d * 48.0)):
+			dir = d
+			break
+	_set_move(dir)
+	await _frames(50)
+	_set_move(Vector2.ZERO)
+	check(_count_footprints(world) > prints_before, "walking leaves footprints")
+
+	# Low health: heartbeat, muffled music. Back to normal when healed.
+	var music_bus := AudioServer.get_bus_index(&"Music")
+	player.hp = 1
+	player.health_changed.emit(player.hp, player.get_max_hp())
+	check(game.ambience.is_low_health() and AudioServer.is_bus_effect_enabled(music_bus, 0), "low health muffles the music")
+	player.heal(player.get_max_hp())
+	check(not game.ambience.is_low_health() and not AudioServer.is_bus_effect_enabled(music_bus, 0), "healing clears the muffle")
+
+
+func _count_footprints(world: World) -> int:
+	return world.get_tree().get_nodes_in_group(&"footprints").size()
 
 
 ## A boss floor from start to finish: arena, spikes, phases, skills, death, stairs and relic.

@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/world/ambience.gd" id="1_ambience"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/heartbeat.ogg" id="2_heart"]
+
+[node name="Ambience" type="Node"]
+script = ExtResource("1_ambience")
+
+[node name="Bed" type="AudioStreamPlayer" parent="."]
+bus = &"Ambience"
+
+[node name="Heartbeat" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_heart")
+volume_db = -4.0
+bus = &"Ambience"
+
+[node name="FogLayer" type="CanvasLayer" parent="."]
+layer = 3
+
+[node name="Fog" type="TextureRect" parent="FogLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 1
