@@ -5,8 +5,6 @@
 [ext_resource type="Script" path="res://src/definitions/player_def.gd" id="3_mcj0m"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_ohl2f"]
 [ext_resource type="Resource" path="res://data/skills/player/dash.tres" id="5_isphs"]
-[ext_resource type="Resource" path="res://data/skills/player/whirlwind.tres" id="6_s5y61"]
-[ext_resource type="Resource" path="res://data/skills/player/fireball.tres" id="7_nyj2y"]
 [ext_resource type="Script" path="res://src/definitions/items/equipment_def.gd" id="8_5ekve"]
 [ext_resource type="Resource" path="res://data/items/weapons/katana.tres" id="9_prejf"]
 [ext_resource type="Script" path="res://src/definitions/items/item_def.gd" id="10_23thu"]
@@ -31,6 +29,6 @@ color = Color(0.4862745, 0.7764706, 0.3529412, 1)
 base_stats = SubResource("Resource_wtmd1")
 starting_equipment = Array[ExtResource("8_5ekve")]([ExtResource("9_prejf")])
 starting_items = Array[ExtResource("10_23thu")]([ExtResource("11_j77us"), ExtResource("11_j77us")])
-skills = Array[ExtResource("4_ohl2f")]([ExtResource("5_isphs"), ExtResource("6_s5y61"), ExtResource("7_nyj2y")])
+innate_skills = Array[ExtResource("4_ohl2f")]([ExtResource("5_isphs")])
 xp_growth = 1.45
 level_bonus = SubResource("Resource_jnkeh")

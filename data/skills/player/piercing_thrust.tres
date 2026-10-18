@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_gxgc1"]
+[ext_resource type="Texture2D" path="res://assets/fx/cut.png" id="2_51o32"]
+[ext_resource type="Script" path="res://src/definitions/effects/dash_strike_effect.gd" id="3_1yc55"]
+[ext_resource type="Texture2D" path="res://assets/ui/skills/piercing_thrust.png" id="4_vup1h"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_ceoq1"]
+[ext_resource type="AudioStream" path="res://data/audio/slash_heavy.tres" id="6_gm7dp"]
+
+[sub_resource type="Resource" id="Resource_f3u43"]
+script = ExtResource("3_1yc55")
+distance = 210.0
+width = 22.0
+damage_multiplier = 2.0
+knockback = 240.0
+fx = ExtResource("2_51o32")
+
+[resource]
+script = ExtResource("5_ceoq1")
+id = &"piercing_thrust"
+display_name = "Piercing Thrust"
+description = "A long lunge that runs through every enemy in line."
+short_label = "LUNGE"
+icon = ExtResource("4_vup1h")
+color = Color(0.9137255, 0.76862746, 0.41568628, 1)
+effects = Array[ExtResource("1_gxgc1")]([SubResource("Resource_f3u43")])
+sound = ExtResource("6_gm7dp")

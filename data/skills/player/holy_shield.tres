@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_7a0si"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="2_g5v1i"]
+[ext_resource type="Script" path="res://src/definitions/effects/buff_effect.gd" id="3_ku5fj"]
+[ext_resource type="Script" path="res://src/definitions/effects/heal_effect.gd" id="4_wi1md"]
+[ext_resource type="Texture2D" path="res://assets/ui/skills/holy_shield.png" id="5_63te0"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="6_yxu1e"]
+[ext_resource type="AudioStream" path="res://data/audio/buff.tres" id="7_p2c2l"]
+
+[sub_resource type="Resource" id="Resource_kbnvb"]
+script = ExtResource("2_g5v1i")
+defense = 6
+
+[sub_resource type="Resource" id="Resource_4n3j2"]
+script = ExtResource("3_ku5fj")
+bonuses = SubResource("Resource_kbnvb")
+duration = 5.0
+color = Color(1, 0.81960785, 0.4, 1)
+
+[sub_resource type="Resource" id="Resource_mh2mi"]
+script = ExtResource("4_wi1md")
+amount = 0
+max_hp_ratio = 0.1
+
+[resource]
+script = ExtResource("6_yxu1e")
+id = &"holy_shield"
+display_name = "Holy Shield"
+description = "+6 DEF for 5 s and heals 10% of your HP."
+short_label = "GUARD"
+icon = ExtResource("5_63te0")
+color = Color(1, 0.81960785, 0.4, 1)
+cooldown = 12.0
+effects = Array[ExtResource("1_7a0si")]([SubResource("Resource_4n3j2"), SubResource("Resource_mh2mi")])
+sound = ExtResource("7_p2c2l")

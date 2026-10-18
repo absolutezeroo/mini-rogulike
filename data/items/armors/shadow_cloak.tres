@@ -10,6 +10,7 @@ script = ExtResource("1_vdxp6")
 defense = 1
 move_speed = 30.0
 crit_chance = 0.05
+cooldown_reduction = 0.1
 
 [resource]
 script = ExtResource("3_l6en4")

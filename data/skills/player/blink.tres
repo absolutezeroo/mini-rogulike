@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_4ngvg"]
+[ext_resource type="Script" path="res://src/definitions/effects/dash_effect.gd" id="2_r1wqf"]
+[ext_resource type="Texture2D" path="res://assets/ui/skills/blink.png" id="3_mbjre"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_6ppgr"]
+[ext_resource type="AudioStream" path="res://data/audio/spirit.tres" id="5_e52l8"]
+
+[sub_resource type="Resource" id="Resource_tmmky"]
+script = ExtResource("2_r1wqf")
+direction = 1
+distance = 260.0
+duration = 0.15
+
+[resource]
+script = ExtResource("4_6ppgr")
+id = &"blink"
+display_name = "Blink"
+description = "Teleport-dash a long way toward your target."
+short_label = "BLINK"
+icon = ExtResource("3_mbjre")
+color = Color(0.6039216, 0.81960785, 0.83137256, 1)
+cooldown = 5.0
+effects = Array[ExtResource("1_4ngvg")]([SubResource("Resource_tmmky")])
+sound = ExtResource("5_e52l8")

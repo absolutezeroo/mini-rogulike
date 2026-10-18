@@ -9,6 +9,7 @@
 [ext_resource type="Resource" path="res://data/items/armors/chain_mail.tres" id="7_20bwb"]
 [ext_resource type="Resource" path="res://data/items/weapons/axe.tres" id="8_psvo5"]
 [ext_resource type="Resource" path="res://data/items/weapons/book.tres" id="9_ghebr"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_healing.tres" id="10_buxgy"]
 [ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="10_j33ki"]
 [ext_resource type="Script" path="res://src/definitions/boss_phase.gd" id="11_aad1y"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="12_ookps"]
@@ -44,11 +45,16 @@ script = ExtResource("5_5bge7")
 item = ExtResource("9_ghebr")
 weight = 1
 
+[sub_resource type="Resource" id="Resource_4m2cw"]
+script = ExtResource("5_5bge7")
+item = ExtResource("10_buxgy")
+weight = 2
+
 [sub_resource type="Resource" id="Resource_mrmjo"]
 script = ExtResource("10_j33ki")
 drop_chance = 1.0
 rolls = 3
-entries = Array[ExtResource("5_5bge7")]([SubResource("Resource_ye2lm"), SubResource("Resource_yhw7y"), SubResource("Resource_sxb0x"), SubResource("Resource_2txbk")])
+entries = Array[ExtResource("5_5bge7")]([SubResource("Resource_ye2lm"), SubResource("Resource_yhw7y"), SubResource("Resource_sxb0x"), SubResource("Resource_2txbk"), SubResource("Resource_4m2cw")])
 
 [sub_resource type="Resource" id="Resource_v53it"]
 script = ExtResource("12_ookps")

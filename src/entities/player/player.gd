@@ -8,18 +8,27 @@ signal xp_changed(xp: int, xp_needed: int, level: int)
 signal leveled_up(level: int)
 ## The hero lost HP (screen effects listen to this).
 signal damaged(amount: int)
+## The skill buttons changed (new weapon, new spell learned).
+signal skills_changed
 
 const HIT_INVULNERABILITY := 0.6
 const AIM_HOLD_TIME := 0.35         ## Keep facing the aim direction this long after attacking.
 const MELEE_AIM_ASSIST := 70.0      ## Extra auto-aim distance beyond melee reach.
 const SKILL_AIM_RANGE := 520.0
-const SKILL_COUNT := 3
+## Skill buttons: innate skills (the roll), then the weapon's skills, then the learned spell.
+## Slots without a skill stay empty (null), so a skill never jumps to another button.
+const WEAPON_SKILL_SLOTS := 2
+const SKILL_COUNT := 4
+## New skills start on this cooldown when the weapon is swapped (no free casts by swapping).
+const SWAP_COOLDOWN := 1.5
 const STEP_INTERVAL := 0.3
 
 var def: PlayerDef
 var inventory: Inventory
 var level := 1
 var xp := 0
+## Skill taught by the last tome read (last skill button).
+var learned_skill: SkillDef
 
 var _move_direction := Vector2.ZERO
 var _aim_hold := 0.0
@@ -46,7 +55,8 @@ func setup(player_def: PlayerDef) -> void:
 		equipment.equip(item)
 	for item in def.starting_items:
 		inventory.add(item)
-	skills.set_skills(def.skills)
+	_rebuild_skills(0.0)
+	equipment.changed.connect(_rebuild_skills.bind(SWAP_COOLDOWN))
 	invalidate_stats()
 	hp = get_max_hp()
 
@@ -69,7 +79,7 @@ func _think(delta: float) -> void:
 		_aim_hold = AIM_HOLD_TIME
 
 	for i in mini(skills.skills.size(), SKILL_COUNT):
-		if Input.is_action_just_pressed("skill_%d" % (i + 1)):
+		if skills.skills[i] and Input.is_action_just_pressed("skill_%d" % (i + 1)):
 			use_skill(i)
 
 	if Input.is_action_just_pressed("quick_item"):
@@ -130,6 +140,30 @@ func use_skill(index: int) -> void:
 		_aim_hold = AIM_HOLD_TIME
 
 
+# --- Skills ------------------------------------------------------------------
+
+## Innate skills + the weapon's skills + the learned spell, each in its own slot.
+func _rebuild_skills(new_skill_cooldown: float) -> void:
+	var list: Array[SkillDef] = []
+	list.append_array(def.innate_skills)
+	var weapon := get_weapon()
+	for i in WEAPON_SKILL_SLOTS:
+		list.append(weapon.skills[i] if weapon and i < weapon.skills.size() else null)
+	list.append(learned_skill)
+	list.resize(mini(list.size(), SKILL_COUNT))
+	skills.replace(list, new_skill_cooldown)
+	skills_changed.emit()
+
+
+## Puts a skill in the learned slot (replacing the previous one).
+func learn_skill(skill: SkillDef) -> void:
+	learned_skill = skill
+	_rebuild_skills(0.0)
+	Events.log_message("Learned %s!" % skill.display_name, skill.color)
+	Vfx.magic(world, global_position, skill.color)
+	Sfx.play_ui(Sfx.bank.level_up)
+
+
 # --- Items -------------------------------------------------------------------
 
 ## Called when walking over an item. Returns false if it could not be taken.
@@ -159,6 +193,9 @@ func use_item(item: ItemDef) -> void:
 		inventory.remove(item)
 		item.use(self, get_aim_direction(SKILL_AIM_RANGE))
 		Events.log_message("Used %s" % item.display_name, item.color)
+	elif item is SkillTomeDef:
+		inventory.remove(item)
+		learn_skill((item as SkillTomeDef).skill)
 	elif item is EquipmentDef:
 		inventory.remove(item)
 		var previous := equipment.equip(item)

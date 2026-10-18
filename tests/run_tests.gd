@@ -92,6 +92,14 @@ func _test_content() -> void:
 		check(item.icon != null, "%s has an icon" % item.id)
 	for monster in CONTENT.monsters:
 		check(monster.icon != null, "%s has a sprite" % monster.id)
+	for item in CONTENT.items:
+		if item is WeaponDef:
+			check(item.skills.size() == 2, "%s grants 2 skills" % item.id)
+			for skill in item.skills:
+				check(skill != null and skill.icon != null and skill.cooldown > 0.0 and not skill.effects.is_empty(), "%s: skill set up" % item.id)
+		if item is SkillTomeDef:
+			check(item.skill != null and item.skill.icon != null, "%s teaches a skill" % item.id)
+	check(CONTENT.items.any(func(i: ItemDef) -> bool: return i is SkillTomeDef), "tomes can be found")
 	check(CONTENT.props.size() >= 3 and CONTENT.traps.size() >= 2, "props and traps listed")
 	for prop in CONTENT.props:
 		check(prop.icon != null and prop.is_breakable(), "%s is a breakable prop with a sprite" % prop.id)
@@ -266,6 +274,7 @@ func _test_gameplay() -> void:
 	await _test_projectiles(world, player)
 	await _test_perks_in_game(game, world, player)
 	await _test_world_objects(game, world, player)
+	await _test_skills(game, world, player)
 
 	var kills := [0]
 	var depth_changes := [0]
@@ -542,6 +551,93 @@ func _test_perks_in_game(game: Node, world: World, player: Player) -> void:
 	for entry in player.perks.entries:
 		total_levels += entry.stacks
 	check(not get_tree().paused and total_levels == 3, "both perks taken (%d perk levels), game resumed" % total_levels)
+
+
+## Skills come from the weapon and from tomes; statuses, delays, dash strikes, skill stats.
+func _test_skills(game: Node, world: World, player: Player) -> void:
+	var katana: WeaponDef = load("res://data/items/weapons/katana.tres")
+	var book: WeaponDef = load("res://data/items/weapons/book.tres")
+	player.equipment.equip(katana)
+	await _frames(1)
+	var slots := player.skills.skills
+	check(slots.size() == Player.SKILL_COUNT, "4 skill slots")
+	check(slots[0] == player.def.innate_skills[0], "slot 1: the roll, always")
+	check(slots[1] == katana.skills[0] and slots[2] == katana.skills[1], "slots 2-3: the weapon's skills")
+	check(slots[3] == null and not game.hud.get_node("%Skill4Button").visible, "no spell learned yet: last button hidden")
+	player.equipment.equip(book)
+	await _frames(1)
+	check(player.skills.skills[1] == book.skills[0] and player.skills.skills[2] == book.skills[1], "a tome-wielder gets fire skills")
+	check(not player.skills.is_ready(1) and player.skills.is_ready(0), "swapping weapons: new skills on a short cooldown, the roll is kept")
+	check((game.hud.get_node("%Skill2Button") as ActionButton).icon == book.skills[0].icon, "the HUD shows the new skills")
+
+	var tome: SkillTomeDef = load("res://data/items/tomes/tome_frost.tres")
+	player.inventory.add(tome)
+	player.use_item(tome)
+	await _frames(1)
+	check(player.learned_skill == tome.skill and player.skills.skills[3] == tome.skill, "a tome teaches a spell (last slot)")
+	check(game.hud.get_node("%Skill4Button").visible, "the spell button appears")
+	player.equipment.equip(katana)
+	await _frames(1)
+	check(player.skills.skills[3] == tome.skill, "the spell stays when changing weapons")
+
+	# Frost Nova slows; Ice Shards would too.
+	var spot := world.find_open_point_near(player.global_position, 60.0)
+	var slime := world.spawn_monster(load("res://data/monsters/slime.tres"), spot)
+	slime.dormant = true
+	await _frames(70)
+	var speed_before := slime.get_move_speed()
+	check(player.skills.try_use(3, player, player.global_position.direction_to(slime.global_position)), "cast the learned spell")
+	check(slime.statuses.is_slowed() and slime.get_move_speed() < speed_before, "Frost Nova slows enemies")
+	slime.die(null)
+
+	# Flurry: three stabs over time (effect delays).
+	var sai: WeaponDef = load("res://data/items/weapons/sai.tres")
+	player.equipment.equip(sai)
+	await _frames(100)
+	var dummy := world.spawn_monster(load("res://data/monsters/cyclops.tres"), player.global_position + Vector2(40, 0))
+	dummy.dormant = true
+	await _frames(1)
+	var hp_start := dummy.hp
+	player.skills.try_use(1, player, Vector2.RIGHT)
+	await _frames(2)
+	var hp_first := dummy.hp
+	await _frames(20)
+	check(hp_first < hp_start and dummy.hp < hp_first, "Flurry keeps stabbing after the first hit")
+	dummy.die(null)
+
+	# Dash strike: moves the hero and cuts what is on the way.
+	player.equipment.equip(katana)
+	await _frames(100)
+	var free := world.find_open_point_near(player.global_position, 1.0)
+	player.global_position = free
+	var dir := Vector2.RIGHT
+	for candidate: Vector2 in [Vector2.RIGHT, Vector2.LEFT, Vector2.DOWN, Vector2.UP]:
+		if world.has_line_of_sight(free, free + candidate * 200.0):
+			dir = candidate
+			break
+	var target := world.spawn_monster(load("res://data/monsters/cyclops.tres"), free + dir * 90.0)
+	target.dormant = true
+	await _frames(1)
+	var target_hp := target.hp
+	var before := player.global_position
+	player.skills.try_use(2, player, dir)
+	await _frames(15)
+	check(target.hp < target_hp, "Iaido Dash cuts enemies on the way")
+	check(player.global_position.distance_to(before) > 60.0, "Iaido Dash moves the hero")
+	target.die(null)
+
+	# Skill stats from perks.
+	var power_before := player.get_skill_power()
+	player.perks.add(_perk("arcane_power"))
+	check(player.get_skill_power() > power_before, "Arcane Power raises skill damage")
+	player.perks.add(_perk("arcane_focus"))
+	await _frames(400)
+	player.skills.try_use(1, player, Vector2.RIGHT)
+	check(player.skills._durations[1] < katana.skills[0].cooldown, "Arcane Focus shortens cooldowns")
+	player.perks.clear()
+	player.learned_skill = null
+	player.equipment.equip(katana)
+	await _frames(20)
 
 
 ## Lights, props, explosive barrels, traps and the death dissolve.

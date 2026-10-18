@@ -5,6 +5,9 @@
 [ext_resource type="AudioStream" path="res://data/audio/hit.tres" id="3_2uv4q"]
 [ext_resource type="Texture2D" path="res://assets/weapons/katana.png" id="4_akday"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="5_r15cl"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="6_akday"]
+[ext_resource type="Resource" path="res://data/skills/player/whirlwind.tres" id="7_r15cl"]
+[ext_resource type="Resource" path="res://data/skills/player/dash_strike.tres" id="8_jh3j1"]
 
 [resource]
 script = ExtResource("5_r15cl")
@@ -12,6 +15,7 @@ damage = 5
 cooldown = 0.38
 reach = 32.0
 attack_frames = ExtResource("1_5k6wr")
+skills = Array[ExtResource("6_akday")]([ExtResource("7_r15cl"), ExtResource("8_jh3j1")])
 arc_degrees = 120.0
 attack_sound = ExtResource("2_gj8km")
 hit_sound = ExtResource("3_2uv4q")

@@ -1,7 +1,7 @@
 class_name StatusSet
 extends RefCounted
-## Damage over time on an actor (burn, poison...). Each status has an id:
-## applying the same id again refreshes it instead of stacking a second copy.
+## Statuses on an actor: damage over time (burn, poison...) and slows.
+## Applying the same damage-over-time id again refreshes it instead of stacking a second copy.
 
 
 class Dot:
@@ -14,7 +14,11 @@ class Dot:
 	var color: Color
 
 
+const SLOW_COLOR := Color("8ecae6")
+
 var _dots: Array[Dot] = []
+var _slow := 0.0
+var _slow_time := 0.0
 
 
 ## Deals `damage` every `interval` seconds for `duration` seconds.
@@ -36,24 +40,46 @@ func apply_dot(id: StringName, damage: int, interval: float, duration: float, so
 	_dots.append(dot)
 
 
+## Keeps the strongest slow; refreshes its duration.
+func apply_slow(amount: float, duration: float) -> void:
+	_slow = maxf(_slow, clampf(amount, 0.0, 0.9))
+	_slow_time = maxf(_slow_time, duration)
+
+
+## Multiplier for the move speed (1 = not slowed).
+func speed_multiplier() -> float:
+	return 1.0 - _slow if _slow_time > 0.0 else 1.0
+
+
+func is_slowed() -> bool:
+	return _slow_time > 0.0
+
+
 func has(id: StringName) -> bool:
 	return _dots.any(func(dot: Dot) -> bool: return dot.id == id)
 
 
 func is_empty() -> bool:
-	return _dots.is_empty()
+	return _dots.is_empty() and _slow_time <= 0.0
 
 
 ## Tint of the strongest active status (for the actor's body), or transparent.
 func tint() -> Color:
-	return _dots[0].color if not _dots.is_empty() else Color.TRANSPARENT
+	if not _dots.is_empty():
+		return _dots[0].color
+	return SLOW_COLOR if is_slowed() else Color.TRANSPARENT
 
 
 func clear() -> void:
 	_dots.clear()
+	_slow_time = 0.0
 
 
 func tick(owner: Actor, delta: float) -> void:
+	if _slow_time > 0.0:
+		_slow_time -= delta
+		if _slow_time <= 0.0:
+			_slow = 0.0
 	for dot in _dots.duplicate():
 		dot.time_left -= delta
 		dot.next_tick -= delta

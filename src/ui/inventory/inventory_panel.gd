@@ -65,10 +65,11 @@ func _refresh() -> void:
 		_set_icon(button, item)
 
 	var stats := _player.get_stats()
-	_stats_label.text = "Level %d\nHP %d / %d\nPower %d   DEF %d\nSpeed %d   Crit %d%%\nAttack speed %+d%%" % [
+	_stats_label.text = "Level %d\nHP %d / %d\nPower %d   DEF %d\nSpeed %d   Crit %d%%\nAttack speed %+d%%\nSkill power %+d%%   Cooldowns -%d%%" % [
 		_player.level, _player.hp, _player.get_max_hp(), _player.get_power(),
 		stats.defense, roundi(stats.move_speed), roundi(stats.crit_chance * 100.0),
-		roundi(stats.attack_speed * 100.0)]
+		roundi(stats.attack_speed * 100.0), roundi(stats.skill_power * 100.0),
+		roundi(minf(stats.cooldown_reduction, SkillSet.MAX_COOLDOWN_REDUCTION) * 100.0)]
 
 	var inventory := _player.inventory
 	_bag_title.text = "Bag (%d / %d)" % [inventory.items.size(), inventory.capacity]
@@ -114,6 +115,8 @@ func _refresh_details() -> void:
 		_use_button.text = "Unequip"
 	elif item is EquipmentDef:
 		_use_button.text = "Equip"
+	elif item is SkillTomeDef:
+		_use_button.text = "Learn"
 	else:
 		_use_button.text = "Use"
 

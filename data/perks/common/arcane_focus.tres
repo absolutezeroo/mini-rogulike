@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="PerkDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_woqb3"]
+[ext_resource type="Texture2D" path="res://assets/ui/perks/arcane_focus.png" id="2_a73wc"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="3_528oq"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_5urh8"]
+
+[sub_resource type="Resource" id="Resource_woqb3"]
+script = ExtResource("1_woqb3")
+cooldown_reduction = 0.1
+
+[resource]
+script = ExtResource("4_5urh8")
+id = &"arcane_focus"
+display_name = "Arcane Focus"
+icon = ExtResource("2_a73wc")
+color = Color(0.47843137, 0.827451, 1, 1)
+weight = 7
+bonuses = SubResource("Resource_woqb3")

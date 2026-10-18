@@ -9,6 +9,7 @@
 [ext_resource type="Resource" path="res://data/items/consumables/bomb.tres" id="7_8w7hf"]
 [ext_resource type="Resource" path="res://data/items/weapons/lance.tres" id="8_rxeqx"]
 [ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="9_n88oh"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_war.tres" id="9_yxp2g"]
 [ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="10_s2fcx"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="11_4cs0a"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="12_bvh3q"]
@@ -43,9 +44,14 @@ script = ExtResource("3_vf1wf")
 item = ExtResource("8_rxeqx")
 weight = 2
 
+[sub_resource type="Resource" id="Resource_vf1wf"]
+script = ExtResource("3_vf1wf")
+item = ExtResource("9_yxp2g")
+weight = 1
+
 [sub_resource type="Resource" id="Resource_dx78x"]
 script = ExtResource("9_n88oh")
-entries = Array[ExtResource("3_vf1wf")]([SubResource("Resource_gvaik"), SubResource("Resource_ewrk5"), SubResource("Resource_jmrin"), SubResource("Resource_qkgn5"), SubResource("Resource_44g0k")])
+entries = Array[ExtResource("3_vf1wf")]([SubResource("Resource_gvaik"), SubResource("Resource_ewrk5"), SubResource("Resource_jmrin"), SubResource("Resource_qkgn5"), SubResource("Resource_44g0k"), SubResource("Resource_vf1wf")])
 
 [sub_resource type="Resource" id="Resource_1xq2n"]
 script = ExtResource("12_bvh3q")

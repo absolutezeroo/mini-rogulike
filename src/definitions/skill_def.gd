@@ -28,5 +28,4 @@ extends Resource
 
 func activate(user: Actor, aim: Vector2) -> void:
 	Sfx.play_at(sound, user.global_position)
-	for effect in effects:
-		effect.apply(user, aim)
+	Effect.apply_all(effects, user, aim)

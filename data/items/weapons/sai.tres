@@ -7,6 +7,9 @@
 [ext_resource type="AudioStream" path="res://data/audio/hit.tres" id="5_sbson"]
 [ext_resource type="Texture2D" path="res://assets/weapons/sai.png" id="6_174so"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="7_rqmo2"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_14pce"]
+[ext_resource type="Resource" path="res://data/skills/player/flurry.tres" id="9_sbson"]
+[ext_resource type="Resource" path="res://data/skills/player/shadow_step.tres" id="10_174so"]
 
 [sub_resource type="Resource" id="Resource_46fwj"]
 script = ExtResource("4_14pce")
@@ -23,6 +26,7 @@ attack_animation = 1
 attack_frames = ExtResource("1_iwvpw")
 attack_fx = ExtResource("2_3is3w")
 attack_fx_rotation = 45.0
+skills = Array[ExtResource("8_14pce")]([ExtResource("9_sbson"), ExtResource("10_174so")])
 arc_degrees = 60.0
 attack_sound = ExtResource("3_okemv")
 hit_sound = ExtResource("5_sbson")

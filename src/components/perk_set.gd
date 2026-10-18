@@ -83,6 +83,12 @@ func on_kill(owner: Actor, victim: Actor) -> void:
 			passive.on_kill(owner, victim, entry)
 
 
+func on_skill_used(owner: Actor, skill: SkillDef) -> void:
+	for entry in entries:
+		for passive in entry.perk.passives:
+			passive.on_skill_used(owner, skill, entry)
+
+
 func on_dash(owner: Actor) -> void:
 	for entry in entries:
 		for passive in entry.perk.passives:

@@ -26,6 +26,11 @@ func on_kill(_owner: Actor, _victim: Actor, _perk: PerkSet.Entry) -> void:
 	pass
 
 
+## The owner used a skill.
+func on_skill_used(_owner: Actor, _skill: SkillDef, _perk: PerkSet.Entry) -> void:
+	pass
+
+
 ## The owner started a dash or roll.
 func on_dash(_owner: Actor, _perk: PerkSet.Entry) -> void:
 	pass

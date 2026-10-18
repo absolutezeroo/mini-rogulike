@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SkillTomeDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/tome_thunder.png" id="1_uxn5d"]
+[ext_resource type="Script" path="res://src/definitions/items/skill_tome_def.gd" id="2_fi85b"]
+[ext_resource type="Resource" path="res://data/skills/player/thunder.tres" id="3_set8u"]
+
+[resource]
+script = ExtResource("2_fi85b")
+skill = ExtResource("3_set8u")
+id = &"tome_thunder"
+display_name = "Tome of Thunder"
+description = "Read it to learn a skill (last skill button)."
+icon = ExtResource("1_uxn5d")
+color = Color(1, 0.9019608, 0.42745098, 1)
+min_depth = 3
+spawn_weight = 3

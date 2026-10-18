@@ -91,7 +91,7 @@ func attack_range(other: Actor) -> float:
 func pick_skill(distance: float) -> int:
 	for i in skills.skills.size():
 		var skill := skills.skills[i]
-		if not skills.is_ready(i):
+		if skill == null or not skills.is_ready(i):
 			continue
 		if distance < skill.ai_min_range or distance > skill.ai_max_range:
 			continue

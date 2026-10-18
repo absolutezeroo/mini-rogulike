@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_y4p81"]
+[ext_resource type="Texture2D" path="res://assets/fx/rock_spike.png" id="2_g4o4d"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="3_o61h5"]
+[ext_resource type="Texture2D" path="res://assets/ui/skills/ground_slam.png" id="4_ihjhg"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_b3n7q"]
+[ext_resource type="AudioStream" path="res://data/audio/explosion.tres" id="6_kdagf"]
+
+[sub_resource type="Resource" id="Resource_7uqox"]
+script = ExtResource("3_o61h5")
+radius = 115.0
+damage_multiplier = 2.0
+knockback = 420.0
+fx = ExtResource("2_g4o4d")
+fx_frames = 10
+
+[resource]
+script = ExtResource("5_b3n7q")
+id = &"ground_slam"
+display_name = "Ground Slam"
+description = "Rock spikes burst all around you."
+short_label = "SLAM"
+icon = ExtResource("4_ihjhg")
+color = Color(0.6784314, 0.70980394, 0.7411765, 1)
+cooldown = 8.0
+effects = Array[ExtResource("1_y4p81")]([SubResource("Resource_7uqox")])
+sound = ExtResource("6_kdagf")

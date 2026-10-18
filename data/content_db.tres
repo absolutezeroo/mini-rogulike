@@ -23,22 +23,36 @@
 [ext_resource type="Resource" path="res://data/items/consumables/rage_elixir.tres" id="21_nlt3e"]
 [ext_resource type="Resource" path="res://data/items/consumables/haste_draught.tres" id="22_7cyc7"]
 [ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="23_2j2up"]
+[ext_resource type="Resource" path="res://data/items/weapons/templar_sword.tres" id="23_dianq"]
+[ext_resource type="Texture2D" path="res://assets/items/tome_healing.png" id="24_s3a73"]
 [ext_resource type="Resource" path="res://data/monsters/rat.tres" id="24_urwiy"]
+[ext_resource type="Script" path="res://src/definitions/items/skill_tome_def.gd" id="25_kh0os"]
 [ext_resource type="Resource" path="res://data/monsters/bat.tres" id="25_sw1r8"]
+[ext_resource type="Resource" path="res://data/skills/player/holy_light.tres" id="26_m2fdx"]
 [ext_resource type="Resource" path="res://data/monsters/slime.tres" id="26_qfpny"]
+[ext_resource type="Texture2D" path="res://assets/items/tome_war.png" id="27_bddnx"]
 [ext_resource type="Resource" path="res://data/monsters/skeleton.tres" id="27_d3nxt"]
+[ext_resource type="Resource" path="res://data/skills/player/battle_cry.tres" id="28_gyds2"]
 [ext_resource type="Resource" path="res://data/monsters/sorcerer.tres" id="28_yjg1c"]
+[ext_resource type="Texture2D" path="res://assets/items/tome_frost.png" id="29_1b8ag"]
 [ext_resource type="Resource" path="res://data/monsters/spider.tres" id="29_dianq"]
+[ext_resource type="Resource" path="res://data/skills/player/frost_nova.tres" id="30_0tw7m"]
 [ext_resource type="Resource" path="res://data/monsters/shaman.tres" id="30_kqkbc"]
+[ext_resource type="Texture2D" path="res://assets/items/tome_fire.png" id="31_pgsf5"]
 [ext_resource type="Resource" path="res://data/monsters/cyclops.tres" id="31_xx7nh"]
 [ext_resource type="Resource" path="res://data/monsters/spirit.tres" id="32_6esje"]
+[ext_resource type="Resource" path="res://data/skills/player/fireball.tres" id="32_6v54u"]
 [ext_resource type="Resource" path="res://data/player/player_def.tres" id="33_bx8nx"]
 [ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="33_lnxyg"]
+[ext_resource type="Texture2D" path="res://assets/items/tome_wind.png" id="33_p1yhy"]
+[ext_resource type="Resource" path="res://data/skills/player/blink.tres" id="34_rjcke"]
 [ext_resource type="Script" path="res://src/definitions/content_db.gd" id="34_tx8pl"]
 [ext_resource type="Resource" path="res://data/perks/common/vitality.tres" id="34_vfprf"]
 [ext_resource type="Resource" path="res://data/perks/common/strength.tres" id="35_nlt3e"]
+[ext_resource type="Texture2D" path="res://assets/items/tome_thunder.png" id="35_v3gsm"]
 [ext_resource type="Resource" path="res://data/audio/sound_bank.tres" id="35_vxbuw"]
 [ext_resource type="Resource" path="res://data/perks/common/iron_skin.tres" id="36_7cyc7"]
+[ext_resource type="Resource" path="res://data/skills/player/thunder.tres" id="36_s1peu"]
 [ext_resource type="Resource" path="res://data/perks/common/swiftness.tres" id="37_2j2up"]
 [ext_resource type="Resource" path="res://data/perks/common/precision.tres" id="38_urwiy"]
 [ext_resource type="Resource" path="res://data/perks/common/frenzy.tres" id="39_sw1r8"]
@@ -58,10 +72,77 @@
 [ext_resource type="Resource" path="res://data/props/barrel.tres" id="54_kqkbc"]
 [ext_resource type="Resource" path="res://data/props/vase.tres" id="55_xx7nh"]
 [ext_resource type="Resource" path="res://data/props/tnt.tres" id="56_6esje"]
+[ext_resource type="Resource" path="res://data/perks/common/arcane_focus.tres" id="58_e0sb6"]
 [ext_resource type="Script" path="res://src/definitions/trap_def.gd" id="59_bx8nx"]
+[ext_resource type="Resource" path="res://data/perks/common/arcane_power.tres" id="59_y15mf"]
+[ext_resource type="Resource" path="res://data/perks/common/devotion.tres" id="60_5rwny"]
 [ext_resource type="Resource" path="res://data/traps/spikes.tres" id="60_tx8pl"]
+[ext_resource type="Resource" path="res://data/perks/relics/sages_codex.tres" id="61_mmfdi"]
 [ext_resource type="Resource" path="res://data/traps/spike_plate.tres" id="61_vxbuw"]
 [ext_resource type="Resource" path="res://data/traps/flame_vent.tres" id="62_qapwd"]
+
+[sub_resource type="Resource" id="Resource_du3p3"]
+script = ExtResource("25_kh0os")
+skill = ExtResource("26_m2fdx")
+id = &"tome_healing"
+display_name = "Tome of Holy Light"
+description = "Read it to learn a skill (last skill button)."
+icon = ExtResource("24_s3a73")
+color = Color(1, 0.9529412, 0.6901961, 1)
+spawn_weight = 3
+
+[sub_resource type="Resource" id="Resource_to1jy"]
+script = ExtResource("25_kh0os")
+skill = ExtResource("28_gyds2")
+id = &"tome_war"
+display_name = "Tome of Battle"
+description = "Read it to learn a skill (last skill button)."
+icon = ExtResource("27_bddnx")
+color = Color(0.9372549, 0.2784314, 0.43529412, 1)
+spawn_weight = 3
+
+[sub_resource type="Resource" id="Resource_8pk3k"]
+script = ExtResource("25_kh0os")
+skill = ExtResource("30_0tw7m")
+id = &"tome_frost"
+display_name = "Tome of Frost"
+description = "Read it to learn a skill (last skill button)."
+icon = ExtResource("29_1b8ag")
+color = Color(0.5568628, 0.7921569, 0.9019608, 1)
+min_depth = 2
+spawn_weight = 3
+
+[sub_resource type="Resource" id="Resource_v6cij"]
+script = ExtResource("25_kh0os")
+skill = ExtResource("32_6v54u")
+id = &"tome_fire"
+display_name = "Tome of Fire"
+description = "Read it to learn a skill (last skill button)."
+icon = ExtResource("31_pgsf5")
+color = Color(1, 0.41960785, 0.20784314, 1)
+spawn_weight = 3
+
+[sub_resource type="Resource" id="Resource_til0v"]
+script = ExtResource("25_kh0os")
+skill = ExtResource("34_rjcke")
+id = &"tome_wind"
+display_name = "Tome of Wind"
+description = "Read it to learn a skill (last skill button)."
+icon = ExtResource("33_p1yhy")
+color = Color(0.6039216, 0.81960785, 0.83137256, 1)
+min_depth = 2
+spawn_weight = 3
+
+[sub_resource type="Resource" id="Resource_mym40"]
+script = ExtResource("25_kh0os")
+skill = ExtResource("36_s1peu")
+id = &"tome_thunder"
+display_name = "Tome of Thunder"
+description = "Read it to learn a skill (last skill button)."
+icon = ExtResource("35_v3gsm")
+color = Color(1, 0.9019608, 0.42745098, 1)
+min_depth = 3
+spawn_weight = 3
 
 [resource]
 script = ExtResource("34_tx8pl")
@@ -69,7 +150,7 @@ player = ExtResource("33_bx8nx")
 dungeon = ExtResource("1_q2vv8")
 sounds = ExtResource("35_vxbuw")
 monsters = Array[ExtResource("23_2j2up")]([ExtResource("24_urwiy"), ExtResource("25_sw1r8"), ExtResource("26_qfpny"), ExtResource("27_d3nxt"), ExtResource("28_yjg1c"), ExtResource("29_dianq"), ExtResource("30_kqkbc"), ExtResource("31_xx7nh"), ExtResource("32_6esje")])
-items = Array[ExtResource("2_cewcx")]([ExtResource("3_kwdc3"), ExtResource("4_7ya5d"), ExtResource("5_pbmnr"), ExtResource("6_m0rk7"), ExtResource("7_ecbkd"), ExtResource("8_m5vms"), ExtResource("9_8li55"), ExtResource("10_ng0jj"), ExtResource("11_te2ty"), ExtResource("12_prpil"), ExtResource("13_q2763"), ExtResource("14_3wmne"), ExtResource("15_rjx6h"), ExtResource("16_h0egv"), ExtResource("17_hbtgr"), ExtResource("18_jjy75"), ExtResource("19_lnxyg"), ExtResource("20_vfprf"), ExtResource("21_nlt3e"), ExtResource("22_7cyc7")])
-perks = Array[ExtResource("33_lnxyg")]([ExtResource("34_vfprf"), ExtResource("35_nlt3e"), ExtResource("36_7cyc7"), ExtResource("37_2j2up"), ExtResource("38_urwiy"), ExtResource("39_sw1r8"), ExtResource("40_qfpny"), ExtResource("41_d3nxt"), ExtResource("42_yjg1c"), ExtResource("43_dianq"), ExtResource("44_kqkbc"), ExtResource("45_xx7nh"), ExtResource("46_6esje"), ExtResource("47_bx8nx"), ExtResource("48_tx8pl"), ExtResource("49_vxbuw"), ExtResource("50_qapwd")])
+items = Array[ExtResource("2_cewcx")]([ExtResource("3_kwdc3"), ExtResource("4_7ya5d"), ExtResource("5_pbmnr"), ExtResource("6_m0rk7"), ExtResource("7_ecbkd"), ExtResource("8_m5vms"), ExtResource("9_8li55"), ExtResource("10_ng0jj"), ExtResource("11_te2ty"), ExtResource("12_prpil"), ExtResource("13_q2763"), ExtResource("14_3wmne"), ExtResource("15_rjx6h"), ExtResource("16_h0egv"), ExtResource("17_hbtgr"), ExtResource("18_jjy75"), ExtResource("19_lnxyg"), ExtResource("20_vfprf"), ExtResource("21_nlt3e"), ExtResource("22_7cyc7"), ExtResource("23_dianq"), SubResource("Resource_du3p3"), SubResource("Resource_to1jy"), SubResource("Resource_8pk3k"), SubResource("Resource_v6cij"), SubResource("Resource_til0v"), SubResource("Resource_mym40")])
+perks = Array[ExtResource("33_lnxyg")]([ExtResource("34_vfprf"), ExtResource("35_nlt3e"), ExtResource("36_7cyc7"), ExtResource("37_2j2up"), ExtResource("38_urwiy"), ExtResource("39_sw1r8"), ExtResource("40_qfpny"), ExtResource("41_d3nxt"), ExtResource("42_yjg1c"), ExtResource("43_dianq"), ExtResource("44_kqkbc"), ExtResource("45_xx7nh"), ExtResource("46_6esje"), ExtResource("47_bx8nx"), ExtResource("48_tx8pl"), ExtResource("49_vxbuw"), ExtResource("50_qapwd"), ExtResource("58_e0sb6"), ExtResource("59_y15mf"), ExtResource("60_5rwny"), ExtResource("61_mmfdi")])
 props = Array[ExtResource("52_yjg1c")]([ExtResource("53_dianq"), ExtResource("54_kqkbc"), ExtResource("55_xx7nh"), ExtResource("56_6esje")])
 traps = Array[ExtResource("59_bx8nx")]([ExtResource("60_tx8pl"), ExtResource("61_vxbuw"), ExtResource("62_qapwd")])

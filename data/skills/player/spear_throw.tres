@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_vmepi"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_pjv1j"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/arrow.png" id="3_munj6"]
+[ext_resource type="Texture2D" path="res://assets/ui/skills/spear_throw.png" id="4_gjxpc"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_wx0w3"]
+[ext_resource type="AudioStream" path="res://data/audio/launch.tres" id="6_4vh0r"]
+
+[sub_resource type="Resource" id="Resource_r1m81"]
+script = ExtResource("2_pjv1j")
+damage_multiplier = 1.6
+speed = 700.0
+pierce = 3
+color = Color(0.9137255, 0.76862746, 0.41568628, 1)
+texture = ExtResource("3_munj6")
+
+[resource]
+script = ExtResource("5_wx0w3")
+id = &"spear_throw"
+display_name = "Spear Throw"
+description = "Throws a spear that goes through three enemies."
+short_label = "THROW"
+icon = ExtResource("4_gjxpc")
+color = Color(0.9137255, 0.76862746, 0.41568628, 1)
+cooldown = 4.0
+effects = Array[ExtResource("1_vmepi")]([SubResource("Resource_r1m81")])
+sound = ExtResource("6_4vh0r")

@@ -23,6 +23,10 @@ enum AttackAnimation { SLASH, THRUST, SMASH, SHOOT }
 ## Extra rotation of the slash effect, in degrees (depends on how the sheet is drawn).
 @export var attack_fx_rotation: float = 0.0
 
+## Skills you get while holding this weapon (2 at most): a staff makes you a mage,
+## an axe a warrior... Monsters ignore them (their skills are in their MonsterDef).
+@export var skills: Array[SkillDef] = []
+
 @export_group("Melee")
 @export_range(10.0, 360.0) var arc_degrees: float = 110.0
 
@@ -55,5 +59,10 @@ func get_details() -> String:
 		text += ", %d projectiles" % projectile_count
 	if kind == Kind.RANGED and pierce > 0:
 		text += ", pierces %d" % pierce
+	if not skills.is_empty():
+		var names := PackedStringArray()
+		for skill in skills:
+			names.append(skill.display_name)
+		text += "\nSkills: " + ", ".join(names)
 	var base := super.get_details()
 	return text + ("\n" + base if not base.is_empty() else "")

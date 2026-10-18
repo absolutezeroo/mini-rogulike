@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="SpriteFrames" path="res://data/visuals/weapons/templar_sword.tres" id="1_p6dig"]
+[ext_resource type="Texture2D" path="res://assets/fx/slashcurved.png" id="2_6y3is"]
+[ext_resource type="AudioStream" path="res://data/audio/slash.tres" id="3_fftq5"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="4_le2a7"]
+[ext_resource type="AudioStream" path="res://data/audio/hit.tres" id="5_ryp70"]
+[ext_resource type="Texture2D" path="res://assets/weapons/templar_sword.png" id="6_d4djd"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="7_xfmdb"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_bj02u"]
+[ext_resource type="Resource" path="res://data/skills/player/smite.tres" id="9_y8ejw"]
+[ext_resource type="Resource" path="res://data/skills/player/holy_shield.tres" id="10_ptoyr"]
+
+[sub_resource type="Resource" id="Resource_b6irp"]
+script = ExtResource("4_le2a7")
+defense = 1
+
+[resource]
+script = ExtResource("7_xfmdb")
+damage = 7
+cooldown = 0.5
+knockback = 200.0
+attack_frames = ExtResource("1_p6dig")
+attack_fx = ExtResource("2_6y3is")
+skills = Array[ExtResource("8_bj02u")]([ExtResource("9_y8ejw"), ExtResource("10_ptoyr")])
+arc_degrees = 130.0
+attack_sound = ExtResource("3_fftq5")
+hit_sound = ExtResource("5_ryp70")
+slot = 0
+bonuses = SubResource("Resource_b6irp")
+id = &"templar_sword"
+display_name = "Templar Sword"
+description = "A paladin's blade, blessed with holy skills."
+icon = ExtResource("6_d4djd")
+glyph = "T"
+color = Color(1, 0.81960785, 0.4, 1)
+min_depth = 2
+spawn_weight = 5

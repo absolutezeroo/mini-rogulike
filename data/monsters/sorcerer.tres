@@ -7,7 +7,9 @@
 [ext_resource type="Resource" path="res://data/items/weapons/stick.tres" id="5_k50ql"]
 [ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="6_oivik"]
 [ext_resource type="Resource" path="res://data/items/armors/iron_helm.tres" id="7_jbs8a"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_fire.tres" id="8_cf017"]
 [ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="8_hgjb8"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_frost.tres" id="9_40efi"]
 [ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="9_b87ng"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="10_3084y"]
 [ext_resource type="Resource" path="res://data/skills/monster/volley.tres" id="11_icgja"]
@@ -38,10 +40,20 @@ script = ExtResource("3_cf017")
 item = ExtResource("7_jbs8a")
 weight = 1
 
+[sub_resource type="Resource" id="Resource_k50ql"]
+script = ExtResource("3_cf017")
+item = ExtResource("8_cf017")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_oivik"]
+script = ExtResource("3_cf017")
+item = ExtResource("9_40efi")
+weight = 1
+
 [sub_resource type="Resource" id="Resource_x7j7m"]
 script = ExtResource("8_hgjb8")
 drop_chance = 0.35
-entries = Array[ExtResource("3_cf017")]([SubResource("Resource_24xvs"), SubResource("Resource_q6lbp"), SubResource("Resource_rvyi5"), SubResource("Resource_grlxr")])
+entries = Array[ExtResource("3_cf017")]([SubResource("Resource_24xvs"), SubResource("Resource_q6lbp"), SubResource("Resource_rvyi5"), SubResource("Resource_grlxr"), SubResource("Resource_k50ql"), SubResource("Resource_oivik")])
 
 [sub_resource type="Resource" id="Resource_gxdsf"]
 script = ExtResource("12_1b2gv")

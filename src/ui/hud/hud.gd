@@ -4,7 +4,6 @@ extends CanvasLayer
 
 signal inventory_requested
 
-const SKILL_ACTIONS: Array[StringName] = [&"skill_1", &"skill_2", &"skill_3"]
 const BAG_ICON: Texture2D = preload("res://assets/ui/icons/bag.png")
 
 var _player: Player
@@ -17,7 +16,7 @@ var _banner_tween: Tween
 @onready var _message_log: MessageLog = %MessageLog
 @onready var _attack_button: ActionButton = %AttackButton
 @onready var _quick_item_button: ActionButton = %QuickItemButton
-@onready var _skill_buttons: Array[ActionButton] = [%Skill1Button, %Skill2Button, %Skill3Button]
+@onready var _skill_buttons: Array[ActionButton] = [%Skill1Button, %Skill2Button, %Skill3Button, %Skill4Button]
 @onready var _vignette: DamageVignette = %DamageVignette
 @onready var _perk_tray: PerkTray = %PerkTray
 @onready var _boss_bar: BossBar = %BossBar
@@ -37,6 +36,7 @@ func bind_player(player: Player) -> void:
 		_player.stats_changed.disconnect(_refresh_info)
 		_player.xp_changed.disconnect(_on_xp_changed)
 		_player.equipment.changed.disconnect(_refresh_info)
+		_player.skills_changed.disconnect(_refresh_skill_buttons)
 	_player = player
 	_player.health_changed.connect(_on_health_changed)
 	_vignette.reset()
@@ -44,20 +44,12 @@ func bind_player(player: Player) -> void:
 	_player.stats_changed.connect(_refresh_info)
 	_player.xp_changed.connect(_on_xp_changed)
 	_player.equipment.changed.connect(_refresh_info)
+	_player.skills_changed.connect(_refresh_skill_buttons)
 	_message_log.clear()
 	_perk_tray.bind(player.perks)
 	_boss_bar.hide_now()
 
-	for i in _skill_buttons.size():
-		var button := _skill_buttons[i]
-		var has_skill := i < player.skills.skills.size()
-		button.visible = has_skill
-		if has_skill:
-			var skill := player.skills.skills[i]
-			button.label = skill.short_label
-			button.icon = skill.icon
-			button.color = skill.color
-
+	_refresh_skill_buttons()
 	_on_health_changed(player.hp, player.get_max_hp())
 	_on_xp_changed(player.xp, player.xp_to_next_level(), player.level)
 	_refresh_info()
@@ -81,6 +73,18 @@ func _process(_delta: float) -> void:
 	_attack_button.icon = weapon.icon if weapon else null
 	_attack_button.icon_tint = weapon.icon_tint if weapon else Color.WHITE
 	_attack_button.label = weapon.glyph if weapon else "-"
+
+
+## One button per skill slot; empty slots (no weapon skill, no spell learned) are hidden.
+func _refresh_skill_buttons() -> void:
+	for i in _skill_buttons.size():
+		var button := _skill_buttons[i]
+		var skill: SkillDef = _player.skills.skills[i] if i < _player.skills.skills.size() else null
+		button.visible = skill != null
+		if skill:
+			button.label = skill.short_label
+			button.icon = skill.icon
+			button.color = skill.color
 
 
 func _on_health_changed(current: int, maximum: int) -> void:

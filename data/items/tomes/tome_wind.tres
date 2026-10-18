@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SkillTomeDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/tome_wind.png" id="1_irba5"]
+[ext_resource type="Script" path="res://src/definitions/items/skill_tome_def.gd" id="2_e3rdu"]
+[ext_resource type="Resource" path="res://data/skills/player/blink.tres" id="3_cnhbr"]
+
+[resource]
+script = ExtResource("2_e3rdu")
+skill = ExtResource("3_cnhbr")
+id = &"tome_wind"
+display_name = "Tome of Wind"
+description = "Read it to learn a skill (last skill button)."
+icon = ExtResource("1_irba5")
+color = Color(0.6039216, 0.81960785, 0.83137256, 1)
+min_depth = 2
+spawn_weight = 3

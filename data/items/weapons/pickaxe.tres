@@ -6,6 +6,9 @@
 [ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="4_153jf"]
 [ext_resource type="Texture2D" path="res://assets/weapons/pickaxe.png" id="5_ebxw1"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="6_vabj2"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_153jf"]
+[ext_resource type="Resource" path="res://data/skills/player/rock_spike.tres" id="8_ebxw1"]
+[ext_resource type="Resource" path="res://data/skills/player/fissure.tres" id="9_vabj2"]
 
 [sub_resource type="Resource" id="Resource_p1snk"]
 script = ExtResource("3_apxa1")
@@ -19,6 +22,7 @@ cooldown = 0.6
 reach = 32.0
 knockback = 180.0
 attack_frames = ExtResource("1_4okwp")
+skills = Array[ExtResource("7_153jf")]([ExtResource("8_ebxw1"), ExtResource("9_vabj2")])
 arc_degrees = 100.0
 attack_sound = ExtResource("2_pmjir")
 hit_sound = ExtResource("4_153jf")

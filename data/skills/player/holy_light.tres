@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_hp407"]
+[ext_resource type="Script" path="res://src/definitions/effects/heal_effect.gd" id="2_w8y4f"]
+[ext_resource type="Texture2D" path="res://assets/fx/holy_circle.png" id="3_xigwt"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="4_ukl8y"]
+[ext_resource type="Texture2D" path="res://assets/ui/skills/holy_light.png" id="5_xf2l2"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="6_yi1fu"]
+[ext_resource type="AudioStream" path="res://data/audio/heal.tres" id="7_bim2t"]
+
+[sub_resource type="Resource" id="Resource_i6ql6"]
+script = ExtResource("2_w8y4f")
+amount = 0
+max_hp_ratio = 0.35
+
+[sub_resource type="Resource" id="Resource_6d2na"]
+script = ExtResource("4_ukl8y")
+radius = 90.0
+damage_multiplier = 0.8
+knockback = 200.0
+fx = ExtResource("3_xigwt")
+fx_tint = Color(1, 0.95, 0.7, 1)
+
+[resource]
+script = ExtResource("6_yi1fu")
+id = &"holy_light"
+display_name = "Holy Light"
+description = "Heals 35% of your HP and burns the enemies around you."
+short_label = "LIGHT"
+icon = ExtResource("5_xf2l2")
+color = Color(1, 0.9529412, 0.6901961, 1)
+cooldown = 14.0
+effects = Array[ExtResource("1_hp407")]([SubResource("Resource_i6ql6"), SubResource("Resource_6d2na")])
+sound = ExtResource("7_bim2t")

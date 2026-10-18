@@ -6,6 +6,9 @@
 [ext_resource type="AudioStream" path="res://data/audio/hit.tres" id="4_gjqev"]
 [ext_resource type="Texture2D" path="res://assets/weapons/lance.png" id="5_vd3a5"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="6_8yvfo"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_gjqev"]
+[ext_resource type="Resource" path="res://data/skills/player/piercing_thrust.tres" id="8_vd3a5"]
+[ext_resource type="Resource" path="res://data/skills/player/spear_throw.tres" id="9_8yvfo"]
 
 [resource]
 script = ExtResource("6_8yvfo")
@@ -17,6 +20,7 @@ attack_animation = 1
 attack_frames = ExtResource("1_5yjvt")
 attack_fx = ExtResource("2_1j72x")
 attack_fx_rotation = 45.0
+skills = Array[ExtResource("7_gjqev")]([ExtResource("8_vd3a5"), ExtResource("9_8yvfo")])
 arc_degrees = 40.0
 attack_sound = ExtResource("3_rrs5x")
 hit_sound = ExtResource("4_gjqev")

@@ -3,7 +3,8 @@
 Real-time action roguelike for Godot 4.7 (GDScript, Compatibility renderer).
 Procedural floors lit by torches and lanterns, traps, breakable crates and explosive kegs,
 monsters with telegraphed attacks, a boss every 3 floors, melee and ranged weapons,
-armor you can see on the hero, consumables, skills, loot, XP, and a perk to choose at every level up. Plays with touch controls,
+armor you can see on the hero, consumables, loot, XP, a perk to choose at every level up, and
+skills that come from what you hold and what you learn: play a mage, a warrior, a paladin, or a mix. Plays with touch controls,
 keyboard or gamepad.
 
 ## Project layout
@@ -17,7 +18,7 @@ assets/              Art, audio, fonts and the UI theme (Ninja Adventure pack)
   projectiles/         Arrows, fireballs, magic bolts
   items/               Item icons
   tiles/               Dungeon floors, cliffs and walls
-  ui/                  Wood UI, round buttons (sphere/), icons, perk icons (perks/), emotes
+  ui/                  Wood UI, round buttons (sphere/), icons, skill icons (skills/), perk icons (perks/), emotes
   fonts/               Pixel font
   audio/               Sound effects (sfx/), music (one track per floor theme) and jingles
   shaders/             Rig (hit flash + death dissolve), screen look, damage vignette
@@ -35,6 +36,7 @@ data/                Game content as .tres resources (no code)
   items/weapons/       Player weapons (monster/ = monster-only weapons)
   items/armors/        Head and body armor
   items/consumables/   Potions, scrolls, bombs...
+  items/tomes/         Skill tomes (teach a spell)
   skills/              Player, monster and boss skills
 src/
   autoload/            Events (signal bus), Sfx (sound player), HitStop (impact freeze)
@@ -90,9 +92,10 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 - **Hit stop**: a few frames of freeze on impacts (`HitStop.freeze(seconds)`).
 - **Light**: each floor theme has an `ambient` darkness (a `CanvasModulate`); the hero's flickering torch,
   room lanterns, the hero's shots and fireballs, explosions and magic circles light it up (2D lights).
-- **Shaders**: the rig shader flashes actors when hit and dissolves monsters pixel by pixel when they
-  die; a full-screen shader (`ScreenFx` in `game.tscn`) adds a vignette, a bit of contrast and saturation,
-  and splits the colors for a moment when the hero takes a big hit.
+- **Shaders**: everything stays on the art's pixel grid. The rig shader flashes actors when hit and
+  dissolves monsters pixel by pixel when they die; lights fall off in flat, dithered steps
+  (`assets/fx/light.png`); a full-screen shader (`ScreenFx` in `game.tscn`) adds a dithered vignette,
+  a bit of contrast and saturation, and splits the colors by whole pixels when the hero takes a big hit.
 
 ## Dungeon
 
@@ -105,6 +108,37 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 - **Traps** (`data/traps/`) hurt everyone standing on them, monsters included:
   rows of **spikes** firing in a wave, **pressure plates** that strike when stepped on,
   **flame vents** that also set you on fire. They always warn before they strike.
+
+## Skills and builds
+
+There are no classes: what you hold and what you learn decides how you play.
+The hero has **4 skill buttons**:
+
+| Button | Skill | Comes from |
+|---|---|---|
+| 1 | Roll | always (`PlayerDef.innate_skills`) |
+| 2, 3 | two weapon skills | the equipped weapon (`WeaponDef.skills`) |
+| 4 | a learned spell | the last **skill tome** you read (`SkillTomeDef`) |
+
+| Style | Weapons | Their skills |
+|---|---|---|
+| Warrior | Katana, Sai, Lance, Battle Axe, War Hammer, Pickaxe | Whirlwind, Iaido Dash, Flurry, Shadow Step, Piercing Thrust, Spear Throw, Cleave, Ground Slam, Fissure, Rock Spike |
+| Mage | Spark Wand, Frost Staff, Ember Tome | Spark Nova, Arcane Bolt, Frost Nova (slow), Ice Shards (slow), Fireball, Fire Wave (burn) |
+| Paladin | Templar Sword | Smite (damage + heal), Holy Shield (DEF + heal) |
+
+Tomes (found on the floor, dropped by casters and bosses) teach Holy Light, Battle Cry, Frost Nova,
+Fireball, Blink or Thunder, whatever weapon you hold: a warrior can heal, a mage can blink.
+Swapping weapons swaps buttons 2 and 3 (new skills start on a short cooldown, so swapping can't skip
+cooldowns); the roll and the learned spell stay.
+
+Skill damage uses **skill power** (`power x (1 + skill_power)`), and cooldowns shrink with
+**cooldown reduction** (60% max): the Arcane Focus, Arcane Power, Devotion perks and the Sage's Codex
+relic push a caster build; the Shadow Cloak gives some cooldown reduction.
+
+A skill is a list of `Effect`s, each with an optional **delay** (combos: Flurry is three stabs,
+Fissure three bursts running forward). Effects: damage area (with a sheet effect, a status, an offset),
+projectiles (fans, rings, pierce, explosions, status), dash, dash strike (cuts everything along the
+path), heal, buff, summon. Statuses (`OnHitStatus`): burn and slow.
 
 ## Perks and relics
 
@@ -211,7 +245,8 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 | A monster | Duplicate a file in `data/monsters/`, edit it, add it to `content_db.tres` > Monsters |
 | A weapon / armor / consumable | Duplicate a file in `data/items/...`, edit, add it to `content_db.tres` > Items |
 | A loot drop | Edit the monster's Loot table (items don't need to be in the DB to drop) |
-| A player skill | Create a `SkillDef` in `data/skills/player/`, add it to `player_def.tres` > Skills (max 3) |
+| A player skill | Create a `SkillDef` in `data/skills/player/`, put it in a weapon's Skills (max 2) or in a tome |
+| A skill tome | New `SkillTomeDef` in `data/items/tomes/` pointing to a skill, add it to `content_db.tres` > Items |
 | A new kind of effect | New script in `src/definitions/effects/` extending `Effect`, override `apply()` |
 | A new monster behaviour | New state script in `src/ai/states/`, add a node for it in `monster.tscn` |
 | A perk | New `PerkDef` in `data/perks/`, add it to `content_db.tres` > Perks |
@@ -235,7 +270,7 @@ A `spawn_weight` of 0 means it never spawns on its own (starting gear, loot-only
 |---|---|---|---|
 | Move | Drag on the left side | WASD / arrows | Left stick |
 | Attack (auto-aim, hold) | Big red button | J / Space | X |
-| Skills 1-3 | Small round buttons | K L O or 1 2 3 | A B Y |
+| Skills 1-4 | Small round buttons | K L O P or 1 2 3 4 | A B Y RB |
 | Quick potion | Potion button | Q / H | LB |
 | Choose a perk | Tap a card | Arrows + Enter | D-pad + A |
 | Inventory | Bag button | I / Tab | Back |
@@ -249,7 +284,7 @@ godot --headless --fixed-fps 60 res://tests/run_tests.tscn
 ```
 
 Checks the rules, the content database, 100 generated maps (and their walls), 40 boss arenas,
-inventory, equipment, every kind of perk, props, explosive chains, traps and lights, then a bot plays the real game (kills, level ups and perk choices, stairs,
+inventory, equipment, weapon skills and tomes, every kind of perk, props, explosive chains, traps and lights, then a bot plays the real game (kills, level ups and perk choices, stairs,
 a full boss fight with its phases and relic, death and restart).
 The exit code is the number of failures.
 

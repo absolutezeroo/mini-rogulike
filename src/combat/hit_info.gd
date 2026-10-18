@@ -12,3 +12,5 @@ var sound: AudioStream
 ## Damage caused by another effect (burn, thorns, shockwave...). Secondary hits don't trigger
 ## on-hit perks, so effects can't chain into each other forever, and they skip hit stop.
 var is_secondary: bool = false
+## Statuses left on the target (burn, slow...). Optional.
+var status: OnHitStatus

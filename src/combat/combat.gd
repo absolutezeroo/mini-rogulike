@@ -64,7 +64,7 @@ static func melee_strike(attacker: Actor, direction: Vector2, weapon: WeaponDef)
 
 
 ## Hits every enemy of the attacker inside a circle. `secondary`: see HitInfo.is_secondary.
-static func damage_area(world: World, attacker: Actor, center: Vector2, radius: float, base_amount: int, knockback: float, secondary: bool = false) -> void:
+static func damage_area(world: World, attacker: Actor, center: Vector2, radius: float, base_amount: int, knockback: float, secondary: bool = false, status: OnHitStatus = null) -> void:
 	for target in world.get_hostiles(attacker.faction):
 		var offset := target.global_position - center
 		if offset.length() > radius + target.radius:
@@ -72,8 +72,28 @@ static func damage_area(world: World, attacker: Actor, center: Vector2, radius: 
 		var hit := make_hit_from(attacker, base_amount)
 		hit.knockback = offset.normalized() * knockback
 		hit.is_secondary = secondary
+		hit.status = status
 		target.take_hit(hit)
 	hit_props(world, attacker, center, radius)
+
+
+## Hits every enemy of the attacker close to the segment from `from` to `to` (dash strikes).
+static func damage_segment(world: World, attacker: Actor, from: Vector2, to: Vector2, width: float, base_amount: int, knockback: float, status: OnHitStatus = null) -> void:
+	var direction := from.direction_to(to) if from != to else Vector2.RIGHT
+	for target in world.get_hostiles(attacker.faction):
+		var closest := Geometry2D.get_closest_point_to_segment(target.global_position, from, to)
+		if closest.distance_to(target.global_position) > width + target.radius:
+			continue
+		var hit := make_hit_from(attacker, base_amount)
+		hit.knockback = direction.orthogonal() * signf(direction.cross(target.global_position - from)) * knockback
+		hit.status = status
+		target.take_hit(hit)
+	for prop in world.get_breakable_props():
+		var closest := Geometry2D.get_closest_point_to_segment(prop.global_position, from, to)
+		if closest.distance_to(prop.global_position) <= width + Prop.SIZE * 0.4:
+			var hit := HitInfo.new()
+			hit.source = attacker
+			prop.take_hit(hit)
 
 
 ## Breaks the props inside a circle.

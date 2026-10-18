@@ -12,8 +12,9 @@ extends Resource
 @export_group("Starting kit")
 @export var starting_equipment: Array[EquipmentDef] = []
 @export var starting_items: Array[ItemDef] = []
-## Up to 3 skills, mapped to the skill buttons in order.
-@export var skills: Array[SkillDef] = []
+## Skills the hero always has (the roll), on the first buttons. The weapon adds its own
+## skills and a tome can teach one more (see Player.SKILL_COUNT).
+@export var innate_skills: Array[SkillDef] = []
 @export_range(4, 40) var inventory_size: int = 16
 
 @export_group("Leveling")

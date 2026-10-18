@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_mr3ht"]
+[ext_resource type="Script" path="res://src/definitions/effects/dash_effect.gd" id="2_hb42l"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="3_f8qh2"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/kunai.png" id="4_kp0qk"]
+[ext_resource type="Texture2D" path="res://assets/ui/skills/shadow_step.png" id="5_8tf2f"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="6_33phs"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="7_2airg"]
+
+[sub_resource type="Resource" id="Resource_py8e7"]
+script = ExtResource("2_hb42l")
+direction = 2
+duration = 0.15
+
+[sub_resource type="Resource" id="Resource_47vq5"]
+script = ExtResource("3_f8qh2")
+damage_multiplier = 0.8
+speed = 620.0
+radius = 6.0
+count = 3
+spread_degrees = 24.0
+color = Color(0.6784314, 0.70980394, 0.7411765, 1)
+texture = ExtResource("4_kp0qk")
+delay = 0.12
+
+[resource]
+script = ExtResource("6_33phs")
+id = &"shadow_step"
+display_name = "Shadow Step"
+description = "Leap back and throw three kunai."
+short_label = "STEP"
+icon = ExtResource("5_8tf2f")
+color = Color(0.42352942, 0.45882353, 0.49019608, 1)
+effects = Array[ExtResource("1_mr3ht")]([SubResource("Resource_py8e7"), SubResource("Resource_47vq5")])
+sound = ExtResource("7_2airg")

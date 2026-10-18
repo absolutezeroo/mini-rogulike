@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SkillTomeDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/tome_healing.png" id="1_mjw7e"]
+[ext_resource type="Script" path="res://src/definitions/items/skill_tome_def.gd" id="2_u3gal"]
+[ext_resource type="Resource" path="res://data/skills/player/holy_light.tres" id="3_kn2fp"]
+
+[resource]
+script = ExtResource("2_u3gal")
+skill = ExtResource("3_kn2fp")
+id = &"tome_healing"
+display_name = "Tome of Holy Light"
+description = "Read it to learn a skill (last skill button)."
+icon = ExtResource("1_mjw7e")
+color = Color(1, 0.9529412, 0.6901961, 1)
+spawn_weight = 3

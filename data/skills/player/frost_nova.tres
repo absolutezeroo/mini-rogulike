@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_dw5d5"]
+[ext_resource type="Texture2D" path="res://assets/fx/ice.png" id="2_o1vxs"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="3_56dcs"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="4_3nrcw"]
+[ext_resource type="Texture2D" path="res://assets/ui/skills/frost_nova.png" id="5_jqg6q"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="6_od4g7"]
+[ext_resource type="AudioStream" path="res://data/audio/magic.tres" id="7_lohnr"]
+
+[sub_resource type="Resource" id="Resource_de0uw"]
+script = ExtResource("4_3nrcw")
+slow = 0.5
+slow_duration = 2.5
+
+[sub_resource type="Resource" id="Resource_crk88"]
+script = ExtResource("3_56dcs")
+radius = 110.0
+damage_multiplier = 1.0
+knockback = 120.0
+status = SubResource("Resource_de0uw")
+fx = ExtResource("2_o1vxs")
+
+[resource]
+script = ExtResource("6_od4g7")
+id = &"frost_nova"
+display_name = "Frost Nova"
+description = "Freezing burst around you: enemies are slowed."
+short_label = "FROST"
+icon = ExtResource("5_jqg6q")
+color = Color(0.5568628, 0.7921569, 0.9019608, 1)
+cooldown = 7.0
+effects = Array[ExtResource("1_dw5d5")]([SubResource("Resource_crk88")])
+sound = ExtResource("7_lohnr")

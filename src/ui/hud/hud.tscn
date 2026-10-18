@@ -198,6 +198,13 @@ action = "skill_3"
 script = ExtResource("5_button")
 radius = 46.0
 
+[node name="Skill4Button" type="TouchScreenButton" parent="Controls"]
+unique_name_in_owner = true
+position = Vector2(-412, -214)
+action = "skill_4"
+script = ExtResource("5_button")
+radius = 46.0
+
 [node name="QuickItemButton" type="TouchScreenButton" parent="Controls"]
 unique_name_in_owner = true
 position = Vector2(-430, -70)

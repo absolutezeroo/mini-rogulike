@@ -109,11 +109,16 @@ func get_max_hp() -> int:
 
 
 func get_move_speed() -> float:
-	return maxf(get_stats().move_speed, 20.0)
+	return maxf(get_stats().move_speed * statuses.speed_multiplier(), 20.0)
 
 
 func get_weapon() -> WeaponDef:
 	return equipment.get_item(EquipmentDef.Slot.WEAPON) as WeaponDef
+
+
+## Base damage of skills: power boosted by skill power.
+func get_skill_power() -> float:
+	return get_power() * maxf(1.0 + get_stats().skill_power, 0.1)
 
 
 ## Seconds between two attacks with `weapon`, after attack speed bonuses.
@@ -206,6 +211,8 @@ func take_hit(hit: HitInfo) -> void:
 		Sfx.play_at(_hurt_sound(hit), global_position)
 	world.spawn_floating_text(head_position(), str(damage) + ("!" if hit.is_crit else ""), _hit_text_color(hit))
 	health_changed.emit(hp, get_max_hp())
+	if hit.status:
+		hit.status.apply_to(self, attacker)
 	if attacker:
 		attacker.perks.on_hit_dealt(attacker, self, hit, damage)
 	_on_damaged(hit, damage)

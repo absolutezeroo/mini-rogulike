@@ -5,6 +5,9 @@
 [ext_resource type="Texture2D" path="res://assets/weapons/book.png" id="3_ayg2s"]
 [ext_resource type="Texture2D" path="res://assets/projectiles/fireball.png" id="4_uhthc"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="5_w0bwa"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="6_uhthc"]
+[ext_resource type="Resource" path="res://data/skills/player/fireball.tres" id="7_w0bwa"]
+[ext_resource type="Resource" path="res://data/skills/player/fire_wave.tres" id="8_hkjf3"]
 
 [resource]
 script = ExtResource("5_w0bwa")
@@ -14,6 +17,7 @@ cooldown = 0.6
 reach = 380.0
 attack_animation = 3
 attack_frames = ExtResource("1_umhj5")
+skills = Array[ExtResource("6_uhthc")]([ExtResource("7_w0bwa"), ExtResource("8_hkjf3")])
 attack_sound = ExtResource("2_vpncv")
 projectile_texture = ExtResource("4_uhthc")
 projectile_speed = 360.0

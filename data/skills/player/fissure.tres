@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_povig"]
+[ext_resource type="Texture2D" path="res://assets/fx/rock_spike.png" id="2_ls8hv"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="3_aai3v"]
+[ext_resource type="Texture2D" path="res://assets/ui/skills/fissure.png" id="4_us0ll"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_ovn0p"]
+[ext_resource type="AudioStream" path="res://data/audio/explosion.tres" id="6_2a4cv"]
+
+[sub_resource type="Resource" id="Resource_wx3tm"]
+script = ExtResource("3_aai3v")
+radius = 48.0
+damage_multiplier = 1.1
+offset = 50.0
+knockback = 200.0
+fx = ExtResource("2_ls8hv")
+fx_frames = 10
+
+[sub_resource type="Resource" id="Resource_ur1vy"]
+script = ExtResource("3_aai3v")
+radius = 48.0
+damage_multiplier = 1.1
+offset = 100.0
+knockback = 200.0
+fx = ExtResource("2_ls8hv")
+fx_frames = 10
+delay = 0.12
+
+[sub_resource type="Resource" id="Resource_x4xv0"]
+script = ExtResource("3_aai3v")
+radius = 48.0
+damage_multiplier = 1.1
+offset = 150.0
+knockback = 200.0
+fx = ExtResource("2_ls8hv")
+fx_frames = 10
+delay = 0.24
+
+[resource]
+script = ExtResource("5_ovn0p")
+id = &"fissure"
+display_name = "Fissure"
+description = "A crack runs forward, rock spikes bursting along it."
+short_label = "CRACK"
+icon = ExtResource("4_us0ll")
+color = Color(0.7882353, 0.8, 0.81960785, 1)
+cooldown = 7.0
+effects = Array[ExtResource("1_povig")]([SubResource("Resource_wx3tm"), SubResource("Resource_ur1vy"), SubResource("Resource_x4xv0")])
+sound = ExtResource("6_2a4cv")

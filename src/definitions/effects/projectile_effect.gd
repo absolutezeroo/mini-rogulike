@@ -2,13 +2,14 @@ class_name ProjectileEffect
 extends Effect
 ## Fires one or more projectiles along the aim direction.
 
-## Damage = flat_damage + user's power (weapon damage + attack) x multiplier.
+## Damage = flat_damage + user's skill power (power boosted by skill power) x multiplier.
 @export var damage_multiplier: float = 1.0
 @export var flat_damage: int = 0
 @export var speed: float = 380.0
 @export var radius: float = 8.0
 @export var max_distance: float = 520.0
 @export var count: int = 1
+## Fan width in degrees (360 = full ring).
 @export var spread_degrees: float = 0.0
 @export var pierce: int = 0
 @export var knockback: float = 160.0
@@ -17,11 +18,13 @@ extends Effect
 @export var color: Color = Color(1.0, 0.5, 0.2)
 ## Sprite (or frames in a row) of the projectile. Without one, a glowing dot is drawn.
 @export var texture: Texture2D
+## Statuses left on the enemies hit (burn, slow...).
+@export var status: OnHitStatus
 
 
 func apply(user: Actor, aim: Vector2) -> void:
 	var spec := ProjectileSpec.new()
-	spec.damage = flat_damage + roundi(user.get_power() * damage_multiplier)
+	spec.damage = flat_damage + roundi(user.get_skill_power() * damage_multiplier)
 	spec.speed = speed
 	spec.radius = radius
 	spec.max_distance = max_distance
@@ -32,4 +35,5 @@ func apply(user: Actor, aim: Vector2) -> void:
 	spec.explosion_radius = explosion_radius
 	spec.color = color
 	spec.texture = texture
+	spec.status = status
 	user.world.fire_projectiles(user, aim, spec)

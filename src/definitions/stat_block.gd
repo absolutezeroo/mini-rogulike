@@ -9,6 +9,10 @@ extends Resource
 @export_range(0.0, 1.0, 0.01) var crit_chance: float = 0.0
 ## Faster attacks: 0.2 = attacks recover 20% faster (weapon cooldown / 1.2).
 @export_range(-0.5, 3.0, 0.01) var attack_speed: float = 0.0
+## Stronger skills: 0.15 = skills deal 15% more damage.
+@export_range(-0.5, 5.0, 0.01) var skill_power: float = 0.0
+## Shorter skill cooldowns: 0.1 = 10% shorter (capped at 60% in total).
+@export_range(0.0, 0.6, 0.01) var cooldown_reduction: float = 0.0
 
 
 ## Returns a new block with both blocks added together. Neither block is modified.
@@ -20,6 +24,8 @@ func plus(other: StatBlock) -> StatBlock:
 	result.move_speed = move_speed + other.move_speed
 	result.crit_chance = crit_chance + other.crit_chance
 	result.attack_speed = attack_speed + other.attack_speed
+	result.skill_power = skill_power + other.skill_power
+	result.cooldown_reduction = cooldown_reduction + other.cooldown_reduction
 	return result
 
 
@@ -32,6 +38,8 @@ func times(count: int) -> StatBlock:
 	result.move_speed = move_speed * count
 	result.crit_chance = crit_chance * count
 	result.attack_speed = attack_speed * count
+	result.skill_power = skill_power * count
+	result.cooldown_reduction = cooldown_reduction * count
 	return result
 
 
@@ -50,4 +58,8 @@ func describe() -> String:
 		parts.append("%+d%% CRIT" % roundi(crit_chance * 100.0))
 	if not is_zero_approx(attack_speed):
 		parts.append("%+d%% ATK SPEED" % roundi(attack_speed * 100.0))
+	if not is_zero_approx(skill_power):
+		parts.append("%+d%% SKILL POWER" % roundi(skill_power * 100.0))
+	if not is_zero_approx(cooldown_reduction):
+		parts.append("-%d%% COOLDOWNS" % roundi(cooldown_reduction * 100.0))
 	return "  ".join(parts)

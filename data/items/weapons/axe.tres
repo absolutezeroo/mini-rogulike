@@ -6,6 +6,9 @@
 [ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="4_067vu"]
 [ext_resource type="Texture2D" path="res://assets/weapons/axe.png" id="5_5isy5"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="6_qc47v"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_067vu"]
+[ext_resource type="Resource" path="res://data/skills/player/cleave.tres" id="8_5isy5"]
+[ext_resource type="Resource" path="res://data/skills/player/whirlwind.tres" id="9_qc47v"]
 
 [sub_resource type="Resource" id="Resource_bx67p"]
 script = ExtResource("3_6wfb0")
@@ -18,6 +21,7 @@ cooldown = 0.75
 reach = 38.0
 knockback = 260.0
 attack_frames = ExtResource("1_43o4g")
+skills = Array[ExtResource("7_067vu")]([ExtResource("8_5isy5"), ExtResource("9_qc47v")])
 arc_degrees = 160.0
 attack_sound = ExtResource("2_uvoya")
 hit_sound = ExtResource("4_067vu")

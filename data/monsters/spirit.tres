@@ -9,7 +9,9 @@
 [ext_resource type="Resource" path="res://data/items/weapons/stick.tres" id="7_srljk"]
 [ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="8_eesh1"]
 [ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="9_5ud0h"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_wind.tres" id="9_6v0f1"]
 [ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="10_wfxmm"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_thunder.tres" id="10_wgrrx"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="11_yuhyf"]
 [ext_resource type="Resource" path="res://data/skills/monster/blink.tres" id="12_27a71"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="13_prruu"]
@@ -39,10 +41,20 @@ script = ExtResource("4_wgrrx")
 item = ExtResource("8_eesh1")
 weight = 2
 
+[sub_resource type="Resource" id="Resource_dxmkn"]
+script = ExtResource("4_wgrrx")
+item = ExtResource("9_6v0f1")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_4a1p4"]
+script = ExtResource("4_wgrrx")
+item = ExtResource("10_wgrrx")
+weight = 1
+
 [sub_resource type="Resource" id="Resource_544it"]
 script = ExtResource("9_5ud0h")
 drop_chance = 0.4
-entries = Array[ExtResource("4_wgrrx")]([SubResource("Resource_ugojv"), SubResource("Resource_5ifrj"), SubResource("Resource_8eqba"), SubResource("Resource_aaojr")])
+entries = Array[ExtResource("4_wgrrx")]([SubResource("Resource_ugojv"), SubResource("Resource_5ifrj"), SubResource("Resource_8eqba"), SubResource("Resource_aaojr"), SubResource("Resource_dxmkn"), SubResource("Resource_4a1p4")])
 
 [sub_resource type="Resource" id="Resource_xm6bo"]
 script = ExtResource("13_prruu")

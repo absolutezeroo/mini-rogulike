@@ -6,6 +6,9 @@
 [ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="4_ippst"]
 [ext_resource type="Texture2D" path="res://assets/weapons/hammer.png" id="5_hgxcw"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="6_jfn3b"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_ippst"]
+[ext_resource type="Resource" path="res://data/skills/player/ground_slam.tres" id="8_hgxcw"]
+[ext_resource type="Resource" path="res://data/skills/player/fissure.tres" id="9_jfn3b"]
 
 [sub_resource type="Resource" id="Resource_scl1l"]
 script = ExtResource("3_5gd55")
@@ -19,6 +22,7 @@ reach = 34.0
 knockback = 420.0
 attack_animation = 2
 attack_frames = ExtResource("1_muuec")
+skills = Array[ExtResource("7_ippst")]([ExtResource("8_hgxcw"), ExtResource("9_jfn3b")])
 arc_degrees = 120.0
 attack_sound = ExtResource("2_dlb3h")
 hit_sound = ExtResource("4_ippst")

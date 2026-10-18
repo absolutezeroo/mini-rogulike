@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SkillTomeDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/tome_war.png" id="1_xevcp"]
+[ext_resource type="Script" path="res://src/definitions/items/skill_tome_def.gd" id="2_00wjn"]
+[ext_resource type="Resource" path="res://data/skills/player/battle_cry.tres" id="3_382fs"]
+
+[resource]
+script = ExtResource("2_00wjn")
+skill = ExtResource("3_382fs")
+id = &"tome_war"
+display_name = "Tome of Battle"
+description = "Read it to learn a skill (last skill button)."
+icon = ExtResource("1_xevcp")
+color = Color(0.9372549, 0.2784314, 0.43529412, 1)
+spawn_weight = 3

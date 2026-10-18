@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_5l6rq"]
+[ext_resource type="Texture2D" path="res://assets/fx/rock_spike.png" id="2_23xnj"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="3_5g1q6"]
+[ext_resource type="Texture2D" path="res://assets/ui/skills/rock_spike.png" id="4_22o0h"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_sl3lt"]
+[ext_resource type="AudioStream" path="res://data/audio/explosion.tres" id="6_j4qqy"]
+
+[sub_resource type="Resource" id="Resource_k8un7"]
+script = ExtResource("3_5g1q6")
+radius = 60.0
+damage_multiplier = 1.8
+offset = 60.0
+knockback = 260.0
+fx = ExtResource("2_23xnj")
+fx_frames = 10
+
+[resource]
+script = ExtResource("5_sl3lt")
+id = &"rock_spike"
+display_name = "Rock Spike"
+description = "Rock spikes burst from the ground in front of you."
+short_label = "SPIKE"
+icon = ExtResource("4_22o0h")
+color = Color(0.7882353, 0.8, 0.81960785, 1)
+cooldown = 4.0
+effects = Array[ExtResource("1_5l6rq")]([SubResource("Resource_k8un7")])
+sound = ExtResource("6_j4qqy")

@@ -10,6 +10,7 @@
 [ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="8_q32m5"]
 [ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="9_m4yc4"]
 [ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="10_mvxnd"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_war.tres" id="10_x57ba"]
 [ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="11_1wald"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="12_3tvo1"]
 [ext_resource type="Resource" path="res://data/skills/monster/war_cry.tres" id="13_rr105"]
@@ -50,10 +51,15 @@ script = ExtResource("3_k6081")
 item = ExtResource("9_m4yc4")
 weight = 3
 
+[sub_resource type="Resource" id="Resource_k6081"]
+script = ExtResource("3_k6081")
+item = ExtResource("10_x57ba")
+weight = 1
+
 [sub_resource type="Resource" id="Resource_ox3wy"]
 script = ExtResource("10_mvxnd")
 drop_chance = 0.5
-entries = Array[ExtResource("3_k6081")]([SubResource("Resource_g6ogb"), SubResource("Resource_wlbvx"), SubResource("Resource_pqhab"), SubResource("Resource_qdeqt"), SubResource("Resource_ci2be"), SubResource("Resource_b64kh")])
+entries = Array[ExtResource("3_k6081")]([SubResource("Resource_g6ogb"), SubResource("Resource_wlbvx"), SubResource("Resource_pqhab"), SubResource("Resource_qdeqt"), SubResource("Resource_ci2be"), SubResource("Resource_b64kh"), SubResource("Resource_k6081")])
 
 [sub_resource type="Resource" id="Resource_ilqm2"]
 script = ExtResource("14_0xo7f")

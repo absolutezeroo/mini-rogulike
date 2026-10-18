@@ -9,6 +9,7 @@
 [ext_resource type="Resource" path="res://data/items/weapons/stick.tres" id="7_872si"]
 [ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="8_3khwv"]
 [ext_resource type="Resource" path="res://data/items/weapons/hammer.tres" id="9_tqytt"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_wind.tres" id="10_roian"]
 [ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="10_y3aqr"]
 [ext_resource type="Script" path="res://src/definitions/boss_phase.gd" id="11_l2j53"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="12_ixdwd"]
@@ -45,11 +46,16 @@ script = ExtResource("5_bdmco")
 item = ExtResource("9_tqytt")
 weight = 1
 
+[sub_resource type="Resource" id="Resource_dq8y5"]
+script = ExtResource("5_bdmco")
+item = ExtResource("10_roian")
+weight = 2
+
 [sub_resource type="Resource" id="Resource_cclvl"]
 script = ExtResource("10_y3aqr")
 drop_chance = 1.0
 rolls = 3
-entries = Array[ExtResource("5_bdmco")]([SubResource("Resource_aekjc"), SubResource("Resource_du3wt"), SubResource("Resource_s2hrf"), SubResource("Resource_un7x3")])
+entries = Array[ExtResource("5_bdmco")]([SubResource("Resource_aekjc"), SubResource("Resource_du3wt"), SubResource("Resource_s2hrf"), SubResource("Resource_un7x3"), SubResource("Resource_dq8y5")])
 
 [sub_resource type="Resource" id="Resource_jsevx"]
 script = ExtResource("12_ixdwd")
