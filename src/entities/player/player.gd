@@ -258,6 +258,53 @@ func gain_xp(amount: int) -> void:
 	xp_changed.emit(xp, xp_to_next_level(), level)
 
 
+# --- Saving -----------------------------------------------------------------
+
+## Everything about the hero a saved run needs (see RunSave).
+func save_state() -> Dictionary:
+	var gear := {}
+	for slot: EquipmentDef.Slot in EquipmentDef.Slot.values():
+		var item := equipment.get_item(slot)
+		if item:
+			gear[str(slot)] = RunSave.ref(item)
+	return {
+		"level": level,
+		"xp": xp,
+		"hp": hp,
+		"base_stats": base_stats.to_dict(),
+		"equipment": gear,
+		"inventory": RunSave.refs(inventory.items),
+		"perks": perks.to_data(),
+		"learned_skill": RunSave.ref(learned_skill),
+	}
+
+
+## Puts the hero back as saved (after setup()).
+func load_state(data: Dictionary) -> void:
+	level = int(data.get("level", 1))
+	xp = int(data.get("xp", 0))
+	base_stats = StatBlock.from_dict(data.get("base_stats", {}))
+	for slot: EquipmentDef.Slot in EquipmentDef.Slot.values():
+		equipment.unequip(slot)
+	var gear: Dictionary = data.get("equipment", {})
+	for key: String in gear:
+		var item := RunSave.load_ref(gear[key]) as EquipmentDef
+		if item:
+			equipment.equip(item)
+	inventory.items.clear()
+	for reference: Variant in data.get("inventory", []):
+		var item := RunSave.load_ref(reference) as ItemDef
+		if item:
+			inventory.add(item)
+	perks.load_data(data.get("perks", []))
+	learned_skill = RunSave.load_ref(data.get("learned_skill")) as SkillDef
+	_rebuild_skills(0.0)
+	invalidate_stats()
+	hp = clampi(int(data.get("hp", get_max_hp())), 1, get_max_hp())
+	health_changed.emit(hp, get_max_hp())
+	xp_changed.emit(xp, xp_to_next_level(), level)
+
+
 # --- Holes ------------------------------------------------------------------
 
 ## Call after moving the hero to a new floor.

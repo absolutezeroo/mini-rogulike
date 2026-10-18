@@ -1,3 +1,4 @@
+class_name Game
 extends Node
 ## Runs a play session: creates the player, moves between floors, offers perks and relics,
 ## pauses for menus and handles game over. Main scene of the project.
@@ -9,6 +10,9 @@ const PERK_CHOICES := 3
 const RELIC_DELAY := 1.6
 ## Seconds of fade to black when taking the stairs.
 const FADE_TIME := 0.3
+
+## Set by the title screen's Continue button: pick up the saved run instead of starting one.
+static var resume_requested := false
 
 @export var content: ContentDB
 ## A title card on black when an act begins (tests turn it off to save time).
@@ -26,12 +30,15 @@ var _souls_awarded := 0
 
 ## Perk choices waiting to be shown: [{ rarity, count, title, subtitle }]
 var _pending_offers: Array[Dictionary] = []
+## The choice on screen right now (saved with the run if the app closes meanwhile).
+var _shown_offer := {}
 
 @onready var world: World = $World
 @onready var hud: Hud = $Hud
 @onready var inventory_panel: InventoryPanel = $Menus/InventoryPanel
 @onready var perk_panel: PerkChoicePanel = $Menus/PerkChoicePanel
 @onready var game_over_panel: GameOverPanel = $Menus/GameOverPanel
+@onready var pause_menu: PauseMenu = $Menus/PauseMenu
 @onready var screen_fx: ScreenEffects = $ScreenFx/Effects
 @onready var ambience: Ambience = $Ambience
 @onready var _fade: ColorRect = $Fade/Black
@@ -42,7 +49,22 @@ func _ready() -> void:
 	if content.sounds:
 		Sfx.bank = content.sounds
 	world.stairs_reached.connect(_on_stairs_reached)
+	hud.bind_world(world)
 	hud.inventory_requested.connect(open_inventory)
+	hud.pause_requested.connect(open_pause_menu)
+	pause_menu.resume_requested.connect(func() -> void:
+		pause_menu.hide()
+		_on_menu_closed())
+	pause_menu.quit_requested.connect(func() -> void:
+		_save_run()
+		_set_paused(false)
+		get_tree().change_scene_to_file(TITLE_SCENE))
+	pause_menu.abandon_requested.connect(func() -> void:
+		pause_menu.hide()
+		_set_paused(false)
+		player._invulnerable_time = 0.0
+		player.perks.clear()  # no last-second save from a relic
+		player.take_hit(Combat.make_secondary_hit(null, player.get_max_hp() * 100)))
 	inventory_panel.closed.connect(_on_menu_closed)
 	perk_panel.chosen.connect(_on_perk_chosen)
 	game_over_panel.restart_requested.connect(start_run)
@@ -60,38 +82,63 @@ func _ready() -> void:
 	Events.ambush_cleared.connect(func(_room: AmbushRoom) -> void:
 		Sfx.play_ui(Sfx.bank.boss_defeated)
 		Events.log_message("The room falls silent. A chest appears...", Color("ffd166")))
-	start_run()
+	var saved := RunSave.read() if resume_requested else {}
+	resume_requested = false
+	if saved.is_empty():
+		start_run()
+	else:
+		resume_run(saved)
 
 
 func start_run() -> void:
+	_begin_run({})
+
+
+## Picks up a run saved by RunSave: same depth (a new floor), the hero as saved.
+func resume_run(saved: Dictionary) -> void:
+	_begin_run(saved)
+
+
+func _begin_run(saved: Dictionary) -> void:
 	_set_paused(false)
 	_fade.color.a = 0.0
 	game_over_panel.hide()
 	inventory_panel.hide()
 	perk_panel.hide()
 	_pending_offers.clear()
+	_shown_offer = {}
 	if player:
 		player.get_parent().remove_child(player)
 		player.queue_free()
 
 	world.rng.randomize()
-	difficulty = content.get_difficulty(Profile.difficulty)
+	difficulty = content.get_difficulty(StringName(saved.get("difficulty", Profile.difficulty)))
 	if difficulty and not Profile.is_unlocked(difficulty):
 		difficulty = content.default_difficulty
 	world.difficulty = difficulty
-	depth = 1
-	kills = 0
-	bosses_slain = 0
-	has_won = false
-	_souls_awarded = 0
+	depth = int(saved.get("depth", 1))
+	if saved.get("boss_slain", false):
+		depth += 1  # saved after the floor's boss died: on to the next floor
+	kills = int(saved.get("kills", 0))
+	bosses_slain = int(saved.get("bosses_slain", 0))
+	has_won = bool(saved.get("has_won", false))
+	_souls_awarded = int(saved.get("souls_awarded", 0))
 	player = PLAYER_SCENE.instantiate() as Player
 	player.setup(content.player)
 	player.died.connect(_on_player_died)
 	player.leveled_up.connect(_on_player_leveled_up)
 	player.damaged.connect(func(damage: int) -> void:
 		screen_fx.kick(clampf(float(damage) / player.get_max_hp() * 5.0, 0.3, 1.0)))
-	_apply_profile()
-	Profile.count_run()
+	_apply_unlocks()
+	if saved.is_empty():
+		_apply_profile()
+		Profile.count_run()
+	else:
+		player.load_state(saved.get("player", {}))
+		for offer: Dictionary in saved.get("offers", []):
+			offer.rarity = int(offer.get("rarity", 0))
+			offer.count = int(offer.get("count", PERK_CHOICES))
+			_pending_offers.append(offer)
 	hud.bind_player(player)
 	if show_act_cards:
 		# Start on black: the first act's card, then the floor fades in.
@@ -103,11 +150,19 @@ func start_run() -> void:
 		create_tween().tween_property(_fade, "color:a", 0.0, FADE_TIME * 1.5)
 	else:
 		_enter_floor()
+	_show_next_offer.call_deferred()  # choices left open in a saved run
 
 
-## Shrine upgrades bought with souls: stats, starting items and perks, unlocked items.
-func _apply_profile() -> void:
+## Items the shrine unlocked can be found in the dungeon.
+func _apply_unlocks() -> void:
 	content.unlocked_items.clear()
+	for upgrade in content.upgrades:
+		if upgrade.kind == UpgradeDef.Kind.UNLOCK and Profile.level_of(upgrade) > 0:
+			content.unlocked_items.append_array(upgrade.items)
+
+
+## Shrine upgrades bought with souls for a new run: stats, starting items and perks.
+func _apply_profile() -> void:
 	for upgrade in content.upgrades:
 		var level := Profile.level_of(upgrade)
 		if level <= 0:
@@ -123,8 +178,6 @@ func _apply_profile() -> void:
 			UpgradeDef.Kind.STARTING_PERK:
 				if upgrade.perk:
 					player.perks.add(upgrade.perk)
-			UpgradeDef.Kind.UNLOCK:
-				content.unlocked_items.append_array(upgrade.items)
 	player.invalidate_stats()
 	player.hp = player.get_max_hp()
 
@@ -144,7 +197,15 @@ func _award_souls(won_now: bool) -> int:
 
 
 func is_menu_open() -> bool:
-	return inventory_panel.visible or perk_panel.visible or game_over_panel.visible
+	return inventory_panel.visible or perk_panel.visible or game_over_panel.visible or pause_menu.visible
+
+
+func open_pause_menu() -> void:
+	if player == null or player.is_dead or is_menu_open() or act_card.visible:
+		return
+	Sfx.play_ui(Sfx.bank.ui_open)
+	_set_paused(true)
+	pause_menu.open()
 
 
 func open_inventory() -> void:
@@ -158,6 +219,19 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("inventory") and not is_menu_open():
 		get_viewport().set_input_as_handled()
 		open_inventory()
+	elif event.is_action_pressed("ui_cancel"):
+		get_viewport().set_input_as_handled()
+		_back()
+
+
+## Escape or the phone's back button: closes what is open, or pauses.
+func _back() -> void:
+	if pause_menu.visible:
+		pause_menu.back()
+	elif inventory_panel.visible:
+		inventory_panel.close()
+	elif not is_menu_open():
+		open_pause_menu()
 
 
 func _set_paused(paused: bool) -> void:
@@ -175,6 +249,7 @@ func _enter_floor() -> void:
 		player.heal(roundi(player.get_max_hp() * difficulty.heal_on_new_floor))
 	if world.theme:
 		Sfx.play_music(world.theme.music)
+	_save_run()
 	Events.depth_changed.emit(depth)
 	hud.set_souls(run_souls())
 	var act := content.dungeon.act_for_depth(depth)
@@ -245,6 +320,7 @@ func _on_boss_defeated(boss: Monster) -> void:
 		_set_paused(true)
 		Sfx.play_ui(Sfx.bank.stairs)
 		var earned := _award_souls(true)
+		_save_run()
 		var story := content.story.victory_text + "\n\n" if content.story else ""
 		game_over_panel.show_victory(story + _run_summary() + _souls_text(earned))
 		return
@@ -293,12 +369,14 @@ func _show_next_offer() -> void:
 		var perks := content.pick_perks(player.perks, offer.count, offer.rarity, world.rng)
 		if perks.is_empty():
 			continue  # everything is maxed out
+		_shown_offer = offer
 		_set_paused(true)
 		perk_panel.open(offer.title, offer.subtitle, perks, player.perks)
 		return
 
 
 func _on_perk_chosen(perk: PerkDef) -> void:
+	_shown_offer = {}
 	player.perks.add(perk)
 	Events.log_message("%s (level %d)" % [perk.display_name, player.perks.stacks_of(perk)], perk.color)
 	Vfx.sparkles(world, player.global_position, perk.color)
@@ -312,9 +390,44 @@ func _on_menu_closed() -> void:
 
 
 func _on_player_died(_actor: Actor) -> void:
+	RunSave.erase()
 	_pending_offers.clear()
 	await get_tree().create_timer(1.2).timeout
 	Sfx.play_ui(Sfx.bank.game_over)
 	var earned := _award_souls(false)
 	var story := content.story.random_death_line() + "\n\n" if content.story else ""
 	game_over_panel.show_result(story + _run_summary() + _souls_text(earned))
+
+
+# --- Saving ------------------------------------------------------------------
+
+## Saves the run (see RunSave). Called when a floor begins and when the app is put away.
+func _save_run() -> void:
+	if player == null or player.is_dead:
+		return
+	var offers: Array[Dictionary] = []
+	if perk_panel.visible and not _shown_offer.is_empty():
+		offers.append(_shown_offer)
+	offers.append_array(_pending_offers)
+	RunSave.write({
+		"depth": depth,
+		"kills": kills,
+		"bosses_slain": bosses_slain,
+		"has_won": has_won,
+		"boss_slain": world.arena != null and world.arena.is_defeated,
+		"souls_awarded": _souls_awarded,
+		"difficulty": String(difficulty.id) if difficulty else "",
+		"player": player.save_state(),
+		"offers": offers,
+	})
+
+
+func _notification(what: int) -> void:
+	match what:
+		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_CLOSE_REQUEST:
+			_save_run()
+			# Coming back to the phone, the game waits on the pause menu.
+			if what == NOTIFICATION_APPLICATION_PAUSED:
+				open_pause_menu()
+		NOTIFICATION_WM_GO_BACK_REQUEST:
+			_back()

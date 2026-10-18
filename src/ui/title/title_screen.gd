@@ -30,6 +30,7 @@ func _ready() -> void:
 	var spot: Control = %HeroSpot
 	spot.resized.connect(func() -> void: _hero.position.x = spot.size.x * 0.5)
 	_build_boss_row()
+	_setup_continue()
 	%PlayButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		(%DifficultyPanel as DifficultyPanel).open(content.difficulties))
@@ -37,6 +38,9 @@ func _ready() -> void:
 	%ShrineButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		_shrine.open(content.upgrades))
+	%OptionsButton.pressed.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_open)
+		(%OptionsPanel as OptionsPanel).open())
 	%StoryButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_click)
 		tell_story(""))
@@ -51,6 +55,22 @@ func play() -> void:
 		tell_story(GAME_SCENE)
 	else:
 		get_tree().change_scene_to_file(GAME_SCENE)
+
+
+## The run in progress, if the app was closed during one.
+func _setup_continue() -> void:
+	var saved := RunSave.read()
+	var button: Button = %ContinueButton
+	button.visible = not saved.is_empty()
+	if saved.is_empty():
+		return
+	var player: Dictionary = saved.get("player", {})
+	button.text = "Continue  -  depth %d, level %d" % [int(saved.get("depth", 1)), int(player.get("level", 1))]
+	button.pressed.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_click)
+		Game.resume_requested = true
+		get_tree().change_scene_to_file(GAME_SCENE))
+	button.grab_focus.call_deferred()
 
 
 ## The story screen, then `next_scene` (empty = back here).
@@ -84,3 +104,18 @@ func _refresh() -> void:
 	_records.text = "Souls: %d     Runs: %d     Victories: %d     Deepest floor: %d     Difficulty: %s" % [
 		Profile.souls, Profile.runs, Profile.victories, Profile.best_depth,
 		difficulty.display_name if difficulty else "Normal"]
+
+
+## The phone's back button: closes what is open, or leaves the game.
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_WM_GO_BACK_REQUEST:
+		return
+	var options: OptionsPanel = %OptionsPanel
+	if options.visible:
+		options.close()
+	elif _shrine.visible:
+		_shrine.hide()
+	elif (%DifficultyPanel as Control).visible:
+		(%DifficultyPanel as Control).hide()
+	else:
+		get_tree().quit()

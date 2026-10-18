@@ -10,7 +10,10 @@ var _trauma := 0.0
 
 ## amount: 0..1. Shakes add up but are capped.
 func shake(amount: float) -> void:
-	_trauma = minf(_trauma + amount, 1.0)
+	_trauma = minf(_trauma + amount * Settings.screen_shake, 1.0)
+	# Big shakes (hits taken, explosions, bosses) buzz the phone too.
+	if amount >= 0.2:
+		Settings.vibrate(amount)
 
 
 func _process(delta: float) -> void:

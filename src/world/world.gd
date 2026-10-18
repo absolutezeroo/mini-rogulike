@@ -4,6 +4,10 @@ extends Node2D
 ## Also the gateway other systems use to spawn things and query the level.
 
 signal stairs_reached
+## A new floor was built (the explored map starts over).
+signal map_reset
+## Cells the hero discovered, or whose look changed (a floor that gave way...). For the minimap.
+signal cells_changed(cells: Array[Vector2i])
 
 const MONSTER_SCENE := preload("res://src/entities/monster/monster.tscn")
 const PICKUP_SCENE := preload("res://src/entities/pickup/item_pickup.tscn")
@@ -27,9 +31,14 @@ var difficulty: DifficultyDef
 var arena: BossArena
 ## The floor's ambush room, if it has one.
 var ambush: AmbushRoom
+## 1 for every cell the hero has seen (see reveal_around()).
+var explored := PackedByteArray()
+## Where the stairs are (boss floors get theirs when the boss dies).
+var stairs_cells: Array[Vector2i] = []
 
 var _content: ContentDB
 var _astar := AStarGrid2D.new()
+var _last_revealed := Vector2i(-1, -1)
 
 @onready var _view: DungeonView = $DungeonView
 @onready var _pits: PitLayer = $Pits
@@ -57,6 +66,10 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 		_ambient.color = Color(_ambient.color * difficulty.light, 1.0)
 	_view.show_map(map, theme)
 	_pits.setup(map.tile_size)
+	explored = PackedByteArray()
+	explored.resize(map.width * map.height)
+	stairs_cells.clear()
+	_last_revealed = Vector2i(-1, -1)
 	_build_walls()
 	_build_pathfinding()
 	if boss:
@@ -69,6 +82,7 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 	else:
 		spawn_stairs(map.stairs_cell)
 		FloorPopulator.populate(self, content, depth)
+	map_reset.emit()
 
 
 ## Removes everything from the floor except the player.
@@ -215,6 +229,7 @@ func spawn_stairs(cell: Vector2i) -> Stairs:
 		stairs.texture = theme.stairs_texture()
 	stairs.position = map.cell_to_world(cell)
 	stairs.reached.connect(func() -> void: stairs_reached.emit())
+	stairs_cells.append(cell)
 	stairs.z_index = -1
 	_entities.add_child(stairs)
 	return stairs
@@ -234,6 +249,7 @@ func spawn_floating_text(at: Vector2, text: String, color: Color) -> void:
 func add_pit(cell: Vector2i, def: PitDef) -> void:
 	_pits.add(cell, def)
 	set_cell_blocked(cell, true)
+	cells_changed.emit([cell] as Array[Vector2i])
 
 
 func has_pit(cell: Vector2i) -> bool:
@@ -260,6 +276,45 @@ func is_solid_ground(point: Vector2) -> bool:
 		if (node as CrumblingFloor).cell == cell and not node.is_queued_for_deletion():
 			return false
 	return true
+
+
+# --- Exploration -------------------------------------------------------------
+
+## How far around the hero corridors are revealed, in cells.
+const REVEAL_RADIUS := 3
+
+
+func is_explored(cell: Vector2i) -> bool:
+	return map.in_bounds(cell) and explored[cell.y * map.width + cell.x] == 1
+
+
+## Reveals the room the hero stands in (all of it) and a few cells around them.
+func reveal_around(point: Vector2) -> void:
+	var cell := map.world_to_cell(point)
+	if cell == _last_revealed or not map.in_bounds(cell):
+		return
+	_last_revealed = cell
+	var revealed: Array[Vector2i] = []
+	for room in map.rooms:
+		if room.has_point(cell):
+			_reveal_rect(room.grow(1), revealed)
+	_reveal_rect(Rect2i(cell - Vector2i.ONE * REVEAL_RADIUS, Vector2i.ONE * (REVEAL_RADIUS * 2 + 1)), revealed)
+	if not revealed.is_empty():
+		cells_changed.emit(revealed)
+
+
+func _reveal_rect(rect: Rect2i, revealed: Array[Vector2i]) -> void:
+	for y in range(rect.position.y, rect.end.y):
+		for x in range(rect.position.x, rect.end.x):
+			var cell := Vector2i(x, y)
+			if map.in_bounds(cell) and explored[y * map.width + x] == 0:
+				explored[y * map.width + x] = 1
+				revealed.append(cell)
+
+
+func _physics_process(_delta: float) -> void:
+	if player and map and not player.is_dead:
+		reveal_around(player.global_position)
 
 
 # --- Queries -----------------------------------------------------------------

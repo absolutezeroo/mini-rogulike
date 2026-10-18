@@ -208,6 +208,7 @@ func _on_damaged(hit: HitInfo, _damage: int) -> void:
 		target = hit.source
 	if hit.source is Player and not hit.is_secondary:
 		HitStop.freeze(0.07 if hit.is_crit else 0.035)
+		Settings.vibrate(0.15 if hit.is_crit else 0.05)
 	if dormant and hit.source:
 		wake_up(hit.source)
 	_update_boss_phase()

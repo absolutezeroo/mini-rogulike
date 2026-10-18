@@ -49,6 +49,26 @@ func clear() -> void:
 	changed.emit()
 
 
+## For save files: [{ perk, stacks, memory }].
+func to_data() -> Array:
+	return entries.map(func(entry: Entry) -> Dictionary:
+		return { "perk": RunSave.ref(entry.perk), "stacks": entry.stacks, "memory": entry.memory })
+
+
+func load_data(data: Array) -> void:
+	entries.clear()
+	for saved: Dictionary in data:
+		var perk := RunSave.load_ref(saved.get("perk")) as PerkDef
+		if perk == null:
+			continue
+		var entry := Entry.new()
+		entry.perk = perk
+		entry.stacks = int(saved.get("stacks", 1))
+		entry.memory = saved.get("memory", {})
+		entries.append(entry)
+	changed.emit()
+
+
 func total_bonuses() -> StatBlock:
 	var total := StatBlock.new()
 	for entry in entries:

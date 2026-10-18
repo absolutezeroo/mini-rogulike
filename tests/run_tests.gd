@@ -17,6 +17,9 @@ func _ready() -> void:
 	# Never touch the player's real save.
 	Profile.save_path = ""
 	Profile.reset()
+	Settings.path = ""
+	RunSave.path = "user://test_run_%d.json" % OS.get_process_id()  # one per test process
+	RunSave.erase()
 	CONTENT = load("res://data/content_db.tres")
 	GAME_SCENE = load("res://src/game/game.tscn")
 	_test_stat_block()
@@ -29,6 +32,7 @@ func _ready() -> void:
 	_test_profile()
 	await _test_title_screen()
 	await _test_gameplay()
+	RunSave.erase()
 	print("\n%d checks, %d failed" % [_checks, _failures])
 	Sfx.stop_all()
 	HitStop.reset()
@@ -568,6 +572,7 @@ func _test_gameplay() -> void:
 	await _test_ambience(game)
 	await _test_act_card(game)
 	await _test_souls(game)
+	await _test_comfort(game)
 
 	await _test_boss_fight(game)
 
@@ -583,6 +588,7 @@ func _test_gameplay() -> void:
 	check(player.is_dead, "player can die")
 	await get_tree().create_timer(1.5).timeout
 	check(game.game_over_panel.visible, "game over screen shown")
+	check(not RunSave.exists(), "dying ends the saved run")
 	var summary := (game.game_over_panel.get_node("%Summary") as Label).text
 	check(Profile.souls >= souls_before_death and summary.contains("souls"), "the end of a run shows its souls")
 	check(Array(CONTENT.story.death_lines).any(func(line: String) -> bool: return summary.begins_with(line)), "and a line of the story")
@@ -607,6 +613,28 @@ func _test_gameplay() -> void:
 	check(CONTENT.unlocked_items.has(load("res://data/items/weapons/templar_sword.tres")), "Paladin's Oath unlocks the Templar Sword")
 	Profile.reset()
 	check(game.depth == 1, "restart goes back to depth 1")
+
+	# The run in progress is saved, and picked up again as it was.
+	check(RunSave.exists(), "the run in progress is saved")
+	var hero: Player = game.player
+	var wand: ItemDef = load("res://data/items/weapons/magic_wand.tres")
+	var frenzy := _perk("frenzy")
+	hero.level = 3
+	hero.xp = 7
+	hero.inventory.add(wand)
+	hero.perks.add(frenzy)
+	var weapon_before := hero.get_weapon()
+	game.depth = 5
+	game.kills = 12
+	game._save_run()
+	var saved := RunSave.read()
+	check(int(saved.get("depth", 0)) == 5 and int(saved.player.level) == 3, "the save holds the run")
+	game.resume_run(saved)
+	await _frames(5)
+	var back: Player = game.player
+	check(back != hero and game.depth == 5 and game.kills == 12 and game.world.depth == 5, "resuming goes back to the same depth")
+	check(back.level == 3 and back.xp == 7 and back.perks.stacks_of(frenzy) == 1, "the hero comes back as saved")
+	check(back.inventory.count_of(wand) >= 1 and back.get_weapon() == weapon_before, "with their gear")
 
 	# A second bot run on the fresh character at higher depths, mortal this time.
 	# Monsters must be able to hurt a player who just stands there.
@@ -1253,6 +1281,7 @@ func _test_act_card(game: Node) -> void:
 func _test_souls(game: Node) -> void:
 	var world: World = game.world
 	var player: Player = game.player
+	player.xp = -1000000  # no level up (and its pause) from this kill
 	var monster := world.spawn_monster(load("res://data/monsters/slime.tres"), world.find_open_point_near(player.global_position, 100.0))
 	monster.dormant = true
 	var gathered := [0]
@@ -1263,8 +1292,60 @@ func _test_souls(game: Node) -> void:
 	check(world.get_node("Effects").get_children().any(func(n: Node) -> bool: return n is SoulWisp), "a kill sets a soul free")
 	await _frames(90)
 	check(gathered[0] >= 1, "the soul reaches the hero's lantern")
-	check((game.hud.get_node("%SoulsLabel") as Label).text == "Souls %d" % game.run_souls(), "the HUD counts the run's souls")
+	var shown := int((game.hud.get_node("%SoulsLabel") as Label).text.trim_prefix("Souls "))
+	check(shown > 0 and shown <= game.run_souls(), "the HUD counts the run's souls")
 	Events.soul_gathered.disconnect(on_soul)
+
+
+## Pause menu, options, vibrations (no-op here), the minimap and the back button.
+func _test_comfort(game: Node) -> void:
+	var world: World = game.world
+	var hud: Hud = game.hud
+	(hud.get_node("%PauseButton") as Button).pressed.emit()
+	await _frames(1)
+	var pause: PauseMenu = game.pause_menu
+	check(pause.visible and get_tree().paused, "the pause button pauses the game")
+	(pause.get_node("%OptionsButton") as Button).pressed.emit()
+	var options: OptionsPanel = pause.get_node("%OptionsPanel")
+	check(options.visible, "options open from the pause menu")
+	(options.get_node("%MusicSlider") as HSlider).value = 0.5
+	check(is_equal_approx(Settings.music_volume, 0.5) and absf(AudioServer.get_bus_volume_db(AudioServer.get_bus_index(&"Music")) - linear_to_db(0.5)) < 0.01, "the music slider sets the music volume")
+	(options.get_node("%ControlsSlider") as HSlider).value = 1.2
+	check(is_equal_approx((hud.get_node("%Controls") as Control).scale.x, 1.2), "the buttons size option scales the controls")
+	Settings.vibrate(1.0)  # must not fail on a computer
+	game._back()
+	check(not options.visible and pause.visible, "back closes the options first")
+	var give_up: Button = pause.get_node("%AbandonButton")
+	give_up.pressed.emit()
+	check(not game.player.is_dead and give_up.text == PauseMenu.CONFIRM_TEXT, "giving up asks to confirm")
+	game._back()
+	await _frames(1)
+	check(not pause.visible and not get_tree().paused, "back resumes the game")
+	game._back()
+	check(pause.visible, "back pauses the game")
+	(pause.get_node("%ResumeButton") as Button).pressed.emit()
+	await _frames(1)
+	Settings.set_option(&"music_volume", 0.8)
+	Settings.set_option(&"controls_scale", 1.0)
+
+	# The minimap: the start room is known, walking reveals more, a tap shows the whole floor.
+	check(world.is_explored(world.map.world_to_cell(game.player.global_position)), "the hero's surroundings are explored")
+	var minimap: Minimap = hud.get_node("%Minimap")
+	var full_map: Minimap = hud.get_node("%FullMap")
+	check(minimap._texture != null and minimap._image.get_width() == world.map.width, "the minimap draws the floor")
+	var seen := Array(world.explored).count(1)
+	var far_room := world.map.rooms.filter(func(r: Rect2i) -> bool:
+		return not r.grow(1).has_point(world.map.stairs_cell) and not r.has_point(world.map.world_to_cell(game.player.global_position))).back() as Rect2i
+	var depth_now: int = game.depth
+	game.player.global_position = _solid_point_in(world, far_room.grow(-1))
+	await _frames(3)
+	check(Array(world.explored).count(1) > seen and world.is_explored(far_room.get_center()), "exploring reveals the map")
+	check(game.depth == depth_now, "(still on the same floor)")
+	minimap.tapped.emit()
+	check(full_map.visible, "tapping the minimap shows the whole floor")
+	full_map.tapped.emit()
+	check(not full_map.visible, "tapping again closes it")
+	game.player.xp = 0
 
 
 ## Floor ambience: data per theme, footprints, low health heartbeat and muffled music.

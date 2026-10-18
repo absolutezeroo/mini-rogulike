@@ -49,7 +49,7 @@ data/                Game content as .tres resources (no code)
   items/tomes/         Skill tomes (teach a spell)
   skills/              Player, monster and boss skills
 src/
-  autoload/            Events (signal bus), Sfx (sound player), HitStop (impact freeze), Profile (save)
+  autoload/            Events (signal bus), Sfx (sound player), HitStop (impact freeze), Profile (save), Settings (options)
   core/                Small shared helpers (physics layers, weighted random)
   definitions/         Resource classes describing content (the "schema" of data/)
     effects/             Building blocks for skills and consumables
@@ -65,8 +65,9 @@ src/
   combat/              Damage rules, hits, projectile specs
   ai/                  StateMachine + monster states (Idle, Chase, Attack, Cast)
   vfx/                 Particles (particles/), sprite-sheet FX, emotes, afterimages, damage numbers; Vfx helpers
-  ui/                  Title screen and shrine, story, act cards, HUD, touch controls, inventory, perk choice, end of run
-  game/                Game: main scene, run and floor flow
+  ui/                  Title screen and shrine, story, act cards, HUD and minimap, touch controls, inventory,
+                       perk choice, pause menu, options, end of run
+  game/                Game: main scene, run and floor flow; RunSave (the run in progress on disk)
 tests/               Headless test suite with a bot that plays the game
 ```
 
@@ -145,6 +146,20 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   and always drop an item. Their affix is a perk, like the hero's: **Swift**, **Vampiric**
   (heals when hitting), **Explosive** (blows up when it dies), **Armored**, **Venomous**
   (poisons), **Spiked** (hurts who hits it).
+
+## On a phone
+
+- **The run is saved** (`RunSave`, `user://run.json`) when a floor begins and whenever the app goes
+  to the background (a call, switching apps...). The title screen then offers **Continue**: same
+  depth (a fresh floor), the hero exactly as saved (level, stats, gear, bag, perks, spell, perk
+  choices left open). Dying erases it. "Save and quit" in the pause menu does the same on purpose.
+- **Pause menu** (the II button, Escape, or the phone's back button): resume, options, save and quit,
+  give up the run (two taps). Coming back to the app, the game waits paused.
+- **Options** (`Settings` autoload, `user://settings.cfg`), on the title screen and in the pause menu:
+  music and sound volumes, screen shake, size of the touch controls, **vibrations** (big shakes,
+  hits you land, crits; `Settings.vibrate()`; exported Android builds need the Vibrate permission).
+- **Minimap** (`Minimap`): rooms are revealed when you walk in, corridors around you; it shows holes,
+  the stairs, unopened chests, a running ambush and the boss. Tap it for the whole floor.
 
 ## Story and identity
 

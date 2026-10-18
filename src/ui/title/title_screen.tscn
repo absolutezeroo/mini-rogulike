@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://src/ui/title/title_screen.gd" id="1_title"]
 [ext_resource type="Resource" path="res://data/content_db.tres" id="2_content"]
 [ext_resource type="Script" path="res://src/ui/title/shrine_panel.gd" id="3_shrine"]
 [ext_resource type="Script" path="res://src/ui/title/difficulty_panel.gd" id="4_difficulty"]
 [ext_resource type="PackedScene" path="res://src/vfx/ambient/wisps.tscn" id="5_wisps"]
+[ext_resource type="PackedScene" path="res://src/ui/options/options_panel.tscn" id="6_options"]
 
 [node name="TitleScreen" type="Control"]
 layout_mode = 3
@@ -73,6 +74,15 @@ unique_name_in_owner = true
 position = Vector2(0, 50)
 scale = Vector2(4, 4)
 
+[node name="ContinueButton" type="Button" parent="Center/VBox"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(456, 68)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "Continue"
+
 [node name="PlayButton" type="Button" parent="Center/VBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(320, 76)
@@ -88,17 +98,24 @@ theme_override_constants/separation = 16
 
 [node name="ShrineButton" type="Button" parent="Center/VBox/Buttons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(220, 60)
+custom_minimum_size = Vector2(200, 60)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Shrine"
 
 [node name="StoryButton" type="Button" parent="Center/VBox/Buttons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(220, 60)
+custom_minimum_size = Vector2(200, 60)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Story"
+
+[node name="OptionsButton" type="Button" parent="Center/VBox/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Options"
 
 [node name="Records" type="Label" parent="Center/VBox"]
 unique_name_in_owner = true
@@ -247,3 +264,7 @@ size_flags_horizontal = 4
 focus_mode = 0
 theme_override_font_sizes/font_size = 20
 text = "Back"
+
+[node name="OptionsPanel" parent="." instance=ExtResource("6_options")]
+unique_name_in_owner = true
+layout_mode = 1

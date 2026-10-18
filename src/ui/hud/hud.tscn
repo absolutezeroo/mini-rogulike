@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://src/ui/hud/hud.gd" id="1_hud"]
 [ext_resource type="Script" path="res://src/ui/controls/touch_joystick.gd" id="2_joystick"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://src/ui/hud/damage_vignette.gd" id="6_vignette"]
 [ext_resource type="Script" path="res://src/ui/hud/perk_tray.gd" id="7_perks"]
 [ext_resource type="Script" path="res://src/ui/hud/boss_bar.gd" id="8_boss"]
+[ext_resource type="Script" path="res://src/ui/hud/minimap.gd" id="9_map"]
 
 [node name="Hud" type="CanvasLayer"]
 layer = 5
@@ -24,6 +25,7 @@ mouse_filter = 2
 script = ExtResource("6_vignette")
 
 [node name="Joystick" type="Control" parent="."]
+unique_name_in_owner = true
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -104,6 +106,47 @@ theme_override_font_sizes/font_size = 24
 text = "Bag"
 expand_icon = true
 
+[node name="PauseButton" type="Button" parent="."]
+unique_name_in_owner = true
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -236.0
+offset_top = 16.0
+offset_right = -172.0
+offset_bottom = 80.0
+grow_horizontal = 0
+focus_mode = 0
+theme_override_font_sizes/font_size = 24
+text = "II"
+
+[node name="Minimap" type="Control" parent="."]
+unique_name_in_owner = true
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -236.0
+offset_top = 92.0
+offset_right = -16.0
+offset_bottom = 242.0
+grow_horizontal = 0
+script = ExtResource("9_map")
+
+[node name="FullMap" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 160.0
+offset_top = 70.0
+offset_right = -160.0
+offset_bottom = -70.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("9_map")
+whole_floor = true
+
 [node name="BossBar" type="HBoxContainer" parent="."]
 unique_name_in_owner = true
 anchors_preset = 5
@@ -169,6 +212,7 @@ text = "Depth 1"
 horizontal_alignment = 1
 
 [node name="Controls" type="Control" parent="."]
+unique_name_in_owner = true
 layout_mode = 3
 anchors_preset = 3
 anchor_left = 1.0

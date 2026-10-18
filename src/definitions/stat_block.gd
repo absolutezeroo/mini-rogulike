@@ -43,6 +43,24 @@ func times(count: int) -> StatBlock:
 	return result
 
 
+## The stats as a Dictionary (for save files).
+func to_dict() -> Dictionary:
+	var data := {}
+	for property in get_property_list():
+		if property.usage & PROPERTY_USAGE_SCRIPT_VARIABLE:
+			data[property.name] = get(property.name)
+	return data
+
+
+static func from_dict(data: Dictionary) -> StatBlock:
+	var block := StatBlock.new()
+	for key: String in data:
+		if key in block:
+			var value: Variant = data[key]
+			block.set(key, int(value) if typeof(block.get(key)) == TYPE_INT else float(value))
+	return block
+
+
 ## Human readable bonuses, e.g. "+2 ATK  +1 DEF".
 func describe() -> String:
 	var parts := PackedStringArray()

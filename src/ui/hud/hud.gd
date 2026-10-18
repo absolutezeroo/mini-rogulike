@@ -3,6 +3,7 @@ extends CanvasLayer
 ## In-game overlay: bars, stats, messages and the touch controls.
 
 signal inventory_requested
+signal pause_requested
 
 const BAG_ICON: Texture2D = preload("res://assets/ui/icons/bag.png")
 
@@ -22,13 +23,33 @@ var _souls_tween: Tween
 @onready var _vignette: DamageVignette = %DamageVignette
 @onready var _perk_tray: PerkTray = %PerkTray
 @onready var _boss_bar: BossBar = %BossBar
+@onready var _minimap: Minimap = %Minimap
+@onready var _full_map: Minimap = %FullMap
 
 
 func _ready() -> void:
 	%BagButton.pressed.connect(func() -> void: inventory_requested.emit())
 	%BagButton.icon = BAG_ICON
+	%PauseButton.pressed.connect(func() -> void: pause_requested.emit())
+	# Tap the minimap for the whole floor, tap again to close it.
+	_minimap.tapped.connect(func() -> void: _full_map.visible = not _full_map.visible)
+	_full_map.tapped.connect(func() -> void: _full_map.hide())
+	Settings.changed.connect(_apply_settings)
+	_apply_settings()
 	Events.depth_changed.connect(_on_depth_changed)
 	_depth_banner.modulate.a = 0.0
+
+
+## Size of the touch controls (Options). They grow from their corner of the screen.
+func _apply_settings() -> void:
+	(%Controls as Control).scale = Vector2.ONE * Settings.controls_scale
+	(%Joystick as TouchJoystick).max_distance = TouchJoystick.BASE_DISTANCE * Settings.controls_scale
+
+
+## The floor shown on the minimap.
+func bind_world(world: World) -> void:
+	_minimap.bind_world(world)
+	_full_map.bind_world(world)
 
 
 func bind_player(player: Player) -> void:
@@ -50,6 +71,7 @@ func bind_player(player: Player) -> void:
 	_message_log.clear()
 	_perk_tray.bind(player.perks)
 	_boss_bar.hide_now()
+	_full_map.hide()
 
 	_refresh_skill_buttons()
 	_on_health_changed(player.hp, player.get_max_hp())

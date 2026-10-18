@@ -1,0 +1,141 @@
+class_name Minimap
+extends Control
+## The explored part of the floor, as a little map: rooms and corridors seen so far, holes,
+## stairs, unopened chests, a running ambush, the boss, the hero.
+## The explored cells live in an image (one pixel per cell) updated as the hero discovers them.
+## `whole_floor` shows the entire floor fitted to the control (the big map) instead of a window
+## around the hero.
+
+signal tapped
+
+const FLOOR_COLOR := Color(0.85, 0.79, 0.68, 0.75)
+const HOLE_COLOR := Color(0.08, 0.06, 0.09, 0.9)
+const BACKGROUND := Color(0.06, 0.04, 0.08, 0.6)
+const BIG_MAP_BACKGROUND := Color(0.06, 0.04, 0.08, 0.92)
+const BORDER := Color(1, 0.82, 0.4, 0.5)
+const HERO_COLOR := Color(1, 1, 1)
+const STAIRS_COLOR := Color(1, 0.82, 0.4)
+const CHEST_COLOR := Color(1, 0.65, 0.2)
+const DANGER_COLOR := Color(1, 0.3, 0.3)
+const REDRAW_INTERVAL := 0.1
+
+@export var whole_floor := false
+## Pixels per cell around the hero (the small map).
+@export var cell_pixels := 4.0
+
+var _world: World
+var _image: Image
+var _texture: ImageTexture
+var _redraw_timer := 0.0
+
+
+func bind_world(world: World) -> void:
+	if _world == world:
+		return
+	_world = world
+	world.map_reset.connect(_rebuild)
+	world.cells_changed.connect(_update_cells)
+	_rebuild()
+
+
+func _rebuild() -> void:
+	if _world == null or _world.map == null:
+		return
+	var map := _world.map
+	_image = Image.create_empty(map.width, map.height, false, Image.FORMAT_RGBA8)
+	for y in map.height:
+		for x in map.width:
+			_paint(Vector2i(x, y))
+	_texture = ImageTexture.create_from_image(_image)
+	queue_redraw()
+
+
+func _update_cells(cells: Array[Vector2i]) -> void:
+	if _image == null or _image.get_width() != _world.map.width:
+		_rebuild()
+		return
+	for cell in cells:
+		_paint(cell)
+	_texture.update(_image)
+
+
+func _paint(cell: Vector2i) -> void:
+	var color := Color.TRANSPARENT
+	if _world.is_explored(cell) and _world.map.is_floor(cell):
+		color = HOLE_COLOR if _world.has_pit(cell) else FLOOR_COLOR
+	_image.set_pixelv(cell, color)
+
+
+func _process(delta: float) -> void:
+	if not is_visible_in_tree():
+		return
+	_redraw_timer -= delta
+	if _redraw_timer <= 0.0:
+		_redraw_timer = REDRAW_INTERVAL
+		queue_redraw()
+
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.is_pressed() and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT:
+		accept_event()
+		tapped.emit()
+
+
+## Where cell (0, 0) is drawn and how big a cell is.
+func _layout() -> Array:
+	var map := _world.map
+	if whole_floor:
+		var scale := minf(size.x / map.width, size.y / map.height)
+		var origin := (size - Vector2(map.width, map.height) * scale) * 0.5
+		return [origin, scale]
+	var hero := _world.player.global_position / map.tile_size if _world.player else Vector2(map.start_cell)
+	return [size * 0.5 - hero * cell_pixels, cell_pixels]
+
+
+func _draw() -> void:
+	draw_rect(Rect2(Vector2.ZERO, size), BIG_MAP_BACKGROUND if whole_floor else BACKGROUND)
+	if _world and _texture and _world.map:
+		var layout := _layout()
+		var origin: Vector2 = layout[0]
+		var scale: float = layout[1]
+		var map := _world.map
+		# Only what fits in the control (no drawing outside it).
+		var view := Rect2(-origin / scale, size / scale).intersection(Rect2(0, 0, map.width, map.height))
+		if view.has_area():
+			draw_texture_rect_region(_texture, Rect2(origin + view.position * scale, view.size * scale), view)
+		_draw_markers(origin, scale)
+	draw_rect(Rect2(Vector2.ZERO, size), BORDER, false, 2.0)
+
+
+func _draw_markers(origin: Vector2, scale: float) -> void:
+	var map := _world.map
+	var dot := maxf(scale * 0.9, 3.0)
+	for cell in _world.stairs_cells:
+		if _world.is_explored(cell):
+			_marker(origin + (Vector2(cell) + Vector2(0.5, 0.5)) * scale, dot * 1.4, STAIRS_COLOR)
+	for node in get_tree().get_nodes_in_group("chests"):
+		var chest := node as Chest
+		var cell := map.world_to_cell(chest.global_position)
+		if not chest.is_open and _world.is_explored(cell):
+			_marker(origin + chest.global_position / map.tile_size * scale, dot, CHEST_COLOR)
+	if _world.ambush and _world.ambush.state == AmbushRoom.State.FIGHTING:
+		var room := _world.ambush.room
+		_draw_clipped_outline(Rect2(origin + Vector2(room.position) * scale, Vector2(room.size) * scale), DANGER_COLOR)
+	if _world.arena and _world.arena.boss and not _world.arena.boss.is_dead and _world.arena.is_started:
+		_marker(origin + _world.arena.boss.global_position / map.tile_size * scale, dot * 1.6, DANGER_COLOR)
+	if _world.player:
+		_marker(origin + _world.player.global_position / map.tile_size * scale, dot * 1.2, HERO_COLOR)
+
+
+func _marker(at: Vector2, size_px: float, color: Color) -> void:
+	var rect := Rect2(at - Vector2.ONE * size_px * 0.5, Vector2.ONE * size_px)
+	if Rect2(Vector2.ZERO, size).encloses(rect):
+		draw_rect(rect.grow(1.0), Color(0, 0, 0, 0.7))
+		draw_rect(rect, color)
+
+
+func _draw_clipped_outline(rect: Rect2, color: Color) -> void:
+	var clipped := rect.intersection(Rect2(Vector2.ZERO, size))
+	if clipped.has_area():
+		draw_rect(clipped, Color(color, 0.15))
+		draw_rect(clipped, color, false, 2.0)
