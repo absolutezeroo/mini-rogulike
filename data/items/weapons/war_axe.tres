@@ -1,30 +1,34 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
-[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_5urbs"]
-[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="2_x38ew"]
-[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="3_8h0el"]
+[ext_resource type="AudioStream" path="res://data/audio/swing_heavy.tres" id="1_8h0el"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="2_cnmul"]
+[ext_resource type="AudioStream" path="res://data/audio/punch_heavy.tres" id="3_ciyoa"]
+[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="4_3ah4m"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="5_smq4h"]
 
-[sub_resource type="Resource" id="Resource_cnmul"]
-script = ExtResource("1_5urbs")
+[sub_resource type="Resource" id="Resource_4pkqa"]
+script = ExtResource("2_cnmul")
 move_speed = -10.0
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_ciyoa"]
-atlas = ExtResource("2_x38ew")
+[sub_resource type="AtlasTexture" id="AtlasTexture_h50dc"]
+atlas = ExtResource("4_3ah4m")
 region = Rect2(160, 144, 16, 16)
 
 [resource]
-script = ExtResource("3_8h0el")
+script = ExtResource("5_smq4h")
 damage = 11
 cooldown = 0.8
 reach = 38.0
 knockback = 260.0
 arc_degrees = 160.0
+attack_sound = ExtResource("1_8h0el")
+hit_sound = ExtResource("3_ciyoa")
 slot = 0
-bonuses = SubResource("Resource_cnmul")
+bonuses = SubResource("Resource_4pkqa")
 id = &"war_axe"
 display_name = "War Axe"
 description = "Slow, wide and brutal."
-icon = SubResource("AtlasTexture_ciyoa")
+icon = SubResource("AtlasTexture_h50dc")
 glyph = "T"
 color = Color(0.83137256, 0.6392157, 0.4509804, 1)
 min_depth = 2

@@ -1,0 +1,17 @@
+[gd_resource type="AudioStreamRandomizer" format=3]
+
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/combat/armor_hit_000.ogg" id="1_ojmwy"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/combat/armor_hit_001.ogg" id="2_eusjb"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/combat/armor_hit_002.ogg" id="3_5k5i4"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/combat/armor_hit_003.ogg" id="4_6d67b"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/combat/armor_hit_004.ogg" id="5_xo8c6"]
+
+[resource]
+random_pitch = 1.1
+random_volume_offset_db = 1.0
+streams_count = 5
+stream_0/stream = ExtResource("1_ojmwy")
+stream_1/stream = ExtResource("2_eusjb")
+stream_2/stream = ExtResource("3_5k5i4")
+stream_3/stream = ExtResource("4_6d67b")
+stream_4/stream = ExtResource("5_xo8c6")

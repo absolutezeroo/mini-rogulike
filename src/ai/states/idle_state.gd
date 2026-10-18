@@ -13,6 +13,9 @@ func enter() -> void:
 
 func physics_update(delta: float) -> void:
 	if actor.notice_target():
+		# "!" above the head: the player knows this one is coming.
+		actor.world.spawn_floating_text(actor.head_position(), "!", Color("ffd166"))
+		Sfx.play_at(Sfx.bank.monster_alert, actor.global_position, -6.0)
 		machine.transition_to(&"Chase")
 		return
 

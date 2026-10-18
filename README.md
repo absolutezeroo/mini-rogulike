@@ -1,6 +1,6 @@
 # Mini Roguelike
 
-Real-time action roguelike for Godot 4 (GDScript, Compatibility renderer).
+Real-time action roguelike for Godot 4.7 (GDScript, Compatibility renderer).
 Procedural floors, monsters with telegraphed attacks, melee and ranged weapons,
 armor, consumables, skills, loot, XP and levels. Plays with touch controls,
 keyboard or gamepad.
@@ -12,18 +12,21 @@ assets/              Art, audio, fonts and the UI theme
   sprites/             Kenney Tiny Dungeon tileset + custom item sprites (items/)
   ui/                  Kenney UI Pack Pixel Adventure (upscaled 2x)
   fonts/               Kenney Mini pixel font
+  audio/               Sound effects (sfx/) and jingles, loudness-balanced
+  shaders/             Screen effects (damage vignette)
   theme/               main_theme.tres: pixel UI theme used by every Control
 data/                Game content as .tres resources (no code)
   content_db.tres      Index of everything that can spawn
   player/              Starting stats, kit, skills, leveling
   dungeon/             Floor size, room count, difficulty curve, floor themes (themes/)
+  audio/               Sounds as AudioStreamRandomizer (variations + pitch) and sound_bank.tres
   monsters/            One file per monster type
   items/weapons/       Player weapons (monster/ = monster-only weapons)
   items/armors/        Head and body armor
   items/consumables/   Potions, scrolls, bombs...
   skills/              Player and monster skills
 src/
-  autoload/            Events: global signal bus
+  autoload/            Events (signal bus), Sfx (sound player), HitStop (impact freeze)
   core/                Small shared helpers (physics layers, weighted random)
   definitions/         Resource classes describing content (the "schema" of data/)
     effects/             Building blocks for skills and consumables
@@ -35,7 +38,7 @@ src/
   components/          Inventory, Equipment, SkillSet
   combat/              Damage rules, hits, projectile specs
   ai/                  StateMachine + monster states (Idle, Chase, Attack)
-  vfx/                 Slashes, rings, floating damage numbers
+  vfx/                 Particles (particles/), slashes, rings, afterimages, damage numbers; Vfx helpers
   ui/                  HUD, touch controls, inventory, game over
   game/                Game: main scene, run and floor flow
 tests/               Headless test suite with a bot that plays the game
@@ -58,6 +61,18 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   > Attack (telegraphed wind-up, strike, recovery).
 - **UI** listens to signals (`Events`, Player signals) and never drives gameplay directly.
   Touch controls only press input actions, so keyboard, gamepad and touch share one code path.
+
+## Game feel
+
+- **VFX**: pixel particles for hits, deaths, smoke, dust, explosions and sparkles
+  (`src/vfx/particles/*.tscn`, edit them in the inspector), dash afterimages, projectile trails,
+  squash on hit, popping damage numbers, red vignette when hurt or low on HP.
+  Gameplay code spawns them in one line through `Vfx` (`Vfx.hit(...)`, `Vfx.explosion(...)`).
+- **SFX**: the `Sfx` autoload plays world sounds (positional) and UI sounds. Weapons have attack and hit
+  sounds, monsters hurt and death sounds, skills and consumables a use sound; everything else comes
+  from `data/audio/sound_bank.tres`. Each sound is an `AudioStreamRandomizer` listing its variations.
+  Buses: Master > SFX, UI, Music (`default_bus_layout.tres`).
+- **Hit stop**: a few frames of freeze on impacts (`HitStop.freeze(seconds)`).
 
 ## Adding content
 
@@ -102,7 +117,9 @@ The exit code is the number of failures.
 ## Art and credits
 
 All third-party assets are CC0 (public domain) by [Kenney](https://kenney.nl):
-Tiny Dungeon, UI Pack - Pixel Adventure and Kenney Fonts. Licenses are next to each asset folder.
+Tiny Dungeon, UI Pack - Pixel Adventure, Kenney Fonts, Impact Sounds, Interface Sounds, RPG Audio,
+Digital Audio, Sci-Fi Sounds and Music Jingles. Licenses are next to each asset folder.
+The swing whooshes were synthesized for this project.
 The armor, bomb and scroll sprites in `assets/sprites/items/` were drawn for this project in the same palette.
 
 Pixel art is 16x16, drawn at 2x in the world, with nearest filtering

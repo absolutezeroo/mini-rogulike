@@ -5,6 +5,7 @@ extends Area2D
 signal reached
 
 const SIZE := 32.0
+const MOTES: PackedScene = preload("res://src/vfx/particles/stairs_motes.tscn")
 
 ## Set by the World from the floor's theme. Falls back to a drawn shape.
 var texture: Texture2D
@@ -18,6 +19,7 @@ func _ready() -> void:
 	shape.size = Vector2(SIZE, SIZE) * 0.6
 	($CollisionShape2D as CollisionShape2D).shape = shape
 	body_entered.connect(_on_body_entered)
+	add_child(MOTES.instantiate())
 
 
 func _process(delta: float) -> void:

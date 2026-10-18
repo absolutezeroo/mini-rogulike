@@ -13,6 +13,9 @@ var _travelled := 0.0
 var _pierce_left := 0
 var _already_hit: Array[Actor] = []
 var _done := false
+var _trail: Array[Vector2] = []  # recent global positions, newest last
+
+const TRAIL_LENGTH := 6
 
 
 func setup(shooter: Actor, direction: Vector2, spec: ProjectileSpec) -> void:
@@ -37,7 +40,11 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	var step := _spec.speed * delta
+	_trail.append(global_position)
+	if _trail.size() > TRAIL_LENGTH:
+		_trail.pop_front()
 	position += _direction * step
+	queue_redraw()
 	_travelled += step
 	if _travelled >= _spec.max_distance:
 		_finish()
@@ -47,7 +54,10 @@ func _on_body_entered(body: Node2D) -> void:
 	if _done:
 		return
 	if not body is Actor:
-		_finish()  # a wall
+		# A wall
+		Vfx.hit(_world, global_position, -_direction, _spec.color)
+		Sfx.play_at(Sfx.bank.projectile_impact, global_position, -4.0)
+		_finish()
 		return
 	var target := body as Actor
 	if target.faction == _faction or target.is_dead or _already_hit.has(target):
@@ -75,7 +85,7 @@ func _finish() -> void:
 
 
 func _explode() -> void:
-	_world.spawn_vfx(RingVfx.create(global_position, _spec.explosion_radius, _spec.color))
+	Vfx.explosion(_world, global_position, _spec.explosion_radius)
 	var source := _shooter if is_instance_valid(_shooter) else null
 	for target in _world.get_hostiles(_faction):
 		var offset := target.global_position - global_position
@@ -88,8 +98,17 @@ func _explode() -> void:
 func _draw() -> void:
 	var r := _spec.radius if _spec else 5.0
 	var color := _spec.color if _spec else Color.WHITE
-	var trail := color
-	trail.a = 0.35
-	draw_line(Vector2(-r * 3.0, 0), Vector2.ZERO, trail, r * 1.2)
+	# Fading trail of squares behind the shot (pixel style).
+	for i in _trail.size():
+		var t := float(i + 1) / (_trail.size() + 1)
+		var trail_color := color
+		trail_color.a = 0.5 * t
+		var half := r * (0.4 + 0.5 * t)
+		var local := (_trail[i] - global_position).rotated(-rotation)
+		draw_rect(Rect2(local - Vector2(half, half), Vector2(half, half) * 2.0), trail_color)
+	# Glow, core and bright center.
+	var glow := color
+	glow.a = 0.3
+	draw_circle(Vector2.ZERO, r * 1.8, glow)
 	draw_circle(Vector2.ZERO, r, color)
-	draw_circle(Vector2.ZERO, r * 0.5, color.lightened(0.6))
+	draw_circle(Vector2.ZERO, r * 0.5, color.lightened(0.7))

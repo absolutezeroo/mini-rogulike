@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="SoundBank" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/equip.tres" id="1_es6rg"]
+[ext_resource type="AudioStream" path="res://data/audio/explosion.tres" id="2_s2fju"]
+[ext_resource type="AudioStream" path="res://data/audio/footstep.tres" id="3_7kifr"]
+[ext_resource type="AudioStream" path="res://data/audio/game_over.tres" id="4_gg4jp"]
+[ext_resource type="AudioStream" path="res://data/audio/level_up.tres" id="5_ii3yv"]
+[ext_resource type="AudioStream" path="res://data/audio/alert.tres" id="6_r7xlo"]
+[ext_resource type="AudioStream" path="res://data/audio/thud.tres" id="7_lqsaf"]
+[ext_resource type="AudioStream" path="res://data/audio/punch.tres" id="8_uw11l"]
+[ext_resource type="AudioStream" path="res://data/audio/pickup.tres" id="9_7ru6g"]
+[ext_resource type="AudioStream" path="res://data/audio/punch_heavy.tres" id="10_rbjxk"]
+[ext_resource type="AudioStream" path="res://data/audio/armor_hit.tres" id="11_2sadd"]
+[ext_resource type="AudioStream" path="res://data/audio/impact_light.tres" id="12_gdxse"]
+[ext_resource type="Script" path="res://src/definitions/sound_bank.gd" id="13_j8m74"]
+[ext_resource type="AudioStream" path="res://data/audio/stairs.tres" id="14_mv3sf"]
+[ext_resource type="AudioStream" path="res://data/audio/ui_click.tres" id="15_n46y7"]
+[ext_resource type="AudioStream" path="res://data/audio/ui_close.tres" id="16_sei3t"]
+[ext_resource type="AudioStream" path="res://data/audio/ui_open.tres" id="17_da57c"]
+
+[resource]
+script = ExtResource("13_j8m74")
+player_hurt = ExtResource("11_2sadd")
+player_death = ExtResource("10_rbjxk")
+footstep = ExtResource("3_7kifr")
+level_up = ExtResource("5_ii3yv")
+monster_hurt = ExtResource("8_uw11l")
+monster_death = ExtResource("7_lqsaf")
+monster_alert = ExtResource("6_r7xlo")
+projectile_impact = ExtResource("12_gdxse")
+explosion = ExtResource("2_s2fju")
+pickup = ExtResource("9_7ru6g")
+equip = ExtResource("1_es6rg")
+stairs = ExtResource("14_mv3sf")
+game_over = ExtResource("4_gg4jp")
+ui_click = ExtResource("15_n46y7")
+ui_open = ExtResource("17_da57c")
+ui_close = ExtResource("16_sei3t")

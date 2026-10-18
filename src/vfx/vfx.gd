@@ -1,0 +1,53 @@
+class_name Vfx
+## One-line helpers to spawn visual effects, so gameplay code stays readable:
+##     Vfx.hit(world, position, direction, Color.WHITE)
+
+const HIT_SPARKS: PackedScene = preload("res://src/vfx/particles/hit_sparks.tscn")
+const DEATH_CHUNKS: PackedScene = preload("res://src/vfx/particles/death_chunks.tscn")
+const SMOKE: PackedScene = preload("res://src/vfx/particles/smoke.tscn")
+const DUST: PackedScene = preload("res://src/vfx/particles/dust.tscn")
+const FIRE: PackedScene = preload("res://src/vfx/particles/fire.tscn")
+const SPARKLES: PackedScene = preload("res://src/vfx/particles/sparkles.tscn")
+
+
+static func burst(world: World, scene: PackedScene, at: Vector2, color: Color = Color.WHITE, direction: Vector2 = Vector2.ZERO, size: float = 1.0) -> void:
+	var particles := scene.instantiate() as CPUParticles2D
+	particles.position = at
+	particles.color = color
+	if direction != Vector2.ZERO:
+		particles.direction = direction
+	if not is_equal_approx(size, 1.0):
+		particles.scale_amount_min *= size
+		particles.scale_amount_max *= size
+		particles.initial_velocity_min *= size
+		particles.initial_velocity_max *= size
+	world.spawn_vfx(particles)
+
+
+## Sparks flying away from an impact.
+static func hit(world: World, at: Vector2, direction: Vector2, color: Color = Color.WHITE) -> void:
+	burst(world, HIT_SPARKS, at, color, direction)
+
+
+## Chunks in the monster's color plus a puff of smoke.
+static func death(world: World, at: Vector2, color: Color) -> void:
+	burst(world, DEATH_CHUNKS, at, color)
+	burst(world, SMOKE, at)
+
+
+static func explosion(world: World, at: Vector2, radius: float) -> void:
+	var size := clampf(radius / 80.0, 0.6, 1.6)
+	burst(world, FIRE, at, Color.WHITE, Vector2.ZERO, size)
+	burst(world, SMOKE, at, Color.WHITE, Vector2.ZERO, size * 1.3)
+	world.spawn_vfx(RingVfx.create(at, radius, Color("ffd166")))
+	Sfx.play_at(Sfx.bank.explosion, at)
+	if world.player and world.player.global_position.distance_to(at) < 600.0:
+		world.player.camera.shake(0.45 * size)
+
+
+static func sparkles(world: World, at: Vector2, color: Color) -> void:
+	burst(world, SPARKLES, at, color)
+
+
+static func dust(world: World, at: Vector2, size: float = 1.0) -> void:
+	burst(world, DUST, at, Color.WHITE, Vector2.ZERO, size)

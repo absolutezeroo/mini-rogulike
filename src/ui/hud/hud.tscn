@@ -1,14 +1,25 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://src/ui/hud/hud.gd" id="1_hud"]
 [ext_resource type="Script" path="res://src/ui/controls/touch_joystick.gd" id="2_joystick"]
 [ext_resource type="Script" path="res://src/ui/hud/stat_bar.gd" id="3_bar"]
 [ext_resource type="Script" path="res://src/ui/hud/message_log.gd" id="4_log"]
 [ext_resource type="Script" path="res://src/ui/controls/action_button.gd" id="5_button"]
+[ext_resource type="Script" path="res://src/ui/hud/damage_vignette.gd" id="6_vignette"]
 
 [node name="Hud" type="CanvasLayer"]
 layer = 5
 script = ExtResource("1_hud")
+
+[node name="DamageVignette" type="ColorRect" parent="."]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("6_vignette")
 
 [node name="Joystick" type="Control" parent="."]
 layout_mode = 3

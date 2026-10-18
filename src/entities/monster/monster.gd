@@ -91,10 +91,23 @@ func _on_damaged(hit: HitInfo, _damage: int) -> void:
 	# Getting hit always makes a monster aggressive, even from out of sight.
 	if hit.source and is_hostile_to(hit.source):
 		target = hit.source
+	if hit.source is Player:
+		HitStop.freeze(0.07 if hit.is_crit else 0.035)
+
+
+func _hurt_sound(hit: HitInfo) -> AudioStream:
+	if hit.sound:
+		return hit.sound
+	return def.hurt_sound if def.hurt_sound else Sfx.bank.monster_hurt
+
+
+func _death_sound() -> AudioStream:
+	return def.death_sound if def.death_sound else Sfx.bank.monster_death
 
 
 func _on_died(killer: Actor) -> void:
 	Events.monster_killed.emit(self)
+	Vfx.death(world, global_position, def.color)
 	if killer is Player:
 		(killer as Player).gain_xp(def.xp_reward)
 	if def.loot:

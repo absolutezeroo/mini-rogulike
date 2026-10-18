@@ -9,7 +9,9 @@ signal restart_requested
 
 func _ready() -> void:
 	hide()
-	%RestartButton.pressed.connect(func() -> void: restart_requested.emit())
+	%RestartButton.pressed.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_click)
+		restart_requested.emit())
 
 
 func show_result(depth: int, level: int, kills: int) -> void:

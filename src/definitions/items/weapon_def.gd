@@ -16,6 +16,11 @@ enum Kind { MELEE, RANGED }
 @export_group("Melee")
 @export_range(10.0, 360.0) var arc_degrees: float = 110.0
 
+@export_group("Sounds")
+@export var attack_sound: AudioStream
+## Played on the target when this weapon hits (monsters fall back to their own hurt sound).
+@export var hit_sound: AudioStream
+
 @export_group("Ranged")
 @export var projectile_speed: float = 460.0
 @export var projectile_radius: float = 5.0

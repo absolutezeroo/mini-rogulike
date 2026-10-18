@@ -1,0 +1,31 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/vfx/particle_burst.gd" id="1_fdvwq"]
+
+[sub_resource type="Curve" id="Curve_lcwpn"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.6, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Gradient" id="Gradient_73hsa"]
+offsets = PackedFloat32Array(0, 0.15, 0.4, 0.7, 1)
+colors = PackedColorArray(1, 0.9529412, 0.6901961, 1, 1, 0.81960785, 0.4, 1, 0.96862745, 0.49803922, 0, 1, 0.8392157, 0.15686275, 0.15686275, 1, 0.25, 0.15, 0.15, 0)
+
+[node name="Fire" type="CPUParticles2D" unique_id=561211477]
+emitting = false
+amount = 28
+lifetime = 0.5
+one_shot = true
+explosiveness = 1.0
+emission_shape = 1
+emission_sphere_radius = 10.0
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 110.0
+initial_velocity_max = 300.0
+damping_min = 300.0
+damping_max = 520.0
+scale_amount_min = 4.0
+scale_amount_max = 9.0
+scale_amount_curve = SubResource("Curve_lcwpn")
+color_ramp = SubResource("Gradient_73hsa")
+script = ExtResource("1_fdvwq")

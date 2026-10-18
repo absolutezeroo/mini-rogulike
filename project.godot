@@ -23,6 +23,8 @@ config/icon="res://icon.svg"
 [autoload]
 
 Events="*res://src/autoload/events.gd"
+Sfx="*res://src/autoload/sfx.gd"
+HitStop="*res://src/autoload/hit_stop.gd"
 
 [display]
 

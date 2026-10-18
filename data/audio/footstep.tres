@@ -1,0 +1,17 @@
+[gd_resource type="AudioStreamRandomizer" format=3]
+
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/world/footstep_000.ogg" id="1_j0how"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/world/footstep_001.ogg" id="2_alv76"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/world/footstep_002.ogg" id="3_kv772"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/world/footstep_003.ogg" id="4_uj8k0"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/world/footstep_004.ogg" id="5_5blrg"]
+
+[resource]
+random_pitch = 1.15
+random_volume_offset_db = 1.0
+streams_count = 5
+stream_0/stream = ExtResource("1_j0how")
+stream_1/stream = ExtResource("2_alv76")
+stream_2/stream = ExtResource("3_kv772")
+stream_3/stream = ExtResource("4_uj8k0")
+stream_4/stream = ExtResource("5_5blrg")

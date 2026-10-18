@@ -20,6 +20,11 @@ extends ContentDef
 ## Ranged monsters back off when the player is closer than this. 0 = always close in.
 @export var keep_distance: float = 0.0
 
+@export_group("Sounds")
+## Leave empty to use the defaults from the SoundBank.
+@export var hurt_sound: AudioStream
+@export var death_sound: AudioStream
+
 @export_group("Rewards")
 @export var xp_reward: int = 5
 @export var loot: LootTable

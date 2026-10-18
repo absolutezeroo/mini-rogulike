@@ -10,10 +10,16 @@ extends Effect
 @export var offset: float = 0.0
 @export var knockback: float = 220.0
 @export var color: Color = Color(1.0, 0.8, 0.3)
+## Fire, smoke and screen shake instead of a simple ring.
+@export var explosive: bool = false
 
 
 func apply(user: Actor, aim: Vector2) -> void:
 	var center := user.global_position + aim * offset
 	var base := flat_damage + roundi(user.get_power() * damage_multiplier)
 	Combat.damage_area(user.world, user, center, radius, base, knockback)
-	user.world.spawn_vfx(RingVfx.create(center, radius, color))
+	if explosive:
+		Vfx.explosion(user.world, center, radius)
+	else:
+		user.world.spawn_vfx(RingVfx.create(center, radius, color))
+		user.world.spawn_vfx(SlashVfx.create(center, aim, radius, 360.0, color))

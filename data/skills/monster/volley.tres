@@ -1,11 +1,12 @@
 [gd_resource type="Resource" script_class="SkillDef" format=3]
 
-[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_3s8fs"]
-[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_vwekx"]
-[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_xl88n"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_vwekx"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_xl88n"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_a6im0"]
+[ext_resource type="AudioStream" path="res://data/audio/bolt.tres" id="4_rgor4"]
 
-[sub_resource type="Resource" id="Resource_a6im0"]
-script = ExtResource("2_vwekx")
+[sub_resource type="Resource" id="Resource_hesfl"]
+script = ExtResource("2_xl88n")
 damage_multiplier = 0.8
 speed = 300.0
 radius = 5.0
@@ -15,12 +16,13 @@ spread_degrees = 30.0
 color = Color(0.8784314, 0.88235295, 0.8666667, 1)
 
 [resource]
-script = ExtResource("3_xl88n")
+script = ExtResource("3_a6im0")
 id = &"volley"
 display_name = "Volley"
 short_label = ""
 color = Color(0.8784314, 0.88235295, 0.8666667, 1)
 cooldown = 7.0
-effects = Array[ExtResource("1_3s8fs")]([SubResource("Resource_a6im0")])
+effects = Array[ExtResource("1_vwekx")]([SubResource("Resource_hesfl")])
+sound = ExtResource("4_rgor4")
 ai_min_range = 80.0
 ai_max_range = 340.0

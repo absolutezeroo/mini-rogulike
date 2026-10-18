@@ -39,9 +39,11 @@ func open(player: Player) -> void:
 	_clear_selection()
 	_refresh()
 	show()
+	Sfx.play_ui(Sfx.bank.ui_open)
 
 
 func close() -> void:
+	Sfx.play_ui(Sfx.bank.ui_close)
 	hide()
 	closed.emit()
 
@@ -118,12 +120,14 @@ func _refresh_details() -> void:
 # --- Selection & actions -----------------------------------------------------
 
 func _select_item(item: ItemDef) -> void:
+	Sfx.play_ui(Sfx.bank.ui_click)
 	_selected_item = item
 	_selected_slot = NO_SLOT
 	_refresh_details()
 
 
 func _select_slot(slot: EquipmentDef.Slot) -> void:
+	Sfx.play_ui(Sfx.bank.ui_click)
 	_selected_item = null
 	_selected_slot = slot
 	_refresh_details()

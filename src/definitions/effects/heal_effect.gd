@@ -12,3 +12,4 @@ func apply(user: Actor, _aim: Vector2) -> void:
 	if healed > 0:
 		user.world.spawn_floating_text(user.head_position(), "+%d" % healed, Color("6ee787"))
 	user.world.spawn_vfx(RingVfx.create(user.global_position, user.radius * 2.5, Color("6ee787")))
+	Vfx.sparkles(user.world, user.global_position, Color("6ee787"))

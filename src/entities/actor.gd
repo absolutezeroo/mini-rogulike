@@ -20,6 +20,8 @@ const WEAPON_SCALE := 1.5
 const SWING_TIME := 0.14
 ## Very bright modulate = white-ish hit flash on sprites.
 const FLASH_MODULATE := Color(4.0, 4.0, 4.0, 1.0)
+const SQUASH_TIME := 0.12
+const AFTERIMAGE_INTERVAL := 0.03
 
 var faction: Faction = Faction.MONSTER
 var world: World
@@ -51,6 +53,8 @@ var _flash_time := 0.0
 var _swing_time := 0.0
 var _swing_arc := 0.0
 var _walk_time := 0.0
+var _squash_time := 0.0
+var _afterimage_timer := 0.0
 
 
 func _init() -> void:
@@ -124,6 +128,7 @@ func attack(direction: Vector2) -> bool:
 	if direction != Vector2.ZERO:
 		facing = direction.normalized()
 	_attack_cooldown = weapon.cooldown
+	Sfx.play_at(weapon.attack_sound, global_position)
 	if weapon.kind == WeaponDef.Kind.MELEE:
 		_swing_time = SWING_TIME
 		_swing_arc = deg_to_rad(minf(weapon.arc_degrees, 200.0))
@@ -136,6 +141,8 @@ func attack(direction: Vector2) -> bool:
 func start_dash(dash_velocity: Vector2, duration: float, invulnerable: bool) -> void:
 	_dash_velocity = dash_velocity
 	_dash_time = duration
+	_afterimage_timer = 0.0
+	Vfx.dust(world, global_position + Vector2(0, _feet_y()), 1.4)
 	if invulnerable:
 		_invulnerable_time = maxf(_invulnerable_time, duration + 0.05)
 
@@ -158,6 +165,10 @@ func take_hit(hit: HitInfo) -> void:
 	hp = maxi(hp - damage, 0)
 	_knockback += hit.knockback
 	_flash_time = FLASH_TIME
+	_squash_time = SQUASH_TIME
+	var spark_direction := hit.knockback.normalized() if hit.knockback != Vector2.ZERO else Vector2.UP
+	Vfx.hit(world, global_position + Vector2(0, -radius * 0.5), spark_direction, _hit_spark_color(hit))
+	Sfx.play_at(_hurt_sound(hit), global_position)
 	world.spawn_floating_text(
 		head_position(),
 		str(damage) + ("!" if hit.is_crit else ""),
@@ -185,6 +196,7 @@ func die(killer: Actor) -> void:
 	velocity = Vector2.ZERO
 	set_deferred("collision_layer", 0)
 	set_deferred("collision_mask", 0)
+	Sfx.play_at(_death_sound(), global_position)
 	_on_died(killer if is_instance_valid(killer) else null)
 	died.emit(self)
 	if free_on_death:
@@ -212,6 +224,18 @@ func _on_died(_killer: Actor) -> void:
 	pass
 
 
+func _hurt_sound(hit: HitInfo) -> AudioStream:
+	return hit.sound
+
+
+func _death_sound() -> AudioStream:
+	return null
+
+
+func _hit_spark_color(hit: HitInfo) -> Color:
+	return CRIT_TEXT_COLOR if hit.is_crit else Color.WHITE
+
+
 # --- Frame update ------------------------------------------------------------
 
 func _physics_process(delta: float) -> void:
@@ -225,6 +249,10 @@ func _physics_process(delta: float) -> void:
 	if _dash_time > 0.0:
 		_dash_time -= delta
 		velocity = _dash_velocity
+		_afterimage_timer -= delta
+		if _afterimage_timer <= 0.0 and sprite:
+			_afterimage_timer = AFTERIMAGE_INTERVAL
+			world.spawn_vfx(AfterimageVfx.create(global_position, sprite, _sprite_rect(), _flip_sign(), sprite_tint * Color(0.7, 0.9, 1.2)))
 	else:
 		velocity = _get_desired_velocity() + _knockback
 	_knockback = _knockback.move_toward(Vector2.ZERO, KNOCKBACK_FRICTION * delta)
@@ -237,6 +265,7 @@ func _tick_timers(delta: float) -> void:
 	_invulnerable_time = maxf(_invulnerable_time - delta, 0.0)
 	_flash_time = maxf(_flash_time - delta, 0.0)
 	_swing_time = maxf(_swing_time - delta, 0.0)
+	_squash_time = maxf(_squash_time - delta, 0.0)
 	if velocity.length() > 20.0:
 		_walk_time += delta
 	else:
@@ -296,13 +325,25 @@ func _draw() -> void:
 
 
 func _draw_sprite(modulate_color: Color) -> void:
-	var size := sprite.get_size() * SPRITE_SCALE
 	# Small hop while walking.
 	var bob := -absf(sin(_walk_time * 14.0)) * 2.0 if not is_dead else 0.0
-	var flip := -1.0 if facing.x < -0.1 else 1.0
-	draw_set_transform(Vector2(0, bob), 0.0, Vector2(flip, 1.0))
-	draw_texture_rect(sprite, Rect2(Vector2(-size.x * 0.5, _feet_y() - size.y), size), false, sprite_tint * modulate_color)
+	# Squash on hit, anchored at the feet.
+	var squash := _squash_time / SQUASH_TIME
+	var squash_scale := Vector2(1.0 + 0.25 * squash, 1.0 - 0.2 * squash)
+	var feet := Vector2(0, _feet_y() + bob)
+	draw_set_transform(feet, 0.0, Vector2(_flip_sign() * squash_scale.x, squash_scale.y))
+	draw_texture_rect(sprite, Rect2(_sprite_rect().position - Vector2(0, _feet_y()), _sprite_rect().size), false, sprite_tint * modulate_color)
 	draw_set_transform(Vector2.ZERO)
+
+
+## Where the sprite is drawn, relative to the actor's position (feet on the collision circle).
+func _sprite_rect() -> Rect2:
+	var size := sprite.get_size() * SPRITE_SCALE
+	return Rect2(Vector2(-size.x * 0.5, _feet_y() - size.y), size)
+
+
+func _flip_sign() -> float:
+	return -1.0 if facing.x < -0.1 else 1.0
 
 
 ## The equipped weapon, held in front and swung when attacking.

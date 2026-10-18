@@ -12,6 +12,7 @@ damage_multiplier = 0.0
 flat_damage = 25
 knockback = 350.0
 color = Color(1, 0.62352943, 0.10980392, 1)
+explosive = true
 
 [resource]
 script = ExtResource("4_caecy")

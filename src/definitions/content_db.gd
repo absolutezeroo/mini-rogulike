@@ -5,6 +5,7 @@ extends Resource
 
 @export var player: PlayerDef
 @export var dungeon: DungeonConfig
+@export var sounds: SoundBank
 @export var monsters: Array[MonsterDef] = []
 ## Items that can be found lying on the floor. Loot tables can also reference items not listed here.
 @export var items: Array[ItemDef] = []

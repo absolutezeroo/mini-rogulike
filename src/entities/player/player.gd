@@ -10,6 +10,7 @@ const AIM_HOLD_TIME := 0.35         ## Keep facing the aim direction this long a
 const MELEE_AIM_ASSIST := 70.0      ## Extra auto-aim distance beyond melee reach.
 const SKILL_AIM_RANGE := 520.0
 const SKILL_COUNT := 3
+const STEP_INTERVAL := 0.3
 
 var def: PlayerDef
 var inventory: Inventory
@@ -18,6 +19,7 @@ var xp := 0
 
 var _move_direction := Vector2.ZERO
 var _aim_hold := 0.0
+var _step_timer := 0.0
 
 @onready var camera: GameCamera = $Camera
 
@@ -55,6 +57,7 @@ func _think(delta: float) -> void:
 	_move_direction = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	if _move_direction != Vector2.ZERO and _aim_hold <= 0.0:
 		facing = _move_direction.normalized()
+	_update_footsteps(delta)
 
 	if Input.is_action_pressed("attack") and can_attack():
 		attack(get_aim_direction(_auto_aim_range()))
@@ -66,6 +69,17 @@ func _think(delta: float) -> void:
 
 	if Input.is_action_just_pressed("quick_item"):
 		use_quick_item()
+
+
+func _update_footsteps(delta: float) -> void:
+	if _move_direction.length() < 0.3 or is_dashing():
+		_step_timer = 0.0
+		return
+	_step_timer -= delta
+	if _step_timer <= 0.0:
+		_step_timer = STEP_INTERVAL
+		Sfx.play_at(Sfx.bank.footstep, global_position, -12.0)
+		Vfx.dust(world, global_position + Vector2(0, _feet_y()), 0.6)
 
 
 func _get_desired_velocity() -> Vector2:
@@ -118,12 +132,19 @@ func pick_up(item: ItemDef) -> bool:
 	if item is EquipmentDef and equipment.get_item(item.slot) == null:
 		equipment.equip(item)
 		Events.log_message("Equipped %s" % item.display_name, item.color)
+		_pickup_feedback(item, Sfx.bank.equip)
 		return true
 	if inventory.add(item):
 		Events.log_message("Picked up %s" % item.display_name, item.color)
+		_pickup_feedback(item, Sfx.bank.pickup)
 		return true
 	Events.log_message("Inventory full!", Color("ff6b6b"))
 	return false
+
+
+func _pickup_feedback(item: ItemDef, sound: AudioStream) -> void:
+	Sfx.play_at(sound, global_position)
+	Vfx.sparkles(world, global_position, item.color)
 
 
 func use_item(item: ItemDef) -> void:
@@ -138,6 +159,7 @@ func use_item(item: ItemDef) -> void:
 		var previous := equipment.equip(item)
 		if previous:
 			inventory.add(previous)
+		Sfx.play_ui(Sfx.bank.equip)
 		Events.log_message("Equipped %s" % item.display_name, item.color)
 
 
@@ -176,6 +198,8 @@ func gain_xp(amount: int) -> void:
 		Events.log_message("Level up! You are now level %d" % level, Color("ffd166"))
 		world.spawn_floating_text(head_position() + Vector2(0, -10), "LEVEL UP", Color("ffd166"))
 		world.spawn_vfx(RingVfx.create(global_position, 70.0, Color("ffd166")))
+		Vfx.sparkles(world, global_position, Color("ffd166"))
+		Sfx.play_ui(Sfx.bank.level_up)
 	xp_changed.emit(xp, xp_to_next_level(), level)
 
 
@@ -183,12 +207,26 @@ func gain_xp(amount: int) -> void:
 
 func _on_damaged(_hit: HitInfo, damage: int) -> void:
 	_invulnerable_time = HIT_INVULNERABILITY
+	HitStop.freeze(0.08)
 	camera.shake(clampf(float(damage) / get_max_hp() * 3.0, 0.25, 0.8))
 
 
 func _on_died(_killer: Actor) -> void:
 	Events.log_message("You died.", Color("ff6b6b"))
 	camera.shake(1.0)
+	Vfx.death(world, global_position, def.color)
+
+
+func _hurt_sound(_hit: HitInfo) -> AudioStream:
+	return Sfx.bank.player_hurt
+
+
+func _death_sound() -> AudioStream:
+	return Sfx.bank.player_death
+
+
+func _hit_spark_color(_hit: HitInfo) -> Color:
+	return Color("e84537")
 
 
 func _body_modulate() -> Color:

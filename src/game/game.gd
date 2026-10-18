@@ -17,6 +17,8 @@ var player: Player
 
 
 func _ready() -> void:
+	if content.sounds:
+		Sfx.bank = content.sounds
 	world.stairs_reached.connect(_on_stairs_reached)
 	hud.inventory_requested.connect(open_inventory)
 	inventory_panel.closed.connect(_on_inventory_closed)
@@ -26,6 +28,7 @@ func _ready() -> void:
 
 
 func start_run() -> void:
+	HitStop.reset()
 	get_tree().paused = false
 	game_over_panel.hide()
 	inventory_panel.hide()
@@ -46,6 +49,7 @@ func start_run() -> void:
 func open_inventory() -> void:
 	if player == null or player.is_dead or game_over_panel.visible:
 		return
+	HitStop.reset()
 	get_tree().paused = true
 	inventory_panel.open(player)
 
@@ -64,6 +68,7 @@ func _enter_floor() -> void:
 
 
 func _on_stairs_reached() -> void:
+	Sfx.play_ui(Sfx.bank.stairs)
 	depth += 1
 	# Deferred: we are inside a physics callback, where the level can't be rebuilt.
 	_enter_floor.call_deferred()
@@ -75,4 +80,5 @@ func _on_inventory_closed() -> void:
 
 func _on_player_died(_actor: Actor) -> void:
 	await get_tree().create_timer(1.2).timeout
+	Sfx.play_ui(Sfx.bank.game_over)
 	game_over_panel.show_result(depth, player.level, kills)

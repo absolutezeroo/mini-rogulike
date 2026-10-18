@@ -12,6 +12,8 @@ var _checks := 0
 
 
 func _ready() -> void:
+	# Without a sound card, playbacks are never released; keep the output clean.
+	Sfx.enabled = false
 	CONTENT = load("res://data/content_db.tres")
 	GAME_SCENE = load("res://src/game/game.tscn")
 	_test_stat_block()
@@ -21,6 +23,9 @@ func _ready() -> void:
 	_test_inventory_and_equipment()
 	await _test_gameplay()
 	print("\n%d checks, %d failed" % [_checks, _failures])
+	Sfx.stop_all()
+	HitStop.reset()
+	await _frames(2)
 	get_tree().quit(_failures)
 
 
@@ -69,6 +74,16 @@ func _test_content() -> void:
 		check(CONTENT.pick_monster(depth, rng) != null, "a monster can spawn at depth %d" % depth)
 		check(CONTENT.pick_item(depth, rng) != null, "an item can spawn at depth %d" % depth)
 	check(CONTENT.pick_monster(1, rng).min_depth == 1, "depth filter respected")
+	check(CONTENT.sounds != null, "content db has a sound bank")
+	for property in CONTENT.sounds.get_property_list():
+		if property.type == TYPE_OBJECT and property.usage & PROPERTY_USAGE_SCRIPT_VARIABLE:
+			check(CONTENT.sounds.get(property.name) != null, "sound bank: %s is set" % property.name)
+	for item in CONTENT.items:
+		if item is WeaponDef:
+			check(item.attack_sound != null, "%s has an attack sound" % item.id)
+		check(item.icon != null, "%s has an icon" % item.id)
+	for monster in CONTENT.monsters:
+		check(monster.icon != null, "%s has a sprite" % monster.id)
 
 
 func _test_generation() -> void:

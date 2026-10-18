@@ -1,14 +1,16 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
-[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="1_fxufr"]
+[ext_resource type="AudioStream" path="res://data/audio/swing.tres" id="1_bsrih"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="2_rgnys"]
 
 [resource]
-script = ExtResource("1_fxufr")
+script = ExtResource("2_rgnys")
 damage = 6
 cooldown = 0.9
 reach = 16.0
 knockback = 80.0
 arc_degrees = 90.0
+attack_sound = ExtResource("1_bsrih")
 slot = 0
 id = &"spider_bite"
 display_name = "Venom Bite"

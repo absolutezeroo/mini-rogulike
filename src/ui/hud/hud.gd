@@ -18,6 +18,7 @@ var _player: Player
 @onready var _attack_button: ActionButton = %AttackButton
 @onready var _quick_item_button: ActionButton = %QuickItemButton
 @onready var _skill_buttons: Array[ActionButton] = [%Skill1Button, %Skill2Button, %Skill3Button]
+@onready var _vignette: DamageVignette = %DamageVignette
 
 
 func _ready() -> void:
@@ -33,11 +34,14 @@ func _ready() -> void:
 func bind_player(player: Player) -> void:
 	if _player:
 		_player.health_changed.disconnect(_on_health_changed)
+		_player.health_changed.disconnect(_vignette.on_health_changed)
 		_player.stats_changed.disconnect(_refresh_info)
 		_player.xp_changed.disconnect(_on_xp_changed)
 		_player.equipment.changed.disconnect(_refresh_info)
 	_player = player
 	_player.health_changed.connect(_on_health_changed)
+	_vignette.reset()
+	_player.health_changed.connect(_vignette.on_health_changed)
 	_player.stats_changed.connect(_refresh_info)
 	_player.xp_changed.connect(_on_xp_changed)
 	_player.equipment.changed.connect(_refresh_info)

@@ -45,6 +45,7 @@ static func melee_strike(attacker: Actor, direction: Vector2, weapon: WeaponDef)
 			continue
 		var hit := make_hit_from(attacker, attacker.get_power())
 		hit.knockback = to_target.normalized() * weapon.knockback
+		hit.sound = weapon.hit_sound
 		target.take_hit(hit)
 
 

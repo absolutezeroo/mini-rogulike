@@ -1,23 +1,27 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="1_1sppl"]
-[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="2_p4anw"]
+[ext_resource type="AudioStream" path="res://data/audio/swing_heavy.tres" id="1_wx1yd"]
+[ext_resource type="AudioStream" path="res://data/audio/punch_heavy.tres" id="2_50ra3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/kenney_tiny_dungeon/tilemap_packed.png" id="3_i8hpq"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="4_ctbe8"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_wx1yd"]
-atlas = ExtResource("1_1sppl")
+[sub_resource type="AtlasTexture" id="AtlasTexture_nsus4"]
+atlas = ExtResource("3_i8hpq")
 region = Rect2(144, 144, 16, 16)
 
 [resource]
-script = ExtResource("2_p4anw")
+script = ExtResource("4_ctbe8")
 damage = 12
 cooldown = 1.8
 reach = 34.0
 knockback = 320.0
 arc_degrees = 140.0
+attack_sound = ExtResource("1_wx1yd")
+hit_sound = ExtResource("2_50ra3")
 slot = 0
 id = &"cyclops_club"
 display_name = "Cyclops Club"
-icon = SubResource("AtlasTexture_wx1yd")
+icon = SubResource("AtlasTexture_nsus4")
 glyph = "T"
 color = Color(0.34509805, 0.5058824, 0.34117648, 1)
 spawn_weight = 0

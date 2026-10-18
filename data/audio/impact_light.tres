@@ -1,0 +1,17 @@
+[gd_resource type="AudioStreamRandomizer" format=3]
+
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/combat/impact_light_000.ogg" id="1_qgh5k"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/combat/impact_light_001.ogg" id="2_0qr38"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/combat/impact_light_002.ogg" id="3_shs25"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/combat/impact_light_003.ogg" id="4_mqu43"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/combat/impact_light_004.ogg" id="5_tchpi"]
+
+[resource]
+random_pitch = 1.2
+random_volume_offset_db = 1.0
+streams_count = 5
+stream_0/stream = ExtResource("1_qgh5k")
+stream_1/stream = ExtResource("2_0qr38")
+stream_2/stream = ExtResource("3_shs25")
+stream_3/stream = ExtResource("4_mqu43")
+stream_4/stream = ExtResource("5_tchpi")

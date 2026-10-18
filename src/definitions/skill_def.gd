@@ -11,6 +11,7 @@ extends Resource
 @export var color: Color = Color.WHITE
 @export var cooldown: float = 6.0
 @export var effects: Array[Effect] = []
+@export var sound: AudioStream
 
 @export_group("Monster AI")
 ## Monsters only use the skill when their target is between these distances.
@@ -21,5 +22,6 @@ extends Resource
 
 
 func activate(user: Actor, aim: Vector2) -> void:
+	Sfx.play_at(sound, user.global_position)
 	for effect in effects:
 		effect.apply(user, aim)
