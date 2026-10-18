@@ -1,0 +1,112 @@
+[gd_resource type="Resource" script_class="BossDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_d51cp"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/bosses/demon_cyclops.tres" id="2_ss85h"]
+[ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="3_c80jh"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/demon_cyclops/idle.png" id="4_7e0hy"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="5_rfrp0"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="6_vhaxg"]
+[ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="7_ptf4d"]
+[ext_resource type="Resource" path="res://data/items/weapons/hammer.tres" id="8_dngni"]
+[ext_resource type="Resource" path="res://data/items/armors/shadow_cloak.tres" id="9_nk8yc"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="10_goggs"]
+[ext_resource type="Script" path="res://src/definitions/boss_phase.gd" id="11_mjgm1"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="12_f413d"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="13_fmbws"]
+[ext_resource type="Resource" path="res://data/skills/boss/eye_beam.tres" id="14_v1ga4"]
+[ext_resource type="Resource" path="res://data/skills/boss/quake.tres" id="15_7xy23"]
+[ext_resource type="Resource" path="res://data/skills/boss/call_skeletons.tres" id="16_41kxt"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/demon_cyclops/portrait.png" id="17_hw63p"]
+[ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="18_lv27d"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/demon_club.tres" id="19_jycnt"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sogvl"]
+atlas = ExtResource("4_7e0hy")
+region = Rect2(0, 0, 50, 50)
+
+[sub_resource type="Resource" id="Resource_oiiuw"]
+script = ExtResource("5_rfrp0")
+item = ExtResource("6_vhaxg")
+weight = 4
+
+[sub_resource type="Resource" id="Resource_nvqot"]
+script = ExtResource("5_rfrp0")
+item = ExtResource("7_ptf4d")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_776n5"]
+script = ExtResource("5_rfrp0")
+item = ExtResource("8_dngni")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_o7f0m"]
+script = ExtResource("5_rfrp0")
+item = ExtResource("9_nk8yc")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_6sotq"]
+script = ExtResource("10_goggs")
+drop_chance = 1.0
+rolls = 3
+entries = Array[ExtResource("5_rfrp0")]([SubResource("Resource_oiiuw"), SubResource("Resource_nvqot"), SubResource("Resource_776n5"), SubResource("Resource_o7f0m")])
+
+[sub_resource type="Resource" id="Resource_qajpf"]
+script = ExtResource("12_f413d")
+attack = 3
+move_speed = 20.0
+
+[sub_resource type="Resource" id="Resource_x7qpn"]
+script = ExtResource("11_mjgm1")
+hp_ratio = 0.55
+message = "CALLS THE DEAD!"
+bonuses = SubResource("Resource_qajpf")
+skills = Array[ExtResource("13_fmbws")]([ExtResource("14_v1ga4"), ExtResource("15_7xy23"), ExtResource("16_41kxt")])
+windup_multiplier = 0.85
+tint = Color(1, 0.72, 0.72, 1)
+
+[sub_resource type="Resource" id="Resource_sco5u"]
+script = ExtResource("12_f413d")
+attack = 2
+move_speed = 40.0
+attack_speed = 0.4
+
+[sub_resource type="Resource" id="Resource_dan4u"]
+script = ExtResource("11_mjgm1")
+hp_ratio = 0.2
+message = "BERSERK!"
+bonuses = SubResource("Resource_sco5u")
+windup_multiplier = 0.7
+tint = Color(1, 0.55, 0.55, 1)
+
+[sub_resource type="Resource" id="Resource_273k5"]
+script = ExtResource("12_f413d")
+max_hp = 380
+defense = 3
+move_speed = 70.0
+
+[resource]
+script = ExtResource("18_lv27d")
+title = "Warden of the Deep Cave"
+portrait = ExtResource("17_hw63p")
+phases = Array[ExtResource("11_mjgm1")]([SubResource("Resource_x7qpn"), SubResource("Resource_dan4u")])
+stats = SubResource("Resource_273k5")
+weapon = ExtResource("19_jycnt")
+skills = Array[ExtResource("13_fmbws")]([ExtResource("14_v1ga4"), ExtResource("15_7xy23")])
+radius = 22.0
+frames = ExtResource("2_ss85h")
+frames_offset = Vector2(0, -18)
+head_height = 70.0
+detect_radius = 900.0
+attack_windup = 0.65
+attack_recovery = 0.5
+hurt_sound = ExtResource("3_c80jh")
+death_sound = ExtResource("1_d51cp")
+xp_reward = 120
+loot = SubResource("Resource_6sotq")
+id = &"demon_cyclops"
+display_name = "Demon Cyclops"
+description = "A horned giant with a burning eye."
+icon = SubResource("AtlasTexture_sogvl")
+glyph = "D"
+color = Color(0.9372549, 0.2784314, 0.43529412, 1)
+spawn_weight = 0

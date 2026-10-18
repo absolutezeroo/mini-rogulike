@@ -17,4 +17,4 @@ decor_tiles = PackedInt32Array(4, 5, 6, 7, 13, 14, 15)
 decor_chance = 0.04
 wall_atlas = ExtResource("6_cqk0w")
 wall_top_color = Color(1, 0.79607844, 0.5529412, 1)
-stairs_atlas = ExtResource("5_55wo4")
+props_atlas = ExtResource("5_55wo4")

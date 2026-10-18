@@ -9,3 +9,6 @@ var source: Actor
 var knockback := Vector2.ZERO
 ## Impact sound (from the weapon). Null = the defender's own hurt sound.
 var sound: AudioStream
+## Damage caused by another effect (burn, thorns, shockwave...). Secondary hits don't trigger
+## on-hit perks, so effects can't chain into each other forever, and they skip hit stop.
+var is_secondary: bool = false

@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_pji2j"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="2_bphus"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_dmk67"]
+[ext_resource type="AudioStream" path="res://data/audio/explosion.tres" id="4_pdequ"]
+
+[sub_resource type="Resource" id="Resource_gltyt"]
+script = ExtResource("2_bphus")
+radius = 130.0
+damage_multiplier = 1.0
+flat_damage = 8
+knockback = 380.0
+explosive = true
+
+[resource]
+script = ExtResource("3_dmk67")
+id = &"quake"
+display_name = "Quake"
+color = Color(0.9372549, 0.2784314, 0.43529412, 1)
+effects = Array[ExtResource("1_pji2j")]([SubResource("Resource_gltyt")])
+sound = ExtResource("4_pdequ")
+ai_max_range = 120.0
+cast_time = 0.9
+telegraph_radius = 130.0

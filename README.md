@@ -1,21 +1,21 @@
 # Mini Roguelike
 
 Real-time action roguelike for Godot 4.7 (GDScript, Compatibility renderer).
-Procedural floors, monsters with telegraphed attacks, melee and ranged weapons,
-armor, consumables, skills, loot, XP and levels. Plays with touch controls,
+Procedural floors, monsters with telegraphed attacks, a boss every 3 floors, melee and ranged weapons,
+armor, consumables, skills, loot, XP, and a perk to choose at every level up. Plays with touch controls,
 keyboard or gamepad.
 
 ## Project layout
 
 ```
 assets/              Art, audio, fonts and the UI theme (Ninja Adventure pack)
-  characters/          Hero and monster sprite sheets (4 directions, frame by frame)
+  characters/          Hero and monster sprite sheets (4 directions, frame by frame), bosses/
   weapons/             Weapon icons + attack/ sheets (the weapon in hand, per direction and frame)
   fx/                  Sprite-sheet effects: slashes, claws, explosion, smoke, magic
   projectiles/         Arrows, fireballs, magic bolts
   items/               Item icons
   tiles/               Dungeon floors, cliffs and walls
-  ui/                  Wood UI, round buttons (sphere/), icons, emotes
+  ui/                  Wood UI, round buttons (sphere/), icons, perk icons (perks/), emotes
   fonts/               Pixel font
   audio/               Sound effects (sfx/), music (one track per floor theme) and jingles
   shaders/             Screen effects (damage vignette)
@@ -26,26 +26,28 @@ data/                Game content as .tres resources (no code)
   dungeon/             Floor size, room count, difficulty curve, floor themes (themes/)
   visuals/             SpriteFrames: hero.tres, monsters/, weapons/ (the animations themselves)
   audio/               Sounds as AudioStreamRandomizer (variations + pitch) and sound_bank.tres
-  monsters/            One file per monster type
+  monsters/            One file per monster type, bosses in bosses/
+  perks/               Level-up perks (common/) and boss relics (relics/)
   items/weapons/       Player weapons (monster/ = monster-only weapons)
   items/armors/        Head and body armor
   items/consumables/   Potions, scrolls, bombs...
-  skills/              Player and monster skills
+  skills/              Player, monster and boss skills
 src/
   autoload/            Events (signal bus), Sfx (sound player), HitStop (impact freeze)
   core/                Small shared helpers (physics layers, weighted random)
   definitions/         Resource classes describing content (the "schema" of data/)
     effects/             Building blocks for skills and consumables
+    passives/            Building blocks for perks (on hit, on kill, on dash...)
     items/               ItemDef > EquipmentDef > WeaponDef / ArmorDef, ConsumableDef
     loot/                LootTable, LootEntry
   dungeon/             Map data, generator, drawing
-  world/               World (owns the current floor) and FloorPopulator
+  world/               World (owns the current floor), FloorPopulator, BossArena
   entities/            Actor (shared base), Player, Monster, Projectile, ItemPickup, Stairs
-  components/          Inventory, Equipment, SkillSet
+  components/          Inventory, Equipment, SkillSet, PerkSet, StatusSet (burn...)
   combat/              Damage rules, hits, projectile specs
-  ai/                  StateMachine + monster states (Idle, Chase, Attack)
+  ai/                  StateMachine + monster states (Idle, Chase, Attack, Cast)
   vfx/                 Particles (particles/), sprite-sheet FX, emotes, afterimages, damage numbers; Vfx helpers
-  ui/                  HUD, touch controls, inventory, game over
+  ui/                  HUD, touch controls, inventory, perk choice, game over
   game/                Game: main scene, run and floor flow
 tests/               Headless test suite with a bot that plays the game
 ```
@@ -64,7 +66,9 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 - **Skills and consumables** are both lists of `Effect` resources
   (damage area, projectile, heal, dash, buff). New effect = new class extending `Effect`.
 - **Monsters** are driven by a `StateMachine`: Idle (wander) > Chase (path or straight line, use skills)
-  > Attack (telegraphed wind-up, strike, recovery).
+  > Attack (telegraphed wind-up, strike, recovery). Skills with a `cast_time` go through Cast
+  (glow, red circle, cast animation) so the player can dodge them.
+- **Game** offers the perk choices (pausing the game) and reacts to boss fights through `Events`.
 - **UI** listens to signals (`Events`, Player signals) and never drives gameplay directly.
   Touch controls only press input actions, so keyboard, gamepad and touch share one code path.
 
@@ -80,6 +84,47 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   from `data/audio/sound_bank.tres`. Each sound is an `AudioStreamRandomizer` listing its variations.
   Buses: Master > SFX, UI, Music (`default_bus_layout.tres`). Each floor theme has its own music.
 - **Hit stop**: a few frames of freeze on impacts (`HitStop.freeze(seconds)`).
+
+## Perks and relics
+
+Every level up pauses the game and offers **1 perk out of 3**. Taking a perk again levels it up
+(up to its `max_stacks`). Bosses drop a choice of **relics** (rare perks).
+
+A `PerkDef` (in `data/perks/`) is stat bonuses + a list of `Passive`s, both multiplied by its level:
+
+| Passive | Hook | Used by |
+|---|---|---|
+| `HealOnKillPassive` | on kill | Vampirism |
+| `ThornsPassive` | on damaged | Thorns |
+| `BurnOnHitPassive` | on hit | Ignite (burn status) |
+| `CritShockwavePassive` | on hit (crits) | Thunderclap |
+| `DashShockwavePassive` | on dash | Shock Roll |
+| `LootOnKillPassive` | on kill | Fortune |
+| `ExecutePassive` | before a hit | Executioner |
+| `ExtraProjectilesPassive` | every volley | Multishot |
+| `CheatDeathPassive` | before dying | Phoenix Feather |
+
+Damage caused by a passive (burn, thorns, shockwaves) is a *secondary* hit: it never triggers
+other on-hit perks, so effects can't chain forever. Perks are stored per actor in a `PerkSet`,
+so monsters could use them too (elites, later).
+
+## Bosses
+
+Floors 3, 6, 9... (`DungeonConfig.boss_every`) are a start room and one big arena. The boss sleeps
+in the middle; walking in closes the exits with spikes and wakes it up (boss music, health bar
+with its portrait). A `BossDef` is a `MonsterDef` plus:
+
+- **phases**: at a given HP ratio the boss gets stat bonuses, new skills, a shorter wind-up and a tint;
+- **cast skills**: rings of projectiles, ground quakes (red circle), summons (`SummonEffect`), dashes;
+- **relic_choices**: when it dies the spikes go down, the stairs appear and you pick a relic.
+
+| Floor | Boss | Style |
+|---|---|---|
+| 3 | King Slime | 360° slams, slime rain, splits into slimes at half HP |
+| 6 | Demon Cyclops | heavy club, fire eye beam, quake, calls skeletons, berserk at 20% |
+| 9 | Crimson Tengu | fast blade, dashes, feather storms, calls spirits |
+
+After the last one they loop, stronger every time (monster HP and attack grow with depth).
 
 ## Animations
 
@@ -106,6 +151,7 @@ The animations live in `SpriteFrames` resources in `data/visuals/`, named `<pose
 | `dash_*` | rolling |
 | `hit_*` | taking a hit |
 | `dead` | dying |
+| `cast`, `intro` | bosses: telegraphed skill, waking up |
 
 A missing animation falls back to a simpler one (`attack_left` > `attack`), and creatures with no
 attack pose lunge instead. Monsters freeze in their attack pose and shake during their wind-up,
@@ -130,6 +176,9 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 | A player skill | Create a `SkillDef` in `data/skills/player/`, add it to `player_def.tres` > Skills (max 3) |
 | A new kind of effect | New script in `src/definitions/effects/` extending `Effect`, override `apply()` |
 | A new monster behaviour | New state script in `src/ai/states/`, add a node for it in `monster.tscn` |
+| A perk | New `PerkDef` in `data/perks/`, add it to `content_db.tres` > Perks |
+| A new kind of perk | New script in `src/definitions/passives/` extending `Passive`, override the hooks you need |
+| A boss | New `BossDef` in `data/monsters/bosses/`, add it to `dungeon_config.tres` > Bosses |
 
 Each piece of content has an **icon** (any `Texture2D`) and an **icon tint** to recolor it.
 Monsters and the player also have `frames` (their SpriteFrames in `data/visuals/`): a new monster
@@ -147,6 +196,7 @@ A `spawn_weight` of 0 means it never spawns on its own (starting gear, loot-only
 | Attack (auto-aim, hold) | Big red button | J / Space | X |
 | Skills 1-3 | Small round buttons | K L O or 1 2 3 | A B Y |
 | Quick potion | Potion button | Q / H | LB |
+| Choose a perk | Tap a card | Arrows + Enter | D-pad + A |
 | Inventory | Bag button | I / Tab | Back |
 
 ## Tests
@@ -157,8 +207,9 @@ From the project root (desktop Godot):
 godot --headless --fixed-fps 60 res://tests/run_tests.tscn
 ```
 
-Checks the rules, the content database, 100 generated maps, inventory and equipment,
-then a bot plays the real game (kills, level ups, stairs, death and restart).
+Checks the rules, the content database, 100 generated maps, 40 boss arenas, inventory, equipment
+and every kind of perk, then a bot plays the real game (kills, level ups and perk choices, stairs,
+a full boss fight with its phases and relic, death and restart).
 The exit code is the number of failures.
 
 ## Art and credits

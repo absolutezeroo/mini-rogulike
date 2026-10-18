@@ -5,7 +5,8 @@ extends Node2D
 ##   Rig (this, at the actor's feet)
 ##   └── Visual        flash shader, scaled 2x (units inside = art pixels)
 ##       └── Squash    squash & stretch on hits, lunges
-##           ├── Body    AnimatedSprite2D: idle_/walk_/attack_/hit_/dash_ + down/up/left/right, dead
+##           ├── Body    AnimatedSprite2D: idle_/walk_/attack_/hit_/dash_ + down/up/left/right, dead,
+##           │           and for bosses cast (telegraphed skills) and intro (wakes up)
 ##           └── Weapon  AnimatedSprite2D: the weapon in hand, attack_<dir>, synced frame by frame
 ##
 ## Sprites are drawn per direction (no mirroring, no free rotation): the weapon sits in the hand
@@ -121,6 +122,28 @@ func play_windup(aim: Vector2, duration: float) -> void:
 	tween.tween_callback(func() -> void: _winding_up = false)
 
 
+## Telegraph before a monster skill: the "cast" animation fitted to `duration`, or the wind-up pose.
+func play_cast(aim: Vector2, duration: float) -> void:
+	if _dead or body.sprite_frames == null:
+		return
+	var animation := _animation_for(&"cast")
+	if animation == &"":
+		play_windup(aim, duration)
+		return
+	direction = direction_name(aim)
+	_winding_up = true
+	body.stop()
+	body.play(animation, maxf(0.1, _length(body.sprite_frames, animation) / maxf(duration, 0.05)))
+
+
+## A boss waking up in its arena ("intro" animation, if it has one).
+func play_intro() -> void:
+	if _dead or body.sprite_frames == null or _animation_for(&"intro") == &"":
+		return
+	_winding_up = true
+	_play(&"intro", 1.0, true)
+
+
 func play_hurt() -> void:
 	_flash = FLASH_TIME
 	_squash = SQUASH_TIME
@@ -202,5 +225,8 @@ func _end_attack() -> void:
 
 
 func _on_body_animation_finished() -> void:
-	if String(body.animation).begins_with("attack"):
+	var animation := String(body.animation)
+	if animation.begins_with("attack"):
 		_end_attack()
+	elif animation.begins_with("cast") or animation.begins_with("intro"):
+		_winding_up = false

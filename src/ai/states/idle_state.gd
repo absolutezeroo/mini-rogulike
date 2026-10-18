@@ -12,6 +12,9 @@ func enter() -> void:
 
 
 func physics_update(delta: float) -> void:
+	if actor.dormant:
+		actor.move_direction = Vector2.ZERO
+		return
 	if actor.notice_target():
 		# "!" above the head: the player knows this one is coming.
 		Vfx.alert(actor.world, actor.head_position())

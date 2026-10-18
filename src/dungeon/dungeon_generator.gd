@@ -28,6 +28,26 @@ static func generate(config: DungeonConfig, rng: RandomNumberGenerator) -> Dunge
 	return map
 
 
+## Boss floor: a small start room and one big arena, joined by a single corridor
+## (so the arena has only one entrance to close). The stairs appear in the arena later.
+static func generate_arena(config: DungeonConfig, rng: RandomNumberGenerator) -> DungeonMap:
+	var map := DungeonMap.new(config.width, config.height, config.tile_size)
+	var arena_size := config.arena_size
+	var arena := Rect2i(
+		Vector2i(config.width - arena_size.x - rng.randi_range(4, 8), (config.height - arena_size.y) / 2 + rng.randi_range(-6, 6)),
+		arena_size)
+	var start := Rect2i(Vector2i(rng.randi_range(4, 8), arena.get_center().y - 3 + rng.randi_range(-8, 8)), Vector2i(7, 7))
+	_carve_rect(map, start)
+	_carve_rect(map, arena)
+	_carve_corridor(map, start.get_center(), arena.get_center(), config.corridor_width, rng)
+	map.rooms.append(start)
+	map.rooms.append(arena)
+	map.boss_room = arena
+	map.start_cell = start.get_center()
+	map.stairs_cell = arena.get_center()
+	return map
+
+
 static func _overlaps_any(room: Rect2i, rooms: Array[Rect2i]) -> bool:
 	for other in rooms:
 		if room.grow(2).intersects(other):

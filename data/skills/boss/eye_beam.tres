@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_cenxh"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_q7a3n"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/fireball.png" id="3_sfl7r"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_hf4la"]
+[ext_resource type="AudioStream" path="res://data/audio/fireball.tres" id="5_swyth"]
+
+[sub_resource type="Resource" id="Resource_ljwnb"]
+script = ExtResource("2_q7a3n")
+damage_multiplier = 0.6
+flat_damage = 6
+radius = 7.0
+count = 5
+spread_degrees = 50.0
+knockback = 140.0
+color = Color(1, 0.41960785, 0.20784314, 1)
+texture = ExtResource("3_sfl7r")
+
+[resource]
+script = ExtResource("4_hf4la")
+id = &"eye_beam"
+display_name = "Eye Beam"
+color = Color(1, 0.41960785, 0.20784314, 1)
+cooldown = 4.0
+effects = Array[ExtResource("1_cenxh")]([SubResource("Resource_ljwnb")])
+sound = ExtResource("5_swyth")
+ai_min_range = 100.0
+ai_max_range = 460.0
+cast_time = 0.6

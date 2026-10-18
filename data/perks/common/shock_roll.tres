@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="PerkDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/perks/shock_roll.png" id="1_t7gjp"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_uqqca"]
+[ext_resource type="Script" path="res://src/definitions/passives/dash_shockwave_passive.gd" id="3_7fkon"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_h3flf"]
+
+[sub_resource type="Resource" id="Resource_uj7g7"]
+script = ExtResource("3_7fkon")
+
+[resource]
+script = ExtResource("4_h3flf")
+id = &"shock_roll"
+display_name = "Shock Roll"
+description = "Rolling releases a shockwave that hurts and pushes enemies away."
+icon = ExtResource("1_t7gjp")
+color = Color(0.6039216, 0.81960785, 0.83137256, 1)
+weight = 6
+passives = Array[ExtResource("2_uqqca")]([SubResource("Resource_uj7g7")])

@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/fx/circularslash.png" id="1_kbo4a"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="2_js6gp"]
+[ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="3_3ed5b"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="4_npx2h"]
+
+[resource]
+script = ExtResource("4_npx2h")
+damage = 9
+cooldown = 1.6
+reach = 40.0
+knockback = 320.0
+attack_animation = 2
+attack_fx = ExtResource("1_kbo4a")
+arc_degrees = 360.0
+attack_sound = ExtResource("2_js6gp")
+hit_sound = ExtResource("3_3ed5b")
+slot = 0
+id = &"slime_slam"
+display_name = "Royal Slam"
+glyph = "R"
+color = Color(0.47843137, 0.827451, 1, 1)
+spawn_weight = 0

@@ -1,0 +1,41 @@
+class_name Passive
+extends Resource
+## Behaviour granted by a perk (see PerkDef). Override only the hooks you need.
+## `perk` holds the stack count and a `memory` dictionary for state that must last
+## the whole run (charges, timers...): never store run state on the Passive itself,
+## the resource is shared by everyone who has the perk.
+
+
+## Before an outgoing hit is mitigated: change its damage, crit...
+func modify_outgoing_hit(_owner: Actor, _target: Actor, _hit: HitInfo, _perk: PerkSet.Entry) -> void:
+	pass
+
+
+## After the owner's hit landed on `target` (direct hits only, see HitInfo.is_secondary).
+func on_hit_dealt(_owner: Actor, _target: Actor, _hit: HitInfo, _damage: int, _perk: PerkSet.Entry) -> void:
+	pass
+
+
+## After the owner took damage.
+func on_damaged(_owner: Actor, _hit: HitInfo, _damage: int, _perk: PerkSet.Entry) -> void:
+	pass
+
+
+## The owner killed `victim`.
+func on_kill(_owner: Actor, _victim: Actor, _perk: PerkSet.Entry) -> void:
+	pass
+
+
+## The owner started a dash or roll.
+func on_dash(_owner: Actor, _perk: PerkSet.Entry) -> void:
+	pass
+
+
+## Every projectile volley the owner fires (weapons and skills) goes through here.
+func modify_projectiles(_owner: Actor, _spec: ProjectileSpec, _perk: PerkSet.Entry) -> void:
+	pass
+
+
+## The owner is about to die. Return true to keep it alive (it is the passive's job to restore HP).
+func prevent_death(_owner: Actor, _perk: PerkSet.Entry) -> bool:
+	return false

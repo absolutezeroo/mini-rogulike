@@ -4,6 +4,8 @@ extends Actor
 ## go through the same Input actions), auto-aims, and owns inventory and XP.
 
 signal xp_changed(xp: int, xp_needed: int, level: int)
+## Emitted once per level gained (the game then offers a perk).
+signal leveled_up(level: int)
 
 const HIT_INVULNERABILITY := 0.6
 const AIM_HOLD_TIME := 0.35         ## Keep facing the aim direction this long after attacking.
@@ -200,6 +202,7 @@ func gain_xp(amount: int) -> void:
 		world.spawn_floating_text(head_position() + Vector2(0, -10), "LEVEL UP", Color("ffd166"))
 		Vfx.magic(world, global_position, Color("ffd166"))
 		Sfx.play_ui(Sfx.bank.level_up)
+		leveled_up.emit(level)
 	xp_changed.emit(xp, xp_to_next_level(), level)
 
 

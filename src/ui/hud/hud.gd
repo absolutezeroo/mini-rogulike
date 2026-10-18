@@ -8,6 +8,7 @@ const SKILL_ACTIONS: Array[StringName] = [&"skill_1", &"skill_2", &"skill_3"]
 const BAG_ICON: Texture2D = preload("res://assets/ui/icons/bag.png")
 
 var _player: Player
+var _banner_tween: Tween
 
 @onready var _hp_bar: StatBar = %HpBar
 @onready var _xp_bar: StatBar = %XpBar
@@ -18,6 +19,8 @@ var _player: Player
 @onready var _quick_item_button: ActionButton = %QuickItemButton
 @onready var _skill_buttons: Array[ActionButton] = [%Skill1Button, %Skill2Button, %Skill3Button]
 @onready var _vignette: DamageVignette = %DamageVignette
+@onready var _perk_tray: PerkTray = %PerkTray
+@onready var _boss_bar: BossBar = %BossBar
 
 
 func _ready() -> void:
@@ -42,6 +45,8 @@ func bind_player(player: Player) -> void:
 	_player.xp_changed.connect(_on_xp_changed)
 	_player.equipment.changed.connect(_refresh_info)
 	_message_log.clear()
+	_perk_tray.bind(player.perks)
+	_boss_bar.hide_now()
 
 	for i in _skill_buttons.size():
 		var button := _skill_buttons[i]
@@ -99,10 +104,18 @@ func _refresh_info() -> void:
 	]
 
 
+## Big centered text that fades out (floor names, boss names...).
+func show_banner(text: String, color: Color = Color(1, 0.82, 0.4)) -> void:
+	_depth_banner.text = text
+	_depth_banner.add_theme_color_override("font_color", color)
+	if _banner_tween:
+		_banner_tween.kill()
+	_banner_tween = create_tween()
+	_depth_banner.modulate.a = 1.0
+	_banner_tween.tween_interval(1.4)
+	_banner_tween.tween_property(_depth_banner, "modulate:a", 0.0, 0.6)
+
+
 func _on_depth_changed(depth: int) -> void:
 	_refresh_info()
-	_depth_banner.text = "Depth %d" % depth
-	var tween := create_tween()
-	_depth_banner.modulate.a = 1.0
-	tween.tween_interval(1.2)
-	tween.tween_property(_depth_banner, "modulate:a", 0.0, 0.6)
+	show_banner("Depth %d" % depth)

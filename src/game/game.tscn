@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://src/game/game.gd" id="1_game"]
 [ext_resource type="Resource" path="res://data/content_db.tres" id="2_content"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://src/ui/hud/hud.tscn" id="4_hud"]
 [ext_resource type="PackedScene" path="res://src/ui/inventory/inventory_panel.tscn" id="5_inventory"]
 [ext_resource type="PackedScene" path="res://src/ui/game_over/game_over_panel.tscn" id="6_game_over"]
+[ext_resource type="PackedScene" path="res://src/ui/perk_choice/perk_choice_panel.tscn" id="7_perks"]
 
 [node name="Game" type="Node"]
 process_mode = 3
@@ -22,5 +23,7 @@ process_mode = 1
 layer = 10
 
 [node name="InventoryPanel" parent="Menus" instance=ExtResource("5_inventory")]
+
+[node name="PerkChoicePanel" parent="Menus" instance=ExtResource("7_perks")]
 
 [node name="GameOverPanel" parent="Menus" instance=ExtResource("6_game_over")]
