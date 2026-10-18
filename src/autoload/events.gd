@@ -5,6 +5,10 @@ extends Node
 signal message_logged(text: String, color: Color)
 signal depth_changed(depth: int)
 signal monster_killed(monster: Monster)
+## The hero walked up to an encounter (spring, altar...).
+signal encounter_requested(encounter: Encounter)
+## Something (an encounter...) grants a choice of perks: rarity is PerkDef.Rarity.
+signal perk_offer_requested(rarity: int, title: String, subtitle: String)
 ## The hero walked up to the merchant.
 signal shop_requested(merchant: Merchant)
 ## A soul set free by a kill reached the hero's lantern (see SoulWisp).

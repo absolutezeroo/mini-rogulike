@@ -413,6 +413,13 @@ func _test_title_screen() -> void:
 # --- Gameplay (bot) ----------------------------------------------------------
 
 func _test_gameplay() -> void:
+	# No merchant, encounter or ambush popping up in the middle of other tests (they have their own).
+	var merchant_chance := CONTENT.dungeon.merchant_chance
+	var encounters_max := CONTENT.dungeon.encounters_max
+	var ambush_chance := CONTENT.dungeon.ambush_chance
+	CONTENT.dungeon.ambush_chance = 0.0
+	CONTENT.dungeon.merchant_chance = 0.0
+	CONTENT.dungeon.encounters_max = 0
 	var game := GAME_SCENE.instantiate()
 	game.show_act_cards = false  # tested on their own (see _test_act_card)
 	add_child(game)
@@ -579,6 +586,7 @@ func _test_gameplay() -> void:
 	await _test_comfort(game)
 	await _test_loot_and_gold(game)
 	await _test_weapon_kits(game)
+	await _test_encounters(game)
 
 	await _test_boss_fight(game)
 
@@ -656,6 +664,9 @@ func _test_gameplay() -> void:
 	await _bot_play(game, 60 * 20)
 	print("bot (depth 4, mortal): hp %d/%d, dead=%s" % [game.player.hp, game.player.get_max_hp(), game.player.is_dead])
 	game.queue_free()
+	CONTENT.dungeon.merchant_chance = merchant_chance
+	CONTENT.dungeon.encounters_max = encounters_max
+	CONTENT.dungeon.ambush_chance = ambush_chance
 	await _frames(2)
 
 
@@ -1210,13 +1221,24 @@ func _test_hazards(game: Node, world: World, player: Player) -> void:
 		Events.monster_killed.disconnect(on_kill)
 
 	# Real floors: hazards everywhere, but the stairs can always be reached.
+	CONTENT.dungeon.merchant_chance = 1.0
+	CONTENT.dungeon.encounters_max = 2
+	CONTENT.dungeon.encounters_min = 2
+	var merchants := 0
+	var encounters := 0
 	for depth in [1, 2, 4, 5, 7, 8]:
 		world.build_floor(depth, CONTENT)
+		merchants += get_tree().get_nodes_in_group("merchants").filter(func(n: Node) -> bool: return not n.is_queued_for_deletion()).size()
+		encounters += get_tree().get_nodes_in_group("encounters").filter(func(n: Node) -> bool: return not n.is_queued_for_deletion()).size()
 		var start := world.map.cell_to_world(world.map.start_cell)
 		check(not world.find_path(start, world.map.cell_to_world(world.map.stairs_cell)).is_empty(), "depth %d: the stairs can be reached" % depth)
 		var count := get_tree().get_nodes_in_group("traps").size() + get_tree().get_nodes_in_group("crumbling_floors").size() \
 			+ get_tree().get_nodes_in_group("quicksand").size() + world._pits.cells().size()
 		check(count > 0, "depth %d has hazards (%d)" % [depth, count])
+	check(merchants >= 4 and encounters >= 6, "floors get merchants and encounters (%d, %d)" % [merchants, encounters])
+	CONTENT.dungeon.merchant_chance = 0.0
+	CONTENT.dungeon.encounters_max = 0
+	CONTENT.dungeon.encounters_min = 0
 	world.build_floor(game.depth, CONTENT)
 	world.place_player(player)
 	player.base_stats.defense = defense_saved
@@ -1354,6 +1376,75 @@ func _test_comfort(game: Node) -> void:
 	game.player.xp = 0
 
 
+## Springs, altars, spirits and statues: costs, choices, outcomes.
+func _test_encounters(game: Node) -> void:
+	var player: Player = game.player
+	var world: World = game.world
+	player.xp = -1000000
+	check(CONTENT.encounters.size() >= 4, "encounters listed")
+	for def in CONTENT.encounters:
+		check(def.icon != null and not def.choices.is_empty(), "%s has a sprite and choices" % def.id)
+		for choice in def.choices:
+			check(not choice.outcomes.is_empty(), "%s: '%s' leads somewhere" % [def.id, choice.label])
+	var panel: EncounterPanel = game.encounter_panel
+
+	# The spring: walking up asks, drinking does something, then it is spent.
+	var spring := world.spawn_encounter(load("res://data/encounters/spirit_spring.tres"), _open_cell_near(world, player.global_position, 2))
+	player.global_position = spring.global_position + Vector2(0, 40)
+	await _frames(3)
+	check(panel.visible and get_tree().paused, "walking up to an encounter asks what to do")
+	panel._choose(0)
+	check(spring.used and (panel.get_node("%Choices") as VBoxContainer).get_child_count() == 1, "a choice was made, the spring is spent")
+	panel.close()
+	await _frames(2)
+	check(not get_tree().paused, "closing resumes the game")
+	player.global_position = spring.global_position + Vector2(0, 160)
+	await _frames(3)
+	player.global_position = spring.global_position + Vector2(0, 40)
+	await _frames(3)
+	check(not panel.visible, "a spent encounter asks nothing")
+	player.global_position = spring.global_position + Vector2(0, 160)
+
+	# The blood altar: max HP for a relic.
+	var max_hp := player.base_stats.max_hp
+	var altar := world.spawn_encounter(load("res://data/encounters/blood_altar.tres"), _open_cell_near(world, player.global_position, 2))
+	game.open_encounter(altar)
+	panel._choose(0)
+	check(player.base_stats.max_hp < max_hp, "the altar takes max HP")
+	panel.close()
+	await _frames(3)
+	check(game.perk_panel.visible and (game.perk_panel.get_node("%Title") as Label).text == "Relic", "and gives a relic choice")
+	game.perk_panel.choose(0)
+	await _frames(2)
+	player.base_stats.max_hp = max_hp
+	player.invalidate_stats()
+
+	# The grinning spirit wants gold.
+	player.gold = 0
+	var gambler := world.spawn_encounter(load("res://data/encounters/grinning_spirit.tres"), _open_cell_near(world, player.global_position, 2))
+	game.open_encounter(gambler)
+	var pay: Button = (panel.get_node("%Choices") as VBoxContainer).get_child(0)
+	check(pay.disabled and pay.text.contains("gold"), "no gold, no gamble")
+	check(gambler.resolve(0, player) == null and not gambler.used, "it can't be forced either")
+	panel.close()
+	await _frames(2)
+
+	# The statue may call its servants: elites.
+	var statue: EncounterDef = load("res://data/encounters/warden_statue.tres")
+	var before := world.get_hostiles(Actor.Faction.PLAYER).filter(func(m: Monster) -> bool: return m.is_elite()).size()
+	statue.choices[0].outcomes[1].apply(player, player.global_position + Vector2(60, 0))
+	await _frames(2)
+	var elites := world.get_hostiles(Actor.Faction.PLAYER).filter(func(m: Monster) -> bool: return m.is_elite())
+	check(elites.size() == before + 2, "the statue's servants are elites")
+	for monster in elites:
+		monster.queue_free()
+	for node in get_tree().get_nodes_in_group("encounters"):
+		node.queue_free()
+	player.xp = 0
+	player.hp = player.get_max_hp()
+	await _frames(3)
+
+
 ## Every weapon swings or shoots, and both its skills work, in the real game.
 func _test_weapon_kits(game: Node) -> void:
 	var player: Player = game.player
@@ -1456,7 +1547,7 @@ func _test_loot_and_gold(game: Node) -> void:
 	game._back()
 	await _frames(1)
 	check(not game.shop_panel.visible and not get_tree().paused, "leaving the shop resumes the game")
-	player.global_position = merchant.global_position + Vector2(0, 160)
+	merchant.queue_free()  # (would open its shop again during the next tests)
 	player.inventory.items.resize(bag_before)
 	player.xp = 0
 	await _frames(5)
@@ -1592,6 +1683,10 @@ func _test_boss_fight(game: Node) -> void:
 		await get_tree().create_timer(game.RELIC_DELAY * 0.5, true).timeout
 		if game.game_over_panel.visible:
 			break
+		if game.shop_panel.visible:
+			game.shop_panel.close()
+		if game.encounter_panel.visible:
+			game.encounter_panel.close()
 		if game.perk_panel.visible:
 			game.perk_panel.choose(0)
 	check(game.has_won and game.game_over_panel.visible and game.game_over_panel.get_node("%ContinueButton").visible, "beating the final boss wins the run")

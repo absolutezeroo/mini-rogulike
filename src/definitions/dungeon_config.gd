@@ -75,6 +75,11 @@ extends Resource
 ## Crates and pots sometimes hold a few coins.
 @export_range(0.0, 1.0) var prop_gold_chance: float = 0.25
 
+@export_group("Encounters")
+## Encounters per floor (springs, altars...), from content_db.tres > Encounters.
+@export_range(0, 6) var encounters_min: int = 0
+@export_range(0, 6) var encounters_max: int = 2
+
 @export_group("Merchant")
 ## Chance for a floor to have the merchant (never on boss floors).
 @export_range(0.0, 1.0) var merchant_chance: float = 0.55

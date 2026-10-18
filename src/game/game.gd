@@ -40,6 +40,7 @@ var _shown_offer := {}
 @onready var game_over_panel: GameOverPanel = $Menus/GameOverPanel
 @onready var pause_menu: PauseMenu = $Menus/PauseMenu
 @onready var shop_panel: ShopPanel = $Menus/ShopPanel
+@onready var encounter_panel: EncounterPanel = $Menus/EncounterPanel
 @onready var screen_fx: ScreenEffects = $ScreenFx/Effects
 @onready var ambience: Ambience = $Ambience
 @onready var _fade: ColorRect = $Fade/Black
@@ -69,6 +70,10 @@ func _ready() -> void:
 	inventory_panel.closed.connect(_on_menu_closed)
 	shop_panel.closed.connect(_on_menu_closed)
 	Events.shop_requested.connect(open_shop)
+	encounter_panel.closed.connect(_on_menu_closed)
+	Events.encounter_requested.connect(open_encounter)
+	Events.perk_offer_requested.connect(func(rarity: int, title: String, subtitle: String) -> void:
+		_queue_offer(rarity as PerkDef.Rarity, PERK_CHOICES, title, subtitle))
 	perk_panel.chosen.connect(_on_perk_chosen)
 	game_over_panel.restart_requested.connect(start_run)
 	game_over_panel.continue_requested.connect(_on_continue_endless)
@@ -108,6 +113,7 @@ func _begin_run(saved: Dictionary) -> void:
 	game_over_panel.hide()
 	inventory_panel.hide()
 	shop_panel.hide()
+	encounter_panel.hide()
 	perk_panel.hide()
 	_pending_offers.clear()
 	_shown_offer = {}
@@ -202,7 +208,15 @@ func _award_souls(won_now: bool) -> int:
 
 func is_menu_open() -> bool:
 	return inventory_panel.visible or perk_panel.visible or game_over_panel.visible or pause_menu.visible \
-		or shop_panel.visible
+		or shop_panel.visible or encounter_panel.visible
+
+
+func open_encounter(encounter: Encounter) -> void:
+	if player == null or player.is_dead or is_menu_open():
+		return
+	Sfx.play_ui(Sfx.bank.ui_open)
+	_set_paused(true)
+	encounter_panel.open(encounter, player)
 
 
 func open_shop(merchant: Merchant) -> void:
@@ -245,6 +259,8 @@ func _back() -> void:
 		inventory_panel.close()
 	elif shop_panel.visible:
 		shop_panel.close()
+	elif encounter_panel.visible:
+		encounter_panel.close()
 	elif not is_menu_open():
 		open_pause_menu()
 

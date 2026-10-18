@@ -45,6 +45,7 @@ data/                Game content as .tres resources (no code)
   elites/              Elite affixes (Swift, Vampiric, Explosive...)
   affixes/             Item affixes for Magic, Rare and Epic equipment (Sharp, of the Bear...)
   shop/                The merchant (stock, prices, look)
+  encounters/          Spirit Spring, Blood Altar, Grinning Spirit, Warden's Statue
   items/weapons/       Player weapons (monster/ = monster-only weapons)
   items/armors/        Head and body armor
   items/consumables/   Potions, scrolls, bombs...
@@ -192,6 +193,20 @@ The game's texts are in English; the name stays French. The project's internal n
 - **The merchant** (`data/shop/merchant.tres`, `Merchant`, `ShopPanel`) waits in a quiet room on
   some floors: walk up to him to buy equipment (better than average), potions and sometimes a
   tome, or to sell what you carry. Every item has a `value`; the price grows with rarity and depth.
+
+## Encounters
+
+Some rooms hold something strange (`data/encounters/`, `EncounterDef`): walk up to it and choose.
+Each choice has a cost (gold, a part of your max HP) and outcomes drawn by weight
+(`EncounterChoice`, `EncounterOutcome`: heal, hurt, gold, an item of some quality, a choice of
+perks or relics, monsters or elites, any `Effect`). Each can be used once.
+
+| Encounter | Choice | What may happen |
+|---|---|---|
+| Spirit Spring | Drink | healed (55%), a strong buff for a minute (25%), cursed water hurts (20%) |
+| Blood Altar | Offer your blood (-15% max HP) | a choice of relics |
+| Grinning Spirit | Pay 30 / 80 gold (more each floor) | an item, sometimes a great one... or it laughs and runs |
+| Warden's Statue | Pray | a choice of perks (50%), or two elites (50%) |
 
 ## Skills and builds
 
@@ -405,6 +420,7 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 | A new kind of hazard | New script in `src/definitions/hazards/` extending `HazardDef`, override `place()` |
 | An elite affix | New `EliteAffixDef` in `data/elites/` (name, color, a perk), add it to `content_db.tres` > Elite Affixes |
 | A chest | New `ChestDef` in `data/chests/`, set it in `dungeon_config.tres` > Chests |
+| An encounter | New `EncounterDef` in `data/encounters/` (choices, costs, outcomes), add it to `content_db.tres` > Encounters |
 | An item affix | New `ItemAffixDef` in `data/affixes/` (prefix or suffix, slots, stats or on-hit), add it to `content_db.tres` > Item Affixes |
 | Story texts | Edit `data/story/story.tres` (intro pages, death lines...); an act's line is its `ActDef` > Lore |
 

@@ -25,6 +25,15 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 			world.spawn_merchant(config.merchant, cell)
 			_reserve_rect(taken, map.rooms[merchant_index])
 
+	# Springs, altars, statues: in the middle of a room, before anything else claims it.
+	for n in rng.randi_range(config.encounters_min, config.encounters_max):
+		var encounter := ContentDB.pick_from(content.encounters, depth, rng) as EncounterDef
+		var index := rng.randi_range(1, map.rooms.size() - 1)
+		var cell := map.rooms[index].get_center()
+		if encounter and index != merchant_index and not taken.has(cell):
+			world.spawn_encounter(encounter, cell)
+			_reserve_around(taken, cell, 1)
+
 	for i in map.rooms.size():
 		_place_props(world, content, depth, map.rooms[i], taken)
 	var act := config.act_for_depth(depth)

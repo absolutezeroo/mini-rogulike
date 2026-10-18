@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="EncounterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/encounters/encounter_choice.gd" id="1_pq3te"]
+[ext_resource type="Script" path="res://src/definitions/encounters/encounter_outcome.gd" id="2_tk3pk"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="3_sx8jv"]
+[ext_resource type="Texture2D" path="res://assets/props/altar.png" id="4_te3so"]
+[ext_resource type="Script" path="res://src/definitions/encounters/encounter_def.gd" id="5_dxru5"]
+
+[sub_resource type="Resource" id="Resource_u05b7"]
+script = ExtResource("2_tk3pk")
+weight = 1
+text = "The altar drinks. A relic rises from the stone."
+color = Color(1, 0.56078434, 0.6392157, 1)
+gift = 2
+
+[sub_resource type="Resource" id="Resource_l3ndg"]
+script = ExtResource("1_pq3te")
+label = "Offer your blood"
+max_hp_cost = 0.15
+outcomes = Array[ExtResource("2_tk3pk")]([SubResource("Resource_u05b7")])
+
+[resource]
+script = ExtResource("5_dxru5")
+choices = Array[ExtResource("1_pq3te")]([SubResource("Resource_l3ndg")])
+id = &"blood_altar"
+display_name = "Blood Altar"
+description = "An altar stained with old blood. It wants a part of you... and it pays well."
+icon = ExtResource("4_te3so")
+color = Color(0.9098039, 0.21176471, 0.30980393, 1)
+min_depth = 2
+spawn_weight = 7

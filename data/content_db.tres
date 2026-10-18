@@ -26,14 +26,19 @@
 [ext_resource type="Resource" path="res://data/elites/spiked.tres" id="13_mym40"]
 [ext_resource type="Resource" path="res://data/items/armors/leather_armor.tres" id="13_q2763"]
 [ext_resource type="Resource" path="res://data/items/armors/chain_mail.tres" id="14_3wmne"]
+[ext_resource type="Script" path="res://src/definitions/encounters/encounter_def.gd" id="14_uppjc"]
 [ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="14_y455n"]
+[ext_resource type="Resource" path="res://data/encounters/spirit_spring.tres" id="15_k7n23"]
 [ext_resource type="Resource" path="res://data/items/armors/shadow_cloak.tres" id="15_rjx6h"]
 [ext_resource type="Resource" path="res://data/affixes/sharp.tres" id="15_xepax"]
 [ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="16_h0egv"]
+[ext_resource type="Resource" path="res://data/encounters/blood_altar.tres" id="16_iw61m"]
 [ext_resource type="Resource" path="res://data/affixes/brutal.tres" id="16_uppjc"]
+[ext_resource type="Resource" path="res://data/encounters/grinning_spirit.tres" id="17_1nigv"]
 [ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="17_hbtgr"]
 [ext_resource type="Resource" path="res://data/affixes/swift.tres" id="17_k7n23"]
 [ext_resource type="Resource" path="res://data/affixes/precise.tres" id="18_iw61m"]
+[ext_resource type="Resource" path="res://data/encounters/warden_statue.tres" id="18_j2x0q"]
 [ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="18_jjy75"]
 [ext_resource type="Resource" path="res://data/affixes/burning.tres" id="19_1nigv"]
 [ext_resource type="Resource" path="res://data/items/consumables/bomb.tres" id="19_lnxyg"]
@@ -122,4 +127,5 @@ upgrades = Array[ExtResource("73_0tw7m")]([ExtResource("74_pgsf5"), ExtResource(
 locked_items = Array[ExtResource("2_cewcx")]([ExtResource("23_dianq"), ExtResource("10_ng0jj"), ExtResource("37_gyds2"), ExtResource("38_1b8ag"), ExtResource("16_h0egv"), ExtResource("15_rjx6h")])
 props = Array[ExtResource("52_yjg1c")]([ExtResource("53_dianq"), ExtResource("54_kqkbc"), ExtResource("55_xx7nh"), ExtResource("56_6esje")])
 elite_affixes = Array[ExtResource("7_s1peu")]([ExtResource("8_du3p3"), ExtResource("9_to1jy"), ExtResource("10_8pk3k"), ExtResource("11_v6cij"), ExtResource("12_til0v"), ExtResource("13_mym40")])
+encounters = Array[ExtResource("14_uppjc")]([ExtResource("15_k7n23"), ExtResource("16_iw61m"), ExtResource("17_1nigv"), ExtResource("18_j2x0q")])
 item_affixes = Array[ExtResource("14_y455n")]([ExtResource("15_xepax"), ExtResource("16_uppjc"), ExtResource("17_k7n23"), ExtResource("18_iw61m"), ExtResource("19_1nigv"), ExtResource("20_j2x0q"), ExtResource("21_go5c6"), ExtResource("22_vqxcy"), ExtResource("23_yb7ug"), ExtResource("24_ud7y0"), ExtResource("25_f8vur"), ExtResource("26_cnpc5"), ExtResource("27_38uwr"), ExtResource("28_riqfl"), ExtResource("29_vv2q4"), ExtResource("30_xabxg")])

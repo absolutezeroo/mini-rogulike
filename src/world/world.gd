@@ -143,6 +143,15 @@ func spawn_gold(at: Vector2, amount: int) -> void:
 		_entities.add_child.call_deferred(coin)
 
 
+func spawn_encounter(def: EncounterDef, cell: Vector2i) -> Encounter:
+	var encounter := Encounter.new()
+	encounter.setup(def, self)
+	encounter.position = map.cell_to_world(cell)
+	_entities.add_child(encounter)
+	set_cell_blocked(cell, true)
+	return encounter
+
+
 func spawn_merchant(def: ShopDef, cell: Vector2i) -> Merchant:
 	var merchant := Merchant.new()
 	merchant.setup(def, self)

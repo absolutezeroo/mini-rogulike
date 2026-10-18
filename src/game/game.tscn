@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://src/game/game.gd" id="1_game"]
 [ext_resource type="Resource" path="res://data/content_db.tres" id="2_content"]
@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" path="res://src/ui/act_card/act_card.tscn" id="11_card"]
 [ext_resource type="PackedScene" path="res://src/ui/pause/pause_menu.tscn" id="12_pause"]
 [ext_resource type="PackedScene" path="res://src/ui/shop/shop_panel.tscn" id="13_shop"]
+[ext_resource type="PackedScene" path="res://src/ui/encounter/encounter_panel.tscn" id="14_encounter"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_screen"]
 shader = ExtResource("8_screen")
@@ -51,6 +52,8 @@ layer = 10
 [node name="GameOverPanel" parent="Menus" instance=ExtResource("6_game_over")]
 
 [node name="ShopPanel" parent="Menus" instance=ExtResource("13_shop")]
+
+[node name="EncounterPanel" parent="Menus" instance=ExtResource("14_encounter")]
 
 [node name="PauseMenu" parent="Menus" instance=ExtResource("12_pause")]
 
