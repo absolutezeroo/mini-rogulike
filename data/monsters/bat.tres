@@ -43,6 +43,7 @@ weapon = ExtResource("11_56nqc")
 radius = 8.0
 frames = ExtResource("2_gbuch")
 frames_offset = Vector2(0, -8)
+flies = true
 detect_radius = 240.0
 attack_windup = 0.2
 attack_recovery = 0.2

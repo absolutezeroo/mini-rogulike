@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="PitDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/props/hole.png" id="1_x34ta"]
+[ext_resource type="Script" path="res://src/definitions/hazards/pit_def.gd" id="2_kkcb6"]
+
+[resource]
+script = ExtResource("2_kkcb6")
+tileset = ExtResource("1_x34ta")
+size_min = Vector2i(1, 2)
+id = &"pit"
+display_name = "Pit"
+description = "A hole in the floor. Roll over it, or knock monsters in."
+icon = ExtResource("1_x34ta")
+glyph = "O"
+spawn_weight = 7

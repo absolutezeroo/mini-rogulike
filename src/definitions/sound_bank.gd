@@ -28,6 +28,10 @@ extends Resource
 @export_group("World")
 @export var stairs: AudioStream
 @export var game_over: AudioStream
+## Someone drops into a hole.
+@export var fall: AudioStream
+## The exits of an ambush room slam shut.
+@export var ambush: AudioStream
 
 @export_group("Bosses")
 ## The boss wakes up when you enter its arena.

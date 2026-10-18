@@ -71,6 +71,7 @@ skills = Array[ExtResource("11_yuhyf")]([ExtResource("12_27a71")])
 radius = 10.0
 frames = ExtResource("2_e2ui1")
 frames_offset = Vector2(0, -8)
+flies = true
 detect_radius = 300.0
 attack_windup = 0.3
 death_sound = ExtResource("1_wp4is")

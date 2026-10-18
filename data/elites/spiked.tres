@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="EliteAffixDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="1_tsxsj"]
+[ext_resource type="Script" path="res://src/definitions/passives/thorns_passive.gd" id="2_ow6wd"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="3_5lxie"]
+[ext_resource type="Script" path="res://src/definitions/elite_affix_def.gd" id="4_0gsit"]
+
+[sub_resource type="Resource" id="Resource_s0qc6"]
+script = ExtResource("2_ow6wd")
+damage_per_stack = 5
+
+[sub_resource type="Resource" id="Resource_0vo57"]
+script = ExtResource("3_5lxie")
+id = &"elite_spiked"
+display_name = "Spiked"
+color = Color(0.8784314, 0.72156864, 0.2901961, 1)
+passives = Array[ExtResource("1_tsxsj")]([SubResource("Resource_s0qc6")])
+
+[resource]
+script = ExtResource("4_0gsit")
+perk = SubResource("Resource_0vo57")
+hp_multiplier = 1.1
+id = &"spiked"
+display_name = "Spiked"
+glyph = "S"
+color = Color(0.8784314, 0.72156864, 0.2901961, 1)
+min_depth = 3

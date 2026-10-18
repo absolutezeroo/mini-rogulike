@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="QuicksandDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/props/quicksand.png" id="1_d78se"]
+[ext_resource type="Script" path="res://src/definitions/hazards/quicksand_def.gd" id="2_7ahkf"]
+[ext_resource type="AudioStream" path="res://data/audio/sink.tres" id="3_eipk0"]
+
+[resource]
+script = ExtResource("2_7ahkf")
+sheet = ExtResource("1_d78se")
+fps = 4.0
+slow = 0.5
+sink_delay = 1.8
+sink_sound = ExtResource("3_eipk0")
+id = &"mud"
+display_name = "Mud Pool"
+description = "Thick mud: you wade slowly, and it pulls you down."
+icon = ExtResource("1_d78se")
+icon_tint = Color(0.55, 0.42, 0.33, 1)
+glyph = "~"
+spawn_weight = 6

@@ -17,6 +17,7 @@ func setup(item_def: ItemDef, armed: bool = true) -> void:
 	_time = randf() * TAU
 	collision_layer = Layers.PICKUPS
 	collision_mask = Layers.PLAYER
+	add_to_group("pickups")
 	var shape := CircleShape2D.new()
 	shape.radius = PICKUP_RADIUS
 	($CollisionShape2D as CollisionShape2D).shape = shape

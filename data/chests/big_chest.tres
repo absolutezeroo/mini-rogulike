@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ChestDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/props/big_chest.png" id="1_lxspm"]
+[ext_resource type="AudioStream" path="res://data/audio/chest_open.tres" id="2_vk3k3"]
+[ext_resource type="Script" path="res://src/definitions/chest_def.gd" id="3_cjry4"]
+
+[resource]
+script = ExtResource("3_cjry4")
+items_min = 3
+items_max = 4
+open_sound = ExtResource("2_vk3k3")
+id = &"big_chest"
+display_name = "Big Chest"
+icon = ExtResource("1_lxspm")

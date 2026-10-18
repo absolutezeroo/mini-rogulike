@@ -1,8 +1,8 @@
 class_name ContentDB
 extends Resource
-## Index of all game content. To add an item, perk, prop or trap, create its .tres
+## Index of all game content. To add an item, perk, prop or elite affix, create its .tres
 ## and add it to the matching list in res://data/content_db.tres.
-## Monsters are listed per act in the dungeon config (dungeon.acts > monsters).
+## Monsters and hazards (traps, holes...) are listed per act in the dungeon config (dungeon.acts).
 
 @export var player: PlayerDef
 @export var dungeon: DungeonConfig
@@ -21,7 +21,8 @@ extends Resource
 @export var locked_items: Array[ItemDef] = []
 ## Breakable props placed in rooms (lanterns are set in the dungeon config).
 @export var props: Array[PropDef] = []
-@export var traps: Array[TrapDef] = []
+## What makes elite monsters special (Swift, Vampiric, Explosive...).
+@export var elite_affixes: Array[EliteAffixDef] = []
 
 
 ## A monster of the act holding `depth`, by spawn weight.
@@ -68,8 +69,18 @@ func pick_prop(depth: int, rng: RandomNumberGenerator) -> PropDef:
 	return _pick(props, depth, rng)
 
 
-func pick_trap(depth: int, rng: RandomNumberGenerator) -> TrapDef:
-	return _pick(traps, depth, rng)
+func pick_affix(depth: int, rng: RandomNumberGenerator) -> EliteAffixDef:
+	return _pick(elite_affixes, depth, rng)
+
+
+## Every hazard of every act.
+func all_hazards() -> Array[HazardDef]:
+	var result: Array[HazardDef] = []
+	for act in dungeon.acts:
+		for hazard in act.hazards:
+			if hazard and not result.has(hazard):
+				result.append(hazard)
+	return result
 
 
 ## Up to `count` different perks of `rarity` that `owned` can still take.
@@ -92,6 +103,11 @@ func pick_perks(owned: PerkSet, count: int, rarity: PerkDef.Rarity, rng: RandomN
 			weights.remove_at(index)
 			result.append(picked)
 	return result
+
+
+## A ContentDef of `pool` allowed at `depth`, by spawn weight (null if none).
+static func pick_from(pool: Array, depth: int, rng: RandomNumberGenerator) -> ContentDef:
+	return _pick(pool, depth, rng)
 
 
 static func _pick(pool: Array, depth: int, rng: RandomNumberGenerator) -> ContentDef:

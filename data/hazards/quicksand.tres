@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="QuicksandDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/props/quicksand.png" id="1_7ix43"]
+[ext_resource type="Script" path="res://src/definitions/hazards/quicksand_def.gd" id="2_uf63e"]
+[ext_resource type="AudioStream" path="res://data/audio/sink.tres" id="3_peilo"]
+
+[resource]
+script = ExtResource("2_uf63e")
+sheet = ExtResource("1_7ix43")
+damage = 3
+sink_sound = ExtResource("3_peilo")
+id = &"quicksand"
+display_name = "Quicksand"
+description = "Slows you down. Stay in it and it swallows you."
+icon = ExtResource("1_7ix43")
+glyph = "~"
+spawn_weight = 8

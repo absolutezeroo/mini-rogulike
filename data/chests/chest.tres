@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ChestDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/props/chest.png" id="1_ykf3t"]
+[ext_resource type="AudioStream" path="res://data/audio/chest_open.tres" id="2_wfves"]
+[ext_resource type="Script" path="res://src/definitions/chest_def.gd" id="3_wjxq2"]
+[ext_resource type="AudioStream" path="res://data/audio/chest_trap.tres" id="4_qtu7o"]
+
+[resource]
+script = ExtResource("3_wjxq2")
+open_sound = ExtResource("2_wfves")
+trapped_chance = 0.3
+trap_sound = ExtResource("4_qtu7o")
+trap_monsters = 3
+explosion_radius = 80.0
+explosion_damage = 12
+id = &"chest"
+display_name = "Chest"
+icon = ExtResource("1_ykf3t")

@@ -36,6 +36,7 @@ weapon = ExtResource("9_obrm3")
 radius = 9.0
 frames = ExtResource("2_ia4dx")
 frames_offset = Vector2(0, -8)
+flies = true
 attack_windup = 0.25
 attack_recovery = 0.35
 xp_reward = 4

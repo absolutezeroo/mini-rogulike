@@ -22,6 +22,8 @@ const SKILL_COUNT := 4
 ## New skills start on this cooldown when the weapon is swapped (no free casts by swapping).
 const SWAP_COOLDOWN := 1.5
 const STEP_INTERVAL := 0.3
+## Invulnerable this long after climbing out of a hole.
+const FALL_INVULNERABILITY := 1.0
 
 var def: PlayerDef
 var inventory: Inventory
@@ -34,6 +36,8 @@ var _move_direction := Vector2.ZERO
 var _aim_hold := 0.0
 var _step_timer := 0.0
 var _left_foot := false
+## Where the hero climbs back out after falling into a hole: the last solid ground stood on.
+var _safe_position := Vector2.ZERO
 
 @onready var camera: GameCamera = $Camera
 
@@ -252,6 +256,31 @@ func gain_xp(amount: int) -> void:
 		Sfx.play_ui(Sfx.bank.level_up)
 		leveled_up.emit(level)
 	xp_changed.emit(xp, xp_to_next_level(), level)
+
+
+# --- Holes ------------------------------------------------------------------
+
+## Call after moving the hero to a new floor.
+func reset_safe_position() -> void:
+	_safe_position = global_position
+
+
+func _check_ground() -> void:
+	super._check_ground()
+	if is_grounded() and world.is_solid_ground(global_position):
+		_safe_position = global_position
+
+
+## Climbs back out where the hero last stood safely, hurt.
+func _on_fell(pit: PitDef) -> void:
+	global_position = _safe_position
+	_recover_from_fall()
+	Vfx.puff(world, global_position)
+	Events.log_message("You fell into a hole!", Color("ff6b6b"))
+	_invulnerable_time = 0.0
+	take_hit(Combat.make_secondary_hit(null, maxi(1, roundi(get_max_hp() * pit.fall_damage))))
+	if not is_dead:
+		_invulnerable_time = FALL_INVULNERABILITY
 
 
 # --- Hooks -------------------------------------------------------------------

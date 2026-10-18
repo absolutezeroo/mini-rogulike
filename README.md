@@ -1,7 +1,8 @@
 # Mini Roguelike
 
 Real-time action roguelike for Godot 4.7 (GDScript, Compatibility renderer).
-Procedural floors lit by torches and lanterns, traps, breakable crates and explosive kegs,
+Procedural floors lit by torches and lanterns, traps, holes, crumbling floor and quicksand,
+ambush rooms, trapped chests, breakable crates and explosive kegs, elite monsters,
 monsters with telegraphed attacks, a boss every 3 floors, melee and ranged weapons,
 armor you can see on the hero, consumables, loot, XP, a perk to choose at every level up, and
 skills that come from what you hold and what you learn: play a mage, a warrior, a paladin, or a mix. Plays with touch controls,
@@ -14,7 +15,7 @@ assets/              Art, audio, fonts and the UI theme (Ninja Adventure pack)
   characters/          Hero and monster sprite sheets (4 directions, frame by frame), bosses/
   weapons/             Weapon icons + attack/ sheets (the weapon in hand, per direction and frame)
   fx/                  Sprite-sheet effects: slashes, claws, explosion, smoke, magic, flames, light.png
-  props/               Crates, vases, barrels, powder kegs, lanterns, trap pieces
+  props/               Crates, vases, barrels, powder kegs, lanterns, chests, trap pieces, holes, quicksand
   projectiles/         Arrows, fireballs, magic bolts
   items/               Item icons
   tiles/               Dungeon floors, cliffs and walls
@@ -34,7 +35,9 @@ data/                Game content as .tres resources (no code)
   upgrades/            Shrine upgrades (bought with souls between runs)
   difficulties/        Easy, Normal, Hard, Nightmare
   props/               Breakable props and the lantern
-  traps/               Spike traps, pressure plates, flame vents
+  hazards/             Traps, arrow traps, holes, crumbling floor, quicksand and mud
+  chests/              Chests (some trapped) and the big chest of ambushes
+  elites/              Elite affixes (Swift, Vampiric, Explosive...)
   items/weapons/       Player weapons (monster/ = monster-only weapons)
   items/armors/        Head and body armor
   items/consumables/   Potions, scrolls, bombs...
@@ -48,9 +51,11 @@ src/
     passives/            Building blocks for perks (on hit, on kill, on dash...)
     items/               ItemDef > EquipmentDef > WeaponDef / ArmorDef, ConsumableDef
     loot/                LootTable, LootEntry
+    hazards/             HazardDef > TrapDef > ArrowTrapDef, PitDef, QuicksandDef
   dungeon/             Map data, generator, drawing
-  world/               World (owns the current floor), FloorPopulator, BossArena
-  entities/            Actor (shared base), Player, Monster, Projectile, ItemPickup, Stairs, Prop, Trap
+  world/               World (owns the current floor), FloorPopulator, BossArena, AmbushRoom, RoomGates, PitLayer
+  entities/            Actor (shared base), Player, Monster, Projectile, ItemPickup, Stairs, Prop, Trap,
+                       hazards/ (Chest, CrumblingFloor, Quicksand)
   components/          Inventory, Equipment, SkillSet, PerkSet, StatusSet (burn...)
   combat/              Damage rules, hits, projectile specs
   ai/                  StateMachine + monster states (Idle, Chase, Attack, Cast)
@@ -114,9 +119,27 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 - **Props** (`data/props/`): crates, vases and barrels break under any attack and may drop loot;
   **powder kegs** blink then explode, hurting everyone (you too) and setting off other kegs.
   Explosions you trigger give you the XP of what they kill. Props block movement, sight and shots.
-- **Traps** (`data/traps/`) hurt everyone standing on them, monsters included:
-  rows of **spikes** firing in a wave, **pressure plates** that strike when stepped on,
-  **flame vents** that also set you on fire. They always warn before they strike.
+- **Hazards** (`data/hazards/`): each act has its own list (`ActDef.hazards`), and every hazard
+  knows how to lay itself out in a room (`HazardDef.place()`). They hurt monsters too: lure them in.
+  - **Traps**: rows of **spikes** firing in a wave, **pressure plates** that strike when stepped on,
+    **flame vents** that also set you on fire, **arrow traps** (a plate wired to a slit in a wall:
+    arrows fly across the room). They always warn before they strike.
+  - **Holes**: anything that walks or is knocked in falls. Monsters are gone (you get the XP if
+    you pushed them), the hero climbs out where they last stood safely and loses 15% HP.
+    Rolling carries you over; flying monsters (bats, ghosts...) don't care. Walking monsters
+    steer around holes, so knock them in.
+  - **Crumbling floor**: cracked tiles that hold until someone stands on them, then give way.
+  - **Quicksand** (ruins) and **mud** (caves): very slow to cross, and they hurt if you stay.
+  - Hazards are never placed where they could cut the stairs off.
+- **Chests** (`data/chests/`): walk up to one to open it. Some are trapped: they blow up or let
+  monsters out (and keep only one item). A trapped chest rattles now and then...
+- **Ambushes**: a floor may have a quiet, empty room. Walk in and spikes close the exits,
+  monsters pour in, wave after wave, the last one led by an elite. Clear it for a big chest.
+- **Elites** (`data/elites/`): any monster can be one, more often deeper and on harder
+  difficulties. They glow in their color, show their name, are bigger and tougher, give 3x XP
+  and always drop an item. Their affix is a perk, like the hero's: **Swift**, **Vampiric**
+  (heals when hitting), **Explosive** (blows up when it dies), **Armored**, **Venomous**
+  (poisons), **Spiked** (hurts who hits it).
 
 ## Skills and builds
 
@@ -202,6 +225,7 @@ the normal game:
 | Monster speed | x0.9 | x1 | x1.05 | x1.15 |
 | Extra monsters per room | 0 | 0 | +1 | +2 |
 | Boss HP | x0.7 | x1 | x1.3 | x1.6 |
+| Elite chance | x0.5 | x1 | x1.6 | x2.5 |
 | Drop chance | x1.4 | x1 | x1 | x0.9 |
 | Heal on each new floor | 25% | - | - | - |
 | Light | brighter | - | darker | much darker |
@@ -318,13 +342,17 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 | A shrine upgrade | New `UpgradeDef` in `data/upgrades/`, add it to `content_db.tres` > Upgrades |
 | A difficulty | New `DifficultyDef` in `data/difficulties/`, add it to `content_db.tres` > Difficulties |
 | A prop | New `PropDef` in `data/props/` (sprite, hits, loot, explosion, light), add it to `content_db.tres` > Props |
-| A trap | New `TrapDef` in `data/traps/` (trigger, art, timing, damage), add it to `content_db.tres` > Traps |
+| A trap or hazard | New `TrapDef` / `ArrowTrapDef` / `PitDef` / `QuicksandDef` in `data/hazards/`, add it to an act's Hazards |
+| A new kind of hazard | New script in `src/definitions/hazards/` extending `HazardDef`, override `place()` |
+| An elite affix | New `EliteAffixDef` in `data/elites/` (name, color, a perk), add it to `content_db.tres` > Elite Affixes |
+| A chest | New `ChestDef` in `data/chests/`, set it in `dungeon_config.tres` > Chests |
 
 Each piece of content has an **icon** (any `Texture2D`) and an **icon tint** to recolor it.
 Monsters and the player also have `frames` (their SpriteFrames in `data/visuals/`): a new monster
 can reuse an existing one, or you can make a new SpriteFrames from a sheet in `assets/characters/`.
 Floor looks (tiles, decor, tint, darkness, music) are `DungeonTheme` files in `data/dungeon/themes/`.
-How many lanterns, prop clusters and trap groups a floor gets is in `dungeon_config.tres`.
+How many lanterns, prop clusters, hazard groups and chests a floor gets, how often ambushes and
+elites happen, is in `dungeon_config.tres`.
 
 `min_depth` and `spawn_weight` control where and how often something appears.
 A `spawn_weight` of 0 means it never spawns on its own (starting gear, loot-only items, monster weapons).

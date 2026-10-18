@@ -5,9 +5,13 @@
 [ext_resource type="Resource" path="res://data/dungeon/acts/act_1.tres" id="2_pngbb"]
 [ext_resource type="Resource" path="res://data/dungeon/acts/act_2.tres" id="3_bf2ay"]
 [ext_resource type="Resource" path="res://data/dungeon/acts/act_3.tres" id="4_0biys"]
+[ext_resource type="Resource" path="res://data/chests/big_chest.tres" id="5_bf2ay"]
 [ext_resource type="Resource" path="res://data/props/lantern.tres" id="5_w3ici"]
+[ext_resource type="Resource" path="res://data/chests/chest.tres" id="6_0biys"]
 
 [resource]
 script = ExtResource("1_qfnhp")
 acts = Array[ExtResource("1_oi5f6")]([ExtResource("2_pngbb"), ExtResource("3_bf2ay"), ExtResource("4_0biys")])
 room_light = ExtResource("5_w3ici")
+chest = ExtResource("6_0biys")
+ambush_chest = ExtResource("5_bf2ay")

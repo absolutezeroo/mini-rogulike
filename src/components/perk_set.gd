@@ -101,6 +101,12 @@ func modify_projectiles(owner: Actor, spec: ProjectileSpec) -> void:
 			passive.modify_projectiles(owner, spec, entry)
 
 
+func on_died(owner: Actor) -> void:
+	for entry in entries:
+		for passive in entry.perk.passives:
+			passive.on_died(owner, entry)
+
+
 func prevent_death(owner: Actor) -> bool:
 	for entry in entries:
 		for passive in entry.perk.passives:

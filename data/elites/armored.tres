@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="EliteAffixDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_not3i"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_430ql"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="3_6lf2u"]
+[ext_resource type="Script" path="res://src/definitions/elite_affix_def.gd" id="4_rrhob"]
+
+[sub_resource type="Resource" id="Resource_gg6wv"]
+script = ExtResource("1_not3i")
+defense = 3
+
+[sub_resource type="Resource" id="Resource_4wv2j"]
+script = ExtResource("3_6lf2u")
+id = &"elite_armored"
+display_name = "Armored"
+color = Color(0.72156864, 0.76862746, 0.8392157, 1)
+bonuses = SubResource("Resource_gg6wv")
+
+[resource]
+script = ExtResource("4_rrhob")
+perk = SubResource("Resource_4wv2j")
+hp_multiplier = 1.3
+id = &"armored"
+display_name = "Armored"
+glyph = "A"
+color = Color(0.72156864, 0.76862746, 0.8392157, 1)

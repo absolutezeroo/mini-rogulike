@@ -1,12 +1,18 @@
 [gd_resource type="Resource" script_class="ActDef" format=3]
 
 [ext_resource type="Resource" path="res://data/monsters/bosses/king_slime.tres" id="1_y3bjj"]
+[ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="2_3q6dd"]
 [ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_chj32"]
+[ext_resource type="Resource" path="res://data/hazards/spikes.tres" id="3_57csl"]
 [ext_resource type="Resource" path="res://data/monsters/rat.tres" id="3_twde1"]
 [ext_resource type="Resource" path="res://data/monsters/bat.tres" id="4_1c6c0"]
+[ext_resource type="Resource" path="res://data/hazards/spike_plate.tres" id="4_35t5y"]
 [ext_resource type="Resource" path="res://data/monsters/slime.tres" id="5_dqtpg"]
+[ext_resource type="Resource" path="res://data/hazards/pit.tres" id="5_l6n4l"]
+[ext_resource type="Resource" path="res://data/hazards/mud.tres" id="6_d01a4"]
 [ext_resource type="Resource" path="res://data/monsters/spider.tres" id="6_h6jwt"]
 [ext_resource type="Resource" path="res://data/monsters/mushroom.tres" id="7_3q6dd"]
+[ext_resource type="Resource" path="res://data/hazards/crumbling_floor.tres" id="7_f35h4"]
 [ext_resource type="Resource" path="res://data/monsters/snake.tres" id="8_57csl"]
 [ext_resource type="Resource" path="res://data/monsters/larva.tres" id="9_35t5y"]
 [ext_resource type="Resource" path="res://data/monsters/mole.tres" id="10_l6n4l"]
@@ -21,3 +27,4 @@ subtitle = "Act I"
 theme = ExtResource("13_b7ec2")
 monsters = Array[ExtResource("2_chj32")]([ExtResource("3_twde1"), ExtResource("4_1c6c0"), ExtResource("5_dqtpg"), ExtResource("6_h6jwt"), ExtResource("7_3q6dd"), ExtResource("8_57csl"), ExtResource("9_35t5y"), ExtResource("10_l6n4l"), ExtResource("11_d01a4")])
 boss = ExtResource("1_y3bjj")
+hazards = Array[ExtResource("2_3q6dd")]([ExtResource("3_57csl"), ExtResource("4_35t5y"), ExtResource("5_l6n4l"), ExtResource("6_d01a4"), ExtResource("7_f35h4")])

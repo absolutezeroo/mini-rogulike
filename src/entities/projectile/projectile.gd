@@ -1,11 +1,13 @@
 class_name Projectile
 extends Area2D
 ## A moving shot. Hits the first enemy of its shooter (or several with pierce),
-## stops on walls, and optionally explodes.
+## stops on walls, and optionally explodes. Shots from traps have no shooter and hit everyone.
 
 var _world: World
 var _shooter: Actor
 var _faction: Actor.Faction
+## Trap shots: no side, hurt players and monsters alike.
+var _hits_everyone := false
 var _crit_chance := 0.0
 var _spec: ProjectileSpec
 var _direction := Vector2.RIGHT
@@ -23,18 +25,30 @@ func setup(shooter: Actor, direction: Vector2, spec: ProjectileSpec) -> void:
 	_shooter = shooter
 	_faction = shooter.faction
 	_crit_chance = shooter.get_stats().crit_chance
+	_configure(direction, spec)
+	collision_mask = Layers.WORLD | (Layers.MONSTERS if _faction == Actor.Faction.PLAYER else Layers.PLAYER)
+
+
+## A shot fired by the dungeon itself (arrow traps): hits players and monsters.
+func setup_trap(world: World, direction: Vector2, spec: ProjectileSpec) -> void:
+	_world = world
+	_hits_everyone = true
+	_configure(direction, spec)
+	collision_mask = Layers.WORLD | Layers.MONSTERS | Layers.PLAYER
+
+
+func _configure(direction: Vector2, spec: ProjectileSpec) -> void:
 	_spec = spec
 	_direction = direction.normalized()
 	_pierce_left = spec.pierce
 	rotation = _direction.angle()
 	collision_layer = 0
-	collision_mask = Layers.WORLD | (Layers.MONSTERS if _faction == Actor.Faction.PLAYER else Layers.PLAYER)
 	var shape := CircleShape2D.new()
 	shape.radius = spec.radius
 	($CollisionShape2D as CollisionShape2D).shape = shape
 	# The hero's shots and anything that explodes light up the dark (not every boss bullet: too many lights).
 	var glow := $Glow as PointLight2D
-	glow.enabled = _faction == Actor.Faction.PLAYER or spec.explosion_radius > 0.0
+	glow.enabled = (_shooter != null and _faction == Actor.Faction.PLAYER) or spec.explosion_radius > 0.0
 	glow.color = spec.color
 
 
@@ -68,7 +82,7 @@ func _on_body_entered(body: Node2D) -> void:
 		_finish()
 		return
 	var target := body as Actor
-	if target.faction == _faction or target.is_dead or _already_hit.has(target):
+	if (target.faction == _faction and not _hits_everyone) or target.is_dead or _already_hit.has(target):
 		return
 	_already_hit.append(target)
 	if _spec.explosion_radius > 0.0:
@@ -97,7 +111,7 @@ func _explode() -> void:
 	Vfx.explosion(_world, global_position, _spec.explosion_radius)
 	var source: Actor = _shooter if is_instance_valid(_shooter) else null
 	Combat.hit_props(_world, source, global_position, _spec.explosion_radius)
-	for target in _world.get_hostiles(_faction):
+	for target in _world.get_actors() if _hits_everyone else _world.get_hostiles(_faction):
 		var offset := target.global_position - global_position
 		if offset.length() <= _spec.explosion_radius + target.radius:
 			var hit := Combat.make_hit(_spec.damage, _crit_chance, source)

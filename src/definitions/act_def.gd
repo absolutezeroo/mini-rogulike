@@ -12,3 +12,9 @@ extends Resource
 ## Monsters met on the act's floors (their spawn_weight decides how often).
 @export var monsters: Array[MonsterDef] = []
 @export var boss: BossDef
+## Traps, holes, quicksand... laid out in the act's rooms (min_depth and spawn_weight decide).
+@export var hazards: Array[HazardDef] = []
+
+
+func pick_hazard(depth: int, rng: RandomNumberGenerator) -> HazardDef:
+	return ContentDB.pick_from(hazards, depth, rng) as HazardDef

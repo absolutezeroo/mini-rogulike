@@ -12,11 +12,18 @@
 [ext_resource type="Resource" path="res://data/items/weapons/axe.tres" id="5_pbmnr"]
 [ext_resource type="Resource" path="res://data/items/weapons/hammer.tres" id="6_m0rk7"]
 [ext_resource type="Resource" path="res://data/items/weapons/pickaxe.tres" id="7_ecbkd"]
+[ext_resource type="Script" path="res://src/definitions/elite_affix_def.gd" id="7_s1peu"]
+[ext_resource type="Resource" path="res://data/elites/swift.tres" id="8_du3p3"]
 [ext_resource type="Resource" path="res://data/items/weapons/magic_wand.tres" id="8_m5vms"]
 [ext_resource type="Resource" path="res://data/items/weapons/stick.tres" id="9_8li55"]
+[ext_resource type="Resource" path="res://data/elites/vampiric.tres" id="9_to1jy"]
+[ext_resource type="Resource" path="res://data/elites/explosive.tres" id="10_8pk3k"]
 [ext_resource type="Resource" path="res://data/items/weapons/book.tres" id="10_ng0jj"]
 [ext_resource type="Resource" path="res://data/items/armors/leather_cap.tres" id="11_te2ty"]
+[ext_resource type="Resource" path="res://data/elites/armored.tres" id="11_v6cij"]
 [ext_resource type="Resource" path="res://data/items/armors/iron_helm.tres" id="12_prpil"]
+[ext_resource type="Resource" path="res://data/elites/venomous.tres" id="12_til0v"]
+[ext_resource type="Resource" path="res://data/elites/spiked.tres" id="13_mym40"]
 [ext_resource type="Resource" path="res://data/items/armors/leather_armor.tres" id="13_q2763"]
 [ext_resource type="Resource" path="res://data/items/armors/chain_mail.tres" id="14_3wmne"]
 [ext_resource type="Resource" path="res://data/items/armors/shadow_cloak.tres" id="15_rjx6h"]
@@ -70,13 +77,9 @@
 [ext_resource type="Resource" path="res://data/props/vase.tres" id="55_xx7nh"]
 [ext_resource type="Resource" path="res://data/props/tnt.tres" id="56_6esje"]
 [ext_resource type="Resource" path="res://data/perks/common/arcane_focus.tres" id="58_e0sb6"]
-[ext_resource type="Script" path="res://src/definitions/trap_def.gd" id="59_bx8nx"]
 [ext_resource type="Resource" path="res://data/perks/common/arcane_power.tres" id="59_y15mf"]
 [ext_resource type="Resource" path="res://data/perks/common/devotion.tres" id="60_5rwny"]
-[ext_resource type="Resource" path="res://data/traps/spikes.tres" id="60_tx8pl"]
 [ext_resource type="Resource" path="res://data/perks/relics/sages_codex.tres" id="61_mmfdi"]
-[ext_resource type="Resource" path="res://data/traps/spike_plate.tres" id="61_vxbuw"]
-[ext_resource type="Resource" path="res://data/traps/flame_vent.tres" id="62_qapwd"]
 [ext_resource type="Script" path="res://src/definitions/upgrade_def.gd" id="73_0tw7m"]
 [ext_resource type="Resource" path="res://data/upgrades/vitality.tres" id="74_pgsf5"]
 [ext_resource type="Resource" path="res://data/upgrades/might.tres" id="75_6v54u"]
@@ -165,4 +168,4 @@ default_difficulty = ExtResource("1_p1yhy")
 upgrades = Array[ExtResource("73_0tw7m")]([ExtResource("74_pgsf5"), ExtResource("75_6v54u"), ExtResource("76_p1yhy"), ExtResource("77_rjcke"), ExtResource("78_v3gsm"), ExtResource("79_s1peu"), ExtResource("80_du3p3"), ExtResource("81_to1jy"), ExtResource("82_8pk3k"), ExtResource("83_v6cij"), ExtResource("84_til0v")])
 locked_items = Array[ExtResource("2_cewcx")]([ExtResource("23_dianq"), ExtResource("10_ng0jj"), ExtResource("37_gyds2"), ExtResource("38_1b8ag"), ExtResource("16_h0egv"), ExtResource("15_rjx6h")])
 props = Array[ExtResource("52_yjg1c")]([ExtResource("53_dianq"), ExtResource("54_kqkbc"), ExtResource("55_xx7nh"), ExtResource("56_6esje")])
-traps = Array[ExtResource("59_bx8nx")]([ExtResource("60_tx8pl"), ExtResource("61_vxbuw"), ExtResource("62_qapwd")])
+elite_affixes = Array[ExtResource("7_s1peu")]([ExtResource("8_du3p3"), ExtResource("9_to1jy"), ExtResource("10_8pk3k"), ExtResource("11_v6cij"), ExtResource("12_til0v"), ExtResource("13_mym40")])

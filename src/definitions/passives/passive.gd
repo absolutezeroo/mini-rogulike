@@ -41,6 +41,11 @@ func modify_projectiles(_owner: Actor, _spec: ProjectileSpec, _perk: PerkSet.Ent
 	pass
 
 
+## The owner died (monsters with the "explosive" elite affix blow up...).
+func on_died(_owner: Actor, _perk: PerkSet.Entry) -> void:
+	pass
+
+
 ## The owner is about to die. Return true to keep it alive (it is the passive's job to restore HP).
 func prevent_death(_owner: Actor, _perk: PerkSet.Entry) -> bool:
 	return false

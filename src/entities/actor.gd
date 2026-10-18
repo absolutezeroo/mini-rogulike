@@ -19,6 +19,8 @@ const SECONDARY_TEXT_COLOR := Color("ffb26b")
 ## Pixel art is 16x16 and drawn at 2x.
 const SPRITE_SCALE := 2.0
 const AFTERIMAGE_INTERVAL := 0.03
+## Seconds of falling into a hole before it counts.
+const FALL_TIME := 0.5
 
 var faction: Faction = Faction.MONSTER
 var world: World
@@ -34,6 +36,12 @@ var body_color := Color.WHITE
 var radius := 12.0
 ## Monsters disappear when they die; the player stays on screen for the game over.
 var free_on_death := true
+## Flying actors (bats, ghosts...) don't fall into holes or wade in quicksand.
+var flies := false
+## Dropping into a hole (see fall()).
+var is_falling := false
+## Who hit this actor last: credited if it falls into a hole.
+var last_attacker: Actor
 
 var base_stats := StatBlock.new()
 var equipment := Equipment.new()
@@ -211,6 +219,8 @@ func take_hit(hit: HitInfo) -> void:
 		Sfx.play_at(_hurt_sound(hit), global_position)
 	world.spawn_floating_text(head_position(), str(damage) + ("!" if hit.is_crit else ""), _hit_text_color(hit))
 	health_changed.emit(hp, get_max_hp())
+	if is_instance_valid(hit.source) and hit.source != self:
+		last_attacker = hit.source
 	if hit.status:
 		hit.status.apply_to(self, attacker)
 	if attacker:
@@ -244,6 +254,7 @@ func die(killer: Actor) -> void:
 		rig.modulate = _body_modulate()
 	statuses.clear()
 	var valid_killer := killer if is_instance_valid(killer) else null
+	perks.on_died(self)
 	_on_died(valid_killer)
 	if valid_killer:
 		valid_killer.perks.on_kill(valid_killer, self)
@@ -258,7 +269,55 @@ func die(killer: Actor) -> void:
 	queue_redraw()
 
 
+# --- Holes ------------------------------------------------------------------
+
+## Standing on the floor: can fall into holes, sink in quicksand, set off cracked floor.
+func is_grounded() -> bool:
+	return not flies and not is_dashing() and not is_falling and not is_dead
+
+
+## Drops into the hole under the actor; _on_fell() decides what happens next.
+func fall(pit: PitDef) -> void:
+	if is_falling or is_dead:
+		return
+	is_falling = true
+	velocity = Vector2.ZERO
+	_knockback = Vector2.ZERO
+	_dash_time = 0.0
+	Sfx.play_at(Sfx.bank.fall, global_position)
+	var into := world.map.cell_to_world(world.map.world_to_cell(global_position))
+	var tween := create_tween().set_parallel()
+	tween.tween_property(self, "global_position", global_position.lerp(into, 0.6), FALL_TIME)
+	if rig:
+		tween.tween_property(rig, "scale", Vector2.ZERO, FALL_TIME).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tween.tween_property(rig, "rotation", TAU * 0.75, FALL_TIME)
+	tween.chain().tween_callback(_on_fell.bind(pit))
+	queue_redraw()
+
+
+## Back on solid ground after a fall (the player climbing out).
+func _recover_from_fall() -> void:
+	is_falling = false
+	if rig:
+		rig.scale = Vector2.ONE
+		rig.rotation = 0.0
+	queue_redraw()
+
+
+func _check_ground() -> void:
+	if not is_grounded():
+		return
+	var pit := world.pit_under(global_position)
+	if pit:
+		fall(pit)
+
+
 # --- Hooks for subclasses ----------------------------------------------------
+
+## The fall is over: the actor is at the bottom of `pit`.
+func _on_fell(_pit: PitDef) -> void:
+	die(last_attacker if is_instance_valid(last_attacker) else null)
+
 
 func _think(_delta: float) -> void:
 	pass
@@ -297,7 +356,7 @@ func _hit_text_color(hit: HitInfo) -> Color:
 # --- Frame update ------------------------------------------------------------
 
 func _physics_process(delta: float) -> void:
-	if is_dead:
+	if is_dead or is_falling:
 		return
 	_tick_timers(delta)
 	if is_dead:
@@ -317,6 +376,7 @@ func _physics_process(delta: float) -> void:
 		velocity = _get_desired_velocity() + _knockback
 	_knockback = _knockback.move_toward(Vector2.ZERO, KNOCKBACK_FRICTION * delta)
 	move_and_slide()
+	_check_ground()
 	if rig:
 		rig.update_state(facing, velocity.length(), is_dashing(), delta)
 		rig.modulate = _body_modulate()
@@ -367,6 +427,8 @@ func _body_modulate() -> Color:
 
 
 func _draw() -> void:
+	if is_falling:
+		return
 	# Shadow under the feet.
 	draw_set_transform(Vector2(0, _feet_y() - 1.0), 0.0, Vector2(1.0, 0.4))
 	draw_circle(Vector2.ZERO, radius, Color(0, 0, 0, 0.35))

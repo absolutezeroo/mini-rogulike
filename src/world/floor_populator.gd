@@ -1,14 +1,14 @@
 class_name FloorPopulator
-## Fills a freshly generated floor: lights, props and traps first (they claim their cells),
-## then monsters and items on the free cells.
-## The first room is where the player starts: no monsters or traps there.
+## Fills a freshly generated floor: lights, props and hazards first (they claim their cells),
+## then the ambush room, chests, monsters and items on the free cells.
+## The first room is where the player starts: no monsters or hazards there.
 
 
 static func populate(world: World, content: ContentDB, depth: int) -> void:
 	var map := world.map
 	var rng := world.rng
 	var config := content.dungeon
-	var taken := {}  # cells used by props and traps
+	var taken := {}  # cells used by props and hazards
 	_reserve_around(taken, map.start_cell, 2)
 	_reserve_around(taken, map.stairs_cell, 1)
 	for room in map.rooms:
@@ -18,11 +18,27 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 
 	for i in map.rooms.size():
 		_place_props(world, content, depth, map.rooms[i], taken)
-	var groups := rng.randi_range(config.trap_groups_min, config.trap_groups_max)
-	for n in groups:
-		var trap := content.pick_trap(depth, rng)
-		if trap:
-			_place_traps(world, trap, map.rooms[rng.randi_range(1, map.rooms.size() - 1)], taken)
+	var act := config.act_for_depth(depth)
+	if act:
+		for n in rng.randi_range(config.hazard_groups_min, config.hazard_groups_max):
+			var hazard := act.pick_hazard(depth, rng)
+			if hazard:
+				hazard.place(world, map.rooms[rng.randi_range(1, map.rooms.size() - 1)], taken)
+
+	# One quiet room may be an ambush: no monsters in it until the hero walks in.
+	var ambush_index := -1
+	if rng.randf() < config.ambush_chance:
+		ambush_index = _pick_ambush_room(map, rng)
+		if ambush_index >= 0:
+			world.spawn_ambush(map.rooms[ambush_index])
+
+	if config.chest:
+		for n in rng.randi_range(config.chests_min, config.chests_max):
+			var room := map.rooms[rng.randi_range(1, map.rooms.size() - 1)]
+			var cells := _shuffled(_edge_cells(map, room, taken), rng)
+			if not cells.is_empty():
+				world.spawn_chest(config.chest, cells[0], rng.randf() < config.chest.trapped_chance)
+				_reserve_around(taken, cells[0], 1)
 
 	var extra := floori(config.extra_monsters_per_depth * (depth - 1))
 	var max_per_room := config.max_monsters_per_room
@@ -30,18 +46,31 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 		extra += world.difficulty.extra_monsters
 		max_per_room += world.difficulty.extra_monsters
 	for i in range(1, map.rooms.size()):
+		if i == ambush_index:
+			continue
 		var room := map.rooms[i]
 		var count := mini(rng.randi_range(config.monsters_per_room_min, config.monsters_per_room_max) + extra, max_per_room)
 		for n in count:
 			var def := content.pick_monster(depth, rng)
 			if def:
-				world.spawn_monster(def, _free_point_in(map, room, rng, taken))
+				var monster := world.spawn_monster(def, _free_point_in(map, room, rng, taken))
+				world.roll_elite(monster)
 
 	for n in config.items_per_floor:
 		var room := map.rooms[rng.randi_range(1, map.rooms.size() - 1)]
 		var item := content.pick_item(depth, rng)
 		if item:
 			world.spawn_item(item, _free_point_in(map, room, rng, taken))
+
+
+## A big enough room, not the first one and without the stairs (-1 if none).
+static func _pick_ambush_room(map: DungeonMap, rng: RandomNumberGenerator) -> int:
+	var candidates: Array[int] = []
+	for i in range(1, map.rooms.size()):
+		var room := map.rooms[i]
+		if room.size.x >= 7 and room.size.y >= 7 and not room.grow(1).has_point(map.stairs_cell):
+			candidates.append(i)
+	return candidates[rng.randi_range(0, candidates.size() - 1)] if not candidates.is_empty() else -1
 
 
 ## Lanterns along the walls of a room (also used for boss arenas).
@@ -81,32 +110,6 @@ static func _place_props(world: World, content: ContentDB, depth: int, room: Rec
 				world.spawn_prop(prop, cell)
 			taken[cell] = true
 			cell += [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN][rng.randi_range(0, 3)]
-
-
-## A group of traps: TIMED ones form a row across the room firing in a wave,
-## STEP ones are scattered plates.
-static func _place_traps(world: World, def: TrapDef, room: Rect2i, taken: Dictionary) -> void:
-	var rng := world.rng
-	var inner := room.grow(-2)
-	if inner.size.x < 3 or inner.size.y < 3:
-		return
-	if def.trigger == TrapDef.Trigger.TIMED:
-		var horizontal := rng.randf() < 0.5
-		var length := rng.randi_range(3, 5)
-		var origin := Vector2i(rng.randi_range(inner.position.x, inner.end.x - 1), rng.randi_range(inner.position.y, inner.end.y - 1))
-		var step := Vector2i.RIGHT if horizontal else Vector2i.DOWN
-		for i in length:
-			var cell := origin + step * i
-			if not inner.has_point(cell) or taken.has(cell):
-				break
-			world.spawn_trap(def, cell, i * 0.25)
-			taken[cell] = true
-	else:
-		for i in rng.randi_range(2, 3):
-			var cell := Vector2i(rng.randi_range(inner.position.x, inner.end.x - 1), rng.randi_range(inner.position.y, inner.end.y - 1))
-			if not taken.has(cell):
-				world.spawn_trap(def, cell)
-				taken[cell] = true
 
 
 ## Floor cells of the room touching a wall, away from doorways.

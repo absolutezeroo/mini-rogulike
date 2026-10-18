@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="ArrowTrapDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/projectiles/arrow.png" id="1_eoo56"]
+[ext_resource type="Texture2D" path="res://assets/props/plate.png" id="2_wm1cs"]
+[ext_resource type="Texture2D" path="res://assets/props/launcher.png" id="3_ga2dj"]
+[ext_resource type="Texture2D" path="res://assets/props/plate_pressed.png" id="4_tiucr"]
+[ext_resource type="Script" path="res://src/definitions/hazards/arrow_trap_def.gd" id="5_kt0gu"]
+[ext_resource type="AudioStream" path="res://data/audio/arrow.tres" id="6_g2isi"]
+
+[resource]
+script = ExtResource("5_kt0gu")
+launcher_texture = ExtResource("3_ga2dj")
+arrow_texture = ExtResource("1_eoo56")
+trigger = 1
+base_texture = ExtResource("2_wm1cs")
+pressed_texture = ExtResource("4_tiucr")
+idle_time = 1.5
+warning_time = 0.3
+active_time = 0.5
+damage = 7
+knockback = 160.0
+sound = ExtResource("6_g2isi")
+id = &"arrow_trap"
+display_name = "Arrow Trap"
+description = "A pressure plate wired to an arrow slit in the wall."
+icon = ExtResource("3_ga2dj")
+glyph = "A"
+spawn_weight = 9

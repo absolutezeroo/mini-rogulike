@@ -2,10 +2,16 @@
 
 [ext_resource type="Resource" path="res://data/monsters/bosses/crimson_tengu.tres" id="1_jy0od"]
 [ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_0pn66"]
+[ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="2_7pb75"]
+[ext_resource type="Resource" path="res://data/hazards/flame_vent.tres" id="3_pcd8x"]
 [ext_resource type="Resource" path="res://data/monsters/shaman.tres" id="3_vlwa2"]
 [ext_resource type="Resource" path="res://data/monsters/cyclops.tres" id="4_7j4pw"]
+[ext_resource type="Resource" path="res://data/hazards/arrow_trap.tres" id="4_k1810"]
 [ext_resource type="Resource" path="res://data/monsters/flam.tres" id="5_lokq4"]
+[ext_resource type="Resource" path="res://data/hazards/quicksand.tres" id="5_pa3y5"]
+[ext_resource type="Resource" path="res://data/hazards/crumbling_floor.tres" id="6_0hwi7"]
 [ext_resource type="Resource" path="res://data/monsters/reptile.tres" id="6_b4bba"]
+[ext_resource type="Resource" path="res://data/hazards/pit.tres" id="7_4gi1q"]
 [ext_resource type="Resource" path="res://data/monsters/beast.tres" id="7_7pb75"]
 [ext_resource type="Resource" path="res://data/monsters/dragon.tres" id="8_pcd8x"]
 [ext_resource type="Resource" path="res://data/monsters/kappa.tres" id="9_k1810"]
@@ -21,3 +27,4 @@ subtitle = "Act III"
 theme = ExtResource("13_uago2")
 monsters = Array[ExtResource("2_0pn66")]([ExtResource("3_vlwa2"), ExtResource("4_7j4pw"), ExtResource("5_lokq4"), ExtResource("6_b4bba"), ExtResource("7_7pb75"), ExtResource("8_pcd8x"), ExtResource("9_k1810"), ExtResource("10_pa3y5"), ExtResource("11_0hwi7")])
 boss = ExtResource("1_jy0od")
+hazards = Array[ExtResource("2_7pb75")]([ExtResource("3_pcd8x"), ExtResource("4_k1810"), ExtResource("5_pa3y5"), ExtResource("6_0hwi7"), ExtResource("7_4gi1q")])

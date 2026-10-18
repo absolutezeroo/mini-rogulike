@@ -1,5 +1,5 @@
 class_name TrapDef
-extends ContentDef
+extends HazardDef
 ## A floor trap that hurts anyone on it (player and monsters alike: lure them in!).
 ## Cycle: idle > warning (the danger peeks out) > active (hurts) > idle again.
 
@@ -32,3 +32,41 @@ enum Trigger {
 @export var burn_damage: int = 0
 @export var knockback: float = 120.0
 @export var sound: AudioStream
+
+
+## Damage of one activation on this floor (depth and difficulty included).
+func damage_on(world: World) -> int:
+	return roundi((damage + world.depth) * world.damage_scale())
+
+
+## The trap goes off (start of the active phase).
+func on_fire(_trap: Trap) -> void:
+	pass
+
+
+## Every physics frame of the active phase: hurts whoever stands on it.
+func while_active(trap: Trap) -> void:
+	trap.hurt_overlapping()
+
+
+## TIMED traps form a row across the room firing in a wave, STEP ones are scattered plates.
+func place(world: World, room: Rect2i, taken: Dictionary) -> void:
+	var rng := world.rng
+	var cells := inner_cells(world, room, taken)
+	if cells.is_empty():
+		return
+	if trigger == Trigger.TIMED:
+		var step := Vector2i.RIGHT if rng.randf() < 0.5 else Vector2i.DOWN
+		var origin: Vector2i = cells[rng.randi_range(0, cells.size() - 1)]
+		for i in rng.randi_range(3, 5):
+			var cell := origin + step * i
+			if not cells.has(cell):
+				break
+			world.spawn_trap(self, cell, i * 0.25)
+			taken[cell] = true
+	else:
+		for i in rng.randi_range(2, 3):
+			var cell: Vector2i = cells[rng.randi_range(0, cells.size() - 1)]
+			if not taken.has(cell):
+				world.spawn_trap(self, cell)
+				taken[cell] = true

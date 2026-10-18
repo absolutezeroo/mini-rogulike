@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" path="res://assets/props/spikes.png" id="1_rrm44"]
 [ext_resource type="Texture2D" path="res://assets/props/spike_holes.png" id="2_m8uqx"]
-[ext_resource type="Script" path="res://src/definitions/trap_def.gd" id="3_lmsf3"]
+[ext_resource type="Script" path="res://src/definitions/hazards/trap_def.gd" id="3_lmsf3"]
 [ext_resource type="AudioStream" path="res://data/audio/spikes.tres" id="4_cdesw"]
 
 [resource]

@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="PitDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/crack.tres" id="1_ev8q8"]
+[ext_resource type="Texture2D" path="res://assets/props/cracks.png" id="2_54frx"]
+[ext_resource type="AudioStream" path="res://data/audio/crumble.tres" id="3_kn463"]
+[ext_resource type="Script" path="res://src/definitions/hazards/pit_def.gd" id="4_hnuv5"]
+[ext_resource type="Texture2D" path="res://assets/props/hole.png" id="5_u7emo"]
+
+[resource]
+script = ExtResource("4_hnuv5")
+tileset = ExtResource("5_u7emo")
+size_max = Vector2i(4, 3)
+crumble_time = 0.55
+crack_texture = ExtResource("2_54frx")
+crack_sound = ExtResource("1_ev8q8")
+crumble_sound = ExtResource("3_kn463")
+id = &"crumbling_floor"
+display_name = "Crumbling Floor"
+description = "Cracked floor that gives way under your feet."
+icon = ExtResource("2_54frx")
+glyph = "%"
+min_depth = 2
+spawn_weight = 7

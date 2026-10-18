@@ -120,6 +120,21 @@ static func blast(world: World, center: Vector2, radius: float, amount: int, kno
 	hit_props(world, source, center, radius)
 
 
+## A warning ring, then after `fuse` seconds a blast (see blast()). `fx`: a sheet of square
+## frames to play instead of the usual explosion.
+static func delayed_blast(world: World, center: Vector2, radius: float, amount: int, fuse: float, fx: Texture2D = null, status: OnHitStatus = null) -> void:
+	world.spawn_vfx(RingVfx.create(center, radius, Color(1.0, 0.3, 0.2, 0.8)))
+	world.get_tree().create_timer(fuse, false).timeout.connect(func() -> void:
+		if not is_instance_valid(world):
+			return
+		if fx:
+			world.spawn_vfx(SheetVfx.create(fx, center, 0.0, radius * 2.0 / fx.get_height()))
+			Sfx.play_at(Sfx.bank.explosion, center, -4.0)
+		else:
+			Vfx.explosion(world, center, radius)
+		blast(world, center, radius, amount, 260.0, null, status))
+
+
 static func spec_from_weapon(attacker: Actor, weapon: WeaponDef) -> ProjectileSpec:
 	var spec := ProjectileSpec.new()
 	spec.damage = attacker.get_power()

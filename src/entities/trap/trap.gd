@@ -1,7 +1,7 @@
 class_name Trap
 extends Area2D
 ## A floor trap built from a TrapDef. Hurts every actor standing on it when it fires,
-## monsters included. See TrapDef for the cycle.
+## monsters included (what firing does is up to the TrapDef: see ArrowTrapDef). See TrapDef for the cycle.
 
 enum Phase { IDLE, WARNING, ACTIVE }
 
@@ -12,6 +12,9 @@ var world: World
 var phase := Phase.IDLE
 ## TIMED traps: seconds into the cycle at start, so neighbours can fire in a wave.
 var cycle_offset := 0.0
+## Arrow traps: the wall cell holding the slit, and where it shoots (zero = no launcher).
+var launcher_cell := Vector2i.ZERO
+var launcher_direction := Vector2.ZERO
 
 var _timer := 0.0
 var _hit_this_time: Array[Actor] = []
@@ -43,6 +46,17 @@ func is_dangerous() -> bool:
 	return phase == Phase.ACTIVE
 
 
+## Wires the trap to an arrow slit in the wall at `cell`, shooting along `direction`.
+func set_launcher(cell: Vector2i, direction: Vector2) -> void:
+	launcher_cell = cell
+	launcher_direction = direction
+
+
+## Where the arrows start: just out of the wall, on the room's side.
+func get_launcher_position() -> Vector2:
+	return world.map.cell_to_world(launcher_cell) + launcher_direction * (world.map.tile_size * 0.5 + 8.0)
+
+
 func _physics_process(delta: float) -> void:
 	_anim_time += delta
 	match phase:
@@ -62,7 +76,7 @@ func _physics_process(delta: float) -> void:
 				_enter(Phase.ACTIVE)
 		Phase.ACTIVE:
 			_timer -= delta
-			_hurt_overlapping()
+			def.while_active(self)
 			if _timer <= 0.0:
 				_enter(Phase.IDLE)
 	queue_redraw()
@@ -80,6 +94,7 @@ func _enter(next: Phase) -> void:
 			_timer = def.active_time
 			_hit_this_time.clear()
 			Sfx.play_at(def.sound, global_position, -4.0)
+			def.on_fire(self)
 
 
 func _someone_on_it() -> bool:
@@ -89,13 +104,14 @@ func _someone_on_it() -> bool:
 	return false
 
 
-func _hurt_overlapping() -> void:
+## Hurts every actor standing on the trap (once per activation).
+func hurt_overlapping() -> void:
 	for body in get_overlapping_bodies():
 		var actor := body as Actor
 		if actor == null or actor.is_dead or _hit_this_time.has(actor):
 			continue
 		_hit_this_time.append(actor)
-		var hit := Combat.make_secondary_hit(null, roundi((def.damage + world.depth) * world.damage_scale()))
+		var hit := Combat.make_secondary_hit(null, def.damage_on(world))
 		hit.knockback = global_position.direction_to(actor.global_position) * def.knockback
 		actor.take_hit(hit)
 		if def.burn_damage > 0:
@@ -112,6 +128,7 @@ func _draw() -> void:
 		base = def.pressed_texture
 	if base:
 		draw_texture_rect(base, rect, false)
+	_draw_launcher()
 	if def.active_sheet == null or phase == Phase.IDLE:
 		return
 	var frames := def.active_frames
@@ -128,3 +145,15 @@ func _draw() -> void:
 		var source := Rect2(frame * frame_size.x, 0, frame_size.x, frame_size.y)
 		var size := frame_size * (SIZE / 16.0)
 		draw_texture_rect_region(def.active_sheet, Rect2(Vector2(-size.x * 0.5, half - size.y), size), source)
+
+
+## The arrow slit, in its wall.
+func _draw_launcher() -> void:
+	var arrow_trap := def as ArrowTrapDef
+	if arrow_trap == null or arrow_trap.launcher_texture == null or launcher_direction == Vector2.ZERO:
+		return
+	var center := world.map.cell_to_world(launcher_cell) - global_position
+	var shake := Vector2(sin(_anim_time * 70.0), 0.0) if phase == Phase.WARNING else Vector2.ZERO
+	draw_set_transform(center + shake, launcher_direction.angle() - PI * 0.5)
+	draw_texture_rect(arrow_trap.launcher_texture, Rect2(-SIZE * 0.5, -SIZE * 0.5, SIZE, SIZE), false)
+	draw_set_transform(Vector2.ZERO)

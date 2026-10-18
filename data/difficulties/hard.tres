@@ -14,5 +14,6 @@ monster_speed = 1.05
 telegraph_time = 0.85
 extra_monsters = 1
 boss_hp = 1.3
+elite_chance = 1.6
 souls = 1.6
 light = 0.9

@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="EliteAffixDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_5e5ye"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_8au7w"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="3_txytp"]
+[ext_resource type="Script" path="res://src/definitions/elite_affix_def.gd" id="4_owiga"]
+
+[sub_resource type="Resource" id="Resource_fb270"]
+script = ExtResource("1_5e5ye")
+move_speed = 45.0
+attack_speed = 0.45
+
+[sub_resource type="Resource" id="Resource_ebpko"]
+script = ExtResource("3_txytp")
+id = &"elite_swift"
+display_name = "Swift"
+color = Color(0.36862746, 0.8784314, 1, 1)
+bonuses = SubResource("Resource_fb270")
+
+[resource]
+script = ExtResource("4_owiga")
+perk = SubResource("Resource_ebpko")
+id = &"swift"
+display_name = "Swift"
+glyph = "S"
+color = Color(0.36862746, 0.8784314, 1, 1)

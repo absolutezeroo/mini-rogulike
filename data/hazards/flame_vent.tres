@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" path="res://assets/fx/flame.png" id="1_84fb2"]
 [ext_resource type="Texture2D" path="res://assets/props/vent.png" id="2_bffnd"]
-[ext_resource type="Script" path="res://src/definitions/trap_def.gd" id="3_dmtpn"]
+[ext_resource type="Script" path="res://src/definitions/hazards/trap_def.gd" id="3_dmtpn"]
 [ext_resource type="AudioStream" path="res://data/audio/flames.tres" id="4_sncmv"]
 
 [resource]
@@ -22,5 +22,4 @@ display_name = "Flame Vent"
 icon = ExtResource("1_84fb2")
 glyph = "F"
 color = Color(1, 0.54901963, 0.25882354, 1)
-min_depth = 3
 spawn_weight = 6

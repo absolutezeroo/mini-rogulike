@@ -50,6 +50,12 @@ func _ready() -> void:
 	Events.monster_killed.connect(func(_monster: Monster) -> void: kills += 1)
 	Events.boss_started.connect(_on_boss_started)
 	Events.boss_defeated.connect(_on_boss_defeated)
+	Events.ambush_started.connect(func(_room: AmbushRoom) -> void:
+		hud.show_banner("Ambush!", Color("ff6b6b"))
+		Events.log_message("It's a trap! Survive the waves.", Color("ff6b6b")))
+	Events.ambush_cleared.connect(func(_room: AmbushRoom) -> void:
+		Sfx.play_ui(Sfx.bank.boss_defeated)
+		Events.log_message("The room falls silent. A chest appears...", Color("ffd166")))
 	start_run()
 
 

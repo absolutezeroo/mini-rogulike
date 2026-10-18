@@ -20,6 +20,8 @@ extends Resource
 ## Extra monsters in every room.
 @export_range(0, 5) var extra_monsters: int = 0
 @export var boss_hp: float = 1.0
+## Multiplies the chance for a monster to be an elite.
+@export var elite_chance: float = 1.0
 
 @export_group("Rewards and help")
 ## Multiplies every monster's and prop's drop chance.

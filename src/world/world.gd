@@ -13,6 +13,8 @@ const ARENA_SCENE := preload("res://src/world/boss_arena.tscn")
 const PROP_SCENE := preload("res://src/entities/prop/prop.tscn")
 const TRAP_SCENE := preload("res://src/entities/trap/trap.tscn")
 const FLASH_SCENE := preload("res://src/vfx/light_flash.tscn")
+## Pixels of a hole's edge you can stand on without falling.
+const PIT_EDGE := 6.0
 
 var map: DungeonMap
 var theme: DungeonTheme
@@ -23,11 +25,14 @@ var rng := RandomNumberGenerator.new()
 var difficulty: DifficultyDef
 ## Boss floors only: the arena and its boss (null on normal floors).
 var arena: BossArena
+## The floor's ambush room, if it has one.
+var ambush: AmbushRoom
 
 var _content: ContentDB
 var _astar := AStarGrid2D.new()
 
 @onready var _view: DungeonView = $DungeonView
+@onready var _pits: PitLayer = $Pits
 @onready var _walls: StaticBody2D = $Walls
 @onready var _entities: Node2D = $Entities
 @onready var _projectiles: Node2D = $Projectiles
@@ -51,6 +56,7 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 	if difficulty:
 		_ambient.color = Color(_ambient.color * difficulty.light, 1.0)
 	_view.show_map(map, theme)
+	_pits.setup(map.tile_size)
 	_build_walls()
 	_build_pathfinding()
 	if boss:
@@ -68,6 +74,9 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 ## Removes everything from the floor except the player.
 func clear_floor() -> void:
 	arena = null
+	ambush = null
+	if _pits:
+		_pits.clear()
 	for layer: Node in [_entities, _projectiles, _effects, _walls]:
 		for child in layer.get_children():
 			if child != player:
@@ -81,6 +90,7 @@ func place_player(new_player: Player) -> void:
 	if player.get_parent() == null:
 		_entities.add_child(player)
 	player.global_position = map.cell_to_world(map.start_cell)
+	player.reset_safe_position()
 	player.camera.reset_smoothing()
 
 
@@ -140,6 +150,57 @@ func spawn_trap(def: TrapDef, cell: Vector2i, cycle_offset: float = 0.0) -> Trap
 	return trap
 
 
+## Monsters roll to be elites with the floor's chance (DungeonConfig > Elites, the difficulty).
+func roll_elite(monster: Monster) -> void:
+	var chance := config().elite_chance_at(depth) * (difficulty.elite_chance if difficulty else 1.0)
+	if rng.randf() < chance:
+		make_elite(monster)
+
+
+func make_elite(monster: Monster) -> void:
+	var affix := _content.pick_affix(depth, rng)
+	if affix:
+		monster.make_elite(affix, config())
+
+
+func spawn_chest(def: ChestDef, cell: Vector2i, trapped: bool) -> Chest:
+	var chest := Chest.new()
+	chest.setup(def, self, trapped)
+	chest.position = map.cell_to_world(cell)
+	_entities.add_child(chest)
+	set_cell_blocked(cell, true)
+	return chest
+
+
+func spawn_ambush(room: Rect2i) -> AmbushRoom:
+	ambush = AmbushRoom.new()
+	_entities.add_child(ambush)
+	ambush.setup(self, room)
+	return ambush
+
+
+func spawn_crumbling_floor(def: PitDef, cell: Vector2i) -> CrumblingFloor:
+	var tile := CrumblingFloor.new()
+	tile.setup(def, self, cell)
+	_effects.add_child(tile)
+	return tile
+
+
+func spawn_quicksand(def: QuicksandDef, rect: Rect2i) -> Quicksand:
+	var pool := Quicksand.new()
+	pool.setup(def, self, rect)
+	_effects.add_child(pool)
+	return pool
+
+
+## A shot from the dungeon itself (arrow traps): it hurts players and monsters alike.
+func fire_trap_projectile(from: Vector2, direction: Vector2, spec: ProjectileSpec) -> void:
+	var projectile := PROJECTILE_SCENE.instantiate() as Projectile
+	projectile.setup_trap(self, direction, spec)
+	projectile.position = from
+	_projectiles.add_child.call_deferred(projectile)
+
+
 ## A short burst of light (explosions...).
 func flash_light(at: Vector2, color: Color, size: float) -> void:
 	var flash := FLASH_SCENE.instantiate() as LightFlash
@@ -167,7 +228,55 @@ func spawn_floating_text(at: Vector2, text: String, color: Color) -> void:
 	spawn_vfx(FloatingText.create(at, text, color))
 
 
+# --- Holes ------------------------------------------------------------------
+
+## Makes `cell` a hole: anyone standing on it falls, monsters path around it.
+func add_pit(cell: Vector2i, def: PitDef) -> void:
+	_pits.add(cell, def)
+	set_cell_blocked(cell, true)
+
+
+func has_pit(cell: Vector2i) -> bool:
+	return _pits.has(cell)
+
+
+## The hole under `point`, if it is well inside one (a few pixels of edge are forgiven).
+func pit_under(point: Vector2) -> PitDef:
+	var def := _pits.get_def(map.world_to_cell(point))
+	if def == null:
+		return null
+	for offset: Vector2 in [Vector2(PIT_EDGE, 0), Vector2(-PIT_EDGE, 0), Vector2(0, PIT_EDGE), Vector2(0, -PIT_EDGE)]:
+		if not _pits.has(map.world_to_cell(point + offset)):
+			return null
+	return def
+
+
+## Floor that can't give way: no hole, no cracked floor (where the hero climbs out after a fall).
+func is_solid_ground(point: Vector2) -> bool:
+	var cell := map.world_to_cell(point)
+	if not map.is_floor(cell) or _pits.has(cell):
+		return false
+	for node in get_tree().get_nodes_in_group("crumbling_floors"):
+		if (node as CrumblingFloor).cell == cell and not node.is_queued_for_deletion():
+			return false
+	return true
+
+
 # --- Queries -----------------------------------------------------------------
+
+func config() -> DungeonConfig:
+	return _content.dungeon
+
+
+## A monster of the current act (ambushes, trapped chests).
+func pick_monster() -> MonsterDef:
+	return _content.pick_monster(depth, rng)
+
+
+## A random item that can be found on this floor (chests, elite drops).
+func pick_random_item() -> ItemDef:
+	return _content.pick_item(depth, rng)
+
 
 ## Living actors that are enemies of `faction`.
 func get_hostiles(faction: Actor.Faction) -> Array[Actor]:
@@ -231,10 +340,11 @@ func find_path(from: Vector2, to: Vector2) -> PackedVector2Array:
 
 
 ## A walkable point about `distance` away from `center`, in sight of it (or `center` itself).
+## Never over a hole or cracked floor.
 func find_open_point_near(center: Vector2, distance: float) -> Vector2:
 	for attempt in 10:
 		var point := center + Vector2.from_angle(rng.randf() * TAU) * distance
-		if map.is_floor(map.world_to_cell(point)) and has_line_of_sight(center, point):
+		if is_solid_ground(point) and has_line_of_sight(center, point):
 			return point
 	return center
 
@@ -271,6 +381,8 @@ func _build_pathfinding() -> void:
 	_astar.offset = Vector2(map.tile_size, map.tile_size) * 0.5
 	_astar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES
 	_astar.update()
+	# The grid keeps its solid cells from the previous floor when its size does not change.
+	_astar.fill_solid_region(_astar.region, false)
 	for y in map.height:
 		for x in map.width:
 			if not map.is_floor(Vector2i(x, y)):

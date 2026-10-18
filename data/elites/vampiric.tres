@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="EliteAffixDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="1_q6tq3"]
+[ext_resource type="Script" path="res://src/definitions/passives/lifesteal_passive.gd" id="2_juddb"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="3_hybn0"]
+[ext_resource type="Script" path="res://src/definitions/elite_affix_def.gd" id="4_73y4x"]
+
+[sub_resource type="Resource" id="Resource_bde7o"]
+script = ExtResource("2_juddb")
+ratio_per_stack = 0.6
+
+[sub_resource type="Resource" id="Resource_m8jr4"]
+script = ExtResource("3_hybn0")
+id = &"elite_vampiric"
+display_name = "Vampiric"
+color = Color(0.9098039, 0.21176471, 0.30980393, 1)
+passives = Array[ExtResource("1_q6tq3")]([SubResource("Resource_bde7o")])
+
+[resource]
+script = ExtResource("4_73y4x")
+perk = SubResource("Resource_m8jr4")
+id = &"vampiric"
+display_name = "Vampiric"
+glyph = "V"
+color = Color(0.9098039, 0.21176471, 0.30980393, 1)

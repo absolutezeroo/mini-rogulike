@@ -50,6 +50,7 @@ skills = Array[ExtResource("9_uxfhs")]([ExtResource("10_y1d81")])
 radius = 10.0
 frames = ExtResource("2_mhj34")
 frames_offset = Vector2(0, -8)
+flies = true
 attack_windup = 0.6
 attack_recovery = 0.35
 keep_distance = 220.0

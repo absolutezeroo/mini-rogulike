@@ -17,6 +17,8 @@ var telegraph := 0.0
 var casting_index := -1
 ## A dormant monster ignores the player (a boss waiting in its arena). See wake_up().
 var dormant := false
+## Elite monsters only (see make_elite()): what makes them special.
+var elite: EliteAffixDef
 
 ## Big monsters shake the floor when they walk.
 const HEAVY_RADIUS := 14.0
@@ -27,6 +29,10 @@ var _phases_done := 0
 var _windup_multiplier := 1.0
 var _damage_multiplier := 1.0
 var _phase_tint := Color.WHITE
+var _xp_multiplier := 1
+var _bonus_drops := 0
+## Fell into a hole: no loot, no burst, nothing comes out.
+var _fell := false
 
 
 func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
@@ -38,6 +44,7 @@ func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
 	frames = def.frames
 	frames_offset = def.frames_offset
 	head_height = def.head_height
+	flies = def.flies
 	set_body_radius(def.radius)
 	collision_layer = Layers.MONSTERS
 	collision_mask = Layers.WORLD | Layers.PLAYER | Layers.MONSTERS
@@ -58,6 +65,29 @@ func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
 	skills.set_skills(def.skills)
 	invalidate_stats()
 	hp = get_max_hp()
+
+
+## Turns the monster into an elite: affix perk, more HP, bigger, more XP, guaranteed loot.
+## Call after it was added to the world.
+func make_elite(affix: EliteAffixDef, config: DungeonConfig) -> void:
+	elite = affix
+	display_name = "%s %s" % [affix.display_name, def.display_name]
+	if affix.perk:
+		perks.add(affix.perk)
+	base_stats.max_hp = roundi(base_stats.max_hp * config.elite_hp_multiplier * affix.hp_multiplier)
+	invalidate_stats()
+	hp = get_max_hp()
+	head_height *= config.elite_scale
+	set_body_radius(radius * lerpf(1.0, config.elite_scale, 0.5))
+	if rig:
+		rig.position = Vector2(0, _feet_y())
+		rig.scale = Vector2.ONE * config.elite_scale
+	_xp_multiplier = config.elite_xp_multiplier
+	_bonus_drops = config.elite_drops
+
+
+func is_elite() -> bool:
+	return elite != null
 
 
 ## Attacks and skills hit harder (or softer) with the difficulty.
@@ -136,7 +166,21 @@ func get_attack_windup() -> float:
 
 func _get_desired_velocity() -> Vector2:
 	_update_heavy_steps()
-	return move_direction * get_move_speed()
+	var direction := move_direction
+	if direction != Vector2.ZERO and not flies:
+		direction = _avoid_holes(direction)
+	return direction * get_move_speed()
+
+
+## Walking monsters don't step into holes on their own (being knocked in is another story):
+## they veer off, or stop.
+func _avoid_holes(direction: Vector2) -> Vector2:
+	var look_ahead := radius + 12.0
+	for angle: float in [0.0, 0.6, -0.6, 1.3, -1.3]:
+		var turned := direction.rotated(angle)
+		if not world.has_pit(world.map.world_to_cell(global_position + turned.normalized() * look_ahead)):
+			return turned
+	return Vector2.ZERO
 
 
 func _update_heavy_steps() -> void:
@@ -204,42 +248,44 @@ func _death_sound() -> AudioStream:
 	return def.death_sound if def.death_sound else Sfx.bank.monster_death
 
 
+## Gone for good, nothing drops (the XP still goes to whoever pushed it).
+func _on_fell(pit: PitDef) -> void:
+	_fell = true
+	super._on_fell(pit)
+
+
 func _on_died(killer: Actor) -> void:
 	Events.monster_killed.emit(self)
+	if _fell:
+		if killer is Player:
+			(killer as Player).gain_xp(def.xp_reward * _xp_multiplier)
+		world.spawn_floating_text(global_position, "Fell!", Color("ffd166"))
+		return
 	if is_boss():
 		Vfx.boss_death(world, global_position + Vector2(0, -head_height * 0.5), radius * 1.5)
 		HitStop.freeze(0.25)
 	else:
 		Vfx.death(world, global_position, def.color)
 	if killer is Player:
-		(killer as Player).gain_xp(def.xp_reward)
+		(killer as Player).gain_xp(def.xp_reward * _xp_multiplier)
 	_death_burst()
 	_death_spawns()
 	if def.loot:
 		for item in def.loot.roll(world.rng, world.loot_scale()):
 			var offset := Vector2.from_angle(randf() * TAU) * randf_range(4.0, 14.0)
 			world.spawn_item(item, global_position + offset)
+	for i in _bonus_drops:
+		var item := world.pick_random_item()
+		if item:
+			world.spawn_item(item, global_position + Vector2.from_angle(randf() * TAU) * randf_range(6.0, 16.0))
 
 
 ## A short warning ring, then the burst (the monster is already gone).
 func _death_burst() -> void:
 	if def.death_burst_radius <= 0.0:
 		return
-	var at := global_position
-	var target_world := world
-	var monster_def := def
-	var damage := roundi((def.death_burst_damage + target_world.depth) * target_world.damage_scale())
-	target_world.spawn_vfx(RingVfx.create(at, def.death_burst_radius, Color(1.0, 0.3, 0.2, 0.8)))
-	target_world.get_tree().create_timer(DEATH_BURST_FUSE, false).timeout.connect(func() -> void:
-		if not is_instance_valid(target_world):
-			return
-		if monster_def.death_burst_fx:
-			var size := monster_def.death_burst_radius * 2.0 / monster_def.death_burst_fx.get_height()
-			target_world.spawn_vfx(SheetVfx.create(monster_def.death_burst_fx, at, 0.0, size))
-			Sfx.play_at(Sfx.bank.explosion, at, -4.0)
-		else:
-			Vfx.explosion(target_world, at, monster_def.death_burst_radius)
-		Combat.blast(target_world, at, monster_def.death_burst_radius, damage, 260.0, null, monster_def.death_burst_status))
+	var damage := roundi((def.death_burst_damage + world.depth) * world.damage_scale())
+	Combat.delayed_blast(world, global_position, def.death_burst_radius, damage, DEATH_BURST_FUSE, def.death_burst_fx, def.death_burst_status)
 
 
 func _death_spawns() -> void:
@@ -260,9 +306,13 @@ func _death_spawns() -> void:
 
 
 func _draw() -> void:
+	if elite and not is_dead and not is_falling:
+		_draw_elite_aura()
 	if telegraph > 0.0 and not is_dead:
 		_draw_telegraph()
 	super._draw()
+	if elite and not is_dead and not is_falling:
+		_draw_elite_name()
 	# Bosses have a big bar in the HUD instead.
 	if not is_dead and hp < get_max_hp() and not is_boss():
 		var top_left := head_position() - global_position + Vector2(-HP_BAR_WIDTH * 0.5, -6.0)
@@ -307,3 +357,24 @@ func _draw_telegraph() -> void:
 		# Aiming line for ranged attacks.
 		var length := (weapon.reach if weapon else 200.0) * 0.6
 		draw_line(Vector2.ZERO, facing * length, warning, 2.0 + 3.0 * telegraph)
+
+
+## Pulsing ring of the affix color at the elite's feet.
+func _draw_elite_aura() -> void:
+	var pulse := 0.5 + 0.5 * sin(Time.get_ticks_msec() * 0.006)
+	var color := elite.color
+	draw_set_transform(Vector2(0, _feet_y() - 1.0), 0.0, Vector2(1.0, 0.45))
+	color.a = 0.25 + 0.2 * pulse
+	draw_circle(Vector2.ZERO, radius + 6.0 + 2.0 * pulse, color)
+	color.a = 0.8
+	draw_arc(Vector2.ZERO, radius + 6.0 + 2.0 * pulse, 0.0, TAU, 24, color, 2.0)
+	draw_set_transform(Vector2.ZERO)
+
+
+func _draw_elite_name() -> void:
+	var font := Fonts.MAIN
+	var font_size := 12
+	var text_size := font.get_string_size(display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
+	var at := head_position() - global_position + Vector2(-text_size.x * 0.5, -12.0)
+	draw_string_outline(font, at, display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 4, Color(0, 0, 0, 0.8))
+	draw_string(font, at, display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, elite.color.lightened(0.3))

@@ -23,16 +23,42 @@ extends Resource
 @export var max_monsters_per_room: int = 6
 @export var items_per_floor: int = 4
 
-@export_group("Props and traps")
+@export_group("Props and hazards")
 ## Lantern placed along the walls of every room (light in the dark).
 @export var room_light: PropDef
 @export_range(0, 6) var lights_per_room: int = 2
 ## Small groups of crates, pots and barrels per room.
 @export_range(0, 10) var prop_clusters_min: int = 0
 @export_range(0, 10) var prop_clusters_max: int = 2
-## Groups of traps per floor (a row of spikes, a few plates...).
-@export_range(0, 20) var trap_groups_min: int = 2
-@export_range(0, 20) var trap_groups_max: int = 4
+## Groups of hazards per floor (a row of spikes, a few holes...), picked from the act's list.
+@export_range(0, 20) var hazard_groups_min: int = 3
+@export_range(0, 20) var hazard_groups_max: int = 5
+
+@export_group("Chests")
+## Chests lying around a floor (some are trapped: see ChestDef).
+@export var chest: ChestDef
+@export_range(0, 6) var chests_min: int = 0
+@export_range(0, 6) var chests_max: int = 2
+
+@export_group("Ambushes")
+## Chance for a floor to have an ambush room: it looks empty, then the exits close and
+## monsters pour in, wave after wave. A big chest waits for whoever survives.
+@export_range(0.0, 1.0) var ambush_chance: float = 0.6
+@export_range(1, 5) var ambush_waves: int = 2
+## Monsters per wave, plus one every 3 floors.
+@export_range(1, 12) var ambush_wave_size: int = 3
+## Reward for clearing an ambush.
+@export var ambush_chest: ChestDef
+
+@export_group("Elites")
+## Chance for a monster to be an elite on the first floor, and more per floor below.
+@export_range(0.0, 1.0) var elite_chance: float = 0.04
+@export_range(0.0, 1.0) var elite_chance_per_depth: float = 0.015
+@export var elite_hp_multiplier: float = 2.5
+@export var elite_xp_multiplier: int = 3
+@export var elite_scale: float = 1.25
+## Random items dropped by every elite, on top of its normal loot.
+@export_range(0, 5) var elite_drops: int = 1
 
 @export_group("Bosses")
 ## Size of the arena room, in cells.
@@ -42,6 +68,11 @@ extends Resource
 ## Monster HP grows by this fraction per depth (0.15 = +15% per floor).
 @export var monster_hp_scale_per_depth: float = 0.15
 @export var monster_attack_per_depth: int = 1
+
+
+## Chance for a monster spawned at `depth` to be an elite, before the difficulty.
+func elite_chance_at(depth: int) -> float:
+	return elite_chance + elite_chance_per_depth * (depth - 1)
 
 
 ## Floors in one pass through every act.

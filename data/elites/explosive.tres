@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="EliteAffixDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="1_3kbkq"]
+[ext_resource type="Script" path="res://src/definitions/passives/death_burst_passive.gd" id="2_0rjuy"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="3_uj5oa"]
+[ext_resource type="Script" path="res://src/definitions/elite_affix_def.gd" id="4_4ukmk"]
+
+[sub_resource type="Resource" id="Resource_uglly"]
+script = ExtResource("2_0rjuy")
+radius = 80.0
+damage = 12
+
+[sub_resource type="Resource" id="Resource_ddpr6"]
+script = ExtResource("3_uj5oa")
+id = &"elite_explosive"
+display_name = "Explosive"
+color = Color(1, 0.54901963, 0.25882354, 1)
+passives = Array[ExtResource("1_3kbkq")]([SubResource("Resource_uglly")])
+
+[resource]
+script = ExtResource("4_4ukmk")
+perk = SubResource("Resource_ddpr6")
+hp_multiplier = 0.85
+id = &"explosive"
+display_name = "Explosive"
+glyph = "E"
+color = Color(1, 0.54901963, 0.25882354, 1)

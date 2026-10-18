@@ -44,6 +44,7 @@ skills = Array[ExtResource("8_gpecj")]([ExtResource("9_rgybh")])
 radius = 10.0
 frames = ExtResource("2_pb5u1")
 frames_offset = Vector2(0, -8)
+flies = true
 attack_recovery = 0.35
 xp_reward = 8
 loot = SubResource("Resource_c4tbc")
