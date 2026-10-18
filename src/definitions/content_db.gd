@@ -7,6 +7,8 @@ extends Resource
 @export var player: PlayerDef
 @export var dungeon: DungeonConfig
 @export var sounds: SoundBank
+## The game's name, its story and the texts that tell it.
+@export var story: StoryDef
 ## Items that can be found lying on the floor. Loot tables can also reference items not listed here.
 @export var items: Array[ItemDef] = []
 ## Perks offered on level up (common) and after bosses (rare relics).

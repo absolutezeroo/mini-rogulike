@@ -134,7 +134,13 @@ func _test_content() -> void:
 		check(affix.perk != null and not affix.display_name.is_empty(), "%s elite affix has a perk" % affix.id)
 	check(CONTENT.dungeon.chest != null and CONTENT.dungeon.chest.trapped_chance > 0.0 and CONTENT.dungeon.ambush_chest != null, "chests and ambush rewards set")
 	check(CONTENT.all_monsters().any(func(m: MonsterDef) -> bool: return m.flies), "some monsters fly")
-	check(CONTENT.sounds.fall != null and CONTENT.sounds.ambush != null, "falls and ambushes have sounds")
+	check(CONTENT.sounds.fall != null and CONTENT.sounds.ambush != null and CONTENT.sounds.soul != null, "falls, ambushes and souls have sounds")
+	var story := CONTENT.story
+	check(story != null and story.title == "Le Puits des Âmes" and not story.tagline.is_empty(), "the game has its name")
+	check(story.intro_pages.size() >= 4 and not story.victory_text.is_empty() and story.death_lines.size() >= 2, "the story is written")
+	for act in CONTENT.dungeon.acts:
+		check(not act.lore.is_empty(), "%s has its story line" % act.title)
+		check(act.boss and not act.boss.title.is_empty(), "%s's boss has a title" % act.title)
 	check(CONTENT.dungeon.room_light != null and CONTENT.dungeon.room_light.light_color.a > 0.0, "rooms get lanterns")
 
 
@@ -357,6 +363,7 @@ func _test_title_screen() -> void:
 	add_child(title)
 	await _frames(2)
 	check(title.get_node("%PlayButton").visible, "the title screen has a Play button")
+	check((title.get_node("%Title") as Label).text == CONTENT.story.title and title.get_node("%StoryButton").visible, "the title screen shows the name and the story")
 	(title.get_node("%PlayButton") as Button).pressed.emit()
 	await _frames(2)
 	var cards: HBoxContainer = title.get_node("%DifficultyCards")
@@ -380,11 +387,26 @@ func _test_title_screen() -> void:
 	Profile.reset()
 	await _frames(2)
 
+	# The story: typed out page by page, a tap shows the whole page, the next tap the next page.
+	check(not Profile.seen_intro, "the story was not told yet")
+	var story_screen: StoryScreen = load("res://src/ui/story/story_screen.tscn").instantiate()
+	add_child(story_screen)
+	await _frames(3)
+	var text: Label = story_screen.get_node("%Text")
+	check(story_screen.page == 0 and story_screen.is_typing() and text.visible_ratio < 1.0, "the story types itself out")
+	story_screen.advance()
+	check(text.visible_ratio == 1.0 and not story_screen.is_typing(), "a tap shows the whole page")
+	story_screen.advance()
+	check(story_screen.page == 1 and text.text == CONTENT.story.intro_pages[1], "the next tap turns the page")
+	story_screen.queue_free()
+	await _frames(2)
+
 
 # --- Gameplay (bot) ----------------------------------------------------------
 
 func _test_gameplay() -> void:
 	var game := GAME_SCENE.instantiate()
+	game.show_act_cards = false  # tested on their own (see _test_act_card)
 	add_child(game)
 	await _frames(5)
 	var world: World = game.world
@@ -544,6 +566,8 @@ func _test_gameplay() -> void:
 	check(world.monster_count() > 0, "new floor populated")
 	check(not get_tree().paused and game._fade.color.a < 0.05, "the fade clears on the new floor")
 	await _test_ambience(game)
+	await _test_act_card(game)
+	await _test_souls(game)
 
 	await _test_boss_fight(game)
 
@@ -559,7 +583,9 @@ func _test_gameplay() -> void:
 	check(player.is_dead, "player can die")
 	await get_tree().create_timer(1.5).timeout
 	check(game.game_over_panel.visible, "game over screen shown")
-	check(Profile.souls >= souls_before_death and (game.game_over_panel.get_node("%Summary") as Label).text.contains("souls"), "the end of a run shows its souls")
+	var summary := (game.game_over_panel.get_node("%Summary") as Label).text
+	check(Profile.souls >= souls_before_death and summary.contains("souls"), "the end of a run shows its souls")
+	check(Array(CONTENT.story.death_lines).any(func(line: String) -> bool: return summary.begins_with(line)), "and a line of the story")
 	# Shrine upgrades apply to the next run.
 	Profile.levels = { "vitality": 2, "provisions": 1, "second_chance": 1, "paladin_oath": 1 }
 	Profile.difficulty = &"easy"
@@ -1201,6 +1227,44 @@ func _solid_point_in(world: World, rect: Rect2i) -> Vector2:
 		if world.is_solid_ground(point) and not world._astar.is_point_solid(cell):
 			return point
 	return world.map.cell_to_world(rect.get_center())
+
+
+## A new act begins with its title card, on black, game paused. A tap skips it.
+func _test_act_card(game: Node) -> void:
+	game.show_act_cards = true
+	game.depth = 4
+	game._descend()
+	await _frames(int(game.FADE_TIME * 60.0) + 40)
+	var card: ActCard = game.act_card
+	var act: ActDef = CONTENT.dungeon.act_for_depth(4)
+	check(card.visible and (card.get_node("%Title") as Label).text == act.title, "a new act shows its card")
+	check((card.get_node("%Lore") as Label).text == act.lore and get_tree().paused, "with its story, game paused")
+	var tap := InputEventMouseButton.new()
+	tap.button_index = MOUSE_BUTTON_LEFT
+	tap.pressed = true
+	Input.parse_input_event(tap)
+	await _frames(int(ActCard.FADE_TIME * 60.0) + 10)
+	check(not card.visible and not get_tree().paused, "a tap skips the card")
+	game.show_act_cards = false
+	await _frames(20)
+
+
+## Kills set souls free: they fly into the hero's lantern and the HUD counts them.
+func _test_souls(game: Node) -> void:
+	var world: World = game.world
+	var player: Player = game.player
+	var monster := world.spawn_monster(load("res://data/monsters/slime.tres"), world.find_open_point_near(player.global_position, 100.0))
+	monster.dormant = true
+	var gathered := [0]
+	var on_soul := func() -> void: gathered[0] += 1
+	Events.soul_gathered.connect(on_soul)
+	monster.take_hit(Combat.make_secondary_hit(player, 99999))
+	await _frames(2)
+	check(world.get_node("Effects").get_children().any(func(n: Node) -> bool: return n is SoulWisp), "a kill sets a soul free")
+	await _frames(90)
+	check(gathered[0] >= 1, "the soul reaches the hero's lantern")
+	check((game.hud.get_node("%SoulsLabel") as Label).text == "Souls %d" % game.run_souls(), "the HUD counts the run's souls")
+	Events.soul_gathered.disconnect(on_soul)
 
 
 ## Floor ambience: data per theme, footprints, low health heartbeat and muffled music.

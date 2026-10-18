@@ -1,4 +1,8 @@
-# Mini Roguelike
+# Le Puits des Âmes
+
+*Under the village of Kagari lies an old well. One night without a moon, it woke up and took the
+villagers' souls. Only the ninja keeping watch at the shrine was spared. Take the lantern, go down,
+bring the souls back.*
 
 Real-time action roguelike for Godot 4.7 (GDScript, Compatibility renderer).
 Procedural floors lit by torches and lanterns, traps, holes, crumbling floor and quicksand,
@@ -34,6 +38,7 @@ data/                Game content as .tres resources (no code)
   perks/               Level-up perks (common/) and boss relics (relics/)
   upgrades/            Shrine upgrades (bought with souls between runs)
   difficulties/        Easy, Normal, Hard, Nightmare
+  story/               story.tres: the game's name, the intro, victory and death texts
   props/               Breakable props and the lantern
   hazards/             Traps, arrow traps, holes, crumbling floor, quicksand and mud
   chests/              Chests (some trapped) and the big chest of ambushes
@@ -60,7 +65,7 @@ src/
   combat/              Damage rules, hits, projectile specs
   ai/                  StateMachine + monster states (Idle, Chase, Attack, Cast)
   vfx/                 Particles (particles/), sprite-sheet FX, emotes, afterimages, damage numbers; Vfx helpers
-  ui/                  Title screen and shrine, HUD, touch controls, inventory, perk choice, end of run
+  ui/                  Title screen and shrine, story, act cards, HUD, touch controls, inventory, perk choice, end of run
   game/                Game: main scene, run and floor flow
 tests/               Headless test suite with a bot that plays the game
 ```
@@ -140,6 +145,22 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   and always drop an item. Their affix is a perk, like the hero's: **Swift**, **Vampiric**
   (heals when hitting), **Explosive** (blows up when it dies), **Armored**, **Venomous**
   (poisons), **Spiked** (hurts who hits it).
+
+## Story and identity
+
+Everything is tied to one idea: **souls**. The Well stole the souls of the hero's village; the
+monsters down there feed on them; the three bosses are its wardens.
+
+- **The story** (`data/story/story.tres`, `StoryDef`) is told page by page before the first run
+  (`StoryScreen`: typed out, tap to go on, Skip), and again from the title screen's Story button.
+- **Every act opens with a title card** on black (`ActCard`, `ActDef.lore`): its name and a line of story.
+- **Every kill frees a soul**: a little light rises from the body and flies into the hero's lantern
+  (`SoulWisp`); bosses free a dozen. The HUD counts the souls of the run, which go to the
+  **shrine** at the end: it turns them into permanent upgrades.
+- Death and victory screens tell how it ended (`StoryDef.death_lines`, `victory_text`).
+
+The game's texts are in English; the name stays French. The project's internal name is still
+"Mini Roguelike" (`project.godot`), on purpose: the save file's folder depends on it.
 
 ## Skills and builds
 
@@ -346,6 +367,7 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 | A new kind of hazard | New script in `src/definitions/hazards/` extending `HazardDef`, override `place()` |
 | An elite affix | New `EliteAffixDef` in `data/elites/` (name, color, a perk), add it to `content_db.tres` > Elite Affixes |
 | A chest | New `ChestDef` in `data/chests/`, set it in `dungeon_config.tres` > Chests |
+| Story texts | Edit `data/story/story.tres` (intro pages, death lines...); an act's line is its `ActDef` > Lore |
 
 Each piece of content has an **icon** (any `Texture2D`) and an **icon tint** to recolor it.
 Monsters and the player also have `frames` (their SpriteFrames in `data/visuals/`): a new monster

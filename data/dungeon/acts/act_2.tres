@@ -24,6 +24,7 @@
 script = ExtResource("12_1aok4")
 title = "Haunted Crypt"
 subtitle = "Act II"
+lore = "Where Kagari buried its dead, long ago. Since the Well woke up, they do not rest anymore."
 theme = ExtResource("13_wenk7")
 monsters = Array[ExtResource("2_etibi")]([ExtResource("3_0slpj"), ExtResource("4_dw8h1"), ExtResource("5_yjv1g"), ExtResource("6_3r1nu"), ExtResource("7_rvqiy"), ExtResource("8_4wi7y"), ExtResource("9_gxe60"), ExtResource("10_wciqp"), ExtResource("11_lmuqr")])
 boss = ExtResource("1_0h4yv")

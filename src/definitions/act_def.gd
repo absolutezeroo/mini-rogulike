@@ -6,6 +6,8 @@ extends Resource
 @export var title: String = "Act"
 ## Shown under the title when the act begins.
 @export var subtitle: String = ""
+## A line or two of story on the card shown when the act begins.
+@export_multiline var lore: String = ""
 @export var theme: DungeonTheme
 ## Floors in this act. The last one is the boss arena.
 @export_range(1, 10) var floors: int = 3

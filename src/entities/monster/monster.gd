@@ -6,6 +6,8 @@ extends Actor
 const HP_BAR_WIDTH := 26.0
 ## Delay between a monster's death and its death burst (time to step away).
 const DEATH_BURST_FUSE := 0.35
+## Souls flying out of a dead boss.
+const BOSS_SOULS := 12
 
 var def: MonsterDef
 var target: Actor
@@ -256,6 +258,7 @@ func _on_fell(pit: PitDef) -> void:
 
 func _on_died(killer: Actor) -> void:
 	Events.monster_killed.emit(self)
+	_free_souls()
 	if _fell:
 		if killer is Player:
 			(killer as Player).gain_xp(def.xp_reward * _xp_multiplier)
@@ -278,6 +281,14 @@ func _on_died(killer: Actor) -> void:
 		var item := world.pick_random_item()
 		if item:
 			world.spawn_item(item, global_position + Vector2.from_angle(randf() * TAU) * randf_range(6.0, 16.0))
+
+
+## The souls it fed on fly back to the hero's lantern (bosses hold many).
+func _free_souls() -> void:
+	if world.player == null or world.player.is_dead:
+		return
+	for i in BOSS_SOULS if is_boss() else 1:
+		world.spawn_vfx(SoulWisp.create(global_position + Vector2(randf_range(-8.0, 8.0), -radius), world.player))
 
 
 ## A short warning ring, then the burst (the monster is already gone).

@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="BossDef" format=3]
 
 [ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_d51cp"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_c80jh"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/bosses/demon_cyclops.tres" id="2_ss85h"]
 [ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="3_c80jh"]
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/demon_cyclops/idle.png" id="4_7e0hy"]
@@ -92,7 +93,7 @@ move_speed = 70.0
 
 [resource]
 script = ExtResource("18_lv27d")
-title = "Warden of the Deep Cave"
+title = "Warden of the Crypt"
 portrait = ExtResource("17_hw63p")
 phases = Array[ExtResource("11_mjgm1")]([SubResource("Resource_x7qpn"), SubResource("Resource_dan4u")])
 stats = SubResource("Resource_273k5")

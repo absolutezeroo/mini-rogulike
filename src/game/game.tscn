@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://src/game/game.gd" id="1_game"]
 [ext_resource type="Resource" path="res://data/content_db.tres" id="2_content"]
@@ -10,6 +10,7 @@
 [ext_resource type="Shader" path="res://assets/shaders/screen.gdshader" id="8_screen"]
 [ext_resource type="Script" path="res://src/vfx/screen_effects.gd" id="9_screen"]
 [ext_resource type="PackedScene" path="res://src/world/ambience.tscn" id="10_ambience"]
+[ext_resource type="PackedScene" path="res://src/ui/act_card/act_card.tscn" id="11_card"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_screen"]
 shader = ExtResource("8_screen")
@@ -61,3 +62,5 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 color = Color(0, 0, 0, 0)
+
+[node name="ActCard" parent="Fade" instance=ExtResource("11_card")]

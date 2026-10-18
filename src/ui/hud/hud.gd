@@ -8,10 +8,12 @@ const BAG_ICON: Texture2D = preload("res://assets/ui/icons/bag.png")
 
 var _player: Player
 var _banner_tween: Tween
+var _souls_tween: Tween
 
 @onready var _hp_bar: StatBar = %HpBar
 @onready var _xp_bar: StatBar = %XpBar
 @onready var _info_label: Label = %InfoLabel
+@onready var _souls_label: Label = %SoulsLabel
 @onready var _depth_banner: Label = %DepthBanner
 @onready var _message_log: MessageLog = %MessageLog
 @onready var _attack_button: ActionButton = %AttackButton
@@ -108,6 +110,19 @@ func _refresh_info() -> void:
 		stats.defense,
 		weapon.display_name if weapon else "Bare hands",
 	]
+
+
+## Souls gathered this run (what the shrine will get). `pulse` when a new one arrives.
+func set_souls(count: int, pulse: bool = false) -> void:
+	_souls_label.text = "Souls %d" % count
+	if not pulse:
+		return
+	if _souls_tween:
+		_souls_tween.kill()
+	_souls_label.pivot_offset = _souls_label.size * Vector2(0.0, 0.5)
+	_souls_label.scale = Vector2.ONE * 1.25
+	_souls_tween = create_tween()
+	_souls_tween.tween_property(_souls_label, "scale", Vector2.ONE, 0.2)
 
 
 ## Big centered text that fades out (floor names, boss names...).

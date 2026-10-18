@@ -24,6 +24,7 @@
 [ext_resource type="AudioStream" path="res://data/audio/ui_click.tres" id="15_n46y7"]
 [ext_resource type="AudioStream" path="res://data/audio/ui_close.tres" id="16_sei3t"]
 [ext_resource type="AudioStream" path="res://data/audio/ui_open.tres" id="17_da57c"]
+[ext_resource type="AudioStream" path="res://data/audio/soul.tres" id="21_7ru6g"]
 
 [resource]
 script = ExtResource("13_j8m74")
@@ -32,6 +33,7 @@ player_death = ExtResource("10_rbjxk")
 footstep = ExtResource("3_7kifr")
 level_up = ExtResource("5_ii3yv")
 perk_chosen = ExtResource("13_rbjxk")
+soul = ExtResource("21_7ru6g")
 monster_hurt = ExtResource("8_uw11l")
 monster_death = ExtResource("7_lqsaf")
 monster_alert = ExtResource("6_r7xlo")

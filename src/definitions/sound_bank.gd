@@ -11,6 +11,8 @@ extends Resource
 @export var level_up: AudioStream
 ## A perk or relic was chosen.
 @export var perk_chosen: AudioStream
+## A freed soul reaches the hero's lantern.
+@export var soul: AudioStream
 
 @export_group("Monsters")
 @export var monster_hurt: AudioStream

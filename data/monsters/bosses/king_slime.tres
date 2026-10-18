@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="BossDef" format=3]
 
 [ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_fv4ot"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_4m2cw"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/bosses/king_slime.tres" id="2_buxgy"]
 [ext_resource type="AudioStream" path="res://data/audio/slime.tres" id="3_4m2cw"]
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/king_slime/idle.png" id="4_cn0aa"]
@@ -77,7 +78,7 @@ move_speed = 60.0
 
 [resource]
 script = ExtResource("17_pf55w")
-title = "Ruler of the Wet Ruins"
+title = "Warden of the Mouth of the Well"
 portrait = ExtResource("16_w05qf")
 phases = Array[ExtResource("11_aad1y")]([SubResource("Resource_3iggt")])
 stats = SubResource("Resource_j3yk1")

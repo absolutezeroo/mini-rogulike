@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="BossDef" format=3]
 
 [ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_mhmqy"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_dq8y5"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/bosses/crimson_tengu.tres" id="2_roian"]
 [ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="3_dq8y5"]
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/crimson_tengu/idle.png" id="4_t1mx2"]
@@ -80,7 +81,7 @@ crit_chance = 0.1
 
 [resource]
 script = ExtResource("18_mk8wd")
-title = "Master of the Forgotten Crypt"
+title = "Keeper of the Well"
 portrait = ExtResource("17_c0dat")
 phases = Array[ExtResource("11_l2j53")]([SubResource("Resource_iysax")])
 stats = SubResource("Resource_lkpkv")

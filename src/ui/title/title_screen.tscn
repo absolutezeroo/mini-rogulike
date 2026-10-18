@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://src/ui/title/title_screen.gd" id="1_title"]
 [ext_resource type="Resource" path="res://data/content_db.tres" id="2_content"]
 [ext_resource type="Script" path="res://src/ui/title/shrine_panel.gd" id="3_shrine"]
 [ext_resource type="Script" path="res://src/ui/title/difficulty_panel.gd" id="4_difficulty"]
+[ext_resource type="PackedScene" path="res://src/vfx/ambient/wisps.tscn" id="5_wisps"]
 
 [node name="TitleScreen" type="Control"]
 layout_mode = 3
@@ -24,6 +25,9 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.105882, 0.0784314, 0.12549, 1)
 
+[node name="Wisps" parent="." instance=ExtResource("5_wisps")]
+position = Vector2(640, 420)
+
 [node name="Center" type="CenterContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -37,14 +41,16 @@ layout_mode = 2
 theme_override_constants/separation = 16
 
 [node name="Title" type="Label" parent="Center/VBox"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.82, 0.4, 1)
 theme_override_constants/outline_size = 10
 theme_override_font_sizes/font_size = 72
-text = "Mini Roguelike"
+text = "Le Puits des Âmes"
 horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="Center/VBox"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.94, 0.82, 1)
 theme_override_font_sizes/font_size = 20
@@ -75,13 +81,24 @@ size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 28
 text = "Play"
 
-[node name="ShrineButton" type="Button" parent="Center/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(320, 64)
+[node name="Buttons" type="HBoxContainer" parent="Center/VBox"]
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_constants/separation = 16
+
+[node name="ShrineButton" type="Button" parent="Center/VBox/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 60)
+layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Shrine"
+
+[node name="StoryButton" type="Button" parent="Center/VBox/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Story"
 
 [node name="Records" type="Label" parent="Center/VBox"]
 unique_name_in_owner = true
@@ -158,6 +175,13 @@ layout_mode = 2
 focus_mode = 0
 theme_override_font_sizes/font_size = 20
 text = "Close"
+
+[node name="ShrineText" type="Label" parent="ShrinePanel/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.95, 1, 0.85)
+theme_override_font_sizes/font_size = 16
+autowrap_mode = 3
 
 [node name="Scroll" type="ScrollContainer" parent="ShrinePanel/Panel/Margin/VBox"]
 layout_mode = 2

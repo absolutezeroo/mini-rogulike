@@ -24,6 +24,7 @@
 script = ExtResource("12_f35h4")
 title = "Mossy Caves"
 subtitle = "Act I"
+lore = "The mouth of the Well. Roots, wet stone, and things that crawl toward the light of your lantern."
 theme = ExtResource("13_b7ec2")
 monsters = Array[ExtResource("2_chj32")]([ExtResource("3_twde1"), ExtResource("4_1c6c0"), ExtResource("5_dqtpg"), ExtResource("6_h6jwt"), ExtResource("7_3q6dd"), ExtResource("8_57csl"), ExtResource("9_35t5y"), ExtResource("10_l6n4l"), ExtResource("11_d01a4")])
 boss = ExtResource("1_y3bjj")

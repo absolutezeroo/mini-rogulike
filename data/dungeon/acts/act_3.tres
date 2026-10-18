@@ -24,6 +24,7 @@
 script = ExtResource("12_4gi1q")
 title = "Burning Ruins"
 subtitle = "Act III"
+lore = "A temple the Well swallowed whole. Its fires never went out. The souls' cries come from below."
 theme = ExtResource("13_uago2")
 monsters = Array[ExtResource("2_0pn66")]([ExtResource("3_vlwa2"), ExtResource("4_7j4pw"), ExtResource("5_lokq4"), ExtResource("6_b4bba"), ExtResource("7_7pb75"), ExtResource("8_pcd8x"), ExtResource("9_k1810"), ExtResource("10_pa3y5"), ExtResource("11_0hwi7")])
 boss = ExtResource("1_jy0od")

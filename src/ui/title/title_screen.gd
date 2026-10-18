@@ -1,9 +1,11 @@
 class_name TitleScreen
 extends Control
-## First screen: play, visit the shrine (permanent upgrades bought with souls), see your records.
-## No class to pick: you become who you want with what you find in the dungeon.
+## First screen: play, visit the shrine (permanent upgrades bought with souls), read the story,
+## see your records. No class to pick: you become who you want with what you find in the dungeon.
+## The very first run starts with the story.
 
 const GAME_SCENE := "res://src/game/game.tscn"
+const STORY_SCENE := "res://src/ui/story/story_screen.tscn"
 
 @export var content: ContentDB
 
@@ -19,6 +21,10 @@ func _ready() -> void:
 	var first_act := content.dungeon.acts[0] if not content.dungeon.acts.is_empty() else null
 	if first_act and first_act.theme:
 		Sfx.play_music(first_act.theme.music)
+	if content.story:
+		(%Title as Label).text = content.story.title
+		(%Subtitle as Label).text = content.story.tagline
+		(%ShrineText as Label).text = content.story.shrine_text
 	_hero.sprite_frames = content.player.frames
 	_hero.play(&"idle_down")
 	var spot: Control = %HeroSpot
@@ -31,6 +37,9 @@ func _ready() -> void:
 	%ShrineButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		_shrine.open(content.upgrades))
+	%StoryButton.pressed.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_click)
+		tell_story(""))
 	Profile.changed.connect(_refresh)
 	_refresh()
 	(%PlayButton as Button).grab_focus()
@@ -38,7 +47,16 @@ func _ready() -> void:
 
 func play() -> void:
 	Sfx.play_ui(Sfx.bank.ui_click)
-	get_tree().change_scene_to_file(GAME_SCENE)
+	if not Profile.seen_intro and content.story and not content.story.intro_pages.is_empty():
+		tell_story(GAME_SCENE)
+	else:
+		get_tree().change_scene_to_file(GAME_SCENE)
+
+
+## The story screen, then `next_scene` (empty = back here).
+func tell_story(next_scene: String) -> void:
+	StoryScreen.next_scene = next_scene if not next_scene.is_empty() else scene_file_path
+	get_tree().change_scene_to_file(STORY_SCENE)
 
 
 ## The goal of a run: one boss per act.

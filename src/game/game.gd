@@ -11,6 +11,8 @@ const RELIC_DELAY := 1.6
 const FADE_TIME := 0.3
 
 @export var content: ContentDB
+## A title card on black when an act begins (tests turn it off to save time).
+@export var show_act_cards := true
 
 var depth := 1
 var kills := 0
@@ -33,6 +35,7 @@ var _pending_offers: Array[Dictionary] = []
 @onready var screen_fx: ScreenEffects = $ScreenFx/Effects
 @onready var ambience: Ambience = $Ambience
 @onready var _fade: ColorRect = $Fade/Black
+@onready var act_card: ActCard = $Fade/ActCard
 
 
 func _ready() -> void:
@@ -48,6 +51,7 @@ func _ready() -> void:
 		_set_paused(false)
 		get_tree().change_scene_to_file(TITLE_SCENE))
 	Events.monster_killed.connect(func(_monster: Monster) -> void: kills += 1)
+	Events.soul_gathered.connect(func() -> void: hud.set_souls(run_souls(), true))
 	Events.boss_started.connect(_on_boss_started)
 	Events.boss_defeated.connect(_on_boss_defeated)
 	Events.ambush_started.connect(func(_room: AmbushRoom) -> void:
@@ -89,7 +93,16 @@ func start_run() -> void:
 	_apply_profile()
 	Profile.count_run()
 	hud.bind_player(player)
-	_enter_floor()
+	if show_act_cards:
+		# Start on black: the first act's card, then the floor fades in.
+		_fade.color.a = 1.0
+		_set_paused(true)
+		_enter_floor()
+		await _show_act_card()
+		_set_paused(false)
+		create_tween().tween_property(_fade, "color:a", 0.0, FADE_TIME * 1.5)
+	else:
+		_enter_floor()
 
 
 ## Shrine upgrades bought with souls: stats, starting items and perks, unlocked items.
@@ -116,9 +129,14 @@ func _apply_profile() -> void:
 	player.hp = player.get_max_hp()
 
 
+## Souls this run is worth so far (what the shrine gets when it ends).
+func run_souls() -> int:
+	return Profile.souls_for_run(kills, depth, bosses_slain, has_won, difficulty.souls if difficulty else 1.0)
+
+
 ## Adds this run's souls to the profile (only what was not added yet).
 func _award_souls(won_now: bool) -> int:
-	var total := Profile.souls_for_run(kills, depth, bosses_slain, has_won, difficulty.souls if difficulty else 1.0)
+	var total := run_souls()
 	var earned := total - _souls_awarded
 	_souls_awarded = total
 	Profile.record_run(earned, depth, won_now, difficulty.id if difficulty else &"")
@@ -158,10 +176,12 @@ func _enter_floor() -> void:
 	if world.theme:
 		Sfx.play_music(world.theme.music)
 	Events.depth_changed.emit(depth)
+	hud.set_souls(run_souls())
 	var act := content.dungeon.act_for_depth(depth)
 	if act and content.dungeon.floor_in_act(depth) == 1:
-		# A new act: its name instead of the depth.
-		hud.show_banner(act.title)
+		# A new act: its name instead of the depth (on its own card, see _show_act_card()).
+		if not show_act_cards:
+			hud.show_banner(act.title)
 		Events.log_message("%s: %s" % [act.subtitle, act.title], Color("ffd166"))
 	if world.arena:
 		Events.log_message("Depth %d. Something big is waiting..." % depth, Color("ff6b6b"))
@@ -183,8 +203,16 @@ func _descend() -> void:
 	fade_out.tween_property(_fade, "color:a", 1.0, FADE_TIME)
 	await fade_out.finished
 	_enter_floor()
+	await _show_act_card()
 	_set_paused(false)
 	create_tween().tween_property(_fade, "color:a", 0.0, FADE_TIME * 1.5)
+
+
+## On the first floor of an act (and with cards on): its title card, over black.
+func _show_act_card() -> void:
+	var act := content.dungeon.act_for_depth(depth)
+	if show_act_cards and act and content.dungeon.floor_in_act(depth) == 1:
+		await act_card.play(act)
 
 
 # --- Bosses ------------------------------------------------------------------
@@ -217,7 +245,8 @@ func _on_boss_defeated(boss: Monster) -> void:
 		_set_paused(true)
 		Sfx.play_ui(Sfx.bank.stairs)
 		var earned := _award_souls(true)
-		game_over_panel.show_victory(_run_summary() + _souls_text(earned))
+		var story := content.story.victory_text + "\n\n" if content.story else ""
+		game_over_panel.show_victory(story + _run_summary() + _souls_text(earned))
 		return
 	_offer_relic(def)
 
@@ -287,4 +316,5 @@ func _on_player_died(_actor: Actor) -> void:
 	await get_tree().create_timer(1.2).timeout
 	Sfx.play_ui(Sfx.bank.game_over)
 	var earned := _award_souls(false)
-	game_over_panel.show_result(_run_summary() + _souls_text(earned))
+	var story := content.story.random_death_line() + "\n\n" if content.story else ""
+	game_over_panel.show_result(story + _run_summary() + _souls_text(earned))

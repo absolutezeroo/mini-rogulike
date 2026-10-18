@@ -16,6 +16,8 @@ var best_depth := 0
 var difficulty: StringName = &"normal"
 ## Victories per difficulty id (unlocks the next difficulty).
 var wins := {}
+## The story was told once (it plays before the first run).
+var seen_intro := false
 ## Empty = nothing is read or written (tests).
 var save_path := SAVE_PATH
 
@@ -69,6 +71,11 @@ func record_run(earned: int, depth: int, won: bool, difficulty_id: StringName = 
 	changed.emit()
 
 
+func mark_intro_seen() -> void:
+	seen_intro = true
+	save_profile()
+
+
 func count_run() -> void:
 	runs += 1
 	save_profile()
@@ -82,6 +89,7 @@ func reset() -> void:
 	best_depth = 0
 	difficulty = &"normal"
 	wins = {}
+	seen_intro = false
 	changed.emit()
 
 
@@ -94,7 +102,7 @@ func save_profile() -> void:
 		return
 	file.store_string(JSON.stringify({
 		"souls": souls, "levels": levels, "runs": runs, "victories": victories, "best_depth": best_depth,
-		"difficulty": String(difficulty), "wins": wins,
+		"difficulty": String(difficulty), "wins": wins, "seen_intro": seen_intro,
 	}, "\t"))
 
 
@@ -116,3 +124,4 @@ func load_profile() -> void:
 	wins = data.get("wins", {})
 	for key in wins:
 		wins[key] = int(wins[key])
+	seen_intro = bool(data.get("seen_intro", false))
