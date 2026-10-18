@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/entities/trap/trap.gd" id="1_trap"]
+
+[node name="Trap" type="Area2D"]
+z_index = -1
+script = ExtResource("1_trap")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]

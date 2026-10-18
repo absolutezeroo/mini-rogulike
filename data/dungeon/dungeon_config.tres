@@ -9,8 +9,10 @@
 [ext_resource type="Resource" path="res://data/dungeon/themes/crypt.tres" id="4_bf2ay"]
 [ext_resource type="Resource" path="res://data/monsters/bosses/crimson_tengu.tres" id="4_gj60h"]
 [ext_resource type="Resource" path="res://data/dungeon/themes/ruins.tres" id="5_0biys"]
+[ext_resource type="Resource" path="res://data/props/lantern.tres" id="5_w3ici"]
 
 [resource]
 script = ExtResource("1_qfnhp")
 themes = Array[ExtResource("2_oi5f6")]([ExtResource("3_pngbb"), ExtResource("4_bf2ay"), ExtResource("5_0biys")])
+room_light = ExtResource("5_w3ici")
 bosses = Array[ExtResource("1_0biys")]([ExtResource("2_w3ici"), ExtResource("3_cvo8j"), ExtResource("4_gj60h")])

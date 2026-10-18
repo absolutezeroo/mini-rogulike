@@ -19,3 +19,5 @@ y_sort_enabled = true
 [node name="Projectiles" type="Node2D" parent="."]
 
 [node name="Effects" type="Node2D" parent="."]
+
+[node name="Ambient" type="CanvasModulate" parent="."]

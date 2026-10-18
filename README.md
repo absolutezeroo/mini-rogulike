@@ -1,8 +1,9 @@
 # Mini Roguelike
 
 Real-time action roguelike for Godot 4.7 (GDScript, Compatibility renderer).
-Procedural floors, monsters with telegraphed attacks, a boss every 3 floors, melee and ranged weapons,
-armor, consumables, skills, loot, XP, and a perk to choose at every level up. Plays with touch controls,
+Procedural floors lit by torches and lanterns, traps, breakable crates and explosive kegs,
+monsters with telegraphed attacks, a boss every 3 floors, melee and ranged weapons,
+armor you can see on the hero, consumables, skills, loot, XP, and a perk to choose at every level up. Plays with touch controls,
 keyboard or gamepad.
 
 ## Project layout
@@ -11,14 +12,15 @@ keyboard or gamepad.
 assets/              Art, audio, fonts and the UI theme (Ninja Adventure pack)
   characters/          Hero and monster sprite sheets (4 directions, frame by frame), bosses/
   weapons/             Weapon icons + attack/ sheets (the weapon in hand, per direction and frame)
-  fx/                  Sprite-sheet effects: slashes, claws, explosion, smoke, magic
+  fx/                  Sprite-sheet effects: slashes, claws, explosion, smoke, magic, flames, light.png
+  props/               Crates, vases, barrels, powder kegs, lanterns, trap pieces
   projectiles/         Arrows, fireballs, magic bolts
   items/               Item icons
   tiles/               Dungeon floors, cliffs and walls
   ui/                  Wood UI, round buttons (sphere/), icons, perk icons (perks/), emotes
   fonts/               Pixel font
   audio/               Sound effects (sfx/), music (one track per floor theme) and jingles
-  shaders/             Screen effects (damage vignette)
+  shaders/             Rig (hit flash + death dissolve), screen look, damage vignette
   theme/               main_theme.tres: pixel UI theme used by every Control
 data/                Game content as .tres resources (no code)
   content_db.tres      Index of everything that can spawn
@@ -28,6 +30,8 @@ data/                Game content as .tres resources (no code)
   audio/               Sounds as AudioStreamRandomizer (variations + pitch) and sound_bank.tres
   monsters/            One file per monster type, bosses in bosses/
   perks/               Level-up perks (common/) and boss relics (relics/)
+  props/               Breakable props and the lantern
+  traps/               Spike traps, pressure plates, flame vents
   items/weapons/       Player weapons (monster/ = monster-only weapons)
   items/armors/        Head and body armor
   items/consumables/   Potions, scrolls, bombs...
@@ -42,7 +46,7 @@ src/
     loot/                LootTable, LootEntry
   dungeon/             Map data, generator, drawing
   world/               World (owns the current floor), FloorPopulator, BossArena
-  entities/            Actor (shared base), Player, Monster, Projectile, ItemPickup, Stairs
+  entities/            Actor (shared base), Player, Monster, Projectile, ItemPickup, Stairs, Prop, Trap
   components/          Inventory, Equipment, SkillSet, PerkSet, StatusSet (burn...)
   combat/              Damage rules, hits, projectile specs
   ai/                  StateMachine + monster states (Idle, Chase, Attack, Cast)
@@ -84,6 +88,23 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   from `data/audio/sound_bank.tres`. Each sound is an `AudioStreamRandomizer` listing its variations.
   Buses: Master > SFX, UI, Music (`default_bus_layout.tres`). Each floor theme has its own music.
 - **Hit stop**: a few frames of freeze on impacts (`HitStop.freeze(seconds)`).
+- **Light**: each floor theme has an `ambient` darkness (a `CanvasModulate`); the hero's flickering torch,
+  room lanterns, the hero's shots and fireballs, explosions and magic circles light it up (2D lights).
+- **Shaders**: the rig shader flashes actors when hit and dissolves monsters pixel by pixel when they
+  die; a full-screen shader (`ScreenFx` in `game.tscn`) adds a vignette, a bit of contrast and saturation,
+  and splits the colors for a moment when the hero takes a big hit.
+
+## Dungeon
+
+- **Walls** are cliffs drawn from a 16x16 tileset (`DungeonView`): plateau edges, inner corners,
+  cliff faces. The generator smooths every floor so only shapes the tiles can draw remain
+  (no wall one cell thick, no walls touching by a corner).
+- **Props** (`data/props/`): crates, vases and barrels break under any attack and may drop loot;
+  **powder kegs** blink then explode, hurting everyone (you too) and setting off other kegs.
+  Explosions you trigger give you the XP of what they kill. Props block movement, sight and shots.
+- **Traps** (`data/traps/`) hurt everyone standing on them, monsters included:
+  rows of **spikes** firing in a wave, **pressure plates** that strike when stepped on,
+  **flame vents** that also set you on fire. They always warn before they strike.
 
 ## Perks and relics
 
@@ -196,11 +217,14 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 | A perk | New `PerkDef` in `data/perks/`, add it to `content_db.tres` > Perks |
 | A new kind of perk | New script in `src/definitions/passives/` extending `Passive`, override the hooks you need |
 | A boss | New `BossDef` in `data/monsters/bosses/`, add it to `dungeon_config.tres` > Bosses |
+| A prop | New `PropDef` in `data/props/` (sprite, hits, loot, explosion, light), add it to `content_db.tres` > Props |
+| A trap | New `TrapDef` in `data/traps/` (trigger, art, timing, damage), add it to `content_db.tres` > Traps |
 
 Each piece of content has an **icon** (any `Texture2D`) and an **icon tint** to recolor it.
 Monsters and the player also have `frames` (their SpriteFrames in `data/visuals/`): a new monster
 can reuse an existing one, or you can make a new SpriteFrames from a sheet in `assets/characters/`.
-Floor looks (tiles, decor, tint, music) are `DungeonTheme` files in `data/dungeon/themes/`.
+Floor looks (tiles, decor, tint, darkness, music) are `DungeonTheme` files in `data/dungeon/themes/`.
+How many lanterns, prop clusters and trap groups a floor gets is in `dungeon_config.tres`.
 
 `min_depth` and `spawn_weight` control where and how often something appears.
 A `spawn_weight` of 0 means it never spawns on its own (starting gear, loot-only items, monster weapons).
@@ -224,8 +248,8 @@ From the project root (desktop Godot):
 godot --headless --fixed-fps 60 res://tests/run_tests.tscn
 ```
 
-Checks the rules, the content database, 100 generated maps, 40 boss arenas, inventory, equipment
-and every kind of perk, then a bot plays the real game (kills, level ups and perk choices, stairs,
+Checks the rules, the content database, 100 generated maps (and their walls), 40 boss arenas,
+inventory, equipment, every kind of perk, props, explosive chains, traps and lights, then a bot plays the real game (kills, level ups and perk choices, stairs,
 a full boss fight with its phases and relic, death and restart).
 The exit code is the number of failures.
 

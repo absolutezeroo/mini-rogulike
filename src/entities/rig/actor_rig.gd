@@ -174,6 +174,15 @@ func play_death() -> void:
 		tween.tween_property(squash_node, "rotation", -PI / 2.0, 0.25)
 
 
+## Pixels vanish one by one, then `finished` is called (monster deaths).
+func dissolve(duration: float, finished: Callable) -> void:
+	var tween := create_tween()
+	tween.tween_interval(0.15)
+	tween.tween_method(func(value: float) -> void:
+		(visual.material as ShaderMaterial).set_shader_parameter("dissolve", value), 0.0, 1.0, duration)
+	tween.tween_callback(finished)
+
+
 ## Texture and transform of what the body shows right now (for afterimages).
 func current_frame() -> Texture2D:
 	if body.sprite_frames == null or body.animation == &"":

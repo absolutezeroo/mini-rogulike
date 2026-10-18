@@ -56,6 +56,12 @@ static func melee_strike(attacker: Actor, direction: Vector2, weapon: WeaponDef)
 		hit.sound = weapon.hit_sound
 		target.take_hit(hit)
 
+	# Crates, pots, barrels in the arc break too.
+	for prop in world.get_breakable_props():
+		var to_prop := prop.global_position - attacker.global_position
+		if to_prop.length() <= reach + Prop.SIZE * 0.4 and absf(direction.angle_to(to_prop)) <= half_arc + 0.3:
+			prop.take_hit(make_hit_from(attacker, attacker.get_power()))
+
 
 ## Hits every enemy of the attacker inside a circle. `secondary`: see HitInfo.is_secondary.
 static func damage_area(world: World, attacker: Actor, center: Vector2, radius: float, base_amount: int, knockback: float, secondary: bool = false) -> void:
@@ -67,6 +73,29 @@ static func damage_area(world: World, attacker: Actor, center: Vector2, radius: 
 		hit.knockback = offset.normalized() * knockback
 		hit.is_secondary = secondary
 		target.take_hit(hit)
+	hit_props(world, attacker, center, radius)
+
+
+## Breaks the props inside a circle.
+static func hit_props(world: World, source: Actor, center: Vector2, radius: float) -> void:
+	for prop in world.get_breakable_props():
+		if prop.global_position.distance_to(center) <= radius + Prop.SIZE * 0.4:
+			var hit := HitInfo.new()
+			hit.source = source
+			prop.take_hit(hit)
+
+
+## An explosion that hurts everyone around, friend or foe, and breaks props
+## (explosive barrels set each other off). `source` gets the credit for kills.
+static func blast(world: World, center: Vector2, radius: float, amount: int, knockback: float, source: Actor = null) -> void:
+	for target in world.get_actors():
+		var offset := target.global_position - center
+		if offset.length() > radius + target.radius:
+			continue
+		var hit := make_secondary_hit(source, amount)
+		hit.knockback = offset.normalized() * knockback
+		target.take_hit(hit)
+	hit_props(world, source, center, radius)
 
 
 static func spec_from_weapon(attacker: Actor, weapon: WeaponDef) -> ProjectileSpec:

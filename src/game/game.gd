@@ -21,6 +21,7 @@ var _pending_offers: Array[Dictionary] = []
 @onready var inventory_panel: InventoryPanel = $Menus/InventoryPanel
 @onready var perk_panel: PerkChoicePanel = $Menus/PerkChoicePanel
 @onready var game_over_panel: GameOverPanel = $Menus/GameOverPanel
+@onready var screen_fx: ScreenEffects = $ScreenFx/Effects
 
 
 func _ready() -> void:
@@ -54,6 +55,8 @@ func start_run() -> void:
 	player.setup(content.player)
 	player.died.connect(_on_player_died)
 	player.leveled_up.connect(_on_player_leveled_up)
+	player.damaged.connect(func(damage: int) -> void:
+		screen_fx.kick(clampf(float(damage) / player.get_max_hp() * 5.0, 0.3, 1.0)))
 	hud.bind_player(player)
 	_enter_floor()
 

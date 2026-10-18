@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="TrapDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/fx/flame.png" id="1_84fb2"]
+[ext_resource type="Texture2D" path="res://assets/props/vent.png" id="2_bffnd"]
+[ext_resource type="Script" path="res://src/definitions/trap_def.gd" id="3_dmtpn"]
+[ext_resource type="AudioStream" path="res://data/audio/flames.tres" id="4_sncmv"]
+
+[resource]
+script = ExtResource("3_dmtpn")
+base_texture = ExtResource("2_bffnd")
+active_sheet = ExtResource("1_84fb2")
+active_frames = 8
+active_fps = 14.0
+idle_time = 2.4
+warning_time = 0.6
+active_time = 0.9
+damage = 4
+burn_damage = 2
+sound = ExtResource("4_sncmv")
+id = &"flame_vent"
+display_name = "Flame Vent"
+icon = ExtResource("1_84fb2")
+glyph = "F"
+color = Color(1, 0.54901963, 0.25882354, 1)
+min_depth = 3
+spawn_weight = 6

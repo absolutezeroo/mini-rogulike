@@ -21,8 +21,6 @@ var _gate_texture: Texture2D
 ## 0 = spikes down, 1 = spikes up.
 var _gate_amount := 0.0
 
-@onready var _trigger: Area2D = $Trigger
-
 
 func setup(world: World, boss_def: BossDef) -> void:
 	_world = world
@@ -34,19 +32,6 @@ func setup(world: World, boss_def: BossDef) -> void:
 	boss.dormant = true
 	boss.facing = Vector2.DOWN
 	boss.died.connect(_on_boss_died)
-
-	# The fight starts once the player is well inside the room.
-	var ts := float(world.map.tile_size)
-	var inner := _room.grow(-1)
-	var shape := RectangleShape2D.new()
-	shape.size = Vector2(inner.size) * ts
-	var collision := CollisionShape2D.new()
-	collision.shape = shape
-	collision.position = (Vector2(inner.position) + Vector2(inner.size) * 0.5) * ts
-	_trigger.add_child(collision)
-	_trigger.collision_layer = 0
-	_trigger.collision_mask = Layers.PLAYER
-	_trigger.body_entered.connect(_on_body_entered)
 
 
 ## Cells just outside the room that are floor: the openings to close.
@@ -107,9 +92,13 @@ func _open_gates() -> void:
 	create_tween().tween_property(self, "_gate_amount", 0.0, GATE_TIME)
 
 
-func _on_body_entered(body: Node2D) -> void:
-	if body is Player:
-		start.call_deferred()
+## The fight starts once the player is well inside the room (checked every frame: simple and exact).
+func _physics_process(_delta: float) -> void:
+	if is_started or _world == null:
+		return
+	var player := _world.player
+	if player and not player.is_dead and _room.grow(-1).has_point(_world.map.world_to_cell(player.global_position)):
+		start()
 
 
 func _on_boss_died(_actor: Actor) -> void:

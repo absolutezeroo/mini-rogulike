@@ -10,6 +10,7 @@
 [resource]
 script = ExtResource("4_2rpih")
 music = ExtResource("3_25nhp")
+ambient = Color(0.46, 0.4, 0.46, 1)
 floor_atlas = ExtResource("2_chp0u")
 floor_tiles = PackedInt32Array(188, 250, 256, 188, 250, 256, 253, 254)
 decor_atlas = ExtResource("1_ynpym")

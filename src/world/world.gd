@@ -10,6 +10,9 @@ const PICKUP_SCENE := preload("res://src/entities/pickup/item_pickup.tscn")
 const PROJECTILE_SCENE := preload("res://src/entities/projectile/projectile.tscn")
 const STAIRS_SCENE := preload("res://src/entities/stairs/stairs.tscn")
 const ARENA_SCENE := preload("res://src/world/boss_arena.tscn")
+const PROP_SCENE := preload("res://src/entities/prop/prop.tscn")
+const TRAP_SCENE := preload("res://src/entities/trap/trap.tscn")
+const FLASH_SCENE := preload("res://src/vfx/light_flash.tscn")
 
 var map: DungeonMap
 var theme: DungeonTheme
@@ -27,6 +30,7 @@ var _astar := AStarGrid2D.new()
 @onready var _entities: Node2D = $Entities
 @onready var _projectiles: Node2D = $Projectiles
 @onready var _effects: Node2D = $Effects
+@onready var _ambient: CanvasModulate = $Ambient
 
 
 # --- Floor lifecycle ---------------------------------------------------------
@@ -41,6 +45,7 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 	else:
 		map = DungeonGenerator.generate(content.dungeon, rng)
 	theme = content.dungeon.theme_for_depth(depth)
+	_ambient.color = theme.ambient if theme else Color.WHITE
 	_view.show_map(map, theme)
 	_build_walls()
 	_build_pathfinding()
@@ -49,6 +54,8 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 		arena = ARENA_SCENE.instantiate() as BossArena
 		_entities.add_child(arena)
 		arena.setup(self, boss)
+		for room in map.rooms:
+			FloorPopulator.place_lights(self, content.dungeon, room, {})
 	else:
 		spawn_stairs(map.stairs_cell)
 		FloorPopulator.populate(self, content, depth)
@@ -109,6 +116,34 @@ func fire_projectiles(shooter: Actor, direction: Vector2, spec: ProjectileSpec) 
 		_projectiles.add_child.call_deferred(projectile)
 
 
+## Props stand on a cell and block it for pathfinding until they break.
+func spawn_prop(def: PropDef, cell: Vector2i) -> Prop:
+	var prop := PROP_SCENE.instantiate() as Prop
+	prop.world = self
+	prop.setup(def)
+	prop.position = map.cell_to_world(cell)
+	_entities.add_child(prop)
+	set_cell_blocked(cell, true)
+	return prop
+
+
+func spawn_trap(def: TrapDef, cell: Vector2i, cycle_offset: float = 0.0) -> Trap:
+	var trap := TRAP_SCENE.instantiate() as Trap
+	trap.world = self
+	trap.setup(def, cycle_offset)
+	trap.position = map.cell_to_world(cell)
+	_entities.add_child(trap)
+	return trap
+
+
+## A short burst of light (explosions...).
+func flash_light(at: Vector2, color: Color, size: float) -> void:
+	var flash := FLASH_SCENE.instantiate() as LightFlash
+	flash.position = at
+	flash.setup(color, size)
+	_effects.add_child(flash)
+
+
 func spawn_stairs(cell: Vector2i) -> Stairs:
 	var stairs := STAIRS_SCENE.instantiate() as Stairs
 	if theme:
@@ -141,6 +176,30 @@ func get_hostiles(faction: Actor.Faction) -> Array[Actor]:
 	elif player and not player.is_dead:
 		result.append(player)
 	return result
+
+
+## Every living actor, whatever its side (traps and explosions hurt everyone).
+func get_actors() -> Array[Actor]:
+	var result: Array[Actor] = get_hostiles(Actor.Faction.PLAYER)
+	if player and not player.is_dead:
+		result.append(player)
+	return result
+
+
+## Props that can still be broken.
+func get_breakable_props() -> Array[Prop]:
+	var result: Array[Prop] = []
+	for node in get_tree().get_nodes_in_group("props"):
+		var prop := node as Prop
+		if prop and not prop.is_broken and prop.def.is_breakable() and prop.is_inside_tree():
+			result.append(prop)
+	return result
+
+
+## Marks a cell as an obstacle (or free again) for monster pathfinding.
+func set_cell_blocked(cell: Vector2i, blocked: bool) -> void:
+	if map.in_bounds(cell) and map.is_floor(cell):
+		_astar.set_point_solid(cell, blocked)
 
 
 func has_line_of_sight(from: Vector2, to: Vector2) -> bool:

@@ -23,6 +23,7 @@ static func generate(config: DungeonConfig, rng: RandomNumberGenerator) -> Dunge
 			_carve_corridor(map, map.rooms.back().get_center(), room.get_center(), config.corridor_width, rng)
 		map.rooms.append(room)
 
+	smooth(map)
 	map.start_cell = map.rooms[0].get_center()
 	map.stairs_cell = _farthest_room(map).get_center()
 	return map
@@ -40,12 +41,42 @@ static func generate_arena(config: DungeonConfig, rng: RandomNumberGenerator) ->
 	_carve_rect(map, start)
 	_carve_rect(map, arena)
 	_carve_corridor(map, start.get_center(), arena.get_center(), config.corridor_width, rng)
+	smooth(map)
 	map.rooms.append(start)
 	map.rooms.append(arena)
 	map.boss_room = arena
 	map.start_cell = start.get_center()
 	map.stairs_cell = arena.get_center()
 	return map
+
+
+## Removes wall shapes the cliff tiles can't draw: walls one cell thick (floor on both sides)
+## and walls touching each other only by a corner (checkerboard). They become floor.
+## The outer border always stays solid.
+static func smooth(map: DungeonMap) -> void:
+	var changed := true
+	while changed:
+		changed = false
+		for y in range(1, map.height - 1):
+			for x in range(1, map.width - 1):
+				var cell := Vector2i(x, y)
+				if map.is_floor(cell):
+					continue
+				var thin_x := map.is_floor(cell + Vector2i.LEFT) and map.is_floor(cell + Vector2i.RIGHT)
+				var thin_y := map.is_floor(cell + Vector2i.UP) and map.is_floor(cell + Vector2i.DOWN)
+				if thin_x or thin_y or _is_pinch(map, cell):
+					map.set_floor(cell)
+					changed = true
+
+
+## Wall cell whose diagonal neighbour is a wall while both cells between them are floor.
+static func _is_pinch(map: DungeonMap, cell: Vector2i) -> bool:
+	for dx in [-1, 1]:
+		for dy in [-1, 1]:
+			var diagonal := cell + Vector2i(dx, dy)
+			if not map.is_floor(diagonal) and map.is_floor(cell + Vector2i(dx, 0)) and map.is_floor(cell + Vector2i(0, dy)):
+				return true
+	return false
 
 
 static func _overlaps_any(room: Rect2i, rooms: Array[Rect2i]) -> bool:

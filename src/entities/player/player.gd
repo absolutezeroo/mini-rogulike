@@ -6,6 +6,8 @@ extends Actor
 signal xp_changed(xp: int, xp_needed: int, level: int)
 ## Emitted once per level gained (the game then offers a perk).
 signal leveled_up(level: int)
+## The hero lost HP (screen effects listen to this).
+signal damaged(amount: int)
 
 const HIT_INVULNERABILITY := 0.6
 const AIM_HOLD_TIME := 0.35         ## Keep facing the aim direction this long after attacking.
@@ -209,6 +211,7 @@ func gain_xp(amount: int) -> void:
 # --- Hooks -------------------------------------------------------------------
 
 func _on_damaged(_hit: HitInfo, damage: int) -> void:
+	damaged.emit(damage)
 	_invulnerable_time = HIT_INVULNERABILITY
 	HitStop.freeze(0.08)
 	camera.shake(clampf(float(damage) / get_max_hp() * 3.0, 0.25, 0.8))

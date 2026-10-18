@@ -11,6 +11,9 @@ extends Resource
 @export var items: Array[ItemDef] = []
 ## Perks offered on level up (common) and after bosses (rare relics).
 @export var perks: Array[PerkDef] = []
+## Breakable props placed in rooms (lanterns are set in the dungeon config).
+@export var props: Array[PropDef] = []
+@export var traps: Array[TrapDef] = []
 
 
 func pick_monster(depth: int, rng: RandomNumberGenerator) -> MonsterDef:
@@ -19,6 +22,14 @@ func pick_monster(depth: int, rng: RandomNumberGenerator) -> MonsterDef:
 
 func pick_item(depth: int, rng: RandomNumberGenerator) -> ItemDef:
 	return _pick(items, depth, rng)
+
+
+func pick_prop(depth: int, rng: RandomNumberGenerator) -> PropDef:
+	return _pick(props, depth, rng)
+
+
+func pick_trap(depth: int, rng: RandomNumberGenerator) -> TrapDef:
+	return _pick(traps, depth, rng)
 
 
 ## Up to `count` different perks of `rarity` that `owned` can still take.

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TrapDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/props/spikes.png" id="1_rrm44"]
+[ext_resource type="Texture2D" path="res://assets/props/spike_holes.png" id="2_m8uqx"]
+[ext_resource type="Script" path="res://src/definitions/trap_def.gd" id="3_lmsf3"]
+[ext_resource type="AudioStream" path="res://data/audio/spikes.tres" id="4_cdesw"]
+
+[resource]
+script = ExtResource("3_lmsf3")
+base_texture = ExtResource("2_m8uqx")
+active_sheet = ExtResource("1_rrm44")
+damage = 5
+sound = ExtResource("4_cdesw")
+id = &"spikes"
+display_name = "Spike Trap"
+icon = ExtResource("1_rrm44")
+glyph = "S"
+color = Color(0.7882353, 0.8, 0.81960785, 1)

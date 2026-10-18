@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_hfs1j"]
+[ext_resource type="Texture2D" path="res://assets/props/tnt.png" id="2_sx0wk"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_umuwn"]
+
+[resource]
+script = ExtResource("3_umuwn")
+debris_color = Color(0.54901963, 0.2901961, 0.18431373, 1)
+break_sound = ExtResource("1_hfs1j")
+explosion_radius = 85.0
+explosion_damage = 16
+fuse_time = 0.6
+id = &"tnt"
+display_name = "Powder Keg"
+description = "Explodes when hit. Hurts everyone around, you included."
+icon = ExtResource("2_sx0wk")
+glyph = "P"
+color = Color(1, 0.41960785, 0.20784314, 1)
+min_depth = 2
+spawn_weight = 4

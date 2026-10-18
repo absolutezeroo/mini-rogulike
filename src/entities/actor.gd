@@ -242,9 +242,12 @@ func die(killer: Actor) -> void:
 		valid_killer.perks.on_kill(valid_killer, self)
 	died.emit(self)
 	if free_on_death:
-		var tween := create_tween()
-		tween.tween_property(self, "modulate:a", 0.0, 0.25)
-		tween.tween_callback(queue_free)
+		if rig and rig.visible:
+			rig.dissolve(0.45, queue_free)
+		else:
+			var tween := create_tween()
+			tween.tween_property(self, "modulate:a", 0.0, 0.25)
+			tween.tween_callback(queue_free)
 	queue_redraw()
 
 

@@ -1,0 +1,11 @@
+[gd_resource type="AudioStreamRandomizer" format=3]
+
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/world/break_0.ogg" id="1_b0ydj"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/world/break_1.ogg" id="2_iot1r"]
+
+[resource]
+random_pitch = 1.15
+random_volume_offset_db = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("1_b0ydj")
+stream_1/stream = ExtResource("2_iot1r")

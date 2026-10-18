@@ -5,6 +5,3 @@
 [node name="BossArena" type="Node2D"]
 z_index = -1
 script = ExtResource("1_arena")
-
-[node name="Trigger" type="Area2D" parent="."]
-monitorable = false

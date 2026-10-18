@@ -1,0 +1,111 @@
+class_name Prop
+extends StaticBody2D
+## A crate, pot, explosive barrel or lantern built from a PropDef.
+## Breakable props take hits from weapons, projectiles and explosions (see Combat).
+
+signal broken(prop: Prop)
+
+const SIZE := 32.0
+const SHAKE_TIME := 0.15
+
+var def: PropDef
+var world: World
+var is_broken := false
+
+var _hits_left := 1
+var _shake := 0.0
+var _fuse := -1.0
+## Who broke it: explosions are credited to them (XP for kills).
+var _breaker: Actor
+
+@onready var _light: FlickerLight = $Light
+
+
+func setup(prop_def: PropDef) -> void:
+	def = prop_def
+	_hits_left = def.hits
+	collision_layer = Layers.WORLD
+	collision_mask = 0
+	add_to_group("props")
+
+
+func _ready() -> void:
+	var shape := RectangleShape2D.new()
+	shape.size = Vector2(SIZE * 0.75, SIZE * 0.6)
+	($CollisionShape2D as CollisionShape2D).shape = shape
+	($CollisionShape2D as CollisionShape2D).position = Vector2(0, SIZE * 0.1)
+	_light.enabled = def.light_color.a > 0.0
+	if _light.enabled:
+		_light.color = Color(def.light_color, 1.0)
+		_light.base_energy = def.light_color.a
+		_light.texture_scale = def.light_radius / 128.0
+
+
+func take_hit(hit: HitInfo) -> void:
+	if is_broken or not def.is_breakable() or _fuse >= 0.0:
+		return
+	_hits_left -= 1
+	_shake = SHAKE_TIME
+	Vfx.burst(world, Vfx.HIT_SPARKS, global_position, def.debris_color)
+	if _hits_left > 0:
+		Sfx.play_at(def.break_sound, global_position, -6.0)
+		return
+	_breaker = hit.source if is_instance_valid(hit.source) else null
+	if def.is_explosive():
+		_fuse = def.fuse_time
+	else:
+		_break()
+
+
+func _process(delta: float) -> void:
+	_shake = maxf(_shake - delta, 0.0)
+	if _fuse >= 0.0:
+		_fuse -= delta
+		if _fuse < 0.0:
+			_explode()
+	if _shake > 0.0 or _fuse >= 0.0:
+		queue_redraw()
+
+
+func _break() -> void:
+	if is_broken:
+		return
+	is_broken = true
+	collision_layer = 0
+	world.set_cell_blocked(world.map.world_to_cell(global_position), false)
+	Sfx.play_at(def.break_sound, global_position)
+	Vfx.burst(world, Vfx.DEATH_CHUNKS, global_position, def.debris_color)
+	Vfx.puff(world, global_position + Vector2(0, 8))
+	if def.loot:
+		for item in def.loot.roll(world.rng):
+			world.spawn_item(item, global_position)
+	broken.emit(self)
+	queue_free()
+
+
+func _explode() -> void:
+	var at := global_position
+	var damage := def.explosion_damage + world.depth
+	_break()
+	Vfx.explosion(world, at, def.explosion_radius)
+	Combat.blast(world, at, def.explosion_radius, damage, 360.0, _breaker)
+
+
+func _draw() -> void:
+	if def == null or def.icon == null:
+		return
+	var offset := Vector2.ZERO
+	if _shake > 0.0:
+		offset.x = sin(_shake * 120.0) * 2.0
+	var color := Color.WHITE
+	if _fuse >= 0.0:
+		# Blinking faster and faster before the blast.
+		var blink := int(_fuse * (8.0 + 30.0 * (1.0 - _fuse / maxf(def.fuse_time, 0.01)))) % 2 == 0
+		color = Color(2.0, 0.8, 0.6) if blink else Color.WHITE
+		offset.x += randf_range(-1.5, 1.5)
+	var half := SIZE * 0.5
+	# Shadow, then the sprite standing on it.
+	draw_set_transform(Vector2(0, half - 3.0), 0.0, Vector2(1.0, 0.35))
+	draw_circle(Vector2.ZERO, half * 0.7, Color(0, 0, 0, 0.3))
+	draw_set_transform(Vector2.ZERO)
+	draw_texture_rect(def.icon, Rect2(Vector2(-half, -half) + offset, Vector2(SIZE, SIZE)), false, color * def.icon_tint)

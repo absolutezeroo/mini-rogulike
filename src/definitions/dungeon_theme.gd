@@ -7,6 +7,9 @@ extends Resource
 ## and walls that have floor right below them show a cliff face.
 
 @export var tint: Color = Color.WHITE
+## Darkness of the floor: lights (the hero's torch, lanterns, fire) cut through it.
+## White = no darkness.
+@export var ambient: Color = Color(0.6, 0.56, 0.66)
 @export var music: AudioStream
 
 @export_group("Floor")
@@ -31,10 +34,20 @@ extends Resource
 @export var wall_bottom_left: int = 141
 @export var wall_bottom: int = 142
 @export var wall_bottom_right: int = 143
+## Plateau corner touching the floor only diagonally (inner corners).
+@export var inner_top_left: int = 160
+@export var inner_top_right: int = 161
+@export var inner_bottom_left: int = 180
+@export var inner_bottom_right: int = 181
+## Both top or both bottom diagonals.
+@export var inner_top: int = 182
+@export var inner_bottom: int = 183
 ## Cliff face seen from the front (wall with floor right below it).
 @export var face_left: int = 144
 @export var face: int = 145
 @export var face_right: int = 146
+## Cliff face only one cell wide.
+@export var face_single: int = 148
 
 @export_group("Objects")
 ## 16x16 sheet holding the stairs and the gate spikes.

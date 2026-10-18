@@ -3,7 +3,8 @@ extends Node2D
 ## Draws a DungeonMap with the tiles of a DungeonTheme.
 ##   - floor cells: floor tiles plus a little decor
 ##   - walls with floor right below: cliff face
-##   - walls touching the floor otherwise: plateau edge tiles, picked from which sides touch the floor
+##   - walls next to the floor or a cliff face (8 neighbours): plateau edge tiles, picked from
+##     which sides are lower, with inner corners for diagonals
 ##   - every other wall: flat plateau color
 
 const OUTSIDE_MARGIN := 24  # tiles of plateau color drawn around the map
@@ -34,7 +35,7 @@ func _draw() -> void:
 				_draw_floor(cell, rect, tint)
 			elif _is_face(cell):
 				_draw_face(cell, rect, tint)
-			elif _map.is_wall_edge(cell):
+			elif _touches_low(cell):
 				_draw_tile(_theme.wall_atlas, _wall_top_tile(cell), rect, tint)
 
 
@@ -45,6 +46,14 @@ func _is_face(cell: Vector2i) -> bool:
 ## Floor or cliff face: the plateau looks down on it.
 func _is_low(cell: Vector2i) -> bool:
 	return _map.is_floor(cell) or _is_face(cell)
+
+
+func _touches_low(cell: Vector2i) -> bool:
+	for dy in range(-1, 2):
+		for dx in range(-1, 2):
+			if (dx != 0 or dy != 0) and _is_low(cell + Vector2i(dx, dy)):
+				return true
+	return false
 
 
 func _wall_top_tile(cell: Vector2i) -> int:
@@ -58,6 +67,27 @@ func _wall_top_tile(cell: Vector2i) -> int:
 		return _theme.wall_left
 	if right:
 		return _theme.wall_right
+	return _inner_corner_tile(cell)
+
+
+## Plateau cell whose only lower neighbours are diagonal: a small rim in that corner.
+func _inner_corner_tile(cell: Vector2i) -> int:
+	var up_left := _is_low(cell + Vector2i(-1, -1))
+	var up_right := _is_low(cell + Vector2i(1, -1))
+	var down_left := _is_low(cell + Vector2i(-1, 1))
+	var down_right := _is_low(cell + Vector2i(1, 1))
+	if up_left and up_right:
+		return _theme.inner_top
+	if down_left and down_right:
+		return _theme.inner_bottom
+	if up_left:
+		return _theme.inner_top_left
+	if up_right:
+		return _theme.inner_top_right
+	if down_left:
+		return _theme.inner_bottom_left
+	if down_right:
+		return _theme.inner_bottom_right
 	return _theme.wall_center
 
 
@@ -71,10 +101,14 @@ func _draw_floor(cell: Vector2i, rect: Rect2, tint: Color) -> void:
 
 
 func _draw_face(cell: Vector2i, rect: Rect2, tint: Color) -> void:
+	var left_open := not _is_face(cell + Vector2i.LEFT)
+	var right_open := not _is_face(cell + Vector2i.RIGHT)
 	var tile := _theme.face
-	if not _is_face(cell + Vector2i.LEFT):
+	if left_open and right_open:
+		tile = _theme.face_single
+	elif left_open:
 		tile = _theme.face_left
-	elif not _is_face(cell + Vector2i.RIGHT):
+	elif right_open:
 		tile = _theme.face_right
 	_draw_tile(_theme.wall_atlas, tile, rect, tint)
 

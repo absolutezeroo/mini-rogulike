@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_5xvg1"]
+[ext_resource type="Texture2D" path="res://assets/props/barrel.png" id="2_1l1kc"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="3_ikjsg"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="4_bi027"]
+[ext_resource type="Resource" path="res://data/items/consumables/haste_draught.tres" id="5_odkom"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="6_4i6ju"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="7_co8k1"]
+
+[sub_resource type="Resource" id="Resource_vuehv"]
+script = ExtResource("3_ikjsg")
+item = ExtResource("4_bi027")
+weight = 5
+
+[sub_resource type="Resource" id="Resource_d6egb"]
+script = ExtResource("3_ikjsg")
+item = ExtResource("5_odkom")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_7h8gp"]
+script = ExtResource("6_4i6ju")
+drop_chance = 0.2
+entries = Array[ExtResource("3_ikjsg")]([SubResource("Resource_vuehv"), SubResource("Resource_d6egb")])
+
+[resource]
+script = ExtResource("7_co8k1")
+hits = 2
+loot = SubResource("Resource_7h8gp")
+debris_color = Color(0.65882355, 0.39607844, 0.22745098, 1)
+break_sound = ExtResource("1_5xvg1")
+id = &"barrel"
+display_name = "Barrel"
+icon = ExtResource("2_1l1kc")
+glyph = "B"
+color = Color(0.8156863, 0.54509807, 0.2901961, 1)
+spawn_weight = 8

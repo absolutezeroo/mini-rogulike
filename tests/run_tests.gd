@@ -92,6 +92,13 @@ func _test_content() -> void:
 		check(item.icon != null, "%s has an icon" % item.id)
 	for monster in CONTENT.monsters:
 		check(monster.icon != null, "%s has a sprite" % monster.id)
+	check(CONTENT.props.size() >= 3 and CONTENT.traps.size() >= 2, "props and traps listed")
+	for prop in CONTENT.props:
+		check(prop.icon != null and prop.is_breakable(), "%s is a breakable prop with a sprite" % prop.id)
+	check(CONTENT.props.any(func(p: PropDef) -> bool: return p.is_explosive()), "there is an explosive prop")
+	for trap in CONTENT.traps:
+		check(trap.active_sheet != null and trap.damage > 0, "%s has art and damage" % trap.id)
+	check(CONTENT.dungeon.room_light != null and CONTENT.dungeon.room_light.light_color.a > 0.0, "rooms get lanterns")
 
 
 func _test_generation() -> void:
@@ -105,10 +112,27 @@ func _test_generation() -> void:
 			check(reachable.has(room.get_center()), "room %s reachable" % room)
 		check(reachable.has(map.stairs_cell), "stairs reachable")
 		check(map.start_cell != map.stairs_cell, "stairs not on start")
+		# Only wall shapes the cliff tiles can draw: no wall one cell thick, no corner-only contact.
+		var bad := _bad_wall_cells(map)
+		check(bad.is_empty(), "no thin walls or pinches (%s)" % str(bad.slice(0, 3)))
 		# Border must stay solid so nothing can leave the map.
 		for x in map.width:
 			check(not map.is_floor(Vector2i(x, 0)) and not map.is_floor(Vector2i(x, map.height - 1)), "closed border")
 			break
+
+
+func _bad_wall_cells(map: DungeonMap) -> Array[Vector2i]:
+	var bad: Array[Vector2i] = []
+	for y in range(1, map.height - 1):
+		for x in range(1, map.width - 1):
+			var c := Vector2i(x, y)
+			if map.is_floor(c):
+				continue
+			if (map.is_floor(c + Vector2i.LEFT) and map.is_floor(c + Vector2i.RIGHT)) \
+					or (map.is_floor(c + Vector2i.UP) and map.is_floor(c + Vector2i.DOWN)) \
+					or DungeonGenerator._is_pinch(map, c):
+				bad.append(c)
+	return bad
 
 
 func _flood(map: DungeonMap, from: Vector2i) -> Dictionary:
@@ -224,6 +248,7 @@ func _test_bosses() -> void:
 				if not map.boss_room.has_point(Vector2i(x, y)) and map.is_floor(Vector2i(x, y)):
 					exits += 1
 		check(exits >= 1 and exits <= ring.size.x + ring.size.y, "arena has a closable entrance (%d cells)" % exits)
+		check(_bad_wall_cells(map).is_empty(), "arena floors have clean walls")
 
 
 # --- Gameplay (bot) ----------------------------------------------------------
@@ -240,6 +265,7 @@ func _test_gameplay() -> void:
 
 	await _test_projectiles(world, player)
 	await _test_perks_in_game(game, world, player)
+	await _test_world_objects(game, world, player)
 
 	var kills := [0]
 	var depth_changes := [0]
@@ -383,7 +409,8 @@ func _test_gameplay() -> void:
 
 	await _test_boss_fight(game)
 
-	# Death and restart.
+	# Death and restart (without perks: a Phoenix Feather from the boss would save the hero).
+	player.perks.clear()
 	player.base_stats.defense = 0
 	player.invalidate_stats()
 	var hit := HitInfo.new()
@@ -511,7 +538,88 @@ func _test_perks_in_game(game: Node, world: World, player: Player) -> void:
 	check(game.perk_panel.visible, "second choice follows right away")
 	game.perk_panel.choose(0)
 	await _frames(2)
-	check(not get_tree().paused and player.perks.entries.size() >= 2, "both perks taken, game resumed")
+	var total_levels := 0
+	for entry in player.perks.entries:
+		total_levels += entry.stacks
+	check(not get_tree().paused and total_levels == 3, "both perks taken (%d perk levels), game resumed" % total_levels)
+
+
+## Lights, props, explosive barrels, traps and the death dissolve.
+func _test_world_objects(game: Node, world: World, player: Player) -> void:
+	check((player.get_node("Torch") as PointLight2D).enabled, "the hero carries a torch")
+	check((world.get_node("Ambient") as CanvasModulate).color == world.theme.ambient, "the floor is as dark as its theme")
+	check(get_tree().get_nodes_in_group("props").size() > 0, "the floor has props")
+	var lanterns := get_tree().get_nodes_in_group("props").filter(func(p: Node) -> bool: return (p as Prop).def == CONTENT.dungeon.room_light)
+	check(lanterns.size() >= world.map.rooms.size(), "every room has lanterns (%d)" % lanterns.size())
+
+	# A crate in front of the hero breaks under the katana.
+	var crate_def: PropDef = load("res://data/props/crate.tres")
+	var spot := world.map.world_to_cell(world.find_open_point_near(player.global_position, 40.0))
+	var crate := world.spawn_prop(crate_def, spot)
+	await _frames(1)
+	for i in crate_def.hits:
+		player._attack_cooldown = 0.0
+		player.attack(player.global_position.direction_to(crate.global_position))
+		await _frames(2)
+	check(not is_instance_valid(crate) or crate.is_broken, "a crate breaks after %d hits" % crate_def.hits)
+	await _frames(5)
+
+	# Powder kegs: one explodes, sets off its neighbour, hurts a monster nearby, credits the hero.
+	var keg_def: PropDef = load("res://data/props/tnt.tres")
+	var base := world.map.world_to_cell(world.find_open_point_near(player.global_position, 150.0))
+	var keg := world.spawn_prop(keg_def, base)
+	var keg2 := world.spawn_prop(keg_def, base + Vector2i(1, 0))
+	var rat := world.spawn_monster(load("res://data/monsters/rat.tres"), world.map.cell_to_world(base) + Vector2(0, 30))
+	rat.dormant = true
+	await _frames(1)
+	var rat_hp := rat.hp
+	var spark := HitInfo.new()
+	spark.source = player
+	keg.take_hit(spark)
+	check(not keg.is_broken, "a keg has a fuse")
+	await _frames(int(keg_def.fuse_time * 60.0) + 4)
+	check(not is_instance_valid(keg) or keg.is_broken, "the keg explodes after its fuse")
+	check(not is_instance_valid(rat) or rat.is_dead or rat.hp < rat_hp, "the blast hurts monsters")
+	await _frames(int(keg_def.fuse_time * 60.0) + 4)
+	check(not is_instance_valid(keg2) or keg2.is_broken, "explosions set off other kegs")
+	await _frames(30)
+	check(not is_instance_valid(rat), "dead monsters dissolve and disappear")
+
+	# A spike trap hurts whoever stands on it, monsters included.
+	var spikes: TrapDef = load("res://data/traps/spikes.tres")
+	var trap_cell := world.map.world_to_cell(world.find_open_point_near(player.global_position, 120.0))
+	var trap := world.spawn_trap(spikes, trap_cell)
+	var victim := world.spawn_monster(load("res://data/monsters/slime.tres"), world.map.cell_to_world(trap_cell))
+	victim.dormant = true
+	await _frames(1)
+	var victim_hp := victim.hp
+	var cycle := spikes.idle_time + spikes.warning_time + 0.2
+	var saw_warning := false
+	for i in int(cycle * 60.0):
+		saw_warning = saw_warning or trap.phase == Trap.Phase.WARNING
+		await get_tree().physics_frame
+	check(saw_warning, "spikes warn before they strike")
+	check(victim.hp < victim_hp, "spikes hurt monsters standing on them")
+	trap.queue_free()
+	if is_instance_valid(victim):
+		victim.queue_free()
+
+	# A pressure plate waits for someone to step on it.
+	var plate: TrapDef = load("res://data/traps/spike_plate.tres")
+	var plate_cell := world.map.world_to_cell(world.find_open_point_near(player.global_position, 120.0))
+	var plate_trap := world.spawn_trap(plate, plate_cell)
+	await _frames(60)
+	check(plate_trap.phase == Trap.Phase.IDLE, "a plate stays still while nobody is on it")
+	var hp_before := player.hp
+	player.base_stats.defense = 0
+	player.invalidate_stats()
+	player._invulnerable_time = 0.0
+	player.global_position = plate_trap.global_position
+	await _frames(int((plate.warning_time + 0.1) * 60.0) + 2)
+	check(player.hp < hp_before, "stepping on a plate fires its spikes")
+	player.hp = player.get_max_hp()
+	plate_trap.queue_free()
+	await _frames(5)
 
 
 ## A boss floor from start to finish: arena, spikes, phases, skills, death, stairs and relic.

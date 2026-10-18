@@ -22,6 +22,17 @@ extends Resource
 @export var max_monsters_per_room: int = 6
 @export var items_per_floor: int = 4
 
+@export_group("Props and traps")
+## Lantern placed along the walls of every room (light in the dark).
+@export var room_light: PropDef
+@export_range(0, 6) var lights_per_room: int = 2
+## Small groups of crates, pots and barrels per room.
+@export_range(0, 10) var prop_clusters_min: int = 0
+@export_range(0, 10) var prop_clusters_max: int = 2
+## Groups of traps per floor (a row of spikes, a few plates...).
+@export_range(0, 20) var trap_groups_min: int = 2
+@export_range(0, 20) var trap_groups_max: int = 4
+
 @export_group("Bosses")
 ## Every Nth floor is a boss arena (3 = floors 3, 6, 9...). 0 = no bosses.
 @export_range(0, 20) var boss_every: int = 3

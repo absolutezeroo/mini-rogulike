@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_r1tb8"]
+[ext_resource type="Texture2D" path="res://assets/props/crate.png" id="2_m0sbc"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="3_wucxp"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="4_42ymk"]
+[ext_resource type="Resource" path="res://data/items/consumables/bomb.tres" id="5_hh24t"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="6_ktspp"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="7_ar0om"]
+
+[sub_resource type="Resource" id="Resource_4uwg7"]
+script = ExtResource("3_wucxp")
+item = ExtResource("4_42ymk")
+weight = 6
+
+[sub_resource type="Resource" id="Resource_x2n5f"]
+script = ExtResource("3_wucxp")
+item = ExtResource("5_hh24t")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_opipd"]
+script = ExtResource("6_ktspp")
+drop_chance = 0.25
+entries = Array[ExtResource("3_wucxp")]([SubResource("Resource_4uwg7"), SubResource("Resource_x2n5f")])
+
+[resource]
+script = ExtResource("7_ar0om")
+hits = 2
+loot = SubResource("Resource_opipd")
+debris_color = Color(0.6901961, 0.4392157, 0.25882354, 1)
+break_sound = ExtResource("1_r1tb8")
+id = &"crate"
+display_name = "Crate"
+icon = ExtResource("2_m0sbc")
+glyph = "C"
+color = Color(0.7529412, 0.52156866, 0.32156864, 1)

@@ -57,6 +57,7 @@ static func boss_death(world: World, at: Vector2, size: float) -> void:
 static func explosion(world: World, at: Vector2, radius: float) -> void:
 	var size := clampf(radius / 80.0, 0.6, 1.6)
 	world.spawn_vfx(SheetVfx.create(EXPLOSION_SHEET, at, 0.0, radius * 2.2 / EXPLOSION_SHEET.get_height(), 18.0))
+	world.flash_light(at, Color(1.0, 0.62, 0.32), radius * 3.0)
 	burst(world, FIRE, at, Color.WHITE, Vector2.ZERO, size * 0.7)
 	burst(world, SMOKE, at, Color.WHITE, Vector2.ZERO, size)
 	Sfx.play_at(Sfx.bank.explosion, at)
@@ -71,6 +72,7 @@ static func sparkles(world: World, at: Vector2, color: Color) -> void:
 ## Magic circle on the ground (heals, buffs, level up).
 static func magic(world: World, at: Vector2, color: Color) -> void:
 	world.spawn_vfx(SheetVfx.create(MAGIC_CIRCLE_SHEET, at, 0.0, 2.5, 12.0).with_color(color))
+	world.flash_light(at, color, 200.0)
 	sparkles(world, at + Vector2(0, -10), color)
 
 

@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="TrapDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/props/spikes.png" id="1_wmmat"]
+[ext_resource type="Texture2D" path="res://assets/props/plate.png" id="2_0pcdi"]
+[ext_resource type="Texture2D" path="res://assets/props/plate_pressed.png" id="3_nyvb3"]
+[ext_resource type="Script" path="res://src/definitions/trap_def.gd" id="4_3knl4"]
+[ext_resource type="AudioStream" path="res://data/audio/spikes.tres" id="5_lw4wv"]
+
+[resource]
+script = ExtResource("4_3knl4")
+trigger = 1
+base_texture = ExtResource("2_0pcdi")
+pressed_texture = ExtResource("3_nyvb3")
+active_sheet = ExtResource("1_wmmat")
+idle_time = 1.2
+warning_time = 0.35
+active_time = 0.6
+damage = 7
+sound = ExtResource("5_lw4wv")
+id = &"spike_plate"
+display_name = "Pressure Plate"
+icon = ExtResource("1_wmmat")
+glyph = "P"
+color = Color(0.9098039, 0.27058825, 0.21568628, 1)
+min_depth = 2
+spawn_weight = 6

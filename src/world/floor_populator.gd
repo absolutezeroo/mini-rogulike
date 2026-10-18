@@ -1,14 +1,28 @@
 class_name FloorPopulator
-## Fills a freshly generated floor with monsters and items.
-## The first room is where the player starts, so it stays empty.
+## Fills a freshly generated floor: lights, props and traps first (they claim their cells),
+## then monsters and items on the free cells.
+## The first room is where the player starts: no monsters or traps there.
 
 
 static func populate(world: World, content: ContentDB, depth: int) -> void:
 	var map := world.map
 	var rng := world.rng
 	var config := content.dungeon
+	var taken := {}  # cells used by props and traps
+	_reserve_around(taken, map.start_cell, 2)
+	_reserve_around(taken, map.stairs_cell, 1)
+	for room in map.rooms:
+		place_lights(world, config, room, taken)
 	if map.rooms.size() < 2:
 		return
+
+	for i in map.rooms.size():
+		_place_props(world, content, depth, map.rooms[i], taken)
+	var groups := rng.randi_range(config.trap_groups_min, config.trap_groups_max)
+	for n in groups:
+		var trap := content.pick_trap(depth, rng)
+		if trap:
+			_place_traps(world, trap, map.rooms[rng.randi_range(1, map.rooms.size() - 1)], taken)
 
 	var extra := floori(config.extra_monsters_per_depth * (depth - 1))
 	for i in range(1, map.rooms.size()):
@@ -17,15 +31,130 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 		for n in count:
 			var def := content.pick_monster(depth, rng)
 			if def:
-				world.spawn_monster(def, _random_point_in(map, room, rng))
+				world.spawn_monster(def, _free_point_in(map, room, rng, taken))
 
 	for n in config.items_per_floor:
 		var room := map.rooms[rng.randi_range(1, map.rooms.size() - 1)]
 		var item := content.pick_item(depth, rng)
 		if item:
-			world.spawn_item(item, _random_point_in(map, room, rng))
+			world.spawn_item(item, _free_point_in(map, room, rng, taken))
 
 
-static func _random_point_in(map: DungeonMap, room: Rect2i, rng: RandomNumberGenerator) -> Vector2:
+## Lanterns along the walls of a room (also used for boss arenas).
+static func place_lights(world: World, config: DungeonConfig, room: Rect2i, taken: Dictionary) -> void:
+	if config.room_light == null:
+		return
+	var cells := _edge_cells(world.map, room, taken)
+	var placed: Array[Vector2i] = []
+	for cell in _shuffled(cells, world.rng):
+		if placed.size() >= config.lights_per_room:
+			break
+		# Spread them out.
+		if placed.any(func(other: Vector2i) -> bool: return Vector2(other).distance_to(Vector2(cell)) < 5.0):
+			continue
+		world.spawn_prop(config.room_light, cell)
+		_reserve_around(taken, cell, 1)
+		placed.append(cell)
+
+
+## Crates, pots and barrels in small clusters against the walls.
+static func _place_props(world: World, content: ContentDB, depth: int, room: Rect2i, taken: Dictionary) -> void:
+	var rng := world.rng
+	var config := content.dungeon
+	var clusters := rng.randi_range(config.prop_clusters_min, config.prop_clusters_max)
+	var cells := _shuffled(_edge_cells(world.map, room, taken), rng)
+	for n in mini(clusters, cells.size()):
+		var start: Vector2i = cells[n]
+		if taken.has(start):
+			continue
+		var size := rng.randi_range(1, 3)
+		var cell := start
+		for k in size:
+			if taken.has(cell) or not _is_edge(world.map, room, cell):
+				break
+			var prop := content.pick_prop(depth, rng)
+			if prop:
+				world.spawn_prop(prop, cell)
+			taken[cell] = true
+			cell += [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN][rng.randi_range(0, 3)]
+
+
+## A group of traps: TIMED ones form a row across the room firing in a wave,
+## STEP ones are scattered plates.
+static func _place_traps(world: World, def: TrapDef, room: Rect2i, taken: Dictionary) -> void:
+	var rng := world.rng
+	var inner := room.grow(-2)
+	if inner.size.x < 3 or inner.size.y < 3:
+		return
+	if def.trigger == TrapDef.Trigger.TIMED:
+		var horizontal := rng.randf() < 0.5
+		var length := rng.randi_range(3, 5)
+		var origin := Vector2i(rng.randi_range(inner.position.x, inner.end.x - 1), rng.randi_range(inner.position.y, inner.end.y - 1))
+		var step := Vector2i.RIGHT if horizontal else Vector2i.DOWN
+		for i in length:
+			var cell := origin + step * i
+			if not inner.has_point(cell) or taken.has(cell):
+				break
+			world.spawn_trap(def, cell, i * 0.25)
+			taken[cell] = true
+	else:
+		for i in rng.randi_range(2, 3):
+			var cell := Vector2i(rng.randi_range(inner.position.x, inner.end.x - 1), rng.randi_range(inner.position.y, inner.end.y - 1))
+			if not taken.has(cell):
+				world.spawn_trap(def, cell)
+				taken[cell] = true
+
+
+## Floor cells of the room touching a wall, away from doorways.
+static func _edge_cells(map: DungeonMap, room: Rect2i, taken: Dictionary) -> Array[Vector2i]:
+	var cells: Array[Vector2i] = []
+	for y in range(room.position.y, room.end.y):
+		for x in range(room.position.x, room.end.x):
+			var cell := Vector2i(x, y)
+			if not taken.has(cell) and _is_edge(map, room, cell):
+				cells.append(cell)
+	return cells
+
+
+static func _is_edge(map: DungeonMap, room: Rect2i, cell: Vector2i) -> bool:
+	if not room.has_point(cell) or not map.is_floor(cell):
+		return false
+	var touches_wall := false
+	for dir: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+		touches_wall = touches_wall or not map.is_floor(cell + dir)
+	if not touches_wall:
+		return false
+	# Next to a corridor mouth (floor outside the room): would block the way.
+	for dy in range(-2, 3):
+		for dx in range(-2, 3):
+			var near := cell + Vector2i(dx, dy)
+			if map.is_floor(near) and not room.has_point(near):
+				return false
+	return true
+
+
+static func _reserve_around(taken: Dictionary, center: Vector2i, radius: int) -> void:
+	for dy in range(-radius, radius + 1):
+		for dx in range(-radius, radius + 1):
+			taken[center + Vector2i(dx, dy)] = true
+
+
+static func _shuffled(cells: Array[Vector2i], rng: RandomNumberGenerator) -> Array[Vector2i]:
+	var result := cells.duplicate()
+	for i in range(result.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var tmp: Vector2i = result[i]
+		result[i] = result[j]
+		result[j] = tmp
+	return result
+
+
+## A random point in the room, not on a prop or a trap.
+static func _free_point_in(map: DungeonMap, room: Rect2i, rng: RandomNumberGenerator, taken: Dictionary) -> Vector2:
+	var cell := map.random_cell_in(room, rng)
+	for attempt in 12:
+		if not taken.has(cell):
+			break
+		cell = map.random_cell_in(room, rng)
 	var jitter := Vector2(rng.randf_range(-8.0, 8.0), rng.randf_range(-8.0, 8.0))
-	return map.cell_to_world(map.random_cell_in(room, rng)) + jitter
+	return map.cell_to_world(cell) + jitter

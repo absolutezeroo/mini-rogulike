@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/props/lantern.png" id="1_iehp0"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_w5cbo"]
+
+[resource]
+script = ExtResource("2_w5cbo")
+hits = 0
+debris_color = Color(0.41960785, 0.47843137, 0.43529412, 1)
+light_color = Color(1, 0.72, 0.4, 0.65)
+light_radius = 260.0
+id = &"lantern"
+display_name = "Lantern"
+icon = ExtResource("1_iehp0")
+glyph = "L"
+color = Color(1, 0.81960785, 0.4, 1)
+spawn_weight = 0

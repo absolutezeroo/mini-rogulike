@@ -1,8 +1,10 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://src/entities/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://src/entities/player/game_camera.gd" id="2_camera"]
 [ext_resource type="PackedScene" path="res://src/entities/rig/actor_rig.tscn" id="9_rig"]
+[ext_resource type="Texture2D" path="res://assets/fx/light.png" id="3_light"]
+[ext_resource type="Script" path="res://src/vfx/flicker_light.gd" id="4_flicker"]
 
 [node name="Player" type="CharacterBody2D"]
 motion_mode = 1
@@ -17,3 +19,12 @@ zoom = Vector2(1.5, 1.5)
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
 script = ExtResource("2_camera")
+
+[node name="Torch" type="PointLight2D" parent="."]
+position = Vector2(0, -10)
+color = Color(1, 0.86, 0.66, 1)
+texture = ExtResource("3_light")
+texture_scale = 3.2
+script = ExtResource("4_flicker")
+base_energy = 0.6
+flicker = 0.06

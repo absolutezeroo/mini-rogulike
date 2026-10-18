@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://src/game/game.gd" id="1_game"]
 [ext_resource type="Resource" path="res://data/content_db.tres" id="2_content"]
@@ -7,6 +7,11 @@
 [ext_resource type="PackedScene" path="res://src/ui/inventory/inventory_panel.tscn" id="5_inventory"]
 [ext_resource type="PackedScene" path="res://src/ui/game_over/game_over_panel.tscn" id="6_game_over"]
 [ext_resource type="PackedScene" path="res://src/ui/perk_choice/perk_choice_panel.tscn" id="7_perks"]
+[ext_resource type="Shader" path="res://assets/shaders/screen.gdshader" id="8_screen"]
+[ext_resource type="Script" path="res://src/vfx/screen_effects.gd" id="9_screen"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_screen"]
+shader = ExtResource("8_screen")
 
 [node name="Game" type="Node"]
 process_mode = 3
@@ -15,6 +20,19 @@ content = ExtResource("2_content")
 
 [node name="World" parent="." instance=ExtResource("3_world")]
 process_mode = 1
+
+[node name="ScreenFx" type="CanvasLayer" parent="."]
+layer = 4
+
+[node name="Effects" type="ColorRect" parent="ScreenFx"]
+material = SubResource("ShaderMaterial_screen")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("9_screen")
 
 [node name="Hud" parent="." instance=ExtResource("4_hud")]
 process_mode = 1

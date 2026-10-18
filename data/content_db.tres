@@ -53,6 +53,15 @@
 [ext_resource type="Resource" path="res://data/perks/relics/executioner.tres" id="48_tx8pl"]
 [ext_resource type="Resource" path="res://data/perks/relics/guardian_ring.tres" id="49_vxbuw"]
 [ext_resource type="Resource" path="res://data/perks/relics/war_banner.tres" id="50_qapwd"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="52_yjg1c"]
+[ext_resource type="Resource" path="res://data/props/crate.tres" id="53_dianq"]
+[ext_resource type="Resource" path="res://data/props/barrel.tres" id="54_kqkbc"]
+[ext_resource type="Resource" path="res://data/props/vase.tres" id="55_xx7nh"]
+[ext_resource type="Resource" path="res://data/props/tnt.tres" id="56_6esje"]
+[ext_resource type="Script" path="res://src/definitions/trap_def.gd" id="59_bx8nx"]
+[ext_resource type="Resource" path="res://data/traps/spikes.tres" id="60_tx8pl"]
+[ext_resource type="Resource" path="res://data/traps/spike_plate.tres" id="61_vxbuw"]
+[ext_resource type="Resource" path="res://data/traps/flame_vent.tres" id="62_qapwd"]
 
 [resource]
 script = ExtResource("34_tx8pl")
@@ -62,3 +71,5 @@ sounds = ExtResource("35_vxbuw")
 monsters = Array[ExtResource("23_2j2up")]([ExtResource("24_urwiy"), ExtResource("25_sw1r8"), ExtResource("26_qfpny"), ExtResource("27_d3nxt"), ExtResource("28_yjg1c"), ExtResource("29_dianq"), ExtResource("30_kqkbc"), ExtResource("31_xx7nh"), ExtResource("32_6esje")])
 items = Array[ExtResource("2_cewcx")]([ExtResource("3_kwdc3"), ExtResource("4_7ya5d"), ExtResource("5_pbmnr"), ExtResource("6_m0rk7"), ExtResource("7_ecbkd"), ExtResource("8_m5vms"), ExtResource("9_8li55"), ExtResource("10_ng0jj"), ExtResource("11_te2ty"), ExtResource("12_prpil"), ExtResource("13_q2763"), ExtResource("14_3wmne"), ExtResource("15_rjx6h"), ExtResource("16_h0egv"), ExtResource("17_hbtgr"), ExtResource("18_jjy75"), ExtResource("19_lnxyg"), ExtResource("20_vfprf"), ExtResource("21_nlt3e"), ExtResource("22_7cyc7")])
 perks = Array[ExtResource("33_lnxyg")]([ExtResource("34_vfprf"), ExtResource("35_nlt3e"), ExtResource("36_7cyc7"), ExtResource("37_2j2up"), ExtResource("38_urwiy"), ExtResource("39_sw1r8"), ExtResource("40_qfpny"), ExtResource("41_d3nxt"), ExtResource("42_yjg1c"), ExtResource("43_dianq"), ExtResource("44_kqkbc"), ExtResource("45_xx7nh"), ExtResource("46_6esje"), ExtResource("47_bx8nx"), ExtResource("48_tx8pl"), ExtResource("49_vxbuw"), ExtResource("50_qapwd")])
+props = Array[ExtResource("52_yjg1c")]([ExtResource("53_dianq"), ExtResource("54_kqkbc"), ExtResource("55_xx7nh"), ExtResource("56_6esje")])
+traps = Array[ExtResource("59_bx8nx")]([ExtResource("60_tx8pl"), ExtResource("61_vxbuw"), ExtResource("62_qapwd")])

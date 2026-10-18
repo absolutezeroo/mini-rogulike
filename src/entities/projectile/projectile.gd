@@ -32,6 +32,10 @@ func setup(shooter: Actor, direction: Vector2, spec: ProjectileSpec) -> void:
 	var shape := CircleShape2D.new()
 	shape.radius = spec.radius
 	($CollisionShape2D as CollisionShape2D).shape = shape
+	# The hero's shots and anything that explodes light up the dark (not every boss bullet: too many lights).
+	var glow := $Glow as PointLight2D
+	glow.enabled = _faction == Actor.Faction.PLAYER or spec.explosion_radius > 0.0
+	glow.color = spec.color
 
 
 func _ready() -> void:
@@ -54,7 +58,11 @@ func _on_body_entered(body: Node2D) -> void:
 	if _done:
 		return
 	if not body is Actor:
-		# A wall
+		# A wall or a prop
+		if body is Prop:
+			var hit := HitInfo.new()
+			hit.source = _shooter if is_instance_valid(_shooter) else null
+			(body as Prop).take_hit(hit)
 		Vfx.hit(_world, global_position, -_direction, _spec.color)
 		Sfx.play_at(Sfx.bank.projectile_impact, global_position, -4.0)
 		_finish()
@@ -86,7 +94,8 @@ func _finish() -> void:
 
 func _explode() -> void:
 	Vfx.explosion(_world, global_position, _spec.explosion_radius)
-	var source := _shooter if is_instance_valid(_shooter) else null
+	var source: Actor = _shooter if is_instance_valid(_shooter) else null
+	Combat.hit_props(_world, source, global_position, _spec.explosion_radius)
 	for target in _world.get_hostiles(_faction):
 		var offset := target.global_position - global_position
 		if offset.length() <= _spec.explosion_radius + target.radius:
