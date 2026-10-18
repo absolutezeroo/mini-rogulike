@@ -65,3 +65,12 @@ size_flags_horizontal = 4
 focus_mode = 0
 theme_override_font_sizes/font_size = 24
 text = "Try again"
+
+[node name="TitleButton" type="Button" parent="Center/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 60)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+theme_override_font_sizes/font_size = 20
+text = "Title screen"

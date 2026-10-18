@@ -4,6 +4,7 @@ extends Control
 
 signal restart_requested
 signal continue_requested
+signal title_requested
 
 const DEATH_COLOR := Color(1, 0.42, 0.42)
 const VICTORY_COLOR := Color(1, 0.82, 0.4)
@@ -18,6 +19,9 @@ func _ready() -> void:
 	%RestartButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_click)
 		restart_requested.emit())
+	%TitleButton.pressed.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_click)
+		title_requested.emit())
 	_continue_button.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_click)
 		hide()

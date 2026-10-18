@@ -11,6 +11,10 @@ extends Resource
 @export var items: Array[ItemDef] = []
 ## Perks offered on level up (common) and after bosses (rare relics).
 @export var perks: Array[PerkDef] = []
+## Permanent upgrades sold at the shrine (title screen).
+@export var upgrades: Array[UpgradeDef] = []
+## Items that only appear in the dungeon once a shrine upgrade unlocked them.
+@export var locked_items: Array[ItemDef] = []
 ## Breakable props placed in rooms (lanterns are set in the dungeon config).
 @export var props: Array[PropDef] = []
 @export var traps: Array[TrapDef] = []
@@ -37,8 +41,16 @@ func all_monsters() -> Array[MonsterDef]:
 	return result
 
 
+## Locked items unlocked for the current run (set by the game from the profile).
+var unlocked_items: Array[ItemDef] = []
+
+
 func pick_item(depth: int, rng: RandomNumberGenerator) -> ItemDef:
-	return _pick(items, depth, rng)
+	return _pick(items.filter(is_available), depth, rng)
+
+
+func is_available(item: ItemDef) -> bool:
+	return not locked_items.has(item) or unlocked_items.has(item)
 
 
 func pick_prop(depth: int, rng: RandomNumberGenerator) -> PropDef:

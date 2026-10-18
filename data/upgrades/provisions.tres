@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="UpgradeDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/lifepot.png" id="1_tr0cv"]
+[ext_resource type="Script" path="res://src/definitions/items/item_def.gd" id="2_p20p7"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="3_x7s8c"]
+[ext_resource type="Script" path="res://src/definitions/upgrade_def.gd" id="4_jmk5k"]
+
+[resource]
+script = ExtResource("4_jmk5k")
+id = &"provisions"
+display_name = "Provisions"
+description = "Start every run with one more health potion per level."
+icon = ExtResource("1_tr0cv")
+color = Color(1, 0.41960785, 0.41960785, 1)
+kind = 1
+max_level = 3
+cost = 25
+cost_growth = 25
+items = Array[ExtResource("2_p20p7")]([ExtResource("3_x7s8c")])

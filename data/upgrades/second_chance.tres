@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="UpgradeDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/perks/phoenix_feather.png" id="1_b2no8"]
+[ext_resource type="Script" path="res://src/definitions/items/item_def.gd" id="2_22n7j"]
+[ext_resource type="Resource" path="res://data/perks/relics/phoenix_feather.tres" id="3_qrqxv"]
+[ext_resource type="Script" path="res://src/definitions/upgrade_def.gd" id="4_6ncqx"]
+
+[resource]
+script = ExtResource("4_6ncqx")
+id = &"second_chance"
+display_name = "Second Chance"
+description = "Start every run with a Phoenix Feather: survive one killing blow."
+icon = ExtResource("1_b2no8")
+color = Color(1, 0.81960785, 0.4, 1)
+kind = 2
+cost = 400
+perk = ExtResource("3_qrqxv")

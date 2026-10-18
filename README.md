@@ -31,6 +31,7 @@ data/                Game content as .tres resources (no code)
   audio/               Sounds as AudioStreamRandomizer (variations + pitch) and sound_bank.tres
   monsters/            One file per monster type, bosses in bosses/
   perks/               Level-up perks (common/) and boss relics (relics/)
+  upgrades/            Shrine upgrades (bought with souls between runs)
   props/               Breakable props and the lantern
   traps/               Spike traps, pressure plates, flame vents
   items/weapons/       Player weapons (monster/ = monster-only weapons)
@@ -39,7 +40,7 @@ data/                Game content as .tres resources (no code)
   items/tomes/         Skill tomes (teach a spell)
   skills/              Player, monster and boss skills
 src/
-  autoload/            Events (signal bus), Sfx (sound player), HitStop (impact freeze)
+  autoload/            Events (signal bus), Sfx (sound player), HitStop (impact freeze), Profile (save)
   core/                Small shared helpers (physics layers, weighted random)
   definitions/         Resource classes describing content (the "schema" of data/)
     effects/             Building blocks for skills and consumables
@@ -53,7 +54,7 @@ src/
   combat/              Damage rules, hits, projectile specs
   ai/                  StateMachine + monster states (Idle, Chase, Attack, Cast)
   vfx/                 Particles (particles/), sprite-sheet FX, emotes, afterimages, damage numbers; Vfx helpers
-  ui/                  HUD, touch controls, inventory, perk choice, game over
+  ui/                  Title screen and shrine, HUD, touch controls, inventory, perk choice, end of run
   game/                Game: main scene, run and floor flow
 tests/               Headless test suite with a bot that plays the game
 ```
@@ -180,6 +181,23 @@ skills (telegraphed casts: spore clouds, dives, charges, ink rings...), and what
 die: a **death burst** (a flame spirit explodes, a frost skull freezes everything around, after a
 short warning) or **death spawns** (a giant slime splits in two).
 
+## Between runs
+
+The game opens on the **title screen** (`src/ui/title/`): play, visit the shrine, see your records.
+There is no class to pick: everyone starts the same, and becomes who they want during the run.
+
+Every run ends (death or victory) with **souls**: 1 per kill, 5 per floor, 20 per boss, 100 for a
+victory. At the **shrine** they buy permanent upgrades (`data/upgrades/`, `UpgradeDef`):
+
+| Kind | Upgrades |
+|---|---|
+| Stats | Vitality (+HP), Might (+ATK), Toughness (+DEF), Swiftness (+SPD), Arcane Talent (+skill power) |
+| Starting items / perk | Provisions (extra potions), Second Chance (start with a Phoenix Feather) |
+| Unlocks | Paladin's Oath (Templar Sword), Pyromancy (Ember Tome), Forbidden Library (Thunder and Wind tomes), Master Smith (Plate Armor, Shadow Cloak) |
+
+Locked items (`content_db.tres` > Locked Items) never appear on the floor until unlocked.
+The `Profile` autoload keeps souls, upgrades and records in `user://profile.json` (works on phones).
+
 ## Bosses
 
 The last floor of each act is a start room and one big arena. The boss sleeps
@@ -267,7 +285,8 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 | A new monster behaviour | New state script in `src/ai/states/`, add a node for it in `monster.tscn` |
 | A perk | New `PerkDef` in `data/perks/`, add it to `content_db.tres` > Perks |
 | A new kind of perk | New script in `src/definitions/passives/` extending `Passive`, override the hooks you need |
-| A boss | New `BossDef` in `data/monsters/bosses/`, add it to `dungeon_config.tres` > Bosses |
+| A boss | New `BossDef` in `data/monsters/bosses/`, set it as an act's Boss |
+| A shrine upgrade | New `UpgradeDef` in `data/upgrades/`, add it to `content_db.tres` > Upgrades |
 | A prop | New `PropDef` in `data/props/` (sprite, hits, loot, explosion, light), add it to `content_db.tres` > Props |
 | A trap | New `TrapDef` in `data/traps/` (trigger, art, timing, damage), add it to `content_db.tres` > Traps |
 

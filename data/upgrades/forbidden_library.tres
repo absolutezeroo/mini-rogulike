@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="UpgradeDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/tome_thunder.png" id="1_rltar"]
+[ext_resource type="Script" path="res://src/definitions/items/item_def.gd" id="2_w0csp"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_thunder.tres" id="3_gwag8"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_wind.tres" id="4_3nuy4"]
+[ext_resource type="Script" path="res://src/definitions/upgrade_def.gd" id="5_5b02l"]
+
+[resource]
+script = ExtResource("5_5b02l")
+id = &"forbidden_library"
+display_name = "Forbidden Library"
+description = "The Tomes of Thunder and Wind can be found in the dungeon."
+icon = ExtResource("1_rltar")
+color = Color(1, 0.9019608, 0.42745098, 1)
+kind = 3
+cost = 120
+items = Array[ExtResource("2_w0csp")]([ExtResource("3_gwag8"), ExtResource("4_3nuy4")])

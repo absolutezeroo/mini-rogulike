@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="UpgradeDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/weapons/book.png" id="1_gukh8"]
+[ext_resource type="Script" path="res://src/definitions/items/item_def.gd" id="2_t4lew"]
+[ext_resource type="Resource" path="res://data/items/weapons/book.tres" id="3_curh2"]
+[ext_resource type="Script" path="res://src/definitions/upgrade_def.gd" id="4_j2whb"]
+
+[resource]
+script = ExtResource("4_j2whb")
+id = &"pyromancy"
+display_name = "Pyromancy"
+description = "The Ember Tome (fire skills) can be found in the dungeon."
+icon = ExtResource("1_gukh8")
+color = Color(1, 0.41960785, 0.20784314, 1)
+kind = 3
+cost = 100
+items = Array[ExtResource("2_t4lew")]([ExtResource("3_curh2")])

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="UpgradeDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/armor.png" id="1_d1bjr"]
+[ext_resource type="Script" path="res://src/definitions/items/item_def.gd" id="2_lvt7y"]
+[ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="3_ielns"]
+[ext_resource type="Resource" path="res://data/items/armors/shadow_cloak.tres" id="4_ikjlv"]
+[ext_resource type="Script" path="res://src/definitions/upgrade_def.gd" id="5_i7hto"]
+
+[resource]
+script = ExtResource("5_i7hto")
+id = &"master_smith"
+display_name = "Master Smith"
+description = "Plate Armor and the Shadow Cloak can be found in the dungeon."
+icon = ExtResource("1_d1bjr")
+color = Color(0.7882353, 0.8, 0.81960785, 1)
+kind = 3
+cost = 150
+items = Array[ExtResource("2_lvt7y")]([ExtResource("3_ielns"), ExtResource("4_ikjlv")])

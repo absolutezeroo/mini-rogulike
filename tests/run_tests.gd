@@ -14,6 +14,9 @@ var _checks := 0
 func _ready() -> void:
 	# Without a sound card, playbacks are never released; keep the output clean.
 	Sfx.enabled = false
+	# Never touch the player's real save.
+	Profile.save_path = ""
+	Profile.reset()
 	CONTENT = load("res://data/content_db.tres")
 	GAME_SCENE = load("res://src/game/game.tscn")
 	_test_stat_block()
@@ -23,6 +26,8 @@ func _ready() -> void:
 	_test_inventory_and_equipment()
 	_test_perks()
 	_test_bosses()
+	_test_profile()
+	await _test_title_screen()
 	await _test_gameplay()
 	print("\n%d checks, %d failed" % [_checks, _failures])
 	Sfx.stop_all()
@@ -268,6 +273,68 @@ func _test_bosses() -> void:
 		check(_bad_wall_cells(map).is_empty(), "arena floors have clean walls")
 
 
+func _upgrade(id: String) -> UpgradeDef:
+	for upgrade in CONTENT.upgrades:
+		if upgrade.id == StringName(id):
+			return upgrade
+	push_error("no upgrade " + id)
+	return null
+
+
+func _test_profile() -> void:
+	check(CONTENT.upgrades.size() >= 8, "the shrine sells upgrades")
+	check(Profile.souls_for_run(10, 4, 1, false) == 10 + 15 + 20, "souls: kills + depth + bosses")
+	check(Profile.souls_for_run(0, 9, 3, true) > Profile.souls_for_run(0, 9, 3, false), "winning gives a big bonus")
+	var vitality := _upgrade("vitality")
+	Profile.reset()
+	check(not Profile.buy(vitality), "no souls, no upgrade")
+	Profile.souls = 1000
+	check(Profile.buy(vitality) and Profile.level_of(vitality) == 1, "buying an upgrade")
+	check(Profile.souls == 1000 - vitality.cost_for_level(0), "it costs souls")
+	check(vitality.cost_for_level(1) > vitality.cost_for_level(0), "each level costs more")
+	for i in 10:
+		Profile.buy(vitality)
+	check(Profile.level_of(vitality) == vitality.max_level and not Profile.can_buy(vitality), "levels are capped")
+
+	# Locked items only appear once unlocked.
+	check(not CONTENT.locked_items.is_empty(), "some items must be unlocked first")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 5
+	CONTENT.unlocked_items.clear()
+	var seen_locked := false
+	for i in 400:
+		seen_locked = seen_locked or CONTENT.locked_items.has(CONTENT.pick_item(9, rng))
+	check(not seen_locked, "locked items never spawn")
+	CONTENT.unlocked_items.append_array(CONTENT.locked_items)
+	var seen_unlocked := false
+	for i in 400:
+		seen_unlocked = seen_unlocked or CONTENT.locked_items.has(CONTENT.pick_item(9, rng))
+	check(seen_unlocked, "unlocked items do spawn")
+	CONTENT.unlocked_items.clear()
+	Profile.reset()
+
+
+func _test_title_screen() -> void:
+	var title: TitleScreen = load("res://src/ui/title/title_screen.tscn").instantiate()
+	add_child(title)
+	await _frames(2)
+	check(title.get_node("%PlayButton").visible, "the title screen has a Play button")
+	Profile.souls = 500
+	(title.get_node("%ShrineButton") as Button).pressed.emit()
+	await _frames(2)
+	var shrine: ShrinePanel = title.get_node("%ShrinePanel")
+	var rows: VBoxContainer = title.get_node("%Rows")
+	check(shrine.visible and rows.get_child_count() == CONTENT.upgrades.size(), "the shrine lists every upgrade")
+	var first: UpgradeRow = rows.get_child(0)
+	(first.get_node("%BuyButton") as Button).pressed.emit()
+	await _frames(1)
+	check(Profile.level_of(first.upgrade) == 1 and Profile.souls < 500, "buying at the shrine")
+	check((title.get_node("%Souls") as Label).text.contains(str(Profile.souls)), "the shrine shows the souls left")
+	title.queue_free()
+	Profile.reset()
+	await _frames(2)
+
+
 # --- Gameplay (bot) ----------------------------------------------------------
 
 func _test_gameplay() -> void:
@@ -429,6 +496,7 @@ func _test_gameplay() -> void:
 	await _test_boss_fight(game)
 
 	# Death and restart (without perks: a Phoenix Feather from the boss would save the hero).
+	var souls_before_death := Profile.souls
 	player.perks.clear()
 	player.base_stats.defense = 0
 	player.invalidate_stats()
@@ -439,9 +507,17 @@ func _test_gameplay() -> void:
 	check(player.is_dead, "player can die")
 	await get_tree().create_timer(1.5).timeout
 	check(game.game_over_panel.visible, "game over screen shown")
+	check(Profile.souls >= souls_before_death and (game.game_over_panel.get_node("%Summary") as Label).text.contains("souls"), "the end of a run shows its souls")
+	# Shrine upgrades apply to the next run.
+	Profile.levels = { "vitality": 2, "provisions": 1, "second_chance": 1, "paladin_oath": 1 }
 	game.start_run()
 	await _frames(5)
 	check(game.player != player and not game.player.is_dead, "restart creates a fresh player")
+	check(game.player.get_max_hp() == CONTENT.player.base_stats.max_hp + 2 * _upgrade("vitality").bonuses.max_hp, "Vitality raises max HP")
+	check(game.player.inventory.count_of(load("res://data/items/consumables/health_potion.tres")) == CONTENT.player.starting_items.size() + 1, "Provisions add a potion")
+	check(game.player.perks.stacks_of(load("res://data/perks/relics/phoenix_feather.tres")) == 1, "Second Chance gives a Phoenix Feather")
+	check(CONTENT.unlocked_items.has(load("res://data/items/weapons/templar_sword.tres")), "Paladin's Oath unlocks the Templar Sword")
+	Profile.reset()
 	check(game.depth == 1, "restart goes back to depth 1")
 
 	# A second bot run on the fresh character at higher depths, mortal this time.
@@ -875,6 +951,7 @@ func _test_boss_fight(game: Node) -> void:
 		if game.perk_panel.visible:
 			game.perk_panel.choose(0)
 	check(game.has_won and game.game_over_panel.visible and game.game_over_panel.get_node("%ContinueButton").visible, "beating the final boss wins the run")
+	check(Profile.victories == 1 and Profile.souls > 0, "a victory is recorded with its souls")
 	(game.game_over_panel.get_node("%ContinueButton") as Button).pressed.emit()
 	await _frames(3)
 	check(not game.game_over_panel.visible, "keep going: endless mode")

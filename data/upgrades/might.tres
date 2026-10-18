@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="UpgradeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_miu66"]
+[ext_resource type="Texture2D" path="res://assets/ui/perks/strength.png" id="2_v3ybj"]
+[ext_resource type="Script" path="res://src/definitions/items/item_def.gd" id="3_mye03"]
+[ext_resource type="Script" path="res://src/definitions/upgrade_def.gd" id="4_irp25"]
+
+[sub_resource type="Resource" id="Resource_xvbok"]
+script = ExtResource("1_miu66")
+attack = 1
+
+[resource]
+script = ExtResource("4_irp25")
+id = &"might"
+display_name = "Might"
+icon = ExtResource("2_v3ybj")
+color = Color(0.9372549, 0.2784314, 0.43529412, 1)
+max_level = 5
+cost = 40
+cost_growth = 30
+bonuses = SubResource("Resource_xvbok")

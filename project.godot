@@ -16,7 +16,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 config/name="Mini Roguelike"
 config/description="Real-time action roguelike built with GDScript."
-run/main_scene="res://src/game/game.tscn"
+run/main_scene="res://src/ui/title/title_screen.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
@@ -25,6 +25,7 @@ config/icon="res://icon.svg"
 Events="*res://src/autoload/events.gd"
 Sfx="*res://src/autoload/sfx.gd"
 HitStop="*res://src/autoload/hit_stop.gd"
+Profile="*res://src/autoload/profile.gd"
 
 [display]
 

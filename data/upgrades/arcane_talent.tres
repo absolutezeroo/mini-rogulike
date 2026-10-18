@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="UpgradeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="1_qmb4m"]
+[ext_resource type="Texture2D" path="res://assets/ui/perks/arcane_power.png" id="2_6xj5x"]
+[ext_resource type="Script" path="res://src/definitions/items/item_def.gd" id="3_csdcm"]
+[ext_resource type="Script" path="res://src/definitions/upgrade_def.gd" id="4_6mxbo"]
+
+[sub_resource type="Resource" id="Resource_a21sl"]
+script = ExtResource("1_qmb4m")
+skill_power = 0.05
+
+[resource]
+script = ExtResource("4_6mxbo")
+id = &"arcane_talent"
+display_name = "Arcane Talent"
+icon = ExtResource("2_6xj5x")
+color = Color(0.7019608, 0.53333336, 0.92156863, 1)
+max_level = 3
+cost = 40
+cost_growth = 30
+bonuses = SubResource("Resource_a21sl")

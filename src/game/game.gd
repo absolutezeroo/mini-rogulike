@@ -3,6 +3,7 @@ extends Node
 ## pauses for menus and handles game over. Main scene of the project.
 
 const PLAYER_SCENE := preload("res://src/entities/player/player.tscn")
+const TITLE_SCENE := "res://src/ui/title/title_screen.tscn"
 const PERK_CHOICES := 3
 ## Pause between the boss' death and the relic choice, to enjoy the explosions.
 const RELIC_DELAY := 1.6
@@ -15,6 +16,8 @@ var bosses_slain := 0
 var player: Player
 ## The last act's boss fell this run (the rest is endless mode).
 var has_won := false
+## Souls already added to the profile for this run (victory, then death in endless mode).
+var _souls_awarded := 0
 
 ## Perk choices waiting to be shown: [{ rarity, count, title, subtitle }]
 var _pending_offers: Array[Dictionary] = []
@@ -36,6 +39,9 @@ func _ready() -> void:
 	perk_panel.chosen.connect(_on_perk_chosen)
 	game_over_panel.restart_requested.connect(start_run)
 	game_over_panel.continue_requested.connect(_on_continue_endless)
+	game_over_panel.title_requested.connect(func() -> void:
+		_set_paused(false)
+		get_tree().change_scene_to_file(TITLE_SCENE))
 	Events.monster_killed.connect(func(_monster: Monster) -> void: kills += 1)
 	Events.boss_started.connect(_on_boss_started)
 	Events.boss_defeated.connect(_on_boss_defeated)
@@ -57,14 +63,50 @@ func start_run() -> void:
 	kills = 0
 	bosses_slain = 0
 	has_won = false
+	_souls_awarded = 0
 	player = PLAYER_SCENE.instantiate() as Player
 	player.setup(content.player)
 	player.died.connect(_on_player_died)
 	player.leveled_up.connect(_on_player_leveled_up)
 	player.damaged.connect(func(damage: int) -> void:
 		screen_fx.kick(clampf(float(damage) / player.get_max_hp() * 5.0, 0.3, 1.0)))
+	_apply_profile()
+	Profile.count_run()
 	hud.bind_player(player)
 	_enter_floor()
+
+
+## Shrine upgrades bought with souls: stats, starting items and perks, unlocked items.
+func _apply_profile() -> void:
+	content.unlocked_items.clear()
+	for upgrade in content.upgrades:
+		var level := Profile.level_of(upgrade)
+		if level <= 0:
+			continue
+		match upgrade.kind:
+			UpgradeDef.Kind.STATS:
+				if upgrade.bonuses:
+					player.base_stats = player.base_stats.plus(upgrade.bonuses.times(level))
+			UpgradeDef.Kind.STARTING_ITEMS:
+				for i in level:
+					for item in upgrade.items:
+						player.inventory.add(item)
+			UpgradeDef.Kind.STARTING_PERK:
+				if upgrade.perk:
+					player.perks.add(upgrade.perk)
+			UpgradeDef.Kind.UNLOCK:
+				content.unlocked_items.append_array(upgrade.items)
+	player.invalidate_stats()
+	player.hp = player.get_max_hp()
+
+
+## Adds this run's souls to the profile (only what was not added yet).
+func _award_souls(won_now: bool) -> int:
+	var total := Profile.souls_for_run(kills, depth, bosses_slain, has_won)
+	var earned := total - _souls_awarded
+	_souls_awarded = total
+	Profile.record_run(earned, depth, won_now)
+	return earned
 
 
 func is_menu_open() -> bool:
@@ -144,7 +186,8 @@ func _on_boss_defeated(boss: Monster) -> void:
 		has_won = true
 		_set_paused(true)
 		Sfx.play_ui(Sfx.bank.stairs)
-		game_over_panel.show_victory(_run_summary())
+		var earned := _award_souls(true)
+		game_over_panel.show_victory(_run_summary() + _souls_text(earned))
 		return
 	_offer_relic(def)
 
@@ -159,6 +202,10 @@ func _on_continue_endless() -> void:
 	var act := content.dungeon.act_for_depth(depth)
 	Events.log_message("Endless mode: the dungeon goes on, harder and harder.", Color("ff6b6b"))
 	_offer_relic(act.boss if act else null)
+
+
+func _souls_text(earned: int) -> String:
+	return "\n+%d souls (%d to spend at the shrine)" % [earned, Profile.souls]
 
 
 func _run_summary() -> String:
@@ -209,4 +256,5 @@ func _on_player_died(_actor: Actor) -> void:
 	_pending_offers.clear()
 	await get_tree().create_timer(1.2).timeout
 	Sfx.play_ui(Sfx.bank.game_over)
-	game_over_panel.show_result(_run_summary())
+	var earned := _award_souls(false)
+	game_over_panel.show_result(_run_summary() + _souls_text(earned))
