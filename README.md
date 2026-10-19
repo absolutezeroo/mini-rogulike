@@ -112,6 +112,14 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   "!" emote when a monster spots you) plus pixel particles for hits, dust and sparkles
   (`src/vfx/particles/*.tscn`, edit them in the inspector), dash afterimages, animated projectiles,
   squash on hit, popping damage numbers, red vignette when hurt or low on HP.
+- **Atmosphere** (`AmbienceDef` > Atmosphere, one per biome and curse): the whole picture takes
+  the biome's colors (`screen.gdshader`: shadows and highlights graded toward two tints,
+  saturation, contrast), bright things **bloom** (fire, gold, lights), the air **trembles** with
+  heat in the ruins and the desert (rows of pixels sliding by whole pixels). Over the floor, in
+  world space (`AtmosphereLayer`, `atmosphere.gdshader`, dithered on the art's grid): **shafts of
+  light** falling from cracks above (garden, temple, library, cave, desert), **leaf shadows**
+  drifting in the garden, **mist** creeping over the crypt and the flooded caverns, **water light**
+  dancing on the floor of the flooded caverns.
 - **Attack effects** (shaders, all on the art's pixel grid): a melee swing draws a crescent at the
   weapon's reach and arc (`SwingVfx`, `swing.gdshader`: white cutting edge, the weapon's
   `trail_color` behind, thinning out in dithered pixels), a thrust a streak; claws and bites keep

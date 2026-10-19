@@ -988,6 +988,17 @@ func _test_details(game: Game) -> void:
 	shroom.queue_free()
 	var garden: BiomeDef = load("res://data/biomes/underground_garden.tres")
 	check(garden.theme.ambience.particles.resource_path.ends_with("fireflies.tscn"), "fireflies in the garden")
+	var air := world.get_node("Effects").get_children().filter(func(n: Node) -> bool: return n is AtmosphereLayer)
+	check(air.size() == 1, "the garden has its air (light shafts, leaf shadows)")
+	var screen := get_tree().get_first_node_in_group(&"screen_effects") as ScreenEffects
+	check(screen != null and is_equal_approx(float((screen.material as ShaderMaterial).get_shader_parameter("grade")), garden.theme.ambience.grade_strength), "the picture takes the biome's colors")
+	var biomes_with_air := 0
+	for act in CONTENT.dungeon.acts:
+		for biome in act.biomes:
+			var mood := biome.theme.ambience
+			if mood.grade_strength > 0.0 and (mood.rays_color.a > 0.0 or mood.mist_color.a > 0.0 or mood.caustics_color.a > 0.0 or mood.heat_haze > 0.0):
+				biomes_with_air += 1
+	check(biomes_with_air >= 9, "every biome has its atmosphere (%d)" % biomes_with_air)
 	await _clear_monsters(world)
 	game.depth = depth_before
 

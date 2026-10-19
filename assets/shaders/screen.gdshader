@@ -13,6 +13,13 @@ uniform vec2 art_pixel = vec2(0.00234, 0.00417);
 uniform float vignette_steps = 4.0;
 // In art pixels; pulsed by ScreenEffects.kick().
 uniform float aberration = 0.0;
+// The floor's mood (AmbienceDef, set by ScreenEffects.set_mood): shadows and highlights pulled
+// toward two colors, bright things glowing, the air trembling with heat.
+uniform vec3 shadow_tint : source_color = vec3(1.0);
+uniform vec3 highlight_tint : source_color = vec3(1.0);
+uniform float grade : hint_range(0.0, 1.0) = 0.0;
+uniform float bloom : hint_range(0.0, 1.0) = 0.0;
+uniform float haze : hint_range(0.0, 3.0) = 0.0;
 
 const float BAYER[16] = float[](0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0);
 
@@ -22,8 +29,18 @@ float bayer(vec2 cell) {
 	return (BAYER[index] + 0.5) / 16.0;
 }
 
+float wave(float x) {
+	return sin(x) * 0.6 + sin(x * 2.3 + 1.7) * 0.4;
+}
+
 void fragment() {
 	vec2 uv = SCREEN_UV;
+	if (haze > 0.0) {
+		// Heat: rows of art pixels sliding sideways by whole pixels, in slow waves.
+		float row = floor(uv.y / art_pixel.y);
+		float shift = floor(wave(row * 0.21 + TIME * 2.2) * wave(row * 0.05 - TIME * 0.7) * haze + 0.5);
+		uv.x += shift * art_pixel.x;
+	}
 	vec3 color;
 	float shift = floor(aberration + 0.5);
 	if (shift >= 1.0) {
@@ -34,7 +51,23 @@ void fragment() {
 	} else {
 		color = texture(screen_texture, uv).rgb;
 	}
+	if (bloom > 0.0) {
+		// Bright neighbours bleed into this pixel: lights, fire and gold glow.
+		vec3 glow = vec3(0.0);
+		for (int i = 0; i < 8; i++) {
+			float angle = float(i) * 0.785398;
+			vec2 offset = vec2(cos(angle), sin(angle)) * art_pixel * (i % 2 == 0 ? 2.0 : 4.0);
+			vec3 near = texture(screen_texture, uv + offset).rgb;
+			float bright = max(near.r, max(near.g, near.b));
+			glow += near * max(bright - 0.86, 0.0) * 4.0;  // only what really shines
+		}
+		color += glow * bloom * 0.35;
+	}
 	float gray = dot(color, vec3(0.299, 0.587, 0.114));
+	if (grade > 0.0) {
+		vec3 tint = mix(shadow_tint, highlight_tint, smoothstep(0.12, 0.7, gray));
+		color = mix(color, color * tint, grade);
+	}
 	color = mix(vec3(gray), color, saturation);
 	color = (color - 0.5) * contrast + 0.5;
 

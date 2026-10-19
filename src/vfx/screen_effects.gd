@@ -11,8 +11,22 @@ var _aberration := 0.0
 
 
 func _ready() -> void:
+	add_to_group(&"screen_effects")
 	mouse_filter = MOUSE_FILTER_IGNORE
 	set_anchors_preset(PRESET_FULL_RECT)
+
+
+## The floor's look: grading, saturation, contrast, bloom, heat haze (null: neutral).
+func set_mood(def: AmbienceDef) -> void:
+	var shader := material as ShaderMaterial
+	var neutral := AmbienceDef.new() if def == null else def
+	shader.set_shader_parameter("shadow_tint", neutral.grade_shadows)
+	shader.set_shader_parameter("highlight_tint", neutral.grade_highlights)
+	shader.set_shader_parameter("grade", neutral.grade_strength)
+	shader.set_shader_parameter("saturation", neutral.saturation)
+	shader.set_shader_parameter("contrast", neutral.contrast)
+	shader.set_shader_parameter("bloom", neutral.bloom)
+	shader.set_shader_parameter("haze", neutral.heat_haze)
 
 
 func kick(strength: float = 1.0) -> void:

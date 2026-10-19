@@ -13,6 +13,7 @@ var _one_shot_timer := 0.0
 var _particles: CPUParticles2D
 var _low_health := false
 var _heartbeat_timer := 0.0
+var _atmosphere: AtmosphereLayer
 
 @onready var _bed: AudioStreamPlayer = $Bed
 @onready var _heartbeat: AudioStreamPlayer = $Heartbeat
@@ -36,6 +37,10 @@ func play(def: AmbienceDef, world: World, player: Player) -> void:
 	_set_reverb(def.reverb_room_size if def else 0.3, def.reverb_wet if def else 0.0)
 	_play_bed(def.bed if def else null, def.bed_volume_db if def else -16.0)
 	_spawn_particles(world)
+	_spawn_atmosphere(world, def)
+	var screen := get_tree().get_first_node_in_group(&"screen_effects") as ScreenEffects
+	if screen:
+		screen.set_mood(def)
 	_fog.visible = def != null and def.fog != null
 	if _fog.visible:
 		_fog.texture = def.fog
@@ -114,6 +119,14 @@ func _spawn_particles(world: World) -> void:
 		return
 	_particles = _def.particles.instantiate() as CPUParticles2D
 	world.spawn_vfx(_particles)
+
+
+func _spawn_atmosphere(world: World, def: AmbienceDef) -> void:
+	if _atmosphere and is_instance_valid(_atmosphere):
+		_atmosphere.queue_free()
+	_atmosphere = AtmosphereLayer.create(def, world.map) if world.map else null
+	if _atmosphere:
+		world.spawn_vfx(_atmosphere)
 
 
 func _on_health_changed(current: int, maximum: int) -> void:
