@@ -159,6 +159,12 @@ func _note(text: String) -> Label:
 ## One line: the type, and the stats for equipment.
 func _short_details(item: ItemDef) -> String:
 	var equipment := item as EquipmentDef
+	if equipment and not equipment.runes.is_empty():
+		# The runes set in it go with it (and count in the price).
+		var names := PackedStringArray()
+		for rune in equipment.runes:
+			names.append(rune.display_name.trim_suffix(" Rune"))
+		return "%s  -  runes: %s" % [item.get_type_label(), ", ".join(names)]
 	if equipment and equipment.bonuses:
 		var stats := equipment.bonuses.describe()
 		if item is WeaponDef:

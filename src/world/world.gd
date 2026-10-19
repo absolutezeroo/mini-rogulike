@@ -70,6 +70,12 @@ var kept_stock: Array[Dictionary] = []
 var floors_without_forge := 0
 ## The same, when this floor began (what a save keeps: a resumed run makes the floor again).
 var forge_drought_at_start := 0
+## What the hero already took from this floor (a resumed run rebuilds the same floor from its
+## seed: these stay taken). Cells of opened chests, items bought from the merchant (saved form).
+var opened_chests: Array[Vector2i] = []
+var bought: Array = []
+## Set before rebuilding a saved floor (restore_spent), used once by build_floor.
+var _to_restore := {}
 ## Where the stairs are (boss floors get theirs when the boss dies).
 var stairs_cells: Array[Vector2i] = []
 ## Normal floors: the stairs open once enough of the floor's monsters are slain.
@@ -109,6 +115,8 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 	clear_floor()
 	floor_id += 1
 	depth = new_depth
+	opened_chests.clear()
+	bought.clear()
 	forge_drought_at_start = floors_without_forge
 	_content = content
 	var boss := content.dungeon.boss_for_depth(depth)
@@ -163,6 +171,7 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 		seal.reset(monster_count(), content.dungeon.seal_share, content.dungeon.seal_reveal_left)
 		stairs.bind_seal(seal)
 		stairs.blocked.connect(_on_stairs_blocked)
+		_apply_restore()
 	map_reset.emit()
 
 
@@ -423,7 +432,42 @@ func spawn_chest(def: ChestDef, cell: Vector2i, trapped: bool) -> Chest:
 	var chest := Chest.new()
 	chest.setup(def, self, trapped)
 	_place_on_cell(chest, cell)
+	chest.opened.connect(func(_chest: Chest) -> void: opened_chests.append(cell))
 	return chest
+
+
+## What was taken from this floor, for a save file.
+func spent_data() -> Dictionary:
+	return {
+		"chests": opened_chests.map(func(cell: Vector2i) -> Array: return [cell.x, cell.y]),
+		"bought": bought.duplicate(),
+	}
+
+
+## The next floor built is the saved one again: what was taken from it stays taken.
+func restore_spent(data: Dictionary) -> void:
+	_to_restore = data
+
+
+func _apply_restore() -> void:
+	if _to_restore.is_empty():
+		return
+	var data := _to_restore
+	_to_restore = {}
+	var cells: Array[Vector2i] = []
+	for pair: Array in data.get("chests", []):
+		if pair.size() == 2:
+			cells.append(Vector2i(int(pair[0]), int(pair[1])))
+	for node in _entities.get_children():
+		var chest := node as Chest
+		if chest and cells.has(map.world_to_cell(chest.global_position)):
+			chest.set_spent()
+			opened_chests.append(map.world_to_cell(chest.global_position))
+	for saved_item: Variant in data.get("bought", []):
+		for merchant: Merchant in get_tree().get_nodes_in_group("merchants"):
+			if merchant.world_of() == self and merchant.forget_sold(saved_item):
+				bought.append(saved_item)
+				break
 
 
 func spawn_ambush(room: Rect2i) -> AmbushRoom:

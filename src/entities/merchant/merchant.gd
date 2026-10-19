@@ -119,9 +119,25 @@ func sell_to(player: Player, index: int) -> bool:
 		return false
 	player.store(entry.item)
 	stock.remove_at(index)
+	_world.bought.append(LootRoller.to_data(entry.item))
 	Sfx.play_ui(Sfx.bank.coin)
 	Events.log_message("Bought %s" % entry.item.display_name, entry.item.rarity_color())
 	return true
+
+
+## A resumed floor: the stock entry the hero already bought (saved form) is gone. False if none.
+func forget_sold(saved_item: Variant) -> bool:
+	var key := _key(saved_item)
+	for i in stock.size():
+		if _key(LootRoller.to_data(stock[i].item)) == key:
+			stock.remove_at(i)
+			return true
+	return false
+
+
+## A saved item as text, the same before and after a trip through a save file (numbers too).
+static func _key(saved_item: Variant) -> String:
+	return JSON.stringify(JSON.parse_string(JSON.stringify(saved_item)))
 
 
 ## Buys `item` from the player's bag (or belt).

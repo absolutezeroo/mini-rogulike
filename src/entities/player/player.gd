@@ -213,7 +213,7 @@ func pick_up(item: ItemDef) -> bool:
 		_pickup_feedback(item, Sfx.bank.equip)
 		return true
 	if store(item):
-		Events.log_message("Picked up %s" % item.display_name, item.color)
+		Events.log_message("Picked up %s" % item.display_name, item.rarity_color() if item is RuneDef else item.color)
 		_pickup_feedback(item, Sfx.bank.pickup)
 		return true
 	Events.log_message("Inventory full!", Palette.DANGER)

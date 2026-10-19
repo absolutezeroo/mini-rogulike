@@ -56,6 +56,12 @@ func _physics_process(delta: float) -> void:
 		open()
 
 
+## Already opened before the run was saved: shows open, gives nothing.
+func set_spent() -> void:
+	is_open = true
+	queue_redraw()
+
+
 func open() -> void:
 	if is_open:
 		return

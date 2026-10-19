@@ -28,6 +28,8 @@ var banished: Array[PerkDef] = []
 ## attempt, the one whose score counts.
 var daily_day := -1
 var daily_official := false
+## Every floor of the run is built from this (and its depth): a resumed run finds the same floor.
+var seed := 0
 
 
 ## A new run, or the saved one (`saved` from RunSave; empty for a new run).
@@ -40,6 +42,7 @@ static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGener
 		run.difficulty = content.default_difficulty
 	else:
 		run.difficulty = _pick_difficulty(content, saved)
+	run.seed = int(saved["seed"]) if saved.has("seed") else rng.randi()
 	run.depth = int(saved.get("depth", 1))
 	if saved.get("boss_slain", false):
 		run.depth += 1  # saved after the floor's boss died: on to the next floor
@@ -112,6 +115,7 @@ func to_data() -> Dictionary:
 		"banished": RunSave.refs(banished),
 		"daily_day": daily_day,
 		"daily_official": daily_official,
+		"seed": seed,
 		"difficulty": String(difficulty.id),
 		"ascension": difficulty.ascension,
 	}

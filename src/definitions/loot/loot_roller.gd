@@ -70,7 +70,9 @@ static func make(base: EquipmentDef, rarity: int, affixes: Array[ItemAffixDef], 
 	item.display_name = prefix + base.display_name + suffix
 	var weapon := item as WeaponDef
 	if weapon:
-		weapon.damage = maxi(base.damage + 1, roundi((base as WeaponDef).damage * power))
+		var base_damage := (base as WeaponDef).damage
+		# Better than common: at least one more damage. A common copy (a rune set in a plain weapon) keeps it.
+		weapon.damage = base_damage if rarity == ItemRarity.COMMON else maxi(base_damage + 1, roundi(base_damage * power))
 		if weapon.on_hit == null:
 			for affix in affixes:
 				if affix.on_hit:

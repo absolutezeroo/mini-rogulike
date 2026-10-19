@@ -19,6 +19,8 @@ class Entry:
 	var stacks: int = 1
 	## Run state for the passives (charges, counters...).
 	var memory := {}
+	## Worn gear only: which affix or rune (and which of identical ones) it comes from.
+	var gear_key := ""
 
 	func passives() -> Array[Passive]:
 		return perk.passives if perk else granted
@@ -128,17 +130,28 @@ func _rebuild_all() -> void:
 
 ## The affixes and runes of what the actor wears: those with passives join the events (two
 ## items with the same affix, two identical runes, count twice).
+## Counters carry over (the 3 hits towards a Spark rune's lightning survive swapping a helmet).
 func set_gear(affixes: Array[ItemAffixDef], runes: Array[RuneDef] = []) -> void:
+	# The run state of what was worn, by source and occurrence (two identical runes: two entries).
+	var kept := {}
+	for entry in _gear:
+		kept[entry.gear_key] = entry.memory
 	_gear.clear()
 	var granting: Array = []
 	granting.append_array(affixes)
 	granting.append_array(runes)
+	var seen := {}
 	for source: Resource in granting:
 		var passives: Array = source.get("passives") if source else []
-		if not passives.is_empty():
-			var entry := Entry.new()
-			entry.granted = passives
-			_gear.append(entry)
+		if passives.is_empty():
+			continue
+		var occurrence: int = seen.get(source, 0)
+		seen[source] = occurrence + 1
+		var entry := Entry.new()
+		entry.granted = passives
+		entry.gear_key = "%d:%d" % [source.get_instance_id(), occurrence]
+		entry.memory = kept.get(entry.gear_key, {})
+		_gear.append(entry)
 	_rebuild_all()
 
 

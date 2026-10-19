@@ -56,7 +56,7 @@ func _draw() -> void:
 	draw_circle(Vector2.ZERO, 9.0, Color(0, 0, 0, 0.3))
 	draw_set_transform(Vector2.ZERO)
 	var rarity := (item as EquipmentDef).rarity if item is EquipmentDef else ItemRarity.COMMON
-	var glow := item.rarity_color() if rarity > ItemRarity.COMMON else item.color
+	var glow := item.rarity_color() if rarity > ItemRarity.COMMON or item is RuneDef else item.color
 	glow.a = 0.18 + 0.08 * sin(_time * 4.0) + 0.08 * rarity
 	draw_circle(bob, 14.0 + 2.0 * rarity, glow)
 	if rarity >= ItemRarity.RARE:

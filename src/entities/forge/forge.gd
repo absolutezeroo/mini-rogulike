@@ -66,7 +66,7 @@ static func weapons_of(player: Player) -> Array[EquipmentDef]:
 static func set_rune(player: Player, weapon: EquipmentDef, rune: RuneDef) -> EquipmentDef:
 	if weapon == null or rune == null or weapon.free_sockets() <= 0 or not player.inventory.items.has(rune):
 		return null
-	var worked := weapon if weapon.is_rolled() else LootRoller.make(weapon, weapon.rarity, weapon.affixes)
+	var worked := weapon if weapon.is_rolled() else LootRoller.make(weapon, weapon.rarity, weapon.affixes.duplicate())
 	worked.runes.append(rune)
 	player.inventory.remove(rune)
 	_put_back(player, weapon, worked)

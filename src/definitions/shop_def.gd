@@ -31,7 +31,12 @@ extends Resource
 ## `extra`: the difficulty's price multiplier.
 func buy_price(item: ItemDef, depth: int, extra: float = 1.0) -> int:
 	var rarity := (item as EquipmentDef).rarity if item is EquipmentDef else ItemRarity.COMMON
-	return maxi(1, roundi(item.value * ItemRarity.VALUE[rarity] * price_multiplier * extra * (1.0 + price_per_depth * (depth - 1))))
+	var value := item.value * ItemRarity.VALUE[rarity]
+	var equipment := item as EquipmentDef
+	if equipment:
+		for rune in equipment.runes:
+			value += rune.value if rune else 0  # what is set in it is worth something too
+	return maxi(1, roundi(value * price_multiplier * extra * (1.0 + price_per_depth * (depth - 1))))
 
 
 ## Gold for the next reroll of a stock, after `done` rerolls at this merchant.

@@ -171,6 +171,7 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 			Profile.start_daily(day)
 	world.difficulty = run.difficulty
 	world.run_bosses = run.bosses
+	world.clear_floor()  # the last run's merchant must not pass its locked stock on
 	world.floors_without_forge = int(saved.get("floors_without_forge", 0))
 	world.kept_stock.clear()
 	for saved_entry: Dictionary in saved.get("kept_stock", []):
@@ -193,6 +194,7 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	else:
 		player.load_state(saved.get("player", {}))
 		offers.load_data(saved.get("offers", []))
+		world.restore_spent(saved.get("floor", {}))  # chests opened, stock bought before quitting
 	_records.bind(run, player)
 	_hunt.bind(player)
 	hud.bind_player(player)
@@ -338,6 +340,8 @@ func _set_paused(paused: bool) -> void:
 func _enter_floor(resumed: bool = false) -> void:
 	if run.is_daily():
 		world.rng.seed = DailyRun.floor_seed(run.daily_day, depth)  # the same floors all day
+	else:
+		world.rng.seed = hash("%d-floor-%d" % [run.seed, depth])  # quitting can't reroll a floor
 	world.build_floor(depth, content)
 	world.place_player(player)
 	var mood := world.theme.ambience if world.theme else null
@@ -583,6 +587,7 @@ func _save_run() -> void:
 	data.player = player.save_state()
 	data.offers = offers.to_data(perk_panel.visible)
 	data.floors_without_forge = world.forge_drought_at_start
+	data.floor = world.spent_data()
 	data.kept_stock = world.locked_stock().map(func(entry: Dictionary) -> Dictionary:
 		return { "item": LootRoller.to_data(entry.item), "price": entry.price })
 	RunSave.write(data)
