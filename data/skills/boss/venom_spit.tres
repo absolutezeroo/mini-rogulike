@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_sgol7"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_dogxg"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_ofcum"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/energyball.png" id="4_rh22a"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_kdk2i"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="6_yg4ha"]
+
+[sub_resource type="Resource" id="Resource_og3hi"]
+script = ExtResource("3_ofcum")
+poison_damage = 3
+
+[sub_resource type="Resource" id="Resource_7vdia"]
+script = ExtResource("2_dogxg")
+damage_multiplier = 0.5
+flat_damage = 4
+speed = 330.0
+radius = 7.0
+max_distance = 460.0
+count = 5
+spread_degrees = 50.0
+knockback = 120.0
+color = Color(0.41960785, 0.7490196, 0.34901962, 1)
+texture = ExtResource("4_rh22a")
+status = SubResource("Resource_og3hi")
+
+[resource]
+script = ExtResource("5_kdk2i")
+id = &"venom_spit"
+display_name = "Venom Spit"
+description = "A fan of venom: it poisons."
+color = Color(0.41960785, 0.7490196, 0.34901962, 1)
+cooldown = 3.5
+effects = Array[ExtResource("1_sgol7")]([SubResource("Resource_7vdia")])
+sound = ExtResource("6_yg4ha")
+ai_max_range = 440.0
+cast_time = 0.6

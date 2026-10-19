@@ -588,8 +588,42 @@ func _test_monster_behaviours(game: Game) -> void:
 	for act in CONTENT.dungeon.acts:
 		for m: MonsterDef in act.monsters:
 			acts.append(m.id)
-	for id in [&"shell_guard", &"thief_racoon", &"brood_mother", &"bomber"]:
+	for id in [&"shell_guard", &"thief_racoon", &"brood_mother", &"bomber", &"sand_drake"]:
 		check(acts.has(id), "%s roams the Well" % id)
+
+	# The wyrms: a body follows the head's path, burns at a touch, only the head takes hits.
+	var bosses: Array = []
+	for act in CONTENT.dungeon.acts:
+		bosses.append_array(act.all_bosses().map(func(b: BossDef) -> StringName: return b.id))
+	check(bosses.has(&"jade_wyrm") and bosses.has(&"azure_wyrm"), "the two wyrms guard acts")
+	var wyrm := world.spawn_monster(load("res://data/monsters/bosses/jade_wyrm.tres"), world.map.cell_to_world(_open_cell_near(world, player.global_position, 3)))
+	wyrm.dormant = true
+	await _frames(2)
+	var bodies := wyrm.get_children().filter(func(n: Node) -> bool: return n is WyrmBody)
+	check(bodies.size() == 1, "a wyrm has a body")
+	var body: WyrmBody = bodies[0]
+	var start: Vector2 = body._points[0]
+	for i in 30:
+		wyrm.global_position += Vector2(4, 0)
+		await _frames(1)
+	check(body._points[0] != start and body._points[0].distance_to(wyrm.global_position) < 60.0, "the body follows the head")
+	wyrm.dormant = false
+	wyrm.skills.set_skills([] as Array[SkillDef])
+	wyrm._attack_cooldown = 99.0
+	wyrm.target = null
+	player.hp = player.get_max_hp()
+	player.ward = 0  # a Guardian Ring taken earlier would soak it
+	var hp_before := player.hp
+	var keep_at := wyrm.global_position
+	for i in 3:
+		player._invulnerable_time = 0.0
+		player.global_position = body._points[3]
+		wyrm.global_position = keep_at
+		await _frames(1)
+	check(player.hp < hp_before, "touching the body burns")
+	wyrm.queue_free()
+	player.hp = player.get_max_hp()
+	await _frames(2)
 
 	# Shell Guard: hits from the front are mostly blocked, hits in the back land in full.
 	var shell := world.spawn_monster(load("res://data/monsters/shell_guard.tres"), world.map.cell_to_world(_open_cell_near(world, player.global_position, 2)))

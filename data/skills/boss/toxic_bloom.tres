@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_apklj"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_qk7l0"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_d7xg3"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/energyball.png" id="4_dw615"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_6g1xq"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="6_qmdgi"]
+
+[sub_resource type="Resource" id="Resource_og3hi"]
+script = ExtResource("3_d7xg3")
+poison_damage = 3
+
+[sub_resource type="Resource" id="Resource_evy0f"]
+script = ExtResource("2_qk7l0")
+damage_multiplier = 0.5
+flat_damage = 4
+speed = 250.0
+radius = 7.0
+max_distance = 380.0
+count = 16
+spread_degrees = 360.0
+knockback = 120.0
+color = Color(0.41960785, 0.7490196, 0.34901962, 1)
+texture = ExtResource("4_dw615")
+status = SubResource("Resource_og3hi")
+
+[resource]
+script = ExtResource("5_6g1xq")
+id = &"toxic_bloom"
+display_name = "Toxic Bloom"
+description = "A ring of venom bursts all around it."
+color = Color(0.41960785, 0.7490196, 0.34901962, 1)
+cooldown = 6.5
+effects = Array[ExtResource("1_apklj")]([SubResource("Resource_evy0f")])
+sound = ExtResource("6_qmdgi")
+ai_max_range = 300.0
+cast_time = 0.9
+telegraph_radius = 90.0

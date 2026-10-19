@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_p37n3"]
+[ext_resource type="Texture2D" path="res://assets/fx/clawdouble.png" id="2_8imij"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="3_ok0dx"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="4_pxyn8"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="5_qf60h"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="6_tkqd4"]
+
+[sub_resource type="Resource" id="Resource_og3hi"]
+script = ExtResource("4_pxyn8")
+poison_damage = 3
+
+[resource]
+script = ExtResource("5_qf60h")
+damage = 10
+cooldown = 1.1
+reach = 46.0
+knockback = 90.0
+attack_fx = ExtResource("2_8imij")
+on_hit = SubResource("Resource_og3hi")
+arc_degrees = 120.0
+trail_color = Color(0, 0, 0, 0)
+attack_sound = ExtResource("3_ok0dx")
+slot = 0
+id = &"jade_fang"
+display_name = "Venom Fang"
+glyph = "C"
+color = Color(0.75686276, 0.07058824, 0.12156863, 1)
+spawn_weight = 0

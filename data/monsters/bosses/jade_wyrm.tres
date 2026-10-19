@@ -1,0 +1,151 @@
+[gd_resource type="Resource" script_class="BossDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/hunt_challenge.gd" id="1_o02c8"]
+[ext_resource type="Resource" path="res://data/items/weapons/axe.tres" id="2_qg5ws"]
+[ext_resource type="AudioStream" path="res://data/audio/death.tres" id="3_3h5pm"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/bosses/jade_wyrm.tres" id="4_3iiyv"]
+[ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="5_d6sup"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/jade_wyrm/faceset.png" id="6_ek3pd"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="7_ijmc7"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="8_47kvs"]
+[ext_resource type="Resource" path="res://data/items/weapons/stick.tres" id="9_hyw45"]
+[ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="10_fvoj3"]
+[ext_resource type="Resource" path="res://data/items/weapons/hammer.tres" id="11_076sn"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_wind.tres" id="12_0r6e2"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="13_rtej4"]
+[ext_resource type="Script" path="res://src/definitions/boss_phase.gd" id="14_tyo4n"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="15_t0ip2"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="16_d23gl"]
+[ext_resource type="Resource" path="res://data/skills/boss/venom_spit.tres" id="17_kj2ho"]
+[ext_resource type="Resource" path="res://data/skills/boss/coil_rush.tres" id="18_vh8pc"]
+[ext_resource type="Resource" path="res://data/skills/boss/toxic_bloom.tres" id="19_ria8h"]
+[ext_resource type="Resource" path="res://data/skills/boss/venom_spit_fierce.tres" id="20_t1cp7"]
+[ext_resource type="Resource" path="res://data/skills/boss/coil_rush_fierce.tres" id="21_8qaat"]
+[ext_resource type="Resource" path="res://data/skills/boss/toxic_bloom_fierce.tres" id="22_30cyf"]
+[ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="23_shxrq"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="24_efdyf"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/wyrm_trait.gd" id="25_yjh1o"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/jade_wyrm/body1.png" id="26_bli7o"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/jade_wyrm/body2.png" id="27_bh5qh"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/jade_wyrm/bodyend.png" id="28_y4pna"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/jade_wyrm/wing.png" id="29_o505x"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/jade_fang.tres" id="30_nil01"]
+
+[sub_resource type="Resource" id="Resource_x73cv"]
+script = ExtResource("1_o02c8")
+id = &"weapon_axe"
+goal = 10
+text = "Cut down the Jade Wyrm with an Axe"
+souls = 70
+weapon = ExtResource("2_qg5ws")
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_denu1"]
+atlas = ExtResource("6_ek3pd")
+region = Rect2(0, 0, 38, 38)
+
+[sub_resource type="Resource" id="Resource_qohus"]
+script = ExtResource("7_ijmc7")
+item = ExtResource("8_47kvs")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_bpw5u"]
+script = ExtResource("7_ijmc7")
+item = ExtResource("9_hyw45")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_rax1h"]
+script = ExtResource("7_ijmc7")
+item = ExtResource("10_fvoj3")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_r6unx"]
+script = ExtResource("7_ijmc7")
+item = ExtResource("11_076sn")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_taqnq"]
+script = ExtResource("7_ijmc7")
+item = ExtResource("12_0r6e2")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_hwxcw"]
+script = ExtResource("13_rtej4")
+drop_chance = 1.0
+rolls = 3
+entries = Array[ExtResource("7_ijmc7")]([SubResource("Resource_qohus"), SubResource("Resource_bpw5u"), SubResource("Resource_rax1h"), SubResource("Resource_r6unx"), SubResource("Resource_taqnq")])
+
+[sub_resource type="Resource" id="Resource_4rw42"]
+script = ExtResource("15_t0ip2")
+attack = 2
+move_speed = 20.0
+
+[sub_resource type="Resource" id="Resource_g4va2"]
+script = ExtResource("14_tyo4n")
+hp_ratio = 0.66
+message = "SPREADS ITS WINGS!"
+bonuses = SubResource("Resource_4rw42")
+skills = Array[ExtResource("16_d23gl")]([ExtResource("17_kj2ho"), ExtResource("18_vh8pc"), ExtResource("19_ria8h")])
+windup_multiplier = 0.85
+tint = Color(1, 0.72, 0.72, 1)
+cooldown_multiplier = 0.85
+shockwave_after_hits = 7
+
+[sub_resource type="Resource" id="Resource_hbw4l"]
+script = ExtResource("15_t0ip2")
+attack = 3
+move_speed = 30.0
+
+[sub_resource type="Resource" id="Resource_1rbtc"]
+script = ExtResource("14_tyo4n")
+hp_ratio = 0.33
+message = "ROARS IN FURY!"
+bonuses = SubResource("Resource_hbw4l")
+skills = Array[ExtResource("16_d23gl")]([ExtResource("20_t1cp7"), ExtResource("21_8qaat"), ExtResource("22_30cyf")])
+windup_multiplier = 0.7
+tint = Color(1, 0.55, 0.5, 1)
+cooldown_multiplier = 0.7
+shockwave_after_hits = 5
+
+[sub_resource type="Resource" id="Resource_ijg07"]
+script = ExtResource("15_t0ip2")
+max_hp = 1450
+defense = 5
+move_speed = 85.0
+crit_chance = 0.1
+
+[sub_resource type="Resource" id="Resource_xn4rd"]
+script = ExtResource("25_yjh1o")
+wing = ExtResource("29_o505x")
+segments = Array[Texture2D]([ExtResource("26_bli7o"), ExtResource("27_bh5qh")])
+tail = ExtResource("28_y4pna")
+
+[resource]
+script = ExtResource("23_shxrq")
+title = "Coiled Guardian of the Temple"
+portrait = ExtResource("6_ek3pd")
+phases = Array[ExtResource("14_tyo4n")]([SubResource("Resource_g4va2"), SubResource("Resource_1rbtc")])
+stats = SubResource("Resource_ijg07")
+weapon = ExtResource("30_nil01")
+skills = Array[ExtResource("16_d23gl")]([ExtResource("17_kj2ho"), ExtResource("18_vh8pc")])
+radius = 24.0
+frames = ExtResource("4_3iiyv")
+frames_offset = Vector2(0, -20)
+head_height = 84.0
+flies = true
+knockback_resistance = 0.95
+traits = Array[ExtResource("24_efdyf")]([SubResource("Resource_xn4rd")])
+detect_radius = 900.0
+attack_windup = 0.5
+attack_recovery = 0.4
+hurt_sound = ExtResource("5_d6sup")
+death_sound = ExtResource("3_3h5pm")
+xp_reward = 200
+challenges = Array[ExtResource("1_o02c8")]([SubResource("Resource_x73cv")])
+loot = SubResource("Resource_hwxcw")
+id = &"jade_wyrm"
+display_name = "Jade Wyrm"
+description = "An old dragon of jade scales, coiled around the temple's heart. Its body burns; strike the head."
+icon = SubResource("AtlasTexture_denu1")
+glyph = "W"
+color = Color(0.41960785, 0.7490196, 0.34901962, 1)
+spawn_weight = 0

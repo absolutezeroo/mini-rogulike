@@ -1,0 +1,150 @@
+[gd_resource type="Resource" script_class="BossDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/hunt_challenge.gd" id="1_e5a27"]
+[ext_resource type="Resource" path="res://data/items/weapons/hammer.tres" id="2_n5mnf"]
+[ext_resource type="AudioStream" path="res://data/audio/death.tres" id="3_mhdcn"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/bosses/azure_wyrm.tres" id="4_42koo"]
+[ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="5_qjfa6"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/azure_wyrm/faceset.png" id="6_i7kiq"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="7_bp0ii"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="8_ffh1c"]
+[ext_resource type="Resource" path="res://data/items/weapons/stick.tres" id="9_1b8f1"]
+[ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="10_d6tf7"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_wind.tres" id="11_g8pkc"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="12_ac4s5"]
+[ext_resource type="Script" path="res://src/definitions/boss_phase.gd" id="13_v1e1p"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="14_hq215"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="15_faelm"]
+[ext_resource type="Resource" path="res://data/skills/boss/frost_breath.tres" id="16_pgiif"]
+[ext_resource type="Resource" path="res://data/skills/boss/glacial_dive.tres" id="17_db67u"]
+[ext_resource type="Resource" path="res://data/skills/boss/hailstorm.tres" id="18_pxwyn"]
+[ext_resource type="Resource" path="res://data/skills/boss/frost_breath_fierce.tres" id="19_wjguy"]
+[ext_resource type="Resource" path="res://data/skills/boss/glacial_dive_fierce.tres" id="20_rr8y0"]
+[ext_resource type="Resource" path="res://data/skills/boss/hailstorm_fierce.tres" id="21_rirn3"]
+[ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="22_o4fo3"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="23_284iw"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/wyrm_trait.gd" id="24_1hmlc"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/azure_wyrm/body1.png" id="25_xmj5e"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/azure_wyrm/body2.png" id="26_s20rf"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/azure_wyrm/bodyend.png" id="27_0lqao"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/azure_wyrm/wing.png" id="28_6blim"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/frost_fang.tres" id="29_6v430"]
+
+[sub_resource type="Resource" id="Resource_3qefx"]
+script = ExtResource("1_e5a27")
+id = &"weapon_hammer"
+goal = 10
+text = "Shatter the Azure Wyrm with a Hammer"
+souls = 70
+weapon = ExtResource("2_n5mnf")
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xsw62"]
+atlas = ExtResource("6_i7kiq")
+region = Rect2(0, 0, 38, 38)
+
+[sub_resource type="Resource" id="Resource_ohlxw"]
+script = ExtResource("7_bp0ii")
+item = ExtResource("8_ffh1c")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_w54nl"]
+script = ExtResource("7_bp0ii")
+item = ExtResource("9_1b8f1")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_2wtcm"]
+script = ExtResource("7_bp0ii")
+item = ExtResource("10_d6tf7")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_twdlb"]
+script = ExtResource("7_bp0ii")
+item = ExtResource("2_n5mnf")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_cxkxx"]
+script = ExtResource("7_bp0ii")
+item = ExtResource("11_g8pkc")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_1ybpm"]
+script = ExtResource("12_ac4s5")
+drop_chance = 1.0
+rolls = 3
+entries = Array[ExtResource("7_bp0ii")]([SubResource("Resource_ohlxw"), SubResource("Resource_w54nl"), SubResource("Resource_2wtcm"), SubResource("Resource_twdlb"), SubResource("Resource_cxkxx")])
+
+[sub_resource type="Resource" id="Resource_se24p"]
+script = ExtResource("14_hq215")
+attack = 2
+move_speed = 20.0
+
+[sub_resource type="Resource" id="Resource_jm561"]
+script = ExtResource("13_v1e1p")
+hp_ratio = 0.66
+message = "SPREADS ITS WINGS!"
+bonuses = SubResource("Resource_se24p")
+skills = Array[ExtResource("15_faelm")]([ExtResource("16_pgiif"), ExtResource("17_db67u"), ExtResource("18_pxwyn")])
+windup_multiplier = 0.85
+tint = Color(1, 0.72, 0.72, 1)
+cooldown_multiplier = 0.85
+shockwave_after_hits = 7
+
+[sub_resource type="Resource" id="Resource_rocjx"]
+script = ExtResource("14_hq215")
+attack = 3
+move_speed = 30.0
+
+[sub_resource type="Resource" id="Resource_bgch1"]
+script = ExtResource("13_v1e1p")
+hp_ratio = 0.33
+message = "ROARS IN FURY!"
+bonuses = SubResource("Resource_rocjx")
+skills = Array[ExtResource("15_faelm")]([ExtResource("19_wjguy"), ExtResource("20_rr8y0"), ExtResource("21_rirn3")])
+windup_multiplier = 0.7
+tint = Color(1, 0.55, 0.5, 1)
+cooldown_multiplier = 0.7
+shockwave_after_hits = 5
+
+[sub_resource type="Resource" id="Resource_q6xws"]
+script = ExtResource("14_hq215")
+max_hp = 1100
+defense = 5
+move_speed = 85.0
+crit_chance = 0.1
+
+[sub_resource type="Resource" id="Resource_2scnv"]
+script = ExtResource("24_1hmlc")
+wing = ExtResource("28_6blim")
+segments = Array[Texture2D]([ExtResource("25_xmj5e"), ExtResource("26_s20rf")])
+tail = ExtResource("27_0lqao")
+
+[resource]
+script = ExtResource("22_o4fo3")
+title = "Frozen Breath of the Crypt"
+portrait = ExtResource("6_i7kiq")
+phases = Array[ExtResource("13_v1e1p")]([SubResource("Resource_jm561"), SubResource("Resource_bgch1")])
+stats = SubResource("Resource_q6xws")
+weapon = ExtResource("29_6v430")
+skills = Array[ExtResource("15_faelm")]([ExtResource("16_pgiif"), ExtResource("17_db67u")])
+radius = 24.0
+frames = ExtResource("4_42koo")
+frames_offset = Vector2(0, -20)
+head_height = 84.0
+flies = true
+knockback_resistance = 0.95
+traits = Array[ExtResource("23_284iw")]([SubResource("Resource_2scnv")])
+detect_radius = 900.0
+attack_windup = 0.5
+attack_recovery = 0.4
+hurt_sound = ExtResource("5_qjfa6")
+death_sound = ExtResource("3_mhdcn")
+xp_reward = 200
+challenges = Array[ExtResource("1_e5a27")]([SubResource("Resource_3qefx")])
+loot = SubResource("Resource_1ybpm")
+id = &"azure_wyrm"
+display_name = "Azure Wyrm"
+description = "A dragon of ice that sleeps under the crypt. Its breath slows you; its body burns cold. Strike the head."
+icon = SubResource("AtlasTexture_xsw62")
+glyph = "W"
+color = Color(0.43137255, 0.7764706, 1, 1)
+spawn_weight = 0

@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_28oce"]
+[ext_resource type="Script" path="res://src/definitions/effects/dash_strike_effect.gd" id="2_tii3x"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_vooxi"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="4_6utq4"]
+
+[sub_resource type="Resource" id="Resource_sgjx1"]
+script = ExtResource("2_tii3x")
+distance = 240.0
+width = 44.0
+damage_multiplier = 1.2
+knockback = 260.0
+
+[resource]
+script = ExtResource("3_vooxi")
+id = &"coil_rush"
+display_name = "Coil Rush"
+description = "Lunges along a line, coils and all."
+color = Color(0.41960785, 0.7490196, 0.34901962, 1)
+cooldown = 4.5
+effects = Array[ExtResource("1_28oce")]([SubResource("Resource_sgjx1")])
+sound = ExtResource("4_6utq4")
+ai_min_range = 120.0
+ai_max_range = 380.0
+cast_time = 0.6

@@ -264,6 +264,16 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   the stairs (violet while sealed), unopened chests, a running ambush, the boss and, near the
   end of a seal, the last monsters. Tap it for the whole floor.
 
+## Dragons
+
+- **Sand Drake** (Act IV): breathes slowing sand, whips up a sandstorm ring.
+- **The Wyrms** (`WyrmTrait`, `WyrmBody`): long dragons. The boss is the head; a body of
+  segments follows the path the head took, wings flap on its sides, a pointed tail ends it.
+  The body burns at a touch (and throws you back); only the head can be hurt. They fly.
+  **Azure Wyrm** (Act II, frost: Frost Breath, Glacial Dive, Hailstorm) and **Jade Wyrm**
+  (Act III, venom: Venom Spit, Coil Rush, Toxic Bloom), with their three phases and fiercer
+  forms, and their own bestiary challenge (a Hammer, an Axe).
+
 ## Codex: bestiary, achievements, runs
 
 **The bestiary** (codex tab, also in the pause menu): every monster and boss, unknown, *seen*

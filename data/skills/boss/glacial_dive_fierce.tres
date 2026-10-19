@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_0a14f"]
+[ext_resource type="Script" path="res://src/definitions/effects/dash_strike_effect.gd" id="2_r5kmd"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_p37ob"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_3sfge"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="5_vjtqp"]
+
+[sub_resource type="Resource" id="Resource_8rvm2"]
+script = ExtResource("3_p37ob")
+slow = 0.4
+
+[sub_resource type="Resource" id="Resource_hpu13"]
+script = ExtResource("2_r5kmd")
+distance = 240.0
+width = 44.0
+damage_multiplier = 1.2
+knockback = 260.0
+status = SubResource("Resource_8rvm2")
+
+[sub_resource type="Resource" id="Resource_yy177"]
+script = ExtResource("2_r5kmd")
+distance = 200.0
+width = 44.0
+damage_multiplier = 1.2
+knockback = 260.0
+status = SubResource("Resource_8rvm2")
+delay = 0.55
+
+[resource]
+script = ExtResource("4_3sfge")
+id = &"glacial_dive_fierce"
+display_name = "Glacial Dive"
+description = "Dives twice in a row."
+color = Color(0.43137255, 0.7764706, 1, 1)
+cooldown = 4.0
+effects = Array[ExtResource("1_0a14f")]([SubResource("Resource_hpu13"), SubResource("Resource_yy177")])
+sound = ExtResource("5_vjtqp")
+ai_min_range = 120.0
+ai_max_range = 380.0
+cast_time = 0.5

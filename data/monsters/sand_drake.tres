@@ -1,0 +1,67 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/hunt_challenge.gd" id="1_cyru6"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/sand_drake.tres" id="2_p167u"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/sand_drake.png" id="3_t7coe"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="4_ei86u"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="5_6rtfl"]
+[ext_resource type="Resource" path="res://data/items/weapons/book.tres" id="6_ssyou"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_fire.tres" id="7_3kyfk"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="8_csx77"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="9_pywoq"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="10_w2wxq"]
+[ext_resource type="Resource" path="res://data/skills/boss/sandstorm.tres" id="11_jdrxl"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="12_l1oc0"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="13_fms1h"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/sand_breath.tres" id="14_o1phv"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nx8j1"]
+atlas = ExtResource("3_t7coe")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_ly2pj"]
+script = ExtResource("4_ei86u")
+item = ExtResource("5_6rtfl")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_ma3q5"]
+script = ExtResource("4_ei86u")
+item = ExtResource("6_ssyou")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_eexd0"]
+script = ExtResource("4_ei86u")
+item = ExtResource("7_3kyfk")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_qbgde"]
+script = ExtResource("8_csx77")
+drop_chance = 0.35
+entries = Array[ExtResource("4_ei86u")]([SubResource("Resource_ly2pj"), SubResource("Resource_ma3q5"), SubResource("Resource_eexd0")])
+
+[sub_resource type="Resource" id="Resource_440fw"]
+script = ExtResource("12_l1oc0")
+max_hp = 40
+defense = 3
+move_speed = 75.0
+
+[resource]
+script = ExtResource("9_pywoq")
+stats = SubResource("Resource_440fw")
+weapon = ExtResource("14_o1phv")
+skills = Array[ExtResource("10_w2wxq")]([ExtResource("11_jdrxl")])
+frames = ExtResource("2_p167u")
+frames_offset = Vector2(0, -8)
+splat_color = Color(0.55, 0.4, 0.15, 0.8)
+attack_windup = 0.55
+attack_recovery = 0.35
+keep_distance = 130.0
+xp_reward = 12
+loot = SubResource("Resource_qbgde")
+id = &"sand_drake"
+display_name = "Sand Drake"
+description = "Breathes scouring sand that slows you, and whips up a sandstorm."
+icon = SubResource("AtlasTexture_nx8j1")
+glyph = "D"
+color = Color(0.95686275, 0.54901963, 0.023529412, 1)
+spawn_weight = 6

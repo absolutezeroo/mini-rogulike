@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_qjpn3"]
+[ext_resource type="Script" path="res://src/definitions/effects/dash_strike_effect.gd" id="2_2rhkr"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_yislg"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="4_irn5q"]
+
+[sub_resource type="Resource" id="Resource_4xegq"]
+script = ExtResource("2_2rhkr")
+distance = 240.0
+width = 44.0
+damage_multiplier = 1.2
+knockback = 260.0
+
+[sub_resource type="Resource" id="Resource_hao2g"]
+script = ExtResource("2_2rhkr")
+distance = 200.0
+width = 44.0
+damage_multiplier = 1.2
+knockback = 260.0
+delay = 0.55
+
+[resource]
+script = ExtResource("3_yislg")
+id = &"coil_rush_fierce"
+display_name = "Coil Rush"
+description = "Lunges twice in a row."
+color = Color(0.41960785, 0.7490196, 0.34901962, 1)
+cooldown = 4.0
+effects = Array[ExtResource("1_qjpn3")]([SubResource("Resource_4xegq"), SubResource("Resource_hao2g")])
+sound = ExtResource("4_irn5q")
+ai_min_range = 120.0
+ai_max_range = 380.0
+cast_time = 0.5

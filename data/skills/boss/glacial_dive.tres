@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_jwsqi"]
+[ext_resource type="Script" path="res://src/definitions/effects/dash_strike_effect.gd" id="2_7dt84"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_mpbfd"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_wwhtv"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="5_ff30m"]
+
+[sub_resource type="Resource" id="Resource_8rvm2"]
+script = ExtResource("3_mpbfd")
+slow = 0.4
+
+[sub_resource type="Resource" id="Resource_5axim"]
+script = ExtResource("2_7dt84")
+distance = 240.0
+width = 44.0
+damage_multiplier = 1.2
+knockback = 260.0
+status = SubResource("Resource_8rvm2")
+
+[resource]
+script = ExtResource("4_wwhtv")
+id = &"glacial_dive"
+display_name = "Glacial Dive"
+description = "Dives along a line; what it touches is chilled."
+color = Color(0.43137255, 0.7764706, 1, 1)
+cooldown = 4.5
+effects = Array[ExtResource("1_jwsqi")]([SubResource("Resource_5axim")])
+sound = ExtResource("5_ff30m")
+ai_min_range = 120.0
+ai_max_range = 380.0
+cast_time = 0.6

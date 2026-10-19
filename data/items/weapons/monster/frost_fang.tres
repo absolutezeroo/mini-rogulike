@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_714d8"]
+[ext_resource type="Texture2D" path="res://assets/fx/clawdouble.png" id="2_h5ywh"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="3_styqk"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="4_0bytk"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="5_gs3m1"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="6_h1ld6"]
+
+[sub_resource type="Resource" id="Resource_8rvm2"]
+script = ExtResource("4_0bytk")
+slow = 0.4
+
+[resource]
+script = ExtResource("5_gs3m1")
+damage = 10
+cooldown = 1.1
+reach = 46.0
+knockback = 90.0
+attack_fx = ExtResource("2_h5ywh")
+on_hit = SubResource("Resource_8rvm2")
+arc_degrees = 120.0
+trail_color = Color(0, 0, 0, 0)
+attack_sound = ExtResource("3_styqk")
+slot = 0
+id = &"frost_fang"
+display_name = "Frost Fang"
+glyph = "C"
+color = Color(0.75686276, 0.07058824, 0.12156863, 1)
+spawn_weight = 0

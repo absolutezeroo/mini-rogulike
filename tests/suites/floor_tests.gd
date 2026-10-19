@@ -31,7 +31,7 @@ func _test_world_objects(game: Game, world: World, player: Player) -> void:
 
 	# Powder kegs: one explodes, sets off its neighbour, hurts a monster nearby, credits the hero.
 	var keg_def: PropDef = load("res://data/props/tnt.tres")
-	var base := world.map.world_to_cell(world.find_open_point_near(player.global_position, 150.0))
+	var base := _open_cell_near(world, player.global_position + Vector2(120, 0), 2)  # room for both kegs and the rat
 	var keg := world.spawn_prop(keg_def, base)
 	var keg2 := world.spawn_prop(keg_def, base + Vector2i(1, 0))
 	var rat := world.spawn_monster(load("res://data/monsters/rat.tres"), world.map.cell_to_world(base) + Vector2(0, 30))
@@ -168,7 +168,11 @@ func _test_hazards(game: Game, world: World, player: Player) -> void:
 	await _frames(5)
 	check(wader.statuses.is_slowed(), "quicksand slows monsters down")
 	var wader_hp := wader.hp
-	await _frames(int((sand.sink_delay + 0.3) * 60.0))
+	var wading_at := wader.global_position
+	for i in int((sand.sink_delay + 0.3) * 60.0):
+		if is_instance_valid(wader):
+			wader.global_position = wading_at  # (nudged out by a neighbour, it would stop sinking)
+		await _frames(1)
 	check(not is_instance_valid(wader) or wader.hp < wader_hp, "staying in quicksand hurts")
 	var flyer := world.spawn_monster(load("res://data/monsters/bat.tres"), pool.global_position)
 	flyer.dormant = true

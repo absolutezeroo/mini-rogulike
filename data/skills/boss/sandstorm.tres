@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_o33wo"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_pwuq6"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_divap"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/sandball.png" id="4_u41aw"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_rtf4c"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="6_n1sya"]
+
+[sub_resource type="Resource" id="Resource_kylvq"]
+script = ExtResource("3_divap")
+slow = 0.35
+slow_duration = 1.5
+
+[sub_resource type="Resource" id="Resource_7ul1n"]
+script = ExtResource("2_pwuq6")
+damage_multiplier = 0.5
+flat_damage = 4
+speed = 230.0
+radius = 7.0
+max_distance = 300.0
+count = 10
+spread_degrees = 360.0
+knockback = 120.0
+color = Color(0.9137255, 0.76862746, 0.41568628, 1)
+texture = ExtResource("4_u41aw")
+status = SubResource("Resource_kylvq")
+
+[resource]
+script = ExtResource("5_rtf4c")
+id = &"sandstorm"
+display_name = "Sandstorm"
+description = "A ring of sand bursts out of it: it slows."
+color = Color(0.9137255, 0.76862746, 0.41568628, 1)
+cooldown = 7.0
+effects = Array[ExtResource("1_o33wo")]([SubResource("Resource_7ul1n")])
+sound = ExtResource("6_n1sya")
+ai_max_range = 220.0
+cast_time = 0.7
+telegraph_radius = 70.0

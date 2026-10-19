@@ -1,0 +1,54 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_sltrq"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_qsrq0"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_200o4"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/energyball.png" id="4_dp46b"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_ikani"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="6_dh2t5"]
+
+[sub_resource type="Resource" id="Resource_og3hi"]
+script = ExtResource("3_200o4")
+poison_damage = 3
+
+[sub_resource type="Resource" id="Resource_lcar1"]
+script = ExtResource("2_qsrq0")
+damage_multiplier = 0.5
+flat_damage = 4
+speed = 250.0
+radius = 7.0
+max_distance = 380.0
+count = 16
+spread_degrees = 360.0
+knockback = 120.0
+color = Color(0.41960785, 0.7490196, 0.34901962, 1)
+texture = ExtResource("4_dp46b")
+status = SubResource("Resource_og3hi")
+
+[sub_resource type="Resource" id="Resource_v71dm"]
+script = ExtResource("2_qsrq0")
+damage_multiplier = 0.5
+flat_damage = 4
+speed = 250.0
+radius = 7.0
+max_distance = 380.0
+count = 16
+spread_degrees = 360.0
+knockback = 120.0
+color = Color(0.41960785, 0.7490196, 0.34901962, 1)
+texture = ExtResource("4_dp46b")
+status = SubResource("Resource_og3hi")
+angle_offset = 11.25
+delay = 0.45
+
+[resource]
+script = ExtResource("5_ikani")
+id = &"toxic_bloom_fierce"
+display_name = "Toxic Bloom"
+description = "Two rings of venom, the second between the gaps."
+color = Color(0.41960785, 0.7490196, 0.34901962, 1)
+effects = Array[ExtResource("1_sltrq")]([SubResource("Resource_lcar1"), SubResource("Resource_v71dm")])
+sound = ExtResource("6_dh2t5")
+ai_max_range = 300.0
+cast_time = 0.8
+telegraph_radius = 90.0
