@@ -28,6 +28,7 @@ func on_fire(trap: Trap) -> void:
 	spec.knockback = knockback
 	spec.texture = arrow_texture
 	spec.color = Color("d9d3c7")
+	spec.glow = 0.0
 	var from := trap.get_launcher_position()
 	for i in arrows:
 		if i > 0:

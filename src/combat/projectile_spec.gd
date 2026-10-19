@@ -15,3 +15,6 @@ var color := Color.WHITE
 var texture: Texture2D
 ## Statuses left on the enemies hit (burn, slow...).
 var status: OnHitStatus
+## Magic shots (fireballs, bolts) glow in their color, light up the dark and burst on impact;
+## 0 for plain things (shurikens, arrows).
+var glow: float = 1.0

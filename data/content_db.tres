@@ -154,6 +154,25 @@
 [ext_resource type="Resource" path="res://data/upgrades/pyromancy.tres" id="82_8pk3k"]
 [ext_resource type="Resource" path="res://data/upgrades/forbidden_library.tres" id="83_v6cij"]
 [ext_resource type="Resource" path="res://data/upgrades/master_smith.tres" id="84_til0v"]
+[ext_resource type="Script" path="res://src/definitions/quest_def.gd" id="140_1hx8s"]
+[ext_resource type="Resource" path="res://data/quests/daily_kills.tres" id="141_aa4gc"]
+[ext_resource type="Resource" path="res://data/quests/daily_elites.tres" id="142_akxwf"]
+[ext_resource type="Resource" path="res://data/quests/daily_chests.tres" id="143_wyplg"]
+[ext_resource type="Resource" path="res://data/quests/daily_floors.tres" id="144_agww7"]
+[ext_resource type="Resource" path="res://data/quests/daily_gold.tres" id="145_n0ebp"]
+[ext_resource type="Resource" path="res://data/quests/daily_pushed.tres" id="146_oqqnv"]
+[ext_resource type="Resource" path="res://data/quests/daily_encounters.tres" id="147_j75or"]
+[ext_resource type="Resource" path="res://data/quests/daily_boss.tres" id="148_ilgu2"]
+[ext_resource type="Resource" path="res://data/quests/daily_depth.tres" id="149_d676j"]
+[ext_resource type="Resource" path="res://data/quests/daily_cursed.tres" id="150_gvban"]
+[ext_resource type="Resource" path="res://data/quests/weekly_kills.tres" id="151_i820p"]
+[ext_resource type="Resource" path="res://data/quests/weekly_elites.tres" id="152_nrgv6"]
+[ext_resource type="Resource" path="res://data/quests/weekly_bosses.tres" id="153_cwkh5"]
+[ext_resource type="Resource" path="res://data/quests/weekly_win.tres" id="154_l46qw"]
+[ext_resource type="Resource" path="res://data/quests/weekly_floors.tres" id="155_r632x"]
+[ext_resource type="Resource" path="res://data/quests/weekly_gold.tres" id="156_m0624"]
+[ext_resource type="Resource" path="res://data/quests/weekly_depth.tres" id="157_lp0ch"]
+[ext_resource type="Resource" path="res://data/quests/weekly_cursed.tres" id="158_hb5w0"]
 
 [resource]
 script = ExtResource("34_tx8pl")
@@ -173,5 +192,6 @@ floor_events = Array[ExtResource("50_by7se")]([ExtResource("51_hml5q"), ExtResou
 curses = Array[ExtResource("32_bubnr")]([ExtResource("33_ivytu"), ExtResource("34_fk2lo"), ExtResource("35_sfjbe")])
 ascensions = Array[ExtResource("21_15tjo")]([ExtResource("22_q5atc"), ExtResource("23_80whv"), ExtResource("24_ftpue"), ExtResource("25_th6df"), ExtResource("26_vi73k"), ExtResource("27_byg44"), ExtResource("28_by7se"), ExtResource("29_hml5q"), ExtResource("30_5x320"), ExtResource("31_1ai64")])
 achievements = Array[ExtResource("1_3m6vt")]([ExtResource("2_7lncd"), ExtResource("3_l6yv8"), ExtResource("4_xqlpv"), ExtResource("5_lvfra"), ExtResource("6_xu8gq"), ExtResource("7_pkcsl"), ExtResource("8_bwrsx"), ExtResource("9_k2lip"), ExtResource("10_1p0g0"), ExtResource("11_6khne"), ExtResource("12_15tjo"), ExtResource("13_q5atc"), ExtResource("14_80whv"), ExtResource("15_ftpue"), ExtResource("16_th6df"), ExtResource("17_vi73k"), ExtResource("18_byg44"), ExtResource("19_by7se"), ExtResource("20_hml5q")])
+quests = Array[ExtResource("140_1hx8s")]([ExtResource("141_aa4gc"), ExtResource("142_akxwf"), ExtResource("143_wyplg"), ExtResource("144_agww7"), ExtResource("145_n0ebp"), ExtResource("146_oqqnv"), ExtResource("147_j75or"), ExtResource("148_ilgu2"), ExtResource("149_d676j"), ExtResource("150_gvban"), ExtResource("151_i820p"), ExtResource("152_nrgv6"), ExtResource("153_cwkh5"), ExtResource("154_l46qw"), ExtResource("155_r632x"), ExtResource("156_m0624"), ExtResource("157_lp0ch"), ExtResource("158_hb5w0")])
 encounters = Array[ExtResource("14_uppjc")]([ExtResource("15_k7n23"), ExtResource("16_iw61m"), ExtResource("17_1nigv"), ExtResource("18_j2x0q")])
 item_affixes = Array[ExtResource("14_y455n")]([ExtResource("15_xepax"), ExtResource("16_uppjc"), ExtResource("17_k7n23"), ExtResource("18_iw61m"), ExtResource("19_1nigv"), ExtResource("20_j2x0q"), ExtResource("21_go5c6"), ExtResource("22_vqxcy"), ExtResource("23_yb7ug"), ExtResource("24_ud7y0"), ExtResource("25_f8vur"), ExtResource("26_cnpc5"), ExtResource("27_38uwr"), ExtResource("28_riqfl"), ExtResource("29_vv2q4"), ExtResource("30_xabxg")])

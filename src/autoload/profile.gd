@@ -30,6 +30,10 @@ var stats := {}
 var achievements := {}
 ## The last runs, newest first (see add_history()).
 var history: Array = []
+## Stats counted during each day and week ("d20380" / "w2911" -> stat -> value), and the
+## quests already paid in them ("d20380" -> [quest ids]). Only the current ones are kept.
+var period_stats := {}
+var quests_claimed := {}
 
 const HISTORY_SIZE := 20
 ## Empty = nothing is read or written (tests).
@@ -91,6 +95,7 @@ func record_run(earned: int, depth: int, won: bool, difficulty_id: StringName = 
 	souls += earned
 	best_depth = maxi(best_depth, depth)
 	if won:
+		add_stat("wins")
 		victories += 1
 		if difficulty_id != &"":
 			wins[String(difficulty_id)] = wins.get(String(difficulty_id), 0) + 1
@@ -110,11 +115,53 @@ func kill_count(monster_id: StringName) -> int:
 
 func add_stat(key: String, amount: int = 1) -> void:
 	stats[key] = int(stats.get(key, 0)) + amount
+	for period in _current_periods():
+		var counts: Dictionary = period_stats.get(period, {})
+		counts[key] = int(counts.get(key, 0)) + amount
+		period_stats[period] = counts
 
 
 ## Keeps the best value ever seen (deepest floor, most gold in a run...).
 func raise_stat(key: String, value: int) -> void:
 	stats[key] = maxi(int(stats.get(key, 0)), value)
+	for period in _current_periods():
+		var counts: Dictionary = period_stats.get(period, {})
+		counts[key] = maxi(int(counts.get(key, 0)), value)
+		period_stats[period] = counts
+
+
+## A stat counted during the day or week `period` (QuestBoard.period_key).
+func period_stat(period: String, key: String) -> int:
+	return int((period_stats.get(period, {}) as Dictionary).get(key, 0))
+
+
+func is_quest_claimed(period: String, quest_id: StringName) -> bool:
+	return (quests_claimed.get(period, []) as Array).has(String(quest_id))
+
+
+## Pays a finished quest once. False if it was already paid.
+func claim_quest(period: String, quest_id: StringName, reward: int) -> bool:
+	if is_quest_claimed(period, quest_id):
+		return false
+	var claimed: Array = quests_claimed.get(period, [])
+	claimed.append(String(quest_id))
+	quests_claimed[period] = claimed
+	souls += reward
+	save_profile()
+	changed.emit()
+	return true
+
+
+## Today's and this week's keys; older ones are dropped.
+func _current_periods() -> Array[String]:
+	var current: Array[String] = [QuestBoard.period_key(QuestDef.Period.DAILY), QuestBoard.period_key(QuestDef.Period.WEEKLY)]
+	for old in period_stats.keys():
+		if not current.has(old):
+			period_stats.erase(old)
+	for old in quests_claimed.keys():
+		if not current.has(old):
+			quests_claimed.erase(old)
+	return current
 
 
 ## A counter, a best, or a record kept elsewhere in the profile.
@@ -164,6 +211,7 @@ func mark_intro_seen() -> void:
 
 func count_run() -> void:
 	runs += 1
+	add_stat("runs")
 	save_profile()
 
 
@@ -182,6 +230,8 @@ func reset() -> void:
 	stats = {}
 	achievements = {}
 	history = []
+	period_stats = {}
+	quests_claimed = {}
 	changed.emit()
 
 
@@ -193,6 +243,7 @@ func save_profile() -> void:
 		"difficulty": String(difficulty), "wins": wins, "seen_intro": seen_intro,
 		"ascension": ascension, "ascension_unlocked": ascension_unlocked,
 		"kills_by_monster": kills_by_monster, "stats": stats, "achievements": achievements, "history": history,
+		"period_stats": period_stats, "quests_claimed": quests_claimed,
 	})
 
 
@@ -218,6 +269,17 @@ func load_profile() -> void:
 	kills_by_monster = _ints(data.get("kills_by_monster", {}))
 	stats = _ints(data.get("stats", {}))
 	achievements = _ints(data.get("achievements", {}))
+	period_stats = {}
+	var saved_periods: Variant = data.get("period_stats", {})
+	if saved_periods is Dictionary:
+		for period: String in saved_periods:
+			period_stats[period] = _ints(saved_periods[period])
+	quests_claimed = {}
+	var saved_claims: Variant = data.get("quests_claimed", {})
+	if saved_claims is Dictionary:
+		for period: String in saved_claims:
+			if saved_claims[period] is Array:
+				quests_claimed[period] = (saved_claims[period] as Array).map(func(id: Variant) -> String: return str(id))
 	var saved_history: Variant = data.get("history", [])
 	history = saved_history.filter(func(entry: Variant) -> bool: return entry is Dictionary) if saved_history is Array else []
 

@@ -18,6 +18,7 @@ attack_sound = ExtResource("1_ouls4")
 projectile_texture = ExtResource("2_vx8a8")
 projectile_speed = 260.0
 projectile_radius = 7.0
+projectile_glow = 0.0
 slot = 0
 id = &"hex_staff"
 display_name = "Hex Bolt"

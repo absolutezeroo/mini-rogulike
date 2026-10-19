@@ -46,10 +46,17 @@ func _configure(direction: Vector2, spec: ProjectileSpec) -> void:
 	var shape := CircleShape2D.new()
 	shape.radius = spec.radius
 	($CollisionShape2D as CollisionShape2D).shape = shape
-	# The hero's shots and anything that explodes light up the dark (not every boss bullet: too many lights).
+	# Magic shots light up the dark in their color (not a boss's whole ring: too many lights);
+	# plain things (shurikens, arrows) don't shine at all.
 	var glow := $Glow as PointLight2D
-	glow.enabled = (_shooter != null and _faction == Actor.Faction.PLAYER) or spec.explosion_radius > 0.0
+	glow.enabled = spec.glow > 0.0 and (spec.count <= 3 or spec.explosion_radius > 0.0)
 	glow.color = spec.color
+	glow.energy = 0.75 * spec.glow
+	if spec.glow > 0.0:
+		var halo := ProjectileHalo.new()
+		halo.color = spec.color
+		halo.size = maxf(spec.radius, 5.0) * (1.4 if spec.texture else 1.0)
+		add_child(halo)
 
 
 func _ready() -> void:
@@ -79,6 +86,7 @@ func _on_body_entered(body: Node2D) -> void:
 			(body as Prop).take_hit(hit)
 		Vfx.hit(_world, global_position, -_direction, _spec.color)
 		Sfx.play_at(Sfx.bank.projectile_impact, global_position, -4.0)
+		_burst()
 		_finish()
 		return
 	var target := body as Actor
@@ -95,7 +103,14 @@ func _on_body_entered(body: Node2D) -> void:
 	if _pierce_left > 0:
 		_pierce_left -= 1
 	else:
+		_burst()
 		_finish()
+
+
+## A magic shot bursts where it lands (exploding ones have their own big blast).
+func _burst() -> void:
+	if _spec.glow > 0.0 and _spec.explosion_radius <= 0.0:
+		Vfx.pop(_world, global_position, _spec.color, clampf(_spec.radius * 2.2, 10.0, 22.0))
 
 
 func _finish() -> void:
@@ -108,7 +123,7 @@ func _finish() -> void:
 
 
 func _explode() -> void:
-	Vfx.explosion(_world, global_position, _spec.explosion_radius)
+	Vfx.explosion(_world, global_position, _spec.explosion_radius, _spec.color if _spec.glow > 0.0 else Color(1.0, 0.45, 0.15))
 	var source: Actor = _shooter if is_instance_valid(_shooter) else null
 	Combat.hit_props(_world, source, global_position, _spec.explosion_radius)
 	for target in _world.get_actors() if _hits_everyone else _world.get_hostiles(_faction):
@@ -151,8 +166,8 @@ func _draw_sprite() -> void:
 	var frame := int(_travelled / 40.0) % frame_count
 	var size := Vector2(frame_width, height) * 2.0
 	var source := Rect2(frame * frame_width, 0, frame_width, height)
-	# A glowing streak behind it, thinning out.
-	for i in _trail.size():
+	# A glowing streak behind magic shots, thinning out (plain things just fly).
+	for i in (_trail.size() if _spec.glow > 0.0 else 0):
 		var t := float(i + 1) / (_trail.size() + 1)
 		var local := (_trail[i] - global_position).rotated(-rotation)
 		draw_circle(local, size.y * (0.12 + 0.22 * t), Color(_spec.color, 0.35 * t))

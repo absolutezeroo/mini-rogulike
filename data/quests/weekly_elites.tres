@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="QuestDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/quest_def.gd" id="1_xcusj"]
+
+[resource]
+script = ExtResource("1_xcusj")
+period = 1
+stat = "elites"
+target = Vector2i(20, 35)
+reward = Vector2i(100, 150)
+goal_text = "Slay %d elite monsters"
+id = &"weekly_elites"
+display_name = "Slay 20 elite monsters"

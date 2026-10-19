@@ -4,6 +4,50 @@ extends TestSuite
 
 func run() -> void:
 	await _test_title_screen()
+	await _test_touch_scroll()
+
+
+## Dragging over a list scrolls it, even when the drag starts on a card or a button, and a
+## drag doesn't press the button.
+func _test_touch_scroll() -> void:
+	var scroll := ScrollContainer.new()
+	scroll.position = Vector2(100, 100)
+	scroll.size = Vector2(300, 200)
+	var list := VBoxContainer.new()
+	scroll.add_child(list)
+	var pressed := [0]
+	for i in 30:
+		var button := Button.new()
+		button.custom_minimum_size = Vector2(280, 40)
+		button.pressed.connect(func() -> void: pressed[0] += 1)
+		list.add_child(button)
+	var layer := CanvasLayer.new()
+	add_child(layer)
+	layer.add_child(scroll)
+	await _frames(3)
+	check(scroll.get_children().any(func(n: Node) -> bool: return n is TouchScroll), "lists get drag-to-scroll by themselves")
+	var at := Vector2(200, 250)
+	_mouse(at, true)
+	for i in 6:
+		at.y -= 15.0
+		var motion := InputEventMouseMotion.new()
+		motion.position = at
+		motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+		get_viewport().push_input(motion, true)
+		await _frames(1)
+	_mouse(at, false)
+	await _frames(2)
+	check(scroll.scroll_vertical >= 60, "dragging scrolls the list (%d px)" % scroll.scroll_vertical)
+	check(pressed[0] == 0, "a drag doesn't press the button under the finger")
+	layer.queue_free()
+
+
+func _mouse(at: Vector2, down: bool) -> void:
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.position = at
+	click.pressed = down
+	get_viewport().push_input(click, true)
 
 
 func _test_title_screen() -> void:

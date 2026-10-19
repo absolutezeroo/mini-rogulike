@@ -15,7 +15,7 @@
 script = ExtResource("7_o0nko")
 kind = 1
 damage = 2
-cooldown = 0.32
+cooldown = 0.36
 reach = 340.0
 knockback = 60.0
 attack_animation = 3
@@ -27,6 +27,8 @@ projectile_texture = ExtResource("6_qhtk1")
 projectile_speed = 520.0
 projectile_count = 3
 spread_degrees = 24.0
+projectile_damage = 0.45
+projectile_glow = 0.0
 slot = 0
 value = 40
 id = &"shuriken"

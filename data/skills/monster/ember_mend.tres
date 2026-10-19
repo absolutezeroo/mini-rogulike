@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_vnoxn"]
+[ext_resource type="Script" path="res://src/definitions/effects/ally_effect.gd" id="2_dk0ib"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_uh4bp"]
+[ext_resource type="AudioStream" path="res://data/audio/heal.tres" id="4_h28rn"]
+
+[sub_resource type="Resource" id="Resource_wy8du"]
+script = ExtResource("2_dk0ib")
+radius = 240.0
+color = Color(1, 0.55, 0.35, 1)
+ward_ratio = 0.0
+
+[resource]
+script = ExtResource("3_uh4bp")
+id = &"ember_mend"
+display_name = "Ember Mending"
+color = Color(1, 0.55, 0.35, 1)
+effects = Array[ExtResource("1_vnoxn")]([SubResource("Resource_wy8du")])
+sound = ExtResource("4_h28rn")
+ai_max_range = 9999.0
+ai_ally_need = 1
+ai_ally_radius = 240.0
+cast_time = 0.55

@@ -17,6 +17,7 @@ spread_degrees = 360.0
 knockback = 140.0
 color = Color(0.9019608, 0.22352941, 0.27450982, 1)
 texture = ExtResource("3_bd521")
+glow = 0.0
 
 [resource]
 script = ExtResource("4_ft4p2")

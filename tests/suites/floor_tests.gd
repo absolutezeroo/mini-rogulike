@@ -966,6 +966,36 @@ func _test_details(game: Game) -> void:
 
 	check((load("res://data/props/furniture/brazier.tres") as PropDef).flame != null, "braziers burn")
 
+	# Ranged weapons: a fan of three shurikens doesn't hit three times as hard; they don't glow.
+	var shuriken: WeaponDef = load("res://data/items/weapons/shuriken.tres")
+	var spec := Combat.spec_from_weapon(player, shuriken)
+	check(spec.damage * shuriken.projectile_count <= player.get_power() * 1.5 and spec.glow == 0.0, "shurikens: each one weaker, and no glow")
+	check(Combat.spec_from_weapon(player, load("res://data/items/weapons/magic_wand.tres")).glow > 0.0, "magic bolts glow")
+
+	# Supports: a mender heals its hurt allies, a moth wards them.
+	await _clear_monsters(world)
+	var spot2 := world.map.cell_to_world(_open_cell_near(world, player.global_position + Vector2(200, 0), 3))
+	var brute := world.spawn_monster(load("res://data/monsters/rat.tres"), spot2)
+	var mender := world.spawn_monster(load("res://data/monsters/moss_heart.tres"), spot2 + Vector2(40, 0))
+	await _frames(1)
+	brute.dormant = true
+	brute.hp = 1
+	check(mender.pick_skill(150.0) == 0, "a mender wants to heal a hurt ally")
+	mender.skills.skills[0].activate(mender, Vector2.RIGHT)
+	check(brute.hp > 1, "and heals it")
+	brute.hp = brute.get_max_hp()
+	check(mender.pick_skill(150.0) == -1, "nobody hurt: it waits")
+	var moth := world.spawn_monster(load("res://data/monsters/soul_moth.tres"), spot2 + Vector2(-40, 0))
+	await _frames(1)
+	moth.skills.skills[0].activate(moth, Vector2.RIGHT)
+	check(brute.ward > 0, "a moth wards its allies")
+	var before_hp := brute.hp
+	var poke := HitInfo.new()
+	poke.amount = 1 + brute.get_stats().defense
+	brute.take_hit(poke)
+	check(brute.hp == before_hp, "the ward soaks up the blow")
+	await _clear_monsters(world)
+
 	# Attack effects: a swing draws its arc, a hit its flash, a blast ripples the picture.
 	var effects := world.get_node("Effects")
 	var count_of := func(kind: Script) -> int: return effects.get_children().filter(func(n: Node) -> bool: return n.get_script() == kind).size()

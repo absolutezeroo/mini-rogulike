@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="QuestDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/quest_def.gd" id="1_r3klv"]
+
+[resource]
+script = ExtResource("1_r3klv")
+stat = "chests"
+target = Vector2i(3, 6)
+step = 1
+reward = Vector2i(12, 25)
+goal_text = "Open %d chests"
+id = &"daily_chests"
+display_name = "Open 3 chests"

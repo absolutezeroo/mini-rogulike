@@ -1,9 +1,9 @@
 class_name CodexPanel
 extends Control
-## The codex (title screen): the bestiary (every monster and boss, slain or still unknown),
-## the achievements with their progress, and the last runs.
+## The codex (title screen): today's and this week's quests, the bestiary (every monster and
+## boss, slain or still unknown), the achievements with their progress, and the last runs.
 
-enum Tab { BESTIARY, ACHIEVEMENTS, RUNS }
+enum Tab { QUESTS, BESTIARY, ACHIEVEMENTS, RUNS }
 
 const CARD_SIZE := Vector2(170, 168)
 const UNKNOWN_COLOR := Color(0.1, 0.08, 0.12)
@@ -13,7 +13,7 @@ var _tab := Tab.BESTIARY
 
 @onready var _list: Container = %List
 @onready var _summary: Label = %Summary
-@onready var _tab_buttons: Array[Button] = [%BestiaryTab, %AchievementsTab, %RunsTab]
+@onready var _tab_buttons: Array[Button] = [%QuestsTab, %BestiaryTab, %AchievementsTab, %RunsTab]
 
 
 func _ready() -> void:
@@ -25,10 +25,11 @@ func _ready() -> void:
 		_tab_buttons[i].pressed.connect(show_tab.bind(i))
 
 
-func open(content: ContentDB) -> void:
+## `tab` -1: the one shown last time.
+func open(content: ContentDB, tab: int = -1) -> void:
 	_content = content
 	show()
-	show_tab(_tab)
+	show_tab(_tab if tab < 0 else tab)
 
 
 func show_tab(tab: int) -> void:
@@ -40,12 +41,54 @@ func show_tab(tab: int) -> void:
 		_list.remove_child(child)
 		child.queue_free()
 	match _tab:
+		Tab.QUESTS:
+			_fill_quests()
 		Tab.BESTIARY:
 			_fill_bestiary()
 		Tab.ACHIEVEMENTS:
 			_fill_achievements()
 		Tab.RUNS:
 			_fill_runs()
+
+
+# --- Quests ---------------------------------------------------------------------
+
+func _fill_quests() -> void:
+	# Quests finished during the last run but not paid yet (an old save, a crash): pay them now.
+	QuestBoard.claim_finished(_content.quests)
+	_summary.text = "Souls: %d" % Profile.souls
+	for period in [QuestDef.Period.DAILY, QuestDef.Period.WEEKLY]:
+		var title := "Daily quests" if period == QuestDef.Period.DAILY else "Weekly quests"
+		var header := _label("%s   -   new ones in %s" % [title, QuestBoard.time_text(QuestBoard.seconds_left(period))], 20, Palette.GOLD, false)
+		header.custom_minimum_size = Vector2(1000, 34)  # a line of its own in the flow
+		header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_list.add_child(header)
+		for quest in QuestBoard.current(_content.quests, period):
+			_list.add_child(_quest_row(quest))
+
+
+func _quest_row(quest: Dictionary) -> Control:
+	var done := QuestBoard.is_done(quest)
+	var row := HBoxContainer.new()
+	row.custom_minimum_size = Vector2(1000, 56)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("separation", 12)
+	var text := VBoxContainer.new()
+	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text.add_theme_constant_override("separation", 2)
+	text.add_child(_label(QuestBoard.text(quest), 18, Palette.HEAL if done else Color.WHITE))
+	var bar := StatBar.new()
+	bar.custom_minimum_size = Vector2(300, 20)
+	bar.fill_color = Palette.HEAL if done else Palette.GOLD
+	bar.font_size = 13
+	text.add_child(bar)
+	bar.set_values(QuestBoard.progress(quest), quest.target, "%d / %d" % [QuestBoard.progress(quest), quest.target])
+	row.add_child(text)
+	var right := VBoxContainer.new()
+	right.add_child(_label("Done!" if done else "", 16, Palette.HEAL, false))
+	right.add_child(_label("+%d souls" % quest.reward, 15, Color(0.65, 0.95, 1, 0.9), false))
+	row.add_child(right)
+	return row
 
 
 # --- Bestiary -------------------------------------------------------------------

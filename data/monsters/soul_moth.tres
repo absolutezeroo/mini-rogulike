@@ -1,0 +1,67 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/soul_moth.tres" id="1_suf2f"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/soul_moth.png" id="2_jyr1g"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="3_6ryf3"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="4_aux3r"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_fire.tres" id="5_bchke"]
+[ext_resource type="Resource" path="res://data/items/weapons/book.tres" id="6_xo4am"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="7_5mevb"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="8_2ku2i"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_iwv8a"]
+[ext_resource type="Resource" path="res://data/skills/monster/soul_ward.tres" id="10_vkult"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_e4iyj"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="12_ey5rd"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/ghost_flame.tres" id="13_l5f3q"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_awwon"]
+atlas = ExtResource("2_jyr1g")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_6nsr6"]
+script = ExtResource("3_6ryf3")
+item = ExtResource("4_aux3r")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_f2ngr"]
+script = ExtResource("3_6ryf3")
+item = ExtResource("5_bchke")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_rsop6"]
+script = ExtResource("3_6ryf3")
+item = ExtResource("6_xo4am")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_exvvg"]
+script = ExtResource("7_5mevb")
+entries = Array[ExtResource("3_6ryf3")]([SubResource("Resource_6nsr6"), SubResource("Resource_f2ngr"), SubResource("Resource_rsop6")])
+
+[sub_resource type="Resource" id="Resource_id2iy"]
+script = ExtResource("11_e4iyj")
+max_hp = 16
+move_speed = 80.0
+
+[resource]
+script = ExtResource("8_2ku2i")
+stats = SubResource("Resource_id2iy")
+weapon = ExtResource("13_l5f3q")
+skills = Array[ExtResource("9_iwv8a")]([ExtResource("10_vkult")])
+radius = 10.0
+frames = ExtResource("1_suf2f")
+frames_offset = Vector2(0, -8)
+flies = true
+splat_color = Color(0, 0, 0, 0)
+attack_windup = 0.5
+attack_recovery = 0.35
+keep_distance = 200.0
+xp_reward = 8
+loot = SubResource("Resource_exvvg")
+id = &"soul_moth"
+display_name = "Soul Moth"
+description = "Wraps its allies in wards that soak up your blows."
+icon = SubResource("AtlasTexture_awwon")
+glyph = "G"
+color = Color(0.6, 0.85, 1, 1)
+min_depth = 4
+spawn_weight = 5

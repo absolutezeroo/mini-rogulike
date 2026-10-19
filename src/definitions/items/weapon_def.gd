@@ -49,6 +49,11 @@ enum AttackAnimation { SLASH, THRUST, SMASH, SHOOT }
 @export var spread_degrees: float = 0.0
 ## How many extra enemies a projectile can pass through.
 @export var pierce: int = 0
+## Each projectile's damage, times the wielder's power: below 1 for weapons that throw several
+## at once or hit from afar in safety (a fan of three shurikens must not hit three times as hard).
+@export_range(0.1, 2.0, 0.05) var projectile_damage: float = 1.0
+## Magic shots glow in their color and burst on impact; 0 for plain things (shurikens, arrows).
+@export_range(0.0, 1.0) var projectile_glow: float = 1.0
 
 
 func _init() -> void:

@@ -41,6 +41,8 @@ func _draw() -> void:
 		for monster_trait in monster.def.traits:
 			monster_trait.draw_under(monster, self)
 	else:
+		if monster.ward > 0:
+			monster.draw_ward(self)
 		if monster.elite:
 			_draw_elite_name()
 		# Bosses have a big bar in the HUD instead.

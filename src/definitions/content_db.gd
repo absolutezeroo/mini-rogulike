@@ -33,6 +33,8 @@ extends Resource
 @export var ascensions: Array[AscensionDef] = []
 ## Goals across runs (they pay souls).
 @export var achievements: Array[AchievementDef] = []
+## Daily and weekly quests (QuestBoard draws a few of each from the date).
+@export var quests: Array[QuestDef] = []
 ## Springs, altars, spirits and statues met in rooms.
 @export var encounters: Array[EncounterDef] = []
 ## Random bonuses on found equipment (Magic, Rare and Epic items).

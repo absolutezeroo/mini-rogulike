@@ -216,8 +216,20 @@ func pick_skill(distance: float) -> int:
 			continue
 		if float(hp) / get_max_hp() > skill.ai_below_hp_ratio:
 			continue
+		if skill.ai_ally_need != SkillDef.AllyNeed.NONE and not _allies_need(skill):
+			continue
 		return i
 	return -1
+
+
+## A support's skill: is there an ally (not itself) to help?
+func _allies_need(skill: SkillDef) -> bool:
+	for ally in AllyEffect.allies_of(self, skill.ai_ally_radius, false):
+		if skill.ai_ally_need == SkillDef.AllyNeed.ALLY_NEAR:
+			return true
+		if float(ally.hp) / ally.get_max_hp() < skill.ai_ally_hurt_ratio:
+			return true
+	return false
 
 
 func casting_skill() -> SkillDef:

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="QuestDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/quest_def.gd" id="1_3gfja"]
+
+[resource]
+script = ExtResource("1_3gfja")
+stat = "pushed"
+target = Vector2i(2, 4)
+step = 1
+reward = Vector2i(15, 25)
+goal_text = "Knock %d monsters into holes"
+id = &"daily_pushed"
+display_name = "Knock 2 monsters into holes"

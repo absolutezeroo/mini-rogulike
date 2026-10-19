@@ -13,6 +13,7 @@ var _last_gold := 0
 
 func _ready() -> void:
 	Events.monster_killed.connect(_on_monster_killed)
+	Events.depth_changed.connect(_on_depth_changed)
 	Events.stat_counted.connect(func(stat: String, amount: int) -> void:
 		Profile.add_stat(stat, amount)
 		check_achievements())
@@ -29,10 +30,12 @@ func bind(new_run: RunState, new_player: Player) -> void:
 		check_achievements())
 
 
-## Unlocks (and pays) every achievement whose goal is reached.
+## Unlocks (and pays) every achievement whose goal is reached, and every finished quest.
 func check_achievements() -> void:
 	for achievement in AchievementDef.unlock_reached(content.achievements):
 		Events.achievement_unlocked.emit(achievement)
+	for quest in QuestBoard.claim_finished(content.quests):
+		Events.quest_completed.emit(quest)
 
 
 ## Adds the run to the history (once).
@@ -69,8 +72,21 @@ func _on_monster_killed(monster: Monster) -> void:
 	check_achievements()
 
 
+## A new floor: counted (quests), and a cursed one too.
+func _on_depth_changed(depth: int) -> void:
+	if run == null or player == null or not is_instance_valid(player):
+		return
+	if depth > 1:
+		Profile.add_stat("floors")
+	Profile.raise_stat("run_depth", depth)
+	if player.world and player.world.curse:
+		Profile.add_stat("cursed_floors")
+	check_achievements()
+
+
 func _on_gold_changed(gold: int) -> void:
 	if gold > _last_gold:
+		Profile.add_stat("gold", gold - _last_gold)
 		run.run_gold += gold - _last_gold
 		Profile.raise_stat("run_gold", run.run_gold)
 		check_achievements()

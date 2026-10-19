@@ -7,6 +7,7 @@ func run() -> void:
 	_test_combat_rules()
 	_test_content()
 	_test_biome_content()
+	_test_quests()
 	_test_generation()
 	_test_inventory_and_equipment()
 	_test_perks()
@@ -224,6 +225,47 @@ func _check_scene(biome: BiomeDef, scene: SceneDef) -> void:
 					for x in range(rect.position.x, rect.end.x):
 						whole = whole and cells.get(Vector2i(x, y), "") == k.symbol
 				check(whole, "%s: its water is a rectangle in the plan" % name)
+
+
+## Daily and weekly quests: the same for everyone on a given day, counted, paid once.
+func _test_quests() -> void:
+	var quests := CONTENT.quests
+	check(quests.filter(func(q: QuestDef) -> bool: return q.period == QuestDef.Period.DAILY).size() >= 6, "a pool of daily quests")
+	check(quests.filter(func(q: QuestDef) -> bool: return q.period == QuestDef.Period.WEEKLY).size() >= 5, "a pool of weekly quests")
+	var monday := 1760918400  # 2025-10-20 00:00 UTC, a Monday
+	var daily := QuestBoard.current(quests, QuestDef.Period.DAILY, monday + 3600)
+	var again := QuestBoard.current(quests, QuestDef.Period.DAILY, monday + 80000)
+	check(daily.size() == QuestBoard.DAILY_COUNT, "%d daily quests" % daily.size())
+	check(daily.map(func(q: Dictionary) -> StringName: return q.def.id) == again.map(func(q: Dictionary) -> StringName: return q.def.id) \
+		and daily.map(func(q: Dictionary) -> int: return q.target) == again.map(func(q: Dictionary) -> int: return q.target), "the same quests all day long (and for everyone)")
+	var ids := {}
+	for q in daily:
+		ids[q.def.id] = true
+	check(ids.size() == daily.size(), "three different quests")
+	var days_differ := false
+	for d in range(1, 6):
+		var other := QuestBoard.current(quests, QuestDef.Period.DAILY, monday + d * QuestBoard.DAY + 10)
+		days_differ = days_differ or other.map(func(q: Dictionary) -> StringName: return q.def.id) != daily.map(func(q: Dictionary) -> StringName: return q.def.id)
+	check(days_differ, "new quests on other days")
+	check(QuestBoard.period_key(QuestDef.Period.WEEKLY, monday + 10) == QuestBoard.period_key(QuestDef.Period.WEEKLY, monday + 6 * QuestBoard.DAY + 80000)
+		and QuestBoard.period_key(QuestDef.Period.WEEKLY, monday - 10) != QuestBoard.period_key(QuestDef.Period.WEEKLY, monday + 10), "weeks start on Monday")
+	check(QuestBoard.seconds_left(QuestDef.Period.DAILY, monday + 3600) == QuestBoard.DAY - 3600, "time left until the next daily quests")
+	for q in daily:
+		var def: QuestDef = q.def
+		check(q.target >= def.target.x - def.step and q.target <= def.target.y + def.step and q.reward >= def.reward.x and q.reward <= def.reward.y, "%s: goal and reward in range" % def.id)
+	# Counting and paying, on today's quests.
+	var today := QuestBoard.current(quests, QuestDef.Period.DAILY)
+	var quest: Dictionary = today[0]
+	var def: QuestDef = quest.def
+	var souls := Profile.souls
+	if def.best:
+		Profile.raise_stat(def.stat, quest.target)
+	else:
+		Profile.add_stat(def.stat, quest.target)
+	check(QuestBoard.is_done(quest), "doing it fills the quest (%s)" % def.id)
+	var paid := QuestBoard.claim_finished(quests)
+	check(paid.any(func(q: Dictionary) -> bool: return q.def == def) and Profile.souls >= souls + int(quest.reward), "a finished quest pays its souls")
+	check(QuestBoard.claim_finished(quests).filter(func(q: Dictionary) -> bool: return q.def == def).is_empty(), "only once")
 
 
 func _bad_wall_cells(map: DungeonMap) -> Array[Vector2i]:

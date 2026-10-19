@@ -48,6 +48,8 @@ func _ready() -> void:
 	Settings.changed.connect(_apply_settings)
 	Events.achievement_unlocked.connect(func(achievement: AchievementDef) -> void:
 		toast("Achievement: %s  (+%d souls)" % [achievement.display_name, achievement.reward_souls]))
+	Events.quest_completed.connect(func(quest: Dictionary) -> void:
+		toast("%s quest done: %s  (+%d souls)" % ["Daily" if (quest.def as QuestDef).period == QuestDef.Period.DAILY else "Weekly", QuestBoard.text(quest), quest.reward]))
 	_apply_settings()
 	Events.depth_changed.connect(_on_depth_changed)
 	_depth_banner.modulate.a = 0.0

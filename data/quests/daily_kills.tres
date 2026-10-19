@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="QuestDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/quest_def.gd" id="1_xnuqd"]
+
+[resource]
+script = ExtResource("1_xnuqd")
+target = Vector2i(40, 90)
+step = 10
+id = &"daily_kills"
+display_name = "Slay 40 monsters"

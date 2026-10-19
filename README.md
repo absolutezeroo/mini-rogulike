@@ -127,6 +127,12 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   (`ShockwaveVfx`, `shockwave.gdshader`). Monster warnings (`TelegraphView`, `telegraph.gdshader`):
   zone, cone or line with crawling hazard stripes and a solid rim, filling up from the monster as
   the attack comes, flashing just before it lands. Shots leave a glowing streak.
+- **Shots and blasts**: magic shots (fireballs, bolts, spells) glow in their color (a pulsing
+  halo, `ProjectileHalo`, and a light in the dark), leave a glowing streak and burst on impact
+  (`Vfx.pop`); plain things (shurikens, arrows, feathers, coins: `projectile_glow` /
+  `ProjectileEffect.glow` 0) just fly. Explosions are a ball of fire drawn by a shader
+  (`BlastVfx`, `blast.gdshader`: white-hot heart, flame bands, licking edges, smoke) with a
+  ripple, fire and smoke particles and a scorch mark left on the floor.
 - **Little details**: fights leave **splats** on the floor (`SplatLayer`, `World.add_splat`): blood,
   green slime, purple ink, bone dust, in each monster's `splat_color` (spirits and flames leave
   none), fading after a while. **Plants sway** in a breeze and **bend** away from whoever walks
@@ -314,6 +320,15 @@ elites at least half.
   Crimson Tengu or the **Red Samurai** (arcs of fire, dashes, a ring of fire). Gilded Hoarder or the
   **Sun Wraith** (a burning sun buried with the kingdom: solar flares, blinks, calls its embers).
 
+## Quests
+
+Every day, 3 **daily quests**; every week (from Monday), 3 **weekly quests**
+(`data/quests/`, `QuestDef`, drawn by `QuestBoard` from the date: everyone gets the same ones,
+UTC). "Slay 60 monsters", "Open 4 chests", "Reach floor 6 in one run", "Go through a cursed
+floor", "Defeat 5 bosses", "Win a run"... They count what you do in any run during that day
+or week (`Profile.period_stat`), pay their souls as soon as they're done (a toast in the game)
+and show on the title screen (**Quests**, also a tab of the Codex) with the time left.
+
 ## Encounters
 
 Some rooms hold something strange (`data/encounters/`, `EncounterDef`): walk up to it and choose.
@@ -401,6 +416,13 @@ you can then keep going in endless mode (the acts loop, monsters keep getting st
 | II. Haunted Crypt | 4-6 | Skeleton, Dark Sorcerer, Spirit, Flying Skull, Watcher, Ghost Lantern, Night Owl, Frost Skull, Thief Racoon, Brood Mother | Demon Cyclops |
 | III. Burning Ruins | 7-9 | Fire Shaman, Cyclops, Flame Spirit, Lizardman, Horned Beast, Drakeling, Kappa, Ink Octopus, Bomber, Brood Mother, Shell Guard | Crimson Tengu |
 | IV. Buried Kingdom | 10-12 | Dune Rex, Gold Racoon, Red Viper, Ash Lizard, Bone Lizard, Stone Mole, Bomber | Gilded Hoarder |
+
+**Supports** fight from behind, kill them first: the **Moss Heart** (act I) and the **Ember
+Heart** (act III) mend their hurt allies, the **Soul Moth** (act II) and the **Gilded Moth**
+(act IV) wrap them in wards that soak up your blows, the **Sand Drummer** (act IV) beats a war
+drum (allies hit harder, run faster); the **Fire Shaman** now mends its allies too
+(`AllyEffect`: heal, buff or ward the allies around; `SkillDef.ai_ally_need`: only when an ally
+needs it). A beam of light shows who is helped.
 
 Monsters are data (`MonsterDef`): stats, a weapon (its `on_hit` status poisons, burns or slows),
 skills (telegraphed casts: spore clouds, dives, charges, ink rings...), and **traits**
@@ -594,6 +616,11 @@ elites happen, is in `dungeon_config.tres`.
 A `spawn_weight` of 0 means it never spawns on its own (starting gear, loot-only items, monster weapons).
 
 ## Controls
+
+Every scrolling list (codex, shrine, bag, shop) scrolls by dragging a finger over it, from
+anywhere in it, cards and buttons included, with a bit of momentum (`TouchScroll`, added to each
+`ScrollContainer` by the `TouchScrolling` autoload); a drag never presses a button, a tap does.
+
 
 | Action | Touch | Keyboard | Gamepad |
 |---|---|---|---|

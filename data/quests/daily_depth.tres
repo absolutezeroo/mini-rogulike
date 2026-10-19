@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="QuestDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/quest_def.gd" id="1_tcstq"]
+
+[resource]
+script = ExtResource("1_tcstq")
+stat = "run_depth"
+best = true
+target = Vector2i(4, 7)
+step = 1
+reward = Vector2i(18, 35)
+goal_text = "Reach floor %d in one run"
+id = &"daily_depth"
+display_name = "Reach floor 4 in one run"

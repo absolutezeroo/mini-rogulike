@@ -25,6 +25,7 @@ projectile_speed = 360.0
 projectile_radius = 7.0
 projectile_count = 3
 spread_degrees = 26.0
+projectile_damage = 0.5
 slot = 0
 value = 35
 id = &"book"

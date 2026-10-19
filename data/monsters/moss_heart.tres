@@ -1,0 +1,66 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/moss_heart.tres" id="1_6alxn"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/moss_heart.png" id="2_gpq5x"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="3_qy8ti"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="4_wl8tn"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_fire.tres" id="5_m8ccm"]
+[ext_resource type="Resource" path="res://data/items/weapons/book.tres" id="6_n1y1k"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="7_kp0rd"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="8_0srfp"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_kaf6w"]
+[ext_resource type="Resource" path="res://data/skills/monster/mend_allies.tres" id="10_ju5ld"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_qjxkh"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="12_h464h"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/ghost_flame.tres" id="13_04gda"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_svgpt"]
+atlas = ExtResource("2_gpq5x")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_0pjxe"]
+script = ExtResource("3_qy8ti")
+item = ExtResource("4_wl8tn")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_wunvg"]
+script = ExtResource("3_qy8ti")
+item = ExtResource("5_m8ccm")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_er1c6"]
+script = ExtResource("3_qy8ti")
+item = ExtResource("6_n1y1k")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_0mc5f"]
+script = ExtResource("7_kp0rd")
+entries = Array[ExtResource("3_qy8ti")]([SubResource("Resource_0pjxe"), SubResource("Resource_wunvg"), SubResource("Resource_er1c6")])
+
+[sub_resource type="Resource" id="Resource_246fx"]
+script = ExtResource("11_qjxkh")
+max_hp = 14
+move_speed = 80.0
+
+[resource]
+script = ExtResource("8_0srfp")
+stats = SubResource("Resource_246fx")
+weapon = ExtResource("13_04gda")
+skills = Array[ExtResource("9_kaf6w")]([ExtResource("10_ju5ld")])
+radius = 10.0
+frames = ExtResource("1_6alxn")
+frames_offset = Vector2(0, -8)
+flies = true
+splat_color = Color(0, 0, 0, 0)
+attack_windup = 0.5
+attack_recovery = 0.35
+keep_distance = 200.0
+xp_reward = 8
+loot = SubResource("Resource_0mc5f")
+id = &"moss_heart"
+display_name = "Moss Heart"
+description = "A floating heart of moss that mends the monsters around it. Kill it first."
+icon = SubResource("AtlasTexture_svgpt")
+glyph = "G"
+color = Color(0.45, 1, 0.55, 1)
+spawn_weight = 5

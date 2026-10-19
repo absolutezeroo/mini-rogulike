@@ -28,6 +28,7 @@ Sfx="*res://src/autoload/sfx.gd"
 HitStop="*res://src/autoload/hit_stop.gd"
 Profile="*res://src/autoload/profile.gd"
 Settings="*res://src/autoload/settings.gd"
+TouchScrolling="*res://src/autoload/touch_scrolling.gd"
 
 [display]
 

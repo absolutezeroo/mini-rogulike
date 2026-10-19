@@ -33,6 +33,9 @@ var faction: Faction = Faction.MONSTER
 var invincible := false
 ## How fast skill cooldowns run (a boss in a later phase: faster).
 var cooldown_speed := 1.0
+## A ward (AllyEffect): damage soaked up before HP, for a while.
+var ward := 0
+var _ward_time := 0.0
 var world: World
 var display_name := "Actor"
 ## Animations of the body (see ActorRig). Without frames, a simple shape is drawn.
@@ -234,6 +237,12 @@ func take_hit(hit: HitInfo) -> void:
 	if attacker:
 		attacker.perks.modify_outgoing_hit(attacker, self, hit)
 	var damage := _incoming_damage(hit, Combat.mitigate(hit.amount, get_stats().defense))
+	if ward > 0 and damage > 0:
+		var soaked := mini(ward, damage)
+		ward -= soaked
+		damage -= soaked
+		if ward <= 0:
+			Vfx.sparkles(world, global_position + Vector2(0, -radius), Color(0.6, 0.85, 1.0))  # it breaks
 	hp = maxi(hp - damage, 0)
 	_knockback += hit.knockback * (1.0 - get_knockback_resistance())
 	_flash_time = FLASH_TIME
@@ -263,6 +272,12 @@ func take_hit(hit: HitInfo) -> void:
 
 
 ## Returns how much was actually healed.
+## A ward soaking up `amount` damage for `duration` seconds (a new one replaces a weaker one).
+func add_ward(amount: int, duration: float) -> void:
+	ward = maxi(ward, amount)
+	_ward_time = maxf(_ward_time, duration)
+
+
 func heal(amount: int) -> int:
 	if is_dead:
 		return 0
@@ -434,6 +449,10 @@ func _tick_timers(delta: float) -> void:
 	_invulnerable_time = maxf(_invulnerable_time - delta, 0.0)
 	_flash_time = maxf(_flash_time - delta, 0.0)
 	skills.tick(delta * cooldown_speed)
+	if ward > 0:
+		_ward_time -= delta
+		if _ward_time <= 0.0:
+			ward = 0
 	if not statuses.is_empty():
 		statuses.tick(self, delta)
 
@@ -482,6 +501,19 @@ func _draw() -> void:
 	if frames == null:
 		var color := Color.WHITE if _flash_time > 0.0 else body_color * _body_modulate()
 		_draw_fallback_body(color)
+	if ward > 0 and not self is Monster:
+		draw_ward(self)
+
+
+## A shimmering bubble around a warded actor, drawn on `canvas` (centered on the actor; monsters
+## draw it over their body, see MonsterOverlay).
+func draw_ward(canvas: CanvasItem) -> void:
+	var t := Time.get_ticks_msec() * 0.001
+	var center := Vector2(0, -radius * 0.7)
+	var size := radius + 9.0
+	canvas.draw_circle(center, size, Color(0.55, 0.8, 1.0, 0.18))
+	canvas.draw_arc(center, size, 0.0, TAU, 24, Color(0.75, 0.92, 1.0, 0.75 + 0.2 * sin(t * 6.0)), 2.0)
+	canvas.draw_arc(center, size - 3.0, t * 2.0, t * 2.0 + 1.2, 6, Color(1, 1, 1, 0.8), 2.0)
 
 
 func _draw_fallback_body(color: Color) -> void:

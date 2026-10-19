@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="QuestDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/quest_def.gd" id="1_nipgi"]
+
+[resource]
+script = ExtResource("1_nipgi")
+stat = "floors"
+target = Vector2i(5, 10)
+step = 1
+goal_text = "Go down %d floors"
+id = &"daily_floors"
+display_name = "Go down 5 floors"

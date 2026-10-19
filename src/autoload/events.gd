@@ -7,6 +7,8 @@ signal depth_changed(depth: int)
 signal monster_killed(monster: Monster)
 ## A goal was reached (souls already paid).
 signal achievement_unlocked(achievement: AchievementDef)
+## A daily or weekly quest finished and paid (see QuestBoard).
+signal quest_completed(quest: Dictionary)
 ## Something worth counting happened (opened a chest, used an encounter, found an epic...):
 ## stat is an AchievementDef.STAT_KEYS value.
 signal stat_counted(stat: String, amount: int)

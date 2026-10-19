@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="QuestDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/quest_def.gd" id="1_87w1u"]
+
+[resource]
+script = ExtResource("1_87w1u")
+period = 1
+target = Vector2i(400, 700)
+step = 50
+reward = Vector2i(100, 160)
+id = &"weekly_kills"
+display_name = "Slay 400 monsters"

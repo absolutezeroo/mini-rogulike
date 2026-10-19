@@ -25,6 +25,7 @@ projectile_texture = ExtResource("4_cf2k4")
 projectile_speed = 680.0
 projectile_radius = 6.0
 pierce = 1
+projectile_damage = 0.95
 slot = 0
 value = 35
 id = &"stick"

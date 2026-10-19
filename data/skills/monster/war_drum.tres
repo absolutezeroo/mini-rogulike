@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_vgg5b"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="2_8tp34"]
+[ext_resource type="Script" path="res://src/definitions/effects/ally_effect.gd" id="3_uxi7p"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_6fftc"]
+[ext_resource type="AudioStream" path="res://data/audio/buff.tres" id="5_nlhcy"]
+
+[sub_resource type="Resource" id="Resource_ir3bf"]
+script = ExtResource("2_8tp34")
+attack = 3
+move_speed = 45.0
+
+[sub_resource type="Resource" id="Resource_ib2g4"]
+script = ExtResource("3_uxi7p")
+kind = 1
+radius = 240.0
+color = Color(1, 0.8, 0.35, 1)
+heal_ratio = 0.0
+bonuses = SubResource("Resource_ir3bf")
+ward_ratio = 0.0
+
+[resource]
+script = ExtResource("4_6fftc")
+id = &"war_drum"
+display_name = "War Drum"
+color = Color(1, 0.8, 0.35, 1)
+cooldown = 10.0
+effects = Array[ExtResource("1_vgg5b")]([SubResource("Resource_ib2g4")])
+sound = ExtResource("5_nlhcy")
+ai_max_range = 9999.0
+ai_ally_need = 2
+ai_ally_radius = 240.0
+cast_time = 0.7

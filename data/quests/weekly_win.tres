@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="QuestDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/quest_def.gd" id="1_0r075"]
+
+[resource]
+script = ExtResource("1_0r075")
+period = 1
+stat = "wins"
+target = Vector2i(1, 1)
+step = 1
+reward = Vector2i(200, 200)
+goal_text = "Win %d run"
+id = &"weekly_win"
+display_name = "Win 1 run"

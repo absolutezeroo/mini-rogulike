@@ -16,6 +16,7 @@ count = 18
 spread_degrees = 360.0
 color = Color(1, 0.8, 0.3, 1)
 texture = ExtResource("3_trvs3")
+glow = 0.0
 
 [sub_resource type="Resource" id="Resource_68vps"]
 script = ExtResource("2_b6kdx")
@@ -27,6 +28,7 @@ count = 18
 spread_degrees = 360.0
 color = Color(1, 0.8, 0.3, 1)
 texture = ExtResource("3_trvs3")
+glow = 0.0
 angle_offset = 10.0
 delay = 0.5
 

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="QuestDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/quest_def.gd" id="1_8ro3r"]
+
+[resource]
+script = ExtResource("1_8ro3r")
+stat = "gold"
+target = Vector2i(150, 350)
+step = 50
+reward = Vector2i(12, 28)
+goal_text = "Pick up %d gold"
+id = &"daily_gold"
+display_name = "Pick up 150 gold"

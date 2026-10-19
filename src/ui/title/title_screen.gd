@@ -40,6 +40,9 @@ func _ready() -> void:
 	%ShrineButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		_shrine.open(content.upgrades))
+	%QuestsButton.pressed.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_open)
+		(%CodexPanel as CodexPanel).open(content, CodexPanel.Tab.QUESTS))
 	%CodexButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		(%CodexPanel as CodexPanel).open(content))

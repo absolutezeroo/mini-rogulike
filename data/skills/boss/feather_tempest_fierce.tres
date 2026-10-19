@@ -17,6 +17,7 @@ spread_degrees = 360.0
 knockback = 140.0
 color = Color(0.9019608, 0.22352941, 0.27450982, 1)
 texture = ExtResource("3_7ewoo")
+glow = 0.0
 
 [sub_resource type="Resource" id="Resource_lyiij"]
 script = ExtResource("2_reb7d")
@@ -29,6 +30,7 @@ spread_degrees = 360.0
 knockback = 140.0
 color = Color(0.9019608, 0.22352941, 0.27450982, 1)
 texture = ExtResource("3_7ewoo")
+glow = 0.0
 angle_offset = 7.2
 delay = 0.5
 

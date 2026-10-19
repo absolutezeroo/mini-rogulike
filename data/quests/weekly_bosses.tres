@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="QuestDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/quest_def.gd" id="1_6mlrq"]
+
+[resource]
+script = ExtResource("1_6mlrq")
+period = 1
+stat = "bosses"
+target = Vector2i(4, 7)
+step = 1
+reward = Vector2i(120, 180)
+goal_text = "Defeat %d bosses"
+id = &"weekly_bosses"
+display_name = "Defeat 4 bosses"

@@ -1,0 +1,66 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/sand_drummer.tres" id="1_m20x8"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/sand_drummer.png" id="2_vfsr8"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="3_6bvow"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="4_lsfxk"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_fire.tres" id="5_6a3fm"]
+[ext_resource type="Resource" path="res://data/items/weapons/book.tres" id="6_3uxhn"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="7_pv20w"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="8_jmqky"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_n0o51"]
+[ext_resource type="Resource" path="res://data/skills/monster/war_drum.tres" id="10_nyhtw"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_q2pgr"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="12_v0l6v"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/ghost_flame.tres" id="13_5msrb"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vg4r1"]
+atlas = ExtResource("2_vfsr8")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_5sq2d"]
+script = ExtResource("3_6bvow")
+item = ExtResource("4_lsfxk")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_d3qwe"]
+script = ExtResource("3_6bvow")
+item = ExtResource("5_6a3fm")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_x224h"]
+script = ExtResource("3_6bvow")
+item = ExtResource("6_3uxhn")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_6stkc"]
+script = ExtResource("7_pv20w")
+entries = Array[ExtResource("3_6bvow")]([SubResource("Resource_5sq2d"), SubResource("Resource_d3qwe"), SubResource("Resource_x224h")])
+
+[sub_resource type="Resource" id="Resource_xcckx"]
+script = ExtResource("11_q2pgr")
+max_hp = 26
+move_speed = 80.0
+
+[resource]
+script = ExtResource("8_jmqky")
+stats = SubResource("Resource_xcckx")
+weapon = ExtResource("13_5msrb")
+skills = Array[ExtResource("9_n0o51")]([ExtResource("10_nyhtw")])
+radius = 10.0
+frames = ExtResource("1_m20x8")
+frames_offset = Vector2(0, -8)
+splat_color = Color(0, 0, 0, 0)
+attack_windup = 0.5
+attack_recovery = 0.35
+keep_distance = 200.0
+xp_reward = 8
+loot = SubResource("Resource_6stkc")
+id = &"sand_drummer"
+display_name = "Sand Drummer"
+description = "Beats a war drum: its allies hit harder and run faster."
+icon = SubResource("AtlasTexture_vg4r1")
+glyph = "G"
+color = Color(1, 0.8, 0.35, 1)
+min_depth = 10
+spawn_weight = 5

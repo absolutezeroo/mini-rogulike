@@ -16,6 +16,7 @@ count = 14
 spread_degrees = 360.0
 color = Color(1, 0.8, 0.3, 1)
 texture = ExtResource("3_x42fa")
+glow = 0.0
 
 [resource]
 script = ExtResource("4_aajcg")

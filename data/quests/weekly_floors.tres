@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="QuestDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/quest_def.gd" id="1_yq4jd"]
+
+[resource]
+script = ExtResource("1_yq4jd")
+period = 1
+stat = "floors"
+target = Vector2i(35, 60)
+reward = Vector2i(100, 160)
+goal_text = "Go down %d floors"
+id = &"weekly_floors"
+display_name = "Go down 35 floors"

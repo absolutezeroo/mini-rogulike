@@ -26,6 +26,7 @@
 [ext_resource type="Resource" path="res://data/monsters/shell_guard.tres" id="18_d01a4"]
 [ext_resource type="Resource" path="res://data/monsters/thief_racoon.tres" id="19_f35h4"]
 [ext_resource type="Resource" path="res://data/monsters/bosses/giant_frog.tres" id="19_l6n4l"]
+[ext_resource type="Resource" path="res://data/monsters/moss_heart.tres" id="24_vhkbm"]
 
 [resource]
 script = ExtResource("12_f35h4")
@@ -34,7 +35,7 @@ subtitle = "Act I"
 lore = "The mouth of the Well. Roots, wet stone, and things that crawl toward the light of your lantern."
 biomes = Array[ExtResource("1_tfj5l")]([ExtResource("2_vhkbm"), ExtResource("3_8qpxp"), ExtResource("4_nyfmu")])
 boss_biome = ExtResource("2_vhkbm")
-monsters = Array[ExtResource("2_chj32")]([ExtResource("3_twde1"), ExtResource("4_1c6c0"), ExtResource("5_dqtpg"), ExtResource("6_h6jwt"), ExtResource("7_3q6dd"), ExtResource("8_57csl"), ExtResource("9_35t5y"), ExtResource("10_l6n4l"), ExtResource("11_d01a4"), ExtResource("18_d01a4"), ExtResource("19_f35h4")])
+monsters = Array[ExtResource("2_chj32")]([ExtResource("3_twde1"), ExtResource("4_1c6c0"), ExtResource("5_dqtpg"), ExtResource("6_h6jwt"), ExtResource("7_3q6dd"), ExtResource("8_57csl"), ExtResource("9_35t5y"), ExtResource("10_l6n4l"), ExtResource("11_d01a4"), ExtResource("18_d01a4"), ExtResource("19_f35h4"), ExtResource("24_vhkbm")])
 boss = ExtResource("1_y3bjj")
 other_bosses = Array[ExtResource("18_35t5y")]([ExtResource("19_l6n4l")])
 hazards = Array[ExtResource("2_3q6dd")]([ExtResource("3_57csl"), ExtResource("4_35t5y"), ExtResource("5_l6n4l"), ExtResource("6_d01a4"), ExtResource("7_f35h4")])

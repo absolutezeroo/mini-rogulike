@@ -19,6 +19,7 @@ var _frame: StyleBoxTexture
 var _trail := 1.0
 var _trail_delay := 0.0
 var _glow := 0.0
+var _shown := false  # the first values just show, no trail
 
 
 func _ready() -> void:
@@ -31,7 +32,10 @@ func _ready() -> void:
 func set_values(value: float, max_value: float, text: String = "") -> void:
 	if value == _value and maxf(max_value, 0.001) == _max_value and text == _text:
 		return
-	if value < _value and max_value == _max_value:
+	if not _shown:
+		_shown = true
+		_trail = value
+	elif value < _value and max_value == _max_value:
 		_trail = maxf(_trail, _value)  # a trail already draining keeps its start
 		_trail_delay = TRAIL_DELAY
 		set_process(true)

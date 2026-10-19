@@ -45,6 +45,12 @@ static func swing(attacker: Actor, aim: Vector2, weapon: WeaponDef, duration: fl
 	attacker.world.spawn_vfx(SwingVfx.create(attacker.global_position + Vector2(0, -6), aim, reach, weapon.arc_degrees, thrust, weapon.trail_color, duration))
 
 
+## A small burst of a glowing shot hitting something (a fireball, a magic bolt).
+static func pop(world: World, at: Vector2, color: Color, radius: float = 14.0) -> void:
+	world.spawn_vfx(BlastVfx.create(at, radius, color))
+	world.flash_light(at, color, radius * 5.0)
+
+
 ## A ripple running through the picture around a blast.
 static func shockwave(world: World, at: Vector2, reach: float, strength: float = 6.0) -> void:
 	world.spawn_vfx(ShockwaveVfx.create(at, reach, strength))
@@ -71,9 +77,11 @@ static func boss_death(world: World, at: Vector2, size: float) -> void:
 				explosion(world, at + offset, 50.0 + 12.0 * i))
 
 
-static func explosion(world: World, at: Vector2, radius: float) -> void:
+## A ball of fire, a ripple through the picture, fire and smoke, a scorch mark on the floor.
+static func explosion(world: World, at: Vector2, radius: float, tint: Color = Color(1.0, 0.45, 0.15)) -> void:
 	var size := clampf(radius / 80.0, 0.6, 1.6)
-	world.spawn_vfx(SheetVfx.create(EXPLOSION_SHEET, at, 0.0, radius * 2.2 / EXPLOSION_SHEET.get_height(), 18.0))
+	world.spawn_vfx(BlastVfx.create(at, radius * 1.05, tint))
+	world.add_splat(at, Color(0.08, 0.06, 0.06, 0.55), clampf(radius / 45.0, 0.8, 2.5))
 	world.flash_light(at, Color(1.0, 0.62, 0.32), radius * 3.0)
 	burst(world, FIRE, at, Color.WHITE, Vector2.ZERO, size * 0.7)
 	burst(world, SMOKE, at, Color.WHITE, Vector2.ZERO, size)

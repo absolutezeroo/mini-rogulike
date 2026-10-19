@@ -169,7 +169,8 @@ static func delayed_blast(world: World, center: Vector2, radius: float, amount: 
 
 static func spec_from_weapon(attacker: Actor, weapon: WeaponDef) -> ProjectileSpec:
 	var spec := ProjectileSpec.new()
-	spec.damage = attacker.get_power()
+	spec.damage = maxi(1, roundi(attacker.get_power() * weapon.projectile_damage))
+	spec.glow = weapon.projectile_glow
 	spec.speed = weapon.projectile_speed
 	spec.radius = weapon.projectile_radius
 	spec.max_distance = weapon.reach

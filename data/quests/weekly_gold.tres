@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="QuestDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/quest_def.gd" id="1_eigw2"]
+
+[resource]
+script = ExtResource("1_eigw2")
+period = 1
+stat = "gold"
+target = Vector2i(1500, 2500)
+step = 250
+reward = Vector2i(100, 150)
+goal_text = "Pick up %d gold"
+id = &"weekly_gold"
+display_name = "Pick up 1500 gold"

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="QuestDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/quest_def.gd" id="1_cp2rg"]
+
+[resource]
+script = ExtResource("1_cp2rg")
+stat = "encounters"
+target = Vector2i(2, 3)
+step = 1
+reward = Vector2i(12, 20)
+goal_text = "Meet %d strange encounters"
+id = &"daily_encounters"
+display_name = "Meet 2 strange encounters"

@@ -47,6 +47,14 @@ theme_override_constants/separation = 10
 layout_mode = 2
 theme_override_constants/separation = 10
 
+[node name="QuestsTab" type="Button" parent="Panel/Margin/VBox/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 52)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 20
+text = "Quests"
+
 [node name="BestiaryTab" type="Button" parent="Panel/Margin/VBox/Header"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(180, 52)

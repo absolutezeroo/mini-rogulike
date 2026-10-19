@@ -20,6 +20,8 @@ extends Effect
 @export var texture: Texture2D
 ## Statuses left on the enemies hit (burn, slow...).
 @export var status: OnHitStatus
+## Magic shots glow and burst on impact; 0 for plain things (feathers, coins, arrows).
+@export_range(0.0, 1.0) var glow: float = 1.0
 ## Turns the aim (degrees): a second ring shifted by half a gap closes the safe lanes.
 @export var angle_offset: float = 0.0
 
@@ -38,4 +40,5 @@ func apply(user: Actor, aim: Vector2) -> void:
 	spec.color = color
 	spec.texture = texture
 	spec.status = status
+	spec.glow = glow
 	user.world.fire_projectiles(user, aim.rotated(deg_to_rad(angle_offset)) if angle_offset != 0.0 else aim, spec)

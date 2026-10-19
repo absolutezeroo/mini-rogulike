@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="QuestDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/quest_def.gd" id="1_3ra8d"]
+
+[resource]
+script = ExtResource("1_3ra8d")
+stat = "elites"
+target = Vector2i(3, 6)
+step = 1
+goal_text = "Slay %d elite monsters"
+id = &"daily_elites"
+display_name = "Slay 3 elite monsters"

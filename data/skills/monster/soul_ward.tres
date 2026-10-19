@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_pf5ci"]
+[ext_resource type="Script" path="res://src/definitions/effects/ally_effect.gd" id="2_btto7"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_30k61"]
+[ext_resource type="AudioStream" path="res://data/audio/buff.tres" id="4_r8anm"]
+
+[sub_resource type="Resource" id="Resource_fhwrl"]
+script = ExtResource("2_btto7")
+kind = 2
+radius = 200.0
+color = Color(0.6, 0.85, 1, 1)
+heal_ratio = 0.0
+ward_ratio = 0.35
+
+[resource]
+script = ExtResource("3_30k61")
+id = &"soul_ward"
+display_name = "Soul Ward"
+color = Color(0.6, 0.85, 1, 1)
+cooldown = 9.0
+effects = Array[ExtResource("1_pf5ci")]([SubResource("Resource_fhwrl")])
+sound = ExtResource("4_r8anm")
+ai_max_range = 9999.0
+ai_ally_need = 2
+ai_ally_radius = 200.0
+cast_time = 0.6

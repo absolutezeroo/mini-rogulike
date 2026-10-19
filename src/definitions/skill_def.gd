@@ -20,6 +20,12 @@ extends Resource
 @export var ai_max_range: float = 240.0
 ## Monsters only use the skill below this fraction of their HP (1 = any time).
 @export_range(0.0, 1.0) var ai_below_hp_ratio: float = 1.0
+## Supports: only when an ally (not the caster) within `ai_ally_radius` is hurt below
+## `ai_ally_hurt_ratio` of its HP (heals), or when at least one ally is there (buffs, wards).
+enum AllyNeed { NONE, HURT_ALLY, ALLY_NEAR }
+@export var ai_ally_need: AllyNeed = AllyNeed.NONE
+@export var ai_ally_radius: float = 220.0
+@export_range(0.0, 1.0) var ai_ally_hurt_ratio: float = 0.7
 ## Monsters: telegraph time before the skill goes off (glow, cast animation). 0 = instant.
 @export var cast_time: float = 0.0
 ## Monsters: red circle drawn around the caster while casting (0 = none).

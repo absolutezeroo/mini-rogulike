@@ -26,6 +26,7 @@
 [ext_resource type="Resource" path="res://data/monsters/bosses/red_samurai.tres" id="19_pa3y5"]
 [ext_resource type="Resource" path="res://data/monsters/brood_mother.tres" id="19_uago2"]
 [ext_resource type="Resource" path="res://data/monsters/shell_guard.tres" id="20_1k2vl"]
+[ext_resource type="Resource" path="res://data/monsters/ember_heart.tres" id="24_4g6yy"]
 
 [resource]
 script = ExtResource("12_4gi1q")
@@ -34,7 +35,7 @@ subtitle = "Act III"
 lore = "A temple the Well swallowed whole. Its fires never went out. The souls' cries come from below."
 biomes = Array[ExtResource("1_1k2vl")]([ExtResource("2_4g6yy"), ExtResource("3_5f32u")])
 boss_biome = ExtResource("2_4g6yy")
-monsters = Array[ExtResource("2_0pn66")]([ExtResource("3_vlwa2"), ExtResource("4_7j4pw"), ExtResource("5_lokq4"), ExtResource("6_b4bba"), ExtResource("7_7pb75"), ExtResource("8_pcd8x"), ExtResource("9_k1810"), ExtResource("10_pa3y5"), ExtResource("11_0hwi7"), ExtResource("18_4gi1q"), ExtResource("19_uago2"), ExtResource("20_1k2vl")])
+monsters = Array[ExtResource("2_0pn66")]([ExtResource("3_vlwa2"), ExtResource("4_7j4pw"), ExtResource("5_lokq4"), ExtResource("6_b4bba"), ExtResource("7_7pb75"), ExtResource("8_pcd8x"), ExtResource("9_k1810"), ExtResource("10_pa3y5"), ExtResource("11_0hwi7"), ExtResource("18_4gi1q"), ExtResource("19_uago2"), ExtResource("20_1k2vl"), ExtResource("24_4g6yy")])
 boss = ExtResource("1_jy0od")
 other_bosses = Array[ExtResource("18_k1810")]([ExtResource("19_pa3y5")])
 hazards = Array[ExtResource("2_7pb75")]([ExtResource("3_pcd8x"), ExtResource("4_k1810"), ExtResource("5_pa3y5"), ExtResource("6_0hwi7"), ExtResource("7_4gi1q")])

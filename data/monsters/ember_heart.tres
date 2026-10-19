@@ -1,0 +1,67 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/ember_heart.tres" id="1_x2l6b"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/ember_heart.png" id="2_680h2"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="3_mipwj"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="4_wexuh"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_fire.tres" id="5_joob7"]
+[ext_resource type="Resource" path="res://data/items/weapons/book.tres" id="6_m7kt6"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="7_gfu66"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="8_2l7q6"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_lamyj"]
+[ext_resource type="Resource" path="res://data/skills/monster/ember_mend.tres" id="10_xttm1"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_5p2u3"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="12_sbxs4"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/ghost_flame.tres" id="13_1cj0a"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_r087s"]
+atlas = ExtResource("2_680h2")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_e1eb6"]
+script = ExtResource("3_mipwj")
+item = ExtResource("4_wexuh")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_oo4s5"]
+script = ExtResource("3_mipwj")
+item = ExtResource("5_joob7")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_m5r5i"]
+script = ExtResource("3_mipwj")
+item = ExtResource("6_m7kt6")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_sn6om"]
+script = ExtResource("7_gfu66")
+entries = Array[ExtResource("3_mipwj")]([SubResource("Resource_e1eb6"), SubResource("Resource_oo4s5"), SubResource("Resource_m5r5i")])
+
+[sub_resource type="Resource" id="Resource_mecew"]
+script = ExtResource("11_5p2u3")
+max_hp = 20
+move_speed = 80.0
+
+[resource]
+script = ExtResource("8_2l7q6")
+stats = SubResource("Resource_mecew")
+weapon = ExtResource("13_1cj0a")
+skills = Array[ExtResource("9_lamyj")]([ExtResource("10_xttm1")])
+radius = 10.0
+frames = ExtResource("1_x2l6b")
+frames_offset = Vector2(0, -8)
+flies = true
+splat_color = Color(0, 0, 0, 0)
+attack_windup = 0.5
+attack_recovery = 0.35
+keep_distance = 200.0
+xp_reward = 8
+loot = SubResource("Resource_sn6om")
+id = &"ember_heart"
+display_name = "Ember Heart"
+description = "A burning heart that mends whoever fights beside it."
+icon = SubResource("AtlasTexture_r087s")
+glyph = "G"
+color = Color(1, 0.55, 0.35, 1)
+min_depth = 7
+spawn_weight = 5
