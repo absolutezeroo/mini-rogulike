@@ -60,5 +60,5 @@ description = "Skitters in fast. Nasty bite."
 icon = SubResource("AtlasTexture_kvyjr")
 glyph = "R"
 color = Color(0.75686276, 0.07058824, 0.12156863, 1)
-min_depth = 3
+min_depth = 2
 spawn_weight = 7

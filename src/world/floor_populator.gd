@@ -41,6 +41,15 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 			place_lights(world, config, map.rooms[forge_index], taken)
 			_reserve_rect(taken, map.rooms[forge_index])  # a quiet room: nothing else in it
 	world.floors_without_forge = 0 if forge_index >= 0 else world.floors_without_forge + 1
+	# One quiet room may be an ambush: no monsters in it until the hero walks in, and no
+	# chest or encounter either (picked now, before they claim rooms).
+	var ambush_index := -1
+	if rng.randf() < config.ambush_chance:
+		for attempt in 6:
+			ambush_index = _pick_quiet_room(map, rng, merchant_index)
+			if ambush_index != forge_index:
+				break
+			ambush_index = -1  # not by the smith
 	# The biome's grounds, scenes and decor, before anything else claims the rooms.
 	FloorDresser.dress(world, taken)
 	for i in map.rooms.size():
@@ -58,7 +67,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 		# A few tries: a room's middle may hold a scene (a statue, a pond...); then near it.
 		for attempt in 4:
 			var index := rng.randi_range(1, map.rooms.size() - 1)
-			if index == merchant_index or index == forge_index:
+			if index == merchant_index or index == forge_index or index == ambush_index:
 				continue
 			var cell := _free_near_middle(world, map.rooms[index], taken)
 			if cell != Vector2i(-1, -1):
@@ -81,14 +90,8 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 			if hazard:
 				hazard.place(world, map.rooms[rng.randi_range(1, map.rooms.size() - 1)], taken)
 
-	# One quiet room may be an ambush: no monsters in it until the hero walks in.
-	var ambush_index := -1
-	if rng.randf() < config.ambush_chance:
-		ambush_index = _pick_quiet_room(map, rng, merchant_index)
-		if ambush_index == forge_index:
-			ambush_index = -1  # not by the smith
-		if ambush_index >= 0:
-			world.spawn_ambush(map.rooms[ambush_index])
+	if ambush_index >= 0:
+		world.spawn_ambush(map.rooms[ambush_index])
 
 	if config.chest:
 		var chest_count := rng.randi_range(config.chests_min, config.chests_max)
@@ -97,7 +100,10 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 		for n in chest_count:
 			# A few tries: some rooms have no free spot along their walls.
 			for attempt in 12:
-				var room := map.rooms[rng.randi_range(1, map.rooms.size() - 1)]
+				var index := rng.randi_range(1, map.rooms.size() - 1)
+				if index == ambush_index:
+					continue
+				var room := map.rooms[index]
 				var cells := _shuffled(edge_cells(map, room, taken), rng)
 				if not cells.is_empty():
 					world.spawn_chest(config.chest, cells[0], rng.randf() < config.chest.trapped_chance)
@@ -115,14 +121,21 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 		for n in count:
 			var def := content.pick_monster(depth, rng)
 			if def:
-				var monster := world.spawn_monster(def, _free_point_in(map, room, rng, taken))
+				var monster := world.spawn_monster(def, _free_point_in(world, room, rng, taken))
 				world.roll_elite(monster)
 
+	# Items lie around, not in the merchant's or the smith's room.
+	var item_rooms: Array[int] = []
+	for i in range(1, map.rooms.size()):
+		if i != merchant_index and i != forge_index:
+			item_rooms.append(i)
 	for n in config.items_per_floor:
-		var room := map.rooms[rng.randi_range(1, map.rooms.size() - 1)]
+		if item_rooms.is_empty():
+			break
+		var room := map.rooms[item_rooms[rng.randi_range(0, item_rooms.size() - 1)]]
 		var item := content.pick_item(depth, rng)
 		if item:
-			world.spawn_loot(item, _free_point_in(map, room, rng, taken))
+			world.spawn_loot(item, _free_point_in(world, room, rng, taken))
 
 
 ## A cursed floor: the look over every room, the darkness, and campfires (or springs) spread
@@ -265,12 +278,17 @@ static func _shuffled(cells: Array[Vector2i], rng: RandomNumberGenerator) -> Arr
 	return result
 
 
-## A random point in the room, not on a prop or a trap.
-static func _free_point_in(map: DungeonMap, room: Rect2i, rng: RandomNumberGenerator, taken: Dictionary) -> Vector2:
+## A random point in the room, on free ground (not on a prop, a trap, a chest, a pond, a hole).
+static func _free_point_in(world: World, room: Rect2i, rng: RandomNumberGenerator, taken: Dictionary) -> Vector2:
+	var map := world.map
 	var cell := map.random_cell_in(room, rng)
+	var found := false
 	for attempt in 12:
-		if not taken.has(cell) and map.is_floor(cell):  # pillars of a themed room are walls
+		if not taken.has(cell) and world.is_free_cell(cell):  # pillars of a themed room are walls
+			found = true
 			break
 		cell = map.random_cell_in(room, rng)
+	if not found:
+		return world.nearest_free_point(map.cell_to_world(cell))
 	var jitter := Vector2(rng.randf_range(-8.0, 8.0), rng.randf_range(-8.0, 8.0))
 	return map.cell_to_world(cell) + jitter

@@ -14,6 +14,9 @@ var world: World
 
 var _time := 0.0
 var _lean := PackedFloat32Array()
+## Where its pieces lie (world space), to skip the work off screen.
+var _bounds := Rect2()
+var _bounds_known := false
 
 
 func _ready() -> void:
@@ -24,7 +27,13 @@ func _process(delta: float) -> void:
 	_time += delta
 	if _lean.size() != pieces.size():
 		_lean.resize(pieces.size())
-	var actors: Array[Actor] = world.get_actors() if world and is_instance_valid(world) else []
+	if world and is_instance_valid(world):
+		if not _bounds_known:
+			_bounds_known = true
+			_bounds = _pieces_bounds()
+		if not world.view_rect().intersects(_bounds):
+			return  # off screen: nobody sees it sway
+	var actors: Array[Actor] = world.actors_this_frame() if world and is_instance_valid(world) else []
 	for i in pieces.size():
 		var foot := _foot(pieces[i])
 		var push := 0.0
@@ -51,6 +60,16 @@ func _draw() -> void:
 		draw_set_transform_matrix(Transform2D(0.0, Vector2.ONE, -lean, foot))
 		draw_texture_rect(texture, Rect2(Vector2(-size.x * 0.5, -size.y), size), false)
 	draw_set_transform_matrix(Transform2D.IDENTITY)
+
+
+func _pieces_bounds() -> Rect2:
+	if pieces.is_empty():
+		return Rect2()
+	var box := Rect2(to_global(_foot(pieces[0])), Vector2.ZERO)
+	for piece: Array in pieces:
+		var texture: Texture2D = piece[0]
+		box = box.merge(Rect2(to_global(piece[1] - texture.get_size()), texture.get_size() * 2.0))
+	return box.grow(32.0)
 
 
 static func _foot(piece: Array) -> Vector2:

@@ -756,6 +756,37 @@ func get_actors() -> Array[Actor]:
 	return result
 
 
+var _actors_frame := -1
+var _actors_cache: Array[Actor] = []
+var _view_frame := -1
+var _view_cache := Rect2()
+
+
+## get_actors(), worked out once per frame for everyone who asks (plants, quicksand...).
+## Read only: the same array is handed to everyone.
+func actors_this_frame() -> Array[Actor]:
+	var frame := Engine.get_process_frames()
+	if frame != _actors_frame:
+		_actors_frame = frame
+		_actors_cache = get_actors()
+	return _actors_cache
+
+
+## The part of the world on screen (with a margin), once per frame: what lies outside needn't
+## be redrawn.
+func view_rect(margin: float = 96.0) -> Rect2:
+	var frame := Engine.get_process_frames()
+	if frame != _view_frame:
+		_view_frame = frame
+		var camera := get_viewport().get_camera_2d() if is_inside_tree() else null
+		if camera:
+			var half := get_viewport().get_visible_rect().size / camera.zoom * 0.5
+			_view_cache = Rect2(camera.get_screen_center_position() - half, half * 2.0)
+		else:
+			_view_cache = Rect2(-1e6, -1e6, 2e6, 2e6)
+	return _view_cache.grow(margin)
+
+
 ## Props that can still be broken.
 func get_breakable_props() -> Array[Prop]:
 	var result: Array[Prop] = []

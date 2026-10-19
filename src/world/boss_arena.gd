@@ -73,7 +73,12 @@ func shift(change: ArenaShiftDef) -> void:
 	for actor: Actor in [_world.player, boss]:
 		if actor and is_instance_valid(actor):
 			keep.append(_world.map.world_to_cell(actor.global_position))
-	var cells := change.pick_cells(floor_cells(), _room, keep, KEEP_CLEAR, _world.rng)
+	var ground := {}
+	for y in range(_room.position.y, _room.end.y):
+		for x in range(_room.position.x, _room.end.x):
+			if _world.map.is_floor(Vector2i(x, y)):
+				ground[Vector2i(x, y)] = true
+	var cells := change.pick_cells(floor_cells(), _room, keep, KEEP_CLEAR, _world.rng, ground)
 	if cells.is_empty():
 		return
 	if not change.message.is_empty():

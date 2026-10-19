@@ -47,15 +47,12 @@ extends Resource
 @export var runes: Array[RuneDef] = []
 
 
-## A monster of the act holding `depth`, by spawn weight.
+## A monster of the act holding `depth`, by spawn weight, from its `min_depth` on.
 func pick_monster(depth: int, rng: RandomNumberGenerator) -> MonsterDef:
 	var act := dungeon.act_for_depth(depth)
 	if act == null:
 		return null
-	var weights := PackedInt32Array()
-	for monster in act.monsters:
-		weights.append(monster.spawn_weight if monster else 0)
-	return RandomUtils.pick_weighted(act.monsters, weights, rng)
+	return _pick(act.monsters, depth, rng) as MonsterDef
 
 
 func get_difficulty(id: StringName) -> DifficultyDef:

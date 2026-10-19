@@ -80,6 +80,11 @@ func _test_content() -> void:
 		check(CONTENT.pick_item(depth, rng) != null, "an item can spawn at depth %d" % depth)
 	var act_one := CONTENT.dungeon.acts[0]
 	check(act_one.monsters.has(CONTENT.pick_monster(1, rng)), "floors spawn monsters of their act")
+	var too_early := false
+	for i in 300:
+		var picked := CONTENT.pick_monster(1, rng)
+		too_early = too_early or picked.min_depth > 1
+	check(not too_early, "no monster before its min_depth")
 	check(CONTENT.dungeon.acts[2].monsters.has(CONTENT.pick_monster(8, rng)), "act 3 floors spawn act 3 monsters")
 	check(CONTENT.sounds != null, "content db has a sound bank")
 	for property in CONTENT.sounds.get_property_list():

@@ -34,11 +34,14 @@ enum Becomes {
 
 
 ## The cells of `arena_cells` this change takes (`room`: the arena's rectangle). Never within
-## `keep_clear` cells of any point in `keep` (the hero, the boss).
-func pick_cells(arena_cells: Array[Vector2i], room: Rect2i, keep: Array[Vector2i], keep_clear: int, rng: RandomNumberGenerator) -> Array[Vector2i]:
+## `keep_clear` cells of any point in `keep` (the hero, the boss). `ground`: every floor cell of
+## the arena, pillars included (the edge is where the floor ends, not where a pillar stands).
+func pick_cells(arena_cells: Array[Vector2i], room: Rect2i, keep: Array[Vector2i], keep_clear: int, rng: RandomNumberGenerator, ground: Dictionary = {}) -> Array[Vector2i]:
 	var lookup := {}
 	for cell in arena_cells:
 		lookup[cell] = true
+	if not ground.is_empty():
+		lookup = ground
 	var center := room.get_center()
 	var picked: Array[Vector2i] = []
 	for cell in arena_cells:

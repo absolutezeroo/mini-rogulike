@@ -34,8 +34,22 @@ func is_blocked(cell: Vector2i) -> bool:
 
 ## Path between two world positions, as a list of cell centres (empty if unreachable).
 func find_path(from: Vector2, to: Vector2) -> PackedVector2Array:
-	var start := _map.world_to_cell(from)
-	var goal := _map.world_to_cell(to)
-	if not _map.is_floor(start) or not _map.is_floor(goal):
+	# An end on a blocked cell (the hero on a hole's edge, a bat over a pond): its open neighbour.
+	var start := _open_near(_map.world_to_cell(from))
+	var goal := _open_near(_map.world_to_cell(to))
+	if start == Vector2i(-1, -1) or goal == Vector2i(-1, -1):
 		return PackedVector2Array()
 	return _astar.get_point_path(start, goal)
+
+
+## `cell` if it is open, else its nearest open neighbour; (-1, -1) if none.
+func _open_near(cell: Vector2i) -> Vector2i:
+	if _map.is_floor(cell) and not is_blocked(cell):
+		return cell
+	for radius in range(1, 3):
+		for dy in range(-radius, radius + 1):
+			for dx in range(-radius, radius + 1):
+				var near := cell + Vector2i(dx, dy)
+				if _map.is_floor(near) and not is_blocked(near):
+					return near
+	return Vector2i(-1, -1)

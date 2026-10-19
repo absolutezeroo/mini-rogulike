@@ -132,9 +132,13 @@ func _process(delta: float) -> void:
 	if _redraw_timer > 0.0 or _splats.is_empty():
 		return
 	_redraw_timer = 0.5
+	var gone := false
 	while not _splats.is_empty() and _time - float(_splats[0].born) > LIFE:
 		_splats.pop_front()
-	queue_redraw()
+		gone = true
+	# Only while the oldest one fades (the others stay as they are).
+	if gone or (not _splats.is_empty() and _time - float(_splats[0].born) > LIFE - FADE):
+		queue_redraw()
 
 
 func _draw() -> void:
