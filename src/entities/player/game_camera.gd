@@ -8,6 +8,11 @@ const DECAY := 2.5
 var _trauma := 0.0
 
 
+func _ready() -> void:
+	# Anything can shake the screen without knowing about the hero (Events.screen_shake).
+	Events.screen_shake.connect(shake)
+
+
 ## amount: 0..1. Shakes add up but are capped.
 func shake(amount: float) -> void:
 	_trauma = minf(_trauma + amount * Settings.screen_shake, 1.0)

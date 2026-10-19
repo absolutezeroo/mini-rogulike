@@ -53,15 +53,18 @@ data/                Game content as .tres resources (no code)
   skills/              Player, monster and boss skills
 src/
   autoload/            Events (signal bus), Sfx (sound player), HitStop (impact freeze), Profile (save), Settings (options)
-  core/                Small shared helpers (physics layers, weighted random)
+  core/                Small shared helpers (physics layers, weighted random, SafeFile)
   definitions/         Resource classes describing content (the "schema" of data/)
     effects/             Building blocks for skills and consumables
     passives/            Building blocks for perks (on hit, on kill, on dash...)
     items/               ItemDef > EquipmentDef > WeaponDef / ArmorDef, ConsumableDef
     loot/                LootTable, LootEntry
     hazards/             HazardDef > TrapDef > ArrowTrapDef, PitDef, QuicksandDef, HeatSourceDef, DarkRoomDef
+    monster_traits/      MonsterTrait > GuardTrait, ThiefTrait, DeathBurstTrait, DeathSpawnTrait
   dungeon/             Map data, generator, drawing
-  world/               World (owns the current floor), FloorPopulator, BossArena, AmbushRoom, RoomGates, PitLayer
+  world/               World (owns the current floor), FloorRules (how hard and rewarding it is),
+                       NavGrid (pathfinding), FogOfWar (what the hero has seen), WallBuilder,
+                       FloorPopulator, BossArena, AmbushRoom, RoomGates, PitLayer
   entities/            Actor (shared base), Player, Monster, Projectile, ItemPickup, Stairs, Prop, Trap,
                        hazards/ (Chest, CrumblingFloor, Quicksand, HeatSource, DarkRoom)
   components/          Inventory, Equipment, SkillSet, PerkSet, StatusSet (burn...)
@@ -80,8 +83,10 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 ## How things fit together
 
 - **Game** creates the Player, asks **World** to build each floor and handles pause and game over.
-- **World** generates a `DungeonMap`, builds wall collisions and pathfinding, then lets
-  `FloorPopulator` spawn monsters and items picked from `ContentDB` by depth.
+- **World** generates a `DungeonMap`, rolls the floor's curse or event, builds its `FloorRules`
+  (difficulty x event x curse x depth: ask it, never multiply by hand), the walls (`WallBuilder`)
+  and pathfinding (`NavGrid`), then lets `FloorPopulator` spawn monsters and items picked from
+  `ContentDB` by depth. Anything can shake the screen with `Events.screen_shake`.
 - **Actor** (base of Player and Monster) handles stats, HP, attacks, knockback, dashes and hit feedback.
   Final stats = base stats + equipment bonuses + timed buffs.
 - **Weapons** are shared: a monster attacks with a `WeaponDef` exactly like the player.

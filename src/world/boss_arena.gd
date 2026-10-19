@@ -48,8 +48,7 @@ func start() -> void:
 		_gates.close()
 	boss.wake_up(_world.player)
 	Sfx.play_at(Sfx.bank.boss_roar, boss.global_position)
-	if _world.player:
-		_world.player.camera.shake(0.8)
+	Events.screen_shake.emit(0.8)
 	started.emit(boss)
 	Events.boss_started.emit(boss)
 

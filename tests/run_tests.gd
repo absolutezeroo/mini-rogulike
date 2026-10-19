@@ -1404,7 +1404,7 @@ func _open_cell_near(world: World, point: Vector2, margin: int) -> Vector2i:
 			for dy in range(-margin, margin + 1):
 				for dx in range(-margin, margin + 1):
 					var near := cell + Vector2i(dx, dy)
-					if not world.is_solid_ground(world.map.cell_to_world(near)) or world._astar.is_point_solid(near):
+					if not world.is_solid_ground(world.map.cell_to_world(near)) or world.nav.is_blocked(near):
 						ok = false
 						break
 				if not ok:
@@ -1420,7 +1420,7 @@ func _solid_point_in(world: World, rect: Rect2i) -> Vector2:
 	for attempt in 50:
 		var cell := world.map.random_cell_in(rect, world.rng, 0)
 		var point := world.map.cell_to_world(cell)
-		if world.is_solid_ground(point) and not world._astar.is_point_solid(cell):
+		if world.is_solid_ground(point) and not world.nav.is_blocked(cell):
 			return point
 	return world.map.cell_to_world(rect.get_center())
 
@@ -1501,13 +1501,13 @@ func _test_comfort(game: Node) -> void:
 	var minimap: Minimap = hud.get_node("%Minimap")
 	var full_map: Minimap = hud.get_node("%FullMap")
 	check(minimap._texture != null and minimap._image.get_width() == world.map.width, "the minimap draws the floor")
-	var seen := Array(world.explored).count(1)
+	var seen := Array(world.fog.explored).count(1)
 	var far_room := world.map.rooms.filter(func(r: Rect2i) -> bool:
 		return not r.grow(1).has_point(world.map.stairs_cell) and not r.has_point(world.map.world_to_cell(game.player.global_position))).back() as Rect2i
 	var depth_now: int = game.depth
 	game.player.global_position = _solid_point_in(world, far_room.grow(-1))
 	await _frames(3)
-	check(Array(world.explored).count(1) > seen and world.is_explored(far_room.get_center()), "exploring reveals the map")
+	check(Array(world.fog.explored).count(1) > seen and world.is_explored(far_room.get_center()), "exploring reveals the map")
 	check(game.depth == depth_now, "(still on the same floor)")
 	minimap.tapped.emit()
 	check(full_map.visible, "tapping the minimap shows the whole floor")
@@ -1894,7 +1894,7 @@ func _open_cell_in(world: World, room: Rect2i) -> Vector2i:
 	for y in range(room.position.y + 1, room.end.y - 1):
 		for x in range(room.position.x + 1, room.end.x - 1):
 			var cell := Vector2i(x, y)
-			if world.is_solid_ground(world.map.cell_to_world(cell)) and not world._astar.is_point_solid(cell):
+			if world.is_solid_ground(world.map.cell_to_world(cell)) and not world.nav.is_blocked(cell):
 				return cell
 	return room.get_center()
 

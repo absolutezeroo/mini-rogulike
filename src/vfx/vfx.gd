@@ -62,7 +62,7 @@ static func explosion(world: World, at: Vector2, radius: float) -> void:
 	burst(world, SMOKE, at, Color.WHITE, Vector2.ZERO, size)
 	Sfx.play_at(Sfx.bank.explosion, at)
 	if world.player and world.player.global_position.distance_to(at) < 600.0:
-		world.player.camera.shake(0.45 * size)
+		Events.screen_shake.emit(0.45 * size)
 
 
 static func sparkles(world: World, at: Vector2, color: Color) -> void:

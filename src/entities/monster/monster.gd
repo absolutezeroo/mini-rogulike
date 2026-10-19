@@ -259,7 +259,7 @@ func _update_heavy_steps() -> void:
 	Sfx.play_at(Sfx.bank.footstep, global_position, -6.0, 0.55)
 	Vfx.dust(world, global_position + Vector2(0, _feet_y()), 1.2)
 	if world.player and world.player.global_position.distance_to(global_position) < 260.0:
-		world.player.camera.shake(0.15 if not is_boss() else 0.3)
+		Events.screen_shake.emit(0.15 if not is_boss() else 0.3)
 
 
 func get_move_direction() -> Vector2:
@@ -302,8 +302,7 @@ func _enter_phase(phase: BossPhase) -> void:
 		Events.log_message("%s: %s" % [display_name, phase.message], Color("ff6b6b"))
 	Vfx.magic(world, global_position, Color("ff6b6b"))
 	Sfx.play_at(Sfx.bank.boss_roar, global_position)
-	if world.player:
-		world.player.camera.shake(0.6)
+	Events.screen_shake.emit(0.6)
 
 func _hurt_sound(hit: HitInfo) -> AudioStream:
 	if hit.sound:

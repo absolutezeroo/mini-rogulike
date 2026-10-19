@@ -51,7 +51,7 @@ func start() -> void:
 	waves_left = _world.config().ambush_waves
 	_gates.close()
 	Sfx.play_at(Sfx.bank.ambush, _world.player.global_position)
-	_world.player.camera.shake(0.6)
+	Events.screen_shake.emit(0.6)
 	_queue_wave()
 	triggered.emit()
 	Events.ambush_started.emit(self)

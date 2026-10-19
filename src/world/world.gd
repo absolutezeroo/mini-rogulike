@@ -22,8 +22,6 @@ const PIT_EDGE := 6.0
 
 ## Goes up with every floor built: delayed effects started on an old floor are dropped.
 var floor_id := 0
-## Cracked floor cells (CrumblingFloor), by cell.
-var _cracks := {}
 var map: DungeonMap
 var theme: DungeonTheme
 var player: Player
@@ -48,14 +46,18 @@ var rules: FloorRules
 var run_bosses: Array = []
 ## The floor's ambush room, if it has one.
 var ambush: AmbushRoom
-## 1 for every cell the hero has seen (see reveal_around()).
-var explored := PackedByteArray()
 ## Where the stairs are (boss floors get theirs when the boss dies).
 var stairs_cells: Array[Vector2i] = []
+## Where walking monsters can go (pathfinding, blocked cells).
+var nav := NavGrid.new()
+## What the hero has seen (the minimap).
+var fog := FogOfWar.new()
 
 var _content: ContentDB
-var _astar := AStarGrid2D.new()
-var _last_revealed := Vector2i(-1, -1)
+## What lies on the floor's cells, by cell or by kind (asked every frame: no group scans).
+var _cracks := {}
+var _heat_sources: Array[HeatSource] = []
+var _dark_rooms: Array[DarkRoom] = []
 
 @onready var _view: DungeonView = $DungeonView
 @onready var _pits: PitLayer = $Pits
@@ -94,12 +96,10 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 	_ambient.color = Color((theme.ambient if theme else Color.WHITE) * rules.light(), 1.0)
 	_view.show_map(map, theme)
 	_pits.setup(map.tile_size)
-	explored = PackedByteArray()
-	explored.resize(map.width * map.height)
+	fog.reset(map)
 	stairs_cells.clear()
-	_last_revealed = Vector2i(-1, -1)
-	_build_walls()
-	_build_pathfinding()
+	WallBuilder.build(map, _walls)
+	nav.build(map)
 	if boss:
 		# No stairs until the boss is dead: the arena spawns them.
 		arena = ARENA_SCENE.instantiate() as BossArena
@@ -118,6 +118,8 @@ func clear_floor() -> void:
 	arena = null
 	ambush = null
 	_cracks.clear()
+	_heat_sources.clear()
+	_dark_rooms.clear()
 	if _pits:
 		_pits.clear()
 	for layer: Node in [_entities, _projectiles, _effects, _walls]:
@@ -182,19 +184,23 @@ func spawn_gold(at: Vector2, amount: int) -> void:
 func spawn_encounter(def: EncounterDef, cell: Vector2i) -> Encounter:
 	var encounter := Encounter.new()
 	encounter.setup(def, self)
-	encounter.position = map.cell_to_world(cell)
-	_entities.add_child(encounter)
-	set_cell_blocked(cell, true)
+	_place_on_cell(encounter, cell)
 	return encounter
 
 
 func spawn_merchant(def: ShopDef, cell: Vector2i) -> Merchant:
 	var merchant := Merchant.new()
 	merchant.setup(def, self)
-	merchant.position = map.cell_to_world(cell)
-	_entities.add_child(merchant)
-	set_cell_blocked(cell, true)
+	_place_on_cell(merchant, cell)
 	return merchant
+
+
+## Puts `node` on `cell` among the entities; it blocks the cell for pathfinding unless told not to.
+func _place_on_cell(node: Node2D, cell: Vector2i, blocks: bool = true) -> void:
+	node.position = map.cell_to_world(cell)
+	_entities.add_child(node)
+	if blocks:
+		set_cell_blocked(cell, true)
 
 
 func spawn_item(item: ItemDef, at: Vector2, armed: bool = true) -> ItemPickup:
@@ -227,9 +233,7 @@ func spawn_prop(def: PropDef, cell: Vector2i) -> Prop:
 	var prop := PROP_SCENE.instantiate() as Prop
 	prop.world = self
 	prop.setup(def)
-	prop.position = map.cell_to_world(cell)
-	_entities.add_child(prop)
-	set_cell_blocked(cell, true)
+	_place_on_cell(prop, cell)
 	return prop
 
 
@@ -237,8 +241,7 @@ func spawn_trap(def: TrapDef, cell: Vector2i, cycle_offset: float = 0.0) -> Trap
 	var trap := TRAP_SCENE.instantiate() as Trap
 	trap.world = self
 	trap.setup(def, cycle_offset)
-	trap.position = map.cell_to_world(cell)
-	_entities.add_child(trap)
+	_place_on_cell(trap, cell, false)
 	return trap
 
 
@@ -257,9 +260,7 @@ func make_elite(monster: Monster) -> void:
 func spawn_chest(def: ChestDef, cell: Vector2i, trapped: bool) -> Chest:
 	var chest := Chest.new()
 	chest.setup(def, self, trapped)
-	chest.position = map.cell_to_world(cell)
-	_entities.add_child(chest)
-	set_cell_blocked(cell, true)
+	_place_on_cell(chest, cell)
 	return chest
 
 
@@ -297,29 +298,33 @@ func spawn_heat_source(def: HeatSourceDef, rect: Rect2i) -> HeatSource:
 	var source := HeatSource.new()
 	source.setup(def, self, rect)
 	_effects.add_child(source)
+	_heat_sources.append(source)
 	return source
 
 
+## The floor's campfires, springs and hot or frozen ground (see BodyTemperature).
+func get_heat_sources() -> Array[HeatSource]:
+	_heat_sources = _heat_sources.filter(func(source: Variant) -> bool:
+		return is_instance_valid(source) and not (source as Node).is_queued_for_deletion())
+	return _heat_sources
+
+
 func has_heat_source_in(def: HeatSourceDef, room: Rect2i) -> bool:
-	for node in get_tree().get_nodes_in_group("heat_sources"):
-		var source := node as HeatSource
-		if source.world == self and source.def == def and source.rect == room and not source.is_queued_for_deletion():
-			return true
-	return false
+	return get_heat_sources().any(func(source: HeatSource) -> bool: return source.def == def and source.rect == room)
 
 
 func spawn_dark_room(def: DarkRoomDef, room: Rect2i) -> DarkRoom:
 	var dark := DarkRoom.new()
 	dark.setup(def, self, room)
 	_effects.add_child(dark)
+	_dark_rooms.append(dark)
 	return dark
 
 
 func is_dark_room(room: Rect2i) -> bool:
-	for node in get_tree().get_nodes_in_group("dark_rooms"):
-		if (node as DarkRoom).world == self and (node as DarkRoom).room == room and not node.is_queued_for_deletion():
-			return true
-	return false
+	_dark_rooms = _dark_rooms.filter(func(dark: Variant) -> bool:
+		return is_instance_valid(dark) and not (dark as Node).is_queued_for_deletion())
+	return _dark_rooms.any(func(dark: DarkRoom) -> bool: return dark.room == room)
 
 
 func spawn_quicksand(def: QuicksandDef, rect: Rect2i) -> Quicksand:
@@ -392,7 +397,7 @@ func pit_under(point: Vector2) -> PitDef:
 ## Floor that can't give way: no hole, no cracked floor (where the hero climbs out after a fall).
 ## Solid ground nothing stands on (no wall, hole, crack, chest, encounter, prop...).
 func is_free_cell(cell: Vector2i) -> bool:
-	return is_solid_ground(map.cell_to_world(cell)) and not _astar.is_point_solid(cell)
+	return is_solid_ground(map.cell_to_world(cell)) and not nav.is_blocked(cell)
 
 
 func is_solid_ground(point: Vector2) -> bool:
@@ -407,36 +412,15 @@ func is_solid_ground(point: Vector2) -> bool:
 
 # --- Exploration -------------------------------------------------------------
 
-## How far around the hero corridors are revealed, in cells.
-const REVEAL_RADIUS := 3
-
-
 func is_explored(cell: Vector2i) -> bool:
-	return map.in_bounds(cell) and explored[cell.y * map.width + cell.x] == 1
+	return fog.is_explored(cell)
 
 
 ## Reveals the room the hero stands in (all of it) and a few cells around them.
 func reveal_around(point: Vector2) -> void:
-	var cell := map.world_to_cell(point)
-	if cell == _last_revealed or not map.in_bounds(cell):
-		return
-	_last_revealed = cell
-	var revealed: Array[Vector2i] = []
-	for room in map.rooms:
-		if room.has_point(cell):
-			_reveal_rect(room.grow(1), revealed)
-	_reveal_rect(Rect2i(cell - Vector2i.ONE * REVEAL_RADIUS, Vector2i.ONE * (REVEAL_RADIUS * 2 + 1)), revealed)
+	var revealed := fog.reveal_around(point)
 	if not revealed.is_empty():
 		cells_changed.emit(revealed)
-
-
-func _reveal_rect(rect: Rect2i, revealed: Array[Vector2i]) -> void:
-	for y in range(rect.position.y, rect.end.y):
-		for x in range(rect.position.x, rect.end.x):
-			var cell := Vector2i(x, y)
-			if map.in_bounds(cell) and explored[y * map.width + x] == 0:
-				explored[y * map.width + x] = 1
-				revealed.append(cell)
 
 
 func _physics_process(_delta: float) -> void:
@@ -494,8 +478,7 @@ func get_breakable_props() -> Array[Prop]:
 
 ## Marks a cell as an obstacle (or free again) for monster pathfinding.
 func set_cell_blocked(cell: Vector2i, blocked: bool) -> void:
-	if map.in_bounds(cell) and map.is_floor(cell):
-		_astar.set_point_solid(cell, blocked)
+	nav.set_blocked(cell, blocked)
 
 
 func has_line_of_sight(from: Vector2, to: Vector2) -> bool:
@@ -505,11 +488,7 @@ func has_line_of_sight(from: Vector2, to: Vector2) -> bool:
 
 ## Path between two world positions, as a list of cell centres (empty if unreachable).
 func find_path(from: Vector2, to: Vector2) -> PackedVector2Array:
-	var start := map.world_to_cell(from)
-	var goal := map.world_to_cell(to)
-	if not map.is_floor(start) or not map.is_floor(goal):
-		return PackedVector2Array()
-	return _astar.get_point_path(start, goal)
+	return nav.find_path(from, to)
 
 
 ## A walkable point about `distance` away from `center`, in sight of it (or `center` itself).
@@ -524,40 +503,3 @@ func find_open_point_near(center: Vector2, distance: float) -> Vector2:
 
 func monster_count() -> int:
 	return get_hostiles(Actor.Faction.PLAYER).size()
-
-
-# --- Building ----------------------------------------------------------------
-
-## Collision for the walls: one rectangle per horizontal run of wall cells.
-func _build_walls() -> void:
-	var ts := float(map.tile_size)
-	for y in map.height:
-		var x := 0
-		while x < map.width:
-			if not map.is_wall_edge(Vector2i(x, y)):
-				x += 1
-				continue
-			var run_start := x
-			while x < map.width and map.is_wall_edge(Vector2i(x, y)):
-				x += 1
-			var shape := RectangleShape2D.new()
-			shape.size = Vector2((x - run_start) * ts, ts)
-			var collision := CollisionShape2D.new()
-			collision.shape = shape
-			collision.position = Vector2((run_start + x) * 0.5 * ts, (y + 0.5) * ts)
-			_walls.add_child(collision)
-
-
-func _build_pathfinding() -> void:
-	_astar.region = Rect2i(0, 0, map.width, map.height)
-	_astar.cell_size = Vector2(map.tile_size, map.tile_size)
-	_astar.offset = Vector2(map.tile_size, map.tile_size) * 0.5
-	_astar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES
-	_astar.update()
-	# The grid keeps its solid cells from the previous floor when its size does not change.
-	_astar.fill_solid_region(_astar.region, false)
-	for y in map.height:
-		for x in map.width:
-			if not map.is_floor(Vector2i(x, y)):
-				_astar.set_point_solid(Vector2i(x, y))
-

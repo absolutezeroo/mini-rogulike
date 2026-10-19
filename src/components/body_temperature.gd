@@ -21,9 +21,8 @@ func update(actor: Actor, delta: float) -> void:
 	var rules := world.config()
 	var comfort := false
 	var heat := 0.0
-	for node in actor.get_tree().get_nodes_in_group("heat_sources"):
-		var source := node as HeatSource
-		if source and source.world == world and source.reaches(actor):
+	for source in world.get_heat_sources():
+		if source.reaches(actor):
 			if source.def.comfort:
 				comfort = true
 			else:

@@ -18,6 +18,8 @@ signal perk_offer_requested(rarity: int, title: String, subtitle: String)
 signal shop_requested(merchant: Merchant)
 ## A soul set free by a kill reached the hero's lantern (see SoulWisp).
 signal soul_gathered
+## Something big happened near the hero: the camera shakes (0..1, see GameCamera.shake()).
+signal screen_shake(amount: float)
 ## The player entered a boss arena and the fight began.
 signal boss_started(boss: Monster)
 ## The boss of the floor died: the arena opens and the stairs appear.
