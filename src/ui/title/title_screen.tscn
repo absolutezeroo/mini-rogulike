@@ -84,13 +84,24 @@ size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
 text = "Continue"
 
-[node name="PlayButton" type="Button" parent="Center/VBox"]
+[node name="PlayRow" type="HBoxContainer" parent="Center/VBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 16
+
+[node name="PlayButton" type="Button" parent="Center/VBox/PlayRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(320, 76)
 layout_mode = 2
-size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 28
 text = "Play"
+
+[node name="DailyButton" type="Button" parent="Center/VBox/PlayRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 76)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Daily run"
 
 [node name="Buttons" type="HBoxContainer" parent="Center/VBox"]
 layout_mode = 2

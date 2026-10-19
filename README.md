@@ -533,6 +533,14 @@ The last choice is remembered, shown in the HUD and on the end-of-run screen.
 The game opens on the **title screen** (`src/ui/title/`): play, visit the shrine, see your records.
 There is no class to pick: everyone starts the same, and becomes who they want during the run.
 
+**Daily run** (`DailyRun`, the button next to Play): one run a day, the same all day (UTC),
+offline. Each floor is generated from the day and its depth, everyone starts with the day's
+weapon and relic (shown on the button), on Normal. The day's first attempt is the official one
+(counted when it starts: quitting doesn't give another); its score is kept with the best ever and
+the days in a row (`Profile.daily_*`); later attempts that day are practice. Score: 1 per kill,
+30 per floor, 150 per boss, 1000 for a victory, 1 per 5 gold picked up. The game over screen
+shows it.
+
 Every run ends (death or victory) with **souls**: 1 per kill, 5 per floor, 20 per boss, 100 for a
 victory. At the **shrine** they buy permanent upgrades (`data/upgrades/`, `UpgradeDef`):
 

@@ -284,6 +284,32 @@ func run() -> void:
 	Profile.reset()
 	check(game.depth == 1, "restart goes back to depth 1")
 
+	# The daily run: the same floors, weapon and relic all day; the first attempt counts.
+	var day := DailyRun.today()
+	game.start_run(true)
+	await _frames(3)
+	check(game.run.is_daily() and game.run.daily_official and Profile.daily_played(day), "today's daily run is the official attempt")
+	check(game.difficulty == CONTENT.default_difficulty, "on Normal")
+	check(game.player.get_weapon() == DailyRun.weapon(CONTENT, day) and game.player.perks.stacks_of(DailyRun.relic(CONTENT, day)) == 1, "with the day's weapon and relic")
+	var rooms := game.world.map.rooms.duplicate()
+	game._enter_floor()
+	await _frames(2)
+	check(game.world.map.rooms == rooms, "the same floor every time that day")
+	game.run.kills = 10
+	game.depth = 3
+	game.run.depth = 3
+	game._award_souls(false)
+	check(Profile.daily_score == DailyRun.score(game.run) and Profile.daily_best == Profile.daily_score and Profile.daily_score >= 10 + 2 * DailyRun.POINTS_PER_FLOOR, "its score is kept (%d)" % Profile.daily_score)
+	game.start_run(true)
+	await _frames(3)
+	check(game.run.is_daily() and not game.run.daily_official, "a second daily run that day is practice")
+	game._save_run()
+	check(int(RunSave.read().get("daily_day", -1)) == day, "a saved daily run stays a daily run")
+	game.start_run()
+	await _frames(3)
+	check(not game.run.is_daily(), "Play starts a normal run")
+	Profile.reset()
+
 	# The run in progress is saved, and picked up again as it was.
 	check(RunSave.exists(), "the run in progress is saved")
 	var hero: Player = game.player

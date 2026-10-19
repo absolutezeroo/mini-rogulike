@@ -1,7 +1,7 @@
 class_name TitleScreen
 extends Control
-## First screen: play, visit the shrine (permanent upgrades bought with souls), read the story,
-## see your records. No class to pick: you become who you want with what you find in the dungeon.
+## First screen: play (or today's daily run, see DailyRun), visit the shrine (permanent
+## upgrades bought with souls), read the story, see your records. No class to pick: you become who you want with what you find in the dungeon.
 ## The very first run starts with the story.
 
 const GAME_SCENE := "res://src/game/game.tscn"
@@ -37,6 +37,9 @@ func _ready() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		(%DifficultyPanel as DifficultyPanel).open(content.difficulties, content.ascensions))
 	(%DifficultyPanel as DifficultyPanel).chosen.connect(func(_difficulty: DifficultyDef) -> void: play())
+	%DailyButton.pressed.connect(func() -> void:
+		Game.daily_requested = true
+		play())
 	%ShrineButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		_shrine.open(content.upgrades))
@@ -112,7 +115,20 @@ func _build_boss_row() -> void:
 		row.add_child(column)
 
 
+## "Daily run - Bow + Multishot" and the record: today's score or "new!", best, streak.
+func _refresh_daily() -> void:
+	var day := DailyRun.today()
+	var played := Profile.daily_played(day)
+	var line := "Today: %d points" % Profile.daily_score if played else "Not played today"
+	if Profile.daily_best > 0:
+		line += "   Best %d" % Profile.daily_best
+	if Profile.daily_streak > 1 and (played or Profile.daily_day == day - 1):
+		line += "   %d days in a row" % Profile.daily_streak
+	(%DailyButton as Button).text = "Daily run%s  -  %s\n%s" % [" (practice)" if played else "", DailyRun.describe(content, day), line]
+
+
 func _refresh() -> void:
+	_refresh_daily()
 	var difficulty := content.get_difficulty(Profile.difficulty)
 	_records.text = "Souls: %d     Runs: %d     Victories: %d     Deepest floor: %d     Difficulty: %s" % [
 		Profile.souls, Profile.runs, Profile.victories, Profile.best_depth,

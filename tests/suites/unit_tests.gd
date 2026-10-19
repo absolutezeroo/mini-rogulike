@@ -444,6 +444,30 @@ func _test_synergies() -> void:
 	check(inferno_count[1] > inferno_count[0] * 1.4, "offers lean toward a started family (%d vs %d of 400)" % [inferno_count[1], inferno_count[0]])
 	var shop: ShopDef = CONTENT.dungeon.merchant
 	check(shop.reroll_price(1, 1) > shop.reroll_price(0, 1) and shop.reroll_price(0, 8) > shop.reroll_price(0, 1), "shop rerolls cost more each time and deeper")
+	# The daily run: the same day gives the same start; scores; the streak.
+	check(DailyRun.weapon(CONTENT, 20000) == DailyRun.weapon(CONTENT, 20000) and DailyRun.relic(CONTENT, 20000) == DailyRun.relic(CONTENT, 20000), "a day always gives the same weapon and relic")
+	var weapons := {}
+	for d in 20:
+		weapons[DailyRun.weapon(CONTENT, 20000 + d)] = true
+	check(weapons.size() >= 3, "days differ (%d weapons in 20 days)" % weapons.size())
+	check(DailyRun.floor_seed(20000, 2) != DailyRun.floor_seed(20000, 3) and DailyRun.floor_seed(20000, 2) == DailyRun.floor_seed(20000, 2), "one seed per floor")
+	Profile.reset()
+	Profile.start_daily(20000)
+	Profile.finish_daily(20000, 120)
+	Profile.start_daily(20001)
+	check(Profile.daily_streak == 2 and Profile.daily_score == 0 and Profile.daily_best == 120, "two days in a row")
+	Profile.finish_daily(20001, 80)
+	Profile.finish_daily(20000, 999)
+	check(Profile.daily_score == 80 and Profile.daily_best == 120, "only today's attempt counts")
+	Profile.start_daily(20005)
+	check(Profile.daily_streak == 1, "a day missed: the streak starts over")
+	Profile.reset()
+	var daily := RunState.create(CONTENT, {}, rng, 20000)
+	check(daily.is_daily() and daily.difficulty == CONTENT.default_difficulty, "a daily run is on Normal")
+	daily.daily_official = true
+	var daily_again := RunState.create(CONTENT, daily.to_data(), rng)
+	check(daily_again.daily_day == 20000 and daily_again.daily_official, "a saved daily run stays one")
+
 	var run := RunState.create(CONTENT, {}, rng)
 	check(run.rerolls >= CONTENT.dungeon.base_rerolls and run.banishes >= CONTENT.dungeon.base_banishes, "a new run starts with its rerolls and banishes")
 	run.rerolls = 2

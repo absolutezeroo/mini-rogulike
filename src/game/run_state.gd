@@ -24,12 +24,22 @@ var last_boss: BossDef
 var rerolls := 0
 var banishes := 0
 var banished: Array[PerkDef] = []
+## A daily run (DailyRun): its day, -1 for a normal run. `daily_official`: the day's first
+## attempt, the one whose score counts.
+var daily_day := -1
+var daily_official := false
 
 
 ## A new run, or the saved one (`saved` from RunSave; empty for a new run).
-static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGenerator) -> RunState:
+## `daily_day`: a new daily run of that day (DailyRun), on Normal.
+static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGenerator, daily_day: int = -1) -> RunState:
 	var run := RunState.new()
-	run.difficulty = _pick_difficulty(content, saved)
+	run.daily_day = int(saved.get("daily_day", daily_day))
+	run.daily_official = bool(saved.get("daily_official", false))
+	if run.daily_day >= 0 and saved.is_empty():
+		run.difficulty = content.default_difficulty
+	else:
+		run.difficulty = _pick_difficulty(content, saved)
 	run.depth = int(saved.get("depth", 1))
 	if saved.get("boss_slain", false):
 		run.depth += 1  # saved after the floor's boss died: on to the next floor
@@ -100,13 +110,22 @@ func to_data() -> Dictionary:
 		"rerolls": rerolls,
 		"banishes": banishes,
 		"banished": RunSave.refs(banished),
+		"daily_day": daily_day,
+		"daily_official": daily_official,
 		"difficulty": String(difficulty.id),
 		"ascension": difficulty.ascension,
 	}
 
 
-## "Normal - Mossy Caves, depth 3, level 5 / 42 monsters slain, 1 boss"
+func is_daily() -> bool:
+	return daily_day >= 0
+
+
+## "Normal - Mossy Caves, depth 3, level 5 / 42 monsters slain, 1 boss" (+ the daily score).
 func summary(content: ContentDB, level: int) -> String:
 	var act := content.dungeon.act_for_depth(depth)
-	return "%s - %s, depth %d, level %d\n%d monsters slain, %d bosses" % [
+	var text := "%s - %s, depth %d, level %d\n%d monsters slain, %d bosses" % [
 		difficulty.display_name, act.title if act else "Dungeon", depth, level, kills, bosses_slain]
+	if is_daily():
+		text += "\nDaily score %d%s" % [DailyRun.score(self), ("  (best %d)" % Profile.daily_best) if daily_official else "  (practice)"]
+	return text

@@ -34,6 +34,12 @@ var history: Array = []
 ## quests already paid in them ("d20380" -> [quest ids]). Only the current ones are kept.
 var period_stats := {}
 var quests_claimed := {}
+## The daily run (DailyRun): the day of the last official attempt (-1: never), its score, the
+## best daily score ever, and the days in a row with an official attempt.
+var daily_day := -1
+var daily_score := 0
+var daily_best := 0
+var daily_streak := 0
 
 const HISTORY_SIZE := 20
 ## Empty = nothing is read or written (tests).
@@ -209,6 +215,31 @@ func mark_intro_seen() -> void:
 	save_profile()
 
 
+## Today's official attempt was already taken (later ones are practice).
+func daily_played(day: int) -> bool:
+	return daily_day == day
+
+
+## The official attempt of `day` begins (counted now: quitting doesn't give a second one).
+func start_daily(day: int) -> void:
+	if daily_day == day:
+		return
+	daily_streak = daily_streak + 1 if daily_day == day - 1 else 1
+	daily_day = day
+	daily_score = 0
+	save_profile()
+
+
+## The official attempt of `day` ended (or a won run died later on): its score counts.
+func finish_daily(day: int, score: int) -> void:
+	if daily_day != day:
+		return
+	daily_score = maxi(daily_score, score)
+	daily_best = maxi(daily_best, score)
+	save_profile()
+	changed.emit()
+
+
 func count_run() -> void:
 	runs += 1
 	add_stat("runs")
@@ -232,6 +263,10 @@ func reset() -> void:
 	history = []
 	period_stats = {}
 	quests_claimed = {}
+	daily_day = -1
+	daily_score = 0
+	daily_best = 0
+	daily_streak = 0
 	changed.emit()
 
 
@@ -244,6 +279,7 @@ func save_profile() -> void:
 		"ascension": ascension, "ascension_unlocked": ascension_unlocked,
 		"kills_by_monster": kills_by_monster, "stats": stats, "achievements": achievements, "history": history,
 		"period_stats": period_stats, "quests_claimed": quests_claimed,
+		"daily_day": daily_day, "daily_score": daily_score, "daily_best": daily_best, "daily_streak": daily_streak,
 	})
 
 
@@ -269,6 +305,10 @@ func load_profile() -> void:
 	kills_by_monster = _ints(data.get("kills_by_monster", {}))
 	stats = _ints(data.get("stats", {}))
 	achievements = _ints(data.get("achievements", {}))
+	daily_day = int(data.get("daily_day", -1))
+	daily_score = int(data.get("daily_score", 0))
+	daily_best = int(data.get("daily_best", 0))
+	daily_streak = int(data.get("daily_streak", 0))
 	period_stats = {}
 	var saved_periods: Variant = data.get("period_stats", {})
 	if saved_periods is Dictionary:

@@ -15,6 +15,8 @@ const FADE_TIME := 0.3
 
 ## Set by the title screen's Continue button: pick up the saved run instead of starting one.
 static var resume_requested := false
+## Set by the title screen's Daily button: today's daily run (DailyRun) instead of a normal one.
+static var daily_requested := false
 
 @export var content: ContentDB
 ## Title cards on black (a new act, a curse). Tests turn them off to save time.
@@ -76,9 +78,11 @@ func _ready() -> void:
 	_connect_menus()
 	_connect_events()
 	var saved := RunSave.read() if resume_requested else {}
+	var daily := daily_requested
 	resume_requested = false
+	daily_requested = false
 	if saved.is_empty():
-		start_run()
+		start_run(daily)
 	else:
 		resume_run(saved)
 
@@ -127,8 +131,9 @@ func _connect_events() -> void:
 
 # --- Runs --------------------------------------------------------------------
 
-func start_run() -> void:
-	_begin_run({})
+## `daily`: today's daily run (DailyRun) instead of a normal one.
+func start_run(daily: bool = false) -> void:
+	_begin_run({}, daily)
 
 
 ## Picks up a run saved by RunSave: same depth (a new floor), the hero as saved.
@@ -136,7 +141,7 @@ func resume_run(saved: Dictionary) -> void:
 	_begin_run(saved)
 
 
-func _begin_run(saved: Dictionary) -> void:
+func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	if run and run.has_won:
 		_records.record_history()  # leaving a won run for a new one
 	_set_paused(false)
@@ -149,7 +154,14 @@ func _begin_run(saved: Dictionary) -> void:
 		player.queue_free()
 
 	world.rng.randomize()
-	run = RunState.create(content, saved, world.rng)
+	var day := DailyRun.today() if daily and saved.is_empty() else -1
+	if day >= 0:
+		world.rng.seed = DailyRun.seed_of(day)  # the same bosses all day
+	run = RunState.create(content, saved, world.rng, day)
+	if day >= 0:
+		run.daily_official = not Profile.daily_played(day)
+		if run.daily_official:
+			Profile.start_daily(day)
 	world.difficulty = run.difficulty
 	world.run_bosses = run.bosses
 	world.kept_stock.clear()
@@ -167,6 +179,8 @@ func _begin_run(saved: Dictionary) -> void:
 	content.unlocked_items = ShrineUpgrades.unlocked_items(content)
 	if saved.is_empty():
 		ShrineUpgrades.apply_to(player, content, run.difficulty)
+		if run.is_daily():
+			_give_daily_start()
 		Profile.count_run()
 	else:
 		player.load_state(saved.get("player", {}))
@@ -188,6 +202,18 @@ func _begin_run(saved: Dictionary) -> void:
 	_show_next_offer.call_deferred()  # choices left open in a saved run
 
 
+## The daily run's weapon and relic (the same for everyone that day).
+func _give_daily_start() -> void:
+	var weapon := DailyRun.weapon(content, run.daily_day)
+	if weapon:
+		player.equipment.equip(weapon)
+	var relic := DailyRun.relic(content, run.daily_day)
+	if relic:
+		player.perks.add(relic)
+	player.invalidate_stats()
+	player.hp = player.get_max_hp()
+
+
 ## Souls this run is worth so far (what the shrine gets when it ends).
 func run_souls() -> int:
 	return run.souls()
@@ -195,6 +221,8 @@ func run_souls() -> int:
 
 func _award_souls(won_now: bool) -> int:
 	var earned := run.award_souls(won_now, content.ascensions.size())
+	if run.daily_official:
+		Profile.finish_daily(run.daily_day, DailyRun.score(run))
 	_records.check_achievements()
 	return earned
 
@@ -292,6 +320,8 @@ func _set_paused(paused: bool) -> void:
 
 ## `resumed`: picking a saved run back up (no free heal for quitting and coming back).
 func _enter_floor(resumed: bool = false) -> void:
+	if run.is_daily():
+		world.rng.seed = DailyRun.floor_seed(run.daily_day, depth)  # the same floors all day
 	world.build_floor(depth, content)
 	world.place_player(player)
 	var mood := world.theme.ambience if world.theme else null
