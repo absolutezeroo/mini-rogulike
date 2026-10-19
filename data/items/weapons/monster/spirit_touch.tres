@@ -1,9 +1,11 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
 [ext_resource type="Texture2D" path="res://assets/fx/claw.png" id="1_ovpkm"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_p1qgw"]
 [ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="2_4r7rm"]
 [ext_resource type="AudioStream" path="res://data/audio/hit.tres" id="3_p1qgw"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="4_txt3u"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="6_txt3u"]
 
 [resource]
 script = ExtResource("4_txt3u")
@@ -13,6 +15,7 @@ reach = 22.0
 knockback = 100.0
 attack_fx = ExtResource("1_ovpkm")
 arc_degrees = 90.0
+trail_color = Color(0, 0, 0, 0)
 attack_sound = ExtResource("2_4r7rm")
 hit_sound = ExtResource("3_p1qgw")
 slot = 0

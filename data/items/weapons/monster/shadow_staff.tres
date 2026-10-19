@@ -1,8 +1,10 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
 [ext_resource type="AudioStream" path="res://data/audio/bolt.tres" id="1_fwd3r"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_iq1u1"]
 [ext_resource type="Texture2D" path="res://assets/projectiles/energyball.png" id="2_nxjkd"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="3_iq1u1"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_8v2ce"]
 
 [resource]
 script = ExtResource("3_iq1u1")
@@ -11,6 +13,7 @@ damage = 5
 cooldown = 1.6
 reach = 380.0
 attack_animation = 3
+trail_color = Color(0, 0, 0, 0)
 attack_sound = ExtResource("1_fwd3r")
 projectile_texture = ExtResource("2_nxjkd")
 projectile_speed = 300.0

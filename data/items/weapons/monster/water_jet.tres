@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
 [ext_resource type="AudioStream" path="res://data/audio/launch.tres" id="1_3etdo"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_r55v3"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="2_r55v3"]
 [ext_resource type="Texture2D" path="res://assets/projectiles/icespike.png" id="3_dfew2"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="4_iytj3"]
@@ -19,6 +20,7 @@ cooldown = 1.3
 reach = 360.0
 attack_animation = 3
 on_hit = SubResource("Resource_41fi4")
+trail_color = Color(0, 0, 0, 0)
 attack_sound = ExtResource("1_3etdo")
 projectile_texture = ExtResource("3_dfew2")
 projectile_speed = 480.0

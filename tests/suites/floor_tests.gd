@@ -965,6 +965,27 @@ func _test_details(game: Game) -> void:
 	bar.queue_free()
 
 	check((load("res://data/props/furniture/brazier.tres") as PropDef).flame != null, "braziers burn")
+
+	# Attack effects: a swing draws its arc, a hit its flash, a blast ripples the picture.
+	var effects := world.get_node("Effects")
+	var count_of := func(kind: Script) -> int: return effects.get_children().filter(func(n: Node) -> bool: return n.get_script() == kind).size()
+	player.use_item(load("res://data/items/weapons/katana.tres"))
+	player._attack_cooldown = 0.0
+	player.attack(Vector2.RIGHT)
+	check(count_of.call(SwingVfx) >= 1, "a sword swing draws its arc")
+	Vfx.hit(world, player.global_position, Vector2.RIGHT, Color.RED)
+	check(count_of.call(ImpactVfx) >= 1, "a hit flashes")
+	Vfx.explosion(world, player.global_position + Vector2(200, 0), 60.0)
+	check(count_of.call(ShockwaveVfx) >= 1, "a blast ripples the picture")
+	var shroom := world.spawn_monster(load("res://data/monsters/mushroom.tres"), player.global_position + Vector2(80, 0))
+	shroom.target = player
+	await _frames(1)
+	shroom.casting_index = 0
+	shroom.get_node("StateMachine").transition_to(&"Cast")
+	await _frames(6)
+	var warning := shroom.get_node("Under").get_child(0) as TelegraphView
+	check(warning != null and warning.visible, "a cast shows its warning zone")
+	shroom.queue_free()
 	var garden: BiomeDef = load("res://data/biomes/underground_garden.tres")
 	check(garden.theme.ambience.particles.resource_path.ends_with("fireflies.tscn"), "fireflies in the garden")
 	await _clear_monsters(world)

@@ -10,6 +10,8 @@ const HP_BAR_WIDTH := 26.0
 
 var layer := Layer.UNDER
 var monster: Monster
+## The attack warning (UNDER only).
+var _telegraph: TelegraphView
 
 
 static func create(owner: Monster, overlay_layer: Layer) -> MonsterOverlay:
@@ -18,11 +20,16 @@ static func create(owner: Monster, overlay_layer: Layer) -> MonsterOverlay:
 	overlay.layer = overlay_layer
 	overlay.name = "Under" if overlay_layer == Layer.UNDER else "Over"
 	overlay.show_behind_parent = overlay_layer == Layer.UNDER
+	if overlay_layer == Layer.UNDER:
+		overlay._telegraph = TelegraphView.new()
+		overlay.add_child(overlay._telegraph)
 	return overlay
 
 
 func _process(_delta: float) -> void:
 	queue_redraw()
+	if _telegraph:
+		_update_telegraph()
 
 
 func _draw() -> void:
@@ -33,8 +40,6 @@ func _draw() -> void:
 			_draw_elite_aura()
 		for monster_trait in monster.def.traits:
 			monster_trait.draw_under(monster, self)
-		if monster.telegraph > 0.0:
-			_draw_telegraph()
 	else:
 		if monster.elite:
 			_draw_elite_name()
@@ -45,37 +50,30 @@ func _draw() -> void:
 			draw_rect(Rect2(top_left, Vector2(HP_BAR_WIDTH * monster.hp / monster.get_max_hp(), 4.0)), Palette.BLOOD)
 
 
-## Red warning: the area of a skill being cast, the cone of a melee swing, the line of a shot.
-func _draw_telegraph() -> void:
+## Red warning (TelegraphView): the area of a skill being cast, the cone of a melee swing, the
+## line of a shot, filling up until it lands.
+func _update_telegraph() -> void:
 	var telegraph := monster.telegraph
-	var weapon := monster.get_weapon()
-	var warning := Color(1.0, 0.2, 0.2, 0.15 + 0.35 * telegraph)
-	var skill := monster.casting_skill()
-	if skill:
-		# Casting: circle showing the area (if any), filling up until it goes off.
-		if skill.telegraph_radius > 0.0:
-			draw_circle(Vector2.ZERO, skill.telegraph_radius, Color(1.0, 0.2, 0.2, 0.12))
-			if skill.telegraph_radius * telegraph > 1.0:
-				draw_circle(Vector2.ZERO, skill.telegraph_radius * telegraph, warning)
-			draw_arc(Vector2.ZERO, skill.telegraph_radius, 0.0, TAU, 48, Color(1.0, 0.3, 0.3, 0.7), 2.0)
+	if telegraph <= 0.0 or monster.is_dead or monster.is_falling:
+		_telegraph.visible = false
 		return
-	if weapon and weapon.kind == WeaponDef.Kind.MELEE:
-		# Red cone showing where the hit will land.
-		var reach := (monster.radius + weapon.reach) * telegraph
-		if reach < 2.0:
-			return
+	var weapon := monster.get_weapon()
+	var skill := monster.casting_skill()
+	var angle := monster.facing.angle()
+	if skill:
+		if skill.telegraph_radius > 0.0:
+			_telegraph.show_shape(TelegraphView.Shape.CIRCLE, skill.telegraph_radius, 0.0, telegraph)
+		else:
+			_telegraph.visible = false
+	elif weapon and weapon.kind == WeaponDef.Kind.MELEE:
+		var reach := monster.radius + weapon.reach
 		if weapon.arc_degrees >= 359.0:
-			draw_circle(Vector2.ZERO, reach, warning)
-			return
-		var half := deg_to_rad(weapon.arc_degrees) * 0.5
-		var points := PackedVector2Array([Vector2.ZERO])
-		for i in 13:
-			points.append(Vector2.from_angle(monster.facing.angle() - half + half * 2.0 * i / 12.0) * reach)
-		draw_colored_polygon(points, warning)
+			_telegraph.show_shape(TelegraphView.Shape.CIRCLE, reach, 0.0, telegraph)
+		else:
+			_telegraph.show_shape(TelegraphView.Shape.CONE, reach, angle, telegraph, deg_to_rad(weapon.arc_degrees) * 0.5)
 	else:
-		# Aiming line for ranged attacks.
 		var length := (weapon.reach if weapon else 200.0) * 0.6
-		draw_line(Vector2.ZERO, monster.facing * length, warning, 2.0 + 3.0 * telegraph)
+		_telegraph.show_shape(TelegraphView.Shape.LINE, length, angle, telegraph, 0.0, 8.0)
 
 
 ## Pulsing ring of the affix color at the elite's feet.

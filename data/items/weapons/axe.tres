@@ -24,6 +24,7 @@ knockback = 260.0
 attack_frames = ExtResource("1_43o4g")
 skills = Array[ExtResource("7_067vu")]([ExtResource("8_5isy5"), ExtResource("9_qc47v")])
 arc_degrees = 160.0
+trail_color = Color(0.95, 0.9, 0.85, 0.85)
 attack_sound = ExtResource("2_uvoya")
 hit_sound = ExtResource("4_067vu")
 slot = 0

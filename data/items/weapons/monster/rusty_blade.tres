@@ -1,9 +1,11 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
 [ext_resource type="Texture2D" path="res://assets/fx/slashcurved.png" id="1_3l261"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_lx33h"]
 [ext_resource type="AudioStream" path="res://data/audio/slash.tres" id="2_jj3rg"]
 [ext_resource type="AudioStream" path="res://data/audio/hit.tres" id="3_lx33h"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="4_l20kb"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="6_l20kb"]
 
 [resource]
 script = ExtResource("4_l20kb")
@@ -13,6 +15,7 @@ reach = 26.0
 knockback = 120.0
 attack_fx = ExtResource("1_3l261")
 arc_degrees = 100.0
+trail_color = Color(1, 0.45, 0.4, 0.75)
 attack_sound = ExtResource("2_jj3rg")
 hit_sound = ExtResource("3_lx33h")
 slot = 0

@@ -1,9 +1,11 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_3ed5b"]
 [ext_resource type="Texture2D" path="res://assets/fx/circularslash.png" id="1_kbo4a"]
 [ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="2_js6gp"]
 [ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="3_3ed5b"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="4_npx2h"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="6_npx2h"]
 
 [resource]
 script = ExtResource("4_npx2h")
@@ -14,6 +16,7 @@ knockback = 320.0
 attack_animation = 2
 attack_fx = ExtResource("1_kbo4a")
 arc_degrees = 360.0
+trail_color = Color(0, 0, 0, 0)
 attack_sound = ExtResource("2_js6gp")
 hit_sound = ExtResource("3_3ed5b")
 slot = 0

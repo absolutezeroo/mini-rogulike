@@ -32,6 +32,9 @@ enum AttackAnimation { SLASH, THRUST, SMASH, SHOOT }
 
 @export_group("Melee")
 @export_range(10.0, 360.0) var arc_degrees: float = 110.0
+## Color of the swing's arc (SwingVfx; thrusts draw a streak). Alpha 0: no arc (claws, bites:
+## their sheet is enough).
+@export var trail_color: Color = Color(0.82, 0.92, 1.0, 0.85)
 
 @export_group("Sounds")
 @export var attack_sound: AudioStream

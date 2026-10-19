@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_6ys21"]
 [ext_resource type="Texture2D" path="res://assets/fx/claw.png" id="1_qpdn4"]
 [ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="2_6ys21"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_jarcf"]
@@ -18,6 +19,7 @@ knockback = 60.0
 attack_fx = ExtResource("1_qpdn4")
 on_hit = SubResource("Resource_23epd")
 arc_degrees = 90.0
+trail_color = Color(0, 0, 0, 0)
 attack_sound = ExtResource("2_6ys21")
 slot = 0
 id = &"poison_fang"

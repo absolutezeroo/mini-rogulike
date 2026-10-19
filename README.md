@@ -112,6 +112,13 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   "!" emote when a monster spots you) plus pixel particles for hits, dust and sparkles
   (`src/vfx/particles/*.tscn`, edit them in the inspector), dash afterimages, animated projectiles,
   squash on hit, popping damage numbers, red vignette when hurt or low on HP.
+- **Attack effects** (shaders, all on the art's pixel grid): a melee swing draws a crescent at the
+  weapon's reach and arc (`SwingVfx`, `swing.gdshader`: white cutting edge, the weapon's
+  `trail_color` behind, thinning out in dithered pixels), a thrust a streak; claws and bites keep
+  their sheets. Hits pop a sharp star (`ImpactVfx`, bigger on crits). Blasts ripple the picture
+  (`ShockwaveVfx`, `shockwave.gdshader`). Monster warnings (`TelegraphView`, `telegraph.gdshader`):
+  zone, cone or line with crawling hazard stripes and a solid rim, filling up from the monster as
+  the attack comes, flashing just before it lands. Shots leave a glowing streak.
 - **Little details**: fights leave **splats** on the floor (`SplatLayer`, `World.add_splat`): blood,
   green slime, purple ink, bone dust, in each monster's `splat_color` (spirits and flames leave
   none), fading after a while. **Plants sway** in a breeze and **bend** away from whoever walks

@@ -28,9 +28,26 @@ static func burst(world: World, scene: PackedScene, at: Vector2, color: Color = 
 	world.spawn_vfx(particles)
 
 
-## Sparks flying away from an impact.
-static func hit(world: World, at: Vector2, direction: Vector2, color: Color = Color.WHITE) -> void:
+## A sharp flash and sparks flying away from an impact (bigger for a critical hit).
+static func hit(world: World, at: Vector2, direction: Vector2, color: Color = Color.WHITE, big: bool = false) -> void:
 	burst(world, HIT_SPARKS, at, color, direction)
+	world.spawn_vfx(ImpactVfx.create(at, direction, color, big))
+
+
+## The arc of a melee swing (or the streak of a thrust), at the weapon's reach.
+static func swing(attacker: Actor, aim: Vector2, weapon: WeaponDef, duration: float) -> void:
+	if weapon.trail_color.a <= 0.0 or weapon.kind != WeaponDef.Kind.MELEE:
+		return
+	if weapon.attack_animation == WeaponDef.AttackAnimation.SMASH:
+		return  # an overhead blow: its ring and dust say it
+	var thrust := weapon.attack_animation == WeaponDef.AttackAnimation.THRUST
+	var reach := attacker.radius + weapon.reach
+	attacker.world.spawn_vfx(SwingVfx.create(attacker.global_position + Vector2(0, -6), aim, reach, weapon.arc_degrees, thrust, weapon.trail_color, duration))
+
+
+## A ripple running through the picture around a blast.
+static func shockwave(world: World, at: Vector2, reach: float, strength: float = 6.0) -> void:
+	world.spawn_vfx(ShockwaveVfx.create(at, reach, strength))
 
 
 ## Chunks in the monster's color plus a puff of smoke.
@@ -60,6 +77,7 @@ static func explosion(world: World, at: Vector2, radius: float) -> void:
 	world.flash_light(at, Color(1.0, 0.62, 0.32), radius * 3.0)
 	burst(world, FIRE, at, Color.WHITE, Vector2.ZERO, size * 0.7)
 	burst(world, SMOKE, at, Color.WHITE, Vector2.ZERO, size)
+	shockwave(world, at, radius * 1.4, clampf(radius / 12.0, 4.0, 9.0))
 	Sfx.play_at(Sfx.bank.explosion, at)
 	if world.player and world.player.global_position.distance_to(at) < 600.0:
 		Events.screen_shake.emit(0.45 * size)

@@ -1,8 +1,10 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
 [ext_resource type="Texture2D" path="res://assets/fx/claw.png" id="1_bte2e"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_dpq6u"]
 [ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="2_kb3y8"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="3_dpq6u"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_6t35l"]
 
 [resource]
 script = ExtResource("3_dpq6u")
@@ -12,6 +14,7 @@ reach = 14.0
 knockback = 60.0
 attack_fx = ExtResource("1_bte2e")
 arc_degrees = 90.0
+trail_color = Color(0, 0, 0, 0)
 attack_sound = ExtResource("2_kb3y8")
 slot = 0
 id = &"bite"

@@ -26,6 +26,7 @@ attack_fx = ExtResource("3_xagnq")
 attack_fx_rotation = 45.0
 skills = Array[ExtResource("9_8jacy")]([ExtResource("10_ykh10"), ExtResource("11_5k5vi")])
 arc_degrees = 120.0
+trail_color = Color(0.75, 0.7, 1, 0.85)
 attack_sound = ExtResource("4_wymdo")
 hit_sound = ExtResource("6_4bapg")
 slot = 0

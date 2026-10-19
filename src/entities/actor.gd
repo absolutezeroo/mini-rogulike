@@ -197,6 +197,7 @@ func attack(direction: Vector2) -> bool:
 	Sfx.play_at(weapon.attack_sound, global_position)
 	if rig:
 		rig.play_attack(weapon, facing, _attack_cooldown)
+	Vfx.swing(self, facing, weapon, minf(_attack_cooldown * 0.45, 0.15))
 	if weapon.kind == WeaponDef.Kind.MELEE:
 		Combat.melee_strike(self, facing, weapon)
 	else:
@@ -240,7 +241,7 @@ func take_hit(hit: HitInfo) -> void:
 		rig.play_hurt()
 	if not hit.is_secondary:
 		var spark_direction := hit.knockback.normalized() if hit.knockback != Vector2.ZERO else Vector2.UP
-		Vfx.hit(world, global_position + Vector2(0, -radius * 0.5), spark_direction, _hit_spark_color(hit))
+		Vfx.hit(world, global_position + Vector2(0, -radius * 0.5), spark_direction, _hit_spark_color(hit), hit.is_crit)
 		Sfx.play_at(_hurt_sound(hit), global_position)
 	world.spawn_floating_text(head_position(), str(damage) + ("!" if hit.is_crit else ""), _hit_text_color(hit))
 	health_changed.emit(hp, get_max_hp())

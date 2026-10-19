@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
 [ext_resource type="Texture2D" path="res://assets/fx/claw.png" id="1_buejj"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_nswvi"]
 [ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="2_nswvi"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_rm5pq"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="4_krfps"]
@@ -19,6 +20,7 @@ knockback = 80.0
 attack_fx = ExtResource("1_buejj")
 on_hit = SubResource("Resource_r44ri")
 arc_degrees = 120.0
+trail_color = Color(0, 0, 0, 0)
 attack_sound = ExtResource("2_nswvi")
 slot = 0
 id = &"fire_touch"

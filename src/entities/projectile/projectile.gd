@@ -151,8 +151,12 @@ func _draw_sprite() -> void:
 	var frame := int(_travelled / 40.0) % frame_count
 	var size := Vector2(frame_width, height) * 2.0
 	var source := Rect2(frame * frame_width, 0, frame_width, height)
-	# Faint trail behind it.
+	# A glowing streak behind it, thinning out.
+	for i in _trail.size():
+		var t := float(i + 1) / (_trail.size() + 1)
+		var local := (_trail[i] - global_position).rotated(-rotation)
+		draw_circle(local, size.y * (0.12 + 0.22 * t), Color(_spec.color, 0.35 * t))
 	var glow := _spec.color
-	glow.a = 0.25
-	draw_circle(Vector2(-size.x * 0.3, 0), size.y * 0.3, glow)
+	glow.a = 0.3
+	draw_circle(Vector2(-size.x * 0.25, 0), size.y * 0.35, glow)
 	draw_texture_rect_region(texture, Rect2(-size * 0.5, size), source, Color.WHITE)
