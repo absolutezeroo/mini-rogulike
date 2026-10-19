@@ -1,0 +1,10 @@
+[gd_resource type="AudioStreamRandomizer" format=3]
+
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/forge/socket.ogg" id="1_s"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/forge/rune.ogg" id="2_r"]
+
+[resource]
+random_pitch = 1.05
+streams_count = 2
+stream_0/stream = ExtResource("1_s")
+stream_1/stream = ExtResource("2_r")

@@ -26,6 +26,7 @@
 [ext_resource type="Resource" path="res://data/skills/boss/feather_storm.tres" id="19_ummt5"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/tengu_blade.tres" id="20_5tsuo"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="23_872si"]
+[ext_resource type="Resource" path="res://data/materials/flesh.tres" id="99_material"]
 
 [sub_resource type="Resource" id="Resource_ixdwd"]
 script = ExtResource("1_872si")
@@ -111,6 +112,7 @@ crit_chance = 0.1
 
 [resource]
 script = ExtResource("18_mk8wd")
+material = ExtResource("99_material")
 title = "Warden of the Burning Temple"
 portrait = ExtResource("17_c0dat")
 phases = Array[ExtResource("11_l2j53")]([SubResource("Resource_tqytt"), SubResource("Resource_l2j53")])

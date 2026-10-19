@@ -13,6 +13,7 @@
 [ext_resource type="Resource" path="res://data/skills/monster/charge.tres" id="11_kggex"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="12_ij762"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/scimitar.tres" id="13_drxyp"]
+[ext_resource type="Resource" path="res://data/materials/flesh.tres" id="99_material"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_tiqkg"]
 atlas = ExtResource("3_kkwdp")
@@ -50,6 +51,7 @@ move_speed = 95.0
 
 [resource]
 script = ExtResource("1_obsip")
+material = ExtResource("99_material")
 stats = SubResource("Resource_omiat")
 weapon = ExtResource("13_drxyp")
 skills = Array[ExtResource("10_t1j0u")]([ExtResource("11_kggex")])

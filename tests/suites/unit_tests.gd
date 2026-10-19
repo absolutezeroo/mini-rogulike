@@ -17,6 +17,7 @@ func run() -> void:
 	_test_monster_ranks()
 	_test_arenas()
 	_test_lighting()
+	_test_runes()
 	_test_bosses()
 	_test_profile()
 
@@ -483,6 +484,49 @@ func _test_lighting() -> void:
 				var high := theme_light.color_of(level + 1)
 				ok = ok and high.get_luminance() >= low.get_luminance() - 0.001 and high.r <= 1.0 and high.g <= 1.0 and high.b <= 1.0
 			check(ok, "%s: its light dims step by step" % biome.id)
+
+
+## Runes and sockets: 1 to 3 by rarity, saved with the weapon, working like a perk while worn.
+func _test_runes() -> void:
+	check(CONTENT.runes.size() >= 10, "runes to find (%d)" % CONTENT.runes.size())
+	var families := {}
+	for rune in CONTENT.runes:
+		check(rune.family != null and not rune.passives.is_empty() and rune.icon != null and not rune.description.is_empty(), "%s: a family, a power, a look, words" % rune.id)
+		check(not CONTENT.items.has(rune), "%s: not in the random items" % rune.id)
+		if rune.family:
+			families[rune.family] = true
+	check(families.size() >= 5, "runes of every family")
+	var katana: WeaponDef = load("res://data/items/weapons/katana.tres")
+	var armor: EquipmentDef = null
+	for item in CONTENT.items:
+		if item is EquipmentDef and (item as EquipmentDef).slot == EquipmentDef.Slot.BODY:
+			armor = item
+			break
+	check(katana.socket_count() == 1 and (armor == null or armor.socket_count() == 0), "a plain weapon has 1 socket, armor none")
+	var rare := LootRoller.make(katana, ItemRarity.RARE, [])
+	var epic := LootRoller.make(katana, ItemRarity.EPIC, [])
+	check(rare.socket_count() == 2 and epic.socket_count() == 3, "rare 2 sockets, epic 3")
+	var ember: RuneDef = CONTENT.runes[0]
+	var copy := LootRoller.make(katana, ItemRarity.COMMON, [])
+	copy.runes.append(ember)
+	check(katana.runes.is_empty(), "a rune in a copy never touches the plain weapon")
+	var back := LootRoller.from_data(LootRoller.to_data(copy)) as EquipmentDef
+	check(back.rarity == ItemRarity.COMMON and back.runes == copy.runes and back.base_item == katana, "a common weapon with a rune comes back from a save")
+	var perks := PerkSet.new()
+	perks.set_gear([], [ember, ember])
+	check(perks._gear.size() == 2, "each set rune works like a perk")
+	var smith: ForgeDef = CONTENT.dungeon.forge
+	check(smith != null and smith.removal_cost(8) > smith.removal_cost(1), "the smith charges more deeper down")
+	check(CONTENT.dungeon.forge_chance > 0.0 and CONTENT.dungeon.boss_runes >= 1, "forges show up, bosses drop runes")
+	var bare: Array[StringName] = []
+	for act in CONTENT.dungeon.acts:
+		for monster in act.monsters:
+			if monster and monster.material == null:
+				bare.append(monster.id)
+		for boss in act.all_bosses():
+			if boss.material == null:
+				bare.append(boss.id)
+	check(bare.is_empty(), "every monster and boss is made of something %s" % str(bare))
 
 
 func _test_monster_ranks() -> void:

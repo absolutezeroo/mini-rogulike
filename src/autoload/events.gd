@@ -22,10 +22,14 @@ signal encounter_requested(encounter: Encounter)
 signal perk_offer_requested(rarity: int, title: String, subtitle: String)
 ## The hero walked up to the merchant.
 signal shop_requested(merchant: Merchant)
+## The hero walked up to the smith's forge.
+signal forge_requested(forge: Forge)
 ## A soul set free by a kill reached the hero's lantern (see SoulWisp).
 signal soul_gathered
 ## Something big happened near the hero: the camera shakes (0..1, see GameCamera.shake()).
 signal screen_shake(amount: float)
+## A short push of the camera (pixels, along `direction`): the weight of a blow, a shot's recoil.
+signal camera_kick(direction: Vector2, pixels: float)
 ## The player entered a boss arena and the fight began.
 signal boss_started(boss: Monster)
 ## The boss of the floor died: the arena opens and the stairs appear.

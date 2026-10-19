@@ -12,3 +12,5 @@ const AFFIX_COUNT: Array[int] = [0, 1, 2, 3]
 const POWER: Array[float] = [1.0, 1.1, 1.2, 1.35]
 ## Multiplies the price at the merchant.
 const VALUE: Array[float] = [1.0, 1.8, 3.0, 5.0]
+## Rune sockets of a weapon of this rarity (see RuneDef, Forge).
+const SOCKETS: Array[int] = [1, 1, 2, 3]

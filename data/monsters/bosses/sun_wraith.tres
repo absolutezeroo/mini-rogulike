@@ -24,6 +24,7 @@
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="19_60j2e"]
 [ext_resource type="Resource" path="res://data/skills/boss/call_embers_fierce.tres" id="19_j25dn"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/demon_club.tres" id="20_bidgj"]
+[ext_resource type="Resource" path="res://data/materials/spirit.tres" id="99_material"]
 
 [sub_resource type="Resource" id="Resource_yx4tt"]
 script = ExtResource("1_xpnjk")
@@ -104,6 +105,7 @@ move_speed = 70.0
 
 [resource]
 script = ExtResource("18_wbh2q")
+material = ExtResource("99_material")
 title = "Burning Keeper of the Well"
 portrait = ExtResource("4_j25dn")
 phases = Array[ExtResource("12_348gy")]([SubResource("Resource_r3h8l"), SubResource("Resource_cxv8w")])

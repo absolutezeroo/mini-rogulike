@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="ImpactMaterialDef" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/impact_material_def.gd" id="1_mat"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/materials/flesh_0.ogg" id="2_s0"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/materials/flesh_1.ogg" id="3_s1"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/materials/flesh_2.ogg" id="4_s2"]
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_hit"]
+random_pitch = 1.12
+random_volume_offset_db = 1.5
+streams_count = 3
+stream_0/stream = ExtResource("2_s0")
+stream_1/stream = ExtResource("3_s1")
+stream_2/stream = ExtResource("4_s2")
+
+[resource]
+script = ExtResource("1_mat")
+display_name = "Flesh"
+sound = SubResource("AudioStreamRandomizer_hit")
+volume_db = -5.0
+spark_color = Color(1, 0.85, 0.8, 1)
+debris_colors = PackedColorArray(0.55, 0.12, 0.12, 1, 0.72, 0.2, 0.18, 1, 0.9, 0.75, 0.65, 1)
+debris_count = 6

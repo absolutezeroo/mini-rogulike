@@ -66,6 +66,10 @@ var ambush: AmbushRoom
 ## Merchant stock the hero locked and didn't buy: { item, price, locked } entries waiting for the
 ## next merchant (see Merchant). Lives as long as the run.
 var kept_stock: Array[Dictionary] = []
+## Floors in a row without the smith's forge (each makes the next more likely).
+var floors_without_forge := 0
+## The same, when this floor began (what a save keeps: a resumed run makes the floor again).
+var forge_drought_at_start := 0
 ## Where the stairs are (boss floors get theirs when the boss dies).
 var stairs_cells: Array[Vector2i] = []
 ## Normal floors: the stairs open once enough of the floor's monsters are slain.
@@ -105,6 +109,7 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 	clear_floor()
 	floor_id += 1
 	depth = new_depth
+	forge_drought_at_start = floors_without_forge
 	_content = content
 	var boss := content.dungeon.boss_for_depth(depth)
 	var act_index := content.dungeon.act_index(depth)
@@ -245,6 +250,27 @@ func spawn_encounter(def: EncounterDef, cell: Vector2i) -> Encounter:
 	encounter.setup(def, self)
 	_place_on_cell(encounter, cell)
 	return encounter
+
+
+func spawn_forge(def: ForgeDef, cell: Vector2i) -> Forge:
+	var forge := Forge.new()
+	forge.setup(def, self)
+	_place_on_cell(forge, cell)
+	return forge
+
+
+## A rune for this floor (null if none).
+func pick_rune() -> RuneDef:
+	return _content.pick_rune(depth, rng) if _content else null
+
+
+## Drops a rune at `at` (`chance`: 1 = always).
+func drop_rune(at: Vector2, chance: float = 1.0) -> void:
+	if chance < 1.0 and rng.randf() >= chance:
+		return
+	var rune := pick_rune()
+	if rune:
+		spawn_item(rune, at)
 
 
 func spawn_merchant(def: ShopDef, cell: Vector2i) -> Merchant:
@@ -535,10 +561,26 @@ func spawn_vfx(node: Node2D) -> void:
 func add_splat(at: Vector2, color: Color, size: float = 1.0, direction: Vector2 = Vector2.ZERO) -> void:
 	if color.a <= 0.0 or not is_solid_ground(at):
 		return
+	_splat_layer().add(at, color, size, direction, rng)
+
+
+## Chips of what a monster was made of, left where it died for the whole floor.
+func add_debris(at: Vector2, material: ImpactMaterialDef, size: float = 1.0, direction: Vector2 = Vector2.ZERO) -> void:
+	if not is_solid_ground(at):
+		return
+	_splat_layer().add_debris(at, material, size, direction, rng)
+
+
+func _splat_layer() -> SplatLayer:
 	if _splats == null or not is_instance_valid(_splats) or _splats.is_queued_for_deletion():
 		_splats = SplatLayer.new()
 		_effects.add_child(_splats)
-	_splats.add(at, color, size, direction, rng)
+	return _splats
+
+
+## Chips flung on this floor so far.
+func debris_count() -> int:
+	return _splats.chip_count() if _splats and is_instance_valid(_splats) and not _splats.is_queued_for_deletion() else 0
 
 
 func splat_count() -> int:

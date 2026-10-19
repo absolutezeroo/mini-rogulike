@@ -44,12 +44,14 @@ static func pick_rarity(depth: int, quality: float, config: DungeonConfig, rng: 
 	return ItemRarity.COMMON
 
 
-## A copy of `base` with that rarity and those affixes (also how saved items come back).
-static func make(base: EquipmentDef, rarity: int, affixes: Array[ItemAffixDef]) -> EquipmentDef:
+## A copy of `base` with that rarity, those affixes and runes (also how saved items come back,
+## and how a plain weapon becomes its own copy when a rune goes in).
+static func make(base: EquipmentDef, rarity: int, affixes: Array[ItemAffixDef], runes: Array[RuneDef] = []) -> EquipmentDef:
 	var item := base.duplicate() as EquipmentDef
 	item.base_item = base
 	item.rarity = rarity
 	item.affixes = affixes
+	item.runes = runes.duplicate()  # its own list, never the plain item's
 	var power := ItemRarity.POWER[rarity]
 	var total := StatBlock.new()
 	if base.bonuses:
@@ -79,11 +81,11 @@ static func make(base: EquipmentDef, rarity: int, affixes: Array[ItemAffixDef]) 
 
 # --- Saving -------------------------------------------------------------------
 
-## Plain items save as their path, rolled ones as { base, rarity, affixes }.
+## Plain items save as their path, rolled ones as { base, rarity, affixes, runes }.
 static func to_data(item: ItemDef) -> Variant:
 	var equipment := item as EquipmentDef
 	if equipment and equipment.is_rolled():
-		return { "base": RunSave.ref(equipment.base_item), "rarity": equipment.rarity, "affixes": RunSave.refs(equipment.affixes) }
+		return { "base": RunSave.ref(equipment.base_item), "rarity": equipment.rarity, "affixes": RunSave.refs(equipment.affixes), "runes": RunSave.refs(equipment.runes) }
 	return RunSave.ref(item)
 
 
@@ -97,5 +99,10 @@ static func from_data(data: Variant) -> ItemDef:
 			var affix := RunSave.load_ref(reference) as ItemAffixDef
 			if affix:
 				affixes.append(affix)
-		return make(base, clampi(int(data.get("rarity", 1)), ItemRarity.MAGIC, ItemRarity.EPIC), affixes)
+		var runes: Array[RuneDef] = []
+		for reference: Variant in data.get("runes", []):
+			var rune := RunSave.load_ref(reference) as RuneDef
+			if rune:
+				runes.append(rune)
+		return make(base, clampi(int(data.get("rarity", 1)), ItemRarity.COMMON, ItemRarity.EPIC), affixes, runes)
 	return RunSave.load_ref(data) as ItemDef

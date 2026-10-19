@@ -16,6 +16,7 @@
 [ext_resource type="Resource" path="res://data/skills/monster/war_cry.tres" id="13_rr105"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="14_0xo7f"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/club.tres" id="15_gmh11"]
+[ext_resource type="Resource" path="res://data/materials/flesh.tres" id="99_material"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_6s682"]
 atlas = ExtResource("2_x57ba")
@@ -69,6 +70,7 @@ move_speed = 70.0
 
 [resource]
 script = ExtResource("11_1wald")
+material = ExtResource("99_material")
 stats = SubResource("Resource_ilqm2")
 weapon = ExtResource("15_gmh11")
 skills = Array[ExtResource("12_3tvo1")]([ExtResource("13_rr105")])

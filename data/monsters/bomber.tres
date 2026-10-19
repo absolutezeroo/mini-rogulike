@@ -11,6 +11,7 @@
 [ext_resource type="Resource" path="res://data/skills/monster/throw_bomb.tres" id="9_qwjko"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_e548m"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/rusty_blade.tres" id="11_jonx4"]
+[ext_resource type="Resource" path="res://data/materials/armor.tres" id="99_material"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_k13vd"]
 atlas = ExtResource("3_3iugt")
@@ -44,6 +45,7 @@ move_speed = 90.0
 
 [resource]
 script = ExtResource("1_ysopy")
+material = ExtResource("99_material")
 stats = SubResource("Resource_8erx7")
 weapon = ExtResource("11_jonx4")
 skills = Array[ExtResource("8_21ru8")]([ExtResource("9_qwjko")])

@@ -13,6 +13,7 @@
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_mnlim"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/eye_beam_bolt.tres" id="12_e8dg8"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="12_mhj34"]
+[ext_resource type="Resource" path="res://data/materials/spirit.tres" id="99_material"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_i7mwh"]
 atlas = ExtResource("3_2gh8m")
@@ -45,6 +46,7 @@ move_speed = 40.0
 
 [resource]
 script = ExtResource("1_ppyuk")
+material = ExtResource("99_material")
 stats = SubResource("Resource_dm8gw")
 weapon = ExtResource("12_e8dg8")
 skills = Array[ExtResource("9_uxfhs")]([ExtResource("10_y1d81")])

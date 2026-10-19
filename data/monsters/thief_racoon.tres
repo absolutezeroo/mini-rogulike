@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="9_8dbkx"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/claws.tres" id="9_qwqtg"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/thief_trait.gd" id="10_d5lei"]
+[ext_resource type="Resource" path="res://data/materials/flesh.tres" id="99_material"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_qe77l"]
 atlas = ExtResource("3_8dbkx")
@@ -36,6 +37,7 @@ script = ExtResource("10_d5lei")
 
 [resource]
 script = ExtResource("1_r5uhc")
+material = ExtResource("99_material")
 stats = SubResource("Resource_d54hh")
 weapon = ExtResource("9_qwqtg")
 radius = 10.0

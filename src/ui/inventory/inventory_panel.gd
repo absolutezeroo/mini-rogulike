@@ -119,7 +119,7 @@ func _refresh_details() -> void:
 		item = _player.equipment.get_item(_selected_slot)
 	if _selected_belt != NO_SLOT:
 		item = _player.belt.item_at(_selected_belt)
-	_use_button.visible = item != null
+	_use_button.visible = item != null and not item is RuneDef  # runes go in at a forge
 	_drop_button.visible = item != null and _selected_slot == NO_SLOT and _selected_belt == NO_SLOT
 	# Consumables move between the belt and the bag.
 	_belt_button.visible = item is ConsumableDef and (_selected_belt != NO_SLOT or _player.belt.can_add(item))

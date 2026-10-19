@@ -33,6 +33,7 @@
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/azure_wyrm/bodyend.png" id="27_0lqao"]
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/azure_wyrm/wing.png" id="28_6blim"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/frost_fang.tres" id="29_6v430"]
+[ext_resource type="Resource" path="res://data/materials/flesh.tres" id="99_material"]
 
 [sub_resource type="Resource" id="Resource_3qefx"]
 script = ExtResource("1_e5a27")
@@ -124,6 +125,7 @@ tail = ExtResource("27_0lqao")
 
 [resource]
 script = ExtResource("22_o4fo3")
+material = ExtResource("99_material")
 title = "Frozen Breath of the Crypt"
 portrait = ExtResource("6_i7kiq")
 arenas = Array[ExtResource("1_qjfa6")]([ExtResource("2_i7kiq"), ExtResource("3_bp0ii"), ExtResource("4_ffh1c")])

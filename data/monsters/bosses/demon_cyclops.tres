@@ -26,6 +26,7 @@
 [ext_resource type="Resource" path="res://data/skills/boss/quake_fierce.tres" id="19_ptf4d"]
 [ext_resource type="Resource" path="res://data/skills/boss/call_skeletons_fierce.tres" id="20_dngni"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="23_nk8yc"]
+[ext_resource type="Resource" path="res://data/materials/flesh.tres" id="99_material"]
 
 [sub_resource type="Resource" id="Resource_v1ga4"]
 script = ExtResource("1_dngni")
@@ -110,6 +111,7 @@ move_speed = 70.0
 
 [resource]
 script = ExtResource("18_lv27d")
+material = ExtResource("99_material")
 title = "Warden of the Crypt"
 portrait = ExtResource("17_hw63p")
 phases = Array[ExtResource("11_mjgm1")]([SubResource("Resource_mjgm1"), SubResource("Resource_fmbws")])

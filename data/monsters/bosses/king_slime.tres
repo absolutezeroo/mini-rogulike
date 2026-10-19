@@ -25,6 +25,7 @@
 [ext_resource type="Resource" path="res://data/skills/boss/slime_rain.tres" id="18_8xj5f"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/slime_slam.tres" id="19_4elis"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="22_20bwb"]
+[ext_resource type="Resource" path="res://data/materials/slime.tres" id="99_material"]
 
 [sub_resource type="Resource" id="Resource_ookps"]
 script = ExtResource("1_20bwb")
@@ -109,6 +110,7 @@ move_speed = 60.0
 
 [resource]
 script = ExtResource("17_pf55w")
+material = ExtResource("99_material")
 title = "Warden of the Mouth of the Well"
 portrait = ExtResource("16_w05qf")
 phases = Array[ExtResource("11_aad1y")]([SubResource("Resource_ghebr"), SubResource("Resource_aad1y")])

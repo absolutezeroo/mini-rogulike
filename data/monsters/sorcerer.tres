@@ -15,6 +15,7 @@
 [ext_resource type="Resource" path="res://data/skills/monster/volley.tres" id="11_icgja"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="12_1b2gv"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/shadow_staff.tres" id="13_tfprk"]
+[ext_resource type="Resource" path="res://data/materials/flesh.tres" id="99_material"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_4v1u7"]
 atlas = ExtResource("2_1pgqb")
@@ -62,6 +63,7 @@ move_speed = 80.0
 
 [resource]
 script = ExtResource("9_b87ng")
+material = ExtResource("99_material")
 stats = SubResource("Resource_gxdsf")
 weapon = ExtResource("13_tfprk")
 skills = Array[ExtResource("10_3084y")]([ExtResource("11_icgja")])

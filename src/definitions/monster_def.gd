@@ -20,6 +20,8 @@ extends ContentDef
 ## What it leaves on the floor when hit or killed (blood, slime, ink...). Alpha 0: nothing
 ## (spirits, flames, skulls).
 @export var splat_color: Color = Color(0.42, 0.05, 0.08, 0.85)
+## What it is made of: how hits on it sound, its sparks, the chips it leaves when it dies.
+@export var material: ImpactMaterialDef
 ## How much of the knockback it ignores: 0 = pushed around freely, 1 = never moves.
 ## Bosses stand their ground, so no weapon can keep them away from you.
 @export_range(0.0, 1.0, 0.05) var knockback_resistance: float = 0.0

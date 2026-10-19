@@ -147,6 +147,15 @@ func _build_hero(parent: Control) -> void:
 			if item is ConsumableDef:
 				_game.player.store(item), "Consumables added")))
 
+	var forge := _section(parent, "Forge")
+	forge.add_child(_button("Forge here", func() -> void: _act(func() -> void:
+		var world: World = _game.world
+		var cell := world.map.world_to_cell(world.find_open_point_near(_game.player.global_position + Vector2(70, 0), 40.0))
+		world.spawn_forge(_game_content().dungeon.forge, cell), "The smith is here")))
+	forge.add_child(_button("Every rune", func() -> void: _act(func() -> void:
+		for rune in _game_content().runes:
+			_game.player.inventory.add(rune), "Runes in the bag")))
+
 	var heat := _section(parent, "Temperature")
 	heat.add_child(_button("Freezing", func() -> void: _act(func() -> void: _game.player.temperature.value = -90.0, "Cold")))
 	heat.add_child(_button("Burning", func() -> void: _act(func() -> void: _game.player.temperature.value = 90.0, "Hot")))

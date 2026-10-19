@@ -25,6 +25,7 @@
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="19_qm0vi"]
 [ext_resource type="Resource" path="res://data/skills/boss/call_thieves_fierce.tres" id="20_0guwt"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/slime_slam.tres" id="20_aco0h"]
+[ext_resource type="Resource" path="res://data/materials/armor.tres" id="99_material"]
 
 [sub_resource type="Resource" id="Resource_s53ed"]
 script = ExtResource("1_0guwt")
@@ -105,6 +106,7 @@ move_speed = 65.0
 
 [resource]
 script = ExtResource("18_nlcxe")
+material = ExtResource("99_material")
 title = "Keeper of the Well"
 portrait = ExtResource("4_brnay")
 phases = Array[ExtResource("12_wvbbl")]([SubResource("Resource_myfj7"), SubResource("Resource_u0ub8")])

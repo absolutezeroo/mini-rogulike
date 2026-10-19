@@ -13,6 +13,7 @@
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="10_y3bqx"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/fire_touch.tres" id="11_6117i"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/death_burst_trait.gd" id="11_ivww6"]
+[ext_resource type="Resource" path="res://data/materials/spirit.tres" id="99_material"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_drbyk"]
 atlas = ExtResource("4_ivww6")
@@ -50,6 +51,7 @@ status = SubResource("Resource_0bvgo")
 
 [resource]
 script = ExtResource("2_7n526")
+material = ExtResource("99_material")
 stats = SubResource("Resource_thu3f")
 weapon = ExtResource("11_6117i")
 radius = 10.0

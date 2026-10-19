@@ -352,6 +352,9 @@ func _on_damaged(hit: HitInfo, _damage: int) -> void:
 	if hit.source is Player and not hit.is_secondary:
 		HitStop.freeze(0.07 if hit.is_crit else 0.035)
 		Settings.vibrate(0.15 if hit.is_crit else 0.05)
+		# The blow lands: the camera leans into it.
+		var push := hit.knockback.normalized() if hit.knockback != Vector2.ZERO else hit.source.global_position.direction_to(global_position)
+		Events.camera_kick.emit(push, 6.0 if hit.is_crit else 3.5)
 	if dormant and hit.source:
 		wake_up(hit.source)
 	_update_boss_phase()
@@ -424,6 +427,10 @@ func _tick_timers(delta: float) -> void:
 			invincible = false
 
 
+func _impact_material() -> ImpactMaterialDef:
+	return def.material
+
+
 func _hurt_sound(hit: HitInfo) -> AudioStream:
 	if hit.sound:
 		return hit.sound
@@ -456,7 +463,12 @@ func _on_died(killer: Actor) -> void:
 		HitStop.freeze(0.25)
 	else:
 		Vfx.death(world, global_position, def.color)
+		if killer is Player:
+			_kill_punch()
 	world.add_splat(global_position, def.splat_color, clampf(radius / 11.0, 0.8, 2.2))
+	if def.material:
+		var away := last_hit.knockback.normalized() if last_hit and last_hit.knockback != Vector2.ZERO else Vector2.ZERO
+		world.add_debris(global_position, def.material, clampf(radius / 11.0, 0.8, 2.5), away)
 	if summoned:
 		return  # called in by another monster: no rewards, or a summoner could be farmed forever
 	if killer is Player:
@@ -473,7 +485,24 @@ func _on_died(killer: Actor) -> void:
 		var item := world.pick_random_item()
 		if item:
 			world.spawn_loot(item, global_position + Vector2.from_angle(world.rng.randf() * TAU) * world.rng.randf_range(6.0, 16.0), quality)
+	# Runes: always from a boss, often from elites and up, rarely from the others.
+	var rune_at := global_position + Vector2.from_angle(world.rng.randf() * TAU) * world.rng.randf_range(8.0, 18.0)
+	if is_boss():
+		for i in config.boss_runes:
+			world.drop_rune(rune_at + Vector2(i * 14.0, 0))
+	else:
+		world.drop_rune(rune_at, config.ranked_rune_chance if rank else config.rune_chance)
 	_drop_gold()
+
+
+## Killing blow: a heavier stop; the strong ones (elites and up) slow the world a moment.
+func _kill_punch() -> void:
+	if rank:
+		HitStop.freeze(0.08)
+		HitStop.slow(0.35, 0.35)
+		Events.screen_shake.emit(0.3)
+	else:
+		HitStop.freeze(0.05)
 
 
 func _drop_gold() -> void:

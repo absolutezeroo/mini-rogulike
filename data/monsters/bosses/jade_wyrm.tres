@@ -34,6 +34,7 @@
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/jade_wyrm/bodyend.png" id="28_y4pna"]
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/jade_wyrm/wing.png" id="29_o505x"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/jade_fang.tres" id="30_nil01"]
+[ext_resource type="Resource" path="res://data/materials/flesh.tres" id="99_material"]
 
 [sub_resource type="Resource" id="Resource_x73cv"]
 script = ExtResource("1_o02c8")
@@ -125,6 +126,7 @@ tail = ExtResource("28_y4pna")
 
 [resource]
 script = ExtResource("23_shxrq")
+material = ExtResource("99_material")
 title = "Coiled Guardian of the Temple"
 portrait = ExtResource("6_ek3pd")
 arenas = Array[ExtResource("1_d6sup")]([ExtResource("2_ek3pd"), ExtResource("3_ijmc7"), ExtResource("4_47kvs")])

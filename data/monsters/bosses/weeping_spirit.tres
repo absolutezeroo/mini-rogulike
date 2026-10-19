@@ -24,6 +24,7 @@
 [ext_resource type="Resource" path="res://data/skills/boss/call_spirits_fierce.tres" id="19_fqm73"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/demon_club.tres" id="20_8w8kl"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="21_nx8ek"]
+[ext_resource type="Resource" path="res://data/materials/spirit.tres" id="99_material"]
 
 [sub_resource type="Resource" id="Resource_xt7uf"]
 script = ExtResource("1_nx8ek")
@@ -104,6 +105,7 @@ move_speed = 70.0
 
 [resource]
 script = ExtResource("19_7aq3k")
+material = ExtResource("99_material")
 title = "Warden of the Lost"
 portrait = ExtResource("5_nx8ek")
 phases = Array[ExtResource("13_shtgb")]([SubResource("Resource_qkwm3"), SubResource("Resource_t02vb")])

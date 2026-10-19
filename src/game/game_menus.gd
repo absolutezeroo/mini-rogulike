@@ -10,11 +10,17 @@ extends CanvasLayer
 @onready var shop: ShopPanel = $ShopPanel
 @onready var encounter: EncounterPanel = $EncounterPanel
 @onready var pause: PauseMenu = $PauseMenu
+## The smith's forge (built in code).
+var forge: ForgePanel
 ## Dev tools: debug builds only (null otherwise).
 var debug: DebugPanel
 
 
 func _ready() -> void:
+	forge = ForgePanel.new()
+	forge.name = "ForgePanel"
+	add_child(forge)
+	move_child(forge, pause.get_index())  # under the pause menu and the end of the run
 	if DebugPanel.is_available():
 		debug = DebugPanel.new()
 		debug.name = "DebugPanel"
@@ -35,6 +41,8 @@ func back() -> bool:
 		inventory.close()
 	elif shop.visible:
 		shop.close()
+	elif forge.visible:
+		forge.close()
 	elif encounter.visible:
 		encounter.close()
 	else:
@@ -54,7 +62,7 @@ func show_on_top(panel: Control) -> void:
 
 
 func _panels() -> Array[Control]:
-	var panels: Array[Control] = [inventory, perks, game_over, shop, encounter, pause]
+	var panels: Array[Control] = [inventory, perks, game_over, shop, forge, encounter, pause]
 	if debug:
 		panels.append(debug)
 	return panels

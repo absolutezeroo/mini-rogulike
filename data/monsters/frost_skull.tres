@@ -14,6 +14,7 @@
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_ynqh8"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/bite.tres" id="12_nxglq"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/death_burst_trait.gd" id="12_pu4nv"]
+[ext_resource type="Resource" path="res://data/materials/bone.tres" id="99_material"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_x8vpe"]
 atlas = ExtResource("5_tomrc")
@@ -52,6 +53,7 @@ fx = ExtResource("1_wwd4k")
 
 [resource]
 script = ExtResource("3_6am12")
+material = ExtResource("99_material")
 stats = SubResource("Resource_0du8f")
 weapon = ExtResource("12_nxglq")
 radius = 9.0

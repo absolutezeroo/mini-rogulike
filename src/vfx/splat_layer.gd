@@ -3,6 +3,8 @@ extends Node2D
 ## What fights leave on the floor: blood, slime, ink... A pixel blob with a few drops, in the
 ## monster's MonsterDef.splat_color, that stays a while then fades. One layer per floor draws
 ## them all (World.add_splat); the oldest go first past MAX_SPLATS.
+## Also the chips a monster leaves when it dies (bone, armor, leaves... ImpactMaterialDef):
+## flung out in a short hop, then they stay for the whole floor (`add_debris`).
 
 const MAX_SPLATS := 80
 const LIFE := 45.0
@@ -10,8 +12,16 @@ const FADE := 10.0
 ## Size of a pixel of the art, in world pixels.
 const PIXEL := 2.0
 
+const MAX_CHIPS := 400
+## Seconds a chip flies before it lands.
+const CHIP_FLIGHT := 0.3
+
 ## Each: {rows: Array of Rect2, color: Color, shine: Array of Rect2, born: float}
 var _splats: Array[Dictionary] = []
+## Each: {from: Vector2, to: Vector2, size: Vector2, color: Color, height: float, born: float}
+var _chips: Array[Dictionary] = []
+## Chips flung on this floor so far (the oldest go past MAX_CHIPS, this keeps counting).
+var chips_made := 0
 var _time := 0.0
 var _redraw_timer := 0.0
 
@@ -43,6 +53,34 @@ func add(at: Vector2, color: Color, size: float, direction: Vector2, rng: Random
 
 func count() -> int:
 	return _splats.size()
+
+
+## Chips of `material` flung around `at` (`size` 1 = a monster of normal size), mostly along
+## `direction` if given (the killing blow).
+func add_debris(at: Vector2, material: ImpactMaterialDef, size: float, direction: Vector2, rng: RandomNumberGenerator) -> void:
+	if material.debris_colors.is_empty():
+		return
+	for i in roundi(material.debris_count * size):
+		var angle := direction.angle() + rng.randf_range(-1.1, 1.1) if direction != Vector2.ZERO and rng.randf() < 0.7 else rng.randf() * TAU
+		var distance := rng.randf_range(6.0, 22.0) * sqrt(size)
+		var to := (at + Vector2.from_angle(angle) * Vector2(1.0, 0.6) * distance).snapped(Vector2(PIXEL, PIXEL))
+		var big := rng.randf() < 0.3
+		_chips.append({
+			from = at + Vector2(0, -6),
+			to = to,
+			size = Vector2(PIXEL * (2 if big else 1), PIXEL * (2 if big and rng.randf() < 0.5 else 1)),
+			color = material.debris_colors[rng.randi() % material.debris_colors.size()],
+			height = rng.randf_range(6.0, 14.0),
+			born = _time,
+		})
+		chips_made += 1
+	while _chips.size() > MAX_CHIPS:
+		_chips.pop_front()
+	queue_redraw()
+
+
+func chip_count() -> int:
+	return chips_made
 
 
 ## Art pixels within `radius` of `center`, a little ragged.
@@ -78,6 +116,8 @@ func _rows(cells: Dictionary) -> Array[Rect2]:
 
 func _process(delta: float) -> void:
 	_time += delta
+	if not _chips.is_empty() and _time - float(_chips[-1].born) < CHIP_FLIGHT + 0.05:
+		queue_redraw()  # chips in the air
 	_redraw_timer -= delta
 	if _redraw_timer > 0.0 or _splats.is_empty():
 		return
@@ -98,3 +138,10 @@ func _draw() -> void:
 		var shine := Color(color.lightened(0.35), color.a * 0.6)
 		for spot: Rect2 in splat.shine:
 			draw_rect(spot, shine)
+	for chip in _chips:
+		var t := clampf((_time - float(chip.born)) / CHIP_FLIGHT, 0.0, 1.0)
+		var at: Vector2 = (chip.from as Vector2).lerp(chip.to, t) + Vector2(0, -sin(t * PI) * float(chip.height))
+		at = at.snapped(Vector2(PIXEL, PIXEL))
+		var color: Color = chip.color
+		draw_rect(Rect2(at + Vector2(0, PIXEL), chip.size), color.darkened(0.55))  # its shadow edge
+		draw_rect(Rect2(at, chip.size), color)

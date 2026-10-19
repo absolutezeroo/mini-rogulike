@@ -25,6 +25,7 @@
 [ext_resource type="Resource" path="res://data/items/weapons/monster/tengu_blade.tres" id="20_0n1d2"]
 [ext_resource type="Resource" path="res://data/skills/boss/fire_ring_fierce.tres" id="20_pmauv"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="22_nfwhk"]
+[ext_resource type="Resource" path="res://data/materials/armor.tres" id="99_material"]
 
 [sub_resource type="Resource" id="Resource_mesb5"]
 script = ExtResource("1_pmauv")
@@ -106,6 +107,7 @@ crit_chance = 0.1
 
 [resource]
 script = ExtResource("19_uawpc")
+material = ExtResource("99_material")
 title = "Burning Warden of the Temple"
 portrait = ExtResource("5_npp6p")
 phases = Array[ExtResource("13_mesb5")]([SubResource("Resource_1euo2"), SubResource("Resource_oqev3")])

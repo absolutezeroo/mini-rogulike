@@ -25,6 +25,7 @@
 [ext_resource type="Resource" path="res://data/items/weapons/monster/slime_slam.tres" id="20_28ete"]
 [ext_resource type="Resource" path="res://data/skills/boss/call_tadpoles_fierce.tres" id="20_xpbte"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="22_s5kyj"]
+[ext_resource type="Resource" path="res://data/materials/slime.tres" id="99_material"]
 
 [sub_resource type="Resource" id="Resource_itnru"]
 script = ExtResource("1_xpbte")
@@ -105,6 +106,7 @@ move_speed = 60.0
 
 [resource]
 script = ExtResource("19_xqtof")
+material = ExtResource("99_material")
 title = "Croaking Warden"
 portrait = ExtResource("5_j02b6")
 phases = Array[ExtResource("13_itnru")]([SubResource("Resource_71wwd"), SubResource("Resource_mmdpq")])

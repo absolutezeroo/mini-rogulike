@@ -12,6 +12,7 @@
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_cxi3v"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/slam.tres" id="11_1mytu"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="11_xglpw"]
+[ext_resource type="Resource" path="res://data/materials/plant.tres" id="99_material"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_isib2"]
 atlas = ExtResource("3_hdlx3")
@@ -40,6 +41,7 @@ move_speed = 45.0
 
 [resource]
 script = ExtResource("1_rj0wb")
+material = ExtResource("99_material")
 stats = SubResource("Resource_q7pk7")
 weapon = ExtResource("11_1mytu")
 skills = Array[ExtResource("8_wulgo")]([ExtResource("9_2l1lx")])

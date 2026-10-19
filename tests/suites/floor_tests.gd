@@ -105,6 +105,93 @@ func _test_world_objects(game: Game, world: World, player: Player) -> void:
 
 
 ## Holes, crumbling floor, quicksand, arrow traps, chests, elites, ambushes and how floors use them.
+## The smith's forge: runes go into the worn weapon's sockets, come back out for gold.
+func _test_forge(game: Game, world: World, player: Player) -> void:
+	var worn := player.equipment.get_item(EquipmentDef.Slot.WEAPON)
+	var ember: RuneDef = load("res://data/runes/ember.tres")
+	var spark: RuneDef = load("res://data/runes/spark.tres")
+	player.inventory.add(ember)
+	player.inventory.add(spark)
+	var cell := world.map.world_to_cell(world.find_open_point_near(player.global_position + Vector2(90, 0), 40.0))
+	var forge := world.spawn_forge(CONTENT.dungeon.forge, cell)
+	await _frames(2)
+	player.global_position = forge.global_position + Vector2(0, 30)
+	await _frames(3)
+	var panel := game.menus.forge
+	check(panel.visible and get_tree().paused, "walking up to the smith opens the forge")
+	var sockets := worn.socket_count()
+	check(sockets >= 1, "a weapon has rune sockets (%d)" % sockets)
+	check(panel.set_rune(ember), "a rune goes into the weapon")
+	var worked := player.equipment.get_item(EquipmentDef.Slot.WEAPON)
+	check(worked.runes.has(ember) and not player.inventory.items.has(ember), "it is set, and gone from the bag")
+	check(worked == worn or worked.base_item == (worn.base_item if worn.is_rolled() else worn), "...in the same weapon (a plain one becomes its own copy)")
+	check(worn.is_rolled() or worn.runes.is_empty(), "the plain weapon itself stays bare")
+	var burns := false
+	for entry in player.perks._gear:
+		for passive in entry.granted:
+			burns = burns or passive is BurnOnHitPassive
+	check(burns, "its power works while worn")
+	for i in worked.free_sockets():
+		player.inventory.add(spark)
+		panel.set_rune(spark)
+	check(worked.free_sockets() == 0 and not panel.set_rune(spark), "no rune past the last socket")
+	player.gold = 0
+	var index := worked.runes.find(ember)
+	panel._select_socket(index)
+	check(not panel.take_rune(), "taking a rune out costs gold")
+	var price := forge.removal_cost()
+	player.gold = price + 5
+	check(panel.take_rune() and player.inventory.items.has(ember) and not worked.runes.has(ember), "paid: the rune comes back out, intact")
+	check(player.gold == 5, "for its price (%d)" % price)
+	var saved := LootRoller.from_data(LootRoller.to_data(worked)) as EquipmentDef
+	check(saved.runes == worked.runes, "set runes are saved with the weapon")
+	panel.close()
+	await _frames(2)
+	check(not get_tree().paused, "the game goes on when the forge closes")
+	player.inventory.remove(ember)
+	player.inventory.remove(spark)
+	forge.queue_free()
+	# Runes drop.
+	var before := get_tree().get_nodes_in_group("pickups").filter(func(p: Node) -> bool: return (p as ItemPickup).item is RuneDef).size()
+	world.drop_rune(player.global_position + Vector2(40, 0))
+	await _frames(2)
+	var after := get_tree().get_nodes_in_group("pickups").filter(func(p: Node) -> bool: return (p as ItemPickup).item is RuneDef).size()
+	check(after == before + 1, "runes drop as pickups")
+	for node in get_tree().get_nodes_in_group("pickups"):
+		if (node as ItemPickup).item is RuneDef:
+			node.queue_free()
+	await _frames(1)
+
+
+## How fights feel: what monsters are made of, chips left behind, the camera's kick, slow motion.
+func _test_feel(_game: Game, world: World, player: Player) -> void:
+	var rat: MonsterDef = load("res://data/monsters/rat.tres")
+	check(rat.material != null and rat.material.sound != null, "monsters are made of something that sounds")
+	var chips := world.debris_count()
+	var monster := world.spawn_monster(rat, world.map.cell_to_world(_open_cell_near(world, player.global_position + Vector2(60, 0), 1)))
+	monster.dormant = true
+	await _frames(1)
+	var hit := HitInfo.new()
+	hit.source = player
+	hit.amount = 9999
+	hit.knockback = Vector2(200, 0)
+	var xp_kept := player.xp
+	player.xp = -1000000  # no level up (and its pause) from this kill
+	monster.take_hit(hit)
+	await _frames(2)
+	player.xp = xp_kept
+	check(world.debris_count() > chips, "a slain monster leaves chips of itself (%d)" % (world.debris_count() - chips))
+	HitStop.reset()
+	player.camera.kick(Vector2.RIGHT, 6.0)
+	check(player.camera.kick_offset().x > 0.0, "the camera leans with a blow")
+	await _frames(30)
+	check(player.camera.kick_offset() == Vector2.ZERO, "...and springs back")
+	HitStop.slow(0.2, 0.5)
+	check(is_equal_approx(Engine.time_scale, 0.5), "a strong kill slows the world")
+	HitStop.reset()
+	check(Engine.time_scale == 1.0, "...for a moment")
+
+
 func _test_hazards(game: Game, world: World, player: Player) -> void:
 	var pit: PitDef = load("res://data/hazards/pit.tres")
 	var slime_def: MonsterDef = load("res://data/monsters/slime.tres")
@@ -308,7 +395,7 @@ func _test_hazards(game: Game, world: World, player: Player) -> void:
 	var items_before := get_tree().get_nodes_in_group("pickups").size()
 	var guaranteed_drops: int = explosive._bonus_drops
 	explosive.take_hit(Combat.make_secondary_hit(player, 99999))
-	await _frames(50)
+	await _frames(90)  # its fuse, and the slow motion of a strong kill
 	check(not is_instance_valid(neighbour) or neighbour.hp < neighbour_hp, "explosive elites blow up when they die")
 	# (The hero may pick some up meanwhile: no fewer items, and a guaranteed drop.)
 	check(guaranteed_drops >= 1 and get_tree().get_nodes_in_group("pickups").size() >= items_before, "elites always drop loot")

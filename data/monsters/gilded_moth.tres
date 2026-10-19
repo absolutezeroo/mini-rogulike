@@ -13,6 +13,7 @@
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_tg1b3"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="12_ce11u"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/ghost_flame.tres" id="13_wjgf4"]
+[ext_resource type="Resource" path="res://data/materials/spirit.tres" id="99_material"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_5x1kp"]
 atlas = ExtResource("2_rma61")
@@ -44,6 +45,7 @@ move_speed = 80.0
 
 [resource]
 script = ExtResource("8_xhd6g")
+material = ExtResource("99_material")
 stats = SubResource("Resource_x417o")
 weapon = ExtResource("13_wjgf4")
 skills = Array[ExtResource("9_73hxd")]([ExtResource("10_t04iw")])

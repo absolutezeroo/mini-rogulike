@@ -106,6 +106,7 @@ func _connect_menus() -> void:
 		player.give_up())
 	inventory_panel.closed.connect(_on_menu_closed)
 	shop_panel.closed.connect(_on_menu_closed)
+	menus.forge.closed.connect(_on_menu_closed)
 	encounter_panel.closed.connect(_on_menu_closed)
 	perk_panel.chosen.connect(_on_perk_chosen)
 	perk_panel.reroll_requested.connect(_on_perk_reroll)
@@ -120,6 +121,7 @@ func _connect_menus() -> void:
 
 func _connect_events() -> void:
 	Events.shop_requested.connect(open_shop)
+	Events.forge_requested.connect(open_forge)
 	Events.encounter_requested.connect(open_encounter)
 	Events.perk_offer_requested.connect(func(rarity: int, title: String, subtitle: String) -> void:
 		_queue_offer(rarity as PerkDef.Rarity, PERK_CHOICES, title, subtitle))
@@ -169,6 +171,7 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 			Profile.start_daily(day)
 	world.difficulty = run.difficulty
 	world.run_bosses = run.bosses
+	world.floors_without_forge = int(saved.get("floors_without_forge", 0))
 	world.kept_stock.clear()
 	for saved_entry: Dictionary in saved.get("kept_stock", []):
 		var item := LootRoller.from_data(saved_entry.get("item"))
@@ -251,6 +254,13 @@ func open_shop(merchant: Merchant) -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		_set_paused(true)
 		shop_panel.open(merchant, player)
+
+
+func open_forge(forge: Forge) -> void:
+	if _can_open_menu():
+		Sfx.play_ui(Sfx.bank.ui_open)
+		_set_paused(true)
+		menus.forge.open(forge, player)
 
 
 func open_pause_menu() -> void:
@@ -572,6 +582,7 @@ func _save_run() -> void:
 	data.boss_slain = world.arena != null and world.arena.is_defeated
 	data.player = player.save_state()
 	data.offers = offers.to_data(perk_panel.visible)
+	data.floors_without_forge = world.forge_drought_at_start
 	data.kept_stock = world.locked_stock().map(func(entry: Dictionary) -> Dictionary:
 		return { "item": LootRoller.to_data(entry.item), "price": entry.price })
 	RunSave.write(data)

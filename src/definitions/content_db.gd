@@ -43,6 +43,8 @@ extends Resource
 @export var encounters: Array[EncounterDef] = []
 ## Random bonuses on found equipment (Magic, Rare and Epic items).
 @export var item_affixes: Array[ItemAffixDef] = []
+## Rune stones (RuneDef): dropped by elites and bosses, found in chests, set at the forge.
+@export var runes: Array[RuneDef] = []
 
 
 ## A monster of the act holding `depth`, by spawn weight.
@@ -79,6 +81,11 @@ var unlocked_items: Array[ItemDef] = []
 
 func pick_item(depth: int, rng: RandomNumberGenerator) -> ItemDef:
 	return _pick(items.filter(is_available), depth, rng)
+
+
+## A rune for `depth`, by spawn weight (null if none).
+func pick_rune(depth: int, rng: RandomNumberGenerator) -> RuneDef:
+	return _pick(runes, depth, rng) as RuneDef
 
 
 func is_available(item: ItemDef) -> bool:

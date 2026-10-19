@@ -17,6 +17,7 @@
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="13_prruu"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/spirit_touch.tres" id="14_a5nog"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="16_wgrrx"]
+[ext_resource type="Resource" path="res://data/materials/spirit.tres" id="99_material"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_jljmj"]
 atlas = ExtResource("3_6v0f1")
@@ -66,6 +67,7 @@ crit_chance = 0.1
 
 [resource]
 script = ExtResource("10_wfxmm")
+material = ExtResource("99_material")
 stats = SubResource("Resource_xm6bo")
 weapon = ExtResource("14_a5nog")
 skills = Array[ExtResource("11_yuhyf")]([ExtResource("12_27a71")])

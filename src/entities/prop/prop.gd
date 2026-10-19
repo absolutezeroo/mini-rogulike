@@ -8,6 +8,9 @@ signal broken(prop: Prop)
 const SIZE := 32.0
 const SHAKE_TIME := 0.15
 
+## Debris made from each PropDef's color (see _chips).
+static var _CHIPS := {}
+
 var def: PropDef
 var world: World
 var is_broken := false
@@ -81,6 +84,7 @@ func _break() -> void:
 	Sfx.play_at(def.break_sound, global_position)
 	Vfx.burst(world, Vfx.DEATH_CHUNKS, global_position, def.debris_color)
 	Vfx.puff(world, global_position + Vector2(0, 8))
+	world.add_debris(global_position + Vector2(0, 6), _chips(), 0.8)
 	if def.loot:
 		for item in def.loot.roll(world.rng, world.rules.loot_chance()):
 			world.spawn_loot(item, global_position)
@@ -131,3 +135,14 @@ func cells() -> Array[Vector2i]:
 		for x in def.footprint.x:
 			result.append(top_left + Vector2i(x, y))
 	return result
+
+
+## Its pieces, in its debris color (shared by every prop of this kind).
+func _chips() -> ImpactMaterialDef:
+	if not _CHIPS.has(def):
+		var chips := ImpactMaterialDef.new()
+		var color := Color(def.debris_color, 1.0)
+		chips.debris_colors = PackedColorArray([color, color.darkened(0.25), color.lightened(0.2)])
+		chips.debris_count = 7
+		_CHIPS[def] = chips
+	return _CHIPS[def]

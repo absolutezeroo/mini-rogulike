@@ -18,10 +18,21 @@ const SLOT_NAMES := {
 @export_storage var base_item: EquipmentDef
 @export_storage var rarity: int = ItemRarity.COMMON
 @export_storage var affixes: Array[ItemAffixDef] = []
+## Weapons: the runes set in it at a forge (as many as socket_count()).
+@export_storage var runes: Array[RuneDef] = []
 
 
 func is_rolled() -> bool:
 	return base_item != null
+
+
+## Rune sockets: weapons only, 1 to 3 by rarity.
+func socket_count() -> int:
+	return ItemRarity.SOCKETS[rarity] if slot == Slot.WEAPON else 0
+
+
+func free_sockets() -> int:
+	return socket_count() - runes.size()
 
 
 func rarity_color() -> Color:
@@ -43,4 +54,9 @@ func get_details() -> String:
 	for affix in affixes:
 		if affix and not affix.description.is_empty():
 			text += "\n" + affix.description
+	for rune in runes:
+		if rune:
+			text += "\n%s: %s" % [rune.display_name, rune.description]
+	if free_sockets() > 0:
+		text += "\n%d empty rune socket%s" % [free_sockets(), "s" if free_sockets() > 1 else ""]
 	return text

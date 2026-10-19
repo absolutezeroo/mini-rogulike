@@ -207,7 +207,13 @@ func attack(direction: Vector2) -> bool:
 		Combat.melee_strike(self, facing, weapon)
 	else:
 		world.fire_projectiles(self, facing, Combat.spec_from_weapon(self, weapon))
+	_on_attacked(weapon)
 	return true
+
+
+## After an attack goes out (the hero's camera recoils).
+func _on_attacked(_weapon: WeaponDef) -> void:
+	pass
 
 
 func start_dash(dash_velocity: Vector2, duration: float, invulnerable: bool) -> void:
@@ -255,6 +261,9 @@ func take_hit(hit: HitInfo) -> void:
 		var spark_direction := hit.knockback.normalized() if hit.knockback != Vector2.ZERO else Vector2.UP
 		Vfx.hit(world, global_position + Vector2(0, -radius * 0.5), spark_direction, _hit_spark_color(hit), hit.is_crit)
 		Sfx.play_at(_hurt_sound(hit), global_position)
+		var impact := _impact_material()
+		if impact and impact.sound:
+			Sfx.play_at(impact.sound, global_position, impact.volume_db)
 	world.spawn_floating_text(head_position(), str(damage) + ("!" if hit.is_crit else ""), _hit_text_color(hit))
 	health_changed.emit(hp, get_max_hp())
 	if is_instance_valid(hit.source) and hit.source != self:
@@ -403,12 +412,20 @@ func _hurt_sound(hit: HitInfo) -> AudioStream:
 	return hit.sound
 
 
+## What it is made of (the sound under its cry, its sparks), or null.
+func _impact_material() -> ImpactMaterialDef:
+	return null
+
+
 func _death_sound() -> AudioStream:
 	return null
 
 
 func _hit_spark_color(hit: HitInfo) -> Color:
-	return CRIT_TEXT_COLOR if hit.is_crit else Color.WHITE
+	if hit.is_crit:
+		return CRIT_TEXT_COLOR
+	var impact := _impact_material()
+	return impact.spark_color if impact else Color.WHITE
 
 
 func _hit_text_color(hit: HitInfo) -> Color:

@@ -1,5 +1,5 @@
 class_name FloorPopulator
-## Fills a freshly generated floor: the merchant, lights, the biome's dressing (FloorDresser),
+## Fills a freshly generated floor: the merchant, the smith's forge, lights, the biome's dressing (FloorDresser),
 ## props and hazards first (they claim their cells), then the ambush room, chests, monsters and
 ## items on the free cells. The first room is where the player starts: no monsters or hazards.
 
@@ -29,10 +29,22 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 	if merchant_index >= 0:
 		place_lights(world, config, map.rooms[merchant_index], taken)
 		_reserve_rect(taken, map.rooms[merchant_index])  # nothing else in his room
+
+	# The smith's forge: in another quiet room, more likely the longer it has been away.
+	var forge_index := -1
+	if config.forge and rng.randf() < config.forge_chance + config.forge_chance_growth * world.floors_without_forge:
+		forge_index = _pick_quiet_room(map, rng, merchant_index)
+		if forge_index >= 0:
+			var cell := map.rooms[forge_index].get_center()
+			world.spawn_forge(config.forge, cell)
+			_reserve_around(taken, cell, 2)
+			place_lights(world, config, map.rooms[forge_index], taken)
+			_reserve_rect(taken, map.rooms[forge_index])  # a quiet room: nothing else in it
+	world.floors_without_forge = 0 if forge_index >= 0 else world.floors_without_forge + 1
 	# The biome's grounds, scenes and decor, before anything else claims the rooms.
 	FloorDresser.dress(world, taken)
 	for i in map.rooms.size():
-		if i != merchant_index:
+		if i != merchant_index and i != forge_index:
 			place_lights(world, config, map.rooms[i], taken)
 
 	# Springs, altars, statues: in the middle of a room, before anything else claims it.
@@ -46,7 +58,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 		# A few tries: a room's middle may hold a scene (a statue, a pond...); then near it.
 		for attempt in 4:
 			var index := rng.randi_range(1, map.rooms.size() - 1)
-			if index == merchant_index:
+			if index == merchant_index or index == forge_index:
 				continue
 			var cell := _free_near_middle(world, map.rooms[index], taken)
 			if cell != Vector2i(-1, -1):
@@ -73,6 +85,8 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 	var ambush_index := -1
 	if rng.randf() < config.ambush_chance:
 		ambush_index = _pick_quiet_room(map, rng, merchant_index)
+		if ambush_index == forge_index:
+			ambush_index = -1  # not by the smith
 		if ambush_index >= 0:
 			world.spawn_ambush(map.rooms[ambush_index])
 
@@ -93,7 +107,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 	var extra := world.rules.extra_monsters()
 	var max_per_room := config.max_monsters_per_room + world.rules.difficulty.extra_monsters
 	for i in range(1, map.rooms.size()):
-		if i == ambush_index or i == merchant_index:
+		if i == ambush_index or i == merchant_index or i == forge_index:
 			continue
 		var room := map.rooms[i]
 		var count := mini(rng.randi_range(config.monsters_per_room_min, config.monsters_per_room_max) + extra, max_per_room)

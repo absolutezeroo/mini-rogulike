@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_hbaf8"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_mgxmg"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/fire_breath.tres" id="11_incjs"]
+[ext_resource type="Resource" path="res://data/materials/flesh.tres" id="99_material"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_e2kya"]
 atlas = ExtResource("3_dmkkd")
@@ -44,6 +45,7 @@ move_speed = 70.0
 
 [resource]
 script = ExtResource("1_q54vt")
+material = ExtResource("99_material")
 stats = SubResource("Resource_gpmuf")
 weapon = ExtResource("11_incjs")
 frames = ExtResource("2_remxe")

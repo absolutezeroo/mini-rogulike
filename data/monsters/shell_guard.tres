@@ -12,6 +12,7 @@
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="10_0fofo"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/slam.tres" id="10_2d0do"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/guard_trait.gd" id="11_eajvl"]
+[ext_resource type="Resource" path="res://data/materials/armor.tres" id="99_material"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_8dspx"]
 atlas = ExtResource("3_0fofo")
@@ -43,6 +44,7 @@ script = ExtResource("11_eajvl")
 
 [resource]
 script = ExtResource("1_maujp")
+material = ExtResource("99_material")
 stats = SubResource("Resource_gjypo")
 weapon = ExtResource("10_2d0do")
 frames = ExtResource("2_v0egp")

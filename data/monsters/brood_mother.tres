@@ -12,6 +12,7 @@
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_lye6r"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="11_atfn5"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/poison_fang.tres" id="11_ny66d"]
+[ext_resource type="Resource" path="res://data/materials/flesh.tres" id="99_material"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pb7xm"]
 atlas = ExtResource("3_v0ame")
@@ -40,6 +41,7 @@ move_speed = 65.0
 
 [resource]
 script = ExtResource("1_r2ytb")
+material = ExtResource("99_material")
 stats = SubResource("Resource_1vcli")
 weapon = ExtResource("11_ny66d")
 skills = Array[ExtResource("8_sfgrf")]([ExtResource("9_jtgld")])

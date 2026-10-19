@@ -126,14 +126,18 @@ func _rebuild_all() -> void:
 	_all.append_array(_gear)
 
 
-## The affixes of what the actor wears: those with passives join the events (two items with
-## the same affix count twice).
-func set_gear(affixes: Array[ItemAffixDef]) -> void:
+## The affixes and runes of what the actor wears: those with passives join the events (two
+## items with the same affix, two identical runes, count twice).
+func set_gear(affixes: Array[ItemAffixDef], runes: Array[RuneDef] = []) -> void:
 	_gear.clear()
-	for affix in affixes:
-		if affix and not affix.passives.is_empty():
+	var granting: Array = []
+	granting.append_array(affixes)
+	granting.append_array(runes)
+	for source: Resource in granting:
+		var passives: Array = source.get("passives") if source else []
+		if not passives.is_empty():
 			var entry := Entry.new()
-			entry.granted = affix.passives
+			entry.granted = passives
 			_gear.append(entry)
 	_rebuild_all()
 

@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="RuneDef" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/rune_def.gd" id="1_rune"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_passive"]
+[ext_resource type="Script" path="res://src/definitions/passives/slow_on_hit_passive.gd" id="3_kind"]
+[ext_resource type="Resource" path="res://data/perks/synergies/frost.tres" id="4_family"]
+[ext_resource type="Texture2D" path="res://assets/items/runes/rime.png" id="5_icon"]
+
+[sub_resource type="Resource" id="Resource_passive"]
+script = ExtResource("3_kind")
+slow_per_stack = 0.2
+
+[resource]
+script = ExtResource("1_rune")
+family = ExtResource("4_family")
+passives = Array[ExtResource("2_passive")]([SubResource("Resource_passive")])
+value = 40
+id = &"rime_rune"
+display_name = "Rime Rune"
+description = "Hits chill enemies: 20% slower for 2 s."
+icon = ExtResource("5_icon")
+min_depth = 1
+spawn_weight = 10

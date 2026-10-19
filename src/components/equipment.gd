@@ -35,9 +35,25 @@ func affixes() -> Array[ItemAffixDef]:
 	return result
 
 
+## The runes set in everything worn (the weapon's).
+func runes() -> Array[RuneDef]:
+	var result: Array[RuneDef] = []
+	for item: EquipmentDef in _slots.values():
+		result.append_array(item.runes)
+	return result
+
+
+## Something worn changed in place (a rune set or taken out at the forge).
+func refresh() -> void:
+	changed.emit()
+
+
 func total_bonuses() -> StatBlock:
 	var total := StatBlock.new()
 	for item: EquipmentDef in _slots.values():
 		if item.bonuses:
 			total = total.plus(item.bonuses)
+		for rune in item.runes:
+			if rune and rune.bonuses:
+				total = total.plus(rune.bonuses)
 	return total

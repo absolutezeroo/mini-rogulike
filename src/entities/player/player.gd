@@ -73,8 +73,8 @@ func setup(player_def: PlayerDef) -> void:
 		store(item)
 	_rebuild_skills(0.0)
 	equipment.changed.connect(_rebuild_skills.bind(SWAP_COOLDOWN))
-	equipment.changed.connect(func() -> void: perks.set_gear(equipment.affixes()))
-	perks.set_gear(equipment.affixes())
+	equipment.changed.connect(func() -> void: perks.set_gear(equipment.affixes(), equipment.runes()))
+	perks.set_gear(equipment.affixes(), equipment.runes())
 	invalidate_stats()
 	hp = get_max_hp()
 
@@ -422,6 +422,14 @@ func give_up() -> void:
 
 # --- Hooks -------------------------------------------------------------------
 
+## A shot pushes the view back a little, a swing forward.
+func _on_attacked(weapon: WeaponDef) -> void:
+	if weapon.kind == WeaponDef.Kind.MELEE:
+		camera.kick(facing, 1.5)
+	else:
+		camera.kick(-facing, 3.0)
+
+
 func _on_damaged(hit: HitInfo, damage: int) -> void:
 	if damage > 0:
 		last_hurt_frame = Engine.get_physics_frames()
@@ -435,6 +443,8 @@ func _on_damaged(hit: HitInfo, damage: int) -> void:
 		world.add_splat(global_position + Vector2(0, 3), Palette.BLOOD.darkened(0.35), 0.35, hit.knockback.normalized())
 	HitStop.freeze(0.08)
 	camera.shake(clampf(float(damage) / get_max_hp() * 3.0, 0.25, 0.8))
+	if hit.knockback != Vector2.ZERO:
+		camera.kick(hit.knockback.normalized(), 7.0)
 
 
 func _on_died(_killer: Actor) -> void:

@@ -108,6 +108,17 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 
 ## Game feel
 
+- **Weight of a blow**: every hit you land pushes the camera a few pixels along the blow, a shot
+  recoils it back, a hit taken knocks it away (`GameCamera.kick`, `Events.camera_kick`, springing
+  back in real time, apart from the shake; both follow the Screen shake option). A killing blow
+  stops the world a moment longer; killing an elite or better slows it down for a beat
+  (`HitStop.slow`).
+- **What monsters are made of** (`ImpactMaterialDef`, `data/materials/`: flesh, bone, slime,
+  armor, spirit, plant; `MonsterDef.material`): a hit sounds like it (a punch in flesh, a dry knock
+  on bone, a squelch, a clang on armor, a chime on spirits, played over the monster's cry), its
+  sparks take its color, and when it dies it flings **chips** of itself that land and stay for the
+  whole floor (`SplatLayer.add_debris`): bone shards, slime drops, bits of armor. Broken crates and
+  barrels leave their splinters too. Sounds: Kenney "Impact Sounds" (CC0).
 - **VFX**: hand-drawn sprite-sheet effects (slashes, claws, explosions, smoke, magic circles,
   "!" emote when a monster spots you) plus pixel particles for hits, dust and sparkles
   (`src/vfx/particles/*.tscn`, edit them in the inspector), dash afterimages, animated projectiles,
@@ -410,6 +421,28 @@ consumables between the two ("To belt" / "To bag"). The merchant buys from the b
   **Reroll** buys a new stock (`ShopDef.reroll_cost`, +`reroll_cost_growth` each time at the same
   merchant). **Lock** keeps an entry through rerolls; if you don't buy it, it waits at the next
   merchant at the same price (`World.kept_stock`, kept in saved runs).
+
+## Runes and the forge
+
+- **Runes** (`RuneDef`, `data/runes/`, content_db > Runes): stones carved with a glyph of one of
+  the five families. Bosses always drop one (`boss_runes`), elites and up often
+  (`ranked_rune_chance`, 30%), chests sometimes (`chest_rune_chance`, 20%), plain monsters rarely
+  (`rune_chance`, 1%). They are not among the random items: no merchant sells them.
+  - Inferno: **Ember** (hits may set enemies on fire), **Pyre** (enemies dying burning explode).
+  - Frost: **Rime** (hits chill), **Shatter** (critical hits release a frost shockwave).
+  - Blood: **Leech** (heal 8% of damage dealt), **Fury** (wounded you hit harder, kills heal).
+  - Storm: **Spark** (every 4th hit chains lightning), **Gale** (your roll throws a gust).
+  - Arcane: **Echo** (skills may be ready again at once), **Prism** (one more projectile).
+- **Sockets**: every weapon has 1 to 3, by rarity (`ItemRarity.SOCKETS`: Common and Magic 1,
+  Rare 2, Epic 3). A rune works like a perk while its weapon is worn (`RuneDef.passives`, through
+  `PerkSet.set_gear`); two identical runes count twice. Set runes show on the weapon's details,
+  with its empty sockets, and are saved with it.
+- **The forge** (`data/forge/smith.tres`, `ForgeDef`, `Forge`, `ForgePanel`): Brann the Smith,
+  his anvil and glowing coals, in a quiet room of some floors (`forge_chance` 30%, +15% for each
+  floor without one, never on boss floors). Walk up to him: pick a weapon (the worn one or one
+  in the bag), set runes from the bag into its free sockets for free, or pick a socket and take
+  its rune back out, intact, for gold (`removal_price` + `removal_price_per_depth`). A plain
+  weapon becomes its own copy the first time a rune goes in. Debug panel: "Forge here", "Every rune".
 
 ## Special floors and bosses
 

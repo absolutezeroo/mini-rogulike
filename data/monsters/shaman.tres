@@ -15,6 +15,7 @@
 [ext_resource type="Resource" path="res://data/skills/monster/shaman_heal.tres" id="11_avh8w"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="12_2s8xm"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/hex_staff.tres" id="13_umnx4"]
+[ext_resource type="Resource" path="res://data/materials/flesh.tres" id="99_material"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_etdlf"]
 atlas = ExtResource("2_4qbf7")
@@ -62,6 +63,7 @@ move_speed = 85.0
 
 [resource]
 script = ExtResource("9_f1h2d")
+material = ExtResource("99_material")
 stats = SubResource("Resource_i7q4o")
 weapon = ExtResource("13_umnx4")
 skills = Array[ExtResource("10_784a8")]([ExtResource("11_avh8w")])

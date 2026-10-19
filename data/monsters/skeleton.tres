@@ -15,6 +15,7 @@
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="12_bvh3q"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/rusty_blade.tres" id="13_anrdc"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="14_vf1wf"]
+[ext_resource type="Resource" path="res://data/materials/bone.tres" id="99_material"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_7w27m"]
 atlas = ExtResource("2_yxp2g")
@@ -62,6 +63,7 @@ move_speed = 100.0
 
 [resource]
 script = ExtResource("10_s2fcx")
+material = ExtResource("99_material")
 stats = SubResource("Resource_1xq2n")
 weapon = ExtResource("13_anrdc")
 radius = 10.0

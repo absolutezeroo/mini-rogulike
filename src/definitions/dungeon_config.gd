@@ -122,6 +122,20 @@ extends Resource
 @export_range(0.0, 1.0) var merchant_chance: float = 0.55
 @export var merchant: ShopDef
 
+@export_group("Forge and runes")
+## Chance for a floor to have the smith's forge (never on boss floors), plus this much for
+## every floor since the last one (so it never stays away too long).
+@export_range(0.0, 1.0) var forge_chance: float = 0.3
+@export_range(0.0, 1.0) var forge_chance_growth: float = 0.15
+@export var forge: ForgeDef
+## Chance for a monster to drop a rune: plain ones, and elites and up (MonsterRankDef).
+@export_range(0.0, 1.0) var rune_chance: float = 0.01
+@export_range(0.0, 1.0) var ranked_rune_chance: float = 0.3
+## Runes a slain boss always drops.
+@export var boss_runes: int = 1
+## Chance for an opened chest to hold a rune too.
+@export_range(0.0, 1.0) var chest_rune_chance: float = 0.2
+
 @export_group("Elites")
 ## Chance for a monster to be an elite on the first floor, and more per floor below.
 @export_range(0.0, 1.0) var elite_chance: float = 0.04

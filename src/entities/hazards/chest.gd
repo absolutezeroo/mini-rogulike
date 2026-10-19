@@ -112,6 +112,7 @@ func _drop_items(count: int) -> void:
 		if item:
 			var angle := toward.angle() + (i - (count - 1) * 0.5) * 0.6
 			world.spawn_loot(item, global_position + Vector2.from_angle(angle) * 26.0, def.loot_quality)
+	world.drop_rune(global_position + Vector2.from_angle(toward.angle() + PI * 0.5) * 24.0, world.config().chest_rune_chance)
 
 
 func _draw() -> void:

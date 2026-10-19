@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="ImpactMaterialDef" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/impact_material_def.gd" id="1_mat"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/materials/plant_0.ogg" id="2_s0"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/materials/plant_1.ogg" id="3_s1"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/materials/plant_2.ogg" id="4_s2"]
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_hit"]
+random_pitch = 1.12
+random_volume_offset_db = 1.5
+streams_count = 3
+stream_0/stream = ExtResource("2_s0")
+stream_1/stream = ExtResource("3_s1")
+stream_2/stream = ExtResource("4_s2")
+
+[resource]
+script = ExtResource("1_mat")
+display_name = "Plant"
+sound = SubResource("AudioStreamRandomizer_hit")
+volume_db = -4.0
+spark_color = Color(0.85, 1, 0.7, 1)
+debris_colors = PackedColorArray(0.35, 0.55, 0.2, 1, 0.55, 0.4, 0.25, 1, 0.75, 0.6, 0.35, 1)
+debris_count = 7

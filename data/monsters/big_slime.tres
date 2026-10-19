@@ -13,6 +13,7 @@
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_gswp0"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/slam.tres" id="11_aelic"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/death_spawn_trait.gd" id="12_33fvt"]
+[ext_resource type="Resource" path="res://data/materials/slime.tres" id="99_material"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_u7oaa"]
 atlas = ExtResource("4_33fvt")
@@ -44,6 +45,7 @@ monsters = Array[ExtResource("1_3ubkx")]([ExtResource("2_rwk6s")])
 
 [resource]
 script = ExtResource("1_3ubkx")
+material = ExtResource("99_material")
 stats = SubResource("Resource_wtasl")
 weapon = ExtResource("11_aelic")
 radius = 14.0
