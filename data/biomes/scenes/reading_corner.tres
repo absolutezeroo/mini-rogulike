@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_p7euu"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_k6cfe"]
+[ext_resource type="Resource" path="res://data/props/furniture/reading_table.tres" id="3_c18n5"]
+[ext_resource type="Resource" path="res://data/props/furniture/stool.tres" id="4_hx8rm"]
+[ext_resource type="Resource" path="res://data/props/furniture/candles.tres" id="5_qvju4"]
+[ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="6_p1nvh"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="7_dfhpf"]
+
+[sub_resource type="Resource" id="Resource_27l16"]
+script = ExtResource("1_p7euu")
+symbol = "T"
+props = Array[ExtResource("2_k6cfe")]([ExtResource("3_c18n5")])
+
+[sub_resource type="Resource" id="Resource_46jof"]
+script = ExtResource("1_p7euu")
+symbol = "o"
+props = Array[ExtResource("2_k6cfe")]([ExtResource("4_hx8rm")])
+chance = 0.8
+
+[sub_resource type="Resource" id="Resource_ybssp"]
+script = ExtResource("1_p7euu")
+symbol = "c"
+props = Array[ExtResource("2_k6cfe")]([ExtResource("5_qvju4")])
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4ldfx"]
+atlas = ExtResource("6_p1nvh")
+region = Rect2(160, 16, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bnb03"]
+atlas = ExtResource("6_p1nvh")
+region = Rect2(96, 144, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kwflv"]
+atlas = ExtResource("6_p1nvh")
+region = Rect2(64, 144, 16, 16)
+
+[sub_resource type="Resource" id="Resource_315dm"]
+script = ExtResource("1_p7euu")
+symbol = "b"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_4ldfx"), SubResource("AtlasTexture_bnb03"), SubResource("AtlasTexture_kwflv")])
+chance = 0.8
+
+[resource]
+script = ExtResource("7_dfhpf")
+rows = PackedStringArray("c.b", ".TTT", "b.o.")
+keys = Array[ExtResource("1_p7euu")]([SubResource("Resource_27l16"), SubResource("Resource_46jof"), SubResource("Resource_ybssp"), SubResource("Resource_315dm")])
+anchor = 4
+id = &"reading_corner"
+display_name = "Reading Corner"

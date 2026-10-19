@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_f3jhg"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_bwh2y"]
+[ext_resource type="Resource" path="res://data/props/furniture/mossy_column.tres" id="3_1j7yi"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="4_15skr"]
+
+[sub_resource type="Resource" id="Resource_yoq6k"]
+script = ExtResource("1_f3jhg")
+symbol = "C"
+props = Array[ExtResource("2_bwh2y")]([ExtResource("3_1j7yi")])
+chance = 0.85
+
+[resource]
+script = ExtResource("4_15skr")
+rows = PackedStringArray("C.C.C", ".....")
+keys = Array[ExtResource("1_f3jhg")]([SubResource("Resource_yoq6k")])
+anchor = 2
+id = &"mossy_columns"
+display_name = "Mossy Columns"

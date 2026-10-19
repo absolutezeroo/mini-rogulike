@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_sxvpx"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_y4ah3"]
+[ext_resource type="Resource" path="res://data/props/furniture/seated_statue.tres" id="3_jtp40"]
+[ext_resource type="Texture2D" path="res://assets/tiles/relief_detail.png" id="4_em150"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="5_v14qf"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="6_e1fat"]
+
+[sub_resource type="Resource" id="Resource_bjql3"]
+script = ExtResource("1_sxvpx")
+symbol = "S"
+props = Array[ExtResource("2_y4ah3")]([ExtResource("3_jtp40")])
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4p76r"]
+atlas = ExtResource("4_em150")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wo6ix"]
+atlas = ExtResource("4_em150")
+region = Rect2(0, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2vsgx"]
+atlas = ExtResource("4_em150")
+region = Rect2(0, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_m1qe6"]
+atlas = ExtResource("4_em150")
+region = Rect2(0, 80, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wulld"]
+atlas = ExtResource("5_v14qf")
+region = Rect2(80, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t6u30"]
+atlas = ExtResource("5_v14qf")
+region = Rect2(96, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_iw2i7"]
+atlas = ExtResource("5_v14qf")
+region = Rect2(112, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_74hq1"]
+script = ExtResource("1_sxvpx")
+symbol = "r"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_4p76r"), SubResource("AtlasTexture_wo6ix"), SubResource("AtlasTexture_2vsgx"), SubResource("AtlasTexture_m1qe6"), SubResource("AtlasTexture_wulld"), SubResource("AtlasTexture_t6u30"), SubResource("AtlasTexture_iw2i7")])
+chance = 0.7
+
+[resource]
+script = ExtResource("6_e1fat")
+rows = PackedStringArray("r....r", ".rSSr.", "r....r")
+keys = Array[ExtResource("1_sxvpx")]([SubResource("Resource_bjql3"), SubResource("Resource_74hq1")])
+anchor = 1
+room_size = 1
+max_per_floor = 1
+id = &"fallen_idol"
+display_name = "Fallen Idol"

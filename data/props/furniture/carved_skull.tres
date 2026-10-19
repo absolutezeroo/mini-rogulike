@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_50mi8"]
+[ext_resource type="Texture2D" path="res://assets/tiles/relief_detail.png" id="2_dnwsv"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_fic07"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_50mi8"]
+atlas = ExtResource("2_dnwsv")
+region = Rect2(32, 0, 16, 16)
+
+[resource]
+script = ExtResource("3_fic07")
+hits = 0
+debris_color = Color(0.62, 0.6, 0.6, 1)
+break_sound = ExtResource("1_50mi8")
+id = &"carved_skull"
+display_name = "Carved Skull"
+icon = SubResource("AtlasTexture_50mi8")
+glyph = "F"
+color = Color(0.62, 0.6, 0.6, 1)

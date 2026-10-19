@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_ih84a"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_obup1"]
+[ext_resource type="Resource" path="res://data/props/furniture/mossy_jar.tres" id="3_66f0s"]
+[ext_resource type="Resource" path="res://data/props/furniture/plant_pot.tres" id="4_b6boh"]
+[ext_resource type="Resource" path="res://data/props/furniture/candles.tres" id="5_42lad"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="6_yjhxf"]
+
+[sub_resource type="Resource" id="Resource_fvo6i"]
+script = ExtResource("1_ih84a")
+symbol = "j"
+props = Array[ExtResource("2_obup1")]([ExtResource("3_66f0s"), ExtResource("4_b6boh")])
+chance = 0.75
+
+[sub_resource type="Resource" id="Resource_l6pp4"]
+script = ExtResource("1_ih84a")
+symbol = "c"
+props = Array[ExtResource("2_obup1")]([ExtResource("5_42lad")])
+chance = 0.8
+
+[resource]
+script = ExtResource("6_yjhxf")
+rows = PackedStringArray("jjc", "j..", "c..")
+keys = Array[ExtResource("1_ih84a")]([SubResource("Resource_fvo6i"), SubResource("Resource_l6pp4")])
+anchor = 4
+id = &"offerings"
+display_name = "Offerings"

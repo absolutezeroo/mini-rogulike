@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_suu35"]
+[ext_resource type="Resource" path="res://data/hazards/flooded_pool.tres" id="2_06tyo"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_8kdww"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="4_fw2au"]
+
+[sub_resource type="Resource" id="Resource_qm2do"]
+script = ExtResource("1_suu35")
+symbol = "w"
+kind = 3
+pond = ExtResource("2_06tyo")
+
+[resource]
+script = ExtResource("4_fw2au")
+rows = PackedStringArray(".ww.", ".ww.", "....")
+keys = Array[ExtResource("1_suu35")]([SubResource("Resource_qm2do")])
+id = &"puddle"
+display_name = "Puddle"
+spawn_weight = 14

@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="DungeonTheme" format=3]
+
+[ext_resource type="Resource" path="res://data/dungeon/ambience/cave.tres" id="1_xmpg2"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="2_w8t0k"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor.png" id="3_rkl6f"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/cave.ogg" id="4_jcmjs"]
+[ext_resource type="Texture2D" path="res://assets/tiles/dungeon.png" id="5_6q3s4"]
+[ext_resource type="Script" path="res://src/definitions/dungeon_theme.gd" id="6_sjaq3"]
+[ext_resource type="Texture2D" path="res://assets/tiles/relief.png" id="7_uve6h"]
+
+[resource]
+script = ExtResource("6_sjaq3")
+tint = Color(0.95, 1, 0.9, 1)
+ambient = Color(0.5, 0.52, 0.45, 1)
+music = ExtResource("4_jcmjs")
+ambience = ExtResource("1_xmpg2")
+floor_atlas = ExtResource("3_rkl6f")
+floor_tiles = PackedInt32Array(264, 264, 264, 265, 266, 267)
+decor_atlas = ExtResource("2_w8t0k")
+decor_tiles = PackedInt32Array(4, 5, 6, 7, 13, 14, 15)
+decor_chance = 0.04
+wall_atlas = ExtResource("7_uve6h")
+wall_top_color = Color(1, 0.79607844, 0.5529412, 1)
+props_atlas = ExtResource("5_6q3s4")

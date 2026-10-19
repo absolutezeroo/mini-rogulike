@@ -1,0 +1,70 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_h2nba"]
+[ext_resource type="Resource" path="res://data/hazards/flooded_pool.tres" id="2_40gy0"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_fyav6"]
+[ext_resource type="Texture2D" path="res://assets/tiles/nature.png" id="4_u62dy"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="5_cgj8k"]
+
+[sub_resource type="Resource" id="Resource_ovt0w"]
+script = ExtResource("1_h2nba")
+symbol = "w"
+kind = 3
+pond = ExtResource("2_40gy0")
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_spwft"]
+atlas = ExtResource("4_u62dy")
+region = Rect2(64, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fty2i"]
+atlas = ExtResource("4_u62dy")
+region = Rect2(80, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uaxmj"]
+atlas = ExtResource("4_u62dy")
+region = Rect2(128, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5gnt8"]
+atlas = ExtResource("4_u62dy")
+region = Rect2(144, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ocgji"]
+atlas = ExtResource("4_u62dy")
+region = Rect2(0, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n2eqt"]
+atlas = ExtResource("4_u62dy")
+region = Rect2(48, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b3waa"]
+atlas = ExtResource("4_u62dy")
+region = Rect2(64, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uisnv"]
+atlas = ExtResource("4_u62dy")
+region = Rect2(80, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2glx7"]
+atlas = ExtResource("4_u62dy")
+region = Rect2(112, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jcuer"]
+atlas = ExtResource("4_u62dy")
+region = Rect2(144, 160, 16, 16)
+
+[sub_resource type="Resource" id="Resource_s0jhg"]
+script = ExtResource("1_h2nba")
+symbol = "g"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_spwft"), SubResource("AtlasTexture_fty2i"), SubResource("AtlasTexture_uaxmj"), SubResource("AtlasTexture_5gnt8"), SubResource("AtlasTexture_ocgji"), SubResource("AtlasTexture_n2eqt"), SubResource("AtlasTexture_b3waa"), SubResource("AtlasTexture_uisnv"), SubResource("AtlasTexture_2glx7"), SubResource("AtlasTexture_jcuer")])
+chance = 0.7
+
+[resource]
+script = ExtResource("5_cgj8k")
+rows = PackedStringArray(" g..g ", "gwwwwg", "gwwwwg", " .gg. ")
+keys = Array[ExtResource("1_h2nba")]([SubResource("Resource_ovt0w"), SubResource("Resource_s0jhg")])
+anchor = 1
+room_size = 1
+max_per_floor = 1
+id = &"cave_spring"
+display_name = "Cave Spring"

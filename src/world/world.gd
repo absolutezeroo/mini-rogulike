@@ -39,10 +39,11 @@ var arena: BossArena
 var floor_event: FloorEventDef
 ## The Well's curse on this whole floor (null on most floors).
 var curse: CurseDef
-## Themed rooms of this floor: room index -> RoomTemplateDef.
-var room_themes := {}
-## This whole floor's style (the Great Library...), null on most floors.
-var floor_theme: FloorThemeDef
+## The world this floor belongs to (a mossy cave, a crypt, desert ruins...): its look, its
+## grounds, scenes and decor (FloorDresser). `theme` is its theme.
+var biome: BiomeDef
+## The grounds laid on this floor (sand, moss...): GroundLayerDef -> cells (Dictionary).
+var grounds := {}
 ## Difficulty, event and depth combined: ask it how hard and rewarding this floor is.
 var rules: FloorRules
 ## Debug (DebugPanel): the next floor built gets this curse or event instead of rolling one
@@ -50,10 +51,8 @@ var rules: FloorRules
 var forced_curse: CurseDef
 var forced_event: FloorEventDef
 var forced_plain := false
-## Debug: every room of the next floor built that it fits in gets this theme. Used once.
-var forced_room: RoomTemplateDef
-## Debug: the next floor built has this style. Used once.
-var forced_floor_theme: FloorThemeDef
+## Debug: the next floor built is this biome. Used once.
+var forced_biome: BiomeDef
 ## The boss of each act for this run (an act may have several; the game draws one per run).
 ## Empty or null entries: the act's main boss.
 var run_bosses: Array[BossDef] = []
@@ -110,11 +109,8 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 		map = DungeonGenerator.generate_arena(content.dungeon, rng)
 	else:
 		map = DungeonGenerator.generate(content.dungeon, rng)
-	theme = content.dungeon.theme_for_depth(depth)
-	floor_theme = null if boss else _roll_floor_theme(content)
-	room_themes = {} if boss else FloorPopulator.pick_rooms(self, content, depth, forced_room)
-	forced_room = null
-	forced_floor_theme = null
+	biome = _pick_biome(content, boss != null)
+	theme = biome.theme if biome else null
 	rules = FloorRules.make(content.dungeon, difficulty, floor_event, depth, curse)
 	_ambient.color = Color((theme.ambient if theme else Color.WHITE) * rules.light(), 1.0)
 	_view.show_map(map, theme)
@@ -130,6 +126,7 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 		arena.setup(self, boss)
 		for room in map.rooms:
 			FloorPopulator.place_lights(self, content.dungeon, room, {})
+		FloorDresser.dress(self, {}, false)  # the arena keeps clear: grounds and decor only
 	else:
 		spawn_stairs(map.stairs_cell)
 		FloorPopulator.populate(self, content, depth)
@@ -141,6 +138,7 @@ func clear_floor() -> void:
 	arena = null
 	ambush = null
 	_cracks.clear()
+	grounds.clear()
 	_heat_sources.clear()
 	_dark_rooms.clear()
 	if _pits:
@@ -251,14 +249,14 @@ func fire_projectiles(shooter: Actor, direction: Vector2, spec: ProjectileSpec) 
 		_projectiles.add_child.call_deferred(projectile)
 
 
-## The floor's style, now and then (never the first floor; the debug one if forced).
-func _roll_floor_theme(content: ContentDB) -> FloorThemeDef:
-	if forced_floor_theme or forced_room:
-		return forced_floor_theme
+## This floor's biome: one of its act's (the debug one if forced).
+func _pick_biome(content: ContentDB, boss: bool) -> BiomeDef:
+	var forced := forced_biome
+	forced_biome = null
+	if forced:
+		return forced
 	var act := content.dungeon.act_for_depth(depth)
-	if act == null or depth <= 1 or rng.randf() >= content.dungeon.themed_floor_chance:
-		return null
-	return act.pick_floor_theme(depth, rng)
+	return act.pick_biome(depth, boss, rng) if act else null
 
 
 ## Props stand on a cell (the top-left one of a bigger footprint) and block it until they break.
@@ -275,10 +273,10 @@ func spawn_prop(def: PropDef, cell: Vector2i) -> Prop:
 	return prop
 
 
-## A different floor over `cells` (PatchFeature).
-func spawn_floor_patch(feature: PatchFeature, cells: Rect2i) -> FloorPatch:
+## A framed floor (3x3 tiles in `region` of `tiles`) over `cells`: a carpet, a mosaic...
+func spawn_floor_patch(tiles: Texture2D, region: Rect2i, cells: Rect2i) -> FloorPatch:
 	var patch := FloorPatch.new()
-	patch.setup(feature, self, cells)
+	patch.setup(tiles, region, self, cells)
 	_effects.add_child(patch)
 	return patch
 

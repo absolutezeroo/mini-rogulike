@@ -6,7 +6,7 @@ func run() -> void:
 	_test_stat_block()
 	_test_combat_rules()
 	_test_content()
-	_test_room_content()
+	_test_biome_content()
 	_test_generation()
 	_test_inventory_and_equipment()
 	_test_perks()
@@ -158,36 +158,64 @@ func _test_generation() -> void:
 			break
 
 
-## Themed rooms and floors: every act has some, each one complete; furniture drawn and solid.
-func _test_room_content() -> void:
-	var templates := {}
+## Biomes: every act has 2 or more, each complete; scenes are sound plans.
+func _test_biome_content() -> void:
+	var seen := {}
 	for act in CONTENT.dungeon.acts:
-		check(act.room_templates.size() >= 4, "%s has themed rooms (%d)" % [act.title, act.room_templates.size()])
-		check(act.floor_themes.size() >= 3, "%s has themed floors (%d)" % [act.title, act.floor_themes.size()])
-		for theme in act.floor_themes:
-			check(theme != null and not theme.rooms.is_empty() and not theme.description.is_empty(), "themed floor %s is complete" % theme.id)
-			check(theme.min_depth >= 2, "%s: never the very first floor" % theme.id)
-			for template in theme.rooms:
-				templates[template] = true
-		for template in act.room_templates:
-			templates[template] = true
-	check(templates.size() >= 6, "at least 6 kinds of themed rooms (%d)" % templates.size())
+		check(act.biomes.size() >= 2, "%s has several biomes (%d)" % [act.title, act.biomes.size()])
+		for biome in act.biomes:
+			check(not seen.has(biome), "%s belongs to one act only" % biome.id)
+			seen[biome] = true
+			check(biome.theme != null and biome.theme.floor_atlas != null and biome.theme.wall_atlas != null, "%s has its tiles" % biome.id)
+			check(not biome.display_name.is_empty() and not biome.description.is_empty(), "%s has a name and a line" % biome.id)
+			check(biome.scenes.size() >= 5, "%s has its scenes (%d)" % [biome.id, biome.scenes.size()])
+			check(not biome.grounds.is_empty() and not biome.decor.is_empty(), "%s has grounds and decor" % biome.id)
+			for layer in biome.grounds:
+				check(layer.texture != null and layer.coverage > 0.0, "%s: a ground with a look" % biome.id)
+			for scene in biome.scenes:
+				_check_scene(biome, scene)
 	var rng := RandomNumberGenerator.new()
-	rng.seed = 7
-	for template: RoomTemplateDef in templates:
-		check(not template.features.is_empty() and not template.features.has(null), "%s has its features" % template.id)
-		check(template.fits(Rect2i(0, 0, 13, 13)), "%s fits a big room" % template.id)
-		check(not template.fits(Rect2i(0, 0, 4, 4)), "%s never squeezed in a closet" % template.id)
-		check(RoomTemplateDef.pick([template], Rect2i(0, 0, 4, 4), 9, rng) == null, "%s: picked only where it fits" % template.id)
-		for feature in template.features:
-			if feature is PropsFeature:
-				for prop in (feature as PropsFeature).props:
-					check(prop.icon != null and prop.footprint.x >= 1 and prop.footprint.y >= 1, "%s: %s drawn, with a footprint" % [template.id, prop.id])
-			elif feature is PillarsFeature:
-				check((feature as PillarsFeature).pillar != null, "%s: its columns have a look" % template.id)
-			elif feature is PondFeature:
-				var pond := (feature as PondFeature).pond
-				check(pond != null and pond.pond != null and pond.heat == 0.0 and not pond.comfort, "%s: plain water, neither warm nor cold" % template.id)
+	var act: ActDef = CONTENT.dungeon.acts[0]
+	check(act.pick_biome(3, true, rng) == act.main_biome(), "the boss arena has its biome")
+	var picked := {}
+	for i in 60:
+		picked[act.pick_biome(2, false, rng)] = true
+	check(picked.size() == act.biomes.size(), "every biome of an act comes up (%d)" % picked.size())
+
+
+func _check_scene(biome: BiomeDef, scene: SceneDef) -> void:
+	var name := "%s/%s" % [biome.id, scene.id]
+	check(not scene.rows.is_empty() and scene.size().x > 0, "%s has a plan" % name)
+	for row in scene.rows:
+		for symbol in row:
+			if symbol != " " and symbol != ".":
+				check(scene.key(symbol) != null, "%s: '%s' means something" % [name, symbol])
+	for k in scene.keys:
+		match k.kind:
+			SceneKey.Kind.PROP:
+				check(not k.props.is_empty(), "%s: '%s' has props" % [name, k.symbol])
+				var foot := k.props[0].footprint if not k.props.is_empty() else Vector2i.ONE
+				for prop in k.props:
+					check(prop.icon != null and prop.footprint == foot, "%s: %s drawn, same footprint as its kin" % [name, prop.id])
+				# A footprint bigger than a cell: the symbol covers it whole, every time (read
+				# row by row, as the scene is built).
+				var cells := scene.plan(false)
+				var ordered := cells.keys().filter(func(offset: Vector2i) -> bool: return cells[offset] == k.symbol)
+				ordered.sort_custom(func(a: Vector2i, b: Vector2i) -> bool: return a.y < b.y or (a.y == b.y and a.x < b.x))
+				var used := {}
+				for offset: Vector2i in ordered:
+					if used.has(offset):
+						continue
+					for y in foot.y:
+						for x in foot.x:
+							used[offset + Vector2i(x, y)] = true
+							check(cells.get(offset + Vector2i(x, y), "") == k.symbol, "%s: '%s' covers its %s footprint" % [name, k.symbol, foot])
+			SceneKey.Kind.DECOR:
+				check(not k.pieces.is_empty(), "%s: '%s' has pieces" % [name, k.symbol])
+			SceneKey.Kind.CARPET:
+				check(k.carpet != null, "%s: '%s' has a carpet" % [name, k.symbol])
+			SceneKey.Kind.POND:
+				check(k.pond != null and k.pond.pond != null and k.pond.heat == 0.0, "%s: '%s' is plain water" % [name, k.symbol])
 
 
 func _bad_wall_cells(map: DungeonMap) -> Array[Vector2i]:
@@ -280,7 +308,7 @@ func _test_bosses() -> void:
 	check(config.acts.size() == 3 and config.total_floors() == 9, "3 acts of 3 floors")
 	var bosses: Array[BossDef] = []
 	for act in config.acts:
-		check(act.boss != null and act.theme != null and act.monsters.size() >= 6, "%s has a boss, a look and monsters" % act.title)
+		check(act.boss != null and act.main_biome() != null and act.monsters.size() >= 6, "%s has a boss, a look and monsters" % act.title)
 		bosses.append(act.boss)
 	check(config.boss_for_depth(1) == null and config.boss_for_depth(2) == null and config.boss_for_depth(4) == null, "normal floors have no boss")
 	check(config.boss_for_depth(3) == bosses[0] and config.boss_for_depth(6) == bosses[1] and config.boss_for_depth(9) == bosses[2], "each act ends with its boss")

@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_ff725"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_65xq4"]
+[ext_resource type="Resource" path="res://data/props/furniture/big_bookshelf.tres" id="3_7qd67"]
+[ext_resource type="Resource" path="res://data/props/furniture/big_bookshelf_empty.tres" id="4_hvxom"]
+[ext_resource type="Resource" path="res://data/props/furniture/bookshelf.tres" id="5_h7sf8"]
+[ext_resource type="Resource" path="res://data/props/furniture/bookshelf_empty.tres" id="6_v0h3x"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="7_yl0px"]
+
+[sub_resource type="Resource" id="Resource_kv4cj"]
+script = ExtResource("1_ff725")
+symbol = "B"
+props = Array[ExtResource("2_65xq4")]([ExtResource("3_7qd67"), ExtResource("3_7qd67"), ExtResource("4_hvxom")])
+chance = 0.9
+
+[sub_resource type="Resource" id="Resource_k2ilb"]
+script = ExtResource("1_ff725")
+symbol = "s"
+props = Array[ExtResource("2_65xq4")]([ExtResource("5_h7sf8"), ExtResource("5_h7sf8"), ExtResource("6_v0h3x")])
+chance = 0.8
+
+[resource]
+script = ExtResource("7_yl0px")
+rows = PackedStringArray("BBsBB", ".....", "BBsBB")
+keys = Array[ExtResource("1_ff725")]([SubResource("Resource_kv4cj"), SubResource("Resource_k2ilb")])
+anchor = 1
+room_size = 1
+max_per_floor = 2
+id = &"aisle"
+display_name = "Aisle"

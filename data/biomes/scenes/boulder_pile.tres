@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_faapa"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_f7hha"]
+[ext_resource type="Resource" path="res://data/props/furniture/mossy_boulder.tres" id="3_8ho0s"]
+[ext_resource type="Resource" path="res://data/props/furniture/big_rock.tres" id="4_1v4b8"]
+[ext_resource type="Texture2D" path="res://assets/tiles/relief_detail.png" id="5_oi50p"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="6_jnyc4"]
+
+[sub_resource type="Resource" id="Resource_parsd"]
+script = ExtResource("1_faapa")
+symbol = "B"
+props = Array[ExtResource("2_f7hha")]([ExtResource("3_8ho0s"), ExtResource("4_1v4b8")])
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jo438"]
+atlas = ExtResource("5_oi50p")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8ggqk"]
+atlas = ExtResource("5_oi50p")
+region = Rect2(0, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n2cpf"]
+atlas = ExtResource("5_oi50p")
+region = Rect2(0, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xeqeh"]
+atlas = ExtResource("5_oi50p")
+region = Rect2(0, 80, 16, 16)
+
+[sub_resource type="Resource" id="Resource_7c35o"]
+script = ExtResource("1_faapa")
+symbol = "r"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_jo438"), SubResource("AtlasTexture_8ggqk"), SubResource("AtlasTexture_n2cpf"), SubResource("AtlasTexture_xeqeh")])
+chance = 0.7
+
+[resource]
+script = ExtResource("6_jnyc4")
+rows = PackedStringArray("BBr", "BB.", "r..")
+keys = Array[ExtResource("1_faapa")]([SubResource("Resource_parsd"), SubResource("Resource_7c35o")])
+anchor = 4
+id = &"boulder_pile"
+display_name = "Boulder Pile"

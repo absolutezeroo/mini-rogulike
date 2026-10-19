@@ -118,17 +118,14 @@ func _build_floor(parent: Control) -> void:
 	for event in _game_content().floor_events:
 		events.add_child(_button(event.display_name, func() -> void: _go(maxi(_game.depth, 2), null, event)))
 
-	var floors := _section(parent, "Themed floor (rebuilds the floor)")
-	for theme in _all_floor_themes():
-		floors.add_child(_button(theme.display_name, func() -> void:
-			_game.world.forced_floor_theme = theme
-			_go(maxi(_plain_depth(_game.depth), 2))))
-
-	var rooms := _section(parent, "Themed rooms (rebuilds the floor, every room it fits)")
-	for template in _all_room_templates():
-		rooms.add_child(_button(template.display_name, func() -> void:
-			_game.world.forced_room = template
-			_go(_plain_depth(_game.depth))))
+	var biomes := _section(parent, "Biome (goes to its act)")
+	var dungeon := _game_content().dungeon
+	for i in dungeon.acts.size():
+		for biome in dungeon.acts[i].biomes:
+			var depth := dungeon.first_depth(i)
+			biomes.add_child(_button("%s: %s" % [dungeon.acts[i].subtitle.trim_prefix("Act "), biome.display_name], func() -> void:
+				_game.world.forced_biome = biome
+				_go(depth)))
 
 
 func _build_hero(parent: Control) -> void:
@@ -174,33 +171,6 @@ func _build_monsters(parent: Control) -> void:
 
 
 # --- Actions ---------------------------------------------------------------------
-
-## The themed rooms of every act, once each.
-func _all_room_templates() -> Array[RoomTemplateDef]:
-	var result: Array[RoomTemplateDef] = []
-	for act in _game_content().dungeon.acts:
-		for template in act.room_templates:
-			if template and not result.has(template):
-				result.append(template)
-	return result
-
-
-## The themed floors of every act, once each.
-func _all_floor_themes() -> Array[FloorThemeDef]:
-	var result: Array[FloorThemeDef] = []
-	for act in _game_content().dungeon.acts:
-		for theme in act.floor_themes:
-			if theme and not result.has(theme):
-				result.append(theme)
-	return result
-
-
-## `depth`, or the floor before it if it is a boss arena (no themed rooms there).
-func _plain_depth(depth: int) -> int:
-	if _game_content().dungeon.boss_for_depth(depth) and depth > 1:
-		return depth - 1
-	return depth
-
 
 ## Builds floor `depth` (with that curse or event, or a plain one), then closes the panel.
 func _go(depth: int, curse: CurseDef = null, event: FloorEventDef = null, plain: bool = false) -> void:

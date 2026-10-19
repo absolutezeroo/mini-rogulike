@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_4624l"]
+[ext_resource type="Texture2D" path="res://assets/tiles/nature.png" id="2_fvotf"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_4p86b"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4624l"]
+atlas = ExtResource("2_fvotf")
+region = Rect2(0, 192, 32, 32)
+
+[resource]
+script = ExtResource("3_4p86b")
+footprint = Vector2i(2, 2)
+hits = 0
+debris_color = Color(0.4, 0.55, 0.6, 1)
+break_sound = ExtResource("1_4624l")
+id = &"big_rock"
+display_name = "Big Rock"
+icon = SubResource("AtlasTexture_4624l")
+glyph = "F"
+color = Color(0.4, 0.55, 0.6, 1)

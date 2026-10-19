@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_ralmg"]
+[ext_resource type="Texture2D" path="res://assets/tiles/nature.png" id="2_wx6tw"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_py43p"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ralmg"]
+atlas = ExtResource("2_wx6tw")
+region = Rect2(0, 128, 32, 32)
+
+[resource]
+script = ExtResource("3_py43p")
+footprint = Vector2i(2, 1)
+hits = 0
+debris_color = Color(0.6, 0.38, 0.22, 1)
+break_sound = ExtResource("1_ralmg")
+id = &"stump"
+display_name = "Stump"
+icon = SubResource("AtlasTexture_ralmg")
+glyph = "F"
+color = Color(0.6, 0.38, 0.22, 1)

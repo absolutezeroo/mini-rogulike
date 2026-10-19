@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_bj7vs"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_n3gb1"]
+[ext_resource type="Resource" path="res://data/props/furniture/tombstone.tres" id="3_8cxtx"]
+[ext_resource type="Resource" path="res://data/props/furniture/old_tombstone.tres" id="4_qglum"]
+[ext_resource type="Resource" path="res://data/props/furniture/grave_cross.tres" id="5_asp60"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="6_2ph1d"]
+
+[sub_resource type="Resource" id="Resource_8c7ml"]
+script = ExtResource("1_bj7vs")
+symbol = "G"
+props = Array[ExtResource("2_n3gb1")]([ExtResource("3_8cxtx"), ExtResource("4_qglum"), ExtResource("5_asp60")])
+chance = 0.85
+
+[resource]
+script = ExtResource("6_2ph1d")
+rows = PackedStringArray("G.G.G.G", ".......")
+keys = Array[ExtResource("1_bj7vs")]([SubResource("Resource_8c7ml")])
+anchor = 2
+id = &"grave_row"
+display_name = "Grave Row"

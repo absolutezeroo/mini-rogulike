@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_q1edi"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_7o5rj"]
+[ext_resource type="Resource" path="res://data/props/furniture/seated_statue.tres" id="3_vxb74"]
+[ext_resource type="Resource" path="res://data/props/furniture/frog_statue.tres" id="4_2w487"]
+[ext_resource type="Resource" path="res://data/props/furniture/blue_orb.tres" id="5_eynp4"]
+[ext_resource type="Resource" path="res://data/props/furniture/red_orb.tres" id="6_20bbr"]
+[ext_resource type="Texture2D" path="res://assets/tiles/interior_floor.png" id="7_kr63c"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="8_q30oi"]
+
+[sub_resource type="Resource" id="Resource_rivfu"]
+script = ExtResource("1_q1edi")
+symbol = "S"
+props = Array[ExtResource("2_7o5rj")]([ExtResource("3_vxb74"), ExtResource("4_2w487")])
+
+[sub_resource type="Resource" id="Resource_ks3o4"]
+script = ExtResource("1_q1edi")
+symbol = "o"
+props = Array[ExtResource("2_7o5rj")]([ExtResource("5_eynp4"), ExtResource("6_20bbr")])
+
+[sub_resource type="Resource" id="Resource_gaolh"]
+script = ExtResource("1_q1edi")
+symbol = "a"
+kind = 2
+carpet = ExtResource("7_kr63c")
+carpet_region = Rect2i(0, 192, 48, 48)
+
+[resource]
+script = ExtResource("8_q30oi")
+rows = PackedStringArray("o.....o", ".aaaaa.", ".aSSaa.", ".aaaaa.", "o.....o")
+keys = Array[ExtResource("1_q1edi")]([SubResource("Resource_rivfu"), SubResource("Resource_ks3o4"), SubResource("Resource_gaolh")])
+anchor = 1
+room_size = 1
+max_per_floor = 1
+id = &"temple_shrine"
+display_name = "Shrine"

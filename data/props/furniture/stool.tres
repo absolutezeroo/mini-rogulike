@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_dxh7s"]
+[ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="2_p3lmi"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_6p0il"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dxh7s"]
+atlas = ExtResource("2_p3lmi")
+region = Rect2(80, 112, 16, 16)
+
+[resource]
+script = ExtResource("3_6p0il")
+debris_color = Color(0.6, 0.38, 0.22, 1)
+break_sound = ExtResource("1_dxh7s")
+id = &"stool"
+display_name = "Stool"
+icon = SubResource("AtlasTexture_dxh7s")
+glyph = "F"
+color = Color(0.6, 0.38, 0.22, 1)

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_kru5d"]
+[ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="2_mqw2c"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_41btl"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kru5d"]
+atlas = ExtResource("2_mqw2c")
+region = Rect2(0, 160, 16, 16)
+
+[resource]
+script = ExtResource("3_41btl")
+hits = 0
+debris_color = Color(0.4, 0.45, 0.5, 1)
+break_sound = ExtResource("1_kru5d")
+id = &"cauldron"
+display_name = "Cauldron"
+icon = SubResource("AtlasTexture_kru5d")
+glyph = "F"
+color = Color(0.4, 0.45, 0.5, 1)

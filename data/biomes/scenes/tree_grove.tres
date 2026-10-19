@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_wtkve"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_f2n6q"]
+[ext_resource type="Resource" path="res://data/props/furniture/garden_tree.tres" id="3_qmcoj"]
+[ext_resource type="Resource" path="res://data/props/furniture/cave_tree.tres" id="4_fjmh8"]
+[ext_resource type="Resource" path="res://data/props/furniture/round_bush.tres" id="5_q7upo"]
+[ext_resource type="Resource" path="res://data/props/furniture/bush.tres" id="6_f5i1j"]
+[ext_resource type="Texture2D" path="res://assets/tiles/nature.png" id="7_j1joe"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="8_fpij5"]
+
+[sub_resource type="Resource" id="Resource_hqlph"]
+script = ExtResource("1_wtkve")
+symbol = "T"
+props = Array[ExtResource("2_f2n6q")]([ExtResource("3_qmcoj"), ExtResource("4_fjmh8")])
+
+[sub_resource type="Resource" id="Resource_itvx8"]
+script = ExtResource("1_wtkve")
+symbol = "b"
+props = Array[ExtResource("2_f2n6q")]([ExtResource("5_q7upo"), ExtResource("6_f5i1j")])
+chance = 0.7
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_aulko"]
+atlas = ExtResource("7_j1joe")
+region = Rect2(0, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_iugkr"]
+atlas = ExtResource("7_j1joe")
+region = Rect2(16, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q1i8w"]
+atlas = ExtResource("7_j1joe")
+region = Rect2(48, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4uxtv"]
+atlas = ExtResource("7_j1joe")
+region = Rect2(96, 176, 16, 16)
+
+[sub_resource type="Resource" id="Resource_5h2pb"]
+script = ExtResource("1_wtkve")
+symbol = "f"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_aulko"), SubResource("AtlasTexture_iugkr"), SubResource("AtlasTexture_q1i8w"), SubResource("AtlasTexture_4uxtv")])
+chance = 0.7
+
+[resource]
+script = ExtResource("8_fpij5")
+rows = PackedStringArray("f TT f", " fTTb ", "  .. ")
+keys = Array[ExtResource("1_wtkve")]([SubResource("Resource_hqlph"), SubResource("Resource_itvx8"), SubResource("Resource_5h2pb")])
+id = &"tree_grove"
+display_name = "Tree Grove"

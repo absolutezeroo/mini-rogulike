@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_awpqc"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_cblpb"]
+[ext_resource type="Resource" path="res://data/props/furniture/mossy_column.tres" id="3_e867y"]
+[ext_resource type="Resource" path="res://data/props/furniture/stone_pillar.tres" id="4_dqq7g"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="5_gmmdv"]
+
+[sub_resource type="Resource" id="Resource_3on3e"]
+script = ExtResource("1_awpqc")
+symbol = "C"
+props = Array[ExtResource("2_cblpb")]([ExtResource("3_e867y"), ExtResource("4_dqq7g")])
+chance = 0.85
+
+[resource]
+script = ExtResource("5_gmmdv")
+rows = PackedStringArray("C..C..C", ".......", ".......", "C..C..C")
+keys = Array[ExtResource("1_awpqc")]([SubResource("Resource_3on3e")])
+anchor = 1
+room_size = 1
+max_per_floor = 1
+id = &"colonnade"
+display_name = "Colonnade"

@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_8yb4r"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_p3plg"]
+[ext_resource type="Resource" path="res://data/props/furniture/ore_rock.tres" id="3_b0am3"]
+[ext_resource type="Resource" path="res://data/props/furniture/red_ore_rock.tres" id="4_ca4ol"]
+[ext_resource type="Texture2D" path="res://assets/tiles/relief_detail.png" id="5_io7bc"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="6_rehh3"]
+
+[sub_resource type="Resource" id="Resource_72j8w"]
+script = ExtResource("1_8yb4r")
+symbol = "O"
+props = Array[ExtResource("2_p3plg")]([ExtResource("3_b0am3"), ExtResource("4_ca4ol")])
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pq63p"]
+atlas = ExtResource("5_io7bc")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_72vb1"]
+atlas = ExtResource("5_io7bc")
+region = Rect2(0, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mg1wc"]
+atlas = ExtResource("5_io7bc")
+region = Rect2(0, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tow73"]
+atlas = ExtResource("5_io7bc")
+region = Rect2(0, 80, 16, 16)
+
+[sub_resource type="Resource" id="Resource_ha1ba"]
+script = ExtResource("1_8yb4r")
+symbol = "r"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_pq63p"), SubResource("AtlasTexture_72vb1"), SubResource("AtlasTexture_mg1wc"), SubResource("AtlasTexture_tow73")])
+chance = 0.7
+
+[resource]
+script = ExtResource("6_rehh3")
+rows = PackedStringArray("OO.", "OOr", "...")
+keys = Array[ExtResource("1_8yb4r")]([SubResource("Resource_72j8w"), SubResource("Resource_ha1ba")])
+anchor = 3
+id = &"ore_vein"
+display_name = "Ore Vein"

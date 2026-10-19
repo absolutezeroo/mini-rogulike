@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_760ff"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_obbry"]
+[ext_resource type="Resource" path="res://data/props/furniture/bookshelf.tres" id="3_lb31b"]
+[ext_resource type="Resource" path="res://data/props/furniture/bookshelf_empty.tres" id="4_kqbkp"]
+[ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="5_juurg"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="6_rj7nl"]
+
+[sub_resource type="Resource" id="Resource_0llbh"]
+script = ExtResource("1_760ff")
+symbol = "s"
+props = Array[ExtResource("2_obbry")]([ExtResource("3_lb31b"), ExtResource("3_lb31b"), ExtResource("4_kqbkp")])
+chance = 0.85
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p3lh8"]
+atlas = ExtResource("5_juurg")
+region = Rect2(160, 16, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cde6x"]
+atlas = ExtResource("5_juurg")
+region = Rect2(96, 144, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8vgt3"]
+atlas = ExtResource("5_juurg")
+region = Rect2(64, 144, 16, 16)
+
+[sub_resource type="Resource" id="Resource_y174q"]
+script = ExtResource("1_760ff")
+symbol = "b"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_p3lh8"), SubResource("AtlasTexture_cde6x"), SubResource("AtlasTexture_8vgt3")])
+chance = 0.6
+
+[resource]
+script = ExtResource("6_rj7nl")
+rows = PackedStringArray("ss.s", "b...")
+keys = Array[ExtResource("1_760ff")]([SubResource("Resource_0llbh"), SubResource("Resource_y174q")])
+anchor = 2
+id = &"small_shelves"
+display_name = "Shelves"

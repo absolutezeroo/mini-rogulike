@@ -19,8 +19,9 @@ func _ready() -> void:
 	if content.sounds:
 		Sfx.bank = content.sounds
 	var first_act := content.dungeon.acts[0] if not content.dungeon.acts.is_empty() else null
-	if first_act and first_act.theme:
-		Sfx.play_music(first_act.theme.music)
+	var biome := first_act.main_biome() if first_act else null
+	if biome and biome.theme:
+		Sfx.play_music(biome.theme.music)
 	if content.story:
 		(%Title as Label).text = content.story.title
 		(%Subtitle as Label).text = content.story.tagline

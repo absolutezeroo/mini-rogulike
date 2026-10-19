@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_bgyka"]
+[ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="2_glvsw"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_txcyt"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bgyka"]
+atlas = ExtResource("2_glvsw")
+region = Rect2(96, 64, 16, 16)
+
+[resource]
+script = ExtResource("3_txcyt")
+hits = 0
+debris_color = Color(0.6, 0.38, 0.22, 1)
+break_sound = ExtResource("1_bgyka")
+light_color = Color(1, 0.8, 0.5, 0.8)
+light_radius = 150.0
+id = &"lamp_post"
+display_name = "Lamp"
+icon = SubResource("AtlasTexture_bgyka")
+glyph = "F"
+color = Color(0.6, 0.38, 0.22, 1)

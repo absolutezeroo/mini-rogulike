@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_4cu7r"]
+[ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="2_k46nv"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_tpl63"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4cu7r"]
+atlas = ExtResource("2_k46nv")
+region = Rect2(32, 0, 16, 16)
+
+[resource]
+script = ExtResource("3_tpl63")
+debris_color = Color(0.95, 0.8, 0.5, 1)
+break_sound = ExtResource("1_4cu7r")
+light_color = Color(1, 0.75, 0.4, 0.85)
+light_radius = 150.0
+id = &"candles"
+display_name = "Candles"
+icon = SubResource("AtlasTexture_4cu7r")
+glyph = "F"
+color = Color(0.95, 0.8, 0.5, 1)

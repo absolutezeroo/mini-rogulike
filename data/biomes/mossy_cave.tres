@@ -1,0 +1,114 @@
+[gd_resource type="Resource" script_class="BiomeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/decor_rule_def.gd" id="1_tbdxu"]
+[ext_resource type="Script" path="res://src/definitions/biomes/ground_layer_def.gd" id="2_uv4ov"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor.png" id="3_moljt"]
+[ext_resource type="Texture2D" path="res://assets/tiles/nature.png" id="4_gsfrq"]
+[ext_resource type="Texture2D" path="res://assets/tiles/relief_detail.png" id="5_qb74a"]
+[ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="6_dm30d"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="7_3v1q8"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/boulder_pile.tres" id="8_gvx1m"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/stump_ring.tres" id="9_wg6do"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/cave_spring.tres" id="10_emtqk"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/mossy_columns.tres" id="11_ygtgs"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/crystal_nook.tres" id="12_2rjg3"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/ore_vein.tres" id="13_oy2j0"]
+[ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="14_6i532"]
+[ext_resource type="Resource" path="res://data/dungeon/themes/cave.tres" id="15_1qjpf"]
+
+[sub_resource type="Resource" id="Resource_tbdxu"]
+script = ExtResource("2_uv4ov")
+texture = ExtResource("3_moljt")
+tile = Rect2i(0, 192, 16, 16)
+tile_alt = Rect2i(16, 192, 16, 16)
+edge_color = Color(0.27, 0.45, 0.16, 1)
+coverage = 0.28
+noise_scale = 0.11
+wall_bias = 0.6
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uv4ov"]
+atlas = ExtResource("4_gsfrq")
+region = Rect2(0, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_moljt"]
+atlas = ExtResource("4_gsfrq")
+region = Rect2(48, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gsfrq"]
+atlas = ExtResource("4_gsfrq")
+region = Rect2(64, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qb74a"]
+atlas = ExtResource("4_gsfrq")
+region = Rect2(80, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dm30d"]
+atlas = ExtResource("4_gsfrq")
+region = Rect2(112, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3v1q8"]
+atlas = ExtResource("4_gsfrq")
+region = Rect2(144, 160, 16, 16)
+
+[sub_resource type="Resource" id="Resource_gvx1m"]
+script = ExtResource("1_tbdxu")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_uv4ov"), SubResource("AtlasTexture_moljt"), SubResource("AtlasTexture_gsfrq"), SubResource("AtlasTexture_qb74a"), SubResource("AtlasTexture_dm30d"), SubResource("AtlasTexture_3v1q8")])
+density = 0.3
+clumping = 0.5
+only_on = SubResource("Resource_tbdxu")
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wg6do"]
+atlas = ExtResource("5_qb74a")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_emtqk"]
+atlas = ExtResource("5_qb74a")
+region = Rect2(0, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ygtgs"]
+atlas = ExtResource("5_qb74a")
+region = Rect2(0, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2rjg3"]
+atlas = ExtResource("5_qb74a")
+region = Rect2(0, 80, 16, 16)
+
+[sub_resource type="Resource" id="Resource_oy2j0"]
+script = ExtResource("1_tbdxu")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_wg6do"), SubResource("AtlasTexture_emtqk"), SubResource("AtlasTexture_ygtgs"), SubResource("AtlasTexture_2rjg3")])
+density = 0.035
+wall_bias = 0.7
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6i532"]
+atlas = ExtResource("4_gsfrq")
+region = Rect2(0, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1qjpf"]
+atlas = ExtResource("4_gsfrq")
+region = Rect2(16, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gw8ds"]
+atlas = ExtResource("4_gsfrq")
+region = Rect2(48, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7p24x"]
+atlas = ExtResource("4_gsfrq")
+region = Rect2(96, 176, 16, 16)
+
+[sub_resource type="Resource" id="Resource_6fkgg"]
+script = ExtResource("1_tbdxu")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_6i532"), SubResource("AtlasTexture_1qjpf"), SubResource("AtlasTexture_gw8ds"), SubResource("AtlasTexture_7p24x")])
+density = 0.04
+clumping = 0.8
+only_on = SubResource("Resource_tbdxu")
+
+[resource]
+script = ExtResource("14_6i532")
+theme = ExtResource("15_1qjpf")
+grounds = Array[ExtResource("2_uv4ov")]([SubResource("Resource_tbdxu")])
+scenes = Array[ExtResource("7_3v1q8")]([ExtResource("8_gvx1m"), ExtResource("9_wg6do"), ExtResource("10_emtqk"), ExtResource("11_ygtgs"), ExtResource("12_2rjg3"), ExtResource("13_oy2j0")])
+decor = Array[ExtResource("1_tbdxu")]([SubResource("Resource_gvx1m"), SubResource("Resource_oy2j0"), SubResource("Resource_6fkgg")])
+id = &"mossy_cave"
+display_name = "Mossy Cave"
+description = "Damp stone and soft moss. Something drips in the dark."
+color = Color(0.6, 0.85, 0.45, 1)

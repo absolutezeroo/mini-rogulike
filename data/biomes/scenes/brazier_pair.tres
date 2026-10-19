@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_ghdq3"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_bfqyo"]
+[ext_resource type="Resource" path="res://data/props/furniture/brazier.tres" id="3_k24al"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="4_br4fm"]
+
+[sub_resource type="Resource" id="Resource_u2syg"]
+script = ExtResource("1_ghdq3")
+symbol = "F"
+props = Array[ExtResource("2_bfqyo")]([ExtResource("3_k24al")])
+
+[resource]
+script = ExtResource("4_br4fm")
+rows = PackedStringArray("F...F", ".....")
+keys = Array[ExtResource("1_ghdq3")]([SubResource("Resource_u2syg")])
+anchor = 2
+max_per_floor = 3
+id = &"brazier_pair"
+display_name = "Braziers"

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_3a7av"]
+[ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="2_ioh28"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_sp3ca"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3a7av"]
+atlas = ExtResource("2_ioh28")
+region = Rect2(0, 80, 16, 32)
+
+[resource]
+script = ExtResource("3_sp3ca")
+hits = 3
+debris_color = Color(0.8, 0.7, 0.5, 1)
+break_sound = ExtResource("1_3a7av")
+id = &"mummy_case"
+display_name = "Old Coffin"
+icon = SubResource("AtlasTexture_3a7av")
+glyph = "F"
+color = Color(0.8, 0.7, 0.5, 1)

@@ -1,0 +1,77 @@
+[gd_resource type="Resource" script_class="BiomeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/decor_rule_def.gd" id="1_rhp6m"]
+[ext_resource type="Texture2D" path="res://assets/tiles/relief_detail.png" id="2_0gldx"]
+[ext_resource type="Texture2D" path="res://assets/tiles/nature.png" id="3_xmwuw"]
+[ext_resource type="Script" path="res://src/definitions/biomes/ground_layer_def.gd" id="4_ormdw"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor.png" id="5_pj4u3"]
+[ext_resource type="Texture2D" path="res://assets/tiles/flooded_pool.png" id="6_0gldx"]
+[ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="6_6pr3o"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="7_n7wyy"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/flooded_hollow.tres" id="8_i2so8"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/puddle.tres" id="9_r3nfj"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/crystal_cluster.tres" id="10_y7mcp"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/sunken_pillars.tres" id="11_lhfok"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/wet_rocks.tres" id="12_rsuwl"]
+[ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="13_3x0m4"]
+[ext_resource type="Resource" path="res://data/dungeon/themes/flooded.tres" id="14_yk0bu"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xmwuw"]
+atlas = ExtResource("2_0gldx")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ormdw"]
+atlas = ExtResource("2_0gldx")
+region = Rect2(0, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pj4u3"]
+atlas = ExtResource("2_0gldx")
+region = Rect2(0, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6pr3o"]
+atlas = ExtResource("2_0gldx")
+region = Rect2(0, 80, 16, 16)
+
+[sub_resource type="Resource" id="Resource_n7wyy"]
+script = ExtResource("1_rhp6m")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_xmwuw"), SubResource("AtlasTexture_ormdw"), SubResource("AtlasTexture_pj4u3"), SubResource("AtlasTexture_6pr3o")])
+wall_bias = 0.6
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i2so8"]
+atlas = ExtResource("3_xmwuw")
+region = Rect2(16, 224, 16, 16)
+
+[sub_resource type="Resource" id="Resource_r3nfj"]
+script = ExtResource("1_rhp6m")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_i2so8")])
+density = 0.012
+clumping = 0.9
+wall_bias = 0.9
+
+[sub_resource type="Resource" id="Resource_y7mcp"]
+script = ExtResource("4_ormdw")
+texture = ExtResource("5_pj4u3")
+tile = Rect2i(192, 240, 16, 16)
+edge_color = Color(0.3, 0.24, 0.2, 1)
+coverage = 0.2
+wall_bias = 0.3
+
+[sub_resource type="Resource" id="Resource_lhfok"]
+script = ExtResource("4_ormdw")
+texture = ExtResource("6_0gldx")
+edge_color = Color(0.86, 0.96, 1, 1)
+coverage = 0.22
+noise_scale = 0.08
+wall_bias = -0.2
+roughness = 0.45
+
+[resource]
+script = ExtResource("13_3x0m4")
+theme = ExtResource("14_yk0bu")
+grounds = Array[ExtResource("4_ormdw")]([SubResource("Resource_y7mcp"), SubResource("Resource_lhfok")])
+scenes = Array[ExtResource("7_n7wyy")]([ExtResource("8_i2so8"), ExtResource("9_r3nfj"), ExtResource("10_y7mcp"), ExtResource("11_lhfok"), ExtResource("12_rsuwl")])
+decor = Array[ExtResource("1_rhp6m")]([SubResource("Resource_n7wyy"), SubResource("Resource_r3nfj")])
+id = &"flooded_caverns"
+display_name = "Flooded Caverns"
+description = "The Well's water rose here once. It never went back down."
+color = Color(0.5, 0.8, 1, 1)

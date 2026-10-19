@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_x8tif"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_kd8pe"]
+[ext_resource type="Resource" path="res://data/props/furniture/big_rock.tres" id="3_4d72c"]
+[ext_resource type="Texture2D" path="res://assets/tiles/relief_detail.png" id="4_k6d6x"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="5_wg6hh"]
+
+[sub_resource type="Resource" id="Resource_c6l32"]
+script = ExtResource("1_x8tif")
+symbol = "R"
+props = Array[ExtResource("2_kd8pe")]([ExtResource("3_4d72c")])
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mjwit"]
+atlas = ExtResource("4_k6d6x")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kgvhs"]
+atlas = ExtResource("4_k6d6x")
+region = Rect2(0, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sohag"]
+atlas = ExtResource("4_k6d6x")
+region = Rect2(0, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_06ijv"]
+atlas = ExtResource("4_k6d6x")
+region = Rect2(0, 80, 16, 16)
+
+[sub_resource type="Resource" id="Resource_uxgpv"]
+script = ExtResource("1_x8tif")
+symbol = "r"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_mjwit"), SubResource("AtlasTexture_kgvhs"), SubResource("AtlasTexture_sohag"), SubResource("AtlasTexture_06ijv")])
+chance = 0.6
+
+[resource]
+script = ExtResource("5_wg6hh")
+rows = PackedStringArray("RR.", "RRr", "...")
+keys = Array[ExtResource("1_x8tif")]([SubResource("Resource_c6l32"), SubResource("Resource_uxgpv")])
+anchor = 3
+id = &"wet_rocks"
+display_name = "Wet Rocks"

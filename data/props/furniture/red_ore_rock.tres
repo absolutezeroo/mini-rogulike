@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_xeq30"]
+[ext_resource type="Texture2D" path="res://assets/tiles/nature.png" id="2_lacaw"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_yy3y2"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xeq30"]
+atlas = ExtResource("2_lacaw")
+region = Rect2(144, 224, 32, 32)
+
+[resource]
+script = ExtResource("3_yy3y2")
+footprint = Vector2i(2, 2)
+hits = 0
+debris_color = Color(0.7, 0.45, 0.35, 1)
+break_sound = ExtResource("1_xeq30")
+id = &"red_ore_rock"
+display_name = "Red Ore Rock"
+icon = SubResource("AtlasTexture_xeq30")
+glyph = "F"
+color = Color(0.7, 0.45, 0.35, 1)

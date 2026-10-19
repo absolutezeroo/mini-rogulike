@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_17nrh"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_4kqyk"]
+[ext_resource type="Resource" path="res://data/props/furniture/big_rock.tres" id="3_os56o"]
+[ext_resource type="Resource" path="res://data/props/furniture/ore_rock.tres" id="4_ewga2"]
+[ext_resource type="Texture2D" path="res://assets/tiles/relief_detail.png" id="5_vrpe1"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="6_vnmkl"]
+
+[sub_resource type="Resource" id="Resource_jmwx4"]
+script = ExtResource("1_17nrh")
+symbol = "R"
+props = Array[ExtResource("2_4kqyk")]([ExtResource("3_os56o"), ExtResource("4_ewga2")])
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qamyb"]
+atlas = ExtResource("5_vrpe1")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kx06x"]
+atlas = ExtResource("5_vrpe1")
+region = Rect2(0, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4c6l2"]
+atlas = ExtResource("5_vrpe1")
+region = Rect2(0, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a4s3v"]
+atlas = ExtResource("5_vrpe1")
+region = Rect2(0, 80, 16, 16)
+
+[sub_resource type="Resource" id="Resource_f0gej"]
+script = ExtResource("1_17nrh")
+symbol = "r"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_qamyb"), SubResource("AtlasTexture_kx06x"), SubResource("AtlasTexture_4c6l2"), SubResource("AtlasTexture_a4s3v")])
+chance = 0.8
+
+[resource]
+script = ExtResource("6_vnmkl")
+rows = PackedStringArray("RRr", "RRr", "rr.")
+keys = Array[ExtResource("1_17nrh")]([SubResource("Resource_jmwx4"), SubResource("Resource_f0gej")])
+anchor = 4
+id = &"rubble_corner"
+display_name = "Rubble"

@@ -33,10 +33,6 @@ extends Resource
 ## Groups of hazards per floor (a row of spikes, a few holes...), picked from the act's list.
 @export_range(0, 20) var hazard_groups_min: int = 3
 @export_range(0, 20) var hazard_groups_max: int = 5
-## Chance for each room (not the first) to be themed (ActDef.room_templates).
-@export_range(0.0, 1.0) var themed_room_chance: float = 0.25
-## Chance for a floor (not the first, nor a boss's) to be themed as a whole (ActDef.floor_themes).
-@export_range(0.0, 1.0) var themed_floor_chance: float = 0.25
 
 @export_group("Chests")
 ## Chests lying around a floor (some are trapped: see ChestDef).
@@ -163,6 +159,14 @@ func act_index(depth: int) -> int:
 	return acts.size() - 1
 
 
+## The first floor of act `index` (1 for the first act).
+func first_depth(index: int) -> int:
+	var depth := 1
+	for i in mini(index, acts.size()):
+		depth += acts[i].floors
+	return depth
+
+
 func act_for_depth(depth: int) -> ActDef:
 	var index := act_index(depth)
 	return acts[index] if index >= 0 else null
@@ -176,11 +180,6 @@ func floor_in_act(depth: int) -> int:
 			return floor_number + 1
 		floor_number -= act.floors
 	return 1
-
-
-func theme_for_depth(depth: int) -> DungeonTheme:
-	var act := act_for_depth(depth)
-	return act.theme if act else null
 
 
 ## The boss guarding `depth` (the last floor of each act), or null on a normal floor.

@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_n3d53"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_phth2"]
+[ext_resource type="Resource" path="res://data/props/furniture/rubble.tres" id="3_8jfjw"]
+[ext_resource type="Texture2D" path="res://assets/tiles/relief_detail.png" id="4_liqn8"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="5_uoncr"]
+
+[sub_resource type="Resource" id="Resource_vvk05"]
+script = ExtResource("1_n3d53")
+symbol = "u"
+props = Array[ExtResource("2_phth2")]([ExtResource("3_8jfjw")])
+chance = 0.85
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g0ec1"]
+atlas = ExtResource("4_liqn8")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rhyg6"]
+atlas = ExtResource("4_liqn8")
+region = Rect2(0, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6p2vd"]
+atlas = ExtResource("4_liqn8")
+region = Rect2(0, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mdrgh"]
+atlas = ExtResource("4_liqn8")
+region = Rect2(0, 80, 16, 16)
+
+[sub_resource type="Resource" id="Resource_8c1as"]
+script = ExtResource("1_n3d53")
+symbol = "r"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_g0ec1"), SubResource("AtlasTexture_rhyg6"), SubResource("AtlasTexture_6p2vd"), SubResource("AtlasTexture_mdrgh")])
+chance = 0.7
+
+[resource]
+script = ExtResource("5_uoncr")
+rows = PackedStringArray("uu.", "ur.", "...")
+keys = Array[ExtResource("1_n3d53")]([SubResource("Resource_vvk05"), SubResource("Resource_8c1as")])
+anchor = 3
+id = &"rubble_heap"
+display_name = "Rubble Heap"

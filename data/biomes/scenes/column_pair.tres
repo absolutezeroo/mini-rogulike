@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_0w0ls"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_x4qqh"]
+[ext_resource type="Resource" path="res://data/props/furniture/stone_pillar.tres" id="3_1y5uw"]
+[ext_resource type="Resource" path="res://data/props/furniture/mossy_column.tres" id="4_325fc"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="5_dlbu5"]
+
+[sub_resource type="Resource" id="Resource_5x736"]
+script = ExtResource("1_0w0ls")
+symbol = "C"
+props = Array[ExtResource("2_x4qqh")]([ExtResource("3_1y5uw"), ExtResource("4_325fc")])
+
+[resource]
+script = ExtResource("5_dlbu5")
+rows = PackedStringArray("C...C", ".....")
+keys = Array[ExtResource("1_0w0ls")]([SubResource("Resource_5x736")])
+anchor = 2
+id = &"column_pair"
+display_name = "Columns"

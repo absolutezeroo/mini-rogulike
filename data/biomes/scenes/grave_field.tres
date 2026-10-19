@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_5nbvx"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_2ecvc"]
+[ext_resource type="Resource" path="res://data/props/furniture/tombstone.tres" id="3_jup87"]
+[ext_resource type="Resource" path="res://data/props/furniture/old_tombstone.tres" id="4_ity13"]
+[ext_resource type="Resource" path="res://data/props/furniture/grave_cross.tres" id="5_xag3w"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="6_7acyv"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="7_mgwrc"]
+
+[sub_resource type="Resource" id="Resource_3y3lh"]
+script = ExtResource("1_5nbvx")
+symbol = "G"
+props = Array[ExtResource("2_2ecvc")]([ExtResource("3_jup87"), ExtResource("4_ity13"), ExtResource("5_xag3w")])
+chance = 0.8
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mswgf"]
+atlas = ExtResource("6_7acyv")
+region = Rect2(208, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b4va7"]
+atlas = ExtResource("6_7acyv")
+region = Rect2(224, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ipxkh"]
+atlas = ExtResource("6_7acyv")
+region = Rect2(224, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_fdfgc"]
+script = ExtResource("1_5nbvx")
+symbol = "b"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_mswgf"), SubResource("AtlasTexture_b4va7"), SubResource("AtlasTexture_ipxkh")])
+chance = 0.6
+
+[resource]
+script = ExtResource("7_mgwrc")
+rows = PackedStringArray("G.G.G", "b...b", "G.G.G", ".....")
+keys = Array[ExtResource("1_5nbvx")]([SubResource("Resource_3y3lh"), SubResource("Resource_fdfgc")])
+anchor = 1
+room_size = 1
+max_per_floor = 2
+id = &"grave_field"
+display_name = "Graveyard"

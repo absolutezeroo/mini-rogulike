@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_0sawg"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_rnmvc"]
+[ext_resource type="Resource" path="res://data/props/furniture/bookshelf_empty.tres" id="3_optb4"]
+[ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="4_g6q6t"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="5_fxkb3"]
+
+[sub_resource type="Resource" id="Resource_vterk"]
+script = ExtResource("1_0sawg")
+symbol = "s"
+props = Array[ExtResource("2_rnmvc")]([ExtResource("3_optb4")])
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0cojq"]
+atlas = ExtResource("4_g6q6t")
+region = Rect2(160, 16, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v12uw"]
+atlas = ExtResource("4_g6q6t")
+region = Rect2(96, 144, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fmoqb"]
+atlas = ExtResource("4_g6q6t")
+region = Rect2(64, 144, 16, 16)
+
+[sub_resource type="Resource" id="Resource_btw3l"]
+script = ExtResource("1_0sawg")
+symbol = "b"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_0cojq"), SubResource("AtlasTexture_v12uw"), SubResource("AtlasTexture_fmoqb")])
+chance = 0.9
+
+[resource]
+script = ExtResource("5_fxkb3")
+rows = PackedStringArray("sbb", "bb.", "...")
+keys = Array[ExtResource("1_0sawg")]([SubResource("Resource_vterk"), SubResource("Resource_btw3l")])
+anchor = 3
+id = &"fallen_shelf"
+display_name = "Fallen Shelf"

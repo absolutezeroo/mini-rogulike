@@ -1,16 +1,16 @@
 [gd_resource type="Resource" script_class="ActDef" format=3]
 
+[ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="1_tfj5l"]
 [ext_resource type="Resource" path="res://data/monsters/bosses/king_slime.tres" id="1_y3bjj"]
 [ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="2_3q6dd"]
 [ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_chj32"]
-[ext_resource type="Script" path="res://src/definitions/rooms/floor_theme_def.gd" id="2_fkvgj"]
+[ext_resource type="Resource" path="res://data/biomes/mossy_cave.tres" id="2_vhkbm"]
+[ext_resource type="Resource" path="res://data/biomes/underground_garden.tres" id="3_8qpxp"]
 [ext_resource type="Resource" path="res://data/hazards/spikes.tres" id="3_57csl"]
 [ext_resource type="Resource" path="res://data/monsters/rat.tres" id="3_twde1"]
-[ext_resource type="Resource" path="res://data/rooms/floors/forgotten_gardens.tres" id="3_xk0xr"]
 [ext_resource type="Resource" path="res://data/monsters/bat.tres" id="4_1c6c0"]
 [ext_resource type="Resource" path="res://data/hazards/spike_plate.tres" id="4_35t5y"]
-[ext_resource type="Resource" path="res://data/rooms/floors/sunken_halls.tres" id="4_klddv"]
-[ext_resource type="Resource" path="res://data/rooms/floors/pillared_temple.tres" id="5_5wxws"]
+[ext_resource type="Resource" path="res://data/biomes/flooded_caverns.tres" id="4_nyfmu"]
 [ext_resource type="Resource" path="res://data/monsters/slime.tres" id="5_dqtpg"]
 [ext_resource type="Resource" path="res://data/hazards/pit.tres" id="5_l6n4l"]
 [ext_resource type="Resource" path="res://data/hazards/mud.tres" id="6_d01a4"]
@@ -22,26 +22,19 @@
 [ext_resource type="Resource" path="res://data/monsters/mole.tres" id="10_l6n4l"]
 [ext_resource type="Resource" path="res://data/monsters/big_slime.tres" id="11_d01a4"]
 [ext_resource type="Script" path="res://src/definitions/act_def.gd" id="12_f35h4"]
-[ext_resource type="Resource" path="res://data/dungeon/themes/cave.tres" id="13_b7ec2"]
 [ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="18_35t5y"]
 [ext_resource type="Resource" path="res://data/monsters/shell_guard.tres" id="18_d01a4"]
 [ext_resource type="Resource" path="res://data/monsters/thief_racoon.tres" id="19_f35h4"]
 [ext_resource type="Resource" path="res://data/monsters/bosses/giant_frog.tres" id="19_l6n4l"]
-[ext_resource type="Script" path="res://src/definitions/rooms/room_template_def.gd" id="26_7vd5l"]
-[ext_resource type="Resource" path="res://data/rooms/pillar_hall.tres" id="27_qq4te"]
-[ext_resource type="Resource" path="res://data/rooms/indoor_garden.tres" id="28_v7sdl"]
-[ext_resource type="Resource" path="res://data/rooms/flooded_hall.tres" id="29_cfip4"]
-[ext_resource type="Resource" path="res://data/rooms/shrine.tres" id="30_4vs42"]
 
 [resource]
 script = ExtResource("12_f35h4")
 title = "Mossy Caves"
 subtitle = "Act I"
 lore = "The mouth of the Well. Roots, wet stone, and things that crawl toward the light of your lantern."
-theme = ExtResource("13_b7ec2")
+biomes = Array[ExtResource("1_tfj5l")]([ExtResource("2_vhkbm"), ExtResource("3_8qpxp"), ExtResource("4_nyfmu")])
+boss_biome = ExtResource("2_vhkbm")
 monsters = Array[ExtResource("2_chj32")]([ExtResource("3_twde1"), ExtResource("4_1c6c0"), ExtResource("5_dqtpg"), ExtResource("6_h6jwt"), ExtResource("7_3q6dd"), ExtResource("8_57csl"), ExtResource("9_35t5y"), ExtResource("10_l6n4l"), ExtResource("11_d01a4"), ExtResource("18_d01a4"), ExtResource("19_f35h4")])
 boss = ExtResource("1_y3bjj")
 other_bosses = Array[ExtResource("18_35t5y")]([ExtResource("19_l6n4l")])
 hazards = Array[ExtResource("2_3q6dd")]([ExtResource("3_57csl"), ExtResource("4_35t5y"), ExtResource("5_l6n4l"), ExtResource("6_d01a4"), ExtResource("7_f35h4")])
-room_templates = Array[ExtResource("26_7vd5l")]([ExtResource("27_qq4te"), ExtResource("28_v7sdl"), ExtResource("29_cfip4"), ExtResource("30_4vs42")])
-floor_themes = Array[ExtResource("2_fkvgj")]([ExtResource("3_xk0xr"), ExtResource("4_klddv"), ExtResource("5_5wxws")])

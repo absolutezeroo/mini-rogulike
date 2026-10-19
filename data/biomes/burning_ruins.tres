@@ -1,0 +1,74 @@
+[gd_resource type="Resource" script_class="BiomeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/decor_rule_def.gd" id="1_8hhvf"]
+[ext_resource type="Texture2D" path="res://assets/tiles/relief_detail.png" id="2_uldkb"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="3_gneqh"]
+[ext_resource type="Script" path="res://src/definitions/biomes/ground_layer_def.gd" id="4_25rvi"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor.png" id="5_31b7h"]
+[ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="6_atv8y"]
+[ext_resource type="Resource" path="res://data/props/furniture/brazier.tres" id="7_js8e0"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="8_p5tib"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/collapsed_columns.tres" id="9_hc1sm"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/brazier_pair.tres" id="10_f00dm"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/rubble_corner.tres" id="11_8ml77"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/fallen_idol.tres" id="12_vv50m"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/rubble_heap.tres" id="13_kr0gd"]
+[ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="14_mpyfs"]
+[ext_resource type="Resource" path="res://data/dungeon/themes/ruins.tres" id="15_u544j"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8hhvf"]
+atlas = ExtResource("2_uldkb")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uldkb"]
+atlas = ExtResource("2_uldkb")
+region = Rect2(0, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gneqh"]
+atlas = ExtResource("2_uldkb")
+region = Rect2(0, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_25rvi"]
+atlas = ExtResource("2_uldkb")
+region = Rect2(0, 80, 16, 16)
+
+[sub_resource type="Resource" id="Resource_31b7h"]
+script = ExtResource("1_8hhvf")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_8hhvf"), SubResource("AtlasTexture_uldkb"), SubResource("AtlasTexture_gneqh"), SubResource("AtlasTexture_25rvi")])
+wall_bias = 0.6
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_atv8y"]
+atlas = ExtResource("3_gneqh")
+region = Rect2(80, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_js8e0"]
+atlas = ExtResource("3_gneqh")
+region = Rect2(96, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p5tib"]
+atlas = ExtResource("3_gneqh")
+region = Rect2(112, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_hc1sm"]
+script = ExtResource("1_8hhvf")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_atv8y"), SubResource("AtlasTexture_js8e0"), SubResource("AtlasTexture_p5tib")])
+density = 0.04
+
+[sub_resource type="Resource" id="Resource_f00dm"]
+script = ExtResource("4_25rvi")
+texture = ExtResource("5_31b7h")
+tile = Rect2i(192, 240, 16, 16)
+edge_color = Color(0.2, 0.14, 0.12, 1)
+wall_bias = 0.2
+
+[resource]
+script = ExtResource("14_mpyfs")
+theme = ExtResource("15_u544j")
+grounds = Array[ExtResource("4_25rvi")]([SubResource("Resource_f00dm")])
+scenes = Array[ExtResource("8_p5tib")]([ExtResource("9_hc1sm"), ExtResource("10_f00dm"), ExtResource("11_8ml77"), ExtResource("12_vv50m"), ExtResource("13_kr0gd")])
+decor = Array[ExtResource("1_8hhvf")]([SubResource("Resource_31b7h"), SubResource("Resource_hc1sm")])
+light = ExtResource("7_js8e0")
+id = &"burning_ruins"
+display_name = "Burning Ruins"
+description = "A city burned here. The embers never quite went out."
+color = Color(1, 0.6, 0.35, 1)

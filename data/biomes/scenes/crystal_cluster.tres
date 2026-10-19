@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_q18sp"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_c73ae"]
+[ext_resource type="Resource" path="res://data/props/furniture/blue_crystal.tres" id="3_gogkb"]
+[ext_resource type="Texture2D" path="res://assets/tiles/relief_detail.png" id="4_gkmlg"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="5_hu08k"]
+
+[sub_resource type="Resource" id="Resource_m7ss4"]
+script = ExtResource("1_q18sp")
+symbol = "K"
+props = Array[ExtResource("2_c73ae")]([ExtResource("3_gogkb")])
+chance = 0.8
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yj0v6"]
+atlas = ExtResource("4_gkmlg")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nsoe4"]
+atlas = ExtResource("4_gkmlg")
+region = Rect2(0, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8mml2"]
+atlas = ExtResource("4_gkmlg")
+region = Rect2(0, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1bxq4"]
+atlas = ExtResource("4_gkmlg")
+region = Rect2(0, 80, 16, 16)
+
+[sub_resource type="Resource" id="Resource_1aq1p"]
+script = ExtResource("1_q18sp")
+symbol = "r"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_yj0v6"), SubResource("AtlasTexture_nsoe4"), SubResource("AtlasTexture_8mml2"), SubResource("AtlasTexture_1bxq4")])
+chance = 0.6
+
+[resource]
+script = ExtResource("5_hu08k")
+rows = PackedStringArray("KKr", "K..", "r..")
+keys = Array[ExtResource("1_q18sp")]([SubResource("Resource_m7ss4"), SubResource("Resource_1aq1p")])
+anchor = 4
+max_per_floor = 3
+id = &"crystal_cluster"
+display_name = "Crystal Cluster"

@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_x67o3"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_o4ncs"]
+[ext_resource type="Resource" path="res://data/props/furniture/candles.tres" id="3_p2r28"]
+[ext_resource type="Resource" path="res://data/props/furniture/carved_skull.tres" id="4_xmufh"]
+[ext_resource type="Texture2D" path="res://assets/tiles/interior_floor.png" id="5_q003k"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="6_7ocnr"]
+
+[sub_resource type="Resource" id="Resource_673cw"]
+script = ExtResource("1_x67o3")
+symbol = "c"
+props = Array[ExtResource("2_o4ncs")]([ExtResource("3_p2r28")])
+
+[sub_resource type="Resource" id="Resource_ca8oq"]
+script = ExtResource("1_x67o3")
+symbol = "T"
+props = Array[ExtResource("2_o4ncs")]([ExtResource("4_xmufh")])
+
+[sub_resource type="Resource" id="Resource_ti7qk"]
+script = ExtResource("1_x67o3")
+symbol = "a"
+kind = 2
+carpet = ExtResource("5_q003k")
+carpet_region = Rect2i(176, 192, 48, 48)
+
+[resource]
+script = ExtResource("6_7ocnr")
+rows = PackedStringArray("c...c", ".aaa.", ".aTa.", ".aaa.", "c...c")
+keys = Array[ExtResource("1_x67o3")]([SubResource("Resource_673cw"), SubResource("Resource_ca8oq"), SubResource("Resource_ti7qk")])
+anchor = 1
+room_size = 1
+max_per_floor = 1
+id = &"candle_altar"
+display_name = "Candle Altar"

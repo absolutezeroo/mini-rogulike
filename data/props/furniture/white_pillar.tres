@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_r6mf4"]
+[ext_resource type="Texture2D" path="res://assets/tiles/relief_detail.png" id="2_7tnu4"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_37ive"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_r6mf4"]
+atlas = ExtResource("2_7tnu4")
+region = Rect2(80, 0, 16, 32)
+
+[resource]
+script = ExtResource("3_37ive")
+hits = 0
+debris_color = Color(0.85, 0.85, 0.9, 1)
+break_sound = ExtResource("1_r6mf4")
+id = &"white_pillar"
+display_name = "Pale Pillar"
+icon = SubResource("AtlasTexture_r6mf4")
+glyph = "F"
+color = Color(0.85, 0.85, 0.9, 1)

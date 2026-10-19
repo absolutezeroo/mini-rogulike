@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_8flai"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_n3vdw"]
+[ext_resource type="Resource" path="res://data/props/furniture/carved_skull.tres" id="3_ohxli"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="4_7ti8o"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="5_vldxg"]
+
+[sub_resource type="Resource" id="Resource_43lpk"]
+script = ExtResource("1_8flai")
+symbol = "S"
+props = Array[ExtResource("2_n3vdw")]([ExtResource("3_ohxli")])
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j655q"]
+atlas = ExtResource("4_7ti8o")
+region = Rect2(208, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mne11"]
+atlas = ExtResource("4_7ti8o")
+region = Rect2(224, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ywtfc"]
+atlas = ExtResource("4_7ti8o")
+region = Rect2(224, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_nqqd2"]
+script = ExtResource("1_8flai")
+symbol = "b"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_j655q"), SubResource("AtlasTexture_mne11"), SubResource("AtlasTexture_ywtfc")])
+chance = 0.85
+
+[resource]
+script = ExtResource("5_vldxg")
+rows = PackedStringArray("Sbb", "bb.", "b..")
+keys = Array[ExtResource("1_8flai")]([SubResource("Resource_43lpk"), SubResource("Resource_nqqd2")])
+anchor = 4
+id = &"ossuary"
+display_name = "Ossuary"

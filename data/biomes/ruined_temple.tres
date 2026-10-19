@@ -1,0 +1,79 @@
+[gd_resource type="Resource" script_class="BiomeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/decor_rule_def.gd" id="1_gbu62"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="2_a003p"]
+[ext_resource type="Texture2D" path="res://assets/tiles/nature.png" id="3_0ny6d"]
+[ext_resource type="Script" path="res://src/definitions/biomes/ground_layer_def.gd" id="4_xu4j5"]
+[ext_resource type="Texture2D" path="res://assets/tiles/interior_floor.png" id="5_he0p3"]
+[ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="6_3ke4b"]
+[ext_resource type="Resource" path="res://data/props/furniture/brazier.tres" id="7_xj62s"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="8_a48jq"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/colonnade.tres" id="9_33tul"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/temple_shrine.tres" id="10_v8frx"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/column_pair.tres" id="11_c6024"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/offerings.tres" id="12_76v5e"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/orb_niche.tres" id="13_5gqxp"]
+[ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="14_kdxxt"]
+[ext_resource type="Resource" path="res://data/dungeon/themes/temple.tres" id="15_dsjyk"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gbu62"]
+atlas = ExtResource("2_a003p")
+region = Rect2(80, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a003p"]
+atlas = ExtResource("2_a003p")
+region = Rect2(96, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0ny6d"]
+atlas = ExtResource("2_a003p")
+region = Rect2(112, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_xu4j5"]
+script = ExtResource("1_gbu62")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_gbu62"), SubResource("AtlasTexture_a003p"), SubResource("AtlasTexture_0ny6d")])
+density = 0.04
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_he0p3"]
+atlas = ExtResource("3_0ny6d")
+region = Rect2(0, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3ke4b"]
+atlas = ExtResource("3_0ny6d")
+region = Rect2(16, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xj62s"]
+atlas = ExtResource("3_0ny6d")
+region = Rect2(48, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a48jq"]
+atlas = ExtResource("3_0ny6d")
+region = Rect2(96, 176, 16, 16)
+
+[sub_resource type="Resource" id="Resource_33tul"]
+script = ExtResource("1_gbu62")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_he0p3"), SubResource("AtlasTexture_3ke4b"), SubResource("AtlasTexture_xj62s"), SubResource("AtlasTexture_a48jq")])
+density = 0.015
+clumping = 0.9
+wall_bias = 0.8
+
+[sub_resource type="Resource" id="Resource_v8frx"]
+script = ExtResource("4_xu4j5")
+texture = ExtResource("5_he0p3")
+tile = Rect2i(16, 208, 16, 16)
+edge_color = Color(0.55, 0.38, 0.2, 1)
+coverage = 0.25
+noise_scale = 0.08
+wall_bias = -0.6
+roughness = 0.15
+
+[resource]
+script = ExtResource("14_kdxxt")
+theme = ExtResource("15_dsjyk")
+grounds = Array[ExtResource("4_xu4j5")]([SubResource("Resource_v8frx")])
+scenes = Array[ExtResource("8_a48jq")]([ExtResource("9_33tul"), ExtResource("10_v8frx"), ExtResource("11_c6024"), ExtResource("12_76v5e"), ExtResource("13_5gqxp")])
+decor = Array[ExtResource("1_gbu62")]([SubResource("Resource_xu4j5"), SubResource("Resource_33tul")])
+light = ExtResource("7_xj62s")
+id = &"ruined_temple"
+display_name = "Ruined Temple"
+description = "Halls of columns raised for a god nobody remembers."
+color = Color(1, 0.85, 0.5, 1)

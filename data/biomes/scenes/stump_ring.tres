@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_ulayu"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_fh7l5"]
+[ext_resource type="Resource" path="res://data/props/furniture/stump.tres" id="3_3b704"]
+[ext_resource type="Resource" path="res://data/props/furniture/old_stump.tres" id="4_vbsbs"]
+[ext_resource type="Resource" path="res://data/props/furniture/small_stump.tres" id="5_c2jp3"]
+[ext_resource type="Texture2D" path="res://assets/tiles/nature.png" id="6_adbcj"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="7_urwhf"]
+
+[sub_resource type="Resource" id="Resource_1lkev"]
+script = ExtResource("1_ulayu")
+symbol = "S"
+props = Array[ExtResource("2_fh7l5")]([ExtResource("3_3b704"), ExtResource("4_vbsbs")])
+
+[sub_resource type="Resource" id="Resource_r3dbe"]
+script = ExtResource("1_ulayu")
+symbol = "s"
+props = Array[ExtResource("2_fh7l5")]([ExtResource("5_c2jp3")])
+chance = 0.6
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_r5mm1"]
+atlas = ExtResource("6_adbcj")
+region = Rect2(0, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_r7hid"]
+atlas = ExtResource("6_adbcj")
+region = Rect2(48, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xclsh"]
+atlas = ExtResource("6_adbcj")
+region = Rect2(64, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u8cwh"]
+atlas = ExtResource("6_adbcj")
+region = Rect2(80, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_18i7s"]
+atlas = ExtResource("6_adbcj")
+region = Rect2(112, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gpxvw"]
+atlas = ExtResource("6_adbcj")
+region = Rect2(144, 160, 16, 16)
+
+[sub_resource type="Resource" id="Resource_b6gl2"]
+script = ExtResource("1_ulayu")
+symbol = "g"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_r5mm1"), SubResource("AtlasTexture_r7hid"), SubResource("AtlasTexture_xclsh"), SubResource("AtlasTexture_u8cwh"), SubResource("AtlasTexture_18i7s"), SubResource("AtlasTexture_gpxvw")])
+chance = 0.7
+
+[resource]
+script = ExtResource("7_urwhf")
+rows = PackedStringArray(" g g ", "gSS.g", " g s ")
+keys = Array[ExtResource("1_ulayu")]([SubResource("Resource_1lkev"), SubResource("Resource_r3dbe"), SubResource("Resource_b6gl2")])
+id = &"stump_ring"
+display_name = "Old Stumps"

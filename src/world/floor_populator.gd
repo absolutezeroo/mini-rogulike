@@ -1,27 +1,7 @@
 class_name FloorPopulator
-## Fills a freshly generated floor: the merchant, lights, themed rooms, props and hazards first
-## (they claim their cells), then the ambush room, chests, monsters and items on the free cells.
-## The first room is where the player starts: no monsters, hazards or theme there.
-
-
-## Picks the themed rooms of a new floor: room index -> RoomTemplateDef, furnished by populate().
-## A themed floor (world.floor_theme) themes most rooms; others only a few, from the act's list.
-## `forced` (debug): that theme in every room it fits in.
-static func pick_rooms(world: World, content: ContentDB, depth: int, forced: RoomTemplateDef = null) -> Dictionary:
-	var themes := {}
-	var act := content.dungeon.act_for_depth(depth)
-	var map := world.map
-	for i in range(1, map.rooms.size()):
-		var template: RoomTemplateDef
-		if forced:
-			template = forced if forced.fits(map.rooms[i]) else null
-		elif world.floor_theme:
-			template = world.floor_theme.pick_room(map.rooms[i], depth, world.rng)
-		elif act and world.rng.randf() < content.dungeon.themed_room_chance:
-			template = act.pick_room_template(map.rooms[i], depth, world.rng)
-		if template:
-			themes[i] = template
-	return themes
+## Fills a freshly generated floor: the merchant, lights, the biome's dressing (FloorDresser),
+## props and hazards first (they claim their cells), then the ambush room, chests, monsters and
+## items on the free cells. The first room is where the player starts: no monsters or hazards.
 
 
 static func populate(world: World, content: ContentDB, depth: int) -> void:
@@ -36,27 +16,24 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 			place_lights(world, config, room, taken)
 		return
 
-	# The merchant waits in a quiet room (no monsters, no hazards, no props around), plain if
-	# possible: on a themed floor, his room loses its theme.
+	# The merchant waits in a quiet room (no monsters, no hazards, no props around).
 	var event := world.floor_event
 	var merchant_index := -1
 	if config.merchant and (rng.randf() < config.merchant_chance or (event and event.merchant)):
-		merchant_index = _pick_quiet_room(map, rng, -1, world.room_themes)
-		if merchant_index < 0:
-			merchant_index = _pick_quiet_room(map, rng, -1)
+		merchant_index = _pick_quiet_room(map, rng, -1)
 		if merchant_index >= 0:
-			world.room_themes.erase(merchant_index)
 			var cell := map.rooms[merchant_index].get_center()
 			world.spawn_merchant(config.merchant, cell)
 			_reserve_around(taken, cell, 1)
 
-	for room in map.rooms:
-		place_lights(world, config, room, taken)
-	# Themed rooms next: their furniture has its places (along the top wall...), around the lanterns.
-	for i: int in world.room_themes:
-		(world.room_themes[i] as RoomTemplateDef).furnish(world, map.rooms[i], taken)
 	if merchant_index >= 0:
+		place_lights(world, config, map.rooms[merchant_index], taken)
 		_reserve_rect(taken, map.rooms[merchant_index])  # nothing else in his room
+	# The biome's grounds, scenes and decor, before anything else claims the rooms.
+	FloorDresser.dress(world, taken)
+	for i in map.rooms.size():
+		if i != merchant_index:
+			place_lights(world, config, map.rooms[i], taken)
 
 	# Springs, altars, statues: in the middle of a room, before anything else claims it.
 	var encounter_count := rng.randi_range(config.encounters_min, config.encounters_max)
@@ -78,17 +55,15 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 	if world.curse:
 		place_curse(world, world.curse, taken)
 
-	for i in map.rooms.size():
-		var themed: RoomTemplateDef = world.room_themes.get(i)
-		if themed == null or themed.keep_props:
-			_place_props(world, content, depth, map.rooms[i], taken)
+	for room in map.rooms:
+		_place_props(world, content, depth, room, taken)
 	var act := config.act_for_depth(depth)
 	if act:
 		var hazard_groups := rng.randi_range(config.hazard_groups_min, config.hazard_groups_max)
 		if event:
 			hazard_groups += event.extra_hazards
 		for n in hazard_groups:
-			var hazard := act.pick_hazard(depth, rng)
+			var hazard := world.biome.pick_hazard(act, depth, rng) if world.biome else act.pick_hazard(depth, rng)
 			if hazard:
 				hazard.place(world, map.rooms[rng.randi_range(1, map.rooms.size() - 1)], taken)
 
@@ -160,18 +135,19 @@ static func place_curse(world: World, curse: CurseDef, taken: Dictionary) -> voi
 
 
 ## A big enough room, not the first one, without the stairs and not `except` (-1 if none).
-static func _pick_quiet_room(map: DungeonMap, rng: RandomNumberGenerator, except: int, themed: Dictionary = {}) -> int:
+static func _pick_quiet_room(map: DungeonMap, rng: RandomNumberGenerator, except: int) -> int:
 	var candidates: Array[int] = []
 	for i in range(1, map.rooms.size()):
 		var room := map.rooms[i]
-		if i != except and not themed.has(i) and room.size.x >= 7 and room.size.y >= 7 and not room.grow(1).has_point(map.stairs_cell):
+		if i != except and room.size.x >= 7 and room.size.y >= 7 and not room.grow(1).has_point(map.stairs_cell):
 			candidates.append(i)
 	return candidates[rng.randi_range(0, candidates.size() - 1)] if not candidates.is_empty() else -1
 
 
 ## Lanterns along the walls of a room (also used for boss arenas).
 static func place_lights(world: World, config: DungeonConfig, room: Rect2i, taken: Dictionary) -> void:
-	if config.room_light == null:
+	var light := world.biome.light if world.biome and world.biome.light else config.room_light
+	if light == null:
 		return
 	var cells := edge_cells(world.map, room, taken)
 	var placed: Array[Vector2i] = []
@@ -181,7 +157,7 @@ static func place_lights(world: World, config: DungeonConfig, room: Rect2i, take
 		# Spread them out.
 		if placed.any(func(other: Vector2i) -> bool: return Vector2(other).distance_to(Vector2(cell)) < 5.0):
 			continue
-		world.spawn_prop(config.room_light, cell)
+		world.spawn_prop(light, cell)
 		_reserve_around(taken, cell, 1)
 		placed.append(cell)
 

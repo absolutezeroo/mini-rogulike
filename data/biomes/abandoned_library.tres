@@ -1,0 +1,77 @@
+[gd_resource type="Resource" script_class="BiomeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/decor_rule_def.gd" id="1_e0dof"]
+[ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="2_tqw4p"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="3_rywh0"]
+[ext_resource type="Script" path="res://src/definitions/biomes/ground_layer_def.gd" id="4_6hrak"]
+[ext_resource type="Texture2D" path="res://assets/tiles/interior_floor.png" id="5_ksdkl"]
+[ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="6_gwlth"]
+[ext_resource type="Resource" path="res://data/props/furniture/candles.tres" id="7_01g1b"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="8_n2px7"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/shelf_wall.tres" id="9_4yqwd"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/small_shelves.tres" id="10_lqu13"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/aisle.tres" id="11_ghhny"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/reading_corner.tres" id="12_457sd"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/fallen_shelf.tres" id="13_2gum3"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/study.tres" id="14_qn1pa"]
+[ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="15_74xcq"]
+[ext_resource type="Resource" path="res://data/dungeon/themes/library.tres" id="16_vkg7y"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e0dof"]
+atlas = ExtResource("2_tqw4p")
+region = Rect2(160, 16, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tqw4p"]
+atlas = ExtResource("2_tqw4p")
+region = Rect2(96, 144, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rywh0"]
+atlas = ExtResource("2_tqw4p")
+region = Rect2(64, 144, 16, 16)
+
+[sub_resource type="Resource" id="Resource_6hrak"]
+script = ExtResource("1_e0dof")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_e0dof"), SubResource("AtlasTexture_tqw4p"), SubResource("AtlasTexture_rywh0")])
+density = 0.03
+clumping = 0.8
+wall_bias = 0.5
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ksdkl"]
+atlas = ExtResource("3_rywh0")
+region = Rect2(80, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gwlth"]
+atlas = ExtResource("3_rywh0")
+region = Rect2(96, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_01g1b"]
+atlas = ExtResource("3_rywh0")
+region = Rect2(112, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_n2px7"]
+script = ExtResource("1_e0dof")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_ksdkl"), SubResource("AtlasTexture_gwlth"), SubResource("AtlasTexture_01g1b")])
+density = 0.02
+clumping = 0.5
+
+[sub_resource type="Resource" id="Resource_4yqwd"]
+script = ExtResource("4_6hrak")
+texture = ExtResource("5_ksdkl")
+tile = Rect2i(16, 112, 16, 16)
+edge_color = Color(0.55, 0.32, 0.2, 1)
+coverage = 0.22
+noise_scale = 0.12
+wall_bias = -0.5
+roughness = 0.25
+
+[resource]
+script = ExtResource("15_74xcq")
+theme = ExtResource("16_vkg7y")
+grounds = Array[ExtResource("4_6hrak")]([SubResource("Resource_4yqwd")])
+scenes = Array[ExtResource("8_n2px7")]([ExtResource("9_4yqwd"), ExtResource("10_lqu13"), ExtResource("11_ghhny"), ExtResource("12_457sd"), ExtResource("13_2gum3"), ExtResource("14_qn1pa")])
+decor = Array[ExtResource("1_e0dof")]([SubResource("Resource_6hrak"), SubResource("Resource_n2px7")])
+light = ExtResource("7_01g1b")
+id = &"abandoned_library"
+display_name = "Abandoned Library"
+description = "Shelves of forgotten books. Some still hold a spell."
+color = Color(0.95, 0.78, 0.5, 1)

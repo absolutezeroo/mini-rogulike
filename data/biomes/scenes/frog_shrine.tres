@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_gvp4f"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_ucukh"]
+[ext_resource type="Resource" path="res://data/props/furniture/frog_statue.tres" id="3_gxbnb"]
+[ext_resource type="Resource" path="res://data/props/furniture/plant_pot.tres" id="4_xnnu6"]
+[ext_resource type="Texture2D" path="res://assets/tiles/nature.png" id="5_gmaxg"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="6_kn3vh"]
+
+[sub_resource type="Resource" id="Resource_i11hh"]
+script = ExtResource("1_gvp4f")
+symbol = "F"
+props = Array[ExtResource("2_ucukh")]([ExtResource("3_gxbnb")])
+
+[sub_resource type="Resource" id="Resource_aqde1"]
+script = ExtResource("1_gvp4f")
+symbol = "c"
+props = Array[ExtResource("2_ucukh")]([ExtResource("4_xnnu6")])
+chance = 0.8
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kjm5k"]
+atlas = ExtResource("5_gmaxg")
+region = Rect2(0, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_488dg"]
+atlas = ExtResource("5_gmaxg")
+region = Rect2(16, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0kfi7"]
+atlas = ExtResource("5_gmaxg")
+region = Rect2(48, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pm035"]
+atlas = ExtResource("5_gmaxg")
+region = Rect2(96, 176, 16, 16)
+
+[sub_resource type="Resource" id="Resource_ale8t"]
+script = ExtResource("1_gvp4f")
+symbol = "f"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_kjm5k"), SubResource("AtlasTexture_488dg"), SubResource("AtlasTexture_0kfi7"), SubResource("AtlasTexture_pm035")])
+chance = 0.9
+
+[resource]
+script = ExtResource("6_kn3vh")
+rows = PackedStringArray("f....f", ".cFFc.", "f....f")
+keys = Array[ExtResource("1_gvp4f")]([SubResource("Resource_i11hh"), SubResource("Resource_aqde1"), SubResource("Resource_ale8t")])
+anchor = 1
+room_size = 1
+max_per_floor = 1
+id = &"frog_shrine"
+display_name = "Frog Shrine"

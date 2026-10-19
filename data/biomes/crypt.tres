@@ -1,0 +1,74 @@
+[gd_resource type="Resource" script_class="BiomeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/decor_rule_def.gd" id="1_2xhpk"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="2_yv3ey"]
+[ext_resource type="Script" path="res://src/definitions/biomes/ground_layer_def.gd" id="3_lecpv"]
+[ext_resource type="Texture2D" path="res://assets/tiles/interior_floor.png" id="4_eajro"]
+[ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="5_k2f7k"]
+[ext_resource type="Resource" path="res://data/props/furniture/candles.tres" id="6_1j4vd"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="7_pu0ae"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/grave_row.tres" id="8_ldwwl"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/grave_field.tres" id="9_17ugi"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/coffin_wall.tres" id="10_iikri"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/ossuary.tres" id="11_d80g7"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/candle_altar.tres" id="12_8lwn6"]
+[ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="13_ycf1q"]
+[ext_resource type="Resource" path="res://data/dungeon/themes/crypt.tres" id="14_tvvkn"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2xhpk"]
+atlas = ExtResource("2_yv3ey")
+region = Rect2(208, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yv3ey"]
+atlas = ExtResource("2_yv3ey")
+region = Rect2(224, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lecpv"]
+atlas = ExtResource("2_yv3ey")
+region = Rect2(224, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_eajro"]
+script = ExtResource("1_2xhpk")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_2xhpk"), SubResource("AtlasTexture_yv3ey"), SubResource("AtlasTexture_lecpv")])
+density = 0.04
+clumping = 0.7
+wall_bias = 0.6
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k2f7k"]
+atlas = ExtResource("2_yv3ey")
+region = Rect2(80, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1j4vd"]
+atlas = ExtResource("2_yv3ey")
+region = Rect2(96, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pu0ae"]
+atlas = ExtResource("2_yv3ey")
+region = Rect2(112, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_ldwwl"]
+script = ExtResource("1_2xhpk")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_k2f7k"), SubResource("AtlasTexture_1j4vd"), SubResource("AtlasTexture_pu0ae")])
+density = 0.03
+clumping = 0.5
+
+[sub_resource type="Resource" id="Resource_17ugi"]
+script = ExtResource("3_lecpv")
+texture = ExtResource("4_eajro")
+tile = Rect2i(192, 208, 16, 16)
+edge_color = Color(0.22, 0.2, 0.24, 1)
+coverage = 0.25
+wall_bias = -0.2
+roughness = 0.2
+
+[resource]
+script = ExtResource("13_ycf1q")
+theme = ExtResource("14_tvvkn")
+grounds = Array[ExtResource("3_lecpv")]([SubResource("Resource_17ugi")])
+scenes = Array[ExtResource("7_pu0ae")]([ExtResource("8_ldwwl"), ExtResource("9_17ugi"), ExtResource("10_iikri"), ExtResource("11_d80g7"), ExtResource("12_8lwn6")])
+decor = Array[ExtResource("1_2xhpk")]([SubResource("Resource_eajro"), SubResource("Resource_ldwwl")])
+light = ExtResource("6_1j4vd")
+id = &"crypt"
+display_name = "Crypt"
+description = "Row after row of the dead. They do not sleep well."
+color = Color(0.72, 0.76, 0.95, 1)

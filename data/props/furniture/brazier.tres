@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_mke3n"]
+[ext_resource type="Texture2D" path="res://assets/tiles/dungeon.png" id="2_mg7u4"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_2xmva"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mke3n"]
+atlas = ExtResource("2_mg7u4")
+region = Rect2(32, 32, 16, 16)
+
+[resource]
+script = ExtResource("3_2xmva")
+hits = 0
+debris_color = Color(0.62, 0.6, 0.6, 1)
+break_sound = ExtResource("1_mke3n")
+light_color = Color(1, 0.55, 0.25, 1)
+light_radius = 190.0
+id = &"brazier"
+display_name = "Brazier"
+icon = SubResource("AtlasTexture_mke3n")
+glyph = "F"
+color = Color(0.62, 0.6, 0.6, 1)

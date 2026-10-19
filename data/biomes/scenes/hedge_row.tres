@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_uvwg7"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_gxkv4"]
+[ext_resource type="Resource" path="res://data/props/furniture/bush.tres" id="3_f4cpv"]
+[ext_resource type="Resource" path="res://data/props/furniture/thick_bush.tres" id="4_u3cs2"]
+[ext_resource type="Resource" path="res://data/props/furniture/round_bush.tres" id="5_1wafd"]
+[ext_resource type="Texture2D" path="res://assets/tiles/nature.png" id="6_i4e5n"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="7_p6sae"]
+
+[sub_resource type="Resource" id="Resource_2ei22"]
+script = ExtResource("1_uvwg7")
+symbol = "b"
+props = Array[ExtResource("2_gxkv4")]([ExtResource("3_f4cpv"), ExtResource("4_u3cs2"), ExtResource("5_1wafd")])
+chance = 0.85
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pcamq"]
+atlas = ExtResource("6_i4e5n")
+region = Rect2(0, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ev4hw"]
+atlas = ExtResource("6_i4e5n")
+region = Rect2(16, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ue8em"]
+atlas = ExtResource("6_i4e5n")
+region = Rect2(48, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c1vd4"]
+atlas = ExtResource("6_i4e5n")
+region = Rect2(96, 176, 16, 16)
+
+[sub_resource type="Resource" id="Resource_3ue43"]
+script = ExtResource("1_uvwg7")
+symbol = "f"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_pcamq"), SubResource("AtlasTexture_ev4hw"), SubResource("AtlasTexture_ue8em"), SubResource("AtlasTexture_c1vd4")])
+chance = 0.9
+
+[resource]
+script = ExtResource("7_p6sae")
+rows = PackedStringArray("bbfbb", ".....")
+keys = Array[ExtResource("1_uvwg7")]([SubResource("Resource_2ei22"), SubResource("Resource_3ue43")])
+anchor = 2
+id = &"hedge_row"
+display_name = "Hedge Row"

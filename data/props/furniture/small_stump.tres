@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_6kqpl"]
+[ext_resource type="Texture2D" path="res://assets/tiles/nature.png" id="2_7qkqv"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_klyed"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6kqpl"]
+atlas = ExtResource("2_7qkqv")
+region = Rect2(64, 128, 16, 16)
+
+[resource]
+script = ExtResource("3_klyed")
+debris_color = Color(0.6, 0.38, 0.22, 1)
+break_sound = ExtResource("1_6kqpl")
+id = &"small_stump"
+display_name = "Small Stump"
+icon = SubResource("AtlasTexture_6kqpl")
+glyph = "F"
+color = Color(0.6, 0.38, 0.22, 1)

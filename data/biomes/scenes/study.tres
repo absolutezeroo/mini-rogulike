@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_7uea5"]
+[ext_resource type="Texture2D" path="res://assets/tiles/interior_floor.png" id="2_74q3t"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_d01ld"]
+[ext_resource type="Resource" path="res://data/props/furniture/small_table.tres" id="4_q1v5j"]
+[ext_resource type="Resource" path="res://data/props/furniture/stool.tres" id="5_ssyno"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="6_58fwc"]
+
+[sub_resource type="Resource" id="Resource_qy4sl"]
+script = ExtResource("1_7uea5")
+symbol = "a"
+kind = 2
+carpet = ExtResource("2_74q3t")
+carpet_region = Rect2i(176, 0, 48, 48)
+
+[sub_resource type="Resource" id="Resource_27uwf"]
+script = ExtResource("1_7uea5")
+symbol = "t"
+props = Array[ExtResource("3_d01ld")]([ExtResource("4_q1v5j")])
+
+[sub_resource type="Resource" id="Resource_5i8vt"]
+script = ExtResource("1_7uea5")
+symbol = "o"
+props = Array[ExtResource("3_d01ld")]([ExtResource("5_ssyno")])
+chance = 0.7
+
+[resource]
+script = ExtResource("6_58fwc")
+rows = PackedStringArray("aaaaa", "aotoa", "aaaaa")
+keys = Array[ExtResource("1_7uea5")]([SubResource("Resource_qy4sl"), SubResource("Resource_27uwf"), SubResource("Resource_5i8vt")])
+anchor = 1
+max_per_floor = 2
+id = &"study"
+display_name = "Study"

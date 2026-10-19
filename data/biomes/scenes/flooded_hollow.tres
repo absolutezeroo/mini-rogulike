@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_huy7m"]
+[ext_resource type="Resource" path="res://data/hazards/flooded_pool.tres" id="2_vn023"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_2e586"]
+[ext_resource type="Texture2D" path="res://assets/tiles/relief_detail.png" id="4_vx6kf"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="5_307cb"]
+
+[sub_resource type="Resource" id="Resource_pesqv"]
+script = ExtResource("1_huy7m")
+symbol = "w"
+kind = 3
+pond = ExtResource("2_vn023")
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mh0do"]
+atlas = ExtResource("4_vx6kf")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xsguk"]
+atlas = ExtResource("4_vx6kf")
+region = Rect2(0, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hcgup"]
+atlas = ExtResource("4_vx6kf")
+region = Rect2(0, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xng5l"]
+atlas = ExtResource("4_vx6kf")
+region = Rect2(0, 80, 16, 16)
+
+[sub_resource type="Resource" id="Resource_1ucpy"]
+script = ExtResource("1_huy7m")
+symbol = "r"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_mh0do"), SubResource("AtlasTexture_xsguk"), SubResource("AtlasTexture_hcgup"), SubResource("AtlasTexture_xng5l")])
+chance = 0.7
+
+[resource]
+script = ExtResource("5_307cb")
+rows = PackedStringArray("r....r", ".wwww.", ".wwww.", ".wwww.", "r....r")
+keys = Array[ExtResource("1_huy7m")]([SubResource("Resource_pesqv"), SubResource("Resource_1ucpy")])
+anchor = 1
+room_size = 1
+max_per_floor = 2
+id = &"flooded_hollow"
+display_name = "Flooded Hollow"

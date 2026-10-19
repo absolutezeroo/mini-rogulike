@@ -31,7 +31,8 @@ assets/              Art, audio, fonts and the UI theme (Ninja Adventure pack)
 data/                Game content as .tres resources (no code)
   content_db.tres      Index of everything that can spawn
   player/              Starting stats, kit, skills, leveling
-  dungeon/             The run (acts/), floor size, difficulty curve, floor themes (themes/)
+  dungeon/             The run (acts/), floor size, difficulty curve, floor looks (themes/)
+  biomes/              The worlds a floor can be (one per file) and their hand-made scenes (scenes/)
   visuals/             SpriteFrames: hero.tres, monsters/, weapons/ (the animations themselves)
   audio/               Sounds as AudioStreamRandomizer (variations + pitch) and sound_bank.tres
   monsters/            One file per monster type, bosses in bosses/
@@ -61,12 +62,15 @@ src/
     loot/                LootTable, LootEntry
     hazards/             HazardDef > TrapDef > ArrowTrapDef, PitDef, QuicksandDef, HeatSourceDef, DarkRoomDef
     monster_traits/      MonsterTrait > GuardTrait, ThiefTrait, DeathBurstTrait, DeathSpawnTrait
+    biomes/              BiomeDef, GroundLayerDef, DecorRuleDef, SceneDef (hand-made scenes), SceneKey
   dungeon/             Map data, generator, drawing
   world/               World (owns the current floor), FloorRules (how hard and rewarding it is),
                        NavGrid (pathfinding), FogOfWar (what the hero has seen), WallBuilder,
-                       FloorPopulator, BossArena, AmbushRoom, RoomGates, PitLayer
+                       FloorPopulator, BossArena, AmbushRoom, RoomGates, PitLayer;
+                       dressing/ (FloorDresser: a floor in its biome, RoomSpace)
   entities/            Actor (shared base), Player, Monster, Projectile, ItemPickup, Stairs, Prop, Trap,
-                       hazards/ (Chest, CrumblingFloor, Quicksand, HeatSource, DarkRoom)
+                       hazards/ (Chest, CrumblingFloor, Quicksand, HeatSource, DarkRoom, FloorPatch),
+                       ground/ (GroundLayer: a biome's ground, drawn by a shader)
   components/          Inventory, Equipment, SkillSet, PerkSet, StatusSet (burn...)
   combat/              Damage rules, hits, projectile specs
   ai/                  StateMachine + monster states (Idle, Chase, Attack, Cast)
@@ -148,22 +152,26 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   - **Crumbling floor**: cracked tiles that hold until someone stands on them, then give way.
   - **Quicksand** (ruins) and **mud** (caves): very slow to cross, and they hurt if you stay.
   - Hazards are never placed where they could cut the stairs off.
-- **Themed rooms** (`data/rooms/`, `RoomTemplateDef`): some rooms (25%, `themed_room_chance`)
-  take a style from their act's list (`ActDef.room_templates`): **pillared hall**, **colonnade**,
-  **ruined library** (bookshelves along the walls: break them, a spell scroll or a tome may fall
-  out), **overgrown garden**, **flooded hall** (a pool of still water), **crypt** (rows of graves,
-  bones), **shrine** (a statue between glowing orbs). A template is a list of features
-  (`src/definitions/rooms/`): `PillarsFeature` (columns in a grid, two rows or a ring),
-  `PatchFeature` (another floor: framed tiles or a blob of grass), `PondFeature`, `PropsFeature`
-  (furniture against the top wall, the walls, in the middle, in rows, in the corners, scattered:
-  random kinds, random count) and `DecorFeature` (bones, flowers, cracks). Furniture are props
-  bigger than a cell (`PropDef.footprint`, `data/props/furniture/`). Never two alike, and the way
-  through always stays open (the ring along the walls and corridor mouths are kept free).
-- **Themed floors** (`data/rooms/floors/`, `FloorThemeDef`): now and then (25%,
-  `themed_floor_chance`, never the first floor nor a boss's) a whole floor has one style, announced
-  on arrival: **The Great Library**, **Necropolis**, **Sunken Halls**, **Forgotten Gardens**,
-  **Pillared Temple**. Most of its rooms take one of its templates (`room_chance`); the merchant's
-  room always stays plain. Each act has its own (`ActDef.floor_themes`); it may be cursed too.
+- **Biomes** (`data/biomes/`, `BiomeDef`): every floor is one world from end to end, picked among
+  its act's (`ActDef.biomes`; the boss arena has `boss_biome`): Act I **Mossy Cave**,
+  **Underground Garden**, **Flooded Caverns**; Act II **Crypt**, **Abandoned Library**; Act III
+  **Burning Ruins**, **Ruined Temple**. Nothing from another biome ever shows up. A biome has:
+  - its **look** (`theme`: floor and wall tiles, tint, darkness, music) and its **lights**
+    (candles in the crypt and the library, braziers in the ruins);
+  - its **grounds** (`GroundLayerDef`: moss, sand, mud, shallow water, cobbles...): patches shaped
+    by noise, drifting against the walls or keeping to the middle, drawn by a shader
+    (`GroundLayer`) with rounded, ragged edges and a rim, in the art's chunky pixels;
+  - its **scenes** (`SceneDef`, `data/biomes/scenes/`): little scenes made by hand, written as
+    text plans (one string per row, a symbol per cell, `SceneKey` says what each one is: a prop, a
+    piece of decor, a carpet, water; "." = keep free). Each has an anchor (against the top wall, a
+    side wall, in a corner, in the middle, anywhere) and is mirrored now and then. A big room
+    gets 2-3, a small one 1-2 (`scenes_big_room`, `scenes_small_room`), none where the hero
+    arrives. A scene goes only where it fits whole, never at a corridor mouth and never walling
+    anything off (`RoomSpace.stays_open`);
+  - its **decor** (`DecorRuleDef`): bones, books, grass, pebbles, gathered in clusters by noise,
+    near the walls or only on a ground.
+  This is how Dead Cells, Enter the Gungeon or Brogue keep generated levels coherent: hand-made
+  pieces per biome, laid out by the generator (`FloorDresser`).
 - **Chests** (`data/chests/`): walk up to one to open it. Some are trapped: they blow up or let
   monsters out (and keep only one item). A trapped chest rattles now and then...
 - **Curses** (`data/curses/`, `CurseDef`): the Well curses a whole floor. Never the first floor nor
@@ -506,7 +514,7 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 | To add... | Do this |
 |---|---|
 | A monster | Duplicate a file in `data/monsters/`, edit it, add it to an act's Monsters (`data/dungeon/acts/`) |
-| An act | New `ActDef` in `data/dungeon/acts/` (theme, monsters, boss), add it to `dungeon_config.tres` > Acts |
+| An act | New `ActDef` in `data/dungeon/acts/` (biomes, monsters, boss), add it to `dungeon_config.tres` > Acts |
 | A weapon / armor / consumable | Duplicate a file in `data/items/...`, edit, add it to `content_db.tres` > Items |
 | A loot drop | Edit the monster's Loot table (items don't need to be in the DB to drop) |
 | A player skill | Create a `SkillDef` in `data/skills/player/`, put it in a weapon's Skills (max 2) or in a tome |
@@ -527,9 +535,9 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 | An elite affix | New `EliteAffixDef` in `data/elites/` (name, color, a perk), add it to `content_db.tres` > Elite Affixes |
 | A chest | New `ChestDef` in `data/chests/`, set it in `dungeon_config.tres` > Chests |
 | A special floor | New `FloorEventDef` in `data/floor_events/`, add it to `content_db.tres` > Floor Events |
-| A themed room | New `RoomTemplateDef` in `data/rooms/` (sizes, features), add it to an act's Room Templates and/or a themed floor's Rooms |
-| A themed floor | New `FloorThemeDef` in `data/rooms/floors/` (name, line, color, rooms), add it to an act's Floor Themes |
-| Furniture | New `PropDef` in `data/props/furniture/` (an atlas region of `assets/tiles/furniture.png` or `ruins.png`, a footprint), used by a `PropsFeature` |
+| A biome | New `BiomeDef` in `data/biomes/` (a theme, grounds, scenes, decor, lights), add it to an act's Biomes |
+| A scene | New `SceneDef` in `data/biomes/scenes/`: write its plan (rows of symbols), its keys (what each symbol is), its anchor; add it to a biome's Scenes |
+| Furniture | New `PropDef` in `data/props/furniture/` (an atlas region of a tileset in `assets/tiles/`, a footprint), used in scenes |
 | A curse | New `CurseDef` in `data/curses/` (temperature, campfires or springs, darkness, look, lore), add it to `content_db.tres` > Curses |
 | Another boss for an act | New `BossDef`, add it to the act's Other Bosses |
 | An encounter | New `EncounterDef` in `data/encounters/` (choices, costs, outcomes), add it to `content_db.tres` > Encounters |
@@ -539,7 +547,7 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 Each piece of content has an **icon** (any `Texture2D`) and an **icon tint** to recolor it.
 Monsters and the player also have `frames` (their SpriteFrames in `data/visuals/`): a new monster
 can reuse an existing one, or you can make a new SpriteFrames from a sheet in `assets/characters/`.
-Floor looks (tiles, decor, tint, darkness, music) are `DungeonTheme` files in `data/dungeon/themes/`.
+Floor looks (tiles, decor, tint, darkness, music) are `DungeonTheme` files in `data/dungeon/themes/`, one per biome.
 How many lanterns, prop clusters, hazard groups and chests a floor gets, how often ambushes and
 elites happen, is in `dungeon_config.tres`.
 
@@ -566,8 +574,7 @@ In debug builds only (running from the Godot editor, on the phone too, or a debu
   next to the stairs, reveal the map. Jumped-to floors are plain unless you choose:
 - **Curse** (Frostbound, Ashen Breath, Lanternless) or **floor event**: rebuilds the floor with it
   (`World.forced_curse` / `forced_event`), its card included.
-- **Themed floor** (`World.forced_floor_theme`) or **themed room**: rebuilds the floor with it; a
-  themed room goes in every room it fits (`World.forced_room`).
+- **Biome**: goes to its act and builds a floor of it (`World.forced_biome`).
 - **Hero**: god mode (nothing hurts), full heal, +500 gold, level up, an Epic weapon, every
   consumable, freezing / burning / normal temperature.
 - **Monsters**: pick any monster or boss and spawn it (or an elite one), kill all, put all asleep.
@@ -590,7 +597,7 @@ The suites (`tests/suites/`, each a `TestSuite`):
 - **game**: a bot plays the real game (kills, level ups and perk choices, stairs, death and
   restart, saving and resuming), then on that same game: **combat** (projectiles, perks, skills,
   monsters and their traits, difficulty, weapons), **floor** (props, hazards, chests, ambushes,
-  encounters, the merchant, loot, curses, themed rooms and floors, act cards, the belt) and **boss** (a full boss fight
+  encounters, the merchant, loot, curses, biomes, act cards, the belt) and **boss** (a full boss fight
   with its phases and relic, then winning the run).
 
 The exit code is the number of failures.

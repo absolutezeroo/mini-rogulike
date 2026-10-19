@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_yjfd8"]
+[ext_resource type="Texture2D" path="res://assets/tiles/nature.png" id="2_fgt2c"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_re60e"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yjfd8"]
+atlas = ExtResource("2_fgt2c")
+region = Rect2(32, 224, 16, 16)
+
+[resource]
+script = ExtResource("3_re60e")
+hits = 2
+debris_color = Color(0.95, 0.6, 0.9, 1)
+break_sound = ExtResource("1_yjfd8")
+light_color = Color(1, 0.55, 0.9, 0.7)
+light_radius = 120.0
+id = &"pink_crystal"
+display_name = "Pink Crystal"
+icon = SubResource("AtlasTexture_yjfd8")
+glyph = "F"
+color = Color(0.95, 0.6, 0.9, 1)

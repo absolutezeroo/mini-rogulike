@@ -1,0 +1,61 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_r0hpl"]
+[ext_resource type="Texture2D" path="res://assets/tiles/nature.png" id="2_5pc6f"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_2dqja"]
+[ext_resource type="Resource" path="res://data/props/furniture/bush.tres" id="4_smbj2"]
+[ext_resource type="Resource" path="res://data/props/furniture/thick_bush.tres" id="5_qy2y1"]
+[ext_resource type="Resource" path="res://data/props/furniture/round_bush.tres" id="6_soydr"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="7_27rsq"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fcoxx"]
+atlas = ExtResource("2_5pc6f")
+region = Rect2(0, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t5ghy"]
+atlas = ExtResource("2_5pc6f")
+region = Rect2(16, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ak0fc"]
+atlas = ExtResource("2_5pc6f")
+region = Rect2(48, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nnjnu"]
+atlas = ExtResource("2_5pc6f")
+region = Rect2(96, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_erqyg"]
+atlas = ExtResource("2_5pc6f")
+region = Rect2(64, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_042nc"]
+atlas = ExtResource("2_5pc6f")
+region = Rect2(80, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pju2a"]
+atlas = ExtResource("2_5pc6f")
+region = Rect2(128, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_os1lk"]
+atlas = ExtResource("2_5pc6f")
+region = Rect2(144, 176, 16, 16)
+
+[sub_resource type="Resource" id="Resource_auu15"]
+script = ExtResource("1_r0hpl")
+symbol = "f"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_fcoxx"), SubResource("AtlasTexture_t5ghy"), SubResource("AtlasTexture_ak0fc"), SubResource("AtlasTexture_nnjnu"), SubResource("AtlasTexture_erqyg"), SubResource("AtlasTexture_042nc"), SubResource("AtlasTexture_pju2a"), SubResource("AtlasTexture_os1lk")])
+chance = 0.85
+
+[sub_resource type="Resource" id="Resource_gvkd7"]
+script = ExtResource("1_r0hpl")
+symbol = "b"
+props = Array[ExtResource("3_2dqja")]([ExtResource("4_smbj2"), ExtResource("5_qy2y1"), ExtResource("6_soydr")])
+chance = 0.8
+
+[resource]
+script = ExtResource("7_27rsq")
+rows = PackedStringArray("ffff", "fbbf", "ffff")
+keys = Array[ExtResource("1_r0hpl")]([SubResource("Resource_auu15"), SubResource("Resource_gvkd7")])
+id = &"flower_bed"
+display_name = "Flower Bed"

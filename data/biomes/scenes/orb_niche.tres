@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_2rgo8"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_k2gqv"]
+[ext_resource type="Resource" path="res://data/props/furniture/blue_orb.tres" id="3_frmec"]
+[ext_resource type="Resource" path="res://data/props/furniture/red_orb.tres" id="4_ewlcf"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="5_vkco3"]
+
+[sub_resource type="Resource" id="Resource_dqab5"]
+script = ExtResource("1_2rgo8")
+symbol = "o"
+props = Array[ExtResource("2_k2gqv")]([ExtResource("3_frmec"), ExtResource("4_ewlcf")])
+
+[resource]
+script = ExtResource("5_vkco3")
+rows = PackedStringArray("o.", "..", "o.")
+keys = Array[ExtResource("1_2rgo8")]([SubResource("Resource_dqab5")])
+anchor = 3
+max_per_floor = 3
+id = &"orb_niche"
+display_name = "Orb Niche"

@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_c26h3"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_ohlud"]
+[ext_resource type="Resource" path="res://data/props/furniture/coffin.tres" id="3_r6tnu"]
+[ext_resource type="Resource" path="res://data/props/furniture/mummy_case.tres" id="4_q1eho"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="5_rlnpg"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="6_1wy54"]
+
+[sub_resource type="Resource" id="Resource_3l2cm"]
+script = ExtResource("1_c26h3")
+symbol = "C"
+props = Array[ExtResource("2_ohlud")]([ExtResource("3_r6tnu"), ExtResource("4_q1eho")])
+chance = 0.85
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mqo1t"]
+atlas = ExtResource("5_rlnpg")
+region = Rect2(208, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7aiwe"]
+atlas = ExtResource("5_rlnpg")
+region = Rect2(224, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_o3pi5"]
+atlas = ExtResource("5_rlnpg")
+region = Rect2(224, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_fh3wf"]
+script = ExtResource("1_c26h3")
+symbol = "b"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_mqo1t"), SubResource("AtlasTexture_7aiwe"), SubResource("AtlasTexture_o3pi5")])
+chance = 0.5
+
+[resource]
+script = ExtResource("6_1wy54")
+rows = PackedStringArray("C.C.C", "b...b")
+keys = Array[ExtResource("1_c26h3")]([SubResource("Resource_3l2cm"), SubResource("Resource_fh3wf")])
+anchor = 2
+id = &"coffin_wall"
+display_name = "Coffins"

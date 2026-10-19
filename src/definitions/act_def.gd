@@ -8,7 +8,10 @@ extends Resource
 @export var subtitle: String = ""
 ## A line or two of story on the card shown when the act begins.
 @export_multiline var lore: String = ""
-@export var theme: DungeonTheme
+## Its floors' worlds (a mossy cave, an underground garden...): each floor is one of them, whole.
+@export var biomes: Array[BiomeDef] = []
+## The boss arena's (empty: the first biome).
+@export var boss_biome: BiomeDef
 ## Floors in this act. The last one is the boss arena.
 @export_range(1, 10) var floors: int = 3
 ## Monsters met on the act's floors (their spawn_weight decides how often).
@@ -18,10 +21,6 @@ extends Resource
 @export var other_bosses: Array[BossDef] = []
 ## Traps, holes, quicksand... laid out in the act's rooms (min_depth and spawn_weight decide).
 @export var hazards: Array[HazardDef] = []
-## Themed rooms of its floors (pillared halls, libraries, crypts...): see RoomTemplateDef.
-@export var room_templates: Array[RoomTemplateDef] = []
-## Whole floors with one style (the Great Library...): see FloorThemeDef.
-@export var floor_themes: Array[FloorThemeDef] = []
 
 
 ## The main boss and the alternatives.
@@ -35,13 +34,19 @@ func all_bosses() -> Array[BossDef]:
 	return result
 
 
-## A themed room that fits `room` (null if none does).
-func pick_room_template(room: Rect2i, depth: int, rng: RandomNumberGenerator) -> RoomTemplateDef:
-	return RoomTemplateDef.pick(room_templates, room, depth, rng)
+## The biome of a floor of this act (its boss arena's if `boss`).
+func pick_biome(depth: int, boss: bool, rng: RandomNumberGenerator) -> BiomeDef:
+	if boss and boss_biome:
+		return boss_biome
+	var picked := ContentDB.pick_from(biomes, depth, rng) as BiomeDef
+	return picked if picked else main_biome()
 
 
-func pick_floor_theme(depth: int, rng: RandomNumberGenerator) -> FloorThemeDef:
-	return ContentDB.pick_from(floor_themes, depth, rng) as FloorThemeDef
+## The act's look and music on its cards and menus: the boss arena's, or the first biome's.
+func main_biome() -> BiomeDef:
+	if boss_biome:
+		return boss_biome
+	return biomes[0] if not biomes.is_empty() else null
 
 
 func pick_hazard(depth: int, rng: RandomNumberGenerator) -> HazardDef:

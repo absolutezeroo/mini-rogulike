@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_yh661"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_udiw8"]
+[ext_resource type="Resource" path="res://data/props/furniture/blue_crystal.tres" id="3_3r4kc"]
+[ext_resource type="Resource" path="res://data/props/furniture/pink_crystal.tres" id="4_n3gkg"]
+[ext_resource type="Texture2D" path="res://assets/tiles/relief_detail.png" id="5_de2hb"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="6_tsifu"]
+
+[sub_resource type="Resource" id="Resource_00mia"]
+script = ExtResource("1_yh661")
+symbol = "K"
+props = Array[ExtResource("2_udiw8")]([ExtResource("3_3r4kc"), ExtResource("4_n3gkg")])
+
+[sub_resource type="Resource" id="Resource_c4r0m"]
+script = ExtResource("1_yh661")
+symbol = "k"
+props = Array[ExtResource("2_udiw8")]([ExtResource("3_3r4kc")])
+chance = 0.5
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_s2rav"]
+atlas = ExtResource("5_de2hb")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pihdu"]
+atlas = ExtResource("5_de2hb")
+region = Rect2(0, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l8vvu"]
+atlas = ExtResource("5_de2hb")
+region = Rect2(0, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ffacd"]
+atlas = ExtResource("5_de2hb")
+region = Rect2(0, 80, 16, 16)
+
+[sub_resource type="Resource" id="Resource_oa2du"]
+script = ExtResource("1_yh661")
+symbol = "r"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_s2rav"), SubResource("AtlasTexture_pihdu"), SubResource("AtlasTexture_l8vvu"), SubResource("AtlasTexture_ffacd")])
+chance = 0.8
+
+[resource]
+script = ExtResource("6_tsifu")
+rows = PackedStringArray("Kr.", "k..", "...")
+keys = Array[ExtResource("1_yh661")]([SubResource("Resource_00mia"), SubResource("Resource_c4r0m"), SubResource("Resource_oa2du")])
+anchor = 4
+max_per_floor = 2
+id = &"crystal_nook"
+display_name = "Crystal Nook"
