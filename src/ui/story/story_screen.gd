@@ -75,6 +75,12 @@ func _gui_input(event: InputEvent) -> void:
 		advance()
 
 
+## The phone's back button leaves the story (like Skip).
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		finish()
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_accept") or event.is_action_pressed("attack"):
 		get_viewport().set_input_as_handled()

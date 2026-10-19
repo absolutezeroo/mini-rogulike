@@ -42,6 +42,18 @@ func _input(event: InputEvent) -> void:
 			if _dragging:
 				_dragging = false
 				get_viewport().set_input_as_handled()  # not a tap: no button fires
+				# The button under the finger still waits for its release: give it one far away,
+				# so it lets go without firing.
+				# (A move out first: the button must know the finger left it.)
+				var far := Vector2(-10000, -10000)
+				var out := InputEventMouseMotion.new()
+				out.position = far
+				out.global_position = far
+				out.button_mask = MOUSE_BUTTON_MASK_LEFT
+				var away := button.duplicate() as InputEventMouseButton
+				away.position = far
+				away.global_position = far
+				_let_go.call_deferred(out, away)
 	elif event is InputEventMouseMotion and _tracking:
 		var position := (event as InputEventMouseMotion).position
 		if not _dragging and position.distance_to(_start) > DRAG_START:
@@ -67,3 +79,8 @@ func _move(delta: Vector2) -> void:
 		scroll.scroll_vertical -= roundi(delta.y)
 	if scroll.horizontal_scroll_mode != ScrollContainer.SCROLL_MODE_DISABLED:
 		scroll.scroll_horizontal -= roundi(delta.x)
+
+
+func _let_go(out: InputEventMouseMotion, away: InputEventMouseButton) -> void:
+	get_viewport().push_input(out, true)
+	get_viewport().push_input(away, true)

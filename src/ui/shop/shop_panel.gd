@@ -61,8 +61,9 @@ func _refresh() -> void:
 	reroll.disabled = _player.gold < _merchant.reroll_price()
 	for i in _merchant.stock.size():
 		var entry: Dictionary = _merchant.stock[i]
-		var can_buy: bool = _player.gold >= entry.price and _player.can_store(entry.item)
-		var row := _row(entry.item, "%d gold" % entry.price, can_buy, _buy.bind(i))
+		var fits := _player.can_store(entry.item)
+		var can_buy: bool = _player.gold >= entry.price and fits
+		var row := _row(entry.item, "%d gold" % entry.price if fits else "Bag full", can_buy, _buy.bind(i))
 		row.add_child(_lock_button(entry.get("locked", false), i))
 		_for_sale.add_child(row)
 	if _merchant.stock.is_empty():
@@ -114,7 +115,7 @@ func _row(item: ItemDef, price_text: String, enabled: bool, action: Callable, la
 	text.add_child(name_label)
 	var details := Label.new()
 	details.text = _short_details(item)
-	details.add_theme_font_size_override("font_size", 13)
+	details.add_theme_font_size_override("font_size", 15)
 	details.add_theme_color_override("font_color", Color(1, 1, 1, 0.7))
 	details.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	details.custom_minimum_size.x = 120

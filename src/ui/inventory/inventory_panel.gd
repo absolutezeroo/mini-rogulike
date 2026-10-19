@@ -95,6 +95,7 @@ func _refresh() -> void:
 		var button := Button.new()
 		button.text = "%s%s" % [item.display_name, "  x%d" % entry.count if entry.count > 1 else ""]
 		button.add_theme_color_override("font_color", item.rarity_color())
+		ForgePanel._outline(button)  # rune and rarity colors stay readable on the orange buttons
 		_set_icon(button, item)
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL

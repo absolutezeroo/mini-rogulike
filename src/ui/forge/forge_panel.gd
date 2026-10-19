@@ -119,6 +119,7 @@ func _refresh() -> void:
 		button.set_pressed_no_signal(weapon == _weapon)
 		button.add_theme_color_override("font_color", weapon.rarity_color())
 		button.add_theme_color_override("font_pressed_color", weapon.rarity_color())
+		_outline(button)
 		_weapons.add_child(button)
 	if _weapon == null:
 		_weapon_title.text = "No weapon to work on."
@@ -162,7 +163,7 @@ func _fill_runes() -> void:
 		text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		text.add_theme_constant_override("separation", 0)
 		text.add_child(_label(rune.display_name + ("  x%d" % entry.count if entry.count > 1 else ""), 18, rune.rarity_color()))
-		text.add_child(_label(rune.description, 13, DIM, true))
+		text.add_child(_label(rune.description, 15, DIM, true))
 		row.add_child(text)
 		var set_button := _button("Set", set_rune.bind(rune))
 		set_button.custom_minimum_size = Vector2(96, 48)
@@ -191,6 +192,7 @@ func _socket_button(index: int) -> Control:
 		button.tooltip_text = rune.description
 		button.add_theme_color_override("font_color", rune.rarity_color())
 		button.add_theme_color_override("font_pressed_color", rune.rarity_color())
+		_outline(button)
 		button.set_pressed_no_signal(index == _socket)
 		button.pressed.connect(_select_socket.bind(index))
 	else:
@@ -266,7 +268,7 @@ func _build() -> void:
 	_action.custom_minimum_size = Vector2(0, 52)
 	_action.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	left.add_child(_action)
-	left.add_child(_label("Setting a rune is free. Taking one out costs gold; you get it back.", 13, DIM, true))
+	left.add_child(_label("Setting a rune is free. Taking one out costs gold; you get it back.", 15, DIM, true))
 
 	var right := VBoxContainer.new()
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -281,6 +283,12 @@ func _build() -> void:
 	_runes.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_runes.add_theme_constant_override("separation", 8)
 	scroll.add_child(_runes)
+
+
+## A dark edge around colored text on the orange buttons (rune colors, rarities).
+static func _outline(control: Control) -> void:
+	control.add_theme_constant_override("outline_size", 5)
+	control.add_theme_color_override("font_outline_color", Color(0.1, 0.06, 0.08))
 
 
 func _clear(container: Container) -> void:

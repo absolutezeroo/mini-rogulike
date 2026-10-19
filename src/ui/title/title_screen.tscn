@@ -28,6 +28,7 @@ grow_vertical = 2
 color = Color(0.105882, 0.0784314, 0.12549, 1)
 
 [node name="Wisps" parent="." instance=ExtResource("5_wisps")]
+z_index = 0
 position = Vector2(640, 420)
 
 [node name="Center" type="CenterContainer" parent="."]

@@ -39,6 +39,8 @@ func _test_touch_scroll() -> void:
 	await _frames(2)
 	check(scroll.scroll_vertical >= 60, "dragging scrolls the list (%d px)" % scroll.scroll_vertical)
 	check(pressed[0] == 0, "a drag doesn't press the button under the finger")
+	await _frames(2)
+	check(list.get_children().all(func(b: Node) -> bool: return (b as Button).get_draw_mode() != BaseButton.DRAW_PRESSED), "...nor leaves it looking pressed")
 	layer.queue_free()
 
 

@@ -187,12 +187,20 @@ func _monster_card(monster: MonsterDef) -> Control:
 	if rank == Bestiary.SEEN:
 		info_text = "Seen, never slain"
 	elif rank > 0:
-		info_text = "%s  -  %d slain" % [Bestiary.rank_name(rank, _content.bestiary), kills]
-	if Profile.has_shiny(monster.id):
-		info_text += "  *"
-	var info := _label(info_text, 13, Palette.HEAL if _content.bestiary and Bestiary.is_mastered(monster, _content.bestiary) else Color(1, 1, 1, 0.65))
+		info_text = "%s\n%d slain" % [Bestiary.rank_name(rank, _content.bestiary), kills]
+	var info := _label(info_text, 15, Palette.HEAL if _content.bestiary and Bestiary.is_mastered(monster, _content.bestiary) else Color(1, 1, 1, 0.7))
 	info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	info.add_theme_constant_override("outline_size", 4)
+	info.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
 	inside.add_child(info)
+	if Profile.has_shiny(monster.id):
+		# A badge in the corner (it never gets cut off like text at the end of a line).
+		var shiny := _label("Shiny", 14, Color(1.0, 0.6, 0.95))
+		shiny.add_theme_constant_override("outline_size", 4)
+		shiny.add_theme_color_override("font_outline_color", Color.BLACK)
+		shiny.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		shiny.position = Vector2(8, 4)
+		card.add_child(shiny)
 	return card
 
 
@@ -233,7 +241,7 @@ func _achievement_row(achievement: AchievementDef) -> Control:
 	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	text.add_theme_constant_override("separation", 0)
 	text.add_child(_label(achievement.display_name, 18, Palette.GOLD if unlocked else Color.WHITE))
-	text.add_child(_label(achievement.description, 13, Color(1, 1, 1, 0.7)))
+	text.add_child(_label(achievement.description, 15, Color(1, 1, 1, 0.7)))
 	row.add_child(text)
 	var status := "Done" if unlocked else "%d / %d" % [achievement.progress(), achievement.target]
 	var right := VBoxContainer.new()

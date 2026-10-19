@@ -85,7 +85,7 @@ func load_settings() -> void:
 	sound_volume = float(file.get_value("options", "sound_volume", sound_volume))
 	screen_shake = float(file.get_value("options", "screen_shake", screen_shake))
 	vibrations = bool(file.get_value("options", "vibrations", vibrations))
-	controls_scale = float(file.get_value("options", "controls_scale", controls_scale))
+	controls_scale = clampf(float(file.get_value("options", "controls_scale", controls_scale)), 0.7, 1.3)  # bigger would cover the minimap
 	fixed_joystick = bool(file.get_value("options", "fixed_joystick", fixed_joystick))
 	battery_saver = bool(file.get_value("options", "battery_saver", battery_saver))
 	fewer_effects = bool(file.get_value("options", "fewer_effects", fewer_effects))

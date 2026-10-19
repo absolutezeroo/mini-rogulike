@@ -57,7 +57,8 @@ func open(title: String, subtitle: String, perks: Array[PerkDef], owned: PerkSet
 		return  # already closed, or reopened with other cards
 	for card: PerkCard in _cards.get_children():
 		card.disabled = false
-	if _cards.get_child_count() > 0:
+	# Keyboard and gamepad only: on a touch screen it would look like a picked card.
+	if _cards.get_child_count() > 0 and not DisplayServer.is_touchscreen_available():
 		(_cards.get_child(0) as Control).grab_focus()
 
 
