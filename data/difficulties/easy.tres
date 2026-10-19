@@ -14,6 +14,7 @@ monster_speed = 0.9
 telegraph_time = 1.35
 boss_hp = 0.7
 elite_chance = 0.5
+curse_chance = 0.05
 loot_chance = 1.4
 souls = 0.5
 heal_on_new_floor = 0.25

@@ -21,8 +21,15 @@ extends HazardDef
 @export_group("Look")
 ## Drawn in the middle at 2x (a fire pit...).
 @export var sprite: Texture2D
-## Flames dancing on it: square frames in a row.
+## Animated on it (flames dancing, water rippling): square frames in a row.
 @export var flames: Texture2D
+## How many copies of the animation, side by side and out of step (3 flames, 1 ripple).
+@export_range(1, 5) var flame_copies: int = 3
+## Frames of the sheet used (the first ones).
+@export_range(1, 16) var flame_frames: int = 5
+@export var flame_scale: float = 3.0
+## A pool drawn under the sprite (a spring's water). Alpha 0 = none.
+@export var pool_color: Color = Color(0, 0, 0, 0)
 ## Glow of the ground, or of the reach of a campfire.
 @export var glow_color: Color = Color(1.0, 0.35, 0.1, 0.25)
 ## Look of the ground (frozen rooms: ice). Gets the covered `area` in world space.

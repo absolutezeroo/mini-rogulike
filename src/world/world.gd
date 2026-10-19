@@ -34,11 +34,13 @@ var difficulty: DifficultyDef:
 	set(value):
 		difficulty = value
 		if rules:
-			rules = FloorRules.make(rules.config, value, floor_event, depth)
+			rules = FloorRules.make(rules.config, value, floor_event, depth, curse)
 ## Boss floors only: the arena and its boss (null on normal floors).
 var arena: BossArena
 ## What makes this floor special (null on most floors).
 var floor_event: FloorEventDef
+## The Well's curse on this whole floor (null on most floors).
+var curse: CurseDef
 ## Difficulty, event and depth combined: ask it how hard and rewarding this floor is.
 var rules: FloorRules
 ## The boss of each act for this run (an act may have several; the game draws one per run).
@@ -76,14 +78,19 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 	if boss and act_index < run_bosses.size() and run_bosses[act_index] != null:
 		boss = run_bosses[act_index]
 	floor_event = null
-	if boss == null and depth > 1 and rng.randf() < content.dungeon.floor_event_chance:
-		floor_event = ContentDB.pick_from(content.floor_events, depth, rng) as FloorEventDef
+	curse = null
+	if boss == null and depth > 1:
+		var curse_chance := difficulty.curse_chance if difficulty else 0.0
+		if rng.randf() < curse_chance:
+			curse = ContentDB.pick_from(content.curses, depth, rng) as CurseDef
+		if curse == null and rng.randf() < content.dungeon.floor_event_chance:
+			floor_event = ContentDB.pick_from(content.floor_events, depth, rng) as FloorEventDef
 	if boss:
 		map = DungeonGenerator.generate_arena(content.dungeon, rng)
 	else:
 		map = DungeonGenerator.generate(content.dungeon, rng)
 	theme = content.dungeon.theme_for_depth(depth)
-	rules = FloorRules.make(content.dungeon, difficulty, floor_event, depth)
+	rules = FloorRules.make(content.dungeon, difficulty, floor_event, depth, curse)
 	_ambient.color = Color((theme.ambient if theme else Color.WHITE) * rules.light(), 1.0)
 	_view.show_map(map, theme)
 	_pits.setup(map.tile_size)

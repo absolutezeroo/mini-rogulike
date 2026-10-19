@@ -8,3 +8,4 @@ id = &"normal"
 display_name = "Normal"
 description = "The game as designed."
 color = Color(1, 0.81960785, 0.4, 1)
+curse_chance = 0.12

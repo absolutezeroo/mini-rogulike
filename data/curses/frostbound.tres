@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="CurseDef" format=3]
+
+[ext_resource type="Resource" path="res://data/dungeon/ambience/frost.tres" id="1_djhiy"]
+[ext_resource type="Resource" path="res://data/hazards/ice_floor.tres" id="2_nd5nm"]
+[ext_resource type="Script" path="res://src/definitions/curse_def.gd" id="3_boaed"]
+[ext_resource type="Resource" path="res://data/hazards/campfire.tres" id="4_5yjvq"]
+
+[resource]
+script = ExtResource("3_boaed")
+lore = "The Well exhales. Its breath is the cold of the grave:
+frost creeps over the stone... and over you."
+temperature = -5.5
+warm_spot = ExtResource("4_5yjvq")
+room_look = ExtResource("2_nd5nm")
+tint = Color(0.65, 0.78, 1, 1)
+ambience = ExtResource("1_djhiy")
+id = &"frostbound"
+display_name = "Frostbound"
+description = "The cold gets into your bones. Warm up by the campfires, or freeze."
+color = Color(0.56078434, 0.827451, 1, 1)
+min_depth = 2

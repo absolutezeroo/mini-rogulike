@@ -4,10 +4,12 @@
 
 [resource]
 script = ExtResource("1_atcgu")
+vision_radius = 125.0
+message = ""
 id = &"dark_room"
-display_name = "Dark Room"
-description = "Pitch black: you only see what is right around you."
+display_name = "Darkness"
+description = "The whole floor in the dark (Lanternless)."
 glyph = "#"
 color = Color(0.22745098, 0.20784314, 0.3137255, 1)
 min_depth = 2
-spawn_weight = 4
+spawn_weight = 0

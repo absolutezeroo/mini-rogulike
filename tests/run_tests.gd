@@ -85,6 +85,10 @@ func _test_combat_rules() -> void:
 
 
 func _test_content() -> void:
+	var chances: Array = []
+	for id in [&"easy", &"normal", &"hard", &"nightmare"]:
+		chances.append(CONTENT.get_difficulty(id).curse_chance)
+	check(chances[0] < chances[1] and chances[1] < chances[2] and chances[2] < chances[3], "curses: rare on Easy, often on Nightmare %s" % str(chances))
 	check(CONTENT.player != null and CONTENT.dungeon != null, "content db has player and dungeon config")
 	check(CONTENT.all_monsters().size() >= 20, "a big bestiary (%d monsters)" % CONTENT.all_monsters().size())
 	var ids := {}
@@ -508,6 +512,11 @@ func _test_gameplay() -> void:
 	var event_chance := CONTENT.dungeon.floor_event_chance
 	CONTENT.dungeon.ambush_chance = 0.0
 	CONTENT.dungeon.floor_event_chance = 0.0
+	# No curses either (they have their own test).
+	var curse_chances := {}
+	for difficulty in CONTENT.difficulties:
+		curse_chances[difficulty] = difficulty.curse_chance
+		difficulty.curse_chance = 0.0
 	CONTENT.dungeon.merchant_chance = 0.0
 	CONTENT.dungeon.encounters_max = 0
 	var game := GAME_SCENE.instantiate()
@@ -787,6 +796,8 @@ func _test_gameplay() -> void:
 	CONTENT.dungeon.encounters_max = encounters_max
 	CONTENT.dungeon.ambush_chance = ambush_chance
 	CONTENT.dungeon.floor_event_chance = event_chance
+	for difficulty in curse_chances:
+		difficulty.curse_chance = curse_chances[difficulty]
 	await _frames(2)
 
 
@@ -1653,96 +1664,103 @@ func _test_monster_behaviours(game: Node) -> void:
 func _test_climate(game: Node) -> void:
 	var player: Player = game.player
 	var world: World = game.world
-	var frozen: FloorEventDef = load("res://data/floor_events/frozen.tres")
+	var frostbound: CurseDef = load("res://data/curses/frostbound.tres")
+	var ashen: CurseDef = load("res://data/curses/ashen_breath.tres")
+	var lanternless: CurseDef = load("res://data/curses/lanternless.tres")
 	var campfire: HeatSourceDef = load("res://data/hazards/campfire.tres")
-	var scorching: HeatSourceDef = load("res://data/hazards/scorching_ground.tres")
-	var dark_def: DarkRoomDef = load("res://data/hazards/dark_room.tres")
-	check(CONTENT.floor_events.has(frozen), "floors can be frozen")
-	var act_hazards: Array = []
-	for act in CONTENT.dungeon.acts:
-		act_hazards.append_array(act.hazards)
-	check(act_hazards.has(scorching) and act_hazards.has(dark_def), "scorching ground and dark rooms show up in the acts")
-	for node in get_tree().get_nodes_in_group("heat_sources"):
-		node.queue_free()
-	await _frames(1)
-	var saved_event := world.floor_event
-	var start_spot := player.global_position
-	var cell := world.map.world_to_cell(player.global_position)
+	var spring: HeatSourceDef = load("res://data/hazards/cool_spring.tres")
+	check(CONTENT.curses.has(frostbound) and CONTENT.curses.has(ashen) and CONTENT.curses.has(lanternless), "three curses: frozen, burning, lightless")
+	var start_depth: int = game.depth
+	var saved_curses := CONTENT.curses.duplicate()
+	var difficulty: DifficultyDef = world.difficulty
+	var saved_chance := difficulty.curse_chance
 
-	# Frozen rooms: the cold creeps in, slows, then hurts.
-	var ice: HeatSourceDef = frozen.zone
-	check(ice != null and ice.whole_room and ice.heat < 0.0 and frozen.zone_rooms > 0, "frozen floors have a frozen zone")
-	var cold_room := world.spawn_heat_source(ice, Rect2i(cell - Vector2i(3, 3), Vector2i(7, 7)))
-	check(cold_room.reaches(player) and cold_room.material is ShaderMaterial and cold_room.get_child_count() > 0, "a frozen room: ice on the ground, snow falling")
+	# The first floor is never cursed.
+	difficulty.curse_chance = 1.0
+	game.depth = 1
+	game._enter_floor()
+	await _frames(3)
+	check(world.curse == null, "never on the first floor")
+
+	# Frostbound: the whole floor is ice; the cold creeps in, slows, then hurts.
+	CONTENT.curses = [frostbound]
+	game.depth = 2
+	game._enter_floor()
+	await _frames(3)
+	check(world.curse == frostbound and world.floor_event == null, "a cursed floor (and no floor event with it)")
+	var sources := get_tree().get_nodes_in_group("heat_sources")
+	var fires := sources.filter(func(f: Node) -> bool: return (f as HeatSource).def == campfire)
+	var iced := sources.filter(func(f: Node) -> bool: return (f as HeatSource).def == frostbound.room_look)
+	check(iced.size() == world.map.rooms.size(), "ice over every room (%d/%d)" % [iced.size(), world.map.rooms.size()])
+	check(fires.size() >= 2 and fires.any(func(f: Node) -> bool: return world.map.rooms[0].grow(3).has_point(world.map.world_to_cell(f.global_position))), "campfires around the floor, one where you arrive (%d)" % fires.size())
+	for fire in fires:
+		fire.free()
 	player.temperature.reset()
 	player.hp = player.get_max_hp()
 	player._invulnerable_time = 0.0
 	for i in 40:
 		player.temperature.update(player, 0.5)
-	check(player.temperature.value <= -BodyTemperature.LIMIT, "a frozen room chills the hero to the bone (%.0f)" % player.temperature.value)
+	check(player.temperature.value <= -BodyTemperature.LIMIT, "Frostbound chills the hero to the bone (%.0f)" % player.temperature.value)
 	check(player.statuses.speed_multiplier() < 0.8, "the cold slows you down")
 	check(player.hp < player.get_max_hp(), "freezing hurts")
 	await _frames(2)
 	check(game.hud._temp_bar.visible and game.hud._temp_bar.fill_color.b > 0.9, "the HUD shows how cold you are")
 	check(game.hud._temp_overlay.visible and (game.hud._temp_overlay.material as ShaderMaterial).get_shader_parameter("cold") > 0.9, "frost creeps over the screen")
-	# A campfire brings you back.
+	var cell := world.map.world_to_cell(player.global_position)
 	var fire := world.spawn_heat_source(campfire, Rect2i(cell, campfire.size))
 	check(fire.reaches(player), "a campfire reaches the hero next to it")
 	for i in 4:
 		player.temperature.update(player, 0.5)
 	check(player.temperature.value > -BodyTemperature.LIMIT * 0.1, "a campfire warms you back up (%.0f)" % player.temperature.value)
 	fire.free()
-	cold_room.free()
-	# Generation: a few rooms side by side, campfires in them, never where you arrive.
-	var zone := FloorPopulator.place_zone(world, frozen, {})
-	var sources := get_tree().get_nodes_in_group("heat_sources")
-	var fires := sources.filter(func(f: Node) -> bool: return (f as HeatSource).def == campfire)
-	var iced := sources.filter(func(f: Node) -> bool: return (f as HeatSource).def == ice)
-	check(zone.size() == mini(frozen.zone_rooms, world.map.rooms.size() - 1) and iced.size() == zone.size(), "a frozen zone of %d rooms" % zone.size())
-	check(not zone.has(world.map.rooms[0]), "never the room where you arrive")
-	check(not fires.is_empty() and fires.all(func(f: Node) -> bool: return zone.any(func(r: Rect2i) -> bool: return r.has_point(world.map.world_to_cell(f.global_position)))), "campfires burn inside the frozen zone (%d)" % fires.size())
-	if not zone.is_empty():
-		ice.place(world, zone[0], {})
-	check(get_tree().get_nodes_in_group("heat_sources").filter(func(f: Node) -> bool: return (f as HeatSource).def == ice).size() == iced.size(), "a room freezes only once")
+
+	# Ashen Breath: it burns; the springs cool you down.
+	CONTENT.curses = [ashen]
+	game._enter_floor()
+	await _frames(3)
+	check(world.curse == ashen and get_tree().get_nodes_in_group("heat_sources").any(func(f: Node) -> bool: return (f as HeatSource).def == spring), "Ashen Breath: cool springs around the floor")
 	for node in get_tree().get_nodes_in_group("heat_sources"):
 		node.free()
-	world.floor_event = saved_event
-
-	# Scorching ground: heats you up while you stand on it, then it passes.
 	player.temperature.reset()
-	var patch := world.spawn_heat_source(scorching, Rect2i(cell - Vector2i.ONE, scorching.size))
-	check(patch.reaches(player), "the hero stands on the scorching ground")
-	for i in 6:
+	for i in 40:
 		player.temperature.update(player, 0.5)
-	check(player.temperature.value >= BodyTemperature.LIMIT, "scorching ground heats you up (%.0f)" % player.temperature.value)
-	patch.free()
-	for i in 10:
+	check(player.temperature.value >= BodyTemperature.LIMIT, "Ashen Breath heats the hero up (%.0f)" % player.temperature.value)
+	cell = world.map.world_to_cell(player.global_position)
+	var pool := world.spawn_heat_source(spring, Rect2i(cell, spring.size))
+	for i in 4:
 		player.temperature.update(player, 0.5)
-	check(absf(player.temperature.value) < 1.0, "and you cool down away from it")
+	check(player.temperature.value < BodyTemperature.LIMIT * 0.1, "a spring cools you down (%.0f)" % player.temperature.value)
+	pool.free()
+
+	# Lanternless: the whole floor in the dark, but around the hero.
+	CONTENT.curses = [lanternless]
+	game._enter_floor()
+	await _frames(3)
+	var darks := get_tree().get_nodes_in_group("dark_rooms")
+	check(world.curse == lanternless and darks.size() == 1 and (darks[0] as DarkRoom).covers(world.map.cell_to_world(world.map.stairs_cell)) and (darks[0] as DarkRoom).covers(player.global_position), "Lanternless: the whole floor is dark")
+	check((darks[0] as DarkRoom).z_index > 0 and (darks[0] as DarkRoom).material is ShaderMaterial, "the darkness covers the monsters")
+	check(world.rules.loot_quality() > 1.0, "braving a curse pays: better loot")
+
+	# The curse card: the sigil, the name, the story, the rule.
+	game.curse_card.play(frostbound)
+	await _frames(70)
+	check(game.curse_card.visible and (game.curse_card.get_node("%Title") as Label).text == frostbound.display_name and (game.curse_card.get_node("%Rule") as Label).text == frostbound.description, "arriving on a cursed floor shows the curse's card")
+	game.curse_card._skip = true
+	await game.curse_card.finished
+	check(not game.curse_card.visible, "a tap skips it")
+
+	# Back to a normal floor for the next tests.
+	CONTENT.curses = saved_curses
+	difficulty.curse_chance = 0.0
+	game.depth = start_depth
+	game._enter_floor()
+	await _frames(3)
+	difficulty.curse_chance = saved_chance
 	player.temperature.reset()
 	player.hp = player.get_max_hp()
 	await _frames(2)
 	check(not game.hud._temp_bar.visible, "no thermometer when all is fine")
-
-	# Dark rooms: once per room, and the hero notices when walking in.
-	for node in get_tree().get_nodes_in_group("dark_rooms"):
-		node.free()  # the floor's own dark rooms
-	var room := world.map.rooms[world.map.rooms.size() - 1]
-	var dark := world.spawn_dark_room(dark_def, room)
-	dark_def.place(world, room, {})
-	var darks := get_tree().get_nodes_in_group("dark_rooms").filter(func(d: Node) -> bool: return (d as DarkRoom).room == room)
-	check(world.is_dark_room(room) and darks.size() == 1, "a room only gets dark once")
-	var noticed := [false]
-	var on_log := func(text: String, _color: Color) -> void: noticed[0] = noticed[0] or text == dark_def.message
-	Events.message_logged.connect(on_log)
-	player.global_position = world.map.cell_to_world(_open_cell_in(world, room))
-	await _frames(3)
-	check(noticed[0] and dark.covers(player.global_position), "walking into a dark room: you can't see a thing")
-	check(dark.z_index > 0 and dark.material is ShaderMaterial, "the darkness covers the monsters")
-	Events.message_logged.disconnect(on_log)
-	dark.queue_free()
-	player.global_position = start_spot
-	await _frames(2)
+	await _clear_monsters(world)
 
 	# Potions: past a few of the same, they come as gold.
 	var potion: ConsumableDef = load("res://data/items/consumables/health_potion.tres")

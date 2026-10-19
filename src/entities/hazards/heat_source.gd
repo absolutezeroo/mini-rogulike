@@ -92,21 +92,32 @@ func _draw_campfire() -> void:
 	var glow := def.glow_color
 	draw_circle(Vector2.ZERO, def.reach, Color(glow, glow.a * (0.6 + 0.15 * sin(_time * 3.0))))
 	draw_arc(Vector2.ZERO, def.reach, 0.0, TAU, 48, Color(glow, glow.a * 2.0), 2.0)
+	if def.pool_color.a > 0.0:
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.7))
+		draw_circle(Vector2.ZERO, 24.0, def.pool_color.darkened(0.45))
+		draw_circle(Vector2.ZERO, 20.0, def.pool_color)
+		# Ripples spreading out from the middle.
+		for i in 3:
+			var t := fposmod(_time * 0.6 + i / 3.0, 1.0)
+			draw_arc(Vector2.ZERO, 3.0 + 15.0 * t, 0.0, TAU, 24, Color(def.pool_color.lightened(0.6), 0.8 * (1.0 - t)), 2.0)
+		draw_set_transform(Vector2.ZERO)
 	if def.sprite:
 		var size := def.sprite.get_size() * 2.0
 		draw_texture_rect(def.sprite, Rect2(-size * 0.5, size), false)
 	if def.flames:
 		var frame_size := def.flames.get_height()
-		var frames := maxi(def.flames.get_width() / frame_size, 1)
-		for i in 3:
-			# Three flames, out of step, using the bigger frames of the sheet.
-			var frame := int(_time * 9.0 + i * 1.7) % mini(frames, 5)
-			var offset := Vector2((i - 1) * 10.0, -14.0 - (6.0 if i == 1 else 0.0))
-			var size := Vector2.ONE * frame_size * 3.0
+		var frames := mini(maxi(def.flames.get_width() / frame_size, 1), def.flame_frames)
+		var copies := def.flame_copies
+		for i in copies:
+			# Side by side and out of step; the middle one a bit higher.
+			var frame := int(_time * 9.0 + i * 1.7) % frames
+			var middle := (copies - 1) * 0.5
+			var offset := Vector2((i - middle) * 10.0, (-14.0 - (6.0 if absf(i - middle) < 0.6 else 0.0)) if copies > 1 else 0.0)
+			var size := Vector2.ONE * frame_size * def.flame_scale
 			draw_texture_rect_region(def.flames, Rect2(offset - size * 0.5, size),
 				Rect2(frame * frame_size, 0, frame_size, frame_size))
-	elif def.sprite == null:
-		draw_circle(Vector2.ZERO, 10.0, Color("ff9f1c"))
+	elif def.sprite == null and def.pool_color.a <= 0.0:
+		draw_circle(Vector2.ZERO, 10.0, Color("ff9f1c"))  # nothing to show: a plain fire
 
 
 ## Glowing cracked ground, pulsing, with embers rising from it.

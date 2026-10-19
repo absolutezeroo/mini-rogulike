@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="HeatSourceDef" format=3]
+
+[ext_resource type="Shader" path="res://src/entities/hazards/frozen_ground.gdshader" id="1_5147n"]
+[ext_resource type="Script" path="res://src/definitions/hazards/heat_source_def.gd" id="2_2fjv2"]
+
+[resource]
+script = ExtResource("2_2fjv2")
+heat = 0.0
+whole_room = true
+ground_shader = ExtResource("1_5147n")
+id = &"ice_floor"
+display_name = "Ice"
+description = "Frozen floor (the look of a Frostbound floor)."
+spawn_weight = 0

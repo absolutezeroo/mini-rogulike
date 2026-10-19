@@ -11,15 +11,18 @@ var config: DungeonConfig
 var difficulty: DifficultyDef
 ## Null on most floors.
 var event: FloorEventDef
+## Null on most floors.
+var curse: CurseDef
 
 static var _neutral := DifficultyDef.new()
 
 
-static func make(floor_config: DungeonConfig, run_difficulty: DifficultyDef, floor_event: FloorEventDef, floor_depth: int) -> FloorRules:
+static func make(floor_config: DungeonConfig, run_difficulty: DifficultyDef, floor_event: FloorEventDef, floor_depth: int, floor_curse: CurseDef = null) -> FloorRules:
 	var rules := FloorRules.new()
 	rules.config = floor_config
 	rules.difficulty = run_difficulty if run_difficulty else _neutral
 	rules.event = floor_event
+	rules.curse = floor_curse
 	rules.depth = floor_depth
 	return rules
 
@@ -84,12 +87,12 @@ func loot_chance() -> float:
 
 ## Multiplies the quality of what drops (see LootRoller).
 func loot_quality() -> float:
-	return event.loot_quality if event else 1.0
+	return (event.loot_quality if event else 1.0) * (curse.loot_quality if curse else 1.0)
 
 
 ## Gold actually dropped for `amount`.
 func gold(amount: float) -> int:
-	return roundi(amount * (event.gold if event else 1.0))
+	return roundi(amount * (event.gold if event else 1.0) * (curse.gold if curse else 1.0))
 
 
 func shop_prices() -> float:
@@ -103,10 +106,11 @@ func light() -> Color:
 	var color := Color.WHITE * difficulty.light
 	if event:
 		color *= event.light
-		color *= event.tint
+	if curse:
+		color *= curse.tint
 	return Color(color, 1.0)
 
 
 ## Body temperature change per second everywhere on the floor (see BodyTemperature).
 func temperature_drift() -> float:
-	return event.temperature if event else 0.0
+	return curse.temperature if curse else 0.0

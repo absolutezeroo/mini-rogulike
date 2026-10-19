@@ -43,7 +43,8 @@ func _process(_delta: float) -> void:
 	_material.set_shader_parameter("hero", player.global_position + Vector2(0, -8))
 	if not _entered and covers(player.global_position):
 		_entered = true
-		Events.log_message(def.message, Color("8e86a8"))
+		if not def.message.is_empty():
+			Events.log_message(def.message, Color("8e86a8"))
 
 
 func _draw() -> void:

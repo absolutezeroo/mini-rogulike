@@ -54,6 +54,7 @@ var _last_boss: BossDef
 @onready var ambience: Ambience = $Ambience
 @onready var _fade: ColorRect = $Fade/Black
 @onready var act_card: ActCard = $Fade/ActCard
+@onready var curse_card: CurseCard = $Fade/CurseCard
 
 
 func _ready() -> void:
@@ -180,7 +181,7 @@ func _begin_run(saved: Dictionary) -> void:
 		_set_paused(true)
 		_transitioning = true
 		_enter_floor(not saved.is_empty())
-		await _show_act_card()
+		await _show_cards()
 		_transitioning = false
 		_set_paused(is_menu_open())
 		create_tween().tween_property(_fade, "color:a", 0.0, FADE_TIME * 1.5)
@@ -272,7 +273,7 @@ func open_shop(merchant: Merchant) -> void:
 
 
 func open_pause_menu() -> void:
-	if player == null or player.is_dead or is_menu_open() or act_card.visible:
+	if player == null or player.is_dead or is_menu_open() or act_card.visible or curse_card.visible:
 		return
 	Sfx.play_ui(Sfx.bank.ui_open)
 	_set_paused(true)
@@ -321,8 +322,8 @@ func _enter_floor(resumed: bool = false) -> void:
 	world.build_floor(depth, content)
 	world.place_player(player)
 	var mood := world.theme.ambience if world.theme else null
-	if world.floor_event and world.floor_event.ambience:
-		mood = world.floor_event.ambience
+	if world.curse and world.curse.ambience:
+		mood = world.curse.ambience
 	ambience.play(mood, world, player)
 	if not resumed and depth > 1 and difficulty.heal_on_new_floor > 0.0:
 		player.heal(roundi(player.get_max_hp() * difficulty.heal_on_new_floor))
@@ -342,6 +343,10 @@ func _enter_floor(resumed: bool = false) -> void:
 	if world.floor_event:
 		hud.show_banner(world.floor_event.display_name, world.floor_event.color)
 		Events.log_message(world.floor_event.description, world.floor_event.color)
+	if world.curse:
+		if not show_act_cards:
+			hud.show_banner(world.curse.display_name, world.curse.color)
+		Events.log_message("Cursed: %s. %s" % [world.curse.display_name, world.curse.description], world.curse.color)
 	if world.arena:
 		Events.log_message("Depth %d. Something big is waiting..." % depth, Color("ff6b6b"))
 	else:
@@ -365,18 +370,23 @@ func _descend() -> void:
 	await fade_out.finished
 	depth += 1  # only now: a save during the fade still points at the floor being left
 	_enter_floor()
-	await _show_act_card()
+	await _show_cards()
 	_transitioning = false
 	_set_paused(is_menu_open())
 	_show_next_offer()
 	create_tween().tween_property(_fade, "color:a", 0.0, FADE_TIME * 1.5)
 
 
-## On the first floor of an act (and with cards on): its title card, over black.
-func _show_act_card() -> void:
+## Over black, with cards on: the act's title card on its first floor, then the curse's card
+## on a cursed floor.
+func _show_cards() -> void:
+	if not show_act_cards:
+		return
 	var act := content.dungeon.act_for_depth(depth)
-	if show_act_cards and act and content.dungeon.floor_in_act(depth) == 1:
+	if act and content.dungeon.floor_in_act(depth) == 1:
 		await act_card.play(act)
+	if world.curse:
+		await curse_card.play(world.curse)
 
 
 # --- Bosses ------------------------------------------------------------------

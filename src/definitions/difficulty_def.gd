@@ -22,6 +22,8 @@ extends Resource
 @export var boss_hp: float = 1.0
 ## Multiplies the chance for a monster to be an elite.
 @export var elite_chance: float = 1.0
+## Chance for a floor (not the first, not a boss floor) to be cursed (CurseDef).
+@export_range(0.0, 1.0) var curse_chance: float = 0.1
 
 @export_group("Rewards and help")
 ## Multiplies every monster's and prop's drop chance.

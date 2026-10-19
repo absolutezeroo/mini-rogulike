@@ -27,6 +27,8 @@ extends Resource
 @export var elite_affixes: Array[EliteAffixDef] = []
 ## Special floors (haunted, treasure vault, swarm...).
 @export var floor_events: Array[FloorEventDef] = []
+## Whole-floor curses (frozen, burning, lightless...). See CurseDef.
+@export var curses: Array[CurseDef] = []
 ## Nightmare +1, +2...: each level adds its twist (in order).
 @export var ascensions: Array[AscensionDef] = []
 ## Goals across runs (they pay souls).
