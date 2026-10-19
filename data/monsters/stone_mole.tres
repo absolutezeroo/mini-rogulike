@@ -1,0 +1,59 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/stone_mole.tres" id="1_v8dx7"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/stone_mole.png" id="2_jj4m8"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="3_c5t3x"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="4_mjh2n"]
+[ext_resource type="Resource" path="res://data/items/armors/leather_cap.tres" id="5_bhc1e"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="6_502eq"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="7_ml67d"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_fg83c"]
+[ext_resource type="Resource" path="res://data/skills/monster/blink.tres" id="9_ae6oi"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_1ddkx"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="11_4ve8o"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/claws.tres" id="12_24qmu"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f5o7e"]
+atlas = ExtResource("2_jj4m8")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_xpfmo"]
+script = ExtResource("3_c5t3x")
+item = ExtResource("4_mjh2n")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_bjgyh"]
+script = ExtResource("3_c5t3x")
+item = ExtResource("5_bhc1e")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_dfj6o"]
+script = ExtResource("6_502eq")
+drop_chance = 0.25
+entries = Array[ExtResource("3_c5t3x")]([SubResource("Resource_xpfmo"), SubResource("Resource_bjgyh")])
+
+[sub_resource type="Resource" id="Resource_yxgxk"]
+script = ExtResource("10_1ddkx")
+max_hp = 46
+defense = 3
+move_speed = 70.0
+
+[resource]
+script = ExtResource("7_ml67d")
+stats = SubResource("Resource_yxgxk")
+weapon = ExtResource("12_24qmu")
+skills = Array[ExtResource("8_fg83c")]([ExtResource("9_ae6oi")])
+radius = 11.0
+frames = ExtResource("1_v8dx7")
+frames_offset = Vector2(0, -8)
+attack_windup = 0.4
+attack_recovery = 0.35
+xp_reward = 12
+loot = SubResource("Resource_dfj6o")
+id = &"stone_mole"
+display_name = "Stone Mole"
+description = "Armored in rock. Burrows under you when you keep away."
+icon = SubResource("AtlasTexture_f5o7e")
+glyph = "B"
+color = Color(0.7372549, 0.42352942, 0.14509805, 1)
+spawn_weight = 5

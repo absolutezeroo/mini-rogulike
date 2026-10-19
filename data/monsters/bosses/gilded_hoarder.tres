@@ -1,0 +1,100 @@
+[gd_resource type="Resource" script_class="BossDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_qwtn7"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/bosses/gilded_hoarder.tres" id="2_0675a"]
+[ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="3_sqxir"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/gilded_hoarder/portrait.png" id="4_brnay"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="5_0vo0f"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="6_0guwt"]
+[ext_resource type="Resource" path="res://data/items/armors/chain_mail.tres" id="7_jvl3r"]
+[ext_resource type="Resource" path="res://data/items/weapons/axe.tres" id="8_myfj7"]
+[ext_resource type="Resource" path="res://data/items/weapons/book.tres" id="9_o3spd"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_healing.tres" id="10_u0ub8"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="11_s53ed"]
+[ext_resource type="Script" path="res://src/definitions/boss_phase.gd" id="12_wvbbl"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="13_084m3"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="14_2oln3"]
+[ext_resource type="Resource" path="res://data/skills/boss/hoard_leap.tres" id="15_8p1ec"]
+[ext_resource type="Resource" path="res://data/skills/boss/coin_storm.tres" id="16_0fvni"]
+[ext_resource type="Resource" path="res://data/skills/boss/call_thieves.tres" id="17_8q0k0"]
+[ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="18_nlcxe"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="19_qm0vi"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/slime_slam.tres" id="20_aco0h"]
+
+[sub_resource type="Resource" id="Resource_6yers"]
+script = ExtResource("5_0vo0f")
+item = ExtResource("6_0guwt")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_q1tv2"]
+script = ExtResource("5_0vo0f")
+item = ExtResource("7_jvl3r")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_jw4l0"]
+script = ExtResource("5_0vo0f")
+item = ExtResource("8_myfj7")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_ev6tn"]
+script = ExtResource("5_0vo0f")
+item = ExtResource("9_o3spd")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_s3vu5"]
+script = ExtResource("5_0vo0f")
+item = ExtResource("10_u0ub8")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_5ysyk"]
+script = ExtResource("11_s53ed")
+drop_chance = 1.0
+rolls = 3
+entries = Array[ExtResource("5_0vo0f")]([SubResource("Resource_6yers"), SubResource("Resource_q1tv2"), SubResource("Resource_jw4l0"), SubResource("Resource_ev6tn"), SubResource("Resource_s3vu5")])
+
+[sub_resource type="Resource" id="Resource_si1id"]
+script = ExtResource("13_084m3")
+attack = 1
+move_speed = 30.0
+
+[sub_resource type="Resource" id="Resource_8fdg8"]
+script = ExtResource("12_wvbbl")
+message = "SPILLS ITS HOARD!"
+bonuses = SubResource("Resource_si1id")
+skills = Array[ExtResource("14_2oln3")]([ExtResource("15_8p1ec"), ExtResource("16_0fvni"), ExtResource("17_8q0k0")])
+windup_multiplier = 0.8
+tint = Color(1, 0.85, 0.5, 1)
+
+[sub_resource type="Resource" id="Resource_if5px"]
+script = ExtResource("13_084m3")
+max_hp = 1750
+defense = 6
+move_speed = 65.0
+
+[resource]
+script = ExtResource("18_nlcxe")
+title = "Keeper of the Well"
+portrait = ExtResource("4_brnay")
+phases = Array[ExtResource("12_wvbbl")]([SubResource("Resource_8fdg8")])
+stats = SubResource("Resource_if5px")
+weapon = ExtResource("20_aco0h")
+skills = Array[ExtResource("14_2oln3")]([ExtResource("15_8p1ec"), ExtResource("16_0fvni")])
+radius = 26.0
+frames = ExtResource("2_0675a")
+frames_offset = Vector2(0, -26)
+head_height = 84.0
+knockback_resistance = 0.95
+detect_radius = 900.0
+attack_windup = 0.6
+attack_recovery = 0.5
+hurt_sound = ExtResource("3_sqxir")
+death_sound = ExtResource("1_qwtn7")
+xp_reward = 60
+loot = SubResource("Resource_5ysyk")
+id = &"gilded_hoarder"
+display_name = "Gilded Hoarder"
+description = "A golden giant on a mountain of stolen gold and stolen souls. It leaps, throws its coins and calls its thieves."
+icon = ExtResource("4_brnay")
+glyph = "K"
+color = Color(1, 0.8, 0.3, 1)
+spawn_weight = 0

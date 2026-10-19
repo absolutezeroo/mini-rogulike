@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_xapo4"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_3hp2d"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/coin.png" id="3_x42fa"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_aajcg"]
+[ext_resource type="AudioStream" path="res://data/audio/fireball.tres" id="5_itm0j"]
+
+[sub_resource type="Resource" id="Resource_t5ag8"]
+script = ExtResource("2_3hp2d")
+damage_multiplier = 0.6
+flat_damage = 6
+speed = 280.0
+radius = 7.0
+count = 14
+spread_degrees = 360.0
+color = Color(1, 0.8, 0.3, 1)
+texture = ExtResource("3_x42fa")
+
+[resource]
+script = ExtResource("4_aajcg")
+id = &"coin_storm"
+display_name = "Coin Storm"
+color = Color(1, 0.8, 0.3, 1)
+cooldown = 5.0
+effects = Array[ExtResource("1_xapo4")]([SubResource("Resource_t5ag8")])
+sound = ExtResource("5_itm0j")
+ai_max_range = 400.0
+cast_time = 0.8

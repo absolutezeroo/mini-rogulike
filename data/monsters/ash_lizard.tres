@@ -1,0 +1,70 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/ash_lizard.tres" id="1_3631e"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/ash_lizard.png" id="2_4osx6"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="3_8asvu"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="4_8leqp"]
+[ext_resource type="Resource" path="res://data/items/weapons/lance.tres" id="5_3skuw"]
+[ext_resource type="Resource" path="res://data/items/armors/chain_mail.tres" id="6_8r25w"]
+[ext_resource type="Resource" path="res://data/items/weapons/templar_sword.tres" id="7_lle2i"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="8_gefik"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="9_uu6vx"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="10_hi3a6"]
+[ext_resource type="Resource" path="res://data/skills/monster/charge.tres" id="11_awyhh"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="12_snvdx"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="13_f11ps"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/scimitar.tres" id="14_o7na6"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qxxxa"]
+atlas = ExtResource("2_4osx6")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_y85a1"]
+script = ExtResource("3_8asvu")
+item = ExtResource("4_8leqp")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_c4x07"]
+script = ExtResource("3_8asvu")
+item = ExtResource("5_3skuw")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_djs1u"]
+script = ExtResource("3_8asvu")
+item = ExtResource("6_8r25w")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_wldqv"]
+script = ExtResource("3_8asvu")
+item = ExtResource("7_lle2i")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_tdw0w"]
+script = ExtResource("8_gefik")
+entries = Array[ExtResource("3_8asvu")]([SubResource("Resource_y85a1"), SubResource("Resource_c4x07"), SubResource("Resource_djs1u"), SubResource("Resource_wldqv")])
+
+[sub_resource type="Resource" id="Resource_v2b0c"]
+script = ExtResource("12_snvdx")
+max_hp = 34
+defense = 2
+move_speed = 105.0
+
+[resource]
+script = ExtResource("9_uu6vx")
+stats = SubResource("Resource_v2b0c")
+weapon = ExtResource("14_o7na6")
+skills = Array[ExtResource("10_hi3a6")]([ExtResource("11_awyhh")])
+radius = 11.0
+frames = ExtResource("1_3631e")
+frames_offset = Vector2(0, -8)
+attack_windup = 0.4
+attack_recovery = 0.35
+xp_reward = 12
+loot = SubResource("Resource_tdw0w")
+id = &"ash_lizard"
+display_name = "Ash Lizard"
+description = "A masked hunter that charges from across the room."
+icon = SubResource("AtlasTexture_qxxxa")
+glyph = "L"
+color = Color(0.32156864, 0.7176471, 0.53333336, 1)
+spawn_weight = 8

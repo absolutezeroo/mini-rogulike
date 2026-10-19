@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_ftgsj"]
+[ext_resource type="Texture2D" path="res://assets/tiles/desert.png" id="2_hl1mp"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_44b7e"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vyb1w"]
+atlas = ExtResource("2_hl1mp")
+region = Rect2(128, 144, 16, 16)
+
+[resource]
+script = ExtResource("3_44b7e")
+debris_color = Color(0.6, 0.45, 0.3, 1)
+break_sound = ExtResource("1_ftgsj")
+id = &"dry_bush"
+display_name = "Dry Bush"
+icon = SubResource("AtlasTexture_vyb1w")
+glyph = "F"
+color = Color(0.6, 0.45, 0.3, 1)

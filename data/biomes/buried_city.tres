@@ -1,0 +1,94 @@
+[gd_resource type="Resource" script_class="BiomeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/decor_rule_def.gd" id="1_d8iow"]
+[ext_resource type="Texture2D" path="res://assets/tiles/desert.png" id="2_rfqor"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="3_3cgww"]
+[ext_resource type="Script" path="res://src/definitions/biomes/ground_layer_def.gd" id="4_gmate"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor.png" id="5_40lpv"]
+[ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="6_a6sec"]
+[ext_resource type="Resource" path="res://data/props/furniture/brazier.tres" id="7_uf87t"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="8_h4vkj"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/market.tres" id="9_iy4kh"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/stall.tres" id="10_qgl3x"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/well_square.tres" id="11_qn6ac"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/oasis.tres" id="12_3s31w"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/palm_grove.tres" id="13_qst68"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/pillar_row.tres" id="14_faqe8"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/lion_gate.tres" id="15_fekjx"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/bone_field.tres" id="16_b40t0"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/thicket.tres" id="17_mi7a8"]
+[ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="18_aladr"]
+[ext_resource type="Resource" path="res://data/dungeon/themes/desert.tres" id="19_7my64"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pyhmo"]
+atlas = ExtResource("2_rfqor")
+region = Rect2(256, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rt22e"]
+atlas = ExtResource("2_rfqor")
+region = Rect2(272, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ved1c"]
+atlas = ExtResource("2_rfqor")
+region = Rect2(288, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kpaby"]
+atlas = ExtResource("2_rfqor")
+region = Rect2(304, 176, 16, 16)
+
+[sub_resource type="Resource" id="Resource_etrjb"]
+script = ExtResource("1_d8iow")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_pyhmo"), SubResource("AtlasTexture_rt22e"), SubResource("AtlasTexture_ved1c"), SubResource("AtlasTexture_kpaby")])
+density = 0.025
+clumping = 0.7
+wall_bias = 0.4
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_erl2f"]
+atlas = ExtResource("2_rfqor")
+region = Rect2(224, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xut6e"]
+atlas = ExtResource("2_rfqor")
+region = Rect2(144, 144, 16, 16)
+
+[sub_resource type="Resource" id="Resource_676wn"]
+script = ExtResource("1_d8iow")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_erl2f"), SubResource("AtlasTexture_xut6e")])
+density = 0.03
+clumping = 0.75
+wall_bias = 0.5
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ibmw4"]
+atlas = ExtResource("3_3cgww")
+region = Rect2(80, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_eihlc"]
+atlas = ExtResource("3_3cgww")
+region = Rect2(96, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_ku03b"]
+script = ExtResource("1_d8iow")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_ibmw4"), SubResource("AtlasTexture_eihlc")])
+density = 0.02
+clumping = 0.5
+
+[sub_resource type="Resource" id="Resource_w26h2"]
+script = ExtResource("4_gmate")
+texture = ExtResource("5_40lpv")
+edge_color = Color(0.85, 0.55, 0.3, 1)
+coverage = 0.35
+noise_scale = 0.09
+wall_bias = 0.8
+roughness = 0.4
+
+[resource]
+script = ExtResource("18_aladr")
+theme = ExtResource("19_7my64")
+grounds = Array[ExtResource("4_gmate")]([SubResource("Resource_w26h2")])
+scenes = Array[ExtResource("8_h4vkj")]([ExtResource("9_iy4kh"), ExtResource("10_qgl3x"), ExtResource("11_qn6ac"), ExtResource("12_3s31w"), ExtResource("13_qst68"), ExtResource("14_faqe8"), ExtResource("15_fekjx"), ExtResource("16_b40t0"), ExtResource("17_mi7a8")])
+decor = Array[ExtResource("1_d8iow")]([SubResource("Resource_etrjb"), SubResource("Resource_676wn"), SubResource("Resource_ku03b")])
+light = ExtResource("7_uf87t")
+id = &"buried_city"
+display_name = "Buried City"
+description = "Streets of sand, stalls nobody keeps. The wind still sells what is left."
+color = Color(1, 0.82, 0.45, 1)

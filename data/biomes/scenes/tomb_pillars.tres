@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_f6mn5"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_y4xjo"]
+[ext_resource type="Resource" path="res://data/props/furniture/sandstone_pillar.tres" id="3_f0eq3"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="4_uev0f"]
+
+[sub_resource type="Resource" id="Resource_8esev"]
+script = ExtResource("1_f6mn5")
+symbol = "P"
+props = Array[ExtResource("2_y4xjo")]([ExtResource("3_f0eq3")])
+chance = 0.85
+
+[resource]
+script = ExtResource("4_uev0f")
+rows = PackedStringArray("P..P..P", ".......", ".......", "P..P..P")
+keys = Array[ExtResource("1_f6mn5")]([SubResource("Resource_8esev")])
+anchor = 1
+room_size = 1
+max_per_floor = 1
+id = &"tomb_pillars"
+display_name = "Pillar Hall"

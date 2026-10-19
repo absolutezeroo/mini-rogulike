@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_v8hls"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_bnegd"]
+[ext_resource type="Resource" path="res://data/props/furniture/lion_statue.tres" id="3_q08us"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="4_e0yb5"]
+
+[sub_resource type="Resource" id="Resource_w01o1"]
+script = ExtResource("1_v8hls")
+symbol = "L"
+props = Array[ExtResource("2_bnegd")]([ExtResource("3_q08us")])
+chance = 0.85
+
+[resource]
+script = ExtResource("4_e0yb5")
+rows = PackedStringArray("LL.", "...", "LL.", "...")
+keys = Array[ExtResource("1_v8hls")]([SubResource("Resource_w01o1")])
+anchor = 3
+room_size = 1
+max_per_floor = 2
+id = &"lion_gallery"
+display_name = "Lion Gallery"

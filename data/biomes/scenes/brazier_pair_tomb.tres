@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_0x12l"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_md5ai"]
+[ext_resource type="Resource" path="res://data/props/furniture/brazier.tres" id="3_bouh2"]
+[ext_resource type="Resource" path="res://data/props/furniture/lion_statue.tres" id="4_boi55"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="5_j3kiq"]
+
+[sub_resource type="Resource" id="Resource_c7nit"]
+script = ExtResource("1_0x12l")
+symbol = "F"
+props = Array[ExtResource("2_md5ai")]([ExtResource("3_bouh2")])
+
+[sub_resource type="Resource" id="Resource_osgho"]
+script = ExtResource("1_0x12l")
+symbol = "L"
+props = Array[ExtResource("2_md5ai")]([ExtResource("4_boi55")])
+chance = 0.6
+
+[resource]
+script = ExtResource("5_j3kiq")
+rows = PackedStringArray("F.LL.F", "......")
+keys = Array[ExtResource("1_0x12l")]([SubResource("Resource_c7nit"), SubResource("Resource_osgho")])
+anchor = 2
+max_per_floor = 2
+id = &"brazier_pair_tomb"
+display_name = "Braziers"

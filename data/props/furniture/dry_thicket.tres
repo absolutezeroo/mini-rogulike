@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_ylrbw"]
+[ext_resource type="Texture2D" path="res://assets/tiles/desert.png" id="2_kp3xf"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_jlhs6"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mwk2w"]
+atlas = ExtResource("2_kp3xf")
+region = Rect2(128, 160, 32, 32)
+
+[resource]
+script = ExtResource("3_jlhs6")
+footprint = Vector2i(2, 1)
+hits = 2
+debris_color = Color(0.45, 0.6, 0.25, 1)
+break_sound = ExtResource("1_ylrbw")
+id = &"dry_thicket"
+display_name = "Dry Thicket"
+icon = SubResource("AtlasTexture_mwk2w")
+glyph = "F"
+color = Color(0.45, 0.6, 0.25, 1)

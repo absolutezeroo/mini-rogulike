@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_k7fft"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_dl8ft"]
+[ext_resource type="Resource" path="res://data/props/furniture/red_parasol.tres" id="3_adxau"]
+[ext_resource type="Resource" path="res://data/props/furniture/gold_parasol.tres" id="4_gmhhe"]
+[ext_resource type="Resource" path="res://data/props/furniture/red_basket.tres" id="5_pbd3r"]
+[ext_resource type="Resource" path="res://data/props/furniture/gold_basket.tres" id="6_fy4ds"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="7_vv04o"]
+
+[sub_resource type="Resource" id="Resource_k01l4"]
+script = ExtResource("1_k7fft")
+symbol = "P"
+props = Array[ExtResource("2_dl8ft")]([ExtResource("3_adxau"), ExtResource("4_gmhhe")])
+
+[sub_resource type="Resource" id="Resource_da3v7"]
+script = ExtResource("1_k7fft")
+symbol = "b"
+props = Array[ExtResource("2_dl8ft")]([ExtResource("5_pbd3r"), ExtResource("6_fy4ds")])
+chance = 0.75
+
+[resource]
+script = ExtResource("7_vv04o")
+rows = PackedStringArray("bPPb", "....")
+keys = Array[ExtResource("1_k7fft")]([SubResource("Resource_k01l4"), SubResource("Resource_da3v7")])
+anchor = 2
+id = &"stall"
+display_name = "Stall"

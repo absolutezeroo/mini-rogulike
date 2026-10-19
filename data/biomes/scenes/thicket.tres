@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_38xp2"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_usxqw"]
+[ext_resource type="Resource" path="res://data/props/furniture/dry_thicket.tres" id="3_anjhc"]
+[ext_resource type="Resource" path="res://data/props/furniture/dry_bush.tres" id="4_obwps"]
+[ext_resource type="Resource" path="res://data/props/furniture/thorn_bush.tres" id="5_fff21"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="6_6o86q"]
+
+[sub_resource type="Resource" id="Resource_2hjtq"]
+script = ExtResource("1_38xp2")
+symbol = "T"
+props = Array[ExtResource("2_usxqw")]([ExtResource("3_anjhc")])
+
+[sub_resource type="Resource" id="Resource_260uv"]
+script = ExtResource("1_38xp2")
+symbol = "d"
+props = Array[ExtResource("2_usxqw")]([ExtResource("4_obwps"), ExtResource("5_fff21")])
+chance = 0.7
+
+[resource]
+script = ExtResource("6_6o86q")
+rows = PackedStringArray("TTd", "d..", "...")
+keys = Array[ExtResource("1_38xp2")]([SubResource("Resource_2hjtq"), SubResource("Resource_260uv")])
+anchor = 4
+id = &"thicket"
+display_name = "Thicket"

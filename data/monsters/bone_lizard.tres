@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/bone_lizard.tres" id="1_5qoun"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/bone_lizard.png" id="2_l4uy0"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="3_l6h7r"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="4_c0j0y"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="5_07ru8"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="6_rm4qb"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_c53w3"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="8_8igka"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="9_oagsw"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/acid_spit.tres" id="10_fqie8"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_blnbf"]
+atlas = ExtResource("2_l4uy0")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_8mbos"]
+script = ExtResource("3_l6h7r")
+item = ExtResource("4_c0j0y")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_tapol"]
+script = ExtResource("5_07ru8")
+drop_chance = 0.15
+entries = Array[ExtResource("3_l6h7r")]([SubResource("Resource_8mbos")])
+
+[sub_resource type="Resource" id="Resource_g3yi4"]
+script = ExtResource("8_8igka")
+max_hp = 26
+defense = 1
+move_speed = 75.0
+
+[resource]
+script = ExtResource("6_rm4qb")
+stats = SubResource("Resource_g3yi4")
+weapon = ExtResource("10_fqie8")
+radius = 9.0
+frames = ExtResource("1_5qoun")
+frames_offset = Vector2(0, -8)
+attack_windup = 0.5
+attack_recovery = 0.35
+keep_distance = 150.0
+xp_reward = 10
+loot = SubResource("Resource_tapol")
+id = &"bone_lizard"
+display_name = "Bone Lizard"
+description = "Wears a skull and spits acid from afar."
+icon = SubResource("AtlasTexture_blnbf")
+glyph = "A"
+color = Color(0.654902, 0.7882353, 0.34117648, 1)
+spawn_weight = 6

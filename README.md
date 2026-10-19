@@ -155,7 +155,8 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 - **Biomes** (`data/biomes/`, `BiomeDef`): every floor is one world from end to end, picked among
   its act's (`ActDef.biomes`; the boss arena has `boss_biome`): Act I **Mossy Cave**,
   **Underground Garden**, **Flooded Caverns**; Act II **Crypt**, **Abandoned Library**; Act III
-  **Burning Ruins**, **Ruined Temple**. Nothing from another biome ever shows up. A biome has:
+  **Burning Ruins**, **Ruined Temple**; Act IV **Buried City** (sand streets, an abandoned market,
+  oases and palms, a lion fountain) and **Sun Tomb** (sarcophagi, burial chambers, gold). Nothing from another biome ever shows up. A biome has:
   - its **look** (`theme`: floor and wall tiles, tint, darkness, music) and its **lights**
     (candles in the crypt and the library, braziers in the ruins);
   - its **grounds** (`GroundLayerDef`: moss, sand, mud, shallow water, cobbles...): patches shaped
@@ -232,7 +233,8 @@ The title screen's **Codex** (`CodexPanel`) has three tabs:
 ## Story and identity
 
 Everything is tied to one idea: **souls**. The Well stole the souls of the hero's village; the
-monsters down there feed on them; the three bosses are its wardens.
+monsters down there feed on them; the bosses are its wardens, and the Gilded Hoarder, deep in the
+Buried Kingdom, is the Keeper who hoards them.
 
 - **The story** (`data/story/story.tres`, `StoryDef`) is told page by page before the first run
   (`StoryScreen`: typed out, tap to go on, Skip), and again from the title screen's Story button.
@@ -282,7 +284,8 @@ elites at least half.
 - **Two bosses per act** (`ActDef.boss` + `other_bosses`): each run draws one per act (saved with
   the run; the title screen shows both). King Slime or the **Giant Frog** (leaps, poison spit, calls
   its brood); Demon Cyclops or the **Weeping Spirit** (a freezing wail, blinks, calls lost souls);
-  Crimson Tengu or the **Red Samurai** (arcs of fire, dashes, a ring of fire).
+  Crimson Tengu or the **Red Samurai** (arcs of fire, dashes, a ring of fire). Gilded Hoarder or the
+  **Sun Wraith** (a burning sun buried with the kingdom: solar flares, blinks, calls its embers).
 
 ## Encounters
 
@@ -361,8 +364,8 @@ so monsters could use them too (elites, later).
 
 ## The run
 
-A run is **3 acts of 3 floors** (`data/dungeon/acts/`, listed in `dungeon_config.tres`). Each act has
-its look, its own monsters and a boss on its last floor. Beating the last boss **wins the run**;
+A run is **4 acts of 3 floors** (`data/dungeon/acts/`, listed in `dungeon_config.tres`). Each act has
+its biomes, its own monsters and a boss on its last floor. Beating the last boss **wins the run**;
 you can then keep going in endless mode (the acts loop, monsters keep getting stronger with depth).
 
 | Act | Floors | Monsters | Boss |
@@ -370,6 +373,7 @@ you can then keep going in endless mode (the acts loop, monsters keep getting st
 | I. Mossy Caves | 1-3 | Cave Mouse, Blue Bat, Slime, Red Spider, Spore Cap, Viper, Acid Larva, Burrower, Giant Slime, Shell Guard, Thief Racoon | King Slime |
 | II. Haunted Crypt | 4-6 | Skeleton, Dark Sorcerer, Spirit, Flying Skull, Watcher, Ghost Lantern, Night Owl, Frost Skull, Thief Racoon, Brood Mother | Demon Cyclops |
 | III. Burning Ruins | 7-9 | Fire Shaman, Cyclops, Flame Spirit, Lizardman, Horned Beast, Drakeling, Kappa, Ink Octopus, Bomber, Brood Mother, Shell Guard | Crimson Tengu |
+| IV. Buried Kingdom | 10-12 | Dune Rex, Gold Racoon, Red Viper, Ash Lizard, Bone Lizard, Stone Mole, Bomber | Gilded Hoarder |
 
 Monsters are data (`MonsterDef`): stats, a weapon (its `on_hit` status poisons, burns or slows),
 skills (telegraphed casts: spore clouds, dives, charges, ink rings...), and **traits**
@@ -451,6 +455,7 @@ with its portrait). A `BossDef` is a `MonsterDef` plus:
 | 3 | King Slime | 360° slams, slime rain, splits into slimes at half HP |
 | 6 | Demon Cyclops | heavy club, fire eye beam, quake, calls skeletons, berserk at 20% |
 | 9 | Crimson Tengu | fast blade, dashes, feather storms, calls spirits |
+| 12 | Gilded Hoarder | crushing leaps, storms of gold coins, calls its thieves (Gold Racoons) when half dead |
 
 ## Animations
 

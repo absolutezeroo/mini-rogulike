@@ -1,0 +1,53 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_fw7ae"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_cq7qf"]
+[ext_resource type="Resource" path="res://data/props/furniture/brazier.tres" id="3_kxsr5"]
+[ext_resource type="Resource" path="res://data/props/furniture/mummy_case.tres" id="4_8rc3h"]
+[ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="5_07arr"]
+[ext_resource type="Texture2D" path="res://assets/tiles/interior_floor.png" id="6_4j8am"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="7_tc7ut"]
+
+[sub_resource type="Resource" id="Resource_1kt0i"]
+script = ExtResource("1_fw7ae")
+symbol = "F"
+props = Array[ExtResource("2_cq7qf")]([ExtResource("3_kxsr5")])
+
+[sub_resource type="Resource" id="Resource_7jetk"]
+script = ExtResource("1_fw7ae")
+symbol = "M"
+props = Array[ExtResource("2_cq7qf")]([ExtResource("4_8rc3h")])
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pw44s"]
+atlas = ExtResource("5_07arr")
+region = Rect2(112, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_s2fem"]
+atlas = ExtResource("5_07arr")
+region = Rect2(112, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_td88f"]
+atlas = ExtResource("5_07arr")
+region = Rect2(128, 48, 16, 16)
+
+[sub_resource type="Resource" id="Resource_3f3gw"]
+script = ExtResource("1_fw7ae")
+symbol = "g"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_pw44s"), SubResource("AtlasTexture_s2fem"), SubResource("AtlasTexture_td88f")])
+
+[sub_resource type="Resource" id="Resource_pd82v"]
+script = ExtResource("1_fw7ae")
+symbol = "a"
+kind = 2
+carpet = ExtResource("6_4j8am")
+
+[resource]
+script = ExtResource("7_tc7ut")
+rows = PackedStringArray("F.....F", ".aaaaa.", ".aMgMa.", ".aaaaa.", "F.....F")
+keys = Array[ExtResource("1_fw7ae")]([SubResource("Resource_1kt0i"), SubResource("Resource_7jetk"), SubResource("Resource_3f3gw"), SubResource("Resource_pd82v")])
+anchor = 1
+room_size = 1
+max_per_floor = 1
+id = &"burial_chamber"
+display_name = "Burial Chamber"

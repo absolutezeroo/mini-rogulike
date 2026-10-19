@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_h3asg"]
+[ext_resource type="Resource" path="res://data/hazards/sand_pool.tres" id="2_55010"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_8sv1c"]
+[ext_resource type="Resource" path="res://data/props/furniture/palm.tres" id="4_lu7od"]
+[ext_resource type="Resource" path="res://data/props/furniture/dark_palm.tres" id="5_md7di"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="6_oeotf"]
+
+[sub_resource type="Resource" id="Resource_uqsrm"]
+script = ExtResource("1_h3asg")
+symbol = "w"
+kind = 3
+pond = ExtResource("2_55010")
+
+[sub_resource type="Resource" id="Resource_cdc2b"]
+script = ExtResource("1_h3asg")
+symbol = "P"
+props = Array[ExtResource("3_8sv1c")]([ExtResource("4_lu7od"), ExtResource("5_md7di")])
+
+[sub_resource type="Resource" id="Resource_2f8ox"]
+script = ExtResource("1_h3asg")
+symbol = "T"
+props = Array[ExtResource("3_8sv1c")]([ExtResource("4_lu7od"), ExtResource("5_md7di")])
+chance = 0.8
+
+[resource]
+script = ExtResource("6_oeotf")
+rows = PackedStringArray("PP.... ", "..www..", ".wwwww.", "..www.TT")
+keys = Array[ExtResource("1_h3asg")]([SubResource("Resource_uqsrm"), SubResource("Resource_cdc2b"), SubResource("Resource_2f8ox")])
+anchor = 1
+room_size = 1
+max_per_floor = 1
+id = &"oasis"
+display_name = "Oasis"

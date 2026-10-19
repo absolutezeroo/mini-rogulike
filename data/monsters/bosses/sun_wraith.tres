@@ -1,0 +1,116 @@
+[gd_resource type="Resource" script_class="BossDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_fn22t"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/bosses/sun_wraith.tres" id="2_fdgae"]
+[ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="3_ugrxa"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/sun_wraith/portrait.png" id="4_j25dn"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="5_xpnjk"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="6_r3h8l"]
+[ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="7_lf2b4"]
+[ext_resource type="Resource" path="res://data/items/weapons/hammer.tres" id="8_cxv8w"]
+[ext_resource type="Resource" path="res://data/items/armors/shadow_cloak.tres" id="9_yx4tt"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_frost.tres" id="10_lw5kp"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="11_4x7qe"]
+[ext_resource type="Script" path="res://src/definitions/boss_phase.gd" id="12_348gy"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="13_lpjk4"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="14_0ptdf"]
+[ext_resource type="Resource" path="res://data/skills/boss/solar_flare.tres" id="15_6elxn"]
+[ext_resource type="Resource" path="res://data/skills/monster/blink.tres" id="16_4phiq"]
+[ext_resource type="Resource" path="res://data/skills/boss/call_embers.tres" id="17_wy60y"]
+[ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="18_wbh2q"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="19_60j2e"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/demon_club.tres" id="20_bidgj"]
+
+[sub_resource type="Resource" id="Resource_8aotb"]
+script = ExtResource("5_xpnjk")
+item = ExtResource("6_r3h8l")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_4epmv"]
+script = ExtResource("5_xpnjk")
+item = ExtResource("7_lf2b4")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_4mpkr"]
+script = ExtResource("5_xpnjk")
+item = ExtResource("8_cxv8w")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_8wnpn"]
+script = ExtResource("5_xpnjk")
+item = ExtResource("9_yx4tt")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_01tn7"]
+script = ExtResource("5_xpnjk")
+item = ExtResource("10_lw5kp")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_hkmi6"]
+script = ExtResource("11_4x7qe")
+drop_chance = 1.0
+rolls = 3
+entries = Array[ExtResource("5_xpnjk")]([SubResource("Resource_8aotb"), SubResource("Resource_4epmv"), SubResource("Resource_4mpkr"), SubResource("Resource_8wnpn"), SubResource("Resource_01tn7")])
+
+[sub_resource type="Resource" id="Resource_c41kn"]
+script = ExtResource("13_lpjk4")
+attack = 3
+move_speed = 20.0
+
+[sub_resource type="Resource" id="Resource_2ko4v"]
+script = ExtResource("12_348gy")
+hp_ratio = 0.55
+message = "BLAZES LIKE A NOON SUN!"
+bonuses = SubResource("Resource_c41kn")
+skills = Array[ExtResource("14_0ptdf")]([ExtResource("15_6elxn"), ExtResource("16_4phiq"), ExtResource("17_wy60y")])
+windup_multiplier = 0.85
+tint = Color(1, 0.8, 0.45, 1)
+
+[sub_resource type="Resource" id="Resource_btpwl"]
+script = ExtResource("13_lpjk4")
+attack = 2
+move_speed = 40.0
+attack_speed = 0.4
+
+[sub_resource type="Resource" id="Resource_wlya1"]
+script = ExtResource("12_348gy")
+hp_ratio = 0.2
+message = "BLAZES LIKE A NOON SUN!"
+bonuses = SubResource("Resource_btpwl")
+skills = Array[ExtResource("14_0ptdf")]([ExtResource("15_6elxn"), ExtResource("16_4phiq"), ExtResource("17_wy60y")])
+windup_multiplier = 0.7
+tint = Color(1, 0.8, 0.45, 1)
+
+[sub_resource type="Resource" id="Resource_tkvdj"]
+script = ExtResource("13_lpjk4")
+max_hp = 1650
+defense = 4
+move_speed = 70.0
+
+[resource]
+script = ExtResource("18_wbh2q")
+title = "Burning Keeper of the Well"
+portrait = ExtResource("4_j25dn")
+phases = Array[ExtResource("12_348gy")]([SubResource("Resource_2ko4v"), SubResource("Resource_wlya1")])
+stats = SubResource("Resource_tkvdj")
+weapon = ExtResource("20_bidgj")
+skills = Array[ExtResource("14_0ptdf")]([ExtResource("15_6elxn"), ExtResource("16_4phiq")])
+radius = 22.0
+frames = ExtResource("2_fdgae")
+frames_offset = Vector2(0, -18)
+head_height = 66.0
+knockback_resistance = 0.95
+detect_radius = 900.0
+attack_windup = 0.65
+attack_recovery = 0.5
+hurt_sound = ExtResource("3_ugrxa")
+death_sound = ExtResource("1_fn22t")
+xp_reward = 120
+loot = SubResource("Resource_hkmi6")
+id = &"sun_wraith"
+display_name = "Sun Wraith"
+description = "The sun the kingdom worshipped, buried with it. It burns, blinks and calls its embers."
+icon = ExtResource("4_j25dn")
+glyph = "D"
+color = Color(1, 0.75, 0.25, 1)
+spawn_weight = 0

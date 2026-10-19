@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_aitsr"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_0dq6f"]
+[ext_resource type="Resource" path="res://data/props/furniture/palm.tres" id="3_fd225"]
+[ext_resource type="Resource" path="res://data/props/furniture/dark_palm.tres" id="4_fx7l1"]
+[ext_resource type="Resource" path="res://data/props/furniture/sprout_palm.tres" id="5_2lqps"]
+[ext_resource type="Resource" path="res://data/props/furniture/dry_bush.tres" id="6_erocv"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="7_jpkt3"]
+
+[sub_resource type="Resource" id="Resource_up77a"]
+script = ExtResource("1_aitsr")
+symbol = "P"
+props = Array[ExtResource("2_0dq6f")]([ExtResource("3_fd225"), ExtResource("4_fx7l1")])
+
+[sub_resource type="Resource" id="Resource_y265e"]
+script = ExtResource("1_aitsr")
+symbol = "s"
+props = Array[ExtResource("2_0dq6f")]([ExtResource("5_2lqps"), ExtResource("6_erocv")])
+chance = 0.7
+
+[resource]
+script = ExtResource("7_jpkt3")
+rows = PackedStringArray("PP .s", " .PP.", "s .  ")
+keys = Array[ExtResource("1_aitsr")]([SubResource("Resource_up77a"), SubResource("Resource_y265e")])
+id = &"palm_grove"
+display_name = "Palm Grove"

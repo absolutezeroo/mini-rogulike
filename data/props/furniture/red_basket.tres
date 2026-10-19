@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_gar7v"]
+[ext_resource type="Texture2D" path="res://assets/tiles/desert.png" id="2_cpso8"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="3_0hsgk"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="4_0sg2y"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="5_uenhl"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="6_a484h"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6vjjx"]
+atlas = ExtResource("2_cpso8")
+region = Rect2(96, 176, 16, 16)
+
+[sub_resource type="Resource" id="Resource_mi482"]
+script = ExtResource("3_0hsgk")
+item = ExtResource("4_0sg2y")
+
+[sub_resource type="Resource" id="Resource_x6m6a"]
+script = ExtResource("5_uenhl")
+drop_chance = 0.2
+entries = Array[ExtResource("3_0hsgk")]([SubResource("Resource_mi482")])
+
+[resource]
+script = ExtResource("6_a484h")
+loot = SubResource("Resource_x6m6a")
+debris_color = Color(0.8, 0.3, 0.25, 1)
+break_sound = ExtResource("1_gar7v")
+id = &"red_basket"
+display_name = "Basket"
+icon = SubResource("AtlasTexture_6vjjx")
+glyph = "F"
+color = Color(0.8, 0.3, 0.25, 1)

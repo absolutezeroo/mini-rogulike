@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_bpoy0"]
+[ext_resource type="Texture2D" path="res://assets/tiles/desert.png" id="2_a8v73"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_8t5hv"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_njvo7"]
+atlas = ExtResource("2_a8v73")
+region = Rect2(32, 160, 32, 32)
+
+[resource]
+script = ExtResource("3_8t5hv")
+footprint = Vector2i(2, 1)
+hits = 2
+debris_color = Color(0.85, 0.3, 0.3, 1)
+break_sound = ExtResource("1_bpoy0")
+id = &"red_parasol"
+display_name = "Market Stall"
+icon = SubResource("AtlasTexture_njvo7")
+glyph = "F"
+color = Color(0.85, 0.3, 0.3, 1)

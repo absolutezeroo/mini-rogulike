@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_o4qql"]
+[ext_resource type="Texture2D" path="res://assets/tiles/desert.png" id="2_dv0sk"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_exts5"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="4_wj8bk"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pyhmo"]
+atlas = ExtResource("2_dv0sk")
+region = Rect2(256, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rt22e"]
+atlas = ExtResource("2_dv0sk")
+region = Rect2(272, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ved1c"]
+atlas = ExtResource("2_dv0sk")
+region = Rect2(288, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kpaby"]
+atlas = ExtResource("2_dv0sk")
+region = Rect2(304, 176, 16, 16)
+
+[sub_resource type="Resource" id="Resource_8fa83"]
+script = ExtResource("1_o4qql")
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_pyhmo"), SubResource("AtlasTexture_rt22e"), SubResource("AtlasTexture_ved1c"), SubResource("AtlasTexture_kpaby")])
+chance = 0.8
+
+[resource]
+script = ExtResource("4_wj8bk")
+rows = PackedStringArray("x x", " x ", "x x")
+keys = Array[ExtResource("1_o4qql")]([SubResource("Resource_8fa83")])
+id = &"bone_field"
+display_name = "Bones in the Sand"

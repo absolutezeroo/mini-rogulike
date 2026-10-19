@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="ActDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="1_a32ab"]
+[ext_resource type="Resource" path="res://data/biomes/buried_city.tres" id="2_egqa3"]
+[ext_resource type="Resource" path="res://data/biomes/sun_tomb.tres" id="3_b630q"]
+[ext_resource type="Resource" path="res://data/monsters/bosses/gilded_hoarder.tres" id="4_2q6do"]
+[ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="5_lsqkw"]
+[ext_resource type="Resource" path="res://data/hazards/flame_vent.tres" id="6_vihfx"]
+[ext_resource type="Resource" path="res://data/hazards/arrow_trap.tres" id="7_y2mrk"]
+[ext_resource type="Resource" path="res://data/hazards/quicksand.tres" id="8_r2qx8"]
+[ext_resource type="Resource" path="res://data/hazards/crumbling_floor.tres" id="9_1kldq"]
+[ext_resource type="Resource" path="res://data/hazards/pit.tres" id="10_iwiwi"]
+[ext_resource type="Resource" path="res://data/hazards/spikes.tres" id="11_v46ux"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="12_samg8"]
+[ext_resource type="Resource" path="res://data/monsters/dune_rex.tres" id="13_atrv2"]
+[ext_resource type="Resource" path="res://data/monsters/gold_racoon.tres" id="14_1wq2o"]
+[ext_resource type="Resource" path="res://data/monsters/red_viper.tres" id="15_bk3ob"]
+[ext_resource type="Resource" path="res://data/monsters/ash_lizard.tres" id="16_ermry"]
+[ext_resource type="Resource" path="res://data/monsters/bone_lizard.tres" id="17_whiss"]
+[ext_resource type="Resource" path="res://data/monsters/stone_mole.tres" id="18_43f3o"]
+[ext_resource type="Resource" path="res://data/monsters/bomber.tres" id="19_obhqq"]
+[ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="20_x1lcl"]
+[ext_resource type="Resource" path="res://data/monsters/bosses/sun_wraith.tres" id="21_egqa3"]
+[ext_resource type="Script" path="res://src/definitions/act_def.gd" id="21_uckqf"]
+
+[resource]
+script = ExtResource("21_uckqf")
+title = "Buried Kingdom"
+subtitle = "Act IV"
+lore = "Under the temple, the Well opens onto a desert with no sky: a kingdom the sand swallowed whole. Its king still hoards what he took. Souls, mostly."
+biomes = Array[ExtResource("1_a32ab")]([ExtResource("2_egqa3"), ExtResource("3_b630q")])
+boss_biome = ExtResource("3_b630q")
+monsters = Array[ExtResource("12_samg8")]([ExtResource("13_atrv2"), ExtResource("14_1wq2o"), ExtResource("15_bk3ob"), ExtResource("16_ermry"), ExtResource("17_whiss"), ExtResource("18_43f3o"), ExtResource("19_obhqq")])
+boss = ExtResource("4_2q6do")
+other_bosses = Array[ExtResource("20_x1lcl")]([ExtResource("21_egqa3")])
+hazards = Array[ExtResource("5_lsqkw")]([ExtResource("6_vihfx"), ExtResource("7_y2mrk"), ExtResource("8_r2qx8"), ExtResource("9_1kldq"), ExtResource("10_iwiwi"), ExtResource("11_v46ux")])

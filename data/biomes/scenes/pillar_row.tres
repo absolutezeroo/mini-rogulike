@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_12gns"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_p0kqh"]
+[ext_resource type="Resource" path="res://data/props/furniture/sandstone_pillar.tres" id="3_blo3y"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="4_ebgka"]
+
+[sub_resource type="Resource" id="Resource_4q2xk"]
+script = ExtResource("1_12gns")
+symbol = "P"
+props = Array[ExtResource("2_p0kqh")]([ExtResource("3_blo3y")])
+chance = 0.8
+
+[resource]
+script = ExtResource("4_ebgka")
+rows = PackedStringArray("P.P.P", ".....")
+keys = Array[ExtResource("1_12gns")]([SubResource("Resource_4q2xk")])
+anchor = 2
+id = &"pillar_row"
+display_name = "Sandstone Pillars"

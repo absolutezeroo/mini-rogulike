@@ -1,0 +1,72 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/dune_rex.tres" id="1_wlnxl"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/dune_rex.png" id="2_qu6oc"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="3_um7u3"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="4_yawgn"]
+[ext_resource type="Resource" path="res://data/items/weapons/hammer.tres" id="5_kahfj"]
+[ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="6_itulj"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_war.tres" id="7_we3yc"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="8_xphxo"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="9_8s5lf"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="10_twc7n"]
+[ext_resource type="Resource" path="res://data/skills/monster/charge.tres" id="11_x7pj6"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="12_vwi42"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="13_8vnuc"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/maul.tres" id="14_02xpp"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vuo3j"]
+atlas = ExtResource("2_qu6oc")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_jalg7"]
+script = ExtResource("3_um7u3")
+item = ExtResource("4_yawgn")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_32brf"]
+script = ExtResource("3_um7u3")
+item = ExtResource("5_kahfj")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_0uusg"]
+script = ExtResource("3_um7u3")
+item = ExtResource("6_itulj")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_yqu0r"]
+script = ExtResource("3_um7u3")
+item = ExtResource("7_we3yc")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_xl16q"]
+script = ExtResource("8_xphxo")
+drop_chance = 0.5
+entries = Array[ExtResource("3_um7u3")]([SubResource("Resource_jalg7"), SubResource("Resource_32brf"), SubResource("Resource_0uusg"), SubResource("Resource_yqu0r")])
+
+[sub_resource type="Resource" id="Resource_jm1pf"]
+script = ExtResource("12_vwi42")
+max_hp = 85
+defense = 4
+move_speed = 70.0
+
+[resource]
+script = ExtResource("9_8s5lf")
+stats = SubResource("Resource_jm1pf")
+weapon = ExtResource("14_02xpp")
+skills = Array[ExtResource("10_twc7n")]([ExtResource("11_x7pj6")])
+radius = 14.0
+frames = ExtResource("1_wlnxl")
+frames_offset = Vector2(0, -8)
+knockback_resistance = 0.5
+attack_windup = 0.65
+attack_recovery = 0.35
+xp_reward = 22
+loot = SubResource("Resource_xl16q")
+id = &"dune_rex"
+display_name = "Dune Rex"
+description = "A sand-colored brute. Charges across the room, then crushes."
+icon = SubResource("AtlasTexture_vuo3j")
+glyph = "H"
+color = Color(0.9098039, 0.3647059, 0.015686275, 1)
+spawn_weight = 5

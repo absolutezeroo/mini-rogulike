@@ -91,10 +91,10 @@ func _test_boss_fight(game: Game) -> void:
 	check(player.perks.stacks_of(relics[0]) == stacks_before + 1 and not get_tree().paused, "relic taken, game resumed")
 
 	# The last act's boss wins the run; you may keep going (endless).
-	game.depth = 9
+	game.depth = CONTENT.dungeon.total_floors()
 	game._enter_floor()
 	await _frames(5)
-	check(world.arena != null and world.arena.boss.def == CONTENT.dungeon.acts[2].boss, "floor 9: the final boss")
+	check(world.arena != null and world.arena.boss.def == CONTENT.dungeon.acts.back().boss, "the last floor: the final boss")
 	player.global_position = world.map.cell_to_world(world.map.boss_room.get_center() + Vector2i(0, 4))
 	await _frames(5)
 	var final_hit := HitInfo.new()

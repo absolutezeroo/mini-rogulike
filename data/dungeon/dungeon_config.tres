@@ -6,13 +6,14 @@
 [ext_resource type="Resource" path="res://data/dungeon/acts/act_2.tres" id="3_bf2ay"]
 [ext_resource type="Resource" path="res://data/dungeon/acts/act_3.tres" id="4_0biys"]
 [ext_resource type="Resource" path="res://data/chests/big_chest.tres" id="5_bf2ay"]
+[ext_resource type="Resource" path="res://data/dungeon/acts/act_4.tres" id="5_cvo8j"]
 [ext_resource type="Resource" path="res://data/props/lantern.tres" id="5_w3ici"]
 [ext_resource type="Resource" path="res://data/chests/chest.tres" id="6_0biys"]
 [ext_resource type="Resource" path="res://data/shop/merchant.tres" id="7_0biys"]
 
 [resource]
 script = ExtResource("1_qfnhp")
-acts = Array[ExtResource("1_oi5f6")]([ExtResource("2_pngbb"), ExtResource("3_bf2ay"), ExtResource("4_0biys")])
+acts = Array[ExtResource("1_oi5f6")]([ExtResource("2_pngbb"), ExtResource("3_bf2ay"), ExtResource("4_0biys"), ExtResource("5_cvo8j")])
 room_light = ExtResource("5_w3ici")
 chest = ExtResource("6_0biys")
 ambush_chest = ExtResource("5_bf2ay")

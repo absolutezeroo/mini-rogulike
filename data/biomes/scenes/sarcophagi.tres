@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_0vdml"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_s2wkq"]
+[ext_resource type="Resource" path="res://data/props/furniture/mummy_case.tres" id="3_jp88h"]
+[ext_resource type="Resource" path="res://data/props/furniture/coffin.tres" id="4_42oel"]
+[ext_resource type="Texture2D" path="res://assets/tiles/desert.png" id="5_h78l4"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="6_fnafa"]
+
+[sub_resource type="Resource" id="Resource_4g4hx"]
+script = ExtResource("1_0vdml")
+symbol = "M"
+props = Array[ExtResource("2_s2wkq")]([ExtResource("3_jp88h"), ExtResource("4_42oel")])
+chance = 0.85
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7ckvn"]
+atlas = ExtResource("5_h78l4")
+region = Rect2(256, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c0b8x"]
+atlas = ExtResource("5_h78l4")
+region = Rect2(272, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xnou2"]
+atlas = ExtResource("5_h78l4")
+region = Rect2(288, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uqg2h"]
+atlas = ExtResource("5_h78l4")
+region = Rect2(304, 176, 16, 16)
+
+[sub_resource type="Resource" id="Resource_c7lk5"]
+script = ExtResource("1_0vdml")
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_7ckvn"), SubResource("AtlasTexture_c0b8x"), SubResource("AtlasTexture_xnou2"), SubResource("AtlasTexture_uqg2h")])
+chance = 0.6
+
+[resource]
+script = ExtResource("6_fnafa")
+rows = PackedStringArray("M.M.M", "x...x")
+keys = Array[ExtResource("1_0vdml")]([SubResource("Resource_4g4hx"), SubResource("Resource_c7lk5")])
+anchor = 2
+id = &"sarcophagi"
+display_name = "Sarcophagi"
+spawn_weight = 14

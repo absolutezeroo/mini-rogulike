@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_jwt30"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_orkc8"]
+[ext_resource type="Resource" path="res://data/monsters/gold_racoon.tres" id="3_txxuv"]
+[ext_resource type="Script" path="res://src/definitions/effects/summon_effect.gd" id="4_vcu6k"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_xf1j7"]
+[ext_resource type="AudioStream" path="res://data/audio/spirit.tres" id="6_cbmk7"]
+
+[sub_resource type="Resource" id="Resource_ut7s5"]
+script = ExtResource("4_vcu6k")
+monsters = Array[ExtResource("2_orkc8")]([ExtResource("3_txxuv")])
+max_alive = 4
+
+[resource]
+script = ExtResource("5_xf1j7")
+id = &"call_thieves"
+display_name = "Call the Thieves"
+color = Color(1, 0.8, 0.3, 1)
+cooldown = 12.0
+effects = Array[ExtResource("1_jwt30")]([SubResource("Resource_ut7s5")])
+sound = ExtResource("6_cbmk7")
+ai_max_range = 600.0
+cast_time = 0.7

@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_tkpr6"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_eabrq"]
+[ext_resource type="Resource" path="res://data/props/furniture/gold_basket.tres" id="3_flf8l"]
+[ext_resource type="Resource" path="res://data/props/furniture/red_basket.tres" id="4_gnd1o"]
+[ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="5_hpk4i"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="6_urgdh"]
+
+[sub_resource type="Resource" id="Resource_sf3db"]
+script = ExtResource("1_tkpr6")
+symbol = "b"
+props = Array[ExtResource("2_eabrq")]([ExtResource("3_flf8l"), ExtResource("4_gnd1o")])
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pw44s"]
+atlas = ExtResource("5_hpk4i")
+region = Rect2(112, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_s2fem"]
+atlas = ExtResource("5_hpk4i")
+region = Rect2(112, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_td88f"]
+atlas = ExtResource("5_hpk4i")
+region = Rect2(128, 48, 16, 16)
+
+[sub_resource type="Resource" id="Resource_e2mww"]
+script = ExtResource("1_tkpr6")
+symbol = "g"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_pw44s"), SubResource("AtlasTexture_s2fem"), SubResource("AtlasTexture_td88f")])
+chance = 0.85
+
+[resource]
+script = ExtResource("6_urgdh")
+rows = PackedStringArray("bgg", "gg.", "g..")
+keys = Array[ExtResource("1_tkpr6")]([SubResource("Resource_sf3db"), SubResource("Resource_e2mww")])
+anchor = 4
+id = &"treasure_heap"
+display_name = "Treasure Heap"

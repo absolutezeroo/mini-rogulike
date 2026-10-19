@@ -1,0 +1,55 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/gold_racoon.tres" id="1_ifc60"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/gold_racoon.png" id="2_ggji5"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="3_5yaac"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="4_qgllf"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="5_xhb6o"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="6_x2r0v"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_nstfn"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="8_805a8"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="9_32t02"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/thief_trait.gd" id="10_r0o43"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/claws.tres" id="11_cgctx"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_aayrx"]
+atlas = ExtResource("2_ggji5")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_rk2sq"]
+script = ExtResource("3_5yaac")
+item = ExtResource("4_qgllf")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_8kevv"]
+script = ExtResource("5_xhb6o")
+drop_chance = 0.25
+entries = Array[ExtResource("3_5yaac")]([SubResource("Resource_rk2sq")])
+
+[sub_resource type="Resource" id="Resource_7wk1n"]
+script = ExtResource("8_805a8")
+max_hp = 24
+move_speed = 165.0
+
+[sub_resource type="Resource" id="Resource_k2ke4"]
+script = ExtResource("10_r0o43")
+steal = 10
+
+[resource]
+script = ExtResource("6_x2r0v")
+stats = SubResource("Resource_7wk1n")
+weapon = ExtResource("11_cgctx")
+radius = 10.0
+frames = ExtResource("1_ifc60")
+frames_offset = Vector2(0, -8)
+traits = Array[ExtResource("9_32t02")]([SubResource("Resource_k2ke4")])
+attack_windup = 0.2
+xp_reward = 10
+loot = SubResource("Resource_8kevv")
+id = &"gold_racoon"
+display_name = "Gold Racoon"
+description = "The king's own thief. Takes far more gold than its cousins, and runs faster."
+icon = SubResource("AtlasTexture_aayrx")
+glyph = "T"
+color = Color(0.8509804, 0.38431373, 0.16862746, 1)
+spawn_weight = 4

@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_jtdba"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_rg386"]
+[ext_resource type="Resource" path="res://data/props/furniture/red_parasol.tres" id="3_b0jes"]
+[ext_resource type="Resource" path="res://data/props/furniture/gold_parasol.tres" id="4_0v5ap"]
+[ext_resource type="Resource" path="res://data/props/furniture/red_basket.tres" id="5_3l57c"]
+[ext_resource type="Resource" path="res://data/props/furniture/gold_basket.tres" id="6_dw58n"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="7_8vnpw"]
+
+[sub_resource type="Resource" id="Resource_6aqgj"]
+script = ExtResource("1_jtdba")
+symbol = "P"
+props = Array[ExtResource("2_rg386")]([ExtResource("3_b0jes")])
+
+[sub_resource type="Resource" id="Resource_pcmje"]
+script = ExtResource("1_jtdba")
+symbol = "Q"
+props = Array[ExtResource("2_rg386")]([ExtResource("4_0v5ap")])
+chance = 0.85
+
+[sub_resource type="Resource" id="Resource_8kuwl"]
+script = ExtResource("1_jtdba")
+symbol = "b"
+props = Array[ExtResource("2_rg386")]([ExtResource("5_3l57c"), ExtResource("6_dw58n")])
+chance = 0.7
+
+[resource]
+script = ExtResource("7_8vnpw")
+rows = PackedStringArray("b PP . QQ b", "...........", " b       b ")
+keys = Array[ExtResource("1_jtdba")]([SubResource("Resource_6aqgj"), SubResource("Resource_pcmje"), SubResource("Resource_8kuwl")])
+room_size = 1
+max_per_floor = 1
+id = &"market"
+display_name = "Abandoned Market"

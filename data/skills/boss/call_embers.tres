@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_0md14"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_6ecsa"]
+[ext_resource type="Resource" path="res://data/monsters/flam.tres" id="3_tvey0"]
+[ext_resource type="Script" path="res://src/definitions/effects/summon_effect.gd" id="4_13xqg"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_88n44"]
+[ext_resource type="AudioStream" path="res://data/audio/spirit.tres" id="6_hvubs"]
+
+[sub_resource type="Resource" id="Resource_2gw7m"]
+script = ExtResource("4_13xqg")
+monsters = Array[ExtResource("2_6ecsa")]([ExtResource("3_tvey0")])
+count = 3
+max_alive = 6
+
+[resource]
+script = ExtResource("5_88n44")
+id = &"call_embers"
+display_name = "Call the Embers"
+color = Color(1, 0.75, 0.25, 1)
+cooldown = 10.0
+effects = Array[ExtResource("1_0md14")]([SubResource("Resource_2gw7m")])
+sound = ExtResource("6_hvubs")
+ai_max_range = 600.0
+cast_time = 0.7

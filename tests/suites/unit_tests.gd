@@ -305,16 +305,17 @@ func _test_perks() -> void:
 
 func _test_bosses() -> void:
 	var config := CONTENT.dungeon
-	check(config.acts.size() == 3 and config.total_floors() == 9, "3 acts of 3 floors")
+	check(config.acts.size() == 4 and config.total_floors() == 12, "4 acts of 3 floors")
 	var bosses: Array[BossDef] = []
 	for act in config.acts:
 		check(act.boss != null and act.main_biome() != null and act.monsters.size() >= 6, "%s has a boss, a look and monsters" % act.title)
 		bosses.append(act.boss)
 	check(config.boss_for_depth(1) == null and config.boss_for_depth(2) == null and config.boss_for_depth(4) == null, "normal floors have no boss")
-	check(config.boss_for_depth(3) == bosses[0] and config.boss_for_depth(6) == bosses[1] and config.boss_for_depth(9) == bosses[2], "each act ends with its boss")
+	check(config.boss_for_depth(3) == bosses[0] and config.boss_for_depth(6) == bosses[1] and config.boss_for_depth(9) == bosses[2] and config.boss_for_depth(12) == bosses[3], "each act ends with its boss")
 	check(config.act_for_depth(4) == config.acts[1] and config.floor_in_act(4) == 1, "floor 4 starts act 2")
-	check(config.is_final_floor(9) and not config.is_final_floor(6), "floor 9 ends the run")
-	check(config.act_for_depth(10) == config.acts[0] and config.boss_for_depth(12) == bosses[0], "endless mode loops the acts")
+	check(config.act_for_depth(10) == config.acts[3] and config.first_depth(3) == 10, "floor 10 starts act 4")
+	check(config.is_final_floor(12) and not config.is_final_floor(9), "floor 12 ends the run")
+	check(config.act_for_depth(13) == config.acts[0] and config.boss_for_depth(15) == bosses[0], "endless mode loops the acts")
 	for boss in bosses:
 		check(boss.frames != null and boss.frames.has_animation(&"idle"), "%s has animations" % boss.id)
 		check(boss.portrait != null, "%s has a portrait" % boss.id)

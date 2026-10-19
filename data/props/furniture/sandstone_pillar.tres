@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_hm1hu"]
+[ext_resource type="Texture2D" path="res://assets/tiles/desert.png" id="2_4p8iy"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_558m2"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kwbvs"]
+atlas = ExtResource("2_4p8iy")
+region = Rect2(32, 48, 16, 32)
+
+[resource]
+script = ExtResource("3_558m2")
+hits = 0
+debris_color = Color(0.9, 0.75, 0.5, 1)
+break_sound = ExtResource("1_hm1hu")
+id = &"sandstone_pillar"
+display_name = "Sandstone Pillar"
+icon = SubResource("AtlasTexture_kwbvs")
+glyph = "F"
+color = Color(0.9, 0.75, 0.5, 1)

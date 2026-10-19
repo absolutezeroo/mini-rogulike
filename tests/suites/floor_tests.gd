@@ -914,6 +914,9 @@ func _test_biomes(game: Game) -> void:
 			check(scenes >= 6, "%s: scenes in its rooms (%d on 2 floors)" % [biome.id, scenes])
 	check(world.forced_biome == null, "a forced biome is used once")
 	await _clear_monsters(world)
+	for pickup in get_tree().get_nodes_in_group("pickups"):
+		pickup.queue_free()  # nothing for the next tests to pick up by chance
+	await _frames(1)
 	game.depth = depth_before
 
 

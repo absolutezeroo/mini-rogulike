@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_nacl1"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_2o3wy"]
+[ext_resource type="Resource" path="res://data/props/furniture/desert_well.tres" id="3_gbfmp"]
+[ext_resource type="Resource" path="res://data/props/furniture/red_basket.tres" id="4_f4m5v"]
+[ext_resource type="Resource" path="res://data/props/furniture/gold_basket.tres" id="5_oif21"]
+[ext_resource type="Resource" path="res://data/props/furniture/sandstone_pillar.tres" id="6_4rggr"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="7_3tmvy"]
+
+[sub_resource type="Resource" id="Resource_ftieb"]
+script = ExtResource("1_nacl1")
+symbol = "W"
+props = Array[ExtResource("2_2o3wy")]([ExtResource("3_gbfmp")])
+
+[sub_resource type="Resource" id="Resource_6e74q"]
+script = ExtResource("1_nacl1")
+symbol = "b"
+props = Array[ExtResource("2_2o3wy")]([ExtResource("4_f4m5v"), ExtResource("5_oif21")])
+chance = 0.7
+
+[sub_resource type="Resource" id="Resource_e0voa"]
+script = ExtResource("1_nacl1")
+symbol = "s"
+props = Array[ExtResource("2_2o3wy")]([ExtResource("6_4rggr")])
+chance = 0.8
+
+[resource]
+script = ExtResource("7_3tmvy")
+rows = PackedStringArray("s....s", "..WW..", "b....b")
+keys = Array[ExtResource("1_nacl1")]([SubResource("Resource_ftieb"), SubResource("Resource_6e74q"), SubResource("Resource_e0voa")])
+anchor = 1
+max_per_floor = 1
+id = &"well_square"
+display_name = "Well Square"

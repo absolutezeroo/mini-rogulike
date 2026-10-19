@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/red_viper.tres" id="1_ilk0h"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/red_viper.png" id="2_xwtyl"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="3_8nei2"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="4_iq3hs"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="5_nhtii"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="6_dgdcb"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_flht1"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="8_lgu71"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="9_anek6"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/poison_fang.tres" id="10_0crwj"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4gmbo"]
+atlas = ExtResource("2_xwtyl")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_j2e1b"]
+script = ExtResource("3_8nei2")
+item = ExtResource("4_iq3hs")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_rohu0"]
+script = ExtResource("5_nhtii")
+drop_chance = 0.15
+entries = Array[ExtResource("3_8nei2")]([SubResource("Resource_j2e1b")])
+
+[sub_resource type="Resource" id="Resource_vqi6e"]
+script = ExtResource("8_lgu71")
+max_hp = 22
+defense = 1
+move_speed = 130.0
+
+[resource]
+script = ExtResource("6_dgdcb")
+stats = SubResource("Resource_vqi6e")
+weapon = ExtResource("10_0crwj")
+radius = 9.0
+frames = ExtResource("1_ilk0h")
+frames_offset = Vector2(0, -8)
+attack_windup = 0.3
+attack_recovery = 0.35
+xp_reward = 8
+loot = SubResource("Resource_rohu0")
+id = &"red_viper"
+display_name = "Red Viper"
+description = "Hides in the sand. Fast, and its bite burns with poison."
+icon = SubResource("AtlasTexture_4gmbo")
+glyph = "V"
+color = Color(0.5019608, 0.92941177, 0.6, 1)
+spawn_weight = 8

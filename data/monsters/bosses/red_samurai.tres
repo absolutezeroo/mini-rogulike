@@ -75,7 +75,7 @@ crit_chance = 0.1
 
 [resource]
 script = ExtResource("19_uawpc")
-title = "Burning Keeper of the Well"
+title = "Burning Warden of the Temple"
 portrait = ExtResource("5_npp6p")
 phases = Array[ExtResource("13_mesb5")]([SubResource("Resource_jp6ba")])
 stats = SubResource("Resource_11m3h")

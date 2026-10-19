@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_rrams"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_c4gbb"]
+[ext_resource type="Resource" path="res://data/props/furniture/carved_skull.tres" id="3_vds0c"]
+[ext_resource type="Texture2D" path="res://assets/tiles/desert.png" id="4_5g180"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="5_j88e2"]
+
+[sub_resource type="Resource" id="Resource_8tdk0"]
+script = ExtResource("1_rrams")
+symbol = "S"
+props = Array[ExtResource("2_c4gbb")]([ExtResource("3_vds0c")])
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7ckvn"]
+atlas = ExtResource("4_5g180")
+region = Rect2(256, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c0b8x"]
+atlas = ExtResource("4_5g180")
+region = Rect2(272, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xnou2"]
+atlas = ExtResource("4_5g180")
+region = Rect2(288, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uqg2h"]
+atlas = ExtResource("4_5g180")
+region = Rect2(304, 176, 16, 16)
+
+[sub_resource type="Resource" id="Resource_nwo6u"]
+script = ExtResource("1_rrams")
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_7ckvn"), SubResource("AtlasTexture_c0b8x"), SubResource("AtlasTexture_xnou2"), SubResource("AtlasTexture_uqg2h")])
+chance = 0.85
+
+[resource]
+script = ExtResource("5_j88e2")
+rows = PackedStringArray("Sxx", "xx.", "x..")
+keys = Array[ExtResource("1_rrams")]([SubResource("Resource_8tdk0"), SubResource("Resource_nwo6u")])
+anchor = 4
+id = &"ossuary_tomb"
+display_name = "Ossuary"
