@@ -20,6 +20,11 @@ uniform vec3 highlight_tint : source_color = vec3(1.0);
 uniform float grade : hint_range(0.0, 1.0) = 0.0;
 uniform float bloom : hint_range(0.0, 1.0) = 0.0;
 uniform float haze : hint_range(0.0, 3.0) = 0.0;
+// The edges darken toward this color, beating like a heart; a great glow over the top (a
+// blood moon...). Also from the mood.
+uniform vec3 vignette_color : source_color = vec3(0.0);
+uniform float vignette_pulse : hint_range(0.0, 1.0) = 0.0;
+uniform vec4 moon_color : source_color = vec4(1.0, 0.15, 0.1, 0.0);
 
 const float BAYER[16] = float[](0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0);
 
@@ -27,6 +32,12 @@ const float BAYER[16] = float[](0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 
 float bayer(vec2 cell) {
 	int index = int(mod(cell.x, 4.0)) + int(mod(cell.y, 4.0)) * 4;
 	return (BAYER[index] + 0.5) / 16.0;
+}
+
+// A heartbeat: two quick beats, then rest (0..1).
+float heartbeat(float time) {
+	float t = fract(time / 1.3);
+	return max(exp(-pow(t * 14.0, 2.0)), 0.7 * exp(-pow((t - 0.2) * 14.0, 2.0)));
 }
 
 float wave(float x) {
@@ -74,7 +85,18 @@ void fragment() {
 	// Vignette computed per art pixel, in flat dithered steps instead of a smooth gradient.
 	vec2 cell = floor(uv / art_pixel);
 	vec2 centered = (cell * art_pixel + art_pixel * 0.5 - 0.5) * vec2(1.0, 0.75);
-	float dark = smoothstep(0.3, 0.75, length(centered)) * vignette;
+	float beat = heartbeat(TIME) * vignette_pulse;
+	float reach = 0.3 - beat * 0.08;
+	float dark = smoothstep(reach, 0.75, length(centered)) * vignette * (1.0 + beat * 0.8);
 	dark = floor(dark * vignette_steps + bayer(cell)) / vignette_steps;
-	COLOR = vec4(color * (1.0 - clamp(dark, 0.0, 1.0)), 1.0);
+	if (moon_color.a > 0.0) {
+		// The moon's glow from above the top of the screen, breathing slowly, in dithered steps.
+		vec2 from_moon = (cell * art_pixel - vec2(0.5, -0.25)) * vec2(1.6, 1.0);
+		float glow = pow(clamp(1.0 - length(from_moon) / 0.85, 0.0, 1.0), 2.2);
+		glow *= moon_color.a * (0.85 + 0.15 * sin(TIME * 0.7) + beat * 0.25);
+		glow = floor(glow * 6.0 + bayer(cell)) / 6.0;
+		color = mix(color, color + moon_color.rgb * 0.55, glow);
+		color = mix(color, moon_color.rgb * gray * 1.4, glow * 0.15);
+	}
+	COLOR = vec4(mix(color, vignette_color, clamp(dark, 0.0, 1.0)), 1.0);
 }

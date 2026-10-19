@@ -14,6 +14,10 @@ extends ContentDef
 @export_range(0.0, 1.0) var elite_chance_bonus: float = 0.0
 
 @export_group("Floor")
+## Its own look over the biome's (screen grade, glow, mist, particles...); the biome's sounds stay.
+@export var atmosphere: AmbienceDef
+## Multiplies the floor's light color (a red moon tints everything).
+@export var ambient_tint: Color = Color.WHITE
 ## Multiplies the darkness (below 1 = darker).
 @export var light: float = 1.0
 @export_range(0, 10) var extra_chests: int = 0

@@ -125,7 +125,10 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 	biome = _pick_biome(content, boss != null)
 	theme = biome.theme if biome else null
 	rules = FloorRules.make(content.dungeon, difficulty, floor_event, depth, curse)
-	_ambient.color = Color((theme.ambient if theme else Color.WHITE) * rules.light(), 1.0)
+	var light_color := (theme.ambient if theme else Color.WHITE) * rules.light()
+	if floor_event:
+		light_color *= floor_event.ambient_tint
+	_ambient.color = Color(light_color, 1.0)
 	_view.show_map(map, theme)
 	_pits.setup(map.tile_size)
 	fog.reset(map)

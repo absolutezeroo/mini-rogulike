@@ -1,10 +1,13 @@
 [gd_resource type="Resource" script_class="FloorEventDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/floor_event_def.gd" id="1_47vys"]
+[ext_resource type="Resource" path="res://data/dungeon/ambience/blood_moon.tres" id="1_iqovx"]
 
 [resource]
 script = ExtResource("1_47vys")
 monster_damage = 1.3
+atmosphere = ExtResource("1_iqovx")
+ambient_tint = Color(1, 0.72, 0.7, 1)
 gold = 2.0
 id = &"blood_moon"
 display_name = "Blood Moon"

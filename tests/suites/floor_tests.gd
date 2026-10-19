@@ -42,10 +42,17 @@ func _test_world_objects(game: Game, world: World, player: Player) -> void:
 	spark.source = player
 	keg.take_hit(spark)
 	check(not keg.is_broken, "a keg has a fuse")
-	await _frames(int(keg_def.fuse_time * 60.0) + 4)
+	# (A hit stop from an earlier blow may slow the first frames down: a little leeway.)
+	for i in int(keg_def.fuse_time * 60.0) * 3:
+		if not is_instance_valid(keg) or keg.is_broken:
+			break
+		await _frames(1)
 	check(not is_instance_valid(keg) or keg.is_broken, "the keg explodes after its fuse")
 	check(not is_instance_valid(rat) or rat.is_dead or rat.hp < rat_hp, "the blast hurts monsters")
-	await _frames(int(keg_def.fuse_time * 60.0) + 4)
+	for i in int(keg_def.fuse_time * 60.0) * 3:
+		if not is_instance_valid(keg2) or keg2.is_broken:
+			break
+		await _frames(1)
 	check(not is_instance_valid(keg2) or keg2.is_broken, "explosions set off other kegs")
 	await _frames(30)
 	check(not is_instance_valid(rat), "dead monsters dissolve and disappear")
@@ -690,6 +697,18 @@ func _test_climate(game: Game) -> void:
 	game.curse_card._skip = true
 	await game.curse_card.finished
 	check(not game.curse_card.visible, "a tap skips it")
+
+	# The Blood Moon: its own look (red grade, the moon's glow, beating edges) over the biome.
+	var moon: FloorEventDef = load("res://data/floor_events/blood_moon.tres")
+	await game.debug_enter_floor(maxi(start_depth, 4), null, moon)
+	await _frames(3)
+	var screen := get_tree().get_first_node_in_group(&"screen_effects") as ScreenEffects
+	var screen_look := screen.material as ShaderMaterial
+	check(world.floor_event == moon and (screen_look.get_shader_parameter("moon_color") as Color).a > 0.0 and float(screen_look.get_shader_parameter("vignette_pulse")) > 0.0, "the Blood Moon hangs over the floor")
+	check((world.get_node("Ambient") as CanvasModulate).color.g < world.theme.ambient.g, "its light is red")
+	await game.debug_enter_floor(maxi(start_depth, 4))
+	await _frames(3)
+	check((screen_look.get_shader_parameter("moon_color") as Color).a == 0.0, "gone on the next floor")
 
 	# Back to a normal floor for the next tests.
 	CONTENT.curses = saved_curses

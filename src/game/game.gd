@@ -333,7 +333,7 @@ func _enter_floor(resumed: bool = false) -> void:
 	var mood := world.theme.ambience if world.theme else null
 	if world.curse and world.curse.ambience:
 		mood = world.curse.ambience
-	ambience.play(mood, world, player)
+	ambience.play(mood, world, player, world.floor_event.atmosphere if world.floor_event else null)
 	if not resumed and depth > 1 and difficulty.heal_on_new_floor > 0.0:
 		player.heal(roundi(player.get_max_hp() * difficulty.heal_on_new_floor))
 	if world.theme:

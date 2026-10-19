@@ -24,9 +24,11 @@ func _ready() -> void:
 	_fog.visible = false
 
 
-## Switches to a new floor's ambience. `world` hosts the particles.
-func play(def: AmbienceDef, world: World, player: Player) -> void:
+## Switches to a new floor's ambience. `world` hosts the particles. `look`: another ambience's
+## visuals over this one's sounds (a Blood Moon over the biome).
+func play(def: AmbienceDef, world: World, player: Player, look: AmbienceDef = null) -> void:
 	_def = def
+	var visuals := look if look else def
 	if _player != player:
 		if _player and is_instance_valid(_player):
 			_player.health_changed.disconnect(_on_health_changed)
@@ -36,18 +38,18 @@ func play(def: AmbienceDef, world: World, player: Player) -> void:
 	_one_shot_timer = _next_delay()
 	_set_reverb(def.reverb_room_size if def else 0.3, def.reverb_wet if def else 0.0)
 	_play_bed(def.bed if def else null, def.bed_volume_db if def else -16.0)
-	_spawn_particles(world)
-	_spawn_atmosphere(world, def)
+	_spawn_particles(world, visuals)
+	_spawn_atmosphere(world, visuals)
 	var screen := get_tree().get_first_node_in_group(&"screen_effects") as ScreenEffects
 	if screen:
-		screen.set_mood(def)
-	_fog.visible = def != null and def.fog != null
+		screen.set_mood(visuals)
+	_fog.visible = visuals != null and visuals.fog != null
 	if _fog.visible:
-		_fog.texture = def.fog
+		_fog.texture = visuals.fog
 		var shader := ShaderMaterial.new()
 		shader.shader = FOG_SHADER
-		shader.set_shader_parameter("tint", def.fog_color)
-		shader.set_shader_parameter("speed", def.fog_speed)
+		shader.set_shader_parameter("tint", visuals.fog_color)
+		shader.set_shader_parameter("speed", visuals.fog_speed)
 		_fog.material = shader
 
 
@@ -111,13 +113,13 @@ func _set_reverb(room_size: float, wet: float) -> void:
 		reverb.wet = wet
 
 
-func _spawn_particles(world: World) -> void:
+func _spawn_particles(world: World, visuals: AmbienceDef) -> void:
 	if _particles and is_instance_valid(_particles):
 		_particles.queue_free()
 	_particles = null
-	if _def == null or _def.particles == null:
+	if visuals == null or visuals.particles == null:
 		return
-	_particles = _def.particles.instantiate() as CPUParticles2D
+	_particles = visuals.particles.instantiate() as CPUParticles2D
 	world.spawn_vfx(_particles)
 
 

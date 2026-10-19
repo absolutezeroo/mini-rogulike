@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="AmbienceDef" format=3]
+
+[ext_resource type="PackedScene" path="res://src/vfx/ambient/blood_ash.tscn" id="1_wtlex"]
+[ext_resource type="Script" path="res://src/definitions/ambience_def.gd" id="2_8s53h"]
+
+[resource]
+script = ExtResource("2_8s53h")
+particles = ExtResource("1_wtlex")
+grade_shadows = Color(0.3, 0.02, 0.06, 1)
+grade_highlights = Color(1, 0.62, 0.56, 1)
+grade_strength = 0.55
+saturation = 1.06
+contrast = 1.12
+bloom = 0.25
+rays_color = Color(0.95, 0.15, 0.12, 0.1)
+rays_angle = 18.0
+rays_density = 0.25
+mist_color = Color(0.55, 0.04, 0.08, 0.07)
+mist_speed = Vector2(10, 2)
+vignette_color = Color(0.3, 0, 0.03, 1)
+vignette_pulse = 0.6
+moon_color = Color(1, 0.14, 0.1, 0.65)

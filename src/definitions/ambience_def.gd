@@ -53,3 +53,9 @@ extends Resource
 @export var mist_speed: Vector2 = Vector2(8, 3)
 ## Shadows of leaves drifting over the floor (0 = none).
 @export_range(0.0, 1.0) var canopy: float = 0.0
+## The screen's edges darken toward this color (black: a plain vignette)...
+@export var vignette_color: Color = Color.BLACK
+## ...and beat like a heart (0: still).
+@export_range(0.0, 1.0) var vignette_pulse: float = 0.0
+## A great glow hanging over the top of the screen (a blood moon...); alpha = strength.
+@export var moon_color: Color = Color(1.0, 0.15, 0.1, 0.0)

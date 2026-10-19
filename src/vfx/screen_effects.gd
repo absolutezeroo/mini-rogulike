@@ -27,6 +27,9 @@ func set_mood(def: AmbienceDef) -> void:
 	shader.set_shader_parameter("contrast", neutral.contrast)
 	shader.set_shader_parameter("bloom", neutral.bloom)
 	shader.set_shader_parameter("haze", neutral.heat_haze)
+	shader.set_shader_parameter("vignette_color", neutral.vignette_color)
+	shader.set_shader_parameter("vignette_pulse", neutral.vignette_pulse)
+	shader.set_shader_parameter("moon_color", neutral.moon_color)
 
 
 func kick(strength: float = 1.0) -> void:

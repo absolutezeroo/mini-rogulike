@@ -82,7 +82,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 			chest_count += event.extra_chests
 		for n in chest_count:
 			# A few tries: some rooms have no free spot along their walls.
-			for attempt in 6:
+			for attempt in 12:
 				var room := map.rooms[rng.randi_range(1, map.rooms.size() - 1)]
 				var cells := _shuffled(edge_cells(map, room, taken), rng)
 				if not cells.is_empty():

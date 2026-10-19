@@ -264,6 +264,15 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   the stairs (violet while sealed), unopened chests, a running ambush, the boss and, near the
   end of a seal, the last monsters. Tap it for the whole floor.
 
+## Blood Moon
+
+A floor event (`data/floor_events/blood_moon.tres`): frenzied monsters, double gold, and its own
+look over the biome (`FloorEventDef.atmosphere`, the biome's sounds stay; `ambient_tint` reddens
+the light): a crimson grade, a great red glow breathing over the top of the screen
+(`AmbienceDef.moon_color`), edges darkening to blood and beating like a heart
+(`vignette_color`, `vignette_pulse`, in `screen.gdshader`), red moonlight shafts and mist, falling
+red ash (`src/vfx/ambient/blood_ash.tscn`).
+
 ## Dragons
 
 - **Sand Drake** (Act IV): breathes slowing sand, whips up a sandstorm ring.
