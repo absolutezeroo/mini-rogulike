@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AchievementDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/perks/guardian_ring.png" id="1_x40ko"]
+[ext_resource type="Script" path="res://src/definitions/achievement_def.gd" id="2_p6irp"]
+
+[resource]
+script = ExtResource("2_p6irp")
+id = &"warden_bane"
+display_name = "Bane of the Wardens"
+description = "Defeat 10 wardens."
+icon = ExtResource("1_x40ko")
+stat = 2
+target = 10
+reward_souls = 80

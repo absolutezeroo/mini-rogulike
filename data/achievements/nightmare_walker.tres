@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AchievementDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/icons/explosion.png" id="1_bkcrd"]
+[ext_resource type="Script" path="res://src/definitions/achievement_def.gd" id="2_rj6r2"]
+
+[resource]
+script = ExtResource("2_rj6r2")
+id = &"nightmare_walker"
+display_name = "Nightmare Walker"
+description = "Win a run on Nightmare."
+icon = ExtResource("1_bkcrd")
+stat = 7
+reward_souls = 250

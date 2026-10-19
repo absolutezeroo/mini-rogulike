@@ -42,6 +42,8 @@ var flies := false
 var is_falling := false
 ## Who hit this actor last: credited if it falls into a hole.
 var last_attacker: Actor
+## What killed it, for the run history ("Skeleton", "a fall"...). Empty while alive.
+var killed_by := ""
 
 var base_stats := StatBlock.new()
 var equipment := Equipment.new()
@@ -245,6 +247,7 @@ func die(killer: Actor) -> void:
 	if is_dead:
 		return
 	is_dead = true
+	killed_by = _death_cause(killer)
 	velocity = Vector2.ZERO
 	set_deferred("collision_layer", 0)
 	set_deferred("collision_mask", 0)
@@ -313,6 +316,14 @@ func _check_ground() -> void:
 
 
 # --- Hooks for subclasses ----------------------------------------------------
+
+func _death_cause(killer: Actor) -> String:
+	if is_falling:
+		return "a fall"
+	if is_instance_valid(killer):
+		return killer.display_name
+	return "the dungeon"
+
 
 ## The fall is over: the actor is at the bottom of `pit`.
 func _on_fell(_pit: PitDef) -> void:

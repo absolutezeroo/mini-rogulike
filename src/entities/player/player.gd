@@ -198,6 +198,8 @@ func pick_up(item: ItemDef) -> bool:
 
 
 func _pickup_feedback(item: ItemDef, sound: AudioStream) -> void:
+	if item is EquipmentDef and (item as EquipmentDef).rarity == ItemRarity.EPIC:
+		Events.stat_counted.emit("epics", 1)
 	Sfx.play_at(sound, global_position)
 	Vfx.sparkles(world, global_position, item.color)
 

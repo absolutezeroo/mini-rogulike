@@ -92,6 +92,11 @@ func is_elite() -> bool:
 	return elite != null
 
 
+## Went down a hole (rather than being slain).
+func has_fallen() -> bool:
+	return _fell
+
+
 ## Attacks and skills hit harder (or softer) with the difficulty.
 func get_power() -> int:
 	return maxi(1, roundi(super.get_power() * _damage_multiplier))

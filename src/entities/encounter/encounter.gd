@@ -37,6 +37,7 @@ func resolve(index: int, player: Player) -> EncounterOutcome:
 	if not choice.can_afford(player, _world.depth):
 		return null
 	used = true
+	Events.stat_counted.emit("encounters", 1)
 	player.spend_gold(choice.cost_in_gold(_world.depth))
 	if choice.max_hp_cost > 0.0:
 		player.base_stats.max_hp -= choice.max_hp_lost(player)

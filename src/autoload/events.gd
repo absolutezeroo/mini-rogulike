@@ -5,6 +5,11 @@ extends Node
 signal message_logged(text: String, color: Color)
 signal depth_changed(depth: int)
 signal monster_killed(monster: Monster)
+## A goal was reached (souls already paid).
+signal achievement_unlocked(achievement: AchievementDef)
+## Something worth counting happened (opened a chest, used an encounter, found an epic...):
+## stat is an AchievementDef.STAT_KEYS value.
+signal stat_counted(stat: String, amount: int)
 ## The hero walked up to an encounter (spring, altar...).
 signal encounter_requested(encounter: Encounter)
 ## Something (an encounter...) grants a choice of perks: rarity is PerkDef.Rarity.

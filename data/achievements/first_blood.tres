@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="AchievementDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/perks/strength.png" id="1_jureh"]
+[ext_resource type="Script" path="res://src/definitions/achievement_def.gd" id="2_ldapb"]
+
+[resource]
+script = ExtResource("2_ldapb")
+id = &"first_blood"
+display_name = "First Blood"
+description = "Slay your first monster."
+icon = ExtResource("1_jureh")
+reward_souls = 5

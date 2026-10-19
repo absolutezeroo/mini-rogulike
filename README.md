@@ -164,6 +164,17 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 - **Minimap** (`Minimap`): rooms are revealed when you walk in, corridors around you; it shows holes,
   the stairs, unopened chests, a running ambush and the boss. Tap it for the whole floor.
 
+## Codex: bestiary, achievements, runs
+
+The title screen's **Codex** (`CodexPanel`) has three tabs:
+- **Bestiary**: every monster and boss; unknown ones are black silhouettes until you slay one.
+  The profile counts kills per monster (`Profile.kills_by_monster`).
+- **Achievements** (`data/achievements/`, `AchievementDef`): a goal on one of the profile's counters
+  (kills, elites, wardens, kinds of creatures, depth, victories on Hard / Nightmare / ascension,
+  monsters pushed into holes, chests, Epic items, encounters, gold or level in one run), with its
+  progress. Reaching it pays souls, with a note at the top of the screen.
+- **Runs**: the last 20 runs (difficulty, depth, level, kills, weapon, what ended it, souls).
+
 ## Story and identity
 
 Everything is tied to one idea: **souls**. The Well stole the souls of the hero's village; the
@@ -414,6 +425,7 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 | A new kind of perk | New script in `src/definitions/passives/` extending `Passive`, override the hooks you need |
 | A boss | New `BossDef` in `data/monsters/bosses/`, set it as an act's Boss |
 | A shrine upgrade | New `UpgradeDef` in `data/upgrades/`, add it to `content_db.tres` > Upgrades |
+| An achievement | New `AchievementDef` in `data/achievements/` (stat, target, souls), add it to `content_db.tres` > Achievements |
 | A difficulty | New `DifficultyDef` in `data/difficulties/`, add it to `content_db.tres` > Difficulties |
 | A prop | New `PropDef` in `data/props/` (sprite, hits, loot, explosion, light), add it to `content_db.tres` > Props |
 | A trap or hazard | New `TrapDef` / `ArrowTrapDef` / `PitDef` / `QuicksandDef` in `data/hazards/`, add it to an act's Hazards |

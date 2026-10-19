@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AchievementDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/perks/iron_skin.png" id="1_0g7rs"]
+[ext_resource type="Script" path="res://src/definitions/achievement_def.gd" id="2_sijuv"]
+
+[resource]
+script = ExtResource("2_sijuv")
+id = &"hardened"
+display_name = "Hardened"
+description = "Win a run on Hard."
+icon = ExtResource("1_0g7rs")
+stat = 6
+reward_souls = 150

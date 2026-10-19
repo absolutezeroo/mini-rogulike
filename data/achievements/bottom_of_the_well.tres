@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AchievementDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/perks/phoenix_feather.png" id="1_urwc2"]
+[ext_resource type="Script" path="res://src/definitions/achievement_def.gd" id="2_3tq7o"]
+
+[resource]
+script = ExtResource("2_3tq7o")
+id = &"bottom_of_the_well"
+display_name = "The Bottom of the Well"
+description = "Win a run."
+icon = ExtResource("1_urwc2")
+stat = 5
+reward_souls = 100

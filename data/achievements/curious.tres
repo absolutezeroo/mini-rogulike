@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AchievementDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/icons/counter.png" id="1_y024x"]
+[ext_resource type="Script" path="res://src/definitions/achievement_def.gd" id="2_oilub"]
+
+[resource]
+script = ExtResource("2_oilub")
+id = &"curious"
+display_name = "Curious"
+description = "Answer 10 encounters."
+icon = ExtResource("1_y024x")
+stat = 10
+target = 10
+reward_souls = 30

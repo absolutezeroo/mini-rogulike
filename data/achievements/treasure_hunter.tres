@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AchievementDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/icons/bag.png" id="1_fp3vo"]
+[ext_resource type="Script" path="res://src/definitions/achievement_def.gd" id="2_k5cps"]
+
+[resource]
+script = ExtResource("2_k5cps")
+id = &"treasure_hunter"
+display_name = "Treasure Hunter"
+description = "Open 25 chests."
+icon = ExtResource("1_fp3vo")
+stat = 11
+target = 25
+reward_souls = 30

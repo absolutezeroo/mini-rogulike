@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://src/ui/title/title_screen.gd" id="1_title"]
 [ext_resource type="Resource" path="res://data/content_db.tres" id="2_content"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://src/ui/title/difficulty_panel.gd" id="4_difficulty"]
 [ext_resource type="PackedScene" path="res://src/vfx/ambient/wisps.tscn" id="5_wisps"]
 [ext_resource type="PackedScene" path="res://src/ui/options/options_panel.tscn" id="6_options"]
+[ext_resource type="PackedScene" path="res://src/ui/codex/codex_panel.tscn" id="7_codex"]
 
 [node name="TitleScreen" type="Control"]
 layout_mode = 3
@@ -109,6 +110,13 @@ custom_minimum_size = Vector2(200, 60)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Story"
+
+[node name="CodexButton" type="Button" parent="Center/VBox/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Codex"
 
 [node name="OptionsButton" type="Button" parent="Center/VBox/Buttons"]
 unique_name_in_owner = true
@@ -264,6 +272,10 @@ size_flags_horizontal = 4
 focus_mode = 0
 theme_override_font_sizes/font_size = 20
 text = "Back"
+
+[node name="CodexPanel" parent="." instance=ExtResource("7_codex")]
+unique_name_in_owner = true
+layout_mode = 1
 
 [node name="OptionsPanel" parent="." instance=ExtResource("6_options")]
 unique_name_in_owner = true

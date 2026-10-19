@@ -25,6 +25,8 @@ extends Resource
 @export var props: Array[PropDef] = []
 ## What makes elite monsters special (Swift, Vampiric, Explosive...).
 @export var elite_affixes: Array[EliteAffixDef] = []
+## Goals across runs (they pay souls).
+@export var achievements: Array[AchievementDef] = []
 ## Springs, altars, spirits and statues met in rooms.
 @export var encounters: Array[EncounterDef] = []
 ## Random bonuses on found equipment (Magic, Rare and Epic items).

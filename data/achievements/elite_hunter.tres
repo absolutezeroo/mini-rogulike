@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AchievementDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/perks/precision.png" id="1_5q65m"]
+[ext_resource type="Script" path="res://src/definitions/achievement_def.gd" id="2_yktcd"]
+
+[resource]
+script = ExtResource("2_yktcd")
+id = &"elite_hunter"
+display_name = "Elite Hunter"
+description = "Slay 20 elite monsters."
+icon = ExtResource("1_5q65m")
+stat = 1
+target = 20
+reward_souls = 40

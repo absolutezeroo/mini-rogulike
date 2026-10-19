@@ -10,6 +10,8 @@ const BAG_ICON: Texture2D = preload("res://assets/ui/icons/bag.png")
 var _player: Player
 var _banner_tween: Tween
 var _souls_tween: Tween
+var _toasts: Array[String] = []
+var _toast_busy := false
 
 @onready var _hp_bar: StatBar = %HpBar
 @onready var _xp_bar: StatBar = %XpBar
@@ -35,6 +37,8 @@ func _ready() -> void:
 	_minimap.tapped.connect(func() -> void: _full_map.visible = not _full_map.visible)
 	_full_map.tapped.connect(func() -> void: _full_map.hide())
 	Settings.changed.connect(_apply_settings)
+	Events.achievement_unlocked.connect(func(achievement: AchievementDef) -> void:
+		toast("Achievement: %s  (+%d souls)" % [achievement.display_name, achievement.reward_souls]))
 	_apply_settings()
 	Events.depth_changed.connect(_on_depth_changed)
 	_depth_banner.modulate.a = 0.0
@@ -139,6 +143,28 @@ func _refresh_info() -> void:
 
 func _on_gold_changed(gold: int) -> void:
 	(%GoldLabel as Label).text = "Gold %d" % gold
+
+
+## A short note at the top of the screen (achievements...). Several wait their turn.
+func toast(text: String) -> void:
+	_toasts.append(text)
+	if not _toast_busy:
+		_next_toast()
+
+
+func _next_toast() -> void:
+	if _toasts.is_empty():
+		_toast_busy = false
+		return
+	_toast_busy = true
+	(%ToastLabel as Label).text = _toasts.pop_front()
+	Sfx.play_ui(Sfx.bank.level_up, -6.0)
+	var toast_panel: Control = %Toast
+	var tween := create_tween()
+	tween.tween_property(toast_panel, "modulate:a", 1.0, 0.25)
+	tween.tween_interval(2.4)
+	tween.tween_property(toast_panel, "modulate:a", 0.0, 0.4)
+	tween.tween_callback(_next_toast)
 
 
 ## Souls gathered this run (what the shrine will get). `pulse` when a new one arrives.

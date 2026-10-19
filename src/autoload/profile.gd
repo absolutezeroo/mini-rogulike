@@ -1,5 +1,6 @@
 extends Node
-## What lasts between runs (autoload "Profile"): souls, shrine upgrades and records.
+## What lasts between runs (autoload "Profile"): souls, shrine upgrades, records, the bestiary,
+## achievements and the last runs.
 ## Saved as JSON in user://profile.json (works on phones too).
 
 signal changed
@@ -18,6 +19,16 @@ var difficulty: StringName = &"normal"
 var wins := {}
 ## The story was told once (it plays before the first run).
 var seen_intro := false
+## Monster id -> how many were slain (the bestiary).
+var kills_by_monster := {}
+## Lifetime counters and bests (see AchievementDef.STAT_KEYS).
+var stats := {}
+## Achievement id -> when it was unlocked (Unix time).
+var achievements := {}
+## The last runs, newest first (see add_history()).
+var history: Array = []
+
+const HISTORY_SIZE := 20
 ## Empty = nothing is read or written (tests).
 var save_path := SAVE_PATH
 
@@ -71,6 +82,65 @@ func record_run(earned: int, depth: int, won: bool, difficulty_id: StringName = 
 	changed.emit()
 
 
+# --- Records ------------------------------------------------------------------
+
+func record_kill(monster_id: StringName) -> void:
+	kills_by_monster[String(monster_id)] = kill_count(monster_id) + 1
+
+
+func kill_count(monster_id: StringName) -> int:
+	return int(kills_by_monster.get(String(monster_id), 0))
+
+
+func add_stat(key: String, amount: int = 1) -> void:
+	stats[key] = int(stats.get(key, 0)) + amount
+
+
+## Keeps the best value ever seen (deepest floor, most gold in a run...).
+func raise_stat(key: String, value: int) -> void:
+	stats[key] = maxi(int(stats.get(key, 0)), value)
+
+
+## A counter, a best, or a record kept elsewhere in the profile.
+func stat_value(key: String) -> int:
+	match key:
+		"species":
+			return kills_by_monster.size()
+		"best_depth":
+			return best_depth
+		"victories":
+			return victories
+		"hard_wins":
+			return int(wins.get("hard", 0)) + int(wins.get("nightmare", 0))
+		"nightmare_wins":
+			return int(wins.get("nightmare", 0))
+	return int(stats.get(key, 0))
+
+
+func is_achieved(id: StringName) -> bool:
+	return achievements.has(String(id))
+
+
+## Unlocks it and pays its souls. Returns false if it was already unlocked.
+func unlock_achievement(def: AchievementDef) -> bool:
+	if is_achieved(def.id):
+		return false
+	achievements[String(def.id)] = int(Time.get_unix_time_from_system())
+	souls += def.reward_souls
+	save_profile()
+	changed.emit()
+	return true
+
+
+## A finished run, kept for the run history (only the last HISTORY_SIZE).
+func add_history(entry: Dictionary) -> void:
+	entry["time"] = int(Time.get_unix_time_from_system())
+	history.push_front(entry)
+	if history.size() > HISTORY_SIZE:
+		history.resize(HISTORY_SIZE)
+	save_profile()
+
+
 func mark_intro_seen() -> void:
 	seen_intro = true
 	save_profile()
@@ -90,6 +160,10 @@ func reset() -> void:
 	difficulty = &"normal"
 	wins = {}
 	seen_intro = false
+	kills_by_monster = {}
+	stats = {}
+	achievements = {}
+	history = []
 	changed.emit()
 
 
@@ -103,6 +177,7 @@ func save_profile() -> void:
 	file.store_string(JSON.stringify({
 		"souls": souls, "levels": levels, "runs": runs, "victories": victories, "best_depth": best_depth,
 		"difficulty": String(difficulty), "wins": wins, "seen_intro": seen_intro,
+		"kills_by_monster": kills_by_monster, "stats": stats, "achievements": achievements, "history": history,
 	}, "\t"))
 
 
@@ -125,3 +200,16 @@ func load_profile() -> void:
 	for key in wins:
 		wins[key] = int(wins[key])
 	seen_intro = bool(data.get("seen_intro", false))
+	kills_by_monster = _ints(data.get("kills_by_monster", {}))
+	stats = _ints(data.get("stats", {}))
+	achievements = _ints(data.get("achievements", {}))
+	history = data.get("history", [])
+
+
+## JSON numbers come back as floats.
+static func _ints(data: Variant) -> Dictionary:
+	var result := {}
+	if data is Dictionary:
+		for key in data:
+			result[key] = int(data[key])
+	return result

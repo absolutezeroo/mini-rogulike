@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AchievementDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/perks/executioner.png" id="1_xcbj2"]
+[ext_resource type="Script" path="res://src/definitions/achievement_def.gd" id="2_fdwem"]
+
+[resource]
+script = ExtResource("2_fdwem")
+id = &"exterminator"
+display_name = "Exterminator"
+description = "Slay 1500 monsters."
+icon = ExtResource("1_xcbj2")
+target = 1500
+reward_souls = 100

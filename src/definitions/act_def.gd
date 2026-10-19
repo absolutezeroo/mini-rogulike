@@ -14,8 +14,21 @@ extends Resource
 ## Monsters met on the act's floors (their spawn_weight decides how often).
 @export var monsters: Array[MonsterDef] = []
 @export var boss: BossDef
+## Other bosses that may guard the act instead (one is drawn for each run).
+@export var other_bosses: Array[BossDef] = []
 ## Traps, holes, quicksand... laid out in the act's rooms (min_depth and spawn_weight decide).
 @export var hazards: Array[HazardDef] = []
+
+
+## The main boss and the alternatives.
+func all_bosses() -> Array[BossDef]:
+	var result: Array[BossDef] = []
+	if boss:
+		result.append(boss)
+	for other in other_bosses:
+		if other and not result.has(other):
+			result.append(other)
+	return result
 
 
 func pick_hazard(depth: int, rng: RandomNumberGenerator) -> HazardDef:

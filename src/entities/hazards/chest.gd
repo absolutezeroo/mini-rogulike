@@ -62,6 +62,7 @@ func open() -> void:
 	is_open = true
 	queue_redraw()
 	opened.emit(self)
+	Events.stat_counted.emit("chests", 1)
 	world.spawn_gold(global_position + Vector2(0, 14), world.rng.randi_range(def.gold.x, def.gold.y) + world.depth)
 	if trapped:
 		_spring()

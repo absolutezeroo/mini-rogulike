@@ -206,6 +206,28 @@ script = ExtResource("3_bar")
 fill_color = Color(0.75, 0.13, 0.25, 1)
 show_text = false
 
+[node name="Toast" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0)
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -260.0
+offset_top = 96.0
+offset_right = 260.0
+offset_bottom = 150.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="ToastLabel" type="Label" parent="Toast"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.4, 1)
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
 [node name="DepthBanner" type="Label" parent="."]
 unique_name_in_owner = true
 anchors_preset = 5

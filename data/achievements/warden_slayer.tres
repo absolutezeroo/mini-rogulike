@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AchievementDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/perks/war_banner.png" id="1_bbeyw"]
+[ext_resource type="Script" path="res://src/definitions/achievement_def.gd" id="2_q47mx"]
+
+[resource]
+script = ExtResource("2_q47mx")
+id = &"warden_slayer"
+display_name = "Warden Slayer"
+description = "Defeat a warden of the Well."
+icon = ExtResource("1_bbeyw")
+stat = 2
+reward_souls = 25

@@ -32,6 +32,11 @@ var _souls_awarded := 0
 var _pending_offers: Array[Dictionary] = []
 ## The choice on screen right now (saved with the run if the app closes meanwhile).
 var _shown_offer := {}
+## Gold picked up this run (for the records), and the purse a moment ago.
+var _run_gold := 0
+var _last_gold := 0
+## The run is in the history already (a won run is recorded once, when it ends).
+var _history_recorded := false
 
 @onready var world: World = $World
 @onready var hud: Hud = $Hud
@@ -78,9 +83,13 @@ func _ready() -> void:
 	game_over_panel.restart_requested.connect(start_run)
 	game_over_panel.continue_requested.connect(_on_continue_endless)
 	game_over_panel.title_requested.connect(func() -> void:
+		_record_history()
 		_set_paused(false)
 		get_tree().change_scene_to_file(TITLE_SCENE))
-	Events.monster_killed.connect(func(_monster: Monster) -> void: kills += 1)
+	Events.monster_killed.connect(_on_monster_killed)
+	Events.stat_counted.connect(func(stat: String, amount: int) -> void:
+		Profile.add_stat(stat, amount)
+		_check_achievements())
 	Events.soul_gathered.connect(func() -> void: hud.set_souls(run_souls(), true))
 	Events.boss_started.connect(_on_boss_started)
 	Events.boss_defeated.connect(_on_boss_defeated)
@@ -108,6 +117,8 @@ func resume_run(saved: Dictionary) -> void:
 
 
 func _begin_run(saved: Dictionary) -> void:
+	if has_won:
+		_record_history()  # leaving a won run for a new one
 	_set_paused(false)
 	_fade.color.a = 0.0
 	game_over_panel.hide()
@@ -133,10 +144,13 @@ func _begin_run(saved: Dictionary) -> void:
 	bosses_slain = int(saved.get("bosses_slain", 0))
 	has_won = bool(saved.get("has_won", false))
 	_souls_awarded = int(saved.get("souls_awarded", 0))
+	_run_gold = int(saved.get("run_gold", 0))
+	_history_recorded = false
 	player = PLAYER_SCENE.instantiate() as Player
 	player.setup(content.player)
 	player.died.connect(_on_player_died)
 	player.leveled_up.connect(_on_player_leveled_up)
+	player.gold_changed.connect(_on_gold_changed)
 	player.damaged.connect(func(damage: int) -> void:
 		screen_fx.kick(clampf(float(damage) / player.get_max_hp() * 5.0, 0.3, 1.0)))
 	_apply_unlocks()
@@ -149,6 +163,7 @@ func _begin_run(saved: Dictionary) -> void:
 			offer.rarity = int(offer.get("rarity", 0))
 			offer.count = int(offer.get("count", PERK_CHOICES))
 			_pending_offers.append(offer)
+	_last_gold = player.gold
 	hud.bind_player(player)
 	if show_act_cards:
 		# Start on black: the first act's card, then the floor fades in.
@@ -203,6 +218,7 @@ func _award_souls(won_now: bool) -> int:
 	var earned := total - _souls_awarded
 	_souls_awarded = total
 	Profile.record_run(earned, depth, won_now, difficulty.id if difficulty else &"")
+	_check_achievements()
 	return earned
 
 
@@ -281,6 +297,8 @@ func _enter_floor() -> void:
 	if world.theme:
 		Sfx.play_music(world.theme.music)
 	_save_run()
+	Profile.best_depth = maxi(Profile.best_depth, depth)
+	_check_achievements()
 	Events.depth_changed.emit(depth)
 	hud.set_souls(run_souls())
 	var act := content.dungeon.act_for_depth(depth)
@@ -383,6 +401,8 @@ func _run_summary() -> String:
 # --- Perks -------------------------------------------------------------------
 
 func _on_player_leveled_up(level: int) -> void:
+	Profile.raise_stat("run_level", level)
+	_check_achievements()
 	_queue_offer(PerkDef.Rarity.COMMON, PERK_CHOICES, "Level %d!" % level, "Choose an upgrade")
 
 
@@ -426,6 +446,7 @@ func _on_player_died(_actor: Actor) -> void:
 	await get_tree().create_timer(1.2).timeout
 	Sfx.play_ui(Sfx.bank.game_over)
 	var earned := _award_souls(false)
+	_record_history()
 	var story := content.story.random_death_line() + "\n\n" if content.story else ""
 	game_over_panel.show_result(story + _run_summary() + _souls_text(earned))
 
@@ -447,6 +468,7 @@ func _save_run() -> void:
 		"has_won": has_won,
 		"boss_slain": world.arena != null and world.arena.is_defeated,
 		"souls_awarded": _souls_awarded,
+		"run_gold": _run_gold,
 		"difficulty": String(difficulty.id) if difficulty else "",
 		"player": player.save_state(),
 		"offers": offers,
@@ -462,3 +484,51 @@ func _notification(what: int) -> void:
 				open_pause_menu()
 		NOTIFICATION_WM_GO_BACK_REQUEST:
 			_back()
+
+
+# --- Records -----------------------------------------------------------------
+
+func _on_monster_killed(monster: Monster) -> void:
+	kills += 1
+	Profile.record_kill(monster.def.id)
+	Profile.add_stat("kills")
+	if monster.is_elite():
+		Profile.add_stat("elites")
+	if monster.is_boss():
+		Profile.add_stat("bosses")
+	if monster.has_fallen() and monster.last_attacker is Player:
+		Profile.add_stat("pushed")
+	_check_achievements()
+
+
+func _on_gold_changed(gold: int) -> void:
+	if gold > _last_gold:
+		_run_gold += gold - _last_gold
+		Profile.raise_stat("run_gold", _run_gold)
+		_check_achievements()
+	_last_gold = gold
+
+
+## Unlocks (and pays) every achievement whose goal is reached.
+func _check_achievements() -> void:
+	for achievement in AchievementDef.unlock_reached(content.achievements):
+		Events.achievement_unlocked.emit(achievement)
+
+
+## Adds this run to the history (once).
+func _record_history() -> void:
+	if _history_recorded or player == null:
+		return
+	_history_recorded = true
+	var weapon := player.get_weapon()
+	Profile.add_history({
+		"difficulty": difficulty.display_name if difficulty else "Normal",
+		"depth": depth,
+		"level": player.level,
+		"kills": kills,
+		"bosses": bosses_slain,
+		"won": has_won,
+		"souls": _souls_awarded,
+		"weapon": weapon.display_name if weapon else "Bare hands",
+		"cause": player.killed_by if player.is_dead else "",
+	})

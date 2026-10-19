@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AchievementDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/icons/camouflage.png" id="1_u4gb2"]
+[ext_resource type="Script" path="res://src/definitions/achievement_def.gd" id="2_unnml"]
+
+[resource]
+script = ExtResource("2_unnml")
+id = &"into_the_dark"
+display_name = "Into the Dark"
+description = "Reach depth 4."
+icon = ExtResource("1_u4gb2")
+stat = 4
+target = 4
+reward_souls = 15

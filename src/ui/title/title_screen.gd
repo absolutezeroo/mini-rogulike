@@ -29,6 +29,7 @@ func _ready() -> void:
 	_hero.play(&"idle_down")
 	var spot: Control = %HeroSpot
 	spot.resized.connect(func() -> void: _hero.position.x = spot.size.x * 0.5)
+	AchievementDef.unlock_reached(content.achievements)  # goals reached by older saves
 	_build_boss_row()
 	_setup_continue()
 	%PlayButton.pressed.connect(func() -> void:
@@ -38,6 +39,9 @@ func _ready() -> void:
 	%ShrineButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		_shrine.open(content.upgrades))
+	%CodexButton.pressed.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_open)
+		(%CodexPanel as CodexPanel).open(content))
 	%OptionsButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		(%OptionsPanel as OptionsPanel).open())
@@ -115,6 +119,8 @@ func _notification(what: int) -> void:
 		options.close()
 	elif _shrine.visible:
 		_shrine.hide()
+	elif (%CodexPanel as Control).visible:
+		(%CodexPanel as Control).hide()
 	elif (%DifficultyPanel as Control).visible:
 		(%DifficultyPanel as Control).hide()
 	else:

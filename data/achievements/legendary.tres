@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AchievementDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/perks/fortune.png" id="1_ld728"]
+[ext_resource type="Script" path="res://src/definitions/achievement_def.gd" id="2_6kv1e"]
+
+[resource]
+script = ExtResource("2_6kv1e")
+id = &"legendary"
+display_name = "Shiny!"
+description = "Find an Epic item."
+icon = ExtResource("1_ld728")
+stat = 9
+reward_souls = 30

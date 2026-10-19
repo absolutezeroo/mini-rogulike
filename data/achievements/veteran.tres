@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AchievementDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/perks/vitality.png" id="1_dp1fk"]
+[ext_resource type="Script" path="res://src/definitions/achievement_def.gd" id="2_63tuv"]
+
+[resource]
+script = ExtResource("2_63tuv")
+id = &"veteran"
+display_name = "Veteran"
+description = "Reach level 12 in a single run."
+icon = ExtResource("1_dp1fk")
+stat = 13
+target = 12
+reward_souls = 40

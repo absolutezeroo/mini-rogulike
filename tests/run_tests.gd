@@ -365,6 +365,38 @@ func _test_profile() -> void:
 		previous = difficulty.monster_hp
 	Profile.reset()
 
+	# Records: the bestiary, counters, achievements, the run history; all saved.
+	Profile.record_kill(&"slime")
+	Profile.record_kill(&"slime")
+	Profile.add_stat("kills", 2)
+	Profile.raise_stat("run_gold", 50)
+	Profile.raise_stat("run_gold", 20)
+	check(Profile.kill_count(&"slime") == 2 and Profile.stat_value("species") == 1, "the bestiary counts kills per monster")
+	check(Profile.stat_value("kills") == 2 and Profile.stat_value("run_gold") == 50, "counters add up, bests stay the best")
+	check(CONTENT.achievements.size() >= 15, "achievements listed")
+	var ids := {}
+	for achievement in CONTENT.achievements:
+		check(achievement.icon != null and achievement.target > 0 and achievement.reward_souls > 0, "%s is set up" % achievement.id)
+		check(not ids.has(achievement.id), "%s is unique" % achievement.id)
+		ids[achievement.id] = true
+	var first: AchievementDef = load("res://data/achievements/first_blood.tres")
+	check(first.is_met() and not first.is_unlocked(), "an achievement knows when its goal is reached")
+	var souls_before := Profile.souls
+	check(Profile.unlock_achievement(first) and Profile.souls == souls_before + first.reward_souls, "unlocking pays souls")
+	check(not Profile.unlock_achievement(first) and Profile.souls == souls_before + first.reward_souls, "only once")
+	for i in Profile.HISTORY_SIZE + 5:
+		Profile.add_history({ "depth": i })
+	check(Profile.history.size() == Profile.HISTORY_SIZE and int(Profile.history[0].depth) == Profile.HISTORY_SIZE + 4, "the history keeps the last runs, newest first")
+	Profile.save_path = "user://test_profile_%d.json" % OS.get_process_id()
+	Profile.save_profile()
+	Profile.kills_by_monster = {}
+	Profile.achievements = {}
+	Profile.load_profile()
+	check(Profile.kill_count(&"slime") == 2 and Profile.is_achieved(&"first_blood") and Profile.history.size() == Profile.HISTORY_SIZE, "records survive a save")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(Profile.save_path))
+	Profile.save_path = ""
+	Profile.reset()
+
 
 func _test_title_screen() -> void:
 	var title: TitleScreen = load("res://src/ui/title/title_screen.tscn").instantiate()
@@ -391,6 +423,21 @@ func _test_title_screen() -> void:
 	await _frames(1)
 	check(Profile.level_of(first.upgrade) == 1 and Profile.souls < 500, "buying at the shrine")
 	check((title.get_node("%Souls") as Label).text.contains(str(Profile.souls)), "the shrine shows the souls left")
+	# The codex: bestiary, achievements, runs.
+	Profile.record_kill(&"slime")
+	(title.get_node("%CodexButton") as Button).pressed.emit()
+	await _frames(2)
+	var codex: CodexPanel = title.get_node("%CodexPanel")
+	var list: Container = codex.get_node("%List")
+	check(codex.visible and list.get_child_count() == codex.bestiary_entries().size(), "the bestiary lists every monster and boss")
+	check(codex.bestiary_entries().any(func(m: MonsterDef) -> bool: return m is BossDef), "bosses are in the bestiary")
+	codex.show_tab(CodexPanel.Tab.ACHIEVEMENTS)
+	await _frames(1)
+	check(list.get_child_count() == CONTENT.achievements.size(), "the achievements are listed")
+	Profile.add_history({ "depth": 3, "cause": "Skeleton", "won": false })
+	codex.show_tab(CodexPanel.Tab.RUNS)
+	await _frames(1)
+	check(list.get_child_count() == 1, "the last runs are listed")
 	title.queue_free()
 	Profile.reset()
 	await _frames(2)
@@ -603,6 +650,9 @@ func _test_gameplay() -> void:
 	await get_tree().create_timer(1.5).timeout
 	check(game.game_over_panel.visible, "game over screen shown")
 	check(not RunSave.exists(), "dying ends the saved run")
+	check(not Profile.history.is_empty() and not str(Profile.history[0].cause).is_empty(), "the run goes to the history, with what ended it")
+	check(Profile.stat_value("kills") > 0 and Profile.stat_value("species") > 0, "kills count in the bestiary")
+	check(Profile.is_achieved(&"first_blood"), "first kill, first achievement")
 	var summary := (game.game_over_panel.get_node("%Summary") as Label).text
 	check(Profile.souls >= souls_before_death and summary.contains("souls"), "the end of a run shows its souls")
 	check(Array(CONTENT.story.death_lines).any(func(line: String) -> bool: return summary.begins_with(line)), "and a line of the story")
