@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DarkRoomDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/hazards/dark_room_def.gd" id="1_atcgu"]
+
+[resource]
+script = ExtResource("1_atcgu")
+id = &"dark_room"
+display_name = "Dark Room"
+description = "Pitch black: you only see what is right around you."
+glyph = "#"
+color = Color(0.22745098, 0.20784314, 0.3137255, 1)
+min_depth = 2
+spawn_weight = 4

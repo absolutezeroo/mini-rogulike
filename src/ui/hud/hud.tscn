@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://src/ui/hud/hud.gd" id="1_hud"]
 [ext_resource type="Script" path="res://src/ui/controls/touch_joystick.gd" id="2_joystick"]
@@ -9,6 +9,10 @@
 [ext_resource type="Script" path="res://src/ui/hud/perk_tray.gd" id="7_perks"]
 [ext_resource type="Script" path="res://src/ui/hud/boss_bar.gd" id="8_boss"]
 [ext_resource type="Script" path="res://src/ui/hud/minimap.gd" id="9_map"]
+[ext_resource type="Shader" path="res://src/ui/hud/temperature_overlay.gdshader" id="10_temp"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_temperature"]
+shader = ExtResource("10_temp")
 
 [node name="Hud" type="CanvasLayer"]
 layer = 5
@@ -23,6 +27,17 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("6_vignette")
+
+[node name="TemperatureOverlay" type="ColorRect" parent="."]
+unique_name_in_owner = true
+visible = false
+material = SubResource("ShaderMaterial_temperature")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="Joystick" type="Control" parent="."]
 unique_name_in_owner = true
@@ -57,6 +72,15 @@ layout_mode = 2
 mouse_filter = 2
 script = ExtResource("3_bar")
 fill_color = Color(1, 0.82, 0.4, 1)
+
+[node name="TempBar" type="Control" parent="TopLeft"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(420, 22)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("3_bar")
+fill_color = Color(0.56, 0.83, 1, 1)
 
 [node name="InfoLabel" type="Label" parent="TopLeft"]
 unique_name_in_owner = true

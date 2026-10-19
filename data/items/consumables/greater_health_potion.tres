@@ -23,4 +23,4 @@ icon = ExtResource("3_50m5f")
 glyph = "H"
 color = Color(1, 0, 0.43137255, 1)
 min_depth = 3
-spawn_weight = 5
+spawn_weight = 3

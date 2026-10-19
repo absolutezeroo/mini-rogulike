@@ -25,7 +25,7 @@ region = Rect2(0, 0, 16, 16)
 [sub_resource type="Resource" id="Resource_d80wq"]
 script = ExtResource("6_n3wbm")
 item = ExtResource("7_whcsr")
-weight = 4
+weight = 2
 
 [sub_resource type="Resource" id="Resource_nydhk"]
 script = ExtResource("6_n3wbm")

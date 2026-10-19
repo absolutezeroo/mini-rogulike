@@ -22,6 +22,23 @@ extends ContentDef
 ## The merchant is always there.
 @export var merchant: bool = false
 
+@export_group("Climate")
+## Body temperature change per second on the whole floor (see DungeonConfig > Temperature
+## and BodyTemperature). Usually 0: the cold is in a zone (cold_zone).
+@export var temperature: float = 0.0
+## A zone of the floor gripped by it: `zone_rooms` rooms next to each other get this
+## (frozen rooms: ice, snow, the cold creeping in).
+@export var zone: HeatSourceDef
+@export_range(0, 10) var zone_rooms: int = 0
+## Campfires (or anything that brings the temperature back to normal), placed in the zone's
+## rooms (one each, up to `warm_spot_count`).
+@export var warm_spot: HeatSourceDef
+@export_range(0, 10) var warm_spot_count: int = 0
+## Multiplies the floor's light color (a cold blue, a red glow...).
+@export var tint: Color = Color.WHITE
+## Replaces the act's ambience (snow falling, wind...).
+@export var ambience: AmbienceDef
+
 @export_group("Rewards")
 ## Multiplies all the gold that drops.
 @export var gold: float = 1.0

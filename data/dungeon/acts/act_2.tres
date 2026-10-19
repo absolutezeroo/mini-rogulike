@@ -13,6 +13,7 @@
 [ext_resource type="Resource" path="res://data/hazards/crumbling_floor.tres" id="6_lmuqr"]
 [ext_resource type="Resource" path="res://data/hazards/pit.tres" id="7_1aok4"]
 [ext_resource type="Resource" path="res://data/monsters/eye.tres" id="7_rvqiy"]
+[ext_resource type="Resource" path="res://data/hazards/dark_room.tres" id="8_1aok4"]
 [ext_resource type="Resource" path="res://data/monsters/lantern.tres" id="8_4wi7y"]
 [ext_resource type="Resource" path="res://data/monsters/owl.tres" id="9_gxe60"]
 [ext_resource type="Resource" path="res://data/monsters/frost_skull.tres" id="10_wciqp"]
@@ -33,4 +34,4 @@ theme = ExtResource("13_wenk7")
 monsters = Array[ExtResource("2_etibi")]([ExtResource("3_0slpj"), ExtResource("4_dw8h1"), ExtResource("5_yjv1g"), ExtResource("6_3r1nu"), ExtResource("7_rvqiy"), ExtResource("8_4wi7y"), ExtResource("9_gxe60"), ExtResource("10_wciqp"), ExtResource("11_lmuqr"), ExtResource("18_lmuqr"), ExtResource("19_1aok4")])
 boss = ExtResource("1_0h4yv")
 other_bosses = Array[ExtResource("18_gxe60")]([ExtResource("19_wciqp")])
-hazards = Array[ExtResource("2_rvqiy")]([ExtResource("3_4wi7y"), ExtResource("4_gxe60"), ExtResource("5_wciqp"), ExtResource("6_lmuqr"), ExtResource("7_1aok4")])
+hazards = Array[ExtResource("2_rvqiy")]([ExtResource("3_4wi7y"), ExtResource("4_gxe60"), ExtResource("5_wciqp"), ExtResource("6_lmuqr"), ExtResource("7_1aok4"), ExtResource("8_1aok4")])

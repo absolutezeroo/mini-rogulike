@@ -36,6 +36,8 @@ var xp := 0
 var learned_skill: SkillDef
 ## Coins found during this run (spent at the merchant).
 var gold := 0
+## Cold floors and hot ground (see BodyTemperature).
+var temperature := BodyTemperature.new()
 
 var _move_direction := Vector2.ZERO
 var _aim_hold := 0.0
@@ -423,8 +425,18 @@ func _hit_spark_color(_hit: HitInfo) -> Color:
 	return Color("e84537")
 
 
+func _tick_timers(delta: float) -> void:
+	super._tick_timers(delta)
+	temperature.update(self, delta)
+
+
+## How many of `item` the hero carries (belt and bag).
+func carried_count(item: ItemDef) -> int:
+	return belt.count_of(item) + inventory.items.count(item)
+
+
 func _body_modulate() -> Color:
-	var color := super._body_modulate()
+	var color := super._body_modulate() * temperature.tint()
 	# Blink while invulnerable after a hit (but not during a dash).
 	if _invulnerable_time > 0.0 and not is_dashing() and not is_dead:
 		if int(_invulnerable_time * 20.0) % 2 == 0:

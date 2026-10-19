@@ -22,4 +22,4 @@ description = "Restores 35% of your HP."
 icon = ExtResource("3_gdcyp")
 glyph = "H"
 color = Color(0.9372549, 0.2784314, 0.43529412, 1)
-spawn_weight = 14
+spawn_weight = 7

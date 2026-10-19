@@ -76,7 +76,7 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 	if difficulty:
 		_ambient.color = Color(_ambient.color * difficulty.light, 1.0)
 	if floor_event:
-		_ambient.color = Color(_ambient.color * floor_event.light, 1.0)
+		_ambient.color = Color(_ambient.color * floor_event.light * floor_event.tint, 1.0)
 	_view.show_map(map, theme)
 	_pits.setup(map.tile_size)
 	explored = PackedByteArray()
@@ -117,6 +117,7 @@ func place_player(new_player: Player) -> void:
 	if player.get_parent() == null:
 		_entities.add_child(player)
 	player.global_position = map.cell_to_world(map.start_cell)
+	player.temperature.reset()
 	player.reset_safe_position()
 	player.camera.reset_smoothing()
 
@@ -134,7 +135,12 @@ func spawn_monster(def: MonsterDef, at: Vector2) -> Monster:
 
 ## Found loot: equipment may come out Magic, Rare or Epic (see LootRoller). `quality` above 1
 ## for better sources (elites, chests, bosses).
+## A consumable the hero already carries plenty of comes as gold instead
+## (DungeonConfig.consumable_carry_cap): then this returns null.
 func spawn_loot(item: ItemDef, at: Vector2, quality: float = 1.0) -> ItemPickup:
+	if item is ConsumableDef and player and player.carried_count(item) >= config().consumable_carry_cap:
+		spawn_gold(at, maxi(2, roundi(item.value * 0.3)))
+		return null
 	if floor_event:
 		quality *= floor_event.loot_quality
 	return spawn_item(roll_item(item, quality), at)
@@ -259,6 +265,35 @@ func spawn_crumbling_floor(def: PitDef, cell: Vector2i) -> CrumblingFloor:
 	tile.setup(def, self, cell)
 	_effects.add_child(tile)
 	return tile
+
+
+func spawn_heat_source(def: HeatSourceDef, rect: Rect2i) -> HeatSource:
+	var source := HeatSource.new()
+	source.setup(def, self, rect)
+	_effects.add_child(source)
+	return source
+
+
+func has_heat_source_in(def: HeatSourceDef, room: Rect2i) -> bool:
+	for node in get_tree().get_nodes_in_group("heat_sources"):
+		var source := node as HeatSource
+		if source.world == self and source.def == def and source.rect == room and not source.is_queued_for_deletion():
+			return true
+	return false
+
+
+func spawn_dark_room(def: DarkRoomDef, room: Rect2i) -> DarkRoom:
+	var dark := DarkRoom.new()
+	dark.setup(def, self, room)
+	_effects.add_child(dark)
+	return dark
+
+
+func is_dark_room(room: Rect2i) -> bool:
+	for node in get_tree().get_nodes_in_group("dark_rooms"):
+		if (node as DarkRoom).world == self and (node as DarkRoom).room == room and not node.is_queued_for_deletion():
+			return true
+	return false
 
 
 func spawn_quicksand(def: QuicksandDef, rect: Rect2i) -> Quicksand:

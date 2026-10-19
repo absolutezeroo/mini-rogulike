@@ -312,7 +312,10 @@ func _set_paused(paused: bool) -> void:
 func _enter_floor() -> void:
 	world.build_floor(depth, content)
 	world.place_player(player)
-	ambience.play(world.theme.ambience if world.theme else null, world, player)
+	var mood := world.theme.ambience if world.theme else null
+	if world.floor_event and world.floor_event.ambience:
+		mood = world.floor_event.ambience
+	ambience.play(mood, world, player)
 	if depth > 1 and difficulty and difficulty.heal_on_new_floor > 0.0:
 		player.heal(roundi(player.get_max_hp() * difficulty.heal_on_new_floor))
 	if world.theme:

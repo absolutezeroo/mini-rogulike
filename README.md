@@ -59,11 +59,11 @@ src/
     passives/            Building blocks for perks (on hit, on kill, on dash...)
     items/               ItemDef > EquipmentDef > WeaponDef / ArmorDef, ConsumableDef
     loot/                LootTable, LootEntry
-    hazards/             HazardDef > TrapDef > ArrowTrapDef, PitDef, QuicksandDef
+    hazards/             HazardDef > TrapDef > ArrowTrapDef, PitDef, QuicksandDef, HeatSourceDef, DarkRoomDef
   dungeon/             Map data, generator, drawing
   world/               World (owns the current floor), FloorPopulator, BossArena, AmbushRoom, RoomGates, PitLayer
   entities/            Actor (shared base), Player, Monster, Projectile, ItemPickup, Stairs, Prop, Trap,
-                       hazards/ (Chest, CrumblingFloor, Quicksand)
+                       hazards/ (Chest, CrumblingFloor, Quicksand, HeatSource, DarkRoom)
   components/          Inventory, Equipment, SkillSet, PerkSet, StatusSet (burn...)
   combat/              Damage rules, hits, projectile specs
   ai/                  StateMachine + monster states (Idle, Chase, Attack, Cast)
@@ -139,9 +139,21 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
     steer around holes, so knock them in.
   - **Crumbling floor**: cracked tiles that hold until someone stands on them, then give way.
   - **Quicksand** (ruins) and **mud** (caves): very slow to cross, and they hurt if you stay.
+  - **Scorching ground** (ruins, `HeatSourceDef`): glowing cracked floor. Standing on it heats
+    you up (see Temperature below); step off and you cool down.
+  - **Dark rooms** (crypt, ruins, deeper caves, `DarkRoomDef`): a whole room plunged in darkness;
+    you only see right around you, and the monsters (and traps) inside hide in the black.
   - Hazards are never placed where they could cut the stairs off.
 - **Chests** (`data/chests/`): walk up to one to open it. Some are trapped: they blow up or let
   monsters out (and keep only one item). A trapped chest rattles now and then...
+- **Temperature** (`BodyTemperature`, `dungeon_config.tres` > Temperature): the hero has a body
+  temperature from -100 (frozen) to 100 (burning up), shown under the XP bar when it is not
+  normal, with frost (or a burning haze) creeping in from the screen's edges
+  (`temperature_overlay.gdshader`). On **Frozen Depths** floors, a wing of a few rooms next to
+  each other is frozen solid (`FloorEventDef.zone`, `frozen_ground.tres`): ice on the ground
+  (`frozen_ground.gdshader`), snow falling, and the cold creeping in while you are there. The
+  **campfires** in it bring you back to normal. Cold slows you down; frozen or burning up, you
+  take damage every second. Away from cold and heat, it goes back to normal by itself.
 - **Ambushes**: a floor may have a quiet, empty room. Walk in and spikes close the exits,
   monsters pour in, wave after wave, the last one led by an elite. Clear it for a big chest.
 - **Elites** (`data/elites/`): any monster can be one, more often deeper and on harder
@@ -207,7 +219,8 @@ consumables between the two ("To belt" / "To bag"). The merchant buys from the b
   `LootRoller` makes rolled copies; the plain .tres is the Common version. Chances grow with depth
   (`dungeon_config.tres` > Loot) and with the source: elites, chests and bosses drop better.
 - **Gold** drops from monsters (always from elites and bosses), chests and sometimes crates, and
-  flies to you. It lasts one run.
+  flies to you. It lasts one run. Potions and other consumables you already carry plenty of
+  (4 of the same, `consumable_carry_cap`) drop as gold instead: no bag full of potions.
 - **The merchant** (`data/shop/merchant.tres`, `Merchant`, `ShopPanel`) waits in a quiet room on
   some floors: walk up to him to buy equipment (better than average), potions and sometimes a
   tome, or to sell what you carry. Every item has a `value`; the price grows with rarity and depth.
@@ -222,7 +235,8 @@ elites at least half.
   (`dungeon_config.tres` > Floor events) are announced when you arrive: **Haunted** (elites, dim),
   **Treasure Vault** (chests and gold, more traps), **The Swarm** (hordes of weak monsters),
   **Pitch Dark** (very dark, better loot), **Quiet Halls** (few monsters, the merchant, encounters),
-  **Blood Moon** (monsters hit harder, double gold). They multiply monsters, HP, damage, elites,
+  **Blood Moon** (monsters hit harder, double gold), **Frozen Depths** (a frozen wing:
+  find the campfires; better loot and gold). They multiply monsters, HP, damage, elites,
   light, chests, hazards, encounters, gold and loot quality.
 - **Two bosses per act** (`ActDef.boss` + `other_bosses`): each run draws one per act (saved with
   the run; the title screen shows both). King Slime or the **Giant Frog** (leaps, poison spit, calls
@@ -469,7 +483,7 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 | An ascension level | New `AscensionDef` in `data/ascension/`, add it at the end of `content_db.tres` > Ascensions |
 | A difficulty | New `DifficultyDef` in `data/difficulties/`, add it to `content_db.tres` > Difficulties |
 | A prop | New `PropDef` in `data/props/` (sprite, hits, loot, explosion, light), add it to `content_db.tres` > Props |
-| A trap or hazard | New `TrapDef` / `ArrowTrapDef` / `PitDef` / `QuicksandDef` in `data/hazards/`, add it to an act's Hazards |
+| A trap or hazard | New `TrapDef` / `ArrowTrapDef` / `PitDef` / `QuicksandDef` / `HeatSourceDef` / `DarkRoomDef` in `data/hazards/`, add it to an act's Hazards |
 | A new kind of hazard | New script in `src/definitions/hazards/` extending `HazardDef`, override `place()` |
 | An elite affix | New `EliteAffixDef` in `data/elites/` (name, color, a perk), add it to `content_db.tres` > Elite Affixes |
 | A chest | New `ChestDef` in `data/chests/`, set it in `dungeon_config.tres` > Chests |

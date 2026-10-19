@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="HeatSourceDef" format=3]
+
+[ext_resource type="Shader" path="res://src/entities/hazards/frozen_ground.gdshader" id="1_cvrbb"]
+[ext_resource type="PackedScene" path="res://src/vfx/ambient/snow.tscn" id="2_mkmfo"]
+[ext_resource type="Script" path="res://src/definitions/hazards/heat_source_def.gd" id="3_jpxy7"]
+
+[resource]
+script = ExtResource("3_jpxy7")
+heat = -9.0
+whole_room = true
+ground_shader = ExtResource("1_cvrbb")
+particles = ExtResource("2_mkmfo")
+id = &"frozen_ground"
+display_name = "Frozen Room"
+description = "Ice and snow. The cold gets into your bones: find a campfire."
+glyph = "*"
+color = Color(0.56078434, 0.827451, 1, 1)
+spawn_weight = 0

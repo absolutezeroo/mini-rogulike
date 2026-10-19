@@ -63,6 +63,9 @@ extends Resource
 ## Quality of what elites, chests and bosses drop (1 = a common monster).
 @export var elite_loot_quality: float = 2.5
 @export var boss_loot_quality: float = 5.0
+## Consumables found while the hero already carries this many of the same one (belt and bag)
+## drop as gold instead: no bag full of potions.
+@export_range(1, 20) var consumable_carry_cap: int = 4
 
 @export_group("Gold")
 ## Chance for a monster to drop gold (elites and bosses always do).
@@ -74,6 +77,18 @@ extends Resource
 @export var boss_gold_multiplier: float = 15.0
 ## Crates and pots sometimes hold a few coins.
 @export_range(0.0, 1.0) var prop_gold_chance: float = 0.25
+
+@export_group("Temperature")
+## The hero's body temperature (BodyTemperature): -100 frozen, 0 fine, 100 burning up.
+## Back to normal by this much per second when nothing warms or chills.
+@export var temperature_recovery: float = 25.0
+## Campfires bring it back to normal this fast (per second).
+@export var temperature_comfort_rate: float = 70.0
+## Damage every `temperature_tick` seconds at either end (grows with depth).
+@export var temperature_damage: int = 3
+@export var temperature_tick: float = 1.0
+## Slowed by up to this much when cold (from halfway to frozen).
+@export_range(0.0, 0.9) var cold_slow: float = 0.35
 
 @export_group("Floor events")
 ## Chance for a normal floor (not the first) to be special (content_db.tres > Floor Events).

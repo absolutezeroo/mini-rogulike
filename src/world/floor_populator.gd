@@ -38,6 +38,9 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 			world.spawn_encounter(encounter, cell)
 			_reserve_around(taken, cell, 1)
 
+	if event and event.zone:
+		place_zone(world, event, taken)
+
 	for i in map.rooms.size():
 		_place_props(world, content, depth, map.rooms[i], taken)
 	var act := config.act_for_depth(depth)
@@ -94,6 +97,43 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 		var item := content.pick_item(depth, rng)
 		if item:
 			world.spawn_loot(item, _free_point_in(map, room, rng, taken))
+
+
+## Frozen zone: a few rooms next to each other (never the first one), with campfires in them.
+## Returns the rooms of the zone.
+static func place_zone(world: World, event: FloorEventDef, taken: Dictionary) -> Array[Rect2i]:
+	var map := world.map
+	var zone: Array[Rect2i] = []
+	if map.rooms.size() < 2 or event.zone_rooms <= 0:
+		return zone
+	var seed_room := map.rooms[world.rng.randi_range(1, map.rooms.size() - 1)]
+	var others: Array[Rect2i] = []
+	for i in range(1, map.rooms.size()):
+		others.append(map.rooms[i])
+	# The rooms closest to the first one: the cold spreads from there.
+	others.sort_custom(func(a: Rect2i, b: Rect2i) -> bool:
+		return Vector2(a.get_center() - seed_room.get_center()).length() < Vector2(b.get_center() - seed_room.get_center()).length())
+	for room in others.slice(0, event.zone_rooms):
+		zone.append(room)
+		event.zone.place(world, room, taken)
+	if event.warm_spot:
+		var placed := 0
+		var rooms := zone.duplicate()
+		_shuffle_rects(rooms, world.rng)
+		for room in rooms:
+			if placed >= event.warm_spot_count:
+				break
+			if event.warm_spot.place_one(world, room, taken):
+				placed += 1
+	return zone
+
+
+static func _shuffle_rects(list: Array[Rect2i], rng: RandomNumberGenerator) -> void:
+	for i in range(list.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var swap := list[i]
+		list[i] = list[j]
+		list[j] = swap
 
 
 ## A big enough room, not the first one, without the stairs and not `except` (-1 if none).

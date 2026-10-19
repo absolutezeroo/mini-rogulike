@@ -15,6 +15,10 @@ var _toast_busy := false
 
 @onready var _hp_bar: StatBar = %HpBar
 @onready var _xp_bar: StatBar = %XpBar
+## Shown while the hero is cold or hot (BodyTemperature).
+@onready var _temp_bar: StatBar = %TempBar
+## Frost (or a burning haze) creeping in from the screen's edges.
+@onready var _temp_overlay: ColorRect = %TemperatureOverlay
 @onready var _info_label: Label = %InfoLabel
 @onready var _souls_label: Label = %SoulsLabel
 @onready var _depth_banner: Label = %DepthBanner
@@ -90,6 +94,7 @@ func bind_player(player: Player) -> void:
 func _process(_delta: float) -> void:
 	if _player == null:
 		return
+	_refresh_temperature()
 	for i in _skill_buttons.size():
 		if _skill_buttons[i].visible:
 			_skill_buttons[i].cooldown_ratio = _player.skills.cooldown_ratio(i)
@@ -119,6 +124,28 @@ func _refresh_skill_buttons() -> void:
 			button.label = skill.short_label
 			button.icon = skill.icon
 			button.color = skill.color
+
+
+func _refresh_temperature() -> void:
+	var temperature := _player.temperature
+	var shown := absf(temperature.value) >= 1.0
+	_temp_bar.visible = shown
+	var cold := clampf((-temperature.value - 15.0) / 85.0, 0.0, 1.0)
+	var heat := clampf((temperature.value - 15.0) / 85.0, 0.0, 1.0)
+	_temp_overlay.visible = cold > 0.0 or heat > 0.0
+	if _temp_overlay.visible:
+		var look := _temp_overlay.material as ShaderMaterial
+		look.set_shader_parameter("cold", cold)
+		look.set_shader_parameter("heat", heat)
+		look.set_shader_parameter("aspect", _temp_overlay.size / _temp_overlay.size.y * 9.0)
+	if not shown:
+		return
+	var is_cold := temperature.value < 0.0
+	var label := ("Freezing!" if is_cold else "Burning up!") if temperature.is_extreme() else ("Cold" if is_cold else "Hot")
+	_temp_bar.fill_color = BodyTemperature.COLD_COLOR if is_cold else BodyTemperature.HOT_COLOR
+	if temperature.is_extreme() and int(Time.get_ticks_msec() / 250) % 2 == 0:
+		_temp_bar.fill_color = _temp_bar.fill_color.lightened(0.4)
+	_temp_bar.set_values(absf(temperature.value), BodyTemperature.LIMIT, label)
 
 
 func _on_health_changed(current: int, maximum: int) -> void:

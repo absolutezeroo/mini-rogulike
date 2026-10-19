@@ -11,7 +11,7 @@
 [sub_resource type="Resource" id="Resource_4uwg7"]
 script = ExtResource("3_wucxp")
 item = ExtResource("4_42ymk")
-weight = 6
+weight = 3
 
 [sub_resource type="Resource" id="Resource_x2n5f"]
 script = ExtResource("3_wucxp")

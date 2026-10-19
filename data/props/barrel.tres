@@ -11,7 +11,7 @@
 [sub_resource type="Resource" id="Resource_vuehv"]
 script = ExtResource("3_ikjsg")
 item = ExtResource("4_bi027")
-weight = 5
+weight = 2
 
 [sub_resource type="Resource" id="Resource_d6egb"]
 script = ExtResource("3_ikjsg")

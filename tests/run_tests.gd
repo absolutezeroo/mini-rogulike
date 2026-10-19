@@ -588,6 +588,7 @@ func _test_gameplay() -> void:
 	player.equipment.equip(mail)
 	check(rig.helmet.visible and rig.body_armor.visible, "worn armor is visible")
 	check(rig.helmet.self_modulate == helm.wear_color, "the helmet takes the armor's color")
+	player._invulnerable_time = 1.0  # a hit mid-walk would play the hurt animation
 	_set_move(Vector2.LEFT)
 	await _frames(13)
 	check(rig.body_armor.animation == rig.body.animation and rig.body_armor.frame == rig.body.frame, "body armor follows the walk frame by frame")
@@ -669,6 +670,7 @@ func _test_gameplay() -> void:
 	await _test_variety(game)
 	await _test_belt_and_balance(game)
 	await _test_monster_behaviours(game)
+	await _test_climate(game)
 
 	await _test_boss_fight(game)
 
@@ -1220,10 +1222,7 @@ func _test_hazards(game: Node, world: World, player: Player) -> void:
 	if placed:
 		placed.queue_free()
 	# Nobody else around to step into the line of fire.
-	for other in world.get_hostiles(Actor.Faction.PLAYER):
-		if is_instance_valid(other):
-			other.queue_free()
-	await _frames(1)
+	await _clear_monsters(world)
 	var plate_cell := _open_cell_near(world, player.global_position, 3)
 	var arrow_trap := world.spawn_trap(arrows, plate_cell)
 	arrow_trap.set_launcher(plate_cell + Vector2i.UP * 3, Vector2.DOWN)
@@ -1632,6 +1631,146 @@ func _test_monster_behaviours(game: Node) -> void:
 	await _frames(2)
 
 
+## Frozen floors and campfires, scorching ground, dark rooms, and no bag full of potions.
+func _test_climate(game: Node) -> void:
+	var player: Player = game.player
+	var world: World = game.world
+	var frozen: FloorEventDef = load("res://data/floor_events/frozen.tres")
+	var campfire: HeatSourceDef = load("res://data/hazards/campfire.tres")
+	var scorching: HeatSourceDef = load("res://data/hazards/scorching_ground.tres")
+	var dark_def: DarkRoomDef = load("res://data/hazards/dark_room.tres")
+	check(CONTENT.floor_events.has(frozen), "floors can be frozen")
+	var act_hazards: Array = []
+	for act in CONTENT.dungeon.acts:
+		act_hazards.append_array(act.hazards)
+	check(act_hazards.has(scorching) and act_hazards.has(dark_def), "scorching ground and dark rooms show up in the acts")
+	for node in get_tree().get_nodes_in_group("heat_sources"):
+		node.queue_free()
+	await _frames(1)
+	var saved_event := world.floor_event
+	var start_spot := player.global_position
+	var cell := world.map.world_to_cell(player.global_position)
+
+	# Frozen rooms: the cold creeps in, slows, then hurts.
+	var ice: HeatSourceDef = frozen.zone
+	check(ice != null and ice.whole_room and ice.heat < 0.0 and frozen.zone_rooms > 0, "frozen floors have a frozen zone")
+	var cold_room := world.spawn_heat_source(ice, Rect2i(cell - Vector2i(3, 3), Vector2i(7, 7)))
+	check(cold_room.reaches(player) and cold_room.material is ShaderMaterial and cold_room.get_child_count() > 0, "a frozen room: ice on the ground, snow falling")
+	player.temperature.reset()
+	player.hp = player.get_max_hp()
+	player._invulnerable_time = 0.0
+	for i in 40:
+		player.temperature.update(player, 0.5)
+	check(player.temperature.value <= -BodyTemperature.LIMIT, "a frozen room chills the hero to the bone (%.0f)" % player.temperature.value)
+	check(player.statuses.speed_multiplier() < 0.8, "the cold slows you down")
+	check(player.hp < player.get_max_hp(), "freezing hurts")
+	await _frames(2)
+	check(game.hud._temp_bar.visible and game.hud._temp_bar.fill_color.b > 0.9, "the HUD shows how cold you are")
+	check(game.hud._temp_overlay.visible and (game.hud._temp_overlay.material as ShaderMaterial).get_shader_parameter("cold") > 0.9, "frost creeps over the screen")
+	# A campfire brings you back.
+	var fire := world.spawn_heat_source(campfire, Rect2i(cell, campfire.size))
+	check(fire.reaches(player), "a campfire reaches the hero next to it")
+	for i in 4:
+		player.temperature.update(player, 0.5)
+	check(player.temperature.value > -BodyTemperature.LIMIT * 0.1, "a campfire warms you back up (%.0f)" % player.temperature.value)
+	fire.free()
+	cold_room.free()
+	# Generation: a few rooms side by side, campfires in them, never where you arrive.
+	var zone := FloorPopulator.place_zone(world, frozen, {})
+	var sources := get_tree().get_nodes_in_group("heat_sources")
+	var fires := sources.filter(func(f: Node) -> bool: return (f as HeatSource).def == campfire)
+	var iced := sources.filter(func(f: Node) -> bool: return (f as HeatSource).def == ice)
+	check(zone.size() == mini(frozen.zone_rooms, world.map.rooms.size() - 1) and iced.size() == zone.size(), "a frozen zone of %d rooms" % zone.size())
+	check(not zone.has(world.map.rooms[0]), "never the room where you arrive")
+	check(not fires.is_empty() and fires.all(func(f: Node) -> bool: return zone.any(func(r: Rect2i) -> bool: return r.has_point(world.map.world_to_cell(f.global_position)))), "campfires burn inside the frozen zone (%d)" % fires.size())
+	if not zone.is_empty():
+		ice.place(world, zone[0], {})
+	check(get_tree().get_nodes_in_group("heat_sources").filter(func(f: Node) -> bool: return (f as HeatSource).def == ice).size() == iced.size(), "a room freezes only once")
+	for node in get_tree().get_nodes_in_group("heat_sources"):
+		node.free()
+	world.floor_event = saved_event
+
+	# Scorching ground: heats you up while you stand on it, then it passes.
+	player.temperature.reset()
+	var patch := world.spawn_heat_source(scorching, Rect2i(cell - Vector2i.ONE, scorching.size))
+	check(patch.reaches(player), "the hero stands on the scorching ground")
+	for i in 6:
+		player.temperature.update(player, 0.5)
+	check(player.temperature.value >= BodyTemperature.LIMIT, "scorching ground heats you up (%.0f)" % player.temperature.value)
+	patch.free()
+	for i in 10:
+		player.temperature.update(player, 0.5)
+	check(absf(player.temperature.value) < 1.0, "and you cool down away from it")
+	player.temperature.reset()
+	player.hp = player.get_max_hp()
+	await _frames(2)
+	check(not game.hud._temp_bar.visible, "no thermometer when all is fine")
+
+	# Dark rooms: once per room, and the hero notices when walking in.
+	var room := world.map.rooms[world.map.rooms.size() - 1]
+	var dark := world.spawn_dark_room(dark_def, room)
+	dark_def.place(world, room, {})
+	var darks := get_tree().get_nodes_in_group("dark_rooms").filter(func(d: Node) -> bool: return (d as DarkRoom).room == room)
+	check(world.is_dark_room(room) and darks.size() == 1, "a room only gets dark once")
+	var noticed := [false]
+	var on_log := func(text: String, _color: Color) -> void: noticed[0] = noticed[0] or text == dark_def.message
+	Events.message_logged.connect(on_log)
+	player.global_position = world.map.cell_to_world(_open_cell_in(world, room))
+	await _frames(3)
+	check(noticed[0] and dark.covers(player.global_position), "walking into a dark room: you can't see a thing")
+	check(dark.z_index > 0 and dark.material is ShaderMaterial, "the darkness covers the monsters")
+	Events.message_logged.disconnect(on_log)
+	dark.queue_free()
+	player.global_position = start_spot
+	await _frames(2)
+
+	# Potions: past a few of the same, they come as gold.
+	var potion: ConsumableDef = load("res://data/items/consumables/health_potion.tres")
+	var saved_belt := player.belt.to_data()
+	var saved_bag := player.inventory.items.duplicate()
+	player.belt.load_data([])
+	player.inventory.items.clear()
+	check(world.spawn_loot(potion, player.global_position + Vector2(40, 0)) != null, "potions drop while you carry few")
+	for i in CONTENT.dungeon.consumable_carry_cap:
+		player.pick_up(potion)
+	var coins_before := get_tree().get_nodes_in_group("gold").size()
+	var gold_before := _gold_on_floor(world)
+	check(world.spawn_loot(potion, player.global_position + Vector2(40, 0)) == null, "with %d potions on you, more turn into gold" % CONTENT.dungeon.consumable_carry_cap)
+	await _frames(2)
+	check(_gold_on_floor(world) > gold_before, "the gold is on the floor (%d coins before)" % coins_before)
+	for node in world.get_node("Entities").get_children():
+		if node is ItemPickup:
+			node.queue_free()
+	player.belt.load_data(saved_belt)
+	player.inventory.items = saved_bag
+	await _frames(2)
+
+
+func _gold_on_floor(world: World) -> int:
+	var total := 0
+	for node in world.get_node("Entities").get_children():
+		if node is GoldPickup and not node.is_queued_for_deletion():
+			total += (node as GoldPickup).amount
+	return total
+
+
+func _open_cell_in(world: World, room: Rect2i) -> Vector2i:
+	for y in range(room.position.y + 1, room.end.y - 1):
+		for x in range(room.position.x + 1, room.end.x - 1):
+			var cell := Vector2i(x, y)
+			if world.is_solid_ground(world.map.cell_to_world(cell)) and not world._astar.is_point_solid(cell):
+				return cell
+	return room.get_center()
+
+
+## Removes the floor's monsters (they wander in and spoil a test that needs the hero alone).
+func _clear_monsters(world: World) -> void:
+	for other in world.get_hostiles(Actor.Faction.PLAYER):
+		if is_instance_valid(other):
+			other.queue_free()
+	await _frames(1)
+
+
 func _count_monsters(world: World, id: StringName) -> int:
 	var count := 0
 	for m in world.get_hostiles(Actor.Faction.PLAYER):
@@ -1777,10 +1916,7 @@ func _test_weapon_kits(game: Node) -> void:
 	player.xp = -1000000
 	var weapon_before := player.get_weapon()
 	# Alone with the target: a wandering monster stepping in the way would take the hits.
-	for other in world.get_hostiles(Actor.Faction.PLAYER):
-		if is_instance_valid(other):
-			other.queue_free()
-	await _frames(1)
+	await _clear_monsters(world)
 	var target := world.spawn_monster(load("res://data/monsters/slime.tres"), world.map.cell_to_world(_open_cell_near(world, player.global_position, 2)))
 	target.dormant = true
 	target.base_stats.max_hp = 100000
@@ -1846,7 +1982,8 @@ func _test_loot_and_gold(game: Node) -> void:
 	var potion: ItemDef = load("res://data/items/consumables/health_potion.tres")
 	check(world.roll_item(potion, 10.0) == potion, "potions are never rolled")
 
-	# Gold flies to the hero.
+	# Gold flies to the hero (no thief around to snatch it).
+	await _clear_monsters(world)
 	var gold_before := player.gold
 	world.spawn_gold(player.global_position + Vector2(30, 0), 10)
 	await _frames(60)

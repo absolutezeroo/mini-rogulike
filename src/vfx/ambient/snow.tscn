@@ -1,0 +1,32 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/fx/snowflake.png" id="1_flake"]
+
+[sub_resource type="Gradient" id="Gradient_fade"]
+offsets = PackedFloat32Array(0, 0.15, 0.8, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.9, 1, 1, 1, 0.8, 1, 1, 1, 0)
+
+[sub_resource type="CanvasItemMaterial" id="Material_unshaded"]
+light_mode = 1
+
+[node name="Snow" type="CPUParticles2D"]
+material = SubResource("Material_unshaded")
+z_index = 4
+amount = 90
+lifetime = 6.0
+preprocess = 6.0
+local_coords = false
+texture = ExtResource("1_flake")
+emission_shape = 3
+emission_rect_extents = Vector2(560, 340)
+direction = Vector2(0.3, 1)
+spread = 25.0
+gravity = Vector2(6, 10)
+initial_velocity_min = 14.0
+initial_velocity_max = 30.0
+angular_velocity_min = -60.0
+angular_velocity_max = 60.0
+scale_amount_min = 1.4
+scale_amount_max = 2.6
+color = Color(0.92, 0.96, 1, 1)
+color_ramp = SubResource("Gradient_fade")

@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="HeatSourceDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/fx/fire_flames.png" id="1_kj6ro"]
+[ext_resource type="Texture2D" path="res://assets/fx/campfire_pit.png" id="2_usp6n"]
+[ext_resource type="Script" path="res://src/definitions/hazards/heat_source_def.gd" id="3_6374w"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/ruins/crackle_0.ogg" id="4_86tbi"]
+
+[resource]
+script = ExtResource("3_6374w")
+comfort = true
+reach = 95.0
+size = Vector2i(2, 2)
+patches_max = 1
+sprite = ExtResource("2_usp6n")
+flames = ExtResource("1_kj6ro")
+glow_color = Color(1, 0.62, 0.25, 0.09)
+light_color = Color(1, 0.7, 0.4, 0.75)
+light_radius = 230.0
+sound = ExtResource("4_86tbi")
+id = &"campfire"
+display_name = "Campfire"
+description = "Warms you back up on frozen floors. Stay close."
+icon = ExtResource("2_usp6n")
+glyph = "^"
+color = Color(1, 0.62352943, 0.10980392, 1)
+spawn_weight = 0

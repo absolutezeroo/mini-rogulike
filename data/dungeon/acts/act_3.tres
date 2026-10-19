@@ -13,7 +13,9 @@
 [ext_resource type="Resource" path="res://data/monsters/reptile.tres" id="6_b4bba"]
 [ext_resource type="Resource" path="res://data/hazards/pit.tres" id="7_4gi1q"]
 [ext_resource type="Resource" path="res://data/monsters/beast.tres" id="7_7pb75"]
+[ext_resource type="Resource" path="res://data/hazards/scorching_ground.tres" id="8_1k2vl"]
 [ext_resource type="Resource" path="res://data/monsters/dragon.tres" id="8_pcd8x"]
+[ext_resource type="Resource" path="res://data/hazards/dark_room.tres" id="9_4g6yy"]
 [ext_resource type="Resource" path="res://data/monsters/kappa.tres" id="9_k1810"]
 [ext_resource type="Resource" path="res://data/monsters/octopus.tres" id="10_pa3y5"]
 [ext_resource type="Resource" path="res://data/monsters/spirit.tres" id="11_0hwi7"]
@@ -34,4 +36,4 @@ theme = ExtResource("13_uago2")
 monsters = Array[ExtResource("2_0pn66")]([ExtResource("3_vlwa2"), ExtResource("4_7j4pw"), ExtResource("5_lokq4"), ExtResource("6_b4bba"), ExtResource("7_7pb75"), ExtResource("8_pcd8x"), ExtResource("9_k1810"), ExtResource("10_pa3y5"), ExtResource("11_0hwi7"), ExtResource("18_4gi1q"), ExtResource("19_uago2"), ExtResource("20_1k2vl")])
 boss = ExtResource("1_jy0od")
 other_bosses = Array[ExtResource("18_k1810")]([ExtResource("19_pa3y5")])
-hazards = Array[ExtResource("2_7pb75")]([ExtResource("3_pcd8x"), ExtResource("4_k1810"), ExtResource("5_pa3y5"), ExtResource("6_0hwi7"), ExtResource("7_4gi1q")])
+hazards = Array[ExtResource("2_7pb75")]([ExtResource("3_pcd8x"), ExtResource("4_k1810"), ExtResource("5_pa3y5"), ExtResource("6_0hwi7"), ExtResource("7_4gi1q"), ExtResource("8_1k2vl"), ExtResource("9_4g6yy")])

@@ -49,7 +49,7 @@ weight = 1
 [sub_resource type="Resource" id="Resource_b64kh"]
 script = ExtResource("3_k6081")
 item = ExtResource("9_m4yc4")
-weight = 3
+weight = 1
 
 [sub_resource type="Resource" id="Resource_k6081"]
 script = ExtResource("3_k6081")
