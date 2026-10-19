@@ -395,11 +395,21 @@ func _on_fell(pit: PitDef) -> void:
 	Vfx.puff(world, global_position)
 	Events.log_message("You fell into a hole!", Color("ff6b6b"))
 	_invulnerable_time = 0.0
+	killed_by = "a fall"  # if this is what kills the hero
 	take_hit(Combat.make_secondary_hit(null, maxi(1, roundi(get_max_hp() * pit.fall_damage))))
-	if is_dead:
-		killed_by = "a fall"
-	else:
+	if not is_dead:
+		killed_by = ""
 		_invulnerable_time = FALL_INVULNERABILITY
+
+
+## Abandoning the run (pause menu): dead now, no perk or relic can save it.
+func give_up() -> void:
+	if is_dead:
+		return
+	killed_by = "giving up"
+	hp = 0
+	health_changed.emit(hp, get_max_hp())
+	die(null)
 
 
 # --- Hooks -------------------------------------------------------------------

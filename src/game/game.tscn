@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://src/game/game.gd" id="1_game"]
 [ext_resource type="Resource" path="res://data/content_db.tres" id="2_content"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" path="res://src/world/ambience.tscn" id="10_ambience"]
 [ext_resource type="PackedScene" path="res://src/ui/act_card/act_card.tscn" id="11_card"]
 [ext_resource type="PackedScene" path="res://src/ui/curse_card/curse_card.tscn" id="12_curse"]
+[ext_resource type="Script" path="res://src/game/game_menus.gd" id="15_menus"]
 [ext_resource type="PackedScene" path="res://src/ui/pause/pause_menu.tscn" id="12_pause"]
 [ext_resource type="PackedScene" path="res://src/ui/shop/shop_panel.tscn" id="13_shop"]
 [ext_resource type="PackedScene" path="res://src/ui/encounter/encounter_panel.tscn" id="14_encounter"]
@@ -44,6 +45,7 @@ script = ExtResource("9_screen")
 process_mode = 1
 
 [node name="Menus" type="CanvasLayer" parent="."]
+script = ExtResource("15_menus")
 layer = 10
 
 [node name="InventoryPanel" parent="Menus" instance=ExtResource("5_inventory")]

@@ -73,7 +73,9 @@ src/
   vfx/                 Particles (particles/), sprite-sheet FX, emotes, afterimages, damage numbers; Vfx helpers
   ui/                  Title screen and shrine, story, act cards, HUD and minimap, touch controls, inventory,
                        perk choice, pause menu, options, end of run
-  game/                Game: main scene, run and floor flow; RunSave (the run in progress on disk)
+  game/                Game: main scene, floor flow, pauses; RunState (the run: depth, kills, bosses,
+                       difficulty), RunRecords (stats, bestiary, achievements, history), OfferQueue
+                       (perk choices waiting), GameMenus (the panels), ShrineUpgrades, RunSave (on disk)
 tests/               Headless test suite with a bot that plays the game
 ```
 

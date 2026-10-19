@@ -262,7 +262,8 @@ func die(killer: Actor) -> void:
 	if is_dead:
 		return
 	is_dead = true
-	killed_by = _death_cause(killer)
+	if killed_by.is_empty():  # a cause may be set just before (a fall, giving up)
+		killed_by = _death_cause(killer)
 	velocity = Vector2.ZERO
 	set_deferred("collision_layer", 0)
 	set_deferred("collision_mask", 0)
