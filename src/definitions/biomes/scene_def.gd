@@ -57,12 +57,13 @@ func plan(mirrored: bool) -> Dictionary:
 
 
 ## Puts it somewhere in `room` (a few tries along its anchor). False if it fits nowhere.
-func try_place(world: World, room: Rect2i, taken: Dictionary, rng: RandomNumberGenerator) -> bool:
+## `standing` gets the cells of what it put up (decor may gather around them).
+func try_place(world: World, room: Rect2i, taken: Dictionary, rng: RandomNumberGenerator, standing: Dictionary = {}) -> bool:
 	var mirrored := can_mirror and rng.randf() < 0.5
 	var cells := plan(mirrored)
 	for origin in _origins(room, mirrored, rng):
 		if _fits(world, room, taken, origin, cells):
-			_build(world, taken, origin, cells, rng)
+			_build(world, taken, origin, cells, rng, standing)
 			return true
 	return false
 
@@ -135,7 +136,7 @@ static func _at_doorway(map: DungeonMap, room: Rect2i, cell: Vector2i) -> bool:
 	return false
 
 
-func _build(world: World, taken: Dictionary, origin: Vector2i, cells: Dictionary, rng: RandomNumberGenerator) -> void:
+func _build(world: World, taken: Dictionary, origin: Vector2i, cells: Dictionary, rng: RandomNumberGenerator, standing: Dictionary) -> void:
 	var done := {}
 	var decor := DecorLayer.new()
 	decor.z_index = -8
@@ -180,3 +181,4 @@ func _build(world: World, taken: Dictionary, origin: Vector2i, cells: Dictionary
 		var k := key(cells[offset])
 		if k and k.blocks():
 			HazardDef.take_rect(taken, Rect2i(origin + offset, Vector2i.ONE).grow(1))
+			standing[origin + offset] = true

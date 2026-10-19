@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" path="res://assets/tiles/interior_floor.png" id="5_he0p3"]
 [ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="6_3ke4b"]
 [ext_resource type="Resource" path="res://data/props/furniture/brazier.tres" id="7_xj62s"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="8_a003p"]
 [ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="8_a48jq"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/colonnade.tres" id="9_33tul"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/temple_shrine.tres" id="10_v8frx"]
@@ -16,45 +17,42 @@
 [ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="14_kdxxt"]
 [ext_resource type="Resource" path="res://data/dungeon/themes/temple.tres" id="15_dsjyk"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_gbu62"]
-atlas = ExtResource("2_a003p")
-region = Rect2(80, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_a003p"]
-atlas = ExtResource("2_a003p")
-region = Rect2(96, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_0ny6d"]
-atlas = ExtResource("2_a003p")
-region = Rect2(112, 0, 16, 16)
-
-[sub_resource type="Resource" id="Resource_xu4j5"]
-script = ExtResource("1_gbu62")
-pieces = Array[Texture2D]([SubResource("AtlasTexture_gbu62"), SubResource("AtlasTexture_a003p"), SubResource("AtlasTexture_0ny6d")])
-density = 0.04
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_he0p3"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_6i532"]
 atlas = ExtResource("3_0ny6d")
 region = Rect2(0, 176, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_3ke4b"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_1qjpf"]
 atlas = ExtResource("3_0ny6d")
 region = Rect2(16, 176, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_xj62s"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_gw8ds"]
 atlas = ExtResource("3_0ny6d")
 region = Rect2(48, 176, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_a48jq"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_7p24x"]
 atlas = ExtResource("3_0ny6d")
 region = Rect2(96, 176, 16, 16)
 
-[sub_resource type="Resource" id="Resource_33tul"]
+[sub_resource type="Resource" id="Resource_0ny6d"]
 script = ExtResource("1_gbu62")
-pieces = Array[Texture2D]([SubResource("AtlasTexture_he0p3"), SubResource("AtlasTexture_3ke4b"), SubResource("AtlasTexture_xj62s"), SubResource("AtlasTexture_a48jq")])
-density = 0.015
-clumping = 0.9
-wall_bias = 0.8
+pieces = Array[Texture2D]([SubResource("AtlasTexture_6i532"), SubResource("AtlasTexture_1qjpf"), SubResource("AtlasTexture_gw8ds"), SubResource("AtlasTexture_7p24x")])
+density = 0.03
+max_per_room = 1
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pu0ae"]
+atlas = ExtResource("2_a003p")
+region = Rect2(80, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ldwwl"]
+atlas = ExtResource("2_a003p")
+region = Rect2(96, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_xu4j5"]
+script = ExtResource("1_gbu62")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_pu0ae"), SubResource("AtlasTexture_ldwwl")])
+where = 1
+density = 0.12
+max_per_room = 1
 
 [sub_resource type="Resource" id="Resource_v8frx"]
 script = ExtResource("4_xu4j5")
@@ -71,7 +69,7 @@ script = ExtResource("14_kdxxt")
 theme = ExtResource("15_dsjyk")
 grounds = Array[ExtResource("4_xu4j5")]([SubResource("Resource_v8frx")])
 scenes = Array[ExtResource("8_a48jq")]([ExtResource("9_33tul"), ExtResource("10_v8frx"), ExtResource("11_c6024"), ExtResource("12_76v5e"), ExtResource("13_5gqxp")])
-decor = Array[ExtResource("1_gbu62")]([SubResource("Resource_xu4j5"), SubResource("Resource_33tul")])
+decor = Array[ExtResource("1_gbu62")]([SubResource("Resource_0ny6d"), SubResource("Resource_xu4j5")])
 light = ExtResource("7_xj62s")
 id = &"ruined_temple"
 display_name = "Ruined Temple"

@@ -30,7 +30,7 @@ script = ExtResource("1_760ff")
 symbol = "b"
 kind = 1
 pieces = Array[Texture2D]([SubResource("AtlasTexture_p3lh8"), SubResource("AtlasTexture_cde6x"), SubResource("AtlasTexture_8vgt3")])
-chance = 0.6
+chance = 0.35000000000000003
 
 [resource]
 script = ExtResource("6_rj7nl")

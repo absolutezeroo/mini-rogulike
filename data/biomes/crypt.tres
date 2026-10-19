@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="5_k2f7k"]
 [ext_resource type="Resource" path="res://data/props/furniture/candles.tres" id="6_1j4vd"]
 [ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="7_pu0ae"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="7_yv3ey"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/grave_row.tres" id="8_ldwwl"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/grave_field.tres" id="9_17ugi"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/coffin_wall.tres" id="10_iikri"]
@@ -15,42 +16,38 @@
 [ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="13_ycf1q"]
 [ext_resource type="Resource" path="res://data/dungeon/themes/crypt.tres" id="14_tvvkn"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_2xhpk"]
-atlas = ExtResource("2_yv3ey")
-region = Rect2(208, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_yv3ey"]
-atlas = ExtResource("2_yv3ey")
-region = Rect2(224, 0, 16, 16)
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_lecpv"]
 atlas = ExtResource("2_yv3ey")
 region = Rect2(224, 0, 16, 16)
 
-[sub_resource type="Resource" id="Resource_eajro"]
-script = ExtResource("1_2xhpk")
-pieces = Array[Texture2D]([SubResource("AtlasTexture_2xhpk"), SubResource("AtlasTexture_yv3ey"), SubResource("AtlasTexture_lecpv")])
-density = 0.04
-clumping = 0.7
-wall_bias = 0.6
+[sub_resource type="AtlasTexture" id="AtlasTexture_eajro"]
+atlas = ExtResource("2_yv3ey")
+region = Rect2(224, 0, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_k2f7k"]
 atlas = ExtResource("2_yv3ey")
-region = Rect2(80, 0, 16, 16)
+region = Rect2(208, 0, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_1j4vd"]
-atlas = ExtResource("2_yv3ey")
-region = Rect2(96, 0, 16, 16)
+[sub_resource type="Resource" id="Resource_1j4vd"]
+script = ExtResource("1_2xhpk")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_lecpv"), SubResource("AtlasTexture_eajro"), SubResource("AtlasTexture_k2f7k")])
+where = 1
+density = 0.2
+max_per_room = 2
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pu0ae"]
 atlas = ExtResource("2_yv3ey")
-region = Rect2(112, 0, 16, 16)
+region = Rect2(80, 0, 16, 16)
 
-[sub_resource type="Resource" id="Resource_ldwwl"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_ldwwl"]
+atlas = ExtResource("2_yv3ey")
+region = Rect2(96, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_iikri"]
 script = ExtResource("1_2xhpk")
-pieces = Array[Texture2D]([SubResource("AtlasTexture_k2f7k"), SubResource("AtlasTexture_1j4vd"), SubResource("AtlasTexture_pu0ae")])
+pieces = Array[Texture2D]([SubResource("AtlasTexture_pu0ae"), SubResource("AtlasTexture_ldwwl")])
 density = 0.03
-clumping = 0.5
+max_per_room = 1
 
 [sub_resource type="Resource" id="Resource_17ugi"]
 script = ExtResource("3_lecpv")
@@ -66,7 +63,7 @@ script = ExtResource("13_ycf1q")
 theme = ExtResource("14_tvvkn")
 grounds = Array[ExtResource("3_lecpv")]([SubResource("Resource_17ugi")])
 scenes = Array[ExtResource("7_pu0ae")]([ExtResource("8_ldwwl"), ExtResource("9_17ugi"), ExtResource("10_iikri"), ExtResource("11_d80g7"), ExtResource("12_8lwn6")])
-decor = Array[ExtResource("1_2xhpk")]([SubResource("Resource_eajro"), SubResource("Resource_ldwwl")])
+decor = Array[ExtResource("1_2xhpk")]([SubResource("Resource_1j4vd"), SubResource("Resource_iikri")])
 light = ExtResource("6_1j4vd")
 id = &"crypt"
 display_name = "Crypt"

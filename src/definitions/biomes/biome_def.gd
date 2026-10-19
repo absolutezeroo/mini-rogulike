@@ -19,8 +19,17 @@ extends ContentDef
 @export var big_room_area: int = 80
 ## Its lights (braziers, candles...); null: the dungeon's lanterns.
 @export var light: PropDef
+## Its pots, crates and baskets, along the walls in small groups; empty: the dungeon's
+## (ContentDB.props).
+@export var props: Array[PropDef] = []
 ## Its traps and hazards; empty: the act's.
 @export var hazards: Array[HazardDef] = []
+
+
+func pick_prop(content: ContentDB, depth: int, rng: RandomNumberGenerator) -> PropDef:
+	if props.is_empty():
+		return content.pick_prop(depth, rng)
+	return ContentDB.pick_from(props, depth, rng) as PropDef
 
 
 func pick_hazard(act: ActDef, depth: int, rng: RandomNumberGenerator) -> HazardDef:

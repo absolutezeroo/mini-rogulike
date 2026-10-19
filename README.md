@@ -169,8 +169,12 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
     gets 2-3, a small one 1-2 (`scenes_big_room`, `scenes_small_room`), none where the hero
     arrives. A scene goes only where it fits whole, never at a corridor mouth and never walling
     anything off (`RoomSpace.stays_open`);
-  - its **decor** (`DecorRuleDef`): bones, books, grass, pebbles, gathered in clusters by noise,
-    near the walls or only on a ground.
+  - its **decor** (`DecorRuleDef`): a few small things, each with a reason to be where it is:
+    at the foot of the walls (pebbles, ferns, dry scrub), right around a scene's furniture (books
+    by the shelves, bones by the graves, gold by the sarcophagi) or on its ground (grass on moss).
+    A few per room at most (`max_per_room`); the middle of the rooms and the corridors stay
+    clear, so the fight stays readable. The floor tiles carry no decor of their own;
+  - its **pots and crates** (`props`: baskets in the desert, mossy jars in the garden...).
   This is how Dead Cells, Enter the Gungeon or Brogue keep generated levels coherent: hand-made
   pieces per biome, laid out by the generator (`FloorDresser`).
 - **Chests** (`data/chests/`): walk up to one to open it. Some are trapped: they blow up or let

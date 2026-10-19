@@ -5,84 +5,78 @@
 [ext_resource type="Script" path="res://src/definitions/biomes/ground_layer_def.gd" id="3_1b48x"]
 [ext_resource type="Texture2D" path="res://assets/tiles/floor.png" id="4_ff3he"]
 [ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="5_flrqm"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="6_74m5r"]
 [ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="6_jc1ov"]
+[ext_resource type="Resource" path="res://data/props/vase.tres" id="7_flrqm"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/tree_grove.tres" id="7_r2mqf"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/flower_bed.tres" id="8_178ba"]
+[ext_resource type="Resource" path="res://data/props/furniture/mossy_jar.tres" id="8_jc1ov"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/frog_shrine.tres" id="9_iwis7"]
+[ext_resource type="Resource" path="res://data/props/furniture/round_bush.tres" id="9_r2mqf"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/lily_pond.tres" id="10_3x1fs"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/hedge_row.tres" id="11_d67u6"]
 [ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="12_37jbf"]
 [ext_resource type="Resource" path="res://data/dungeon/themes/garden.tres" id="13_35fak"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_r4t5t"]
-atlas = ExtResource("2_74m5r")
-region = Rect2(0, 160, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_74m5r"]
-atlas = ExtResource("2_74m5r")
-region = Rect2(48, 160, 16, 16)
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_1b48x"]
-atlas = ExtResource("2_74m5r")
-region = Rect2(64, 160, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ff3he"]
-atlas = ExtResource("2_74m5r")
-region = Rect2(80, 160, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_flrqm"]
-atlas = ExtResource("2_74m5r")
-region = Rect2(112, 160, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_jc1ov"]
-atlas = ExtResource("2_74m5r")
-region = Rect2(144, 160, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_r2mqf"]
-atlas = ExtResource("2_74m5r")
-region = Rect2(0, 176, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_178ba"]
-atlas = ExtResource("2_74m5r")
-region = Rect2(16, 176, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_iwis7"]
-atlas = ExtResource("2_74m5r")
-region = Rect2(48, 176, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_3x1fs"]
-atlas = ExtResource("2_74m5r")
-region = Rect2(96, 176, 16, 16)
-
-[sub_resource type="Resource" id="Resource_d67u6"]
-script = ExtResource("1_r4t5t")
-pieces = Array[Texture2D]([SubResource("AtlasTexture_r4t5t"), SubResource("AtlasTexture_74m5r"), SubResource("AtlasTexture_1b48x"), SubResource("AtlasTexture_ff3he"), SubResource("AtlasTexture_flrqm"), SubResource("AtlasTexture_jc1ov"), SubResource("AtlasTexture_r2mqf"), SubResource("AtlasTexture_178ba"), SubResource("AtlasTexture_iwis7"), SubResource("AtlasTexture_3x1fs")])
-density = 0.09
-clumping = 0.7
-wall_bias = 0.2
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_37jbf"]
 atlas = ExtResource("2_74m5r")
 region = Rect2(64, 176, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_35fak"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_ff3he"]
 atlas = ExtResource("2_74m5r")
 region = Rect2(80, 176, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_wk7t0"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_flrqm"]
 atlas = ExtResource("2_74m5r")
 region = Rect2(128, 176, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_38al2"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_moljt"]
 atlas = ExtResource("2_74m5r")
-region = Rect2(144, 176, 16, 16)
+region = Rect2(0, 160, 16, 16)
 
-[sub_resource type="Resource" id="Resource_slgtp"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_gsfrq"]
+atlas = ExtResource("2_74m5r")
+region = Rect2(48, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qb74a"]
+atlas = ExtResource("2_74m5r")
+region = Rect2(64, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dm30d"]
+atlas = ExtResource("2_74m5r")
+region = Rect2(80, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3v1q8"]
+atlas = ExtResource("2_74m5r")
+region = Rect2(112, 160, 16, 16)
+
+[sub_resource type="Resource" id="Resource_jc1ov"]
 script = ExtResource("1_r4t5t")
-pieces = Array[Texture2D]([SubResource("AtlasTexture_37jbf"), SubResource("AtlasTexture_35fak"), SubResource("AtlasTexture_wk7t0"), SubResource("AtlasTexture_38al2")])
-density = 0.03
-clumping = 0.8
-wall_bias = 0.6
+pieces = Array[Texture2D]([SubResource("AtlasTexture_1b48x"), SubResource("AtlasTexture_ff3he"), SubResource("AtlasTexture_flrqm"), SubResource("AtlasTexture_moljt"), SubResource("AtlasTexture_gsfrq"), SubResource("AtlasTexture_qb74a"), SubResource("AtlasTexture_dm30d"), SubResource("AtlasTexture_3v1q8")])
+density = 0.15
+max_per_room = 4
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6i532"]
+atlas = ExtResource("2_74m5r")
+region = Rect2(0, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1qjpf"]
+atlas = ExtResource("2_74m5r")
+region = Rect2(16, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gw8ds"]
+atlas = ExtResource("2_74m5r")
+region = Rect2(48, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7p24x"]
+atlas = ExtResource("2_74m5r")
+region = Rect2(96, 176, 16, 16)
+
+[sub_resource type="Resource" id="Resource_r2mqf"]
+script = ExtResource("1_r4t5t")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_6i532"), SubResource("AtlasTexture_1qjpf"), SubResource("AtlasTexture_gw8ds"), SubResource("AtlasTexture_7p24x")])
+where = 1
+density = 0.35
 
 [sub_resource type="Resource" id="Resource_1lcuy"]
 script = ExtResource("3_1b48x")
@@ -98,7 +92,8 @@ script = ExtResource("12_37jbf")
 theme = ExtResource("13_35fak")
 grounds = Array[ExtResource("3_1b48x")]([SubResource("Resource_1lcuy")])
 scenes = Array[ExtResource("6_jc1ov")]([ExtResource("7_r2mqf"), ExtResource("8_178ba"), ExtResource("9_iwis7"), ExtResource("10_3x1fs"), ExtResource("11_d67u6")])
-decor = Array[ExtResource("1_r4t5t")]([SubResource("Resource_d67u6"), SubResource("Resource_slgtp")])
+decor = Array[ExtResource("1_r4t5t")]([SubResource("Resource_jc1ov"), SubResource("Resource_r2mqf")])
+props = Array[ExtResource("6_74m5r")]([ExtResource("7_flrqm"), ExtResource("8_jc1ov"), ExtResource("9_r2mqf")])
 id = &"underground_garden"
 display_name = "Underground Garden"
 description = "Light from cracks above feeds a garden nobody tends anymore."

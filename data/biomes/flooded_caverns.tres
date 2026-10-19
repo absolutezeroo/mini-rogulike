@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="6_6pr3o"]
 [ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="7_n7wyy"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/flooded_hollow.tres" id="8_i2so8"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="8_xmwuw"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/puddle.tres" id="9_r3nfj"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/crystal_cluster.tres" id="10_y7mcp"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/sunken_pillars.tres" id="11_lhfok"]
@@ -16,37 +17,37 @@
 [ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="13_3x0m4"]
 [ext_resource type="Resource" path="res://data/dungeon/themes/flooded.tres" id="14_yk0bu"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_xmwuw"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_wg6do"]
 atlas = ExtResource("2_0gldx")
 region = Rect2(0, 0, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_ormdw"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_emtqk"]
 atlas = ExtResource("2_0gldx")
 region = Rect2(0, 32, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_pj4u3"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_ygtgs"]
 atlas = ExtResource("2_0gldx")
 region = Rect2(0, 48, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_6pr3o"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_2rjg3"]
 atlas = ExtResource("2_0gldx")
 region = Rect2(0, 80, 16, 16)
 
-[sub_resource type="Resource" id="Resource_n7wyy"]
+[sub_resource type="Resource" id="Resource_ormdw"]
 script = ExtResource("1_rhp6m")
-pieces = Array[Texture2D]([SubResource("AtlasTexture_xmwuw"), SubResource("AtlasTexture_ormdw"), SubResource("AtlasTexture_pj4u3"), SubResource("AtlasTexture_6pr3o")])
-wall_bias = 0.6
+pieces = Array[Texture2D]([SubResource("AtlasTexture_wg6do"), SubResource("AtlasTexture_emtqk"), SubResource("AtlasTexture_ygtgs"), SubResource("AtlasTexture_2rjg3")])
+density = 0.08
+max_per_room = 2
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_i2so8"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_pj4u3"]
 atlas = ExtResource("3_xmwuw")
 region = Rect2(16, 224, 16, 16)
 
-[sub_resource type="Resource" id="Resource_r3nfj"]
+[sub_resource type="Resource" id="Resource_6pr3o"]
 script = ExtResource("1_rhp6m")
-pieces = Array[Texture2D]([SubResource("AtlasTexture_i2so8")])
-density = 0.012
-clumping = 0.9
-wall_bias = 0.9
+pieces = Array[Texture2D]([SubResource("AtlasTexture_pj4u3")])
+density = 0.02
+max_per_room = 1
 
 [sub_resource type="Resource" id="Resource_y7mcp"]
 script = ExtResource("4_ormdw")
@@ -70,7 +71,7 @@ script = ExtResource("13_3x0m4")
 theme = ExtResource("14_yk0bu")
 grounds = Array[ExtResource("4_ormdw")]([SubResource("Resource_y7mcp"), SubResource("Resource_lhfok")])
 scenes = Array[ExtResource("7_n7wyy")]([ExtResource("8_i2so8"), ExtResource("9_r3nfj"), ExtResource("10_y7mcp"), ExtResource("11_lhfok"), ExtResource("12_rsuwl")])
-decor = Array[ExtResource("1_rhp6m")]([SubResource("Resource_n7wyy"), SubResource("Resource_r3nfj")])
+decor = Array[ExtResource("1_rhp6m")]([SubResource("Resource_ormdw"), SubResource("Resource_6pr3o")])
 id = &"flooded_caverns"
 display_name = "Flooded Caverns"
 description = "The Well's water rose here once. It never went back down."

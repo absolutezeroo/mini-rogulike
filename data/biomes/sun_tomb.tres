@@ -1,15 +1,18 @@
 [gd_resource type="Resource" script_class="BiomeDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/biomes/decor_rule_def.gd" id="1_c2h0d"]
-[ext_resource type="Texture2D" path="res://assets/tiles/desert.png" id="2_a3df6"]
 [ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="3_i4kae"]
 [ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="4_85e7w"]
 [ext_resource type="Script" path="res://src/definitions/biomes/ground_layer_def.gd" id="5_i6fqq"]
 [ext_resource type="Texture2D" path="res://assets/tiles/floor.png" id="6_657lm"]
 [ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="7_hv6b4"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="8_c2h0d"]
 [ext_resource type="Resource" path="res://data/props/furniture/brazier.tres" id="8_kofmd"]
 [ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="9_8gody"]
+[ext_resource type="Resource" path="res://data/props/vase.tres" id="9_85e7w"]
+[ext_resource type="Resource" path="res://data/props/tnt.tres" id="10_i6fqq"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/sarcophagi.tres" id="10_p8x4s"]
+[ext_resource type="Resource" path="res://data/props/furniture/gold_basket.tres" id="11_657lm"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/burial_chamber.tres" id="11_nijve"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/lion_gallery.tres" id="12_isrdg"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/treasure_heap.tres" id="13_tyh2p"]
@@ -19,65 +22,34 @@
 [ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="17_gjr08"]
 [ext_resource type="Resource" path="res://data/dungeon/themes/sun_tomb.tres" id="18_qf6n7"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_7ckvn"]
-atlas = ExtResource("2_a3df6")
-region = Rect2(256, 176, 16, 16)
+[sub_resource type="AtlasTexture" id="AtlasTexture_lecpv"]
+atlas = ExtResource("4_85e7w")
+region = Rect2(224, 0, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_c0b8x"]
-atlas = ExtResource("2_a3df6")
-region = Rect2(272, 176, 16, 16)
+[sub_resource type="AtlasTexture" id="AtlasTexture_eajro"]
+atlas = ExtResource("4_85e7w")
+region = Rect2(224, 0, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_xnou2"]
-atlas = ExtResource("2_a3df6")
-region = Rect2(288, 176, 16, 16)
+[sub_resource type="AtlasTexture" id="AtlasTexture_k2f7k"]
+atlas = ExtResource("4_85e7w")
+region = Rect2(208, 0, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_uqg2h"]
-atlas = ExtResource("2_a3df6")
-region = Rect2(304, 176, 16, 16)
-
-[sub_resource type="Resource" id="Resource_la5k6"]
+[sub_resource type="Resource" id="Resource_a3df6"]
 script = ExtResource("1_c2h0d")
-pieces = Array[Texture2D]([SubResource("AtlasTexture_7ckvn"), SubResource("AtlasTexture_c0b8x"), SubResource("AtlasTexture_xnou2"), SubResource("AtlasTexture_uqg2h")])
-density = 0.03
-clumping = 0.7
-wall_bias = 0.6
+pieces = Array[Texture2D]([SubResource("AtlasTexture_lecpv"), SubResource("AtlasTexture_eajro"), SubResource("AtlasTexture_k2f7k")])
+where = 1
+density = 0.15
+max_per_room = 2
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_pw44s"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_i4kae"]
 atlas = ExtResource("3_i4kae")
 region = Rect2(112, 160, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_s2fem"]
-atlas = ExtResource("3_i4kae")
-region = Rect2(112, 160, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_td88f"]
-atlas = ExtResource("3_i4kae")
-region = Rect2(128, 48, 16, 16)
-
-[sub_resource type="Resource" id="Resource_aj054"]
+[sub_resource type="Resource" id="Resource_85e7w"]
 script = ExtResource("1_c2h0d")
-pieces = Array[Texture2D]([SubResource("AtlasTexture_pw44s"), SubResource("AtlasTexture_s2fem"), SubResource("AtlasTexture_td88f")])
-density = 0.012
-clumping = 0.9
-wall_bias = 0.7
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_144ex"]
-atlas = ExtResource("4_85e7w")
-region = Rect2(80, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ou1yq"]
-atlas = ExtResource("4_85e7w")
-region = Rect2(96, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_0qtxu"]
-atlas = ExtResource("4_85e7w")
-region = Rect2(112, 0, 16, 16)
-
-[sub_resource type="Resource" id="Resource_5mk4n"]
-script = ExtResource("1_c2h0d")
-pieces = Array[Texture2D]([SubResource("AtlasTexture_144ex"), SubResource("AtlasTexture_ou1yq"), SubResource("AtlasTexture_0qtxu")])
-density = 0.03
-clumping = 0.5
+pieces = Array[Texture2D]([SubResource("AtlasTexture_i4kae")])
+where = 1
+max_per_room = 1
 
 [sub_resource type="Resource" id="Resource_qw5g7"]
 script = ExtResource("5_i6fqq")
@@ -92,8 +64,9 @@ script = ExtResource("17_gjr08")
 theme = ExtResource("18_qf6n7")
 grounds = Array[ExtResource("5_i6fqq")]([SubResource("Resource_qw5g7")])
 scenes = Array[ExtResource("9_8gody")]([ExtResource("10_p8x4s"), ExtResource("11_nijve"), ExtResource("12_isrdg"), ExtResource("13_tyh2p"), ExtResource("14_ln3u6"), ExtResource("15_bkkfm"), ExtResource("16_w8jrq")])
-decor = Array[ExtResource("1_c2h0d")]([SubResource("Resource_la5k6"), SubResource("Resource_aj054"), SubResource("Resource_5mk4n")])
+decor = Array[ExtResource("1_c2h0d")]([SubResource("Resource_a3df6"), SubResource("Resource_85e7w")])
 light = ExtResource("8_kofmd")
+props = Array[ExtResource("8_c2h0d")]([ExtResource("9_85e7w"), ExtResource("10_i6fqq"), ExtResource("11_657lm")])
 id = &"sun_tomb"
 display_name = "Sun Tomb"
 description = "Gold under every stone, and a curse on every coin."

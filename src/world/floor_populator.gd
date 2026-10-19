@@ -43,11 +43,13 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 		var encounter := ContentDB.pick_from(content.encounters, depth, rng) as EncounterDef
 		if encounter == null:
 			continue
-		# A few tries: a themed room's middle may hold a statue, a pond...
+		# A few tries: a room's middle may hold a scene (a statue, a pond...); then near it.
 		for attempt in 4:
 			var index := rng.randi_range(1, map.rooms.size() - 1)
-			var cell := map.rooms[index].get_center()
-			if index != merchant_index and not taken.has(cell) and map.is_floor(cell) and not world.nav.is_blocked(cell):
+			if index == merchant_index:
+				continue
+			var cell := _free_near_middle(world, map.rooms[index], taken)
+			if cell != Vector2i(-1, -1):
 				world.spawn_encounter(encounter, cell)
 				_reserve_around(taken, cell, 1)
 				break
@@ -134,6 +136,19 @@ static func place_curse(world: World, curse: CurseDef, taken: Dictionary) -> voi
 			wanted -= 1
 
 
+## The free cell closest to the middle of `room` (at most 2 cells away), or (-1, -1).
+static func _free_near_middle(world: World, room: Rect2i, taken: Dictionary) -> Vector2i:
+	var middle := room.get_center()
+	for radius in 3:
+		for dy in range(-radius, radius + 1):
+			for dx in range(-radius, radius + 1):
+				var cell := middle + Vector2i(dx, dy)
+				if maxi(absi(dx), absi(dy)) == radius and room.grow(-1).has_point(cell) \
+						and not taken.has(cell) and RoomSpace.is_free(world, cell):
+					return cell
+	return Vector2i(-1, -1)
+
+
 ## A big enough room, not the first one, without the stairs and not `except` (-1 if none).
 static func _pick_quiet_room(map: DungeonMap, rng: RandomNumberGenerator, except: int) -> int:
 	var candidates: Array[int] = []
@@ -177,7 +192,7 @@ static func _place_props(world: World, content: ContentDB, depth: int, room: Rec
 		for k in size:
 			if taken.has(cell) or not _is_edge(world.map, room, cell):
 				break
-			var prop := content.pick_prop(depth, rng)
+			var prop := world.biome.pick_prop(content, depth, rng) if world.biome else content.pick_prop(depth, rng)
 			if prop:
 				world.spawn_prop(prop, cell)
 			taken[cell] = true

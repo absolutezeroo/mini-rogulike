@@ -5,8 +5,10 @@ class_name FloorDresser
 ##      or away from the walls.
 ##   2. Scenes (SceneDef): little scenes made by hand, a few per room depending on its size,
 ##      each where its anchor says, never walling anything off.
-##   3. Decor (DecorRuleDef): small things gathered in clusters, near the walls or on a ground.
-## The first room (where the hero arrives) gets no scene.
+##   3. Decor (DecorRuleDef): a few small things, each with a reason to be there (at the foot
+##      of a wall, around a scene's furniture, on its ground); room middles and corridors clear.
+## The first room (where the hero arrives) gets no scene. The floor tiles carry no decor of
+## their own (DungeonTheme.decor_chance is 0 for biomes): all of it comes from here.
 
 ## The scenes put on the last floor dressed (SceneDef -> how many): for tests and the debug panel.
 static var last_scenes := {}
@@ -21,11 +23,12 @@ static func dress(world: World, taken: Dictionary, with_scenes: bool = true) -> 
 	for layer in biome.grounds:
 		if layer:
 			_lay_ground(world, layer, walls)
+	var standing := {}  # cells of what the scenes put up
 	if with_scenes:
-		_place_scenes(world, biome, taken)
+		_place_scenes(world, biome, taken, standing)
 	for rule in biome.decor:
 		if rule and not rule.pieces.is_empty():
-			_scatter(world, rule, walls, taken)
+			_scatter(world, rule, walls, standing)
 
 
 ## Cells from each floor cell to the nearest wall (1 = touching one).
@@ -99,7 +102,7 @@ static func _lay_ground(world: World, layer: GroundLayerDef, walls: Dictionary) 
 	world.spawn_vfx(view)
 
 
-static func _place_scenes(world: World, biome: BiomeDef, taken: Dictionary) -> void:
+static func _place_scenes(world: World, biome: BiomeDef, taken: Dictionary, standing: Dictionary) -> void:
 	if biome.scenes.is_empty():
 		return
 	var map := world.map
@@ -119,7 +122,7 @@ static func _place_scenes(world: World, biome: BiomeDef, taken: Dictionary) -> v
 			var scene := _pick_scene(biome, room, big, placed, world.depth, rng)
 			if scene == null:
 				break
-			if scene.try_place(world, room, taken, rng):
+			if scene.try_place(world, room, taken, rng, standing):
 				placed[scene] = placed.get(scene, 0) + 1
 				wanted -= 1
 
@@ -135,25 +138,52 @@ static func _pick_scene(biome: BiomeDef, room: Rect2i, big: bool, placed: Dictio
 	return ContentDB.pick_from(fitting, depth, rng) as SceneDef
 
 
-static func _scatter(world: World, rule: DecorRuleDef, walls: Dictionary, taken: Dictionary) -> void:
+static func _scatter(world: World, rule: DecorRuleDef, walls: Dictionary, standing: Dictionary) -> void:
+	var map := world.map
 	var rng := world.rng
 	var noise := _noise(rng, rule.noise_scale)
-	var on: Dictionary = world.grounds.get(rule.only_on, {}) if rule.only_on else {}
-	if rule.only_on and on.is_empty():
-		return
+	var on: Dictionary = world.grounds.get(rule.ground, {}) if rule.ground else {}
 	var layer := DecorLayer.new()
 	layer.z_index = -8
-	for cell: Vector2i in walls:
-		if rule.only_on and not on.has(cell):
-			continue
-		if world.nav.is_blocked(cell) or cell == world.map.start_cell or cell == world.map.stairs_cell:
-			continue
-		# Clustered: the noise says where; `clumping` how strictly.
-		var cluster := (_score(noise, cell, walls, rule.wall_bias) + 1.0) * 0.5
-		var chance := rule.density * lerpf(1.0, clampf((cluster - 0.45) * 4.0, 0.0, 2.5), rule.clumping)
-		if rng.randf() >= chance:
-			continue
-		var at := world.map.cell_to_world(cell) + Vector2(rng.randf_range(-9.0, 9.0), rng.randf_range(-9.0, 9.0))
-		layer.pieces.append([rule.pieces[rng.randi() % rule.pieces.size()], at.snapped(Vector2(2, 2))])
+	var used := {}
+	for room in map.rooms:
+		var spots: Array = []  # [noise, cell]
+		for y in range(room.position.y, room.end.y):
+			for x in range(room.position.x, room.end.x):
+				var cell := Vector2i(x, y)
+				if not walls.has(cell) or used.has(cell) or world.nav.is_blocked(cell) \
+						or cell == map.start_cell or cell == map.stairs_cell or not _fits_rule(rule, cell, walls, standing, on):
+					continue
+				spots.append([noise.get_noise_2d(cell.x, cell.y), cell])
+		# The noise's high spots first: pieces gather there.
+		spots.sort_custom(func(a: Array, b: Array) -> bool: return a[0] > b[0])
+		var count := 0
+		for spot: Array in spots:
+			if count >= rule.max_per_room:
+				break
+			var cluster := (float(spot[0]) + 1.0) * 0.5
+			if rng.randf() >= rule.density * lerpf(1.0, cluster * 2.0, rule.clumping):
+				continue
+			var cell: Vector2i = spot[1]
+			used[cell] = true
+			count += 1
+			var at := map.cell_to_world(cell) + Vector2(rng.randf_range(-8.0, 8.0), rng.randf_range(-8.0, 8.0))
+			layer.pieces.append([rule.pieces[rng.randi() % rule.pieces.size()], at.snapped(Vector2(2, 2))])
 	if not layer.pieces.is_empty():
 		world.spawn_vfx(layer)
+
+
+## Is `cell` a place for this rule's pieces?
+static func _fits_rule(rule: DecorRuleDef, cell: Vector2i, walls: Dictionary, standing: Dictionary, on: Dictionary) -> bool:
+	match rule.where:
+		DecorRuleDef.Where.ALONG_WALLS:
+			return walls[cell] == 1
+		DecorRuleDef.Where.AROUND_SCENES:
+			for dy in range(-1, 2):
+				for dx in range(-1, 2):
+					if standing.has(cell + Vector2i(dx, dy)):
+						return true
+			return false
+		DecorRuleDef.Where.ON_GROUND:
+			return on.has(cell)
+	return false

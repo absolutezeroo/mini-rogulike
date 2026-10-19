@@ -890,7 +890,9 @@ func _test_biomes(game: Game) -> void:
 	generic[dungeon.room_light] = true
 	for a in dungeon.acts.size():
 		for biome in dungeon.acts[a].biomes:
-			var allowed := generic.duplicate()
+			var allowed := generic.duplicate() if biome.props.is_empty() else {dungeon.room_light: true}
+			for prop in biome.props:
+				allowed[prop] = true
 			if biome.light:
 				allowed[biome.light] = true
 			for scene in biome.scenes:

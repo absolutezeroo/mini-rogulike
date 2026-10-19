@@ -33,7 +33,7 @@ region = Rect2(304, 176, 16, 16)
 script = ExtResource("1_0vdml")
 kind = 1
 pieces = Array[Texture2D]([SubResource("AtlasTexture_7ckvn"), SubResource("AtlasTexture_c0b8x"), SubResource("AtlasTexture_xnou2"), SubResource("AtlasTexture_uqg2h")])
-chance = 0.6
+chance = 0.35000000000000003
 
 [resource]
 script = ExtResource("6_fnafa")

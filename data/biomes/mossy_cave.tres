@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" path="res://assets/tiles/relief_detail.png" id="5_qb74a"]
 [ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="6_dm30d"]
 [ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="7_3v1q8"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="7_uv4ov"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/boulder_pile.tres" id="8_gvx1m"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/stump_ring.tres" id="9_wg6do"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/cave_spring.tres" id="10_emtqk"]
@@ -26,36 +27,33 @@ coverage = 0.28
 noise_scale = 0.11
 wall_bias = 0.6
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_uv4ov"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_moljt"]
 atlas = ExtResource("4_gsfrq")
 region = Rect2(0, 160, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_moljt"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_gsfrq"]
 atlas = ExtResource("4_gsfrq")
 region = Rect2(48, 160, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_gsfrq"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_qb74a"]
 atlas = ExtResource("4_gsfrq")
 region = Rect2(64, 160, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_qb74a"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_dm30d"]
 atlas = ExtResource("4_gsfrq")
 region = Rect2(80, 160, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_dm30d"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_3v1q8"]
 atlas = ExtResource("4_gsfrq")
 region = Rect2(112, 160, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_3v1q8"]
-atlas = ExtResource("4_gsfrq")
-region = Rect2(144, 160, 16, 16)
-
 [sub_resource type="Resource" id="Resource_gvx1m"]
 script = ExtResource("1_tbdxu")
-pieces = Array[Texture2D]([SubResource("AtlasTexture_uv4ov"), SubResource("AtlasTexture_moljt"), SubResource("AtlasTexture_gsfrq"), SubResource("AtlasTexture_qb74a"), SubResource("AtlasTexture_dm30d"), SubResource("AtlasTexture_3v1q8")])
-density = 0.3
-clumping = 0.5
-only_on = SubResource("Resource_tbdxu")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_moljt"), SubResource("AtlasTexture_gsfrq"), SubResource("AtlasTexture_qb74a"), SubResource("AtlasTexture_dm30d"), SubResource("AtlasTexture_3v1q8")])
+where = 2
+ground = SubResource("Resource_tbdxu")
+density = 0.25
+max_per_room = 4
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wg6do"]
 atlas = ExtResource("5_qb74a")
@@ -76,8 +74,8 @@ region = Rect2(0, 80, 16, 16)
 [sub_resource type="Resource" id="Resource_oy2j0"]
 script = ExtResource("1_tbdxu")
 pieces = Array[Texture2D]([SubResource("AtlasTexture_wg6do"), SubResource("AtlasTexture_emtqk"), SubResource("AtlasTexture_ygtgs"), SubResource("AtlasTexture_2rjg3")])
-density = 0.035
-wall_bias = 0.7
+density = 0.08
+max_per_room = 2
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_6i532"]
 atlas = ExtResource("4_gsfrq")
@@ -98,9 +96,10 @@ region = Rect2(96, 176, 16, 16)
 [sub_resource type="Resource" id="Resource_6fkgg"]
 script = ExtResource("1_tbdxu")
 pieces = Array[Texture2D]([SubResource("AtlasTexture_6i532"), SubResource("AtlasTexture_1qjpf"), SubResource("AtlasTexture_gw8ds"), SubResource("AtlasTexture_7p24x")])
-density = 0.04
-clumping = 0.8
-only_on = SubResource("Resource_tbdxu")
+where = 2
+ground = SubResource("Resource_tbdxu")
+density = 0.06
+max_per_room = 1
 
 [resource]
 script = ExtResource("14_6i532")
