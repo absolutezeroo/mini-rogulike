@@ -136,6 +136,9 @@ func _begin_run(saved: Dictionary) -> void:
 	difficulty = content.get_difficulty(StringName(saved.get("difficulty", Profile.difficulty)))
 	if difficulty and not Profile.is_unlocked(difficulty):
 		difficulty = content.default_difficulty
+	var ascension := int(saved.get("ascension", Profile.ascension if saved.is_empty() else 0))
+	if difficulty and difficulty.has_ascensions and ascension > 0:
+		difficulty = AscensionDef.apply_levels(difficulty, content.ascensions, mini(ascension, Profile.ascension_unlocked))
 	world.difficulty = difficulty
 	depth = int(saved.get("depth", 1))
 	if saved.get("boss_slain", false):
@@ -203,6 +206,8 @@ func _apply_profile() -> void:
 			UpgradeDef.Kind.STARTING_PERK:
 				if upgrade.perk:
 					player.perks.add(upgrade.perk)
+	if difficulty and difficulty.hero_max_hp != 1.0:
+		player.base_stats.max_hp = roundi(player.base_stats.max_hp * difficulty.hero_max_hp)
 	player.invalidate_stats()
 	player.hp = player.get_max_hp()
 
@@ -218,6 +223,8 @@ func _award_souls(won_now: bool) -> int:
 	var earned := total - _souls_awarded
 	_souls_awarded = total
 	Profile.record_run(earned, depth, won_now, difficulty.id if difficulty else &"")
+	if won_now and difficulty and difficulty.has_ascensions:
+		Profile.win_ascension(difficulty.ascension, content.ascensions.size())
 	_check_achievements()
 	return earned
 
@@ -470,6 +477,7 @@ func _save_run() -> void:
 		"souls_awarded": _souls_awarded,
 		"run_gold": _run_gold,
 		"difficulty": String(difficulty.id) if difficulty else "",
+		"ascension": difficulty.ascension if difficulty else 0,
 		"player": player.save_state(),
 		"offers": offers,
 	})

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="AscensionDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/ascension_def.gd" id="1_uhwtk"]
+
+[resource]
+script = ExtResource("1_uhwtk")
+title = "Sharp Fangs"
+description = "monsters hit 10% harder."
+monster_damage = 1.1

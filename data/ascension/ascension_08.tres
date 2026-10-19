@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="AscensionDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/ascension_def.gd" id="1_16yci"]
+
+[resource]
+script = ExtResource("1_16yci")
+title = "Deeper Dark"
+description = "the floors are darker."
+light = 0.75

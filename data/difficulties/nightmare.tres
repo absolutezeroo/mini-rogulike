@@ -20,3 +20,4 @@ elite_chance = 2.5
 loot_chance = 0.9
 souls = 2.5
 light = 0.75
+has_ascensions = true

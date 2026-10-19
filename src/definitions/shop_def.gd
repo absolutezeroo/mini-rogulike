@@ -24,11 +24,13 @@ extends Resource
 @export_range(0.0, 1.0) var sell_ratio: float = 0.35
 
 
-func buy_price(item: ItemDef, depth: int) -> int:
+## `extra`: the difficulty's price multiplier.
+func buy_price(item: ItemDef, depth: int, extra: float = 1.0) -> int:
 	var rarity := (item as EquipmentDef).rarity if item is EquipmentDef else ItemRarity.COMMON
-	return maxi(1, roundi(item.value * ItemRarity.VALUE[rarity] * price_multiplier * (1.0 + price_per_depth * (depth - 1))))
+	return maxi(1, roundi(item.value * ItemRarity.VALUE[rarity] * price_multiplier * extra * (1.0 + price_per_depth * (depth - 1))))
 
 
+## What the merchant pays (never touched by the difficulty).
 func sell_price(item: ItemDef, depth: int) -> int:
 	return maxi(1, roundi(buy_price(item, depth) * sell_ratio)) if item.value > 0 else 0
 

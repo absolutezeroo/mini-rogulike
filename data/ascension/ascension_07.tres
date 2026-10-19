@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="AscensionDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/ascension_def.gd" id="1_sbgk8"]
+
+[resource]
+script = ExtResource("1_sbgk8")
+title = "Wardens' Wrath"
+description = "bosses have 25% more HP."
+boss_hp = 1.25

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="AscensionDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/ascension_def.gd" id="1_uexhi"]
+
+[resource]
+script = ExtResource("1_uexhi")
+title = "Restless Dead"
+description = "one more monster in every room."
+extra_monsters = 1

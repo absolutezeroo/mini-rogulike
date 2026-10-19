@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="AscensionDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/ascension_def.gd" id="1_231tm"]
+
+[resource]
+script = ExtResource("1_231tm")
+title = "Elite Guard"
+description = "elites are 50% more common."
+elite_chance = 1.5

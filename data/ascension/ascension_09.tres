@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="AscensionDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/ascension_def.gd" id="1_3gg1m"]
+
+[resource]
+script = ExtResource("1_3gg1m")
+title = "Frail"
+description = "you start with 15% less max HP."
+hero_max_hp = 0.85

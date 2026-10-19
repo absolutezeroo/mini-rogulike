@@ -32,3 +32,12 @@ extends Resource
 @export_range(0.0, 1.0) var heal_on_new_floor: float = 0.0
 ## Multiplies the floors' darkness (below 1 = darker).
 @export var light: float = 1.0
+## Multiplies the merchant's prices.
+@export var shop_prices: float = 1.0
+## Multiplies the hero's max HP at the start of a run.
+@export var hero_max_hp: float = 1.0
+## Can be climbed past with ascension levels (Nightmare +1, +2...: see AscensionDef).
+@export var has_ascensions: bool = false
+
+## Ascension level of a run (set on the copy made by AscensionDef.apply_levels()).
+var ascension := 0

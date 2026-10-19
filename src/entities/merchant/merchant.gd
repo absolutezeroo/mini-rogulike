@@ -59,7 +59,8 @@ func _roll_stock() -> void:
 
 
 func _add(item: ItemDef) -> void:
-	stock.append({ "item": item, "price": def.buy_price(item, _world.depth) })
+	var extra := _world.difficulty.shop_prices if _world.difficulty else 1.0
+	stock.append({ "item": item, "price": def.buy_price(item, _world.depth, extra) })
 
 
 ## Buys stock entry `index` for `player`. Returns false if they can't (gold, full bag).

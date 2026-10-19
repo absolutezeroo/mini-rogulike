@@ -365,6 +365,23 @@ func _test_profile() -> void:
 		previous = difficulty.monster_hp
 	Profile.reset()
 
+	# Ascension: Nightmare +1, +2... each level stacks its twist.
+	check(CONTENT.ascensions.size() >= 10 and nightmare.has_ascensions, "Nightmare has ascension levels")
+	var climbed := AscensionDef.apply_levels(nightmare, CONTENT.ascensions, 3)
+	check(climbed.display_name == "Nightmare +3" and climbed.id == nightmare.id and climbed.ascension == 3, "Nightmare +3 is still Nightmare")
+	check(climbed.monster_hp > nightmare.monster_hp and climbed.elite_chance > nightmare.elite_chance and climbed.souls > nightmare.souls, "each level makes it harder (and pays more souls)")
+	check(nightmare.ascension == 0 and nightmare.display_name == "Nightmare", "the Nightmare file is untouched")
+	var top := AscensionDef.apply_levels(nightmare, CONTENT.ascensions, 99)
+	check(top.ascension == CONTENT.ascensions.size() and top.hero_max_hp < 1.0 and top.shop_prices > 1.0 and top.extra_monsters > nightmare.extra_monsters, "the last level has every twist")
+	Profile.select_ascension(4)
+	check(Profile.ascension == 0, "no ascension before a Nightmare win")
+	Profile.win_ascension(0, CONTENT.ascensions.size())
+	check(Profile.ascension_unlocked == 1 and Profile.stat_value("ascension") == 0, "a Nightmare win opens +1")
+	Profile.win_ascension(5, CONTENT.ascensions.size())
+	Profile.select_ascension(99)
+	check(Profile.ascension == 6 and Profile.stat_value("ascension") == 5, "winning +5 opens +6")
+	Profile.reset()
+
 	# Records: the bestiary, counters, achievements, the run history; all saved.
 	Profile.record_kill(&"slime")
 	Profile.record_kill(&"slime")
@@ -409,6 +426,13 @@ func _test_title_screen() -> void:
 	var cards: HBoxContainer = title.get_node("%DifficultyCards")
 	check(title.get_node("%DifficultyPanel").visible and cards.get_child_count() == 4, "Play asks for a difficulty")
 	check((cards.get_child(3) as Button).disabled and not (cards.get_child(2) as Button).disabled, "Nightmare locked, Hard open")
+	check(not title.get_node("%AscensionRow").visible, "no ascension before a Nightmare win")
+	Profile.ascension_unlocked = 2
+	(title.get_node("%DifficultyPanel") as DifficultyPanel).open(CONTENT.difficulties, CONTENT.ascensions)
+	(title.get_node("%AscensionPlus") as Button).pressed.emit()
+	check(title.get_node("%AscensionRow").visible and Profile.ascension == 1 and (title.get_node("%AscensionLevel") as Label).text == "+1", "the ascension level is picked with Nightmare")
+	Profile.ascension_unlocked = 0
+	Profile.ascension = 0
 	(title.get_node("%BackButton") as Button).pressed.emit()
 	await _frames(1)
 	check(not title.get_node("%DifficultyPanel").visible, "back to the title")
@@ -667,6 +691,24 @@ func _test_gameplay() -> void:
 	game.start_run()
 	await _frames(3)
 	check(game.difficulty == CONTENT.default_difficulty, "a locked difficulty falls back to Normal")
+	var base_hp: int = game.player.get_max_hp()
+	Profile.wins = { "hard": 1, "nightmare": 1 }
+	Profile.ascension_unlocked = 9
+	Profile.ascension = 9
+	game.start_run()
+	await _frames(3)
+	check(game.difficulty.ascension == 9 and game.world.difficulty.display_name == "Nightmare +9", "a run on Nightmare +9")
+	check(game.player.get_max_hp() < base_hp, "Frail: less max HP")
+	var merchant: Merchant = game.world.spawn_merchant(CONTENT.dungeon.merchant, game.world.map.start_cell + Vector2i(3, 0))
+	var potion_price: int = CONTENT.dungeon.merchant.buy_price(load("res://data/items/consumables/health_potion.tres"), game.depth)
+	merchant._add(load("res://data/items/consumables/health_potion.tres"))
+	check(merchant.stock.back().price > potion_price, "Thin Purse: higher prices")
+	merchant.queue_free()
+	game._save_run()
+	check(int(RunSave.read().get("ascension", 0)) == 9, "the saved run keeps its ascension")
+	Profile.wins = {}
+	Profile.ascension_unlocked = 0
+	Profile.ascension = 0
 	Profile.difficulty = &"normal"
 	game.start_run()
 	await _frames(3)

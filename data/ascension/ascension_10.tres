@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AscensionDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/ascension_def.gd" id="1_txtmi"]
+
+[resource]
+script = ExtResource("1_txtmi")
+title = "The Well's Heart"
+description = "monsters have 15% more HP and hit 10% harder."
+monster_hp = 1.15
+monster_damage = 1.1

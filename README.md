@@ -317,6 +317,11 @@ the normal game:
 | Souls | x0.5 | x1 | x1.6 | x2.5 |
 
 Easy, Normal and Hard are open; **Nightmare unlocks after a win on Hard** (`unlocked_by`).
+**Ascension**: a Nightmare win opens **Nightmare +1**, a +1 win opens +2, up to +10
+(`data/ascension/`, `AscensionDef`, picked under the difficulty cards). Each level adds its twist
+on top of the ones below: tougher monsters, harder hits, more elites, higher prices, one more
+monster per room, faster monsters, tougher bosses, darker floors, less max HP... and 10% more
+souls per level.
 The last choice is remembered, shown in the HUD and on the end-of-run screen.
 
 ## Between runs
@@ -426,6 +431,7 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 | A boss | New `BossDef` in `data/monsters/bosses/`, set it as an act's Boss |
 | A shrine upgrade | New `UpgradeDef` in `data/upgrades/`, add it to `content_db.tres` > Upgrades |
 | An achievement | New `AchievementDef` in `data/achievements/` (stat, target, souls), add it to `content_db.tres` > Achievements |
+| An ascension level | New `AscensionDef` in `data/ascension/`, add it at the end of `content_db.tres` > Ascensions |
 | A difficulty | New `DifficultyDef` in `data/difficulties/`, add it to `content_db.tres` > Difficulties |
 | A prop | New `PropDef` in `data/props/` (sprite, hits, loot, explosion, light), add it to `content_db.tres` > Props |
 | A trap or hazard | New `TrapDef` / `ArrowTrapDef` / `PitDef` / `QuicksandDef` in `data/hazards/`, add it to an act's Hazards |

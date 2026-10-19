@@ -64,19 +64,30 @@
 [ext_resource type="Resource" path="res://data/achievements/veteran.tres" id="20_hml5q"]
 [ext_resource type="Resource" path="res://data/affixes/venomous.tres" id="20_j2x0q"]
 [ext_resource type="Resource" path="res://data/items/consumables/fire_scroll.tres" id="20_vfprf"]
+[ext_resource type="Script" path="res://src/definitions/ascension_def.gd" id="21_15tjo"]
 [ext_resource type="Resource" path="res://data/affixes/frozen.tres" id="21_go5c6"]
 [ext_resource type="Resource" path="res://data/items/consumables/rage_elixir.tres" id="21_nlt3e"]
 [ext_resource type="Resource" path="res://data/items/consumables/haste_draught.tres" id="22_7cyc7"]
+[ext_resource type="Resource" path="res://data/ascension/ascension_01.tres" id="22_q5atc"]
 [ext_resource type="Resource" path="res://data/affixes/sturdy.tres" id="22_vqxcy"]
+[ext_resource type="Resource" path="res://data/ascension/ascension_02.tres" id="23_80whv"]
 [ext_resource type="Resource" path="res://data/items/weapons/templar_sword.tres" id="23_dianq"]
 [ext_resource type="Resource" path="res://data/affixes/fortified.tres" id="23_yb7ug"]
+[ext_resource type="Resource" path="res://data/ascension/ascension_03.tres" id="24_ftpue"]
 [ext_resource type="Resource" path="res://data/affixes/light.tres" id="24_ud7y0"]
 [ext_resource type="Resource" path="res://data/affixes/of_the_bear.tres" id="25_f8vur"]
+[ext_resource type="Resource" path="res://data/ascension/ascension_04.tres" id="25_th6df"]
 [ext_resource type="Resource" path="res://data/affixes/of_the_titan.tres" id="26_cnpc5"]
+[ext_resource type="Resource" path="res://data/ascension/ascension_05.tres" id="26_vi73k"]
 [ext_resource type="Resource" path="res://data/affixes/of_the_fox.tres" id="27_38uwr"]
+[ext_resource type="Resource" path="res://data/ascension/ascension_06.tres" id="27_byg44"]
+[ext_resource type="Resource" path="res://data/ascension/ascension_07.tres" id="28_by7se"]
 [ext_resource type="Resource" path="res://data/affixes/of_sorcery.tres" id="28_riqfl"]
+[ext_resource type="Resource" path="res://data/ascension/ascension_08.tres" id="29_hml5q"]
 [ext_resource type="Resource" path="res://data/affixes/of_haste.tres" id="29_vv2q4"]
+[ext_resource type="Resource" path="res://data/ascension/ascension_09.tres" id="30_5x320"]
 [ext_resource type="Resource" path="res://data/affixes/of_fury.tres" id="30_xabxg"]
+[ext_resource type="Resource" path="res://data/ascension/ascension_10.tres" id="31_1ai64"]
 [ext_resource type="Resource" path="res://data/player/player_def.tres" id="33_bx8nx"]
 [ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="33_lnxyg"]
 [ext_resource type="Script" path="res://src/definitions/content_db.gd" id="34_tx8pl"]
@@ -147,6 +158,7 @@ upgrades = Array[ExtResource("73_0tw7m")]([ExtResource("74_pgsf5"), ExtResource(
 locked_items = Array[ExtResource("2_cewcx")]([ExtResource("23_dianq"), ExtResource("10_ng0jj"), ExtResource("37_gyds2"), ExtResource("38_1b8ag"), ExtResource("16_h0egv"), ExtResource("15_rjx6h")])
 props = Array[ExtResource("52_yjg1c")]([ExtResource("53_dianq"), ExtResource("54_kqkbc"), ExtResource("55_xx7nh"), ExtResource("56_6esje")])
 elite_affixes = Array[ExtResource("7_s1peu")]([ExtResource("8_du3p3"), ExtResource("9_to1jy"), ExtResource("10_8pk3k"), ExtResource("11_v6cij"), ExtResource("12_til0v"), ExtResource("13_mym40")])
+ascensions = Array[ExtResource("21_15tjo")]([ExtResource("22_q5atc"), ExtResource("23_80whv"), ExtResource("24_ftpue"), ExtResource("25_th6df"), ExtResource("26_vi73k"), ExtResource("27_byg44"), ExtResource("28_by7se"), ExtResource("29_hml5q"), ExtResource("30_5x320"), ExtResource("31_1ai64")])
 achievements = Array[ExtResource("1_3m6vt")]([ExtResource("2_7lncd"), ExtResource("3_l6yv8"), ExtResource("4_xqlpv"), ExtResource("5_lvfra"), ExtResource("6_xu8gq"), ExtResource("7_pkcsl"), ExtResource("8_bwrsx"), ExtResource("9_k2lip"), ExtResource("10_1p0g0"), ExtResource("11_6khne"), ExtResource("12_15tjo"), ExtResource("13_q5atc"), ExtResource("14_80whv"), ExtResource("15_ftpue"), ExtResource("16_th6df"), ExtResource("17_vi73k"), ExtResource("18_byg44"), ExtResource("19_by7se"), ExtResource("20_hml5q")])
 encounters = Array[ExtResource("14_uppjc")]([ExtResource("15_k7n23"), ExtResource("16_iw61m"), ExtResource("17_1nigv"), ExtResource("18_j2x0q")])
 item_affixes = Array[ExtResource("14_y455n")]([ExtResource("15_xepax"), ExtResource("16_uppjc"), ExtResource("17_k7n23"), ExtResource("18_iw61m"), ExtResource("19_1nigv"), ExtResource("20_j2x0q"), ExtResource("21_go5c6"), ExtResource("22_vqxcy"), ExtResource("23_yb7ug"), ExtResource("24_ud7y0"), ExtResource("25_f8vur"), ExtResource("26_cnpc5"), ExtResource("27_38uwr"), ExtResource("28_riqfl"), ExtResource("29_vv2q4"), ExtResource("30_xabxg")])

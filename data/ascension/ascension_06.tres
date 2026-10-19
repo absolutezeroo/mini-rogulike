@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AscensionDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/ascension_def.gd" id="1_dmant"]
+
+[resource]
+script = ExtResource("1_dmant")
+title = "Swift Hunters"
+description = "monsters are faster and wind up quicker."
+monster_speed = 1.08
+telegraph_time = 0.9

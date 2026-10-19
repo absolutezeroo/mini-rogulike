@@ -17,6 +17,9 @@ var best_depth := 0
 var difficulty: StringName = &"normal"
 ## Victories per difficulty id (unlocks the next difficulty).
 var wins := {}
+## Nightmare ascension: the level picked for the next run, and the highest one open.
+var ascension := 0
+var ascension_unlocked := 0
 ## The story was told once (it plays before the first run).
 var seen_intro := false
 ## Monster id -> how many were slain (the bestiary).
@@ -63,6 +66,19 @@ static func souls_for_run(kills: int, depth: int, bosses: int, won: bool, multip
 
 func is_unlocked(def: DifficultyDef) -> bool:
 	return def.unlocked_by == null or wins.get(String(def.unlocked_by.id), 0) > 0
+
+
+## A Nightmare win at ascension `level` opens the next level (up to `max_level`).
+func win_ascension(level: int, max_level: int) -> void:
+	ascension_unlocked = clampi(maxi(ascension_unlocked, level + 1), 0, max_level)
+	raise_stat("ascension", level)
+	save_profile()
+
+
+func select_ascension(level: int) -> void:
+	ascension = clampi(level, 0, ascension_unlocked)
+	save_profile()
+	changed.emit()
 
 
 func select_difficulty(def: DifficultyDef) -> void:
@@ -160,6 +176,8 @@ func reset() -> void:
 	difficulty = &"normal"
 	wins = {}
 	seen_intro = false
+	ascension = 0
+	ascension_unlocked = 0
 	kills_by_monster = {}
 	stats = {}
 	achievements = {}
@@ -177,6 +195,7 @@ func save_profile() -> void:
 	file.store_string(JSON.stringify({
 		"souls": souls, "levels": levels, "runs": runs, "victories": victories, "best_depth": best_depth,
 		"difficulty": String(difficulty), "wins": wins, "seen_intro": seen_intro,
+		"ascension": ascension, "ascension_unlocked": ascension_unlocked,
 		"kills_by_monster": kills_by_monster, "stats": stats, "achievements": achievements, "history": history,
 	}, "\t"))
 
@@ -200,6 +219,8 @@ func load_profile() -> void:
 	for key in wins:
 		wins[key] = int(wins[key])
 	seen_intro = bool(data.get("seen_intro", false))
+	ascension = int(data.get("ascension", 0))
+	ascension_unlocked = int(data.get("ascension_unlocked", 0))
 	kills_by_monster = _ints(data.get("kills_by_monster", {}))
 	stats = _ints(data.get("stats", {}))
 	achievements = _ints(data.get("achievements", {}))

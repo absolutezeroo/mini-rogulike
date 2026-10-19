@@ -34,7 +34,7 @@ func _ready() -> void:
 	_setup_continue()
 	%PlayButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
-		(%DifficultyPanel as DifficultyPanel).open(content.difficulties))
+		(%DifficultyPanel as DifficultyPanel).open(content.difficulties, content.ascensions))
 	(%DifficultyPanel as DifficultyPanel).chosen.connect(func(_difficulty: DifficultyDef) -> void: play())
 	%ShrineButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
