@@ -69,7 +69,7 @@ func _physics_process(delta: float) -> void:
 				if _spawn_timer <= 0.0:
 					_spawn_timer = SPAWN_INTERVAL
 					_spawn_one(_to_spawn.pop_back())
-			elif _wave.all(func(m: Monster) -> bool: return not is_instance_valid(m) or m.is_dead):
+			elif _is_wave_dead():
 				if waves_left <= 0:
 					_finish()
 					return
@@ -78,6 +78,14 @@ func _physics_process(delta: float) -> void:
 					_queue_wave()
 			else:
 				_pause_timer = WAVE_PAUSE
+
+
+## Every monster of the wave is dead (most are already freed: they dissolve when they die).
+func _is_wave_dead() -> bool:
+	for monster: Variant in _wave:
+		if is_instance_valid(monster) and not (monster as Monster).is_dead:
+			return false
+	return true
 
 
 func _queue_wave() -> void:

@@ -1665,9 +1665,16 @@ func _test_boss_fight(game: Node) -> void:
 	check(not relics.is_empty(), "the boss offers relics after the victory")
 	if relics.is_empty():
 		return
+	var stacks_before := player.perks.stacks_of(relics[0])
 	game.perk_panel.choose(0)
 	await _frames(2)
-	check(player.perks.stacks_of(relics[0]) == 1 and not get_tree().paused, "relic taken, game resumed")
+	# Level ups queued behind the relic come next: take them too.
+	for attempt in 5:
+		if not game.perk_panel.visible:
+			break
+		game.perk_panel.choose(0)
+		await _frames(2)
+	check(player.perks.stacks_of(relics[0]) == stacks_before + 1 and not get_tree().paused, "relic taken, game resumed")
 
 	# The last act's boss wins the run; you may keep going (endless).
 	game.depth = 9
