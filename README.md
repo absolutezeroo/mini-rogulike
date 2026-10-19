@@ -76,7 +76,8 @@ src/
   game/                Game: main scene, floor flow, pauses; RunState (the run: depth, kills, bosses,
                        difficulty), RunRecords (stats, bestiary, achievements, history), OfferQueue
                        (perk choices waiting), GameMenus (the panels), ShrineUpgrades, RunSave (on disk)
-tests/               Headless test suite with a bot that plays the game
+tests/               Headless tests: run_tests (the runner), suites/ (unit, title, game, combat, floor, boss),
+                     support/ (TestSuite: checks, scene helpers, the bot)
 ```
 
 **Rule of thumb:** `data/` says *what* exists, `src/definitions/` says *what a thing can have*,
@@ -538,11 +539,19 @@ From the project root (desktop Godot):
 
 ```
 godot --headless --fixed-fps 60 res://tests/run_tests.tscn
+godot --headless --fixed-fps 60 res://tests/run_tests.tscn -- --only=unit,title
 ```
 
-Checks the rules, the content database, 100 generated maps (and their walls), 40 boss arenas,
-inventory, equipment, weapon skills and tomes, every kind of perk, props, explosive chains, traps and lights, then a bot plays the real game (kills, level ups and perk choices, stairs,
-a full boss fight with its phases and relic, death and restart).
+The suites (`tests/suites/`, each a `TestSuite`):
+- **unit**: the rules, the content database, 100 generated maps (and their walls), 40 boss arenas,
+  inventory, equipment, perks, bosses, the profile. No game running: fast.
+- **title**: the title screen and its panels.
+- **game**: a bot plays the real game (kills, level ups and perk choices, stairs, death and
+  restart, saving and resuming), then on that same game: **combat** (projectiles, perks, skills,
+  monsters and their traits, difficulty, weapons), **floor** (props, hazards, chests, ambushes,
+  encounters, the merchant, loot, curses, act cards, the belt) and **boss** (a full boss fight
+  with its phases and relic, then winning the run).
+
 The exit code is the number of failures.
 
 ## Art and credits

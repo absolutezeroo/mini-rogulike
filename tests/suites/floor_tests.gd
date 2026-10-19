@@ -1,0 +1,852 @@
+class_name FloorTests
+extends TestSuite
+## In the game: what floors hold (props, hazards, chests, ambushes, encounters, the merchant,
+## loot, curses...), act cards, souls, saving, the belt.
+
+
+## Lights, props, explosive barrels, traps and the death dissolve.
+func _test_world_objects(game: Game, world: World, player: Player) -> void:
+	check((player.get_node("Torch") as PointLight2D).enabled, "the hero carries a torch")
+	check((world.get_node("Ambient") as CanvasModulate).color == world.theme.ambient, "the floor is as dark as its theme")
+	check(get_tree().get_nodes_in_group("props").size() > 0, "the floor has props")
+	var lanterns := get_tree().get_nodes_in_group("props").filter(func(p: Node) -> bool: return (p as Prop).def == CONTENT.dungeon.room_light)
+	check(lanterns.size() >= world.map.rooms.size(), "every room has lanterns (%d)" % lanterns.size())
+
+	# A crate in front of the hero breaks under the katana.
+	var crate_def: PropDef = load("res://data/props/crate.tres")
+	var spot := world.map.world_to_cell(world.find_open_point_near(player.global_position, 40.0))
+	var crate := world.spawn_prop(crate_def, spot)
+	await _frames(1)
+	for i in crate_def.hits:
+		player._attack_cooldown = 0.0
+		player.attack(player.global_position.direction_to(crate.global_position))
+		await _frames(2)
+	check(not is_instance_valid(crate) or crate.is_broken, "a crate breaks after %d hits" % crate_def.hits)
+	await _frames(5)
+
+	# Powder kegs: one explodes, sets off its neighbour, hurts a monster nearby, credits the hero.
+	var keg_def: PropDef = load("res://data/props/tnt.tres")
+	var base := world.map.world_to_cell(world.find_open_point_near(player.global_position, 150.0))
+	var keg := world.spawn_prop(keg_def, base)
+	var keg2 := world.spawn_prop(keg_def, base + Vector2i(1, 0))
+	var rat := world.spawn_monster(load("res://data/monsters/rat.tres"), world.map.cell_to_world(base) + Vector2(0, 30))
+	rat.dormant = true
+	await _frames(1)
+	var rat_hp := rat.hp
+	var spark := HitInfo.new()
+	spark.source = player
+	keg.take_hit(spark)
+	check(not keg.is_broken, "a keg has a fuse")
+	await _frames(int(keg_def.fuse_time * 60.0) + 4)
+	check(not is_instance_valid(keg) or keg.is_broken, "the keg explodes after its fuse")
+	check(not is_instance_valid(rat) or rat.is_dead or rat.hp < rat_hp, "the blast hurts monsters")
+	await _frames(int(keg_def.fuse_time * 60.0) + 4)
+	check(not is_instance_valid(keg2) or keg2.is_broken, "explosions set off other kegs")
+	await _frames(30)
+	check(not is_instance_valid(rat), "dead monsters dissolve and disappear")
+
+	# A spike trap hurts whoever stands on it, monsters included.
+	var spikes: TrapDef = load("res://data/hazards/spikes.tres")
+	var trap_cell := world.map.world_to_cell(world.find_open_point_near(player.global_position, 120.0))
+	var trap := world.spawn_trap(spikes, trap_cell)
+	var victim := world.spawn_monster(load("res://data/monsters/slime.tres"), world.map.cell_to_world(trap_cell))
+	victim.dormant = true
+	await _frames(1)
+	var victim_hp := victim.hp
+	var cycle := spikes.idle_time + spikes.warning_time + 0.2
+	var saw_warning := false
+	for i in int(cycle * 60.0):
+		saw_warning = saw_warning or trap.phase == Trap.Phase.WARNING
+		await get_tree().physics_frame
+	check(saw_warning, "spikes warn before they strike")
+	check(victim.hp < victim_hp, "spikes hurt monsters standing on them")
+	trap.queue_free()
+	if is_instance_valid(victim):
+		victim.queue_free()
+
+	# A pressure plate waits for someone to step on it.
+	var plate: TrapDef = load("res://data/hazards/spike_plate.tres")
+	var plate_cell := world.map.world_to_cell(world.find_open_point_near(player.global_position, 120.0))
+	var plate_trap := world.spawn_trap(plate, plate_cell)
+	await _frames(60)
+	check(plate_trap.phase == Trap.Phase.IDLE, "a plate stays still while nobody is on it")
+	var hp_before := player.hp
+	player.base_stats.defense = 0
+	player.invalidate_stats()
+	player._invulnerable_time = 0.0
+	player.global_position = plate_trap.global_position
+	await _frames(int((plate.warning_time + 0.1) * 60.0) + 2)
+	check(player.hp < hp_before, "stepping on a plate fires its spikes")
+	player.hp = player.get_max_hp()
+	plate_trap.queue_free()
+	await _frames(5)
+
+
+## Holes, crumbling floor, quicksand, arrow traps, chests, elites, ambushes and how floors use them.
+func _test_hazards(game: Game, world: World, player: Player) -> void:
+	var pit: PitDef = load("res://data/hazards/pit.tres")
+	var slime_def: MonsterDef = load("res://data/monsters/slime.tres")
+	# Tough hero (hazards still do 1 damage), and the floor's own ambush out of the way.
+	var defense_saved := player.base_stats.defense
+	player.base_stats.defense = 999
+	player.invalidate_stats()
+	if world.ambush:
+		world.ambush.queue_free()
+		world.ambush = null
+	player.hp = player.get_max_hp()
+	var xp_saved := player.xp
+	player.xp = -1000000  # no level up (and its pause) in the middle of this
+
+	# A monster knocked into a hole is gone, and the hero gets the XP.
+	var hole := _open_cell_near(world, player.global_position, 3)
+	world.add_pit(hole, pit)
+	check(world.has_pit(hole) and world.pit_under(world.map.cell_to_world(hole)) == pit, "a hole is a hole")
+	check(world.pit_under(world.map.cell_to_world(hole) + Vector2(-14, 0)) == null, "the edge of a hole is forgiven")
+	var slime := world.spawn_monster(slime_def, world.map.cell_to_world(hole + Vector2i.LEFT))
+	slime.dormant = true
+	slime.move_direction = Vector2.RIGHT
+	check(slime._avoid_holes(Vector2.RIGHT) != Vector2.RIGHT, "walking monsters don't step into holes")
+	slime.move_direction = Vector2.ZERO
+	var xp_before := player.xp
+	var push := Combat.make_hit(1, 0.0, player)
+	push.knockback = Vector2.RIGHT * 700.0
+	slime.take_hit(push)
+	await _frames(45)
+	check(not is_instance_valid(slime) or slime.is_dead, "a monster knocked into a hole falls")
+	check(player.xp > xp_before, "the hero gets the XP of what they pushed in")
+	var bat := world.spawn_monster(load("res://data/monsters/bat.tres"), world.map.cell_to_world(hole))
+	bat.dormant = true
+	await _frames(40)
+	check(is_instance_valid(bat) and not bat.is_dead and not bat.is_falling, "flying monsters don't fall")
+	bat.queue_free()
+
+	# The hero falls too, and climbs back out where they last stood, hurt.
+	var safe := world.map.cell_to_world(hole + Vector2i.LEFT * 2)
+	player.global_position = safe
+	await _frames(3)
+	player._invulnerable_time = 0.0
+	var hp_before := player.hp
+	player.global_position = world.map.cell_to_world(hole)
+	await _frames(3)
+	check(player.is_falling, "the hero falls into a hole")
+	await _frames(int(Actor.FALL_TIME * 60.0) + 6)
+	check(not player.is_falling and player.global_position.distance_to(safe) < 24.0, "the hero climbs out where they stood")
+	check(player.hp < hp_before and player.rig.scale == Vector2.ONE, "falling hurts")
+	player.global_position = world.map.cell_to_world(hole)
+	player.start_dash(Vector2.RIGHT * 10.0, 0.3, true)
+	await _frames(5)
+	check(not player.is_falling, "rolling carries you over a hole")
+	player.global_position = safe
+	await _frames(25)
+
+	# Cracked floor gives way under your feet.
+	var crumbling: PitDef = load("res://data/hazards/crumbling_floor.tres")
+	var cracked := _open_cell_near(world, player.global_position, 2)
+	var tile := world.spawn_crumbling_floor(crumbling, cracked)
+	check(not world.is_solid_ground(world.map.cell_to_world(cracked)), "cracked floor is no safe ground")
+	await _frames(30)
+	check(not world.has_pit(cracked), "cracked floor holds while nobody is on it")
+	player._invulnerable_time = 0.0
+	player.global_position = world.map.cell_to_world(cracked)
+	await _frames(int(crumbling.crumble_time * 60.0) + 4)
+	check(world.has_pit(cracked) and not is_instance_valid(tile), "cracked floor gives way")
+	await _frames(int(Actor.FALL_TIME * 60.0) + 10)
+	check(not player.is_falling and world.is_solid_ground(player.global_position), "and the hero falls through")
+	player.hp = player.get_max_hp()
+
+	# Quicksand slows whoever wades in, then swallows them.
+	var sand: QuicksandDef = load("res://data/hazards/quicksand.tres")
+	var pool_cell := _open_cell_near(world, player.global_position, 2)
+	var pool := world.spawn_quicksand(sand, Rect2i(pool_cell, Vector2i(2, 2)))
+	var wader := world.spawn_monster(slime_def, pool.global_position)
+	wader.dormant = true
+	await _frames(5)
+	check(wader.statuses.is_slowed(), "quicksand slows monsters down")
+	var wader_hp := wader.hp
+	await _frames(int((sand.sink_delay + 0.3) * 60.0))
+	check(not is_instance_valid(wader) or wader.hp < wader_hp, "staying in quicksand hurts")
+	var flyer := world.spawn_monster(load("res://data/monsters/bat.tres"), pool.global_position)
+	flyer.dormant = true
+	await _frames(5)
+	check(not flyer.statuses.is_slowed(), "flying monsters skim over quicksand")
+	for node: Node in [wader, flyer, pool]:
+		if is_instance_valid(node):
+			node.queue_free()
+
+	# Arrow traps: the slit is in a wall, a plate shoots arrows across the room. Monsters set them off too.
+	var arrows: ArrowTrapDef = load("res://data/hazards/arrow_trap.tres")
+	var placed: Trap
+	for room in world.map.rooms:
+		var before := get_tree().get_nodes_in_group("traps")
+		arrows.place(world, room, {})
+		for node in get_tree().get_nodes_in_group("traps"):
+			if not before.has(node):
+				placed = node
+		if placed:
+			break
+	check(placed != null and not world.map.is_floor(placed.launcher_cell) and placed.launcher_direction != Vector2.ZERO, "an arrow trap's slit is in a wall")
+	if placed:
+		placed.queue_free()
+	# Nobody else around to step into the line of fire.
+	await _clear_monsters(world)
+	var plate_cell := _open_cell_near(world, player.global_position, 3)
+	var arrow_trap := world.spawn_trap(arrows, plate_cell)
+	arrow_trap.set_launcher(plate_cell + Vector2i.UP * 3, Vector2.DOWN)
+	player.global_position = world.map.cell_to_world(plate_cell + Vector2i.RIGHT * 3)  # out of the line of fire
+	var target := world.spawn_monster(slime_def, arrow_trap.global_position)
+	target.dormant = true
+	var target_hp := target.hp
+	await _frames(int((arrows.warning_time + 0.2) * 60.0) + 40)
+	check(not is_instance_valid(target) or target.hp < target_hp, "monsters on the plate get shot")
+	if is_instance_valid(target):
+		target.queue_free()
+	arrow_trap.queue_free()
+
+	# Chests spill items; trapped ones bite.
+	var chest_def: ChestDef = CONTENT.dungeon.chest
+	var bag_saved := player.inventory.items.duplicate()
+	var chest_cell := _open_cell_near(world, player.global_position, 2)
+	var chest := world.spawn_chest(chest_def, chest_cell, false)
+	await _frames(2)
+	check(not chest.is_open, "a chest stays shut until the hero comes")
+	var loot_before := get_tree().get_nodes_in_group("pickups").size()
+	chest.open()
+	await _frames(2)
+	check(get_tree().get_nodes_in_group("pickups").size() > loot_before, "a chest gives items")
+	var trap_cell := _open_cell_near(world, player.global_position, 2)
+	var monsters_before := world.monster_count()
+	var trapped := world.spawn_chest(chest_def, trap_cell, true)
+	player.global_position = world.map.cell_to_world(trap_cell + Vector2i.DOWN)
+	await _frames(4)
+	check(trapped.is_open, "walking up to a chest opens it")
+	check(trapped.is_open and (trapped._fuse >= 0.0 or world.monster_count() > monsters_before), "a trapped chest springs its trap")
+	await _frames(int(chest_def.fuse_time * 60.0) + 5)
+	for monster in world.get_hostiles(Actor.Faction.PLAYER):
+		if monster.global_position.distance_to(trapped.global_position) < 90.0:
+			monster.queue_free()
+	player.hp = player.get_max_hp()
+	player.inventory.items = bag_saved
+	player.inventory.changed.emit()
+	await _frames(2)
+
+	# Elites: an affix, more HP, a name, bigger, and their perk works.
+	var elite := world.spawn_monster(slime_def, world.map.cell_to_world(_open_cell_near(world, player.global_position, 1)))
+	elite.dormant = true
+	var base_hp := elite.get_max_hp()
+	var vampiric: EliteAffixDef = load("res://data/elites/vampiric.tres")
+	elite.make_elite(vampiric, CONTENT.dungeon)
+	check(elite.is_elite() and elite.get_max_hp() >= base_hp * 2, "elites are tougher")
+	check(elite.display_name.begins_with("Vampiric") and elite.rig.scale.x > 1.0, "elites have a name and are bigger")
+	elite.hp = 1
+	elite.perks.on_hit_dealt(elite, player, HitInfo.new(), 10)
+	check(elite.hp > 1, "vampiric elites heal when they hit")
+	var explosive: Monster = world.spawn_monster(slime_def, world.map.cell_to_world(_open_cell_near(world, player.global_position, 2)))
+	explosive.dormant = true
+	explosive.make_elite(load("res://data/elites/explosive.tres"), CONTENT.dungeon)
+	var neighbour := world.spawn_monster(slime_def, explosive.global_position + Vector2(20, 0))
+	neighbour.dormant = true
+	var neighbour_hp := neighbour.hp
+	var items_before := get_tree().get_nodes_in_group("pickups").size()
+	var guaranteed_drops: int = explosive._bonus_drops
+	explosive.take_hit(Combat.make_secondary_hit(player, 99999))
+	await _frames(50)
+	check(not is_instance_valid(neighbour) or neighbour.hp < neighbour_hp, "explosive elites blow up when they die")
+	# (The hero may pick some up meanwhile: no fewer items, and a guaranteed drop.)
+	check(guaranteed_drops >= 1 and get_tree().get_nodes_in_group("pickups").size() >= items_before, "elites always drop loot")
+	for node: Node in [elite, neighbour]:
+		if is_instance_valid(node):
+			node.queue_free()
+	var chances := 0
+	for i in 400:
+		var rolled := world.spawn_monster(slime_def, world.find_open_point_near(player.global_position, 300.0))
+		world.roll_elite(rolled)
+		chances += 1 if rolled.is_elite() else 0
+		rolled.free()
+	check(chances > 0 and chances < 200, "some monsters roll to be elites (%d / 400)" % chances)
+
+	# Ambush: walking in closes the exits, waves come (the last with an elite), clearing opens it.
+	var room_index := -1
+	for i in range(1, world.map.rooms.size()):
+		var r := world.map.rooms[i]
+		if r.size.x >= 7 and r.size.y >= 7 and (world.ambush == null or world.ambush.room != r) and not r.grow(1).has_point(world.map.stairs_cell):
+			room_index = i
+			break
+	if room_index >= 0:
+		var room := world.map.rooms[room_index]
+		var started := [0]
+		var on_start := func(_r: AmbushRoom) -> void: started[0] += 1
+		Events.ambush_started.connect(on_start)
+		var ambush := world.spawn_ambush(room)
+		var elites_seen := [0]
+		var on_kill := func(m: Monster) -> void: elites_seen[0] += 1 if m.is_elite() else 0
+		Events.monster_killed.connect(on_kill)
+		player.global_position = _solid_point_in(world, room.grow(-2))
+		await _frames(3)
+		check(ambush.state == AmbushRoom.State.FIGHTING and ambush.is_closed() and started[0] == 1, "walking into an ambush closes the exits")
+		check(game.hud._depth_banner.text == "Ambush!", "the HUD announces the ambush")
+		for frame in 60 * 20:
+			if ambush.state == AmbushRoom.State.CLEARED:
+				break
+			for monster in world.get_hostiles(Actor.Faction.PLAYER):
+				if room.grow(1).has_point(world.map.world_to_cell(monster.global_position)) and not monster.is_falling:
+					monster.take_hit(Combat.make_secondary_hit(player, 99999))
+			await get_tree().physics_frame
+		check(ambush.state == AmbushRoom.State.CLEARED and not ambush.is_closed(), "clearing the waves opens the exits")
+		check(elites_seen[0] >= 1, "the last wave is led by an elite")
+		var reward := get_tree().get_nodes_in_group("chests").filter(func(c: Node) -> bool: return (c as Chest).def == CONTENT.dungeon.ambush_chest and room.has_point(world.map.world_to_cell(c.global_position)))
+		check(reward.size() == 1 and (reward[0] as Chest).def == CONTENT.dungeon.ambush_chest, "a big chest rewards the survivor (%d there, %d chests)" % [reward.size(), get_tree().get_nodes_in_group("chests").size()])
+		Events.ambush_started.disconnect(on_start)
+		Events.monster_killed.disconnect(on_kill)
+
+	# Real floors: hazards everywhere, but the stairs can always be reached.
+	CONTENT.dungeon.merchant_chance = 1.0
+	CONTENT.dungeon.encounters_max = 2
+	CONTENT.dungeon.encounters_min = 2
+	var merchants := 0
+	var encounters := 0
+	var hazard_total := 0
+	for depth in [1, 2, 4, 5, 7, 8]:
+		world.build_floor(depth, CONTENT)
+		merchants += get_tree().get_nodes_in_group("merchants").filter(func(n: Node) -> bool: return not n.is_queued_for_deletion()).size()
+		encounters += get_tree().get_nodes_in_group("encounters").filter(func(n: Node) -> bool: return not n.is_queued_for_deletion()).size()
+		var start := world.map.cell_to_world(world.map.start_cell)
+		check(not world.find_path(start, world.map.cell_to_world(world.map.stairs_cell)).is_empty(), "depth %d: the stairs can be reached" % depth)
+		var count := get_tree().get_nodes_in_group("traps").size() + get_tree().get_nodes_in_group("crumbling_floors").size() \
+			+ get_tree().get_nodes_in_group("quicksand").size() + world._pits.cells().size()
+		hazard_total += count
+	check(hazard_total >= 12, "floors have hazards (%d on 6 floors)" % hazard_total)
+	check(merchants >= 4 and encounters >= 6, "floors get merchants and encounters (%d, %d)" % [merchants, encounters])
+	CONTENT.dungeon.merchant_chance = 0.0
+	CONTENT.dungeon.encounters_max = 0
+	CONTENT.dungeon.encounters_min = 0
+	world.build_floor(game.depth, CONTENT)
+	world.place_player(player)
+	player.base_stats.defense = defense_saved
+	player.invalidate_stats()
+	player.hp = player.get_max_hp()
+	player.xp = xp_saved
+	await _frames(5)
+
+
+## A new act begins with its title card, on black, game paused. A tap skips it.
+func _test_act_card(game: Game) -> void:
+	game.show_act_cards = true
+	game.depth = 3  # _descend goes one floor down: the first floor of act II
+	game._descend()
+	await _frames(int(game.FADE_TIME * 60.0) + 40)
+	var card: ActCard = game.act_card
+	var act: ActDef = CONTENT.dungeon.act_for_depth(4)
+	check(card.visible and (card.get_node("%Title") as Label).text == act.title, "a new act shows its card")
+	check((card.get_node("%Lore") as Label).text == act.lore and get_tree().paused, "with its story, game paused")
+	var tap := InputEventMouseButton.new()
+	tap.button_index = MOUSE_BUTTON_LEFT
+	tap.pressed = true
+	Input.parse_input_event(tap)
+	await _frames(int(ActCard.FADE_TIME * 60.0) + 10)
+	check(not card.visible and not get_tree().paused, "a tap skips the card")
+	game.show_act_cards = false
+	await _frames(20)
+
+
+## Kills set souls free: they fly into the hero's lantern and the HUD counts them.
+func _test_souls(game: Game) -> void:
+	var world: World = game.world
+	var player: Player = game.player
+	player.xp = -1000000  # no level up (and its pause) from this kill
+	var monster := world.spawn_monster(load("res://data/monsters/slime.tres"), world.find_open_point_near(player.global_position, 100.0))
+	monster.dormant = true
+	var gathered := [0]
+	var on_soul := func() -> void: gathered[0] += 1
+	Events.soul_gathered.connect(on_soul)
+	monster.take_hit(Combat.make_secondary_hit(player, 99999))
+	await _frames(2)
+	check(world.get_node("Effects").get_children().any(func(n: Node) -> bool: return n is SoulWisp), "a kill sets a soul free")
+	await _frames(90)
+	check(gathered[0] >= 1, "the soul reaches the hero's lantern")
+	var shown := int((game.hud.get_node("%SoulsLabel") as Label).text.trim_prefix("Souls "))
+	check(shown > 0 and shown <= game.run_souls(), "the HUD counts the run's souls")
+	Events.soul_gathered.disconnect(on_soul)
+
+
+## Pause menu, options, vibrations (no-op here), the minimap and the back button.
+func _test_comfort(game: Game) -> void:
+	var world: World = game.world
+	var hud: Hud = game.hud
+	(hud.get_node("%PauseButton") as Button).pressed.emit()
+	await _frames(1)
+	var pause: PauseMenu = game.pause_menu
+	check(pause.visible and get_tree().paused, "the pause button pauses the game")
+	(pause.get_node("%OptionsButton") as Button).pressed.emit()
+	var options: OptionsPanel = pause.get_node("%OptionsPanel")
+	check(options.visible, "options open from the pause menu")
+	(options.get_node("%MusicSlider") as HSlider).value = 0.5
+	check(is_equal_approx(Settings.music_volume, 0.5) and absf(AudioServer.get_bus_volume_db(AudioServer.get_bus_index(&"Music")) - linear_to_db(0.5)) < 0.01, "the music slider sets the music volume")
+	(options.get_node("%ControlsSlider") as HSlider).value = 1.2
+	check(is_equal_approx((hud.get_node("%Controls") as Control).scale.x, 1.2), "the buttons size option scales the controls")
+	Settings.vibrate(1.0)  # must not fail on a computer
+	game._back()
+	check(not options.visible and pause.visible, "back closes the options first")
+	var give_up: Button = pause.get_node("%AbandonButton")
+	give_up.pressed.emit()
+	check(not game.player.is_dead and give_up.text == PauseMenu.CONFIRM_TEXT, "giving up asks to confirm")
+	game._back()
+	await _frames(1)
+	check(not pause.visible and not get_tree().paused, "back resumes the game")
+	game._back()
+	check(pause.visible, "back pauses the game")
+	(pause.get_node("%ResumeButton") as Button).pressed.emit()
+	await _frames(1)
+	Settings.set_option(&"music_volume", 0.8)
+	Settings.set_option(&"controls_scale", 1.0)
+
+	# The minimap: the start room is known, walking reveals more, a tap shows the whole floor.
+	check(world.is_explored(world.map.world_to_cell(game.player.global_position)), "the hero's surroundings are explored")
+	var minimap: Minimap = hud.get_node("%Minimap")
+	var full_map: Minimap = hud.get_node("%FullMap")
+	check(minimap._texture != null and minimap._image.get_width() == world.map.width, "the minimap draws the floor")
+	var seen := Array(world.fog.explored).count(1)
+	var far_room := world.map.rooms.filter(func(r: Rect2i) -> bool:
+		return not r.grow(1).has_point(world.map.stairs_cell) and not r.has_point(world.map.world_to_cell(game.player.global_position))).back() as Rect2i
+	var depth_now: int = game.depth
+	game.player.global_position = _solid_point_in(world, far_room.grow(-1))
+	await _frames(3)
+	check(Array(world.fog.explored).count(1) > seen and world.is_explored(far_room.get_center()), "exploring reveals the map")
+	check(game.depth == depth_now, "(still on the same floor)")
+	minimap.tapped.emit()
+	check(full_map.visible, "tapping the minimap shows the whole floor")
+	full_map.tapped.emit()
+	check(not full_map.visible, "tapping again closes it")
+	game.player.xp = 0
+
+
+## Potions live on the belt, not in the bag. Bosses can't be juggled.
+func _test_belt_and_balance(game: Game) -> void:
+	var player: Player = game.player
+	var world: World = game.world
+	var potion: ConsumableDef = load("res://data/items/consumables/health_potion.tres")
+	var bomb: ConsumableDef = load("res://data/items/consumables/bomb.tres")
+	var haste: ConsumableDef = load("res://data/items/consumables/haste_draught.tres")
+	var rage: ConsumableDef = load("res://data/items/consumables/rage_elixir.tres")
+	var saved_belt := player.belt.to_data()
+	var saved_bag := player.inventory.items.duplicate()
+	player.belt.load_data([])
+	player.inventory.items.clear()
+	for i in Belt.MAX_STACK + 1:
+		player.pick_up(potion)
+	check(player.belt.count_at(0) == Belt.MAX_STACK and player.belt.count_at(1) == 1, "potions stack on the belt (%d a slot)" % Belt.MAX_STACK)
+	check(player.inventory.items.is_empty(), "they take no room in the bag")
+	player.pick_up(bomb)
+	player.pick_up(haste)
+	check(player.belt.item_at(2) == bomb and player.inventory.items.size() == 1 and player.inventory.items[0] == haste, "a full belt sends the rest to the bag")
+	await _frames(2)
+	var buttons: Array = [game.hud.get_node("%QuickItemButton"), game.hud.get_node("%Belt2Button"), game.hud.get_node("%Belt3Button")]
+	check(buttons.all(func(b: ActionButton) -> bool: return b.visible) and (buttons[0] as ActionButton).counter == Belt.MAX_STACK, "one button per belt slot, with its count")
+	player.hp = 1
+	player.use_belt(0)
+	check(player.hp > 1 and player.belt.count_at(0) == Belt.MAX_STACK - 1, "a belt button uses its potion")
+	var bombs_before := player.belt.count_of(bomb)
+	player.use_belt(2)
+	check(player.belt.item_at(2) == null and bombs_before == 1, "the last one empties the slot")
+	check(player.move_to_belt(haste) and player.belt.item_at(2) == haste and player.inventory.items.is_empty(), "a consumable moves from the bag to the belt")
+	check(player.move_to_bag(2) and player.inventory.items.has(haste), "and back")
+	var data := player.save_state()
+	var copy := player.belt.to_data()
+	player.belt.load_data([])
+	player.belt.load_data(JSON.parse_string(JSON.stringify(data.belt)))
+	check(player.belt.to_data() == copy, "the belt is saved with the run")
+	# The inventory screen shows the belt.
+	game.open_inventory()
+	var panel: InventoryPanel = game.inventory_panel
+	panel._select_belt(0)
+	check(panel.get_node("%BeltSlot1").text == "x%d" % player.belt.count_at(0) and panel.get_node("%BeltButton").visible, "the bag screen shows the belt")
+	panel.close()
+	await _frames(1)
+	player.pick_up(rage)
+	player.belt.load_data(saved_belt)
+	player.inventory.items = saved_bag
+
+	# Bosses stand their ground; elites and big monsters resist. (One at a time: they would push
+	# each other.)
+	var moved := []
+	for path in ["res://data/monsters/bosses/king_slime.tres", "res://data/monsters/slime.tres"]:
+		var monster := world.spawn_monster(load(path), world.map.cell_to_world(_open_cell_near(world, player.global_position, 3)))
+		monster.dormant = true
+		await _frames(2)
+		var start := monster.global_position
+		var shove := Combat.make_secondary_hit(null, 1)
+		shove.knockback = Vector2.RIGHT * 600.0
+		monster.take_hit(shove)
+		await _frames(20)
+		moved.append(monster.global_position.distance_to(start))
+		if monster.is_boss():
+			check(monster.get_max_hp() >= 800, "bosses are tough (%d HP)" % monster.get_max_hp())
+		monster.queue_free()
+		await _frames(2)
+	check(moved[0] < 8.0 and moved[1] > 20.0, "bosses barely move when hit (%.1f vs %.1f)" % moved)
+	var slime := world.spawn_monster(load("res://data/monsters/slime.tres"), world.map.cell_to_world(_open_cell_near(world, player.global_position, 3)))
+	world.make_elite(slime)
+	check(slime.get_knockback_resistance() >= 0.5, "elites resist knockback")
+	slime.queue_free()
+	await _frames(2)
+
+
+## Frozen floors and campfires, scorching ground, dark rooms, and no bag full of potions.
+func _test_climate(game: Game) -> void:
+	var player: Player = game.player
+	var world: World = game.world
+	var frostbound: CurseDef = load("res://data/curses/frostbound.tres")
+	var ashen: CurseDef = load("res://data/curses/ashen_breath.tres")
+	var lanternless: CurseDef = load("res://data/curses/lanternless.tres")
+	var campfire: HeatSourceDef = load("res://data/hazards/campfire.tres")
+	var spring: HeatSourceDef = load("res://data/hazards/cool_spring.tres")
+	check(CONTENT.curses.has(frostbound) and CONTENT.curses.has(ashen) and CONTENT.curses.has(lanternless), "three curses: frozen, burning, lightless")
+	var start_depth: int = game.depth
+	var saved_curses := CONTENT.curses.duplicate()
+	var difficulty: DifficultyDef = world.difficulty
+	var saved_chance := difficulty.curse_chance
+
+	# The first floor is never cursed.
+	difficulty.curse_chance = 1.0
+	game.depth = 1
+	game._enter_floor()
+	await _frames(3)
+	check(world.curse == null, "never on the first floor")
+
+	# Frostbound: the whole floor is ice; the cold creeps in, slows, then hurts.
+	CONTENT.curses = [frostbound]
+	game.depth = 2
+	game._enter_floor()
+	await _frames(3)
+	check(world.curse == frostbound and world.floor_event == null, "a cursed floor (and no floor event with it)")
+	var sources := get_tree().get_nodes_in_group("heat_sources")
+	var fires := sources.filter(func(f: Node) -> bool: return (f as HeatSource).def == campfire)
+	var iced := sources.filter(func(f: Node) -> bool: return (f as HeatSource).def == frostbound.room_look)
+	check(iced.size() == world.map.rooms.size(), "ice over every room (%d/%d)" % [iced.size(), world.map.rooms.size()])
+	check(fires.size() >= 2 and fires.any(func(f: Node) -> bool: return world.map.rooms[0].grow(3).has_point(world.map.world_to_cell(f.global_position))), "campfires around the floor, one where you arrive (%d)" % fires.size())
+	for fire in fires:
+		fire.free()
+	player.temperature.reset()
+	player.hp = player.get_max_hp()
+	player._invulnerable_time = 0.0
+	for i in 40:
+		player.temperature.update(player, 0.5)
+	check(player.temperature.value <= -BodyTemperature.LIMIT, "Frostbound chills the hero to the bone (%.0f)" % player.temperature.value)
+	check(player.statuses.speed_multiplier() < 0.8, "the cold slows you down")
+	check(player.hp < player.get_max_hp(), "freezing hurts")
+	await _frames(2)
+	check(game.hud._temp_bar.visible and game.hud._temp_bar.fill_color.b > 0.9, "the HUD shows how cold you are")
+	check(game.hud._temp_overlay.visible and (game.hud._temp_overlay.material as ShaderMaterial).get_shader_parameter("cold") > 0.9, "frost creeps over the screen")
+	var cell := world.map.world_to_cell(player.global_position)
+	var fire := world.spawn_heat_source(campfire, Rect2i(cell, campfire.size))
+	check(fire.reaches(player), "a campfire reaches the hero next to it")
+	for i in 4:
+		player.temperature.update(player, 0.5)
+	check(player.temperature.value > -BodyTemperature.LIMIT * 0.1, "a campfire warms you back up (%.0f)" % player.temperature.value)
+	fire.free()
+
+	# Ashen Breath: it burns; the springs cool you down.
+	CONTENT.curses = [ashen]
+	game._enter_floor()
+	await _frames(3)
+	check(world.curse == ashen and get_tree().get_nodes_in_group("heat_sources").any(func(f: Node) -> bool: return (f as HeatSource).def == spring), "Ashen Breath: cool springs around the floor")
+	for node in get_tree().get_nodes_in_group("heat_sources"):
+		node.free()
+	player.temperature.reset()
+	for i in 40:
+		player.temperature.update(player, 0.5)
+	check(player.temperature.value >= BodyTemperature.LIMIT, "Ashen Breath heats the hero up (%.0f)" % player.temperature.value)
+	cell = world.map.world_to_cell(player.global_position)
+	var pool := world.spawn_heat_source(spring, Rect2i(cell, spring.size))
+	for i in 4:
+		player.temperature.update(player, 0.5)
+	check(player.temperature.value < BodyTemperature.LIMIT * 0.1, "a spring cools you down (%.0f)" % player.temperature.value)
+	pool.free()
+
+	# Lanternless: the whole floor in the dark, but around the hero.
+	CONTENT.curses = [lanternless]
+	game._enter_floor()
+	await _frames(3)
+	var darks := get_tree().get_nodes_in_group("dark_rooms")
+	check(world.curse == lanternless and darks.size() == 1 and (darks[0] as DarkRoom).covers(world.map.cell_to_world(world.map.stairs_cell)) and (darks[0] as DarkRoom).covers(player.global_position), "Lanternless: the whole floor is dark")
+	check((darks[0] as DarkRoom).z_index > 0 and (darks[0] as DarkRoom).material is ShaderMaterial, "the darkness covers the monsters")
+	check(world.rules.loot_quality() > 1.0, "braving a curse pays: better loot")
+
+	# The curse card: the sigil, the name, the story, the rule.
+	game.curse_card.play(frostbound)
+	await _frames(70)
+	check(game.curse_card.visible and (game.curse_card.get_node("%Title") as Label).text == frostbound.display_name and (game.curse_card.get_node("%Rule") as Label).text == frostbound.description, "arriving on a cursed floor shows the curse's card")
+	game.curse_card._skip = true
+	await game.curse_card.finished
+	check(not game.curse_card.visible, "a tap skips it")
+
+	# Back to a normal floor for the next tests.
+	CONTENT.curses = saved_curses
+	difficulty.curse_chance = 0.0
+	game.depth = start_depth
+	game._enter_floor()
+	await _frames(3)
+	difficulty.curse_chance = saved_chance
+	player.temperature.reset()
+	player.hp = player.get_max_hp()
+	await _frames(2)
+	check(not game.hud._temp_bar.visible, "no thermometer when all is fine")
+	await _clear_monsters(world)
+
+	# Potions: past a few of the same, they come as gold.
+	var potion: ConsumableDef = load("res://data/items/consumables/health_potion.tres")
+	var saved_belt := player.belt.to_data()
+	var saved_bag := player.inventory.items.duplicate()
+	player.belt.load_data([])
+	player.inventory.items.clear()
+	check(world.spawn_loot(potion, player.global_position + Vector2(40, 0)) != null, "potions drop while you carry few")
+	for i in CONTENT.dungeon.consumable_carry_cap:
+		player.pick_up(potion)
+	var coins_before := get_tree().get_nodes_in_group("gold").size()
+	var gold_before := _gold_on_floor(world)
+	check(world.spawn_loot(potion, player.global_position + Vector2(40, 0)) == null, "with %d potions on you, more turn into gold" % CONTENT.dungeon.consumable_carry_cap)
+	await _frames(2)
+	check(_gold_on_floor(world) > gold_before, "the gold is on the floor (%d coins before)" % coins_before)
+	for node in world.get_node("Entities").get_children():
+		if node is ItemPickup:
+			node.queue_free()
+	player.belt.load_data(saved_belt)
+	player.inventory.items = saved_bag
+	await _frames(2)
+
+
+## Special floors, one boss per act drawn for the run, and the new bosses fighting.
+func _test_variety(game: Game) -> void:
+	var world: World = game.world
+	var player: Player = game.player
+	player.xp = -1000000
+	check(world.run_bosses.size() == CONTENT.dungeon.acts.size(), "the run drew a boss for every act")
+	for i in world.run_bosses.size():
+		check(CONTENT.dungeon.acts[i].all_bosses().has(world.run_bosses[i]), "act %d: its boss is one of the act's" % (i + 1))
+	game._save_run()
+	check((RunSave.read().get("bosses", []) as Array).size() == world.run_bosses.size(), "the drawn bosses are saved with the run")
+
+	# Special floors.
+	var chance := CONTENT.dungeon.floor_event_chance
+	var events := CONTENT.floor_events
+	CONTENT.dungeon.floor_event_chance = 1.0
+	world.build_floor(2, CONTENT)
+	check(world.floor_event != null, "a floor can be special")
+	world.build_floor(3, CONTENT)
+	check(world.floor_event == null, "never on boss floors")
+	CONTENT.floor_events = [load("res://data/floor_events/treasure_vault.tres")] as Array[FloorEventDef]
+	world.build_floor(2, CONTENT)
+	var chests := get_tree().get_nodes_in_group("chests").filter(func(n: Node) -> bool: return not n.is_queued_for_deletion())
+	check(world.floor_event.id == &"treasure_vault" and chests.size() >= 3, "a treasure vault is full of chests (%d)" % chests.size())
+	CONTENT.floor_events = [load("res://data/floor_events/swarm.tres")] as Array[FloorEventDef]
+	world.build_floor(2, CONTENT)
+	var weakling := world.spawn_monster(load("res://data/monsters/slime.tres"), world.map.cell_to_world(world.map.start_cell))
+	check(weakling.get_max_hp() < roundi((load("res://data/monsters/slime.tres") as MonsterDef).stats.max_hp * (1.0 + CONTENT.dungeon.monster_hp_scale_per_depth)), "the swarm is weak")
+	CONTENT.floor_events = events
+	CONTENT.dungeon.floor_event_chance = chance
+	game.depth = 2
+	game._enter_floor()
+	await _frames(3)
+
+	# The new bosses use their skills and can be beaten.
+	var defense := player.base_stats.defense
+	player.base_stats.defense = 999
+	player.invalidate_stats()
+	for id in ["giant_frog", "weeping_spirit", "red_samurai"]:
+		# In sight of the hero, at a distance where every skill may be used.
+		var boss := world.spawn_monster(load("res://data/monsters/bosses/%s.tres" % id), world.find_open_point_near(player.global_position, 150.0))
+		boss.wake_up(player)
+		var used := false
+		for frame in 60 * 10:
+			for i in boss.skills.skills.size():
+				used = used or boss.skills.cooldown_ratio(i) > 0.0
+			if used:
+				break
+			await get_tree().physics_frame
+		check(used, "%s uses its skills" % id)
+		boss.die(player)
+		check(boss.is_dead, "%s can be beaten" % id)
+		await _frames(30)
+	for monster in world.get_hostiles(Actor.Faction.PLAYER):
+		monster.queue_free()
+	player.base_stats.defense = defense
+	player.invalidate_stats()
+	player.hp = player.get_max_hp()
+	player.xp = 0
+	await _frames(3)
+
+
+## Springs, altars, spirits and statues: costs, choices, outcomes.
+func _test_encounters(game: Game) -> void:
+	var player: Player = game.player
+	var world: World = game.world
+	player.xp = -1000000
+	check(CONTENT.encounters.size() >= 4, "encounters listed")
+	for def in CONTENT.encounters:
+		check(def.icon != null and not def.choices.is_empty(), "%s has a sprite and choices" % def.id)
+		for choice in def.choices:
+			check(not choice.outcomes.is_empty(), "%s: '%s' leads somewhere" % [def.id, choice.label])
+	var panel: EncounterPanel = game.encounter_panel
+
+	# The spring: walking up asks, drinking does something, then it is spent.
+	var spring := world.spawn_encounter(load("res://data/encounters/spirit_spring.tres"), _open_cell_near(world, player.global_position, 2))
+	player.global_position = spring.global_position + Vector2(0, 40)
+	await _frames(3)
+	check(panel.visible and get_tree().paused, "walking up to an encounter asks what to do")
+	panel._choose(0)
+	check(spring.used and (panel.get_node("%Choices") as VBoxContainer).get_child_count() == 1, "a choice was made, the spring is spent")
+	panel.close()
+	await _frames(2)
+	check(not get_tree().paused, "closing resumes the game")
+	player.global_position = spring.global_position + Vector2(0, 160)
+	await _frames(3)
+	player.global_position = spring.global_position + Vector2(0, 40)
+	await _frames(3)
+	check(not panel.visible, "a spent encounter asks nothing")
+	player.global_position = spring.global_position + Vector2(0, 160)
+
+	# The blood altar: max HP for a relic.
+	var max_hp := player.base_stats.max_hp
+	var altar := world.spawn_encounter(load("res://data/encounters/blood_altar.tres"), _open_cell_near(world, player.global_position, 2))
+	game.open_encounter(altar)
+	panel._choose(0)
+	check(player.base_stats.max_hp < max_hp, "the altar takes max HP")
+	panel.close()
+	await _frames(3)
+	check(game.perk_panel.visible and (game.perk_panel.get_node("%Title") as Label).text == "Relic", "and gives a relic choice")
+	game.perk_panel.choose(0)
+	await _frames(2)
+	player.base_stats.max_hp = max_hp
+	player.invalidate_stats()
+
+	# The grinning spirit wants gold.
+	player.gold = 0
+	var gambler := world.spawn_encounter(load("res://data/encounters/grinning_spirit.tres"), _open_cell_near(world, player.global_position, 2))
+	game.open_encounter(gambler)
+	var pay: Button = (panel.get_node("%Choices") as VBoxContainer).get_child(0)
+	check(pay.disabled and pay.text.contains("gold"), "no gold, no gamble")
+	check(gambler.resolve(0, player) == null and not gambler.used, "it can't be forced either")
+	panel.close()
+	await _frames(2)
+
+	# The statue may call its servants: elites.
+	var statue: EncounterDef = load("res://data/encounters/warden_statue.tres")
+	var before := world.get_hostiles(Actor.Faction.PLAYER).filter(func(m: Monster) -> bool: return m.is_elite()).size()
+	statue.choices[0].outcomes[1].apply(player, player.global_position + Vector2(60, 0))
+	await _frames(2)
+	var elites := world.get_hostiles(Actor.Faction.PLAYER).filter(func(m: Monster) -> bool: return m.is_elite())
+	check(elites.size() == before + 2, "the statue's servants are elites")
+	for monster in elites:
+		monster.queue_free()
+	for node in get_tree().get_nodes_in_group("encounters"):
+		node.queue_free()
+	player.xp = 0
+	player.hp = player.get_max_hp()
+	await _frames(3)
+
+
+## Magic, Rare and Epic equipment, gold, and the merchant.
+func _test_loot_and_gold(game: Game) -> void:
+	var world: World = game.world
+	var player: Player = game.player
+	player.xp = -1000000
+	var katana: WeaponDef = load("res://data/items/weapons/katana.tres")
+	var sharp: ItemAffixDef = load("res://data/affixes/sharp.tres")
+	var bear: ItemAffixDef = load("res://data/affixes/of_the_bear.tres")
+	var burning: ItemAffixDef = load("res://data/affixes/burning.tres")
+	var damage_before := katana.damage
+	var rare := LootRoller.make(katana, ItemRarity.RARE, [sharp, bear] as Array[ItemAffixDef]) as WeaponDef
+	check(rare.display_name == "Sharp Katana of the Bear" and rare.rarity_color() == ItemRarity.COLORS[ItemRarity.RARE], "a rare item has its name and color")
+	check(rare.damage > katana.damage and rare.bonuses.attack >= 2 and rare.bonuses.max_hp >= 12, "affixes and rarity make it stronger")
+	check(katana.damage == damage_before and katana.base_item == null, "the plain item is untouched")
+	check(rare.get_type_label().begins_with("Rare"), "the type says how rare it is")
+	var magic := LootRoller.make(katana, ItemRarity.MAGIC, [burning] as Array[ItemAffixDef]) as WeaponDef
+	check(magic.on_hit != null and magic.on_hit.burn_damage > 0, "a Burning weapon sets enemies on fire")
+	var back := LootRoller.from_data(JSON.parse_string(JSON.stringify(LootRoller.to_data(rare)))) as WeaponDef
+	check(back and back.display_name == rare.display_name and back.damage == rare.damage and back.rarity == ItemRarity.RARE, "rolled items survive a save")
+	for affix in CONTENT.item_affixes:
+		check(affix.bonuses != null or affix.on_hit != null, "%s does something" % affix.id)
+	var low := [0, 0, 0, 0]
+	var high := [0, 0, 0, 0]
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	for i in 400:
+		low[LootRoller.pick_rarity(1, 1.0, CONTENT.dungeon, rng)] += 1
+		high[LootRoller.pick_rarity(9, CONTENT.dungeon.boss_loot_quality, CONTENT.dungeon, rng)] += 1
+	check(low[0] > low[1] and low[1] > low[2] and low[2] >= low[3], "better items are rarer (%s)" % str(low))
+	check(high[3] > low[3] and high[0] < low[0], "deeper and from bosses, loot gets better (%s)" % str(high))
+	var potion: ItemDef = load("res://data/items/consumables/health_potion.tres")
+	check(world.roll_item(potion, 10.0) == potion, "potions are never rolled")
+
+	# Gold flies to the hero (no thief around to snatch it).
+	await _clear_monsters(world)
+	var gold_before := player.gold
+	world.spawn_gold(player.global_position + Vector2(30, 0), 10)
+	await _frames(60)
+	check(player.gold >= gold_before + 10, "coins fly into the hero's purse")
+	check((game.hud.get_node("%GoldLabel") as Label).text == "Gold %d" % player.gold, "the HUD shows the gold")
+	var elite := world.spawn_monster(load("res://data/monsters/slime.tres"), world.map.cell_to_world(_open_cell_near(world, player.global_position, 1)))
+	elite.dormant = true
+	world.make_elite(elite)
+	elite.take_hit(Combat.make_secondary_hit(player, 99999))
+	await _frames(2)
+	check(get_tree().get_nodes_in_group("gold").size() > 0, "elites always drop gold")
+
+	# The merchant: buying, selling, the shop opening when walking up.
+	var cell := _open_cell_near(world, player.global_position, 2)
+	var merchant := world.spawn_merchant(CONTENT.dungeon.merchant, cell)
+	check(merchant.stock.size() >= CONTENT.dungeon.merchant.equipment_count, "the merchant has stock")
+	player.gold = 0
+	check(not merchant.sell_to(player, 0), "no gold, no deal")
+	player.add_gold(9999)
+	var bag_before := player.inventory.items.size()
+	var bought: ItemDef = merchant.stock[0].item
+	var price: int = merchant.stock[0].price
+	check(merchant.sell_to(player, 0) and player.inventory.items.has(bought) and player.gold == 9999 - price, "buying puts the item in the bag")
+	player.inventory.add(potion)
+	var stock_before := merchant.stock.size()
+	var gold_now := player.gold
+	check(merchant.buy_from(player, potion) and player.gold > gold_now and merchant.stock.size() == stock_before + 1, "selling gives gold back")
+	player.global_position = merchant.global_position + Vector2(0, 40)
+	await _frames(3)
+	check(game.shop_panel.visible and get_tree().paused, "walking up to the merchant opens the shop")
+	check(game.shop_panel.get_node("%ForSale").get_child_count() == merchant.stock.size(), "the shop lists the stock")
+	game._back()
+	await _frames(1)
+	check(not game.shop_panel.visible and not get_tree().paused, "leaving the shop resumes the game")
+	merchant.queue_free()  # (would open its shop again during the next tests)
+	player.inventory.items.resize(bag_before)
+	player.xp = 0
+	await _frames(5)
+
+
+## Floor ambience: data per theme, footprints, low health heartbeat and muffled music.
+func _test_ambience(game: Game) -> void:
+	var world: World = game.world
+	var player: Player = game.player
+	for theme_id in ["cave", "crypt", "ruins"]:
+		var theme: DungeonTheme = load("res://data/dungeon/themes/%s.tres" % theme_id)
+		check(theme.ambience != null and theme.ambience.footstep != null and theme.ambience.bed != null, "%s has an ambience" % theme_id)
+		check(theme.ambience.one_shots.size() >= 3 and theme.ambience.particles != null, "%s ambience has sounds and particles" % theme_id)
+	check(world.theme.ambience != null, "the floor plays its theme ambience")
+	var reverb := AudioServer.get_bus_effect(AudioServer.get_bus_index(&"SFX"), 0) as AudioEffectReverb
+	check(reverb != null and is_equal_approx(reverb.wet, world.theme.ambience.reverb_wet), "the floor sets the reverb")
+
+	# Walking leaves footprints.
+	var prints_before := _count_footprints(world)
+	var dir := Vector2.RIGHT
+	for d in [Vector2.RIGHT, Vector2.LEFT, Vector2.DOWN, Vector2.UP]:
+		if world.map.is_floor(world.map.world_to_cell(player.global_position + d * 48.0)):
+			dir = d
+			break
+	_set_move(dir)
+	await _frames(50)
+	_set_move(Vector2.ZERO)
+	check(_count_footprints(world) > prints_before, "walking leaves footprints")
+
+	# Low health: heartbeat, muffled music. Back to normal when healed.
+	var music_bus := AudioServer.get_bus_index(&"Music")
+	player.hp = 1
+	player.health_changed.emit(player.hp, player.get_max_hp())
+	check(game.ambience.is_low_health() and AudioServer.is_bus_effect_enabled(music_bus, 0), "low health muffles the music")
+	player.heal(player.get_max_hp())
+	check(not game.ambience.is_low_health() and not AudioServer.is_bus_effect_enabled(music_bus, 0), "healing clears the muffle")

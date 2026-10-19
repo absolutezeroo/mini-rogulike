@@ -1,0 +1,123 @@
+class_name BossTests
+extends TestSuite
+## In the game: a boss floor from start to finish, and winning the run.
+
+
+## A boss floor from start to finish: arena, spikes, phases, skills, death, stairs and relic.
+func _test_boss_fight(game: Game) -> void:
+	game.world.run_bosses.clear()  # the acts' main bosses (the others are tested in _test_variety)
+	game.depth = 3
+	game._enter_floor()
+	await _frames(5)
+	var world: World = game.world
+	var player: Player = game.player
+	var arena := world.arena
+	check(arena != null and arena.boss != null, "floor 3 is a boss arena")
+	if arena == null:
+		return
+	var boss := arena.boss
+	check(boss.is_boss() and boss.dormant, "the boss sleeps until you come in")
+	check(world.monster_count() == 1, "only the boss on its floor")
+	check(world.get_node("Entities").get_children().all(func(n: Node) -> bool: return not n is Stairs), "no stairs before the boss dies")
+	await _frames(30)
+	check(boss.target == null, "a dormant boss ignores the player")
+
+	player.global_position = world.map.cell_to_world(world.map.boss_room.get_center() + Vector2i(0, 4))
+	await _frames(5)
+	check(arena.is_started and arena.is_closed(), "walking in starts the fight and closes the exits")
+	check(not boss.dormant and boss.target == player, "the boss wakes up")
+	check(game.hud.get_node("%BossBar").visible, "boss health bar shown")
+	check(not arena.get_gate_cells().is_empty(), "the arena has spikes on its exits")
+
+	# Phase 2 at half HP: new skills.
+	var def := boss.def as BossDef
+	var hurt := HitInfo.new()
+	hurt.amount = boss.hp - roundi(boss.get_max_hp() * def.phases[0].hp_ratio) + 1 + boss.get_stats().defense
+	boss.take_hit(hurt)
+	check(boss.skills.skills == def.phases[0].skills, "below %d%% HP the boss enters its next phase" % roundi(def.phases[0].hp_ratio * 100))
+
+	# Telegraphed skill: cast, then a ring of projectiles.
+	world.get_node("Projectiles").get_children().map(func(n: Node) -> void: n.queue_free())
+	await _frames(2)
+	boss.casting_index = 0
+	boss.get_node("StateMachine").transition_to(&"Cast")
+	await _frames(2)
+	check(boss.telegraph > 0.0, "the boss telegraphs its skill")
+	await _frames(int(boss.skills.skills[0].cast_time * 60.0) + 6)
+	check(world.get_node("Projectiles").get_child_count() >= 8, "the skill fires a ring of projectiles")
+
+	var summon := SummonEffect.new()
+	summon.monsters = [load("res://data/monsters/slime.tres")]
+	summon.count = 2
+	var count_before := world.monster_count()
+	summon.apply(boss, Vector2.RIGHT)
+	check(world.monster_count() == count_before + 2, "summons appear")
+	for monster in world.get_hostiles(player.faction):
+		if monster != boss:
+			monster.die(null)
+
+	# Kill it: exits open, stairs appear, a relic is offered.
+	var finish := HitInfo.new()
+	finish.amount = 999999
+	finish.source = player
+	boss.take_hit(finish)
+	check(boss.is_dead, "the boss can die")
+	await _frames(5)
+	check(arena.is_defeated and not arena.is_closed(), "the exits open again")
+	check(world.get_node("Entities").get_children().any(func(n: Node) -> bool: return n is Stairs), "stairs appear after the boss")
+	# The boss' XP may level the player up first: take those perks until the relic shows up.
+	var relics: Array[PerkDef] = []
+	for attempt in 10:
+		await get_tree().create_timer(game.RELIC_DELAY * 0.5, true).timeout
+		if not game.perk_panel.visible:
+			continue
+		var offered: Array[PerkDef] = game.perk_panel.get_offered()
+		if offered.all(func(p: PerkDef) -> bool: return p.rarity == PerkDef.Rarity.RARE):
+			relics = offered
+			break
+		game.perk_panel.choose(0)
+	check(not relics.is_empty(), "the boss offers relics after the victory")
+	if relics.is_empty():
+		return
+	var stacks_before := player.perks.stacks_of(relics[0])
+	game.perk_panel.choose(0)
+	await _frames(2)
+	# Level ups queued behind the relic come next: take them too.
+	for attempt in 5:
+		if not game.perk_panel.visible:
+			break
+		game.perk_panel.choose(0)
+		await _frames(2)
+	check(player.perks.stacks_of(relics[0]) == stacks_before + 1 and not get_tree().paused, "relic taken, game resumed")
+
+	# The last act's boss wins the run; you may keep going (endless).
+	game.depth = 9
+	game._enter_floor()
+	await _frames(5)
+	check(world.arena != null and world.arena.boss.def == CONTENT.dungeon.acts[2].boss, "floor 9: the final boss")
+	player.global_position = world.map.cell_to_world(world.map.boss_room.get_center() + Vector2i(0, 4))
+	await _frames(5)
+	var final_hit := HitInfo.new()
+	final_hit.amount = 999999
+	world.arena.boss.take_hit(final_hit)
+	await _frames(3)
+	check(game.has_won, "the win counts at once (taking the stairs right away can't lose it)")
+	for attempt in 10:
+		await get_tree().create_timer(game.RELIC_DELAY * 0.5, true).timeout
+		if game.game_over_panel.visible:
+			break
+		if game.shop_panel.visible:
+			game.shop_panel.close()
+		if game.encounter_panel.visible:
+			game.encounter_panel.close()
+		if game.perk_panel.visible:
+			game.perk_panel.choose(0)
+	check(game.has_won and game.game_over_panel.visible and game.game_over_panel.get_node("%ContinueButton").visible, "beating the final boss wins the run")
+	check(Profile.victories == 1 and Profile.souls > 0, "a victory is recorded with its souls")
+	(game.game_over_panel.get_node("%ContinueButton") as Button).pressed.emit()
+	await _frames(3)
+	check(not game.game_over_panel.visible, "keep going: endless mode")
+	if game.perk_panel.visible:
+		game.perk_panel.choose(0)
+	await _frames(3)
+	check(not get_tree().paused, "the game resumes after the victory")
