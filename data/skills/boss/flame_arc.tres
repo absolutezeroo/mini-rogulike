@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_qedyq"]
+[ext_resource type="Texture2D" path="res://assets/fx/circularslash.png" id="2_bim6r"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="3_pvofu"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="4_dg651"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_48osw"]
+[ext_resource type="AudioStream" path="res://data/audio/slash_heavy.tres" id="6_07bej"]
+
+[sub_resource type="Resource" id="Resource_qedyq"]
+script = ExtResource("4_dg651")
+burn_damage = 3
+
+[sub_resource type="Resource" id="Resource_bim6r"]
+script = ExtResource("3_pvofu")
+radius = 90.0
+damage_multiplier = 1.6
+offset = 60.0
+knockback = 280.0
+color = Color(1, 0.54901963, 0.25882354, 1)
+status = SubResource("Resource_qedyq")
+fx = ExtResource("2_bim6r")
+fx_follow_aim = true
+
+[resource]
+script = ExtResource("5_48osw")
+id = &"flame_arc"
+display_name = "Flame Arc"
+color = Color(1, 0.54901963, 0.25882354, 1)
+cooldown = 3.0
+effects = Array[ExtResource("1_qedyq")]([SubResource("Resource_bim6r")])
+sound = ExtResource("6_07bej")
+ai_max_range = 120.0
+cast_time = 0.55

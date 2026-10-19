@@ -140,6 +140,7 @@ func _begin_run(saved: Dictionary) -> void:
 	if difficulty and difficulty.has_ascensions and ascension > 0:
 		difficulty = AscensionDef.apply_levels(difficulty, content.ascensions, mini(ascension, Profile.ascension_unlocked))
 	world.difficulty = difficulty
+	world.run_bosses = _load_bosses(saved.get("bosses", [])) if saved.has("bosses") else _draw_bosses()
 	depth = int(saved.get("depth", 1))
 	if saved.get("boss_slain", false):
 		depth += 1  # saved after the floor's boss died: on to the next floor
@@ -179,6 +180,19 @@ func _begin_run(saved: Dictionary) -> void:
 	else:
 		_enter_floor()
 	_show_next_offer.call_deferred()  # choices left open in a saved run
+
+
+## One boss per act for this run, drawn among the act's bosses.
+func _draw_bosses() -> Array:
+	var result := []
+	for act in content.dungeon.acts:
+		var bosses := act.all_bosses()
+		result.append(bosses[world.rng.randi_range(0, bosses.size() - 1)] if not bosses.is_empty() else null)
+	return result
+
+
+func _load_bosses(saved: Array) -> Array:
+	return saved.map(func(reference: Variant) -> Resource: return RunSave.load_ref(reference))
 
 
 ## Items the shrine unlocked can be found in the dungeon.
@@ -314,6 +328,9 @@ func _enter_floor() -> void:
 		if not show_act_cards:
 			hud.show_banner(act.title)
 		Events.log_message("%s: %s" % [act.subtitle, act.title], Color("ffd166"))
+	if world.floor_event:
+		hud.show_banner(world.floor_event.display_name, world.floor_event.color)
+		Events.log_message(world.floor_event.description, world.floor_event.color)
 	if world.arena:
 		Events.log_message("Depth %d. Something big is waiting..." % depth, Color("ff6b6b"))
 	else:
@@ -476,6 +493,7 @@ func _save_run() -> void:
 		"boss_slain": world.arena != null and world.arena.is_defeated,
 		"souls_awarded": _souls_awarded,
 		"run_gold": _run_gold,
+		"bosses": RunSave.refs(world.run_bosses),
 		"difficulty": String(difficulty.id) if difficulty else "",
 		"ascension": difficulty.ascension if difficulty else 0,
 		"player": player.save_state(),

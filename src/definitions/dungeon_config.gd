@@ -75,6 +75,10 @@ extends Resource
 ## Crates and pots sometimes hold a few coins.
 @export_range(0.0, 1.0) var prop_gold_chance: float = 0.25
 
+@export_group("Floor events")
+## Chance for a normal floor (not the first) to be special (content_db.tres > Floor Events).
+@export_range(0.0, 1.0) var floor_event_chance: float = 0.3
+
 @export_group("Encounters")
 ## Encounters per floor (springs, altars...), from content_db.tres > Encounters.
 @export_range(0, 6) var encounters_min: int = 0

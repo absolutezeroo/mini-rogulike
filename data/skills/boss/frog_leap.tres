@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_7lrd5"]
+[ext_resource type="Script" path="res://src/definitions/effects/dash_strike_effect.gd" id="2_tt6t3"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="3_dul7t"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_3nmh0"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="5_cgjjs"]
+
+[sub_resource type="Resource" id="Resource_7lrd5"]
+script = ExtResource("2_tt6t3")
+distance = 280.0
+knockback = 260.0
+
+[sub_resource type="Resource" id="Resource_tt6t3"]
+script = ExtResource("3_dul7t")
+damage_multiplier = 1.2
+knockback = 260.0
+color = Color(0.654902, 0.7882353, 0.34117648, 1)
+delay = 0.25
+
+[resource]
+script = ExtResource("4_3nmh0")
+id = &"frog_leap"
+display_name = "Frog Leap"
+color = Color(0.654902, 0.7882353, 0.34117648, 1)
+cooldown = 4.0
+effects = Array[ExtResource("1_7lrd5")]([SubResource("Resource_7lrd5"), SubResource("Resource_tt6t3")])
+sound = ExtResource("5_cgjjs")
+ai_min_range = 120.0
+ai_max_range = 360.0
+cast_time = 0.7

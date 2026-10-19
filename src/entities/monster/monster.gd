@@ -62,6 +62,10 @@ func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
 		base_stats.move_speed *= difficulty.monster_speed
 		_damage_multiplier = difficulty.monster_damage
 		_windup_multiplier = difficulty.telegraph_time
+	var event := world.floor_event if world else null
+	if event:
+		base_stats.max_hp = roundi(base_stats.max_hp * event.monster_hp)
+		_damage_multiplier *= event.monster_damage
 	if def.weapon:
 		equipment.equip(def.weapon)
 	skills.set_skills(def.skills)

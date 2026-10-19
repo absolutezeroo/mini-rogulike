@@ -19,6 +19,8 @@
 [ext_resource type="Resource" path="res://data/monsters/bat.tres" id="11_lmuqr"]
 [ext_resource type="Script" path="res://src/definitions/act_def.gd" id="12_1aok4"]
 [ext_resource type="Resource" path="res://data/dungeon/themes/crypt.tres" id="13_wenk7"]
+[ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="18_gxe60"]
+[ext_resource type="Resource" path="res://data/monsters/bosses/weeping_spirit.tres" id="19_wciqp"]
 
 [resource]
 script = ExtResource("12_1aok4")
@@ -28,4 +30,5 @@ lore = "Where Kagari buried its dead, long ago. Since the Well woke up, they do 
 theme = ExtResource("13_wenk7")
 monsters = Array[ExtResource("2_etibi")]([ExtResource("3_0slpj"), ExtResource("4_dw8h1"), ExtResource("5_yjv1g"), ExtResource("6_3r1nu"), ExtResource("7_rvqiy"), ExtResource("8_4wi7y"), ExtResource("9_gxe60"), ExtResource("10_wciqp"), ExtResource("11_lmuqr")])
 boss = ExtResource("1_0h4yv")
+other_bosses = Array[ExtResource("18_gxe60")]([ExtResource("19_wciqp")])
 hazards = Array[ExtResource("2_rvqiy")]([ExtResource("3_4wi7y"), ExtResource("4_gxe60"), ExtResource("5_wciqp"), ExtResource("6_lmuqr"), ExtResource("7_1aok4")])

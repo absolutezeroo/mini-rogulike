@@ -1,0 +1,101 @@
+[gd_resource type="Resource" script_class="BossDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_g5n7k"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_37to4"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/bosses/red_samurai.tres" id="3_a7pe3"]
+[ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="4_0dryf"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/red_samurai/portrait.png" id="5_npp6p"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="6_pmauv"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="7_nfwhk"]
+[ext_resource type="Resource" path="res://data/items/weapons/stick.tres" id="8_jp6ba"]
+[ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="9_11m3h"]
+[ext_resource type="Resource" path="res://data/items/weapons/hammer.tres" id="10_1euo2"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_wind.tres" id="11_wjga0"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="12_oqev3"]
+[ext_resource type="Script" path="res://src/definitions/boss_phase.gd" id="13_mesb5"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="14_lemr3"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="15_rladj"]
+[ext_resource type="Resource" path="res://data/skills/boss/flame_arc.tres" id="16_wrwja"]
+[ext_resource type="Resource" path="res://data/skills/boss/tengu_dash.tres" id="17_hngof"]
+[ext_resource type="Resource" path="res://data/skills/boss/fire_ring.tres" id="18_j3nor"]
+[ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="19_uawpc"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/tengu_blade.tres" id="20_0n1d2"]
+
+[sub_resource type="Resource" id="Resource_g5n7k"]
+script = ExtResource("6_pmauv")
+item = ExtResource("7_nfwhk")
+weight = 4
+
+[sub_resource type="Resource" id="Resource_37to4"]
+script = ExtResource("6_pmauv")
+item = ExtResource("8_jp6ba")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_a7pe3"]
+script = ExtResource("6_pmauv")
+item = ExtResource("9_11m3h")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_0dryf"]
+script = ExtResource("6_pmauv")
+item = ExtResource("10_1euo2")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_npp6p"]
+script = ExtResource("6_pmauv")
+item = ExtResource("11_wjga0")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_pmauv"]
+script = ExtResource("12_oqev3")
+drop_chance = 1.0
+rolls = 3
+entries = Array[ExtResource("6_pmauv")]([SubResource("Resource_g5n7k"), SubResource("Resource_37to4"), SubResource("Resource_a7pe3"), SubResource("Resource_0dryf"), SubResource("Resource_npp6p")])
+
+[sub_resource type="Resource" id="Resource_nfwhk"]
+script = ExtResource("14_lemr3")
+attack = 2
+move_speed = 30.0
+crit_chance = 0.05
+
+[sub_resource type="Resource" id="Resource_jp6ba"]
+script = ExtResource("13_mesb5")
+message = "BLAZES!"
+bonuses = SubResource("Resource_nfwhk")
+skills = Array[ExtResource("15_rladj")]([ExtResource("16_wrwja"), ExtResource("17_hngof"), ExtResource("18_j3nor")])
+windup_multiplier = 0.75
+tint = Color(1, 0.72, 0.72, 1)
+
+[sub_resource type="Resource" id="Resource_11m3h"]
+script = ExtResource("14_lemr3")
+max_hp = 420
+defense = 3
+move_speed = 95.0
+crit_chance = 0.1
+
+[resource]
+script = ExtResource("19_uawpc")
+title = "Burning Keeper of the Well"
+portrait = ExtResource("5_npp6p")
+phases = Array[ExtResource("13_mesb5")]([SubResource("Resource_jp6ba")])
+stats = SubResource("Resource_11m3h")
+weapon = ExtResource("20_0n1d2")
+skills = Array[ExtResource("15_rladj")]([ExtResource("16_wrwja"), ExtResource("17_hngof")])
+radius = 20.0
+frames = ExtResource("3_a7pe3")
+frames_offset = Vector2(0, -18)
+head_height = 66.0
+detect_radius = 900.0
+attack_windup = 0.5
+attack_recovery = 0.4
+hurt_sound = ExtResource("4_0dryf")
+death_sound = ExtResource("1_g5n7k")
+xp_reward = 200
+loot = SubResource("Resource_pmauv")
+id = &"red_samurai"
+display_name = "Red Samurai"
+description = "A giant in burning armor. His blade cuts arcs of fire."
+icon = ExtResource("5_npp6p")
+glyph = "C"
+color = Color(0.9019608, 0.22352941, 0.27450982, 1)
+spawn_weight = 0

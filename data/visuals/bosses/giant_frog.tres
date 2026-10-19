@@ -1,0 +1,149 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/giant_frog/cast.png" id="1_qri0q"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/giant_frog/idle.png" id="2_rmdnf"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/giant_frog/walk.png" id="3_hom7u"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qri0q"]
+atlas = ExtResource("1_qri0q")
+region = Rect2(0, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rmdnf"]
+atlas = ExtResource("1_qri0q")
+region = Rect2(40, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hom7u"]
+atlas = ExtResource("1_qri0q")
+region = Rect2(80, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kmgh1"]
+atlas = ExtResource("1_qri0q")
+region = Rect2(120, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sydsw"]
+atlas = ExtResource("1_qri0q")
+region = Rect2(160, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c22s5"]
+atlas = ExtResource("1_qri0q")
+region = Rect2(200, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_48p5g"]
+atlas = ExtResource("1_qri0q")
+region = Rect2(240, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_heb3p"]
+atlas = ExtResource("2_rmdnf")
+region = Rect2(0, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2wsyr"]
+atlas = ExtResource("2_rmdnf")
+region = Rect2(40, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wkrnw"]
+atlas = ExtResource("2_rmdnf")
+region = Rect2(80, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cgbw3"]
+atlas = ExtResource("2_rmdnf")
+region = Rect2(120, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xjt1i"]
+atlas = ExtResource("2_rmdnf")
+region = Rect2(160, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cq4dm"]
+atlas = ExtResource("3_hom7u")
+region = Rect2(0, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hyp4o"]
+atlas = ExtResource("3_hom7u")
+region = Rect2(40, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_30h2r"]
+atlas = ExtResource("3_hom7u")
+region = Rect2(80, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_585hv"]
+atlas = ExtResource("3_hom7u")
+region = Rect2(120, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7e0xj"]
+atlas = ExtResource("3_hom7u")
+region = Rect2(160, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j88lj"]
+atlas = ExtResource("3_hom7u")
+region = Rect2(200, 0, 40, 40)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qri0q")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rmdnf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hom7u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kmgh1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_sydsw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c22s5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_48p5g")
+}],
+"loop": 0,
+"name": &"cast",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_heb3p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2wsyr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wkrnw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cgbw3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xjt1i")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 6.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cq4dm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hyp4o")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_30h2r")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_585hv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7e0xj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j88lj")
+}],
+"loop": 1,
+"name": &"walk",
+"speed": 8.0
+}]

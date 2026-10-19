@@ -1,0 +1,99 @@
+[gd_resource type="Resource" script_class="BossDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_ecstf"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_r4eog"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/bosses/giant_frog.tres" id="3_g4p40"]
+[ext_resource type="AudioStream" path="res://data/audio/slime.tres" id="4_wuq14"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/giant_frog/portrait.png" id="5_j02b6"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="6_xpbte"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="7_s5kyj"]
+[ext_resource type="Resource" path="res://data/items/armors/chain_mail.tres" id="8_d7bi1"]
+[ext_resource type="Resource" path="res://data/items/weapons/axe.tres" id="9_ksyev"]
+[ext_resource type="Resource" path="res://data/items/weapons/book.tres" id="10_71wwd"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_healing.tres" id="11_uah4g"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="12_mmdpq"]
+[ext_resource type="Script" path="res://src/definitions/boss_phase.gd" id="13_itnru"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="14_0l2t5"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="15_r81bl"]
+[ext_resource type="Resource" path="res://data/skills/boss/frog_leap.tres" id="16_te76r"]
+[ext_resource type="Resource" path="res://data/skills/boss/poison_spit.tres" id="17_3wfbn"]
+[ext_resource type="Resource" path="res://data/skills/boss/call_tadpoles.tres" id="18_cyo2c"]
+[ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="19_xqtof"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/slime_slam.tres" id="20_28ete"]
+
+[sub_resource type="Resource" id="Resource_ecstf"]
+script = ExtResource("6_xpbte")
+item = ExtResource("7_s5kyj")
+weight = 4
+
+[sub_resource type="Resource" id="Resource_r4eog"]
+script = ExtResource("6_xpbte")
+item = ExtResource("8_d7bi1")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_g4p40"]
+script = ExtResource("6_xpbte")
+item = ExtResource("9_ksyev")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_wuq14"]
+script = ExtResource("6_xpbte")
+item = ExtResource("10_71wwd")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_j02b6"]
+script = ExtResource("6_xpbte")
+item = ExtResource("11_uah4g")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_xpbte"]
+script = ExtResource("12_mmdpq")
+drop_chance = 1.0
+rolls = 3
+entries = Array[ExtResource("6_xpbte")]([SubResource("Resource_ecstf"), SubResource("Resource_r4eog"), SubResource("Resource_g4p40"), SubResource("Resource_wuq14"), SubResource("Resource_j02b6")])
+
+[sub_resource type="Resource" id="Resource_s5kyj"]
+script = ExtResource("14_0l2t5")
+attack = 1
+move_speed = 30.0
+
+[sub_resource type="Resource" id="Resource_d7bi1"]
+script = ExtResource("13_itnru")
+message = "CALLS ITS BROOD!"
+bonuses = SubResource("Resource_s5kyj")
+skills = Array[ExtResource("15_r81bl")]([ExtResource("16_te76r"), ExtResource("17_3wfbn"), ExtResource("18_cyo2c")])
+windup_multiplier = 0.8
+tint = Color(1, 0.72, 0.72, 1)
+
+[sub_resource type="Resource" id="Resource_ksyev"]
+script = ExtResource("14_0l2t5")
+max_hp = 300
+defense = 2
+move_speed = 60.0
+
+[resource]
+script = ExtResource("19_xqtof")
+title = "Croaking Warden"
+portrait = ExtResource("5_j02b6")
+phases = Array[ExtResource("13_itnru")]([SubResource("Resource_d7bi1")])
+stats = SubResource("Resource_ksyev")
+weapon = ExtResource("20_28ete")
+skills = Array[ExtResource("15_r81bl")]([ExtResource("16_te76r"), ExtResource("17_3wfbn")])
+radius = 22.0
+frames = ExtResource("3_g4p40")
+frames_offset = Vector2(0, -16)
+head_height = 46.0
+detect_radius = 900.0
+attack_windup = 0.6
+attack_recovery = 0.5
+hurt_sound = ExtResource("4_wuq14")
+death_sound = ExtResource("1_ecstf")
+xp_reward = 60
+loot = SubResource("Resource_xpbte")
+id = &"giant_frog"
+display_name = "Giant Frog"
+description = "A frog the size of a house. It leaps, spits poison and calls its brood."
+icon = ExtResource("5_j02b6")
+glyph = "K"
+color = Color(0.47843137, 0.827451, 1, 1)
+spawn_weight = 0

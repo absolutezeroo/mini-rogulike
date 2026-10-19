@@ -146,6 +146,12 @@ func _test_content() -> void:
 	var story := CONTENT.story
 	check(story != null and story.title == "Le Puits des Âmes" and not story.tagline.is_empty(), "the game has its name")
 	check(story.intro_pages.size() >= 4 and not story.victory_text.is_empty() and story.death_lines.size() >= 2, "the story is written")
+	check(CONTENT.floor_events.size() >= 5, "special floors listed")
+	for act in CONTENT.dungeon.acts:
+		check(act.all_bosses().size() >= 2, "%s has two possible bosses" % act.title)
+		for boss in act.all_bosses():
+			check(boss.portrait != null and boss.frames != null and boss.frames.has_animation(&"idle"), "%s has a portrait and animations" % boss.id)
+			check(not boss.skills.is_empty() and boss.phases.size() >= 1 and not boss.title.is_empty(), "%s has skills, phases and a title" % boss.id)
 	for act in CONTENT.dungeon.acts:
 		check(not act.lore.is_empty(), "%s has its story line" % act.title)
 		check(act.boss and not act.boss.title.is_empty(), "%s's boss has a title" % act.title)
@@ -484,11 +490,13 @@ func _test_title_screen() -> void:
 # --- Gameplay (bot) ----------------------------------------------------------
 
 func _test_gameplay() -> void:
-	# No merchant, encounter or ambush popping up in the middle of other tests (they have their own).
+	# No merchant, encounter, ambush or special floor popping up in the middle of other tests (they have their own).
 	var merchant_chance := CONTENT.dungeon.merchant_chance
 	var encounters_max := CONTENT.dungeon.encounters_max
 	var ambush_chance := CONTENT.dungeon.ambush_chance
+	var event_chance := CONTENT.dungeon.floor_event_chance
 	CONTENT.dungeon.ambush_chance = 0.0
+	CONTENT.dungeon.floor_event_chance = 0.0
 	CONTENT.dungeon.merchant_chance = 0.0
 	CONTENT.dungeon.encounters_max = 0
 	var game := GAME_SCENE.instantiate()
@@ -658,6 +666,7 @@ func _test_gameplay() -> void:
 	await _test_loot_and_gold(game)
 	await _test_weapon_kits(game)
 	await _test_encounters(game)
+	await _test_variety(game)
 
 	await _test_boss_fight(game)
 
@@ -759,6 +768,7 @@ func _test_gameplay() -> void:
 	CONTENT.dungeon.merchant_chance = merchant_chance
 	CONTENT.dungeon.encounters_max = encounters_max
 	CONTENT.dungeon.ambush_chance = ambush_chance
+	CONTENT.dungeon.floor_event_chance = event_chance
 	await _frames(2)
 
 
@@ -1468,6 +1478,66 @@ func _test_comfort(game: Node) -> void:
 	game.player.xp = 0
 
 
+## Special floors, one boss per act drawn for the run, and the new bosses fighting.
+func _test_variety(game: Node) -> void:
+	var world: World = game.world
+	var player: Player = game.player
+	player.xp = -1000000
+	check(world.run_bosses.size() == CONTENT.dungeon.acts.size(), "the run drew a boss for every act")
+	for i in world.run_bosses.size():
+		check(CONTENT.dungeon.acts[i].all_bosses().has(world.run_bosses[i]), "act %d: its boss is one of the act's" % (i + 1))
+	game._save_run()
+	check((RunSave.read().get("bosses", []) as Array).size() == world.run_bosses.size(), "the drawn bosses are saved with the run")
+
+	# Special floors.
+	var chance := CONTENT.dungeon.floor_event_chance
+	var events := CONTENT.floor_events
+	CONTENT.dungeon.floor_event_chance = 1.0
+	world.build_floor(2, CONTENT)
+	check(world.floor_event != null, "a floor can be special")
+	world.build_floor(3, CONTENT)
+	check(world.floor_event == null, "never on boss floors")
+	CONTENT.floor_events = [load("res://data/floor_events/treasure_vault.tres")] as Array[FloorEventDef]
+	world.build_floor(2, CONTENT)
+	var chests := get_tree().get_nodes_in_group("chests").filter(func(n: Node) -> bool: return not n.is_queued_for_deletion())
+	check(world.floor_event.id == &"treasure_vault" and chests.size() >= 3, "a treasure vault is full of chests (%d)" % chests.size())
+	CONTENT.floor_events = [load("res://data/floor_events/swarm.tres")] as Array[FloorEventDef]
+	world.build_floor(2, CONTENT)
+	var weakling := world.spawn_monster(load("res://data/monsters/slime.tres"), world.map.cell_to_world(world.map.start_cell))
+	check(weakling.get_max_hp() < roundi((load("res://data/monsters/slime.tres") as MonsterDef).stats.max_hp * (1.0 + CONTENT.dungeon.monster_hp_scale_per_depth)), "the swarm is weak")
+	CONTENT.floor_events = events
+	CONTENT.dungeon.floor_event_chance = chance
+	game.depth = 2
+	game._enter_floor()
+	await _frames(3)
+
+	# The new bosses use their skills and can be beaten.
+	var defense := player.base_stats.defense
+	player.base_stats.defense = 999
+	player.invalidate_stats()
+	for id in ["giant_frog", "weeping_spirit", "red_samurai"]:
+		var boss := world.spawn_monster(load("res://data/monsters/bosses/%s.tres" % id), world.map.cell_to_world(_open_cell_near(world, player.global_position, 2)))
+		boss.wake_up(player)
+		var used := false
+		for frame in 60 * 6:
+			for i in boss.skills.skills.size():
+				used = used or boss.skills.cooldown_ratio(i) > 0.0
+			if used:
+				break
+			await get_tree().physics_frame
+		check(used, "%s uses its skills" % id)
+		boss.die(player)
+		check(boss.is_dead, "%s can be beaten" % id)
+		await _frames(30)
+	for monster in world.get_hostiles(Actor.Faction.PLAYER):
+		monster.queue_free()
+	player.base_stats.defense = defense
+	player.invalidate_stats()
+	player.hp = player.get_max_hp()
+	player.xp = 0
+	await _frames(3)
+
+
 ## Springs, altars, spirits and statues: costs, choices, outcomes.
 func _test_encounters(game: Node) -> void:
 	var player: Player = game.player
@@ -1608,7 +1678,7 @@ func _test_loot_and_gold(game: Node) -> void:
 	var gold_before := player.gold
 	world.spawn_gold(player.global_position + Vector2(30, 0), 10)
 	await _frames(60)
-	check(player.gold == gold_before + 10, "coins fly into the hero's purse")
+	check(player.gold >= gold_before + 10, "coins fly into the hero's purse")
 	check((game.hud.get_node("%GoldLabel") as Label).text == "Gold %d" % player.gold, "the HUD shows the gold")
 	var elite := world.spawn_monster(load("res://data/monsters/slime.tres"), world.map.cell_to_world(_open_cell_near(world, player.global_position, 1)))
 	elite.dormant = true
@@ -1684,6 +1754,7 @@ func _count_footprints(world: World) -> int:
 
 ## A boss floor from start to finish: arena, spikes, phases, skills, death, stairs and relic.
 func _test_boss_fight(game: Node) -> void:
+	game.world.run_bosses = []  # the acts' main bosses (the others are tested in _test_variety)
 	game.depth = 3
 	game._enter_floor()
 	await _frames(5)

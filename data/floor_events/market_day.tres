@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="FloorEventDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/floor_event_def.gd" id="1_ox68n"]
+
+[resource]
+script = ExtResource("1_ox68n")
+monster_count = 0.6
+extra_encounters = 2
+merchant = true
+id = &"market_day"
+display_name = "Quiet Halls"
+description = "Few monsters here. Someone has set up shop, and strange things wait in the rooms."
+color = Color(0.5568628, 0.7921569, 0.9019608, 1)
+min_depth = 2

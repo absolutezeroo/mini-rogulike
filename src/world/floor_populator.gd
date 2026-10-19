@@ -17,8 +17,9 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 		return
 
 	# The merchant waits in a quiet room (no monsters, no hazards, no props around).
+	var event := world.floor_event
 	var merchant_index := -1
-	if config.merchant and rng.randf() < config.merchant_chance:
+	if config.merchant and (rng.randf() < config.merchant_chance or (event and event.merchant)):
 		merchant_index = _pick_quiet_room(map, rng, -1)
 		if merchant_index >= 0:
 			var cell := map.rooms[merchant_index].get_center()
@@ -26,7 +27,10 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 			_reserve_rect(taken, map.rooms[merchant_index])
 
 	# Springs, altars, statues: in the middle of a room, before anything else claims it.
-	for n in rng.randi_range(config.encounters_min, config.encounters_max):
+	var encounter_count := rng.randi_range(config.encounters_min, config.encounters_max)
+	if event and config.encounters_max > 0:
+		encounter_count += event.extra_encounters
+	for n in encounter_count:
 		var encounter := ContentDB.pick_from(content.encounters, depth, rng) as EncounterDef
 		var index := rng.randi_range(1, map.rooms.size() - 1)
 		var cell := map.rooms[index].get_center()
@@ -38,7 +42,10 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 		_place_props(world, content, depth, map.rooms[i], taken)
 	var act := config.act_for_depth(depth)
 	if act:
-		for n in rng.randi_range(config.hazard_groups_min, config.hazard_groups_max):
+		var hazard_groups := rng.randi_range(config.hazard_groups_min, config.hazard_groups_max)
+		if event:
+			hazard_groups += event.extra_hazards
+		for n in hazard_groups:
 			var hazard := act.pick_hazard(depth, rng)
 			if hazard:
 				hazard.place(world, map.rooms[rng.randi_range(1, map.rooms.size() - 1)], taken)
@@ -51,12 +58,18 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 			world.spawn_ambush(map.rooms[ambush_index])
 
 	if config.chest:
-		for n in rng.randi_range(config.chests_min, config.chests_max):
-			var room := map.rooms[rng.randi_range(1, map.rooms.size() - 1)]
-			var cells := _shuffled(_edge_cells(map, room, taken), rng)
-			if not cells.is_empty():
-				world.spawn_chest(config.chest, cells[0], rng.randf() < config.chest.trapped_chance)
-				_reserve_around(taken, cells[0], 1)
+		var chest_count := rng.randi_range(config.chests_min, config.chests_max)
+		if event:
+			chest_count += event.extra_chests
+		for n in chest_count:
+			# A few tries: some rooms have no free spot along their walls.
+			for attempt in 6:
+				var room := map.rooms[rng.randi_range(1, map.rooms.size() - 1)]
+				var cells := _shuffled(_edge_cells(map, room, taken), rng)
+				if not cells.is_empty():
+					world.spawn_chest(config.chest, cells[0], rng.randf() < config.chest.trapped_chance)
+					_reserve_around(taken, cells[0], 1)
+					break
 
 	var extra := floori(config.extra_monsters_per_depth * (depth - 1))
 	var max_per_room := config.max_monsters_per_room
@@ -68,6 +81,8 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 			continue
 		var room := map.rooms[i]
 		var count := mini(rng.randi_range(config.monsters_per_room_min, config.monsters_per_room_max) + extra, max_per_room)
+		if event:
+			count = roundi(count * event.monster_count)
 		for n in count:
 			var def := content.pick_monster(depth, rng)
 			if def:

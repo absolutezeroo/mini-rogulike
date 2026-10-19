@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_macc1"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_7n8f3"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_sibyd"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/energyball.png" id="4_ilto7"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_mhwpf"]
+[ext_resource type="AudioStream" path="res://data/audio/slime.tres" id="6_1ysuc"]
+
+[sub_resource type="Resource" id="Resource_macc1"]
+script = ExtResource("3_sibyd")
+poison_damage = 3
+
+[sub_resource type="Resource" id="Resource_7n8f3"]
+script = ExtResource("2_7n8f3")
+damage_multiplier = 0.6
+flat_damage = 3
+speed = 300.0
+radius = 7.0
+count = 5
+spread_degrees = 50.0
+color = Color(0.5019608, 0.92941177, 0.6, 1)
+texture = ExtResource("4_ilto7")
+status = SubResource("Resource_macc1")
+
+[resource]
+script = ExtResource("5_mhwpf")
+id = &"poison_spit"
+display_name = "Poison Spit"
+color = Color(0.5019608, 0.92941177, 0.6, 1)
+cooldown = 3.0
+effects = Array[ExtResource("1_macc1")]([SubResource("Resource_7n8f3")])
+sound = ExtResource("6_1ysuc")
+ai_max_range = 380.0
+cast_time = 0.6

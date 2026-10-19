@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_l2mi7"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_2ictb"]
+[ext_resource type="Resource" path="res://data/monsters/slime.tres" id="3_osmma"]
+[ext_resource type="Script" path="res://src/definitions/effects/summon_effect.gd" id="4_wxvki"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_561h0"]
+[ext_resource type="AudioStream" path="res://data/audio/spirit.tres" id="6_bqhq3"]
+
+[sub_resource type="Resource" id="Resource_l2mi7"]
+script = ExtResource("4_wxvki")
+monsters = Array[ExtResource("2_2ictb")]([ExtResource("3_osmma")])
+count = 3
+max_alive = 6
+
+[resource]
+script = ExtResource("5_561h0")
+id = &"call_tadpoles"
+display_name = "Call the Brood"
+color = Color(0.654902, 0.7882353, 0.34117648, 1)
+cooldown = 10.0
+effects = Array[ExtResource("1_l2mi7")]([SubResource("Resource_l2mi7")])
+sound = ExtResource("6_bqhq3")
+ai_max_range = 600.0
+cast_time = 0.7

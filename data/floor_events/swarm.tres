@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FloorEventDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/floor_event_def.gd" id="1_di7lc"]
+
+[resource]
+script = ExtResource("1_di7lc")
+monster_count = 1.8
+monster_hp = 0.6
+id = &"swarm"
+display_name = "The Swarm"
+description = "They come in hordes, but they are weak."
+color = Color(0.654902, 0.7882353, 0.34117648, 1)
+min_depth = 2

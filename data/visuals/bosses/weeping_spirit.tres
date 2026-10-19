@@ -1,0 +1,46 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/weeping_spirit/idle.png" id="1_63y4g"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_63y4g"]
+atlas = ExtResource("1_63y4g")
+region = Rect2(0, 0, 50, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_utxqo"]
+atlas = ExtResource("1_63y4g")
+region = Rect2(50, 0, 50, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0nx15"]
+atlas = ExtResource("1_63y4g")
+region = Rect2(100, 0, 50, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_upc7s"]
+atlas = ExtResource("1_63y4g")
+region = Rect2(150, 0, 50, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hc1t1"]
+atlas = ExtResource("1_63y4g")
+region = Rect2(200, 0, 50, 50)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_63y4g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_utxqo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0nx15")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_upc7s")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hc1t1")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 6.0
+}]

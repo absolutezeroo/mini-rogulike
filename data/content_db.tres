@@ -110,15 +110,22 @@
 [ext_resource type="Resource" path="res://data/perks/relics/multishot.tres" id="47_bx8nx"]
 [ext_resource type="Resource" path="res://data/perks/relics/executioner.tres" id="48_tx8pl"]
 [ext_resource type="Resource" path="res://data/perks/relics/guardian_ring.tres" id="49_vxbuw"]
+[ext_resource type="Script" path="res://src/definitions/floor_event_def.gd" id="50_by7se"]
 [ext_resource type="Resource" path="res://data/perks/relics/war_banner.tres" id="50_qapwd"]
+[ext_resource type="Resource" path="res://data/floor_events/haunted.tres" id="51_hml5q"]
+[ext_resource type="Resource" path="res://data/floor_events/treasure_vault.tres" id="52_5x320"]
 [ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="52_yjg1c"]
+[ext_resource type="Resource" path="res://data/floor_events/swarm.tres" id="53_1ai64"]
 [ext_resource type="Resource" path="res://data/props/crate.tres" id="53_dianq"]
 [ext_resource type="Resource" path="res://data/items/tomes/tome_healing.tres" id="53_q206c"]
+[ext_resource type="Resource" path="res://data/floor_events/darkness.tres" id="54_bubnr"]
 [ext_resource type="Resource" path="res://data/props/barrel.tres" id="54_kqkbc"]
 [ext_resource type="Resource" path="res://data/items/tomes/tome_war.tres" id="54_xvm7b"]
+[ext_resource type="Resource" path="res://data/floor_events/market_day.tres" id="55_ivytu"]
 [ext_resource type="Resource" path="res://data/items/tomes/tome_frost.tres" id="55_ptr0g"]
 [ext_resource type="Resource" path="res://data/props/vase.tres" id="55_xx7nh"]
 [ext_resource type="Resource" path="res://data/props/tnt.tres" id="56_6esje"]
+[ext_resource type="Resource" path="res://data/floor_events/blood_moon.tres" id="56_fk2lo"]
 [ext_resource type="Resource" path="res://data/items/tomes/tome_fire.tres" id="56_h4mc1"]
 [ext_resource type="Resource" path="res://data/perks/common/arcane_focus.tres" id="58_e0sb6"]
 [ext_resource type="Resource" path="res://data/items/weapons/ninjaku.tres" id="59_f7s8q"]
@@ -158,6 +165,7 @@ upgrades = Array[ExtResource("73_0tw7m")]([ExtResource("74_pgsf5"), ExtResource(
 locked_items = Array[ExtResource("2_cewcx")]([ExtResource("23_dianq"), ExtResource("10_ng0jj"), ExtResource("37_gyds2"), ExtResource("38_1b8ag"), ExtResource("16_h0egv"), ExtResource("15_rjx6h")])
 props = Array[ExtResource("52_yjg1c")]([ExtResource("53_dianq"), ExtResource("54_kqkbc"), ExtResource("55_xx7nh"), ExtResource("56_6esje")])
 elite_affixes = Array[ExtResource("7_s1peu")]([ExtResource("8_du3p3"), ExtResource("9_to1jy"), ExtResource("10_8pk3k"), ExtResource("11_v6cij"), ExtResource("12_til0v"), ExtResource("13_mym40")])
+floor_events = Array[ExtResource("50_by7se")]([ExtResource("51_hml5q"), ExtResource("52_5x320"), ExtResource("53_1ai64"), ExtResource("54_bubnr"), ExtResource("55_ivytu"), ExtResource("56_fk2lo")])
 ascensions = Array[ExtResource("21_15tjo")]([ExtResource("22_q5atc"), ExtResource("23_80whv"), ExtResource("24_ftpue"), ExtResource("25_th6df"), ExtResource("26_vi73k"), ExtResource("27_byg44"), ExtResource("28_by7se"), ExtResource("29_hml5q"), ExtResource("30_5x320"), ExtResource("31_1ai64")])
 achievements = Array[ExtResource("1_3m6vt")]([ExtResource("2_7lncd"), ExtResource("3_l6yv8"), ExtResource("4_xqlpv"), ExtResource("5_lvfra"), ExtResource("6_xu8gq"), ExtResource("7_pkcsl"), ExtResource("8_bwrsx"), ExtResource("9_k2lip"), ExtResource("10_1p0g0"), ExtResource("11_6khne"), ExtResource("12_15tjo"), ExtResource("13_q5atc"), ExtResource("14_80whv"), ExtResource("15_ftpue"), ExtResource("16_th6df"), ExtResource("17_vi73k"), ExtResource("18_byg44"), ExtResource("19_by7se"), ExtResource("20_hml5q")])
 encounters = Array[ExtResource("14_uppjc")]([ExtResource("15_k7n23"), ExtResource("16_iw61m"), ExtResource("17_1nigv"), ExtResource("18_j2x0q")])

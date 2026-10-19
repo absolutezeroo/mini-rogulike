@@ -205,6 +205,19 @@ The game's texts are in English; the name stays French. The project's internal n
   some floors: walk up to him to buy equipment (better than average), potions and sometimes a
   tome, or to sell what you carry. Every item has a `value`; the price grows with rarity and depth.
 
+## Special floors and bosses
+
+- **Special floors** (`data/floor_events/`, `FloorEventDef`): 30% of the normal floors after the first
+  (`dungeon_config.tres` > Floor events) are announced when you arrive: **Haunted** (elites, dim),
+  **Treasure Vault** (chests and gold, more traps), **The Swarm** (hordes of weak monsters),
+  **Pitch Dark** (very dark, better loot), **Quiet Halls** (few monsters, the merchant, encounters),
+  **Blood Moon** (monsters hit harder, double gold). They multiply monsters, HP, damage, elites,
+  light, chests, hazards, encounters, gold and loot quality.
+- **Two bosses per act** (`ActDef.boss` + `other_bosses`): each run draws one per act (saved with
+  the run; the title screen shows both). King Slime or the **Giant Frog** (leaps, poison spit, calls
+  its brood); Demon Cyclops or the **Weeping Spirit** (a freezing wail, blinks, calls lost souls);
+  Crimson Tengu or the **Red Samurai** (arcs of fire, dashes, a ring of fire).
+
 ## Encounters
 
 Some rooms hold something strange (`data/encounters/`, `EncounterDef`): walk up to it and choose.
@@ -438,6 +451,8 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 | A new kind of hazard | New script in `src/definitions/hazards/` extending `HazardDef`, override `place()` |
 | An elite affix | New `EliteAffixDef` in `data/elites/` (name, color, a perk), add it to `content_db.tres` > Elite Affixes |
 | A chest | New `ChestDef` in `data/chests/`, set it in `dungeon_config.tres` > Chests |
+| A special floor | New `FloorEventDef` in `data/floor_events/`, add it to `content_db.tres` > Floor Events |
+| Another boss for an act | New `BossDef`, add it to the act's Other Bosses |
 | An encounter | New `EncounterDef` in `data/encounters/` (choices, costs, outcomes), add it to `content_db.tres` > Encounters |
 | An item affix | New `ItemAffixDef` in `data/affixes/` (prefix or suffix, slots, stats or on-hit), add it to `content_db.tres` > Item Affixes |
 | Story texts | Edit `data/story/story.tres` (intro pages, death lines...); an act's line is its `ActDef` > Lore |

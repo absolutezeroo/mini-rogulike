@@ -1,0 +1,115 @@
+[gd_resource type="Resource" script_class="BossDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_23a8j"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_gmdas"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/bosses/weeping_spirit.tres" id="3_hkv7b"]
+[ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="4_fqm73"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/weeping_spirit/portrait.png" id="5_nx8ek"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="6_ndn72"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="7_3pk5o"]
+[ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="8_qkwm3"]
+[ext_resource type="Resource" path="res://data/items/weapons/hammer.tres" id="9_hjxmh"]
+[ext_resource type="Resource" path="res://data/items/armors/shadow_cloak.tres" id="10_t02vb"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_frost.tres" id="11_t8qu6"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="12_xt7uf"]
+[ext_resource type="Script" path="res://src/definitions/boss_phase.gd" id="13_shtgb"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="14_htnv3"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="15_5seka"]
+[ext_resource type="Resource" path="res://data/skills/boss/wailing_ring.tres" id="16_egwjx"]
+[ext_resource type="Resource" path="res://data/skills/monster/blink.tres" id="17_mos47"]
+[ext_resource type="Resource" path="res://data/skills/boss/call_spirits.tres" id="18_tnrbr"]
+[ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="19_7aq3k"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/demon_club.tres" id="20_8w8kl"]
+
+[sub_resource type="Resource" id="Resource_23a8j"]
+script = ExtResource("6_ndn72")
+item = ExtResource("7_3pk5o")
+weight = 4
+
+[sub_resource type="Resource" id="Resource_gmdas"]
+script = ExtResource("6_ndn72")
+item = ExtResource("8_qkwm3")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_hkv7b"]
+script = ExtResource("6_ndn72")
+item = ExtResource("9_hjxmh")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_fqm73"]
+script = ExtResource("6_ndn72")
+item = ExtResource("10_t02vb")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_nx8ek"]
+script = ExtResource("6_ndn72")
+item = ExtResource("11_t8qu6")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_ndn72"]
+script = ExtResource("12_xt7uf")
+drop_chance = 1.0
+rolls = 3
+entries = Array[ExtResource("6_ndn72")]([SubResource("Resource_23a8j"), SubResource("Resource_gmdas"), SubResource("Resource_hkv7b"), SubResource("Resource_fqm73"), SubResource("Resource_nx8ek")])
+
+[sub_resource type="Resource" id="Resource_3pk5o"]
+script = ExtResource("14_htnv3")
+attack = 3
+move_speed = 20.0
+
+[sub_resource type="Resource" id="Resource_qkwm3"]
+script = ExtResource("13_shtgb")
+hp_ratio = 0.55
+message = "CALLS THE LOST!"
+bonuses = SubResource("Resource_3pk5o")
+skills = Array[ExtResource("15_5seka")]([ExtResource("16_egwjx"), ExtResource("17_mos47"), ExtResource("18_tnrbr")])
+windup_multiplier = 0.85
+tint = Color(1, 0.72, 0.72, 1)
+
+[sub_resource type="Resource" id="Resource_hjxmh"]
+script = ExtResource("14_htnv3")
+attack = 2
+move_speed = 40.0
+attack_speed = 0.4
+
+[sub_resource type="Resource" id="Resource_t02vb"]
+script = ExtResource("13_shtgb")
+hp_ratio = 0.2
+message = "SHRIEKS!"
+bonuses = SubResource("Resource_hjxmh")
+skills = Array[ExtResource("15_5seka")]([ExtResource("16_egwjx"), ExtResource("17_mos47"), ExtResource("18_tnrbr")])
+windup_multiplier = 0.7
+tint = Color(1, 0.55, 0.55, 1)
+
+[sub_resource type="Resource" id="Resource_t8qu6"]
+script = ExtResource("14_htnv3")
+max_hp = 380
+defense = 3
+move_speed = 70.0
+
+[resource]
+script = ExtResource("19_7aq3k")
+title = "Warden of the Lost"
+portrait = ExtResource("5_nx8ek")
+phases = Array[ExtResource("13_shtgb")]([SubResource("Resource_qkwm3"), SubResource("Resource_t02vb")])
+stats = SubResource("Resource_t8qu6")
+weapon = ExtResource("20_8w8kl")
+skills = Array[ExtResource("15_5seka")]([ExtResource("16_egwjx"), ExtResource("17_mos47")])
+radius = 22.0
+frames = ExtResource("3_hkv7b")
+frames_offset = Vector2(0, -18)
+head_height = 66.0
+detect_radius = 900.0
+attack_windup = 0.65
+attack_recovery = 0.5
+hurt_sound = ExtResource("4_fqm73")
+death_sound = ExtResource("1_23a8j")
+xp_reward = 120
+loot = SubResource("Resource_ndn72")
+id = &"weeping_spirit"
+display_name = "Weeping Spirit"
+description = "A huge ghost made of all the souls it swallowed. Its wail freezes the blood."
+icon = ExtResource("5_nx8ek")
+glyph = "D"
+color = Color(0.9372549, 0.2784314, 0.43529412, 1)
+spawn_weight = 0

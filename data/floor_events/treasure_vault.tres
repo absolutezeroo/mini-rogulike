@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="FloorEventDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/floor_event_def.gd" id="1_vxf1v"]
+
+[resource]
+script = ExtResource("1_vxf1v")
+extra_chests = 3
+extra_hazards = 3
+gold = 2.0
+id = &"treasure_vault"
+display_name = "Treasure Vault"
+description = "Gold glitters everywhere... and so do the traps."
+color = Color(1, 0.81960785, 0.4, 1)
+min_depth = 2

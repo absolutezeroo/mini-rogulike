@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FloorEventDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/floor_event_def.gd" id="1_nffdm"]
+
+[resource]
+script = ExtResource("1_nffdm")
+light = 0.45
+loot_quality = 1.8
+id = &"darkness"
+display_name = "Pitch Dark"
+description = "Your lantern barely lights the way. Rare things hide in the dark."
+color = Color(0.48235294, 0.42745098, 0.5529412, 1)
+min_depth = 3

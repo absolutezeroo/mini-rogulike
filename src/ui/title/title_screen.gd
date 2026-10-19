@@ -89,12 +89,17 @@ func _build_boss_row() -> void:
 	for act in content.dungeon.acts:
 		var column := VBoxContainer.new()
 		column.alignment = BoxContainer.ALIGNMENT_CENTER
-		var portrait := TextureRect.new()
-		portrait.texture = act.boss.portrait if act.boss else null
-		portrait.custom_minimum_size = Vector2(76, 76)
-		portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		column.add_child(portrait)
+		# The act's bosses: one of them guards it in each run.
+		var faces := HBoxContainer.new()
+		faces.alignment = BoxContainer.ALIGNMENT_CENTER
+		for boss in act.all_bosses():
+			var portrait := TextureRect.new()
+			portrait.texture = boss.portrait
+			portrait.custom_minimum_size = Vector2(64, 64)
+			portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			faces.add_child(portrait)
+		column.add_child(faces)
 		var label := Label.new()
 		label.text = "%s\n%s" % [act.subtitle, act.title]
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
