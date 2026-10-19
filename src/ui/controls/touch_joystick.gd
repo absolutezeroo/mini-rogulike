@@ -69,7 +69,8 @@ func _set_action(action: StringName, strength: float) -> void:
 
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_EXIT_TREE:
+	# Paused (a panel opened under the thumb): the release would never reach us.
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_EXIT_TREE or what == NOTIFICATION_PAUSED:
 		_finger = -1
 		_apply(Vector2.ZERO)
 

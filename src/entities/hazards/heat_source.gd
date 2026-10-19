@@ -68,7 +68,8 @@ func reaches(actor: Actor) -> bool:
 
 func _process(delta: float) -> void:
 	_time += delta
-	queue_redraw()
+	if def.ground_shader == null:
+		queue_redraw()  # the shader animates by itself
 	if def.sound:
 		_sound_timer -= delta
 		if _sound_timer <= 0.0:

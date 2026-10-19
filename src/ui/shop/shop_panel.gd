@@ -61,7 +61,7 @@ func _refresh() -> void:
 		var belt_item := _player.belt.item_at(i)
 		if belt_item:
 			var label := "%s  x%d" % [belt_item.display_name, _player.belt.count_at(i)]
-			_bag.add_child(_row(belt_item, "Sell %d" % _merchant.def.sell_price(belt_item, _player.world.depth), true, _sell.bind(belt_item), label))
+			_bag.add_child(_row(belt_item, "Sell %d" % _merchant.def.sell_price(belt_item, _player.world.depth), true, _sell.bind(belt_item, true), label))
 	for entry in _player.inventory.grouped():
 		var item: ItemDef = entry.item
 		var price := _merchant.def.sell_price(item, _player.world.depth)
@@ -76,8 +76,8 @@ func _buy(index: int) -> void:
 		_refresh()
 
 
-func _sell(item: ItemDef) -> void:
-	if _merchant.buy_from(_player, item):
+func _sell(item: ItemDef, from_belt := false) -> void:
+	if _merchant.buy_from(_player, item, from_belt):
 		_refresh()
 
 

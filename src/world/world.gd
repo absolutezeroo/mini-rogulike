@@ -20,6 +20,10 @@ const FLASH_SCENE := preload("res://src/vfx/light_flash.tscn")
 ## Pixels of a hole's edge you can stand on without falling.
 const PIT_EDGE := 6.0
 
+## Goes up with every floor built: delayed effects started on an old floor are dropped.
+var floor_id := 0
+## Cracked floor cells (CrumblingFloor), by cell.
+var _cracks := {}
 var map: DungeonMap
 var theme: DungeonTheme
 var player: Player
@@ -58,6 +62,7 @@ var _last_revealed := Vector2i(-1, -1)
 
 func build_floor(new_depth: int, content: ContentDB) -> void:
 	clear_floor()
+	floor_id += 1
 	depth = new_depth
 	_content = content
 	var boss := content.dungeon.boss_for_depth(depth)
@@ -102,6 +107,7 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 func clear_floor() -> void:
 	arena = null
 	ambush = null
+	_cracks.clear()
 	if _pits:
 		_pits.clear()
 	for layer: Node in [_entities, _projectiles, _effects, _walls]:
@@ -264,7 +270,23 @@ func spawn_crumbling_floor(def: PitDef, cell: Vector2i) -> CrumblingFloor:
 	var tile := CrumblingFloor.new()
 	tile.setup(def, self, cell)
 	_effects.add_child(tile)
+	_cracks[cell] = tile
 	return tile
+
+
+## Cracked floor gives way under whoever walks on it: one lookup per actor, not one scan per crack.
+func _step_on_cracks() -> void:
+	if _cracks.is_empty():
+		return
+	for actor in get_actors():
+		if actor.is_grounded():
+			var crack: CrumblingFloor = _cracks.get(map.world_to_cell(actor.global_position))
+			if crack and is_instance_valid(crack):
+				crack.step_on()
+
+
+func forget_crack(cell: Vector2i) -> void:
+	_cracks.erase(cell)
 
 
 func spawn_heat_source(def: HeatSourceDef, rect: Rect2i) -> HeatSource:
@@ -364,13 +386,18 @@ func pit_under(point: Vector2) -> PitDef:
 
 
 ## Floor that can't give way: no hole, no cracked floor (where the hero climbs out after a fall).
+## Solid ground nothing stands on (no wall, hole, crack, chest, encounter, prop...).
+func is_free_cell(cell: Vector2i) -> bool:
+	return is_solid_ground(map.cell_to_world(cell)) and not _astar.is_point_solid(cell)
+
+
 func is_solid_ground(point: Vector2) -> bool:
 	var cell := map.world_to_cell(point)
 	if not map.is_floor(cell) or _pits.has(cell):
 		return false
-	for node in get_tree().get_nodes_in_group("crumbling_floors"):
-		if (node as CrumblingFloor).cell == cell and not node.is_queued_for_deletion():
-			return false
+	var crack: CrumblingFloor = _cracks.get(cell)
+	if crack and is_instance_valid(crack) and not crack.is_queued_for_deletion():
+		return false
 	return true
 
 
@@ -411,6 +438,7 @@ func _reveal_rect(rect: Rect2i, revealed: Array[Vector2i]) -> void:
 func _physics_process(_delta: float) -> void:
 	if player and map and not player.is_dead:
 		reveal_around(player.global_position)
+	_step_on_cracks()
 
 
 # --- Queries -----------------------------------------------------------------
@@ -444,7 +472,10 @@ func get_hostiles(faction: Actor.Faction) -> Array[Actor]:
 
 ## Multiplier for damage dealt by the dungeon itself (monsters, traps): the difficulty.
 func damage_scale() -> float:
-	return difficulty.monster_damage if difficulty else 1.0
+	var scale := difficulty.monster_damage if difficulty else 1.0
+	if floor_event:
+		scale *= floor_event.monster_damage  # Blood Moon traps bite harder too
+	return scale
 
 
 ## Multiplier for drop chances.

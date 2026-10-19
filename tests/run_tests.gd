@@ -549,6 +549,7 @@ func _test_gameplay() -> void:
 	# Animations: frame-by-frame attack in the aimed direction, weapon in hand synced with the body.
 	var rig := player.rig
 	check(rig != null and rig.visible, "player has a visible rig")
+	player._invulnerable_time = 2.0  # a monster's hit would play the hurt animation
 	player._attack_cooldown = 0.0
 	player.attack(Vector2.LEFT)
 	check(rig.direction == &"left", "the rig turns toward the attack")
@@ -556,7 +557,7 @@ func _test_gameplay() -> void:
 	check(rig.weapon.visible and rig.weapon.animation == &"attack_left", "the katana is drawn in hand, synced")
 	await _frames(40)
 	check(not rig.weapon.visible, "the weapon is put away after the attack")
-	check(String(rig.body.animation).begins_with("idle") or String(rig.body.animation).begins_with("walk"), "back to idle/walk")
+	check(String(rig.body.animation).begins_with("idle") or String(rig.body.animation).begins_with("walk"), "back to idle/walk (%s)" % rig.body.animation)
 	player._attack_cooldown = 0.0
 	player.attack(Vector2.UP)
 	check(rig.weapon.get_index() < rig.body.get_index(), "facing up: weapon drawn behind the body")
@@ -653,7 +654,7 @@ func _test_gameplay() -> void:
 	# Stairs take you deeper.
 	var depth_before: int = game.depth
 	player.global_position = world.map.cell_to_world(world.map.stairs_cell)
-	await _frames(10)
+	await _frames(int(game.FADE_TIME * 60.0) + 12)  # the depth changes once the screen is black
 	check(game.depth == depth_before + 1, "stairs lead to the next depth")
 	check(game._fade.color.a > 0.0, "taking the stairs fades to black")
 	await _frames(60)
@@ -671,6 +672,7 @@ func _test_gameplay() -> void:
 	await _test_belt_and_balance(game)
 	await _test_monster_behaviours(game)
 	await _test_climate(game)
+	await _test_review_fixes(game)
 
 	await _test_boss_fight(game)
 
@@ -1327,7 +1329,7 @@ func _test_hazards(game: Node, world: World, player: Player) -> void:
 			await get_tree().physics_frame
 		check(ambush.state == AmbushRoom.State.CLEARED and not ambush.is_closed(), "clearing the waves opens the exits")
 		check(elites_seen[0] >= 1, "the last wave is led by an elite")
-		var reward := get_tree().get_nodes_in_group("chests").filter(func(c: Node) -> bool: return world.map.world_to_cell(c.global_position) == room.get_center())
+		var reward := get_tree().get_nodes_in_group("chests").filter(func(c: Node) -> bool: return (c as Chest).def == CONTENT.dungeon.ambush_chest and room.has_point(world.map.world_to_cell(c.global_position)))
 		check(reward.size() == 1 and (reward[0] as Chest).def == CONTENT.dungeon.ambush_chest, "a big chest rewards the survivor (%d there, %d chests)" % [reward.size(), get_tree().get_nodes_in_group("chests").size()])
 		Events.ambush_started.disconnect(on_start)
 		Events.monster_killed.disconnect(on_kill)
@@ -1402,7 +1404,7 @@ func _solid_point_in(world: World, rect: Rect2i) -> Vector2:
 ## A new act begins with its title card, on black, game paused. A tap skips it.
 func _test_act_card(game: Node) -> void:
 	game.show_act_cards = true
-	game.depth = 4
+	game.depth = 3  # _descend goes one floor down: the first floor of act II
 	game._descend()
 	await _frames(int(game.FADE_TIME * 60.0) + 40)
 	var card: ActCard = game.act_card
@@ -1707,6 +1709,8 @@ func _test_climate(game: Node) -> void:
 	check(not game.hud._temp_bar.visible, "no thermometer when all is fine")
 
 	# Dark rooms: once per room, and the hero notices when walking in.
+	for node in get_tree().get_nodes_in_group("dark_rooms"):
+		node.free()  # the floor's own dark rooms
 	var room := world.map.rooms[world.map.rooms.size() - 1]
 	var dark := world.spawn_dark_room(dark_def, room)
 	dark_def.place(world, room, {})
@@ -1744,6 +1748,104 @@ func _test_climate(game: Node) -> void:
 	player.belt.load_data(saved_belt)
 	player.inventory.items = saved_bag
 	await _frames(2)
+
+
+## Regressions found by the code review.
+func _test_review_fixes(game: Node) -> void:
+	var player: Player = game.player
+	var world: World = game.world
+	await _clear_monsters(world)
+	player.hp = player.get_max_hp()
+
+	# A burn tick doesn't make the hero invulnerable (or monsters' hits would be swallowed).
+	player._invulnerable_time = 0.0
+	player.statuses.apply_dot(&"burn", 1, 0.1, 0.5, null, Color.ORANGE)
+	await _frames(9)
+	check(player.hp < player.get_max_hp() and player._invulnerable_time == 0.0, "burn ticks give no invulnerability frames")
+	player.statuses.clear()
+	player.hp = player.get_max_hp()
+
+	# Slows: a frost hit wears off even while the cold keeps slowing a little.
+	player.statuses.apply_slow(0.6, 0.2)
+	for i in 30:
+		player.statuses.apply_slow(0.1, 0.2, &"cold")
+		await get_tree().physics_frame
+	check(is_equal_approx(player.statuses.speed_multiplier(), 0.9), "a frost hit wears off under a lasting slow (%.2f)" % player.statuses.speed_multiplier())
+	player.statuses.clear()
+
+	# The same buff twice refreshes instead of stacking.
+	var rage := StatBlock.new()
+	rage.attack = 5
+	var attack_before := player.get_stats().attack
+	player.add_timed_bonus(rage, 1.0)
+	player.add_timed_bonus(rage, 1.0)
+	check(player.get_stats().attack == attack_before + 5, "a second elixir refreshes the first")
+
+	# Shields know where a dash strike comes from (its knockback goes sideways).
+	var shell := world.spawn_monster(load("res://data/monsters/shell_guard.tres"), world.map.cell_to_world(_open_cell_near(world, player.global_position, 2)))
+	shell.dormant = true
+	await _frames(2)
+	shell.facing = Vector2.RIGHT
+	shell.guard_direction = Vector2.RIGHT
+	var dash := HitInfo.new()
+	dash.amount = 20
+	dash.knockback = Vector2.UP * 100.0
+	dash.origin = shell.global_position + Vector2.RIGHT * 60.0
+	var hp_before := shell.hp
+	shell.take_hit(dash)
+	check(hp_before - shell.hp <= 5, "the shell blocks a dash strike from the front (%d)" % (hp_before - shell.hp))
+	shell.queue_free()
+
+	# Summoned monsters give nothing (no farming a summoner).
+	var summon := SummonEffect.new()
+	summon.monsters = [load("res://data/monsters/slime.tres")]
+	summon.count = 1
+	summon.apply(player, Vector2.RIGHT)
+	var minion: Monster = null
+	for m in world.get_hostiles(Actor.Faction.PLAYER):
+		if (m as Monster).summoned:
+			minion = m
+	check(minion != null, "summons are marked")
+	if minion:
+		var xp_before := player.xp
+		var level_before := player.level
+		minion.die(player)
+		check(player.xp == xp_before and player.level == level_before, "a summoned monster gives no XP")
+	await _frames(2)
+
+	# No XP for a dead hero (a kill landing after the hero's death would heal him to full).
+	var dead_xp := player.xp
+	player.is_dead = true
+	player.gain_xp(99999)
+	check(player.xp == dead_xp, "a dead hero gains nothing")
+	player.is_dead = false
+
+	# Saves: written in one step, and a half-written file never replaces a good one.
+	var path := "user://test_safe_%d.json" % OS.get_process_id()
+	check(SafeFile.write_json(path, {"a": 1}) and SafeFile.read_json(path).a == 1.0, "safe save round trip")
+	var cut := FileAccess.open(path, FileAccess.WRITE)
+	cut.store_string("{\"a\": ")
+	cut.close()
+	var temp := FileAccess.open(path + ".tmp", FileAccess.WRITE)
+	temp.store_string("{\"a\": 2}")
+	temp.close()
+	check(SafeFile.read_json(path) != null and SafeFile.read_json(path).a == 2.0, "a damaged save falls back on the last full write")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(path + ".tmp"))
+
+	# Taking the stairs: no menu, no second descent until the next floor is there.
+	var depth_before: int = game.depth
+	game._on_stairs_reached()
+	game._on_stairs_reached()
+	check(game.is_menu_open() and game.depth == depth_before, "during the descent: no menus, and the depth changes only on arrival")
+	game.open_pause_menu()
+	check(not game.pause_menu.visible, "the pause menu can't open in the middle of the stairs")
+	for i in 120:
+		if not game._transitioning:
+			break
+		await _frames(1)
+	check(game.depth == depth_before + 1 and not get_tree().paused, "one floor down, game running (depth %d)" % game.depth)
+	await _frames(5)
 
 
 func _gold_on_floor(world: World) -> int:
@@ -2158,6 +2260,8 @@ func _test_boss_fight(game: Node) -> void:
 	var final_hit := HitInfo.new()
 	final_hit.amount = 999999
 	world.arena.boss.take_hit(final_hit)
+	await _frames(3)
+	check(game.has_won, "the win counts at once (taking the stairs right away can't lose it)")
 	for attempt in 10:
 		await get_tree().create_timer(game.RELIC_DELAY * 0.5, true).timeout
 		if game.game_over_panel.visible:

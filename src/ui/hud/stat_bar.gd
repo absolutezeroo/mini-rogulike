@@ -19,6 +19,8 @@ func _ready() -> void:
 
 
 func set_values(value: float, max_value: float, text: String = "") -> void:
+	if value == _value and maxf(max_value, 0.001) == _max_value and text == _text:
+		return
 	_value = value
 	_max_value = maxf(max_value, 0.001)
 	_text = text

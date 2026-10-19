@@ -33,6 +33,11 @@ void fragment() {
 	vec2 uv = floor(UV * aspect * 24.0) / (aspect * 24.0);
 	vec2 c = (uv - 0.5) * 2.0;
 	float edge = max(abs(c.x), abs(c.y)) * 0.6 + length(c) * 0.4;
+	// The middle of the screen stays clear: skip the noise there (phones).
+	float reach_min = min(1.12 - cold * 0.42 - 0.25, 1.1 - heat * 0.45 - 0.16);
+	if (edge < reach_min) {
+		COLOR = vec4(0.0);
+	} else {
 	vec4 result = vec4(0.0);
 	if (cold > 0.0) {
 		float n = fbm(uv * aspect * 0.9);
@@ -51,4 +56,5 @@ void fragment() {
 		result = hot.a > result.a ? hot : result;
 	}
 	COLOR = result;
+	}
 }

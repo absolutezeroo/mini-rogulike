@@ -10,8 +10,7 @@ var _aim := Vector2.RIGHT
 func enter() -> void:
 	var skill := actor.casting_skill()
 	if skill == null or actor.target == null:
-		actor.casting_index = -1
-		machine.transition_to.call_deferred(&"Chase")
+		actor.casting_index = -1  # physics_update switches back to Chase
 		return
 	actor.move_direction = Vector2.ZERO
 	_aim = actor.global_position.direction_to(actor.target.global_position)

@@ -286,6 +286,8 @@ func move_to_bag(index: int) -> bool:
 # --- Progression -------------------------------------------------------------
 
 func gain_xp(amount: int) -> void:
+	if is_dead or hp <= 0:
+		return  # a kill landing after the hero's own death (a projectile, a burn...)
 	xp += amount
 	while xp >= xp_to_next_level():
 		xp -= xp_to_next_level()
@@ -386,13 +388,17 @@ func _check_ground() -> void:
 
 ## Climbs back out where the hero last stood safely, hurt.
 func _on_fell(pit: PitDef) -> void:
+	if is_dead:
+		return  # killed during the fall: the body stays down there
 	global_position = _safe_position
 	_recover_from_fall()
 	Vfx.puff(world, global_position)
 	Events.log_message("You fell into a hole!", Color("ff6b6b"))
 	_invulnerable_time = 0.0
 	take_hit(Combat.make_secondary_hit(null, maxi(1, roundi(get_max_hp() * pit.fall_damage))))
-	if not is_dead:
+	if is_dead:
+		killed_by = "a fall"
+	else:
 		_invulnerable_time = FALL_INVULNERABILITY
 
 
@@ -402,6 +408,8 @@ func _on_damaged(hit: HitInfo, damage: int) -> void:
 	damaged.emit(damage)
 	if hit.source is Monster and is_instance_valid(hit.source):
 		(hit.source as Monster).on_hit_player(self)
+	if hit.is_tick:
+		return
 	_invulnerable_time = HIT_INVULNERABILITY
 	HitStop.freeze(0.08)
 	camera.shake(clampf(float(damage) / get_max_hp() * 3.0, 0.25, 0.8))

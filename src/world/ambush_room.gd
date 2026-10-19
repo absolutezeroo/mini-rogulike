@@ -61,7 +61,8 @@ func _physics_process(delta: float) -> void:
 	match state:
 		State.WAITING:
 			var player := _world.player
-			if player and not player.is_dead and room.grow(-1).has_point(_world.map.world_to_cell(player.global_position)):
+			# On solid ground only: a roll ending in a hole would put the hero back outside the gates.
+			if player and player.is_grounded() and room.grow(-1).has_point(_world.map.world_to_cell(player.global_position)):
 				start()
 		State.FIGHTING:
 			if not _to_spawn.is_empty():
@@ -120,12 +121,27 @@ func _spawn_point() -> Vector2:
 	return point
 
 
+## Free solid ground near the middle of the room, not under the hero.
+func _reward_cell() -> Vector2i:
+	var center := room.get_center()
+	var hero := _world.map.world_to_cell(_world.player.global_position) if _world.player else Vector2i(-99, -99)
+	for radius in range(0, maxi(room.size.x, room.size.y)):
+		for y in range(center.y - radius, center.y + radius + 1):
+			for x in range(center.x - radius, center.x + radius + 1):
+				var cell := Vector2i(x, y)
+				if maxi(absi(x - center.x), absi(y - center.y)) != radius or not room.grow(-1).has_point(cell):
+					continue
+				if (cell - hero).length_squared() > 2 and _world.is_free_cell(cell):
+					return cell
+	return center
+
+
 func _finish() -> void:
 	state = State.CLEARED
 	_gates.open()
 	var chest_def := _world.config().ambush_chest
 	if chest_def:
-		var cell := room.get_center()
+		var cell := _reward_cell()
 		Vfx.magic(_world, _world.map.cell_to_world(cell), Color("ffd166"))
 		_world.spawn_chest(chest_def, cell, false)
 	cleared.emit()

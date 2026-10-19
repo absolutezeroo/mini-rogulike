@@ -34,6 +34,8 @@ var _phase_tint := Color.WHITE
 var _xp_multiplier := 1
 ## Thieves: gold taken from the hero, and seconds left running away with it.
 var stolen_gold := 0
+## Called in by another monster (SummonEffect): gives no XP, loot or gold.
+var summoned := false
 var _flee_time := 0.0
 ## Shielded monsters: where the shield points. Turns slower than the monster looks,
 ## so a quick dash gets behind it.
@@ -135,7 +137,9 @@ func _incoming_damage(hit: HitInfo, damage: int) -> int:
 	if def.front_guard <= 0.0 or hit.is_secondary:
 		return damage
 	var from := Vector2.ZERO
-	if hit.knockback != Vector2.ZERO:
+	if hit.origin != Vector2.INF:
+		from = global_position.direction_to(hit.origin)
+	elif hit.knockback != Vector2.ZERO:
 		from = -hit.knockback.normalized()
 	elif is_instance_valid(hit.source):
 		from = global_position.direction_to(hit.source.global_position)
@@ -327,22 +331,26 @@ func _on_fell(pit: PitDef) -> void:
 func _on_died(killer: Actor) -> void:
 	Events.monster_killed.emit(self)
 	_free_souls()
-	if _fell:
+	if _fell or is_falling:
 		if killer is Player:
 			(killer as Player).gain_xp(def.xp_reward * _xp_multiplier)
 		world.spawn_floating_text(global_position, "Fell!", Color("ffd166"))
+		_return_stolen_gold()
 		return
 	if is_boss():
 		Vfx.boss_death(world, global_position + Vector2(0, -head_height * 0.5), radius * 1.5)
 		HitStop.freeze(0.25)
 	else:
 		Vfx.death(world, global_position, def.color)
-	if killer is Player:
+	if killer is Player and not summoned:
 		(killer as Player).gain_xp(def.xp_reward * _xp_multiplier)
 	_death_burst()
 	_death_spawns()
 	var config := world.config()
 	var quality := config.boss_loot_quality if is_boss() else (config.elite_loot_quality if elite else 1.0)
+	if summoned:
+		_return_stolen_gold()
+		return  # called in by another monster: no rewards, or a summoner could be farmed forever
 	if def.loot:
 		for item in def.loot.roll(world.rng, world.loot_scale()):
 			var offset := Vector2.from_angle(randf() * TAU) * randf_range(4.0, 14.0)
@@ -352,6 +360,14 @@ func _on_died(killer: Actor) -> void:
 		if item:
 			world.spawn_loot(item, global_position + Vector2.from_angle(randf() * TAU) * randf_range(6.0, 16.0), quality)
 	_drop_gold()
+
+
+## A thief lost down a hole (or a summoned one): the hero gets the stolen gold back anyway.
+func _return_stolen_gold() -> void:
+	if stolen_gold > 0 and world.player and not world.player.is_dead:
+		world.player.add_gold(stolen_gold)
+		world.spawn_floating_text(world.player.head_position(), "+%d gold" % stolen_gold, Color("ffd166"))
+		stolen_gold = 0
 
 
 func _drop_gold() -> void:

@@ -188,43 +188,38 @@ func reset() -> void:
 func save_profile() -> void:
 	if save_path.is_empty():
 		return
-	var file := FileAccess.open(save_path, FileAccess.WRITE)
-	if file == null:
-		push_warning("Could not save the profile: %s" % error_string(FileAccess.get_open_error()))
-		return
-	file.store_string(JSON.stringify({
+	SafeFile.write_json(save_path, {
 		"souls": souls, "levels": levels, "runs": runs, "victories": victories, "best_depth": best_depth,
 		"difficulty": String(difficulty), "wins": wins, "seen_intro": seen_intro,
 		"ascension": ascension, "ascension_unlocked": ascension_unlocked,
 		"kills_by_monster": kills_by_monster, "stats": stats, "achievements": achievements, "history": history,
-	}, "\t"))
+	})
 
 
 func load_profile() -> void:
-	if save_path.is_empty() or not FileAccess.file_exists(save_path):
+	if save_path.is_empty():
 		return
-	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(save_path))
+	var data: Variant = SafeFile.read_json(save_path)
+	if data == null:
+		return
 	if not data is Dictionary:
 		push_warning("Profile file is damaged, starting fresh.")
 		return
 	souls = int(data.get("souls", 0))
-	levels = data.get("levels", {})
-	for key in levels:
-		levels[key] = int(levels[key])
+	levels = _ints(data.get("levels", {}))
 	runs = int(data.get("runs", 0))
 	victories = int(data.get("victories", 0))
 	best_depth = int(data.get("best_depth", 0))
 	difficulty = StringName(data.get("difficulty", "normal"))
-	wins = data.get("wins", {})
-	for key in wins:
-		wins[key] = int(wins[key])
+	wins = _ints(data.get("wins", {}))
 	seen_intro = bool(data.get("seen_intro", false))
 	ascension = int(data.get("ascension", 0))
 	ascension_unlocked = int(data.get("ascension_unlocked", 0))
 	kills_by_monster = _ints(data.get("kills_by_monster", {}))
 	stats = _ints(data.get("stats", {}))
 	achievements = _ints(data.get("achievements", {}))
-	history = data.get("history", [])
+	var saved_history: Variant = data.get("history", [])
+	history = saved_history.filter(func(entry: Variant) -> bool: return entry is Dictionary) if saved_history is Array else []
 
 
 ## JSON numbers come back as floats.

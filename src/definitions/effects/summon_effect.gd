@@ -19,6 +19,7 @@ func apply(user: Actor, _aim: Vector2) -> void:
 			return
 		var at := world.find_open_point_near(user.global_position, radius)
 		var minion := world.spawn_monster(monsters.pick_random(), at)
+		minion.summoned = true
 		if user is Monster:
 			minion.target = (user as Monster).target
 		Vfx.puff(world, at)

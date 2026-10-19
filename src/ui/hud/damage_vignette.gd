@@ -38,4 +38,8 @@ func _process(delta: float) -> void:
 	_time += delta
 	_flash = maxf(_flash - FLASH_FADE * delta, 0.0)
 	var pulse := (0.25 + 0.15 * sin(_time * 5.0)) if _low_hp else 0.0
-	(material as ShaderMaterial).set_shader_parameter("intensity", maxf(_flash, pulse))
+	var intensity := maxf(_flash, pulse)
+	# Hidden when idle: a full-screen layer costs fill rate on phones even when transparent.
+	visible = intensity > 0.0
+	if visible:
+		(material as ShaderMaterial).set_shader_parameter("intensity", intensity)

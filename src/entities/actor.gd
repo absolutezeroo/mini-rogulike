@@ -147,7 +147,12 @@ func get_power() -> int:
 	return (weapon.damage if weapon else 1) + get_stats().attack
 
 
+## The same bonus again (a second elixir, a war cry recast) refreshes it instead of stacking.
 func add_timed_bonus(bonus: StatBlock, duration: float) -> void:
+	for active in _timed_bonuses:
+		if active.stats == bonus:
+			active.time_left = maxf(active.time_left, duration)
+			return
 	_timed_bonuses.append({ "stats": bonus, "time_left": duration })
 	invalidate_stats()
 
@@ -166,7 +171,7 @@ func is_hostile_to(other: Actor) -> bool:
 # --- Actions -----------------------------------------------------------------
 
 func can_attack() -> bool:
-	return not is_dead and _attack_cooldown <= 0.0 and get_weapon() != null
+	return not is_dead and not is_falling and _attack_cooldown <= 0.0 and get_weapon() != null
 
 
 func attack(direction: Vector2) -> bool:
@@ -230,12 +235,17 @@ func take_hit(hit: HitInfo) -> void:
 		last_attacker = hit.source
 	if hit.status:
 		hit.status.apply_to(self, attacker)
+	# Lethal or not is decided by this hit alone: side effects below (thorns killing the attacker,
+	# a level up, a heal on kill) must not pull the actor back from 0 HP.
+	var lethal := hp <= 0
 	if attacker:
 		attacker.perks.on_hit_dealt(attacker, self, hit, damage)
 	_on_damaged(hit, damage)
 	perks.on_damaged(self, hit, damage)
-	if hp <= 0 and not is_dead and not perks.prevent_death(self):
-		die(hit.source)
+	if lethal and not is_dead:
+		hp = 0
+		if not perks.prevent_death(self):
+			die(hit.source)
 
 
 ## Returns how much was actually healed.

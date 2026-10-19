@@ -17,8 +17,9 @@ class Dot:
 const SLOW_COLOR := Color("8ecae6")
 
 var _dots: Array[Dot] = []
-var _slow := 0.0
-var _slow_time := 0.0
+## Slows by source (a frost hit, the cold, quicksand...): source -> [amount, seconds left].
+## The strongest active one counts; each runs out on its own.
+var _slows := {}
 
 
 ## Deals `damage` every `interval` seconds for `duration` seconds.
@@ -40,19 +41,28 @@ func apply_dot(id: StringName, damage: int, interval: float, duration: float, so
 	_dots.append(dot)
 
 
-## Keeps the strongest slow; refreshes its duration.
-func apply_slow(amount: float, duration: float) -> void:
-	_slow = maxf(_slow, clampf(amount, 0.0, 0.9))
-	_slow_time = maxf(_slow_time, duration)
+## Slows by `amount` for `duration` seconds. `source` keeps different slows apart: things that
+## re-apply every frame (cold, quicksand) don't stretch a frost hit forever.
+func apply_slow(amount: float, duration: float, source: StringName = &"hit") -> void:
+	amount = clampf(amount, 0.0, 0.9)
+	var current: Array = _slows.get(source, [0.0, 0.0])
+	if source == &"hit":
+		# Hits: the strongest one, the longest one.
+		_slows[source] = [maxf(current[0], amount), maxf(current[1], duration)]
+	else:
+		_slows[source] = [amount, duration]
 
 
 ## Multiplier for the move speed (1 = not slowed).
 func speed_multiplier() -> float:
-	return 1.0 - _slow if _slow_time > 0.0 else 1.0
+	var slow := 0.0
+	for source in _slows:
+		slow = maxf(slow, _slows[source][0])
+	return 1.0 - slow
 
 
 func is_slowed() -> bool:
-	return _slow_time > 0.0
+	return not _slows.is_empty()
 
 
 func has(id: StringName) -> bool:
@@ -60,7 +70,7 @@ func has(id: StringName) -> bool:
 
 
 func is_empty() -> bool:
-	return _dots.is_empty() and _slow_time <= 0.0
+	return _dots.is_empty() and _slows.is_empty()
 
 
 ## Tint of the strongest active status (for the actor's body), or transparent.
@@ -72,21 +82,21 @@ func tint() -> Color:
 
 func clear() -> void:
 	_dots.clear()
-	_slow_time = 0.0
+	_slows.clear()
 
 
 func tick(owner: Actor, delta: float) -> void:
-	if _slow_time > 0.0:
-		_slow_time -= delta
-		if _slow_time <= 0.0:
-			_slow = 0.0
+	for source in _slows.keys():
+		_slows[source][1] -= delta
+		if _slows[source][1] <= 0.0:
+			_slows.erase(source)
 	for dot in _dots.duplicate():
 		dot.time_left -= delta
 		dot.next_tick -= delta
 		if dot.next_tick <= 0.0:
 			dot.next_tick += dot.interval
 			var source: Actor = dot.source if is_instance_valid(dot.source) else null
-			owner.take_hit(Combat.make_secondary_hit(source, dot.damage))
+			owner.take_hit(Combat.make_tick(source, dot.damage))
 			if owner.is_dead:
 				_dots.clear()
 				return

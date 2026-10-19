@@ -78,9 +78,14 @@ func sell_to(player: Player, index: int) -> bool:
 
 
 ## Buys `item` from the player's bag (or belt).
-func buy_from(player: Player, item: ItemDef) -> bool:
+## `from_belt`: sold from a belt row (take it from there, not from a copy in the bag).
+func buy_from(player: Player, item: ItemDef, from_belt := false) -> bool:
 	var price := def.sell_price(item, _world.depth)
-	if price <= 0 or not (player.inventory.remove(item) or player.belt.remove(item)):
+	if price <= 0:
+		return false
+	var taken := (player.belt.remove(item) or player.inventory.remove(item)) if from_belt \
+		else (player.inventory.remove(item) or player.belt.remove(item))
+	if not taken:
 		return false
 	player.add_gold(price)
 	_add(item)

@@ -29,6 +29,13 @@ static func make_secondary_hit(source: Actor, amount: int) -> HitInfo:
 	return hit
 
 
+## A damage-over-time tick (see HitInfo.is_tick).
+static func make_tick(source: Actor, amount: int) -> HitInfo:
+	var hit := make_secondary_hit(source, amount)
+	hit.is_tick = true
+	return hit
+
+
 ## Each point of defense removes one damage, but a hit always does at least 1.
 static func mitigate(amount: int, defense: int) -> int:
 	return maxi(1, amount - defense)
@@ -53,6 +60,7 @@ static func melee_strike(attacker: Actor, direction: Vector2, weapon: WeaponDef)
 			continue
 		var hit := make_hit_from(attacker, attacker.get_power())
 		hit.knockback = to_target.normalized() * weapon.knockback
+		hit.origin = attacker.global_position
 		hit.sound = weapon.hit_sound
 		hit.status = weapon.on_hit
 		target.take_hit(hit)
@@ -72,6 +80,7 @@ static func damage_area(world: World, attacker: Actor, center: Vector2, radius: 
 			continue
 		var hit := make_hit_from(attacker, base_amount)
 		hit.knockback = offset.normalized() * knockback
+		hit.origin = attacker.global_position if is_instance_valid(attacker) else center
 		hit.is_secondary = secondary
 		hit.status = status
 		target.take_hit(hit)
@@ -87,6 +96,7 @@ static func damage_segment(world: World, attacker: Actor, from: Vector2, to: Vec
 			continue
 		var hit := make_hit_from(attacker, base_amount)
 		hit.knockback = direction.orthogonal() * signf(direction.cross(target.global_position - from)) * knockback
+		hit.origin = from
 		hit.status = status
 		target.take_hit(hit)
 	for prop in world.get_breakable_props():
@@ -124,9 +134,10 @@ static func blast(world: World, center: Vector2, radius: float, amount: int, kno
 ## frames to play instead of the usual explosion.
 static func delayed_blast(world: World, center: Vector2, radius: float, amount: int, fuse: float, fx: Texture2D = null, status: OnHitStatus = null) -> void:
 	world.spawn_vfx(RingVfx.create(center, radius, Color(1.0, 0.3, 0.2, 0.8)))
+	var floor_id := world.floor_id
 	world.get_tree().create_timer(fuse, false).timeout.connect(func() -> void:
-		if not is_instance_valid(world):
-			return
+		if not is_instance_valid(world) or world.floor_id != floor_id:
+			return  # the hero took the stairs meanwhile
 		if fx:
 			world.spawn_vfx(SheetVfx.create(fx, center, 0.0, radius * 2.0 / fx.get_height()))
 			Sfx.play_at(Sfx.bank.explosion, center, -4.0)

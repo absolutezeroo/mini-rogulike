@@ -15,6 +15,8 @@ func add_message(text: String, color: Color) -> void:
 	var line := Label.new()
 	line.text = text
 	line.mouse_filter = MOUSE_FILTER_IGNORE
+	# Long lines wrap inside the column instead of stretching the HP bars across the screen.
+	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	line.add_theme_color_override("font_color", color)
 	line.add_theme_color_override("font_outline_color", Color.BLACK)
 	line.add_theme_constant_override("outline_size", 5)

@@ -23,36 +23,33 @@ func setup(pit_def: PitDef, floor_world: World, at_cell: Vector2i) -> void:
 
 
 func _physics_process(delta: float) -> void:
-	match state:
-		State.SOLID:
-			if _someone_on_it():
-				state = State.CRACKING
-				_time_left = def.crumble_time
-				Sfx.play_at(def.crack_sound, global_position, -4.0)
-				Vfx.dust(world, global_position, 0.8)
-		State.CRACKING:
-			_time_left -= delta
-			queue_redraw()
-			if _time_left <= 0.0:
-				collapse()
+	if state == State.CRACKING:
+		_time_left -= delta
+		queue_redraw()
+		if _time_left <= 0.0:
+			collapse()
+
+
+## Someone stands on it (World checks the actors' cells): it starts to give way.
+func step_on() -> void:
+	if state != State.SOLID:
+		return
+	state = State.CRACKING
+	_time_left = def.crumble_time
+	Sfx.play_at(def.crack_sound, global_position, -4.0)
+	Vfx.dust(world, global_position, 0.8)
 
 
 ## Gives way now: the cell becomes a hole (whoever stands on it falls).
 func collapse() -> void:
 	if not is_inside_tree():
 		return
+	world.forget_crack(cell)
 	world.add_pit(cell, def)
 	Sfx.play_at(def.crumble_sound, global_position)
 	Vfx.burst(world, Vfx.DEATH_CHUNKS, global_position, def.debris_color)
 	Vfx.dust(world, global_position, 1.5)
 	queue_free()
-
-
-func _someone_on_it() -> bool:
-	for actor in world.get_actors():
-		if actor.is_grounded() and world.map.world_to_cell(actor.global_position) == cell:
-			return true
-	return false
 
 
 func _draw() -> void:

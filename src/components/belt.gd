@@ -25,7 +25,7 @@ func count_at(index: int) -> int:
 	return int(slots[index].get("count", 0)) if index >= 0 and index < SLOTS else 0
 
 
-func count_of(item: ConsumableDef) -> int:
+func count_of(item: ItemDef) -> int:
 	var total := 0
 	for slot in slots:
 		if slot.get("item") == item:

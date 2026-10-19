@@ -42,7 +42,10 @@ func start() -> void:
 	if is_started or boss == null or boss.is_dead:
 		return
 	is_started = true
-	_gates.close()
+	# Shut in together only: a boss woken from the doorway (a bow shot...) and lured out
+	# must not end up locked outside its own room.
+	if _is_inside(boss.global_position) and _is_inside(_world.player.global_position):
+		_gates.close()
 	boss.wake_up(_world.player)
 	Sfx.play_at(Sfx.bank.boss_roar, boss.global_position)
 	if _world.player:
@@ -56,8 +59,14 @@ func _physics_process(_delta: float) -> void:
 	if is_started or _world == null:
 		return
 	var player := _world.player
-	if player and not player.is_dead and _room.grow(-1).has_point(_world.map.world_to_cell(player.global_position)):
+	if player == null or player.is_dead:
+		return
+	if _is_inside(player.global_position) or (boss and not boss.dormant):
 		start()
+
+
+func _is_inside(point: Vector2) -> bool:
+	return _room.grow(-1).has_point(_world.map.world_to_cell(point))
 
 
 func _on_boss_died(_actor: Actor) -> void:

@@ -7,12 +7,14 @@ extends TouchScreenButton
 ## Shown in the middle when there is no icon.
 @export var label := "":
 	set(value):
-		label = value
-		queue_redraw()
+		if value != label:
+			label = value
+			queue_redraw()
 @export var color := Color(1, 1, 1):
 	set(value):
-		color = value
-		queue_redraw()
+		if value != color:
+			color = value
+			queue_redraw()
 
 var icon: Texture2D:
 	set(value):

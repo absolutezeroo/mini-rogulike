@@ -20,6 +20,7 @@ static func apply_all(effects: Array[Effect], user: Actor, aim: Vector2) -> void
 		if effect.delay <= 0.0:
 			effect.apply(user, aim)
 			continue
+		var floor_id := user.world.floor_id
 		user.get_tree().create_timer(effect.delay, false).timeout.connect(func() -> void:
-			if is_instance_valid(user) and not user.is_dead and user.is_inside_tree():
+			if is_instance_valid(user) and not user.is_dead and user.is_inside_tree() and user.world.floor_id == floor_id:
 				effect.apply(user, aim))

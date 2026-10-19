@@ -85,6 +85,7 @@ fill_color = Color(0.56, 0.83, 1, 1)
 [node name="InfoLabel" type="Label" parent="TopLeft"]
 unique_name_in_owner = true
 layout_mode = 2
+autowrap_mode = 3
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 16

@@ -37,6 +37,10 @@ var _run_gold := 0
 var _last_gold := 0
 ## The run is in the history already (a won run is recorded once, when it ends).
 var _history_recorded := false
+## Between taking the stairs and the next floor showing: no menus, no saves, no second descent.
+var _transitioning := false
+## The boss of the last cleared boss floor (its relic, in endless mode).
+var _last_boss: BossDef
 
 @onready var world: World = $World
 @onready var hud: Hud = $Hud
@@ -128,6 +132,7 @@ func _begin_run(saved: Dictionary) -> void:
 	perk_panel.hide()
 	_pending_offers.clear()
 	_shown_offer = {}
+	_transitioning = false
 	if player:
 		player.get_parent().remove_child(player)
 		player.queue_free()
@@ -149,12 +154,11 @@ func _begin_run(saved: Dictionary) -> void:
 	has_won = bool(saved.get("has_won", false))
 	_souls_awarded = int(saved.get("souls_awarded", 0))
 	_run_gold = int(saved.get("run_gold", 0))
-	_history_recorded = false
+	_history_recorded = bool(saved.get("history_recorded", false))
 	player = PLAYER_SCENE.instantiate() as Player
 	player.setup(content.player)
 	player.died.connect(_on_player_died)
 	player.leveled_up.connect(_on_player_leveled_up)
-	player.gold_changed.connect(_on_gold_changed)
 	player.damaged.connect(func(damage: int) -> void:
 		screen_fx.kick(clampf(float(damage) / player.get_max_hp() * 5.0, 0.3, 1.0)))
 	_apply_unlocks()
@@ -168,17 +172,20 @@ func _begin_run(saved: Dictionary) -> void:
 			offer.count = int(offer.get("count", PERK_CHOICES))
 			_pending_offers.append(offer)
 	_last_gold = player.gold
+	player.gold_changed.connect(_on_gold_changed)  # after loading: the saved purse is not new gold
 	hud.bind_player(player)
 	if show_act_cards:
 		# Start on black: the first act's card, then the floor fades in.
 		_fade.color.a = 1.0
 		_set_paused(true)
-		_enter_floor()
+		_transitioning = true
+		_enter_floor(not saved.is_empty())
 		await _show_act_card()
-		_set_paused(false)
+		_transitioning = false
+		_set_paused(is_menu_open())
 		create_tween().tween_property(_fade, "color:a", 0.0, FADE_TIME * 1.5)
 	else:
-		_enter_floor()
+		_enter_floor(not saved.is_empty())
 	_show_next_offer.call_deferred()  # choices left open in a saved run
 
 
@@ -244,7 +251,7 @@ func _award_souls(won_now: bool) -> int:
 
 
 func is_menu_open() -> bool:
-	return inventory_panel.visible or perk_panel.visible or game_over_panel.visible or pause_menu.visible \
+	return _transitioning or inventory_panel.visible or perk_panel.visible or game_over_panel.visible or pause_menu.visible \
 		or shop_panel.visible or encounter_panel.visible
 
 
@@ -309,14 +316,15 @@ func _set_paused(paused: bool) -> void:
 
 # --- Floors ------------------------------------------------------------------
 
-func _enter_floor() -> void:
+## `resumed`: picking a saved run back up (no free heal for quitting and coming back).
+func _enter_floor(resumed: bool = false) -> void:
 	world.build_floor(depth, content)
 	world.place_player(player)
 	var mood := world.theme.ambience if world.theme else null
 	if world.floor_event and world.floor_event.ambience:
 		mood = world.floor_event.ambience
 	ambience.play(mood, world, player)
-	if depth > 1 and difficulty and difficulty.heal_on_new_floor > 0.0:
+	if not resumed and depth > 1 and difficulty and difficulty.heal_on_new_floor > 0.0:
 		player.heal(roundi(player.get_max_hp() * difficulty.heal_on_new_floor))
 	if world.theme:
 		Sfx.play_music(world.theme.music)
@@ -341,8 +349,10 @@ func _enter_floor() -> void:
 
 
 func _on_stairs_reached() -> void:
+	if _transitioning or player == null or player.is_dead:
+		return
 	Sfx.play_ui(Sfx.bank.stairs)
-	depth += 1
+	_transitioning = true
 	# Fade to black, build the next floor, fade back in.
 	# (Deferred: we are inside a physics callback, where the level can't be rebuilt.)
 	_descend.call_deferred()
@@ -353,9 +363,12 @@ func _descend() -> void:
 	var fade_out := create_tween()
 	fade_out.tween_property(_fade, "color:a", 1.0, FADE_TIME)
 	await fade_out.finished
+	depth += 1  # only now: a save during the fade still points at the floor being left
 	_enter_floor()
 	await _show_act_card()
-	_set_paused(false)
+	_transitioning = false
+	_set_paused(is_menu_open())
+	_show_next_offer()
 	create_tween().tween_property(_fade, "color:a", 0.0, FADE_TIME * 1.5)
 
 
@@ -386,33 +399,49 @@ func _on_boss_defeated(boss: Monster) -> void:
 	if world.theme:
 		Sfx.play_music(world.theme.music)
 	var def := boss.def as BossDef
+	_last_boss = def
 	var winner := player
+	# Decided now, not after the pause: the stairs are already there, and a save (app put away)
+	# in between must keep the win or the relic.
+	var won_now := content.dungeon.is_final_floor(depth) and not has_won
+	var earned := 0
+	if won_now:
+		has_won = true
+		earned = _award_souls(true)
+	elif def and def.relic_choices > 0:
+		_pending_offers.append(_relic_offer(def))
+	_save_run()
 	await get_tree().create_timer(RELIC_DELAY, false).timeout
 	if player != winner or player.is_dead:
 		return  # the run ended in the meantime
-	if content.dungeon.is_final_floor(depth) and not has_won:
+	if won_now:
 		# The last boss: the run is won. Keep going offers the relic, then endless floors.
-		has_won = true
 		_set_paused(true)
 		Sfx.play_ui(Sfx.bank.stairs)
-		var earned := _award_souls(true)
-		_save_run()
 		var story := content.story.victory_text + "\n\n" if content.story else ""
+		_show_on_top(game_over_panel)
 		game_over_panel.show_victory(story + _run_summary() + _souls_text(earned))
 		return
-	_offer_relic(def)
+	_show_next_offer()
 
 
-func _offer_relic(def: BossDef) -> void:
-	if def and def.relic_choices > 0:
-		_queue_offer(PerkDef.Rarity.RARE, def.relic_choices, "Relic", "The boss left a relic behind. Choose one.")
+func _relic_offer(def: BossDef) -> Dictionary:
+	return { "rarity": PerkDef.Rarity.RARE, "count": def.relic_choices, "title": "Relic", "subtitle": "The boss left a relic behind. Choose one." }
 
 
 func _on_continue_endless() -> void:
 	_set_paused(false)
-	var act := content.dungeon.act_for_depth(depth)
 	Events.log_message("Endless mode: the dungeon goes on, harder and harder.", Color("ff6b6b"))
-	_offer_relic(act.boss if act else null)
+	if _last_boss and _last_boss.relic_choices > 0:
+		_pending_offers.append(_relic_offer(_last_boss))
+	_show_next_offer()
+
+
+## Closes whatever is open and puts `panel` above everything (game over, victory).
+func _show_on_top(panel: Control) -> void:
+	for other: Control in [inventory_panel, shop_panel, encounter_panel, perk_panel, pause_menu]:
+		other.hide()
+	panel.move_to_front()
 
 
 func _souls_text(earned: int) -> String:
@@ -463,18 +492,23 @@ func _on_perk_chosen(perk: PerkDef) -> void:
 
 ## Resumes the game, or shows the next perk choice if one is waiting.
 func _on_menu_closed() -> void:
-	_set_paused(false)
+	if player and player.is_dead:
+		return  # the game over screen takes it from here
+	_set_paused(is_menu_open())
 	_show_next_offer()
 
 
 func _on_player_died(_actor: Actor) -> void:
 	RunSave.erase()
 	_pending_offers.clear()
-	await get_tree().create_timer(1.2).timeout
-	Sfx.play_ui(Sfx.bank.game_over)
+	# Souls and history right away (the app may be closed during the pause below).
 	var earned := _award_souls(false)
 	_record_history()
+	Profile.save_profile()
+	await get_tree().create_timer(1.2).timeout
+	Sfx.play_ui(Sfx.bank.game_over)
 	var story := content.story.random_death_line() + "\n\n" if content.story else ""
+	_show_on_top(game_over_panel)
 	game_over_panel.show_result(story + _run_summary() + _souls_text(earned))
 
 
@@ -496,6 +530,7 @@ func _save_run() -> void:
 		"boss_slain": world.arena != null and world.arena.is_defeated,
 		"souls_awarded": _souls_awarded,
 		"run_gold": _run_gold,
+		"history_recorded": _history_recorded,
 		"bosses": RunSave.refs(world.run_bosses),
 		"difficulty": String(difficulty.id) if difficulty else "",
 		"ascension": difficulty.ascension if difficulty else 0,
@@ -508,6 +543,7 @@ func _notification(what: int) -> void:
 	match what:
 		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_CLOSE_REQUEST:
 			_save_run()
+			Profile.save_profile()  # kills and stats since the last save
 			# Coming back to the phone, the game waits on the pause menu.
 			if what == NOTIFICATION_APPLICATION_PAUSED:
 				open_pause_menu()

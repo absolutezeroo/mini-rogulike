@@ -22,26 +22,28 @@ static func write(data: Dictionary) -> void:
 	if path.is_empty():
 		return
 	data["version"] = VERSION
-	var file := FileAccess.open(path, FileAccess.WRITE)
-	if file == null:
-		push_warning("Could not save the run: %s" % error_string(FileAccess.get_open_error()))
-		return
-	file.store_string(JSON.stringify(data, "\t"))
+	SafeFile.write_json(path, data)
 
 
 ## The saved run, or an empty Dictionary if there is none (or it is damaged or too old).
 static func read() -> Dictionary:
 	if not exists():
 		return {}
-	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	var data: Variant = SafeFile.read_json(path)
 	if not data is Dictionary or int(data.get("version", 0)) != VERSION:
 		return {}
+	# A hand-edited or damaged file must not crash the game: check the shapes we rely on.
+	for key: String in ["player", "bosses", "offers"]:
+		var expected := TYPE_DICTIONARY if key == "player" else TYPE_ARRAY
+		if data.has(key) and typeof(data[key]) != expected:
+			return {}
 	return data
 
 
 static func erase() -> void:
-	if exists():
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(path) if path.begins_with("user://") else path)
+	for file in [path, path + ".tmp"]:
+		if not path.is_empty() and FileAccess.file_exists(file):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(file) if file.begins_with("user://") else file)
 
 
 # --- Content references ------------------------------------------------------

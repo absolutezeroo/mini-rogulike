@@ -20,7 +20,7 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if current and not current.actor.is_dead:
+	if current and not current.actor.is_dead and not current.actor.is_falling:
 		current.physics_update(delta)
 
 

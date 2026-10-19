@@ -37,7 +37,7 @@ func _physics_process(delta: float) -> void:
 			_time_in.erase(id)
 			_next_tick.erase(id)
 			continue
-		actor.statuses.apply_slow(def.slow, 0.2)
+		actor.statuses.apply_slow(def.slow, 0.2, &"ground")
 		var time: float = _time_in.get(id, 0.0) + delta
 		_time_in[id] = time
 		if time < def.sink_delay:
@@ -46,7 +46,7 @@ func _physics_process(delta: float) -> void:
 		if tick <= 0.0:
 			tick = def.tick_interval
 			var amount := roundi((def.damage + world.depth * 0.5) * world.damage_scale())
-			actor.take_hit(Combat.make_secondary_hit(null, amount))
+			actor.take_hit(Combat.make_tick(null, amount))
 			Sfx.play_at(def.sink_sound, actor.global_position, -6.0)
 			Vfx.dust(world, actor.global_position, 0.7)
 		_next_tick[id] = tick
