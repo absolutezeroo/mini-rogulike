@@ -426,6 +426,26 @@ func _test_comfort(game: Game) -> void:
 	await _frames(1)
 	var pause: PauseMenu = game.pause_menu
 	check(pause.visible and get_tree().paused, "the pause button pauses the game")
+	# The bestiary from the pause menu: a page and its attack preview run while paused.
+	(pause.get_node("%BestiaryButton") as Button).pressed.emit()
+	var paused_codex: CodexPanel = pause.get_node("%CodexPanel")
+	check(paused_codex.visible, "the bestiary opens from the pause menu")
+	Profile.record_kill(&"skeleton")
+	paused_codex.open_monster(load("res://data/monsters/skeleton.tres"))
+	await _frames(3)
+	var preview: AttackPreview = null
+	var stack: Array[Node] = [paused_codex]
+	while not stack.is_empty() and preview == null:
+		var node: Node = stack.pop_back()
+		if node is AttackPreview:
+			preview = node
+		stack.append_array(node.get_children())
+	var before_time: float = preview._time if preview else 0.0
+	await _frames(20)
+	check(preview != null and preview._time > before_time, "the attack preview plays while the game is paused")
+	game._back()
+	game._back()
+	check(not paused_codex.visible and pause.visible, "back closes the page, then the bestiary")
 	(pause.get_node("%OptionsButton") as Button).pressed.emit()
 	var options: OptionsPanel = pause.get_node("%OptionsPanel")
 	check(options.visible, "options open from the pause menu")

@@ -145,7 +145,7 @@ func _notification(what: int) -> void:
 	elif _shrine.visible:
 		_shrine.hide()
 	elif (%CodexPanel as Control).visible:
-		(%CodexPanel as Control).hide()
+		(%CodexPanel as CodexPanel).back()
 	elif (%DifficultyPanel as Control).visible:
 		(%DifficultyPanel as Control).hide()
 	else:

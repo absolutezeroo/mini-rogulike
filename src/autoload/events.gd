@@ -7,6 +7,10 @@ signal depth_changed(depth: int)
 signal monster_killed(monster: Monster)
 ## A goal was reached (souls already paid).
 signal achievement_unlocked(achievement: AchievementDef)
+## A hunter rank reached with a kind of monster, souls paid (see Bestiary).
+signal bestiary_rank_reached(monster: MonsterDef, rank: int, souls: int)
+## A bestiary challenge done and paid (see HuntTracker).
+signal hunt_challenge_done(monster: MonsterDef, challenge: HuntChallenge)
 ## A daily or weekly quest finished and paid (see QuestBoard).
 signal quest_completed(quest: Dictionary)
 ## Something worth counting happened (opened a chest, used an encounter, found an epic...):

@@ -61,6 +61,8 @@ var _transitioning := false
 @onready var curse_card: CurseCard = $Fade/CurseCard
 
 var _records := RunRecords.new()
+## The bestiary challenges (how monsters are slain).
+var _hunt := HuntTracker.new()
 
 
 func _ready() -> void:
@@ -68,6 +70,8 @@ func _ready() -> void:
 		Sfx.bank = content.sounds
 	_records.content = content
 	add_child(_records)
+	_hunt.content = content
+	add_child(_hunt)
 	world.stairs_reached.connect(_on_stairs_reached)
 	hud.bind_world(world)
 	hud.inventory_requested.connect(open_inventory)
@@ -88,6 +92,7 @@ func _ready() -> void:
 
 
 func _connect_menus() -> void:
+	pause_menu.content = content
 	pause_menu.resume_requested.connect(func() -> void:
 		pause_menu.hide()
 		_on_menu_closed())
@@ -186,6 +191,7 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 		player.load_state(saved.get("player", {}))
 		offers.load_data(saved.get("offers", []))
 	_records.bind(run, player)
+	_hunt.bind(player)
 	hud.bind_player(player)
 	if show_act_cards:
 		# Start on black: the first act's card, then the floor fades in.

@@ -1,7 +1,9 @@
 [gd_resource type="Resource" script_class="BossDef" format=3]
 
+[ext_resource type="Script" path="res://src/definitions/hunt_challenge.gd" id="1_20bwb"]
 [ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_fv4ot"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/bosses/king_slime.tres" id="2_buxgy"]
+[ext_resource type="Resource" path="res://data/items/weapons/bow.tres" id="2_psvo5"]
 [ext_resource type="AudioStream" path="res://data/audio/slime.tres" id="3_4m2cw"]
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/king_slime/idle.png" id="4_cn0aa"]
 [ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="5_5bge7"]
@@ -23,6 +25,14 @@
 [ext_resource type="Resource" path="res://data/skills/boss/slime_rain.tres" id="18_8xj5f"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/slime_slam.tres" id="19_4elis"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="22_20bwb"]
+
+[sub_resource type="Resource" id="Resource_ookps"]
+script = ExtResource("1_20bwb")
+id = &"weapon_bow"
+goal = 10
+text = "Pop the King Slime with a Bow"
+souls = 70
+weapon = ExtResource("2_psvo5")
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_yg8ir"]
 atlas = ExtResource("4_cn0aa")
@@ -117,6 +127,7 @@ attack_recovery = 0.5
 hurt_sound = ExtResource("3_4m2cw")
 death_sound = ExtResource("1_fv4ot")
 xp_reward = 60
+challenges = Array[ExtResource("1_20bwb")]([SubResource("Resource_ookps")])
 loot = SubResource("Resource_mrmjo")
 id = &"king_slime"
 display_name = "King Slime"

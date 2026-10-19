@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="BossDef" format=3]
 
 [ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_ecstf"]
+[ext_resource type="Script" path="res://src/definitions/hunt_challenge.gd" id="1_xpbte"]
+[ext_resource type="Resource" path="res://data/items/weapons/whip.tres" id="2_s5kyj"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/bosses/giant_frog.tres" id="3_g4p40"]
 [ext_resource type="AudioStream" path="res://data/audio/slime.tres" id="4_wuq14"]
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/giant_frog/portrait.png" id="5_j02b6"]
@@ -23,6 +25,14 @@
 [ext_resource type="Resource" path="res://data/items/weapons/monster/slime_slam.tres" id="20_28ete"]
 [ext_resource type="Resource" path="res://data/skills/boss/call_tadpoles_fierce.tres" id="20_xpbte"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="22_s5kyj"]
+
+[sub_resource type="Resource" id="Resource_itnru"]
+script = ExtResource("1_xpbte")
+id = &"weapon_whip"
+goal = 10
+text = "Tame the Giant Frog with a Whip"
+souls = 70
+weapon = ExtResource("2_s5kyj")
 
 [sub_resource type="Resource" id="Resource_ecstf"]
 script = ExtResource("6_xpbte")
@@ -113,6 +123,7 @@ attack_recovery = 0.5
 hurt_sound = ExtResource("4_wuq14")
 death_sound = ExtResource("1_ecstf")
 xp_reward = 60
+challenges = Array[ExtResource("1_xpbte")]([SubResource("Resource_itnru")])
 loot = SubResource("Resource_xpbte")
 id = &"giant_frog"
 display_name = "Giant Frog"

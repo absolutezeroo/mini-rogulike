@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://src/ui/pause/pause_menu.gd" id="1_pause"]
 [ext_resource type="PackedScene" path="res://src/ui/options/options_panel.tscn" id="2_options"]
+[ext_resource type="PackedScene" path="res://src/ui/codex/codex_panel.tscn" id="3_codex"]
 
 [node name="PauseMenu" type="Control"]
 process_mode = 3
@@ -57,6 +58,14 @@ focus_mode = 0
 theme_override_font_sizes/font_size = 22
 text = "Options"
 
+[node name="BestiaryButton" type="Button" parent="Center/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 60)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 22
+text = "Bestiary"
+
 [node name="QuitButton" type="Button" parent="Center/VBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(360, 60)
@@ -76,4 +85,9 @@ text = "Give up the run"
 
 [node name="OptionsPanel" parent="." instance=ExtResource("2_options")]
 unique_name_in_owner = true
+layout_mode = 1
+
+[node name="CodexPanel" parent="." instance=ExtResource("3_codex")]
+unique_name_in_owner = true
+visible = false
 layout_mode = 1

@@ -13,6 +13,7 @@ func run() -> void:
 	_test_inventory_and_equipment()
 	_test_perks()
 	_test_synergies()
+	_test_bestiary()
 	_test_bosses()
 	_test_profile()
 
@@ -375,6 +376,56 @@ func _test_perks() -> void:
 				everything.add(perk)
 	var fallback := CONTENT.pick_perks(everything, 3, PerkDef.Rarity.RARE, rng)
 	check(fallback.size() == 3, "with every relic maxed, common perks fill the offer")
+
+
+## The bestiary: ranks paid once, challenges met by the right kills, mastery.
+func _test_bestiary() -> void:
+	var rules := CONTENT.bestiary
+	check(rules != null and rules.monster_kills.size() == rules.rank_count() and rules.monster_souls.size() == rules.rank_count() and rules.boss_kills.size() == rules.boss_souls.size(), "the bestiary's ranks are complete")
+	var slime: MonsterDef = load("res://data/monsters/slime.tres")
+	var frog: MonsterDef = load("res://data/monsters/bosses/giant_frog.tres")
+	var bat: MonsterDef = load("res://data/monsters/bat.tres")
+	Profile.reset()
+	check(Bestiary.rank_of(slime, rules) == Bestiary.UNSEEN, "never met: unknown")
+	Profile.mark_seen(slime.id)
+	check(Bestiary.rank_of(slime, rules) == Bestiary.SEEN, "met: seen")
+	for i in rules.monster_kills[1]:
+		Profile.record_kill(slime.id)
+	var paid := Bestiary.claim(slime, rules)
+	check(paid.size() == 2 and Profile.souls == rules.monster_souls[0] + rules.monster_souls[1], "two ranks reached, both paid (%d souls)" % Profile.souls)
+	check(Bestiary.claim(slime, rules).is_empty(), "paid once")
+	check(Bestiary.damage_multiplier(slime, rules) == 1.0, "not mastered yet")
+	for i in rules.monster_kills[2]:
+		Profile.record_kill(slime.id)
+	Bestiary.claim(slime, rules)
+	check(Bestiary.is_mastered(slime, rules) and is_equal_approx(Bestiary.damage_multiplier(slime, rules), 1.0 + rules.mastery_damage), "mastered: more damage to it")
+	# Challenges: the common ones that apply, and a boss' own.
+	var ids := rules.challenges_for(slime).map(func(c: HuntChallenge) -> StringName: return c.id)
+	check(ids.has(&"elite") and ids.has(&"pit") and not ids.has(&"fast"), "a monster gets the monster challenges")
+	check(not rules.challenges_for(bat).any(func(c: HuntChallenge) -> bool: return c.goal == HuntChallenge.Goal.PIT), "no hole challenge for flyers")
+	var boss_list := rules.challenges_for(frog)
+	check(boss_list.any(func(c: HuntChallenge) -> bool: return c.goal == HuntChallenge.Goal.FAST) and boss_list.any(func(c: HuntChallenge) -> bool: return c.goal == HuntChallenge.Goal.WEAPON and c.weapon != null), "a boss gets the boss challenges and its own")
+	for monster in CONTENT.all_monsters():
+		for challenge in rules.challenges_for(monster):
+			check(not challenge.describe(monster).is_empty() and challenge.souls > 0, "%s/%s is described and paid" % [monster.id, challenge.id])
+	var kill := { "elite": true, "pushed_in": false, "crit": false, "weapon": null, "weapon_base": null, "untouched": false,
+		"kill_times": [1.0, 2.0, 4.0], "now": 4.5, "fight_time": 70.0, "potions_in_fight": 1, "hp_lost_in_fight": 0.1 }
+	var by_goal := func(goal: HuntChallenge.Goal, list: Array) -> HuntChallenge:
+		for c: HuntChallenge in list:
+			if c.goal == goal:
+				return c
+		return null
+	var slime_list := rules.challenges_for(slime)
+	check(by_goal.call(HuntChallenge.Goal.ELITE, slime_list).met(kill) and not by_goal.call(HuntChallenge.Goal.PIT, slime_list).met(kill), "an elite kill meets the elite challenge only")
+	check(by_goal.call(HuntChallenge.Goal.STREAK, slime_list).met(kill), "three kills within 5 s: a streak")
+	kill.kill_times = [0.5, 4.0]
+	check(not by_goal.call(HuntChallenge.Goal.STREAK, slime_list).met(kill), "two are not a streak")
+	check(by_goal.call(HuntChallenge.Goal.FAST, boss_list).met(kill) and by_goal.call(HuntChallenge.Goal.HEALTHY, boss_list).met(kill) and not by_goal.call(HuntChallenge.Goal.NO_POTION, boss_list).met(kill), "boss fight: fast and healthy, but a potion was drunk")
+	var own: HuntChallenge = by_goal.call(HuntChallenge.Goal.WEAPON, boss_list)
+	kill.weapon_base = own.weapon
+	check(own.met(kill), "its own challenge: with the right weapon")
+	check(Profile.complete_challenge(frog.id, own.id, own.souls) and not Profile.complete_challenge(frog.id, own.id, own.souls) and Profile.is_challenge_done(frog.id, own.id), "a challenge is done (and paid) once")
+	Profile.reset()
 
 
 ## Perk families: sound data, waking at 3 different perks, saved and loaded.

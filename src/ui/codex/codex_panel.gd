@@ -1,7 +1,8 @@
 class_name CodexPanel
 extends Control
-## The codex (title screen): today's and this week's quests, the bestiary (every monster and
-## boss, slain or still unknown), the achievements with their progress, and the last runs.
+## The codex (title screen and pause menu): today's and this week's quests, the bestiary (every
+## monster and boss: unknown, seen or slain; tap one for its page, see MonsterPage), the
+## achievements with their progress, and the last runs.
 
 enum Tab { QUESTS, BESTIARY, ACHIEVEMENTS, RUNS }
 
@@ -12,6 +13,8 @@ var _content: ContentDB
 var _tab := Tab.BESTIARY
 
 @onready var _list: Container = %List
+@onready var _scroll: ScrollContainer = %Scroll
+var _page := MonsterPage.new()
 @onready var _summary: Label = %Summary
 @onready var _tab_buttons: Array[Button] = [%QuestsTab, %BestiaryTab, %AchievementsTab, %RunsTab]
 
@@ -23,6 +26,11 @@ func _ready() -> void:
 		hide())
 	for i in _tab_buttons.size():
 		_tab_buttons[i].pressed.connect(show_tab.bind(i))
+	_page.visible = false
+	_scroll.get_parent().add_child(_page)
+	_page.back_requested.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_click)
+		_close_page())
 
 
 ## `tab` -1: the one shown last time.
@@ -35,6 +43,7 @@ func open(content: ContentDB, tab: int = -1) -> void:
 func show_tab(tab: int) -> void:
 	_tab = tab as Tab
 	Sfx.play_ui(Sfx.bank.ui_click)
+	_close_page()
 	for i in _tab_buttons.size():
 		_tab_buttons[i].disabled = i == tab
 	for child in _list.get_children():
@@ -105,34 +114,82 @@ func bestiary_entries() -> Array[MonsterDef]:
 
 func _fill_bestiary() -> void:
 	var entries := bestiary_entries()
+	var rules := _content.bestiary
+	# Ranks reached before (an old save, a crash): paid now.
+	if rules:
+		for monster in entries:
+			Bestiary.claim(monster, rules)
 	var known := entries.filter(func(m: MonsterDef) -> bool: return Profile.kill_count(m.id) > 0).size()
-	_summary.text = "Bestiary: %d / %d discovered" % [known, entries.size()]
+	var mastered := entries.filter(func(m: MonsterDef) -> bool: return rules != null and Bestiary.is_mastered(m, rules)).size()
+	_summary.text = "Bestiary: %d / %d slain, %d mastered   -   tap one for its attacks and challenges" % [known, entries.size(), mastered]
 	for monster in entries:
 		_list.add_child(_monster_card(monster))
+
+
+## Its page instead of the list.
+func open_monster(monster: MonsterDef) -> void:
+	_page.show_monster(monster, _content)
+	_scroll.hide()
+	_page.show()
+
+
+func _close_page() -> void:
+	if _page.visible:
+		_page.hide()
+		for child in _page.get_children():
+			child.queue_free()
+		_scroll.show()
+
+
+func is_page_open() -> bool:
+	return _page.visible
+
+
+## The back button: a monster's page goes back to the list, the list closes the codex.
+func back() -> void:
+	Sfx.play_ui(Sfx.bank.ui_close)
+	if _page.visible:
+		_close_page()
+	else:
+		hide()
 
 
 func _monster_card(monster: MonsterDef) -> Control:
 	var kills := Profile.kill_count(monster.id)
 	var known := kills > 0
-	var card := VBoxContainer.new()
+	var rank := Bestiary.rank_of(monster, _content.bestiary) if _content.bestiary else (1 if known else -1)
+	var card := Button.new()
 	card.custom_minimum_size = CARD_SIZE
-	card.alignment = BoxContainer.ALIGNMENT_CENTER
+	card.focus_mode = Control.FOCUS_NONE
+	card.disabled = rank == Bestiary.UNSEEN
+	card.pressed.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_open)
+		open_monster(monster))
+	var inside := VBoxContainer.new()
+	inside.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	inside.alignment = BoxContainer.ALIGNMENT_CENTER
+	inside.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.add_child(inside)
 	var picture := TextureRect.new()
 	picture.texture = portrait(monster)
 	picture.custom_minimum_size = Vector2(72, 72)
 	picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	picture.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	picture.modulate = Color.WHITE if known else UNKNOWN_COLOR
-	card.add_child(picture)
-	var name_label := _label(monster.display_name if known else "???", 16, Palette.DANGER if monster is BossDef else Color.WHITE)
+	picture.modulate = Color.WHITE if rank >= Bestiary.SEEN else UNKNOWN_COLOR
+	picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	inside.add_child(picture)
+	var name_label := _label(monster.display_name if rank >= Bestiary.SEEN else "???", 16, Palette.DANGER if monster is BossDef else Color.WHITE)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	card.add_child(name_label)
-	var info := _label("Slain: %d" % kills if known else "Not met yet", 13, Color(1, 1, 1, 0.65))
+	inside.add_child(name_label)
+	var info_text := "Not met yet"
+	if rank == Bestiary.SEEN:
+		info_text = "Seen, never slain"
+	elif rank > 0:
+		info_text = "%s  -  %d slain" % [Bestiary.rank_name(rank, _content.bestiary), kills]
+	var info := _label(info_text, 13, Palette.HEAL if _content.bestiary and Bestiary.is_mastered(monster, _content.bestiary) else Color(1, 1, 1, 0.65))
 	info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	card.add_child(info)
-	if known and not monster.description.is_empty():
-		card.tooltip_text = monster.description
+	inside.add_child(info)
 	return card
 
 

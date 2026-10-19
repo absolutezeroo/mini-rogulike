@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="BossDef" format=3]
 
 [ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_d51cp"]
+[ext_resource type="Script" path="res://src/definitions/hunt_challenge.gd" id="1_dngni"]
+[ext_resource type="Resource" path="res://data/items/weapons/big_sword.tres" id="2_nk8yc"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/bosses/demon_cyclops.tres" id="2_ss85h"]
 [ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="3_c80jh"]
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/demon_cyclops/idle.png" id="4_7e0hy"]
@@ -24,6 +26,14 @@
 [ext_resource type="Resource" path="res://data/skills/boss/quake_fierce.tres" id="19_ptf4d"]
 [ext_resource type="Resource" path="res://data/skills/boss/call_skeletons_fierce.tres" id="20_dngni"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="23_nk8yc"]
+
+[sub_resource type="Resource" id="Resource_v1ga4"]
+script = ExtResource("1_dngni")
+id = &"weapon_big_sword"
+goal = 10
+text = "Fell the Demon Cyclops with a Greatsword"
+souls = 70
+weapon = ExtResource("2_nk8yc")
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_sogvl"]
 atlas = ExtResource("4_7e0hy")
@@ -117,6 +127,7 @@ attack_recovery = 0.5
 hurt_sound = ExtResource("3_c80jh")
 death_sound = ExtResource("1_d51cp")
 xp_reward = 120
+challenges = Array[ExtResource("1_dngni")]([SubResource("Resource_v1ga4")])
 loot = SubResource("Resource_6sotq")
 id = &"demon_cyclops"
 display_name = "Demon Cyclops"

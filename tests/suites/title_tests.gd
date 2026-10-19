@@ -90,6 +90,31 @@ func _test_title_screen() -> void:
 	var list: Container = codex.get_node("%List")
 	check(codex.visible and list.get_child_count() == codex.bestiary_entries().size(), "the bestiary lists every monster and boss")
 	check(codex.bestiary_entries().any(func(m: MonsterDef) -> bool: return m is BossDef), "bosses are in the bestiary")
+	var entries := codex.bestiary_entries()
+	var slime_card := list.get_child(entries.find(load("res://data/monsters/slime.tres"))) as Button
+	var unseen := entries.filter(func(m: MonsterDef) -> bool: return Bestiary.rank_of(m, CONTENT.bestiary) == Bestiary.UNSEEN)
+	check(not slime_card.disabled and (list.get_child(entries.find(unseen[0])) as Button).disabled, "slain monsters open their page, unknown ones don't")
+	check(Profile.bestiary_rank(&"slime") == 1, "the first kill pays the first rank")
+	slime_card.pressed.emit()
+	await _frames(2)
+	check(codex.is_page_open() and not (codex.get_node("%Scroll") as Control).visible, "tapping a monster opens its page")
+	# Every page, every attack plays in the preview (warning, then what it does).
+	for monster in entries:
+		Profile.record_kill(monster.id)
+		codex.open_monster(monster)
+		await _frames(2)
+		var buttons := _find_all(codex, func(n: Node) -> bool: return n is Button and n.toggle_mode and n.get_parent() is HFlowContainer)
+		for button: Button in buttons:
+			button.pressed.emit()
+			await _frames(70)
+		check(buttons.size() >= 1 or monster.weapon == null, "%s: its attacks are listed (%d)" % [monster.id, buttons.size()])
+	var previews := _find_all(codex, func(n: Node) -> bool: return n is AttackPreview)
+	check(previews.size() == 1, "one preview on the page")
+	codex.back()
+	check(not codex.is_page_open() and codex.visible, "back: from the page to the list")
+	codex.back()
+	check(not codex.visible, "back again: the codex closes")
+	codex.open(CONTENT, CodexPanel.Tab.BESTIARY)
 	codex.show_tab(CodexPanel.Tab.ACHIEVEMENTS)
 	await _frames(1)
 	check(list.get_child_count() == CONTENT.achievements.size(), "the achievements are listed")
@@ -117,3 +142,13 @@ func _test_title_screen() -> void:
 
 
 # --- Gameplay (bot) ----------------------------------------------------------
+
+
+## Every node under `root` for which `test` is true.
+func _find_all(root: Node, test: Callable) -> Array:
+	var found := []
+	for child in root.get_children():
+		if test.call(child):
+			found.append(child)
+		found.append_array(_find_all(child, test))
+	return found

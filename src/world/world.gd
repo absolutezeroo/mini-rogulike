@@ -185,6 +185,11 @@ func place_player(new_player: Player) -> void:
 
 # --- Spawning ----------------------------------------------------------------
 
+## The bestiary's rules (mastered kinds take more damage), or null.
+func bestiary_rules() -> BestiaryRules:
+	return _content.bestiary if _content else null
+
+
 func spawn_monster(def: MonsterDef, at: Vector2) -> Monster:
 	var monster := MONSTER_SCENE.instantiate() as Monster
 	monster.world = self

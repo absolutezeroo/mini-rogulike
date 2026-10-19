@@ -333,6 +333,28 @@ func _test_synergies_in_game(game: Game, world: World, player: Player) -> void:
 	prey2.take_hit(bite_back)
 	check(player.hp == 5, "taken off, it stops")
 
+	# Bestiary challenges: an elite slain by the hero, untouched since it saw them.
+	Profile.reset()
+	var done: Array[StringName] = []
+	var on_done := func(_m: MonsterDef, c: HuntChallenge) -> void: done.append(c.id)
+	Events.hunt_challenge_done.connect(on_done)
+	var target := world.spawn_monster(load("res://data/monsters/rat.tres"), spot)
+	world.make_elite(target)
+	target.dormant = true
+	await _frames(1)
+	target.wake_up(player)
+	await _frames(2)
+	var finish := HitInfo.new()
+	finish.amount = 99999
+	finish.source = player
+	target.take_hit(finish)
+	await _frames(1)
+	check(done.has(&"elite") and Profile.is_challenge_done(&"rat", &"elite"), "slaying an elite rat does its challenge")
+	check(done.has(&"untouched"), "untouched since it saw the hero")
+	check(Profile.souls > 0, "challenges pay souls")
+	Events.hunt_challenge_done.disconnect(on_done)
+	Profile.reset()
+
 	# Blood: wounded you hit harder, kills heal.
 	for id in ["vampirism", "strength", "vitality"]:
 		player.perks.add(_perk(id))

@@ -52,6 +52,11 @@ func _ready() -> void:
 	Settings.changed.connect(_apply_settings)
 	Events.achievement_unlocked.connect(func(achievement: AchievementDef) -> void:
 		toast("Achievement: %s  (+%d souls)" % [achievement.display_name, achievement.reward_souls]))
+	Events.bestiary_rank_reached.connect(func(monster: MonsterDef, rank: int, souls: int) -> void:
+		var rules := _player.world.bestiary_rules() if _player and _player.world else null
+		toast("Bestiary: %s, %s  (+%d souls)" % [monster.display_name, Bestiary.rank_name(rank, rules) if rules else str(rank), souls]))
+	Events.hunt_challenge_done.connect(func(monster: MonsterDef, challenge: HuntChallenge) -> void:
+		toast("Challenge done: %s  (+%d souls)" % [challenge.describe(monster), challenge.souls]))
 	Events.quest_completed.connect(func(quest: Dictionary) -> void:
 		toast("%s quest done: %s  (+%d souls)" % ["Daily" if (quest.def as QuestDef).period == QuestDef.Period.DAILY else "Weekly", QuestBoard.text(quest), quest.reward]))
 	_apply_settings()

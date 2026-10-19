@@ -1,7 +1,9 @@
 [gd_resource type="Resource" script_class="BossDef" format=3]
 
+[ext_resource type="Script" path="res://src/definitions/hunt_challenge.gd" id="1_0guwt"]
 [ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_qwtn7"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/bosses/gilded_hoarder.tres" id="2_0675a"]
+[ext_resource type="Resource" path="res://data/items/weapons/shuriken.tres" id="2_jvl3r"]
 [ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="3_sqxir"]
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/gilded_hoarder/portrait.png" id="4_brnay"]
 [ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="5_0vo0f"]
@@ -23,6 +25,14 @@
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="19_qm0vi"]
 [ext_resource type="Resource" path="res://data/skills/boss/call_thieves_fierce.tres" id="20_0guwt"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/slime_slam.tres" id="20_aco0h"]
+
+[sub_resource type="Resource" id="Resource_s53ed"]
+script = ExtResource("1_0guwt")
+id = &"weapon_shuriken"
+goal = 10
+text = "Rob the Gilded Hoarder with Shuriken"
+souls = 70
+weapon = ExtResource("2_jvl3r")
 
 [sub_resource type="Resource" id="Resource_6yers"]
 script = ExtResource("5_0vo0f")
@@ -112,6 +122,7 @@ attack_recovery = 0.5
 hurt_sound = ExtResource("3_sqxir")
 death_sound = ExtResource("1_qwtn7")
 xp_reward = 60
+challenges = Array[ExtResource("1_0guwt")]([SubResource("Resource_s53ed")])
 loot = SubResource("Resource_5ysyk")
 id = &"gilded_hoarder"
 display_name = "Gilded Hoarder"

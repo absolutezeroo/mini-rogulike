@@ -36,6 +36,11 @@ var period_stats := {}
 var quests_claimed := {}
 ## The daily run (DailyRun): the day of the last official attempt (-1: never), its score, the
 ## best daily score ever, and the days in a row with an official attempt.
+## The bestiary (Bestiary): monster ids met at least once, and the hunter rank paid per id.
+var seen_monsters := {}
+var bestiary_ranks := {}
+## Bestiary challenges done: "monster_id/challenge_id" -> 1.
+var challenges_done := {}
 var daily_day := -1
 var daily_score := 0
 var daily_best := 0
@@ -215,6 +220,46 @@ func mark_intro_seen() -> void:
 	save_profile()
 
 
+func has_seen(monster_id: StringName) -> bool:
+	return seen_monsters.has(String(monster_id)) or kill_count(monster_id) > 0
+
+
+## A monster noticed the hero (or the other way round): its bestiary page opens. Saved with
+## the profile's next save.
+func mark_seen(monster_id: StringName) -> void:
+	seen_monsters[String(monster_id)] = 1
+
+
+## The hunter rank already paid for this kind (0: none).
+func bestiary_rank(monster_id: StringName) -> int:
+	return int(bestiary_ranks.get(String(monster_id), 0))
+
+
+func pay_bestiary_rank(monster_id: StringName, rank: int, reward: int) -> void:
+	bestiary_ranks[String(monster_id)] = maxi(rank, bestiary_rank(monster_id))
+	souls += reward
+	changed.emit()
+
+
+static func challenge_key(monster_id: StringName, challenge_id: StringName) -> String:
+	return "%s/%s" % [monster_id, challenge_id]
+
+
+func is_challenge_done(monster_id: StringName, challenge_id: StringName) -> bool:
+	return challenges_done.has(challenge_key(monster_id, challenge_id))
+
+
+## Marks it done and pays it. False if it already was.
+func complete_challenge(monster_id: StringName, challenge_id: StringName, reward: int) -> bool:
+	var key := challenge_key(monster_id, challenge_id)
+	if challenges_done.has(key):
+		return false
+	challenges_done[key] = 1
+	souls += reward
+	changed.emit()
+	return true
+
+
 ## Today's official attempt was already taken (later ones are practice).
 func daily_played(day: int) -> bool:
 	return daily_day == day
@@ -263,6 +308,9 @@ func reset() -> void:
 	history = []
 	period_stats = {}
 	quests_claimed = {}
+	seen_monsters = {}
+	bestiary_ranks = {}
+	challenges_done = {}
 	daily_day = -1
 	daily_score = 0
 	daily_best = 0
@@ -279,6 +327,7 @@ func save_profile() -> void:
 		"ascension": ascension, "ascension_unlocked": ascension_unlocked,
 		"kills_by_monster": kills_by_monster, "stats": stats, "achievements": achievements, "history": history,
 		"period_stats": period_stats, "quests_claimed": quests_claimed,
+		"seen_monsters": seen_monsters, "bestiary_ranks": bestiary_ranks, "challenges_done": challenges_done,
 		"daily_day": daily_day, "daily_score": daily_score, "daily_best": daily_best, "daily_streak": daily_streak,
 	})
 
@@ -305,6 +354,9 @@ func load_profile() -> void:
 	kills_by_monster = _ints(data.get("kills_by_monster", {}))
 	stats = _ints(data.get("stats", {}))
 	achievements = _ints(data.get("achievements", {}))
+	seen_monsters = _ints(data.get("seen_monsters", {}))
+	bestiary_ranks = _ints(data.get("bestiary_ranks", {}))
+	challenges_done = _ints(data.get("challenges_done", {}))
 	daily_day = int(data.get("daily_day", -1))
 	daily_score = int(data.get("daily_score", 0))
 	daily_best = int(data.get("daily_best", 0))

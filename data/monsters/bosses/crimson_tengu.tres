@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="BossDef" format=3]
 
+[ext_resource type="Script" path="res://src/definitions/hunt_challenge.gd" id="1_872si"]
 [ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_mhmqy"]
+[ext_resource type="Resource" path="res://data/items/weapons/lance.tres" id="2_3khwv"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/bosses/crimson_tengu.tres" id="2_roian"]
 [ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="3_dq8y5"]
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/crimson_tengu/idle.png" id="4_t1mx2"]
@@ -24,6 +26,14 @@
 [ext_resource type="Resource" path="res://data/skills/boss/feather_storm.tres" id="19_ummt5"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/tengu_blade.tres" id="20_5tsuo"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="23_872si"]
+
+[sub_resource type="Resource" id="Resource_ixdwd"]
+script = ExtResource("1_872si")
+id = &"weapon_lance"
+goal = 10
+text = "Pin the Crimson Tengu with a Lance"
+souls = 70
+weapon = ExtResource("2_3khwv")
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wg1qy"]
 atlas = ExtResource("4_t1mx2")
@@ -118,6 +128,7 @@ attack_recovery = 0.4
 hurt_sound = ExtResource("3_dq8y5")
 death_sound = ExtResource("1_mhmqy")
 xp_reward = 200
+challenges = Array[ExtResource("1_872si")]([SubResource("Resource_ixdwd")])
 loot = SubResource("Resource_cclvl")
 id = &"crimson_tengu"
 display_name = "Crimson Tengu"

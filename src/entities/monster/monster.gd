@@ -14,6 +14,8 @@ var telegraph := 0.0
 var casting_index := -1
 ## A dormant monster ignores the player (a boss waiting in its arena). See wake_up().
 var dormant := false
+## Physics frame when it first spotted the hero (-1: never). For the bestiary challenges.
+var noticed_frame := -1
 ## Elite monsters only (see make_elite()): what makes them special.
 var elite: EliteAffixDef
 
@@ -132,6 +134,10 @@ func on_hit_player(player: Player) -> void:
 func _incoming_damage(hit: HitInfo, damage: int) -> int:
 	for monster_trait in def.traits:
 		damage = monster_trait.incoming_damage(self, hit, damage)
+	# A kind the hero has mastered in the bestiary takes a bit more from them.
+	var rules := world.bestiary_rules() if world else null
+	if rules and hit.source is Player and damage > 0:
+		damage = roundi(damage * Bestiary.damage_multiplier(def, rules))
 	return damage
 
 
@@ -173,6 +179,7 @@ func is_boss() -> bool:
 func wake_up(new_target: Actor) -> void:
 	dormant = false
 	target = new_target
+	_noticed(new_target)
 	if rig:
 		rig.play_intro()
 
@@ -187,8 +194,16 @@ func notice_target() -> bool:
 	var player := world.player
 	if player and not player.is_dead and can_see(player, def.detect_radius):
 		target = player
+		_noticed(player)
 		return true
 	return false
+
+
+## The hero is spotted: the bestiary page opens, and "not hurt since it saw you" starts.
+func _noticed(other: Actor) -> void:
+	if other is Player and noticed_frame < 0:
+		noticed_frame = Engine.get_physics_frames()
+		Profile.mark_seen(def.id)
 
 
 func can_see(other: Actor, max_distance: float) -> bool:

@@ -33,6 +33,8 @@ var faction: Faction = Faction.MONSTER
 var invincible := false
 ## How fast skill cooldowns run (a boss in a later phase: faster).
 var cooldown_speed := 1.0
+## The last hit taken (how it was finished: a crit...). Null before any.
+var last_hit: HitInfo
 ## A ward (AllyEffect): damage soaked up before HP, for a while.
 var ward := 0
 var _ward_time := 0.0
@@ -236,6 +238,7 @@ func take_hit(hit: HitInfo) -> void:
 	var attacker := hit.source if is_instance_valid(hit.source) and not hit.is_secondary else null
 	if attacker:
 		attacker.perks.modify_outgoing_hit(attacker, self, hit)
+	last_hit = hit
 	var damage := _incoming_damage(hit, Combat.mitigate(hit.amount, get_stats().defense))
 	if ward > 0 and damage > 0:
 		var soaked := mini(ward, damage)

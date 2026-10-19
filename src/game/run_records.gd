@@ -62,6 +62,9 @@ func _on_monster_killed(monster: Monster) -> void:
 		return
 	run.kills += 1
 	Profile.record_kill(monster.def.id)
+	if content and content.bestiary:
+		for reached in Bestiary.claim(monster.def, content.bestiary):
+			Events.bestiary_rank_reached.emit(monster.def, reached.rank, reached.souls)
 	Profile.add_stat("kills")
 	if monster.is_elite():
 		Profile.add_stat("elites")

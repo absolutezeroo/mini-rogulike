@@ -11,6 +11,8 @@ signal damaged(amount: int)
 ## The skill buttons changed (new weapon, new spell learned).
 signal skills_changed
 signal gold_changed(gold: int)
+## A potion (or another consumable) was used, from the bag or the belt.
+signal consumable_used(item: ItemDef)
 
 const HIT_INVULNERABILITY := 0.6
 const AIM_HOLD_TIME := 0.35         ## Keep facing the aim direction this long after attacking.
@@ -26,6 +28,8 @@ const STEP_INTERVAL := 0.3
 ## Invulnerable this long after climbing out of a hole.
 const FALL_INVULNERABILITY := 1.0
 
+## Physics frame of the last damage taken (-1: none). For the bestiary challenges.
+var last_hurt_frame := -1
 var def: PlayerDef
 var inventory: Inventory
 ## Potions, bombs, scrolls: stacked in their own slots, out of the bag.
@@ -230,6 +234,7 @@ func use_item(item: ItemDef) -> void:
 		inventory.remove(item)
 		item.use(self, get_aim_direction(SKILL_AIM_RANGE))
 		Events.log_message("Used %s" % item.display_name, item.color)
+		consumable_used.emit(item)
 	elif item is SkillTomeDef:
 		inventory.remove(item)
 		learn_skill((item as SkillTomeDef).skill)
@@ -263,6 +268,7 @@ func use_belt(index: int) -> void:
 	var item := belt.take(index)
 	item.use(self, get_aim_direction(SKILL_AIM_RANGE))
 	Events.log_message("Used %s" % item.display_name, item.color)
+	consumable_used.emit(item)
 
 
 ## Belt slot 1 (the quick item key).
@@ -417,6 +423,8 @@ func give_up() -> void:
 # --- Hooks -------------------------------------------------------------------
 
 func _on_damaged(hit: HitInfo, damage: int) -> void:
+	if damage > 0:
+		last_hurt_frame = Engine.get_physics_frames()
 	damaged.emit(damage)
 	if hit.source is Monster and is_instance_valid(hit.source):
 		(hit.source as Monster).on_hit_player(self)

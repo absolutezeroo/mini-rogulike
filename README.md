@@ -266,6 +266,20 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 
 ## Codex: bestiary, achievements, runs
 
+**The bestiary** (codex tab, also in the pause menu): every monster and boss, unknown, *seen*
+(it spotted you: `Profile.mark_seen`) or slain. Tap one for its page (`MonsterPage`): its look,
+what it is, its stats and ways (flies, keeps its distance, traits, a boss' phases), its
+**attacks** with an **animated preview** (`AttackPreview`: the same red warning, then the shots,
+blast, charge, summons or heal, built from the WeaponDef / SkillDef data), and its challenges.
+- **Hunter ranks** (`BestiaryRules`, `data/bestiary.tres`; `Bestiary`): Known (1 kill), Hunted
+  (10), Mastered (30) for monsters, 1/3/6 for bosses. Each rank pays souls once
+  (5/15/40, bosses 30/60/120); Mastered gives **+10% damage** to that kind for good.
+- **Challenges** (`HuntChallenge`, watched by `HuntTracker`): every monster gets those that
+  apply (an elite one, pushed into a hole, 3 within 5 s, untouched since it saw you, a crit
+  finish), every boss its own (with a ranged weapon, with a melee one, under 90 s, without a
+  potion, losing less than 25% HP) plus one with a given weapon (`MonsterDef.challenges`: the
+  King Slime with a Bow, the Red Samurai with a Katana...). Done once, paid in souls, with a toast.
+
 The title screen's **Codex** (`CodexPanel`) has three tabs:
 - **Bestiary**: every monster and boss; unknown ones are black silhouettes until you slay one.
   The profile counts kills per monster (`Profile.kills_by_monster`).

@@ -45,4 +45,6 @@ extends ContentDef
 
 @export_group("Rewards")
 @export var xp_reward: int = 5
+## Its own bestiary challenges, on top of the common ones (BestiaryRules).
+@export var challenges: Array[HuntChallenge] = []
 @export var loot: LootTable
