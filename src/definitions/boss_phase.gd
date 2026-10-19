@@ -13,3 +13,8 @@ extends Resource
 @export_range(0.2, 2.0, 0.05) var windup_multiplier: float = 1.0
 ## Body tint for the rest of the fight.
 @export var tint: Color = Color.WHITE
+## Multiplies the skills' cooldowns: below 1 = they come back sooner.
+@export_range(0.3, 2.0, 0.05) var cooldown_multiplier: float = 1.0
+## Hits taken in a row before it throws the hero off with a shockwave (0: keep the current
+## number, see BossDef.shockwave_after_hits).
+@export_range(0, 30) var shockwave_after_hits: int = 0

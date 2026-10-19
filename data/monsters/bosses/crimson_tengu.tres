@@ -1,7 +1,6 @@
 [gd_resource type="Resource" script_class="BossDef" format=3]
 
 [ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_mhmqy"]
-[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_dq8y5"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/bosses/crimson_tengu.tres" id="2_roian"]
 [ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="3_dq8y5"]
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/crimson_tengu/idle.png" id="4_t1mx2"]
@@ -19,9 +18,12 @@
 [ext_resource type="Resource" path="res://data/skills/boss/tengu_dash.tres" id="15_j6wkv"]
 [ext_resource type="Resource" path="res://data/skills/boss/call_spirits.tres" id="16_75k5n"]
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/crimson_tengu/portrait.png" id="17_c0dat"]
+[ext_resource type="Resource" path="res://data/skills/boss/feather_tempest_fierce.tres" id="18_bdmco"]
 [ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="18_mk8wd"]
+[ext_resource type="Resource" path="res://data/skills/boss/tengu_dash_fierce.tres" id="19_r3hcx"]
 [ext_resource type="Resource" path="res://data/skills/boss/feather_storm.tres" id="19_ummt5"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/tengu_blade.tres" id="20_5tsuo"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="23_872si"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wg1qy"]
 atlas = ExtResource("4_t1mx2")
@@ -58,19 +60,37 @@ drop_chance = 1.0
 rolls = 3
 entries = Array[ExtResource("5_bdmco")]([SubResource("Resource_aekjc"), SubResource("Resource_du3wt"), SubResource("Resource_s2hrf"), SubResource("Resource_un7x3"), SubResource("Resource_dq8y5")])
 
-[sub_resource type="Resource" id="Resource_jsevx"]
+[sub_resource type="Resource" id="Resource_3khwv"]
 script = ExtResource("12_ixdwd")
 attack = 2
-move_speed = 30.0
-crit_chance = 0.05
+move_speed = 20.0
 
-[sub_resource type="Resource" id="Resource_iysax"]
+[sub_resource type="Resource" id="Resource_tqytt"]
 script = ExtResource("11_l2j53")
+hp_ratio = 0.66
 message = "TAKES FLIGHT!"
-bonuses = SubResource("Resource_jsevx")
+bonuses = SubResource("Resource_3khwv")
 skills = Array[ExtResource("13_cch3n")]([ExtResource("14_lx2t8"), ExtResource("15_j6wkv"), ExtResource("16_75k5n")])
-windup_multiplier = 0.75
+windup_multiplier = 0.85
 tint = Color(1, 0.72, 0.72, 1)
+cooldown_multiplier = 0.85
+shockwave_after_hits = 7
+
+[sub_resource type="Resource" id="Resource_y3aqr"]
+script = ExtResource("12_ixdwd")
+attack = 3
+move_speed = 30.0
+
+[sub_resource type="Resource" id="Resource_l2j53"]
+script = ExtResource("11_l2j53")
+hp_ratio = 0.33
+message = "STORM OF BLADES!"
+bonuses = SubResource("Resource_y3aqr")
+skills = Array[ExtResource("13_cch3n")]([ExtResource("18_bdmco"), ExtResource("19_r3hcx"), ExtResource("16_75k5n")])
+windup_multiplier = 0.7
+tint = Color(1, 0.55, 0.5, 1)
+cooldown_multiplier = 0.7
+shockwave_after_hits = 5
 
 [sub_resource type="Resource" id="Resource_lkpkv"]
 script = ExtResource("12_ixdwd")
@@ -83,7 +103,7 @@ crit_chance = 0.1
 script = ExtResource("18_mk8wd")
 title = "Warden of the Burning Temple"
 portrait = ExtResource("17_c0dat")
-phases = Array[ExtResource("11_l2j53")]([SubResource("Resource_iysax")])
+phases = Array[ExtResource("11_l2j53")]([SubResource("Resource_tqytt"), SubResource("Resource_l2j53")])
 stats = SubResource("Resource_lkpkv")
 weapon = ExtResource("20_5tsuo")
 skills = Array[ExtResource("13_cch3n")]([ExtResource("19_ummt5"), ExtResource("15_j6wkv")])

@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_58hhr"]
+[ext_resource type="Script" path="res://src/definitions/effects/dash_strike_effect.gd" id="2_hyc37"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="3_lrhf1"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_2herf"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="5_jsw14"]
+
+[sub_resource type="Resource" id="Resource_pwxtw"]
+script = ExtResource("2_hyc37")
+distance = 280.0
+knockback = 260.0
+
+[sub_resource type="Resource" id="Resource_ujs5r"]
+script = ExtResource("3_lrhf1")
+damage_multiplier = 1.2
+knockback = 260.0
+color = Color(0.654902, 0.7882353, 0.34117648, 1)
+delay = 0.25
+
+[sub_resource type="Resource" id="Resource_q5k7p"]
+script = ExtResource("2_hyc37")
+distance = 280.0
+knockback = 260.0
+delay = 0.5
+
+[sub_resource type="Resource" id="Resource_jor3b"]
+script = ExtResource("3_lrhf1")
+radius = 104.0
+damage_multiplier = 1.2
+knockback = 260.0
+color = Color(0.654902, 0.7882353, 0.34117648, 1)
+delay = 0.75
+
+[resource]
+script = ExtResource("4_2herf")
+id = &"frog_leap_fierce"
+display_name = "Frog Leap"
+color = Color(0.654902, 0.7882353, 0.34117648, 1)
+cooldown = 4.0
+effects = Array[ExtResource("1_58hhr")]([SubResource("Resource_pwxtw"), SubResource("Resource_ujs5r"), SubResource("Resource_q5k7p"), SubResource("Resource_jor3b")])
+sound = ExtResource("5_jsw14")
+ai_min_range = 120.0
+ai_max_range = 360.0
+cast_time = 0.63

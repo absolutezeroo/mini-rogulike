@@ -26,7 +26,7 @@ chance = 0.8
 
 [resource]
 script = ExtResource("6_oeotf")
-rows = PackedStringArray("PP.... ", "..www..", ".wwwww.", "..www.TT")
+rows = PackedStringArray("PP.....", ".wwwww.", ".wwwww.", ".....TT")
 keys = Array[ExtResource("1_h3asg")]([SubResource("Resource_uqsrm"), SubResource("Resource_cdc2b"), SubResource("Resource_2f8ox")])
 anchor = 1
 room_size = 1

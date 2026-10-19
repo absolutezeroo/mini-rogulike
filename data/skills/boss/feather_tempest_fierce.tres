@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_nfo1o"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_reb7d"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/shuriken.png" id="3_7ewoo"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_ltjau"]
+[ext_resource type="AudioStream" path="res://data/audio/magic.tres" id="5_8mugg"]
+
+[sub_resource type="Resource" id="Resource_aafqu"]
+script = ExtResource("2_reb7d")
+damage_multiplier = 0.5
+flat_damage = 5
+speed = 363.00000000000006
+radius = 7.0
+count = 25
+spread_degrees = 360.0
+knockback = 140.0
+color = Color(0.9019608, 0.22352941, 0.27450982, 1)
+texture = ExtResource("3_7ewoo")
+
+[sub_resource type="Resource" id="Resource_lyiij"]
+script = ExtResource("2_reb7d")
+damage_multiplier = 0.5
+flat_damage = 5
+speed = 363.00000000000006
+radius = 7.0
+count = 25
+spread_degrees = 360.0
+knockback = 140.0
+color = Color(0.9019608, 0.22352941, 0.27450982, 1)
+texture = ExtResource("3_7ewoo")
+angle_offset = 7.2
+delay = 0.5
+
+[resource]
+script = ExtResource("4_ltjau")
+id = &"feather_tempest_fierce"
+display_name = "Feather Tempest"
+color = Color(0.9019608, 0.22352941, 0.27450982, 1)
+cooldown = 4.0
+effects = Array[ExtResource("1_nfo1o")]([SubResource("Resource_aafqu"), SubResource("Resource_lyiij")])
+sound = ExtResource("5_8mugg")
+ai_max_range = 460.0
+cast_time = 0.7200000000000001

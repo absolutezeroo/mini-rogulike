@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_seal7"]
+[ext_resource type="Script" path="res://src/definitions/effects/dash_strike_effect.gd" id="2_mm163"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="3_cyl32"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_cy3lg"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="5_ppcys"]
+
+[sub_resource type="Resource" id="Resource_i28dl"]
+script = ExtResource("2_mm163")
+distance = 280.0
+knockback = 260.0
+
+[sub_resource type="Resource" id="Resource_bf7wh"]
+script = ExtResource("3_cyl32")
+damage_multiplier = 1.2
+knockback = 260.0
+color = Color(0.654902, 0.7882353, 0.34117648, 1)
+delay = 0.25
+
+[sub_resource type="Resource" id="Resource_5uafj"]
+script = ExtResource("2_mm163")
+distance = 280.0
+knockback = 260.0
+delay = 0.5
+
+[sub_resource type="Resource" id="Resource_iyayu"]
+script = ExtResource("3_cyl32")
+radius = 104.0
+damage_multiplier = 1.2
+knockback = 260.0
+color = Color(0.654902, 0.7882353, 0.34117648, 1)
+delay = 0.75
+
+[resource]
+script = ExtResource("4_cy3lg")
+id = &"hoard_leap_fierce"
+display_name = "Crushing Leap"
+color = Color(1, 0.8, 0.3, 1)
+cooldown = 4.0
+effects = Array[ExtResource("1_seal7")]([SubResource("Resource_i28dl"), SubResource("Resource_bf7wh"), SubResource("Resource_5uafj"), SubResource("Resource_iyayu")])
+sound = ExtResource("5_ppcys")
+ai_min_range = 120.0
+ai_max_range = 360.0
+cast_time = 0.63

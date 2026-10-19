@@ -1,7 +1,6 @@
 [gd_resource type="Resource" script_class="BossDef" format=3]
 
 [ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_fv4ot"]
-[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_4m2cw"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/bosses/king_slime.tres" id="2_buxgy"]
 [ext_resource type="AudioStream" path="res://data/audio/slime.tres" id="3_4m2cw"]
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/king_slime/idle.png" id="4_cn0aa"]
@@ -18,9 +17,12 @@
 [ext_resource type="Resource" path="res://data/skills/boss/slime_storm.tres" id="14_04kn6"]
 [ext_resource type="Resource" path="res://data/skills/boss/slime_split.tres" id="15_7xb6r"]
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/king_slime/portrait.png" id="16_w05qf"]
+[ext_resource type="Resource" path="res://data/skills/boss/slime_storm_fierce.tres" id="17_5bge7"]
 [ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="17_pf55w"]
+[ext_resource type="Resource" path="res://data/skills/boss/slime_split_fierce.tres" id="18_8p1go"]
 [ext_resource type="Resource" path="res://data/skills/boss/slime_rain.tres" id="18_8xj5f"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/slime_slam.tres" id="19_4elis"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="22_20bwb"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_yg8ir"]
 atlas = ExtResource("4_cn0aa")
@@ -57,18 +59,37 @@ drop_chance = 1.0
 rolls = 3
 entries = Array[ExtResource("5_5bge7")]([SubResource("Resource_ye2lm"), SubResource("Resource_yhw7y"), SubResource("Resource_sxb0x"), SubResource("Resource_2txbk"), SubResource("Resource_4m2cw")])
 
-[sub_resource type="Resource" id="Resource_v53it"]
+[sub_resource type="Resource" id="Resource_psvo5"]
 script = ExtResource("12_ookps")
-attack = 1
+attack = 2
+move_speed = 20.0
+
+[sub_resource type="Resource" id="Resource_ghebr"]
+script = ExtResource("11_aad1y")
+hp_ratio = 0.66
+message = "SPLITS!"
+bonuses = SubResource("Resource_psvo5")
+skills = Array[ExtResource("13_3452j")]([ExtResource("14_04kn6"), ExtResource("15_7xb6r")])
+windup_multiplier = 0.85
+tint = Color(1, 0.72, 0.72, 1)
+cooldown_multiplier = 0.85
+shockwave_after_hits = 7
+
+[sub_resource type="Resource" id="Resource_j33ki"]
+script = ExtResource("12_ookps")
+attack = 3
 move_speed = 30.0
 
-[sub_resource type="Resource" id="Resource_3iggt"]
+[sub_resource type="Resource" id="Resource_aad1y"]
 script = ExtResource("11_aad1y")
-message = "SPLITS!"
-bonuses = SubResource("Resource_v53it")
-skills = Array[ExtResource("13_3452j")]([ExtResource("14_04kn6"), ExtResource("15_7xb6r")])
-windup_multiplier = 0.8
-tint = Color(1, 0.72, 0.72, 1)
+hp_ratio = 0.33
+message = "BOILS OVER!"
+bonuses = SubResource("Resource_j33ki")
+skills = Array[ExtResource("13_3452j")]([ExtResource("17_5bge7"), ExtResource("18_8p1go"), ExtResource("18_8xj5f")])
+windup_multiplier = 0.7
+tint = Color(1, 0.55, 0.5, 1)
+cooldown_multiplier = 0.7
+shockwave_after_hits = 5
 
 [sub_resource type="Resource" id="Resource_j3yk1"]
 script = ExtResource("12_ookps")
@@ -80,7 +101,7 @@ move_speed = 60.0
 script = ExtResource("17_pf55w")
 title = "Warden of the Mouth of the Well"
 portrait = ExtResource("16_w05qf")
-phases = Array[ExtResource("11_aad1y")]([SubResource("Resource_3iggt")])
+phases = Array[ExtResource("11_aad1y")]([SubResource("Resource_ghebr"), SubResource("Resource_aad1y")])
 stats = SubResource("Resource_j3yk1")
 weapon = ExtResource("19_4elis")
 skills = Array[ExtResource("13_3452j")]([ExtResource("18_8xj5f")])

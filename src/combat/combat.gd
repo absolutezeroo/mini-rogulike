@@ -130,6 +130,27 @@ static func blast(world: World, center: Vector2, radius: float, amount: int, kno
 	hit_props(world, source, center, radius)
 
 
+## A warning ring around `source`, then after `fuse` seconds a blast that hurts and pushes
+## away its enemies only (a boss throwing the hero off). Follows `source` while it moves.
+static func shockwave(world: World, source: Actor, radius: float, amount: int, knockback: float, fuse: float) -> void:
+	world.spawn_vfx(RingVfx.create(source.global_position, radius, Color(1.0, 0.3, 0.2, 0.8)))
+	var floor_id := world.floor_id
+	world.get_tree().create_timer(fuse, false).timeout.connect(func() -> void:
+		if not is_instance_valid(world) or world.floor_id != floor_id or not is_instance_valid(source) or source.is_dead:
+			return
+		var center := source.global_position
+		Vfx.explosion(world, center, radius)
+		Events.screen_shake.emit(0.5)
+		for target in world.get_hostiles(source.faction):
+			var offset := target.global_position - center
+			if offset.length() > radius + target.radius:
+				continue
+			var hit := make_secondary_hit(source, amount)
+			hit.knockback = (offset.normalized() if offset != Vector2.ZERO else Vector2.DOWN) * knockback
+			target.take_hit(hit)
+		hit_props(world, source, center, radius))
+
+
 ## A warning ring, then after `fuse` seconds a blast (see blast()). `fx`: a sheet of square
 ## frames to play instead of the usual explosion.
 static func delayed_blast(world: World, center: Vector2, radius: float, amount: int, fuse: float, fx: Texture2D = null, status: OnHitStatus = null) -> void:

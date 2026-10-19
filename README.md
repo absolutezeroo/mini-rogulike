@@ -136,7 +136,8 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 
 - **Walls** are cliffs drawn from a 16x16 tileset (`DungeonView`): plateau edges, inner corners,
   cliff faces. The generator smooths every floor so only shapes the tiles can draw remain
-  (no wall one cell thick, no walls touching by a corner).
+  (no wall thinner than 3 cells between two floors, `DungeonGenerator.MIN_WALL_THICKNESS`: they
+  looked like flimsy fences; no walls touching by a corner).
 - **Props** (`data/props/`): crates, vases and barrels break under any attack and may drop loot;
   **powder kegs** blink then explode, hurting everyone (you too) and setting off other kegs.
   Explosions you trigger give you the XP of what they kill. Props block movement, sight and shots.
@@ -450,7 +451,14 @@ The last floor of each act is a start room and one big arena. The boss sleeps
 in the middle; walking in closes the exits with spikes and wakes it up (boss music, health bar
 with its portrait). A `BossDef` is a `MonsterDef` plus:
 
-- **phases**: at a given HP ratio the boss gets stat bonuses, new skills, a shorter wind-up and a tint;
+- **phases**: three per boss, full life, two thirds (`hp_ratio` 0.66) and one third (0.33). Each
+  phase adds stats, swaps in new attack patterns, shortens the wind-up and the cooldowns
+  (`cooldown_multiplier`) and tints the boss; the last one uses fierce versions of its skills
+  (`<skill>_fierce`: a second wave, rings shifted into the gaps of the first, more summons).
+  Entering a phase, the boss **roars**: untouchable for a moment (`phase_roar_time`) and a
+  shockwave throws the hero off. Notches on the boss bar show where the next phases start;
+- **no face-tanking**: hit it too many times in a row (`shockwave_after_hits`, fewer in later
+  phases) and it answers with the same shockwave (`Combat.shockwave`);
 - **cast skills**: rings of projectiles, ground quakes (red circle), summons (`SummonEffect`), dashes;
 - **relic_choices**: when it dies the spikes go down, the stairs appear and you pick a relic.
 

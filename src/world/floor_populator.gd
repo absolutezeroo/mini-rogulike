@@ -172,6 +172,8 @@ static func place_lights(world: World, config: DungeonConfig, room: Rect2i, take
 		# Spread them out.
 		if placed.any(func(other: Vector2i) -> bool: return Vector2(other).distance_to(Vector2(cell)) < 5.0):
 			continue
+		if not light.is_breakable() and not RoomSpace.stays_open(world, room, {cell: true}):
+			continue  # it would close a gap between a scene's furniture and the wall
 		world.spawn_prop(light, cell)
 		_reserve_around(taken, cell, 1)
 		placed.append(cell)

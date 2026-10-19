@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_vsvk2"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_iyk20"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_parig"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/fireball.png" id="4_eioth"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_fs03h"]
+[ext_resource type="AudioStream" path="res://data/audio/fireball.tres" id="6_jcn3y"]
+
+[sub_resource type="Resource" id="Resource_qedyq"]
+script = ExtResource("3_parig")
+burn_damage = 3
+
+[sub_resource type="Resource" id="Resource_r6lk4"]
+script = ExtResource("2_iyk20")
+damage_multiplier = 0.6
+flat_damage = 4
+speed = 308.0
+radius = 7.0
+count = 20
+spread_degrees = 360.0
+color = Color(1, 0.75, 0.25, 1)
+texture = ExtResource("4_eioth")
+status = SubResource("Resource_qedyq")
+
+[sub_resource type="Resource" id="Resource_dy8hq"]
+script = ExtResource("2_iyk20")
+damage_multiplier = 0.6
+flat_damage = 4
+speed = 308.0
+radius = 7.0
+count = 20
+spread_degrees = 360.0
+color = Color(1, 0.75, 0.25, 1)
+texture = ExtResource("4_eioth")
+status = SubResource("Resource_qedyq")
+angle_offset = 9.0
+delay = 0.5
+
+[resource]
+script = ExtResource("5_fs03h")
+id = &"solar_flare_fierce"
+display_name = "Solar Flare"
+color = Color(1, 0.75, 0.25, 1)
+cooldown = 5.0
+effects = Array[ExtResource("1_vsvk2")]([SubResource("Resource_r6lk4"), SubResource("Resource_dy8hq")])
+sound = ExtResource("6_jcn3y")
+ai_max_range = 400.0
+cast_time = 0.7200000000000001

@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_wowgk"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_b6kdx"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/coin.png" id="3_trvs3"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_rxndu"]
+[ext_resource type="AudioStream" path="res://data/audio/fireball.tres" id="5_jrqbv"]
+
+[sub_resource type="Resource" id="Resource_a4qib"]
+script = ExtResource("2_b6kdx")
+damage_multiplier = 0.6
+flat_damage = 6
+speed = 308.0
+radius = 7.0
+count = 18
+spread_degrees = 360.0
+color = Color(1, 0.8, 0.3, 1)
+texture = ExtResource("3_trvs3")
+
+[sub_resource type="Resource" id="Resource_68vps"]
+script = ExtResource("2_b6kdx")
+damage_multiplier = 0.6
+flat_damage = 6
+speed = 308.0
+radius = 7.0
+count = 18
+spread_degrees = 360.0
+color = Color(1, 0.8, 0.3, 1)
+texture = ExtResource("3_trvs3")
+angle_offset = 10.0
+delay = 0.5
+
+[resource]
+script = ExtResource("4_rxndu")
+id = &"coin_storm_fierce"
+display_name = "Coin Storm"
+color = Color(1, 0.8, 0.3, 1)
+cooldown = 5.0
+effects = Array[ExtResource("1_wowgk")]([SubResource("Resource_a4qib"), SubResource("Resource_68vps")])
+sound = ExtResource("5_jrqbv")
+ai_max_range = 400.0
+cast_time = 0.7200000000000001

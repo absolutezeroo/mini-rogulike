@@ -1,7 +1,6 @@
 [gd_resource type="Resource" script_class="BossDef" format=3]
 
 [ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_ecstf"]
-[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_r4eog"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/bosses/giant_frog.tres" id="3_g4p40"]
 [ext_resource type="AudioStream" path="res://data/audio/slime.tres" id="4_wuq14"]
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/giant_frog/portrait.png" id="5_j02b6"]
@@ -18,8 +17,12 @@
 [ext_resource type="Resource" path="res://data/skills/boss/frog_leap.tres" id="16_te76r"]
 [ext_resource type="Resource" path="res://data/skills/boss/poison_spit.tres" id="17_3wfbn"]
 [ext_resource type="Resource" path="res://data/skills/boss/call_tadpoles.tres" id="18_cyo2c"]
+[ext_resource type="Resource" path="res://data/skills/boss/frog_leap_fierce.tres" id="18_wuq14"]
+[ext_resource type="Resource" path="res://data/skills/boss/poison_spit_fierce.tres" id="19_j02b6"]
 [ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="19_xqtof"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/slime_slam.tres" id="20_28ete"]
+[ext_resource type="Resource" path="res://data/skills/boss/call_tadpoles_fierce.tres" id="20_xpbte"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="22_s5kyj"]
 
 [sub_resource type="Resource" id="Resource_ecstf"]
 script = ExtResource("6_xpbte")
@@ -52,18 +55,37 @@ drop_chance = 1.0
 rolls = 3
 entries = Array[ExtResource("6_xpbte")]([SubResource("Resource_ecstf"), SubResource("Resource_r4eog"), SubResource("Resource_g4p40"), SubResource("Resource_wuq14"), SubResource("Resource_j02b6")])
 
-[sub_resource type="Resource" id="Resource_s5kyj"]
+[sub_resource type="Resource" id="Resource_d7bi1"]
 script = ExtResource("14_0l2t5")
-attack = 1
+attack = 2
+move_speed = 20.0
+
+[sub_resource type="Resource" id="Resource_71wwd"]
+script = ExtResource("13_itnru")
+hp_ratio = 0.66
+message = "CALLS ITS BROOD!"
+bonuses = SubResource("Resource_d7bi1")
+skills = Array[ExtResource("15_r81bl")]([ExtResource("16_te76r"), ExtResource("17_3wfbn"), ExtResource("18_cyo2c")])
+windup_multiplier = 0.85
+tint = Color(1, 0.72, 0.72, 1)
+cooldown_multiplier = 0.85
+shockwave_after_hits = 7
+
+[sub_resource type="Resource" id="Resource_uah4g"]
+script = ExtResource("14_0l2t5")
+attack = 3
 move_speed = 30.0
 
-[sub_resource type="Resource" id="Resource_d7bi1"]
+[sub_resource type="Resource" id="Resource_mmdpq"]
 script = ExtResource("13_itnru")
-message = "CALLS ITS BROOD!"
-bonuses = SubResource("Resource_s5kyj")
-skills = Array[ExtResource("15_r81bl")]([ExtResource("16_te76r"), ExtResource("17_3wfbn"), ExtResource("18_cyo2c")])
-windup_multiplier = 0.8
-tint = Color(1, 0.72, 0.72, 1)
+hp_ratio = 0.33
+message = "FRENZY!"
+bonuses = SubResource("Resource_uah4g")
+skills = Array[ExtResource("15_r81bl")]([ExtResource("18_wuq14"), ExtResource("19_j02b6"), ExtResource("20_xpbte")])
+windup_multiplier = 0.7
+tint = Color(1, 0.55, 0.5, 1)
+cooldown_multiplier = 0.7
+shockwave_after_hits = 5
 
 [sub_resource type="Resource" id="Resource_ksyev"]
 script = ExtResource("14_0l2t5")
@@ -75,7 +97,7 @@ move_speed = 60.0
 script = ExtResource("19_xqtof")
 title = "Croaking Warden"
 portrait = ExtResource("5_j02b6")
-phases = Array[ExtResource("13_itnru")]([SubResource("Resource_d7bi1")])
+phases = Array[ExtResource("13_itnru")]([SubResource("Resource_71wwd"), SubResource("Resource_mmdpq")])
 stats = SubResource("Resource_ksyev")
 weapon = ExtResource("20_28ete")
 skills = Array[ExtResource("15_r81bl")]([ExtResource("16_te76r"), ExtResource("17_3wfbn")])

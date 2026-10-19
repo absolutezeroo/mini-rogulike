@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_hndu6"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_oxfws"]
+[ext_resource type="Resource" path="res://data/monsters/spirit.tres" id="3_x7p8e"]
+[ext_resource type="Script" path="res://src/definitions/effects/summon_effect.gd" id="4_nluyw"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_xhbjo"]
+[ext_resource type="AudioStream" path="res://data/audio/spirit.tres" id="6_fs8cl"]
+
+[sub_resource type="Resource" id="Resource_wo76g"]
+script = ExtResource("4_nluyw")
+monsters = Array[ExtResource("2_oxfws")]([ExtResource("3_x7p8e")])
+count = 3
+max_alive = 7
+
+[resource]
+script = ExtResource("5_xhbjo")
+id = &"call_spirits_fierce"
+display_name = "Spirit Call"
+color = Color(0.6039216, 0.81960785, 0.83137256, 1)
+cooldown = 11.0
+effects = Array[ExtResource("1_hndu6")]([SubResource("Resource_wo76g")])
+sound = ExtResource("6_fs8cl")
+ai_max_range = 600.0
+cast_time = 0.63

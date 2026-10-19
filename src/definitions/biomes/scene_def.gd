@@ -101,11 +101,19 @@ func _origins(room: Rect2i, mirrored: bool, rng: RandomNumberGenerator) -> Array
 func _fits(world: World, room: Rect2i, taken: Dictionary, origin: Vector2i, cells: Dictionary) -> bool:
 	var blocking := {}
 	var span := size()
-	for offset: Vector2i in cells:
+	var cells_to_check := cells.duplicate()
+	# Water covers the whole rectangle around its symbol's cells: check all of it.
+	for k in keys:
+		if k and k.kind == SceneKey.Kind.POND:
+			var rect := _span_of(cells, k.symbol)
+			for y in range(rect.position.y, rect.end.y):
+				for x in range(rect.position.x, rect.end.x):
+					cells_to_check[Vector2i(x, y)] = k.symbol
+	for offset: Vector2i in cells_to_check:
 		var cell := origin + offset
 		if not room.has_point(cell) or taken.has(cell) or not RoomSpace.is_free(world, cell):
 			return false
-		var k := key(cells[offset])
+		var k := key(cells_to_check[offset])
 		if k and k.blocks():
 			if _at_doorway(world.map, room, cell):
 				return false
@@ -124,6 +132,17 @@ func _fits(world: World, room: Rect2i, taken: Dictionary, origin: Vector2i, cell
 				and world.map.is_floor(cell + (Vector2i.RIGHT if against_right else Vector2i.LEFT)):
 			return false
 	return blocking.is_empty() or RoomSpace.stays_open(world, room, blocking)
+
+
+## The rectangle around the plan cells of `symbol`.
+static func _span_of(cells: Dictionary, symbol: String) -> Rect2i:
+	var rect := Rect2i()
+	var first := true
+	for offset: Vector2i in cells:
+		if cells[offset] == symbol:
+			rect = Rect2i(offset, Vector2i.ONE) if first else rect.merge(Rect2i(offset, Vector2i.ONE))
+			first = false
+	return rect
 
 
 ## Right at a corridor mouth (floor outside the room next to it): nothing may stand there.

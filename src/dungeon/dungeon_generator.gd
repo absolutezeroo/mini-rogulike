@@ -50,9 +50,14 @@ static func generate_arena(config: DungeonConfig, rng: RandomNumberGenerator) ->
 	return map
 
 
-## Removes wall shapes the cliff tiles can't draw: walls one cell thick (floor on both sides)
-## and walls touching each other only by a corner (checkerboard). They become floor.
-## The outer border always stays solid.
+## Walls between two floors thinner than this (in cells, across or along) read as flimsy
+## fences, not rock: they are opened up.
+const MIN_WALL_THICKNESS := 3
+
+
+## Removes wall shapes the cliff tiles can't draw or that look wrong: walls thinner than
+## MIN_WALL_THICKNESS with floor on both sides, and walls touching each other only by a corner
+## (checkerboard). They become floor. The outer border always stays solid.
 static func smooth(map: DungeonMap) -> void:
 	var changed := true
 	while changed:
@@ -62,11 +67,23 @@ static func smooth(map: DungeonMap) -> void:
 				var cell := Vector2i(x, y)
 				if map.is_floor(cell):
 					continue
-				var thin_x := map.is_floor(cell + Vector2i.LEFT) and map.is_floor(cell + Vector2i.RIGHT)
-				var thin_y := map.is_floor(cell + Vector2i.UP) and map.is_floor(cell + Vector2i.DOWN)
-				if thin_x or thin_y or _is_pinch(map, cell):
+				if is_thin_wall(map, cell, Vector2i.RIGHT) or is_thin_wall(map, cell, Vector2i.DOWN) or _is_pinch(map, cell):
 					map.set_floor(cell)
 					changed = true
+
+
+## Wall cell in a run of walls (along `axis`) with floor at both ends, shorter than
+## MIN_WALL_THICKNESS.
+static func is_thin_wall(map: DungeonMap, cell: Vector2i, axis: Vector2i) -> bool:
+	var run := 1
+	for direction: Vector2i in [axis, -axis]:
+		var next := cell + direction
+		while not map.is_floor(next):
+			if not map.in_bounds(next) or run >= MIN_WALL_THICKNESS:
+				return false  # the border, or thick enough
+			run += 1
+			next += direction
+	return run < MIN_WALL_THICKNESS
 
 
 ## Wall cell whose diagonal neighbour is a wall while both cells between them are floor.

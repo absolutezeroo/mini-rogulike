@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_cjw33"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="2_l4smu"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_bok5l"]
+[ext_resource type="AudioStream" path="res://data/audio/explosion.tres" id="4_grwyl"]
+
+[sub_resource type="Resource" id="Resource_xiesv"]
+script = ExtResource("2_l4smu")
+radius = 130.0
+damage_multiplier = 1.0
+flat_damage = 8
+knockback = 380.0
+explosive = true
+
+[sub_resource type="Resource" id="Resource_hs28k"]
+script = ExtResource("2_l4smu")
+radius = 169.0
+damage_multiplier = 1.0
+flat_damage = 8
+knockback = 380.0
+explosive = true
+delay = 0.5
+
+[resource]
+script = ExtResource("3_bok5l")
+id = &"quake_fierce"
+display_name = "Quake"
+color = Color(0.9372549, 0.2784314, 0.43529412, 1)
+effects = Array[ExtResource("1_cjw33")]([SubResource("Resource_xiesv"), SubResource("Resource_hs28k")])
+sound = ExtResource("4_grwyl")
+ai_max_range = 120.0
+cast_time = 0.81
+telegraph_radius = 130.0

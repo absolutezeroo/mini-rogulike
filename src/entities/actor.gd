@@ -31,6 +31,8 @@ class TimedBonus:
 var faction: Faction = Faction.MONSTER
 ## Debug god mode (DebugPanel): nothing hurts.
 var invincible := false
+## How fast skill cooldowns run (a boss in a later phase: faster).
+var cooldown_speed := 1.0
 var world: World
 var display_name := "Actor"
 ## Animations of the body (see ActorRig). Without frames, a simple shape is drawn.
@@ -430,7 +432,7 @@ func _tick_timers(delta: float) -> void:
 	_attack_cooldown = maxf(_attack_cooldown - delta, 0.0)
 	_invulnerable_time = maxf(_invulnerable_time - delta, 0.0)
 	_flash_time = maxf(_flash_time - delta, 0.0)
-	skills.tick(delta)
+	skills.tick(delta * cooldown_speed)
 	if not statuses.is_empty():
 		statuses.tick(self, delta)
 

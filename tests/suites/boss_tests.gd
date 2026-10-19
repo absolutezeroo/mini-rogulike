@@ -35,10 +35,17 @@ func _test_boss_fight(game: Game) -> void:
 	hurt.amount = boss.hp - roundi(boss.get_max_hp() * def.phases[0].hp_ratio) + 1 + boss.get_stats().defense
 	boss.take_hit(hurt)
 	check(boss.skills.skills == def.phases[0].skills, "below %d%% HP the boss enters its next phase" % roundi(def.phases[0].hp_ratio * 100))
+	check(boss.invincible, "it roars into the phase: untouchable for a moment")
+	check(boss.cooldown_speed > 1.0, "its skills come back sooner")
+	await _frames(int(def.phase_roar_time * 60.0) + 6)
+	check(not boss.invincible, "then the fight goes on")
 
 	# Telegraphed skill: cast, then a ring of projectiles.
 	world.get_node("Projectiles").get_children().map(func(n: Node) -> void: n.queue_free())
 	await _frames(2)
+	var phase_skills: Array[SkillDef] = []
+	boss.skills.set_skills(phase_skills)  # it may have used them on its own meanwhile: fresh cooldowns
+	boss.skills.set_skills(def.phases[0].skills)
 	boss.casting_index = 0
 	boss.get_node("StateMachine").transition_to(&"Cast")
 	await _frames(2)
@@ -55,6 +62,33 @@ func _test_boss_fight(game: Game) -> void:
 	for monster in world.get_hostiles(player.faction):
 		if monster != boss:
 			monster.die(null)
+
+	# Standing still and hitting it over and over: it throws the hero off.
+	world.get_node("Projectiles").get_children().map(func(n: Node) -> void: n.queue_free())
+	await _frames(2)
+	player.global_position = boss.global_position + Vector2(0, boss.radius + 30.0)
+	player._invulnerable_time = 0.0
+	var close := player.global_position.distance_to(boss.global_position)
+	boss._shockwave_cooldown = 0.0  # the roar's own shockwave a moment ago
+	for i in boss._shockwave_after:
+		var poke := HitInfo.new()
+		poke.amount = 1
+		poke.source = player
+		boss.take_hit(poke)
+	check(boss._shockwave_cooldown > 0.0, "too many hits in a row: it answers with a shockwave")
+	var stood := player.global_position
+	for frame in 50:
+		player._invulnerable_time = 0.0  # its claws may have just hit the hero
+		await _frames(1)
+	check(player.global_position.distance_to(stood) > 80.0 and player.global_position.distance_to(boss.global_position) > close, "the shockwave throws the hero off (%d px)" % roundi(player.global_position.distance_to(stood)))
+
+	# The last phase: fiercer skills, faster still.
+	var speed_before := boss.cooldown_speed
+	var hurt_more := HitInfo.new()
+	hurt_more.amount = boss.hp - roundi(boss.get_max_hp() * def.phases[1].hp_ratio) + 1 + boss.get_stats().defense
+	boss.take_hit(hurt_more)
+	check(boss.skills.skills == def.phases[1].skills and boss.cooldown_speed > speed_before, "a third of its HP left: its last phase")
+	await _frames(int(def.phase_roar_time * 60.0) + 6)
 
 	# Kill it: exits open, stairs appear, a relic is offered.
 	var finish := HitInfo.new()

@@ -1,6 +1,7 @@
 class_name BossBar
 extends Control
-## Big health bar with the boss' name and portrait, shown during boss fights.
+## Big health bar with the boss' name and portrait, shown during boss fights. Notches mark
+## where its next phases start (BossDef.phases).
 
 var _boss: Monster
 
@@ -11,6 +12,7 @@ var _boss: Monster
 
 func _ready() -> void:
 	hide()
+	_bar.draw.connect(_draw_phase_notches)
 	Events.boss_started.connect(show_boss)
 	Events.boss_defeated.connect(func(_boss_monster: Monster) -> void: _fade_out())
 
@@ -36,6 +38,20 @@ func hide_now() -> void:
 
 func _on_health_changed(current: int, maximum: int) -> void:
 	_bar.set_values(current, maximum, "")
+	_bar.queue_redraw()
+
+
+## A notch on the bar at each phase's HP ratio: bright while still ahead, dim once passed.
+func _draw_phase_notches() -> void:
+	var def := _boss.def as BossDef if _boss and is_instance_valid(_boss) else null
+	if def == null:
+		return
+	var ratio := float(_boss.hp) / maxf(_boss.get_max_hp(), 1.0)
+	for phase in def.phases:
+		var x := roundf(_bar.size.x * phase.hp_ratio)
+		var ahead := ratio > phase.hp_ratio
+		_bar.draw_rect(Rect2(x - 2.0, -3.0, 4.0, _bar.size.y + 6.0), Palette.INK)
+		_bar.draw_rect(Rect2(x - 1.0, -2.0, 2.0, _bar.size.y + 4.0), Palette.GOLD if ahead else Color(1, 1, 1, 0.35))
 
 
 func _fade_out() -> void:

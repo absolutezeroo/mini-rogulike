@@ -37,6 +37,13 @@ var _over: MonsterOverlay
 ## Fell into a hole: no loot, no burst, nothing comes out.
 var _fell := false
 
+## Bosses: hits taken in a row, and the shockwave that answers them (see BossDef).
+var _hit_streak := 0
+var _streak_time := 0.0
+var _shockwave_after := 0
+var _shockwave_cooldown := 0.0
+var _roar_time := 0.0
+
 
 func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
 	def = monster_def
@@ -58,6 +65,8 @@ func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
 	base_stats = rules.scale_monster(def.stats, def is BossDef)
 	_damage_multiplier = rules.monster_damage()
 	_windup_multiplier = rules.telegraph_time()
+	if def is BossDef:
+		_shockwave_after = (def as BossDef).shockwave_after_hits
 	if def.weapon:
 		equipment.equip(def.weapon)
 	skills.set_skills(def.skills)
@@ -270,6 +279,8 @@ func _on_damaged(hit: HitInfo, _damage: int) -> void:
 	if dormant and hit.source:
 		wake_up(hit.source)
 	_update_boss_phase()
+	if is_boss() and not hit.is_tick and hit.source and is_hostile_to(hit.source):
+		_count_hit()
 
 
 ## Bosses get stronger as they lose HP (see BossDef.phases).
@@ -290,13 +301,49 @@ func _enter_phase(phase: BossPhase) -> void:
 		skills.set_skills(phase.skills)
 		casting_index = -1
 	_windup_multiplier *= phase.windup_multiplier
+	cooldown_speed /= phase.cooldown_multiplier
+	if phase.shockwave_after_hits > 0:
+		_shockwave_after = phase.shockwave_after_hits
 	_phase_tint = phase.tint
+	# A roar: untouchable for a moment, and whoever stands close is thrown off.
+	invincible = true
+	_roar_time = (def as BossDef).phase_roar_time
+	_shockwave(0.35)
 	if not phase.message.is_empty():
 		world.spawn_floating_text(head_position() + Vector2(0, -12), phase.message, Palette.DANGER)
 		Events.log_message("%s: %s" % [display_name, phase.message], Palette.DANGER)
 	Vfx.magic(world, global_position, Palette.DANGER)
 	Sfx.play_at(Sfx.bank.boss_roar, global_position)
 	Events.screen_shake.emit(0.6)
+
+## Hit again soon after the last hit: the streak grows; too long, and it throws the hero off.
+func _count_hit() -> void:
+	_hit_streak = _hit_streak + 1 if _streak_time > 0.0 else 1
+	_streak_time = (def as BossDef).streak_gap
+	if _shockwave_after > 0 and _hit_streak >= _shockwave_after and _shockwave_cooldown <= 0.0:
+		_hit_streak = 0
+		_shockwave(0.45)
+
+
+## A warning ring, then a blast all around that pushes its enemies far away.
+func _shockwave(fuse: float) -> void:
+	var boss := def as BossDef
+	_shockwave_cooldown = 3.0
+	var damage := world.rules.dungeon_damage(4.0, 0.6) if world.rules else 6
+	Combat.shockwave(world, self, boss.shockwave_radius + radius, damage, boss.shockwave_knockback, fuse)
+
+
+func _tick_timers(delta: float) -> void:
+	super._tick_timers(delta)
+	if not is_boss():
+		return
+	_streak_time = maxf(_streak_time - delta, 0.0)
+	_shockwave_cooldown = maxf(_shockwave_cooldown - delta, 0.0)
+	if _roar_time > 0.0:
+		_roar_time -= delta
+		if _roar_time <= 0.0:
+			invincible = false
+
 
 func _hurt_sound(hit: HitInfo) -> AudioStream:
 	if hit.sound:

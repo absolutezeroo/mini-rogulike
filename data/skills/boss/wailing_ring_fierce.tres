@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_68fdr"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_c46pe"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_kpek2"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/energyball.png" id="4_0uwuo"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_a2ejn"]
+[ext_resource type="AudioStream" path="res://data/audio/spirit.tres" id="6_n5jmg"]
+
+[sub_resource type="Resource" id="Resource_ptcdc"]
+script = ExtResource("3_kpek2")
+slow = 0.35
+
+[sub_resource type="Resource" id="Resource_j3sj2"]
+script = ExtResource("2_c46pe")
+damage_multiplier = 0.5
+flat_damage = 4
+speed = 264.0
+radius = 7.0
+count = 20
+spread_degrees = 360.0
+color = Color(0.7529412, 0.8392157, 0.8745098, 1)
+texture = ExtResource("4_0uwuo")
+status = SubResource("Resource_ptcdc")
+
+[sub_resource type="Resource" id="Resource_sv7ho"]
+script = ExtResource("2_c46pe")
+damage_multiplier = 0.5
+flat_damage = 4
+speed = 264.0
+radius = 7.0
+count = 20
+spread_degrees = 360.0
+color = Color(0.7529412, 0.8392157, 0.8745098, 1)
+texture = ExtResource("4_0uwuo")
+status = SubResource("Resource_ptcdc")
+angle_offset = 9.0
+delay = 0.5
+
+[resource]
+script = ExtResource("5_a2ejn")
+id = &"wailing_ring_fierce"
+display_name = "Wailing Ring"
+color = Color(0.7529412, 0.8392157, 0.8745098, 1)
+cooldown = 3.5
+effects = Array[ExtResource("1_68fdr")]([SubResource("Resource_j3sj2"), SubResource("Resource_sv7ho")])
+sound = ExtResource("6_n5jmg")
+ai_max_range = 420.0
+cast_time = 0.63

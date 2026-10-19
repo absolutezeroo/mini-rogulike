@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_36naq"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_d22u3"]
+[ext_resource type="Resource" path="res://data/monsters/skeleton.tres" id="3_0qdgx"]
+[ext_resource type="Script" path="res://src/definitions/effects/summon_effect.gd" id="4_g8v0h"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_kotr4"]
+[ext_resource type="AudioStream" path="res://data/audio/spirit.tres" id="6_wklxp"]
+
+[sub_resource type="Resource" id="Resource_1e43t"]
+script = ExtResource("4_g8v0h")
+monsters = Array[ExtResource("2_d22u3")]([ExtResource("3_0qdgx")])
+count = 3
+
+[resource]
+script = ExtResource("5_kotr4")
+id = &"call_skeletons_fierce"
+display_name = "Call the Dead"
+color = Color(0.8784314, 0.88235295, 0.8666667, 1)
+cooldown = 12.0
+effects = Array[ExtResource("1_36naq")]([SubResource("Resource_1e43t")])
+sound = ExtResource("6_wklxp")
+ai_max_range = 600.0
+cast_time = 0.63

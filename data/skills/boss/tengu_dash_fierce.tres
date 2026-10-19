@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_35dmi"]
+[ext_resource type="Script" path="res://src/definitions/effects/dash_effect.gd" id="2_vpv5e"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_fhial"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="4_sv888"]
+
+[sub_resource type="Resource" id="Resource_hgsfi"]
+script = ExtResource("2_vpv5e")
+distance = 230.0
+
+[sub_resource type="Resource" id="Resource_p2265"]
+script = ExtResource("2_vpv5e")
+distance = 230.0
+delay = 0.5
+
+[resource]
+script = ExtResource("3_fhial")
+id = &"tengu_dash_fierce"
+display_name = "Gale Step"
+color = Color(0.9019608, 0.22352941, 0.27450982, 1)
+cooldown = 3.5
+effects = Array[ExtResource("1_35dmi")]([SubResource("Resource_hgsfi"), SubResource("Resource_p2265")])
+sound = ExtResource("4_sv888")
+ai_min_range = 120.0
+ai_max_range = 380.0

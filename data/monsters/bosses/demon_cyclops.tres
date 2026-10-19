@@ -1,7 +1,6 @@
 [gd_resource type="Resource" script_class="BossDef" format=3]
 
 [ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_d51cp"]
-[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_c80jh"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/bosses/demon_cyclops.tres" id="2_ss85h"]
 [ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="3_c80jh"]
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/demon_cyclops/idle.png" id="4_7e0hy"]
@@ -20,7 +19,11 @@
 [ext_resource type="Resource" path="res://data/skills/boss/call_skeletons.tres" id="16_41kxt"]
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/demon_cyclops/portrait.png" id="17_hw63p"]
 [ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="18_lv27d"]
+[ext_resource type="Resource" path="res://data/skills/boss/eye_beam_fierce.tres" id="18_vhaxg"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/demon_club.tres" id="19_jycnt"]
+[ext_resource type="Resource" path="res://data/skills/boss/quake_fierce.tres" id="19_ptf4d"]
+[ext_resource type="Resource" path="res://data/skills/boss/call_skeletons_fierce.tres" id="20_dngni"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="23_nk8yc"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_sogvl"]
 atlas = ExtResource("4_7e0hy")
@@ -57,33 +60,37 @@ drop_chance = 1.0
 rolls = 3
 entries = Array[ExtResource("5_rfrp0")]([SubResource("Resource_oiiuw"), SubResource("Resource_nvqot"), SubResource("Resource_776n5"), SubResource("Resource_o7f0m"), SubResource("Resource_c80jh")])
 
-[sub_resource type="Resource" id="Resource_qajpf"]
+[sub_resource type="Resource" id="Resource_goggs"]
 script = ExtResource("12_f413d")
-attack = 3
+attack = 2
 move_speed = 20.0
 
-[sub_resource type="Resource" id="Resource_x7qpn"]
+[sub_resource type="Resource" id="Resource_mjgm1"]
 script = ExtResource("11_mjgm1")
-hp_ratio = 0.55
+hp_ratio = 0.66
 message = "CALLS THE DEAD!"
-bonuses = SubResource("Resource_qajpf")
+bonuses = SubResource("Resource_goggs")
 skills = Array[ExtResource("13_fmbws")]([ExtResource("14_v1ga4"), ExtResource("15_7xy23"), ExtResource("16_41kxt")])
 windup_multiplier = 0.85
 tint = Color(1, 0.72, 0.72, 1)
+cooldown_multiplier = 0.85
+shockwave_after_hits = 7
 
-[sub_resource type="Resource" id="Resource_sco5u"]
+[sub_resource type="Resource" id="Resource_f413d"]
 script = ExtResource("12_f413d")
-attack = 2
-move_speed = 40.0
-attack_speed = 0.4
+attack = 3
+move_speed = 30.0
 
-[sub_resource type="Resource" id="Resource_dan4u"]
+[sub_resource type="Resource" id="Resource_fmbws"]
 script = ExtResource("11_mjgm1")
-hp_ratio = 0.2
+hp_ratio = 0.33
 message = "BERSERK!"
-bonuses = SubResource("Resource_sco5u")
+bonuses = SubResource("Resource_f413d")
+skills = Array[ExtResource("13_fmbws")]([ExtResource("18_vhaxg"), ExtResource("19_ptf4d"), ExtResource("20_dngni")])
 windup_multiplier = 0.7
-tint = Color(1, 0.55, 0.55, 1)
+tint = Color(1, 0.55, 0.5, 1)
+cooldown_multiplier = 0.7
+shockwave_after_hits = 5
 
 [sub_resource type="Resource" id="Resource_273k5"]
 script = ExtResource("12_f413d")
@@ -95,7 +102,7 @@ move_speed = 70.0
 script = ExtResource("18_lv27d")
 title = "Warden of the Crypt"
 portrait = ExtResource("17_hw63p")
-phases = Array[ExtResource("11_mjgm1")]([SubResource("Resource_x7qpn"), SubResource("Resource_dan4u")])
+phases = Array[ExtResource("11_mjgm1")]([SubResource("Resource_mjgm1"), SubResource("Resource_fmbws")])
 stats = SubResource("Resource_273k5")
 weapon = ExtResource("19_jycnt")
 skills = Array[ExtResource("13_fmbws")]([ExtResource("14_v1ga4"), ExtResource("15_7xy23")])

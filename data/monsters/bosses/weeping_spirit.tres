@@ -1,7 +1,6 @@
 [gd_resource type="Resource" script_class="BossDef" format=3]
 
 [ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_23a8j"]
-[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_gmdas"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/bosses/weeping_spirit.tres" id="3_hkv7b"]
 [ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="4_fqm73"]
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/weeping_spirit/portrait.png" id="5_nx8ek"]
@@ -17,9 +16,12 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="15_5seka"]
 [ext_resource type="Resource" path="res://data/skills/boss/wailing_ring.tres" id="16_egwjx"]
 [ext_resource type="Resource" path="res://data/skills/monster/blink.tres" id="17_mos47"]
+[ext_resource type="Resource" path="res://data/skills/boss/wailing_ring_fierce.tres" id="18_hkv7b"]
 [ext_resource type="Resource" path="res://data/skills/boss/call_spirits.tres" id="18_tnrbr"]
 [ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="19_7aq3k"]
+[ext_resource type="Resource" path="res://data/skills/boss/call_spirits_fierce.tres" id="19_fqm73"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/demon_club.tres" id="20_8w8kl"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="21_nx8ek"]
 
 [sub_resource type="Resource" id="Resource_23a8j"]
 script = ExtResource("6_ndn72")
@@ -54,32 +56,35 @@ entries = Array[ExtResource("6_ndn72")]([SubResource("Resource_23a8j"), SubResou
 
 [sub_resource type="Resource" id="Resource_3pk5o"]
 script = ExtResource("14_htnv3")
-attack = 3
+attack = 2
 move_speed = 20.0
 
 [sub_resource type="Resource" id="Resource_qkwm3"]
 script = ExtResource("13_shtgb")
-hp_ratio = 0.55
+hp_ratio = 0.66
 message = "CALLS THE LOST!"
 bonuses = SubResource("Resource_3pk5o")
 skills = Array[ExtResource("15_5seka")]([ExtResource("16_egwjx"), ExtResource("17_mos47"), ExtResource("18_tnrbr")])
 windup_multiplier = 0.85
 tint = Color(1, 0.72, 0.72, 1)
+cooldown_multiplier = 0.85
+shockwave_after_hits = 7
 
 [sub_resource type="Resource" id="Resource_hjxmh"]
 script = ExtResource("14_htnv3")
-attack = 2
-move_speed = 40.0
-attack_speed = 0.4
+attack = 3
+move_speed = 30.0
 
 [sub_resource type="Resource" id="Resource_t02vb"]
 script = ExtResource("13_shtgb")
-hp_ratio = 0.2
+hp_ratio = 0.33
 message = "SHRIEKS!"
 bonuses = SubResource("Resource_hjxmh")
-skills = Array[ExtResource("15_5seka")]([ExtResource("16_egwjx"), ExtResource("17_mos47"), ExtResource("18_tnrbr")])
+skills = Array[ExtResource("15_5seka")]([ExtResource("18_hkv7b"), ExtResource("17_mos47"), ExtResource("19_fqm73")])
 windup_multiplier = 0.7
-tint = Color(1, 0.55, 0.55, 1)
+tint = Color(1, 0.55, 0.5, 1)
+cooldown_multiplier = 0.7
+shockwave_after_hits = 5
 
 [sub_resource type="Resource" id="Resource_t8qu6"]
 script = ExtResource("14_htnv3")

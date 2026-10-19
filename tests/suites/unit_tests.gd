@@ -149,7 +149,7 @@ func _test_generation() -> void:
 			check(reachable.has(room.get_center()), "room %s reachable" % room)
 		check(reachable.has(map.stairs_cell), "stairs reachable")
 		check(map.start_cell != map.stairs_cell, "stairs not on start")
-		# Only wall shapes the cliff tiles can draw: no wall one cell thick, no corner-only contact.
+		# Only solid-looking walls: none thinner than DungeonGenerator.MIN_WALL_THICKNESS between floors, no corner-only contact.
 		var bad := _bad_wall_cells(map)
 		check(bad.is_empty(), "no thin walls or pinches (%s)" % str(bad.slice(0, 3)))
 		# Border must stay solid so nothing can leave the map.
@@ -216,6 +216,14 @@ func _check_scene(biome: BiomeDef, scene: SceneDef) -> void:
 				check(k.carpet != null, "%s: '%s' has a carpet" % [name, k.symbol])
 			SceneKey.Kind.POND:
 				check(k.pond != null and k.pond.pond != null and k.pond.heat == 0.0, "%s: '%s' is plain water" % [name, k.symbol])
+				# Water fills the rectangle around its cells: the plan shows it whole.
+				var cells := scene.plan(false)
+				var rect := SceneDef._span_of(cells, k.symbol)
+				var whole := true
+				for y in range(rect.position.y, rect.end.y):
+					for x in range(rect.position.x, rect.end.x):
+						whole = whole and cells.get(Vector2i(x, y), "") == k.symbol
+				check(whole, "%s: its water is a rectangle in the plan" % name)
 
 
 func _bad_wall_cells(map: DungeonMap) -> Array[Vector2i]:
@@ -225,8 +233,7 @@ func _bad_wall_cells(map: DungeonMap) -> Array[Vector2i]:
 			var c := Vector2i(x, y)
 			if map.is_floor(c):
 				continue
-			if (map.is_floor(c + Vector2i.LEFT) and map.is_floor(c + Vector2i.RIGHT)) \
-					or (map.is_floor(c + Vector2i.UP) and map.is_floor(c + Vector2i.DOWN)) \
+			if DungeonGenerator.is_thin_wall(map, c, Vector2i.RIGHT) or DungeonGenerator.is_thin_wall(map, c, Vector2i.DOWN) \
 					or DungeonGenerator._is_pinch(map, c):
 				bad.append(c)
 	return bad
@@ -320,7 +327,12 @@ func _test_bosses() -> void:
 		check(boss.frames != null and boss.frames.has_animation(&"idle"), "%s has animations" % boss.id)
 		check(boss.portrait != null, "%s has a portrait" % boss.id)
 		check(boss.weapon != null and boss.loot != null, "%s has a weapon and loot" % boss.id)
-		check(not boss.phases.is_empty(), "%s has phases" % boss.id)
+		check(boss.phases.size() == 2 and is_equal_approx(boss.phases[0].hp_ratio, 0.66) and is_equal_approx(boss.phases[1].hp_ratio, 0.33), "%s: three phases (full, two thirds, one third)" % boss.id)
+		check(boss.shockwave_after_hits > 0, "%s answers a hail of hits" % boss.id)
+		if boss.phases.size() == 2:
+			var fierce := boss.phases[1].skills.filter(func(s: SkillDef) -> bool: return String(s.id).ends_with("_fierce"))
+			check(not fierce.is_empty() and boss.phases[1].skills != boss.phases[0].skills, "%s: new patterns in its last phase" % boss.id)
+			check(boss.phases[1].windup_multiplier < boss.phases[0].windup_multiplier and boss.phases[1].cooldown_multiplier < 1.0, "%s: each phase faster" % boss.id)
 		var last := 1.0
 		for phase in boss.phases:
 			check(phase.hp_ratio < last, "%s phases go down in HP" % boss.id)

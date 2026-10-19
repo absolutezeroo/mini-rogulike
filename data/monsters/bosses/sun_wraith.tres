@@ -17,8 +17,10 @@
 [ext_resource type="Resource" path="res://data/skills/boss/solar_flare.tres" id="15_6elxn"]
 [ext_resource type="Resource" path="res://data/skills/monster/blink.tres" id="16_4phiq"]
 [ext_resource type="Resource" path="res://data/skills/boss/call_embers.tres" id="17_wy60y"]
+[ext_resource type="Resource" path="res://data/skills/boss/solar_flare_fierce.tres" id="18_ugrxa"]
 [ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="18_wbh2q"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="19_60j2e"]
+[ext_resource type="Resource" path="res://data/skills/boss/call_embers_fierce.tres" id="19_j25dn"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/demon_club.tres" id="20_bidgj"]
 
 [sub_resource type="Resource" id="Resource_8aotb"]
@@ -52,34 +54,37 @@ drop_chance = 1.0
 rolls = 3
 entries = Array[ExtResource("5_xpnjk")]([SubResource("Resource_8aotb"), SubResource("Resource_4epmv"), SubResource("Resource_4mpkr"), SubResource("Resource_8wnpn"), SubResource("Resource_01tn7")])
 
-[sub_resource type="Resource" id="Resource_c41kn"]
+[sub_resource type="Resource" id="Resource_xpnjk"]
 script = ExtResource("13_lpjk4")
-attack = 3
+attack = 2
 move_speed = 20.0
 
-[sub_resource type="Resource" id="Resource_2ko4v"]
+[sub_resource type="Resource" id="Resource_r3h8l"]
 script = ExtResource("12_348gy")
-hp_ratio = 0.55
-message = "BLAZES LIKE A NOON SUN!"
-bonuses = SubResource("Resource_c41kn")
+hp_ratio = 0.66
+message = "RISES HIGH!"
+bonuses = SubResource("Resource_xpnjk")
 skills = Array[ExtResource("14_0ptdf")]([ExtResource("15_6elxn"), ExtResource("16_4phiq"), ExtResource("17_wy60y")])
 windup_multiplier = 0.85
 tint = Color(1, 0.8, 0.45, 1)
+cooldown_multiplier = 0.85
+shockwave_after_hits = 7
 
-[sub_resource type="Resource" id="Resource_btpwl"]
+[sub_resource type="Resource" id="Resource_lf2b4"]
 script = ExtResource("13_lpjk4")
-attack = 2
-move_speed = 40.0
-attack_speed = 0.4
+attack = 3
+move_speed = 30.0
 
-[sub_resource type="Resource" id="Resource_wlya1"]
+[sub_resource type="Resource" id="Resource_cxv8w"]
 script = ExtResource("12_348gy")
-hp_ratio = 0.2
-message = "BLAZES LIKE A NOON SUN!"
-bonuses = SubResource("Resource_btpwl")
-skills = Array[ExtResource("14_0ptdf")]([ExtResource("15_6elxn"), ExtResource("16_4phiq"), ExtResource("17_wy60y")])
+hp_ratio = 0.33
+message = "NOON SUN!"
+bonuses = SubResource("Resource_lf2b4")
+skills = Array[ExtResource("14_0ptdf")]([ExtResource("18_ugrxa"), ExtResource("16_4phiq"), ExtResource("19_j25dn")])
 windup_multiplier = 0.7
-tint = Color(1, 0.8, 0.45, 1)
+tint = Color(1, 0.55, 0.5, 1)
+cooldown_multiplier = 0.7
+shockwave_after_hits = 5
 
 [sub_resource type="Resource" id="Resource_tkvdj"]
 script = ExtResource("13_lpjk4")
@@ -91,7 +96,7 @@ move_speed = 70.0
 script = ExtResource("18_wbh2q")
 title = "Burning Keeper of the Well"
 portrait = ExtResource("4_j25dn")
-phases = Array[ExtResource("12_348gy")]([SubResource("Resource_2ko4v"), SubResource("Resource_wlya1")])
+phases = Array[ExtResource("12_348gy")]([SubResource("Resource_r3h8l"), SubResource("Resource_cxv8w")])
 stats = SubResource("Resource_tkvdj")
 weapon = ExtResource("20_bidgj")
 skills = Array[ExtResource("14_0ptdf")]([ExtResource("15_6elxn"), ExtResource("16_4phiq")])

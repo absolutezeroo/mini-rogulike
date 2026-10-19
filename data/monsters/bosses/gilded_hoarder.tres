@@ -17,8 +17,11 @@
 [ext_resource type="Resource" path="res://data/skills/boss/hoard_leap.tres" id="15_8p1ec"]
 [ext_resource type="Resource" path="res://data/skills/boss/coin_storm.tres" id="16_0fvni"]
 [ext_resource type="Resource" path="res://data/skills/boss/call_thieves.tres" id="17_8q0k0"]
+[ext_resource type="Resource" path="res://data/skills/boss/hoard_leap_fierce.tres" id="18_brnay"]
 [ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="18_nlcxe"]
+[ext_resource type="Resource" path="res://data/skills/boss/coin_storm_fierce.tres" id="19_0vo0f"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="19_qm0vi"]
+[ext_resource type="Resource" path="res://data/skills/boss/call_thieves_fierce.tres" id="20_0guwt"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/slime_slam.tres" id="20_aco0h"]
 
 [sub_resource type="Resource" id="Resource_6yers"]
@@ -52,18 +55,37 @@ drop_chance = 1.0
 rolls = 3
 entries = Array[ExtResource("5_0vo0f")]([SubResource("Resource_6yers"), SubResource("Resource_q1tv2"), SubResource("Resource_jw4l0"), SubResource("Resource_ev6tn"), SubResource("Resource_s3vu5")])
 
-[sub_resource type="Resource" id="Resource_si1id"]
+[sub_resource type="Resource" id="Resource_jvl3r"]
 script = ExtResource("13_084m3")
-attack = 1
+attack = 2
+move_speed = 20.0
+
+[sub_resource type="Resource" id="Resource_myfj7"]
+script = ExtResource("12_wvbbl")
+hp_ratio = 0.66
+message = "SPILLS ITS HOARD!"
+bonuses = SubResource("Resource_jvl3r")
+skills = Array[ExtResource("14_2oln3")]([ExtResource("15_8p1ec"), ExtResource("16_0fvni"), ExtResource("17_8q0k0")])
+windup_multiplier = 0.85
+tint = Color(1, 0.85, 0.5, 1)
+cooldown_multiplier = 0.85
+shockwave_after_hits = 7
+
+[sub_resource type="Resource" id="Resource_o3spd"]
+script = ExtResource("13_084m3")
+attack = 3
 move_speed = 30.0
 
-[sub_resource type="Resource" id="Resource_8fdg8"]
+[sub_resource type="Resource" id="Resource_u0ub8"]
 script = ExtResource("12_wvbbl")
-message = "SPILLS ITS HOARD!"
-bonuses = SubResource("Resource_si1id")
-skills = Array[ExtResource("14_2oln3")]([ExtResource("15_8p1ec"), ExtResource("16_0fvni"), ExtResource("17_8q0k0")])
-windup_multiplier = 0.8
-tint = Color(1, 0.85, 0.5, 1)
+hp_ratio = 0.33
+message = "GOLD FEVER!"
+bonuses = SubResource("Resource_o3spd")
+skills = Array[ExtResource("14_2oln3")]([ExtResource("18_brnay"), ExtResource("19_0vo0f"), ExtResource("20_0guwt")])
+windup_multiplier = 0.7
+tint = Color(1, 0.55, 0.5, 1)
+cooldown_multiplier = 0.7
+shockwave_after_hits = 5
 
 [sub_resource type="Resource" id="Resource_if5px"]
 script = ExtResource("13_084m3")
@@ -75,7 +97,7 @@ move_speed = 65.0
 script = ExtResource("18_nlcxe")
 title = "Keeper of the Well"
 portrait = ExtResource("4_brnay")
-phases = Array[ExtResource("12_wvbbl")]([SubResource("Resource_8fdg8")])
+phases = Array[ExtResource("12_wvbbl")]([SubResource("Resource_myfj7"), SubResource("Resource_u0ub8")])
 stats = SubResource("Resource_if5px")
 weapon = ExtResource("20_aco0h")
 skills = Array[ExtResource("14_2oln3")]([ExtResource("15_8p1ec"), ExtResource("16_0fvni")])

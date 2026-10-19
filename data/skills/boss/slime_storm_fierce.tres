@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_p2grn"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_oikh1"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/energyball.png" id="3_xcgj3"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_ngsnd"]
+[ext_resource type="AudioStream" path="res://data/audio/slime.tres" id="5_f3bfl"]
+
+[sub_resource type="Resource" id="Resource_lnnba"]
+script = ExtResource("2_oikh1")
+damage_multiplier = 0.5
+flat_damage = 4
+speed = 286.0
+radius = 7.0
+count = 20
+spread_degrees = 360.0
+knockback = 140.0
+color = Color(0.47843137, 0.827451, 1, 1)
+texture = ExtResource("3_xcgj3")
+
+[sub_resource type="Resource" id="Resource_4eyx7"]
+script = ExtResource("2_oikh1")
+damage_multiplier = 0.5
+flat_damage = 4
+speed = 286.0
+radius = 7.0
+count = 20
+spread_degrees = 360.0
+knockback = 140.0
+color = Color(0.47843137, 0.827451, 1, 1)
+texture = ExtResource("3_xcgj3")
+angle_offset = 9.0
+delay = 0.5
+
+[resource]
+script = ExtResource("4_ngsnd")
+id = &"slime_storm_fierce"
+display_name = "Slime Storm"
+color = Color(0.47843137, 0.827451, 1, 1)
+cooldown = 4.0
+effects = Array[ExtResource("1_p2grn")]([SubResource("Resource_lnnba"), SubResource("Resource_4eyx7")])
+sound = ExtResource("5_f3bfl")
+ai_max_range = 420.0
+cast_time = 0.63
