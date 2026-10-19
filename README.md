@@ -264,6 +264,13 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   the stairs (violet while sealed), unopened chests, a running ambush, the boss and, near the
   end of a seal, the last monsters. Tap it for the whole floor.
 
+## Lights
+
+Lanterns, braziers, the hero's torch, glowing shots and flashes share `assets/fx/light.png`: a glow
+in stepped, dithered rings drawn at the art's pixel size (no smooth blur). On floors that are
+already bright, lights are toned down (`FlickerLight.floor_strength`, from the ambient light,
+set by the World), so they warm the place instead of burning it white.
+
 ## Blood Moon
 
 A floor event (`data/floor_events/blood_moon.tres`): frenzied monsters, double gold, and its own

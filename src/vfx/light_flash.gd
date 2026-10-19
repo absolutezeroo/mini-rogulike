@@ -7,7 +7,7 @@ const DURATION := 0.35
 
 func setup(flash_color: Color, size: float) -> void:
 	color = flash_color
-	energy = 1.1
+	energy = 1.1 * FlickerLight.floor_strength
 	texture_scale = size / 128.0
 
 

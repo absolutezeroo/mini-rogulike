@@ -129,6 +129,7 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 	if floor_event:
 		light_color *= floor_event.ambient_tint
 	_ambient.color = Color(light_color, 1.0)
+	FlickerLight.floor_strength = FlickerLight.strength_for(_ambient.color)
 	_view.show_map(map, theme)
 	_pits.setup(map.tile_size)
 	fog.reset(map)
