@@ -1,12 +1,17 @@
 extends Node
 ## Player options (autoload "Settings"): volumes, screen shake, vibrations, size of the touch
-## controls. Saved in user://settings.cfg and applied as soon as they change.
+## controls, fixed or floating joystick, battery saver (30 FPS), fewer effects.
+## Saved in user://settings.cfg and applied as soon as they change.
 
 signal changed
 
 const PATH := "user://settings.cfg"
 const SOUND_BUSES: Array[StringName] = [&"SFX", &"UI", &"Ambience"]
 const MIN_VIBRATION_GAP_MS := 50
+const KEYS: Array[String] = ["music_volume", "sound_volume", "screen_shake", "vibrations", "controls_scale", "fixed_joystick", "battery_saver", "fewer_effects"]
+## Frames per second: normal (0 = no cap), and with the battery saver.
+const FPS := 0
+const SAVER_FPS := 30
 
 ## Empty = nothing is read or written (tests).
 var path := PATH
@@ -18,6 +23,12 @@ var screen_shake := 1.0
 var vibrations := true
 ## Size of the on-screen joystick and buttons.
 var controls_scale := 1.0
+## The joystick stays in its corner (touch it there) instead of appearing under the thumb.
+var fixed_joystick := false
+## 30 frames per second instead of 60: the phone lasts longer and stays cooler.
+var battery_saver := false
+## Half the particles (sparks, chunks, dust): for older phones.
+var fewer_effects := false
 
 var _last_vibration := 0
 
@@ -39,6 +50,7 @@ func apply() -> void:
 	_set_bus_volume(&"Music", music_volume)
 	for bus in SOUND_BUSES:
 		_set_bus_volume(bus, sound_volume)
+	Engine.max_fps = SAVER_FPS if battery_saver else FPS
 
 
 ## A short buzz on phones (0..1). Does nothing on computers or when vibrations are off.
@@ -58,7 +70,7 @@ func save_settings() -> void:
 	if path.is_empty():
 		return
 	var file := ConfigFile.new()
-	for key in ["music_volume", "sound_volume", "screen_shake", "vibrations", "controls_scale"]:
+	for key in KEYS:
 		file.set_value("options", key, get(key))
 	file.save(path)
 
@@ -74,6 +86,9 @@ func load_settings() -> void:
 	screen_shake = float(file.get_value("options", "screen_shake", screen_shake))
 	vibrations = bool(file.get_value("options", "vibrations", vibrations))
 	controls_scale = float(file.get_value("options", "controls_scale", controls_scale))
+	fixed_joystick = bool(file.get_value("options", "fixed_joystick", fixed_joystick))
+	battery_saver = bool(file.get_value("options", "battery_saver", battery_saver))
+	fewer_effects = bool(file.get_value("options", "fewer_effects", fewer_effects))
 
 
 func _set_bus_volume(bus_name: StringName, volume: float) -> void:

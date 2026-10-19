@@ -82,6 +82,7 @@ func _add_debug_button() -> void:
 func _apply_settings() -> void:
 	(%Controls as Control).scale = Vector2.ONE * Settings.controls_scale
 	(%Joystick as TouchJoystick).max_distance = TouchJoystick.BASE_DISTANCE * Settings.controls_scale
+	(%Joystick as TouchJoystick).fixed = Settings.fixed_joystick
 
 
 ## The floor shown on the minimap.

@@ -433,6 +433,17 @@ func _test_comfort(game: Game) -> void:
 	check(is_equal_approx(Settings.music_volume, 0.5) and absf(AudioServer.get_bus_volume_db(AudioServer.get_bus_index(&"Music")) - linear_to_db(0.5)) < 0.01, "the music slider sets the music volume")
 	(options.get_node("%ControlsSlider") as HSlider).value = 1.2
 	check(is_equal_approx((hud.get_node("%Controls") as Control).scale.x, 1.2), "the buttons size option scales the controls")
+	var battery: CheckButton = options.get_node("%BatteryCheck")
+	battery.button_pressed = true
+	check(Settings.battery_saver and Engine.max_fps == Settings.SAVER_FPS, "the battery saver caps the frame rate")
+	battery.button_pressed = false
+	check(Engine.max_fps == Settings.FPS, "and lifts it again")
+	(options.get_node("%FewerEffectsCheck") as CheckButton).button_pressed = true
+	Vfx.burst(world, Vfx.SPARKLES, game.player.global_position)
+	var effects := world.get_node("Effects")
+	var burst := effects.get_child(effects.get_child_count() - 1) as CPUParticles2D
+	check(Settings.fewer_effects and burst.amount == maxi(1, (Vfx.SPARKLES.instantiate() as CPUParticles2D).amount / 2), "fewer effects: half the particles")
+	(options.get_node("%FewerEffectsCheck") as CheckButton).button_pressed = false
 	Settings.vibrate(1.0)  # must not fail on a computer
 	game._back()
 	check(not options.visible and pause.visible, "back closes the options first")

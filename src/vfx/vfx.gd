@@ -16,6 +16,8 @@ const ALERT_EMOTE: Texture2D = preload("res://assets/ui/emotes/emote22.png")
 
 static func burst(world: World, scene: PackedScene, at: Vector2, color: Color = Color.WHITE, direction: Vector2 = Vector2.ZERO, size: float = 1.0) -> void:
 	var particles := scene.instantiate() as CPUParticles2D
+	if Settings.fewer_effects:
+		particles.amount = maxi(1, particles.amount / 2)
 	particles.position = at
 	particles.color = color
 	if direction != Vector2.ZERO:

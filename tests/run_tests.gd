@@ -25,7 +25,13 @@ func _ready() -> void:
 	for suite_name: String in SUITES:
 		if not only.is_empty() and not only.has(suite_name):
 			continue
-		var suite: TestSuite = SUITES[suite_name].new()
+		var script: GDScript = SUITES[suite_name]
+		if not script.can_instantiate():
+			# A suite (or a script it uses) doesn't compile: that is a failure, not 0 checks.
+			TestSuite.failures += 1
+			printerr("FAIL: the %s suite doesn't compile" % suite_name)
+			continue
+		var suite: TestSuite = script.new()
 		add_child(suite)
 		var before := TestSuite.checks
 		await suite.run()

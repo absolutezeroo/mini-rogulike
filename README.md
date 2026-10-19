@@ -256,7 +256,10 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   give up the run (two taps). Coming back to the app, the game waits paused.
 - **Options** (`Settings` autoload, `user://settings.cfg`), on the title screen and in the pause menu:
   music and sound volumes, screen shake, size of the touch controls, **vibrations** (big shakes,
-  hits you land, crits; `Settings.vibrate()`; exported Android builds need the Vibrate permission).
+  hits you land, crits; `Settings.vibrate()`; exported Android builds need the Vibrate permission),
+  **fixed joystick** (it stays in its corner and starts only when touched there, instead of
+  appearing under the thumb), **battery saver** (30 FPS cap, `Engine.max_fps`), **fewer effects**
+  (half the particles in `Vfx.burst`).
 - **Minimap** (`Minimap`): rooms are revealed when you walk in, corridors around you; it shows holes,
   the stairs (violet while sealed), unopened chests, a running ambush, the boss and, near the
   end of a seal, the last monsters. Tap it for the whole floor.

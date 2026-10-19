@@ -1,6 +1,7 @@
 class_name TouchJoystick
 extends Control
-## Floating joystick: touch anywhere in the left part of the screen and drag.
+## Floating joystick: touch anywhere in the left part of the screen and drag. Fixed (an option):
+## it stays in its corner and starts only when touched there.
 ## Feeds the regular move_* input actions, so gameplay code never knows it exists.
 
 ## Fraction of the screen width (from the left) that starts the joystick.
@@ -12,6 +13,8 @@ const BASE_DISTANCE := 80.0
 
 @export var max_distance := BASE_DISTANCE
 @export_range(0.0, 0.9) var dead_zone := 0.15
+## Stays in its corner (Settings.fixed_joystick): touches start it only near there.
+@export var fixed := false
 
 const BASE: Texture2D = preload("res://assets/ui/sphere/backgroundwood.png")
 const KNOB: Texture2D = preload("res://assets/ui/sphere/backgroundmetal.png")
@@ -31,9 +34,9 @@ func _input(event: InputEvent) -> void:
 		var local := (make_input_local(event) as InputEventScreenTouch).position
 		if event.pressed and _finger == -1 and _in_zone(local):
 			_finger = event.index
-			_origin = local
-			_knob = local
-			_apply(Vector2.ZERO)
+			_origin = home() if fixed else local
+			_knob = local if fixed else _origin
+			_apply(((local - _origin).limit_length(max_distance) / max_distance) if fixed else Vector2.ZERO)
 		elif not event.pressed and event.index == _finger:
 			_finger = -1
 			_apply(Vector2.ZERO)
@@ -45,7 +48,14 @@ func _input(event: InputEvent) -> void:
 
 
 func _in_zone(local: Vector2) -> bool:
+	if fixed:
+		return local.distance_to(home()) <= max_distance * 1.6
 	return local.x < size.x * zone_width and local.y > size.y * zone_top
+
+
+## Where it rests (and stays, when fixed).
+func home() -> Vector2:
+	return Vector2(60.0 + max_distance, size.y - 60.0 - max_distance)
 
 
 func _apply(value: Vector2) -> void:
@@ -76,7 +86,7 @@ func _notification(what: int) -> void:
 
 
 func _draw() -> void:
-	var base := _origin if _finger != -1 else Vector2(60.0 + max_distance, size.y - 60.0 - max_distance)
+	var base := _origin if _finger != -1 else home()
 	var knob := _knob if _finger != -1 else base
 	var alpha := 0.85 if _finger != -1 else 0.4
 	var base_size := Vector2.ONE * max_distance * 2.0
