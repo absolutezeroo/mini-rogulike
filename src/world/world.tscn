@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://src/world/world.gd" id="1_world"]
 [ext_resource type="Script" path="res://src/dungeon/dungeon_view.gd" id="2_view"]
 [ext_resource type="Script" path="res://src/world/pit_layer.gd" id="3_pits"]
+[ext_resource type="Script" path="res://src/world/lighting/light_field.gd" id="4_lights"]
 
 [node name="World" type="Node2D"]
 script = ExtResource("1_world")
@@ -25,4 +26,5 @@ y_sort_enabled = true
 
 [node name="Effects" type="Node2D" parent="."]
 
-[node name="Ambient" type="CanvasModulate" parent="."]
+[node name="Lights" type="Node2D" parent="."]
+script = ExtResource("4_lights")

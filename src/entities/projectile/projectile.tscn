@@ -1,15 +1,15 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://src/entities/projectile/projectile.gd" id="1_projectile"]
-[ext_resource type="Texture2D" path="res://assets/fx/light.png" id="2_light"]
+[ext_resource type="Script" path="res://src/vfx/light_source.gd" id="2_light"]
 
 [node name="Projectile" type="Area2D"]
 script = ExtResource("1_projectile")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 
-[node name="Glow" type="PointLight2D" parent="."]
-enabled = false
-energy = 0.7
-texture = ExtResource("2_light")
-texture_scale = 0.7
+[node name="Glow" type="Node2D" parent="."]
+visible = false
+script = ExtResource("2_light")
+relative = true
+moves = true

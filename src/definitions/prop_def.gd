@@ -21,9 +21,9 @@ extends ContentDef
 @export var fuse_time: float = 0.5
 
 @export_group("Light")
-## Light given off (needs the floor's ambient darkness to show). Alpha 0 = no light.
-@export var light_color: Color = Color(1, 1, 1, 0)
-@export var light_radius: float = 180.0
+## Light given off (LightField): level 12 lights its tile 12, the next ones 11... 0 = none.
+@export_range(0, 15) var light_level: int = 0
+@export var light_color: Color = Color(1, 0.85, 0.6)
 ## Flames rising from it (braziers, candles): a looping particle scene, where on the sprite
 ## (from its foot), and how big.
 @export var flame: PackedScene

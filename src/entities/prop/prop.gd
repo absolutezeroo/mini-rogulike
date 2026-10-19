@@ -18,7 +18,7 @@ var _fuse := -1.0
 ## Who broke it: explosions are credited to them (XP for kills).
 var _breaker: Actor
 
-@onready var _light: FlickerLight = $Light
+@onready var _light: LightSource = $Light
 
 
 func setup(prop_def: PropDef) -> void:
@@ -40,11 +40,9 @@ func _ready() -> void:
 		flame.position = Vector2(0, SIZE * Vector2(def.footprint).y * 0.5) + def.flame_offset
 		flame.scale = Vector2.ONE * def.flame_scale
 		add_child(flame)
-	_light.enabled = def.light_color.a > 0.0
-	if _light.enabled:
-		_light.color = Color(def.light_color, 1.0)
-		_light.base_energy = def.light_color.a
-		_light.texture_scale = def.light_radius / 128.0
+	_light.visible = def.light_level > 0
+	_light.color = def.light_color
+	_light.level = def.light_level
 
 
 func take_hit(hit: HitInfo) -> void:

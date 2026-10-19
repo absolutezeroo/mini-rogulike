@@ -90,7 +90,8 @@ var _blocked_note_at := -10.0
 @onready var _entities: Node2D = $Entities
 @onready var _projectiles: Node2D = $Projectiles
 @onready var _effects: Node2D = $Effects
-@onready var _ambient: CanvasModulate = $Ambient
+## The floor's light, in steps (lamps, torch, glowing shots, flashes).
+@onready var lights: LightField = $Lights
 
 
 # --- Floor lifecycle ---------------------------------------------------------
@@ -132,12 +133,11 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 	biome = _pick_biome(content, boss != null)
 	theme = biome.theme if biome else null
 	rules = FloorRules.make(content.dungeon, difficulty, floor_event, depth, curse)
-	var light_color := (theme.ambient if theme else Color.WHITE) * rules.light()
+	var light_tint := rules.light()
 	if floor_event:
-		light_color *= floor_event.ambient_tint
-	_ambient.color = Color(light_color, 1.0)
-	FlickerLight.floor_strength = FlickerLight.strength_for(_ambient.color)
+		light_tint *= floor_event.ambient_tint
 	_view.show_map(map, theme)
+	lights.setup(map, theme.lighting if theme else null, light_tint)
 	_pits.setup(map.tile_size)
 	fog.reset(map)
 	stairs_cells.clear()

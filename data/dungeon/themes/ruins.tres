@@ -7,11 +7,12 @@
 [ext_resource type="Script" path="res://src/definitions/dungeon_theme.gd" id="4_a6tc8"]
 [ext_resource type="Texture2D" path="res://assets/tiles/dungeon.png" id="5_e5cvi"]
 [ext_resource type="Texture2D" path="res://assets/tiles/relief.png" id="6_vc6jx"]
+[ext_resource type="Resource" path="res://data/dungeon/lighting/ruins.tres" id="9_lighting"]
 
 [resource]
 script = ExtResource("4_a6tc8")
 tint = Color(1, 0.92, 0.85, 1)
-ambient = Color(0.46, 0.41, 0.4, 1)
+lighting = ExtResource("9_lighting")
 music = ExtResource("3_i3780")
 ambience = ExtResource("1_5qbir")
 floor_atlas = ExtResource("2_5qbir")

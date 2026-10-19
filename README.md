@@ -18,7 +18,7 @@ keyboard or gamepad.
 assets/              Art, audio, fonts and the UI theme (Ninja Adventure pack)
   characters/          Hero and monster sprite sheets (4 directions, frame by frame), bosses/
   weapons/             Weapon icons + attack/ sheets (the weapon in hand, per direction and frame)
-  fx/                  Sprite-sheet effects: slashes, claws, explosion, smoke, magic, flames, light.png
+  fx/                  Sprite-sheet effects: slashes, claws, explosion, smoke, magic, flames
   props/               Crates, vases, barrels, powder kegs, lanterns, chests, trap pieces, holes, quicksand
   projectiles/         Arrows, fireballs, magic bolts
   items/               Item icons
@@ -146,11 +146,11 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   from `data/audio/sound_bank.tres`. Each sound is an `AudioStreamRandomizer` listing its variations.
   Buses: Master > SFX, UI, Music, Ambience (`default_bus_layout.tres`). Each floor theme has its own music.
 - **Hit stop**: a few frames of freeze on impacts (`HitStop.freeze(seconds)`).
-- **Light**: each floor theme has an `ambient` darkness (a `CanvasModulate`); the hero's flickering torch,
-  room lanterns, the hero's shots and fireballs, explosions and magic circles light it up (2D lights).
+- **Light**: in steps, tile by tile (see [Lights](#lights)): the hero's torch, room lanterns, braziers,
+  campfires, glowing shots and explosions light up each floor's own darkness.
 - **Shaders**: everything stays on the art's pixel grid. The rig shader flashes actors when hit and
-  dissolves monsters pixel by pixel when they die; lights fall off in flat, dithered steps
-  (`assets/fx/light.png`); a full-screen shader (`ScreenFx` in `game.tscn`) adds a dithered vignette,
+  dissolves monsters pixel by pixel when they die; light falls off in flat steps, tile by tile
+  (`LightField`); a full-screen shader (`ScreenFx` in `game.tscn`) adds a dithered vignette,
   a bit of contrast and saturation, and splits the colors by whole pixels when the hero takes a big hit.
 - **Ambience** (`AmbienceDef`, `data/dungeon/ambience/`, set on each floor theme): footsteps that sound
   like the floor (dull in the caves, echoing in the crypt, crunchy in the ruins) and footprints that
@@ -266,10 +266,25 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 
 ## Lights
 
-Lanterns, braziers, the hero's torch, glowing shots and flashes share `assets/fx/light.png`: a glow
-in stepped, dithered rings drawn at the art's pixel size (no smooth blur). On floors that are
-already bright, lights are toned down (`FlickerLight.floor_strength`, from the ambient light,
-set by the World), so they warm the place instead of burning it white.
+Light comes in levels, from 0 (pitch dark) to 15 (full light), like in block games: a lantern of
+level 13 lights its tile 13, the next tiles 12, then 11... (`LightField`, `src/world/lighting/`).
+It spreads around corners but walls stop it; cliff faces catch it, the plateau above stays in the
+floor's own light. Each level is one flat band of color, and the color changes as the light fades
+(warm by the flame, dusky further out, cold in the dark).
+
+- **Lights** are `LightSource` nodes (`color`, `level`): lanterns and furniture (`PropDef.light_level`),
+  campfires and oases (`HeatSourceDef.light_level`), the hero's torch (level 12), glowing shots and
+  flashes (`relative`: counted above the floor's own light, so they show even in daylight).
+- **Each theme** has its `LightingDef` (`data/dungeon/lighting/`): `ambient_level` (the light away
+  from any lamp: 5 in the crypt, 9 in the desert) and `ramp`, the color of each level. Difficulty,
+  curses and events (darkness, the Blood Moon) lower the floor's light and tint it, less and less
+  near the lamps.
+- **How**: lights that stay put are spread once per floor on the CPU, half a tile per cell, all at
+  once, brightest first. Moving ones (up to 24 near the hero) are added every frame by a shader
+  (`light_cells.gdshader`, walls checked along the way) into a small viewport, one pixel per cell,
+  stretched over the floor and multiplied with it: no light ever gets brighter than the art, so
+  bright floors (the desert) never burn white. Sparks, slashes, floating text and the ambient
+  particles are drawn above it (z 4 and up) and shine on their own.
 
 ## Blood Moon
 

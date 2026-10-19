@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="LightingDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/lighting_def.gd" id="1_light"]
+
+[sub_resource type="Gradient" id="Gradient_ramp"]
+offsets = PackedFloat32Array(0.0000, 0.4667, 0.6800, 1.0000)
+colors = PackedColorArray(0.05, 0.09, 0.07, 1, 0.5, 0.53, 0.45, 1, 0.88, 0.86, 0.66, 1, 1, 0.98, 0.88, 1)
+
+[resource]
+script = ExtResource("1_light")
+ambient_level = 7
+ramp = SubResource("Gradient_ramp")
+tint_strength = 0.35

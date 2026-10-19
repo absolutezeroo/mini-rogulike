@@ -7,9 +7,8 @@ extends Resource
 ## and walls that have floor right below them show a cliff face.
 
 @export var tint: Color = Color.WHITE
-## Darkness of the floor: lights (the hero's torch, lanterns, fire) cut through it.
-## White = no darkness.
-@export var ambient: Color = Color(0.6, 0.56, 0.66)
+## How the floor is lit: its own light, and the colors of the light as it fades (LightField).
+@export var lighting: LightingDef
 @export var music: AudioStream
 ## Footsteps, echo, background sounds, particles, fog.
 @export var ambience: AmbienceDef

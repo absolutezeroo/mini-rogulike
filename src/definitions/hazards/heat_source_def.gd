@@ -43,9 +43,9 @@ extends HazardDef
 @export var ground_shader: Shader
 ## Particles over the whole area (snow falling...).
 @export var particles: PackedScene
-## Light given off (alpha = strength, 0 = none).
-@export var light_color: Color = Color(1, 1, 1, 0)
-@export var light_radius: float = 200.0
+## Light given off (LightField): level 12 lights its tile 12, the next ones 11... 0 = none.
+@export_range(0, 15) var light_level: int = 0
+@export var light_color: Color = Color(1, 0.85, 0.6)
 @export var sound: AudioStream
 
 @export_group("Decor")

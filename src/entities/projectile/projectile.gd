@@ -18,6 +18,8 @@ var _done := false
 var _trail: Array[Vector2] = []  # recent global positions, newest last
 
 const TRAIL_LENGTH := 6
+## Light of a glowing shot, above the floor's own (LightSource.relative).
+const GLOW_LEVEL := 3
 
 
 func setup(shooter: Actor, direction: Vector2, spec: ProjectileSpec) -> void:
@@ -48,10 +50,10 @@ func _configure(direction: Vector2, spec: ProjectileSpec) -> void:
 	($CollisionShape2D as CollisionShape2D).shape = shape
 	# Magic shots light up the dark in their color (not a boss's whole ring: too many lights);
 	# plain things (shurikens, arrows) don't shine at all.
-	var glow := $Glow as PointLight2D
-	glow.enabled = spec.glow > 0.0 and (spec.count <= 3 or spec.explosion_radius > 0.0)
+	var glow := $Glow as LightSource
+	glow.visible = spec.glow > 0.0 and (spec.count <= 3 or spec.explosion_radius > 0.0)
 	glow.color = spec.color
-	glow.energy = 0.75 * spec.glow
+	glow.level = maxi(1, roundi(GLOW_LEVEL * spec.glow))
 	if spec.glow > 0.0:
 		var halo := ProjectileHalo.new()
 		halo.color = spec.color

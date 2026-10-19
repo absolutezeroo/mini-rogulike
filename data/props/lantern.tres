@@ -7,8 +7,8 @@
 script = ExtResource("2_w5cbo")
 hits = 0
 debris_color = Color(0.41960785, 0.47843137, 0.43529412, 1)
-light_color = Color(1, 0.72, 0.4, 0.65)
-light_radius = 260.0
+light_level = 13
+light_color = Color(1, 0.72, 0.4, 1)
 id = &"lantern"
 display_name = "Lantern"
 icon = ExtResource("1_iehp0")

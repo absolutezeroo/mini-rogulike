@@ -16,6 +16,7 @@ func run() -> void:
 	_test_bestiary()
 	_test_monster_ranks()
 	_test_arenas()
+	_test_lighting()
 	_test_bosses()
 	_test_profile()
 
@@ -141,7 +142,7 @@ func _test_content() -> void:
 	for act in CONTENT.dungeon.acts:
 		check(not act.lore.is_empty(), "%s has its story line" % act.title)
 		check(act.boss and not act.boss.title.is_empty(), "%s's boss has a title" % act.title)
-	check(CONTENT.dungeon.room_light != null and CONTENT.dungeon.room_light.light_color.a > 0.0, "rooms get lanterns")
+	check(CONTENT.dungeon.room_light != null and CONTENT.dungeon.room_light.light_level > 0, "rooms get lanterns")
 
 
 func _test_generation() -> void:
@@ -417,6 +418,73 @@ func _test_arenas() -> void:
 
 
 ## Monster ranks: rarer is rarer, and only from their depth.
+## The stepped light: one level less per tile, around corners, never through walls.
+func _test_lighting() -> void:
+	# Two rooms with a thick wall between them, joined by a corridor along the bottom.
+	var map := DungeonMap.new(13, 7, 32)
+	for y in range(1, 5):
+		for x in range(1, 5):
+			map.set_floor(Vector2i(x, y))
+			map.set_floor(Vector2i(x + 7, y))
+	for x in range(5, 8):
+		map.set_floor(Vector2i(x, 5))
+	map.set_floor(Vector2i(4, 5))
+	map.set_floor(Vector2i(8, 5))
+	var lighting := LightingDef.new()
+	lighting.ambient_level = 3
+	lighting.ramp = Gradient.new()
+	lighting.ramp.set_color(0, Color.BLACK)
+	lighting.ramp.set_color(1, Color.WHITE)
+	var field := LightField.new()
+	add_child(field)
+	field.setup(map, lighting)
+	var at := func(x: int, y: int) -> int: return field.level_at(map.cell_to_world(Vector2i(x, y)))
+	check(at.call(2, 2) == 3, "no lamp: the floor's own light")
+	var lamp := LightSource.new()
+	lamp.level = 15
+	lamp.position = map.cell_to_world(Vector2i(2, 2))
+	field.add_child(lamp)
+	check(at.call(2, 2) == 15 and at.call(3, 2) == 14 and at.call(4, 2) == 13, "a lamp: 15 on its tile, then 14, 13...")
+	check(at.call(2, 0) == 13, "the cliff face above catches the light")
+	check(at.call(5, 2) == 3 and at.call(6, 2) == 3, "the plateau stays in the floor's own light")
+	var behind: int = at.call(9, 2)
+	check(behind > 3 and behind < 15 - 7, "around the corner, but weaker than straight through (%d)" % behind)
+	check(field.color_at(map.cell_to_world(Vector2i(2, 2))) == lighting.color_of(15), "each level has its color")
+	check(lighting.color_of(12).v > lighting.color_of(11).v, "brighter level, brighter color")
+	lamp.visible = false
+	check(at.call(2, 2) == 3, "a hidden lamp is out")
+	var torch := LightSource.new()
+	torch.moves = true
+	torch.level = 8
+	torch.position = map.cell_to_world(Vector2i(10, 2))
+	field.add_child(torch)
+	check(at.call(10, 2) == 8 and at.call(9, 2) == 7, "a moving light too")
+	check(at.call(2, 2) == 3, "...not through the walls")
+	var flash := LightSource.new()
+	flash.moves = true
+	flash.relative = true
+	flash.level = 4
+	flash.position = map.cell_to_world(Vector2i(3, 4))
+	field.add_child(flash)
+	check(at.call(3, 4) == 7, "a flash counts above the floor's light")
+	field.setup(map, lighting, Color(0.5, 0.5, 0.5))
+	check(field.ambient_level == 2, "a darker floor (darkness, harder difficulty) has less light")
+	field.queue_free()
+	# Every theme: lit, darker as the light fades, never brighter than the art.
+	for act in CONTENT.dungeon.acts:
+		for biome in act.biomes:
+			var theme_light := biome.theme.lighting
+			check(theme_light != null and theme_light.ramp != null, "%s is lit" % biome.id)
+			if theme_light == null:
+				continue
+			var ok := true
+			for level in LightField.MAX_LEVEL:
+				var low := theme_light.color_of(level)
+				var high := theme_light.color_of(level + 1)
+				ok = ok and high.get_luminance() >= low.get_luminance() - 0.001 and high.r <= 1.0 and high.g <= 1.0 and high.b <= 1.0
+			check(ok, "%s: its light dims step by step" % biome.id)
+
+
 func _test_monster_ranks() -> void:
 	var config := CONTENT.dungeon
 	check(config.elite_rank != null and config.rare_ranks.size() >= 3, "elite, epic, legendary and shiny ranks")

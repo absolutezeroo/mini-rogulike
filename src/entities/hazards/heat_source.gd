@@ -61,14 +61,10 @@ func setup(source_def: HeatSourceDef, floor_world: World, cells: Rect2i) -> void
 		particles.z_as_relative = false
 		particles.z_index = 5
 		add_child(particles)
-	if def.light_color.a > 0.0:
-		var light := FlickerLight.new()
-		light.texture = preload("res://assets/fx/light.png")
-		light.color = Color(def.light_color, 1.0)
-		light.base_energy = def.light_color.a
-		light.flicker = 0.18
-		light.texture_scale = def.light_radius / 128.0
-		light.position = Vector2(0, -6)
+	if def.light_level > 0:
+		var light := LightSource.new()
+		light.color = def.light_color
+		light.level = def.light_level
 		add_child(light)
 
 

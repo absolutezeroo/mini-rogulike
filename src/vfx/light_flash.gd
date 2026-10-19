@@ -1,17 +1,29 @@
 class_name LightFlash
-extends PointLight2D
-## A burst of light that fades out (explosions, big impacts).
+extends LightSource
+## A burst of light that fades out step by step (explosions, big impacts).
 
 const DURATION := 0.35
 
+var _peak := 0
+var _time := 0.0
 
+
+func _init() -> void:
+	moves = true
+	relative = true
+
+
+## `size`: how far it reaches, in pixels.
 func setup(flash_color: Color, size: float) -> void:
 	color = flash_color
-	energy = 1.1 * FlickerLight.floor_strength
-	texture_scale = size / 128.0
+	_peak = clampi(roundi(size / 40.0), 1, LightField.MAX_LEVEL)
+	level = _peak
 
 
-func _ready() -> void:
-	var tween := create_tween()
-	tween.tween_property(self, "energy", 0.0, DURATION).set_ease(Tween.EASE_OUT)
-	tween.tween_callback(queue_free)
+func _process(delta: float) -> void:
+	_time += delta
+	var left := 1.0 - _time / DURATION
+	if left <= 0.0:
+		queue_free()
+		return
+	level = ceili(_peak * left)

@@ -6,11 +6,21 @@ extends TestSuite
 
 ## Lights, props, explosive barrels, traps and the death dissolve.
 func _test_world_objects(game: Game, world: World, player: Player) -> void:
-	check((player.get_node("Torch") as PointLight2D).enabled, "the hero carries a torch")
-	check((world.get_node("Ambient") as CanvasModulate).color == world.theme.ambient, "the floor is as dark as its theme")
+	var torch := player.get_node("Torch") as LightSource
+	check(torch.is_lit() and world.lights.level_at(player.global_position) >= torch.level, "the hero carries a torch")
+	check(world.lights.ambient_level == world.theme.lighting.ambient_level, "the floor is as dark as its theme")
 	check(get_tree().get_nodes_in_group("props").size() > 0, "the floor has props")
 	var lanterns := get_tree().get_nodes_in_group("props").filter(func(p: Node) -> bool: return (p as Prop).def == CONTENT.dungeon.room_light)
 	check(lanterns.size() >= world.map.rooms.size(), "every room has lanterns (%d)" % lanterns.size())
+	var lantern := lanterns[0] as Prop
+	check(world.lights.level_at(lantern.global_position) >= lantern.def.light_level, "a lantern lights its tile at its level")
+	var flash_at := world.map.cell_to_world(_open_cell_near(world, player.global_position + Vector2(160, 0), 1))
+	var before := world.lights.level_at(flash_at)
+	world.flash_light(flash_at, Color.WHITE, 400.0)  # 10 levels above the floor's own light
+	await _frames(1)
+	check(world.lights.level_at(flash_at) >= mini(LightField.MAX_LEVEL, world.lights.ambient_level + 9), "a flash lights up the place")
+	await _frames(40)
+	check(world.lights.level_at(flash_at) == before, "...then fades")
 
 	# A crate in front of the hero breaks under the katana.
 	var crate_def: PropDef = load("res://data/props/crate.tres")
@@ -738,7 +748,8 @@ func _test_climate(game: Game) -> void:
 	var screen := get_tree().get_first_node_in_group(&"screen_effects") as ScreenEffects
 	var screen_look := screen.material as ShaderMaterial
 	check(world.floor_event == moon and (screen_look.get_shader_parameter("moon_color") as Color).a > 0.0 and float(screen_look.get_shader_parameter("vignette_pulse")) > 0.0, "the Blood Moon hangs over the floor")
-	check((world.get_node("Ambient") as CanvasModulate).color.g < world.theme.ambient.g, "its light is red")
+	var dim := world.lights.ambient_level
+	check(world.lights.colors[dim].g < world.theme.lighting.color_of(dim).g * 0.9, "its light is red")
 	await game.debug_enter_floor(maxi(start_depth, 4))
 	await _frames(3)
 	check((screen_look.get_shader_parameter("moon_color") as Color).a == 0.0, "gone on the next floor")
