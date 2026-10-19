@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_7pxlr"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_qphyu"]
+[ext_resource type="Texture2D" path="res://assets/items/bomb.png" id="3_26cgk"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_booas"]
+[ext_resource type="AudioStream" path="res://data/audio/bolt.tres" id="5_msjy3"]
+
+[sub_resource type="Resource" id="Resource_sv1xe"]
+script = ExtResource("2_qphyu")
+damage_multiplier = 0.5
+flat_damage = 6
+speed = 210.0
+radius = 7.0
+max_distance = 300.0
+knockback = 220.0
+explosion_radius = 60.0
+color = Color(1, 0.62352943, 0.10980392, 1)
+texture = ExtResource("3_26cgk")
+
+[resource]
+script = ExtResource("4_booas")
+id = &"throw_bomb"
+display_name = "Throw Bomb"
+short_label = ""
+color = Color(1, 0.62352943, 0.10980392, 1)
+cooldown = 3.2
+effects = Array[ExtResource("1_7pxlr")]([SubResource("Resource_sv1xe")])
+sound = ExtResource("5_msjy3")
+ai_min_range = 70.0
+ai_max_range = 290.0
+cast_time = 0.45

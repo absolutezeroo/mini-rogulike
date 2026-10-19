@@ -396,8 +396,10 @@ func _on_fell(pit: PitDef) -> void:
 
 # --- Hooks -------------------------------------------------------------------
 
-func _on_damaged(_hit: HitInfo, damage: int) -> void:
+func _on_damaged(hit: HitInfo, damage: int) -> void:
 	damaged.emit(damage)
+	if hit.source is Monster and is_instance_valid(hit.source):
+		(hit.source as Monster).on_hit_player(self)
 	_invulnerable_time = HIT_INVULNERABILITY
 	HitStop.freeze(0.08)
 	camera.shake(clampf(float(damage) / get_max_hp() * 3.0, 0.25, 0.8))

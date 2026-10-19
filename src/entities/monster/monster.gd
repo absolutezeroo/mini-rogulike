@@ -32,6 +32,13 @@ var _windup_multiplier := 1.0
 var _damage_multiplier := 1.0
 var _phase_tint := Color.WHITE
 var _xp_multiplier := 1
+## Thieves: gold taken from the hero, and seconds left running away with it.
+var stolen_gold := 0
+var _flee_time := 0.0
+## Shielded monsters: where the shield points. Turns slower than the monster looks,
+## so a quick dash gets behind it.
+var guard_direction := Vector2.DOWN
+const GUARD_TURN_SPEED := 2.2
 var _bonus_drops := 0
 ## Fell into a hole: no loot, no burst, nothing comes out.
 var _fell := false
@@ -105,6 +112,40 @@ func get_knockback_resistance() -> float:
 	if elite:
 		resistance = maxf(resistance, ELITE_KNOCKBACK_RESISTANCE)
 	return resistance
+
+
+func can_attack() -> bool:
+	return _flee_time <= 0.0 and super.can_attack()
+
+
+## Thieves grab some gold when they hit the hero, then run.
+func on_hit_player(player: Player) -> void:
+	if def.steals_gold <= 0 or player.gold <= 0:
+		return
+	var amount := mini(def.steals_gold + world.depth, player.gold)
+	player.spend_gold(amount)
+	stolen_gold += amount
+	_flee_time = def.flee_time
+	world.spawn_floating_text(player.head_position(), "-%d gold" % amount, Color("ffd166"))
+	Sfx.play_at(Sfx.bank.coin, global_position, 0.0, 0.7)
+
+
+## Shields block part of what comes from in front.
+func _incoming_damage(hit: HitInfo, damage: int) -> int:
+	if def.front_guard <= 0.0 or hit.is_secondary:
+		return damage
+	var from := Vector2.ZERO
+	if hit.knockback != Vector2.ZERO:
+		from = -hit.knockback.normalized()
+	elif is_instance_valid(hit.source):
+		from = global_position.direction_to(hit.source.global_position)
+	if from == Vector2.ZERO or absf(guard_direction.angle_to(from)) > deg_to_rad(def.guard_arc) * 0.5:
+		return damage
+	hit.knockback *= 0.2
+	Vfx.hit(world, global_position + from * radius, from, Color("d9d3c7"))
+	Sfx.play_at(Sfx.bank.projectile_impact, global_position, -2.0, 1.4)
+	world.spawn_floating_text(head_position() + Vector2(0, -8), "Blocked", Color("d9d3c7"))
+	return maxi(1, roundi(damage * (1.0 - def.front_guard)))
 
 
 ## Went down a hole (rather than being slain).
@@ -189,6 +230,12 @@ func get_attack_windup() -> float:
 func _get_desired_velocity() -> Vector2:
 	_update_heavy_steps()
 	var direction := move_direction
+	if def.front_guard > 0.0:
+		_turn_guard(get_physics_process_delta_time())
+	if _flee_time > 0.0:
+		_flee_time -= get_physics_process_delta_time()
+		if is_instance_valid(target):
+			direction = target.global_position.direction_to(global_position)
 	if direction != Vector2.ZERO and not flies:
 		direction = _avoid_holes(direction)
 	return direction * get_move_speed()
@@ -308,6 +355,9 @@ func _on_died(killer: Actor) -> void:
 
 
 func _drop_gold() -> void:
+	if stolen_gold > 0:
+		# What the thief took, and a bit more for the trouble.
+		world.spawn_gold(global_position, roundi(stolen_gold * 1.5) + 5)
 	var config := world.config()
 	var multiplier := config.boss_gold_multiplier if is_boss() else (config.elite_gold_multiplier if elite else 1.0)
 	if multiplier > 1.0 or world.rng.randf() < config.gold_drop_chance:
@@ -350,6 +400,8 @@ func _death_spawns() -> void:
 func _draw() -> void:
 	if elite and not is_dead and not is_falling:
 		_draw_elite_aura()
+	if def.front_guard > 0.0 and not is_dead and not is_falling:
+		_draw_guard()
 	if telegraph > 0.0 and not is_dead:
 		_draw_telegraph()
 	super._draw()
@@ -420,3 +472,16 @@ func _draw_elite_name() -> void:
 	var at := head_position() - global_position + Vector2(-text_size.x * 0.5, -12.0)
 	draw_string_outline(font, at, display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 4, Color(0, 0, 0, 0.8))
 	draw_string(font, at, display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, elite.color.lightened(0.3))
+
+
+## The shielded side: a silver arc in front.
+func _draw_guard() -> void:
+	var half := deg_to_rad(def.guard_arc) * 0.5
+	var angle := guard_direction.angle()
+	draw_arc(Vector2(0, -radius * 0.3), radius + 7.0, angle - half, angle + half, 12, Color(0.85, 0.85, 0.9, 0.75), 3.0)
+
+
+func _turn_guard(delta: float) -> void:
+	var turn := guard_direction.angle_to(facing)
+	guard_direction = guard_direction.rotated(clampf(turn, -GUARD_TURN_SPEED * delta, GUARD_TURN_SPEED * delta))
+	queue_redraw()

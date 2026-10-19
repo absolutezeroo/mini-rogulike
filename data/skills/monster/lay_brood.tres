@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_ya3lj"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_q1bv2"]
+[ext_resource type="Resource" path="res://data/monsters/spider.tres" id="3_kxdse"]
+[ext_resource type="Script" path="res://src/definitions/effects/summon_effect.gd" id="4_esiao"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_iwpy0"]
+[ext_resource type="AudioStream" path="res://data/audio/spirit.tres" id="6_lw16q"]
+
+[sub_resource type="Resource" id="Resource_d1ed5"]
+script = ExtResource("4_esiao")
+monsters = Array[ExtResource("2_q1bv2")]([ExtResource("3_kxdse")])
+radius = 50.0
+max_alive = 10
+
+[resource]
+script = ExtResource("5_iwpy0")
+id = &"lay_brood"
+display_name = "Lay the Brood"
+short_label = ""
+color = Color(0.9098039, 0.7647059, 0.3529412, 1)
+cooldown = 8.0
+effects = Array[ExtResource("1_ya3lj")]([SubResource("Resource_d1ed5")])
+sound = ExtResource("6_lw16q")
+ai_max_range = 420.0
+cast_time = 0.8

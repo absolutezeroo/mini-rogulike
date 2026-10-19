@@ -1,0 +1,57 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_r2ytb"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/brood_mother.tres" id="2_atfn5"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/spider_yellow.png" id="3_v0ame"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="4_t0wcm"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="5_ghyke"]
+[ext_resource type="Resource" path="res://data/items/consumables/rage_elixir.tres" id="6_kghro"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="7_y3vgr"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_sfgrf"]
+[ext_resource type="Resource" path="res://data/skills/monster/lay_brood.tres" id="9_jtgld"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_lye6r"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/poison_fang.tres" id="11_ny66d"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pb7xm"]
+atlas = ExtResource("3_v0ame")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_320i0"]
+script = ExtResource("4_t0wcm")
+item = ExtResource("5_ghyke")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_qf5ux"]
+script = ExtResource("4_t0wcm")
+item = ExtResource("6_kghro")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_keh47"]
+script = ExtResource("7_y3vgr")
+drop_chance = 0.4
+entries = Array[ExtResource("4_t0wcm")]([SubResource("Resource_320i0"), SubResource("Resource_qf5ux")])
+
+[sub_resource type="Resource" id="Resource_1vcli"]
+script = ExtResource("10_lye6r")
+max_hp = 32
+defense = 1
+move_speed = 65.0
+
+[resource]
+script = ExtResource("1_r2ytb")
+stats = SubResource("Resource_1vcli")
+weapon = ExtResource("11_ny66d")
+skills = Array[ExtResource("8_sfgrf")]([ExtResource("9_jtgld")])
+frames = ExtResource("2_atfn5")
+frames_offset = Vector2(0, -8)
+detect_radius = 300.0
+keep_distance = 130.0
+xp_reward = 14
+loot = SubResource("Resource_keh47")
+id = &"brood_mother"
+display_name = "Brood Mother"
+description = "Stays back and lays spiders. Kill her first."
+icon = SubResource("AtlasTexture_pb7xm")
+glyph = "B"
+color = Color(0.9098039, 0.7647059, 0.3529412, 1)
+spawn_weight = 4

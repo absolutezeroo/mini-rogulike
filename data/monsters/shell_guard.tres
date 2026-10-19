@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_maujp"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/shell_guard.tres" id="2_v0egp"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/mollusc.png" id="3_0fofo"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="4_eajvl"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="5_a02s6"]
+[ext_resource type="Resource" path="res://data/items/armors/leather_armor.tres" id="6_iqec0"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="7_wyntn"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_dy6e3"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="9_o52vt"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/slam.tres" id="10_2d0do"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8dspx"]
+atlas = ExtResource("3_0fofo")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_mf8mg"]
+script = ExtResource("4_eajvl")
+item = ExtResource("5_a02s6")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_4jvbb"]
+script = ExtResource("4_eajvl")
+item = ExtResource("6_iqec0")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_a08u6"]
+script = ExtResource("7_wyntn")
+drop_chance = 0.35
+entries = Array[ExtResource("4_eajvl")]([SubResource("Resource_mf8mg"), SubResource("Resource_4jvbb")])
+
+[sub_resource type="Resource" id="Resource_gjypo"]
+script = ExtResource("9_o52vt")
+max_hp = 34
+defense = 2
+move_speed = 60.0
+
+[resource]
+script = ExtResource("1_maujp")
+stats = SubResource("Resource_gjypo")
+weapon = ExtResource("10_2d0do")
+frames = ExtResource("2_v0egp")
+frames_offset = Vector2(0, -8)
+knockback_resistance = 0.6
+front_guard = 0.8
+guard_arc = 150.0
+attack_windup = 0.45
+xp_reward = 12
+loot = SubResource("Resource_a08u6")
+id = &"shell_guard"
+display_name = "Shell Guard"
+description = "Hides behind its shell: blows from the front barely scratch it. Get behind it."
+icon = SubResource("AtlasTexture_8dspx")
+glyph = "G"
+color = Color(0.7607843, 0.2509804, 0.3529412, 1)
+min_depth = 2
+spawn_weight = 5

@@ -214,7 +214,7 @@ func take_hit(hit: HitInfo) -> void:
 	var attacker := hit.source if is_instance_valid(hit.source) and not hit.is_secondary else null
 	if attacker:
 		attacker.perks.modify_outgoing_hit(attacker, self, hit)
-	var damage := Combat.mitigate(hit.amount, get_stats().defense)
+	var damage := _incoming_damage(hit, Combat.mitigate(hit.amount, get_stats().defense))
 	hp = maxi(hp - damage, 0)
 	_knockback += hit.knockback * (1.0 - get_knockback_resistance())
 	_flash_time = FLASH_TIME
@@ -345,6 +345,11 @@ func _get_desired_velocity() -> Vector2:
 
 func _on_damaged(_hit: HitInfo, _damage: int) -> void:
 	pass
+
+
+## Last say on the damage of a hit, after armor (a shield blocking it...).
+func _incoming_damage(_hit: HitInfo, damage: int) -> int:
+	return damage
 
 
 func _on_died(_killer: Actor) -> void:

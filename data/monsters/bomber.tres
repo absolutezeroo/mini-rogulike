@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_ysopy"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/bomber.tres" id="2_e7j32"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/ninja_bomb.png" id="3_3iugt"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="4_nd42f"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="5_4cgs5"]
+[ext_resource type="Resource" path="res://data/items/consumables/bomb.tres" id="6_ex3of"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="7_mkfua"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_21ru8"]
+[ext_resource type="Resource" path="res://data/skills/monster/throw_bomb.tres" id="9_qwjko"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_e548m"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/rusty_blade.tres" id="11_jonx4"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k13vd"]
+atlas = ExtResource("3_3iugt")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_qx50m"]
+script = ExtResource("4_nd42f")
+item = ExtResource("5_4cgs5")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_j66sr"]
+script = ExtResource("4_nd42f")
+item = ExtResource("6_ex3of")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_rwnyo"]
+script = ExtResource("4_nd42f")
+item = ExtResource("6_ex3of")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_scpfj"]
+script = ExtResource("7_mkfua")
+drop_chance = 0.4
+entries = Array[ExtResource("4_nd42f")]([SubResource("Resource_qx50m"), SubResource("Resource_j66sr"), SubResource("Resource_rwnyo")])
+
+[sub_resource type="Resource" id="Resource_8erx7"]
+script = ExtResource("10_e548m")
+max_hp = 24
+defense = 1
+move_speed = 90.0
+
+[resource]
+script = ExtResource("1_ysopy")
+stats = SubResource("Resource_8erx7")
+weapon = ExtResource("11_jonx4")
+skills = Array[ExtResource("8_21ru8")]([ExtResource("9_qwjko")])
+radius = 10.0
+frames = ExtResource("2_e7j32")
+frames_offset = Vector2(0, -8)
+detect_radius = 320.0
+keep_distance = 150.0
+xp_reward = 13
+loot = SubResource("Resource_scpfj")
+id = &"bomber"
+display_name = "Bomber"
+description = "Lobs bombs from afar. Dodge the blast, then close in."
+icon = SubResource("AtlasTexture_k13vd")
+glyph = "X"
+color = Color(1, 0.62352943, 0.10980392, 1)
+spawn_weight = 5

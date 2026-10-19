@@ -312,14 +312,25 @@ you can then keep going in endless mode (the acts loop, monsters keep getting st
 
 | Act | Floors | Monsters | Boss |
 |---|---|---|---|
-| I. Mossy Caves | 1-3 | Cave Mouse, Blue Bat, Slime, Red Spider, Spore Cap, Viper, Acid Larva, Burrower, Giant Slime | King Slime |
-| II. Haunted Crypt | 4-6 | Skeleton, Dark Sorcerer, Spirit, Flying Skull, Watcher, Ghost Lantern, Night Owl, Frost Skull | Demon Cyclops |
-| III. Burning Ruins | 7-9 | Fire Shaman, Cyclops, Flame Spirit, Lizardman, Horned Beast, Drakeling, Kappa, Ink Octopus | Crimson Tengu |
+| I. Mossy Caves | 1-3 | Cave Mouse, Blue Bat, Slime, Red Spider, Spore Cap, Viper, Acid Larva, Burrower, Giant Slime, Shell Guard, Thief Racoon | King Slime |
+| II. Haunted Crypt | 4-6 | Skeleton, Dark Sorcerer, Spirit, Flying Skull, Watcher, Ghost Lantern, Night Owl, Frost Skull, Thief Racoon, Brood Mother | Demon Cyclops |
+| III. Burning Ruins | 7-9 | Fire Shaman, Cyclops, Flame Spirit, Lizardman, Horned Beast, Drakeling, Kappa, Ink Octopus, Bomber, Brood Mother, Shell Guard | Crimson Tengu |
 
 Monsters are data (`MonsterDef`): stats, a weapon (its `on_hit` status poisons, burns or slows),
 skills (telegraphed casts: spore clouds, dives, charges, ink rings...), and what happens when they
 die: a **death burst** (a flame spirit explodes, a frost skull freezes everything around, after a
 short warning) or **death spawns** (a giant slime splits in two).
+
+Some fight differently:
+- **Shell Guard**: its shell (`MonsterDef.front_guard`, `guard_arc`, the silver arc in front of it)
+  blocks most of the damage and push of blows from the front. It turns slowly: roll behind it.
+  Burns, poison and blasts go around the shell.
+- **Thief Racoon** (`steals_gold`, `flee_time`): each hit takes some of your gold, then it runs
+  away. Slay it to get the gold back, with interest.
+- **Brood Mother**: keeps her distance and lays red spiders (a `SummonEffect` skill). Kill her first.
+- **Bomber**: keeps away and lobs bombs that blow up where they land (a projectile skill with an
+  `explosion_radius`).
+- The **Fire Shaman** heals the monsters around it.
 
 ## Difficulty
 

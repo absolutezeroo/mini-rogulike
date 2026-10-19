@@ -20,6 +20,15 @@ extends ContentDef
 ## How much of the knockback it ignores: 0 = pushed around freely, 1 = never moves.
 ## Bosses stand their ground, so no weapon can keep them away from you.
 @export_range(0.0, 1.0, 0.05) var knockback_resistance: float = 0.0
+## Shield: part of the damage blocked from hits coming from in front (within guard_arc).
+## Get behind it, or use what doesn't come from a direction (burns, explosions).
+@export_range(0.0, 1.0, 0.05) var front_guard: float = 0.0
+@export_range(30.0, 360.0) var guard_arc: float = 140.0
+
+@export_group("Thief")
+## Gold taken from the hero on each hit; then it runs away. Slay it to get it back (and more).
+@export var steals_gold: int = 0
+@export var flee_time: float = 3.0
 
 @export_group("Behaviour")
 ## Distance at which the monster notices the player (needs line of sight).

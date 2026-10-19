@@ -668,6 +668,7 @@ func _test_gameplay() -> void:
 	await _test_encounters(game)
 	await _test_variety(game)
 	await _test_belt_and_balance(game)
+	await _test_monster_behaviours(game)
 
 	await _test_boss_fight(game)
 
@@ -1218,6 +1219,11 @@ func _test_hazards(game: Node, world: World, player: Player) -> void:
 	check(placed != null and not world.map.is_floor(placed.launcher_cell) and placed.launcher_direction != Vector2.ZERO, "an arrow trap's slit is in a wall")
 	if placed:
 		placed.queue_free()
+	# Nobody else around to step into the line of fire.
+	for other in world.get_hostiles(Actor.Faction.PLAYER):
+		if is_instance_valid(other):
+			other.queue_free()
+	await _frames(1)
 	var plate_cell := _open_cell_near(world, player.global_position, 3)
 	var arrow_trap := world.spawn_trap(arrows, plate_cell)
 	arrow_trap.set_launcher(plate_cell + Vector2i.UP * 3, Vector2.DOWN)
@@ -1323,7 +1329,7 @@ func _test_hazards(game: Node, world: World, player: Player) -> void:
 		check(ambush.state == AmbushRoom.State.CLEARED and not ambush.is_closed(), "clearing the waves opens the exits")
 		check(elites_seen[0] >= 1, "the last wave is led by an elite")
 		var reward := get_tree().get_nodes_in_group("chests").filter(func(c: Node) -> bool: return world.map.world_to_cell(c.global_position) == room.get_center())
-		check(reward.size() == 1 and (reward[0] as Chest).def == CONTENT.dungeon.ambush_chest, "a big chest rewards the survivor")
+		check(reward.size() == 1 and (reward[0] as Chest).def == CONTENT.dungeon.ambush_chest, "a big chest rewards the survivor (%d there, %d chests)" % [reward.size(), get_tree().get_nodes_in_group("chests").size()])
 		Events.ambush_started.disconnect(on_start)
 		Events.monster_killed.disconnect(on_kill)
 
@@ -1556,6 +1562,84 @@ func _test_belt_and_balance(game: Node) -> void:
 	await _frames(2)
 
 
+## Shields, thieves, summoners and bombers.
+func _test_monster_behaviours(game: Node) -> void:
+	var player: Player = game.player
+	var world: World = game.world
+	var acts: Array = []
+	for act in CONTENT.dungeon.acts:
+		for m: MonsterDef in act.monsters:
+			acts.append(m.id)
+	for id in [&"shell_guard", &"thief_racoon", &"brood_mother", &"bomber"]:
+		check(acts.has(id), "%s roams the Well" % id)
+
+	# Shell Guard: hits from the front are mostly blocked, hits in the back land in full.
+	var shell := world.spawn_monster(load("res://data/monsters/shell_guard.tres"), world.map.cell_to_world(_open_cell_near(world, player.global_position, 2)))
+	shell.dormant = true
+	await _frames(2)
+	var lost := []
+	for push: Vector2 in [Vector2.LEFT, Vector2.RIGHT]:
+		shell.facing = Vector2.RIGHT
+		shell.guard_direction = Vector2.RIGHT
+		shell._invulnerable_time = 0.0
+		shell.hp = shell.get_max_hp()
+		var hit := HitInfo.new()
+		hit.amount = 20
+		hit.knockback = push * 100.0  # pushed left = struck from the right, where the shell is
+		shell.take_hit(hit)
+		lost.append(shell.get_max_hp() - shell.hp)
+	check(lost[0] * 3 < lost[1], "the shell blocks blows from the front (%d vs %d from behind)" % lost)
+	var burn := Combat.make_secondary_hit(null, 10)
+	shell.hp = shell.get_max_hp()
+	shell.take_hit(burn)
+	check(shell.get_max_hp() - shell.hp == 10 - shell.get_stats().defense, "burns and blasts go around the shell")
+	shell.queue_free()
+
+	# Thief: grabs gold, runs, gives it back with interest when slain.
+	var thief := world.spawn_monster(load("res://data/monsters/thief_racoon.tres"), world.map.cell_to_world(_open_cell_near(world, player.global_position, 2)))
+	await _frames(2)
+	player.gold = 60
+	player.hp = player.get_max_hp()
+	player._invulnerable_time = 0.0
+	player.take_hit(Combat.make_hit(1, 0.0, thief))
+	check(player.gold < 60 and thief.stolen_gold == 60 - player.gold, "the thief steals gold (%d)" % thief.stolen_gold)
+	check(not thief.can_attack(), "and runs instead of fighting")
+	var stolen := thief.stolen_gold
+	thief.die(player)
+	await _frames(3)
+	var dropped := 0
+	for node in world.get_node("Entities").get_children():
+		if node is GoldPickup:
+			dropped += (node as GoldPickup).amount
+	check(dropped + player.gold - (60 - stolen) > stolen, "slaying it gives the gold back, and more (%d)" % dropped)
+
+	# Brood Mother lays spiders.
+	var mother := world.spawn_monster(load("res://data/monsters/brood_mother.tres"), world.map.cell_to_world(_open_cell_near(world, player.global_position, 2)))
+	mother.dormant = true
+	await _frames(2)
+	var before := _count_monsters(world, &"spider")
+	mother.skills.try_use(0, mother, Vector2.RIGHT)
+	await _frames(2)
+	check(_count_monsters(world, &"spider") == before + 2, "the Brood Mother lays spiders")
+	for m in world.get_hostiles(Actor.Faction.PLAYER):
+		if m is Monster and (m.def.id == &"spider" or m == mother):
+			m.queue_free()
+
+	# Bomber: lobbed bombs blow up.
+	var bomber: MonsterDef = load("res://data/monsters/bomber.tres")
+	var throw := bomber.skills[0].effects[0] as ProjectileEffect
+	check(throw != null and throw.explosion_radius > 0.0 and bomber.keep_distance > 0.0, "the Bomber keeps away and throws bombs that explode")
+	await _frames(2)
+
+
+func _count_monsters(world: World, id: StringName) -> int:
+	var count := 0
+	for m in world.get_hostiles(Actor.Faction.PLAYER):
+		if m is Monster and is_instance_valid(m) and (m as Monster).def.id == id:
+			count += 1
+	return count
+
+
 ## Special floors, one boss per act drawn for the run, and the new bosses fighting.
 func _test_variety(game: Node) -> void:
 	var world: World = game.world
@@ -1692,6 +1776,11 @@ func _test_weapon_kits(game: Node) -> void:
 	var world: World = game.world
 	player.xp = -1000000
 	var weapon_before := player.get_weapon()
+	# Alone with the target: a wandering monster stepping in the way would take the hits.
+	for other in world.get_hostiles(Actor.Faction.PLAYER):
+		if is_instance_valid(other):
+			other.queue_free()
+	await _frames(1)
 	var target := world.spawn_monster(load("res://data/monsters/slime.tres"), world.map.cell_to_world(_open_cell_near(world, player.global_position, 2)))
 	target.dormant = true
 	target.base_stats.max_hp = 100000
