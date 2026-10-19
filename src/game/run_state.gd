@@ -20,6 +20,10 @@ var run_gold := 0
 var history_recorded := false
 ## The boss of the last cleared boss floor (its relic, in endless mode). Not saved.
 var last_boss: BossDef
+## Perk choices: rerolls (three new cards) and banishes left, and the perks banished for the run.
+var rerolls := 0
+var banishes := 0
+var banished: Array[PerkDef] = []
 
 
 ## A new run, or the saved one (`saved` from RunSave; empty for a new run).
@@ -35,6 +39,16 @@ static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGener
 	run.souls_awarded = int(saved.get("souls_awarded", 0))
 	run.run_gold = int(saved.get("run_gold", 0))
 	run.history_recorded = bool(saved.get("history_recorded", false))
+	if saved.has("rerolls"):
+		run.rerolls = int(saved.rerolls)
+		run.banishes = int(saved.get("banishes", 0))
+		for reference: Variant in saved.get("banished", []):
+			var perk := RunSave.load_ref(reference) as PerkDef
+			if perk:
+				run.banished.append(perk)
+	else:
+		run.rerolls = content.dungeon.base_rerolls + ShrineUpgrades.extra_charges(content, UpgradeDef.Kind.REROLLS)
+		run.banishes = content.dungeon.base_banishes + ShrineUpgrades.extra_charges(content, UpgradeDef.Kind.BANISHES)
 	if saved.has("bosses"):
 		for reference: Variant in saved.bosses:
 			run.bosses.append(RunSave.load_ref(reference) as BossDef)
@@ -83,6 +97,9 @@ func to_data() -> Dictionary:
 		"run_gold": run_gold,
 		"history_recorded": history_recorded,
 		"bosses": RunSave.refs(bosses),
+		"rerolls": rerolls,
+		"banishes": banishes,
+		"banished": RunSave.refs(banished),
 		"difficulty": String(difficulty.id),
 		"ascension": difficulty.ascension,
 	}

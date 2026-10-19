@@ -17,13 +17,12 @@ func _test_world_objects(game: Game, world: World, player: Player) -> void:
 	var spot := world.map.world_to_cell(world.find_open_point_near(player.global_position, 40.0))
 	var crate := world.spawn_prop(crate_def, spot)
 	await _frames(1)
-	# The nearest free cell may be a step away: walk up to it (from the side the hero came).
-	if player.global_position.distance_to(crate.global_position) > 36.0:
-		player.global_position = crate.global_position + crate.global_position.direction_to(player.global_position) * 34.0
-	# A swing may whiff now and then (still in the last one's motion): a couple to spare.
-	for i in crate_def.hits + 2:
+	# The nearest free cell may be a step away: stand right by it (from the side the hero came).
+	var side := crate.global_position.direction_to(player.global_position)
+	for i in crate_def.hits:
 		if not is_instance_valid(crate) or crate.is_broken:
 			break
+		player.global_position = crate.global_position + side * 34.0
 		player._attack_cooldown = 0.0
 		player.attack(player.global_position.direction_to(crate.global_position))
 		await _frames(4)
@@ -871,6 +870,7 @@ func _test_loot_and_gold(game: Game) -> void:
 	# The merchant: buying, selling, the shop opening when walking up.
 	var cell := _open_cell_near(world, player.global_position, 2)
 	var merchant := world.spawn_merchant(CONTENT.dungeon.merchant, cell)
+	world.kept_stock.clear()
 	check(merchant.stock.size() >= CONTENT.dungeon.merchant.equipment_count, "the merchant has stock")
 	player.gold = 0
 	check(not merchant.sell_to(player, 0), "no gold, no deal")
@@ -887,10 +887,35 @@ func _test_loot_and_gold(game: Game) -> void:
 	await _frames(3)
 	check(game.shop_panel.visible and get_tree().paused, "walking up to the merchant opens the shop")
 	check(game.shop_panel.get_node("%ForSale").get_child_count() == merchant.stock.size(), "the shop lists the stock")
+
+	# Lock one, reroll the rest (dearer each time); the locked one stays.
+	var row: Control = game.shop_panel.get_node("%ForSale").get_child(0)
+	(row.get_child(row.get_child_count() - 1) as Button).pressed.emit()
+	check(merchant.stock[0].locked, "the lock button locks an entry")
+	var kept: ItemDef = merchant.stock[0].item
+	var kept_price: int = merchant.stock[0].price
+	var reroll_price := merchant.reroll_price()
+	var gold_before_reroll := player.gold
+	var unlocked_before := merchant.stock.slice(1).map(func(e: Dictionary) -> ItemDef: return e.item)
+	(game.shop_panel.get_node("%RerollButton") as Button).pressed.emit()
+	check(player.gold == gold_before_reroll - reroll_price, "a reroll costs its price (%d)" % reroll_price)
+	check(merchant.stock[0].item == kept and merchant.stock.size() > 1, "the locked entry stays, the rest is new")
+	check(not merchant.stock.slice(1).all(func(e: Dictionary) -> bool: return unlocked_before.has(e.item)), "new stock after a reroll")
+	check(merchant.reroll_price() > reroll_price, "each reroll costs more")
 	game._back()
 	await _frames(1)
 	check(not game.shop_panel.visible and not get_tree().paused, "leaving the shop resumes the game")
-	merchant.queue_free()  # (would open its shop again during the next tests)
+	game._save_run()
+	check((RunSave.read().get("kept_stock", []) as Array).size() == 1, "a saved run keeps the locked entry")
+
+	# The locked entry waits at the next merchant, same price.
+	await game.debug_enter_floor(game.depth)
+	world = game.world
+	check(world.kept_stock.size() == 1 and world.kept_stock[0].item == kept, "leaving the floor carries the locked entry")
+	var next := world.spawn_merchant(CONTENT.dungeon.merchant, _open_cell_near(world, game.player.global_position, 4))
+	check(next.stock[0].item == kept and next.stock[0].price == kept_price and next.stock[0].locked, "the next merchant sells it at the same price")
+	check(world.kept_stock.is_empty(), "handed over once")
+	next.queue_free()
 	player.inventory.items.resize(bag_before)
 	player.xp = 0
 	await _frames(5)

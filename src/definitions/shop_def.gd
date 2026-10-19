@@ -22,12 +22,21 @@ extends Resource
 @export var price_per_depth: float = 0.08
 ## Part of the price paid back when selling.
 @export_range(0.0, 1.0) var sell_ratio: float = 0.35
+## Rerolling the stock (what isn't locked): this much the first time at a merchant, `growth`
+## more each next time (back to the start at the next merchant). Grows with depth like prices.
+@export var reroll_cost: int = 10
+@export var reroll_cost_growth: int = 8
 
 
 ## `extra`: the difficulty's price multiplier.
 func buy_price(item: ItemDef, depth: int, extra: float = 1.0) -> int:
 	var rarity := (item as EquipmentDef).rarity if item is EquipmentDef else ItemRarity.COMMON
 	return maxi(1, roundi(item.value * ItemRarity.VALUE[rarity] * price_multiplier * extra * (1.0 + price_per_depth * (depth - 1))))
+
+
+## Gold for the next reroll of a stock, after `done` rerolls at this merchant.
+func reroll_price(done: int, depth: int, extra: float = 1.0) -> int:
+	return maxi(1, roundi((reroll_cost + reroll_cost_growth * done) * extra * (1.0 + price_per_depth * (depth - 1))))
 
 
 ## What the merchant pays (never touched by the difficulty).

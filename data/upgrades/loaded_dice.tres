@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="UpgradeDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/icons/reroll.png" id="1_by0pu"]
+[ext_resource type="Script" path="res://src/definitions/items/item_def.gd" id="2_fc0ar"]
+[ext_resource type="Script" path="res://src/definitions/upgrade_def.gd" id="3_pm2lq"]
+
+[resource]
+script = ExtResource("3_pm2lq")
+id = &"loaded_dice"
+display_name = "Loaded Dice"
+description = "One more reroll of the perk cards every run."
+icon = ExtResource("1_by0pu")
+color = Color(1, 0.81960785, 0.4, 1)
+kind = 4
+max_level = 3
+cost = 60
+cost_growth = 60

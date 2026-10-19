@@ -103,15 +103,23 @@ func all_hazards() -> Array[HazardDef]:
 
 ## Up to `count` different perks of `rarity` that `owned` can still take.
 ## Tops up with perks of the other rarity when there are not enough.
-func pick_perks(owned: PerkSet, count: int, rarity: PerkDef.Rarity, rng: RandomNumberGenerator) -> Array[PerkDef]:
+## Never `left_out` ones (banished for the run, the cards on the table being rerolled...).
+## `family_bias`: perks of a family `owned` has started but not woken weigh (1 + bias) times
+## more per such family, so families come together.
+func pick_perks(owned: PerkSet, count: int, rarity: PerkDef.Rarity, rng: RandomNumberGenerator, left_out: Array[PerkDef] = [], family_bias: float = 0.0) -> Array[PerkDef]:
 	var result: Array[PerkDef] = []
+	var started: Array[SynergyDef] = []
+	for synergy in owned.families():
+		if not owned.is_awake(synergy):
+			started.append(synergy)
 	for wanted_rarity in [rarity, PerkDef.Rarity.COMMON if rarity == PerkDef.Rarity.RARE else PerkDef.Rarity.RARE]:
 		var candidates: Array = []
 		var weights := PackedInt32Array()
 		for perk in perks:
-			if perk and perk.rarity == wanted_rarity and owned.can_take(perk) and not result.has(perk):
+			if perk and perk.rarity == wanted_rarity and owned.can_take(perk) and not result.has(perk) and not left_out.has(perk):
+				var shared := perk.synergies.filter(func(s: SynergyDef) -> bool: return started.has(s)).size()
 				candidates.append(perk)
-				weights.append(perk.weight)
+				weights.append(roundi(perk.weight * 10.0 * (1.0 + family_bias * shared)))
 		while result.size() < count and not candidates.is_empty():
 			var picked: PerkDef = RandomUtils.pick_weighted(candidates, weights, rng)
 			if picked == null:

@@ -1,16 +1,20 @@
 class_name Merchant
 extends StaticBody2D
 ## The wandering merchant (ShopDef). Walk up to them to open the shop. Their stock is rolled
-## when the floor is made; what you sell joins it.
+## when the floor is made; what you sell joins it. Rerolling the stock costs gold (more each
+## time); a locked entry stays through rerolls, and if it isn't bought it waits at the next
+## merchant at the same price (World.kept_stock).
 
 const SIZE := 32.0
 ## The shop opens from this close, and opens again only after walking this far away.
 const OPEN_DISTANCE := 46.0
 const REARM_DISTANCE := 90.0
 
-## One entry per item for sale: { item, price }.
+## One entry per item for sale: { item, price, locked }.
 var stock: Array[Dictionary] = []
 var def: ShopDef
+## Rerolls paid at this merchant (the price grows with each).
+var rerolls_done := 0
 
 var _world: World
 var _armed := true
@@ -33,6 +37,15 @@ func setup(shop: ShopDef, world: World) -> void:
 
 
 func _roll_stock() -> void:
+	# What the hero locked at an earlier merchant waits here, same price.
+	for kept in _world.kept_stock:
+		stock.append(kept.duplicate())
+	_world.kept_stock.clear()
+	_roll_new()
+
+
+## Fresh stock next to what is locked.
+func _roll_new() -> void:
 	var picked: Array[ItemDef] = []
 	for i in 30:
 		if picked.size() >= def.equipment_count:
@@ -59,7 +72,42 @@ func _roll_stock() -> void:
 
 
 func _add(item: ItemDef) -> void:
-	stock.append({ "item": item, "price": def.buy_price(item, _world.depth, _world.rules.shop_prices()) })
+	stock.append({ "item": item, "price": def.buy_price(item, _world.depth, _world.rules.shop_prices()), "locked": false })
+
+
+func world_of() -> World:
+	return _world
+
+
+func reroll_price() -> int:
+	return def.reroll_price(rerolls_done, _world.depth, _world.rules.shop_prices())
+
+
+## Pays for a new stock: everything not locked is replaced. False without the gold.
+func reroll(player: Player) -> bool:
+	if not player.spend_gold(reroll_price()):
+		return false
+	rerolls_done += 1
+	stock = stock.filter(func(entry: Dictionary) -> bool: return entry.get("locked", false))
+	_roll_new()
+	Sfx.play_ui(Sfx.bank.coin)
+	return true
+
+
+## Locks (or unlocks) stock entry `index`: kept through rerolls and carried to the next merchant.
+func toggle_lock(index: int) -> void:
+	if index >= 0 and index < stock.size():
+		stock[index].locked = not stock[index].get("locked", false)
+		Sfx.play_ui(Sfx.bank.ui_click)
+
+
+## The locked entries not bought (they move on with the hero).
+func locked_entries() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for entry in stock:
+		if entry.get("locked", false):
+			result.append(entry)
+	return result
 
 
 ## Buys stock entry `index` for `player`. Returns false if they can't (gold, full bag).

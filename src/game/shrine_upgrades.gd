@@ -11,6 +11,15 @@ static func unlocked_items(content: ContentDB) -> Array[ItemDef]:
 	return items
 
 
+## Rerolls (`kind` REROLLS) or banishes (BANISHES) the shrine adds to every run.
+static func extra_charges(content: ContentDB, kind: UpgradeDef.Kind) -> int:
+	var total := 0
+	for upgrade in content.upgrades:
+		if upgrade.kind == kind:
+			total += Profile.level_of(upgrade)
+	return total
+
+
 ## A new hero: stats, starting items and perks from the shrine, then the difficulty's max HP.
 static func apply_to(player: Player, content: ContentDB, difficulty: DifficultyDef) -> void:
 	for upgrade in content.upgrades:

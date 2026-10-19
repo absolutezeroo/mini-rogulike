@@ -81,8 +81,11 @@ func _test_boss_fight(game: Game) -> void:
 		boss.take_hit(poke)
 	check(boss._shockwave_cooldown > 0.0, "too many hits in a row: it answers with a shockwave")
 	var stood := player.global_position
+	var boss_at := boss.global_position
 	for frame in 50:
 		player._invulnerable_time = 0.0  # its claws may have just hit the hero
+		if frame < 30:
+			boss.global_position = boss_at  # not walking off (or dashing) before the blast
 		await _frames(1)
 	check(player.global_position.distance_to(stood) > 80.0 and player.global_position.distance_to(boss.global_position) > close, "the shockwave throws the hero off (%d px)" % roundi(player.global_position.distance_to(stood)))
 

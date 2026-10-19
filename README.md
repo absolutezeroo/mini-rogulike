@@ -310,6 +310,9 @@ consumables between the two ("To belt" / "To bag"). The merchant buys from the b
 - **The merchant** (`data/shop/merchant.tres`, `Merchant`, `ShopPanel`) waits in a quiet room on
   some floors: walk up to him to buy equipment (better than average), potions and sometimes a
   tome, or to sell what you carry. Every item has a `value`; the price grows with rarity and depth.
+  **Reroll** buys a new stock (`ShopDef.reroll_cost`, +`reroll_cost_growth` each time at the same
+  merchant). **Lock** keeps an entry through rerolls; if you don't buy it, it waits at the next
+  merchant at the same price (`World.kept_stock`, kept in saved runs).
 
 ## Special floors and bosses
 
@@ -434,6 +437,15 @@ perks** of a family wakes its bonus for the rest of the run: a change in how you
 | **Storm** | Precision, Thunderclap, Shock Roll, Swiftness, Multishot | every 4th hit, lightning jumps to 3 enemies |
 | **Arcane** | Arcane Focus, Arcane Power, Devotion, Echo, Sage's Codex, Multishot | every skill also fires a ring of 8 bolts |
 
+### Choosing: reroll, banish, families first
+
+Under the cards, **Reroll** deals three other cards and **Banish** (then tap a card) removes that
+perk for the rest of the run, another card taking its place. A run starts with
+`base_rerolls` / `base_banishes` (1 each, `DungeonConfig` > Perk choices), plus the shrine's Loaded
+Dice and Exile; every boss slain gives `rerolls_per_boss` more. Offers lean toward the families you
+have started: a perk weighs `1 + family_bias` times more for each started, not yet awake family
+it belongs to (`ContentDB.pick_perks`).
+
 The perk cards show each family's count ("Frost 1/3") and shine "Wakes Inferno!" on the card that
 would complete one. An awake family gets a banner and a framed icon at the head of the HUD's perk row.
 
@@ -517,6 +529,7 @@ victory. At the **shrine** they buy permanent upgrades (`data/upgrades/`, `Upgra
 |---|---|
 | Stats | Vitality (+HP), Might (+ATK), Toughness (+DEF), Swiftness (+SPD), Arcane Talent (+skill power) |
 | Starting items / perk | Provisions (extra potions), Second Chance (start with a Phoenix Feather) |
+| Perk choices | Loaded Dice (+1 reroll per run, per level), Exile (+1 banish per run, per level) |
 | Unlocks | Paladin's Oath (Templar Sword), Pyromancy (Ember Tome), Forbidden Library (Thunder and Wind tomes), Master Smith (Plate Armor, Shadow Cloak) |
 
 Locked items (`content_db.tres` > Locked Items) never appear on the floor until unlocked.

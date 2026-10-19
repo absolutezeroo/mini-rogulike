@@ -58,6 +58,9 @@ var forced_biome: BiomeDef
 var run_bosses: Array[BossDef] = []
 ## The floor's ambush room, if it has one.
 var ambush: AmbushRoom
+## Merchant stock the hero locked and didn't buy: { item, price, locked } entries waiting for the
+## next merchant (see Merchant). Lives as long as the run.
+var kept_stock: Array[Dictionary] = []
 ## Where the stairs are (boss floors get theirs when the boss dies).
 var stairs_cells: Array[Vector2i] = []
 ## Normal floors: the stairs open once enough of the floor's monsters are slain.
@@ -149,6 +152,10 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 
 ## Removes everything from the floor except the player.
 func clear_floor() -> void:
+	for merchant: Merchant in get_tree().get_nodes_in_group("merchants"):
+		if merchant.world_of() == self:
+			kept_stock.append_array(merchant.locked_entries())
+			merchant.remove_from_group("merchants")  # counted once
 	arena = null
 	ambush = null
 	_cracks.clear()
@@ -228,6 +235,16 @@ func spawn_merchant(def: ShopDef, cell: Vector2i) -> Merchant:
 	merchant.setup(def, self)
 	_place_on_cell(merchant, cell)
 	return merchant
+
+
+## The locked stock waiting for the next merchant, plus what is locked at this floor's
+## merchant (for save files: a saved run rebuilds its floor).
+func locked_stock() -> Array[Dictionary]:
+	var result := kept_stock.duplicate()
+	for merchant: Merchant in get_tree().get_nodes_in_group("merchants"):
+		if merchant.world_of() == self:
+			result.append_array(merchant.locked_entries())
+	return result
 
 
 ## Puts `node` on `cell` among the entities; it blocks the cell for pathfinding unless told not to.

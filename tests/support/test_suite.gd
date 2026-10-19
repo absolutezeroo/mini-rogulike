@@ -116,6 +116,7 @@ func _count_footprints(world: World) -> int:
 func _bot_play(game: Game, frames: int) -> void:
 	var path_timer := 0
 	var path := PackedVector2Array()
+	var unreachable: Array[Actor] = []  # no path to them (across water...): hunt others
 	for frame in frames:
 		var player: Player = game.player
 		var world: World = game.world
@@ -127,7 +128,7 @@ func _bot_play(game: Game, frames: int) -> void:
 			game.perk_panel.choose(0)
 			await get_tree().physics_frame
 			continue
-		var target := _nearest_monster(world, player)
+		var target := _nearest_monster(world, player, unreachable)
 		var direction := Vector2.ZERO
 		if target:
 			var distance := player.global_position.distance_to(target.global_position)
@@ -140,6 +141,8 @@ func _bot_play(game: Game, frames: int) -> void:
 				if path_timer <= 0:
 					path = world.find_path(player.global_position, target.global_position)
 					path_timer = 20
+					if path.is_empty():
+						unreachable.append(target)
 				while path.size() > 0 and player.global_position.distance_to(path[0]) < 10.0:
 					path.remove_at(0)
 				if path.size() > 0:
@@ -154,10 +157,12 @@ func _bot_play(game: Game, frames: int) -> void:
 		Input.action_release(action)
 
 
-func _nearest_monster(world: World, player: Player) -> Actor:
+func _nearest_monster(world: World, player: Player, skip: Array[Actor] = []) -> Actor:
 	var best: Actor = null
 	var best_distance := INF
 	for monster in world.get_hostiles(player.faction):
+		if skip.has(monster):
+			continue
 		var distance := player.global_position.distance_to(monster.global_position)
 		if distance < best_distance:
 			best = monster

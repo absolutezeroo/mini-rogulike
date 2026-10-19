@@ -22,6 +22,17 @@ extends Resource
 ## When this few kills are left, the minimap shows where the remaining monsters are.
 @export_range(0, 20) var seal_reveal_left: int = 4
 
+@export_group("Perk choices")
+## Rerolls (three new cards) and banishes (a perk gone for the run) the hero starts every run
+## with; the shrine adds more (UpgradeDef REROLLS / BANISHES).
+@export_range(0, 10) var base_rerolls: int = 1
+@export_range(0, 10) var base_banishes: int = 1
+## Rerolls gained for every boss slain.
+@export_range(0, 5) var rerolls_per_boss: int = 1
+## Offers favour perks of the families the hero has started but not woken yet: their weight
+## is multiplied by (1 + this) for each such family.
+@export_range(0.0, 5.0) var family_bias: float = 1.0
+
 @export_group("Population")
 @export var monsters_per_room_min: int = 1
 @export var monsters_per_room_max: int = 3

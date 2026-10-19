@@ -99,6 +99,8 @@ func _connect_menus() -> void:
 	shop_panel.closed.connect(_on_menu_closed)
 	encounter_panel.closed.connect(_on_menu_closed)
 	perk_panel.chosen.connect(_on_perk_chosen)
+	perk_panel.reroll_requested.connect(_on_perk_reroll)
+	perk_panel.banish_requested.connect(_on_perk_banish)
 	game_over_panel.restart_requested.connect(start_run)
 	game_over_panel.continue_requested.connect(_on_continue_endless)
 	game_over_panel.title_requested.connect(func() -> void:
@@ -150,6 +152,11 @@ func _begin_run(saved: Dictionary) -> void:
 	run = RunState.create(content, saved, world.rng)
 	world.difficulty = run.difficulty
 	world.run_bosses = run.bosses
+	world.kept_stock.clear()
+	for saved_entry: Dictionary in saved.get("kept_stock", []):
+		var item := LootRoller.from_data(saved_entry.get("item"))
+		if item:
+			world.kept_stock.append({ "item": item, "price": int(saved_entry.get("price", 1)), "locked": true })
 	player = PLAYER_SCENE.instantiate() as Player
 	player.setup(content.player)
 	player.died.connect(_on_player_died)
@@ -375,6 +382,9 @@ func _on_boss_started(boss: Monster) -> void:
 
 func _on_boss_defeated(boss: Monster) -> void:
 	run.bosses_slain += 1
+	if content.dungeon.rerolls_per_boss > 0:
+		run.rerolls += content.dungeon.rerolls_per_boss
+		Events.log_message("+%d reroll for the perk choices." % content.dungeon.rerolls_per_boss, Palette.GOLD)
 	hud.show_banner("Victory!")
 	Sfx.play_ui(Sfx.bank.boss_defeated)
 	Events.log_message("%s is defeated! The way down is open." % boss.display_name, Palette.GOLD)
@@ -435,13 +445,61 @@ func _show_next_offer() -> void:
 		if is_menu_open() or player == null or player.is_dead:
 			return
 		var offer := offers.pop()
-		var perks := content.pick_perks(player.perks, offer.count, offer.rarity, world.rng)
+		var perks := _pick_offer(offer.count, offer.rarity, [])
 		if perks.is_empty():
 			continue  # everything is maxed out
 		offers.shown = offer
 		_set_paused(true)
-		perk_panel.open(offer.title, offer.subtitle, perks, player.perks)
+		perk_panel.open(offer.title, offer.subtitle, perks, player.perks, run.rerolls, run.banishes)
 		return
+
+
+## Perks for an offer: never banished ones nor `also_left_out`, leaning toward started families.
+func _pick_offer(count: int, rarity: PerkDef.Rarity, also_left_out: Array[PerkDef]) -> Array[PerkDef]:
+	var left_out: Array[PerkDef] = run.banished.duplicate()
+	left_out.append_array(also_left_out)
+	return content.pick_perks(player.perks, count, rarity, world.rng, left_out, content.dungeon.family_bias)
+
+
+## Three new cards (others than those on the table, when there are enough).
+func _on_perk_reroll() -> void:
+	var shown := offers.shown
+	if shown == null or run.rerolls <= 0:
+		return
+	var current := perk_panel.get_offered()
+	var fresh := _pick_offer(current.size(), shown.rarity, current)
+	if fresh.is_empty():
+		Events.log_message("Nothing else to offer.", Palette.DANGER)
+		return
+	run.rerolls -= 1
+	perk_panel.set_charges(run.rerolls, run.banishes)
+	perk_panel.show_cards(fresh)
+	Sfx.play_ui(Sfx.bank.ui_open)
+
+
+## The perk on card `index` is gone for the run; another takes its place (if any is left).
+func _on_perk_banish(index: int) -> void:
+	var shown := offers.shown
+	var current := perk_panel.get_offered()
+	if shown == null or run.banishes <= 0 or index < 0 or index >= current.size():
+		return
+	var gone := current[index]
+	run.banishes -= 1
+	run.banished.append(gone)
+	Events.log_message("%s is banished for this run." % gone.display_name, Palette.DANGER)
+	var cards: Array[PerkDef] = current.duplicate()
+	var replacement := _pick_offer(1, shown.rarity, current)
+	if replacement.is_empty():
+		cards.remove_at(index)
+	else:
+		cards[index] = replacement[0]
+	perk_panel.set_charges(run.rerolls, run.banishes)
+	if cards.is_empty():
+		perk_panel.hide()
+		offers.shown = null
+		_on_menu_closed()
+		return
+	perk_panel.show_cards(cards)
 
 
 func _on_perk_chosen(perk: PerkDef) -> void:
@@ -478,6 +536,8 @@ func _save_run() -> void:
 	data.boss_slain = world.arena != null and world.arena.is_defeated
 	data.player = player.save_state()
 	data.offers = offers.to_data(perk_panel.visible)
+	data.kept_stock = world.locked_stock().map(func(entry: Dictionary) -> Dictionary:
+		return { "item": LootRoller.to_data(entry.item), "price": entry.price })
 	RunSave.write(data)
 
 

@@ -2,6 +2,8 @@ class_name ShopPanel
 extends Control
 ## The merchant's shop: what they sell (rolled equipment, potions, maybe a tome) and what
 ## you can sell them from your bag. The game is paused while it is open.
+## Reroll buys a new stock (locked entries stay); the lock beside an entry keeps it, here and
+## at the next merchant, at the same price.
 
 signal closed
 
@@ -21,6 +23,9 @@ var _player: Player
 func _ready() -> void:
 	hide()
 	%CloseButton.pressed.connect(close)
+	%RerollButton.pressed.connect(func() -> void:
+		if _merchant and _merchant.reroll(_player):
+			_refresh())
 
 
 func open(merchant: Merchant, player: Player) -> void:
@@ -51,10 +56,15 @@ func _refresh() -> void:
 		for child in list.get_children():
 			list.remove_child(child)
 			child.queue_free()
+	var reroll := %RerollButton as Button
+	reroll.text = "Reroll %d" % _merchant.reroll_price()
+	reroll.disabled = _player.gold < _merchant.reroll_price()
 	for i in _merchant.stock.size():
 		var entry: Dictionary = _merchant.stock[i]
 		var can_buy: bool = _player.gold >= entry.price and _player.can_store(entry.item)
-		_for_sale.add_child(_row(entry.item, "%d gold" % entry.price, can_buy, _buy.bind(i)))
+		var row := _row(entry.item, "%d gold" % entry.price, can_buy, _buy.bind(i))
+		row.add_child(_lock_button(entry.get("locked", false), i))
+		_for_sale.add_child(row)
 	if _merchant.stock.is_empty():
 		_for_sale.add_child(_note("Sold out!"))
 	for i in Belt.SLOTS:
@@ -119,6 +129,24 @@ func _row(item: ItemDef, price_text: String, enabled: bool, action: Callable, la
 	button.pressed.connect(action)
 	row.add_child(button)
 	return row
+
+
+## "Lock" / "Locked": keeps the entry through rerolls and to the next merchant.
+func _lock_button(locked: bool, index: int) -> Button:
+	var button := Button.new()
+	button.text = "Locked" if locked else "Lock"
+	button.toggle_mode = true
+	button.button_pressed = locked
+	button.focus_mode = Control.FOCUS_NONE
+	button.custom_minimum_size = Vector2(84, 48)
+	button.add_theme_font_size_override("font_size", 14)
+	if locked:
+		button.add_theme_color_override("font_color", Palette.GOLD)
+		button.add_theme_color_override("font_pressed_color", Palette.GOLD)
+	button.pressed.connect(func() -> void:
+		_merchant.toggle_lock(index)
+		_refresh())
+	return button
 
 
 func _note(text: String) -> Label:

@@ -12,6 +12,10 @@ enum Kind {
 	STARTING_PERK,
 	## `items` can now be found in the dungeon (one level).
 	UNLOCK,
+	## One more reroll of the perk cards per run, per level.
+	REROLLS,
+	## One more banish (a perk gone for the run) per run, per level.
+	BANISHES,
 }
 
 @export var id: StringName

@@ -415,6 +415,34 @@ func _test_synergies() -> void:
 	skills.reset_cooldown(skill)
 	check(skills.is_ready(0), "an echo leaves the skill ready again")
 
+	# Offers: banished perks never come back; started families come more often.
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 77
+	var owned := PerkSet.new()
+	var banished: Array[PerkDef] = [_perk("strength")]
+	var never := true
+	for i in 200:
+		if CONTENT.pick_perks(owned, 3, PerkDef.Rarity.COMMON, rng, banished).has(_perk("strength")):
+			never = false
+	check(never, "a banished perk is never offered")
+	owned.add(_perk("ignite"))
+	owned.add(_perk("frenzy"))
+	var inferno_count := [0, 0]
+	for bias_index in 2:
+		for i in 400:
+			var picked: PerkDef = CONTENT.pick_perks(owned, 1, PerkDef.Rarity.COMMON, rng, [], [0.0, 1.0][bias_index])[0]
+			if picked.synergies.has(inferno):
+				inferno_count[bias_index] += 1
+	check(inferno_count[1] > inferno_count[0] * 1.4, "offers lean toward a started family (%d vs %d of 400)" % [inferno_count[1], inferno_count[0]])
+	var shop: ShopDef = CONTENT.dungeon.merchant
+	check(shop.reroll_price(1, 1) > shop.reroll_price(0, 1) and shop.reroll_price(0, 8) > shop.reroll_price(0, 1), "shop rerolls cost more each time and deeper")
+	var run := RunState.create(CONTENT, {}, rng)
+	check(run.rerolls >= CONTENT.dungeon.base_rerolls and run.banishes >= CONTENT.dungeon.base_banishes, "a new run starts with its rerolls and banishes")
+	run.rerolls = 2
+	run.banished.append(_perk("strength"))
+	var again := RunState.create(CONTENT, run.to_data(), rng)
+	check(again.rerolls == 2 and again.banished == banished, "a saved run keeps its rerolls and banished perks")
+
 
 func _test_bosses() -> void:
 	var config := CONTENT.dungeon

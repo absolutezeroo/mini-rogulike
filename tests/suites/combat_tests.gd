@@ -126,6 +126,26 @@ func _test_perks_in_game(game: Game, world: World, player: Player) -> void:
 	check((cards.get_child(0) as Button).disabled, "cards ignore taps for a moment (no accidental pick)")
 	await get_tree().create_timer(0.6, true).timeout
 	check(not (cards.get_child(0) as Button).disabled, "cards become pickable")
+	# Reroll: three other cards. Banish: that perk is gone for the run, another takes its place.
+	game.run.rerolls = 1
+	game.run.banishes = 1
+	game.perk_panel.set_charges(1, 1)
+	var reroll_button: Button = game.perk_panel.get_node("%RerollButton")
+	var banish_button: Button = game.perk_panel.get_node("%BanishButton")
+	check(reroll_button.visible and reroll_button.text == "Reroll (1)" and not banish_button.disabled, "the choice shows its reroll and banish")
+	var first_cards := game.perk_panel.get_offered().duplicate()
+	reroll_button.pressed.emit()
+	await _frames(1)
+	var rerolled := game.perk_panel.get_offered()
+	check(game.run.rerolls == 0 and reroll_button.disabled, "a reroll is spent")
+	check(rerolled.size() == 3 and not rerolled.any(func(p: PerkDef) -> bool: return first_cards.has(p)), "a reroll deals three other cards")
+	banish_button.pressed.emit()
+	check(game.perk_panel.is_banishing(), "Banish, then tap a card")
+	var gone: PerkDef = rerolled[0]
+	(cards.get_child(0) as Button).pressed.emit()
+	await _frames(1)
+	check(game.perk_panel.visible and game.run.banished.has(gone) and game.run.banishes == 0, "the tapped perk is banished, the choice stays open")
+	check(not game.perk_panel.get_offered().has(gone) and game.perk_panel.get_offered().size() == 3, "another card takes its place")
 	var offered: PerkDef = game.perk_panel.get_offered()[1]
 	(cards.get_child(1) as Button).pressed.emit()
 	await _frames(2)
@@ -145,6 +165,8 @@ func _test_perks_in_game(game: Game, world: World, player: Player) -> void:
 	for entry in player.perks.entries:
 		total_levels += entry.stacks
 	check(not get_tree().paused and total_levels == 3, "both perks taken (%d perk levels), game resumed" % total_levels)
+	check(not player.perks.entries.any(func(e: PerkSet.Entry) -> bool: return game.run.banished.has(e.perk)), "the banished perk never came back")
+	game.run.banished.clear()
 
 
 ## The new perks and the families' bonuses, in a real fight.
@@ -417,6 +439,9 @@ func _test_weapon_kits(game: Game) -> void:
 	var world: World = game.world
 	player.xp = -1000000
 	var weapon_before := player.get_weapon()
+	# No perks meanwhile (an Echo would leave a skill ready again, a family fire extra bolts).
+	var perks_before := player.perks.to_data()
+	player.perks.clear()
 	# Alone with the target: a wandering monster stepping in the way would take the hits.
 	await _clear_monsters(world)
 	var target := world.spawn_monster(load("res://data/monsters/slime.tres"), world.map.cell_to_world(_open_cell_near(world, player.global_position, 2)))
@@ -448,6 +473,7 @@ func _test_weapon_kits(game: Game) -> void:
 		check(target.hp < hp_before, "%s hurts" % id)
 	target.queue_free()
 	player.equipment.equip(weapon_before)
+	player.perks.load_data(perks_before)
 	player.xp = 0
 	await _frames(5)
 

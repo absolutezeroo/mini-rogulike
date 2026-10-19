@@ -58,3 +58,25 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 24
 alignment = 1
+
+[node name="Tools" type="HBoxContainer" parent="Center/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="RerollButton" type="Button" parent="Center/VBox/Tools"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 54)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 18
+text = "Reroll (1)"
+
+[node name="BanishButton" type="Button" parent="Center/VBox/Tools"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 54)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 18
+text = "Banish (1)"

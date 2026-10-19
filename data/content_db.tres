@@ -185,6 +185,8 @@
 [ext_resource type="Resource" path="res://data/perks/synergies/blood.tres" id="171_f6o1n"]
 [ext_resource type="Resource" path="res://data/perks/synergies/storm.tres" id="172_hs025"]
 [ext_resource type="Resource" path="res://data/perks/synergies/arcane.tres" id="173_lrag7"]
+[ext_resource type="Resource" path="res://data/upgrades/loaded_dice.tres" id="186_l46qw"]
+[ext_resource type="Resource" path="res://data/upgrades/exile.tres" id="187_r632x"]
 
 [resource]
 script = ExtResource("34_tx8pl")
@@ -197,7 +199,7 @@ perks = Array[ExtResource("33_lnxyg")]([ExtResource("34_vfprf"), ExtResource("35
 synergies = Array[ExtResource("168_hb5w0")]([ExtResource("169_dt2yx"), ExtResource("170_ac1fq"), ExtResource("171_f6o1n"), ExtResource("172_hs025"), ExtResource("173_lrag7")])
 difficulties = Array[ExtResource("2_rjcke")]([ExtResource("3_v3gsm"), ExtResource("1_p1yhy"), ExtResource("4_s1peu"), ExtResource("5_du3p3")])
 default_difficulty = ExtResource("1_p1yhy")
-upgrades = Array[ExtResource("73_0tw7m")]([ExtResource("74_pgsf5"), ExtResource("75_6v54u"), ExtResource("76_p1yhy"), ExtResource("77_rjcke"), ExtResource("78_v3gsm"), ExtResource("79_s1peu"), ExtResource("80_du3p3"), ExtResource("81_to1jy"), ExtResource("82_8pk3k"), ExtResource("83_v6cij"), ExtResource("84_til0v")])
+upgrades = Array[ExtResource("73_0tw7m")]([ExtResource("74_pgsf5"), ExtResource("75_6v54u"), ExtResource("76_p1yhy"), ExtResource("77_rjcke"), ExtResource("78_v3gsm"), ExtResource("79_s1peu"), ExtResource("80_du3p3"), ExtResource("81_to1jy"), ExtResource("82_8pk3k"), ExtResource("83_v6cij"), ExtResource("84_til0v"), ExtResource("186_l46qw"), ExtResource("187_r632x")])
 locked_items = Array[ExtResource("2_cewcx")]([ExtResource("23_dianq"), ExtResource("10_ng0jj"), ExtResource("37_gyds2"), ExtResource("38_1b8ag"), ExtResource("16_h0egv"), ExtResource("15_rjx6h")])
 props = Array[ExtResource("52_yjg1c")]([ExtResource("53_dianq"), ExtResource("54_kqkbc"), ExtResource("55_xx7nh"), ExtResource("56_6esje")])
 elite_affixes = Array[ExtResource("7_s1peu")]([ExtResource("8_du3p3"), ExtResource("9_to1jy"), ExtResource("10_8pk3k"), ExtResource("11_v6cij"), ExtResource("12_til0v"), ExtResource("13_mym40")])

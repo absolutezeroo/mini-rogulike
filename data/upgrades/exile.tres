@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="UpgradeDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/icons/banish.png" id="1_sk1me"]
+[ext_resource type="Script" path="res://src/definitions/items/item_def.gd" id="2_4ms31"]
+[ext_resource type="Script" path="res://src/definitions/upgrade_def.gd" id="3_fprn4"]
+
+[resource]
+script = ExtResource("3_fprn4")
+id = &"exile"
+display_name = "Exile"
+description = "One more banish every run: a perk you never want to see again is gone for the run."
+icon = ExtResource("1_sk1me")
+color = Color(1, 0.41960785, 0.41960785, 1)
+kind = 5
+max_level = 2
+cost = 90
+cost_growth = 90
