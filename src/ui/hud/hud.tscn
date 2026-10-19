@@ -299,4 +299,18 @@ unique_name_in_owner = true
 position = Vector2(-430, -70)
 action = "quick_item"
 script = ExtResource("5_button")
-radius = 38.0
+radius = 34.0
+
+[node name="Belt2Button" type="TouchScreenButton" parent="Controls"]
+unique_name_in_owner = true
+position = Vector2(-512, -70)
+action = "belt_2"
+script = ExtResource("5_button")
+radius = 34.0
+
+[node name="Belt3Button" type="TouchScreenButton" parent="Controls"]
+unique_name_in_owner = true
+position = Vector2(-594, -70)
+action = "belt_3"
+script = ExtResource("5_button")
+radius = 34.0

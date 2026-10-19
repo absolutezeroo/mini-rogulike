@@ -87,8 +87,8 @@ tint = Color(1, 0.55, 0.55, 1)
 
 [sub_resource type="Resource" id="Resource_273k5"]
 script = ExtResource("12_f413d")
-max_hp = 380
-defense = 3
+max_hp = 1150
+defense = 5
 move_speed = 70.0
 
 [resource]
@@ -103,6 +103,7 @@ radius = 22.0
 frames = ExtResource("2_ss85h")
 frames_offset = Vector2(0, -18)
 head_height = 70.0
+knockback_resistance = 0.95
 detect_radius = 900.0
 attack_windup = 0.65
 attack_recovery = 0.5

@@ -11,7 +11,7 @@
 script = ExtResource("3_2pqld")
 radius = 95.0
 damage_multiplier = 1.4
-knockback = 380.0
+knockback = 300.0
 fx = ExtResource("2_p5dy7")
 
 [resource]

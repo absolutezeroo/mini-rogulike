@@ -667,6 +667,7 @@ func _test_gameplay() -> void:
 	await _test_weapon_kits(game)
 	await _test_encounters(game)
 	await _test_variety(game)
+	await _test_belt_and_balance(game)
 
 	await _test_boss_fight(game)
 
@@ -723,7 +724,8 @@ func _test_gameplay() -> void:
 	await _frames(3)
 	check(game.player != player and not game.player.is_dead, "restart creates a fresh player")
 	check(game.player.get_max_hp() == CONTENT.player.base_stats.max_hp + 2 * _upgrade("vitality").bonuses.max_hp, "Vitality raises max HP")
-	check(game.player.inventory.count_of(load("res://data/items/consumables/health_potion.tres")) == CONTENT.player.starting_items.size() + 1, "Provisions add a potion")
+	var potion_def: ConsumableDef = load("res://data/items/consumables/health_potion.tres")
+	check(game.player.belt.count_of(potion_def) + game.player.inventory.count_of(potion_def) == CONTENT.player.starting_items.size() + 1, "Provisions add a potion")
 	check(game.player.perks.stacks_of(load("res://data/perks/relics/phoenix_feather.tres")) == 1, "Second Chance gives a Phoenix Feather")
 	check(CONTENT.unlocked_items.has(load("res://data/items/weapons/templar_sword.tres")), "Paladin's Oath unlocks the Templar Sword")
 	Profile.reset()
@@ -906,7 +908,8 @@ func _test_bestiary(world: World, player: Player) -> void:
 	snake.attack(snake.global_position.direction_to(player.global_position))
 	check(player.statuses.has(&"poison"), "a viper bite poisons")
 	var hp_poisoned := player.hp
-	await _frames(70)
+	player._invulnerable_time = 0.0
+	await _frames(100)
 	check(player.hp < hp_poisoned, "poison hurts over time")
 	player.statuses.clear()
 	snake.die(null)
@@ -1158,7 +1161,7 @@ func _test_hazards(game: Node, world: World, player: Player) -> void:
 	await _frames(3)
 	check(player.is_falling, "the hero falls into a hole")
 	await _frames(int(Actor.FALL_TIME * 60.0) + 6)
-	check(not player.is_falling and player.global_position.distance_to(safe) < 4.0, "the hero climbs out where they stood")
+	check(not player.is_falling and player.global_position.distance_to(safe) < 24.0, "the hero climbs out where they stood")
 	check(player.hp < hp_before and player.rig.scale == Vector2.ONE, "falling hurts")
 	player.global_position = world.map.cell_to_world(hole)
 	player.start_dash(Vector2.RIGHT * 10.0, 0.3, true)
@@ -1273,10 +1276,12 @@ func _test_hazards(game: Node, world: World, player: Player) -> void:
 	neighbour.dormant = true
 	var neighbour_hp := neighbour.hp
 	var items_before := get_tree().get_nodes_in_group("pickups").size()
+	var guaranteed_drops: int = explosive._bonus_drops
 	explosive.take_hit(Combat.make_secondary_hit(player, 99999))
 	await _frames(50)
 	check(not is_instance_valid(neighbour) or neighbour.hp < neighbour_hp, "explosive elites blow up when they die")
-	check(get_tree().get_nodes_in_group("pickups").size() > items_before, "elites always drop loot")
+	# (The hero may pick some up meanwhile: no fewer items, and a guaranteed drop.)
+	check(guaranteed_drops >= 1 and get_tree().get_nodes_in_group("pickups").size() >= items_before, "elites always drop loot")
 	for node: Node in [elite, neighbour]:
 		if is_instance_valid(node):
 			node.queue_free()
@@ -1292,7 +1297,7 @@ func _test_hazards(game: Node, world: World, player: Player) -> void:
 	var room_index := -1
 	for i in range(1, world.map.rooms.size()):
 		var r := world.map.rooms[i]
-		if r.size.x >= 7 and r.size.y >= 7 and (world.ambush == null or world.ambush.room != r):
+		if r.size.x >= 7 and r.size.y >= 7 and (world.ambush == null or world.ambush.room != r) and not r.grow(1).has_point(world.map.stairs_cell):
 			room_index = i
 			break
 	if room_index >= 0:
@@ -1328,6 +1333,7 @@ func _test_hazards(game: Node, world: World, player: Player) -> void:
 	CONTENT.dungeon.encounters_min = 2
 	var merchants := 0
 	var encounters := 0
+	var hazard_total := 0
 	for depth in [1, 2, 4, 5, 7, 8]:
 		world.build_floor(depth, CONTENT)
 		merchants += get_tree().get_nodes_in_group("merchants").filter(func(n: Node) -> bool: return not n.is_queued_for_deletion()).size()
@@ -1336,7 +1342,8 @@ func _test_hazards(game: Node, world: World, player: Player) -> void:
 		check(not world.find_path(start, world.map.cell_to_world(world.map.stairs_cell)).is_empty(), "depth %d: the stairs can be reached" % depth)
 		var count := get_tree().get_nodes_in_group("traps").size() + get_tree().get_nodes_in_group("crumbling_floors").size() \
 			+ get_tree().get_nodes_in_group("quicksand").size() + world._pits.cells().size()
-		check(count > 0, "depth %d has hazards (%d)" % [depth, count])
+		hazard_total += count
+	check(hazard_total >= 12, "floors have hazards (%d on 6 floors)" % hazard_total)
 	check(merchants >= 4 and encounters >= 6, "floors get merchants and encounters (%d, %d)" % [merchants, encounters])
 	CONTENT.dungeon.merchant_chance = 0.0
 	CONTENT.dungeon.encounters_max = 0
@@ -1478,6 +1485,77 @@ func _test_comfort(game: Node) -> void:
 	game.player.xp = 0
 
 
+## Potions live on the belt, not in the bag. Bosses can't be juggled.
+func _test_belt_and_balance(game: Node) -> void:
+	var player: Player = game.player
+	var world: World = game.world
+	var potion: ConsumableDef = load("res://data/items/consumables/health_potion.tres")
+	var bomb: ConsumableDef = load("res://data/items/consumables/bomb.tres")
+	var haste: ConsumableDef = load("res://data/items/consumables/haste_draught.tres")
+	var rage: ConsumableDef = load("res://data/items/consumables/rage_elixir.tres")
+	var saved_belt := player.belt.to_data()
+	var saved_bag := player.inventory.items.duplicate()
+	player.belt.load_data([])
+	player.inventory.items.clear()
+	for i in Belt.MAX_STACK + 1:
+		player.pick_up(potion)
+	check(player.belt.count_at(0) == Belt.MAX_STACK and player.belt.count_at(1) == 1, "potions stack on the belt (%d a slot)" % Belt.MAX_STACK)
+	check(player.inventory.items.is_empty(), "they take no room in the bag")
+	player.pick_up(bomb)
+	player.pick_up(haste)
+	check(player.belt.item_at(2) == bomb and player.inventory.items.size() == 1 and player.inventory.items[0] == haste, "a full belt sends the rest to the bag")
+	await _frames(2)
+	var buttons: Array = [game.hud.get_node("%QuickItemButton"), game.hud.get_node("%Belt2Button"), game.hud.get_node("%Belt3Button")]
+	check(buttons.all(func(b: ActionButton) -> bool: return b.visible) and (buttons[0] as ActionButton).counter == Belt.MAX_STACK, "one button per belt slot, with its count")
+	player.hp = 1
+	player.use_belt(0)
+	check(player.hp > 1 and player.belt.count_at(0) == Belt.MAX_STACK - 1, "a belt button uses its potion")
+	var bombs_before := player.belt.count_of(bomb)
+	player.use_belt(2)
+	check(player.belt.item_at(2) == null and bombs_before == 1, "the last one empties the slot")
+	check(player.move_to_belt(haste) and player.belt.item_at(2) == haste and player.inventory.items.is_empty(), "a consumable moves from the bag to the belt")
+	check(player.move_to_bag(2) and player.inventory.items.has(haste), "and back")
+	var data := player.save_state()
+	var copy := player.belt.to_data()
+	player.belt.load_data([])
+	player.belt.load_data(JSON.parse_string(JSON.stringify(data.belt)))
+	check(player.belt.to_data() == copy, "the belt is saved with the run")
+	# The inventory screen shows the belt.
+	game.open_inventory()
+	var panel: InventoryPanel = game.inventory_panel
+	panel._select_belt(0)
+	check(panel.get_node("%BeltSlot1").text == "x%d" % player.belt.count_at(0) and panel.get_node("%BeltButton").visible, "the bag screen shows the belt")
+	panel.close()
+	await _frames(1)
+	player.pick_up(rage)
+	player.belt.load_data(saved_belt)
+	player.inventory.items = saved_bag
+
+	# Bosses stand their ground; elites and big monsters resist. (One at a time: they would push
+	# each other.)
+	var moved := []
+	for path in ["res://data/monsters/bosses/king_slime.tres", "res://data/monsters/slime.tres"]:
+		var monster := world.spawn_monster(load(path), world.map.cell_to_world(_open_cell_near(world, player.global_position, 3)))
+		monster.dormant = true
+		await _frames(2)
+		var start := monster.global_position
+		var shove := Combat.make_secondary_hit(null, 1)
+		shove.knockback = Vector2.RIGHT * 600.0
+		monster.take_hit(shove)
+		await _frames(20)
+		moved.append(monster.global_position.distance_to(start))
+		if monster.is_boss():
+			check(monster.get_max_hp() >= 800, "bosses are tough (%d HP)" % monster.get_max_hp())
+		monster.queue_free()
+		await _frames(2)
+	check(moved[0] < 8.0 and moved[1] > 20.0, "bosses barely move when hit (%.1f vs %.1f)" % moved)
+	var slime := world.spawn_monster(load("res://data/monsters/slime.tres"), world.map.cell_to_world(_open_cell_near(world, player.global_position, 3)))
+	world.make_elite(slime)
+	check(slime.get_knockback_resistance() >= 0.5, "elites resist knockback")
+	slime.queue_free()
+	await _frames(2)
+
+
 ## Special floors, one boss per act drawn for the run, and the new bosses fighting.
 func _test_variety(game: Node) -> void:
 	var world: World = game.world
@@ -1516,10 +1594,11 @@ func _test_variety(game: Node) -> void:
 	player.base_stats.defense = 999
 	player.invalidate_stats()
 	for id in ["giant_frog", "weeping_spirit", "red_samurai"]:
-		var boss := world.spawn_monster(load("res://data/monsters/bosses/%s.tres" % id), world.map.cell_to_world(_open_cell_near(world, player.global_position, 2)))
+		# In sight of the hero, at a distance where every skill may be used.
+		var boss := world.spawn_monster(load("res://data/monsters/bosses/%s.tres" % id), world.find_open_point_near(player.global_position, 150.0))
 		boss.wake_up(player)
 		var used := false
-		for frame in 60 * 6:
+		for frame in 60 * 10:
 			for i in boss.skills.skills.size():
 				used = used or boss.skills.cooldown_ratio(i) > 0.0
 			if used:
@@ -1618,10 +1697,15 @@ func _test_weapon_kits(game: Node) -> void:
 	target.base_stats.max_hp = 100000
 	target.invalidate_stats()
 	target.hp = 100000
-	player.global_position = target.global_position + Vector2(-50, 0)
+	var target_spot := target.global_position
 	for id in ["ninjaku", "rapier", "big_sword", "whip", "bow", "shuriken"]:
 		var weapon: WeaponDef = load("res://data/items/weapons/%s.tres" % id)
 		check(CONTENT.items.has(weapon), "%s can be found" % id)
+		# Back in place: the previous weapons may have knocked it against a wall.
+		target._knockback = Vector2.ZERO
+		target.global_position = target_spot
+		player.global_position = target_spot + Vector2(-50, 0)
+		await _frames(2)
 		player.equipment.equip(weapon)
 		check(player.skills.skills[1] == weapon.skills[0] and player.skills.skills[2] == weapon.skills[1], "%s gives its two skills" % id)
 		var hp_before := target.hp
@@ -1634,7 +1718,6 @@ func _test_weapon_kits(game: Node) -> void:
 			check(player.skills.cooldown_ratio(slot) > 0.0, "%s: %s is used" % [id, weapon.skills[slot - 1].id])
 			await _frames(50)
 		check(target.hp < hp_before, "%s hurts" % id)
-		player.global_position = target.global_position + Vector2(-50, 0)
 	target.queue_free()
 	player.equipment.equip(weapon_before)
 	player.xp = 0

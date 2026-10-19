@@ -75,6 +75,7 @@ skills = Array[ExtResource("12_3tvo1")]([ExtResource("13_rr105")])
 radius = 14.0
 frames = ExtResource("1_4l3tj")
 frames_offset = Vector2(0, -8)
+knockback_resistance = 0.5
 attack_windup = 0.7
 attack_recovery = 0.6
 xp_reward = 20

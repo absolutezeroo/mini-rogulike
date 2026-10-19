@@ -28,6 +28,8 @@ const FALL_INVULNERABILITY := 1.0
 
 var def: PlayerDef
 var inventory: Inventory
+## Potions, bombs, scrolls: stacked in their own slots, out of the bag.
+var belt := Belt.new()
 var level := 1
 var xp := 0
 ## Skill taught by the last tome read (last skill button).
@@ -62,7 +64,7 @@ func setup(player_def: PlayerDef) -> void:
 	for item in def.starting_equipment:
 		equipment.equip(item)
 	for item in def.starting_items:
-		inventory.add(item)
+		store(item)
 	_rebuild_skills(0.0)
 	equipment.changed.connect(_rebuild_skills.bind(SWAP_COOLDOWN))
 	invalidate_stats()
@@ -92,6 +94,9 @@ func _think(delta: float) -> void:
 
 	if Input.is_action_just_pressed("quick_item"):
 		use_quick_item()
+	for i in range(1, Belt.SLOTS):
+		if Input.is_action_just_pressed("belt_%d" % (i + 1)):
+			use_belt(i)
 
 
 func _update_footsteps(delta: float) -> void:
@@ -182,6 +187,16 @@ func learn_skill(skill: SkillDef) -> void:
 
 # --- Items -------------------------------------------------------------------
 
+## Puts an item away: consumables on the belt if there is room, everything else (and the
+## overflow) in the bag. False if neither has room.
+func store(item: ItemDef) -> bool:
+	return belt.add(item) or inventory.add(item)
+
+
+func can_store(item: ItemDef) -> bool:
+	return belt.can_add(item) or not inventory.is_full()
+
+
 ## Called when walking over an item. Returns false if it could not be taken.
 func pick_up(item: ItemDef) -> bool:
 	if item is EquipmentDef and equipment.get_item(item.slot) == null:
@@ -189,7 +204,7 @@ func pick_up(item: ItemDef) -> bool:
 		Events.log_message("Equipped %s" % item.display_name, item.color)
 		_pickup_feedback(item, Sfx.bank.equip)
 		return true
-	if inventory.add(item):
+	if store(item):
 		Events.log_message("Picked up %s" % item.display_name, item.color)
 		_pickup_feedback(item, Sfx.bank.pickup)
 		return true
@@ -237,10 +252,33 @@ func drop_item(item: ItemDef) -> void:
 		world.spawn_item(item, global_position, false)
 
 
+## Uses the item in belt slot `index` (the buttons next to the skills).
+func use_belt(index: int) -> void:
+	if is_dead or belt.item_at(index) == null:
+		return
+	var item := belt.take(index)
+	item.use(self, get_aim_direction(SKILL_AIM_RANGE))
+	Events.log_message("Used %s" % item.display_name, item.color)
+
+
+## Belt slot 1 (the quick item key).
 func use_quick_item() -> void:
-	var item := inventory.first_consumable()
-	if item:
-		use_item(item)
+	use_belt(0)
+
+
+## Moves a consumable from the bag to the belt (or back). False if there is no room.
+func move_to_belt(item: ItemDef) -> bool:
+	if not belt.can_add(item) or not inventory.remove(item):
+		return false
+	belt.add(item)
+	return true
+
+
+func move_to_bag(index: int) -> bool:
+	if belt.item_at(index) == null or inventory.is_full():
+		return false
+	inventory.add(belt.take(index))
+	return true
 
 
 # --- Progression -------------------------------------------------------------
@@ -295,6 +333,7 @@ func save_state() -> Dictionary:
 		"base_stats": base_stats.to_dict(),
 		"equipment": gear,
 		"inventory": inventory.items.map(LootRoller.to_data),
+		"belt": belt.to_data(),
 		"gold": gold,
 		"perks": perks.to_data(),
 		"learned_skill": RunSave.ref(learned_skill),
@@ -319,6 +358,7 @@ func load_state(data: Dictionary) -> void:
 		var item := LootRoller.from_data(saved_item)
 		if item:
 			inventory.add(item)
+	belt.load_data(data.get("belt", []))
 	perks.load_data(data.get("perks", []))
 	learned_skill = RunSave.load_ref(data.get("learned_skill")) as SkillDef
 	_rebuild_skills(0.0)

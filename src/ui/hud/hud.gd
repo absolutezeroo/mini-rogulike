@@ -20,7 +20,8 @@ var _toast_busy := false
 @onready var _depth_banner: Label = %DepthBanner
 @onready var _message_log: MessageLog = %MessageLog
 @onready var _attack_button: ActionButton = %AttackButton
-@onready var _quick_item_button: ActionButton = %QuickItemButton
+## One button per belt slot (potions, bombs...); empty slots are hidden.
+@onready var _belt_buttons: Array[ActionButton] = [%QuickItemButton, %Belt2Button, %Belt3Button]
 @onready var _skill_buttons: Array[ActionButton] = [%Skill1Button, %Skill2Button, %Skill3Button, %Skill4Button]
 @onready var _vignette: DamageVignette = %DamageVignette
 @onready var _perk_tray: PerkTray = %PerkTray
@@ -92,14 +93,16 @@ func _process(_delta: float) -> void:
 	for i in _skill_buttons.size():
 		if _skill_buttons[i].visible:
 			_skill_buttons[i].cooldown_ratio = _player.skills.cooldown_ratio(i)
-	var potion := _player.inventory.first_consumable()
-	_quick_item_button.visible = potion != null
-	if potion:
-		_quick_item_button.icon = potion.icon
-		_quick_item_button.icon_tint = potion.icon_tint
-		_quick_item_button.label = potion.glyph
-		_quick_item_button.color = potion.color
-		_quick_item_button.counter = _player.inventory.count_of(potion)
+	for i in _belt_buttons.size():
+		var button := _belt_buttons[i]
+		var item := _player.belt.item_at(i)
+		button.visible = item != null
+		if item:
+			button.icon = item.icon
+			button.icon_tint = item.icon_tint
+			button.label = item.glyph
+			button.color = item.color
+			button.counter = _player.belt.count_at(i)
 	var weapon := _player.get_weapon()
 	_attack_button.icon = weapon.icon if weapon else null
 	_attack_button.icon_tint = weapon.icon_tint if weapon else Color.WHITE

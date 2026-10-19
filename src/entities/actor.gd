@@ -118,6 +118,11 @@ func get_max_hp() -> int:
 	return maxi(1, get_stats().max_hp)
 
 
+## 0 = pushed by every hit, 1 = immovable (see MonsterDef.knockback_resistance).
+func get_knockback_resistance() -> float:
+	return 0.0
+
+
 func get_move_speed() -> float:
 	return maxf(get_stats().move_speed * statuses.speed_multiplier(), 20.0)
 
@@ -211,7 +216,7 @@ func take_hit(hit: HitInfo) -> void:
 		attacker.perks.modify_outgoing_hit(attacker, self, hit)
 	var damage := Combat.mitigate(hit.amount, get_stats().defense)
 	hp = maxi(hp - damage, 0)
-	_knockback += hit.knockback
+	_knockback += hit.knockback * (1.0 - get_knockback_resistance())
 	_flash_time = FLASH_TIME
 	if rig:
 		rig.play_hurt()

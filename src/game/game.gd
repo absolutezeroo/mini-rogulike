@@ -216,7 +216,7 @@ func _apply_profile() -> void:
 			UpgradeDef.Kind.STARTING_ITEMS:
 				for i in level:
 					for item in upgrade.items:
-						player.inventory.add(item)
+						player.store(item)
 			UpgradeDef.Kind.STARTING_PERK:
 				if upgrade.perk:
 					player.perks.add(upgrade.perk)

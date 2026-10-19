@@ -191,6 +191,13 @@ monsters down there feed on them; the three bosses are its wardens.
 The game's texts are in English; the name stays French. The project's internal name is still
 "Mini Roguelike" (`project.godot`), on purpose: the save file's folder depends on it.
 
+## The belt
+
+Potions, bombs and scrolls don't take room in the bag: they go on the **belt** (`Belt`),
+3 slots of one kind each, stacking up to 9. Each slot has its own button on screen, so you choose
+what to drink or throw. When the belt is full, the rest goes to the bag; the bag screen moves
+consumables between the two ("To belt" / "To bag"). The merchant buys from the belt too.
+
 ## Loot, gold and the merchant
 
 - **Rarity**: found equipment can come out **Magic** (blue, 1 affix), **Rare** (yellow, 2) or
@@ -206,6 +213,10 @@ The game's texts are in English; the name stays French. The project's internal n
   tome, or to sell what you carry. Every item has a `value`; the price grows with rarity and depth.
 
 ## Special floors and bosses
+
+Bosses have a lot of HP and stand their ground: they ignore 95% of the knockback, so no weapon can
+keep one away from you (`MonsterDef.knockback_resistance`). Big monsters resist half of it, and
+elites at least half.
 
 - **Special floors** (`data/floor_events/`, `FloorEventDef`): 30% of the normal floors after the first
   (`dungeon_config.tres` > Floor events) are announced when you arrive: **Haunted** (elites, dim),
@@ -474,7 +485,8 @@ A `spawn_weight` of 0 means it never spawns on its own (starting gear, loot-only
 | Move | Drag on the left side | WASD / arrows | Left stick |
 | Attack (auto-aim, hold) | Big red button | J / Space | X |
 | Skills 1-4 | Small round buttons | K L O P or 1 2 3 4 | A B Y RB |
-| Quick potion | Potion button | Q / H | LB |
+| Belt (potions, bombs, scrolls) | The 3 small buttons left of the skills | Q / H, 5, 6 | LB (slot 1) |
+| Pause | II button / phone back button | Escape | - |
 | Choose a perk | Tap a card | Arrows + Enter | D-pad + A |
 | Inventory | Bag button | I / Tab | Back |
 

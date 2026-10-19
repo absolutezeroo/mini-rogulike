@@ -74,8 +74,8 @@ tint = Color(1, 0.72, 0.72, 1)
 
 [sub_resource type="Resource" id="Resource_lkpkv"]
 script = ExtResource("12_ixdwd")
-max_hp = 420
-defense = 3
+max_hp = 1500
+defense = 5
 move_speed = 95.0
 crit_chance = 0.1
 
@@ -91,6 +91,7 @@ radius = 20.0
 frames = ExtResource("2_roian")
 frames_offset = Vector2(0, -18)
 head_height = 70.0
+knockback_resistance = 0.95
 detect_radius = 900.0
 attack_windup = 0.5
 attack_recovery = 0.4

@@ -103,6 +103,42 @@ alignment = 0
 text_overrun_behavior = 3
 text = "Body: -"
 
+[node name="BeltTitle" type="Label" parent="Panel/Margin/VBox/Body/EquipmentColumn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.94, 0.82, 1)
+text = "Belt"
+
+[node name="Belt" type="HBoxContainer" parent="Panel/Margin/VBox/Body/EquipmentColumn"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BeltSlot1" type="Button" parent="Panel/Margin/VBox/Body/EquipmentColumn/Belt"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+expand_icon = true
+text = "-"
+
+[node name="BeltSlot2" type="Button" parent="Panel/Margin/VBox/Body/EquipmentColumn/Belt"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+expand_icon = true
+text = "-"
+
+[node name="BeltSlot3" type="Button" parent="Panel/Margin/VBox/Body/EquipmentColumn/Belt"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+expand_icon = true
+text = "-"
+
 [node name="StatsLabel" type="Label" parent="Panel/Margin/VBox/Body/EquipmentColumn"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -163,6 +199,13 @@ custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 focus_mode = 0
 text = "Use"
+
+[node name="BeltButton" type="Button" parent="Panel/Margin/VBox/Body/DetailsColumn"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+focus_mode = 0
+text = "To belt"
 
 [node name="DropButton" type="Button" parent="Panel/Margin/VBox/Body/DetailsColumn"]
 unique_name_in_owner = true

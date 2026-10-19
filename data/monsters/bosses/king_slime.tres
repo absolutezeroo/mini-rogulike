@@ -72,8 +72,8 @@ tint = Color(1, 0.72, 0.72, 1)
 
 [sub_resource type="Resource" id="Resource_j3yk1"]
 script = ExtResource("12_ookps")
-max_hp = 300
-defense = 2
+max_hp = 850
+defense = 4
 move_speed = 60.0
 
 [resource]
@@ -88,6 +88,7 @@ radius = 26.0
 frames = ExtResource("2_buxgy")
 frames_offset = Vector2(0, -20)
 head_height = 50.0
+knockback_resistance = 0.95
 detect_radius = 900.0
 attack_windup = 0.6
 attack_recovery = 0.5

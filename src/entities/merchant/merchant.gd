@@ -68,19 +68,19 @@ func sell_to(player: Player, index: int) -> bool:
 	if index < 0 or index >= stock.size():
 		return false
 	var entry: Dictionary = stock[index]
-	if player.inventory.is_full() or not player.spend_gold(entry.price):
+	if not player.can_store(entry.item) or not player.spend_gold(entry.price):
 		return false
-	player.inventory.add(entry.item)
+	player.store(entry.item)
 	stock.remove_at(index)
 	Sfx.play_ui(Sfx.bank.coin)
 	Events.log_message("Bought %s" % entry.item.display_name, entry.item.rarity_color())
 	return true
 
 
-## Buys `item` from the player's bag.
+## Buys `item` from the player's bag (or belt).
 func buy_from(player: Player, item: ItemDef) -> bool:
 	var price := def.sell_price(item, _world.depth)
-	if price <= 0 or not player.inventory.remove(item):
+	if price <= 0 or not (player.inventory.remove(item) or player.belt.remove(item)):
 		return false
 	player.add_gold(price)
 	_add(item)

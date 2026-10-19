@@ -90,7 +90,9 @@ func _explode() -> void:
 	var damage := def.explosion_damage + world.depth
 	_break()
 	Vfx.explosion(world, at, def.explosion_radius)
-	Combat.blast(world, at, def.explosion_radius, damage, 360.0, _breaker)
+	# Whoever broke it may be gone by now (a monster that died during the fuse).
+	var source: Actor = _breaker if is_instance_valid(_breaker) else null
+	Combat.blast(world, at, def.explosion_radius, damage, 360.0, source)
 
 
 func _draw() -> void:

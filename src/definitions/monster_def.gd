@@ -17,6 +17,9 @@ extends ContentDef
 @export var head_height: float = 34.0
 ## Flies over holes and quicksand (bats, ghosts...).
 @export var flies: bool = false
+## How much of the knockback it ignores: 0 = pushed around freely, 1 = never moves.
+## Bosses stand their ground, so no weapon can keep them away from you.
+@export_range(0.0, 1.0, 0.05) var knockback_resistance: float = 0.0
 
 @export_group("Behaviour")
 ## Distance at which the monster notices the player (needs line of sight).

@@ -43,6 +43,7 @@ weapon = ExtResource("11_aelic")
 radius = 14.0
 frames = ExtResource("3_2npta")
 frames_offset = Vector2(0, -8)
+knockback_resistance = 0.5
 attack_windup = 0.55
 attack_recovery = 0.35
 death_spawns = Array[ExtResource("1_3ubkx")]([ExtResource("2_rwk6s")])

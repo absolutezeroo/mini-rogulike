@@ -96,6 +96,17 @@ func is_elite() -> bool:
 	return elite != null
 
 
+## Elites stand their ground better than their kind.
+const ELITE_KNOCKBACK_RESISTANCE := 0.5
+
+
+func get_knockback_resistance() -> float:
+	var resistance := def.knockback_resistance
+	if elite:
+		resistance = maxf(resistance, ELITE_KNOCKBACK_RESISTANCE)
+	return resistance
+
+
 ## Went down a hole (rather than being slain).
 func has_fallen() -> bool:
 	return _fell

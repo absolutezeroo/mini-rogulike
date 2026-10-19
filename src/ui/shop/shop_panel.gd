@@ -53,16 +53,21 @@ func _refresh() -> void:
 			child.queue_free()
 	for i in _merchant.stock.size():
 		var entry: Dictionary = _merchant.stock[i]
-		var can_buy: bool = _player.gold >= entry.price and not _player.inventory.is_full()
+		var can_buy: bool = _player.gold >= entry.price and _player.can_store(entry.item)
 		_for_sale.add_child(_row(entry.item, "%d gold" % entry.price, can_buy, _buy.bind(i)))
 	if _merchant.stock.is_empty():
 		_for_sale.add_child(_note("Sold out!"))
+	for i in Belt.SLOTS:
+		var belt_item := _player.belt.item_at(i)
+		if belt_item:
+			var label := "%s  x%d" % [belt_item.display_name, _player.belt.count_at(i)]
+			_bag.add_child(_row(belt_item, "Sell %d" % _merchant.def.sell_price(belt_item, _player.world.depth), true, _sell.bind(belt_item), label))
 	for entry in _player.inventory.grouped():
 		var item: ItemDef = entry.item
 		var price := _merchant.def.sell_price(item, _player.world.depth)
 		var label := item.display_name + ("  x%d" % entry.count if entry.count > 1 else "")
 		_bag.add_child(_row(item, "Sell %d" % price, price > 0, _sell.bind(item), label))
-	if _player.inventory.items.is_empty():
+	if _player.inventory.items.is_empty() and _player.belt.is_empty():
 		_bag.add_child(_note("Your bag is empty."))
 
 
