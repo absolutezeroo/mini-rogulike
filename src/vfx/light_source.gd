@@ -24,13 +24,17 @@ static var revision := 0
 @export var moves := false
 
 
+## Counted in the field's still lights right now (lit, in the tree, not moving).
+var _counted := false
+
+
 func _enter_tree() -> void:
 	add_to_group(GROUP)
 	_changed()
 
 
 func _exit_tree() -> void:
-	_changed()
+	_changed(true)
 
 
 func _notification(what: int) -> void:
@@ -47,6 +51,11 @@ func is_lit() -> bool:
 	return level > 0 and is_visible_in_tree()
 
 
-func _changed() -> void:
-	if not moves:
+## A still light that is, or was, shining: the field must redo them (an unlit one changes nothing).
+func _changed(leaving := false) -> void:
+	if moves:
+		return
+	var lit := not leaving and is_inside_tree() and is_lit()
+	if lit or _counted:
 		revision += 1
+	_counted = lit

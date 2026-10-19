@@ -19,6 +19,7 @@ static func burst(world: World, scene: PackedScene, at: Vector2, color: Color = 
 	if Settings.fewer_effects:
 		particles.amount = maxi(1, particles.amount / 2)
 	particles.position = at
+	particles.z_index = LightField.Z + 2  # sparks shine on their own, over the floor's light
 	particles.color = color
 	if direction != Vector2.ZERO:
 		particles.direction = direction

@@ -454,7 +454,7 @@ func _on_died(killer: Actor) -> void:
 	for monster_trait in def.traits:
 		monster_trait.on_died(self, killer, fell, not summoned)
 	if fell:
-		if killer is Player:
+		if killer is Player and not summoned:  # summons pay nothing, even pushed into a hole
 			(killer as Player).gain_xp(def.xp_reward * _xp_multiplier)
 		world.spawn_floating_text(global_position, "Fell!", Palette.GOLD)
 		return

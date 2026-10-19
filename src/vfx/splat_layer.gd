@@ -22,6 +22,10 @@ var _splats: Array[Dictionary] = []
 var _chips: Array[Dictionary] = []
 ## Chips flung on this floor so far (the oldest go past MAX_CHIPS, this keeps counting).
 var chips_made := 0
+## Splats made on this floor so far (the oldest go past MAX_SPLATS, this keeps counting).
+var splats_made := 0
+## Chips may still be in the air: redraw every frame until one frame after they all landed.
+var _flying := false
 var _time := 0.0
 var _redraw_timer := 0.0
 
@@ -46,24 +50,28 @@ func add(at: Vector2, color: Color, size: float, direction: Vector2, rng: Random
 		var spot := at + Vector2(-radius * 0.3, -radius * 0.35)
 		shine.append(Rect2(spot.snapped(Vector2(PIXEL, PIXEL)), Vector2(PIXEL * 2.0, PIXEL)))
 	_splats.append({rows = _rows(cells), color = color, shine = shine, born = _time})
+	splats_made += 1
 	if _splats.size() > MAX_SPLATS:
 		_splats.pop_front()
 	queue_redraw()
 
 
 func count() -> int:
-	return _splats.size()
+	return splats_made
 
 
 ## Chips of `material` flung around `at` (`size` 1 = a monster of normal size), mostly along
-## `direction` if given (the killing blow).
-func add_debris(at: Vector2, material: ImpactMaterialDef, size: float, direction: Vector2, rng: RandomNumberGenerator) -> void:
+## `direction` if given (the killing blow). `ground(point) -> bool`: where a chip may land (not
+## on a wall, not over a hole).
+func add_debris(at: Vector2, material: ImpactMaterialDef, size: float, direction: Vector2, rng: RandomNumberGenerator, ground := Callable()) -> void:
 	if material.debris_colors.is_empty():
 		return
 	for i in roundi(material.debris_count * size):
 		var angle := direction.angle() + rng.randf_range(-1.1, 1.1) if direction != Vector2.ZERO and rng.randf() < 0.7 else rng.randf() * TAU
 		var distance := rng.randf_range(6.0, 22.0) * sqrt(size)
 		var to := (at + Vector2.from_angle(angle) * Vector2(1.0, 0.6) * distance).snapped(Vector2(PIXEL, PIXEL))
+		if ground.is_valid() and not ground.call(to):
+			continue
 		var big := rng.randf() < 0.3
 		_chips.append({
 			from = at + Vector2(0, -6),
@@ -76,6 +84,7 @@ func add_debris(at: Vector2, material: ImpactMaterialDef, size: float, direction
 		chips_made += 1
 	while _chips.size() > MAX_CHIPS:
 		_chips.pop_front()
+	_flying = true
 	queue_redraw()
 
 
@@ -116,8 +125,9 @@ func _rows(cells: Dictionary) -> Array[Rect2]:
 
 func _process(delta: float) -> void:
 	_time += delta
-	if not _chips.is_empty() and _time - float(_chips[-1].born) < CHIP_FLIGHT + 0.05:
-		queue_redraw()  # chips in the air
+	if _flying:
+		queue_redraw()  # chips in the air (this frame draws them, landed or not)
+		_flying = not _chips.is_empty() and _time - float(_chips[-1].born) <= CHIP_FLIGHT
 	_redraw_timer -= delta
 	if _redraw_timer > 0.0 or _splats.is_empty():
 		return

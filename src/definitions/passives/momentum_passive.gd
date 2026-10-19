@@ -8,9 +8,9 @@ extends Passive
 
 
 func on_dash(_owner: Actor, perk: PerkSet.Entry) -> void:
-	perk.memory["until"] = Engine.get_physics_frames() + roundi(duration * Engine.physics_ticks_per_second)
+	perk.memory["_until"] = Engine.get_physics_frames() + roundi(duration * Engine.physics_ticks_per_second)
 
 
 func modify_outgoing_hit(_owner: Actor, _target: Actor, hit: HitInfo, perk: PerkSet.Entry) -> void:
-	if Engine.get_physics_frames() <= int(perk.memory.get("until", -1)):
+	if Engine.get_physics_frames() <= int(perk.memory.get("_until", -1)):
 		hit.amount = maxi(1, roundi(hit.amount * (1.0 + bonus_per_stack * perk.stacks)))

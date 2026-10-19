@@ -612,7 +612,7 @@ func add_splat(at: Vector2, color: Color, size: float = 1.0, direction: Vector2 
 func add_debris(at: Vector2, material: ImpactMaterialDef, size: float = 1.0, direction: Vector2 = Vector2.ZERO) -> void:
 	if not is_solid_ground(at):
 		return
-	_splat_layer().add_debris(at, material, size, direction, rng)
+	_splat_layer().add_debris(at, material, size, direction, rng, is_solid_ground)
 
 
 func _splat_layer() -> SplatLayer:
@@ -663,6 +663,26 @@ func pit_under(point: Vector2) -> PitDef:
 ## Solid ground nothing stands on (no wall, hole, crack, chest, encounter, prop...).
 func is_free_cell(cell: Vector2i) -> bool:
 	return is_solid_ground(map.cell_to_world(cell)) and not nav.is_blocked(cell)
+
+
+## The centre of the free cell nearest to `point` (itself if free; `point` if none is found).
+func nearest_free_point(point: Vector2, max_radius: int = 12) -> Vector2:
+	var origin := map.world_to_cell(point)
+	for radius in max_radius + 1:
+		var best := Vector2i(-1, -1)
+		var best_distance := INF
+		for y in range(origin.y - radius, origin.y + radius + 1):
+			for x in range(origin.x - radius, origin.x + radius + 1):
+				if maxi(absi(x - origin.x), absi(y - origin.y)) != radius:
+					continue  # only the ring at this radius
+				var cell := Vector2i(x, y)
+				var distance := map.cell_to_world(cell).distance_squared_to(point)
+				if distance < best_distance and is_free_cell(cell):
+					best = cell
+					best_distance = distance
+		if best != Vector2i(-1, -1):
+			return map.cell_to_world(best)
+	return point
 
 
 func is_solid_ground(point: Vector2) -> bool:

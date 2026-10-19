@@ -158,7 +158,17 @@ func set_gear(affixes: Array[ItemAffixDef], runes: Array[RuneDef] = []) -> void:
 ## For save files: [{ perk, stacks, memory }].
 func to_data() -> Array:
 	return entries.map(func(entry: Entry) -> Dictionary:
-		return { "perk": RunSave.ref(entry.perk), "stacks": entry.stacks, "memory": entry.memory })
+		return { "perk": RunSave.ref(entry.perk), "stacks": entry.stacks, "memory": _lasting(entry.memory) })
+
+
+## What of a passive's memory lasts beyond this session: keys starting with "_" hold frame
+## numbers (the engine's frame counter starts over when the game does), they are not saved.
+static func _lasting(memory: Dictionary) -> Dictionary:
+	var result := {}
+	for key: Variant in memory:
+		if not str(key).begins_with("_"):
+			result[key] = memory[key]
+	return result
 
 
 func load_data(data: Array) -> void:

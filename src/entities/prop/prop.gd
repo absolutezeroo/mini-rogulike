@@ -42,6 +42,7 @@ func _ready() -> void:
 		var flame := def.flame.instantiate() as Node2D
 		flame.position = Vector2(0, SIZE * Vector2(def.footprint).y * 0.5) + def.flame_offset
 		flame.scale = Vector2.ONE * def.flame_scale
+		flame.z_index = LightField.Z + 1  # a flame is its own light
 		add_child(flame)
 	_light.visible = def.light_level > 0
 	_light.color = def.light_color

@@ -13,9 +13,9 @@ extends Passive
 
 func on_damaged(owner: Actor, _hit: HitInfo, damage: int, perk: PerkSet.Entry) -> void:
 	var now := Engine.get_physics_frames()
-	if damage <= 0 or owner.is_dead or now < int(perk.memory.get("ready", 0)):
+	if damage <= 0 or owner.is_dead or now < int(perk.memory.get("_ready", 0)):
 		return
-	perk.memory["ready"] = now + roundi(cooldown * Engine.physics_ticks_per_second)
+	perk.memory["_ready"] = now + roundi(cooldown * Engine.physics_ticks_per_second)
 	var amount := maxi(1, roundi(owner.get_power() * damage_multiplier * perk.stacks))
 	Combat.damage_area(owner.world, owner, owner.global_position, radius, amount, knockback, true)
 	owner.world.spawn_vfx(RingVfx.create(owner.global_position, radius, color))

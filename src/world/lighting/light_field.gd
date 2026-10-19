@@ -14,7 +14,7 @@ extends Node2D
 const MAX_LEVEL := 15
 ## What each cell is, for the light.
 const OPEN := 0
-const FACE := 1  ## a cliff face: catches the light, doesn't pass it on
+const FACE := 1  ## a cliff face (two tiles high): catches the light, doesn't pass it on
 const SOLID := 2  ## the plateau: in the floor's own light, always
 ## Cells per tile, each way.
 const CELLS := 2
@@ -75,14 +75,17 @@ func _ready() -> void:
 
 
 ## Lights a new floor. `tint` (the difficulty's darkness, a curse's or an event's color): its
-## brightness lowers the floor's own light, its color tints it (less and less by the lamps).
+## brightness lowers (or raises) the floor's own light, its color tints it (less and less by the
+## lamps).
 func setup(map: DungeonMap, lighting: LightingDef, tint: Color = Color.WHITE) -> void:
 	_map = map
 	_cell_size = float(map.tile_size) / CELLS
 	_size = Vector2i(map.width, map.height) * CELLS
 	var brightness := maxf(maxf(tint.r, tint.g), maxf(tint.b, 0.001))
 	var hue := Color(tint.r / brightness, tint.g / brightness, tint.b / brightness)
-	ambient_level = clampi(roundi((lighting.ambient_level if lighting else MAX_LEVEL) * minf(brightness, 1.0)), 0, MAX_LEVEL)
+	ambient_level = clampi(roundi((lighting.ambient_level if lighting else MAX_LEVEL) * brightness), 0, MAX_LEVEL)
+	# Darker floors are a shade darker too, below the lamps (so two difficulties never look alike).
+	hue = Color(hue * sqrt(minf(brightness, 1.0)), 1.0)
 	tint_strength = lighting.tint_strength if lighting else 0.0
 	colors.resize(MAX_LEVEL + 1)
 	var ramp := Image.create(MAX_LEVEL + 1, 1, false, Image.FORMAT_RGBA8)
@@ -96,7 +99,7 @@ func setup(map: DungeonMap, lighting: LightingDef, tint: Color = Color.WHITE) ->
 	for y in _size.y:
 		for x in _size.x:
 			var tile := Vector2i(x / CELLS, y / CELLS)
-			_walls[y * _size.x + x] = OPEN if map.is_floor(tile) else (FACE if map.is_floor(tile + Vector2i.DOWN) else SOLID)
+			_walls[y * _size.x + x] = OPEN if map.is_floor(tile) else (FACE if _is_face(map, tile) else SOLID)
 	_levels.resize(count)
 	_tints.resize(count * 4)
 	_value.resize(count)
@@ -182,19 +185,19 @@ func _bake() -> void:
 		var source := node as LightSource
 		if source == null or source.moves or not source.is_lit():
 			continue
-		var start := _cell_of(source.global_position)
-		if not _in_grid(start):
-			continue
-		var index := _index(start)
 		var value := source.level_over(ambient_level) * STEP
-		_starts[index] = 1
-		if value > _value[index] and value > ambient_level * STEP:
-			_value[index] = value
-			var tint := _normalized(source.color)
-			_tints[index * 4] = roundi(tint.r * 255.0)
-			_tints[index * 4 + 1] = roundi(tint.g * 255.0)
-			_tints[index * 4 + 2] = roundi(tint.b * 255.0)
-			buckets[value].append(index)
+		if value < (ambient_level + 1) * STEP:
+			continue  # no brighter than the floor's own light
+		var tint := _normalized(source.color)
+		# A lamp on a tile's centre sits where four cells meet: it lights all four.
+		for index in _start_cells(source.global_position):
+			_starts[index] = 1
+			if value > _value[index]:
+				_value[index] = value
+				_tints[index * 4] = roundi(tint.r * 255.0)
+				_tints[index * 4 + 1] = roundi(tint.g * 255.0)
+				_tints[index * 4 + 2] = roundi(tint.b * 255.0)
+				buckets[value].append(index)
 	_levels.fill(0)
 	_spread(buckets)
 	_baked.set_image(Image.create_from_data(_size.x, _size.y, false, Image.FORMAT_RGBA8, _tints))
@@ -208,12 +211,12 @@ func _bake() -> void:
 ## It stops where it gets no brighter than the floor's own light.
 func _spread(buckets: Array[Array]) -> void:
 	var width := _size.x
-	var dim := ambient_level * STEP
+	var lit_min := (ambient_level + 1) * STEP
 	for value in range(buckets.size() - 1, 0, -1):
 		for index: int in buckets[value]:
 			if _value[index] != value:
 				continue  # reached brighter since
-			var level := (value + STEP - 1) / STEP
+			var level := value / STEP
 			_levels[index] = level
 			_tints[index * 4 + 3] = level * 17
 			var x := index % width
@@ -221,13 +224,16 @@ func _spread(buckets: Array[Array]) -> void:
 			var in_wall := _walls[index] != OPEN and _starts[index] == 0
 			for step in NEIGHBOURS:
 				var next_value := value - step.z
-				if next_value <= dim:
+				if next_value < lit_min:
 					continue
 				var nx := x + step.x
 				var ny := y + step.y
 				if nx < 0 or ny < 0 or nx >= width or ny >= _size.y:
 					continue
-				if in_wall and (nx / CELLS != x / CELLS or ny / CELLS != y / CELLS):
+				# In a wall: only on through its own tile, or up the cliff face it belongs to.
+				if in_wall and nx / CELLS != x / CELLS:
+					continue
+				if in_wall and ny / CELLS != y / CELLS and (step.x != 0 or _walls[ny * width + nx] != FACE):
 					continue
 				if step.z == DIAGONAL and (_walls[y * width + nx] != OPEN or _walls[ny * width + x] != OPEN):
 					continue
@@ -268,12 +274,39 @@ func _moving_level(source: LightSource, cell: Vector2i) -> int:
 	var steps := ceili(maxf(absf(d.x), absf(d.y)))
 	for k in range(1, steps):
 		var p := Vector2i((to + d * (float(k) / steps)).floor())
-		if _in_grid(p) and _walls[_index(p)] != OPEN and p / CELLS != cell / CELLS:
+		if _in_grid(p) and _walls[_index(p)] != OPEN and not _same_face(p, cell):
 			return 0
 	return lit
 
 
 # --- Cells ----------------------------------------------------------------------------
+
+## A wall tile showing the cliff: right above the floor, or right above such a tile.
+static func _is_face(map: DungeonMap, tile: Vector2i) -> bool:
+	if map.is_floor(tile + Vector2i.DOWN):
+		return true
+	return not map.is_floor(tile + Vector2i.DOWN) and map.in_bounds(tile + Vector2i.DOWN * 2) and map.is_floor(tile + Vector2i.DOWN * 2)
+
+
+## True if wall cell `p` is part of the cliff face `target` is on (its tile, or the tile below):
+## light reaching `target` there may cross it.
+static func _same_face(p: Vector2i, target: Vector2i) -> bool:
+	var a := p / CELLS
+	var b := target / CELLS
+	return a.x == b.x and (a.y == b.y or a.y == b.y + 1)
+
+
+## The cells a still light starts from: those within a quarter cell of it (one, or the four
+## around a tile's centre).
+func _start_cells(point: Vector2) -> Array[int]:
+	var result: Array[int] = []
+	var quarter := _cell_size * 0.25
+	for offset: Vector2 in [Vector2(-quarter, -quarter), Vector2(quarter, -quarter), Vector2(-quarter, quarter), Vector2(quarter, quarter)]:
+		var cell := _cell_of(point + offset)
+		if _in_grid(cell) and not result.has(_index(cell)):
+			result.append(_index(cell))
+	return result
+
 
 ## The cell under a point of the world.
 func _cell_of(point: Vector2) -> Vector2i:

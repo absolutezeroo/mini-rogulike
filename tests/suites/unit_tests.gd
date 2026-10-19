@@ -446,6 +446,7 @@ func _test_lighting() -> void:
 	lamp.position = map.cell_to_world(Vector2i(2, 2))
 	field.add_child(lamp)
 	check(at.call(2, 2) == 15 and at.call(3, 2) == 14 and at.call(4, 2) == 13, "a lamp: 15 on its tile, then 14, 13...")
+	check(at.call(1, 2) == 14 and at.call(2, 1) == 14 and at.call(2, 3) == 14, "...the same on every side")
 	check(at.call(2, 0) == 13, "the cliff face above catches the light")
 	check(at.call(5, 2) == 3 and at.call(6, 2) == 3, "the plateau stays in the floor's own light")
 	var behind: int = at.call(9, 2)

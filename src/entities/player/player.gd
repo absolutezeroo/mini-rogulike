@@ -398,6 +398,10 @@ func _check_ground() -> void:
 func _on_fell(pit: PitDef) -> void:
 	if is_dead:
 		return  # killed during the fall: the body stays down there
+	# Where the hero stood may have given way since (a boss arena opening up): the nearest free
+	# floor then, or they would fall again and again.
+	if not world.is_solid_ground(_safe_position):
+		_safe_position = world.nearest_free_point(_safe_position)
 	global_position = _safe_position
 	_recover_from_fall()
 	Vfx.puff(world, global_position)
@@ -434,7 +438,7 @@ func _on_damaged(hit: HitInfo, damage: int) -> void:
 	if damage > 0:
 		last_hurt_frame = Engine.get_physics_frames()
 	damaged.emit(damage)
-	if hit.source is Monster and is_instance_valid(hit.source):
+	if is_instance_valid(hit.source) and hit.source is Monster:
 		(hit.source as Monster).on_hit_player(self)
 	if hit.is_tick:
 		return

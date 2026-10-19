@@ -19,8 +19,11 @@ func _test_world_objects(game: Game, world: World, player: Player) -> void:
 	world.flash_light(flash_at, Color.WHITE, 400.0)  # 10 levels above the floor's own light
 	await _frames(1)
 	check(world.lights.level_at(flash_at) >= mini(LightField.MAX_LEVEL, world.lights.ambient_level + 9), "a flash lights up the place")
-	await _frames(40)
-	check(world.lights.level_at(flash_at) == before, "...then fades")
+	for i in 300:  # (hits on the hero meanwhile may freeze time a moment)
+		if get_tree().get_nodes_in_group(LightSource.GROUP).all(func(n: Node) -> bool: return not n is LightFlash):
+			break
+		await _frames(1)
+	check(get_tree().get_nodes_in_group(LightSource.GROUP).all(func(n: Node) -> bool: return not n is LightFlash), "...then fades")
 
 	# A crate in front of the hero breaks under the katana.
 	var crate_def: PropDef = load("res://data/props/crate.tres")
@@ -110,6 +113,8 @@ func _test_forge(game: Game, world: World, player: Player) -> void:
 	var worn := player.equipment.get_item(EquipmentDef.Slot.WEAPON)
 	var ember: RuneDef = load("res://data/runes/ember.tres")
 	var spark: RuneDef = load("res://data/runes/spark.tres")
+	var bag := player.inventory.items.duplicate()  # an empty bag for the test (the bot's is put back)
+	player.inventory.items.clear()
 	player.inventory.add(ember)
 	player.inventory.add(spark)
 	var cell := world.map.world_to_cell(world.find_open_point_near(player.global_position + Vector2(90, 0), 40.0))
@@ -121,9 +126,10 @@ func _test_forge(game: Game, world: World, player: Player) -> void:
 	check(panel.visible and get_tree().paused, "walking up to the smith opens the forge")
 	var sockets := worn.socket_count()
 	check(sockets >= 1, "a weapon has rune sockets (%d)" % sockets)
+	var embers := player.inventory.count_of(ember)  # (the bot may have found some already)
 	check(panel.set_rune(ember), "a rune goes into the weapon")
 	var worked := player.equipment.get_item(EquipmentDef.Slot.WEAPON)
-	check(worked.runes.has(ember) and not player.inventory.items.has(ember), "it is set, and gone from the bag")
+	check(worked.runes.has(ember) and player.inventory.count_of(ember) == embers - 1, "it is set, and gone from the bag")
 	check(worked == worn or worked.base_item == (worn.base_item if worn.is_rolled() else worn), "...in the same weapon (a plain one becomes its own copy)")
 	check(worn.is_rolled() or worn.runes.is_empty(), "the plain weapon itself stays bare")
 	var burns := false
@@ -148,8 +154,8 @@ func _test_forge(game: Game, world: World, player: Player) -> void:
 	panel.close()
 	await _frames(2)
 	check(not get_tree().paused, "the game goes on when the forge closes")
-	player.inventory.remove(ember)
-	player.inventory.remove(spark)
+	player.inventory.items.assign(bag)
+	player.inventory.changed.emit()
 	forge.queue_free()
 	# Runes drop.
 	var before := get_tree().get_nodes_in_group("pickups").filter(func(p: Node) -> bool: return (p as ItemPickup).item is RuneDef).size()
@@ -186,6 +192,16 @@ func _test_feel(_game: Game, world: World, player: Player) -> void:
 	check(player.camera.kick_offset().x > 0.0, "the camera leans with a blow")
 	await _frames(30)
 	check(player.camera.kick_offset() == Vector2.ZERO, "...and springs back")
+	# A hit lands during physics: its freeze must hold on the next frames.
+	await get_tree().physics_frame
+	HitStop.freeze(0.1)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	check(Engine.time_scale < 1.0, "a freeze asked during physics holds")
+	HitStop.reset()
+	var wall_point := world.map.cell_to_world(Vector2i.ZERO)
+	check(world.is_free_cell(world.map.world_to_cell(world.nearest_free_point(player.global_position))), "after a fall the hero climbs out on free floor")
+	check(world.nearest_free_point(wall_point) != wall_point or not world.map.is_floor(Vector2i.ZERO), "...even when the ground gave way")
 	HitStop.slow(0.2, 0.5)
 	check(is_equal_approx(Engine.time_scale, 0.5), "a strong kill slows the world")
 	HitStop.reset()
@@ -399,9 +415,10 @@ func _test_hazards(game: Game, world: World, player: Player) -> void:
 	check(not is_instance_valid(neighbour) or neighbour.hp < neighbour_hp, "explosive elites blow up when they die")
 	# (The hero may pick some up meanwhile: no fewer items, and a guaranteed drop.)
 	check(guaranteed_drops >= 1 and get_tree().get_nodes_in_group("pickups").size() >= items_before, "elites always drop loot")
-	for node: Node in [elite, neighbour]:
-		if is_instance_valid(node):
-			node.queue_free()
+	if is_instance_valid(elite):
+		elite.queue_free()
+	if is_instance_valid(neighbour):
+		neighbour.queue_free()
 	var chances := 0
 	for i in 400:
 		var rolled := world.spawn_monster(slime_def, world.find_open_point_near(player.global_position, 300.0))
@@ -1223,13 +1240,17 @@ func _test_details(game: Game) -> void:
 	var spot := world.map.cell_to_world(_open_cell_near(world, player.global_position, 2))
 	var before := world.splat_count()
 	var slime := world.spawn_monster(load("res://data/monsters/slime.tres"), spot)
+	slime.dormant = true
 	await _frames(1)
+	before = world.splat_count()  # (the hero's perks may have hurt it already: drops of slime)
 	slime.die(null)
 	check(world.splat_count() == before + 1, "a slime leaves a splat where it dies")
 	var spirit := world.spawn_monster(load("res://data/monsters/spirit.tres"), spot)
+	spirit.dormant = true
 	await _frames(1)
+	var after_slime := world.splat_count()
 	spirit.die(null)
-	check(world.splat_count() == before + 1, "a spirit leaves nothing")
+	check(world.splat_count() == after_slime, "a spirit leaves nothing")
 	check((load("res://data/monsters/slime.tres") as MonsterDef).splat_color.g > 0.4, "slimes leave green slime, not blood")
 
 	var plants: Array[DecorLayer] = []

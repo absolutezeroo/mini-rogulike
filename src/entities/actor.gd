@@ -269,7 +269,8 @@ func take_hit(hit: HitInfo) -> void:
 	if is_instance_valid(hit.source) and hit.source != self:
 		last_attacker = hit.source
 	if hit.status:
-		hit.status.apply_to(self, attacker)
+		# Credited to whoever caused it, secondary hits too (a burn from a blast kills for the hero).
+		hit.status.apply_to(self, hit.source if is_instance_valid(hit.source) else null)
 	# Lethal or not is decided by this hit alone: side effects below (thorns killing the attacker,
 	# a level up, a heal on kill) must not pull the actor back from 0 HP.
 	var lethal := hp <= 0

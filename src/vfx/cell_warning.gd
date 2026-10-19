@@ -14,7 +14,7 @@ static func create(cells: Array[Vector2i], tile_size: int, duration: float) -> C
 	warning._cells = cells
 	warning._tile = float(tile_size)
 	warning._duration = duration
-	warning.z_index = 1
+	warning.z_index = LightField.Z + 1  # over the floor's light: seen even in the dark
 	return warning
 
 

@@ -57,8 +57,8 @@ func kill_context(monster: Monster) -> Dictionary:
 	var max_hp := maxi(player.get_max_hp(), 1) if player else 1
 	return {
 		"elite": monster.is_elite(),
-		"pushed_in": monster.has_fallen() and monster.last_attacker is Player,
-		"crit": monster.last_hit != null and monster.last_hit.is_crit and monster.last_hit.source is Player,
+		"pushed_in": monster.has_fallen() and _by_hero(monster.last_attacker),
+		"crit": monster.last_hit != null and monster.last_hit.is_crit and _by_hero(monster.last_hit.source),
 		"weapon": weapon,
 		"weapon_base": base,
 		"untouched": player != null and monster.noticed_frame >= 0 and player.last_hurt_frame < monster.noticed_frame,
@@ -70,10 +70,15 @@ func kill_context(monster: Monster) -> Dictionary:
 	}
 
 
+## `who` is the hero (and still there: `is` on a freed instance is an error).
+static func _by_hero(who: Object) -> bool:
+	return is_instance_valid(who) and who is Player
+
+
 func _on_monster_killed(monster: Monster) -> void:
 	if player == null or not is_instance_valid(player) or player.is_dead or content == null or content.bestiary == null:
 		return
-	if monster.world != player.world or not monster.last_attacker is Player:
+	if monster.world != player.world or not _by_hero(monster.last_attacker):
 		return  # slain by something else (a trap, another monster)
 	var times: Array = _kill_times.get(monster.def.id, [])
 	times.append(_clock)

@@ -33,7 +33,7 @@ func setup(source_def: HeatSourceDef, floor_world: World, cells: Rect2i) -> void
 	_time = world.rng.randf() * 10.0
 	add_to_group("heat_sources")
 	if def.comfort and def.pond == null:
-		# The fire is its own light: don't let the lights burn it out.
+		# The fire is its own light (its tile is lit to its level by the LightField anyway).
 		var unshaded := CanvasItemMaterial.new()
 		unshaded.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
 		material = unshaded

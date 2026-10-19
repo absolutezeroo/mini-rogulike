@@ -17,15 +17,17 @@ bool is_wall(vec2 cell) {
 	return texture(walls, cell / grid).r > 0.25;
 }
 
-// True if a wall stands between the two cell centres. The wall tile `to` is on (two cells
-// each way) doesn't count: a wall catches the light on its whole tile, its cliff face.
+// True if a wall stands between the two cell centres. The cliff face `to` is on (its tile and
+// the tile below it, two cells each) doesn't count: a face catches the light all the way up.
 bool blocked(vec2 from, vec2 to) {
 	vec2 d = from - to;
 	vec2 tile = floor(to / 2.0);
 	int steps = int(ceil(max(abs(d.x), abs(d.y))));
 	for (int k = 1; k < steps; k++) {
 		vec2 p = floor(to + d * (float(k) / float(steps)));
-		if (is_wall(p + 0.5) && floor(p / 2.0) != tile) {
+		vec2 t = floor(p / 2.0);
+		bool own_face = t.x == tile.x && (t.y == tile.y || t.y == tile.y + 1.0);
+		if (is_wall(p + 0.5) && !own_face) {
 			return true;
 		}
 	}
@@ -35,7 +37,8 @@ bool blocked(vec2 from, vec2 to) {
 void fragment() {
 	vec2 cell = floor(UV * grid) + 0.5;
 	vec4 b = texture(baked, cell / grid);
-	float level = floor(b.a * 15.0 + 0.5);
+	// Starting from the floor's own light: only lights that can brighten a cell are checked.
+	float level = max(floor(b.a * 15.0 + 0.5), ambient_level);
 	vec3 tint = b.rgb;
 	// The plateau stays in the floor's own light.
 	int count = texture(walls, cell / grid).r > 0.75 ? 0 : light_count;

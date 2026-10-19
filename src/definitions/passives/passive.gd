@@ -3,7 +3,8 @@ extends Resource
 ## Behaviour granted by a perk (see PerkDef). Override only the hooks you need.
 ## `perk` holds the stack count and a `memory` dictionary for state that must last
 ## the whole run (charges, timers...): never store run state on the Passive itself,
-## the resource is shared by everyone who has the perk.
+## the resource is shared by everyone who has the perk. Memory keys starting with "_" are not
+## saved (frame numbers: the engine's counter starts over with the game).
 
 
 ## Before an outgoing hit is mitigated: change its damage, crit...

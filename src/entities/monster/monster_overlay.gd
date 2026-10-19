@@ -20,8 +20,11 @@ static func create(owner: Monster, overlay_layer: Layer) -> MonsterOverlay:
 	overlay.layer = overlay_layer
 	overlay.name = "Under" if overlay_layer == Layer.UNDER else "Over"
 	overlay.show_behind_parent = overlay_layer == Layer.UNDER
+	if overlay_layer == Layer.OVER:
+		overlay.z_index = LightField.Z + 1  # names and health bars stay readable in the dark
 	if overlay_layer == Layer.UNDER:
 		overlay._telegraph = TelegraphView.new()
+		overlay._telegraph.z_index = LightField.Z + 1  # a warning must show even in the dark
 		overlay.add_child(overlay._telegraph)
 	return overlay
 

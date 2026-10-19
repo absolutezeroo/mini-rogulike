@@ -58,8 +58,8 @@ func record_history() -> void:
 
 
 func _on_monster_killed(monster: Monster) -> void:
-	if run == null:
-		return
+	if run == null or monster.summoned:
+		return  # called in by another monster: no kill to count, no souls, no bestiary farming
 	run.kills += 1
 	Profile.record_kill(monster.def.id)
 	if content and content.bestiary:
@@ -72,7 +72,7 @@ func _on_monster_killed(monster: Monster) -> void:
 		Events.log_message("A Shiny %s! It joins the bestiary's collection." % monster.def.display_name, monster.rank.color)
 	if monster.is_boss():
 		Profile.add_stat("bosses")
-	if monster.has_fallen() and monster.last_attacker is Player:
+	if monster.has_fallen() and is_instance_valid(monster.last_attacker) and monster.last_attacker is Player:
 		Profile.add_stat("pushed")
 	check_achievements()
 

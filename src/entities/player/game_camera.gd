@@ -42,7 +42,7 @@ func shake(amount: float) -> void:
 
 func _process(delta: float) -> void:
 	# Real time: a hit stop must not hold the view pushed.
-	var real := delta / maxf(Engine.time_scale, 0.001)
+	var real := HitStop.real_delta(delta)
 	_kick = _kick * exp(-KICK_RETURN * real)
 	if _kick.length() < 0.1:
 		_kick = Vector2.ZERO
