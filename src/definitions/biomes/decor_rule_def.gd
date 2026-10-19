@@ -24,3 +24,5 @@ enum Where {
 @export_range(0.0, 1.0) var clumping: float = 0.6
 ## Size of the clusters.
 @export_range(0.02, 0.5) var noise_scale: float = 0.2
+## Plants: they sway and bend when walked through.
+@export var sway: bool = false

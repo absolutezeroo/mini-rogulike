@@ -12,6 +12,7 @@
 [ext_resource type="Resource" path="res://data/skills/monster/blink.tres" id="10_1swna"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_cgemb"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/ghost_flame.tres" id="12_1ckka"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="12_o3lwi"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_hvwkp"]
 atlas = ExtResource("3_6ykpo")
@@ -50,6 +51,7 @@ radius = 10.0
 frames = ExtResource("2_o3lwi")
 frames_offset = Vector2(0, -8)
 flies = true
+splat_color = Color(0, 0, 0, 0)
 attack_windup = 0.5
 attack_recovery = 0.35
 keep_distance = 180.0

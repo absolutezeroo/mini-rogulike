@@ -11,6 +11,7 @@
 [ext_resource type="Resource" path="res://data/skills/monster/spore_cloud.tres" id="9_2l1lx"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_cxi3v"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/slam.tres" id="11_1mytu"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="11_xglpw"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_isib2"]
 atlas = ExtResource("3_hdlx3")
@@ -45,6 +46,7 @@ skills = Array[ExtResource("8_wulgo")]([ExtResource("9_2l1lx")])
 radius = 11.0
 frames = ExtResource("2_xglpw")
 frames_offset = Vector2(0, -8)
+splat_color = Color(0.6, 0.45, 0.65, 0.75)
 attack_windup = 0.5
 attack_recovery = 0.35
 loot = SubResource("Resource_plk8k")

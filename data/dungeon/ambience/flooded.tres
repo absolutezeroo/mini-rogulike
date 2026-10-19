@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="AmbienceDef" format=3]
+
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/crypt/bed.ogg" id="1_5j4r7"]
+[ext_resource type="Texture2D" path="res://assets/fx/fog.png" id="2_76goa"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/crypt/step_0.ogg" id="3_kyojl"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/crypt/step_1.ogg" id="4_3j46v"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/crypt/step_2.ogg" id="5_fly8s"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/crypt/step_3.ogg" id="6_05s6i"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/crypt/step_4.ogg" id="7_jpcek"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/crypt/eerie.ogg" id="8_hmik0"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/crypt/whisper.ogg" id="9_my82t"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/crypt/chains.ogg" id="10_6e7fd"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/crypt/spirit.ogg" id="11_gkhtp"]
+[ext_resource type="PackedScene" path="res://src/vfx/ambient/mist.tscn" id="12_psivv"]
+[ext_resource type="Script" path="res://src/definitions/ambience_def.gd" id="13_5ur6i"]
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_orsg8"]
+random_pitch = 1.12
+random_volume_offset_db = 1.5
+streams_count = 5
+stream_0/stream = ExtResource("3_kyojl")
+stream_1/stream = ExtResource("4_3j46v")
+stream_2/stream = ExtResource("5_fly8s")
+stream_3/stream = ExtResource("6_05s6i")
+stream_4/stream = ExtResource("7_jpcek")
+
+[resource]
+script = ExtResource("13_5ur6i")
+footstep = SubResource("AudioStreamRandomizer_orsg8")
+footprint_color = Color(0.6, 0.65, 0.8, 0.18)
+bed = ExtResource("1_5j4r7")
+bed_volume_db = -14.0
+one_shots = Array[AudioStream]([ExtResource("8_hmik0"), ExtResource("9_my82t"), ExtResource("10_6e7fd"), ExtResource("11_gkhtp")])
+reverb_room_size = 0.85
+reverb_wet = 0.28
+particles = ExtResource("12_psivv")
+fog = ExtResource("2_76goa")
+fog_color = Color(0.75, 0.85, 1, 0.05)
+fog_speed = Vector2(8, 3)

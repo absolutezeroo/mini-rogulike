@@ -1,0 +1,30 @@
+[gd_scene format=3]
+
+[sub_resource type="CanvasItemMaterial" id="Material_glow"]
+blend_mode = 1
+light_mode = 1
+
+[sub_resource type="Curve" id="Curve_size"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.3), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_fire"]
+offsets = PackedFloat32Array(0, 0.25, 0.6, 1)
+colors = PackedColorArray(1, 0.95, 0.7, 0.95, 1, 0.75, 0.3, 0.9, 0.95, 0.35, 0.12, 0.6, 0.5, 0.15, 0.1, 0)
+
+[node name="PropFlame" type="CPUParticles2D"]
+material = SubResource("Material_glow")
+amount = 10
+lifetime = 0.55
+preprocess = 1.0
+emission_shape = 3
+emission_rect_extents = Vector2(3, 1)
+direction = Vector2(0, -1)
+spread = 12.0
+gravity = Vector2(0, -60)
+initial_velocity_min = 8.0
+initial_velocity_max = 22.0
+scale_amount_min = 2.0
+scale_amount_max = 3.0
+scale_amount_curve = SubResource("Curve_size")
+color_ramp = SubResource("Gradient_fire")

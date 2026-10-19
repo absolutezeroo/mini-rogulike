@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="7_fmu4x"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_pga11"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="9_o7jpk"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="10_5t4rs"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/water_jet.tres" id="10_ep740"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_arixd"]
@@ -42,6 +43,7 @@ weapon = ExtResource("10_ep740")
 radius = 10.0
 frames = ExtResource("2_5t4rs")
 frames_offset = Vector2(0, -8)
+splat_color = Color(0.25, 0.45, 0.6, 0.75)
 attack_windup = 0.45
 attack_recovery = 0.35
 keep_distance = 180.0

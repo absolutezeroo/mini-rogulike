@@ -65,6 +65,7 @@ coverage = 0.22
 noise_scale = 0.08
 wall_bias = -0.2
 roughness = 0.45
+shimmer = 1.0
 
 [resource]
 script = ExtResource("13_3x0m4")

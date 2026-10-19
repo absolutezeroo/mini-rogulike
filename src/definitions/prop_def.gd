@@ -24,6 +24,11 @@ extends ContentDef
 ## Light given off (needs the floor's ambient darkness to show). Alpha 0 = no light.
 @export var light_color: Color = Color(1, 1, 1, 0)
 @export var light_radius: float = 180.0
+## Flames rising from it (braziers, candles): a looping particle scene, where on the sprite
+## (from its foot), and how big.
+@export var flame: PackedScene
+@export var flame_offset: Vector2 = Vector2(0, -24)
+@export var flame_scale: float = 1.0
 
 
 func is_breakable() -> bool:

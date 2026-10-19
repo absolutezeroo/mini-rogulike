@@ -922,6 +922,55 @@ func _test_biomes(game: Game) -> void:
 	game.depth = depth_before
 
 
+## The small things: splats on the floor, plants that bend, the HP bar's trail, flames, the air.
+func _test_details(game: Game) -> void:
+	var depth_before := game.depth
+	game.world.forced_biome = load("res://data/biomes/underground_garden.tres")
+	await game.debug_enter_floor(2)
+	var world := game.world
+	var player := game.player
+	await _clear_monsters(world)
+	var spot := world.map.cell_to_world(_open_cell_near(world, player.global_position, 2))
+	var before := world.splat_count()
+	var slime := world.spawn_monster(load("res://data/monsters/slime.tres"), spot)
+	await _frames(1)
+	slime.die(null)
+	check(world.splat_count() == before + 1, "a slime leaves a splat where it dies")
+	var spirit := world.spawn_monster(load("res://data/monsters/spirit.tres"), spot)
+	await _frames(1)
+	spirit.die(null)
+	check(world.splat_count() == before + 1, "a spirit leaves nothing")
+	check((load("res://data/monsters/slime.tres") as MonsterDef).splat_color.g > 0.4, "slimes leave green slime, not blood")
+
+	var plants: Array[DecorLayer] = []
+	for node in world.get_node("Effects").get_children():
+		if node is DecorLayer and (node as DecorLayer).sway:
+			plants.append(node as DecorLayer)
+	check(not plants.is_empty(), "the garden's plants sway")
+	if not plants.is_empty():
+		var layer := plants[0]
+		var piece: Array = layer.pieces[0]
+		player.global_position = DecorLayer._foot(piece) + Vector2(-8, 0)
+		await _frames(20)
+		check(absf(layer._lean[0]) > 0.1, "a plant bends when the hero walks through it")
+
+	var bar := StatBar.new()
+	add_child(bar)
+	bar.set_values(100, 100)
+	bar.set_values(60, 100)
+	check(bar._trail == 100.0, "a hit leaves a pale trail on the bar")
+	for i in 90:
+		await get_tree().process_frame
+	check(bar._trail == 60.0 and not bar.is_processing(), "then the trail drains away")
+	bar.queue_free()
+
+	check((load("res://data/props/furniture/brazier.tres") as PropDef).flame != null, "braziers burn")
+	var garden: BiomeDef = load("res://data/biomes/underground_garden.tres")
+	check(garden.theme.ambience.particles.resource_path.ends_with("fireflies.tscn"), "fireflies in the garden")
+	await _clear_monsters(world)
+	game.depth = depth_before
+
+
 ## Free floor cells (not under furniture, water...) the hero can't get to from the start
 ## (crates and pots in the way don't count: they break).
 func _walled_off_cells(world: World) -> Array[Vector2i]:

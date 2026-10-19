@@ -16,6 +16,7 @@
 [ext_resource type="Resource" path="res://data/skills/monster/blink.tres" id="12_27a71"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="13_prruu"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/spirit_touch.tres" id="14_a5nog"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="16_wgrrx"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_jljmj"]
 atlas = ExtResource("3_6v0f1")
@@ -72,6 +73,7 @@ radius = 10.0
 frames = ExtResource("2_e2ui1")
 frames_offset = Vector2(0, -8)
 flies = true
+splat_color = Color(0, 0, 0, 0)
 detect_radius = 300.0
 attack_windup = 0.3
 death_sound = ExtResource("1_wp4is")

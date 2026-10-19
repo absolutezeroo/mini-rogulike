@@ -54,6 +54,7 @@ where = 2
 ground = SubResource("Resource_tbdxu")
 density = 0.25
 max_per_room = 4
+sway = true
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wg6do"]
 atlas = ExtResource("5_qb74a")
@@ -100,6 +101,7 @@ where = 2
 ground = SubResource("Resource_tbdxu")
 density = 0.06
 max_per_room = 1
+sway = true
 
 [resource]
 script = ExtResource("14_6i532")

@@ -421,6 +421,8 @@ func _on_damaged(hit: HitInfo, damage: int) -> void:
 	if hit.is_tick:
 		return
 	_invulnerable_time = HIT_INVULNERABILITY
+	if damage > 0 and world.rng.randf() < 0.6:
+		world.add_splat(global_position + Vector2(0, 3), Palette.BLOOD.darkened(0.35), 0.35, hit.knockback.normalized())
 	HitStop.freeze(0.08)
 	camera.shake(clampf(float(damage) / get_max_hp() * 3.0, 0.25, 0.8))
 

@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="6_ujmy2"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_ckn36"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="8_2u6dl"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="9_6trbu"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/acid_spit.tres" id="9_632mt"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0i7ep"]
@@ -36,6 +37,7 @@ weapon = ExtResource("9_632mt")
 radius = 9.0
 frames = ExtResource("2_6trbu")
 frames_offset = Vector2(0, -8)
+splat_color = Color(0.55, 0.62, 0.15, 0.8)
 attack_windup = 0.5
 attack_recovery = 0.35
 keep_distance = 150.0

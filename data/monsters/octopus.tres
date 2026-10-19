@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_143tn"]
 [ext_resource type="Resource" path="res://data/skills/monster/ink_ring.tres" id="9_wy21n"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_fi5c1"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="11_bom10"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/ink_bolt.tres" id="11_urdm2"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_kqvns"]
@@ -44,6 +45,7 @@ skills = Array[ExtResource("8_143tn")]([ExtResource("9_wy21n")])
 radius = 11.0
 frames = ExtResource("2_bom10")
 frames_offset = Vector2(0, -8)
+splat_color = Color(0.18, 0.1, 0.28, 0.85)
 attack_windup = 0.5
 attack_recovery = 0.35
 keep_distance = 160.0

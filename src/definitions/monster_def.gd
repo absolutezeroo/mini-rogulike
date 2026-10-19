@@ -17,6 +17,9 @@ extends ContentDef
 @export var head_height: float = 34.0
 ## Flies over holes and quicksand (bats, ghosts...).
 @export var flies: bool = false
+## What it leaves on the floor when hit or killed (blood, slime, ink...). Alpha 0: nothing
+## (spirits, flames, skulls).
+@export var splat_color: Color = Color(0.42, 0.05, 0.08, 0.85)
 ## How much of the knockback it ignores: 0 = pushed around freely, 1 = never moves.
 ## Bosses stand their ground, so no weapon can keep them away from you.
 @export_range(0.0, 1.0, 0.05) var knockback_resistance: float = 0.0

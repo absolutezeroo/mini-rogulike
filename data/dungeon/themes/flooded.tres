@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="DungeonTheme" format=3]
 
-[ext_resource type="Resource" path="res://data/dungeon/ambience/crypt.tres" id="1_8bvbx"]
+[ext_resource type="Resource" path="res://data/dungeon/ambience/flooded.tres" id="1_8bvbx"]
 [ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="2_pbpxd"]
 [ext_resource type="Texture2D" path="res://assets/tiles/floor.png" id="3_puywn"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/crypt.ogg" id="4_edppq"]

@@ -12,6 +12,7 @@
 [ext_resource type="Resource" path="res://data/skills/monster/volley.tres" id="10_y1d81"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_mnlim"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/eye_beam_bolt.tres" id="12_e8dg8"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="12_mhj34"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_i7mwh"]
 atlas = ExtResource("3_2gh8m")
@@ -51,6 +52,7 @@ radius = 10.0
 frames = ExtResource("2_mhj34")
 frames_offset = Vector2(0, -8)
 flies = true
+splat_color = Color(0, 0, 0, 0)
 attack_windup = 0.6
 attack_recovery = 0.35
 keep_distance = 220.0

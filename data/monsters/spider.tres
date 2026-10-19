@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_doylg"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_ltxyb"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/claws.tres" id="11_ko2y6"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="11_ymugr"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_kvyjr"]
 atlas = ExtResource("2_ymugr")
@@ -47,6 +48,7 @@ weapon = ExtResource("11_ko2y6")
 radius = 10.0
 frames = ExtResource("1_bgtfo")
 frames_offset = Vector2(0, -8)
+splat_color = Color(0.55, 0.62, 0.15, 0.8)
 attack_windup = 0.3
 xp_reward = 9
 loot = SubResource("Resource_fg7oy")

@@ -35,6 +35,11 @@ func _ready() -> void:
 	shape.size = Vector2(SIZE * (foot.x - 0.25), SIZE * (foot.y - 0.4))
 	($CollisionShape2D as CollisionShape2D).shape = shape
 	($CollisionShape2D as CollisionShape2D).position = Vector2(0, SIZE * 0.1)
+	if def.flame:
+		var flame := def.flame.instantiate() as Node2D
+		flame.position = Vector2(0, SIZE * Vector2(def.footprint).y * 0.5) + def.flame_offset
+		flame.scale = Vector2.ONE * def.flame_scale
+		add_child(flame)
 	_light.enabled = def.light_color.a > 0.0
 	if _light.enabled:
 		_light.color = Color(def.light_color, 1.0)

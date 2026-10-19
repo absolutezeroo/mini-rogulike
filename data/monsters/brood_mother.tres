@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_sfgrf"]
 [ext_resource type="Resource" path="res://data/skills/monster/lay_brood.tres" id="9_jtgld"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_lye6r"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="11_atfn5"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/poison_fang.tres" id="11_ny66d"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pb7xm"]
@@ -44,6 +45,7 @@ weapon = ExtResource("11_ny66d")
 skills = Array[ExtResource("8_sfgrf")]([ExtResource("9_jtgld")])
 frames = ExtResource("2_atfn5")
 frames_offset = Vector2(0, -8)
+splat_color = Color(0.55, 0.62, 0.15, 0.8)
 detect_radius = 300.0
 keep_distance = 130.0
 xp_reward = 14

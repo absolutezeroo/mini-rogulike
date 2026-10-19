@@ -55,6 +55,7 @@ script = ExtResource("1_r4t5t")
 pieces = Array[Texture2D]([SubResource("AtlasTexture_1b48x"), SubResource("AtlasTexture_ff3he"), SubResource("AtlasTexture_flrqm"), SubResource("AtlasTexture_moljt"), SubResource("AtlasTexture_gsfrq"), SubResource("AtlasTexture_qb74a"), SubResource("AtlasTexture_dm30d"), SubResource("AtlasTexture_3v1q8")])
 density = 0.15
 max_per_room = 4
+sway = true
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_6i532"]
 atlas = ExtResource("2_74m5r")
@@ -77,6 +78,7 @@ script = ExtResource("1_r4t5t")
 pieces = Array[Texture2D]([SubResource("AtlasTexture_6i532"), SubResource("AtlasTexture_1qjpf"), SubResource("AtlasTexture_gw8ds"), SubResource("AtlasTexture_7p24x")])
 where = 1
 density = 0.35
+sway = true
 
 [sub_resource type="Resource" id="Resource_1lcuy"]
 script = ExtResource("3_1b48x")

@@ -112,6 +112,13 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   "!" emote when a monster spots you) plus pixel particles for hits, dust and sparkles
   (`src/vfx/particles/*.tscn`, edit them in the inspector), dash afterimages, animated projectiles,
   squash on hit, popping damage numbers, red vignette when hurt or low on HP.
+- **Little details**: fights leave **splats** on the floor (`SplatLayer`, `World.add_splat`): blood,
+  green slime, purple ink, bone dust, in each monster's `splat_color` (spirits and flames leave
+  none), fading after a while. **Plants sway** in a breeze and **bend** away from whoever walks
+  through them (`DecorRuleDef.sway`, `SceneKey.sway`). Shallow water **glints** (`GroundLayerDef.shimmer`).
+  Braziers and candles **burn** (`PropDef.flame`). The HP bars keep a pale **trail** of what a hit
+  cost, then drain it; they glow when healed. Each biome has its **air**: fireflies in the garden,
+  sand gusts in the desert, mist over the flooded caverns, dust in the library and the tomb.
   Gameplay code spawns them in one line through `Vfx` (`Vfx.hit(...)`, `Vfx.explosion(...)`).
 - **SFX**: the `Sfx` autoload plays world sounds (positional) and UI sounds. Weapons have attack and hit
   sounds, monsters hurt and death sounds, skills and consumables a use sound; everything else comes

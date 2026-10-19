@@ -41,6 +41,7 @@ script = ExtResource("1_wtkve")
 symbol = "f"
 kind = 1
 pieces = Array[Texture2D]([SubResource("AtlasTexture_aulko"), SubResource("AtlasTexture_iugkr"), SubResource("AtlasTexture_q1i8w"), SubResource("AtlasTexture_4uxtv")])
+sway = true
 chance = 0.4
 
 [resource]

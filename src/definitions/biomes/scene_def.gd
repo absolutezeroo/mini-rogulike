@@ -157,8 +157,12 @@ static func _at_doorway(map: DungeonMap, room: Rect2i, cell: Vector2i) -> bool:
 
 func _build(world: World, taken: Dictionary, origin: Vector2i, cells: Dictionary, rng: RandomNumberGenerator, standing: Dictionary) -> void:
 	var done := {}
-	var decor := DecorLayer.new()
+	var decor := DecorLayer.new()  # bones, books...
 	decor.z_index = -8
+	var plants := DecorLayer.new()  # what sways
+	plants.z_index = -8
+	plants.sway = true
+	plants.world = world
 	var spans := {}  # symbol -> Rect2i of its cells (carpets, ponds)
 	var ordered := cells.keys()
 	ordered.sort_custom(func(a: Vector2i, b: Vector2i) -> bool: return a.y < b.y or (a.y == b.y and a.x < b.x))
@@ -181,7 +185,7 @@ func _build(world: World, taken: Dictionary, origin: Vector2i, cells: Dictionary
 			SceneKey.Kind.DECOR:
 				if not k.pieces.is_empty() and rng.randf() < k.chance:
 					var at := world.map.cell_to_world(cell) + Vector2(rng.randf_range(-6.0, 6.0), rng.randf_range(-6.0, 6.0))
-					decor.pieces.append([k.pieces[rng.randi() % k.pieces.size()], at.snapped(Vector2(2, 2))])
+					(plants if k.sway else decor).pieces.append([k.pieces[rng.randi() % k.pieces.size()], at.snapped(Vector2(2, 2))])
 			_:
 				var span: Rect2i = spans.get(k.symbol, Rect2i(cell, Vector2i.ONE))
 				spans[k.symbol] = span.merge(Rect2i(cell, Vector2i.ONE))
@@ -193,8 +197,11 @@ func _build(world: World, taken: Dictionary, origin: Vector2i, cells: Dictionary
 			world.spawn_floor_patch(k.carpet, k.carpet_region, spans[symbol])
 		elif k.kind == SceneKey.Kind.POND and k.pond:
 			world.spawn_heat_source(k.pond, spans[symbol])
-	if not decor.pieces.is_empty():
-		world.spawn_vfx(decor)
+	for layer in [decor, plants]:
+		if not layer.pieces.is_empty():
+			world.spawn_vfx(layer)
+		else:
+			layer.free()
 	# Nothing else right against what stands here (a chest, a lantern could close a gap).
 	for offset: Vector2i in cells:
 		var k := key(cells[offset])

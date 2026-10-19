@@ -69,6 +69,7 @@ var _content: ContentDB
 ## What lies on the floor's cells, by cell or by kind (asked every frame: no group scans).
 var _cracks := {}
 var _heat_sources: Array[HeatSource] = []
+var _splats: SplatLayer
 var _dark_rooms: Array[DarkRoom] = []
 
 @onready var _view: DungeonView = $DungeonView
@@ -408,6 +409,20 @@ func spawn_stairs(cell: Vector2i) -> Stairs:
 
 func spawn_vfx(node: Node2D) -> void:
 	_effects.add_child(node)
+
+
+## Blood, slime, ink... on the floor (SplatLayer). Nothing over walls or holes.
+func add_splat(at: Vector2, color: Color, size: float = 1.0, direction: Vector2 = Vector2.ZERO) -> void:
+	if color.a <= 0.0 or not is_solid_ground(at):
+		return
+	if _splats == null or not is_instance_valid(_splats) or _splats.is_queued_for_deletion():
+		_splats = SplatLayer.new()
+		_effects.add_child(_splats)
+	_splats.add(at, color, size, direction, rng)
+
+
+func splat_count() -> int:
+	return _splats.count() if _splats and is_instance_valid(_splats) and not _splats.is_queued_for_deletion() else 0
 
 
 func spawn_floating_text(at: Vector2, text: String, color: Color) -> void:

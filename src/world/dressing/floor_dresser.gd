@@ -145,6 +145,8 @@ static func _scatter(world: World, rule: DecorRuleDef, walls: Dictionary, standi
 	var on: Dictionary = world.grounds.get(rule.ground, {}) if rule.ground else {}
 	var layer := DecorLayer.new()
 	layer.z_index = -8
+	layer.sway = rule.sway
+	layer.world = world
 	var used := {}
 	for room in map.rooms:
 		var spots: Array = []  # [noise, cell]
@@ -171,6 +173,8 @@ static func _scatter(world: World, rule: DecorRuleDef, walls: Dictionary, standi
 			layer.pieces.append([rule.pieces[rng.randi() % rule.pieces.size()], at.snapped(Vector2(2, 2))])
 	if not layer.pieces.is_empty():
 		world.spawn_vfx(layer)
+	else:
+		layer.free()
 
 
 ## Is `cell` a place for this rule's pieces?

@@ -19,3 +19,5 @@ extends Resource
 @export_range(-1.0, 1.0) var wall_bias: float = 0.0
 ## How ragged the edges are.
 @export_range(0.0, 1.0) var roughness: float = 0.35
+## Water: glints come and go on it, and slow light waves cross it.
+@export_range(0.0, 1.0) var shimmer: float = 0.0

@@ -16,6 +16,8 @@ enum Kind { PROP, DECOR, CARPET, POND }
 @export var carpet_region: Rect2i = Rect2i(0, 0, 48, 48)
 ## POND: water (a HeatSourceDef with a pond) over the symbol's cells.
 @export var pond: HeatSourceDef
+## DECOR: plants that sway and bend when walked through.
+@export var sway: bool = false
 ## Chance for each to be there (a fallen shelf, a missing grave...): otherwise bare floor.
 @export_range(0.0, 1.0) var chance: float = 1.0
 

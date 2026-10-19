@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="6_wwqsu"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_fykk1"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="8_g1ke5"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="9_ia4dx"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/bite.tres" id="9_obrm3"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_al67n"]
@@ -37,6 +38,7 @@ radius = 9.0
 frames = ExtResource("2_ia4dx")
 frames_offset = Vector2(0, -8)
 flies = true
+splat_color = Color(0, 0, 0, 0)
 attack_windup = 0.25
 attack_recovery = 0.35
 xp_reward = 4

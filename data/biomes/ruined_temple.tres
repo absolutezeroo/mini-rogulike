@@ -38,6 +38,7 @@ script = ExtResource("1_gbu62")
 pieces = Array[Texture2D]([SubResource("AtlasTexture_6i532"), SubResource("AtlasTexture_1qjpf"), SubResource("AtlasTexture_gw8ds"), SubResource("AtlasTexture_7p24x")])
 density = 0.03
 max_per_room = 1
+sway = true
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pu0ae"]
 atlas = ExtResource("2_a003p")

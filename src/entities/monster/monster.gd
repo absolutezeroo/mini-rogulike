@@ -279,6 +279,8 @@ func _on_damaged(hit: HitInfo, _damage: int) -> void:
 	if dormant and hit.source:
 		wake_up(hit.source)
 	_update_boss_phase()
+	if _damage > 0 and not hit.is_tick and world.rng.randf() < 0.45:
+		world.add_splat(global_position + Vector2(world.rng.randf_range(-6, 6), world.rng.randf_range(-3, 5)), def.splat_color, 0.35, hit.knockback.normalized())
 	if is_boss() and not hit.is_tick and hit.source and is_hostile_to(hit.source):
 		_count_hit()
 
@@ -377,6 +379,7 @@ func _on_died(killer: Actor) -> void:
 		HitStop.freeze(0.25)
 	else:
 		Vfx.death(world, global_position, def.color)
+	world.add_splat(global_position, def.splat_color, clampf(radius / 11.0, 0.8, 2.2))
 	if summoned:
 		return  # called in by another monster: no rewards, or a summoner could be farmed forever
 	if killer is Player:

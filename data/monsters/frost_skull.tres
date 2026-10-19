@@ -58,6 +58,7 @@ radius = 9.0
 frames = ExtResource("4_pu4nv")
 frames_offset = Vector2(0, -8)
 flies = true
+splat_color = Color(0, 0, 0, 0)
 traits = Array[ExtResource("10_6am12")]([SubResource("Resource_tomrc")])
 attack_windup = 0.25
 attack_recovery = 0.35

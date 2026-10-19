@@ -47,6 +47,7 @@ stats = SubResource("Resource_gjypo")
 weapon = ExtResource("10_2d0do")
 frames = ExtResource("2_v0egp")
 frames_offset = Vector2(0, -8)
+splat_color = Color(0.36, 0.62, 0.2, 0.8)
 knockback_resistance = 0.6
 traits = Array[ExtResource("10_0fofo")]([SubResource("Resource_a02s6")])
 attack_windup = 0.45

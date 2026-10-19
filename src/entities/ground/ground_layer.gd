@@ -46,6 +46,7 @@ func setup(layer: GroundLayerDef, map: DungeonMap, cells: Dictionary) -> void:
 	look.set_shader_parameter("fill_alt", Vector4(alt.position.x, alt.position.y, alt.size.x, alt.size.y))
 	look.set_shader_parameter("edge_color", layer.edge_color)
 	look.set_shader_parameter("roughness", layer.roughness)
+	look.set_shader_parameter("shimmer", layer.shimmer)
 	material = look
 
 

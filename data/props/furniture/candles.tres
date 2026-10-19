@@ -2,6 +2,7 @@
 
 [ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_4cu7r"]
 [ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="2_k46nv"]
+[ext_resource type="PackedScene" path="res://src/vfx/particles/prop_flame.tscn" id="2_tpl63"]
 [ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_tpl63"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_4cu7r"]
@@ -14,6 +15,9 @@ debris_color = Color(0.95, 0.8, 0.5, 1)
 break_sound = ExtResource("1_4cu7r")
 light_color = Color(1, 0.75, 0.4, 0.85)
 light_radius = 150.0
+flame = ExtResource("2_tpl63")
+flame_offset = Vector2(0, -26)
+flame_scale = 0.55
 id = &"candles"
 display_name = "Candles"
 icon = SubResource("AtlasTexture_4cu7r")

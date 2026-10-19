@@ -12,6 +12,7 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="10_yrb4w"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_3tq7s"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/slam.tres" id="12_07oxk"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="12_x47od"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0sooj"]
 atlas = ExtResource("3_q2gc3")
@@ -49,6 +50,7 @@ stats = SubResource("Resource_il8q7")
 weapon = ExtResource("12_07oxk")
 frames = ExtResource("2_x47od")
 frames_offset = Vector2(0, -8)
+splat_color = Color(0.36, 0.62, 0.2, 0.8)
 detect_radius = 200.0
 attack_windup = 0.5
 attack_recovery = 0.4

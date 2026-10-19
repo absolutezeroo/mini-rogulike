@@ -15,6 +15,7 @@ uniform vec4 fill_alt = vec4(0.0, 0.0, 16.0, 16.0);
 uniform vec4 edge_color : source_color = vec4(0.5, 0.35, 0.2, 1.0);
 uniform float roughness = 0.35;
 uniform float pixel = 2.0;
+uniform float shimmer = 0.0;
 
 varying vec2 local_pos;
 
@@ -65,6 +66,15 @@ void fragment() {
 		vec4 region = hash(vec2(cell)) < 0.5 ? fill : fill_alt;
 		vec2 uv = (region.xy + floor(in_cell * region.zw) + 0.5) / tiles_size;
 		COLOR = texture(tiles, uv);
+		if (shimmer > 0.0) {
+			// Slow light waves crossing the water, and glints popping here and there.
+			vec2 art = floor(p / pixel);
+			float wave = sin((p.x * 0.7 + p.y) * 0.045 - TIME * 1.3) * 0.5 + 0.5;
+			COLOR.rgb = mix(COLOR.rgb, vec3(1.0), step(0.93, wave) * 0.22 * shimmer);
+			float blink = floor(TIME * 2.0 + hash(floor(art / 3.0)) * 7.0);
+			float glint = step(0.996, hash(floor(art / 3.0) + blink * 0.37)) * step(0.5, hash(art));
+			COLOR.rgb = mix(COLOR.rgb, vec3(1.0), glint * shimmer);
+		}
 	}
 	// The soft shadow at the foot of a cliff, as on the floor tiles.
 	if (!is_floor(cell + ivec2(0, -1)) && fract(p.y / cell_size) * cell_size < 8.0) {
