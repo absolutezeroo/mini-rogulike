@@ -28,8 +28,8 @@ enum Trigger {
 @export_group("Damage")
 ## Damage on each actor caught, once per activation. Grows with depth (DungeonConfig).
 @export var damage: int = 6
-## Burn applied on top (damage per tick for 3 s). 0 = none.
-@export var burn_damage: int = 0
+## Statuses left on whoever is caught (burn, poison, slow...).
+@export var status: OnHitStatus
 @export var knockback: float = 120.0
 @export var sound: AudioStream
 

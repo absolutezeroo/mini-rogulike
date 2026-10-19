@@ -210,7 +210,7 @@ func pick_up(item: ItemDef) -> bool:
 		Events.log_message("Picked up %s" % item.display_name, item.color)
 		_pickup_feedback(item, Sfx.bank.pickup)
 		return true
-	Events.log_message("Inventory full!", Color("ff6b6b"))
+	Events.log_message("Inventory full!", Palette.DANGER)
 	return false
 
 
@@ -244,7 +244,7 @@ func unequip(slot: EquipmentDef.Slot) -> void:
 	if equipment.get_item(slot) == null:
 		return
 	if inventory.is_full():
-		Events.log_message("Inventory full!", Color("ff6b6b"))
+		Events.log_message("Inventory full!", Palette.DANGER)
 		return
 	inventory.add(equipment.unequip(slot))
 
@@ -297,9 +297,9 @@ func gain_xp(amount: int) -> void:
 		invalidate_stats()
 		hp = get_max_hp()
 		health_changed.emit(hp, get_max_hp())
-		Events.log_message("Level up! You are now level %d" % level, Color("ffd166"))
-		world.spawn_floating_text(head_position() + Vector2(0, -10), "LEVEL UP", Color("ffd166"))
-		Vfx.magic(world, global_position, Color("ffd166"))
+		Events.log_message("Level up! You are now level %d" % level, Palette.GOLD)
+		world.spawn_floating_text(head_position() + Vector2(0, -10), "LEVEL UP", Palette.GOLD)
+		Vfx.magic(world, global_position, Palette.GOLD)
 		Sfx.play_ui(Sfx.bank.level_up)
 		leveled_up.emit(level)
 	xp_changed.emit(xp, xp_to_next_level(), level)
@@ -393,7 +393,7 @@ func _on_fell(pit: PitDef) -> void:
 	global_position = _safe_position
 	_recover_from_fall()
 	Vfx.puff(world, global_position)
-	Events.log_message("You fell into a hole!", Color("ff6b6b"))
+	Events.log_message("You fell into a hole!", Palette.DANGER)
 	_invulnerable_time = 0.0
 	killed_by = "a fall"  # if this is what kills the hero
 	take_hit(Combat.make_secondary_hit(null, maxi(1, roundi(get_max_hp() * pit.fall_damage))))
@@ -426,7 +426,7 @@ func _on_damaged(hit: HitInfo, damage: int) -> void:
 
 
 func _on_died(_killer: Actor) -> void:
-	Events.log_message("You died.", Color("ff6b6b"))
+	Events.log_message("You died.", Palette.DANGER)
 	camera.shake(1.0)
 	Vfx.death(world, global_position, def.color)
 
@@ -440,7 +440,7 @@ func _death_sound() -> AudioStream:
 
 
 func _hit_spark_color(_hit: HitInfo) -> Color:
-	return Color("e84537")
+	return Palette.BLOOD
 
 
 func _tick_timers(delta: float) -> void:

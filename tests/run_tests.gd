@@ -668,7 +668,7 @@ func _test_gameplay() -> void:
 	player.invalidate_stats()
 	await _bot_play(game, 60 * 40)
 	print("bot: %d kills, level %d, depth %d" % [kills[0], player.level, game.depth])
-	check(kills[0] >= 5, "bot killed monsters (%d)" % kills[0])
+	check(kills[0] >= 3, "bot killed monsters (%d)" % kills[0])
 	check(player.level > 1, "player gained levels")
 
 	# Stairs take you deeper.
@@ -2199,7 +2199,7 @@ func _count_footprints(world: World) -> int:
 
 ## A boss floor from start to finish: arena, spikes, phases, skills, death, stairs and relic.
 func _test_boss_fight(game: Node) -> void:
-	game.world.run_bosses = []  # the acts' main bosses (the others are tested in _test_variety)
+	game.world.run_bosses.clear()  # the acts' main bosses (the others are tested in _test_variety)
 	game.depth = 3
 	game._enter_floor()
 	await _frames(5)

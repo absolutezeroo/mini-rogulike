@@ -41,8 +41,8 @@ func _draw() -> void:
 		# Bosses have a big bar in the HUD instead.
 		if monster.hp < monster.get_max_hp() and not monster.is_boss():
 			var top_left := monster.head_position() - monster.global_position + Vector2(-HP_BAR_WIDTH * 0.5, -6.0)
-			draw_rect(Rect2(top_left - Vector2.ONE, Vector2(HP_BAR_WIDTH + 2.0, 6.0)), Color("3f2631"))
-			draw_rect(Rect2(top_left, Vector2(HP_BAR_WIDTH * monster.hp / monster.get_max_hp(), 4.0)), Color("e84537"))
+			draw_rect(Rect2(top_left - Vector2.ONE, Vector2(HP_BAR_WIDTH + 2.0, 6.0)), Palette.INK)
+			draw_rect(Rect2(top_left, Vector2(HP_BAR_WIDTH * monster.hp / monster.get_max_hp(), 4.0)), Palette.BLOOD)
 
 
 ## Red warning: the area of a skill being cast, the cone of a melee swing, the line of a shot.

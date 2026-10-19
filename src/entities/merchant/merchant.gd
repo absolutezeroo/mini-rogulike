@@ -89,7 +89,7 @@ func buy_from(player: Player, item: ItemDef, from_belt := false) -> bool:
 	player.add_gold(price)
 	_add(item)
 	Sfx.play_ui(Sfx.bank.coin)
-	Events.log_message("Sold %s for %d gold" % [item.display_name, price], Color("ffd166"))
+	Events.log_message("Sold %s for %d gold" % [item.display_name, price], Palette.GOLD)
 	return true
 
 
@@ -122,4 +122,4 @@ func _draw() -> void:
 		return
 	var font := Fonts.MAIN
 	draw_string_outline(font, Vector2(-4, -30), "$", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, 4, Color.BLACK)
-	draw_string(font, Vector2(-4, -30), "$", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("ffd166"))
+	draw_string(font, Vector2(-4, -30), "$", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Palette.GOLD)

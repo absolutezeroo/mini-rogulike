@@ -107,6 +107,8 @@ extends Resource
 @export var merchant: ShopDef
 
 @export_group("Elites")
+## Elites resist knockback at least this much (see MonsterDef.knockback_resistance).
+@export_range(0.0, 1.0) var elite_knockback_resistance: float = 0.5
 ## Chance for a monster to be an elite on the first floor, and more per floor below.
 @export_range(0.0, 1.0) var elite_chance: float = 0.04
 @export_range(0.0, 1.0) var elite_chance_per_depth: float = 0.015

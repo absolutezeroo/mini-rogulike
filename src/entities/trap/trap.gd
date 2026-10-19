@@ -42,10 +42,6 @@ func _ready() -> void:
 		_enter(Phase.WARNING)
 
 
-func is_dangerous() -> bool:
-	return phase == Phase.ACTIVE
-
-
 ## Wires the trap to an arrow slit in the wall at `cell`, shooting along `direction`.
 func set_launcher(cell: Vector2i, direction: Vector2) -> void:
 	launcher_cell = cell
@@ -113,9 +109,8 @@ func hurt_overlapping() -> void:
 		_hit_this_time.append(actor)
 		var hit := Combat.make_secondary_hit(null, def.damage_on(world))
 		hit.knockback = global_position.direction_to(actor.global_position) * def.knockback
+		hit.status = def.status
 		actor.take_hit(hit)
-		if def.burn_damage > 0:
-			actor.statuses.apply_dot(&"burn", def.burn_damage, 0.5, 3.0, null, Color("ff8c42"))
 
 
 func _draw() -> void:

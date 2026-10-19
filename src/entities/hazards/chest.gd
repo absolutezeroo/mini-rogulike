@@ -69,14 +69,14 @@ func open() -> void:
 		_drop_items(1)
 	else:
 		Sfx.play_at(def.open_sound, global_position)
-		Vfx.sparkles(world, global_position, Color("ffd166"))
+		Vfx.sparkles(world, global_position, Palette.GOLD)
 		_drop_items(world.rng.randi_range(def.items_min, def.items_max))
 
 
 func _spring() -> void:
 	Sfx.play_at(def.trap_sound, global_position)
 	Vfx.alert(world, global_position + Vector2(0, -SIZE * 0.6))
-	world.spawn_floating_text(global_position + Vector2(0, -SIZE * 0.5), "Trap!", Color("ff6b6b"))
+	world.spawn_floating_text(global_position + Vector2(0, -SIZE * 0.5), "Trap!", Palette.DANGER)
 	var can_explode := def.explosion_radius > 0.0
 	var can_spawn := def.trap_monsters > 0
 	if can_explode and (not can_spawn or world.rng.randf() < 0.5):

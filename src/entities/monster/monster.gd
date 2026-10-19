@@ -3,8 +3,6 @@ extends Actor
 ## A monster built from a MonsterDef (or a BossDef). Its behaviour lives in the StateMachine child
 ## (res://src/ai/), which steers it through `move_direction`, `attack()` and skills.
 
-## Souls flying out of a dead boss.
-const BOSS_SOULS := 12
 
 var def: MonsterDef
 var target: Actor
@@ -102,14 +100,10 @@ func is_elite() -> bool:
 	return elite != null
 
 
-## Elites stand their ground better than their kind.
-const ELITE_KNOCKBACK_RESISTANCE := 0.5
-
-
 func get_knockback_resistance() -> float:
 	var resistance := def.knockback_resistance
 	if elite:
-		resistance = maxf(resistance, ELITE_KNOCKBACK_RESISTANCE)
+		resistance = maxf(resistance, world.config().elite_knockback_resistance if world else 0.5)
 	return resistance
 
 
@@ -298,9 +292,9 @@ func _enter_phase(phase: BossPhase) -> void:
 	_windup_multiplier *= phase.windup_multiplier
 	_phase_tint = phase.tint
 	if not phase.message.is_empty():
-		world.spawn_floating_text(head_position() + Vector2(0, -12), phase.message, Color("ff6b6b"))
-		Events.log_message("%s: %s" % [display_name, phase.message], Color("ff6b6b"))
-	Vfx.magic(world, global_position, Color("ff6b6b"))
+		world.spawn_floating_text(head_position() + Vector2(0, -12), phase.message, Palette.DANGER)
+		Events.log_message("%s: %s" % [display_name, phase.message], Palette.DANGER)
+	Vfx.magic(world, global_position, Palette.DANGER)
 	Sfx.play_at(Sfx.bank.boss_roar, global_position)
 	Events.screen_shake.emit(0.6)
 
@@ -329,7 +323,7 @@ func _on_died(killer: Actor) -> void:
 	if fell:
 		if killer is Player:
 			(killer as Player).gain_xp(def.xp_reward * _xp_multiplier)
-		world.spawn_floating_text(global_position, "Fell!", Color("ffd166"))
+		world.spawn_floating_text(global_position, "Fell!", Palette.GOLD)
 		return
 	if is_boss():
 		Vfx.boss_death(world, global_position + Vector2(0, -head_height * 0.5), radius * 1.5)
@@ -344,12 +338,12 @@ func _on_died(killer: Actor) -> void:
 	var quality := config.boss_loot_quality if is_boss() else (config.elite_loot_quality if elite else 1.0)
 	if def.loot:
 		for item in def.loot.roll(world.rng, world.rules.loot_chance()):
-			var offset := Vector2.from_angle(randf() * TAU) * randf_range(4.0, 14.0)
+			var offset := Vector2.from_angle(world.rng.randf() * TAU) * world.rng.randf_range(4.0, 14.0)
 			world.spawn_loot(item, global_position + offset, quality)
 	for i in _bonus_drops:
 		var item := world.pick_random_item()
 		if item:
-			world.spawn_loot(item, global_position + Vector2.from_angle(randf() * TAU) * randf_range(6.0, 16.0), quality)
+			world.spawn_loot(item, global_position + Vector2.from_angle(world.rng.randf() * TAU) * world.rng.randf_range(6.0, 16.0), quality)
 	_drop_gold()
 
 
@@ -364,7 +358,7 @@ func _drop_gold() -> void:
 func _free_souls() -> void:
 	if world.player == null or world.player.is_dead:
 		return
-	for i in BOSS_SOULS if is_boss() else 1:
+	for i in (def as BossDef).soul_wisps if is_boss() else 1:
 		world.spawn_vfx(SoulWisp.create(global_position + Vector2(randf_range(-8.0, 8.0), -radius), world.player))
 
 

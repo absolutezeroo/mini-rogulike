@@ -4,6 +4,11 @@
 [ext_resource type="Texture2D" path="res://assets/props/vent.png" id="2_bffnd"]
 [ext_resource type="Script" path="res://src/definitions/hazards/trap_def.gd" id="3_dmtpn"]
 [ext_resource type="AudioStream" path="res://data/audio/flames.tres" id="4_sncmv"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="5_jsxy4"]
+
+[sub_resource type="Resource" id="Resource_c2xlo"]
+script = ExtResource("5_jsxy4")
+burn_damage = 2
 
 [resource]
 script = ExtResource("3_dmtpn")
@@ -15,7 +20,7 @@ idle_time = 2.4
 warning_time = 0.6
 active_time = 0.9
 damage = 4
-burn_damage = 2
+status = SubResource("Resource_c2xlo")
 sound = ExtResource("4_sncmv")
 id = &"flame_vent"
 display_name = "Flame Vent"

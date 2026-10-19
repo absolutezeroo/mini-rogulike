@@ -14,7 +14,7 @@ class Dot:
 	var color: Color
 
 
-const SLOW_COLOR := Color("8ecae6")
+const SLOW_COLOR := Palette.FROST
 
 var _dots: Array[Dot] = []
 ## Slows by source (a frost hit, the cold, quicksand...): source -> [amount, seconds left].

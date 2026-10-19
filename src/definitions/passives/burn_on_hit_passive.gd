@@ -8,7 +8,7 @@ extends Passive
 @export var interval: float = 0.5
 @export var duration: float = 3.0
 @export_range(0.0, 1.0) var chance: float = 1.0
-@export var color: Color = Color("ff8c42")
+@export var color: Color = Palette.FIRE
 
 
 func on_hit_dealt(owner: Actor, target: Actor, _hit: HitInfo, _damage: int, perk: PerkSet.Entry) -> void:

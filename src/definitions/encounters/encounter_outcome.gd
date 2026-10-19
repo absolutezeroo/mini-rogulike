@@ -26,10 +26,11 @@ func apply(player: Player, at: Vector2) -> void:
 	var world := player.world
 	if heal_ratio > 0.0:
 		player.heal(roundi(player.get_max_hp() * heal_ratio))
-		Vfx.magic(world, player.global_position, Color("6ee787"))
+		Vfx.magic(world, player.global_position, Palette.HEAL)
 	if damage_ratio > 0.0:
-		player._invulnerable_time = 0.0
-		player.take_hit(Combat.make_secondary_hit(null, roundi(player.get_max_hp() * damage_ratio)))
+		var price := Combat.make_secondary_hit(null, roundi(player.get_max_hp() * damage_ratio))
+		price.unavoidable = true
+		player.take_hit(price)
 	if gold > 0:
 		world.spawn_gold(at, gold)
 	if item_quality > 0.0:

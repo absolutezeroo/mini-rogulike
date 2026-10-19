@@ -4,8 +4,6 @@ extends Node2D
 ## spikes close the exits (RoomGates) and the fight starts. When the boss dies the spikes go down
 ## and the stairs appear where it stood.
 
-signal started(boss: Monster)
-signal defeated(boss: Monster)
 
 var boss: Monster
 var is_started := false
@@ -49,7 +47,6 @@ func start() -> void:
 	boss.wake_up(_world.player)
 	Sfx.play_at(Sfx.bank.boss_roar, boss.global_position)
 	Events.screen_shake.emit(0.8)
-	started.emit(boss)
 	Events.boss_started.emit(boss)
 
 
@@ -76,6 +73,5 @@ func _on_boss_died(_actor: Actor) -> void:
 func _finish() -> void:
 	_gates.open()
 	_world.spawn_stairs(_room.get_center())
-	Vfx.magic(_world, _world.map.cell_to_world(_room.get_center()), Color("ffd166"))
-	defeated.emit(boss)
+	Vfx.magic(_world, _world.map.cell_to_world(_room.get_center()), Palette.GOLD)
 	Events.boss_defeated.emit(boss)

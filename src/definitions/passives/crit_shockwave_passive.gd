@@ -6,7 +6,7 @@ extends Passive
 @export var radius_per_stack: float = 10.0
 ## Damage = owner's power x this, per stack.
 @export var damage_multiplier: float = 0.5
-@export var color: Color = Color("8ecae6")
+@export var color: Color = Palette.FROST
 
 
 func on_hit_dealt(owner: Actor, target: Actor, hit: HitInfo, _damage: int, perk: PerkSet.Entry) -> void:

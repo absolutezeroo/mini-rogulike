@@ -14,13 +14,19 @@ enum Faction { PLAYER, MONSTER }
 const KNOCKBACK_FRICTION := 1400.0
 const FLASH_TIME := 0.1
 const HIT_TEXT_COLOR := Color("ffffff")
-const CRIT_TEXT_COLOR := Color("ffd166")
+const CRIT_TEXT_COLOR := Palette.GOLD
 const SECONDARY_TEXT_COLOR := Color("ffb26b")
 ## Pixel art is 16x16 and drawn at 2x.
 const SPRITE_SCALE := 2.0
 const AFTERIMAGE_INTERVAL := 0.03
 ## Seconds of falling into a hole before it counts.
 const FALL_TIME := 0.5
+
+
+## A stat bonus for a while (elixirs, war cries...).
+class TimedBonus:
+	var stats: StatBlock
+	var time_left := 0.0
 
 var faction: Faction = Faction.MONSTER
 var world: World
@@ -55,7 +61,7 @@ var facing := Vector2.RIGHT
 var is_dead := false
 
 var _stats_cache: StatBlock
-var _timed_bonuses: Array = []  # [{ "stats": StatBlock, "time_left": float }]
+var _timed_bonuses: Array[TimedBonus] = []
 var _attack_cooldown := 0.0
 var _invulnerable_time := 0.0
 var _knockback := Vector2.ZERO
@@ -153,7 +159,10 @@ func add_timed_bonus(bonus: StatBlock, duration: float) -> void:
 		if active.stats == bonus:
 			active.time_left = maxf(active.time_left, duration)
 			return
-	_timed_bonuses.append({ "stats": bonus, "time_left": duration })
+	var timed := TimedBonus.new()
+	timed.stats = bonus
+	timed.time_left = duration
+	_timed_bonuses.append(timed)
 	invalidate_stats()
 
 
@@ -213,7 +222,7 @@ func get_move_direction() -> Vector2:
 # --- Health ------------------------------------------------------------------
 
 func take_hit(hit: HitInfo) -> void:
-	if is_dead or _invulnerable_time > 0.0:
+	if is_dead or (_invulnerable_time > 0.0 and not hit.unavoidable):
 		return
 	# Perks of the attacker can change the hit (direct hits only, see HitInfo.is_secondary).
 	var attacker := hit.source if is_instance_valid(hit.source) and not hit.is_secondary else null
@@ -429,7 +438,7 @@ func _tick_timers(delta: float) -> void:
 			bonus.time_left -= delta
 			expired = expired or bonus.time_left <= 0.0
 		if expired:
-			_timed_bonuses = _timed_bonuses.filter(func(b: Dictionary) -> bool: return b.time_left > 0.0)
+			_timed_bonuses = _timed_bonuses.filter(func(b: TimedBonus) -> bool: return b.time_left > 0.0)
 			invalidate_stats()
 
 

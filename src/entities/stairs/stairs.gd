@@ -40,6 +40,6 @@ func _draw() -> void:
 	else:
 		draw_rect(rect, Color(0.02, 0.02, 0.04))
 	# Pulsing golden frame so the exit is easy to spot.
-	var glow := Color("ffd166")
+	var glow := Palette.GOLD
 	glow.a = 0.5 + 0.4 * sin(_time * 3.0)
 	draw_rect(rect.grow(2.0), glow, false, 2.0)

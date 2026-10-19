@@ -2,7 +2,7 @@ class_name StatBar
 extends Control
 ## Pixel-art bar with a centered text (HP, XP...).
 
-@export var fill_color := Color("e84537")
+@export var fill_color := Palette.BLOOD
 @export var show_text := true
 @export var font_size := 16
 
@@ -41,5 +41,5 @@ func _draw() -> void:
 		var font := Fonts.MAIN
 		var text_size := font.get_string_size(_text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
 		var pos := Vector2((size.x - text_size.x) * 0.5, (size.y + font_size * 0.7) * 0.5)
-		draw_string_outline(font, pos, _text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 6, Color("3f2631"))
+		draw_string_outline(font, pos, _text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 6, Palette.INK)
 		draw_string(font, pos, _text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color.WHITE)

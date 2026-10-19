@@ -37,13 +37,6 @@ func count_of(item: ItemDef) -> int:
 	return items.count(item)
 
 
-func first_consumable() -> ConsumableDef:
-	for item in items:
-		if item is ConsumableDef:
-			return item
-	return null
-
-
 ## Identical items grouped together, in pickup order: [{ "item": ItemDef, "count": int }].
 func grouped() -> Array[Dictionary]:
 	var result: Array[Dictionary] = []

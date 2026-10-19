@@ -3,7 +3,7 @@ extends Passive
 ## Survives a killing blow, once per stack for the whole run.
 
 @export_range(0.0, 1.0) var heal_ratio: float = 0.5
-@export var color: Color = Color("ffd166")
+@export var color: Color = Palette.GOLD
 
 
 func prevent_death(owner: Actor, perk: PerkSet.Entry) -> bool:

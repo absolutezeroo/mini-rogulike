@@ -18,7 +18,7 @@ func apply_to(target: Actor, source: Actor) -> void:
 	if target.is_dead:
 		return
 	if burn_damage > 0:
-		target.statuses.apply_dot(&"burn", burn_damage, 0.5, burn_duration, source, Color("ff8c42"))
+		target.statuses.apply_dot(&"burn", burn_damage, 0.5, burn_duration, source, Palette.FIRE)
 	if poison_damage > 0:
 		target.statuses.apply_dot(&"poison", poison_damage, 1.0, poison_duration, source, Color("80ed99"))
 	if slow > 0.0:

@@ -2,7 +2,7 @@ class_name PerkCard
 extends Button
 ## One choice of the perk screen: icon, name, level and what it does.
 
-const RARE_COLOR := Color("ffd166")
+const RARE_COLOR := Palette.GOLD
 
 @onready var _rarity: Label = %Rarity
 @onready var _icon: TextureRect = %Icon

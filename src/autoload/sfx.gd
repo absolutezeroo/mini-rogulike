@@ -117,10 +117,6 @@ func play_music(stream: AudioStream, volume_db: float = -8.0) -> void:
 	tween.tween_property(_music, "volume_db", volume_db, 1.0)
 
 
-func stop_music() -> void:
-	_music.stop()
-
-
 ## Stops everything (used before quitting or when restarting).
 func stop_all() -> void:
 	_music.stop()

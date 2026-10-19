@@ -4,8 +4,6 @@ extends Node2D
 ## pour in, wave after wave (the last one led by an elite). Clear them all and the way opens,
 ## with a big chest as a reward. See DungeonConfig > Ambushes.
 
-signal triggered
-signal cleared
 
 enum State { WAITING, FIGHTING, CLEARED }
 
@@ -53,7 +51,6 @@ func start() -> void:
 	Sfx.play_at(Sfx.bank.ambush, _world.player.global_position)
 	Events.screen_shake.emit(0.6)
 	_queue_wave()
-	triggered.emit()
 	Events.ambush_started.emit(self)
 
 
@@ -142,7 +139,6 @@ func _finish() -> void:
 	var chest_def := _world.config().ambush_chest
 	if chest_def:
 		var cell := _reward_cell()
-		Vfx.magic(_world, _world.map.cell_to_world(cell), Color("ffd166"))
+		Vfx.magic(_world, _world.map.cell_to_world(cell), Palette.GOLD)
 		_world.spawn_chest(chest_def, cell, false)
-	cleared.emit()
 	Events.ambush_cleared.emit(self)

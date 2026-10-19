@@ -43,7 +43,7 @@ var curse: CurseDef
 var rules: FloorRules
 ## The boss of each act for this run (an act may have several; the game draws one per run).
 ## Empty or null entries: the act's main boss.
-var run_bosses: Array = []
+var run_bosses: Array[BossDef] = []
 ## The floor's ambush room, if it has one.
 var ambush: AmbushRoom
 ## Where the stairs are (boss floors get theirs when the boss dies).

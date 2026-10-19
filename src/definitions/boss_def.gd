@@ -14,3 +14,5 @@ extends MonsterDef
 @export var phases: Array[BossPhase] = []
 ## Relics offered when it dies (0 = none).
 @export_range(0, 5) var relic_choices: int = 3
+## Souls flying out of it when it dies, back to the hero's lantern (a common monster frees one).
+@export_range(1, 40) var soul_wisps: int = 12

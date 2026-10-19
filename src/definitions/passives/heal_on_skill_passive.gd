@@ -12,4 +12,4 @@ func on_skill_used(owner: Actor, skill: SkillDef, perk: PerkSet.Entry) -> void:
 		return
 	var healed := owner.heal(heal_per_stack * perk.stacks)
 	if healed > 0:
-		owner.world.spawn_floating_text(owner.head_position(), "+%d" % healed, Color("6ee787"))
+		owner.world.spawn_floating_text(owner.head_position(), "+%d" % healed, Palette.HEAL)

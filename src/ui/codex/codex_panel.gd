@@ -82,7 +82,7 @@ func _monster_card(monster: MonsterDef) -> Control:
 	picture.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	picture.modulate = Color.WHITE if known else UNKNOWN_COLOR
 	card.add_child(picture)
-	var name_label := _label(monster.display_name if known else "???", 16, Color("ff6b6b") if monster is BossDef else Color.WHITE)
+	var name_label := _label(monster.display_name if known else "???", 16, Palette.DANGER if monster is BossDef else Color.WHITE)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	card.add_child(name_label)
 	var info := _label("Slain: %d" % kills if known else "Not met yet", 13, Color(1, 1, 1, 0.65))
@@ -129,12 +129,12 @@ func _achievement_row(achievement: AchievementDef) -> Control:
 	var text := VBoxContainer.new()
 	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	text.add_theme_constant_override("separation", 0)
-	text.add_child(_label(achievement.display_name, 18, Color("ffd166") if unlocked else Color.WHITE))
+	text.add_child(_label(achievement.display_name, 18, Palette.GOLD if unlocked else Color.WHITE))
 	text.add_child(_label(achievement.description, 13, Color(1, 1, 1, 0.7)))
 	row.add_child(text)
 	var status := "Done" if unlocked else "%d / %d" % [achievement.progress(), achievement.target]
 	var right := VBoxContainer.new()
-	right.add_child(_label(status, 16, Color("6ee787") if unlocked else Color.WHITE, false))
+	right.add_child(_label(status, 16, Palette.HEAL if unlocked else Color.WHITE, false))
 	right.add_child(_label("+%d souls" % achievement.reward_souls, 13, Color(0.65, 0.95, 1, 0.8), false))
 	row.add_child(right)
 	return row
@@ -157,7 +157,7 @@ func _run_row(entry: Dictionary) -> Control:
 	var date := Time.get_datetime_string_from_unix_time(int(entry.get("time", 0)), true).left(16)
 	var won := bool(entry.get("won", false))
 	var title := "%s  -  %s  -  depth %d" % [date, entry.get("difficulty", "?"), int(entry.get("depth", 1))]
-	row.add_child(_label(title, 16, Color("ffd166") if won else Color.WHITE))
+	row.add_child(_label(title, 16, Palette.GOLD if won else Color.WHITE))
 	var end := "Victory!" if won and str(entry.get("cause", "")).is_empty() else "Slain by %s" % entry.get("cause", "?")
 	if won and not str(entry.get("cause", "")).is_empty():
 		end = "Won, then slain by %s" % entry.get("cause")

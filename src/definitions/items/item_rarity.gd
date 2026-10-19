@@ -5,7 +5,7 @@ class_name ItemRarity
 enum { COMMON, MAGIC, RARE, EPIC }
 
 const NAMES: Array[String] = ["Common", "Magic", "Rare", "Epic"]
-const COLORS: Array[Color] = [Color(0.92, 0.9, 0.86), Color("5ea8ff"), Color("ffd166"), Color("c77dff")]
+const COLORS: Array[Color] = [Color(0.92, 0.9, 0.86), Color("5ea8ff"), Palette.GOLD, Color("c77dff")]
 ## Random affixes on the item.
 const AFFIX_COUNT: Array[int] = [0, 1, 2, 3]
 ## Multiplies a weapon's damage and the item's own stat bonuses.

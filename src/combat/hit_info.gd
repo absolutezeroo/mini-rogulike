@@ -18,5 +18,7 @@ var is_secondary: bool = false
 ## A small repeated tick (burn, poison, cold, quicksand): no invulnerability frames, no hit stop
 ## or shake, or a burn would shield the hero from monster hits half the time.
 var is_tick: bool = false
+## Lands even on an invulnerable actor (a price paid at an altar, giving up...).
+var unavoidable: bool = false
 ## Statuses left on the target (burn, slow...). Optional.
 var status: OnHitStatus

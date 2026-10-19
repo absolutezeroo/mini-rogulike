@@ -113,11 +113,11 @@ func _connect_events() -> void:
 	Events.boss_started.connect(_on_boss_started)
 	Events.boss_defeated.connect(_on_boss_defeated)
 	Events.ambush_started.connect(func(_room: AmbushRoom) -> void:
-		hud.show_banner("Ambush!", Color("ff6b6b"))
-		Events.log_message("It's a trap! Survive the waves.", Color("ff6b6b")))
+		hud.show_banner("Ambush!", Palette.DANGER)
+		Events.log_message("It's a trap! Survive the waves.", Palette.DANGER))
 	Events.ambush_cleared.connect(func(_room: AmbushRoom) -> void:
 		Sfx.play_ui(Sfx.bank.boss_defeated)
-		Events.log_message("The room falls silent. A chest appears...", Color("ffd166")))
+		Events.log_message("The room falls silent. A chest appears...", Palette.GOLD))
 
 
 # --- Runs --------------------------------------------------------------------
@@ -282,7 +282,7 @@ func _announce_floor() -> void:
 	if act and content.dungeon.floor_in_act(depth) == 1:
 		if not show_act_cards:
 			hud.show_banner(act.title)
-		Events.log_message("%s: %s" % [act.subtitle, act.title], Color("ffd166"))
+		Events.log_message("%s: %s" % [act.subtitle, act.title], Palette.GOLD)
 	if world.floor_event:
 		hud.show_banner(world.floor_event.display_name, world.floor_event.color)
 		Events.log_message(world.floor_event.description, world.floor_event.color)
@@ -291,9 +291,9 @@ func _announce_floor() -> void:
 			hud.show_banner(world.curse.display_name, world.curse.color)
 		Events.log_message("Cursed: %s. %s" % [world.curse.display_name, world.curse.description], world.curse.color)
 	if world.arena:
-		Events.log_message("Depth %d. Something big is waiting..." % depth, Color("ff6b6b"))
+		Events.log_message("Depth %d. Something big is waiting..." % depth, Palette.DANGER)
 	else:
-		Events.log_message("Depth %d. Find the stairs!" % depth, Color("ffd166"))
+		Events.log_message("Depth %d. Find the stairs!" % depth, Palette.GOLD)
 
 
 func _on_stairs_reached() -> void:
@@ -336,9 +336,9 @@ func _show_cards() -> void:
 
 func _on_boss_started(boss: Monster) -> void:
 	var def := boss.def as BossDef
-	hud.show_banner(boss.display_name, Color("ff6b6b"))
+	hud.show_banner(boss.display_name, Palette.DANGER)
 	if def and not def.title.is_empty():
-		Events.log_message("%s, %s" % [boss.display_name, def.title], Color("ff6b6b"))
+		Events.log_message("%s, %s" % [boss.display_name, def.title], Palette.DANGER)
 	var music := def.music if def and def.music else Sfx.bank.boss_music
 	if music:
 		Sfx.play_music(music)
@@ -348,7 +348,7 @@ func _on_boss_defeated(boss: Monster) -> void:
 	run.bosses_slain += 1
 	hud.show_banner("Victory!")
 	Sfx.play_ui(Sfx.bank.boss_defeated)
-	Events.log_message("%s is defeated! The way down is open." % boss.display_name, Color("ffd166"))
+	Events.log_message("%s is defeated! The way down is open." % boss.display_name, Palette.GOLD)
 	if world.theme:
 		Sfx.play_music(world.theme.music)
 	var def := boss.def as BossDef
@@ -380,7 +380,7 @@ func _on_boss_defeated(boss: Monster) -> void:
 
 func _on_continue_endless() -> void:
 	_set_paused(false)
-	Events.log_message("Endless mode: the dungeon goes on, harder and harder.", Color("ff6b6b"))
+	Events.log_message("Endless mode: the dungeon goes on, harder and harder.", Palette.DANGER)
 	offers.add_relic(run.last_boss)
 	_show_next_offer()
 
