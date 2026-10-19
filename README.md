@@ -275,6 +275,28 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   the stairs (violet while sealed), unopened chests, a running ambush, the boss and, near the
   end of a seal, the last monsters. Tap it for the whole floor.
 
+## Android build
+
+Everything is ready in `export_presets.cfg` (preset **Android**): the app is called "Le Puits des
+Âmes", package `com.absolutezeroo.puitsdesames`, version 0.1.0 (code 1), arm64-v8a, landscape,
+immersive, the Vibrate permission, no Gradle build needed. Tests and tools are left out
+(`exclude_filter`). The icon is adaptive (`assets/icon/`: the hero over the well's glow and its
+souls, plus a monochrome version for themed icons); the splash shows it on the night color.
+The project keeps its name "Mini Roguelike" so saves stay where they are (`user://`).
+
+- **From the phone** (Godot's Android editor): Project > Export > Android > Export Project. The
+  editor signs debug builds with its own key. Debug builds show the DBG button; a release build
+  hides it.
+- **From a computer**: install the Android export templates (Editor > Manage Export Templates)
+  and set the Java and Android SDK paths in Editor Settings > Export > Android (only the SDK's
+  build-tools are needed: `apksigner`); then
+  `godot --headless --export-debug "Android" build/le-puits-des-ames.apk` (or `--export-release`).
+- **Release / Play Store**: make your own key once and keep it safe (every update must be signed
+  with it): `keytool -genkeypair -v -keystore puits-release.keystore -alias puits -keyalg RSA
+  -keysize 2048 -validity 10000`, then set it in the preset (Keystore > Release, user, password),
+  never in git. For the Play Store, export an AAB (Gradle build on, `gradle_build/export_format`
+  = AAB) and raise `version/code` for each upload.
+
 ## Lights
 
 Light comes in levels, from 0 (pitch dark) to 15 (full light), like in block games: a lantern of

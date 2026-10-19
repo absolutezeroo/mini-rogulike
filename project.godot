@@ -19,7 +19,11 @@ config/quit_on_go_back=false
 config/description="Real-time action roguelike built with GDScript."
 run/main_scene="res://src/ui/title/title_screen.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
-config/icon="res://icon.svg"
+boot_splash/bg_color=Color(0.0705882, 0.0470588, 0.117647, 1)
+boot_splash/image="res://assets/icon/splash.png"
+boot_splash/fullsize=false
+boot_splash/use_filter=false
+config/icon="res://assets/icon/icon_192.png"
 
 [autoload]
 
@@ -145,6 +149,8 @@ pointing/emulate_touch_from_mouse=true
 2d_physics/layer_5="water"
 
 [rendering]
+
+textures/vram_compression/import_etc2_astc=true
 
 textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
