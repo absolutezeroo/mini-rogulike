@@ -36,7 +36,7 @@ enum Trigger {
 
 ## Damage of one activation on this floor (depth and difficulty included).
 func damage_on(world: World) -> int:
-	return roundi((damage + world.depth) * world.damage_scale())
+	return world.rules.dungeon_damage(damage)
 
 
 ## The trap goes off (start of the active phase).

@@ -77,6 +77,8 @@ extends Resource
 @export var boss_gold_multiplier: float = 15.0
 ## Crates and pots sometimes hold a few coins.
 @export_range(0.0, 1.0) var prop_gold_chance: float = 0.25
+@export var prop_gold: Vector2i = Vector2i(1, 3)
+@export var prop_gold_per_depth: float = 0.5
 
 @export_group("Temperature")
 ## The hero's body temperature (BodyTemperature): -100 frozen, 0 fine, 100 burning up.

@@ -28,7 +28,7 @@ func update(actor: Actor, delta: float) -> void:
 				comfort = true
 			else:
 				heat += source.def.heat
-	var drift := world.floor_event.temperature if world.floor_event else 0.0
+	var drift := world.rules.temperature_drift()
 	if comfort:
 		value = move_toward(value, 0.0, rules.temperature_comfort_rate * delta)
 	elif heat != 0.0:
@@ -52,7 +52,7 @@ func update(actor: Actor, delta: float) -> void:
 
 
 func _hurt(actor: Actor, world: World, rules: DungeonConfig) -> void:
-	var amount := roundi((rules.temperature_damage + world.depth * 0.5) * world.damage_scale())
+	var amount := world.rules.dungeon_damage(rules.temperature_damage, 0.5)
 	var frozen := value < 0.0
 	world.spawn_floating_text(actor.head_position() + Vector2(0, -12), "Freezing!" if frozen else "Burning up!", COLD_COLOR if frozen else HOT_COLOR)
 	actor.take_hit(Combat.make_tick(null, amount))

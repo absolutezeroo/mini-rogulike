@@ -12,5 +12,5 @@ func on_died(owner: Actor, perk: PerkSet.Entry) -> void:
 	if owner.is_falling:
 		return  # down a hole: the blast goes off out of reach
 	var world := owner.world
-	var amount := roundi((damage * perk.stacks + world.depth) * world.damage_scale())
+	var amount := world.rules.dungeon_damage(damage * perk.stacks)
 	Combat.delayed_blast(world, owner.global_position, radius, amount, fuse)

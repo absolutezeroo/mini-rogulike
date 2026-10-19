@@ -77,10 +77,11 @@ func _break() -> void:
 	Vfx.burst(world, Vfx.DEATH_CHUNKS, global_position, def.debris_color)
 	Vfx.puff(world, global_position + Vector2(0, 8))
 	if def.loot:
-		for item in def.loot.roll(world.rng, world.loot_scale()):
+		for item in def.loot.roll(world.rng, world.rules.loot_chance()):
 			world.spawn_loot(item, global_position)
 		if world.rng.randf() < world.config().prop_gold_chance:
-			world.spawn_gold(global_position, world.rng.randi_range(1, 3) + floori(world.depth * 0.5))
+			var config := world.config()
+			world.spawn_gold(global_position, world.rng.randi_range(config.prop_gold.x, config.prop_gold.y) + floori(world.depth * config.prop_gold_per_depth))
 	broken.emit(self)
 	queue_free()
 

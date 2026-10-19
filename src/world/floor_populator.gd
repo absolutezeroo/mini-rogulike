@@ -74,18 +74,14 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 					_reserve_around(taken, cells[0], 1)
 					break
 
-	var extra := floori(config.extra_monsters_per_depth * (depth - 1))
-	var max_per_room := config.max_monsters_per_room
-	if world.difficulty:
-		extra += world.difficulty.extra_monsters
-		max_per_room += world.difficulty.extra_monsters
+	var extra := world.rules.extra_monsters()
+	var max_per_room := config.max_monsters_per_room + world.rules.difficulty.extra_monsters
 	for i in range(1, map.rooms.size()):
 		if i == ambush_index or i == merchant_index:
 			continue
 		var room := map.rooms[i]
 		var count := mini(rng.randi_range(config.monsters_per_room_min, config.monsters_per_room_max) + extra, max_per_room)
-		if event:
-			count = roundi(count * event.monster_count)
+		count = roundi(count * world.rules.monster_count_scale())
 		for n in count:
 			var def := content.pick_monster(depth, rng)
 			if def:

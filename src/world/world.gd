@@ -30,11 +30,17 @@ var player: Player
 var depth := 1
 var rng := RandomNumberGenerator.new()
 ## Difficulty of the run (set by the game before building floors).
-var difficulty: DifficultyDef
+var difficulty: DifficultyDef:
+	set(value):
+		difficulty = value
+		if rules:
+			rules = FloorRules.make(rules.config, value, floor_event, depth)
 ## Boss floors only: the arena and its boss (null on normal floors).
 var arena: BossArena
 ## What makes this floor special (null on most floors).
 var floor_event: FloorEventDef
+## Difficulty, event and depth combined: ask it how hard and rewarding this floor is.
+var rules: FloorRules
 ## The boss of each act for this run (an act may have several; the game draws one per run).
 ## Empty or null entries: the act's main boss.
 var run_bosses: Array = []
@@ -77,11 +83,8 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 	else:
 		map = DungeonGenerator.generate(content.dungeon, rng)
 	theme = content.dungeon.theme_for_depth(depth)
-	_ambient.color = theme.ambient if theme else Color.WHITE
-	if difficulty:
-		_ambient.color = Color(_ambient.color * difficulty.light, 1.0)
-	if floor_event:
-		_ambient.color = Color(_ambient.color * floor_event.light * floor_event.tint, 1.0)
+	rules = FloorRules.make(content.dungeon, difficulty, floor_event, depth)
+	_ambient.color = Color((theme.ambient if theme else Color.WHITE) * rules.light(), 1.0)
 	_view.show_map(map, theme)
 	_pits.setup(map.tile_size)
 	explored = PackedByteArray()
@@ -147,9 +150,7 @@ func spawn_loot(item: ItemDef, at: Vector2, quality: float = 1.0) -> ItemPickup:
 	if item is ConsumableDef and player and player.carried_count(item) >= config().consumable_carry_cap:
 		spawn_gold(at, maxi(2, roundi(item.value * 0.3)))
 		return null
-	if floor_event:
-		quality *= floor_event.loot_quality
-	return spawn_item(roll_item(item, quality), at)
+	return spawn_item(roll_item(item, quality * rules.loot_quality()), at)
 
 
 ## `item`, or a better rolled copy of it if it is equipment.
@@ -159,8 +160,7 @@ func roll_item(item: ItemDef, quality: float = 1.0) -> ItemDef:
 
 ## Coins on the floor, split in a few piles that fly to the hero when close.
 func spawn_gold(at: Vector2, amount: int) -> void:
-	if floor_event:
-		amount = roundi(amount * floor_event.gold)
+	amount = rules.gold(amount)
 	if amount <= 0:
 		return
 	var piles := clampi(ceili(amount / 4.0), 1, 6)
@@ -237,10 +237,7 @@ func spawn_trap(def: TrapDef, cell: Vector2i, cycle_offset: float = 0.0) -> Trap
 
 ## Monsters roll to be elites with the floor's chance (DungeonConfig > Elites, the difficulty).
 func roll_elite(monster: Monster) -> void:
-	var chance := config().elite_chance_at(depth) * (difficulty.elite_chance if difficulty else 1.0)
-	if floor_event:
-		chance += floor_event.elite_chance_bonus
-	if rng.randf() < chance:
+	if rng.randf() < rules.elite_chance():
 		make_elite(monster)
 
 
@@ -468,19 +465,6 @@ func get_hostiles(faction: Actor.Faction) -> Array[Actor]:
 	elif player and not player.is_dead:
 		result.append(player)
 	return result
-
-
-## Multiplier for damage dealt by the dungeon itself (monsters, traps): the difficulty.
-func damage_scale() -> float:
-	var scale := difficulty.monster_damage if difficulty else 1.0
-	if floor_event:
-		scale *= floor_event.monster_damage  # Blood Moon traps bite harder too
-	return scale
-
-
-## Multiplier for drop chances.
-func loot_scale() -> float:
-	return difficulty.loot_chance if difficulty else 1.0
 
 
 ## Every living actor, whatever its side (traps and explosions hurt everyone).

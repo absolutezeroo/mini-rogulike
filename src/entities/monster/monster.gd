@@ -61,20 +61,11 @@ func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
 	collision_mask = Layers.WORLD | Layers.PLAYER | Layers.MONSTERS
 	add_to_group("monsters")
 
-	base_stats = def.stats.duplicate()
-	var levels := depth - 1
-	base_stats.max_hp = roundi(base_stats.max_hp * (1.0 + config.monster_hp_scale_per_depth * levels))
-	base_stats.attack += config.monster_attack_per_depth * levels
-	var difficulty := world.difficulty if world else null
-	if difficulty:
-		base_stats.max_hp = roundi(base_stats.max_hp * (difficulty.boss_hp if def is BossDef else difficulty.monster_hp))
-		base_stats.move_speed *= difficulty.monster_speed
-		_damage_multiplier = difficulty.monster_damage
-		_windup_multiplier = difficulty.telegraph_time
-	var event := world.floor_event if world else null
-	if event:
-		base_stats.max_hp = roundi(base_stats.max_hp * event.monster_hp)
-		_damage_multiplier *= event.monster_damage
+	# Depth, difficulty and the floor's event (see FloorRules).
+	var rules := world.rules if world and world.rules else FloorRules.make(config, null, null, depth)
+	base_stats = rules.scale_monster(def.stats, def is BossDef)
+	_damage_multiplier = rules.monster_damage()
+	_windup_multiplier = rules.telegraph_time()
 	if def.weapon:
 		equipment.equip(def.weapon)
 	skills.set_skills(def.skills)
@@ -352,7 +343,7 @@ func _on_died(killer: Actor) -> void:
 		_return_stolen_gold()
 		return  # called in by another monster: no rewards, or a summoner could be farmed forever
 	if def.loot:
-		for item in def.loot.roll(world.rng, world.loot_scale()):
+		for item in def.loot.roll(world.rng, world.rules.loot_chance()):
 			var offset := Vector2.from_angle(randf() * TAU) * randf_range(4.0, 14.0)
 			world.spawn_loot(item, global_position + offset, quality)
 	for i in _bonus_drops:
@@ -392,7 +383,7 @@ func _free_souls() -> void:
 func _death_burst() -> void:
 	if def.death_burst_radius <= 0.0:
 		return
-	var damage := roundi((def.death_burst_damage + world.depth) * world.damage_scale())
+	var damage := world.rules.dungeon_damage(def.death_burst_damage)
 	Combat.delayed_blast(world, global_position, def.death_burst_radius, damage, DEATH_BURST_FUSE, def.death_burst_fx, def.death_burst_status)
 
 

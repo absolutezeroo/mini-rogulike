@@ -71,6 +71,17 @@ func _test_stat_block() -> void:
 func _test_combat_rules() -> void:
 	check(Combat.mitigate(10, 3) == 7, "defense removes damage")
 	check(Combat.mitigate(2, 50) == 1, "a hit always deals at least 1")
+	# Floor rules: difficulty x event x depth, in one place.
+	var nightmare := CONTENT.get_difficulty(&"nightmare")
+	var blood_moon: FloorEventDef = load("res://data/floor_events/blood_moon.tres")
+	var plain := FloorRules.make(CONTENT.dungeon, null, null, 1)
+	var hard := FloorRules.make(CONTENT.dungeon, nightmare, blood_moon, 5)
+	check(plain.monster_damage() == 1.0 and plain.dungeon_damage(4) == 5, "no difficulty: neutral rules (trap 4 + depth 1)")
+	check(is_equal_approx(hard.monster_damage(), nightmare.monster_damage * blood_moon.monster_damage), "difficulty and event multiply")
+	check(hard.dungeon_damage(4) == roundi(9 * hard.monster_damage()), "dungeon damage grows with depth and the multipliers")
+	check(hard.gold(10) == roundi(10 * blood_moon.gold), "the event changes the gold")
+	var slime: MonsterDef = load("res://data/monsters/slime.tres")
+	check(hard.scale_monster(slime.stats, false).max_hp > plain.scale_monster(slime.stats, false).max_hp and slime.stats.max_hp == plain.scale_monster(slime.stats, false).max_hp, "monster stats scale without touching the def")
 
 
 func _test_content() -> void:

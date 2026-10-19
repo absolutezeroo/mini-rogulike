@@ -63,7 +63,7 @@ func open() -> void:
 	queue_redraw()
 	opened.emit(self)
 	Events.stat_counted.emit("chests", 1)
-	world.spawn_gold(global_position + Vector2(0, 14), world.rng.randi_range(def.gold.x, def.gold.y) + world.depth)
+	world.spawn_gold(global_position + Vector2(0, 14), world.rng.randi_range(def.gold.x, def.gold.y) + roundi(world.depth * def.gold_per_depth))
 	if trapped:
 		_spring()
 		_drop_items(1)
@@ -97,7 +97,7 @@ func _release_monsters() -> void:
 
 
 func _explode() -> void:
-	var damage := roundi((def.explosion_damage + world.depth) * world.damage_scale())
+	var damage := world.rules.dungeon_damage(def.explosion_damage)
 	Vfx.explosion(world, global_position, def.explosion_radius)
 	Combat.blast(world, global_position, def.explosion_radius, damage, 340.0)
 

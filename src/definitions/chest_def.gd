@@ -11,6 +11,8 @@ extends ContentDef
 @export var loot_quality: float = 1.5
 ## Coins inside (plus one per floor).
 @export var gold: Vector2i = Vector2i(5, 15)
+## Extra gold per floor.
+@export var gold_per_depth: float = 1.0
 @export var open_sound: AudioStream
 
 @export_group("Trap")

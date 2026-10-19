@@ -139,10 +139,10 @@ func _begin_run(saved: Dictionary) -> void:
 
 	world.rng.randomize()
 	difficulty = content.get_difficulty(StringName(saved.get("difficulty", Profile.difficulty)))
-	if difficulty and not Profile.is_unlocked(difficulty):
-		difficulty = content.default_difficulty
+	if difficulty == null or not Profile.is_unlocked(difficulty):
+		difficulty = content.default_difficulty  # never null from here on
 	var ascension := int(saved.get("ascension", Profile.ascension if saved.is_empty() else 0))
-	if difficulty and difficulty.has_ascensions and ascension > 0:
+	if difficulty.has_ascensions and ascension > 0:
 		difficulty = AscensionDef.apply_levels(difficulty, content.ascensions, mini(ascension, Profile.ascension_unlocked))
 	world.difficulty = difficulty
 	world.run_bosses = _load_bosses(saved.get("bosses", [])) if saved.has("bosses") else _draw_bosses()
@@ -227,7 +227,7 @@ func _apply_profile() -> void:
 			UpgradeDef.Kind.STARTING_PERK:
 				if upgrade.perk:
 					player.perks.add(upgrade.perk)
-	if difficulty and difficulty.hero_max_hp != 1.0:
+	if difficulty.hero_max_hp != 1.0:
 		player.base_stats.max_hp = roundi(player.base_stats.max_hp * difficulty.hero_max_hp)
 	player.invalidate_stats()
 	player.hp = player.get_max_hp()
@@ -235,7 +235,7 @@ func _apply_profile() -> void:
 
 ## Souls this run is worth so far (what the shrine gets when it ends).
 func run_souls() -> int:
-	return Profile.souls_for_run(kills, depth, bosses_slain, has_won, difficulty.souls if difficulty else 1.0)
+	return Profile.souls_for_run(kills, depth, bosses_slain, has_won, difficulty.souls)
 
 
 ## Adds this run's souls to the profile (only what was not added yet).
@@ -243,8 +243,8 @@ func _award_souls(won_now: bool) -> int:
 	var total := run_souls()
 	var earned := total - _souls_awarded
 	_souls_awarded = total
-	Profile.record_run(earned, depth, won_now, difficulty.id if difficulty else &"")
-	if won_now and difficulty and difficulty.has_ascensions:
+	Profile.record_run(earned, depth, won_now, difficulty.id)
+	if won_now and difficulty.has_ascensions:
 		Profile.win_ascension(difficulty.ascension, content.ascensions.size())
 	_check_achievements()
 	return earned
@@ -324,7 +324,7 @@ func _enter_floor(resumed: bool = false) -> void:
 	if world.floor_event and world.floor_event.ambience:
 		mood = world.floor_event.ambience
 	ambience.play(mood, world, player)
-	if not resumed and depth > 1 and difficulty and difficulty.heal_on_new_floor > 0.0:
+	if not resumed and depth > 1 and difficulty.heal_on_new_floor > 0.0:
 		player.heal(roundi(player.get_max_hp() * difficulty.heal_on_new_floor))
 	if world.theme:
 		Sfx.play_music(world.theme.music)
@@ -451,7 +451,7 @@ func _souls_text(earned: int) -> String:
 func _run_summary() -> String:
 	var act := content.dungeon.act_for_depth(depth)
 	return "%s - %s, depth %d, level %d\n%d monsters slain, %d bosses" % [
-		difficulty.display_name if difficulty else "Normal", act.title if act else "Dungeon", depth, player.level, kills, bosses_slain]
+		difficulty.display_name, act.title if act else "Dungeon", depth, player.level, kills, bosses_slain]
 
 
 # --- Perks -------------------------------------------------------------------
@@ -532,8 +532,8 @@ func _save_run() -> void:
 		"run_gold": _run_gold,
 		"history_recorded": _history_recorded,
 		"bosses": RunSave.refs(world.run_bosses),
-		"difficulty": String(difficulty.id) if difficulty else "",
-		"ascension": difficulty.ascension if difficulty else 0,
+		"difficulty": String(difficulty.id),
+		"ascension": difficulty.ascension,
 		"player": player.save_state(),
 		"offers": offers,
 	})
@@ -587,7 +587,7 @@ func _record_history() -> void:
 	_history_recorded = true
 	var weapon := player.get_weapon()
 	Profile.add_history({
-		"difficulty": difficulty.display_name if difficulty else "Normal",
+		"difficulty": difficulty.display_name,
 		"depth": depth,
 		"level": player.level,
 		"kills": kills,
