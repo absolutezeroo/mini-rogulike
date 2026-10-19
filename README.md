@@ -331,16 +331,21 @@ you can then keep going in endless mode (the acts loop, monsters keep getting st
 | III. Burning Ruins | 7-9 | Fire Shaman, Cyclops, Flame Spirit, Lizardman, Horned Beast, Drakeling, Kappa, Ink Octopus, Bomber, Brood Mother, Shell Guard | Crimson Tengu |
 
 Monsters are data (`MonsterDef`): stats, a weapon (its `on_hit` status poisons, burns or slows),
-skills (telegraphed casts: spore clouds, dives, charges, ink rings...), and what happens when they
-die: a **death burst** (a flame spirit explodes, a frost skull freezes everything around, after a
-short warning) or **death spawns** (a giant slime splits in two).
+skills (telegraphed casts: spore clouds, dives, charges, ink rings...), and **traits**
+(`MonsterDef.traits`, `src/definitions/monster_traits/`): small resources that hook into the
+monster (on spawn, every frame, steering, attacking, taking a hit, hurting the hero, dying, drawing).
+Every monster of a kind shares the trait; per-monster values live in `Monster.trait_state()`.
+What a monster draws besides its body (warnings, elite aura and name, health bar, trait drawings)
+is `MonsterOverlay`.
 
-Some fight differently:
-- **Shell Guard**: its shell (`MonsterDef.front_guard`, `guard_arc`, the silver arc in front of it)
-  blocks most of the damage and push of blows from the front. It turns slowly: roll behind it.
-  Burns, poison and blasts go around the shell.
-- **Thief Racoon** (`steals_gold`, `flee_time`): each hit takes some of your gold, then it runs
-  away. Slay it to get the gold back, with interest.
+- **DeathBurstTrait**: bursts after a short warning (a flame spirit explodes, a frost skull
+  freezes everything around).
+- **DeathSpawnTrait**: monsters come out when it dies (a giant slime splits in two).
+- **GuardTrait** (Shell Guard): the shell, the silver arc in front of it, blocks most of the damage
+  and push of blows from the front. It turns slowly: roll behind it. Burns, poison and blasts
+  go around the shell.
+- **ThiefTrait** (Thief Racoon): each hit takes some of your gold, then it runs away. Slay it to
+  get the gold back, with interest.
 - **Brood Mother**: keeps her distance and lays red spiders (a `SummonEffect` skill). Kill her first.
 - **Bomber**: keeps away and lobs bombs that blow up where they land (a projectile skill with an
   `explosion_radius`).
@@ -474,7 +479,8 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 | A player skill | Create a `SkillDef` in `data/skills/player/`, put it in a weapon's Skills (max 2) or in a tome |
 | A skill tome | New `SkillTomeDef` in `data/items/tomes/` pointing to a skill, add it to `content_db.tres` > Items |
 | A new kind of effect | New script in `src/definitions/effects/` extending `Effect`, override `apply()` |
-| A new monster behaviour | New state script in `src/ai/states/`, add a node for it in `monster.tscn` |
+| A new monster ability | A `MonsterTrait` subclass in `src/definitions/monster_traits/`, add it to a monster's Traits |
+| A new monster AI state | New state script in `src/ai/states/`, add a node for it in `monster.tscn` |
 | A perk | New `PerkDef` in `data/perks/`, add it to `content_db.tres` > Perks |
 | A new kind of perk | New script in `src/definitions/passives/` extending `Passive`, override the hooks you need |
 | A boss | New `BossDef` in `data/monsters/bosses/`, set it as an act's Boss |

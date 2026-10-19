@@ -8,7 +8,9 @@
 [ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="6_poqwp"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_45tlk"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="8_gx70p"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="9_8dbkx"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/claws.tres" id="9_qwqtg"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/thief_trait.gd" id="10_d5lei"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_qe77l"]
 atlas = ExtResource("3_8dbkx")
@@ -29,6 +31,9 @@ script = ExtResource("8_gx70p")
 max_hp = 16
 move_speed = 150.0
 
+[sub_resource type="Resource" id="Resource_2p5mw"]
+script = ExtResource("10_d5lei")
+
 [resource]
 script = ExtResource("1_r5uhc")
 stats = SubResource("Resource_d54hh")
@@ -36,8 +41,7 @@ weapon = ExtResource("9_qwqtg")
 radius = 10.0
 frames = ExtResource("2_ifqsy")
 frames_offset = Vector2(0, -8)
-steals_gold = 6
-flee_time = 3.5
+traits = Array[ExtResource("9_8dbkx")]([SubResource("Resource_2p5mw")])
 attack_windup = 0.2
 xp_reward = 8
 loot = SubResource("Resource_6mv3b")

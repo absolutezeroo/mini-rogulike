@@ -9,14 +9,11 @@
 [ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="7_whcsr"]
 [ext_resource type="Resource" path="res://data/items/tomes/tome_frost.tres" id="8_xabnt"]
 [ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="9_1vel6"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="10_6am12"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="10_hi5x3"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_ynqh8"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/bite.tres" id="12_nxglq"]
-
-[sub_resource type="Resource" id="Resource_8xjqc"]
-script = ExtResource("2_dpy18")
-slow = 0.5
-slow_duration = 2.5
+[ext_resource type="Script" path="res://src/definitions/monster_traits/death_burst_trait.gd" id="12_pu4nv"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_x8vpe"]
 atlas = ExtResource("5_tomrc")
@@ -42,6 +39,17 @@ script = ExtResource("11_ynqh8")
 max_hp = 12
 move_speed = 130.0
 
+[sub_resource type="Resource" id="Resource_8xjqc"]
+script = ExtResource("2_dpy18")
+slow = 0.5
+slow_duration = 2.5
+
+[sub_resource type="Resource" id="Resource_tomrc"]
+script = ExtResource("12_pu4nv")
+damage = 4
+status = SubResource("Resource_8xjqc")
+fx = ExtResource("1_wwd4k")
+
 [resource]
 script = ExtResource("3_6am12")
 stats = SubResource("Resource_0du8f")
@@ -50,12 +58,9 @@ radius = 9.0
 frames = ExtResource("4_pu4nv")
 frames_offset = Vector2(0, -8)
 flies = true
+traits = Array[ExtResource("10_6am12")]([SubResource("Resource_tomrc")])
 attack_windup = 0.25
 attack_recovery = 0.35
-death_burst_radius = 60.0
-death_burst_damage = 4
-death_burst_status = SubResource("Resource_8xjqc")
-death_burst_fx = ExtResource("1_wwd4k")
 xp_reward = 6
 loot = SubResource("Resource_1k2a8")
 id = &"frost_skull"

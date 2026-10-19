@@ -9,7 +9,9 @@
 [ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="7_wyntn"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_dy6e3"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="9_o52vt"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="10_0fofo"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/slam.tres" id="10_2d0do"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/guard_trait.gd" id="11_eajvl"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_8dspx"]
 atlas = ExtResource("3_0fofo")
@@ -36,6 +38,9 @@ max_hp = 34
 defense = 2
 move_speed = 60.0
 
+[sub_resource type="Resource" id="Resource_a02s6"]
+script = ExtResource("11_eajvl")
+
 [resource]
 script = ExtResource("1_maujp")
 stats = SubResource("Resource_gjypo")
@@ -43,8 +48,7 @@ weapon = ExtResource("10_2d0do")
 frames = ExtResource("2_v0egp")
 frames_offset = Vector2(0, -8)
 knockback_resistance = 0.6
-front_guard = 0.8
-guard_arc = 150.0
+traits = Array[ExtResource("10_0fofo")]([SubResource("Resource_a02s6")])
 attack_windup = 0.45
 xp_reward = 12
 loot = SubResource("Resource_a08u6")

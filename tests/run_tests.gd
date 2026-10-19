@@ -938,7 +938,8 @@ func _test_bestiary(world: World, player: Player) -> void:
 	giant.die(null)
 	await _frames(3)
 	var newcomers := world.get_hostiles(player.faction).filter(func(m: Actor) -> bool: return not already_there.has(m))
-	check(newcomers.size() == big.death_spawn_count, "a giant slime splits when it dies")
+	var split := big.traits.filter(func(t: MonsterTrait) -> bool: return t is DeathSpawnTrait)
+	check(not split.is_empty() and newcomers.size() == (split[0] as DeathSpawnTrait).count, "a giant slime splits when it dies")
 	for monster in newcomers:
 		monster.queue_free()
 	await _frames(2)
@@ -951,7 +952,8 @@ func _test_bestiary(world: World, player: Player) -> void:
 	player._invulnerable_time = 0.0
 	flam.die(null)
 	check(player.hp == hp_before, "the burst waits (time to step away)")
-	await _frames(int(Monster.DEATH_BURST_FUSE * 60.0) + 4)
+	var burst := flam.get_trait(DeathBurstTrait) as DeathBurstTrait
+	await _frames(int(burst.fuse * 60.0) + 4)
 	check(player.hp < hp_before, "a dying flame spirit explodes")
 	player.statuses.clear()
 
@@ -1590,9 +1592,11 @@ func _test_monster_behaviours(game: Node) -> void:
 	shell.dormant = true
 	await _frames(2)
 	var lost := []
+	var guard := shell.get_trait(GuardTrait) as GuardTrait
+	check(guard != null, "the Shell Guard has a shield (GuardTrait)")
 	for push: Vector2 in [Vector2.LEFT, Vector2.RIGHT]:
 		shell.facing = Vector2.RIGHT
-		shell.guard_direction = Vector2.RIGHT
+		guard.set_direction(shell, Vector2.RIGHT)
 		shell._invulnerable_time = 0.0
 		shell.hp = shell.get_max_hp()
 		var hit := HitInfo.new()
@@ -1614,9 +1618,10 @@ func _test_monster_behaviours(game: Node) -> void:
 	player.hp = player.get_max_hp()
 	player._invulnerable_time = 0.0
 	player.take_hit(Combat.make_hit(1, 0.0, thief))
-	check(player.gold < 60 and thief.stolen_gold == 60 - player.gold, "the thief steals gold (%d)" % thief.stolen_gold)
+	var thievery := thief.get_trait(ThiefTrait) as ThiefTrait
+	check(player.gold < 60 and thievery.stolen(thief) == 60 - player.gold, "the thief steals gold (%d)" % thievery.stolen(thief))
 	check(not thief.can_attack(), "and runs instead of fighting")
-	var stolen := thief.stolen_gold
+	var stolen := thievery.stolen(thief)
 	thief.die(player)
 	await _frames(3)
 	var dropped := 0
@@ -1797,7 +1802,7 @@ func _test_review_fixes(game: Node) -> void:
 	shell.dormant = true
 	await _frames(2)
 	shell.facing = Vector2.RIGHT
-	shell.guard_direction = Vector2.RIGHT
+	(shell.get_trait(GuardTrait) as GuardTrait).set_direction(shell, Vector2.RIGHT)
 	var dash := HitInfo.new()
 	dash.amount = 20
 	dash.knockback = Vector2.UP * 100.0

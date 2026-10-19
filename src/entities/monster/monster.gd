@@ -3,9 +3,6 @@ extends Actor
 ## A monster built from a MonsterDef (or a BossDef). Its behaviour lives in the StateMachine child
 ## (res://src/ai/), which steers it through `move_direction`, `attack()` and skills.
 
-const HP_BAR_WIDTH := 26.0
-## Delay between a monster's death and its death burst (time to step away).
-const DEATH_BURST_FUSE := 0.35
 ## Souls flying out of a dead boss.
 const BOSS_SOULS := 12
 
@@ -32,16 +29,13 @@ var _windup_multiplier := 1.0
 var _damage_multiplier := 1.0
 var _phase_tint := Color.WHITE
 var _xp_multiplier := 1
-## Thieves: gold taken from the hero, and seconds left running away with it.
-var stolen_gold := 0
 ## Called in by another monster (SummonEffect): gives no XP, loot or gold.
 var summoned := false
-var _flee_time := 0.0
-## Shielded monsters: where the shield points. Turns slower than the monster looks,
-## so a quick dash gets behind it.
-var guard_direction := Vector2.DOWN
-const GUARD_TURN_SPEED := 2.2
 var _bonus_drops := 0
+## Per-monster values of the def's traits (see trait_state()).
+var _trait_state := {}
+var _under: MonsterOverlay
+var _over: MonsterOverlay
 ## Fell into a hole: no loot, no burst, nothing comes out.
 var _fell := false
 
@@ -71,6 +65,18 @@ func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
 	skills.set_skills(def.skills)
 	invalidate_stats()
 	hp = get_max_hp()
+	for monster_trait in def.traits:
+		monster_trait.on_spawn(self)
+
+
+func _ready() -> void:
+	super._ready()
+	# Warnings and auras under the body, name and health bar over it.
+	_under = MonsterOverlay.create(self, MonsterOverlay.Layer.UNDER)
+	add_child(_under)
+	move_child(_under, 0)
+	_over = MonsterOverlay.create(self, MonsterOverlay.Layer.OVER)
+	add_child(_over)
 
 
 ## Turns the monster into an elite: affix perk, more HP, bigger, more XP, guaranteed loot.
@@ -108,39 +114,37 @@ func get_knockback_resistance() -> float:
 
 
 func can_attack() -> bool:
-	return _flee_time <= 0.0 and super.can_attack()
+	for monster_trait in def.traits:
+		if not monster_trait.can_attack(self):
+			return false
+	return super.can_attack()
 
 
-## Thieves grab some gold when they hit the hero, then run.
+## The monster's attack or skill hurt the hero (thieves grab gold...).
 func on_hit_player(player: Player) -> void:
-	if def.steals_gold <= 0 or player.gold <= 0:
-		return
-	var amount := mini(def.steals_gold + world.depth, player.gold)
-	player.spend_gold(amount)
-	stolen_gold += amount
-	_flee_time = def.flee_time
-	world.spawn_floating_text(player.head_position(), "-%d gold" % amount, Color("ffd166"))
-	Sfx.play_at(Sfx.bank.coin, global_position, 0.0, 0.7)
+	for monster_trait in def.traits:
+		monster_trait.on_hit_player(self, player)
 
 
-## Shields block part of what comes from in front.
 func _incoming_damage(hit: HitInfo, damage: int) -> int:
-	if def.front_guard <= 0.0 or hit.is_secondary:
-		return damage
-	var from := Vector2.ZERO
-	if hit.origin != Vector2.INF:
-		from = global_position.direction_to(hit.origin)
-	elif hit.knockback != Vector2.ZERO:
-		from = -hit.knockback.normalized()
-	elif is_instance_valid(hit.source):
-		from = global_position.direction_to(hit.source.global_position)
-	if from == Vector2.ZERO or absf(guard_direction.angle_to(from)) > deg_to_rad(def.guard_arc) * 0.5:
-		return damage
-	hit.knockback *= 0.2
-	Vfx.hit(world, global_position + from * radius, from, Color("d9d3c7"))
-	Sfx.play_at(Sfx.bank.projectile_impact, global_position, -2.0, 1.4)
-	world.spawn_floating_text(head_position() + Vector2(0, -8), "Blocked", Color("d9d3c7"))
-	return maxi(1, roundi(damage * (1.0 - def.front_guard)))
+	for monster_trait in def.traits:
+		damage = monster_trait.incoming_damage(self, hit, damage)
+	return damage
+
+
+## The first trait of type `kind` (a GuardTrait, a ThiefTrait...), or null.
+func get_trait(kind: Script) -> MonsterTrait:
+	for monster_trait in def.traits:
+		if is_instance_of(monster_trait, kind):
+			return monster_trait
+	return null
+
+
+## Per-monster values of a trait (a trait resource is shared by every monster of its kind).
+func trait_state(owner: MonsterTrait) -> Dictionary:
+	if not _trait_state.has(owner):
+		_trait_state[owner] = {}
+	return _trait_state[owner]
 
 
 ## Went down a hole (rather than being slain).
@@ -225,12 +229,10 @@ func get_attack_windup() -> float:
 func _get_desired_velocity() -> Vector2:
 	_update_heavy_steps()
 	var direction := move_direction
-	if def.front_guard > 0.0:
-		_turn_guard(get_physics_process_delta_time())
-	if _flee_time > 0.0:
-		_flee_time -= get_physics_process_delta_time()
-		if is_instance_valid(target):
-			direction = target.global_position.direction_to(global_position)
+	var delta := get_physics_process_delta_time()
+	for monster_trait in def.traits:
+		monster_trait.update(self, delta)
+		direction = monster_trait.steer(self, direction)
 	if direction != Vector2.ZERO and not flies:
 		direction = _avoid_holes(direction)
 	return direction * get_move_speed()
@@ -322,26 +324,25 @@ func _on_fell(pit: PitDef) -> void:
 func _on_died(killer: Actor) -> void:
 	Events.monster_killed.emit(self)
 	_free_souls()
-	if _fell or is_falling:
+	var fell := _fell or is_falling
+	for monster_trait in def.traits:
+		monster_trait.on_died(self, killer, fell, not summoned)
+	if fell:
 		if killer is Player:
 			(killer as Player).gain_xp(def.xp_reward * _xp_multiplier)
 		world.spawn_floating_text(global_position, "Fell!", Color("ffd166"))
-		_return_stolen_gold()
 		return
 	if is_boss():
 		Vfx.boss_death(world, global_position + Vector2(0, -head_height * 0.5), radius * 1.5)
 		HitStop.freeze(0.25)
 	else:
 		Vfx.death(world, global_position, def.color)
-	if killer is Player and not summoned:
+	if summoned:
+		return  # called in by another monster: no rewards, or a summoner could be farmed forever
+	if killer is Player:
 		(killer as Player).gain_xp(def.xp_reward * _xp_multiplier)
-	_death_burst()
-	_death_spawns()
 	var config := world.config()
 	var quality := config.boss_loot_quality if is_boss() else (config.elite_loot_quality if elite else 1.0)
-	if summoned:
-		_return_stolen_gold()
-		return  # called in by another monster: no rewards, or a summoner could be farmed forever
 	if def.loot:
 		for item in def.loot.roll(world.rng, world.rules.loot_chance()):
 			var offset := Vector2.from_angle(randf() * TAU) * randf_range(4.0, 14.0)
@@ -353,18 +354,7 @@ func _on_died(killer: Actor) -> void:
 	_drop_gold()
 
 
-## A thief lost down a hole (or a summoned one): the hero gets the stolen gold back anyway.
-func _return_stolen_gold() -> void:
-	if stolen_gold > 0 and world.player and not world.player.is_dead:
-		world.player.add_gold(stolen_gold)
-		world.spawn_floating_text(world.player.head_position(), "+%d gold" % stolen_gold, Color("ffd166"))
-		stolen_gold = 0
-
-
 func _drop_gold() -> void:
-	if stolen_gold > 0:
-		# What the thief took, and a bit more for the trouble.
-		world.spawn_gold(global_position, roundi(stolen_gold * 1.5) + 5)
 	var config := world.config()
 	var multiplier := config.boss_gold_multiplier if is_boss() else (config.elite_gold_multiplier if elite else 1.0)
 	if multiplier > 1.0 or world.rng.randf() < config.gold_drop_chance:
@@ -379,116 +369,9 @@ func _free_souls() -> void:
 		world.spawn_vfx(SoulWisp.create(global_position + Vector2(randf_range(-8.0, 8.0), -radius), world.player))
 
 
-## A short warning ring, then the burst (the monster is already gone).
-func _death_burst() -> void:
-	if def.death_burst_radius <= 0.0:
-		return
-	var damage := world.rules.dungeon_damage(def.death_burst_damage)
-	Combat.delayed_blast(world, global_position, def.death_burst_radius, damage, DEATH_BURST_FUSE, def.death_burst_fx, def.death_burst_status)
-
-
-func _death_spawns() -> void:
-	if def.death_spawns.is_empty() or def.death_spawn_count <= 0:
-		return
-	var at := global_position
-	var target_world := world
-	var spawns := def.death_spawns
-	var count := def.death_spawn_count
-	var hunted := target
-	# Deferred: we may be inside a physics callback.
-	(func() -> void:
-		for i in count:
-			var minion := target_world.spawn_monster(spawns.pick_random(), target_world.find_open_point_near(at, 24.0))
-			minion.target = hunted if is_instance_valid(hunted) else null
-			Vfx.puff(target_world, minion.global_position)
-	).call_deferred()
-
-
-func _draw() -> void:
-	if elite and not is_dead and not is_falling:
-		_draw_elite_aura()
-	if def.front_guard > 0.0 and not is_dead and not is_falling:
-		_draw_guard()
-	if telegraph > 0.0 and not is_dead:
-		_draw_telegraph()
-	super._draw()
-	if elite and not is_dead and not is_falling:
-		_draw_elite_name()
-	# Bosses have a big bar in the HUD instead.
-	if not is_dead and hp < get_max_hp() and not is_boss():
-		var top_left := head_position() - global_position + Vector2(-HP_BAR_WIDTH * 0.5, -6.0)
-		draw_rect(Rect2(top_left - Vector2.ONE, Vector2(HP_BAR_WIDTH + 2.0, 6.0)), Color("3f2631"))
-		draw_rect(Rect2(top_left, Vector2(HP_BAR_WIDTH * hp / get_max_hp(), 4.0)), Color("e84537"))
-
-
 ## Glows red while winding up an attack, so the player sees it coming.
 func _body_modulate() -> Color:
 	var color := super._body_modulate() * _phase_tint
 	if telegraph > 0.0 and _flash_time <= 0.0:
 		color = color.lerp(Color(2.0, 0.7, 0.7), telegraph)
 	return color
-
-
-func _draw_telegraph() -> void:
-	var weapon := get_weapon()
-	var warning := Color(1.0, 0.2, 0.2, 0.15 + 0.35 * telegraph)
-	var skill := casting_skill()
-	if skill:
-		# Casting: circle showing the area (if any), filling up until it goes off.
-		if skill.telegraph_radius > 0.0:
-			draw_circle(Vector2.ZERO, skill.telegraph_radius, Color(1.0, 0.2, 0.2, 0.12))
-			if skill.telegraph_radius * telegraph > 1.0:
-				draw_circle(Vector2.ZERO, skill.telegraph_radius * telegraph, warning)
-			draw_arc(Vector2.ZERO, skill.telegraph_radius, 0.0, TAU, 48, Color(1.0, 0.3, 0.3, 0.7), 2.0)
-		return
-	if weapon and weapon.kind == WeaponDef.Kind.MELEE:
-		# Red cone showing where the hit will land.
-		var reach := (radius + weapon.reach) * telegraph
-		if reach < 2.0:
-			return
-		if weapon.arc_degrees >= 359.0:
-			draw_circle(Vector2.ZERO, reach, warning)
-			return
-		var half := deg_to_rad(weapon.arc_degrees) * 0.5
-		var points := PackedVector2Array([Vector2.ZERO])
-		for i in 13:
-			points.append(Vector2.from_angle(facing.angle() - half + half * 2.0 * i / 12.0) * reach)
-		draw_colored_polygon(points, warning)
-	else:
-		# Aiming line for ranged attacks.
-		var length := (weapon.reach if weapon else 200.0) * 0.6
-		draw_line(Vector2.ZERO, facing * length, warning, 2.0 + 3.0 * telegraph)
-
-
-## Pulsing ring of the affix color at the elite's feet.
-func _draw_elite_aura() -> void:
-	var pulse := 0.5 + 0.5 * sin(Time.get_ticks_msec() * 0.006)
-	var color := elite.color
-	draw_set_transform(Vector2(0, _feet_y() - 1.0), 0.0, Vector2(1.0, 0.45))
-	color.a = 0.25 + 0.2 * pulse
-	draw_circle(Vector2.ZERO, radius + 6.0 + 2.0 * pulse, color)
-	color.a = 0.8
-	draw_arc(Vector2.ZERO, radius + 6.0 + 2.0 * pulse, 0.0, TAU, 24, color, 2.0)
-	draw_set_transform(Vector2.ZERO)
-
-
-func _draw_elite_name() -> void:
-	var font := Fonts.MAIN
-	var font_size := 12
-	var text_size := font.get_string_size(display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
-	var at := head_position() - global_position + Vector2(-text_size.x * 0.5, -12.0)
-	draw_string_outline(font, at, display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 4, Color(0, 0, 0, 0.8))
-	draw_string(font, at, display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, elite.color.lightened(0.3))
-
-
-## The shielded side: a silver arc in front.
-func _draw_guard() -> void:
-	var half := deg_to_rad(def.guard_arc) * 0.5
-	var angle := guard_direction.angle()
-	draw_arc(Vector2(0, -radius * 0.3), radius + 7.0, angle - half, angle + half, 12, Color(0.85, 0.85, 0.9, 0.75), 3.0)
-
-
-func _turn_guard(delta: float) -> void:
-	var turn := guard_direction.angle_to(facing)
-	guard_direction = guard_direction.rotated(clampf(turn, -GUARD_TURN_SPEED * delta, GUARD_TURN_SPEED * delta))
-	queue_redraw()

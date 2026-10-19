@@ -9,8 +9,10 @@
 [ext_resource type="Resource" path="res://data/items/armors/leather_armor.tres" id="7_w85x2"]
 [ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="8_v547r"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_04ywx"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="10_2npta"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="10_gswp0"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/slam.tres" id="11_aelic"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/death_spawn_trait.gd" id="12_33fvt"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_u7oaa"]
 atlas = ExtResource("4_33fvt")
@@ -36,6 +38,10 @@ max_hp = 40
 defense = 1
 move_speed = 45.0
 
+[sub_resource type="Resource" id="Resource_3drru"]
+script = ExtResource("12_33fvt")
+monsters = Array[ExtResource("1_3ubkx")]([ExtResource("2_rwk6s")])
+
 [resource]
 script = ExtResource("1_3ubkx")
 stats = SubResource("Resource_wtasl")
@@ -44,10 +50,9 @@ radius = 14.0
 frames = ExtResource("3_2npta")
 frames_offset = Vector2(0, -8)
 knockback_resistance = 0.5
+traits = Array[ExtResource("10_2npta")]([SubResource("Resource_3drru")])
 attack_windup = 0.55
 attack_recovery = 0.35
-death_spawns = Array[ExtResource("1_3ubkx")]([ExtResource("2_rwk6s")])
-death_spawn_count = 2
 xp_reward = 8
 loot = SubResource("Resource_y43qf")
 id = &"big_slime"
