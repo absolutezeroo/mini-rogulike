@@ -74,6 +74,10 @@ func _left_column(rank: int, rules: BestiaryRules) -> Control:
 		title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		column.add_child(title)
 	var kills := Profile.kill_count(_monster.id)
+	if Profile.has_shiny(_monster.id):
+		var shiny := _label("* Shiny found! *", 16, Color(1.0, 0.6, 0.95))
+		shiny.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		column.add_child(shiny)
 	var rank_line := _label("%s   -   %d slain" % [Bestiary.rank_name(rank, rules), kills], 18, Color.WHITE)
 	rank_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(rank_line)

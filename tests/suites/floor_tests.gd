@@ -252,6 +252,35 @@ func _test_hazards(game: Game, world: World, player: Player) -> void:
 	var vampiric: EliteAffixDef = load("res://data/elites/vampiric.tres")
 	elite.make_elite(vampiric, CONTENT.dungeon)
 	check(elite.is_elite() and elite.get_max_hp() >= base_hp * 2, "elites are tougher")
+	# Rarer ranks: Epic (2 affixes), Legendary (3), Shiny (other colors, a treasure).
+	var ranked: Array[Monster] = []
+	for rank in CONTENT.dungeon.rare_ranks:
+		var rare := world.spawn_monster(load("res://data/monsters/skeleton.tres"), world.map.cell_to_world(_open_cell_near(world, player.global_position, 1)))
+		rare.dormant = true
+		world.make_ranked(rare, rank)
+		ranked.append(rare)
+		var names := {}
+		for affix in rare.affixes:
+			names[affix] = true
+		check(rare.rank == rank and rare.affixes.size() == rank.affixes and names.size() == rank.affixes, "%s: %d different affixes" % [rank.id, rank.affixes])
+		check(rare.display_name.begins_with(rank.display_name) and rare.get_max_hp() > base_hp, "%s: its name and toughness (%s)" % [rank.id, rare.display_name])
+		if rank.hue_shift > 0.0:
+			var look := rare.rig.visual.material as ShaderMaterial
+			check(is_equal_approx(float(look.get_shader_parameter("hue_shift")), rank.hue_shift), "a Shiny has other colors")
+	var legendary_hp: int = ranked.filter(func(m: Monster) -> bool: return m.rank.id == &"legendary")[0].get_max_hp()
+	var epic_hp: int = ranked.filter(func(m: Monster) -> bool: return m.rank.id == &"epic")[0].get_max_hp()
+	check(legendary_hp > epic_hp, "a Legendary is tougher than an Epic")
+	var shiny_mob: Monster = ranked.filter(func(m: Monster) -> bool: return m.rank.shimmer)[0]
+	Profile.shinies = {}
+	var shiny_kill := HitInfo.new()
+	shiny_kill.amount = 999999
+	shiny_kill.source = player
+	shiny_mob.take_hit(shiny_kill)
+	await _frames(2)
+	check(Profile.has_shiny(&"skeleton"), "a Shiny slain joins the bestiary's collection")
+	for rare in ranked:
+		if is_instance_valid(rare) and not rare.is_dead:
+			rare.queue_free()
 	check(elite.display_name.begins_with("Vampiric") and elite.rig.scale.x > 1.0, "elites have a name and are bigger")
 	elite.hp = 1
 	elite.perks.on_hit_dealt(elite, player, HitInfo.new(), 10)
@@ -709,6 +738,18 @@ func _test_climate(game: Game) -> void:
 	await game.debug_enter_floor(maxi(start_depth, 4))
 	await _frames(3)
 	check((screen_look.get_shader_parameter("moon_color") as Color).a == 0.0, "gone on the next floor")
+
+	# A boss at a rare rank: its name, its affixes on the boss bar.
+	var legendary: MonsterRankDef = CONTENT.dungeon.rare_ranks.filter(func(r: MonsterRankDef) -> bool: return r.id == &"legendary")[0]
+	world.forced_boss_rank = legendary
+	await game.debug_enter_floor(CONTENT.dungeon.acts[0].floors)
+	await _frames(3)
+	var rare_boss := world.arena.boss
+	check(rare_boss.rank == legendary and rare_boss.affixes.size() == legendary.affixes and rare_boss.display_name.begins_with("Legendary"), "a boss can come Legendary (%s)" % rare_boss.display_name)
+	world.arena.start()
+	await _frames(2)
+	var bar_name := (game.hud.get_node("%BossName") as Label).text
+	check(bar_name.contains(rare_boss.affixes[0].display_name), "the boss bar shows its affixes (%s)" % bar_name)
 
 	# Back to a normal floor for the next tests.
 	CONTENT.curses = saved_curses

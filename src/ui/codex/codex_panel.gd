@@ -121,7 +121,8 @@ func _fill_bestiary() -> void:
 			Bestiary.claim(monster, rules)
 	var known := entries.filter(func(m: MonsterDef) -> bool: return Profile.kill_count(m.id) > 0).size()
 	var mastered := entries.filter(func(m: MonsterDef) -> bool: return rules != null and Bestiary.is_mastered(m, rules)).size()
-	_summary.text = "Bestiary: %d / %d slain, %d mastered   -   tap one for its attacks and challenges" % [known, entries.size(), mastered]
+	var shiny := entries.filter(func(m: MonsterDef) -> bool: return Profile.has_shiny(m.id)).size()
+	_summary.text = "Bestiary: %d / %d slain, %d mastered, %d shiny (*)   -   tap one for its attacks and challenges" % [known, entries.size(), mastered, shiny]
 	for monster in entries:
 		_list.add_child(_monster_card(monster))
 
@@ -187,6 +188,8 @@ func _monster_card(monster: MonsterDef) -> Control:
 		info_text = "Seen, never slain"
 	elif rank > 0:
 		info_text = "%s  -  %d slain" % [Bestiary.rank_name(rank, _content.bestiary), kills]
+	if Profile.has_shiny(monster.id):
+		info_text += "  *"
 	var info := _label(info_text, 13, Palette.HEAL if _content.bestiary and Bestiary.is_mastered(monster, _content.bestiary) else Color(1, 1, 1, 0.65))
 	info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	inside.add_child(info)

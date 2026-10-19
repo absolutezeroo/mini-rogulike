@@ -41,6 +41,8 @@ var seen_monsters := {}
 var bestiary_ranks := {}
 ## Bestiary challenges done: "monster_id/challenge_id" -> 1.
 var challenges_done := {}
+## Shiny monsters slain, by id (the bestiary's collection).
+var shinies := {}
 var daily_day := -1
 var daily_score := 0
 var daily_best := 0
@@ -241,6 +243,17 @@ func pay_bestiary_rank(monster_id: StringName, rank: int, reward: int) -> void:
 	changed.emit()
 
 
+func has_shiny(monster_id: StringName) -> bool:
+	return shinies.has(String(monster_id))
+
+
+## A Shiny of this kind slain. True the first time.
+func add_shiny(monster_id: StringName) -> bool:
+	var first := not has_shiny(monster_id)
+	shinies[String(monster_id)] = int(shinies.get(String(monster_id), 0)) + 1
+	return first
+
+
 static func challenge_key(monster_id: StringName, challenge_id: StringName) -> String:
 	return "%s/%s" % [monster_id, challenge_id]
 
@@ -311,6 +324,7 @@ func reset() -> void:
 	seen_monsters = {}
 	bestiary_ranks = {}
 	challenges_done = {}
+	shinies = {}
 	daily_day = -1
 	daily_score = 0
 	daily_best = 0
@@ -327,7 +341,7 @@ func save_profile() -> void:
 		"ascension": ascension, "ascension_unlocked": ascension_unlocked,
 		"kills_by_monster": kills_by_monster, "stats": stats, "achievements": achievements, "history": history,
 		"period_stats": period_stats, "quests_claimed": quests_claimed,
-		"seen_monsters": seen_monsters, "bestiary_ranks": bestiary_ranks, "challenges_done": challenges_done,
+		"seen_monsters": seen_monsters, "bestiary_ranks": bestiary_ranks, "challenges_done": challenges_done, "shinies": shinies,
 		"daily_day": daily_day, "daily_score": daily_score, "daily_best": daily_best, "daily_streak": daily_streak,
 	})
 
@@ -357,6 +371,7 @@ func load_profile() -> void:
 	seen_monsters = _ints(data.get("seen_monsters", {}))
 	bestiary_ranks = _ints(data.get("bestiary_ranks", {}))
 	challenges_done = _ints(data.get("challenges_done", {}))
+	shinies = _ints(data.get("shinies", {}))
 	daily_day = int(data.get("daily_day", -1))
 	daily_score = int(data.get("daily_score", 0))
 	daily_best = int(data.get("daily_best", 0))

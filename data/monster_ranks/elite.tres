@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="MonsterRankDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_rank_def.gd" id="1_1rhbu"]
+
+[resource]
+script = ExtResource("1_1rhbu")
+id = &"elite"
+display_name = "Elite"
+show_in_name = false

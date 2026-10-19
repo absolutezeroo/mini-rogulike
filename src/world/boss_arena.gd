@@ -22,6 +22,7 @@ func setup(world: World, boss_def: BossDef) -> void:
 	_gates.setup(world, _room)
 
 	boss = world.spawn_monster(boss_def, world.map.cell_to_world(_room.get_center()))
+	world.roll_boss_rank(boss)
 	boss.dormant = true
 	boss.facing = Vector2.DOWN
 	boss.died.connect(_on_boss_died)

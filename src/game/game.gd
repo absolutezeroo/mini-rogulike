@@ -437,7 +437,7 @@ func _on_boss_defeated(boss: Monster) -> void:
 		run.has_won = true
 		earned = _award_souls(true)
 	else:
-		offers.add_relic(def)
+		offers.add_relic(def, boss.rank.extra_relics if boss.rank else 0)
 	_save_run()
 	await get_tree().create_timer(RELIC_DELAY, false).timeout
 	if player != winner or player.is_dead:

@@ -41,9 +41,10 @@ func add(rarity: PerkDef.Rarity, count: int, title: String, subtitle: String) ->
 
 
 ## The relics a boss leaves behind (if it has any).
-func add_relic(boss: BossDef) -> void:
+## `extra`: more relics to choose from (a Legendary or Shiny boss).
+func add_relic(boss: BossDef, extra: int = 0) -> void:
 	if boss and boss.relic_choices > 0:
-		add(PerkDef.Rarity.RARE, boss.relic_choices, "Relic", "The boss left a relic behind. Choose one.")
+		add(PerkDef.Rarity.RARE, boss.relic_choices + extra, "Relic", "The boss left a relic behind. Choose one.")
 
 
 func is_empty() -> bool:

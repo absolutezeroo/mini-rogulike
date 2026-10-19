@@ -26,24 +26,28 @@ static func create(owner: Monster, overlay_layer: Layer) -> MonsterOverlay:
 	return overlay
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	queue_redraw()
 	if _telegraph:
 		_update_telegraph()
+	# A shimmering rank (Shiny) sheds sparkles now and then.
+	if layer == Layer.OVER and monster.rank and monster.rank.shimmer and not monster.is_dead and randf() < delta * 2.5:
+		var at := monster.global_position + Vector2(randf_range(-1.0, 1.0) * monster.radius, -randf() * monster.head_height)
+		Vfx.sparkles(monster.world, at, monster.rank.color)
 
 
 func _draw() -> void:
 	if monster.is_dead or monster.is_falling:
 		return
 	if layer == Layer.UNDER:
-		if monster.elite:
+		if monster.rank:
 			_draw_elite_aura()
 		for monster_trait in monster.def.traits:
 			monster_trait.draw_under(monster, self)
 	else:
 		if monster.ward > 0:
 			monster.draw_ward(self)
-		if monster.elite:
+		if monster.rank and not monster.is_boss():
 			_draw_elite_name()
 		# Bosses have a big bar in the HUD instead.
 		if monster.hp < monster.get_max_hp() and not monster.is_boss():
@@ -78,16 +82,25 @@ func _update_telegraph() -> void:
 		_telegraph.show_shape(TelegraphView.Shape.LINE, length, angle, telegraph, 0.0, 8.0)
 
 
-## Pulsing ring of the affix color at the elite's feet.
+## Pulsing rings of the rank's color at its feet (more rings for rarer ranks), and for the
+## rarest a slow crown of rays.
 func _draw_elite_aura() -> void:
-	var pulse := 0.5 + 0.5 * sin(Time.get_ticks_msec() * 0.006)
-	var color := monster.elite.color
+	var time := Time.get_ticks_msec() * 0.001
+	var pulse := 0.5 + 0.5 * sin(time * 6.0)
+	var color := monster.rank_color()
 	var feet := monster.radius * 0.7 + 1.0
 	draw_set_transform(Vector2(0, feet - 1.0), 0.0, Vector2(1.0, 0.45))
 	color.a = 0.25 + 0.2 * pulse
 	draw_circle(Vector2.ZERO, monster.radius + 6.0 + 2.0 * pulse, color)
-	color.a = 0.8
-	draw_arc(Vector2.ZERO, monster.radius + 6.0 + 2.0 * pulse, 0.0, TAU, 24, color, 2.0)
+	for ring in maxi(monster.rank.aura_rings, 1):
+		var size := monster.radius + 6.0 + 2.0 * pulse + ring * 6.0
+		draw_arc(Vector2.ZERO, size, 0.0, TAU, 28, Color(color, 0.8 - ring * 0.2), 2.0)
+	if monster.rank.aura_rings >= 3:
+		for i in 8:
+			var angle := time * 0.8 + TAU * i / 8.0
+			var inner := Vector2.from_angle(angle) * (monster.radius + 8.0)
+			var outer := Vector2.from_angle(angle) * (monster.radius + 22.0 + 4.0 * pulse)
+			draw_line(inner, outer, Color(color, 0.5), 2.0)
 	draw_set_transform(Vector2.ZERO)
 
 
@@ -98,4 +111,11 @@ func _draw_elite_name() -> void:
 	var text_size := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
 	var at := monster.head_position() - monster.global_position + Vector2(-text_size.x * 0.5, -12.0)
 	draw_string_outline(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 4, Color(0, 0, 0, 0.8))
-	draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, monster.elite.color.lightened(0.3))
+	draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, monster.rank_color().lightened(0.3))
+	# An Epic or Legendary: its affixes on a small line above.
+	if monster.rank.show_in_name and monster.affixes.size() > 0:
+		var line := monster.affix_names()
+		var line_size := font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, 10)
+		var line_at := at + Vector2((text_size.x - line_size.x) * 0.5, -12.0)
+		draw_string_outline(font, line_at, line, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, 4, Color(0, 0, 0, 0.8))
+		draw_string(font, line_at, line, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(1, 1, 1, 0.85))

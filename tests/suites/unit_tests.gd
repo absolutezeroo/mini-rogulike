@@ -14,6 +14,7 @@ func run() -> void:
 	_test_perks()
 	_test_synergies()
 	_test_bestiary()
+	_test_monster_ranks()
 	_test_bosses()
 	_test_profile()
 
@@ -376,6 +377,17 @@ func _test_perks() -> void:
 				everything.add(perk)
 	var fallback := CONTENT.pick_perks(everything, 3, PerkDef.Rarity.RARE, rng)
 	check(fallback.size() == 3, "with every relic maxed, common perks fill the offer")
+
+
+## Monster ranks: rarer is rarer, and only from their depth.
+func _test_monster_ranks() -> void:
+	var config := CONTENT.dungeon
+	check(config.elite_rank != null and config.rare_ranks.size() >= 3, "elite, epic, legendary and shiny ranks")
+	for rank in config.rare_ranks:
+		check(rank.chance_at(rank.min_depth - 1) == 0.0 and rank.chance_at(40) <= rank.max_chance, "%s: from its depth, capped" % rank.id)
+		check(rank.boss_chance > 0.0, "%s: bosses can come at it" % rank.id)
+	var ids := config.rare_ranks.map(func(r: MonsterRankDef) -> StringName: return r.id)
+	check(ids.find(&"shiny") < ids.find(&"legendary") and ids.find(&"legendary") < ids.find(&"epic"), "rarest first")
 
 
 ## The bestiary: ranks paid once, challenges met by the right kills, mastery.

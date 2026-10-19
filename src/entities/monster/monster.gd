@@ -16,7 +16,10 @@ var casting_index := -1
 var dormant := false
 ## Physics frame when it first spotted the hero (-1: never). For the bestiary challenges.
 var noticed_frame := -1
-## Elite monsters only (see make_elite()): what makes them special.
+## Elites and rarer (see make_ranked()): the rank (Elite, Epic, Legendary, Shiny) and the
+## affixes that make them special; `elite` is the first affix (null for a Shiny).
+var rank: MonsterRankDef
+var affixes: Array[EliteAffixDef] = []
 var elite: EliteAffixDef
 
 ## Big monsters shake the floor when they walk.
@@ -88,33 +91,75 @@ func _ready() -> void:
 	add_child(_over)
 
 
-## Turns the monster into an elite: affix perk, more HP, bigger, more XP, guaranteed loot.
+## Turns the monster into an elite (the dungeon's elite rank with this one affix).
 ## Call after it was added to the world.
 func make_elite(affix: EliteAffixDef, config: DungeonConfig) -> void:
-	elite = affix
-	display_name = "%s %s" % [affix.display_name, def.display_name]
-	if affix.perk:
-		perks.add(affix.perk)
-	base_stats.max_hp = roundi(base_stats.max_hp * config.elite_hp_multiplier * affix.hp_multiplier)
+	var list: Array[EliteAffixDef] = []
+	if affix:
+		list.append(affix)
+	make_ranked(config.elite_rank, list)
+
+
+## Raises the monster to `new_rank` with `new_affixes` (their perks): more HP, bigger, more XP,
+## better loot, its aura and name. A boss keeps its size and gets its rank's boss HP.
+func make_ranked(new_rank: MonsterRankDef, new_affixes: Array[EliteAffixDef]) -> void:
+	if new_rank == null:
+		return
+	rank = new_rank
+	affixes = new_affixes.duplicate()
+	elite = affixes[0] if not affixes.is_empty() else null
+	var hp_factor := rank.boss_hp_multiplier if is_boss() else rank.hp_multiplier
+	for affix in affixes:
+		if affix.perk:
+			perks.add(affix.perk)
+		if not is_boss():
+			hp_factor *= affix.hp_multiplier
+	if rank.show_in_name:
+		display_name = "%s %s" % [rank.display_name, def.display_name]
+	elif elite:
+		display_name = "%s %s" % [elite.display_name, def.display_name]
+	base_stats.max_hp = roundi(base_stats.max_hp * hp_factor)
 	invalidate_stats()
 	hp = get_max_hp()
-	head_height *= config.elite_scale
-	set_body_radius(radius * lerpf(1.0, config.elite_scale, 0.5))
-	if rig:
-		rig.position = Vector2(0, _feet_y())
-		rig.scale = Vector2.ONE * config.elite_scale
-	_xp_multiplier = config.elite_xp_multiplier
-	_bonus_drops = config.elite_drops
+	if not is_boss():
+		head_height *= rank.scale
+		set_body_radius(radius * lerpf(1.0, rank.scale, 0.5))
+		if rig:
+			rig.position = Vector2(0, _feet_y())
+			rig.scale = Vector2.ONE * rank.scale
+		_xp_multiplier = rank.xp_multiplier
+	_bonus_drops = rank.bonus_drops
+	if rig and (rank.hue_shift > 0.0 or rank.shimmer):
+		var look := rig.visual.material as ShaderMaterial
+		look.set_shader_parameter("hue_shift", rank.hue_shift)
+		look.set_shader_parameter("shimmer", 1.0 if rank.shimmer else 0.0)
 
 
 func is_elite() -> bool:
-	return elite != null
+	return rank != null
+
+
+## The rank's color (a plain elite: its affix's).
+func rank_color() -> Color:
+	if rank == null:
+		return Color.WHITE
+	if not rank.show_in_name and elite:
+		return elite.color
+	return rank.color
+
+
+## "Vampiric, Swift" (an Epic or Legendary shows its affixes under its name).
+func affix_names() -> String:
+	var names := PackedStringArray()
+	for affix in affixes:
+		names.append(affix.display_name)
+	return ", ".join(names)
 
 
 func get_knockback_resistance() -> float:
 	var resistance := def.knockback_resistance
-	if elite:
-		resistance = maxf(resistance, world.config().elite_knockback_resistance if world else 0.5)
+	if rank:
+		resistance = maxf(resistance, rank.knockback_resistance)
 	return resistance
 
 
@@ -412,7 +457,9 @@ func _on_died(killer: Actor) -> void:
 	if killer is Player:
 		(killer as Player).gain_xp(def.xp_reward * _xp_multiplier)
 	var config := world.config()
-	var quality := config.boss_loot_quality if is_boss() else (config.elite_loot_quality if elite else 1.0)
+	var quality := config.boss_loot_quality if is_boss() else (rank.loot_quality if rank else 1.0)
+	if is_boss() and rank:
+		quality *= 1.0 + 0.25 * maxi(affixes.size(), 1)
 	if def.loot:
 		for item in def.loot.roll(world.rng, world.rules.loot_chance()):
 			var offset := Vector2.from_angle(world.rng.randf() * TAU) * world.rng.randf_range(4.0, 14.0)
@@ -426,7 +473,9 @@ func _on_died(killer: Actor) -> void:
 
 func _drop_gold() -> void:
 	var config := world.config()
-	var multiplier := config.boss_gold_multiplier if is_boss() else (config.elite_gold_multiplier if elite else 1.0)
+	var multiplier := config.boss_gold_multiplier if is_boss() else 1.0
+	if rank:
+		multiplier *= rank.gold_multiplier
 	if multiplier > 1.0 or world.rng.randf() < config.gold_drop_chance:
 		world.spawn_gold(global_position, config.gold_for_kill(world.depth, multiplier, world.rng))
 

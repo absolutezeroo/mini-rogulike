@@ -26,7 +26,7 @@ func _ready() -> void:
 		if not only.is_empty() and not only.has(suite_name):
 			continue
 		var script: GDScript = SUITES[suite_name]
-		if not script.can_instantiate():
+		if not script.can_instantiate() or not _helpers_compile():
 			# A suite (or a script it uses) doesn't compile: that is a failure, not 0 checks.
 			TestSuite.failures += 1
 			printerr("FAIL: the %s suite doesn't compile" % suite_name)
@@ -52,3 +52,14 @@ func _only() -> PackedStringArray:
 		if arg.begins_with("--only="):
 			return arg.trim_prefix("--only=").split(",", false)
 	return PackedStringArray()
+
+
+## The suites the game suite borrows from compile too (a parse error in one would otherwise
+## only show as a script error, with 0 failed).
+func _helpers_compile() -> bool:
+	for path in ["res://tests/suites/floor_tests.gd", "res://tests/suites/combat_tests.gd", "res://tests/suites/boss_tests.gd"]:
+		var helper := load(path) as GDScript
+		if helper == null or not helper.can_instantiate():
+			printerr("FAIL: %s doesn't compile" % path)
+			return false
+	return true

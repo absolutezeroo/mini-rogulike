@@ -162,6 +162,12 @@ func _build_monsters(parent: Control) -> void:
 	row.add_child(_button(">", func() -> void: _cycle_monster(1)))
 	row.add_child(_button("Spawn", func() -> void: _act(func() -> void: _spawn(false), "Spawned")))
 	row.add_child(_button("Spawn elite", func() -> void: _act(func() -> void: _spawn(true), "Elite spawned")))
+	# The rare ranks: spawn one of the chosen monster, or make the next boss one.
+	var ranks := _section(parent, "Ranks")
+	for rank in _game_content().dungeon.rare_ranks:
+		ranks.add_child(_button("Spawn %s" % rank.display_name, func() -> void: _act(func() -> void: _spawn_ranked(rank), "%s spawned" % rank.display_name)))
+	for rank in _game_content().dungeon.rare_ranks:
+		ranks.add_child(_button("Next boss %s" % rank.display_name, func() -> void: _act(func() -> void: _game.world.forced_boss_rank = rank, "The next boss: %s" % rank.display_name)))
 	row.add_child(_button("Kill all", func() -> void: _act(func() -> void:
 		for monster in _game.world.get_hostiles(Actor.Faction.PLAYER):
 			monster.die(_game.player), "All dead")))
@@ -215,6 +221,15 @@ func _spawn(elite: bool) -> void:
 	var monster := world.spawn_monster(all[_monster_index], at)
 	if elite:
 		world.make_elite(monster)
+
+
+func _spawn_ranked(rank: MonsterRankDef) -> void:
+	var all := _all_monsters()
+	if all.is_empty():
+		return
+	var world := _game.world
+	var monster := world.spawn_monster(all[_monster_index], world.find_open_point_near(_game.player.global_position, 90.0))
+	world.make_ranked(monster, rank)
 
 
 func _give_epic_weapon() -> void:

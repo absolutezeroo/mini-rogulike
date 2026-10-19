@@ -10,15 +10,22 @@
 [ext_resource type="Resource" path="res://data/props/lantern.tres" id="5_w3ici"]
 [ext_resource type="Resource" path="res://data/chests/chest.tres" id="6_0biys"]
 [ext_resource type="Resource" path="res://data/shop/merchant.tres" id="7_0biys"]
+[ext_resource type="Resource" path="res://data/monster_ranks/elite.tres" id="8_hbupn"]
+[ext_resource type="Script" path="res://src/definitions/monster_rank_def.gd" id="10_ityvi"]
+[ext_resource type="Resource" path="res://data/monster_ranks/shiny.tres" id="11_o115v"]
+[ext_resource type="Resource" path="res://data/monster_ranks/legendary.tres" id="12_52qi6"]
+[ext_resource type="Resource" path="res://data/monster_ranks/epic.tres" id="13_wlvxj"]
 
 [resource]
 script = ExtResource("1_qfnhp")
 acts = Array[ExtResource("1_oi5f6")]([ExtResource("2_pngbb"), ExtResource("3_bf2ay"), ExtResource("4_0biys"), ExtResource("5_cvo8j")])
+width = 72
+height = 72
+max_rooms = 15
 room_light = ExtResource("5_w3ici")
 chest = ExtResource("6_0biys")
 ambush_chest = ExtResource("5_bf2ay")
 merchant = ExtResource("7_0biys")
+elite_rank = ExtResource("8_hbupn")
+rare_ranks = Array[ExtResource("10_ityvi")]([ExtResource("11_o115v"), ExtResource("12_52qi6"), ExtResource("13_wlvxj")])
 monster_hp_scale_per_depth = 0.22
-width = 72
-height = 72
-max_rooms = 15

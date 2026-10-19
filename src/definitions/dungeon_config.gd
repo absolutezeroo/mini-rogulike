@@ -78,8 +78,7 @@ extends Resource
 @export var rare_weight_per_depth: float = 1.0
 @export var epic_weight: float = 0.6
 @export var epic_weight_per_depth: float = 0.4
-## Quality of what elites, chests and bosses drop (1 = a common monster).
-@export var elite_loot_quality: float = 2.5
+## Quality of what bosses drop (1 = a common monster; elites: MonsterRankDef.loot_quality).
 @export var boss_loot_quality: float = 5.0
 ## Consumables found while the hero already carries this many of the same one (belt and bag)
 ## drop as gold instead: no bag full of potions.
@@ -91,7 +90,6 @@ extends Resource
 @export var gold_per_kill: Vector2i = Vector2i(1, 4)
 ## Extra gold per floor below the first.
 @export var gold_per_depth: float = 0.6
-@export var elite_gold_multiplier: float = 4.0
 @export var boss_gold_multiplier: float = 15.0
 ## Crates and pots sometimes hold a few coins.
 @export_range(0.0, 1.0) var prop_gold_chance: float = 0.25
@@ -125,16 +123,14 @@ extends Resource
 @export var merchant: ShopDef
 
 @export_group("Elites")
-## Elites resist knockback at least this much (see MonsterDef.knockback_resistance).
-@export_range(0.0, 1.0) var elite_knockback_resistance: float = 0.5
 ## Chance for a monster to be an elite on the first floor, and more per floor below.
 @export_range(0.0, 1.0) var elite_chance: float = 0.04
 @export_range(0.0, 1.0) var elite_chance_per_depth: float = 0.015
-@export var elite_hp_multiplier: float = 2.5
-@export var elite_xp_multiplier: int = 3
-@export var elite_scale: float = 1.25
-## Random items dropped by every elite, on top of its normal loot.
-@export_range(0, 5) var elite_drops: int = 1
+## What an elite is (one affix, tougher, better loot: MonsterRankDef).
+@export var elite_rank: MonsterRankDef
+## Rarer ranks, rarest first (Shiny, Legendary, Epic): each rolled with its own chance before
+## the elite one. Bosses roll them too (MonsterRankDef.boss_chance).
+@export var rare_ranks: Array[MonsterRankDef] = []
 
 @export_group("Bosses")
 ## Size of the arena room, in cells.

@@ -53,6 +53,8 @@ var forced_event: FloorEventDef
 var forced_plain := false
 ## Debug: the next floor built is this biome. Used once.
 var forced_biome: BiomeDef
+## Debug: the next boss comes at this rank. Used once.
+var forced_boss_rank: MonsterRankDef
 ## The boss of each act for this run (an act may have several; the game draws one per run).
 ## Empty or null entries: the act's main boss.
 var run_bosses: Array[BossDef] = []
@@ -335,15 +337,45 @@ func spawn_trap(def: TrapDef, cell: Vector2i, cycle_offset: float = 0.0) -> Trap
 
 
 ## Monsters roll to be elites with the floor's chance (DungeonConfig > Elites, the difficulty).
+## Maybe raises a freshly spawned monster's rank: the rare ranks first (Shiny, Legendary,
+## Epic: DungeonConfig.rare_ranks), then the plain elite.
 func roll_elite(monster: Monster) -> void:
+	for rank in config().rare_ranks:
+		if rank and rng.randf() < rules.rank_chance(rank):
+			make_ranked(monster, rank)
+			return
 	if rng.randf() < rules.elite_chance():
 		make_elite(monster)
 
 
+## A boss may come at a rare rank too (a Legendary Vampiric King Slime...). `forced_boss_rank`
+## (debug) wins once.
+func roll_boss_rank(boss: Monster) -> void:
+	var forced := forced_boss_rank
+	forced_boss_rank = null
+	if forced:
+		make_ranked(boss, forced)
+		return
+	for rank in config().rare_ranks:
+		if rank and rng.randf() < rank.boss_chance * rules.difficulty.elite_chance:
+			make_ranked(boss, rank)
+			return
+
+
 func make_elite(monster: Monster) -> void:
-	var affix := _content.pick_affix(depth, rng)
-	if affix:
-		monster.make_elite(affix, config())
+	make_ranked(monster, config().elite_rank)
+
+
+## `rank` with as many different affixes as it asks for.
+func make_ranked(monster: Monster, rank: MonsterRankDef) -> void:
+	var picked: Array[EliteAffixDef] = []
+	for attempt in rank.affixes * 6:
+		if picked.size() >= rank.affixes:
+			break
+		var affix := _content.pick_affix(depth, rng)
+		if affix and not picked.has(affix):
+			picked.append(affix)
+	monster.make_ranked(rank, picked)
 
 
 func spawn_chest(def: ChestDef, cell: Vector2i, trapped: bool) -> Chest:

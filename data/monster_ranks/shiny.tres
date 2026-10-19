@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="MonsterRankDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_rank_def.gd" id="1_dcg2y"]
+
+[resource]
+script = ExtResource("1_dcg2y")
+id = &"shiny"
+display_name = "Shiny"
+color = Color(1, 0.6117647, 0.9411765, 1)
+affixes = 0
+hp_multiplier = 3.0
+scale = 1.15
+xp_multiplier = 8
+loot_quality = 6.0
+bonus_drops = 3
+gold_multiplier = 25.0
+chance = 0.0025
+max_chance = 0.0025
+boss_chance = 0.02
+boss_hp_multiplier = 1.2
+extra_relics = 1
+hue_shift = 0.5
+shimmer = true
+aura_rings = 2

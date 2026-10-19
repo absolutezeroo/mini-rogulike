@@ -280,6 +280,23 @@ the light): a crimson grade, a great red glow breathing over the top of the scre
 (`vignette_color`, `vignette_pulse`, in `screen.gdshader`), red moonlight shafts and mist, falling
 red ash (`src/vfx/ambient/blood_ash.tscn`).
 
+## Monster ranks: Elite, Epic, Legendary, Shiny
+
+Any monster can come at a rank (`MonsterRankDef`, `data/monster_ranks/`; `DungeonConfig.elite_rank`
+and `rare_ranks`, rarest first, each with its own chance from its depth, times the difficulty):
+
+| Rank | Affixes | Look | Rewards |
+|---|---|---|---|
+| **Elite** | 1 ("Vampiric Skeleton") | a ring of the affix's color | x3 XP, better loot, 1 extra drop |
+| **Epic** (from depth 3) | 2, listed over its name | two purple rings | x6 XP, 2 extra drops, x8 gold |
+| **Legendary** (from depth 5) | 3 | golden rings and a crown of rays | x10 XP, 3 extra drops of high quality, x15 gold |
+| **Shiny** (1 in 400, any depth) | none | other colors (hue shift), a gleam sweeping its body, sparkles | x8 XP, 3 extra drops, x25 gold; joins the bestiary's Shiny collection |
+
+Bosses roll the rare ranks too (`boss_chance`): a **Legendary King Slime (Swift, Vampiric,
+Armored)** has its affixes' perks, more HP, better loot and one more relic to choose; a Shiny boss
+other colors and one more relic. The boss bar shows the rank's color and the affixes. The debug
+panel spawns any rank and can make the next boss one.
+
 ## Dragons
 
 - **Sand Drake** (Act IV): breathes slowing sand, whips up a sandstorm ring.

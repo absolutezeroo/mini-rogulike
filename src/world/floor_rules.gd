@@ -65,6 +65,12 @@ func dungeon_damage(base: float, per_depth: float = 1.0) -> int:
 	return maxi(1, roundi((base + depth * per_depth) * monster_damage()))
 
 
+## Chance for a monster to come at a rare rank (Epic, Legendary, Shiny): its own chance at
+## this depth, times the difficulty's taste for elites.
+func rank_chance(rank: MonsterRankDef) -> float:
+	return rank.chance_at(depth) * difficulty.elite_chance
+
+
 func elite_chance() -> float:
 	return config.elite_chance_at(depth) * difficulty.elite_chance + (event.elite_chance_bonus if event else 0.0)
 

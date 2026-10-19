@@ -24,6 +24,14 @@ func show_boss(boss: Monster) -> void:
 	_boss.health_changed.connect(_on_health_changed)
 	var def := boss.def as BossDef
 	_name.text = boss.display_name
+	var monster := boss as Monster
+	if monster and monster.rank:
+		# A rare boss: its rank's color, its affixes after its name.
+		_name.add_theme_color_override("font_color", monster.rank_color())
+		if not monster.affixes.is_empty():
+			_name.text += "  (%s)" % monster.affix_names()
+	else:
+		_name.remove_theme_color_override("font_color")
 	_portrait.texture = def.portrait if def else boss.def.icon
 	_on_health_changed(boss.hp, boss.get_max_hp())
 	modulate.a = 0.0
