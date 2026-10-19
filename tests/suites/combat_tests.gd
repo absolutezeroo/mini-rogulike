@@ -166,6 +166,25 @@ func _test_perks_in_game(game: Game, world: World, player: Player) -> void:
 		total_levels += entry.stacks
 	check(not get_tree().paused and total_levels == 3, "both perks taken (%d perk levels), game resumed" % total_levels)
 	check(not player.perks.entries.any(func(e: PerkSet.Entry) -> bool: return game.run.banished.has(e.perk)), "the banished perk never came back")
+
+	# Long text makes a taller card: nothing spills out of the frame.
+	var wordy := PerkDef.new()
+	wordy.display_name = "A Perk With A Rather Long Name"
+	wordy.description = "This perk does a great many things, all of them described at length, so that the text runs over several lines and would never fit in the card's usual height. ".repeat(3)
+	wordy.synergies = [_perk("ignite").synergies[0], _perk("vampirism").synergies[0]]
+	var card := (load("res://src/ui/perk_choice/perk_card.tscn") as PackedScene).instantiate() as PerkCard
+	add_child(card)
+	card.show_perk(wordy, player.perks)
+	await _frames(5)
+	check((card.get_node("Margin") as Control).get_combined_minimum_size().y <= card.size.y + 1.0 and card.size.y > 320.0, "a card grows to fit long text (%d px)" % card.size.y)
+	card.queue_free()
+	for perk in CONTENT.perks:
+		var real := (load("res://src/ui/perk_choice/perk_card.tscn") as PackedScene).instantiate() as PerkCard
+		add_child(real)
+		real.show_perk(perk, player.perks)
+		await _frames(4)
+		check((real.get_node("Margin") as Control).get_combined_minimum_size().y <= real.size.y + 1.0, "%s: its text fits its card" % perk.id)
+		real.queue_free()
 	game.run.banished.clear()
 
 

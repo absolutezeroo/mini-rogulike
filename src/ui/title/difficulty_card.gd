@@ -1,6 +1,7 @@
 class_name DifficultyCard
 extends Button
-## One difficulty on the title screen: name, what changes, and how to unlock it.
+## One difficulty on the title screen: name, what changes, and how to unlock it. Grows to fit
+## its text.
 
 var difficulty: DifficultyDef
 
@@ -20,6 +21,7 @@ func show_difficulty(def: DifficultyDef, unlocked: bool, selected: bool) -> void
 		_details.text = "Locked: win a run on %s" % def.unlocked_by.display_name
 	disabled = not unlocked
 	modulate = Color.WHITE if unlocked else Color(1, 1, 1, 0.55)
+	FitToContent.grow_later(self, $Margin)
 
 
 static func _describe(def: DifficultyDef) -> String:

@@ -185,11 +185,16 @@ layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.86, 0.6, 1)
 theme_override_font_sizes/font_size = 16
 
-[node name="ItemDetails" type="Label" parent="Panel/Margin/VBox/Body/DetailsColumn"]
+[node name="DetailsScroll" type="ScrollContainer" parent="Panel/Margin/VBox/Body/DetailsColumn"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ItemDetails" type="Label" parent="Panel/Margin/VBox/Body/DetailsColumn/DetailsScroll"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
-size_flags_vertical = 3
+size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 autowrap_mode = 3
 

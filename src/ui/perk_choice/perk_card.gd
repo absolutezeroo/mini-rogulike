@@ -2,6 +2,7 @@ class_name PerkCard
 extends Button
 ## One choice of the perk screen: icon, name, level, what it does, and its families
 ## (SynergyDef): how many you hold, or a bright line when this card would wake one.
+## The card grows to fit its text (never less than its base size), so nothing spills out.
 
 const RARE_COLOR := Palette.GOLD
 
@@ -19,6 +20,7 @@ var completes := false
 func show_perk(perk: PerkDef, owned: PerkSet) -> void:
 	var owned_stacks := owned.stacks_of(perk)
 	_rarity.text = "RELIC" if perk.rarity == PerkDef.Rarity.RARE else ""
+	_rarity.visible = perk.rarity == PerkDef.Rarity.RARE
 	_icon.texture = perk.icon
 	_name.text = perk.display_name
 	_name.add_theme_color_override("font_color", perk.color.lerp(Color.WHITE, 0.4))
@@ -31,6 +33,7 @@ func show_perk(perk: PerkDef, owned: PerkSet) -> void:
 	for synergy in perk.synergies:
 		if synergy:
 			_families.add_child(_family_row(synergy, owned, perk))
+	FitToContent.grow_later(self, $Margin)  # long text: a taller card, nothing spills out
 
 
 ## "Inferno 1/3" (dim), "Inferno awake" or, when taking this card wakes it, "Wakes Inferno!".
