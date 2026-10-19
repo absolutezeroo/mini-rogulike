@@ -1,11 +1,16 @@
 class_name InventoryPanel
 extends Control
-## Bag screen: equipped items, the belt (potions...), carried items, details and actions.
-## Pauses the game while open.
+## Bag screen, in the game's skin (RpgWindow, ItemSlot): the hero and what they wear (weapon,
+## head, body) with the belt and their stats on the left, the bag as a grid of slots in the
+## middle, the picked item's card on the right (rarity, stats, rune sockets, what to do with it).
+## Pauses the game while open. Built in code.
 
 signal closed
 
 const NO_SLOT := -1
+const BAG_COLUMNS := 4
+const BAG_SLOT := 66.0
+const GEAR_SLOT := 74.0
 
 var _player: Player
 var _selected_item: ItemDef
@@ -13,33 +18,30 @@ var _selected_slot := NO_SLOT
 ## Belt slot selected (-1 = none).
 var _selected_belt := NO_SLOT
 
-@onready var _slot_buttons := {
-	EquipmentDef.Slot.WEAPON: %WeaponSlot as Button,
-	EquipmentDef.Slot.HEAD: %HeadSlot as Button,
-	EquipmentDef.Slot.BODY: %BodySlot as Button,
-}
-@onready var _stats_label: Label = %StatsLabel
-@onready var _bag_title: Label = %BagTitle
-@onready var _item_grid: GridContainer = %ItemGrid
-@onready var _item_name: Label = %ItemName
-@onready var _item_type: Label = %ItemType
-@onready var _item_details: Label = %ItemDetails
-@onready var _use_button: Button = %UseButton
-@onready var _drop_button: Button = %DropButton
-@onready var _belt_button: Button = %BeltButton
-@onready var _belt_slots: Array[Button] = [%BeltSlot1, %BeltSlot2, %BeltSlot3]
+var _window: RpgWindow
+var _slot_buttons := {}
+var _belt_slots: Array[ItemSlot] = []
+var _portrait: TextureRect
+var _stats: GridContainer
+var _bag_title: Label
+var _item_grid: GridContainer
+var _card_slot: ItemSlot
+var _item_name: Label
+var _item_type: Label
+var _item_details: Label
+var _sockets: HBoxContainer
+var _use_button: Button
+var _drop_button: Button
+var _belt_button: Button
+var _gold: Label
+var _named: Array[Node] = []
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	hide()
-	%CloseButton.pressed.connect(close)
-	_use_button.pressed.connect(_on_use_pressed)
-	_drop_button.pressed.connect(_on_drop_pressed)
-	_belt_button.pressed.connect(_on_belt_pressed)
-	for i in _belt_slots.size():
-		_belt_slots[i].pressed.connect(_select_belt.bind(i))
-	for slot in _slot_buttons:
-		_slot_buttons[slot].pressed.connect(_select_slot.bind(slot))
+	_build()
 
 
 func open(player: Player) -> void:
@@ -65,53 +67,86 @@ func _unhandled_input(event: InputEvent) -> void:
 # --- Display -----------------------------------------------------------------
 
 func _refresh() -> void:
-	for slot in _slot_buttons:
-		var item := _player.equipment.get_item(slot)
-		var button: Button = _slot_buttons[slot]
-		button.text = "%s: %s" % [EquipmentDef.SLOT_NAMES[slot], item.display_name if item else "-"]
-		button.modulate = Color.WHITE if item else Color(1, 1, 1, 0.6)
-		_set_icon(button, item)
-
+	for slot: EquipmentDef.Slot in _slot_buttons:
+		var button: ItemSlot = _slot_buttons[slot]
+		button.item = _player.equipment.get_item(slot)
+		button.selected = _selected_slot == slot
 	for i in _belt_slots.size():
-		var belt_item := _player.belt.item_at(i)
 		var button := _belt_slots[i]
-		button.text = "x%d" % _player.belt.count_at(i) if belt_item else "-"
-		button.modulate = Color.WHITE if belt_item else Color(1, 1, 1, 0.6)
-		_set_icon(button, belt_item)
-
-	var stats := _player.get_stats()
-	_stats_label.text = "Level %d\nHP %d / %d\nPower %d   DEF %d\nSpeed %d   Crit %d%%\nAttack speed %+d%%\nSkill power %+d%%   Cooldowns -%d%%" % [
-		_player.level, _player.hp, _player.get_max_hp(), _player.get_power(),
-		stats.defense, roundi(stats.move_speed), roundi(stats.crit_chance * 100.0),
-		roundi(stats.attack_speed * 100.0), roundi(stats.skill_power * 100.0),
-		roundi(minf(stats.cooldown_reduction, SkillSet.MAX_COOLDOWN_REDUCTION) * 100.0)]
+		button.item = _player.belt.item_at(i)
+		button.count = _player.belt.count_at(i)
+		button.selected = _selected_belt == i
+	_gold.text = "Gold %d" % _player.gold
+	_portrait.texture = _hero_picture()
+	_fill_stats()
 
 	var inventory := _player.inventory
-	_bag_title.text = "Bag (%d / %d)" % [inventory.items.size(), inventory.capacity]
+	_bag_title.text = "Bag  %d / %d" % [inventory.items.size(), inventory.capacity]
 	for child in _item_grid.get_children():
+		_item_grid.remove_child(child)
 		child.queue_free()
+	var shown := 0
 	for entry in inventory.grouped():
 		var item: ItemDef = entry.item
-		var button := Button.new()
-		button.text = "%s%s" % [item.display_name, "  x%d" % entry.count if entry.count > 1 else ""]
-		button.add_theme_color_override("font_color", item.rarity_color())
-		ForgePanel._outline(button)  # rune and rarity colors stay readable on the orange buttons
-		_set_icon(button, item)
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		button.focus_mode = Control.FOCUS_NONE
-		button.custom_minimum_size.y = 52
+		var button := ItemSlot.new(BAG_SLOT)
+		button.item = item
+		button.count = entry.count
+		button.selected = _selected_item == item and _selected_slot == NO_SLOT and _selected_belt == NO_SLOT
 		button.pressed.connect(_select_item.bind(item))
 		_item_grid.add_child(button)
-
+		shown += 1
+	# The empty places left in the bag (identical items share a slot).
+	for i in range(shown, inventory.capacity - (inventory.items.size() - shown)):
+		var empty := ItemSlot.new(BAG_SLOT)
+		empty.disabled = true
+		_item_grid.add_child(empty)
 	_refresh_details()
 
 
-func _set_icon(button: Button, item: ItemDef) -> void:
-	button.icon = item.icon if item else null
-	button.expand_icon = true
-	for state in ["icon_normal_color", "icon_hover_color", "icon_pressed_color"]:
-		button.add_theme_color_override(state, item.icon_tint if item else Color.WHITE)
+func _fill_stats() -> void:
+	for child in _stats.get_children():
+		_stats.remove_child(child)
+		child.queue_free()
+	var stats := _player.get_stats()
+	var lines := [
+		["Level", str(_player.level)],
+		["HP", "%d / %d" % [_player.hp, _player.get_max_hp()]],
+		["Power", str(_player.get_power())],
+		["Defense", str(stats.defense)],
+		["Speed", str(roundi(stats.move_speed))],
+		["Crit", "%d%%" % roundi(stats.crit_chance * 100.0)],
+		["Attack speed", "%+d%%" % roundi(stats.attack_speed * 100.0)],
+		["Skill power", "%+d%%" % roundi(stats.skill_power * 100.0)],
+		["Cooldowns", "-%d%%" % roundi(minf(stats.cooldown_reduction, SkillSet.MAX_COOLDOWN_REDUCTION) * 100.0)],
+	]
+	for line: Array in lines:
+		_stats.add_child(UiSkin.label(line[0], 15, UiSkin.DIM))
+		var value := UiSkin.label(line[1], 15, UiSkin.TEXT)
+		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_stats.add_child(value)
+
+
+## The hero as they stand (first frame of their idle animation).
+func _hero_picture() -> Texture2D:
+	var frames: SpriteFrames = _player.def.frames if _player.def else null
+	if frames == null:
+		return null
+	for anim: StringName in [&"idle_down", &"idle", &"walk_down"]:
+		if frames.has_animation(anim) and frames.get_frame_count(anim) > 0:
+			return _cropped(frames.get_frame_texture(anim, 0))
+	return null
+
+
+## Just the drawn pixels of a frame (sheets leave room around the body).
+static func _cropped(texture: Texture2D) -> Texture2D:
+	var image := texture.get_image()
+	if image == null:
+		return texture
+	var used := image.get_used_rect()
+	if used.size.x <= 0:
+		return texture
+	return ImageTexture.create_from_image(image.get_region(used))
 
 
 func _refresh_details() -> void:
@@ -125,15 +160,22 @@ func _refresh_details() -> void:
 	# Consumables move between the belt and the bag.
 	_belt_button.visible = item is ConsumableDef and (_selected_belt != NO_SLOT or _player.belt.can_add(item))
 	_belt_button.text = "To bag" if _selected_belt != NO_SLOT else "To belt"
+	_card_slot.item = item
+	_card_slot.count = _player.belt.count_at(_selected_belt) if _selected_belt != NO_SLOT else 1
+	for child in _sockets.get_children():
+		_sockets.remove_child(child)
+		child.queue_free()
 	if item == null:
-		_item_name.text = "Select an item"
-		_item_type.text = ""
+		_item_name.text = "Pick an item"
+		_item_name.add_theme_color_override("font_color", UiSkin.GOLD)
+		_item_type.text = "Tap a slot to see what it does."
 		_item_details.text = ""
 		return
 	_item_name.text = item.display_name
 	_item_name.add_theme_color_override("font_color", item.rarity_color())
 	_item_type.text = item.get_type_label()
 	_item_details.text = item.get_details()
+	_fill_sockets(item as EquipmentDef)
 	if _selected_slot != NO_SLOT:
 		_use_button.text = "Unequip"
 	elif item is EquipmentDef:
@@ -144,6 +186,20 @@ func _refresh_details() -> void:
 		_use_button.text = "Use"
 
 
+## A weapon's rune sockets, as slots (set at a forge).
+func _fill_sockets(equipment: EquipmentDef) -> void:
+	if equipment == null or equipment.socket_count() <= 0:
+		return
+	_sockets.add_child(UiSkin.label("Runes", 15, UiSkin.DIM))
+	for i in equipment.socket_count():
+		var socket := ItemSlot.new(46.0)
+		socket.item = equipment.runes[i] if i < equipment.runes.size() else null
+		socket.caption = "-"
+		socket.tooltip_text = socket.item.description if socket.item else "An empty socket: a forge sets runes in it."
+		socket.mouse_filter = Control.MOUSE_FILTER_PASS
+		_sockets.add_child(socket)
+
+
 # --- Selection & actions -----------------------------------------------------
 
 func _select_item(item: ItemDef) -> void:
@@ -151,7 +207,7 @@ func _select_item(item: ItemDef) -> void:
 	_selected_item = item
 	_selected_slot = NO_SLOT
 	_selected_belt = NO_SLOT
-	_refresh_details()
+	_refresh()
 
 
 func _select_slot(slot: EquipmentDef.Slot) -> void:
@@ -159,7 +215,7 @@ func _select_slot(slot: EquipmentDef.Slot) -> void:
 	_selected_item = null
 	_selected_belt = NO_SLOT
 	_selected_slot = slot
-	_refresh_details()
+	_refresh()
 
 
 func _select_belt(index: int) -> void:
@@ -169,7 +225,7 @@ func _select_belt(index: int) -> void:
 	_selected_item = null
 	_selected_slot = NO_SLOT
 	_selected_belt = index
-	_refresh_details()
+	_refresh()
 
 
 func _clear_selection() -> void:
@@ -208,3 +264,134 @@ func _on_drop_pressed() -> void:
 		if not _player.inventory.items.has(_selected_item):
 			_clear_selection()
 	_refresh()
+
+
+# --- Building ----------------------------------------------------------------
+
+func _build() -> void:
+	_window = RpgWindow.new("Inventory")
+	_window.close_requested.connect(close)
+	add_child(_window)
+	_gold = UiSkin.label("", 22, UiSkin.GOLD)
+	_window.header_right.add_child(_gold)
+	var columns := HBoxContainer.new()
+	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	columns.add_theme_constant_override("separation", 14)
+	_window.body.add_child(columns)
+
+	# Left: the hero, what they wear, the belt, their stats.
+	var hero: Dictionary = RpgWindow.section("Hero")
+	(hero.box as Control).custom_minimum_size.x = 330
+	columns.add_child(hero.box)
+	var gear_row := HBoxContainer.new()
+	gear_row.add_theme_constant_override("separation", 8)
+	hero.column.add_child(gear_row)
+	_portrait = TextureRect.new()
+	_portrait.custom_minimum_size = Vector2(74, 74)
+	_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	gear_row.add_child(_portrait)
+	for slot: EquipmentDef.Slot in [EquipmentDef.Slot.WEAPON, EquipmentDef.Slot.HEAD, EquipmentDef.Slot.BODY]:
+		var button := ItemSlot.new(GEAR_SLOT)
+		button.caption = EquipmentDef.SLOT_NAMES[slot]
+		button.name = "%sSlot" % EquipmentDef.SLOT_NAMES[slot]
+		button.pressed.connect(_select_slot.bind(slot))
+		_own(button)
+		gear_row.add_child(button)
+		_slot_buttons[slot] = button
+	hero.column.add_child(UiSkin.label("Belt", 17, UiSkin.GOLD))
+	var belt_row := HBoxContainer.new()
+	belt_row.add_theme_constant_override("separation", 8)
+	hero.column.add_child(belt_row)
+	for i in Belt.SLOTS:
+		var button := ItemSlot.new(62.0)
+		button.caption = str(i + 1)
+		button.name = "BeltSlot%d" % (i + 1)
+		button.pressed.connect(_select_belt.bind(i))
+		_own(button)
+		belt_row.add_child(button)
+		_belt_slots.append(button)
+	_stats = GridContainer.new()
+	_stats.columns = 2
+	_stats.add_theme_constant_override("h_separation", 16)
+	_stats.add_theme_constant_override("v_separation", 0)
+	_stats.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	hero.column.add_child(_stats)
+
+	# Middle: the bag.
+	var bag: Dictionary = RpgWindow.section("Bag")
+	_bag_title = bag.title
+	columns.add_child(bag.box)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.custom_minimum_size.x = BAG_COLUMNS * (BAG_SLOT + 6) + 4
+	bag.column.add_child(scroll)
+	_item_grid = GridContainer.new()
+	_item_grid.columns = BAG_COLUMNS
+	_item_grid.name = "ItemGrid"
+	_item_grid.add_theme_constant_override("h_separation", 6)
+	_item_grid.add_theme_constant_override("v_separation", 6)
+	_own(_item_grid)
+	scroll.add_child(_item_grid)
+
+	# Right: the picked item.
+	var card: Dictionary = RpgWindow.section("Item", true)
+	(card.box as Control).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	columns.add_child(card.box)
+	(card.title as Label).hide()
+	var top := HBoxContainer.new()
+	top.add_theme_constant_override("separation", 12)
+	card.column.add_child(top)
+	_card_slot = ItemSlot.new(84.0)
+	_card_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	top.add_child(_card_slot)
+	var naming := VBoxContainer.new()
+	naming.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	naming.alignment = BoxContainer.ALIGNMENT_CENTER
+	top.add_child(naming)
+	_item_name = UiSkin.label("", 22, UiSkin.GOLD, true)
+	naming.add_child(_item_name)
+	_item_type = UiSkin.label("", 15, UiSkin.DIM, true)
+	naming.add_child(_item_type)
+	var details_scroll := ScrollContainer.new()
+	details_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	details_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	card.column.add_child(details_scroll)
+	_item_details = UiSkin.label("", 16, UiSkin.TEXT, true)
+	_item_details.name = "ItemDetails"
+	details_scroll.add_child(_item_details)
+	_sockets = HBoxContainer.new()
+	_sockets.alignment = BoxContainer.ALIGNMENT_BEGIN
+	_sockets.add_theme_constant_override("separation", 6)
+	card.column.add_child(_sockets)
+	var actions := HBoxContainer.new()
+	actions.add_theme_constant_override("separation", 8)
+	card.column.add_child(actions)
+	_use_button = _action("Use", "UseButton", _on_use_pressed)
+	actions.add_child(_use_button)
+	_belt_button = _action("To belt", "BeltButton", _on_belt_pressed)
+	actions.add_child(_belt_button)
+	_drop_button = _action("Drop", "DropButton", _on_drop_pressed)
+	actions.add_child(_drop_button)
+	for node in _named:
+		node.owner = self
+		node.unique_name_in_owner = true
+
+
+func _action(text: String, node_name: String, callback: Callable) -> Button:
+	var button := Button.new()
+	button.text = text
+	button.name = node_name
+	button.focus_mode = Control.FOCUS_NONE
+	button.custom_minimum_size = Vector2(120, 52)
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.pressed.connect(callback)
+	_own(button)
+	return button
+
+
+## Reachable as %Name from the panel (tests, other scripts), once built.
+func _own(node: Node) -> void:
+	_named.append(node)

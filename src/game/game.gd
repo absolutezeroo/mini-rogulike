@@ -600,7 +600,8 @@ func _notification(what: int) -> void:
 			Profile.save_profile()  # kills and stats since the last save
 			# Coming back to the phone (or from the notification shade, a call), the game waits on
 			# the pause menu.
-			if what != NOTIFICATION_WM_CLOSE_REQUEST:
+			# (On a computer, clicking another window must not stop the game.)
+			if what == NOTIFICATION_APPLICATION_PAUSED or (what == NOTIFICATION_APPLICATION_FOCUS_OUT and OS.has_feature("mobile")):
 				open_pause_menu()
 		NOTIFICATION_WM_GO_BACK_REQUEST:
 			_back()

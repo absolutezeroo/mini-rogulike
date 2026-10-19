@@ -135,13 +135,18 @@ func run() -> void:
 	check(not rig.helmet.visible and not rig.body_armor.visible, "removed armor disappears")
 
 	# Inventory screen opens, lists items, uses them, pauses, and closes.
-	player.inventory.add(load("res://data/items/armors/leather_cap.tres"))
+	var cap: ItemDef = load("res://data/items/armors/leather_cap.tres")
+	player.inventory.add(cap)
 	game.open_inventory()
 	await _frames(2)
 	check(get_tree().paused, "inventory pauses the game")
 	var grid: GridContainer = game.inventory_panel.get_node("%ItemGrid")
-	check(grid.get_child_count() > 0, "inventory lists items")
-	(grid.get_child(grid.get_child_count() - 1) as Button).pressed.emit()
+	var cap_slot: ItemSlot = null
+	for child in grid.get_children():
+		if (child as ItemSlot).item == cap:
+			cap_slot = child
+	check(grid.get_child_count() == player.inventory.capacity and cap_slot != null, "inventory shows the bag as slots")
+	cap_slot.pressed.emit()
 	(game.inventory_panel.get_node("%UseButton") as Button).pressed.emit()
 	check(player.equipment.get_item(EquipmentDef.Slot.HEAD) != null, "equip from the inventory screen")
 	game.inventory_panel.close()

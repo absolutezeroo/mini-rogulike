@@ -697,7 +697,7 @@ func _test_belt_and_balance(game: Game) -> void:
 	game.open_inventory()
 	var panel: InventoryPanel = game.inventory_panel
 	panel._select_belt(0)
-	check(panel.get_node("%BeltSlot1").text == "x%d" % player.belt.count_at(0) and panel.get_node("%BeltButton").visible, "the bag screen shows the belt")
+	check((panel.get_node("%BeltSlot1") as ItemSlot).count == player.belt.count_at(0) and panel.get_node("%BeltButton").visible, "the bag screen shows the belt")
 	panel.close()
 	await _frames(1)
 	player.pick_up(rage)

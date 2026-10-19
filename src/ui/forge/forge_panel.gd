@@ -1,31 +1,41 @@
 class_name ForgePanel
 extends Control
-## The smith's forge (Forge): pick a weapon (the worn one, or one from the bag), see its rune
-## sockets, set runes from the bag into the free ones (free), or take one back out, intact,
-## for gold. The game is paused while it is open.
+## The smith's forge (Forge), in the game's skin (RpgWindow, ItemSlot): the smith and his words
+## on top; on the left the weapons you can work on (the worn one first) and the picked one's
+## rune sockets, big; on the right the runes in your bag. Pick a rune to read it and set it into
+## the first free socket (free); pick a socket to take its rune back out, intact, for gold.
+## The game is paused while it is open.
 
 signal closed
 
-const ICON_SIZE := Vector2(40, 40)
-const SOCKET_SIZE := Vector2(92, 92)
-const DIM := Color(1, 1, 1, 0.65)
+const WEAPON_SLOT := 66.0
+const SOCKET_SLOT := 92.0
+const RUNE_SLOT := 66.0
+const RUNE_COLUMNS := 5
 
 var _forge: Forge
 var _player: Player
 var _weapon: EquipmentDef
 ## The socket picked on the weapon (-1: none): its rune can be taken out.
 var _socket := -1
+## The rune picked in the bag (null: none): it can be set.
+var _rune: RuneDef
 
+var _window: RpgWindow
 var _portrait: TextureRect
 var _name: Label
 var _greeting: Label
 var _gold: Label
-var _weapons: HFlowContainer
+var _weapons: HBoxContainer
+var _weapon_slot: ItemSlot
 var _weapon_title: Label
 var _weapon_details: Label
 var _sockets: HBoxContainer
 var _action: Button
-var _runes: VBoxContainer
+var _runes: GridContainer
+var _rune_name: Label
+var _rune_text: Label
+var _set_button: Button
 
 
 func _ready() -> void:
@@ -39,11 +49,12 @@ func open(forge: Forge, player: Player) -> void:
 	_forge = forge
 	_player = player
 	_name.text = forge.def.display_name
-	_greeting.text = forge.def.random_greeting()
+	_greeting.text = "\"%s\"" % forge.def.random_greeting()
 	_portrait.texture = forge.def.portrait
 	var weapons := Forge.weapons_of(player)
 	_weapon = weapons[0] if not weapons.is_empty() else null
 	_socket = -1
+	_rune = null
 	_refresh()
 	show()
 
@@ -80,6 +91,12 @@ func _select_socket(index: int) -> void:
 	_refresh()
 
 
+func _select_rune(rune: RuneDef) -> void:
+	_rune = rune if _rune != rune else null
+	Sfx.play_ui(Sfx.bank.ui_click)
+	_refresh()
+
+
 ## Sets `rune` into the picked weapon's first free socket.
 func set_rune(rune: RuneDef) -> bool:
 	var worked := Forge.set_rune(_player, _weapon, rune)
@@ -87,6 +104,8 @@ func set_rune(rune: RuneDef) -> bool:
 		return false
 	_weapon = worked
 	_socket = -1
+	if not _player.inventory.items.has(_rune):
+		_rune = null
 	_forge.strike(false)
 	_refresh()
 	return true
@@ -114,181 +133,180 @@ func _refresh() -> void:
 		_weapon = weapons[0] if not weapons.is_empty() else null
 	var worn := _player.equipment.get_item(EquipmentDef.Slot.WEAPON)
 	for weapon in weapons:
-		var button := _button(("Worn: " if weapon == worn else "") + weapon.display_name, _select_weapon.bind(weapon))
-		button.toggle_mode = true
-		button.set_pressed_no_signal(weapon == _weapon)
-		button.add_theme_color_override("font_color", weapon.rarity_color())
-		button.add_theme_color_override("font_pressed_color", weapon.rarity_color())
-		_outline(button)
-		_weapons.add_child(button)
+		var slot := ItemSlot.new(WEAPON_SLOT)
+		slot.item = weapon
+		slot.selected = weapon == _weapon
+		slot.tooltip_text = ("Worn: " if weapon == worn else "") + weapon.display_name
+		slot.pressed.connect(_select_weapon.bind(weapon))
+		_weapons.add_child(slot)
+	_weapon_slot.item = _weapon
 	if _weapon == null:
-		_weapon_title.text = "No weapon to work on."
+		_weapon_title.text = "No weapon to work on"
 		_weapon_details.text = ""
 		_action.hide()
 	else:
 		_weapon_title.text = _weapon.display_name
 		_weapon_title.add_theme_color_override("font_color", _weapon.rarity_color())
-		var damage := "%d damage" % (_weapon as WeaponDef).damage if _weapon is WeaponDef else ""
-		_weapon_details.text = "%s  -  %s  -  %d rune socket%s" % [_weapon.get_type_label(), damage, _weapon.socket_count(), "s" if _weapon.socket_count() > 1 else ""]
+		var damage := "%d damage  -  " % (_weapon as WeaponDef).damage if _weapon is WeaponDef else ""
+		_weapon_details.text = "%s%s%d rune socket%s" % ["Worn  -  " if _weapon == worn else "", damage, _weapon.socket_count(), "s" if _weapon.socket_count() > 1 else ""]
 		for i in _weapon.socket_count():
-			_sockets.add_child(_socket_button(i))
+			_sockets.add_child(_socket_slot(i))
 		_refresh_action()
 	_fill_runes()
 
 
 func _refresh_action() -> void:
+	_action.show()
 	if _socket < 0 or _socket >= _weapon.runes.size():
-		_action.hide()
+		_action.disabled = true
+		_action.text = "Pick a socket to take its rune out"
 		return
 	var rune := _weapon.runes[_socket]
 	var price := _forge.removal_cost()
-	_action.show()
-	_action.text = "Take out %s  (%d gold)" % [rune.display_name, price]
 	_action.disabled = _player.gold < price or _player.inventory.is_full()
-	if _player.inventory.is_full():
-		_action.text = "Your bag is full"
+	_action.text = "Your bag is full" if _player.inventory.is_full() else "Take out %s  (%d gold)" % [rune.display_name, price]
 
 
 func _fill_runes() -> void:
-	var any := false
+	var count := 0
 	for entry in _player.inventory.grouped():
 		var rune := entry.item as RuneDef
 		if rune == null:
 			continue
-		any = true
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 10)
-		row.add_child(_icon(rune.icon, ICON_SIZE))
-		var text := VBoxContainer.new()
-		text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		text.add_theme_constant_override("separation", 0)
-		text.add_child(_label(rune.display_name + ("  x%d" % entry.count if entry.count > 1 else ""), 18, rune.rarity_color()))
-		text.add_child(_label(rune.description, 15, DIM, true))
-		row.add_child(text)
-		var set_button := _button("Set", set_rune.bind(rune))
-		set_button.custom_minimum_size = Vector2(96, 48)
-		set_button.disabled = _weapon == null or _weapon.free_sockets() <= 0
-		row.add_child(set_button)
-		_runes.add_child(row)
-	if not any:
-		_runes.add_child(_label("No runes in your bag. Elites, bosses and chests drop them.", 15, DIM, true))
-
-
-## A socket: its rune (tap to pick it, then take it out), or empty.
-func _socket_button(index: int) -> Control:
-	var button := Button.new()
-	button.custom_minimum_size = SOCKET_SIZE
-	button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	button.focus_mode = Control.FOCUS_NONE
-	button.toggle_mode = true
-	button.expand_icon = true
-	button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	button.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-	button.add_theme_font_size_override("font_size", 13)
-	if index < _weapon.runes.size():
-		var rune := _weapon.runes[index]
-		button.icon = rune.icon
-		button.text = rune.display_name.trim_suffix(" Rune")
-		button.tooltip_text = rune.description
-		button.add_theme_color_override("font_color", rune.rarity_color())
-		button.add_theme_color_override("font_pressed_color", rune.rarity_color())
-		_outline(button)
-		button.set_pressed_no_signal(index == _socket)
-		button.pressed.connect(_select_socket.bind(index))
+		count += 1
+		var slot := ItemSlot.new(RUNE_SLOT)
+		slot.item = rune
+		slot.count = entry.count
+		slot.selected = rune == _rune
+		slot.pressed.connect(_select_rune.bind(rune))
+		_runes.add_child(slot)
+	for i in maxi(0, RUNE_COLUMNS * 2 - count):
+		var empty := ItemSlot.new(RUNE_SLOT)
+		empty.disabled = true
+		_runes.add_child(empty)
+	if _rune and not _player.inventory.items.has(_rune):
+		_rune = null
+	if _rune:
+		_rune_name.text = _rune.display_name
+		_rune_name.add_theme_color_override("font_color", _rune.rarity_color())
+		_rune_text.text = "%s  -  %s" % [_rune.get_type_label(), _rune.description]
+	elif count == 0:
+		_rune_name.text = "No runes in your bag"
+		_rune_name.add_theme_color_override("font_color", UiSkin.GOLD)
+		_rune_text.text = "Elites, bosses and chests drop them."
 	else:
-		button.text = "Empty"
-		button.disabled = true
-		button.add_theme_color_override("font_disabled_color", Color(1, 1, 1, 0.4))
-	return button
+		_rune_name.text = "Pick a rune"
+		_rune_name.add_theme_color_override("font_color", UiSkin.GOLD)
+		_rune_text.text = "Setting one is free. Taking one out costs gold; you get it back."
+	var free := _weapon != null and _weapon.free_sockets() > 0
+	_set_button.disabled = _rune == null or not free
+	_set_button.text = ("Set it in" if free else "No free socket") if _rune else "Set"
 
+
+## A socket of the weapon: its rune (tap it to take it out), or empty.
+func _socket_slot(index: int) -> ItemSlot:
+	var slot := ItemSlot.new(SOCKET_SLOT)
+	slot.caption = "Empty"
+	if index < _weapon.runes.size():
+		slot.item = _weapon.runes[index]
+		slot.selected = index == _socket
+		slot.tooltip_text = _weapon.runes[index].description
+		slot.pressed.connect(_select_socket.bind(index))
+	else:
+		slot.disabled = true
+	return slot
+
+
+# --- Building -----------------------------------------------------------------------
 
 func _build() -> void:
-	var dim := ColorRect.new()
-	dim.color = Color(0, 0, 0, 0.6)
-	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(dim)
-	var panel := PanelContainer.new()
-	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	panel.offset_left = 60
-	panel.offset_top = 30
-	panel.offset_right = -60
-	panel.offset_bottom = -30
-	add_child(panel)
-	var margin := MarginContainer.new()
-	for side in ["left", "right"]:
-		margin.add_theme_constant_override("margin_" + side, 18)
-	for side in ["top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 12)
-	panel.add_child(margin)
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 10)
-	margin.add_child(box)
+	_window = RpgWindow.new("The Forge")
+	_window.close_requested.connect(close)
+	add_child(_window)
+	_gold = UiSkin.label("", 22, UiSkin.GOLD)
+	_window.header_right.add_child(_gold)
 
-	var header := HBoxContainer.new()
-	header.add_theme_constant_override("separation", 14)
-	box.add_child(header)
-	_portrait = _icon(null, Vector2(64, 64))
-	header.add_child(_portrait)
-	var who := VBoxContainer.new()
-	who.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_child(who)
-	_name = _label("Smith", 26, Color(1, 0.7, 0.35))
-	who.add_child(_name)
-	_greeting = _label("", 16, Color.WHITE, true)
-	who.add_child(_greeting)
-	_gold = _label("", 22, Palette.GOLD)
-	header.add_child(_gold)
-	var close_button := _button("Close", close)
-	close_button.custom_minimum_size = Vector2(110, 48)
-	header.add_child(close_button)
+	# The smith, and what he says.
+	var smith := HBoxContainer.new()
+	smith.add_theme_constant_override("separation", 14)
+	_window.body.add_child(smith)
+	_portrait = TextureRect.new()
+	_portrait.custom_minimum_size = Vector2(64, 64)
+	_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	smith.add_child(_portrait)
+	var words := VBoxContainer.new()
+	words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	words.alignment = BoxContainer.ALIGNMENT_CENTER
+	smith.add_child(words)
+	_name = UiSkin.label("Smith", 22, Color(1, 0.7, 0.35))
+	words.add_child(_name)
+	_greeting = UiSkin.label("", 16, UiSkin.TEXT, true)
+	words.add_child(_greeting)
 
-	var body := HBoxContainer.new()
-	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", 24)
-	box.add_child(body)
+	var columns := HBoxContainer.new()
+	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	columns.add_theme_constant_override("separation", 14)
+	_window.body.add_child(columns)
 
-	var left := VBoxContainer.new()
-	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	left.size_flags_stretch_ratio = 1.1
-	left.add_theme_constant_override("separation", 8)
-	body.add_child(left)
-	left.add_child(_label("Weapon", 20, Palette.GOLD))
-	_weapons = HFlowContainer.new()
-	_weapons.add_theme_constant_override("h_separation", 8)
-	_weapons.add_theme_constant_override("v_separation", 6)
-	left.add_child(_weapons)
-	_weapon_title = _label("", 22, Color.WHITE)
-	left.add_child(_weapon_title)
-	_weapon_details = _label("", 15, DIM, true)
-	left.add_child(_weapon_details)
+	# Left: the weapons, and the picked one's sockets.
+	var left: Dictionary = RpgWindow.section("Weapon")
+	(left.box as Control).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	columns.add_child(left.box)
+	var weapon_scroll := ScrollContainer.new()
+	weapon_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	weapon_scroll.custom_minimum_size.y = WEAPON_SLOT + 8
+	left.column.add_child(weapon_scroll)
+	_weapons = HBoxContainer.new()
+	_weapons.add_theme_constant_override("separation", 6)
+	weapon_scroll.add_child(_weapons)
+	var top := HBoxContainer.new()
+	top.add_theme_constant_override("separation", 12)
+	left.column.add_child(top)
+	_weapon_slot = ItemSlot.new(74.0)
+	_weapon_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	top.add_child(_weapon_slot)
+	var naming := VBoxContainer.new()
+	naming.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	naming.alignment = BoxContainer.ALIGNMENT_CENTER
+	top.add_child(naming)
+	_weapon_title = UiSkin.label("", 22, UiSkin.GOLD, true)
+	naming.add_child(_weapon_title)
+	_weapon_details = UiSkin.label("", 15, UiSkin.DIM, true)
+	naming.add_child(_weapon_details)
+	left.column.add_child(UiSkin.label("Sockets", 17, UiSkin.GOLD))
 	_sockets = HBoxContainer.new()
 	_sockets.add_theme_constant_override("separation", 12)
-	left.add_child(_sockets)
+	left.column.add_child(_sockets)
+	var spacer := Control.new()
+	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	left.column.add_child(spacer)
 	_action = _button("", take_rune)
-	_action.custom_minimum_size = Vector2(0, 52)
-	_action.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	left.add_child(_action)
-	left.add_child(_label("Setting a rune is free. Taking one out costs gold; you get it back.", 15, DIM, true))
+	left.column.add_child(_action)
 
-	var right := VBoxContainer.new()
-	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	right.add_theme_constant_override("separation", 8)
-	body.add_child(right)
-	right.add_child(_label("Your runes", 20, Palette.GOLD))
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	right.add_child(scroll)
-	_runes = VBoxContainer.new()
-	_runes.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_runes.add_theme_constant_override("separation", 8)
-	scroll.add_child(_runes)
-
-
-## A dark edge around colored text on the orange buttons (rune colors, rarities).
-static func _outline(control: Control) -> void:
-	control.add_theme_constant_override("outline_size", 5)
-	control.add_theme_color_override("font_outline_color", Color(0.1, 0.06, 0.08))
+	# Right: the runes in the bag.
+	var right: Dictionary = RpgWindow.section("Your runes")
+	columns.add_child(right.box)
+	var rune_scroll := ScrollContainer.new()
+	rune_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	rune_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	rune_scroll.custom_minimum_size = Vector2(RUNE_COLUMNS * (RUNE_SLOT + 6) + 4, RUNE_SLOT * 2 + 12)
+	right.column.add_child(rune_scroll)
+	_runes = GridContainer.new()
+	_runes.columns = RUNE_COLUMNS
+	_runes.add_theme_constant_override("h_separation", 6)
+	_runes.add_theme_constant_override("v_separation", 6)
+	rune_scroll.add_child(_runes)
+	_rune_name = UiSkin.label("", 19, UiSkin.GOLD)
+	right.column.add_child(_rune_name)
+	_rune_text = UiSkin.label("", 15, UiSkin.TEXT, true)
+	_rune_text.custom_minimum_size.x = RUNE_COLUMNS * (RUNE_SLOT + 6)
+	right.column.add_child(_rune_text)
+	_set_button = _button("Set", func() -> void:
+		if _rune:
+			set_rune(_rune))
+	right.column.add_child(_set_button)
 
 
 func _clear(container: Container) -> void:
@@ -301,28 +319,13 @@ func _button(text: String, action: Callable) -> Button:
 	var button := Button.new()
 	button.text = text
 	button.focus_mode = Control.FOCUS_NONE
-	button.custom_minimum_size = Vector2(0, 46)
-	button.add_theme_font_size_override("font_size", 16)
+	button.custom_minimum_size = Vector2(0, 52)
+	button.add_theme_font_size_override("font_size", 17)
 	button.pressed.connect(action)
 	return button
 
 
-func _icon(texture: Texture2D, size: Vector2) -> TextureRect:
-	var icon := TextureRect.new()
-	icon.texture = texture
-	icon.custom_minimum_size = size
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	return icon
-
-
-func _label(text: String, font_size: int, color: Color, wrap := false) -> Label:
-	var label := Label.new()
-	label.text = text
-	label.add_theme_font_size_override("font_size", font_size)
-	label.add_theme_color_override("font_color", color)
-	if wrap:
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	return label
+## A dark edge around colored text on the orange buttons (rune colors, rarities).
+static func _outline(control: Control) -> void:
+	control.add_theme_constant_override("outline_size", 5)
+	control.add_theme_color_override("font_outline_color", Color(0.1, 0.06, 0.08))

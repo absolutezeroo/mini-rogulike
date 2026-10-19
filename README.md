@@ -422,6 +422,22 @@ consumables between the two ("To belt" / "To bag"). The merchant buys from the b
   merchant). **Lock** keeps an entry through rerolls; if you don't buy it, it waits at the next
   merchant at the same price (`World.kept_stock`, kept in saved runs).
 
+## Bag and forge screens
+
+The bag and the forge are drawn in the game's RPG skin (`UiSkin`, `src/ui/common/`): a wooden
+board with a gold ornate border (`RpgWindow`), the title on a red ribbon, dark recesses for each
+column, and items in square slots (`ItemSlot`): the icon at a whole-pixel scale, a frame in the
+item's rarity color (a rune's in its family's), how many, and a weapon's rune sockets as little
+stones lit in their runes' colors. The selected slot pulses gold.
+
+- **Bag** (`InventoryPanel`, built in code): the hero, the weapon / head / body slots, the belt and
+  the stats on the left; the bag as a 4-column grid of slots (empty places shown); the picked
+  item's card on the right (name in its rarity, type, every line of its details, its rune sockets)
+  with Equip / Use / Learn, To belt and Drop.
+- **Forge** (`ForgePanel`): the smith and what he says; the weapons you can work on as slots, the
+  picked one big with its sockets; your runes as a grid. Pick a rune, then "Set it in"; pick a
+  set rune, then "Take out (gold)".
+
 ## Runes and the forge
 
 - **Runes** (`RuneDef`, `data/runes/`, content_db > Runes): stones carved with a glyph of one of
@@ -861,6 +877,8 @@ The exit code is the number of failures.
 Art, sound effects and music: **[Ninja Adventure](https://pixel-boy.itch.io/ninja-adventure-asset-pack)**
 by Pixel-boy and AAA, CC0 (public domain). License in `assets/LICENSE_NinjaAdventure.txt`.
 Footstep sounds: Kenney Impact Sounds, CC0 ([kenney.nl](https://kenney.nl)).
+Bag and forge skin (`assets/ui/rpg/`): Kenney **Pixel UI Pack** and **Fantasy UI Borders**, CC0
+(licenses next to them); the dark insets and slots are redrawn in the same palette.
 Ambience sounds (`assets/audio/ambience/`) are filtered versions of those sounds; the heartbeat is synthesized.
 The weapon attack sheets were composed from the pack's weapon sprites to match the hero's attack frames.
 
