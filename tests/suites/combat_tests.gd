@@ -318,6 +318,7 @@ func _test_weapon_kits(game: Game) -> void:
 	await _clear_monsters(world)
 	var target := world.spawn_monster(load("res://data/monsters/slime.tres"), world.map.cell_to_world(_open_cell_near(world, player.global_position, 2)))
 	target.dormant = true
+	target.flies = true  # a big knockback must not send it down a hole
 	target.base_stats.max_hp = 100000
 	target.invalidate_stats()
 	target.hp = 100000

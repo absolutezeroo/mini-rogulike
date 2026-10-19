@@ -4,6 +4,8 @@ extends CanvasLayer
 
 signal inventory_requested
 signal pause_requested
+## The DBG button (debug builds only).
+signal debug_requested
 
 const BAG_ICON: Texture2D = preload("res://assets/ui/icons/bag.png")
 
@@ -38,6 +40,8 @@ func _ready() -> void:
 	%BagButton.pressed.connect(func() -> void: inventory_requested.emit())
 	%BagButton.icon = BAG_ICON
 	%PauseButton.pressed.connect(func() -> void: pause_requested.emit())
+	if DebugPanel.is_available():
+		_add_debug_button()
 	# Tap the minimap for the whole floor, tap again to close it.
 	_minimap.tapped.connect(func() -> void: _full_map.visible = not _full_map.visible)
 	_full_map.tapped.connect(func() -> void: _full_map.hide())
@@ -47,6 +51,25 @@ func _ready() -> void:
 	_apply_settings()
 	Events.depth_changed.connect(_on_depth_changed)
 	_depth_banner.modulate.a = 0.0
+
+
+## Dev builds: a DBG button next to the pause button.
+func _add_debug_button() -> void:
+	var pause := %PauseButton as Button
+	var button := Button.new()
+	button.name = "DebugButton"
+	button.text = "DBG"
+	button.focus_mode = Control.FOCUS_NONE
+	button.add_theme_font_size_override("font_size", 16)
+	button.anchor_left = 1.0
+	button.anchor_right = 1.0
+	button.offset_left = pause.offset_left - 80.0
+	button.offset_right = pause.offset_left - 8.0
+	button.offset_top = pause.offset_top
+	button.offset_bottom = pause.offset_bottom
+	button.modulate = Color(1, 1, 1, 0.75)
+	button.pressed.connect(func() -> void: debug_requested.emit())
+	add_child(button)
 
 
 ## Size of the touch controls (Options). They grow from their corner of the screen.

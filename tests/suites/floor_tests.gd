@@ -850,3 +850,40 @@ func _test_ambience(game: Game) -> void:
 	check(game.ambience.is_low_health() and AudioServer.is_bus_effect_enabled(music_bus, 0), "low health muffles the music")
 	player.heal(player.get_max_hp())
 	check(not game.ambience.is_low_health() and not AudioServer.is_bus_effect_enabled(music_bus, 0), "healing clears the muffle")
+
+
+## The dev tools (debug builds): open, jump to a cursed floor, god mode, spawn, close.
+func _test_debug_panel(game: Game) -> void:
+	var debug := game.menus.debug
+	check(debug != null and game.hud.has_node("DebugButton"), "debug builds have the debug panel and its DBG button")
+	if debug == null:
+		return
+	var depth_before := game.depth
+	game.open_debug()
+	await _frames(2)
+	check(debug.visible and get_tree().paused, "DBG opens the panel, game paused")
+	var frostbound: CurseDef = load("res://data/curses/frostbound.tres")
+	debug._go(5, frostbound)
+	await _frames(5)
+	check(not debug.visible and game.depth == 5 and game.world.curse == frostbound and not get_tree().paused, "jump to floor 5, Frostbound")
+	debug._go(5)
+	await _frames(5)
+	check(game.world.curse == null and game.world.floor_event == null, "a plain floor on demand")
+	game.open_debug()
+	await _frames(1)
+	debug._god_button.pressed.emit()
+	check(game.player.invincible, "god mode")
+	var hp := game.player.hp
+	game.player.take_hit(Combat.make_secondary_hit(null, 50))
+	check(game.player.hp == hp, "nothing hurts in god mode")
+	debug._god_button.pressed.emit()
+	var before := game.world.monster_count()
+	debug._spawn(true)
+	check(game.world.monster_count() == before + 1, "spawn a monster (elite)")
+	game.world.reveal_all()
+	check(game.world.is_explored(game.world.map.stairs_cell), "reveal the map")
+	debug.close()
+	await _frames(2)
+	check(not debug.visible and not get_tree().paused, "closing resumes the game")
+	await _clear_monsters(game.world)
+	game.depth = depth_before

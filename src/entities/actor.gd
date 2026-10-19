@@ -29,6 +29,8 @@ class TimedBonus:
 	var time_left := 0.0
 
 var faction: Faction = Faction.MONSTER
+## Debug god mode (DebugPanel): nothing hurts.
+var invincible := false
 var world: World
 var display_name := "Actor"
 ## Animations of the body (see ActorRig). Without frames, a simple shape is drawn.
@@ -222,7 +224,7 @@ func get_move_direction() -> Vector2:
 # --- Health ------------------------------------------------------------------
 
 func take_hit(hit: HitInfo) -> void:
-	if is_dead or (_invulnerable_time > 0.0 and not hit.unavoidable):
+	if is_dead or invincible or (_invulnerable_time > 0.0 and not hit.unavoidable):
 		return
 	# Perks of the attacker can change the hit (direct hits only, see HitInfo.is_secondary).
 	var attacker := hit.source if is_instance_valid(hit.source) and not hit.is_secondary else null

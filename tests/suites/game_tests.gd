@@ -199,6 +199,7 @@ func run() -> void:
 	await combat._test_monster_behaviours(game)
 	await floor._test_climate(game)
 	await combat._test_review_fixes(game)
+	await floor._test_debug_panel(game)
 
 	await boss._test_boss_fight(game)
 

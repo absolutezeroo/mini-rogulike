@@ -70,6 +70,9 @@ func _ready() -> void:
 	hud.bind_world(world)
 	hud.inventory_requested.connect(open_inventory)
 	hud.pause_requested.connect(open_pause_menu)
+	hud.debug_requested.connect(open_debug)
+	if menus.debug:
+		menus.debug.closed.connect(_on_menu_closed)
 	_connect_menus()
 	_connect_events()
 	var saved := RunSave.read() if resume_requested else {}
@@ -222,12 +225,36 @@ func open_inventory() -> void:
 		inventory_panel.open(player)
 
 
+## Dev tools (debug builds only).
+func open_debug() -> void:
+	if menus.debug and _can_open_menu():
+		_set_paused(true)
+		menus.debug.open(self)
+
+
+## Debug: builds floor `target` right away, with that curse or event (or a plain floor).
+func debug_enter_floor(target: int, curse: CurseDef = null, event: FloorEventDef = null, plain: bool = false) -> void:
+	world.forced_curse = curse
+	world.forced_event = event
+	world.forced_plain = plain or (curse == null and event == null)
+	depth = target
+	_transitioning = true
+	_enter_floor(true)
+	await _show_cards()
+	_transitioning = false
+	_set_paused(is_menu_open())
+	_show_next_offer()
+
+
 func _can_open_menu() -> bool:
 	return player != null and not player.is_dead and not is_menu_open()
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("inventory") and not is_menu_open():
+	if event is InputEventKey and event.pressed and (event as InputEventKey).keycode == KEY_F1:
+		get_viewport().set_input_as_handled()
+		open_debug()
+	elif event.is_action_pressed("inventory") and not is_menu_open():
 		get_viewport().set_input_as_handled()
 		open_inventory()
 	elif event.is_action_pressed("ui_cancel"):

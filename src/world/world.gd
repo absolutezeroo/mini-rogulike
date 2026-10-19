@@ -41,6 +41,11 @@ var floor_event: FloorEventDef
 var curse: CurseDef
 ## Difficulty, event and depth combined: ask it how hard and rewarding this floor is.
 var rules: FloorRules
+## Debug (DebugPanel): the next floor built gets this curse or event instead of rolling one
+## (and neither if `forced_plain`). Used once.
+var forced_curse: CurseDef
+var forced_event: FloorEventDef
+var forced_plain := false
 ## The boss of each act for this run (an act may have several; the game draws one per run).
 ## Empty or null entries: the act's main boss.
 var run_bosses: Array[BossDef] = []
@@ -81,7 +86,13 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 		boss = run_bosses[act_index]
 	floor_event = null
 	curse = null
-	if boss == null and depth > 1:
+	if forced_curse or forced_event or forced_plain:
+		curse = forced_curse
+		floor_event = forced_event
+		forced_curse = null
+		forced_event = null
+		forced_plain = false
+	elif boss == null and depth > 1:
 		var curse_chance := difficulty.curse_chance if difficulty else 0.0
 		if rng.randf() < curse_chance:
 			curse = ContentDB.pick_from(content.curses, depth, rng) as CurseDef
@@ -414,6 +425,11 @@ func is_solid_ground(point: Vector2) -> bool:
 
 func is_explored(cell: Vector2i) -> bool:
 	return fog.is_explored(cell)
+
+
+## The whole floor on the map (debug).
+func reveal_all() -> void:
+	cells_changed.emit(fog.reveal_all())
 
 
 ## Reveals the room the hero stands in (all of it) and a few cells around them.

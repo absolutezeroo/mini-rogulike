@@ -24,6 +24,12 @@ func is_explored(cell: Vector2i) -> bool:
 	return _map.in_bounds(cell) and explored[cell.y * _map.width + cell.x] == 1
 
 
+## Everything seen at once (debug); returns the cells seen for the first time.
+func reveal_all() -> Array[Vector2i]:
+	var revealed: Array[Vector2i] = []
+	return _reveal_rect(Rect2i(0, 0, _map.width, _map.height), revealed)
+
+
 ## Reveals around `point`; returns the cells seen for the first time.
 func reveal_around(point: Vector2) -> Array[Vector2i]:
 	var revealed: Array[Vector2i] = []
@@ -38,10 +44,11 @@ func reveal_around(point: Vector2) -> Array[Vector2i]:
 	return revealed
 
 
-func _reveal_rect(rect: Rect2i, revealed: Array[Vector2i]) -> void:
+func _reveal_rect(rect: Rect2i, revealed: Array[Vector2i]) -> Array[Vector2i]:
 	for y in range(rect.position.y, rect.end.y):
 		for x in range(rect.position.x, rect.end.x):
 			var cell := Vector2i(x, y)
 			if _map.in_bounds(cell) and explored[y * _map.width + x] == 0:
 				explored[y * _map.width + x] = 1
 				revealed.append(cell)
+	return revealed

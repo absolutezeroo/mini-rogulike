@@ -533,6 +533,20 @@ A `spawn_weight` of 0 means it never spawns on its own (starting gear, loot-only
 | Choose a perk | Tap a card | Arrows + Enter | D-pad + A |
 | Inventory | Bag button | I / Tab | Back |
 
+## Debug tools
+
+In debug builds only (running from the Godot editor, on the phone too, or a debug export), a
+**DBG** button next to pause (or F1) opens the `DebugPanel` (the game pauses):
+- **Floor**: pick a depth and go there, next floor, rebuild the floor, next boss floor, teleport
+  next to the stairs, reveal the map. Jumped-to floors are plain unless you choose:
+- **Curse** (Frostbound, Ashen Breath, Lanternless) or **floor event**: rebuilds the floor with it
+  (`World.forced_curse` / `forced_event`), its card included.
+- **Hero**: god mode (nothing hurts), full heal, +500 gold, level up, an Epic weapon, every
+  consumable, freezing / burning / normal temperature.
+- **Monsters**: pick any monster or boss and spawn it (or an elite one), kill all, put all asleep.
+
+Release exports have no button and no panel (`DebugPanel.is_available()`).
+
 ## Tests
 
 From the project root (desktop Godot):

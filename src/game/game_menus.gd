@@ -10,6 +10,15 @@ extends CanvasLayer
 @onready var shop: ShopPanel = $ShopPanel
 @onready var encounter: EncounterPanel = $EncounterPanel
 @onready var pause: PauseMenu = $PauseMenu
+## Dev tools: debug builds only (null otherwise).
+var debug: DebugPanel
+
+
+func _ready() -> void:
+	if DebugPanel.is_available():
+		debug = DebugPanel.new()
+		debug.name = "DebugPanel"
+		add_child(debug)
 
 
 func any_open() -> bool:
@@ -18,7 +27,9 @@ func any_open() -> bool:
 
 ## The phone's back button (or Escape): closes the panel that can be closed. False if none was open.
 func back() -> bool:
-	if pause.visible:
+	if debug and debug.visible:
+		debug.close()
+	elif pause.visible:
 		pause.back()
 	elif inventory.visible:
 		inventory.close()
@@ -43,4 +54,7 @@ func show_on_top(panel: Control) -> void:
 
 
 func _panels() -> Array[Control]:
-	return [inventory, perks, game_over, shop, encounter, pause]
+	var panels: Array[Control] = [inventory, perks, game_over, shop, encounter, pause]
+	if debug:
+		panels.append(debug)
+	return panels
