@@ -1,9 +1,38 @@
 [gd_resource type="Resource" script_class="HeatSourceDef" format=3]
 
 [ext_resource type="Texture2D" path="res://assets/fx/fire_flames.png" id="1_kj6ro"]
+[ext_resource type="Texture2D" path="res://assets/tiles/nature.png" id="1_usp6n"]
 [ext_resource type="Texture2D" path="res://assets/fx/campfire_pit.png" id="2_usp6n"]
 [ext_resource type="Script" path="res://src/definitions/hazards/heat_source_def.gd" id="3_6374w"]
 [ext_resource type="AudioStream" path="res://assets/audio/ambience/ruins/crackle_0.ogg" id="4_86tbi"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6374w"]
+atlas = ExtResource("1_usp6n")
+region = Rect2(64, 128, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_86tbi"]
+atlas = ExtResource("1_usp6n")
+region = Rect2(80, 128, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ywftv"]
+atlas = ExtResource("1_usp6n")
+region = Rect2(64, 144, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l1lnu"]
+atlas = ExtResource("1_usp6n")
+region = Rect2(64, 208, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hdega"]
+atlas = ExtResource("1_usp6n")
+region = Rect2(80, 208, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pfats"]
+atlas = ExtResource("1_usp6n")
+region = Rect2(96, 208, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sxm65"]
+atlas = ExtResource("1_usp6n")
+region = Rect2(128, 192, 16, 16)
 
 [resource]
 script = ExtResource("3_6374w")
@@ -17,6 +46,11 @@ glow_color = Color(1, 0.62, 0.25, 0.09)
 light_color = Color(1, 0.7, 0.4, 0.75)
 light_radius = 230.0
 sound = ExtResource("4_86tbi")
+decor = Array[Texture2D]([SubResource("AtlasTexture_6374w"), SubResource("AtlasTexture_86tbi"), SubResource("AtlasTexture_ywftv"), SubResource("AtlasTexture_l1lnu"), SubResource("AtlasTexture_hdega"), SubResource("AtlasTexture_pfats"), SubResource("AtlasTexture_sxm65")])
+decor_count = Vector2i(2, 5)
+camp_limit = 12.0
+camp_warning = "Things stir in the dark, drawn by the fire..."
+invasion_message = "They come for the fire!"
 id = &"campfire"
 display_name = "Campfire"
 description = "Warms you back up on frozen floors. Stay close."

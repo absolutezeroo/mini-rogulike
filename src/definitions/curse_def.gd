@@ -13,10 +13,10 @@ extends ContentDef
 ## Body temperature change per second everywhere on the floor (BodyTemperature):
 ## below 0 freezes, above 0 burns.
 @export var temperature: float = 0.0
-## What brings the temperature back to normal (campfires, cool springs): one in the first room,
-## then in about `spots_per_room` of the other rooms.
+## What brings the temperature back to normal (campfires, oases): one in the first room, then
+## this many more in other rooms (random between the two). Few: the hero has to push on.
 @export var warm_spot: HeatSourceDef
-@export_range(0.0, 1.0) var spots_per_room: float = 0.5
+@export var spot_count: Vector2i = Vector2i(2, 3)
 ## Laid over every room, just for the look (ice...). Its `heat` should be 0.
 @export var room_look: HeatSourceDef
 

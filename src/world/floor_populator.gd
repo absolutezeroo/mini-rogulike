@@ -110,9 +110,14 @@ static func place_curse(world: World, curse: CurseDef, taken: Dictionary) -> voi
 	if not curse.warm_spot.place_one(world, map.rooms[0], taken):
 		# A small first room: right next to where the hero appears.
 		world.spawn_heat_source(curse.warm_spot, Rect2i(map.start_cell + Vector2i(2, -1), curse.warm_spot.size))
-	for i in range(1, map.rooms.size()):
-		if world.rng.randf() < curse.spots_per_room:
-			curse.warm_spot.place_one(world, map.rooms[i], taken)
+	var rooms := range(1, map.rooms.size())
+	RandomUtils.shuffle(rooms, world.rng)
+	var wanted := world.rng.randi_range(curse.spot_count.x, curse.spot_count.y)
+	for i: int in rooms:
+		if wanted <= 0:
+			break
+		if curse.warm_spot.place_one(world, map.rooms[i], taken):
+			wanted -= 1
 
 
 ## A big enough room, not the first one, without the stairs and not `except` (-1 if none).
@@ -206,11 +211,7 @@ static func _reserve_around(taken: Dictionary, center: Vector2i, radius: int) ->
 
 static func _shuffled(cells: Array[Vector2i], rng: RandomNumberGenerator) -> Array[Vector2i]:
 	var result := cells.duplicate()
-	for i in range(result.size() - 1, 0, -1):
-		var j := rng.randi_range(0, i)
-		var tmp: Vector2i = result[i]
-		result[i] = result[j]
-		result[j] = tmp
+	RandomUtils.shuffle(result, rng)
 	return result
 
 

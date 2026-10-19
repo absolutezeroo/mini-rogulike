@@ -1,7 +1,8 @@
 class_name HeatSource
 extends Node2D
-## Built from a HeatSourceDef: scorching ground, a frozen room, or a campfire. It only marks the
-## place and draws it; BodyTemperature asks every heat source whether it reaches the hero.
+## Built from a HeatSourceDef: scorching ground, a frozen room, a campfire or an oasis. It marks
+## the place and draws it (a pond, decor around); BodyTemperature asks every heat source whether
+## it reaches the hero. Campfires and oases may have a CampWatch (no camping by the light).
 
 const EMBERS := 7
 
@@ -15,6 +16,10 @@ var rect := Rect2i()
 var _time := 0.0
 var _sound_timer := 0.0
 var _cracks: Array[PackedVector2Array] = []
+## Water cells of a pond where a ripple shows, and their phase.
+var _ripples: Array[Vector3] = []
+## The rough ground around a pond: circles [x, y, radius].
+var _ground_blobs: Array[Vector3] = []
 
 
 func setup(source_def: HeatSourceDef, floor_world: World, cells: Rect2i) -> void:
@@ -27,7 +32,7 @@ func setup(source_def: HeatSourceDef, floor_world: World, cells: Rect2i) -> void
 	z_index = -2 if def.comfort else -9
 	_time = world.rng.randf() * 10.0
 	add_to_group("heat_sources")
-	if def.comfort:
+	if def.comfort and def.pond == null:
 		# The fire is its own light: don't let the lights burn it out.
 		var unshaded := CanvasItemMaterial.new()
 		unshaded.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
@@ -41,6 +46,14 @@ func setup(source_def: HeatSourceDef, floor_world: World, cells: Rect2i) -> void
 		material = look
 	else:
 		_cracks = _make_cracks(world.rng)
+	if def.pond:
+		_make_pond(ts)
+	if not def.decor.is_empty() and def.decor_count.y > 0:
+		_scatter_decor(ts)
+	if def.camp_limit > 0.0:
+		var watch := CampWatch.new()
+		watch.source = self
+		add_child(watch)
 	if def.particles:
 		var particles := def.particles.instantiate() as CPUParticles2D
 		particles.emission_rect_extents = area.size * 0.5
@@ -61,6 +74,10 @@ func setup(source_def: HeatSourceDef, floor_world: World, cells: Rect2i) -> void
 
 ## True if `actor` feels it.
 func reaches(actor: Actor) -> bool:
+	if def.comfort and def.pond:
+		# Along the shore, whatever the pond's size.
+		var local := actor.global_position - global_position
+		return local.distance_to(local.clamp(area.position, area.end)) <= def.reach
 	if def.comfort:
 		return actor.global_position.distance_to(global_position) <= def.reach
 	return area.has_point(actor.global_position - global_position)
@@ -90,17 +107,13 @@ func _draw() -> void:
 ## The warm circle (so you see where it helps), the pit, the flames.
 func _draw_campfire() -> void:
 	var glow := def.glow_color
-	draw_circle(Vector2.ZERO, def.reach, Color(glow, glow.a * (0.6 + 0.15 * sin(_time * 3.0))))
-	draw_arc(Vector2.ZERO, def.reach, 0.0, TAU, 48, Color(glow, glow.a * 2.0), 2.0)
-	if def.pool_color.a > 0.0:
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.7))
-		draw_circle(Vector2.ZERO, 24.0, def.pool_color.darkened(0.45))
-		draw_circle(Vector2.ZERO, 20.0, def.pool_color)
-		# Ripples spreading out from the middle.
-		for i in 3:
-			var t := fposmod(_time * 0.6 + i / 3.0, 1.0)
-			draw_arc(Vector2.ZERO, 3.0 + 15.0 * t, 0.0, TAU, 24, Color(def.pool_color.lightened(0.6), 0.8 * (1.0 - t)), 2.0)
-		draw_set_transform(Vector2.ZERO)
+	var breathing := Color(glow, glow.a * (0.6 + 0.15 * sin(_time * 3.0)))
+	if def.pond:
+		draw_rect(area.grow(def.reach), breathing)
+		_draw_pond()
+	else:
+		draw_circle(Vector2.ZERO, def.reach, breathing)
+		draw_arc(Vector2.ZERO, def.reach, 0.0, TAU, 48, Color(glow, glow.a * 2.0), 2.0)
 	if def.sprite:
 		var size := def.sprite.get_size() * 2.0
 		draw_texture_rect(def.sprite, Rect2(-size * 0.5, size), false)
@@ -116,8 +129,84 @@ func _draw_campfire() -> void:
 			var size := Vector2.ONE * frame_size * def.flame_scale
 			draw_texture_rect_region(def.flames, Rect2(offset - size * 0.5, size),
 				Rect2(frame * frame_size, 0, frame_size, frame_size))
-	elif def.sprite == null and def.pool_color.a <= 0.0:
+	elif def.sprite == null and def.pond == null:
 		draw_circle(Vector2.ZERO, 10.0, Color("ff9f1c"))  # nothing to show: a plain fire
+
+
+## The pond: each cell takes the shore tile matching its place (corner, edge, water), then
+## ripples here and there.
+func _draw_pond() -> void:
+	var ts := float(world.map.tile_size)
+	for blob in _ground_blobs:
+		draw_circle(Vector2(blob.x, blob.y), blob.z, def.pond_ground.darkened(0.25))
+	for blob in _ground_blobs:
+		draw_circle(Vector2(blob.x, blob.y), blob.z - 3.0, def.pond_ground)
+	var tile := def.pond.get_width() / 3.0
+	for y in rect.size.y:
+		for x in rect.size.x:
+			var column := 0 if x == 0 else (2 if x == rect.size.x - 1 else 1)
+			var row := 0 if y == 0 else (2 if y == rect.size.y - 1 else 1)
+			var at := area.position + Vector2(x, y) * ts
+			draw_texture_rect_region(def.pond, Rect2(at, Vector2(ts, ts)), Rect2(column * tile, row * tile, tile, tile))
+	for ripple in _ripples:
+		var t := fposmod(_time * 0.5 + ripple.z, 1.0)
+		var center := Vector2(ripple.x, ripple.y)
+		draw_set_transform(center, 0.0, Vector2(1.0, 0.6))
+		draw_arc(Vector2.ZERO, 2.0 + 9.0 * t, 0.0, TAU, 16, Color(1, 1, 1, 0.6 * (1.0 - t)), 1.5)
+		draw_set_transform(Vector2.ZERO)
+
+
+## Water nobody walks on: a body on the water layer, cells blocked for the monsters' paths.
+func _make_pond(ts: float) -> void:
+	var body := StaticBody2D.new()
+	body.collision_layer = Layers.WATER
+	body.collision_mask = 0
+	var shape := CollisionShape2D.new()
+	var box := RectangleShape2D.new()
+	box.size = area.size - Vector2(ts, ts) * 0.5  # the shore can be stepped on
+	shape.shape = box
+	body.add_child(shape)
+	add_child(body)
+	for y in range(rect.position.y, rect.end.y):
+		for x in range(rect.position.x, rect.end.x):
+			world.set_cell_blocked(Vector2i(x, y), true)
+	# The ground around: circles along the shore, of random sizes, so every oasis has its shape.
+	if def.pond_ground.a > 0.0:
+		for y in rect.size.y:
+			for x in rect.size.x:
+				if x != 0 and y != 0 and x != rect.size.x - 1 and y != rect.size.y - 1:
+					continue
+				var at := area.position + (Vector2(x, y) + Vector2(0.5, 0.5)) * ts
+				var push := (at.normalized() if at != Vector2.ZERO else Vector2.UP) * ts * world.rng.randf_range(0.1, 0.5)
+				_ground_blobs.append(Vector3(at.x + push.x, at.y + push.y, ts * world.rng.randf_range(0.75, 1.15)))
+	# A few ripples on the inner water.
+	for i in world.rng.randi_range(1, 3):
+		var cell := Vector2(world.rng.randf_range(1.0, maxf(rect.size.x - 1.0, 1.0)), world.rng.randf_range(1.0, maxf(rect.size.y - 1.0, 1.0)))
+		var at := area.position + cell * ts
+		_ripples.append(Vector3(at.x, at.y, world.rng.randf()))
+
+
+## Decor around the spot, on free floor: a random number of random pieces in random places.
+func _scatter_decor(ts: float) -> void:
+	var layer := DecorLayer.new()
+	layer.z_index = 1  # on top of the pond's ground, under whoever walks by
+	add_child(layer)
+	var count := world.rng.randi_range(def.decor_count.x, def.decor_count.y)
+	for i in count * 4:
+		if layer.pieces.size() >= count:
+			break
+		var angle := world.rng.randf() * TAU
+		var distance := world.rng.randf_range(0.45, 0.95) * def.reach
+		var offset := Vector2.from_angle(angle) * distance
+		if def.pond:
+			# Along the shore, just outside the water.
+			var edge := offset.normalized() * (area.size * 0.5 + Vector2(ts, ts) * 0.6)
+			offset = edge + Vector2(world.rng.randf_range(-ts, ts), world.rng.randf_range(-ts, ts)) * 0.5
+		var at := global_position + offset
+		var cell := world.map.world_to_cell(at)
+		if not world.map.is_floor(cell) or rect.has_point(cell) or world.nav.is_blocked(cell):
+			continue
+		layer.pieces.append([def.decor[world.rng.randi() % def.decor.size()], offset.snapped(Vector2(2, 2))])
 
 
 ## Glowing cracked ground, pulsing, with embers rising from it.

@@ -156,8 +156,14 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   out of souls, the curse's name, its story and its rule. A cursed floor has no floor event, but
   better loot and more gold.
   - **Frostbound**: ice over every room, snow falling, the cold getting into your bones.
-    **Campfires** around the floor (one where you arrive) warm you back up.
-  - **Ashen Breath**: the air scorches, embers drift. **Cool springs** bring you back to normal.
+    A few **campfires** (one where you arrive, 2-3 more: `CurseDef.spot_count`) warm you back
+    up, with logs and stones scattered around them, never twice the same.
+  - **Ashen Breath**: the air scorches, embers drift. **Oases** cool you down: a pond of real
+    water tiles (`HeatSourceDef.pond`, nobody walks on it: `Layers.WATER`) of a random size, in
+    a rough patch of grass with plants and flowers around, each one different.
+  - **No camping**: stay too long by a campfire or an oasis (`camp_limit`, 12 s) and the light
+    draws monsters in (`CampWatch`): a warning first, then a wave, bigger each time. They give
+    nothing.
   - **Lanternless**: the whole floor in the dark but right around you; monsters and traps hide
     in the black. The best loot of the three.
 - **Temperature** (`BodyTemperature`, `dungeon_config.tres` > Temperature): the hero has a body

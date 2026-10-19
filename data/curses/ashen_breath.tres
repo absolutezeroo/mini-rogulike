@@ -2,18 +2,18 @@
 
 [ext_resource type="Resource" path="res://data/dungeon/ambience/ash.tres" id="1_3b0td"]
 [ext_resource type="Script" path="res://src/definitions/curse_def.gd" id="2_kesvw"]
-[ext_resource type="Resource" path="res://data/hazards/cool_spring.tres" id="3_qex65"]
+[ext_resource type="Resource" path="res://data/hazards/oasis.tres" id="3_3b0td"]
 
 [resource]
 script = ExtResource("2_kesvw")
 lore = "Deep below, something burns.
 The Well breathes it up, and the air itself scorches."
 temperature = 5.5
-warm_spot = ExtResource("3_qex65")
+warm_spot = ExtResource("3_3b0td")
 tint = Color(1, 0.75, 0.6, 1)
 ambience = ExtResource("1_3b0td")
 id = &"ashen_breath"
 display_name = "Ashen Breath"
-description = "The heat builds up. Cool down at the springs, or burn."
+description = "The heat builds up. Cool down by the oases, or burn."
 color = Color(1, 0.47843137, 0.23921569, 1)
 min_depth = 2

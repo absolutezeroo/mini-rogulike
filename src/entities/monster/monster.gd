@@ -50,7 +50,7 @@ func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
 	flies = def.flies
 	set_body_radius(def.radius)
 	collision_layer = Layers.MONSTERS
-	collision_mask = Layers.WORLD | Layers.PLAYER | Layers.MONSTERS
+	collision_mask = Layers.WORLD | Layers.PLAYER | Layers.MONSTERS | (0 if def.flies else Layers.WATER)
 	add_to_group("monsters")
 
 	# Depth, difficulty and the floor's event (see FloorRules).

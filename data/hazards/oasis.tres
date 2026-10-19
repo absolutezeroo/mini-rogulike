@@ -1,0 +1,100 @@
+[gd_resource type="Resource" script_class="HeatSourceDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/tiles/nature.png" id="1_s3oay"]
+[ext_resource type="Texture2D" path="res://assets/tiles/oasis_pond.png" id="2_jgm4j"]
+[ext_resource type="Script" path="res://src/definitions/hazards/heat_source_def.gd" id="3_8fkuv"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ewklx"]
+atlas = ExtResource("1_s3oay")
+region = Rect2(0, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yta8y"]
+atlas = ExtResource("1_s3oay")
+region = Rect2(16, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bbfgj"]
+atlas = ExtResource("1_s3oay")
+region = Rect2(32, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jlf6t"]
+atlas = ExtResource("1_s3oay")
+region = Rect2(48, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jpj2w"]
+atlas = ExtResource("1_s3oay")
+region = Rect2(64, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gv42j"]
+atlas = ExtResource("1_s3oay")
+region = Rect2(80, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4y3kn"]
+atlas = ExtResource("1_s3oay")
+region = Rect2(96, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gt36v"]
+atlas = ExtResource("1_s3oay")
+region = Rect2(112, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ttjjc"]
+atlas = ExtResource("1_s3oay")
+region = Rect2(128, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6mpve"]
+atlas = ExtResource("1_s3oay")
+region = Rect2(144, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6jbg6"]
+atlas = ExtResource("1_s3oay")
+region = Rect2(160, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ydq4l"]
+atlas = ExtResource("1_s3oay")
+region = Rect2(0, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d2kdo"]
+atlas = ExtResource("1_s3oay")
+region = Rect2(16, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l6q4n"]
+atlas = ExtResource("1_s3oay")
+region = Rect2(32, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fnuxx"]
+atlas = ExtResource("1_s3oay")
+region = Rect2(48, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pl4a5"]
+atlas = ExtResource("1_s3oay")
+region = Rect2(64, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rblu7"]
+atlas = ExtResource("1_s3oay")
+region = Rect2(80, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c42au"]
+atlas = ExtResource("1_s3oay")
+region = Rect2(96, 176, 16, 16)
+
+[resource]
+script = ExtResource("3_8fkuv")
+comfort = true
+reach = 60.0
+size = Vector2i(3, 2)
+size_max = Vector2i(5, 4)
+patches_max = 1
+pond_ground = Color(0.678, 0.737, 0.227, 1)
+pond = ExtResource("2_jgm4j")
+glow_color = Color(0.45, 0.8, 1, 0.07)
+light_color = Color(0.5, 0.85, 1, 0.45)
+decor = Array[Texture2D]([SubResource("AtlasTexture_ewklx"), SubResource("AtlasTexture_yta8y"), SubResource("AtlasTexture_bbfgj"), SubResource("AtlasTexture_jlf6t"), SubResource("AtlasTexture_jpj2w"), SubResource("AtlasTexture_gv42j"), SubResource("AtlasTexture_4y3kn"), SubResource("AtlasTexture_gt36v"), SubResource("AtlasTexture_ttjjc"), SubResource("AtlasTexture_6mpve"), SubResource("AtlasTexture_6jbg6"), SubResource("AtlasTexture_ydq4l"), SubResource("AtlasTexture_d2kdo"), SubResource("AtlasTexture_l6q4n"), SubResource("AtlasTexture_fnuxx"), SubResource("AtlasTexture_pl4a5"), SubResource("AtlasTexture_rblu7"), SubResource("AtlasTexture_c42au")])
+decor_count = Vector2i(5, 10)
+camp_limit = 12.0
+camp_warning = "Things stir in the heat haze, drawn by the water..."
+invasion_message = "They come for the water!"
+id = &"oasis"
+display_name = "Oasis"
+description = "A pool of cool water on a burning floor. Stay by the shore to cool down."
+icon = ExtResource("2_jgm4j")
+color = Color(0.49411765, 0.78431374, 1, 1)
+spawn_weight = 0

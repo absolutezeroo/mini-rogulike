@@ -17,3 +17,12 @@ static func pick_weighted(entries: Array, weights: PackedInt32Array, rng: Random
 		if roll <= 0:
 			return entries[i]
 	return entries.back()
+
+
+## Shuffles `list` in place with `rng` (Array.shuffle() uses the global random, not the floor's).
+static func shuffle(list: Array, rng: RandomNumberGenerator) -> void:
+	for i in range(list.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var swap: Variant = list[i]
+		list[i] = list[j]
+		list[j] = swap

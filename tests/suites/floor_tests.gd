@@ -498,7 +498,7 @@ func _test_climate(game: Game) -> void:
 	var ashen: CurseDef = load("res://data/curses/ashen_breath.tres")
 	var lanternless: CurseDef = load("res://data/curses/lanternless.tres")
 	var campfire: HeatSourceDef = load("res://data/hazards/campfire.tres")
-	var spring: HeatSourceDef = load("res://data/hazards/cool_spring.tres")
+	var oasis: HeatSourceDef = load("res://data/hazards/oasis.tres")
 	check(CONTENT.curses.has(frostbound) and CONTENT.curses.has(ashen) and CONTENT.curses.has(lanternless), "three curses: frozen, burning, lightless")
 	var start_depth: int = game.depth
 	var saved_curses := CONTENT.curses.duplicate()
@@ -523,6 +523,9 @@ func _test_climate(game: Game) -> void:
 	var iced := sources.filter(func(f: Node) -> bool: return (f as HeatSource).def == frostbound.room_look)
 	check(iced.size() == world.map.rooms.size(), "ice over every room (%d/%d)" % [iced.size(), world.map.rooms.size()])
 	check(fires.size() >= 2 and fires.any(func(f: Node) -> bool: return world.map.rooms[0].grow(3).has_point(world.map.world_to_cell(f.global_position))), "campfires around the floor, one where you arrive (%d)" % fires.size())
+	check(fires.size() <= 1 + frostbound.spot_count.y, "but only a few (%d)" % fires.size())
+	var decor := (fires[0] as HeatSource).get_children().filter(func(n: Node) -> bool: return n is DecorLayer)
+	check(not decor.is_empty() and (decor[0] as DecorLayer).pieces.size() <= campfire.decor_count.y, "logs and stones around the fire, never the same")
 	for fire in fires:
 		fire.free()
 	player.temperature.reset()
@@ -542,13 +545,35 @@ func _test_climate(game: Game) -> void:
 	for i in 4:
 		player.temperature.update(player, 0.5)
 	check(player.temperature.value > -BodyTemperature.LIMIT * 0.1, "a campfire warms you back up (%.0f)" % player.temperature.value)
+	# Camping by the fire draws monsters in.
+	await _clear_monsters(world)
+	var watch: CampWatch = fire.get_children().filter(func(n: Node) -> bool: return n is CampWatch)[0]
+	var warnings := [false]
+	var on_log := func(text: String, _color: Color) -> void: warnings[0] = warnings[0] or text == campfire.camp_warning
+	Events.message_logged.connect(on_log)
+	watch.camped = campfire.camp_limit * 0.7
+	await _frames(2)
+	check(warnings[0] and world.monster_count() == 0, "stay too long by the fire: a warning first")
+	watch.camped = campfire.camp_limit - 0.01
+	await _frames(3)
+	var invaders := world.get_hostiles(Actor.Faction.PLAYER)
+	check(invaders.size() >= campfire.invasion.x and invaders.all(func(m: Actor) -> bool: return (m as Monster).summoned and (m as Monster).target == player), "then monsters come for the fire (%d), and give nothing" % invaders.size())
+	check(watch.camped < 1.0 and watch.waves == 1, "the watch starts over, the next wave bigger")
+	Events.message_logged.disconnect(on_log)
+	await _clear_monsters(world)
 	fire.free()
 
 	# Ashen Breath: it burns; the springs cool you down.
 	CONTENT.curses = [ashen]
 	game._enter_floor()
 	await _frames(3)
-	check(world.curse == ashen and get_tree().get_nodes_in_group("heat_sources").any(func(f: Node) -> bool: return (f as HeatSource).def == spring), "Ashen Breath: cool springs around the floor")
+	var oases := get_tree().get_nodes_in_group("heat_sources").filter(func(f: Node) -> bool: return (f as HeatSource).def == oasis)
+	check(world.curse == ashen and not oases.is_empty(), "Ashen Breath: oases around the floor")
+	var sizes := {}
+	for spot: HeatSource in oases:
+		sizes[spot.rect.size] = true
+		check(world.nav.is_blocked(spot.rect.get_center()), "nobody walks on an oasis' water")
+	check(oases.all(func(spot: HeatSource) -> bool: return spot.rect.size.x >= oasis.size.x and spot.rect.size.x <= oasis.size_max.x), "oases of different sizes (%d kinds)" % sizes.size())
 	for node in get_tree().get_nodes_in_group("heat_sources"):
 		node.free()
 	player.temperature.reset()
@@ -556,10 +581,11 @@ func _test_climate(game: Game) -> void:
 		player.temperature.update(player, 0.5)
 	check(player.temperature.value >= BodyTemperature.LIMIT, "Ashen Breath heats the hero up (%.0f)" % player.temperature.value)
 	cell = world.map.world_to_cell(player.global_position)
-	var pool := world.spawn_heat_source(spring, Rect2i(cell, spring.size))
+	var pool := world.spawn_heat_source(oasis, Rect2i(cell + Vector2i(1, 0), oasis.size))
+	check(pool.reaches(player), "the hero on the shore")
 	for i in 4:
 		player.temperature.update(player, 0.5)
-	check(player.temperature.value < BodyTemperature.LIMIT * 0.1, "a spring cools you down (%.0f)" % player.temperature.value)
+	check(player.temperature.value < BodyTemperature.LIMIT * 0.1, "an oasis cools you down (%.0f)" % player.temperature.value)
 	pool.free()
 
 	# Lanternless: the whole floor in the dark, but around the hero.

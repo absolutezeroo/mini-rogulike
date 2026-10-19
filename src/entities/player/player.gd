@@ -59,7 +59,7 @@ func setup(player_def: PlayerDef) -> void:
 	frames_offset = def.frames_offset
 	set_body_radius(def.radius)
 	collision_layer = Layers.PLAYER
-	collision_mask = Layers.WORLD | Layers.MONSTERS
+	collision_mask = Layers.WORLD | Layers.MONSTERS | Layers.WATER
 
 	base_stats = def.base_stats.duplicate()
 	inventory = Inventory.new(def.inventory_size)
