@@ -2,29 +2,34 @@ class_name PerkSet
 extends RefCounted
 ## The perks an actor collected during the run, with their stack counts, and the families they
 ## woke (SynergyDef: three different perks of a family). Adds up their stats and forwards
-## gameplay events to their passives, the awakened families' included.
+## gameplay events to their passives, the awakened families' and the worn gear's affixes'
+## (ItemAffixDef.passives) included.
 
 signal changed
 ## A family just woke: its bonus is on from now.
 signal synergy_awakened(synergy: SynergyDef)
 
 
-## One collected perk, or one awakened family (`synergy` set, `perk` null, 1 stack).
+## One collected perk, or something else granting passives (an awakened family, an affix on
+## worn gear: `perk` null, `granted` set, 1 stack).
 class Entry:
 	var perk: PerkDef
 	var synergy: SynergyDef
+	var granted: Array[Passive] = []
 	var stacks: int = 1
 	## Run state for the passives (charges, counters...).
 	var memory := {}
 
 	func passives() -> Array[Passive]:
-		return synergy.passives if synergy else perk.passives
+		return perk.passives if perk else granted
 
 
 var entries: Array[Entry] = []
 ## The awakened families, in the order they woke.
 var _awake: Array[Entry] = []
-## Collected perks and awakened families together (what the events go through).
+## Affixes of the worn gear that do something (see set_gear()).
+var _gear: Array[Entry] = []
+## Collected perks, awakened families and gear together (what the events go through).
 var _all: Array[Entry] = []
 
 
@@ -108,11 +113,29 @@ func _refresh_synergies(announce: bool) -> void:
 		if not is_awake(synergy) and pieces_of(synergy) >= synergy.pieces:
 			var entry := Entry.new()
 			entry.synergy = synergy
+			entry.granted = synergy.passives
 			_awake.append(entry)
 			if announce:
 				synergy_awakened.emit(synergy)
+	_rebuild_all()
+
+
+func _rebuild_all() -> void:
 	_all = entries.duplicate()
 	_all.append_array(_awake)
+	_all.append_array(_gear)
+
+
+## The affixes of what the actor wears: those with passives join the events (two items with
+## the same affix count twice).
+func set_gear(affixes: Array[ItemAffixDef]) -> void:
+	_gear.clear()
+	for affix in affixes:
+		if affix and not affix.passives.is_empty():
+			var entry := Entry.new()
+			entry.granted = affix.passives
+			_gear.append(entry)
+	_rebuild_all()
 
 
 ## For save files: [{ perk, stacks, memory }].
@@ -190,6 +213,12 @@ func modify_projectiles(owner: Actor, spec: ProjectileSpec) -> void:
 	for entry in _all:
 		for passive in entry.passives():
 			passive.modify_projectiles(owner, spec, entry)
+
+
+func on_floor_started(owner: Actor) -> void:
+	for entry in _all:
+		for passive in entry.passives():
+			passive.on_floor_started(owner, entry)
 
 
 func on_died(owner: Actor) -> void:

@@ -15,6 +15,9 @@ const BODY := 4
 @export var bonuses: StatBlock
 ## Weapons only: statuses left on what it hits (if the weapon has none of its own).
 @export var on_hit: OnHitStatus
+## What it does while worn (like a perk's: chain lightning, healing on kill...). Say it in
+## `description` (shown on the item); stats describe themselves.
+@export var passives: Array[Passive] = []
 
 
 func fits(item: EquipmentDef) -> bool:

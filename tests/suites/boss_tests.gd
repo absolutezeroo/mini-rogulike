@@ -74,6 +74,11 @@ func _test_boss_fight(game: Game) -> void:
 	player._invulnerable_time = 0.0
 	var close := player.global_position.distance_to(boss.global_position)
 	boss._shockwave_cooldown = 0.0  # the roar's own shockwave a moment ago
+	# Nothing else may touch the hero meanwhile (its hit frames would make the blast miss).
+	var boss_skills := boss.skills.skills.duplicate()
+	var no_skills: Array[SkillDef] = []
+	boss.skills.set_skills(no_skills)
+	boss._attack_cooldown = 1.0
 	for i in boss._shockwave_after:
 		var poke := HitInfo.new()
 		poke.amount = 1
@@ -84,10 +89,12 @@ func _test_boss_fight(game: Game) -> void:
 	var boss_at := boss.global_position
 	for frame in 50:
 		player._invulnerable_time = 0.0  # its claws may have just hit the hero
+		boss._attack_cooldown = 1.0  # and no more claws: their hit would make the blast miss
 		if frame < 30:
 			boss.global_position = boss_at  # not walking off (or dashing) before the blast
 		await _frames(1)
 	check(player.global_position.distance_to(stood) > 80.0 and player.global_position.distance_to(boss.global_position) > close, "the shockwave throws the hero off (%d px)" % roundi(player.global_position.distance_to(stood)))
+	boss.skills.set_skills(boss_skills)
 
 	# The last phase: fiercer skills, faster still.
 	var speed_before := boss.cooldown_speed

@@ -301,7 +301,11 @@ consumables between the two ("To belt" / "To bag"). The merchant buys from the b
 - **Rarity**: found equipment can come out **Magic** (blue, 1 affix), **Rare** (yellow, 2) or
   **Epic** (purple, 3), with more damage and bonuses (`ItemRarity`). Affixes (`data/affixes/`,
   `ItemAffixDef`) add stats ("Sharp", "of the Bear"...) or set enemies on fire, poison or slow
-  them ("Burning", "Venomous", "Frozen"). Rare and Epic items on the floor shine with a beam.
+  them ("Burning", "Venomous", "Frozen"). Some act like a perk while worn (`ItemAffixDef.passives`,
+  joined to the hero's `PerkSet` by `set_gear()`; their `description` shows on the item):
+  **Vampiric** (heal on kill), **Shocking** (every 5th hit chains lightning), **of Embers**
+  (burning enemies explode), **Shattering** (+25% on slowed enemies), **of Echoes** (skills may be
+  ready again at once), **of Thorns**. Rare and Epic items on the floor shine with a beam.
   `LootRoller` makes rolled copies; the plain .tres is the Common version. Chances grow with depth
   (`dungeon_config.tres` > Loot) and with the source: elites, chests and bosses drop better.
 - **Gold** drops from monsters (always from elites and bosses), chests and sometimes crates, and
@@ -404,6 +408,10 @@ A `PerkDef` (in `data/perks/`) is stat bonuses + a list of `Passive`s, both mult
 |---|---|---|
 | `HealOnKillPassive` | on kill | Vampirism |
 | `ThornsPassive` | on damaged | Thorns |
+| `RetaliatePassive` | on damaged (cooldown) | Iron Skin: getting hit throws enemies back |
+| `MomentumPassive` | on dash, before a hit | Swiftness: hits right after a roll deal more |
+| `OpenerPassive` | before a hit | Precision: the first blow on an unhurt enemy is a crit |
+| `FloorWardPassive` | on a new floor | Guardian Ring: every floor starts with a ward |
 | `BurnOnHitPassive` | on hit | Ignite (burn status) |
 | `CritShockwavePassive` | on hit (crits) | Thunderclap |
 | `DashShockwavePassive` | on dash (can leave a status) | Shock Roll, Cold Snap, Blazing Roll |
@@ -648,7 +656,7 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 | A curse | New `CurseDef` in `data/curses/` (temperature, campfires or springs, darkness, look, lore), add it to `content_db.tres` > Curses |
 | Another boss for an act | New `BossDef`, add it to the act's Other Bosses |
 | An encounter | New `EncounterDef` in `data/encounters/` (choices, costs, outcomes), add it to `content_db.tres` > Encounters |
-| An item affix | New `ItemAffixDef` in `data/affixes/` (prefix or suffix, slots, stats or on-hit), add it to `content_db.tres` > Item Affixes |
+| An item affix | New `ItemAffixDef` in `data/affixes/` (prefix or suffix, slots, stats, on-hit or passives + description), add it to `content_db.tres` > Item Affixes |
 | Story texts | Edit `data/story/story.tres` (intro pages, death lines...); an act's line is its `ActDef` > Lore |
 
 Each piece of content has an **icon** (any `Texture2D`) and an **icon tint** to recolor it.

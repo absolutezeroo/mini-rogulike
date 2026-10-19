@@ -69,6 +69,8 @@ func setup(player_def: PlayerDef) -> void:
 		store(item)
 	_rebuild_skills(0.0)
 	equipment.changed.connect(_rebuild_skills.bind(SWAP_COOLDOWN))
+	equipment.changed.connect(func() -> void: perks.set_gear(equipment.affixes()))
+	perks.set_gear(equipment.affixes())
 	invalidate_stats()
 	hp = get_max_hp()
 

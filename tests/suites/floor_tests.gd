@@ -581,6 +581,7 @@ func _test_climate(game: Game) -> void:
 	player.temperature.reset()
 	player.hp = player.get_max_hp()
 	player._invulnerable_time = 0.0
+	player.ward = 0  # a Guardian Ring taken earlier would soak the cold
 	for i in 40:
 		player.temperature.update(player, 0.5)
 	check(player.temperature.value <= -BodyTemperature.LIMIT, "Frostbound chills the hero to the bone (%.0f)" % player.temperature.value)
@@ -840,7 +841,7 @@ func _test_loot_and_gold(game: Game) -> void:
 	var back := LootRoller.from_data(JSON.parse_string(JSON.stringify(LootRoller.to_data(rare)))) as WeaponDef
 	check(back and back.display_name == rare.display_name and back.damage == rare.damage and back.rarity == ItemRarity.RARE, "rolled items survive a save")
 	for affix in CONTENT.item_affixes:
-		check(affix.bonuses != null or affix.on_hit != null, "%s does something" % affix.id)
+		check(affix.bonuses != null or affix.on_hit != null or not affix.passives.is_empty(), "%s does something" % affix.id)
 	var low := [0, 0, 0, 0]
 	var high := [0, 0, 0, 0]
 	var rng := RandomNumberGenerator.new()
@@ -912,7 +913,7 @@ func _test_loot_and_gold(game: Game) -> void:
 	await game.debug_enter_floor(game.depth)
 	world = game.world
 	check(world.kept_stock.size() == 1 and world.kept_stock[0].item == kept, "leaving the floor carries the locked entry")
-	var next := world.spawn_merchant(CONTENT.dungeon.merchant, _open_cell_near(world, game.player.global_position, 4))
+	var next := world.spawn_merchant(CONTENT.dungeon.merchant, _open_cell_near(world, game.player.global_position, 2))
 	check(next.stock[0].item == kept and next.stock[0].price == kept_price and next.stock[0].locked, "the next merchant sells it at the same price")
 	check(world.kept_stock.is_empty(), "handed over once")
 	next.queue_free()

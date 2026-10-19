@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ItemAffixDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="1_me5p7"]
+[ext_resource type="Script" path="res://src/definitions/passives/thorns_passive.gd" id="2_i03hk"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="3_c623u"]
+
+[sub_resource type="Resource" id="Resource_oggvu"]
+script = ExtResource("2_i03hk")
+damage_per_stack = 3
+
+[resource]
+script = ExtResource("3_c623u")
+is_prefix = false
+slots = 4
+passives = Array[ExtResource("1_me5p7")]([SubResource("Resource_oggvu")])
+id = &"of_thorns"
+display_name = "of Thorns"
+description = "Enemies that hit you up close take 3 damage."
+spawn_weight = 6

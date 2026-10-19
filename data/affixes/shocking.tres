@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ItemAffixDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="1_4fqtp"]
+[ext_resource type="Script" path="res://src/definitions/passives/chain_lightning_passive.gd" id="2_uf3oi"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="3_73inp"]
+
+[sub_resource type="Resource" id="Resource_ku6hh"]
+script = ExtResource("2_uf3oi")
+every_hits = 5
+jumps = 2
+damage_multiplier = 0.4
+
+[resource]
+script = ExtResource("3_73inp")
+slots = 1
+passives = Array[ExtResource("1_4fqtp")]([SubResource("Resource_ku6hh")])
+id = &"shocking"
+display_name = "Shocking"
+description = "Every 5th hit, lightning jumps to 2 enemies."
+min_depth = 2
+spawn_weight = 5

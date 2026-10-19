@@ -179,6 +179,7 @@ func place_player(new_player: Player) -> void:
 	player.global_position = map.cell_to_world(map.start_cell)
 	player.temperature.reset()
 	player.reset_safe_position()
+	player.perks.on_floor_started(player)
 	player.camera.reset_smoothing()
 
 

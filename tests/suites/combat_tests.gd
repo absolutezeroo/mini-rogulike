@@ -253,6 +253,67 @@ func _test_synergies_in_game(game: Game, world: World, player: Player) -> void:
 	check(near_hero.size() >= 8, "Arcane: a skill also fires a ring of bolts (%d)" % near_hero.size())
 	player.perks.clear()
 
+	# Stat perks that now do something: Precision opens with a crit, Swiftness hits harder
+	# after a roll, Iron Skin throws enemies back, the Guardian Ring wards every floor.
+	player.perks.add(_perk("precision"))
+	var opener := HitInfo.new()
+	opener.amount = 10
+	opener.source = player
+	slime.hp = slime.get_max_hp()
+	player.perks.modify_outgoing_hit(player, slime, opener)
+	check(opener.is_crit and opener.amount > 10, "Precision: the first blow on an unhurt enemy is a crit")
+	player.perks.clear()
+	player.perks.add(_perk("swiftness"))
+	var after_roll := HitInfo.new()
+	after_roll.amount = 20
+	after_roll.source = player
+	player.perks.on_dash(player)
+	player.perks.modify_outgoing_hit(player, slime, after_roll)
+	check(after_roll.amount > 20, "Swiftness: hits right after a roll deal more")
+	player.perks.clear()
+	player.perks.add(_perk("iron_skin"))
+	var pushed := world.spawn_monster(load("res://data/monsters/rat.tres"), player.global_position + Vector2(36, 0))
+	pushed.dormant = true
+	await _frames(1)
+	var pushed_hp := pushed.hp
+	var bite := HitInfo.new()
+	bite.amount = 3
+	bite.source = pushed
+	player._invulnerable_time = 0.0
+	player.take_hit(bite)
+	check(pushed.is_dead or pushed.hp < pushed_hp, "Iron Skin: getting hit throws enemies back")
+	player.perks.clear()
+	player.perks.add(_perk("guardian_ring"))
+	player.ward = 0
+	player.perks.on_floor_started(player)
+	check(player.ward >= 20, "Guardian Ring: every floor starts with a ward")
+	player.ward = 0
+	player.perks.clear()
+
+	# Gear affixes that do something: a Vampiric weapon heals on kill.
+	var weapon_before := player.get_weapon()
+	var vampiric: ItemAffixDef = load("res://data/affixes/vampiric.tres")
+	var affixes: Array[ItemAffixDef] = [vampiric]
+	var fang := LootRoller.make(weapon_before.base_item if weapon_before.base_item else weapon_before, ItemRarity.MAGIC, affixes)
+	player.equipment.equip(fang)
+	check(fang.get_details().contains(vampiric.description), "the item says what its affix does")
+	player.hp = 5
+	var prey := world.spawn_monster(load("res://data/monsters/rat.tres"), spot)
+	prey.dormant = true
+	await _frames(1)
+	var bite_back := HitInfo.new()
+	bite_back.amount = 9999
+	bite_back.source = player
+	prey.take_hit(bite_back)
+	check(player.hp > 5, "a Vampiric weapon heals on kill")
+	player.equipment.equip(weapon_before)
+	player.hp = 5
+	var prey2 := world.spawn_monster(load("res://data/monsters/rat.tres"), spot)
+	prey2.dormant = true
+	await _frames(1)
+	prey2.take_hit(bite_back)
+	check(player.hp == 5, "taken off, it stops")
+
 	# Blood: wounded you hit harder, kills heal.
 	for id in ["vampirism", "strength", "vitality"]:
 		player.perks.add(_perk(id))
@@ -557,6 +618,7 @@ func _test_review_fixes(game: Game) -> void:
 	var world: World = game.world
 	await _clear_monsters(world)
 	player.hp = player.get_max_hp()
+	player.ward = 0  # a Guardian Ring taken earlier would soak the burn
 
 	# A burn tick doesn't make the hero invulnerable (or monsters' hits would be swallowed).
 	player._invulnerable_time = 0.0

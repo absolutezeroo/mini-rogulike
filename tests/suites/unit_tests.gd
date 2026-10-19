@@ -380,6 +380,14 @@ func _test_perks() -> void:
 ## Perk families: sound data, waking at 3 different perks, saved and loaded.
 func _test_synergies() -> void:
 	check(CONTENT.synergies.size() >= 5, "at least 5 perk families")
+	# Choices that change how you play, not just numbers.
+	var doers := CONTENT.perks.filter(func(p: PerkDef) -> bool: return not p.passives.is_empty())
+	check(doers.size() * 3 >= CONTENT.perks.size() * 2, "two perks in three do something (%d/%d)" % [doers.size(), CONTENT.perks.size()])
+	var active_affixes := CONTENT.item_affixes.filter(func(a: ItemAffixDef) -> bool: return a.on_hit != null or not a.passives.is_empty())
+	check(active_affixes.size() * 3 >= CONTENT.item_affixes.size(), "a third of the affixes do something (%d/%d)" % [active_affixes.size(), CONTENT.item_affixes.size()])
+	for affix in CONTENT.item_affixes:
+		if not affix.passives.is_empty():
+			check(not affix.description.is_empty(), "%s says what it does" % affix.id)
 	var members := {}
 	for perk in CONTENT.perks:
 		for synergy in perk.synergies:

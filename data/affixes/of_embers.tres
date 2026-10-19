@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="ItemAffixDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="1_fxish"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="2_8xws5"]
+[ext_resource type="Script" path="res://src/definitions/passives/kill_burst_passive.gd" id="3_ca7df"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="4_4m12d"]
+
+[sub_resource type="Resource" id="Resource_ittn7"]
+script = ExtResource("2_8xws5")
+burn_damage = 2
+
+[sub_resource type="Resource" id="Resource_k21oc"]
+script = ExtResource("3_ca7df")
+condition = 1
+blast_radius = 55.0
+blast_damage = 0.5
+blast_status = SubResource("Resource_ittn7")
+
+[resource]
+script = ExtResource("4_4m12d")
+is_prefix = false
+slots = 1
+passives = Array[ExtResource("1_fxish")]([SubResource("Resource_k21oc")])
+id = &"of_embers"
+display_name = "of Embers"
+description = "Enemies that die burning explode."
+min_depth = 3
+spawn_weight = 5

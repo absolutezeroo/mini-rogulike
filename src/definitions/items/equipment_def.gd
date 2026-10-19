@@ -40,4 +40,7 @@ func get_details() -> String:
 		var bonus_text := bonuses.describe()
 		if not bonus_text.is_empty():
 			text += "\n" + bonus_text
+	for affix in affixes:
+		if affix and not affix.description.is_empty():
+			text += "\n" + affix.description
 	return text

@@ -27,6 +27,14 @@ func unequip(slot: EquipmentDef.Slot) -> EquipmentDef:
 	return previous
 
 
+## The affixes of everything worn (rolled gear).
+func affixes() -> Array[ItemAffixDef]:
+	var result: Array[ItemAffixDef] = []
+	for item: EquipmentDef in _slots.values():
+		result.append_array(item.affixes)
+	return result
+
+
 func total_bonuses() -> StatBlock:
 	var total := StatBlock.new()
 	for item: EquipmentDef in _slots.values():

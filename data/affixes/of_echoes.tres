@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="ItemAffixDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="1_2qiaa"]
+[ext_resource type="Script" path="res://src/definitions/passives/skill_echo_passive.gd" id="2_tqe3t"]
+[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="3_78osl"]
+
+[sub_resource type="Resource" id="Resource_lpfub"]
+script = ExtResource("2_tqe3t")
+chance_per_stack = 0.1
+
+[resource]
+script = ExtResource("3_78osl")
+is_prefix = false
+slots = 6
+passives = Array[ExtResource("1_2qiaa")]([SubResource("Resource_lpfub")])
+id = &"of_echoes"
+display_name = "of Echoes"
+description = "Skills have a 10% chance to be ready again at once."
+min_depth = 3
+spawn_weight = 5
