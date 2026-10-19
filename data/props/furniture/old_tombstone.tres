@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_uwnu5"]
+[ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="2_jcclo"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_a83te"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yi37w"]
+atlas = ExtResource("2_jcclo")
+region = Rect2(80, 32, 16, 16)
+
+[resource]
+script = ExtResource("3_a83te")
+hits = 3
+debris_color = Color(0.62, 0.6, 0.6, 1)
+break_sound = ExtResource("1_uwnu5")
+id = &"old_tombstone"
+display_name = "Old Tombstone"
+icon = SubResource("AtlasTexture_yi37w")
+glyph = "F"
+color = Color(0.62, 0.6, 0.6, 1)

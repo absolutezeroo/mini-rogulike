@@ -148,6 +148,22 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   - **Crumbling floor**: cracked tiles that hold until someone stands on them, then give way.
   - **Quicksand** (ruins) and **mud** (caves): very slow to cross, and they hurt if you stay.
   - Hazards are never placed where they could cut the stairs off.
+- **Themed rooms** (`data/rooms/`, `RoomTemplateDef`): some rooms (25%, `themed_room_chance`)
+  take a style from their act's list (`ActDef.room_templates`): **pillared hall**, **colonnade**,
+  **ruined library** (bookshelves along the walls: break them, a spell scroll or a tome may fall
+  out), **overgrown garden**, **flooded hall** (a pool of still water), **crypt** (rows of graves,
+  bones), **shrine** (a statue between glowing orbs). A template is a list of features
+  (`src/definitions/rooms/`): `PillarsFeature` (columns in a grid, two rows or a ring),
+  `PatchFeature` (another floor: framed tiles or a blob of grass), `PondFeature`, `PropsFeature`
+  (furniture against the top wall, the walls, in the middle, in rows, in the corners, scattered:
+  random kinds, random count) and `DecorFeature` (bones, flowers, cracks). Furniture are props
+  bigger than a cell (`PropDef.footprint`, `data/props/furniture/`). Never two alike, and the way
+  through always stays open (the ring along the walls and corridor mouths are kept free).
+- **Themed floors** (`data/rooms/floors/`, `FloorThemeDef`): now and then (25%,
+  `themed_floor_chance`, never the first floor nor a boss's) a whole floor has one style, announced
+  on arrival: **The Great Library**, **Necropolis**, **Sunken Halls**, **Forgotten Gardens**,
+  **Pillared Temple**. Most of its rooms take one of its templates (`room_chance`); the merchant's
+  room always stays plain. Each act has its own (`ActDef.floor_themes`); it may be cursed too.
 - **Chests** (`data/chests/`): walk up to one to open it. Some are trapped: they blow up or let
   monsters out (and keep only one item). A trapped chest rattles now and then...
 - **Curses** (`data/curses/`, `CurseDef`): the Well curses a whole floor. Never the first floor nor
@@ -511,6 +527,9 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 | An elite affix | New `EliteAffixDef` in `data/elites/` (name, color, a perk), add it to `content_db.tres` > Elite Affixes |
 | A chest | New `ChestDef` in `data/chests/`, set it in `dungeon_config.tres` > Chests |
 | A special floor | New `FloorEventDef` in `data/floor_events/`, add it to `content_db.tres` > Floor Events |
+| A themed room | New `RoomTemplateDef` in `data/rooms/` (sizes, features), add it to an act's Room Templates and/or a themed floor's Rooms |
+| A themed floor | New `FloorThemeDef` in `data/rooms/floors/` (name, line, color, rooms), add it to an act's Floor Themes |
+| Furniture | New `PropDef` in `data/props/furniture/` (an atlas region of `assets/tiles/furniture.png` or `ruins.png`, a footprint), used by a `PropsFeature` |
 | A curse | New `CurseDef` in `data/curses/` (temperature, campfires or springs, darkness, look, lore), add it to `content_db.tres` > Curses |
 | Another boss for an act | New `BossDef`, add it to the act's Other Bosses |
 | An encounter | New `EncounterDef` in `data/encounters/` (choices, costs, outcomes), add it to `content_db.tres` > Encounters |
@@ -547,6 +566,8 @@ In debug builds only (running from the Godot editor, on the phone too, or a debu
   next to the stairs, reveal the map. Jumped-to floors are plain unless you choose:
 - **Curse** (Frostbound, Ashen Breath, Lanternless) or **floor event**: rebuilds the floor with it
   (`World.forced_curse` / `forced_event`), its card included.
+- **Themed floor** (`World.forced_floor_theme`) or **themed room**: rebuilds the floor with it; a
+  themed room goes in every room it fits (`World.forced_room`).
 - **Hero**: god mode (nothing hurts), full heal, +500 gold, level up, an Epic weapon, every
   consumable, freezing / burning / normal temperature.
 - **Monsters**: pick any monster or boss and spawn it (or an elite one), kill all, put all asleep.
@@ -569,7 +590,7 @@ The suites (`tests/suites/`, each a `TestSuite`):
 - **game**: a bot plays the real game (kills, level ups and perk choices, stairs, death and
   restart, saving and resuming), then on that same game: **combat** (projectiles, perks, skills,
   monsters and their traits, difficulty, weapons), **floor** (props, hazards, chests, ambushes,
-  encounters, the merchant, loot, curses, act cards, the belt) and **boss** (a full boss fight
+  encounters, the merchant, loot, curses, themed rooms and floors, act cards, the belt) and **boss** (a full boss fight
   with its phases and relic, then winning the run).
 
 The exit code is the number of failures.

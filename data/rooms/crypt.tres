@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="RoomTemplateDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/rooms/room_feature.gd" id="1_6bhag"]
+[ext_resource type="Script" path="res://src/definitions/rooms/patch_feature.gd" id="2_uprig"]
+[ext_resource type="Texture2D" path="res://assets/tiles/interior_floor.png" id="3_s12qe"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="4_swtnt"]
+[ext_resource type="Resource" path="res://data/props/furniture/tombstone.tres" id="5_c2oah"]
+[ext_resource type="Resource" path="res://data/props/furniture/old_tombstone.tres" id="6_cghne"]
+[ext_resource type="Resource" path="res://data/props/furniture/grave_cross.tres" id="7_gjut8"]
+[ext_resource type="Script" path="res://src/definitions/rooms/props_feature.gd" id="8_45k2m"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="9_kex71"]
+[ext_resource type="Script" path="res://src/definitions/rooms/decor_feature.gd" id="10_408v6"]
+[ext_resource type="Script" path="res://src/definitions/rooms/room_template_def.gd" id="11_k4fmf"]
+
+[sub_resource type="Resource" id="Resource_ksisj"]
+script = ExtResource("2_uprig")
+tiles = ExtResource("3_s12qe")
+region = Rect2i(176, 192, 48, 48)
+fill_min = Vector2(0.6, 0.6)
+fill_max = Vector2(0.85, 0.85)
+
+[sub_resource type="Resource" id="Resource_y18s1"]
+script = ExtResource("8_45k2m")
+props = Array[ExtResource("4_swtnt")]([ExtResource("5_c2oah"), ExtResource("6_cghne"), ExtResource("7_gjut8")])
+placement = 4
+count = Vector2i(4, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mt3e0"]
+atlas = ExtResource("9_kex71")
+region = Rect2(208, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_67nti"]
+atlas = ExtResource("9_kex71")
+region = Rect2(224, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nynjj"]
+atlas = ExtResource("9_kex71")
+region = Rect2(224, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_wjhxm"]
+script = ExtResource("10_408v6")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_mt3e0"), SubResource("AtlasTexture_67nti"), SubResource("AtlasTexture_nynjj")])
+
+[resource]
+script = ExtResource("11_k4fmf")
+features = Array[ExtResource("1_6bhag")]([SubResource("Resource_ksisj"), SubResource("Resource_y18s1"), SubResource("Resource_wjhxm")])
+id = &"crypt"
+display_name = "Crypt"
+min_depth = 2

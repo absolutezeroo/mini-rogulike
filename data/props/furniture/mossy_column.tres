@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_xolfm"]
+[ext_resource type="Texture2D" path="res://assets/tiles/ruins.png" id="2_tvuty"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_j7owt"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1h6e7"]
+atlas = ExtResource("2_tvuty")
+region = Rect2(32, 48, 16, 48)
+
+[resource]
+script = ExtResource("3_j7owt")
+hits = 0
+debris_color = Color(0.62, 0.6, 0.6, 1)
+break_sound = ExtResource("1_xolfm")
+id = &"mossy_column"
+display_name = "Mossy Column"
+icon = SubResource("AtlasTexture_1h6e7")
+glyph = "F"
+color = Color(0.62, 0.6, 0.6, 1)

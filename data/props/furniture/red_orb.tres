@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_4m6m7"]
+[ext_resource type="Texture2D" path="res://assets/tiles/dungeon.png" id="2_ugusf"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_cxpgd"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qng4v"]
+atlas = ExtResource("2_ugusf")
+region = Rect2(96, 32, 16, 16)
+
+[resource]
+script = ExtResource("3_cxpgd")
+hits = 0
+debris_color = Color(0.62, 0.6, 0.6, 1)
+break_sound = ExtResource("1_4m6m7")
+light_color = Color(1, 0.45, 0.3, 0.9)
+light_radius = 150.0
+id = &"red_orb"
+display_name = "Red Orb"
+icon = SubResource("AtlasTexture_qng4v")
+glyph = "F"
+color = Color(0.62, 0.6, 0.6, 1)

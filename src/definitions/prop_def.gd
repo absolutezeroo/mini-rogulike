@@ -1,8 +1,11 @@
 class_name PropDef
 extends ContentDef
-## An object standing in the dungeon: crates and pots to break, explosive barrels, lanterns...
-## `icon` is its sprite (16x16, drawn at 2x). Props block movement, sight and projectiles.
+## An object standing in the dungeon: crates and pots to break, explosive barrels, lanterns,
+## furniture of themed rooms... `icon` is its sprite (drawn at 2x, standing on the bottom of its
+## footprint). Props block movement, sight and projectiles.
 
+## Cells it stands on (a bookshelf 2x2, a long table 3x1...): all blocked.
+@export var footprint: Vector2i = Vector2i.ONE
 ## Hits needed to break it. 0 = unbreakable.
 @export_range(0, 20) var hits: int = 1
 @export var loot: LootTable

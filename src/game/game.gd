@@ -313,6 +313,9 @@ func _announce_floor() -> void:
 	if world.floor_event:
 		hud.show_banner(world.floor_event.display_name, world.floor_event.color)
 		Events.log_message(world.floor_event.description, world.floor_event.color)
+	if world.floor_theme:
+		hud.show_banner(world.floor_theme.display_name, world.floor_theme.color)
+		Events.log_message(world.floor_theme.description, world.floor_theme.color)
 	if world.curse:
 		if not show_act_cards:
 			hud.show_banner(world.curse.display_name, world.curse.color)

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FloorThemeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/rooms/room_template_def.gd" id="1_hqiew"]
+[ext_resource type="Resource" path="res://data/rooms/pillar_hall.tres" id="2_5uggk"]
+[ext_resource type="Resource" path="res://data/rooms/colonnade.tres" id="3_tdjcv"]
+[ext_resource type="Resource" path="res://data/rooms/shrine.tres" id="4_60i3m"]
+[ext_resource type="Script" path="res://src/definitions/rooms/floor_theme_def.gd" id="5_ehfvu"]
+
+[resource]
+script = ExtResource("5_ehfvu")
+rooms = Array[ExtResource("1_hqiew")]([ExtResource("2_5uggk"), ExtResource("3_tdjcv"), ExtResource("3_tdjcv"), ExtResource("4_60i3m")])
+id = &"pillared_temple"
+display_name = "Pillared Temple"
+description = "Halls of columns raised for a god nobody remembers."
+color = Color(1, 0.85, 0.55, 1)
+min_depth = 2

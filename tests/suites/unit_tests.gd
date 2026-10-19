@@ -6,6 +6,7 @@ func run() -> void:
 	_test_stat_block()
 	_test_combat_rules()
 	_test_content()
+	_test_room_content()
 	_test_generation()
 	_test_inventory_and_equipment()
 	_test_perks()
@@ -155,6 +156,38 @@ func _test_generation() -> void:
 		for x in map.width:
 			check(not map.is_floor(Vector2i(x, 0)) and not map.is_floor(Vector2i(x, map.height - 1)), "closed border")
 			break
+
+
+## Themed rooms and floors: every act has some, each one complete; furniture drawn and solid.
+func _test_room_content() -> void:
+	var templates := {}
+	for act in CONTENT.dungeon.acts:
+		check(act.room_templates.size() >= 4, "%s has themed rooms (%d)" % [act.title, act.room_templates.size()])
+		check(act.floor_themes.size() >= 3, "%s has themed floors (%d)" % [act.title, act.floor_themes.size()])
+		for theme in act.floor_themes:
+			check(theme != null and not theme.rooms.is_empty() and not theme.description.is_empty(), "themed floor %s is complete" % theme.id)
+			check(theme.min_depth >= 2, "%s: never the very first floor" % theme.id)
+			for template in theme.rooms:
+				templates[template] = true
+		for template in act.room_templates:
+			templates[template] = true
+	check(templates.size() >= 6, "at least 6 kinds of themed rooms (%d)" % templates.size())
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	for template: RoomTemplateDef in templates:
+		check(not template.features.is_empty() and not template.features.has(null), "%s has its features" % template.id)
+		check(template.fits(Rect2i(0, 0, 13, 13)), "%s fits a big room" % template.id)
+		check(not template.fits(Rect2i(0, 0, 4, 4)), "%s never squeezed in a closet" % template.id)
+		check(RoomTemplateDef.pick([template], Rect2i(0, 0, 4, 4), 9, rng) == null, "%s: picked only where it fits" % template.id)
+		for feature in template.features:
+			if feature is PropsFeature:
+				for prop in (feature as PropsFeature).props:
+					check(prop.icon != null and prop.footprint.x >= 1 and prop.footprint.y >= 1, "%s: %s drawn, with a footprint" % [template.id, prop.id])
+			elif feature is PillarsFeature:
+				check((feature as PillarsFeature).pillar != null, "%s: its columns have a look" % template.id)
+			elif feature is PondFeature:
+				var pond := (feature as PondFeature).pond
+				check(pond != null and pond.pond != null and pond.heat == 0.0 and not pond.comfort, "%s: plain water, neither warm nor cold" % template.id)
 
 
 func _bad_wall_cells(map: DungeonMap) -> Array[Vector2i]:

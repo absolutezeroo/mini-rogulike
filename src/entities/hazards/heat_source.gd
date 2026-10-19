@@ -44,7 +44,7 @@ func setup(source_def: HeatSourceDef, floor_world: World, cells: Rect2i) -> void
 		look.set_shader_parameter("area", Vector4(world_area.position.x, world_area.position.y, world_area.size.x, world_area.size.y))
 		look.set_shader_parameter("edge", ts)
 		material = look
-	else:
+	elif def.pond == null:
 		_cracks = _make_cracks(world.rng)
 	if def.pond:
 		_make_pond(ts)
@@ -98,6 +98,8 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	if def.comfort:
 		_draw_campfire()
+	elif def.pond:
+		_draw_pond()  # plain water: a flooded hall's pool...
 	elif def.ground_shader:
 		draw_rect(area, Color.WHITE)
 	else:
@@ -136,18 +138,11 @@ func _draw_campfire() -> void:
 ## The pond: each cell takes the shore tile matching its place (corner, edge, water), then
 ## ripples here and there.
 func _draw_pond() -> void:
-	var ts := float(world.map.tile_size)
 	for blob in _ground_blobs:
 		draw_circle(Vector2(blob.x, blob.y), blob.z, def.pond_ground.darkened(0.25))
 	for blob in _ground_blobs:
 		draw_circle(Vector2(blob.x, blob.y), blob.z - 3.0, def.pond_ground)
-	var tile := def.pond.get_width() / 3.0
-	for y in rect.size.y:
-		for x in rect.size.x:
-			var column := 0 if x == 0 else (2 if x == rect.size.x - 1 else 1)
-			var row := 0 if y == 0 else (2 if y == rect.size.y - 1 else 1)
-			var at := area.position + Vector2(x, y) * ts
-			draw_texture_rect_region(def.pond, Rect2(at, Vector2(ts, ts)), Rect2(column * tile, row * tile, tile, tile))
+	NineSlice.draw(self, def.pond, Rect2i(Vector2i.ZERO, def.pond.get_size()), area, rect.size, float(world.map.tile_size))
 	for ripple in _ripples:
 		var t := fposmod(_time * 0.5 + ripple.z, 1.0)
 		var center := Vector2(ripple.x, ripple.y)

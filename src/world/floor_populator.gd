@@ -1,7 +1,27 @@
 class_name FloorPopulator
-## Fills a freshly generated floor: lights, props and hazards first (they claim their cells),
-## then the ambush room, chests, monsters and items on the free cells.
-## The first room is where the player starts: no monsters or hazards there.
+## Fills a freshly generated floor: the merchant, lights, themed rooms, props and hazards first
+## (they claim their cells), then the ambush room, chests, monsters and items on the free cells.
+## The first room is where the player starts: no monsters, hazards or theme there.
+
+
+## Picks the themed rooms of a new floor: room index -> RoomTemplateDef, furnished by populate().
+## A themed floor (world.floor_theme) themes most rooms; others only a few, from the act's list.
+## `forced` (debug): that theme in every room it fits in.
+static func pick_rooms(world: World, content: ContentDB, depth: int, forced: RoomTemplateDef = null) -> Dictionary:
+	var themes := {}
+	var act := content.dungeon.act_for_depth(depth)
+	var map := world.map
+	for i in range(1, map.rooms.size()):
+		var template: RoomTemplateDef
+		if forced:
+			template = forced if forced.fits(map.rooms[i]) else null
+		elif world.floor_theme:
+			template = world.floor_theme.pick_room(map.rooms[i], depth, world.rng)
+		elif act and world.rng.randf() < content.dungeon.themed_room_chance:
+			template = act.pick_room_template(map.rooms[i], depth, world.rng)
+		if template:
+			themes[i] = template
+	return themes
 
 
 static func populate(world: World, content: ContentDB, depth: int) -> void:
@@ -11,20 +31,32 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 	var taken := {}  # cells used by props and hazards
 	_reserve_around(taken, map.start_cell, 2)
 	_reserve_around(taken, map.stairs_cell, 1)
-	for room in map.rooms:
-		place_lights(world, config, room, taken)
 	if map.rooms.size() < 2:
+		for room in map.rooms:
+			place_lights(world, config, room, taken)
 		return
 
-	# The merchant waits in a quiet room (no monsters, no hazards, no props around).
+	# The merchant waits in a quiet room (no monsters, no hazards, no props around), plain if
+	# possible: on a themed floor, his room loses its theme.
 	var event := world.floor_event
 	var merchant_index := -1
 	if config.merchant and (rng.randf() < config.merchant_chance or (event and event.merchant)):
-		merchant_index = _pick_quiet_room(map, rng, -1)
+		merchant_index = _pick_quiet_room(map, rng, -1, world.room_themes)
+		if merchant_index < 0:
+			merchant_index = _pick_quiet_room(map, rng, -1)
 		if merchant_index >= 0:
+			world.room_themes.erase(merchant_index)
 			var cell := map.rooms[merchant_index].get_center()
 			world.spawn_merchant(config.merchant, cell)
-			_reserve_rect(taken, map.rooms[merchant_index])
+			_reserve_around(taken, cell, 1)
+
+	for room in map.rooms:
+		place_lights(world, config, room, taken)
+	# Themed rooms next: their furniture has its places (along the top wall...), around the lanterns.
+	for i: int in world.room_themes:
+		(world.room_themes[i] as RoomTemplateDef).furnish(world, map.rooms[i], taken)
+	if merchant_index >= 0:
+		_reserve_rect(taken, map.rooms[merchant_index])  # nothing else in his room
 
 	# Springs, altars, statues: in the middle of a room, before anything else claims it.
 	var encounter_count := rng.randi_range(config.encounters_min, config.encounters_max)
@@ -32,17 +64,24 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 		encounter_count += event.extra_encounters
 	for n in encounter_count:
 		var encounter := ContentDB.pick_from(content.encounters, depth, rng) as EncounterDef
-		var index := rng.randi_range(1, map.rooms.size() - 1)
-		var cell := map.rooms[index].get_center()
-		if encounter and index != merchant_index and not taken.has(cell):
-			world.spawn_encounter(encounter, cell)
-			_reserve_around(taken, cell, 1)
+		if encounter == null:
+			continue
+		# A few tries: a themed room's middle may hold a statue, a pond...
+		for attempt in 4:
+			var index := rng.randi_range(1, map.rooms.size() - 1)
+			var cell := map.rooms[index].get_center()
+			if index != merchant_index and not taken.has(cell) and map.is_floor(cell) and not world.nav.is_blocked(cell):
+				world.spawn_encounter(encounter, cell)
+				_reserve_around(taken, cell, 1)
+				break
 
 	if world.curse:
 		place_curse(world, world.curse, taken)
 
 	for i in map.rooms.size():
-		_place_props(world, content, depth, map.rooms[i], taken)
+		var themed: RoomTemplateDef = world.room_themes.get(i)
+		if themed == null or themed.keep_props:
+			_place_props(world, content, depth, map.rooms[i], taken)
 	var act := config.act_for_depth(depth)
 	if act:
 		var hazard_groups := rng.randi_range(config.hazard_groups_min, config.hazard_groups_max)
@@ -68,7 +107,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 			# A few tries: some rooms have no free spot along their walls.
 			for attempt in 6:
 				var room := map.rooms[rng.randi_range(1, map.rooms.size() - 1)]
-				var cells := _shuffled(_edge_cells(map, room, taken), rng)
+				var cells := _shuffled(edge_cells(map, room, taken), rng)
 				if not cells.is_empty():
 					world.spawn_chest(config.chest, cells[0], rng.randf() < config.chest.trapped_chance)
 					_reserve_around(taken, cells[0], 1)
@@ -121,11 +160,11 @@ static func place_curse(world: World, curse: CurseDef, taken: Dictionary) -> voi
 
 
 ## A big enough room, not the first one, without the stairs and not `except` (-1 if none).
-static func _pick_quiet_room(map: DungeonMap, rng: RandomNumberGenerator, except: int) -> int:
+static func _pick_quiet_room(map: DungeonMap, rng: RandomNumberGenerator, except: int, themed: Dictionary = {}) -> int:
 	var candidates: Array[int] = []
 	for i in range(1, map.rooms.size()):
 		var room := map.rooms[i]
-		if i != except and room.size.x >= 7 and room.size.y >= 7 and not room.grow(1).has_point(map.stairs_cell):
+		if i != except and not themed.has(i) and room.size.x >= 7 and room.size.y >= 7 and not room.grow(1).has_point(map.stairs_cell):
 			candidates.append(i)
 	return candidates[rng.randi_range(0, candidates.size() - 1)] if not candidates.is_empty() else -1
 
@@ -134,7 +173,7 @@ static func _pick_quiet_room(map: DungeonMap, rng: RandomNumberGenerator, except
 static func place_lights(world: World, config: DungeonConfig, room: Rect2i, taken: Dictionary) -> void:
 	if config.room_light == null:
 		return
-	var cells := _edge_cells(world.map, room, taken)
+	var cells := edge_cells(world.map, room, taken)
 	var placed: Array[Vector2i] = []
 	for cell in _shuffled(cells, world.rng):
 		if placed.size() >= config.lights_per_room:
@@ -152,7 +191,7 @@ static func _place_props(world: World, content: ContentDB, depth: int, room: Rec
 	var rng := world.rng
 	var config := content.dungeon
 	var clusters := rng.randi_range(config.prop_clusters_min, config.prop_clusters_max)
-	var cells := _shuffled(_edge_cells(world.map, room, taken), rng)
+	var cells := _shuffled(edge_cells(world.map, room, taken), rng)
 	for n in mini(clusters, cells.size()):
 		var start: Vector2i = cells[n]
 		if taken.has(start):
@@ -170,7 +209,7 @@ static func _place_props(world: World, content: ContentDB, depth: int, room: Rec
 
 
 ## Floor cells of the room touching a wall, away from doorways.
-static func _edge_cells(map: DungeonMap, room: Rect2i, taken: Dictionary) -> Array[Vector2i]:
+static func edge_cells(map: DungeonMap, room: Rect2i, taken: Dictionary) -> Array[Vector2i]:
 	var cells: Array[Vector2i] = []
 	for y in range(room.position.y, room.end.y):
 		for x in range(room.position.x, room.end.x):
@@ -188,13 +227,17 @@ static func _is_edge(map: DungeonMap, room: Rect2i, cell: Vector2i) -> bool:
 		touches_wall = touches_wall or not map.is_floor(cell + dir)
 	if not touches_wall:
 		return false
-	# Next to a corridor mouth (floor outside the room): would block the way.
+	return not near_doorway(map, room, cell)
+
+
+## Next to a corridor mouth (floor outside the room): something there would block the way.
+static func near_doorway(map: DungeonMap, room: Rect2i, cell: Vector2i) -> bool:
 	for dy in range(-2, 3):
 		for dx in range(-2, 3):
 			var near := cell + Vector2i(dx, dy)
 			if map.is_floor(near) and not room.has_point(near):
-				return false
-	return true
+				return true
+	return false
 
 
 static func _reserve_rect(taken: Dictionary, rect: Rect2i) -> void:
@@ -219,7 +262,7 @@ static func _shuffled(cells: Array[Vector2i], rng: RandomNumberGenerator) -> Arr
 static func _free_point_in(map: DungeonMap, room: Rect2i, rng: RandomNumberGenerator, taken: Dictionary) -> Vector2:
 	var cell := map.random_cell_in(room, rng)
 	for attempt in 12:
-		if not taken.has(cell):
+		if not taken.has(cell) and map.is_floor(cell):  # pillars of a themed room are walls
 			break
 		cell = map.random_cell_in(room, rng)
 	var jitter := Vector2(rng.randf_range(-8.0, 8.0), rng.randf_range(-8.0, 8.0))

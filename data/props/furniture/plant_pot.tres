@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_p0y6y"]
+[ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="2_xuejk"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_are72"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nmwb7"]
+atlas = ExtResource("2_xuejk")
+region = Rect2(0, 112, 16, 32)
+
+[resource]
+script = ExtResource("3_are72")
+debris_color = Color(0.8, 0.45, 0.3, 1)
+break_sound = ExtResource("1_p0y6y")
+id = &"plant_pot"
+display_name = "Potted Plant"
+icon = SubResource("AtlasTexture_nmwb7")
+glyph = "F"
+color = Color(0.8, 0.45, 0.3, 1)

@@ -112,7 +112,8 @@ func _spawn_point() -> Vector2:
 	var player_position := _world.player.global_position
 	var point := _world.map.cell_to_world(_world.map.random_cell_in(room, _world.rng))
 	for attempt in 10:
-		if point.distance_to(player_position) >= MIN_SPAWN_DISTANCE and _world.is_solid_ground(point):
+		if point.distance_to(player_position) >= MIN_SPAWN_DISTANCE and _world.is_solid_ground(point) \
+				and not _world.nav.is_blocked(_world.map.world_to_cell(point)):  # furniture, water
 			break
 		point = _world.map.cell_to_world(_world.map.random_cell_in(room, _world.rng))
 	return point

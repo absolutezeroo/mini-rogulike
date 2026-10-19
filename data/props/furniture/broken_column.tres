@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_npytb"]
+[ext_resource type="Texture2D" path="res://assets/tiles/ruins.png" id="2_k7rcr"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_dosnc"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bdhq1"]
+atlas = ExtResource("2_k7rcr")
+region = Rect2(48, 64, 16, 32)
+
+[resource]
+script = ExtResource("3_dosnc")
+hits = 0
+debris_color = Color(0.62, 0.6, 0.6, 1)
+break_sound = ExtResource("1_npytb")
+id = &"broken_column"
+display_name = "Broken Column"
+icon = SubResource("AtlasTexture_bdhq1")
+glyph = "F"
+color = Color(0.62, 0.6, 0.6, 1)

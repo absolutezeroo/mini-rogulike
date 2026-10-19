@@ -3,14 +3,19 @@
 [ext_resource type="Resource" path="res://data/monsters/bosses/crimson_tengu.tres" id="1_jy0od"]
 [ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_0pn66"]
 [ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="2_7pb75"]
+[ext_resource type="Script" path="res://src/definitions/rooms/floor_theme_def.gd" id="2_uwl5f"]
+[ext_resource type="Resource" path="res://data/rooms/floors/great_library.tres" id="3_4caaf"]
 [ext_resource type="Resource" path="res://data/hazards/flame_vent.tres" id="3_pcd8x"]
 [ext_resource type="Resource" path="res://data/monsters/shaman.tres" id="3_vlwa2"]
 [ext_resource type="Resource" path="res://data/monsters/cyclops.tres" id="4_7j4pw"]
+[ext_resource type="Resource" path="res://data/rooms/floors/pillared_temple.tres" id="4_7s7ra"]
 [ext_resource type="Resource" path="res://data/hazards/arrow_trap.tres" id="4_k1810"]
 [ext_resource type="Resource" path="res://data/monsters/flam.tres" id="5_lokq4"]
+[ext_resource type="Resource" path="res://data/rooms/floors/forgotten_gardens.tres" id="5_mikqt"]
 [ext_resource type="Resource" path="res://data/hazards/quicksand.tres" id="5_pa3y5"]
 [ext_resource type="Resource" path="res://data/hazards/crumbling_floor.tres" id="6_0hwi7"]
 [ext_resource type="Resource" path="res://data/monsters/reptile.tres" id="6_b4bba"]
+[ext_resource type="Resource" path="res://data/rooms/floors/necropolis.tres" id="6_qxi6t"]
 [ext_resource type="Resource" path="res://data/hazards/pit.tres" id="7_4gi1q"]
 [ext_resource type="Resource" path="res://data/monsters/beast.tres" id="7_7pb75"]
 [ext_resource type="Resource" path="res://data/monsters/dragon.tres" id="8_pcd8x"]
@@ -24,6 +29,13 @@
 [ext_resource type="Resource" path="res://data/monsters/bosses/red_samurai.tres" id="19_pa3y5"]
 [ext_resource type="Resource" path="res://data/monsters/brood_mother.tres" id="19_uago2"]
 [ext_resource type="Resource" path="res://data/monsters/shell_guard.tres" id="20_1k2vl"]
+[ext_resource type="Script" path="res://src/definitions/rooms/room_template_def.gd" id="28_kadu2"]
+[ext_resource type="Resource" path="res://data/rooms/pillar_hall.tres" id="29_je2jk"]
+[ext_resource type="Resource" path="res://data/rooms/colonnade.tres" id="30_elb2c"]
+[ext_resource type="Resource" path="res://data/rooms/ruined_library.tres" id="31_k5uph"]
+[ext_resource type="Resource" path="res://data/rooms/indoor_garden.tres" id="32_istuk"]
+[ext_resource type="Resource" path="res://data/rooms/crypt.tres" id="33_nek3j"]
+[ext_resource type="Resource" path="res://data/rooms/shrine.tres" id="34_lub7m"]
 
 [resource]
 script = ExtResource("12_4gi1q")
@@ -35,3 +47,5 @@ monsters = Array[ExtResource("2_0pn66")]([ExtResource("3_vlwa2"), ExtResource("4
 boss = ExtResource("1_jy0od")
 other_bosses = Array[ExtResource("18_k1810")]([ExtResource("19_pa3y5")])
 hazards = Array[ExtResource("2_7pb75")]([ExtResource("3_pcd8x"), ExtResource("4_k1810"), ExtResource("5_pa3y5"), ExtResource("6_0hwi7"), ExtResource("7_4gi1q")])
+room_templates = Array[ExtResource("28_kadu2")]([ExtResource("29_je2jk"), ExtResource("30_elb2c"), ExtResource("31_k5uph"), ExtResource("32_istuk"), ExtResource("33_nek3j"), ExtResource("34_lub7m")])
+floor_themes = Array[ExtResource("2_uwl5f")]([ExtResource("3_4caaf"), ExtResource("4_7s7ra"), ExtResource("5_mikqt"), ExtResource("6_qxi6t")])

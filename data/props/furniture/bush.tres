@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_svenc"]
+[ext_resource type="Texture2D" path="res://assets/tiles/ruins.png" id="2_j35bb"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_ipn6l"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ln5ji"]
+atlas = ExtResource("2_j35bb")
+region = Rect2(64, 80, 16, 16)
+
+[resource]
+script = ExtResource("3_ipn6l")
+debris_color = Color(0.45, 0.6, 0.25, 1)
+break_sound = ExtResource("1_svenc")
+id = &"bush"
+display_name = "Bush"
+icon = SubResource("AtlasTexture_ln5ji")
+glyph = "F"
+color = Color(0.45, 0.6, 0.25, 1)

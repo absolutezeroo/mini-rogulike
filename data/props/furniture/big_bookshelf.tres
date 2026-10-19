@@ -1,0 +1,71 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_hgmyx"]
+[ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="2_bxb8w"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="3_3xvbi"]
+[ext_resource type="Resource" path="res://data/items/consumables/fire_scroll.tres" id="4_8fxbk"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_fire.tres" id="5_83syb"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_frost.tres" id="6_f41ua"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_healing.tres" id="7_2yjws"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_thunder.tres" id="8_v7gjo"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_war.tres" id="9_an7tc"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_wind.tres" id="10_rejkq"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="11_6r6tu"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="12_y5j88"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mx88h"]
+atlas = ExtResource("2_bxb8w")
+region = Rect2(128, 112, 32, 32)
+
+[sub_resource type="Resource" id="Resource_qy71f"]
+script = ExtResource("3_3xvbi")
+item = ExtResource("4_8fxbk")
+weight = 12
+
+[sub_resource type="Resource" id="Resource_cbvyl"]
+script = ExtResource("3_3xvbi")
+item = ExtResource("5_83syb")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_r1lnl"]
+script = ExtResource("3_3xvbi")
+item = ExtResource("6_f41ua")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_gu3b3"]
+script = ExtResource("3_3xvbi")
+item = ExtResource("7_2yjws")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_vovnd"]
+script = ExtResource("3_3xvbi")
+item = ExtResource("8_v7gjo")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_m7gb6"]
+script = ExtResource("3_3xvbi")
+item = ExtResource("9_an7tc")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_2nda2"]
+script = ExtResource("3_3xvbi")
+item = ExtResource("10_rejkq")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_4g286"]
+script = ExtResource("11_6r6tu")
+drop_chance = 0.22
+entries = Array[ExtResource("3_3xvbi")]([SubResource("Resource_qy71f"), SubResource("Resource_cbvyl"), SubResource("Resource_r1lnl"), SubResource("Resource_gu3b3"), SubResource("Resource_vovnd"), SubResource("Resource_m7gb6"), SubResource("Resource_2nda2")])
+
+[resource]
+script = ExtResource("12_y5j88")
+footprint = Vector2i(2, 1)
+hits = 3
+loot = SubResource("Resource_4g286")
+debris_color = Color(0.6, 0.38, 0.22, 1)
+break_sound = ExtResource("1_hgmyx")
+id = &"big_bookshelf"
+display_name = "Bookcase"
+icon = SubResource("AtlasTexture_mx88h")
+glyph = "F"
+color = Color(0.6, 0.38, 0.22, 1)

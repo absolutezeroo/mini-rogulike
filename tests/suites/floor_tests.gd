@@ -879,6 +879,97 @@ func _test_ambience(game: Game) -> void:
 
 
 ## The dev tools (debug builds): open, jump to a cursed floor, god mode, spawn, close.
+## Every themed room, forced on a floor: furnished, and nothing walled off (the stairs and every
+## free floor cell still reachable). Then whole themed floors, the merchant and the debug panel.
+func _test_themed_rooms(game: Game) -> void:
+	var depth_before := game.depth
+	var templates: Array[RoomTemplateDef] = []
+	for act in CONTENT.dungeon.acts:
+		for template in act.room_templates:
+			if not templates.has(template):
+				templates.append(template)
+	for template in templates:
+		for attempt in 2:
+			game.world.forced_room = template
+			await game.debug_enter_floor(5)
+			var world := game.world
+			check(not world.room_themes.is_empty(), "%s: rooms get it" % template.id)
+			check(world.room_themes.values().all(func(t: RoomTemplateDef) -> bool: return t == template), "%s: only it when forced" % template.id)
+			var props_in_rooms := 0
+			for prop in get_tree().get_nodes_in_group("props"):
+				var cell := world.map.world_to_cell((prop as Node2D).global_position)
+				for i: int in world.room_themes:
+					if world.map.rooms[i].has_point(cell):
+						props_in_rooms += 1
+						break
+			if template.features.any(func(f: RoomFeature) -> bool: return f is PropsFeature or f is PillarsFeature):
+				check(props_in_rooms > 0, "%s: furnished (%d props)" % [template.id, props_in_rooms])
+			var cut := _walled_off_cells(world)
+			check(cut.is_empty(), "%s: nothing walled off %s" % [template.id, str(cut.slice(0, 4))])
+	check(game.world.forced_room == null, "a forced room is used once")
+
+	var library: FloorThemeDef = load("res://data/rooms/floors/great_library.tres")
+	CONTENT.dungeon.merchant_chance = 1.0
+	game.world.forced_floor_theme = library
+	await game.debug_enter_floor(5)
+	CONTENT.dungeon.merchant_chance = 0.0
+	var world := game.world
+	check(world.floor_theme == library, "a whole themed floor")
+	var themed := world.room_themes.size()
+	check(themed >= (world.map.rooms.size() - 1) / 2, "most of its rooms themed (%d/%d)" % [themed, world.map.rooms.size()])
+	check(world.room_themes.values().all(func(t: RoomTemplateDef) -> bool: return library.rooms.has(t)), "with its own rooms only")
+	var merchants := get_tree().get_nodes_in_group("merchants")
+	if not merchants.is_empty():
+		var merchant_cell := world.map.world_to_cell((merchants[0] as Node2D).global_position)
+		var in_themed := false
+		for i: int in world.room_themes:
+			in_themed = in_themed or world.map.rooms[i].has_point(merchant_cell)
+		check(not in_themed, "the merchant's room is never themed")
+	check(_walled_off_cells(world).is_empty(), "themed floor: nothing walled off")
+	await game.debug_enter_floor(5)
+	check(game.world.forced_floor_theme == null, "a forced themed floor is used once")
+	var rng := RandomNumberGenerator.new()
+	var seen := 0
+	for i in 400:
+		if rng.randf() < CONTENT.dungeon.themed_floor_chance:
+			seen += 1
+	check(seen > 40 and seen < 200, "themed floors now and then (%d/400)" % seen)
+	await _clear_monsters(game.world)
+	game.depth = depth_before
+
+
+## Free floor cells (not under furniture, water...) the hero can't get to from the start
+## (crates and pots in the way don't count: they break).
+func _walled_off_cells(world: World) -> Array[Vector2i]:
+	var map := world.map
+	var breakable := {}
+	for node in get_tree().get_nodes_in_group("props"):
+		var prop := node as Prop
+		if prop.def.is_breakable() and not prop.is_queued_for_deletion():
+			for cell in prop.cells():
+				breakable[cell] = true
+	var open := func(cell: Vector2i) -> bool:
+		return map.is_floor(cell) and (not world.nav.is_blocked(cell) or breakable.has(cell))
+	var seen := { map.start_cell: true }
+	var queue: Array[Vector2i] = [map.start_cell]
+	while not queue.is_empty():
+		var cell: Vector2i = queue.pop_back()
+		for dir: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+			var next := cell + dir
+			if open.call(next) and not seen.has(next):
+				seen[next] = true
+				queue.append(next)
+	var cut: Array[Vector2i] = []
+	for y in map.height:
+		for x in map.width:
+			var cell := Vector2i(x, y)
+			if open.call(cell) and not seen.has(cell):
+				cut.append(cell)
+	if not seen.has(map.stairs_cell):
+		cut.push_front(map.stairs_cell)
+	return cut
+
+
 func _test_debug_panel(game: Game) -> void:
 	var debug := game.menus.debug
 	check(debug != null and game.hud.has_node("DebugButton"), "debug builds have the debug panel and its DBG button")

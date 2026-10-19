@@ -39,6 +39,10 @@ var arena: BossArena
 var floor_event: FloorEventDef
 ## The Well's curse on this whole floor (null on most floors).
 var curse: CurseDef
+## Themed rooms of this floor: room index -> RoomTemplateDef.
+var room_themes := {}
+## This whole floor's style (the Great Library...), null on most floors.
+var floor_theme: FloorThemeDef
 ## Difficulty, event and depth combined: ask it how hard and rewarding this floor is.
 var rules: FloorRules
 ## Debug (DebugPanel): the next floor built gets this curse or event instead of rolling one
@@ -46,6 +50,10 @@ var rules: FloorRules
 var forced_curse: CurseDef
 var forced_event: FloorEventDef
 var forced_plain := false
+## Debug: every room of the next floor built that it fits in gets this theme. Used once.
+var forced_room: RoomTemplateDef
+## Debug: the next floor built has this style. Used once.
+var forced_floor_theme: FloorThemeDef
 ## The boss of each act for this run (an act may have several; the game draws one per run).
 ## Empty or null entries: the act's main boss.
 var run_bosses: Array[BossDef] = []
@@ -103,6 +111,10 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 	else:
 		map = DungeonGenerator.generate(content.dungeon, rng)
 	theme = content.dungeon.theme_for_depth(depth)
+	floor_theme = null if boss else _roll_floor_theme(content)
+	room_themes = {} if boss else FloorPopulator.pick_rooms(self, content, depth, forced_room)
+	forced_room = null
+	forced_floor_theme = null
 	rules = FloorRules.make(content.dungeon, difficulty, floor_event, depth, curse)
 	_ambient.color = Color((theme.ambient if theme else Color.WHITE) * rules.light(), 1.0)
 	_view.show_map(map, theme)
@@ -239,13 +251,36 @@ func fire_projectiles(shooter: Actor, direction: Vector2, spec: ProjectileSpec) 
 		_projectiles.add_child.call_deferred(projectile)
 
 
-## Props stand on a cell and block it for pathfinding until they break.
+## The floor's style, now and then (never the first floor; the debug one if forced).
+func _roll_floor_theme(content: ContentDB) -> FloorThemeDef:
+	if forced_floor_theme or forced_room:
+		return forced_floor_theme
+	var act := content.dungeon.act_for_depth(depth)
+	if act == null or depth <= 1 or rng.randf() >= content.dungeon.themed_floor_chance:
+		return null
+	return act.pick_floor_theme(depth, rng)
+
+
+## Props stand on a cell (the top-left one of a bigger footprint) and block it until they break.
 func spawn_prop(def: PropDef, cell: Vector2i) -> Prop:
 	var prop := PROP_SCENE.instantiate() as Prop
 	prop.world = self
 	prop.setup(def)
 	_place_on_cell(prop, cell)
+	if def.footprint != Vector2i.ONE:
+		prop.position += (Vector2(def.footprint) - Vector2.ONE) * map.tile_size * 0.5
+		for y in def.footprint.y:
+			for x in def.footprint.x:
+				set_cell_blocked(cell + Vector2i(x, y), true)
 	return prop
+
+
+## A different floor over `cells` (PatchFeature).
+func spawn_floor_patch(feature: PatchFeature, cells: Rect2i) -> FloorPatch:
+	var patch := FloorPatch.new()
+	patch.setup(feature, self, cells)
+	_effects.add_child(patch)
+	return patch
 
 
 func spawn_trap(def: TrapDef, cell: Vector2i, cycle_offset: float = 0.0) -> Trap:

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_ttjp8"]
+[ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="2_7y7fp"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_2itqv"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u31on"]
+atlas = ExtResource("2_7y7fp")
+region = Rect2(48, 32, 16, 16)
+
+[resource]
+script = ExtResource("3_2itqv")
+hits = 2
+debris_color = Color(0.6, 0.38, 0.22, 1)
+break_sound = ExtResource("1_ttjp8")
+id = &"grave_cross"
+display_name = "Grave Cross"
+icon = SubResource("AtlasTexture_u31on")
+glyph = "F"
+color = Color(0.6, 0.38, 0.22, 1)

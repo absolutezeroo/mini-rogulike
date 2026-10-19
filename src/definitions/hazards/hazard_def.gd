@@ -33,12 +33,12 @@ static func find_free_rect(world: World, room: Rect2i, taken: Dictionary, size: 
 			world.rng.randi_range(inner.position.x, inner.end.x - size.x),
 			world.rng.randi_range(inner.position.y, inner.end.y - size.y))
 		var rect := Rect2i(origin, size)
-		if _is_free(world, rect, taken):
+		if is_free(world, rect, taken):
 			return rect
 	return Rect2i()
 
 
-static func _is_free(world: World, rect: Rect2i, taken: Dictionary) -> bool:
+static func is_free(world: World, rect: Rect2i, taken: Dictionary) -> bool:
 	for y in range(rect.position.y, rect.end.y):
 		for x in range(rect.position.x, rect.end.x):
 			var cell := Vector2i(x, y)

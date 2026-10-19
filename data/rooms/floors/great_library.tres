@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FloorThemeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/rooms/room_template_def.gd" id="1_5dfxn"]
+[ext_resource type="Resource" path="res://data/rooms/ruined_library.tres" id="2_stksm"]
+[ext_resource type="Resource" path="res://data/rooms/colonnade.tres" id="3_08i3w"]
+[ext_resource type="Resource" path="res://data/rooms/shrine.tres" id="4_k6buc"]
+[ext_resource type="Script" path="res://src/definitions/rooms/floor_theme_def.gd" id="5_vqk4d"]
+
+[resource]
+script = ExtResource("5_vqk4d")
+rooms = Array[ExtResource("1_5dfxn")]([ExtResource("2_stksm"), ExtResource("2_stksm"), ExtResource("3_08i3w"), ExtResource("4_k6buc")])
+id = &"great_library"
+display_name = "The Great Library"
+description = "Endless shelves of forgotten books. Some still hold a spell."
+color = Color(0.95, 0.75, 0.45, 1)
+min_depth = 2

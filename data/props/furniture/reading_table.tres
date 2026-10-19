@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_484mg"]
+[ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="2_jqelk"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_vo0yt"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_csqky"]
+atlas = ExtResource("2_jqelk")
+region = Rect2(32, 160, 48, 16)
+
+[resource]
+script = ExtResource("3_vo0yt")
+footprint = Vector2i(3, 1)
+hits = 0
+debris_color = Color(0.6, 0.38, 0.22, 1)
+break_sound = ExtResource("1_484mg")
+id = &"reading_table"
+display_name = "Reading Table"
+icon = SubResource("AtlasTexture_csqky")
+glyph = "F"
+color = Color(0.6, 0.38, 0.22, 1)

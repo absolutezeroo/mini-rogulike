@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="HeatSourceDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/tiles/flooded_pool.png" id="1_cr4id"]
+[ext_resource type="Script" path="res://src/definitions/hazards/heat_source_def.gd" id="2_tna41"]
+
+[resource]
+script = ExtResource("2_tna41")
+heat = 0.0
+pond = ExtResource("1_cr4id")
+glow_color = Color(0, 0, 0, 0)
+id = &"flooded_pool"
+display_name = "Flooded Pool"

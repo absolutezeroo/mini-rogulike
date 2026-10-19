@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FloorThemeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/rooms/room_template_def.gd" id="1_2u6xg"]
+[ext_resource type="Resource" path="res://data/rooms/flooded_hall.tres" id="2_b84ft"]
+[ext_resource type="Resource" path="res://data/rooms/colonnade.tres" id="3_0e7in"]
+[ext_resource type="Resource" path="res://data/rooms/indoor_garden.tres" id="4_ri0pi"]
+[ext_resource type="Script" path="res://src/definitions/rooms/floor_theme_def.gd" id="5_f82ym"]
+
+[resource]
+script = ExtResource("5_f82ym")
+rooms = Array[ExtResource("1_2u6xg")]([ExtResource("2_b84ft"), ExtResource("2_b84ft"), ExtResource("3_0e7in"), ExtResource("4_ri0pi")])
+id = &"sunken_halls"
+display_name = "Sunken Halls"
+description = "The Well's water has risen here, drowning the old halls."
+color = Color(0.45, 0.8, 1, 1)
+min_depth = 2

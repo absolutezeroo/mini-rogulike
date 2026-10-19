@@ -1,0 +1,68 @@
+[gd_resource type="Resource" script_class="RoomTemplateDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/rooms/room_feature.gd" id="1_pvuo5"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_3av0v"]
+[ext_resource type="Resource" path="res://data/props/furniture/seated_statue.tres" id="3_oegf6"]
+[ext_resource type="Resource" path="res://data/props/furniture/frog_statue.tres" id="4_406r1"]
+[ext_resource type="Script" path="res://src/definitions/rooms/props_feature.gd" id="5_ia57s"]
+[ext_resource type="Resource" path="res://data/props/furniture/blue_orb.tres" id="6_6kdqw"]
+[ext_resource type="Resource" path="res://data/props/furniture/red_orb.tres" id="7_7xxa3"]
+[ext_resource type="Script" path="res://src/definitions/rooms/patch_feature.gd" id="8_cweec"]
+[ext_resource type="Texture2D" path="res://assets/tiles/interior_floor.png" id="9_6ulya"]
+[ext_resource type="Texture2D" path="res://assets/tiles/nature.png" id="10_bkwej"]
+[ext_resource type="Script" path="res://src/definitions/rooms/decor_feature.gd" id="11_krm18"]
+[ext_resource type="Script" path="res://src/definitions/rooms/room_template_def.gd" id="12_km5lp"]
+
+[sub_resource type="Resource" id="Resource_0cj5m"]
+script = ExtResource("5_ia57s")
+props = Array[ExtResource("2_3av0v")]([ExtResource("3_oegf6"), ExtResource("4_406r1")])
+placement = 2
+count = Vector2i(1, 1)
+
+[sub_resource type="Resource" id="Resource_ts22p"]
+script = ExtResource("5_ia57s")
+props = Array[ExtResource("2_3av0v")]([ExtResource("6_6kdqw"), ExtResource("7_7xxa3")])
+placement = 5
+count = Vector2i(2, 4)
+
+[sub_resource type="Resource" id="Resource_6dovj"]
+script = ExtResource("8_cweec")
+tiles = ExtResource("9_6ulya")
+region = Rect2i(0, 192, 48, 48)
+fill_min = Vector2(0.4, 0.4)
+fill_max = Vector2(0.55, 0.55)
+off_center_chance = 0.0
+reserve = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gnjtj"]
+atlas = ExtResource("10_bkwej")
+region = Rect2(0, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_m3xta"]
+atlas = ExtResource("10_bkwej")
+region = Rect2(16, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bt3d5"]
+atlas = ExtResource("10_bkwej")
+region = Rect2(32, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8rexu"]
+atlas = ExtResource("10_bkwej")
+region = Rect2(48, 176, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_utxoj"]
+atlas = ExtResource("10_bkwej")
+region = Rect2(64, 176, 16, 16)
+
+[sub_resource type="Resource" id="Resource_46yqp"]
+script = ExtResource("11_krm18")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_gnjtj"), SubResource("AtlasTexture_m3xta"), SubResource("AtlasTexture_bt3d5"), SubResource("AtlasTexture_8rexu"), SubResource("AtlasTexture_utxoj")])
+count = Vector2i(2, 4)
+
+[resource]
+script = ExtResource("12_km5lp")
+max_size = Vector2i(16, 16)
+features = Array[ExtResource("1_pvuo5")]([SubResource("Resource_0cj5m"), SubResource("Resource_ts22p"), SubResource("Resource_6dovj"), SubResource("Resource_46yqp")])
+id = &"shrine"
+display_name = "Shrine"
+spawn_weight = 6

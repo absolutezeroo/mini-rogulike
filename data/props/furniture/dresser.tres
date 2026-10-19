@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_iubgd"]
+[ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="2_y2lma"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="3_deh3r"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="4_ildfr"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="5_srppi"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="6_2gvce"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xvfey"]
+atlas = ExtResource("2_y2lma")
+region = Rect2(96, 112, 32, 32)
+
+[sub_resource type="Resource" id="Resource_13i2o"]
+script = ExtResource("3_deh3r")
+item = ExtResource("4_ildfr")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_0wo03"]
+script = ExtResource("5_srppi")
+drop_chance = 0.2
+entries = Array[ExtResource("3_deh3r")]([SubResource("Resource_13i2o")])
+
+[resource]
+script = ExtResource("6_2gvce")
+footprint = Vector2i(2, 1)
+hits = 3
+loot = SubResource("Resource_0wo03")
+debris_color = Color(0.6, 0.38, 0.22, 1)
+break_sound = ExtResource("1_iubgd")
+id = &"dresser"
+display_name = "Dresser"
+icon = SubResource("AtlasTexture_xvfey")
+glyph = "F"
+color = Color(0.6, 0.38, 0.22, 1)

@@ -33,6 +33,10 @@ extends Resource
 ## Groups of hazards per floor (a row of spikes, a few holes...), picked from the act's list.
 @export_range(0, 20) var hazard_groups_min: int = 3
 @export_range(0, 20) var hazard_groups_max: int = 5
+## Chance for each room (not the first) to be themed (ActDef.room_templates).
+@export_range(0.0, 1.0) var themed_room_chance: float = 0.25
+## Chance for a floor (not the first, nor a boss's) to be themed as a whole (ActDef.floor_themes).
+@export_range(0.0, 1.0) var themed_floor_chance: float = 0.25
 
 @export_group("Chests")
 ## Chests lying around a floor (some are trapped: see ChestDef).

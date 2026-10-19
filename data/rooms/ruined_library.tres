@@ -1,0 +1,69 @@
+[gd_resource type="Resource" script_class="RoomTemplateDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/rooms/room_feature.gd" id="1_kmu10"]
+[ext_resource type="Script" path="res://src/definitions/rooms/patch_feature.gd" id="2_2y0nq"]
+[ext_resource type="Texture2D" path="res://assets/tiles/interior_floor.png" id="3_34wta"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="4_2w4h0"]
+[ext_resource type="Resource" path="res://data/props/furniture/bookshelf.tres" id="5_1s2hi"]
+[ext_resource type="Resource" path="res://data/props/furniture/bookshelf_empty.tres" id="6_bd77p"]
+[ext_resource type="Resource" path="res://data/props/furniture/big_bookshelf.tres" id="7_0trgf"]
+[ext_resource type="Resource" path="res://data/props/furniture/big_bookshelf_empty.tres" id="8_sjrxd"]
+[ext_resource type="Resource" path="res://data/props/furniture/dresser.tres" id="9_gsmd5"]
+[ext_resource type="Script" path="res://src/definitions/rooms/props_feature.gd" id="10_8eyg0"]
+[ext_resource type="Resource" path="res://data/props/furniture/reading_table.tres" id="11_tcupg"]
+[ext_resource type="Resource" path="res://data/props/furniture/small_table.tres" id="12_cgf5g"]
+[ext_resource type="Resource" path="res://data/props/furniture/plant_pot.tres" id="13_r6026"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="14_xggm6"]
+[ext_resource type="Script" path="res://src/definitions/rooms/decor_feature.gd" id="15_h3y0j"]
+[ext_resource type="Script" path="res://src/definitions/rooms/room_template_def.gd" id="16_8l56b"]
+
+[sub_resource type="Resource" id="Resource_6jf28"]
+script = ExtResource("2_2y0nq")
+tiles = ExtResource("3_34wta")
+fill_max = Vector2(0.75, 0.75)
+
+[sub_resource type="Resource" id="Resource_v54gd"]
+script = ExtResource("10_8eyg0")
+props = Array[ExtResource("4_2w4h0")]([ExtResource("5_1s2hi"), ExtResource("5_1s2hi"), ExtResource("6_bd77p"), ExtResource("7_0trgf"), ExtResource("8_sjrxd"), ExtResource("9_gsmd5")])
+placement = 0
+count = Vector2i(3, 6)
+
+[sub_resource type="Resource" id="Resource_6hii4"]
+script = ExtResource("10_8eyg0")
+props = Array[ExtResource("4_2w4h0")]([ExtResource("5_1s2hi"), ExtResource("6_bd77p"), ExtResource("5_1s2hi")])
+placement = 1
+
+[sub_resource type="Resource" id="Resource_08pxb"]
+script = ExtResource("10_8eyg0")
+props = Array[ExtResource("4_2w4h0")]([ExtResource("11_tcupg")])
+placement = 2
+count = Vector2i(1, 1)
+
+[sub_resource type="Resource" id="Resource_3m7ay"]
+script = ExtResource("10_8eyg0")
+props = Array[ExtResource("4_2w4h0")]([ExtResource("12_cgf5g"), ExtResource("13_r6026")])
+count = Vector2i(0, 2)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0aawn"]
+atlas = ExtResource("14_xggm6")
+region = Rect2(80, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t0ujh"]
+atlas = ExtResource("14_xggm6")
+region = Rect2(96, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0bwsk"]
+atlas = ExtResource("14_xggm6")
+region = Rect2(112, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_ewlsi"]
+script = ExtResource("15_h3y0j")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_0aawn"), SubResource("AtlasTexture_t0ujh"), SubResource("AtlasTexture_0bwsk")])
+count = Vector2i(1, 3)
+
+[resource]
+script = ExtResource("16_8l56b")
+features = Array[ExtResource("1_kmu10")]([SubResource("Resource_6jf28"), SubResource("Resource_v54gd"), SubResource("Resource_6hii4"), SubResource("Resource_08pxb"), SubResource("Resource_3m7ay"), SubResource("Resource_ewlsi")])
+id = &"ruined_library"
+display_name = "Ruined Library"
+min_depth = 2

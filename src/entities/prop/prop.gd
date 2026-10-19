@@ -31,7 +31,8 @@ func setup(prop_def: PropDef) -> void:
 
 func _ready() -> void:
 	var shape := RectangleShape2D.new()
-	shape.size = Vector2(SIZE * 0.75, SIZE * 0.6)
+	var foot := Vector2(def.footprint)
+	shape.size = Vector2(SIZE * (foot.x - 0.25), SIZE * (foot.y - 0.4))
 	($CollisionShape2D as CollisionShape2D).shape = shape
 	($CollisionShape2D as CollisionShape2D).position = Vector2(0, SIZE * 0.1)
 	_light.enabled = def.light_color.a > 0.0
@@ -72,7 +73,8 @@ func _break() -> void:
 		return
 	is_broken = true
 	collision_layer = 0
-	world.set_cell_blocked(world.map.world_to_cell(global_position), false)
+	for cell in cells():
+		world.set_cell_blocked(cell, false)
 	Sfx.play_at(def.break_sound, global_position)
 	Vfx.burst(world, Vfx.DEATH_CHUNKS, global_position, def.debris_color)
 	Vfx.puff(world, global_position + Vector2(0, 8))
@@ -108,9 +110,21 @@ func _draw() -> void:
 		var blink := int(_fuse * (8.0 + 30.0 * (1.0 - _fuse / maxf(def.fuse_time, 0.01)))) % 2 == 0
 		color = Color(2.0, 0.8, 0.6) if blink else Color.WHITE
 		offset.x += randf_range(-1.5, 1.5)
-	var half := SIZE * 0.5
-	# Shadow, then the sprite standing on it.
-	draw_set_transform(Vector2(0, half - 3.0), 0.0, Vector2(1.0, 0.35))
-	draw_circle(Vector2.ZERO, half * 0.7, Color(0, 0, 0, 0.3))
+	var foot := Vector2(def.footprint) * SIZE
+	var size := def.icon.get_size() * 2.0
+	# Shadow, then the sprite standing on the bottom of its footprint.
+	draw_set_transform(Vector2(0, foot.y * 0.5 - 3.0), 0.0, Vector2(1.0, 0.35))
+	draw_circle(Vector2.ZERO, foot.x * 0.35, Color(0, 0, 0, 0.3))
 	draw_set_transform(Vector2.ZERO)
-	draw_texture_rect(def.icon, Rect2(Vector2(-half, -half) + offset, Vector2(SIZE, SIZE)), false, color * def.icon_tint)
+	var top_left := Vector2(-size.x * 0.5, foot.y * 0.5 - size.y)
+	draw_texture_rect(def.icon, Rect2(top_left + offset, size), false, color * def.icon_tint)
+
+
+## The cells it stands on.
+func cells() -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	var top_left := world.map.world_to_cell(global_position - (Vector2(def.footprint) - Vector2.ONE) * SIZE * 0.5)
+	for y in def.footprint.y:
+		for x in def.footprint.x:
+			result.append(top_left + Vector2i(x, y))
+	return result

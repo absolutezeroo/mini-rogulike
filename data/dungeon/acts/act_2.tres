@@ -1,12 +1,16 @@
 [gd_resource type="Resource" script_class="ActDef" format=3]
 
 [ext_resource type="Resource" path="res://data/monsters/bosses/demon_cyclops.tres" id="1_0h4yv"]
+[ext_resource type="Script" path="res://src/definitions/rooms/floor_theme_def.gd" id="2_cauuu"]
 [ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_etibi"]
 [ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="2_rvqiy"]
 [ext_resource type="Resource" path="res://data/monsters/skeleton.tres" id="3_0slpj"]
 [ext_resource type="Resource" path="res://data/hazards/spikes.tres" id="3_4wi7y"]
+[ext_resource type="Resource" path="res://data/rooms/floors/necropolis.tres" id="3_l71cj"]
 [ext_resource type="Resource" path="res://data/monsters/sorcerer.tres" id="4_dw8h1"]
 [ext_resource type="Resource" path="res://data/hazards/spike_plate.tres" id="4_gxe60"]
+[ext_resource type="Resource" path="res://data/rooms/floors/great_library.tres" id="4_sf44k"]
+[ext_resource type="Resource" path="res://data/rooms/floors/sunken_halls.tres" id="5_o6tj1"]
 [ext_resource type="Resource" path="res://data/hazards/arrow_trap.tres" id="5_wciqp"]
 [ext_resource type="Resource" path="res://data/monsters/spirit.tres" id="5_yjv1g"]
 [ext_resource type="Resource" path="res://data/monsters/skull.tres" id="6_3r1nu"]
@@ -23,6 +27,13 @@
 [ext_resource type="Resource" path="res://data/monsters/thief_racoon.tres" id="18_lmuqr"]
 [ext_resource type="Resource" path="res://data/monsters/brood_mother.tres" id="19_1aok4"]
 [ext_resource type="Resource" path="res://data/monsters/bosses/weeping_spirit.tres" id="19_wciqp"]
+[ext_resource type="Script" path="res://src/definitions/rooms/room_template_def.gd" id="26_pn2im"]
+[ext_resource type="Resource" path="res://data/rooms/pillar_hall.tres" id="27_jdgdk"]
+[ext_resource type="Resource" path="res://data/rooms/colonnade.tres" id="28_3j020"]
+[ext_resource type="Resource" path="res://data/rooms/crypt.tres" id="29_52j8d"]
+[ext_resource type="Resource" path="res://data/rooms/ruined_library.tres" id="30_xrqrv"]
+[ext_resource type="Resource" path="res://data/rooms/flooded_hall.tres" id="31_t63ux"]
+[ext_resource type="Resource" path="res://data/rooms/shrine.tres" id="32_ookag"]
 
 [resource]
 script = ExtResource("12_1aok4")
@@ -34,3 +45,5 @@ monsters = Array[ExtResource("2_etibi")]([ExtResource("3_0slpj"), ExtResource("4
 boss = ExtResource("1_0h4yv")
 other_bosses = Array[ExtResource("18_gxe60")]([ExtResource("19_wciqp")])
 hazards = Array[ExtResource("2_rvqiy")]([ExtResource("3_4wi7y"), ExtResource("4_gxe60"), ExtResource("5_wciqp"), ExtResource("6_lmuqr"), ExtResource("7_1aok4")])
+room_templates = Array[ExtResource("26_pn2im")]([ExtResource("27_jdgdk"), ExtResource("28_3j020"), ExtResource("29_52j8d"), ExtResource("30_xrqrv"), ExtResource("31_t63ux"), ExtResource("32_ookag")])
+floor_themes = Array[ExtResource("2_cauuu")]([ExtResource("3_l71cj"), ExtResource("4_sf44k"), ExtResource("5_o6tj1")])

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_78iu8"]
+[ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="2_0qrlf"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_opywy"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nlfgl"]
+atlas = ExtResource("2_0qrlf")
+region = Rect2(160, 112, 32, 32)
+
+[resource]
+script = ExtResource("3_opywy")
+footprint = Vector2i(2, 1)
+hits = 3
+debris_color = Color(0.6, 0.38, 0.22, 1)
+break_sound = ExtResource("1_78iu8")
+id = &"big_bookshelf_empty"
+display_name = "Empty Bookcase"
+icon = SubResource("AtlasTexture_nlfgl")
+glyph = "F"
+color = Color(0.6, 0.38, 0.22, 1)

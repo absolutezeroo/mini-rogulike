@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_3scv0"]
+[ext_resource type="Texture2D" path="res://assets/tiles/ruins.png" id="2_1tpn7"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_5txyx"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_s6ous"]
+atlas = ExtResource("2_1tpn7")
+region = Rect2(64, 96, 32, 32)
+
+[resource]
+script = ExtResource("3_5txyx")
+footprint = Vector2i(2, 1)
+hits = 0
+debris_color = Color(0.45, 0.6, 0.25, 1)
+break_sound = ExtResource("1_3scv0")
+id = &"cave_tree"
+display_name = "Cave Tree"
+icon = SubResource("AtlasTexture_s6ous")
+glyph = "F"
+color = Color(0.45, 0.6, 0.25, 1)

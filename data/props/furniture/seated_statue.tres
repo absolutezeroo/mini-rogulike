@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_u7kjy"]
+[ext_resource type="Texture2D" path="res://assets/tiles/ruins.png" id="2_i7iou"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_c5481"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0lj54"]
+atlas = ExtResource("2_i7iou")
+region = Rect2(0, 48, 32, 32)
+
+[resource]
+script = ExtResource("3_c5481")
+footprint = Vector2i(2, 1)
+hits = 0
+debris_color = Color(0.62, 0.6, 0.6, 1)
+break_sound = ExtResource("1_u7kjy")
+id = &"seated_statue"
+display_name = "Mossy Statue"
+icon = SubResource("AtlasTexture_0lj54")
+glyph = "F"
+color = Color(0.62, 0.6, 0.6, 1)

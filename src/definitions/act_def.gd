@@ -18,6 +18,10 @@ extends Resource
 @export var other_bosses: Array[BossDef] = []
 ## Traps, holes, quicksand... laid out in the act's rooms (min_depth and spawn_weight decide).
 @export var hazards: Array[HazardDef] = []
+## Themed rooms of its floors (pillared halls, libraries, crypts...): see RoomTemplateDef.
+@export var room_templates: Array[RoomTemplateDef] = []
+## Whole floors with one style (the Great Library...): see FloorThemeDef.
+@export var floor_themes: Array[FloorThemeDef] = []
 
 
 ## The main boss and the alternatives.
@@ -29,6 +33,15 @@ func all_bosses() -> Array[BossDef]:
 		if other and not result.has(other):
 			result.append(other)
 	return result
+
+
+## A themed room that fits `room` (null if none does).
+func pick_room_template(room: Rect2i, depth: int, rng: RandomNumberGenerator) -> RoomTemplateDef:
+	return RoomTemplateDef.pick(room_templates, room, depth, rng)
+
+
+func pick_floor_theme(depth: int, rng: RandomNumberGenerator) -> FloorThemeDef:
+	return ContentDB.pick_from(floor_themes, depth, rng) as FloorThemeDef
 
 
 func pick_hazard(depth: int, rng: RandomNumberGenerator) -> HazardDef:
