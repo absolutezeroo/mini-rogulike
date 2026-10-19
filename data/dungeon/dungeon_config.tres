@@ -19,3 +19,6 @@ chest = ExtResource("6_0biys")
 ambush_chest = ExtResource("5_bf2ay")
 merchant = ExtResource("7_0biys")
 monster_hp_scale_per_depth = 0.22
+width = 72
+height = 72
+max_rooms = 15

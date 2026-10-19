@@ -319,6 +319,8 @@ func _announce_floor() -> void:
 		Events.log_message("Cursed: %s. %s" % [world.curse.display_name, world.curse.description], world.curse.color)
 	if world.arena:
 		Events.log_message("Depth %d. Something big is waiting..." % depth, Palette.DANGER)
+	elif world.seal.is_sealed():
+		Events.log_message("Depth %d. The stairs are sealed: slay %d monsters to open them." % [depth, world.seal.needed], Palette.SEAL)
 	else:
 		Events.log_message("Depth %d. Find the stairs!" % depth, Palette.GOLD)
 

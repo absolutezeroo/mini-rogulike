@@ -1,7 +1,8 @@
 class_name Minimap
 extends Control
 ## The explored part of the floor, as a little map: rooms and corridors seen so far, holes,
-## stairs, unopened chests, a running ambush, the boss, the hero.
+## stairs (violet while sealed, shown even unexplored once open), unopened chests, a running
+## ambush, the boss, the hero, and the last monsters the seal still wants (StairsSeal).
 ## The explored cells live in an image (one pixel per cell) updated as the hero discovers them.
 ## `whole_floor` shows the entire floor fitted to the control (the big map) instead of a window
 ## around the hero.
@@ -110,9 +111,13 @@ func _draw() -> void:
 func _draw_markers(origin: Vector2, scale: float) -> void:
 	var map := _world.map
 	var dot := maxf(scale * 0.9, 3.0)
+	var sealed := _world.seal.is_sealed()
 	for cell in _world.stairs_cells:
-		if _world.is_explored(cell):
-			_marker(origin + (Vector2(cell) + Vector2(0.5, 0.5)) * scale, dot * 1.4, STAIRS_COLOR)
+		if _world.is_explored(cell) or not sealed:
+			_marker(origin + (Vector2(cell) + Vector2(0.5, 0.5)) * scale, dot * 1.4, Palette.SEAL if sealed else STAIRS_COLOR)
+	if _world.seal.reveals_monsters():
+		for monster in _world.get_hostiles(Actor.Faction.PLAYER):
+			_marker(origin + monster.global_position / map.tile_size * scale, dot * 0.8, DANGER_COLOR)
 	for node in get_tree().get_nodes_in_group("chests"):
 		var chest := node as Chest
 		var cell := map.world_to_cell(chest.global_position)

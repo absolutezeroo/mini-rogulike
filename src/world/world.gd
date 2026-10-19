@@ -60,6 +60,8 @@ var run_bosses: Array[BossDef] = []
 var ambush: AmbushRoom
 ## Where the stairs are (boss floors get theirs when the boss dies).
 var stairs_cells: Array[Vector2i] = []
+## Normal floors: the stairs open once enough of the floor's monsters are slain.
+var seal := StairsSeal.new()
 ## Where walking monsters can go (pathfinding, blocked cells).
 var nav := NavGrid.new()
 ## What the hero has seen (the minimap).
@@ -71,6 +73,8 @@ var _cracks := {}
 var _heat_sources: Array[HeatSource] = []
 var _splats: SplatLayer
 var _dark_rooms: Array[DarkRoom] = []
+## When the hero was last told the stairs are sealed (seconds).
+var _blocked_note_at := -10.0
 
 @onready var _view: DungeonView = $DungeonView
 @onready var _pits: PitLayer = $Pits
@@ -82,6 +86,11 @@ var _dark_rooms: Array[DarkRoom] = []
 
 
 # --- Floor lifecycle ---------------------------------------------------------
+
+func _ready() -> void:
+	Events.monster_killed.connect(_on_monster_killed)
+	seal.broken.connect(_on_seal_broken)
+
 
 func build_floor(new_depth: int, content: ContentDB) -> void:
 	clear_floor()
@@ -128,9 +137,13 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 		for room in map.rooms:
 			FloorPopulator.place_lights(self, content.dungeon, room, {})
 		FloorDresser.dress(self, {}, false)  # the arena keeps clear: grounds and decor only
+		seal.clear()
 	else:
-		spawn_stairs(map.stairs_cell)
+		var stairs := spawn_stairs(map.stairs_cell)
 		FloorPopulator.populate(self, content, depth)
+		seal.reset(monster_count(), content.dungeon.seal_share, content.dungeon.seal_reveal_left)
+		stairs.bind_seal(seal)
+		stairs.blocked.connect(_on_stairs_blocked)
 	map_reset.emit()
 
 
@@ -393,6 +406,35 @@ func flash_light(at: Vector2, color: Color, size: float) -> void:
 	flash.position = at
 	flash.setup(color, size)
 	_effects.add_child(flash)
+
+
+# --- The stairs' seal -------------------------------------------------------
+
+func _on_monster_killed(monster: Monster) -> void:
+	if monster.world == self:
+		seal.add_kill()
+
+
+## The way down opens, and a guiding light shows it.
+func _on_seal_broken() -> void:
+	var stairs_at := map.cell_to_world(map.stairs_cell)
+	Sfx.play_at(Sfx.bank.gate, player.global_position if player else stairs_at)
+	Events.log_message("The seal breaks: the stairs are open!", Palette.GOLD)
+	flash_light(stairs_at, Palette.GOLD, 220.0)
+	if player:
+		var path := find_path(player.global_position, stairs_at)
+		if not path.is_empty():
+			spawn_vfx(GuideWisp.create(player.global_position + Vector2(0, -18), path))
+
+
+## The hero stepped on sealed stairs: say what is missing (not every frame).
+func _on_stairs_blocked() -> void:
+	var now := Time.get_ticks_msec() / 1000.0
+	if now - _blocked_note_at < 2.0:
+		return
+	_blocked_note_at = now
+	Sfx.play_ui(Sfx.bank.ui_close, -4.0)
+	Events.log_message("Sealed. Slay %d more monster%s to open the stairs." % [seal.left(), "" if seal.left() == 1 else "s"], Palette.SEAL)
 
 
 func spawn_stairs(cell: Vector2i) -> Stairs:

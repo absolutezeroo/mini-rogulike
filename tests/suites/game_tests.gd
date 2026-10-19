@@ -177,7 +177,9 @@ func run() -> void:
 	check(kills[0] >= 3, "bot killed monsters (%d)" % kills[0])
 	check(player.level > 1, "player gained levels")
 
-	# Stairs take you deeper.
+	# Sealed stairs first; then, open, they take you deeper.
+	await floor._test_stairs_seal(game)
+	world = game.world
 	var depth_before: int = game.depth
 	player.global_position = world.map.cell_to_world(world.map.stairs_cell)
 	await _frames(int(game.FADE_TIME * 60.0) + 12)  # the depth changes once the screen is black

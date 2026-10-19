@@ -15,6 +15,13 @@ extends Resource
 @export var room_max_size: int = 13
 @export_range(1, 5) var corridor_width: int = 3
 
+@export_group("Stairs seal")
+## The stairs of a normal floor open once the hero has slain this share of the floor's
+## monsters (0 = always open). Every kill counts: ambush waves, summons... See StairsSeal.
+@export_range(0.0, 1.0) var seal_share: float = 0.7
+## When this few kills are left, the minimap shows where the remaining monsters are.
+@export_range(0, 20) var seal_reveal_left: int = 4
+
 @export_group("Population")
 @export var monsters_per_room_min: int = 1
 @export var monsters_per_room_max: int = 3

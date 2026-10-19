@@ -10,8 +10,10 @@ signal debug_requested
 const BAG_ICON: Texture2D = preload("res://assets/ui/icons/bag.png")
 
 var _player: Player
+var _world: World
 var _banner_tween: Tween
 var _souls_tween: Tween
+var _seal_tween: Tween
 var _toasts: Array[String] = []
 var _toast_busy := false
 
@@ -23,6 +25,8 @@ var _toast_busy := false
 @onready var _temp_overlay: ColorRect = %TemperatureOverlay
 @onready var _info_label: Label = %InfoLabel
 @onready var _souls_label: Label = %SoulsLabel
+## Under the minimap: kills the stairs' seal still wants, then "Stairs open".
+@onready var _seal_label: Label = %SealLabel
 @onready var _depth_banner: Label = %DepthBanner
 @onready var _message_log: MessageLog = %MessageLog
 @onready var _attack_button: ActionButton = %AttackButton
@@ -84,6 +88,33 @@ func _apply_settings() -> void:
 func bind_world(world: World) -> void:
 	_minimap.bind_world(world)
 	_full_map.bind_world(world)
+	if _world == world:
+		return
+	_world = world
+	world.seal.changed.connect(_refresh_seal)
+	world.seal.broken.connect(_on_seal_broken)
+	_refresh_seal()
+
+
+func _refresh_seal() -> void:
+	var seal := _world.seal
+	_seal_label.visible = seal.needed > 0 or _world.arena == null
+	if seal.is_sealed():
+		_seal_label.text = "Seal  %d / %d" % [seal.kills, seal.needed]
+		_seal_label.add_theme_color_override("font_color", Palette.SEAL)
+	else:
+		_seal_label.text = "Stairs open"
+		_seal_label.add_theme_color_override("font_color", Palette.GOLD)
+
+
+func _on_seal_broken() -> void:
+	show_banner("The stairs are open", Palette.GOLD)
+	if _seal_tween:
+		_seal_tween.kill()
+	_seal_label.pivot_offset = _seal_label.size * Vector2(1.0, 0.5)
+	_seal_label.scale = Vector2.ONE * 1.4
+	_seal_tween = create_tween()
+	_seal_tween.tween_property(_seal_label, "scale", Vector2.ONE, 0.35).set_trans(Tween.TRANS_BACK)
 
 
 func bind_player(player: Player) -> void:

@@ -17,10 +17,13 @@ func _test_world_objects(game: Game, world: World, player: Player) -> void:
 	var spot := world.map.world_to_cell(world.find_open_point_near(player.global_position, 40.0))
 	var crate := world.spawn_prop(crate_def, spot)
 	await _frames(1)
-	for i in crate_def.hits:
+	# A swing may whiff now and then (still in the last one's motion): a couple to spare.
+	for i in crate_def.hits + 2:
+		if not is_instance_valid(crate) or crate.is_broken:
+			break
 		player._attack_cooldown = 0.0
 		player.attack(player.global_position.direction_to(crate.global_position))
-		await _frames(2)
+		await _frames(4)
 	check(not is_instance_valid(crate) or crate.is_broken, "a crate breaks after %d hits" % crate_def.hits)
 	await _frames(5)
 
@@ -366,6 +369,51 @@ func _test_souls(game: Game) -> void:
 	var shown := int((game.hud.get_node("%SoulsLabel") as Label).text.trim_prefix("Souls "))
 	check(shown > 0 and shown <= game.run_souls(), "the HUD counts the run's souls")
 	Events.soul_gathered.disconnect(on_soul)
+
+
+## A floor's stairs stay sealed until enough of its monsters are slain; then a light runs to
+## them and the minimap shows them.
+func _test_stairs_seal(game: Game) -> void:
+	await game.debug_enter_floor(2)
+	await _frames(3)
+	var world: World = game.world
+	var player: Player = game.player
+	var seal := world.seal
+	var monsters := world.monster_count()
+	check(seal.is_sealed() and seal.needed == ceili(monsters * CONTENT.dungeon.seal_share), "a new floor's stairs are sealed (%d of %d monsters)" % [seal.needed, monsters])
+	var label: Label = game.hud.get_node("%SealLabel")
+	check(label.visible and label.text.ends_with("0 / %d" % seal.needed), "the HUD shows what the seal wants (%s)" % label.text)
+	var logged: Array[String] = []
+	var on_log := func(text: String, _color: Color) -> void: logged.append(text)
+	Events.message_logged.connect(on_log)
+	var depth := game.depth
+	player.global_position = world.map.cell_to_world(world.map.stairs_cell)
+	await _frames(int(game.FADE_TIME * 60.0) + 12)
+	check(game.depth == depth and not game._transitioning, "sealed stairs don't lead down")
+	check(logged.any(func(text: String) -> bool: return text.contains("Slay %d more" % seal.needed)), "stepping on them says what is missing (%s)" % str(logged))
+	player.global_position = world.map.cell_to_world(world.map.start_cell)
+	await _frames(3)
+
+	player.xp = -1000000  # no level up (and its pause) from these kills
+	while seal.left() > seal.reveal_left:
+		_kill_one(world, player)
+		await _frames(1)
+	check(seal.reveals_monsters(), "the last kills show the monsters left on the minimap")
+	check(label.text.ends_with("%d / %d" % [seal.kills, seal.needed]), "the HUD counts the kills")
+	while seal.is_sealed() and world.monster_count() > 0:
+		_kill_one(world, player)
+		await _frames(1)
+	check(not seal.is_sealed(), "enough kills break the seal")
+	check(label.text == "Stairs open", "the HUD says the stairs are open")
+	check(world.get_node("Effects").get_children().any(func(n: Node) -> bool: return n is GuideWisp), "a guiding light runs to the stairs")
+	Events.message_logged.disconnect(on_log)
+
+
+func _kill_one(world: World, player: Player) -> void:
+	for monster: Actor in world.get_hostiles(Actor.Faction.PLAYER):
+		if not monster.is_dead:
+			monster.take_hit(Combat.make_secondary_hit(player, 99999))
+			return
 
 
 ## Pause menu, options, vibrations (no-op here), the minimap and the back button.

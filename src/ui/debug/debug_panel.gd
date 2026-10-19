@@ -107,6 +107,7 @@ func _build_floor(parent: Control) -> void:
 		if not world.stairs_cells.is_empty():
 			_game.player.global_position = world.map.cell_to_world(world.stairs_cells[0]) + Vector2(0, 40)
 		, "To the stairs")))
+	row.add_child(_button("Break seal", func() -> void: _act(func() -> void: _game.world.seal.break_now(), "Stairs open")))
 	row.add_child(_button("Reveal map", func() -> void: _act(func() -> void: _game.world.reveal_all(), "Map revealed")))
 
 	var curses := _section(parent, "Curse (rebuilds the floor)")

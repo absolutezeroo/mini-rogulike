@@ -66,7 +66,11 @@ func _test_boss_fight(game: Game) -> void:
 	# Standing still and hitting it over and over: it throws the hero off.
 	world.get_node("Projectiles").get_children().map(func(n: Node) -> void: n.queue_free())
 	await _frames(2)
-	player.global_position = boss.global_position + Vector2(0, boss.radius + 30.0)
+	# On the arena's open side of the boss (not against a wall, where nothing can throw you).
+	var open_side := boss.global_position.direction_to(world.map.cell_to_world(world.map.stairs_cell))
+	if open_side == Vector2.ZERO:
+		open_side = Vector2.DOWN
+	player.global_position = boss.global_position + open_side * (boss.radius + 30.0)
 	player._invulnerable_time = 0.0
 	var close := player.global_position.distance_to(boss.global_position)
 	boss._shockwave_cooldown = 0.0  # the roar's own shockwave a moment ago

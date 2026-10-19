@@ -13,5 +13,7 @@ const BLOOD := Color("e84537")
 const FIRE := Color("ff8c42")
 ## Frost and slows.
 const FROST := Color("8ecae6")
+## The stairs' seal: a way still closed, kills still owed.
+const SEAL := Color("b48cff")
 ## Dark outlines and frames.
 const INK := Color("3f2631")

@@ -181,6 +181,14 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   - **Crumbling floor**: cracked tiles that hold until someone stands on them, then give way.
   - **Quicksand** (ruins) and **mud** (caves): very slow to cross, and they hurt if you stay.
   - Hazards are never placed where they could cut the stairs off.
+- **Sealed stairs** (`StairsSeal`, `DungeonConfig` > Stairs seal): a normal floor's stairs stay
+  sealed (dark, under a turning violet seal) until you have slain `seal_share` (70%) of the
+  floor's monsters; every kill counts, ambush waves and summons too. The HUD counts them under
+  the minimap ("Seal 12 / 18"); stepping on sealed stairs says how many are missing. When only
+  `seal_reveal_left` (4) are missing, the minimap shows the monsters left. When the seal breaks,
+  the stairs light up, the minimap shows them even unexplored and a golden light (`GuideWisp`)
+  runs ahead of you along the way. No more running past everything: a floor takes a couple of
+  minutes, a run about half an hour. Floors are 72x72 cells with up to 15 rooms.
 - **Biomes** (`data/biomes/`, `BiomeDef`): every floor is one world from end to end, picked among
   its act's (`ActDef.biomes`; the boss arena has `boss_biome`): Act I **Mossy Cave**,
   **Underground Garden**, **Flooded Caverns**; Act II **Crypt**, **Abandoned Library**; Act III
@@ -250,7 +258,8 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   music and sound volumes, screen shake, size of the touch controls, **vibrations** (big shakes,
   hits you land, crits; `Settings.vibrate()`; exported Android builds need the Vibrate permission).
 - **Minimap** (`Minimap`): rooms are revealed when you walk in, corridors around you; it shows holes,
-  the stairs, unopened chests, a running ambush and the boss. Tap it for the whole floor.
+  the stairs (violet while sealed), unopened chests, a running ambush, the boss and, near the
+  end of a seal, the last monsters. Tap it for the whole floor.
 
 ## Codex: bestiary, achievements, runs
 
@@ -637,7 +646,7 @@ anywhere in it, cards and buttons included, with a bit of momentum (`TouchScroll
 In debug builds only (running from the Godot editor, on the phone too, or a debug export), a
 **DBG** button next to pause (or F1) opens the `DebugPanel` (the game pauses):
 - **Floor**: pick a depth and go there, next floor, rebuild the floor, next boss floor, teleport
-  next to the stairs, reveal the map. Jumped-to floors are plain unless you choose:
+  next to the stairs, break the stairs' seal, reveal the map. Jumped-to floors are plain unless you choose:
 - **Curse** (Frostbound, Ashen Breath, Lanternless) or **floor event**: rebuilds the floor with it
   (`World.forced_curse` / `forced_event`), its card included.
 - **Biome**: goes to its act and builds a floor of it (`World.forced_biome`).

@@ -9,6 +9,7 @@ func run() -> void:
 	_test_biome_content()
 	_test_quests()
 	_test_generation()
+	_test_stairs_seal()
 	_test_inventory_and_equipment()
 	_test_perks()
 	_test_bosses()
@@ -157,6 +158,29 @@ func _test_generation() -> void:
 		for x in map.width:
 			check(not map.is_floor(Vector2i(x, 0)) and not map.is_floor(Vector2i(x, map.height - 1)), "closed border")
 			break
+
+
+## The stairs' seal: a share of the floor's monsters, the last few shown, broken once.
+func _test_stairs_seal() -> void:
+	var seal := StairsSeal.new()
+	var broken := [0]
+	seal.broken.connect(func() -> void: broken[0] += 1)
+	seal.reset(10, 0.7, 4)
+	check(seal.needed == 7 and seal.is_sealed() and not seal.reveals_monsters(), "a floor of 10 monsters asks for 7 kills")
+	for i in 3:
+		seal.add_kill()
+	check(seal.left() == 4 and seal.reveals_monsters(), "the last few kills show the monsters left")
+	for i in 3:
+		check(not seal.add_kill(), "still sealed")
+	check(seal.add_kill() and not seal.is_sealed() and broken[0] == 1, "the 7th kill breaks the seal")
+	check(not seal.add_kill() and broken[0] == 1 and not seal.reveals_monsters(), "it breaks only once")
+	seal.reset(0, 0.7, 4)
+	check(not seal.is_sealed(), "no monsters: no seal")
+	seal.reset(9, 0.7, 4)
+	seal.break_now()
+	check(not seal.is_sealed() and broken[0] == 2, "debug: break it at once")
+	var config := CONTENT.dungeon
+	check(config.seal_share >= 0.5 and config.seal_share < 1.0, "the seal wants most monsters, not every last one")
 
 
 ## Biomes: every act has 2 or more, each complete; scenes are sound plans.
