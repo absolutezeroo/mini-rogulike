@@ -133,8 +133,10 @@ extends Resource
 @export var rare_ranks: Array[MonsterRankDef] = []
 
 @export_group("Bosses")
-## Size of the arena room, in cells.
+## Size of the arena room, in cells (when there is no ArenaDef to pick).
 @export var arena_size: Vector2i = Vector2i(21, 15)
+## Arenas the bosses fight in (shapes, pillars, changes by phase), one picked per boss floor.
+@export var arenas: Array[ArenaDef] = []
 
 @export_group("Difficulty")
 ## Monster HP grows by this fraction per depth (0.15 = +15% per floor).

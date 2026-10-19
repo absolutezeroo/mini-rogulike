@@ -15,6 +15,7 @@ func run() -> void:
 	_test_synergies()
 	_test_bestiary()
 	_test_monster_ranks()
+	_test_arenas()
 	_test_bosses()
 	_test_profile()
 
@@ -377,6 +378,42 @@ func _test_perks() -> void:
 				everything.add(perk)
 	var fallback := CONTENT.pick_perks(everything, 3, PerkDef.Rarity.RARE, rng)
 	check(fallback.size() == 3, "with every relic maxed, common perks fill the offer")
+
+
+## Arenas: shapes, and changes that keep the hero, the boss and the middle clear.
+func _test_arenas() -> void:
+	var config := CONTENT.dungeon
+	check(config.arenas.size() >= 4, "several arenas")
+	for arena in config.arenas:
+		check(arena.size.x <= config.width - 22 and arena.shifts.size() >= 2, "%s fits the floor and changes twice" % arena.id)
+	var plan := ArenaDef.new()
+	plan.size = Vector2i(21, 15)
+	var rect := plan.cells(Vector2i.ZERO).size()
+	plan.shape = ArenaDef.Shape.OVAL
+	var oval := plan.cells(Vector2i.ZERO)
+	plan.shape = ArenaDef.Shape.CROSS
+	plan.arm = 7
+	var cross := plan.cells(Vector2i.ZERO)
+	check(rect == 21 * 15 and oval.size() < rect and cross.size() < rect, "rect, oval and cross shapes")
+	check(oval.has(Vector2i(10, 7)) and not oval.has(Vector2i(0, 0)) and cross.has(Vector2i(0, 7)) and not cross.has(Vector2i(0, 0)), "the oval has no corners, the cross has arms")
+	plan.shape = ArenaDef.Shape.RECT
+	var room := Rect2i(Vector2i.ZERO, plan.size)
+	var all := plan.cells(Vector2i.ZERO)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 5
+	var hero := Vector2i(3, 3)
+	for pattern in ArenaShiftDef.Pattern.values():
+		var shift := ArenaShiftDef.new()
+		shift.pattern = pattern
+		shift.width = 2
+		shift.count = 12
+		var keep: Array[Vector2i] = [hero, room.get_center()]
+		var picked := shift.pick_cells(all, room, keep, 1, rng)
+		check(not picked.is_empty() and not picked.has(hero) and not picked.has(room.get_center()), "pattern %d takes cells, never under the hero or in the middle" % pattern)
+	var edge := ArenaShiftDef.new()
+	edge.pattern = ArenaShiftDef.Pattern.EDGE
+	var ring := edge.pick_cells(all, room, [] as Array[Vector2i], 0, rng)
+	check(ring.has(Vector2i(10, 0)) and not ring.has(Vector2i(10, 7)), "the edge band is on the edge")
 
 
 ## Monster ranks: rarer is rarer, and only from their depth.

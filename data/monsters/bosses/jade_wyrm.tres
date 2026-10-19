@@ -1,9 +1,13 @@
 [gd_resource type="Resource" script_class="BossDef" format=3]
 
+[ext_resource type="Script" path="res://src/definitions/arena_def.gd" id="1_d6sup"]
 [ext_resource type="Script" path="res://src/definitions/hunt_challenge.gd" id="1_o02c8"]
+[ext_resource type="Resource" path="res://data/arenas/great_hall.tres" id="2_ek3pd"]
 [ext_resource type="Resource" path="res://data/items/weapons/axe.tres" id="2_qg5ws"]
 [ext_resource type="AudioStream" path="res://data/audio/death.tres" id="3_3h5pm"]
+[ext_resource type="Resource" path="res://data/arenas/round_pit.tres" id="3_ijmc7"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/bosses/jade_wyrm.tres" id="4_3iiyv"]
+[ext_resource type="Resource" path="res://data/arenas/cross_court.tres" id="4_47kvs"]
 [ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="5_d6sup"]
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/jade_wyrm/faceset.png" id="6_ek3pd"]
 [ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="7_ijmc7"]
@@ -123,6 +127,7 @@ tail = ExtResource("28_y4pna")
 script = ExtResource("23_shxrq")
 title = "Coiled Guardian of the Temple"
 portrait = ExtResource("6_ek3pd")
+arenas = Array[ExtResource("1_d6sup")]([ExtResource("2_ek3pd"), ExtResource("3_ijmc7"), ExtResource("4_47kvs")])
 phases = Array[ExtResource("14_tyo4n")]([SubResource("Resource_g4va2"), SubResource("Resource_1rbtc")])
 stats = SubResource("Resource_ijg07")
 weapon = ExtResource("30_nil01")

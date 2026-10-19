@@ -10,10 +10,16 @@
 [ext_resource type="Resource" path="res://data/props/lantern.tres" id="5_w3ici"]
 [ext_resource type="Resource" path="res://data/chests/chest.tres" id="6_0biys"]
 [ext_resource type="Resource" path="res://data/shop/merchant.tres" id="7_0biys"]
+[ext_resource type="Script" path="res://src/definitions/arena_def.gd" id="7_e6twt"]
 [ext_resource type="Resource" path="res://data/monster_ranks/elite.tres" id="8_hbupn"]
+[ext_resource type="Resource" path="res://data/arenas/great_hall.tres" id="8_uw7qy"]
+[ext_resource type="Resource" path="res://data/arenas/round_pit.tres" id="9_vkpge"]
+[ext_resource type="Resource" path="res://data/arenas/cross_court.tres" id="10_2bt8q"]
 [ext_resource type="Script" path="res://src/definitions/monster_rank_def.gd" id="10_ityvi"]
 [ext_resource type="Resource" path="res://data/monster_ranks/shiny.tres" id="11_o115v"]
+[ext_resource type="Resource" path="res://data/arenas/pillared_nave.tres" id="11_wqelh"]
 [ext_resource type="Resource" path="res://data/monster_ranks/legendary.tres" id="12_52qi6"]
+[ext_resource type="Resource" path="res://data/arenas/old_chamber.tres" id="12_avhkh"]
 [ext_resource type="Resource" path="res://data/monster_ranks/epic.tres" id="13_wlvxj"]
 
 [resource]
@@ -28,4 +34,5 @@ ambush_chest = ExtResource("5_bf2ay")
 merchant = ExtResource("7_0biys")
 elite_rank = ExtResource("8_hbupn")
 rare_ranks = Array[ExtResource("10_ityvi")]([ExtResource("11_o115v"), ExtResource("12_52qi6"), ExtResource("13_wlvxj")])
+arenas = Array[ExtResource("7_e6twt")]([ExtResource("8_uw7qy"), ExtResource("9_vkpge"), ExtResource("10_2bt8q"), ExtResource("11_wqelh"), ExtResource("12_avhkh")])
 monster_hp_scale_per_depth = 0.22

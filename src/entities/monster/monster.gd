@@ -3,6 +3,9 @@ extends Actor
 ## A monster built from a MonsterDef (or a BossDef). Its behaviour lives in the StateMachine child
 ## (res://src/ai/), which steers it through `move_direction`, `attack()` and skills.
 
+## A boss reached its next phase (1: the second phase, 2: the third...). Its arena may change.
+signal phase_entered(index: int)
+
 
 var def: MonsterDef
 var target: Actor
@@ -59,7 +62,8 @@ func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
 	frames = def.frames
 	frames_offset = def.frames_offset
 	head_height = def.head_height
-	flies = def.flies
+	# Bosses never fall: their arena opening into pits must not swallow them.
+	flies = def.flies or def is BossDef
 	set_body_radius(def.radius)
 	collision_layer = Layers.MONSTERS
 	collision_mask = Layers.WORLD | Layers.PLAYER | Layers.MONSTERS | (0 if def.flies else Layers.WATER)
@@ -365,6 +369,7 @@ func _update_boss_phase() -> void:
 	while _phases_done < boss.phases.size() and float(hp) / get_max_hp() <= boss.phases[_phases_done].hp_ratio:
 		_enter_phase(boss.phases[_phases_done])
 		_phases_done += 1
+		phase_entered.emit(_phases_done)
 
 
 func _enter_phase(phase: BossPhase) -> void:

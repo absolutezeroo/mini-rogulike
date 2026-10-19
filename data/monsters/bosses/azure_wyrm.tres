@@ -1,9 +1,13 @@
 [gd_resource type="Resource" script_class="BossDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/hunt_challenge.gd" id="1_e5a27"]
+[ext_resource type="Script" path="res://src/definitions/arena_def.gd" id="1_qjfa6"]
+[ext_resource type="Resource" path="res://data/arenas/great_hall.tres" id="2_i7kiq"]
 [ext_resource type="Resource" path="res://data/items/weapons/hammer.tres" id="2_n5mnf"]
+[ext_resource type="Resource" path="res://data/arenas/round_pit.tres" id="3_bp0ii"]
 [ext_resource type="AudioStream" path="res://data/audio/death.tres" id="3_mhdcn"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/bosses/azure_wyrm.tres" id="4_42koo"]
+[ext_resource type="Resource" path="res://data/arenas/cross_court.tres" id="4_ffh1c"]
 [ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="5_qjfa6"]
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/azure_wyrm/faceset.png" id="6_i7kiq"]
 [ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="7_bp0ii"]
@@ -122,6 +126,7 @@ tail = ExtResource("27_0lqao")
 script = ExtResource("22_o4fo3")
 title = "Frozen Breath of the Crypt"
 portrait = ExtResource("6_i7kiq")
+arenas = Array[ExtResource("1_qjfa6")]([ExtResource("2_i7kiq"), ExtResource("3_bp0ii"), ExtResource("4_ffh1c")])
 phases = Array[ExtResource("13_v1e1p")]([SubResource("Resource_jm561"), SubResource("Resource_bgch1")])
 stats = SubResource("Resource_q6xws")
 weapon = ExtResource("29_6v430")

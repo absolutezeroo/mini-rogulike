@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="ArenaDef" format=3]
+
+[ext_resource type="Resource" path="res://data/props/furniture/broken_column.tres" id="1_075j6"]
+[ext_resource type="Script" path="res://src/definitions/arena_def.gd" id="2_m81ks"]
+[ext_resource type="Script" path="res://src/definitions/arena_shift_def.gd" id="3_xihyy"]
+[ext_resource type="Resource" path="res://data/hazards/pit.tres" id="4_c4asr"]
+[ext_resource type="Resource" path="res://data/hazards/spikes.tres" id="5_xn0p5"]
+[ext_resource type="Resource" path="res://data/hazards/crumbling_floor.tres" id="6_eiepi"]
+
+[sub_resource type="Resource" id="Resource_8bx1d"]
+script = ExtResource("3_xihyy")
+pattern = 1
+becomes = 2
+message = "Spikes burst from the floor!"
+pit = ExtResource("4_c4asr")
+trap = ExtResource("5_xn0p5")
+
+[sub_resource type="Resource" id="Resource_ajfuh"]
+script = ExtResource("3_xihyy")
+width = 2
+message = "The pit closes in!"
+pit = ExtResource("6_eiepi")
+
+[resource]
+script = ExtResource("2_m81ks")
+id = &"round_pit"
+display_name = "Round Pit"
+size = Vector2i(27, 21)
+shape = 1
+pillar = ExtResource("1_075j6")
+pillars = PackedVector2Array()
+shifts = Array[ExtResource("3_xihyy")]([SubResource("Resource_8bx1d"), SubResource("Resource_ajfuh")])

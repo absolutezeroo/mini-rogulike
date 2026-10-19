@@ -33,8 +33,11 @@ var difficulty: DifficultyDef:
 		difficulty = value
 		if rules:
 			rules = FloorRules.make(rules.config, value, floor_event, depth, curse)
-## Boss floors only: the arena and its boss (null on normal floors).
+## Boss floors only: the arena and its boss (null on normal floors), and its plan (ArenaDef).
 var arena: BossArena
+var arena_plan: ArenaDef
+## Debug: the next arena is this one. Used once.
+var forced_arena: ArenaDef
 ## What makes this floor special (null on most floors).
 var floor_event: FloorEventDef
 ## The Well's curse on this whole floor (null on most floors).
@@ -120,8 +123,10 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 			curse = ContentDB.pick_from(content.curses, depth, rng) as CurseDef
 		if curse == null and rng.randf() < content.dungeon.floor_event_chance:
 			floor_event = ContentDB.pick_from(content.floor_events, depth, rng) as FloorEventDef
+	arena_plan = null
 	if boss:
-		map = DungeonGenerator.generate_arena(content.dungeon, rng)
+		arena_plan = _pick_arena(boss, content.dungeon)
+		map = DungeonGenerator.generate_arena(content.dungeon, rng, arena_plan)
 	else:
 		map = DungeonGenerator.generate(content.dungeon, rng)
 	biome = _pick_biome(content, boss != null)
@@ -142,7 +147,7 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 		# No stairs until the boss is dead: the arena spawns them.
 		arena = ARENA_SCENE.instantiate() as BossArena
 		_entities.add_child(arena)
-		arena.setup(self, boss)
+		arena.setup(self, boss, arena_plan)
 		for room in map.rooms:
 			FloorPopulator.place_lights(self, content.dungeon, room, {})
 		FloorDresser.dress(self, {}, false)  # the arena keeps clear: grounds and decor only
@@ -294,6 +299,16 @@ func fire_projectiles(shooter: Actor, direction: Vector2, spec: ProjectileSpec, 
 		else:
 			projectile.position = from + shot_direction * 6.0
 		_projectiles.add_child.call_deferred(projectile)
+
+
+## The boss' own arenas, else the dungeon's; null for a plain room.
+func _pick_arena(boss: BossDef, config: DungeonConfig) -> ArenaDef:
+	var forced := forced_arena
+	forced_arena = null
+	if forced:
+		return forced
+	var pool: Array[ArenaDef] = boss.arenas if not boss.arenas.is_empty() else config.arenas
+	return pool[rng.randi_range(0, pool.size() - 1)] if not pool.is_empty() else null
 
 
 ## This floor's biome: one of its act's (the debug one if forced).

@@ -31,15 +31,21 @@ static func generate(config: DungeonConfig, rng: RandomNumberGenerator) -> Dunge
 
 ## Boss floor: a small start room and one big arena, joined by a single corridor
 ## (so the arena has only one entrance to close). The stairs appear in the arena later.
-static func generate_arena(config: DungeonConfig, rng: RandomNumberGenerator) -> DungeonMap:
+## `plan`: the arena's size and shape (ArenaDef); without one, a plain room of config.arena_size.
+static func generate_arena(config: DungeonConfig, rng: RandomNumberGenerator, plan: ArenaDef = null) -> DungeonMap:
 	var map := DungeonMap.new(config.width, config.height, config.tile_size)
-	var arena_size := config.arena_size
+	var arena_size := plan.size if plan else config.arena_size
+	arena_size = Vector2i(mini(arena_size.x, config.width - 22), mini(arena_size.y, config.height - 8))
 	var arena := Rect2i(
-		Vector2i(config.width - arena_size.x - rng.randi_range(4, 8), (config.height - arena_size.y) / 2 + rng.randi_range(-6, 6)),
+		Vector2i(config.width - arena_size.x - rng.randi_range(4, 8), (config.height - arena_size.y) / 2 + rng.randi_range(-4, 4)),
 		arena_size)
 	var start := Rect2i(Vector2i(rng.randi_range(4, 8), arena.get_center().y - 3 + rng.randi_range(-8, 8)), Vector2i(7, 7))
 	_carve_rect(map, start)
-	_carve_rect(map, arena)
+	if plan:
+		for cell in plan.cells(arena.position):
+			map.set_floor(cell)
+	else:
+		_carve_rect(map, arena)
 	_carve_corridor(map, start.get_center(), arena.get_center(), config.corridor_width, rng)
 	smooth(map)
 	map.rooms.append(start)

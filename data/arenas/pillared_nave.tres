@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="ArenaDef" format=3]
+
+[ext_resource type="Resource" path="res://data/props/furniture/broken_column.tres" id="1_7hg3p"]
+[ext_resource type="Script" path="res://src/definitions/arena_def.gd" id="2_xn5ru"]
+[ext_resource type="Script" path="res://src/definitions/arena_shift_def.gd" id="3_0ojcc"]
+[ext_resource type="Resource" path="res://data/hazards/pit.tres" id="4_o5710"]
+[ext_resource type="Resource" path="res://data/hazards/spikes.tres" id="5_trea2"]
+
+[sub_resource type="Resource" id="Resource_cx8yb"]
+script = ExtResource("3_0ojcc")
+pattern = 3
+becomes = 0
+width = 3
+message = "The corners fall away!"
+pit = ExtResource("4_o5710")
+
+[sub_resource type="Resource" id="Resource_qcnjx"]
+script = ExtResource("3_0ojcc")
+pattern = 1
+becomes = 2
+message = "Spikes burst from the floor!"
+pit = ExtResource("4_o5710")
+trap = ExtResource("5_trea2")
+
+[resource]
+script = ExtResource("2_xn5ru")
+id = &"pillared_nave"
+display_name = "Pillared Nave"
+size = Vector2i(31, 17)
+pillar = ExtResource("1_7hg3p")
+pillars = PackedVector2Array(0.2, 0.3, 0.4, 0.3, 0.6, 0.3, 0.8, 0.3, 0.2, 0.7, 0.4, 0.7, 0.6, 0.7, 0.8, 0.7)
+shifts = Array[ExtResource("3_0ojcc")]([SubResource("Resource_cx8yb"), SubResource("Resource_qcnjx")])

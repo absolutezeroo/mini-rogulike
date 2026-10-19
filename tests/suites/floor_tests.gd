@@ -267,17 +267,21 @@ func _test_hazards(game: Game, world: World, player: Player) -> void:
 		if rank.hue_shift > 0.0:
 			var look := rare.rig.visual.material as ShaderMaterial
 			check(is_equal_approx(float(look.get_shader_parameter("hue_shift")), rank.hue_shift), "a Shiny has other colors")
-	var legendary_hp: int = ranked.filter(func(m: Monster) -> bool: return m.rank.id == &"legendary")[0].get_max_hp()
-	var epic_hp: int = ranked.filter(func(m: Monster) -> bool: return m.rank.id == &"epic")[0].get_max_hp()
-	check(legendary_hp > epic_hp, "a Legendary is tougher than an Epic")
+	var by_id := {}
+	for rare in ranked:
+		by_id[rare.rank.id] = rare.rank
+	check(by_id[&"legendary"].hp_multiplier > by_id[&"epic"].hp_multiplier and by_id[&"legendary"].loot_quality > by_id[&"epic"].loot_quality, "a Legendary is tougher and richer than an Epic")
 	var shiny_mob: Monster = ranked.filter(func(m: Monster) -> bool: return m.rank.shimmer)[0]
 	Profile.shinies = {}
+	var xp_kept := player.xp
+	player.xp = -1000000  # no level up (and its pause) from this kill
 	var shiny_kill := HitInfo.new()
 	shiny_kill.amount = 999999
 	shiny_kill.source = player
 	shiny_mob.take_hit(shiny_kill)
 	await _frames(2)
 	check(Profile.has_shiny(&"skeleton"), "a Shiny slain joins the bestiary's collection")
+	player.xp = xp_kept
 	for rare in ranked:
 		if is_instance_valid(rare) and not rare.is_dead:
 			rare.queue_free()
@@ -742,6 +746,8 @@ func _test_climate(game: Game) -> void:
 	# A boss at a rare rank: its name, its affixes on the boss bar.
 	var legendary: MonsterRankDef = CONTENT.dungeon.rare_ranks.filter(func(r: MonsterRankDef) -> bool: return r.id == &"legendary")[0]
 	world.forced_boss_rank = legendary
+	var hall: ArenaDef = load("res://data/arenas/great_hall.tres")
+	world.forced_arena = hall
 	await game.debug_enter_floor(CONTENT.dungeon.acts[0].floors)
 	await _frames(3)
 	var rare_boss := world.arena.boss
@@ -750,6 +756,20 @@ func _test_climate(game: Game) -> void:
 	await _frames(2)
 	var bar_name := (game.hud.get_node("%BossName") as Label).text
 	check(bar_name.contains(rare_boss.affixes[0].display_name), "the boss bar shows its affixes (%s)" % bar_name)
+	# Its arena: the plan's size, its pillars, and a change at the next phase.
+	check(world.arena_plan == hall and world.map.boss_room.size == hall.size, "the boss fights in its arena (%s)" % hall.display_name)
+	var columns := get_tree().get_nodes_in_group("props").filter(func(p: Node) -> bool: return (p as Prop).def == hall.pillar)
+	check(columns.size() == hall.pillars.size(), "pillars stand in it (%d)" % columns.size())
+	var cracks_before := world._cracks.size()
+	rare_boss.skills.set_skills([] as Array[SkillDef])
+	rare_boss.invincible = false
+	var to_phase := HitInfo.new()
+	to_phase.amount = rare_boss.hp - roundi(rare_boss.get_max_hp() * 0.6) + rare_boss.get_stats().defense
+	rare_boss.take_hit(to_phase)
+	await _frames(5)
+	check(get_tree().get_nodes_in_group("vfx").size() >= 0 and world.arena.shifts_done == 1, "the next phase changes the arena")
+	await _frames(int(hall.shifts[0].warning_time * 60.0) + 10)
+	check(world._cracks.size() > cracks_before, "after the warning, its edge cracks (%d)" % (world._cracks.size() - cracks_before))
 
 	# Back to a normal floor for the next tests.
 	CONTENT.curses = saved_curses

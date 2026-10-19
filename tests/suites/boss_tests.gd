@@ -102,7 +102,11 @@ func _test_boss_fight(game: Game) -> void:
 	hurt_more.amount = boss.hp - roundi(boss.get_max_hp() * def.phases[1].hp_ratio) + 1 + boss.get_stats().defense
 	boss.take_hit(hurt_more)
 	check(boss.skills.skills == def.phases[1].skills and boss.cooldown_speed > speed_before, "a third of its HP left: its last phase")
-	await _frames(int(def.phase_roar_time * 60.0) + 6)
+	# Its roar (a hit stop may slow it down a little: the arena changing, the hero falling...).
+	for i in int(def.phase_roar_time * 60.0) * 3:
+		if not boss.invincible:
+			break
+		await _frames(1)
 
 	# Kill it: exits open, stairs appear, a relic is offered.
 	var finish := HitInfo.new()

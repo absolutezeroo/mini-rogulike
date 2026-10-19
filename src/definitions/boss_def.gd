@@ -12,6 +12,8 @@ extends MonsterDef
 @export var portrait: Texture2D
 ## Played during the fight. Empty = SoundBank.boss_music.
 @export var music: AudioStream
+## Arenas it fights in (one picked per fight; empty: the dungeon's, DungeonConfig.arenas).
+@export var arenas: Array[ArenaDef] = []
 ## In order of decreasing hp_ratio (usually two: at two thirds and one third of its HP).
 @export var phases: Array[BossPhase] = []
 ## Hits taken in a row (each less than `streak_gap` seconds after the last) before it answers

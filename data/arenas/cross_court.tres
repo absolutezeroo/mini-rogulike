@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="ArenaDef" format=3]
+
+[ext_resource type="Resource" path="res://data/props/furniture/broken_column.tres" id="1_ih2il"]
+[ext_resource type="Script" path="res://src/definitions/arena_def.gd" id="2_ah827"]
+[ext_resource type="Script" path="res://src/definitions/arena_shift_def.gd" id="3_sr17t"]
+[ext_resource type="Resource" path="res://data/hazards/pit.tres" id="4_cmpv0"]
+[ext_resource type="Resource" path="res://data/hazards/spikes.tres" id="5_ky2us"]
+
+[sub_resource type="Resource" id="Resource_kwtwv"]
+script = ExtResource("3_sr17t")
+pattern = 2
+becomes = 2
+count = 14
+message = "Spikes burst from the floor!"
+pit = ExtResource("4_cmpv0")
+trap = ExtResource("5_ky2us")
+
+[sub_resource type="Resource" id="Resource_ts083"]
+script = ExtResource("3_sr17t")
+pattern = 2
+becomes = 0
+count = 10
+message = "The ground caves in!"
+pit = ExtResource("4_cmpv0")
+
+[resource]
+script = ExtResource("2_ah827")
+id = &"cross_court"
+display_name = "Cross Court"
+size = Vector2i(29, 23)
+shape = 2
+pillar = ExtResource("1_ih2il")
+pillars = PackedVector2Array(0.5, 0.15, 0.5, 0.85, 0.12, 0.5, 0.88, 0.5)
+shifts = Array[ExtResource("3_sr17t")]([SubResource("Resource_kwtwv"), SubResource("Resource_ts083")])

@@ -280,6 +280,24 @@ the light): a crimson grade, a great red glow breathing over the top of the scre
 (`vignette_color`, `vignette_pulse`, in `screen.gdshader`), red moonlight shafts and mist, falling
 red ash (`src/vfx/ambient/blood_ash.tscn`).
 
+## Boss arenas
+
+A boss floor is a start room and an arena picked among `DungeonConfig.arenas` (or the boss' own,
+`BossDef.arenas`: the Wyrms want room). An `ArenaDef` (`data/arenas/`) has a size, a shape (rect,
+**oval**, **cross**), pillars (props: cover from shots) and **changes** (`ArenaShiftDef`), one at
+each of the boss' next phases (`Monster.phase_entered`): the cells blink red (`CellWarning`), then
+become cracked floor, pits or spikes, in a pattern (the **edge** crumbling in, a **cross** of
+spikes through the middle, **corners** falling away, **scattered** holes). Never under the hero,
+the boss or the middle (where the stairs appear).
+
+| Arena | Size, shape | Changes |
+|---|---|---|
+| Great Hall | 27x19, 4 pillars | the edge crumbles, then the ground caves in |
+| Round Pit | 27x21 oval | a cross of spikes, then the pit closes in |
+| Cross Court | 29x23 cross, 4 pillars | spikes here and there, then holes |
+| Pillared Nave | 31x17, two rows of pillars | the corners fall away, then a cross of spikes |
+| Old Chamber | 21x15 | the floor cracks, then caves in |
+
 ## Monster ranks: Elite, Epic, Legendary, Shiny
 
 Any monster can come at a rank (`MonsterRankDef`, `data/monster_ranks/`; `DungeonConfig.elite_rank`

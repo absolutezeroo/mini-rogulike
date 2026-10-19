@@ -117,6 +117,8 @@ func _bot_play(game: Game, frames: int) -> void:
 	var path_timer := 0
 	var path := PackedVector2Array()
 	var unreachable: Array[Actor] = []  # no path to them (across water...): hunt others
+	var chased: Actor = null
+	var chase_frames := 0
 	for frame in frames:
 		var player: Player = game.player
 		var world: World = game.world
@@ -129,6 +131,15 @@ func _bot_play(game: Game, frames: int) -> void:
 			await get_tree().physics_frame
 			continue
 		var target := _nearest_monster(world, player, unreachable)
+		# Chasing the same one for 10 s without killing it: out of reach somehow, hunt another.
+		if target == chased:
+			chase_frames += 1
+			if chase_frames > 600 and target:
+				unreachable.append(target)
+				chase_frames = 0
+		else:
+			chased = target
+			chase_frames = 0
 		var direction := Vector2.ZERO
 		if target:
 			var distance := player.global_position.distance_to(target.global_position)

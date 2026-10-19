@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ArenaDef" format=3]
+
+[ext_resource type="Resource" path="res://data/props/furniture/broken_column.tres" id="1_mabeb"]
+[ext_resource type="Script" path="res://src/definitions/arena_def.gd" id="2_66jil"]
+[ext_resource type="Script" path="res://src/definitions/arena_shift_def.gd" id="3_n27lg"]
+[ext_resource type="Resource" path="res://data/hazards/crumbling_floor.tres" id="4_vtmhf"]
+[ext_resource type="Resource" path="res://data/hazards/pit.tres" id="5_84av7"]
+
+[sub_resource type="Resource" id="Resource_f3k0s"]
+script = ExtResource("3_n27lg")
+pattern = 2
+count = 10
+message = "The floor cracks!"
+pit = ExtResource("4_vtmhf")
+
+[sub_resource type="Resource" id="Resource_5elvi"]
+script = ExtResource("3_n27lg")
+pattern = 2
+becomes = 0
+message = "The ground caves in!"
+pit = ExtResource("5_84av7")
+
+[resource]
+script = ExtResource("2_66jil")
+id = &"old_chamber"
+display_name = "Old Chamber"
+size = Vector2i(21, 15)
+pillar = ExtResource("1_mabeb")
+pillars = PackedVector2Array()
+shifts = Array[ExtResource("3_n27lg")]([SubResource("Resource_f3k0s"), SubResource("Resource_5elvi")])

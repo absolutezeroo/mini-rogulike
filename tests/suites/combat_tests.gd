@@ -694,6 +694,9 @@ func _test_review_fixes(game: Game) -> void:
 	await _clear_monsters(world)
 	player.hp = player.get_max_hp()
 	player.ward = 0  # a Guardian Ring taken earlier would soak the burn
+	while game.perk_panel.visible:  # a level up waiting would keep the game paused
+		game.perk_panel.choose(0)
+		await _frames(2)
 
 	# A burn tick doesn't make the hero invulnerable (or monsters' hits would be swallowed).
 	player._invulnerable_time = 0.0
