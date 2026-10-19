@@ -7,3 +7,7 @@
 /android/
 *.apk
 *.aab
+
+# Signing keys: never in git
+*.keystore
+*.jks
