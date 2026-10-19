@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="SynergyDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/synergies/frost.png" id="1_3jrjx"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_mjeg1"]
+[ext_resource type="Script" path="res://src/definitions/passives/status_damage_passive.gd" id="3_uvr8t"]
+[ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="4_ik385"]
+
+[sub_resource type="Resource" id="Resource_a1rtc"]
+script = ExtResource("3_uvr8t")
+condition = 2
+bonus_per_stack = 0.5
+crit_slow = 0.9
+crit_slow_duration = 1.2
+
+[resource]
+script = ExtResource("4_ik385")
+id = &"frost"
+display_name = "Frost"
+description = "Slowed enemies take 50% more damage, and critical hits freeze them solid for a moment."
+icon = ExtResource("1_3jrjx")
+color = Color(0.5568628, 0.7921569, 0.9019608, 1)
+passives = Array[ExtResource("2_mjeg1")]([SubResource("Resource_a1rtc")])

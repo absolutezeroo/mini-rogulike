@@ -4,6 +4,8 @@
 [ext_resource type="Texture2D" path="res://assets/ui/perks/sages_codex.png" id="2_a5oos"]
 [ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="3_il8t6"]
 [ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_rdk66"]
+[ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="5_il8t6"]
+[ext_resource type="Resource" path="res://data/perks/synergies/arcane.tres" id="6_rdk66"]
 
 [sub_resource type="Resource" id="Resource_um0li"]
 script = ExtResource("1_um0li")
@@ -18,4 +20,5 @@ icon = ExtResource("2_a5oos")
 color = Color(0.7019608, 0.53333336, 0.92156863, 1)
 rarity = 1
 max_stacks = 1
+synergies = Array[ExtResource("5_il8t6")]([ExtResource("6_rdk66")])
 bonuses = SubResource("Resource_um0li")

@@ -403,7 +403,14 @@ A `PerkDef` (in `data/perks/`) is stat bonuses + a list of `Passive`s, both mult
 | `ThornsPassive` | on damaged | Thorns |
 | `BurnOnHitPassive` | on hit | Ignite (burn status) |
 | `CritShockwavePassive` | on hit (crits) | Thunderclap |
-| `DashShockwavePassive` | on dash | Shock Roll |
+| `DashShockwavePassive` | on dash (can leave a status) | Shock Roll, Cold Snap, Blazing Roll |
+| `SlowOnHitPassive` | on hit | Frostbite |
+| `StatusDamagePassive` | before a hit (burning/poisoned/slowed target) | Kindling, the Frost family |
+| `KillBurstPassive` | on kill (shards out of the body, a blast) | Ice Shards, the Inferno family |
+| `SkillEchoPassive` | on skill (cooldown back to 0) | Echo |
+| `EffectsOnSkillPassive` | on skill (any `Effect`) | the Arcane family |
+| `ChainLightningPassive` | every few hits | the Storm family |
+| `BloodlustPassive` | before a hit (wounded), on kill | the Blood family |
 | `LootOnKillPassive` | on kill | Fortune |
 | `ExecutePassive` | before a hit | Executioner |
 | `ExtraProjectilesPassive` | every volley | Multishot |
@@ -412,6 +419,23 @@ A `PerkDef` (in `data/perks/`) is stat bonuses + a list of `Passive`s, both mult
 Damage caused by a passive (burn, thorns, shockwaves) is a *secondary* hit: it never triggers
 other on-hit perks, so effects can't chain forever. Perks are stored per actor in a `PerkSet`,
 so monsters could use them too (elites, later).
+
+### Families (synergies)
+
+Most perks and relics belong to a **family** (`SynergyDef`, `data/perks/synergies/`, listed in
+`content_db.tres` > Synergies; a perk names its own in `PerkDef.synergies`). Holding **3 different
+perks** of a family wakes its bonus for the rest of the run: a change in how you play, not a number.
+
+| Family | Perks and relics | Awake |
+|---|---|---|
+| **Inferno** | Ignite, Frenzy, Kindling, Blazing Roll, War Banner, Phoenix Feather | enemies that die burning explode and set everything around on fire |
+| **Frost** | Frostbite, Cold Snap, Ice Shards, Guardian Ring | slowed enemies take +50%, crits freeze them |
+| **Blood** | Vampirism, Strength, Vitality, Thorns, Executioner | below half HP +40% damage, every kill heals 4% max HP |
+| **Storm** | Precision, Thunderclap, Shock Roll, Swiftness, Multishot | every 4th hit, lightning jumps to 3 enemies |
+| **Arcane** | Arcane Focus, Arcane Power, Devotion, Echo, Sage's Codex, Multishot | every skill also fires a ring of 8 bolts |
+
+The perk cards show each family's count ("Frost 1/3") and shine "Wakes Inferno!" on the card that
+would complete one. An awake family gets a banner and a framed icon at the head of the HUD's perk row.
 
 ## The run
 

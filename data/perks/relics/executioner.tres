@@ -4,6 +4,8 @@
 [ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_rr6jg"]
 [ext_resource type="Script" path="res://src/definitions/passives/execute_passive.gd" id="3_5ylrs"]
 [ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_eiqjs"]
+[ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="5_5ylrs"]
+[ext_resource type="Resource" path="res://data/perks/synergies/blood.tres" id="6_eiqjs"]
 
 [sub_resource type="Resource" id="Resource_edbmq"]
 script = ExtResource("3_5ylrs")
@@ -17,4 +19,5 @@ icon = ExtResource("1_1j77r")
 color = Color(0.9019608, 0.22352941, 0.27450982, 1)
 rarity = 1
 max_stacks = 2
+synergies = Array[ExtResource("5_5ylrs")]([ExtResource("6_eiqjs")])
 passives = Array[ExtResource("2_rr6jg")]([SubResource("Resource_edbmq")])

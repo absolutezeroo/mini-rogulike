@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="PerkDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/perks/echo.png" id="1_j6ugo"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_f1u23"]
+[ext_resource type="Script" path="res://src/definitions/passives/skill_echo_passive.gd" id="3_lwncy"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_3nis2"]
+[ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="5_gtup2"]
+[ext_resource type="Resource" path="res://data/perks/synergies/arcane.tres" id="6_3beth"]
+
+[sub_resource type="Resource" id="Resource_xwke5"]
+script = ExtResource("3_lwncy")
+
+[resource]
+script = ExtResource("4_3nis2")
+id = &"echo"
+display_name = "Echo"
+description = "Using a skill has a 15% chance per level to leave it ready again at once."
+icon = ExtResource("1_j6ugo")
+color = Color(0.7019608, 0.53333336, 0.92156863, 1)
+weight = 6
+synergies = Array[ExtResource("5_gtup2")]([ExtResource("6_3beth")])
+passives = Array[ExtResource("2_f1u23")]([SubResource("Resource_xwke5")])

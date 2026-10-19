@@ -45,6 +45,13 @@ func cooldown_ratio(index: int) -> float:
 	return _cooldowns[index] / _durations[index]
 
 
+## Ready again at once (an echoing perk).
+func reset_cooldown(skill: SkillDef) -> void:
+	var index := skills.find(skill)
+	if index >= 0:
+		_cooldowns[index] = 0.0
+
+
 func try_use(index: int, user: Actor, aim: Vector2) -> bool:
 	if not is_ready(index):
 		return false

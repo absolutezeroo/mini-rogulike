@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="SynergyDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/synergies/arcane.png" id="1_vue4l"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_h2orh"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="3_2gm6f"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="4_5o7og"]
+[ext_resource type="Script" path="res://src/definitions/passives/effects_on_skill_passive.gd" id="5_e8o13"]
+[ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="6_lv1dn"]
+
+[sub_resource type="Resource" id="Resource_fpsxq"]
+script = ExtResource("4_5o7og")
+damage_multiplier = 0.5
+speed = 360.0
+radius = 6.0
+max_distance = 300.0
+count = 8
+spread_degrees = 360.0
+knockback = 90.0
+color = Color(0.7019608, 0.53333336, 0.92156863, 1)
+
+[sub_resource type="Resource" id="Resource_4lxhq"]
+script = ExtResource("5_e8o13")
+effects = Array[ExtResource("3_2gm6f")]([SubResource("Resource_fpsxq")])
+
+[resource]
+script = ExtResource("6_lv1dn")
+id = &"arcane"
+display_name = "Arcane"
+description = "Using a skill also fires a ring of 8 arcane bolts."
+icon = ExtResource("1_vue4l")
+color = Color(0.7019608, 0.53333336, 0.92156863, 1)
+passives = Array[ExtResource("2_h2orh")]([SubResource("Resource_4lxhq")])

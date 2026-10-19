@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="PerkDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/perks/ice_shards.png" id="1_i4q12"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_baxjc"]
+[ext_resource type="Script" path="res://src/definitions/passives/kill_burst_passive.gd" id="3_ln6gm"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="4_rj6v7"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="5_sfge4"]
+[ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="6_jahm1"]
+[ext_resource type="Resource" path="res://data/perks/synergies/frost.tres" id="7_g7x17"]
+
+[sub_resource type="Resource" id="Resource_m4462"]
+script = ExtResource("4_rj6v7")
+slow = 0.3
+slow_duration = 1.5
+
+[sub_resource type="Resource" id="Resource_n5u4w"]
+script = ExtResource("3_ln6gm")
+shards = 4
+shard_status = SubResource("Resource_m4462")
+
+[resource]
+script = ExtResource("5_sfge4")
+id = &"ice_shards"
+display_name = "Ice Shards"
+description = "Slain enemies burst into 4 ice shards (+1 per level) that slow."
+icon = ExtResource("1_i4q12")
+color = Color(0.5568628, 0.7921569, 0.9019608, 1)
+weight = 6
+synergies = Array[ExtResource("6_jahm1")]([ExtResource("7_g7x17")])
+passives = Array[ExtResource("2_baxjc")]([SubResource("Resource_n5u4w")])

@@ -1,20 +1,31 @@
 class_name PerkSet
 extends RefCounted
-## The perks an actor collected during the run, with their stack counts.
-## Adds up their stats and forwards gameplay events to their passives.
+## The perks an actor collected during the run, with their stack counts, and the families they
+## woke (SynergyDef: three different perks of a family). Adds up their stats and forwards
+## gameplay events to their passives, the awakened families' included.
 
 signal changed
+## A family just woke: its bonus is on from now.
+signal synergy_awakened(synergy: SynergyDef)
 
 
-## One collected perk.
+## One collected perk, or one awakened family (`synergy` set, `perk` null, 1 stack).
 class Entry:
 	var perk: PerkDef
+	var synergy: SynergyDef
 	var stacks: int = 1
-	## Run state for the perk's passives (charges, cooldowns...).
+	## Run state for the passives (charges, counters...).
 	var memory := {}
+
+	func passives() -> Array[Passive]:
+		return synergy.passives if synergy else perk.passives
 
 
 var entries: Array[Entry] = []
+## The awakened families, in the order they woke.
+var _awake: Array[Entry] = []
+## Collected perks and awakened families together (what the events go through).
+var _all: Array[Entry] = []
 
 
 func add(perk: PerkDef) -> void:
@@ -25,6 +36,7 @@ func add(perk: PerkDef) -> void:
 		entry = Entry.new()
 		entry.perk = perk
 		entries.append(entry)
+	_refresh_synergies(true)
 	changed.emit()
 
 
@@ -46,7 +58,61 @@ func can_take(perk: PerkDef) -> bool:
 
 func clear() -> void:
 	entries.clear()
+	_refresh_synergies(false)
 	changed.emit()
+
+
+# --- Families (SynergyDef) ----------------------------------------------------
+
+## Different perks of `synergy` collected.
+func pieces_of(synergy: SynergyDef) -> int:
+	var count := 0
+	for entry in entries:
+		if entry.perk.synergies.has(synergy):
+			count += 1
+	return count
+
+
+func is_awake(synergy: SynergyDef) -> bool:
+	return _awake.any(func(entry: Entry) -> bool: return entry.synergy == synergy)
+
+
+func awakened() -> Array[SynergyDef]:
+	var result: Array[SynergyDef] = []
+	for entry in _awake:
+		result.append(entry.synergy)
+	return result
+
+
+## Every family the collected perks belong to (awake or not), first met first.
+func families() -> Array[SynergyDef]:
+	var result: Array[SynergyDef] = []
+	for entry in entries:
+		for synergy in entry.perk.synergies:
+			if synergy and not result.has(synergy):
+				result.append(synergy)
+	return result
+
+
+## Taking `perk` (not owned yet) would wake `synergy`.
+func would_complete(perk: PerkDef, synergy: SynergyDef) -> bool:
+	return stacks_of(perk) == 0 and not is_awake(synergy) and pieces_of(synergy) + 1 >= synergy.pieces
+
+
+## Wakes the families that have enough pieces (they never fall asleep again during a run,
+## but a cleared or reloaded set starts over). `announce`: tell who listens.
+func _refresh_synergies(announce: bool) -> void:
+	if entries.is_empty():
+		_awake.clear()
+	for synergy in families():
+		if not is_awake(synergy) and pieces_of(synergy) >= synergy.pieces:
+			var entry := Entry.new()
+			entry.synergy = synergy
+			_awake.append(entry)
+			if announce:
+				synergy_awakened.emit(synergy)
+	_all = entries.duplicate()
+	_all.append_array(_awake)
 
 
 ## For save files: [{ perk, stacks, memory }].
@@ -66,6 +132,8 @@ func load_data(data: Array) -> void:
 		entry.stacks = int(saved.get("stacks", 1))
 		entry.memory = saved.get("memory", {})
 		entries.append(entry)
+	_awake.clear()
+	_refresh_synergies(false)
 	changed.emit()
 
 
@@ -74,62 +142,65 @@ func total_bonuses() -> StatBlock:
 	for entry in entries:
 		if entry.perk.bonuses:
 			total = total.plus(entry.perk.bonuses.times(entry.stacks))
+	for entry in _awake:
+		if entry.synergy.bonuses:
+			total = total.plus(entry.synergy.bonuses)
 	return total
 
 
 # --- Events (called by Actor and World) --------------------------------------
 
 func modify_outgoing_hit(owner: Actor, target: Actor, hit: HitInfo) -> void:
-	for entry in entries:
-		for passive in entry.perk.passives:
+	for entry in _all:
+		for passive in entry.passives():
 			passive.modify_outgoing_hit(owner, target, hit, entry)
 
 
 func on_hit_dealt(owner: Actor, target: Actor, hit: HitInfo, damage: int) -> void:
-	for entry in entries:
-		for passive in entry.perk.passives:
+	for entry in _all:
+		for passive in entry.passives():
 			passive.on_hit_dealt(owner, target, hit, damage, entry)
 
 
 func on_damaged(owner: Actor, hit: HitInfo, damage: int) -> void:
-	for entry in entries:
-		for passive in entry.perk.passives:
+	for entry in _all:
+		for passive in entry.passives():
 			passive.on_damaged(owner, hit, damage, entry)
 
 
 func on_kill(owner: Actor, victim: Actor) -> void:
-	for entry in entries:
-		for passive in entry.perk.passives:
+	for entry in _all:
+		for passive in entry.passives():
 			passive.on_kill(owner, victim, entry)
 
 
 func on_skill_used(owner: Actor, skill: SkillDef) -> void:
-	for entry in entries:
-		for passive in entry.perk.passives:
+	for entry in _all:
+		for passive in entry.passives():
 			passive.on_skill_used(owner, skill, entry)
 
 
 func on_dash(owner: Actor) -> void:
-	for entry in entries:
-		for passive in entry.perk.passives:
+	for entry in _all:
+		for passive in entry.passives():
 			passive.on_dash(owner, entry)
 
 
 func modify_projectiles(owner: Actor, spec: ProjectileSpec) -> void:
-	for entry in entries:
-		for passive in entry.perk.passives:
+	for entry in _all:
+		for passive in entry.passives():
 			passive.modify_projectiles(owner, spec, entry)
 
 
 func on_died(owner: Actor) -> void:
-	for entry in entries:
-		for passive in entry.perk.passives:
+	for entry in _all:
+		for passive in entry.passives():
 			passive.on_died(owner, entry)
 
 
 func prevent_death(owner: Actor) -> bool:
-	for entry in entries:
-		for passive in entry.perk.passives:
+	for entry in _all:
+		for passive in entry.passives():
 			if passive.prevent_death(owner, entry):
 				return true
 	return false

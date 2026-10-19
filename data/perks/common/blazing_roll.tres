@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="PerkDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/perks/blazing_roll.png" id="1_ell3i"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_gy2xj"]
+[ext_resource type="Script" path="res://src/definitions/passives/dash_shockwave_passive.gd" id="3_vy5n2"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="4_hgdfy"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="5_85sbx"]
+[ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="6_ku2h6"]
+[ext_resource type="Resource" path="res://data/perks/synergies/inferno.tres" id="7_bq8dm"]
+
+[sub_resource type="Resource" id="Resource_u4q6u"]
+script = ExtResource("4_hgdfy")
+burn_damage = 2
+
+[sub_resource type="Resource" id="Resource_itvvk"]
+script = ExtResource("3_vy5n2")
+damage_multiplier = 0.4
+knockback = 160.0
+color = Color(1, 0.54901963, 0.25882354, 1)
+status = SubResource("Resource_u4q6u")
+
+[resource]
+script = ExtResource("5_85sbx")
+id = &"blazing_roll"
+display_name = "Blazing Roll"
+description = "Rolling bursts into flames that hurt and set enemies around on fire."
+icon = ExtResource("1_ell3i")
+color = Color(1, 0.54901963, 0.25882354, 1)
+max_stacks = 2
+weight = 6
+synergies = Array[ExtResource("6_ku2h6")]([ExtResource("7_bq8dm")])
+passives = Array[ExtResource("2_gy2xj")]([SubResource("Resource_itvvk")])

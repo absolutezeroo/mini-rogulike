@@ -2,6 +2,7 @@ class_name PerkDef
 extends Resource
 ## A permanent upgrade for the run, picked on level up (common perks) or after a boss (rare relics).
 ## Stat bonuses and passives both stack: taking a perk twice doubles its effect.
+## Most belong to a family or two (SynergyDef): three of a family wake its bonus.
 
 enum Rarity { COMMON, RARE }
 
@@ -15,6 +16,8 @@ enum Rarity { COMMON, RARE }
 @export_range(1, 10) var max_stacks: int = 3
 ## Relative chance to be offered.
 @export_range(0, 100) var weight: int = 10
+## Its families (Inferno, Frost...): each different perk of a family counts once.
+@export var synergies: Array[SynergyDef] = []
 
 @export_group("Effects (per stack)")
 @export var bonuses: StatBlock

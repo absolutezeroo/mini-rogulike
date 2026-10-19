@@ -17,6 +17,9 @@ func _test_world_objects(game: Game, world: World, player: Player) -> void:
 	var spot := world.map.world_to_cell(world.find_open_point_near(player.global_position, 40.0))
 	var crate := world.spawn_prop(crate_def, spot)
 	await _frames(1)
+	# The nearest free cell may be a step away: walk up to it (from the side the hero came).
+	if player.global_position.distance_to(crate.global_position) > 36.0:
+		player.global_position = crate.global_position + crate.global_position.direction_to(player.global_position) * 34.0
 	# A swing may whiff now and then (still in the last one's motion): a couple to spare.
 	for i in crate_def.hits + 2:
 		if not is_instance_valid(crate) or crate.is_broken:

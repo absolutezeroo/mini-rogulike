@@ -4,6 +4,8 @@
 [ext_resource type="Texture2D" path="res://assets/ui/perks/swiftness.png" id="2_7gqvd"]
 [ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="3_gx0f1"]
 [ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_cfg3e"]
+[ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="5_gx0f1"]
+[ext_resource type="Resource" path="res://data/perks/synergies/storm.tres" id="6_cfg3e"]
 
 [sub_resource type="Resource" id="Resource_xa3pa"]
 script = ExtResource("1_vcjg0")
@@ -16,4 +18,5 @@ display_name = "Swiftness"
 icon = ExtResource("2_7gqvd")
 color = Color(0.30980393, 0.81960785, 0.77254903, 1)
 weight = 7
+synergies = Array[ExtResource("5_gx0f1")]([ExtResource("6_cfg3e")])
 bonuses = SubResource("Resource_xa3pa")

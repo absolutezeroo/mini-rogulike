@@ -4,6 +4,9 @@
 [ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_o6fin"]
 [ext_resource type="Script" path="res://src/definitions/passives/extra_projectiles_passive.gd" id="3_4dmd0"]
 [ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_uf1m7"]
+[ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="5_uf1m7"]
+[ext_resource type="Resource" path="res://data/perks/synergies/storm.tres" id="6_bu4ff"]
+[ext_resource type="Resource" path="res://data/perks/synergies/arcane.tres" id="7_oypti"]
 
 [sub_resource type="Resource" id="Resource_bu4ff"]
 script = ExtResource("3_4dmd0")
@@ -17,4 +20,5 @@ icon = ExtResource("1_rd3vk")
 color = Color(0.47843137, 0.827451, 1, 1)
 rarity = 1
 max_stacks = 2
+synergies = Array[ExtResource("5_uf1m7")]([ExtResource("6_bu4ff"), ExtResource("7_oypti")])
 passives = Array[ExtResource("2_o6fin")]([SubResource("Resource_bu4ff")])

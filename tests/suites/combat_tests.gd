@@ -147,6 +147,109 @@ func _test_perks_in_game(game: Game, world: World, player: Player) -> void:
 	check(not get_tree().paused and total_levels == 3, "both perks taken (%d perk levels), game resumed" % total_levels)
 
 
+## The new perks and the families' bonuses, in a real fight.
+func _test_synergies_in_game(game: Game, world: World, player: Player) -> void:
+	player.xp = -1000000  # no level up (and its pause) from these kills
+	var spot := world.find_open_point_near(player.global_position, 90.0)
+	var shots: Node = world.get_node("Projectiles")
+	var slime_def: MonsterDef = load("res://data/monsters/slime.tres")
+
+	# Ice Shards: a kill bursts into shards flying out of the body.
+	player.perks.add(_perk("ice_shards"))
+	var rat := world.spawn_monster(load("res://data/monsters/rat.tres"), spot)
+	rat.dormant = true
+	await _frames(1)
+	var kill := HitInfo.new()
+	kill.amount = 9999
+	kill.source = player
+	rat.take_hit(kill)
+	await _frames(1)
+	var shards := shots.get_children().filter(func(n: Node) -> bool: return (n as Projectile).global_position.distance_to(rat.global_position) < 40.0)
+	check(shards.size() >= 4, "Ice Shards: the body bursts into shards (%d)" % shards.size())
+
+	# Frost: three frost perks wake it; slowed enemies take more, crits freeze them.
+	player.perks.add(_perk("frostbite"))
+	player.perks.add(_perk("cold_snap"))
+	var frost: SynergyDef = _perk("frostbite").synergies[0]
+	check(player.perks.is_awake(frost), "three frost perks wake Frost")
+	check((game.hud.get_node("%PerkTray") as Control).get_child(0) is Panel, "the HUD shows the awake family first")
+	var slime := world.spawn_monster(slime_def, spot)
+	slime.dormant = true
+	slime.base_stats.max_hp = 9999
+	slime.invalidate_stats()
+	slime.hp = 9999
+	await _frames(1)
+	var plain := HitInfo.new()
+	plain.amount = 20
+	plain.source = player
+	slime.statuses.clear()
+	player.perks.modify_outgoing_hit(player, slime, plain)
+	var normal := plain.amount
+	slime.statuses.apply_slow(0.3, 2.0)
+	var on_slowed := HitInfo.new()
+	on_slowed.amount = 20
+	on_slowed.source = player
+	player.perks.modify_outgoing_hit(player, slime, on_slowed)
+	check(on_slowed.amount >= roundi(normal * 1.4), "Frost: slowed enemies take more damage (%d vs %d)" % [on_slowed.amount, normal])
+	var crit := HitInfo.new()
+	crit.amount = 5
+	crit.is_crit = true
+	crit.source = player
+	slime.take_hit(crit)
+	check(slime.statuses.speed_multiplier() <= 0.15, "Frost: a critical hit freezes a slowed enemy")
+	player.perks.clear()
+
+	# Storm: every 4th hit, lightning jumps to the enemies around.
+	for id in ["precision", "thunderclap", "shock_roll"]:
+		player.perks.add(_perk(id))
+	var others: Array[Monster] = []
+	for i in 2:
+		var other := world.spawn_monster(slime_def, slime.global_position + Vector2(40 + 30 * i, 0))
+		other.dormant = true
+		others.append(other)
+	await _frames(1)
+	var others_hp := others.map(func(m: Monster) -> int: return m.hp)
+	for i in 4:
+		var poke := HitInfo.new()
+		poke.amount = 1
+		poke.source = player
+		slime.take_hit(poke)
+	check(others[0].hp < others_hp[0] or others[1].hp < others_hp[1], "Storm: lightning jumps to the enemies nearby")
+	player.perks.clear()
+
+	# Arcane: using a skill fires a ring of bolts.
+	for id in ["arcane_focus", "arcane_power", "devotion"]:
+		player.perks.add(_perk(id))
+	for n in shots.get_children():
+		n.queue_free()
+	await _frames(1)
+	var index := player.skills.skills.find_custom(func(s: SkillDef) -> bool: return s != null)
+	player.skills._cooldowns[index] = 0.0
+	player.skills.try_use(index, player, Vector2.RIGHT)
+	await _frames(1)
+	var near_hero := shots.get_children().filter(func(n: Node) -> bool: return (n as Projectile).global_position.distance_to(player.global_position) < 60.0)
+	check(near_hero.size() >= 8, "Arcane: a skill also fires a ring of bolts (%d)" % near_hero.size())
+	player.perks.clear()
+
+	# Blood: wounded you hit harder, kills heal.
+	for id in ["vampirism", "strength", "vitality"]:
+		player.perks.add(_perk(id))
+	player.hp = 1
+	var hard := HitInfo.new()
+	hard.amount = 20
+	hard.source = player
+	player.perks.modify_outgoing_hit(player, slime, hard)
+	check(hard.amount > 20 + 1, "Blood: wounded, you hit harder (%d)" % hard.amount)
+	player.perks.clear()
+
+	for monster in [slime] + others:
+		if is_instance_valid(monster) and not monster.is_dead:
+			monster.die(null)
+	player.hp = player.get_max_hp()
+	player.xp = 0
+	await _frames(5)
+
+
 ## Skills come from the weapon and from tomes; statuses, delays, dash strikes, skill stats.
 func _test_skills(game: Game, world: World, player: Player) -> void:
 	var katana: WeaponDef = load("res://data/items/weapons/katana.tres")

@@ -126,6 +126,7 @@ func bind_player(player: Player) -> void:
 		_player.equipment.changed.disconnect(_refresh_info)
 		_player.skills_changed.disconnect(_refresh_skill_buttons)
 		_player.gold_changed.disconnect(_on_gold_changed)
+		_player.perks.synergy_awakened.disconnect(_on_synergy_awakened)
 	_player = player
 	_player.health_changed.connect(_on_health_changed)
 	_vignette.reset()
@@ -135,6 +136,7 @@ func bind_player(player: Player) -> void:
 	_player.equipment.changed.connect(_refresh_info)
 	_player.skills_changed.connect(_refresh_skill_buttons)
 	_player.gold_changed.connect(_on_gold_changed)
+	_player.perks.synergy_awakened.connect(_on_synergy_awakened)
 	_on_gold_changed(player.gold)
 	_message_log.clear()
 	_perk_tray.bind(player.perks)
@@ -229,6 +231,12 @@ func _refresh_info() -> void:
 
 func _on_gold_changed(gold: int) -> void:
 	(%GoldLabel as Label).text = "Gold %d" % gold
+
+
+## Three of a family: its name across the screen, what it does in the log.
+func _on_synergy_awakened(synergy: SynergyDef) -> void:
+	show_banner("%s awakens" % synergy.display_name, synergy.color)
+	Events.log_message("%s awakens: %s" % [synergy.display_name, synergy.description], synergy.color)
 
 
 ## A short note at the top of the screen (achievements...). Several wait their turn.

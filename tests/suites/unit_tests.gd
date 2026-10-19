@@ -12,6 +12,7 @@ func run() -> void:
 	_test_stairs_seal()
 	_test_inventory_and_equipment()
 	_test_perks()
+	_test_synergies()
 	_test_bosses()
 	_test_profile()
 
@@ -374,6 +375,45 @@ func _test_perks() -> void:
 				everything.add(perk)
 	var fallback := CONTENT.pick_perks(everything, 3, PerkDef.Rarity.RARE, rng)
 	check(fallback.size() == 3, "with every relic maxed, common perks fill the offer")
+
+
+## Perk families: sound data, waking at 3 different perks, saved and loaded.
+func _test_synergies() -> void:
+	check(CONTENT.synergies.size() >= 5, "at least 5 perk families")
+	var members := {}
+	for perk in CONTENT.perks:
+		for synergy in perk.synergies:
+			check(CONTENT.synergies.has(synergy), "%s: its family %s is listed" % [perk.id, synergy.id if synergy else &"null"])
+			members[synergy] = members.get(synergy, 0) + 1
+	for synergy in CONTENT.synergies:
+		check(synergy.icon != null and not synergy.description.is_empty() and not synergy.passives.is_empty(), "%s: icon, text and a bonus that does something" % synergy.id)
+		check(members.get(synergy, 0) >= synergy.pieces + 1, "%s: enough perks to choose from (%d)" % [synergy.id, members.get(synergy, 0)])
+	var inferno: SynergyDef = _perk("ignite").synergies[0]
+	var set := PerkSet.new()
+	var woke: Array[SynergyDef] = []
+	set.synergy_awakened.connect(func(synergy: SynergyDef) -> void: woke.append(synergy))
+	set.add(_perk("ignite"))
+	set.add(_perk("ignite"))
+	set.add(_perk("frenzy"))
+	check(set.pieces_of(inferno) == 2 and not set.is_awake(inferno), "two stacks of one perk count once")
+	check(set.would_complete(_perk("kindling"), inferno) and not set.would_complete(_perk("ignite"), inferno), "a third different perk would wake the family")
+	set.add(_perk("kindling"))
+	check(set.is_awake(inferno) and woke == [inferno], "three different perks wake it, once")
+	check(set.awakened() == [inferno] and set.families().has(inferno), "awake families are listed")
+	var copy := PerkSet.new()
+	copy.synergy_awakened.connect(func(synergy: SynergyDef) -> void: woke.append(synergy))
+	copy.load_data(set.to_data())
+	check(copy.is_awake(inferno) and woke.size() == 1, "a loaded run keeps it awake (without announcing it again)")
+	set.clear()
+	check(not set.is_awake(inferno), "a new run starts asleep")
+	var skills := SkillSet.new()
+	var skill := SkillDef.new()
+	skill.cooldown = 5.0
+	var list: Array[SkillDef] = [skill]
+	skills.set_skills(list)
+	skills._cooldowns[0] = 4.0
+	skills.reset_cooldown(skill)
+	check(skills.is_ready(0), "an echo leaves the skill ready again")
 
 
 func _test_bosses() -> void:

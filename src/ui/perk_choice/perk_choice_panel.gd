@@ -31,7 +31,7 @@ func open(title: String, subtitle: String, perks: Array[PerkDef], owned: PerkSet
 	for i in perks.size():
 		var card := CARD_SCENE.instantiate() as PerkCard
 		_cards.add_child(card)
-		card.show_perk(perks[i], owned.stacks_of(perks[i]))
+		card.show_perk(perks[i], owned)
 		card.disabled = true
 		card.pressed.connect(choose.bind(i))
 		card.modulate.a = 0.0

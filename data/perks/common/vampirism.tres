@@ -4,6 +4,8 @@
 [ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_13plf"]
 [ext_resource type="Script" path="res://src/definitions/passives/heal_on_kill_passive.gd" id="3_mxaer"]
 [ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_e4it1"]
+[ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="5_mxaer"]
+[ext_resource type="Resource" path="res://data/perks/synergies/blood.tres" id="6_e4it1"]
 
 [sub_resource type="Resource" id="Resource_kdfbh"]
 script = ExtResource("3_mxaer")
@@ -16,4 +18,5 @@ description = "Slaying an enemy heals 2 HP per level."
 icon = ExtResource("1_drepa")
 color = Color(0.70980394, 0.09019608, 0.61960787, 1)
 weight = 7
+synergies = Array[ExtResource("5_mxaer")]([ExtResource("6_e4it1")])
 passives = Array[ExtResource("2_13plf")]([SubResource("Resource_kdfbh")])

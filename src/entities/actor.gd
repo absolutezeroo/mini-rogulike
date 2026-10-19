@@ -300,12 +300,12 @@ func die(killer: Actor) -> void:
 	if rig:
 		rig.play_death()
 		rig.modulate = _body_modulate()
-	statuses.clear()
 	var valid_killer := killer if is_instance_valid(killer) else null
 	perks.on_died(self)
 	_on_died(valid_killer)
 	if valid_killer:
-		valid_killer.perks.on_kill(valid_killer, self)
+		valid_killer.perks.on_kill(valid_killer, self)  # still burning, slowed...: perks may care
+	statuses.clear()
 	died.emit(self)
 	if free_on_death:
 		if rig and rig.visible:

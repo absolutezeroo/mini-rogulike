@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="PerkDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/perks/kindling.png" id="1_dybvj"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_25r5r"]
+[ext_resource type="Script" path="res://src/definitions/passives/status_damage_passive.gd" id="3_56hnf"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_m7xef"]
+[ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="5_w3jem"]
+[ext_resource type="Resource" path="res://data/perks/synergies/inferno.tres" id="6_e0gdn"]
+
+[sub_resource type="Resource" id="Resource_nkhm5"]
+script = ExtResource("3_56hnf")
+bonus_per_stack = 0.2
+
+[resource]
+script = ExtResource("4_m7xef")
+id = &"kindling"
+display_name = "Kindling"
+description = "Burning enemies take 20% more damage per level."
+icon = ExtResource("1_dybvj")
+color = Color(1, 0.54901963, 0.25882354, 1)
+weight = 7
+synergies = Array[ExtResource("5_w3jem")]([ExtResource("6_e0gdn")])
+passives = Array[ExtResource("2_25r5r")]([SubResource("Resource_nkhm5")])

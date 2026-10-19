@@ -13,6 +13,8 @@ extends Resource
 @export var items: Array[ItemDef] = []
 ## Perks offered on level up (common) and after bosses (rare relics).
 @export var perks: Array[PerkDef] = []
+## Perk families and their bonuses (the codex lists them; perks point at theirs).
+@export var synergies: Array[SynergyDef] = []
 ## Difficulties, easiest first (picked on the title screen).
 @export var difficulties: Array[DifficultyDef] = []
 ## Used when nothing was picked yet (tests, first launch).

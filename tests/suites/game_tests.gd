@@ -37,6 +37,7 @@ func run() -> void:
 
 	await combat._test_projectiles(world, player)
 	await combat._test_perks_in_game(game, world, player)
+	await combat._test_synergies_in_game(game, world, player)
 	await floor._test_world_objects(game, world, player)
 	await floor._test_hazards(game, world, player)
 	await combat._test_skills(game, world, player)

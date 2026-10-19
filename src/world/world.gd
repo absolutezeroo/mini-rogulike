@@ -248,7 +248,8 @@ func spawn_item(item: ItemDef, at: Vector2, armed: bool = true) -> ItemPickup:
 
 ## Fires a volley. Spread is spread evenly; 360 degrees makes a full ring.
 ## The shooter's perks can change the volley first (extra projectiles...).
-func fire_projectiles(shooter: Actor, direction: Vector2, spec: ProjectileSpec) -> void:
+## `from`: where it starts (the shooter by default; shards bursting out of a body...).
+func fire_projectiles(shooter: Actor, direction: Vector2, spec: ProjectileSpec, from: Vector2 = Vector2.INF) -> void:
 	shooter.perks.modify_projectiles(shooter, spec)
 	for i in spec.count:
 		var angle := 0.0
@@ -259,7 +260,10 @@ func fire_projectiles(shooter: Actor, direction: Vector2, spec: ProjectileSpec) 
 		var shot_direction := direction.rotated(deg_to_rad(angle))
 		var projectile := PROJECTILE_SCENE.instantiate() as Projectile
 		projectile.setup(shooter, shot_direction, spec)
-		projectile.position = shooter.global_position + shot_direction * (shooter.radius * 0.5)
+		if from == Vector2.INF:
+			projectile.position = shooter.global_position + shot_direction * (shooter.radius * 0.5)
+		else:
+			projectile.position = from + shot_direction * 6.0
 		_projectiles.add_child.call_deferred(projectile)
 
 

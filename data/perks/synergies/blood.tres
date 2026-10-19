@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="SynergyDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/synergies/blood.png" id="1_7ahxk"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_grjrk"]
+[ext_resource type="Script" path="res://src/definitions/passives/bloodlust_passive.gd" id="3_cnx5o"]
+[ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="4_718ix"]
+
+[sub_resource type="Resource" id="Resource_o8kya"]
+script = ExtResource("3_cnx5o")
+
+[resource]
+script = ExtResource("4_718ix")
+id = &"blood"
+display_name = "Blood"
+description = "Below half health you deal 40% more damage, and every kill heals 4% of your max HP."
+icon = ExtResource("1_7ahxk")
+color = Color(0.9098039, 0.27058825, 0.21568628, 1)
+passives = Array[ExtResource("2_grjrk")]([SubResource("Resource_o8kya")])

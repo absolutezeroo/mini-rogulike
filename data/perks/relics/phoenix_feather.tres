@@ -4,6 +4,8 @@
 [ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_d8rmj"]
 [ext_resource type="Script" path="res://src/definitions/passives/cheat_death_passive.gd" id="3_0wo34"]
 [ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_hn4sr"]
+[ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="5_0wo34"]
+[ext_resource type="Resource" path="res://data/perks/synergies/inferno.tres" id="6_hn4sr"]
 
 [sub_resource type="Resource" id="Resource_fk5ly"]
 script = ExtResource("3_0wo34")
@@ -17,4 +19,5 @@ icon = ExtResource("1_ktbff")
 color = Color(1, 0.81960785, 0.4, 1)
 rarity = 1
 max_stacks = 2
+synergies = Array[ExtResource("5_0wo34")]([ExtResource("6_hn4sr")])
 passives = Array[ExtResource("2_d8rmj")]([SubResource("Resource_fk5ly")])

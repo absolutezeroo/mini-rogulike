@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="PerkDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/perks/cold_snap.png" id="1_uua63"]
+[ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_5r5nf"]
+[ext_resource type="Script" path="res://src/definitions/passives/dash_shockwave_passive.gd" id="3_whc54"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="4_npwps"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="5_s1k5s"]
+[ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="6_axjux"]
+[ext_resource type="Resource" path="res://data/perks/synergies/frost.tres" id="7_2iaqr"]
+
+[sub_resource type="Resource" id="Resource_hkbic"]
+script = ExtResource("4_npwps")
+slow = 0.5
+slow_duration = 2.5
+
+[sub_resource type="Resource" id="Resource_kf1uu"]
+script = ExtResource("3_whc54")
+radius = 80.0
+damage_multiplier = 0.4
+knockback = 120.0
+color = Color(0.5568628, 0.7921569, 0.9019608, 1)
+status = SubResource("Resource_hkbic")
+
+[resource]
+script = ExtResource("5_s1k5s")
+id = &"cold_snap"
+display_name = "Cold Snap"
+description = "Rolling releases a wave of cold that hurts and slows enemies around by 50%."
+icon = ExtResource("1_uua63")
+color = Color(0.5568628, 0.7921569, 0.9019608, 1)
+max_stacks = 2
+weight = 6
+synergies = Array[ExtResource("6_axjux")]([ExtResource("7_2iaqr")])
+passives = Array[ExtResource("2_5r5nf")]([SubResource("Resource_kf1uu")])

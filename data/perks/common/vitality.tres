@@ -4,6 +4,8 @@
 [ext_resource type="Texture2D" path="res://assets/ui/perks/vitality.png" id="2_pl2sn"]
 [ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="3_fnq20"]
 [ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_ti6cu"]
+[ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="5_fnq20"]
+[ext_resource type="Resource" path="res://data/perks/synergies/blood.tres" id="6_ti6cu"]
 
 [sub_resource type="Resource" id="Resource_von6v"]
 script = ExtResource("1_kptps")
@@ -16,4 +18,5 @@ display_name = "Vitality"
 icon = ExtResource("2_pl2sn")
 color = Color(1, 0.41960785, 0.41960785, 1)
 max_stacks = 5
+synergies = Array[ExtResource("5_fnq20")]([ExtResource("6_ti6cu")])
 bonuses = SubResource("Resource_von6v")

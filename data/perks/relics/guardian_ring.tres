@@ -4,6 +4,8 @@
 [ext_resource type="Texture2D" path="res://assets/ui/perks/guardian_ring.png" id="2_bo1ls"]
 [ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="3_1w8bg"]
 [ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_55n66"]
+[ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="5_1w8bg"]
+[ext_resource type="Resource" path="res://data/perks/synergies/frost.tres" id="6_55n66"]
 
 [sub_resource type="Resource" id="Resource_ifdsv"]
 script = ExtResource("1_8rguv")
@@ -18,4 +20,5 @@ icon = ExtResource("2_bo1ls")
 color = Color(0.65882355, 0.85490197, 0.8627451, 1)
 rarity = 1
 max_stacks = 1
+synergies = Array[ExtResource("5_1w8bg")]([ExtResource("6_55n66")])
 bonuses = SubResource("Resource_ifdsv")
