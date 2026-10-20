@@ -21,9 +21,20 @@ class Entry:
 	var memory := {}
 	## Worn gear only: which affix or rune (and which of identical ones) it comes from.
 	var gear_key := ""
+	## Worn gear only: "rune:<id>" or "affix:<id>" (what heals, for the balance tools).
+	var gear_tag: StringName = &""
 
 	func passives() -> Array[Passive]:
 		return perk.passives if perk else granted
+
+	## Who this entry is, for Actor.heal_source: "perk:<id>", "family:<id>", "rune:<id>"...
+	## Only read by the balance tools (tools/balance/).
+	func source_tag() -> StringName:
+		if perk:
+			return StringName("perk:%s" % perk.id)
+		if synergy:
+			return StringName("family:%s" % synergy.id)
+		return gear_tag
 
 
 var entries: Array[Entry] = []
@@ -150,6 +161,7 @@ func set_gear(affixes: Array[ItemAffixDef], runes: Array[RuneDef] = []) -> void:
 		var entry := Entry.new()
 		entry.granted = passives
 		entry.gear_key = "%d:%d" % [source.get_instance_id(), occurrence]
+		entry.gear_tag = StringName("%s:%s" % ["rune" if source is RuneDef else "affix", source.get("id")])
 		entry.memory = kept.get(entry.gear_key, {})
 		_gear.append(entry)
 	_rebuild_all()
@@ -207,27 +219,39 @@ func modify_outgoing_hit(owner: Actor, target: Actor, hit: HitInfo) -> void:
 
 
 func on_hit_dealt(owner: Actor, target: Actor, hit: HitInfo, damage: int) -> void:
+	var outer := Actor.heal_source  # balance tools: who heals (see Actor.healed); restored after
 	for entry in _all:
+		Actor.heal_source = entry.source_tag()
 		for passive in entry.passives():
 			passive.on_hit_dealt(owner, target, hit, damage, entry)
+	Actor.heal_source = outer
 
 
 func on_damaged(owner: Actor, hit: HitInfo, damage: int) -> void:
+	var outer := Actor.heal_source  # balance tools: who heals (see Actor.healed); restored after
 	for entry in _all:
+		Actor.heal_source = entry.source_tag()
 		for passive in entry.passives():
 			passive.on_damaged(owner, hit, damage, entry)
+	Actor.heal_source = outer
 
 
 func on_kill(owner: Actor, victim: Actor) -> void:
+	var outer := Actor.heal_source  # balance tools: who heals (see Actor.healed); restored after
 	for entry in _all:
+		Actor.heal_source = entry.source_tag()
 		for passive in entry.passives():
 			passive.on_kill(owner, victim, entry)
+	Actor.heal_source = outer
 
 
 func on_skill_used(owner: Actor, skill: SkillDef) -> void:
+	var outer := Actor.heal_source  # balance tools: who heals (see Actor.healed); restored after
 	for entry in _all:
+		Actor.heal_source = entry.source_tag()
 		for passive in entry.passives():
 			passive.on_skill_used(owner, skill, entry)
+	Actor.heal_source = outer
 
 
 func on_dash(owner: Actor) -> void:

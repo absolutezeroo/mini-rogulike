@@ -8,6 +8,15 @@ extends CharacterBody2D
 signal health_changed(current: int, maximum: int)
 signal stats_changed
 signal died(actor: Actor)
+## HP actually restored by heal(), and who did it (see heal_source). Nothing in the game listens:
+## it is a measuring hook for the balance tools (tools/balance/), so they can tell a Leech rune's
+## healing from Vampirism's or a potion's. Changes nothing.
+signal healed(amount: int, source: StringName)
+
+## What is healing right now ("perk:vampirism", "rune:leech_rune", "skill:smite", "item:health_potion"...),
+## set for the length of a call by PerkSet, SkillSet and ConsumableDef; empty otherwise. Read only by
+## heal() to fill the `healed` signal (balance tools). Never affects gameplay.
+static var heal_source: StringName = &""
 
 enum Faction { PLAYER, MONSTER }
 
@@ -297,6 +306,8 @@ func heal(amount: int) -> int:
 	var before := hp
 	hp = mini(hp + amount, get_max_hp())
 	health_changed.emit(hp, get_max_hp())
+	if hp > before:
+		healed.emit(hp - before, heal_source)  # balance tools only (see `healed`)
 	return hp - before
 
 

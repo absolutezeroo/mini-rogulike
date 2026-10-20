@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="BalanceBuildDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="1_pgbob"]
+[ext_resource type="Resource" path="res://data/items/armors/iron_helm.tres" id="2_fvd64"]
+[ext_resource type="Resource" path="res://data/items/armors/chain_mail.tres" id="3_3ncnq"]
+[ext_resource type="Script" path="res://tools/balance/balance_build_def.gd" id="4_53c62"]
+[ext_resource type="Resource" path="res://data/items/weapons/katana.tres" id="5_7jrdb"]
+
+[resource]
+script = ExtResource("4_53c62")
+name = "degenerate_burn_a3"
+description = "Max burn at the act III boss (level 11 like expected_a3): an Epic Katana (Burning, Sharp, Swift) with Ember, Pyre, Ember; Ignite x3, Kindling x3 (+60% on burning), Blazing Roll, Frenzy; the Inferno family awake (War Banner, Phoenix Feather)."
+tags = PackedStringArray("degenerate", "burn")
+act = 3
+level = 11
+weapon = ExtResource("5_7jrdb")
+weapon_rarity = 3
+weapon_affixes = PackedStringArray("burning", "sharp", "swift")
+runes = PackedStringArray("ember_rune", "pyre_rune", "ember_rune")
+armors = Array[ExtResource("1_pgbob")]([ExtResource("2_fvd64"), ExtResource("3_3ncnq")])
+armor_rarities = PackedInt32Array(0, 0)
+armor_affixes = PackedStringArray("", "")
+perks = {
+"blazing_roll": 2,
+"frenzy": 2,
+"ignite": 3,
+"kindling": 3,
+"phoenix_feather": 1,
+"war_banner": 1
+}
+upgrades = {
+"might": 2,
+"toughness": 1,
+"vitality": 3
+}

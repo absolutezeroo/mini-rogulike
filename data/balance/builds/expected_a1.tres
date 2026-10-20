@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="BalanceBuildDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="1_fjsp2"]
+[ext_resource type="Resource" path="res://data/items/armors/leather_armor.tres" id="2_qp80k"]
+[ext_resource type="Script" path="res://tools/balance/balance_build_def.gd" id="3_mchkw"]
+[ext_resource type="Resource" path="res://data/items/weapons/katana.tres" id="4_l5uxd"]
+
+[resource]
+script = ExtResource("3_mchkw")
+name = "expected_a1"
+description = "Average hero at the act I boss (depth 3). ~290 XP from floors 1-2 (80% of 163 + 202) = level 6 (240 needed, 368 for 7): 5 perks, spread over the common ones (no family awake). A Magic Katana (Sharp): at depth 1-2 about 1 found item in 4 is Magic. Leather armor. No rune yet (one per elite in 3, ~2-3 elites met, no forge guaranteed). Shrine after a few runs: Vitality 1, Might 1.
+Level from the XP curve (PlayerDef: 20 x 1.45^(L-1) per level) and the XP lying on Normal floors (measured: ~163/202 XP on floors 1-2, 430/616 on 4-5, ~1450/1400 on 7-8, ~1790/1710 on 10-11, elites included), assuming the player kills ~80% of an act I floor, 75% in act II, 65% in act III, 60% in act IV (the seal asks 70%, at most 50 kills), plus the bosses' XP (60, 120, 200). Perks: one per level up (level - 1), leaning to families (family_bias 1). Relics: one per boss slain. Gear: Magic/Rare weights from DungeonConfig > Loot at that depth (boss drops x5 quality); runes: every boss drops one, elites 30%, so 3-4 runes by act II and a forge on ~30% of floors."
+tags = PackedStringArray("expected")
+level = 6
+weapon = ExtResource("4_l5uxd")
+weapon_rarity = 1
+weapon_affixes = PackedStringArray("sharp")
+runes = PackedStringArray()
+armors = Array[ExtResource("1_fjsp2")]([ExtResource("2_qp80k")])
+armor_rarities = PackedInt32Array(0)
+armor_affixes = PackedStringArray("")
+perks = {
+"frenzy": 1,
+"iron_skin": 1,
+"precision": 1,
+"strength": 1,
+"vitality": 1
+}
+upgrades = {
+"might": 1,
+"vitality": 1
+}

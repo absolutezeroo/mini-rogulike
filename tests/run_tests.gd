@@ -11,6 +11,12 @@ const SUITES := {
 	"game": preload("res://tests/suites/game_tests.gd"),
 	"tutorial": preload("res://tests/suites/tutorial_tests.gd"),
 }
+## Opt-in suites, run only when named in --only (balance: the balance targets with tools/balance;
+## some of its checks fail on purpose today, see docs/balance.md). Loaded then, so a broken tool
+## can't stop the other suites.
+const OPT_IN := {
+	"balance": "res://tests/suites/balance_tests.gd",
+}
 
 
 func _ready() -> void:
@@ -25,11 +31,15 @@ func _ready() -> void:
 	RunSave.path = "user://test_run_%d.json" % OS.get_process_id()  # one per test process
 	RunSave.erase()
 	var only := _only()
-	for suite_name: String in SUITES:
+	var suites := SUITES.duplicate()
+	for suite_name: String in OPT_IN:
+		if only.has(suite_name):
+			suites[suite_name] = load(OPT_IN[suite_name])
+	for suite_name: String in suites:
 		if not only.is_empty() and not only.has(suite_name):
 			continue
-		var script: GDScript = SUITES[suite_name]
-		if not script.can_instantiate() or not _helpers_compile():
+		var script: GDScript = suites[suite_name]
+		if script == null or not script.can_instantiate() or not _helpers_compile():
 			# A suite (or a script it uses) doesn't compile: that is a failure, not 0 checks.
 			TestSuite.failures += 1
 			printerr("FAIL: the %s suite doesn't compile" % suite_name)
