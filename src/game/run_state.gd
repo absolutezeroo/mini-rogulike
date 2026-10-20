@@ -167,6 +167,30 @@ func record_key() -> String:
 	return key
 
 
+## The run's numbers for the end-of-run screen, as [label, value] pairs (Difficulty, Reached,
+## Level, Monsters slain, Bosses slain, Time, the daily score). `time_note` follows the time
+## ("New record!"); without it, the record to beat is given for a run not won.
+func summary_rows(content: ContentDB, level: int, time_note: String = "") -> Array:
+	var act := content.dungeon.act_for_depth(depth)
+	var time_text := TimeText.of(run_time())
+	var record := Profile.best_time(record_key())
+	if not time_note.is_empty():
+		time_text += "  " + time_note
+	elif record > 0.0 and finish_time < 0.0:
+		time_text += "  (record %s)" % TimeText.of(record)
+	var rows: Array = [
+		["Difficulty", difficulty.display_name],
+		["Reached", "%s, depth %d" % [act.title if act else "Dungeon", depth]],
+		["Hero level", str(level)],
+		["Monsters slain", str(kills)],
+		["Bosses slain", str(bosses_slain)],
+		["Time", time_text],
+	]
+	if is_daily():
+		rows.append(["Daily score", "%d%s" % [DailyRun.score(self), ("  (best %d)" % Profile.daily_best) if daily_official else "  (practice)"]])
+	return rows
+
+
 ## "Normal - Mossy Caves, depth 3, level 5 / 42 monsters slain, 1 boss" (+ the daily score).
 func summary(content: ContentDB, level: int) -> String:
 	var act := content.dungeon.act_for_depth(depth)

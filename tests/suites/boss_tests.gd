@@ -169,8 +169,8 @@ func _test_boss_fight(game: Game) -> void:
 	var won_at := game.run.finish_time
 	check(won_at > 0.0 and game.run.splits.size() == game.depth and is_equal_approx(game.run.splits.back(), won_at), "the win's time is the last split")
 	check(is_equal_approx(Profile.best_time(game.run.record_key()), won_at), "a first win is the record")
-	var summary := (game.game_over_panel.get_node("%Summary") as Label).text
-	check(summary.contains("Time " + TimeText.of(won_at)) and summary.contains("New record!"), "the victory screen gives the time: %s" % summary)
+	var summary := game.game_over_panel.shown_text()
+	check(summary.contains("Time\n" + TimeText.of(won_at)) and summary.contains("New record!"), "the victory screen gives the time: %s" % summary)
 	(game.game_over_panel.get_node("%ContinueButton") as Button).pressed.emit()
 	await _frames(3)
 	check(not game.game_over_panel.visible, "keep going: endless mode")

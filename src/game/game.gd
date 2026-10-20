@@ -519,9 +519,8 @@ func _on_boss_defeated(boss: Monster) -> void:
 		# The last boss: the run is won. Keep going offers the relic, then endless floors.
 		_set_paused(true)
 		Sfx.play_ui(Sfx.bank.stairs)
-		var story := content.story.victory_text + "\n\n" if content.story else ""
 		menus.show_on_top(game_over_panel)
-		game_over_panel.show_victory(story + _run_summary() + _record_text(new_record) + _souls_text(earned))
+		_show_end(true, earned, new_record)
 		return
 	_show_next_offer()
 
@@ -533,20 +532,21 @@ func _on_continue_endless() -> void:
 	_show_next_offer()
 
 
-## Under a win's time: a new record, or the record to beat.
+## Beside a win's time: a new record, or the record to beat.
 func _record_text(new_record: bool) -> String:
 	if new_record:
-		return "  New record!"
+		return "New record!"
 	var record := Profile.best_time(run.record_key())
-	return "  (record %s)" % TimeText.of(record) if record > 0.0 else ""
+	return "(record %s)" % TimeText.of(record) if record > 0.0 else ""
 
 
-func _souls_text(earned: int) -> String:
-	return "\n+%d souls (%d to spend at the shrine)" % [earned, Profile.souls]
-
-
-func _run_summary() -> String:
-	return run.summary(content, player.level)
+## The end-of-run screen: how it ended (a line of the story), the run's numbers, the souls.
+func _show_end(victory: bool, earned: int, new_record: bool = false) -> void:
+	var story := ""
+	if content.story:
+		story = content.story.victory_text if victory else content.story.random_death_line()
+	var rows := run.summary_rows(content, player.level, _record_text(new_record) if victory else "")
+	game_over_panel.show_end(victory, story, rows, earned, Profile.souls)
 
 
 # --- Perks -------------------------------------------------------------------
@@ -639,9 +639,8 @@ func _on_player_died(_actor: Actor) -> void:
 	Profile.save_profile()
 	await get_tree().create_timer(1.2).timeout
 	Sfx.play_ui(Sfx.bank.game_over)
-	var story := content.story.random_death_line() + "\n\n" if content.story else ""
 	menus.show_on_top(game_over_panel)
-	game_over_panel.show_result(story + _run_summary() + _souls_text(earned))
+	_show_end(false, earned)
 
 
 # --- Saving ------------------------------------------------------------------

@@ -59,3 +59,56 @@ func apply(player: Player, at: Vector2) -> void:
 				Vfx.puff(world, monster.global_position)
 		).call_deferred()
 	Effect.apply_all(effects, player, Vector2.DOWN)
+
+
+## Bad for the hero (hurt, monsters, or nothing for what was paid): shown in red before choosing.
+func is_bad() -> bool:
+	var good := heal_ratio > 0.0 or gold > 0 or item_quality > 0.0 or gift != Gift.NONE or not effects.is_empty()
+	return damage_ratio > 0.0 or monsters > 0 or not good
+
+
+## What it does, in plain words, before choosing: "Heals you fully", "An item (12% chance it is
+## Rare or Epic)", "2 elite monsters appear and attack"... `paid`: the choice cost something.
+func summary(player: Player, paid: bool = false) -> String:
+	var parts := PackedStringArray()
+	var max_hp := player.get_max_hp()
+	if heal_ratio >= 1.0:
+		parts.append("heals you fully")
+	elif heal_ratio > 0.0:
+		parts.append("heals %d health" % roundi(max_hp * heal_ratio))
+	if damage_ratio > 0.0:
+		parts.append("hurts you: you lose %d health" % roundi(max_hp * damage_ratio))
+	if gold > 0:
+		parts.append("%d gold" % (player.world.rules.gold(gold) if player.world and player.world.rules else gold))
+	if item_quality > 0.0:
+		parts.append(_item_words(player))
+	match gift:
+		Gift.PERK:
+			parts.append("a free perk: choose 1 of 3")
+		Gift.RELIC:
+			parts.append("a relic: choose 1 of 3 strong perks, like after a boss")
+	if monsters > 0:
+		parts.append("%d %smonster%s appear and attack" % [monsters, "elite " if elite_monsters else "", "s" if monsters > 1 else ""])
+	for effect in effects:
+		var buff := effect as BuffEffect
+		if buff and buff.bonuses:
+			parts.append("for %d seconds: %s" % [roundi(buff.duration), buff.bonuses.describe()])
+	if parts.is_empty():
+		return "Nothing: what you paid is lost" if paid else "Nothing happens"
+	var text := ", ".join(parts)
+	return text.left(1).to_upper() + text.substr(1)
+
+
+## "a piece of equipment (25% chance it is Rare or Epic)", with this floor's real odds.
+func _item_words(player: Player) -> String:
+	var world := player.world
+	if world == null:
+		return "a piece of equipment"
+	var config := world.config()
+	var quality := item_quality * (world.rules.loot_quality() if world.rules else 1.0)
+	var levels := world.depth - 1
+	var magic := (config.magic_weight + config.magic_weight_per_depth * levels) * quality
+	var rare := (config.rare_weight + config.rare_weight_per_depth * levels) * quality
+	var epic := (config.epic_weight + config.epic_weight_per_depth * levels) * quality
+	var total := config.common_weight + magic + rare + epic
+	return "a piece of equipment (%d%% chance it is Rare or Epic)" % roundi((rare + epic) / total * 100.0)

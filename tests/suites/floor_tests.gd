@@ -1000,7 +1000,8 @@ func _test_encounters(game: Game) -> void:
 	await _frames(3)
 	check(panel.visible and get_tree().paused, "walking up to an encounter asks what to do")
 	panel._choose(0)
-	check(spring.used and (panel.get_node("%Choices") as VBoxContainer).get_child_count() == 1, "a choice was made, the spring is spent")
+	check(spring.used and (panel.get_node("%Choices") as Control).get_child_count() == 1, "a choice was made, the spring is spent")
+	check((panel.get_node("%Result") as Label).visible and not (panel.get_node("%Result") as Label).text.is_empty(), "what happened is spelled out")
 	panel.close()
 	await _frames(2)
 	check(not get_tree().paused, "closing resumes the game")
@@ -1029,8 +1030,13 @@ func _test_encounters(game: Game) -> void:
 	player.gold = 0
 	var gambler := world.spawn_encounter(load("res://data/encounters/grinning_spirit.tres"), _open_cell_near(world, player.global_position, 2))
 	game.open_encounter(gambler)
-	var pay: Button = (panel.get_node("%Choices") as VBoxContainer).get_child(0)
+	var pay: Button = panel.choice_button(0)
 	check(pay.disabled and pay.text.contains("gold"), "no gold, no gamble")
+	check((panel.get_node("%Choices") as Control).get_child_count() == 2, "one card per choice")
+	var odds := gambler.def.choices[0].chances()
+	check(odds.size() == 3 and is_equal_approx(odds[0] + odds[1] + odds[2], 1.0) and is_equal_approx(odds[0], 0.45), "the odds of each outcome are shown (45%)")
+	check(gambler.def.choices[0].outcomes[2].summary(player, true).begins_with("Nothing") and gambler.def.choices[0].outcomes[2].is_bad(), "losing the gold is spelled out, in red")
+	check(gambler.def.choices[0].cost_text(player, world.depth).contains("gold"), "each choice says what it costs")
 	check(gambler.resolve(0, player) == null and not gambler.used, "it can't be forced either")
 	panel.close()
 	await _frames(2)
@@ -1119,9 +1125,36 @@ func _test_loot_and_gold(game: Game) -> void:
 	check(game.shop_panel.visible and get_tree().paused, "walking up to the merchant opens the shop")
 	check(game.shop_panel.get_node("%ForSale").get_child_count() == merchant.stock.size(), "the shop lists the stock")
 
+	# The item card: what it is, its price, how it compares with what you wear, why you can't buy.
+	var shop: ShopPanel = game.shop_panel
+	shop.select_stock(0)
+	var buy: Button = shop.get_node("%BuyButton")
+	check(buy.visible and not buy.disabled and buy.text.contains(str(merchant.stock[0].price)), "the card's Buy button gives the price")
+	check((shop.get_node("%Gold") as Label).text == "Gold %d" % player.gold, "the shop shows your gold")
+	var gold_kept := player.gold
+	player.gold = 0
+	shop.select_stock(0)
+	check(buy.disabled and buy.text.contains("Not enough gold"), "too poor: Buy is greyed and says why")
+	player.gold = gold_kept
+	var equipment_index := merchant.stock.find_custom(func(e: Dictionary) -> bool: return e.item is EquipmentDef)
+	if equipment_index >= 0:
+		shop.select_stock(equipment_index)
+		check((shop.get_node("%Compare") as Control).get_child_count() > 0 or (shop.get_node("%Details") as Label).text != "", "equipment is compared with what you wear")
+	var katana_like := WeaponDef.new()
+	katana_like.damage = 2
+	var better := WeaponDef.new()
+	better.damage = 5
+	check(ItemCompare.lines(better, katana_like)[0].text == "+3 damage" and ItemCompare.lines(better, katana_like)[0].good, "the comparison says '+3 damage'")
+	player.inventory.add(potion)
+	shop.select_own(potion)
+	var sell: Button = shop.get_node("%SellButton")
+	check(sell.visible and sell.text.contains(str(CONTENT.dungeon.merchant.sell_price(potion, world.depth))) and not shop.get_node("%BuyButton").visible, "an item of yours shows what the merchant pays")
+	var gold_before_sale := player.gold
+	check(shop.sell_selected() and player.gold > gold_before_sale, "Sell sells it")
+
 	# Lock one, reroll the rest (dearer each time); the locked one stays.
-	var row: Control = game.shop_panel.get_node("%ForSale").get_child(0)
-	(row.get_child(row.get_child_count() - 1) as Button).pressed.emit()
+	shop.select_stock(0)
+	(shop.get_node("%LockButton") as Button).pressed.emit()
 	check(merchant.stock[0].locked, "the lock button locks an entry")
 	var kept: ItemDef = merchant.stock[0].item
 	var kept_price: int = merchant.stock[0].price
