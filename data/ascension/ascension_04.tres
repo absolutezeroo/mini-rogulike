@@ -5,5 +5,5 @@
 [resource]
 script = ExtResource("1_pafxf")
 title = "Thin Purse"
-description = "the merchant asks 30% more."
+description = "The merchant asks 30% more gold."
 shop_prices = 1.3

@@ -5,6 +5,6 @@
 [resource]
 script = ExtResource("1_txtmi")
 title = "The Well's Heart"
-description = "monsters have 15% more HP and hit 10% harder."
+description = "Monsters have 15% more health and deal 10% more damage."
 monster_hp = 1.15
 monster_damage = 1.1

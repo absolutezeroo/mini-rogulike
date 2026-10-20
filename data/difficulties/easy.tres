@@ -6,7 +6,7 @@
 script = ExtResource("1_uj01j")
 id = &"easy"
 display_name = "Easy"
-description = "Discover the game: softer monsters, healing between floors."
+description = "Learn the game at your own pace."
 color = Color(0.5019608, 0.92941177, 0.6, 1)
 monster_hp = 0.7
 monster_damage = 0.6

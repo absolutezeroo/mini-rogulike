@@ -5,5 +5,5 @@
 [resource]
 script = ExtResource("1_16yci")
 title = "Deeper Dark"
-description = "the floors are darker."
+description = "The floors are darker."
 light = 0.75

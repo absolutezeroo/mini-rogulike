@@ -13,6 +13,7 @@ max_hp = 8
 script = ExtResource("4_nih3l")
 id = &"vitality"
 display_name = "Vitality"
+description = "More max health at the start of every run."
 icon = ExtResource("2_go14l")
 color = Color(1, 0.41960785, 0.41960785, 1)
 max_level = 5
