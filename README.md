@@ -300,7 +300,9 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   **fixed joystick** (it stays in its corner and starts only when touched there, instead of
   appearing under the thumb), **battery saver** (30 FPS cap, `Engine.max_fps`), **fewer effects**
   (half the particles in `Vfx.burst`), **run timer** (on/off), **tutorial hints** (on/off) and
-  **Replay tutorial**.
+  **Replay tutorial**. The window (`OptionsPanel`, built in code on `MenuWindow`) groups them
+  (Sound, Touch controls, Screen and battery, Tutorial), each with a one-line "what it does";
+  on/off options are big switches, and tapping an option's name flips it too.
 - **Minimap** (`Minimap`): rooms are revealed when you walk in, corridors around you; it shows holes,
   the stairs (violet while sealed), unopened chests, a running ambush, the boss and, near the
   end of a seal, the last monsters. Tap it for the whole floor.
@@ -771,16 +773,27 @@ phone keeps up on Nightmare; the seal never asks for more than `seal_max` (50) k
 
 Easy, Normal and Hard are open; **Nightmare unlocks after a win on Hard** (`unlocked_by`).
 **Ascension**: a Nightmare win opens **Nightmare +1**, a +1 win opens +2, up to +10
-(`data/ascension/`, `AscensionDef`, picked under the difficulty cards). Each level adds its twist
+(`data/ascension/`, `AscensionDef`, picked on a strip under the difficulty cards, which lists every
+twist up to the chosen level, the next one and the souls multiplier). Each level adds its twist
 on top of the ones below: tougher monsters, harder hits, more elites, higher prices, one more
 monster per room, faster monsters, tougher bosses, darker floors, less max HP... and 10% more
 souls per level.
-The last choice is remembered, shown in the HUD and on the end-of-run screen.
+The last choice is remembered (gold frame), shown in the HUD and on the end-of-run screen.
+The difficulty window (`DifficultyPanel`, one `DifficultyCard` each) says what changes in plain
+words, compared with Normal (`DifficultyCard.effects()`: "Monster health +30%", "Time to dodge
+-15%", "+1 monster per room", "Monsters spot you sooner", "Bigger floors (+20%)"...; green helps,
+red makes it harder), the souls it pays, and for a locked one what unlocks it.
 
 ## Between runs
 
 The game opens on the **title screen** (`src/ui/title/`): play, visit the shrine, see your records.
 There is no class to pick: everyone starts the same, and becomes who they want during the run.
+The bosses of each act are shown with what a run is; the Daily run button says what it is (same
+dungeon for everyone today, the day's start, your score); the records sit on a strip (souls to
+spend, runs, victories, deepest floor, difficulty); the Shrine button wears an "Upgrade ready"
+badge when souls can buy something. The title-side windows (shrine, difficulty, options) use the
+game's RPG skin like the bag (`MenuWindow` in `src/ui/common/`: an `RpgWindow` with its Close
+button and a header line within reach, big switches, strips and badges).
 
 **Daily run** (`DailyRun`, the button next to Play): one run a day, the same all day (UTC),
 offline. Each floor is generated from the day and its depth, everyone starts with the day's
@@ -791,11 +804,16 @@ the days in a row (`Profile.daily_*`); later attempts that day are practice. Sco
 shows it.
 
 Every run ends (death or victory) with **souls**: 1 per kill, 5 per floor, 20 per boss, 100 for a
-victory. At the **shrine** they buy permanent upgrades (`data/upgrades/`, `UpgradeDef`):
+victory. Souls are kept forever (gold only lasts for the run). At the **shrine** (`ShrinePanel`)
+they buy permanent upgrades (`data/upgrades/`, `UpgradeDef`). The shrine explains souls on the
+left; on the right the upgrades are grouped by kind, each row (`UpgradeRow`) with its level
+("Level 2 / 5"), what you have and what the next level adds ("Now: +16 max health  >  Next: +24
+max health"), the items an unlock adds, and Buy with the price ("Need 70 souls" when short,
+"Maxed" / "Unlocked" when done):
 
 | Kind | Upgrades |
 |---|---|
-| Stats | Vitality (+HP), Might (+ATK), Toughness (+DEF), Swiftness (+SPD), Arcane Talent (+skill power) |
+| Stats | Vitality (+max health), Might (+damage), Toughness (+armor), Swiftness (+move speed), Arcane Talent (+skill damage) |
 | Starting items / perk | Provisions (extra potions), Second Chance (start with a Phoenix Feather) |
 | Perk choices | Loaded Dice (+1 reroll per run, per level), Exile (+1 banish per run, per level) |
 | Unlocks | Paladin's Oath (Templar Sword), Pyromancy (Ember Tome), Forbidden Library (Thunder and Wind tomes), Master Smith (Plate Armor, Shadow Cloak) |

@@ -13,6 +13,7 @@ move_speed = 8.0
 script = ExtResource("4_mpew6")
 id = &"swiftness"
 display_name = "Swiftness"
+description = "Your hero moves faster, in every run."
 icon = ExtResource("2_cu1q0")
 color = Color(0.30980393, 0.81960785, 0.77254903, 1)
 max_level = 3

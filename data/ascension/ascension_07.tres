@@ -5,5 +5,5 @@
 [resource]
 script = ExtResource("1_sbgk8")
 title = "Wardens' Wrath"
-description = "bosses have 25% more HP."
+description = "Bosses have 25% more health."
 boss_hp = 1.25

@@ -5,5 +5,5 @@
 [resource]
 script = ExtResource("1_3gg1m")
 title = "Frail"
-description = "you start with 15% less max HP."
+description = "You start with 15% less max health."
 hero_max_hp = 0.85

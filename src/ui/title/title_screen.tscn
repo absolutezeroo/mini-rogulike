@@ -68,12 +68,12 @@ alignment = 1
 
 [node name="HeroSpot" type="Control" parent="Center/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 120)
+custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 
 [node name="Hero" type="AnimatedSprite2D" parent="Center/VBox/HeroSpot"]
 unique_name_in_owner = true
-position = Vector2(0, 50)
+position = Vector2(0, 44)
 scale = Vector2(4, 4)
 
 [node name="ContinueButton" type="Button" parent="Center/VBox"]
@@ -92,17 +92,16 @@ theme_override_constants/separation = 16
 
 [node name="PlayButton" type="Button" parent="Center/VBox/PlayRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(320, 76)
+custom_minimum_size = Vector2(320, 84)
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 30
 text = "Play"
 
 [node name="DailyButton" type="Button" parent="Center/VBox/PlayRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(360, 76)
+custom_minimum_size = Vector2(500, 84)
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
-text = "Daily run"
 
 [node name="Buttons" type="HBoxContainer" parent="Center/VBox"]
 layout_mode = 2
@@ -144,11 +143,15 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Options"
 
-[node name="Records" type="Label" parent="Center/VBox"]
+[node name="RecordsPlaque" type="PanelContainer" parent="Center/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-horizontal_alignment = 1
+size_flags_horizontal = 4
+
+[node name="Records" type="HBoxContainer" parent="Center/VBox/RecordsPlaque"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 28
 
 [node name="ShrinePanel" type="Control" parent="."]
 unique_name_in_owner = true
@@ -160,84 +163,6 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("3_shrine")
 
-[node name="Dim" type="ColorRect" parent="ShrinePanel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 0, 0, 0.6)
-
-[node name="Panel" type="PanelContainer" parent="ShrinePanel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 80.0
-offset_top = 40.0
-offset_right = -80.0
-offset_bottom = -40.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Margin" type="MarginContainer" parent="ShrinePanel/Panel"]
-layout_mode = 2
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 12
-
-[node name="VBox" type="VBoxContainer" parent="ShrinePanel/Panel/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="Header" type="HBoxContainer" parent="ShrinePanel/Panel/Margin/VBox"]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="ShrinePanel/Panel/Margin/VBox/Header"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 32
-text = "Shrine"
-
-[node name="Souls" type="Label" parent="ShrinePanel/Panel/Margin/VBox/Header"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.85, 1, 1)
-theme_override_font_sizes/font_size = 22
-text = "Souls: 0"
-
-[node name="Spacer" type="Control" parent="ShrinePanel/Panel/Margin/VBox/Header"]
-custom_minimum_size = Vector2(24, 0)
-layout_mode = 2
-
-[node name="CloseButton" type="Button" parent="ShrinePanel/Panel/Margin/VBox/Header"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 52)
-layout_mode = 2
-focus_mode = 0
-theme_override_font_sizes/font_size = 20
-text = "Close"
-
-[node name="ShrineText" type="Label" parent="ShrinePanel/Panel/Margin/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.95, 1, 0.85)
-theme_override_font_sizes/font_size = 16
-autowrap_mode = 3
-
-[node name="Scroll" type="ScrollContainer" parent="ShrinePanel/Panel/Margin/VBox"]
-layout_mode = 2
-size_flags_vertical = 3
-horizontal_scroll_mode = 0
-
-[node name="Rows" type="VBoxContainer" parent="ShrinePanel/Panel/Margin/VBox/Scroll"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 8
-
 [node name="DifficultyPanel" type="Control" parent="."]
 unique_name_in_owner = true
 layout_mode = 1
@@ -247,95 +172,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("4_difficulty")
-
-[node name="Dim" type="ColorRect" parent="DifficultyPanel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.05, 0.03, 0.06, 0.92)
-
-[node name="Center" type="CenterContainer" parent="DifficultyPanel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="VBox" type="VBoxContainer" parent="DifficultyPanel/Center"]
-layout_mode = 2
-theme_override_constants/separation = 18
-
-[node name="Title" type="Label" parent="DifficultyPanel/Center/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.82, 0.4, 1)
-theme_override_constants/outline_size = 8
-theme_override_font_sizes/font_size = 40
-text = "Choose a difficulty"
-horizontal_alignment = 1
-
-[node name="DifficultyCards" type="HBoxContainer" parent="DifficultyPanel/Center/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 16
-alignment = 1
-
-[node name="AscensionRow" type="HBoxContainer" parent="DifficultyPanel/Center/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/separation = 14
-
-[node name="Label" type="Label" parent="DifficultyPanel/Center/VBox/AscensionRow"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.78, 0.49, 1, 1)
-theme_override_font_sizes/font_size = 20
-text = "Nightmare ascension"
-
-[node name="AscensionMinus" type="Button" parent="DifficultyPanel/Center/VBox/AscensionRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(56, 52)
-layout_mode = 2
-focus_mode = 0
-theme_override_font_sizes/font_size = 24
-text = "-"
-
-[node name="AscensionLevel" type="Label" parent="DifficultyPanel/Center/VBox/AscensionRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(60, 0)
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "+0"
-horizontal_alignment = 1
-
-[node name="AscensionPlus" type="Button" parent="DifficultyPanel/Center/VBox/AscensionRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(56, 52)
-layout_mode = 2
-focus_mode = 0
-theme_override_font_sizes/font_size = 24
-text = "+"
-
-[node name="AscensionText" type="Label" parent="DifficultyPanel/Center/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(900, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.75)
-theme_override_font_sizes/font_size = 15
-horizontal_alignment = 1
-autowrap_mode = 3
-
-[node name="BackButton" type="Button" parent="DifficultyPanel/Center/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(220, 56)
-layout_mode = 2
-size_flags_horizontal = 4
-focus_mode = 0
-theme_override_font_sizes/font_size = 20
-text = "Back"
 
 [node name="CodexPanel" parent="." instance=ExtResource("7_codex")]
 unique_name_in_owner = true

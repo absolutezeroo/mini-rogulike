@@ -13,6 +13,7 @@ attack = 1
 script = ExtResource("4_irp25")
 id = &"might"
 display_name = "Might"
+description = "Every hit you land deals more damage, in every run."
 icon = ExtResource("2_v3ybj")
 color = Color(0.9372549, 0.2784314, 0.43529412, 1)
 max_level = 5

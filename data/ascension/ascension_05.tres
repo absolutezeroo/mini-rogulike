@@ -5,5 +5,5 @@
 [resource]
 script = ExtResource("1_uexhi")
 title = "Restless Dead"
-description = "one more monster in every room."
+description = "One more monster in every room."
 extra_monsters = 1

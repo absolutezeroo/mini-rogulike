@@ -78,12 +78,16 @@ func _test_title_screen() -> void:
 	await _frames(2)
 	var shrine: ShrinePanel = title.get_node("%ShrinePanel")
 	var rows: VBoxContainer = title.get_node("%Rows")
-	check(shrine.visible and rows.get_child_count() == CONTENT.upgrades.size(), "the shrine lists every upgrade")
-	var first: UpgradeRow = rows.get_child(0)
+	check(shrine.visible and shrine.rows().size() == CONTENT.upgrades.size(), "the shrine lists every upgrade")
+	check(rows.get_children().filter(func(n: Node) -> bool: return not n is UpgradeRow).size() >= 3, "...grouped under headings")
+	var first: UpgradeRow = shrine.rows()[0]
 	(first.get_node("%BuyButton") as Button).pressed.emit()
 	await _frames(1)
 	check(Profile.level_of(first.upgrade) == 1 and Profile.souls < 500, "buying at the shrine")
 	check((title.get_node("%Souls") as Label).text.contains(str(Profile.souls)), "the shrine shows the souls left")
+	_test_shrine_words(shrine)
+	_test_difficulty_words()
+	await _test_options_screen(title)
 	# The codex: bestiary, achievements, runs.
 	Profile.record_kill(&"slime")
 	(title.get_node("%CodexButton") as Button).pressed.emit()
@@ -141,6 +145,69 @@ func _test_title_screen() -> void:
 	check(story_screen.page == 1 and text.text == CONTENT.story.intro_pages[1], "the next tap turns the page")
 	story_screen.queue_free()
 	await _frames(2)
+
+
+## The shrine says each upgrade's level, what you have, what the next level adds, and why a
+## Buy button is off.
+func _test_shrine_words(shrine: ShrinePanel) -> void:
+	var vitality: UpgradeDef = load("res://data/upgrades/vitality.tres")
+	check(UpgradeRow.level_text(vitality, 2) == "Level 2 / 5", "shrine: the level out of the max")
+	var status := UpgradeRow.status_text(vitality, 2)
+	check(status.contains("Now: +16 max health") and status.contains("Next: +24 max health"), "shrine: now and next level (%s)" % status)
+	check(UpgradeRow.status_text(vitality, 0).contains("+8 max health"), "shrine: what the first level gives")
+	check(UpgradeRow.status_text(vitality, 5).contains("maxed"), "shrine: maxed")
+	var unlock: UpgradeDef = load("res://data/upgrades/pyromancy.tres")
+	check(UpgradeRow.level_text(unlock, 0) == "Locked" and UpgradeRow.level_text(unlock, 1) == "Unlocked", "shrine: unlocks say locked / unlocked")
+	var row: UpgradeRow = shrine.rows().filter(func(r: UpgradeRow) -> bool: return r.upgrade == vitality)[0]
+	var buy: Button = row.get_node("%BuyButton")
+	var souls := Profile.souls
+	Profile.souls = 0
+	Profile.changed.emit()
+	check(buy.disabled and buy.text.begins_with("Need"), "shrine: too few souls says how many are needed (%s)" % buy.text)
+	Profile.levels[String(vitality.id)] = vitality.max_level
+	Profile.changed.emit()
+	check(buy.disabled and buy.text == "Maxed", "shrine: a maxed upgrade says so")
+	Profile.levels.erase(String(vitality.id))
+	Profile.souls = souls
+	Profile.changed.emit()
+
+
+## Each difficulty in plain words, and the ascension's twists.
+func _test_difficulty_words() -> void:
+	var normal: DifficultyDef = load("res://data/difficulties/normal.tres")
+	var hard: DifficultyDef = load("res://data/difficulties/hard.tres")
+	var easy: DifficultyDef = load("res://data/difficulties/easy.tres")
+	var words := DifficultyCard.effects(hard, normal).map(func(e: Array) -> String: return e[0])
+	for expected in ["Monster health +30%", "Monster damage +35%", "Time to dodge -15%", "+1 monster per room", "Monsters spot you sooner", "Bigger floors (+20%)"]:
+		check(words.has(expected), "difficulty: Hard says \"%s\" (%s)" % [expected, words])
+	var heal: Array = DifficultyCard.effects(easy, normal).filter(func(e: Array) -> bool: return (e[0] as String).begins_with("Heal"))
+	check(heal.size() == 1 and heal[0][1] == 1, "difficulty: Easy's healing is a help")
+	check(DifficultyCard.effects(normal, normal).size() == 1, "difficulty: Normal is the reference")
+	var lines := DifficultyPanel.ascension_lines(CONTENT.ascensions, 2, 3)
+	check(lines.size() == 3 and lines[0].begins_with("+1") and lines[2].begins_with("Next, +3"), "ascension: the twists so far, then the next (%s)" % lines)
+	check(DifficultyPanel.ascension_lines(CONTENT.ascensions, 2, 2)[2].begins_with("Win Nightmare +2"), "ascension: how to open the next level")
+
+
+## The options: every control there, grouped, and tapping an option's name flips it.
+func _test_options_screen(title: TitleScreen) -> void:
+	var options: OptionsPanel = title.get_node("%OptionsPanel")
+	(title.get_node("%OptionsButton") as Button).pressed.emit()
+	await _frames(2)
+	check(options.visible, "the options open from the title")
+	for name in ["MusicSlider", "SoundSlider", "ShakeSlider", "ControlsSlider", "VibrationsCheck", "FixedStickCheck", "BatteryCheck", "FewerEffectsCheck", "RunTimerCheck", "TutorialCheck", "ReplayTutorialButton", "CloseButton"]:
+		check(options.get_node_or_null("%" + name) != null, "options: %s" % name)
+	var battery: CheckButton = options.get_node("%BatteryCheck")
+	var before := Settings.battery_saver
+	var tap := InputEventMouseButton.new()
+	tap.button_index = MOUSE_BUTTON_LEFT
+	tap.position = Vector2(4, 4)
+	tap.pressed = false
+	(battery.get_parent().get_child(0) as Control).gui_input.emit(tap)
+	check(Settings.battery_saver != before and battery.button_pressed != before, "options: tapping the name flips the switch")
+	battery.button_pressed = before
+	(options.get_node("%CloseButton") as Button).pressed.emit()
+	await _frames(1)
+	check(not options.visible, "options: Close")
 
 
 # --- Gameplay (bot) ----------------------------------------------------------
