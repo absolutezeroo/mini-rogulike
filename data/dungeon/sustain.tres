@@ -6,4 +6,5 @@
 script = ExtResource("1_sustain")
 rate_per_second = 0.04
 burst = 0.2
-boss_fight_rate = 0.5
+boss_fight_rate = 0.1
+boss_fight_burst = 0.25

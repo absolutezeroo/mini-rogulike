@@ -13,7 +13,7 @@ poison_damage = 3
 
 [sub_resource type="Resource" id="Resource_7n8f3"]
 script = ExtResource("2_7n8f3")
-damage_multiplier = 0.6
+damage_multiplier = 0.5
 flat_damage = 3
 speed = 300.0
 radius = 7.0
@@ -28,7 +28,7 @@ script = ExtResource("5_mhwpf")
 id = &"poison_spit"
 display_name = "Poison Spit"
 color = Color(0.5019608, 0.92941177, 0.6, 1)
-cooldown = 3.0
+cooldown = 3.5
 effects = Array[ExtResource("1_macc1")]([SubResource("Resource_7n8f3")])
 sound = ExtResource("6_1ysuc")
 ai_max_range = 380.0

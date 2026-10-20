@@ -134,7 +134,7 @@ func _stats() -> Array[Array]:
 	var damage_note := "Health you lose when its basic attack hits you."
 	if hero:
 		damage_note += " You start a run with %d Health." % hero.max_hp
-	var armor_note := "Each of your hits on it does %d less damage (always at least 1)." % armor if armor > 0 else "None: your hits land in full."
+	var armor_note := "Softens your hits, small ones most: a 10-damage hit does %d, a 30-damage hit %d." % [Combat.mitigate(10, armor), Combat.mitigate(30, armor)] if armor > 0 else "None: your hits land in full."
 	var speed_note := "How fast it walks."
 	if hero and stats:
 		var ratio := stats.move_speed / maxf(hero.move_speed, 1.0)

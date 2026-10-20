@@ -13,7 +13,10 @@ extends Resource
 ## The budget holds at most this share of the max health.
 @export_range(0.0, 1.0, 0.01) var burst: float = 0.2
 ## While a boss fight is on, the budget refills this much slower (0.5 = half the rate).
-@export_range(0.0, 1.0, 0.05) var boss_fight_rate: float = 0.5
+@export_range(0.0, 1.0, 0.01) var boss_fight_rate: float = 0.5
+## While a boss fight is on, the budget holds this share of `burst` (1 = the same). A boss fight
+## is long: what heals there must forgive a mistake, not out-heal the boss.
+@export_range(0.0, 1.0, 0.01) var boss_fight_burst: float = 1.0
 
 
 ## Health the budget gains per second for a hero with `max_hp`.
@@ -22,5 +25,5 @@ func refill_per_second(max_hp: int, boss_fight: bool) -> float:
 
 
 ## The most the budget can hold for a hero with `max_hp`.
-func capacity(max_hp: int) -> float:
-	return burst * max_hp
+func capacity(max_hp: int, boss_fight: bool = false) -> float:
+	return burst * max_hp * (boss_fight_burst if boss_fight else 1.0)

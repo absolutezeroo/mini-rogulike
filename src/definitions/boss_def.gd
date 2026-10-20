@@ -23,6 +23,10 @@ extends MonsterDef
 ## The shockwave: how far it reaches (beyond the boss' body), how hard it pushes.
 @export var shockwave_radius: float = 140.0
 @export var shockwave_knockback: float = 700.0
+## The shockwave's damage as a share of the boss' power (0: the dungeon's small blast, about a
+## trap's). It is the price of standing in its face: telegraphed, rolled through by a player who
+## watches, taken every time by one who doesn't.
+@export_range(0.0, 3.0, 0.05) var shockwave_power: float = 0.0
 ## Seconds it can't be hurt while it roars into a new phase.
 @export var phase_roar_time: float = 1.2
 ## Relics offered when it dies (0 = none).
