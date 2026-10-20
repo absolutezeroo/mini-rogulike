@@ -107,6 +107,7 @@ move_speed = 70.0
 script = ExtResource("19_7aq3k")
 material = ExtResource("99_material")
 title = "Warden of the Lost"
+shockwave_power = 1.0
 portrait = ExtResource("5_nx8ek")
 phases = Array[ExtResource("13_shtgb")]([SubResource("Resource_qkwm3"), SubResource("Resource_t02vb")])
 stats = SubResource("Resource_t8qu6")

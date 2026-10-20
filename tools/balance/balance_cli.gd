@@ -25,6 +25,8 @@ extends Node
 ##   --seed=N                      every measure starts from this seed (default 1): same run, same numbers
 ##   --all-pairs                   arena: every build against every boss
 ##   --timeout=240                 arena: game seconds before a fight is called a timeout
+##   --plain                       arena: plain bosses only (no Epic/Legendary/Shiny fights)
+##   --no-weapons                  arena: skip the weapon arena (boss fights only)
 ##   --jobs=2                      all: run the arena in a second Godot process (2 CPUs: ~half the time)
 ##   --in=<dir>,<dir>              merge: combine the reports of earlier runs (their state.json) into --out
 ## Each mode writes report.md (FLAGS first, numbered, then numbered tables), data.json, csv/ and
@@ -144,8 +146,9 @@ func _run_mode(m: String, content: ContentDB, targets: BalanceTargets, every_bui
 		"arena":
 			var arena := _arena(content, targets, every_build, builds, difficulties, bosses, lab)
 			var report := await arena.run_bosses()
-			var weapons := await arena.run_weapons()
-			report.merge(weapons, "weapons")
+			if not args.no_weapons:
+				var weapons := await arena.run_weapons()
+				report.merge(weapons, "weapons")
 			report.title = "Balance arena"
 			arena.queue_free()
 			return report
@@ -214,6 +217,7 @@ func _arena(content: ContentDB, targets: BalanceTargets, every_build: Array[Bala
 	arena.all_pairs = _args.all_pairs
 	arena.timeout = _args.timeout
 	arena.quick = _args.quick
+	arena.plain_only = _args.plain
 	add_child(arena)
 	return arena
 
@@ -267,6 +271,7 @@ static func parse_args(user_args: PackedStringArray) -> Dictionary:
 		"mode": "model", "bosses": PackedStringArray(), "builds": PackedStringArray(), "difficulties": PackedStringArray(),
 		"bots": PackedStringArray(["face_tank", "kite"]), "acts": PackedStringArray(), "out": DEFAULT_OUT, "seed": 1,
 		"all_pairs": false, "timeout": 240.0, "quick": false, "jobs": 1, "inputs": PackedStringArray(),
+		"plain": false, "no_weapons": false,
 	}
 	for arg in user_args:
 		var key := arg.get_slice("=", 0)
@@ -283,6 +288,8 @@ static func parse_args(user_args: PackedStringArray) -> Dictionary:
 			"--all-pairs": args.all_pairs = true
 			"--timeout": args.timeout = float(value)
 			"--quick": args.quick = true
+			"--plain": args.plain = true
+			"--no-weapons": args.no_weapons = true
 			"--jobs": args.jobs = maxi(1, int(value))
 			"--in": args.inputs = value.split(",", false)
 	return args
@@ -298,6 +305,10 @@ static func _command(args: Dictionary) -> String:
 	parts.append("--seed=%d" % args.seed)
 	if args.all_pairs:
 		parts.append("--all-pairs")
+	if args.get("plain", false):
+		parts.append("--plain")
+	if args.get("no_weapons", false):
+		parts.append("--no-weapons")
 	if int(args.jobs) > 1:
 		parts.append("--jobs=%d" % args.jobs)
 	return " ".join(parts)

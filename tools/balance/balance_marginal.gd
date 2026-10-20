@@ -200,7 +200,7 @@ static func effective_health(player: Player, raw_hits: Array) -> float:
 	var defense := player.get_stats().defense
 	var saved := 0.0
 	for raw: int in raw_hits:
-		saved += float(raw) / maxi(1, raw - defense)
+		saved += float(raw) / Combat.mitigate(raw, defense)
 	saved /= maxf(raw_hits.size(), 1.0)
 	var revives := 0.0
 	for item: Array in BalanceModel.passives_of(player):

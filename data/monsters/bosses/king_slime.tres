@@ -112,6 +112,7 @@ move_speed = 60.0
 script = ExtResource("17_pf55w")
 material = ExtResource("99_material")
 title = "Warden of the Mouth of the Well"
+shockwave_power = 1.0
 portrait = ExtResource("16_w05qf")
 phases = Array[ExtResource("11_aad1y")]([SubResource("Resource_ghebr"), SubResource("Resource_aad1y")])
 stats = SubResource("Resource_j3yk1")
