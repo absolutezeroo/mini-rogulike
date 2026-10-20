@@ -5,6 +5,8 @@ extends RefCounted
 
 enum Tile { WALL, FLOOR }
 
+const NO_CELL := Vector2i(-1, -1)
+
 var width: int
 var height: int
 var tile_size: int
@@ -12,6 +14,8 @@ var tiles := PackedByteArray()
 var rooms: Array[Rect2i] = []
 var start_cell := Vector2i.ZERO
 var stairs_cell := Vector2i.ZERO
+## Where the second way down goes when the floor offers two (FloorRoute); NO_CELL if none fits.
+var second_stairs_cell := NO_CELL
 ## Boss floors only: the arena (empty rect on normal floors).
 var boss_room := Rect2i()
 
@@ -22,6 +26,14 @@ func _init(map_width: int, map_height: int, cell_size: int) -> void:
 	tile_size = cell_size
 	tiles.resize(width * height)
 	tiles.fill(Tile.WALL)
+
+
+## The stairs' cells: the first, and the second when there is one.
+func exit_cells() -> Array[Vector2i]:
+	var cells: Array[Vector2i] = [stairs_cell]
+	if second_stairs_cell != NO_CELL:
+		cells.append(second_stairs_cell)
+	return cells
 
 
 func in_bounds(cell: Vector2i) -> bool:

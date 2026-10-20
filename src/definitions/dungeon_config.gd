@@ -118,6 +118,15 @@ extends Resource
 ## Chance for a normal floor (not the first) to be special (content_db.tres > Floor Events).
 @export_range(0.0, 1.0) var floor_event_chance: float = 0.3
 
+@export_group("Routes")
+## Ways down at the end of a floor (FloorRoute): each leads to a different world of the next
+## floor, its curse or event shown over the stairs. 1: a single way, as in the old days.
+## Floors before a boss always have one way.
+@export_range(1, 3) var route_count: int = 2
+## Chance that the second way gets a curse or an event when it rolled none, so the choice is
+## often between a calm way and a bold one.
+@export_range(0.0, 1.0) var route_twist_chance: float = 0.6
+
 @export_group("Encounters")
 ## Encounters per floor (springs, altars...), from content_db.tres > Encounters.
 @export_range(0, 6) var encounters_min: int = 0

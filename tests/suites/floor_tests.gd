@@ -433,7 +433,7 @@ func _test_hazards(game: Game, world: World, player: Player) -> void:
 	var room_index := -1
 	for i in range(1, world.map.rooms.size()):
 		var r := world.map.rooms[i]
-		if r.size.x >= 7 and r.size.y >= 7 and (world.ambush == null or world.ambush.room != r) and not r.grow(1).has_point(world.map.stairs_cell):
+		if r.size.x >= 7 and r.size.y >= 7 and (world.ambush == null or world.ambush.room != r) and not world.map.exit_cells().any(func(c: Vector2i) -> bool: return r.grow(1).has_point(c)):
 			room_index = i
 			break
 	if room_index >= 0:
@@ -569,6 +569,44 @@ func _test_stairs_seal(game: Game) -> void:
 	check(label.text == "Stairs open", "the HUD says the stairs are open")
 	check(world.get_node("Effects").get_children().any(func(n: Node) -> bool: return n is GuideWisp), "a guiding light runs to the stairs")
 	Events.message_logged.disconnect(on_log)
+
+
+## Two ways down: each stairs leads to a different world of the next floor (FloorRoute), its sign
+## says which; the way taken builds the next floor and is kept in the save.
+func _test_routes(game: Game) -> void:
+	game.run.routes.clear()
+	await game.debug_enter_floor(1)
+	await _frames(3)
+	var world: World = game.world
+	var player: Player = game.player
+	check(world.next_routes.size() == 2, "floor 1 offers two ways down (%d)" % world.next_routes.size())
+	if world.next_routes.size() < 2:
+		return
+	check(world.next_routes[0].biome != world.next_routes[1].biome, "to two different worlds")
+	check(world.map.second_stairs_cell != DungeonMap.NO_CELL and world.stairs_cells.size() == 2, "two stairs on the floor")
+	var stairs := world.get_node("Entities").get_children().filter(func(n: Node) -> bool: return n is Stairs)
+	check(stairs.size() == 2 and stairs.all(func(n: Node) -> bool: return (n as Stairs).route != null and n.get_children().any(func(c: Node) -> bool: return c is StairsSign)), "each with its sign")
+	var again := FloorRoute.offer(CONTENT, 2, game.difficulty, game.run.route_seed(2))
+	check(again.size() == 2 and again[1].biome == world.next_routes[1].biome and again[1].curse == world.next_routes[1].curse and again[1].floor_event == world.next_routes[1].floor_event, "the same run offers the same ways")
+	var wanted: FloorRoute = world.next_routes[1]
+	player.xp = -1000000
+	while world.seal.is_sealed() and world.monster_count() > 0:
+		_kill_one(world, player)
+		await _frames(1)
+	await _frames(2)
+	player.global_position = world.map.cell_to_world(world.map.second_stairs_cell)
+	for i in 600:
+		await _frames(1)
+		if game.depth == 2 and not game._transitioning:
+			break
+	check(game.depth == 2 and int(game.run.routes.get(2, -1)) == 1, "the second stairs lead down the second way")
+	world = game.world
+	check(world.biome == wanted.biome and world.curse == wanted.curse and world.floor_event == wanted.floor_event, "floor 2 is what its sign said (%s)" % wanted.summary())
+	check(world.next_routes.is_empty() and world.stairs_cells.size() == 1, "before a boss: one way only")
+	var saved: Dictionary = JSON.parse_string(JSON.stringify(game.run.to_data()))
+	var back := RunState.create(CONTENT, saved, RandomNumberGenerator.new())
+	check(int(back.routes.get(2, -1)) == 1, "the way taken is kept in the save")
+	check(game._route_to(2).biome == wanted.biome, "and a resumed run rebuilds the same floor")
 
 
 func _kill_one(world: World, player: Player) -> void:

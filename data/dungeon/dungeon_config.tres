@@ -48,3 +48,5 @@ monster_attack_per_depth = 1.0
 elite_chance_per_depth = 0.012
 boss_hp_scale_per_depth = 0.33
 boss_attack_per_depth = 1.0
+route_count = 2
+route_twist_chance = 0.6

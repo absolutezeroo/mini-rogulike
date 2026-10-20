@@ -43,7 +43,8 @@ func place(world: World, room: Rect2i, taken: Dictionary) -> void:
 	# Never cut the stairs off (even once cracked floor has given way).
 	for cell in cells:
 		world.set_cell_blocked(cell, true)
-	var blocks_the_way := world.find_path(world.map.cell_to_world(world.map.start_cell), world.map.cell_to_world(world.map.stairs_cell)).is_empty()
+	var blocks_the_way := world.map.exit_cells().any(func(exit: Vector2i) -> bool:
+		return world.find_path(world.map.cell_to_world(world.map.start_cell), world.map.cell_to_world(exit)).is_empty())
 	for cell in cells:
 		world.set_cell_blocked(cell, false)
 	if blocks_the_way:

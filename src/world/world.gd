@@ -3,7 +3,8 @@ extends Node2D
 ## Everything that exists on the current floor: map, walls, actors, items, projectiles, effects.
 ## Also the gateway other systems use to spawn things and query the level.
 
-signal stairs_reached
+## The hero took a way down: `route` is its index in `next_routes` (0 when there is no choice).
+signal stairs_reached(route: int)
 ## A new floor was built (the explored map starts over).
 signal map_reset
 ## Cells the hero discovered, or whose look changed (a floor that gave way...). For the minimap.
@@ -54,6 +55,12 @@ var rules: FloorRules
 var forced_curse: CurseDef
 var forced_event: FloorEventDef
 var forced_plain := false
+## The ways down from this floor (FloorRoute), set by the Game before the floor is built.
+## Two or more: each stairs leads to one, its sign says where. Empty: one stairs, no choice.
+var next_routes: Array[FloorRoute] = []
+## The way the hero took to this floor (null: none to choose, or the first floor).
+var route: FloorRoute
+
 ## Debug: the next floor built is this biome. Used once.
 var forced_biome: BiomeDef
 ## Debug: the next boss comes at this rank. Used once.
@@ -119,8 +126,10 @@ func _ready() -> void:
 	seal.broken.connect(_on_seal_broken)
 
 
-func build_floor(new_depth: int, content: ContentDB) -> void:
+## `taken`: the way down the hero chose to get here (its world, curse or event), or null.
+func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -> void:
 	clear_floor()
+	route = taken
 	floor_id += 1
 	depth = new_depth
 	opened_chests.clear()
@@ -139,6 +148,9 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 		forced_curse = null
 		forced_event = null
 		forced_plain = false
+	elif taken != null and boss == null:
+		curse = taken.curse
+		floor_event = taken.floor_event
 	elif boss == null and depth > 1:
 		var curse_chance := difficulty.curse_chance if difficulty else 0.0
 		if rng.randf() < curse_chance:
@@ -175,11 +187,12 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 		FloorDresser.dress(self, {}, false)  # the arena keeps clear: grounds and decor only
 		seal.clear()
 	else:
-		var stairs := spawn_stairs(map.stairs_cell)
+		var exits := spawn_exits()
 		FloorPopulator.populate(self, content, depth)
 		seal.reset(monster_count(), content.dungeon.seal_share, content.dungeon.seal_reveal_left, content.dungeon.seal_max)
-		stairs.bind_seal(seal)
-		stairs.blocked.connect(_on_stairs_blocked)
+		for stairs in exits:
+			stairs.bind_seal(seal)
+			stairs.blocked.connect(_on_stairs_blocked)
 		_apply_restore()
 	map_reset.emit()
 
@@ -365,6 +378,8 @@ func _pick_biome(content: ContentDB, boss: bool) -> BiomeDef:
 	forced_biome = null
 	if forced:
 		return forced
+	if route and route.biome and not boss:
+		return route.biome
 	var act := content.dungeon.act_for_depth(depth)
 	return act.pick_biome(depth, boss, rng) if act else null
 
@@ -580,12 +595,17 @@ func _on_monster_killed(monster: Monster) -> void:
 func _on_seal_broken() -> void:
 	var stairs_at := map.cell_to_world(map.stairs_cell)
 	Sfx.play_at(Sfx.bank.gate, player.global_position if player else stairs_at)
-	Events.log_message("The seal breaks: the stairs are open!", Palette.GOLD)
-	flash_light(stairs_at, Palette.GOLD, 220.0)
+	if stairs_cells.size() >= 2 and next_routes.size() >= 2:
+		Events.log_message("The seal breaks: two ways down. %s, or %s." % [next_routes[0].summary(), next_routes[1].summary()], Palette.GOLD)
+	else:
+		Events.log_message("The seal breaks: the stairs are open!", Palette.GOLD)
+	for cell in stairs_cells:
+		flash_light(map.cell_to_world(cell), Palette.GOLD, 220.0)
 	if player:
-		var path := find_path(player.global_position, stairs_at)
-		if not path.is_empty():
-			spawn_vfx(GuideWisp.create(player.global_position + Vector2(0, -18), path))
+		for cell in stairs_cells:
+			var path := find_path(player.global_position, map.cell_to_world(cell))
+			if not path.is_empty():
+				spawn_vfx(GuideWisp.create(player.global_position + Vector2(0, -18), path))
 
 
 ## The hero stepped on sealed stairs: say what is missing (not every frame).
@@ -598,12 +618,24 @@ func _on_stairs_blocked() -> void:
 	Events.log_message("Sealed. Slay %d more monster%s to open the stairs." % [seal.left(), "" if seal.left() == 1 else "s"], Palette.SEAL)
 
 
-func spawn_stairs(cell: Vector2i) -> Stairs:
+## The floor's way down, or two when `next_routes` offers a choice (each with its sign).
+func spawn_exits() -> Array[Stairs]:
+	var result: Array[Stairs] = []
+	var choice := next_routes.size() >= 2 and map.second_stairs_cell != DungeonMap.NO_CELL
+	result.append(spawn_stairs(map.stairs_cell, 0, next_routes[0] if choice else null))
+	if choice:
+		result.append(spawn_stairs(map.second_stairs_cell, 1, next_routes[1]))
+	return result
+
+
+## Stairs at `cell`; `index` and `way`: the route they lead to (null: no sign).
+func spawn_stairs(cell: Vector2i, index: int = 0, way: FloorRoute = null) -> Stairs:
 	var stairs := STAIRS_SCENE.instantiate() as Stairs
 	if theme:
 		stairs.texture = theme.stairs_texture()
 	stairs.position = map.cell_to_world(cell)
-	stairs.reached.connect(func() -> void: stairs_reached.emit())
+	stairs.route = way
+	stairs.reached.connect(func() -> void: stairs_reached.emit(index))
 	stairs_cells.append(cell)
 	stairs.z_index = -1
 	_entities.add_child(stairs)

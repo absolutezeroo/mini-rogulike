@@ -21,6 +21,7 @@ func run() -> void:
 	_test_lighting()
 	_test_runes()
 	_test_item_levels()
+	_test_routes()
 	_test_bosses()
 	_test_profile()
 	_test_run_time()
@@ -699,6 +700,38 @@ func _test_item_levels() -> void:
 	check(rare12.get_details().begins_with("Item level 12"), "the item card says its level")
 	var compare := ItemCompare.lines(rare12, levels[1])
 	check(compare.size() > 0 and String(compare[0].text) == "+10 item levels" and compare[0].good, "the comparison starts with the level difference")
+
+
+## Two ways down: where the second stairs go, and what each way offers.
+func _test_routes() -> void:
+	var rng := RandomNumberGenerator.new()
+	var seconds := 0
+	for i in 12:
+		rng.seed = 900 + i
+		var map := DungeonGenerator.generate(CONTENT.dungeon, rng)
+		if map.second_stairs_cell == DungeonMap.NO_CELL:
+			continue
+		seconds += 1
+		var second := Vector2(map.second_stairs_cell)
+		check(map.is_floor(map.second_stairs_cell) and second.distance_to(Vector2(map.start_cell)) > 12.0 and second.distance_to(Vector2(map.stairs_cell)) > 12.0, "the second stairs stand far from the start and the first (seed %d)" % (900 + i))
+		check(map.exit_cells().size() == 2 and map.exit_cells()[0] == map.stairs_cell, "exit_cells lists both")
+	check(seconds >= 10, "most floors have room for a second way down (%d of 12)" % seconds)
+	var arena := DungeonGenerator.generate_arena(CONTENT.dungeon, rng)
+	check(arena.second_stairs_cell != DungeonMap.NO_CELL and arena.boss_room.has_point(arena.second_stairs_cell), "a boss arena has room for two stairs")
+	var normal := CONTENT.get_difficulty(&"normal")
+	check(FloorRoute.offer(CONTENT, 1, normal, 1).is_empty(), "no choice toward floor 1")
+	check(FloorRoute.offer(CONTENT, 3, normal, 1).is_empty(), "nor toward a boss floor")
+	var twists := 0
+	for offer_seed in 40:
+		var ways := FloorRoute.offer(CONTENT, 2, normal, offer_seed)
+		check(ways.size() == 2 and ways[0].biome != ways[1].biome, "two ways to two worlds (seed %d)" % offer_seed)
+		var act := CONTENT.dungeon.act_for_depth(2)
+		check(ways.all(func(w: FloorRoute) -> bool: return act.biomes.has(w.biome) and not (w.curse and w.floor_event)), "worlds of the act; a curse or an event, never both")
+		if not ways[1].is_plain():
+			twists += 1
+		var same := FloorRoute.offer(CONTENT, 2, normal, offer_seed)
+		check(same[0].biome == ways[0].biome and same[1].curse == ways[1].curse and same[1].floor_event == ways[1].floor_event, "the same seed, the same ways")
+	check(twists >= 16, "the second way often has a twist (%d of 40)" % twists)
 
 
 func _test_runes() -> void:

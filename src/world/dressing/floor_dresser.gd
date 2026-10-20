@@ -165,13 +165,14 @@ static func _scatter(world: World, rule: DecorRuleDef, walls: Dictionary, standi
 	layer.sway = rule.sway
 	layer.world = world
 	var used := {}
+	var exits := map.exit_cells()
 	for room in map.rooms:
 		var spots: Array = []  # [noise, cell]
 		for y in range(room.position.y, room.end.y):
 			for x in range(room.position.x, room.end.x):
 				var cell := Vector2i(x, y)
 				if not walls.has(cell) or used.has(cell) or world.nav.is_blocked(cell) \
-						or cell == map.start_cell or cell == map.stairs_cell or not _fits_rule(rule, cell, walls, standing, on):
+						or cell == map.start_cell or exits.has(cell) or not _fits_rule(rule, cell, walls, standing, on):
 					continue
 				spots.append([noise.get_noise_2d(cell.x, cell.y), cell])
 		# The noise's high spots first: pieces gather there.

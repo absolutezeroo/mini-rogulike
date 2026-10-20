@@ -258,6 +258,14 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   pieces per biome, laid out by the generator (`FloorDresser`).
 - **Chests** (`data/chests/`): walk up to one to open it. Some are trapped: they blow up or let
   monsters out (and keep only one item). A trapped chest rattles now and then...
+- **Two ways down** (`FloorRoute`, `dungeon_config.tres` > Routes): a normal floor ends on two
+  stairs, and a boss arena opens two once the boss falls. Each leads to a different world of
+  the act (`ActDef.biomes`), and may be cursed or hold a floor event: a wooden **sign** over each
+  stairs says which ("Flooded Caverns / Ashen Breath - better loot"). The second way gets a twist
+  more often (`route_twist_chance`), so the choice is often a calm way or a bold one. Floors
+  before a boss have one way: the arena. The offer comes from the run's seed (the same all day in
+  a daily run) and the way taken is saved (`RunState.routes`), so a resumed run rebuilds the same
+  floor. The second stairs stand in the room farthest from both the start and the first stairs.
 - **Curses** (`data/curses/`, `CurseDef`): the Well curses a whole floor. Never the first floor nor
   a boss floor, rarely on Easy, more and more often up to Nightmare (`DifficultyDef.curse_chance`:
   5%, 12%, 20%, 35%). On arrival, the **curse card** (`CurseCard`) shows the Well's sigil forming

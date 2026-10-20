@@ -388,7 +388,8 @@ func _enter_floor(resumed: bool = false) -> void:
 		world.rng.seed = DailyRun.floor_seed(run.daily_day, depth)  # the same floors all day
 	else:
 		world.rng.seed = hash("%d-floor-%d" % [run.seed, depth])  # quitting can't reroll a floor
-	world.build_floor(depth, content)
+	world.next_routes = FloorRoute.offer(content, depth + 1, difficulty, run.route_seed(depth + 1))
+	world.build_floor(depth, content, _route_to(depth))
 	world.place_player(player)
 	var mood := world.theme.ambience if world.theme else null
 	if world.curse and world.curse.ambience:
@@ -433,9 +434,20 @@ func _announce_floor() -> void:
 		Events.log_message("Depth %d. Find the stairs!" % depth, Palette.GOLD)
 
 
-func _on_stairs_reached() -> void:
+## The way the hero took to floor `floor_depth`, or null (no choice there).
+func _route_to(floor_depth: int) -> FloorRoute:
+	if not run.routes.has(floor_depth):
+		return null
+	var offered := FloorRoute.offer(content, floor_depth, difficulty, run.route_seed(floor_depth))
+	var index: int = run.routes[floor_depth]
+	return offered[index] if index >= 0 and index < offered.size() else null
+
+
+func _on_stairs_reached(route: int = 0) -> void:
 	if _transitioning or player == null or player.is_dead:
 		return
+	if world.next_routes.size() >= 2:
+		run.routes[depth + 1] = clampi(route, 0, world.next_routes.size() - 1)
 	Sfx.play_ui(Sfx.bank.stairs)
 	_transitioning = true
 	# Fade to black, build the next floor, fade back in.

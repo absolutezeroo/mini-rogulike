@@ -13,7 +13,7 @@ const CUES: Array[StringName] = [
 	&"run_start", &"floor_start", &"cursed_floor", &"event_floor", &"monster_noticed", &"elite_noticed",
 	&"monster_killed", &"boss_started", &"boss_defeated", &"ambush", &"seal_broken", &"perk_chosen",
 	&"synergy", &"low_health", &"cold", &"hot", &"merchant_near", &"forge_near", &"chest_near",
-	&"gear_carried", &"rune_carried", &"spell_learned",
+	&"gear_carried", &"rune_carried", &"spell_learned", &"two_ways",
 ]
 ## What a hint can wait for (`done_when`).
 const ACTIONS: Array[StringName] = [
@@ -81,7 +81,10 @@ func bind(new_player: Player, new_world: World, new_hud: Hud) -> void:
 	player.died.connect(_on_died)
 	if world != new_world:
 		world = new_world
-		world.seal.broken.connect(func() -> void: cue(&"seal_broken"))
+		world.seal.broken.connect(func() -> void:
+			cue(&"seal_broken")
+			if world.stairs_cells.size() >= 2:
+				cue(&"two_ways"))
 	_queue.clear()
 	_waiting.clear()
 	_close(false)

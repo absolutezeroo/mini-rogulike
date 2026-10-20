@@ -16,6 +16,8 @@ const RUNES := 6
 
 ## Set by the World from the floor's theme. Falls back to a drawn shape.
 var texture: Texture2D
+## Where they lead when the floor offers two ways down (FloorRoute): shown on a sign above them.
+var route: FloorRoute
 var _time := 0.0
 var _seal: StairsSeal
 ## Counts up from 0 when the seal breaks (-1: not breaking).
@@ -33,6 +35,8 @@ func _ready() -> void:
 	_motes = MOTES.instantiate() as Node2D
 	add_child(_motes)
 	_motes.visible = not is_sealed()
+	if route:
+		add_child(StairsSign.new(route))
 
 
 ## The floor's seal: closed until it breaks.

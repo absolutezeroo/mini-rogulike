@@ -183,6 +183,15 @@ text = "Find the stairs on the map. Tap the map to see the whole floor."
 target = &"Minimap"
 duration = 9.0
 
+[sub_resource type="Resource" id="Hint_two_ways"]
+script = ExtResource("2_hint")
+id = &"two_ways"
+cue = &"two_ways"
+title = "Two ways down"
+text = "This floor has two stairs. The sign over each tells where it leads: a cursed floor is harder but has better loot."
+target = &"Minimap"
+duration = 10.0
+
 [sub_resource type="Resource" id="Hint_cursed_floor"]
 script = ExtResource("2_hint")
 id = &"cursed_floor"
@@ -219,4 +228,4 @@ priority = 5
 
 [resource]
 script = ExtResource("1_tutorial")
-hints = Array[ExtResource("2_hint")]([SubResource("Hint_move"), SubResource("Hint_seal"), SubResource("Hint_attack"), SubResource("Hint_roll"), SubResource("Hint_weapon_skills"), SubResource("Hint_potion"), SubResource("Hint_souls"), SubResource("Hint_perks"), SubResource("Hint_synergy"), SubResource("Hint_gear"), SubResource("Hint_spell"), SubResource("Hint_elite"), SubResource("Hint_rune"), SubResource("Hint_forge"), SubResource("Hint_merchant"), SubResource("Hint_chest"), SubResource("Hint_ambush"), SubResource("Hint_boss"), SubResource("Hint_stairs_open"), SubResource("Hint_cursed_floor"), SubResource("Hint_floor_event"), SubResource("Hint_cold"), SubResource("Hint_hot")])
+hints = Array[ExtResource("2_hint")]([SubResource("Hint_move"), SubResource("Hint_seal"), SubResource("Hint_attack"), SubResource("Hint_roll"), SubResource("Hint_weapon_skills"), SubResource("Hint_potion"), SubResource("Hint_souls"), SubResource("Hint_perks"), SubResource("Hint_synergy"), SubResource("Hint_gear"), SubResource("Hint_spell"), SubResource("Hint_elite"), SubResource("Hint_rune"), SubResource("Hint_forge"), SubResource("Hint_merchant"), SubResource("Hint_chest"), SubResource("Hint_ambush"), SubResource("Hint_boss"), SubResource("Hint_stairs_open"), SubResource("Hint_two_ways"), SubResource("Hint_cursed_floor"), SubResource("Hint_floor_event"), SubResource("Hint_cold"), SubResource("Hint_hot")])

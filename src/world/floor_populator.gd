@@ -12,7 +12,8 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 	var spread := maxf(float(map.rooms.size()) / maxf(config.max_rooms, 1.0), 1.0)
 	var taken := {}  # cells used by props and hazards
 	_reserve_around(taken, map.start_cell, 2)
-	_reserve_around(taken, map.stairs_cell, 1)
+	for cell in map.exit_cells():
+		_reserve_around(taken, cell, 1)
 	if map.rooms.size() < 2:
 		for room in map.rooms:
 			place_lights(world, config, room, taken)
@@ -192,7 +193,7 @@ static func _pick_quiet_room(map: DungeonMap, rng: RandomNumberGenerator, except
 	var candidates: Array[int] = []
 	for i in range(1, map.rooms.size()):
 		var room := map.rooms[i]
-		if i != except and room.size.x >= 7 and room.size.y >= 7 and not room.grow(1).has_point(map.stairs_cell):
+		if i != except and room.size.x >= 7 and room.size.y >= 7 and not map.exit_cells().any(func(c: Vector2i) -> bool: return room.grow(1).has_point(c)):
 			candidates.append(i)
 	return candidates[rng.randi_range(0, candidates.size() - 1)] if not candidates.is_empty() else -1
 

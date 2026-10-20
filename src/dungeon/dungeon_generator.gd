@@ -30,6 +30,7 @@ static func generate(config: DungeonConfig, rng: RandomNumberGenerator, size_sca
 	smooth(map)
 	map.start_cell = map.rooms[0].get_center()
 	map.stairs_cell = _farthest_room(map).get_center()
+	map.second_stairs_cell = _second_exit(map)
 	return map
 
 
@@ -57,6 +58,11 @@ static func generate_arena(config: DungeonConfig, rng: RandomNumberGenerator, pl
 	map.boss_room = arena
 	map.start_cell = start.get_center()
 	map.stairs_cell = arena.get_center()
+	# The second way down, beside the first once the boss falls.
+	for offset in [Vector2i(5, 0), Vector2i(-5, 0), Vector2i(0, 4), Vector2i(0, -4)]:
+		if map.is_floor(map.stairs_cell + offset) and arena.has_point(map.stairs_cell + offset):
+			map.second_stairs_cell = map.stairs_cell + offset
+			break
 	return map
 
 
@@ -212,6 +218,22 @@ static func _carve_line(map: DungeonMap, from: Vector2i, to: Vector2i, corridor_
 		if cell == to:
 			break
 		cell += step
+
+
+## The second way down: the room farthest from both the start and the first stairs (no rng:
+## the rest of the floor comes out the same). NO_CELL if no room is far enough from both.
+static func _second_exit(map: DungeonMap) -> Vector2i:
+	var best := DungeonMap.NO_CELL
+	var best_distance := 12.0  # cells, at least, from the start and from the first stairs
+	for i in range(1, map.rooms.size()):
+		var center := map.rooms[i].get_center()
+		if map.rooms[i].has_point(map.stairs_cell) or not map.is_floor(center):
+			continue
+		var distance := minf(Vector2(center).distance_to(Vector2(map.start_cell)), Vector2(center).distance_to(Vector2(map.stairs_cell)))
+		if distance > best_distance:
+			best_distance = distance
+			best = center
+	return best
 
 
 static func _farthest_room(map: DungeonMap) -> Rect2i:

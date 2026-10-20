@@ -37,6 +37,8 @@ var time := 0.0
 var splits: Array[float] = []
 ## The time when the last boss fell (-1: not won yet). The run's speedrun time.
 var finish_time := -1.0
+## The ways down taken (FloorRoute): depth reached -> index of the route offered for it.
+var routes := {}
 
 
 ## A new run, or the saved one (`saved` from RunSave; empty for a new run).
@@ -61,6 +63,9 @@ static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGener
 	run.history_recorded = bool(saved.get("history_recorded", false))
 	run.time = float(saved.get("time", 0.0))
 	run.finish_time = float(saved.get("finish_time", -1.0))
+	var taken: Dictionary = saved.get("routes", {})
+	for key: Variant in taken:
+		run.routes[int(key)] = int(taken[key])
 	for split: Variant in saved.get("splits", []):
 		run.splits.append(float(split))
 	if saved.has("rerolls"):
@@ -130,9 +135,15 @@ func to_data() -> Dictionary:
 		"time": time,
 		"splits": splits,
 		"finish_time": finish_time,
+		"routes": routes,
 		"difficulty": String(difficulty.id),
 		"ascension": difficulty.ascension,
 	}
+
+
+## The seed of the ways down offered toward floor `floor_depth` (the same all day in a daily run).
+func route_seed(floor_depth: int) -> int:
+	return FloorRoute.seed_for(DailyRun.seed_of(daily_day) if is_daily() else seed, floor_depth)
 
 
 func is_daily() -> bool:
