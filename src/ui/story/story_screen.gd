@@ -65,7 +65,7 @@ func next_page() -> void:
 
 func finish() -> void:
 	Profile.mark_intro_seen()
-	get_tree().change_scene_to_file(next_scene if not next_scene.is_empty() else TITLE_SCENE)
+	Loader.go(next_scene if not next_scene.is_empty() else TITLE_SCENE)
 
 
 ## Taps arrive as mouse clicks (touch emulates the mouse).

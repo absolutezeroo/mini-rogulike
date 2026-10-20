@@ -14,7 +14,7 @@ const BUTTON_TEXT := Color(0.16862746, 0.11372549, 0.14117648)
 
 @export var content: ContentDB
 
-@onready var _records: HBoxContainer = %Records
+@onready var _records: BoxContainer = %Records
 @onready var _shrine: ShrinePanel = %ShrinePanel
 @onready var _hero: AnimatedSprite2D = %Hero
 
@@ -40,14 +40,21 @@ func _ready() -> void:
 		(%Subtitle as Label).text = content.story.tagline
 		(%ShrineText as Label).text = content.story.shrine_text
 	_hero.sprite_frames = content.player.frames
-	_hero.play(&"idle_down")
-	var spot: Control = %HeroSpot
-	spot.resized.connect(func() -> void: _hero.position.x = spot.size.x * 0.5)
+	_hero.play(&"idle_right")  # (looking at the Well)
+	# The hero on the Well's rim, the souls rising from it (the picture follows the screen's size).
+	var backdrop: TitleBackdrop = %Backdrop
+	backdrop.resized.connect(_place_scene)
+	_place_scene.call_deferred()
 	AchievementDef.unlock_reached(content.achievements)  # goals reached by older saves
-	_build_boss_row()
 	_build_daily_button()
 	_build_shrine_badge()
-	(%RecordsPlaque as PanelContainer).add_theme_stylebox_override("panel", MenuWindow.strip_style())
+	var plaque_style := MenuWindow.strip_style().duplicate() as StyleBoxTexture
+	plaque_style.content_margin_left = 16
+	plaque_style.content_margin_right = 16
+	plaque_style.content_margin_top = 12
+	plaque_style.content_margin_bottom = 14
+	(%RecordsPlaque as PanelContainer).add_theme_stylebox_override("panel", plaque_style)
+	(%RecordsPlaque as PanelContainer).custom_minimum_size.x = 250
 	_setup_continue()
 	%PlayButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
@@ -95,7 +102,7 @@ func play() -> void:
 	if not Profile.seen_intro and content.story and not content.story.intro_pages.is_empty():
 		tell_story(GAME_SCENE)
 	else:
-		get_tree().change_scene_to_file(GAME_SCENE)
+		Loader.go(GAME_SCENE)
 
 
 ## The run in progress, if the app was closed during one.
@@ -110,7 +117,7 @@ func _setup_continue() -> void:
 	button.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_click)
 		Game.resume_requested = true
-		get_tree().change_scene_to_file(GAME_SCENE))
+		Loader.go(GAME_SCENE))
 	button.grab_focus.call_deferred()
 
 
@@ -120,32 +127,13 @@ func tell_story(next_scene: String) -> void:
 	get_tree().change_scene_to_file(STORY_SCENE)
 
 
-## The goal of a run: one boss per act.
-func _build_boss_row() -> void:
-	var row: HBoxContainer = %Bosses
-	for act in content.dungeon.acts:
-		var column := VBoxContainer.new()
-		column.alignment = BoxContainer.ALIGNMENT_CENTER
-		column.add_theme_constant_override("separation", 2)
-		# The act's bosses: one of them guards it in each run.
-		var faces := HBoxContainer.new()
-		faces.alignment = BoxContainer.ALIGNMENT_CENTER
-		for boss in act.all_bosses():
-			var portrait := TextureRect.new()
-			portrait.texture = boss.portrait
-			portrait.custom_minimum_size = Vector2(64, 64)
-			portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			faces.add_child(portrait)
-		column.add_child(faces)
-		var label := UiSkin.label("%s\n%s" % [act.subtitle, act.title], 14, UiSkin.TEXT)
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		column.add_child(label)
-		row.add_child(column)
-	var goal := UiSkin.label("A run: go down through the acts and beat the boss at the end of each (one of these).", 14, UiSkin.DIM)
-	goal.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	row.get_parent().add_child(goal)
-	row.get_parent().move_child(goal, row.get_index() + 1)
+## The hero and the souls where the Well is drawn.
+func _place_scene() -> void:
+	var backdrop: TitleBackdrop = %Backdrop
+	_hero.position = backdrop.hero_spot()
+	var wisps: CPUParticles2D = %Wisps
+	wisps.position = backdrop.well_center() + Vector2(0, -backdrop.size.y * 0.3)
+	wisps.emission_rect_extents = Vector2(backdrop.well_radius().x * 0.8, backdrop.size.y * 0.3)
 
 
 ## The Daily run button's three lines: name, what it is, your score.
@@ -221,7 +209,7 @@ func _refresh() -> void:
 		_records.remove_child(child)
 		child.queue_free()
 	var difficulty := content.get_difficulty(Profile.difficulty)
-	_record("%d souls" % Profile.souls, "to spend at the Shrine", MenuWindow.SOULS)
+	_record("%d souls" % Profile.souls, "to spend", MenuWindow.SOULS)
 	_record("Runs", str(Profile.runs))
 	_record("Victories", str(Profile.victories))
 	_record("Deepest floor", str(Profile.best_depth))
@@ -229,13 +217,17 @@ func _refresh() -> void:
 		difficulty.color if difficulty else UiSkin.TEXT)
 
 
-## One record on the plaque: a word and its value.
+## One record on the plaque: a word, and its value on the right.
 func _record(first: String, second: String, color: Color = UiSkin.TEXT) -> void:
 	var pair := HBoxContainer.new()
-	pair.add_theme_constant_override("separation", 6)
+	pair.add_theme_constant_override("separation", 18)
 	var is_souls := color == MenuWindow.SOULS
-	pair.add_child(UiSkin.label(first, 16, color if is_souls else UiSkin.DIM))
-	pair.add_child(UiSkin.label(second, 16, UiSkin.DIM if is_souls else color))
+	var word := UiSkin.label(first, 18 if is_souls else 15, color if is_souls else UiSkin.DIM)
+	word.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pair.add_child(word)
+	var value := UiSkin.label(second, 15, UiSkin.DIM if is_souls else color)
+	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	pair.add_child(value)
 	_records.add_child(pair)
 
 

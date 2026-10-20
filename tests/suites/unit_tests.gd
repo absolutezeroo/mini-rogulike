@@ -25,6 +25,7 @@ func run() -> void:
 	_test_item_levels()
 	_test_routes()
 	_test_soul_tree()
+	_test_loader()
 	_test_bosses()
 	_test_profile()
 	_test_run_time()
@@ -819,6 +820,14 @@ func _test_soul_tree() -> void:
 	Profile.levels = saved_levels
 	Profile.souls = saved_souls
 	Profile.achievements = saved_achievements
+
+
+## The loading screen: an autoload, idle, with tips to show.
+func _test_loader() -> void:
+	var loader := get_node_or_null("/root/Loader")
+	check(loader != null and loader.has_method("go") and not loader.busy, "the Loader autoload is there, idle")
+	var tips: LoadingTipsDef = load("res://data/ui/loading_tips.tres")
+	check(tips.tips.size() >= 10 and Array(tips.tips).all(func(t: String) -> bool: return t.length() > 20 and t.length() <= 110), "loading tips: at least 10, each one short line or two")
 
 
 func _test_runes() -> void:
