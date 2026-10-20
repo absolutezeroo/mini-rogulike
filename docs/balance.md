@@ -48,7 +48,8 @@ take 5 s to a minute each; the `balance` test suite about a minute.
   fights as arithmetic. Every monster kind x every rank (plain, Elite with each affix, Epic and
   Legendary with spreads of affixes, Shiny) x every depth it appears at x every difficulty:
   health, armor, hit and damage per second on the act's expected build (after its armor), time to
-  kill, hits to kill the hero, damage taken while killing it; rank chances per depth. Every boss
+  kill, hits to kill the hero, damage taken while killing it; rank chances per depth; the
+  commons' curve and the ranks' ladder (medians per act on Normal, table "monster_ladder"). Every boss
   (alternates too) x every phase x every boss rank x every difficulty: health, armor, hit and
   damage per second per phase, time to kill, a face-tank estimate, the threat (share of the
   hero's health a face-tank fight costs) and the curve (act over act, difficulty over Normal);
@@ -128,6 +129,8 @@ lab before changing data.
 | Boss hits to kill the expected build (Normal) | 6-12 | one mistake isn't the end; ignoring the patterns kills |
 | Common monster time to kill (expected build, Normal) | 0.5-2.5 s | paper below, a slog above |
 | Elite / Epic / Legendary / Shiny time to kill | 3-10 / 5-16 / 8-25 / 2-10 s | a short duel, a longer one, a mini-boss, a treasure |
+| Rank ladder (medians per act, Normal) | each rank >= x1.2 the time to kill of the one below, and costs more health | a rank is a clearly tougher fight, not a recolor |
+| Commons' curve (median health lost killing one, act over act) | x0.9-x1.6 (the act curve's step) | each act's monsters a little harder than the last |
 | Common monster hits to kill the expected build | >= 6 | never a two-shot |
 | Room damage (kite, expected build) / clear time | <= 35% of max health / <= 25 s | a room shouldn't cost half your life when you play well |
 | Act curve (boss threat, act over act) | x0.9-x1.6 | a steady curve, no wall (pillar 5) |
@@ -195,6 +198,240 @@ listens. `PerkSet.Entry.source_tag()` names a perk, family, rune or affix for it
 tools drive the game through its input actions, its data and its public nodes.
 
 ## Balance log
+
+### 2026-10-20 - Phase 2B: common monsters, ranks, elite affixes, difficulties, depth scaling
+
+Measured with `--mode=model` (every monster x rank x depth x difficulty, seed 1) before and after
+each change, and `--mode=pack` (engine, Normal and Hard) after. Bosses, sustain, the armor rule,
+perks, runes, gear and the economy were left to the other phase 2 passes (A and C): bosses keep
+exactly their numbers (their depth scaling now has its own fields, set to the old values; the
+model's boss tables and curve are unchanged by this pass).
+
+**Read the last part first ("After merging phase 2A"):** the tables in between were measured
+with the old flat armor; 2A's percentage armor made two of the damage changes compound, and
+they were reverted.
+
+**What was wrong.** Commons died in 0.2-0.9 s and cost the expected builds 0.3-0.8% of their
+Health each (face to face); act II-IV commons needed 100-123 hits to kill the hero on Normal and
+the cost *fell* act after act (0.8%, 0.3%, 0.3%, 0.4%: hero Armor grew 2 -> 13 while monster attack
+grew +1 per floor). A rank was only more Health (Elite x2.5, Epic x3.5, Legendary x5) and no more
+damage, so an Elite died in 1-1.8 s and a Legendary in 2.4-3.9 s for 2.5-3.6% of the hero's Health.
+
+**Changes (data, plus two small rules):**
+
+| What | Before | After | Why |
+|---|---|---|---|
+| Common monsters' base Health (`data/monsters/*.tres`) | - | x0.8-x2.6 each (act I x1.08-1.6, act II x1.6-2.6, act III x1.3-2.2, act IV x0.8-1.9); the spread compressed (fodder up more than tanks; Dune Rex, the slowest to kill, 85 -> 70) | time to kill to 0.6 / 0.8 / 0.9 / 1.2 s (medians, acts I-IV); act I capped at x1.6 so a level-1 hero on floor 1 still kills a rat in 3-4 hits |
+| ~~Act II commons' attack (skeleton, sorcerer, skull, lantern, frost skull, soul moth, brood mother +2; eye, owl +1)~~ | 0 | ~~+1/+2~~ **reverted after 2A** | act II hit the hero for 1-3 after its Armor (7): the cheapest act. Not needed with 2A's armor (below) |
+| Act III commons' attack (shaman, flam, reptile, dragon, kappa, octopus, ember heart) | 0 | +1 | keeps act III a little harder than act II |
+| `monster_attack_per_depth` (now a float, rounded) | 1 | ~~1.5~~ **1.0 after 2A** (monsters only) | was: monster damage kept up with the hero's flat Armor. With 2A's armor it compounded (below) |
+| `boss_hp_scale_per_depth`, `boss_attack_per_depth` (new) | (shared) | 0.22, 1.0 = the old values | bosses are tuned one by one (phase 2A): the monsters' scaling no longer moves them |
+| `MonsterRankDef.hp_multiplier_per_depth` (new rule) | - | Elite 2.5 **+0.3**/floor, Epic **4.5 +0.45**, Legendary **6.5 +0.5**, Shiny **3.3 +0.15** | the hero's damage grows ~x10 over act I and ~x3 after: one flat multiplier makes either a floor-1 slog or a deep pushover. Depth 1/5/11: Elite x2.5/x3.7/x5.5, Epic -/x6.3/x9, Legendary -/x8.5/x11.5 |
+| `MonsterRankDef.damage_multiplier` (new rule, not bosses) | x1 | Elite **x1.15**, Epic **x1.2**, Legendary **x1.3**, Shiny x1 | a rank is a threat, not only a sponge (kept small: flat Armor turns x1.3 raw into x1.5-x2 after Armor) |
+| `elite_chance_per_depth` | 0.015 | **0.012** | tougher elites, a little rarer: act IV Normal 15% (was 18%) |
+| Hard / Nightmare `elite_chance` | x1.6 / x2.5 | **x1.4 / x1.7** | with ranks 2-4x tougher, 56% of Nightmare act IV monsters came ranked; now 35% (Nightmare +5: 78% -> 45%; Normal 25% -> 22%). Also bosses' rare-rank chance on those difficulties |
+| Ascension 3 "Elite Guard" | elites +50% | **+30%** | same reason; description updated |
+
+`Monster.make_ranked` applies the rank's depth Health and damage (`Monster._depth`, set in
+`setup`); `FloorRules.scale_monster` picks the boss or monster depth values; the model
+(`foe_numbers`) does the same. README: rank table (Health, Damage per depth) and Elite chance
+row updated.
+
+**Before -> after (model, every difficulty, the act's last normal floor, the act's expected build, medians over
+the act's monsters).** Time to kill · share of the hero's Health lost killing one face to face
+(no dodging) · commons: average hits to kill the hero:
+
+| Act | Difficulty | Common | Elite | Epic | Legendary | Shiny |
+|---|---|---|---|---|---|---|
+| 1 | easy | 0.2→**0.4** s · 0.3→**0.3**% · 64→**64** hits | 0.7→**1.1** s · 0.8→**1.8**% | - | - | 0.7→**1.4** s · 0.8→**1.2**% |
+| 1 | normal | 0.4→**0.6** s · 0.8→**1.3**% · 32→**26** hits | 0.9→**1.6** s · 2.5→**5.2**% | - | - | 1.1→**1.9** s · 2.5→**4.3**% |
+| 1 | hard | 0.5→**0.7** s · 1.7→**2.4**% · 21→**18** hits | 1.2→**2.1** s · 4.8→**10.2**% | - | - | 1.4→**2.5** s · 5.1→**8.4**% |
+| 1 | nightmare | 0.6→**1.0** s · 3.5→**5.2**% · 14→**12** hits | 1.6→**2.8** s · 10.1→**18.4**% | - | - | 1.8→**3.3** s · 10.5→**18.0**% |
+| 1 | nightmare+5 | 0.7→**1.1** s · 4.5→**6.7**% · 13→**11** hits | 1.9→**3.2** s · 12.8→**25.0**% | - | - | 2.0→**3.8** s · 13.6→**22.9**% |
+| 1 | nightmare+10 | 0.8→**1.3** s · 5.8→**8.4**% · 12→**10** hits | 2.1→**3.7** s · 16.2→**33.6**% | - | - | 2.3→**4.4** s · 17.5→**29.3**% |
+| 2 | easy | 0.2→**0.6** s · 0.1→**0.2**% · 200→**150** hits | 0.7→**2.3** s · 0.3→**1.4**% | 1.0→**4.1** s · 0.5→**3.3**% | 1.7→**6.3** s · 1.1→**7.4**% | 0.8→**2.3** s · 0.3→**0.9**% |
+| 2 | normal | 0.4→**0.8** s · 0.3→**1.5**% · 100→**33** hits | 1.0→**3.3** s · 0.9→**9.2**% | 1.5→**5.9** s · 1.5→**19.0**% | 2.4→**9.1** s · 2.5→**35.2**% | 1.1→**3.3** s · 0.9→**5.9**% |
+| 2 | hard | 0.5→**1.1** s · 1.0→**3.8**% · 40→**18** hits | 1.3→**4.4** s · 2.8→**19.8**% | 1.9→**7.8** s · 4.5→**42.5**% | 3.1→**11.8** s · 7.8→**75.2**% | 1.4→**4.2** s · 3.1→**14.7**% |
+| 2 | nightmare | 0.6→**1.4** s · 2.4→**8.0**% · 22→**12** hits | 1.7→**5.7** s · 6.5→**42.8**% | 2.5→**10.6** s · 10.4→**89.8**% | 4.0→**15.8** s · 17.9→**150.8**% | 1.8→**5.5** s · 7.2→**31.0**% |
+| 2 | nightmare+5 | 0.7→**1.6** s · 3.3→**10.8**% · 18→**10** hits | 1.9→**6.6** s · 8.9→**55.8**% | 2.9→**12.3** s · 14.2→**118.8**% | 4.7→**18.2** s · 24.2→**195.8**% | 2.1→**6.4** s · 9.9→**42.0**% |
+| 2 | nightmare+10 | 0.8→**1.9** s · 4.6→**13.8**% · 15→**10** hits | 2.2→**7.7** s · 12.4→**74.5**% | 3.4→**14.1** s · 19.8→**155.5**% | 5.4→**20.9** s · 33.5→**264.8**% | 2.5→**7.3** s · 13.7→**54.0**% |
+| 3 | easy | 0.4→**0.6** s · 0.1→**0.2**% · 229→**229** hits | 0.9→**3.0** s · 0.3→**1.8**% | 1.4→**5.3** s · 0.6→**4.7**% | 2.1→**7.3** s · 1.2→**9.3**% | 1.1→**2.8** s · 0.3→**0.7**% |
+| 3 | normal | 0.5→**0.9** s · 0.3→**1.5**% · 108→**33** hits | 1.4→**4.3** s · 0.9→**11.9**% | 1.9→**7.7** s · 1.8→**23.4**% | 3.0→**10.8** s · 3.3→**40.8**% | 1.5→**3.9** s · 0.9→**6.7**% |
+| 3 | hard | 0.7→**1.2** s · 1.1→**4.1**% · 38→**18** hits | 1.8→**5.7** s · 3.2→**27.1**% | 2.6→**10.1** s · 5.4→**56.6**% | 4.0→**14.2** s · 8.7→**91.3**% | 2.0→**5.1** s · 3.4→**17.9**% |
+| 3 | nightmare | 0.9→**1.5** s · 3.1→**9.3**% · 19→**11** hits | 2.3→**7.5** s · 8.6→**57.9**% | 3.4→**13.4** s · 13.5→**116.2**% | 5.2→**19.1** s · 22.0→**191.0**% | 2.6→**6.7** s · 9.3→**40.3**% |
+| 3 | nightmare+5 | 1.0→**1.8** s · 4.1→**12.1**% · 16→**10** hits | 2.6→**8.7** s · 11.5→**75.3**% | 3.8→**15.4** s · 18.4→**149.8**% | 6.0→**22.0** s · 29.3→**248.7**% | 3.0→**7.7** s · 12.4→**52.4**% |
+| 3 | nightmare+10 | 1.1→**2.0** s · 5.5→**16.2**% · 14→**8** hits | 3.0→**10.0** s · 15.7→**103.1**% | 4.4→**17.8** s · 24.9→**198.9**% | 6.9→**25.3** s · 39.8→**333.8**% | 3.4→**8.9** s · 16.6→**70.3**% |
+| 4 | easy | 0.5→**0.8** s · 0.1→**0.2**% · 285→**270** hits | 1.3→**4.9** s · 0.4→**2.0**% | 1.9→**8.4** s · 0.8→**5.5**% | 2.7→**10.9** s · 1.7→**10.8**% | 1.4→**3.9** s · 0.3→**1.0**% |
+| 4 | normal | 0.7→**1.1** s · 0.4→**2.0**% · 123→**41** hits | 1.8→**7.0** s · 1.3→**18.4**% | 2.7→**12.1** s · 2.3→**36.7**% | 3.9→**16.1** s · 3.6→**64.2**% | 2.0→**5.5** s · 1.3→**9.5**% |
+| 4 | hard | 0.9→**1.5** s · 1.7→**5.7**% · 41→**20** hits | 2.4→**9.1** s · 4.8→**44.7**% | 3.6→**15.7** s · 7.5→**88.1**% | 5.2→**21.5** s · 12.4→**147.4**% | 2.6→**7.2** s · 5.0→**27.2**% |
+| 4 | nightmare | 1.1→**2.0** s · 4.8→**12.8**% · 20→**12** hits | 3.1→**11.9** s · 12.8→**97.9**% | 4.6→**20.7** s · 20.8→**192.3**% | 6.8→**29.6** s · 33.6→**315.1**% | 3.4→**9.4** s · 14.4→**61.6**% |
+| 4 | nightmare+5 | 1.3→**2.3** s · 6.6→**17.5**% · 17→**10** hits | 3.6→**13.9** s · 17.8→**130.0**% | 5.3→**24.2** s · 29.2→**254.2**% | 8.0→**34.8** s · 46.5→**409.8**% | 3.9→**10.8** s · 19.8→**83.7**% |
+| 4 | nightmare+10 | 1.5→**2.6** s · 9.1→**23.6**% · 14→**9** hits | 4.1→**16.2** s · 25.0→**174.2**% | 6.1→**28.8** s · 41.1→**340.4**% | 9.2→**41.0** s · 64.4→**566.5**% | 4.5→**12.4** s · 27.2→**113.3**% |
+
+Commons' curve and ranks' ladder (new model table `monster_ladder`, Normal, medians):
+
+| Act | Common TTK | Common Health lost | Step | Elite | Epic | Legendary | Shiny |
+|---|---|---|---|---|---|---|---|
+| I | 0.4 -> **0.6 s** | 0.8% -> **1.3%** | - | 0.9 -> **1.6 s** / 2.5% -> **5.2%** | - | - | 1.1 -> **1.9 s** |
+| II | 0.4 -> **0.8 s** | 0.3% -> **1.5%** | x0.38 -> **x1.19** | 1.0 -> **3.3 s** / 0.9% -> **9.2%** | 1.5 -> **5.9 s** / **19%** | 2.4 -> **9.1 s** / **35%** | 1.1 -> **3.3 s** |
+| III | 0.5 -> **0.9 s** | 0.3% -> **1.5%** | x1.0 -> **x1.02** | 1.4 -> **4.3 s** / 0.9% -> **11.9%** | 1.9 -> **7.7 s** / **23%** | 3.0 -> **10.8 s** / **41%** | 1.5 -> **3.9 s** |
+| IV | 0.7 -> **1.2 s** | 0.4% -> **2.0%** | x1.33 -> **x1.29** | 1.8 -> **7.0 s** / 1.3% -> **18.4%** | 2.7 -> **12.1 s** / **37%** | 3.9 -> **16.0 s** / **64%** | 2.0 -> **5.5 s** |
+
+Model flags (seed 1, all difficulties; per monster, Normal): monster TTK 24 -> **6**, Elite TTK
+43 -> **16**, Epic 34 -> **7**, Legendary 34 -> **6**, Shiny 35 -> **8** (170 -> 43). New checks
+"model: monster curve" and "model: rank ladder": 0 flags. Boss tables, the boss curve and the
+difficulty curve: unchanged (bosses untouched).
+
+What is left, and why it is left:
+- **Act I ranks (all 10 act I Elites at 0.8-2.3 s, 7 Shinies).** The model measures them against
+  the level-6 build that reaches the act I boss; the same monsters meet a level-1 hero with a tenth
+  of that damage on floor 1. Raising them to 3 s would make a floor-1 Elite slime a 30-s slog for
+  a fresh hero. The per-depth rank Health is the compromise (an Elite is x2.5 on floor 1, x3.7 on
+  floor 5). Same for the swarm fodder (rat, bat, larva, snake at 0.3-0.4 s: one or two hits by
+  design, "comes in numbers").
+- **Act II-III fodder ranks** (Elite bat, skull, frost skull, thief racoon, flam: 1.2-2.7 s) and
+  the **Dune Rex** ranks (Elite 11.3 s, Epic 19 s, Legendary 26 s: act IV's tank, plain 1.9 s after
+  its Health 85 -> 70): edge cases of one multiplier on a spread of kinds.
+- **Boss adds are commons (finding for phase 2A).** King Slime and Giant Frog call slimes, the act
+  II/III/IV bosses skeletons, spirits, flams, gold racoons: they got this pass's Health and
+  attack. The balance suite's duel "expected_a1 kite wins" vs King Slime now **fails**: baseline a
+  win (hero min 45%, 70 taken in 8 hits); now a loss with the boss at 1-4% (128 taken in 14-15
+  hits), with the slime's Health brought back to 28 (x1.08) for it; the rest is the +1 attack
+  per hit at depth 3. A coin-flip fight, but a regression: phase 2A should decide (fewer or
+  weaker adds in `data/skills/boss/call_*`, or a rule scaling boss-summoned adds with the boss
+  depth values). Giant Frog's kite fight was already a loss in the baseline.
+- **High difficulties.** Nightmare and its ascensions multiply Health x1.7-2.25 on top: an act IV
+  Legendary takes 30 s on Nightmare and 41 s on Nightmare +10 (face to face it would cost 3-5x the
+  hero's Health: it must be dodged, like a boss). The expected builds are the Normal ones (on
+  Nightmare a player is 2-3 levels higher: economy table "XP before each act's boss"); the
+  ranked share was cut instead of their Health (above). Watch it in real Nightmare runs.
+- **Difficulty curve (boss threat): Easy act IV x0.12, Nightmare act IV x5.19.** Both come from the
+  flat armor rule (`Combat.mitigate`): x0.6 damage against 13 Armor leaves 1-point hits on Easy;
+  x1.8 against it more than triples them on Nightmare. Not fixed with difficulty numbers: phase
+  2A's armor rule decides it.
+
+**Depends on armor (phase 2A changes `Combat.mitigate`).** Every damage number above is after
+today's flat armor (hero Armor 2 / 7 / 10 / 13 at acts I-IV). The new monster damage (+0.5 attack
+per floor, act II +1/+2, act III +1, rank x1.15-x1.3) was kept small on purpose: under a
+diminishing-returns armor the same raw numbers hit harder at act III-IV (where flat Armor now
+eats 10-13 points of each hit) and softer in act I. After 2A lands, re-run `--mode=model` and
+check: commons' hits to kill the hero >= 6 on Nightmare +10 (today 8-10), the "monster curve"
+step (x0.9-1.6 per act), Elite/Legendary Health lost on Normal (today 5-18% / 35-64%), and the
+difficulty curve (Easy act IV should rise toward x0.4, Nightmare act IV fall toward x3). If act
+III-IV commons get too sharp, lower `monster_attack_per_depth` back toward 1.0 first.
+
+**Rewards and economy (phase 2C).** XP, gold and drops per rank are unchanged, but ranked monsters
+are rarer (Normal act IV 25% -> 22% of monsters, Hard and Nightmare more so) and take longer: the
+souls, XP and gold per floor measured by `--mode=economy` move a little; re-measure there.
+
+Engine (pack mode, Normal and Hard, expected builds): measured before the last touch-ups (act II
+commons +20% Health, act III +1 attack, slime 34 -> 28, Dune Rex 85 -> 70), seed 1; medians:
+
+| Act | Ranked + 2 commons, face-tank: Elite / Epic / Legendary / Shiny TTK (before -> after) | Rooms, expected build, kite: Health lost / clear | Face-tank |
+|---|---|---|---|
+| I Normal | 0.8 -> **1.5** / 1.8 -> **4.3** / 3.6 -> **6.0** / 0.8 -> **1.8** s | 0% -> 0% / 2.1 -> 3.6 s | 2% -> 2% |
+| II Normal | 0.6 -> **2.2** / 0.1 -> **3.1** / 1.2 -> **4.2** / 0.9 -> **2.1** s | 0% -> 0% / 4.6 -> 6.8 s | 0% -> 0% |
+| III Normal | 1.5 -> **5.1** / 1.8 -> **6.7** / 3.0 -> **9.7** / 2.2 -> **4.2** s | 0% -> 0% / 14.9 -> 14.7 s | 0% -> 0% |
+| IV Normal | 1.8 -> **6.5** / 1.8 -> **6.0** / 3.0 -> **12.0** / 1.2 -> **5.4** s | 0% -> 0% / 9.3 -> 12.6 s | 1% -> 5% |
+| III Hard | 0.2 -> **6.2** / 4.1 -> **13.4** / 4.1 -> **18.1** / 0.4 -> **6.0** s | 0% -> **10%** / 24.7 -> 23.2 s | 1% -> 14% |
+| IV Hard | 0.3 -> **5.9** / 3.1 -> **10.6** / 3.6 -> **13.8** / 0.9 -> **5.9** s | 0% -> **2%** / 17.4 -> 19.3 s | 8% -> **25%** |
+
+Ranked monsters now last a real duel on the engine too (the before column has engine noise:
+0.1 s = slain in the hit that hurt it first). Mixed rooms still cost the kite bot almost nothing on
+Normal (room damage is a ceiling target, <= 35%: met everywhere) and face-tanking them 0-5%: the
+commons' extra damage shows on Hard (10-25%) and against ranked monsters (Normal face-tank: Epic
+and Legendary rooms 2-27%). Act IV with the kite bot and the slow Greatsword: the Epic, Legendary
+and Shiny rooms ran 30-49 s or to the timeout (the bot keeps range and swings rarely); face-tank
+6-12 s. Watch that in play: if act IV ranks drag, lower `hp_multiplier_per_depth` first.
+
+Guard tests: unit `_test_monster_ranks` (Elite < Epic < Legendary in Health at every depth, a
+Shiny below an Epic, no rank weaker deeper, damage x1 < Elite <= Epic <= Legendary <= x1.5, a
+Shiny hits like its kind; bosses scale with the boss depth values, monsters with theirs); floor
+test (an Elite has the rank's Health at its depth and hits harder); balance suite: "model: monster
+curve" and "model: rank ladder" (target `rank_ladder_step_min` = 1.2 in targets.tres).
+Regular suites: unit,title 4734 checks, game 900, tutorial 273: 0 failed. Balance suite: the
+known failures (fewer flags each), "duel: degenerate_lifesteal_a1 face-tank loses" now passes
+(left in KNOWN for phase 2A to confirm), "duel: expected_a1 kite wins" newly failed before the 2A merge (it passes after it: below).
+
+#### After merging phase 2A (percentage armor): re-measured, two damage changes reverted
+
+2A's `Combat.mitigate` (damage x damage / (damage + armor), at least 1) already makes the
+commons hit for real: on top of it, this pass's extra monster damage compounded. Model on the
+merged branch with every 2B change kept (Normal, medians): a common cost 1.4 / 2.3 / 2.7 / 4.0% of
+the hero's Health (acts I-IV), act II stepped x1.71 over act I (flag), an act IV Elite 28% and
+Legendary 90% face to face. Measured three variants (same seed):
+
+| Variant | Commons' Health lost (I-IV) | Steps | Act IV Elite / Legendary | Flags |
+|---|---|---|---|---|
+| all 2B changes | 1.4 / 2.3 / 2.7 / 4.0% | x1.71, x1.17, x1.46 | 28% / 90% | monster curve |
+| without act II/III attack | 1.4 / 2.2 / 2.6 / 4.0% | x1.64, x1.15, x1.55 | 28% / 90% | monster curve |
+| also `monster_attack_per_depth` 1.0 | 1.2 / 1.7 / 1.7 / 2.7% | x1.40, x0.99, x1.64 | 19% / 62% | monster curve |
+| **kept:** that + act III +1 attack | **1.2 / 1.7 / 1.7 / 2.7%** | **x1.40, x1.01, x1.59** | **19% / 62%** | none |
+
+So the final state: **`monster_attack_per_depth` back to 1.0** (still its own field, a float),
+**the act II attack bumps removed**, the act III +1 kept; Health, ranks, rank damage and elite
+chances as above. Final model, Normal: commons need 27 / 40 / 31 / 34 hits to kill the expected
+build (Nightmare +10: 12 / 13 / 11 / 12; target >= 6), Easy stays at 0.5-0.8% a common. The
+difficulty curve (boss threat) is now inside its targets everywhere (Easy x0.38-0.47, Hard
+x1.76-1.92, Nightmare x2.83-3.37, +5 x3.12-3.84, +10 x4.26-5.43): 2A's armor fixed what flat armor
+broke, as expected. Model flags (per monster, Normal): monster TTK 6, Elite 17, Epic 7, Legendary
+6, Shiny 8 (baseline 24 / 43 / 34 / 34 / 35); "monster curve" and "rank ladder": 0.
+
+Phase 2 baseline -> final (merged, model, every difficulty, the act's last normal floor; time to
+kill · share of the hero's Health lost killing one face to face · commons: hits to kill the hero):
+
+| Act | Difficulty | Common | Elite | Epic | Legendary | Shiny |
+|---|---|---|---|---|---|---|
+| 1 | easy | 0.2→**0.4** s · 0.3→**0.5**% · 64→**43** hits | 0.7→**1.1** s · 0.8→**1.7**% | - | - | 0.7→**1.4** s · 0.8→**1.7**% |
+| 1 | normal | 0.4→**0.6** s · 0.8→**1.2**% · 32→**27** hits | 0.9→**1.6** s · 2.5→**4.7**% | - | - | 1.1→**1.9** s · 2.5→**4.1**% |
+| 1 | hard | 0.5→**0.7** s · 1.7→**2.1**% · 21→**21** hits | 1.2→**2.1** s · 4.8→**8.4**% | - | - | 1.4→**2.5** s · 5.1→**7.3**% |
+| 1 | nightmare | 0.6→**1.0** s · 3.5→**4.3**% · 14→**14** hits | 1.6→**2.8** s · 10.1→**15.8**% | - | - | 1.8→**3.3** s · 10.5→**14.9**% |
+| 1 | nightmare+5 | 0.7→**1.1** s · 4.5→**5.6**% · 13→**13** hits | 1.9→**3.2** s · 12.8→**22.0**% | - | - | 2.0→**3.8** s · 13.6→**19.4**% |
+| 1 | nightmare+10 | 0.8→**1.3** s · 5.8→**7.2**% · 12→**12** hits | 2.1→**3.7** s · 16.2→**27.8**% | - | - | 2.3→**4.4** s · 17.5→**24.8**% |
+| 2 | easy | 0.2→**0.6** s · 0.1→**0.5**% · 200→**95** hits | 0.7→**2.3** s · 0.3→**2.7**% | 1.0→**4.1** s · 0.5→**5.8**% | 1.7→**6.3** s · 1.1→**9.5**% | 0.8→**2.3** s · 0.3→**1.8**% |
+| 2 | normal | 0.4→**0.8** s · 0.3→**1.7**% · 100→**40** hits | 1.0→**3.3** s · 0.9→**7.7**% | 1.5→**5.8** s · 1.5→**18.1**% | 2.4→**9.1** s · 2.5→**28.6**% | 1.1→**3.3** s · 0.9→**6.6**% |
+| 2 | hard | 0.5→**1.1** s · 1.0→**3.4**% · 40→**26** hits | 1.3→**4.3** s · 2.8→**15.6**% | 1.9→**7.6** s · 4.5→**33.1**% | 3.1→**11.8** s · 7.8→**57.5**% | 1.4→**4.2** s · 3.1→**13.3**% |
+| 2 | nightmare | 0.6→**1.4** s · 2.4→**6.6**% · 22→**18** hits | 1.7→**5.7** s · 6.5→**31.7**% | 2.5→**10.4** s · 10.4→**63.0**% | 4.0→**15.6** s · 17.9→**113.5**% | 1.8→**5.5** s · 7.2→**25.5**% |
+| 2 | nightmare+5 | 0.7→**1.6** s · 3.3→**8.7**% · 18→**15** hits | 1.9→**6.6** s · 8.9→**40.1**% | 2.9→**12.1** s · 14.2→**80.5**% | 4.7→**18.0** s · 24.2→**148.2**% | 2.1→**6.4** s · 9.9→**34.0**% |
+| 2 | nightmare+10 | 0.8→**1.9** s · 4.6→**11.6**% · 15→**13** hits | 2.2→**7.6** s · 12.4→**53.2**% | 3.4→**14.1** s · 19.8→**105.8**% | 5.4→**20.7** s · 33.5→**190.2**% | 2.5→**7.3** s · 13.7→**45.4**% |
+| 3 | easy | 0.4→**0.6** s · 0.1→**0.5**% · 229→**62** hits | 0.9→**3.0** s · 0.3→**3.5**% | 1.4→**5.3** s · 0.6→**7.5**% | 2.1→**7.3** s · 1.2→**12.6**% | 1.1→**2.8** s · 0.3→**2.2**% |
+| 3 | normal | 0.5→**0.9** s · 0.3→**1.7**% · 108→**31** hits | 1.4→**4.3** s · 0.9→**11.3**% | 1.9→**7.7** s · 1.8→**21.8**% | 3.0→**10.6** s · 3.3→**37.1**% | 1.5→**3.9** s · 0.9→**7.4**% |
+| 3 | hard | 0.7→**1.2** s · 1.1→**3.4**% · 38→**20** hits | 1.8→**5.7** s · 3.2→**22.1**% | 2.6→**10.0** s · 5.4→**45.4**% | 4.0→**14.1** s · 8.7→**71.2**% | 2.0→**5.1** s · 3.4→**15.0**% |
+| 3 | nightmare | 0.9→**1.5** s · 3.1→**7.0**% · 19→**14** hits | 2.3→**7.5** s · 8.6→**45.0**% | 3.4→**13.2** s · 13.5→**89.1**% | 5.2→**18.8** s · 22.0→**136.7**% | 2.6→**6.7** s · 9.3→**30.6**% |
+| 3 | nightmare+5 | 1.0→**1.8** s · 4.1→**9.2**% · 16→**12** hits | 2.6→**8.7** s · 11.5→**57.9**% | 3.8→**15.3** s · 18.4→**116.2**% | 6.0→**21.6** s · 29.3→**176.2**% | 3.0→**7.7** s · 12.4→**39.8**% |
+| 3 | nightmare+10 | 1.1→**2.0** s · 5.5→**12.0**% · 14→**11** hits | 3.0→**10.0** s · 15.7→**76.4**% | 4.4→**17.7** s · 24.9→**146.9**% | 6.9→**25.0** s · 39.8→**233.2**% | 3.4→**8.9** s · 16.6→**52.4**% |
+| 4 | easy | 0.5→**0.8** s · 0.1→**0.8**% · 285→**72** hits | 1.3→**4.9** s · 0.4→**6.0**% | 1.9→**8.4** s · 0.8→**12.5**% | 2.7→**11.0** s · 1.7→**19.4**% | 1.4→**3.9** s · 0.3→**3.9**% |
+| 4 | normal | 0.7→**1.1** s · 0.4→**2.7**% · 123→**34** hits | 1.8→**7.0** s · 1.3→**18.8**% | 2.7→**12.1** s · 2.3→**38.1**% | 3.9→**15.9** s · 3.6→**62.1**% | 2.0→**5.5** s · 1.3→**13.0**% |
+| 4 | hard | 0.9→**1.5** s · 1.7→**5.4**% · 41→**22** hits | 2.4→**9.1** s · 4.8→**38.2**% | 3.6→**15.6** s · 7.5→**76.3**% | 5.2→**21.1** s · 12.4→**121.9**% | 2.6→**7.2** s · 5.0→**25.7**% |
+| 4 | nightmare | 1.1→**2.0** s · 4.8→**10.8**% · 20→**15** hits | 3.1→**11.8** s · 12.8→**76.1**% | 4.6→**20.4** s · 20.8→**149.3**% | 6.8→**28.7** s · 33.6→**240.0**% | 3.4→**9.4** s · 14.4→**51.9**% |
+| 4 | nightmare+5 | 1.3→**2.3** s · 6.6→**14.2**% · 17→**13** hits | 3.6→**13.7** s · 17.8→**99.6**% | 5.3→**23.6** s · 29.2→**195.1**% | 8.0→**33.5** s · 46.5→**313.0**% | 3.9→**10.8** s · 19.8→**68.1**% |
+| 4 | nightmare+10 | 1.5→**2.6** s · 9.1→**18.9**% · 14→**12** hits | 4.1→**15.9** s · 25.0→**131.6**% | 6.1→**27.4** s · 41.1→**261.8**% | 9.2→**39.1** s · 64.4→**408.8**% | 4.5→**12.4** s · 27.2→**90.5**% |
+
+Engine (pack mode, merged final data, Normal and Hard, seed 1, medians), baseline -> final:
+
+| Act | Ranked + 2 commons, face-tank: Elite / Epic / Legendary / Shiny TTK | Rooms, expected build, kite: Health lost / clear | Face-tank |
+|---|---|---|---|
+| I Normal | 0.8 -> **1.1** / 1.8 -> **3.2** / 3.6 -> **5.0** / 0.8 -> **1.1** s | 0% -> 0% / 2.1 -> 2.3 s | 2% -> 2% |
+| II Normal | 0.6 -> **2.5** / 0.1 -> **4.0** / 1.2 -> **5.1** / 0.9 -> **2.7** s | 0% -> 0% / 4.6 -> 5.1 s | 0% -> 0% |
+| III Normal | 1.5 -> **5.2** / 1.8 -> **7.4** / 3.0 -> **8.9** / 2.2 -> **4.9** s | 0% -> 0% / 14.9 -> 11.1 s | 0% -> 2% |
+| IV Normal | 1.8 -> **6.0** / 1.8 -> **9.0** / 3.0 -> **12.0** / 1.2 -> **5.4** s | 0% -> 0% / 9.3 -> 18.9 s | 1% -> 8% |
+| III Hard | 0.2 -> **6.3** / 4.1 -> **14.1** / 4.1 -> **16.2** / 0.4 -> **6.0** s | 0% -> 0% / 24.7 -> 13.3 s | 1% -> 14% |
+| IV Hard | 0.3 -> **6.9** / 3.1 -> **9.6** / 3.6 -> **13.8** / 0.9 -> **5.7** s | 0% -> 3% / 17.4 -> 22.2 s | 8% -> 24% |
+
+Rooms are not too deadly after the merge: the kite bot loses 0-3% a room, the face-tank bot
+2-8% on Normal and 14-24% on Hard (target <= 35% with the kite bot, every room clears in <= 23 s).
+Ranked rooms face-tanked cost 0-27% on Normal, up to 49% (act III Hard Legendary). Pack flags:
+monster TTK 31 -> 21, Elite 23 -> 16, Epic 3 -> 3, Legendary 3 -> 1, Shiny 2 -> 2 (the engine's
+"time from first hurt" is noisy: a 0.1 s value is a monster slain by the hit that first hurt it).
+Act IV with the kite bot and the slow Greatsword still drags on ranked rooms (22-38 s or the
+timeout): watch it in play; `hp_multiplier_per_depth` is the knob.
+
+After the merge, the balance suite's "duel: expected_a1 kite wins" **passes** again (King Slime:
+kite win in 56 s, hero min 76%, with 2A's bot and armor); Giant Frog's kite fight is identical to
+2A's own measure (loss, boss 22%), so the adds' new Health doesn't decide it. One new balance-suite
+failure outside this pass's scope: "marginal: too weak: perk vampirism x3 (act 2) 0.02x median"
+(phase 2C's area; vampirism heals on kills, and the lab's rooms now take longer to clear).
+Regular suites on the merged branch: unit,title 4756 checks, game 901, tutorial 273: 0 failed.
 
 ### 2026-10-20 - Phase 2A: bosses, sustain, armor, the kite bot
 

@@ -41,6 +41,8 @@ var _step_timer := 0.0
 var _phases_done := 0
 var _windup_multiplier := 1.0
 var _damage_multiplier := 1.0
+## The depth it was set up for (rank health grows with it: MonsterRankDef.hp_multiplier_at()).
+var _depth := 1
 var _phase_tint := Color.WHITE
 var _xp_multiplier := 1
 ## Called in by another monster (SummonEffect): gives no XP, loot or gold.
@@ -70,6 +72,7 @@ var _roar_time := 0.0
 
 func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
 	def = monster_def
+	_depth = depth
 	faction = Faction.MONSTER
 	display_name = def.display_name
 	glyph = def.glyph
@@ -128,7 +131,9 @@ func make_ranked(new_rank: MonsterRankDef, new_affixes: Array[EliteAffixDef]) ->
 	rank = new_rank
 	affixes = new_affixes.duplicate()
 	elite = affixes[0] if not affixes.is_empty() else null
-	var hp_factor := rank.boss_hp_multiplier if is_boss() else rank.hp_multiplier
+	var hp_factor := rank.boss_hp_multiplier if is_boss() else rank.hp_multiplier_at(_depth)
+	if not is_boss():
+		_damage_multiplier *= rank.damage_multiplier
 	for affix in affixes:
 		if affix.perk:
 			perks.add(affix.perk)

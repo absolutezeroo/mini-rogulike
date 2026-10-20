@@ -34,7 +34,7 @@ entries = Array[ExtResource("4_vmsge")]([SubResource("Resource_3vymt"), SubResou
 
 [sub_resource type="Resource" id="Resource_fvlp2"]
 script = ExtResource("10_frenm")
-max_hp = 26
+max_hp = 33
 defense = 2
 move_speed = 70.0
 
