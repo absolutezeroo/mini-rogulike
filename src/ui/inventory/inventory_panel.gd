@@ -131,14 +131,14 @@ func _fill_stats() -> void:
 	var stats := _player.get_stats()
 	var lines := [
 		["Level", str(_player.level)],
-		["HP", "%d / %d" % [_player.hp, _player.get_max_hp()]],
-		["Power", str(_player.get_power())],
-		["Defense", str(stats.defense)],
-		["Speed", str(roundi(stats.move_speed))],
-		["Crit", "%d%%" % roundi(stats.crit_chance * 100.0)],
+		["Health", "%d / %d" % [_player.hp, _player.get_max_hp()]],
+		["Damage", str(_player.get_power())],
+		["Armor", str(stats.defense)],
+		["Move speed", str(roundi(stats.move_speed))],
+		["Critical hits", "%d%%" % roundi(stats.crit_chance * 100.0)],
 		["Attack speed", "%+d%%" % roundi(stats.attack_speed * 100.0)],
-		["Skill power", "%+d%%" % roundi(stats.skill_power * 100.0)],
-		["Cooldowns", "-%d%%" % roundi(minf(stats.cooldown_reduction, SkillSet.MAX_COOLDOWN_REDUCTION) * 100.0)],
+		["Skill damage", "%+d%%" % roundi(stats.skill_power * 100.0)],
+		["Skill recharge", "%+d%%" % roundi(minf(stats.cooldown_reduction, SkillSet.MAX_COOLDOWN_REDUCTION) * 100.0)],
 	]
 	for line: Array in lines:
 		_stats.add_child(UiSkin.label(line[0], 15, UiSkin.DIM))
