@@ -74,9 +74,16 @@ func _test_title_screen() -> void:
 	await _frames(1)
 	check(not title.get_node("%DifficultyPanel").visible, "back to the title")
 	Profile.souls = 500
+	var hints_were := Settings.tutorial_hints
+	Settings.tutorial_hints = true
+	Profile.hints_seen.erase("menu_shrine")
 	(title.get_node("%ShrineButton") as Button).pressed.emit()
 	await _frames(2)
 	var shrine: ShrinePanel = title.get_node("%ShrinePanel")
+	check(title.hint_box.visible and title.hint_box.shown_text().contains("Tree of Souls") or Profile.has_seen_hint(&"menu_shrine"), "the first visit explains the tree (%s)" % title.hint_box.shown_text())
+	check(not title.show_menu_hint(&"menu_shrine"), "...once only")
+	title.hint_box.hide_hint()
+	Settings.tutorial_hints = hints_were
 	var view: SoulTreeView = title.get_node("%TreeView")
 	check(shrine.visible and view.buttons().size() == CONTENT.soul_tree.nodes.size(), "the shrine shows every node of the Tree of Souls")
 	var vitality_node := CONTENT.soul_tree.find(&"vitality")

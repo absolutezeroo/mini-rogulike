@@ -100,8 +100,8 @@ func _test_options() -> void:
 ## Every control a hint points at is on the HUD (when shown).
 func _test_targets(game: Game) -> void:
 	for hint in CONTENT.tutorial.hints:
-		if hint.target == &"":
-			continue
+		if hint.target == &"" or String(hint.cue).begins_with("menu_"):
+			continue  # (title-screen hints point at the title's controls: see the title tests)
 		check(game.hud.get_node_or_null("%" + String(hint.target)) != null, "%s points at a HUD control (%s)" % [hint.id, hint.target])
 	for name in [&"Joystick", &"AttackButton", &"Skill1Button", &"BagButton", &"Minimap", &"SealLabel", &"SoulsLabel"]:
 		var rect := game.hud.hint_target(name)

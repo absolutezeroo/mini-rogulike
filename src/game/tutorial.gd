@@ -14,6 +14,8 @@ const CUES: Array[StringName] = [
 	&"monster_killed", &"boss_started", &"boss_defeated", &"ambush", &"seal_broken", &"perk_chosen",
 	&"synergy", &"low_health", &"cold", &"hot", &"merchant_near", &"forge_near", &"chest_near",
 	&"gear_carried", &"rune_carried", &"spell_learned", &"two_ways",
+	# Title screen only (TitleScreen.show_menu_hint()): the Tree of Souls and the oaths.
+	&"menu_souls", &"menu_shrine", &"menu_oath",
 ]
 ## What a hint can wait for (`done_when`).
 const ACTIONS: Array[StringName] = [

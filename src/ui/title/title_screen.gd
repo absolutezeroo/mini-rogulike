@@ -23,6 +23,8 @@ var _daily_text: Label
 var _daily_score: Label
 var _shrine_badge: Control
 var oath_panel: OathPanel
+## The tutorial's title-screen hints (the Tree of Souls, the oaths), over everything.
+var hint_box: HintBox
 
 
 func _ready() -> void:
@@ -54,10 +56,14 @@ func _ready() -> void:
 	oath_panel = OathPanel.new()
 	add_child(oath_panel)
 	oath_panel.started.connect(play)
+	hint_box = HintBox.new()
+	add_child(hint_box)
+	hint_box.dismissed.connect(hint_box.hide_hint)
 	(%DifficultyPanel as DifficultyPanel).chosen.connect(func(_difficulty: DifficultyDef) -> void:
 		if OathPanel.has_choices(content):
 			Sfx.play_ui(Sfx.bank.ui_open)
 			oath_panel.open(content)
+			show_menu_hint(&"menu_oath")
 		else:
 			play())
 	%DailyButton.pressed.connect(func() -> void:
@@ -65,7 +71,8 @@ func _ready() -> void:
 		play())
 	%ShrineButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
-		_shrine.open(content.soul_tree))
+		_shrine.open(content.soul_tree)
+		show_menu_hint(&"menu_shrine"))
 	%QuestsButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		(%CodexPanel as CodexPanel).open(content, CodexPanel.Tab.QUESTS))
@@ -208,6 +215,8 @@ func _refresh_daily() -> void:
 func _refresh() -> void:
 	_refresh_daily()
 	_shrine_badge.visible = content.soul_tree != null and content.soul_tree.nodes.any(func(n: SoulNodeDef) -> bool: return Profile.can_buy_node(n))
+	if _shrine_badge.visible and hint_box and not hint_box.visible and not _shrine.visible:
+		show_menu_hint.call_deferred(&"menu_souls")
 	for child in _records.get_children():
 		_records.remove_child(child)
 		child.queue_free()
@@ -230,9 +239,28 @@ func _record(first: String, second: String, color: Color = UiSkin.TEXT) -> void:
 	_records.add_child(pair)
 
 
+## A tutorial hint of the title screen, once ever (and only with the hints on in the options).
+## Returns whether it showed.
+func show_menu_hint(id: StringName) -> bool:
+	if not Settings.tutorial_hints or Profile.has_seen_hint(id) or content.tutorial == null:
+		return false
+	var hint := content.tutorial.hint(id)
+	if hint == null:
+		return false
+	var at := Rect2()
+	if hint.target != &"" and has_node("%" + String(hint.target)):
+		at = (get_node("%" + String(hint.target)) as Control).get_global_rect()
+	hint_box.show_hint(hint, at)
+	Profile.mark_hint(id)
+	return true
+
+
 ## The phone's back button: closes what is open, or leaves the game.
 func _notification(what: int) -> void:
 	if what != NOTIFICATION_WM_GO_BACK_REQUEST:
+		return
+	if hint_box and hint_box.visible:
+		hint_box.hide_hint()
 		return
 	var options: OptionsPanel = %OptionsPanel
 	if options.visible:

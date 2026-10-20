@@ -11,7 +11,7 @@ title = "Move"
 text = "Drag your thumb on the left side of the screen to walk."
 target = &"Joystick"
 done_when = &"moved"
-duration = 0.0
+duration = 20.0
 priority = 10
 
 [sub_resource type="Resource" id="Hint_seal"]
@@ -77,7 +77,7 @@ id = &"souls"
 cue = &"monster_killed"
 after = &"attack"
 title = "Souls"
-text = "Slain monsters free their souls. Between runs, spend them at the shrine for lasting upgrades."
+text = "Slain monsters free their souls. Between runs, spend them on the Tree of Souls, at the shrine."
 target = &"SoulsLabel"
 duration = 9.0
 
@@ -192,6 +192,31 @@ text = "This floor has two stairs. The sign over each tells where it leads: a cu
 target = &"Minimap"
 duration = 10.0
 
+[sub_resource type="Resource" id="Hint_menu_souls"]
+script = ExtResource("2_hint")
+id = &"menu_souls"
+cue = &"menu_souls"
+title = "Souls to spend"
+text = "You brought souls back. The shrine's Tree of Souls turns them into lasting upgrades."
+target = &"ShrineButton"
+duration = 20.0
+
+[sub_resource type="Resource" id="Hint_menu_shrine"]
+script = ExtResource("2_hint")
+id = &"menu_shrine"
+cue = &"menu_shrine"
+title = "The Tree of Souls"
+text = "Tap a node, then Buy. Nodes open from the top down; \"or\": pick one of two. Reset gives all your souls back."
+duration = 20.0
+
+[sub_resource type="Resource" id="Hint_menu_oath"]
+script = ExtResource("2_hint")
+id = &"menu_oath"
+cue = &"menu_oath"
+title = "Oaths"
+text = "An oath changes your start: a gain and a cost. Pick one or No oath, then Start the run."
+duration = 20.0
+
 [sub_resource type="Resource" id="Hint_cursed_floor"]
 script = ExtResource("2_hint")
 id = &"cursed_floor"
@@ -228,4 +253,4 @@ priority = 5
 
 [resource]
 script = ExtResource("1_tutorial")
-hints = Array[ExtResource("2_hint")]([SubResource("Hint_move"), SubResource("Hint_seal"), SubResource("Hint_attack"), SubResource("Hint_roll"), SubResource("Hint_weapon_skills"), SubResource("Hint_potion"), SubResource("Hint_souls"), SubResource("Hint_perks"), SubResource("Hint_synergy"), SubResource("Hint_gear"), SubResource("Hint_spell"), SubResource("Hint_elite"), SubResource("Hint_rune"), SubResource("Hint_forge"), SubResource("Hint_merchant"), SubResource("Hint_chest"), SubResource("Hint_ambush"), SubResource("Hint_boss"), SubResource("Hint_stairs_open"), SubResource("Hint_two_ways"), SubResource("Hint_cursed_floor"), SubResource("Hint_floor_event"), SubResource("Hint_cold"), SubResource("Hint_hot")])
+hints = Array[ExtResource("2_hint")]([SubResource("Hint_move"), SubResource("Hint_seal"), SubResource("Hint_attack"), SubResource("Hint_roll"), SubResource("Hint_weapon_skills"), SubResource("Hint_potion"), SubResource("Hint_souls"), SubResource("Hint_perks"), SubResource("Hint_synergy"), SubResource("Hint_gear"), SubResource("Hint_spell"), SubResource("Hint_elite"), SubResource("Hint_rune"), SubResource("Hint_forge"), SubResource("Hint_merchant"), SubResource("Hint_chest"), SubResource("Hint_ambush"), SubResource("Hint_boss"), SubResource("Hint_stairs_open"), SubResource("Hint_two_ways"), SubResource("Hint_menu_souls"), SubResource("Hint_menu_shrine"), SubResource("Hint_menu_oath"), SubResource("Hint_cursed_floor"), SubResource("Hint_floor_event"), SubResource("Hint_cold"), SubResource("Hint_hot")])
