@@ -29,7 +29,6 @@ entries = Array[ExtResource("4_uasoj")]([SubResource("Resource_a83th")])
 [sub_resource type="Resource" id="Resource_1pg8b"]
 script = ExtResource("8_g1ke5")
 max_hp = 26
-attack = 2
 move_speed = 150.0
 
 [resource]
