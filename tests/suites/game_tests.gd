@@ -225,6 +225,7 @@ func run() -> void:
 	await combat._test_weapon_kits(game)
 	await floor._test_encounters(game)
 	await floor._test_variety(game)
+	await floor._test_floor_size(game)
 	await floor._test_biomes(game)
 	await floor._test_details(game)
 	await floor._test_belt_and_balance(game)

@@ -3,17 +3,21 @@ class_name DungeonGenerator
 ## Each room connects to the previous one, so every room is reachable.
 
 
-static func generate(config: DungeonConfig, rng: RandomNumberGenerator) -> DungeonMap:
-	var map := DungeonMap.new(config.width, config.height, config.tile_size)
+## `size_scale`, `room_scale`: the difficulty's (DifficultyDef.floor_size, rooms).
+static func generate(config: DungeonConfig, rng: RandomNumberGenerator, size_scale: float = 1.0, room_scale: float = 1.0) -> DungeonMap:
+	var width := roundi(config.width * size_scale)
+	var height := roundi(config.height * size_scale)
+	var max_rooms := maxi(roundi(config.max_rooms * room_scale), 2)
+	var map := DungeonMap.new(width, height, config.tile_size)
 
-	for attempt in config.max_rooms * 12:
-		if map.rooms.size() >= config.max_rooms:
+	for attempt in max_rooms * 12:
+		if map.rooms.size() >= max_rooms:
 			break
 		var size := Vector2i(
 			rng.randi_range(config.room_min_size, config.room_max_size),
 			rng.randi_range(config.room_min_size, config.room_max_size))
 		var room := Rect2i(
-			Vector2i(rng.randi_range(2, config.width - size.x - 2), rng.randi_range(2, config.height - size.y - 2)),
+			Vector2i(rng.randi_range(2, width - size.x - 2), rng.randi_range(2, height - size.y - 2)),
 			size)
 		if _overlaps_any(room, map.rooms):
 			continue
@@ -65,17 +69,88 @@ const MIN_WALL_THICKNESS := 3
 ## MIN_WALL_THICKNESS with floor on both sides, and walls touching each other only by a corner
 ## (checkerboard). They become floor. The outer border always stays solid.
 static func smooth(map: DungeonMap) -> void:
-	var changed := true
-	while changed:
-		changed = false
-		for y in range(1, map.height - 1):
-			for x in range(1, map.width - 1):
-				var cell := Vector2i(x, y)
-				if map.is_floor(cell):
-					continue
-				if is_thin_wall(map, cell, Vector2i.RIGHT) or is_thin_wall(map, cell, Vector2i.DOWN) or _is_pinch(map, cell):
-					map.set_floor(cell)
-					changed = true
+	# A work list instead of whole-map passes: only the walls near a cell just opened are looked
+	# at again (a thin run is at most MIN_WALL_THICKNESS long). Same rules, a fraction of the time.
+	var w := map.width
+	var h := map.height
+	var tiles := map.tiles
+	var floor_tile := DungeonMap.Tile.FLOOR
+	var queued := PackedByteArray()
+	queued.resize(w * h)
+	var queue := PackedInt32Array()
+	for y in range(1, h - 1):
+		for x in range(1, w - 1):
+			var i := y * w + x
+			if tiles[i] != floor_tile and _floor_in_reach(tiles, w, h, x, y):
+				queue.append(i)
+				queued[i] = 1
+	var reach := MIN_WALL_THICKNESS
+	while not queue.is_empty():
+		var i := queue[queue.size() - 1]
+		queue.resize(queue.size() - 1)
+		queued[i] = 0
+		if tiles[i] == floor_tile:
+			continue
+		var x := i % w
+		var y := i / w
+		if not (_thin(tiles, w, h, x, y, 1, 0) or _thin(tiles, w, h, x, y, 0, 1) or _pinched(tiles, w, h, x, y)):
+			continue
+		tiles[i] = floor_tile
+		for ny in range(maxi(y - reach, 1), mini(y + reach + 1, h - 1)):
+			for nx in range(maxi(x - reach, 1), mini(x + reach + 1, w - 1)):
+				var n := ny * w + nx
+				if tiles[n] != floor_tile and queued[n] == 0:
+					queue.append(n)
+					queued[n] = 1
+	map.tiles = tiles
+
+
+## A floor cell 1 or 2 steps away along an axis (or diagonal): the only walls smooth() may open.
+static func _floor_in_reach(tiles: PackedByteArray, w: int, h: int, x: int, y: int) -> bool:
+	for dy in range(-2, 3):
+		var ny := y + dy
+		if ny < 0 or ny >= h:
+			continue
+		for dx in range(-2, 3):
+			var nx := x + dx
+			if nx >= 0 and nx < w and tiles[ny * w + nx] == DungeonMap.Tile.FLOOR:
+				return true
+	return false
+
+
+## is_thin_wall() on the raw tiles (smooth() calls it thousands of times).
+static func _thin(tiles: PackedByteArray, w: int, h: int, x: int, y: int, ax: int, ay: int) -> bool:
+	var run := 1
+	for sign in [1, -1]:
+		var nx: int = x + ax * sign
+		var ny: int = y + ay * sign
+		while true:
+			if nx < 0 or ny < 0 or nx >= w or ny >= h:
+				return false  # the border
+			if tiles[ny * w + nx] == DungeonMap.Tile.FLOOR:
+				break
+			if run >= MIN_WALL_THICKNESS:
+				return false  # thick enough
+			run += 1
+			nx += ax * sign
+			ny += ay * sign
+	return run < MIN_WALL_THICKNESS
+
+
+## _is_pinch() on the raw tiles (outside the map counts as wall).
+static func _pinched(tiles: PackedByteArray, w: int, h: int, x: int, y: int) -> bool:
+	for dx in [-1, 1]:
+		for dy in [-1, 1]:
+			var cx: int = x + dx
+			var cy: int = y + dy
+			var diagonal_wall := cx < 0 or cy < 0 or cx >= w or cy >= h or tiles[cy * w + cx] != DungeonMap.Tile.FLOOR
+			if diagonal_wall and _is_open(tiles, w, h, cx, y) and _is_open(tiles, w, h, x, cy):
+				return true
+	return false
+
+
+static func _is_open(tiles: PackedByteArray, w: int, h: int, x: int, y: int) -> bool:
+	return x >= 0 and y >= 0 and x < w and y < h and tiles[y * w + x] == DungeonMap.Tile.FLOOR
 
 
 ## Wall cell in a run of walls (along `axis`) with floor at both ends, shorter than

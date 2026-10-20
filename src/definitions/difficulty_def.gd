@@ -25,6 +25,12 @@ extends Resource
 ## Chance for a floor (not the first, not a boss floor) to be cursed (CurseDef).
 @export_range(0.0, 1.0) var curse_chance: float = 0.1
 
+@export_group("Floors")
+## Multiplies the floors' width and height (DungeonConfig): harder runs go through bigger floors.
+@export_range(0.5, 2.0) var floor_size: float = 1.0
+## Multiplies the rooms per floor (and with them the monsters, chests, hazards and items).
+@export_range(0.5, 3.0) var rooms: float = 1.0
+
 @export_group("Rewards and help")
 ## Multiplies every monster's and prop's drop chance.
 @export var loot_chance: float = 1.0

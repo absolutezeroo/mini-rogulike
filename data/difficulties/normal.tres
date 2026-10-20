@@ -9,3 +9,5 @@ display_name = "Normal"
 description = "The game as designed."
 color = Color(1, 0.81960785, 0.4, 1)
 curse_chance = 0.12
+floor_size = 1.17
+rooms = 1.27

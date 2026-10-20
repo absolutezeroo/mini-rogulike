@@ -142,7 +142,7 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 		arena_plan = _pick_arena(boss, content.dungeon)
 		map = DungeonGenerator.generate_arena(content.dungeon, rng, arena_plan)
 	else:
-		map = DungeonGenerator.generate(content.dungeon, rng)
+		map = DungeonGenerator.generate(content.dungeon, rng, difficulty.floor_size if difficulty else 1.0, difficulty.rooms if difficulty else 1.0)
 	biome = _pick_biome(content, boss != null)
 	theme = biome.theme if biome else null
 	rules = FloorRules.make(content.dungeon, difficulty, floor_event, depth, curse)
@@ -168,7 +168,7 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 	else:
 		var stairs := spawn_stairs(map.stairs_cell)
 		FloorPopulator.populate(self, content, depth)
-		seal.reset(monster_count(), content.dungeon.seal_share, content.dungeon.seal_reveal_left)
+		seal.reset(monster_count(), content.dungeon.seal_share, content.dungeon.seal_reveal_left, content.dungeon.seal_max)
 		stairs.bind_seal(seal)
 		stairs.blocked.connect(_on_stairs_blocked)
 		_apply_restore()

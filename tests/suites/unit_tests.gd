@@ -21,6 +21,7 @@ func run() -> void:
 	_test_bosses()
 	_test_profile()
 	_test_run_time()
+	_test_floor_size()
 
 
 ## Speedrun times: how they read, the splits, the save, the records.
@@ -240,6 +241,9 @@ func _test_stairs_seal() -> void:
 	check(not seal.is_sealed() and broken[0] == 2, "debug: break it at once")
 	var config := CONTENT.dungeon
 	check(config.seal_share >= 0.5 and config.seal_share < 1.0, "the seal wants most monsters, not every last one")
+	seal.reset(200, 0.7, 4, 50)
+	check(seal.needed == 50, "a crowded floor asks for no more than the most (%d)" % seal.needed)
+	check(config.seal_max > 0, "the config caps the seal")
 
 
 ## Biomes: every act has 2 or more, each complete; scenes are sound plans.
@@ -888,3 +892,37 @@ func _test_profile() -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(Profile.save_path))
 	Profile.save_path = ""
 	Profile.reset()
+
+
+## Bigger floors on harder difficulties: more rooms, the same clean walls, everything reachable.
+func _test_floor_size() -> void:
+	var rng := RandomNumberGenerator.new()
+	var config := CONTENT.dungeon
+	var last_area := 0
+	var last_rooms := 0
+	for id in [&"easy", &"normal", &"hard", &"nightmare"]:
+		var difficulty := CONTENT.get_difficulty(id)
+		check(difficulty.floor_size >= 1.0 and difficulty.rooms >= 1.0, "%s: floors at least the base size" % id)
+		var area := 0
+		var rooms := 0
+		var bad := 0
+		var cut_off := 0
+		for i in 8:
+			rng.seed = 4242 + i
+			var map := DungeonGenerator.generate(config, rng, difficulty.floor_size, difficulty.rooms)
+			check(map.width == roundi(config.width * difficulty.floor_size), "%s: the map's width follows the difficulty" % id)
+			area += map.width * map.height
+			rooms += map.rooms.size()
+			bad += _bad_wall_cells(map).size()
+			var reached := _flood(map, map.start_cell)
+			for room in map.rooms:
+				if not reached.has(room.get_center()):
+					cut_off += 1
+		check(bad == 0, "%s: no thin or pinched walls on big floors (%d)" % [id, bad])
+		check(cut_off == 0, "%s: every room reachable" % id)
+		check(area >= last_area and rooms >= last_rooms, "%s: as big as the easier one or bigger (%d rooms over 8 floors)" % [id, rooms])
+		last_area = area
+		last_rooms = rooms
+	check(CONTENT.get_difficulty(&"nightmare").rooms > CONTENT.get_difficulty(&"easy").rooms, "Nightmare has more rooms than Easy")
+	check(config.max_monsters_per_floor >= 60, "a floor may hold many monsters, with a cap for the phone")
+

@@ -8,6 +8,8 @@ extends Resource
 
 @export_group("Layout")
 @export var tile_size: int = 32
+## Floor size and rooms before the difficulty (DifficultyDef.floor_size, rooms); boss floors
+## always use these.
 @export var width: int = 64
 @export var height: int = 64
 @export var max_rooms: int = 12
@@ -21,6 +23,8 @@ extends Resource
 @export_range(0.0, 1.0) var seal_share: float = 0.7
 ## When this few kills are left, the minimap shows where the remaining monsters are.
 @export_range(0, 20) var seal_reveal_left: int = 4
+## The most kills a seal asks for, however crowded the floor.
+@export_range(0, 200) var seal_max: int = 50
 
 @export_group("Perk choices")
 ## Rerolls (three new cards) and banishes (a perk gone for the run) the hero starts every run
@@ -39,6 +43,8 @@ extends Resource
 ## Extra monsters per room for each depth below the first.
 @export var extra_monsters_per_depth: float = 0.5
 @export var max_monsters_per_room: int = 6
+## The most monsters a floor starts with (the phone keeps up; rooms get fewer when over).
+@export var max_monsters_per_floor: int = 110
 @export var items_per_floor: int = 4
 
 @export_group("Props and hazards")

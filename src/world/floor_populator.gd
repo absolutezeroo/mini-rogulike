@@ -8,6 +8,8 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 	var map := world.map
 	var rng := world.rng
 	var config := content.dungeon
+	# Bigger floors (the difficulty's) get more of everything: chests, hazards, encounters, items.
+	var spread := maxf(float(map.rooms.size()) / maxf(config.max_rooms, 1.0), 1.0)
 	var taken := {}  # cells used by props and hazards
 	_reserve_around(taken, map.start_cell, 2)
 	_reserve_around(taken, map.stairs_cell, 1)
@@ -57,7 +59,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 			place_lights(world, config, map.rooms[i], taken)
 
 	# Springs, altars, statues: in the middle of a room, before anything else claims it.
-	var encounter_count := rng.randi_range(config.encounters_min, config.encounters_max)
+	var encounter_count := roundi(rng.randi_range(config.encounters_min, config.encounters_max) * spread)
 	if event and config.encounters_max > 0:
 		encounter_count += event.extra_encounters
 	for n in encounter_count:
@@ -82,7 +84,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 		_place_props(world, content, depth, room, taken)
 	var act := config.act_for_depth(depth)
 	if act:
-		var hazard_groups := rng.randi_range(config.hazard_groups_min, config.hazard_groups_max)
+		var hazard_groups := roundi(rng.randi_range(config.hazard_groups_min, config.hazard_groups_max) * spread)
 		if event:
 			hazard_groups += event.extra_hazards
 		for n in hazard_groups:
@@ -94,7 +96,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 		world.spawn_ambush(map.rooms[ambush_index])
 
 	if config.chest:
-		var chest_count := rng.randi_range(config.chests_min, config.chests_max)
+		var chest_count := roundi(rng.randi_range(config.chests_min, config.chests_max) * spread)
 		if event:
 			chest_count += event.extra_chests
 		for n in chest_count:
@@ -112,13 +114,22 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 
 	var extra := world.rules.extra_monsters()
 	var max_per_room := config.max_monsters_per_room + world.rules.difficulty.extra_monsters
+	var counts := {}  # room index -> monsters
+	var total := 0
 	for i in range(1, map.rooms.size()):
 		if i == ambush_index or i == merchant_index or i == forge_index:
 			continue
-		var room := map.rooms[i]
 		var count := mini(rng.randi_range(config.monsters_per_room_min, config.monsters_per_room_max) + extra, max_per_room)
-		count = roundi(count * world.rules.monster_count_scale())
-		for n in count:
+		counts[i] = roundi(count * world.rules.monster_count_scale())
+		total += counts[i]
+	# Too many for one floor: every room gets fewer (at least one).
+	if config.max_monsters_per_floor > 0 and total > config.max_monsters_per_floor:
+		var keep := float(config.max_monsters_per_floor) / total
+		for i: int in counts:
+			counts[i] = maxi(floori(counts[i] * keep), mini(counts[i], 1))
+	for i: int in counts:
+		var room := map.rooms[i]
+		for n in counts[i]:
 			var def := content.pick_monster(depth, rng)
 			if def:
 				var monster := world.spawn_monster(def, _free_point_in(world, room, rng, taken))
@@ -129,7 +140,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 	for i in range(1, map.rooms.size()):
 		if i != merchant_index and i != forge_index:
 			item_rooms.append(i)
-	for n in config.items_per_floor:
+	for n in roundi(config.items_per_floor * spread):
 		if item_rooms.is_empty():
 			break
 		var room := map.rooms[item_rooms[rng.randi_range(0, item_rooms.size() - 1)]]

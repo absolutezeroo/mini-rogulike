@@ -19,9 +19,11 @@ var kills := 0
 var reveal_left := 0
 
 
-## A new floor holding `monsters`: it asks for `share` of them.
-func reset(monsters: int, share: float, reveal: int) -> void:
+## A new floor holding `monsters`: it asks for `share` of them, `most` at most (0: no limit).
+func reset(monsters: int, share: float, reveal: int, most: int = 0) -> void:
 	needed = ceili(monsters * clampf(share, 0.0, 1.0))
+	if most > 0:
+		needed = mini(needed, most)
 	kills = 0
 	reveal_left = reveal
 	changed.emit()

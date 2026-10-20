@@ -18,3 +18,5 @@ elite_chance = 1.6
 curse_chance = 0.2
 souls = 1.6
 light = 0.9
+floor_size = 1.33
+rooms = 1.53

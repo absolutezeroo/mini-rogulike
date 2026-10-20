@@ -194,12 +194,13 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   - Hazards are never placed where they could cut the stairs off.
 - **Sealed stairs** (`StairsSeal`, `DungeonConfig` > Stairs seal): a normal floor's stairs stay
   sealed (dark, under a turning violet seal) until you have slain `seal_share` (70%) of the
-  floor's monsters; every kill counts, ambush waves and summons too. The HUD counts them under
+  floor's monsters, `seal_max` (50) at most; every kill counts, ambush waves and summons too. The HUD counts them under
   the minimap ("Seal 12 / 18"); stepping on sealed stairs says how many are missing. When only
   `seal_reveal_left` (4) are missing, the minimap shows the monsters left. When the seal breaks,
   the stairs light up, the minimap shows them even unexplored and a golden light (`GuideWisp`)
   runs ahead of you along the way. No more running past everything: a floor takes a couple of
-  minutes, a run about half an hour. Floors are 72x72 cells with up to 15 rooms.
+  minutes, a run about half an hour. Floors are 72x72 cells with up to 15 rooms on Easy, and
+  bigger the harder the run (see Difficulty); boss floors keep that size.
 - **Biomes** (`data/biomes/`, `BiomeDef`): every floor is one world from end to end, picked among
   its act's (`ActDef.biomes`; the boss arena has `boss_biome`): Act I **Mossy Cave**,
   **Underground Garden**, **Flooded Caverns**; Act II **Crypt**, **Abandoned Library**; Act III
@@ -719,12 +720,18 @@ the normal game:
 | Time to dodge (wind-ups, casts) | x1.35 | x1 | x0.85 | x0.7 |
 | Monster speed | x0.9 | x1 | x1.05 | x1.15 |
 | Extra monsters per room | 0 | 0 | +1 | +2 |
+| Floor size (`floor_size`) | 72x72 | 84x84 | 96x96 | 104x104 |
+| Rooms per floor (`rooms`) | 15 | 19 | 23 | 27 |
 | Boss HP | x0.7 | x1 | x1.3 | x1.6 |
 | Elite chance | x0.5 | x1 | x1.6 | x2.5 |
 | Drop chance | x1.4 | x1 | x1 | x0.9 |
 | Heal on each new floor | 25% | - | - | - |
 | Light | brighter | - | darker | much darker |
 | Souls | x0.5 | x1 | x1.6 | x2.5 |
+
+Bigger floors get more of everything with their rooms: monsters, chests, hazards, encounters and
+items lying around. A floor starts with at most `max_monsters_per_floor` (110) monsters, so the
+phone keeps up on Nightmare; the seal never asks for more than `seal_max` (50) kills.
 
 Easy, Normal and Hard are open; **Nightmare unlocks after a win on Hard** (`unlocked_by`).
 **Ascension**: a Nightmare win opens **Nightmare +1**, a +1 win opens +2, up to +10

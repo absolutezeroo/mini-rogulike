@@ -1410,3 +1410,26 @@ func _test_debug_panel(game: Game) -> void:
 	check(not debug.visible and not get_tree().paused, "closing resumes the game")
 	await _clear_monsters(game.world)
 	game.depth = depth_before
+
+
+## Floors grow with the difficulty; a crowded one keeps the phone's monster cap and the seal's.
+func _test_floor_size(game: Game) -> void:
+	var world: World = game.world
+	var config := CONTENT.dungeon
+	var before := world.difficulty
+	world.difficulty = CONTENT.get_difficulty(&"easy")
+	world.build_floor(2, CONTENT)
+	var easy_rooms := world.map.rooms.size()
+	var easy_width := world.map.width
+	world.difficulty = AscensionDef.apply_levels(CONTENT.get_difficulty(&"nightmare"), CONTENT.ascensions, CONTENT.ascensions.size())
+	world.build_floor(8, CONTENT)
+	check(world.map.width > easy_width and world.map.rooms.size() > easy_rooms, "Nightmare floors are bigger (%d rooms, Easy %d)" % [world.map.rooms.size(), easy_rooms])
+	check(world.monster_count() <= config.max_monsters_per_floor and world.monster_count() >= config.max_monsters_per_floor * 0.6, "crowded, within the cap (%d)" % world.monster_count())
+	check(world.seal.needed == config.seal_max, "the seal asks for its most, no more (%d)" % world.seal.needed)
+	world.build_floor(9, CONTENT)
+	check(world.arena != null and world.map.width == config.width, "boss floors keep their size")
+	world.difficulty = before
+	game.depth = 2
+	game._enter_floor()
+	await _frames(3)
+

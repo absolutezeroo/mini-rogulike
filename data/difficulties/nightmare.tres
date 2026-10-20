@@ -22,3 +22,5 @@ loot_chance = 0.9
 souls = 2.5
 light = 0.75
 has_ascensions = true
+floor_size = 1.45
+rooms = 1.8

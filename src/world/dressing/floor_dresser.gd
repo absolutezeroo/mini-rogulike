@@ -33,27 +33,36 @@ static func dress(world: World, taken: Dictionary, with_scenes: bool = true) -> 
 
 ## Cells from each floor cell to the nearest wall (1 = touching one).
 static func wall_distance(map: DungeonMap) -> Dictionary:
-	var distance := {}
-	var queue: Array[Vector2i] = []
-	for y in map.height:
-		for x in map.width:
-			var cell := Vector2i(x, y)
-			if not map.is_floor(cell):
+	# A breadth-first walk on the raw tiles (fast), then the cells in reading order.
+	var w := map.width
+	var h := map.height
+	var tiles := map.tiles
+	var floor_tile := DungeonMap.Tile.FLOOR
+	var steps := PackedInt32Array()
+	steps.resize(w * h)
+	var queue := PackedInt32Array()
+	for y in h:
+		for x in w:
+			var i := y * w + x
+			if tiles[i] != floor_tile:
 				continue
-			for dir: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
-				if not map.is_floor(cell + dir):
-					distance[cell] = 1
-					queue.append(cell)
-					break
+			if x == 0 or y == 0 or x == w - 1 or y == h - 1 or tiles[i - 1] != floor_tile or tiles[i + 1] != floor_tile \
+					or tiles[i - w] != floor_tile or tiles[i + w] != floor_tile:
+				steps[i] = 1
+				queue.append(i)
 	var head := 0
 	while head < queue.size():
-		var cell := queue[head]
+		var i := queue[head]
 		head += 1
-		for dir: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
-			var next := cell + dir
-			if map.is_floor(next) and not distance.has(next):
-				distance[next] = distance[cell] + 1
+		var x := i % w
+		for next in [i - 1 if x > 0 else -1, i + 1 if x < w - 1 else -1, i - w, i + w]:
+			if next >= 0 and next < w * h and tiles[next] == floor_tile and steps[next] == 0:
+				steps[next] = steps[i] + 1
 				queue.append(next)
+	var distance := {}
+	for i in w * h:
+		if steps[i] > 0:
+			distance[Vector2i(i % w, i / w)] = steps[i]
 	return distance
 
 
@@ -74,15 +83,23 @@ static func _noise(rng: RandomNumberGenerator, scale: float) -> FastNoiseLite:
 
 static func _lay_ground(world: World, layer: GroundLayerDef, walls: Dictionary) -> void:
 	var noise := _noise(world.rng, layer.noise_scale)
-	var scored: Array = []
-	for cell: Vector2i in walls:
-		scored.append([_score(noise, cell, walls, layer.wall_bias), cell])
-	if scored.is_empty():
+	var floor_cells: Array = walls.keys()
+	if floor_cells.is_empty():
 		return
-	scored.sort_custom(func(a: Array, b: Array) -> bool: return a[0] > b[0])
+	var scores := PackedFloat32Array()
+	scores.resize(floor_cells.size())
+	for i in floor_cells.size():
+		scores[i] = _score(noise, floor_cells[i], walls, layer.wall_bias)
+	# The best `coverage` of the cells: above the score that many cells reach (a native sort).
+	var keep := roundi(floor_cells.size() * layer.coverage)
 	var cells := {}
-	for i in roundi(scored.size() * layer.coverage):
-		cells[scored[i][1]] = true
+	if keep > 0:
+		var sorted := scores.duplicate()
+		sorted.sort()
+		var threshold := sorted[sorted.size() - keep]
+		for i in floor_cells.size():
+			if scores[i] >= threshold:
+				cells[floor_cells[i]] = true
 	# Smooth it out: no lone cells, no pinholes.
 	for pass_index in 2:
 		var smoothed := {}
