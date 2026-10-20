@@ -1,15 +1,16 @@
 class_name MonsterPage
 extends HBoxContainer
-## One monster's page in the bestiary. Left: its look (animated), name, hunter rank and what
-## each rank pays. Right: what it is, its stats and ways, its attacks (tap one to watch it in
-## the AttackPreview), and its challenges (HuntChallenge). A monster only seen shows its look
-## and its challenges; slay one to learn the rest.
+## One monster's page in the bestiary, in three dark insets. Left: its look (animated), name,
+## what it is, where it lives, its Shiny. Middle: its attacks (tap one to watch it in the AttackPreview),
+## how it behaves and its stats, each with what the number means. Right: your hunter rank with
+## it (what each rank needs and pays) and its challenges (HuntChallenge). A monster
+## only seen shows its look, ranks and challenges; slay one to learn the rest.
 
 signal back_requested
 
-const LEFT_WIDTH := 330.0
-const DIM := Color(1, 1, 1, 0.65)
-const SOUL_COLOR := Color(0.65, 0.95, 1, 0.9)
+const LEFT_WIDTH := 300.0
+const RIGHT_WIDTH := 370.0
+const SHINY_COLOR := CodexCard.SHINY_COLOR
 
 var _monster: MonsterDef
 var _content: ContentDB
@@ -20,100 +21,147 @@ var _attack_buttons: Array[Button] = []
 
 func _init() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	add_theme_constant_override("separation", 24)
+	add_theme_constant_override("separation", 12)
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 
 
 func show_monster(monster: MonsterDef, content: ContentDB) -> void:
 	_monster = monster
 	_content = content
+	clear()
+	var rules := content.bestiary
+	var rank := Bestiary.rank_of(monster, rules)
+	add_child(_column(LEFT_WIDTH, _fill_identity.bind(rank, rules)))
+	var middle := _column(0.0, _fill_attacks.bind(rank))
+	middle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	add_child(middle)
+	add_child(_column(RIGHT_WIDTH, _fill_hunt.bind(rank, rules)))
+	if rank >= 1:
+		var attacks := _attacks()
+		if not attacks.is_empty():
+			_show_attack.call_deferred(attacks[0], 0)
+
+
+func clear() -> void:
+	_preview = null
+	_attack_buttons.clear()
 	for child in get_children():
 		remove_child(child)
 		child.queue_free()
-	var rules := content.bestiary
-	var rank := Bestiary.rank_of(monster, rules)
-	add_child(_left_column(rank, rules))
+
+
+## A dark inset that scrolls with a finger, filled by `fill` (it gets the inner column).
+func _column(width: float, fill: Callable) -> Control:
+	var box := UiSkin.section()
+	box.custom_minimum_size.x = width
+	box.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var scroll := ScrollContainer.new()
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	var right := VBoxContainer.new()
-	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	right.add_theme_constant_override("separation", 8)
-	scroll.add_child(right)
-	add_child(scroll)
-	if rank >= 1:
-		_fill_known(right)
-	else:
-		right.add_child(_label("Slay one to learn how it fights.", 18, DIM, true))
-	right.add_child(_header("Challenges"))
-	for challenge in rules.challenges_for(monster):
-		right.add_child(_challenge_row(challenge))
-
-
-# --- Left: look, name, rank ---------------------------------------------------------
-
-func _left_column(rank: int, rules: BestiaryRules) -> Control:
+	box.add_child(scroll)
+	var margin := MarginContainer.new()
+	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	margin.add_theme_constant_override("margin_right", 12)  # room for the scroll bar
+	scroll.add_child(margin)
 	var column := VBoxContainer.new()
-	column.custom_minimum_size.x = LEFT_WIDTH
 	column.add_theme_constant_override("separation", 6)
+	margin.add_child(column)
+	TouchScroll.attach(scroll)
+	fill.call(column)
+	return box
+
+
+# --- Left: look, name, what it is --------------------------------------------------
+
+func _fill_identity(column: VBoxContainer, rank: int, rules: BestiaryRules) -> void:
 	var back := Button.new()
-	back.text = "< Bestiary"
-	back.custom_minimum_size = Vector2(160, 48)
+	back.text = "< All monsters"
+	back.name = "BackButton"
+	back.custom_minimum_size = Vector2(0, 46)
 	back.focus_mode = Control.FOCUS_NONE
-	back.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	back.add_theme_font_size_override("font_size", 17)
 	back.pressed.connect(func() -> void: back_requested.emit())
 	column.add_child(back)
 	column.add_child(_look())
-	var name_label := _label(_monster.display_name, 26, Palette.DANGER if _monster is BossDef else Palette.GOLD)
+	var name_label := UiSkin.label(_monster.display_name, 24, Palette.DANGER if _monster is BossDef else UiSkin.GOLD)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(name_label)
 	var boss := _monster as BossDef
-	if boss and not boss.title.is_empty():
-		var title := _label(boss.title, 15, DIM)
-		title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		column.add_child(title)
+	if boss:
+		var kind_label := UiSkin.label("Boss  -  %s" % boss.title if not boss.title.is_empty() else "Boss", 15, UiSkin.DIM, true)
+		kind_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		column.add_child(kind_label)
 	var kills := Profile.kill_count(_monster.id)
-	if Profile.has_shiny(_monster.id):
-		var shiny := _label("* Shiny found! *", 16, Color(1.0, 0.6, 0.95))
-		shiny.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		column.add_child(shiny)
-	var rank_line := _label("%s   -   %d slain" % [Bestiary.rank_name(rank, rules), kills], 18, Color.WHITE)
-	rank_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	column.add_child(rank_line)
-	var next := Bestiary.next_kills(_monster, rules)
-	var bar := StatBar.new()
-	bar.custom_minimum_size = Vector2(LEFT_WIDTH, 18)
-	bar.font_size = 12
-	bar.fill_color = Palette.GOLD if next > 0 else Palette.HEAL
-	column.add_child(bar)
-	if next > 0:
-		bar.set_values(kills, next, "%d / %d to %s" % [kills, next, Bestiary.rank_name(maxi(rank, 0) + 1, rules)])
-	else:
-		bar.set_values(1, 1, "Mastered: +%d%% damage to it" % roundi(rules.mastery_damage * 100.0))
-	var thresholds := rules.kills_for(_monster)
-	var souls := rules.souls_for(_monster)
-	for i in thresholds.size():
-		var reached := rank > i
-		var reward := "+%d souls" % souls[i] if i < souls.size() else ""
-		if i == thresholds.size() - 1:
-			reward += ", +%d%% damage" % roundi(rules.mastery_damage * 100.0)
-		var line := _label("%s  (%d)   %s%s" % [rules.rank_names[i], thresholds[i], reward, "   Done" if reached else ""], 14, Palette.HEAL if reached else DIM)
-		column.add_child(line)
-	return column
+	var status := UiSkin.label("%s  -  %d slain" % [Bestiary.rank_name(rank, rules), kills], 17, CodexRows.DONE if Bestiary.is_mastered(_monster, rules) else UiSkin.TEXT, true)
+	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	column.add_child(status)
+	if rank < 1:
+		column.add_child(UiSkin.label("You have seen it, but never slain one. Slay one to learn what it is, its stats and how it attacks.", 15, UiSkin.DIM, true))
+		_add_shiny(column)
+		return
+	if not _monster.description.is_empty():
+		column.add_child(UiSkin.label(_monster.description, 16, UiSkin.TEXT, true))
+	var home := _home()
+	if not home.is_empty():
+		column.add_child(CodexRows.fact("Lives in", home))
+	_add_shiny(column)
+
+
+
+## "Act I, floors 1 to 3" (bosses: "Act I, floor 3"): where it first shows up.
+func _home() -> String:
+	var acts := _content.dungeon.acts
+	for i in acts.size():
+		var act := acts[i]
+		var first := _content.dungeon.first_depth(i)
+		var last := first + act.floors - 1
+		if act.all_bosses().has(_monster):
+			return "%s, floor %d" % [act.subtitle, last]
+		if act.monsters.has(_monster):
+			return "%s, floor%s" % [act.subtitle, " %d" % first if act.floors <= 1 else "s %d to %d" % [first, last]]
+	return ""
+
+
+## [name, value, what it means] for Health, Damage, Armor and Move speed.
+func _stats() -> Array[Array]:
+	var stats := _monster.stats
+	var weapon := _monster.weapon
+	var hero := _content.player.base_stats if _content.player else null
+	var health := stats.max_hp if stats else 0
+	var damage := weapon.damage if weapon else 0
+	var armor := stats.defense if stats else 0
+	var speed := roundi(stats.move_speed) if stats else 0
+	var health_note := "How much damage it takes to slay it."
+	var damage_note := "Health you lose when its basic attack hits you."
+	if hero:
+		damage_note += " You start a run with %d Health." % hero.max_hp
+	var armor_note := "Each of your hits on it does %d less damage (always at least 1)." % armor if armor > 0 else "None: your hits land in full."
+	var speed_note := "How fast it walks."
+	if hero and stats:
+		var ratio := stats.move_speed / maxf(hero.move_speed, 1.0)
+		speed_note = "Slower than you (%d)." % roundi(hero.move_speed)
+		if ratio > 1.08:
+			speed_note = "Faster than you (%d): you can't outrun it." % roundi(hero.move_speed)
+		elif ratio > 0.92:
+			speed_note = "About as fast as you (%d)." % roundi(hero.move_speed)
+	return [
+		["Health", str(health), health_note],
+		["Damage", str(damage), damage_note],
+		["Armor", str(armor), armor_note],
+		["Move speed", str(speed), speed_note],
+	]
 
 
 ## The monster, big and moving (unknown ones as a shadow).
 func _look() -> Control:
 	var box := Control.new()
-	box.custom_minimum_size = Vector2(LEFT_WIDTH, 150)
+	box.custom_minimum_size = Vector2(LEFT_WIDTH - 44, 104)
 	box.clip_contents = true
 	var sprite := AnimatedSprite2D.new()
 	sprite.sprite_frames = _monster.frames
 	sprite.offset = _monster.frames_offset
 	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	sprite.position = Vector2(LEFT_WIDTH * 0.5, 100)
-	sprite.scale = Vector2.ONE * (2.5 if _monster is BossDef else 4.0)
+	sprite.position = Vector2((LEFT_WIDTH - 44) * 0.5, 74)
+	sprite.scale = Vector2.ONE * (2.2 if _monster is BossDef else 3.5)
 	AttackPreview._play_anim(sprite, [&"walk_down", &"idle_down", &"walk", &"idle"])
 	if Bestiary.rank_of(_monster, _content.bestiary) == Bestiary.UNSEEN:
 		sprite.modulate = Color(0, 0, 0, 0.8)
@@ -121,29 +169,22 @@ func _look() -> Control:
 	return box
 
 
-# --- Right: what it is, how it fights -----------------------------------------------
+# --- Middle: how it fights -----------------------------------------------------------
 
-func _fill_known(column: VBoxContainer) -> void:
-	if not _monster.description.is_empty():
-		column.add_child(_label(_monster.description, 17, Color.WHITE, true))
-	var stats := _monster.stats
-	var weapon := _monster.weapon
-	column.add_child(_label("HP %d   Damage %d   Armor %d   Speed %d   (on its first floors)" % [
-		stats.max_hp if stats else 0, weapon.damage if weapon else 0, stats.defense if stats else 0,
-		roundi(stats.move_speed) if stats else 0], 15, Palette.GOLD, true))
-	for line in _ways():
-		column.add_child(_label("-  " + line, 15, DIM, true))
-	column.add_child(_header("Attacks"))
+func _fill_attacks(column: VBoxContainer, rank: int) -> void:
+	column.add_child(_heading("Attacks"))
+	if rank < 1:
+		column.add_child(UiSkin.label("Slay one to see how it attacks.", 16, UiSkin.DIM, true))
+		return
+	column.add_child(UiSkin.label("Tap an attack to watch it. Red marks on the ground show where it will land: step out!", 14, UiSkin.DIM, true))
 	_preview = AttackPreview.new()
-	_preview.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_preview.custom_minimum_size = Vector2(0, 184)
+	_preview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_child(_preview)
 	var row := HFlowContainer.new()
 	row.add_theme_constant_override("h_separation", 8)
 	row.add_theme_constant_override("v_separation", 6)
 	column.add_child(row)
-	_attack_text = _label("", 15, Color.WHITE, true)
-	column.add_child(_attack_text)
-	_attack_buttons.clear()
 	var attacks := _attacks()
 	for i in attacks.size():
 		var button := Button.new()
@@ -151,12 +192,31 @@ func _fill_known(column: VBoxContainer) -> void:
 		button.toggle_mode = true
 		button.focus_mode = Control.FOCUS_NONE
 		button.custom_minimum_size = Vector2(0, 44)
-		button.add_theme_font_size_override("font_size", 15)
+		button.add_theme_font_size_override("font_size", 16)
 		button.pressed.connect(_show_attack.bind(attacks[i], i))
 		row.add_child(button)
 		_attack_buttons.append(button)
-	if not attacks.is_empty():
-		_show_attack.call_deferred(attacks[0], 0)
+	_attack_text = UiSkin.label("", 16, UiSkin.TEXT, true)
+	column.add_child(_attack_text)
+	var ways := _ways()
+	if not ways.is_empty():
+		column.add_child(_heading("How it behaves"))
+		for line in ways:
+			column.add_child(UiSkin.label("-  " + line, 15, UiSkin.TEXT, true))
+	column.add_child(_heading("Stats"))
+	column.add_child(UiSkin.label("On the floors where it first shows up: deeper down, it grows stronger.", 14, UiSkin.DIM, true))
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 18)
+	grid.add_theme_constant_override("v_separation", 6)
+	column.add_child(grid)
+	for line in _stats():
+		var cell := VBoxContainer.new()
+		cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		cell.add_theme_constant_override("separation", 0)
+		cell.add_child(CodexRows.fact(line[0], line[1], UiSkin.GOLD))
+		cell.add_child(UiSkin.label(line[2], 14, UiSkin.DIM, true))
+		grid.add_child(cell)
 
 
 ## Its basic attack, its skills, and a boss' phase skills: [{ name, attack, text }].
@@ -164,8 +224,12 @@ func _attacks() -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	var weapon := _monster.weapon
 	if weapon:
-		var how := "Melee, reach %d" % roundi(weapon.reach) if weapon.kind == WeaponDef.Kind.MELEE else "Shoots %s" % ("%d at a time" % weapon.projectile_count if weapon.projectile_count > 1 else "from afar")
-		result.append({ "name": weapon.display_name if not weapon.display_name.is_empty() else "Attack", "attack": weapon, "text": "%s. %d damage." % [how, weapon.damage] })
+		var how := "Up close"
+		if weapon.kind == WeaponDef.Kind.RANGED:
+			how = "Shoots %d at once, from afar" % weapon.projectile_count if weapon.projectile_count > 1 else "Shoots from afar"
+		elif weapon.reach >= 40.0:
+			how = "Up close, with a long reach"
+		result.append({ "name": weapon.display_name if not weapon.display_name.is_empty() else "Attack", "attack": weapon, "text": "Basic attack. %s: %d damage." % [how, weapon.damage] })
 	var skills: Array[SkillDef] = []
 	for skill in _monster.skills:
 		if skill and not skills.has(skill):
@@ -181,10 +245,10 @@ func _attacks() -> Array[Dictionary]:
 	var names := {}
 	for skill in skills:
 		var text := skill.description if not skill.description.is_empty() else ""
-		text += "%sEvery %.0f s." % [" " if not text.is_empty() else "", skill.cooldown]
+		text += "%sUsed every %.0f seconds." % [" " if not text.is_empty() else "", skill.cooldown]
 		var name := skill.display_name
 		if phase_of.has(skill):
-			text = "Phase %d: %s" % [phase_of[skill], text]
+			text = "From phase %d. %s" % [phase_of[skill], text]
 			if names.has(name):
 				name += " (phase %d)" % phase_of[skill]  # its fiercer form
 		names[skill.display_name] = true
@@ -193,6 +257,8 @@ func _attacks() -> Array[Dictionary]:
 
 
 func _show_attack(attack: Dictionary, index: int) -> void:
+	if _preview == null or not is_instance_valid(_preview):
+		return
 	for i in _attack_buttons.size():
 		_attack_buttons[i].set_pressed_no_signal(i == index)
 	_attack_text.text = attack.text
@@ -204,11 +270,11 @@ func _show_attack(attack: Dictionary, index: int) -> void:
 func _ways() -> PackedStringArray:
 	var lines := PackedStringArray()
 	if _monster.flies:
-		lines.append("Flies: holes and water don't stop it")
+		lines.append("Flies: holes and water don't stop it.")
 	if _monster.keep_distance > 0.0:
-		lines.append("Keeps its distance")
+		lines.append("Keeps its distance: close in on it.")
 	if _monster.knockback_resistance >= 0.5:
-		lines.append("Hard to push around")
+		lines.append("Hard to push around (or into holes).")
 	for monster_trait in _monster.traits:
 		if monster_trait and not monster_trait.describe().is_empty():
 			lines.append(monster_trait.describe())
@@ -218,40 +284,78 @@ func _ways() -> PackedStringArray:
 			var at := PackedStringArray()
 			for phase in boss.phases:
 				at.append("%d%%" % roundi(phase.hp_ratio * 100.0))
-			lines.append("%d phases: stronger and faster at %s HP" % [boss.phases.size() + 1, ", ".join(at)])
+			lines.append("Fights in %d phases: stronger and faster once its Health drops to %s." % [boss.phases.size() + 1, ", then ".join(at)])
 		if boss.shockwave_after_hits > 0:
-			lines.append("Too many hits in a row: it throws you off with a shockwave")
+			lines.append("Hit it too many times in a row and it throws you off with a shockwave.")
 	return lines
 
 
-# --- Challenges -------------------------------------------------------------------
+# --- Right: your hunt ------------------------------------------------------------------
 
-func _challenge_row(challenge: HuntChallenge) -> Control:
-	var done := Profile.is_challenge_done(_monster.id, challenge.id)
+## The Shiny: a rare glowing one of this kind, found (slain) or not yet.
+func _add_shiny(column: VBoxContainer) -> void:
+	column.add_child(_heading("Shiny"))
+	var found := Profile.has_shiny(_monster.id)
+	column.add_child(_goal_row(found, "Found!" if found else "Not found yet", ""))
+	column.add_child(UiSkin.label("A rare glowing version%s: tougher, but it drops plenty of loot and gold. Slay one to add it to your collection." % _shiny_odds(), 14, UiSkin.DIM, true))
+
+
+## " (about 1 in 400)", from the Shiny rank's chance ("" if there is none).
+func _shiny_odds() -> String:
+	for rank in _content.dungeon.rare_ranks:
+		if rank and rank.shimmer:
+			var chance := rank.boss_chance if _monster is BossDef else rank.chance
+			return " (about 1 in %d)" % roundi(1.0 / chance) if chance > 0.0 else ""
+	return ""
+
+
+func _fill_hunt(column: VBoxContainer, rank: int, rules: BestiaryRules) -> void:
+	var kills := Profile.kill_count(_monster.id)
+	column.add_child(_heading("Hunter rank"))
+	column.add_child(UiSkin.label("Slay more of this kind to rank up. Each rank pays its souls once.", 14, UiSkin.DIM, true))
+	var thresholds := rules.kills_for(_monster)
+	var souls := rules.souls_for(_monster)
+	for i in thresholds.size():
+		var reward := CodexRows.souls(souls[i]) if i < souls.size() else ""
+		var extra := ""
+		if i == thresholds.size() - 1:
+			extra = "and +%d%% damage to this kind, for good" % roundi(rules.mastery_damage * 100.0)
+		column.add_child(_goal_row(rank > i, "%s: slay %d" % [rules.rank_names[i], thresholds[i]], reward, extra))
+	var next := Bestiary.next_kills(_monster, rules)
+	if next > 0:
+		column.add_child(CodexRows.bar(kills, next, "%d / %d slain, to %s" % [kills, next, Bestiary.rank_name(maxi(rank, 0) + 1, rules)]))
+	else:
+		column.add_child(CodexRows.bar(1, 1, "Mastered!"))
+
+	var challenges := rules.challenges_for(_monster)
+	if not challenges.is_empty():
+		column.add_child(_heading("Challenges"))
+		column.add_child(UiSkin.label("Slay it in a special way. Each one pays its souls once.", 14, UiSkin.DIM, true))
+		for challenge in challenges:
+			column.add_child(_goal_row(Profile.is_challenge_done(_monster.id, challenge.id), challenge.describe(_monster), CodexRows.souls(challenge.souls)))
+
+
+
+## A goal with its mark: done or not, what to do, the souls it pays (and what else).
+func _goal_row(done: bool, text: String, reward: String, extra := "") -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
-	var mark := _label("Done" if done else "-", 15, Palette.HEAL if done else DIM)
-	mark.custom_minimum_size.x = 44
-	row.add_child(mark)
-	var text := _label(challenge.describe(_monster), 15, Palette.HEAL if done else Color.WHITE, true)
-	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(text)
-	row.add_child(_label("+%d souls" % challenge.souls, 14, SOUL_COLOR))
+	row.add_child(CodexRows.check(done, false))
+	var words := VBoxContainer.new()
+	words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	words.add_theme_constant_override("separation", 0)
+	row.add_child(words)
+	words.add_child(UiSkin.label(text, 16, CodexRows.DONE if done else UiSkin.TEXT, true))
+	if not extra.is_empty():
+		words.add_child(UiSkin.label(extra, 14, CodexRows.SOUL, true))
+	if not reward.is_empty():
+		var amount := UiSkin.label(reward, 15, CodexRows.SOUL)
+		amount.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		row.add_child(amount)
 	return row
 
 
-func _header(text: String) -> Label:
-	var label := _label(text, 20, Palette.GOLD)
-	label.custom_minimum_size.y = 30
-	return label
-
-
-func _label(text: String, font_size: int, color: Color, wrap := false) -> Label:
-	var label := Label.new()
-	label.text = text
-	label.add_theme_font_size_override("font_size", font_size)
-	label.add_theme_color_override("font_color", color)
-	if wrap:
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+func _heading(text: String) -> Label:
+	var label := UiSkin.label(text, 19, UiSkin.GOLD)
+	label.custom_minimum_size.y = 28
 	return label

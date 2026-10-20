@@ -7,7 +7,7 @@
 script = ExtResource("2_unnml")
 id = &"into_the_dark"
 display_name = "Into the Dark"
-description = "Reach depth 4."
+description = "Reach floor 4."
 icon = ExtResource("1_u4gb2")
 stat = 4
 target = 4

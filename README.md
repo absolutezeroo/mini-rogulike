@@ -463,14 +463,27 @@ blast, charge, summons or heal, built from the WeaponDef / SkillDef data), and i
   potion, losing less than 25% HP) plus one with a given weapon (`MonsterDef.challenges`: the
   King Slime with a Bow, the Red Samurai with a Katana...). Done once, paid in souls, with a toast.
 
-The title screen's **Codex** (`CodexPanel`) has three tabs:
-- **Bestiary**: every monster and boss; unknown ones are black silhouettes until you slay one.
-  The profile counts kills per monster (`Profile.kills_by_monster`).
+The **Codex** (`CodexPanel`, from the title screen and the pause menu) is built in code in the
+game's skin (`RpgWindow`, like the bag and the forge): four tabs in its header, the souls you hold
+on the right, and under the tabs a summary line plus one sentence saying what the tab is for
+(souls are kept between runs and spent at the Shrine; gold is lost when a run ends). Lists scroll
+with a finger (`TouchScroll`); `CodexRows` builds their rows, with a tick box for what is done.
+- **Quests**: today's and this week's quests side by side, each with its goal, a progress bar,
+  its reward in souls ("Received" once paid) and the time until new ones.
+- **Bestiary**: act by act (floors, how many kinds slain), a card per monster and boss
+  (`CodexCard`: picture, rank, kills, a bar toward the next rank, gold frame once Mastered,
+  Boss and Shiny badges; unknown ones are dark shapes until met). Its page has three columns:
+  look, where it lives and its Shiny; attacks with the preview, how it behaves and its stats
+  (Health, Damage, Armor, Move speed, each with what the number means); hunter ranks (slay N,
+  +X souls, done or not) and challenges.
 - **Achievements** (`data/achievements/`, `AchievementDef`): a goal on one of the profile's counters
   (kills, elites, wardens, kinds of creatures, depth, victories on Hard / Nightmare / ascension,
-  monsters pushed into holes, chests, Epic items, encounters, gold or level in one run), with its
-  progress. Reaching it pays souls, with a note at the top of the screen.
-- **Runs**: the last 20 runs (difficulty, depth, level, kills, weapon, what ended it, souls).
+  monsters pushed into holes, chests, Epic items, encounters, gold or level in one run), with a
+  progress bar and its reward; the closest to done first. Reaching it pays souls, with a note at
+  the top of the screen.
+- **Runs**: the fastest wins, then the last 20 runs: how each ended (victory, or the floor and
+  what slew you), when, the difficulty, how far (floor N of 12), how long, level, weapon, kills
+  and the souls earned.
 
 ## Story and identity
 

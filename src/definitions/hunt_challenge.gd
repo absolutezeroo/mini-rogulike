@@ -64,21 +64,21 @@ func describe(monster: MonsterDef) -> String:
 		Goal.PIT:
 			return "Push a %s into a hole" % name
 		Goal.STREAK:
-			return "Slay %d %s within %d s" % [count, name, roundi(seconds)]
+			return "Slay %d %s within %d seconds" % [count, name, roundi(seconds)]
 		Goal.UNTOUCHED:
 			return "Slay a %s without being hurt once it has seen you" % name
 		Goal.CRIT:
-			return "Finish a %s with a critical hit" % name
+			return "Finish a %s with a critical hit (a lucky hit for extra damage)" % name
 		Goal.RANGED:
 			return "Slay %s with a ranged weapon" % name
 		Goal.MELEE:
 			return "Slay %s with a melee weapon" % name
 		Goal.FAST:
-			return "Slay %s within %d s" % [name, roundi(seconds)]
+			return "Slay %s within %d seconds of the fight's start" % [name, roundi(seconds)]
 		Goal.NO_POTION:
 			return "Slay %s without drinking a potion during the fight" % name
 		Goal.HEALTHY:
-			return "Slay %s losing less than %d%% of your HP" % [name, roundi(ratio * 100.0)]
+			return "Slay %s losing less than %d%% of your Health" % [name, roundi(ratio * 100.0)]
 		Goal.WEAPON:
 			return "Slay %s with the %s" % [name, weapon.display_name if weapon else "?"]
 	return name
