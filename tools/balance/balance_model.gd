@@ -163,6 +163,8 @@ func hero_output(player: Player, defense: int, is_boss: bool, low_hp: bool = fal
 	var passives := passives_of(player)
 
 	var extra_projectiles := 0
+	var extra_cap := 99  # ExtraProjectilesPassive.max_extra (every source together)
+	var extra_share := 1.0  # ExtraProjectilesPassive.extra_damage
 	var lifesteal_ratio := 0.0
 	var lifesteal_tags := PackedStringArray()
 	var kill_heal := 0.0
@@ -208,7 +210,8 @@ func hero_output(player: Player, defense: int, is_boss: bool, low_hp: bool = fal
 			execute_threshold = maxf(execute_threshold, ex.hp_threshold)
 		elif passive is CritShockwavePassive:
 			var cs := passive as CritShockwavePassive
-			shock_sources.append(roundi(power * cs.damage_multiplier * stacks))
+			if cs.hits_target:  # otherwise only the enemies around the one struck (packs)
+				shock_sources.append(roundi(power * cs.damage_multiplier * stacks))
 		elif passive is BurnOnHitPassive:
 			var b := passive as BurnOnHitPassive
 			var entry := [b.damage_per_stack * stacks, b.interval, b.duration, b.chance]
@@ -222,7 +225,10 @@ func hero_output(player: Player, defense: int, is_boss: bool, low_hp: bool = fal
 			var sd := passive as StatusDamagePassive
 			status_bonus.append([sd.condition, sd.bonus_per_stack * stacks])
 		elif passive is ExtraProjectilesPassive:
-			extra_projectiles += (passive as ExtraProjectilesPassive).count_per_stack * stacks
+			var xp := passive as ExtraProjectilesPassive
+			extra_projectiles += xp.count_per_stack * stacks
+			extra_cap = mini(extra_cap, xp.max_extra)
+			extra_share = minf(extra_share, xp.extra_damage)
 		elif passive is EffectsOnSkillPassive:
 			skill_effects_extra.append_array((passive as EffectsOnSkillPassive).effects)
 		elif passive is FloorWardPassive:
@@ -243,11 +249,14 @@ func hero_output(player: Player, defense: int, is_boss: bool, low_hp: bool = fal
 
 	# Shots per attack that land on this target.
 	var hits_per_attack := 1.0
+	var volley_share := 1.0  # extra projectiles share the volley's damage
 	if weapon and weapon.kind == WeaponDef.Kind.RANGED:
-		var count := weapon.projectile_count + extra_projectiles
+		var extra := mini(extra_projectiles, extra_cap)
+		var count := weapon.projectile_count + extra
+		volley_share = (weapon.projectile_count + extra_share * extra) / float(count)
 		hits_per_attack = 1.0 + (count - 1) * (BOSS_FAN_SHARE if is_boss else 0.0)
 	var hit_rate := attacks_per_s * hits_per_attack
-	var weapon_base := power * (weapon.projectile_damage if weapon and weapon.kind == WeaponDef.Kind.RANGED else 1.0)
+	var weapon_base := power * (weapon.projectile_damage * volley_share if weapon and weapon.kind == WeaponDef.Kind.RANGED else 1.0)
 
 	# Statuses kept up by the hits (the strongest of a kind counts).
 	var burn := _dot(burn_sources, hit_rate, defense)
@@ -283,8 +292,8 @@ func hero_output(player: Player, defense: int, is_boss: bool, low_hp: bool = fal
 		var skill := player.skills.skills[i]
 		if skill == null:
 			continue
-		# An echo resets the cooldown: uses per cooldown = 1 / (chance none fires).
-		var cooldown := skill.cooldown * (1.0 - cdr) * maxf(echo_fail, 0.05)
+		# An echo resets the cooldown, and an echo can't echo: uses per cooldown = 1 + chance one fires.
+		var cooldown := skill.cooldown * (1.0 - cdr) / (2.0 - echo_fail)
 		if cooldown <= 0.0:
 			continue
 		var per_use := effects_damage(skill.effects, skill_power * mult, crit, defense, is_boss)

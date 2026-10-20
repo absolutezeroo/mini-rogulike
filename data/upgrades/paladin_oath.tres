@@ -13,5 +13,5 @@ description = "The Templar Sword (holy skills) can be found in the dungeon."
 icon = ExtResource("1_mrv2j")
 color = Color(1, 0.81960785, 0.4, 1)
 kind = 3
-cost = 120
+cost = 140
 items = Array[ExtResource("2_48a43")]([ExtResource("3_k6n50")])

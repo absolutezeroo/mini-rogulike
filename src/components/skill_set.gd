@@ -2,7 +2,7 @@ class_name SkillSet
 extends RefCounted
 ## The skills of an actor and their cooldowns. A slot may be empty (null).
 
-const MAX_COOLDOWN_REDUCTION := 0.6
+const MAX_COOLDOWN_REDUCTION := 0.5
 
 var skills: Array[SkillDef] = []
 var _cooldowns := PackedFloat32Array()

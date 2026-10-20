@@ -18,5 +18,5 @@ icon = ExtResource("2_v3ybj")
 color = Color(0.9372549, 0.2784314, 0.43529412, 1)
 max_level = 5
 cost = 40
-cost_growth = 30
+cost_growth = 70
 bonuses = SubResource("Resource_xvbok")

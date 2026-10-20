@@ -20,7 +20,7 @@ crit_chance = 0.1
 [resource]
 script = ExtResource("7_rqmo2")
 damage = 3
-cooldown = 0.22
+cooldown = 0.34
 reach = 26.0
 knockback = 70.0
 attack_animation = 1

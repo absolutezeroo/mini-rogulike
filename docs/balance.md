@@ -129,7 +129,7 @@ lab before changing data.
 | Difficulty vs Normal (boss threat) | Easy x0.2-0.7, Hard x1.3-2.6, Nightmare x2-5, +5 x2.5-8, +10 x3-12 | Easy forgiving, Nightmare demanding, ascensions add twists not walls |
 | Any pick at max vs its category's median (marginal value) | 0.5x-2x | every pick a real choice (pillar 2) |
 | Degenerate build DPS / expected build's | <= 2.5x | stacking pays, it doesn't trivialise (pillar 3) |
-| Weapon DPS vs the median weapon (same rarity, same hero) | 0.6x-1.6x | no trap, no only choice |
+| Weapon DPS vs the median weapon (same rarity, same hero) | 0.75x-1.4x (phase 2C; was 0.6-1.6) | no trap, no only choice |
 | Weapon arena: bosses beaten (Common, kite, Normal) | >= 50% | a weapon that loses to most bosses is a trap |
 | A stack of multiplying bonuses (compound) | <= 2.5x the expected build's DPS | check the products, not the parts |
 | Most armored build: monsters hitting it for 1 | <= 50% of the act's | armor makes weak monsters weaker, not harmless |

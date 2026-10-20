@@ -17,5 +17,5 @@ description = "Armor: the hits you take hurt less, in every run."
 icon = ExtResource("2_jiodh")
 color = Color(0.6784314, 0.70980394, 0.7411765, 1)
 max_level = 3
-cost_growth = 40
+cost_growth = 90
 bonuses = SubResource("Resource_8ipik")

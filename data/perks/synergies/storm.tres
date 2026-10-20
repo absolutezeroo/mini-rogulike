@@ -4,15 +4,22 @@
 [ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_hwihq"]
 [ext_resource type="Script" path="res://src/definitions/passives/chain_lightning_passive.gd" id="3_dc3p0"]
 [ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="4_hl2re"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="5_stats"]
+
+[sub_resource type="Resource" id="Resource_storm_stats"]
+script = ExtResource("5_stats")
+attack_speed = 0.15
 
 [sub_resource type="Resource" id="Resource_df3xj"]
 script = ExtResource("3_dc3p0")
+every_hits = 3
 
 [resource]
 script = ExtResource("4_hl2re")
 id = &"storm"
 display_name = "Storm"
-description = "Every 4th hit, lightning jumps to up to 3 enemies nearby."
+description = "Your attacks are 15% faster, and every 3rd hit, lightning jumps to up to 3 enemies nearby."
+bonuses = SubResource("Resource_storm_stats")
 icon = ExtResource("1_d1hcx")
 color = Color(1, 0.8784314, 0.4, 1)
 passives = Array[ExtResource("2_hwihq")]([SubResource("Resource_df3xj")])

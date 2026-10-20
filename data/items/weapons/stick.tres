@@ -13,7 +13,7 @@
 [resource]
 script = ExtResource("5_0gw0y")
 kind = 1
-damage = 8
+damage = 10
 cooldown = 0.8
 reach = 520.0
 knockback = 160.0
@@ -25,7 +25,7 @@ projectile_texture = ExtResource("4_cf2k4")
 projectile_speed = 680.0
 projectile_radius = 6.0
 pierce = 1
-projectile_damage = 0.95
+projectile_damage = 1.05
 slot = 0
 value = 35
 id = &"stick"

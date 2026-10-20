@@ -8,9 +8,9 @@
 
 [sub_resource type="Resource" id="Resource_passive"]
 script = ExtResource("3_kind")
-every_hits = 4
+every_hits = 3
 jumps = 2
-damage_multiplier = 0.5
+damage_multiplier = 0.6
 
 [resource]
 script = ExtResource("1_rune")
@@ -19,7 +19,7 @@ passives = Array[ExtResource("2_passive")]([SubResource("Resource_passive")])
 value = 45
 id = &"spark_rune"
 display_name = "Spark Rune"
-description = "Every 4th hit, lightning jumps to 2 enemies."
+description = "Every 3rd hit, lightning jumps to 2 enemies."
 icon = ExtResource("5_icon")
 min_depth = 1
 spawn_weight = 10

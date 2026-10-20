@@ -64,9 +64,9 @@ perk_value_min_vs_median = 0.5
 perk_reference_build = "expected_a2"
 ; Stacking one thing hard may pay up to 2.5x the expected build's damage, not more.
 degenerate_dps_ratio_max = 2.5
-; Every weapon within 0.6x-1.6x of the median weapon's DPS (same rarity, same hero): none is a trap, none the only choice.
-weapon_dps_ratio_min = 0.6
-weapon_dps_ratio_max = 1.6
+; Every weapon within 0.75x-1.4x of the median weapon's DPS (same rarity, same hero, every act): none is a trap, none the only choice (phase 2C: was 0.6-1.6, a 2.7x spread between weapons; every weapon now fits the tighter band).
+weapon_dps_ratio_min = 0.75
+weapon_dps_ratio_max = 1.4
 ; A weapon (Common, expected build, kite) should beat at least half the bosses on Normal.
 weapon_boss_win_share_min = 0.5
 ; Any combination of multiplying bonuses (attack speed x crit x damage, projectiles, echo, burns) at most 2.5x the expected build's DPS.

@@ -9,7 +9,7 @@
 
 [sub_resource type="Resource" id="Resource_lpds5"]
 script = ExtResource("1_lpds5")
-skill_power = 0.15
+skill_power = 0.12
 
 [resource]
 script = ExtResource("4_jcf7v")

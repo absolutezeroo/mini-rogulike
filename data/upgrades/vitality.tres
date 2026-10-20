@@ -18,5 +18,5 @@ icon = ExtResource("2_go14l")
 color = Color(1, 0.41960785, 0.41960785, 1)
 max_level = 5
 cost = 30
-cost_growth = 20
+cost_growth = 45
 bonuses = SubResource("Resource_yhulp")

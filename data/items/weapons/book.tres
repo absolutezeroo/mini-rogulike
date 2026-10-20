@@ -14,7 +14,7 @@
 script = ExtResource("5_w0bwa")
 kind = 1
 damage = 5
-cooldown = 0.6
+cooldown = 0.55
 reach = 380.0
 attack_animation = 3
 attack_frames = ExtResource("1_umhj5")
@@ -25,7 +25,7 @@ projectile_speed = 360.0
 projectile_radius = 7.0
 projectile_count = 3
 spread_degrees = 26.0
-projectile_damage = 0.5
+projectile_damage = 0.6
 slot = 0
 value = 35
 id = &"book"
