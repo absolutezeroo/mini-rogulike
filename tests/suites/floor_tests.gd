@@ -549,6 +549,7 @@ func _test_stairs_seal(game: Game) -> void:
 	var on_log := func(text: String, _color: Color) -> void: logged.append(text)
 	Events.message_logged.connect(on_log)
 	var depth := game.depth
+	world._blocked_note_at = -10.0  # (the bot may have bumped into them a moment ago: no repeat then)
 	player.global_position = world.map.cell_to_world(world.map.stairs_cell)
 	await _frames(int(game.FADE_TIME * 60.0) + 12)
 	check(game.depth == depth and not game._transitioning, "sealed stairs don't lead down")
