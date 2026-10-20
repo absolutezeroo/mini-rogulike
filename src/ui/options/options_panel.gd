@@ -1,7 +1,7 @@
 class_name OptionsPanel
 extends Control
 ## Options window (title screen and pause menu): volumes, screen shake, vibrations, size of
-## the touch controls, fixed joystick, battery saver, fewer effects. Every change goes straight
+## the touch controls, fixed joystick, battery saver, fewer effects, the tutorial (on/off, replay). Every change goes straight
 ## to Settings (applied and saved).
 
 signal closed
@@ -16,6 +16,7 @@ signal closed
 	%FixedStickCheck: &"fixed_joystick",
 	%BatteryCheck: &"battery_saver",
 	%FewerEffectsCheck: &"fewer_effects",
+	%TutorialCheck: &"tutorial_hints",
 }
 
 
@@ -35,6 +36,13 @@ func _ready() -> void:
 			Settings.set_option(key, on)
 			Sfx.play_ui(Sfx.bank.ui_click))
 	%CloseButton.pressed.connect(close)
+	# Every hint shows again, from the first steps (and the hints come back on).
+	%ReplayTutorialButton.pressed.connect(func() -> void:
+		Profile.reset_hints()
+		Settings.set_option(&"tutorial_hints", true)
+		(%TutorialCheck as CheckButton).set_pressed_no_signal(true)
+		(%ReplayTutorialButton as Button).text = "Tutorial reset"
+		Sfx.play_ui(Sfx.bank.ui_click))
 
 
 func open() -> void:
@@ -45,6 +53,7 @@ func open() -> void:
 	_vibrations.set_pressed_no_signal(Settings.vibrations)
 	for check: CheckButton in _checks:
 		check.set_pressed_no_signal(Settings.get(_checks[check]))
+	(%ReplayTutorialButton as Button).text = "Replay tutorial"
 	show()
 
 

@@ -1,6 +1,6 @@
 extends Node
 ## Player options (autoload "Settings"): volumes, screen shake, vibrations, size of the touch
-## controls, fixed or floating joystick, battery saver (30 FPS), fewer effects.
+## controls, fixed or floating joystick, battery saver (30 FPS), fewer effects, tutorial hints.
 ## Saved in user://settings.cfg and applied as soon as they change.
 
 signal changed
@@ -8,7 +8,7 @@ signal changed
 const PATH := "user://settings.cfg"
 const SOUND_BUSES: Array[StringName] = [&"SFX", &"UI", &"Ambience"]
 const MIN_VIBRATION_GAP_MS := 50
-const KEYS: Array[String] = ["music_volume", "sound_volume", "screen_shake", "vibrations", "controls_scale", "fixed_joystick", "battery_saver", "fewer_effects"]
+const KEYS: Array[String] = ["music_volume", "sound_volume", "screen_shake", "vibrations", "controls_scale", "fixed_joystick", "battery_saver", "fewer_effects", "tutorial_hints"]
 ## Frames per second: normal (0 = no cap), and with the battery saver.
 const FPS := 0
 const SAVER_FPS := 30
@@ -29,6 +29,8 @@ var fixed_joystick := false
 var battery_saver := false
 ## Half the particles (sparks, chunks, dust): for older phones.
 var fewer_effects := false
+## Tutorial hints (see Tutorial): on until turned off.
+var tutorial_hints := true
 
 var _last_vibration := 0
 
@@ -89,6 +91,7 @@ func load_settings() -> void:
 	fixed_joystick = bool(file.get_value("options", "fixed_joystick", fixed_joystick))
 	battery_saver = bool(file.get_value("options", "battery_saver", battery_saver))
 	fewer_effects = bool(file.get_value("options", "fewer_effects", fewer_effects))
+	tutorial_hints = bool(file.get_value("options", "tutorial_hints", tutorial_hints))
 
 
 func _set_bus_volume(bus_name: StringName, volume: float) -> void:

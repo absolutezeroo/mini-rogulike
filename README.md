@@ -270,10 +270,30 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   hits you land, crits; `Settings.vibrate()`; exported Android builds need the Vibrate permission),
   **fixed joystick** (it stays in its corner and starts only when touched there, instead of
   appearing under the thumb), **battery saver** (30 FPS cap, `Engine.max_fps`), **fewer effects**
-  (half the particles in `Vfx.burst`).
+  (half the particles in `Vfx.burst`), **tutorial hints** (on/off) and **Replay tutorial**.
 - **Minimap** (`Minimap`): rooms are revealed when you walk in, corridors around you; it shows holes,
   the stairs (violet while sealed), unopened chests, a running ambush, the boss and, near the
   end of a seal, the last monsters. Tap it for the whole floor.
+
+## Tutorial
+
+No separate tutorial level: the first run teaches as it goes. A small wooden board comes up at the
+top of the screen (`HintBox`), says what to do, and, when it is about a control, a gold ring pulses
+around it with an arrow. Each hint shows **once ever** (`Profile.hints_seen`), one at a time, never
+over a menu or a big banner. A tap (or OK) closes it.
+
+- **First steps**: move (it stays until you have walked a few tiles), then the sealed stairs; when
+  a monster first sees you, attack (until you swing), then roll, then the weapon's two skills.
+- **The first time something happens**: low health (drink a potion from the belt), gear in the bag
+  (open the Bag), your first soul, perks and families, a family bonus, a spell, an elite, a rune, the
+  forge, the merchant, a chest, an ambush, a boss, the stairs opening, a cursed or strange floor,
+  cold and heat.
+- **Data**: `data/tutorial/tutorial.tres` (`TutorialDef`): the hints (`HintDef`: its cue, the hint
+  it comes after, a condition, the title and text, the HUD control it points at, the action that
+  ends it or how long it stays, its priority) and the distances and thresholds. The cues, actions
+  and conditions are listed in `Tutorial` (`src/game/tutorial.gd`); the controls are the HUD's
+  unique names (`Hud.hint_target()`).
+- **Options**: "Tutorial hints" turns them off; "Replay tutorial" shows them all again.
 
 ## Android build
 
@@ -837,6 +857,7 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 | An encounter | New `EncounterDef` in `data/encounters/` (choices, costs, outcomes), add it to `content_db.tres` > Encounters |
 | An item affix | New `ItemAffixDef` in `data/affixes/` (prefix or suffix, slots, stats, on-hit or passives + description), add it to `content_db.tres` > Item Affixes |
 | Story texts | Edit `data/story/story.tres` (intro pages, death lines...); an act's line is its `ActDef` > Lore |
+| A tutorial hint | Add a `HintDef` to `data/tutorial/tutorial.tres` > Hints (a cue from `Tutorial.CUES`, a text, a HUD control to point at) |
 
 Each piece of content has an **icon** (any `Texture2D`) and an **icon tint** to recolor it.
 Monsters and the player also have `frames` (their SpriteFrames in `data/visuals/`): a new monster
@@ -898,6 +919,8 @@ The suites (`tests/suites/`, each a `TestSuite`):
   monsters and their traits, difficulty, weapons), **floor** (props, hazards, chests, ambushes,
   encounters, the merchant, loot, curses, biomes, act cards, the belt) and **boss** (a full boss fight
   with its phases and relic, then winning the run).
+- **tutorial**: the hints' data, the first steps played with the real controls, the hints that come
+  up once, menus, the options and the profile.
 
 The exit code is the number of failures.
 

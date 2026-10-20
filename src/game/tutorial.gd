@@ -1,0 +1,264 @@
+class_name Tutorial
+extends Node
+## Shows the tutorial's hints (TutorialDef) in a HintBox: the first steps of the first run, then
+## a note the first time something new comes up. Each hint shows once ever (Profile), never over
+## a menu, one at a time with a short gap. Settings.tutorial_hints turns them all off.
+##
+## Cues bring hints up: the Game calls cue() (a run or a floor starts, a perk is picked), signals
+## of the hero and the world call it (a monster noticed the hero, a boss, an ambush, the seal
+## breaks), and a few things are checked a few times a second (low health, a forge in sight...).
+
+## What can bring a hint up.
+const CUES: Array[StringName] = [
+	&"run_start", &"floor_start", &"cursed_floor", &"event_floor", &"monster_noticed", &"elite_noticed",
+	&"monster_killed", &"boss_started", &"boss_defeated", &"ambush", &"seal_broken", &"perk_chosen",
+	&"synergy", &"low_health", &"cold", &"hot", &"merchant_near", &"forge_near", &"chest_near",
+	&"gear_carried", &"rune_carried", &"spell_learned",
+]
+## What a hint can wait for (`done_when`).
+const ACTIONS: Array[StringName] = [
+	&"moved", &"attacked", &"rolled", &"weapon_skill", &"used_item", &"opened_bag",
+]
+## What `only_if` can ask.
+const CONDITIONS: Array[StringName] = [&"sealed", &"has_belt_item", &"has_weapon_skill"]
+## Seconds between two looks at the polled cues.
+const POLL := 0.25
+
+signal hint_shown(hint: HintDef)
+signal hint_closed(hint: HintDef)
+
+var def: TutorialDef
+var box: HintBox
+var hud: Hud
+var player: Player
+var world: World
+## Whether a menu is open (the Game's); hints wait.
+var is_blocked := func() -> bool: return false
+
+var current: HintDef
+var _queue: Array[HintDef] = []
+## Cued too early (their `after` is not seen yet).
+var _waiting: Array[HintDef] = []
+var _time_left := 0.0
+var _gap := 0.0
+var _poll := 0.0
+var _walked := 0.0
+var _last_position := Vector2.INF
+
+
+func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_PAUSABLE
+	Events.monster_noticed.connect(_on_monster_noticed)
+	Events.monster_killed.connect(func(_monster: Monster) -> void: cue(&"monster_killed"))
+	Events.boss_started.connect(func(_boss: Monster) -> void: cue(&"boss_started"))
+	Events.boss_defeated.connect(func(_boss: Monster) -> void: cue(&"boss_defeated"))
+	Events.ambush_started.connect(func(_room: AmbushRoom) -> void: cue(&"ambush"))
+	Settings.changed.connect(func() -> void:
+		if not is_enabled():
+			_queue.clear()
+			_waiting.clear()
+			_close(false))
+
+
+func is_enabled() -> bool:
+	return def != null and Settings.tutorial_hints
+
+
+## A new hero (a run begins): what the old one was doing is forgotten.
+func bind(new_player: Player, new_world: World, new_hud: Hud) -> void:
+	if player and is_instance_valid(player):
+		player.attacked.disconnect(_on_attacked)
+		player.skill_used.disconnect(_on_skill_used)
+		player.consumable_used.disconnect(_on_consumable_used)
+		player.perks.synergy_awakened.disconnect(_on_synergy)
+		player.died.disconnect(_on_died)
+	player = new_player
+	hud = new_hud
+	player.attacked.connect(_on_attacked)
+	player.skill_used.connect(_on_skill_used)
+	player.consumable_used.connect(_on_consumable_used)
+	player.perks.synergy_awakened.connect(_on_synergy)
+	player.died.connect(_on_died)
+	if world != new_world:
+		world = new_world
+		world.seal.broken.connect(func() -> void: cue(&"seal_broken"))
+	_queue.clear()
+	_waiting.clear()
+	_close(false)
+	_walked = 0.0
+	_last_position = Vector2.INF
+
+
+## Something happened: the hints it brings up get in line (once ever each).
+func cue(name: StringName) -> void:
+	if not is_enabled():
+		return
+	for hint in def.hints:
+		if hint.cue == name and _wants(hint):
+			if hint.after == &"" or Profile.has_seen_hint(hint.after):
+				_add(hint)
+			elif not _waiting.has(hint):
+				_waiting.append(hint)
+
+
+## The player did something: the hint waiting for it is done.
+func action(name: StringName) -> void:
+	if current and current.done_when == name:
+		_close(true)
+
+
+## Closes the hint on screen (a tap on it).
+func dismiss() -> void:
+	_close(true)
+
+
+func _process(delta: float) -> void:
+	if not is_enabled() or player == null or not is_instance_valid(player) or player.is_dead:
+		return
+	_track_walk()
+	_poll -= delta
+	if _poll <= 0.0:
+		_poll = POLL
+		_check_world()
+	if current:
+		if current.duration > 0.0:
+			_time_left -= delta
+			if _time_left <= 0.0:
+				_close(true)
+		return
+	_gap -= delta
+	if _gap <= 0.0 and not _queue.is_empty() and not is_blocked.call():
+		_show_next()
+
+
+func _track_walk() -> void:
+	var at := player.global_position
+	if _last_position != Vector2.INF and not player.is_dashing():
+		_walked += minf(at.distance_to(_last_position), 40.0)  # a fall or a teleport is no walk
+	_last_position = at
+	if _walked >= def.move_distance:
+		action(&"moved")
+
+
+## The cues nobody signals: checked a few times a second.
+func _check_world() -> void:
+	if player.get_max_hp() > 0 and float(player.hp) / player.get_max_hp() <= def.low_health:
+		cue(&"low_health")
+	if player.temperature.value <= -def.temperature:
+		cue(&"cold")
+	elif player.temperature.value >= def.temperature:
+		cue(&"hot")
+	if _near(&"merchants"):
+		cue(&"merchant_near")
+	if _near(&"forges"):
+		cue(&"forge_near")
+	if _near(&"chests"):
+		cue(&"chest_near")
+	for item in player.inventory.items:
+		if item is RuneDef:
+			cue(&"rune_carried")
+		elif item is EquipmentDef:
+			cue(&"gear_carried")
+	if player.learned_skill:
+		cue(&"spell_learned")
+
+
+func _near(group: StringName) -> bool:
+	if world == null:
+		return false
+	for node in get_tree().get_nodes_in_group(group):
+		var thing := node as Node2D
+		if thing and thing.is_inside_tree() and thing.global_position.distance_to(player.global_position) <= def.near_distance \
+				and world.has_line_of_sight(player.global_position, thing.global_position):
+			return true
+	return false
+
+
+func _wants(hint: HintDef) -> bool:
+	return not Profile.has_seen_hint(hint.id) and hint != current and not _queue.has(hint)
+
+
+func _add(hint: HintDef) -> void:
+	_waiting.erase(hint)
+	_queue.append(hint)
+	_queue.sort_custom(func(a: HintDef, b: HintDef) -> bool: return a.priority > b.priority)
+
+
+func _show_next() -> void:
+	while not _queue.is_empty():
+		var hint: HintDef = _queue.pop_front()
+		if Profile.has_seen_hint(hint.id) or not holds(hint.only_if):
+			continue
+		current = hint
+		_time_left = hint.duration
+		if box:
+			box.show_hint(hint, hud.hint_target(hint.target) if hud and hint.target != &"" else Rect2())
+		hint_shown.emit(hint)
+		return
+
+
+## `only_if` of a hint.
+func holds(condition: StringName) -> bool:
+	match condition:
+		&"":
+			return true
+		&"sealed":
+			return world != null and world.seal.is_sealed()
+		&"has_belt_item":
+			return player != null and not player.belt.is_empty()
+		&"has_weapon_skill":
+			return player != null and player.skills.skills.size() > 1 and player.skills.skills[1] != null
+	push_warning("Unknown tutorial condition: %s" % condition)
+	return true
+
+
+## `seen`: done with it for good (and the hints that come right after it get in line).
+func _close(seen: bool) -> void:
+	if current == null:
+		return
+	var hint := current
+	current = null
+	_gap = def.gap if def else 0.0
+	if box:
+		box.hide_hint()
+	if seen:
+		Profile.mark_hint(hint.id)
+		for next in def.hints:
+			if next.after == hint.id and (next.cue == &"" or _waiting.has(next)) and _wants(next):
+				_add(next)
+	hint_closed.emit(hint)
+
+
+func _on_monster_noticed(monster: Monster) -> void:
+	if monster.is_boss():
+		return
+	cue(&"monster_noticed")
+	if monster.is_elite():
+		cue(&"elite_noticed")
+
+
+func _on_attacked() -> void:
+	action(&"attacked")
+
+
+## Slot 0 is the roll; 1 and 2 the weapon's skills (Player._rebuild_skills).
+func _on_skill_used(index: int) -> void:
+	if index == 0:
+		action(&"rolled")
+	elif index <= Player.WEAPON_SKILL_SLOTS:
+		action(&"weapon_skill")
+
+
+func _on_consumable_used(_item: ItemDef) -> void:
+	action(&"used_item")
+
+
+## The run is over: the hint on screen goes, unread (it will come back).
+func _on_died(_actor: Actor) -> void:
+	_queue.clear()
+	_waiting.clear()
+	_close(false)
+
+
+func _on_synergy(_synergy: SynergyDef) -> void:
+	cue(&"synergy")

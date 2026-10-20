@@ -47,6 +47,8 @@ var daily_day := -1
 var daily_score := 0
 var daily_best := 0
 var daily_streak := 0
+## Tutorial hints already shown (HintDef id -> 1).
+var hints_seen := {}
 
 const HISTORY_SIZE := 20
 ## Empty = nothing is read or written (tests).
@@ -222,6 +224,24 @@ func mark_intro_seen() -> void:
 	save_profile()
 
 
+func has_seen_hint(id: StringName) -> bool:
+	return hints_seen.has(String(id))
+
+
+func mark_hint(id: StringName) -> void:
+	if has_seen_hint(id):
+		return
+	hints_seen[String(id)] = 1
+	save_profile()
+
+
+## The tutorial starts over (Options).
+func reset_hints() -> void:
+	hints_seen = {}
+	save_profile()
+	changed.emit()
+
+
 func has_seen(monster_id: StringName) -> bool:
 	return seen_monsters.has(String(monster_id)) or kill_count(monster_id) > 0
 
@@ -329,6 +349,7 @@ func reset() -> void:
 	daily_score = 0
 	daily_best = 0
 	daily_streak = 0
+	hints_seen = {}
 	changed.emit()
 
 
@@ -343,6 +364,7 @@ func save_profile() -> void:
 		"period_stats": period_stats, "quests_claimed": quests_claimed,
 		"seen_monsters": seen_monsters, "bestiary_ranks": bestiary_ranks, "challenges_done": challenges_done, "shinies": shinies,
 		"daily_day": daily_day, "daily_score": daily_score, "daily_best": daily_best, "daily_streak": daily_streak,
+		"hints_seen": hints_seen,
 	})
 
 
@@ -376,6 +398,7 @@ func load_profile() -> void:
 	daily_score = int(data.get("daily_score", 0))
 	daily_best = int(data.get("daily_best", 0))
 	daily_streak = int(data.get("daily_streak", 0))
+	hints_seen = _ints(data.get("hints_seen", {}))
 	period_stats = {}
 	var saved_periods: Variant = data.get("period_stats", {})
 	if saved_periods is Dictionary:

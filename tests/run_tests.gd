@@ -3,12 +3,13 @@ extends Node
 ##   godot --headless --fixed-fps 60 res://tests/run_tests.tscn
 ## Only some suites:  ... res://tests/run_tests.tscn -- --only=unit,title
 ## Suites (tests/suites/): unit (rules and data), title (title screen), game (a bot plays the real
-## game, then combat, floor and boss tests on it). Exit code = number of failed checks.
+## game, then combat, floor and boss tests on it), tutorial (the first steps and the hints). Exit code = number of failed checks.
 
 const SUITES := {
 	"unit": preload("res://tests/suites/unit_tests.gd"),
 	"title": preload("res://tests/suites/title_tests.gd"),
 	"game": preload("res://tests/suites/game_tests.gd"),
+	"tutorial": preload("res://tests/suites/tutorial_tests.gd"),
 }
 
 
@@ -18,6 +19,8 @@ func _ready() -> void:
 	# Never touch the player's real save.
 	Profile.save_path = ""
 	Profile.reset()
+	# Hints would pop up all over the other tests (the tutorial tests turn them on).
+	Settings.tutorial_hints = false
 	Settings.path = ""
 	RunSave.path = "user://test_run_%d.json" % OS.get_process_id()  # one per test process
 	RunSave.erase()

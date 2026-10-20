@@ -5,6 +5,8 @@ extends Node
 signal message_logged(text: String, color: Color)
 signal depth_changed(depth: int)
 signal monster_killed(monster: Monster)
+## A monster spotted the hero for the first time (its bestiary page opens).
+signal monster_noticed(monster: Monster)
 ## A goal was reached (souls already paid).
 signal achievement_unlocked(achievement: AchievementDef)
 ## A hunter rank reached with a kind of monster, souls paid (see Bestiary).

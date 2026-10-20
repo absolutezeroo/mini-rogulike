@@ -253,6 +253,7 @@ func _noticed(other: Actor) -> void:
 	if other is Player and noticed_frame < 0:
 		noticed_frame = Engine.get_physics_frames()
 		Profile.mark_seen(def.id)
+		Events.monster_noticed.emit(self)
 
 
 func can_see(other: Actor, max_distance: float) -> bool:

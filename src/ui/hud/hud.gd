@@ -292,6 +292,34 @@ func show_banner(text: String, color: Color = Color(1, 0.82, 0.4)) -> void:
 	_banner_tween.tween_property(_depth_banner, "modulate:a", 0.0, 0.6)
 
 
+## A big text is on screen (hints wait for it to go).
+func is_banner_showing() -> bool:
+	return _depth_banner.modulate.a > 0.05
+
+
+func is_boss_bar_showing() -> bool:
+	return _boss_bar.visible
+
+
+## Where a control of the HUD is on screen (unique name: "AttackButton", "Joystick",
+## "SealLabel"...), for the tutorial to point at. Empty if it isn't there or is hidden.
+func hint_target(control_name: StringName) -> Rect2:
+	var node := get_node_or_null("%" + String(control_name))
+	if node == null or not node.is_visible_in_tree():
+		return Rect2()
+	if node is TouchJoystick:
+		var stick := node as TouchJoystick
+		var reach := stick.max_distance
+		return Rect2(stick.get_global_rect().position + stick.home() - Vector2.ONE * reach, Vector2.ONE * reach * 2.0)
+	if node is ActionButton:
+		var button := node as ActionButton
+		var radius := button.radius * button.get_global_transform().get_scale().x
+		return Rect2(button.global_position - Vector2.ONE * radius, Vector2.ONE * radius * 2.0)
+	if node is Control:
+		return (node as Control).get_global_rect()
+	return Rect2()
+
+
 func _on_depth_changed(depth: int) -> void:
 	_refresh_info()
 	show_banner("Depth %d" % depth)

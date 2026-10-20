@@ -63,6 +63,9 @@ var _transitioning := false
 var _records := RunRecords.new()
 ## The bestiary challenges (how monsters are slain).
 var _hunt := HuntTracker.new()
+## The tutorial's hints, shown in `hint_box` (above the HUD, under the menus).
+var tutorial := Tutorial.new()
+var hint_box := HintBox.new()
 
 
 func _ready() -> void:
@@ -72,6 +75,7 @@ func _ready() -> void:
 	add_child(_records)
 	_hunt.content = content
 	add_child(_hunt)
+	_setup_tutorial()
 	world.stairs_reached.connect(_on_stairs_reached)
 	hud.bind_world(world)
 	hud.inventory_requested.connect(open_inventory)
@@ -198,6 +202,7 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	_records.bind(run, player)
 	_hunt.bind(player)
 	hud.bind_player(player)
+	tutorial.bind(player, world, hud)
 	if show_act_cards:
 		# Start on black: the first act's card, then the floor fades in.
 		_fade.color.a = 1.0
@@ -210,7 +215,25 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 		create_tween().tween_property(_fade, "color:a", 0.0, FADE_TIME * 1.5)
 	else:
 		_enter_floor(not saved.is_empty())
+	tutorial.cue(&"run_start")
 	_show_next_offer.call_deferred()  # choices left open in a saved run
+
+
+func _setup_tutorial() -> void:
+	tutorial.name = "Tutorial"
+	tutorial.def = content.tutorial
+	tutorial.box = hint_box
+	tutorial.is_blocked = func() -> bool:
+		return is_menu_open() or hud.is_banner_showing() or act_card.visible or curse_card.visible
+	tutorial.hint_shown.connect(func(_hint: HintDef) -> void: hint_box.lowered = hud.is_boss_bar_showing())
+	add_child(tutorial)
+	var layer := CanvasLayer.new()
+	layer.name = "Hints"
+	layer.layer = 6  # above the HUD (5), under the menus (10)
+	add_child(layer)
+	hint_box.name = "HintBox"
+	hint_box.dismissed.connect(tutorial.dismiss)
+	layer.add_child(hint_box)
 
 
 ## The daily run's weapon and relic (the same for everyone that day).
@@ -276,6 +299,7 @@ func open_inventory() -> void:
 	if _can_open_menu():
 		_set_paused(true)
 		inventory_panel.open(player)
+		tutorial.action(&"opened_bag")
 
 
 ## Dev tools (debug builds only).
@@ -358,6 +382,11 @@ func _enter_floor(resumed: bool = false) -> void:
 	Events.depth_changed.emit(depth)
 	hud.set_souls(run_souls())
 	_announce_floor()
+	tutorial.cue(&"floor_start")
+	if world.curse:
+		tutorial.cue(&"cursed_floor")
+	if world.floor_event:
+		tutorial.cue(&"event_floor")
 
 
 ## The log (and banners when the cards are off): the act, the floor's event or curse, the goal.
@@ -557,6 +586,7 @@ func _on_perk_chosen(perk: PerkDef) -> void:
 	player.perks.add(perk)
 	Events.log_message("%s (level %d)" % [perk.display_name, player.perks.stacks_of(perk)], perk.color)
 	Vfx.sparkles(world, player.global_position, perk.color)
+	tutorial.cue(&"perk_chosen")
 	_on_menu_closed()
 
 

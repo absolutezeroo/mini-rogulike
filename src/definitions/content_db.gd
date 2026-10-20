@@ -45,6 +45,8 @@ extends Resource
 @export var item_affixes: Array[ItemAffixDef] = []
 ## Rune stones (RuneDef): dropped by elites and bosses, found in chests, set at the forge.
 @export var runes: Array[RuneDef] = []
+## The first steps and the hints of the tutorial.
+@export var tutorial: TutorialDef
 
 
 ## A monster of the act holding `depth`, by spawn weight, from its `min_depth` on.

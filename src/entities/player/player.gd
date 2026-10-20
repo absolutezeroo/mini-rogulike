@@ -13,6 +13,10 @@ signal skills_changed
 signal gold_changed(gold: int)
 ## A potion (or another consumable) was used, from the bag or the belt.
 signal consumable_used(item: ItemDef)
+## A swing or a shot of the weapon (the tutorial listens).
+signal attacked
+## A skill button worked (index: Player slot, 0 the roll).
+signal skill_used(index: int)
 
 const HIT_INVULNERABILITY := 0.6
 const AIM_HOLD_TIME := 0.35         ## Keep facing the aim direction this long after attacking.
@@ -93,7 +97,8 @@ func _think(delta: float) -> void:
 	_update_footsteps(delta)
 
 	if Input.is_action_pressed("attack") and can_attack():
-		attack(get_aim_direction(_auto_aim_range()))
+		if attack(get_aim_direction(_auto_aim_range())):
+			attacked.emit()
 		_aim_hold = AIM_HOLD_TIME
 
 	for i in mini(skills.skills.size(), SKILL_COUNT):
@@ -167,6 +172,7 @@ func use_skill(index: int) -> void:
 	if skills.try_use(index, self, aim):
 		facing = aim
 		_aim_hold = AIM_HOLD_TIME
+		skill_used.emit(index)
 
 
 # --- Skills ------------------------------------------------------------------
