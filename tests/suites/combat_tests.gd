@@ -338,6 +338,16 @@ func _test_synergies_in_game(game: Game, world: World, player: Player) -> void:
 	check(uses == 2, "Echo: a 100% echo gives one free cast, not a loop (%d casts)" % uses)
 	player.perks.clear()
 
+	# Healing spells heal in full outside a boss fight, and half during one.
+	for id in ["holy_light", "holy_shield", "smite"]:
+		var spell: SkillDef = load("res://data/skills/player/%s.tres" % id)
+		for effect in spell.effects:
+			if effect is HealEffect:
+				var heal := effect as HealEffect
+				check(heal.boss_fight_ratio <= 0.5 and not world.is_boss_fight()
+					and heal.heal_amount(player) == heal.amount + roundi(player.get_max_hp() * heal.max_hp_ratio),
+					"%s heals in full outside a boss fight, half during one" % id)
+
 	# Arcane: using a skill fires a ring of bolts.
 	for id in ["arcane_focus", "arcane_power", "devotion"]:
 		player.perks.add(_perk(id))

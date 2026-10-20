@@ -646,7 +646,7 @@ The hero has **4 skill buttons**:
 | Duelist | Rapier (fast, crits) | Riposte (leap back, then crits and speed), Piercing Thrust |
 | Archer | Bow (arrows pierce one enemy) | Volley (5 arrows), Arrow Rain (4 hits on an area ahead) |
 | Mage | Spark Wand, Frost Staff, Ember Tome | Spark Nova, Arcane Bolt, Frost Nova (slow), Ice Shards (slow), Fireball, Fire Wave (burn) |
-| Paladin | Templar Sword | Smite (damage + heal), Holy Shield (DEF + heal) |
+| Paladin | Templar Sword | Smite (damage + heal), Holy Shield (Armor + heal; both heal half during a boss fight) |
 
 The weapon in the hero's hand is animated frame by frame with the attack. For weapons without a
 hand-drawn sheet, the sheet is baked from the item sprite rotated around its handle (a swing,

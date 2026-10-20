@@ -21,13 +21,14 @@ color = Color(1, 0.81960785, 0.4, 1)
 [sub_resource type="Resource" id="Resource_mh2mi"]
 script = ExtResource("4_wi1md")
 amount = 0
-max_hp_ratio = 0.1
+max_hp_ratio = 0.08
+boss_fight_ratio = 0.5
 
 [resource]
 script = ExtResource("6_yxu1e")
 id = &"holy_shield"
 display_name = "Holy Shield"
-description = "+6 DEF for 5 s and heals 10% of your HP."
+description = "+6 Armor for 5 s and heals 8% of your Health (half during a boss fight)."
 short_label = "GUARD"
 icon = ExtResource("5_63te0")
 color = Color(1, 0.81960785, 0.4, 1)
