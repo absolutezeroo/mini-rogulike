@@ -23,3 +23,6 @@ decor_chance = 0.0
 wall_atlas = ExtResource("7_7i6l2")
 wall_top_color = Color(1, 0.79607844, 0.5529412, 1)
 props_atlas = ExtResource("5_6ap7k")
+mist_deep = Color(0.07, 0.06, 0.04, 1)
+mist_wisp = Color(0.72, 0.66, 0.5, 1)
+mist_density = 0.85

@@ -50,6 +50,13 @@ extends Resource
 ## Cliff face only one cell wide.
 @export var face_single: int = 148
 
+@export_group("Mist")
+## The mist over the plateau above the walls (PlateauMist): its dark depths, its lighter wisps,
+## and how thick it gets (0: none, the plateau's flat color).
+@export var mist_deep: Color = Color(0.08, 0.06, 0.12)
+@export var mist_wisp: Color = Color(0.55, 0.55, 0.65)
+@export_range(0.0, 1.0) var mist_density: float = 0.85
+
 @export_group("Objects")
 ## 16x16 sheet holding the stairs and the gate spikes.
 @export var props_atlas: Texture2D

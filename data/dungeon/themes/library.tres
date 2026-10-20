@@ -42,3 +42,6 @@ face = 45
 face_right = 46
 face_single = 48
 props_atlas = ExtResource("5_chvqj")
+mist_deep = Color(0.08, 0.05, 0.04, 1)
+mist_wisp = Color(0.62, 0.52, 0.42, 1)
+mist_density = 0.88

@@ -22,6 +22,7 @@ func run() -> void:
 	_test_profile()
 	_test_run_time()
 	_test_floor_size()
+	_test_plateau_mist()
 
 
 ## Speedrun times: how they read, the splits, the save, the records.
@@ -505,7 +506,11 @@ func _test_lighting() -> void:
 	check(at.call(2, 2) == 15 and at.call(3, 2) == 14 and at.call(4, 2) == 13, "a lamp: 15 on its tile, then 14, 13...")
 	check(at.call(1, 2) == 14 and at.call(2, 1) == 14 and at.call(2, 3) == 14, "...the same on every side")
 	check(at.call(2, 0) == 13, "the cliff face above catches the light")
-	check(at.call(5, 2) == 3 and at.call(6, 2) == 3, "the plateau stays in the floor's own light")
+	var mist_near: int = at.call(5, 2)
+	var mist_far: int = at.call(6, 2)
+	check(mist_near > 3 and mist_near < at.call(4, 2), "the mist over the wall catches the lamp's light (%d)" % mist_near)
+	check(mist_far <= mist_near - 2, "and it fades twice as fast in the mist (%d, then %d)" % [mist_near, mist_far])
+	check(at.call(8, 2) < at.call(8, 4) or at.call(8, 2) == 3, "no light through the mist into the next room (%d)" % at.call(8, 2))
 	var behind: int = at.call(9, 2)
 	check(behind > 3 and behind < 15 - 7, "around the corner, but weaker than straight through (%d)" % behind)
 	check(field.color_at(map.cell_to_world(Vector2i(2, 2))) == lighting.color_of(15), "each level has its color")
@@ -925,4 +930,25 @@ func _test_floor_size() -> void:
 		last_rooms = rooms
 	check(CONTENT.get_difficulty(&"nightmare").rooms > CONTENT.get_difficulty(&"easy").rooms, "Nightmare has more rooms than Easy")
 	check(config.max_monsters_per_floor >= 60, "a floor may hold many monsters, with a cap for the phone")
+
+
+## The plateau's mist: none on the floor and the cliff faces, thin at the rim, thick further in.
+func _test_plateau_mist() -> void:
+	var map := DungeonMap.new(12, 12, 32)
+	for y in range(4, 8):
+		for x in range(4, 8):
+			map.set_floor(Vector2i(x, y))
+	var margin := 3
+	var image := PlateauMist.mask_image(map, margin)
+	var at := func(x: int, y: int) -> float: return image.get_pixel(x + margin, y + margin).r
+	check(image.get_size() == Vector2i(18, 18), "the mask covers the map and its margin")
+	check(at.call(5, 5) < 0.01, "no mist on the floor")
+	check(at.call(5, 3) < 0.01, "nor on a cliff face (the wall above the floor)")
+	check(at.call(5, 2) > 0.1 and at.call(5, 2) < 0.5, "thin at the rim (%.2f)" % at.call(5, 2))
+	check(at.call(0, 0) > 0.95 and image.get_pixel(0, 0).r > 0.95, "thick deep in the plateau and all around the map")
+	for theme_path in DirAccess.get_files_at("res://data/dungeon/themes"):
+		if not theme_path.ends_with(".tres"):
+			continue
+		var theme: DungeonTheme = load("res://data/dungeon/themes/" + theme_path)
+		check(theme.mist_density > 0.3 and theme.mist_density <= 1.0 and theme.mist_wisp.get_luminance() > theme.mist_deep.get_luminance(), "%s has its mist (darker depths, lighter wisps)" % theme_path)
 

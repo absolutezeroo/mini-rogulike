@@ -9,6 +9,7 @@ extends Node2D
 ## The map is drawn in square chunks, each its own canvas item: the ones off screen are skipped
 ## by the renderer (a single item for the whole map was drawn whole every frame). Inside a chunk,
 ## tiles go by texture (floor, decor, shadows, walls) so they batch into a few draw calls.
+## Over it all, the plateau's mist (PlateauMist).
 
 const OUTSIDE_MARGIN := 24  # tiles of plateau color drawn around the map
 ## Cells on a chunk's side.
@@ -17,6 +18,8 @@ const CHUNK := 8
 var _map: DungeonMap
 var _theme: DungeonTheme
 var _chunks: Array[Chunk] = []
+## Over the chunks: the mist on the plateau.
+var mist := PlateauMist.new()
 
 
 ## One square of the map, drawn by the view.
@@ -44,6 +47,11 @@ func show_map(map: DungeonMap, theme: DungeonTheme) -> void:
 			chunk.name = "Chunk_%d_%d" % [x / CHUNK, y / CHUNK]
 			add_child(chunk)
 			_chunks.append(chunk)
+	if mist.get_parent() == null:
+		mist.name = "Mist"
+		add_child(mist)
+	move_child(mist, -1)
+	mist.setup(map, theme, OUTSIDE_MARGIN)
 	queue_redraw()
 
 

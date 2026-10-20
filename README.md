@@ -117,6 +117,14 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 - **Drawing the floor**: `DungeonView` draws the map in 8x8-cell chunks, each its own canvas item,
   so the renderer skips the ones off screen; inside a chunk, tiles go texture by texture to batch.
   About 90 draw calls whatever the floor's size (it was ~1500 on a big floor).
+- **Mist over the walls** (`PlateauMist`, `plateau_mist.gdshader`): the plateau above the cliffs
+  (and all around the map) is covered by a slow mist, dark with lighter wisps drifting two ways,
+  in flat dithered bands like the light. Thin at the rim so the cliff's edge stays readable,
+  thick two cells in. One sprite whose texture is the mask (a pixel per cell); colors and
+  thickness per theme (`DungeonTheme` > Mist).
+  The light goes with it: a lamp by a wall glows into the mist over the rim, losing two levels
+  a tile instead of one, and light that went into the mist never comes out the other side (no
+  light through the walls). Moving lights (the torch, shots) do the same in the light shader.
 - **Game** offers the perk choices (pausing the game) and reacts to boss fights through `Events`.
 - **UI** listens to signals (`Events`, Player signals) and never drives gameplay directly.
   Touch controls only press input actions, so keyboard, gamepad and touch share one code path.
@@ -362,8 +370,8 @@ The project keeps its name "Mini Roguelike" so saves stay where they are (`user:
 
 Light comes in levels, from 0 (pitch dark) to 15 (full light), like in block games: a lantern of
 level 13 lights its tile 13, the next tiles 12, then 11... (`LightField`, `src/world/lighting/`).
-It spreads around corners but walls stop it; cliff faces catch it, the plateau above stays in the
-floor's own light. Each level is one flat band of color, and the color changes as the light fades
+It spreads around corners but walls stop it; cliff faces catch it, and the mist on the plateau
+above glows near the lamps, fading twice as fast (see Mist over the walls). Each level is one flat band of color, and the color changes as the light fades
 (warm by the flame, dusky further out, cold in the dark).
 
 - **Lights** are `LightSource` nodes (`color`, `level`): lanterns and furniture (`PropDef.light_level`),

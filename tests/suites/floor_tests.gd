@@ -1428,6 +1428,8 @@ func _test_floor_size(game: Game) -> void:
 	check(world.seal.needed == config.seal_max, "the seal asks for its most, no more (%d)" % world.seal.needed)
 	var chunks := ceili(world.map.width / float(DungeonView.CHUNK)) * ceili(world.map.height / float(DungeonView.CHUNK))
 	check(world._view.chunk_count() == chunks, "the map is drawn in chunks the renderer can skip (%d)" % world._view.chunk_count())
+	var mist := world._view.mist
+	check(mist.visible and mist.get_index() == world._view.get_child_count() - 1 and mist.texture.get_width() == world.map.width + DungeonView.OUTSIDE_MARGIN * 2, "the mist lies over the whole map, above its chunks")
 	world.build_floor(9, CONTENT)
 	check(world.arena != null and world.map.width == config.width, "boss floors keep their size")
 	world.difficulty = before

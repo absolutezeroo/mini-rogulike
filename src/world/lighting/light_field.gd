@@ -3,8 +3,9 @@ extends Node2D
 ## The floor's light, in steps like the art: every half tile has a light level from 0 to 15,
 ## and each level is one flat band of color (LightingDef.ramp: the color changes as the light
 ## fades). A lamp of level 12 lights its tile 12, the next tiles 11, then 10... It spreads
-## around corners but walls stop it. Cliff faces catch it (their whole tile); the plateau above
-## stays in the floor's own light (`ambient_level`), like everything away from the lamps.
+## around corners but walls stop it. Cliff faces catch it (their whole tile). The plateau above is
+## covered in mist (PlateauMist): a lamp by a wall glows into it, fading twice as fast (two levels
+## a tile), and light that went into the mist never comes out on the other side.
 ##
 ## Lights are LightSources. Those that stay put are spread once (and again when one appears,
 ## goes out or changes); moving ones (the hero's torch, glowing shots, flashes) are added every
@@ -15,13 +16,16 @@ const MAX_LEVEL := 15
 ## What each cell is, for the light.
 const OPEN := 0
 const FACE := 1  ## a cliff face (two tiles high): catches the light, doesn't pass it on
-const SOLID := 2  ## the plateau: in the floor's own light, always
+const SOLID := 2  ## the plateau, in its mist: lit only from the edge, fading fast
 ## Cells per tile, each way.
 const CELLS := 2
 ## Cost of a step to the side, and diagonally; one level is lost every STEP (one tile).
 const SIDE := 2
 const DIAGONAL := 3
 const STEP := SIDE * CELLS
+## In the mist: a level lost every half tile.
+const MIST_SIDE := SIDE * 2
+const MIST_DIAGONAL := DIAGONAL * 2
 ## Moving lights drawn at once (the nearest to the hero).
 const MAX_MOVING := 24
 ## Over the floor, whoever walks on it and their hits' sparks below 5 (those shine on their own).
@@ -124,8 +128,6 @@ func level_at(point: Vector2) -> int:
 	if _revision != LightSource.revision:
 		_bake()
 	var best := maxi(ambient_level, _levels[_index(cell)])
-	if _walls[_index(cell)] == SOLID:
-		return best
 	for source in _moving_lights(point):
 		best = maxi(best, _moving_level(source, cell))
 	return best
@@ -207,8 +209,10 @@ func _bake() -> void:
 ## Spreads all the lights at once, brightest first (each cell is settled once): a cell's value
 ## is its best lamp's level x STEP minus the cost of the way there, so it loses one level per
 ## tile, goes around corners, never through a wall nor between two walls touching by a corner.
-## A cliff face catches the light on its whole tile. A cell takes the color of its best lamp.
-## It stops where it gets no brighter than the floor's own light.
+## A cliff face catches the light on its whole tile. The mist on the plateau takes it in from the
+## floor or a face, fading twice as fast, and never gives it back (no light through the walls
+## into the next room). A cell takes the color of its best lamp. It stops where it gets no
+## brighter than the floor's own light.
 func _spread(buckets: Array[Array]) -> void:
 	var width := _size.x
 	var lit_min := (ambient_level + 1) * STEP
@@ -221,24 +225,42 @@ func _spread(buckets: Array[Array]) -> void:
 			_tints[index * 4 + 3] = level * 17
 			var x := index % width
 			var y := index / width
-			var in_wall := _walls[index] != OPEN and _starts[index] == 0
+			var kind := _walls[index]
+			var in_wall := kind != OPEN and _starts[index] == 0
 			for step in NEIGHBOURS:
-				var next_value := value - step.z
-				if next_value < lit_min:
-					continue
 				var nx := x + step.x
 				var ny := y + step.y
 				if nx < 0 or ny < 0 or nx >= width or ny >= _size.y:
 					continue
+				var next := ny * width + nx
+				var next_kind := _walls[next]
+				if next_kind == SOLID:
+					# Into the mist (or on through it): from anywhere, fading fast; diagonally
+					# only through mist.
+					if step.z == DIAGONAL and (_walls[y * width + nx] != SOLID or _walls[ny * width + x] != SOLID):
+						continue
+					var mist_value := value - (MIST_DIAGONAL if step.z == DIAGONAL else MIST_SIDE)
+					if mist_value < lit_min or _value[next] >= mist_value:
+						continue
+					_value[next] = mist_value
+					_tints[next * 4] = _tints[index * 4]
+					_tints[next * 4 + 1] = _tints[index * 4 + 1]
+					_tints[next * 4 + 2] = _tints[index * 4 + 2]
+					buckets[mist_value].append(next)
+					continue
+				if kind == SOLID and _starts[index] == 0:
+					continue  # the mist never gives light back
+				var next_value := value - step.z
+				if next_value < lit_min:
+					continue
 				# In a wall: only on through its own tile, or up the cliff face it belongs to.
 				if in_wall and nx / CELLS != x / CELLS:
 					continue
-				if in_wall and ny / CELLS != y / CELLS and (step.x != 0 or _walls[ny * width + nx] != FACE):
+				if in_wall and ny / CELLS != y / CELLS and (step.x != 0 or next_kind != FACE):
 					continue
 				if step.z == DIAGONAL and (_walls[y * width + nx] != OPEN or _walls[ny * width + x] != OPEN):
 					continue
-				var next := ny * width + nx
-				if _walls[next] == SOLID or _value[next] >= next_value:
+				if _value[next] >= next_value:
 					continue
 				_value[next] = next_value
 				_tints[next * 4] = _tints[index * 4]
@@ -272,6 +294,20 @@ func _moving_level(source: LightSource, cell: Vector2i) -> int:
 		return 0
 	var d := at - to
 	var steps := ceili(maxf(absf(d.x), absf(d.y)))
+	if _in_grid(cell) and _walls[_index(cell)] == SOLID:
+		# Into the mist: over the floor and the faces, then the mist (never out of it and in
+		# again: that is through a wall), a level more lost every mist tile.
+		var misty := 1
+		var entered := false
+		for k in range(steps - 1, 0, -1):
+			var p := Vector2i((to + d * (float(k) / steps)).floor())
+			var kind := _walls[_index(p)] if _in_grid(p) else SOLID
+			if kind == SOLID:
+				entered = true
+				misty += 1
+			elif entered:
+				return 0
+		return maxi(lit - floori(misty * 0.5), 0)
 	for k in range(1, steps):
 		var p := Vector2i((to + d * (float(k) / steps)).floor())
 		if _in_grid(p) and _walls[_index(p)] != OPEN and not _same_face(p, cell):
