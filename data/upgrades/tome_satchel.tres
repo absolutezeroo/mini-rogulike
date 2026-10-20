@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UpgradeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/upgrade_def.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/items/tome_war.png" id="2"]
+[ext_resource type="Script" path="res://src/definitions/items/item_def.gd" id="4"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_fire.tres" id="i0"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_frost.tres" id="i1"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_healing.tres" id="i2"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_thunder.tres" id="i3"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_war.tres" id="i4"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_wind.tres" id="i5"]
+
+[resource]
+script = ExtResource("1")
+id = &"tome_satchel"
+display_name = "Satchel of Tomes"
+description = "Start every run with a spell tome, at random among those the dungeon holds."
+icon = ExtResource("2")
+color = Color(0.7, 0.55, 1, 1)
+kind = 7
+cost = 350
+items = Array[ExtResource("4")]([ExtResource("i0"), ExtResource("i1"), ExtResource("i2"), ExtResource("i3"), ExtResource("i4"), ExtResource("i5")])

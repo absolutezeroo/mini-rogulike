@@ -77,15 +77,52 @@ func _test_title_screen() -> void:
 	(title.get_node("%ShrineButton") as Button).pressed.emit()
 	await _frames(2)
 	var shrine: ShrinePanel = title.get_node("%ShrinePanel")
-	var rows: VBoxContainer = title.get_node("%Rows")
-	check(shrine.visible and shrine.rows().size() == CONTENT.upgrades.size(), "the shrine lists every upgrade")
-	check(rows.get_children().filter(func(n: Node) -> bool: return not n is UpgradeRow).size() >= 3, "...grouped under headings")
-	var first: UpgradeRow = shrine.rows()[0]
-	(first.get_node("%BuyButton") as Button).pressed.emit()
+	var view: SoulTreeView = title.get_node("%TreeView")
+	check(shrine.visible and view.buttons().size() == CONTENT.soul_tree.nodes.size(), "the shrine shows every node of the Tree of Souls")
+	var vitality_node := CONTENT.soul_tree.find(&"vitality")
+	view.button_of(vitality_node).pressed.emit()
 	await _frames(1)
-	check(Profile.level_of(first.upgrade) == 1 and Profile.souls < 500, "buying at the shrine")
+	check(shrine.picked() == vitality_node, "tapping a node picks it")
+	(title.get_node("%BuyButton") as Button).pressed.emit()
+	await _frames(1)
+	check(Profile.level_of(vitality_node.upgrade) == 1 and Profile.souls < 500, "buying at the shrine")
 	check((title.get_node("%Souls") as Label).text.contains(str(Profile.souls)), "the shrine shows the souls left")
+	var fork := CONTENT.soul_tree.find(&"toughness")
+	shrine.pick(fork)
+	check(shrine.buy_picked() and fork.partner().is_shut() and not Profile.can_buy_node(fork.partner()), "a fork: taking one side shuts the other")
+	var spent := CONTENT.soul_tree.spent()
+	var before := Profile.souls
+	(title.get_node("%ResetButton") as Button).pressed.emit()
+	await _frames(1)
+	check(Profile.souls == before + spent and CONTENT.soul_tree.spent() == 0 and not fork.partner().is_shut(), "resetting the tree gives every soul back (%d)" % spent)
+	Profile.buy_node(vitality_node)
 	_test_shrine_words(shrine)
+	# Before the descent: the oaths the tree opened, and the Armory's weapon.
+	var saved_levels := Profile.levels.duplicate()
+	check(not OathPanel.has_choices(CONTENT) or Profile.levels.has("armory"), "nothing to swear before the tree opens it")
+	Profile.levels["oath_colossus"] = 1
+	Profile.levels["armory"] = 1
+	check(OathPanel.has_choices(CONTENT), "an oath bought: something to choose before a run")
+	var oaths: OathPanel = title.oath_panel
+	oaths.open(CONTENT)
+	await _frames(1)
+	var oath_cards: HBoxContainer = oaths.get_node("%OathCards")
+	var order := CONTENT.soul_tree.oaths()
+	check(oaths.visible and oath_cards.get_child_count() == order.size() + 1, "a card per oath, and No oath")
+	var colossus_index := order.find(CONTENT.soul_tree.find(&"oath_colossus").oath) + 1
+	check(not (oath_cards.get_child(colossus_index) as Button).disabled and order.size() == 4 and oath_cards.get_children().filter(func(c: Node) -> bool: return (c as Button).disabled).size() == 3, "the oath bought is open, the others locked")
+	(oath_cards.get_child(colossus_index) as Button).pressed.emit()
+	await _frames(1)
+	check(Profile.oath == &"colossus" and Game.sworn_oath(CONTENT) != null, "tapping a card swears the oath")
+	var weapon_row: HBoxContainer = oaths.get_node("%WeaponRow")
+	check(weapon_row.is_visible_in_tree() and weapon_row.get_child_count() == OathPanel.weapons(CONTENT).size(), "the Armory: a slot per weapon the dungeon holds")
+	(weapon_row.get_child(0) as ItemSlot).pressed.emit()
+	await _frames(1)
+	check(Profile.starting_weapon == OathPanel.weapons(CONTENT)[0].id and Game.picked_weapon(CONTENT) == OathPanel.weapons(CONTENT)[0], "tapping a weapon picks it")
+	oaths.hide()
+	Profile.levels = saved_levels
+	Profile.oath = &""
+	Profile.starting_weapon = &""
 	_test_difficulty_words()
 	await _test_options_screen(title)
 	# The codex: bestiary, achievements, runs.
@@ -175,8 +212,9 @@ func _test_shrine_words(shrine: ShrinePanel) -> void:
 	check(UpgradeRow.status_text(vitality, 5).contains("maxed"), "shrine: maxed")
 	var unlock: UpgradeDef = load("res://data/upgrades/pyromancy.tres")
 	check(UpgradeRow.level_text(unlock, 0) == "Locked" and UpgradeRow.level_text(unlock, 1) == "Unlocked", "shrine: unlocks say locked / unlocked")
-	var row: UpgradeRow = shrine.rows().filter(func(r: UpgradeRow) -> bool: return r.upgrade == vitality)[0]
-	var buy: Button = row.get_node("%BuyButton")
+	var node := CONTENT.soul_tree.find(&"vitality")
+	shrine.pick(node)
+	var buy: Button = shrine.get_node("%BuyButton") if shrine.has_node("%BuyButton") else shrine.owner.get_node("%BuyButton")
 	var souls := Profile.souls
 	Profile.souls = 0
 	Profile.changed.emit()
@@ -184,6 +222,9 @@ func _test_shrine_words(shrine: ShrinePanel) -> void:
 	Profile.levels[String(vitality.id)] = vitality.max_level
 	Profile.changed.emit()
 	check(buy.disabled and buy.text == "Maxed", "shrine: a maxed upgrade says so")
+	var locked := CONTENT.soul_tree.find(&"armory")
+	shrine.pick(locked)
+	check(buy.disabled and buy.text == "Locked" and locked.blocker().begins_with("Needs"), "shrine: a node whose parents aren't bought says what it needs (%s)" % locked.blocker())
 	Profile.levels.erase(String(vitality.id))
 	Profile.souls = souls
 	Profile.changed.emit()

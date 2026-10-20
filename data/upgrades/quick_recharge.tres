@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UpgradeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/upgrade_def.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/ui/perks/echo.png" id="2"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="3"]
+
+[sub_resource type="Resource" id="bonus"]
+script = ExtResource("3")
+cooldown_reduction = 0.04
+
+[resource]
+script = ExtResource("1")
+id = &"quick_recharge"
+display_name = "Quick Recharge"
+description = "Skills recharge 4% faster per level, in every run."
+icon = ExtResource("2")
+color = Color(0.6, 0.7, 1, 1)
+kind = 0
+max_level = 3
+cost = 60
+cost_growth = 60
+bonuses = SubResource("bonus")

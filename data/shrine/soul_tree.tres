@@ -1,0 +1,250 @@
+[gd_resource type="Resource" script_class="SoulTreeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/soul_tree/soul_tree_def.gd" id="tree"]
+[ext_resource type="Script" path="res://src/definitions/soul_tree/soul_node_def.gd" id="node"]
+[ext_resource type="Resource" path="res://data/upgrades/vitality.tres" id="u_vitality"]
+[ext_resource type="Resource" path="res://data/upgrades/toughness.tres" id="u_toughness"]
+[ext_resource type="Resource" path="res://data/upgrades/regeneration.tres" id="u_regeneration"]
+[ext_resource type="Resource" path="res://data/upgrades/provisions.tres" id="u_provisions"]
+[ext_resource type="Resource" path="res://data/upgrades/second_chance.tres" id="u_second_chance"]
+[ext_resource type="Resource" path="res://data/upgrades/blood_pact.tres" id="u_blood_pact"]
+[ext_resource type="Resource" path="res://data/upgrades/oath_colossus.tres" id="u_oath_colossus"]
+[ext_resource type="Resource" path="res://data/upgrades/might.tres" id="u_might"]
+[ext_resource type="Resource" path="res://data/upgrades/precision_training.tres" id="u_precision_training"]
+[ext_resource type="Resource" path="res://data/upgrades/fury_training.tres" id="u_fury_training"]
+[ext_resource type="Resource" path="res://data/upgrades/armory.tres" id="u_armory"]
+[ext_resource type="Resource" path="res://data/upgrades/trophy_hunter.tres" id="u_trophy_hunter"]
+[ext_resource type="Resource" path="res://data/upgrades/oath_duelist.tres" id="u_oath_duelist"]
+[ext_resource type="Resource" path="res://data/upgrades/arcane_talent.tres" id="u_arcane_talent"]
+[ext_resource type="Resource" path="res://data/upgrades/pyromancy.tres" id="u_pyromancy"]
+[ext_resource type="Resource" path="res://data/upgrades/paladin_oath.tres" id="u_paladin_oath"]
+[ext_resource type="Resource" path="res://data/upgrades/forbidden_library.tres" id="u_forbidden_library"]
+[ext_resource type="Resource" path="res://data/upgrades/tome_satchel.tres" id="u_tome_satchel"]
+[ext_resource type="Resource" path="res://data/upgrades/quick_recharge.tres" id="u_quick_recharge"]
+[ext_resource type="Resource" path="res://data/upgrades/oath_scholar.tres" id="u_oath_scholar"]
+[ext_resource type="Resource" path="res://data/upgrades/loaded_dice.tres" id="u_loaded_dice"]
+[ext_resource type="Resource" path="res://data/upgrades/swiftness.tres" id="u_swiftness"]
+[ext_resource type="Resource" path="res://data/upgrades/exile.tres" id="u_exile"]
+[ext_resource type="Resource" path="res://data/upgrades/haggler.tres" id="u_haggler"]
+[ext_resource type="Resource" path="res://data/upgrades/full_stalls.tres" id="u_full_stalls"]
+[ext_resource type="Resource" path="res://data/upgrades/master_smith.tres" id="u_master_smith"]
+[ext_resource type="Resource" path="res://data/upgrades/cartographer.tres" id="u_cartographer"]
+[ext_resource type="Resource" path="res://data/upgrades/oath_plunderer.tres" id="u_oath_plunderer"]
+[ext_resource type="Resource" path="res://data/achievements/elite_hunter.tres" id="a_elite_hunter"]
+[ext_resource type="Resource" path="res://data/achievements/into_the_dark.tres" id="a_into_the_dark"]
+[ext_resource type="Resource" path="res://data/achievements/naturalist.tres" id="a_naturalist"]
+[ext_resource type="Resource" path="res://data/achievements/treasure_hunter.tres" id="a_treasure_hunter"]
+[ext_resource type="Resource" path="res://data/achievements/veteran.tres" id="a_veteran"]
+[ext_resource type="Resource" path="res://data/achievements/warden_slayer.tres" id="a_warden_slayer"]
+[ext_resource type="Resource" path="res://data/oaths/colossus.tres" id="o_colossus"]
+[ext_resource type="Resource" path="res://data/oaths/duelist.tres" id="o_duelist"]
+[ext_resource type="Resource" path="res://data/oaths/plunderer.tres" id="o_plunderer"]
+[ext_resource type="Resource" path="res://data/oaths/scholar.tres" id="o_scholar"]
+
+[sub_resource type="Resource" id="n_vitality"]
+script = ExtResource("node")
+cell = Vector2i(1, 0)
+upgrade = ExtResource("u_vitality")
+
+[sub_resource type="Resource" id="n_toughness"]
+script = ExtResource("node")
+cell = Vector2i(0, 1)
+upgrade = ExtResource("u_toughness")
+requires = Array[ExtResource("node")]([SubResource("n_vitality")])
+
+[sub_resource type="Resource" id="n_regeneration"]
+script = ExtResource("node")
+cell = Vector2i(2, 1)
+upgrade = ExtResource("u_regeneration")
+requires = Array[ExtResource("node")]([SubResource("n_vitality")])
+excludes = SubResource("n_toughness")
+
+[sub_resource type="Resource" id="n_provisions"]
+script = ExtResource("node")
+cell = Vector2i(1, 2)
+upgrade = ExtResource("u_provisions")
+requires = Array[ExtResource("node")]([SubResource("n_toughness"), SubResource("n_regeneration")])
+
+[sub_resource type="Resource" id="n_second_chance"]
+script = ExtResource("node")
+cell = Vector2i(0, 3)
+upgrade = ExtResource("u_second_chance")
+requires = Array[ExtResource("node")]([SubResource("n_provisions")])
+
+[sub_resource type="Resource" id="n_blood_pact"]
+script = ExtResource("node")
+cell = Vector2i(2, 3)
+upgrade = ExtResource("u_blood_pact")
+requires = Array[ExtResource("node")]([SubResource("n_provisions")])
+excludes = SubResource("n_second_chance")
+
+[sub_resource type="Resource" id="n_oath_colossus"]
+script = ExtResource("node")
+cell = Vector2i(1, 4)
+upgrade = ExtResource("u_oath_colossus")
+requires = Array[ExtResource("node")]([SubResource("n_second_chance"), SubResource("n_blood_pact")])
+feat = ExtResource("a_warden_slayer")
+oath = ExtResource("o_colossus")
+
+[sub_resource type="Resource" id="n_might"]
+script = ExtResource("node")
+cell = Vector2i(4, 0)
+branch = 1
+upgrade = ExtResource("u_might")
+
+[sub_resource type="Resource" id="n_precision_training"]
+script = ExtResource("node")
+cell = Vector2i(3, 1)
+branch = 1
+upgrade = ExtResource("u_precision_training")
+requires = Array[ExtResource("node")]([SubResource("n_might")])
+
+[sub_resource type="Resource" id="n_fury_training"]
+script = ExtResource("node")
+cell = Vector2i(5, 1)
+branch = 1
+upgrade = ExtResource("u_fury_training")
+requires = Array[ExtResource("node")]([SubResource("n_might")])
+excludes = SubResource("n_precision_training")
+
+[sub_resource type="Resource" id="n_armory"]
+script = ExtResource("node")
+cell = Vector2i(4, 2)
+branch = 1
+upgrade = ExtResource("u_armory")
+requires = Array[ExtResource("node")]([SubResource("n_precision_training"), SubResource("n_fury_training")])
+
+[sub_resource type="Resource" id="n_trophy_hunter"]
+script = ExtResource("node")
+cell = Vector2i(4, 3)
+branch = 1
+upgrade = ExtResource("u_trophy_hunter")
+requires = Array[ExtResource("node")]([SubResource("n_armory")])
+feat = ExtResource("a_elite_hunter")
+
+[sub_resource type="Resource" id="n_oath_duelist"]
+script = ExtResource("node")
+cell = Vector2i(4, 4)
+branch = 1
+upgrade = ExtResource("u_oath_duelist")
+requires = Array[ExtResource("node")]([SubResource("n_trophy_hunter")])
+feat = ExtResource("a_veteran")
+oath = ExtResource("o_duelist")
+
+[sub_resource type="Resource" id="n_arcane_talent"]
+script = ExtResource("node")
+cell = Vector2i(7, 0)
+branch = 2
+upgrade = ExtResource("u_arcane_talent")
+
+[sub_resource type="Resource" id="n_pyromancy"]
+script = ExtResource("node")
+cell = Vector2i(6, 1)
+branch = 2
+upgrade = ExtResource("u_pyromancy")
+requires = Array[ExtResource("node")]([SubResource("n_arcane_talent")])
+
+[sub_resource type="Resource" id="n_paladin_oath"]
+script = ExtResource("node")
+cell = Vector2i(8, 1)
+branch = 2
+upgrade = ExtResource("u_paladin_oath")
+requires = Array[ExtResource("node")]([SubResource("n_arcane_talent")])
+
+[sub_resource type="Resource" id="n_forbidden_library"]
+script = ExtResource("node")
+cell = Vector2i(7, 2)
+branch = 2
+upgrade = ExtResource("u_forbidden_library")
+requires = Array[ExtResource("node")]([SubResource("n_pyromancy"), SubResource("n_paladin_oath")])
+
+[sub_resource type="Resource" id="n_tome_satchel"]
+script = ExtResource("node")
+cell = Vector2i(6, 3)
+branch = 2
+upgrade = ExtResource("u_tome_satchel")
+requires = Array[ExtResource("node")]([SubResource("n_forbidden_library")])
+
+[sub_resource type="Resource" id="n_quick_recharge"]
+script = ExtResource("node")
+cell = Vector2i(8, 3)
+branch = 2
+upgrade = ExtResource("u_quick_recharge")
+requires = Array[ExtResource("node")]([SubResource("n_forbidden_library")])
+excludes = SubResource("n_tome_satchel")
+
+[sub_resource type="Resource" id="n_oath_scholar"]
+script = ExtResource("node")
+cell = Vector2i(7, 4)
+branch = 2
+upgrade = ExtResource("u_oath_scholar")
+requires = Array[ExtResource("node")]([SubResource("n_tome_satchel"), SubResource("n_quick_recharge")])
+feat = ExtResource("a_naturalist")
+oath = ExtResource("o_scholar")
+
+[sub_resource type="Resource" id="n_loaded_dice"]
+script = ExtResource("node")
+cell = Vector2i(10, 0)
+branch = 3
+upgrade = ExtResource("u_loaded_dice")
+
+[sub_resource type="Resource" id="n_swiftness"]
+script = ExtResource("node")
+cell = Vector2i(9, 1)
+branch = 3
+upgrade = ExtResource("u_swiftness")
+requires = Array[ExtResource("node")]([SubResource("n_loaded_dice")])
+
+[sub_resource type="Resource" id="n_exile"]
+script = ExtResource("node")
+cell = Vector2i(11, 1)
+branch = 3
+upgrade = ExtResource("u_exile")
+requires = Array[ExtResource("node")]([SubResource("n_loaded_dice")])
+
+[sub_resource type="Resource" id="n_master_smith"]
+script = ExtResource("node")
+cell = Vector2i(9, 2)
+branch = 3
+upgrade = ExtResource("u_master_smith")
+requires = Array[ExtResource("node")]([SubResource("n_swiftness")])
+
+[sub_resource type="Resource" id="n_cartographer"]
+script = ExtResource("node")
+cell = Vector2i(11, 2)
+branch = 3
+upgrade = ExtResource("u_cartographer")
+requires = Array[ExtResource("node")]([SubResource("n_exile")])
+feat = ExtResource("a_into_the_dark")
+
+[sub_resource type="Resource" id="n_haggler"]
+script = ExtResource("node")
+cell = Vector2i(9, 3)
+branch = 3
+upgrade = ExtResource("u_haggler")
+requires = Array[ExtResource("node")]([SubResource("n_master_smith")])
+
+[sub_resource type="Resource" id="n_full_stalls"]
+script = ExtResource("node")
+cell = Vector2i(11, 3)
+branch = 3
+upgrade = ExtResource("u_full_stalls")
+requires = Array[ExtResource("node")]([SubResource("n_master_smith")])
+excludes = SubResource("n_haggler")
+
+[sub_resource type="Resource" id="n_oath_plunderer"]
+script = ExtResource("node")
+cell = Vector2i(10, 4)
+branch = 3
+upgrade = ExtResource("u_oath_plunderer")
+requires = Array[ExtResource("node")]([SubResource("n_haggler"), SubResource("n_full_stalls")])
+feat = ExtResource("a_treasure_hunter")
+oath = ExtResource("o_plunderer")
+
+[resource]
+script = ExtResource("tree")
+branches = PackedStringArray("Body", "Blade", "Arcana", "Fortune")
+branch_colors = PackedColorArray(0.95, 0.42, 0.38, 1, 1, 0.72, 0.3, 1, 0.72, 0.55, 1, 1, 0.55, 0.85, 0.5, 1)
+branch_texts = PackedStringArray("Health, Armor, healing: a hero who lasts.", "Damage, critical hits, speed: a hero who strikes.", "Skills, spells, tomes: a hero who casts.", "Gold, loot, the merchant, perk choices: a hero who finds.")
+nodes = Array[ExtResource("node")]([SubResource("n_vitality"), SubResource("n_toughness"), SubResource("n_regeneration"), SubResource("n_provisions"), SubResource("n_second_chance"), SubResource("n_blood_pact"), SubResource("n_oath_colossus"), SubResource("n_might"), SubResource("n_precision_training"), SubResource("n_fury_training"), SubResource("n_armory"), SubResource("n_trophy_hunter"), SubResource("n_oath_duelist"), SubResource("n_arcane_talent"), SubResource("n_pyromancy"), SubResource("n_paladin_oath"), SubResource("n_forbidden_library"), SubResource("n_tome_satchel"), SubResource("n_quick_recharge"), SubResource("n_oath_scholar"), SubResource("n_loaded_dice"), SubResource("n_swiftness"), SubResource("n_exile"), SubResource("n_master_smith"), SubResource("n_cartographer"), SubResource("n_haggler"), SubResource("n_full_stalls"), SubResource("n_oath_plunderer")])
+reset_cost = 0

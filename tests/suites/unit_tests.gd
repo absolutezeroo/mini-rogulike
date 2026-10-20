@@ -2,6 +2,8 @@ class_name UnitTests
 extends TestSuite
 ## Rules and data, no game running: stats, combat, content, generation, items, perks, bosses, profile.
 
+const PLAYER: PackedScene = preload("res://src/entities/player/player.tscn")
+
 func run() -> void:
 	_test_stat_block()
 	_test_combat_rules()
@@ -22,6 +24,7 @@ func run() -> void:
 	_test_runes()
 	_test_item_levels()
 	_test_routes()
+	_test_soul_tree()
 	_test_bosses()
 	_test_profile()
 	_test_run_time()
@@ -732,6 +735,90 @@ func _test_routes() -> void:
 		var same := FloorRoute.offer(CONTENT, 2, normal, offer_seed)
 		check(same[0].biome == ways[0].biome and same[1].curse == ways[1].curse and same[1].floor_event == ways[1].floor_event, "the same seed, the same ways")
 	check(twists >= 16, "the second way often has a twist (%d of 40)" % twists)
+
+
+## The Tree of Souls: every upgrade on it once, branches that end on an oath, forks, feats,
+## a reset that gives every soul back, and what the nodes and oaths do to a run.
+func _test_soul_tree() -> void:
+	var tree := CONTENT.soul_tree
+	check(tree != null and tree.nodes.size() >= 24 and tree.branches.size() == 4, "a Tree of Souls with four branches (%d nodes)" % (tree.nodes.size() if tree else 0))
+	if tree == null:
+		return
+	var on_tree := tree.nodes.map(func(n: SoulNodeDef) -> UpgradeDef: return n.upgrade)
+	check(CONTENT.upgrades.all(func(u: UpgradeDef) -> bool: return on_tree.count(u) == 1), "every shrine upgrade sits on the tree, once")
+	check(on_tree.all(func(u: UpgradeDef) -> bool: return CONTENT.upgrades.has(u)), "and every node's upgrade is in the content")
+	var cells := {}
+	for node in tree.nodes:
+		check(not cells.has(node.cell), "%s: its own spot" % node.id())
+		cells[node.cell] = true
+		check(node.cell.x / 3 == node.branch, "%s: in its branch's columns" % node.id())
+		check(node.requires.all(func(p: SoulNodeDef) -> bool: return p.cell.y < node.cell.y and p.branch == node.branch), "%s: its parents sit above it, in its branch" % node.id())
+		if node.partner():
+			check(node.partner().partner() == node and node.partner().cell.y == node.cell.y, "%s: a fork both ways, side by side" % node.id())
+		check(not node.display_name().is_empty() and (node.oath != null or not UpgradeRow.status_text(node.upgrade, 0).ends_with(": ")), "%s: says what it gives" % node.id())
+	for branch in tree.branches.size():
+		var roots := tree.nodes.filter(func(n: SoulNodeDef) -> bool: return n.branch == branch and n.requires.is_empty())
+		var ends := tree.nodes.filter(func(n: SoulNodeDef) -> bool: return n.branch == branch and n.oath != null)
+		check(roots.size() == 1 and ends.size() == 1, "branch %s: one root, one oath at the end" % tree.branches[branch])
+	check(tree.oaths().size() == 4, "four oaths")
+
+	var saved_levels := Profile.levels.duplicate()
+	var saved_souls := Profile.souls
+	var saved_achievements := Profile.achievements.duplicate()
+	Profile.levels = {}
+	Profile.achievements = {}
+	Profile.souls = 100000
+	var might := tree.find(&"might")
+	var keen := tree.find(&"precision_training")
+	var armory := tree.find(&"armory")
+	check(not Profile.buy_node(keen), "a node can't be bought before the one above it")
+	check(Profile.buy_node(might) and Profile.buy_node(keen), "...and can once it is")
+	check(not Profile.buy_node(keen.partner()) and keen.partner().blocker().contains("instead"), "the other side of a fork is shut")
+	check(Profile.buy_node(armory), "a node after a fork opens with either side")
+	var trophy := tree.find(&"trophy_hunter")
+	check(trophy.feat != null and not Profile.buy_node(trophy) and trophy.blocker().begins_with("Feat"), "a feat node waits for its feat")
+	Profile.achievements[String(trophy.feat.id)] = 1
+	check(Profile.buy_node(trophy), "...then opens")
+	var spent := tree.spent()
+	var souls := Profile.souls
+	check(Profile.reset_tree(tree) and Profile.souls == souls + spent and tree.spent() == 0 and Profile.level_of(might.upgrade) == 0, "a reset gives every soul back")
+
+	# What they do to a run.
+	Profile.levels = { "haggler": 1, "full_stalls": 0, "regeneration": 2, "blood_pact": 1, "trophy_hunter": 1, "cartographer": 1 }
+	var plunderer: OathDef = load("res://data/oaths/plunderer.tres")
+	var boons := RunBoons.build(CONTENT, plunderer)
+	check(is_equal_approx(boons.shop_price_scale, 0.85 * plunderer.shop_price_scale) and is_equal_approx(boons.heal_on_clear, 0.1), "run rules add up (prices %.2f, heal %.2f)" % [boons.shop_price_scale, boons.heal_on_clear])
+	check(boons.elite_magic_drop and boons.cartographer and is_equal_approx(boons.healing_scale, 0.7) and boons.gold_scale > 1.0, "flags, heals and the oath's gold")
+	Profile.levels = {}
+	var colossus: OathDef = load("res://data/oaths/colossus.tres")
+	var plain := PLAYER.instantiate() as Player
+	plain.setup(CONTENT.player)
+	ShrineUpgrades.apply_to(plain, CONTENT, CONTENT.get_difficulty(&"normal"))
+	var sworn := PLAYER.instantiate() as Player
+	sworn.setup(CONTENT.player)
+	ShrineUpgrades.apply_to(sworn, CONTENT, CONTENT.get_difficulty(&"normal"), colossus)
+	check(sworn.equipment.get_item(EquipmentDef.Slot.WEAPON) == colossus.starting_weapon, "the Colossus starts with the Hammer")
+	check(sworn.get_max_hp() == roundi(plain.get_max_hp() * 1.3) and sworn.base_stats.move_speed < plain.base_stats.move_speed, "with more Health and a slower step (%d vs %d)" % [sworn.get_max_hp(), plain.get_max_hp()])
+	Profile.levels = { "armory": 1 }
+	var bow: WeaponDef = load("res://data/items/weapons/bow.tres")
+	var armed := PLAYER.instantiate() as Player
+	armed.setup(CONTENT.player)
+	ShrineUpgrades.apply_to(armed, CONTENT, CONTENT.get_difficulty(&"normal"), null, bow)
+	check(armed.equipment.get_item(EquipmentDef.Slot.WEAPON) == bow, "the Armory: the run starts with the weapon picked")
+	var duelist := PLAYER.instantiate() as Player
+	duelist.crit_damage_bonus = 0.75
+	var crit := Combat.make_hit(100, 1.0, duelist)
+	check(crit.is_crit and crit.amount >= roundi(100 * 0.85 * 2.5) - 1, "the Duelist's crits hit x2.5 (%d)" % crit.amount)
+	duelist.healing_scale = 0.5
+	duelist.base_stats.max_hp = 100
+	duelist.invalidate_stats()
+	duelist.hp = 10
+	check(duelist.heal(20) == 10, "a weaker heal heals less")
+	for hero in [plain, sworn, armed, duelist]:
+		hero.free()
+	Profile.levels = saved_levels
+	Profile.souls = saved_souls
+	Profile.achievements = saved_achievements
 
 
 func _test_runes() -> void:

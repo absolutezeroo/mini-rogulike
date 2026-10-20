@@ -22,6 +22,7 @@ var _daily_title: Label
 var _daily_text: Label
 var _daily_score: Label
 var _shrine_badge: Control
+var oath_panel: OathPanel
 
 
 func _ready() -> void:
@@ -49,13 +50,22 @@ func _ready() -> void:
 	%PlayButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		(%DifficultyPanel as DifficultyPanel).open(content.difficulties, content.ascensions))
-	(%DifficultyPanel as DifficultyPanel).chosen.connect(func(_difficulty: DifficultyDef) -> void: play())
+	# Once the tree opened an oath or the Armory: "Before the descent" between the two.
+	oath_panel = OathPanel.new()
+	add_child(oath_panel)
+	oath_panel.started.connect(play)
+	(%DifficultyPanel as DifficultyPanel).chosen.connect(func(_difficulty: DifficultyDef) -> void:
+		if OathPanel.has_choices(content):
+			Sfx.play_ui(Sfx.bank.ui_open)
+			oath_panel.open(content)
+		else:
+			play())
 	%DailyButton.pressed.connect(func() -> void:
 		Game.daily_requested = true
 		play())
 	%ShrineButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
-		_shrine.open(content.upgrades))
+		_shrine.open(content.soul_tree))
 	%QuestsButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		(%CodexPanel as CodexPanel).open(content, CodexPanel.Tab.QUESTS))
@@ -197,7 +207,7 @@ func _refresh_daily() -> void:
 
 func _refresh() -> void:
 	_refresh_daily()
-	_shrine_badge.visible = content.upgrades.any(func(u: UpgradeDef) -> bool: return Profile.can_buy(u))
+	_shrine_badge.visible = content.soul_tree != null and content.soul_tree.nodes.any(func(n: SoulNodeDef) -> bool: return Profile.can_buy_node(n))
 	for child in _records.get_children():
 		_records.remove_child(child)
 		child.queue_free()
@@ -229,6 +239,8 @@ func _notification(what: int) -> void:
 		options.close()
 	elif _shrine.visible:
 		_shrine.close()
+	elif oath_panel and oath_panel.visible:
+		oath_panel.hide()
 	elif (%CodexPanel as Control).visible:
 		(%CodexPanel as CodexPanel).back()
 	elif (%DifficultyPanel as Control).visible:

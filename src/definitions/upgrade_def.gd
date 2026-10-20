@@ -16,6 +16,12 @@ enum Kind {
 	REROLLS,
 	## One more banish (a perk gone for the run) per run, per level.
 	BANISHES,
+	## Changes the run's rules (the "Run rules" group below; RunBoons reads them).
+	RULES,
+	## One of `items` (the ones the dungeon holds), at random, at the start of every run.
+	RANDOM_STARTING_ITEM,
+	## Opens an oath (SoulNodeDef.oath): nothing else.
+	OATH,
 }
 
 @export var id: StringName
@@ -33,6 +39,23 @@ enum Kind {
 @export var bonuses: StatBlock
 @export var items: Array[ItemDef] = []
 @export var perk: PerkDef
+
+@export_group("Run rules")
+## Multiplies the hero's starting max Health (RULES).
+@export var max_hp_scale: float = 1.0
+## Multiplies every heal the hero gets.
+@export var healing_scale: float = 1.0
+## Share of max Health healed when a floor's stairs open (or its boss falls), per level.
+@export_range(0.0, 0.5) var heal_on_clear: float = 0.0
+## Multiplies the merchant's prices; and more items in his stock, per level.
+@export var shop_price_scale: float = 1.0
+@export_range(0, 4) var shop_extra_items: int = 0
+## Elites and up always drop a Magic (or better) piece of equipment.
+@export var elite_magic_drop: bool = false
+## The minimap shows the floor's stairs, merchant and forge from the start.
+@export var cartographer: bool = false
+## The run starts with the weapon picked before it (any the dungeon holds).
+@export var armory: bool = false
 
 
 func cost_for_level(level: int) -> int:

@@ -609,6 +609,43 @@ func _test_routes(game: Game) -> void:
 	check(game._route_to(2).biome == wanted.biome, "and a resumed run rebuilds the same floor")
 
 
+## The Tree of Souls in a run: Regeneration, the Cartographer, the Trophy Hunter, the merchant.
+func _test_soul_tree_run(game: Game) -> void:
+	var saved_levels := Profile.levels.duplicate()
+	Profile.levels = { "regeneration": 2, "cartographer": 1, "trophy_hunter": 1, "haggler": 1, "full_stalls": 1 }
+	var boons := RunBoons.build(CONTENT)
+	game.world.boons = boons
+	await game.debug_enter_floor(2)
+	await _frames(3)
+	var world: World = game.world
+	var player: Player = game.player
+	check(world.stairs_cells.all(func(c: Vector2i) -> bool: return world.is_explored(c)), "Cartographer: the stairs are on the minimap from the start")
+	player.hp = 10
+	world.reward_clear()
+	check(player.hp == 10 + roundi(player.get_max_hp() * 0.1) or player.hp == player.get_max_hp(), "Regeneration: a floor won heals 10%% at level 2 (%d)" % player.hp)
+	var count_gear := func() -> int:
+		return world.get_node("Entities").get_children().filter(func(n: Node) -> bool:
+			return n is ItemPickup and (n as ItemPickup).item is EquipmentDef and ((n as ItemPickup).item as EquipmentDef).rarity >= ItemRarity.MAGIC).size()
+	var before: int = count_gear.call()
+	var elite := world.spawn_monster(load("res://data/monsters/rat.tres"), world.find_open_point_near(player.global_position + Vector2(90, 0), 40.0))
+	elite.make_elite(CONTENT.elite_affixes[0], CONTENT.dungeon)
+	elite.dormant = true
+	await _frames(1)
+	elite.take_hit(Combat.make_secondary_hit(player, 99999))
+	await _frames(3)
+	check(count_gear.call() > before, "Trophy Hunter: an elite drops Magic gear")
+	var merchant := world.spawn_merchant(CONTENT.dungeon.merchant, world.map.world_to_cell(player.global_position) + Vector2i(3, 0))
+	await _frames(1)
+	var equipment := merchant.stock.filter(func(e: Dictionary) -> bool: return e.item is EquipmentDef)
+	check(equipment.size() == CONTENT.dungeon.merchant.equipment_count + 2, "Full Stalls: two more pieces for sale (%d)" % equipment.size())
+	var full_price := CONTENT.dungeon.merchant.buy_price(equipment[0].item, world.depth, world.rules.shop_prices())
+	check(int(equipment[0].price) < full_price, "Haggler: lower prices (%d < %d)" % [int(equipment[0].price), full_price])
+	merchant.queue_free()
+	Profile.levels = saved_levels
+	game.world.boons = RunBoons.new()
+	await _clear_monsters(world)
+
+
 func _kill_one(world: World, player: Player) -> void:
 	for monster: Actor in world.get_hostiles(Actor.Faction.PLAYER):
 		if not monster.is_dead:

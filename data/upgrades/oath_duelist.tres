@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UpgradeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/upgrade_def.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/weapons/rapier.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = &"oath_duelist"
+display_name = "Oath of the Duelist"
+description = "Opens this oath: sworn before a run, it changes how you start it."
+icon = ExtResource("2")
+color = Color(1, 0.8, 0.35, 1)
+kind = 8
+cost = 400

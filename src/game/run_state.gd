@@ -39,6 +39,8 @@ var splits: Array[float] = []
 var finish_time := -1.0
 ## The ways down taken (FloorRoute): depth reached -> index of the route offered for it.
 var routes := {}
+## The oath sworn for this run (OathDef), or null.
+var oath: OathDef
 
 
 ## A new run, or the saved one (`saved` from RunSave; empty for a new run).
@@ -63,6 +65,8 @@ static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGener
 	run.history_recorded = bool(saved.get("history_recorded", false))
 	run.time = float(saved.get("time", 0.0))
 	run.finish_time = float(saved.get("finish_time", -1.0))
+	if saved.has("oath"):
+		run.oath = RunSave.load_ref(saved["oath"]) as OathDef
 	var taken: Dictionary = saved.get("routes", {})
 	for key: Variant in taken:
 		run.routes[int(key)] = int(taken[key])
@@ -136,6 +140,7 @@ func to_data() -> Dictionary:
 		"splits": splits,
 		"finish_time": finish_time,
 		"routes": routes,
+		"oath": RunSave.ref(oath),
 		"difficulty": String(difficulty.id),
 		"ascension": difficulty.ascension,
 	}

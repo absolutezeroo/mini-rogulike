@@ -19,6 +19,12 @@ var caption := "":
 	set(value):
 		caption = value
 		queue_redraw()
+## Equipment shows its item level in the corner ("Lv 7"); off where it means nothing (a pick of
+## plain weapons).
+var show_level := true:
+	set(value):
+		show_level = value
+		queue_redraw()
 var selected := false:
 	set(value):
 		selected = value
@@ -81,7 +87,7 @@ func _frame_color() -> Color:
 ## Equipment's item level in the top-left corner ("Lv 7"): deeper finds are stronger.
 func _draw_level() -> void:
 	var equipment := item as EquipmentDef
-	if equipment == null or size.x < 44.0:
+	if equipment == null or size.x < 44.0 or not show_level:
 		return
 	_text("Lv %d" % equipment.item_level, Vector2(7, 19), HORIZONTAL_ALIGNMENT_LEFT, 13, Color(1, 0.92, 0.7))
 

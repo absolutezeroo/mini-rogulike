@@ -30,6 +30,12 @@ func reveal_all() -> Array[Vector2i]:
 	return _reveal_rect(Rect2i(0, 0, _map.width, _map.height), revealed)
 
 
+## Reveals `rect`; returns the cells seen for the first time.
+func reveal_rect(rect: Rect2i) -> Array[Vector2i]:
+	var revealed: Array[Vector2i] = []
+	return _reveal_rect(rect, revealed)
+
+
 ## Reveals around `point`; returns the cells seen for the first time.
 func reveal_around(point: Vector2) -> Array[Vector2i]:
 	var revealed: Array[Vector2i] = []

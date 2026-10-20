@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="UpgradeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/upgrade_def.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/items/ring.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = &"haggler"
+display_name = "Haggler"
+description = "The merchant's prices are 15% lower."
+icon = ExtResource("2")
+color = Color(1, 0.85, 0.3, 1)
+kind = 6
+cost = 300
+shop_price_scale = 0.85

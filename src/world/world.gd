@@ -60,6 +60,8 @@ var forced_plain := false
 var next_routes: Array[FloorRoute] = []
 ## The way the hero took to this floor (null: none to choose, or the first floor).
 var route: FloorRoute
+## The run's rules from the Tree of Souls and its oath (RunBoons), set by the Game.
+var boons := RunBoons.new()
 
 ## Debug: the next floor built is this biome. Used once.
 var forced_biome: BiomeDef
@@ -194,6 +196,8 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 			stairs.bind_seal(seal)
 			stairs.blocked.connect(_on_stairs_blocked)
 		_apply_restore()
+		if boons.cartographer:
+			reveal_landmarks()
 	map_reset.emit()
 
 
@@ -257,7 +261,7 @@ func spawn_loot(item: ItemDef, at: Vector2, quality: float = 1.0) -> ItemPickup:
 	if item is ConsumableDef and player and player.carried_count(item) >= config().consumable_carry_cap:
 		spawn_gold(at, maxi(2, roundi(item.value * 0.3)))
 		return null
-	return spawn_item(roll_item(item, quality * rules.loot_quality()), at)
+	return spawn_item(roll_item(item, quality * rules.loot_quality() * boons.loot_quality_scale), at)
 
 
 ## `item`, or a better rolled copy of it if it is equipment.
@@ -267,7 +271,7 @@ func roll_item(item: ItemDef, quality: float = 1.0) -> ItemDef:
 
 ## Coins on the floor, split in a few piles that fly to the hero when close.
 func spawn_gold(at: Vector2, amount: int) -> void:
-	amount = rules.gold(amount)
+	amount = roundi(rules.gold(amount) * boons.gold_scale)
 	if amount <= 0:
 		return
 	var piles := clampi(ceili(amount / 4.0), 1, 6)
@@ -606,6 +610,25 @@ func _on_seal_broken() -> void:
 			var path := find_path(player.global_position, map.cell_to_world(cell))
 			if not path.is_empty():
 				spawn_vfx(GuideWisp.create(player.global_position + Vector2(0, -18), path))
+	reward_clear()
+
+
+## The floor is won (its stairs open, or its boss fell): the Regeneration node heals the hero.
+func reward_clear() -> void:
+	if player == null or player.is_dead or boons.heal_on_clear <= 0.0:
+		return
+	var healed := player.heal(roundi(player.get_max_hp() * boons.heal_on_clear))
+	if healed > 0:
+		spawn_floating_text(player.head_position(), "+%d" % healed, Palette.HEAL)
+
+
+## Elites and up drop a Magic (or better) piece of equipment (the Trophy Hunter node).
+func drop_trophy(at: Vector2) -> void:
+	for i in 20:
+		var item := pick_random_item() as EquipmentDef
+		if item:
+			spawn_item(LootRoller.roll(item, depth, rules.loot_quality() * boons.loot_quality_scale, config(), _content.item_affixes, rng, ItemRarity.MAGIC), at)
+			return
 
 
 ## The hero stepped on sealed stairs: say what is missing (not every frame).
@@ -749,6 +772,20 @@ func is_explored(cell: Vector2i) -> bool:
 ## The whole floor on the map (debug).
 func reveal_all() -> void:
 	cells_changed.emit(fog.reveal_all())
+
+
+## The Cartographer node: the stairs, the merchant and the forge on the minimap from the start.
+func reveal_landmarks() -> void:
+	var spots: Array[Vector2i] = stairs_cells.duplicate()
+	for group in ["merchants", "forges"]:
+		for node: Node in get_tree().get_nodes_in_group(group):
+			if node is Node2D and is_ancestor_of(node):
+				spots.append(map.world_to_cell((node as Node2D).global_position))
+	var revealed: Array[Vector2i] = []
+	for spot in spots:
+		revealed.append_array(fog.reveal_rect(Rect2i(spot - Vector2i(2, 2), Vector2i(5, 5))))
+	if not revealed.is_empty():
+		cells_changed.emit(revealed)
 
 
 ## Reveals the room the hero stands in (all of it) and a few cells around them.

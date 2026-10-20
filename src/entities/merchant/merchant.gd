@@ -48,7 +48,7 @@ func _roll_stock() -> void:
 func _roll_new() -> void:
 	var picked: Array[ItemDef] = []
 	for i in 30:
-		if picked.size() >= def.equipment_count:
+		if picked.size() >= def.equipment_count + _world.boons.shop_extra_items:
 			break
 		var item := _world.pick_random_item()
 		if item is EquipmentDef and not picked.has(item):
@@ -72,7 +72,7 @@ func _roll_new() -> void:
 
 
 func _add(item: ItemDef) -> void:
-	stock.append({ "item": item, "price": def.buy_price(item, _world.depth, _world.rules.shop_prices()), "locked": false })
+	stock.append({ "item": item, "price": def.buy_price(item, _world.depth, _world.rules.shop_prices() * _world.boons.shop_price_scale), "locked": false })
 
 
 func world_of() -> World:
@@ -80,7 +80,7 @@ func world_of() -> World:
 
 
 func reroll_price() -> int:
-	return def.reroll_price(rerolls_done, _world.depth, _world.rules.shop_prices())
+	return def.reroll_price(rerolls_done, _world.depth, _world.rules.shop_prices() * _world.boons.shop_price_scale)
 
 
 ## Pays for a new stock: everything not locked is replaced. False without the gold.

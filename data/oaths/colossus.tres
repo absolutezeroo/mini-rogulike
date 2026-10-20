@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="OathDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/soul_tree/oath_def.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/weapons/hammer.png" id="2"]
+[ext_resource type="Resource" path="res://data/items/weapons/hammer.tres" id="3"]
+
+[resource]
+script = ExtResource("1")
+id = &"colossus"
+display_name = "The Colossus"
+description = "Start with the Hammer and 30% more max Health, but move 15% slower."
+icon = ExtResource("2")
+color = Color(0.95, 0.45, 0.35, 1)
+starting_weapon = ExtResource("3")
+max_hp_scale = 1.3
+move_speed_scale = 0.85

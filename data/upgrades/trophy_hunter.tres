@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="UpgradeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/upgrade_def.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/ui/perks/executioner.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = &"trophy_hunter"
+display_name = "Trophy Hunter"
+description = "Elites, Epic and Legendary monsters always drop a Magic (or better) piece of equipment."
+icon = ExtResource("2")
+color = Color(1, 0.7, 0.3, 1)
+kind = 6
+cost = 400
+elite_magic_drop = true

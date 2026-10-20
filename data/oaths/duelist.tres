@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="OathDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/soul_tree/oath_def.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/weapons/rapier.png" id="2"]
+[ext_resource type="Resource" path="res://data/items/weapons/rapier.tres" id="3"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="4"]
+
+[sub_resource type="Resource" id="bonus"]
+script = ExtResource("4")
+crit_chance = 0.1
+
+[resource]
+script = ExtResource("1")
+id = &"duelist"
+display_name = "The Duelist"
+description = "Start with the Rapier, +10% critical hit chance, and critical hits deal x2.5 instead of x1.75, but 20% less max Health."
+icon = ExtResource("2")
+color = Color(1, 0.8, 0.35, 1)
+starting_weapon = ExtResource("3")
+bonuses = SubResource("bonus")
+max_hp_scale = 0.8
+crit_damage_bonus = 0.75

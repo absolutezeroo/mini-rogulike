@@ -21,8 +21,10 @@ extends Resource
 @export var difficulties: Array[DifficultyDef] = []
 ## Used when nothing was picked yet (tests, first launch).
 @export var default_difficulty: DifficultyDef
-## Permanent upgrades sold at the shrine (title screen).
+## Permanent upgrades sold at the shrine (title screen): every node's effect of the tree below.
 @export var upgrades: Array[UpgradeDef] = []
+## The shrine's Tree of Souls: where each upgrade sits, what opens it, the oaths.
+@export var soul_tree: SoulTreeDef
 ## Items that only appear in the dungeon once a shrine upgrade unlocked them.
 @export var locked_items: Array[ItemDef] = []
 ## Breakable props placed in rooms (lanterns are set in the dungeon config).

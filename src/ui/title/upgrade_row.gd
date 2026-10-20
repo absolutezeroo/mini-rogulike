@@ -106,6 +106,29 @@ static func effect_at(def: UpgradeDef, level: int) -> String:
 			return "%d extra reroll%s per run" % [level, "s" if level > 1 else ""]
 		UpgradeDef.Kind.BANISHES:
 			return "%d extra banish%s per run" % [level, "es" if level > 1 else ""]
+		UpgradeDef.Kind.RULES:
+			var parts := PackedStringArray()
+			if def.max_hp_scale != 1.0:
+				parts.append("%+d%% max health" % roundi((def.max_hp_scale - 1.0) * 100.0))
+			if def.healing_scale != 1.0:
+				parts.append("heals %d%% %s" % [absi(roundi((def.healing_scale - 1.0) * 100.0)), "weaker" if def.healing_scale < 1.0 else "stronger"])
+			if def.heal_on_clear > 0.0:
+				parts.append("heal %d%% of max health when a floor is won" % roundi(def.heal_on_clear * level * 100.0))
+			if def.shop_price_scale != 1.0:
+				parts.append("merchant prices %+d%%" % roundi((def.shop_price_scale - 1.0) * 100.0))
+			if def.shop_extra_items > 0:
+				parts.append("%d more items at the merchant" % (def.shop_extra_items * level))
+			if def.elite_magic_drop:
+				parts.append("elites always drop Magic gear")
+			if def.cartographer:
+				parts.append("the minimap shows stairs, merchant and forge")
+			if def.armory:
+				parts.append("pick your starting weapon")
+			return ", ".join(parts)
+		UpgradeDef.Kind.RANDOM_STARTING_ITEM:
+			return "start with a random spell tome"
+		UpgradeDef.Kind.OATH:
+			return "a new oath to swear before a run"
 	return ""
 
 

@@ -20,8 +20,11 @@ static func extra_charges(content: ContentDB, kind: UpgradeDef.Kind) -> int:
 	return total
 
 
-## A new hero: stats, starting items and perks from the shrine, then the difficulty's max HP.
-static func apply_to(player: Player, content: ContentDB, difficulty: DifficultyDef) -> void:
+## A new hero: stats, starting items and perks from the shrine, the oath sworn (OathDef) and the
+## weapon picked (the Armory node), then the difficulty's max HP.
+static func apply_to(player: Player, content: ContentDB, difficulty: DifficultyDef, oath: OathDef = null, picked_weapon: WeaponDef = null) -> void:
+	var hp_scale := 1.0
+	var armory := false
 	for upgrade in content.upgrades:
 		var level := Profile.level_of(upgrade)
 		if level <= 0:
@@ -37,6 +40,27 @@ static func apply_to(player: Player, content: ContentDB, difficulty: DifficultyD
 			UpgradeDef.Kind.STARTING_PERK:
 				if upgrade.perk:
 					player.perks.add(upgrade.perk)
+			UpgradeDef.Kind.RULES:
+				hp_scale *= upgrade.max_hp_scale
+				armory = armory or upgrade.armory
+			UpgradeDef.Kind.RANDOM_STARTING_ITEM:
+				var choices := upgrade.items.filter(func(item: ItemDef) -> bool: return item != null and content.is_available(item))
+				if not choices.is_empty():
+					player.store(choices[randi() % choices.size()])
+	var weapon: WeaponDef = null
+	if armory and picked_weapon and content.is_available(picked_weapon):
+		weapon = picked_weapon
+	if oath:
+		if oath.bonuses:
+			player.base_stats = player.base_stats.plus(oath.bonuses)
+		hp_scale *= oath.max_hp_scale
+		player.base_stats.move_speed *= oath.move_speed_scale
+		if oath.starting_weapon:
+			weapon = oath.starting_weapon
+	if weapon:
+		player.equipment.equip(weapon)
+	if hp_scale != 1.0:
+		player.base_stats.max_hp = roundi(player.base_stats.max_hp * hp_scale)
 	if difficulty.hero_max_hp != 1.0:
 		player.base_stats.max_hp = roundi(player.base_stats.max_hp * difficulty.hero_max_hp)
 	player.invalidate_stats()

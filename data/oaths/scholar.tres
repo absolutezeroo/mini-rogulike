@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="OathDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/soul_tree/oath_def.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/weapons/book.png" id="2"]
+[ext_resource type="Resource" path="res://data/items/weapons/book.tres" id="3"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="4"]
+
+[sub_resource type="Resource" id="bonus"]
+script = ExtResource("4")
+skill_power = 0.5
+attack_speed = -0.2
+
+[resource]
+script = ExtResource("1")
+id = &"scholar"
+display_name = "The Scholar"
+description = "Start with the Book: skills deal 50% more damage, but your attacks are 20% slower."
+icon = ExtResource("2")
+color = Color(0.7, 0.55, 1, 1)
+starting_weapon = ExtResource("3")
+bonuses = SubResource("bonus")

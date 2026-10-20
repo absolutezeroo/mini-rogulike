@@ -53,6 +53,10 @@ var hints_seen := {}
 ## time at the end of each floor (its splits, to race against).
 var best_times := {}
 var best_splits := {}
+## The oath sworn for the next runs (OathDef id; "" = none) and the weapon picked to start
+## with (the Armory node; WeaponDef id, "" = the usual one).
+var oath: StringName = &""
+var starting_weapon: StringName = &""
 
 const HISTORY_SIZE := 20
 ## Empty = nothing is read or written (tests).
@@ -70,6 +74,31 @@ func level_of(upgrade: UpgradeDef) -> int:
 func can_buy(upgrade: UpgradeDef) -> bool:
 	var level := level_of(upgrade)
 	return level < upgrade.max_level and souls >= upgrade.cost_for_level(level)
+
+
+## A node of the Tree of Souls: open (parents, feat, fork) and affordable.
+func can_buy_node(node: SoulNodeDef) -> bool:
+	return node != null and node.upgrade != null and node.is_open() and souls >= node.next_cost()
+
+
+func buy_node(node: SoulNodeDef) -> bool:
+	return can_buy_node(node) and buy(node.upgrade)
+
+
+## Gives back every soul spent on the tree (minus its reset price) and empties it.
+func reset_tree(tree: SoulTreeDef) -> bool:
+	var refund := tree.spent()
+	if refund <= 0 or souls + refund < tree.reset_cost:
+		return false
+	for node in tree.nodes:
+		if node and node.upgrade:
+			levels.erase(String(node.upgrade.id))
+	souls += refund - tree.reset_cost
+	if not tree.open_oaths().any(func(o: OathDef) -> bool: return o.id == oath):
+		oath = &""
+	save_profile()
+	changed.emit()
+	return true
 
 
 func buy(upgrade: UpgradeDef) -> bool:
@@ -381,6 +410,8 @@ func reset() -> void:
 	hints_seen = {}
 	best_times = {}
 	best_splits = {}
+	oath = &""
+	starting_weapon = &""
 	changed.emit()
 
 
@@ -397,6 +428,7 @@ func save_profile() -> void:
 		"daily_day": daily_day, "daily_score": daily_score, "daily_best": daily_best, "daily_streak": daily_streak,
 		"hints_seen": hints_seen,
 		"best_times": best_times, "best_splits": best_splits,
+		"oath": String(oath), "starting_weapon": String(starting_weapon),
 	})
 
 
@@ -432,6 +464,8 @@ func load_profile() -> void:
 	daily_streak = int(data.get("daily_streak", 0))
 	hints_seen = _ints(data.get("hints_seen", {}))
 	best_times = _ints(data.get("best_times", {}))
+	oath = StringName(data.get("oath", ""))
+	starting_weapon = StringName(data.get("starting_weapon", ""))
 	best_splits = {}
 	var saved_splits: Variant = data.get("best_splits", {})
 	if saved_splits is Dictionary:

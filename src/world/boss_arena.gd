@@ -153,5 +153,6 @@ func _on_boss_died(_actor: Actor) -> void:
 func _finish() -> void:
 	_gates.open()
 	_world.spawn_exits()
+	_world.reward_clear()
 	Vfx.magic(_world, _world.map.cell_to_world(_room.get_center()), Palette.GOLD)
 	Events.boss_defeated.emit(boss)

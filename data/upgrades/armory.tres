@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="UpgradeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/upgrade_def.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/magicweapon.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = &"armory"
+display_name = "Armory"
+description = "Pick the weapon you start every run with, among those the dungeon holds (before each run)."
+icon = ExtResource("2")
+color = Color(0.85, 0.85, 0.95, 1)
+kind = 6
+cost = 250
+armory = true

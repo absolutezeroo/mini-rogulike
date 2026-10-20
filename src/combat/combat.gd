@@ -11,7 +11,7 @@ static func make_hit(base_amount: int, crit_chance: float, source: Actor) -> Hit
 	var amount := float(base_amount) * randf_range(1.0 - DAMAGE_VARIANCE, 1.0 + DAMAGE_VARIANCE)
 	if randf() < crit_chance:
 		hit.is_crit = true
-		amount *= CRIT_MULTIPLIER
+		amount *= CRIT_MULTIPLIER + (source.crit_damage_bonus if source else 0.0)
 	hit.amount = maxi(1, roundi(amount))
 	return hit
 

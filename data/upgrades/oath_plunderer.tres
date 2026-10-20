@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UpgradeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/upgrade_def.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/ui/perks/fortune.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = &"oath_plunderer"
+display_name = "Oath of the Plunderer"
+description = "Opens this oath: sworn before a run, it changes how you start it."
+icon = ExtResource("2")
+color = Color(1, 0.85, 0.3, 1)
+kind = 8
+cost = 400

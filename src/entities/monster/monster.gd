@@ -623,6 +623,8 @@ func _on_died(killer: Actor) -> void:
 		var item := world.pick_random_item()
 		if item:
 			world.spawn_loot(item, global_position + Vector2.from_angle(world.rng.randf() * TAU) * world.rng.randf_range(6.0, 16.0), quality)
+	if rank and not is_boss() and killer is Player and world.boons.elite_magic_drop:
+		world.drop_trophy(global_position + Vector2.from_angle(world.rng.randf() * TAU) * 12.0)
 	# Runes: always from a boss, often from elites and up, rarely from the others.
 	var rune_at := global_position + Vector2.from_angle(world.rng.randf() * TAU) * world.rng.randf_range(8.0, 18.0)
 	if is_boss():

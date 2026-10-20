@@ -40,6 +40,10 @@ class TimedBonus:
 var faction: Faction = Faction.MONSTER
 ## Debug god mode (DebugPanel): nothing hurts.
 var invincible := false
+## Multiplies every heal (the Blood Pact node: more Health, weaker heals).
+var healing_scale := 1.0
+## Added to the critical hit multiplier (an oath: Combat.make_hit()).
+var crit_damage_bonus := 0.0
 ## How fast skill cooldowns run (a boss in a later phase: faster).
 var cooldown_speed := 1.0
 ## The last hit taken (how it was finished: a crit...). Null before any.
@@ -306,6 +310,8 @@ func heal(amount: int) -> int:
 	if is_dead:
 		return 0
 	var before := hp
+	if healing_scale != 1.0 and amount > 0:
+		amount = maxi(1, roundi(amount * healing_scale))
 	hp = mini(hp + amount, get_max_hp())
 	health_changed.emit(hp, get_max_hp())
 	if hp > before:

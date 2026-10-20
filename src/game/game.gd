@@ -198,7 +198,9 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 		screen_fx.kick(clampf(float(damage) / player.get_max_hp() * 5.0, 0.3, 1.0)))
 	content.unlocked_items = ShrineUpgrades.unlocked_items(content)
 	if saved.is_empty():
-		ShrineUpgrades.apply_to(player, content, run.difficulty)
+		if not run.is_daily():
+			run.oath = sworn_oath(content)
+		ShrineUpgrades.apply_to(player, content, run.difficulty, run.oath, null if run.is_daily() else picked_weapon(content))
 		if run.is_daily():
 			_give_daily_start()
 		Profile.count_run()
@@ -206,6 +208,10 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 		player.load_state(saved.get("player", {}))
 		offers.load_data(saved.get("offers", []))
 		world.restore_spent(saved.get("floor", {}))  # chests opened, stock bought before quitting
+	# The tree's run rules and the oath's (gold, loot, the merchant, heals, crits, the minimap).
+	world.boons = RunBoons.build(content, run.oath) if not run.is_daily() else RunBoons.new()
+	player.healing_scale = world.boons.healing_scale
+	player.crit_damage_bonus = world.boons.crit_damage_bonus
 	_records.bind(run, player)
 	run_timer.run = run
 	_hunt.bind(player)
@@ -268,6 +274,26 @@ func _give_daily_start() -> void:
 		player.perks.add(relic)
 	player.invalidate_stats()
 	player.hp = player.get_max_hp()
+
+
+## The oath chosen for the next run (Profile.oath), if its node was bought; null otherwise.
+static func sworn_oath(content: ContentDB) -> OathDef:
+	if Profile.oath == &"" or content.soul_tree == null:
+		return null
+	for oath in content.soul_tree.open_oaths():
+		if oath.id == Profile.oath:
+			return oath
+	return null
+
+
+## The weapon picked to start with (the Armory node; any the dungeon holds), or null.
+static func picked_weapon(content: ContentDB) -> WeaponDef:
+	if Profile.starting_weapon == &"":
+		return null
+	for item in content.items + content.locked_items:
+		if item is WeaponDef and item.id == Profile.starting_weapon:
+			return item
+	return null
 
 
 ## Souls this run is worth so far (what the shrine gets when it ends).

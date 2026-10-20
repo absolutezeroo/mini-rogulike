@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="UpgradeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/upgrade_def.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/heal.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = &"regeneration"
+display_name = "Regeneration"
+description = "Heal 5% of your max Health per level each time a floor's stairs open or its boss falls."
+icon = ExtResource("2")
+color = Color(0.45, 0.95, 0.55, 1)
+kind = 6
+max_level = 3
+cost = 60
+cost_growth = 60
+heal_on_clear = 0.05

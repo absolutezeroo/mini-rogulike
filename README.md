@@ -875,18 +875,35 @@ shows it.
 
 Every run ends (death or victory) with **souls**: 1 per kill, 5 per floor, 20 per boss, 100 for a
 victory. Souls are kept forever (gold only lasts for the run). At the **shrine** (`ShrinePanel`)
-they buy permanent upgrades (`data/upgrades/`, `UpgradeDef`). The shrine explains souls on the
-left; on the right the upgrades are grouped by kind, each row (`UpgradeRow`) with its level
-("Level 2 / 5"), what you have and what the next level adds ("Now: +16 max health  >  Next: +24
-max health"), the items an unlock adds, and Buy with the price ("Need 70 souls" when short,
-"Maxed" / "Unlocked" when done):
+they buy the nodes of the **Tree of Souls** (`data/shrine/soul_tree.tres`, `SoulTreeDef`,
+`SoulNodeDef`). Four branches, each a fantasy, side by side on one screen (`SoulTreeView`):
 
-| Kind | Upgrades |
+| Branch | Nodes, top to bottom ("or": a fork, taking one shuts the other) | Oath at the end |
+|---|---|---|
+| Body | Vitality; Toughness or Regeneration (heal 5% a level when a floor is won); Provisions; Second Chance or Blood Pact (+20% max Health, heals 30% weaker) | The Colossus |
+| Blade | Might; Keen Eye (+crit) or Quick Hands (+attack speed); Armory (pick the starting weapon); Trophy Hunter (elites drop Magic gear) | The Duelist |
+| Arcana | Arcane Talent; Pyromancy, Paladin's Oath (new items); Forbidden Library; Satchel of Tomes (start with a tome) or Quick Recharge | The Scholar |
+| Fortune | Loaded Dice (rerolls); Swiftness, Exile (banishes); Master Smith, Cartographer (stairs, merchant and forge on the minimap); Haggler (-15% prices) or Full Stalls (+2 items) | The Plunderer |
+
+A node opens once a node above it is bought; some also need a **feat** (an achievement: "?" on the
+node, the feat in its card). Tapping a node shows on the right what it does now and next, what
+opens it, and Buy. **Reset the tree** gives every soul back (`SoulTreeDef.reset_cost`, 0: free),
+so trying another path costs nothing. Each node's effect is an `UpgradeDef` (`data/upgrades/`):
+stats, a head start, perk choices, new items, or run rules (kind `RULES`, read by `RunBoons`:
+heals, gold, loot, the merchant, the minimap). The old shrine's levels carry over as they are.
+
+**Oaths** (`data/oaths/`, `OathDef`): the end of each branch opens one. Once one is open (or the
+Armory), "Before the descent" (`OathPanel`) comes between the difficulty and the run: swear an
+oath or none, and pick the starting weapon (Armory). An oath is an "X, but Y" start:
+
+| Oath | Rule |
 |---|---|
-| Stats | Vitality (+max health), Might (+damage), Toughness (+armor), Swiftness (+move speed), Arcane Talent (+skill damage) |
-| Starting items / perk | Provisions (extra potions), Second Chance (start with a Phoenix Feather) |
-| Perk choices | Loaded Dice (+1 reroll per run, per level), Exile (+1 banish per run, per level) |
-| Unlocks | Paladin's Oath (Templar Sword), Pyromancy (Ember Tome), Forbidden Library (Thunder and Wind tomes), Master Smith (Plate Armor, Shadow Cloak) |
+| The Colossus | the Hammer, +30% max Health, 15% slower |
+| The Duelist | the Rapier, +10% crit chance, crits x2.5 (instead of x1.75), -20% max Health |
+| The Scholar | the Book, +50% skill damage, attacks 20% slower |
+| The Plunderer | +35% gold and better loot, merchant 25% dearer |
+
+Not in the daily run (everyone starts the same). The run keeps its oath in the save (`RunState.oath`).
 
 Locked items (`content_db.tres` > Locked Items) never appear on the floor until unlocked.
 The `Profile` autoload keeps souls, upgrades and records in `user://profile.json` (works on phones).

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/upgrade_def.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/ui/perks/bloodrage.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = &"blood_pact"
+display_name = "Blood Pact"
+description = "20% more max Health in every run, but every heal is 30% weaker."
+icon = ExtResource("2")
+color = Color(0.85, 0.2, 0.25, 1)
+kind = 6
+cost = 450
+max_hp_scale = 1.2
+healing_scale = 0.7

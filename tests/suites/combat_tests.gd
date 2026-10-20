@@ -1050,7 +1050,7 @@ func _test_ai_movement(game: Game) -> void:
 		if world.map.is_floor(c):
 			continue
 		var room := 0
-		while room < 12 and world.map.is_floor(c - dir * (room + 2)):
+		while room < 12 and world.map.is_floor(c - dir * (room + 2)) and not world.nav.is_blocked(c - dir * (room + 2)):
 			room += 1
 		if room > best_room:
 			best_room = room
@@ -1061,7 +1061,10 @@ func _test_ai_movement(game: Game) -> void:
 	await _frames(40)
 	check(walker.is_stuck(), "walking into a wall for a moment: stuck")
 	walker.move_direction = -wall_dir
-	await _frames(40)
+	for i in 120:  # (a prop or a pond a few steps back may slow it a moment)
+		await _frames(1)
+		if not walker.is_stuck():
+			break
 	check(not walker.is_stuck(), "walking away: not stuck any more")
 	await _clear_monsters(world)
 

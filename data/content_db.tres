@@ -207,6 +207,22 @@
 [ext_resource type="Resource" path="res://data/runes/echo.tres" id="909_rune"]
 [ext_resource type="Resource" path="res://data/runes/prism.tres" id="910_rune"]
 [ext_resource type="Resource" path="res://data/tutorial/tutorial.tres" id="950_tutorial"]
+[ext_resource type="Resource" path="res://data/upgrades/regeneration.tres" id="st_regeneration"]
+[ext_resource type="Resource" path="res://data/upgrades/blood_pact.tres" id="st_blood_pact"]
+[ext_resource type="Resource" path="res://data/upgrades/precision_training.tres" id="st_precision_training"]
+[ext_resource type="Resource" path="res://data/upgrades/fury_training.tres" id="st_fury_training"]
+[ext_resource type="Resource" path="res://data/upgrades/armory.tres" id="st_armory"]
+[ext_resource type="Resource" path="res://data/upgrades/trophy_hunter.tres" id="st_trophy_hunter"]
+[ext_resource type="Resource" path="res://data/upgrades/tome_satchel.tres" id="st_tome_satchel"]
+[ext_resource type="Resource" path="res://data/upgrades/quick_recharge.tres" id="st_quick_recharge"]
+[ext_resource type="Resource" path="res://data/upgrades/haggler.tres" id="st_haggler"]
+[ext_resource type="Resource" path="res://data/upgrades/full_stalls.tres" id="st_full_stalls"]
+[ext_resource type="Resource" path="res://data/upgrades/cartographer.tres" id="st_cartographer"]
+[ext_resource type="Resource" path="res://data/upgrades/oath_colossus.tres" id="st_oath_colossus"]
+[ext_resource type="Resource" path="res://data/upgrades/oath_duelist.tres" id="st_oath_duelist"]
+[ext_resource type="Resource" path="res://data/upgrades/oath_scholar.tres" id="st_oath_scholar"]
+[ext_resource type="Resource" path="res://data/upgrades/oath_plunderer.tres" id="st_oath_plunderer"]
+[ext_resource type="Resource" path="res://data/shrine/soul_tree.tres" id="st_tree"]
 
 [resource]
 script = ExtResource("34_tx8pl")
@@ -220,7 +236,8 @@ bestiary = ExtResource("32_f6o1n")
 synergies = Array[ExtResource("168_hb5w0")]([ExtResource("169_dt2yx"), ExtResource("170_ac1fq"), ExtResource("171_f6o1n"), ExtResource("172_hs025"), ExtResource("173_lrag7")])
 difficulties = Array[ExtResource("2_rjcke")]([ExtResource("3_v3gsm"), ExtResource("1_p1yhy"), ExtResource("4_s1peu"), ExtResource("5_du3p3")])
 default_difficulty = ExtResource("1_p1yhy")
-upgrades = Array[ExtResource("73_0tw7m")]([ExtResource("74_pgsf5"), ExtResource("75_6v54u"), ExtResource("76_p1yhy"), ExtResource("77_rjcke"), ExtResource("78_v3gsm"), ExtResource("79_s1peu"), ExtResource("80_du3p3"), ExtResource("81_to1jy"), ExtResource("82_8pk3k"), ExtResource("83_v6cij"), ExtResource("84_til0v"), ExtResource("186_l46qw"), ExtResource("187_r632x")])
+upgrades = Array[ExtResource("73_0tw7m")]([ExtResource("74_pgsf5"), ExtResource("75_6v54u"), ExtResource("76_p1yhy"), ExtResource("77_rjcke"), ExtResource("78_v3gsm"), ExtResource("79_s1peu"), ExtResource("80_du3p3"), ExtResource("81_to1jy"), ExtResource("82_8pk3k"), ExtResource("83_v6cij"), ExtResource("84_til0v"), ExtResource("186_l46qw"), ExtResource("187_r632x"), ExtResource("st_regeneration"), ExtResource("st_blood_pact"), ExtResource("st_precision_training"), ExtResource("st_fury_training"), ExtResource("st_armory"), ExtResource("st_trophy_hunter"), ExtResource("st_tome_satchel"), ExtResource("st_quick_recharge"), ExtResource("st_haggler"), ExtResource("st_full_stalls"), ExtResource("st_cartographer"), ExtResource("st_oath_colossus"), ExtResource("st_oath_duelist"), ExtResource("st_oath_scholar"), ExtResource("st_oath_plunderer")])
+soul_tree = ExtResource("st_tree")
 locked_items = Array[ExtResource("2_cewcx")]([ExtResource("23_dianq"), ExtResource("10_ng0jj"), ExtResource("37_gyds2"), ExtResource("38_1b8ag"), ExtResource("16_h0egv"), ExtResource("15_rjx6h")])
 props = Array[ExtResource("52_yjg1c")]([ExtResource("53_dianq"), ExtResource("54_kqkbc"), ExtResource("55_xx7nh"), ExtResource("56_6esje")])
 elite_affixes = Array[ExtResource("7_s1peu")]([ExtResource("8_du3p3"), ExtResource("9_to1jy"), ExtResource("10_8pk3k"), ExtResource("11_v6cij"), ExtResource("12_til0v"), ExtResource("13_mym40")])

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UpgradeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/upgrade_def.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/ui/perks/frenzy.png" id="2"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="3"]
+
+[sub_resource type="Resource" id="bonus"]
+script = ExtResource("3")
+attack_speed = 0.04
+
+[resource]
+script = ExtResource("1")
+id = &"fury_training"
+display_name = "Quick Hands"
+description = "Faster attacks: +4% attack speed per level, in every run."
+icon = ExtResource("2")
+color = Color(1, 0.55, 0.3, 1)
+kind = 0
+max_level = 3
+cost = 50
+cost_growth = 50
+bonuses = SubResource("bonus")

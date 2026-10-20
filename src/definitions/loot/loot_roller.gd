@@ -8,12 +8,13 @@ const LEVELS: ItemLevelRules = preload("res://data/items/item_levels.tres")
 
 
 ## `item` at the level of `depth` (itself on floor 1 if Common), or a better rolled copy of it.
-static func roll(item: ItemDef, depth: int, quality: float, config: DungeonConfig, affixes: Array[ItemAffixDef], rng: RandomNumberGenerator) -> ItemDef:
+## `min_rarity`: never below it (the Trophy Hunter node's Magic).
+static func roll(item: ItemDef, depth: int, quality: float, config: DungeonConfig, affixes: Array[ItemAffixDef], rng: RandomNumberGenerator, min_rarity: int = ItemRarity.COMMON) -> ItemDef:
 	var equipment := item as EquipmentDef
 	if equipment == null or equipment.is_rolled():
 		return item
 	var level := maxi(depth, 1)
-	var rarity := pick_rarity(depth, quality, config, rng)
+	var rarity := maxi(pick_rarity(depth, quality, config, rng), min_rarity)
 	if rarity == ItemRarity.COMMON:
 		return item if level <= 1 else make(equipment, rarity, [], [], level)
 	var fitting := affixes.filter(func(affix: ItemAffixDef) -> bool: return affix.fits(equipment) and affix.min_depth <= depth)
