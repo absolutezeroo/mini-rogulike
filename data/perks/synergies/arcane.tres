@@ -9,7 +9,7 @@
 
 [sub_resource type="Resource" id="Resource_fpsxq"]
 script = ExtResource("4_5o7og")
-damage_multiplier = 0.5
+damage_multiplier = 0.4
 speed = 360.0
 radius = 6.0
 max_distance = 300.0

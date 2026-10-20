@@ -5,7 +5,7 @@
 
 [sub_resource type="Resource" id="Resource_xbs42"]
 script = ExtResource("1_sv0ki")
-defense = 4
+defense = 3
 
 [resource]
 script = ExtResource("2_y6clt")

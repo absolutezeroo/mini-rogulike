@@ -14,7 +14,7 @@ burn_damage = 2
 
 [sub_resource type="Resource" id="Resource_itvvk"]
 script = ExtResource("3_vy5n2")
-damage_multiplier = 0.4
+damage_multiplier = 0.7
 knockback = 160.0
 color = Color(1, 0.54901963, 0.25882354, 1)
 status = SubResource("Resource_u4q6u")

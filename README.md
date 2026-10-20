@@ -525,7 +525,7 @@ consumables between the two ("To belt" / "To bag"). The merchant buys from the b
   `ItemAffixDef`) add stats ("Sharp", "of the Bear"...) or set enemies on fire, poison or slow
   them ("Burning", "Venomous", "Frozen"). Some act like a perk while worn (`ItemAffixDef.passives`,
   joined to the hero's `PerkSet` by `set_gear()`; their `description` shows on the item):
-  **Vampiric** (heal on kill), **Shocking** (every 5th hit chains lightning), **of Embers**
+  **Vampiric** (heal on kill), **Shocking** (every 4th hit chains lightning), **of Embers**
   (burning enemies explode), **Shattering** (+25% on slowed enemies), **of Echoes** (skills may be
   ready again at once), **of Thorns**. Rare and Epic items on the floor shine with a beam.
   `LootRoller` makes rolled copies; the plain .tres is the Common version. Chances grow with depth
@@ -577,8 +577,8 @@ stones lit in their runes' colors. The selected slot pulses gold.
   - Inferno: **Ember** (hits may set enemies on fire), **Pyre** (enemies dying burning explode).
   - Frost: **Rime** (hits chill), **Shatter** (critical hits release a frost shockwave that slows).
   - Blood: **Leech** (your hits heal 10% of their damage), **Fury** (wounded you hit harder, kills heal).
-  - Storm: **Spark** (every 4th hit chains lightning), **Gale** (your roll throws a gust).
-  - Arcane: **Echo** (skills may be ready again at once), **Prism** (one more projectile).
+  - Storm: **Spark** (every 3rd hit chains lightning), **Gale** (your roll throws a gust).
+  - Arcane: **Echo** (skills may be ready again at once), **Prism** (one more projectile; with Multishot, 2 more at most, the volley sharing its damage).
 - **Sockets**: every weapon has 1 to 3, by rarity (`ItemRarity.SOCKETS`: Common and Magic 1,
   Rare 2, Epic 3). A rune works like a perk while its weapon is worn (`RuneDef.passives`, through
   `PerkSet.set_gear`); two identical runes count twice. Set runes show on the weapon's details,
@@ -651,7 +651,7 @@ The hero has **4 skill buttons**:
 | Duelist | Rapier (fast, crits) | Riposte (leap back, then crits and speed), Piercing Thrust |
 | Archer | Bow (arrows pierce one enemy) | Volley (5 arrows), Arrow Rain (4 hits on an area ahead) |
 | Mage | Spark Wand, Frost Staff, Ember Tome | Spark Nova, Arcane Bolt, Frost Nova (slow), Ice Shards (slow), Fireball, Fire Wave (burn) |
-| Paladin | Templar Sword | Smite (damage + heal), Holy Shield (DEF + heal) |
+| Paladin | Templar Sword | Smite (damage + heal), Holy Shield (Armor + heal; both heal half during a boss fight) |
 
 The weapon in the hero's hand is animated frame by frame with the attack. For weapons without a
 hand-drawn sheet, the sheet is baked from the item sprite rotated around its handle (a swing,
@@ -737,7 +737,7 @@ perks** of a family wakes its bonus for the rest of the run: a change in how you
 | **Inferno** | Ignite, Kindling, Blazing Roll, Burning Thorns, Phoenix Feather | enemies that die burning explode and set everything around on fire |
 | **Frost** | Frostbite, Cold Snap, Ice Shards, Frost Armor, Guardian Ring | slowed enemies take +50%, crits freeze them |
 | **Blood** | Vampirism, Vitality, Bloodrage, Devotion, Executioner | below half Health +40% damage, every kill heals 4% max Health |
-| **Storm** | Frenzy, Thunderclap, Shock Roll, Swiftness | every 4th hit, lightning jumps to 3 enemies |
+| **Storm** | Frenzy, Thunderclap, Shock Roll, Swiftness | attacks 15% faster; every 3rd hit, lightning jumps to 3 enemies |
 | **Arcane** | Arcane Focus, Arcane Power, Devotion, Echo, Sage's Codex, Multishot | every skill also fires a ring of 8 bolts |
 
 A perk sits in a family only if its effect plainly belongs to it (Inferno: fire and burning;

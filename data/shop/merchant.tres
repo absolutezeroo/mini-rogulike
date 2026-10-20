@@ -6,6 +6,9 @@
 
 [resource]
 script = ExtResource("2_8oh83")
+price_multiplier = 1.5
+price_per_depth = 0.2
+sell_ratio = 0.25
 display_name = "Old Wanderer"
 greetings = PackedStringArray("I sell what the Well\'s victims left behind. No refunds.", "Gold is useless down here... but I like it anyway.", "Still alive? Good. Dead people don\'t buy much.", "The wardens never come to this room. I wonder why.")
 sprite_sheet = ExtResource("3_k0nem")

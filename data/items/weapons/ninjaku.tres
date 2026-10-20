@@ -18,7 +18,7 @@ move_speed = 8.0
 
 [resource]
 script = ExtResource("8_qxesu")
-cooldown = 0.3
+cooldown = 0.34
 reach = 32.0
 knockback = 110.0
 attack_frames = ExtResource("2_g5qp1")

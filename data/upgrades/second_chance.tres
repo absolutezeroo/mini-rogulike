@@ -13,5 +13,5 @@ description = "Start every run with a Phoenix Feather: survive one killing blow.
 icon = ExtResource("1_b2no8")
 color = Color(1, 0.81960785, 0.4, 1)
 kind = 2
-cost = 400
+cost = 700
 perk = ExtResource("3_qrqxv")

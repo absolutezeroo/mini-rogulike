@@ -11,7 +11,7 @@
 [sub_resource type="Resource" id="Resource_ifdsv"]
 script = ExtResource("1_8rguv")
 max_hp = 25
-defense = 3
+defense = 2
 
 [sub_resource type="Resource" id="Resource_echlb"]
 script = ExtResource("4_ifdsv")

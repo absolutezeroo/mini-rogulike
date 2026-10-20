@@ -14,5 +14,5 @@ description = "Plate Armor and the Shadow Cloak can be found in the dungeon."
 icon = ExtResource("1_d1bjr")
 color = Color(0.7882353, 0.8, 0.81960785, 1)
 kind = 3
-cost = 150
+cost = 180
 items = Array[ExtResource("2_lvt7y")]([ExtResource("3_ielns"), ExtResource("4_ikjlv")])

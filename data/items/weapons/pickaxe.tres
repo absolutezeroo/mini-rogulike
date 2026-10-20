@@ -18,7 +18,7 @@ crit_chance = 0.05
 
 [resource]
 script = ExtResource("6_vabj2")
-damage = 8
+damage = 7
 cooldown = 0.6
 reach = 32.0
 knockback = 180.0

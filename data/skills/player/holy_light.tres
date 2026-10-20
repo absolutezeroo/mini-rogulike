@@ -11,7 +11,8 @@
 [sub_resource type="Resource" id="Resource_i6ql6"]
 script = ExtResource("2_w8y4f")
 amount = 0
-max_hp_ratio = 0.35
+max_hp_ratio = 0.3
+boss_fight_ratio = 0.5
 
 [sub_resource type="Resource" id="Resource_6d2na"]
 script = ExtResource("4_ukl8y")
@@ -25,7 +26,7 @@ fx_tint = Color(1, 0.95, 0.7, 1)
 script = ExtResource("6_yi1fu")
 id = &"holy_light"
 display_name = "Holy Light"
-description = "Heals 35% of your HP and burns the enemies around you."
+description = "Heals 30% of your Health (half during a boss fight) and burns the enemies around you."
 short_label = "LIGHT"
 icon = ExtResource("5_xf2l2")
 color = Color(1, 0.9529412, 0.6901961, 1)

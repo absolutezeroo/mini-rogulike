@@ -20,12 +20,13 @@ fx_tint = Color(1, 0.9, 0.5, 1)
 [sub_resource type="Resource" id="Resource_00nwx"]
 script = ExtResource("4_e3yb5")
 amount = 4
+boss_fight_ratio = 0.5
 
 [resource]
 script = ExtResource("6_in4i3")
 id = &"smite"
 display_name = "Smite"
-description = "Holy strike in front of you that also heals you a little."
+description = "Holy strike in front of you that also heals you a little (less during a boss fight)."
 short_label = "SMITE"
 icon = ExtResource("5_kuqkl")
 color = Color(1, 0.81960785, 0.4, 1)

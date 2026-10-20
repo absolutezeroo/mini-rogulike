@@ -137,7 +137,7 @@ lab before changing data.
 | Difficulty vs Normal (boss threat) | Easy x0.2-0.7, Hard x1.3-2.6, Nightmare x2-5, +5 x2.5-8, +10 x3-12 | Easy forgiving, Nightmare demanding, ascensions add twists not walls |
 | Any pick at max vs its category's median (marginal value) | 0.5x-2x | every pick a real choice (pillar 2) |
 | Degenerate build DPS / expected build's | <= 2.5x | stacking pays, it doesn't trivialise (pillar 3) |
-| Weapon DPS vs the median weapon (same rarity, same hero) | 0.6x-1.6x | no trap, no only choice |
+| Weapon DPS vs the median weapon (same rarity, same hero) | 0.75x-1.4x (phase 2C; was 0.6-1.6) | no trap, no only choice |
 | Weapon arena: bosses beaten (Common, kite, Normal) | >= 50% | a weapon that loses to most bosses is a trap |
 | A stack of multiplying bonuses (compound) | <= 2.5x the expected build's DPS | check the products, not the parts |
 | Most armored build: monsters hitting it for 1 | <= 50% of the act's | armor makes weak monsters weaker, not harmless |
@@ -198,6 +198,217 @@ listens. `PerkSet.Entry.source_tag()` names a perk, family, rune or affix for it
 tools drive the game through its input actions, its data and its public nodes.
 
 ## Balance log
+
+### 2026-10-20 - Phase 2C: perks, runes, affixes, weapons, economy
+
+Merged with phases 2A and 2B before the final measures (the tables below say which). Domain:
+perks, relics and the five families, runes, item affixes, weapons, shrine upgrades, shop
+prices, gold. Not touched (other balancers): monsters, bosses, ranks, elites, difficulties,
+the armor formula, the sustain rules. Measured on seed 1, Normal (model on Normal and Hard),
+against the phase 2 baseline; each change re-measured with the same seed: `--mode=model`,
+`--mode=compound`, `--mode=economy --difficulty=normal,nightmare`, `--mode=marginal --acts=2,3`.
+
+#### Rules fixed (code, with game tests in combat_tests.gd)
+
+| Rule | Before | After | Why |
+|---|---|---|---|
+| Crit shockwaves (Thunderclap, Shatter rune) | the wave caught the enemy struck too (a second hit on every crit, itself able to crit) | the wave hurts the enemies *around* the target, never the one struck (`CritShockwavePassive.hits_target`, off) | crit chance x crit damage x the wave multiplied on a single boss: the crit build (Rapier, 82% crit, 3 Shatter runes) did 6.3x the expected build's damage and face-tanked act II bosses in 7-10 s. The descriptions already said "around" |
+| Echoes (Echo perk, Echo runes, of Echoes) | every source rolled on every cast, echoes chained (68% with all of them: a skill cast ~3x per cooldown) | an echo can't echo: the cast an echo made ready rolls nothing; a skill is used at most twice per cooldown | bounded at x2 whatever the stack; each source still rolls on its own |
+| Extra projectiles (Multishot, Prism runes) | each added a full shot, no limit (Multishot 2 + 2 Prism: 5 full shots, x5.2 on the Spark Wand at close range) | 2 extra projectiles at most from every source together, and the volley shares its damage: each extra shot adds 65% of a shot | a Prism rune was a free Multishot level; stacking them made every ranged weapon a shotgun |
+| Skill recharge cap | 60% | 50% (`SkillSet.MAX_COOLDOWN_REDUCTION`) | with the echo bound, the cap was what left the skills build at 2.9x; only cooldown-stacking builds reach it |
+
+The model (`balance_model.gd`) follows the three rules (the wave off the target, uses per
+cooldown = 1 + the chance an echo fires, the cap and the damage share of extra projectiles).
+
+#### Data changed
+
+| What | Before | After | Why |
+|---|---|---|---|
+| Rapier | 3 damage, 0.19 s | 2 damage, 0.31 s (15% crit kept) | 1.6-2.2x the median weapon: speed multiplies every flat Damage bonus |
+| Sai | 0.22 s | 0.34 s | 1.4-2.0x the median |
+| Ninjaku | 0.30 s | 0.34 s | 1.4x in acts III-IV |
+| Pickaxe | 8 damage | 7 | 1.3x in acts I-II (it ignores armor already) |
+| Shuriken | 2 damage | 8 (0.45 a star kept: a fan never hits 3x as hard) | 0.33x in act I: three stars of 4 damage did nothing against armor |
+| Book | 0.6 s, 0.5 a shot | 0.55 s, 0.6 a shot | 0.6x |
+| Frost Staff (stick) | 8 damage, 0.95 a shot | 10, 1.05 | 0.75x everywhere |
+| Bow | 0.85 a shot | 0.9 | Epic bow at 0.75x in act I |
+| Storm family | every 4th hit, chain to 3 | +15% attack speed, and every 3rd hit chains to 3 | +0-5% marginal value (chains do nothing on a boss); speed of the strike is Storm's theme |
+| Arcane family | ring of 8 bolts at 0.5x power | 0.4x | Arcane 1.6x the expected build's DPS, top family pick in acts III-IV |
+| Arcane Power | +15% skill damage per level | +12% | the skills build (2.9x after the echo rule) |
+| Ignite | 2 per level a tick | 3 | -6% to +3% from act II: flat ticks against armor |
+| Bloodrage | +15% per level below half Health | +20% | 4-12% |
+| Blazing Roll | 0.4x power | 0.7x | 0-9% |
+| Executioner | +60% per level | +75% | 8-18% (0.3x-0.9x the relic median) |
+| Guardian Ring | +3 Armor | +2 (25 Health and the ward kept) | 2-13x the relic median, mostly from flat Armor |
+| Fortified (affix) | +4 Armor | +3 | +301% in act III (21x the median): as much Armor as a Plate Armor from one affix |
+| Ember rune | 35% chance, 2 a tick | 50%, 3 | -6% to +5% |
+| Spark rune | every 4th hit, 0.5x | every 3rd hit, 0.6x | -3% to +5% |
+| Burning (affix) | 2 a tick | 3 | -2% to +10% |
+| Shocking (affix) | every 5th hit, 0.4x | every 4th hit, 0.5x | -5% to +6% |
+| of Echoes | 10% | 12% | the echo rule makes stacking safe |
+| Vampirism | 2 Health a kill per level | 3 | 0.15x the median in act II once 2A's boss-fight budget stopped paying it: buffed where it works, in packs (boss adds feed nothing) |
+| Holy Light, Holy Shield, Smite (`HealEffect.boss_fight_ratio`, new) | full heal everywhere; Holy Light 35%, Holy Shield 10% | half during a boss fight; Holy Light 30%, Holy Shield 8% | the Templar Sword's spells (75-300 Health a fight) carried the face-tank wins of the act IV degenerate builds (phase 2A); out of boss fights they still forgive mistakes. Descriptions now say Health and Armor (were HP, DEF) |
+| Gold | 45% drop chance, +0.6 a kill per floor, boss x15, crates +0.5 per floor | 30%, +0 per floor, boss x10, crates +0.25 | gold grew x6-x10 from floor 1 to 10 while prices grew x1.7 |
+| Merchant | prices x1, +8% per floor, sells back 35% | x1.5, +20% per floor, sells back 25% (about the same gold back) | a visit's gold bought 4-23 average items |
+| Shrine | 3150 souls in all | 4505 (stat levels' growth, Second Chance 400 -> 700, unlocks +20) | ~13 runs on Normal to buy it all (target 15-60) |
+| Target: weapon DPS vs the median | 0.6x-1.6x | 0.75x-1.4x | every weapon fits the tighter band now; the old one allowed a 2.7x spread |
+
+Not changed, on purpose:
+- **Armor picks** (Frost Armor +252%, Sturdy, Toughness +119% in act III) came from the flat
+  armor formula, which phase 2A replaced: only the outliers that were armor *on top of*
+  something else moved (Fortified, Guardian Ring). Re-measured after the merge: Frost Armor
+  +16-18%, Toughness +12-13%, Fortified +12-13% (tables below): no more outliers.
+- **Leech rune** (+85% in act II = 8x the median) and Devotion: their whole value was the
+  sustain budget, which phase 2A cut in boss fights (Leech now -1% / +3%).
+- **Blood family's DPS** (1.06x the expected build): its power is sustain and low-health damage,
+  which the DPS ratio can't see; as a marginal value it is the top family (act II 3.8x).
+- **Slows, thorns, control** (Frostbite, Cold Snap, Rime, Frozen, of Thorns, Frost family) read
+  +0% on dummies (Limits): left alone.
+
+#### Before / after
+
+Weapons (model, after merging 2A; Common weapon on each act's expected hero, DPS vs the act boss
+/ median weapon; every rarity now within 0.75-1.4x, Normal and Hard):
+
+| Weapon | Before (act I / II / III / IV) | After |
+|---|---|---|
+| axe | 1.00x / 0.98x / 0.93x / 0.87x | 0.98x / 0.95x / 0.86x / 0.82x |
+| big_sword | 1.04x / 1.02x / 0.93x / 0.88x | 1.02x / 0.98x / 0.87x / 0.82x |
+| book | 0.59x / 0.60x / 0.83x / 0.81x | 0.89x / 0.99x / 0.99x / 1.00x |
+| bow | 0.80x / 0.85x / 1.00x / 1.00x | 0.89x / 0.94x / 1.01x / 1.00x |
+| hammer | 1.08x / 1.04x / 0.92x / 0.86x | 1.05x / 1.01x / 0.86x / 0.79x |
+| katana | 1.00x / 1.04x / 1.18x / 1.16x | 1.02x / 1.05x / 1.12x / 1.11x |
+| lance | 1.07x / 1.08x / 1.12x / 1.08x | 1.07x / 1.07x / 1.05x / 1.02x |
+| magic_wand | 0.80x / 0.86x / 1.00x / 1.01x | 0.84x / 0.90x / 0.96x / 0.95x |
+| ninjaku | 1.09x / 1.20x / 1.40x / 1.41x | 1.04x / 1.11x / 1.21x / 1.21x |
+| pickaxe | 1.29x / 1.28x / 1.22x / 1.16x | 1.20x / 1.18x / 1.09x / 1.04x |
+| rapier | 1.62x / 1.79x / 2.23x / 2.24x | 0.95x / 1.05x / 1.22x / 1.26x |
+| sai | 1.44x / 1.58x / 1.97x / 1.97x | 1.05x / 1.13x / 1.27x / 1.28x |
+| shuriken | 0.33x / 0.35x / 0.80x / 0.85x | 1.08x / 1.13x / 1.15x / 1.14x |
+| stick | 0.76x / 0.75x / 0.77x / 0.74x | 0.94x / 0.94x / 0.85x / 0.81x |
+| templar_sword | 0.92x / 0.93x / 0.99x / 0.96x | 0.93x / 0.92x / 0.93x / 0.91x |
+| whip | 0.84x / 0.89x / 1.02x / 1.00x | 0.87x / 0.89x / 0.96x / 0.96x |
+
+Degenerate and family builds (model, DPS vs the act's expected build on its boss, Normal):
+
+| Build | Before | After |
+|---|---|---|
+| degenerate_crit_a2 (Rapier, 3 Shatter) | 6.28x | 1.67x |
+| degenerate_skills_a3 (3 Echo runes, Echo, Codex) | 4.77x | 2.50x |
+| degenerate_attack_speed_a1 (Sai) | 2.25x | 1.55x |
+| degenerate_burn_a3 | 1.43x | 1.60x |
+| family_arcane_a3 | 1.60x | 1.28x |
+| family_frost_a3 | 1.38x | 1.39x |
+| family_inferno_a3 | 1.25x | 1.35x |
+| family_storm_a3 | 1.11x | 1.08x |
+| family_blood_a3 | 0.98x | 1.06x |
+
+(After merging phase 2A's armor formula. expected_a3 itself lost its Thunderclap hits on the
+boss: 124 -> 119 DPS.)
+
+Compound (engine, before merging 2A; dummy DPS vs the plain weapon / the expected build):
+
+| Stack | Before | After |
+|---|---|---|
+| Spark Wand + Multishot 2 + 2 Prism, 64 px | x5.21 | x1.97 |
+| Spark Wand + Multishot 2, 64 px | x3.10 | x1.97 |
+| Bow + Multishot 2 + 2 Prism, 64 px | x3.78 | x1.48 |
+| Frost Staff + Multishot 2 + 2 Prism, 64 px | x3.59 | x1.68 |
+| A Prism rune on the Spark Wand | x1.78 | x1.61 |
+| All echoes (act II) | x2.29 | x2.17 |
+| Attack speed x crit x damage (act II) | x2.27 | x2.32 |
+| Burns all together (act II) | x2.04 | x1.98 |
+
+Economy (engine, seed 1, after merging 2A and 2B (rarer, tougher elites); items an average
+merchant visit's gold buys, target 0.8-3):
+
+| | Before | After |
+|---|---|---|
+| Normal, depths 1-2 | 4.7 / 4.4 | 2.4 / 1.8 |
+| Normal, depths 4-5 | 8.4 / 11.5 | 2.6 / 3.2 |
+| Normal, depths 7-8 | 22.7 / 14.5 | 3.3 / 2.1 |
+| Normal, depths 10-11 | 19.0 / 17.4 | 2.5 / 1.8 |
+| Easy, depths 1-11 | 2.5-10 | 1.1-2.2 |
+| Hard, depths 1-11 | 5.9-35.5 | 2.2-5.2 |
+| Nightmare, depths 1-11 | 11-44 | 4.0-5.4 |
+| First reroll / a floor's gold (Normal) | 2-11% | 8-15% |
+| Rune removal / a floor's gold (Normal) | 6-28% | 17-36% |
+| Shrine, runs to buy it all: Normal dying at act II / III | 16.3 / 9.3 | 23.3 / 13.2 |
+| Shrine, runs: Nightmare dying at act II / III | 3.4 / 2.4 | 4.9 / 3.4 |
+| First run (dies at the act I boss, 61 souls) | buys a level | buys a level (30-40) |
+
+Hard and Nightmare stay above 3 and their souls fill the shrine in 3-10 runs: the difficulties'
+gold and soul multipliers belong to the difficulties (other balancer); proposal: Hard gold x0.7,
+Nightmare x0.6 of today's. Normal depths 5 and 7 are just over 3 (3.2, 3.3).
+
+Marginal values (engine, acts II and III, Normal, after merging 2A and 2B; value at max level,
+x = vs the category's median). The medians fell a lot (2A's armor and boss-fight budget took
+away most of the defensive and healing values; 2B's tougher monsters), so read the values, not
+only the ratios. Picks over 2x / under 0.5x their median: act II 11 / 35 -> 11 / 36, act III
+11 / 23 -> 8 / 26; most of the "under" are the blind spot (slows, thorns, kill heals, rolls: +0%
+on dummies).
+
+| Pick | Act II before | Act II after | Act III before | Act III after |
+|---|---|---|---|---|
+| Frost Armor x4 | +51% (1.4x) | +18% (1.7x) | +252% (12.3x) | +16% (0.9x) |
+| Burning Thorns x3 | +38% (1.1x) | +13% (1.2x) | +188% (9.2x) | +12% (0.7x) |
+| Thunderclap x3 | +84% (2.3x) | +3% (0.3x) | +71% (3.5x) | +24% (1.4x) |
+| Vitality x5 | +50% (1.4x) | +45% (4.3x) | +87% (4.2x) | +53% (3.1x) |
+| Frenzy x4 | +22% (0.6x) | +30% (2.8x) | +29% (1.4x) | +30% (1.7x) |
+| Ignite x3 | -6% | +7% (0.7x) | +3% (0.1x) | +8% (0.5x) |
+| Bloodrage x3 | +9% (0.3x) | +9% (0.8x) | +6% (0.3x) | +6% (0.3x) |
+| Echo x3 | +24% (0.7x) | +3% (0.3x) | +30% (1.5x) | +7% (0.4x) |
+| Devotion x3 | +72% (2.0x) | +2% (0.2x) | +4% (0.2x) | -2% |
+| Vampirism x3 | +19% (0.5x) | +1% (0.1x) | +3% (0.1x) | -12% |
+| Guardian Ring | +63% (1.9x) | +41% (2.0x) | +114% (5.7x) | +31% (1.3x) |
+| Phoenix Feather | +100% (3.0x) | +100% (4.8x) | +100% (5.0x) | +100% (4.3x) |
+| Executioner x2 | +11% (0.3x) | +11% (0.6x) | +18% (0.9x) | +16% (0.7x) |
+| Storm family | -3% | +7% (1.5x) | +5% (0.7x) | +17% (1.6x) |
+| Arcane family | +6% (1.0x) | +2% (0.5x) | +17% (2.1x) | +8% (0.8x) |
+| Blood family (awake) | +24% (3.8x) | +15% (3.4x) | +0% | +12% (1.1x) |
+| Leech rune | +85% (8.3x) | -1% | +10% (1.2x) | +3% (0.4x) |
+| Fury rune | +23% (2.2x) | +5% (1.5x) | +19% (2.4x) | +9% (1.0x) |
+| Spark rune | -3% | +0% | -1% | +9% (1.1x) |
+| Ember rune | -6% | +0% | +2% (0.3x) | -7% |
+| Echo rune | +1% (0.1x) | +0% | +6% (0.7x) | +10% (1.1x) |
+| Fortified | +58% (16.8x) | +13% (1.6x) | +301% (21.3x) | +12% (2.3x) |
+| Sturdy | +22% (6.5x) | +8% (1.0x) | +80% (5.6x) | +8% (1.5x) |
+| Brutal | +30% (8.6x) | +19% (2.4x) | +23% (1.6x) | +12% (2.4x) |
+| of Echoes | +1% (0.4x) | +0% | +6% (0.4x) | +10% (2.0x) |
+| Shrine Toughness x3 | +34% (1.0x) | +13% (0.6x) | +119% (3.2x) | +12% (0.7x) |
+| Shrine Might x5 | +39% (1.2x) | +21% (1.0x) | +21% (0.6x) | +21% (1.3x) |
+
+- Phoenix Feather and Second Chance read +100% / +50% by construction (a revive doubles the time
+  to die); Vitality is the remaining stat outlier on paper (+45-53%): health is worth more now
+  that armor is weaker. Watch it, no change yet (one more measure after the monsters settle).
+- Echo, Devotion, Leech, Vampirism fell with 2A's boss-fight budget and the echo rule; Leech is
+  where it should be for a rune that the budget now limits. Brutal (+4 Damage on a weapon) is the
+  top affix at 2.4x: flat damage on a single affix; next pass.
+
+#### Guards
+
+- Game tests (`combat_tests.gd`): Multishot 2 + two Prism runes fire 3 shots sharing the damage;
+  a Thunderclap crit doesn't hurt the enemy struck but hurts those around; a 100% echo gives one
+  free cast, not a loop; the three healing spells heal in full outside a boss fight and carry a
+  boss-fight share of at most half.
+- Balance suite: `model: weapon DPS`, `model: degenerate DPS` and `economy: shop` (quick, two
+  Normal floors) pass now (removed from KNOWN); new `family: <id> DPS` checks (each family
+  1.0-1.5x the expected act III build: pass). `marginal: too weak` (Vampirism x3 in act II,
+  0.05x) added to KNOWN as a measuring blind spot: kills heal nothing in a boss fight since 2A
+  and the dummy rooms don't hurt, so a kill heal shows nothing in the lab; its value is pack
+  sustain, buffed to 3 a kill. Suite after the merges: 73 checks, 9 failures, all KNOWN but
+  `model: act curve` (act IV vs act III x0.90, at the edge of x0.9-1.6: the expected act III
+  build lost its Thunderclap hits on the boss, so act III got a little longer).
+
+#### Open
+
+- `model: act curve` act IV vs act III at x0.90 (edge): bosses' side.
+- Weapon arena (kite bot, Common weapons) not re-run: it depends on the bosses and the kite bot
+  being reworked in parallel; fast melee weapons lost 9 of 10 bosses mostly by taking hits in
+  melee, not by damage. Re-run `--mode=arena` after merging.
+- Armor picks and Leech after the armor formula and sustain changes (see above).
+- Normal depths 5 and 7 a little over 3 items per visit; Nightmare's gold.
+- Encounters: the Grinning Spirit's gold choices read +0% (gold isn't valued by the lab).
 
 ### 2026-10-20 - Phase 2B: common monsters, ranks, elite affixes, difficulties, depth scaling
 

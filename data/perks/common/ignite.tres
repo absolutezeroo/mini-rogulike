@@ -9,12 +9,13 @@
 
 [sub_resource type="Resource" id="Resource_w8ur3"]
 script = ExtResource("3_ypa5c")
+damage_per_stack = 3
 
 [resource]
 script = ExtResource("4_jspq3")
 id = &"ignite"
 display_name = "Ignite"
-description = "Your hits set enemies on fire: 2 damage per level every half second, for 3 s."
+description = "Your hits set enemies on fire: 3 damage per level every half second, for 3 s."
 icon = ExtResource("1_u2l4f")
 color = Color(1, 0.54901963, 0.25882354, 1)
 weight = 7

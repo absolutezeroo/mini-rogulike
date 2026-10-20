@@ -14,4 +14,4 @@ color = Color(1, 0.81960785, 0.4, 1)
 kind = 4
 max_level = 3
 cost = 60
-cost_growth = 60
+cost_growth = 80

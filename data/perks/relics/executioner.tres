@@ -9,12 +9,13 @@
 
 [sub_resource type="Resource" id="Resource_edbmq"]
 script = ExtResource("3_5ylrs")
+bonus_per_stack = 0.75
 
 [resource]
 script = ExtResource("4_eiqjs")
 id = &"executioner"
 display_name = "Executioner"
-description = "+60% damage per level against enemies below 35% Health."
+description = "+75% damage per level against enemies below 35% Health."
 icon = ExtResource("1_1j77r")
 color = Color(0.9019608, 0.22352941, 0.27450982, 1)
 rarity = 1

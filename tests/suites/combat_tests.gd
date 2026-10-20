@@ -105,6 +105,17 @@ func _test_perks_in_game(game: Game, world: World, player: Player) -> void:
 	volley.max_distance = 10.0
 	world.fire_projectiles(player, Vector2.RIGHT, volley)
 	check(volley.count == 2 and volley.spread_degrees > 0.0, "Multishot adds a projectile")
+	# Extra projectiles share the volley's damage, and every source together adds 2 at most.
+	var prism: RuneDef = load("res://data/runes/prism.tres")
+	player.perks.add(_perk("multishot"))
+	player.perks.set_gear([], [prism, prism])
+	var fan := ProjectileSpec.new()
+	fan.max_distance = 10.0
+	fan.damage = 30
+	world.fire_projectiles(player, Vector2.RIGHT, fan)
+	check(fan.count == 3, "Multishot 2 and two Prism runes: 2 extra projectiles at most (%d shots)" % fan.count)
+	check(fan.damage == roundi(30 * (1.0 + 0.65 * 2) / 3.0), "the extra shots share the volley's damage (%d a shot)" % fan.damage)
+	player.perks.set_gear([], [])
 
 	var phoenix := _perk("phoenix_feather")
 	player.perks.add(phoenix)
@@ -296,6 +307,46 @@ func _test_synergies_in_game(game: Game, world: World, player: Player) -> void:
 		slime.take_hit(poke)
 	check(others[0].hp < others_hp[0] or others[1].hp < others_hp[1], "Storm: lightning jumps to the enemies nearby")
 	player.perks.clear()
+
+	# Thunderclap: a crit's shockwave hurts the enemies around, not the one struck.
+	player.perks.add(_perk("thunderclap"))
+	await _frames(1)
+	var struck_hp := slime.hp
+	others_hp = others.map(func(m: Monster) -> int: return m.hp)
+	var crit_poke := HitInfo.new()
+	crit_poke.amount = 7
+	crit_poke.is_crit = true
+	crit_poke.source = player
+	slime.take_hit(crit_poke)
+	check(struck_hp - slime.hp <= 7, "Thunderclap: the enemy struck takes only the crit (%d)" % (struck_hp - slime.hp))
+	check(others[0].hp < others_hp[0] or others[1].hp < others_hp[1], "Thunderclap: the shockwave hurts the enemies around")
+	player.perks.clear()
+
+	# Echo: an echo can't echo (a skill is used at most twice per cooldown, whatever the sources).
+	var sure_echo: PerkDef = _perk("echo").duplicate()
+	var always := SkillEchoPassive.new()
+	always.chance_per_stack = 1.0
+	sure_echo.passives = [always]
+	player.perks.add(sure_echo)
+	var echo_index := player.skills.skills.find_custom(func(s: SkillDef) -> bool: return s != null)
+	var uses := 0
+	for i in 4:
+		player.skills._cooldowns[echo_index] = 0.0 if i == 0 else player.skills._cooldowns[echo_index]
+		if player.skills.try_use(echo_index, player, Vector2.RIGHT):
+			uses += 1
+		await _frames(1)
+	check(uses == 2, "Echo: a 100% echo gives one free cast, not a loop (%d casts)" % uses)
+	player.perks.clear()
+
+	# Healing spells heal in full outside a boss fight, and half during one.
+	for id in ["holy_light", "holy_shield", "smite"]:
+		var spell: SkillDef = load("res://data/skills/player/%s.tres" % id)
+		for effect in spell.effects:
+			if effect is HealEffect:
+				var heal := effect as HealEffect
+				check(heal.boss_fight_ratio <= 0.5 and not world.is_boss_fight()
+					and heal.heal_amount(player) == heal.amount + roundi(player.get_max_hp() * heal.max_hp_ratio),
+					"%s heals in full outside a boss fight, half during one" % id)
 
 	# Arcane: using a skill fires a ring of bolts.
 	for id in ["arcane_focus", "arcane_power", "devotion"]:

@@ -13,5 +13,5 @@ description = "The Ember Tome (fire skills) can be found in the dungeon."
 icon = ExtResource("1_gukh8")
 color = Color(1, 0.41960785, 0.20784314, 1)
 kind = 3
-cost = 100
+cost = 120
 items = Array[ExtResource("2_t4lew")]([ExtResource("3_curh2")])

@@ -14,5 +14,5 @@ description = "The Tomes of Thunder and Wind can be found in the dungeon."
 icon = ExtResource("1_rltar")
 color = Color(1, 0.9019608, 0.42745098, 1)
 kind = 3
-cost = 120
+cost = 140
 items = Array[ExtResource("2_w0csp")]([ExtResource("3_gwag8"), ExtResource("4_3nuy4")])

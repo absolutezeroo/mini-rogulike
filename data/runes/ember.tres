@@ -8,8 +8,8 @@
 
 [sub_resource type="Resource" id="Resource_passive"]
 script = ExtResource("3_kind")
-chance = 0.35
-damage_per_stack = 2
+chance = 0.5
+damage_per_stack = 3
 
 [resource]
 script = ExtResource("1_rune")
@@ -18,7 +18,7 @@ passives = Array[ExtResource("2_passive")]([SubResource("Resource_passive")])
 value = 40
 id = &"ember_rune"
 display_name = "Ember Rune"
-description = "Hits have a 35% chance to set enemies on fire."
+description = "Hits have a 50% chance to set enemies on fire."
 icon = ExtResource("5_icon")
 min_depth = 1
 spawn_weight = 10

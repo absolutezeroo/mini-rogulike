@@ -18,8 +18,8 @@ crit_chance = 0.15
 
 [resource]
 script = ExtResource("8_de2vx")
-damage = 3
-cooldown = 0.19
+damage = 2
+cooldown = 0.31
 reach = 42.0
 knockback = 60.0
 attack_animation = 1

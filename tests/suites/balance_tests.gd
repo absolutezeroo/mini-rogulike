@@ -19,8 +19,10 @@ extends TestSuite
 const KNOWN := [
 	"model: boss TTK", "model: boss hits to kill",
 	"model: monster TTK", "model: elite TTK", "model: epic TTK", "model: legendary TTK", "model: shiny TTK",
-	"model: degenerate DPS", "model: weapon DPS",
-	"economy: shop",
+	# Phase 2C: Vampirism (heals on kill) reads ~0 in the lab: kills in a boss fight heal nothing
+	# (2A) and the dummy rooms don't hurt, so a kill heal has nothing to show; its value is pack
+	# sustain (Taken (live), the arena). A measuring blind spot, not a trap: buffed to 3 a kill.
+	"marginal: too weak",
 ]
 const KNOWN_DATE := "2026-10-20"
 
@@ -51,6 +53,18 @@ func run() -> void:
 		"model: monster TTK", "model: monster hits to kill", "model: elite TTK", "model: epic TTK", "model: legendary TTK",
 		"model: shiny TTK", "model: monster curve", "model: rank ladder", "model: ranked boss TTK", "model: act curve", "model: difficulty curve", "model: degenerate DPS",
 		"model: weapon DPS", "content: unlisted", "build data"])
+
+	# Phase 2C: the five families built on purpose stay comparable (DPS vs the expected act III
+	# build: each 1.0x-1.5x; Blood's strength is its sustain and low-health power, not raw DPS).
+	var family_ratios := {}
+	for table: Dictionary in report.tables:
+		if table.name == "degenerate_dps":
+			for row: Array in table.rows:
+				family_ratios[String(row[0])] = float(String(row[6]).trim_suffix("x"))
+	for synergy in CONTENT.synergies:
+		var key := "family_%s_a3" % synergy.id
+		var ratio: float = family_ratios.get(key, -1.0)
+		_target(ratio >= 1.0 and ratio <= 1.5, "family: %s DPS" % synergy.id, "%s: %.2fx the expected build's DPS (target 1.0-1.5x)" % [key, ratio])
 
 	# Real duels on the engine.
 	var lab := BalanceLab.new()
