@@ -80,8 +80,10 @@ src/
   game/                Game: main scene, floor flow, pauses; RunState (the run: depth, kills, bosses,
                        difficulty), RunRecords (stats, bestiary, achievements, history), OfferQueue
                        (perk choices waiting), GameMenus (the panels), ShrineUpgrades, RunSave (on disk)
-tests/               Headless tests: run_tests (the runner), suites/ (unit, title, game, combat, floor, boss),
-                     support/ (TestSuite: checks, scene helpers, the bot)
+tests/               Headless tests: run_tests (the runner), suites/ (unit, title, game, combat, floor, boss,
+                     balance: opt-in), support/ (TestSuite: checks, scene helpers, the bot)
+tools/balance/       Balance tools (not exported): model, arena, packs, marginal values, economy, compound
+                     checks; builds and targets in data/balance/ (see docs/balance.md)
 ```
 
 **Rule of thumb:** `data/` says *what* exists, `src/definitions/` says *what a thing can have*,
@@ -1047,6 +1049,29 @@ The suites (`tests/suites/`, each a `TestSuite`):
   up once, menus, the options and the profile.
 
 The exit code is the number of failures.
+
+- **balance** (opt-in: only with `--only=balance`): the balance tools' quick runs against the
+  targets of `data/balance/targets.tres`. Some of its checks fail on purpose today (the balance
+  work to do): they are printed as `FAIL (KNOWN ...)`.
+
+## Balance tools
+
+`tools/balance/` measures the whole game's balance with numbers: every monster and rank at every
+depth and difficulty, every boss (and boss rank), every weapon, the marginal value of every perk,
+relic, family, rune, affix, shrine level and encounter, the economy, and stacks that multiply. The
+fights are real (the Game scene, headless, a bot at the controls); the content is walked, never
+listed by hand.
+
+```
+godot --headless --fixed-fps 60 res://tools/balance/balance.tscn -- --mode=all --jobs=2 --out=<dir>
+godot --headless --fixed-fps 60 res://tools/balance/balance.tscn -- --mode=model   # seconds
+```
+
+Modes: `model`, `arena`, `pack`, `marginal`, `economy`, `compound`, `all` (`--quick` for a small
+subset, `--difficulty=normal,hard,nightmare+5`, `--build=`, `--boss=`, `--bot=`, `--seed=`). Each
+run writes `report.md` (numbered FLAGS first, then numbered tables) and `data.json`. Builds live in
+`data/balance/builds/`, goals in `data/balance/targets.tres`. How to read and extend it, and the
+balance log: [docs/balance.md](docs/balance.md).
 
 ## Art and credits
 

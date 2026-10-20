@@ -1,24 +1,24 @@
 [gd_resource type="Resource" script_class="BalanceBuildDef" format=3]
 
-[ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="1_7sa60"]
-[ext_resource type="Resource" path="res://data/items/armors/iron_helm.tres" id="2_1tpmf"]
-[ext_resource type="Resource" path="res://data/items/armors/chain_mail.tres" id="3_f03by"]
-[ext_resource type="Script" path="res://tools/balance/balance_build_def.gd" id="4_ttkvk"]
-[ext_resource type="Resource" path="res://data/items/weapons/big_sword.tres" id="5_l6s4l"]
+[ext_resource type="Script" path="res://tools/balance/balance_build_def.gd" id="1"]
+[ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="2"]
+[ext_resource type="Resource" path="res://data/items/weapons/big_sword.tres" id="3"]
+[ext_resource type="Resource" path="res://data/items/armors/iron_helm.tres" id="4"]
+[ext_resource type="Resource" path="res://data/items/armors/chain_mail.tres" id="5"]
 
 [resource]
-script = ExtResource("4_ttkvk")
+script = ExtResource("1")
 name = "expected_a4"
-description = "Average hero at the act IV boss (depth 12). ~3110 + 200 (Crimson Tengu) + 60% of ~3500 = ~5400 XP = level 13 (3795 needed, 5523 for 14): 12 perks. Three relics (Guardian Ring, War Banner, Executioner). A Rare Greatsword (Brutal, of the Fox) with Leech + Spark; Magic iron helm (Sturdy) and chain mail (of the Bear). Shrine: Vitality 3, Might 3, Toughness 2, Swiftness 1.
-Level from the XP curve (PlayerDef: 20 x 1.45^(L-1) per level) and the XP lying on Normal floors (measured: ~163/202 XP on floors 1-2, 430/616 on 4-5, ~1450/1400 on 7-8, ~1790/1710 on 10-11, elites included), assuming the player kills ~80% of an act I floor, 75% in act II, 65% in act III, 60% in act IV (the seal asks 70%, at most 50 kills), plus the bosses' XP (60, 120, 200). Perks: one per level up (level - 1), leaning to families (family_bias 1). Relics: one per boss slain. Gear: Magic/Rare weights from DungeonConfig > Loot at that depth (boss drops x5 quality); runes: every boss drops one, elites 30%, so 3-4 runes by act II and a forge on ~30% of floors."
+description = "Average hero at the act IV boss (depth 12). ~3110 + Crimson Tengu + 60% of act IV = ~5400 XP = level 13: 12 perks (Blood awake with Executioner; Storm awake with Swiftness). Three relics (Guardian Ring, War Banner, Executioner). A Rare Greatsword (Brutal, of the Fox) with Leech + Spark; Magic iron helm (Sturdy) and chain mail (of the Bear). Shrine: Vitality 3, Might 3, Toughness 2, Swiftness 1.
+Level from the XP curve (PlayerDef: 20 x 1.45^(L-1) per level) and the XP lying on Normal floors (tools/balance economy measures it: table 'XP gathered before each act's boss'), assuming the player kills ~80% of an act I floor, 75% in act II, 65% in act III, 60% in act IV (the seal asks 70%, at most 50 kills), plus the bosses' XP. Perks: one per level up (level - 1), leaning to families (family_bias 1: a started family weighs double, so one family is awake by act II-III). Relics: one per boss slain. Gear: Magic/Rare weights from DungeonConfig > Loot at that depth (boss drops x5 quality; tools/balance economy: 'Rarity of found equipment'); runes: every boss drops one, elites 30%, so 3-4 runes by act II and a forge on ~30% of floors."
 tags = PackedStringArray("expected")
 act = 4
 level = 13
-weapon = ExtResource("5_l6s4l")
+weapon = ExtResource("3")
 weapon_rarity = 2
 weapon_affixes = PackedStringArray("brutal", "of_the_fox")
 runes = PackedStringArray("leech_rune", "spark_rune")
-armors = Array[ExtResource("1_7sa60")]([ExtResource("2_1tpmf"), ExtResource("3_f03by")])
+armors = Array[ExtResource("2")]([ExtResource("4"), ExtResource("5")])
 armor_rarities = PackedInt32Array(1, 1)
 armor_affixes = PackedStringArray("sturdy", "of_the_bear")
 perks = {
@@ -27,7 +27,8 @@ perks = {
 "guardian_ring": 1,
 "iron_skin": 1,
 "precision": 1,
-"strength": 3,
+"strength": 2,
+"swiftness": 1,
 "thunderclap": 1,
 "vampirism": 1,
 "vitality": 3,

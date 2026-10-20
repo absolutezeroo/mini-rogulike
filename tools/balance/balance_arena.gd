@@ -1,120 +1,140 @@
 class_name BalanceArena
 extends Node
 ## The measured half of the balance tools: real fights in the real Game scene, headless, with a
-## bot at the controls (BalanceBot).
-## - run_bosses(): for each (boss, build, difficulty, bot) the act's boss floor of a run whose
-##   boss is that one, the build put on the hero (BalanceBuild.apply), the bot walks into the
-##   arena and fights until someone dies or `timeout` game seconds pass.
-## - run_packs(): the build against a pack of its act's common monsters, then an elite, on the
-##   act's last normal floor: time to kill each, damage taken.
-## Every fight starts from the same run seed and global random seed (`seed_value`): the same
-## command gives the same numbers. Hit stop is off (it freezes real time, not game time: the
-## fight is the same, only faster to simulate); times are game seconds at 60 physics frames/s.
-## Nothing is saved: the profile, settings and run save are kept in memory (isolate_profile()).
+## bot at the controls (BalanceBot), on the BalanceLab.
+## - run_bosses(): every boss (alternates included) x the builds of its act x difficulty x bot,
+##   plus every boss rank (Epic, Legendary, Shiny) with the expected build: the act's boss floor
+##   of a run whose boss is that one; the bot walks into the arena and fights until someone dies
+##   or `timeout` game seconds pass.
+## - run_weapons(): every weapon (Common, on the act's expected build otherwise) against every
+##   boss, kite bot, Normal.
+## - run_packs(): rooms of each act's monsters on its last normal floor: three of each kind, mixed
+##   rooms by spawn weight, and rooms with an Elite (each affix) / Epic / Legendary / Shiny.
+## Every fight starts from the same seeds (`seed_value`): the same command gives the same numbers.
 
-const GAME_SCENE := "res://src/game/game.tscn"
 ## Frames allowed to walk from the floor's start into the arena.
 const APPROACH_LIMIT := 60 * 40
-## Monsters in a pack (plus the difficulty's extra monsters per room), and packs per measure.
-const PACK_SIZE := 4
-const PACK_ROUNDS := 2
-## Game seconds a pack or an elite gets before it counts as a timeout.
+## Game seconds a room gets before it counts as a timeout.
 const PACK_TIMEOUT := 60.0
+## Mixed rooms measured per act, difficulty and bot.
+const MIXED_ROOMS := 3
 
+var lab: BalanceLab
 var content: ContentDB
 var targets: BalanceTargets
 var all_builds: Array[BalanceBuildDef] = []
 var builds: Array[BalanceBuildDef] = []
+## Every difficulty asked for (the curve: expected builds vs every boss).
 var difficulties: Array[DifficultyDef] = []
+## Difficulties for everything else (ranks, other builds, weapons, packs): Normal and Hard
+## when asked for, else the first asked.
+var core: Array[DifficultyDef] = []
 var bosses: Array[BossDef] = []
 var bots: PackedStringArray = ["face_tank", "kite"]
 var seed_value := 1
 ## Every build against every boss (default: each build against the bosses of its own act).
 var all_pairs := false
+## Small subset (the opt-in test suite).
+var quick := false
 ## Game seconds before a boss fight is called a timeout.
 var timeout := 240.0
 ## Print a line per fight.
 var verbose := true
 
-## Dungeon and rank chances changed for the measures (restored by _restore_chances()).
-var _saved_chances := {}
 
-
-## Sound off, the profile, settings and run save in memory only (like tests/run_tests.gd), every
-## difficulty open.
-static func isolate_profile() -> void:
-	Sfx.enabled = false
-	Profile.save_path = ""
-	Profile.reset()
-	Settings.path = ""
-	Settings.tutorial_hints = false
-	RunSave.path = "user://balance_run_%d.json" % OS.get_process_id()
-	RunSave.erase()
-
-
-## A clean profile for one fight: no bestiary mastery (+10% damage) carried over from the
-## previous fights, every difficulty unlocked.
-static func _fresh_profile(content: ContentDB) -> void:
-	Profile.reset()
-	for difficulty in content.difficulties:
-		Profile.wins[String(difficulty.id)] = 1
+func core_difficulties() -> Array[DifficultyDef]:
+	var result: Array[DifficultyDef] = []
+	for d in difficulties:
+		if ["normal", "hard"].has(BalanceContent.key(d)):
+			result.append(d)
+	if result.is_empty() and not difficulties.is_empty():
+		result.append(difficulties[0])
+	return result
 
 
 # --- Boss fights -------------------------------------------------------------------------
 
+## The fights to run: [{ boss, build, difficulty, bot, rank }].
+func boss_matrix() -> Array:
+	var result: Array = []
+	var ranks := BalanceContent.boss_ranks(content)
+	var boss_list := bosses
+	if quick:
+		boss_list = bosses.slice(0, 1)  # the first act's main boss, its act's builds
+	for boss in boss_list:
+		var act := BalanceContent.act_of_boss(content, boss)
+		var expected := BalanceBuild.expected(all_builds, act)
+		for build in builds:
+			var own := build.act == act
+			if not own and not all_pairs:
+				continue
+			var is_expected := build == expected
+			var difficulty_list: Array[DifficultyDef] = difficulties if is_expected else core
+			if quick:
+				difficulty_list = core.slice(0, 1)
+			for difficulty in difficulty_list:
+				for bot in bots:
+					result.append({ "boss": boss, "build": build, "difficulty": difficulty, "bot": bot, "rank": null })
+			if is_expected and not quick:
+				for rank in ranks:
+					for difficulty in core:
+						for bot in bots:
+							result.append({ "boss": boss, "build": build, "difficulty": difficulty, "bot": bot, "rank": rank })
+	return result
+
+
 func run_bosses() -> BalanceReport:
 	var report := BalanceReport.new()
 	report.title = "Balance arena"
-	report.notes.append("Real fights in the Game scene, headless, bots at the controls. Seed %d, timeout %.0f game s, hit stop off. Times are game seconds." % [seed_value, timeout])
 	var started := Time.get_ticks_msec()
-	_override_chances()
+	lab.override_chances()
 	var fights: Array = []
-	for boss in bosses:
-		var act := _act_of(boss)
-		for build in builds:
-			if not all_pairs and build.act != act:
-				continue
-			for difficulty in difficulties:
-				for bot in bots:
-					var result := await fight_boss(boss, build, difficulty, bot)
-					fights.append(result)
-					if verbose:
-						print("  %s" % _fight_line(result))
-	_restore_chances()
-	report.notes.append("%d fights in %.0f s of real time." % [fights.size(), (Time.get_ticks_msec() - started) / 1000.0])
+	var matrix := boss_matrix()
+	print("balance arena: %d boss fights" % matrix.size())
+	for f: Dictionary in matrix:
+		var result := await fight_boss(f.boss, f.build, f.difficulty, f.bot, f.rank)
+		fights.append(result)
+		if verbose:
+			print("  [%d/%d] %s" % [fights.size(), matrix.size(), fight_line(result)])
+	lab.restore_chances()
+	var seconds := (Time.get_ticks_msec() - started) / 1000.0
+	report.notes.append("Arena: %d boss fights in %.0f s of real time (seed %d, timeout %.0f game s, hit stop off; times are game seconds)." % [fights.size(), seconds, seed_value, timeout])
+	report.timings["arena"] = seconds
 	report.data["fights"] = fights
 	_boss_report(report, fights)
 	return report
 
 
 ## One fight. Returns what happened (see the keys at the end).
-func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef, bot_name: String) -> Dictionary:
-	var act := _act_of(boss)
-	var depth := content.dungeon.first_depth(act - 1) + content.dungeon.acts[act - 1].floors - 1
-	var game := await _start_game(depth, difficulty, boss, false)
+func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef, bot_name: String, rank: MonsterRankDef = null) -> Dictionary:
+	var act := BalanceContent.act_of_boss(content, boss)
+	var depth := BalanceContent.boss_depth(content, act)
+	var game := await lab.start_game(depth, difficulty, boss, true, rank)
 	var result := { "boss": String(boss.id), "act": act, "build": build.name, "tags": build.tags,
-		"build_act": build.act, "difficulty": String(difficulty.id), "bot": bot_name, "depth": depth }
+		"build_act": build.act, "difficulty": BalanceContent.key(difficulty), "bot": bot_name, "depth": depth,
+		"rank": String(rank.id) if rank else "plain", "weapon": String(build.weapon.id) if build.weapon else "" }
 	var world := game.world
 	if world.arena == null or world.arena.boss == null:
 		result["result"] = "error"
 		result["error"] = "no boss arena on depth %d" % depth
-		await _end_game(game)
+		await lab.end_game(game)
 		return result
 	var player := game.player
 	BalanceBuild.apply(build, player, content, difficulty)
 	player.perks.on_floor_started(player)  # floor-start perks (a ward) as on arrival
 	player.xp = -1000000  # the build keeps its level: no level up (and no perk menu) mid-fight
 	var boss_actor := world.arena.boss
+	result["affixes"] = boss_actor.affix_names()
 	var log := FightLog.new(player, boss_actor)
 	var bot := BalanceBot.create(bot_name, player, world, boss_actor)
 	var frames := 0
 	var fight_frames := 0
-	var limit := roundi(timeout * Engine.physics_ticks_per_second)
+	var limit := roundi(timeout * BalanceLab.FPS)
 	var outcome := "timeout"
 	while true:
 		await get_tree().physics_frame
 		frames += 1
-		_unpause(game)
+		lab.unpause(game)
 		if player.is_dead:
 			outcome = "loss"
 			break
@@ -133,15 +153,159 @@ func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef
 		bot.step()
 	BalanceBot.release_all()
 	log.frame()
-	result.merge(log.summary(fight_frames / float(Engine.physics_ticks_per_second)))
+	result.merge(log.summary(fight_frames / BalanceLab.FPS))
 	result["result"] = outcome
 	result["hero_max_hp"] = player.get_max_hp()
 	result["boss_max_hp"] = boss_actor.get_max_hp()
 	result["boss_hp_left"] = maxi(boss_actor.hp, 0)
+	result["boss_hp_left_share"] = maxi(boss_actor.hp, 0) / maxf(boss_actor.get_max_hp(), 1.0)
 	result["rolls"] = bot.rolls
 	result["skills_used"] = bot.skills_used
-	await _end_game(game)
+	# Time to kill, measured or (lost, timed out) projected from the damage dealt so far.
+	var dealt_share: float = 1.0 - float(result.boss_hp_left_share)
+	result["ttk_projected"] = float(result.time) / maxf(dealt_share, 0.01) if outcome != "win" else float(result.time)
+	await lab.end_game(game)
 	return result
+
+
+static func fight_line(r: Dictionary) -> String:
+	return "%s%s | %s | %s | %s: %s in %.1f s, phase %d, boss %d%% left, hero min %d%%, taken %d (%d hits), healed %d (%s)" % [
+		r.boss, "" if r.get("rank", "plain") == "plain" else " (%s %s)" % [r.rank, r.get("affixes", "")], r.build, r.difficulty, r.bot,
+		str(r.get("result", "?")).to_upper(), r.get("time", 0.0), r.get("phases", 0),
+		roundi(100.0 * r.get("boss_hp_left_share", 0.0)), roundi(r.get("min_hp_share", 0.0) * 100.0),
+		r.get("damage_taken", 0), r.get("hits_taken", 0), r.get("healed", 0), BalanceLab.sources_text(r.get("heal_sources", {}))]
+
+
+func _boss_report(report: BalanceReport, fights: Array) -> void:
+	var rows: Array = []
+	for r: Dictionary in fights:
+		rows.append([r.boss, r.get("rank", "plain"), r.get("affixes", ""), r.build, r.difficulty, r.bot, str(r.get("result", "?")).to_upper(),
+			r.get("time", 0.0), r.get("ttk_projected", 0.0), r.get("phases", 0), BalanceReport.pct(r.get("boss_hp_left_share", 0.0)), r.get("dps", 0.0),
+			r.get("damage_taken", 0), r.get("hits_taken", 0), r.get("healed", 0), BalanceReport.pct(r.get("heal_share", 0.0)),
+			BalanceLab.sources_text(r.get("heal_sources", {})), BalanceReport.pct(r.get("min_hp_share", 0.0))])
+		_check_fight(report, r)
+	report.table("boss_arena", "Bosses", "Boss fights on the engine (every boss x builds of its act x difficulty x bot, ranks with the expected build). TTK proj. = time / share of the boss' health taken",
+		PackedStringArray(["Boss", "Rank", "Affixes", "Build", "Difficulty", "Bot", "Result", "Time s", "TTK proj. s", "Phase", "Boss HP left", "Hero DPS",
+			"Taken", "Hits", "Healed", "Heal/taken", "Heal sources", "Hero min HP"]), rows)
+	# Summary: expected build, plain rank, per boss and difficulty.
+	var summary: Array = []
+	var keys: Array = difficulties.map(func(d: DifficultyDef) -> String: return BalanceContent.key(d))
+	for boss in bosses:
+		var expected := BalanceBuild.expected(all_builds, BalanceContent.act_of_boss(content, boss))
+		if expected == null:
+			continue
+		var row := [String(boss.id), expected.name]
+		for d_key: String in keys:
+			var cell := PackedStringArray()
+			for bot in bots:
+				for r: Dictionary in fights:
+					if r.boss == String(boss.id) and r.build == expected.name and r.difficulty == d_key and r.bot == bot and r.get("rank", "plain") == "plain":
+						cell.append("%s %s %.0fs" % ["K" if bot == "kite" else "F", "W" if r.result == "win" else ("L" if r.result == "loss" else "T"), r.time])
+			row.append(" / ".join(cell) if not cell.is_empty() else "-")
+		summary.append(row)
+	var columns := PackedStringArray(["Boss", "Build"])
+	columns.append_array(PackedStringArray(keys))
+	report.table("boss_arena_summary", "Bosses", "Expected build vs every boss on every difficulty (engine). K = kite bot, F = face-tank bot; W win, L loss, T timeout; game seconds",
+		columns, summary)
+
+
+func _check_fight(report: BalanceReport, r: Dictionary) -> void:
+	var subject := "%s vs %s%s (%s, %s)" % [r.build, "" if r.get("rank", "plain") == "plain" else r.rank + " ", r.boss, r.difficulty, r.bot]
+	if r.get("result") == "error":
+		report.flag(BalanceReport.ERROR, "arena: error", subject, str(r.get("error", "?")), "a fight", "the fight could not be measured")
+		return
+	var tags: PackedStringArray = r.tags
+	var own: bool = r.build_act == r.act
+	var plain: bool = r.get("rank", "plain") == "plain"
+	var must_lose := false
+	for tag in targets.facetank_must_lose_tags:
+		must_lose = must_lose or tags.has(tag)
+	if r.bot == "face_tank" and must_lose and own and plain \
+			and BalanceContent.rank_of(r.difficulty) >= BalanceContent.rank_of(String(targets.facetank_must_lose_from)) and r.result == "win":
+		report.flag(BalanceReport.ERROR, "arena: face-tank wins", subject, "won in %.0f s, %d%% health at worst" % [r.time, roundi(r.min_hp_share * 100.0)],
+			"must die from %s" % targets.facetank_must_lose_from, "healed %d of %d taken (%s)" % [r.healed, r.damage_taken, BalanceLab.sources_text(r.heal_sources)])
+	var share_max := -1.0
+	if tags.has("expected"):
+		share_max = targets.heal_share_max_expected
+	elif tags.has("degenerate") or tags.has("family"):
+		share_max = targets.heal_share_max_degenerate
+	if share_max >= 0.0 and own and plain and r.damage_taken > 0 and r.heal_share > share_max:
+		report.flag(BalanceReport.ERROR, "arena: heal share", subject, BalanceReport.pct(r.heal_share), "<= %s" % BalanceReport.pct(share_max),
+			"healed %d of %d taken (%s)" % [r.healed, r.damage_taken, BalanceLab.sources_text(r.heal_sources)])
+	if tags.has("expected") and own and r.bot == "kite":
+		if plain and targets.kite_should_win_on.has(r.difficulty) and r.result != "win":
+			report.flag(BalanceReport.WARN, "arena: kite loses", subject, "%s (boss at %d%%)" % [r.result, roundi(100.0 * r.boss_hp_left_share)],
+				"wins on %s" % ", ".join(targets.kite_should_win_on), "the boss could not be beaten by keeping range and rolling")
+		if r.difficulty == "normal":
+			var ttk: float = r.ttk_projected
+			var top := targets.boss_ttk_max if plain else targets.ranked_boss_ttk_max
+			if ttk < targets.boss_ttk_min or ttk > top:
+				report.flag(BalanceReport.WARN, "arena: boss TTK" if plain else "arena: ranked boss TTK", subject, BalanceReport.secs(ttk), "%d-%d s" % [targets.boss_ttk_min, top],
+					"the expected build's fight %s (%s)" % ["is too short" if ttk < targets.boss_ttk_min else "is too long", "measured" if r.result == "win" else "projected from %d%% dealt" % roundi(100.0 * (1.0 - r.boss_hp_left_share))])
+
+
+# --- Weapons vs bosses -----------------------------------------------------------------------
+
+func run_weapons() -> BalanceReport:
+	var report := BalanceReport.new()
+	report.title = "Balance weapons arena"
+	var started := Time.get_ticks_msec()
+	lab.override_chances()
+	var normal := BalanceContent.difficulty(content, "normal")
+	var weapons := BalanceContent.weapons()
+	var boss_list := bosses
+	if quick:
+		weapons = weapons.slice(0, 3)
+		boss_list = bosses.slice(0, 1)
+	var fights: Array = []
+	var total := weapons.size() * boss_list.size()
+	print("balance weapons arena: %d fights" % total)
+	for weapon in weapons:
+		for boss in boss_list:
+			var act := BalanceContent.act_of_boss(content, boss)
+			var expected := BalanceBuild.expected(all_builds, act)
+			if expected == null:
+				continue
+			var build := BalanceBuild.variant(expected, content, "weapon", String(weapon.id), 0, weapon)
+			build.name = "%s+%s" % [expected.name, weapon.id]
+			var r := await fight_boss(boss, build, normal, "kite")
+			r["weapon"] = String(weapon.id)
+			fights.append(r)
+			if verbose:
+				print("  [%d/%d] %s" % [fights.size(), total, fight_line(r)])
+	lab.restore_chances()
+	var rows: Array = []
+	var columns := PackedStringArray(["Weapon", "Wins", "Win share", "Avg TTK proj. s"])
+	for boss in boss_list:
+		columns.append(String(boss.id))
+	for weapon in weapons:
+		var row := [String(weapon.id)]
+		var wins := 0
+		var count := 0
+		var ttks: Array = []
+		var cells := []
+		for boss in boss_list:
+			for r: Dictionary in fights:
+				if r.weapon == String(weapon.id) and r.boss == String(boss.id):
+					count += 1
+					if r.result == "win":
+						wins += 1
+					ttks.append(r.ttk_projected)
+					cells.append("%s %.0fs" % ["W" if r.result == "win" else ("L" if r.result == "loss" else "T"), r.ttk_projected])
+		var share := wins / maxf(count, 1.0)
+		row.append_array([wins, BalanceReport.pct(share), BalanceContent.mean(ttks)])
+		row.append_array(cells)
+		rows.append(row)
+		if share < targets.weapon_boss_win_share_min:
+			report.flag(BalanceReport.WARN, "arena: weapon", "%s (Common, expected builds, kite, normal)" % weapon.id, "wins %d of %d" % [wins, count],
+				">= %s of the bosses" % BalanceReport.pct(targets.weapon_boss_win_share_min), "the weapon loses to most bosses")
+	var seconds := (Time.get_ticks_msec() - started) / 1000.0
+	report.notes.append("Weapons arena: %d fights in %.0f s of real time." % [fights.size(), seconds])
+	report.timings["weapons"] = seconds
+	report.data["weapon_fights"] = fights
+	report.table("weapon_arena", "Weapons", "Each weapon (Common, on the act's expected build otherwise) vs every boss, kite bot, Normal (engine). W win, L loss, T timeout; TTK projected from the damage dealt",
+		columns, rows)
+	return report
 
 
 # --- Packs --------------------------------------------------------------------------------
@@ -149,283 +313,115 @@ func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef
 func run_packs() -> BalanceReport:
 	var report := BalanceReport.new()
 	report.title = "Balance pack"
-	report.notes.append("The build against packs of its act's common monsters (%d + the difficulty's extra), then an elite, %d rounds, on the act's last normal floor. Seed %d. Times are game seconds." % [PACK_SIZE, PACK_ROUNDS, seed_value])
 	var started := Time.get_ticks_msec()
-	_override_chances()
+	lab.override_chances()
 	var results: Array = []
-	for build in builds:
-		for difficulty in difficulties:
-			for bot in bots:
-				var result := await fight_packs(build, difficulty, bot)
-				results.append(result)
-				if verbose:
-					print("  pack %s %s %s: commons %.2f s, elite %.2f s, taken %d%%, %s" % [build.name, difficulty.id, bot,
-						result.get("common_ttk", -1.0), result.get("elite_ttk", -1.0), roundi(result.get("damage_share", 0.0) * 100.0), result.get("result", "?")])
-	_restore_chances()
-	report.notes.append("%d measures in %.0f s of real time." % [results.size(), (Time.get_ticks_msec() - started) / 1000.0])
-	report.data["packs"] = results
-	_pack_report(report, results)
-	return report
-
-
-func fight_packs(build: BalanceBuildDef, difficulty: DifficultyDef, bot_name: String) -> Dictionary:
-	var act := build.act
-	var depth := content.dungeon.first_depth(act - 1) + content.dungeon.acts[act - 1].floors - 2
-	var game := await _start_game(maxi(depth, 1), difficulty, null, true)
-	var world := game.world
-	var player := game.player
-	BalanceBuild.apply(build, player, content, difficulty)
-	player.xp = -1000000
-	var result := { "build": build.name, "tags": build.tags, "act": act, "difficulty": String(difficulty.id), "bot": bot_name, "depth": world.depth }
-	for monster in world.get_hostiles(player.faction):
-		monster.queue_free()
-	await get_tree().physics_frame
-	var common_ttks: Array[float] = []
-	var elite_ttks: Array[float] = []
-	var taken := 0
-	var hp_spent := 0.0
-	var outcome := "ok"
-	var kinds := PackedStringArray()
-	var elites := PackedStringArray()
-	for round_index in PACK_ROUNDS:
-		for elite in [false, true]:
-			player.hp = player.get_max_hp()
-			player.health_changed.emit(player.hp, player.get_max_hp())
-			var spawned: Array[Monster] = []
-			var count := 1 if elite else PACK_SIZE + difficulty.extra_monsters
-			for i in count:
-				var def := world.pick_monster()
-				if def == null:
-					continue
-				var at := world.find_open_point_near(player.global_position, world.rng.randf_range(140.0, 200.0))
-				var monster := world.spawn_monster(def, at)
-				if elite:
-					world.make_elite(monster)
-					elites.append(monster.display_name)
-				else:
-					kinds.append(String(def.id))
-				monster.target = player
-				spawned.append(monster)
-			var watch := PackLog.new(player, spawned)
-			var bot := BalanceBot.create(bot_name, player, world)
-			var frames := 0
-			var limit := roundi(PACK_TIMEOUT * Engine.physics_ticks_per_second)
-			while frames < limit:
-				await get_tree().physics_frame
-				frames += 1
-				_unpause(game)
-				watch.frame()
-				if player.is_dead or spawned.all(func(m: Variant) -> bool: return not is_instance_valid(m) or (m as Monster).is_dead):
-					break
-				bot.step()
-			BalanceBot.release_all()
-			watch.frame()
-			watch.close()
-			taken += watch.taken
-			hp_spent += watch.taken / float(player.get_max_hp())
-			for ttk in watch.ttks:
-				(elite_ttks if elite else common_ttks).append(ttk)
-			if player.is_dead:
-				outcome = "died"
-				break
-			if frames >= limit:
-				outcome = "timeout"
-			for monster in spawned:
-				if is_instance_valid(monster) and not monster.is_dead:
-					monster.queue_free()
-			await get_tree().physics_frame
-		if player.is_dead:
-			break
-	result["result"] = outcome
-	result["common_ttk"] = _mean(common_ttks)
-	result["common_ttk_max"] = common_ttks.max() if not common_ttks.is_empty() else -1.0
-	result["elite_ttk"] = _mean(elite_ttks)
-	result["damage_taken"] = taken
-	result["damage_share"] = hp_spent / float(PACK_ROUNDS * 2)  # per pack or elite, as a share of max HP
-	result["pack_damage_share"] = hp_spent / float(PACK_ROUNDS * 2)
-	result["monsters"] = kinds
-	result["elites"] = elites
-	result["hero_max_hp"] = player.get_max_hp()
-	await _end_game(game)
-	return result
-
-
-static func _mean(values: Array[float]) -> float:
-	if values.is_empty():
-		return -1.0
-	var total := 0.0
-	for value in values:
-		total += value
-	return total / values.size()
-
-
-# --- The game ------------------------------------------------------------------------------
-
-## A run resumed at `depth` (RunSave in memory: the same seed every time), with `boss` drawn for
-## its act and every difficulty open. `plain`: no floor event or curse.
-func _start_game(depth: int, difficulty: DifficultyDef, boss: BossDef, plain: bool) -> Game:
-	_fresh_profile(content)
-	HitStop.enabled = false
-	HitStop.reset()
-	get_tree().paused = false
-	seed(seed_value)
-	var run_bosses: Array = []
-	for act in content.dungeon.acts:
-		run_bosses.append(boss if boss and act.all_bosses().has(boss) else act.boss)
-	var base := content.player.base_stats
-	RunSave.write({
-		"seed": seed_value, "depth": depth, "difficulty": String(difficulty.id), "ascension": 0,
-		"bosses": RunSave.refs(run_bosses), "rerolls": 0, "banishes": 0, "time": 0.0,
-		"player": { "level": 1, "hp": base.max_hp, "base_stats": base.to_dict() },
-	})
-	Game.resume_requested = true
-	var game := (load(GAME_SCENE) as PackedScene).instantiate() as Game
-	game.show_act_cards = false
-	(game.get_node("World") as World).forced_plain = plain
-	add_child(game)
-	for i in 3:
-		await get_tree().physics_frame
-	return game
-
-
-func _end_game(game: Game) -> void:
-	BalanceBot.release_all()
-	get_tree().paused = false
-	HitStop.reset()
-	# Delayed effects (a blast's fuse, a combo's next stab) hold the world in their timers: let
-	# them go off on a frozen game before freeing it, or they would call into freed objects.
-	game.process_mode = Node.PROCESS_MODE_DISABLED
-	for i in 90:
-		await get_tree().physics_frame
-	game.queue_free()
-	for i in 2:
-		await get_tree().process_frame
-	RunSave.erase()
-
-
-## A menu opened by itself (a level up, a shop...) is closed: the fight goes on.
-func _unpause(game: Game) -> void:
-	if not get_tree().paused:
-		return
-	game.offers.clear()
-	game.menus.hide_all()
-	get_tree().paused = false
-
-
-## No ambush, merchant, forge, encounter or event in the way; bosses never roll a rare rank.
-func _override_chances() -> void:
-	var dungeon := content.dungeon
-	_saved_chances = { "ambush": dungeon.ambush_chance, "merchant": dungeon.merchant_chance, "forge": dungeon.forge_chance,
-		"forge_growth": dungeon.forge_chance_growth, "encounters": dungeon.encounters_max, "event": dungeon.floor_event_chance, "ranks": {} }
-	dungeon.ambush_chance = 0.0
-	dungeon.merchant_chance = 0.0
-	dungeon.forge_chance = 0.0
-	dungeon.forge_chance_growth = 0.0
-	dungeon.encounters_max = 0
-	dungeon.floor_event_chance = 0.0
-	for rank in dungeon.rare_ranks:
-		if rank:
-			_saved_chances.ranks[rank] = rank.boss_chance
-			rank.boss_chance = 0.0
-
-
-func _restore_chances() -> void:
-	if _saved_chances.is_empty():
-		return
-	var dungeon := content.dungeon
-	dungeon.ambush_chance = _saved_chances.ambush
-	dungeon.merchant_chance = _saved_chances.merchant
-	dungeon.forge_chance = _saved_chances.forge
-	dungeon.forge_chance_growth = _saved_chances.forge_growth
-	dungeon.encounters_max = _saved_chances.encounters
-	dungeon.floor_event_chance = _saved_chances.event
-	for rank: MonsterRankDef in _saved_chances.ranks:
-		rank.boss_chance = _saved_chances.ranks[rank]
-	_saved_chances = {}
-
-
-func _act_of(boss: BossDef) -> int:
-	for i in content.dungeon.acts.size():
-		if content.dungeon.acts[i].all_bosses().has(boss):
-			return i + 1
-	return 0
-
-
-func _difficulty_index(id: StringName) -> int:
-	for i in content.difficulties.size():
-		if content.difficulties[i].id == id:
-			return i
-	return -1
-
-
-# --- Reports -------------------------------------------------------------------------------
-
-static func _fight_line(r: Dictionary) -> String:
-	return "%s | %s | %s | %s: %s in %.1f s, phase %d, boss %d%% left, hero min %d%%, taken %d (%d hits), healed %d (%s)" % [
-		r.boss, r.build, r.difficulty, r.bot, str(r.get("result", "?")).to_upper(), r.get("time", 0.0), r.get("phases", 0),
-		roundi(100.0 * r.get("boss_hp_left", 0) / maxf(r.get("boss_max_hp", 1), 1.0)), roundi(r.get("min_hp_share", 0.0) * 100.0),
-		r.get("damage_taken", 0), r.get("hits_taken", 0), r.get("healed", 0), FightLog.sources_text(r.get("heal_sources", {}))]
-
-
-func _boss_report(report: BalanceReport, fights: Array) -> void:
-	var rows: Array = []
-	for r: Dictionary in fights:
-		rows.append([r.boss, r.build, r.difficulty, r.bot, str(r.get("result", "?")).to_upper(), r.get("time", 0.0), r.get("phases", 0),
-			BalanceReport.pct(r.get("boss_hp_left", 0) / maxf(r.get("boss_max_hp", 1), 1.0)), r.get("dps", 0.0),
-			r.get("damage_taken", 0), r.get("hits_taken", 0), r.get("healed", 0), BalanceReport.pct(r.get("heal_share", 0.0)),
-			FightLog.sources_text(r.get("heal_sources", {})), BalanceReport.pct(r.get("min_hp_share", 0.0))])
-		_check_fight(report, r)
-	report.table("fights", "Boss fights (measured)", PackedStringArray(["Boss", "Build", "Difficulty", "Bot", "Result", "Time s", "Phase",
-		"Boss HP left", "Hero DPS", "Taken", "Hits", "Healed", "Heal/taken", "Heal sources", "Hero min HP"]), rows)
-
-
-func _check_fight(report: BalanceReport, r: Dictionary) -> void:
-	if r.get("result") == "error":
-		report.flag(BalanceReport.ERROR, "arena: error", "%s vs %s (%s, %s)" % [r.build, r.boss, r.difficulty, r.bot], str(r.get("error", "?")), "a fight", "the fight could not be measured")
-		return
-	var tags: PackedStringArray = r.tags
-	var subject := "%s vs %s (%s, %s)" % [r.build, r.boss, r.difficulty, r.bot]
-	var must_lose := false
-	for tag in targets.facetank_must_lose_tags:
-		must_lose = must_lose or tags.has(tag)
-	if r.bot == "face_tank" and must_lose and r.build_act == r.act \
-			and _difficulty_index(StringName(r.difficulty)) >= _difficulty_index(targets.facetank_must_lose_from) and r.result == "win":
-		report.flag(BalanceReport.ERROR, "arena: face-tank wins", subject, "won in %.0f s, %d%% HP left at worst" % [r.time, roundi(r.min_hp_share * 100.0)],
-			"must die from %s" % targets.facetank_must_lose_from, "healed %d of %d taken (%s)" % [r.healed, r.damage_taken, FightLog.sources_text(r.heal_sources)])
-	var share_max := -1.0
-	if tags.has("degenerate"):
-		share_max = targets.heal_share_max_degenerate
-	elif tags.has("expected"):
-		share_max = targets.heal_share_max_expected
-	if share_max >= 0.0 and r.build_act == r.act and r.damage_taken > 0 and r.heal_share > share_max:
-		report.flag(BalanceReport.ERROR, "arena: heal share", subject, BalanceReport.pct(r.heal_share), "<= %s" % BalanceReport.pct(share_max),
-			"healed %d of %d taken (%s)" % [r.healed, r.damage_taken, FightLog.sources_text(r.heal_sources)])
-	if tags.has("expected") and r.build_act == r.act and r.bot == "kite":
-		if not String(targets.kite_should_win_on).is_empty() and r.difficulty == String(targets.kite_should_win_on) and r.result != "win":
-			report.flag(BalanceReport.WARN, "arena: kite loses", subject, "%s (boss at %d%%)" % [r.result, roundi(100.0 * r.boss_hp_left / maxf(r.boss_max_hp, 1.0))],
-				"wins on %s" % targets.kite_should_win_on, "the boss could not be beaten by keeping range and rolling")
-		if r.result == "win" and r.difficulty == "normal" and (r.time < targets.boss_ttk_min or r.time > targets.boss_ttk_max):
-			report.flag(BalanceReport.WARN, "arena: boss TTK", subject, BalanceReport.secs(r.time), "%d-%d s" % [targets.boss_ttk_min, targets.boss_ttk_max],
-				"the expected build's fight is %s" % ("too short" if r.time < targets.boss_ttk_min else "too long"))
-
-
-func _pack_report(report: BalanceReport, results: Array) -> void:
-	var rows: Array = []
-	for r: Dictionary in results:
-		rows.append([r.build, r.act, r.difficulty, r.bot, r.result, r.common_ttk, r.common_ttk_max, r.elite_ttk,
-			BalanceReport.pct(r.damage_share), ", ".join(r.elites)])
-		var tags: PackedStringArray = r.tags
-		if not tags.has("expected") or r.difficulty != "normal":
+	var kind_rows: Array = []
+	var room_rows: Array = []
+	var rank_rows: Array = []
+	var acts := range(1, content.dungeon.acts.size() + 1)
+	if quick:
+		acts = [1]
+	for act: int in acts:
+		var expected := BalanceBuild.expected(all_builds, act)
+		if expected == null:
 			continue
-		var subject := "%s (%s, %s)" % [r.build, r.difficulty, r.bot]
-		if r.common_ttk >= 0.0 and (r.common_ttk < targets.common_ttk_min or r.common_ttk > targets.common_ttk_max):
-			report.flag(BalanceReport.WARN, "pack: monster TTK", subject, BalanceReport.secs(r.common_ttk), "%.1f-%.1f s" % [targets.common_ttk_min, targets.common_ttk_max], "average time from first hit to death, common monsters")
-		if r.elite_ttk >= 0.0 and (r.elite_ttk < targets.elite_ttk_min or r.elite_ttk > targets.elite_ttk_max):
-			report.flag(BalanceReport.WARN, "pack: elite TTK", subject, BalanceReport.secs(r.elite_ttk), "%.0f-%.0f s" % [targets.elite_ttk_min, targets.elite_ttk_max], "elites: %s" % ", ".join(r.elites))
-		if r.bot == "kite" and r.damage_share > targets.pack_damage_share_max:
-			report.flag(BalanceReport.WARN, "pack: damage taken", subject, BalanceReport.pct(r.damage_share), "<= %s" % BalanceReport.pct(targets.pack_damage_share_max), "average per pack or elite, as a share of max HP")
-	report.table("packs", "Packs and elites (measured): time from a monster's first hurt to its death, damage taken per pack / elite",
-		PackedStringArray(["Build", "Act", "Difficulty", "Bot", "Result", "Common TTK s", "Slowest", "Elite TTK s", "Taken per fight", "Elites"]), rows)
+		var depth := BalanceContent.boss_depth(content, act) - 1
+		var act_builds := builds.filter(func(b: BalanceBuildDef) -> bool: return b.act == act)
+		for difficulty in core:
+			var d_key := BalanceContent.key(difficulty)
+			var s := lab.session(depth, difficulty)
+			# Three of each kind (kite), the act's whole list.
+			if expected in act_builds:
+				var kinds: Array = content.dungeon.acts[act - 1].monsters.duplicate()
+				if quick:
+					kinds = kinds.slice(0, 3)
+				for monster: MonsterDef in kinds:
+					if monster == null:
+						continue
+					var foes := [{ "def": monster }, { "def": monster }, { "def": monster }]
+					var r := await lab.pack(s, expected, foes, "kite", PACK_TIMEOUT, seed_value)
+					var kind_ttk := BalanceContent.mean(r.ttk_by_kind.get(String(monster.id), []))
+					r.merge({ "act": act, "difficulty": d_key, "build": expected.name, "bot": "kite", "room": "3 x %s" % monster.id, "kind": String(monster.id), "kind_ttk": kind_ttk })
+					results.append(r)
+					kind_rows.append([act, String(monster.id), d_key, r.result, kind_ttk, r.clear_time, BalanceReport.pct(r.taken / float(r.hero_max_hp)), r.hits])
+					if d_key == "normal" and monster.spawn_weight > 0 and kind_ttk >= 0.0 and (kind_ttk < targets.common_ttk_min or kind_ttk > targets.common_ttk_max):
+						report.flag(BalanceReport.WARN, "pack: monster TTK", "%s vs %s (normal, depth %d)" % [expected.name, monster.id, depth], BalanceReport.secs(kind_ttk),
+							"%.1f-%.1f s" % [targets.common_ttk_min, targets.common_ttk_max], "measured: first hurt to death, 3 at once, kite bot")
+			# Mixed rooms by spawn weight: every build of the act, both bots.
+			var size := lab.room_size(depth, difficulty)
+			for build in act_builds:
+				for bot in bots:
+					var rooms := MIXED_ROOMS if not quick else 1
+					var clear: Array = []
+					var taken: Array = []
+					var healed: Array = []
+					var sources := {}
+					var outcomes := PackedStringArray()
+					for i in rooms:
+						var foes := lab.roll_room(act, depth, size, seed_value * 1000 + act * 10 + i)
+						var r := await lab.pack(s, build, foes, bot, PACK_TIMEOUT, seed_value + i)
+						r.merge({ "act": act, "difficulty": d_key, "build": build.name, "tags": build.tags, "bot": bot, "room": "mixed %d" % size })
+						results.append(r)
+						clear.append(r.clear_time)
+						taken.append(r.taken / float(r.hero_max_hp))
+						healed.append(r.healed / maxf(r.clear_time, 0.01))
+						outcomes.append(r.result)
+						for k: String in r.heal_sources:
+							sources[k] = int(sources.get(k, 0)) + int(r.heal_sources[k])
+					var mean_taken := BalanceContent.mean(taken)
+					room_rows.append([act, build.name, d_key, bot, size, ", ".join(outcomes), BalanceContent.mean(clear), BalanceReport.pct(mean_taken),
+						BalanceContent.mean(healed), BalanceLab.sources_text(sources)])
+					if build == expected and d_key == "normal" and bot == "kite":
+						if mean_taken > targets.pack_damage_share_max:
+							report.flag(BalanceReport.WARN, "pack: damage taken", "%s (normal, kite, %d monsters)" % [build.name, size], BalanceReport.pct(mean_taken),
+								"<= %s" % BalanceReport.pct(targets.pack_damage_share_max), "average per room, as a share of max health")
+						if BalanceContent.mean(clear) > targets.pack_clear_max:
+							report.flag(BalanceReport.WARN, "pack: clear time", "%s (normal, kite, %d monsters)" % [build.name, size], BalanceReport.secs(BalanceContent.mean(clear)),
+								"<= %.0f s" % targets.pack_clear_max, "average room clear time")
+						if outcomes.has("died"):
+							report.flag(BalanceReport.WARN, "pack: death", "%s (normal, kite, %d monsters)" % [build.name, size], ", ".join(outcomes),
+								"no death", "the expected build died clearing a room while playing well")
+			# Ranked rooms: one Elite (each affix), Epic, Legendary, Shiny + 2 commons.
+			if expected in act_builds:
+				var variants: Array = []
+				for rank in BalanceContent.ranks(content):
+					if rank.affixes == 1:
+						for affix in content.elite_affixes:
+							variants.append({ "rank": rank, "affixes": [affix], "label": "%s %s" % [rank.id, affix.id] })
+					else:
+						variants.append({ "rank": rank, "affixes": [], "label": String(rank.id) })
+				if quick:
+					variants = variants.slice(0, 2)
+				var commons := lab.roll_room(act, depth, 3, seed_value * 7 + act)
+				for v: Dictionary in variants:
+					for bot in bots:
+						var foes: Array = [{ "def": commons[0].def, "rank": v.rank, "affixes": v.affixes }, commons[1], commons[2]]
+						var r := await lab.pack(s, expected, foes, bot, PACK_TIMEOUT, seed_value)
+						var ranked_ttk: float = r.foe_ttks[0]
+						r.merge({ "act": act, "difficulty": d_key, "build": expected.name, "bot": bot, "room": v.label, "ranked_ttk": ranked_ttk })
+						results.append(r)
+						rank_rows.append([act, v.label, String(commons[0].def.id), r.foes[0].max_hp, r.foes[0].defense, d_key, bot, r.result, ranked_ttk, r.clear_time,
+							BalanceReport.pct(r.taken / float(r.hero_max_hp)), r.healed])
+						var wanted: Variant = targets.rank_ttk.get(String((v.rank as MonsterRankDef).id))
+						if d_key == "normal" and bot == "kite" and wanted != null and ranked_ttk >= 0.0 and (ranked_ttk < (wanted as Vector2).x or ranked_ttk > (wanted as Vector2).y):
+							report.flag(BalanceReport.WARN, "pack: %s TTK" % (v.rank as MonsterRankDef).id, "%s vs %s %s (normal, depth %d)" % [expected.name, v.label, commons[0].def.id, depth],
+								BalanceReport.secs(ranked_ttk), "%.0f-%.0f s" % [(wanted as Vector2).x, (wanted as Vector2).y], "measured: first hurt to death")
+			await lab.close(s)
+			if verbose:
+				print("  packs: act %d %s done (%d measures)" % [act, d_key, results.size()])
+	lab.restore_chances()
+	var seconds := (Time.get_ticks_msec() - started) / 1000.0
+	report.notes.append("Packs: %d rooms in %.0f s of real time (seed %d)." % [results.size(), seconds, seed_value])
+	report.timings["pack"] = seconds
+	report.data["packs"] = results
+	report.table("pack_kinds", "Monsters", "Every monster kind of each act, three at once vs the act's expected build, kite bot (engine): time from first hurt to death",
+		PackedStringArray(["Act", "Monster", "Difficulty", "Result", "TTK s", "Clear s", "Taken (share of max HP)", "Hits taken"]), kind_rows)
+	report.table("pack_rooms", "Monsters", "Mixed rooms of each act's monsters (spawn weights, room size of the depth and difficulty) vs every build of the act (engine, %d rooms each)" % MIXED_ROOMS,
+		PackedStringArray(["Act", "Build", "Difficulty", "Bot", "Monsters", "Results", "Clear s", "Taken per room", "Healed /s", "Heal sources"]), room_rows)
+	report.table("pack_ranks", "Monsters", "Rooms with one ranked monster (Elite with each affix, Epic, Legendary, Shiny) + 2 commons vs the act's expected build (engine)",
+		PackedStringArray(["Act", "Ranked", "Kind", "Its HP", "Its armor", "Difficulty", "Bot", "Result", "Ranked TTK s", "Clear s", "Taken", "Healed"]), rank_rows)
+	return report
 
 
 ## What a boss fight did, frame by frame: damage both ways, heals by source, phases, the lowest HP.
@@ -480,13 +476,13 @@ class FightLog:
 		if monster != boss:
 			summons_killed += 1
 
-	## Called every frame: HP that came back by another way than heal() (a level up, a Phoenix
-	## Feather) is counted as "other".
+	## Called every frame: health that came back by another way than heal() (a level up, a
+	## Phoenix Feather) is counted as "other".
 	func frame() -> void:
 		if not is_instance_valid(player):
 			return
 		if player.hp > maxi(_expected_hp, 0):
-			healed_by["other (level up, revive)"] = int(healed_by.get("other (level up, revive)", 0)) + player.hp - maxi(_expected_hp, 0)
+			healed_by["other (revive)"] = int(healed_by.get("other (revive)", 0)) + player.hp - maxi(_expected_hp, 0)
 		_expected_hp = player.hp
 		min_hp = mini(min_hp, player.hp)
 
@@ -503,49 +499,3 @@ class FightLog:
 			"min_hp": min_hp, "min_hp_share": min_hp / float(maxi(player.get_max_hp(), 1)),
 			"summons_killed": summons_killed,
 		}
-
-	## "rune:leech_rune 120, perk:vampirism 14"
-	static func sources_text(sources: Dictionary) -> String:
-		var keys := sources.keys()
-		keys.sort_custom(func(a: Variant, b: Variant) -> bool: return int(sources[a]) > int(sources[b]))
-		var parts := PackedStringArray()
-		for key: Variant in keys:
-			parts.append("%s %d" % [key, int(sources[key])])
-		return ", ".join(parts) if not parts.is_empty() else "-"
-
-
-## A pack fight: when each monster was first hurt and when it died, and the damage taken.
-class PackLog:
-	var player: Player
-	var monsters: Array[Monster] = []
-	var ttks: Array[float] = []
-	var taken := 0
-	var _first_hurt := {}
-	var _done := {}
-	var _frame := 0
-
-	func _init(hero: Player, spawned: Array[Monster]) -> void:
-		player = hero
-		monsters = spawned
-		player.damaged.connect(_on_damaged)
-
-	func _on_damaged(amount: int) -> void:
-		taken += maxi(amount, 0)
-
-	func frame() -> void:
-		_frame += 1
-		for monster in monsters:
-			if _done.has(monster):
-				continue
-			if not is_instance_valid(monster) or monster.is_dead:
-				_done[monster] = true
-				if _first_hurt.has(monster):
-					ttks.append((_frame - int(_first_hurt[monster])) / float(Engine.physics_ticks_per_second))
-				continue
-			if not _first_hurt.has(monster) and monster.hp < monster.get_max_hp():
-				_first_hurt[monster] = _frame
-
-	## Stops listening (the next pack has its own log).
-	func close() -> void:
-		if is_instance_valid(player) and player.damaged.is_connected(_on_damaged):
-			player.damaged.disconnect(_on_damaged)

@@ -2,44 +2,87 @@
 
 [ext_resource type="Script" path="res://tools/balance/balance_targets.gd" id="1_d0mpv"]
 
-; The design goals of the game's balance, read by tools/balance (model, arena) and the "balance"
-; test suite. FIRST PROPOSAL (2026-10): sensible action-roguelike values for a phone game, to be
-; tuned with the owner. Each line says why; the same reasons are on BalanceTargets' fields (the
-; editor drops these comments if it saves this file: keep them in sync by hand).
+; The design goals of the game's balance, read by tools/balance (model, arena, lab) and the
+; "balance" test suite. FIRST PROPOSAL (2026-10-20): sensible action-roguelike values for a phone
+; game, to be tuned with the owner. Each line says why; the same reasons are on BalanceTargets'
+; fields and in docs/balance.md > Tools > Targets (the editor drops these comments if it saves
+; this file: keep them in sync by hand).
 
 [resource]
 script = ExtResource("1_d0mpv")
 ; A boss fight with the act's expected build should last 40-100 s: under that it is not a fight, over it it drags on a phone.
 boss_ttk_min = 40.0
 boss_ttk_max = 100.0
+; A rare-rank boss (Epic, Legendary, Shiny) is an event: it may last longer, not forever.
+ranked_boss_ttk_max = 150.0
 ; Standing still and trading blows must never beat a boss: expected and degenerate builds must die face-tanking...
 facetank_must_lose_tags = PackedStringArray("expected", "degenerate")
 ; ...from Normal up (Easy may forgive it).
 facetank_must_lose_from = &"normal"
 ; Healing in a boss fight tops you up, it doesn't undo the boss: at most 25% of the damage taken for an expected build...
 heal_share_max_expected = 0.25
-; ...and at most 50% for a build that stacks sustain on purpose.
+; ...and at most 50% for a build that stacks sustain on purpose (degenerate, family builds).
 heal_share_max_degenerate = 0.5
 ; At full health, 6 average boss hits at least (one mistake isn't the end)...
 boss_hits_to_kill_min = 6.0
 ; ...and 12 at most (ignoring the patterns must kill you; a hit-free fight stays possible).
 boss_hits_to_kill_max = 12.0
-; A bot that keeps its range and rolls away from telegraphs should beat the act's boss with the expected build on Normal.
-kite_should_win_on = &"normal"
+; Keeping range and rolling away from telegraphs should beat the act's boss with the expected build on Easy and Normal.
+kite_should_win_on = PackedStringArray("easy", "normal")
+; Each act a little harder than the last (threat x0.9-x1.6 act over act): a steady curve, no wall.
+act_threat_step_min = 0.9
+act_threat_step_max = 1.6
+; Each difficulty's boss threat vs Normal: Easy forgiving, Nightmare demanding, ascensions add on top without walls.
+difficulty_threat = {
+"easy": Vector2(0.2, 0.7),
+"hard": Vector2(1.3, 2.6),
+"nightmare": Vector2(2, 5),
+"nightmare+10": Vector2(3, 12),
+"nightmare+5": Vector2(2.5, 8)
+}
 ; A common monster takes 0.5-2.5 s of hitting: paper below, a slog above (rooms hold 2-6 of them).
 common_ttk_min = 0.5
 common_ttk_max = 2.5
-; An elite is a short duel of 3-10 s, not a wall.
-elite_ttk_min = 3.0
-elite_ttk_max = 10.0
-; Clearing a pack while playing well (kite bot) costs at most 35% of max HP.
+; Ranked monsters: an Elite is a short duel (3-10 s), an Epic a longer one, a Legendary a mini-boss, a Shiny a treasure that shouldn't take long.
+rank_ttk = {
+"elite": Vector2(3, 10),
+"epic": Vector2(5, 16),
+"legendary": Vector2(8, 25),
+"shiny": Vector2(2, 10)
+}
+; One common monster must never be a two-shot: 6 average hits at least to kill the act's expected build.
+common_hits_to_kill_min = 6.0
+; Clearing a room while playing well (kite bot) costs at most 35% of max health...
 pack_damage_share_max = 0.35
-; No single perk at max level is worth more than 2x the median perk (same rarity): several picks must stay good.
+; ...and takes at most 25 s.
+pack_clear_max = 25.0
+; No single pick at max level is worth more than 2x the median of its category (perks, relics, families, runes, affixes, shrine levels, encounters)...
 perk_value_max_vs_median = 2.0
-; Perk values are measured on the act II expected build (mid-run, a few perks and gear).
+; ...nor less than half of it (a trap).
+perk_value_min_vs_median = 0.5
+; The static perk table (model) is measured on the act II expected build; the lab measures every act.
 perk_reference_build = "expected_a2"
 ; Stacking one thing hard may pay up to 2.5x the expected build's damage, not more.
 degenerate_dps_ratio_max = 2.5
-; Every weapon within 0.6x-1.6x of the median weapon's DPS: none is a trap, none the only choice.
+; Every weapon within 0.6x-1.6x of the median weapon's DPS (same rarity, same hero): none is a trap, none the only choice.
 weapon_dps_ratio_min = 0.6
 weapon_dps_ratio_max = 1.6
+; A weapon (Common, expected build, kite) should beat at least half the bosses on Normal.
+weapon_boss_win_share_min = 0.5
+; Any combination of multiplying bonuses (attack speed x crit x damage, projectiles, echo, burns) at most 2.5x the expected build's DPS.
+compound_dps_ratio_max = 2.5
+; Armor may make weak monsters weaker, not harmless: at most half the act's monsters hit the most armored build for 1.
+min_damage_share_max = 0.5
+; One sustain source alone (a Leech rune, Vampirism, Fury) should almost never hit the shared budget against packs (<= 10% cut).
+single_source_cut_max = 0.1
+; Gold between two merchants should buy 0.8-3 items of their stock: something most visits, never everything.
+gold_per_visit_items_min = 0.8
+gold_per_visit_items_max = 3.0
+; A merchant reroll costs at most 35% of a floor's gold; removing a rune at the forge at most 60%.
+reroll_floor_share_max = 0.35
+forge_floor_share_max = 0.6
+; Buying the whole shrine takes 15-60 average runs (dying in act II-III on Normal): a long goal, not a grind.
+runs_to_max_shrine_min = 15.0
+runs_to_max_shrine_max = 60.0
+; A first run that dies at the act I boss buys at least one shrine level.
+first_run_buys_upgrade = true

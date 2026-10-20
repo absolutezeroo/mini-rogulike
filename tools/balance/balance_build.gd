@@ -45,6 +45,94 @@ static func find(all: Array[BalanceBuildDef], build_name: String) -> BalanceBuil
 	return null
 
 
+## The act's expected build (tag "expected"), or null.
+static func expected(all: Array[BalanceBuildDef], act: int) -> BalanceBuildDef:
+	for build in all:
+		if build.act == act and build.has_tag("expected"):
+			return build
+	return null
+
+
+## A copy of `build` with one more thing, as the lab measures it ("add it alone"):
+## kind "perk" (id, level = its stacks: replaces the build's own stacks), "family" (its bonus
+## alone), "rune" (one more, socket or not), "affix" (on the weapon, else the first armor it
+## fits), "upgrade" (shrine level `level`), "buff" (`extra`: a StatBlock for the whole fight),
+## "max_hp_cost" (`extra`: share of the base max health lost), "weapon" (`extra`: WeaponDef,
+## level = rarity). Returns null when the thing doesn't exist or can't go on this build.
+static func variant(build: BalanceBuildDef, content: ContentDB, kind: String, id: String, level: int = 1, extra: Variant = null) -> BalanceBuildDef:
+	var copy := build.duplicate() as BalanceBuildDef
+	copy.perks = build.perks.duplicate()
+	copy.upgrades = build.upgrades.duplicate()
+	copy.runes = build.runes.duplicate()
+	copy.weapon_affixes = build.weapon_affixes.duplicate()
+	copy.armor_affixes = build.armor_affixes.duplicate()
+	copy.armor_rarities = build.armor_rarities.duplicate()
+	copy.armors = build.armors.duplicate()
+	copy.extra_families = build.extra_families.duplicate()
+	copy.suppress_families = build.suppress_families.duplicate()
+	copy.buffs = build.buffs.duplicate()
+	copy.max_hp_cost = build.max_hp_cost
+	copy.ignore_sockets = true
+	match kind:
+		"perk":
+			var p := BalanceContent.perk(id)
+			if p == null:
+				return null
+			if level <= 0:
+				copy.perks.erase(id)  # the build without it
+			else:
+				copy.perks[id] = clampi(int(build.perks.get(id, 0)) + level, 1, p.max_stacks)
+		"no_family":
+			for synergy in content.synergies:
+				if String(synergy.id) == id:
+					copy.suppress_families.append(synergy)
+					return copy
+			return null
+		"family":
+			for synergy in content.synergies:
+				if String(synergy.id) == id:
+					copy.extra_families.append(synergy)
+					return copy
+			return null
+		"rune":
+			if rune(content, id) == null:
+				return null
+			copy.runes.append(id)
+		"affix":
+			var a := affix(content, id)
+			if a == null:
+				return null
+			if a.slots & ItemAffixDef.WEAPON:
+				copy.weapon_affixes.append(id)
+				return copy
+			for i in copy.armors.size():
+				var flag := ItemAffixDef.HEAD if copy.armors[i].slot == EquipmentDef.Slot.HEAD else ItemAffixDef.BODY
+				if a.slots & flag and a.on_hit == null:
+					while copy.armor_affixes.size() <= i:
+						copy.armor_affixes.append("")
+					copy.armor_affixes[i] = (copy.armor_affixes[i] + "," + id) if not copy.armor_affixes[i].is_empty() else id
+					return copy
+			return null
+		"upgrade":
+			var u := upgrade(content, id)
+			if u == null:
+				return null
+			copy.upgrades[id] = clampi(level, 0, u.max_level)
+		"buff":
+			copy.buffs.append([extra, 3600.0])
+		"max_hp_cost":
+			copy.max_hp_cost += float(extra)
+		"weapon":
+			copy.weapon = extra as WeaponDef
+			copy.weapon_rarity = clampi(level, 0, 3)
+			copy.weapon_affixes = PackedStringArray()
+			copy.runes = PackedStringArray()
+			copy.ignore_sockets = false
+		_:
+			return null
+	return copy
+
+
 # --- Content lookups ------------------------------------------------------------
 
 static func perk(content: ContentDB, id: String) -> PerkDef:
@@ -86,7 +174,7 @@ static func problems(build: BalanceBuildDef, content: ContentDB) -> PackedString
 	for id in build.runes:
 		if rune(content, id) == null:
 			result.append("%s: unknown rune '%s'" % [build.name, id])
-	if build.runes.size() > ItemRarity.SOCKETS[clampi(build.weapon_rarity, 0, 3)]:
+	if build.runes.size() > ItemRarity.SOCKETS[clampi(build.weapon_rarity, 0, 3)] and not build.ignore_sockets:
 		result.append("%s: %d runes but a %s weapon has %d socket(s)" % [build.name, build.runes.size(), ItemRarity.NAMES[build.weapon_rarity], ItemRarity.SOCKETS[build.weapon_rarity]])
 	if build.weapon_affixes.size() > ItemRarity.AFFIX_COUNT[clampi(build.weapon_rarity, 0, 3)]:
 		result.append("%s: more weapon affixes than a %s item rolls" % [build.name, ItemRarity.NAMES[build.weapon_rarity]])
@@ -132,7 +220,7 @@ static func make_weapon(build: BalanceBuildDef, content: ContentDB) -> WeaponDef
 	var sockets: int = ItemRarity.SOCKETS[clampi(build.weapon_rarity, 0, 3)]
 	for id in build.runes:
 		var r := rune(content, id)
-		if r and runes.size() < sockets:
+		if r and (runes.size() < sockets or build.ignore_sockets):
 			runes.append(r)
 	if build.weapon_rarity <= ItemRarity.COMMON and affixes.is_empty() and runes.is_empty():
 		return build.weapon
@@ -180,11 +268,17 @@ static func apply(build: BalanceBuildDef, player: Player, content: ContentDB, di
 			UpgradeDef.Kind.STARTING_PERK:
 				if u.perk:
 					player.perks.add(u.perk)
+			UpgradeDef.Kind.STARTING_ITEMS:
+				for k in level:
+					for item in u.items:
+						player.store(item)
 	if difficulty and difficulty.hero_max_hp != 1.0:
 		player.base_stats.max_hp = roundi(player.base_stats.max_hp * difficulty.hero_max_hp)
 	for i in maxi(build.level - 1, 0):
 		if def.level_bonus:
 			player.base_stats = player.base_stats.plus(def.level_bonus)
+	if build.max_hp_cost > 0.0:  # an altar's price, as EncounterChoice.max_hp_lost() takes it
+		player.base_stats.max_hp -= roundi(player.base_stats.max_hp * build.max_hp_cost)
 	player.level = maxi(build.level, 1)
 	player.xp = 0
 
@@ -202,6 +296,23 @@ static func apply(build: BalanceBuildDef, player: Player, content: ContentDB, di
 			continue
 		for i in clampi(int(build.perks[id]), 0, p.max_stacks):
 			player.perks.add(p)
+	if not build.suppress_families.is_empty():
+		# The build without a family's bonus (the lab measures what the bonus is worth). Tools only.
+		player.perks._awake.assign(player.perks._awake.filter(func(entry: PerkSet.Entry) -> bool: return not build.suppress_families.has(entry.synergy)))
+		player.perks._rebuild_all()
+	if not build.extra_families.is_empty():
+		# A family's bonus without its perks (the lab measures it alone): woken by hand, as
+		# PerkSet._refresh_synergies() does. Tools only.
+		for synergy in build.extra_families:
+			if not player.perks.is_awake(synergy):
+				var entry := PerkSet.Entry.new()
+				entry.synergy = synergy
+				entry.granted = synergy.passives
+				player.perks._awake.append(entry)
+		player.perks._rebuild_all()
+	player._timed_bonuses.clear()
+	for buff: Array in build.buffs:
+		player.add_timed_bonus(buff[0], buff[1])
 	player.learned_skill = build.learned_skill
 	# Skills ready, as after a long walk to the boss (an equip puts new skills on a short cooldown).
 	var none: Array[SkillDef] = []

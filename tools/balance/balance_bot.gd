@@ -26,6 +26,11 @@ var player: Player
 var world: World
 ## Who it fights (a boss); null: the nearest monster.
 var focus: Monster
+## When above 0: stand this far from the target (centre to centre) whatever the weapon (the lab
+## measures extra projectiles at 64, 128, 256 px).
+var hold_distance := 0.0
+## The same for every bot made while it is above 0 (the compound checks set it around a measure).
+static var hold_override := 0.0
 ## Skill presses and rolls, for the logs.
 var skills_used := 0
 var rolls := 0
@@ -33,6 +38,9 @@ var rolls := 0
 var _path := PackedVector2Array()
 var _path_timer := 0
 var _pressed := {}
+## Released this frame: not pressed again before the next one (a press and a release in the
+## same frame is no press at all for Input.is_action_just_pressed).
+var _released := {}
 
 
 static func create(style_name: String, hero: Player, in_world: World, boss: Monster = null) -> BalanceBot:
@@ -55,6 +63,7 @@ func step() -> void:
 		release_all()
 		return
 	# Skill buttons are read as "just pressed": let go every other frame.
+	_released = _pressed.duplicate()
 	for action: StringName in _pressed.keys():
 		Input.action_release(action)
 	_pressed.clear()
@@ -92,6 +101,8 @@ func _face_tank(target: Monster) -> void:
 	var wanted := _wanted_distance(target)
 	if distance > wanted:
 		_move(_way_to(target.global_position))
+	elif (hold_distance > 0.0 or hold_override > 0.0) and distance < wanted * 0.85:
+		_move(_safe_direction(target.global_position.direction_to(player.global_position)))
 	else:
 		_move(Vector2.ZERO)
 	_hold_attack(distance <= _attack_reach(target))
@@ -105,8 +116,7 @@ func _kite(target: Monster) -> void:
 	if threat.danger:
 		var away := _safe_direction(threat.away)
 		_move(away)
-		if threat.urgent and player.skills.is_ready(0):
-			_press(&"skill_1")  # roll, toward the move direction
+		if threat.urgent and player.skills.is_ready(0) and _press(&"skill_1"):  # roll, toward the move direction
 			rolls += 1
 		_hold_attack(_is_ranged() and distance <= _attack_reach(target))
 		return
@@ -187,6 +197,10 @@ func _attack_reach(target: Actor) -> float:
 
 ## Where the bot stands: melee in reach (with a little margin), ranged at a safe part of its range.
 func _wanted_distance(target: Actor) -> float:
+	if hold_distance > 0.0:
+		return hold_distance
+	if hold_override > 0.0:
+		return hold_override
 	var weapon := player.get_weapon()
 	if weapon == null:
 		return player.radius + target.radius
@@ -202,9 +216,8 @@ func _use_skills(distance: float, target: Actor) -> void:
 	if distance > reach:
 		return
 	for i in range(1, player.skills.skills.size()):
-		if player.skills.skills[i] and player.skills.is_ready(i):
-			_press(StringName("skill_%d" % (i + 1)))
-			skills_used += 1
+		if player.skills.skills[i] and player.skills.is_ready(i) and _press(StringName("skill_%d" % (i + 1))):
+			skills_used += 1  # presses (a press on cooldown or out of reach does nothing)
 			return  # one a frame, like thumbs
 
 
@@ -266,9 +279,13 @@ func _hold_attack(on: bool) -> void:
 		Input.action_release(&"attack")
 
 
-func _press(action: StringName) -> void:
+## Presses a button for one frame. False when it was let go this very frame (next frame then).
+func _press(action: StringName) -> bool:
+	if _released.has(action):
+		return false
 	Input.action_press(action)
 	_pressed[action] = true
+	return true
 
 
 static func _strength(action: StringName, value: float) -> void:

@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="BalanceBuildDef" format=3]
+
+[ext_resource type="Script" path="res://tools/balance/balance_build_def.gd" id="1"]
+[ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="2"]
+[ext_resource type="Resource" path="res://data/items/weapons/lance.tres" id="3"]
+[ext_resource type="Resource" path="res://data/items/armors/iron_helm.tres" id="4"]
+[ext_resource type="Resource" path="res://data/items/armors/chain_mail.tres" id="5"]
+
+[resource]
+script = ExtResource("1")
+name = "family_storm_a3"
+description = "The Storm family built on purpose at the act III boss: expected_a3's level, armor and shrine, a Rare Lance (brutal, swift) with the family's runes (spark_rune, gale_rune), and 10 perks leaning on the family (3+ pieces awake): frenzy, thunderclap, shock_roll, swiftness, precision, strength, vitality, guardian_ring, war_banner. Compared with the other family builds and expected_a3 (pillar 3: builds, not piles; pillar 4: comparable families)."
+tags = PackedStringArray("family", "storm")
+act = 3
+level = 11
+weapon = ExtResource("3")
+weapon_rarity = 2
+weapon_affixes = PackedStringArray("brutal", "swift")
+runes = PackedStringArray("spark_rune", "gale_rune")
+armors = Array[ExtResource("2")]([ExtResource("4"), ExtResource("5")])
+armor_rarities = PackedInt32Array(0, 0)
+armor_affixes = PackedStringArray("", "")
+perks = {
+"frenzy": 2,
+"guardian_ring": 1,
+"precision": 1,
+"shock_roll": 1,
+"strength": 1,
+"swiftness": 2,
+"thunderclap": 2,
+"vitality": 1,
+"war_banner": 1
+}
+upgrades = {
+"might": 2,
+"toughness": 1,
+"vitality": 3
+}

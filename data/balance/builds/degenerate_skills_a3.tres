@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="BalanceBuildDef" format=3]
+
+[ext_resource type="Script" path="res://tools/balance/balance_build_def.gd" id="1"]
+[ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="2"]
+[ext_resource type="Resource" path="res://data/items/weapons/magic_wand.tres" id="3"]
+[ext_resource type="Resource" path="res://data/items/armors/iron_helm.tres" id="4"]
+[ext_resource type="Resource" path="res://data/items/armors/chain_mail.tres" id="5"]
+[ext_resource type="Resource" path="res://data/skills/player/thunder.tres" id="6"]
+
+[resource]
+script = ExtResource("1")
+name = "degenerate_skills_a3"
+description = "Skills and cooldowns stacked at the act III boss: an Epic Magic Wand (of Sorcery, of Haste, of Echoes) with three Echo runes, Arcane Focus, Arcane Power and Echo at max, Devotion, Sage's Codex; Arcane Talent 3 at the shrine; the Thunder tome's spell learned. Same level as expected_a3."
+tags = PackedStringArray("degenerate", "skills")
+act = 3
+level = 11
+weapon = ExtResource("3")
+weapon_rarity = 3
+weapon_affixes = PackedStringArray("of_sorcery", "of_haste", "of_echoes")
+runes = PackedStringArray("echo_rune", "echo_rune", "echo_rune")
+armors = Array[ExtResource("2")]([ExtResource("4"), ExtResource("5")])
+armor_rarities = PackedInt32Array(0, 0)
+armor_affixes = PackedStringArray("", "")
+perks = {
+"arcane_focus": 3,
+"arcane_power": 4,
+"devotion": 3,
+"echo": 3,
+"sages_codex": 1,
+"war_banner": 1
+}
+upgrades = {
+"arcane_talent": 3,
+"toughness": 1,
+"vitality": 3
+}
+learned_skill = ExtResource("6")

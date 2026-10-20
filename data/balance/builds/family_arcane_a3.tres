@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="BalanceBuildDef" format=3]
+
+[ext_resource type="Script" path="res://tools/balance/balance_build_def.gd" id="1"]
+[ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="2"]
+[ext_resource type="Resource" path="res://data/items/weapons/magic_wand.tres" id="3"]
+[ext_resource type="Resource" path="res://data/items/armors/iron_helm.tres" id="4"]
+[ext_resource type="Resource" path="res://data/items/armors/chain_mail.tres" id="5"]
+
+[resource]
+script = ExtResource("1")
+name = "family_arcane_a3"
+description = "The Arcane family built on purpose at the act III boss: expected_a3's level, armor and shrine, a Rare Magic Wand (of_sorcery, of_haste) with the family's runes (echo_rune, prism_rune), and 10 perks leaning on the family (3+ pieces awake): arcane_focus, arcane_power, devotion, echo, precision, strength, vitality, sages_codex, multishot. Compared with the other family builds and expected_a3 (pillar 3: builds, not piles; pillar 4: comparable families)."
+tags = PackedStringArray("family", "arcane")
+act = 3
+level = 11
+weapon = ExtResource("3")
+weapon_rarity = 2
+weapon_affixes = PackedStringArray("of_sorcery", "of_haste")
+runes = PackedStringArray("echo_rune", "prism_rune")
+armors = Array[ExtResource("2")]([ExtResource("4"), ExtResource("5")])
+armor_rarities = PackedInt32Array(0, 0)
+armor_affixes = PackedStringArray("", "")
+perks = {
+"arcane_focus": 2,
+"arcane_power": 2,
+"devotion": 1,
+"echo": 2,
+"multishot": 1,
+"precision": 1,
+"sages_codex": 1,
+"strength": 1,
+"vitality": 1
+}
+upgrades = {
+"might": 2,
+"toughness": 1,
+"vitality": 3
+}

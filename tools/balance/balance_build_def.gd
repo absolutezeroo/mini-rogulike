@@ -46,5 +46,18 @@ extends Resource
 @export var learned_skill: SkillDef
 
 
+## Not saved: set by the lab when it adds one thing to a build (BalanceBuild.variant()).
+## Runes beyond the weapon's sockets are kept (a rune measured alone needs a socket).
+var ignore_sockets := false
+## Families woken without their perks (a family's bonus measured alone).
+var extra_families: Array[SynergyDef] = []
+## Families kept asleep even with their pieces (the build measured without a family's bonus).
+var suppress_families: Array[SynergyDef] = []
+## Timed bonuses on the hero for the whole measure (an encounter's buff): [StatBlock, seconds].
+var buffs: Array = []
+## Max health lost for the run (Blood Altar), as a share of the base max health.
+var max_hp_cost := 0.0
+
+
 func has_tag(tag: String) -> bool:
 	return tags.has(tag)
