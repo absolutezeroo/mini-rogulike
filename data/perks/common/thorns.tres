@@ -6,22 +6,28 @@
 [ext_resource type="Script" path="res://src/definitions/passives/thorns_passive.gd" id="4_3rkmo"]
 [ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="5_7gmcb"]
 [ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="6_3e5m7"]
-[ext_resource type="Resource" path="res://data/perks/synergies/blood.tres" id="7_3rkmo"]
+[ext_resource type="Resource" path="res://data/perks/synergies/inferno.tres" id="7_3rkmo"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="8_burn"]
 
 [sub_resource type="Resource" id="Resource_c4jb8"]
 script = ExtResource("1_37ug1")
 defense = 1
 
+[sub_resource type="Resource" id="Resource_burn"]
+script = ExtResource("8_burn")
+burn_damage = 2
+
 [sub_resource type="Resource" id="Resource_2uk3y"]
 script = ExtResource("4_3rkmo")
+status = SubResource("Resource_burn")
 
 [resource]
 script = ExtResource("5_7gmcb")
 id = &"thorns"
-display_name = "Thorns"
-description = "Enemies that hit you up close take 4 damage per level."
+display_name = "Burning Thorns"
+description = "Enemies that hit you up close take 4 damage per level and catch fire."
 icon = ExtResource("2_cjs4s")
-color = Color(0.7882353, 0.63529414, 0.15294118, 1)
+color = Color(1, 0.54901963, 0.25882354, 1)
 weight = 6
 synergies = Array[ExtResource("6_3e5m7")]([ExtResource("7_3rkmo")])
 bonuses = SubResource("Resource_c4jb8")

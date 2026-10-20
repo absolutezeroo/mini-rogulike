@@ -240,6 +240,12 @@ func is_boss() -> bool:
 	return def is BossDef
 
 
+## Summons and a boss's adds feed no "on kill" heals: a boss calling its brood must not become
+## a health fountain.
+func can_heal_killer() -> bool:
+	return not summoned and (is_boss() or world == null or not world.is_boss_fight())
+
+
 ## Ends dormancy and goes straight for `new_target`.
 func wake_up(new_target: Actor) -> void:
 	dormant = false

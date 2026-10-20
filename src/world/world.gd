@@ -331,7 +331,8 @@ func spawn_item(item: ItemDef, at: Vector2, armed: bool = true) -> ItemPickup:
 ## The shooter's perks can change the volley first (extra projectiles...).
 ## `from`: where it starts (the shooter by default; shards bursting out of a body...).
 func fire_projectiles(shooter: Actor, direction: Vector2, spec: ProjectileSpec, from: Vector2 = Vector2.INF) -> void:
-	shooter.perks.modify_projectiles(shooter, spec)
+	if not spec.secondary:  # shards and rings fired by passives get no extra projectiles
+		shooter.perks.modify_projectiles(shooter, spec)
 	for i in spec.count:
 		var angle := 0.0
 		if spec.spread_degrees >= 360.0:
@@ -767,6 +768,12 @@ func pick_monster() -> MonsterDef:
 ## A random item that can be found on this floor (chests, elite drops).
 func pick_random_item() -> ItemDef:
 	return _content.pick_item(depth, rng)
+
+
+## A boss fight is on: the arena's boss is awake and alive (healing from hits and kills is
+## slower, its adds feed no heals: see SustainRules, Monster.can_heal_killer()).
+func is_boss_fight() -> bool:
+	return is_instance_valid(arena) and arena.is_started and is_instance_valid(arena.boss) and not arena.boss.is_dead
 
 
 ## Living actors that are enemies of `faction`.

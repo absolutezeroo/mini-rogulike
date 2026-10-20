@@ -7,6 +7,8 @@ extends Passive
 ## Damage = owner's power x this, per stack.
 @export var damage_multiplier: float = 0.5
 @export var color: Color = Palette.FROST
+## Left on the enemies caught (the Shatter rune chills them). Optional.
+@export var status: OnHitStatus
 
 
 func on_hit_dealt(owner: Actor, target: Actor, hit: HitInfo, _damage: int, perk: PerkSet.Entry) -> void:
@@ -14,5 +16,5 @@ func on_hit_dealt(owner: Actor, target: Actor, hit: HitInfo, _damage: int, perk:
 		return
 	var size := radius + radius_per_stack * (perk.stacks - 1)
 	var amount := roundi(owner.get_power() * damage_multiplier * perk.stacks)
-	Combat.damage_area(owner.world, owner, target.global_position, size, amount, 120.0, true)
+	Combat.damage_area(owner.world, owner, target.global_position, size, amount, 120.0, true, status)
 	owner.world.spawn_vfx(RingVfx.create(target.global_position, size, color))

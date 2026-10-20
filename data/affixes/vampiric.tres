@@ -14,5 +14,5 @@ slots = 1
 passives = Array[ExtResource("1_n1viu")]([SubResource("Resource_ju5io")])
 id = &"vampiric"
 display_name = "Vampiric"
-description = "Heals 1 HP per kill."
+description = "Heals 1 Health per kill."
 spawn_weight = 6

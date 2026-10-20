@@ -59,6 +59,25 @@ func _test_boss_fight(game: Game) -> void:
 	var count_before := world.monster_count()
 	summon.apply(boss, Vector2.RIGHT)
 	check(world.monster_count() == count_before + 2, "summons appear")
+	# A boss's adds feed no "on kill" heal (Vampirism, the Blood family), summoned or not.
+	check(world.is_boss_fight(), "a boss fight is on")
+	var stray := world.spawn_monster(load("res://data/monsters/slime.tres"), boss.global_position + Vector2(0, 70))
+	stray.dormant = true
+	var feast := HealOnKillPassive.new()
+	var level := PerkSet.Entry.new()
+	level.stacks = 3
+	var bloodlust := BloodlustPassive.new()
+	var wounded := maxi(1, player.get_max_hp() / 4)
+	player.hp = wounded
+	player.sustain = SustainMeter.new()
+	for monster in world.get_hostiles(player.faction):
+		if monster != boss:
+			feast.on_kill(player, monster, level)
+			bloodlust.on_kill(player, monster, level)
+	check(player.hp == wounded, "the boss's adds heal nothing (%d -> %d)" % [wounded, player.hp])
+	feast.on_kill(player, boss, level)
+	check(player.hp > wounded, "the boss itself does")
+	player.hp = player.get_max_hp()
 	for monster in world.get_hostiles(player.faction):
 		if monster != boss:
 			monster.die(null)

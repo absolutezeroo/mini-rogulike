@@ -8,7 +8,7 @@
 
 [sub_resource type="Resource" id="Resource_passive"]
 script = ExtResource("3_kind")
-ratio_per_stack = 0.08
+ratio_per_stack = 0.1
 
 [resource]
 script = ExtResource("1_rune")
@@ -17,7 +17,7 @@ passives = Array[ExtResource("2_passive")]([SubResource("Resource_passive")])
 value = 45
 id = &"leech_rune"
 display_name = "Leech Rune"
-description = "Heals 8% of the damage you deal."
+description = "Your hits heal 10% of the damage they deal (burns and side effects don't)."
 icon = ExtResource("5_icon")
 min_depth = 1
 spawn_weight = 10

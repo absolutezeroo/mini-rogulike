@@ -568,8 +568,8 @@ stones lit in their runes' colors. The selected slot pulses gold.
   (`ranked_rune_chance`, 30%), chests sometimes (`chest_rune_chance`, 20%), plain monsters rarely
   (`rune_chance`, 1%). They are not among the random items: no merchant sells them.
   - Inferno: **Ember** (hits may set enemies on fire), **Pyre** (enemies dying burning explode).
-  - Frost: **Rime** (hits chill), **Shatter** (critical hits release a frost shockwave).
-  - Blood: **Leech** (heal 8% of damage dealt), **Fury** (wounded you hit harder, kills heal).
+  - Frost: **Rime** (hits chill), **Shatter** (critical hits release a frost shockwave that slows).
+  - Blood: **Leech** (your hits heal 10% of their damage), **Fury** (wounded you hit harder, kills heal).
   - Storm: **Spark** (every 4th hit chains lightning), **Gale** (your roll throws a gust).
   - Arcane: **Echo** (skills may be ready again at once), **Prism** (one more projectile).
 - **Sockets**: every weapon has 1 to 3, by rarity (`ItemRarity.SOCKETS`: Common and Magic 1,
@@ -680,14 +680,16 @@ A `PerkDef` (in `data/perks/`) is stat bonuses + a list of `Passive`s, both mult
 
 | Passive | Hook | Used by |
 |---|---|---|
-| `HealOnKillPassive` | on kill | Vampirism |
-| `ThornsPassive` | on damaged | Thorns |
-| `RetaliatePassive` | on damaged (cooldown) | Iron Skin: getting hit throws enemies back |
+| `HealOnKillPassive` | on kill (not summons) | Vampirism |
+| `LifestealPassive` | on hit (direct hits only) | the Leech rune, Vampiric elites |
+| `HealOnSkillPassive` | on skill | Devotion |
+| `ThornsPassive` | on damaged (can leave a status) | Burning Thorns |
+| `RetaliatePassive` | on damaged (cooldown, can leave a status) | Frost Armor: getting hit throws enemies back and chills them |
 | `MomentumPassive` | on dash, before a hit | Swiftness: hits right after a roll deal more |
 | `OpenerPassive` | before a hit | Precision: the first blow on an unhurt enemy is a crit |
 | `FloorWardPassive` | on a new floor | Guardian Ring: every floor starts with a ward |
 | `BurnOnHitPassive` | on hit | Ignite (burn status) |
-| `CritShockwavePassive` | on hit (crits) | Thunderclap |
+| `CritShockwavePassive` | on hit (crits, can leave a status) | Thunderclap, the Shatter rune |
 | `DashShockwavePassive` | on dash (can leave a status) | Shock Roll, Cold Snap, Blazing Roll |
 | `SlowOnHitPassive` | on hit | Frostbite |
 | `StatusDamagePassive` | before a hit (burning/poisoned/slowed target) | Kindling, the Frost family |
@@ -695,14 +697,25 @@ A `PerkDef` (in `data/perks/`) is stat bonuses + a list of `Passive`s, both mult
 | `SkillEchoPassive` | on skill (cooldown back to 0) | Echo |
 | `EffectsOnSkillPassive` | on skill (any `Effect`) | the Arcane family |
 | `ChainLightningPassive` | every few hits | the Storm family |
-| `BloodlustPassive` | before a hit (wounded), on kill | the Blood family |
+| `BloodlustPassive` | before a hit (wounded), on kill | Bloodrage, the Blood family, the Fury rune |
 | `LootOnKillPassive` | on kill | Fortune |
 | `ExecutePassive` | before a hit | Executioner |
 | `ExtraProjectilesPassive` | every volley | Multishot |
 | `CheatDeathPassive` | before dying | Phoenix Feather |
 
-Damage caused by a passive (burn, thorns, shockwaves) is a *secondary* hit: it never triggers
-other on-hit perks, so effects can't chain forever. Perks are stored per actor in a `PerkSet`,
+Damage caused by a passive (burn, thorns, shockwaves, chains, Ice Shards' shards, the Arcane
+ring of bolts: `ProjectileSpec.secondary`) is a *secondary* hit: it never triggers other on-hit
+perks (no lifesteal, no chain counter), and passive shots get no extra projectiles, so effects
+can't chain forever.
+
+**Healing from hits, kills and skills** (`SustainRules`, `data/dungeon/sustain.tres`, set in
+`DungeonConfig` > Sustain; `SustainMeter`, `Actor.sustain_heal()`): Leech, Vampirism, Devotion,
+the Blood family, the Fury rune and Vampiric gear all draw from one budget. It holds 20% of the
+hero's max health (a pack slain at once still heals well) and refills 4% of it per second, half
+that while a boss fight is on, so stacking them can't out-heal a boss. Healing is paid in whole
+points, the fractions adding up (10% of a 7-damage hit is 0.7, not 1). Burn and poison ticks and
+secondary hits heal nothing, and summoned monsters and a boss's adds feed no "on kill" heal (nor
+Fortune's loot). Potions, springs, healing spells and level ups are not limited. Perks are stored per actor in a `PerkSet`,
 so monsters could use them too (elites, later).
 
 ### Families (synergies)
@@ -713,11 +726,16 @@ perks** of a family wakes its bonus for the rest of the run: a change in how you
 
 | Family | Perks and relics | Awake |
 |---|---|---|
-| **Inferno** | Ignite, Frenzy, Kindling, Blazing Roll, War Banner, Phoenix Feather | enemies that die burning explode and set everything around on fire |
-| **Frost** | Frostbite, Cold Snap, Ice Shards, Guardian Ring | slowed enemies take +50%, crits freeze them |
-| **Blood** | Vampirism, Strength, Vitality, Thorns, Executioner | below half HP +40% damage, every kill heals 4% max HP |
-| **Storm** | Precision, Thunderclap, Shock Roll, Swiftness, Multishot | every 4th hit, lightning jumps to 3 enemies |
+| **Inferno** | Ignite, Kindling, Blazing Roll, Burning Thorns, Phoenix Feather | enemies that die burning explode and set everything around on fire |
+| **Frost** | Frostbite, Cold Snap, Ice Shards, Frost Armor, Guardian Ring | slowed enemies take +50%, crits freeze them |
+| **Blood** | Vampirism, Vitality, Bloodrage, Devotion, Executioner | below half Health +40% damage, every kill heals 4% max Health |
+| **Storm** | Frenzy, Thunderclap, Shock Roll, Swiftness | every 4th hit, lightning jumps to 3 enemies |
 | **Arcane** | Arcane Focus, Arcane Power, Devotion, Echo, Sage's Codex, Multishot | every skill also fires a ring of 8 bolts |
+
+A perk sits in a family only if its effect plainly belongs to it (Inferno: fire and burning;
+Frost: cold, slows, freezing; Blood: health, life drain, low-health power; Storm: lightning,
+chains, speed of the strike; Arcane: skills, spells, cooldowns). Plain-number perks (Strength,
+Precision, Fortune, War Banner) belong to none. See docs/balance.md.
 
 ### Choosing: reroll, banish, families first
 

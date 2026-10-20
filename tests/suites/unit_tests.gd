@@ -12,7 +12,9 @@ func run() -> void:
 	_test_stairs_seal()
 	_test_inventory_and_equipment()
 	_test_perks()
+	_test_sustain()
 	_test_synergies()
+	_test_family_themes()
 	_test_bestiary()
 	_test_monster_ranks()
 	_test_arenas()
@@ -440,6 +442,89 @@ func _test_perks() -> void:
 	check(fallback.size() == 3, "with every relic maxed, common perks fill the offer")
 
 
+## Healing from hits, kills and skills (Leech, Vampirism, the Blood family...): fractions add up
+## and are paid in whole points; the hero's share one budget per second, slower in boss fights.
+func _test_sustain() -> void:
+	var rules: SustainRules = CONTENT.dungeon.sustain
+	check(rules != null and rules.rate_per_second > 0.0 and rules.rate_per_second <= 0.1 and rules.burst > 0.0 and rules.boss_fight_rate <= 1.0, "the hero's healing from hits and kills is limited (DungeonConfig > Sustain)")
+	# No rounding up: 8% of a 7-damage hit is 0.56, not 1.
+	check(SustainMeter.new().take(7 * 0.08, 100, 50, 0.0) == 0, "one small hit heals nothing yet")
+	var meter := SustainMeter.new()
+	var paid := 0
+	for i in 10:
+		paid += meter.take(7 * 0.08, 100, 50, i * 0.1)
+	check(paid == 5, "10 hits of 7 at 8%% heal 5 (5.6), not 10 (%d)" % paid)
+	var full := SustainMeter.new()
+	full.take(0.9, 100, 0, 0.0)
+	check(full.pending == 0.0 and full.take(0.5, 100, 10, 0.1) == 0, "nothing is banked at full health")
+	check(SustainMeter.new().take(30.0, 100, 4, 0.0) == 4, "never more than the missing health")
+	# One budget: `burst` at once, then `rate_per_second` a second, half that in a boss fight.
+	var limit := SustainRules.new()
+	limit.rate_per_second = 0.04
+	limit.burst = 0.2
+	limit.boss_fight_rate = 0.5
+	var capped := SustainMeter.new()
+	check(capped.take(50.0, 100, 90, 0.0, limit) == 20, "a burst heals at most 20% of max health")
+	check(capped.take(10.0, 100, 70, 0.0, limit) == 0, "then nothing more at once")
+	check(capped.take(10.0, 100, 70, 1.0, limit) == 4, "then 4% of max health per second")
+	var in_boss_fight := SustainMeter.new()
+	in_boss_fight.take(50.0, 100, 90, 0.0, limit, true)
+	check(in_boss_fight.take(10.0, 100, 70, 1.0, limit, true) == 2, "half as fast during a boss fight")
+	# Stacked sustain never out-heals the limit: three Leech runes on 12-damage hits five times a
+	# second, plus Vampirism and the Blood family on a kill every second, for a minute.
+	var stacked := SustainMeter.new()
+	var total := 0
+	for step in 300:
+		var now := step * 0.2
+		total += stacked.take(12 * 0.3, 100, 100, now, limit)
+		if step % 5 == 0:
+			total += stacked.take(6.0 + 4.0, 100, 100, now, limit)
+	var most := 100 * limit.burst + 100 * limit.rate_per_second * 299 * 0.2
+	check(total <= ceili(most) and total >= floori(most) - 2, "a minute of stacked sustain heals %d, the limit is %d" % [total, roundi(most)])
+	# Light sustain is untouched: one Leech rune (10%) on a katana's hits in a pack.
+	var light := SustainMeter.new()
+	var leech := 0
+	for step in 50:
+		leech += light.take(9 * 0.1, 100, 100, step * 0.38, limit)
+	check(leech == 45, "a single Leech rune is never cut by the limit (%d of 45)" % leech)
+
+
+## Families read as their fantasy and stay comparable (see docs/balance.md).
+func _test_family_themes() -> void:
+	var commons := {}
+	var members := {}
+	for perk in CONTENT.perks:
+		for synergy in perk.synergies:
+			members[synergy] = members.get(synergy, 0) + 1
+			if perk.rarity == PerkDef.Rarity.COMMON:
+				commons[synergy] = commons.get(synergy, 0) + 1
+	var sizes: Array[int] = []
+	for synergy in CONTENT.synergies:
+		check(commons.get(synergy, 0) >= 4, "%s: 4 or more perks to level up into (%d)" % [synergy.id, commons.get(synergy, 0)])
+		sizes.append(members.get(synergy, 0))
+	check(sizes.max() - sizes.min() <= 2, "families are about the same size %s" % [sizes])
+	var placed := {
+		&"frenzy": &"storm", &"thorns": &"inferno", &"iron_skin": &"frost", &"bloodrage": &"blood",
+		&"multishot": &"arcane",
+	}
+	for id: StringName in placed:
+		var perk := _perk(id)
+		check(perk.synergies.size() == 1 and perk.synergies[0].id == placed[id], "%s belongs to %s" % [id, placed[id]])
+	for id in ["strength", "precision", "war_banner", "fortune"]:
+		check(_perk(id).synergies.is_empty(), "%s (plain numbers) belongs to no family" % id)
+	check(_perk("devotion").synergies.size() == 2, "Devotion heals with skills: Arcane and Blood")
+	# Player-facing words: Health, Damage, Armor, never HP/ATK/DEF.
+	var texts: Array[String] = []
+	for perk in CONTENT.perks:
+		texts.append(perk.describe())
+	for synergy in CONTENT.synergies:
+		texts.append(synergy.description)
+	for rune in CONTENT.runes:
+		texts.append(rune.description)
+	for text in texts:
+		check(not RegEx.create_from_string("\\b(HP|ATK|DEF)\\b").search(text), "plain words: %s" % text)
+
+
 ## Arenas: shapes, and changes that keep the hero, the boss and the middle clear.
 func _test_arenas() -> void:
 	var config := CONTENT.dungeon
@@ -677,7 +762,7 @@ func _test_synergies() -> void:
 	set.synergy_awakened.connect(func(synergy: SynergyDef) -> void: woke.append(synergy))
 	set.add(_perk("ignite"))
 	set.add(_perk("ignite"))
-	set.add(_perk("frenzy"))
+	set.add(_perk("blazing_roll"))
 	check(set.pieces_of(inferno) == 2 and not set.is_awake(inferno), "two stacks of one perk count once")
 	check(set.would_complete(_perk("kindling"), inferno) and not set.would_complete(_perk("ignite"), inferno), "a third different perk would wake the family")
 	set.add(_perk("kindling"))

@@ -83,6 +83,11 @@ func setup(player_def: PlayerDef) -> void:
 	hp = get_max_hp()
 
 
+## The hero's healing from hits and kills shares one budget (DungeonConfig > Sustain).
+func _sustain_rules() -> SustainRules:
+	return world.rules.config.sustain if world and world.rules and world.rules.config else null
+
+
 func xp_to_next_level() -> int:
 	return def.xp_to_next_level(level)
 

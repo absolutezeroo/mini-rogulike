@@ -158,6 +158,11 @@ extends Resource
 ## Arenas the bosses fight in (shapes, pillars, changes by phase), one picked per boss floor.
 @export var arenas: Array[ArenaDef] = []
 
+@export_group("Sustain")
+## How much the hero heals from hits, kills and skills (Leech, Vampirism, the Blood family...):
+## one budget for all of them, per second of max health (see SustainRules). Null: no limit.
+@export var sustain: SustainRules
+
 @export_group("Difficulty")
 ## Monster HP grows by this fraction per depth (0.15 = +15% per floor).
 @export var monster_hp_scale_per_depth: float = 0.15
