@@ -13,5 +13,6 @@
 *.jks
 
 # Local agent worktrees and tools
-/.claude/
+/.claude/worktrees/
+/.claude/.gdignore
 /_tool/
