@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="BalanceBuildDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="1_h5f1s"]
+[ext_resource type="Resource" path="res://data/items/armors/iron_helm.tres" id="2_d5xer"]
+[ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="3_hdle4"]
+[ext_resource type="Script" path="res://tools/balance/balance_build_def.gd" id="4_1au3k"]
+[ext_resource type="Resource" path="res://data/items/weapons/templar_sword.tres" id="5_uspl7"]
+
+[resource]
+script = ExtResource("4_1au3k")
+name = "degenerate_thorns_a4"
+description = "Max armor and thorns at the act IV boss (level 13 like expected_a4): Epic iron helm and plate (Fortified, Sturdy, of the Titan / of Thorns), Thorns x3, Iron Skin x4, Vitality x5, Guardian Ring, 2 Phoenix Feathers, Toughness 3 at the shrine. Tests whether armor and retaliation alone can tank a boss."
+tags = PackedStringArray("degenerate", "thorns")
+act = 4
+level = 13
+weapon = ExtResource("5_uspl7")
+weapon_rarity = 3
+weapon_affixes = PackedStringArray("sharp", "of_the_bear", "swift")
+runes = PackedStringArray()
+armors = Array[ExtResource("1_h5f1s")]([ExtResource("2_d5xer"), ExtResource("3_hdle4")])
+armor_rarities = PackedInt32Array(3, 3)
+armor_affixes = PackedStringArray("fortified,sturdy,of_the_titan", "of_thorns,fortified,sturdy")
+perks = {
+"guardian_ring": 1,
+"iron_skin": 4,
+"phoenix_feather": 2,
+"thorns": 3,
+"vitality": 5
+}
+upgrades = {
+"might": 3,
+"swiftness": 1,
+"toughness": 3,
+"vitality": 5
+}

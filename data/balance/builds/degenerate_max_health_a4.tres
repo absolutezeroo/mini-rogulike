@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="BalanceBuildDef" format=3]
+
+[ext_resource type="Script" path="res://tools/balance/balance_build_def.gd" id="1"]
+[ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="2"]
+[ext_resource type="Resource" path="res://data/items/weapons/big_sword.tres" id="3"]
+[ext_resource type="Resource" path="res://data/items/armors/iron_helm.tres" id="4"]
+[ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="5"]
+
+[resource]
+script = ExtResource("1")
+name = "degenerate_max_health_a4"
+description = "Max health and armor stacked at the act IV boss: Vitality 5, Frost Armor 4, Guardian Ring, Phoenix Feather 2; Epic plate armor (of the Titan, Fortified, Sturdy) and Epic iron helm (of the Bear, Fortified, Sturdy); a Rare Greatsword (Brutal, Sharp); the shrine's Vitality 5 and Toughness 3. Same level as expected_a4."
+tags = PackedStringArray("degenerate", "max_health")
+act = 4
+level = 13
+weapon = ExtResource("3")
+weapon_rarity = 2
+weapon_affixes = PackedStringArray("brutal", "sharp")
+runes = PackedStringArray("leech_rune", "spark_rune")
+armors = Array[ExtResource("2")]([ExtResource("4"), ExtResource("5")])
+armor_rarities = PackedInt32Array(3, 3)
+armor_affixes = PackedStringArray("of_the_bear,fortified,sturdy", "of_the_titan,fortified,sturdy")
+perks = {
+"frenzy": 1,
+"guardian_ring": 1,
+"iron_skin": 4,
+"phoenix_feather": 2,
+"precision": 1,
+"strength": 1,
+"vitality": 5
+}
+upgrades = {
+"might": 3,
+"swiftness": 1,
+"toughness": 3,
+"vitality": 5
+}

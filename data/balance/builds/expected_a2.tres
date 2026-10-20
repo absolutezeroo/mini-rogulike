@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="BalanceBuildDef" format=3]
+
+[ext_resource type="Script" path="res://tools/balance/balance_build_def.gd" id="1"]
+[ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="2"]
+[ext_resource type="Resource" path="res://data/items/weapons/katana.tres" id="3"]
+[ext_resource type="Resource" path="res://data/items/armors/leather_cap.tres" id="4"]
+[ext_resource type="Resource" path="res://data/items/armors/leather_armor.tres" id="5"]
+
+[resource]
+script = ExtResource("1")
+name = "expected_a2"
+description = "Average hero at the act II boss (depth 6). ~290 + King Slime + 75% of act II = ~1140 XP = level 9: 8 perks; Vitality, Vampirism and Bloodrage together wake the Blood family (offers lean to started families). One relic from the act I boss (Guardian Ring). A Rare Katana (Sharp, Swift): the King Slime drops 3 items at x5 quality (~15% Rare each). One Ember rune set (3-4 runes found by now, Leech is 1 in 8). Leather cap and armor. Shrine: Vitality 2, Might 1, Toughness 1.
+Level from the XP curve (PlayerDef: 20 x 1.45^(L-1) per level) and the XP lying on Normal floors (tools/balance economy measures it: table 'XP gathered before each act's boss'), assuming the player kills ~80% of an act I floor, 75% in act II, 65% in act III, 60% in act IV (the seal asks 70%, at most 50 kills), plus the bosses' XP. Perks: one per level up (level - 1), leaning to families (family_bias 1: a started family weighs double, so one family is awake by act II-III). Relics: one per boss slain. Gear: Magic/Rare weights from DungeonConfig > Loot at that depth (boss drops x5 quality; tools/balance economy: 'Rarity of found equipment'); runes: every boss drops one, elites 30%, so 3-4 runes by act II and a forge on ~30% of floors."
+tags = PackedStringArray("expected")
+act = 2
+level = 9
+weapon = ExtResource("3")
+weapon_rarity = 2
+weapon_affixes = PackedStringArray("sharp", "swift")
+runes = PackedStringArray("ember_rune")
+armors = Array[ExtResource("2")]([ExtResource("4"), ExtResource("5")])
+armor_rarities = PackedInt32Array(0, 0)
+armor_affixes = PackedStringArray("", "")
+perks = {
+"bloodrage": 1,
+"frenzy": 1,
+"guardian_ring": 1,
+"iron_skin": 1,
+"precision": 1,
+"strength": 1,
+"vampirism": 1,
+"vitality": 2
+}
+upgrades = {
+"might": 1,
+"toughness": 1,
+"vitality": 2
+}

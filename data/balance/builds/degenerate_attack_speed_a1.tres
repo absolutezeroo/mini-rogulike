@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="BalanceBuildDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="1_woffg"]
+[ext_resource type="Resource" path="res://data/items/armors/leather_armor.tres" id="2_857oi"]
+[ext_resource type="Script" path="res://tools/balance/balance_build_def.gd" id="3_cwuq3"]
+[ext_resource type="Resource" path="res://data/items/weapons/sai.tres" id="4_1bcgu"]
+
+[resource]
+script = ExtResource("3_cwuq3")
+name = "degenerate_attack_speed_a1"
+description = "Max attack speed at the act I boss (level 6 like expected_a1): an Epic Sai (fastest weapon, 0.22 s) Swift + Frenzy x4 (+63% attack speed: a hit every 0.135 s), Sparks in every socket (every 4th hit chains)."
+tags = PackedStringArray("degenerate", "attack_speed")
+level = 6
+weapon = ExtResource("4_1bcgu")
+weapon_rarity = 3
+weapon_affixes = PackedStringArray("swift", "sharp", "precise")
+runes = PackedStringArray("spark_rune", "spark_rune", "spark_rune")
+armors = Array[ExtResource("1_woffg")]([ExtResource("2_857oi")])
+armor_rarities = PackedInt32Array(0)
+armor_affixes = PackedStringArray("")
+perks = {
+"frenzy": 4,
+"strength": 1
+}
+upgrades = {
+"might": 1,
+"vitality": 1
+}

@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="BalanceBuildDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="1_ipang"]
+[ext_resource type="Resource" path="res://data/items/armors/leather_cap.tres" id="2_dk51o"]
+[ext_resource type="Resource" path="res://data/items/armors/leather_armor.tres" id="3_0s7xh"]
+[ext_resource type="Script" path="res://tools/balance/balance_build_def.gd" id="4_4eegt"]
+[ext_resource type="Resource" path="res://data/items/weapons/rapier.tres" id="5_8gopq"]
+
+[resource]
+script = ExtResource("4_4eegt")
+name = "degenerate_crit_a2"
+description = "Max crit at the act II boss (level 9 like expected_a2): an Epic Rapier (+15% crit, Precise, of the Fox), Precision x4, Thunderclap x3, War Banner: ~77% crit; every crit sets off Thunderclap's and 3 Shatter runes' shockwaves."
+tags = PackedStringArray("degenerate", "crit")
+act = 2
+level = 9
+weapon = ExtResource("5_8gopq")
+weapon_rarity = 3
+weapon_affixes = PackedStringArray("precise", "of_the_fox", "sharp")
+runes = PackedStringArray("shatter_rune", "shatter_rune", "shatter_rune")
+armors = Array[ExtResource("1_ipang")]([ExtResource("2_dk51o"), ExtResource("3_0s7xh")])
+armor_rarities = PackedInt32Array(0, 0)
+armor_affixes = PackedStringArray("", "")
+perks = {
+"precision": 4,
+"strength": 1,
+"thunderclap": 3,
+"war_banner": 1
+}
+upgrades = {
+"might": 1,
+"toughness": 1,
+"vitality": 2
+}
