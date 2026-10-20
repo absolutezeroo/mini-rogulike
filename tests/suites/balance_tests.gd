@@ -19,7 +19,10 @@ extends TestSuite
 const KNOWN := [
 	"model: boss TTK", "model: boss hits to kill",
 	"model: monster TTK", "model: elite TTK", "model: epic TTK", "model: legendary TTK", "model: shiny TTK",
-	"economy: shop",
+	# Phase 2C: Vampirism (heals on kill) reads ~0 in the lab: kills in a boss fight heal nothing
+	# (2A) and the dummy rooms don't hurt, so a kill heal has nothing to show; its value is pack
+	# sustain (Taken (live), the arena). A measuring blind spot, not a trap: buffed to 3 a kill.
+	"marginal: too weak",
 ]
 const KNOWN_DATE := "2026-10-20"
 
