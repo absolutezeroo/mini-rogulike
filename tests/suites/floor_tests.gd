@@ -1426,6 +1426,8 @@ func _test_floor_size(game: Game) -> void:
 	check(world.map.width > easy_width and world.map.rooms.size() > easy_rooms, "Nightmare floors are bigger (%d rooms, Easy %d)" % [world.map.rooms.size(), easy_rooms])
 	check(world.monster_count() <= config.max_monsters_per_floor and world.monster_count() >= config.max_monsters_per_floor * 0.6, "crowded, within the cap (%d)" % world.monster_count())
 	check(world.seal.needed == config.seal_max, "the seal asks for its most, no more (%d)" % world.seal.needed)
+	var chunks := ceili(world.map.width / float(DungeonView.CHUNK)) * ceili(world.map.height / float(DungeonView.CHUNK))
+	check(world._view.chunk_count() == chunks, "the map is drawn in chunks the renderer can skip (%d)" % world._view.chunk_count())
 	world.build_floor(9, CONTENT)
 	check(world.arena != null and world.map.width == config.width, "boss floors keep their size")
 	world.difficulty = before

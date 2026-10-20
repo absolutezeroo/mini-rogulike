@@ -102,6 +102,21 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 - **Monsters** are driven by a `StateMachine`: Idle (wander) > Chase (path or straight line, use skills)
   > Attack (telegraphed wind-up, strike, recovery). Skills with a `cast_time` go through Cast
   (glow, red circle, cast animation) so the player can dodge them.
+  - **Moving**: Chase walks straight at the target only when its body can (`Monster.has_clear_walk()`:
+    a shape cast of its width against walls and corners, plus no water, hole or prop on the line);
+    otherwise it follows the A* path, its corners cut where the body fits. Walking but getting
+    nowhere for 0.3 s (`is_stuck()`), it takes the path, then steps aside and looks again. Monsters
+    keep a little space between them (no pile-up in doorways); wandering ones never pick a way
+    into a wall.
+  - **Sight**: `detect_radius()` is the kind's reach times the difficulty's `detect_range`
+    (Easy x0.85, Normal x1, Hard x1.2, Nightmare x1.4); chasing, they see 1.6x further.
+  - **Sleep**: what isn't seen isn't run. A few times a second the World lets monsters off screen
+    (beyond a 256 px margin) and out of reach of the hero sleep: no AI, no movement, no animation
+    (`Monster.set_awake()`, `World.awake_monsters`). Hunting monsters and bosses stay awake; a hit
+    wakes a sleeper. On a crowded Nightmare floor, monsters cost about a quarter of what they did.
+- **Drawing the floor**: `DungeonView` draws the map in 8x8-cell chunks, each its own canvas item,
+  so the renderer skips the ones off screen; inside a chunk, tiles go texture by texture to batch.
+  About 90 draw calls whatever the floor's size (it was ~1500 on a big floor).
 - **Game** offers the perk choices (pausing the game) and reacts to boss fights through `Events`.
 - **UI** listens to signals (`Events`, Player signals) and never drives gameplay directly.
   Touch controls only press input actions, so keyboard, gamepad and touch share one code path.
@@ -719,6 +734,7 @@ the normal game:
 | Monster damage (attacks, skills, traps, bursts) | x0.6 | x1 | x1.35 | x1.8 |
 | Time to dodge (wind-ups, casts) | x1.35 | x1 | x0.85 | x0.7 |
 | Monster speed | x0.9 | x1 | x1.05 | x1.15 |
+| How far monsters spot you (`detect_range`) | x0.85 | x1 | x1.2 | x1.4 |
 | Extra monsters per room | 0 | 0 | +1 | +2 |
 | Floor size (`floor_size`) | 72x72 | 84x84 | 96x96 | 104x104 |
 | Rooms per floor (`rooms`) | 15 | 19 | 23 | 27 |

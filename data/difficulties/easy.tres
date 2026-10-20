@@ -19,3 +19,4 @@ loot_chance = 1.4
 souls = 0.5
 heal_on_new_floor = 0.25
 light = 1.15
+detect_range = 0.85

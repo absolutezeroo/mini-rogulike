@@ -17,6 +17,9 @@ extends Resource
 @export var monster_speed: float = 1.0
 ## Wind-ups and casts: above 1 = more time to dodge.
 @export var telegraph_time: float = 1.0
+## How far monsters spot the hero (MonsterDef.detect_radius): they see you from further away on
+## harder difficulties.
+@export var detect_range: float = 1.0
 ## Extra monsters in every room.
 @export_range(0, 5) var extra_monsters: int = 0
 @export var boss_hp: float = 1.0

@@ -136,6 +136,8 @@ func run() -> void:
 
 	# Inventory screen opens, lists items, uses them, pauses, and closes.
 	var cap: ItemDef = load("res://data/items/armors/leather_cap.tres")
+	while player.inventory.is_full():
+		player.inventory.items.pop_back()  # (loot picked up on the way may have filled it)
 	player.inventory.add(cap)
 	game.open_inventory()
 	await _frames(2)
@@ -143,9 +145,10 @@ func run() -> void:
 	var grid: GridContainer = game.inventory_panel.get_node("%ItemGrid")
 	var cap_slot: ItemSlot = null
 	for child in grid.get_children():
-		if (child as ItemSlot).item == cap:
+		if (child as ItemSlot).item and (child as ItemSlot).item.id == cap.id:  # (or a cap picked up on the way)
 			cap_slot = child
-	check(grid.get_child_count() == player.inventory.capacity and cap_slot != null, "inventory shows the bag as slots")
+	var stacked := player.inventory.items.size() - player.inventory.grouped().size()  # identical items share a slot
+	check(grid.get_child_count() == player.inventory.capacity - stacked and cap_slot != null, "inventory shows the bag as slots (%d of %d)" % [grid.get_child_count(), player.inventory.capacity - stacked])
 	cap_slot.pressed.emit()
 	(game.inventory_panel.get_node("%UseButton") as Button).pressed.emit()
 	check(player.equipment.get_item(EquipmentDef.Slot.HEAD) != null, "equip from the inventory screen")
@@ -230,6 +233,7 @@ func run() -> void:
 	await floor._test_details(game)
 	await floor._test_belt_and_balance(game)
 	await combat._test_monster_behaviours(game)
+	await combat._test_ai_movement(game)
 	await floor._test_climate(game)
 	await combat._test_review_fixes(game)
 	await floor._test_debug_panel(game)

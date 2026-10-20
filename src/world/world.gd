@@ -93,6 +93,14 @@ var _splats: SplatLayer
 var _dark_rooms: Array[DarkRoom] = []
 ## When the hero was last told the stairs are sealed (seconds).
 var _blocked_note_at := -10.0
+## The monsters thinking this moment (the others sleep: off screen and far from the hero).
+## Refreshed a few times a second (see _update_activity()).
+var awake_monsters: Array = []  # (untyped: one may be freed before the next refresh)
+var _activity_timer := 0.0
+## Seconds between two looks at who sleeps and who wakes.
+const ACTIVITY_INTERVAL := 0.2
+## Monsters this far past the screen's edge still think (they may walk in any moment).
+const WAKE_MARGIN := 256.0
 
 @onready var _view: DungeonView = $DungeonView
 @onready var _pits: PitLayer = $Pits
@@ -183,6 +191,8 @@ func clear_floor() -> void:
 			merchant.remove_from_group("merchants")  # counted once
 	arena = null
 	ambush = null
+	awake_monsters.clear()
+	_activity_timer = 0.0
 	_cracks.clear()
 	grounds.clear()
 	_heat_sources.clear()
@@ -215,6 +225,7 @@ func bestiary_rules() -> BestiaryRules:
 	return _content.bestiary if _content else null
 
 
+## (Awake until the next look at who sleeps: see _update_activity().)
 func spawn_monster(def: MonsterDef, at: Vector2) -> Monster:
 	var monster := MONSTER_SCENE.instantiate() as Monster
 	monster.world = self
@@ -713,10 +724,32 @@ func reveal_around(point: Vector2) -> void:
 		cells_changed.emit(revealed)
 
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	if player and map and not player.is_dead:
 		reveal_around(player.global_position)
 	_step_on_cracks()
+	_activity_timer -= delta
+	if _activity_timer <= 0.0:
+		_activity_timer = ACTIVITY_INTERVAL
+		_update_activity()
+
+
+## What isn't seen isn't run: monsters off screen (with a margin) and out of reach of the hero
+## sleep, unless they are after someone or are a boss. Their bodies stay (shots still hit them).
+func _update_activity() -> void:
+	awake_monsters.clear()
+	var view := view_rect(WAKE_MARGIN)
+	var hero := player.global_position if player and is_instance_valid(player) else Vector2.INF
+	for node in get_tree().get_nodes_in_group("monsters"):
+		var monster := node as Monster
+		if monster == null or monster.is_dead or monster.is_queued_for_deletion():
+			continue
+		var awake := monster.target != null or monster.is_boss() or monster.is_falling \
+			or view.has_point(monster.global_position) \
+			or (hero != Vector2.INF and monster.global_position.distance_to(hero) <= monster.detect_radius() * 1.6 + 64.0)
+		monster.set_awake(awake)
+		if awake:
+			awake_monsters.append(monster)
 
 
 # --- Queries -----------------------------------------------------------------

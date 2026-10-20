@@ -1,5 +1,6 @@
 extends State
-## Wanders around slowly until the monster notices a target.
+## Wanders around slowly until the monster notices a target. Bumping into something, it stops
+## and picks another way.
 
 const WANDER_SPEED := 0.35
 
@@ -23,10 +24,17 @@ func physics_update(delta: float) -> void:
 		return
 
 	_timer -= delta
+	if actor.is_stuck():
+		actor.move_direction = Vector2.ZERO
+		_timer = minf(_timer, randf_range(0.2, 0.6))
 	if _timer <= 0.0:
 		_timer = randf_range(1.0, 2.5)
+		actor.move_direction = Vector2.ZERO
 		if randf() < 0.5:
-			actor.move_direction = Vector2.ZERO
-		else:
-			actor.move_direction = Vector2.from_angle(randf() * TAU) * WANDER_SPEED
-			actor.facing = actor.move_direction.normalized()
+			# Only a way its body can take (not into the wall right next to it).
+			for attempt in 4:
+				var way := Vector2.from_angle(randf() * TAU)
+				if actor.has_clear_walk(actor.global_position + way * 48.0):
+					actor.move_direction = way * WANDER_SPEED
+					actor.facing = way
+					break

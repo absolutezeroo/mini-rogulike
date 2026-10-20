@@ -787,3 +787,122 @@ func _test_review_fixes(game: Game) -> void:
 		await _frames(1)
 	check(game.depth == depth_before + 1 and not get_tree().paused, "one floor down, game running (depth %d)" % game.depth)
 	await _frames(5)
+
+
+## What isn't seen sleeps; monsters spot the hero further on harder difficulties; they walk
+## around what their body can't cross and get unstuck; they find the hero from the next room.
+func _test_ai_movement(game: Game) -> void:
+	var world: World = game.world
+	var player: Player = game.player
+	player.invincible = true
+	await _clear_monsters(world)
+	var rat_def: MonsterDef = load("res://data/monsters/rat.tres")
+
+	# Sleep and wake.
+	var far_room := world.map.rooms[0]
+	var far_distance := 0.0
+	for room in world.map.rooms:
+		var d := world.map.cell_to_world(room.get_center()).distance_to(player.global_position)
+		if d > far_distance:
+			far_distance = d
+			far_room = room
+	var sleeper := world.spawn_monster(rat_def, _solid_point_in(world, far_room))
+	var near := world.spawn_monster(rat_def, player.global_position + Vector2(120, 0))
+	await _frames(20)
+	check(far_distance > 1200.0, "a room far off screen (%d px)" % far_distance)
+	check(not sleeper.is_awake and sleeper.process_mode == Node.PROCESS_MODE_DISABLED, "a monster far off screen sleeps")
+	check(near.is_awake and world.awake_monsters.has(near) and not world.awake_monsters.has(sleeper), "one in view thinks")
+	var spot := sleeper.global_position
+	await _frames(30)
+	check(sleeper.global_position == spot, "a sleeping monster doesn't move")
+	var hit := HitInfo.new()
+	hit.amount = 1
+	hit.source = player
+	sleeper.take_hit(hit)
+	check(sleeper.is_awake, "hit from afar, it wakes up")
+	await _frames(20)
+	check(sleeper.is_awake and sleeper.target == player, "and stays awake while it hunts")
+	await _clear_monsters(world)
+
+	# Further on harder difficulties.
+	var before := world.difficulty
+	world.difficulty = CONTENT.get_difficulty(&"easy")
+	world.rules = FloorRules.make(CONTENT.dungeon, world.difficulty, null, world.depth)
+	var easy_rat := world.spawn_monster(rat_def, player.global_position + Vector2(80, 0))
+	world.difficulty = CONTENT.get_difficulty(&"nightmare")
+	world.rules = FloorRules.make(CONTENT.dungeon, world.difficulty, null, world.depth)
+	var nightmare_rat := world.spawn_monster(rat_def, player.global_position + Vector2(80, 0))
+	check(nightmare_rat.detect_radius() > rat_def.detect_radius and easy_rat.detect_radius() < rat_def.detect_radius, "monsters spot the hero from further on Nightmare (%d), closer on Easy (%d)" % [nightmare_rat.detect_radius(), easy_rat.detect_radius()])
+	world.difficulty = before
+	world.rules = FloorRules.make(CONTENT.dungeon, before, world.floor_event, world.depth, world.curse)
+	await _clear_monsters(world)
+
+	# A clear walk: open floor yes; a blocked cell (a pond, a hole, a prop) on the way, no.
+	var cell := _open_cell_near(world, player.global_position, 3)
+	var walker := world.spawn_monster(rat_def, world.map.cell_to_world(cell))
+	walker.get_node("StateMachine").process_mode = Node.PROCESS_MODE_DISABLED
+	await _frames(2)
+	var ahead := world.map.cell_to_world(cell + Vector2i(3, 0))
+	check(walker.has_clear_walk(ahead), "a clear walk on open floor")
+	world.set_cell_blocked(cell + Vector2i(2, 0), true)
+	walker._walk_checks.clear()
+	check(not walker.has_clear_walk(ahead), "not across a blocked cell, even in sight")
+	world.set_cell_blocked(cell + Vector2i(2, 0), false)
+	walker._walk_checks.clear()
+	var other_side := world.map.cell_to_world(cell) + Vector2(0, -2000)
+	check(not walker.has_clear_walk(other_side), "nor through walls")
+
+	# Walking into a wall: stuck.
+	var wall_dir := Vector2.ZERO
+	for dir: Vector2i in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
+		var c := cell
+		var steps := 0
+		while world.map.is_floor(c) and steps < 40:
+			c += dir
+			steps += 1
+		if not world.map.is_floor(c):
+			wall_dir = Vector2(dir)
+			walker.global_position = world.map.cell_to_world(c - dir)
+			break
+	walker.target = player  # (hunting: it stays awake wherever it stands)
+	walker.move_direction = wall_dir
+	await _frames(40)
+	check(walker.is_stuck(), "walking into a wall for a moment: stuck")
+	walker.move_direction = -wall_dir
+	await _frames(40)
+	check(not walker.is_stuck(), "walking away: not stuck any more")
+	await _clear_monsters(world)
+
+	# From another room, out of sight, around the walls: it finds the hero.
+	var hunter_spot := Vector2.INF
+	for room in world.map.rooms:
+		var candidate := _solid_point_in(world, room)
+		if world.has_line_of_sight(candidate, player.global_position):
+			continue
+		var path := world.find_path(candidate, player.global_position)
+		var length := 0.0
+		for k in range(1, path.size()):
+			length += path[k - 1].distance_to(path[k])
+		if length >= 300.0 and length <= 900.0:
+			hunter_spot = candidate
+			break
+	check(hunter_spot != Vector2.INF, "a room out of sight, a short walk away")
+	if hunter_spot != Vector2.INF:
+		var hunter := world.spawn_monster(rat_def, hunter_spot)
+		hunter.get_node("StateMachine").transition_to(&"Chase")
+		var reached := false
+		var closest := INF
+		for i in 60 * 12:
+			hunter.target = player  # (it knows where the hero is: a hunt, not a search)
+			await _frames(1)
+			if not is_instance_valid(hunter) or hunter.is_dead:
+				break
+			var d := hunter.global_position.distance_to(player.global_position)
+			closest = minf(closest, d)
+			if d <= hunter.attack_range(player) + 24.0:
+				reached = true
+				break
+		check(reached, "a monster finds its way to the hero around the walls (closest %d px)" % closest)
+	await _clear_monsters(world)
+	player.invincible = false
+

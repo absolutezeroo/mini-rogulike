@@ -24,3 +24,4 @@ light = 0.75
 has_ascensions = true
 floor_size = 1.45
 rooms = 1.8
+detect_range = 1.4

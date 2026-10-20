@@ -27,6 +27,14 @@ var elite: EliteAffixDef
 
 ## Big monsters shake the floor when they walk.
 const HEAVY_RADIUS := 14.0
+## Stuck: walking but getting nowhere for this long (see is_stuck()).
+const STUCK_AFTER := 0.3
+## Moving slower than this share of its speed counts as not getting anywhere.
+const STUCK_PROGRESS := 0.3
+## Monsters keep this many pixels between their bodies when they walk (no crowding into a pile).
+const SPACING := 4.0
+## A straight walk to a point is checked again after this long (see has_clear_walk()).
+const WALK_CHECK_INTERVAL := 0.2
 const HEAVY_STEP_INTERVAL := 0.45
 
 var _step_timer := 0.0
@@ -46,6 +54,13 @@ var _over: MonsterOverlay
 var _fell := false
 
 ## Bosses: hits taken in a row, and the shockwave that answers them (see BossDef).
+## Off screen and far from the hero, a monster sleeps: no AI, no animation (see World).
+var is_awake := true
+var _detect_multiplier := 1.0
+var _stuck_time := 0.0
+var _last_position := Vector2.INF
+var _walk_checks := {}  # cell -> [physics frame, clear]
+
 var _hit_streak := 0
 var _streak_time := 0.0
 var _shockwave_after := 0
@@ -74,6 +89,7 @@ func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
 	base_stats = rules.scale_monster(def.stats, def is BossDef)
 	_damage_multiplier = rules.monster_damage()
 	_windup_multiplier = rules.telegraph_time()
+	_detect_multiplier = rules.detect_range()
 	if def is BossDef:
 		_shockwave_after = (def as BossDef).shockwave_after_hits
 	if def.weapon:
@@ -241,7 +257,7 @@ func notice_target() -> bool:
 		return true
 	target = null
 	var player := world.player
-	if player and not player.is_dead and can_see(player, def.detect_radius):
+	if player and not player.is_dead and can_see(player, detect_radius()):
 		target = player
 		_noticed(player)
 		return true
@@ -254,6 +270,73 @@ func _noticed(other: Actor) -> void:
 		noticed_frame = Engine.get_physics_frames()
 		Profile.mark_seen(def.id)
 		Events.monster_noticed.emit(self)
+
+
+## How far it spots the hero: its kind's reach, times the difficulty's.
+func detect_radius() -> float:
+	return def.detect_radius * _detect_multiplier
+
+
+## Sleeps (off screen, far from the hero) or wakes up. A sleeping monster keeps its body (shots
+## still hit it) but thinks, moves and animates no more.
+func set_awake(awake: bool) -> void:
+	if awake == is_awake:
+		return
+	is_awake = awake
+	process_mode = Node.PROCESS_MODE_INHERIT if awake else Node.PROCESS_MODE_DISABLED
+	_stuck_time = 0.0
+	_last_position = Vector2.INF
+
+
+## Hit while asleep (a stray shot, a fire): it wakes up to answer.
+func take_hit(hit: HitInfo) -> void:
+	set_awake(true)
+	super.take_hit(hit)
+
+
+## Walking but getting nowhere (a corner, a crowd, a pond's edge): the AI goes around.
+func is_stuck() -> bool:
+	return _stuck_time >= STUCK_AFTER
+
+
+## Can its body walk straight to `point`: no wall or corner in the way of its width, and, for
+## walkers, no water, hole or obstacle on the line. Cached a moment per target cell.
+func has_clear_walk(point: Vector2) -> bool:
+	var cell := world.map.world_to_cell(point)
+	var frame := Engine.get_physics_frames()
+	var cached: Array = _walk_checks.get(cell, [])
+	if not cached.is_empty() and frame - int(cached[0]) < roundi(WALK_CHECK_INTERVAL * Engine.physics_ticks_per_second):
+		return cached[1]
+	var clear := _walk_is_clear(point)
+	if _walk_checks.size() > 16:
+		_walk_checks.clear()
+	_walk_checks[cell] = [frame, clear]
+	return clear
+
+
+func _walk_is_clear(point: Vector2) -> bool:
+	var motion := point - global_position
+	if motion.length() < 1.0:
+		return true
+	if not flies:
+		# Holes, ponds, props: the cells along the way (but the ends, where bodies stand).
+		var steps := ceili(motion.length() / (world.map.tile_size * 0.5))
+		var from_cell := world.map.world_to_cell(global_position)
+		var to_cell := world.map.world_to_cell(point)
+		for i in range(1, steps):
+			var cell := world.map.world_to_cell(global_position + motion * (float(i) / steps))
+			if cell != from_cell and cell != to_cell and (world.nav.is_blocked(cell) or world.has_pit(cell)):
+				return false
+	var shape := CircleShape2D.new()
+	shape.radius = maxf(radius - 1.0, 2.0)
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = shape
+	query.transform = Transform2D(0.0, global_position)
+	query.motion = motion
+	query.collision_mask = Layers.WORLD | (0 if flies else Layers.WATER)
+	query.exclude = [get_rid()]
+	var result := get_world_2d().direct_space_state.cast_motion(query)
+	return result.is_empty() or result[0] >= 0.999
 
 
 func can_see(other: Actor, max_distance: float) -> bool:
@@ -313,9 +396,50 @@ func _get_desired_velocity() -> Vector2:
 	for monster_trait in def.traits:
 		monster_trait.update(self, delta)
 		direction = monster_trait.steer(self, direction)
+	if direction != Vector2.ZERO and not is_boss():
+		direction = _keep_spacing(direction)
 	if direction != Vector2.ZERO and not flies:
 		direction = _avoid_holes(direction)
 	return direction * get_move_speed()
+
+
+func _physics_process(delta: float) -> void:
+	super._physics_process(delta)
+	_track_progress(delta)
+
+
+## Wants to walk, barely moves: counts toward being stuck. Knockback and dashes don't count.
+func _track_progress(delta: float) -> void:
+	var speed := move_direction.length() * get_move_speed()
+	if _last_position != Vector2.INF and speed > 10.0 and not is_dashing() and delta > 0.0:
+		var moved := global_position.distance_to(_last_position) / delta
+		if moved < speed * STUCK_PROGRESS:
+			_stuck_time += delta
+		else:
+			_stuck_time = maxf(_stuck_time - delta * 2.0, 0.0)
+	else:
+		_stuck_time = maxf(_stuck_time - delta, 0.0)
+	_last_position = global_position
+
+
+## Steps aside from the monsters it bumps into, so a pack spreads around the hero instead of
+## pushing in a line through a door.
+func _keep_spacing(direction: Vector2) -> Vector2:
+	var push := Vector2.ZERO
+	for entry: Variant in world.awake_monsters:
+		if not is_instance_valid(entry) or entry == self:
+			continue
+		var other := entry as Monster
+		if other.is_dead:
+			continue
+		var away := global_position - other.global_position
+		var limit := radius + other.radius + SPACING
+		var distance := away.length()
+		if distance < limit and distance > 0.01:
+			push += away / distance * (1.0 - distance / limit)
+	if push == Vector2.ZERO:
+		return direction
+	return (direction + push * 0.8).limit_length(direction.length())
 
 
 ## Walking monsters don't step into holes on their own (being knocked in is another story):

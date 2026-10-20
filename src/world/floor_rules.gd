@@ -49,6 +49,11 @@ func telegraph_time() -> float:
 	return difficulty.telegraph_time
 
 
+## Multiplies how far monsters spot the hero.
+func detect_range() -> float:
+	return difficulty.detect_range if difficulty else 1.0
+
+
 ## A monster's stats for this floor: grows with depth, then the difficulty and the event.
 func scale_monster(base: StatBlock, is_boss: bool) -> StatBlock:
 	var stats := base.duplicate() as StatBlock

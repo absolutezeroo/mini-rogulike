@@ -6,37 +6,90 @@ extends Node2D
 ##   - walls next to the floor or a cliff face (8 neighbours): plateau edge tiles, picked from
 ##     which sides are lower, with inner corners for diagonals
 ##   - every other wall: flat plateau color
+## The map is drawn in square chunks, each its own canvas item: the ones off screen are skipped
+## by the renderer (a single item for the whole map was drawn whole every frame). Inside a chunk,
+## tiles go by texture (floor, decor, shadows, walls) so they batch into a few draw calls.
 
 const OUTSIDE_MARGIN := 24  # tiles of plateau color drawn around the map
+## Cells on a chunk's side.
+const CHUNK := 8
 
 var _map: DungeonMap
 var _theme: DungeonTheme
+var _chunks: Array[Chunk] = []
+
+
+## One square of the map, drawn by the view.
+class Chunk:
+	extends Node2D
+	var view: DungeonView
+	var cells: Rect2i
+
+	func _draw() -> void:
+		view.draw_cells(self, cells)
 
 
 func show_map(map: DungeonMap, theme: DungeonTheme) -> void:
 	_map = map
 	_theme = theme
+	for chunk in _chunks:
+		remove_child(chunk)
+		chunk.queue_free()
+	_chunks.clear()
+	for y in range(0, map.height, CHUNK):
+		for x in range(0, map.width, CHUNK):
+			var chunk := Chunk.new()
+			chunk.view = self
+			chunk.cells = Rect2i(x, y, mini(CHUNK, map.width - x), mini(CHUNK, map.height - y))
+			chunk.name = "Chunk_%d_%d" % [x / CHUNK, y / CHUNK]
+			add_child(chunk)
+			_chunks.append(chunk)
 	queue_redraw()
 
 
+func chunk_count() -> int:
+	return _chunks.size()
+
+
+## The plateau color all around (under the chunks).
 func _draw() -> void:
 	if _map == null or _theme == null:
 		return
 	var ts := float(_map.tile_size)
-	var tint := _theme.tint
 	var outside := Rect2(Vector2.ONE * -OUTSIDE_MARGIN * ts, Vector2(_map.width + OUTSIDE_MARGIN * 2, _map.height + OUTSIDE_MARGIN * 2) * ts)
-	draw_rect(outside, _theme.wall_top_color * tint)
+	draw_rect(outside, _theme.wall_top_color * _theme.tint)
 
-	for y in _map.height:
-		for x in _map.width:
-			var cell := Vector2i(x, y)
-			var rect := Rect2(Vector2(cell) * ts, Vector2(ts, ts))
-			if _map.is_floor(cell):
-				_draw_floor(cell, rect, tint)
-			elif _is_face(cell):
-				_draw_face(cell, rect, tint)
-			elif _touches_low(cell):
-				_draw_tile(_theme.wall_atlas, _wall_top_tile(cell), rect, tint)
+
+## Draws the cells of `area` on `canvas` (a chunk): one pass per texture.
+func draw_cells(canvas: CanvasItem, area: Rect2i) -> void:
+	if _map == null or _theme == null:
+		return
+	var ts := float(_map.tile_size)
+	var tint := _theme.tint
+	for pass_index in 4:
+		for y in range(area.position.y, area.end.y):
+			for x in range(area.position.x, area.end.x):
+				var cell := Vector2i(x, y)
+				var rect := Rect2(Vector2(cell) * ts, Vector2(ts, ts))
+				var is_floor := _map.is_floor(cell)
+				match pass_index:
+					0:
+						if is_floor:
+							_draw_tile(canvas, _theme.floor_atlas, DungeonTheme.pick(_theme.floor_tiles, cell), rect, tint)
+					1:
+						if is_floor and _theme.decor_atlas and DungeonTheme.chance(cell, _theme.decor_chance, 1):
+							_draw_tile(canvas, _theme.decor_atlas, DungeonTheme.pick(_theme.decor_tiles, cell, 2), rect, tint)
+					2:
+						# Soft shadow at the foot of the cliffs.
+						if is_floor and _is_face(cell + Vector2i.UP):
+							canvas.draw_rect(Rect2(rect.position, Vector2(rect.size.x, 8.0)), Color(0, 0, 0, 0.22))
+					3:
+						if is_floor:
+							continue
+						if _is_face(cell):
+							_draw_face(canvas, cell, rect, tint)
+						elif _touches_low(cell):
+							_draw_tile(canvas, _theme.wall_atlas, _wall_top_tile(cell), rect, tint)
 
 
 func _is_face(cell: Vector2i) -> bool:
@@ -91,16 +144,7 @@ func _inner_corner_tile(cell: Vector2i) -> int:
 	return _theme.wall_center
 
 
-func _draw_floor(cell: Vector2i, rect: Rect2, tint: Color) -> void:
-	_draw_tile(_theme.floor_atlas, DungeonTheme.pick(_theme.floor_tiles, cell), rect, tint)
-	if _theme.decor_atlas and DungeonTheme.chance(cell, _theme.decor_chance, 1):
-		_draw_tile(_theme.decor_atlas, DungeonTheme.pick(_theme.decor_tiles, cell, 2), rect, tint)
-	# Soft shadow at the foot of the cliffs.
-	if _is_face(cell + Vector2i.UP):
-		draw_rect(Rect2(rect.position, Vector2(rect.size.x, 8.0)), Color(0, 0, 0, 0.22))
-
-
-func _draw_face(cell: Vector2i, rect: Rect2, tint: Color) -> void:
+func _draw_face(canvas: CanvasItem, cell: Vector2i, rect: Rect2, tint: Color) -> void:
 	var left_open := not _is_face(cell + Vector2i.LEFT)
 	var right_open := not _is_face(cell + Vector2i.RIGHT)
 	var tile := _theme.face
@@ -110,9 +154,9 @@ func _draw_face(cell: Vector2i, rect: Rect2, tint: Color) -> void:
 		tile = _theme.face_left
 	elif right_open:
 		tile = _theme.face_right
-	_draw_tile(_theme.wall_atlas, tile, rect, tint)
+	_draw_tile(canvas, _theme.wall_atlas, tile, rect, tint)
 
 
-func _draw_tile(atlas: Texture2D, index: int, rect: Rect2, tint: Color) -> void:
+func _draw_tile(canvas: CanvasItem, atlas: Texture2D, index: int, rect: Rect2, tint: Color) -> void:
 	if atlas and index >= 0:
-		draw_texture_rect_region(atlas, rect, DungeonTheme.region(atlas, index), tint)
+		canvas.draw_texture_rect_region(atlas, rect, DungeonTheme.region(atlas, index), tint)
