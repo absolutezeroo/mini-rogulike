@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="BalanceBuildDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="1_fvkyf"]
+[ext_resource type="Resource" path="res://data/items/armors/leather_armor.tres" id="2_bdgci"]
+[ext_resource type="Script" path="res://tools/balance/balance_build_def.gd" id="3_ea1fq"]
+[ext_resource type="Resource" path="res://data/items/weapons/katana.tres" id="4_wlexq"]
+
+[resource]
+script = ExtResource("3_ea1fq")
+name = "degenerate_lifesteal_a1"
+description = "Max lifesteal at the act I boss, same level and shrine as expected_a1: an Epic Katana (Vampiric, Sharp, Swift) with a Leech rune in each of its 3 sockets (3 x 8% of the damage dealt), Vampirism at max (heal on kill: summons count), the Blood family awake (Strength, Vitality: +4% max HP per kill, +40% damage below half HP). The owner's report: with this you beat a boss by standing and hitting."
+tags = PackedStringArray("degenerate", "lifesteal")
+level = 6
+weapon = ExtResource("4_wlexq")
+weapon_rarity = 3
+weapon_affixes = PackedStringArray("vampiric", "sharp", "swift")
+runes = PackedStringArray("leech_rune", "leech_rune", "leech_rune")
+armors = Array[ExtResource("1_fvkyf")]([ExtResource("2_bdgci")])
+armor_rarities = PackedInt32Array(0)
+armor_affixes = PackedStringArray("")
+perks = {
+"strength": 1,
+"vampirism": 3,
+"vitality": 1
+}
+upgrades = {
+"might": 1,
+"vitality": 1
+}

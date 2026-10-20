@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="BalanceTargets" format=3]
+
+[ext_resource type="Script" path="res://tools/balance/balance_targets.gd" id="1_d0mpv"]
+
+; The design goals of the game's balance, read by tools/balance (model, arena) and the "balance"
+; test suite. FIRST PROPOSAL (2026-10): sensible action-roguelike values for a phone game, to be
+; tuned with the owner. Each line says why; the same reasons are on BalanceTargets' fields (the
+; editor drops these comments if it saves this file: keep them in sync by hand).
+
+[resource]
+script = ExtResource("1_d0mpv")
+; A boss fight with the act's expected build should last 40-100 s: under that it is not a fight, over it it drags on a phone.
+boss_ttk_min = 40.0
+boss_ttk_max = 100.0
+; Standing still and trading blows must never beat a boss: expected and degenerate builds must die face-tanking...
+facetank_must_lose_tags = PackedStringArray("expected", "degenerate")
+; ...from Normal up (Easy may forgive it).
+facetank_must_lose_from = &"normal"
+; Healing in a boss fight tops you up, it doesn't undo the boss: at most 25% of the damage taken for an expected build...
+heal_share_max_expected = 0.25
+; ...and at most 50% for a build that stacks sustain on purpose.
+heal_share_max_degenerate = 0.5
+; At full health, 6 average boss hits at least (one mistake isn't the end)...
+boss_hits_to_kill_min = 6.0
+; ...and 12 at most (ignoring the patterns must kill you; a hit-free fight stays possible).
+boss_hits_to_kill_max = 12.0
+; A bot that keeps its range and rolls away from telegraphs should beat the act's boss with the expected build on Normal.
+kite_should_win_on = &"normal"
+; A common monster takes 0.5-2.5 s of hitting: paper below, a slog above (rooms hold 2-6 of them).
+common_ttk_min = 0.5
+common_ttk_max = 2.5
+; An elite is a short duel of 3-10 s, not a wall.
+elite_ttk_min = 3.0
+elite_ttk_max = 10.0
+; Clearing a pack while playing well (kite bot) costs at most 35% of max HP.
+pack_damage_share_max = 0.35
+; No single perk at max level is worth more than 2x the median perk (same rarity): several picks must stay good.
+perk_value_max_vs_median = 2.0
+; Perk values are measured on the act II expected build (mid-run, a few perks and gear).
+perk_reference_build = "expected_a2"
+; Stacking one thing hard may pay up to 2.5x the expected build's damage, not more.
+degenerate_dps_ratio_max = 2.5
+; Every weapon within 0.6x-1.6x of the median weapon's DPS: none is a trap, none the only choice.
+weapon_dps_ratio_min = 0.6
+weapon_dps_ratio_max = 1.6

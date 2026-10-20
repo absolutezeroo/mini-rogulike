@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BalanceBuildDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/armor_def.gd" id="1_wocev"]
+[ext_resource type="Script" path="res://tools/balance/balance_build_def.gd" id="2_dle01"]
+[ext_resource type="Resource" path="res://data/items/weapons/katana.tres" id="3_4tgar"]
+
+[resource]
+script = ExtResource("2_dle01")
+name = "baseline"
+description = "A fresh hero on floor 1: level 1, the starting Katana, nothing else, no shrine upgrade. The floor of what the game must allow: it should be able to beat the act I boss by playing well (kite), not by standing still."
+tags = PackedStringArray("baseline")
+weapon = ExtResource("3_4tgar")
+weapon_affixes = PackedStringArray()
+runes = PackedStringArray()
+armor_rarities = PackedInt32Array()
+armor_affixes = PackedStringArray()

@@ -58,6 +58,9 @@ func try_use(index: int, user: Actor, aim: Vector2) -> bool:
 	var reduction := clampf(user.get_stats().cooldown_reduction, 0.0, MAX_COOLDOWN_REDUCTION)
 	_durations[index] = skills[index].cooldown * (1.0 - reduction)
 	_cooldowns[index] = _durations[index]
+	var outer := Actor.heal_source  # balance tools: a skill's own heal is credited to it (Actor.healed)
+	Actor.heal_source = StringName("skill:%s" % skills[index].id)
 	skills[index].activate(user, aim)
+	Actor.heal_source = outer
 	user.perks.on_skill_used(user, skills[index])
 	return true
