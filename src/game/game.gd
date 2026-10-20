@@ -103,6 +103,7 @@ func _ready() -> void:
 
 func _connect_menus() -> void:
 	pause_menu.content = content
+	inventory_panel.content = content
 	pause_menu.resume_requested.connect(func() -> void:
 		pause_menu.hide()
 		_on_menu_closed())

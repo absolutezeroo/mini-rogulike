@@ -24,6 +24,8 @@ var _subtitle_text := ""
 var _banishing := false
 var _rerolls := 0
 var _banishes := 0
+## Under the subtitle: what the families are, in one line (when a card has one).
+var _rule: Label
 
 @onready var _title: Label = %Title
 @onready var _subtitle: Label = %Subtitle
@@ -34,6 +36,16 @@ var _banishes := 0
 
 func _ready() -> void:
 	hide()
+	_rule = Label.new()
+	_rule.text = "Every perk belongs to a family. Hold 3 different perks of one family to awaken its bonus."
+	_rule.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_rule.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_rule.custom_minimum_size = Vector2(900, 0)
+	_rule.add_theme_font_size_override("font_size", 15)
+	_rule.add_theme_color_override("font_color", Color(1, 0.92, 0.8, 0.8))
+	_rule.add_theme_color_override("font_outline_color", Color.BLACK)
+	_rule.add_theme_constant_override("outline_size", 4)
+	_subtitle.add_sibling(_rule)
 	_reroll.pressed.connect(func() -> void:
 		if _rerolls > 0 and visible:
 			_set_banishing(false)
@@ -79,6 +91,7 @@ func show_cards(perks: Array[PerkDef], waiting: bool = false) -> void:
 		var tween := card.create_tween()
 		tween.tween_interval(0.08 * i)
 		tween.tween_property(card, "modulate:a", 1.0, 0.2)
+	_rule.visible = perks.any(func(perk: PerkDef) -> bool: return not perk.synergies.is_empty())
 	_set_banishing(false)
 
 

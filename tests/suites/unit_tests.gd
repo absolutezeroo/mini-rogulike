@@ -82,13 +82,13 @@ func _test_stat_block() -> void:
 	var sum := a.plus(b)
 	check(sum.max_hp == 10 and sum.attack == 5 and sum.defense == 1, "StatBlock.plus adds every stat")
 	check(a.attack == 2, "StatBlock.plus does not modify its operands")
-	check(b.describe() == "+3 ATK  +1 DEF", "StatBlock.describe: got '%s'" % b.describe())
+	check(b.describe() == "+3 damage, +1 armor", "StatBlock.describe: got '%s'" % b.describe())
 	var tripled := b.times(3)
 	check(tripled.attack == 9 and tripled.defense == 3 and b.attack == 3, "StatBlock.times multiplies a copy")
 	var fast := StatBlock.new()
 	fast.attack_speed = 0.25
 	check(is_equal_approx(a.plus(fast).attack_speed, 0.25), "attack speed adds up")
-	check(fast.describe() == "+25% ATK SPEED", "attack speed is described: got '%s'" % fast.describe())
+	check(fast.describe() == "+25% attack speed", "attack speed is described: got '%s'" % fast.describe())
 
 
 func _test_combat_rules() -> void:

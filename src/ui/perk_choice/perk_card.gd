@@ -1,7 +1,8 @@
 class_name PerkCard
 extends Button
 ## One choice of the perk screen: icon, name, level, what it does, and its families
-## (SynergyDef): how many you hold, or a bright line when this card would wake one.
+## (SynergyDef) spelled out: the family's name, how many of its perks you hold (squares), how
+## many more it takes and what its bonus does; lit up when this card would wake it.
 ## The card grows to fit its text (never less than its base size), so nothing spills out.
 
 const RARE_COLOR := Palette.GOLD
@@ -24,49 +25,104 @@ func show_perk(perk: PerkDef, owned: PerkSet) -> void:
 	_icon.texture = perk.icon
 	_name.text = perk.display_name
 	_name.add_theme_color_override("font_color", perk.color.lerp(Color.WHITE, 0.4))
-	if owned_stacks == 0:
-		_level.text = "New!" if perk.max_stacks == 1 else "New!  (max %d)" % perk.max_stacks
-	else:
-		_level.text = "Level %d  >  %d" % [owned_stacks, owned_stacks + 1]
+	_level.text = level_text(owned_stacks, perk.max_stacks)
 	_description.text = perk.describe()
 	completes = false
 	for synergy in perk.synergies:
 		if synergy:
-			_families.add_child(_family_row(synergy, owned, perk))
+			_families.add_child(family_box(synergy, owned, perk))
+			completes = completes or owned.would_complete(perk, synergy)
 	FitToContent.grow_later(self, $Margin)  # long text: a taller card, nothing spills out
 
 
-## "Inferno 1/3" (dim), "Inferno awake" or, when taking this card wakes it, "Wakes Inferno!".
-func _family_row(synergy: SynergyDef, owned: PerkSet, perk: PerkDef) -> Control:
-	var row := HBoxContainer.new()
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_theme_constant_override("separation", 6)
+## "New perk  (up to level 3)", "Level 1 > 2  (max 3)", "New relic".
+static func level_text(owned_stacks: int, max_stacks: int) -> String:
+	if owned_stacks == 0:
+		return "New perk" if max_stacks == 1 else "New perk  (up to level %d)" % max_stacks
+	return "Level %d > %d  (max %d)" % [owned_stacks, owned_stacks + 1, max_stacks]
+
+
+## What the card's family means, spelled out: its name and how many of its perks you hold (with
+## this one), then what holding enough of them does. Lit up when this card would wake it.
+static func family_box(synergy: SynergyDef, owned: PerkSet, perk: PerkDef) -> PanelContainer:
+	var box := PanelContainer.new()
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var have := owned.pieces_of(synergy)
+	var after := have + (1 if perk and owned.stacks_of(perk) == 0 else 0)
+	var wakes := perk != null and owned.would_complete(perk, synergy)
+	var awake := owned.is_awake(synergy)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(synergy.color, 0.28 if wakes else 0.14)
+	style.border_color = synergy.color if wakes or awake else Color(synergy.color, 0.55)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(4)
+	style.set_content_margin_all(6)
+	box.add_theme_stylebox_override("panel", style)
+	var column := VBoxContainer.new()
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_theme_constant_override("separation", 2)
+	box.add_child(column)
+	var head := HBoxContainer.new()
+	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	head.add_theme_constant_override("separation", 6)
+	column.add_child(head)
 	var icon := TextureRect.new()
 	icon.texture = synergy.icon
 	icon.custom_minimum_size = Vector2(20, 20)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(icon)
+	head.add_child(icon)
+	var title := _label("%s family" % synergy.display_name, 15, synergy.color.lerp(Color.WHITE, 0.35))
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(title)
+	head.add_child(Pips.new(mini(after, synergy.pieces) if not awake else synergy.pieces, synergy.pieces, synergy.color))
+	var text := ""
+	if wakes:
+		text = "This one makes %d/%d: the family bonus AWAKENS!\n%s" % [synergy.pieces, synergy.pieces, synergy.description]
+	elif awake:
+		text = "%s: %s" % ["Bonus active" if perk == null else "Bonus already active", synergy.description]
+	else:
+		var missing := synergy.pieces - after
+		text = "%d more %s perk%s to awaken its bonus: %s" % [missing, synergy.display_name, "" if missing == 1 else "s", synergy.description]
+	var words := _label(text, 13, Color(1, 1, 1, 0.95) if wakes else Color(1, 0.95, 0.88, 0.78))
+	words.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	words.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	column.add_child(words)
+	if wakes:
+		var tween := box.create_tween().set_loops()
+		tween.tween_property(box, "modulate", Color(1.25, 1.25, 1.25), 0.5)
+		tween.tween_property(box, "modulate", Color.WHITE, 0.5)
+	return box
+
+
+static func _label(text: String, size: int, color: Color) -> Label:
 	var label := Label.new()
-	label.add_theme_font_size_override("font_size", 15)
+	label.text = text
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.add_theme_font_size_override("font_size", size)
+	label.add_theme_color_override("font_color", color)
 	label.add_theme_color_override("font_outline_color", Color.BLACK)
 	label.add_theme_constant_override("outline_size", 4)
-	var have := owned.pieces_of(synergy)
-	if owned.would_complete(perk, synergy):
-		completes = true
-		label.text = "Wakes %s!" % synergy.display_name
-		label.add_theme_color_override("font_color", synergy.color.lerp(Color.WHITE, 0.3))
-		var tween := label.create_tween().set_loops()
-		tween.tween_property(label, "modulate", Color(1.4, 1.4, 1.4), 0.45)
-		tween.tween_property(label, "modulate", Color.WHITE, 0.45)
-	elif owned.is_awake(synergy):
-		label.text = "%s (awake)" % synergy.display_name
-		label.add_theme_color_override("font_color", synergy.color)
-	else:
-		var after := have + (1 if owned.stacks_of(perk) == 0 else 0)
-		label.text = "%s %d/%d" % [synergy.display_name, after, synergy.pieces]
-		label.add_theme_color_override("font_color", synergy.color.lerp(Color(0.6, 0.6, 0.6), 0.45))
-	row.add_child(label)
-	return row
+	return label
+
+
+## Small squares, one per perk the family needs: filled for those held.
+class Pips:
+	extends Control
+	var filled := 0
+	var total := 3
+	var color := Color.WHITE
+
+	func _init(have: int, count: int, tint: Color) -> void:
+		filled = have
+		total = count
+		color = tint
+		custom_minimum_size = Vector2(count * 12 + 2, 20)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		for i in total:
+			var rect := Rect2(Vector2(i * 12 + 1, 5), Vector2(9, 9))
+			draw_rect(rect.grow(1), Color(0, 0, 0, 0.8))
+			draw_rect(rect, color if i < filled else Color(color, 0.18))

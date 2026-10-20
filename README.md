@@ -640,6 +640,13 @@ path), heal, buff, summon. Statuses (`OnHitStatus`): burn and slow.
 Every level up pauses the game and offers **1 perk out of 3**. Taking a perk again levels it up
 (up to its `max_stacks`). Bosses drop a choice of **relics** (rare perks).
 
+Everything on a card is spelled out for someone who never played a roguelike: "New perk (up to
+level 3)" or "Level 1 > 2 (max 3)", what it does, and a box per **family** with its name, little
+squares for the perks of it you hold (this one included), how many more it takes and what its
+bonus does; the card that would complete a family glows and says "AWAKENS!". One line under the
+title says what families are. In the bag, **Perks** opens "Your perks" (`BuildWindow`): every
+family with its progress and bonus, and every perk taken with its level and effect.
+
 A `PerkDef` (in `data/perks/`) is stat bonuses + a list of `Passive`s, both multiplied by its level:
 
 | Passive | Hook | Used by |

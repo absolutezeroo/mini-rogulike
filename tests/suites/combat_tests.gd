@@ -187,6 +187,44 @@ func _test_perks_in_game(game: Game, world: World, player: Player) -> void:
 		real.queue_free()
 	game.run.banished.clear()
 
+	# A card spells its family out: its name, how many more it takes, what the bonus does.
+	var family := _perk("ignite").synergies[0]
+	var spelled := (load("res://src/ui/perk_choice/perk_card.tscn") as PackedScene).instantiate() as PerkCard
+	add_child(spelled)
+	spelled.show_perk(_perk("ignite"), PerkSet.new())
+	var words := _texts(spelled)
+	check(words.contains("%s family" % family.display_name) and words.contains("more %s perk" % family.display_name) and words.contains(family.description), "a card says what its family is and does: %s" % words.left(160))
+	spelled.queue_free()
+	var almost := PerkSet.new()
+	for perk in CONTENT.perks:
+		if perk.synergies.has(family) and almost.pieces_of(family) < family.pieces - 1 and perk != _perk("ignite"):
+			almost.add(perk)
+	var waking := (load("res://src/ui/perk_choice/perk_card.tscn") as PackedScene).instantiate() as PerkCard
+	add_child(waking)
+	waking.show_perk(_perk("ignite"), almost)
+	check(waking.completes and _texts(waking).contains("AWAKENS"), "the card that completes a family says so")
+	waking.queue_free()
+	check(game.perk_panel._rule.text.contains("family"), "the perk screen explains families in one line")
+
+	# The bag's Perks: every family in words, every perk taken.
+	game.open_inventory()
+	await _frames(2)
+	game.inventory_panel.open_build()
+	var build := game.inventory_panel.get_node("BuildWindow") as BuildWindow
+	check(game.inventory_panel.is_build_open() and build._families.get_child_count() == CONTENT.synergies.size(), "the build lists every family (%d)" % build._families.get_child_count())
+	check(build._perks.get_child_count() == maxi(player.perks.entries.size(), 1), "and every perk taken")
+	game.inventory_panel.close()
+	await _frames(2)
+	check(not game.inventory_panel.is_build_open() and not get_tree().paused, "closing the bag closes the build")
+
+
+## Every label's text under `node`, in one string.
+func _texts(node: Node) -> String:
+	var parts := PackedStringArray()
+	for label in node.find_children("*", "Label", true, false):
+		parts.append((label as Label).text)
+	return " | ".join(parts)
+
 
 ## The new perks and the families' bonuses, in a real fight.
 func _test_synergies_in_game(game: Game, world: World, player: Player) -> void:

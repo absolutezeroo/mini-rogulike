@@ -3,7 +3,8 @@ extends Control
 ## Bag screen, in the game's skin (RpgWindow, ItemSlot): the hero and what they wear (weapon,
 ## head, body) with the belt and their stats on the left, the bag as a grid of slots in the
 ## middle, the picked item's card on the right (rarity, stats, rune sockets, what to do with it).
-## Pauses the game while open. Built in code.
+## Pauses the game while open. Built in code. "Perks" in the header opens the build (BuildWindow):
+## the families and the perks taken, in words.
 
 signal closed
 
@@ -12,6 +13,8 @@ const BAG_COLUMNS := 4
 const BAG_SLOT := 66.0
 const GEAR_SLOT := 74.0
 
+## Every family of perks (for the build window).
+var content: ContentDB
 var _player: Player
 var _selected_item: ItemDef
 var _selected_slot := NO_SLOT
@@ -35,6 +38,8 @@ var _drop_button: Button
 var _belt_button: Button
 var _gold: Label
 var _named: Array[Node] = []
+var _build_window: BuildWindow
+var _perks_button: Button
 
 
 func _ready() -> void:
@@ -54,19 +59,35 @@ func open(player: Player) -> void:
 
 func close() -> void:
 	Sfx.play_ui(Sfx.bank.ui_close)
+	_build_window.hide()
 	hide()
 	closed.emit()
+
+
+## The build: families and perks, over the bag (Close comes back to it).
+func open_build() -> void:
+	var families: Array[SynergyDef] = content.synergies if content else ([] as Array[SynergyDef])
+	_build_window.show_build(_player.perks, families)
+	Sfx.play_ui(Sfx.bank.ui_open)
+
+
+func is_build_open() -> bool:
+	return _build_window.visible
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if visible and (event.is_action_pressed("inventory") or event.is_action_pressed("ui_cancel")):
 		get_viewport().set_input_as_handled()
-		close()
+		if _build_window.visible and event.is_action_pressed("ui_cancel"):
+			_build_window.hide()
+		else:
+			close()
 
 
 # --- Display -----------------------------------------------------------------
 
 func _refresh() -> void:
+	_perks_button.text = "Perks (%d)" % _player.perks.entries.size()
 	for slot: EquipmentDef.Slot in _slot_buttons:
 		var button: ItemSlot = _slot_buttons[slot]
 		button.item = _player.equipment.get_item(slot)
@@ -274,6 +295,18 @@ func _build() -> void:
 	add_child(_window)
 	_gold = UiSkin.label("", 22, UiSkin.GOLD)
 	_window.header_right.add_child(_gold)
+	_perks_button = Button.new()
+	_perks_button.text = "Perks"
+	_perks_button.focus_mode = Control.FOCUS_NONE
+	_perks_button.custom_minimum_size = Vector2(140, 48)
+	_perks_button.pressed.connect(open_build)
+	_window.header_right.add_child(_perks_button)
+	_build_window = BuildWindow.new()
+	_build_window.name = "BuildWindow"
+	_build_window.hide()
+	_build_window.close_requested.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_close)
+		_build_window.hide())
 	var columns := HBoxContainer.new()
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	columns.add_theme_constant_override("separation", 14)
@@ -378,6 +411,7 @@ func _build() -> void:
 	for node in _named:
 		node.owner = self
 		node.unique_name_in_owner = true
+	add_child(_build_window)  # over the bag
 
 
 func _action(text: String, node_name: String, callback: Callable) -> Button:

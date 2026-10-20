@@ -86,7 +86,7 @@ script = ExtResource("2_hint")
 id = &"perks"
 cue = &"perk_chosen"
 title = "Perks"
-text = "Each level brings a perk. Three perks of one family awaken its bonus: the cards show each perk's family."
+text = "Each level brings a perk. Three perks of one family awaken a bonus. See yours in the Bag, under Perks."
 duration = 10.0
 
 [sub_resource type="Resource" id="Hint_synergy"]

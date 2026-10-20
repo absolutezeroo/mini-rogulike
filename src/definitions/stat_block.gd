@@ -80,22 +80,23 @@ static func from_dict(data: Dictionary) -> StatBlock:
 
 
 ## Human readable bonuses, e.g. "+2 ATK  +1 DEF".
+## In plain words, the same everywhere (cards, shop, bag, shrine): "+3 damage, +1 armor".
 func describe() -> String:
 	var parts := PackedStringArray()
 	if max_hp != 0:
-		parts.append("%+d HP" % max_hp)
+		parts.append("%+d max health" % max_hp)
 	if attack != 0:
-		parts.append("%+d ATK" % attack)
+		parts.append("%+d damage" % attack)
 	if defense != 0:
-		parts.append("%+d DEF" % defense)
+		parts.append("%+d armor" % defense)
 	if not is_zero_approx(move_speed):
-		parts.append("%+d SPD" % roundi(move_speed))
+		parts.append("%+d move speed" % roundi(move_speed))
 	if not is_zero_approx(crit_chance):
-		parts.append("%+d%% CRIT" % roundi(crit_chance * 100.0))
+		parts.append("%+d%% critical hit chance" % roundi(crit_chance * 100.0))
 	if not is_zero_approx(attack_speed):
-		parts.append("%+d%% ATK SPEED" % roundi(attack_speed * 100.0))
+		parts.append("%+d%% attack speed" % roundi(attack_speed * 100.0))
 	if not is_zero_approx(skill_power):
-		parts.append("%+d%% SKILL POWER" % roundi(skill_power * 100.0))
+		parts.append("%+d%% skill damage" % roundi(skill_power * 100.0))
 	if not is_zero_approx(cooldown_reduction):
-		parts.append("-%d%% COOLDOWNS" % roundi(cooldown_reduction * 100.0))
-	return "  ".join(parts)
+		parts.append("skills recharge %d%% faster" % roundi(cooldown_reduction * 100.0))
+	return ", ".join(parts)
