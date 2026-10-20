@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="SustainRules" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/sustain_rules.gd" id="1_sustain"]
+
+[resource]
+script = ExtResource("1_sustain")
+rate_per_second = 0.04
+burst = 0.2
+boss_fight_rate = 0.5

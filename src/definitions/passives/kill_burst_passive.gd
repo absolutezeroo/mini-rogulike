@@ -47,6 +47,7 @@ func on_kill(owner: Actor, victim: Actor, perk: PerkSet.Entry) -> void:
 		spec.color = shard_color
 		spec.status = shard_status
 		spec.glow = 0.8
+		spec.secondary = true  # caused by a passive: no on-hit perks (no lifesteal, no chains)
 		world.fire_projectiles(owner, Vector2.from_angle(randf() * TAU), spec, at)
 	if blast_radius > 0.0:
 		var amount := maxi(1, roundi(owner.get_power() * blast_damage * perk.stacks))

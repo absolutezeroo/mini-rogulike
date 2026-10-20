@@ -65,6 +65,8 @@ var equipment := Equipment.new()
 var skills := SkillSet.new()
 var perks := PerkSet.new()
 var statuses := StatusSet.new()
+## Healing from "per hit" and "per kill" perks (see sustain_heal()).
+var sustain := SustainMeter.new()
 var hp := 1
 var facing := Vector2.RIGHT
 var is_dead := false
@@ -298,6 +300,29 @@ func heal(amount: int) -> int:
 	hp = mini(hp + amount, get_max_hp())
 	health_changed.emit(hp, get_max_hp())
 	return hp - before
+
+
+## Healing from a "per hit", "per kill" or "per skill" perk (lifesteal, heal on kill, the Blood
+## family...): fractions add up and are paid in whole points, and the hero's are limited by
+## SustainRules (one budget for all of them). Returns how much was actually healed.
+func sustain_heal(amount: float) -> int:
+	if is_dead:
+		return 0
+	var max_hp := get_max_hp()
+	var now := float(Engine.get_physics_frames()) / Engine.physics_ticks_per_second
+	var boss_fight := world != null and world.is_boss_fight()
+	var whole := sustain.take(amount, max_hp, max_hp - hp, now, _sustain_rules(), boss_fight)
+	return heal(whole) if whole > 0 else 0
+
+
+## Limits on sustain_heal() (null: none, only whole points).
+func _sustain_rules() -> SustainRules:
+	return null
+
+
+## Killing this actor may feed "on kill" heals (Vampirism, the Blood family...).
+func can_heal_killer() -> bool:
+	return true
 
 
 func die(killer: Actor) -> void:

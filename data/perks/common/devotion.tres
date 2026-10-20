@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_pjoay"]
 [ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="5_uu1ki"]
 [ext_resource type="Resource" path="res://data/perks/synergies/arcane.tres" id="6_pjoay"]
+[ext_resource type="Resource" path="res://data/perks/synergies/blood.tres" id="7_blood"]
 
 [sub_resource type="Resource" id="Resource_vvcxx"]
 script = ExtResource("3_uu1ki")
@@ -14,9 +15,9 @@ script = ExtResource("3_uu1ki")
 script = ExtResource("4_pjoay")
 id = &"devotion"
 display_name = "Devotion"
-description = "Using a skill (not the roll) heals 3 HP per level."
+description = "Using a skill (not the roll) heals 3 Health per level."
 icon = ExtResource("1_vvcxx")
 color = Color(1, 0.9529412, 0.6901961, 1)
 weight = 6
-synergies = Array[ExtResource("5_uu1ki")]([ExtResource("6_pjoay")])
+synergies = Array[ExtResource("5_uu1ki")]([ExtResource("6_pjoay"), ExtResource("7_blood")])
 passives = Array[ExtResource("2_wkes5")]([SubResource("Resource_vvcxx")])

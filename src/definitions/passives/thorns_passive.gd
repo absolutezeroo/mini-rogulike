@@ -5,6 +5,8 @@ extends Passive
 @export var damage_per_stack: int = 4
 ## Attackers further away than this (shooters) are not affected.
 @export var max_distance: float = 110.0
+## Left on the attacker too (Burning Thorns set it on fire). Optional.
+@export var status: OnHitStatus
 
 
 func on_damaged(owner: Actor, hit: HitInfo, _damage: int, perk: PerkSet.Entry) -> void:
@@ -13,5 +15,7 @@ func on_damaged(owner: Actor, hit: HitInfo, _damage: int, perk: PerkSet.Entry) -
 		return
 	if owner.global_position.distance_to(attacker.global_position) > max_distance:
 		return
-	attacker.take_hit(Combat.make_secondary_hit(owner, damage_per_stack * perk.stacks))
+	var thorn := Combat.make_secondary_hit(owner, damage_per_stack * perk.stacks)
+	thorn.status = status
+	attacker.take_hit(thorn)
 	Vfx.hit(owner.world, attacker.global_position, owner.global_position.direction_to(attacker.global_position), Color("c9a227"))

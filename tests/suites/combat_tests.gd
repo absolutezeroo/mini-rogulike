@@ -97,6 +97,7 @@ func _test_perks_in_game(game: Game, world: World, player: Player) -> void:
 	player._invulnerable_time = 0.0
 	player.take_hit(stab)
 	check(skeleton.hp < skeleton_hp, "Thorns hurt melee attackers")
+	check(skeleton.is_dead or skeleton.statuses.has(&"burn"), "Burning Thorns set them on fire")
 	skeleton.die(null)
 
 	player.perks.add(_perk("multishot"))
@@ -279,7 +280,7 @@ func _test_synergies_in_game(game: Game, world: World, player: Player) -> void:
 	player.perks.clear()
 
 	# Storm: every 4th hit, lightning jumps to the enemies around.
-	for id in ["precision", "thunderclap", "shock_roll"]:
+	for id in ["frenzy", "thunderclap", "shock_roll"]:
 		player.perks.add(_perk(id))
 	var others: Array[Monster] = []
 	for i in 2:
@@ -338,7 +339,8 @@ func _test_synergies_in_game(game: Game, world: World, player: Player) -> void:
 	bite.source = pushed
 	player._invulnerable_time = 0.0
 	player.take_hit(bite)
-	check(pushed.is_dead or pushed.hp < pushed_hp, "Iron Skin: getting hit throws enemies back")
+	check(pushed.is_dead or pushed.hp < pushed_hp, "Frost Armor: getting hit throws enemies back")
+	check(pushed.is_dead or pushed.statuses.is_slowed(), "Frost Armor: and chills them")
 	player.perks.clear()
 	player.perks.add(_perk("guardian_ring"))
 	player.ward = 0
@@ -394,7 +396,7 @@ func _test_synergies_in_game(game: Game, world: World, player: Player) -> void:
 	Profile.reset()
 
 	# Blood: wounded you hit harder, kills heal.
-	for id in ["vampirism", "strength", "vitality"]:
+	for id in ["vampirism", "bloodrage", "vitality"]:
 		player.perks.add(_perk(id))
 	player.hp = 1
 	var hard := HitInfo.new()
@@ -407,6 +409,100 @@ func _test_synergies_in_game(game: Game, world: World, player: Player) -> void:
 	for monster in [slime] + others:
 		if is_instance_valid(monster) and not monster.is_dead:
 			monster.die(null)
+	player.hp = player.get_max_hp()
+	player.xp = 0
+	await _frames(5)
+
+
+## Healing from hits and kills in the real game: burns and side effects heal nothing, whole
+## points only, summons feed no heal, shards fired by a perk trigger no on-hit perk, and the
+## hero's healing per second stays under the limit (DungeonConfig > Sustain).
+func _test_sustain_in_game(world: World, player: Player) -> void:
+	player.xp = -1000000  # no level up (it heals to full) from these kills
+	player.perks.clear()
+	player.invincible = true  # nothing else may change the hero's health meanwhile
+	var spot := world.find_open_point_near(player.global_position, 90.0)
+	var leech: RuneDef = load("res://data/runes/leech.tres")
+	var ratio: float = (leech.passives[0] as LifestealPassive).ratio_per_stack
+	var dummy := world.spawn_monster(load("res://data/monsters/slime.tres"), spot)
+	dummy.dormant = true
+	dummy.base_stats.max_hp = 999999
+	dummy.base_stats.defense = 0
+	dummy.invalidate_stats()
+	dummy.hp = 999999
+	await _frames(1)
+	player.perks.set_gear([], [leech])
+	player.sustain = SustainMeter.new()
+	player.hp = 10
+	dummy.take_hit(Combat.make_tick(player, 50))
+	check(player.hp == 10, "Leech: a burn tick heals nothing")
+	dummy.take_hit(Combat.make_secondary_hit(player, 50))
+	check(player.hp == 10, "Leech: a secondary hit (shockwave, chain, thorns) heals nothing")
+	# Small direct hits: the fractions add up, no point is given away per hit.
+	var dealt := 0
+	var healed := 0
+	for i in 6:
+		var before := dummy.hp
+		var hp_before := player.hp
+		var hit := HitInfo.new()
+		hit.amount = 7
+		hit.source = player
+		dummy.take_hit(hit)
+		dealt += before - dummy.hp
+		healed += player.hp - hp_before
+	check(healed == floori(dealt * ratio + 0.0001), "Leech: %d damage heals %d, not one point a hit (%d)" % [dealt, floori(dealt * ratio + 0.0001), healed])
+
+	# Shards fired by a perk are secondary: they feed no lifesteal and no chains.
+	var spec := ProjectileSpec.new()
+	spec.secondary = true
+	spec.damage = 30
+	spec.speed = 600.0
+	spec.max_distance = 300.0
+	player.hp = 10
+	player.sustain = SustainMeter.new()
+	var dummy_hp := dummy.hp
+	world.fire_projectiles(player, Vector2.RIGHT, spec, dummy.global_position + Vector2(-24, 0))
+	await _frames(10)
+	check(dummy.hp < dummy_hp and player.hp == 10, "a shard fired by a perk hurts (%d -> %d) but heals nothing (%d)" % [dummy_hp, dummy.hp, player.hp])
+
+	# The limit: three Leech runes on big hits every frame for a second heal no more than the
+	# budget (burst + one second of refill).
+	var rules: SustainRules = world.rules.config.sustain
+	player.perks.set_gear([], [leech, leech, leech])
+	player.sustain = SustainMeter.new()
+	player.hp = 1
+	var max_hp := player.get_max_hp()
+	for frame in 60:
+		var big := HitInfo.new()
+		big.amount = 40
+		big.source = player
+		dummy.take_hit(big)
+		await get_tree().physics_frame
+	var gained := player.hp - 1
+	var allowed := rules.capacity(max_hp) + rules.refill_per_second(max_hp, false) * 1.05
+	check(gained <= ceili(allowed) and gained >= floori(rules.capacity(max_hp)), "stacked Leech heals %d in a second, the limit is %d (asked for %d)" % [gained, ceili(allowed), roundi(40 * ratio * 3 * 60)])
+	player.perks.set_gear(player.equipment.affixes(), player.equipment.runes())
+
+	# Summons feed no "on kill" heal; ordinary monsters do.
+	player.perks.add(_perk("vampirism"))
+	player.sustain = SustainMeter.new()
+	player.hp = 10
+	var called := world.spawn_monster(load("res://data/monsters/rat.tres"), spot + Vector2(30, 0))
+	called.summoned = true
+	called.dormant = true
+	var plain := world.spawn_monster(load("res://data/monsters/rat.tres"), spot + Vector2(-30, 0))
+	plain.dormant = true
+	await _frames(1)
+	var kill := HitInfo.new()
+	kill.amount = 99999
+	kill.source = player
+	called.take_hit(kill)
+	check(called.is_dead and player.hp == 10, "Vampirism: a summoned monster's death heals nothing")
+	plain.take_hit(kill)
+	check(plain.is_dead and player.hp > 10, "Vampirism: an ordinary kill heals")
+	player.perks.clear()
+	dummy.die(null)
+	player.invincible = false
 	player.hp = player.get_max_hp()
 	player.xp = 0
 	await _frames(5)

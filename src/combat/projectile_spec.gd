@@ -15,6 +15,9 @@ var color := Color.WHITE
 var texture: Texture2D
 ## Statuses left on the enemies hit (burn, slow...).
 var status: OnHitStatus
+## Fired by a passive (shards out of a body, a family's ring of bolts): its hits are secondary
+## (HitInfo.is_secondary): they trigger no on-hit perk, so effects can't feed each other.
+var secondary: bool = false
 ## Magic shots (fireballs, bolts) glow in their color, light up the dark and burst on impact;
 ## 0 for plain things (shurikens, arrows).
 var glow: float = 1.0

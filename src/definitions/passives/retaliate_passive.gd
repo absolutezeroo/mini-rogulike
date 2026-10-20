@@ -9,6 +9,8 @@ extends Passive
 @export var damage_multiplier: float = 0.3
 @export var cooldown: float = 3.0
 @export var color: Color = Color("adb5bd")
+## Left on the enemies thrown back (Frost Armor chills them). Optional.
+@export var status: OnHitStatus
 
 
 func on_damaged(owner: Actor, _hit: HitInfo, damage: int, perk: PerkSet.Entry) -> void:
@@ -17,5 +19,5 @@ func on_damaged(owner: Actor, _hit: HitInfo, damage: int, perk: PerkSet.Entry) -
 		return
 	perk.memory["_ready"] = now + roundi(cooldown * Engine.physics_ticks_per_second)
 	var amount := maxi(1, roundi(owner.get_power() * damage_multiplier * perk.stacks))
-	Combat.damage_area(owner.world, owner, owner.global_position, radius, amount, knockback, true)
+	Combat.damage_area(owner.world, owner, owner.global_position, radius, amount, knockback, true, status)
 	owner.world.spawn_vfx(RingVfx.create(owner.global_position, radius, color))

@@ -22,6 +22,9 @@ extends Effect
 @export var status: OnHitStatus
 ## Magic shots glow and burst on impact; 0 for plain things (feathers, coins, arrows).
 @export_range(0.0, 1.0) var glow: float = 1.0
+## Fired by a passive (a family's ring of bolts...): its hits trigger no on-hit perk
+## (HitInfo.is_secondary). Leave off for skills.
+@export var secondary: bool = false
 ## Turns the aim (degrees): a second ring shifted by half a gap closes the safe lanes.
 @export var angle_offset: float = 0.0
 
@@ -41,4 +44,5 @@ func apply(user: Actor, aim: Vector2) -> void:
 	spec.texture = texture
 	spec.status = status
 	spec.glow = glow
+	spec.secondary = secondary
 	user.world.fire_projectiles(user, aim.rotated(deg_to_rad(angle_offset)) if angle_offset != 0.0 else aim, spec)
