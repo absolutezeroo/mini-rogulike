@@ -518,9 +518,9 @@ consumables between the two ("To belt" / "To bag"). The merchant buys from the b
   merchant). **Lock** keeps an entry through rerolls; if you don't buy it, it waits at the next
   merchant at the same price (`World.kept_stock`, kept in saved runs).
 
-## Bag and forge screens
+## Bag, forge and the other in-run screens
 
-The bag and the forge are drawn in the game's RPG skin (`UiSkin`, `src/ui/common/`): a wooden
+The bag, the forge, the shop, encounters, perk choices, the pause menu and the end of a run are drawn in the game's RPG skin (`UiSkin`, `src/ui/common/`): a wooden
 board with a gold ornate border (`RpgWindow`), the title on a red ribbon, dark recesses for each
 column, and items in square slots (`ItemSlot`): the icon at a whole-pixel scale, a frame in the
 item's rarity color (a rune's in its family's), how many, and a weapon's rune sockets as little
@@ -533,6 +533,18 @@ stones lit in their runes' colors. The selected slot pulses gold.
 - **Forge** (`ForgePanel`): the smith and what he says; the weapons you can work on as slots, the
   picked one big with its sockets; your runes as a grid. Pick a rune, then "Set it in"; pick a
   set rune, then "Take out (gold)".
+- **Shop** (`ShopPanel`, built in code): the merchant and your gold on top; what he sells as slots
+  with their price (a padlock on locked ones) and Reroll ("new items for sale, locked ones stay");
+  what you carry with what he pays; the picked item's card: its stats in words, how it compares
+  with what you wear (`ItemCompare`: "+3 damage", "-12 move speed", in green / red), its price,
+  Buy (greyed with the reason: not enough gold, bag full), Lock (what it does, spelled out) or Sell.
+- **Encounters** (`EncounterPanel`): one card per choice with its cost and every outcome in plain
+  words with its odds ("55%  Heals you fully", `EncounterChoice.chances()`,
+  `EncounterOutcome.summary()`), risks in red; Leave ("nothing happens, you can come back").
+- **Perk choice**, **pause menu** and **end of a run** use `RpgDialog` (a centred board, no Close):
+  the cards on dark wood with Reroll / Banish explained; each pause button says what it does, with
+  what gold and souls are for; the end screen shows the run's numbers (`RunState.summary_rows()`),
+  the souls earned and what they buy.
 
 ## Runes and the forge
 
@@ -586,14 +598,16 @@ and show on the title screen (**Quests**, also a tab of the Codex) with the time
 ## Encounters
 
 Some rooms hold something strange (`data/encounters/`, `EncounterDef`): walk up to it and choose.
-Each choice has a cost (gold, a part of your max HP) and outcomes drawn by weight
+Each choice has a cost (gold, a part of your max health) and outcomes drawn by weight
 (`EncounterChoice`, `EncounterOutcome`: heal, hurt, gold, an item of some quality, a choice of
-perks or relics, monsters or elites, any `Effect`). Each can be used once.
+perks or relics, monsters or elites, any `Effect`). Each can be used once. The panel shows every
+outcome in words with its odds before you choose; the words come from the outcome's fields
+(`EncounterOutcome.summary()`), so new encounters explain themselves.
 
 | Encounter | Choice | What may happen |
 |---|---|---|
 | Spirit Spring | Drink | healed (55%), a strong buff for a minute (25%), cursed water hurts (20%) |
-| Blood Altar | Offer your blood (-15% max HP) | a choice of relics |
+| Blood Altar | Offer your blood (-15% max health) | a choice of relics |
 | Grinning Spirit | Pay 30 / 80 gold (more each floor) | an item, sometimes a great one... or it laughs and runs |
 | Warden's Statue | Pray | a choice of perks (50%), or two elites (50%) |
 

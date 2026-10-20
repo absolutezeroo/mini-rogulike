@@ -1,7 +1,8 @@
 class_name PerkChoicePanel
 extends Control
-## "Choose 1 of 3": shown on level up (perks) and after a boss (relics).
-## The game pauses while it is open. Tap a card, or use the arrows and confirm on a keyboard or gamepad.
+## "Choose 1 of 3": shown on level up (perks) and after a boss (relics), in the game's skin
+## (RpgDialog, cards on dark wood). Built in code. The game pauses while it is open.
+## Tap a card, or use the arrows and confirm on a keyboard or gamepad.
 ## Under the cards: Reroll (three new cards) and Banish (tap Banish, then a card: that perk is
 ## gone for the run and another takes its place), while the run has charges left (RunState).
 ## The panel only asks (`reroll_requested`, `banish_requested`); the game decides and calls
@@ -26,26 +27,25 @@ var _rerolls := 0
 var _banishes := 0
 ## Under the subtitle: what the families are, in one line (when a card has one).
 var _rule: Label
+## Under Reroll and Banish: what they do.
+var _tools_note: Label
 
-@onready var _title: Label = %Title
-@onready var _subtitle: Label = %Subtitle
-@onready var _cards: HBoxContainer = %Cards
-@onready var _reroll: Button = %RerollButton
-@onready var _banish: Button = %BanishButton
+var _dialog: RpgDialog
+var _title: Label
+var _subtitle: Label
+var _cards: HBoxContainer
+var _tools: HBoxContainer
+var _reroll: Button
+var _banish: Button
+var _card_box: StyleBoxTexture
+var _card_hot: StyleBoxTexture
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	hide()
-	_rule = Label.new()
-	_rule.text = "Every perk belongs to a family. Hold 3 different perks of one family to awaken its bonus."
-	_rule.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_rule.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_rule.custom_minimum_size = Vector2(900, 0)
-	_rule.add_theme_font_size_override("font_size", 15)
-	_rule.add_theme_color_override("font_color", Color(1, 0.92, 0.8, 0.8))
-	_rule.add_theme_color_override("font_outline_color", Color.BLACK)
-	_rule.add_theme_constant_override("outline_size", 4)
-	_subtitle.add_sibling(_rule)
+	_build()
 	_reroll.pressed.connect(func() -> void:
 		if _rerolls > 0 and visible:
 			_set_banishing(false)
@@ -83,6 +83,7 @@ func show_cards(perks: Array[PerkDef], waiting: bool = false) -> void:
 		child.queue_free()
 	for i in perks.size():
 		var card := CARD_SCENE.instantiate() as PerkCard
+		_skin_card(card)
 		_cards.add_child(card)
 		card.show_perk(perks[i], _owned)
 		card.disabled = waiting
@@ -104,6 +105,7 @@ func set_charges(rerolls: int, banishes: int) -> void:
 	_banish.disabled = banishes <= 0
 	_reroll.visible = rerolls > 0 or banishes > 0
 	_banish.visible = _reroll.visible
+	_tools_note.visible = _reroll.visible
 	_refresh_banish()
 
 
@@ -124,7 +126,8 @@ func _refresh_banish() -> void:
 	if _banish == null:
 		return
 	_banish.text = "Cancel" if _banishing else "Banish (%d)" % _banishes
-	_subtitle.text = "Tap a perk to banish it for this run" if _banishing else _subtitle_text
+	_subtitle.text = "Tap the perk to banish: it won't be offered again this run" if _banishing else _subtitle_text
+	_subtitle.add_theme_color_override("font_color", BANISH_TINT if _banishing else UiSkin.TEXT)
 	for card: PerkCard in _cards.get_children():
 		card.self_modulate = BANISH_TINT if _banishing else Color.WHITE
 
@@ -146,3 +149,54 @@ func choose(index: int) -> void:
 	hide()
 	Sfx.play_ui(Sfx.bank.perk_chosen)
 	chosen.emit(perk)
+
+
+# --- Building -----------------------------------------------------------------------
+
+func _build() -> void:
+	_dialog = RpgDialog.new("Level up!")
+	add_child(_dialog)
+	_title = _dialog.title_label
+	_title.name = "Title"
+	_subtitle = UiSkin.label("Choose an upgrade", 20, UiSkin.TEXT)
+	_subtitle.name = "Subtitle"
+	_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_dialog.body.add_child(_subtitle)
+	_rule = UiParts.text("Every perk belongs to a family. Hold 3 different perks of one family to awaken its bonus.", 15, UiSkin.DIM, 900)
+	_rule.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_dialog.body.add_child(_rule)
+	_cards = HBoxContainer.new()
+	_cards.name = "Cards"
+	_cards.alignment = BoxContainer.ALIGNMENT_CENTER
+	_cards.add_theme_constant_override("separation", 24)
+	_dialog.body.add_child(_cards)
+	_tools = HBoxContainer.new()
+	_tools.name = "Tools"
+	_tools.alignment = BoxContainer.ALIGNMENT_CENTER
+	_tools.add_theme_constant_override("separation", 24)
+	_dialog.body.add_child(_tools)
+	_reroll = UiParts.button("Reroll (1)", Callable(), Vector2(220, 54), 18)
+	_reroll.name = "RerollButton"
+	_reroll.icon = load("res://assets/ui/icons/reroll.png")
+	_tools.add_child(_reroll)
+	_banish = UiParts.button("Banish (1)", Callable(), Vector2(220, 54), 18)
+	_banish.name = "BanishButton"
+	_banish.icon = load("res://assets/ui/icons/banish.png")
+	_tools.add_child(_banish)
+	_tools_note = UiParts.text("Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (tap Banish, then the card).", 15, UiSkin.DIM, 900)
+	_tools_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_dialog.body.add_child(_tools_note)
+	for node: Node in [_title, _subtitle, _cards, _tools, _reroll, _banish]:
+		node.owner = self
+		node.unique_name_in_owner = true
+	# The cards on dark wood; lighter under the finger.
+	_card_box = UiSkin.inset()
+	_card_hot = UiSkin.inset()
+	_card_hot.modulate_color = Color(1.45, 1.3, 1.15)
+
+
+func _skin_card(card: PerkCard) -> void:
+	for state in ["normal", "disabled"]:
+		card.add_theme_stylebox_override(state, _card_box)
+	for state in ["hover", "pressed", "focus", "hover_pressed"]:
+		card.add_theme_stylebox_override(state, _card_hot)

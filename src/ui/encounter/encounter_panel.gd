@@ -1,21 +1,37 @@
 class_name EncounterPanel
 extends Control
-## The question an encounter asks: its text, one button per choice (with its price), and Leave.
-## After a choice, what happened, then Continue. The game is paused while it is open.
+## The question an encounter asks, in the game's skin (RpgDialog). Built in code.
+## Its name on the ribbon, its picture and text; then one card per choice saying, before you
+## pick, what it costs and everything that can come of it, with the odds ("55%  Heals you
+## fully"), good things in green and risks in red; the card's button makes the choice (greyed,
+## saying why, when you can't). Leave walks away (you can come back). After a choice: what
+## happened, then Continue. The game is paused while it is open.
 
 signal closed
 
+const WIDTH := 960.0
+const CARD_WIDTH := 350.0
+
 var _encounter: Encounter
 var _player: Player
+var _buttons: Array[Button] = []
 
-@onready var _icon: TextureRect = %Icon
-@onready var _title: Label = %Title
-@onready var _text: Label = %Text
-@onready var _choices: VBoxContainer = %Choices
+var _dialog: RpgDialog
+var _icon: TextureRect
+var _text: Label
+var _result: Label
+var _choices: HBoxContainer
+var _leave_row: HBoxContainer
+var _leave: Button
+var _leave_note: Label
+var _named: Array[Node] = []
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	hide()
+	_build()
 
 
 func open(encounter: Encounter, player: Player) -> void:
@@ -23,17 +39,17 @@ func open(encounter: Encounter, player: Player) -> void:
 	_player = player
 	_icon.texture = encounter.def.icon
 	_icon.modulate = encounter.def.icon_tint
-	_title.text = encounter.def.display_name
-	_title.add_theme_color_override("font_color", encounter.def.color.lightened(0.2))
+	_dialog.set_title(encounter.def.display_name, encounter.def.color.lightened(0.45))
 	_text.text = encounter.def.description
-	_text.remove_theme_color_override("font_color")
-	_clear()
+	_text.add_theme_color_override("font_color", UiSkin.TEXT)
+	_result.hide()
+	UiParts.clear(_choices)
+	_buttons.clear()
 	var depth := player.world.depth
 	for i in encounter.def.choices.size():
-		var choice := encounter.def.choices[i]
-		var button := _button(choice.describe(player, depth), _choose.bind(i))
-		button.disabled = not choice.can_afford(player, depth)
-	_button(encounter.def.leave_label, close)
+		_choices.add_child(_choice_card(encounter.def.choices[i], i, depth))
+	_leave.text = encounter.def.leave_label
+	_leave_row.show()
 	show()
 
 
@@ -43,6 +59,11 @@ func close() -> void:
 	closed.emit()
 
 
+## The button that makes choice `index` (tests).
+func choice_button(index: int) -> Button:
+	return _buttons[index] if index >= 0 and index < _buttons.size() else null
+
+
 func _choose(index: int) -> void:
 	var outcome := _encounter.resolve(index, _player)
 	if outcome == null:
@@ -50,22 +71,108 @@ func _choose(index: int) -> void:
 	Sfx.play_ui(Sfx.bank.perk_chosen)
 	_text.text = outcome.text
 	_text.add_theme_color_override("font_color", outcome.color)
-	_clear()
-	_button("Continue", close)
+	var choice := _encounter.def.choices[index]
+	var paid := choice.gold_cost > 0 or choice.max_hp_cost > 0.0
+	_result.text = outcome.summary(_player, paid)
+	_result.add_theme_color_override("font_color", UiParts.BAD if outcome.is_bad() else UiParts.GOOD)
+	_result.show()
+	UiParts.clear(_choices)
+	_buttons.clear()
+	_leave_row.hide()
+	var go_on := UiParts.button("Continue", close, Vector2(320, 58), 20)
+	_choices.add_child(go_on)
 
 
-func _clear() -> void:
-	for child in _choices.get_children():
-		_choices.remove_child(child)
-		child.queue_free()
+# --- Look -------------------------------------------------------------------------
+
+## A choice as a card: its name, its cost, what can happen (with the odds), and its button.
+func _choice_card(choice: EncounterChoice, index: int, depth: int) -> Control:
+	var card: Dictionary = RpgWindow.section(choice.label)
+	var box := card.box as Control
+	box.custom_minimum_size.x = CARD_WIDTH
+	var column := card.column as VBoxContainer
+	(card.title as Label).add_theme_font_size_override("font_size", 21)
+	var reason := choice.cannot_afford_reason(_player, depth)
+	var cost := UiSkin.label(choice.cost_text(_player, depth), 16, UiSkin.GOLD if reason.is_empty() else UiParts.BAD, true)
+	column.add_child(cost)
+	var chances := choice.chances()
+	var paid := choice.gold_cost > 0 or choice.max_hp_cost > 0.0
+	column.add_child(UiSkin.label("Always:" if chances.size() == 1 else "What can happen:", 15, UiSkin.DIM))
+	for i in choice.outcomes.size():
+		var outcome := choice.outcomes[i]
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		column.add_child(row)
+		if chances.size() > 1:
+			var odds := UiSkin.label("%d%%" % roundi(chances[i] * 100.0), 16, UiSkin.TEXT)
+			odds.custom_minimum_size.x = 48
+			odds.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+			row.add_child(odds)
+		var words := UiSkin.label(outcome.summary(_player, paid), 16, UiParts.BAD if outcome.is_bad() else UiParts.GOOD, true)
+		row.add_child(words)
+	var spacer := Control.new()
+	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	column.add_child(spacer)
+	var button := UiParts.button(choice.describe(_player, depth) if reason.is_empty() else reason, _choose.bind(index), Vector2(0, 54), 18)
+	button.disabled = not reason.is_empty()
+	column.add_child(button)
+	_buttons.append(button)
+	return box
 
 
-func _button(text: String, action: Callable) -> Button:
-	var button := Button.new()
-	button.text = text
-	button.focus_mode = Control.FOCUS_NONE
-	button.custom_minimum_size = Vector2(420, 58)
-	button.add_theme_font_size_override("font_size", 20)
-	button.pressed.connect(action)
-	_choices.add_child(button)
-	return button
+# --- Building -----------------------------------------------------------------------
+
+func _build() -> void:
+	_dialog = RpgDialog.new("", WIDTH, 0.8)
+	add_child(_dialog)
+	_dialog.title_label.name = "Title"
+	_own(_dialog.title_label)
+	var top := HBoxContainer.new()
+	top.add_theme_constant_override("separation", 16)
+	_dialog.body.add_child(top)
+	_icon = TextureRect.new()
+	_icon.custom_minimum_size = Vector2(72, 72)
+	_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_icon.name = "Icon"
+	_own(_icon)
+	top.add_child(_icon)
+	var words := VBoxContainer.new()
+	words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	words.alignment = BoxContainer.ALIGNMENT_CENTER
+	top.add_child(words)
+	_text = UiParts.text("", 19, UiSkin.TEXT, WIDTH - 160)
+	_text.name = "Text"
+	_own(_text)
+	words.add_child(_text)
+	_result = UiParts.text("", 18, UiParts.GOOD, WIDTH - 160)
+	_result.name = "Result"
+	_own(_result)
+	words.add_child(_result)
+
+	_choices = HBoxContainer.new()
+	_choices.name = "Choices"
+	_choices.alignment = BoxContainer.ALIGNMENT_CENTER
+	_choices.add_theme_constant_override("separation", 14)
+	_own(_choices)
+	_dialog.body.add_child(_choices)
+
+	_leave_row = HBoxContainer.new()
+	_leave_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	_leave_row.add_theme_constant_override("separation", 14)
+	_dialog.body.add_child(_leave_row)
+	_leave = UiParts.button("Leave", close, Vector2(200, 52), 18)
+	_leave.name = "LeaveButton"
+	_own(_leave)
+	_leave_row.add_child(_leave)
+	_leave_note = UiSkin.label("Nothing happens. You can come back later.", 15, UiSkin.DIM)
+	_leave_row.add_child(_leave_note)
+	for node in _named:
+		node.owner = self
+		node.unique_name_in_owner = true
+
+
+## Reachable as %Name from the panel (tests, other scripts), once built.
+func _own(node: Node) -> void:
+	_named.append(node)

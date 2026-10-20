@@ -257,7 +257,9 @@ func run() -> void:
 	check(Profile.stat_value("kills") > 0 and Profile.stat_value("species") > 0, "kills count in the bestiary")
 	check(Profile.is_achieved(&"first_blood"), "first kill, first achievement")
 	var summary := (game.game_over_panel.get_node("%Summary") as Label).text
-	check(Profile.souls >= souls_before_death and summary.contains("souls"), "the end of a run shows its souls")
+	var end_text := game.game_over_panel.shown_text()
+	check(Profile.souls >= souls_before_death and end_text.contains("souls") and end_text.contains("Shrine"), "the end of a run shows its souls and what they are for")
+	check(end_text.contains("Monsters slain") and end_text.contains("Time"), "and the run's numbers")
 	check(Array(CONTENT.story.death_lines).any(func(line: String) -> bool: return summary.begins_with(line)), "and a line of the story")
 	# Shrine upgrades apply to the next run.
 	Profile.levels = { "vitality": 2, "provisions": 1, "second_chance": 1, "paladin_oath": 1 }
