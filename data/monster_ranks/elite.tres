@@ -7,3 +7,5 @@ script = ExtResource("1_1rhbu")
 id = &"elite"
 display_name = "Elite"
 show_in_name = false
+hp_multiplier_per_depth = 0.3
+damage_multiplier = 1.15

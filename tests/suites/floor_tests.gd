@@ -362,9 +362,11 @@ func _test_hazards(game: Game, world: World, player: Player) -> void:
 	var elite := world.spawn_monster(slime_def, world.map.cell_to_world(_open_cell_near(world, player.global_position, 1)))
 	elite.dormant = true
 	var base_hp := elite.get_max_hp()
+	var base_damage := elite._damage_multiplier
 	var vampiric: EliteAffixDef = load("res://data/elites/vampiric.tres")
 	elite.make_elite(vampiric, CONTENT.dungeon)
-	check(elite.is_elite() and elite.get_max_hp() >= base_hp * 2, "elites are tougher")
+	check(elite.is_elite() and elite.get_max_hp() == roundi(base_hp * CONTENT.dungeon.elite_rank.hp_multiplier_at(world.depth) * vampiric.hp_multiplier), "elites are tougher (the rank's health at this depth)")
+	check(is_equal_approx(elite._damage_multiplier, base_damage * CONTENT.dungeon.elite_rank.damage_multiplier), "elites hit harder")
 	# Rarer ranks: Epic (2 affixes), Legendary (3), Shiny (other colors, a treasure).
 	var ranked: Array[Monster] = []
 	for rank in CONTENT.dungeon.rare_ranks:

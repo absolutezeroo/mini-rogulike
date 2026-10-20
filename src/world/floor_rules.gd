@@ -58,8 +58,10 @@ func detect_range() -> float:
 func scale_monster(base: StatBlock, is_boss: bool) -> StatBlock:
 	var stats := base.duplicate() as StatBlock
 	var levels := depth - 1
-	stats.max_hp = roundi(stats.max_hp * (1.0 + config.monster_hp_scale_per_depth * levels) * monster_hp(is_boss))
-	stats.attack += config.monster_attack_per_depth * levels
+	var hp_scale := config.boss_hp_scale_per_depth if is_boss else config.monster_hp_scale_per_depth
+	var attack_scale := config.boss_attack_per_depth if is_boss else config.monster_attack_per_depth
+	stats.max_hp = roundi(stats.max_hp * (1.0 + hp_scale * levels) * monster_hp(is_boss))
+	stats.attack += roundi(attack_scale * levels)
 	stats.move_speed *= monster_speed()
 	return stats
 

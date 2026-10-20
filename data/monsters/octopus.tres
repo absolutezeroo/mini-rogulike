@@ -34,7 +34,8 @@ entries = Array[ExtResource("4_3njxg")]([SubResource("Resource_kt1rh"), SubResou
 
 [sub_resource type="Resource" id="Resource_33iy0"]
 script = ExtResource("10_fi5c1")
-max_hp = 28
+max_hp = 51
+attack = 1
 defense = 1
 move_speed = 60.0
 

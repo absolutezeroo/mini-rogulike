@@ -363,7 +363,7 @@ func foe_numbers(def: MonsterDef, rules: FloorRules, rank: MonsterRankDef, affix
 	var stats := rules.scale_monster(def.stats, is_boss)
 	var hp_factor := 1.0
 	if rank:
-		hp_factor = rank.boss_hp_multiplier if is_boss else rank.hp_multiplier
+		hp_factor = rank.boss_hp_multiplier if is_boss else rank.hp_multiplier_at(rules.depth)
 	var thorns := 0
 	var lifesteal := 0.0
 	var venom := 0.0
@@ -390,7 +390,8 @@ func foe_numbers(def: MonsterDef, rules: FloorRules, rank: MonsterRankDef, affix
 	if stat_bonus:
 		stats = stats.plus(stat_bonus)
 	var hero_defense := hero.get_stats().defense
-	var power := maxi(1, roundi(((def.weapon.damage if def.weapon else 1) + stats.attack) * rules.monster_damage()))
+	var rank_damage := rank.damage_multiplier if rank and not is_boss else 1.0
+	var power := maxi(1, roundi(((def.weapon.damage if def.weapon else 1) + stats.attack) * rules.monster_damage() * rank_damage))
 	var skill_power := power * maxf(1.0 + stats.skill_power, 0.1)
 	var melee := hit_mean(power * (def.weapon.projectile_damage if def.weapon and def.weapon.kind == WeaponDef.Kind.RANGED else 1.0), stats.crit_chance, hero_defense)
 	var weapon_cd := (def.weapon.cooldown if def.weapon else 1.0) / maxf(1.0 + stats.attack_speed, 0.25)
@@ -605,6 +606,7 @@ func _monster_tables() -> void:
 	var summoned := BalanceContent.summoners(content)
 	var variants := rank_variants()
 	var affix_effect := {}  # affix id -> [ttk ratios, dps ratios]
+	var ladder := {}  # act -> rank id ("plain" too) -> [TTK, share of the hero's health lost while killing it], Normal
 	for act_index in content.dungeon.acts.size():
 		var act := content.dungeon.acts[act_index]
 		var build := expected_build(act_index + 1)
@@ -655,6 +657,11 @@ func _monster_tables() -> void:
 						curve_dps.append(float(plain.foe.dps) / hero.get_max_hp())
 					var is_normal := BalanceContent.key(difficulty) == "normal"
 					var rank_ttk := {}
+					if is_normal and monster.spawn_weight > 0:
+						for label: String in by_variant:
+							var key := label.get_slice(" ", 0)
+							var cell: Dictionary = ladder.get_or_add(act_index + 1, {})
+							cell.get_or_add(key, []).append([by_variant[label].ttk, by_variant[label].taken / maxf(hero.get_max_hp(), 1.0)])
 					for label: String in by_variant:
 						var rank_id := label.get_slice(" ", 0)
 						if label == "plain":
@@ -680,6 +687,7 @@ func _monster_tables() -> void:
 							_check_monster(build, monster, depth, plain, rank_ttk)
 			curve_rows.append([act_index + 1, BalanceContent.key(difficulty), build.name, BalanceContent.mean(curve_ttk),
 				BalanceContent.mean(curve_hits), BalanceReport.pct(BalanceContent.mean(curve_dps))])
+	_check_monster_curve(ladder)
 	for affix_id: String in affix_effect:
 		var values: Array = affix_effect[affix_id]
 		affix_rows.append([affix_id, "x%.2f" % BalanceContent.mean(values[0]), "x%.2f" % BalanceContent.mean(values[1]), "x%.2f" % BalanceContent.mean(values[2])])
@@ -713,6 +721,55 @@ func _check_monster(build: BalanceBuildDef, monster: MonsterDef, depth: int, pla
 		if ttk < (wanted as Vector2).x or ttk > (wanted as Vector2).y:
 			report.flag(BalanceReport.WARN, "model: %s TTK" % rank_id, "%s vs %s %s (normal, depth %d)" % [build.name, rank_id, monster.id, depth],
 				BalanceReport.secs(ttk), "%.0f-%.0f s" % [(wanted as Vector2).x, (wanted as Vector2).y], "average over its affixes")
+
+
+## The commons' curve and the ranks' ladder on Normal (medians over each act's spawning monsters):
+## a common costs a little more health to kill each act (x act_threat_step_min-max, like the
+## bosses), within the common TTK target; each rank takes longer to kill than the one below it
+## (plain < Elite < Epic < Legendary) and costs more health.
+func _check_monster_curve(ladder: Dictionary) -> void:
+	var rows: Array = []
+	var previous := 0.0
+	for act: int in ladder.keys():
+		var cell: Dictionary = ladder[act]
+		var medians := {}
+		for key: String in cell:
+			medians[key] = [BalanceContent.median(cell[key].map(func(v: Array) -> float: return v[0])),
+				BalanceContent.median(cell[key].map(func(v: Array) -> float: return v[1]))]
+		var plain: Array = medians.get("plain", [0.0, 0.0])
+		var row := [act, BalanceReport.secs(plain[0]), _pct1(plain[1])]
+		var step: float = plain[1] / previous if previous > 0.0 else 0.0
+		row.append("x%.2f" % step if previous > 0.0 else "-")
+		if plain[0] < targets.common_ttk_min or plain[0] > targets.common_ttk_max:
+			report.flag(BalanceReport.WARN, "model: monster curve", "act %d commons (normal, median)" % act, BalanceReport.secs(plain[0]),
+				"%.1f-%.1f s" % [targets.common_ttk_min, targets.common_ttk_max], "median time to kill of the act's commons")
+		if previous > 0.0 and (step < targets.act_threat_step_min or step > targets.act_threat_step_max):
+			report.flag(BalanceReport.WARN, "model: monster curve", "act %d vs act %d commons (normal, median)" % [act, act - 1], "x%.2f" % step,
+				"x%.1f-x%.1f" % [targets.act_threat_step_min, targets.act_threat_step_max], "share of the hero's health lost killing one, face to face")
+		previous = plain[1]
+		var below: Array = plain
+		var below_id := "plain"
+		for rank_id in ["elite", "epic", "legendary"]:
+			if not medians.has(rank_id):
+				row.append("-")
+				continue
+			var m: Array = medians[rank_id]
+			row.append("%s / %s" % [BalanceReport.secs(m[0]), _pct1(m[1])])
+			if m[0] < below[0] * targets.rank_ladder_step_min or m[1] <= below[1]:
+				report.flag(BalanceReport.WARN, "model: rank ladder", "act %d: %s vs %s (normal, median)" % [act, rank_id, below_id],
+					"%s / %s vs %s / %s" % [BalanceReport.secs(m[0]), _pct1(m[1]), BalanceReport.secs(below[0]), _pct1(below[1])],
+					"x%.1f+ longer and costlier" % targets.rank_ladder_step_min, "each rank a clearly tougher fight than the one below")
+			below = m
+			below_id = rank_id
+		row.append("%s / %s" % [BalanceReport.secs(medians.get("shiny", [0.0, 0.0])[0]), _pct1(medians.get("shiny", [0.0, 0.0])[1])])
+		rows.append(row)
+	report.table("monster_ladder", "Monsters", "Commons' curve and ranks' ladder (Normal, medians over each act's spawning monsters, model): time to kill / share of the expected build's health lost killing one face to face; step = commons' share vs the previous act",
+		PackedStringArray(["Act", "Common TTK", "Common health lost", "Step", "Elite", "Epic", "Legendary", "Shiny"]), rows)
+
+
+## A share with one decimal ("1.4%"): the commons' costs are small numbers.
+static func _pct1(value: float) -> String:
+	return "%.1f%%" % (value * 100.0)
 
 
 ## Chance for a monster to come at each rank, per depth and difficulty (World.roll_elite order:

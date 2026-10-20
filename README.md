@@ -429,12 +429,17 @@ the boss or the middle (where the stairs appear).
 Any monster can come at a rank (`MonsterRankDef`, `data/monster_ranks/`; `DungeonConfig.elite_rank`
 and `rare_ranks`, rarest first, each with its own chance from its depth, times the difficulty):
 
-| Rank | Affixes | Look | Rewards |
-|---|---|---|---|
-| **Elite** | 1 ("Vampiric Skeleton") | a ring of the affix's color | x3 XP, better loot, 1 extra drop |
-| **Epic** (from depth 3) | 2, listed over its name | two purple rings | x6 XP, 2 extra drops, x8 gold |
-| **Legendary** (from depth 5) | 3 | golden rings and a crown of rays | x10 XP, 3 extra drops of high quality, x15 gold |
-| **Shiny** (1 in 400, any depth) | none | other colors (hue shift), a gleam sweeping its body, sparkles | x8 XP, 3 extra drops, x25 gold; joins the bestiary's Shiny collection |
+| Rank | Affixes | Health (depth 1 / 5 / 11) | Damage | Look | Rewards |
+|---|---|---|---|---|---|
+| **Elite** | 1 ("Vampiric Skeleton") | x2.5 / x3.7 / x5.5 | x1.15 | a ring of the affix's color | x3 XP, better loot, 1 extra drop |
+| **Epic** (from depth 3) | 2, listed over its name | - / x6.3 / x9 | x1.2 | two purple rings | x6 XP, 2 extra drops, x8 gold |
+| **Legendary** (from depth 5) | 3 | - / x8.5 / x11.5 | x1.3 | golden rings and a crown of rays | x10 XP, 3 extra drops of high quality, x15 gold |
+| **Shiny** (1 in 400, any depth) | none | x3.3 / x3.9 / x4.8 | x1 | other colors (hue shift), a gleam sweeping its body, sparkles | x8 XP, 3 extra drops, x25 gold; joins the bestiary's Shiny collection |
+
+A rank's Health grows with depth (`hp_multiplier` + `hp_multiplier_per_depth` per floor): the
+hero's power grows faster than the monsters' own depth scaling, so a deeper Elite needs more
+Health to stay a short duel. Its affixes' Health on top (Armored x1.3, Explosive x0.85...).
+Ranked bosses use `boss_hp_multiplier` and keep their own damage.
 
 Bosses roll the rare ranks too (`boss_chance`): a **Legendary King Slime (Swift, Vampiric,
 Armored)** has its affixes' perks, more HP, better loot and one more relic to choose; a Shiny boss
@@ -809,7 +814,7 @@ the normal game:
 | Floor size (`floor_size`) | 72x72 | 84x84 | 96x96 | 104x104 |
 | Rooms per floor (`rooms`) | 15 | 19 | 23 | 27 |
 | Boss HP | x0.7 | x1 | x1.3 | x1.6 |
-| Elite chance | x0.5 | x1 | x1.6 | x2.5 |
+| Elite chance | x0.5 | x1 | x1.4 | x1.7 |
 | Drop chance | x1.4 | x1 | x1 | x0.9 |
 | Heal on each new floor | 25% | - | - | - |
 | Light | brighter | - | darker | much darker |
