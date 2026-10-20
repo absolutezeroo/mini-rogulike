@@ -13,7 +13,7 @@ slow = 0.4
 
 [sub_resource type="Resource" id="Resource_6cn2n"]
 script = ExtResource("2_gjny1")
-damage_multiplier = 0.5
+damage_multiplier = 0.42
 flat_damage = 4
 speed = 250.0
 radius = 7.0
@@ -27,7 +27,7 @@ status = SubResource("Resource_8rvm2")
 
 [sub_resource type="Resource" id="Resource_5ghgf"]
 script = ExtResource("2_gjny1")
-damage_multiplier = 0.5
+damage_multiplier = 0.42
 flat_damage = 4
 speed = 250.0
 radius = 7.0

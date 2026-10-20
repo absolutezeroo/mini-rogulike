@@ -548,6 +548,8 @@ func _shockwave(fuse: float) -> void:
 	var boss := def as BossDef
 	_shockwave_cooldown = 3.0
 	var damage := world.rules.dungeon_damage(4.0, 0.6) if world.rules else 6
+	if boss.shockwave_power > 0.0:
+		damage = maxi(damage, roundi(get_power() * boss.shockwave_power))
 	Combat.shockwave(world, self, boss.shockwave_radius + radius, damage, boss.shockwave_knockback, fuse)
 
 

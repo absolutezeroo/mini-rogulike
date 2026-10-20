@@ -13,7 +13,7 @@ slow = 0.4
 
 [sub_resource type="Resource" id="Resource_2bqha"]
 script = ExtResource("2_wkk5m")
-damage_multiplier = 0.5
+damage_multiplier = 0.42
 flat_damage = 4
 speed = 250.0
 radius = 7.0

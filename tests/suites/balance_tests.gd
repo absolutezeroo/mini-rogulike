@@ -14,11 +14,12 @@ extends TestSuite
 ## passing, remove it from KNOWN; a failure not in KNOWN is new.
 
 ## Checks known to fail on KNOWN_DATE (the baseline before any rebalancing), by the key printed with them.
+## Phase 2A fixed "model: face-tank wins", "model: heal share", "model: act curve" and
+## "duel: degenerate_lifesteal_a1 face-tank loses" (boss shockwave, boss-fight sustain, armor).
 const KNOWN := [
-	"model: boss TTK", "model: boss hits to kill", "model: face-tank wins", "model: heal share",
+	"model: boss TTK", "model: boss hits to kill",
 	"model: monster TTK", "model: elite TTK", "model: epic TTK", "model: legendary TTK", "model: shiny TTK",
-	"model: act curve", "model: degenerate DPS", "model: weapon DPS",
-	"duel: degenerate_lifesteal_a1 face-tank loses",
+	"model: degenerate DPS", "model: weapon DPS",
 	"economy: shop",
 ]
 const KNOWN_DATE := "2026-10-20"
@@ -81,6 +82,7 @@ func run() -> void:
 				roundi(r.heal_share * 100.0), roundi(share_max * 100.0), BalanceLab.sources_text(r.get("heal_sources", {}))])
 		else:
 			_target(r.result == "win", "duel: %s kite wins" % duel[0], "%s vs %s on Normal: %s" % [duel[0], boss.id, line])
+	await _boss_guards(arena, builds, targets, normal)
 	lab.restore_chances()
 	arena.queue_free()
 
@@ -118,6 +120,55 @@ func run() -> void:
 	economy.queue_free()
 	lab.queue_free()
 	BalanceLab.isolate_profile()  # back to a clean in-memory profile for whatever runs next
+
+
+## Phase 2A (bosses, sustain, armor): the rules that let a build out-heal or out-armor a boss.
+## - armor (Combat.mitigate): the most armored build of the game (36) is hit for more than 1 by
+##   most act IV monsters (flat armor brought all of them down to 1);
+## - the boss-fight sustain budget (SustainRules): a minute of it heals well under half the
+##   hero's health, and its refill is under the act IV boss' damage per second on that build;
+## - the expected build of acts II-IV face-tanking its act's boss on Normal loses, and its
+##   healing stays under the target share of the damage taken.
+func _boss_guards(arena: BalanceArena, builds: Array[BalanceBuildDef], targets: BalanceTargets, normal: DifficultyDef) -> void:
+	var armor := 36
+	var act_iv := CONTENT.dungeon.acts.size()
+	var depth := BalanceContent.boss_depth(CONTENT, act_iv) - 1
+	var rules := FloorRules.make(CONTENT.dungeon, normal, null, depth)
+	var floored := 0
+	var total := 0
+	for monster in CONTENT.dungeon.acts[act_iv - 1].monsters:
+		if monster == null:
+			continue
+		var stats := rules.scale_monster(monster.stats, false)
+		var raw := maxi(1, roundi(((monster.weapon.damage if monster.weapon else 1) + stats.attack) * rules.monster_damage()))
+		total += 1
+		if Combat.mitigate(raw, armor) <= 1:
+			floored += 1
+	_target(total > 0 and floored <= total * targets.min_damage_share_max, "armor: weak hits vs %d armor" % armor,
+		"%d of %d act IV monsters hit a %d-armor build for 1 (target <= %d%%)" % [floored, total, armor, roundi(targets.min_damage_share_max * 100.0)])
+
+	var sustain: SustainRules = CONTENT.dungeon.sustain
+	var expected_iv := BalanceBuild.expected(builds, act_iv)
+	if sustain and expected_iv:
+		var hero := BalanceBuild.make_player(expected_iv, CONTENT, normal)
+		var max_hp := hero.get_max_hp()
+		hero.free()
+		var minute := sustain.capacity(max_hp, true) + sustain.refill_per_second(max_hp, true) * 60.0
+		_target(minute <= max_hp * 0.35, "sustain: a minute of a boss fight",
+			"the boss-fight budget heals %d in a minute for %d Health (target <= 35%%)" % [roundi(minute), max_hp])
+
+	for act in range(2, act_iv + 1):
+		var build := BalanceBuild.expected(builds, act)
+		var boss: BossDef = CONTENT.dungeon.acts[act - 1].boss
+		if build == null or boss == null:
+			continue
+		var r := await arena.fight_boss(boss, build, normal, "face_tank")
+		var line := BalanceArena.fight_line(r)
+		print("  duel: %s" % line)
+		_target(r.result == "loss", "duel: %s face-tank loses" % build.name, "%s vs %s on Normal: %s" % [build.name, boss.id, line])
+		_target(r.heal_share <= targets.heal_share_max_expected, "duel: %s heal share" % build.name,
+			"healed %d%% of the damage taken (target <= %d%%): %s" % [roundi(r.heal_share * 100.0), roundi(targets.heal_share_max_expected * 100.0),
+			BalanceLab.sources_text(r.get("heal_sources", {}))])
 
 
 ## One _target per category: passes when the report has no flag of it.

@@ -109,6 +109,7 @@ crit_chance = 0.1
 script = ExtResource("19_uawpc")
 material = ExtResource("99_material")
 title = "Burning Warden of the Temple"
+shockwave_power = 1.0
 portrait = ExtResource("5_npp6p")
 phases = Array[ExtResource("13_mesb5")]([SubResource("Resource_1euo2"), SubResource("Resource_oqev3")])
 stats = SubResource("Resource_11m3h")

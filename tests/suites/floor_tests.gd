@@ -881,7 +881,7 @@ func _test_climate(game: Game) -> void:
 	rare_boss.skills.set_skills([] as Array[SkillDef])
 	rare_boss.invincible = false
 	var to_phase := HitInfo.new()
-	to_phase.amount = rare_boss.hp - roundi(rare_boss.get_max_hp() * 0.6) + rare_boss.get_stats().defense
+	to_phase.amount = Combat.hit_for(rare_boss.hp - roundi(rare_boss.get_max_hp() * 0.6), rare_boss.get_stats().defense)
 	rare_boss.take_hit(to_phase)
 	await _frames(5)
 	check(get_tree().get_nodes_in_group("vfx").size() >= 0 and world.arena.shifts_done == 1, "the next phase changes the arena")
@@ -1337,7 +1337,7 @@ func _test_details(game: Game) -> void:
 	check(brute.ward > 0, "a moth wards its allies")
 	var before_hp := brute.hp
 	var poke := HitInfo.new()
-	poke.amount = 1 + brute.get_stats().defense
+	poke.amount = Combat.hit_for(1, brute.get_stats().defense)
 	brute.take_hit(poke)
 	check(brute.hp == before_hp, "the ward soaks up the blow")
 	await _clear_monsters(world)

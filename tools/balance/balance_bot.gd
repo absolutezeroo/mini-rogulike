@@ -5,10 +5,13 @@ extends RefCounted
 ## - FACE_TANK: walks into attack range of its target and holds attack, uses the weapon's skills
 ##   (and the learned spell) whenever they are ready; never rolls, never drinks. What a player
 ##   does who ignores the boss' patterns.
-## - KITE: keeps its target at the weapon's range (melee: the edge of its reach), backs off and
-##   rolls away when a wind-up, a cast or a shot is about to land (the monster's `telegraph`,
-##   casting skill, hostile projectiles near and heading its way, a boss' shockwave ring), and
-##   attacks when it can. Simple on purpose: a decent player, not a perfect one.
+## - KITE: keeps its target at the weapon's range (melee: the edge of its reach) and attacks
+##   whenever in reach (attacks don't root the hero), even while stepping aside. It reads each
+##   threat as a player would: steps out of a swing's reach or a skill's circle, off a leap's
+##   line, sideways from shots heading its way, off blinking arena cells and live traps; it
+##   rolls only when the blow lands within the roll's invulnerability (late, not early), and
+##   only where the whole roll is solid ground (no pit, crack or wall). It holds the hit that
+##   would set off a boss' shockwave when its roll isn't ready. A decent player, not a perfect one.
 
 enum Style { FACE_TANK, KITE }
 
@@ -35,6 +38,8 @@ static var hold_override := 0.0
 var skills_used := 0
 var rolls := 0
 
+var _hazards: Array[Vector2i] = []
+var _hazard_timer := 0
 var _path := PackedVector2Array()
 var _path_timer := 0
 var _pressed := {}
@@ -112,13 +117,28 @@ func _face_tank(target: Monster) -> void:
 func _kite(target: Monster) -> void:
 	var to_target := target.global_position - player.global_position
 	var distance := to_target.length()
+	# A boss answers a streak of hits with a shockwave: with no roll ready to get through it,
+	# hold the last hit until the streak runs out (what a player learns after one blast).
+	var hold_fire := target.is_boss() and target._shockwave_after > 0 and target._streak_time > 0.0 \
+		and target._hit_streak >= target._shockwave_after - 1 and not player.skills.is_ready(0)
+	var in_reach := distance <= _attack_reach(target) and not hold_fire
 	var threat := _threat()
 	if threat.danger:
-		var away := _safe_direction(threat.away)
-		_move(away)
-		if threat.urgent and player.skills.is_ready(0) and _press(&"skill_1"):  # roll, toward the move direction
-			rolls += 1
-		_hold_attack(_is_ranged() and distance <= _attack_reach(target))
+		_move(_safe_direction(threat.away))
+		if threat.urgent and player.skills.is_ready(0):
+			var roll := _roll_direction(threat.away)
+			if roll != Vector2.ZERO:
+				_move(roll)  # the roll goes where the hero moves
+				if _press(&"skill_1"):
+					rolls += 1
+		# Attacks don't root the hero: keep hitting while stepping aside if in reach.
+		_hold_attack(in_reach)
+		return
+	if hold_fire:
+		# Side hits (chains, shards, thorns) can still finish the streak: wait outside the ring.
+		var ring := (target.def as BossDef).shockwave_radius + target.radius + player.radius + 10.0
+		_move(_safe_direction(-to_target.normalized()) if distance < ring else Vector2.ZERO)
+		_hold_attack(false)
 		return
 	var wanted := _wanted_distance(target)
 	if distance > wanted:
@@ -127,13 +147,14 @@ func _kite(target: Monster) -> void:
 		_move(_safe_direction(-to_target.normalized()))
 	else:
 		_move(Vector2.ZERO)
-	_hold_attack(distance <= _attack_reach(target))
+	_hold_attack(in_reach)
 	_use_skills(distance, target)
 
 
 # --- Reading the fight -------------------------------------------------------------------
 
-## { danger, urgent, away }: something about to hit the hero, and which way is out.
+## { danger, urgent, away }: something about to hit the hero, and which way is out. `urgent`:
+## it lands within the roll's invulnerability (a decent player rolls through it, not before).
 func _threat() -> Dictionary:
 	var away := Vector2.ZERO
 	var urgent := false
@@ -145,39 +166,131 @@ func _threat() -> Dictionary:
 		var offset := here - monster.global_position
 		var distance := offset.length()
 		var direction := offset.normalized() if distance > 0.1 else Vector2.DOWN
-		# A boss' shockwave ring (it answers too many hits in a row, and roars into a phase).
-		if monster.is_boss() and (monster._shockwave_cooldown > 2.5 or monster.invincible):
-			var reach := (monster.def as BossDef).shockwave_radius + monster.radius + player.radius + 20.0
-			if distance < reach:
+		# A boss' shockwave ring (it answers too many hits in a row, and roars into a phase):
+		# the cooldown is set to 3 s when the ring appears, the blast follows 0.35-0.45 s later.
+		if monster.is_boss() and monster._shockwave_cooldown > 2.5:
+			var ring := (monster.def as BossDef).shockwave_radius + monster.radius + player.radius + 20.0
+			if distance < ring:
 				away += direction * 2.0
-				urgent = urgent or monster._shockwave_cooldown > 2.5
+				urgent = urgent or monster._shockwave_cooldown <= 2.75
 			continue
 		if monster.telegraph <= 0.0:
 			continue
 		var skill := monster.casting_skill()
-		var reach := monster.attack_range(player) + 40.0
-		if skill:
-			reach = skill.telegraph_radius + player.radius + 30.0 if skill.telegraph_radius > 0.0 else 220.0
-		if distance < reach:
-			away += direction * (1.0 + monster.telegraph)
-			urgent = urgent or monster.telegraph >= ROLL_AT_TELEGRAPH
+		if skill == null:
+			# A swing: step out of reach; roll through it if still in reach as it lands.
+			var reach := monster.attack_range(player)
+			if distance < reach + 30.0:
+				away += direction * (1.0 + monster.telegraph)
+				urgent = urgent or (monster.telegraph >= 0.75 and distance < reach + 10.0)
+			continue
+		match _skill_kind(skill):
+			"area":
+				var radius := _area_reach(skill) + player.radius + 20.0
+				if distance < radius:
+					away += direction * (1.0 + monster.telegraph)
+					urgent = urgent or (monster.telegraph >= 0.75 and distance < radius - 15.0)
+			"dash":
+				# Aimed at where the hero stood when the cast began: step off that line.
+				var side := monster.facing.orthogonal()
+				if side.dot(offset) < 0.0:
+					side = -side
+				if distance < 420.0:
+					away += side * 1.5
+					urgent = urgent or (monster.telegraph >= 0.85 and absf(offset.dot(monster.facing.orthogonal())) < 70.0)
+			"shots":
+				# A ring or a fan leaves the caster: close, roll through it as it is let go.
+				if distance < 170.0:
+					urgent = urgent or monster.telegraph >= 0.85
 	for node in world.get_node("Projectiles").get_children():
 		var shot := node as Projectile
 		if shot == null or shot._done or (shot._faction == Actor.Faction.PLAYER and not shot._hits_everyone):
 			continue
 		var offset := here - shot.global_position
-		var distance := offset.length()
-		if distance > SHOT_ALERT or offset.dot(shot._direction) <= 0.0:
+		var along := offset.dot(shot._direction)
+		if along <= -player.radius or along > SHOT_ALERT * 2.5:
 			continue
 		var miss := absf(offset.cross(shot._direction))
 		if miss > player.radius + shot._spec.radius + 10.0:
 			continue
+		var time_to_hit := maxf(along, 0.0) / maxf(shot._spec.speed, 1.0)
 		var side := shot._direction.orthogonal()
 		if side.dot(offset) < 0.0:
 			side = -side
 		away += side * 1.5
-		urgent = urgent or distance < 75.0
+		urgent = urgent or time_to_hit < 0.15
+	# The arena's warnings (cells about to crumble or grow spikes) and live traps.
+	for cell in _hazard_cells():
+		var offset := here - world.map.cell_to_world(cell)
+		if offset.length() < world.map.tile_size * 1.2:
+			away += offset.normalized() if offset.length() > 0.1 else Vector2.DOWN
 	return { "danger": away != Vector2.ZERO, "urgent": urgent, "away": away.normalized() }
+
+
+## What a monster's skill does, for dodging: "area" (a circle around or in front of it),
+## "dash" (a leap or rush along its aim), "shots" (projectiles), "" (summons, buffs).
+static func _skill_kind(skill: SkillDef) -> String:
+	if skill.telegraph_radius > 0.0:
+		return "area"
+	for effect in skill.effects:
+		if effect is DashStrikeEffect or effect is DashEffect:
+			return "dash"
+	for effect in skill.effects:
+		if effect is DamageAreaEffect:
+			return "area"
+		if effect is ProjectileEffect:
+			return "shots"
+	return ""
+
+
+## How far a skill's circle reaches from its caster.
+static func _area_reach(skill: SkillDef) -> float:
+	var reach := skill.telegraph_radius
+	for effect in skill.effects:
+		var area := effect as DamageAreaEffect
+		if area:
+			reach = maxf(reach, area.offset + area.radius)
+	return reach
+
+
+## Cells to keep off: the arena's blinking warnings, traps that are warning or striking.
+## (Read every few frames: walking the tree each frame is slow.)
+func _hazard_cells() -> Array[Vector2i]:
+	_hazard_timer -= 1
+	if _hazard_timer > 0:
+		return _hazards
+	_hazard_timer = 6
+	_hazards.clear()
+	for node in world.get_node("Effects").get_children():
+		if node is CellWarning:
+			_hazards.append_array((node as CellWarning)._cells)
+	for node in world.get_node("Entities").get_children():
+		if node is Trap and (node as Trap).phase != Trap.Phase.IDLE:
+			_hazards.append(world.map.world_to_cell((node as Trap).global_position))
+	return _hazards
+
+
+## The way to roll: close to `wanted`, and the whole roll on solid ground (no pit, crack, wall).
+## ZERO when there is no safe roll.
+func _roll_direction(wanted: Vector2) -> Vector2:
+	var here := player.global_position
+	var best := Vector2.ZERO
+	var best_score := -INF
+	for i in 16:
+		var direction := Vector2.from_angle(i * TAU / 16.0)
+		var safe := true
+		for step: float in [40.0, 80.0, 120.0, 160.0]:
+			var probe := here + direction * step
+			if not world.is_solid_ground(probe) or world.nav.is_blocked(world.map.world_to_cell(probe)) or not world.has_line_of_sight(here, probe):
+				safe = false
+				break
+		if not safe:
+			continue
+		var score := direction.dot(wanted)
+		if score > best_score:
+			best_score = score
+			best = direction
+	return best
 
 
 func _is_ranged() -> bool:

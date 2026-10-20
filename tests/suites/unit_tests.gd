@@ -94,8 +94,19 @@ func _test_stat_block() -> void:
 
 
 func _test_combat_rules() -> void:
-	check(Combat.mitigate(10, 3) == 7, "defense removes damage")
+	check(Combat.mitigate(10, 3) == 8, "defense softens a hit: 10 x 10 / (10 + 3)")
+	check(Combat.mitigate(10, 0) == 10 and Combat.mitigate(10, -2) == 12, "no armor: the hit in full; negative armor adds")
 	check(Combat.mitigate(2, 50) == 1, "a hit always deals at least 1")
+	# Diminishing returns: armor is worth about its points against big hits, never makes a hit
+	# harmless (flat armor brought every act IV monster hit on a 36-armor build down to 1).
+	check(Combat.mitigate(35, 5) >= 30 and Combat.mitigate(35, 5) <= 31, "a big hit loses about the armor's points")
+	check(Combat.mitigate(20, 20) == 10, "armor the size of the hit halves it")
+	check(Combat.mitigate(20, 36) == 7 and Combat.mitigate(14, 36) >= 3, "high armor never makes ordinary hits harmless")
+	var previous := 1000
+	for armor in range(0, 61, 4):
+		var dealt := Combat.mitigate(30, armor)
+		check(dealt <= previous and dealt >= 1, "more armor never lets more through (%d armor: %d)" % [armor, dealt])
+		previous = dealt
 	# Floor rules: difficulty x event x depth, in one place.
 	var nightmare := CONTENT.get_difficulty(&"nightmare")
 	var blood_moon: FloorEventDef = load("res://data/floor_events/blood_moon.tres")
@@ -470,6 +481,16 @@ func _test_sustain() -> void:
 	var in_boss_fight := SustainMeter.new()
 	in_boss_fight.take(50.0, 100, 90, 0.0, limit, true)
 	check(in_boss_fight.take(10.0, 100, 70, 1.0, limit, true) == 2, "half as fast during a boss fight")
+	# A smaller budget in a boss fight (SustainRules.boss_fight_burst): 25% of 20% = 5 at once.
+	limit.boss_fight_burst = 0.25
+	var small := SustainMeter.new()
+	small.take(0.0, 100, 50, 0.0, limit)  # out of the fight: the full budget (20)
+	check(small.take(50.0, 100, 90, 0.1, limit, true) == 5, "a boss fight starts with at most 5% of max health in the budget")
+	limit.boss_fight_burst = 1.0
+	# The game's rules: in a boss fight, one second of the budget is under 1% of max health,
+	# and the budget holds under 10%: healing forgives a mistake, it doesn't out-heal a boss.
+	check(rules.refill_per_second(100, true) <= 1.0 and rules.capacity(100, true) <= 10.0,
+		"boss fights: refill %.1f/s, budget %.0f for 100 Health" % [rules.refill_per_second(100, true), rules.capacity(100, true)])
 	# Stacked sustain never out-heals the limit: three Leech runes on 12-damage hits five times a
 	# second, plus Vampirism and the Blood family on a kill every second, for a minute.
 	var stacked := SustainMeter.new()

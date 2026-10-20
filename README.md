@@ -718,8 +718,9 @@ can't chain forever.
 **Healing from hits, kills and skills** (`SustainRules`, `data/dungeon/sustain.tres`, set in
 `DungeonConfig` > Sustain; `SustainMeter`, `Actor.sustain_heal()`): Leech, Vampirism, Devotion,
 the Blood family, the Fury rune and Vampiric gear all draw from one budget. It holds 20% of the
-hero's max health (a pack slain at once still heals well) and refills 4% of it per second, half
-that while a boss fight is on, so stacking them can't out-heal a boss. Healing is paid in whole
+hero's max health (a pack slain at once still heals well) and refills 4% of it per second. While a
+boss fight is on it holds a quarter of that (5%) and refills a tenth as fast (0.4% a second,
+`boss_fight_burst`, `boss_fight_rate`): healing there forgives a mistake, it can't out-heal a boss. Healing is paid in whole
 points, the fractions adding up (10% of a 7-damage hit is 0.7, not 1). Burn and poison ticks and
 secondary hits heal nothing, and summoned monsters and a boss's adds feed no "on kill" heal (nor
 Fortune's loot). Potions, springs, healing spells and level ups are not limited. Perks are stored per actor in a `PerkSet`,
@@ -886,7 +887,8 @@ with its portrait). A `BossDef` is a `MonsterDef` plus:
   Entering a phase, the boss **roars**: untouchable for a moment (`phase_roar_time`) and a
   shockwave throws the hero off. Notches on the boss bar show where the next phases start;
 - **no face-tanking**: hit it too many times in a row (`shockwave_after_hits`, fewer in later
-  phases) and it answers with the same shockwave (`Combat.shockwave`);
+  phases) and it answers with the same shockwave (`Combat.shockwave`), which hits as hard as its
+  blows (`shockwave_power`, a share of its power): roll through the red ring or stop hitting;
 - **cast skills**: rings of projectiles, ground quakes (red circle), summons (`SummonEffect`), dashes;
 - **relic_choices**: when it dies the spikes go down, the stairs appear and you pick a relic.
 

@@ -136,8 +136,8 @@ static func hit_mean(base: float, crit: float, defense: int) -> float:
 	crit = clampf(crit, 0.0, 1.0)
 	for i in samples:
 		var u := 1.0 - Combat.DAMAGE_VARIANCE + 2.0 * Combat.DAMAGE_VARIANCE * (i + 0.5) / samples
-		var normal_hit := maxi(1, maxi(1, roundi(base * u)) - defense)
-		var critical := maxi(1, maxi(1, roundi(base * u * Combat.CRIT_MULTIPLIER)) - defense)
+		var normal_hit := Combat.mitigate(maxi(1, roundi(base * u)), defense)
+		var critical := Combat.mitigate(maxi(1, roundi(base * u * Combat.CRIT_MULTIPLIER)), defense)
 		total += (1.0 - crit) * normal_hit + crit * critical
 	return total / samples
 
@@ -266,10 +266,10 @@ func hero_output(player: Player, defense: int, is_boss: bool, low_hp: bool = fal
 	var direct_dps: float = hit * hit_rate
 	var shock_dps := 0.0
 	for amount: int in shock_sources:
-		shock_dps += hit_rate * crit * maxi(1, amount - defense)
+		shock_dps += hit_rate * crit * Combat.mitigate(amount, defense)
 	var chain_dps := 0.0  # on the others in a pack only
 	for chain: Array in chains:
-		chain_dps += attacks_per_s / float(chain[0]) * mini(int(chain[1]), ROOM_PACK - 1) * maxi(1, roundi(power * float(chain[2])) - defense)
+		chain_dps += attacks_per_s / float(chain[0]) * mini(int(chain[1]), ROOM_PACK - 1) * Combat.mitigate(roundi(power * float(chain[2])), defense)
 
 	# Skills (the weapon's two and the learned spell; not the roll).
 	var skill_power := player.get_skill_power()
@@ -320,7 +320,7 @@ static func _dot(sources: Array, hit_rate: float, defense: int) -> Dictionary:
 	var best_up := 0.0
 	for source: Array in sources:
 		var up := uptime(hit_rate * float(source[3]), float(source[2]))
-		var dps := maxi(1, int(source[0]) - defense) / float(source[1]) * up
+		var dps := Combat.mitigate(int(source[0]), defense) / float(source[1]) * up
 		if dps > best:
 			best = dps
 		best_up = maxf(best_up, up)
@@ -383,7 +383,7 @@ func foe_numbers(def: MonsterDef, rules: FloorRules, rank: MonsterRankDef, affix
 					lifesteal += (p as LifestealPassive).ratio_per_stack
 				elif p is BurnOnHitPassive:
 					var b := p as BurnOnHitPassive
-					venom = maxf(venom, maxi(1, b.damage_per_stack - hero.get_stats().defense) / b.interval)
+					venom = maxf(venom, Combat.mitigate(b.damage_per_stack, hero.get_stats().defense) / b.interval)
 				elif p is DeathBurstPassive:
 					burst = rules.dungeon_damage((p as DeathBurstPassive).damage)
 	stats.max_hp = roundi(stats.max_hp * hp_factor)

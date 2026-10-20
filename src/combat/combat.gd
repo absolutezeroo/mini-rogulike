@@ -36,9 +36,26 @@ static func make_tick(source: Actor, amount: int) -> HitInfo:
 	return hit
 
 
-## Each point of defense removes one damage, but a hit always does at least 1.
+## Armor with diminishing returns: a hit of A against D armor deals A x A / (A + ARMOR_WEIGHT x D).
+## Against a hit much bigger than the armor it is close to removing D points (35 vs 5: 30.6);
+## against a hit about the armor's size it halves it (20 vs 20: 10); it never makes a hit
+## harmless (20 vs 36: 7, where "D points off" gave 1). At least 1. Negative armor (a curse)
+## adds its points instead.
+const ARMOR_WEIGHT := 1.0
+
+
 static func mitigate(amount: int, defense: int) -> int:
-	return maxi(1, amount - defense)
+	if defense <= 0 or amount <= 0:
+		return maxi(1, amount - defense)
+	return maxi(1, roundi(float(amount) * amount / (amount + ARMOR_WEIGHT * defense)))
+
+
+## The smallest hit that deals at least `damage` through `defense` armor (mitigate's inverse).
+static func hit_for(damage: int, defense: int) -> int:
+	var amount := maxi(damage, 1)
+	while mitigate(amount, defense) < damage:
+		amount += 1
+	return amount
 
 
 ## Hits every enemy of the attacker inside an arc in front of them.
