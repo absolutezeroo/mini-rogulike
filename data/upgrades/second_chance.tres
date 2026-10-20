@@ -9,7 +9,7 @@
 script = ExtResource("4_6ncqx")
 id = &"second_chance"
 display_name = "Second Chance"
-description = "Start every run with a Phoenix Feather: survive one killing blow."
+description = "Start every run with a Phoenix Feather: survive one killing blow (back to half Health, a quarter during a boss fight)."
 icon = ExtResource("1_b2no8")
 color = Color(1, 0.81960785, 0.4, 1)
 kind = 2

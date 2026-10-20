@@ -231,6 +231,23 @@ level, the floor it was found or bought on (`EquipmentDef.item_level`, `ItemLeve
 So at the expected gear the game plays as tuned in phase 2, while a hero who keeps floor-1 gear
 falls behind: at depth 11 a level-11 common Katana hits for 5 + 8 = 13, a level-1 one for 5.
 
+**Full matrix after everything (phase 2A + 2B + 2C + item level, `--mode=all`, seed 1, 52 min),
+vs the phase 2 baseline:** 677 flags (136 errors) -> 296 (28 errors). Face-tank wins in the
+arena 29 -> 3, heal-share errors 107 -> 25, weapon flags (model) 35 -> 0, model monster/rank
+flags 170 -> 38. The 3 face-tank wins were degenerate stacks living on two Phoenix Feathers
+(shrine + relic), each bringing back half Health in a boss fight.
+
+**Phoenix Feather in a boss fight:** back to a quarter of max Health instead of half
+(`CheatDeathPassive.boss_fight_heal_ratio`, 0.25 on the feather; texts updated). Arena re-run on
+the three builds (Normal and Hard): errors 19 -> 5. Left: `degenerate_max_health_a4` (411 Health,
+29 Armor, Leech, two feathers) still wins face to face against the Sun Wraith at 0% health and
+loses to the Gilded Hoarder with the boss at 5%; 4 heal-share errors just over 50% (51-56%) on
+kite fights of the same degenerate builds.
+
+**Still open:** the expected build's heal share on kite fights (26-59% vs a 25% target) comes from
+the Leech rune within the boss-fight cap (0.4%/s): kite fights take little damage, so the share
+of a small number reads high. The target may want to apply to face-tank fights only.
+
 ### 2026-10-20 - Phase 2C: perks, runes, affixes, weapons, economy
 
 Merged with phases 2A and 2B before the final measures (the tables below say which). Domain:

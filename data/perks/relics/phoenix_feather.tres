@@ -9,12 +9,13 @@
 
 [sub_resource type="Resource" id="Resource_fk5ly"]
 script = ExtResource("3_0wo34")
+boss_fight_heal_ratio = 0.25
 
 [resource]
 script = ExtResource("4_hn4sr")
 id = &"phoenix_feather"
 display_name = "Phoenix Feather"
-description = "Survive a killing blow once per level: back to half Health with a blast."
+description = "Survive a killing blow once per level: back to half Health with a blast (a quarter during a boss fight)."
 icon = ExtResource("1_ktbff")
 color = Color(1, 0.81960785, 0.4, 1)
 rarity = 1
