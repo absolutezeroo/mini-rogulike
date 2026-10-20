@@ -1,7 +1,7 @@
 class_name OptionsPanel
 extends Control
 ## Options window (title screen and pause menu): volumes, screen shake, vibrations, size of
-## the touch controls, fixed joystick, battery saver, fewer effects, the tutorial (on/off, replay). Every change goes straight
+## the touch controls, fixed joystick, battery saver, fewer effects, the run timer, the tutorial (on/off, replay). Every change goes straight
 ## to Settings (applied and saved).
 
 signal closed
@@ -17,6 +17,7 @@ signal closed
 	%BatteryCheck: &"battery_saver",
 	%FewerEffectsCheck: &"fewer_effects",
 	%TutorialCheck: &"tutorial_hints",
+	%RunTimerCheck: &"run_timer",
 }
 
 

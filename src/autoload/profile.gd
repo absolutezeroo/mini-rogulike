@@ -49,6 +49,10 @@ var daily_best := 0
 var daily_streak := 0
 ## Tutorial hints already shown (HintDef id -> 1).
 var hints_seen := {}
+## Speedrun records (RunState.record_key() -> milliseconds): the fastest win, and that run's
+## time at the end of each floor (its splits, to race against).
+var best_times := {}
+var best_splits := {}
 
 const HISTORY_SIZE := 20
 ## Empty = nothing is read or written (tests).
@@ -235,6 +239,31 @@ func mark_hint(id: StringName) -> void:
 	save_profile()
 
 
+## The fastest win under `key` (seconds), 0 if none.
+func best_time(key: String) -> float:
+	return int(best_times.get(key, 0)) / 1000.0 if not key.is_empty() else 0.0
+
+
+## The record run's time at the end of floor `depth` (seconds), 0 if none.
+func best_split(key: String, depth: int) -> float:
+	var splits: Array = best_splits.get(key, [])
+	return int(splits[depth - 1]) / 1000.0 if depth >= 1 and depth <= splits.size() else 0.0
+
+
+## A won run's time: true (and kept, with its splits) if it is the fastest under `key`.
+func record_time(key: String, seconds: float, splits: Array[float]) -> bool:
+	if key.is_empty() or seconds <= 0.0:
+		return false
+	var ms := roundi(seconds * 1000.0)
+	if best_times.has(key) and int(best_times[key]) <= ms:
+		return false
+	best_times[key] = ms
+	best_splits[key] = splits.map(func(split: float) -> int: return roundi(split * 1000.0))
+	save_profile()
+	changed.emit()
+	return true
+
+
 ## The tutorial starts over (Options).
 func reset_hints() -> void:
 	hints_seen = {}
@@ -350,6 +379,8 @@ func reset() -> void:
 	daily_best = 0
 	daily_streak = 0
 	hints_seen = {}
+	best_times = {}
+	best_splits = {}
 	changed.emit()
 
 
@@ -365,6 +396,7 @@ func save_profile() -> void:
 		"seen_monsters": seen_monsters, "bestiary_ranks": bestiary_ranks, "challenges_done": challenges_done, "shinies": shinies,
 		"daily_day": daily_day, "daily_score": daily_score, "daily_best": daily_best, "daily_streak": daily_streak,
 		"hints_seen": hints_seen,
+		"best_times": best_times, "best_splits": best_splits,
 	})
 
 
@@ -399,6 +431,13 @@ func load_profile() -> void:
 	daily_best = int(data.get("daily_best", 0))
 	daily_streak = int(data.get("daily_streak", 0))
 	hints_seen = _ints(data.get("hints_seen", {}))
+	best_times = _ints(data.get("best_times", {}))
+	best_splits = {}
+	var saved_splits: Variant = data.get("best_splits", {})
+	if saved_splits is Dictionary:
+		for key: String in saved_splits:
+			if saved_splits[key] is Array:
+				best_splits[key] = (saved_splits[key] as Array).map(func(ms: Variant) -> int: return int(ms))
 	period_stats = {}
 	var saved_periods: Variant = data.get("period_stats", {})
 	if saved_periods is Dictionary:

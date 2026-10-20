@@ -15,6 +15,9 @@ var _banner_tween: Tween
 var _souls_tween: Tween
 var _seal_tween: Tween
 var _toasts: Array[String] = []
+var _split_tween: Tween
+## The run time's text on screen (rebuilt only when it changes).
+var _time_text := ""
 var _toast_busy := false
 
 @onready var _hp_bar: StatBar = %HpBar
@@ -290,6 +293,45 @@ func show_banner(text: String, color: Color = Color(1, 0.82, 0.4)) -> void:
 	_depth_banner.modulate.a = 1.0
 	_banner_tween.tween_interval(1.4)
 	_banner_tween.tween_property(_depth_banner, "modulate:a", 0.0, 0.6)
+
+
+## The run's time under the map (Settings.run_timer). Gold once the run is won (that time stays).
+func show_run_time(seconds: float, finished: bool) -> void:
+	var label := %TimerLabel as Label
+	label.visible = Settings.run_timer
+	if not label.visible:
+		return
+	var text := TimeText.of(seconds, 2 if finished else 1)
+	if text == _time_text:
+		return
+	_time_text = text
+	label.text = text
+	label.add_theme_color_override("font_color", Palette.GOLD if finished else Color(1, 1, 1, 0.85))
+
+
+## A floor done: its time, and how far ahead (green) or behind (red) the record run it is.
+## `ahead`: seconds against the record's split (NAN: no record to race).
+func show_split(depth: int, seconds: float, ahead: float) -> void:
+	if not Settings.run_timer:
+		return
+	var label := %SplitLabel as Label
+	var text := "Floor %d  %s" % [depth, TimeText.of(seconds, 1)]
+	var color := Color(1, 1, 1, 0.85)
+	if not is_nan(ahead):
+		text += "  " + TimeText.delta(ahead)
+		color = Palette.HEAL if ahead <= 0.0 else Palette.DANGER
+	label.text = text
+	label.add_theme_color_override("font_color", color)
+	if _split_tween:
+		_split_tween.kill()
+	label.modulate.a = 1.0
+	_split_tween = create_tween()
+	_split_tween.tween_interval(4.0)
+	_split_tween.tween_property(label, "modulate:a", 0.0, 0.6)
+
+
+func split_text() -> String:
+	return (%SplitLabel as Label).text if (%SplitLabel as Label).modulate.a > 0.0 else ""
 
 
 ## A big text is on screen (hints wait for it to go).

@@ -30,6 +30,13 @@ var daily_day := -1
 var daily_official := false
 ## Every floor of the run is built from this (and its depth): a resumed run finds the same floor.
 var seed := 0
+## In-game time, seconds (RunTimer): counts while playing, menus included, but not in the pause
+## menu nor while a floor loads.
+var time := 0.0
+## The time at the end of each floor (index: depth - 1), for the splits.
+var splits: Array[float] = []
+## The time when the last boss fell (-1: not won yet). The run's speedrun time.
+var finish_time := -1.0
 
 
 ## A new run, or the saved one (`saved` from RunSave; empty for a new run).
@@ -52,6 +59,10 @@ static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGener
 	run.souls_awarded = int(saved.get("souls_awarded", 0))
 	run.run_gold = int(saved.get("run_gold", 0))
 	run.history_recorded = bool(saved.get("history_recorded", false))
+	run.time = float(saved.get("time", 0.0))
+	run.finish_time = float(saved.get("finish_time", -1.0))
+	for split: Variant in saved.get("splits", []):
+		run.splits.append(float(split))
 	if saved.has("rerolls"):
 		run.rerolls = int(saved.rerolls)
 		run.banishes = int(saved.get("banishes", 0))
@@ -116,6 +127,9 @@ func to_data() -> Dictionary:
 		"daily_day": daily_day,
 		"daily_official": daily_official,
 		"seed": seed,
+		"time": time,
+		"splits": splits,
+		"finish_time": finish_time,
 		"difficulty": String(difficulty.id),
 		"ascension": difficulty.ascension,
 	}
@@ -125,11 +139,43 @@ func is_daily() -> bool:
 	return daily_day >= 0
 
 
+## The floor `depth` is done (the stairs are taken, or its boss was the last): its split.
+## Returns the split's time.
+func split(floor_depth: int) -> float:
+	if splits.size() < floor_depth:
+		splits.resize(floor_depth)
+		for i in splits.size():
+			if splits[i] <= 0.0:
+				splits[i] = time  # a floor skipped (debug) takes the same time
+	splits[floor_depth - 1] = time
+	return time
+
+
+## The time a speedrunner would quote: the win, or the time so far.
+func run_time() -> float:
+	return finish_time if finish_time >= 0.0 else time
+
+
+## What its records are kept under: the difficulty and its ascension ("normal", "nightmare/a3").
+## Empty for a daily run (its own race).
+func record_key() -> String:
+	if is_daily():
+		return ""
+	var key := String(difficulty.id)
+	if difficulty.ascension > 0:
+		key += "/a%d" % difficulty.ascension
+	return key
+
+
 ## "Normal - Mossy Caves, depth 3, level 5 / 42 monsters slain, 1 boss" (+ the daily score).
 func summary(content: ContentDB, level: int) -> String:
 	var act := content.dungeon.act_for_depth(depth)
 	var text := "%s - %s, depth %d, level %d\n%d monsters slain, %d bosses" % [
 		difficulty.display_name, act.title if act else "Dungeon", depth, level, kills, bosses_slain]
+	text += "\nTime %s" % TimeText.of(run_time())
+	var record := Profile.best_time(record_key())
+	if record > 0.0 and finish_time < 0.0:
+		text += "   (record %s)" % TimeText.of(record)
 	if is_daily():
 		text += "\nDaily score %d%s" % [DailyRun.score(self), ("  (best %d)" % Profile.daily_best) if daily_official else "  (practice)"]
 	return text

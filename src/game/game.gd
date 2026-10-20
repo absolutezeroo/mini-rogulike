@@ -66,6 +66,8 @@ var _hunt := HuntTracker.new()
 ## The tutorial's hints, shown in `hint_box` (above the HUD, under the menus).
 var tutorial := Tutorial.new()
 var hint_box := HintBox.new()
+## The run's in-game time (speedruns).
+var run_timer := RunTimer.new()
 
 
 func _ready() -> void:
@@ -76,6 +78,10 @@ func _ready() -> void:
 	_hunt.content = content
 	add_child(_hunt)
 	_setup_tutorial()
+	run_timer.name = "RunTimer"
+	run_timer.hud = hud
+	run_timer.is_counting = _is_clock_running
+	add_child(run_timer)
 	world.stairs_reached.connect(_on_stairs_reached)
 	hud.bind_world(world)
 	hud.inventory_requested.connect(open_inventory)
@@ -200,6 +206,7 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 		offers.load_data(saved.get("offers", []))
 		world.restore_spent(saved.get("floor", {}))  # chests opened, stock bought before quitting
 	_records.bind(run, player)
+	run_timer.run = run
 	_hunt.bind(player)
 	hud.bind_player(player)
 	tutorial.bind(player, world, hud)
@@ -217,6 +224,20 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 		_enter_floor(not saved.is_empty())
 	tutorial.cue(&"run_start")
 	_show_next_offer.call_deferred()  # choices left open in a saved run
+
+
+## The run's time counts while playing and in the bag, the shop or a perk choice; not in the
+## pause menu, nor while a floor loads (with its title cards), nor once the hero is dead.
+func _is_clock_running() -> bool:
+	return player != null and not player.is_dead and not _transitioning and not pause_menu.visible \
+		and not game_over_panel.visible and not act_card.visible and not curse_card.visible
+
+
+## The floor `floor_depth` is done: its split, against the record run's.
+func _split(floor_depth: int) -> void:
+	var time := run.split(floor_depth)
+	var record := Profile.best_split(run.record_key(), floor_depth)
+	hud.show_split(floor_depth, time, time - record if record > 0.0 else NAN)
 
 
 func _setup_tutorial() -> void:
@@ -426,6 +447,8 @@ func _descend() -> void:
 	var fade_out := create_tween()
 	fade_out.tween_property(_fade, "color:a", 1.0, FADE_TIME)
 	await fade_out.finished
+	if run.finish_time < 0.0:
+		_split(depth)
 	depth += 1  # only now: a save during the fade still points at the floor being left
 	_enter_floor()
 	await _show_cards()
@@ -476,8 +499,14 @@ func _on_boss_defeated(boss: Monster) -> void:
 	# in between must keep the win or the relic.
 	var won_now := content.dungeon.is_final_floor(depth) and not run.has_won
 	var earned := 0
+	var new_record := false
 	if won_now:
 		run.has_won = true
+		run.finish_time = run.time
+		_split(depth)
+		new_record = Profile.record_time(run.record_key(), run.finish_time, run.splits)
+		if new_record:
+			Events.log_message("New record: %s!" % TimeText.of(run.finish_time), Palette.GOLD)
 		earned = _award_souls(true)
 	else:
 		offers.add_relic(def, boss.rank.extra_relics if boss.rank else 0)
@@ -491,7 +520,7 @@ func _on_boss_defeated(boss: Monster) -> void:
 		Sfx.play_ui(Sfx.bank.stairs)
 		var story := content.story.victory_text + "\n\n" if content.story else ""
 		menus.show_on_top(game_over_panel)
-		game_over_panel.show_victory(story + _run_summary() + _souls_text(earned))
+		game_over_panel.show_victory(story + _run_summary() + _record_text(new_record) + _souls_text(earned))
 		return
 	_show_next_offer()
 
@@ -501,6 +530,14 @@ func _on_continue_endless() -> void:
 	Events.log_message("Endless mode: the dungeon goes on, harder and harder.", Palette.DANGER)
 	offers.add_relic(run.last_boss)
 	_show_next_offer()
+
+
+## Under a win's time: a new record, or the record to beat.
+func _record_text(new_record: bool) -> String:
+	if new_record:
+		return "  New record!"
+	var record := Profile.best_time(run.record_key())
+	return "  (record %s)" % TimeText.of(record) if record > 0.0 else ""
 
 
 func _souls_text(earned: int) -> String:

@@ -270,7 +270,8 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   hits you land, crits; `Settings.vibrate()`; exported Android builds need the Vibrate permission),
   **fixed joystick** (it stays in its corner and starts only when touched there, instead of
   appearing under the thumb), **battery saver** (30 FPS cap, `Engine.max_fps`), **fewer effects**
-  (half the particles in `Vfx.burst`), **tutorial hints** (on/off) and **Replay tutorial**.
+  (half the particles in `Vfx.burst`), **run timer** (on/off), **tutorial hints** (on/off) and
+  **Replay tutorial**.
 - **Minimap** (`Minimap`): rooms are revealed when you walk in, corridors around you; it shows holes,
   the stairs (violet while sealed), unopened chests, a running ambush, the boss and, near the
   end of a seal, the last monsters. Tap it for the whole floor.
@@ -294,6 +295,23 @@ over a menu or a big banner. A tap (or OK) closes it.
   and conditions are listed in `Tutorial` (`src/game/tutorial.gd`); the controls are the HUD's
   unique names (`Hud.hint_target()`).
 - **Options**: "Tutorial hints" turns them off; "Replay tutorial" shows them all again.
+
+## Run timer (speedruns)
+
+Every run is timed (`RunTimer`, `RunState.time`): in-game time, in real seconds (hit stops and
+slow motion don't slow it), counting in the bag, the shop and the perk choices (deciding is part
+of the run) but not in the pause menu, while a floor loads or during its title cards. It is saved
+with the run, so quitting and coming back doesn't reset it.
+
+- **On screen**, under the map (`Hud.show_run_time()`; Options > Run timer hides it). Once the
+  last boss falls, the win's time stays there, in gold, through endless mode.
+- **Splits**: taking the stairs notes the floor's time (`RunState.splits`) and shows it a few
+  seconds: "Floor 3  4:12.3  -0:05.2", green when ahead of the record run, red when behind.
+- **Records** (`Profile.best_times`, `best_splits`): the fastest win per difficulty and ascension
+  level (`RunState.record_key()`: "normal", "nightmare/a3"), with its splits to race against.
+  Daily runs keep none (their own race).
+- **Where it shows**: the end screens (the time, then "New record!" or the record to beat), the
+  log, and the Codex > Runs (each run's time, the fastest wins).
 
 ## Android build
 

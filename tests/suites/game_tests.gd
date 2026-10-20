@@ -193,6 +193,8 @@ func run() -> void:
 	game.inventory_panel.close()
 	await _frames(2)
 
+	await _test_run_timer(game)
+
 	# Play: hunt monsters for a while (god mode so the run lasts).
 	player.base_stats.defense = 999
 	player.invalidate_stats()
@@ -208,6 +210,8 @@ func run() -> void:
 	player.global_position = world.map.cell_to_world(world.map.stairs_cell)
 	await _frames(int(game.FADE_TIME * 60.0) + 12)  # the depth changes once the screen is black
 	check(game.depth == depth_before + 1, "stairs lead to the next depth")
+	check(game.run.splits.size() == depth_before and game.run.splits[depth_before - 1] > 0.0, "the floor's split is taken (%s)" % [game.run.splits])
+	check(game.hud.split_text().begins_with("Floor %d" % depth_before), "and shown: %s" % game.hud.split_text())
 	check(game._fade.color.a > 0.0, "taking the stairs fades to black")
 	await _frames(60)
 	check(depth_changes[0] >= 1, "depth_changed emitted")
@@ -360,3 +364,35 @@ func run() -> void:
 	for difficulty in curse_chances:
 		difficulty.curse_chance = curse_chances[difficulty]
 	await _frames(2)
+
+
+## The run's clock: counts in play and in the bag, not in the pause menu; on the HUD.
+func _test_run_timer(game: Game) -> void:
+	var run := game.run
+	var start := run.time
+	await _frames(60)
+	check(run.time - start > 0.9 and run.time - start < 1.2, "the clock counts real seconds (%.2f)" % (run.time - start))
+	game.open_pause_menu()
+	var paused := run.time
+	await _frames(60)
+	check(is_equal_approx(run.time, paused), "it stops in the pause menu")
+	game.pause_menu.resume_requested.emit()
+	await _frames(2)
+	game.open_inventory()
+	var in_bag := run.time
+	await _frames(30)
+	check(run.time > in_bag + 0.4, "it runs in the bag (deciding is part of the run)")
+	game.inventory_panel.close()
+	HitStop.slow(1.0, 0.25)
+	var slow := run.time
+	await _frames(30)
+	check(run.time - slow > 0.4, "slow motion doesn't slow the clock (%.2f)" % (run.time - slow))
+	HitStop.reset()
+	var label := game.hud.get_node("%TimerLabel") as Label
+	await _frames(1)
+	check(label.visible and label.text == TimeText.of(run.time, 1), "the time is under the map: %s" % label.text)
+	Settings.set_option(&"run_timer", false)
+	await _frames(1)
+	check(not label.visible, "the run timer can be hidden")
+	Settings.set_option(&"run_timer", true)
+

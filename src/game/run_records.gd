@@ -54,6 +54,7 @@ func record_history() -> void:
 		"souls": run.souls_awarded,
 		"weapon": weapon.display_name if weapon else "Bare hands",
 		"cause": player.killed_by if player.is_dead else "",
+		"duration": roundi(run.run_time() * 1000.0),  # ms: the win's time, or how long it lasted
 	})
 
 

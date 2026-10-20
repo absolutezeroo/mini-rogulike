@@ -20,6 +20,54 @@ func run() -> void:
 	_test_runes()
 	_test_bosses()
 	_test_profile()
+	_test_run_time()
+
+
+## Speedrun times: how they read, the splits, the save, the records.
+func _test_run_time() -> void:
+	check(TimeText.of(0.0) == "0:00.00", "time zero: got %s" % TimeText.of(0.0))
+	check(TimeText.of(65.432) == "1:05.43", "minutes, seconds, hundredths: got %s" % TimeText.of(65.432))
+	check(TimeText.of(65.999, 1) == "1:05.9", "cut, never rounded up: got %s" % TimeText.of(65.999, 1))
+	check(TimeText.of(3725.5, 0) == "1:02:05", "hours when there are some: got %s" % TimeText.of(3725.5, 0))
+	check(TimeText.delta(-5.25) == "-0:05.2" and TimeText.delta(12.0) == "+0:12.0", "ahead or behind: got %s / %s" % [TimeText.delta(-5.25), TimeText.delta(12.0)])
+
+	var rng := RandomNumberGenerator.new()
+	var run := RunState.create(CONTENT, {}, rng)
+	check(run.time == 0.0 and run.splits.is_empty() and run.finish_time < 0.0, "a new run starts at zero")
+	run.time = 30.0
+	run.split(1)
+	run.time = 75.0
+	run.split(3)  # (a floor skipped: the debug panel)
+	check(run.splits.size() == 3 and run.splits[0] == 30.0 and run.splits[1] == 75.0 and run.splits[2] == 75.0, "splits: the time at the end of each floor (%s)" % [run.splits])
+	run.time = 80.0
+	check(run.run_time() == 80.0, "the time so far")
+	run.finish_time = 78.5
+	check(run.run_time() == 78.5, "won: the win's time")
+	var again := RunState.create(CONTENT, run.to_data(), rng)
+	check(again.time == 80.0 and again.finish_time == 78.5 and again.splits == run.splits, "the time and splits are saved with the run")
+	check(run.record_key() == String(run.difficulty.id), "records by difficulty (%s)" % run.record_key())
+	var daily := RunState.create(CONTENT, {}, rng, 20000)
+	check(daily.record_key() == "", "a daily run keeps no record")
+	check(run.summary(CONTENT, 3).contains("Time 1:18.50"), "the summary gives the time: %s" % run.summary(CONTENT, 3))
+
+	var splits: Array[float] = [30.0, 60.0, 95.0]
+	check(Profile.record_time("normal", 95.0, splits), "a first win is a record")
+	check(is_equal_approx(Profile.best_time("normal"), 95.0) and is_equal_approx(Profile.best_split("normal", 2), 60.0), "the record and its splits are kept")
+	check(not Profile.record_time("normal", 120.0, splits), "a slower win is not")
+	check(Profile.record_time("normal", 90.0, splits) and is_equal_approx(Profile.best_time("normal"), 90.0), "a faster one is")
+	check(Profile.best_time("hard") == 0.0 and Profile.best_split("normal", 9) == 0.0 and Profile.best_time("") == 0.0, "nothing where nothing was won")
+	check(not Profile.record_time("", 10.0, splits), "no record without a key (daily runs)")
+	var path := "user://test_profile_time_%d.json" % OS.get_process_id()
+	Profile.save_path = path
+	Profile.save_profile()
+	Profile.best_times = {}
+	Profile.best_splits = {}
+	Profile.load_profile()
+	check(is_equal_approx(Profile.best_time("normal"), 90.0) and is_equal_approx(Profile.best_split("normal", 3), 95.0), "records are saved with the profile")
+	Profile.save_path = ""
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+	Profile.best_times = {}
+	Profile.best_splits = {}
 
 
 func _test_stat_block() -> void:

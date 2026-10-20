@@ -255,6 +255,9 @@ func _achievement_row(achievement: AchievementDef) -> Control:
 
 func _fill_runs() -> void:
 	_summary.text = "Runs: %d     Victories: %d     Deepest floor: %d" % [Profile.runs, Profile.victories, Profile.best_depth]
+	var records := _records_text()
+	if not records.is_empty():
+		_list.add_child(_label(records, 16, Palette.GOLD))
 	if Profile.history.is_empty():
 		_list.add_child(_label("No run finished yet. Go down the Well!", 18, Color(1, 1, 1, 0.7)))
 	for entry: Dictionary in Profile.history:
@@ -272,10 +275,29 @@ func _run_row(entry: Dictionary) -> Control:
 	var end := "Victory!" if won and str(entry.get("cause", "")).is_empty() else "Slain by %s" % entry.get("cause", "?")
 	if won and not str(entry.get("cause", "")).is_empty():
 		end = "Won, then slain by %s" % entry.get("cause")
-	row.add_child(_label("%s   -   level %d, %d kills, %d bosses, %s, +%d souls" % [
+	var line := "%s   -   level %d, %d kills, %d bosses, %s, +%d souls" % [
 		end, int(entry.get("level", 1)), int(entry.get("kills", 0)), int(entry.get("bosses", 0)),
-		entry.get("weapon", "?"), int(entry.get("souls", 0))], 13, Color(1, 1, 1, 0.7)))
+		entry.get("weapon", "?"), int(entry.get("souls", 0))]
+	if entry.has("duration"):
+		line = "%s   -   %s" % [TimeText.of(int(entry.duration) / 1000.0), line]
+	row.add_child(_label(line, 13, Color(1, 1, 1, 0.7)))
 	return row
+
+
+## "Fastest wins: Normal 32:10.45   Nightmare +3 51:02.10" (empty before the first win).
+func _records_text() -> String:
+	var parts: PackedStringArray = []
+	for key: String in Profile.best_times:
+		parts.append("%s %s" % [_record_name(key), TimeText.of(Profile.best_time(key))])
+	return ("Fastest wins:   " + "    ".join(parts)) if not parts.is_empty() else ""
+
+
+## A record's difficulty, as the title screen names it ("Nightmare +3").
+func _record_name(key: String) -> String:
+	var parts := key.split("/a")
+	var difficulty := _content.get_difficulty(StringName(parts[0])) if _content else null
+	var name := difficulty.display_name if difficulty else parts[0].capitalize()
+	return name + (" +%s" % parts[1] if parts.size() > 1 else "")
 
 
 ## `trim`: long text ends with "..." (and the label can shrink to nothing: not for short values).

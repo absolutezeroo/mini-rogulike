@@ -166,6 +166,11 @@ func _test_boss_fight(game: Game) -> void:
 			game.perk_panel.choose(0)
 	check(game.has_won and game.game_over_panel.visible and game.game_over_panel.get_node("%ContinueButton").visible, "beating the final boss wins the run")
 	check(Profile.victories == 1 and Profile.souls > 0, "a victory is recorded with its souls")
+	var won_at := game.run.finish_time
+	check(won_at > 0.0 and game.run.splits.size() == game.depth and is_equal_approx(game.run.splits.back(), won_at), "the win's time is the last split")
+	check(is_equal_approx(Profile.best_time(game.run.record_key()), won_at), "a first win is the record")
+	var summary := (game.game_over_panel.get_node("%Summary") as Label).text
+	check(summary.contains("Time " + TimeText.of(won_at)) and summary.contains("New record!"), "the victory screen gives the time: %s" % summary)
 	(game.game_over_panel.get_node("%ContinueButton") as Button).pressed.emit()
 	await _frames(3)
 	check(not game.game_over_panel.visible, "keep going: endless mode")
@@ -173,3 +178,5 @@ func _test_boss_fight(game: Game) -> void:
 		game.perk_panel.choose(0)
 	await _frames(3)
 	check(not get_tree().paused, "the game resumes after the victory")
+	await _frames(30)
+	check(game.run.run_time() == won_at and (game.hud.get_node("%TimerLabel") as Label).text == TimeText.of(won_at), "endless mode: the win's time stays on screen")
