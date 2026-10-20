@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="LoadingTipsDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/loading_tips_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+tips = PackedStringArray("Rolling through an attack makes you untouchable for a moment.", "A weapon is as strong as the floor it was found on: keep looting.", "Hold three perks of one family to awaken its bonus.", "The sign over each stairs tells where it leads. Cursed floors pay better loot.", "Elites carry a rank and an affix: read their name before you charge.", "Souls are kept forever. Spend them on the Tree of Souls, at the shrine.", "Gold only lasts for the run: spend it at the merchant.", "A forge sets runes in your weapon for free.", "Bosses wind up their big strikes: step away when they do.", "Lock an item at the merchant: the next one sells it at the same price.", "A banish removes a perk you never want to see again, for the whole run.", "Healing can't out-heal a boss: dodge, don't trade blows.", "Campfires warm you on frozen floors; oases cool you on burning ones.", "On Easy, every new floor heals you a quarter of your Health.")

@@ -110,7 +110,7 @@ func _connect_menus() -> void:
 	pause_menu.quit_requested.connect(func() -> void:
 		_save_run()
 		_set_paused(false)
-		get_tree().change_scene_to_file(TITLE_SCENE))
+		Loader.go(TITLE_SCENE))
 	pause_menu.abandon_requested.connect(func() -> void:
 		pause_menu.hide()
 		_set_paused(false)
@@ -127,7 +127,7 @@ func _connect_menus() -> void:
 	game_over_panel.title_requested.connect(func() -> void:
 		_records.record_history()
 		_set_paused(false)
-		get_tree().change_scene_to_file(TITLE_SCENE))
+		Loader.go(TITLE_SCENE))
 
 
 func _connect_events() -> void:

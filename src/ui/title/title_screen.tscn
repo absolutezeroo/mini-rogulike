@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://src/ui/title/title_screen.gd" id="1_title"]
 [ext_resource type="Resource" path="res://data/content_db.tres" id="2_content"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://src/vfx/ambient/wisps.tscn" id="5_wisps"]
 [ext_resource type="PackedScene" path="res://src/ui/options/options_panel.tscn" id="6_options"]
 [ext_resource type="PackedScene" path="res://src/ui/codex/codex_panel.tscn" id="7_codex"]
+[ext_resource type="Script" path="res://src/ui/title/title_backdrop.gd" id="8_backdrop"]
 
 [node name="TitleScreen" type="Control"]
 layout_mode = 3
@@ -27,131 +28,154 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.105882, 0.0784314, 0.12549, 1)
 
-[node name="Wisps" parent="." instance=ExtResource("5_wisps")]
-z_index = 0
-position = Vector2(640, 420)
-
-[node name="Center" type="CenterContainer" parent="."]
+[node name="Backdrop" type="Control" parent="."]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("8_backdrop")
 
-[node name="VBox" type="VBoxContainer" parent="Center"]
+[node name="Wisps" parent="." instance=ExtResource("5_wisps")]
+unique_name_in_owner = true
+z_index = 0
+position = Vector2(640, 420)
+
+[node name="Hero" type="AnimatedSprite2D" parent="."]
+unique_name_in_owner = true
+scale = Vector2(4, 4)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 72
+theme_override_constants/margin_top = 44
+theme_override_constants/margin_right = 64
+theme_override_constants/margin_bottom = 40
+
+[node name="Columns" type="HBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 24
 
-[node name="Title" type="Label" parent="Center/VBox"]
+[node name="Left" type="VBoxContainer" parent="Margin/Columns"]
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="Margin/Columns/Left"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.82, 0.4, 1)
-theme_override_constants/outline_size = 10
-theme_override_font_sizes/font_size = 72
+theme_override_constants/outline_size = 12
+theme_override_font_sizes/font_size = 64
 text = "Le Puits des Âmes"
-horizontal_alignment = 1
 
-[node name="Subtitle" type="Label" parent="Center/VBox"]
+[node name="Subtitle" type="Label" parent="Margin/Columns/Left"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(680, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.94, 0.82, 0.8)
+theme_override_font_sizes/font_size = 18
+text = "Go down the Well."
+
+[node name="StoryButton" type="Button" parent="Margin/Columns/Left"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.94, 0.82, 1)
-theme_override_font_sizes/font_size = 20
-text = "Three acts, three bosses. Become who you want."
-horizontal_alignment = 1
+size_flags_horizontal = 0
+theme_override_colors/font_color = Color(1, 0.82, 0.4, 0.85)
+theme_override_colors/font_hover_color = Color(1, 0.9, 0.6, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.75, 0.3, 1)
+theme_override_font_sizes/font_size = 17
+text = "> Read the story"
+flat = true
 
-[node name="Bosses" type="HBoxContainer" parent="Center/VBox"]
-unique_name_in_owner = true
+[node name="Spacer" type="Control" parent="Margin/Columns/Left"]
 layout_mode = 2
-theme_override_constants/separation = 48
-alignment = 1
+size_flags_vertical = 3
 
-[node name="HeroSpot" type="Control" parent="Center/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 96)
-layout_mode = 2
-
-[node name="Hero" type="AnimatedSprite2D" parent="Center/VBox/HeroSpot"]
-unique_name_in_owner = true
-position = Vector2(0, 44)
-scale = Vector2(4, 4)
-
-[node name="ContinueButton" type="Button" parent="Center/VBox"]
+[node name="ContinueButton" type="Button" parent="Margin/Columns/Left"]
 unique_name_in_owner = true
 visible = false
-custom_minimum_size = Vector2(456, 68)
+custom_minimum_size = Vector2(500, 62)
 layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
+size_flags_horizontal = 0
+theme_override_font_sizes/font_size = 22
 text = "Continue"
 
-[node name="PlayRow" type="HBoxContainer" parent="Center/VBox"]
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/separation = 16
-
-[node name="PlayButton" type="Button" parent="Center/VBox/PlayRow"]
+[node name="PlayButton" type="Button" parent="Margin/Columns/Left"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(320, 84)
+custom_minimum_size = Vector2(500, 80)
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
+size_flags_horizontal = 0
+theme_override_font_sizes/font_size = 32
 text = "Play"
 
-[node name="DailyButton" type="Button" parent="Center/VBox/PlayRow"]
+[node name="DailyButton" type="Button" parent="Margin/Columns/Left"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(500, 84)
+custom_minimum_size = Vector2(500, 78)
 layout_mode = 2
+size_flags_horizontal = 0
 theme_override_font_sizes/font_size = 16
 
-[node name="Buttons" type="HBoxContainer" parent="Center/VBox"]
+[node name="Buttons" type="GridContainer" parent="Margin/Columns/Left"]
+custom_minimum_size = Vector2(500, 0)
 layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/separation = 16
+size_flags_horizontal = 0
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 14
+columns = 2
 
-[node name="ShrineButton" type="Button" parent="Center/VBox/Buttons"]
+[node name="ShrineButton" type="Button" parent="Margin/Columns/Left/Buttons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 60)
+custom_minimum_size = Vector2(243, 56)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Shrine"
 
-[node name="StoryButton" type="Button" parent="Center/VBox/Buttons"]
+[node name="CodexButton" type="Button" parent="Margin/Columns/Left/Buttons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 60)
-layout_mode = 2
-theme_override_font_sizes/font_size = 22
-text = "Story"
-
-[node name="QuestsButton" type="Button" parent="Center/VBox/Buttons"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 60)
-layout_mode = 2
-theme_override_font_sizes/font_size = 22
-text = "Quests"
-
-[node name="CodexButton" type="Button" parent="Center/VBox/Buttons"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 60)
+custom_minimum_size = Vector2(243, 56)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Codex"
 
-[node name="OptionsButton" type="Button" parent="Center/VBox/Buttons"]
+[node name="QuestsButton" type="Button" parent="Margin/Columns/Left/Buttons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 60)
+custom_minimum_size = Vector2(243, 56)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Quests"
+
+[node name="OptionsButton" type="Button" parent="Margin/Columns/Left/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(243, 56)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Options"
 
-[node name="RecordsPlaque" type="PanelContainer" parent="Center/VBox"]
-unique_name_in_owner = true
+[node name="Gap" type="Control" parent="Margin/Columns"]
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_horizontal = 3
 
-[node name="Records" type="HBoxContainer" parent="Center/VBox/RecordsPlaque"]
+[node name="Right" type="VBoxContainer" parent="Margin/Columns"]
+layout_mode = 2
+
+[node name="RecordsPlaque" type="PanelContainer" parent="Margin/Columns/Right"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 28
+size_flags_horizontal = 8
+
+[node name="Records" type="VBoxContainer" parent="Margin/Columns/Right/RecordsPlaque"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
 
 [node name="ShrinePanel" type="Control" parent="."]
 unique_name_in_owner = true
