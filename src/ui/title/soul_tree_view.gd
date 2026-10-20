@@ -107,7 +107,7 @@ func _draw() -> void:
 	for node in tree.nodes:
 		if node and node.partner() and node.cell.x < node.partner().cell.x:
 			var mid := (center_of(node) + center_of(node.partner())) * 0.5
-			var word := "or"
+			var word := tr("or")
 			var width := font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
 			draw_string_outline(font, mid + Vector2(-width * 0.5, 6), word, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, 5, Color(0.12, 0.07, 0.05))
 			draw_string(font, mid + Vector2(-width * 0.5, 6), word, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, UiSkin.GOLD)

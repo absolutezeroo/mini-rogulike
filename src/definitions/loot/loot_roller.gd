@@ -69,14 +69,14 @@ static func make(base: EquipmentDef, rarity: int, affixes: Array[ItemAffixDef], 
 		if affix.bonuses:
 			total = total.plus(affix.bonuses)
 		if affix.is_prefix and prefix.is_empty():
-			prefix = affix.display_name + " "
+			prefix = affix.display_name
 		elif not affix.is_prefix and suffix.is_empty():
-			suffix = " " + affix.display_name
+			suffix = affix.display_name
 	var health := LEVELS.armor_health(base.slot, item.item_level) if base.slot != EquipmentDef.Slot.WEAPON else 0
 	if health > 0:
 		total.max_hp += health
 	item.bonuses = total
-	item.display_name = prefix + base.display_name + suffix
+	item.display_name = rolled_name(base.display_name, prefix, suffix)
 	var weapon := item as WeaponDef
 	if weapon:
 		var base_damage := (base as WeaponDef).damage
@@ -92,6 +92,24 @@ static func make(base: EquipmentDef, rarity: int, affixes: Array[ItemAffixDef], 
 
 
 # --- Saving -------------------------------------------------------------------
+
+## "Sharp Katana of the Bear", in the player's language ("Katana Redoutable de l'Ours"): the
+## words go where the language puts them. Rolled names are made when the item is (and again
+## when a saved run is loaded).
+static func rolled_name(base_name: String, prefix: String, suffix: String) -> String:
+	var words := {
+		"item": TranslationServer.tr(base_name),
+		"prefix": TranslationServer.tr(prefix),
+		"suffix": TranslationServer.tr(suffix),
+	}
+	if not prefix.is_empty() and not suffix.is_empty():
+		return TranslationServer.tr("{prefix} {item} {suffix}").format(words)
+	if not prefix.is_empty():
+		return TranslationServer.tr("{prefix} {item}").format(words)
+	if not suffix.is_empty():
+		return TranslationServer.tr("{item} {suffix}").format(words)
+	return words.item
+
 
 ## Plain items save as their path, rolled ones as { base, rarity, affixes, runes, level }.
 static func to_data(item: ItemDef) -> Variant:

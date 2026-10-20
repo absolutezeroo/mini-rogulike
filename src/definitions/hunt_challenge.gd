@@ -55,32 +55,32 @@ func applies_to(monster: MonsterDef) -> bool:
 
 
 func describe(monster: MonsterDef) -> String:
-	var name := monster.display_name
+	var name := tr(monster.display_name)
 	if not text.is_empty():
-		return text.replace("{monster}", name)
+		return tr(text).replace("{monster}", name)
 	match goal:
 		Goal.ELITE:
-			return "Slay an elite %s" % name
+			return tr("Slay an elite %s") % name
 		Goal.PIT:
-			return "Push a %s into a hole" % name
+			return tr("Push a %s into a hole") % name
 		Goal.STREAK:
-			return "Slay %d %s within %d seconds" % [count, name, roundi(seconds)]
+			return tr("Slay %d %s within %d seconds") % [count, name, roundi(seconds)]
 		Goal.UNTOUCHED:
-			return "Slay a %s without being hurt once it has seen you" % name
+			return tr("Slay a %s without being hurt once it has seen you") % name
 		Goal.CRIT:
-			return "Finish a %s with a critical hit (a lucky hit for extra damage)" % name
+			return tr("Finish a %s with a critical hit (a lucky hit for extra damage)") % name
 		Goal.RANGED:
-			return "Slay %s with a ranged weapon" % name
+			return tr("Slay %s with a ranged weapon") % name
 		Goal.MELEE:
-			return "Slay %s with a melee weapon" % name
+			return tr("Slay %s with a melee weapon") % name
 		Goal.FAST:
-			return "Slay %s within %d seconds of the fight's start" % [name, roundi(seconds)]
+			return tr("Slay %s within %d seconds of the fight's start") % [name, roundi(seconds)]
 		Goal.NO_POTION:
-			return "Slay %s without drinking a potion during the fight" % name
+			return tr("Slay %s without drinking a potion during the fight") % name
 		Goal.HEALTHY:
-			return "Slay %s losing less than %d%% of your Health" % [name, roundi(ratio * 100.0)]
+			return tr("Slay %s losing less than %d%% of your Health") % [name, roundi(ratio * 100.0)]
 		Goal.WEAPON:
-			return "Slay %s with the %s" % [name, weapon.display_name if weapon else "?"]
+			return tr("Slay %s with the %s") % [name, tr(weapon.display_name) if weapon else "?"]
 	return name
 
 

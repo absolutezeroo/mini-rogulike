@@ -89,7 +89,7 @@ func _draw_level() -> void:
 	var equipment := item as EquipmentDef
 	if equipment == null or size.x < 44.0 or not show_level:
 		return
-	_text("Lv %d" % equipment.item_level, Vector2(7, 19), HORIZONTAL_ALIGNMENT_LEFT, 13, Color(1, 0.92, 0.7))
+	_text(tr("Lv %d") % equipment.item_level, Vector2(7, 19), HORIZONTAL_ALIGNMENT_LEFT, 13, Color(1, 0.92, 0.7))
 
 
 ## A weapon's rune sockets: little stones along the bottom, lit in their rune's color.

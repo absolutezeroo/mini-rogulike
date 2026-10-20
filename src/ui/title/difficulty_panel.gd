@@ -92,7 +92,7 @@ func _refresh_ascension() -> void:
 			nightmare = def
 	if nightmare:
 		var climbed := AscensionDef.apply_levels(nightmare, _ascensions, level)
-		_ascension_souls.text = "Souls earned x%s" % DifficultyCard.number(climbed.souls, 1)
+		_ascension_souls.text = tr("Souls earned x%s") % DifficultyCard.number(climbed.souls, 1)
 	_ascension_text.text = "\n".join(ascension_lines(_ascensions, level, open_levels))
 
 
@@ -100,27 +100,29 @@ func _refresh_ascension() -> void:
 static func ascension_lines(ascensions: Array[AscensionDef], level: int, open_levels: int) -> PackedStringArray:
 	var lines := PackedStringArray()
 	if level <= 0:
-		lines.append("+0: Nightmare as it is. Each level adds one twist on top of the ones before, and 10% more souls.")
+		lines.append(TranslationServer.tr("+0: Nightmare as it is. Each level adds one twist on top of the ones before, and 10% more souls."))
 	for i in level:
-		lines.append("+%d  %s: %s" % [i + 1, ascensions[i].title, ascensions[i].description])
+		lines.append(TranslationServer.tr("+%d  %s: %s") % [i + 1, TranslationServer.tr(ascensions[i].title), TranslationServer.tr(ascensions[i].description)])
 	if level < ascensions.size():
 		var next := ascensions[level]
+		var title := TranslationServer.tr(next.title)
+		var description := TranslationServer.tr(next.description)
 		if level < open_levels:
-			lines.append("Next, +%d  %s: %s" % [level + 1, next.title, next.description])
+			lines.append(TranslationServer.tr("Next, +%d  %s: %s") % [level + 1, title, description])
 		else:
-			lines.append("Win Nightmare +%d to open +%d  %s: %s" % [level, level + 1, next.title, next.description])
+			lines.append(TranslationServer.tr("Win Nightmare +%d to open +%d  %s: %s") % [level, level + 1, title, description])
 	return lines
 
 
 # --- Building -----------------------------------------------------------------------
 
 func _build() -> void:
-	_window = MenuWindow.new("Choose a difficulty")
+	_window = MenuWindow.new(tr("Choose a difficulty"))
 	add_child(_window)
 	var scene_owner: Node = owner if owner != null else self
-	_window.close_button.text = "Back"
+	_window.close_button.text = tr("Back")
 	MenuWindow.expose(_window.close_button, "BackButton", scene_owner)
-	var intro := UiSkin.label("Tap one to start the run. Harder ones pay more souls.", 16, UiSkin.TEXT, true)
+	var intro := UiSkin.label(tr("Tap one to start the run. Harder ones pay more souls."), 16, UiSkin.TEXT, true)
 	intro.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_window.header_left.add_child(intro)
 	_cards = HBoxContainer.new()
@@ -139,7 +141,7 @@ func _build() -> void:
 	var left := VBoxContainer.new()
 	left.add_theme_constant_override("separation", 2)
 	line.add_child(left)
-	left.add_child(UiSkin.label("Nightmare ascension", 18, Color(0.85, 0.6, 1.0)))
+	left.add_child(UiSkin.label(tr("Nightmare ascension"), 18, Color(0.85, 0.6, 1.0)))
 	_ascension_row = HBoxContainer.new()
 	_ascension_row.add_theme_constant_override("separation", 8)
 	left.add_child(_ascension_row)

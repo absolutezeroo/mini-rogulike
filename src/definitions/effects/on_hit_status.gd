@@ -29,9 +29,9 @@ func apply_to(target: Actor, source: Actor) -> void:
 func describe() -> String:
 	var parts := PackedStringArray()
 	if burn_damage > 0:
-		parts.append("Burns (%d every 0.5 s)" % burn_damage)
+		parts.append(tr("Burns (%d every 0.5 s)") % burn_damage)
 	if poison_damage > 0:
-		parts.append("Poisons (%d per second)" % poison_damage)
+		parts.append(tr("Poisons (%d per second)") % poison_damage)
 	if slow > 0.0:
-		parts.append("Slows %d%%" % roundi(slow * 100.0))
+		parts.append(tr("Slows %d%%") % roundi(slow * 100.0))
 	return ", ".join(parts)

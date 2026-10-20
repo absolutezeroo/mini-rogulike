@@ -45,7 +45,7 @@ func _rebuild() -> void:
 		icon.custom_minimum_size = ICON_SIZE
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icon.tooltip_text = entry.perk.display_name
+		icon.tooltip_text = tr(entry.perk.display_name)
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		if entry.stacks > 1:
 			var level := Label.new()

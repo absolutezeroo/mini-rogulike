@@ -7,7 +7,7 @@ extends ItemDef
 
 
 func get_type_label() -> String:
-	return "Consumable"
+	return tr("Consumable")
 
 
 func use(user: Actor, aim: Vector2) -> void:

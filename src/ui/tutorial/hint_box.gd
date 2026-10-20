@@ -56,7 +56,7 @@ func _init() -> void:
 	_text.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(_text)
 	var ok := Button.new()
-	ok.text = "OK"
+	ok.text = tr("OK")
 	ok.focus_mode = Control.FOCUS_NONE
 	ok.custom_minimum_size = Vector2(72, 48)
 	ok.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -71,8 +71,8 @@ func _ready() -> void:
 
 ## `at`: the control it is about (screen rect), or an empty rect.
 func show_hint(hint: HintDef, at: Rect2) -> void:
-	_title.text = hint.title
-	_text.text = hint.text
+	_title.text = tr(hint.title)
+	_text.text = tr(hint.text)
 	target = at
 	_time = 0.0
 	show()

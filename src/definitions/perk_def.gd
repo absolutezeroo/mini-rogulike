@@ -28,7 +28,7 @@ enum Rarity { COMMON, RARE }
 func describe() -> String:
 	var lines := PackedStringArray()
 	if not description.is_empty():
-		lines.append(description)
+		lines.append(tr(description))
 	if bonuses:
 		var stats := bonuses.describe()
 		if not stats.is_empty():

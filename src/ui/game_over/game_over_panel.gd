@@ -33,28 +33,28 @@ func _ready() -> void:
 
 ## The whole end of a run. `rows`: [label, value] pairs (RunState.summary_rows()).
 func show_end(victory: bool, story: String, rows: Array, souls_earned: int, souls_total: int) -> void:
-	_show("Victory!" if victory else "You died", VICTORY_COLOR if victory else DEATH_COLOR, story, victory)
+	_show(tr("Victory!") if victory else tr("You died"), VICTORY_COLOR if victory else DEATH_COLOR, story, victory)
 	UiParts.clear(_stats)
 	for row: Array in rows:
 		_stats.add_child(UiSkin.label(str(row[0]), 16, UiSkin.DIM))
-		var value := UiSkin.label(str(row[1]), 16, UiSkin.GOLD if str(row[1]).contains("New record") else UiSkin.TEXT)
+		var value := UiSkin.label(str(row[1]), 16, UiSkin.GOLD if str(row[1]).contains(tr("New record!")) else UiSkin.TEXT)
 		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_stats.add_child(value)
-	_souls_earned.text = "+%d souls" % souls_earned
-	_souls_total.text = "You now have %d souls." % souls_total
+	_souls_earned.text = tr("+%d souls") % souls_earned
+	_souls_total.text = tr("You now have %d souls.") % souls_total
 	_columns.show()
 
 
 ## Just a text (older callers): death.
 func show_result(summary: String) -> void:
-	_show("You died", DEATH_COLOR, summary, false)
+	_show(tr("You died"), DEATH_COLOR, summary, false)
 	_columns.hide()
 
 
 ## Just a text (older callers): victory.
 func show_victory(summary: String) -> void:
-	_show("Victory!", VICTORY_COLOR, summary, true)
+	_show(tr("Victory!"), VICTORY_COLOR, summary, true)
 	_columns.hide()
 
 
@@ -78,12 +78,12 @@ func _show(title: String, color: Color, summary: String, can_continue: bool) -> 
 	_summary.visible = not summary.is_empty()
 	_continue_button.visible = can_continue
 	_continue_note.visible = can_continue
-	_restart_button.text = "New run" if can_continue else "Try again"
+	_restart_button.text = tr("New run") if can_continue else tr("Try again")
 	show()
 
 
 func _build() -> void:
-	_dialog = RpgDialog.new("You died", WIDTH, 0.82)
+	_dialog = RpgDialog.new(tr("You died"), WIDTH, 0.82)
 	add_child(_dialog)
 	_dialog.title_label.name = "Title"
 	_own(_dialog.title_label)
@@ -96,7 +96,7 @@ func _build() -> void:
 	_columns = HBoxContainer.new()
 	_columns.add_theme_constant_override("separation", 14)
 	_dialog.body.add_child(_columns)
-	var run: Dictionary = RpgWindow.section("This run")
+	var run: Dictionary = RpgWindow.section(tr("This run"))
 	(run.box as Control).size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_columns.add_child(run.box)
 	_stats = GridContainer.new()
@@ -106,7 +106,7 @@ func _build() -> void:
 	_stats.name = "Stats"
 	_own(_stats)
 	run.column.add_child(_stats)
-	var souls: Dictionary = RpgWindow.section("Souls")
+	var souls: Dictionary = RpgWindow.section(tr("Souls"))
 	(souls.box as Control).custom_minimum_size.x = 400
 	_columns.add_child(souls.box)
 	_souls_earned = UiSkin.label("", 30, UiSkin.GOLD)
@@ -115,33 +115,33 @@ func _build() -> void:
 	souls.column.add_child(_souls_earned)
 	_souls_total = UiSkin.label("", 16, UiSkin.TEXT)
 	souls.column.add_child(_souls_total)
-	souls.column.add_child(UiParts.text("Souls are kept between runs. Spend them at the Shrine (title screen) on upgrades that make every next run stronger.", 15, UiSkin.DIM, 360))
-	souls.column.add_child(UiParts.text("Gold was only for this run.", 15, UiSkin.DIM, 360))
+	souls.column.add_child(UiParts.text(tr("Souls are kept between runs. Spend them at the Shrine (title screen) on upgrades that make every next run stronger."), 15, UiSkin.DIM, 360))
+	souls.column.add_child(UiParts.text(tr("Gold was only for this run."), 15, UiSkin.DIM, 360))
 
 	var buttons := HBoxContainer.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 14)
 	_dialog.body.add_child(buttons)
-	_continue_button = UiParts.button("Keep going (endless)", func() -> void:
+	_continue_button = UiParts.button(tr("Keep going (endless)"), func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_click)
 		hide()
 		continue_requested.emit(), Vector2(260, 58), 19)
 	_continue_button.name = "ContinueButton"
 	_own(_continue_button)
 	buttons.add_child(_continue_button)
-	_restart_button = UiParts.button("Try again", func() -> void:
+	_restart_button = UiParts.button(tr("Try again"), func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_click)
 		restart_requested.emit(), Vector2(240, 58), 19)
 	_restart_button.name = "RestartButton"
 	_own(_restart_button)
 	buttons.add_child(_restart_button)
-	var title_button := UiParts.button("Title screen", func() -> void:
+	var title_button := UiParts.button(tr("Title screen"), func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_click)
 		title_requested.emit(), Vector2(240, 58), 19)
 	title_button.name = "TitleButton"
 	_own(title_button)
 	buttons.add_child(title_button)
-	_continue_note = UiParts.text("Keep going: endless floors, harder and harder. Your win is already counted.", 15, UiSkin.DIM, WIDTH - 60)
+	_continue_note = UiParts.text(tr("Keep going: endless floors, harder and harder. Your win is already counted."), 15, UiSkin.DIM, WIDTH - 60)
 	_continue_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_dialog.body.add_child(_continue_note)
 	for node in _named:

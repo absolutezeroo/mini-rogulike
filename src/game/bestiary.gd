@@ -29,8 +29,8 @@ static func next_kills(monster: MonsterDef, rules: BestiaryRules) -> int:
 
 static func rank_name(rank: int, rules: BestiaryRules) -> String:
 	if rank <= SEEN:
-		return "Seen" if rank == SEEN else "Unknown"
-	return rules.rank_names[mini(rank, rules.rank_count()) - 1]
+		return TranslationServer.tr("Seen") if rank == SEEN else TranslationServer.tr("Unknown")
+	return TranslationServer.tr(rules.rank_names[mini(rank, rules.rank_count()) - 1])
 
 
 static func is_mastered(monster: MonsterDef, rules: BestiaryRules) -> bool:

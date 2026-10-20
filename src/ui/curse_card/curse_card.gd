@@ -30,10 +30,10 @@ func _ready() -> void:
 func play(cursed: CurseDef) -> void:
 	curse = cursed
 	_color = cursed.color
-	_title.text = cursed.display_name
+	_title.text = tr(cursed.display_name)
 	_title.add_theme_color_override("font_color", _color)
-	_lore.text = cursed.lore
-	_rule.text = cursed.description
+	_lore.text = tr(cursed.lore)
+	_rule.text = tr(cursed.description)
 	for label: Label in [_header, _title, _lore, _rule]:
 		label.modulate.a = 0.0
 	_time = 0.0

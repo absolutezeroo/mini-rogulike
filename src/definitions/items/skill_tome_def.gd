@@ -7,13 +7,13 @@ extends ItemDef
 
 
 func get_type_label() -> String:
-	return "Skill tome"
+	return tr("Skill tome")
 
 
 func get_details() -> String:
 	if skill == null:
-		return description
-	var text := "Teaches %s (cooldown %.1f s)." % [skill.display_name, skill.cooldown]
+		return tr(description)
+	var text := tr("Teaches %s (cooldown %.1f s).") % [tr(skill.display_name), skill.cooldown]
 	if not skill.description.is_empty():
-		text += "\n" + skill.description
+		text += "\n" + tr(skill.description)
 	return text

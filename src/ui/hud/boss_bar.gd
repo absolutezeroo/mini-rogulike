@@ -23,7 +23,7 @@ func show_boss(boss: Monster) -> void:
 	_boss = boss
 	_boss.health_changed.connect(_on_health_changed)
 	var def := boss.def as BossDef
-	_name.text = boss.display_name
+	_name.text = tr(boss.display_name)
 	var monster := boss as Monster
 	if monster and monster.rank:
 		# A rare boss: its rank's color, its affixes after its name.

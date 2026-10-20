@@ -12,7 +12,7 @@ const MONTHS := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", 
 
 
 static func souls(amount: int) -> String:
-	return "+%d souls" % amount
+	return TranslationServer.tr("+%d souls") % amount
 
 
 ## A bar with its numbers written on it ("12 / 40"), gold while running, green once full.
@@ -104,7 +104,7 @@ static func quest_row(quest: Dictionary) -> Control:
 	middle.add_child(UiSkin.label(QuestBoard.text(quest), 18, DONE if done else UiSkin.TEXT, true))
 	var progress := QuestBoard.progress(quest)
 	var target := int(quest.target)
-	middle.add_child(bar(progress, target, "Done!" if done else "%d / %d" % [progress, target]))
+	middle.add_child(bar(progress, target, TranslationServer.tr("Done!") if done else "%d / %d" % [progress, target]))
 	var reward := VBoxContainer.new()
 	reward.custom_minimum_size.x = 118
 	reward.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -112,7 +112,7 @@ static func quest_row(quest: Dictionary) -> Control:
 	var amount := UiSkin.label(souls(int(quest.reward)), 17, SOUL)
 	amount.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	reward.add_child(amount)
-	var status := UiSkin.label("Received" if done else "Reward", 14, DONE if done else UiSkin.DIM)
+	var status := UiSkin.label(TranslationServer.tr("Received") if done else TranslationServer.tr("Reward"), 14, DONE if done else UiSkin.DIM)
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	reward.add_child(status)
 	return box
@@ -133,10 +133,10 @@ static func achievement_row(achievement: AchievementDef) -> Control:
 	text.alignment = BoxContainer.ALIGNMENT_CENTER
 	text.add_theme_constant_override("separation", 0)
 	row.add_child(text)
-	text.add_child(UiSkin.label(achievement.display_name, 18, UiSkin.GOLD if unlocked else UiSkin.TEXT))
-	text.add_child(UiSkin.label(achievement.description, 15, UiSkin.DIM, true))
+	text.add_child(UiSkin.label(TranslationServer.tr(achievement.display_name), 18, UiSkin.GOLD if unlocked else UiSkin.TEXT))
+	text.add_child(UiSkin.label(TranslationServer.tr(achievement.description), 15, UiSkin.DIM, true))
 	var progress := achievement.target if unlocked else achievement.progress()
-	var meter := bar(progress, achievement.target, "Done!" if unlocked else "%d / %d" % [progress, achievement.target])
+	var meter := bar(progress, achievement.target, TranslationServer.tr("Done!") if unlocked else "%d / %d" % [progress, achievement.target])
 	meter.custom_minimum_size.x = 240
 	meter.size_flags_horizontal = Control.SIZE_SHRINK_END
 	row.add_child(meter)
@@ -147,7 +147,7 @@ static func achievement_row(achievement: AchievementDef) -> Control:
 	var amount := UiSkin.label(souls(achievement.reward_souls), 17, SOUL)
 	amount.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	reward.add_child(amount)
-	var status := UiSkin.label("Received" if unlocked else "Reward", 14, DONE if unlocked else UiSkin.DIM)
+	var status := UiSkin.label(TranslationServer.tr("Received") if unlocked else TranslationServer.tr("Reward"), 14, DONE if unlocked else UiSkin.DIM)
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	reward.add_child(status)
 	return box
@@ -158,7 +158,7 @@ static func achievement_row(achievement: AchievementDef) -> Control:
 ## A finished run (Profile.history): how it ended, then when, how hard, how far, how long...
 static func run_row(entry: Dictionary, content: ContentDB) -> Control:
 	var won := bool(entry.get("won", false))
-	var cause := str(entry.get("cause", ""))
+	var cause := TranslationServer.tr(str(entry.get("cause", "")))
 	var depth := int(entry.get("depth", 1))
 	var box := row_box()
 	var row := HBoxContainer.new()
@@ -169,13 +169,13 @@ static func run_row(entry: Dictionary, content: ContentDB) -> Control:
 	ending.alignment = BoxContainer.ALIGNMENT_CENTER
 	ending.add_theme_constant_override("separation", 0)
 	row.add_child(ending)
-	var headline := "Victory!" if won else "Died on floor %d" % depth
+	var headline := TranslationServer.tr("Victory!") if won else TranslationServer.tr("Died on floor %d") % depth
 	ending.add_child(UiSkin.label(headline, 20, DONE if won else Palette.DANGER))
-	var how := "Reached the bottom of the Well"
+	var how := TranslationServer.tr("Reached the bottom of the Well")
 	if won and not cause.is_empty():
-		how = "Won, then slain by %s" % cause
+		how = TranslationServer.tr("Won, then slain by %s") % cause
 	elif not won:
-		how = "Slain by %s" % (cause if not cause.is_empty() else "?")
+		how = TranslationServer.tr("Slain by %s") % (cause if not cause.is_empty() else "?")
 	ending.add_child(UiSkin.label(how, 15, UiSkin.TEXT, true))
 	# Three columns of facts, the same widths on every row so they line up.
 	var facts := GridContainer.new()
@@ -186,14 +186,14 @@ static func run_row(entry: Dictionary, content: ContentDB) -> Control:
 	row.add_child(facts)
 	var bosses := int(entry.get("bosses", 0))
 	var cells := [
-		fact("Difficulty", str(entry.get("difficulty", "?"))),
-		fact("Reached", depth_text(depth, content)),
-		fact("Time", TimeText.of(int(entry.duration) / 1000.0, 0) if entry.has("duration") else "-"),
-		fact("When", date_text(int(entry.get("time", 0)))),
-		fact("Slain", "%d monsters, %d boss%s" % [int(entry.get("kills", 0)), bosses, "" if bosses == 1 else "es"]),
-		fact("Earned", souls(int(entry.get("souls", 0))), SOUL),
-		fact("Hero level", str(int(entry.get("level", 1)))),
-		fact("Weapon", str(entry.get("weapon", "?"))),
+		fact(TranslationServer.tr("Difficulty"), TranslationServer.tr(str(entry.get("difficulty", "?")))),
+		fact(TranslationServer.tr("Reached"), depth_text(depth, content)),
+		fact(TranslationServer.tr("Time"), TimeText.of(int(entry.duration) / 1000.0, 0) if entry.has("duration") else "-"),
+		fact(TranslationServer.tr("When"), date_text(int(entry.get("time", 0)))),
+		fact(TranslationServer.tr("Slain"), (TranslationServer.tr("%d monsters, %d boss") if bosses == 1 else TranslationServer.tr("%d monsters, %d bosses")) % [int(entry.get("kills", 0)), bosses]),
+		fact(TranslationServer.tr("Earned"), souls(int(entry.get("souls", 0))), SOUL),
+		fact(TranslationServer.tr("Hero level"), str(int(entry.get("level", 1)))),
+		fact(TranslationServer.tr("Weapon"), TranslationServer.tr(str(entry.get("weapon", "?")))),
 	]
 	for i in cells.size():
 		(cells[i] as Control).custom_minimum_size.x = RUN_COLUMNS[i % RUN_COLUMNS.size()]
@@ -207,14 +207,16 @@ static func date_text(unix: int) -> String:
 		return "-"
 	var local := unix + int(Time.get_time_zone_from_system().get("bias", 0)) * 60
 	var date := Time.get_datetime_dict_from_unix_time(local)
-	return "%s %d, %02d:%02d" % [MONTHS[int(date.month) - 1], int(date.day), int(date.hour), int(date.minute)]
+	return TranslationServer.tr("{month} {day}, {time}").format({
+		"month": TranslationServer.tr(MONTHS[int(date.month) - 1]), "day": int(date.day),
+		"time": "%02d:%02d" % [int(date.hour), int(date.minute)] })
 
 
 ## "floor 5 of 12", or "floor 15 (endless)" past the last one.
 static func depth_text(depth: int, content: ContentDB) -> String:
 	var total := content.dungeon.total_floors() if content and content.dungeon else 0
 	if total <= 0:
-		return "floor %d" % depth
+		return TranslationServer.tr("floor %d") % depth
 	if depth > total:
-		return "floor %d (endless)" % depth
-	return "floor %d of %d" % [depth, total]
+		return TranslationServer.tr("floor %d (endless)") % depth
+	return TranslationServer.tr("floor %d of %d") % [depth, total]

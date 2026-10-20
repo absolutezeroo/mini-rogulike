@@ -21,9 +21,9 @@ func _ready() -> void:
 
 ## Shows the card for `act` and returns when it is gone (await it).
 func play(act: ActDef) -> void:
-	_subtitle.text = act.subtitle
-	_title.text = act.title
-	_lore.text = act.lore
+	_subtitle.text = tr(act.subtitle)
+	_title.text = tr(act.title)
+	_lore.text = tr(act.lore)
 	_skip = false
 	modulate.a = 0.0
 	show()

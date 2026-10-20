@@ -43,12 +43,12 @@ func _ready() -> void:
 func show_difficulty(def: DifficultyDef, unlocked: bool, selected: bool, reference: DifficultyDef = null) -> void:
 	difficulty = def
 	_selected = selected and unlocked
-	_name.text = def.display_name
+	_name.text = tr(def.display_name)
 	_name.add_theme_color_override("font_color", def.color)
-	_tag.text = "Your last choice" if _selected else ("Locked" if not unlocked else "")
+	_tag.text = tr("Your last choice") if _selected else (tr("Locked") if not unlocked else "")
 	_tag.add_theme_color_override("font_color", UiSkin.GOLD if _selected else MenuWindow.BAD)
 	_tag.visible = not _tag.text.is_empty()
-	_description.text = def.description
+	_description.text = tr(def.description)
 	for child in _effects.get_children():
 		_effects.remove_child(child)
 		child.queue_free()
@@ -59,13 +59,13 @@ func show_difficulty(def: DifficultyDef, unlocked: bool, selected: bool, referen
 		elif effect[1] < 0:
 			color = MenuWindow.BAD
 		_effects.add_child(UiSkin.label(effect[0], 14, color, true))
-	_souls.text = "Souls earned x%s" % number(def.souls)
+	_souls.text = tr("Souls earned x%s") % number(def.souls)
 	if not unlocked:
-		var by := def.unlocked_by.display_name if def.unlocked_by else "?"
-		_footer.text = "To unlock: win a run on %s." % by
+		var by := tr(def.unlocked_by.display_name) if def.unlocked_by else "?"
+		_footer.text = tr("To unlock: win a run on %s.") % by
 		_footer.add_theme_color_override("font_color", UiSkin.GOLD)
 	elif def.has_ascensions and Profile.ascension_unlocked <= 0:
-		_footer.text = "A win opens Nightmare +1, +2...: harder, more souls."
+		_footer.text = tr("A win opens Nightmare +1, +2...: harder, more souls.")
 		_footer.add_theme_color_override("font_color", UiSkin.DIM)
 	else:
 		_footer.text = ""
@@ -80,34 +80,35 @@ func show_difficulty(def: DifficultyDef, unlocked: bool, selected: bool, referen
 ## Floors are compared with `reference` (Normal), everything else with the game as made.
 static func effects(def: DifficultyDef, reference: DifficultyDef = null) -> Array:
 	var lines := []
-	_percent(lines, def.monster_hp, "Monster health", -1)
-	_percent(lines, def.monster_damage, "Monster damage", -1)
-	_percent(lines, def.telegraph_time, "Time to dodge", 1)
+	_percent(lines, def.monster_hp, TranslationServer.tr("Monster health"), -1)
+	_percent(lines, def.monster_damage, TranslationServer.tr("Monster damage"), -1)
+	_percent(lines, def.telegraph_time, TranslationServer.tr("Time to dodge"), 1)
 	if def.extra_monsters > 0:
-		lines.append(["+%d monster%s per room" % [def.extra_monsters, "s" if def.extra_monsters > 1 else ""], -1])
+		var more := TranslationServer.tr("+%d monsters per room") if def.extra_monsters > 1 else TranslationServer.tr("+%d monster per room")
+		lines.append([more % def.extra_monsters, -1])
 	if def.detect_range > 1.05:
-		lines.append(["Monsters spot you sooner", -1])
+		lines.append([TranslationServer.tr("Monsters spot you sooner"), -1])
 	elif def.detect_range < 0.95:
-		lines.append(["Monsters spot you later", 1])
+		lines.append([TranslationServer.tr("Monsters spot you later"), 1])
 	var rooms := def.rooms / reference.rooms if reference and reference.rooms > 0.0 else def.rooms
 	if rooms > 1.05:
-		lines.append(["Bigger floors (+%d%%)" % roundi((rooms - 1.0) * 100.0), 0])
+		lines.append([TranslationServer.tr("Bigger floors (+%d%%)") % roundi((rooms - 1.0) * 100.0), 0])
 	elif rooms < 0.95:
-		lines.append(["Smaller floors (-%d%%)" % roundi((1.0 - rooms) * 100.0), 0])
+		lines.append([TranslationServer.tr("Smaller floors (-%d%%)") % roundi((1.0 - rooms) * 100.0), 0])
 	if def.elite_chance > 1.05:
-		lines.append(["Elite monsters x%s" % number(def.elite_chance), -1])
+		lines.append([TranslationServer.tr("Elite monsters x%s") % number(def.elite_chance), -1])
 	elif def.elite_chance < 0.95:
-		lines.append(["Fewer elite monsters", 1])
+		lines.append([TranslationServer.tr("Fewer elite monsters"), 1])
 	if def.heal_on_new_floor > 0.0:
-		lines.append(["Heal %d%% each new floor" % roundi(def.heal_on_new_floor * 100.0), 1])
+		lines.append([TranslationServer.tr("Heal %d%% each new floor") % roundi(def.heal_on_new_floor * 100.0), 1])
 	if def.light < 0.95:
-		lines.append(["Darker floors", -1])
+		lines.append([TranslationServer.tr("Darker floors"), -1])
 	elif def.light > 1.05:
-		lines.append(["Brighter floors", 1])
+		lines.append([TranslationServer.tr("Brighter floors"), 1])
 	if def.hero_max_hp < 0.99:
-		lines.append(["%d%% less max health" % roundi((1.0 - def.hero_max_hp) * 100.0), -1])
+		lines.append([TranslationServer.tr("%d%% less max health") % roundi((1.0 - def.hero_max_hp) * 100.0), -1])
 	if lines.is_empty():
-		lines.append(["Everything as the game was made: the other difficulties are compared with it.", 0])
+		lines.append([TranslationServer.tr("Everything as the game was made: the other difficulties are compared with it."), 0])
 	return lines
 
 
@@ -116,7 +117,7 @@ static func _percent(lines: Array, factor: float, what: String, helps: int) -> v
 	var change := roundi((factor - 1.0) * 100.0)
 	if change == 0:
 		return
-	lines.append(["%s %+d%%" % [what, change], helps if change > 0 else -helps])
+	lines.append([TranslationServer.tr("%s %+d%%") % [what, change], helps if change > 0 else -helps])
 
 
 ## 1.35 -> "1.35", 2.0 -> "2" (`decimals` at most).

@@ -37,10 +37,11 @@ func id() -> StringName:
 	return upgrade.id if upgrade else &""
 
 
+## Its name, in the player's language.
 func display_name() -> String:
 	if oath:
-		return oath.display_name
-	return upgrade.display_name if upgrade else "?"
+		return tr(oath.display_name)
+	return tr(upgrade.display_name) if upgrade else "?"
 
 
 func level() -> int:
@@ -88,13 +89,13 @@ func blocker() -> String:
 	if is_maxed():
 		return ""
 	if is_shut():
-		return "You took %s instead (reset the tree to change)." % partner().display_name()
+		return tr("You took %s instead (reset the tree to change).") % partner().display_name()
 	if not is_reachable():
 		var names := PackedStringArray()
 		for node in requires:
 			if node:
 				names.append(node.display_name())
-		return "Needs %s first." % " or ".join(names)
+		return tr("Needs %s first.") % tr(" or ").join(names)
 	if not is_feat_done():
-		return "Feat: %s" % feat.description
+		return tr("Feat: %s") % tr(feat.description)
 	return ""
