@@ -48,7 +48,7 @@ func run() -> void:
 	check(report.tables.size() >= 10, "the model wrote its tables (%d)" % report.tables.size())
 	_targets_of(report, ["model: boss TTK", "model: boss hits to kill", "model: face-tank wins", "model: heal share",
 		"model: monster TTK", "model: monster hits to kill", "model: elite TTK", "model: epic TTK", "model: legendary TTK",
-		"model: shiny TTK", "model: ranked boss TTK", "model: act curve", "model: difficulty curve", "model: degenerate DPS",
+		"model: shiny TTK", "model: monster curve", "model: rank ladder", "model: ranked boss TTK", "model: act curve", "model: difficulty curve", "model: degenerate DPS",
 		"model: weapon DPS", "content: unlisted", "build data"])
 
 	# Real duels on the engine.

@@ -5,5 +5,5 @@
 [resource]
 script = ExtResource("1_231tm")
 title = "Elite Guard"
-description = "Elite monsters are 50% more common."
-elite_chance = 1.5
+description = "Elite monsters are 30% more common."
+elite_chance = 1.3

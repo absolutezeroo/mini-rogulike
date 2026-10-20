@@ -15,6 +15,11 @@ extends Resource
 
 @export_group("Toughness")
 @export var hp_multiplier: float = 2.5
+## Added to `hp_multiplier` for each depth below the first: the hero's power grows faster than
+## the monsters' depth scaling, so a ranked monster deeper down needs more health to stay a duel.
+@export var hp_multiplier_per_depth: float = 0.0
+## Multiplies its attacks and skills (not bosses: they keep their own damage).
+@export var damage_multiplier: float = 1.0
 @export var scale: float = 1.25
 ## At least this much knockback resistance.
 @export_range(0.0, 1.0) var knockback_resistance: float = 0.5
@@ -49,6 +54,11 @@ extends Resource
 @export var shimmer: bool = false
 ## Rings of its aura at its feet.
 @export_range(0, 3) var aura_rings: int = 1
+
+
+## Health multiplier of a (non-boss) monster of this rank spawned at `depth`.
+func hp_multiplier_at(depth: int) -> float:
+	return hp_multiplier + hp_multiplier_per_depth * maxi(depth - 1, 0)
 
 
 func chance_at(depth: int) -> float:

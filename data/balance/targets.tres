@@ -50,6 +50,8 @@ rank_ttk = {
 "legendary": Vector2(8, 25),
 "shiny": Vector2(2, 10)
 }
+; Each rank takes at least 1.2x as long to kill as the rank below it (medians per act, Normal) and costs more health: a clearly tougher fight, not a recolor.
+rank_ladder_step_min = 1.2
 ; One common monster must never be a two-shot: 6 average hits at least to kill the act's expected build.
 common_hits_to_kill_min = 6.0
 ; Clearing a room while playing well (kite bot) costs at most 35% of max health...

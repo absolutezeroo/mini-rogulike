@@ -57,6 +57,10 @@ extends Resource
 @export var rank_ttk: Dictionary = {
 	"elite": Vector2(3.0, 10.0), "epic": Vector2(5.0, 16.0), "legendary": Vector2(8.0, 25.0), "shiny": Vector2(2.0, 10.0),
 }
+## Each rank (Elite, Epic, Legendary) takes at least this many times as long to kill as the rank
+## below it (plain for an Elite), medians over each act's monsters on Normal, and costs more health:
+## a rank must feel like a clearly tougher fight, not a recolor.
+@export var rank_ladder_step_min: float = 1.2
 ## Average hits of a common monster (after armor) to kill the act's expected build (Normal):
 ## at least this. One monster must never be a two-shot.
 @export var common_hits_to_kill_min: float = 6.0

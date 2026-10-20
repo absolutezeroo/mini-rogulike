@@ -685,6 +685,29 @@ func _test_monster_ranks() -> void:
 		check(rank.boss_chance > 0.0, "%s: bosses can come at it" % rank.id)
 	var ids := config.rare_ranks.map(func(r: MonsterRankDef) -> StringName: return r.id)
 	check(ids.find(&"shiny") < ids.find(&"legendary") and ids.find(&"legendary") < ids.find(&"epic"), "rarest first")
+	# The ladder (balance phase 2B): each rank tougher and more dangerous than the one below, at
+	# every depth, and tougher deeper (the hero's power outgrows the depth scaling).
+	var elite := config.elite_rank
+	var epic: MonsterRankDef = load("res://data/monster_ranks/epic.tres")
+	var legendary: MonsterRankDef = load("res://data/monster_ranks/legendary.tres")
+	var shiny: MonsterRankDef = load("res://data/monster_ranks/shiny.tres")
+	for depth in [1, 2, 5, 8, 11, 20]:
+		check(1.0 < elite.hp_multiplier_at(depth) and elite.hp_multiplier_at(depth) < epic.hp_multiplier_at(depth)
+			and epic.hp_multiplier_at(depth) < legendary.hp_multiplier_at(depth), "depth %d: Elite < Epic < Legendary in health" % depth)
+		check(shiny.hp_multiplier_at(depth) < epic.hp_multiplier_at(depth), "depth %d: a Shiny is a treasure, not a duel" % depth)
+		for rank in [elite, epic, legendary, shiny]:
+			check(rank.hp_multiplier_at(depth + 1) >= rank.hp_multiplier_at(depth), "%s: no weaker deeper" % rank.id)
+	check(1.0 < elite.damage_multiplier and elite.damage_multiplier <= epic.damage_multiplier and epic.damage_multiplier <= legendary.damage_multiplier
+		and legendary.damage_multiplier <= 1.5, "ranks hit harder, a little (Elite <= Epic <= Legendary <= x1.5)")
+	check(shiny.damage_multiplier == 1.0, "a Shiny hits like its kind")
+	# Bosses keep their own depth scaling (tuned one by one); monsters grow by theirs.
+	var deep := FloorRules.make(config, null, null, 9)
+	var slime: MonsterDef = load("res://data/monsters/slime.tres")
+	var boss: BossDef = config.acts[0].boss
+	check(deep.scale_monster(boss.stats, true).max_hp == roundi(boss.stats.max_hp * (1.0 + config.boss_hp_scale_per_depth * 8))
+		and deep.scale_monster(boss.stats, true).attack == boss.stats.attack + roundi(config.boss_attack_per_depth * 8), "bosses scale with the boss depth values")
+	check(deep.scale_monster(slime.stats, false).max_hp == roundi(slime.stats.max_hp * (1.0 + config.monster_hp_scale_per_depth * 8))
+		and deep.scale_monster(slime.stats, false).attack == slime.stats.attack + roundi(config.monster_attack_per_depth * 8), "monsters scale with the monster depth values")
 
 
 ## The bestiary: ranks paid once, challenges met by the right kills, mastery.

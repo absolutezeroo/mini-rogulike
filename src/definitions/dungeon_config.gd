@@ -164,9 +164,13 @@ extends Resource
 @export var sustain: SustainRules
 
 @export_group("Difficulty")
-## Monster HP grows by this fraction per depth (0.15 = +15% per floor).
+## Monster HP grows by this fraction per depth (0.15 = +15% per floor). Not bosses (below).
 @export var monster_hp_scale_per_depth: float = 0.15
-@export var monster_attack_per_depth: int = 1
+## Attack added per depth below the first (rounded). Not bosses (below).
+@export var monster_attack_per_depth: float = 1.0
+## The same for bosses: they are tuned one by one (BossDef), so they keep their own scaling.
+@export var boss_hp_scale_per_depth: float = 0.15
+@export var boss_attack_per_depth: float = 1.0
 
 
 ## Chance for a monster spawned at `depth` to be an elite, before the difficulty.
