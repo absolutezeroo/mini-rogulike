@@ -99,8 +99,8 @@ shockwave_after_hits = 5
 
 [sub_resource type="Resource" id="Resource_tkvdj"]
 script = ExtResource("13_lpjk4")
-max_hp = 1650
-attack = 2
+max_hp = 1820
+attack = 4
 defense = 4
 move_speed = 70.0
 

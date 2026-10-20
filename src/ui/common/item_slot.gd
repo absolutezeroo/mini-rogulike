@@ -58,6 +58,7 @@ func _draw() -> void:
 		if frame_color.a > 0.0:
 			draw_style_box(_frame_box(frame_color), area.grow(-3))
 		_draw_sockets(area)
+		_draw_level()
 		if count > 1:
 			_text("x%d" % count, Vector2(size.x - 6, size.y - 6), HORIZONTAL_ALIGNMENT_RIGHT, 15, Color.WHITE)
 	elif not caption.is_empty():
@@ -75,6 +76,14 @@ func _frame_color() -> Color:
 	if equipment and equipment.rarity > ItemRarity.COMMON:
 		return ItemRarity.COLORS[equipment.rarity]
 	return Color(0, 0, 0, 0)
+
+
+## Equipment's item level in the top-left corner ("Lv 7"): deeper finds are stronger.
+func _draw_level() -> void:
+	var equipment := item as EquipmentDef
+	if equipment == null or size.x < 44.0:
+		return
+	_text("Lv %d" % equipment.item_level, Vector2(7, 19), HORIZONTAL_ALIGNMENT_LEFT, 13, Color(1, 0.92, 0.7))
 
 
 ## A weapon's rune sockets: little stones along the bottom, lit in their rune's color.

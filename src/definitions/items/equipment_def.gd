@@ -20,6 +20,8 @@ const SLOT_NAMES := {
 @export_storage var affixes: Array[ItemAffixDef] = []
 ## Weapons: the runes set in it at a forge (as many as socket_count()).
 @export_storage var runes: Array[RuneDef] = []
+## The floor it was found or bought on: its power, fixed for good (see ItemLevelRules).
+@export_storage var item_level: int = 1
 
 
 func is_rolled() -> bool:
@@ -47,6 +49,7 @@ func get_type_label() -> String:
 
 func get_details() -> String:
 	var text := base_item.description if base_item else description
+	text = "Item level %d (as strong as floor %d)\n%s" % [item_level, item_level, text]
 	if bonuses:
 		var bonus_text := bonuses.describe()
 		if not bonus_text.is_empty():

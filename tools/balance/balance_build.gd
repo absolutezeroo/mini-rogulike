@@ -222,9 +222,17 @@ static func make_weapon(build: BalanceBuildDef, content: ContentDB) -> WeaponDef
 		var r := rune(content, id)
 		if r and (runes.size() < sockets or build.ignore_sockets):
 			runes.append(r)
-	if build.weapon_rarity <= ItemRarity.COMMON and affixes.is_empty() and runes.is_empty():
+	var level := gear_level(build, content)
+	if build.weapon_rarity <= ItemRarity.COMMON and affixes.is_empty() and runes.is_empty() and level <= 1:
 		return build.weapon
-	return LootRoller.make(build.weapon, clampi(build.weapon_rarity, 0, 3), affixes, runes) as WeaponDef
+	return LootRoller.make(build.weapon, clampi(build.weapon_rarity, 0, 3), affixes, runes, level) as WeaponDef
+
+
+## The item level of the build's gear (BalanceBuildDef.item_level; 0 = the floor before its boss).
+static func gear_level(build: BalanceBuildDef, content: ContentDB) -> int:
+	if build.item_level > 0:
+		return build.item_level
+	return maxi(BalanceContent.boss_depth(content, build.act) - 1, 1)
 
 
 static func make_armors(build: BalanceBuildDef, content: ContentDB) -> Array[ArmorDef]:
@@ -240,10 +248,11 @@ static func make_armors(build: BalanceBuildDef, content: ContentDB) -> Array[Arm
 				var a := affix(content, id)
 				if a:
 					affixes.append(a)
-		if rarity <= ItemRarity.COMMON and affixes.is_empty():
+		var level := gear_level(build, content)
+		if rarity <= ItemRarity.COMMON and affixes.is_empty() and level <= 1:
 			result.append(base)
 		else:
-			result.append(LootRoller.make(base, clampi(rarity, 0, 3), affixes) as ArmorDef)
+			result.append(LootRoller.make(base, clampi(rarity, 0, 3), affixes, [], level) as ArmorDef)
 	return result
 
 

@@ -199,6 +199,38 @@ tools drive the game through its input actions, its data and its public nodes.
 
 ## Balance log
 
+### 2026-10-20 - Item level: gear as strong as the floor it came from
+
+**Design (from the player's request):** a floor-1 weapon must be worse than a floor-2 one, and
+gear must not grow on its own: to get stronger, loot. Every weapon and armor now carries an item
+level, the floor it was found or bought on (`EquipmentDef.item_level`, `ItemLevelRules`,
+`data/items/item_levels.tres`). Rarity and affixes come on top.
+
+- **Weapons:** +2 damage per second per level above 1, turned into damage per hit by the weapon's
+  speed (`weapon_dps_per_level x cooldown`, divided by the shot share for ranged weapons). The same
+  gain for every weapon, so the weapon band measured in phase 2C holds (it narrows toward 1).
+- **Armor:** +1.5 Health per level on a body armor, +1 on a helm.
+- **Compensation:** monsters and bosses grow at the same pace: `monster_hp_scale_per_depth`
+  0.22 -> 0.32, `boss_hp_scale_per_depth` 0.22 -> 0.33. The act IV bosses lost more than the
+  rest (the slow Greatsword gains most per hit, and the hero has a little more Health): Gilded
+  Hoarder 1750 -> 1925 Health, Sun Wraith 1650 -> 1820, both Attack 2 -> 4.
+- **Tools:** `BalanceBuildDef.item_level` (0 = the floor before its act's boss, the default), so
+  every build carries gear of its depth.
+
+**Measured (model, seed 1, Normal), phase 2C final -> item level:**
+
+| | Before | Item level, no compensation | Final |
+|---|---|---|---|
+| Expected build DPS, acts I-IV | 49.5 / 66.3 / 119 / 134 | 53.3 / 78.6 / 149 / 191 | 53.3 / 78.6 / 149 / 191 |
+| Boss TTK, act I-IV main boss | 27.1 / 38.8 / 37.2 / 47.2 s | - | 28.9 / 41.2 / 39.0 / 49.1 s |
+| Boss threat (face-tank cost), acts I-IV | 170 / 195 / 234 / 210% | 157 / 159 / 176 / 138% | 178 / 197 / 227 / 219% |
+| Act step, act IV vs III | x0.90 (target edge) | x0.79 | x0.96 |
+| Commons, acts I-IV: time to kill | 0.6 / 0.8 / 1.0 / 1.2 s | 0.5 / 0.7 / 0.8 / 0.8 s | 0.6 / 0.9 / 1.0 / 1.1 s |
+| Model flags | 58 | 73 | 51 |
+
+So at the expected gear the game plays as tuned in phase 2, while a hero who keeps floor-1 gear
+falls behind: at depth 11 a level-11 common Katana hits for 5 + 8 = 13, a level-1 one for 5.
+
 ### 2026-10-20 - Phase 2C: perks, runes, affixes, weapons, economy
 
 Merged with phases 2A and 2B before the final measures (the tables below say which). Domain:

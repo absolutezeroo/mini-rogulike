@@ -17,6 +17,9 @@ extends Resource
 @export_range(1, 4) var act: int = 1
 ## Hero level (each level above 1 adds PlayerDef.level_bonus, as a level up does).
 @export_range(1, 40) var level: int = 1
+## Item level of all its gear (ItemLevelRules): 0 = found on the floor before its act's boss
+## (BalanceContent.boss_depth - 1), the usual case; 1 = plain floor-1 gear.
+@export_range(0, 60) var item_level: int = 0
 
 @export_group("Weapon")
 ## The plain weapon (data/items/weapons/...).

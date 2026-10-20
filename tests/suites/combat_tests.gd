@@ -1038,17 +1038,24 @@ func _test_ai_movement(game: Game) -> void:
 	check(not walker.has_clear_walk(other_side), "nor through walls")
 
 	# Walking into a wall: stuck.
+	# (The wall with the most open floor behind it, so walking away really goes somewhere.)
 	var wall_dir := Vector2.ZERO
+	var best_room := -1
 	for dir: Vector2i in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
 		var c := cell
 		var steps := 0
 		while world.map.is_floor(c) and steps < 40:
 			c += dir
 			steps += 1
-		if not world.map.is_floor(c):
+		if world.map.is_floor(c):
+			continue
+		var room := 0
+		while room < 12 and world.map.is_floor(c - dir * (room + 2)):
+			room += 1
+		if room > best_room:
+			best_room = room
 			wall_dir = Vector2(dir)
 			walker.global_position = world.map.cell_to_world(c - dir)
-			break
 	walker.target = player  # (hunting: it stays awake wherever it stands)
 	walker.move_direction = wall_dir
 	await _frames(40)

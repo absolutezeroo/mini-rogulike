@@ -17,6 +17,8 @@ static func lines(item: EquipmentDef, worn: EquipmentDef) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	var mine := _stats(item)
 	var theirs := _stats(worn)
+	if worn != null:
+		_add_int(result, item.item_level - worn.item_level, "item level" if absi(item.item_level - worn.item_level) == 1 else "item levels")
 	_add_int(result, _damage(item) - _damage(worn), "damage")
 	if item is WeaponDef and worn is WeaponDef:
 		var speed := 1.0 / maxf((item as WeaponDef).cooldown, 0.01) - 1.0 / maxf((worn as WeaponDef).cooldown, 0.01)

@@ -195,7 +195,7 @@ func _refresh_details() -> void:
 	_item_name.text = item.display_name
 	_item_name.add_theme_color_override("font_color", item.rarity_color())
 	_item_type.text = item.get_type_label()
-	_item_details.text = item.get_details()
+	_item_details.text = item.get_details() + _compare_text(item)
 	_fill_sockets(item as EquipmentDef)
 	if _selected_slot != NO_SLOT:
 		_use_button.text = "Unequip"
@@ -205,6 +205,19 @@ func _refresh_details() -> void:
 		_use_button.text = "Learn"
 	else:
 		_use_button.text = "Use"
+
+
+## Equipment in the bag: what wearing it would change ("Compared with your Katana: +3 item
+## levels, +5 damage..."). Empty for what is worn and for anything else.
+func _compare_text(item: ItemDef) -> String:
+	var equipment := item as EquipmentDef
+	if equipment == null or _selected_slot != NO_SLOT:
+		return ""
+	var worn := _player.equipment.get_item(equipment.slot)
+	if worn == equipment:
+		return ""
+	var changes := ItemCompare.lines(equipment, worn).map(func(change: Dictionary) -> String: return change.text)
+	return "\n\n%s %s" % [ItemCompare.heading(equipment, worn), ", ".join(changes) if not changes.is_empty() else "the same stats"]
 
 
 ## A weapon's rune sockets, as slots (set at a forge).

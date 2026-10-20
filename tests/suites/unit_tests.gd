@@ -20,6 +20,7 @@ func run() -> void:
 	_test_arenas()
 	_test_lighting()
 	_test_runes()
+	_test_item_levels()
 	_test_bosses()
 	_test_profile()
 	_test_run_time()
@@ -656,6 +657,50 @@ func _test_lighting() -> void:
 
 
 ## Runes and sockets: 1 to 3 by rarity, saved with the weapon, working like a perk while worn.
+## Item level: gear is as strong as the floor it came from and never grows; deeper is better.
+func _test_item_levels() -> void:
+	var rules: ItemLevelRules = LootRoller.LEVELS
+	check(rules != null and rules.weapon_dps_per_level > 0.0, "item level rules load (data/items/item_levels.tres)")
+	var katana: WeaponDef = load("res://data/items/weapons/katana.tres")
+	var hammer: WeaponDef = load("res://data/items/weapons/hammer.tres")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	var config := CONTENT.dungeon
+	var none: Array[ItemAffixDef] = []
+	check(LootRoller.roll(katana, 1, 0.0, config, none, rng) == katana, "a common floor-1 find is the plain item (level 1)")
+	var floor5 := LootRoller.roll(katana, 5, 0.0, config, none, rng) as WeaponDef
+	check(floor5 != katana and floor5.item_level == 5 and floor5.rarity == ItemRarity.COMMON, "a common floor-5 find is a level-5 copy")
+	var levels: Array[WeaponDef] = []
+	for level in [1, 2, 6, 12]:
+		levels.append(LootRoller.make(katana, ItemRarity.COMMON, none, [], level) as WeaponDef)
+	check(levels[0].damage == katana.damage, "level 1: the plain damage")
+	check(levels[1].damage >= levels[0].damage and levels[2].damage > levels[1].damage and levels[3].damage > levels[2].damage, "deeper gear hits harder (%s)" % str(levels.map(func(w: WeaponDef) -> int: return w.damage)))
+	# Same damage per second gained, whatever the weapon's speed.
+	var fast := float(levels[3].damage - katana.damage) / katana.cooldown
+	var slow_weapon := LootRoller.make(hammer, ItemRarity.COMMON, none, [], 12) as WeaponDef
+	var slow := float(slow_weapon.damage - hammer.damage) / hammer.cooldown
+	check(absf(fast - slow) <= 2.5 and slow_weapon.damage - hammer.damage > levels[3].damage - katana.damage, "a level gives a quick and a slow weapon the same damage per second (%.1f vs %.1f)" % [fast, slow])
+	var rare12 := LootRoller.make(katana, ItemRarity.RARE, none, [], 12) as WeaponDef
+	check(rare12.damage > levels[3].damage, "rarity adds on top of the level")
+	var rare2 := LootRoller.make(katana, ItemRarity.RARE, none, [], 2) as WeaponDef
+	check(levels[3].damage > rare2.damage, "a common floor-12 weapon beats a rare floor-2 one: loot to get stronger")
+	var armor: ArmorDef = null
+	for item in CONTENT.items:
+		if item is ArmorDef and (item as ArmorDef).slot == EquipmentDef.Slot.BODY:
+			armor = item
+			break
+	if armor:
+		var base_hp := armor.bonuses.max_hp if armor.bonuses else 0
+		var deep := LootRoller.make(armor, ItemRarity.COMMON, none, [], 10)
+		check(deep.bonuses.max_hp > base_hp, "deeper armor gives more Health (%d vs %d)" % [deep.bonuses.max_hp, base_hp])
+	var back := LootRoller.from_data(JSON.parse_string(JSON.stringify(LootRoller.to_data(rare12)))) as WeaponDef
+	check(back.item_level == 12 and back.damage == rare12.damage, "the item level comes back from a save")
+	check(LootRoller.from_data({ "base": RunSave.ref(katana), "rarity": 1, "affixes": [], "runes": [] }).item_level == 1, "old saves without a level: level 1")
+	check(rare12.get_details().begins_with("Item level 12"), "the item card says its level")
+	var compare := ItemCompare.lines(rare12, levels[1])
+	check(compare.size() > 0 and String(compare[0].text) == "+10 item levels" and compare[0].good, "the comparison starts with the level difference")
+
+
 func _test_runes() -> void:
 	check(CONTENT.runes.size() >= 10, "runes to find (%d)" % CONTENT.runes.size())
 	var families := {}

@@ -78,5 +78,8 @@ func get_details() -> String:
 		text += "\nSkills: " + ", ".join(names)
 	if on_hit and not (base_item and (base_item as WeaponDef).on_hit):
 		text += "\n" + on_hit.describe()
+	# The item level line first (EquipmentDef), then the weapon's numbers, then the rest.
 	var base := super.get_details()
-	return text + ("\n" + base if not base.is_empty() else "")
+	var level_line := base.get_slice("\n", 0)
+	var rest := base.substr(level_line.length() + 1) if base.contains("\n") else ""
+	return level_line + "\n" + text + ("\n" + rest if not rest.is_empty() else "")

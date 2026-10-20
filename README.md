@@ -520,6 +520,15 @@ consumables between the two ("To belt" / "To bag"). The merchant buys from the b
 
 ## Loot, gold and the merchant
 
+- **Item level**: every weapon and armor is as strong as the floor it was found or bought on
+  (`ItemLevelRules`, `data/items/item_levels.tres`), and it never grows after that. A floor-2
+  katana is better than a floor-1 one; to get stronger you have to loot. Each level above 1 adds
+  2 damage per second to a weapon (the same for a quick rapier and a slow hammer: the slow one
+  gets more per hit), 1.5 Health to a body armor and 1 to a helm. Monsters and bosses grow at the
+  same pace (+32% / +33% Health per floor, `dungeon_config.tres` > Difficulty), so a hero who
+  keeps his first sword falls behind. Rarity and affixes come on top. The level shows on the slot
+  ("Lv 7"), first on the item card, and first in the comparison with what you wear ("+3 item
+  levels, +5 damage"). The merchant sells at the floor's level; a forge keeps the weapon's level.
 - **Rarity**: found equipment can come out **Magic** (blue, 1 affix), **Rare** (yellow, 2) or
   **Epic** (purple, 3), with more damage and bonuses (`ItemRarity`). Affixes (`data/affixes/`,
   `ItemAffixDef`) add stats ("Sharp", "of the Bear"...) or set enemies on fire, poison or slow
