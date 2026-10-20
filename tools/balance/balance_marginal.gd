@@ -10,13 +10,14 @@ extends Node
 ##   boss is half dead: low-health bonuses count for half the fight, and every heal from hits,
 ##   kills and skills shows (Health/s, the budget of a boss fight applied);
 ## - pack clear time: a room of the act's monsters (room size + PACK_EXTRA) that don't fight back,
-##   the hero held at 90% health (kill heals show): cleaves, chains, bursts and kill effects count;
+##   spread around the hero, the hero held at 90% health (kill heals show): cleaves, chains,
+##   bursts and kill effects count (DUMMY_ROOMS placements, averaged);
 ## - boss time to die: (max health + ward) x (1 + revives x half) / (the act boss' damage per
-##   second on this hero, after its armor, from the model - sustain per second);
+##   second on this hero, after its armor, from the model - sustain per second), at most TTD_CAP;
 ## - effective health vs the act's monsters (armor on their hits), and, at max level, damage
 ##   taken in LIVE_ROOMS real rooms (face-tank; informative: chaotic, not in the value).
 ## value = offense x defense - 1, offense = sqrt(boss TTK ratio x pack clear ratio), defense =
-## boss time-to-die ratio. Ranked per category at max level; a pick worth more than
+## boss time-to-die ratio, each ratio kept within 1/RATIO_CLAMP..RATIO_CLAMP. Ranked per category at max level; a pick worth more than
 ## perk_value_max_vs_median (or less than perk_value_min_vs_median) times its category's median
 ## is flagged. A perk the build already has is measured from the build without it (its families
 ## kept awake: the perk's own worth; the family's bonus is measured on its own).
@@ -27,6 +28,14 @@ const DUMMY_LIMIT := 60.0
 const PACK_EXTRA := 2
 const PACK_LIMIT := 40.0
 const LIVE_ROOMS := 1
+## Dummy rooms per measure (placements and random numbers differ), averaged.
+const DUMMY_ROOMS := 2
+## Each part of the value (boss TTK, pack clear, boss time to die ratios) is kept within
+## [1 / RATIO_CLAMP, RATIO_CLAMP]: one part can't swamp the value (an act I room wiped by one
+## skill, a hero who out-heals the boss).
+const RATIO_CLAMP := 5.0
+## Boss time to die counts up to this (s): surviving longer than any fight adds nothing.
+const TTD_CAP := 200.0
 const CATEGORIES := ["perk", "relic", "family", "rune", "affix", "upgrade", "encounter"]
 
 var lab: BalanceLab
@@ -163,11 +172,16 @@ func measure(act: int, build: BalanceBuildDef, measure_seed: int, live: bool) ->
 		if item[0] is CheatDeathPassive:
 			revives += (item[0] as CheatDeathPassive).heal_ratio * int(item[1])
 	var boss_dps: float = foe.dps
-	var ttd := (max_hp + player.ward) * (1.0 + revives) / maxf(boss_dps - sustain_boss, boss_dps * 0.1)
-	var p: Dictionary = await lab.dummy_pack(s, build, ctx.room, 0.9, PACK_LIMIT, measure_seed)
+	var ttd := minf((max_hp + player.ward) * (1.0 + revives) / maxf(boss_dps - sustain_boss, 0.01), TTD_CAP)
 	var sources: Dictionary = d.heal_sources.duplicate()
-	for k: String in p.heal_sources:
-		sources[k] = int(sources.get(k, 0)) + int(p.heal_sources[k])
+	var clear := 0.0
+	var sustain_pack := 0.0
+	for i in DUMMY_ROOMS:
+		var p: Dictionary = await lab.dummy_pack(s, build, ctx.room, 0.9, PACK_LIMIT, measure_seed + i)
+		clear += (float(p.clear_time) if p.cleared else PACK_LIMIT * 1.5) / DUMMY_ROOMS
+		sustain_pack += float(p.sustain_hps) / DUMMY_ROOMS
+		for k: String in p.heal_sources:
+			sources[k] = int(sources.get(k, 0)) + int(p.heal_sources[k])
 	var live_taken := 0.0
 	var deaths := 0
 	if live:
@@ -176,8 +190,8 @@ func measure(act: int, build: BalanceBuildDef, measure_seed: int, live: bool) ->
 			live_taken += float(r.taken) / LIVE_ROOMS
 			if r.result == "died":
 				deaths += 1
-	return { "dps": d.dps, "boss_ttk": full_ttk, "sustain_boss": sustain_boss, "pack_clear": p.clear_time if p.cleared else PACK_LIMIT * 1.5,
-		"sustain_pack": p.sustain_hps, "boss_dps_in": boss_dps, "boss_ttd": ttd, "ehp": ehp, "live_taken": live_taken,
+	return { "dps": d.dps, "boss_ttk": full_ttk, "sustain_boss": sustain_boss, "pack_clear": clear,
+		"sustain_pack": sustain_pack, "boss_dps_in": boss_dps, "boss_ttd": ttd, "ehp": ehp, "live_taken": live_taken,
 		"deaths": deaths, "heal_sources": sources, "max_hp": max_hp }
 
 
@@ -197,8 +211,10 @@ static func effective_health(player: Player, raw_hits: Array) -> float:
 
 ## { value, offense, defense } of `m` against `base`.
 static func _value(base: Dictionary, m: Dictionary) -> Dictionary:
-	var offense := sqrt((float(base.boss_ttk) / maxf(float(m.boss_ttk), 0.01)) * (float(base.pack_clear) / maxf(float(m.pack_clear), 0.01)))
-	var defense := float(m.boss_ttd) / maxf(float(base.boss_ttd), 0.01)
+	var ttk := clampf(float(base.boss_ttk) / maxf(float(m.boss_ttk), 0.01), 1.0 / RATIO_CLAMP, RATIO_CLAMP)
+	var clear := clampf(float(base.pack_clear) / maxf(float(m.pack_clear), 0.01), 1.0 / RATIO_CLAMP, RATIO_CLAMP)
+	var offense := sqrt(ttk * clear)
+	var defense := clampf(float(m.boss_ttd) / maxf(float(base.boss_ttd), 0.01), 1.0 / RATIO_CLAMP, RATIO_CLAMP)
 	return { "value": offense * defense - 1.0, "offense": offense - 1.0, "defense": defense - 1.0 }
 
 

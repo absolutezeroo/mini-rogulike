@@ -34,10 +34,11 @@ Each mode writes `<out>/<mode>/report.md`, `data.json`, `csv/<table>.csv` and `s
 (for `merge`); `--mode=all` also writes `<out>/report.md` and `<out>/data.json` with everything,
 and prints a short summary (flags per category, the first ones). Exit code 0: flags are findings.
 
-Run time on 2 CPUs (2026-10-20, all six difficulties): model ~5 s; economy ~3 min; compound
-~5 min; pack ~15 min; marginal ~30 min; arena (boss fights and the weapon arena) ~40 min. With
-`--jobs=2` a full `--mode=all` takes about 55 min of real time. `--quick` modes take seconds to a
-minute each.
+Run time on 2 CPUs (2026-10-20, all six difficulties, measured): model ~2 s; economy ~3 min
+(96 floors); compound ~4 min; pack ~9 min (478 rooms); marginal ~34 min (572 variants, 4 acts);
+arena ~45 min (408 boss fights, then 160 weapon-arena fights). `--mode=all --jobs=2` (the arena in
+a second process) takes about 45-50 min of real time; one process would take about 1 h 30. `--quick` modes
+take 5 s to a minute each; the `balance` test suite about a minute.
 
 ### What each mode measures
 
@@ -159,6 +160,28 @@ To add a target: add an `@export` to `tools/balance/balance_targets.gd` with its
 and the same reason in `targets.tres`, and check it where it is measured (`flag()` in the mode);
 add it to docs/balance.md's table. To change a target, say why in the balance log.
 
+### Limits (read before trusting a number)
+
+- **Repeatable, not luck-free.** The same command gives the same numbers (`--seed`); the lab
+  replays each measure on a fresh run of the same seed, so two builds are compared on the same
+  luck (table "marginal_base": a repeat gives +0%). Another seed moves a value by 2-40% (shown
+  there too); a fight that ends with the boss at 2% may flip from one run of the tools to another
+  (the arena runs each fight once). Read flags across several bosses or acts, not one fight.
+- **The bots are decent, not good.** `kite` doesn't use the terrain, doesn't drink, and rolls
+  only on what it sees coming; a lost kite fight means "hard for a careful player", not
+  "impossible". `face_tank` is the pillar-1 test as written: it never dodges.
+- **Dummies don't fight back.** The marginal values' boss and rooms don't move or attack: slows,
+  freezes, knockback, thorns and retaliation, roll effects and other crowd control show no value
+  there (they are in the live rooms' "Taken" column and in the arena). A pick at +0% is either a
+  trap or a defensive/control pick: read its description before calling it weak.
+- **Saturation.** When a build already out-heals its act's boss (sustain >= the boss' damage per
+  second), every defensive pick scores 0 (time to die is capped at 200 s): that is a finding
+  about the build's sustain, not about the picks.
+- **Quantised damage.** The dummy dies after a whole number of hits: picks worth under ~3% of
+  damage can read +0%, and two levels can read the same.
+- **The model is arithmetic.** It ignores movement, positioning and most procs; it is for
+  coverage (every rank, depth, difficulty) and trends. The engine modes are the measures.
+
 ### Hooks in the game code (behaviour-neutral)
 
 `Actor.healed(amount, source)` and `Actor.heal_source` tag every heal with what caused it (set for
@@ -167,6 +190,31 @@ listens. `PerkSet.Entry.source_tag()` names a perk, family, rune or affix for it
 tools drive the game through its input actions, its data and its public nodes.
 
 ## Balance log
+
+### 2026-10-20 - Phase 2 baseline measured (tools only, no game data changed)
+
+`--mode=all --jobs=2`, seed 1, all six difficulties (39 min; the marginal values were run again
+after a fix to their dummy rooms and merged with `--mode=merge`). 136 errors, 541 warnings.
+Headline numbers (report.md and data.json of that run are the "before" of phase 2):
+
+- **Face-tank beats bosses.** Expected builds on Normal: the face-tank bot wins 5 of 10 boss
+  fights (Weeping Spirit, Crimson Tengu, Jade Wyrm, Gilded Hoarder, Sun Wraith); on Hard 3. From
+  act III, one Leech rune heals 66-100% of the damage taken in a boss fight (Gilded Hoarder:
+  236 of 236; target <= 25%): the boss-fight budget (2% of max Health a second = 5.7/s at act IV)
+  is as large as the act IV boss' damage per second on that build (5.65/s).
+- **Flat armor.** Builds with 32-36 armor face-tank act IV bosses at 93-99% health; every act IV
+  monster hits them for 1. Frost Armor x4 (+252%) and the Fortified affix (+301%) are the top
+  picks of act III.
+- **Degenerate stacks.** Crit (Rapier, 82% crit, 3 Shatter runes) kills act II bosses in 7-10 s
+  standing still; skills/cooldowns (3 Echo runes, Echo, Devotion) in 11-18 s with Devotion's heals.
+- **Monsters are harmless to the expected builds.** Rooms cost 0-2% of max health on Normal;
+  commons die in 0.2-0.9 s, elites in 0.5-1.5 s (target 3-10 s); act II commons hit for 1-3.
+- **The curve.** Boss threat act II vs act I x0.79, act IV vs act III x0.62 (act IV easier than
+  act III). The kite bot loses all three act II bosses on Normal (boss at 23-25%).
+- **Economy.** A merchant visit's gold buys 4-23 average items on Normal (target 0.8-3); the whole
+  shrine (3150 souls) takes ~13 average runs on Normal, ~3 on Nightmare.
+
+Open: see FLAGS of that report; method in .claude/agents/game-balancer.md.
 
 ### 2026-10-20 - Phase 1: rules and themes (no simulator yet)
 

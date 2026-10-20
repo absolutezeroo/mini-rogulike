@@ -305,7 +305,8 @@ func dummy(s: Dictionary, build: BalanceBuildDef, boss_def: MonsterDef, hp_scale
 		"sustain_hps": healed[0] / maxf(hurt_frames / FPS, 0.01), "heal_sources": sources }
 
 
-## A room of monsters that don't fight back (their AI off, in a ring 50-90 px around the hero),
+## A room of monsters that don't fight back (their AI off, spread 70-200 px around the hero, at
+## least 40 px apart: one swing can't reach them all),
 ## the hero (face-tank, untouchable) held at `hp_share` of its health so kill heals show:
 ## clear time for many targets (cleaves, chains, bursts, kill effects), healing per second.
 ## Monsters that come out (splits) get their AI off too. Returns { clear_time, cleared, healed,
@@ -319,10 +320,17 @@ func dummy_pack(s: Dictionary, build: BalanceBuildDef, defs: Array, hp_share: fl
 	player.invincible = true
 	var rng := RandomNumberGenerator.new()
 	rng.seed = measure_seed
+	var placed: Array[Vector2] = []
 	for foe: Dictionary in defs:
-		var at := player.global_position + Vector2.from_angle(rng.randf() * TAU) * rng.randf_range(50.0, 90.0)
+		var at := player.global_position
+		for attempt in 30:
+			at = player.global_position + Vector2.from_angle(rng.randf() * TAU) * rng.randf_range(70.0, 200.0)
+			if world.is_solid_ground(at) and world.has_line_of_sight(player.global_position, at) \
+					and placed.all(func(other: Vector2) -> bool: return other.distance_to(at) >= 40.0):
+				break
 		if not world.is_solid_ground(at):
-			at = world.find_open_point_near(player.global_position, 60.0)
+			at = world.find_open_point_near(player.global_position, 120.0)
+		placed.append(at)
 		world.spawn_monster(foe.def, at)
 	var healed := [0]
 	var sources := {}

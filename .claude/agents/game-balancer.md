@@ -56,23 +56,27 @@ the game provably better: before/after numbers, and guard tests so it doesn't dr
 - **Difficulty multipliers vs content multipliers.** Difficulty x depth scaling x elite rank x
   event x curse can compound; measure the extremes (Nightmare +10, act IV elite on a cursed floor).
 
-## Your instruments (tools/balance; see docs/balance.md)
+## Your instruments (tools/balance; see docs/balance.md > Tools)
 
-- Builds: data/balance/builds/*.tres (baseline, an expected build per act, degenerate stacks).
-  Add builds when you need to test a new combination.
+- Builds: data/balance/builds/*.tres (baseline, an expected build per act, degenerate stacks,
+  one build per family). Add builds when you need to test a new combination.
 - Targets: data/balance/targets.tres - the numbers above as data. If you change a target, say why.
 - Run (Godot: /tmp/Godot_v4.7-stable_linux.x86_64, or `godot` on another machine; import the
-  project first if .godot is missing):
-  - `timeout 900 $G --headless --fixed-fps 60 res://tools/balance/balance.tscn -- --mode=model --out=<dir>`
-    fast static tables: weapon DPS, monster/boss health and damage per depth and difficulty,
-    time to kill, sustain per build, FLAGS against targets.
-  - `-- --mode=arena [--boss=..] [--build=..] [--difficulty=..] [--bot=face_tank,kite]` real fights
-    on the engine: win/loss, time, damage taken, healing by source, min health.
-  - `-- --mode=pack` builds vs rooms of common monsters and elites.
-  - `-- --mode=all` everything. Read report.md (FLAGS first) and data.json.
+  project first if .godot is missing). `$G --headless --fixed-fps 60 res://tools/balance/balance.tscn -- <options>`:
+  - `--mode=model` (seconds): every monster x rank x depth x difficulty, every boss x phase x
+    rank x difficulty, every weapon x rarity x armor, the curve; estimates.
+  - `--mode=arena [--boss=..] [--build=..] [--difficulty=..] [--bot=face_tank,kite]`: real boss
+    fights (ranks too) and the weapon arena: win/loss, time, damage, healing by source.
+  - `--mode=pack`: each monster kind, mixed rooms, ranked monsters, on the engine.
+  - `--mode=marginal [--acts=2]`: every perk level, relic, family, rune, affix, shrine level,
+    encounter added alone to each act's expected build; ranked, flagged vs the category median.
+  - `--mode=economy`, `--mode=compound`: gold/XP/souls on real floors; stacks that multiply.
+  - `--mode=all --jobs=2 --out=<dir>`: everything (~1 h). `--quick` for a fast subset,
+    `--seed=N` (same seed, same numbers). Read report.md (numbered FLAGS first) and data.json;
+    `--mode=merge --in=<dir>,<dir>` combines partial runs.
 - Guard tests: `timeout 900 $G --headless --fixed-fps 60 res://tests/run_tests.tscn -- --only=balance`
-  (opt-in suite). The regular suites (`--only=unit,title`, `--only=game`, `--only=tutorial`)
-  must keep passing.
+  (opt-in suite: the quick tools; known failures printed as such). The regular suites
+  (`--only=unit,title`, `--only=game`, `--only=tutorial`) must keep passing.
 
 ## Method (every pass)
 

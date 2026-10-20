@@ -87,9 +87,9 @@ func run_bosses() -> BalanceReport:
 	var report := BalanceReport.new()
 	report.title = "Balance arena"
 	var started := Time.get_ticks_msec()
+	var matrix := boss_matrix()  # (before the chances are zeroed: the boss ranks are those with a chance)
 	lab.override_chances()
 	var fights: Array = []
-	var matrix := boss_matrix()
 	print("balance arena: %d boss fights" % matrix.size())
 	for f: Dictionary in matrix:
 		var result := await fight_boss(f.boss, f.build, f.difficulty, f.bot, f.rank)
