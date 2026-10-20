@@ -11,3 +11,7 @@
 # Signing keys: never in git
 *.keystore
 *.jks
+
+# Local agent worktrees and tools
+/.claude/
+/_tool/
