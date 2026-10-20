@@ -291,11 +291,18 @@ The project keeps its name "Mini Roguelike" so saves stay where they are (`user:
   and set the Java and Android SDK paths in Editor Settings > Export > Android (only the SDK's
   build-tools are needed: `apksigner`); then
   `godot --headless --export-debug "Android" build/le-puits-des-ames.apk` (or `--export-release`).
-- **Release / Play Store**: make your own key once and keep it safe (every update must be signed
-  with it): `keytool -genkeypair -v -keystore puits-release.keystore -alias puits -keyalg RSA
-  -keysize 2048 -validity 10000`, then set it in the preset (Keystore > Release, user, password),
-  never in git. For the Play Store, export an AAB (Gradle build on, `gradle_build/export_format`
-  = AAB) and raise `version/code` for each upload.
+- **Release**: make your own key once and keep it safe (every update must be signed with it):
+  `keytool -genkeypair -v -keystore puits-release.keystore -alias puits -keyalg RSA -keysize 2048
+  -validity 10000`. Never put it, or its password, in git: give it to Godot through the
+  environment (`GODOT_ANDROID_KEYSTORE_RELEASE_PATH`, `..._USER`, `..._PASSWORD`) or the preset's
+  fields on your own machine only.
+- **Play Store** (preset **Android Play Store**): the same app as an AAB, built with Gradle. Install
+  the Android build template once (Project > Install Android Build Template; the `android/` folder
+  it makes is not in git), then `godot --headless --export-release "Android Play Store"
+  build/le-puits-des-ames.aab`. Raise `version/code` (and `version/name`) for each upload.
+- **Privacy policy**: `docs/privacy.html` (the game sends nothing anywhere; saves stay on the
+  phone). With GitHub Pages on (Settings > Pages > branch `main`, folder `/docs`) it is at
+  `https://absolutezeroo.github.io/mini-rogulike/privacy.html`, the link the Play Console asks for.
 
 ## Lights
 
