@@ -117,12 +117,17 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 - **Drawing the floor**: `DungeonView` draws the map in 8x8-cell chunks, each its own canvas item,
   so the renderer skips the ones off screen; inside a chunk, tiles go texture by texture to batch.
   About 90 draw calls whatever the floor's size (it was ~1500 on a big floor).
-- **Mist over the walls** (`PlateauMist`, `plateau_mist.gdshader`): the plateau above the cliffs
-  (and all around the map) is covered by a slow mist, dark with lighter wisps drifting two ways,
-  in flat dithered bands like the light. Thin at the rim so the cliff's edge stays readable,
-  thick two cells in. One sprite whose texture is the mask (a pixel per cell); colors and
-  thickness per theme (`DungeonTheme` > Mist).
-  The light goes with it: a lamp by a wall glows into the mist over the rim, losing two levels
+- **Mist over the walls** (`PlateauMist`, `plateau_mist.gdshader`): a volumetric mist over the
+  plateau above the cliffs (and all around the map). Every frame a ray goes down through its
+  height in 6 slices (3 with Fewer effects) for each pixel of a small viewport over the view,
+  one pixel per art pixel: a 3D noise drifting with the wind and slowly rising, thick at the
+  bottom and wispy on top, densities adding up (Beer-Lambert), in dithered steps. Seen from the
+  south like the art, it rises up the screen a little over the room behind a wall, and its
+  layers lean with the camera. It is lit by the floor's light (`LightField.light_texture()`):
+  lamps by a wall and the hero's torch glow in it, scattered softly; away from them it stays
+  dark. Thin at the rim so the cliff's edge stays readable. Colors and thickness per theme
+  (`DungeonTheme` > Mist).
+  The light goes with it: a lamp by a wall reaches into the mist over the rim, losing two levels
   a tile instead of one, and light that went into the mist never comes out the other side (no
   light through the walls). Moving lights (the torch, shots) do the same in the light shader.
 - **Game** offers the perk choices (pausing the game) and reacts to boss fights through `Events`.

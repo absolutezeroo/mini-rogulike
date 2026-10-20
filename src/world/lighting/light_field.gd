@@ -133,6 +133,16 @@ func level_at(point: Vector2) -> int:
 	return best
 
 
+## The light, one pixel per cell, over light_area() (the mist reads it).
+func light_texture() -> Texture2D:
+	return _viewport.get_texture()
+
+
+## The part of the world light_texture() covers (local to the field).
+func light_area() -> Rect2:
+	return Rect2(Vector2.ZERO, Vector2(_size) * _cell_size)
+
+
 func color_at(point: Vector2) -> Color:
 	return colors[level_at(point)] if not colors.is_empty() else Color.WHITE
 

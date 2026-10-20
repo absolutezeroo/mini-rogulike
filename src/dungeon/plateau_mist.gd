@@ -1,20 +1,54 @@
 class_name PlateauMist
-extends Sprite2D
-## Mist over the plateau above the walls (and all around the map): instead of a flat color, a
-## slow, dark mist with lighter wisps, thin at the rim (the cliff's edge stays readable) and thick
-## further in. One sprite over the whole map: its texture is the mask (one pixel per cell, soft
-## edges), the shader (plateau_mist.gdshader) does the rest. Colors: DungeonTheme > Mist.
+extends Node2D
+## Volumetric mist over the plateau above the walls (and all around the map), lit by the floor's
+## light: lamps by a wall glow in it, the hero's torch too; away from them it stays dark, with
+## lighter wisps on top. Thin at the rim (the cliff's edge stays readable), thick further in, and
+## a volume: seen from the south like the rest of the art, it rises up the screen, hides a little
+## of the room behind a wall, and its layers lean with the camera.
+##
+## Each frame, the shader (plateau_mist.gdshader) raymarches it into a small viewport over the
+## view, one pixel per art pixel (cheap: about 500x240 pixels), laid over the world above the
+## light. Its inputs: the mask (mask_image(), one pixel per cell, soft edges) and the LightField's
+## texture. Colors and thickness: DungeonTheme > Mist. Fewer effects (Options): half the slices.
 
 const SHADER := preload("res://src/dungeon/plateau_mist.gdshader")
 ## How thick the mist is 1, 2 and 3+ cells away from the floor or a cliff face.
 const THICKNESS: Array[float] = [0.0, 0.25, 0.65, 1.0]
+## World pixels per mist pixel (the art is drawn at 2x).
+const PIXEL := 2.0
+## Over the light (LightField.Z) and whoever walks, under sparks and big effects.
+const Z := 4
+## Slices of the ray through the mist (and with Fewer effects).
+const SLICES := 6
+const FEW_SLICES := 3
+## The mist's height, in world pixels (how far up the screen it rises over a wall).
+const HEIGHT := 28.0
+
+## The light it shows (set by the World once the floor is lit).
+var light_field: LightField
+## The thickness per cell (for tests and tools).
+var mask: Image
+
+var _viewport := SubViewport.new()
+var _canvas := ColorRect.new()
+var _material := ShaderMaterial.new()
+var _view := Rect2()
 
 
 func _init() -> void:
-	centered = false
-	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	material = ShaderMaterial.new()
-	(material as ShaderMaterial).shader = SHADER
+	z_as_relative = false
+	z_index = Z
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_material.shader = SHADER
+	_canvas.material = _material
+	_viewport.disable_3d = true
+	_viewport.transparent_bg = true
+	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	_viewport.size = Vector2i(8, 8)
+	_viewport.add_child(_canvas)
+	add_child(_viewport)
+	_material.set_shader_parameter("pixel", PIXEL)
+	_material.set_shader_parameter("height", HEIGHT)
 
 
 ## `margin`: cells of plateau drawn around the map (DungeonView.OUTSIDE_MARGIN).
@@ -22,13 +56,51 @@ func setup(map: DungeonMap, theme: DungeonTheme, margin: int) -> void:
 	visible = theme != null and theme.mist_density > 0.0
 	if not visible:
 		return
-	var look := material as ShaderMaterial
-	look.set_shader_parameter("deep_color", theme.mist_deep)
-	look.set_shader_parameter("wisp_color", theme.mist_wisp)
-	look.set_shader_parameter("density", theme.mist_density)
-	texture = ImageTexture.create_from_image(mask_image(map, margin))
-	position = Vector2.ONE * -margin * map.tile_size
-	scale = Vector2.ONE * map.tile_size
+	_material.set_shader_parameter("deep_color", theme.mist_deep)
+	_material.set_shader_parameter("wisp_color", theme.mist_wisp)
+	_material.set_shader_parameter("density", theme.mist_density)
+	mask = mask_image(map, margin)
+	_material.set_shader_parameter("mask", ImageTexture.create_from_image(mask))
+	_material.set_shader_parameter("mask_origin", Vector2.ONE * -margin * map.tile_size)
+	_material.set_shader_parameter("mask_size", Vector2(mask.get_size()) * map.tile_size)
+
+
+## The floor's light, once it is set up for this floor.
+func bind_light(field: LightField) -> void:
+	light_field = field
+	_material.set_shader_parameter("light", field.light_texture())
+	_material.set_shader_parameter("light_origin", field.global_position)
+	_material.set_shader_parameter("light_size", field.light_area().size)
+	_material.set_shader_parameter("outside_light", field.colors[field.ambient_level] if not field.colors.is_empty() else Color(0.3, 0.3, 0.35))
+
+
+func _process(_delta: float) -> void:
+	if not visible or not is_inside_tree():
+		return
+	var camera := get_viewport().get_camera_2d()
+	if camera == null:
+		return
+	var half := get_viewport().get_visible_rect().size / camera.zoom * 0.5
+	var centre := camera.get_screen_center_position()
+	# Snapped to the mist's pixels (no shimmer as the camera moves), a pixel of margin all round.
+	var origin := ((centre - half) / PIXEL).floor() * PIXEL - Vector2.ONE * PIXEL
+	var size := Vector2i(((half * 2.0) / PIXEL).ceil()) + Vector2i(3, 3)
+	if _viewport.size != size:
+		_viewport.size = size
+		_canvas.size = Vector2(size)
+	_material.set_shader_parameter("view_origin", origin)
+	_material.set_shader_parameter("view_pixels", Vector2(size))
+	_material.set_shader_parameter("camera", centre)
+	_material.set_shader_parameter("slices", FEW_SLICES if Settings.fewer_effects else SLICES)
+	var view := Rect2(origin, Vector2(size) * PIXEL)
+	if view != _view:
+		_view = view
+		queue_redraw()
+
+
+func _draw() -> void:
+	if _view.has_area():
+		draw_texture_rect(_viewport.get_texture(), Rect2(to_local(_view.position), _view.size), false)
 
 
 ## The mist's thickness per cell (red): 0 on the floor and the cliff faces, more with each cell

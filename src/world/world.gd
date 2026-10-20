@@ -159,6 +159,7 @@ func build_floor(new_depth: int, content: ContentDB) -> void:
 		light_tint *= floor_event.ambient_tint
 	_view.show_map(map, theme)
 	lights.setup(map, theme.lighting if theme else null, light_tint)
+	_view.mist.bind_light(lights)
 	_pits.setup(map.tile_size)
 	fog.reset(map)
 	stairs_cells.clear()
