@@ -13,7 +13,7 @@ knockback = 260.0
 
 [sub_resource type="Resource" id="Resource_ujs5r"]
 script = ExtResource("3_lrhf1")
-damage_multiplier = 1.2
+damage_multiplier = 1.0
 knockback = 260.0
 color = Color(0.654902, 0.7882353, 0.34117648, 1)
 delay = 0.25
@@ -27,7 +27,7 @@ delay = 0.5
 [sub_resource type="Resource" id="Resource_jor3b"]
 script = ExtResource("3_lrhf1")
 radius = 104.0
-damage_multiplier = 1.2
+damage_multiplier = 1.0
 knockback = 260.0
 color = Color(0.654902, 0.7882353, 0.34117648, 1)
 delay = 0.75

@@ -39,7 +39,7 @@ func take(amount: float, max_hp: int, missing: int, now: float, rules: SustainRu
 
 
 func _refill(max_hp: int, now: float, rules: SustainRules, boss_fight: bool) -> void:
-	var capacity := rules.capacity(max_hp)
+	var capacity := rules.capacity(max_hp, boss_fight)
 	if _last_time < 0.0:
 		budget = capacity
 	else:

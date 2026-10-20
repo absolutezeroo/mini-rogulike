@@ -84,7 +84,7 @@ func _test_perks_in_game(game: Game, world: World, player: Player) -> void:
 	finisher.source = player
 	var before := slime.hp
 	slime.take_hit(finisher)
-	check(before - slime.hp > 10 - slime.get_stats().defense, "Executioner hits wounded enemies harder")
+	check(before - slime.hp > Combat.mitigate(10, slime.get_stats().defense), "Executioner hits wounded enemies harder")
 	slime.die(null)
 
 	player.perks.add(_perk("thorns"))
@@ -780,7 +780,7 @@ func _test_monster_behaviours(game: Game) -> void:
 	var burn := Combat.make_secondary_hit(null, 10)
 	shell.hp = shell.get_max_hp()
 	shell.take_hit(burn)
-	check(shell.get_max_hp() - shell.hp == 10 - shell.get_stats().defense, "burns and blasts go around the shell")
+	check(shell.get_max_hp() - shell.hp == Combat.mitigate(10, shell.get_stats().defense), "burns and blasts go around the shell")
 	shell.queue_free()
 
 	# Thief: grabs gold, runs, gives it back with interest when slain.

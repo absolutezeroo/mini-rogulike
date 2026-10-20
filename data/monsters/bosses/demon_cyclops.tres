@@ -113,6 +113,7 @@ move_speed = 70.0
 script = ExtResource("18_lv27d")
 material = ExtResource("99_material")
 title = "Warden of the Crypt"
+shockwave_power = 1.0
 portrait = ExtResource("17_hw63p")
 phases = Array[ExtResource("11_mjgm1")]([SubResource("Resource_mjgm1"), SubResource("Resource_fmbws")])
 stats = SubResource("Resource_273k5")

@@ -40,6 +40,8 @@ var quick := false
 var timeout := 240.0
 ## Print a line per fight.
 var verbose := true
+## Boss fights: plain bosses only (no ranked fights).
+var plain_only := false
 
 
 func core_difficulties() -> Array[DifficultyDef]:
@@ -75,7 +77,7 @@ func boss_matrix() -> Array:
 			for difficulty in difficulty_list:
 				for bot in bots:
 					result.append({ "boss": boss, "build": build, "difficulty": difficulty, "bot": bot, "rank": null })
-			if is_expected and not quick:
+			if is_expected and not quick and not plain_only:
 				for rank in ranks:
 					for difficulty in core:
 						for bot in bots:
@@ -169,11 +171,12 @@ func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef
 
 
 static func fight_line(r: Dictionary) -> String:
-	return "%s%s | %s | %s | %s: %s in %.1f s, phase %d, boss %d%% left, hero min %d%%, taken %d (%d hits), healed %d (%s)" % [
+	return "%s%s | %s | %s | %s: %s in %.1f s, phase %d, boss %d%% left, hero min %d%%, taken %d (%d hits; %s), healed %d (%s), dps %.1f, rolls %d" % [
 		r.boss, "" if r.get("rank", "plain") == "plain" else " (%s %s)" % [r.rank, r.get("affixes", "")], r.build, r.difficulty, r.bot,
 		str(r.get("result", "?")).to_upper(), r.get("time", 0.0), r.get("phases", 0),
 		roundi(100.0 * r.get("boss_hp_left_share", 0.0)), roundi(r.get("min_hp_share", 0.0) * 100.0),
-		r.get("damage_taken", 0), r.get("hits_taken", 0), r.get("healed", 0), BalanceLab.sources_text(r.get("heal_sources", {}))]
+		r.get("damage_taken", 0), r.get("hits_taken", 0), BalanceLab.sources_text(r.get("taken_by", {})), r.get("healed", 0), BalanceLab.sources_text(r.get("heal_sources", {})),
+		r.get("dps", 0.0), r.get("rolls", 0)]
 
 
 func _boss_report(report: BalanceReport, fights: Array) -> void:
@@ -436,6 +439,9 @@ class FightLog:
 	var phases := 0
 	var min_hp := 0
 	var summons_killed := 0
+	## Damage taken by kind (ticks, shockwave, melee, shots, skill, adds, blasts): where a bot
+	## gets hurt.
+	var taken_by := {}
 	var _expected_hp := 0
 	var _boss_hp := 0
 
@@ -466,6 +472,26 @@ class FightLog:
 			tick_damage += amount
 		else:
 			hits_taken += 1
+		var kind := _kind(hit)
+		taken_by[kind] = int(taken_by.get(kind, 0)) + amount
+
+	func _kind(hit: HitInfo) -> String:
+		if hit == null:
+			return "other"
+		if hit.is_tick:
+			return "ticks"
+		if not is_instance_valid(hit.source):
+			return "falls" if player.killed_by == "a fall" else "traps"
+		if hit.source != boss:
+			return "adds"
+		if hit.is_secondary:
+			return "shockwave"
+		if hit.origin != Vector2.INF and hit.origin.distance_to(boss.global_position) > boss.radius + 60.0:
+			return "shots"
+		var machine := boss.get_node_or_null("StateMachine") as StateMachine
+		if machine and machine.current and String(machine.current.name) == "Attack":
+			return "melee"
+		return "skill"
 
 	func _on_boss_health(current: int, _maximum: int) -> void:
 		if current < _boss_hp:
@@ -497,5 +523,5 @@ class FightLog:
 			"damage_taken": taken, "hits_taken": hits_taken, "tick_damage": tick_damage, "healed": healed,
 			"heal_sources": healed_by.duplicate(), "heal_share": healed / maxf(taken, 1.0),
 			"min_hp": min_hp, "min_hp_share": min_hp / float(maxi(player.get_max_hp(), 1)),
-			"summons_killed": summons_killed,
+			"summons_killed": summons_killed, "taken_by": taken_by.duplicate(),
 		}

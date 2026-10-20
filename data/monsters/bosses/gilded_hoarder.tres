@@ -101,6 +101,7 @@ shockwave_after_hits = 5
 [sub_resource type="Resource" id="Resource_if5px"]
 script = ExtResource("13_084m3")
 max_hp = 1750
+attack = 2
 defense = 6
 move_speed = 65.0
 
@@ -108,6 +109,7 @@ move_speed = 65.0
 script = ExtResource("18_nlcxe")
 material = ExtResource("99_material")
 title = "Keeper of the Well"
+shockwave_power = 1.0
 portrait = ExtResource("4_brnay")
 phases = Array[ExtResource("12_wvbbl")]([SubResource("Resource_myfj7"), SubResource("Resource_u0ub8")])
 stats = SubResource("Resource_if5px")

@@ -27,6 +27,7 @@ godot --headless --fixed-fps 60 res://tools/balance/balance.tscn -- --mode=all -
 | `--seed=N` | every measure starts from this seed (default 1): the same command gives the same numbers |
 | `--all-pairs` | arena: every build against every boss, not only its act's |
 | `--timeout=240` | arena: game seconds before a boss fight is a timeout |
+| `--plain`, `--no-weapons` | arena: plain bosses only (no ranked fights); skip the weapon arena (targeted runs) |
 | `--jobs=2` | `all`: the arena runs in a second Godot process (2 CPUs: about half the time) |
 | `--out=` | where the reports go (default `user://balance`) |
 
@@ -58,12 +59,16 @@ take 5 s to a minute each; the `balance` test suite about a minute.
   sustain capped by `SustainRules`; procs it can't place (chains, bursts, rolls, thorns) left out.
 - **arena** (engine): real fights in the Game scene with a bot at the controls (`BalanceBot`):
   `face_tank` stands in reach and hits, uses skills when ready, never rolls or drinks; `kite`
-  keeps its weapon's range and rolls away from wind-ups, casts, shots and the boss' shockwave.
+  keeps its weapon's range and hits whenever in reach, steps out of swings, skill circles, leap
+  lines, shots, blinking arena cells and live traps, rolls only as a blow lands (within the
+  roll's invulnerability) and only where the whole roll is solid ground, and holds the hit that
+  would set off a boss' shockwave when its roll isn't ready.
   Every boss x the builds of its act (expected on every difficulty; degenerate, family and baseline
   builds on Normal and Hard) x both bots; every boss rank (Epic, Legendary, Shiny, with the affixes
   the game rolls) with the expected build on Normal and Hard. Result, time, phase reached, boss
   health left (and the time to kill projected from it), damage dealt and taken, hits, healing by
-  source (perk, rune, affix, family, skill, item, revive), lowest health. Then the **weapon arena**:
+  source (perk, rune, affix, family, skill, item, revive), damage taken by kind (melee, skill,
+  shockwave, adds, ticks, traps, falls; printed per fight), lowest health. Then the **weapon arena**:
   every weapon (Common, on the act's expected build otherwise) against every boss, kite, Normal.
 - **pack** (engine): on each act's last normal floor, Normal and Hard: three of each monster kind
   (time from first hurt to death, damage taken), mixed rooms of the act's list by spawn weight
@@ -168,7 +173,7 @@ add it to docs/balance.md's table. To change a target, say why in the balance lo
   there too); a fight that ends with the boss at 2% may flip from one run of the tools to another
   (the arena runs each fight once). Read flags across several bosses or acts, not one fight.
 - **The bots are decent, not good.** `kite` doesn't use the terrain, doesn't drink, and rolls
-  only on what it sees coming; a lost kite fight means "hard for a careful player", not
+  only on what it sees coming (it still eats some shockwaves and falls when thrown off); a lost kite fight means "hard for a careful player", not
   "impossible". `face_tank` is the pillar-1 test as written: it never dodges.
 - **Dummies don't fight back.** The marginal values' boss and rooms don't move or attack: slows,
   freezes, knockback, thorns and retaliation, roll effects and other crowd control show no value
@@ -190,6 +195,272 @@ listens. `PerkSet.Entry.source_tag()` names a perk, family, rune or affix for it
 tools drive the game through its input actions, its data and its public nodes.
 
 ## Balance log
+
+### 2026-10-20 - Phase 2A: bosses, sustain, armor, the kite bot
+
+Measured with the arena (`--mode=arena --plain --no-weapons`, seed 1, Normal and Hard, every
+boss x the builds of its act x both bots) and the model, against the phase 2 baseline above.
+The other two phase 2 passes (B: monsters, ranks, elites, difficulties; C: perks, runes,
+affixes, weapons, shrine, economy) ran in parallel: their data is not in these numbers.
+
+#### What was wrong (root causes)
+
+- **The kite bot played badly**, so "the kite loses" meant little. It backed off at the *start* of
+  every wind-up or cast within 220 px (a melee hero stopped hitting for most of the fight: a
+  third to a quarter of the face-tank's damage per second), rolled *early* (at 55% of a wind-up:
+  the 0.23 s of invulnerability ended before the blow), rolled straight into pits (falls cost 15%
+  of max Health each: up to 163 of 216 damage taken against the Weeping Spirit) and never saw the
+  arena's warnings or traps.
+- **Sustain in boss fights**: the budget refilled 2% of max Health a second and started full (20%):
+  from act III one Leech rune paid back 66-100% of the damage taken.
+- **Flat armor** (`Combat.mitigate`: damage minus armor, at least 1): every act IV monster hit a
+  36-armor build for 1, act IV bosses' blows did 7 to the expected build (13 armor), and a boss's
+  shockwave (a trap-sized blast, `dungeon_damage(4, 0.6)`) did 1-2 to anyone with armor: the
+  boss' answer to face-tanking cost nothing.
+
+#### What changed and why
+
+| Change | Before | After | Where |
+|---|---|---|---|
+| Kite bot | see above | hits whenever in reach (attacks don't root the hero); steps out of swings, skill circles (`telegraph_radius`, damage areas), off leap/rush lines, sideways from shots heading its way, off blinking arena cells and live traps; rolls only when the blow lands within the roll's invulnerability (swings and circles at 75%, casts of shots at 85% when close, shots under 0.15 s away, shockwave rings 0.25 s after they appear) and only where the whole roll (40-160 px) is solid ground; holds the hit that would set off a shockwave when its roll isn't ready | tools/balance/balance_bot.gd |
+| Armor rule | `max(1, A - D)` | `max(1, round(A x A / (A + D)))` (`Combat.ARMOR_WEIGHT` = 1): about D points off a big hit (35 vs 5: 31), half of a hit the armor's size (20 vs 20: 10), never harmless (20 vs 36: 7) | src/combat/combat.gd; the tools' model, lab and compound checks call it; the bestiary's Armor line now says "a 10-damage hit does X, a 30-damage hit Y" |
+| Boss-fight sustain | refill x0.5 (2% of max Health/s), budget 20% | refill x0.1 (**0.4%/s**), budget x0.25 (**5%**) while `World.is_boss_fight()` (`SustainRules.boss_fight_rate`, new `boss_fight_burst`) | data/dungeon/sustain.tres, sustain_rules.gd, sustain_meter.gd |
+| Boss shockwave | `dungeon_damage(4, 0.6)` (6-14 before armor) | new `BossDef.shockwave_power` (share of the boss' power), **1.0** on every boss (11-29 on Normal): the face-tank takes it every few seconds, the kite rolls through or holds | boss_def.gd, monster.gd, data/monsters/bosses/* |
+| Act IV bosses | Gilded Hoarder, Sun Wraith | +2 attack (base stats): act IV boss threat x0.93 -> x0.97 of act III (model) | gilded_hoarder.tres, sun_wraith.tres |
+| Red Samurai | Flame Arc x1.6 skill power (37 DPS in its last phase, the highest of act III) | x1.3 (both versions) | data/skills/boss/flame_arc*.tres |
+| Giant Frog | spit x0.6 every 3 s, leap x1.2, 800 Health | spit x0.5 (cooldown 3.5 s, fierce 3 s), leap x1.0 (both versions), 700 Health (act I's alternate was harder than act II bosses for the kite) | giant_frog.tres, poison_spit*.tres, frog_leap*.tres |
+| Azure Wyrm | 1100 Health, Frost Breath and Hailstorm x0.5 (the kite lost it in every run, 12-26% left) | 1000 Health, x0.42 (all four skill files) | azure_wyrm.tres, frost_breath*.tres, hailstorm*.tres |
+
+Tools: `--plain` and `--no-weapons` for targeted arena runs; each fight now logs the damage taken
+by kind (melee, skill, shockwave, adds, ticks, traps, falls).
+
+#### Results
+
+Model, boss threat act over act (expected builds, target x0.9-1.6): Normal x0.79 / x0.99 / x0.62
+-> **x1.06 / x1.05 / x0.97**; Hard x0.90 / x1.10 / x0.70 -> x1.08 / x1.12 / x0.97 (the model doesn't
+count shockwaves). "model: face-tank wins", "model: heal share" and "model: act curve" pass.
+
+Summary, expected builds, plain bosses: the face-tank wins **0 of 10 on Normal (was 5) and 0 of
+10 on Hard (was 3)**; heal share in boss fights 6-40% (was up to 100%; a single Leech rune heals
+0.4% of max Health a second against a boss). The kite wins 6 of 10 on Normal (as before, but
+without the Leech carry: before, its act III-IV wins healed 66-97% of the damage taken), 3 of 10
+on Hard; its damage per second roughly doubled (act II: 14-24 -> 30-33). Its Normal losses are
+close: Giant Frog 8-27% left, Azure Wyrm 5% (after its change), Red Samurai 0% (died with it),
+Gilded Hoarder 3% (165 of its 365 damage from falls: a bot weakness; the earlier run won at 37%).
+
+Expected builds vs every boss (engine; F face-tank, K kite; W win with the hero's lowest health,
+L loss with the boss' health left; heal = healed / damage taken). Before = the baseline run; after
+= the final rules and bot, before the last Giant Frog and Azure Wyrm changes (measured
+separately below):
+
+| Boss | Build | Diff | Bot | Before | After |
+|---|---|---|---|---|---|
+| king_slime | expected_a1 | hard | F | L 17s (boss 65%) | L 15s (boss 66%) |
+| king_slime | expected_a1 | hard | K | L 72s (boss 15%) | W 68s (min 4%) |
+| king_slime | expected_a1 | normal | F | L 23s (boss 27%) | L 19s (boss 33%) |
+| king_slime | expected_a1 | normal | K | W 84s (min 45%) | W 60s (min 62%) |
+| giant_frog | expected_a1 | hard | F | L 15s (boss 65%) | L 12s (boss 68%) |
+| giant_frog | expected_a1 | hard | K | L 39s (boss 54%) | L 28s (boss 60%) |
+| giant_frog | expected_a1 | normal | F | L 19s (boss 43%) | L 18s (boss 41%) |
+| giant_frog | expected_a1 | normal | K | L 34s (boss 47%) | L 43s (boss 27%) |
+| demon_cyclops | expected_a2 | hard | F | L 21s (boss 58%) | L 16s (boss 65%) |
+| demon_cyclops | expected_a2 | hard | K | L 91s (boss 34%) | L 84s (boss 15%) |
+| demon_cyclops | expected_a2 | normal | F | L 36s (boss 3%) | L 24s (boss 34%) |
+| demon_cyclops | expected_a2 | normal | K | L 99s (boss 23%) | W 87s (min 10%) heal 6% |
+| weeping_spirit | expected_a2 | hard | F | L 29s (boss 33%) | L 22s (boss 45%) |
+| weeping_spirit | expected_a2 | hard | K | L 140s (boss 15%) | W 82s (min 19%) heal 6% |
+| weeping_spirit | expected_a2 | normal | F | W 38s (min 32%) heal 7% | L 27s (boss 17%) |
+| weeping_spirit | expected_a2 | normal | K | L 118s (boss 25%) | W 75s (min 57%) heal 12% |
+| azure_wyrm | expected_a2 | hard | F | L 19s (boss 62%) | L 15s (boss 68%) |
+| azure_wyrm | expected_a2 | hard | K | L 49s (boss 55%) | L 63s (boss 31%) |
+| azure_wyrm | expected_a2 | normal | F | L 29s (boss 21%) | L 26s (boss 21%) |
+| azure_wyrm | expected_a2 | normal | K | L 72s (boss 24%) | L 57s (boss 26%) |
+| crimson_tengu | expected_a3 | hard | F | L 41s (boss 3%) heal 48% | L 17s (boss 64%) heal 10% |
+| crimson_tengu | expected_a3 | hard | K | W 103s (min 59%) heal 83% | L 45s (boss 23%) heal 11% |
+| crimson_tengu | expected_a3 | normal | F | W 40s (min 78%) heal 81% | L 28s (boss 19%) heal 13% |
+| crimson_tengu | expected_a3 | normal | K | W 90s (min 62%) heal 73% | W 67s (min 36%) heal 28% |
+| red_samurai | expected_a3 | hard | F | L 21s (boss 49%) heal 34% | L 14s (boss 65%) heal 8% |
+| red_samurai | expected_a3 | hard | K | L 80s (boss 4%) heal 58% | L 34s (boss 49%) heal 13% |
+| red_samurai | expected_a3 | normal | F | L 27s (boss 24%) heal 38% | L 19s (boss 39%) heal 9% |
+| red_samurai | expected_a3 | normal | K | W 77s (min 24%) heal 66% | L 56s (boss 0%) heal 15% |
+| jade_wyrm | expected_a3 | hard | F | W 40s (min 25%) heal 57% | L 19s (boss 51%) heal 10% |
+| jade_wyrm | expected_a3 | hard | K | L 90s (boss 10%) heal 58% | L 49s (boss 30%) heal 13% |
+| jade_wyrm | expected_a3 | normal | F | W 38s (min 80%) heal 82% | L 26s (boss 16%) heal 12% |
+| jade_wyrm | expected_a3 | normal | K | W 81s (min 33%) heal 67% | W 57s (min 2%) heal 20% |
+| gilded_hoarder | expected_a4 | hard | F | W 71s (min 7%) heal 62% | L 24s (boss 67%) heal 11% |
+| gilded_hoarder | expected_a4 | hard | K | W 99s (min 4%) heal 66% | L 78s (boss 17%) heal 24% |
+| gilded_hoarder | expected_a4 | normal | F | W 52s (min 83%) heal 100% | L 38s (boss 25%) heal 15% |
+| gilded_hoarder | expected_a4 | normal | K | W 97s (min 81%) heal 97% | L 59s (boss 3%) heal 17% |
+| sun_wraith | expected_a4 | hard | F | W 51s (min 37%) heal 64% | L 22s (boss 62%) heal 10% |
+| sun_wraith | expected_a4 | hard | K | W 79s (min 85%) heal 100% | W 60s (min 24%) heal 18% |
+| sun_wraith | expected_a4 | normal | F | W 44s (min 89%) heal 96% | L 26s (boss 42%) heal 11% |
+| sun_wraith | expected_a4 | normal | K | W 62s (min 76%) heal 96% | W 62s (min 63%) heal 40% |
+
+After the last Giant Frog and Azure Wyrm changes (Frog: leap x1.0 too, 700 Health, spit every 3.5 s; Wyrm: 1000 Health instead of 1100, Frost Breath and Hailstorm x0.42 instead of x0.5), same seed:
+
+| Boss | Build | Diff | Bot | Before | After |
+|---|---|---|---|---|---|
+| giant_frog | expected_a1 | hard | F | L 15s (boss 65%) | L 12s (boss 65%) |
+| giant_frog | expected_a1 | hard | K | L 39s (boss 54%) | L 43s (boss 26%) |
+| giant_frog | expected_a1 | normal | F | L 19s (boss 43%) | L 16s (boss 37%) |
+| giant_frog | expected_a1 | normal | K | L 34s (boss 47%) | L 36s (boss 22%) |
+| azure_wyrm | expected_a2 | hard | F | L 19s (boss 62%) | L 17s (boss 58%) |
+| azure_wyrm | expected_a2 | hard | K | L 49s (boss 55%) | L 69s (boss 13%) |
+| azure_wyrm | expected_a2 | normal | F | L 29s (boss 21%) | L 29s (boss 12%) |
+| azure_wyrm | expected_a2 | normal | K | L 72s (boss 24%) | L 67s (boss 5%) |
+
+Degenerate builds (engine, measured before the Red Samurai / Giant Frog changes and the bot's
+hold-the-last-hit refinement):
+
+| Boss | Build | Diff | Bot | Before | After |
+|---|---|---|---|---|---|
+| king_slime | degenerate_attack_speed_a1 | hard | F | L 14s (boss 49%) | L 14s (boss 54%) |
+| king_slime | degenerate_attack_speed_a1 | hard | K | L 66s (boss 21%) | L 67s (boss 8%) |
+| king_slime | degenerate_attack_speed_a1 | normal | F | L 17s (boss 33%) | L 14s (boss 32%) |
+| king_slime | degenerate_attack_speed_a1 | normal | K | L 62s (boss 10%) | W 56s (min 33%) |
+| king_slime | degenerate_lifesteal_a1 | hard | F | L 25s (boss 47%) heal 38% | L 15s (boss 65%) heal 9% |
+| king_slime | degenerate_lifesteal_a1 | hard | K | L 97s (boss 5%) heal 59% | W 66s (min 22%) heal 26% |
+| king_slime | degenerate_lifesteal_a1 | normal | F | L 35s (boss 2%) heal 44% | L 23s (boss 33%) heal 11% |
+| king_slime | degenerate_lifesteal_a1 | normal | K | W 66s (min 73%) heal 89% | W 49s (min 2%) heal 16% |
+| giant_frog | degenerate_attack_speed_a1 | hard | F | L 12s (boss 49%) | L 9s (boss 63%) |
+| giant_frog | degenerate_attack_speed_a1 | hard | K | L 23s (boss 66%) | L 31s (boss 33%) |
+| giant_frog | degenerate_attack_speed_a1 | normal | F | L 13s (boss 36%) | L 12s (boss 32%) |
+| giant_frog | degenerate_attack_speed_a1 | normal | K | L 30s (boss 51%) | L 30s (boss 28%) |
+| giant_frog | degenerate_lifesteal_a1 | hard | F | L 22s (boss 42%) heal 37% | L 13s (boss 66%) heal 9% |
+| giant_frog | degenerate_lifesteal_a1 | hard | K | L 51s (boss 34%) heal 50% | L 45s (boss 31%) heal 16% |
+| giant_frog | degenerate_lifesteal_a1 | normal | F | L 24s (boss 30%) heal 37% | L 17s (boss 45%) heal 10% |
+| giant_frog | degenerate_lifesteal_a1 | normal | K | L 60s (boss 25%) heal 50% | W 64s (min 25%) heal 27% |
+| demon_cyclops | degenerate_crit_a2 | hard | F | W 9s (min 25%) | W 8s (min 19%) |
+| demon_cyclops | degenerate_crit_a2 | hard | K | W 18s (min 54%) | W 26s (min 6%) |
+| demon_cyclops | degenerate_crit_a2 | normal | F | W 8s (min 39%) | W 8s (min 12%) |
+| demon_cyclops | degenerate_crit_a2 | normal | K | L 27s (boss 25%) | L 25s (boss 0%) |
+| demon_cyclops | degenerate_lifesteal_a2 | hard | F | L 22s (boss 52%) heal 37% | L 13s (boss 72%) heal 8% |
+| demon_cyclops | degenerate_lifesteal_a2 | hard | K | W 124s (min 5%) heal 66% | L 76s (boss 21%) heal 23% |
+| demon_cyclops | degenerate_lifesteal_a2 | normal | F | L 24s (boss 38%) heal 38% | L 16s (boss 54%) heal 9% |
+| demon_cyclops | degenerate_lifesteal_a2 | normal | K | W 98s (min 10%) heal 55% | L 62s (boss 10%) heal 17% |
+| weeping_spirit | degenerate_crit_a2 | hard | F | W 8s (min 36%) | W 7s (min 3%) |
+| weeping_spirit | degenerate_crit_a2 | hard | K | W 19s (min 75%) | W 18s (min 75%) |
+| weeping_spirit | degenerate_crit_a2 | normal | F | W 7s (min 43%) | W 8s (min 39%) |
+| weeping_spirit | degenerate_crit_a2 | normal | K | W 16s (min 73%) | W 20s (min 78%) |
+| weeping_spirit | degenerate_lifesteal_a2 | hard | F | L 28s (boss 32%) heal 40% | L 17s (boss 57%) heal 9% |
+| weeping_spirit | degenerate_lifesteal_a2 | hard | K | W 95s (min 30%) heal 70% | W 66s (min 44%) heal 34% |
+| weeping_spirit | degenerate_lifesteal_a2 | normal | F | W 31s (min 31%) heal 53% | L 18s (boss 41%) heal 10% |
+| weeping_spirit | degenerate_lifesteal_a2 | normal | K | W 88s (min 87%) heal 100% | W 52s (min 51%) heal 27% |
+| azure_wyrm | degenerate_crit_a2 | hard | F | W 10s (min 32%) | L 10s (boss 0%) |
+| azure_wyrm | degenerate_crit_a2 | hard | K | L 22s (boss 32%) | L 20s (boss 24%) |
+| azure_wyrm | degenerate_crit_a2 | normal | F | W 7s (min 47%) | W 7s (min 30%) |
+| azure_wyrm | degenerate_crit_a2 | normal | K | L 25s (boss 6%) | W 15s (min 46%) |
+| azure_wyrm | degenerate_lifesteal_a2 | hard | F | L 19s (boss 65%) heal 34% | L 13s (boss 69%) heal 8% |
+| azure_wyrm | degenerate_lifesteal_a2 | hard | K | L 61s (boss 42%) heal 54% | L 47s (boss 45%) heal 15% |
+| azure_wyrm | degenerate_lifesteal_a2 | normal | F | L 31s (boss 15%) heal 43% | L 18s (boss 51%) heal 10% |
+| azure_wyrm | degenerate_lifesteal_a2 | normal | K | L 107s (boss 20%) heal 64% | L 52s (boss 30%) heal 19% |
+| crimson_tengu | degenerate_burn_a3 | hard | F | L 22s (boss 38%) heal 32% | L 19s (boss 51%) heal 31% |
+| crimson_tengu | degenerate_burn_a3 | hard | K | L 65s (boss 25%) heal 32% | L 54s (boss 8%) heal 31% |
+| crimson_tengu | degenerate_burn_a3 | normal | F | W 27s (min 5%) heal 41% | L 23s (boss 15%) heal 31% |
+| crimson_tengu | degenerate_burn_a3 | normal | K | L 66s (boss 11%) heal 31% | W 62s (min 6%) heal 46% |
+| crimson_tengu | degenerate_lifesteal_a3 | hard | F | L 25s (boss 59%) heal 39% | L 13s (boss 78%) heal 8% |
+| crimson_tengu | degenerate_lifesteal_a3 | hard | K | L 113s (boss 16%) heal 64% | L 82s (boss 23%) heal 23% |
+| crimson_tengu | degenerate_lifesteal_a3 | normal | F | L 40s (boss 7%) heal 48% | L 19s (boss 62%) heal 10% |
+| crimson_tengu | degenerate_lifesteal_a3 | normal | K | L 101s (boss 26%) heal 50% | W 76s (min 42%) heal 33% |
+| crimson_tengu | degenerate_skills_a3 | hard | F | L 20s (boss 22%) heal 34% | L 11s (boss 60%) heal 7% |
+| crimson_tengu | degenerate_skills_a3 | hard | K | W 28s (min 96%) heal 100% | W 34s (min 78%) heal 45% |
+| crimson_tengu | degenerate_skills_a3 | normal | F | W 18s (min 72%) heal 68% | W 15s (min 6%) heal 9% |
+| crimson_tengu | degenerate_skills_a3 | normal | K | L 19s (boss 29%) heal 13% | W 15s (min 87%) heal 32% |
+| red_samurai | degenerate_burn_a3 | hard | F | L 15s (boss 66%) heal 28% | L 13s (boss 70%) heal 31% |
+| red_samurai | degenerate_burn_a3 | hard | K | L 36s (boss 70%) heal 25% | L 25s (boss 60%) heal 26% |
+| red_samurai | degenerate_burn_a3 | normal | F | L 22s (boss 33%) heal 32% | L 18s (boss 39%) heal 30% |
+| red_samurai | degenerate_burn_a3 | normal | K | L 38s (boss 32%) heal 29% | L 40s (boss 26%) heal 30% |
+| red_samurai | degenerate_lifesteal_a3 | hard | F | L 17s (boss 68%) heal 33% | L 12s (boss 79%) heal 6% |
+| red_samurai | degenerate_lifesteal_a3 | hard | K | L 37s (boss 84%) heal 43% | L 37s (boss 72%) heal 8% |
+| red_samurai | degenerate_lifesteal_a3 | normal | F | L 26s (boss 52%) heal 40% | L 12s (boss 75%) heal 8% |
+| red_samurai | degenerate_lifesteal_a3 | normal | K | L 66s (boss 41%) heal 55% | L 62s (boss 40%) heal 17% |
+| red_samurai | degenerate_skills_a3 | hard | F | L 8s (boss 44%) heal 17% | L 7s (boss 43%) heal 5% |
+| red_samurai | degenerate_skills_a3 | hard | K | W 24s (min 49%) heal 45% | W 18s (min 23%) heal 10% |
+| red_samurai | degenerate_skills_a3 | normal | F | W 11s (min 40%) heal 39% | L 7s (boss 33%) heal 6% |
+| red_samurai | degenerate_skills_a3 | normal | K | W 14s (min 84%) heal 94% | W 13s (min 11%) heal 8% |
+| jade_wyrm | degenerate_burn_a3 | hard | F | L 22s (boss 43%) heal 29% | L 17s (boss 56%) heal 32% |
+| jade_wyrm | degenerate_burn_a3 | hard | K | L 48s (boss 54%) heal 30% | L 47s (boss 31%) heal 31% |
+| jade_wyrm | degenerate_burn_a3 | normal | F | L 31s (boss 2%) heal 31% | L 23s (boss 23%) heal 33% |
+| jade_wyrm | degenerate_burn_a3 | normal | K | L 64s (boss 31%) heal 30% | L 50s (boss 5%) heal 31% |
+| jade_wyrm | degenerate_lifesteal_a3 | hard | F | L 25s (boss 62%) heal 39% | L 17s (boss 68%) heal 9% |
+| jade_wyrm | degenerate_lifesteal_a3 | hard | K | L 90s (boss 39%) heal 64% | L 59s (boss 40%) heal 17% |
+| jade_wyrm | degenerate_lifesteal_a3 | normal | F | L 33s (boss 30%) heal 42% | L 19s (boss 63%) heal 10% |
+| jade_wyrm | degenerate_lifesteal_a3 | normal | K | L 45s (boss 63%) heal 48% | L 50s (boss 38%) heal 15% |
+| jade_wyrm | degenerate_skills_a3 | hard | F | W 18s (min 15%) heal 38% | L 14s (boss 48%) heal 8% |
+| jade_wyrm | degenerate_skills_a3 | hard | K | W 28s (min 22%) heal 49% | W 19s (min 39%) heal 14% |
+| jade_wyrm | degenerate_skills_a3 | normal | F | W 12s (min 55%) heal 49% | W 10s (min 32%) heal 11% |
+| jade_wyrm | degenerate_skills_a3 | normal | K | W 20s (min 80%) heal 81% | W 11s (min 71%) heal 17% |
+| gilded_hoarder | degenerate_lifesteal_a4 | hard | F | L 32s (boss 49%) heal 44% | L 17s (boss 66%) heal 9% |
+| gilded_hoarder | degenerate_lifesteal_a4 | hard | K | L 129s (boss 33%) heal 69% | L 68s (boss 21%) heal 21% |
+| gilded_hoarder | degenerate_lifesteal_a4 | normal | F | W 43s (min 3%) heal 51% | L 21s (boss 57%) heal 11% |
+| gilded_hoarder | degenerate_lifesteal_a4 | normal | K | W 117s (min 5%) heal 72% | W 94s (min 30%) heal 36% |
+| gilded_hoarder | degenerate_max_health_a4 | hard | F | W 117s (min 93%) heal 98% | L 76s (boss 33%) heal 55% |
+| gilded_hoarder | degenerate_max_health_a4 | hard | K | W 235s (min 2%) heal 82% | W 161s (min 4%) heal 69% |
+| gilded_hoarder | degenerate_max_health_a4 | normal | F | W 88s (min 99%) heal 98% | W 81s (min 4%) heal 57% |
+| gilded_hoarder | degenerate_max_health_a4 | normal | K | W 189s (min 77%) heal 100% | W 128s (min 34%) heal 35% |
+| gilded_hoarder | degenerate_thorns_a4 | hard | F | W 143s (min 77%) heal 63% | L 112s (boss 16%) heal 67% |
+| gilded_hoarder | degenerate_thorns_a4 | hard | K | T 240s (boss 33%) heal 96% | T 240s (boss 14%) heal 73% |
+| gilded_hoarder | degenerate_thorns_a4 | normal | F | W 116s (min 98%) heal 97% | W 103s (min 1%) heal 75% |
+| gilded_hoarder | degenerate_thorns_a4 | normal | K | T 240s (boss 26%) heal 96% | W 233s (min 15%) heal 64% |
+| sun_wraith | degenerate_lifesteal_a4 | hard | F | L 30s (boss 50%) heal 42% | L 18s (boss 63%) heal 10% |
+| sun_wraith | degenerate_lifesteal_a4 | hard | K | L 99s (boss 3%) heal 59% | W 58s (min 22%) heal 22% |
+| sun_wraith | degenerate_lifesteal_a4 | normal | F | L 39s (boss 0%) heal 45% | L 22s (boss 43%) heal 11% |
+| sun_wraith | degenerate_lifesteal_a4 | normal | K | W 89s (min 86%) heal 100% | W 59s (min 43%) heal 29% |
+| sun_wraith | degenerate_max_health_a4 | hard | F | W 82s (min 97%) heal 100% | W 79s (min 0%) heal 56% |
+| sun_wraith | degenerate_max_health_a4 | hard | K | W 142s (min 73%) heal 79% | W 110s (min 18%) heal 29% |
+| sun_wraith | degenerate_max_health_a4 | normal | F | W 69s (min 99%) heal 100% | W 65s (min 2%) heal 60% |
+| sun_wraith | degenerate_max_health_a4 | normal | K | W 128s (min 10%) heal 69% | W 83s (min 72%) heal 46% |
+| sun_wraith | degenerate_thorns_a4 | hard | F | W 98s (min 95%) heal 100% | L 92s (boss 1%) heal 63% |
+| sun_wraith | degenerate_thorns_a4 | hard | K | T 240s (boss 6%) heal 92% | W 141s (min 56%) heal 71% |
+| sun_wraith | degenerate_thorns_a4 | normal | F | W 75s (min 96%) heal 96% | W 80s (min 1%) heal 71% |
+| sun_wraith | degenerate_thorns_a4 | normal | K | W 220s (min 90%) heal 98% | W 142s (min 6%) heal 76% |
+
+Family builds (act III, Normal): the face-tank won 7 of 15 fights before, **0 of 15** after; their
+heal share is 7-33% (was up to 65%). The kite wins 7 of 15 (was 7), Red Samurai being the wall
+(all five lost at 11-15%: measured before the Flame Arc change).
+
+#### For the other passes
+
+- **B (monsters, elites, difficulties): the armor rule makes monsters hit armored heroes 2-3x
+  harder.** Model, every act monster at its depths on Normal vs the act's expected build:
+
+  | Act | Expected build's armor | Average monster hit (before -> after) | Average damage per second | Average hits to kill the hero |
+  |---|---|---|---|---|
+  | I | 2 | 3.7 -> 4.4 | 2.5 -> 2.9 | 38 -> 30 |
+  | II | 7 | 2.2 -> 5.3 | 1.6 -> 3.8 | 116 -> 40 |
+  | III | 10 | 3.6 -> 8.0 | 2.0 -> 4.5 | 88 -> 30 |
+  | IV | 13 | 3.2 -> 9.2 | 1.9 -> 5.6 | 119 -> 32 |
+
+  Hits to kill the hero are still far above the target (>= 6), and rooms cost more (the
+  baseline's "monsters are harmless" finding). Measure before also buffing monster damage: the two
+  compound. The rule also helps the hero's small hits against armored monsters (5 vs 4 armor:
+  3 instead of 1) and burns against armor (6 vs 5: 3 instead of 1).
+- **C (perks, runes, relics, weapons, shrine):** the remaining face-tank wins on Normal are the
+  builds' own power, not the bosses': `degenerate_crit_a2` kills act II bosses in 7-8 s (82%
+  crit, 3 Shatter runes), `degenerate_skills_a3` kills Crimson Tengu and Jade Wyrm in 10-15 s;
+  `degenerate_max_health_a4` and `degenerate_thorns_a4` beat both act IV bosses at 1-4% of their
+  health, carried by two revives (Phoenix Feather / cheat death: 187-386 Health) and the Templar
+  Sword's Holy Shield and Smite (unlimited healing spells: 75-300 Health a fight). Frost Armor
+  and the Fortified affix lose much of their value with diminishing armor (re-measure them).
+  Kill-heal picks lose their boss-fight credit in the lab: "marginal: too weak" now flags
+  Vampirism x3 in act II (0.15x the median) because its value came from sustain the boss-fight
+  budget no longer pays.
+
+#### Open
+
+- Ranked bosses (Epic, Legendary, Shiny) were not re-measured (the kite's damage per second
+  roughly doubled, so their projected 100-191 s should drop: measure).
+- The heal-share target (<= 25% of the damage taken) reads high for good kite fights: a kite that
+  takes 50 damage and heals 20 is at 40% while healing 0.4% of its Health a second. Proposal:
+  check it on face-tank fights (where it means "out-healing the boss") and judge kite fights by
+  healing per second vs the boss' damage per second on that build.
+- The kite still loses some Hard fights and a few Normal ones by a little; it still eats some
+  shockwaves (side hits from chains, shards and thorns can finish the streak) and falls when
+  thrown off. A lost kite fight is "hard for a careful player", not "impossible".
+- Guard checks (balance suite, `_boss_guards`): a 36-armor build is hit for more than 1 by most
+  act IV monsters; a minute of boss-fight sustain heals <= 35% of the act IV build's Health; the
+  expected build face-tanking each act's boss on Normal loses with <= 25% healed. Unit tests: the
+  armor formula (monotonic, never harmless, the examples above) and the boss-fight budget.
 
 ### 2026-10-20 - Phase 2 baseline measured (tools only, no game data changed)
 

@@ -32,7 +32,7 @@ func _test_boss_fight(game: Game) -> void:
 	# Phase 2 at half HP: new skills.
 	var def := boss.def as BossDef
 	var hurt := HitInfo.new()
-	hurt.amount = boss.hp - roundi(boss.get_max_hp() * def.phases[0].hp_ratio) + 1 + boss.get_stats().defense
+	hurt.amount = Combat.hit_for(boss.hp - roundi(boss.get_max_hp() * def.phases[0].hp_ratio) + 1, boss.get_stats().defense)
 	boss.take_hit(hurt)
 	check(boss.skills.skills == def.phases[0].skills, "below %d%% HP the boss enters its next phase" % roundi(def.phases[0].hp_ratio * 100))
 	check(boss.invincible, "it roars into the phase: untouchable for a moment")
@@ -118,7 +118,7 @@ func _test_boss_fight(game: Game) -> void:
 	# The last phase: fiercer skills, faster still.
 	var speed_before := boss.cooldown_speed
 	var hurt_more := HitInfo.new()
-	hurt_more.amount = boss.hp - roundi(boss.get_max_hp() * def.phases[1].hp_ratio) + 1 + boss.get_stats().defense
+	hurt_more.amount = Combat.hit_for(boss.hp - roundi(boss.get_max_hp() * def.phases[1].hp_ratio) + 1, boss.get_stats().defense)
 	boss.take_hit(hurt_more)
 	check(boss.skills.skills == def.phases[1].skills and boss.cooldown_speed > speed_before, "a third of its HP left: its last phase")
 	# Its roar (a hit stop may slow it down a little: the arena changing, the hero falling...).

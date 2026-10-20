@@ -100,7 +100,7 @@ shockwave_after_hits = 5
 
 [sub_resource type="Resource" id="Resource_ksyev"]
 script = ExtResource("14_0l2t5")
-max_hp = 800
+max_hp = 700
 defense = 4
 move_speed = 60.0
 
@@ -108,6 +108,7 @@ move_speed = 60.0
 script = ExtResource("19_xqtof")
 material = ExtResource("99_material")
 title = "Croaking Warden"
+shockwave_power = 1.0
 portrait = ExtResource("5_j02b6")
 phases = Array[ExtResource("13_itnru")]([SubResource("Resource_71wwd"), SubResource("Resource_mmdpq")])
 stats = SubResource("Resource_ksyev")
