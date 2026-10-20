@@ -1,36 +1,44 @@
 class_name CodexPanel
 extends Control
-## The codex (title screen and pause menu): today's and this week's quests, the bestiary (every
-## monster and boss: unknown, seen or slain; tap one for its page, see MonsterPage), the
-## achievements with their progress, and the last runs.
+## The codex (title screen and pause menu), in the game's skin (RpgWindow): four tabs in the
+## header. Quests: today's and this week's goals and the souls they pay. Bestiary: every monster
+## and boss, act by act (CodexCard: unknown, seen or slain, your hunter rank); tap one for its
+## page (MonsterPage). Achievements: goals across all runs, with progress. Runs: the last runs and
+## the fastest wins. Each tab opens with a line saying what it is for. Built in code.
 
 enum Tab { QUESTS, BESTIARY, ACHIEVEMENTS, RUNS }
 
-const CARD_SIZE := Vector2(170, 168)
-const UNKNOWN_COLOR := Color(0.1, 0.08, 0.12)
+const TAB_NAMES := ["Quests", "Bestiary", "Achievements", "Runs"]
+## What each tab is for, under its summary.
+const TAB_HELP := [
+	"Quests change every day and every week. Everything you do in any run counts toward them, and a finished quest pays its souls at once. Souls are kept between runs: spend them at the Shrine on lasting upgrades.",
+	"Every monster you meet goes in here. Slay more of a kind to raise your hunter rank with it: each rank pays souls, and Mastered also gives +%d%% damage against that kind for good. Tap a monster for its attacks and challenges.",
+	"Big goals across all your runs. Reaching one pays its souls at once.",
+	"Your last runs, newest first. Gold is lost when a run ends; souls are kept.",
+]
 
 var _content: ContentDB
 var _tab := Tab.BESTIARY
 
-@onready var _list: Container = %List
-@onready var _scroll: ScrollContainer = %Scroll
-var _page := MonsterPage.new()
-@onready var _summary: Label = %Summary
-@onready var _tab_buttons: Array[Button] = [%QuestsTab, %BestiaryTab, %AchievementsTab, %RunsTab]
+var _window: RpgWindow
+var _tab_buttons: Array[Button] = []
+var _souls: Label
+var _intro: VBoxContainer
+var _summary: Label
+var _help: Label
+var _records: Label
+var _list_box: PanelContainer
+var _scroll: ScrollContainer
+var _list: VBoxContainer
+var _page: MonsterPage
+var _cards: Array[CodexCard] = []
+var _named: Array[Node] = []
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	hide()
-	%CloseButton.pressed.connect(func() -> void:
-		Sfx.play_ui(Sfx.bank.ui_close)
-		hide())
-	for i in _tab_buttons.size():
-		_tab_buttons[i].pressed.connect(show_tab.bind(i))
-	_page.visible = false
-	_scroll.get_parent().add_child(_page)
-	_page.back_requested.connect(func() -> void:
-		Sfx.play_ui(Sfx.bank.ui_click)
-		_close_page())
+	_build()
 
 
 ## `tab` -1: the one shown last time.
@@ -45,10 +53,13 @@ func show_tab(tab: int) -> void:
 	Sfx.play_ui(Sfx.bank.ui_click)
 	_close_page()
 	for i in _tab_buttons.size():
-		_tab_buttons[i].disabled = i == tab
+		_tab_buttons[i].set_pressed_no_signal(i == tab)
 	for child in _list.get_children():
 		_list.remove_child(child)
 		child.queue_free()
+	_cards.clear()
+	_records.hide()
+	_list.add_theme_constant_override("separation", 8)
 	match _tab:
 		Tab.QUESTS:
 			_fill_quests()
@@ -58,6 +69,12 @@ func show_tab(tab: int) -> void:
 			_fill_achievements()
 		Tab.RUNS:
 			_fill_runs()
+	var help: String = TAB_HELP[_tab]
+	if _tab == Tab.BESTIARY:
+		help = help % roundi((_content.bestiary.mastery_damage if _content.bestiary else 0.1) * 100.0)
+	_help.text = help
+	_souls.text = "Souls %d" % Profile.souls
+	_scroll.scroll_vertical = 0
 
 
 # --- Quests ---------------------------------------------------------------------
@@ -65,51 +82,42 @@ func show_tab(tab: int) -> void:
 func _fill_quests() -> void:
 	# Quests finished during the last run but not paid yet (an old save, a crash): pay them now.
 	QuestBoard.claim_finished(_content.quests)
-	_summary.text = "Souls: %d" % Profile.souls
+	var done := 0
+	var total := 0
+	var columns := HBoxContainer.new()
+	columns.add_theme_constant_override("separation", 14)
+	_list.add_child(columns)
 	for period in [QuestDef.Period.DAILY, QuestDef.Period.WEEKLY]:
-		var title := "Daily quests" if period == QuestDef.Period.DAILY else "Weekly quests"
-		var header := _label("%s   -   new ones in %s" % [title, QuestBoard.time_text(QuestBoard.seconds_left(period))], 20, Palette.GOLD, false)
-		header.custom_minimum_size = Vector2(1000, 34)  # a line of its own in the flow
-		header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		_list.add_child(header)
+		var daily: bool = period == QuestDef.Period.DAILY
+		var column := VBoxContainer.new()
+		column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		column.add_theme_constant_override("separation", 8)
+		columns.add_child(column)
+		column.add_child(UiSkin.label("Daily quests" if daily else "Weekly quests", 20, UiSkin.GOLD))
+		var left := QuestBoard.time_text(QuestBoard.seconds_left(period))
+		column.add_child(UiSkin.label("New ones in %s. Counts every run %s." % [left, "today" if daily else "this week (from Monday)"], 15, UiSkin.DIM, true))
 		for quest in QuestBoard.current(_content.quests, period):
-			_list.add_child(_quest_row(quest))
-
-
-func _quest_row(quest: Dictionary) -> Control:
-	var done := QuestBoard.is_done(quest)
-	var row := HBoxContainer.new()
-	row.custom_minimum_size = Vector2(1000, 56)
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_theme_constant_override("separation", 12)
-	var text := VBoxContainer.new()
-	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text.add_theme_constant_override("separation", 2)
-	text.add_child(_label(QuestBoard.text(quest), 18, Palette.HEAL if done else Color.WHITE))
-	var bar := StatBar.new()
-	bar.custom_minimum_size = Vector2(300, 20)
-	bar.fill_color = Palette.HEAL if done else Palette.GOLD
-	bar.font_size = 13
-	text.add_child(bar)
-	bar.set_values(QuestBoard.progress(quest), quest.target, "%d / %d" % [QuestBoard.progress(quest), quest.target])
-	row.add_child(text)
-	var right := VBoxContainer.new()
-	right.add_child(_label("Done!" if done else "", 16, Palette.HEAL, false))
-	right.add_child(_label("+%d souls" % quest.reward, 15, Color(0.65, 0.95, 1, 0.9), false))
-	row.add_child(right)
-	return row
+			column.add_child(CodexRows.quest_row(quest))
+			total += 1
+			done += 1 if QuestBoard.is_done(quest) else 0
+	_summary.text = "Quests done: %d of %d" % [done, total]
 
 
 # --- Bestiary -------------------------------------------------------------------
 
-## Every monster of every act, then the bosses.
+## Every monster and boss, act by act (each act's monsters, then its bosses).
 func bestiary_entries() -> Array[MonsterDef]:
-	var result: Array[MonsterDef] = _content.all_monsters()
+	var result: Array[MonsterDef] = []
 	for act in _content.dungeon.acts:
-		for boss in act.all_bosses():
-			if not result.has(boss):
-				result.append(boss)
+		for monster: MonsterDef in act.monsters + act.all_bosses():
+			if monster and not result.has(monster):
+				result.append(monster)
 	return result
+
+
+## The bestiary's cards, in the order of bestiary_entries() (empty on other tabs).
+func bestiary_cards() -> Array[CodexCard]:
+	return _cards
 
 
 func _fill_bestiary() -> void:
@@ -119,27 +127,63 @@ func _fill_bestiary() -> void:
 	if rules:
 		for monster in entries:
 			Bestiary.claim(monster, rules)
-	var known := entries.filter(func(m: MonsterDef) -> bool: return Profile.kill_count(m.id) > 0).size()
-	var mastered := entries.filter(func(m: MonsterDef) -> bool: return rules != null and Bestiary.is_mastered(m, rules)).size()
+	var slain := entries.filter(func(m: MonsterDef) -> bool: return Profile.kill_count(m.id) > 0).size()
+	var mastered := entries.filter(func(m: MonsterDef) -> bool: return Bestiary.is_mastered(m, rules)).size()
 	var shiny := entries.filter(func(m: MonsterDef) -> bool: return Profile.has_shiny(m.id)).size()
-	_summary.text = "Bestiary: %d / %d slain, %d mastered, %d shiny (*)   -   tap one for its attacks and challenges" % [known, entries.size(), mastered, shiny]
-	for monster in entries:
-		_list.add_child(_monster_card(monster))
+	_summary.text = "Slain: %d of %d kinds     Mastered: %d     Shiny found: %d" % [slain, entries.size(), mastered, shiny]
+	_list.add_theme_constant_override("separation", 6)
+	var placed := {}
+	var acts := _content.dungeon.acts
+	for i in acts.size():
+		var act := acts[i]
+		var kinds: Array[MonsterDef] = []
+		for monster: MonsterDef in act.monsters + act.all_bosses():
+			if monster and not placed.has(monster):
+				placed[monster] = true
+				kinds.append(monster)
+		if kinds.is_empty():
+			continue
+		var first := _content.dungeon.first_depth(i)
+		var known := kinds.filter(func(m: MonsterDef) -> bool: return Profile.kill_count(m.id) > 0).size()
+		var heading := HBoxContainer.new()
+		heading.add_theme_constant_override("separation", 14)
+		heading.add_child(UiSkin.label("%s  -  %s" % [act.subtitle, act.title], 19, UiSkin.GOLD))
+		var floors := "floor %d" % first if act.floors <= 1 else "floors %d to %d" % [first, first + act.floors - 1]
+		var where := UiSkin.label("%s     %d of %d slain" % [floors, known, kinds.size()], 15, UiSkin.DIM)
+		where.size_flags_vertical = Control.SIZE_SHRINK_END
+		heading.add_child(where)
+		_list.add_child(heading)
+		var flow := HFlowContainer.new()
+		flow.add_theme_constant_override("h_separation", 8)
+		flow.add_theme_constant_override("v_separation", 8)
+		_list.add_child(flow)
+		for monster in kinds:
+			var card := CodexCard.new(monster, rules)
+			card.pressed.connect(func() -> void:
+				Sfx.play_ui(Sfx.bank.ui_open)
+				open_monster(monster))
+			flow.add_child(card)
+			_cards.append(card)
+		if i < acts.size() - 1:
+			var gap := Control.new()
+			gap.custom_minimum_size.y = 6
+			_list.add_child(gap)
 
 
 ## Its page instead of the list.
 func open_monster(monster: MonsterDef) -> void:
 	_page.show_monster(monster, _content)
-	_scroll.hide()
+	_list_box.hide()
+	_intro.hide()
 	_page.show()
 
 
 func _close_page() -> void:
 	if _page.visible:
 		_page.hide()
-		for child in _page.get_children():
-			child.queue_free()
-		_scroll.show()
+		_page.clear()
+		_list_box.show()
+		_intro.show()
 
 
 func is_page_open() -> bool:
@@ -153,55 +197,6 @@ func back() -> void:
 		_close_page()
 	else:
 		hide()
-
-
-func _monster_card(monster: MonsterDef) -> Control:
-	var kills := Profile.kill_count(monster.id)
-	var known := kills > 0
-	var rank := Bestiary.rank_of(monster, _content.bestiary) if _content.bestiary else (1 if known else -1)
-	var card := Button.new()
-	card.custom_minimum_size = CARD_SIZE
-	card.focus_mode = Control.FOCUS_NONE
-	card.disabled = rank == Bestiary.UNSEEN
-	card.pressed.connect(func() -> void:
-		Sfx.play_ui(Sfx.bank.ui_open)
-		open_monster(monster))
-	var inside := VBoxContainer.new()
-	inside.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	inside.alignment = BoxContainer.ALIGNMENT_CENTER
-	inside.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	card.add_child(inside)
-	var picture := TextureRect.new()
-	picture.texture = portrait(monster)
-	picture.custom_minimum_size = Vector2(72, 72)
-	picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	picture.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	picture.modulate = Color.WHITE if rank >= Bestiary.SEEN else UNKNOWN_COLOR
-	picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	inside.add_child(picture)
-	var name_label := _label(monster.display_name if rank >= Bestiary.SEEN else "???", 16, Palette.DANGER if monster is BossDef else Color.WHITE)
-	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	inside.add_child(name_label)
-	var info_text := "Not met yet"
-	if rank == Bestiary.SEEN:
-		info_text = "Seen, never slain"
-	elif rank > 0:
-		info_text = "%s\n%d slain" % [Bestiary.rank_name(rank, _content.bestiary), kills]
-	var info := _label(info_text, 15, Palette.HEAL if _content.bestiary and Bestiary.is_mastered(monster, _content.bestiary) else Color(1, 1, 1, 0.7))
-	info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	info.add_theme_constant_override("outline_size", 4)
-	info.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
-	inside.add_child(info)
-	if Profile.has_shiny(monster.id):
-		# A badge in the corner (it never gets cut off like text at the end of a line).
-		var shiny := _label("Shiny", 14, Color(1.0, 0.6, 0.95))
-		shiny.add_theme_constant_override("outline_size", 4)
-		shiny.add_theme_color_override("font_outline_color", Color.BLACK)
-		shiny.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		shiny.position = Vector2(8, 4)
-		card.add_child(shiny)
-	return card
 
 
 ## The first idle frame facing down (bosses: their portrait).
@@ -218,78 +213,45 @@ static func portrait(monster: MonsterDef) -> Texture2D:
 # --- Achievements ---------------------------------------------------------------
 
 func _fill_achievements() -> void:
-	var done := _content.achievements.filter(func(a: AchievementDef) -> bool: return a.is_unlocked()).size()
-	_summary.text = "Achievements: %d / %d" % [done, _content.achievements.size()]
-	for achievement in _content.achievements:
-		_list.add_child(_achievement_row(achievement))
+	var list := _content.achievements
+	var unlocked := list.filter(func(a: AchievementDef) -> bool: return a.is_unlocked())
+	var earned := 0
+	for achievement: AchievementDef in unlocked:
+		earned += achievement.reward_souls
+	_summary.text = "Achievements: %d of %d     Souls earned from them: %d" % [unlocked.size(), list.size(), earned]
+	# The ones under way first (closest to done), then the ones done.
+	var sorted := list.duplicate()
+	sorted.sort_custom(func(a: AchievementDef, b: AchievementDef) -> bool:
+		return _closeness(a) > _closeness(b))
+	for achievement: AchievementDef in sorted:
+		_list.add_child(CodexRows.achievement_row(achievement))
 
 
-func _achievement_row(achievement: AchievementDef) -> Control:
-	var unlocked := achievement.is_unlocked()
-	var row := HBoxContainer.new()
-	row.custom_minimum_size = Vector2(520, 64)
-	row.add_theme_constant_override("separation", 12)
-	var icon := TextureRect.new()
-	icon.texture = achievement.icon
-	icon.custom_minimum_size = Vector2(48, 48)
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	icon.modulate = Color.WHITE if unlocked else Color(0.35, 0.35, 0.4)
-	row.add_child(icon)
-	var text := VBoxContainer.new()
-	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text.add_theme_constant_override("separation", 0)
-	text.add_child(_label(achievement.display_name, 18, Palette.GOLD if unlocked else Color.WHITE))
-	text.add_child(_label(achievement.description, 15, Color(1, 1, 1, 0.7)))
-	row.add_child(text)
-	var status := "Done" if unlocked else "%d / %d" % [achievement.progress(), achievement.target]
-	var right := VBoxContainer.new()
-	right.add_child(_label(status, 16, Palette.HEAL if unlocked else Color.WHITE, false))
-	right.add_child(_label("+%d souls" % achievement.reward_souls, 13, Color(0.65, 0.95, 1, 0.8), false))
-	row.add_child(right)
-	return row
+static func _closeness(achievement: AchievementDef) -> float:
+	if achievement.is_unlocked():
+		return -1.0
+	return float(achievement.progress()) / maxf(achievement.target, 1.0)
 
 
 # --- Runs -----------------------------------------------------------------------
 
 func _fill_runs() -> void:
-	_summary.text = "Runs: %d     Victories: %d     Deepest floor: %d" % [Profile.runs, Profile.victories, Profile.best_depth]
+	_summary.text = "Runs: %d     Wins: %d     Deepest floor: %d" % [Profile.runs, Profile.victories, Profile.best_depth]
 	var records := _records_text()
-	if not records.is_empty():
-		_list.add_child(_label(records, 16, Palette.GOLD))
+	_records.text = records
+	_records.visible = not records.is_empty()
 	if Profile.history.is_empty():
-		_list.add_child(_label("No run finished yet. Go down the Well!", 18, Color(1, 1, 1, 0.7)))
+		_list.add_child(UiSkin.label("No run finished yet. Go down the Well!", 18, UiSkin.DIM))
 	for entry: Dictionary in Profile.history:
-		_list.add_child(_run_row(entry))
+		_list.add_child(CodexRows.run_row(entry, _content))
 
 
-func _run_row(entry: Dictionary) -> Control:
-	var row := VBoxContainer.new()
-	row.custom_minimum_size = Vector2(520, 0)
-	row.add_theme_constant_override("separation", 0)
-	var date := Time.get_datetime_string_from_unix_time(int(entry.get("time", 0)), true).left(16)
-	var won := bool(entry.get("won", false))
-	var title := "%s  -  %s  -  depth %d" % [date, entry.get("difficulty", "?"), int(entry.get("depth", 1))]
-	row.add_child(_label(title, 16, Palette.GOLD if won else Color.WHITE))
-	var end := "Victory!" if won and str(entry.get("cause", "")).is_empty() else "Slain by %s" % entry.get("cause", "?")
-	if won and not str(entry.get("cause", "")).is_empty():
-		end = "Won, then slain by %s" % entry.get("cause")
-	var line := "%s   -   level %d, %d kills, %d bosses, %s, +%d souls" % [
-		end, int(entry.get("level", 1)), int(entry.get("kills", 0)), int(entry.get("bosses", 0)),
-		entry.get("weapon", "?"), int(entry.get("souls", 0))]
-	if entry.has("duration"):
-		line = "%s   -   %s" % [TimeText.of(int(entry.duration) / 1000.0), line]
-	row.add_child(_label(line, 13, Color(1, 1, 1, 0.7)))
-	return row
-
-
-## "Fastest wins: Normal 32:10.45   Nightmare +3 51:02.10" (empty before the first win).
+## "Fastest wins:  Normal 32:10.45   Nightmare +3 51:02.10" (empty before the first win).
 func _records_text() -> String:
 	var parts: PackedStringArray = []
 	for key: String in Profile.best_times:
 		parts.append("%s %s" % [_record_name(key), TimeText.of(Profile.best_time(key))])
-	return ("Fastest wins:   " + "    ".join(parts)) if not parts.is_empty() else ""
+	return ("Fastest wins:   " + "     ".join(parts)) if not parts.is_empty() else ""
 
 
 ## A record's difficulty, as the title screen names it ("Nightmare +3").
@@ -300,12 +262,87 @@ func _record_name(key: String) -> String:
 	return name + (" +%s" % parts[1] if parts.size() > 1 else "")
 
 
-## `trim`: long text ends with "..." (and the label can shrink to nothing: not for short values).
-func _label(text: String, size: int, color: Color, trim := true) -> Label:
-	var label := Label.new()
-	label.text = text
-	label.add_theme_font_size_override("font_size", size)
-	label.add_theme_color_override("font_color", color)
-	if trim:
-		label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	return label
+# --- Building ---------------------------------------------------------------------
+
+func _build() -> void:
+	_window = RpgWindow.new("Codex")
+	_window.close_requested.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_close)
+		hide())
+	add_child(_window)
+	# The tabs, left of the header (the window's own row: Close stays on the right).
+	var tabs := HBoxContainer.new()
+	tabs.add_theme_constant_override("separation", 8)
+	var header := _window.header_right.get_parent()
+	header.add_child(tabs)
+	header.move_child(tabs, 0)
+	for i in TAB_NAMES.size():
+		var button := Button.new()
+		button.text = TAB_NAMES[i]
+		button.name = "%sTab" % TAB_NAMES[i]
+		button.toggle_mode = true
+		button.focus_mode = Control.FOCUS_NONE
+		button.custom_minimum_size = Vector2(150, 48)
+		button.add_theme_font_size_override("font_size", 18)
+		button.pressed.connect(func() -> void:
+			if _tab != i or _page.visible:
+				show_tab(i)
+			else:
+				button.set_pressed_no_signal(true))
+		tabs.add_child(button)
+		_tab_buttons.append(button)
+		_own(button)
+	_souls = UiSkin.label("", 22, CodexRows.SOUL)
+	_souls.name = "Souls"
+	_souls.tooltip_text = "Souls are kept between runs. Spend them at the Shrine."
+	_window.header_right.add_child(_souls)
+	_own(_souls)
+
+	# What the tab shows, in a line and a sentence.
+	_intro = VBoxContainer.new()
+	_intro.add_theme_constant_override("separation", 2)
+	_window.body.add_child(_intro)
+	_summary = UiSkin.label("", 19, UiSkin.GOLD)
+	_summary.name = "Summary"
+	_intro.add_child(_summary)
+	_own(_summary)
+	_help = UiSkin.label("", 15, UiSkin.TEXT, true)
+	_help.name = "Help"
+	_intro.add_child(_help)
+	_own(_help)
+	_records = UiSkin.label("", 17, UiSkin.GOLD)
+	_records.name = "Records"
+	_intro.add_child(_records)
+
+	# The list, in a dark inset, scrolled with a finger.
+	_list_box = UiSkin.section()
+	_list_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_window.body.add_child(_list_box)
+	_scroll = ScrollContainer.new()
+	_scroll.name = "Scroll"
+	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_list_box.add_child(_scroll)
+	_own(_scroll)
+	_list = VBoxContainer.new()
+	_list.name = "List"
+	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_scroll.add_child(_list)
+	_own(_list)
+	TouchScroll.attach(_scroll)
+
+	_page = MonsterPage.new()
+	_page.name = "MonsterPage"
+	_page.visible = false
+	_page.back_requested.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_click)
+		_close_page())
+	_window.body.add_child(_page)
+	_own(_page)
+	for node in _named:
+		node.owner = self
+		node.unique_name_in_owner = true
+
+
+## Reachable as %Name from the panel (tests, other scripts), once built.
+func _own(node: Node) -> void:
+	_named.append(node)
