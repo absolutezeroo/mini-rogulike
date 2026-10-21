@@ -647,6 +647,34 @@ func _test_soul_tree_run(game: Game) -> void:
 	await _clear_monsters(world)
 
 
+## A status shows on the body: flames on a burning monster, its ticks in the fire's color.
+func _test_status_looks(game: Game) -> void:
+	var world: World = game.world
+	var rat := world.spawn_monster(load("res://data/monsters/rat.tres"), world.find_open_point_near(game.player.global_position + Vector2(80, 0), 40.0))
+	rat.dormant = true
+	rat.base_stats.max_hp = 9999
+	rat.invalidate_stats()
+	rat.hp = 9999
+	await _frames(2)
+	check(rat.status_fx != null and not rat.status_fx.visible, "a body with no status shows nothing over it")
+	var colors: Array[Color] = []
+	var on_text := func(text: Node) -> void:
+		if text is FloatingText:
+			colors.append((text as FloatingText)._color)
+	world.get_node("Effects").child_entered_tree.connect(on_text)
+	rat.statuses.apply_dot(&"burn", 2, 0.5, 3.0, game.player, Palette.FIRE)
+	await _frames(45)
+	check(rat.status_fx.visible and rat.status_fx._bits.size() > 0, "a burning monster is on fire (%d flames)" % rat.status_fx._bits.size())
+	var burn: StatusLookDef = StatusFx.LOOKS.look(&"burn")
+	check(burn != null and StatusFx.LOOKS.look(&"poison") != null and StatusFx.LOOKS.look(&"slow") != null, "burn, poison and frost each have a look")
+	check(colors.has(Palette.FIRE), "its burn damage shows in the fire's color")
+	world.get_node("Effects").child_entered_tree.disconnect(on_text)
+	rat.statuses.clear()
+	await _frames(60)
+	check(not rat.status_fx.visible and not rat.status_fx.is_processing(), "the fire out, the flames die down and it sleeps again")
+	rat.queue_free()
+
+
 func _kill_one(world: World, player: Player) -> void:
 	for monster: Actor in world.get_hostiles(Actor.Faction.PLAYER):
 		if not monster.is_dead:

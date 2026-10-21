@@ -69,6 +69,16 @@ func has(id: StringName) -> bool:
 	return _dots.any(func(dot: Dot) -> bool: return dot.id == id)
 
 
+## The statuses on now: the damage-over-time ids, and &"slow" when slowed (StatusFx shows them).
+func active_ids() -> Array[StringName]:
+	var ids: Array[StringName] = []
+	for dot in _dots:
+		ids.append(dot.id)
+	if is_slowed():
+		ids.append(&"slow")
+	return ids
+
+
 func is_empty() -> bool:
 	return _dots.is_empty() and _slows.is_empty()
 
@@ -96,7 +106,9 @@ func tick(owner: Actor, delta: float) -> void:
 		if dot.next_tick <= 0.0:
 			dot.next_tick += dot.interval
 			var source: Actor = dot.source if is_instance_valid(dot.source) else null
-			owner.take_hit(Combat.make_tick(source, dot.damage))
+			var tick := Combat.make_tick(source, dot.damage)
+			tick.text_color = dot.color  # its number in the status's color
+			owner.take_hit(tick)
 			if owner.is_dead:
 				_dots.clear()
 				return

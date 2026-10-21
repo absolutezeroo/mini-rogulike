@@ -78,6 +78,8 @@ var equipment := Equipment.new()
 var skills := SkillSet.new()
 var perks := PerkSet.new()
 var statuses := StatusSet.new()
+## Draws the statuses on the body (StatusFx).
+var status_fx: StatusFx
 ## Healing from "per hit" and "per kill" perks (see sustain_heal()).
 var sustain := SustainMeter.new()
 var hp := 1
@@ -105,6 +107,11 @@ func _init() -> void:
 
 
 func _ready() -> void:
+	# What its statuses look like (flames, bubbles, frost), drawn over the body.
+	status_fx = StatusFx.new(self)
+	add_child(status_fx)
+	status_fx.visible = false
+	status_fx.set_process(false)
 	if rig == null:
 		return
 	rig.visible = frames != null
@@ -472,6 +479,8 @@ func _hit_spark_color(hit: HitInfo) -> Color:
 
 
 func _hit_text_color(hit: HitInfo) -> Color:
+	if hit.text_color.a > 0.0:
+		return hit.text_color
 	if hit.is_secondary:
 		return SECONDARY_TEXT_COLOR
 	return CRIT_TEXT_COLOR if hit.is_crit else HIT_TEXT_COLOR
@@ -518,6 +527,8 @@ func _tick_timers(delta: float) -> void:
 			ward = 0
 	if not statuses.is_empty():
 		statuses.tick(self, delta)
+		if status_fx:
+			status_fx.wake()
 
 	if not _timed_bonuses.is_empty():
 		var expired := false

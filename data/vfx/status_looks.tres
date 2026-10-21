@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="StatusLookSet" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/vfx/status_look_set.gd" id="1"]
+[ext_resource type="Script" path="res://src/definitions/vfx/status_look_def.gd" id="5"]
+[ext_resource type="Resource" path="res://data/vfx/status_looks/burn.tres" id="2"]
+[ext_resource type="Resource" path="res://data/vfx/status_looks/poison.tres" id="3"]
+[ext_resource type="Resource" path="res://data/vfx/status_looks/slow.tres" id="4"]
+
+[resource]
+script = ExtResource("1")
+looks = Array[ExtResource("5")]([ExtResource("2"), ExtResource("3"), ExtResource("4")])
