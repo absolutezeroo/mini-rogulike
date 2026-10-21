@@ -613,6 +613,8 @@ Win Nightmare +%d to open +%d  %s: %s,Win Nightmare +%d to open +%d  %s: %s,Gagn
 Choose your ordeal,Choose your ordeal,Choisis ton épreuve
 Tap one to begin the descent. Harder ones pay more souls.,Tap one to begin the descent. Harder ones pay more souls.,Touche-en une pour entamer la descente. Les plus dures rapportent plus d'âmes.
 Nightmare ascension,Nightmare ascension,Ascension du Cauchemar
+Armory level %d (max): %d weapons.,Armory level %d (max): %d weapons.,Armurerie niveau %d (max) : %d armes.
+Armory level %d: %d weapons. More in the Tree of Souls.,Armory level %d: %d weapons. More in the Tree of Souls.,Armurerie niveau %d : %d armes. D'autres dans l'Arbre des Âmes.
 Unsworn,Unsworn,Sans serment
 "The usual start: the Katana, no rule changed.","The usual start: the Katana, no rule changed.","Le départ habituel : le Katana, aucune règle changée."
 "Opens at the end of the %s branch of the Tree of Souls, at the shrine.","Opens at the end of the %s branch of the Tree of Souls, at the shrine.","S'ouvre au bout de la branche %s de l'Arbre des Âmes, au Sanctuaire."
@@ -625,7 +627,11 @@ At the Well's Edge,At the Well's Edge,Au Bord du Puits
 Begin the descent,Begin the descent,Entamer la descente
 Sworn before a run: %s,Sworn before a run: %s,Prêté avant une partie : %s
 Opens: %s,Opens: %s,Ouvre : %s
+Reset the tree,Reset the tree,Réinitialiser l'arbre
+Reset in %d runs,Reset in %d runs,Réinitialisation dans %d parties
+Reset in %d run,Reset in %d run,Réinitialisation dans %d partie
 Nothing bought yet.,Nothing bought yet.,Rien d'acheté pour l'instant.
+Earned every %d runs.,Earned every %d runs.,Gagnée toutes les %d parties.
 "Every soul spent comes back (%d), for free.","Every soul spent comes back (%d), for free.","Chaque âme dépensée te revient (%d), gratuitement."
 "Every soul spent comes back (%d), minus %d.","Every soul spent comes back (%d), minus %d.","Chaque âme dépensée te revient (%d), moins %d."
 %s branch  -  pick one of two,%s branch  -  pick one of two,Branche %s  -  choisis l'un des deux
@@ -640,7 +646,6 @@ Need %d souls,Need %d souls,Il faut %d âmes
 The Shrine: Tree of Souls,The Shrine: Tree of Souls,Le Sanctuaire : l'Arbre des Âmes
 The node,The node,Le nœud
 "Gold ring: bought. Glowing: you can buy it. Dark: buy a node above it first. ""or"": pick one of the two. ?: a feat opens it.","Gold ring: bought. Glowing: you can buy it. Dark: buy a node above it first. ""or"": pick one of the two. ?: a feat opens it.",Anneau doré : acheté. Lumineux : tu peux l'acheter. Sombre : achète d'abord un nœud au-dessus. « ou » : choisis l'un des deux. ? : un exploit l'ouvre.
-Reset the tree,Reset the tree,Réinitialiser l'arbre
 or,or,ou
 Resume the descent,Resume the descent,Reprendre la descente
 "Floor %d, level %d","Floor %d, level %d","Étage %d, niveau %d"
@@ -682,6 +687,7 @@ merchant prices %+d%%,merchant prices %+d%%,prix du marchand %+d %%
 elites always drop Magic gear,elites always drop Magic gear,les élites lâchent toujours de l'équipement Magique
 "the minimap shows stairs, merchant and forge","the minimap shows stairs, merchant and forge","la minicarte montre escaliers, marchand et forge"
 pick your starting weapon,pick your starting weapon,choisis ton arme de départ
+pick your starting weapon among %d,pick your starting weapon among %d,choisis ton arme de départ parmi %d
 start with a random spell tome,start with a random spell tome,commence avec un grimoire de sort au hasard
 a new oath to swear before a run,a new oath to swear before a run,un nouveau serment à prêter avant une partie
 Active: %s,Active: %s,Actif : %s
@@ -689,6 +695,10 @@ Gives: %s,Gives: %s,Donne : %s
 Level 1 gives: %s,Level 1 gives: %s,Le niveau 1 donne : %s
 Now: %s  (maxed),Now: %s  (maxed),Actuel : %s  (au maximum)
 Now: %s   >   Next: %s,Now: %s   >   Next: %s,Actuel : %s   >   Suivant : %s
+Level 1 gives: pick your starting weapon among %d: %s,Level 1 gives: pick your starting weapon among %d: %s,Le niveau 1 donne : choisis ton arme de départ parmi %d : %s
+Now: %d starting weapons  (maxed),Now: %d starting weapons  (maxed),Actuel : %d armes de départ  (au maximum)
+Now: %d starting weapons   >   Next: +%d weapons: %s,Now: %d starting weapons   >   Next: +%d weapons: %s,Actuel : %d armes de départ   >   Suivant : +%d armes : %s
+%s (locked),%s (locked),%s (à débloquer)
 OK,OK,OK
 The depths,The depths,Les profondeurs
 %s - better loot,%s - better loot,%s - meilleur butin
@@ -1580,7 +1590,7 @@ Campfires warm you on frozen floors; oases cool you on burning ones.,Campfires w
 Gift of the Arcane,Gift of the Arcane,Don des Arcanes
 "Your weapons' skills deal more damage, in every run.","Your weapons' skills deal more damage, in every run.","Les compétences de tes armes infligent plus de Dégâts, dans chaque partie."
 Armory,Armory,Armurerie
-"Pick the weapon you start every run with, among those the dungeon holds (before each run).","Pick the weapon you start every run with, among those the dungeon holds (before each run).","Choisis l'arme avec laquelle tu commences chaque partie, parmi celles que recèle le donjon (avant chaque partie)."
+Pick your starting weapon before each run.,Pick your starting weapon before each run.,Choisis ton arme de départ avant chaque partie.
 Blood Pact,Blood Pact,Pacte de Sang
 "20% more max Health in every run, but every heal is 30% weaker.","20% more max Health in every run, but every heal is 30% weaker.","20 % de Vie max en plus dans chaque partie, mais chaque soin est 30 % plus faible."
 Cartographer,Cartographer,Cartographe

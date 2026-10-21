@@ -79,20 +79,45 @@ they buy the nodes of the **Tree of Souls** (`data/shrine/soul_tree.tres`, `Soul
 | Branch | Nodes, top to bottom ("or": a fork, taking one shuts the other) | Oath at the end |
 |---|---|---|
 | Flesh | Vitality; Iron Skin or Communion (heal 5% a level when a floor is won); Provisions; Death Denied (a Phoenix Feather from the start: a second life through the trial of the Threshold, see builds.md) or Blood Pact (+20% max Health, heals 30% weaker) | Oath of the Colossus |
-| Blade | Might; Keen Eye (+crit) or Quick Hands (+attack speed); Armory (pick the starting weapon); Spoils of the Fallen (elites drop Magic gear) | Oath of the Duelist |
+| Blade | Might; Keen Eye (+crit) or Quick Hands (+attack speed); Armory (pick the starting weapon, 5 levels); Spoils of the Fallen (elites drop Magic gear) | Oath of the Duelist |
 | Arcana | Gift of the Arcane; Pyromancy, Paladin's Oath (new items); Forbidden Library; Satchel of Tomes (start with a tome) or Swift Litany | Oath of the Heretic |
 | Greed | Loaded Dice (rerolls); Swiftness, Exile (banishes); Master Smith, Cartographer (stairs, merchant and forge on the minimap); Haggler (-15% prices) or Laden Stalls (+2 items) | Oath of the Vulture |
 
 A node opens once a node above it is bought; some also need a **feat** (an achievement: "?" on the
 node, the feat in its card). Tapping a node shows on the right what it does now and next, what
-opens it, and Buy. **Reset the tree** gives every soul back (`SoulTreeDef.reset_cost`, 0: free),
-so trying another path costs nothing. Each node's effect is an `UpgradeDef` (`data/upgrades/`):
+opens it, and Buy. **Reset the tree** gives every soul back, every level of every node
+(`SoulTreeDef.reset_cost`, 0: free), but it is earned: once every `reset_runs` (3) finished runs
+(`Profile.runs_since_reset`, counted by `Profile.record_run`: a death or a win, daily and Pilgrim
+runs included; a run won then lost in the endless floors counts once). Until then the button is
+greyed and says "Reset in 2 runs"; a reset starts the count again. Saves from before the rule
+start with a reset earned, so nobody is stuck with an old path. Each node's effect is an `UpgradeDef` (`data/upgrades/`):
 stats, a head start, perk choices, new items, or run rules (kind `RULES`, read by `RunBoons`:
 heals, gold, loot, the merchant, the minimap). The old shrine's levels carry over as they are.
 
 **Oaths** (`data/oaths/`, `OathDef`): the end of each branch opens one. Once one is open (or the
 Armory), "At the Well's Edge" (`OathPanel`) comes between the difficulty and the run: swear an
-oath or none, and pick the starting weapon (Armory). An oath is an "X, but Y" start:
+oath or none, and pick the starting weapon (Armory). An oath is an "X, but Y" start (table below).
+
+**The Armory** is bought in 5 levels (`data/upgrades/armory.tres`: `armory_weapons`, an ordered
+list, `armory_first` 3 at level 1, `armory_per_level` 2 more each level; costs 90 / 150 / 210 /
+270 / 330 souls, 1050 in all). Level 1 opens one weapon per way to fight, the rare ones come last:
+
+| Level | Adds | Weapons |
+|---|---|---|
+| 1 | Katana (the usual start), Bow, Frost Staff | 3 |
+| 2 | Sai, Spark Wand | 5 |
+| 3 | Lance, Battle Axe | 7 |
+| 4 | Whip, Shuriken | 9 |
+| 5 | Greatsword, Templar Sword | 11 |
+
+A weapon in `content_db.tres` > Locked Items (the Templar Sword, opened by Paladin's Oath) is
+offered only once unlocked (`ShrineUpgrades.armory_weapons`). The oaths' weapons (War Hammer,
+Rapier, Ember Tome) are not in the list: they come with their oath. Ninjaku and Pickaxe are left
+to the floors. The node's detail says what the next level adds ("Now: 5 starting weapons >
+Next: +2 weapons: Lance, Battle Axe", a weapon still locked marked so); the Well's Edge shows only
+the weapons the level opened and "Armory level 3: 7 weapons. More in the Tree of Souls.". A
+starting weapon the level no longer offers (an older save, a reset tree) falls back to the usual
+Katana. Saves that bought the old one-level Armory keep it as level 1.
 
 | Oath | Rule |
 |---|---|
@@ -108,8 +133,8 @@ glance. Every oath has at least one of each (a unit check).
 Not in the daily run (everyone starts the same). The run keeps its oath in the save (`RunState.oath`).
 
 **The pace of the tree** (measured: `tools/balance` economy mode, table "economy_campaign"): a
-full tree (the dearer side of each fork) is a campaign of about 40-45 runs on Keeper, every source
-counted (runs, quests, the bestiary's ranks and challenges, achievements), some 25 hours; the
+full tree (the dearer side of each fork) is a campaign of about 47 runs on Keeper (8765 souls), every source
+counted (runs, quests, the bestiary's ranks and challenges, achievements), some 29 hours; the
 first node is bought after the first run; the bestiary and the achievements pay about a sixth of
 the tree in the first 10 runs (they used to pay more than the whole tree). Martyr and Nightmare
 pay more per run (x1.6, x2.5, and more monsters).

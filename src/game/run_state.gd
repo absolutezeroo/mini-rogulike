@@ -131,7 +131,8 @@ func award_souls(won_now: bool, ascension_count: int) -> int:
 	var total := souls()
 	var earned := total - souls_awarded
 	souls_awarded = total
-	Profile.record_run(earned, depth, won_now, difficulty.id, difficulty.counts_feats)
+	# A run won then lost in the endless floors ends once: at the win.
+	Profile.record_run(earned, depth, won_now, difficulty.id, difficulty.counts_feats, won_now or not has_won)
 	if won_now and difficulty.has_ascensions:
 		Profile.win_ascension(difficulty.ascension, ascension_count)
 	return earned

@@ -4,13 +4,16 @@ extends Control
 ## nodes bought with souls; a node opens once a node above it is bought, some need a feat, and
 ## side-by-side nodes are forks (taking one shuts the other). Each branch ends on an oath, a way to
 ## start a run. Left, the tree (SoulTreeView); right, the picked node: what it does, now and next,
-## what opens it, and Buy. "Reset the tree" gives every soul back, to try another path.
+## what opens it, and Buy. "Reset the tree" gives every soul back, to try another path, once
+## earned: every SoulTreeDef.reset_runs runs ("Reset in 2 runs" until then).
 ## Built in code; %Souls, %ShrineText, %TreeView, %BuyButton and %ResetButton are reachable from
 ## the title screen.
 
 const DETAIL_WIDTH := 360.0
 
 var _tree: SoulTreeDef
+## For the words that need the dungeon's items (the Armory's weapons still locked); may be null.
+var _content: ContentDB
 var _picked: SoulNodeDef
 
 var _window: MenuWindow
@@ -37,8 +40,9 @@ func _ready() -> void:
 	Profile.changed.connect(_refresh)
 
 
-func open(tree: SoulTreeDef) -> void:
+func open(tree: SoulTreeDef, content: ContentDB = null) -> void:
 	_tree = tree
+	_content = content
 	_view.show_tree(tree)
 	_view.fit(_view.get_parent().get_parent().size - Vector2(4, 4))
 	# Start on something worth reading: the first node you can buy, or the first root.
@@ -94,10 +98,17 @@ static func _oath_lines(oath: OathDef, kind: int) -> String:
 
 
 ## The words for a node: what it does now and next (UpgradeRow's), and the oath's rule.
-static func status_of(node: SoulNodeDef) -> String:
+static func status_of(node: SoulNodeDef, content: ContentDB = null) -> String:
 	if node.oath:
 		return (TranslationServer.tr("Sworn before a run: %s") if node.is_owned() else TranslationServer.tr("Opens: %s")) % TranslationServer.tr(node.oath.description)
-	return UpgradeRow.status_text(node.upgrade, node.level())
+	return UpgradeRow.status_text(node.upgrade, node.level(), content)
+
+
+## The reset button's words: "Reset the tree", or how many runs until it is earned.
+static func reset_label(runs_left: int) -> String:
+	if runs_left <= 0:
+		return TranslationServer.tr("Reset the tree")
+	return (TranslationServer.tr("Reset in %d runs") if runs_left > 1 else TranslationServer.tr("Reset in %d run")) % runs_left
 
 
 func _refresh() -> void:
@@ -106,9 +117,13 @@ func _refresh() -> void:
 	_souls.text = tr("Souls %d") % Profile.souls
 	_view.refresh()
 	var spent := _tree.spent()
-	_reset.disabled = spent <= 0
+	var runs_left := Profile.reset_runs_left(_tree)
+	_reset.text = reset_label(runs_left)
+	_reset.disabled = not Profile.can_reset_tree(_tree)
 	if spent <= 0:
 		_reset_text.text = tr("Nothing bought yet.")
+	elif runs_left > 0:
+		_reset_text.text = tr("Earned every %d runs.") % _tree.reset_runs
 	elif _tree.reset_cost <= 0:
 		_reset_text.text = tr("Every soul spent comes back (%d), for free.") % spent
 	else:
@@ -127,7 +142,7 @@ func _refresh() -> void:
 	_branch.add_theme_color_override("font_color", branch_color.lerp(Color.WHITE, 0.3))
 	_level.text = UpgradeRow.level_text(upgrade, node.level()) if not node.oath else (tr("Oath open") if node.is_owned() else tr("Oath locked"))
 	_text.text = (tr("Pick it before a run, after the difficulty.") + "\n" + _oath_lines(node.oath, 0)).strip_edges() if node.oath else UpgradeRow.description_of(upgrade)
-	_status.text = status_of(node) if not node.oath else _oath_lines(node.oath, 1)
+	_status.text = status_of(node, _content) if not node.oath else _oath_lines(node.oath, 1)
 	_status.visible = not _status.text.is_empty()
 	_costs.text = _oath_lines(node.oath, -1) if node.oath else ""
 	_costs.visible = not _costs.text.is_empty()

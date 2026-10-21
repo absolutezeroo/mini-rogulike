@@ -3,6 +3,43 @@
 Dated entries, newest first: what was measured, what changed and why, before/after numbers, open
 questions. How to measure: [balance.md](balance.md).
 
+## 2026-10-22 - The Armory in 5 levels; the tree's reset earned by runs (measured, economy mode)
+
+**Why (the owner):** "the starting weapons must be limited, you can have nearly everything": one
+Armory node (250 souls) let a player start with any weapon the dungeon holds (15 of them, the
+strongest included). And "the reset unlocks with runs, otherwise it's too easy": the free reset at
+any time made every fork and path a free trial.
+
+**What changed:**
+
+| | Before | After |
+|---|---|---|
+| Armory | 1 level, 250 souls: any weapon the dungeon holds | 5 levels, 90 / 150 / 210 / 270 / 330 souls (`cost` 90, `cost_growth` 60; 1050 in all): 3 weapons, then +2 a level, 11 at the top |
+| Armory weapons, in order (`armory_weapons`) | every weapon of the dungeon | Katana, Bow, Frost Staff / Sai, Spark Wand / Lance, Battle Axe / Whip, Shuriken / Greatsword, Templar Sword (locked until Paladin's Oath) |
+| Not in the Armory | - | the oaths' weapons (War Hammer, Rapier, Ember Tome: with their oath), Ninjaku and Pickaxe (floors only) |
+| Reset the tree | free, any time | free (every level refunded), once every 3 finished runs (`SoulTreeDef.reset_runs`); saves from before start with one earned |
+
+Level 1 (90) costs about two early runs' souls with the bestiary and quests (a Keeper career has
+505 souls at run 3), cheaper than the old node (250) since it now opens less; the top level (330)
+is about two late runs (~170 a run). Old saves that bought the Armory keep it as level 1 (the
+same id, level 1); a starting weapon outside it falls back to the Katana.
+
+**Before / after** (engine, seed 1, economy mode, table "economy_campaign", Keeper career):
+
+| | Before | After |
+|---|---|---|
+| Full tree (dearer side of each fork) | 7965 souls, run 42 (~26 h) | 8765 souls, run 47 (~29 h) |
+| Every node | 9725 souls, run 53 (~33 h) | 10525 souls, run 58 (~37 h) |
+| One-time pools / full tree | 46% | 42% |
+
+Still inside the 40-60 runs target. Unit checks hold the new Armory (levels in data order, +2 a
+level, nothing locked offered, costs rising, first level <= 150) and the reset rule.
+
+**Open:** giving up a run right away (pause menu) still counts as a finished run toward the reset;
+three quick give-ups earn one. A minimum depth or time could close that if it matters. The order
+of the weapons is a judgement (one per way to fight first, the heavy and rare last), not measured:
+the weapon arena (balance `arena` mode) would say which starts are strongest.
+
 ## 2026-10-22 - The Deeps: a fall's new cost (measured, a probe)
 
 **Why:** a fall into a floor's hole now takes the hero into the Deeps (dungeon.md) instead of

@@ -124,7 +124,10 @@ static func effect_at(def: UpgradeDef, level: int) -> String:
 			if def.cartographer:
 				parts.append(TranslationServer.tr("the minimap shows stairs, merchant and forge"))
 			if def.armory:
-				parts.append(TranslationServer.tr("pick your starting weapon"))
+				if def.armory_weapons.is_empty():
+					parts.append(TranslationServer.tr("pick your starting weapon"))
+				else:
+					parts.append(TranslationServer.tr("pick your starting weapon among %d") % def.armory_count(level))
 			return ", ".join(parts)
 		UpgradeDef.Kind.RANDOM_STARTING_ITEM:
 			return TranslationServer.tr("start with a random spell tome")
@@ -134,7 +137,10 @@ static func effect_at(def: UpgradeDef, level: int) -> String:
 
 
 ## What you have, and what buying adds: "Now: +16 max health  >  Next: +24 max health".
-static func status_text(def: UpgradeDef, level: int) -> String:
+## `content` (may be null) lets the Armory mark the weapons still locked in the dungeon.
+static func status_text(def: UpgradeDef, level: int, content: ContentDB = null) -> String:
+	if def.armory and not def.armory_weapons.is_empty():
+		return armory_status(def, level, content)
 	if def.max_level <= 1:
 		if level > 0:
 			return TranslationServer.tr("Active: %s") % effect_at(def, 1)
@@ -203,3 +209,29 @@ func _build() -> void:
 	_buy.pressed.connect(func() -> void: buy_requested.emit(upgrade))
 	row.add_child(_buy)
 	MenuWindow.expose(_buy, "BuyButton", self)
+
+
+## The Armory: how many weapons now, and the ones the next level adds, by name ("Now: 5
+## starting weapons  >  Next: +2 weapons: Lance, Battle Axe").
+static func armory_status(def: UpgradeDef, level: int, content: ContentDB = null) -> String:
+	var now := def.armory_count(level)
+	if level <= 0:
+		return TranslationServer.tr("Level 1 gives: pick your starting weapon among %d: %s") % [def.armory_count(1), _weapon_names(def.armory_added(1), content)]
+	if level >= def.max_level:
+		return TranslationServer.tr("Now: %d starting weapons  (maxed)") % now
+	var added := def.armory_added(level + 1)
+	return TranslationServer.tr("Now: %d starting weapons   >   Next: +%d weapons: %s") % [now, added.size(), _weapon_names(added, content)]
+
+
+## Weapon names, a locked one (ContentDB's Locked Items, not unlocked yet) marked as such.
+static func _weapon_names(weapons: Array[WeaponDef], content: ContentDB) -> String:
+	var unlocked: Array[ItemDef] = []
+	if content:
+		unlocked = ShrineUpgrades.unlocked_items(content)
+	var names := PackedStringArray()
+	for weapon in weapons:
+		var name := TranslationServer.tr(weapon.display_name)
+		if content and content.locked_items.has(weapon) and not unlocked.has(weapon):
+			name = TranslationServer.tr("%s (locked)") % name
+		names.append(name)
+	return ", ".join(names)
