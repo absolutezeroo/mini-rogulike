@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="VfxSheetDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_sheet_def.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/fx/holy/holy_sigil.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+texture = ExtResource("2")
+frames = 8
+fps = 12.0
+recolor = true
+anchor = Vector2(0, -10)
+linger = 0.12

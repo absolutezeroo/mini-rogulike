@@ -15,6 +15,11 @@ func run() -> void:
 	_test_slow_looks()
 	_test_data_sheets()
 	_test_frost_kit()
+	_test_storm_kit()
+	_test_holy_kit()
+	_test_shadow_kit()
+	_test_arcane_kit()
+	_test_borrowed_art()
 
 
 ## Each element: an id, a ramp of 3 to 5 colors from a bright core to a dark edge (shadow turned
@@ -177,6 +182,10 @@ func _test_data_sheets() -> void:
 				var vfx := SheetVfx.create(dash.fx, Vector2.ZERO, 0.4, maxf(dash.distance, 40.0) / dash.fx.get_height())
 				check(vfx.sheet.texel % 2 == 0, "sheets: %s's dash sheet is drawn at a whole even scale" % where)
 				vfx.free()
+			if effect is DamageAreaEffect and (effect as DamageAreaEffect).strike:
+				_check_sheet((effect as DamageAreaEffect).strike, "%s's strike" % where)
+			if effect is BuffEffect and (effect as BuffEffect).sheet:
+				_check_sheet((effect as BuffEffect).sheet, "%s's blessing" % where)
 		if resource is WeaponDef:
 			var weapon := resource as WeaponDef
 			if weapon.projectile_texture:
@@ -190,9 +199,12 @@ func _test_data_sheets() -> void:
 			check(look.texel % 2 == 0, "sheets: %s is drawn at a whole even scale" % where)
 	var campfire := load("res://data/hazards/campfire.tres") as HeatSourceDef
 	check(VfxSheetDef.cell_size(campfire.flames, campfire.flame_frames) == Vector2i(8, 12), "sheets: the campfire's flames are 8x12, not squares cut across two flames")
+	# Thunder's bolt from the sky is drawn whole at the art's size, not a strip of little bolts
+	# stretched 4.4x (the old thunder.png).
 	var thunder := load("res://data/skills/player/thunder.tres") as SkillDef
-	var bolt := thunder.effects[0] as DamageAreaEffect
-	check(VfxSheetDef.cell_size(bolt.fx, bolt.fx_frames) == Vector2i(20, 28), "sheets: Thunder's bolts are 20x28 frames")
+	var bolt := (thunder.effects[0] as DamageAreaEffect).strike
+	check(bolt != null and bolt.frame_size() == Vector2i(48, 96) and bolt.texel == 2, "sheets: Thunder's bolt is one 48x96 strike drawn at 2x")
+	check(Vfx.SIGIL.recolor and VfxSheetDef.slices_evenly(Vfx.SIGIL.texture, Vfx.SIGIL.frames) and Vfx.SIGIL.texel == 2, "sheets: the sigil of heals and buffs cuts into whole frames at 2x and takes any ramp")
 
 
 ## Frost is the reference kit: every frost user is frost, none shoots a shuriken.
@@ -239,6 +251,91 @@ func _test_frost_kit() -> void:
 		for effect in _effects_of(resource):
 			if effect is ProjectileEffect and (effect as ProjectileEffect).element == frost and (effect as ProjectileEffect).texture:
 				check(not (effect as ProjectileEffect).texture.resource_path.contains(shuriken), "frost: %s shoots no shuriken" % resource.resource_path.get_file())
+
+
+## Storm: violet-white lightning everywhere it strikes, one identity (the synergy, Thunder and its
+## tome share the element's color), forks and flicker instead of orbs.
+func _test_storm_kit() -> void:
+	var storm := VfxElementDef.named(&"storm")
+	check(storm.projectile and storm.impact and storm.piece and storm.bit == VfxElementDef.Bit.FORK, "storm: its kit is full (spark, impact, crackle piece) and its bits are forks")
+	var thunder := (load("res://data/skills/player/thunder.tres") as SkillDef).effects[0] as DamageAreaEffect
+	check(thunder.element == storm and thunder.fx == null and thunder.strike != null, "storm: Thunder strikes a bolt from the sky over a ring of crackles, not a stretched sheet")
+	var nova := (load("res://data/skills/player/spark_nova.tres") as SkillDef).effects[0] as ProjectileEffect
+	check(nova.element == storm and nova.texture == null, "storm: Spark Nova throws storm sparks, not cyan orbs")
+	var wand := load("res://data/items/weapons/magic_wand.tres") as WeaponDef
+	check(wand.element == storm and wand.projectile_texture == null, "storm: the Spark Wand fires storm sparks")
+	for path: String in ["res://data/perks/synergies/storm.tres", "res://data/runes/spark.tres", "res://data/affixes/shocking.tres", "res://data/perks/common/shock_roll.tres", "res://data/runes/gale.tres", "res://data/perks/common/thunderclap.tres"]:
+		check((load(path) as Resource).get("passives")[0].get("element") == storm, "storm: %s is storm" % path.get_file())
+	var accent := storm.color().to_html(false)
+	for path: String in ["res://data/perks/synergies/storm.tres", "res://data/skills/player/thunder.tres", "res://data/skills/player/spark_nova.tres", "res://data/items/tomes/tome_thunder.tres", "res://data/items/weapons/magic_wand.tres"]:
+		check((load(path) as Resource).get("color").to_html(false) == accent, "storm: %s wears the storm's color" % path.get_file())
+	# A chain of lightning is a jagged fork on the grid that ends where it struck.
+	var beam := BeamVfx.create(Vector2(1, 3), Vector2(121, 47), Color.WHITE, storm)
+	var on_grid := beam._knees.size() >= 3
+	for knee in beam._knees:
+		on_grid = on_grid and knee == PixelDraw.snap(knee)
+	check(on_grid and beam._knees[beam._knees.size() - 1] == PixelDraw.snap(Vector2(121, 47)) - beam.position, "storm: chain lightning forks in knees on the art grid, from target to target")
+	beam.free()
+
+
+## Holy: rays, columns and rings of light; the 4-point glint is its own.
+func _test_holy_kit() -> void:
+	var holy := VfxElementDef.named(&"holy")
+	check(holy.piece != null and holy.bit == VfxElementDef.Bit.GLINT, "holy: its nova is made of rays and its bits are 4-point glints")
+	for element in VfxElementDef.all():
+		if element != holy:
+			check(element.bit != VfxElementDef.Bit.GLINT, "holy: only holy throws 4-point glints (%s doesn't)" % element.id)
+	for path: String in ["res://data/skills/player/smite.tres", "res://data/skills/player/holy_light.tres", "res://data/skills/player/holy_shield.tres"]:
+		for effect in _effects_of(load(path)):
+			check(effect.get("element") == holy, "holy: %s's %s is holy" % [path.get_file(), effect.get_script().get_global_name()])
+			if effect is DamageAreaEffect:
+				check((effect as DamageAreaEffect).fx == null, "holy: %s is a ring of rays, not holy_circle stretched 5x" % path.get_file())
+	var smite := (load("res://data/skills/player/smite.tres") as SkillDef).effects[0] as DamageAreaEffect
+	check(smite.strike != null and smite.strike.texel == 2, "holy: Smite brings a column of light down, at the art's size")
+	var shield := (load("res://data/skills/player/holy_shield.tres") as SkillDef).effects[0] as BuffEffect
+	check(shield.sheet != null, "holy: Holy Shield raises a ring of light into a halo")
+
+
+## Shadow: every shadow shot is a dark knot with a burning rim (they are all enemy threats).
+func _test_shadow_kit() -> void:
+	var shadow := VfxElementDef.named(&"shadow")
+	check(shadow.projectile and shadow.impact and shadow.piece and shadow.motion == VfxElementDef.Motion.CONVERGE, "shadow: its kit is full (knot, collapsing ring, smoke) and it pulls inward")
+	for path: String in ["res://data/items/weapons/monster/shadow_staff.tres", "res://data/items/weapons/monster/ink_bolt.tres", "res://data/items/weapons/monster/hex_staff.tres"]:
+		var weapon := load(path) as WeaponDef
+		check(weapon.element == shadow and weapon.projectile_texture == null, "shadow: %s fires the shadow knot" % path.get_file())
+	for path: String in ["res://data/skills/monster/volley.tres", "res://data/skills/monster/ink_ring.tres"]:
+		for effect in _effects_of(load(path)):
+			check(effect.get("element") == shadow and effect.get("texture") == null, "shadow: %s fires shadow knots" % path.get_file())
+	var step := load("res://data/skills/player/shadow_step.tres") as SkillDef
+	check(step.effects[0] is DashEffect and (step.effects[0] as DashEffect).element == shadow, "shadow: Shadow Step leaves in a burst of shadow and a trail of smoke")
+	check((step.effects[1] as ProjectileEffect).element == shadow, "shadow: Shadow Step's kunai land in shadow")
+
+
+## Arcane: a magenta missile with orbiting motes and rune-diamonds, no borrowed orb.
+func _test_arcane_kit() -> void:
+	var arcane := VfxElementDef.named(&"arcane")
+	check(arcane.projectile and arcane.impact and arcane.piece and arcane.bit == VfxElementDef.Bit.RUNE, "arcane: its kit is full (missile, ring of runes, rune piece) and its bits are rune-diamonds")
+	check(not arcane.projectile.recolor and not arcane.projectile.texture.resource_path.contains("energyball"), "arcane: its missile is drawn on its ramp, not the ice orb repainted")
+	var bolt := (load("res://data/skills/player/arcane_bolt.tres") as SkillDef).effects[0] as ProjectileEffect
+	check(bolt.element == arcane and bolt.texture == null, "arcane: Arcane Bolt is the arcane missile")
+	var ring := (load("res://data/perks/synergies/arcane.tres") as SynergyDef).passives[0].get("effects")[0] as ProjectileEffect
+	check(ring.element == arcane and ring.texture == null, "arcane: the Arcane synergy's ring is arcane missiles, not smooth dots")
+
+
+## No storm, holy, shadow or arcane content borrows another element's art (the cyan ice orb,
+## the fire-colored throwing star).
+func _test_borrowed_art() -> void:
+	var mine: Array[StringName] = [&"storm", &"holy", &"shadow", &"arcane"]
+	for resource in _all_resources():
+		var where := resource.resource_path.get_file()
+		if resource is WeaponDef and (resource as WeaponDef).element and mine.has((resource as WeaponDef).element.id) and (resource as WeaponDef).projectile_texture:
+			var texture := (resource as WeaponDef).projectile_texture.resource_path
+			check(not texture.contains("energyball") and not texture.contains("shuriken"), "borrowed art: %s shoots its element's own shot" % where)
+		for effect in _effects_of(resource):
+			var element: VfxElementDef = effect.get("element")
+			if element and mine.has(element.id) and effect is ProjectileEffect and (effect as ProjectileEffect).texture:
+				var texture := (effect as ProjectileEffect).texture.resource_path
+				check(not texture.contains("energyball") and not texture.contains("shuriken"), "borrowed art: %s shoots its element's own shot" % where)
 
 
 # --- Helpers -------------------------------------------------------------------

@@ -9,7 +9,9 @@ extends Resource
 
 ## The particle "bit" of an element: the tiny shape its sparks, chips and motes take
 ## (PixelDraw.bit). Shape, not color, is what tells elements apart.
-enum Bit { SQUARE, DIAMOND, SHARD, TEARDROP, CROSS, RING, GLINT, DROP, MOTE }
+## FORK (a little staircase spark) is the storm's, RUNE (a hollow rhombus) the arcane's; GLINT
+## (the 4-point glint) is holy's alone.
+enum Bit { SQUARE, DIAMOND, SHARD, TEARDROP, CROSS, RING, GLINT, DROP, MOTE, FORK, RUNE }
 ## Which way its particles go once they are out.
 enum Motion {
 	## Up, flickering (fire, embers, spirits).

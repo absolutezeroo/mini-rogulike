@@ -30,7 +30,7 @@ func on_hit_dealt(owner: Actor, target: Actor, hit: HitInfo, _damage: int, perk:
 		if next == null:
 			break
 		var bolt := element.color() if element else color
-		world.spawn_vfx(BeamVfx.create(from + Vector2(0, -8), next.global_position + Vector2(0, -8), bolt))
+		world.spawn_vfx(BeamVfx.create(from + Vector2(0, -8), next.global_position + Vector2(0, -8), bolt, element))
 		Vfx.hit(world, next.global_position, from.direction_to(next.global_position), bolt, false, element)
 		next.take_hit(Combat.make_secondary_hit(owner, amount))
 		struck.append(next)

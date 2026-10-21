@@ -10,7 +10,7 @@ const FIRE: PackedScene = preload("res://src/vfx/particles/fire.tscn")
 const SPARKLES: PackedScene = preload("res://src/vfx/particles/sparkles.tscn")
 const EXPLOSION_SHEET: Texture2D = preload("res://assets/fx/explosion.png")
 const SMOKE_SHEET: Texture2D = preload("res://assets/fx/smoke.png")
-const MAGIC_CIRCLE_SHEET: Texture2D = preload("res://assets/fx/magic_circle.png")
+const SIGIL: VfxSheetDef = preload("res://data/vfx/sheets/holy_sigil.tres")
 const ALERT_EMOTE: Texture2D = preload("res://assets/ui/emotes/emote22.png")
 
 
@@ -132,11 +132,16 @@ static func sparkles(world: World, at: Vector2, color: Color) -> void:
 	burst(world, SPARKLES, at, color)
 
 
-## Magic circle on the ground (heals, buffs, level up).
-static func magic(world: World, at: Vector2, color: Color) -> void:
-	world.spawn_vfx(SheetVfx.create(MAGIC_CIRCLE_SHEET, at, 0.0, 2.0, 12.0).with_color(color))
-	world.flash_light(at, color, 200.0)
-	sparkles(world, at + Vector2(0, -10), color)
+## A sigil of light on the ground (heals, buffs, a skill learned, a level up, a boss's room
+## sealing): holy's ring drawing itself, rays rising, glints (data/vfx/sheets/holy_sigil.tres).
+## In `element`'s ramp when given, holy's for the gold of rewards, else a ramp of `color`'s hue
+## (the green of a potion, a buff's own color).
+static func magic(world: World, at: Vector2, color: Color, element: VfxElementDef = null) -> void:
+	var look := element
+	if look == null:
+		look = VfxElementDef.named(&"holy") if color.is_equal_approx(Palette.GOLD) else VfxElementDef.or_color(null, color)
+	world.spawn_vfx(SheetVfx.play(SIGIL, at, Vector2.RIGHT, look))
+	world.flash_light(at, look.color(), 200.0)
 
 
 ## "!" bubble above a monster that just noticed the player.

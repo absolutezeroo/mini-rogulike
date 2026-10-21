@@ -1,21 +1,30 @@
 [gd_resource type="Resource" script_class="SkillDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_gex1k"]
-[ext_resource type="Texture2D" path="res://assets/fx/thunder.png" id="2_gbfoa"]
 [ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="3_mbrcq"]
 [ext_resource type="Texture2D" path="res://assets/ui/skills/thunder.png" id="4_djaq4"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_hbj1n"]
 [ext_resource type="AudioStream" path="res://data/audio/explosion.tres" id="6_6ihvl"]
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_sheet_def.gd" id="vfx_sheet"]
+[ext_resource type="Texture2D" path="res://assets/fx/storm/storm_bolt.png" id="vfx_bolt"]
+[ext_resource type="Resource" path="res://data/vfx/elements/storm.tres" id="vfx_storm"]
+
+[sub_resource type="Resource" id="bolt"]
+script = ExtResource("vfx_sheet")
+texture = ExtResource("vfx_bolt")
+frames = 7
+fps = 20.0
+anchor = Vector2(0, -40)
+linger = 0.12
 
 [sub_resource type="Resource" id="Resource_b1biu"]
 script = ExtResource("3_mbrcq")
+strike = SubResource("bolt")
+element = ExtResource("vfx_storm")
 radius = 70.0
 damage_multiplier = 2.4
 offset = 150.0
 knockback = 160.0
-fx = ExtResource("2_gbfoa")
-fx_frames = 8
-fx_tint = Color(1, 1, 0.8, 1)
 
 [resource]
 script = ExtResource("5_hbj1n")
@@ -24,6 +33,6 @@ display_name = "Thunder"
 description = "Lightning strikes ahead of you."
 short_label = "BOLT"
 icon = ExtResource("4_djaq4")
-color = Color(1, 0.9019608, 0.42745098, 1)
+color = Color(0.788235, 0.721569, 1, 1)
 effects = Array[ExtResource("1_gex1k")]([SubResource("Resource_b1biu")])
 sound = ExtResource("6_6ihvl")

@@ -13,6 +13,8 @@ const RINGS := 3
 const RING_GAP := 0.22
 ## Seconds a ring takes to widen and fade.
 const RING_TIME := 0.9
+## Glints rising through the column.
+const GLINTS := 4
 
 var _age := 0.0
 
@@ -57,6 +59,14 @@ func _draw() -> void:
 				var cell := Vector2i(x, roundi(top / PixelDraw.PX) + row)
 				if PixelDraw.dither(cell, 0.5 * fade * (1.0 - band)):
 					PixelDraw.cell(self, cell, holy.shade(0.75))
+	# Holy's 4-point glints rising through the column, one after the other.
+	for i in GLINTS:
+		var glint_t := (_age - i * 0.12) / 0.7
+		if glint_t <= 0.0 or glint_t >= 1.0:
+			continue
+		var at := Vector2((-8.0 if i % 2 == 0 else 7.0) + i * 2.0 - 4.0, -6.0 - 60.0 * glint_t)
+		var size := 2 if glint_t < 0.5 else 1
+		PixelDraw.bit(self, VfxElementDef.Bit.GLINT, at, size, holy.shade(0.25 + glint_t * 0.5), Vector2.UP, holy.core() if glint_t < 0.4 else Color.TRANSPARENT)
 	# Rings on the ground, one after the other: a bright rim, a dimmer one inside.
 	for i in RINGS:
 		var ring_t := (_age - i * RING_GAP) / RING_TIME

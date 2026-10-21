@@ -1,10 +1,22 @@
 [gd_resource type="Resource" script_class="VfxElementDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/vfx/vfx_element_def.gd" id="1"]
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_sheet_def.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/fx/holy/holy_ray.png" id="3"]
+
+[sub_resource type="Resource" id="piece"]
+script = ExtResource("2")
+texture = ExtResource("3")
+frames = 7
+variants = 3
+fps = 16.0
+anchor = Vector2(0, -10)
+linger = 0.0
 
 [resource]
 script = ExtResource("1")
 id = &"holy"
 ramp = PackedColorArray(1, 0.984314, 0.909804, 1, 1, 0.882353, 0.552941, 1, 0.945098, 0.768627, 0.443137, 1, 0.741176, 0.47451, 0.34902, 1, 0.380392, 0.215686, 0.180392, 1)
-bit = 8
+bit = 6
 motion = 1
+piece = SubResource("piece")

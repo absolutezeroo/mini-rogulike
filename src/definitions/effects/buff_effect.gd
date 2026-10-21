@@ -5,6 +5,11 @@ extends Effect
 @export var bonuses: StatBlock
 @export var duration: float = 6.0
 @export var color: Color = Color(1.0, 0.4, 0.3)
+## What the blessing is made of (Holy Shield: holy): the sigil takes its ramp.
+@export var element: VfxElementDef
+## Played on the user instead of the sigil, following them (Holy Shield's ring of light rising
+## into a halo). Drawn at its own size.
+@export var sheet: VfxSheetDef
 
 
 func apply(user: Actor, _aim: Vector2) -> void:
@@ -12,4 +17,10 @@ func apply(user: Actor, _aim: Vector2) -> void:
 		return
 	user.add_timed_bonus(bonuses, duration)
 	user.world.spawn_floating_text(user.head_position(), bonuses.describe(), color)
-	Vfx.magic(user.world, user.global_position, color)
+	if sheet:
+		var vfx := SheetVfx.play(sheet, Vector2.ZERO, Vector2.RIGHT, element)
+		user.add_child(vfx)
+		if element and element.emissive:
+			user.world.flash_light(user.global_position, element.color(), 160.0)
+	else:
+		Vfx.magic(user.world, user.global_position, color, element)

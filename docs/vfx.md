@@ -97,10 +97,10 @@ them (`VfxRamp`), `_draw()` code picks steps with `element.shade(t)` (never a bl
 | frost | `ebf8ff 8feff1 79b8ce 4a72a8 2c3560` | angular faceted shards irregular in size and angle, crystals that grow and shatter, cold mist sinking. **Never a radial symmetric star** (that is a shuriken) | DIAMOND (angular chip) | FALL | mist `c8e4f0` / rime |
 | water | `e3f1f5 71ddee 3da6bd 2d697b 1b3a46` | drops, splashes, ripples on the ground | DROP | FALL | spray / puddle |
 | poison | `e6f7a0 9bd64a 5f9e3a 3c6644 2e2440` | bubbles that swell and pop, drips, clouds that sink and crawl | RING | SINK | murky gas `5f7160` / puddle |
-| storm | `f4f0ff c9b8ff 8f73e6 4b3a99 251c4f` | jagged forks, crosses, flicker (1-3 frames on, then afterglow) | CROSS | OUTWARD | none / scorch |
-| holy | `fffbe8 ffe18d f1c471 bd7959 61372e` | rays, rings, columns from above, slow motes of light | MOTE | FALL | none |
+| storm | `f4f0ff c9b8ff 8f73e6 4b3a99 251c4f` | electric violet-white: jagged forks of straight runs and sharp knees, flicker (1-3 frames on, a frame off with the afterglow, a second strike), never a plus | FORK | OUTWARD | none / scorch |
+| holy | `fffbe8 ffe18d f1c471 bd7959 61372e` | rays, rings, columns from above, slow motes of light; the **4-point glint is holy's alone** | GLINT | FALL | none |
 | shadow | `150d1f 3b2346 7a3a7e d24a86` | swirls, smoke, a ring that collapses, dithered edges, pulled inward | MOTE | CONVERGE | smoke `2a1f33` / stain |
-| arcane | `ffe6fa f07ad8 b048c0 6a2a8a 2e1446` | runes, orbits, 4-point glints, spirals | GLINT | ORBIT | none |
+| arcane | `ffe6fa f07ad8 b048c0 6a2a8a 2e1446` | runes, orbits, diamond glints (rhombi, hollow or filled), spirals | RUNE | ORBIT | none |
 | blood | `ff9b8f e0394c a3162c 5a0a1e` | drops, spurts, ballistic arcs, stains that stay | DROP | FALL | none / stain |
 | spirit | `f0fff8 b8f5dc 6fd6b4 3b8f86 234b52` | wisps, hollow rings, pale flames curling up, flicker | MOTE | RISE | ectoplasm |
 | earth | `f5e6c4 d2b37d a3754e 6b5040 3b3238` | rock spikes, chunks flung on arcs, dust clouds, cracks | SQUARE | FALL | dust `c8b08a` / cracks |
@@ -123,10 +123,10 @@ bits on the rim).
 | frost (**done**) | `frost_shard.png`: a faceted shard drawn in 16 directions, chips trailing | `frost_impact.png`: shards cracking outward, biggest early, chips falling, mist | rime growing on the edges (`frost_rime.png`), ice chips falling, cold mist at the feet, 45% cold tint | `frost_crystal.png`: crystals growing from the ground in a ring, then shattering | the shared danger rim; frost chips inside | cracking ice, glassy chime |
 | water | a drop (energy orb painted water) | splash, droplets, a ripple | drips (none yet) | ripples (`water_ripples.png`) | danger rim | splash |
 | poison | a venom drop (orb painted poison) | bubbles bursting, a sinking cloud | bubbles, a haze sinking at the feet, green tint | a cloud crawling out | danger rim, bubbles inside | squelch, hiss |
-| storm | a crackling spark, flickering | a jagged fork, crosses | small arcs jumping off the body | forks around a ring | crisp flicker | crack, zap |
-| holy | a mote of light with rays | rays, a ring of light | short ray halo (never permanent) | a column, a ring of rays | rays converging | chime, bell |
-| shadow | a dark knot with a bright rim, smoke behind | a ring collapsing inward | darkened silhouette, filaments sucked in | a dark ring imploding | the ground dims | whisper, low thrum |
-| arcane | a glinting orb, runes orbiting | a ring of runes | glyphs orbiting | a rune circle | runes lighting up | chime, hum |
+| storm (**done**) | `storm_spark.png`: ball lightning, arcs leaping off it at uneven angles, flickering | `storm_impact.png`: forks out, off, a second strike, broken tips | small arcs jumping off the body (none yet) | `storm_fork.png`: crackles on the ground around a ring; Thunder's `storm_bolt.png` falls from the sky on top (`DamageAreaEffect.strike`); chain lightning is a jagged `BeamVfx` | crisp flicker | crack, zap |
+| holy (**done**) | none needed (no holy shot) | the hit's 4-point glints | short ray halo (none yet) | `holy_ray.png`: a sparse ring of thin shafts; Smite's `holy_column.png` falls on the target; Holy Shield's `holy_aegis.png` rises into a halo; heals and buffs draw `holy_sigil.png` (Vfx.magic, recolored for other colors) | rays converging | chime, bell |
+| shadow (**done**) | `shadow_knot.png`: a dark knot, a burning broken rim, smoke curling in (all shadow shots are enemy threats) | `shadow_impact.png`: a ring collapsing inward, a puff | darkened silhouette, filaments sucked in (none yet) | `shadow_smoke.png`: smoke curling up and drawn back in (Shadow Step's trail) | the ground dims | whisper, low thrum |
+| arcane (**done**) | `arcane_missile.png`: a diamond glint, three motes on a tilted orbit (behind ones darker) | `arcane_impact.png`: rune-diamonds turning outward | glyphs orbiting (none yet) | `arcane_rune.png`: glyphs lighting over the ground | runes lighting up | chime, hum |
 | blood | none (claws, spurts) | spurt, drops that stay | short spurts on each tick | spray in a fan | danger rim | wet impact |
 | spirit | a pale wisp curling | a hollow ring, wisps rising | pale flicker | a ring of wisps | pale rim | sigh, chime |
 | earth | a rock or a ball of sand | chunks on arcs, dust | dust trickling | rock spikes, dust ring | cracks spreading | thud, crumble |
@@ -138,7 +138,7 @@ bits on the rim).
 |---|---|---|
 | `VfxElementDef` | `src/definitions/vfx/vfx_element_def.gd`, `data/vfx/elements/*.tres` | ramp, residue, mark, bit, motion, emissive, kit sheets. `VfxElementDef.named(&"frost")`, `.core() .color() .edge() .shade(t)`, `or_color(element, color)` for old content |
 | `VfxSheetDef` | `src/definitions/vfx/vfx_sheet_def.gd` (sub-resources of an element) | texture, frames (0 = square), orient (NONE / ROWS / SNAPPED), directions, variants, fps, loop, texel, recolor, anchor, linger. `VfxSheetDef.from_texture(tex, frames)`, `columns/cell_size/slices_evenly` (the one frame slicer) |
-| `element` exports | `WeaponDef`, `ProjectileEffect`, `DamageAreaEffect`, `DashStrikeEffect`, `OnHitStatus.slow_element`, passives (`element`, `shard_element`, `crit_element`, `blast_element`), `DeathBurstTrait` | gameplay data points to an element instead of free colors; `HitInfo.element` carries it to the hit's flash |
+| `element` exports | `WeaponDef`, `ProjectileEffect`, `DamageAreaEffect` (+ `strike`: a sheet of its own at 2x on the area's middle), `DashStrikeEffect`, `DashEffect` (a burst and a trail), `HealEffect` / `BuffEffect` (the sigil's ramp; `BuffEffect.sheet` follows the user), `ChainLightningPassive` (a forked `BeamVfx`), `OnHitStatus.slow_element`, passives (`element`, `shard_element`, `crit_element`, `blast_element`), `DeathBurstTrait` | gameplay data points to an element instead of free colors; `HitInfo.element` carries it to the hit's flash |
 | `PixelDraw` | `src/vfx/pixel_draw.gd` | `snap`, `snap_length`, `sheet_scale`, `dither`, `pixel`, `ring`, `disc`, `line`, `bit` (an element's particle shape), `sheet` (draw a frame of a VfxSheetDef on the grid) |
 | `VfxRamp` | `src/vfx/vfx_ramp.gd` | `recolor(texture, ramp)`: palette swap by luminance, cached (a sheet with `recolor` on is painted in its element's ramp) |
 | `Vfx` | `src/vfx/vfx.gd` | `hit(..., element)`, `pop(world, at, element, radius, direction)`, `nova(world, at, radius, element)`, `trail(world, from, to, element)`, `explosion(world, at, radius, element)` |
@@ -146,7 +146,7 @@ bits on the rim).
 | `ComposedVfx` | `src/vfx/composed_vfx.gd` | `ring(at, radius, element)`, `line(from, to, element)`: any size from pieces at 2x |
 | `ImpactVfx`, `RingVfx`, `BlastVfx` | `src/vfx/` | a hit's flash, a ring, a burst: all in an element's ramp and bits |
 | `StatusLookDef`, `StatusFx` | `data/vfx/status_looks/`, `src/vfx/status_fx.gd` | particle, motes (EMBER, BUBBLE, CHIP), crust (rime), mist, burst, all at texel 2 in the element's ramp |
-| Tools | `tools/vfx/` | `vfxkit.py` (palette-locked drawing), `recolor.py` (palette swap to a file), `check.py` (palette, hard alpha, whole cells), `frost.py` (the frost kit, rebuildable) |
+| Tools | `tools/vfx/` | `vfxkit.py` (palette-locked drawing), `recolor.py` (palette swap to a file), `check.py` (palette, hard alpha, whole cells), `strokes.py` (lines, jagged paths, rims, glints, rhombi, ellipses), one rebuildable script per kit: `frost.py`, `storm.py`, `holy.py`, `shadow.py`, `arcane.py` |
 
 Which slow shows what: a slow carries an element (`StatusSet.apply_slow(..., element)`, frost
 when none is given, none for the ground's own). Only an element with a `slow_look` shows on the
@@ -206,17 +206,20 @@ slicer, element exports) serves the others; what each still needs:
 - **Poison**: `energyball` painted poison is a placeholder (Poison Spit uses it); author a venom
   drop, a bubble-burst impact, a puddle/cloud `piece`; point venom_spit, toxic_bloom, acid_spit,
   poison_fang, jade_fang (still a blood claw) and spore_cloud's area at `poison`.
-- **Storm**: Thunder's `thunder.png` (frames now cut right) can be painted storm with
-  `in_element`; author a spark projectile for Spark Wand / Spark Nova (cyan orbs today), a fork
-  `piece`; point Thunder, Spark, Shock Roll, Gale, chain lightning (`element` export), the Storm
-  synergy at `storm`. Decide whether storm stays violet or goes yellow-white (then holy must move).
-- **Holy**: `holy_circle.png` at 5.6x and `magic_circle.png` (Vfx.magic, now 2x) need composing
-  or bigger frames; unused `magic_spark.png` and `shield.png` fit holy; Smite, Holy Light, Holy
-  Shield, heals and buffs.
-- **Shadow / arcane**: no purple art exists. Arcane Bolt uses `energyball` painted arcane (a
-  placeholder); author an arcane rune ring and a shadow smoke knot; point shadow_staff, the
-  Sorcerer's volley, ink_bolt (still a cyan orb) and Shadow Step (a grey kunai) at their
-  element; the arcane synergy's dots are still smooth.
+- **Storm** (done): stays electric violet-white (holy owns gold); the Storm synergy, Thunder,
+  its tome, Spark Wand, Spark Nova, Thunderclap, Shock Roll, Frenzy wear the storm's color.
+  Thunder, Spark Wand/Nova, chain lightning (synergy, Spark Rune, Thundering), Thunderclap,
+  Shock Roll and the Gale Rune are storm. Left: arcs on a shocked body (no shock status yet);
+  `thunder.png` and the skill icons are unused/untouched art.
+- **Holy** (done): Smite, Holy Light, Holy Shield, holy heals; `Vfx.magic` is the holy sigil
+  for every heal, buff, learned skill, level up and sealed room (holy for gold, painted in the
+  caller's color otherwise). `holy_circle.png`, `magic_spark.png`, `shield.png` (a flame-like
+  wave) are unused; `magic_circle.png` is only the pact sigil (pact_room, 2.25x/1.5x).
+- **Shadow** (done): shadow_staff (Sorcerer), its Volley, the Octopus's Ink Bolt and Ink Ring,
+  the Shaman's Hex Bolt fire the shadow knot; Shadow Step bursts into shadow, leaves smoke and
+  its kunai land in shadow. Left: curses have no effects of their own.
+- **Arcane** (done): Arcane Bolt and the Arcane synergy's ring fire the arcane missile; the
+  arcane perks wear its color. Left: no arcane area or charge-up uses the rune piece yet.
 - **Blood**: claws (`clawdouble.png`) are fine as blood; give them `element = blood` so hits
   drop blood bits; Battle Cry's magic circle, vampiric elites, pact chunks.
 - **Spirit**: spirit_touch is a warm claw, Wailing Ring a cyan orb, soul_moth a fireball;

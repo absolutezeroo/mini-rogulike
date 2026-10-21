@@ -18,8 +18,15 @@
   particle shape, a direction of motion, a kit of sheets), on the art's 2-unit pixel grid, never
   stretched or freely turned, fading by dithering. Frost is faceted ice shards drawn in 16
   directions, cracking impacts, novas of crystals growing then shattering, rime on chilled
-  bodies; fire licks up, poison bubbles and sinks, storm forks. Hand-drawn sprite-sheet effects
-  (slashes, claws, explosions, smoke, magic circles, "!" emote when a monster spots you) plus
+  bodies; fire licks up, poison bubbles and sinks. Storm is violet-white lightning: ball-lightning
+  sparks, crackles on the ground, Thunder's bolt from the sky, chain lightning forking from body
+  to body, all flickering (strike, off, strike again). Holy is light from above: Smite's column,
+  rings of thin shafts, Holy Shield's ring rising into a halo, and the holy sigil drawn by every
+  heal, buff, learned skill and level up (in the heal's own color when it isn't holy). Shadow
+  shots (Sorcerer, Octopus ink, Shaman hex) are dark knots with a burning rim that collapse
+  inward; Shadow Step bursts into shadow and leaves smoke. Arcane is a diamond glint with motes
+  orbiting it. Hand-drawn sprite-sheet effects
+  (slashes, claws, explosions, smoke, "!" emote when a monster spots you) plus
   pixel particles for hits, dust and sparkles
   (`src/vfx/particles/*.tscn`, edit them in the inspector), dash afterimages, animated projectiles,
   squash on hit, popping damage numbers, red vignette when hurt or low on HP.
