@@ -76,6 +76,8 @@ var _fewer := false
 var _back_key := []
 static var _tops := {}  # a body frame -> the top row of its art (for the bob)
 
+## Holding the weapon ready while the hero charges (show_charge): not on his back meanwhile.
+var _charging := false
 @onready var visual: Node2D = $Visual
 @onready var squash_node: Node2D = $Visual/Squash
 @onready var body: AnimatedSprite2D = $Visual/Squash/Body
@@ -191,24 +193,32 @@ func play_attack(def: WeaponDef, aim: Vector2, duration: float) -> void:
 			add_child(SheetVfx.play(def.element.claw, at, aim, def.element))
 
 
-## Charging the weapon's charged attack (`def`; null: not any more): the weapon held up in the
-## hand, on the first frame of its attack toward the way the body faces (behind the body
-## facing up), while the body walks or stands as usual. An attack under way keeps its frames.
+## Charging the weapon's charged attack (`def`; null: not any more): the weapon held ready in
+## the hand, on the last frame of its attack toward the way the body faces (the blade down at
+## his side, in his hand: the first frame raises it high over his head, where it floats when
+## held), behind the body facing up, while the body walks or stands as usual. An attack under
+## way keeps its frames.
 func show_charge(def: WeaponDef) -> void:
 	if _attacking or _dead:
 		return
 	var shown := def != null and def.attack_frames != null and def.attack_frames.has_animation(StringName("attack_" + direction))
+	if shown != _charging:
+		_charging = shown
+		if not shown:
+			weapon.visible = false
+		_update_back()  # in his hand, not on his back
 	if not shown:
-		weapon.visible = false
 		return
 	var animation := StringName("attack_" + direction)
 	if weapon.sprite_frames != def.attack_frames or weapon.animation != animation or not weapon.visible:
 		weapon.sprite_frames = def.attack_frames
 		weapon.animation = animation
-		weapon.frame = 0
+		weapon.frame = def.attack_frames.get_frame_count(animation) - 1
 		weapon.pause()
 		weapon.visible = true
 		squash_node.move_child(weapon, 0 if direction == &"up" else squash_node.get_child_count() - 1)
+		_fit_weapon_frame()
+		_update_back()
 
 
 ## Telegraph before a monster attack: hold the attack pose and tremble.
@@ -471,7 +481,7 @@ func _dress_weapon() -> void:
 func _update_back() -> void:
 	if _back == null:
 		return
-	var shown := carries_weapon and _back.texture != null and not _attacking and not _winding_up and not _dead and body.visible
+	var shown := carries_weapon and _back.texture != null and not _attacking and not _winding_up and not _charging and not _dead and body.visible
 	_back.visible = shown
 	if not shown:
 		_back_key = []

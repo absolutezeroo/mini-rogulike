@@ -3,6 +3,30 @@
 Dated entries, newest first: what was measured, what changed and why, before/after numbers, open
 questions. How to measure: [balance.md](balance.md).
 
+## 2026-10-22 - Charged attacks: hold the attack button (new mechanic, numbers set by rule)
+
+**What changed:** holding the attack button no longer repeats the basic attack; past 0.22 s it
+charges the weapon's charged attack (docs/design/builds.md, "Charged attacks"), unleashed on
+release when full. Every hero's weapon has one (`data/skills/charged/`).
+
+**Numbers (set by a rule, not measured in play):** one target's share of a charged attack is
+2.2-3x a basic hit (skill power x multipliers vs the wielder's power x `projectile_damage` x
+shots; `UnitTests._test_charged_attacks` holds the range): Katana 2.5, Ninjaku 2.5, Sai 2.6,
+Rapier 2.6, Lance 2.6, Battle Axe 2.4 (all around), Greatsword 2.7, War Hammer 2.7, Pickaxe 2.5,
+Whip 2.3, Templar Sword 2.5, Bow 2.56 (pierces all), Shuriken 2.85 (7 stars), Frost Staff 2.57
+(+ a 50% slow nova), Spark Wand 2.47 (+ 3 jumps at 70%), Ember Tome 2.22 (+ burn, radius 64).
+The price: 0.75-1.15 s of charge after the 0.22 s delay, moving at 45-60% speed meanwhile, no
+basic attack while charging, a roll losing it. Per second it is below tapping: a katana taps
+1/0.38 = 2.6 hits a second; a charged cut every 0.22 + 0.8 + ~0.1 s is 2.5 / 1.12 = 2.2 hits'
+worth, before its wider area. It pays against packs (area, pierce) and to open a fight, not as
+a rotation. Skill power raises it like a skill; "on skill" perks don't fire.
+
+**The bots:** the test bot and the balance bot tap the attack button (a frame down, a frame up)
+as fast as the weapon swings instead of holding it, so the measures keep to basic attacks, as
+before (the attack buffer of 0.3 s keeps a tap pressed during the cooldown from being lost).
+Open question: measure a "charger" bot (charges into packs) once the feel is confirmed on the
+phone.
+
 ## 2026-10-21 - Souls: the Tree of Souls becomes a campaign (measured, economy mode)
 
 **Why (the owner: "we get a lot of souls"):** measured on a whole Keeper career for the first

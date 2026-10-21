@@ -166,7 +166,12 @@ func _update_attack(delta: float) -> void:
 			_unleash(weapon, charged)
 	if charge.is_charging():
 		_attack_buffer = 0.0
-		facing = get_aim_direction(SKILL_AIM_RANGE)  # winding up toward the closest enemy
+		# Winding up toward the closest enemy; with none in sight, the way he walks.
+		var target := get_aim_target(SKILL_AIM_RANGE)
+		if target:
+			facing = global_position.direction_to(target.global_position)
+		elif _move_direction != Vector2.ZERO:
+			facing = _move_direction.normalized()
 		_aim_hold = AIM_HOLD_TIME
 	if rig:
 		rig.show_charge(weapon if charge.is_charging() else null)

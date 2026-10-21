@@ -72,6 +72,7 @@ Darkness swallows the room.,Darkness swallows the room.,Les ténèbres engloutis
 "Things stir in the dark, drawn by the light...","Things stir in the dark, drawn by the light...","Des choses s'agitent dans le noir, attirées par la lumière..."
 They come for the light!,They come for the light!,Ils viennent pour la lumière !
 Armor (%s),Armor (%s),Armure (%s)
+Hold: {name}. {text},Hold: {name}. {text},Maintenir : {name}. {text}
 Consumable,Consumable,Consommable
 {rarity} {kind_lower},{rarity} {kind_lower},{kind} {rarity_lower}
 Item level %d (as strong as floor %d),Item level %d (as strong as floor %d),Niveau d'objet %d (aussi fort que l'étage %d)
@@ -1340,6 +1341,38 @@ Venom Spit,Venom Spit,Crachat de Venin
 A fan of venom: it poisons.,A fan of venom: it poisons.,Un éventail de venin : il empoisonne.
 "Two fans of venom, one after the other.","Two fans of venom, one after the other.","Deux éventails de venin, l'un après l'autre."
 Wailing Ring,Wailing Ring,Cercle des Lamentations
+Headsman's Wheel,Headsman's Wheel,Roue du Bourreau
+A full spin that hits everything around you.,A full spin that hits everything around you.,Un tour complet qui frappe tout autour de toi.
+Grave Sweep,Grave Sweep,Fauche Funèbre
+"A lunge that cuts all in its way, then a wide sweep.","A lunge that cuts all in its way, then a wide sweep.","Une fente qui tranche tout sur son passage, puis un large balayage."
+Pyre Heart,Pyre Heart,Cœur du Bûcher
+A great fireball that explodes and sets enemies on fire.,A great fireball that explodes and sets enemies on fire.,Une grande boule de feu qui explose et embrase les ennemis.
+Soulpiercer,Soulpiercer,Perce-Âme
+A heavy arrow that runs through every enemy in its path.,A heavy arrow that runs through every enemy in its path.,Une flèche lourde qui transperce chaque ennemi sur sa route.
+Anvil Fall,Anvil Fall,Chute de l'Enclume
+Slam the ground in front of you: the shockwave hurls enemies away.,Slam the ground in front of you: the shockwave hurls enemies away.,Frappe le sol devant toi : l'onde de choc projette les ennemis.
+Moonless Cut,Moonless Cut,Taille sans Lune
+A wide double crescent in front of you.,A wide double crescent in front of you.,Un large double croissant devant toi.
+Impaling Reach,Impaling Reach,Allonge Empaleuse
+"A long thrust that runs through every enemy in line, without moving.","A long thrust that runs through every enemy in line, without moving.","Un long coup d'estoc qui transperce chaque ennemi aligné, sans bouger."
+Forked Wrath,Forked Wrath,Courroux Fourchu
+"A bolt strikes the closest enemy ahead, then leaps to three more.","A bolt strikes the closest enemy ahead, then leaps to three more.","Un éclair frappe l'ennemi le plus proche devant toi, puis bondit sur trois autres."
+Crossed Shadows,Crossed Shadows,Ombres Croisées
+Two crossing cuts in front of you.,Two crossing cuts in front of you.,Deux entailles croisées devant toi.
+Rockbreaker,Rockbreaker,Brise-Roc
+Split the ground in front of you: it bursts in rubble.,Split the ground in front of you: it bursts in rubble.,Fends le sol devant toi : il éclate en gravats.
+Heartseeker,Heartseeker,Cherche-Cœur
+A short lunge that runs through every enemy in line.,A short lunge that runs through every enemy in line.,Une courte fente qui transperce chaque ennemi aligné.
+Viper's Litany,Viper's Litany,Litanie de la Vipère
+"Three quick stabs in front of you, the last one harder.","Three quick stabs in front of you, the last one harder.","Trois coups rapides devant toi, le dernier plus fort."
+Bladed Gale,Bladed Gale,Bourrasque d'Acier
+A fan of seven stars that pierce a first enemy.,A fan of seven stars that pierce a first enemy.,Un éventail de sept étoiles qui transpercent un premier ennemi.
+Glacial Lance,Glacial Lance,Lance Glaciaire
+A great ice shard that shatters into a frost nova: enemies around are slowed.,A great ice shard that shatters into a frost nova: enemies around are slowed.,Un grand éclat de glace qui se brise en nova de givre : les ennemis autour sont ralentis.
+Judgement,Judgement,Jugement
+A wide blessed crescent in front of you.,A wide blessed crescent in front of you.,Un large croissant béni devant toi.
+Flaying Arc,Flaying Arc,Arc Écorcheur
+"A long crack of the whip, far in front of you.","A long crack of the whip, far in front of you.","Un long claquement de fouet, loin devant toi."
 Blink,Blink,Éclipse
 Burrow,Burrow,Fouissement
 Charge,Charge,Charge
@@ -1487,10 +1520,12 @@ Move,Move,Bouger
 Drag your thumb on the left side of the screen to walk.,Drag your thumb on the left side of the screen to walk.,Fais glisser ton pouce sur la gauche de l'écran pour marcher.
 Sealed stairs,Sealed stairs,Escaliers scellés
 The way down is sealed. Slay monsters to break the seal: the count is under the map.,The way down is sealed. Slay monsters to break the seal: the count is under the map.,La voie vers le bas est scellée. Abats des monstres pour briser le sceau : le compte est sous la carte.
-Hold the big button to strike. It aims at the closest enemy by itself.,Hold the big button to strike. It aims at the closest enemy by itself.,Maintiens le gros bouton pour frapper. Il vise tout seul l'ennemi le plus proche.
+Tap the big button to strike. It aims at the closest enemy by itself.,Tap the big button to strike. It aims at the closest enemy by itself.,Touche le gros bouton pour frapper. Il vise tout seul l'ennemi le plus proche.
 Tap Roll to dash the way you walk. Nothing can hurt you mid-roll.,Tap Roll to dash the way you walk. Nothing can hurt you mid-roll.,Touche Roulade pour filer dans la direction où tu marches. Rien ne peut te blesser pendant une roulade.
 Weapon skills,Weapon skills,Compétences d'arme
 "Your weapon has two skills of its own, and every weapon has different ones. Try them!","Your weapon has two skills of its own, and every weapon has different ones. Try them!","Ton arme a deux compétences bien à elle, et chaque arme a les siennes. Essaie-les !"
+Charged attack,Charged attack,Attaque chargée
+Hold the big button to charge your weapon. Let go when the ring is full to unleash its heavy blow.,Hold the big button to charge your weapon. Let go when the ring is full to unleash its heavy blow.,Maintiens le gros bouton pour charger ton arme. Relâche quand l'anneau est plein pour libérer son coup puissant.
 Low health,Low health,Vie basse
 Tap a potion on your belt to drink it. Potions are rare: keep them for when it counts.,Tap a potion on your belt to drink it. Potions are rare: keep them for when it counts.,Touche une potion de ta ceinture pour la boire. Les potions sont rares : garde-les pour les moments critiques.
 "Slain monsters free their souls. Between runs, spend them on the Tree of Souls, at the shrine.","Slain monsters free their souls. Between runs, spend them on the Tree of Souls, at the shrine.","Les monstres abattus libèrent leurs âmes. Entre deux parties, dépense-les dans l'Arbre des Âmes, au Sanctuaire."

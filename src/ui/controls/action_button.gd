@@ -113,6 +113,8 @@ func _draw_charge() -> void:
 			var color := Color("1a1218", 0.8)
 			if step < lit:
 				color = charge_core if beat else charge_color
+				# A dark rim of 2 UI pixels round a lit block: it reads on the button's orange.
+				draw_rect(Rect2(at - Vector2(2, 2), Vector2(BLOCK + 4, BLOCK + 4)), Color("1a1218"))
 			draw_rect(Rect2(at, Vector2(BLOCK, BLOCK)), color)
 	if charge_full:
 		queue_redraw()  # it beats

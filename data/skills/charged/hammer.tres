@@ -9,7 +9,7 @@
 script = ExtResource("2_damage_area_effect")
 radius = 85.0
 damage_multiplier = 2.7
-offset = 28.0
+offset = 44.0
 knockback = 440.0
 explosive = true
 element = ExtResource("1_earth")

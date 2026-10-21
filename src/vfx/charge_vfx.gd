@@ -74,7 +74,7 @@ func _process(delta: float) -> void:
 	else:
 		return
 	# The glow is on the weapon: behind his body when he faces north, in front otherwise.
-	show_behind_parent = VfxLayer.goes_behind(player.facing)
+	VfxLayer.set_behind(self, VfxLayer.goes_behind(player.facing))
 	queue_redraw()
 	_ring.queue_redraw()
 
@@ -119,6 +119,10 @@ func _draw_gauge() -> void:
 			if not PixelDraw.dither(cell, 0.5):
 				continue  # the dark track: half its pixels
 			color = _element.edge()
+		if flash or step < lit:
+			# A lit step sits on a pixel of the element's dark edge: it reads on a bright floor
+			# (steel's pale grey on the garden's grass, gold on the desert's sand).
+			PixelDraw.cell(_ring, cell + Vector2i(0, 1), _element.edge())
 		PixelDraw.cell(_ring, cell, color)
 
 
