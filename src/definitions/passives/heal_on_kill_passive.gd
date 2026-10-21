@@ -11,4 +11,5 @@ func on_kill(owner: Actor, victim: Actor, perk: PerkSet.Entry) -> void:
 		return
 	var healed := owner.sustain_heal(heal_per_stack * perk.stacks)
 	if healed > 0:
+		owner.world.spawn_vfx(BloodDrainVfx.create(victim.global_position + Vector2(0, -victim.radius), owner, 3))
 		owner.world.spawn_floating_text(owner.head_position(), "+%d" % healed, Palette.HEAL)

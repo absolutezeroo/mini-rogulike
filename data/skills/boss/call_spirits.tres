@@ -6,9 +6,11 @@
 [ext_resource type="Script" path="res://src/definitions/effects/summon_effect.gd" id="4_bqk23"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_8cbbx"]
 [ext_resource type="AudioStream" path="res://data/audio/spirit.tres" id="6_e2q4k"]
+[ext_resource type="Resource" path="res://data/vfx/elements/spirit.tres" id="vfx_spirit"]
 
 [sub_resource type="Resource" id="Resource_lle7i"]
 script = ExtResource("4_bqk23")
+element = ExtResource("vfx_spirit")
 monsters = Array[ExtResource("2_cne8q")]([ExtResource("3_osb2k")])
 max_alive = 5
 

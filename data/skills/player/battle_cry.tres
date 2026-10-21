@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" path="res://assets/ui/skills/battle_cry.png" id="4_xqoau"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_xkdlu"]
 [ext_resource type="AudioStream" path="res://data/audio/buff.tres" id="6_qi81d"]
+[ext_resource type="Resource" path="res://data/vfx/elements/blood.tres" id="vfx_blood"]
 
 [sub_resource type="Resource" id="Resource_5uo1l"]
 script = ExtResource("2_sw7dg")
@@ -15,8 +16,8 @@ attack_speed = 0.25
 
 [sub_resource type="Resource" id="Resource_kyqcv"]
 script = ExtResource("3_pqfdo")
+element = ExtResource("vfx_blood")
 bonuses = SubResource("Resource_5uo1l")
-color = Color(0.9372549, 0.2784314, 0.43529412, 1)
 
 [resource]
 script = ExtResource("5_xkdlu")

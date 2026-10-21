@@ -15,6 +15,9 @@ func run() -> void:
 	_test_slow_looks()
 	_test_data_sheets()
 	_test_frost_kit()
+	_test_poison_kit()
+	_test_blood_kit()
+	_test_spirit_kit()
 
 
 ## Each element: an id, a ramp of 3 to 5 colors from a bright core to a dark edge (shadow turned
@@ -54,6 +57,7 @@ func _test_elements() -> void:
 	check(listed == all.size(), "vfx: every element file is listed in data/vfx/elements.tres (%d files, %d listed)" % [listed, all.size()])
 	check(Palette.FROST.to_html(false) == VfxElementDef.named(&"frost").color().to_html(false), "vfx: Palette.FROST is the frost element's color")
 	check(Palette.FIRE.to_html(false) == VfxElementDef.named(&"fire").color().to_html(false), "vfx: Palette.FIRE is the fire element's color")
+	check(Palette.BLOOD.to_html(false) == VfxElementDef.named(&"blood").color().to_html(false), "vfx: Palette.BLOOD is the blood element's color")
 	# Old content giving only a color gets a ramp of its own hue, not fire's bands.
 	var made := VfxElementDef.or_color(null, Color("80ed99"))
 	check(made.ramp.size() == 4 and made.color().to_html(false) != VfxElementDef.named(&"fire").color().to_html(false), "vfx: a plain color makes a ramp of its own hue")
@@ -154,7 +158,10 @@ func _test_slow_looks() -> void:
 	for path: String in ["res://data/items/weapons/monster/sand_breath.tres", "res://data/skills/boss/sandstorm.tres", "res://data/skills/monster/ink_ring.tres", "res://data/skills/boss/wailing_ring.tres", "res://data/skills/boss/wailing_ring_fierce.tres", "res://data/skills/monster/spore_cloud.tres", "res://data/items/weapons/monster/water_jet.tres"]:
 		for status in _statuses(load(path)):
 			if status.slow > 0.0:
-				check(status.slow_element != null and status.slow_element.slow_look == &"", "slow look: %s slows without frost" % path.get_file())
+				check(status.slow_element != null and status.slow_element.slow_look != &"slow", "slow look: %s slows without frost" % path.get_file())
+				# Only the spirit's wail shows on the body (a pale flicker); sand, ink, spores, water show nothing.
+				var wail := status.slow_element == VfxElementDef.named(&"spirit")
+				check(status.slow_element.slow_look == (&"haunt" if wail else &""), "slow look: %s shows %s" % [path.get_file(), "the spirit's pale flicker" if wail else "nothing"])
 
 
 ## Every sheet the data points to cuts into whole frames, and every scale is whole art pixels.
@@ -239,6 +246,79 @@ func _test_frost_kit() -> void:
 		for effect in _effects_of(resource):
 			if effect is ProjectileEffect and (effect as ProjectileEffect).element == frost and (effect as ProjectileEffect).texture:
 				check(not (effect as ProjectileEffect).texture.resource_path.contains(shuriken), "frost: %s shoots no shuriken" % resource.resource_path.get_file())
+
+
+## Poison: a glob drawn in 16 directions, a splash that leaves a puddle, gas clouds for its
+## novas, venom fangs; every poison user points at it and none borrows the energy orb.
+func _test_poison_kit() -> void:
+	var poison := VfxElementDef.named(&"poison")
+	check(poison.projectile and poison.impact and poison.piece and poison.claw, "poison: its kit is full (glob, splash, gas cloud, fangs)")
+	check(poison.projectile.orient == VfxSheetDef.Orient.ROWS and poison.projectile.directions == 16 and not poison.projectile.recolor, "poison: the glob is drawn in 16 directions on its own ramp (no painted orb)")
+	check(poison.claw.orient == VfxSheetDef.Orient.ROWS, "poison: the fangs are drawn per direction, never rotated")
+	check(poison.impact_mark > 0.0 and poison.mark.a > 0.0, "poison: a glob landing leaves a puddle")
+	check(poison.mark.to_html(false) in Array(poison.ramp).map(func(c: Color) -> String: return c.to_html(false)), "poison: its puddle is a color of its ramp")
+	var look := StatusFx.LOOKS.look(&"poison")
+	check(look.element == poison and look.particle != null and look.mist_rate > 0.0, "poison: a poisoned body bubbles (a sheet on the grid) and leaks a sinking haze")
+	check(look.text_color.to_html(false) == poison.color().to_html(false), "poison: its ticks are numbered in its own green (not a free 80ed99)")
+	var spore := ((load("res://data/skills/monster/spore_cloud.tres") as SkillDef).effects[0] as DamageAreaEffect)
+	check(spore.element == poison and spore.fx == null, "poison: Spore Cloud is a nova of gas clouds")
+	for path: String in ["res://data/skills/boss/poison_spit.tres", "res://data/skills/boss/poison_spit_fierce.tres", "res://data/skills/boss/venom_spit.tres", "res://data/skills/boss/venom_spit_fierce.tres", "res://data/skills/boss/toxic_bloom.tres", "res://data/skills/boss/toxic_bloom_fierce.tres"]:
+		for effect in _effects_of(load(path)):
+			check(effect.get("element") == poison and effect.get("texture") == null, "poison: %s spits globs of venom" % path.get_file())
+	for path: String in ["res://data/items/weapons/monster/acid_spit.tres", "res://data/items/weapons/monster/poison_fang.tres", "res://data/items/weapons/monster/jade_fang.tres"]:
+		var weapon := load(path) as WeaponDef
+		check(weapon.element == poison and weapon.attack_fx == null and weapon.projectile_texture == null, "poison: %s is venom (its glob or its fangs, not a borrowed sheet)" % path.get_file())
+	var wyrm := load("res://data/monsters/bosses/jade_wyrm.tres") as MonsterDef
+	check(wyrm.weapon.element == poison, "poison: the Jade Wyrm bites with venom fangs, not a blood claw")
+
+
+## Blood: claws rake in blood, a wound spurts and stains, Battle Cry bursts jets of blood, and
+## what drinks blood draws it out of its victim.
+func _test_blood_kit() -> void:
+	var blood := VfxElementDef.named(&"blood")
+	check(blood.impact and blood.piece and blood.claw and not blood.emissive, "blood: its kit is full (spurt, jet, claws), matter that doesn't shine")
+	check(blood.claw.orient == VfxSheetDef.Orient.ROWS, "blood: the claws are drawn per direction, never rotated")
+	check(blood.impact_mark > 0.0 and blood.mark.to_html(false) == blood.edge().to_html(false), "blood: a spurt leaves a stain in its darkest red")
+	var claws := load("res://data/items/weapons/monster/claws.tres") as WeaponDef
+	check(claws.element == blood and claws.attack_fx == null, "blood: Claws rake in blood (the spider, the racoons, the moles, the owl)")
+	for id: String in ["spider", "thief_racoon", "gold_racoon", "owl", "mole", "stone_mole"]:
+		var monster := load("res://data/monsters/%s.tres" % id) as MonsterDef
+		check(monster.weapon == claws, "blood: the %s strikes with the blood claws" % id)
+	var cry := (load("res://data/skills/player/battle_cry.tres") as SkillDef).effects[0] as BuffEffect
+	check(cry.element == blood, "blood: Battle Cry bursts in blood, not a magic circle")
+	check(MonsterDef.new().splat_color.to_html(false) == blood.edge().to_html(false), "blood: a monster bleeds the blood element's dark red")
+	var ash := (load("res://src/vfx/ambient/blood_ash.tscn") as PackedScene).instantiate()
+	check(ash is PixelMotes and (ash as PixelMotes).element == blood, "blood: the blood moon's ash falls on the grid in the blood ramp")
+	ash.free()
+	# Drinking blood shows it.
+	var world_less := BloodDrainVfx.create(Vector2(10, 10), null, 3)
+	check(world_less._drops.size() == 3, "blood: a drain throws its drops")
+	world_less.free()
+
+
+## Spirit: wisps, hollow rings, pale flames; ghosts' touch, wails, calls, wards and blinks are
+## all spirit, and a wail shows on the body as a pale flicker, never as rime.
+func _test_spirit_kit() -> void:
+	var spirit := VfxElementDef.named(&"spirit")
+	check(spirit.projectile and spirit.impact and spirit.piece and spirit.claw and spirit.slow_look == &"haunt", "spirit: its kit is full (wisp, ring, pale flame, spectral claws, a wailed look)")
+	check(spirit.projectile.orient == VfxSheetDef.Orient.ROWS and spirit.projectile.directions == 16, "spirit: the wisp is drawn in 16 directions, its tail behind it")
+	var look := StatusFx.LOOKS.look(&"haunt")
+	check(look != null and look.element == spirit and look.crust == null and look.particle != null, "spirit: a wailed body flickers with pale flames, no rime")
+	for path: String in ["res://data/skills/boss/wailing_ring.tres", "res://data/skills/boss/wailing_ring_fierce.tres"]:
+		for effect in _effects_of(load(path)):
+			check(effect.get("element") == spirit and effect.get("texture") == null, "spirit: %s is a ring of wisps, not cyan orbs" % path.get_file())
+	for path: String in ["res://data/skills/boss/call_spirits.tres", "res://data/skills/boss/call_spirits_fierce.tres", "res://data/skills/monster/soul_ward.tres", "res://data/skills/monster/blink.tres", "res://data/skills/player/blink.tres"]:
+		for effect in _effects_of(load(path)):
+			check(effect.get("element") == spirit, "spirit: %s is spirit" % path.get_file())
+	var touch := load("res://data/items/weapons/monster/spirit_touch.tres") as WeaponDef
+	check(touch.element == spirit and touch.attack_fx == null, "spirit: the Lost Soul's Cold Touch is a spectral claw, not a warm one")
+	var moth := load("res://data/monsters/soul_moth.tres") as MonsterDef
+	check(moth.weapon.element == spirit and moth.weapon.projectile_texture == null and (moth.weapon.on_hit == null or moth.weapon.on_hit.burn_damage == 0), "spirit: the Soul Moth throws soul flames, not burning fireballs")
+	# Burrowers dig: they don't blink like ghosts.
+	for id: String in ["mole", "stone_mole"]:
+		for skill in (load("res://data/monsters/%s.tres" % id) as MonsterDef).skills:
+			for effect in skill.effects:
+				check(effect.get("element") != spirit, "spirit: the %s burrows, it doesn't vanish like a ghost" % id)
 
 
 # --- Helpers -------------------------------------------------------------------

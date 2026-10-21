@@ -16,10 +16,10 @@ slow_duration = 2.5
 
 [sub_resource type="Resource" id="Resource_dpn75"]
 script = ExtResource("2_8llny")
+element = ExtResource("vfx_poison")
 radius = 70.0
 damage_multiplier = 0.4
 knockback = 40.0
-color = Color(0.5019608, 0.92941177, 0.6, 1)
 status = SubResource("Resource_pnf4m")
 
 [resource]

@@ -39,6 +39,9 @@ enum Motion {
 @export var residue := Color.TRANSPARENT
 ## What it leaves on the floor for a while: rime, a scorch, a puddle (transparent: nothing).
 @export var mark := Color.TRANSPARENT
+## Size of the `mark` a landing shot or a spurt of it leaves on the floor (a puddle of venom, a
+## stain of blood; 1 = a monster's death). 0: its landings leave nothing (frost, light).
+@export_range(0.0, 1.0) var impact_mark: float = 0.0
 @export var bit: Bit = Bit.SQUARE
 @export var motion: Motion = Motion.OUTWARD
 ## Shines on its own (a halo and a light around its shots, unshaded sparks). Off for the

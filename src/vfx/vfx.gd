@@ -56,6 +56,8 @@ static func pop(world: World, at: Vector2, element: VfxElementDef, radius: float
 		world.spawn_vfx(SheetVfx.play(element.impact, at, direction, element))
 	else:
 		world.spawn_vfx(BlastVfx.create(at, radius, element))
+	if element.impact_mark > 0.0 and element.mark.a > 0.0:
+		world.add_splat(at, element.mark, element.impact_mark, direction)  # a puddle, a stain
 	if element.emissive:
 		world.flash_light(at, element.color(), radius * 5.0)
 	if element.impact_sound:

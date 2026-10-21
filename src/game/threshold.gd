@@ -345,8 +345,11 @@ func _on_hero_died(_actor: Actor) -> void:
 		abort.call_deferred()
 
 
-## The hero's soul, pulled down out of his body into the floor (drawn over the frozen floor).
+## The hero's soul, pulled down out of his body into the floor (drawn over the frozen floor):
+## a wisp in the spirit element's ramp, on the art's grid, its tail streaming up behind it, a
+## hollow ring spreading on the floor where it goes under, all dithering out (docs/vfx.md).
 class SinkingSoul extends Node2D:
+	## Kept for the caller; the soul takes the spirit element's colors.
 	var color := Color.WHITE
 	var _age := 0.0
 	var _length := 1.0
@@ -366,13 +369,16 @@ class SinkingSoul extends Node2D:
 		queue_redraw()
 
 	func _draw() -> void:
+		var spirit := VfxElementDef.named(&"spirit")
 		var t := _age / _length
 		# It rises a little out of the body, then is dragged down and fades.
 		var y := -10.0 * sin(minf(t * 2.5, 1.0) * PI * 0.5) + 70.0 * pow(maxf(t - 0.35, 0.0) / 0.65, 2.0)
 		var fade := 1.0 - smoothstep(0.6, 1.0, t)
 		for i in 6:
 			var back := float(i + 1) * 5.0 * t
-			draw_circle(Vector2(0, y - back), 6.0 - i * 0.8, Color(color, 0.18 * fade))
-		draw_circle(Vector2(0, y), 12.0, Color(color, 0.25 * fade))
-		draw_circle(Vector2(0, y), 6.0, Color(color.lightened(0.5), 0.9 * fade))
-		draw_arc(Vector2(0, 26), 16.0 + 20.0 * t, 0.0, TAU, 24, Color(color, 0.5 * fade), 2.0)
+			var at := Vector2(sin(_age * 9.0 + i) * 2.0 * i * 0.3, y - back)
+			if PixelDraw.dither(PixelDraw.cell_of(at), fade * (1.0 - i / 7.0)):
+				PixelDraw.pixel(self, at, spirit.shade(0.25 + i * 0.12), 2 if i < 2 else 1)
+		PixelDraw.disc(self, Vector2(0, y), 8.0, spirit.shade(0.5), fade)
+		PixelDraw.disc(self, Vector2(0, y), 4.0, spirit.core(), fade)
+		PixelDraw.ring(self, Vector2(0, 26), 16.0 + 20.0 * t, spirit.shade(0.75), 1, 0.8 * fade, 0.5)

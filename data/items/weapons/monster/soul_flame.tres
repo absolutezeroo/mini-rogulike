@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/spirit.tres" id="1_sound"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="2_status"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="3_weapon"]
+[ext_resource type="Resource" path="res://data/vfx/elements/spirit.tres" id="vfx_spirit"]
+
+[sub_resource type="Resource" id="Resource_chill"]
+script = ExtResource("2_status")
+slow = 0.3
+slow_duration = 1.5
+slow_element = ExtResource("vfx_spirit")
+
+[resource]
+script = ExtResource("3_weapon")
+element = ExtResource("vfx_spirit")
+kind = 1
+damage = 7
+cooldown = 1.6
+reach = 320.0
+attack_animation = 3
+on_hit = SubResource("Resource_chill")
+trail_color = Color(0, 0, 0, 0)
+attack_sound = ExtResource("1_sound")
+projectile_speed = 260.0
+projectile_radius = 7.0
+slot = 0
+id = &"soul_flame"
+display_name = "Soul Flame"
+glyph = "G"
+color = Color(0.721569, 0.960784, 0.862745, 1)
+spawn_weight = 0

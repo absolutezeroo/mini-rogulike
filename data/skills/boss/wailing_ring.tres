@@ -3,7 +3,6 @@
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_ptcdc"]
 [ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_g12wj"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_c13jy"]
-[ext_resource type="Texture2D" path="res://assets/projectiles/energyball.png" id="4_gyxvn"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_erffb"]
 [ext_resource type="AudioStream" path="res://data/audio/spirit.tres" id="6_3e6pn"]
 [ext_resource type="Resource" path="res://data/vfx/elements/spirit.tres" id="vfx_spirit"]
@@ -15,14 +14,13 @@ slow = 0.35
 
 [sub_resource type="Resource" id="Resource_g12wj"]
 script = ExtResource("2_g12wj")
+element = ExtResource("vfx_spirit")
 damage_multiplier = 0.5
 flat_damage = 4
 speed = 240.0
 radius = 7.0
 count = 16
 spread_degrees = 360.0
-color = Color(0.7529412, 0.8392157, 0.8745098, 1)
-texture = ExtResource("4_gyxvn")
 status = SubResource("Resource_ptcdc")
 
 [resource]

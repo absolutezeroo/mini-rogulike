@@ -150,8 +150,10 @@ func raise_spectre() -> Monster:
 	var at := _spawn_point()
 	var monster := spawn_monster(def, at)
 	monster.wake_up(player)
-	Vfx.puff(self, at)
-	Vfx.sparkles(self, at, trial.spectral_color)
+	# It rises out of the mist in the spirit element: a hollow ring and pale flames.
+	var spirit := VfxElementDef.named(&"spirit")
+	Vfx.pop(self, at + Vector2(0, -10), spirit, 16.0, Vector2.UP)
+	Vfx.nova(self, at, 18.0, spirit)
 	Sfx.play_at(Sfx.bank.monster_alert, at, -8.0, 0.7)
 	spectre_risen.emit(monster)
 	return monster

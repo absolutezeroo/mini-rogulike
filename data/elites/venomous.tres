@@ -10,13 +10,13 @@ script = ExtResource("2_idwow")
 status_id = &"poison"
 interval = 0.6
 duration = 4.0
-color = Color(0.48235294, 0.8392157, 0.35686275, 1)
+color = Color(0.607843, 0.839216, 0.290196, 1)
 
 [sub_resource type="Resource" id="Resource_xfg4c"]
 script = ExtResource("3_r5on2")
 id = &"elite_venomous"
 display_name = "Venomous"
-color = Color(0.48235294, 0.8392157, 0.35686275, 1)
+color = Color(0.607843, 0.839216, 0.290196, 1)
 passives = Array[ExtResource("1_yxgvd")]([SubResource("Resource_3eout")])
 
 [resource]
@@ -25,5 +25,5 @@ perk = SubResource("Resource_xfg4c")
 id = &"venomous"
 display_name = "Venomous"
 glyph = "V"
-color = Color(0.48235294, 0.8392157, 0.35686275, 1)
+color = Color(0.607843, 0.839216, 0.290196, 1)
 min_depth = 2

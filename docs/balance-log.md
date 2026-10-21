@@ -3,6 +3,19 @@
 Dated entries, newest first: what was measured, what changed and why, before/after numbers, open
 questions. How to measure: [balance.md](balance.md).
 
+## 2026-10-21 - The Soul Moth throws soul flames, not fire (by rule, not measured in runs)
+
+**Why:** the Soul Moth (act II support, `data/monsters/soul_moth.tres`) shot the fire `ghost_flame`
+and set the hero on fire: orange flames on the body from a pale spirit. It now throws its own
+**Soul Flame** (`data/items/weapons/monster/soul_flame.tres`, the spirit element's wisp): **7
+damage** (was 5) and a spirit chill, **30% slower for 1.5 s** (shown as a pale flicker, not
+rime), instead of a burn of 2 every 0.5 s for 3 s (up to 12 more). Its shot hurts less in total
+but slows the hero while its wards protect the pack, which suits a support; cooldown, range and
+speed are unchanged. To watch: act II packs with two moths (the chill keeps the hero in range of
+the melee monsters it wards). Moles and Stone Moles now **Burrow** (`data/skills/monster/burrow.tres`)
+instead of sharing the spirits' Blink: the same numbers (160 px in 0.12 s, cooldown 4 s), a puff of
+earth instead of a ghost's vanishing. No other number changed.
+
 ## 2026-10-21 - The Frost Staff's shards chill (by rule, not measured in runs)
 
 **Why:** the staff's shots are now the frost element's ice shards (docs/vfx.md), and a frost hit

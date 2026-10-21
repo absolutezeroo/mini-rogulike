@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_ttfka"]
+[ext_resource type="Script" path="res://src/definitions/effects/dash_effect.gd" id="2_bxy3w"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_1iaai"]
+[ext_resource type="AudioStream" path="res://data/audio/crumble.tres" id="4_sound"]
+[ext_resource type="Resource" path="res://data/vfx/elements/earth.tres" id="vfx_earth"]
+
+[sub_resource type="Resource" id="Resource_qq6me"]
+script = ExtResource("2_bxy3w")
+distance = 160.0
+duration = 0.12
+element = ExtResource("vfx_earth")
+
+[resource]
+script = ExtResource("3_1iaai")
+id = &"burrow"
+display_name = "Burrow"
+short_label = ""
+color = Color(0.823529, 0.701961, 0.490196, 1)
+cooldown = 4.0
+effects = Array[ExtResource("1_ttfka")]([SubResource("Resource_qq6me")])
+sound = ExtResource("4_sound")
+ai_min_range = 80.0
+ai_max_range = 260.0
