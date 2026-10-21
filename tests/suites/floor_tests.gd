@@ -1334,9 +1334,10 @@ func _test_biomes(game: Game) -> void:
 	for prop in CONTENT.props:
 		generic[prop] = true
 	generic[dungeon.room_light] = true
+	generic[dungeon.cracked_wall] = true  # (a secret room's crack: any floor of any world)
 	for a in dungeon.acts.size():
 		for biome in dungeon.acts[a].biomes:
-			var allowed := generic.duplicate() if biome.props.is_empty() else {dungeon.room_light: true}
+			var allowed := generic.duplicate() if biome.props.is_empty() else {dungeon.room_light: true, dungeon.cracked_wall: true}
 			for prop in biome.props:
 				allowed[prop] = true
 			if biome.light:

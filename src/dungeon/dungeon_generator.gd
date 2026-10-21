@@ -31,7 +31,16 @@ static func generate(config: DungeonConfig, rng: RandomNumberGenerator, size_sca
 	map.start_cell = map.rooms[0].get_center()
 	map.stairs_cell = _farthest_room(map).get_center()
 	map.second_stairs_cell = _second_exit(map)
+	map.secrets = SecretRoomPlan.plan_all(map, config, secret_rng(rng))
 	return map
+
+
+## The floor's own stream for its secrets, drawn from the floor's seed without touching `rng`:
+## the rest of the floor (monsters, chests...) comes out the same with or without them.
+static func secret_rng(rng: RandomNumberGenerator) -> RandomNumberGenerator:
+	var secret := RandomNumberGenerator.new()
+	secret.seed = hash("secrets-%d" % rng.seed)
+	return secret
 
 
 ## Boss floor: a small start room and one big arena, joined by a single corridor
@@ -59,6 +68,58 @@ static func generate_arena(config: DungeonConfig, rng: RandomNumberGenerator, pl
 	map.start_cell = start.get_center()
 	map.stairs_cell = arena.get_center()
 	# The second way down, beside the first once the boss falls.
+	for offset in [Vector2i(5, 0), Vector2i(-5, 0), Vector2i(0, 4), Vector2i(0, -4)]:
+		if map.is_floor(map.stairs_cell + offset) and arena.has_point(map.stairs_cell + offset):
+			map.second_stairs_cell = map.stairs_cell + offset
+			break
+	return map
+
+
+## The hidden floor (HiddenFloorDef): a start room and `room_count` rooms in a row on the left,
+## then one arena on the right, joined by a single corridor (one entrance to close, like a boss
+## floor; a way through the dark first). `plan`: the arena's size and shape.
+static func generate_hidden(config: DungeonConfig, rng: RandomNumberGenerator, plan: ArenaDef, room_count: int) -> DungeonMap:
+	var map := DungeonMap.new(config.width, config.height, config.tile_size)
+	var arena_size := plan.size if plan else config.arena_size
+	arena_size = Vector2i(mini(arena_size.x, config.width / 2 - 4), mini(arena_size.y, config.height - 12))
+	var arena := Rect2i(
+		Vector2i(config.width - arena_size.x - 4, (config.height - arena_size.y) / 2 + rng.randi_range(-6, 6)),
+		arena_size)
+	var right := arena.position.x - 6  # the rooms keep to the left of this
+	var rooms: Array[Rect2i] = [Rect2i(Vector2i(4, config.height / 2 - 3 + rng.randi_range(-12, 12)), Vector2i(7, 7))]
+	for attempt in room_count * 40:
+		if rooms.size() > room_count:
+			break
+		var size := Vector2i(
+			rng.randi_range(config.room_min_size, mini(config.room_max_size, 11)),
+			rng.randi_range(config.room_min_size, mini(config.room_max_size, 11)))
+		if right - size.x <= 12:
+			continue
+		var room := Rect2i(Vector2i(rng.randi_range(12, right - size.x), rng.randi_range(3, config.height - size.y - 3)), size)
+		if not _overlaps_any(room, rooms):
+			rooms.append(room)
+	# Left to right, so the way leads on toward the arena.
+	var ahead := rooms.slice(1)
+	ahead.sort_custom(func(a: Rect2i, b: Rect2i) -> bool: return a.position.x < b.position.x)
+	var ordered: Array[Rect2i] = [rooms[0]]
+	ordered.append_array(ahead)
+	rooms = ordered
+	for i in rooms.size():
+		_carve_rect(map, rooms[i])
+		if i > 0:
+			_carve_corridor(map, rooms[i - 1].get_center(), rooms[i].get_center(), config.corridor_width, rng)
+	if plan:
+		for cell in plan.cells(arena.position):
+			map.set_floor(cell)
+	else:
+		_carve_rect(map, arena)
+	_carve_corridor(map, rooms[rooms.size() - 1].get_center(), arena.get_center(), config.corridor_width, rng)
+	smooth(map)
+	map.rooms = rooms
+	map.rooms.append(arena)
+	map.boss_room = arena
+	map.start_cell = rooms[0].get_center()
+	map.stairs_cell = arena.get_center()
 	for offset in [Vector2i(5, 0), Vector2i(-5, 0), Vector2i(0, 4), Vector2i(0, -4)]:
 		if map.is_floor(map.stairs_cell + offset) and arena.has_point(map.stairs_cell + offset):
 			map.second_stairs_cell = map.stairs_cell + offset

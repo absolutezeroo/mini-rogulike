@@ -1,7 +1,7 @@
 class_name GameTests
 extends TestSuite
 ## The real game, played: sets the game up, a bot plays, then runs the other game suites on it
-## (CombatTests, FloorTests, BossTests).
+## (CombatTests, FloorTests, SecretTests, BossTests).
 
 
 func run() -> void:
@@ -9,7 +9,8 @@ func run() -> void:
 	var combat := CombatTests.new()
 	var floor := FloorTests.new()
 	var boss := BossTests.new()
-	for suite: Node in [combat, floor, boss]:
+	var secrets := SecretTests.new()
+	for suite: Node in [combat, floor, boss, secrets]:
 		add_child(suite)
 	# No merchant, encounter, ambush or special floor popping up in the middle of other tests (they have their own).
 	var merchant_chance := CONTENT.dungeon.merchant_chance
@@ -242,6 +243,8 @@ func run() -> void:
 	await combat._test_review_fixes(game)
 	await floor._test_debug_panel(game)
 
+	await secrets._test_secret_rooms(game)
+	await secrets._test_hidden_floor(game)
 	await boss._test_boss_fight(game)
 
 	# Death and restart (without perks: a Phoenix Feather from the boss would save the hero).

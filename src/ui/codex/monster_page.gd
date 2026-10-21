@@ -120,6 +120,9 @@ func _home() -> String:
 			if act.floors <= 1:
 				return tr("%s, floor %d") % [tr(act.subtitle), first]
 			return tr("%s, floors %d to %d") % [tr(act.subtitle), first, last]
+	var hidden := _content.dungeon.hidden_floor
+	if hidden and hidden.boss == _monster:
+		return tr(hidden.title)
 	return ""
 
 

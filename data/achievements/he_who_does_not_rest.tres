@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="AchievementDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/bone_key.png" id="1_icon"]
+[ext_resource type="Script" path="res://src/definitions/achievement_def.gd" id="2_def"]
+
+[resource]
+script = ExtResource("2_def")
+id = &"he_who_does_not_rest"
+display_name = "Laid to Rest at Last"
+description = "Slay the Nameless Effigy, below the Ossuary."
+icon = ExtResource("1_icon")
+stat = 16
+target = 1
+reward_souls = 80
+secret = true

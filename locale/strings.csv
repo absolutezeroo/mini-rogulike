@@ -9,6 +9,7 @@ Known,Known,Connu
 Hunted,Hunted,Traqué
 Mastered,Mastered,Maîtrisé
 ENRAGED!,ENRAGED!,ENRAGÉ !
+Between the Acts,Between the Acts,Entre les Actes
 Slay an elite %s,Slay an elite %s,Élite à abattre : %s
 Push a %s into a hole,Push a %s into a hole,%s : à pousser dans un trou
 Slay %d %s within %d seconds,Slay %d %s within %d seconds,Abats %d × %s en moins de %d secondes
@@ -84,6 +85,7 @@ Common,Common,Commun
 Magic,Magic,Magique
 Rare,Rare,Rare
 Epic,Epic,Épique
+Key,Key,Clef
 %s rune,%s rune,Rune (%s)
 Rune,Rune,Rune
 Set it into a weapon at a forge.,Set it into a weapon at a forge.,"À sertir dans une arme, à une forge."
@@ -161,18 +163,21 @@ New record!,New record!,Nouveau record !
 Nothing else to offer.,Nothing else to offer.,Plus rien à proposer.
 %s is banished for this run.,%s is banished for this run.,Banni pour cette partie : %s.
 %s (level %d),%s (level %d),%s (niveau %d)
+"The key in your bag turns to ice. Beneath the arena, a sealed way opens.","The key in your bag turns to ice. Beneath the arena, a sealed way opens.","La clef dans ton sac se glace. Sous l'arène, une voie scellée s'ouvre."
+The hidden floor gives up its hoard: +%d souls.,The hidden floor gives up its hoard: +%d souls.,L'étage caché livre son trésor : +%d âmes.
 A relic lies in the warden's remains. Choose one.,A relic lies in the warden's remains. Choose one.,Une relique gît dans les restes du gardien. Choisis-en une.
 %dd %dh,%dd %dh,%d j %d h
 %dh %02dm,%dh %02dm,%d h %02d min
 A Celestial %s! It joins the bestiary's collection.,A Celestial %s! It joins the bestiary's collection.,Nouvelle prise pour le bestiaire : %s Céleste !
+Dungeon,Dungeon,Donjon
 Difficulty,Difficulty,Difficulté
 Reached,Reached,Atteint
 "%s, depth %d","%s, depth %d","%s, étage %d"
-Dungeon,Dungeon,Donjon
 Hero level,Hero level,Niveau du héros
 Monsters slain,Monsters slain,Monstres abattus
 Bosses slain,Bosses slain,Boss abattus
 Time,Time,Temps
+Secret rooms found,Secret rooms found,Salles secrètes trouvées
 (best %d),(best %d),(meilleur %d)
 (practice),(practice),(entraînement)
 Daily score,Daily score,Score du jour
@@ -215,6 +220,7 @@ Big goals across all your runs. Reaching one pays its souls at once.,Big goals a
 Done!,Done!,Accompli !
 Received,Received,Reçu
 Reward,Reward,Récompense
+A secret feat. Some doors only open from the other side.,A secret feat. Some doors only open from the other side.,Un exploit secret. Certaines portes ne s'ouvrent que de l'autre côté.
 Died on floor %d,Died on floor %d,Mort à l'étage %d
 Reached the bottom of the Well,Reached the bottom of the Well,A touché le fond du Puits
 "Won, then slain by %s","Won, then slain by %s","Victoire, puis tué par %s"
@@ -600,6 +606,7 @@ OK,OK,OK
 The depths,The depths,Les profondeurs
 %s - better loot,%s - better loot,%s - meilleur butin
 %s (cursed: %s),%s (cursed: %s),%s (maudit : %s)
+The wall gives way: a hidden room.,The wall gives way: a hidden room.,Le mur cède : une salle cachée.
 "The seal shatters: two ways down. %s, or %s.","The seal shatters: two ways down. %s, or %s.","Le sceau vole en éclats : deux chemins vers les profondeurs. %s, ou %s."
 The seal shatters. The way down lies open.,The seal shatters. The way down lies open.,Le sceau vole en éclats. La voie des profondeurs s'ouvre.
 Sealed. Slay %d more monster to open the stairs.,Sealed. Slay %d more monster to open the stairs.,Scellé. Abats encore %d monstre pour ouvrir les escaliers.
@@ -637,6 +644,8 @@ First Blood,First Blood,Premier Sang
 Slay your first monster.,Slay your first monster.,Abats ton premier monstre.
 Martyrdom,Martyrdom,Le Martyre
 Win a run on Martyr.,Win a run on Martyr.,Gagne une partie en Martyr.
+Laid to Rest at Last,Laid to Rest at Last,Enfin le Repos
+"Slay the Nameless Effigy, below the Ossuary.","Slay the Nameless Effigy, below the Ossuary.","Terrasse le Gisant Sans Nom, sous l'Ossuaire."
 Into the Dark,Into the Dark,Vers les Ténèbres
 Reach floor 4.,Reach floor 4.,Atteins l'étage 4.
 Glint in the Dark,Glint in the Dark,Lueur dans le Noir
@@ -659,6 +668,8 @@ Bane of the Wardens,Bane of the Wardens,Fléau des Gardiens
 Defeat 10 wardens.,Defeat 10 wardens.,Terrasse 10 gardiens.
 Warden Slayer,Warden Slayer,Tombeur de Gardien
 Defeat a warden of the Well.,Defeat a warden of the Well.,Terrasse un gardien du Puits.
+What the Walls Keep,What the Walls Keep,Ce que Gardent les Murs
+Find 5 secret rooms.,Find 5 secret rooms.,Trouve 5 salles secrètes.
 Brutal,Brutal,Brutal
 Burning,Burning,Ardent
 Ironbound,Ironbound,Cerclé de Fer
@@ -725,6 +736,8 @@ Drowned Caverns,Drowned Caverns,Cavernes des Noyés
 The Well's water rose here once. It never went back down.,The Well's water rose here once. It never went back down.,"Les eaux du Puits sont montées jusqu'ici, un jour. Elles ne sont jamais redescendues."
 Weeping Grotto,Weeping Grotto,Grotte Suintante
 Damp stone and soft moss. Something drips in the dark.,Damp stone and soft moss. Something drips in the dark.,Pierre humide et mousse tendre. Quelque chose goutte dans le noir.
+The Nameless Charnel,The Nameless Charnel,Le Charnier Sans Nom
+"Below the Ossuary, the dead nobody named. The cold does not come from the stone.","Below the Ossuary, the dead nobody named. The cold does not come from the stone.","Sous l'Ossuaire, les morts que nul n'a nommés. Le froid ne vient pas de la pierre."
 Godless Temple,Godless Temple,Temple sans Dieu
 Halls of columns raised for a god nobody remembers.,Halls of columns raised for a god nobody remembers.,Des salles à colonnes élevées pour un dieu que plus personne ne se rappelle.
 Tomb of the Dead Sun,Tomb of the Dead Sun,Tombeau du Soleil Mort
@@ -837,6 +850,8 @@ Health Potion,Health Potion,Potion de Vie
 Restores 35% of your HP.,Restores 35% of your HP.,Rend 35 % de ta Vie.
 Elixir of Rage,Elixir of Rage,Élixir de Rage
 +5 Damage and +15% critical hit chance for 8 seconds.,+5 Damage and +15% critical hit chance for 8 seconds.,+5 Dégâts et +15 % de chance de coup critique pendant 8 secondes.
+Bone Key,Bone Key,Clef d'Ossements
+"Finger bones fused into a key, cold as the grave. It fits no door on this side of the Warden.","Finger bones fused into a key, cold as the grave. It fits no door on this side of the Warden.","Des phalanges soudées en clef, froides comme la tombe. Elle n'ouvre aucune porte de ce côté du Gardien."
 Tome of Fire,Tome of Fire,Grimoire du Feu
 Read it to learn a skill (last skill button).,Read it to learn a skill (last skill button).,Lis-le pour apprendre une compétence (dernier bouton de compétence).
 Tome of Frost,Tome of Frost,Grimoire du Givre
@@ -1025,6 +1040,12 @@ BOILS OVER!,BOILS OVER!,BOUILLONNE !
 Warden of the Well's Maw,Warden of the Well's Maw,Gardien de la Gueule du Puits
 Bloated King,Bloated King,Le Roi Boursouflé
 "A huge slime that bounces, slams and splits.","A huge slime that bounces, slams and splits.","Un gluant colossal qui rebondit, écrase et se divise."
+Shatter the Nameless Effigy with a Pickaxe,Shatter the Nameless Effigy with a Pickaxe,Brise le Gisant Sans Nom à la Pioche
+THE DEAD ANSWER!,THE DEAD ANSWER!,LES MORTS RÉPONDENT !
+IT WILL NOT REST!,IT WILL NOT REST!,IL NE REPOSERA PAS !
+He Who Does Not Rest,He Who Does Not Rest,Celui qui ne repose pas
+The Nameless Effigy,The Nameless Effigy,Le Gisant Sans Nom
+"The stone knight from a nameless tomb, risen. Its blades are cold, and the dead come when it calls.","The stone knight from a nameless tomb, risen. Its blades are cold, and the dead come when it calls.","Le chevalier de pierre d'un tombeau sans nom, relevé. Ses lames sont froides, et les morts viennent quand il appelle."
 Beat the Ember Ronin at his own game: a Katana,Beat the Ember Ronin at his own game: a Katana,Bats le Rônin des Braises à son propre jeu : au Katana
 BLAZES!,BLAZES!,S'EMBRASE !
 INFERNO!,INFERNO!,BRASIER !
@@ -1158,6 +1179,12 @@ Shatter Rune,Shatter Rune,Rune de Fracas
 Critical hits release a frost shockwave that hurts the enemies around the target and slows them by 40%.,Critical hits release a frost shockwave that hurts the enemies around the target and slows them by 40%.,Les coups critiques libèrent une onde de givre qui blesse les ennemis autour de la cible et les ralentit de 40 %.
 Spark Rune,Spark Rune,Rune d'Étincelle
 "Every 3rd hit, lightning jumps to 2 enemies.","Every 3rd hit, lightning jumps to 2 enemies.","Tous les 3 coups, un éclair bondit sur 2 ennemis."
+Buried Rune,Buried Rune,Rune Enfouie
+Forgotten Shrine,Forgotten Shrine,Autel Oublié
+Hidden Coffer,Hidden Coffer,Coffre Caché
+Hoarder's Cache,Hoarder's Cache,Magot de l'Accapareur
+Under the Ossuary lie the dead nobody named. One of them never lay down.,Under the Ossuary lie the dead nobody named. One of them never lay down.,Sous l'Ossuaire gisent les morts que nul n'a nommés. L'un d'eux ne s'est jamais couché.
+Sealed Draughts,Sealed Draughts,Fioles Scellées
 Old Wanderer,Old Wanderer,Vieil Errant
 I sell what the Well's victims left behind. No refunds.,I sell what the Well's victims left behind. No refunds.,"Je vends ce que les victimes du Puits ont laissé derrière elles. Ni repris, ni échangé."
 Gold is useless down here... but I like it anyway.,Gold is useless down here... but I like it anyway.,L'or ne sert à rien ici-bas... mais je l'aime quand même.
@@ -1378,6 +1405,8 @@ Walk up to the anvil to set runes into your weapon. The smith takes them out aga
 "Walk up to the merchant to spend your gold, or to sell him what you don't need.","Walk up to the merchant to spend your gold, or to sell him what you don't need.","Approche-toi du marchand pour dépenser ton or, ou lui vendre ce dont tu n'as pas besoin."
 Chest,Chest,Coffre
 Walk up to a chest to open it. Careful: some are trapped.,Walk up to a chest to open it. Careful: some are trapped.,Approche-toi d'un coffre pour l'ouvrir. Prudence : certains sont piégés.
+Cracked wall,Cracked wall,Mur fissuré
+This wall is cracked and a draft blows through it. Strike it or blast it: something lies behind.,This wall is cracked and a draft blows through it. Strike it or blast it: something lies behind.,Ce mur est fissuré et un courant d'air passe au travers. Frappe-le ou fais-le sauter : il cache quelque chose.
 Ambush,Ambush,Embuscade
 "The exits stay shut until every wave is dead. Survive, and a chest appears.","The exits stay shut until every wave is dead. Survive, and a chest appears.","Les sorties restent closes jusqu'à ce que chaque vague soit morte. Survis, et un coffre apparaît."
 Watch the ground: red marks show where it will strike. It changes its attacks as it weakens.,Watch the ground: red marks show where it will strike. It changes its attacks as it weakens.,Surveille le sol : les marques rouges montrent où il va frapper. Il change d'attaques en s'affaiblissant.
@@ -1544,6 +1573,7 @@ grammar:gender:Mire Matron,grammar:gender:Mire Matron,f
 grammar:gender:Gilded Hoarder,grammar:gender:Gilded Hoarder,m
 grammar:gender:Jade Wyrm,grammar:gender:Jade Wyrm,f
 grammar:gender:Bloated King,grammar:gender:Bloated King,m
+grammar:gender:The Nameless Effigy,grammar:gender:The Nameless Effigy,m
 grammar:gender:Ember Ronin,grammar:gender:Ember Ronin,m
 grammar:gender:Dead Sun,grammar:gender:Dead Sun,m
 grammar:gender:Mother of Tears,grammar:gender:Mother of Tears,f

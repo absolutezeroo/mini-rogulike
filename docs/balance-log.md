@@ -3,6 +3,40 @@
 Dated entries, newest first: what was measured, what changed and why, before/after numbers, open
 questions. How to measure: [balance.md](balance.md).
 
+## 2026-10-21 - Secret rooms and the hidden floor's boss (new content, not yet measured in the arena)
+
+**Secret rooms** (`dungeon_config.tres` > Secret rooms): 50% a normal floor, one room (two on
+floors of 20+ rooms). The generator finds a place on 81% of Pilgrim floors, 93% on Keeper, 97% on
+Martyr and Nightmare (300 seeds each, chance forced to 1), so about 40-48% of floors hide one, a
+bit more on the big ones. Rewards by weight: Hidden Coffer 30 (2-3 items at quality 3.5, never
+trapped: between a chest's 1.5 and the ambush's Big Chest 3.0, for a room the player had to find),
+Forgotten Shrine 20, Buried Rune 20, Hoarder's Cache 20 (30-50 gold +6 a floor, after the floor's
+gold rules), Sealed Draughts 15 (two rare consumables). Expected extra per floor is small (about
+half a chest); no other number moved.
+
+**The Nameless Effigy** (the hidden floor's boss, after Act II's boss, at depth 6): base 1500
+Health, 6 Armor, 85 speed, 5% crit, the Ember Ronin's blade (12) and dash, the Mother of Tears'
+wailing ring, the skeletons' call from two thirds, fierce versions at one third (wind-up x0.85 /
+x0.7, cooldowns x0.85 / x0.7, +2 / +3 Attack, like the other bosses). Scaled by
+`boss_hp_scale_per_depth` (0.33) at its floor, on Keeper:
+
+| Boss | Floor | Health | Armor | Model TTK, expected build of its act |
+|---|---|---|---|---|
+| Azure Wyrm / Mother of Tears / Gorr | 6 | 2650 / 2783 / 3048 | 5 | 36.1 / 37.8 / 41.2 s (expected_a2, 78.6 DPS) |
+| **The Nameless Effigy** | 6 | **3975** | 6 | about 52 s (by hand: 3975 / ~77 DPS after its armor) |
+| Jade Wyrm / Crimson Tengu / Ember Ronin | 9 | 5278 / 5460 / 5642 | 5 | 37.8 / 39.0 / 40.2 s (expected_a3, 149 DPS) |
+
+Its Health sits between the two acts' bosses (x1.3 Gorr's, x0.73 the Tengu's); against the hero of
+floor 6 it is the longest boss fight so far (about 52 s against 36-41 s), on purpose: the floor is
+optional, found by a secret, and pays a relic choice, a Big Chest and 60 souls (x the difficulty)
+besides the usual boss souls. Its damage is the Ember Ronin's kit at depth 6 instead of 9 (Attack
++5 instead of +8). A unit check keeps its Health between the bosses around it.
+
+**Open:** the balance model only measures the acts' bosses (it lists `nameless_effigy` as
+unlisted content); the arena and the model should take the hidden boss at its floor with the act II
+expected build (game-balancer pass), and the hidden floor's monsters (Act II's mix plus Cyclops,
+3-5 per room in 3 rooms) at depth 6.
+
 ## 2026-10-20 - Item level: gear as strong as the floor it came from
 
 **Design (from the player's request):** a floor-1 weapon must be worse than a floor-2 one, and

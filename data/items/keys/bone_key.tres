@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="KeyItemDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/key_item_def.gd" id="1_key"]
+[ext_resource type="Texture2D" path="res://assets/items/bone_key.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_key")
+value = 0
+id = &"bone_key"
+display_name = "Bone Key"
+description = "Finger bones fused into a key, cold as the grave. It fits no door on this side of the Warden."
+icon = ExtResource("2_icon")
+glyph = "k"
+color = Color(0.62, 0.86, 1, 1)
+spawn_weight = 0

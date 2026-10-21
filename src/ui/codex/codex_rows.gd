@@ -133,8 +133,9 @@ static func achievement_row(achievement: AchievementDef) -> Control:
 	text.alignment = BoxContainer.ALIGNMENT_CENTER
 	text.add_theme_constant_override("separation", 0)
 	row.add_child(text)
-	text.add_child(UiSkin.label(TranslationServer.tr(achievement.display_name), 18, UiSkin.GOLD if unlocked else UiSkin.TEXT))
-	text.add_child(UiSkin.label(TranslationServer.tr(achievement.description), 15, UiSkin.DIM, true))
+	var hidden := achievement.secret and not unlocked
+	text.add_child(UiSkin.label("???" if hidden else TranslationServer.tr(achievement.display_name), 18, UiSkin.GOLD if unlocked else UiSkin.TEXT))
+	text.add_child(UiSkin.label(TranslationServer.tr("A secret feat. Some doors only open from the other side.") if hidden else TranslationServer.tr(achievement.description), 15, UiSkin.DIM, true))
 	var progress := achievement.target if unlocked else achievement.progress()
 	var meter := bar(progress, achievement.target, TranslationServer.tr("Done!") if unlocked else "%d / %d" % [progress, achievement.target])
 	meter.custom_minimum_size.x = 240

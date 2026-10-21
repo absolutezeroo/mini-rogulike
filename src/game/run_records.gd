@@ -17,6 +17,11 @@ func _ready() -> void:
 	Events.stat_counted.connect(func(stat: String, amount: int) -> void:
 		Profile.add_stat(stat, amount, _feats())
 		check_achievements())
+	Events.secret_found.connect(func(_room: Node2D) -> void:
+		if run:
+			run.secrets_found += 1
+		Profile.add_stat("secrets", 1, _feats())
+		check_achievements())
 
 
 ## Follows a new run (and its hero).

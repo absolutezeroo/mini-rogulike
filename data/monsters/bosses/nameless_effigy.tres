@@ -1,0 +1,140 @@
+[gd_resource type="Resource" script_class="BossDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_death"]
+[ext_resource type="Script" path="res://src/definitions/hunt_challenge.gd" id="2_hunt"]
+[ext_resource type="Resource" path="res://data/items/weapons/pickaxe.tres" id="3_pickaxe"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/bosses/nameless_effigy.tres" id="4_frames"]
+[ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="5_hurt"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/nameless_effigy/portrait.png" id="6_portrait"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="7_entry"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="8_potion"]
+[ext_resource type="Resource" path="res://data/items/armors/shadow_cloak.tres" id="9_cloak"]
+[ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="10_plate"]
+[ext_resource type="Resource" path="res://data/items/weapons/big_sword.tres" id="11_sword"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_frost.tres" id="12_tome"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="13_table"]
+[ext_resource type="Script" path="res://src/definitions/boss_phase.gd" id="14_phase"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="15_stats"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="16_skill"]
+[ext_resource type="Resource" path="res://data/skills/boss/tengu_dash.tres" id="17_dash"]
+[ext_resource type="Resource" path="res://data/skills/boss/wailing_ring.tres" id="18_ring"]
+[ext_resource type="Resource" path="res://data/skills/boss/call_skeletons.tres" id="19_call"]
+[ext_resource type="Resource" path="res://data/skills/boss/tengu_dash_fierce.tres" id="20_dash_fierce"]
+[ext_resource type="Resource" path="res://data/skills/boss/wailing_ring_fierce.tres" id="21_ring_fierce"]
+[ext_resource type="Resource" path="res://data/skills/boss/call_skeletons_fierce.tres" id="22_call_fierce"]
+[ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="23_boss"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/tengu_blade.tres" id="24_blade"]
+[ext_resource type="Script" path="res://src/definitions/arena_def.gd" id="25_arena"]
+[ext_resource type="Resource" path="res://data/arenas/pillared_nave.tres" id="26_nave"]
+[ext_resource type="Resource" path="res://data/arenas/round_pit.tres" id="27_pit"]
+[ext_resource type="Resource" path="res://data/materials/armor.tres" id="99_material"]
+
+[sub_resource type="Resource" id="Resource_challenge"]
+script = ExtResource("2_hunt")
+id = &"weapon_pickaxe"
+goal = 10
+text = "Shatter the Nameless Effigy with a Pickaxe"
+souls = 80
+weapon = ExtResource("3_pickaxe")
+
+[sub_resource type="Resource" id="Resource_loot_potion"]
+script = ExtResource("7_entry")
+item = ExtResource("8_potion")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_loot_cloak"]
+script = ExtResource("7_entry")
+item = ExtResource("9_cloak")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_loot_plate"]
+script = ExtResource("7_entry")
+item = ExtResource("10_plate")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_loot_sword"]
+script = ExtResource("7_entry")
+item = ExtResource("11_sword")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_loot_tome"]
+script = ExtResource("7_entry")
+item = ExtResource("12_tome")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_loot"]
+script = ExtResource("13_table")
+drop_chance = 1.0
+rolls = 3
+entries = Array[ExtResource("7_entry")]([SubResource("Resource_loot_potion"), SubResource("Resource_loot_cloak"), SubResource("Resource_loot_plate"), SubResource("Resource_loot_sword"), SubResource("Resource_loot_tome")])
+
+[sub_resource type="Resource" id="Resource_rise_bonus"]
+script = ExtResource("15_stats")
+attack = 2
+move_speed = 20.0
+
+[sub_resource type="Resource" id="Resource_rise"]
+script = ExtResource("14_phase")
+hp_ratio = 0.66
+message = "THE DEAD ANSWER!"
+bonuses = SubResource("Resource_rise_bonus")
+skills = Array[ExtResource("16_skill")]([ExtResource("17_dash"), ExtResource("18_ring"), ExtResource("19_call")])
+windup_multiplier = 0.85
+tint = Color(0.8, 0.9, 1, 1)
+cooldown_multiplier = 0.85
+shockwave_after_hits = 7
+
+[sub_resource type="Resource" id="Resource_unrest_bonus"]
+script = ExtResource("15_stats")
+attack = 3
+move_speed = 30.0
+
+[sub_resource type="Resource" id="Resource_unrest"]
+script = ExtResource("14_phase")
+hp_ratio = 0.33
+message = "IT WILL NOT REST!"
+bonuses = SubResource("Resource_unrest_bonus")
+skills = Array[ExtResource("16_skill")]([ExtResource("20_dash_fierce"), ExtResource("21_ring_fierce"), ExtResource("22_call_fierce")])
+windup_multiplier = 0.7
+tint = Color(0.62, 0.8, 1, 1)
+cooldown_multiplier = 0.7
+shockwave_after_hits = 5
+
+[sub_resource type="Resource" id="Resource_stats"]
+script = ExtResource("15_stats")
+max_hp = 1500
+defense = 6
+move_speed = 85.0
+crit_chance = 0.05
+
+[resource]
+script = ExtResource("23_boss")
+material = ExtResource("99_material")
+title = "He Who Does Not Rest"
+shockwave_power = 1.0
+portrait = ExtResource("6_portrait")
+arenas = Array[ExtResource("25_arena")]([ExtResource("26_nave"), ExtResource("27_pit")])
+phases = Array[ExtResource("14_phase")]([SubResource("Resource_rise"), SubResource("Resource_unrest")])
+stats = SubResource("Resource_stats")
+weapon = ExtResource("24_blade")
+skills = Array[ExtResource("16_skill")]([ExtResource("17_dash"), ExtResource("18_ring")])
+radius = 20.0
+frames = ExtResource("4_frames")
+frames_offset = Vector2(0, -18)
+head_height = 66.0
+knockback_resistance = 0.95
+detect_radius = 900.0
+attack_windup = 0.55
+attack_recovery = 0.45
+hurt_sound = ExtResource("5_hurt")
+death_sound = ExtResource("1_death")
+xp_reward = 160
+challenges = Array[ExtResource("2_hunt")]([SubResource("Resource_challenge")])
+loot = SubResource("Resource_loot")
+id = &"nameless_effigy"
+display_name = "The Nameless Effigy"
+description = "The stone knight from a nameless tomb, risen. Its blades are cold, and the dead come when it calls."
+icon = ExtResource("6_portrait")
+glyph = "E"
+color = Color(0.62, 0.86, 1, 1)
+spawn_weight = 0

@@ -227,6 +227,22 @@ func _test_hints(game: Game) -> void:
 	check(tutorial.current != null and tutorial.current.id == &"perks", "then the next one")
 	tutorial.dismiss()
 
+	# A cracked wall in sight (a secret room behind it): once, a word about it.
+	for seen in [&"chest", &"merchant", &"forge"]:
+		Profile.mark_hint(seen)  # (only the crack's hint is looked at here)
+	var crack := (load("res://src/entities/prop/cracked_wall.tscn") as PackedScene).instantiate() as CrackedWall
+	crack.world = game.world
+	crack.setup(CONTENT.dungeon.cracked_wall)
+	crack.position = player.global_position + Vector2(0, -90)
+	game.world.add_entity(crack)
+	CONTENT.tutorial.near_distance = 220.0
+	await _frames(gap)
+	check(tutorial.current != null and tutorial.current.id == &"cracked_wall", "a cracked wall nearby: its hint")
+	CONTENT.tutorial.near_distance = -1.0
+	tutorial.dismiss()
+	crack.queue_free()
+	await _frames(gap)
+
 	# Under the boss bar when it shows.
 	game.hud._boss_bar.show()
 	tutorial.cue(&"ambush")

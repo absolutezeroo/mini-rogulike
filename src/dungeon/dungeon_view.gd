@@ -55,6 +55,15 @@ func show_map(map: DungeonMap, theme: DungeonTheme) -> void:
 	queue_redraw()
 
 
+## Cells of `area` changed (a secret room opened): their chunks and the mist are drawn again.
+func refresh(area: Rect2i) -> void:
+	var around := area.grow(2)
+	for chunk in _chunks:
+		if chunk.cells.intersects(around):
+			chunk.queue_redraw()
+	mist.setup(_map, _theme, OUTSIDE_MARGIN)
+
+
 func chunk_count() -> int:
 	return _chunks.size()
 

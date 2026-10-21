@@ -89,6 +89,12 @@ var _to_restore := {}
 var stairs_cells: Array[Vector2i] = []
 ## Normal floors: the stairs open once enough of the floor's monsters are slain.
 var seal := StairsSeal.new()
+## The rooms hidden behind cracked walls on this floor (SecretRoom), in the map's order.
+var secrets: Array[SecretRoom] = []
+## The run already went down the hidden floor (HiddenFloorDef): no more keys. Set by the Game.
+var hidden_floor_done := false
+## Set by the Game before building the hidden floor (its look, monsters and boss); null otherwise.
+var hidden_floor: HiddenFloorDef
 ## Where walking monsters can go (pathfinding, blocked cells).
 var nav := NavGrid.new()
 ## What the hero has seen (the minimap).
@@ -138,9 +144,10 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 	bought.clear()
 	forge_drought_at_start = floors_without_forge
 	_content = content
-	var boss := content.dungeon.boss_for_depth(depth)
+	var hidden := hidden_floor
+	var boss := hidden.boss if hidden else content.dungeon.boss_for_depth(depth)
 	var act_index := content.dungeon.act_index(depth)
-	if boss and act_index < run_bosses.size() and run_bosses[act_index] != null:
+	if boss and not hidden and act_index < run_bosses.size() and run_bosses[act_index] != null:
 		boss = run_bosses[act_index]
 	floor_event = null
 	curse = null
@@ -162,10 +169,13 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 	arena_plan = null
 	if boss:
 		arena_plan = _pick_arena(boss, content.dungeon)
-		map = DungeonGenerator.generate_arena(content.dungeon, rng, arena_plan)
+		if hidden:
+			map = DungeonGenerator.generate_hidden(content.dungeon, rng, arena_plan, hidden.rooms)
+		else:
+			map = DungeonGenerator.generate_arena(content.dungeon, rng, arena_plan)
 	else:
 		map = DungeonGenerator.generate(content.dungeon, rng, difficulty.floor_size if difficulty else 1.0, difficulty.rooms if difficulty else 1.0)
-	biome = _pick_biome(content, boss != null)
+	biome = hidden.biome if hidden and hidden.biome else _pick_biome(content, boss != null)
 	theme = biome.theme if biome else null
 	rules = FloorRules.make(content.dungeon, difficulty, floor_event, depth, curse)
 	var light_tint := rules.light()
@@ -187,10 +197,13 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 		for room in map.rooms:
 			FloorPopulator.place_lights(self, content.dungeon, room, {})
 		FloorDresser.dress(self, {}, false)  # the arena keeps clear: grounds and decor only
+		if hidden:
+			hidden.populate(self)
 		seal.clear()
 	else:
 		var exits := spawn_exits()
 		FloorPopulator.populate(self, content, depth)
+		secrets = SecretRoom.spawn_all(self)
 		seal.reset(monster_count(), content.dungeon.seal_share, content.dungeon.seal_reveal_left, content.dungeon.seal_max)
 		for stairs in exits:
 			stairs.bind_seal(seal)
@@ -209,6 +222,7 @@ func clear_floor() -> void:
 			merchant.remove_from_group("merchants")  # counted once
 	arena = null
 	ambush = null
+	secrets.clear()
 	awake_monsters.clear()
 	_activity_timer = 0.0
 	_cracks.clear()
@@ -326,6 +340,30 @@ func locked_stock() -> Array[Dictionary]:
 		if merchant.world_of() == self:
 			result.append_array(merchant.locked_entries())
 	return result
+
+
+## Adds `node` among the floor's things (cleared with the floor).
+func add_entity(node: Node2D) -> void:
+	_entities.add_child(node)
+
+
+## Rock that becomes floor (a secret room breaking open): drawn, lit, walked and pathed again.
+func open_cells(cells: Array[Vector2i]) -> void:
+	if cells.is_empty():
+		return
+	var area := Rect2i(cells[0], Vector2i.ONE)
+	for cell in cells:
+		map.set_floor(cell)
+		area = area.expand(cell).expand(cell + Vector2i.ONE)
+	for child in _walls.get_children():
+		_walls.remove_child(child)
+		child.queue_free()
+	WallBuilder.build(map, _walls)
+	for cell in cells:
+		nav.set_blocked(cell, false)
+	_view.refresh(area)
+	lights.refresh_walls()
+	cells_changed.emit(cells)
 
 
 ## Puts `node` on `cell` among the entities; it blocks the cell for pathfinding unless told not to.
@@ -473,6 +511,7 @@ func spent_data() -> Dictionary:
 	return {
 		"chests": opened_chests.map(func(cell: Vector2i) -> Array: return [cell.x, cell.y]),
 		"bought": bought.duplicate(),
+		"secrets": SecretRoom.states(secrets),
 	}
 
 
@@ -486,6 +525,7 @@ func _apply_restore() -> void:
 		return
 	var data := _to_restore
 	_to_restore = {}
+	SecretRoom.restore(secrets, data.get("secrets", []))  # (its chest, if opened, is in "chests")
 	var cells: Array[Vector2i] = []
 	for pair: Array in data.get("chests", []):
 		if pair.size() == 2:
@@ -828,6 +868,11 @@ func _update_activity() -> void:
 
 func config() -> DungeonConfig:
 	return _content.dungeon
+
+
+## Everything the game holds (runes, items...): for content placed by data (SecretRewardDef).
+func content_db() -> ContentDB:
+	return _content
 
 
 ## A monster of the current act (ambushes, trapped chests).

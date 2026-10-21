@@ -156,6 +156,14 @@ title = "Chest"
 text = "Walk up to a chest to open it. Careful: some are trapped."
 duration = 8.0
 
+[sub_resource type="Resource" id="Hint_cracked_wall"]
+script = ExtResource("2_hint")
+id = &"cracked_wall"
+cue = &"cracked_wall_near"
+title = "Cracked wall"
+text = "This wall is cracked and a draft blows through it. Strike it or blast it: something lies behind."
+duration = 9.0
+
 [sub_resource type="Resource" id="Hint_ambush"]
 script = ExtResource("2_hint")
 id = &"ambush"
@@ -253,4 +261,4 @@ priority = 5
 
 [resource]
 script = ExtResource("1_tutorial")
-hints = Array[ExtResource("2_hint")]([SubResource("Hint_move"), SubResource("Hint_seal"), SubResource("Hint_attack"), SubResource("Hint_roll"), SubResource("Hint_weapon_skills"), SubResource("Hint_potion"), SubResource("Hint_souls"), SubResource("Hint_perks"), SubResource("Hint_synergy"), SubResource("Hint_gear"), SubResource("Hint_spell"), SubResource("Hint_elite"), SubResource("Hint_rune"), SubResource("Hint_forge"), SubResource("Hint_merchant"), SubResource("Hint_chest"), SubResource("Hint_ambush"), SubResource("Hint_boss"), SubResource("Hint_stairs_open"), SubResource("Hint_two_ways"), SubResource("Hint_menu_souls"), SubResource("Hint_menu_shrine"), SubResource("Hint_menu_oath"), SubResource("Hint_cursed_floor"), SubResource("Hint_floor_event"), SubResource("Hint_cold"), SubResource("Hint_hot")])
+hints = Array[ExtResource("2_hint")]([SubResource("Hint_move"), SubResource("Hint_seal"), SubResource("Hint_attack"), SubResource("Hint_roll"), SubResource("Hint_weapon_skills"), SubResource("Hint_potion"), SubResource("Hint_souls"), SubResource("Hint_perks"), SubResource("Hint_synergy"), SubResource("Hint_gear"), SubResource("Hint_spell"), SubResource("Hint_elite"), SubResource("Hint_rune"), SubResource("Hint_forge"), SubResource("Hint_merchant"), SubResource("Hint_chest"), SubResource("Hint_cracked_wall"), SubResource("Hint_ambush"), SubResource("Hint_boss"), SubResource("Hint_stairs_open"), SubResource("Hint_two_ways"), SubResource("Hint_menu_souls"), SubResource("Hint_menu_shrine"), SubResource("Hint_menu_oath"), SubResource("Hint_cursed_floor"), SubResource("Hint_floor_event"), SubResource("Hint_cold"), SubResource("Hint_hot")])

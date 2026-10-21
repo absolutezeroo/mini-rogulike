@@ -137,7 +137,8 @@ on the right, and under the tabs a summary line plus one sentence saying what th
 with a finger (`TouchScroll`); `CodexRows` builds their rows, with a tick box for what is done.
 - **Quests**: today's and this week's quests side by side, each with its goal, a progress bar,
   its reward in souls ("Received" once paid) and the time until new ones.
-- **Bestiary**: act by act (floors, how many kinds slain), a card per monster and boss
+- **Bestiary**: act by act (floors, how many kinds slain), then the hidden floor's boss under a
+  "???" heading until it was met (its floor's name after), a card per monster and boss
   (`CodexCard`: picture, rank, kills, a bar toward the next rank, gold frame once Mastered,
   Boss and Celestial badges; unknown ones are dark shapes until met). Its page has three columns:
   look, where it lives and its Celestial form; attacks with the preview, how it behaves and its stats
@@ -145,9 +146,12 @@ with a finger (`TouchScroll`); `CodexRows` builds their rows, with a tick box fo
   +X souls, done or not) and challenges.
 - **Achievements** (`data/achievements/`, `AchievementDef`): a goal on one of the profile's counters
   (kills, elites, wardens, kinds of creatures, depth, victories on Martyr / Nightmare / ascension,
-  monsters pushed into holes, chests, Epic items, encounters, gold or level in one run), with a
-  progress bar and its reward; the closest to done first. Reaching it pays souls, with a note at
-  the top of the screen.
+  monsters pushed into holes, chests, Epic items, encounters, gold or level in one run, secret
+  rooms found, hidden bosses slain), with a progress bar and its reward; the closest to done
+  first. Reaching it pays souls, with a note at the top of the screen. A **secret** one
+  (`AchievementDef.secret`) shows as "???" ("A secret feat. Some doors only open from the other
+  side.") until reached: "Laid to Rest at Last" (slay the hidden floor's boss, 80 souls) would
+  give the hidden floor away. "What the Walls Keep": find 5 secret rooms (40 souls).
 - **Runs**: the fastest wins, then the last 20 runs: how each ended (victory, or the floor and
   what slew you), when, the difficulty, how far (floor N of 12), how long, level, weapon, kills
   and the souls earned.
@@ -163,6 +167,8 @@ with the run, so quitting and coming back doesn't reset it.
   last boss falls, the win's time stays there, in gold, through endless mode.
 - **Splits**: taking the stairs notes the floor's time (`RunState.splits`) and shows it a few
   seconds: "Floor 3  4:12.3  -0:05.2", green when ahead of the record run, red when behind.
+  The hidden floor (dungeon.md) has no split of its own: it keeps the depth of the boss before
+  it, and its time goes into the next floor's split.
 - **Records** (`Profile.best_times`, `best_splits`): the fastest win per difficulty and ascension
   level (`RunState.record_key()`: "normal", "nightmare/a3"), with its splits to race against.
   Daily runs keep none (their own race).

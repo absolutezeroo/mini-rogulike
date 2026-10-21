@@ -87,6 +87,19 @@ with its portrait). A `BossDef` is a `MonsterDef` plus:
 | 6 | Gorr the One-Eyed | heavy club, fire eye beam, quake, calls skeletons, berserk at 20% |
 | 9 | Crimson Tengu | fast blade, dashes, feather storms, calls spirits |
 | 12 | Gilded Hoarder | crushing leaps, storms of gold coins, calls its thieves (Gold Racoons) when half dead |
+| 6 (hidden) | The Nameless Effigy | twin cold blades, dashes, wailing rings, calls the dead; only on the hidden floor |
+
+**The Nameless Effigy** / *Le Gisant Sans Nom*, "He Who Does Not Rest" / *Celui qui ne repose
+pas* (`data/monsters/bosses/nameless_effigy.tres`): the boss of the hidden floor between Act II
+and Act III (dungeon.md, The hidden floor), the stone knight of a nameless tomb, risen. Its look is
+the Ember Ronin's sheet recolored in bone and ash with cold blue light
+(`assets/characters/bosses/nameless_effigy/`, from the CC0 Ninja Adventure art). Built from
+existing attacks: the Ronin's blade (`tengu_blade`) and dash, the Mother of Tears' wailing ring;
+at two thirds "THE DEAD ANSWER!" (it calls skeletons too), at one third "IT WILL NOT REST!" (the
+fierce dash, ring and call, faster wind-ups and cooldowns). 1500 base Health, 6 Armor, speed 85:
+on floor 6 that is 3975 Health on Keeper, between Act II's bosses (2650-3048) and Act III's on
+floor 9 (5278-5642). Its challenge: shatter it with a Pickaxe. In the bestiary it comes after the
+acts, a "???" card under a "???" heading until it was met.
 
 ## Dragons
 

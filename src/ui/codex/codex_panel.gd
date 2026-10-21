@@ -113,6 +113,9 @@ func bestiary_entries() -> Array[MonsterDef]:
 		for monster: MonsterDef in act.monsters + act.all_bosses():
 			if monster and not result.has(monster):
 				result.append(monster)
+	var hidden := _content.dungeon.hidden_floor
+	if hidden and hidden.boss and not result.has(hidden.boss):
+		result.append(hidden.boss)
 	return result
 
 
@@ -169,6 +172,28 @@ func _fill_bestiary() -> void:
 			var gap := Control.new()
 			gap.custom_minimum_size.y = 6
 			_list.add_child(gap)
+	_fill_hidden(rules, placed)
+
+
+## The hidden floor's boss, after the acts: "???" (its floor too) until it was met.
+func _fill_hidden(rules: BestiaryRules, placed: Dictionary) -> void:
+	var hidden := _content.dungeon.hidden_floor
+	if hidden == null or hidden.boss == null or placed.has(hidden.boss):
+		return
+	var met := Profile.has_seen(hidden.boss.id) or Profile.kill_count(hidden.boss.id) > 0
+	var gap := Control.new()
+	gap.custom_minimum_size.y = 6
+	_list.add_child(gap)
+	var heading := "%s  -  %s" % [tr(hidden.subtitle), tr(hidden.title)] if met else "???"
+	_list.add_child(UiSkin.label(heading, 19, UiSkin.GOLD))
+	var flow := HFlowContainer.new()
+	_list.add_child(flow)
+	var card := CodexCard.new(hidden.boss, rules)
+	card.pressed.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_open)
+		open_monster(hidden.boss))
+	flow.add_child(card)
+	_cards.append(card)
 
 
 ## Its page instead of the list.

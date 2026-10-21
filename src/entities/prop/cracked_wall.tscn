@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://src/entities/prop/prop.tscn" id="1_prop"]
+[ext_resource type="Script" path="res://src/entities/prop/cracked_wall.gd" id="2_crack"]
+
+[node name="CrackedWall" instance=ExtResource("1_prop")]
+script = ExtResource("2_crack")

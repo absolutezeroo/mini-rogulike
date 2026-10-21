@@ -127,6 +127,29 @@ extends Resource
 ## often between a calm way and a bold one.
 @export_range(0.0, 1.0) var route_twist_chance: float = 0.6
 
+@export_group("Secret rooms")
+## Chance for a normal floor to hide a small room behind a cracked wall (SecretRoomPlan): any
+## hit or blast breaks the crack and opens it. Rolled `secret_rooms_max` times (at most one
+## room per roll), `secret_rooms_big` times on floors of `secret_big_floor_rooms` rooms or more.
+@export_range(0.0, 1.0) var secret_room_chance: float = 0.5
+@export_range(0, 4) var secret_rooms_max: int = 1
+@export_range(0, 4) var secret_rooms_big: int = 2
+## 0: never a second roll.
+@export_range(0, 60) var secret_big_floor_rooms: int = 20
+## The hidden room's size and the passage through the rock to it (length at least
+## DungeonGenerator.MIN_WALL_THICKNESS; width: the crack's width in cells).
+@export var secret_room_size: Vector2i = Vector2i(7, 5)
+@export_range(3, 8) var secret_passage_length: int = 3
+@export_range(1, 3) var secret_passage_width: int = 1
+## The crack on the cliff face (a PropDef: its hits, sound, debris color; see CrackedWall).
+@export var cracked_wall: PropDef
+## What a secret room may hold (weights, min_depth). See SecretRewardDef.
+@export var secret_rewards: Array[SecretRewardDef] = []
+## A faint whisper from the crack when the hero is close (played now and then).
+@export var secret_whisper: AudioStream
+## The hidden floor between two acts, reached with its key (null: none).
+@export var hidden_floor: HiddenFloorDef
+
 @export_group("Encounters")
 ## Encounters per floor (springs, altars...), from content_db.tres > Encounters.
 @export_range(0, 6) var encounters_min: int = 0

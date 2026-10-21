@@ -41,6 +41,16 @@ var finish_time := -1.0
 var routes := {}
 ## The oath sworn for this run (OathDef), or null.
 var oath: OathDef
+## On the hidden floor (HiddenFloorDef) right now: it keeps the depth of the boss floor before
+## it, so the numbering, the splits and the records don't move. `hidden_done`: been down already
+## this run (once a run). Both saved.
+var hidden_floor := false
+var hidden_done := false
+## Secret rooms opened this run (SecretRoom), for the end of the run.
+var secrets_found := 0
+## Souls earned on top of the usual ones (the hidden floor's boss), before the difficulty's
+## multiplier.
+var bonus_souls := 0
 
 
 ## A new run, or the saved one (`saved` from RunSave; empty for a new run).
@@ -55,8 +65,13 @@ static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGener
 		run.difficulty = _pick_difficulty(content, saved)
 	run.seed = int(saved["seed"]) if saved.has("seed") else rng.randi()
 	run.depth = int(saved.get("depth", 1))
+	run.hidden_floor = bool(saved.get("hidden_floor", false))
+	run.hidden_done = bool(saved.get("hidden_done", false))
+	run.secrets_found = int(saved.get("secrets_found", 0))
+	run.bonus_souls = int(saved.get("bonus_souls", 0))
 	if saved.get("boss_slain", false):
 		run.depth += 1  # saved after the floor's boss died: on to the next floor
+		run.hidden_floor = false
 	run.kills = int(saved.get("kills", 0))
 	run.bosses_slain = int(saved.get("bosses_slain", 0))
 	run.has_won = bool(saved.get("has_won", false))
@@ -105,7 +120,7 @@ static func _pick_difficulty(content: ContentDB, saved: Dictionary) -> Difficult
 
 ## Souls this run is worth so far (what the shrine gets when it ends).
 func souls() -> int:
-	return Profile.souls_for_run(kills, depth, bosses_slain, has_won, difficulty.souls)
+	return Profile.souls_for_run(kills, depth, bosses_slain, has_won, difficulty.souls) + roundi(bonus_souls * difficulty.souls)
 
 
 ## Adds the souls not given yet to the profile; returns them.
@@ -141,6 +156,10 @@ func to_data() -> Dictionary:
 		"finish_time": finish_time,
 		"routes": routes,
 		"oath": RunSave.ref(oath),
+		"hidden_floor": hidden_floor,
+		"hidden_done": hidden_done,
+		"secrets_found": secrets_found,
+		"bonus_souls": bonus_souls,
 		"difficulty": String(difficulty.id),
 		"ascension": difficulty.ascension,
 	}
@@ -183,11 +202,18 @@ func record_key() -> String:
 	return key
 
 
+## Where the run is: its act's name, or the hidden floor's.
+func place_name(content: ContentDB) -> String:
+	if hidden_floor and content.dungeon.hidden_floor:
+		return tr(content.dungeon.hidden_floor.title)
+	var act := content.dungeon.act_for_depth(depth)
+	return tr(act.title) if act else tr("Dungeon")
+
+
 ## The run's numbers for the end-of-run screen, as [label, value] pairs (Difficulty, Reached,
 ## Level, Monsters slain, Bosses slain, Time, the daily score). `time_note` follows the time
 ## ("New record!"); without it, the record to beat is given for a run not won.
 func summary_rows(content: ContentDB, level: int, time_note: String = "") -> Array:
-	var act := content.dungeon.act_for_depth(depth)
 	var time_text := TimeText.of(run_time())
 	var record := Profile.best_time(record_key())
 	if not time_note.is_empty():
@@ -196,12 +222,14 @@ func summary_rows(content: ContentDB, level: int, time_note: String = "") -> Arr
 		time_text += "  " + tr("(record %s)") % TimeText.of(record)
 	var rows: Array = [
 		[tr("Difficulty"), tr(difficulty.display_name)],
-		[tr("Reached"), tr("%s, depth %d") % [tr(act.title) if act else tr("Dungeon"), depth]],
+		[tr("Reached"), tr("%s, depth %d") % [place_name(content), depth]],
 		[tr("Hero level"), str(level)],
 		[tr("Monsters slain"), str(kills)],
 		[tr("Bosses slain"), str(bosses_slain)],
 		[tr("Time"), time_text],
 	]
+	if secrets_found > 0:
+		rows.insert(rows.size() - 1, [tr("Secret rooms found"), str(secrets_found)])
 	if is_daily():
 		var note := tr("(best %d)") % Profile.daily_best if daily_official else tr("(practice)")
 		rows.append([tr("Daily score"), "%d  %s" % [DailyRun.score(self), note]])
@@ -210,9 +238,8 @@ func summary_rows(content: ContentDB, level: int, time_note: String = "") -> Arr
 
 ## "Keeper - The Well's Maw, depth 3, level 5 / 42 monsters slain, 1 boss" (+ the daily score).
 func summary(content: ContentDB, level: int) -> String:
-	var act := content.dungeon.act_for_depth(depth)
 	var text := tr("%s - %s, depth %d, level %d\n%d monsters slain, %d bosses") % [
-		tr(difficulty.display_name), tr(act.title) if act else tr("Dungeon"), depth, level, kills, bosses_slain]
+		tr(difficulty.display_name), place_name(content), depth, level, kills, bosses_slain]
 	text += "\n" + tr("Time %s") % TimeText.of(run_time())
 	var record := Profile.best_time(record_key())
 	if record > 0.0 and finish_time < 0.0:
