@@ -4,9 +4,11 @@
 [ext_resource type="Script" path="res://src/definitions/effects/dash_effect.gd" id="2_bxy3w"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_1iaai"]
 [ext_resource type="AudioStream" path="res://data/audio/spirit.tres" id="4_gdygr"]
+[ext_resource type="Resource" path="res://data/vfx/elements/spirit.tres" id="vfx_spirit"]
 
 [sub_resource type="Resource" id="Resource_qq6me"]
 script = ExtResource("2_bxy3w")
+element = ExtResource("vfx_spirit")
 distance = 160.0
 duration = 0.12
 

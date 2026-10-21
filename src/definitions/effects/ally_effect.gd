@@ -11,6 +11,10 @@ enum Kind { HEAL, BUFF, WARD }
 @export var radius: float = 220.0
 @export var include_self: bool = true
 @export var color: Color = Color(0.45, 1.0, 0.55)
+## What it is made of (data/vfx/elements/): each ally helped flares in its element's impact, the
+## beams take its color and the caster stands in a small ring of its pieces (Soul Ward: pale
+## flames, a hollow ring). Empty: sparkles and a magic circle in `color`.
+@export var element: VfxElementDef
 @export_group("Heal")
 ## Part of each ally's max HP restored (plus `amount`).
 @export_range(0.0, 1.0) var heal_ratio: float = 0.25
@@ -40,13 +44,20 @@ func apply(user: Actor, _aim: Vector2) -> void:
 			Kind.WARD:
 				ally.add_ward(roundi(ally.get_max_hp() * ward_ratio), duration)
 		helped += 1
+		var tint := element.color() if element else color
 		if ally != user:
-			world.spawn_vfx(BeamVfx.create(user.global_position + Vector2(0, -12), ally.global_position + Vector2(0, -10), color))
-		Vfx.sparkles(world, ally.global_position + Vector2(0, -10), color)
+			world.spawn_vfx(BeamVfx.create(user.global_position + Vector2(0, -12), ally.global_position + Vector2(0, -10), tint))
+		if element:
+			Vfx.pop(world, ally.global_position + Vector2(0, -10), element, 14.0, Vector2.UP)
+		else:
+			Vfx.sparkles(world, ally.global_position + Vector2(0, -10), color)
 	if helped > 0:
-		Vfx.magic(world, user.global_position, color)
+		if element:
+			Vfx.nova(world, user.global_position, 26.0, element)
+		else:
+			Vfx.magic(world, user.global_position, color)
 		if kind == Kind.BUFF and bonuses:
-			world.spawn_floating_text(user.head_position(), bonuses.describe(), color)
+			world.spawn_floating_text(user.head_position(), bonuses.describe(), element.color() if element else color)
 
 
 ## Alive actors of `user`'s side within `radius` of it.

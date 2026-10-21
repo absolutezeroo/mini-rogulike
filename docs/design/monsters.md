@@ -18,7 +18,15 @@ Heart** (act III) mend their hurt allies, the **Soul Moth** (act II) and the **G
 (act IV) wrap them in wards that soak up your blows, the **Sand Drummer** (act IV) beats a war
 drum (allies hit harder, run faster); the **Fire Shaman** now mends its allies too
 (`AllyEffect`: heal, buff or ward the allies around; `SkillDef.ai_ally_need`: only when an ally
-needs it). A beam of light shows who is helped.
+needs it). A beam of light shows who is helped; the Soul Moth's wards are spirit (each warded ally
+flares in a hollow ring, the ward is a flickering shell with pale flames licking off it), and the
+moth throws soul flames that slow (not fire). Venom is one look everywhere: the Deathcap's spore
+clouds, the Acid Larva's and Bone Lizard's spit, the Viper's, Crimson Viper's and Brood Mother's
+fangs, the Giant Frog's Poison Spit and the Jade Wyrm's Venom Spit, Toxic Bloom and Venom Fang
+are globs of venom, gas and pale fangs (docs/vfx.md). Claws (the spiders, racoons, moles, the
+owl) rake in blood; ghosts touch with spectral claws, blink in pale flames, wail in rings of
+wisps and are called out of hollow rings; Burrowers and Stone Moles **burrow** (their own skill,
+a puff of earth) rather than blink like ghosts.
 
 Monsters are data (`MonsterDef`): stats, a weapon (its `on_hit` status poisons, burns or slows),
 skills (telegraphed casts: spore clouds, dives, charges, ink rings...), and **traits**

@@ -3,9 +3,9 @@
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_og64u"]
 [ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_jfm8i"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_noics"]
-[ext_resource type="Texture2D" path="res://assets/projectiles/energyball.png" id="4_0yjdq"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_myfe6"]
 [ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="6_1t3pr"]
+[ext_resource type="Resource" path="res://data/vfx/elements/poison.tres" id="vfx_poison"]
 
 [sub_resource type="Resource" id="Resource_og3hi"]
 script = ExtResource("3_noics")
@@ -13,6 +13,7 @@ poison_damage = 3
 
 [sub_resource type="Resource" id="Resource_swcb8"]
 script = ExtResource("2_jfm8i")
+element = ExtResource("vfx_poison")
 damage_multiplier = 0.5
 flat_damage = 4
 speed = 330.0
@@ -21,12 +22,11 @@ max_distance = 460.0
 count = 5
 spread_degrees = 50.0
 knockback = 120.0
-color = Color(0.41960785, 0.7490196, 0.34901962, 1)
-texture = ExtResource("4_0yjdq")
 status = SubResource("Resource_og3hi")
 
 [sub_resource type="Resource" id="Resource_jqhql"]
 script = ExtResource("2_jfm8i")
+element = ExtResource("vfx_poison")
 damage_multiplier = 0.5
 flat_damage = 4
 speed = 330.0
@@ -35,8 +35,6 @@ max_distance = 460.0
 count = 5
 spread_degrees = 50.0
 knockback = 120.0
-color = Color(0.41960785, 0.7490196, 0.34901962, 1)
-texture = ExtResource("4_0yjdq")
 status = SubResource("Resource_og3hi")
 angle_offset = 6.0
 delay = 0.4

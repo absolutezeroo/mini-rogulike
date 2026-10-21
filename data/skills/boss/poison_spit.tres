@@ -20,7 +20,6 @@ speed = 300.0
 radius = 7.0
 count = 5
 spread_degrees = 50.0
-color = Color(0.5019608, 0.92941177, 0.6, 1)
 status = SubResource("Resource_macc1")
 
 [resource]

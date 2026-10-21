@@ -2,21 +2,53 @@
 
 [ext_resource type="Script" path="res://src/definitions/vfx/vfx_element_def.gd" id="1"]
 [ext_resource type="Script" path="res://src/definitions/vfx/vfx_sheet_def.gd" id="2"]
-[ext_resource type="Texture2D" path="res://assets/projectiles/energyball.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/fx/poison/poison_glob.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/fx/poison/poison_splash.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/fx/poison/poison_cloud.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/fx/poison/poison_fang.png" id="6"]
 
 [sub_resource type="Resource" id="shot"]
 script = ExtResource("2")
 texture = ExtResource("3")
+frames = 3
+orient = 1
+directions = 16
 fps = 10.0
 loop = true
-recolor = true
+
+[sub_resource type="Resource" id="impact"]
+script = ExtResource("2")
+texture = ExtResource("4")
+fps = 16.0
+linger = 0.3
+
+[sub_resource type="Resource" id="piece"]
+script = ExtResource("2")
+texture = ExtResource("5")
+frames = 8
+variants = 3
+fps = 12.0
+anchor = Vector2(0, -6)
+linger = 0.0
+
+[sub_resource type="Resource" id="claw"]
+script = ExtResource("2")
+texture = ExtResource("6")
+frames = 5
+orient = 1
+directions = 16
+fps = 18.0
 
 [resource]
 script = ExtResource("1")
 id = &"poison"
 ramp = PackedColorArray(0.901961, 0.968627, 0.627451, 1, 0.607843, 0.839216, 0.290196, 1, 0.372549, 0.619608, 0.227451, 1, 0.235294, 0.4, 0.266667, 1, 0.180392, 0.141176, 0.25098, 1)
 residue = Color(0.372549, 0.443137, 0.376471, 0.9)
-mark = Color(0.290196, 0.498039, 0.294118, 0.45)
+mark = Color(0.235294, 0.4, 0.266667, 0.6)
+impact_mark = 0.4
 bit = 5
 motion = 2
 projectile = SubResource("shot")
+impact = SubResource("impact")
+piece = SubResource("piece")
+claw = SubResource("claw")

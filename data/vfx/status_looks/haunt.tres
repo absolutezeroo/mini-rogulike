@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="StatusLookDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/vfx/status_look_def.gd" id="1"]
+[ext_resource type="Resource" path="res://data/vfx/elements/spirit.tres" id="2"]
+[ext_resource type="Texture2D" path="res://assets/fx/spirit/spirit_mote.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/fx/spirit/spirit_ring.png" id="4"]
+
+[resource]
+script = ExtResource("1")
+status = &"haunt"
+element = ExtResource("2")
+particle = ExtResource("3")
+particle_frames = 6
+particle_rate = 5.0
+particle_life = 0.6
+particle_rise = 14.0
+burst = ExtResource("4")
+burst_frames = 6
+burst_time = 0.3
+text_color = Color(0.721569, 0.960784, 0.862745, 1)

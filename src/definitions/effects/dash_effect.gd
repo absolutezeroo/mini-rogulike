@@ -15,8 +15,9 @@ enum Direction {
 @export var distance: float = 150.0
 @export var duration: float = 0.16
 @export var invulnerable: bool = true
-## What the user turns into for the dash (Shadow Step: shadow): it bursts where they leave and
-## leaves the element's pieces along the way (smoke drawn back in).
+## What the user turns into for the dash (data/vfx/elements/): it vanishes in its element's impact,
+## leaves its pieces along the way (Shadow Step: smoke drawn back in; Blink: pale flames) and
+## appears in its impact again. Empty: a plain dash (the roll's own afterimages say it).
 @export var element: VfxElementDef
 
 
@@ -30,10 +31,21 @@ func apply(user: Actor, aim: Vector2) -> void:
 			dir = -aim
 	user.start_dash(dir.normalized() * distance / duration, duration, invulnerable)
 	if element:
-		var world := user.world
-		var start := user.global_position
-		Vfx.pop(world, start, element, 14.0, -dir)
-		# Along the way it really went (walls stop a dash), once it is over.
-		user.get_tree().create_timer(duration, false).timeout.connect(func() -> void:
-			if is_instance_valid(user) and is_instance_valid(world):
-				Vfx.trail(world, start, user.global_position, element, 0.08))
+		_leave_element(user, dir.normalized())
+
+
+## Where it vanishes, along the way (up to a wall), and where it appears once the dash is over.
+func _leave_element(user: Actor, dir: Vector2) -> void:
+	var world := user.world
+	var start := user.global_position
+	var query := PhysicsRayQueryParameters2D.create(start, start + dir * distance, Layers.WORLD)
+	var wall := world.get_world_2d().direct_space_state.intersect_ray(query)
+	var end := start + dir * distance
+	if not wall.is_empty():
+		end = start + dir * maxf(start.distance_to(wall.position) - user.radius - 2.0, 0.0)
+	var chest := Vector2(0, -user.radius)
+	Vfx.pop(world, start + chest, element, 14.0, dir)
+	Vfx.trail(world, start, end, element, duration)
+	world.get_tree().create_timer(duration, false).timeout.connect(func() -> void:
+		if is_instance_valid(user) and is_instance_valid(world):
+			Vfx.pop(world, user.global_position + chest, element, 14.0, dir))

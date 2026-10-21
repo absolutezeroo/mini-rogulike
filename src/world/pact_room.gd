@@ -288,7 +288,10 @@ func _on_rule_broken() -> void:
 		hp_lost = def.max_hp_lost(player)
 		player.base_stats.max_hp -= hp_lost
 		player.invalidate_stats()
-		Vfx.burst(_world, Vfx.DEATH_CHUNKS, player.global_position + Vector2(0, -10), Palette.BLOOD)
+		# The Well takes its due in blood: a wound opens, jets burst from the floor around him.
+		var blood := VfxElementDef.named(&"blood")
+		Vfx.pop(_world, player.global_position + Vector2(0, -10), blood, 16.0, Vector2.UP)
+		Vfx.nova(_world, player.global_position, 34.0, blood)
 		_world.spawn_floating_text(player.head_position(), tr("-%d max Health") % hp_lost, Palette.DANGER)
 	Sfx.play_ui(Sfx.bank.boss_roar, -8.0)  # the Well takes its due
 	Events.screen_shake.emit(0.4)

@@ -26,6 +26,9 @@ a heavy swing, a thrust, a lash or an aim; 4 directions x 4 frames, `assets/weap
 
 Tomes (found on the floor, dropped by casters and bosses) teach Holy Light, Battle Cry, Frost Nova,
 Fireball, Blink or Thunder, whatever weapon you hold: a warrior can heal, a mage can blink.
+Battle Cry bursts jets of blood out of the floor around the hero; Blink vanishes and appears in
+a hollow ring of pale flames, leaving flames along the way (both on their element's kit,
+docs/vfx.md).
 Swapping weapons swaps buttons 2 and 3 (new skills start on a short cooldown, so swapping can't skip
 cooldowns); the roll and the learned spell stay.
 

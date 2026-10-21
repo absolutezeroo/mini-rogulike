@@ -1,12 +1,43 @@
 [gd_resource type="Resource" script_class="VfxElementDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/vfx/vfx_element_def.gd" id="1"]
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_sheet_def.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/fx/blood/blood_spurt.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/fx/blood/blood_jet.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/fx/blood/blood_claw.png" id="5"]
+
+[sub_resource type="Resource" id="impact"]
+script = ExtResource("2")
+texture = ExtResource("3")
+fps = 18.0
+linger = 0.15
+
+[sub_resource type="Resource" id="piece"]
+script = ExtResource("2")
+texture = ExtResource("4")
+frames = 7
+variants = 3
+fps = 14.0
+anchor = Vector2(0, -8)
+linger = 0.0
+
+[sub_resource type="Resource" id="claw"]
+script = ExtResource("2")
+texture = ExtResource("5")
+frames = 5
+orient = 1
+directions = 16
+fps = 18.0
 
 [resource]
 script = ExtResource("1")
 id = &"blood"
 ramp = PackedColorArray(1, 0.607843, 0.560784, 1, 0.878431, 0.223529, 0.298039, 1, 0.639216, 0.086275, 0.172549, 1, 0.352941, 0.039216, 0.117647, 1)
-mark = Color(0.352941, 0.039216, 0.117647, 0.6)
+mark = Color(0.352941, 0.039216, 0.117647, 0.85)
+impact_mark = 0.35
 bit = 7
 motion = 1
 emissive = false
+impact = SubResource("impact")
+piece = SubResource("piece")
+claw = SubResource("claw")
