@@ -13,7 +13,7 @@ const CUES: Array[StringName] = [
 	&"run_start", &"floor_start", &"cursed_floor", &"event_floor", &"monster_noticed", &"elite_noticed",
 	&"monster_killed", &"boss_started", &"boss_defeated", &"ambush", &"seal_broken", &"perk_chosen",
 	&"synergy", &"low_health", &"cold", &"hot", &"merchant_near", &"forge_near", &"chest_near",
-	&"gear_carried", &"rune_carried", &"spell_learned", &"two_ways", &"cracked_wall_near",
+	&"gear_carried", &"rune_carried", &"spell_learned", &"two_ways", &"cracked_wall_near", &"pact_near",
 	# The Game: a second life opened the trial of the Threshold.
 	&"threshold",
 	# Title screen only (TitleScreen.show_menu_hint()): the Tree of Souls and the oaths.
@@ -163,6 +163,8 @@ func _check_world() -> void:
 		cue(&"chest_near")
 	if _near(&"cracked_walls"):
 		cue(&"cracked_wall_near")
+	if _near(&"pact_doors"):
+		cue(&"pact_near")
 	for item in player.inventory.items:
 		if item is RuneDef:
 			cue(&"rune_carried")

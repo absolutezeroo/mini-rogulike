@@ -1,5 +1,5 @@
 class_name FloorPopulator
-## Fills a freshly generated floor: the merchant, the smith's forge, lights, the biome's dressing (FloorDresser),
+## Fills a freshly generated floor: the merchant, the smith's forge, a pact door, lights, the biome's dressing (FloorDresser),
 ## props and hazards first (they claim their cells), then the ambush room, chests, monsters and
 ## items on the free cells. The first room is where the player starts: no monsters or hazards.
 
@@ -48,20 +48,30 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 			place_lights(world, config, map.rooms[forge_index], taken)
 			_reserve_rect(taken, map.rooms[forge_index])  # a quiet room: nothing else in it
 	world.floors_without_forge = 0 if forge_index >= 0 else world.floors_without_forge + 1
+	# A dead-end room may hold a pact door (PactRoom), picked before the ambush claims it.
+	# Never a room a secret opens off: an unsworn pact would wall its crack in for good.
+	var not_pact: Array[int] = [merchant_index, forge_index]
+	for secret in map.secrets:
+		not_pact.append(secret.host)
+	var pact_plan := PactRoom.plan(world, config, depth, not_pact)
+	var pact_index: int = pact_plan.get("room", -1)
 	# One quiet room may be an ambush: no monsters in it until the hero walks in, and no
 	# chest or encounter either (picked now, before they claim rooms).
 	var ambush_index := -1
 	if rng.randf() < config.ambush_chance:
 		for attempt in 6:
 			ambush_index = _pick_quiet_room(map, rng, merchant_index)
-			if ambush_index != forge_index:
+			if ambush_index != forge_index and ambush_index != pact_index:
 				break
-			ambush_index = -1  # not by the smith
+			ambush_index = -1  # not by the smith, nor behind a pact door
 	# The biome's grounds, scenes and decor, before anything else claims the rooms.
 	FloorDresser.dress(world, taken)
 	for i in map.rooms.size():
 		if i != merchant_index and i != forge_index:
 			place_lights(world, config, map.rooms[i], taken)
+	if pact_index >= 0:
+		world.spawn_pact(pact_plan.pact, map.rooms[pact_index], taken)
+		_reserve_rect(taken, map.rooms[pact_index])  # its own fight only: nothing else in it
 
 	# Springs, altars, statues: in the middle of a room, before anything else claims it.
 	var encounter_count := roundi(rng.randi_range(config.encounters_min, config.encounters_max) * spread)
@@ -74,7 +84,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 		# A few tries: a room's middle may hold a scene (a statue, a pond...); then near it.
 		for attempt in 4:
 			var index := rng.randi_range(1, map.rooms.size() - 1)
-			if index == merchant_index or index == forge_index or index == ambush_index:
+			if index == merchant_index or index == forge_index or index == ambush_index or index == pact_index:
 				continue
 			var cell := _free_near_middle(world, map.rooms[index], taken)
 			if cell != Vector2i(-1, -1):
@@ -108,7 +118,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 			# A few tries: some rooms have no free spot along their walls.
 			for attempt in 12:
 				var index := rng.randi_range(1, map.rooms.size() - 1)
-				if index == ambush_index:
+				if index == ambush_index or index == pact_index:
 					continue
 				var room := map.rooms[index]
 				var cells := _shuffled(edge_cells(map, room, taken), rng)
@@ -122,7 +132,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 	var counts := {}  # room index -> monsters
 	var total := 0
 	for i in range(1, map.rooms.size()):
-		if i == ambush_index or i == merchant_index or i == forge_index:
+		if i == ambush_index or i == merchant_index or i == forge_index or i == pact_index:
 			continue
 		var count := mini(rng.randi_range(config.monsters_per_room_min, config.monsters_per_room_max) + extra, max_per_room)
 		counts[i] = roundi(count * world.rules.monster_count_scale())
@@ -143,7 +153,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 	# Items lie around, not in the merchant's or the smith's room.
 	var item_rooms: Array[int] = []
 	for i in range(1, map.rooms.size()):
-		if i != merchant_index and i != forge_index:
+		if i != merchant_index and i != forge_index and i != pact_index:
 			item_rooms.append(i)
 	for n in roundi(config.items_per_floor * spread):
 		if item_rooms.is_empty():

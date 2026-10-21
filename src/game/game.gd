@@ -129,6 +129,7 @@ func _connect_menus() -> void:
 	inventory_panel.closed.connect(_on_menu_closed)
 	shop_panel.closed.connect(_on_menu_closed)
 	menus.forge.closed.connect(_on_menu_closed)
+	menus.pact.closed.connect(_on_menu_closed)
 	encounter_panel.closed.connect(_on_menu_closed)
 	perk_panel.chosen.connect(_on_perk_chosen)
 	perk_panel.reroll_requested.connect(_on_perk_reroll)
@@ -145,6 +146,8 @@ func _connect_events() -> void:
 	Events.shop_requested.connect(open_shop)
 	Events.forge_requested.connect(open_forge)
 	Events.encounter_requested.connect(open_encounter)
+	Events.pact_requested.connect(open_pact)
+	Events.pact_ended.connect(_on_pact_ended)
 	Events.perk_offer_requested.connect(func(rarity: int, title: String, subtitle: String) -> void:
 		_queue_offer(rarity as PerkDef.Rarity, PERK_CHOICES, title, subtitle))
 	Events.soul_gathered.connect(func() -> void: hud.set_souls(run_souls(), true))
@@ -345,6 +348,25 @@ func open_encounter(encounter: Encounter) -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		_set_paused(true)
 		encounter_panel.open(encounter, player)
+
+
+func open_pact(pact: PactRoom) -> void:
+	if _can_open_menu():
+		Sfx.play_ui(Sfx.bank.ui_open)
+		_set_paused(true)
+		menus.pact.open(pact, player)
+
+
+## A kept pact pays like a boss: a choice of relics, queued at once (a save keeps it) and shown
+## after a moment to enjoy the burst.
+func _on_pact_ended(pact: PactRoom) -> void:
+	if pact.outcome != PactRoom.Outcome.KEPT:
+		return
+	offers.add(PerkDef.Rarity.RARE, pact.def.relic_choices, tr("Relic"), tr("The pact is kept. Choose a relic."))
+	var keeper := player
+	await get_tree().create_timer(RELIC_DELAY, false).timeout
+	if player == keeper and not player.is_dead:
+		_show_next_offer()
 
 
 func open_shop(merchant: Merchant) -> void:

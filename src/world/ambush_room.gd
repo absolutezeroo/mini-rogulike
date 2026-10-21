@@ -2,7 +2,9 @@ class_name AmbushRoom
 extends Node2D
 ## A room that looks quiet... until the hero walks in: spikes close the exits and monsters
 ## pour in, wave after wave (the last one led by an elite). Clear them all and the way opens,
-## with a big chest as a reward. See DungeonConfig > Ambushes.
+## with a big chest as a reward. See DungeonConfig > Ambushes. PactRoom builds on it (its
+## waves, its gates) through the hooks below (_wants_start(), _wave_count(), _wave_size(),
+## _spawns_elite()).
 
 
 enum State { WAITING, FIGHTING, CLEARED }
@@ -45,21 +47,47 @@ func get_gate_cells() -> Array[Vector2i]:
 func start() -> void:
 	if state != State.WAITING:
 		return
+	_begin_fight()
+	Events.ambush_started.emit(self)
+
+
+## The exits close and the first wave comes.
+func _begin_fight() -> void:
 	state = State.FIGHTING
-	waves_left = _world.config().ambush_waves
+	waves_left = _wave_count()
 	_gates.close()
 	Sfx.play_at(Sfx.bank.ambush, _world.player.global_position)
 	Events.screen_shake.emit(0.6)
 	_queue_wave()
-	Events.ambush_started.emit(self)
+
+
+func _wave_count() -> int:
+	return _world.config().ambush_waves
+
+
+func _wave_size() -> int:
+	return _world.config().ambush_wave_size + floori(_world.depth / 3.0)
+
+
+## Whether the monster about to come is an elite (the last wave is led by one).
+func _spawns_elite() -> bool:
+	if _elite_in_wave:
+		_elite_in_wave = false
+		return true
+	return false
+
+
+## The hero walked in: on solid ground only (a roll ending in a hole would put them back
+## outside the gates).
+func _wants_start() -> bool:
+	var player := _world.player
+	return player != null and player.is_grounded() and room.grow(-1).has_point(_world.map.world_to_cell(player.global_position))
 
 
 func _physics_process(delta: float) -> void:
 	match state:
 		State.WAITING:
-			var player := _world.player
-			# On solid ground only: a roll ending in a hole would put the hero back outside the gates.
-			if player and player.is_grounded() and room.grow(-1).has_point(_world.map.world_to_cell(player.global_position)):
+			if _wants_start():
 				start()
 		State.FIGHTING:
 			if not _to_spawn.is_empty():
@@ -90,8 +118,7 @@ func _queue_wave() -> void:
 	waves_left -= 1
 	_wave.clear()
 	_elite_in_wave = waves_left == 0  # the last wave is led by an elite
-	var count := _world.config().ambush_wave_size + floori(_world.depth / 3.0)
-	for i in count:
+	for i in _wave_size():
 		var def := _world.pick_monster()
 		if def:
 			_to_spawn.append(def)
@@ -100,8 +127,7 @@ func _queue_wave() -> void:
 
 func _spawn_one(def: MonsterDef) -> void:
 	var monster := _world.spawn_monster(def, _spawn_point())
-	if _elite_in_wave:
-		_elite_in_wave = false
+	if _spawns_elite():
 		_world.make_elite(monster)
 	monster.target = _world.player
 	Vfx.puff(_world, monster.global_position)

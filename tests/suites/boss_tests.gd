@@ -159,7 +159,9 @@ func _test_boss_fight(game: Game) -> void:
 		if not game.perk_panel.visible:
 			continue
 		var offered: Array[PerkDef] = game.perk_panel.get_offered()
-		if offered.all(func(p: PerkDef) -> bool: return p.rarity == PerkDef.Rarity.RARE):
+		# A relic offer leads with relics (filled with common perks once the hero holds them all,
+		# which the earlier suites may have done: pacts, the Threshold).
+		if not offered.is_empty() and offered[0].rarity == PerkDef.Rarity.RARE:
 			relics = offered
 			break
 		game.perk_panel.choose(0)

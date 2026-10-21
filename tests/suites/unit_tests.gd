@@ -26,6 +26,7 @@ func run() -> void:
 	_test_runes()
 	_test_item_levels()
 	_test_routes()
+	_test_pacts()
 	_test_soul_tree()
 	_test_loader()
 	_test_pilgrim_costs()
@@ -375,6 +376,87 @@ func _test_hidden_floor() -> void:
 		check(map.rooms.size() == hidden.rooms + 2 and map.boss_room == map.rooms.back(), "the hidden floor: a start, its rooms, then the arena (%d rooms)" % map.rooms.size())
 		check(map.rooms.all(func(room: Rect2i) -> bool: return reach.has(room.get_center())) and reach.has(map.stairs_cell), "every room and the arena reachable")
 		check(_bad_wall_cells(map).is_empty(), "no thin walls on the hidden floor")
+
+
+## Pact doors: every pact's data, how its rule is watched, and the rooms they may seal.
+func _test_pacts() -> void:
+	var config := CONTENT.dungeon
+	check(config.pacts.size() >= 3, "pacts: at least three (%d)" % config.pacts.size())
+	check(config.pact_chance > 0.0 and config.pact_chance < 1.0, "pacts: a chance per floor (%.2f)" % config.pact_chance)
+	check(config.pact_light != null, "pacts: candles light their doors")
+	var ids := {}
+	for pact in config.pacts:
+		check(pact != null and not pact.id.is_empty() and not ids.has(pact.id), "pact %s: a unique id" % (pact.id if pact else &"?"))
+		if pact == null:
+			continue
+		ids[pact.id] = true
+		check(pact.display_name.begins_with("Pact of ") and not pact.description.is_empty(), "pact %s: a name and a lore line" % pact.id)
+		check(not tr(pact.display_name).is_empty() and pact.description.length() <= 120, "pact %s: lore short enough for its card" % pact.id)
+		check(pact.rule != null and not pact.rule.describe(null).is_empty(), "pact %s: a rule said in plain words" % pact.id)
+		check(pact.max_hp_cost >= 0.1 and pact.max_hp_cost <= 0.15, "pact %s: costs 10-15%% of max Health when broken (%.2f)" % [pact.id, pact.max_hp_cost])
+		check(pact.waves >= 1 and pact.wave_size >= 1 and pact.relic_choices >= 1, "pact %s: waves to fight, relics to win" % pact.id)
+		check(pact.min_depth >= 2 and pact.spawn_weight > 0, "pact %s: never on the first floor, can come up" % pact.id)
+		check(pact.color.a > 0.0 and pact.icon != null, "pact %s: a look" % pact.id)
+	check(config.pacts.any(func(p: PactDef) -> bool: return p.elite_share >= 1.0), "pacts: one sends nothing but elites")
+
+	# The rules, watched on copies (the data files keep no fight's state).
+	var untouched := DamageTakenRule.new()
+	untouched._allowed = 0
+	untouched._on_damaged(0)
+	check(not untouched.is_broken, "untouched: a blow soaked whole (0 damage) keeps it")
+	untouched._on_damaged(1)
+	check(untouched.is_broken, "untouched: one point of damage breaks it")
+	var tithe := DamageTakenRule.new()
+	tithe.allowed_share = 0.5
+	tithe._allowed = 20
+	tithe._on_damaged(20)
+	check(not tithe.is_broken, "a Health budget: losing all of it keeps the rule")
+	tithe._on_damaged(1)
+	check(tithe.is_broken, "...one more point breaks it")
+	var knell := TimeLimitRule.new()
+	knell.seconds = 30.0
+	knell.seconds_per_depth = 2.0
+	check(is_equal_approx(knell.limit(4), 36.0), "the knell: more time deeper (%.0f s on floor 4)" % knell.limit(4))
+	knell.time_left = 2.0
+	var tolled := [0]
+	knell.broken.connect(func() -> void: tolled[0] += 1)
+	knell.tick(1.5)
+	check(not knell.is_broken and knell.status_text() == "1 s left", "the knell: a countdown (%s)" % knell.status_text())
+	knell.tick(1.0)
+	knell.tick(1.0)
+	check(knell.is_broken and tolled[0] == 1, "the knell tolls once, when time runs out")
+	var fast := NoConsumableRule.new()
+	fast._on_used(null)
+	check(fast.is_broken, "the fast: using a consumable breaks it")
+	var copy := (config.pacts[0].rule.duplicate() as PactRule)
+	copy._break()
+	check(not config.pacts[0].rule.is_broken, "pacts: the rule watched is a copy, the data stays clean")
+
+	# The rooms: not the first one, no stairs, one door on one side, nothing else cut off.
+	var rng := RandomNumberGenerator.new()
+	var found := 0
+	for i in 40:
+		rng.seed = 7000 + i
+		var map := DungeonGenerator.generate(config, rng)
+		rng.seed = 99 + i
+		var index := PactRoom.find_room(map, rng, [], config.corridor_width + 3)
+		rng.seed = 99 + i
+		check(PactRoom.find_room(map, rng, [], config.corridor_width + 3) == index, "pact rooms: the same seed, the same room")
+		if index < 0:
+			continue
+		found += 1
+		var room := map.rooms[index]
+		check(index != 0 and not room.grow(1).has_point(map.start_cell), "pact rooms: never where the hero starts")
+		check(not map.exit_cells().any(func(c: Vector2i) -> bool: return room.grow(1).has_point(c)), "pact rooms: never by the stairs")
+		var door := PactRoom.door_of(map, room)
+		check(not door.is_empty() and door.size() <= config.corridor_width + 3, "pact rooms: one door (%d cells)" % door.size())
+		var sealed := PactRoom._flood(map, room, door)
+		var all_rooms_joined := true
+		for other in map.rooms:
+			if other != room and not sealed.has(other.get_center()) and map.is_floor(other.get_center()):
+				all_rooms_joined = false
+		check(all_rooms_joined and map.exit_cells().all(func(c: Vector2i) -> bool: return sealed.has(c)), "pact rooms: sealed, the rest of the floor and its stairs stay joined")
+	check(found >= 10, "pact rooms: most floors have one to give (%d of 40)" % found)
 
 
 ## The stairs' seal: a share of the floor's monsters, the last few shown, broken once.

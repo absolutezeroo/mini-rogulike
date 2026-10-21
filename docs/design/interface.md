@@ -43,8 +43,10 @@ anywhere in it, cards and buttons included, with a bit of momentum (`TouchScroll
   the bag button are put away until the hero is back; a toast says he came back ("You come back
   from the Threshold."), a red banner that the knell has tolled.
 - **Minimap** (`Minimap`): rooms are revealed when you walk in, corridors around you; it shows holes,
-  the stairs (violet while sealed), unopened chests, a running ambush, the boss and, near the
-  end of a seal, the last monsters. Tap it for the whole floor.
+  the stairs (violet while sealed), unopened chests, a running ambush, a pact door once seen (its
+  room outlined during the fight), the boss and, near the end of a seal, the last monsters. Tap it
+  for the whole floor. During a pact's fight a line under it (`PactLine`) names the pact and how its
+  rule holds ("Untouched", "18 s left").
 
 ## Tutorial
 
@@ -57,8 +59,9 @@ over a menu or a big banner. A tap (or OK) closes it.
   a monster first sees you, attack (until you swing), then roll, then the weapon's two skills.
 - **The first time something happens**: low health (drink a potion from the belt), gear in the bag
   (open the Bag), your first soul, perks and families, a family bonus, a spell, an elite, a rune, the
-  forge, the merchant, a chest, an ambush, a boss, the stairs opening, a cursed or strange floor,
-  cold and heat, the first trial of the Threshold (pointing at its countdown, once its name is gone).
+  forge, the merchant, a chest, an ambush, a pact door, a boss, the stairs opening, a cursed or
+  strange floor, cold and heat, the first trial of the Threshold (pointing at its countdown, once its
+  name is gone).
 - **Data**: `data/tutorial/tutorial.tres` (`TutorialDef`): the hints (`HintDef`: its cue, the hint
   it comes after, a condition, the title and text, the HUD control it points at, the action that
   ends it or how long it stays, its priority) and the distances and thresholds. The cues, actions

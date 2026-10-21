@@ -155,6 +155,17 @@ extends Resource
 @export_range(0, 6) var encounters_min: int = 0
 @export_range(0, 6) var encounters_max: int = 2
 
+@export_group("Pacts")
+## Chance for a normal floor (never the first, never a boss floor) to try for a pact door: a
+## dead-end room sealed behind a marked door, with a hard rule for its fight (PactRoom). It
+## also needs a dead-end room nobody else took (about half the floors have one): at 0.7,
+## about a third of the floors get a pact door.
+@export_range(0.0, 1.0) var pact_chance: float = 0.7
+## The pacts a door may hold (`min_depth`, `spawn_weight`).
+@export var pacts: Array[PactDef] = []
+## Lights either side of a pact door, inside the room (candles).
+@export var pact_light: PropDef
+
 @export_group("Merchant")
 ## Chance for a floor to have the merchant (never on boss floors).
 @export_range(0.0, 1.0) var merchant_chance: float = 0.55

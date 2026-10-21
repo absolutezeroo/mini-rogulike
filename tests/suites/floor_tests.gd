@@ -1167,6 +1167,167 @@ func _test_encounters(game: Game) -> void:
 	await _frames(3)
 
 
+## Pact doors (PactRoom): where floors put them, the offer, keeping and breaking a pact, saves.
+func _test_pacts(game: Game) -> void:
+	var player: Player = game.player
+	var config := CONTENT.dungeon
+	var chance := config.pact_chance
+	var was_invincible := player.invincible
+	var max_hp := player.base_stats.max_hp
+	config.pact_chance = 1.0
+	player.xp = -1000000
+	player.invincible = true
+	# Where: never the first floor nor a boss floor, one at most, nothing else cut off.
+	var with_pact := -1
+	var placed := 0
+	for depth in range(1, 40):
+		if depth >= 15 and with_pact > 0:
+			break  # (past the first floors, only looking for one to play)
+		game.depth = depth
+		game._enter_floor()
+		await _frames(1)
+		var world: World = game.world
+		var doors := world.get_node("Entities").get_children().filter(func(n: Node) -> bool: return n is PactRoom and not n.is_queued_for_deletion())
+		check(doors.size() <= 1, "floor %d: one pact door at most (%d)" % [depth, doors.size()])
+		if depth == 1 or config.boss_for_depth(depth) != null:
+			check(doors.is_empty() and world.pact == null, "floor %d: no pact door on the first floor nor a boss floor" % depth)
+			continue
+		if doors.is_empty():
+			continue
+		placed += 1
+		var pact := doors[0] as PactRoom
+		check(world.pact == pact and pact.is_closed() and pact.is_open_offer(), "floor %d: the pact door is sealed, its pact on offer" % depth)
+		check(not world.map.secrets.any(func(plan: SecretRoomPlan) -> bool: return world.map.rooms[plan.host] == pact.room), "floor %d: no secret room opens off a pact room (it could stay walled in)" % depth)
+		var start := world.map.cell_to_world(world.map.start_cell)
+		for cell in world.stairs_cells:
+			check(not world.find_path(start, world.map.cell_to_world(cell)).is_empty(), "floor %d: the sealed door never cuts the stairs off" % depth)
+		var inside := func(node: Node) -> bool: return pact.room.grow(1).has_point(world.map.world_to_cell((node as Node2D).global_position))
+		check(not world.get_hostiles(Actor.Faction.PLAYER).any(inside), "floor %d: nobody waits behind the pact door" % depth)
+		check(not get_tree().get_nodes_in_group("chests").any(inside) and not get_tree().get_nodes_in_group("encounters").any(inside), "floor %d: no chest nor encounter behind it" % depth)
+		check(world.ambush == null or world.ambush.room != pact.room, "floor %d: not an ambush room too" % depth)
+		if with_pact < 0:
+			with_pact = depth
+	check(placed >= 1, "pact doors come up on normal floors (%d)" % placed)
+	if with_pact < 0:
+		config.pact_chance = chance
+		return
+	game.depth = with_pact
+	game._enter_floor()
+	var room := game.world.pact.room
+	var def := game.world.pact.def
+	game._enter_floor()
+	check(game.world.pact != null and game.world.pact.room == room and game.world.pact.def == def, "the same floor, the same pact door (seeded)")
+
+	# The offer: walking up shows it; leaving changes nothing.
+	var world: World = game.world
+	var pact := world.pact
+	await _clear_monsters(world)
+	var panel: PactPanel = game.menus.pact
+	player.global_position = pact.front()
+	await _frames(3)
+	check(panel.visible and get_tree().paused, "walking up to a pact door shows the pact")
+	check((panel.get_node("%Rule") as Label).text == pact.def.rule_text(player), "its rule, in plain words")
+	var cost := panel.get_node("%Cost") as Label
+	check(cost.text.contains(str(pact.def.max_hp_lost(player))) and cost.get_theme_color("font_color") == UiParts.BAD, "the cost, in red, before swearing: %s" % cost.text)
+	check((panel.get_node("%Reward") as Label).text.contains("relic"), "and the reward")
+	panel.close()
+	await _frames(2)
+	check(not get_tree().paused and pact.is_open_offer() and pact.is_closed(), "leaving changes nothing")
+	player.global_position = pact.front() + Vector2(pact.outward) * 200.0
+	await _frames(2)
+	player.global_position = pact.front()
+	await _frames(3)
+	check(panel.visible, "coming back asks again")
+
+	# Kept: the door opens, seals behind the hero, the waves come; a relic at the end.
+	panel.swear()
+	await _frames(2)
+	check(pact.accepted and not pact.is_closed() and not get_tree().paused, "swearing opens the door")
+	player.global_position = world.nearest_free_point(world.map.cell_to_world(pact.room.get_center()))
+	await _frames(3)
+	check(pact.state == AmbushRoom.State.FIGHTING and pact.is_closed() and pact.rule != null, "walking in seals the door, the rule is watched")
+	check(game.hud.pact_line.visible and not game.hud.pact_line.state_text().is_empty(), "the HUD shows the rule's state: %s" % game.hud.pact_line.state_text())
+	var base_max := player.base_stats.max_hp
+	await _slay_pact_waves(world, player, pact)
+	check(pact.outcome == PactRoom.Outcome.KEPT and not pact.is_closed(), "every foe slain, rule kept: the door opens")
+	check(player.base_stats.max_hp == base_max, "a kept pact costs nothing")
+	check(game.hud.pact_line.state_text() == "Pact kept", "the HUD says so (%s)" % game.hud.pact_line.state_text())
+	await _frames(120)
+	var offered := game.perk_panel.get_offered()
+	check(game.perk_panel.visible and offered.size() == pact.def.relic_choices and offered.all(func(p: PerkDef) -> bool: return p.rarity == PerkDef.Rarity.RARE), "and a choice of relics (%d)" % offered.size())
+	check(world.spent_data().get("pact", 0) == 1, "the floor's save knows the pact was sworn")
+	game.perk_panel.choose(0)
+	await _frames(2)
+
+	# Broken: the cost at once, the fight goes on, no relic.
+	game._enter_floor()
+	world = game.world
+	pact = world.pact
+	pact.def = load("res://data/pacts/untouched.tres")
+	await _clear_monsters(world)
+	game.open_pact(pact)
+	panel.swear()
+	await _frames(2)
+	player.global_position = world.nearest_free_point(world.map.cell_to_world(pact.room.get_center()))
+	await _frames(3)
+	check(pact.state == AmbushRoom.State.FIGHTING, "the Untouched's fight begins")
+	base_max = player.base_stats.max_hp
+	var lost := pact.def.max_hp_lost(player)
+	player.hp = player.get_max_hp()
+	player.ward = 0  # a relic's frost shell would soak the blow
+	player.invincible = false
+	var blow := Combat.make_secondary_hit(null, 12)
+	blow.unavoidable = true
+	player.take_hit(blow)
+	player.invincible = true
+	check(pact.outcome == PactRoom.Outcome.BROKEN and player.base_stats.max_hp == base_max - lost and lost > 0, "a single hit breaks the Untouched: %d max Health lost at once" % lost)
+	check(pact.state == AmbushRoom.State.FIGHTING and pact.is_closed(), "the fight goes on behind the sealed door")
+	await _frames(1)
+	check(game.hud.pact_line.state_text().contains(str(lost)), "the HUD shows the cost in red (%s)" % game.hud.pact_line.state_text())
+	await _slay_pact_waves(world, player, pact)
+	check(pact.state == AmbushRoom.State.CLEARED and not pact.is_closed(), "the waves slain, the door opens anyway")
+	await _frames(120)
+	check(not game.perk_panel.visible and game.offers.is_empty(), "no relic for a broken pact")
+	if game.perk_panel.visible:
+		game.perk_panel.choose(0)
+		await _frames(2)
+	game._save_run()
+	var saved := RunSave.read()
+	check(int(saved.player.base_stats.max_hp) == player.base_stats.max_hp, "the lost max Health is in the run's save")
+	check(int(saved.floor.pact) == 1, "...and the sworn pact too")
+
+	# Resumed: a sworn pact is never offered again; an unsworn one is.
+	world.restore_spent(saved.floor)
+	game._enter_floor(true)
+	await _frames(2)
+	world = game.world
+	check(world.pact != null and not world.pact.is_open_offer() and not world.pact.is_closed(), "a resumed run opens the sworn pact's door, spent")
+	await _clear_monsters(world)
+	player.global_position = world.pact.front()
+	await _frames(3)
+	check(not panel.visible, "and never offers it again")
+	world.restore_spent({ "pact": 0 })
+	game._enter_floor(true)
+	await _frames(2)
+	check(game.world.pact != null and game.world.pact.is_open_offer(), "a pact not sworn before quitting waits again")
+
+	config.pact_chance = chance
+	player.invincible = was_invincible
+	player.base_stats.max_hp = max_hp
+	player.invalidate_stats()
+	player.hp = player.get_max_hp()
+	player.xp = 0
+
+
+## Slays a pact room's waves as they come (at most 20 s).
+func _slay_pact_waves(world: World, player: Player, pact: PactRoom) -> void:
+	for i in 1200:
+		if pact.state == AmbushRoom.State.CLEARED:
+			return
+		_kill_one(world, player)
+		await _frames(1)
+
+
 ## Magic, Rare and Epic equipment, gold, and the merchant.
 func _test_loot_and_gold(game: Game) -> void:
 	var world: World = game.world

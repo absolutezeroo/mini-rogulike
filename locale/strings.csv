@@ -109,6 +109,17 @@ Blocks %d%% of the blows from the front.,Blocks %d%% of the blows from the front
 +%d gold,+%d gold,+%d or
 Steals gold and runs. Slay it to get it back.,Steals gold and runs. Slay it to get it back.,Vole de l'or et s'enfuit. Abats-le pour le récupérer.
 Its long body burns at a touch: only the head can be hurt,Its long body burns at a touch: only the head can be hurt,Son long corps brûle au contact : seule la tête peut être blessée
+Take no damage until the last foe falls.,Take no damage until the last foe falls.,Ne subis aucun dégât avant que le dernier ennemi ne tombe.
+Lose no more than %d Health in all until the last foe falls.,Lose no more than %d Health in all until the last foe falls.,Ne perds pas plus de %d de Vie en tout avant que le dernier ennemi ne tombe.
+Untouched,Untouched,Intouché
+Touched,Touched,Touché
+Health lost: %d / %d,Health lost: %d / %d,Vie perdue : %d / %d
+"Use no potion, bomb or scroll until the last foe falls.","Use no potion, bomb or scroll until the last foe falls.","N'utilise ni potion, ni bombe, ni parchemin avant que le dernier ennemi ne tombe."
+Fasting,Fasting,À jeun
+Fast broken,Fast broken,Jeûne rompu
+Slay every foe within %d seconds of the door sealing.,Slay every foe within %d seconds of the door sealing.,"Abats tous les ennemis en %d secondes, dès que la porte se scelle."
+The knell has tolled,The knell has tolled,Le glas a sonné
+%d s left,%d s left,%d s restantes
 ECHO,ECHO,ÉCHO
 Starts with the %s,Starts with the %s,Commence avec : %s
 %+d%% max Health,%+d%% max Health,%+d %% de Vie max
@@ -150,6 +161,7 @@ Ambush!,Ambush!,Embuscade !
 It's a trap! Survive the waves.,It's a trap! Survive the waves.,C'est un piège ! Survis aux vagues.
 The room falls silent. A chest appears...,The room falls silent. A chest appears...,Le silence retombe sur la salle. Un coffre apparaît...
 Level %d!,Level %d!,Niveau %d !
+The pact is kept. Choose a relic.,The pact is kept. Choose a relic.,Le pacte est tenu. Choisis une relique.
 Cursed: %s. %s,Cursed: %s. %s,Maudit : %s. %s
 Depth %d. Something vast waits in the dark...,Depth %d. Something vast waits in the dark...,Étage %d. Quelque chose d'immense t'attend dans le noir...
 Depth %d. The stairs are sealed: slay %d monsters to open them.,Depth %d. The stairs are sealed: slay %d monsters to open them.,Étage %d. Les escaliers sont scellés : abats %d monstres pour les ouvrir.
@@ -356,7 +368,6 @@ Challenge done: %s  (+%d souls),Challenge done: %s  (+%d souls),Défi relevé : 
 Daily quest done: %s  (+%d souls),Daily quest done: %s  (+%d souls),Quête du jour accomplie : %s  (+%d âmes)
 Weekly quest done: %s  (+%d souls),Weekly quest done: %s  (+%d souls),Quête de la semaine accomplie : %s  (+%d âmes)
 You come back from the Threshold.,You come back from the Threshold.,Tu reviens du Seuil.
-The knell has tolled,The knell has tolled,Le glas a sonné
 Seal  %d / %d,Seal  %d / %d,Sceau  %d / %d
 Stairs open,Stairs open,Escaliers ouverts
 The stairs are open,The stairs are open,Les escaliers sont ouverts
@@ -368,6 +379,11 @@ Bare hands,Bare hands,Mains nues
 %s awakens: %s,%s awakens: %s,%s s'éveille : %s
 Floor %d  %s,Floor %d  %s,Étage %d  %s
 Depth %d,Depth %d,Étage %d
+Pact broken,Pact broken,Pacte rompu
+-%d max Health for the rest of the run,-%d max Health for the rest of the run,-%d Vie max pour le reste de la partie
+Pact kept,Pact kept,Pacte tenu
+Pact kept: a relic is yours,Pact kept: a relic is yours,Pacte tenu : une relique est à toi
+Broken: -%d max Health,Broken: -%d max Health,Rompu : -%d Vie max
 Slay %d spectre before the knell,Slay %d spectre before the knell,Abats %d spectre avant le glas
 Slay %d spectres before the knell,Slay %d spectres before the knell,Abats %d spectres avant le glas
 Slain %d / %d,Slain %d / %d,Abattus %d / %d
@@ -433,6 +449,16 @@ Tutorial hints,Tutorial hints,Conseils du tutoriel
 Short tips during your first runs.,Short tips during your first runs.,De courts conseils pendant tes premières parties.
 "Every tip again, from the first steps.","Every tip again, from the first steps.","Tous les conseils à nouveau, depuis les premiers pas."
 Language,Language,Langue
+The door seals behind you until every foe is slain: %d waves.,The door seals behind you until every foe is slain: %d waves.,La porte se scelle derrière toi jusqu'à ce que tous les ennemis soient abattus : %d vagues.
+The door seals behind you until every foe is slain.,The door seals behind you until every foe is slain.,La porte se scelle derrière toi jusqu'à ce que tous les ennemis soient abattus.
+Every foe is an elite.,Every foe is an elite.,Tous les ennemis sont des élites.
+"A relic: choose 1 of %d strong perks, as after a boss.","A relic: choose 1 of %d strong perks, as after a boss.","Une relique : choisis 1 atout puissant parmi %d, comme après un boss."
+"You lose %d max Health for the rest of the run (%d left), and the relic.","You lose %d max Health for the rest of the run (%d left), and the relic.","Tu perds %d de Vie max pour le reste de la partie (il t'en reste %d), et la relique."
+The rule,The rule,La règle
+Kept,Kept,Tenu
+Broken,Broken,Rompu
+The fight goes on: the door opens once the waves are slain.,The fight goes on: the door opens once the waves are slain.,Le combat continue : la porte s'ouvre une fois les vagues abattues.
+Swear the pact,Swear the pact,Sceller le pacte
 Paused,Paused,Pause
 Resume,Resume,Reprendre
 Back to the fight.,Back to the fight.,Retour au combat.
@@ -616,6 +642,11 @@ OK,OK,OK
 The depths,The depths,Les profondeurs
 %s - better loot,%s - better loot,%s - meilleur butin
 %s (cursed: %s),%s (cursed: %s),%s (maudit : %s)
+The pact is sworn. Walk in: the door seals behind you.,The pact is sworn. Walk in: the door seals behind you.,Le pacte est scellé. Entre : la porte se refermera derrière toi.
+-%d max Health,-%d max Health,-%d Vie max
+The pact is broken: %d max Health lost for the rest of the run.,The pact is broken: %d max Health lost for the rest of the run.,Le pacte est rompu : %d de Vie max perdus pour le reste de la partie.
+The pact is kept. A relic answers the oath.,The pact is kept. A relic answers the oath.,Le pacte est tenu. Une relique répond au serment.
+"The last foe falls. The door opens, and the room keeps its relic.","The last foe falls. The door opens, and the room keeps its relic.","Le dernier ennemi tombe. La porte s'ouvre, et la salle garde sa relique."
 The wall gives way: a hidden room.,The wall gives way: a hidden room.,Le mur cède : une salle cachée.
 "The seal shatters: two ways down. %s, or %s.","The seal shatters: two ways down. %s, or %s.","Le sceau vole en éclats : deux chemins vers les profondeurs. %s, ou %s."
 The seal shatters. The way down lies open.,The seal shatters. The way down lies open.,Le sceau vole en éclats. La voie des profondeurs s'ouvre.
@@ -1084,6 +1115,14 @@ Oath of the Vulture,Oath of the Vulture,Serment du Vautour
 "35% more gold and better loot, but the merchant charges you 25% more.","35% more gold and better loot, but the merchant charges you 25% more.","35 % d'or en plus et un meilleur butin, mais le marchand te fait payer 25 % de plus."
 Oath of the Heretic,Oath of the Heretic,Serment Hérétique
 "Start with the Book: skills deal 50% more damage, but your attacks are 20% slower.","Start with the Book: skills deal 50% more damage, but your attacks are 20% slower.","Commence avec le Grimoire : les compétences infligent 50 % de Dégâts en plus, mais tes attaques sont 20 % plus lentes."
+Pact of the Fast,Pact of the Fast,Pacte du Jeûne
+"Fight as the penitents fasted: with empty hands. Not a drop, not a spark, not a word read.","Fight as the penitents fasted: with empty hands. Not a drop, not a spark, not a word read.","Combats comme jeûnaient les pénitents : les mains vides. Pas une goutte, pas une étincelle, pas un mot lu."
+Pact of the Knell,Pact of the Knell,Pacte du Glas
+"The bell tolls once when the door seals. Before it tolls again, none of them may stand.","The bell tolls once when the door seals. Before it tolls again, none of them may stand.","La cloche sonne une fois quand la porte se scelle. Avant qu'elle ne sonne encore, aucun d'eux ne doit rester debout."
+Pact of the Tithe,Pact of the Tithe,Pacte de la Dîme
+"The Well asks for its tithe in champions. Pay it in their blood, not too much of yours.","The Well asks for its tithe in champions. Pay it in their blood, not too much of yours.","Le Puits exige sa dîme en champions. Paie-la de leur sang, pas trop du tien."
+Pact of the Untouched,Pact of the Untouched,Pacte de l'Intouché
+Swear that no blade will find you. The Well keeps count of every drop of blood.,Swear that no blade will find you. The Well keeps count of every drop of blood.,Jure qu'aucune lame ne te trouvera. Le Puits compte chaque goutte de sang.
 Arcane Focus,Arcane Focus,Concentration Arcanique
 Arcane Power,Arcane Power,Puissance Arcanique
 Blazing Roll,Blazing Roll,Roulade Embrasée
@@ -1440,6 +1479,8 @@ Something unusual is going on here: the log on the left tells you what.,Somethin
 Heat,Heat,Chaleur
 Stay by an oasis to cool down before the heat hurts you.,Stay by an oasis to cool down before the heat hurts you.,Reste près d'une oasis pour te rafraîchir avant que la chaleur ne te blesse.
 "A second life, if you earn it: slay the spectres before the countdown ends to return where you fell.","A second life, if you earn it: slay the spectres before the countdown ends to return where you fell.","Une seconde vie, si tu la mérites : abats les spectres avant la fin du compte à rebours pour revenir où tu es tombé."
+Pact door,Pact door,Porte de pacte
+"A pact door. Walk up to the stele to read its rule: keep it for a relic, break it and lose max Health.","A pact door. Walk up to the stele to read its rule: keep it for a relic, break it and lose max Health.","Porte de pacte. Approche de la stèle pour lire sa règle : tiens-la pour une relique, romps-la et perds de la Vie max."
 "Roll through a blow: for a heartbeat, nothing can touch you.","Roll through a blow: for a heartbeat, nothing can touch you.","Roule à travers un coup : le temps d'un battement de cœur, rien ne peut te toucher."
 A weapon is as strong as the floor it was found on. Keep plundering.,A weapon is as strong as the floor it was found on. Keep plundering.,Une arme vaut l'étage où elle fut trouvée. Continue à piller.
 Hold three perks of one family to awaken its bonus.,Hold three perks of one family to awaken its bonus.,Réunis trois atouts d'une même famille pour éveiller son bonus.

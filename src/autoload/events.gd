@@ -42,6 +42,14 @@ signal ambush_started(room: AmbushRoom)
 signal ambush_cleared(room: AmbushRoom)
 ## A cracked wall broke and a secret room opened (SecretRoom).
 signal secret_found(room: Node2D)
+## The hero walked up to a pact door (PactRoom): its rule, reward and cost are shown.
+signal pact_requested(pact: PactRoom)
+## The hero walked into a sworn pact's room: the door sealed, its rule is watched.
+signal pact_started(pact: PactRoom)
+## The pact's rule was broken: its cost is paid (the fight goes on).
+signal pact_broken(pact: PactRoom)
+## The pact's last foe fell and the door opened (`pact.outcome`: kept or broken).
+signal pact_ended(pact: PactRoom)
 
 
 func log_message(text: String, color: Color = Color.WHITE) -> void:

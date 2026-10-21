@@ -17,8 +17,10 @@ func run() -> void:
 	var encounters_max := CONTENT.dungeon.encounters_max
 	var ambush_chance := CONTENT.dungeon.ambush_chance
 	var event_chance := CONTENT.dungeon.floor_event_chance
+	var pact_chance := CONTENT.dungeon.pact_chance
 	CONTENT.dungeon.ambush_chance = 0.0
 	CONTENT.dungeon.floor_event_chance = 0.0
+	CONTENT.dungeon.pact_chance = 0.0
 	# No curses either (they have their own test).
 	var curse_chances := {}
 	for difficulty in CONTENT.difficulties:
@@ -230,6 +232,7 @@ func run() -> void:
 	await floor._test_loot_and_gold(game)
 	await combat._test_weapon_kits(game)
 	await floor._test_encounters(game)
+	await floor._test_pacts(game)
 	await floor._test_variety(game)
 	await floor._test_floor_size(game)
 	await floor._test_routes(game)
@@ -378,6 +381,7 @@ func run() -> void:
 	CONTENT.dungeon.encounters_max = encounters_max
 	CONTENT.dungeon.ambush_chance = ambush_chance
 	CONTENT.dungeon.floor_event_chance = event_chance
+	CONTENT.dungeon.pact_chance = pact_chance
 	for difficulty in curse_chances:
 		difficulty.curse_chance = curse_chances[difficulty]
 	await _frames(2)

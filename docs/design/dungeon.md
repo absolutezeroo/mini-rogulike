@@ -224,3 +224,56 @@ outcome in words with its odds before you choose; the words come from the outcom
 | Blood Altar | Offer your blood (-15% max health) | a choice of relics |
 | Grinning Spirit | Wager 30 / 80 gold (more each floor) | an item, sometimes a great one... or it laughs and runs |
 | Warden's Statue | Kneel | a choice of perks (50%), or two elites (50%) |
+
+## Pact doors
+
+Some floors hold a sealed side room behind a marked door (`PactRoom`, `data/pacts/`, `PactDef`):
+crimson spikes across the doorway, a stele standing in it, a sigil of blood and gold on the floor
+before it, candles inside on either side (`DungeonConfig.pact_light`) and a red glow. Seen once,
+the room and its door go on the minimap (a red mark, grey once spent). Walking up to the stele
+shows the pact (`PactPanel`, in the RPG skin, the game paused): its lore line, then three cards,
+**the rule** in plain words (and that the door seals until every foe is slain), **kept** (in
+green: a choice of relics, as after a boss) and **broken** (in red: the max Health this hero would
+lose, and what would be left). **Swear the pact** sinks the stele and opens the door; **Leave**
+changes nothing (it asks again when you come back).
+
+Walking in seals the door and the waves come, as in an ambush (`AmbushRoom`: `PactDef.waves` of
+`wave_size` foes, +1 every 3 floors). The rule is watched on a copy of `PactDef.rule` (a
+`PactRule` subclass: each listens to the hero for its own thing) until the last foe falls:
+
+- **Kept**: the sigil turns gold, a burst of light, a banner and a toast, and a choice of
+  `relic_choices` (3) relics (rare perks) a moment later. It waits in the run's offers, so a save
+  keeps it.
+- **Broken**: at once, `max_hp_cost` of the hero's max Health is lost for the rest of the run (in
+  the hero's save), a banner and a toast say how much. The fight goes on; the door opens once the
+  waves are slain, and the relic is lost.
+
+During the fight a line under the map (`PactLine`) names the pact and the rule's state: gold while
+it holds, red once broken, green once kept; the minimap outlines the room.
+
+| Pact (FR / EN) | Rule | Fight | Broken costs |
+|---|---|---|---|
+| Pacte de l'Intouché / Pact of the Untouched | take no damage until the last foe falls (`DamageTakenRule`, 0%) | 2 waves of 2 (+1 / 3 floors), the last led by an elite | 12% max Health |
+| Pacte du Glas / Pact of the Knell | slay every foe within 30 s + 2 s per floor below the first, from the door sealing (`TimeLimitRule`); the countdown is on the HUD | 2 waves of 3, the last led by an elite | 12% |
+| Pacte du Jeûne / Pact of the Fast | no potion, bomb or scroll (`NoConsumableRule`) | 3 waves of 3, the last led by an elite | 10% |
+| Pacte de la Dîme / Pact of the Tithe (from floor 3) | lose no more than half your max Health in all (`DamageTakenRule`, 50%) | 2 waves of 1, every foe an elite | 15% |
+
+Any damage counts for the Untouched and the Tithe (blows, shots, traps, burns, falls); a blow a
+ward soaks whole does not.
+
+**Where**: `dungeon_config.tres` > Pacts: `pact_chance` (0.7) per normal floor, never the first
+floor nor a boss floor, one at most. It also needs a room that can be sealed without cutting
+anything off (`PactRoom.find_room()`): not the first room, no stairs in or by it, a single door on
+one side (at most `corridor_width` + 3 cells), and the rest of the floor still joined without it.
+About half the floors have one free (the merchant's and the smith's rooms are taken first, the
+ambush never takes it), so about **a third of the floors** get a pact door (measured: 55 on 175
+floors). Nothing else goes in the room: no monsters, chests, encounters, hazards or items. The
+pact and its room come from the floor's seed (`PactRoom.floor_rng()`, its own generator so the rest
+of the floor is the same with or without it): a daily run has the same pacts for everyone.
+
+**Saves**: a floor's save (`World.spent_data()`) says whether its pact was sworn. A resumed run
+rebuilds the floor with its door open and spent: never offered again. A pact left half-fought by
+quitting is lost (no relic); a cost already paid stays paid.
+
+The first pact door seen brings a tutorial hint. Debug panel: "Pact door" spawns one of each in a
+dead-end room of the current floor.
