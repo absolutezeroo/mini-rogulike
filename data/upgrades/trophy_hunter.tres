@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1")
 id = &"trophy_hunter"
-display_name = "Trophy Hunter"
+display_name = "Spoils of the Fallen"
 description = "Elites, Epic and Legendary monsters always drop a Magic (or better) piece of equipment."
 icon = ExtResource("2")
 color = Color(1, 0.7, 0.3, 1)

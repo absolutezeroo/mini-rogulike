@@ -59,7 +59,7 @@ func _ready() -> void:
 	%PlayButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		(%DifficultyPanel as DifficultyPanel).open(content.difficulties, content.ascensions))
-	# Once the tree opened an oath or the Armory: "Before the descent" between the two.
+	# Once the tree opened an oath or the Armory: "At the Well's Edge" between the two.
 	oath_panel = OathPanel.new()
 	add_child(oath_panel)
 	oath_panel.started.connect(play)
@@ -120,7 +120,7 @@ func _setup_continue() -> void:
 	if saved.is_empty():
 		return
 	var player: Dictionary = saved.get("player", {})
-	button.text = tr("Continue your run  -  floor %d, level %d") % [int(saved.get("depth", 1)), int(player.get("level", 1))]
+	button.text = tr("Resume the descent  -  floor %d, level %d") % [int(saved.get("depth", 1)), int(player.get("level", 1))]
 	button.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_click)
 		Game.resume_requested = true
@@ -179,7 +179,7 @@ func _button_label(font_size: int) -> Label:
 ## A small plaque on the Shrine button's corner when an upgrade can be bought.
 func _build_shrine_badge() -> void:
 	var button: Button = %ShrineButton
-	_shrine_badge = MenuWindow.badge(tr("Upgrade ready"), 14, MenuWindow.SOULS)
+	_shrine_badge = MenuWindow.badge(tr("Souls to offer"), 14, MenuWindow.SOULS)
 	# Its right edge just past the button's, over the top edge (it grows to the left).
 	_shrine_badge.anchor_left = 1.0
 	_shrine_badge.anchor_right = 1.0
@@ -212,7 +212,7 @@ func _refresh() -> void:
 	_record(tr("Runs"), str(Profile.runs))
 	_record(tr("Victories"), str(Profile.victories))
 	_record(tr("Deepest floor"), str(Profile.best_depth))
-	_record(tr("Difficulty"), tr(difficulty.display_name) if difficulty else tr("Normal"),
+	_record(tr("Difficulty"), tr(difficulty.display_name) if difficulty else tr("Keeper"),
 		difficulty.color if difficulty else UiSkin.TEXT)
 
 

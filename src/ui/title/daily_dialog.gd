@@ -45,7 +45,7 @@ func open(content: ContentDB, day: int) -> void:
 		start.add_child(icon)
 		start.add_child(UiSkin.label(tr(relic.display_name), 18, relic.color.lerp(Color.WHITE, 0.3)))
 	for rule in [
-		tr("The same floors and bosses for everyone today, on Normal, with this weapon and relic."),
+		tr("The same floors and bosses for everyone today, on Keeper, with this weapon and relic."),
 		tr("Only the first toll counts; the next ones today are practice."),
 		tr("Score: 1 per kill, 30 per floor, 150 per boss, 1000 for a win, 1 per 5 gold."),
 	]:

@@ -1,6 +1,6 @@
 keys,en,fr
-Loading...,Loading...,Chargement...
-Lighting the torches...,Lighting the torches...,On allume les torches...
+The dark gathers...,The dark gathers...,Les ténèbres s'amassent...
+Rekindling the lantern...,Rekindling the lantern...,On ravive la lanterne...
 The Well of Souls,The Well of Souls,Le Puits des Âmes
 Freezing!,Freezing!,Gelé !
 Burning up!,Burning up!,Brûlant !
@@ -467,7 +467,7 @@ Buy,Buy,Acheter
 Sell,Sell,Vendre
 The Dawn Knell,The Dawn Knell,Le Glas de l'Aube
 Each dawn the shrine's bell tolls a knell for the living. All who hear it go down the same Well.,Each dawn the shrine's bell tolls a knell for the living. All who hear it go down the same Well.,"À chaque aube, la cloche du sanctuaire sonne le glas des vivants. Tous ceux qui l'entendent descendent le même Puits."
-"The same floors and bosses for everyone today, on Normal, with this weapon and relic.","The same floors and bosses for everyone today, on Normal, with this weapon and relic.","Les mêmes étages et les mêmes boss pour tous aujourd'hui, en Normal, avec cette arme et cette relique."
+"The same floors and bosses for everyone today, on Keeper, with this weapon and relic.","The same floors and bosses for everyone today, on Keeper, with this weapon and relic.","Les mêmes étages et les mêmes boss pour tous aujourd'hui, en Veilleur, avec cette arme et cette relique."
 Only the first toll counts; the next ones today are practice.,Only the first toll counts; the next ones today are practice.,Seul le premier glas compte ; les suivants du jour sont de l'entraînement.
 "Score: 1 per kill, 30 per floor, 150 per boss, 1000 for a win, 1 per 5 gold.","Score: 1 per kill, 30 per floor, 150 per boss, 1000 for a win, 1 per 5 gold.","Score : 1 par monstre abattu, 30 par étage, 150 par boss, 1000 pour une victoire, 1 par tranche de 5 or."
 Today: %d points,Today: %d points,Aujourd'hui : %d points
@@ -503,19 +503,19 @@ Everything as the game was made: the other difficulties are compared with it.,Ev
 +%d  %s: %s,+%d  %s: %s,+%d  %s : %s
 "Next, +%d  %s: %s","Next, +%d  %s: %s","Ensuite, +%d  %s : %s"
 Win Nightmare +%d to open +%d  %s: %s,Win Nightmare +%d to open +%d  %s: %s,Gagne en Cauchemar +%d pour ouvrir +%d  %s : %s
-Choose a difficulty,Choose a difficulty,Choisis une difficulté
-Tap one to start the run. Harder ones pay more souls.,Tap one to start the run. Harder ones pay more souls.,Touche-en une pour lancer la partie. Les plus dures rapportent plus d'âmes.
+Choose your ordeal,Choose your ordeal,Choisis ton épreuve
+Tap one to begin the descent. Harder ones pay more souls.,Tap one to begin the descent. Harder ones pay more souls.,Touche-en une pour entamer la descente. Les plus dures rapportent plus d'âmes.
 Nightmare ascension,Nightmare ascension,Ascension du Cauchemar
-No oath,No oath,Aucun serment
+Unsworn,Unsworn,Sans serment
 "The usual start: the Katana, no rule changed.","The usual start: the Katana, no rule changed.","Le départ habituel : le Katana, aucune règle changée."
 "Opens at the end of the %s branch of the Tree of Souls, at the shrine.","Opens at the end of the %s branch of the Tree of Souls, at the shrine.","S'ouvre au bout de la branche %s de l'Arbre des Âmes, au Sanctuaire."
-Sworn,Sworn,Choisi
+Sworn,Sworn,Juré
 "Your starting weapon (Armory): your oath brings its own, the %s. Without the oath, pick one below.","Your starting weapon (Armory): your oath brings its own, the %s. Without the oath, pick one below.","Ton arme de départ (Armurerie) : ton serment apporte la sienne, %s. Sans serment, choisis-en une ci-dessous."
 Your starting weapon (Armory): %s.,Your starting weapon (Armory): %s.,Ton arme de départ (Armurerie) : %s.
 the usual one,the usual one,l'habituelle
-Before the descent,Before the descent,Avant la descente
-"Swear an oath for this run, or go as you are. It changes how you start: pick one, then Start.","Swear an oath for this run, or go as you are. It changes how you start: pick one, then Start.","Prête un serment pour cette partie, ou pars tel quel. Il change ton départ : choisis-en un, puis Commencer."
-Start the run,Start the run,Commencer la partie
+At the Well's Edge,At the Well's Edge,Au Bord du Puits
+"Swear an oath for this run, or go down unsworn. It changes how you start: pick one, then Begin the descent.","Swear an oath for this run, or go down unsworn. It changes how you start: pick one, then Begin the descent.","Prête un serment pour cette partie, ou descends sans serment. Il change ton départ : choisis-en un, puis Entamer la descente."
+Begin the descent,Begin the descent,Entamer la descente
 Sworn before a run: %s,Sworn before a run: %s,Prêté avant une partie : %s
 Opens: %s,Opens: %s,Ouvre : %s
 Nothing bought yet.,Nothing bought yet.,Rien d'acheté pour l'instant.
@@ -535,15 +535,15 @@ The node,The node,Le nœud
 "Gold ring: bought. Glowing: you can buy it. Dark: buy a node above it first. ""or"": pick one of the two. ?: a feat opens it.","Gold ring: bought. Glowing: you can buy it. Dark: buy a node above it first. ""or"": pick one of the two. ?: a feat opens it.",Anneau doré : acheté. Lumineux : tu peux l'acheter. Sombre : achète d'abord un nœud au-dessus. « ou » : choisis l'un des deux. ? : un exploit l'ouvre.
 Reset the tree,Reset the tree,Réinitialiser l'arbre
 or,or,ou
-"Continue your run  -  floor %d, level %d","Continue your run  -  floor %d, level %d","Reprendre ta partie  -  étage %d, niveau %d"
-Upgrade ready,Upgrade ready,Amélioration prête
+"Resume the descent  -  floor %d, level %d","Resume the descent  -  floor %d, level %d","Reprendre la descente  -  étage %d, niveau %d"
+Souls to offer,Souls to offer,Âmes à offrir
 Tolled today: %d points,Tolled today: %d points,Glas sonné : %d points
 "The bell tolls: one descent, the same for all","The bell tolls: one descent, the same for all","La cloche sonne : une descente, la même pour tous"
 %d souls,%d souls,%d âmes
 to spend,to spend,à dépenser
 Victories,Victories,Victoires
 Deepest floor,Deepest floor,Étage le plus profond
-Normal,Normal,Normal
+Keeper,Keeper,Veilleur
 Unlocked,Unlocked,Débloqué
 "Buy
 %d souls","Buy
@@ -602,9 +602,9 @@ II,II,II
 Seal 0 / 0,Seal 0 / 0,Sceau 0 / 0
 Tap to continue,Tap to continue,Touche pour continuer
 Skip,Skip,Passer
-Go down the Well.,Go down the Well.,Descends dans le Puits.
-> Read the story,> Read the story,> Lire l'histoire
-Play,Play,Jouer
+Descend. Bring back the stolen souls. Become what the dark demands.,Descend. Bring back the stolen souls. Become what the dark demands.,Descends. Ramène les âmes volées. Deviens ce que l'ombre exige.
+> The chronicle of Kagari,> The chronicle of Kagari,> La chronique de Kagari
+Descend,Descend,Descendre
 Shrine,Shrine,Sanctuaire
 Ascendant,Ascendant,Ascendant
 Win a run on Nightmare +3.,Win a run on Nightmare +3.,Gagne une partie en Cauchemar +3.
@@ -620,8 +620,8 @@ Exterminator,Exterminator,Exterminateur
 Slay 1500 monsters.,Slay 1500 monsters.,Abats 1500 monstres.
 First Blood,First Blood,Premier Sang
 Slay your first monster.,Slay your first monster.,Abats ton premier monstre.
-Hardened,Hardened,Endurci
-Win a run on Hard.,Win a run on Hard.,Gagne une partie en Difficile.
+Martyrdom,Martyrdom,Le Martyre
+Win a run on Martyr.,Win a run on Martyr.,Gagne une partie en Martyr.
 Into the Dark,Into the Dark,Vers les Ténèbres
 Reach floor 4.,Reach floor 4.,Atteins l'étage 4.
 Shiny!,Shiny!,Ça brille !
@@ -678,23 +678,23 @@ The floor gives way at the edges!,The floor gives way at the edges!,Le sol cède
 The floor cracks!,The floor cracks!,Le sol se fissure !
 The corners fall away!,The corners fall away!,Les coins s'écroulent !
 The pit closes in!,The pit closes in!,La fosse se resserre !
-Hardened Foes,Hardened Foes,Ennemis Endurcis
+Hardened Flesh,Hardened Flesh,Chairs Endurcies
 Monsters have 15% more health.,Monsters have 15% more health.,Les monstres ont 15 % de Vie en plus.
-Sharp Fangs,Sharp Fangs,Crocs Acérés
+Whetted Fangs,Whetted Fangs,Crocs Aiguisés
 Monsters deal 10% more damage.,Monsters deal 10% more damage.,Les monstres infligent 10 % de Dégâts en plus.
-Elite Guard,Elite Guard,Garde d'Élite
+Chosen Retinue,Chosen Retinue,La Garde des Élus
 Elite monsters are 30% more common.,Elite monsters are 30% more common.,Les monstres d'élite sont 30 % plus fréquents.
-Thin Purse,Thin Purse,Bourse Maigre
+Usurer's Price,Usurer's Price,Le Prix de l'Usurier
 The merchant asks 30% more gold.,The merchant asks 30% more gold.,Le marchand demande 30 % d'or en plus.
 Restless Dead,Restless Dead,Morts sans Repos
 One more monster in every room.,One more monster in every room.,Un monstre de plus dans chaque salle.
-Swift Hunters,Swift Hunters,Chasseurs Véloces
+Swift Stalkers,Swift Stalkers,Traqueurs Véloces
 Monsters move faster and you get less time to dodge.,Monsters move faster and you get less time to dodge.,Les monstres vont plus vite et tu as moins de temps pour esquiver.
 Wardens' Wrath,Wardens' Wrath,Courroux des Gardiens
 Bosses have 25% more health.,Bosses have 25% more health.,Les boss ont 25 % de Vie en plus.
 Deeper Dark,Deeper Dark,Ténèbres Profondes
 The floors are darker.,The floors are darker.,Les étages sont plus sombres.
-Frail,Frail,Fragile
+Frail Flesh,Frail Flesh,Chair Fragile
 You start with 15% less max health.,You start with 15% less max health.,Tu commences avec 15 % de Vie max en moins.
 The Well's Heart,The Well's Heart,Le Cœur du Puits
 Monsters have 15% more health and deal 10% more damage.,Monsters have 15% more health and deal 10% more damage.,Les monstres ont 15 % de Vie en plus et infligent 10 % de Dégâts en plus.
@@ -733,13 +733,13 @@ Only your lantern holds the dark back... barely.","Le Puits dévore la lumière.
 Seule ta lanterne retient les ténèbres... à peine."
 Lanternless,Lanternless,Sans Lanterne
 You only see what is right around you. Better loot hides in the dark.,You only see what is right around you. Better loot hides in the dark.,Tu ne vois que ce qui t'entoure de près. Un meilleur butin se cache dans le noir.
-Easy,Easy,Facile
-Learn the game at your own pace.,Learn the game at your own pace.,Apprends le jeu à ton rythme.
-Hard,Hard,Difficile
-"Tougher, faster monsters, and more of them.","Tougher, faster monsters, and more of them.","Des monstres plus coriaces, plus rapides, et plus nombreux."
+Pilgrim,Pilgrim,Pèlerin
+A pilgrim's pace: learn the Well without haste.,A pilgrim's pace: learn the Well without haste.,Au pas du pèlerin : apprends le Puits sans hâte.
+Martyr,Martyr,Martyr
+"Martyrdom has its monsters: tougher, faster, and more of them.","Martyrdom has its monsters: tougher, faster, and more of them.","Le martyre a ses monstres : plus coriaces, plus rapides, plus nombreux."
 Nightmare,Nightmare,Cauchemar
-"Darkness, crowds, and very little time to react.","Darkness, crowds, and very little time to react.","Ténèbres, hordes, et presque pas le temps de réagir."
-The game as designed.,The game as designed.,Le jeu tel qu'il a été conçu.
+"Darkness, hordes, and barely time to pray.","Darkness, hordes, and barely time to pray.","Ténèbres, hordes, et à peine le temps de prier."
+The vigil as it was meant to be kept.,The vigil as it was meant to be kept.,La veille telle qu'elle doit être tenue.
 "The mouth of the Well. Roots, wet stone, and things that crawl toward the light of your lantern.","The mouth of the Well. Roots, wet stone, and things that crawl toward the light of your lantern.","La gueule du Puits. Racines, pierre ruisselante, et des choses qui rampent vers la lueur de ta lanterne."
 Haunted Crypt,Haunted Crypt,Crypte Hantée
 Act II,Act II,Acte II
@@ -1026,13 +1026,13 @@ SHRIEKS!,SHRIEKS!,HURLE !
 Warden of the Lost,Warden of the Lost,Gardien des Égarés
 Weeping Spirit,Weeping Spirit,L'Esprit Éploré
 A huge ghost made of all the souls it swallowed. Its wail freezes the blood.,A huge ghost made of all the souls it swallowed. Its wail freezes the blood.,"Un spectre immense, fait de toutes les âmes qu'il a englouties. Sa plainte glace le sang."
-The Colossus,The Colossus,Serment du Colosse
+Oath of the Colossus,Oath of the Colossus,Serment du Colosse
 "Start with the Hammer and 30% more max Health, but move 15% slower.","Start with the Hammer and 30% more max Health, but move 15% slower.","Commence avec le Marteau et 30 % de Vie max en plus, mais avance 15 % moins vite."
-The Duelist,The Duelist,Serment du Duelliste
+Oath of the Duelist,Oath of the Duelist,Serment du Duelliste
 "Start with the Rapier, +10% critical hit chance, and critical hits deal x2.5 instead of x1.75, but 20% less max Health.","Start with the Rapier, +10% critical hit chance, and critical hits deal x2.5 instead of x1.75, but 20% less max Health.","Commence avec la Rapière, +10 % de chance de coup critique, et les coups critiques infligent x2,5 au lieu de x1,75, mais 20 % de Vie max en moins."
-The Plunderer,The Plunderer,Serment du Pillard
+Oath of the Vulture,Oath of the Vulture,Serment du Vautour
 "35% more gold and better loot, but the merchant charges you 25% more.","35% more gold and better loot, but the merchant charges you 25% more.","35 % d'or en plus et un meilleur butin, mais le marchand te fait payer 25 % de plus."
-The Scholar,The Scholar,Serment de l'Érudit
+Oath of the Heretic,Oath of the Heretic,Serment Hérétique
 "Start with the Book: skills deal 50% more damage, but your attacks are 20% slower.","Start with the Book: skills deal 50% more damage, but your attacks are 20% slower.","Commence avec le Grimoire : les compétences infligent 50 % de Dégâts en plus, mais tes attaques sont 20 % plus lentes."
 Arcane Focus,Arcane Focus,Concentration Arcanique
 Arcane Power,Arcane Power,Puissance Arcanique
@@ -1146,12 +1146,14 @@ I sell what the Well's victims left behind. No refunds.,I sell what the Well's v
 Gold is useless down here... but I like it anyway.,Gold is useless down here... but I like it anyway.,L'or ne sert à rien ici-bas... mais je l'aime quand même.
 Still alive? Good. Dead people don't buy much.,Still alive? Good. Dead people don't buy much.,Toujours en vie ? Tant mieux. Les morts n'achètent pas grand-chose.
 The wardens never come to this room. I wonder why.,The wardens never come to this room. I wonder why.,Les gardiens ne viennent jamais dans cette salle. Je me demande pourquoi.
+Flesh,Flesh,Chair
 Blade,Blade,Lame
 Arcana,Arcana,Arcanes
-"Health, Armor, healing: a hero who lasts.","Health, Armor, healing: a hero who lasts.","Vie, Armure, soins : un héros qui tient bon."
-"Damage, critical hits, speed: a hero who strikes.","Damage, critical hits, speed: a hero who strikes.","Dégâts, coups critiques, vitesse : un héros qui frappe."
-"Skills, spells, tomes: a hero who casts.","Skills, spells, tomes: a hero who casts.",Sorts et grimoires : un héros qui incante.
-"Gold, loot, the merchant, perk choices: a hero who finds.","Gold, loot, the merchant, perk choices: a hero who finds.","Or, butin, marchand, choix d'atouts : un héros qui trouve."
+Greed,Greed,Avarice
+"Health, Armor, healing: flesh that endures.","Health, Armor, healing: flesh that endures.","Vie, Armure, soins : une chair qui endure."
+"Damage, critical hits, speed: a blade that bites.","Damage, critical hits, speed: a blade that bites.","Dégâts, coups critiques, vitesse : une lame qui mord."
+"Skills, spells, tomes: forbidden words.","Skills, spells, tomes: forbidden words.","Compétences, sorts, grimoires : les mots interdits."
+"Gold, loot, the merchant, perk choices: a hunger that finds.","Gold, loot, the merchant, perk choices: a hunger that finds.","Or, butin, marchand, choix d'atouts : une faim qui trouve."
 Call the Embers,Call the Embers,Appel des Braises
 Call the Dead,Call the Dead,Appel des Morts
 Spirit Call,Spirit Call,Appel des Esprits
@@ -1295,7 +1297,6 @@ VOLLEY,VOLLEY,SALVE
 Whirlwind,Whirlwind,Tourbillon
 Hits every enemy around you and pushes them away.,Hits every enemy around you and pushes them away.,Frappe tous les ennemis autour de toi et les repousse.
 SPIN,SPIN,TOUPIE
-Go down the Well. Bring the souls back. Become who you need to be.,Go down the Well. Bring the souls back. Become who you need to be.,Descends dans le Puits. Ramène les âmes. Deviens qui tu dois être.
 "Under the village of Kagari lies an old well.
 Nobody draws water from it.
 The elders say it has no bottom.","Under the village of Kagari lies an old well.
@@ -1371,7 +1372,7 @@ You brought souls back. The shrine's Tree of Souls turns them into lasting upgra
 The Tree of Souls,The Tree of Souls,L'Arbre des Âmes
 "Tap a node, then Buy. Nodes open from the top down; ""or"": pick one of two. Reset gives all your souls back.","Tap a node, then Buy. Nodes open from the top down; ""or"": pick one of two. Reset gives all your souls back.","Touche un nœud, puis Acheter. Les nœuds s'ouvrent de haut en bas ; « ou » : choisis l'un des deux. Réinitialiser te rend toutes tes âmes."
 Oaths,Oaths,Serments
-"An oath changes your start: a gain and a cost. Pick one or No oath, then Start the run.","An oath changes your start: a gain and a cost. Pick one or No oath, then Start the run.","Un serment change ton départ : un gain et un prix. Choisis-en un ou Aucun serment, puis Commencer la partie."
+"An oath changes your start: a gain and a cost. Pick one or Unsworn, then Begin the descent.","An oath changes your start: a gain and a cost. Pick one or Unsworn, then Begin the descent.","Un serment change ton départ : un gain et un prix. Choisis-en un ou Sans serment, puis Entamer la descente."
 Cursed floor,Cursed floor,Étage maudit
 A curse changes this floor's rules. It lasts until you take the stairs.,A curse changes this floor's rules. It lasts until you take the stairs.,Une malédiction change les règles de cet étage. Elle dure jusqu'à ce que tu prennes les escaliers.
 Strange floor,Strange floor,Étage étrange
@@ -1379,21 +1380,21 @@ Something unusual is going on here: the log on the left tells you what.,Somethin
 "Stay near a campfire to warm up. Frozen, you slow down and get hurt.","Stay near a campfire to warm up. Frozen, you slow down and get hurt.","Reste près d'un feu de camp pour te réchauffer. Gelé, tu ralentis et tu souffres."
 Heat,Heat,Chaleur
 Stay by an oasis to cool down before the heat hurts you.,Stay by an oasis to cool down before the heat hurts you.,Reste près d'une oasis pour te rafraîchir avant que la chaleur ne te blesse.
-Rolling through an attack makes you untouchable for a moment.,Rolling through an attack makes you untouchable for a moment.,Rouler à travers une attaque te rend intouchable un instant.
-A weapon is as strong as the floor it was found on: keep looting.,A weapon is as strong as the floor it was found on: keep looting.,Une arme est aussi forte que l'étage où elle a été trouvée : continue à piller.
+"Roll through a blow: for a heartbeat, nothing can touch you.","Roll through a blow: for a heartbeat, nothing can touch you.","Roule à travers un coup : le temps d'un battement de cœur, rien ne peut te toucher."
+A weapon is as strong as the floor it was found on. Keep plundering.,A weapon is as strong as the floor it was found on. Keep plundering.,Une arme vaut l'étage où elle fut trouvée. Continue à piller.
 Hold three perks of one family to awaken its bonus.,Hold three perks of one family to awaken its bonus.,Réunis trois atouts d'une même famille pour éveiller son bonus.
 The sign over each stairs tells where it leads. Cursed floors pay better loot.,The sign over each stairs tells where it leads. Cursed floors pay better loot.,Le panneau au-dessus des escaliers indique où ils mènent. Les étages maudits offrent un meilleur butin.
-Elites carry a rank and an affix: read their name before you charge.,Elites carry a rank and an affix: read their name before you charge.,Les élites portent un rang et un affixe : lis leur nom avant de charger.
-"Souls are kept forever. Spend them on the Tree of Souls, at the shrine.","Souls are kept forever. Spend them on the Tree of Souls, at the shrine.","Les âmes sont conservées pour toujours. Dépense-les dans l'Arbre des Âmes, au Sanctuaire."
-Gold only lasts for the run: spend it at the merchant.,Gold only lasts for the run: spend it at the merchant.,L'or ne dure que le temps de la partie : dépense-le chez le marchand.
+Elites wear their powers in their names. Read before you charge.,Elites wear their powers in their names. Read before you charge.,Les élites portent leurs pouvoirs dans leur nom. Lis avant de charger.
+"Souls outlive you. Offer them to the Tree of Souls, at the shrine.","Souls outlive you. Offer them to the Tree of Souls, at the shrine.","Les âmes te survivent. Offre-les à l'Arbre des Âmes, au Sanctuaire."
+Gold dies with you: spend it at the merchant while you still breathe.,Gold dies with you: spend it at the merchant while you still breathe.,L'or meurt avec toi : dépense-le chez le marchand tant que tu respires.
 A forge sets runes in your weapon for free.,A forge sets runes in your weapon for free.,Une forge sertit gratuitement des runes dans ton arme.
-Bosses wind up their big strikes: step away when they do.,Bosses wind up their big strikes: step away when they do.,Les boss prennent leur élan avant leurs grandes frappes : écarte-toi quand ils le font.
+Wardens wind up their great blows: step away when they do.,Wardens wind up their great blows: step away when they do.,Les gardiens prennent leur élan avant un grand coup : écarte-toi quand ils le font.
 Lock an item at the merchant: the next one sells it at the same price.,Lock an item at the merchant: the next one sells it at the same price.,Verrouille un objet chez le marchand : le suivant te le vend au même prix.
 "A banish removes a perk you never want to see again, for the whole run.","A banish removes a perk you never want to see again, for the whole run.","Un bannissement retire un atout que tu ne veux plus jamais voir, pour toute la partie."
-"Healing can't out-heal a boss: dodge, don't trade blows.","Healing can't out-heal a boss: dodge, don't trade blows.","Aucun soin ne suit le rythme d'un boss : esquive, n'échange pas les coups."
+"No prayer heals faster than a warden strikes: dodge, don't trade blows.","No prayer heals faster than a warden strikes: dodge, don't trade blows.","Aucune prière ne soigne plus vite qu'un gardien ne frappe : esquive, n'échange pas les coups."
 Campfires warm you on frozen floors; oases cool you on burning ones.,Campfires warm you on frozen floors; oases cool you on burning ones.,Les feux de camp te réchauffent sur les étages gelés ; les oasis te rafraîchissent sur les étages brûlants.
-"On Easy, every new floor heals you a quarter of your Health.","On Easy, every new floor heals you a quarter of your Health.","En Facile, chaque nouvel étage te rend un quart de ta Vie."
-Arcane Talent,Arcane Talent,Talent Arcanique
+"On Pilgrim, every new floor heals you a quarter of your Health.","On Pilgrim, every new floor heals you a quarter of your Health.","En Pèlerin, chaque nouvel étage te rend un quart de ta Vie."
+Gift of the Arcane,Gift of the Arcane,Don des Arcanes
 "Your weapons' skills deal more damage, in every run.","Your weapons' skills deal more damage, in every run.","Les compétences de tes armes infligent plus de Dégâts, dans chaque partie."
 Armory,Armory,Armurerie
 "Pick the weapon you start every run with, among those the dungeon holds (before each run).","Pick the weapon you start every run with, among those the dungeon holds (before each run).","Choisis l'arme avec laquelle tu commences chaque partie, parmi celles que recèle le donjon (avant chaque partie)."
@@ -1405,7 +1406,7 @@ Exile,Exile,Exil
 One more banish every run: a perk you never want to see again is gone for the run.,One more banish every run: a perk you never want to see again is gone for the run.,Un bannissement de plus par partie : un atout que tu ne veux plus jamais voir disparaît pour la partie.
 Forbidden Library,Forbidden Library,Bibliothèque Interdite
 The Tomes of Thunder and Wind can be found in the dungeon.,The Tomes of Thunder and Wind can be found in the dungeon.,Les Grimoires du Tonnerre et du Vent peuvent apparaître dans le donjon.
-Full Stalls,Full Stalls,Étals Garnis
+Laden Stalls,Laden Stalls,Étals Garnis
 The merchant sells 2 more pieces of equipment.,The merchant sells 2 more pieces of equipment.,Le marchand vend 2 pièces d'équipement de plus.
 Quick Hands,Quick Hands,Mains Vives
 "Faster attacks: +4% attack speed per level, in every run.","Faster attacks: +4% attack speed per level, in every run.","Des attaques plus rapides : +4 % de Vitesse d'attaque par niveau, dans chaque partie."
@@ -1417,11 +1418,7 @@ Master Smith,Master Smith,Maître Forgeron
 Plate Armor and the Shadow Cloak can be found in the dungeon.,Plate Armor and the Shadow Cloak can be found in the dungeon.,L'Armure de Plates et la Cape d'Ombre peuvent apparaître dans le donjon.
 Might,Might,Puissance
 "Every hit you land deals more damage, in every run.","Every hit you land deals more damage, in every run.","Chaque coup porté inflige plus de Dégâts, dans chaque partie."
-Oath of the Colossus,Oath of the Colossus,Serment du Colosse
 "Opens this oath: sworn before a run, it changes how you start it.","Opens this oath: sworn before a run, it changes how you start it.","Ouvre ce serment : prêté avant une partie, il change ton départ."
-Oath of the Duelist,Oath of the Duelist,Serment du Duelliste
-Oath of the Plunderer,Oath of the Plunderer,Serment du Pillard
-Oath of the Scholar,Oath of the Scholar,Serment de l'Érudit
 Paladin's Oath,Paladin's Oath,Serment du Paladin
 The Templar Sword (holy skills) can be found in the dungeon.,The Templar Sword (holy skills) can be found in the dungeon.,L'Épée de Templier (compétences sacrées) peut apparaître dans le donjon.
 Keen Eye,Keen Eye,Œil Acéré
@@ -1430,18 +1427,18 @@ Provisions,Provisions,Provisions
 Start every run with one more health potion per level.,Start every run with one more health potion per level.,Commence chaque partie avec une potion de Vie de plus par niveau.
 Pyromancy,Pyromancy,Pyromancie
 The Ember Tome (fire skills) can be found in the dungeon.,The Ember Tome (fire skills) can be found in the dungeon.,Le Grimoire des Braises (compétences de feu) peut apparaître dans le donjon.
-Quick Recharge,Quick Recharge,Recharge Rapide
+Swift Litany,Swift Litany,Litanie Hâtive
 "Skills recharge 4% faster per level, in every run.","Skills recharge 4% faster per level, in every run.","Compétences rechargées 4 % plus vite par niveau, dans chaque partie."
-Regeneration,Regeneration,Régénération
+Communion,Communion,Communion
 Heal 5% of your max Health per level each time a floor's stairs open or its boss falls.,Heal 5% of your max Health per level each time a floor's stairs open or its boss falls.,Récupère 5 % de ta Vie max par niveau chaque fois que les escaliers d'un étage s'ouvrent ou que son boss tombe.
-Second Chance,Second Chance,Seconde Chance
+Death Denied,Death Denied,La Mort Refusée
 "Start every run with a Phoenix Feather: survive one killing blow (back to half Health, a quarter during a boss fight).","Start every run with a Phoenix Feather: survive one killing blow (back to half Health, a quarter during a boss fight).","Commence chaque partie avec une Plume de Phénix : survis à un coup fatal (retour à la moitié de ta Vie, un quart pendant un combat de boss)."
 "Your hero moves faster, in every run.","Your hero moves faster, in every run.","Ton héros se déplace plus vite, dans chaque partie."
 Satchel of Tomes,Satchel of Tomes,Besace de Grimoires
 "Start every run with a spell tome, at random among those the dungeon holds.","Start every run with a spell tome, at random among those the dungeon holds.","Commence chaque partie avec un grimoire de sort, au hasard parmi ceux que recèle le donjon."
-Toughness,Toughness,Ténacité
+Iron Skin,Iron Skin,Peau de Fer
 "Armor: the hits you take hurt less, in every run.","Armor: the hits you take hurt less, in every run.","Armure : les coups que tu encaisses font moins mal, dans chaque partie."
-Trophy Hunter,Trophy Hunter,Chasseur de Trophées
+Spoils of the Fallen,Spoils of the Fallen,Dépouilles des Vaincus
 "Elites, Epic and Legendary monsters always drop a Magic (or better) piece of equipment.","Elites, Epic and Legendary monsters always drop a Magic (or better) piece of equipment.","Les monstres d'élite, Épiques et Légendaires lâchent toujours une pièce d'équipement Magique (ou mieux)."
 More max health at the start of every run.,More max health at the start of every run.,Plus de Vie max au début de chaque partie.
 grammar:feminine:Brutal,grammar:feminine:Brutal,Brutale

@@ -4,6 +4,6 @@
 
 [resource]
 script = ExtResource("1_231tm")
-title = "Elite Guard"
+title = "Chosen Retinue"
 description = "Elite monsters are 30% more common."
 elite_chance = 1.3

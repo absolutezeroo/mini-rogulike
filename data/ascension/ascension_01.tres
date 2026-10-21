@@ -4,6 +4,6 @@
 
 [resource]
 script = ExtResource("1_25qba")
-title = "Hardened Foes"
+title = "Hardened Flesh"
 description = "Monsters have 15% more health."
 monster_hp = 1.15
