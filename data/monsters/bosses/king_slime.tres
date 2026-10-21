@@ -32,7 +32,7 @@ script = ExtResource("1_20bwb")
 id = &"weapon_bow"
 goal = 10
 text = "Burst the Bloated King with a Bow"
-souls = 70
+souls = 12
 weapon = ExtResource("2_psvo5")
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_yg8ir"]

@@ -83,8 +83,10 @@ gold_per_visit_items_max = 3.0
 ; A merchant reroll costs at most 35% of a floor's gold; removing a rune at the forge at most 60%.
 reroll_floor_share_max = 0.35
 forge_floor_share_max = 0.6
-; Buying the whole shrine takes 15-60 average runs (dying in act II-III on Normal): a long goal, not a grind.
-runs_to_max_shrine_min = 15.0
-runs_to_max_shrine_max = 60.0
-; A first run that dies at the act I boss buys at least one shrine level.
-first_run_buys_upgrade = true
+; A Keeper career with every source (runs, bestiary ranks and challenges, achievements, quests) fills the Tree of Souls in 40-60 runs (about 20-35 hours): a campaign, not a few evenings.
+campaign_runs_to_tree_min = 40.0
+campaign_runs_to_tree_max = 60.0
+; The first node is bought after run 2 at the latest.
+campaign_first_node_runs_max = 2
+; Hunter ranks, challenges and achievements pay at most 20% of the full tree in the first 10 runs.
+campaign_burst_share_max = 0.2

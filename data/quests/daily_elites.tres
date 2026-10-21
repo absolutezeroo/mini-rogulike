@@ -6,6 +6,7 @@
 script = ExtResource("1_3ra8d")
 stat = "elites"
 target = Vector2i(3, 6)
+reward = Vector2i(6, 12)
 step = 1
 goal_text = "Slay %d elite monsters"
 id = &"daily_elites"

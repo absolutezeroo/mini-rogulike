@@ -11,4 +11,4 @@ description = "Reach level 12 in a single run."
 icon = ExtResource("1_dp1fk")
 stat = 13
 target = 12
-reward_souls = 40
+reward_souls = 25

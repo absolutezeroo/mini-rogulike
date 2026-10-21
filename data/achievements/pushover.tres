@@ -11,4 +11,4 @@ description = "Knock 10 monsters into holes."
 icon = ExtResource("1_r03in")
 stat = 8
 target = 10
-reward_souls = 30
+reward_souls = 20

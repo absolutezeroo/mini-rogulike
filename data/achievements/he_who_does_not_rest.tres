@@ -11,5 +11,5 @@ description = "Slay the Nameless Effigy, below the Ossuary."
 icon = ExtResource("1_icon")
 stat = 17
 target = 1
-reward_souls = 80
+reward_souls = 50
 secret = true

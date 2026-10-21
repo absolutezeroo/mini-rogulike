@@ -11,4 +11,4 @@ description = "Reach floor 4."
 icon = ExtResource("1_u4gb2")
 stat = 4
 target = 4
-reward_souls = 15
+reward_souls = 10

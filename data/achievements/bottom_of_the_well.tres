@@ -10,4 +10,4 @@ display_name = "The Bottom of the Well"
 description = "Win a run."
 icon = ExtResource("1_urwc2")
 stat = 5
-reward_souls = 100
+reward_souls = 75

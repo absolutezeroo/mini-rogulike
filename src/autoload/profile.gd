@@ -111,11 +111,6 @@ func buy(upgrade: UpgradeDef) -> bool:
 	return true
 
 
-## Souls for a run: monsters, depth reached, bosses, a big bonus for winning, times the difficulty.
-static func souls_for_run(kills: int, depth: int, bosses: int, won: bool, multiplier: float = 1.0) -> int:
-	return roundi((kills + (depth - 1) * 5 + bosses * 20 + (100 if won else 0)) * multiplier)
-
-
 func is_unlocked(def: DifficultyDef) -> bool:
 	return def.unlocked_by == null or wins.get(String(def.unlocked_by.id), 0) > 0
 

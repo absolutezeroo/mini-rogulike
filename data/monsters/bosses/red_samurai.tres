@@ -32,7 +32,7 @@ script = ExtResource("1_pmauv")
 id = &"weapon_katana"
 goal = 10
 text = "Beat the Ember Ronin at his own game: a Katana"
-souls = 70
+souls = 12
 weapon = ExtResource("2_nfwhk")
 
 [sub_resource type="Resource" id="Resource_g5n7k"]

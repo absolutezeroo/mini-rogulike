@@ -11,4 +11,4 @@ description = "Reach floor 12, the last one."
 icon = ExtResource("1_7jonj")
 stat = 4
 target = 12
-reward_souls = 80
+reward_souls = 50

@@ -153,7 +153,7 @@ Some floors hide a small room behind a **cracked wall** (`SecretRoomPlan`, `Secr
   in its own world (a cold catacomb, `nameless_charnel` biome and `charnel` theme), with its
   title card ("Between the Acts"). No curse, no event.
 - **Its boss**: The Nameless Effigy (see monsters.md), in a Pillared Nave or a Round Pit. When it
-  falls: the usual relic choice, a Big Chest, 60 souls on top of the run's (times the
+  falls: the usual relic choice, a Big Chest, 20 souls on top of the run's (times the
   difficulty's), the secret feat "Laid to Rest at Last", and the arena's stairs to Act III's first
   floor (the same two ways the Act II boss offered).
 - **Depth and the run**: the floor keeps the depth of the boss floor before it

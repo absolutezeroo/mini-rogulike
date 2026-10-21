@@ -110,10 +110,14 @@ extends Resource
 @export var reroll_floor_share_max: float = 0.35
 ## The forge's rune removal costs at most this share of the gold of one floor.
 @export var forge_floor_share_max: float = 0.6
-## Runs (dying in act II-III on Normal, the average result) to buy every shrine level:
-## at least this (the shrine is a long goal)...
-@export var runs_to_max_shrine_min: float = 15.0
+## A whole Keeper career (every source: runs, the bestiary's ranks and challenges,
+## achievements, quests; BalanceSouls): runs to a full Tree of Souls, at least this (the tree
+## is a campaign, not a few evenings)...
+@export var campaign_runs_to_tree_min: float = 40.0
 ## ...and at most this (not a grind).
-@export var runs_to_max_shrine_max: float = 60.0
-## The souls of a first death in act I (Normal) buy at least one shrine level.
-@export var first_run_buys_upgrade: bool = true
+@export var campaign_runs_to_tree_max: float = 60.0
+## The first node bought by this run at the latest.
+@export var campaign_first_node_runs_max: int = 2
+## Souls from one-time sources (hunter ranks, challenges, achievements) in the first 10 runs:
+## at most this share of the full tree (the first hours' burst must not hand out the tree).
+@export var campaign_burst_share_max: float = 0.2

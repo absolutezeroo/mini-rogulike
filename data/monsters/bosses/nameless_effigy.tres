@@ -34,7 +34,7 @@ script = ExtResource("2_hunt")
 id = &"weapon_pickaxe"
 goal = 10
 text = "Shatter the Nameless Effigy with a Pickaxe"
-souls = 80
+souls = 15
 weapon = ExtResource("3_pickaxe")
 
 [sub_resource type="Resource" id="Resource_loot_potion"]

@@ -10,4 +10,4 @@ display_name = "Warden Slayer"
 description = "Defeat a warden of the Well."
 icon = ExtResource("1_bbeyw")
 stat = 2
-reward_souls = 25
+reward_souls = 15

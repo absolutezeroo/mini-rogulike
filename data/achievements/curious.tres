@@ -11,4 +11,4 @@ description = "Answer 10 encounters."
 icon = ExtResource("1_y024x")
 stat = 10
 target = 10
-reward_souls = 30
+reward_souls = 20

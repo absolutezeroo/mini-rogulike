@@ -54,6 +54,9 @@ func run() -> BalanceReport:
 	_levels_table(report, per_depth)
 	_loot_table(report)
 	_souls_table(report, per_depth)
+	if not quick:  # (--quick measures two floors only: no career to model)
+		var souls := BalanceSouls.new(content, targets, _level_for)
+		souls.campaign(report, per_depth)
 	var seconds := (Time.get_ticks_msec() - started) / 1000.0
 	report.notes.append("Economy: %d floors generated and harvested in %.0f s of real time (seed %d)." % [floors.size(), seconds, seed_value])
 	report.timings["economy"] = seconds
@@ -80,6 +83,7 @@ func harvest(depth: int, difficulty: DifficultyDef, floor_seed: int) -> Dictiona
 	var xp := 0
 	var kills := 0
 	var ranked := {}
+	var by_kind := {}  # monster id -> slain (the bestiary's ranks and challenges, BalanceSouls)
 	var first_count := world.get_hostiles(player.faction).size()
 	var gold_before := _gold_on_floor()
 	for round_index in 6:
@@ -93,6 +97,7 @@ func harvest(depth: int, difficulty: DifficultyDef, floor_seed: int) -> Dictiona
 			if not monster.summoned:
 				xp += monster.def.xp_reward * monster._xp_multiplier
 				kills += 1
+				by_kind[String(monster.def.id)] = int(by_kind.get(String(monster.def.id), 0)) + 1
 				if monster.rank:
 					ranked[String(monster.rank.id)] = int(ranked.get(String(monster.rank.id), 0)) + 1
 			monster.die(player)
@@ -167,7 +172,7 @@ func harvest(depth: int, difficulty: DifficultyDef, floor_seed: int) -> Dictiona
 			merchant.queue_free()
 	var removal := content.dungeon.forge.removal_cost(depth, world.rules.shop_prices()) if content.dungeon.forge else 0
 	result.merge({
-		"monsters": first_count, "kills": kills, "ranked": ranked, "xp": xp, "props": props, "chests": chests,
+		"monsters": first_count, "kills": kills, "ranked": ranked, "by_kind": by_kind, "xp": xp, "props": props, "chests": chests,
 		"gold_monsters": gold_monsters, "gold_props": gold_props, "gold_chests": gold_chests, "gold_ambush": ambush_gold,
 		"ambush_kills": ambush_kills, "items": rarities, "runes": runes, "consumables": consumables,
 		"price_mean": BalanceContent.mean(prices), "price_equipment": BalanceContent.mean(equipment_prices), "reroll": reroll, "forge_removal": removal,
@@ -212,13 +217,22 @@ func _per_depth(floors: Array) -> Array:
 		var full: float = monsters_gold + avg.call("gold_props") + avg.call("gold_chests") + avg.call("gold_ambush")
 		var typical: float = monsters_gold * share + avg.call("gold_props") * 0.6 + avg.call("gold_chests") + avg.call("gold_ambush") * 0.5
 		var items := [0.0, 0.0, 0.0, 0.0]
+		var by_kind := {}
+		var ranked := 0.0
+		var encounters := 0.0
 		for f: Dictionary in list:
 			for r in 4:
 				items[r] += float(f.items[r]) / list.size()
+			for kind: String in f.by_kind:
+				by_kind[kind] = float(by_kind.get(kind, 0.0)) + float(f.by_kind[kind]) / list.size()
+			for rank: String in f.ranked:
+				ranked += float(f.ranked[rank]) / list.size()
+			encounters += float(f.encounters.size()) / list.size()
 		result.append({
 			"difficulty": first.difficulty, "depth": first.depth, "act": act, "floors": list.size(),
 			"monsters": avg.call("monsters"), "kills": avg.call("kills"), "xp": avg.call("xp"), "xp_typical": avg.call("xp") * share,
 			"kills_typical": avg.call("kills") * share, "props": avg.call("props"), "chests": avg.call("chests"),
+			"by_kind": by_kind, "ranked": ranked, "encounters": encounters, "kill_share": share,
 			"gold_monsters": monsters_gold, "gold_props": avg.call("gold_props"), "gold_chests": avg.call("gold_chests"),
 			"gold_ambush": avg.call("gold_ambush"), "gold_full": full, "gold_typical": typical, "items": items,
 			"runes": avg.call("runes"), "price_mean": avg.call("price_mean"), "price_equipment": avg.call("price_equipment"),
@@ -344,13 +358,11 @@ func _loot_table(report: BalanceReport) -> void:
 ## Souls per run by result and difficulty vs the shrine.
 func _souls_table(report: BalanceReport, per_depth: Array) -> void:
 	var shrine_total := 0
-	var cheapest := 1 << 30
 	var upgrade_rows: Array = []
 	for u in content.upgrades:
 		var cost := 0
 		for level in u.max_level:
 			cost += u.cost_for_level(level)
-			cheapest = mini(cheapest, u.cost_for_level(level))
 		shrine_total += cost
 		upgrade_rows.append([String(u.id), UpgradeDef.Kind.keys()[u.kind], u.max_level, u.cost_for_level(0), cost])
 	report.table("shrine_costs", "Economy", "Shrine upgrades: levels and souls (total %d souls)" % shrine_total,
@@ -367,19 +379,10 @@ func _souls_table(report: BalanceReport, per_depth: Array) -> void:
 					kills += p.kills_typical
 			var boss_depth := BalanceContent.boss_depth(content, act)
 			# Dies at the act's boss / wins it.
-			results.append(["dies at the act %d boss" % act, Profile.souls_for_run(roundi(kills), boss_depth, act - 1, false, difficulty.souls)])
+			results.append(["dies at the act %d boss" % act, content.dungeon.souls_for_run(roundi(kills), boss_depth, act - 1, false, difficulty.souls)])
 			kills += 1
-		results.append(["wins the run", Profile.souls_for_run(roundi(kills), content.dungeon.total_floors(), acts, true, difficulty.souls)])
-		var average := (float(results[1][1]) + float(results[2][1])) * 0.5  # dies in act II-III
-		var runs := shrine_total / maxf(average, 1.0)
+		results.append(["wins the run", content.dungeon.souls_for_run(roundi(kills), content.dungeon.total_floors(), acts, true, difficulty.souls)])
 		for r: Array in results:
 			rows.append([d_key, r[0], r[1], "%.1f" % (shrine_total / maxf(float(r[1]), 1.0))])
-		if d_key == "normal" and not quick:  # (--quick measures two floors only)
-			if runs < targets.runs_to_max_shrine_min or runs > targets.runs_to_max_shrine_max:
-				report.flag(BalanceReport.WARN, "economy: souls", "runs to buy the whole shrine (normal, dying in act II-III)", "%.1f runs" % runs,
-					"%.0f-%.0f" % [targets.runs_to_max_shrine_min, targets.runs_to_max_shrine_max], "%d souls in all, %.0f a run" % [shrine_total, average])
-			if targets.first_run_buys_upgrade and int(results[0][1]) < cheapest:
-				report.flag(BalanceReport.WARN, "economy: souls", "first run (normal, dies at the act I boss)", "%d souls" % results[0][1],
-					">= %d (the cheapest level)" % cheapest, "a first run should buy something at the shrine")
-	report.table("economy_souls", "Economy", "Souls per run (Profile.souls_for_run: kills, depth, bosses, win, x difficulty; typical kills measured; achievements, quests and bestiary ranks not counted) and runs of that kind to buy the whole shrine",
+	report.table("economy_souls", "Economy", "Souls per run (DungeonConfig.souls_for_run: %.2f a kill, %d a floor, %d a boss, %d a win, x difficulty; typical kills measured) and runs of that kind alone to buy every level (the targets are on the whole career, every source: table economy_campaign)" % [content.dungeon.souls_per_kill, content.dungeon.souls_per_floor, content.dungeon.souls_per_boss, content.dungeon.souls_for_victory],
 		PackedStringArray(["Difficulty", "Result", "Souls", "Runs to buy everything"]), rows)

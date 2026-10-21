@@ -3,6 +3,80 @@
 Dated entries, newest first: what was measured, what changed and why, before/after numbers, open
 questions. How to measure: [balance.md](balance.md).
 
+## 2026-10-21 - Souls: the Tree of Souls becomes a campaign (measured, economy mode)
+
+**Why (the owner: "we get a lot of souls"):** measured on a whole Keeper career for the first
+time (new `BalanceSouls`, economy table "economy_campaign": every source, run after run, from the
+measured floors), a player filled the whole tree (7965 souls: every node, the dearer side of each
+fork; 9725 with both sides) in **11 runs, about 4 hours**. Two causes: the one-time pools (hunter
+ranks 4770, bestiary challenges 5885, achievements 1660) were worth **155% of the tree** on their
+own, most of it paid in the first hours (4922 souls, 62% of the tree, in the first 10 runs); and
+a run paid a soul a kill (75% of its souls), 330 for a death at act III's boss, ~555 late on.
+The old target (15-60 runs dying in act II-III, run souls only) passed because it counted none of
+the one-time sources.
+
+**Targets (new, data/balance/targets.tres; the old run-only ones are retired):** a full tree in
+40-60 runs of a Keeper career, every source counted (20-35 hours: a campaign, not a few
+evenings); the first node after run 2 at the latest; hunter ranks, challenges and achievements
+pay at most 20% of the tree in the first 10 runs. The career (constants in `balance_souls.gd`,
+each with its reason): runs 1-2 die at act I's boss, 3-6 at act II's, 7-14 at act III's, 15-24 at
+act IV's, then half the runs win; 2 runs a day for the quests (80% of dailies, 70% of weeklies
+done); challenges as a chance per kill of the kind; 3.5 minutes a floor for the hours (not
+measured: Codex > Runs has real times). Unit checks (`_test_soul_economy`) hold the run formula,
+the late-run pace (40-80 runs from run souls alone), the one-time pools (<= 60% of the tree) and
+the first run buying a node.
+
+**What changed (income only, no node cost moved):**
+
+| Source | Before | After |
+|---|---|---|
+| Run: per kill / floor / boss / win (now `DungeonConfig` > Souls, was hard-coded in `Profile`) | 1 / 5 / 20 / 100 | 0.1 (added up, rounded once) / 4 / 10 / 40 |
+| Hidden floor's bonus | 60 | 20 |
+| Hunter ranks, monsters / bosses | 5/15/40 / 30/60/120 | 2/4/8 / 8/12/25 |
+| Monster challenges: elite, hole, streak, untouched, crit | 15, 10, 10, 15, 5 | 3, 4, 3, 3, 2 |
+| Boss challenges: ranged, melee, under 90 s, no potion, healthy, its weapon (Effigy's) | 40, 40, 60, 50, 80, 70 (80) | 8, 5, 12, 8, 15, 12 (15) |
+| Achievements (Keeper-career ones; Martyr/Nightmare/ascension kept: 150, 250, 400) | 5-100, 1660 in all | 5-75 (-25 to -40%), 1355 in all |
+| Daily / weekly quests | 12-45 / 100-200 | 5-18 / 30-70 |
+
+Kills are now about a third of a run's souls (25 of about 80 at act III's boss on Keeper) and depth the
+rest: going deeper pays, farming monsters (endless mode) doesn't (~10 souls an endless floor vs
+~12 a floor of a normal run).
+
+**Before / after** (engine, seed 1, economy mode; run souls by result):
+
+| Run souls | Pilgrim | Keeper | Martyr | Nightmare |
+|---|---|---|---|---|
+| Dies at act I's boss | 27 -> 6 | 60 -> 13 | 178 -> 29 | 440 -> 62 |
+| Dies at act II's boss | 78 -> 21 | 190 -> 45 | 442 -> 85 | 905 -> 154 |
+| Dies at act III's boss | 138 -> 36 | 330 -> 77 | 702 -> 141 | 1310 -> 241 |
+| Dies at act IV's boss | 194 -> 51 | 479 -> 110 | 957 -> 196 | 1693 -> 326 |
+| Wins | 254 -> 76 | 600 -> 161 | 1150 -> 276 | 1995 -> 451 |
+
+| Keeper career (every source) | Before | After |
+|---|---|---|
+| After run 1 (dies at act I's boss) | 352 (4% of the tree) | 102 (1%): buys 2-3 first levels |
+| After run 5 | 3023 (38%) | 887 (11%) |
+| After run 10 (~4 h) | 7673 (96%) | 2101 (26%) |
+| One-time souls in the first 10 runs | 4922 (62%) | 1387 (17%) |
+| After run 20 (~10 h) | 15649 (196%) | 4005 (50%) |
+| Full tree (7965) | run 11, ~4 h | run 42, ~26 h |
+| Every node (9725) | run 14, ~6 h | run 53, ~33 h |
+| Quests, per run (2 runs a day) | 49 | 18 |
+| One-time pools in all (ranks, challenges, achievements) | 12320 (155% of the tree) | 3654 (46%) |
+
+A typical run still buys something: early runs (act II-III deaths) bring 200-250 souls with the
+bestiary and quests, against first levels of 25-60 and nodes of 120-180; late runs ~170 a run
+(the run, quests, the last ranks) against levels and nodes of 140-700. Martyr and Nightmare pay
+x1.6 and x2.5 plus more monsters (a Nightmare win 451). Pilgrim runs pay little (x0.5) but the
+bestiary and quests pay as much there.
+
+**Open:** the Armory is becoming a multi-level node (another pass): its new cost adds to the tree
+and pushes the full tree a few runs later (each 150 souls ~ one late run; the target band 40-60
+has room). The career and the per-kill challenge chances are assumptions; real run times and
+results (Codex > Runs) would tell. Pilgrim's pace (runs pay x0.5) was not modelled. Unrelated,
+found by the balance suite and left alone: `model: degenerate DPS` (degenerate_skills_a3 2.84x)
+and `content: unlisted` (nameless_effigy in no act) fail outside KNOWN.
+
 ## 2026-10-21 - Every monster shot and dash warns before it comes (by rule, not measured in runs)
 
 Monster skills that fire shots or dash had no warning on the floor during their cast (the
