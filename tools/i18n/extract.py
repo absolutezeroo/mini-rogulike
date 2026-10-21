@@ -11,7 +11,9 @@ Where texts come from:
     comment (constants and lists that are translated where they are shown);
   - the @export defaults of the player-facing fields below, in the definitions (src/definitions);
   - scenes (*.tscn): the text, tooltip_text and placeholder_text of their nodes;
-  - data (data/**/*.tres, except data/balance/): the player-facing fields below.
+  - data (data/**/*.tres, except data/balance/): the player-facing fields below;
+  - grammar keys (src/core/grammar.gd): the gender of the equipment's and monsters' names, the
+    feminine form of the item and elite affixes (French agreement: "Hache Affûtée").
 
 Usage (from anywhere, python3, standard library only):
   python3 tools/i18n/extract.py           # update locale/strings.csv
@@ -168,6 +170,25 @@ def from_data(found):
                 add(found, text, path)
 
 
+def from_grammar(found):
+    """The keys of src/core/grammar.gd: "grammar:gender:<name>" for the equipment and monsters
+    (French: "m" or "f"), "grammar:feminine:<adjective>" for the item prefixes and elite affixes
+    (French: the feminine form)."""
+    for path in walk(".tres"):
+        parts = path.split(os.sep)
+        source = open(os.path.join(ROOT, path), encoding="utf-8").read()
+        names = [text for field, text in resource_values(source, {"display_name"}, set()) if field == "display_name"]
+        if not names:
+            continue
+        noun = parts[:3] in (["data", "items", "weapons"], ["data", "items", "armors"]) and "monster" not in parts
+        noun = noun or parts[:2] == ["data", "monsters"]
+        adjective = parts[:2] == ["data", "elites"] or (parts[:2] == ["data", "affixes"] and "is_prefix = false" not in source)
+        if noun:
+            add(found, "grammar:gender:" + names[0], path, True)
+        if adjective:
+            add(found, "grammar:feminine:" + names[0], path, True)
+
+
 def add(found, text, path, always=False):
     """`always`: asked for in code with tr(), even without a word ("%d%%")."""
     if text.strip() and (always or is_text(text)) and text not in found:
@@ -207,6 +228,7 @@ def main():
     from_scripts(found)
     from_scenes(found)
     from_data(found)
+    from_grammar(found)
     old = read_csv()
     text = render(found, old)
     new_keys = [k for k in found if k not in old]
