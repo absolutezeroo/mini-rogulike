@@ -23,7 +23,7 @@ static func create(at: Vector2, texture: Texture2D, rect: Rect2, flip: float, co
 	vfx._rect = rect
 	vfx._flip = flip
 	vfx._color = color
-	vfx.z_index = -1
+	VfxLayer.apply(vfx, VfxLayer.Layer.GROUND)  # left behind, under every body
 	return vfx
 
 
@@ -37,7 +37,7 @@ static func from_body(rig: ActorRig, element: VfxElementDef = null) -> Afterimag
 	vfx._rect = Rect2(rig.body.offset - size * 0.5, size)
 	var look := element if element else VfxElementDef.named(&"physical")
 	vfx._color = look.shade(0.34)
-	vfx.z_index = -1
+	VfxLayer.apply(vfx, VfxLayer.Layer.GROUND)  # left behind, under every body
 	return vfx
 
 

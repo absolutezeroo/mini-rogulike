@@ -16,6 +16,7 @@ static func create(at: Vector2, radius: float, element: VfxElementDef) -> BlastV
 	var vfx := BlastVfx.new()
 	vfx.position = PixelDraw.snap(at)
 	vfx.z_index = 6
+	VfxLayer.apply(vfx, VfxLayer.Layer.AIR)  # a burst: over the actors
 	vfx._radius = radius
 	vfx._life = clampf(0.3 + radius / 220.0, 0.3, 0.75)
 	var look := ShaderMaterial.new()

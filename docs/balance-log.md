@@ -3,6 +3,20 @@
 Dated entries, newest first: what was measured, what changed and why, before/after numbers, open
 questions. How to measure: [balance.md](balance.md).
 
+## 2026-10-21 - Every monster shot and dash warns before it comes (by rule, not measured in runs)
+
+Monster skills that fire shots or dash had no warning on the floor during their cast (the
+monster only glowed): Frost Breath, Poison Spit, Venom Spit, Eye Beam, Fire Ring, Solar Flare,
+Wailing Ring, Slime Storm and Slime Rain, the feather and coin storms, Ink Ring, Throw Bomb,
+Coil Rush, Frog Leap, Hoard Leap, Glacial Dive, Charge and Dive. Their cast now shows the lanes
+of their shots (one per shot of a fan or a ring, `TelegraphView.show_skill`, 150 units long) or
+the line of their dash, filling up like the other telegraphs. No number changed (cast times,
+damage, counts are the same), but these attacks are easier to read and dodge, rings of shots
+especially (the safe gaps show): bosses with shot rings (Weeping Spirit, Red Samurai, Sun
+Wraith, King Slime, Crimson Tengu, Gilded Hoarder) are a little easier. To measure with the
+arena (`boss` fights, hits taken per minute) in the next pass; shorten their cast times if they
+fell below the target.
+
 ## 2026-10-21 - The Frost Staff's shards chill (by rule, not measured in runs)
 
 **Why:** the staff's shots are now the frost element's ice shards (docs/vfx.md), and a frost hit

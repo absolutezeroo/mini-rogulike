@@ -68,6 +68,12 @@ The bar is Dead Cells / Blasphemous: hand-made pixels at the art's size, one lan
   Old content with only a color: `VfxElementDef.or_color(null, color)`.
 - Sheets: whole even `texel` (2), `linger` for dissipation (the `dither_fade` shader), never
   `rotation = angle` on pixel art (ROWS or SNAPPED).
+- Layers (docs/vfx.md 2b): give every sheet that lies on the floor `layer = GROUND` and every
+  upright one (a crystal, a column, a spike) `layer = STANDING` (sorted with the actors by the
+  bottom of its frame); AIR (the default) is for shots, impacts, halos. Hand-drawn nodes:
+  `VfxLayer.apply(node, layer)`. Nothing flat may draw over the hero's feet.
+- Shaders quantize in world space (`MODEL_MATRIX * VERTEX`, the shape turned by a uniform);
+  particle scenes use the `pixel_particles` materials (even sizes, no spin, constant ramps).
 - New behaviour goes in a small class or the element data, not in `Actor`/`Monster`/`World`.
 
 ## 6. Look at it (headless tests can't)

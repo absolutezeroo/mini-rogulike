@@ -23,8 +23,10 @@ static func create(owner: Monster, overlay_layer: Layer) -> MonsterOverlay:
 	if overlay_layer == Layer.OVER:
 		overlay.z_index = LightField.Z + 1  # names and health bars stay readable in the dark
 	if overlay_layer == Layer.UNDER:
-		overlay._telegraph = TelegraphView.new()
-		overlay._telegraph.z_index = LightField.Z + 1  # a warning must show even in the dark
+		# The elite aura and the warning lie on the floor, under every body (VfxLayer).
+		VfxLayer.apply(overlay, VfxLayer.Layer.GROUND)
+		overlay._telegraph = TelegraphView.new()  # on the floor, lit by its own light
+		overlay._telegraph.add_light()
 		overlay.add_child(overlay._telegraph)
 	return overlay
 

@@ -21,7 +21,7 @@ static func create(at: Vector2, radius: float, color: Color, of_element: VfxElem
 	vfx._radius = radius
 	vfx._plain = of_element == null
 	vfx.element = VfxElementDef.or_color(of_element, color)
-	vfx.z_index = 4
+	VfxLayer.apply(vfx, VfxLayer.Layer.GROUND)  # a ring on the floor, under whoever stands in it
 	if of_element:
 		for i in clampi(roundi(radius / 14.0), 4, 14):
 			vfx._rim.append(TAU * i / clampi(roundi(radius / 14.0), 4, 14) + randf_range(-0.2, 0.2))

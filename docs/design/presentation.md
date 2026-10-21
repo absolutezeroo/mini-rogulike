@@ -28,7 +28,9 @@
   orbiting it. Hand-drawn sprite-sheet effects
   (slashes, claws, explosions, smoke, "!" emote when a monster spots you) plus
   pixel particles for hits, dust and sparkles
-  (`src/vfx/particles/*.tscn`, edit them in the inspector), dash afterimages, animated projectiles,
+  (`src/vfx/particles/*.tscn`, edit them in the inspector; `pixel_particles.gdshader` keeps them
+  whole art pixels on the grid, their fades dithered), dash afterimages (dithered, in the dash's
+  element; plain rushes like a beast's Charge also kick up dust), animated projectiles,
   squash on hit, popping damage numbers, red vignette when hurt or low on HP.
 - **Atmosphere** (`AmbienceDef` > Atmosphere, one per biome and curse): the whole picture takes
   the biome's colors (`screen.gdshader`: shadows and highlights graded toward two tints,
@@ -38,21 +40,35 @@
   light** falling from cracks above (garden, temple, library, cave, desert), **leaf shadows**
   drifting in the garden, **mist** creeping over the crypt and the flooded caverns, **water light**
   dancing on the floor of the flooded caverns.
-- **Attack effects** (shaders, all on the art's pixel grid): a melee swing draws a crescent at the
-  weapon's reach and arc (`SwingVfx`, `swing.gdshader`: white cutting edge, the weapon's
-  `trail_color` behind, thinning out in dithered pixels), a thrust a streak; claws and bites keep
-  their sheets (a weapon shows its arc or its sheet, never both: `WeaponDef.shows_arc()`). Hits
-  flash for two frames and throw the blow's element's bits away from it (`ImpactVfx`: ice chips
-  falling, embers rising; a plain blow throws short streaks), bigger on crits. Blasts ripple the picture
-  (`ShockwaveVfx`, `shockwave.gdshader`). Monster warnings (`TelegraphView`, `telegraph.gdshader`):
-  zone, cone or line with crawling hazard stripes and a solid rim, filling up from the monster as
-  the attack comes, flashing just before it lands. Shots leave a glowing streak.
+- **Attack effects** (shaders, all on the art's pixel grid, quantized in world space so a
+  diagonal blow has the same pixels as a straight one): a melee swing draws a crescent at the
+  weapon's reach and arc (`SwingVfx`, `swing.gdshader`) in steel (the `physical` ramp: a
+  near-white cutting edge, greys behind, thinning out in dithered pixels) or in the weapon's
+  element; a monster's carries a red warning rim. A thrust draws a streak. Slash skills and heavy
+  monster blows are `SlashDef`s (`data/vfx/slashes/`): Cleave's double crescent, Whirlwind's and
+  Lash's spins, Flurry's stabs ending on a cross, Iaido Dash's razor line, Piercing Thrust's
+  lunge, the cyclops' clubs and the tengu's blade. Claws and bites keep their sheets (a weapon
+  shows its arc or its sheet, never both: `WeaponDef.shows_arc()`). Hits flash for two frames
+  and throw the blow's element's bits away from it (`ImpactVfx`: ice chips falling, embers
+  rising; a plain blow throws short streaks), plus the bits of what the monster is made of
+  (blood drops, bone chips, slime, sparks off armor, spirit motes, leaf chips); a crit also cuts
+  a cross over the target. Blasts ripple the picture (`ShockwaveVfx`, `shockwave.gdshader`).
+  Monster warnings (`TelegraphView`, `telegraph.gdshader`): zone, cone, line or the lanes of a
+  fan or ring of shots (so the gaps read), with crawling hazard stripes and a solid rim, filling
+  up from the monster as the attack comes, flashing just before it lands; every monster shot
+  and dash now warns (lanes, line). Shots leave a glowing streak.
+- **Layers** (docs/vfx.md, 2b): flat effects (sigils, rings, telegraphs, crackles, mist at the
+  feet, elite auras) lie under every body; upright ones (ice crystals, rays and columns of
+  light, bolts, smoke, dust) sort with the bodies by their base, so the hero stands among a
+  Frost Nova's crystals and a crystal hides a monster behind it; shots, hits, blades and bursts
+  are over everyone.
 - **Shots and blasts**: magic shots (fireballs, bolts, spells) are their element's shot (the
   frost shard, drawn in 16 directions; round orbs are never turned), light the dark in its
   color, leave a trail of its bits and land in its language (`Vfx.pop`: the element's impact
   sheet, or a burst in its ramp); a shot at the end of its range breaks up instead of vanishing.
   Plain things (shurikens, arrows, feathers, coins: `projectile_glow` / `ProjectileEffect.glow`
-  0) just fly. Explosions are a burst drawn by a shader in their element's ramp (`BlastVfx`,
+  0) just fly: arrows, kunai, the thrown spear and the Crimson Tengu's crimson feathers are drawn
+  in 16 directions (`data/vfx/sheets/`), shurikens and coins spin as they are. Explosions are a burst drawn by a shader in their element's ramp (`BlastVfx`,
   `blast.gdshader`: for fire a white-hot heart, flame bands, licking edges, smoke) with a
   ripple, particles and a mark left on the floor (a scorch for fire).
 - **Little details**: fights leave **splats** on the floor (`SplatLayer`, `World.add_splat`): blood,
@@ -150,7 +166,9 @@ above glows near the lamps, fading twice as fast (see Mist over the walls). Each
   (`light_cells.gdshader`, walls checked along the way) into a small viewport, one pixel per cell,
   stretched over the floor and multiplied with it: no light ever gets brighter than the art, so
   bright floors (the desert) never burn white. Sparks, slashes, floating text and the ambient
-  particles are drawn above it (z 4 and up) and shine on their own.
+  particles are drawn above it (z 4 and up) and shine on their own; effects on the floor or
+  standing on it are under it and a glowing one brings its own light (`VfxLayer.light_up`; a
+  monster's warning a red one).
 
 ## Animations
 

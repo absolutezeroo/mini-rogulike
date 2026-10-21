@@ -12,6 +12,7 @@
 
 [sub_resource type="Resource" id="column"]
 script = ExtResource("vfx_sheet")
+layer = 2
 texture = ExtResource("vfx_column")
 frames = 7
 fps = 16.0

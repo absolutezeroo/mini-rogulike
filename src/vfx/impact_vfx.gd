@@ -26,6 +26,7 @@ static func create(at: Vector2, direction: Vector2, color: Color, big: bool = fa
 	var vfx := ImpactVfx.new()
 	vfx.position = PixelDraw.snap(at)
 	vfx.z_index = 6
+	VfxLayer.apply(vfx, VfxLayer.Layer.AIR)
 	vfx._direction = direction.normalized() if direction != Vector2.ZERO else Vector2.from_angle(randf() * TAU)
 	vfx._big = big
 	vfx.element = of_element
@@ -39,6 +40,7 @@ static func sparks(at: Vector2, direction: Vector2, material: VfxElementDef, big
 	var vfx := ImpactVfx.new()
 	vfx.position = PixelDraw.snap(at)
 	vfx.z_index = 6
+	VfxLayer.apply(vfx, VfxLayer.Layer.AIR)
 	vfx._direction = direction.normalized() if direction != Vector2.ZERO else Vector2.UP
 	vfx._big = big
 	vfx._bits_only = true

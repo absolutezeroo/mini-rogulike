@@ -45,7 +45,7 @@ static func slash(world: World, look: SlashDef, at: Vector2, aim: Vector2, reach
 static func _make(look: SlashDef, at: Vector2, aim: Vector2, reach: float, element: VfxElementDef, danger: bool, stroke: int) -> SwingVfx:
 	var vfx := SwingVfx.new()
 	vfx.position = PixelDraw.snap(at)
-	vfx.z_index = 5
+	VfxLayer.apply(vfx, VfxLayer.Layer.AIR)  # a blade's arc, at the blow's height
 	vfx._duration = maxf(look.duration, 0.05)
 	vfx._delay = stroke * look.duration * 0.35
 	# A second stroke runs inside the first, a little thinner.

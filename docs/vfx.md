@@ -31,6 +31,11 @@ The art is 16x16 pixel art drawn at 2x (`ActorRig`'s Visual node, scale 2): **1 
   (`PixelDraw.ring/disc/line/bit`) and fade by **ordered dithering** (a 4x4 Bayer matrix: each
   pixel fully there or gone): `PixelDraw.dither()` for `_draw()` code, the `dither_fade` shader
   for sprites. Alpha in a sheet is 1-bit (0 or 255).
+- **Shaders and particles quantize in world space.** A shader that draws a shape (a swing, a
+  telegraph, a blast) takes the art pixel its fragment falls in on the world's grid
+  (`MODEL_MATRIX * VERTEX`, like `frozen_ground.gdshader`), and turns the shape with a uniform,
+  never the node. Particle scenes use `pixel_particles.gdshader` (corners snapped to the grid,
+  fades dithered): even sizes in steps, no spin, `Gradient` interpolation CONSTANT.
 - **Additive light only for emissive cores**, from the ramp's darker steps (it brightens without
   burning to white): projectile halos of plain dots, the level up's light. Sparks, dust, blood,
   smoke: opaque ramp colors, normal blending.
@@ -51,6 +56,34 @@ Visual weight follows gameplay weight. From most to least contrast:
 Shape doubles color, always: about 8% of men see red and green alike. Each element has its own
 silhouette and particle shape (section 4), so a colorblind player still tells frost from storm.
 No more than 3 flashes a second; one screen shake source, capped.
+
+## 2b. Layers: under, among or over the actors
+
+Every effect is on one of three layers (`VfxLayer`, `src/vfx/vfx_layer.gd`). Flat things on the
+floor must never draw over the hero's feet, and a crystal must hide a monster standing behind it:
+
+| Layer | What | Where it draws | Examples |
+|---|---|---|---|
+| `GROUND` | flat on the floor | z -1: under every actor, over the floor's marks (splats -8, footprints -5) | `Vfx.magic` sigil, `RingVfx` rings, telegraphs (`TelegraphView`, `CellWarning`), storm's crackles, mist at a body's feet, level-up rings, elite auras, afterimages |
+| `STANDING` | upright, rooted on the floor | z 0 in the world's y-sorted Entities, sorted by its **base** (the bottom of its frame) | frost crystals, holy rays, shadow smoke, arcane runes, Smite's column, Thunder's bolt, dust puffs |
+| `AIR` | in flight or on a body | z 5-6: over every actor and over the floor's light | shots, impacts, hit flashes and bits, blade arcs (`SwingVfx`), bursts, beams, halos (Holy Shield), the crit cross, sparks, smoke, damage numbers |
+
+- A sheet says its layer: `VfxSheetDef.layer` (AIR when it doesn't say: shots, impacts, claws
+  and halos need nothing). **A nova `piece`, a `strike` or a sigil must say GROUND or STANDING**
+  (the vfx tests check every element's piece). `SheetVfx.play` / `ComposedVfx` read it; code
+  that draws by hand calls `VfxLayer.apply(node, layer)`; `World.spawn_vfx` puts a standing
+  effect among the actors. A plain texture played with `SheetVfx.create` is AIR unless
+  `.on_layer(...)` says otherwise.
+- A standing sheet's node sits at its base and draws its frame above it (`base_offset()`:
+  half its height plus its `anchor`). A composed nova of standing pieces is one node per piece
+  (`ComposedVfx.StandingPiece`); its wave edge and residue lie on the ground.
+- GROUND and STANDING are under the floor's light (`LightField.Z` = 3), lit with the room like
+  the floor and the actors. An emissive one lights itself (`VfxLayer.light_up`: a light in its
+  core color while it lives), so a frost nova or a holy column keeps its colors in a dim room;
+  a telegraph carries a red light (`TelegraphView.add_light`). Matter (blood, earth, steel)
+  takes the room's light.
+- A status on a body (`StatusFx`) is on the body (its crust, flames, bubbles sort with it); its
+  mist at the feet is GROUND.
 
 ## 3. Timing
 
@@ -130,7 +163,7 @@ bits on the rim).
 | blood | none (claws, spurts) | spurt, drops that stay | short spurts on each tick | spray in a fan | danger rim | wet impact |
 | spirit | a pale wisp curling | a hollow ring, wisps rising | pale flicker | a ring of wisps | pale rim | sigh, chime |
 | earth | a rock or a ball of sand | chunks on arcs, dust | dust trickling | rock spikes, dust ring | cracks spreading | thud, crumble |
-| physical | arrows, kunai, shurikens (drawn, not glowing) | short streaks along the blow, sparks in the target's material | none | crescent arcs (`SwingVfx`) | lines and arcs | swish, clang |
+| physical (**done**) | `arrow`, `kunai`, `spear`, the tengu's `feather` drawn in 16 rows (shurikens and coins spin as they are) | short streaks along the blow; the bits of the target's material (blood drops, bone chips, slime, sparks off armor, spirit motes, leaf chips); a crit cuts the `cutx` cross | none | steel crescents, spins and thrusts (`SlashDef` + `SwingVfx`), an enemy's with a red rim; plain rushes kick up dust | lines, cones and lanes | swish, clang |
 
 ## 5. The code
 
@@ -139,12 +172,18 @@ bits on the rim).
 | `VfxElementDef` | `src/definitions/vfx/vfx_element_def.gd`, `data/vfx/elements/*.tres` | ramp, residue, mark, bit, motion, emissive, kit sheets. `VfxElementDef.named(&"frost")`, `.core() .color() .edge() .shade(t)`, `or_color(element, color)` for old content |
 | `VfxSheetDef` | `src/definitions/vfx/vfx_sheet_def.gd` (sub-resources of an element) | texture, frames (0 = square), orient (NONE / ROWS / SNAPPED), directions, variants, fps, loop, texel, recolor, anchor, linger. `VfxSheetDef.from_texture(tex, frames)`, `columns/cell_size/slices_evenly` (the one frame slicer) |
 | `element` exports | `WeaponDef`, `ProjectileEffect`, `DamageAreaEffect` (+ `strike`: a sheet of its own at 2x on the area's middle), `DashStrikeEffect`, `DashEffect` (a burst and a trail), `HealEffect` / `BuffEffect` (the sigil's ramp; `BuffEffect.sheet` follows the user), `ChainLightningPassive` (a forked `BeamVfx`), `OnHitStatus.slow_element`, passives (`element`, `shard_element`, `crit_element`, `blast_element`), `DeathBurstTrait` | gameplay data points to an element instead of free colors; `HitInfo.element` carries it to the hit's flash |
-| `PixelDraw` | `src/vfx/pixel_draw.gd` | `snap`, `snap_length`, `sheet_scale`, `dither`, `pixel`, `ring`, `disc`, `line`, `bit` (an element's particle shape), `sheet` (draw a frame of a VfxSheetDef on the grid) |
+| `PixelDraw` | `src/vfx/pixel_draw.gd` | `snap`, `snap_length`, `sheet_scale`, `dither`, `pixel`, `ring`, `disc`, `arc`, `line`, `polyline`, `polygon`, `bit` (an element's particle shape), `sheet` (draw a frame of a VfxSheetDef on the grid) |
+| `VfxLayer` | `src/vfx/vfx_layer.gd` | `Layer.GROUND / STANDING / AIR` (section 2b), `apply(node, layer)`, `of(node)`, `light_up(node, element, reach)`; `VfxSheetDef.layer` |
+| `SlashDef`, `SwingVfx` | `src/definitions/vfx/slash_def.gd`, `data/vfx/slashes/`, `src/vfx/swing_vfx.gd` | a blade's blow drawn by `swing.gdshader`: CRESCENT / SPIN / THRUST, arc, thickness, strokes, reach_scale, jitter, `finisher` sheet; on `WeaponDef.slash`, `DamageAreaEffect.slash`, `DashStrikeEffect.slash`. `SwingVfx.slash(world, look, at, aim, reach, element, danger)` |
+| Things in flight | `data/vfx/sheets/` (`arrow`, `kunai`, `spear`, `feather`), `tools/vfx/physical.py` | 16-row sheets: `ProjectileEffect.sheet`, `WeaponDef.projectile_sheet` (the `texture` stays the item's picture) |
+| `ImpactMaterialDef` | `data/materials/` | `spark_bit`, `spark_motion`, `sparks_element()`: a hit's bits in what the target is made of (`Vfx.hit(..., material)`) |
 | `VfxRamp` | `src/vfx/vfx_ramp.gd` | `recolor(texture, ramp)`: palette swap by luminance, cached (a sheet with `recolor` on is painted in its element's ramp) |
-| `Vfx` | `src/vfx/vfx.gd` | `hit(..., element)`, `pop(world, at, element, radius, direction)`, `nova(world, at, radius, element)`, `trail(world, from, to, element)`, `explosion(world, at, radius, element)` |
-| `SheetVfx` | `src/vfx/sheet_vfx.gd` | `play(sheet, at, direction, element)`, `create(texture, ...)` (legacy: snapped), `.in_element(e)`, lingering dither |
+| `Vfx` | `src/vfx/vfx.gd` | `hit(..., element, material)` (a crit cuts `CRIT_CROSS`), `dust_trail(world, from, to, duration)`, `pop(world, at, element, radius, direction)`, `nova(world, at, radius, element)`, `trail(world, from, to, element)`, `explosion(world, at, radius, element)` |
+| `SheetVfx` | `src/vfx/sheet_vfx.gd` | `play(sheet, at, direction, element)` (on the sheet's layer), `create(texture, ...)` (legacy: snapped, AIR), `.in_element(e)`, `.on_layer(l)`, lingering dither |
 | `ComposedVfx` | `src/vfx/composed_vfx.gd` | `ring(at, radius, element)`, `line(from, to, element)`: any size from pieces at 2x |
-| `ImpactVfx`, `RingVfx`, `BlastVfx` | `src/vfx/` | a hit's flash, a ring, a burst: all in an element's ramp and bits |
+| `ImpactVfx`, `RingVfx`, `BlastVfx` | `src/vfx/` | a hit's flash (`ImpactVfx.sparks`: bits only), a ring (GROUND), a burst: all in an element's ramp and bits |
+| `TelegraphView` | `src/vfx/telegraph_view.gd`, `telegraph.gdshader` | CIRCLE, CONE, LINE, LANES (one per shot of a fan or ring); `show_skill(skill, angle, progress, body_radius)` picks the shape from the skill (radius, shots, dash, area) |
+| Particles | `src/vfx/particles/`, `src/vfx/ambient/`, `pixel_particles.gdshader(.inc)` | materials `pixel_particles` (dither per art pixel), `_motes` (whole motes come and go), `_glow` (added light, stepped brightness) |
 | `StatusLookDef`, `StatusFx` | `data/vfx/status_looks/`, `src/vfx/status_fx.gd` | particle, motes (EMBER, BUBBLE, CHIP), crust (rime), mist, burst, all at texel 2 in the element's ramp |
 | Tools | `tools/vfx/` | `vfxkit.py` (palette-locked drawing), `recolor.py` (palette swap to a file), `check.py` (palette, hard alpha, whole cells), `strokes.py` (lines, jagged paths, rims, glints, rhombi, ellipses), one rebuildable script per kit: `frost.py`, `storm.py`, `holy.py`, `shadow.py`, `arcane.py` |
 
@@ -167,7 +206,7 @@ without looking like ice.
    variants in rows. Big effects: a piece to compose, not a big sheet to stretch.
    `python3 tools/vfx/check.py <png> <element> --cell WxH`. Commit the `.png.import` Godot makes.
 5. **Wire it** as a `VfxSheetDef` sub-resource of the element (frames, orient, fps, anchor,
-   linger) or of the content; set frames explicitly for any non-square sheet.
+   linger, **layer**) or of the content; set frames explicitly for any non-square sheet.
 6. **Test**: `tests/suites/vfx_tests.gd` (run by the unit suite) checks every element, every
    sheet's slicing and scale, and the frost kit; add the checks your element needs (its users
    point at it, none borrows another element's art).
@@ -185,6 +224,8 @@ Screenshot it in the game at 1540x720 (the debug panel, or a probe scene in `_to
 - [ ] Its silhouette reads in one frame, and **reads as its element without color** (squint, or
       look at it in grey: is frost still faceted, storm still forked?).
 - [ ] Nothing rotated off the 16 directions; round things not rotated at all.
+- [ ] On its layer (section 2b): nothing flat draws over the hero's feet; an upright thing hides
+      who stands behind it and is hidden by who stands in front.
 - [ ] The main action is in the first quarter; the flash lasts 2-3 frames; it dissipates
       instead of vanishing.
 - [ ] Its size and noise match its gameplay weight; it never hides a telegraph or an enemy shot.
@@ -228,11 +269,18 @@ slicer, element exports) serves the others; what each still needs:
   colors, compose Ground Slam); Quake and Sundering Blow should set `element = earth` on their
   explosive area (the blast then becomes dust); sandball has a fire-orange halo color; Sand
   Breath and Sandstorm slow as earth already (no frost).
-- **Physical**: the default swing `trail_color` is pale blue (reads icy): give steel its own
-  `trail_color` or derive it from `physical`; Cleave, Lash, Whirlwind, Flurry, Iaido, Piercing
-  Thrust sheets are drawn at 4x-6x (compose or author bigger); arrows and kunai turn on 16
-  snapped angles (draw 16 directions to stop the shear); the CPU particle scenes
-  (`src/vfx/particles/*.tscn`) still scale continuously (make them whole art pixels).
-- **Everyone**: `SwingVfx`/`TelegraphView` shader grids turn with their aim; the actor's
-  afterimage and props' `draw_circle` code (chests, pickups, heat sources, pact rooms) are
-  still smooth; sounds per element are not wired (`impact_sound` is empty everywhere).
+- **Physical** (done): blades swing steel (or their element's) arcs on the grid; Cleave, Lash,
+  Whirlwind, Flurry (its last stab the `cutx` cross), Iaido Dash, Piercing Thrust and the
+  monsters' club, demon club and tengu blade are `SlashDef`s; arrows, kunai, the thrown spear
+  and the Crimson Tengu's feathers are drawn in 16 rows; hits throw their material's bits.
+  Left: Shadow Step's kunai still uses the old snapped `kunai.png` (shadow's to repoint at
+  `data/vfx/sheets/kunai.tres`), arrow traps turn `arrow.png` by quarter turns only (exact),
+  the slime slam and body slam play `circularslash` unturned at 2x.
+- **Everyone** (done): swings and telegraphs quantize in world space; monster shots warn with
+  their lanes, dashes with their line; plain rushes leave dust and dithered afterimages in the
+  dash's element; particles snap to the grid; props, pickups, auras, the pact sigil, stairs'
+  seal and heat sources draw with `PixelDraw`; the trap's peek is at 2x; fog texels are art
+  pixels; every effect is on a layer (section 2b). Left: sounds per element are not wired
+  (`impact_sound` is empty everywhere); the actor's debug fallback body (no sprite) is smooth;
+  fire, earth, poison, blood and spirit sheets get their layer when their kits land (a sheet
+  that says nothing is AIR: their nova pieces must say GROUND or STANDING).

@@ -5,6 +5,7 @@
 
 [resource]
 script = ExtResource("1")
+layer = 1
 texture = ExtResource("2")
 frames = 8
 fps = 12.0

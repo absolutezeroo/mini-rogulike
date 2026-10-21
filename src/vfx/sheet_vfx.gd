@@ -19,17 +19,30 @@ var _direction := Vector2.RIGHT
 var _age := 0.0
 var _modulate_color := Color.WHITE
 var _look: ShaderMaterial
+## A standing sheet's node sits at its base (to sort with the actors): its frame is drawn this
+## far up.
+var _lift := 0.0
 
 
-## `sheet` played once at `at`, facing `direction`, in `element`'s colors when it is recolored.
+## `sheet` played once at `at`, facing `direction`, in `element`'s colors when it is recolored,
+## on the sheet's layer (VfxLayer: over, under or among the actors).
 static func play(def: VfxSheetDef, at: Vector2, direction: Vector2 = Vector2.RIGHT, of_element: VfxElementDef = null) -> SheetVfx:
 	var vfx := SheetVfx.new()
 	vfx.sheet = def
 	vfx.element = of_element
 	vfx._direction = direction if direction != Vector2.ZERO else Vector2.RIGHT
 	vfx.position = PixelDraw.snap(at)
-	vfx.z_index = 5
+	vfx.on_layer(def.layer)
 	return vfx
+
+
+## Moves it to `layer` (a plain texture played with `create` is AIR unless told).
+func on_layer(layer: VfxLayer.Layer) -> SheetVfx:
+	position = PixelDraw.snap(position + Vector2(0, -_lift))
+	_lift = roundf(sheet.base_offset() / PixelDraw.PX) * PixelDraw.PX if layer == VfxLayer.Layer.STANDING else 0.0
+	position += Vector2(0, _lift)
+	VfxLayer.apply(self, layer)
+	return self
 
 
 ## A plain texture (frames in a row, square unless `frame_width` says) played once.
@@ -66,6 +79,7 @@ func _ready() -> void:
 	_look = ShaderMaterial.new()
 	_look.shader = SHADER
 	material = _look
+	VfxLayer.light_up(self, element, sheet.frame_size().x * sheet.texel)
 
 
 ## Seconds it shows: the frames, then the last one lingering.
@@ -85,4 +99,4 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	var frame := mini(int(_age * sheet.fps), sheet.frame_count() - 1)
-	PixelDraw.sheet(self, sheet, frame, Vector2.ZERO, _direction, element, _modulate_color, flip)
+	PixelDraw.sheet(self, sheet, frame, Vector2(0, -_lift), _direction, element, _modulate_color, flip)

@@ -11,6 +11,7 @@
 
 [sub_resource type="Resource" id="bolt"]
 script = ExtResource("vfx_sheet")
+layer = 2
 texture = ExtResource("vfx_bolt")
 frames = 7
 fps = 20.0

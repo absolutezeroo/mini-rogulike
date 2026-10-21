@@ -15,6 +15,8 @@ const LANE_WIDTH := 8.0
 
 var _extent := 60.0
 var _look: ShaderMaterial
+## Its red light on the floor: a warning flat under the actors still reads in a dark room.
+var _light: LightSource
 
 
 func _init() -> void:
@@ -22,6 +24,19 @@ func _init() -> void:
 	_look.shader = SHADER
 	material = _look
 	visible = false
+	# On the floor, under whoever stands in it (docs/vfx.md, "Layers").
+	VfxLayer.apply(self, VfxLayer.Layer.GROUND)
+
+
+## A red light on the floor while it shows (a monster's warning in the world; the codex's
+## preview has no floor light to add to).
+func add_light() -> void:
+	_light = LightSource.new()
+	_light.color = Color(1.0, 0.3, 0.24)
+	_light.level = 3
+	_light.relative = true
+	_light.moves = true
+	add_child(_light)
 
 
 ## `angle`: where it points (cones and lines). `progress`: 0 when it starts, 1 when it lands.
