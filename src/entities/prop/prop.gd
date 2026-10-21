@@ -123,9 +123,8 @@ func _draw() -> void:
 	var foot := Vector2(def.footprint) * SIZE
 	var size := def.icon.get_size() * 2.0
 	# Shadow, then the sprite standing on the bottom of its footprint.
-	draw_set_transform(Vector2(0, foot.y * 0.5 - 3.0), 0.0, Vector2(1.0, 0.35))
-	draw_circle(Vector2.ZERO, foot.x * 0.35, Color(0, 0, 0, 0.3))
-	draw_set_transform(Vector2.ZERO)
+	PixelDraw.disc(self, Vector2(0, foot.y * 0.5 - 3.0), foot.x * 0.35, Color(0, 0, 0, 0.3), 1.0, 0.35)
+	offset = PixelDraw.snap(offset)  # it shakes by whole art pixels
 	var top_left := Vector2(-size.x * 0.5, foot.y * 0.5 - size.y)
 	draw_texture_rect(def.icon, Rect2(top_left + offset, size), false, color * def.icon_tint)
 

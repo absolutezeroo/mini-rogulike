@@ -1,15 +1,14 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3]
 
-[sub_resource type="Gradient" id="Gradient_blink"]
-offsets = PackedFloat32Array(0, 0.15, 0.3, 0.45, 0.6, 0.75, 1)
-colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0.15, 1, 1, 1, 1, 1, 1, 1, 0.2, 1, 1, 1, 0.9, 1, 1, 1, 0)
+[ext_resource type="Material" path="res://src/vfx/particles/pixel_particles_glow.tres" id="pixel_material"]
 
-[sub_resource type="CanvasItemMaterial" id="Material_glow"]
-blend_mode = 1
-light_mode = 1
+[sub_resource type="Gradient" id="Gradient_steps"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.1, 0.25, 0.4, 0.55, 0.7, 0.9)
+colors = PackedColorArray(1, 1, 1, 0.25, 1, 1, 1, 1, 1, 1, 1, 0.25, 1, 1, 1, 1, 1, 1, 1, 0.25, 1, 1, 1, 1, 1, 1, 1, 0.25)
 
 [node name="Fireflies" type="CPUParticles2D"]
-material = SubResource("Material_glow")
+material = ExtResource("pixel_material")
 z_index = 4
 amount = 26
 lifetime = 7.0
@@ -24,7 +23,7 @@ initial_velocity_min = 4.0
 initial_velocity_max = 14.0
 orbit_velocity_min = -0.04
 orbit_velocity_max = 0.04
-scale_amount_min = 2.0
-scale_amount_max = 3.0
 color = Color(0.85, 1, 0.45, 0.95)
-color_ramp = SubResource("Gradient_blink")
+scale_amount_min = 2.0
+scale_amount_max = 2.0
+color_ramp = SubResource("Gradient_steps")

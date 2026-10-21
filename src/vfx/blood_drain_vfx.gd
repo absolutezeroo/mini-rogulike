@@ -20,6 +20,7 @@ static func create(from: Vector2, target: Node2D, count: int = 3) -> BloodDrainV
 	var vfx := BloodDrainVfx.new()
 	vfx._target = target
 	vfx.z_index = 6
+	VfxLayer.apply(vfx, VfxLayer.Layer.AIR)  # drops in flight, over the bodies
 	for i in count:
 		var spread := Vector2.from_angle(-PI * 0.5 + randf_range(-1.1, 1.1))
 		vfx._drops.append({ at = from + Vector2(randf_range(-4.0, 4.0), randf_range(-4.0, 2.0)), velocity = spread * randf_range(60.0, 110.0), size = 2 if i == 0 else 1, gone = false, trail = from })

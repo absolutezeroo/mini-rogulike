@@ -58,7 +58,7 @@ func incoming_damage(monster: Monster, hit: HitInfo, damage: int) -> int:
 func draw_under(monster: Monster, canvas: CanvasItem) -> void:
 	var half := deg_to_rad(arc) * 0.5
 	var angle := direction_of(monster).angle()
-	canvas.draw_arc(Vector2(0, -monster.radius * 0.3), monster.radius + 7.0, angle - half, angle + half, 12, color, 3.0)
+	PixelDraw.arc(canvas, Vector2(0, -monster.radius * 0.3), monster.radius + 7.0, angle - half, angle + half, Color(color, 1.0), 2)
 
 
 func describe() -> String:

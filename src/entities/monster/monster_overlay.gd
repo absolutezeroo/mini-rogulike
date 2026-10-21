@@ -23,8 +23,10 @@ static func create(owner: Monster, overlay_layer: Layer) -> MonsterOverlay:
 	if overlay_layer == Layer.OVER:
 		overlay.z_index = LightField.Z + 1  # names and health bars stay readable in the dark
 	if overlay_layer == Layer.UNDER:
-		overlay._telegraph = TelegraphView.new()
-		overlay._telegraph.z_index = LightField.Z + 1  # a warning must show even in the dark
+		# The elite aura and the warning lie on the floor, under every body (VfxLayer).
+		VfxLayer.apply(overlay, VfxLayer.Layer.GROUND)
+		overlay._telegraph = TelegraphView.new()  # on the floor, lit by its own light
+		overlay._telegraph.add_light()
 		overlay.add_child(overlay._telegraph)
 	return overlay
 
@@ -71,11 +73,11 @@ func _update_telegraph() -> void:
 	var weapon := monster.get_weapon()
 	var skill := monster.casting_skill()
 	var angle := monster.facing.angle()
+	_telegraph.position = Vector2.ZERO
 	if skill:
-		if skill.telegraph_radius > 0.0:
-			_telegraph.show_shape(TelegraphView.Shape.CIRCLE, skill.telegraph_radius, 0.0, telegraph)
-		else:
-			_telegraph.visible = false
+		# Its area, the lanes of its shots (the aim is locked when the cast starts, so the gaps
+		# shown are the real ones), the line of its dash; nothing for a summon or a heal.
+		_telegraph.show_skill(skill, angle, telegraph, monster.radius)
 	elif weapon and weapon.kind == WeaponDef.Kind.MELEE:
 		var reach := monster.radius + weapon.reach
 		if weapon.arc_degrees >= 359.0:
@@ -88,25 +90,22 @@ func _update_telegraph() -> void:
 
 
 ## Pulsing rings of the rank's color at its feet (more rings for rarer ranks), and for the
-## rarest a slow crown of rays.
+## rarest a slow crown of rays. Stepped rings of art pixels lying on the ground; the pulse steps
+## the rings out by a whole pixel, the outer ones dithered (docs/vfx.md).
 func _draw_elite_aura() -> void:
 	var time := Time.get_ticks_msec() * 0.001
-	var pulse := 0.5 + 0.5 * sin(time * 6.0)
-	var color := monster.rank_color()
-	var feet := monster.radius * 0.7 + 1.0
-	draw_set_transform(Vector2(0, feet - 1.0), 0.0, Vector2(1.0, 0.45))
-	color.a = 0.25 + 0.2 * pulse
-	draw_circle(Vector2.ZERO, monster.radius + 6.0 + 2.0 * pulse, color)
+	var pulse := 1.0 if sin(time * 6.0) > 0.0 else 0.0
+	var color := Color(monster.rank_color(), 1.0)
+	var feet := Vector2(0, monster.radius * 0.7)
+	var base := monster.radius + 6.0 + PixelDraw.PX * pulse
+	PixelDraw.disc(self, feet, base, Color(color, 0.22 + 0.1 * pulse), 1.0, 0.45)
 	for ring in maxi(monster.rank.aura_rings, 1):
-		var size := monster.radius + 6.0 + 2.0 * pulse + ring * 6.0
-		draw_arc(Vector2.ZERO, size, 0.0, TAU, 28, Color(color, 0.8 - ring * 0.2), 2.0)
+		PixelDraw.ring(self, feet, base + ring * 6.0, color, 1, 1.0 - ring * 0.3, 0.45)
 	if monster.rank.aura_rings >= 3:
 		for i in 8:
 			var angle := time * 0.8 + TAU * i / 8.0
-			var inner := Vector2.from_angle(angle) * (monster.radius + 8.0)
-			var outer := Vector2.from_angle(angle) * (monster.radius + 22.0 + 4.0 * pulse)
-			draw_line(inner, outer, Color(color, 0.5), 2.0)
-	draw_set_transform(Vector2.ZERO)
+			var way := Vector2.from_angle(angle) * Vector2(1.0, 0.45)
+			PixelDraw.line(self, feet + way * (monster.radius + 8.0), feet + way * (monster.radius + 22.0 + 4.0 * pulse), color, 1, 0.5)
 
 
 func _draw_elite_name() -> void:

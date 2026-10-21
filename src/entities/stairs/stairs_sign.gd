@@ -27,7 +27,7 @@ func _draw() -> void:
 	var height := 16.0 + (12.0 if not twist.is_empty() else 0.0)
 	var top := -LIFT - height
 	# A small wooden board on a post.
-	draw_line(Vector2(0, top + height), Vector2(0, -LIFT + 8.0), Color(0.36, 0.22, 0.12), 2.0)
+	draw_rect(Rect2(0.0, top + height, 2.0, -LIFT + 8.0 - top - height), Color(0.36, 0.22, 0.12))
 	draw_rect(Rect2(-width * 0.5, top, width, height), Color(0.24, 0.15, 0.09, 0.92))
 	draw_rect(Rect2(-width * 0.5, top, width, height), Color(0.62, 0.42, 0.22), false, 1.0)
 	var y := top + 12.0

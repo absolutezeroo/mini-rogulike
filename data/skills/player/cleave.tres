@@ -1,11 +1,11 @@
 [gd_resource type="Resource" script_class="SkillDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_d87on"]
-[ext_resource type="Texture2D" path="res://assets/fx/slashdoublecurved.png" id="2_5u1qb"]
 [ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="3_c3o1x"]
 [ext_resource type="Texture2D" path="res://assets/ui/skills/cleave.png" id="4_xans3"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_rpdde"]
 [ext_resource type="AudioStream" path="res://data/audio/slash_heavy.tres" id="6_tgghh"]
+[ext_resource type="Resource" path="res://data/vfx/slashes/cleave.tres" id="slash_cleave"]
 
 [sub_resource type="Resource" id="Resource_53hrc"]
 script = ExtResource("3_c3o1x")
@@ -13,8 +13,7 @@ radius = 75.0
 damage_multiplier = 2.0
 offset = 45.0
 knockback = 320.0
-fx = ExtResource("2_5u1qb")
-fx_follow_aim = true
+slash = ExtResource("slash_cleave")
 
 [resource]
 script = ExtResource("5_rpdde")

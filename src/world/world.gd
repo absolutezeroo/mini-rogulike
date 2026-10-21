@@ -720,8 +720,13 @@ func spawn_stairs(cell: Vector2i, index: int = 0, way: FloorRoute = null) -> Sta
 	return stairs
 
 
+## Adds an effect where its layer says (VfxLayer): a standing one among the actors, sorted with
+## them by its base; the others with the effects (their z puts them under or over the actors).
 func spawn_vfx(node: Node2D) -> void:
-	_effects.add_child(node)
+	if VfxLayer.of(node) == VfxLayer.Layer.STANDING:
+		_entities.add_child(node)
+	else:
+		_effects.add_child(node)
 
 
 ## Blood, slime, ink... on the floor (SplatLayer). Nothing over walls or holes.

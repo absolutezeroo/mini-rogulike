@@ -51,7 +51,7 @@ func _draw() -> void:
 	var open := _opening()
 	if open <= 0.05:
 		return
-	draw_colored_polygon(_split(open), Color(0.01, 0.01, 0.03))
+	PixelDraw.polygon(self, _split(open), Color(0.01, 0.01, 0.03))
 
 
 func _opening() -> float:
@@ -73,22 +73,24 @@ func draw_shine(canvas: CanvasItem) -> void:
 	var open := _opening()
 	var pulse := 0.75 + 0.25 * sin(_time * 2.2)
 	# A cold halo on the flagstones around it.
-	canvas.draw_circle(Vector2.ZERO, SIZE * 1.1, Color(glow, 0.12 * open * pulse))
-	canvas.draw_circle(Vector2.ZERO, SIZE * 0.7, Color(glow, 0.1 * open * pulse))
+	var solid := Color(glow, 1.0)
+	# A cold halo on the flagstones around it: flat stepped discs.
+	PixelDraw.disc(canvas, Vector2.ZERO, SIZE * 1.1, Color(solid, 0.12 * open * pulse))
+	PixelDraw.disc(canvas, Vector2.ZERO, SIZE * 0.7, Color(solid, 0.1 * open * pulse))
 	if open > 0.05:
 		var split := _split(open)
 		split.append(split[0])
-		canvas.draw_polyline(split, Color(glow.lightened(0.3), pulse), 2.0)
-		# Light rising out of the dark, in a few thin columns.
+		PixelDraw.polyline(canvas, split, solid.lightened(0.3), 1, pulse)
+		# Light rising out of the dark, in a few thin columns (whole art pixels).
 		for i in 3:
 			var x := (i - 1) * SIZE * 0.22 * open
-			var height := SIZE * (0.9 + 0.3 * sin(_time * 1.7 + i * 2.0)) * open
-			canvas.draw_rect(Rect2(x - 2.0, -height, 4.0, height), Color(glow.lightened(0.3), 0.35 * pulse))
+			var height := PixelDraw.snap_length(SIZE * (0.9 + 0.3 * sin(_time * 1.7 + i * 2.0)) * open)
+			canvas.draw_rect(Rect2(PixelDraw.snap(Vector2(x - 2.0, -height)), Vector2(4.0, height)), Color(solid.lightened(0.3), 0.35 * pulse))
 	var radius := SIZE * 0.95
-	canvas.draw_arc(Vector2.ZERO, radius, 0.0, TAU, 40, Color(glow.lightened(0.2), 0.85 * open * pulse), 3.0)
+	PixelDraw.ring(canvas, Vector2.ZERO, radius, solid.lightened(0.2), 1, open * pulse)
 	for i in RUNES_COUNT:
 		var angle := -_time * 0.5 + TAU * i / RUNES_COUNT
 		var at := Vector2.from_angle(angle) * radius
-		var size := 3.5
+		var size := 4.0
 		var rune := PackedVector2Array([at + Vector2(0, -size), at + Vector2(size * 0.6, 0), at + Vector2(0, size), at + Vector2(-size * 0.6, 0)])
-		canvas.draw_colored_polygon(rune, Color(glow.lightened(0.6), open * pulse))
+		PixelDraw.polygon(canvas, rune, solid.lightened(0.6), open * pulse)

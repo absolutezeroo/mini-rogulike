@@ -1,18 +1,18 @@
 [gd_resource type="Resource" script_class="SkillDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_8uk2j"]
-[ext_resource type="Texture2D" path="res://assets/fx/circularslash.png" id="2_p5dy7"]
 [ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="3_2pqld"]
 [ext_resource type="Texture2D" path="res://assets/ui/skills/lash.png" id="4_lyaf4"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_2rm22"]
 [ext_resource type="AudioStream" path="res://data/audio/slash.tres" id="6_h4m3j"]
+[ext_resource type="Resource" path="res://data/vfx/slashes/lash.tres" id="slash_lash"]
 
 [sub_resource type="Resource" id="Resource_1jmki"]
 script = ExtResource("3_2pqld")
 radius = 95.0
 damage_multiplier = 1.4
 knockback = 300.0
-fx = ExtResource("2_p5dy7")
+slash = ExtResource("slash_lash")
 
 [resource]
 script = ExtResource("5_2rm22")

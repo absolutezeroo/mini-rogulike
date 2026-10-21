@@ -67,14 +67,11 @@ func _physics_process(delta: float) -> void:
 
 
 func _draw() -> void:
-	draw_set_transform(Vector2(0, 12), 0.0, Vector2(1.0, 0.4))
-	draw_circle(Vector2.ZERO, 13.0, Color(0, 0, 0, 0.35))
-	draw_set_transform(Vector2.ZERO)
+	PixelDraw.disc(self, Vector2(0, 12), 13.0, Color(0, 0, 0, 0.35), 1.0, 0.4)
 	if not used:
-		# A soft glow: something is here.
-		var glow := def.color
-		glow.a = 0.15 + 0.1 * sin(_time * 3.0)
-		draw_circle(Vector2(0, -2), 22.0, glow)
+		# A soft glow: something is here (a flat stepped disc, breathing in two steps).
+		var glow := Color(def.color, 0.2 if sin(_time * 3.0) > 0.0 else 0.12)
+		PixelDraw.disc(self, Vector2(0, -2), 22.0, glow)
 	if def.icon:
 		var tint := def.icon_tint if not used else def.icon_tint.darkened(0.45)
 		draw_texture_rect(def.icon, Rect2(-16, -20, 32, 32), false, tint)

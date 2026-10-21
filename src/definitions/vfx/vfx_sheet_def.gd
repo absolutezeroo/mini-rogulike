@@ -37,6 +37,16 @@ enum Orient {
 @export var anchor := Vector2.ZERO
 ## Seconds the last frame lingers and dithers away instead of vanishing (one-shot sheets).
 @export var linger: float = 0.1
+## Where it draws among the actors (VfxLayer, docs/vfx.md "Layers"): AIR (the default: a shot,
+## an impact, a halo) over them; GROUND (a sigil, crackles) flat under them; STANDING (a crystal,
+## a column of light, a bolt) sorted with them by the bottom of its frame.
+@export var layer: VfxLayer.Layer = VfxLayer.Layer.AIR
+
+
+## How far below its center (`at` + anchor) the bottom of its drawn frame is, in world units:
+## a standing sheet sorts with the actors by that point.
+func base_offset() -> float:
+	return frame_size().y * texel * 0.5 + anchor.y * texel
 
 
 ## Columns in the sheet (frames per row).

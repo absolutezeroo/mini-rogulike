@@ -17,6 +17,8 @@ var _motes: CPUParticles2D
 
 ## One art pixel, in world pixels (the art is drawn at 2x).
 const PIXEL := 2.0
+## The particles' material: one art pixel per mote, on the grid (pixel_particles.gdshader).
+const PIXEL_MOTES: Material = preload("res://src/vfx/particles/pixel_particles_motes.tres")
 
 
 func _ready() -> void:
@@ -79,11 +81,14 @@ func _make_motes() -> CPUParticles2D:
 	motes.gravity = Vector2(0, 4)
 	motes.initial_velocity_min = 4.0
 	motes.initial_velocity_max = 12.0
-	motes.scale_amount_min = 1.0
+	# One art pixel each, on the grid, fading by fewer of them (pixel_particles).
+	motes.material = PIXEL_MOTES
+	motes.scale_amount_min = 2.0
 	motes.scale_amount_max = 2.0
 	var fade := Gradient.new()
-	fade.offsets = PackedFloat32Array([0.0, 0.3, 1.0])
-	fade.colors = PackedColorArray([Color(1, 1, 1, 0), Color(1, 1, 1, 0.55), Color(1, 1, 1, 0)])
+	fade.interpolation_mode = Gradient.GRADIENT_INTERPOLATE_CONSTANT
+	fade.offsets = PackedFloat32Array([0.0, 0.15, 0.3, 0.7, 0.85])
+	fade.colors = PackedColorArray([Color(1, 1, 1, 0.15), Color(1, 1, 1, 0.35), Color(1, 1, 1, 0.55), Color(1, 1, 1, 0.3), Color(1, 1, 1, 0.1)])
 	motes.color_ramp = fade
 	motes.color = Color(def.debris_color.lightened(0.45), 1.0)
 	return motes

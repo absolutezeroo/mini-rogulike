@@ -25,6 +25,11 @@ func run() -> void:
 	_test_spirit_kit()
 	_test_fire_kit()
 	_test_earth_kit()
+	_test_physical_kit()
+	_test_particles()
+	_test_smooth_shapes()
+	_test_telegraphs()
+	_test_layers()
 
 
 ## Each element: an id, a ramp of 3 to 5 colors from a bright core to a dark edge (shadow turned
@@ -513,6 +518,154 @@ func _test_earth_kit() -> void:
 	for effect in _effects_of(load("res://data/skills/boss/sandstorm.tres")):
 		var gust := effect as ProjectileEffect
 		check(gust.element == earth and gust.texture != null and gust.texture.resource_path.begins_with("res://assets/fx/earth/"), "earth: Sandstorm blows whirls of sand")
+
+
+## Physical: steel blows drawn on the grid in their element (steel when none), things in flight
+## drawn in 16 directions, hits throwing what the target is made of.
+func _test_physical_kit() -> void:
+	var steel := VfxElementDef.named(&"physical")
+	var swing := SwingVfx.create(Vector2.ZERO, Vector2(1, 1), 40.0, 110.0, false, null, 0.12)
+	var look := swing.material as ShaderMaterial
+	check(look.get_shader_parameter("core") == steel.core() and look.get_shader_parameter("body") == steel.shade(0.67), "physical: a plain blade swings a steel arc (the physical ramp), not a pale blue one")
+	check(swing.rotation == 0.0 and is_equal_approx(float(look.get_shader_parameter("aim")), Vector2(1, 1).angle()), "physical: the arc's node is never turned: the shader points it on the world's grid")
+	swing.free()
+	var frost := VfxElementDef.named(&"frost")
+	var icy := SwingVfx.create(Vector2.ZERO, Vector2.RIGHT, 40.0, 110.0, false, frost, 0.12)
+	check((icy.material as ShaderMaterial).get_shader_parameter("core") == frost.core(), "physical: a blade with an element swings in its element's ramp")
+	icy.free()
+	for path: String in ["cleave", "whirlwind", "lash", "flurry", "piercing_thrust", "dash_strike"]:
+		for effect in _effects_of(load("res://data/skills/player/%s.tres" % path)):
+			check(effect.get("slash") != null and effect.get("fx") == null, "physical: %s draws a slash on the grid, not a sheet stretched 4-6x" % path)
+	for path: String in ["club", "demon_club", "tengu_blade"]:
+		var blow := load("res://data/items/weapons/monster/%s.tres" % path) as WeaponDef
+		check(blow.slash != null and blow.attack_fx == null and blow.shows_arc(), "physical: the %s's blow is a slash on the grid, not a turned sheet" % path)
+	var finisher := (load("res://data/skills/player/flurry.tres") as SkillDef).effects[2].get("slash") as SlashDef
+	check(finisher.finisher == Vfx.CRIT_CROSS, "physical: Flurry ends on the cross that crits cut")
+	_check_sheet(Vfx.CRIT_CROSS, "the crit cross")
+	var bow := load("res://data/items/weapons/bow.tres") as WeaponDef
+	var things := {"bow": bow.projectile_sheet}
+	for path: String in ["volley", "kunai_fan", "spear_throw"]:
+		things[path] = ((load("res://data/skills/player/%s.tres" % path) as SkillDef).effects[0] as ProjectileEffect).sheet
+	for path: String in ["feather_storm", "feather_tempest", "feather_tempest_fierce"]:
+		for effect in _effects_of(load("res://data/skills/boss/%s.tres" % path)):
+			things[path] = (effect as ProjectileEffect).sheet
+			check((effect as ProjectileEffect).texture == null, "physical: %s throws feathers, not shurikens" % path)
+	for what: String in things:
+		var sheet := things[what] as VfxSheetDef
+		check(sheet != null and sheet.orient == VfxSheetDef.Orient.ROWS and sheet.directions == 16, "physical: %s's thing in flight is drawn in 16 directions, never turned" % what)
+		if sheet:
+			_check_sheet(sheet, what)
+	for file in DirAccess.get_files_at("res://data/materials"):
+		if file.ends_with(".tres"):
+			var material := load("res://data/materials/" + file) as ImpactMaterialDef
+			var bits := material.sparks_element()
+			check(bits.ramp.size() >= 3 and not bits.emissive, "physical: a hit on %s throws its own bits (a ramp of its colors)" % material.display_name)
+	var flesh := (load("res://data/materials/flesh.tres") as ImpactMaterialDef).sparks_element()
+	var armor := (load("res://data/materials/armor.tres") as ImpactMaterialDef).sparks_element()
+	check(flesh.bit == VfxElementDef.Bit.DROP and armor.bit != flesh.bit, "physical: flesh bleeds drops, armor throws sparks")
+
+
+## Every particle scene is on the art's grid: whole even sizes in steps, no spin, stepped color
+## ramps, the pixel_particles shader (which snaps them and dithers their fades), no texture.
+func _test_particles() -> void:
+	for dir: String in ["res://src/vfx/particles", "res://src/vfx/ambient"]:
+		for file in DirAccess.get_files_at(dir):
+			if not file.ends_with(".tscn"):
+				continue
+			var particles := (load(dir.path_join(file)) as PackedScene).instantiate() as CPUParticles2D
+			if particles is PixelMotes:
+				# Simulated and drawn by hand as whole art pixels on the grid (blood moon's ash).
+				check((particles as PixelMotes).element != null, "particles: %s draws its motes on the grid in an element's ramp" % file)
+				particles.free()
+				continue
+			var size := particles.scale_amount_min
+			var whole := is_equal_approx(size, particles.scale_amount_max) and is_equal_approx(fposmod(size, 2.0), 0.0)
+			if particles.scale_amount_curve:
+				var curve := particles.scale_amount_curve
+				for i in curve.point_count:
+					var step := size * curve.get_point_position(i).y
+					whole = whole and absf(step - roundf(step / 2.0) * 2.0) < 0.02
+			check(whole, "particles: %s draws whole even sizes in steps" % file)
+			check(particles.angular_velocity_min == 0.0 and particles.angular_velocity_max == 0.0, "particles: %s's pixel squares never spin" % file)
+			check(particles.color_ramp != null and particles.color_ramp.interpolation_mode == Gradient.GRADIENT_INTERPOLATE_CONSTANT, "particles: %s steps down its ramp, no blend" % file)
+			var shader := (particles.material as ShaderMaterial).shader if particles.material is ShaderMaterial else null
+			check(shader != null and shader.resource_path.get_file().begins_with("pixel_particles") and particles.texture == null, "particles: %s snaps to the grid and dithers its fades" % file)
+			particles.free()
+
+
+## The props and overlays that drew smooth circles and arcs (mixels, alpha gradients) draw on
+## the grid now (PixelDraw).
+func _test_smooth_shapes() -> void:
+	for path: String in ["res://src/entities/monster/monster_overlay.gd", "res://src/definitions/monster_traits/guard_trait.gd",
+			"res://src/entities/hazards/heat_source.gd", "res://src/world/pact_room.gd", "res://src/game/threshold.gd",
+			"res://src/entities/stairs/stairs.gd", "res://src/entities/stairs/hidden_way.gd", "res://src/entities/encounter/encounter.gd",
+			"res://src/entities/pickup/item_pickup.gd", "res://src/entities/gold/gold_pickup.gd", "res://src/entities/hazards/chest.gd",
+			"res://src/entities/forge/forge.gd", "res://src/entities/interactable.gd", "res://src/entities/merchant/merchant.gd",
+			"res://src/entities/prop/prop.gd", "res://src/entities/hazards/quicksand.gd"]:
+		var source := FileAccess.get_file_as_string(path)
+		var smooth := source.contains("draw_circle(") or source.contains("draw_arc(") or source.contains("draw_polyline(") or source.contains("draw_colored_polygon(")
+		check(not smooth, "smooth shapes: %s draws on the art's grid (PixelDraw)" % path.get_file())
+
+
+## A monster's shots and dashes warn before they come: the lanes of its shots, the line of its
+## dash (an area keeps its circle).
+func _test_telegraphs() -> void:
+	var view := TelegraphView.new()
+	for path: String in ["frost_breath", "poison_spit", "venom_spit", "eye_beam", "fire_ring", "solar_flare", "wailing_ring", "slime_storm", "feather_storm", "coin_storm", "coil_rush", "frog_leap", "hoard_leap"]:
+		var skill := load("res://data/skills/boss/%s.tres" % path) as SkillDef
+		check(view.show_skill(skill, 0.3, 0.5, 12.0) and view.visible, "telegraphs: %s warns before it comes" % path)
+	view.show_skill(load("res://data/skills/boss/wailing_ring.tres"), 0.0, 0.5, 12.0)
+	check(int((view.material as ShaderMaterial).get_shader_parameter("shape")) == TelegraphView.Shape.LANES, "telegraphs: a ring of shots shows its lanes (the gaps read)")
+	check(view.show_skill(load("res://data/skills/monster/charge.tres"), 0.0, 0.5) and int((view.material as ShaderMaterial).get_shader_parameter("shape")) == TelegraphView.Shape.LINE, "telegraphs: a charge shows its line")
+	check(not view.show_skill(load("res://data/skills/boss/call_skeletons.tres"), 0.0, 0.5), "telegraphs: a summon has nothing to warn about")
+	check(view.rotation == 0.0, "telegraphs: the warning's node is never turned (its pixels stay on the world's grid)")
+	view.free()
+
+
+## Layers (docs/vfx.md): flat things under the actors, upright ones sorted with them by their
+## base, things in the air over them. Every element's nova piece lies on the floor or stands on
+## it; shots, impacts and claws fly.
+func _test_layers() -> void:
+	for element in VfxElementDef.all():
+		if element.piece:
+			check(element.piece.layer != VfxLayer.Layer.AIR, "layers: %s's nova piece is on the floor (GROUND or STANDING), not over the actors" % element.id)
+		for sheet: VfxSheetDef in [element.projectile, element.impact, element.claw]:
+			if sheet:
+				check(sheet.layer == VfxLayer.Layer.AIR, "layers: %s's shots, impacts and claws are in the air" % element.id)
+	check(VfxElementDef.named(&"frost").piece.layer == VfxLayer.Layer.STANDING, "layers: ice crystals stand among the actors")
+	check(VfxElementDef.named(&"storm").piece.layer == VfxLayer.Layer.GROUND, "layers: storm's crackles lie under the actors")
+	check(VfxElementDef.named(&"earth").blast.layer == VfxLayer.Layer.STANDING, "layers: the ground bursting stands among the actors, sorted by its base")
+	check((load("res://data/skills/player/shadow_step.tres") as SkillDef).effects[1].get("sheet") == load("res://data/vfx/sheets/kunai.tres"), "physical: Shadow Step's kunai is drawn in 16 directions too")
+	check(Vfx.SIGIL.layer == VfxLayer.Layer.GROUND, "layers: the sigil of heals and buffs lies under whoever stands in it")
+	for path: String in ["smite", "thunder"]:
+		var strike := ((load("res://data/skills/player/%s.tres" % path) as SkillDef).effects[0] as DamageAreaEffect).strike
+		check(strike.layer == VfxLayer.Layer.STANDING, "layers: %s's strike stands among the actors" % path)
+	# Ground under the actors (z 0), air over them and the floor's light.
+	var ring := RingVfx.create(Vector2.ZERO, 40.0, Color.RED)
+	check(ring.z_index < 0 and not ring.z_as_relative, "layers: a ring on the floor is under every actor")
+	ring.free()
+	var sigil := SheetVfx.play(Vfx.SIGIL, Vector2(10, 10))
+	check(sigil.z_index < 0 and VfxLayer.of(sigil) == VfxLayer.Layer.GROUND, "layers: the sigil is drawn under every actor")
+	sigil.free()
+	var telegraph := TelegraphView.new()
+	check(telegraph.z_index < 0 and not telegraph.z_as_relative, "layers: a monster's warning lies under every actor")
+	telegraph.free()
+	var impact := SheetVfx.play(VfxElementDef.named(&"frost").impact, Vector2.ZERO)
+	check(impact.z_index > LightField.Z, "layers: an impact is over the actors and the floor's light")
+	impact.free()
+	var column := ((load("res://data/skills/player/smite.tres") as SkillDef).effects[0] as DamageAreaEffect).strike
+	var standing := SheetVfx.play(column, Vector2(20, 40))
+	check(VfxLayer.of(standing) == VfxLayer.Layer.STANDING and standing.z_index == 0 and standing.y_sort_enabled, "layers: a standing sheet sorts with the actors")
+	check(is_equal_approx(standing.position.y, PixelDraw.snap(Vector2(20, 40)).y + roundf(column.base_offset() / PixelDraw.PX) * PixelDraw.PX), "layers: a standing sheet sorts by its base (the bottom of its frame)")
+	standing.free()
+	var nova := ComposedVfx.ring(Vector2.ZERO, 80.0, VfxElementDef.named(&"frost"))
+	var pieces := nova.get_children().filter(func(n: Node) -> bool: return n is ComposedVfx.StandingPiece)
+	check(VfxLayer.of(nova) == VfxLayer.Layer.STANDING and nova.z_index < 0 and pieces.size() >= 5, "layers: a Frost Nova's crystals are pieces among the actors, its edge and mist under them")
+	var sorted := true
+	for piece: Node2D in pieces:
+		sorted = sorted and piece.z_index == 0 and not piece.z_as_relative and piece.y_sort_enabled
+	check(sorted, "layers: each crystal sorts with the actors by its base")
+	nova.free()
 
 
 # --- Helpers -------------------------------------------------------------------

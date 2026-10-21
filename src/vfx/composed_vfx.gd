@@ -6,6 +6,10 @@ extends Node2D
 ## pieces, never by stretching a sheet (docs/vfx.md). The pieces nearest the source start first,
 ## so it reads as a wave going out; when they break they shed the element's residue (cold mist,
 ## smoke, dust) that sinks and dithers away. Without a piece in the kit it falls back to a ring.
+## Its pieces are on their sheet's layer (VfxLayer): flat ones (storm's crackles) under the
+## actors; upright ones (ice crystals, rays, smoke) each sorted with the actors by its base, so
+## a hero standing in a Frost Nova stands among the crystals, not under them. The wave's edge
+## and the residue lie on the ground, under everyone.
 
 ## Seconds for the wave to reach its outer pieces (the main action, in the first quarter).
 const SPREAD_TIME := 0.12
@@ -18,6 +22,21 @@ var _age := 0.0
 var _life := 0.6
 ## The outline of the wave on the ground (rings only).
 var _radius := 0.0
+## Upright pieces are nodes of their own among the actors (one per piece, sorted by its base).
+var _standing := false
+
+
+## One upright piece, sorted with the actors by its base (the parent draws it).
+class StandingPiece extends Node2D:
+	var composed: ComposedVfx
+	var piece: Dictionary
+	var lift := 0.0
+
+	func _process(_delta: float) -> void:
+		queue_redraw()
+
+	func _draw() -> void:
+		composed.draw_piece(self, piece, Vector2(0, -lift))
 
 
 ## Pieces of `element` filling a disc of `radius` around `at`: an outer ring and, for big
@@ -100,9 +119,25 @@ func _add(where: Vector2, delay: float) -> void:
 
 
 func _finish() -> void:
-	z_index = 4
 	# The farther (upper) pieces first, so the nearer ones stand in front.
 	_pieces.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.at.y < b.at.y)
+	var layer := element.piece.layer
+	VfxLayer.apply(self, layer)
+	VfxLayer.light_up(self, element, maxf(_radius, 32.0))
+	if layer == VfxLayer.Layer.STANDING:
+		# Among the actors (World.spawn_vfx), its own drawing (the edge, the residue) flat under
+		# them; each piece a node of its own at its base, sorted with them.
+		_standing = true
+		z_index = VfxLayer.GROUND_Z
+		var lift := roundf(element.piece.base_offset() / PixelDraw.PX) * PixelDraw.PX
+		for piece in _pieces:
+			var node := StandingPiece.new()
+			node.composed = self
+			node.piece = piece
+			node.lift = lift
+			node.position = piece.at + Vector2(0, lift)
+			VfxLayer.apply(node, VfxLayer.Layer.STANDING)
+			add_child(node)
 	var longest := 0.0
 	for piece in _pieces:
 		longest = maxf(longest, piece.delay)
@@ -125,22 +160,27 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 
-func _draw() -> void:
+## Piece `piece` as it is now, drawn on `canvas` at `at`.
+func draw_piece(canvas: CanvasItem, piece: Dictionary, at: Vector2) -> void:
 	var sheet := element.piece
-	var frames := sheet.frame_count()
+	var local: float = _age - piece.delay
+	if local < 0.0:
+		return
+	# A piece's own last frames are its dissipation (fragments, a few chips).
+	var frame := int(local * sheet.fps)
+	if frame >= sheet.frame_count():
+		return
+	PixelDraw.sheet(canvas, sheet, frame, at, Vector2.RIGHT, element, Color.WHITE, piece.flip, piece.variant)
+
+
+func _draw() -> void:
 	# The wave's edge on the ground: a thin stepped ring in the dark step, gone once out.
 	if _radius > 0.0 and _age < SPREAD_TIME * 2.0:
 		var t := _age / (SPREAD_TIME * 2.0)
 		PixelDraw.ring(self, Vector2.ZERO, _radius * minf(0.4 + t, 1.0), element.shade(0.75), 1, 1.0 - t)
-	for piece in _pieces:
-		var local: float = _age - piece.delay
-		if local < 0.0:
-			continue
-		# A piece's own last frames are its dissipation (fragments, a few chips).
-		var frame := int(local * sheet.fps)
-		if frame >= frames:
-			continue
-		PixelDraw.sheet(self, sheet, frame, piece.at, Vector2.RIGHT, element, Color.WHITE, piece.flip, piece.variant)
+	if not _standing:
+		for piece in _pieces:
+			draw_piece(self, piece, piece.at)
 	for mote in _motes:
 		var t: float = (_age - mote.born) / mote.life
 		if t >= 1.0:

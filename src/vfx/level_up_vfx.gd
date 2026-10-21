@@ -17,6 +17,8 @@ const RING_TIME := 0.9
 const GLINTS := 4
 
 var _age := 0.0
+## The rings, on the floor under every body (VfxLayer.GROUND); the column stays in the air.
+var _rings: Node2D
 
 
 static func attach(actor: Node2D) -> void:
@@ -31,6 +33,15 @@ func _ready() -> void:
 	add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 	add.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
 	material = add
+	_rings = Node2D.new()
+	VfxLayer.apply(_rings, VfxLayer.Layer.GROUND)
+	_rings.use_parent_material = true
+	_rings.draw.connect(_draw_rings)
+	add_child(_rings)
+	# Under the floor's light, the rings are lit by a flash of the same gold.
+	var actor := get_parent() as Actor
+	if actor and actor.world:
+		actor.world.flash_light(actor.global_position, VfxElementDef.named(&"holy").color(), 220.0)
 
 
 func _process(delta: float) -> void:
@@ -39,6 +50,7 @@ func _process(delta: float) -> void:
 		queue_free()
 		return
 	queue_redraw()
+	_rings.queue_redraw()
 
 
 func _draw() -> void:
@@ -67,12 +79,16 @@ func _draw() -> void:
 		var at := Vector2((-8.0 if i % 2 == 0 else 7.0) + i * 2.0 - 4.0, -6.0 - 60.0 * glint_t)
 		var size := 2 if glint_t < 0.5 else 1
 		PixelDraw.bit(self, VfxElementDef.Bit.GLINT, at, size, holy.shade(0.25 + glint_t * 0.5), Vector2.UP, holy.core() if glint_t < 0.4 else Color.TRANSPARENT)
-	# Rings on the ground, one after the other: a bright rim, a dimmer one inside.
+
+
+## Rings on the ground, one after the other: a bright rim, a dimmer one inside.
+func _draw_rings() -> void:
+	var holy := VfxElementDef.named(&"holy")
 	for i in RINGS:
 		var ring_t := (_age - i * RING_GAP) / RING_TIME
 		if ring_t <= 0.0 or ring_t >= 1.0:
 			continue
 		var radius := lerpf(10.0, 58.0, ease(ring_t, 0.4))
 		var alpha := 1.0 - ease(ring_t, 1.6)
-		PixelDraw.ring(self, Vector2(0, 6), radius, holy.shade(0.25 if ring_t < 0.3 else 0.5), 1, alpha, 0.45)
-		PixelDraw.ring(self, Vector2(0, 6), radius - 5.0, holy.shade(0.75), 1, alpha * 0.6, 0.45)
+		PixelDraw.ring(_rings, Vector2(0, 6), radius, holy.shade(0.25 if ring_t < 0.3 else 0.5), 1, alpha, 0.45)
+		PixelDraw.ring(_rings, Vector2(0, 6), radius - 5.0, holy.shade(0.75), 1, alpha * 0.6, 0.45)

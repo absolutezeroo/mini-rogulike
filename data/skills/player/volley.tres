@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" path="res://assets/ui/skills/volley.png" id="4_q1fw3"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_r1gq3"]
 [ext_resource type="AudioStream" path="res://data/audio/launch.tres" id="6_gq1bo"]
+[ext_resource type="Resource" path="res://data/vfx/sheets/arrow.tres" id="sheet_arrow"]
 
 [sub_resource type="Resource" id="Resource_8bym5"]
 script = ExtResource("2_7l0py")
@@ -19,6 +20,7 @@ pierce = 1
 knockback = 100.0
 color = Color(0.654902, 0.7882353, 0.34117648, 1)
 texture = ExtResource("3_cfdh6")
+sheet = ExtResource("sheet_arrow")
 
 [resource]
 script = ExtResource("5_r1gq3")

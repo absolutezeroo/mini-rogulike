@@ -134,9 +134,8 @@ func _draw() -> void:
 		var blink := int(_fuse * 14.0) % 2 == 0
 		color = Color(2.0, 0.8, 0.6) if blink else color
 		offset.x += randf_range(-1.5, 1.5)
-	draw_set_transform(Vector2(0, half - 4.0), 0.0, Vector2(1.0, 0.35))
-	draw_circle(Vector2.ZERO, half * 0.75, Color(0, 0, 0, 0.3))
-	draw_set_transform(Vector2.ZERO)
+	PixelDraw.disc(self, Vector2(0, half - 4.0), half * 0.75, Color(0, 0, 0, 0.3), 1.0, 0.35)
+	offset = PixelDraw.snap(offset)  # it rattles by whole art pixels
 	var frame := 1 if is_open else 0
 	var frame_size := float(def.icon.get_height())
 	draw_texture_rect_region(def.icon, Rect2(Vector2(-half, -half) + offset, Vector2(SIZE, SIZE)), Rect2(frame * frame_size, 0, frame_size, frame_size), color)

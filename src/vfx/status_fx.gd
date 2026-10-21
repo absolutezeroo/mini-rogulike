@@ -31,12 +31,18 @@ var _bits: Array[Bit] = []
 var _active: Array[StringName] = []
 var _spawn := {}  # status -> [particle timer, mote timer, mist timer]
 var _time := 0.0
+## The cold mist and hazes at the feet: on the floor, under every body (VfxLayer.GROUND), while
+## the crust, flames and bubbles are on the body (sorted with it).
+var _feet: Node2D
 
 
 func _init(owner_actor: Actor) -> void:
 	actor = owner_actor
-	z_index = 2
 	set_physics_process(false)
+	_feet = Node2D.new()
+	VfxLayer.apply(_feet, VfxLayer.Layer.GROUND)
+	_feet.draw.connect(_draw_mist)
+	add_child(_feet)
 
 
 func _ready() -> void:
@@ -78,6 +84,7 @@ func _process(delta: float) -> void:
 	if not visible:
 		set_process(false)  # asleep until a status lands again (wake())
 	queue_redraw()
+	_feet.queue_redraw()
 
 
 ## A status is on the body: show it.
@@ -217,11 +224,18 @@ func _draw() -> void:
 					# Grows over its frames once, then holds the last one.
 					var frame := mini(int(bit.age * 14.0), look.crust_frames - 1)
 					_draw_frame(look.crust, look.crust_frames, -1.0, bit.position, look.texel, Color.WHITE, frame, bit.flip)
-			Kind.MIST:
-				if PixelDraw.dither(PixelDraw.cell_of(bit.position), 1.0 - t):
-					PixelDraw.pixel(self, bit.position, Color(look.element.residue, 1.0) if t < 0.5 else look.element.shade(0.75), bit.size)
 			Kind.MOTE:
 				_draw_mote(bit, t)
+
+
+## The mist bits, on the feet's node (under every body).
+func _draw_mist() -> void:
+	for bit in _bits:
+		if bit.kind != Kind.MIST:
+			continue
+		var t := clampf(bit.age / bit.life, 0.0, 0.999)
+		if PixelDraw.dither(PixelDraw.cell_of(bit.position), 1.0 - t):
+			PixelDraw.pixel(_feet, bit.position, Color(bit.look.element.residue, 1.0) if t < 0.5 else bit.look.element.shade(0.75), bit.size)
 
 
 func _draw_mote(bit: Bit, t: float) -> void:

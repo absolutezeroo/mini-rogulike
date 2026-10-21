@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SlashDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/vfx/slash_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+shape = 0
+arc_degrees = 150.0
+thickness = 30.0
+strokes = 2
+reach_scale = 0.95
+duration = 0.16
+trail = 0.8

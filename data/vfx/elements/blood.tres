@@ -14,6 +14,7 @@ linger = 0.15
 
 [sub_resource type="Resource" id="piece"]
 script = ExtResource("2")
+layer = 2
 texture = ExtResource("4")
 frames = 7
 variants = 3

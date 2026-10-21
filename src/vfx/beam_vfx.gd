@@ -30,6 +30,7 @@ static func create(from: Vector2, to: Vector2, color: Color, of_element: VfxElem
 	vfx._color = color
 	vfx.element = of_element
 	vfx.z_index = 6
+	VfxLayer.apply(vfx, VfxLayer.Layer.AIR)  # a beam between bodies, at chest height
 	var look := CanvasItemMaterial.new()
 	look.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
 	if of_element == null:

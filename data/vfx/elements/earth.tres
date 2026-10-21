@@ -23,6 +23,7 @@ linger = 0.15
 
 [sub_resource type="Resource" id="piece"]
 script = ExtResource("2")
+layer = 2
 texture = ExtResource("5")
 frames = 8
 variants = 3
@@ -32,6 +33,7 @@ linger = 0.0
 
 [sub_resource type="Resource" id="blast"]
 script = ExtResource("2")
+layer = 2
 texture = ExtResource("6")
 frames = 8
 fps = 14.0

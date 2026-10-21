@@ -110,8 +110,8 @@ func _draw_campfire() -> void:
 		draw_rect(area.grow(def.reach), breathing)
 		_draw_pond()
 	else:
-		draw_circle(Vector2.ZERO, def.reach, breathing)
-		draw_arc(Vector2.ZERO, def.reach, 0.0, TAU, 48, Color(glow, glow.a * 2.0), 2.0)
+		PixelDraw.disc(self, Vector2.ZERO, def.reach, breathing)
+		PixelDraw.ring(self, Vector2.ZERO, def.reach, Color(glow, minf(glow.a * 2.0, 1.0)))
 	if def.sprite:
 		var size := def.sprite.get_size() * 2.0
 		draw_texture_rect(def.sprite, Rect2(-size * 0.5, size), false)
@@ -128,23 +128,21 @@ func _draw_campfire() -> void:
 			draw_texture_rect_region(def.flames, Rect2(PixelDraw.snap(offset - size * 0.5), size),
 				Rect2(Vector2(frame * frame_size.x, 0), Vector2(frame_size)))
 	elif def.sprite == null and def.pond == null:
-		draw_circle(Vector2.ZERO, 10.0, Color("ff9f1c"))  # nothing to show: a plain fire
+		PixelDraw.disc(self, Vector2.ZERO, 10.0, VfxElementDef.named(&"fire").color())  # nothing to show: a plain fire
 
 
 ## The pond: each cell takes the shore tile matching its place (corner, edge, water), then
 ## ripples here and there.
 func _draw_pond() -> void:
 	for blob in _ground_blobs:
-		draw_circle(Vector2(blob.x, blob.y), blob.z, def.pond_ground.darkened(0.25))
+		PixelDraw.disc(self, Vector2(blob.x, blob.y), blob.z, def.pond_ground.darkened(0.25))
 	for blob in _ground_blobs:
-		draw_circle(Vector2(blob.x, blob.y), blob.z - 3.0, def.pond_ground)
+		PixelDraw.disc(self, Vector2(blob.x, blob.y), blob.z - 3.0, def.pond_ground)
 	NineSlice.draw(self, def.pond, Rect2i(Vector2i.ZERO, def.pond.get_size()), area, rect.size, float(world.map.tile_size))
 	for ripple in _ripples:
 		var t := fposmod(_time * 0.5 + ripple.z, 1.0)
 		var center := Vector2(ripple.x, ripple.y)
-		draw_set_transform(center, 0.0, Vector2(1.0, 0.6))
-		draw_arc(Vector2.ZERO, 2.0 + 9.0 * t, 0.0, TAU, 16, Color(1, 1, 1, 0.6 * (1.0 - t)), 1.5)
-		draw_set_transform(Vector2.ZERO)
+		PixelDraw.ring(self, center, 2.0 + 9.0 * t, Color(1, 1, 1, 0.6), 1, 1.0 - t, 0.6)
 
 
 ## Water nobody walks on: a body on the water layer, cells blocked for the monsters' paths.
@@ -208,12 +206,13 @@ func _draw_hot_ground() -> void:
 	draw_rect(area.grow(-6.0), Color(glow, glow.a * 0.6 * pulse))
 	var crack_color := Color(glow.lightened(0.5), 0.55 + 0.35 * pulse)
 	for crack in _cracks:
-		draw_polyline(crack, crack_color, 2.0)
+		PixelDraw.polyline(self, crack, Color(crack_color, 1.0), 1, crack_color.a)
 	for i in EMBERS:
 		var x := area.position.x + fposmod(i * 37.0 + 11.0, area.size.x)
 		var rise := fposmod(_time * (18.0 + i * 3.0) + i * 23.0, 40.0)
 		var at := Vector2(x + sin(_time * 2.0 + i) * 4.0, area.end.y - 8.0 - rise - fposmod(i * 29.0, area.size.y - 16.0))
-		draw_rect(Rect2(at.snapped(Vector2(2, 2)), Vector2(2, 2)), Color(1.0, 0.75, 0.3, 1.0 - rise / 40.0))
+		if PixelDraw.dither(PixelDraw.cell_of(at), 1.0 - rise / 40.0):
+			draw_rect(Rect2(at.snapped(Vector2(2, 2)), Vector2(2, 2)), Color(1.0, 0.75, 0.3))
 
 
 func _make_cracks(rng: RandomNumberGenerator) -> Array[PackedVector2Array]:

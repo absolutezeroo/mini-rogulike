@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="6_33phs"]
 [ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="7_2airg"]
 [ext_resource type="Resource" path="res://data/vfx/elements/shadow.tres" id="vfx_shadow"]
+[ext_resource type="Resource" path="res://data/vfx/sheets/kunai.tres" id="sheet_kunai"]
 
 [sub_resource type="Resource" id="Resource_py8e7"]
 script = ExtResource("2_hb42l")
@@ -25,6 +26,7 @@ radius = 6.0
 count = 3
 spread_degrees = 24.0
 texture = ExtResource("4_kp0qk")
+sheet = ExtResource("sheet_kunai")
 delay = 0.12
 
 [resource]

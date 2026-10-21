@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" path="res://assets/ui/skills/kunai_fan.png" id="4_fupvp"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_bb25o"]
 [ext_resource type="AudioStream" path="res://data/audio/launch.tres" id="6_2c5ss"]
+[ext_resource type="Resource" path="res://data/vfx/sheets/kunai.tres" id="sheet_kunai"]
 
 [sub_resource type="Resource" id="Resource_gxi8n"]
 script = ExtResource("2_vb6vc")
@@ -18,6 +19,7 @@ spread_degrees = 50.0
 knockback = 100.0
 color = Color(0.7529412, 0.8392157, 0.8745098, 1)
 texture = ExtResource("3_j51su")
+sheet = ExtResource("sheet_kunai")
 
 [resource]
 script = ExtResource("5_bb25o")

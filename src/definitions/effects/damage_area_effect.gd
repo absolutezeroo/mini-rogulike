@@ -23,6 +23,9 @@ extends Effect
 @export var strike: VfxSheetDef
 
 @export_group("Effect sheet")
+## Drawn as a blade's blow (Cleave's crescent, Whirlwind's spin: data/vfx/slashes/) from the
+## user toward the aim, its edge at the area's far side, instead of a sheet or a nova.
+@export var slash: SlashDef
 ## Played on the area, e.g. a circular slash or rock spikes. Without one, a ring is drawn.
 @export var fx: Texture2D
 ## Frames in the sheet. 0 = square frames.
@@ -39,6 +42,9 @@ func apply(user: Actor, aim: Vector2) -> void:
 	Combat.damage_area(user.world, user, center, radius, base, knockback, false, status, element)
 	if explosive:
 		Vfx.explosion(user.world, center, radius, element)
+	elif slash:
+		var reach := offset + radius if slash.shape != SlashDef.Shape.SPIN else radius
+		SwingVfx.slash(user.world, slash, user.global_position + Vector2(0, -6), aim, reach, element, user.faction != Actor.Faction.PLAYER)
 	elif fx:
 		# The sheet at the nearest whole size of the art's pixel (SheetVfx snaps it), not
 		# stretched to the radius: a 32-pixel sheet over a 110 radius is drawn 6x, never 6.9x.

@@ -82,15 +82,13 @@ func _exit_tree() -> void:
 func _draw() -> void:
 	if item == null:
 		return
-	var bob := Vector2(0, sin(_time * 3.0) * 2.0 - 4.0)
-	# Shadow on the ground, then a soft glow in the item's color.
-	draw_set_transform(Vector2(0, 8), 0.0, Vector2(1.0, 0.4))
-	draw_circle(Vector2.ZERO, 9.0, Color(0, 0, 0, 0.3))
-	draw_set_transform(Vector2.ZERO)
+	var bob := PixelDraw.snap(Vector2(0, sin(_time * 3.0) * 2.0 - 4.0))
+	# Shadow on the ground, then a soft glow in the item's color (flat stepped discs).
+	PixelDraw.disc(self, Vector2(0, 8), 9.0, Color(0, 0, 0, 0.3), 1.0, 0.4)
 	var rarity := (item as EquipmentDef).rarity if item is EquipmentDef else ItemRarity.COMMON
 	var glow := item.rarity_color() if rarity > ItemRarity.COMMON or item is RuneDef else item.color
-	glow.a = 0.18 + 0.08 * sin(_time * 4.0) + 0.08 * rarity
-	draw_circle(bob, 14.0 + 2.0 * rarity, glow)
+	glow.a = (0.22 if sin(_time * 4.0) > 0.0 else 0.14) + 0.08 * rarity
+	PixelDraw.disc(self, bob, 14.0 + 2.0 * rarity, glow)
 	if rarity >= ItemRarity.RARE:
 		# A beam of light: rare and epic items are seen from afar.
 		var beam := item.rarity_color()

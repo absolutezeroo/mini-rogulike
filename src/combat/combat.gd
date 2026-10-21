@@ -211,6 +211,7 @@ static func spec_from_weapon(attacker: Actor, weapon: WeaponDef) -> ProjectileSp
 	spec.color = weapon.element.color() if weapon.element else weapon.color
 	spec.texture = weapon.projectile_texture
 	spec.texture_frames = weapon.projectile_frames
+	spec.sheet = weapon.projectile_sheet
 	spec.element = weapon.element
 	spec.status = weapon.on_hit
 	return spec

@@ -53,7 +53,7 @@ func _physics_process(delta: float) -> void:
 
 func _draw() -> void:
 	if def.sheet == null:
-		draw_circle(Vector2.ZERO, radius, Color("c8a165"))
+		PixelDraw.disc(self, Vector2.ZERO, radius, Color("c8a165"))
 		return
 	var frame_size := def.sheet.get_height()
 	var frames := maxi(def.sheet.get_width() / frame_size, 1)

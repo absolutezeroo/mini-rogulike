@@ -1786,6 +1786,17 @@ func _test_details(game: Game) -> void:
 	check(count_of.call(ImpactVfx) >= 1, "a hit flashes")
 	Vfx.explosion(world, player.global_position + Vector2(200, 0), 60.0)
 	check(count_of.call(ShockwaveVfx) >= 1, "a blast ripples the picture")
+	# Layers: a standing effect goes among the actors (sorted with them), the others with the
+	# effects, a flat one under every actor (VfxLayer, docs/vfx.md).
+	var smite_column := ((load("res://data/skills/player/smite.tres") as SkillDef).effects[0] as DamageAreaEffect).strike
+	var column := SheetVfx.play(smite_column, player.global_position + Vector2(40, 0))
+	world.spawn_vfx(column)
+	check(column.get_parent() == world.get_node("Entities"), "a standing effect is sorted with the actors")
+	var floor_ring := RingVfx.create(player.global_position, 40.0, Color.RED)
+	world.spawn_vfx(floor_ring)
+	check(floor_ring.get_parent() == effects and floor_ring.z_index < player.z_index, "a ring on the floor is drawn under the hero")
+	column.queue_free()
+	floor_ring.queue_free()
 	var shroom := world.spawn_monster(load("res://data/monsters/mushroom.tres"), player.global_position + Vector2(80, 0))
 	shroom.target = player
 	await _frames(1)

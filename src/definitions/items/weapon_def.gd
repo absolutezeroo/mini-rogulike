@@ -37,9 +37,13 @@ enum AttackAnimation { SLASH, THRUST, SMASH, SHOOT }
 
 @export_group("Melee")
 @export_range(10.0, 360.0) var arc_degrees: float = 110.0
-## Color of the swing's arc (SwingVfx; thrusts draw a streak). Alpha 0: no arc (claws, bites:
-## their sheet is enough).
-@export var trail_color: Color = Color(0.82, 0.92, 1.0, 0.85)
+## Alpha above 0: the swing draws its arc (SwingVfx; thrusts draw a streak), in the ramp of
+## `element` (steel, `physical`, when it has none; an enemy's adds a warning rim). Alpha 0: no
+## arc (claws, bites: their sheet is enough). Its color only tints the codex's preview.
+@export var trail_color: Color = Color(0.94902, 0.917647, 0.945098, 0.85)
+## The blow drawn as a slash of its own (a heavy club's double crescent, a spin) instead of the
+## plain arc or the `attack_fx` sheet (data/vfx/slashes/).
+@export var slash: SlashDef
 
 @export_group("Sounds")
 @export var attack_sound: AudioStream
@@ -50,6 +54,9 @@ enum AttackAnimation { SLASH, THRUST, SMASH, SHOOT }
 @export var projectile_texture: Texture2D
 ## Frames in a row of `projectile_texture` (0 = square frames).
 @export_range(0, 64) var projectile_frames: int = 0
+## Drawn in flight instead of `projectile_texture`: a thing pre-drawn in 16 directions (an
+## arrow: data/vfx/sheets/).
+@export var projectile_sheet: VfxSheetDef
 @export var projectile_speed: float = 460.0
 @export var projectile_radius: float = 5.0
 @export var projectile_count: int = 1
@@ -71,7 +78,9 @@ func _init() -> void:
 ## steel looks (docs/vfx.md). Claws and bites (no arc, `trail_color` alpha 0) and overhead
 ## smashes play their `attack_fx` sheet instead. One or the other, never both.
 func shows_arc() -> bool:
-	return kind == Kind.MELEE and trail_color.a > 0.0 and attack_animation != AttackAnimation.SMASH
+	if kind != Kind.MELEE:
+		return false
+	return slash != null or (trail_color.a > 0.0 and attack_animation != AttackAnimation.SMASH)
 
 
 func get_type_label() -> String:

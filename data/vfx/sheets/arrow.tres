@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="VfxSheetDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_sheet_def.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/fx/physical/arrow.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+texture = ExtResource("2")
+frames = 1
+orient = 1
+directions = 16
+fps = 10.0
+loop = true

@@ -1,18 +1,18 @@
 [gd_resource type="Resource" script_class="SkillDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_mc38x"]
-[ext_resource type="Texture2D" path="res://assets/fx/cut.png" id="2_pmp7t"]
 [ext_resource type="Script" path="res://src/definitions/effects/dash_strike_effect.gd" id="3_3b7cr"]
 [ext_resource type="Texture2D" path="res://assets/ui/skills/dash_strike.png" id="4_cgp7a"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_fyiw2"]
 [ext_resource type="AudioStream" path="res://data/audio/slash_heavy.tres" id="6_jcjgn"]
+[ext_resource type="Resource" path="res://data/vfx/slashes/iaido.tres" id="slash_iaido"]
 
 [sub_resource type="Resource" id="Resource_jvk1s"]
 script = ExtResource("3_3b7cr")
 distance = 170.0
 width = 30.0
 damage_multiplier = 1.5
-fx = ExtResource("2_pmp7t")
+slash = ExtResource("slash_iaido")
 
 [resource]
 script = ExtResource("5_fyiw2")
