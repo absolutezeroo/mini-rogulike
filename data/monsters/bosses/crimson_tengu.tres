@@ -33,7 +33,7 @@ script = ExtResource("1_872si")
 id = &"weapon_lance"
 goal = 10
 text = "Pin the Crimson Tengu with a Lance"
-souls = 70
+souls = 12
 weapon = ExtResource("2_3khwv")
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wg1qy"]

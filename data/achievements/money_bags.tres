@@ -11,4 +11,4 @@ description = "Pick up 400 gold in a single run."
 icon = ExtResource("1_it2ty")
 stat = 12
 target = 400
-reward_souls = 40
+reward_souls = 25

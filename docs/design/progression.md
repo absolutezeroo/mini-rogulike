@@ -68,8 +68,11 @@ the days in a row (`Profile.daily_*`); later attempts that day are practice. Sco
 30 per floor, 150 per boss, 1000 for a victory, 1 per 5 gold picked up. The game over screen
 shows it.
 
-Every run ends (death or victory) with **souls**: 1 per kill, 5 per floor, 20 per boss, 100 for a
-victory. Souls are kept forever (gold only lasts for the run). At the **shrine** (`ShrinePanel`)
+Every run ends (death or victory) with **souls** (`DungeonConfig` > Souls, `souls_for_run()`):
+a tenth of a soul per kill (the tenths add up over the run, rounded once at the end), 4 per floor
+gone down, 10 per boss, 40 for a victory, times the difficulty. Going deeper pays, farming
+monsters doesn't: in a run that dies at act III's boss on Keeper (about 80 souls), the kills are 25 of
+them. Souls are kept forever (gold only lasts for the run). At the **shrine** (`ShrinePanel`)
 they buy the nodes of the **Tree of Souls** (`data/shrine/soul_tree.tres`, `SoulTreeDef`,
 `SoulNodeDef`). Four branches, each a fantasy, side by side on one screen (`SoulTreeView`):
 
@@ -104,6 +107,13 @@ glance. Every oath has at least one of each (a unit check).
 
 Not in the daily run (everyone starts the same). The run keeps its oath in the save (`RunState.oath`).
 
+**The pace of the tree** (measured: `tools/balance` economy mode, table "economy_campaign"): a
+full tree (the dearer side of each fork) is a campaign of about 40-45 runs on Keeper, every source
+counted (runs, quests, the bestiary's ranks and challenges, achievements), some 25 hours; the
+first node is bought after the first run; the bestiary and the achievements pay about a sixth of
+the tree in the first 10 runs (they used to pay more than the whole tree). Martyr and Nightmare
+pay more per run (x1.6, x2.5, and more monsters).
+
 Locked items (`content_db.tres` > Locked Items) never appear on the floor until unlocked.
 The `Profile` autoload keeps souls, upgrades and records in `user://profile.json` (works on phones).
 
@@ -113,7 +123,8 @@ Every day, 3 **daily quests**; every week (from Monday), 3 **weekly quests**
 (`data/quests/`, `QuestDef`, drawn by `QuestBoard` from the date: everyone gets the same ones,
 UTC). "Slay 60 monsters", "Open 4 chests", "Reach floor 6 in one run", "Go through a cursed
 floor", "Defeat 5 bosses", "Win a run"... They count what you do in any run during that day
-or week (`Profile.period_stat`), pay their souls as soon as they're done (a toast in the game)
+or week (`Profile.period_stat`), pay their souls as soon as they're done (a toast in the game:
+5-18 for a daily quest, 30-70 for a weekly one, more for a harder goal)
 and show on the title screen (**Quests**, also a tab of the Codex) with the time left.
 
 ## Codex: bestiary, achievements, runs
@@ -125,12 +136,15 @@ what it is, its stats and ways (flies, keeps its distance, traits, a boss' phase
 blast, charge, summons or heal, built from the WeaponDef / SkillDef data), and its challenges.
 - **Hunter ranks** (`BestiaryRules`, `data/bestiary.tres`; `Bestiary`): Known (1 kill), Hunted
   (10), Mastered (30) for monsters, 1/3/6 for bosses. Each rank pays souls once
-  (5/15/40, bosses 30/60/120); Mastered gives **+10% damage** to that kind for good.
+  (2/4/8, bosses 8/12/25); Mastered gives **+10% damage** to that kind for good.
 - **Challenges** (`HuntChallenge`, watched by `HuntTracker`): every monster gets those that
   apply (an elite one, pushed into a hole, 3 within 5 s, untouched since it saw you, a crit
   finish; summoned monsters and the Threshold's spectres count for none), every boss its own (with a ranged weapon, with a melee one, under 90 s, without a
   potion, losing less than 25% HP) plus one with a given weapon (`MonsterDef.challenges`: the
-  Bloated King with a Bow, the Ember Ronin with a Katana...). Done once, paid in souls, with a toast.
+  Bloated King with a Bow, the Ember Ronin with a Katana...). Done once, paid in souls, with a toast:
+  2-4 for a monster's (3 for an elite one, 4 for a hole, 3 for a streak, 3 untouched, 2 for a crit
+  finish), 5-15 for a boss' (melee 5, ranged 8, no potion 8, under 90 s 12, losing little Health 15,
+  its weapon 12).
 
 The **Codex** (`CodexPanel`, from the title screen and the pause menu) is built in code in the
 game's skin (`RpgWindow`, like the bag and the forge): four tabs in its header, the souls you hold
@@ -152,8 +166,8 @@ with a finger (`TouchScroll`); `CodexRows` builds their rows, with a tick box fo
   rooms found, hidden bosses slain, trials of the Threshold won: *Not Yet*), with a progress bar and its reward; the closest to done
   first. Reaching it pays souls, with a note at the top of the screen. A **secret** one
   (`AchievementDef.secret`) shows as "???" ("A secret feat. Some doors only open from the other
-  side.") until reached: "Laid to Rest at Last" (slay the hidden floor's boss, 80 souls) would
-  give the hidden floor away. "What the Walls Keep": find 5 secret rooms (40 souls).
+  side.") until reached: "Laid to Rest at Last" (slay the hidden floor's boss, 50 souls) would
+  give the hidden floor away. "What the Walls Keep": find 5 secret rooms (25 souls).
 - **Runs**: the fastest wins, then the last 20 runs: how each ended (victory, or the floor and
   what slew you), when, the difficulty, how far (floor N of 12), how long, level, weapon, kills
   and the souls earned.

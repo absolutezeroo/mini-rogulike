@@ -11,4 +11,4 @@ description = "Open 25 chests."
 icon = ExtResource("1_fp3vo")
 stat = 11
 target = 25
-reward_souls = 30
+reward_souls = 20

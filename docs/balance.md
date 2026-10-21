@@ -107,7 +107,14 @@ take 5 s to a minute each; the `balance` test suite about a minute.
   chest opened; gold, XP, items by rarity, runes counted; a merchant's stock priced on each floor;
   ambushes and encounters valued from their data. Gold per floor (full clear and typical) vs stock
   prices, rerolls and rune removal; XP before each boss -> level (the expected builds' reasoning);
-  rarity per depth and source; souls per run by result and difficulty vs the shrine's total.
+  rarity per depth and source; souls per run by result and difficulty vs the shrine's total; and
+  a whole **Keeper career** (`BalanceSouls`, table "economy_campaign"): run after run (a career of
+  results: first runs die to act I's boss, then act II, III, IV, then half the runs win), every
+  source of souls added as expected values: the run's souls and the hidden floor, hunter ranks
+  (from the kills of each kind measured on the floors), bestiary challenges (a chance per kill of
+  each kind), achievements (from the counters a career reaches), quests (two runs a day) - against
+  the Tree of Souls (a full tree: the dearer side of each fork; every node). The assumptions are
+  constants at the top of `balance_souls.gd`, each with its reason. Skipped with `--quick`.
 - **compound** (engine): attack speed x crit x damage (Frenzy, Precision, Strength, War Banner
   alone and together vs the product of the parts); Hydra's Quiver and Prism on every ranged weapon at
   64, 128, 256 px; echo (Echo perk, Echo runes, of Echoes, Arcane Focus); burn stacking (Ignite,
@@ -156,8 +163,9 @@ lab before changing data.
 | One sustain source alone, cut by the budget in rooms | <= 10% | a single Leech or Vampirism is never capped on packs |
 | Gold between merchants / an average stock item | 0.8-3 items | buy something most visits, never everything |
 | A reroll / rune removal vs a floor's gold | <= 35% / <= 60% | cheap enough to use |
-| Runs to buy the whole shrine (dying in act II-III, Keeper) | 15-60 | a long goal, not a grind |
-| First run (dies at the act I boss) | buys a shrine level | something to show for it |
+| Runs to a full Tree of Souls, a Keeper career with every source (economy_campaign) | 40-60 (was: 15-60 runs dying in act II-III, run souls only) | a campaign, not a few evenings; the old target ignored the bestiary, achievements and quests, which paid more than the whole tree |
+| Runs to the first node (Keeper career) | <= 2 | something to show for the first runs |
+| One-time souls (hunter ranks, challenges, achievements) in the first 10 runs | <= 20% of the full tree | the first hours' burst must not hand out the tree |
 
 ### Builds (data/balance/builds/)
 

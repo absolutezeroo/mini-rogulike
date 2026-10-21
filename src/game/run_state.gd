@@ -51,12 +51,15 @@ var secrets_found := 0
 ## Souls earned on top of the usual ones (the hidden floor's boss), before the difficulty's
 ## multiplier.
 var bonus_souls := 0
+## The dungeon's rules (what a run's souls are worth). Set by create(); not saved.
+var config: DungeonConfig
 
 
 ## A new run, or the saved one (`saved` from RunSave; empty for a new run).
 ## `daily_day`: a new daily run of that day (DailyRun), on Normal.
 static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGenerator, daily_day: int = -1) -> RunState:
 	var run := RunState.new()
+	run.config = content.dungeon
 	run.daily_day = int(saved.get("daily_day", daily_day))
 	run.daily_official = bool(saved.get("daily_official", false))
 	if run.daily_day >= 0 and saved.is_empty():
@@ -120,7 +123,7 @@ static func _pick_difficulty(content: ContentDB, saved: Dictionary) -> Difficult
 
 ## Souls this run is worth so far (what the shrine gets when it ends).
 func souls() -> int:
-	return Profile.souls_for_run(kills, depth, bosses_slain, has_won, difficulty.souls) + roundi(bonus_souls * difficulty.souls)
+	return config.souls_for_run(kills, depth, bosses_slain, has_won, difficulty.souls) + roundi(bonus_souls * difficulty.souls)
 
 
 ## Adds the souls not given yet to the profile; returns them.

@@ -582,7 +582,8 @@ func _test_souls(game: Game) -> void:
 	await _frames(90)
 	check(gathered[0] >= 1, "the soul reaches the hero's lantern")
 	var shown := int((game.hud.get_node("%SoulsLabel") as Label).text.trim_prefix("Souls "))
-	check(shown > 0 and shown <= game.run_souls(), "the HUD counts the run's souls")
+	# (A kill is a share of a soul, DungeonConfig.souls_per_kill: the HUD shows the run's whole souls.)
+	check(game.run.kills >= 1 and shown == game.run_souls(), "the HUD counts the run's souls (%d shown, %d)" % [shown, game.run_souls()])
 	Events.soul_gathered.disconnect(on_soul)
 
 

@@ -10,4 +10,4 @@ display_name = "Not Yet"
 description = "Win the trial of the Threshold and come back to life."
 icon = ExtResource("1_feather")
 stat = 15
-reward_souls = 25
+reward_souls = 15

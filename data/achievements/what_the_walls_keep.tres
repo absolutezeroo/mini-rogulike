@@ -11,4 +11,4 @@ description = "Find 5 secret rooms."
 icon = ExtResource("1_icon")
 stat = 16
 target = 5
-reward_souls = 40
+reward_souls = 25

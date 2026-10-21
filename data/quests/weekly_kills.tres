@@ -7,6 +7,6 @@ script = ExtResource("1_87w1u")
 period = 1
 target = Vector2i(400, 700)
 step = 50
-reward = Vector2i(100, 160)
+reward = Vector2i(30, 50)
 id = &"weekly_kills"
 display_name = "Slay 400 monsters"

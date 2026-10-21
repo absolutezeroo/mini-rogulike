@@ -40,7 +40,7 @@ script = ExtResource("1_e5a27")
 id = &"weapon_hammer"
 goal = 10
 text = "Shatter the Azure Wyrm with a Hammer"
-souls = 70
+souls = 12
 weapon = ExtResource("2_n5mnf")
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_xsw62"]

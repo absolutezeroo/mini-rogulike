@@ -6,6 +6,7 @@
 script = ExtResource("1_nipgi")
 stat = "floors"
 target = Vector2i(5, 10)
+reward = Vector2i(6, 12)
 step = 1
 goal_text = "Go down %d floors"
 id = &"daily_floors"

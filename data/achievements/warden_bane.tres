@@ -11,4 +11,4 @@ description = "Defeat 10 wardens."
 icon = ExtResource("1_x40ko")
 stat = 2
 target = 10
-reward_souls = 80
+reward_souls = 50

@@ -11,4 +11,4 @@ description = "Discover 15 kinds of creatures in the bestiary."
 icon = ExtResource("1_h137p")
 stat = 3
 target = 15
-reward_souls = 40
+reward_souls = 25

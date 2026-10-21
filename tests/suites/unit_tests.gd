@@ -34,6 +34,7 @@ func run() -> void:
 	_test_pilgrim_costs()
 	_test_bosses()
 	_test_profile()
+	_test_soul_economy()
 	_test_run_time()
 	_test_floor_size()
 	_test_plateau_mist()
@@ -1543,10 +1544,49 @@ func _test_bosses() -> void:
 		check(_bad_wall_cells(map).is_empty(), "arena floors have clean walls")
 
 
+## Typical kills before each act's boss on Keeper (economy, 2026-10-21: 80/75/65/60% of the
+## monsters of the act's floors, bosses included), for the soul checks below.
+const KEEPER_KILLS_BEFORE_BOSS := [49, 145, 251, 365]
+
+
+## The Tree of Souls is a campaign (docs/balance-log.md, 2026-10-21): a run's souls, the
+## one-time pools (bestiary, achievements) and the first run, against the tree's cost.
+func _test_soul_economy() -> void:
+	var config := CONTENT.dungeon
+	var tree := CONTENT.soul_tree
+	var full_tree := BalanceSouls.full_tree_cost(tree)
+	check(full_tree > 0 and full_tree <= BalanceSouls.all_nodes_cost(tree), "a full tree costs souls (%d)" % full_tree)
+	# Kills pay a share of a soul that adds up over the run, rounded once.
+	check(config.souls_for_run(20, 1, 0, false) == roundi(20 * config.souls_per_kill), "kills' shares of a soul add up (%d for 20)" % config.souls_for_run(20, 1, 0, false))
+	# Going deeper pays, farming monsters doesn't: in a run dying at act III's boss, kills are
+	# under half of the souls.
+	var act3 := config.souls_for_run(KEEPER_KILLS_BEFORE_BOSS[2], BalanceContent.boss_depth(CONTENT, 3), 2, false)
+	check(KEEPER_KILLS_BEFORE_BOSS[2] * config.souls_per_kill < act3 * 0.5, "kills are under half of a run's souls (%.0f of %d)" % [KEEPER_KILLS_BEFORE_BOSS[2] * config.souls_per_kill, act3])
+	# A late-career Keeper run (half win, half die at act IV's boss) alone fills the tree in
+	# 40-80 runs (with the bestiary, achievements and quests: 40-60, BalanceSouls).
+	var acts := config.acts.size()
+	var died := config.souls_for_run(KEEPER_KILLS_BEFORE_BOSS[acts - 1], BalanceContent.boss_depth(CONTENT, acts), acts - 1, false)
+	var won := config.souls_for_run(KEEPER_KILLS_BEFORE_BOSS[acts - 1] + 1, config.total_floors(), acts, true)
+	var late_runs := full_tree / ((died + won) * 0.5)
+	check(late_runs >= 40.0 and late_runs <= 80.0, "late Keeper runs alone fill the tree in 40-80 runs (%.0f: %d souls a run, tree %d)" % [late_runs, (died + won) / 2, full_tree])
+	# The one-time pools (hunter ranks, challenges, achievements) are a bonus, not the tree.
+	var pools := BalanceSouls.one_time_pools(CONTENT)
+	var one_time: int = pools.ranks + pools.challenges + pools.achievements
+	check(one_time <= full_tree * 0.6, "the bestiary and achievements pay at most 60%% of the tree (%d of %d)" % [one_time, full_tree])
+	# A first run dying at act I's boss buys a node: its souls, the Known rank of two thirds of
+	# the act's kinds and the first kill's feat.
+	var first_run := config.souls_for_run(KEEPER_KILLS_BEFORE_BOSS[0], BalanceContent.boss_depth(CONTENT, 1), 0, false)
+	first_run += roundi(config.acts[0].monsters.size() * 2.0 / 3.0) * CONTENT.bestiary.monster_souls[0]
+	var first_blood: AchievementDef = load("res://data/achievements/first_blood.tres")
+	first_run += first_blood.reward_souls
+	check(first_run >= BalanceSouls.first_node_cost(tree), "a first run buys a node (%d souls, the cheapest costs %d)" % [first_run, BalanceSouls.first_node_cost(tree)])
+
+
 func _test_profile() -> void:
 	check(CONTENT.upgrades.size() >= 8, "the shrine sells upgrades")
-	check(Profile.souls_for_run(10, 4, 1, false) == 10 + 15 + 20, "souls: kills + depth + bosses")
-	check(Profile.souls_for_run(0, 9, 3, true) > Profile.souls_for_run(0, 9, 3, false), "winning gives a big bonus")
+	var config := CONTENT.dungeon
+	check(config.souls_for_run(10, 4, 1, false) == roundi(10 * config.souls_per_kill + 3 * config.souls_per_floor + config.souls_per_boss), "souls: kills + depth + bosses")
+	check(config.souls_for_run(0, 9, 3, true) > config.souls_for_run(0, 9, 3, false), "winning gives a big bonus")
 	var vitality := _upgrade("vitality")
 	Profile.reset()
 	check(not Profile.buy(vitality), "no souls, no upgrade")
@@ -1585,7 +1625,7 @@ func _test_profile() -> void:
 	check(not Profile.is_unlocked(nightmare), "a Normal win doesn't unlock Nightmare")
 	Profile.record_run(0, 9, true, &"hard")
 	check(Profile.is_unlocked(nightmare), "a Hard win unlocks Nightmare")
-	check(Profile.souls_for_run(10, 5, 1, false, nightmare.souls) > Profile.souls_for_run(10, 5, 1, false), "harder difficulties give more souls")
+	check(config.souls_for_run(10, 5, 1, false, nightmare.souls) > config.souls_for_run(10, 5, 1, false), "harder difficulties give more souls")
 	var previous := 0.0
 	for difficulty in CONTENT.difficulties:
 		check(difficulty.monster_hp >= previous, "difficulties get harder in order (%s)" % difficulty.id)

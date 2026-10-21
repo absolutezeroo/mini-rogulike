@@ -41,7 +41,7 @@ script = ExtResource("1_o02c8")
 id = &"weapon_axe"
 goal = 10
 text = "Cut down the Jade Wyrm with an Axe"
-souls = 70
+souls = 12
 weapon = ExtResource("2_qg5ws")
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_denu1"]

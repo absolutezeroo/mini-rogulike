@@ -31,7 +31,7 @@ script = ExtResource("1_xpnjk")
 id = &"weapon_templar_sword"
 goal = 10
 text = "Smite the Dead Sun with the Templar Sword"
-souls = 70
+souls = 12
 weapon = ExtResource("2_r3h8l")
 
 [sub_resource type="Resource" id="Resource_8aotb"]

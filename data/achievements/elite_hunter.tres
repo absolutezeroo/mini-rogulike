@@ -11,4 +11,4 @@ description = "Slay 20 elite monsters."
 icon = ExtResource("1_5q65m")
 stat = 1
 target = 20
-reward_souls = 40
+reward_souls = 25

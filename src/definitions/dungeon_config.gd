@@ -102,6 +102,17 @@ extends Resource
 @export var prop_gold: Vector2i = Vector2i(1, 3)
 @export var prop_gold_per_depth: float = 0.5
 
+@export_group("Souls")
+## What a run earns for the Tree of Souls (souls_for_run, times the difficulty's `souls`): a
+## share of a soul per monster slain (the shares add up over the run and the total is rounded
+## once, so 0.25 is a soul every four kills)...
+@export_range(0.0, 5.0) var souls_per_kill: float = 1.0
+## ...souls per floor gone down (the bulk: going deeper pays, farming monsters doesn't)...
+@export_range(0, 100) var souls_per_floor: int = 5
+## ...per boss slain, and for winning the run.
+@export_range(0, 200) var souls_per_boss: int = 20
+@export_range(0, 1000) var souls_for_victory: int = 100
+
 @export_group("Temperature")
 ## The hero's body temperature (BodyTemperature): -100 frozen, 0 fine, 100 burning up.
 ## Back to normal by this much per second when nothing warms or chills.
@@ -225,6 +236,12 @@ func elite_chance_at(depth: int) -> float:
 func gold_for_kill(depth: int, multiplier: float, rng: RandomNumberGenerator) -> int:
 	var base := rng.randi_range(gold_per_kill.x, gold_per_kill.y) + gold_per_depth * (depth - 1)
 	return roundi(base * multiplier)
+
+
+## Souls for a run: monsters, depth reached, bosses, winning, times the difficulty (`multiplier`).
+func souls_for_run(kills: int, depth: int, bosses: int, won: bool, multiplier: float = 1.0) -> int:
+	var earned := kills * souls_per_kill + (depth - 1) * souls_per_floor + bosses * souls_per_boss + (souls_for_victory if won else 0)
+	return roundi(earned * multiplier)
 
 
 ## Floors in one pass through every act.
