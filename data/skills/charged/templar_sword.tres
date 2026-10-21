@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="ChargedAttackDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/vfx/slash_def.gd" id="1_slash_def"]
+[ext_resource type="Resource" path="res://data/vfx/elements/holy.tres" id="2_holy"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="3_damage_area_effect"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="4_effect"]
+[ext_resource type="Script" path="res://src/definitions/items/charged_attack_def.gd" id="5_charged_attack_def"]
+
+[sub_resource type="Resource" id="crescent"]
+script = ExtResource("1_slash_def")
+arc_degrees = 180.0
+thickness = 26.0
+strokes = 2
+reach_scale = 1.0
+duration = 0.16
+trail = 0.8
+
+[sub_resource type="Resource" id="judgement"]
+script = ExtResource("3_damage_area_effect")
+radius = 64.0
+damage_multiplier = 2.5
+offset = 32.0
+knockback = 280.0
+element = ExtResource("2_holy")
+slash = SubResource("crescent")
+
+[resource]
+script = ExtResource("5_charged_attack_def")
+id = &"templar_sword"
+display_name = "Judgement"
+description = "A wide blessed crescent in front of you."
+charge_time = 0.9
+move_speed_scale = 0.55
+effects = Array[ExtResource("4_effect")]([SubResource("judgement")])

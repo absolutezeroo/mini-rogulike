@@ -41,6 +41,7 @@ func run() -> void:
 	_test_languages()
 	_test_threshold()
 	_test_text_grid()
+	_test_charged_attacks()
 	var sound := SoundTests.new()
 	sound.run()
 	sound.free()
@@ -85,6 +86,76 @@ func _files_under(dir: String, extension: String) -> Array[String]:
 	for sub in DirAccess.get_directories_at(dir):
 		found.append_array(_files_under(dir.path_join(sub), extension))
 	return found
+
+
+## Every hero's weapon has a charged attack in data, with valid effects, about 2.2 to 3 times a
+## basic hit for the price of the charge; monsters' weapons have none. The charge's rules
+## (AttackCharge): a tap never charges, a full charge fires on release, a cancel waits for the
+## button to be let go.
+func _test_charged_attacks() -> void:
+	var player_def := load("res://data/player/player_def.tres") as PlayerDef
+	check(player_def.charge_delay >= 0.18 and player_def.charge_delay <= 0.25, "charged: a tap never charges (the delay is %.2f s)" % player_def.charge_delay)
+	check(player_def.charge_full_sound != null, "charged: a full charge has its sound")
+	var weapons := 0
+	for file in DirAccess.get_files_at("res://data/items/weapons"):
+		if not file.ends_with(".tres"):
+			continue
+		var weapon := load("res://data/items/weapons/" + file) as WeaponDef
+		var charged := weapon.charged
+		weapons += 1
+		check(charged != null, "charged: %s has a charged attack" % weapon.id)
+		if charged == null:
+			continue
+		check(charged.id == weapon.id and charged.resource_path.begins_with("res://data/skills/charged/"), "charged: %s's is its own (data/skills/charged/%s.tres)" % [weapon.id, weapon.id])
+		check(not charged.display_name.is_empty() and not charged.description.is_empty(), "charged: %s's has a name and a description" % weapon.id)
+		check(charged.charge_time >= 0.6 and charged.charge_time <= 1.3, "charged: %s charges in 0.6-1.3 s (%.2f)" % [weapon.id, charged.charge_time])
+		check(charged.move_speed_scale > 0.2 and charged.move_speed_scale < 1.0, "charged: %s slows the hero while charging" % weapon.id)
+		check(not charged.effects.is_empty() and charged.effects.all(func(e: Effect) -> bool: return e != null), "charged: %s's effects are all there" % weapon.id)
+		# One target's share: every hit of every effect (a fan's stars all landing).
+		var total := 0.0
+		for effect in charged.effects:
+			var multiplier: float = effect.get("damage_multiplier") if effect.get("damage_multiplier") != null else 0.0
+			var shots: int = effect.get("count") if effect is ProjectileEffect else 1
+			total += multiplier * shots
+		var basic := weapon.projectile_damage * weapon.projectile_count if weapon.kind == WeaponDef.Kind.RANGED else 1.0
+		var ratio := total / basic
+		check(ratio >= 2.2 and ratio <= 3.0, "charged: %s's hits %.2fx a basic attack (2.2-3)" % [weapon.id, ratio])
+		check(weapon.get_details().contains(charged.describe()) and charged.describe().begins_with("Hold: "), "charged: %s's card says it (%s)" % [weapon.id, charged.describe()])
+	check(weapons >= 16, "charged: every hero's weapon checked (%d)" % weapons)
+	for file in DirAccess.get_files_at("res://data/items/weapons/monster"):
+		if file.ends_with(".tres"):
+			check((load("res://data/items/weapons/monster/" + file) as WeaponDef).charged == null, "charged: monsters' weapons have none (%s)" % file)
+	var frost := (load("res://data/items/weapons/stick.tres") as WeaponDef).charged
+	var shard := frost.effects[0] as ProjectileEffect
+	check(shard and shard.nova_burst and shard.explosion_radius > 0.0 and shard.element == VfxElementDef.named(&"frost") and shard.status and shard.status.slow > 0.0, "charged: the Frost Staff's great shard shatters into a chilling frost nova")
+	check(shard.sheet and shard.sheet.frame_size() == Vector2i(24, 24) and shard.sheet.texel == 2 and shard.sheet.directions == 16, "charged: the great shard is drawn bigger in 16 directions, at the art's 2x (not stretched)")
+	check((load("res://data/items/weapons/magic_wand.tres") as WeaponDef).charged.effects[0] is ChainLightningEffect, "charged: the Spark Wand's bolt chains")
+	check(((load("res://data/items/weapons/hammer.tres") as WeaponDef).charged.effects[0] as DamageAreaEffect).explosive, "charged: the War Hammer slams the ground")
+	check(((load("res://data/items/weapons/bow.tres") as WeaponDef).charged.effects[0] as ProjectileEffect).pierce >= 10, "charged: the Bow's heavy arrow runs through")
+	check(not ((load("res://data/items/weapons/lance.tres") as WeaponDef).charged.effects[0] as DashStrikeEffect).moves, "charged: the Lance thrusts without moving")
+
+	var charge := AttackCharge.new()
+	var delay := 0.22
+	charge.press()
+	check(charge.hold(0.1, delay, 0.8) == -1 and not charge.is_charging(), "charged: held 0.1 s is still a tap")
+	check(not charge.release() and charge.state == AttackCharge.State.IDLE, "charged: a tap let go fires nothing more")
+	charge.press()
+	charge.hold(0.1, delay, 0.8)
+	check(charge.hold(0.15, delay, 0.8) == AttackCharge.State.CHARGING and charge.is_charging(), "charged: past the delay it charges")
+	check(not charge.is_full() and charge.ratio > 0.0 and charge.ratio < 0.1, "charged: ...from empty (%.2f)" % charge.ratio)
+	charge.hold(0.4, delay, 0.8)
+	check(charge.ratio > 0.4 and charge.ratio < 0.7 and not charge.is_full(), "charged: it fills over the charge time")
+	check(charge.hold(0.5, delay, 0.8) == AttackCharge.State.FULL and charge.is_full(), "charged: then it is full")
+	check(charge.release() and charge.state == AttackCharge.State.IDLE, "charged: let go full: it goes off")
+	charge.press()
+	charge.hold(0.4, delay, 0.5)
+	check(not charge.release(), "charged: let go before full: wasted")
+	charge.press()
+	charge.hold(2.0, delay, 0.5)
+	charge.cancel()
+	check(charge.state == AttackCharge.State.SPENT and not charge.is_charging(), "charged: a roll cancels it")
+	charge.hold(2.0, delay, 0.5)
+	check(not charge.is_charging() and not charge.release(), "charged: cancelled, it waits for the button to be let go")
 
 
 ## Speedrun times: how they read, the splits, the save, the records.

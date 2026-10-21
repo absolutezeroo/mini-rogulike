@@ -30,6 +30,7 @@ func run() -> void:
 	_test_smooth_shapes()
 	_test_telegraphs()
 	_test_layers()
+	_test_own_effects()
 	_test_body_shader()
 	_test_shaders()
 	_test_no_squared_colors()
@@ -671,6 +672,29 @@ func _test_layers() -> void:
 	nova.free()
 
 
+## The hero's own effects never hide him (docs/vfx.md 2b): toward the north they start behind
+## his body, toward us in front; a thrust starts at his hand; what is attached to him (a halo, a
+## column of light, his weapon's glow) sits behind his body. (In the game: CombatTests.)
+func _test_own_effects() -> void:
+	check(VfxLayer.goes_behind(Vector2.UP) and VfxLayer.goes_behind(Vector2(0.7, -0.7)), "own effects: north and north-east go behind the body")
+	check(not VfxLayer.goes_behind(Vector2.DOWN) and not VfxLayer.goes_behind(Vector2.RIGHT) and not VfxLayer.goes_behind(Vector2(-0.7, 0.7)), "own effects: east, west and the south half go in front")
+	var look := load("res://data/vfx/slashes/blade.tres") as SlashDef
+	for case: Array in [[Vector2.UP, false, VfxLayer.Layer.STANDING], [Vector2(-0.7, -0.7), false, VfxLayer.Layer.STANDING], [Vector2.DOWN, false, VfxLayer.Layer.AIR], [Vector2.RIGHT, false, VfxLayer.Layer.AIR], [Vector2.UP, true, VfxLayer.Layer.AIR]]:
+		var swing := SwingVfx._make(look, Vector2(0, -6), case[0], 40.0, null, case[1], 0)
+		check(VfxLayer.of(swing) == case[2], "own effects: a %s blow toward %s is %s" % ["monster's" if case[1] else "hero's", case[0], VfxLayer.Layer.keys()[case[2]]])
+		swing.free()
+	var thrust := SwingVfx.create(Vector2.ZERO, Vector2.RIGHT, 70.0, 40.0, true, null, 0.12)
+	check(float(thrust.material.get_shader_parameter("inner")) >= 10.0, "own effects: a thrust's streak starts at the hand, clear of the body")
+	thrust.free()
+	var body := Node2D.new()
+	var rig := Node2D.new()
+	body.add_child(rig)
+	var halo := SheetVfx.play(load("res://data/vfx/sheets/holy_sigil.tres"), Vector2.ZERO)
+	VfxLayer.on_body(body, halo, true)
+	check(halo.get_parent() == body and halo.show_behind_parent and halo.z_as_relative and halo.z_index == 0, "own effects: an effect on the hero's body sits behind his sprite, sorted with him")
+	body.free()
+
+
 ## Shaders on bodies (docs/vfx.md): every element has a death look, the statuses each paint
 ## the body in their element's ramp through the rig's one material and stop when they end,
 ## fewer effects turns them off, a storm hit crackles a few frames.
@@ -847,6 +871,8 @@ func _collect(dir: String) -> void:
 func _effects_of(resource: Resource) -> Array:
 	if resource is SkillDef:
 		return (resource as SkillDef).effects.filter(func(e: Effect) -> bool: return e != null)
+	if resource is ChargedAttackDef:
+		return (resource as ChargedAttackDef).effects.filter(func(e: Effect) -> bool: return e != null)
 	return []
 
 

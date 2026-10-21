@@ -179,8 +179,9 @@ func play_attack(def: WeaponDef, aim: Vector2, duration: float) -> void:
 	_update_back()
 	# The sheet effect, unless the swing draws its own arc (see Vfx.swing: a weapon shows one
 	# or the other, WeaponDef.shows_arc()). A creature's blow without a sheet of its own strikes
-	# with its element's claw (Frost Fang: claws of ice).
-	if def and not def.shows_arc():
+	# with its element's claw (Frost Fang: claws of ice). A shot has neither: the shot leaves
+	# the hand and nothing else covers the shooter (a staff of frost doesn't claw).
+	if def and def.kind == WeaponDef.Kind.MELEE and not def.shows_arc():
 		if def.attack_fx:
 			# A blow all around (a body slam's ring) is round: drawn as it is, never turned.
 			var round_blow := def.arc_degrees >= 359.0
@@ -188,6 +189,26 @@ func play_attack(def: WeaponDef, aim: Vector2, duration: float) -> void:
 		elif def.element and def.element.claw:
 			var at := Vector2(0, -CHEST_HEIGHT) + aim.normalized() * FX_DISTANCE
 			add_child(SheetVfx.play(def.element.claw, at, aim, def.element))
+
+
+## Charging the weapon's charged attack (`def`; null: not any more): the weapon held up in the
+## hand, on the first frame of its attack toward the way the body faces (behind the body
+## facing up), while the body walks or stands as usual. An attack under way keeps its frames.
+func show_charge(def: WeaponDef) -> void:
+	if _attacking or _dead:
+		return
+	var shown := def != null and def.attack_frames != null and def.attack_frames.has_animation(StringName("attack_" + direction))
+	if not shown:
+		weapon.visible = false
+		return
+	var animation := StringName("attack_" + direction)
+	if weapon.sprite_frames != def.attack_frames or weapon.animation != animation or not weapon.visible:
+		weapon.sprite_frames = def.attack_frames
+		weapon.animation = animation
+		weapon.frame = 0
+		weapon.pause()
+		weapon.visible = true
+		squash_node.move_child(weapon, 0 if direction == &"up" else squash_node.get_child_count() - 1)
 
 
 ## Telegraph before a monster attack: hold the attack pose and tremble.

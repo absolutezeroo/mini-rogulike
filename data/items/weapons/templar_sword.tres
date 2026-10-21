@@ -11,6 +11,7 @@
 [ext_resource type="Resource" path="res://data/skills/player/smite.tres" id="9_y8ejw"]
 [ext_resource type="Resource" path="res://data/skills/player/holy_shield.tres" id="10_ptoyr"]
 [ext_resource type="Texture2D" path="res://assets/weapons/back/templar_sword.png" id="back_sprite"]
+[ext_resource type="Resource" path="res://data/skills/charged/templar_sword.tres" id="charged"]
 
 [sub_resource type="Resource" id="Resource_b6irp"]
 script = ExtResource("4_le2a7")
@@ -18,6 +19,7 @@ defense = 1
 
 [resource]
 script = ExtResource("7_xfmdb")
+charged = ExtResource("charged")
 damage = 7
 cooldown = 0.5
 knockback = 200.0

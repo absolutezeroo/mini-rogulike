@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="ChargedAttackDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="1_on_hit_status"]
+[ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="2_fire"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="3_projectile_effect"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="4_effect"]
+[ext_resource type="AudioStream" path="res://data/audio/fireball.tres" id="5_fireball"]
+[ext_resource type="Script" path="res://src/definitions/items/charged_attack_def.gd" id="6_charged_attack_def"]
+
+[sub_resource type="Resource" id="burn"]
+script = ExtResource("1_on_hit_status")
+burn_damage = 2
+burn_duration = 3.0
+
+[sub_resource type="Resource" id="fireball"]
+script = ExtResource("3_projectile_effect")
+element = ExtResource("2_fire")
+damage_multiplier = 4.0
+speed = 400.0
+radius = 9.0
+max_distance = 420.0
+knockback = 220.0
+explosion_radius = 64.0
+status = SubResource("burn")
+halo = true
+
+[resource]
+script = ExtResource("6_charged_attack_def")
+id = &"book"
+display_name = "Pyre Heart"
+description = "A great fireball that explodes and sets enemies on fire."
+charge_time = 1.05
+move_speed_scale = 0.5
+effects = Array[ExtResource("4_effect")]([SubResource("fireball")])
+sound = ExtResource("5_fireball")

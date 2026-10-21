@@ -29,3 +29,8 @@ var secondary: bool = false
 ## Magic shots (fireballs, bolts) glow in their color, light up the dark and burst on impact;
 ## 0 for plain things (shurikens, arrows).
 var glow: float = 1.0
+## An exploding shot (`explosion_radius`) bursts into its element's nova (a ring of ice crystals)
+## instead of a blast: the Frost Staff's charged shard shattering.
+var nova_burst: bool = false
+## A glow around it even when it is drawn from a sheet (a charged shot, heavier than the others).
+var halo: bool = false

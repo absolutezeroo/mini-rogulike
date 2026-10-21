@@ -11,6 +11,7 @@
 [ext_resource type="Resource" path="res://data/skills/player/kunai_fan.tres" id="10_ykh10"]
 [ext_resource type="Resource" path="res://data/skills/player/shadow_step.tres" id="11_5k5vi"]
 [ext_resource type="Texture2D" path="res://assets/weapons/back/ninjaku.png" id="back_sprite"]
+[ext_resource type="Resource" path="res://data/skills/charged/ninjaku.tres" id="charged"]
 
 [sub_resource type="Resource" id="Resource_dcnbj"]
 script = ExtResource("5_xwuyb")
@@ -18,6 +19,7 @@ move_speed = 8.0
 
 [resource]
 script = ExtResource("8_qxesu")
+charged = ExtResource("charged")
 cooldown = 0.34
 reach = 32.0
 knockback = 110.0

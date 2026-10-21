@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="ChargedAttackDef" format=3]
+
+[ext_resource type="Resource" path="res://data/vfx/slashes/lunge.tres" id="1_lunge"]
+[ext_resource type="Script" path="res://src/definitions/effects/dash_strike_effect.gd" id="2_dash_strike_effect"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="3_effect"]
+[ext_resource type="AudioStream" path="res://data/audio/slash_heavy.tres" id="4_slash_heavy"]
+[ext_resource type="Script" path="res://src/definitions/items/charged_attack_def.gd" id="5_charged_attack_def"]
+
+[sub_resource type="Resource" id="thrust"]
+script = ExtResource("2_dash_strike_effect")
+distance = 150.0
+width = 22.0
+damage_multiplier = 2.6
+knockback = 260.0
+slash = ExtResource("1_lunge")
+moves = false
+
+[resource]
+script = ExtResource("5_charged_attack_def")
+id = &"lance"
+display_name = "Impaling Reach"
+description = "A long thrust that runs through every enemy in line, without moving."
+charge_time = 0.9
+move_speed_scale = 0.55
+effects = Array[ExtResource("3_effect")]([SubResource("thrust")])
+sound = ExtResource("4_slash_heavy")

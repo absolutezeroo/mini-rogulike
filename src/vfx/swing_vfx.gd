@@ -8,6 +8,8 @@ extends Node2D
 
 const SHADER := preload("res://assets/shaders/swing.gdshader")
 const FADE_TIME := 0.09
+## A thrust's streak starts this far out, at the hand: never across the wielder's own body.
+const THRUST_START := 12.0
 ## The warning rim of an enemy's blow (the telegraphs' red).
 const DANGER := Color(1.0, 0.3, 0.24)
 
@@ -45,7 +47,11 @@ static func slash(world: World, look: SlashDef, at: Vector2, aim: Vector2, reach
 static func _make(look: SlashDef, at: Vector2, aim: Vector2, reach: float, element: VfxElementDef, danger: bool, stroke: int) -> SwingVfx:
 	var vfx := SwingVfx.new()
 	vfx.position = PixelDraw.snap(at)
-	VfxLayer.apply(vfx, VfxLayer.Layer.AIR)  # a blade's arc, at the blow's height
+	# A blade's arc, at the blow's height, over the bodies. The hero's toward the north (we see
+	# his back) sorts with the bodies from its middle, just above his feet: behind him, over
+	# whoever stands further north (docs/vfx.md 2b: his own effects never hide him).
+	var behind := not danger and look.shape != SlashDef.Shape.SPIN and VfxLayer.goes_behind(aim)
+	VfxLayer.apply(vfx, VfxLayer.Layer.STANDING if behind else VfxLayer.Layer.AIR)
 	vfx._duration = maxf(look.duration, 0.05)
 	vfx._delay = stroke * look.duration * 0.35
 	# A second stroke runs inside the first, a little thinner.
@@ -58,6 +64,7 @@ static func _make(look: SlashDef, at: Vector2, aim: Vector2, reach: float, eleme
 	shader_look.set_shader_parameter("thickness", thickness)
 	shader_look.set_shader_parameter("aim", aim.angle())
 	shader_look.set_shader_parameter("mode", 1 if look.shape == SlashDef.Shape.THRUST else 0)
+	shader_look.set_shader_parameter("inner", minf(THRUST_START, edge * 0.4) if look.shape == SlashDef.Shape.THRUST else 0.0)
 	shader_look.set_shader_parameter("trail", look.trail)
 	var arc := look.arc_degrees
 	if look.shape == SlashDef.Shape.SPIN:

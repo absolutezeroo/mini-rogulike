@@ -796,6 +796,191 @@ func _test_weapon_kits(game: Game) -> void:
 	await _frames(5)
 
 
+## The attack button (docs/design/interface.md): a tap is one basic attack, holding no longer
+## repeats it but charges the weapon's charged attack (after a delay: taps never charge), shown
+## by a gauge at the hero's feet and on the button; let go full, it goes off; a roll cancels it,
+## a hit doesn't; every hero's weapon's charged attack works; a save doesn't keep a charge. And
+## the hero's own effects never hide him (docs/vfx.md 2b).
+func _test_charged_attacks(game: Game) -> void:
+	var player: Player = game.player
+	var world: World = game.world
+	player.xp = -1000000
+	var weapon_before := player.get_weapon()
+	var perks_before := player.perks.to_data()
+	player.perks.clear()
+	await _clear_monsters(world)
+	var spot := world.map.cell_to_world(_open_cell_near(world, player.global_position, 3))
+	var target := world.spawn_monster(load("res://data/monsters/slime.tres"), spot + Vector2(40, 0))
+	target.dormant = true
+	target.flies = true
+	target.base_stats.max_hp = 100000
+	target.invalidate_stats()
+	target.hp = 100000
+	var place := func() -> void:
+		target._knockback = Vector2.ZERO
+		target.global_position = spot + Vector2(40, 0)
+		player.global_position = spot
+		player._knockback = Vector2.ZERO
+	var attacks := [0]
+	var unleashed: Array[ChargedAttackDef] = []
+	var count_attack := func() -> void: attacks[0] += 1
+	var count_charged := func(attack: ChargedAttackDef) -> void: unleashed.append(attack)
+	player.attacked.connect(count_attack)
+	player.charged_attack.connect(count_charged)
+	var katana: WeaponDef = load("res://data/items/weapons/katana.tres")
+	player.equipment.equip(katana)
+	place.call()
+	await _frames(40)
+	var button: ActionButton = game.hud.get_node("%AttackButton")
+
+	# A tap: one basic attack, no charge.
+	var hp_before := target.hp
+	_set_action(&"attack", true)
+	await _frames(3)
+	_set_action(&"attack", false)
+	await _frames(10)
+	check(attacks[0] == 1 and target.hp < hp_before, "charged: a tap is one basic attack (%d)" % attacks[0])
+	check(unleashed.is_empty() and player.charge.state == AttackCharge.State.IDLE and not player.charge_vfx.is_showing(), "charged: a tap never charges")
+	await _frames(30)
+
+	# Held: one attack, then it charges (no more swings), slower, the gauge shows; let go: off.
+	attacks[0] = 0
+	var speed := player.get_move_speed()
+	_set_action(&"attack", true)
+	await _frames(int(player.def.charge_delay * 60.0) - 4)
+	check(not player.charge.is_charging(), "charged: not before the delay")
+	await _frames(12)
+	check(player.charge.is_charging() and player.charge.ratio < 0.5, "charged: held past the delay, it charges")
+	check(player.get_move_speed() < speed * 0.8, "charged: the hero is slower while charging (%.0f / %.0f)" % [player.get_move_speed(), speed])
+	await _frames(2)
+	check(player.charge_vfx.is_showing(), "charged: its gauge is at his feet")
+	check(button.charge_ratio > 0.0, "charged: and on the attack button")
+	check(VfxLayer.of(player.charge_vfx._ring) == VfxLayer.Layer.GROUND and player.charge_vfx._ring.z_index < 0, "charged: the gauge lies on the floor, under his feet")
+	check(player.charge_vfx.get_parent() == player and player.charge_vfx.z_as_relative and player.charge_vfx.z_index == 0, "charged: the glow in his hand is on his body, never over it all")
+	check(player.rig.weapon.visible, "charged: the weapon is held up in his hand")
+	player.take_hit(Combat.make_secondary_hit(target, 1))
+	check(player.charge.is_charging(), "charged: being hit does not cancel it")
+	for i in 90:
+		if player.charge.is_full():
+			break
+		await _frames(1)
+	await _frames(1)
+	check(player.charge.is_full() and player.charge_vfx.lit_steps() == ChargeVfx.STEPS and button.charge_full, "charged: it fills, the gauge full")
+	check(attacks[0] == 1, "charged: holding no longer repeats the attack (%d)" % attacks[0])
+	hp_before = target.hp
+	_set_action(&"attack", false)
+	await _frames(20)
+	check(unleashed.size() == 1 and unleashed[0] == katana.charged, "charged: let go full, the katana's charged attack goes off")
+	check(target.hp < hp_before, "charged: and hits")
+	check(player.charge.state == AttackCharge.State.IDLE and not button.charge_full, "charged: the charge is spent")
+	await _frames(20)
+	check(not player.charge_vfx.is_showing(), "charged: the gauge goes")
+
+	# A roll cancels it, until the button is let go.
+	place.call()
+	player.skills._cooldowns[0] = 0.0
+	_set_action(&"attack", true)
+	await _frames(int(player.def.charge_delay * 60.0) + 10)
+	check(player.charge.is_charging(), "charged: charging again")
+	_set_action(&"skill_1", true)
+	await _frames(2)
+	_set_action(&"skill_1", false)
+	await _frames(70)
+	check(player.charge.state == AttackCharge.State.SPENT and not player.charge.is_charging(), "charged: a roll cancels it")
+	_set_action(&"attack", false)
+	await _frames(5)
+	check(unleashed.size() == 1, "charged: nothing goes off after a roll")
+
+	# A save keeps no charge; the weapon keeps its charged attack.
+	_set_action(&"attack", true)
+	await _frames(int(player.def.charge_delay * 60.0) + 10)
+	var saved := player.save_state()
+	check(not JSON.stringify(saved).contains("charge"), "charged: the save has no charge in it")
+	player.load_state(saved)
+	check(player.charge.state == AttackCharge.State.IDLE and player.get_weapon().charged == katana.charged, "charged: back from a save, no charge, the same charged attack")
+	_set_action(&"attack", false)
+	await _frames(30)
+
+	# Every hero's weapon: held full, let go, its charged attack hits.
+	for file in DirAccess.get_files_at("res://data/items/weapons"):
+		if not file.ends_with(".tres"):
+			continue
+		var weapon: WeaponDef = load("res://data/items/weapons/" + file)
+		player.equipment.equip(weapon)
+		place.call()
+		await _frames(30)
+		place.call()
+		hp_before = target.hp
+		var before := unleashed.size()
+		_set_action(&"attack", true)
+		for i in 150:
+			if player.charge.is_full():
+				break
+			await _frames(1)
+		var full := player.charge.is_full()
+		_set_action(&"attack", false)
+		await _frames(50)
+		check(full and unleashed.size() == before + 1 and unleashed[-1] == weapon.charged, "charged: %s's charged attack goes off" % weapon.id)
+		check(target.hp < hp_before, "charged: %s's charged attack hits" % weapon.id)
+	player.attacked.disconnect(count_attack)
+	player.charged_attack.disconnect(count_charged)
+
+	# The hero's own effects never hide him: a staff's shot leaves his hand without a claw over
+	# him, behind him going north; the level up's column stands behind him, its rings on the floor.
+	var staff: WeaponDef = load("res://data/items/weapons/stick.tres")
+	player.equipment.equip(staff)
+	place.call()
+	await _frames(20)
+	player._attack_cooldown = 0.0
+	var fx_before := player.rig.get_children().filter(func(n: Node) -> bool: return n is SheetVfx).size()
+	player.attack(Vector2.UP)
+	await _frames(2)
+	check(player.rig.get_children().filter(func(n: Node) -> bool: return n is SheetVfx).size() == fx_before, "own effects: a staff's shot plays no claw over the hero")
+	var shots := world.get_node("Projectiles").get_children()
+	check(not shots.is_empty() and (shots[-1] as Node2D).z_index < 0, "own effects: his shot going north starts behind him")
+	check(not shots.is_empty() and (shots[-1] as Node2D).global_position.y < player.global_position.y - 4.0, "own effects: it leaves from his hand, not his feet")
+	var north_shot: Node2D = shots[-1] if not shots.is_empty() else null
+	await _frames(8)
+	check(not is_instance_valid(north_shot) or north_shot.z_index == 0, "own effects: clear of him, it flies over the bodies")
+	player._attack_cooldown = 0.0
+	player.attack(Vector2.DOWN)
+	await _frames(2)
+	shots = world.get_node("Projectiles").get_children()
+	check(not shots.is_empty() and (shots[-1] as Node2D).z_index == 0, "own effects: his shot going south is in front of him")
+	var lance: WeaponDef = load("res://data/items/weapons/lance.tres")
+	player.equipment.equip(lance)
+	await _frames(2)
+	player._attack_cooldown = 0.0
+	player.attack(Vector2.UP)
+	await _frames(1)
+	var swings := world.get_node("Entities").get_children().filter(func(n: Node) -> bool: return n is SwingVfx)
+	check(not swings.is_empty() and (swings[-1] as Node2D).global_position.y < player.global_position.y, "own effects: his thrust north sorts behind him")
+	await _frames(30)
+	player.rig.play_attack(load("res://data/items/weapons/monster/frost_fang.tres"), Vector2.RIGHT, 0.3)
+	check(player.rig.get_children().any(func(n: Node) -> bool: return n is SheetVfx), "own effects: a creature's frost bite still claws (melee)")
+	await _frames(30)
+	LevelUpVfx.attach(player)
+	await _frames(2)
+	var level_up: LevelUpVfx = null
+	for child in player.get_children():
+		if child is LevelUpVfx:
+			level_up = child
+	check(level_up != null and level_up.show_behind_parent and level_up.z_as_relative and level_up.z_index == 0, "own effects: the level up's column stands behind the hero")
+	check(level_up != null and VfxLayer.of(level_up._rings) == VfxLayer.Layer.GROUND and level_up._rings.z_index < 0, "own effects: its rings lie on the floor")
+	check(level_up != null and level_up._glints.z_index > LightField.Z, "own effects: only a few glints at his sides shine in front")
+	var shield: SkillDef = load("res://data/skills/player/holy_shield.tres")
+	(shield.effects[0] as Effect).apply(player, Vector2.DOWN)
+	var aegis := player.get_children().filter(func(n: Node) -> bool: return n is SheetVfx)
+	check(not aegis.is_empty() and (aegis[-1] as Node2D).show_behind_parent, "own effects: Holy Shield's halo rises behind the hero")
+	await _frames(100)
+
+	target.queue_free()
+	player.equipment.equip(weapon_before)
+	player.perks.load_data(perks_before)
+	player.xp = 0
+	await _frames(5)
+
+
 ## Shields, thieves, summoners and bombers.
 func _test_monster_behaviours(game: Game) -> void:
 	var player: Player = game.player
