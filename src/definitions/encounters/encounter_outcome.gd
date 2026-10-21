@@ -43,7 +43,7 @@ func apply(player: Player, at: Vector2) -> void:
 			world.spawn_loot(item, at + Vector2(0, 28), item_quality)
 	match gift:
 		Gift.PERK:
-			Events.perk_offer_requested.emit(PerkDef.Rarity.COMMON, tr("A gift"), tr("Choose an upgrade"))
+			Events.perk_offer_requested.emit(PerkDef.Rarity.COMMON, tr("A boon"), tr("Choose an upgrade"))
 		Gift.RELIC:
 			Events.perk_offer_requested.emit(PerkDef.Rarity.RARE, tr("Relic"), tr("Choose a relic"))
 	if monsters > 0:

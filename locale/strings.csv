@@ -2,8 +2,8 @@ keys,en,fr
 The dark gathers...,The dark gathers...,Les ténèbres s'amassent...
 Rekindling the lantern...,Rekindling the lantern...,On ravive la lanterne...
 The Well of Souls,The Well of Souls,Le Puits des Âmes
-Freezing!,Freezing!,Gelé !
-Burning up!,Burning up!,Brûlant !
+Freezing!,Freezing!,Tu gèles !
+Burning up!,Burning up!,Tu brûles !
 Act,Act,Acte
 Known,Known,Connu
 Hunted,Hunted,Traqué
@@ -47,8 +47,8 @@ Your max health is too low,Your max health is too low,Ta Vie max est trop basse
 Accept,Accept,Accepter
 Leave,Leave,Partir
 Nothing more happens.,Nothing more happens.,Plus rien ne se passe.
-A gift,A gift,Un cadeau
-Choose an upgrade,Choose an upgrade,Choisis une amélioration
+A boon,A boon,Une faveur
+Choose an upgrade,Choose an upgrade,Choisis un atout
 Relic,Relic,Relique
 Choose a relic,Choose a relic,Choisis une relique
 heals you fully,heals you fully,te soigne entièrement
@@ -1006,7 +1006,7 @@ Jade Wyrm,Jade Wyrm,La Guivre de Jade
 "An old dragon of jade scales, coiled around the temple's heart. Its body burns; strike the head.","An old dragon of jade scales, coiled around the temple's heart. Its body burns; strike the head.","Un vieux dragon aux écailles de jade, lové autour du cœur du temple. Son corps brûle ; frappe la tête."
 Burst the Bloated King with a Bow,Burst the Bloated King with a Bow,Crève le Roi Boursouflé à l'Arc
 SPLITS!,SPLITS!,SE DIVISE !
-BOILS OVER!,BOILS OVER!,DÉBORDE !
+BOILS OVER!,BOILS OVER!,BOUILLONNE !
 Warden of the Well's Maw,Warden of the Well's Maw,Gardien de la Gueule du Puits
 Bloated King,Bloated King,Le Roi Boursouflé
 "A huge slime that bounces, slams and splits.","A huge slime that bounces, slams and splits.","Un gluant colossal qui rebondit, écrase et se divise."
@@ -1018,7 +1018,7 @@ Ember Ronin,Ember Ronin,Le Rônin des Braises
 A masterless giant in burning armor. His blade cuts arcs of fire.,A masterless giant in burning armor. His blade cuts arcs of fire.,Un géant sans maître en armure embrasée. Sa lame trace des arcs de feu.
 Smite the Dead Sun with the Templar Sword,Smite the Dead Sun with the Templar Sword,Châtie le Soleil Mort avec l'Épée de Templier
 RISES HIGH!,RISES HIGH!,S'ÉLÈVE DANS LES AIRS !
-NOON SUN!,NOON SUN!,SOLEIL DE MIDI !
+NOON SUN!,NOON SUN!,ZÉNITH !
 False God of the Well,False God of the Well,Faux Dieu du Puits
 Dead Sun,Dead Sun,Le Soleil Mort
 "The sun the kingdom worshipped, buried with it. It burns, blinks and calls its embers.","The sun the kingdom worshipped, buried with it. It burns, blinks and calls its embers.","Le soleil que vénérait le royaume, enseveli avec lui. Il brûle, se téléporte et appelle ses braises."
@@ -1197,7 +1197,7 @@ Venom Spit,Venom Spit,Crachat de Venin
 A fan of venom: it poisons.,A fan of venom: it poisons.,Un éventail de venin : il empoisonne.
 "Two fans of venom, one after the other.","Two fans of venom, one after the other.","Deux éventails de venin, l'un après l'autre."
 Wailing Ring,Wailing Ring,Cercle des Lamentations
-Blink,Blink,Clignement
+Blink,Blink,Éclipse
 Charge,Charge,Charge
 Dive,Dive,Piqué
 Ember Mending,Ember Mending,Soin des Braises
@@ -1224,7 +1224,7 @@ Battle Cry,Battle Cry,Cri de Bataille
 CRY,CRY,CRI
 Teleport-dash a long way toward your target.,Teleport-dash a long way toward your target.,Une ruée téléportée sur une longue distance vers ta cible.
 BLINK,BLINK,SAUT
-Cleave,Cleave,Fendoir
+Cleave,Cleave,Taillade
 A huge swing in front of you.,A huge swing in front of you.,Un immense coup de taille devant toi.
 CLEAVE,CLEAVE,TAILLE
 Roll,Roll,Roulade

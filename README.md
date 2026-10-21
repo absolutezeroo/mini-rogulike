@@ -38,15 +38,15 @@ data/                Game content as .tres resources (no code)
   monsters/            One file per monster type, bosses in bosses/
   perks/               Level-up perks (common/) and boss relics (relics/)
   upgrades/            Shrine upgrades (bought with souls between runs)
-  difficulties/        Easy, Normal, Hard, Nightmare
+  difficulties/        Pilgrim, Keeper, Martyr, Nightmare
   story/               story.tres: the game's name, the intro, victory and death texts
   props/               Breakable props and the lantern
   hazards/             Traps, arrow traps, holes, crumbling floor, quicksand and mud
   chests/              Chests (some trapped) and the big chest of ambushes
-  elites/              Elite affixes (Swift, Vampiric, Explosive...)
+  elites/              Elite affixes (Swift, Vampiric, Bursting...)
   affixes/             Item affixes for Magic, Rare and Epic equipment (Sharp, of the Bear...)
   shop/                The merchant (stock, prices, look)
-  encounters/          Spirit Spring, Blood Altar, Grinning Spirit, Warden's Statue
+  encounters/          Spring of the Drowned, Blood Altar, Grinning Spirit, Warden's Statue
   items/weapons/       Player weapons (monster/ = monster-only weapons)
   items/armors/        Head and body armor
   items/consumables/   Potions, scrolls, bombs...
@@ -113,7 +113,7 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
     keep a little space between them (no pile-up in doorways); wandering ones never pick a way
     into a wall.
   - **Sight**: `detect_radius()` is the kind's reach times the difficulty's `detect_range`
-    (Easy x0.85, Normal x1, Hard x1.2, Nightmare x1.4); chasing, they see 1.6x further.
+    (Pilgrim x0.85, Keeper x1, Martyr x1.2, Nightmare x1.4); chasing, they see 1.6x further.
   - **Sleep**: what isn't seen isn't run. A few times a second the World lets monsters off screen
     (beyond a 256 px margin) and out of reach of the hero sleep: no AI, no movement, no animation
     (`Monster.set_awake()`, `World.awake_monsters`). Hunting monsters and bosses stay awake; a hit
@@ -231,13 +231,13 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   `seal_reveal_left` (4) are missing, the minimap shows the monsters left. When the seal breaks,
   the stairs light up, the minimap shows them even unexplored and a golden light (`GuideWisp`)
   runs ahead of you along the way. No more running past everything: a floor takes a couple of
-  minutes, a run about half an hour. Floors are 72x72 cells with up to 15 rooms on Easy, and
+  minutes, a run about half an hour. Floors are 72x72 cells with up to 15 rooms on Pilgrim, and
   bigger the harder the run (see Difficulty); boss floors keep that size.
 - **Biomes** (`data/biomes/`, `BiomeDef`): every floor is one world from end to end, picked among
-  its act's (`ActDef.biomes`; the boss arena has `boss_biome`): Act I **Mossy Cave**,
-  **Underground Garden**, **Flooded Caverns**; Act II **Crypt**, **Abandoned Library**; Act III
-  **Burning Ruins**, **Ruined Temple**; Act IV **Buried City** (sand streets, an abandoned market,
-  oases and palms, a lion fountain) and **Sun Tomb** (sarcophagi, burial chambers, gold). Nothing from another biome ever shows up. A biome has:
+  its act's (`ActDef.biomes`; the boss arena has `boss_biome`): Act I **Weeping Grotto**,
+  **Pale Garden**, **Drowned Caverns**; Act II **Catacombs**, **Hushed Archive**; Act III
+  **Cinder Ruins**, **Godless Temple**; Act IV **Sandchoked City** (sand streets, an abandoned market,
+  oases and palms, a lion fountain) and **Tomb of the Dead Sun** (sarcophagi, burial chambers, gold). Nothing from another biome ever shows up. A biome has:
   - its **look** (`theme`: floor and wall tiles, tint, darkness, music) and its **lights**
     (candles in the crypt and the library, braziers in the ruins);
   - its **grounds** (`GroundLayerDef`: moss, sand, mud, shallow water, cobbles...): patches shaped
@@ -269,7 +269,7 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   a daily run) and the way taken is saved (`RunState.routes`), so a resumed run rebuilds the same
   floor. The second stairs stand in the room farthest from both the start and the first stairs.
 - **Curses** (`data/curses/`, `CurseDef`): the Well curses a whole floor. Never the first floor nor
-  a boss floor, rarely on Easy, more and more often up to Nightmare (`DifficultyDef.curse_chance`:
+  a boss floor, rarely on Pilgrim, more and more often up to Nightmare (`DifficultyDef.curse_chance`:
   5%, 12%, 20%, 35%). On arrival, the **curse card** (`CurseCard`) shows the Well's sigil forming
   out of souls, the curse's name, its story and its rule. A cursed floor has no floor event, but
   better loot and more gold.
@@ -295,8 +295,8 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 - **Elites** (`data/elites/`): any monster can be one, more often deeper and on harder
   difficulties. They glow in their color, show their name, are bigger and tougher, give 3x XP
   and always drop an item. Their affix is a perk, like the hero's: **Swift**, **Vampiric**
-  (heals when hitting), **Explosive** (blows up when it dies), **Armored**, **Venomous**
-  (poisons), **Spiked** (hurts who hits it).
+  (heals when hitting), **Bursting** (blows up when it dies), **Ironclad**, **Venomous**
+  (poisons), **Thorned** (hurts who hits it).
 
 ## On a phone
 
@@ -434,7 +434,7 @@ the boss or the middle (where the stairs appear).
 | Pillared Nave | 31x17, two rows of pillars | the corners fall away, then a cross of spikes |
 | Old Chamber | 21x15 | the floor cracks, then caves in |
 
-## Monster ranks: Elite, Epic, Legendary, Shiny
+## Monster ranks: Elite, Fell, Legendary, Celestial
 
 Any monster can come at a rank (`MonsterRankDef`, `data/monster_ranks/`; `DungeonConfig.elite_rank`
 and `rare_ranks`, rarest first, each with its own chance from its depth, times the difficulty):
@@ -442,17 +442,17 @@ and `rare_ranks`, rarest first, each with its own chance from its depth, times t
 | Rank | Affixes | Health (depth 1 / 5 / 11) | Damage | Look | Rewards |
 |---|---|---|---|---|---|
 | **Elite** | 1 ("Vampiric Skeleton") | x2.5 / x3.7 / x5.5 | x1.15 | a ring of the affix's color | x3 XP, better loot, 1 extra drop |
-| **Epic** (from depth 3) | 2, listed over its name | - / x6.3 / x9 | x1.2 | two purple rings | x6 XP, 2 extra drops, x8 gold |
+| **Fell** (from depth 3) | 2, listed over its name | - / x6.3 / x9 | x1.2 | two purple rings | x6 XP, 2 extra drops, x8 gold |
 | **Legendary** (from depth 5) | 3 | - / x8.5 / x11.5 | x1.3 | golden rings and a crown of rays | x10 XP, 3 extra drops of high quality, x15 gold |
-| **Shiny** (1 in 400, any depth) | none | x3.3 / x3.9 / x4.8 | x1 | other colors (hue shift), a gleam sweeping its body, sparkles | x8 XP, 3 extra drops, x25 gold; joins the bestiary's Shiny collection |
+| **Celestial** (1 in 400, any depth) | none | x3.3 / x3.9 / x4.8 | x1 | other colors (hue shift), a gleam sweeping its body, sparkles | x8 XP, 3 extra drops, x25 gold; joins the bestiary's Celestial collection |
 
 A rank's Health grows with depth (`hp_multiplier` + `hp_multiplier_per_depth` per floor): the
 hero's power grows faster than the monsters' own depth scaling, so a deeper Elite needs more
-Health to stay a short duel. Its affixes' Health on top (Armored x1.3, Explosive x0.85...).
+Health to stay a short duel. Its affixes' Health on top (Ironclad x1.3, Bursting x0.85...).
 Ranked bosses use `boss_hp_multiplier` and keep their own damage.
 
-Bosses roll the rare ranks too (`boss_chance`): a **Legendary King Slime (Swift, Vampiric,
-Armored)** has its affixes' perks, more HP, better loot and one more relic to choose; a Shiny boss
+Bosses roll the rare ranks too (`boss_chance`): a **Legendary Bloated King (Swift, Vampiric,
+Ironclad)** has its affixes' perks, more HP, better loot and one more relic to choose; a Celestial boss
 other colors and one more relic. The boss bar shows the rank's color and the affixes. The debug
 panel spawns any rank and can make the next boss one.
 
@@ -480,7 +480,7 @@ blast, charge, summons or heal, built from the WeaponDef / SkillDef data), and i
   apply (an elite one, pushed into a hole, 3 within 5 s, untouched since it saw you, a crit
   finish), every boss its own (with a ranged weapon, with a melee one, under 90 s, without a
   potion, losing less than 25% HP) plus one with a given weapon (`MonsterDef.challenges`: the
-  King Slime with a Bow, the Red Samurai with a Katana...). Done once, paid in souls, with a toast.
+  Bloated King with a Bow, the Ember Ronin with a Katana...). Done once, paid in souls, with a toast.
 
 The **Codex** (`CodexPanel`, from the title screen and the pause menu) is built in code in the
 game's skin (`RpgWindow`, like the bag and the forge): four tabs in its header, the souls you hold
@@ -491,12 +491,12 @@ with a finger (`TouchScroll`); `CodexRows` builds their rows, with a tick box fo
   its reward in souls ("Received" once paid) and the time until new ones.
 - **Bestiary**: act by act (floors, how many kinds slain), a card per monster and boss
   (`CodexCard`: picture, rank, kills, a bar toward the next rank, gold frame once Mastered,
-  Boss and Shiny badges; unknown ones are dark shapes until met). Its page has three columns:
-  look, where it lives and its Shiny; attacks with the preview, how it behaves and its stats
+  Boss and Celestial badges; unknown ones are dark shapes until met). Its page has three columns:
+  look, where it lives and its Celestial form; attacks with the preview, how it behaves and its stats
   (Health, Damage, Armor, Move speed, each with what the number means); hunter ranks (slay N,
   +X souls, done or not) and challenges.
 - **Achievements** (`data/achievements/`, `AchievementDef`): a goal on one of the profile's counters
-  (kills, elites, wardens, kinds of creatures, depth, victories on Hard / Nightmare / ascension,
+  (kills, elites, wardens, kinds of creatures, depth, victories on Martyr / Nightmare / ascension,
   monsters pushed into holes, chests, Epic items, encounters, gold or level in one run), with a
   progress bar and its reward; the closest to done first. Reaching it pays souls, with a note at
   the top of the screen.
@@ -508,7 +508,7 @@ with a finger (`TouchScroll`); `CodexRows` builds their rows, with a tick box fo
 
 Everything is tied to one idea: **souls**. The Well stole the souls of the hero's village; the
 monsters down there feed on them; the bosses are its wardens, and the Gilded Hoarder, deep in the
-Buried Kingdom, is the Keeper who hoards them.
+Kingdom of Dust, is the Tyrant who hoards them.
 
 - **The story** (`data/story/story.tres`, `StoryDef`) is told page by page before the first run
   (`StoryScreen`: typed out, tap to go on, Skip), and again from the title screen's Story button.
@@ -559,7 +559,8 @@ says so).
   Î Ï … – — and the no-break spaces; `tools/i18n/add_glyphs.py` drew them on its grid, in its style.
   Typography: a plain space before `:`, `;`, `!`, `?` and `%` (`« %s »` for quotes).
 
-**French glossary** (one word per idea, everywhere; the player is "tu"):
+**French glossary** (one word per idea, everywhere; the player is "tu"; the names, lore and voice follow
+`docs/lexicon.md`, the dark-fantasy lexicon and style guide):
 
 | English | Français | English | Français |
 |---|---|---|---|
@@ -571,14 +572,18 @@ says so).
 | Tree of Souls | Arbre des Âmes | Oath | Serment |
 | Perk / Relic / Family | Atout / Relique / Famille | Rune / Forge / Smith | Rune / Forge / Forgeron |
 | Merchant | Marchand | Bag / Belt | Sac / Ceinture |
-| Elite / Epic / Legendary / Shiny (monsters) | Élite / Épique / Légendaire / Chromatique | Common / Magic / Rare / Epic (items) | Commun / Magique / Rare / Épique |
+| Elite / Fell / Legendary / Celestial (monsters) | Élite / Funeste / Légendaire / Céleste | Common / Magic / Rare / Epic (items) | Commun / Magique / Rare / Épique |
 | Item level / "Lv 7" | Niveau d'objet / "Nv 7" | Floor / Act | Étage / Acte |
 | Stairs / Seal | Escaliers / Sceau | Curse / Cursed | Malédiction / Maudit |
 | Ambush | Embuscade | Reroll / Banish | Relancer / Bannir |
 | The Dawn Knell (the daily run); Toll the knell | Le Glas de l'Aube ; Sonner le glas | Run | Partie |
 | Bestiary / Codex / Quests / Achievements | Bestiaire / Codex / Quêtes / Succès | Level up! | Niveau supérieur ! |
-| Easy / Normal / Hard / Nightmare | Facile / Normal / Difficile / Cauchemar | Ascension | Ascension |
+| Pilgrim / Keeper / Martyr / Nightmare (difficulties) | Pèlerin / Veilleur / Martyr / Cauchemar | Ascension | Ascension |
 | Slay | Abattre (bosses: terrasser) | Warden | Gardien |
+| Descend (Play); Begin the descent | Descendre ; Entamer la descente | Unsworn / Sworn (oaths) | Sans serment / Juré |
+| Tree branches Flesh / Blade / Arcana / Greed | Chair / Lame / Arcanes / Avarice | At the Well's Edge (before a run) | Au Bord du Puits |
+| The Well claims you (death) | Le Puits te réclame | Victory Achieved | Victoire Acquise |
+| Souls to offer (shrine badge) | Âmes à offrir | Choose your ordeal (difficulty) | Choisis ton épreuve |
 
 ## The belt
 
@@ -656,7 +661,7 @@ stones lit in their runes' colors. The selected slot pulses gold.
   - Frost: **Rime** (hits chill), **Shatter** (critical hits release a frost shockwave that slows).
   - Blood: **Leech** (your hits heal 10% of their damage), **Fury** (wounded you hit harder, kills heal).
   - Storm: **Spark** (every 3rd hit chains lightning), **Gale** (your roll throws a gust).
-  - Arcane: **Echo** (skills may be ready again at once), **Prism** (one more projectile; with Multishot, 2 more at most, the volley sharing its damage).
+  - Arcane: **Echo** (skills may be ready again at once), **Prism** (one more projectile; with Hydra's Quiver, 2 more at most, the volley sharing its damage).
 - **Sockets**: every weapon has 1 to 3, by rarity (`ItemRarity.SOCKETS`: Common and Magic 1,
   Rare 2, Epic 3). A rune works like a perk while its weapon is worn (`RuneDef.passives`, through
   `PerkSet.set_gear`); two identical runes count twice. Set runes show on the weapon's details,
@@ -675,16 +680,16 @@ keep one away from you (`MonsterDef.knockback_resistance`). Big monsters resist 
 elites at least half.
 
 - **Special floors** (`data/floor_events/`, `FloorEventDef`): 30% of the normal floors after the first
-  (`dungeon_config.tres` > Floor events) are announced when you arrive: **Haunted** (elites, dim),
-  **Treasure Vault** (chests and gold, more traps), **The Swarm** (hordes of weak monsters),
-  **Pitch Dark** (very dark, better loot), **Quiet Halls** (few monsters, the merchant, encounters),
+  (`dungeon_config.tres` > Floor events) are announced when you arrive: **The Wandering Dead** (elites, dim),
+  **Hoard of the Dead** (chests and gold, more traps), **The Swarm** (hordes of weak monsters),
+  **Utter Dark** (very dark, better loot), **Hushed Halls** (few monsters, the merchant, encounters),
   **Blood Moon** (monsters hit harder, double gold). They multiply monsters, HP, damage, elites,
   light, chests, hazards, encounters, gold and loot quality.
 - **Two bosses per act** (`ActDef.boss` + `other_bosses`): each run draws one per act (saved with
-  the run; the title screen shows both). King Slime or the **Giant Frog** (leaps, poison spit, calls
-  its brood); Demon Cyclops or the **Weeping Spirit** (a freezing wail, blinks, calls lost souls);
-  Crimson Tengu or the **Red Samurai** (arcs of fire, dashes, a ring of fire). Gilded Hoarder or the
-  **Sun Wraith** (a burning sun buried with the kingdom: solar flares, blinks, calls its embers).
+  the run; the title screen shows both). Bloated King or the **Mire Matron** (leaps, poison spit, calls
+  its brood); Gorr the One-Eyed or the **Mother of Tears** (a freezing wail, blinks, calls lost souls);
+  Crimson Tengu or the **Ember Ronin** (arcs of fire, dashes, a ring of fire). Gilded Hoarder or the
+  **Dead Sun** (a burning sun buried with the kingdom: solar flares, blinks, calls its embers).
 
 ## Quests
 
@@ -706,10 +711,10 @@ outcome in words with its odds before you choose; the words come from the outcom
 
 | Encounter | Choice | What may happen |
 |---|---|---|
-| Spirit Spring | Drink | healed (55%), a strong buff for a minute (25%), cursed water hurts (20%) |
+| Spring of the Drowned | Drink | healed (55%), a strong buff for a minute (25%), cursed water hurts (20%) |
 | Blood Altar | Offer your blood (-15% max health) | a choice of relics |
-| Grinning Spirit | Pay 30 / 80 gold (more each floor) | an item, sometimes a great one... or it laughs and runs |
-| Warden's Statue | Pray | a choice of perks (50%), or two elites (50%) |
+| Grinning Spirit | Wager 30 / 80 gold (more each floor) | an item, sometimes a great one... or it laughs and runs |
+| Warden's Statue | Kneel | a choice of perks (50%), or two elites (50%) |
 
 ## Skills and builds
 
@@ -785,7 +790,7 @@ A `PerkDef` (in `data/perks/`) is stat bonuses + a list of `Passive`s, both mult
 | `BloodlustPassive` | before a hit (wounded), on kill | Bloodrage, the Blood family, the Fury rune |
 | `LootOnKillPassive` | on kill | Fortune |
 | `ExecutePassive` | before a hit | Executioner |
-| `ExtraProjectilesPassive` | every volley | Multishot |
+| `ExtraProjectilesPassive` | every volley | Hydra's Quiver |
 | `CheatDeathPassive` | before dying | Phoenix Feather |
 
 Damage caused by a passive (burn, thorns, shockwaves, chains, Ice Shards' shards, the Arcane
@@ -816,7 +821,7 @@ perks** of a family wakes its bonus for the rest of the run: a change in how you
 | **Frost** | Frostbite, Cold Snap, Ice Shards, Frost Armor, Guardian Ring | slowed enemies take +50%, crits freeze them |
 | **Blood** | Vampirism, Vitality, Bloodrage, Devotion, Executioner | below half Health +40% damage, every kill heals 4% max Health |
 | **Storm** | Frenzy, Thunderclap, Shock Roll, Swiftness | attacks 15% faster; every 3rd hit, lightning jumps to 3 enemies |
-| **Arcane** | Arcane Focus, Arcane Power, Devotion, Echo, Sage's Codex, Multishot | every skill also fires a ring of 8 bolts |
+| **Arcane** | Arcane Focus, Arcane Power, Devotion, Echo, Sage's Codex, Hydra's Quiver | every skill also fires a ring of 8 bolts |
 
 A perk sits in a family only if its effect plainly belongs to it (Inferno: fire and burning;
 Frost: cold, slows, freezing; Blood: health, life drain, low-health power; Storm: lightning,
@@ -843,10 +848,10 @@ you can then keep going in endless mode (the acts loop, monsters keep getting st
 
 | Act | Floors | Monsters | Boss |
 |---|---|---|---|
-| I. Mossy Caves | 1-3 | Cave Mouse, Blue Bat, Slime, Red Spider, Spore Cap, Viper, Acid Larva, Burrower, Giant Slime, Shell Guard, Thief Racoon | King Slime |
-| II. Haunted Crypt | 4-6 | Skeleton, Dark Sorcerer, Spirit, Flying Skull, Watcher, Ghost Lantern, Night Owl, Frost Skull, Thief Racoon, Brood Mother | Demon Cyclops |
-| III. Burning Ruins | 7-9 | Fire Shaman, Cyclops, Flame Spirit, Lizardman, Horned Beast, Drakeling, Kappa, Ink Octopus, Bomber, Brood Mother, Shell Guard | Crimson Tengu |
-| IV. Buried Kingdom | 10-12 | Dune Rex, Gold Racoon, Red Viper, Ash Lizard, Bone Lizard, Stone Mole, Bomber | Gilded Hoarder |
+| I. The Well's Maw | 1-3 | Gnawer, Gloom Bat, Slime, Blood Spider, Rotcap, Viper, Acid Larva, Burrower, Giant Slime, Shell Guard, Thief Racoon | Bloated King |
+| II. Ossuary of Kagari | 4-6 | Skeleton, Hexer, Lost Soul, Flying Skull, Watcher, Ghost Lantern, Night Owl, Frost Skull, Thief Racoon, Brood Mother | Gorr the One-Eyed |
+| III. The Pyre Temple | 7-9 | Fire Shaman, Cyclops, Flame Spirit, Lizardman, Horned Beast, Drakeling, Kappa, Ink Octopus, Bomber, Brood Mother, Shell Guard | Crimson Tengu |
+| IV. Kingdom of Dust | 10-12 | Dune Behemoth, Gold Racoon, Crimson Viper, Ash Lizard, Bone Lizard, Stone Mole, Bomber | Gilded Hoarder |
 
 **Supports** fight from behind, kill them first: the **Moss Heart** (act I) and the **Ember
 Heart** (act III) mend their hurt allies, the **Soul Moth** (act II) and the **Gilded Moth**
@@ -878,10 +883,10 @@ is `MonsterOverlay`.
 
 ## Difficulty
 
-Pressing Play asks for a difficulty (`data/difficulties/`, `DifficultyDef`). Every value multiplies
+Pressing Descend asks for a difficulty (`data/difficulties/`, `DifficultyDef`). Every value multiplies
 the normal game:
 
-| | Easy | Normal | Hard | Nightmare |
+| | Pilgrim | Keeper | Martyr | Nightmare |
 |---|---|---|---|---|
 | Monster HP | x0.7 | x1 | x1.3 | x1.7 |
 | Monster damage (attacks, skills, traps, bursts) | x0.6 | x1 | x1.35 | x1.8 |
@@ -902,7 +907,7 @@ Bigger floors get more of everything with their rooms: monsters, chests, hazards
 items lying around. A floor starts with at most `max_monsters_per_floor` (110) monsters, so the
 phone keeps up on Nightmare; the seal never asks for more than `seal_max` (50) kills.
 
-Easy, Normal and Hard are open; **Nightmare unlocks after a win on Hard** (`unlocked_by`).
+Pilgrim, Keeper and Martyr are open; **Nightmare unlocks after a win on Martyr** (`unlocked_by`).
 **Ascension**: a Nightmare win opens **Nightmare +1**, a +1 win opens +2, up to +10
 (`data/ascension/`, `AscensionDef`, picked on a strip under the difficulty cards, which lists every
 twist up to the chosen level, the next one and the souls multiplier). Each level adds its twist
@@ -911,7 +916,7 @@ monster per room, faster monsters, tougher bosses, darker floors, less max HP...
 souls per level.
 The last choice is remembered (gold frame), shown in the HUD and on the end-of-run screen.
 The difficulty window (`DifficultyPanel`, one `DifficultyCard` each) says what changes in plain
-words, compared with Normal (`DifficultyCard.effects()`: "Monster health +30%", "Time to dodge
+words, compared with Keeper (`DifficultyCard.effects()`: "Monster health +30%", "Time to dodge
 -15%", "+1 monster per room", "Monsters spot you sooner", "Bigger floors (+20%)"...; green helps,
 red makes it harder), the souls it pays, and for a locked one what unlocks it.
 
@@ -921,14 +926,14 @@ The game opens on the **title screen** (`src/ui/title/`): play, visit the shrine
 There is no class to pick: everyone starts the same, and becomes who they want during the run.
 The bosses of each act are shown with what a run is; the Dawn Knell button (the daily run) opens a card that explains it (same
 dungeon for everyone today, the day's start, your score); the records sit on a strip (souls to
-spend, runs, victories, deepest floor, difficulty); the Shrine button wears an "Upgrade ready"
+spend, runs, victories, deepest floor, difficulty); the Shrine button wears an "Souls to offer"
 badge when souls can buy something. The title-side windows (shrine, difficulty, options) use the
 game's RPG skin like the bag (`MenuWindow` in `src/ui/common/`: an `RpgWindow` with its Close
 button and a header line within reach, big switches, strips and badges).
 
-**The Dawn Knell** (the daily run: the shrine's bell tolls each dawn, `DailyRun`, `DailyDialog`, the button under Play): one run a day, the same all day (UTC),
+**The Dawn Knell** (the daily run: the shrine's bell tolls each dawn, `DailyRun`, `DailyDialog`, the button under Descend): one run a day, the same all day (UTC),
 offline. Each floor is generated from the day and its depth, everyone starts with the day's
-weapon and relic (shown on the button), on Normal. The day's first attempt is the official one
+weapon and relic (shown on the button), on Keeper. The day's first attempt is the official one
 (counted when it starts: quitting doesn't give another); its score is kept with the best ever and
 the days in a row (`Profile.daily_*`); later attempts that day are practice. Score: 1 per kill,
 30 per floor, 150 per boss, 1000 for a victory, 1 per 5 gold picked up. The game over screen
@@ -941,10 +946,10 @@ they buy the nodes of the **Tree of Souls** (`data/shrine/soul_tree.tres`, `Soul
 
 | Branch | Nodes, top to bottom ("or": a fork, taking one shuts the other) | Oath at the end |
 |---|---|---|
-| Body | Vitality; Toughness or Regeneration (heal 5% a level when a floor is won); Provisions; Second Chance or Blood Pact (+20% max Health, heals 30% weaker) | The Colossus |
-| Blade | Might; Keen Eye (+crit) or Quick Hands (+attack speed); Armory (pick the starting weapon); Trophy Hunter (elites drop Magic gear) | The Duelist |
-| Arcana | Arcane Talent; Pyromancy, Paladin's Oath (new items); Forbidden Library; Satchel of Tomes (start with a tome) or Quick Recharge | The Scholar |
-| Fortune | Loaded Dice (rerolls); Swiftness, Exile (banishes); Master Smith, Cartographer (stairs, merchant and forge on the minimap); Haggler (-15% prices) or Full Stalls (+2 items) | The Plunderer |
+| Flesh | Vitality; Iron Skin or Communion (heal 5% a level when a floor is won); Provisions; Death Denied or Blood Pact (+20% max Health, heals 30% weaker) | Oath of the Colossus |
+| Blade | Might; Keen Eye (+crit) or Quick Hands (+attack speed); Armory (pick the starting weapon); Spoils of the Fallen (elites drop Magic gear) | Oath of the Duelist |
+| Arcana | Gift of the Arcane; Pyromancy, Paladin's Oath (new items); Forbidden Library; Satchel of Tomes (start with a tome) or Swift Litany | Oath of the Heretic |
+| Greed | Loaded Dice (rerolls); Swiftness, Exile (banishes); Master Smith, Cartographer (stairs, merchant and forge on the minimap); Haggler (-15% prices) or Laden Stalls (+2 items) | Oath of the Vulture |
 
 A node opens once a node above it is bought; some also need a **feat** (an achievement: "?" on the
 node, the feat in its card). Tapping a node shows on the right what it does now and next, what
@@ -954,15 +959,15 @@ stats, a head start, perk choices, new items, or run rules (kind `RULES`, read b
 heals, gold, loot, the merchant, the minimap). The old shrine's levels carry over as they are.
 
 **Oaths** (`data/oaths/`, `OathDef`): the end of each branch opens one. Once one is open (or the
-Armory), "Before the descent" (`OathPanel`) comes between the difficulty and the run: swear an
+Armory), "At the Well's Edge" (`OathPanel`) comes between the difficulty and the run: swear an
 oath or none, and pick the starting weapon (Armory). An oath is an "X, but Y" start:
 
 | Oath | Rule |
 |---|---|
-| The Colossus | the Hammer, +30% max Health, 15% slower |
-| The Duelist | the Rapier, +10% crit chance, crits x2.5 (instead of x1.75), -20% max Health |
-| The Scholar | the Book, +50% skill damage, attacks 20% slower |
-| The Plunderer | +35% gold and better loot, merchant 25% dearer |
+| Oath of the Colossus | the Hammer, +30% max Health, 15% slower |
+| Oath of the Duelist | the Rapier, +10% crit chance, crits x2.5 (instead of x1.75), -20% max Health |
+| Oath of the Heretic | the Book, +50% skill damage, attacks 20% slower |
+| Oath of the Vulture | +35% gold and better loot, merchant 25% dearer |
 
 Not in the daily run (everyone starts the same). The run keeps its oath in the save (`RunState.oath`).
 
@@ -989,8 +994,8 @@ with its portrait). A `BossDef` is a `MonsterDef` plus:
 
 | Floor | Boss | Style |
 |---|---|---|
-| 3 | King Slime | 360° slams, slime rain, splits into slimes at half HP |
-| 6 | Demon Cyclops | heavy club, fire eye beam, quake, calls skeletons, berserk at 20% |
+| 3 | Bloated King | 360° slams, slime rain, splits into slimes at half HP |
+| 6 | Gorr the One-Eyed | heavy club, fire eye beam, quake, calls skeletons, berserk at 20% |
 | 9 | Crimson Tengu | fast blade, dashes, feather storms, calls spirits |
 | 12 | Gilded Hoarder | crushing leaps, storms of gold coins, calls its thieves (Gold Racoons) when half dead |
 
