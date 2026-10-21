@@ -1,9 +1,9 @@
 class_name PactRoom
 extends AmbushRoom
 ## A pact door: a dead-end room sealed behind a marked door (crimson spikes, a stele in the
-## doorway, a sigil of blood and gold on the floor, candles inside). Walking up to it shows the
-## pact (PactDef: its rule, its reward, its cost; PactPanel). Swearing it lowers the stele and
-## opens the door; walking in seals it and the waves come, as in an ambush (AmbushRoom).
+## doorway, a sigil of blood and gold on the floor, candles inside). Standing by the stele and
+## pressing Interact ("Read the pact") shows the pact (PactDef: its rule, its reward, its cost;
+## PactPanel); walking up opens nothing by itself. Swearing it lowers the stele and opens the door; walking in seals it and the waves come, as in an ambush (AmbushRoom).
 ## The rule (a copy of PactDef.rule) is watched until the last foe falls: kept, a choice of
 ## relics (the Game queues it on Events.pact_ended); broken, part of the hero's max Health is
 ## lost for the rest of the run at once, and the fight goes on until the room opens.
@@ -12,9 +12,8 @@ extends AmbushRoom
 
 enum Outcome { NONE, KEPT, BROKEN, SPENT }
 
-## The pact opens from this close to the door's middle, and again only after walking away.
-const OPEN_DISTANCE := 60.0
-const REARM_DISTANCE := 110.0
+## The Interact button offers the pact from this close to the door's middle.
+const OPEN_DISTANCE := 72.0
 ## The door is noticed (and drawn on the minimap) from this far, in sight.
 const SEE_DISTANCE := 300.0
 const CRIMSON := Color(0.86, 0.16, 0.2)
@@ -37,7 +36,6 @@ var door_cells: Array[Vector2i] = []
 var door_cell := Vector2i.ZERO
 var outward := Vector2i.DOWN
 
-var _armed := true
 var _time := 0.0
 var _see_timer := 0.0
 ## 0: the stele stands in the doorway; 1: it has sunk into the floor.
@@ -45,6 +43,8 @@ var _sink := 0.0
 var _altar: Node2D
 var _sigil: Node2D
 var _glow: LightSource
+## By the stele: where the hero presses Interact to read the pact (while it is offered).
+var _spot := Interactable.new()
 
 
 # --- Choosing the room ------------------------------------------------------------
@@ -184,6 +184,13 @@ func setup_pact(world: World, pact_room: Rect2i, pact: PactDef, light: PropDef, 
 	_glow.level = 11
 	_glow.position = world.map.cell_to_world(door_cell)
 	add_child(_glow)
+	_spot.verb = "Read the pact"  # i18n
+	_spot.reach = OPEN_DISTANCE
+	_spot.color = def.color
+	_spot.icon = ALTAR
+	_spot.position = world.map.cell_to_world(door_cell)
+	_spot.used.connect(func(_by: Player) -> void: Events.pact_requested.emit(self))
+	add_child(_spot)
 	if light:
 		_place_candles(light, taken)
 
@@ -219,6 +226,7 @@ func accept() -> void:
 	if not is_open_offer():
 		return
 	accepted = true
+	_spot.enabled = false
 	_gates.open()
 	create_tween().tween_property(self, "_sink", 1.0, 0.8).set_trans(Tween.TRANS_SINE)
 	Vfx.dust(_world, _world.map.cell_to_world(door_cell), 1.4)
@@ -235,6 +243,7 @@ func save_code() -> int:
 ## empty; no fight, no reward, no cost (a broken pact's cost is already in the hero's save).
 func set_spent() -> void:
 	accepted = true
+	_spot.enabled = false
 	outcome = Outcome.SPENT
 	state = State.CLEARED
 	_sink = 1.0
@@ -324,13 +333,8 @@ func _physics_process(delta: float) -> void:
 		if _see_timer <= 0.0:
 			_see_timer = 0.25
 			_look_for(player)
-	if is_open_offer():
-		var distance := player.global_position.distance_to(_world.map.cell_to_world(door_cell))
-		if _armed and distance <= OPEN_DISTANCE:
-			_armed = false
-			Events.pact_requested.emit(self)
-		elif distance >= REARM_DISTANCE:
-			_armed = true
+	_spot.enabled = is_open_offer()
+	if _spot.enabled:
 		return
 	super._physics_process(delta)
 	if state == State.FIGHTING and rule:

@@ -40,9 +40,31 @@ path), heal, buff, summon. Statuses (`OnHitStatus`): burn and slow.
 
 ## Perks and relics
 
-Every level up pauses the game and offers **1 perk out of 3**. Taking a perk again levels it up
-(up to its `max_stacks`). Bosses drop a choice of **relics** (rare perks), and so does a kept pact
-(pact doors, see [dungeon.md](dungeon.md)).
+Every level up offers **1 perk out of 3**, but **only when the player asks**: a level up opens
+nothing and never pauses. It is a short moment in the world instead (rings of golden light widening
+around the hero and a column of light behind him, `LevelUpVfx`; "LEVEL UP" floating up; a chime),
+and the choice waits behind the HUD's **perk button** (left of the minimap: a glowing star with how
+many choices wait on a badge, `OffersButton`). Tapping it (or C, the left trigger) opens the choice
+and pauses the game; several waiting choices follow one another, with Reroll and Banish as below.
+**Later** (or Back) puts the one on screen off: back to the fight, it waits at the head of the line
+with the same cards (putting off never rerolls). Choices wait as long as the player wants, across
+floors, and are saved with the run, the one on screen with its cards (`OfferQueue`, `RunSave`).
+Taking a perk again levels it up (up to its `max_stacks`). Bosses drop a choice of **relics** (rare
+perks), and so does a kept pact (pact doors, see [dungeon.md](dungeon.md)).
+
+**What waits, what comes by itself** (`OfferQueue.Offer.on_demand`). Level ups wait: they come
+mid-fight, where a window over the screen broke the fight's flow. Relics (a boss', a kept pact's,
+the hidden floor's boss) still come up by themselves, a moment (`Game.RELIC_DELAY`) after the
+fight is won: the room is quiet, the reward is the point of the fight, and seeing it at once keeps
+that moment; an encounter's gift ("A boon", a relic) too, right after its own panel. Any of them
+put off with Later then waits behind the button like a level up. While the player is choosing
+(after a tap on the button) every waiting choice follows in turn; otherwise only the automatic
+ones show. There is no first perk at the start of a run (the daily run's relic is simply given).
+The game's API for bots and tools: `Game.pending_offers()` (how many wait) and
+`Game.open_offers()` (what the button does).
+
+The choice comes in softly (`PerkChoicePanel`): the world dims and the board rises into place
+over 0.2 s, the cards fading in one after another, with the UI's open sound.
 
 Everything on a card is spelled out for someone who never played a roguelike: "New perk (up to
 level 3)" or "Level 1 > 2 (max 3)", what it does, and a box per **family** with its name, little
@@ -130,7 +152,7 @@ the run, and what slew him is still what slew him the first time.
 - **Once per stack:** each feather opens one trial (`memory.used`). A blow taken inside the trial
   is the trial's to judge: a second, unused feather doesn't save him in there.
 - **Around it:** the run's clock keeps counting; nothing is saved during the trial (a run picked
-  up again is as it was before the killing blow); the bag stays shut and perk choices wait;
+  up again is as it was before the killing blow); the bag stays shut, the perk and Interact buttons are put away and perk choices wait;
   the pause menu works. Without a Threshold in the scene (the balance tools' bare arena, which
   also has no game around it), a second life heals in place as before, so revives still read in
   the measures.

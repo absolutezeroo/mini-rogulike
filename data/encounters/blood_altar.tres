@@ -22,6 +22,7 @@ outcomes = Array[ExtResource("2_tk3pk")]([SubResource("Resource_u05b7")])
 [resource]
 script = ExtResource("5_dxru5")
 choices = Array[ExtResource("1_pq3te")]([SubResource("Resource_l3ndg")])
+verb = "Offer"
 id = &"blood_altar"
 display_name = "Blood Altar"
 description = "An altar stained with old blood. It wants a part of you... and it pays well."

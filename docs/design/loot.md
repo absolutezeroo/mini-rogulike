@@ -25,7 +25,7 @@
   flies to you. It lasts one run. Potions and other consumables you already carry plenty of
   (4 of the same, `consumable_carry_cap`) drop as gold instead: no bag full of potions.
 - **The merchant** (`data/shop/merchant.tres`, `Merchant`, `ShopPanel`) waits in a quiet room on
-  some floors: walk up to him to buy equipment (better than average), potions and sometimes a
+  some floors: stand by him and tap Interact (**Trade**) to buy equipment (better than average), potions and sometimes a
   tome, or to sell what you carry. Every item has a `value`; the price grows with rarity and depth.
   **Reroll** buys a new stock (`ShopDef.reroll_cost`, +`reroll_cost_growth` each time at the same
   merchant). **Lock** keeps an entry through rerolls; if you don't buy it, it waits at the next
@@ -93,7 +93,7 @@ consumables between the two ("To belt" / "To bag"). The merchant buys from the b
   with its empty sockets, and are saved with it.
 - **The forge** (`data/forge/smith.tres`, `ForgeDef`, `Forge`, `ForgePanel`): Brann the Smith,
   his anvil and glowing coals, in a quiet room of some floors (`forge_chance` 30%, +15% for each
-  floor without one, never on boss floors). Walk up to him: pick a weapon (the worn one or one
+  floor without one, never on boss floors). Stand by him and tap Interact (**Forge**): pick a weapon (the worn one or one
   in the bag), set runes from the bag into its free sockets for free, or pick a socket and take
   its rune back out, intact, for gold (`removal_price` + `removal_price_per_depth`). A plain
   weapon becomes its own copy the first time a rune goes in. Debug panel: "Forge here", "Every rune".

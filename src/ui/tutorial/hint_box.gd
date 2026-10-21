@@ -86,6 +86,13 @@ func show_hint(hint: HintDef, at: Rect2) -> void:
 	queue_redraw()
 
 
+## The control moved, showed up or went away (an empty rect: no ring).
+func set_target(at: Rect2) -> void:
+	if at != target:
+		target = at
+		queue_redraw()
+
+
 func hide_hint() -> void:
 	if _tween:
 		_tween.kill()

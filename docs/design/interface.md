@@ -13,16 +13,44 @@ anywhere in it, cards and buttons included, with a bit of momentum (`TouchScroll
 | Attack (auto-aim, hold) | Big red button | J / Space | X |
 | Skills 1-4 | Small round buttons | K L O P or 1 2 3 4 | A B Y RB |
 | Belt (potions, bombs, scrolls) | The 3 small buttons left of the skills | Q / H, 5, 6 | LB (slot 1) |
+| Use what you stand by (trade, forge, drink...) | The Interact button (shows only then) | E / F | RT |
+| Open the waiting perk choices | The perk button (shows only then) | C | LT |
 | Pause | II button / phone back button | Escape | - |
 | Choose a perk | Tap a card | Arrows + Enter | D-pad + A |
 | Inventory | Bag button | I / Tab | Back |
+
+## Nothing opens by itself
+
+Walking up to someone or something never opens a window, and a level up never does either: the
+player decides when the fight stops.
+
+- **Interact** (input action `interact`): standing by the merchant, the forge, an encounter or a
+  pact door's stele, a round button pops in above the skills (left of the third one, where the
+  thumb on the attack button reaches it; `InteractButton`), with the thing's picture and what
+  tapping does on a plaque under it: **Trade** (the merchant), **Forge** (the smith), the
+  encounter's own word (`EncounterDef.verb`: **Drink** at the spring, **Offer** at the blood
+  altar, **Talk** to the grinning spirit, **Kneel** before the statue), **Read the pact** (a pact
+  door, until it is sworn). A soft gold ring lies at the thing's feet while the button is its.
+  Tapping (or E / F, the right trigger) opens its window; walking out of reach hides the button.
+  Closing the window leaves the button there: tap again to come back. Spent things (a used
+  encounter, a sworn pact) offer nothing.
+  How it works: a thing adds an `Interactable` child (`src/entities/interactable.gd`: its verb,
+  icon, color, reach, `enabled`, signal `used`); the Game's `Interactor` gives the button to the
+  nearest usable one in reach each physics frame (`focus_changed`, read by the HUD) and uses it
+  when the action goes down (`Game.interact()` does the same). Anything can join without other
+  code changing (an item on the ground could, later). Chests and stairs keep working by walking
+  on them: they open no window.
+- **The perk button** (input action `offers`): see [builds.md](builds.md#perks-and-relics). Left
+  of the minimap, under the pause button: a glowing golden star, "Perks" under it and how many
+  choices wait on a red badge; it swells when one more comes. Hidden while none waits.
+- Both are put away during the trial of the Threshold.
 
 ## On a phone
 
 - **The run is saved** (`RunSave`, `user://run.json`) when a floor begins and whenever the app goes
   to the background (a call, switching apps...). The title screen then offers **Continue**: same
-  depth (a fresh floor), the hero exactly as saved (level, stats, gear, bag, perks, spell, perk
-  choices left open). Dying erases it. "Save and quit" in the pause menu does the same on purpose.
+  depth (a fresh floor), the hero exactly as saved (level, stats, gear, bag, perks, spell, the
+  perk choices still waiting, the one on screen with its cards). Dying erases it. "Save and quit" in the pause menu does the same on purpose.
   Never during the trial of the Threshold: quit in there, and the run picks up as it was before
   the killing blow.
 - **Pause menu** (the II button, Escape, or the phone's back button): resume, options, save and quit,
@@ -69,8 +97,10 @@ over a menu or a big banner. A tap (or OK) closes it.
 - **First steps**: move (it stays until you have walked a few tiles), then the sealed stairs; when
   a monster first sees you, attack (until you swing), then roll, then the weapon's two skills.
 - **The first time something happens**: low health (drink a potion from the belt), gear in the bag
-  (open the Bag), your first soul, perks and families, a family bonus, a spell, an elite, a rune, the
-  forge, the merchant, a chest, an ambush, a pact door, a boss, the stairs opening, a cursed or
+  (open the Bag), your first soul, a perk waiting (pointing at the perk button until it is
+  tapped), a family bonus, a spell, an elite, a rune, the forge, the merchant, an encounter, a pact
+  door (these four say to walk up and tap Interact, and point at its button as soon as it shows:
+  a hint's ring follows its control), a chest, an ambush, a boss, the stairs opening, a cursed or
   strange floor, cold and heat, the first trial of the Threshold (pointing at its countdown, once its
   name is gone).
 - **Data**: `data/tutorial/tutorial.tres` (`TutorialDef`): the hints (`HintDef`: its cue, the hint
@@ -111,6 +141,8 @@ stones lit in their runes' colors. The selected slot pulses gold.
   words with its odds ("55%  Heals you fully", `EncounterChoice.chances()`,
   `EncounterOutcome.summary()`), risks in red; Leave ("nothing happens, you can come back").
 - **Perk choice**, **pause menu** and **end of a run** use `RpgDialog` (a centred board, no Close):
-  the cards on dark wood with Reroll / Banish explained; each pause button says what it does, with
+  the cards on dark wood with Reroll / Banish explained and **Later** (the choice waits behind the
+  perk button; Back does the same), coming in softly (the world dims, the board rises, 0.2 s)
+  instead of cutting over the fight; each pause button says what it does, with
   what gold and souls are for; the end screen shows the run's numbers (`RunState.summary_rows()`),
   the souls earned and what they buy.

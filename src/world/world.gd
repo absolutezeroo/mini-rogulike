@@ -972,8 +972,9 @@ func set_cell_blocked(cell: Vector2i, blocked: bool) -> void:
 	nav.set_blocked(cell, blocked)
 
 
-func has_line_of_sight(from: Vector2, to: Vector2) -> bool:
-	var query := PhysicsRayQueryParameters2D.create(from, to, Layers.WORLD)
+## `exclude`: bodies the ray goes through (the thing looked at, solid itself: the merchant...).
+func has_line_of_sight(from: Vector2, to: Vector2, exclude: Array[RID] = []) -> bool:
+	var query := PhysicsRayQueryParameters2D.create(from, to, Layers.WORLD, exclude)
 	return get_world_2d().direct_space_state.intersect_ray(query).is_empty()
 
 

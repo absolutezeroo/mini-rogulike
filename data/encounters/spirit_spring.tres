@@ -48,6 +48,7 @@ outcomes = Array[ExtResource("2_q4i57")]([SubResource("Resource_iik5g"), SubReso
 [resource]
 script = ExtResource("7_rx6d4")
 choices = Array[ExtResource("1_kuqam")]([SubResource("Resource_ctkuu")])
+verb = "Drink"
 id = &"spirit_spring"
 display_name = "Spring of the Drowned"
 description = "Clear water glows faintly. The souls of the drowned linger here."

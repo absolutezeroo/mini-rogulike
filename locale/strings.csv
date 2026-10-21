@@ -47,6 +47,7 @@ Costs %s,Costs %s,Coûte %s
 Not enough gold (%d more),Not enough gold (%d more),Pas assez d'or (il en manque %d)
 Your max health is too low,Your max health is too low,Ta Vie max est trop basse
 Accept,Accept,Accepter
+Approach,Approach,Approcher
 Leave,Leave,Partir
 Nothing more happens.,Nothing more happens.,Plus rien ne se passe.
 A boon,A boon,Une faveur
@@ -140,9 +141,11 @@ the dungeon,the dungeon,le donjon
 Your bag is full,Your bag is full,Ton sac est plein
 %s set into %s,%s set into %s,%s serti dans %s
 %s taken out of %s,%s taken out of %s,%s retiré de %s
+Forge,Forge,Forger
 Trap!,Trap!,Piège !
 Bought %s,Bought %s,Acheté : %s
 Sold %s for %d gold,Sold %s for %d gold,Vendu : %s pour %d or
+Trade,Trade,Marchander
 {rank} {monster},{rank} {monster},{monster} {rank}
 {affix} {monster},{affix} {monster},{monster} {affix}
 Fell!,Fell!,Tombé !
@@ -388,6 +391,7 @@ Open the bag,Open the bag,Ouvrir le sac
 Your bag is full.,Your bag is full.,Ton sac est plein.
 Nothing worn there yet.,Nothing worn there yet.,Tu ne portes rien à cet emplacement.
 The same as what you wear.,The same as what you wear.,Identique à ce que tu portes.
+Perks,Perks,Atouts
 Pact broken,Pact broken,Pacte rompu
 -%d max Health for the rest of the run,-%d max Health for the rest of the run,-%d Vie max pour le reste de la partie
 Pact kept,Pact kept,Pacte tenu
@@ -431,7 +435,6 @@ An empty socket: a forge sets runes in it.,An empty socket: a forge sets runes i
 "Dismantle %d pieces of gear worse than what you wear, for %d gold?","Dismantle %d pieces of gear worse than what you wear, for %d gold?","Démanteler %d pièces d'équipement moins bonnes que ce que tu portes, pour %d or ?"
 Dismantle: +%d gold,Dismantle: +%d gold,Démanteler : +%d or
 Inventory,Inventory,Inventaire
-Perks,Perks,Atouts
 Belt,Belt,Ceinture
 Bag,Bag,Sac
 Drop,Drop,Jeter
@@ -524,6 +527,7 @@ Banish (%d),Banish (%d),Bannir (%d)
 Tap the perk to banish: it won't be offered again this run,Tap the perk to banish: it won't be offered again this run,Touche l'atout à bannir : il ne sera plus proposé de la partie
 Level up!,Level up!,Niveau supérieur !
 Every perk belongs to a family. Hold 3 different perks of one family to awaken its bonus.,Every perk belongs to a family. Hold 3 different perks of one family to awaken its bonus.,Chaque atout appartient à une famille. Réunis 3 atouts différents d'une même famille pour éveiller son bonus.
+Later,Later,Plus tard
 "Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (tap Banish, then the card).","Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (tap Banish, then the card).","Relancer : 3 nouveaux atouts au choix.   Bannir : retire un atout des offres de la partie (touche Bannir, puis la carte)."
 Reroll  -  %d gold,Reroll  -  %d gold,Relancer  -  %d or
 New items for sale. Locked ones stay.,New items for sale. Locked ones stay.,De nouveaux objets en vente. Ceux verrouillés restent.
@@ -682,6 +686,7 @@ The pact is sworn. Walk in: the door seals behind you.,The pact is sworn. Walk i
 The pact is broken: %d max Health lost for the rest of the run.,The pact is broken: %d max Health lost for the rest of the run.,Le pacte est rompu : %d de Vie max perdus pour le reste de la partie.
 The pact is kept. A relic answers the oath.,The pact is kept. A relic answers the oath.,Le pacte est tenu. Une relique répond au serment.
 "The last foe falls. The door opens, and the room keeps its relic.","The last foe falls. The door opens, and the room keeps its relic.","Le dernier ennemi tombe. La porte s'ouvre, et la salle garde sa relique."
+Read the pact,Read the pact,Lire le pacte
 The wall gives way: a hidden room.,The wall gives way: a hidden room.,Le mur cède : une salle cachée.
 "The seal shatters: two ways down. %s, or %s.","The seal shatters: two ways down. %s, or %s.","Le sceau vole en éclats : deux chemins vers les profondeurs. %s, ou %s."
 The seal shatters. The way down lies open.,The seal shatters. The way down lies open.,Le sceau vole en éclats. La voie des profondeurs s'ouvre.
@@ -861,6 +866,7 @@ Bursting,Bursting,Fulminant
 Thorned,Thorned,Épineux
 The altar drinks. A relic rises from the stone.,The altar drinks. A relic rises from the stone.,L'autel boit. Une relique s'élève de la pierre.
 Offer your blood,Offer your blood,Offrir ton sang
+Offer,Offer,Offrir
 Blood Altar,Blood Altar,Autel de Sang
 An altar stained with old blood. It wants a part of you... and it pays well.,An altar stained with old blood. It wants a part of you... and it pays well.,Un autel souillé de sang ancien. Il veut une part de toi... et il paie bien.
 It giggles and drops something shiny.,It giggles and drops something shiny.,Il ricane et laisse tomber quelque chose de brillant.
@@ -869,6 +875,7 @@ It giggles and drops something shiny.,It giggles and drops something shiny.,Il r
 Wager,Wager,Parier
 """A big spender!"" A treasure falls at your feet.","""A big spender!"" A treasure falls at your feet.",« Quel panier percé ! » Un trésor tombe à tes pieds.
 Wager big,Wager big,Tout miser
+Talk,Talk,Parler
 Grinning Spirit,Grinning Spirit,Esprit Ricaneur
 "A grinning spirit shakes its dice. ""Gold for a gift? Maybe... maybe not!""","A grinning spirit shakes its dice. ""Gold for a gift? Maybe... maybe not!""",Un esprit ricaneur agite ses dés. « De l'or contre un cadeau ? Peut-être... ou peut-être pas ! »
 The water is cool and kind. You feel whole again.,The water is cool and kind. You feel whole again.,L'eau est fraîche et bienveillante. Tu te sens entier à nouveau.
@@ -1478,7 +1485,7 @@ Weapon skills,Weapon skills,Compétences d'arme
 Low health,Low health,Vie basse
 Tap a potion on your belt to drink it. Potions are rare: keep them for when it counts.,Tap a potion on your belt to drink it. Potions are rare: keep them for when it counts.,Touche une potion de ta ceinture pour la boire. Les potions sont rares : garde-les pour les moments critiques.
 "Slain monsters free their souls. Between runs, spend them on the Tree of Souls, at the shrine.","Slain monsters free their souls. Between runs, spend them on the Tree of Souls, at the shrine.","Les monstres abattus libèrent leurs âmes. Entre deux parties, dépense-les dans l'Arbre des Âmes, au Sanctuaire."
-"Each level brings a perk. Three perks of one family awaken a bonus. See yours in the Bag, under Perks.","Each level brings a perk. Three perks of one family awaken a bonus. See yours in the Bag, under Perks.","Chaque niveau apporte un atout. Trois atouts d'une même famille éveillent un bonus. Retrouve les tiens dans le Sac, sous Atouts."
+"Each level brings a perk: tap the glowing button to choose it, whenever you like. Three of a family awaken a bonus.","Each level brings a perk: tap the glowing button to choose it, whenever you like. Three of a family awaken a bonus.","Chaque niveau apporte un atout : touche le bouton qui luit pour le choisir, quand tu veux. Trois d'une famille éveillent un bonus."
 Family bonus,Family bonus,Bonus de famille
 Three of a family: its bonus is yours for the rest of the run.,Three of a family: its bonus is yours for the rest of the run.,Trois atouts d'une famille : son bonus est à toi pour le reste de la partie.
 New gear,New gear,Nouvel équipement
@@ -1488,8 +1495,8 @@ The tome taught you a spell: it has its own button. Reading another tome replace
 "Elites have powers, named after them. Tougher, but they drop better loot, and sometimes runes.","Elites have powers, named after them. Tougher, but they drop better loot, and sometimes runes.","Les élites ont des pouvoirs, qui leur donnent leur nom. Plus coriaces, mais ils lâchent un meilleur butin, et parfois des runes."
 Runes go into your weapon's sockets at a smith's forge. Better weapons have more sockets.,Runes go into your weapon's sockets at a smith's forge. Better weapons have more sockets.,"Les runes se sertissent dans les emplacements de ton arme, à la forge d'un forgeron. Les meilleures armes ont plus d'emplacements."
 The forge,The forge,La forge
-Walk up to the anvil to set runes into your weapon. The smith takes them out again for gold.,Walk up to the anvil to set runes into your weapon. The smith takes them out again for gold.,Approche-toi de l'enclume pour sertir des runes dans ton arme. Le forgeron les retire contre de l'or.
-"Walk up to the merchant to spend your gold, or to sell him what you don't need.","Walk up to the merchant to spend your gold, or to sell him what you don't need.","Approche-toi du marchand pour dépenser ton or, ou lui vendre ce dont tu n'as pas besoin."
+Walk up to the anvil and tap Forge to set runes into your weapon. The smith takes them out again for gold.,Walk up to the anvil and tap Forge to set runes into your weapon. The smith takes them out again for gold.,Approche-toi de l'enclume et touche Forger pour sertir des runes dans ton arme. Le forgeron les retire contre de l'or.
+"Walk up to the merchant and tap Trade to spend your gold, or to sell him what you don't need.","Walk up to the merchant and tap Trade to spend your gold, or to sell him what you don't need.","Approche-toi du marchand et touche Marchander pour dépenser ton or, ou lui vendre ce dont tu n'as pas besoin."
 Chest,Chest,Coffre
 Walk up to a chest to open it. Careful: some are trapped.,Walk up to a chest to open it. Careful: some are trapped.,Approche-toi d'un coffre pour l'ouvrir. Prudence : certains sont piégés.
 Cracked wall,Cracked wall,Mur fissuré
@@ -1515,7 +1522,9 @@ Heat,Heat,Chaleur
 Stay by an oasis to cool down before the heat hurts you.,Stay by an oasis to cool down before the heat hurts you.,Reste près d'une oasis pour te rafraîchir avant que la chaleur ne te blesse.
 "A second life, if you earn it: slay the spectres before the countdown ends to return where you fell.","A second life, if you earn it: slay the spectres before the countdown ends to return where you fell.","Une seconde vie, si tu la mérites : abats les spectres avant la fin du compte à rebours pour revenir où tu es tombé."
 Pact door,Pact door,Porte de pacte
-"A pact door. Walk up to the stele to read its rule: keep it for a relic, break it and lose max Health.","A pact door. Walk up to the stele to read its rule: keep it for a relic, break it and lose max Health.","Porte de pacte. Approche de la stèle pour lire sa règle : tiens-la pour une relique, romps-la et perds de la Vie max."
+"A pact door. Walk up to the stele and tap Read the pact: keep it for a relic, break it and lose max Health.","A pact door. Walk up to the stele and tap Read the pact: keep it for a relic, break it and lose max Health.","Porte de pacte. Approche de la stèle, touche Lire le pacte : tiens-le pour une relique, romps-le et perds de la Vie max."
+Something waits,Something waits,Quelque chose attend
+"Altars, springs and spirits offer a deal. Walk up to one and tap the button over your skills to see it.","Altars, springs and spirits offer a deal. Walk up to one and tap the button over your skills to see it.","Autels, sources et esprits proposent un marché. Approche-toi et touche le bouton au-dessus de tes compétences."
 "Roll through a blow: for a heartbeat, nothing can touch you.","Roll through a blow: for a heartbeat, nothing can touch you.","Roule à travers un coup : le temps d'un battement de cœur, rien ne peut te toucher."
 A weapon is as strong as the floor it was found on. Keep plundering.,A weapon is as strong as the floor it was found on. Keep plundering.,Une arme vaut l'étage où elle fut trouvée. Continue à piller.
 Hold three perks of one family to awaken its bonus.,Hold three perks of one family to awaken its bonus.,Réunis trois atouts d'une même famille pour éveiller son bonus.

@@ -804,6 +804,29 @@ func _test_perks() -> void:
 		check(offer.all(func(p: PerkDef) -> bool: return p.rarity == PerkDef.Rarity.COMMON), "level up offers common perks")
 	var relics := CONTENT.pick_perks(owned, 3, PerkDef.Rarity.RARE, rng)
 	check(relics.all(func(p: PerkDef) -> bool: return p.rarity == PerkDef.Rarity.RARE), "bosses offer relics")
+
+	# The waiting choices: a level up's waits for the player, a relic comes by itself; a choice put
+	# off goes first and waits; a save keeps both kinds and the cards dealt.
+	var queue := OfferQueue.new()
+	var changes := [0]
+	queue.changed.connect(func() -> void: changes[0] += 1)
+	queue.add(PerkDef.Rarity.COMMON, 3, "Level 2!", "Choose an upgrade", true)
+	queue.add_relic(CONTENT.dungeon.acts[0].boss)
+	check(queue.size() == 2 and changes[0] == 2, "the queue counts its choices and says when they change")
+	var automatic := queue.pop(true)
+	check(automatic != null and automatic.rarity == PerkDef.Rarity.RARE and not automatic.on_demand and queue.size() == 1, "only the relic comes by itself")
+	check(queue.pop(true) == null, "a level up's choice never comes by itself")
+	automatic.cards = relics.duplicate()
+	queue.put_back(automatic)
+	check(queue.size() == 2 and automatic.on_demand, "a choice put off waits like a level up")
+	var reloaded := OfferQueue.new()
+	reloaded.load_data(queue.to_data(false))
+	var first := reloaded.pop()
+	check(first.rarity == PerkDef.Rarity.RARE and first.on_demand and first.cards == relics, "a save keeps the put-off choice first, with its cards")
+	check(reloaded.pop().on_demand and reloaded.is_empty(), "...and the level up's, still waiting")
+	var old_save := OfferQueue.new()
+	old_save.load_data([{ "rarity": 0, "count": 3, "title": "Level 2!", "subtitle": "" }])
+	check(old_save.pop().on_demand, "an old save's pending choice waits for the player")
 	var everything := PerkSet.new()
 	for perk in CONTENT.perks:
 		if perk.rarity == PerkDef.Rarity.RARE:

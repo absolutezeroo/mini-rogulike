@@ -125,11 +125,13 @@ func _bot_play(game: Game, frames: int) -> void:
 		if player.is_dead:
 			break
 		if game.perk_panel.visible:
-			# Level up: take the first card, like a player tapping it.
+			# A perk choice: take the first card, like a player tapping it.
 			await get_tree().create_timer(0.2, true).timeout
 			game.perk_panel.choose(0)
 			await get_tree().physics_frame
 			continue
+		if game.pending_offers() > 0 and not game.is_menu_open() and await _tap_offers(game):
+			continue  # level ups wait behind the perk button: tapped, like a player
 		var target := _nearest_monster(world, player, unreachable)
 		# Chasing the same one for 10 s without killing it: out of reach somehow, hunt another.
 		if target == chased:
@@ -216,6 +218,32 @@ func _drag(index: int, at: Vector2) -> void:
 	event.index = index
 	event.position = get_viewport().get_final_transform() * at
 	Input.parse_input_event(event)
+
+
+## Taps the HUD's Interact button like a finger. False if it isn't showing (nothing in reach).
+func _tap_interact(game: Game) -> bool:
+	await _frames(2)  # (it follows what the hero stands by, each physics frame)
+	var button := game.hud.get_node("%InteractButton") as InteractButton
+	if not button.is_visible_in_tree():
+		return false
+	_touch(7, button.global_position, true)
+	await _frames(2)
+	_touch(7, button.global_position, false)
+	await _frames(2)
+	return true
+
+
+## Taps the HUD's perk button (choices waiting) like a finger. False if it isn't showing.
+func _tap_offers(game: Game) -> bool:
+	var button := game.hud.get_node("%OffersButton") as OffersButton
+	if not button.is_visible_in_tree():
+		return false
+	var at := button.get_global_rect().get_center()
+	_touch(7, at, true)
+	await _frames(1)
+	_touch(7, at, false)
+	await _frames(2)
+	return true
 
 
 func _frames(count: int) -> void:

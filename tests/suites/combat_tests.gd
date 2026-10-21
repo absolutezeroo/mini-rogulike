@@ -134,15 +134,27 @@ func _test_perks_in_game(game: Game, world: World, player: Player) -> void:
 	player.hp = player.get_max_hp()
 	await _frames(10)
 
-	# Level up: the game pauses and offers 3 perks; two level ups = two choices in a row.
+	# Level up: a moment in the world, nothing opens, the fight goes on. The choice waits behind
+	# the HUD's perk button (with how many wait); tapping it opens 3 perks and pauses.
+	var offers_button := game.hud.get_node("%OffersButton") as OffersButton
+	check(not offers_button.visible and game.pending_offers() == 0, "no perk button while no choice waits")
 	player.gain_xp(player.xp_to_next_level())
 	await _frames(2)
-	check(game.perk_panel.visible and get_tree().paused, "level up pauses and shows the perk choice")
+	check(not game.perk_panel.visible and not get_tree().paused and not game.is_menu_open(), "a level up opens nothing and doesn't pause")
+	check(player.get_children().any(func(n: Node) -> bool: return n is LevelUpVfx), "a level up lights rings around the hero instead")
+	check(offers_button.visible and offers_button.count == 1 and game.pending_offers() == 1, "the perk button shows 1 choice waiting")
+	await _frames(120)
+	check(not game.perk_panel.visible and game.pending_offers() == 1 and not player.get_children().any(func(n: Node) -> bool: return n is LevelUpVfx), "the moment passes, the choice keeps waiting")
+	check(await _tap_offers(game), "the perk button can be tapped")
+	check(game.perk_panel.visible and get_tree().paused, "tapping it opens the perk choice and pauses")
+	check(game.perk_panel.modulate.a < 0.99, "the choice fades in (no hard cut): %.2f" % game.perk_panel.modulate.a)
+	check(not offers_button.visible and game.pending_offers() == 0, "the choice on screen is no longer counted")
 	var cards: HBoxContainer = game.perk_panel.get_node("%Cards")
 	check(cards.get_child_count() == 3, "three cards")
 	check((cards.get_child(0) as Button).disabled, "cards ignore taps for a moment (no accidental pick)")
 	await get_tree().create_timer(0.6, true).timeout
 	check(not (cards.get_child(0) as Button).disabled, "cards become pickable")
+	check(is_equal_approx(game.perk_panel.modulate.a, 1.0), "the choice is fully in after its fade")
 	# Reroll: three other cards. Banish: that perk is gone for the run, another takes its place.
 	game.run.rerolls = 1
 	game.run.banishes = 1
@@ -172,12 +184,26 @@ func _test_perks_in_game(game: Game, world: World, player: Player) -> void:
 
 	player.gain_xp(player.xp_to_next_level() + player.def.xp_to_next_level(player.level + 1))
 	await _frames(2)
+	check(not game.perk_panel.visible and offers_button.visible and offers_button.count == 2, "two level ups: nothing opens, the button counts 2")
+	# Later (and Back) put a choice off: back to the fight, it waits with the same cards.
+	check(game.open_offers() and game.perk_panel.visible, "open_offers() opens the first choice")
+	var put_off := game.perk_panel.get_offered().duplicate()
+	(game.perk_panel.get_node("%LaterButton") as Button).pressed.emit()
+	await _frames(2)
+	check(not game.perk_panel.visible and not get_tree().paused and offers_button.count == 2, "Later: back to the game, both choices still wait")
+	await _tap_offers(game)
+	check(game.perk_panel.visible and game.perk_panel.get_offered() == put_off, "a choice put off comes back with the same cards (no free reroll)")
+	game._back()
+	await _frames(2)
+	check(not game.perk_panel.visible and not get_tree().paused and game.pending_offers() == 2, "Back puts it off too")
+	await _tap_offers(game)
 	check(game.perk_panel.visible, "first of two choices")
 	game.perk_panel.choose(0)
 	await _frames(2)
 	check(game.perk_panel.visible, "second choice follows right away")
 	game.perk_panel.choose(0)
 	await _frames(2)
+	check(not offers_button.visible and game.pending_offers() == 0, "all taken: the perk button goes away")
 	var total_levels := 0
 	for entry in player.perks.entries:
 		total_levels += entry.stacks

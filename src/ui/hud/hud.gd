@@ -6,6 +6,8 @@ signal inventory_requested
 signal pause_requested
 ## The DBG button (debug builds only).
 signal debug_requested
+## The perk button: the player wants to make the waiting perk choices.
+signal offers_requested
 
 const BAG_ICON: Texture2D = preload("res://assets/ui/icons/bag.png")
 
@@ -49,6 +51,14 @@ var _hidden_for_trial: Array[Control] = []
 var pact_line := PactLine.new()
 ## Loot left on the ground (auto loot, a full bag) with its Take button (built in code).
 var loot_prompt := LootPrompt.new()
+## Left of the map while perk choices wait: their count, a glow (built in code).
+var offers_button := OffersButton.new()
+## Above the skills while the hero stands by something to use (built in code).
+var interact_button := InteractButton.new()
+## The perk choices the button counts (bind_offers()).
+var _offers: OfferQueue
+## During the trial of the Threshold the perk and Interact buttons are put away.
+var _in_trial := false
 
 
 func _ready() -> void:
@@ -76,6 +86,8 @@ func _ready() -> void:
 	add_child(pact_line)
 	loot_prompt.hud = self
 	add_child(loot_prompt)
+	_add_offers_button()
+	_add_interact_button()
 	Events.depth_changed.connect(_on_depth_changed)
 	_depth_banner.modulate.a = 0.0
 
@@ -97,6 +109,50 @@ func _add_debug_button() -> void:
 	button.modulate = Color(1, 1, 1, 0.75)
 	button.pressed.connect(func() -> void: debug_requested.emit())
 	add_child(button)
+
+
+## The perk button, left of the minimap, under the pause button: in thumb's reach on the right,
+## away from the joystick and the fight's buttons.
+func _add_offers_button() -> void:
+	offers_button.name = "OffersButton"
+	offers_button.anchor_left = 1.0
+	offers_button.anchor_right = 1.0
+	offers_button.offset_left = -326.0
+	offers_button.offset_right = -326.0 + OffersButton.SIZE
+	offers_button.offset_top = 92.0
+	offers_button.offset_bottom = 92.0 + OffersButton.SIZE
+	offers_button.pressed.connect(func() -> void: offers_requested.emit())
+	add_child(offers_button)
+	move_child(offers_button, _minimap.get_index())  # under the full map
+	offers_button.owner = self  # the tutorial points at it (hint_target())
+	offers_button.unique_name_in_owner = true
+
+
+## The Interact button, above the skills (left of the third one): the thumb on the attack button
+## reaches it, and it never covers a skill.
+func _add_interact_button() -> void:
+	interact_button.name = "InteractButton"
+	interact_button.position = Vector2(-262, -372)
+	%Controls.add_child(interact_button)
+	interact_button.owner = self
+	interact_button.unique_name_in_owner = true
+
+
+## The perk choices waiting: the button shows how many.
+func bind_offers(offers: OfferQueue) -> void:
+	_offers = offers
+	offers.changed.connect(_refresh_offers)
+	_refresh_offers()
+
+
+func _refresh_offers() -> void:
+	offers_button.count = 0 if _offers == null or _in_trial else _offers.size()
+
+
+## What the Interact button would use: shown by it, hidden when nothing is in reach.
+func bind_interactor(interactor: Interactor) -> void:
+	interactor.focus_changed.connect(func(target: Interactable) -> void:
+		interact_button.show_for(null if _in_trial else target))
 
 
 ## Size of the touch controls (Options). They grow from their corner of the screen.
@@ -145,7 +201,10 @@ func bind_threshold(threshold: Threshold) -> void:
 
 
 func _show_floor_widgets(shown: bool) -> void:
+	_in_trial = not shown
+	_refresh_offers()
 	if not shown:
+		interact_button.show_for(null)
 		_full_map.hide()
 		_hidden_for_trial.clear()
 		for widget: Control in [_minimap, _seal_label, _boss_bar, %BagButton, %SplitLabel]:
