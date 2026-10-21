@@ -296,7 +296,7 @@ func _ways() -> PackedStringArray:
 
 ## The Shiny: a rare glowing one of this kind, found (slain) or not yet.
 func _add_shiny(column: VBoxContainer) -> void:
-	column.add_child(_heading(tr("Shiny")))
+	column.add_child(_heading(tr("Celestial")))
 	var found := Profile.has_shiny(_monster.id)
 	column.add_child(_goal_row(found, tr("Found!") if found else tr("Not found yet"), ""))
 	column.add_child(UiSkin.label(tr("A rare glowing version%s: tougher, but it drops plenty of loot and gold. Slay one to add it to your collection.") % _shiny_odds(), 14, UiSkin.DIM, true))

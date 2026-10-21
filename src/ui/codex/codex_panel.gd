@@ -131,7 +131,7 @@ func _fill_bestiary() -> void:
 	var slain := entries.filter(func(m: MonsterDef) -> bool: return Profile.kill_count(m.id) > 0).size()
 	var mastered := entries.filter(func(m: MonsterDef) -> bool: return Bestiary.is_mastered(m, rules)).size()
 	var shiny := entries.filter(func(m: MonsterDef) -> bool: return Profile.has_shiny(m.id)).size()
-	_summary.text = tr("Slain: %d of %d kinds     Mastered: %d     Shiny found: %d") % [slain, entries.size(), mastered, shiny]
+	_summary.text = tr("Slain: %d of %d kinds     Mastered: %d     Celestial found: %d") % [slain, entries.size(), mastered, shiny]
 	_list.add_theme_constant_override("separation", 6)
 	var placed := {}
 	var acts := _content.dungeon.acts
@@ -242,7 +242,7 @@ func _fill_runs() -> void:
 	_records.text = records
 	_records.visible = not records.is_empty()
 	if Profile.history.is_empty():
-		_list.add_child(UiSkin.label(tr("No run finished yet. Go down the Well!"), 18, UiSkin.DIM))
+		_list.add_child(UiSkin.label(tr("No descent finished yet. The Well is waiting."), 18, UiSkin.DIM))
 	for entry: Dictionary in Profile.history:
 		_list.add_child(CodexRows.run_row(entry, _content))
 

@@ -19,7 +19,7 @@ are in [../architecture.md](../architecture.md); how to add content is in
 | Page | What |
 |---|---|
 | [dungeon.md](dungeon.md) | Floors, biomes, hazards, sealed stairs, routes, curses, temperature, ambushes, boss arenas, floor events, encounters |
-| [monsters.md](monsters.md) | Acts and their monsters, supports, traits, ranks (Elite, Epic, Legendary, Shiny), bosses, dragons |
+| [monsters.md](monsters.md) | Acts and their monsters, supports, traits, ranks (Elite, Fell, Legendary, Celestial), bosses, dragons |
 | [builds.md](builds.md) | Skills and weapons, perks and relics, passives, sustain, families, reroll and banish |
 | [loot.md](loot.md) | Item level, rarity and affixes, gold, the merchant, the belt, runes and the forge |
 | [progression.md](progression.md) | Difficulty and ascension, the title screen, the daily run, the Tree of Souls and oaths, quests, codex, achievements, run timer |
@@ -30,7 +30,7 @@ are in [../architecture.md](../architecture.md); how to add content is in
 
 Everything is tied to one idea: **souls**. The Well stole the souls of the hero's village; the
 monsters down there feed on them; the bosses are its wardens, and the Gilded Hoarder, deep in the
-Buried Kingdom, is the Keeper who hoards them.
+Kingdom of Dust, is the Tyrant who hoards them.
 
 - **The story** (`data/story/story.tres`, `StoryDef`) is told page by page before the first run
   (`StoryScreen`: typed out, tap to go on, Skip), and again from the title screen's Story button.

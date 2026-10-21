@@ -6,8 +6,8 @@
 [resource]
 script = ExtResource("2_sijuv")
 id = &"hardened"
-display_name = "Hardened"
-description = "Win a run on Hard."
+display_name = "Martyrdom"
+description = "Win a run on Martyr."
 icon = ExtResource("1_0g7rs")
 stat = 6
 reward_souls = 150

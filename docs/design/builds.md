@@ -74,7 +74,7 @@ A `PerkDef` (in `data/perks/`) is stat bonuses + a list of `Passive`s, both mult
 | `BloodlustPassive` | before a hit (wounded), on kill | Bloodrage, the Blood family, the Fury rune |
 | `LootOnKillPassive` | on kill | Fortune |
 | `ExecutePassive` | before a hit | Executioner |
-| `ExtraProjectilesPassive` | every volley | Multishot |
+| `ExtraProjectilesPassive` | every volley | Hydra's Quiver |
 | `CheatDeathPassive` | before dying | Phoenix Feather |
 
 Damage caused by a passive (burn, thorns, shockwaves, chains, Ice Shards' shards, the Arcane
@@ -105,7 +105,7 @@ perks** of a family wakes its bonus for the rest of the run: a change in how you
 | **Frost** | Frostbite, Cold Snap, Ice Shards, Frost Armor, Guardian Ring | slowed enemies take +50%, crits freeze them |
 | **Blood** | Vampirism, Vitality, Bloodrage, Devotion, Executioner | below half Health +40% damage, every kill heals 4% max Health |
 | **Storm** | Frenzy, Thunderclap, Shock Roll, Swiftness | attacks 15% faster; every 3rd hit, lightning jumps to 3 enemies |
-| **Arcane** | Arcane Focus, Arcane Power, Devotion, Echo, Sage's Codex, Multishot | every skill also fires a ring of 8 bolts |
+| **Arcane** | Arcane Focus, Arcane Power, Devotion, Echo, Sage's Codex, Hydra's Quiver | every skill also fires a ring of 8 bolts |
 
 A perk sits in a family only if its effect plainly belongs to it (Inferno: fire and burning;
 Frost: cold, slows, freezing; Blood: health, life drain, low-health power; Storm: lightning,

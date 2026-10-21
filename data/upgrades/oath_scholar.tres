@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1")
 id = &"oath_scholar"
-display_name = "Oath of the Scholar"
+display_name = "Oath of the Heretic"
 description = "Opens this oath: sworn before a run, it changes how you start it."
 icon = ExtResource("2")
 color = Color(0.7, 0.55, 1, 1)

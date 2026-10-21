@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_uj01j")
 id = &"easy"
-display_name = "Easy"
-description = "Learn the game at your own pace."
+display_name = "Pilgrim"
+description = "A pilgrim's pace: learn the Well without haste."
 color = Color(0.5019608, 0.92941177, 0.6, 1)
 monster_hp = 0.7
 monster_damage = 0.6

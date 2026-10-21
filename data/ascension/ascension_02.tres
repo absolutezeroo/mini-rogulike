@@ -4,6 +4,6 @@
 
 [resource]
 script = ExtResource("1_uhwtk")
-title = "Sharp Fangs"
+title = "Whetted Fangs"
 description = "Monsters deal 10% more damage."
 monster_damage = 1.1

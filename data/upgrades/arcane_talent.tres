@@ -12,7 +12,7 @@ skill_power = 0.05
 [resource]
 script = ExtResource("4_6mxbo")
 id = &"arcane_talent"
-display_name = "Arcane Talent"
+display_name = "Gift of the Arcane"
 description = "Your weapons' skills deal more damage, in every run."
 icon = ExtResource("2_6xj5x")
 color = Color(0.7019608, 0.53333336, 0.92156863, 1)

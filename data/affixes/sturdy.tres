@@ -12,4 +12,4 @@ script = ExtResource("2_57mdl")
 slots = 6
 bonuses = SubResource("Resource_vqv2y")
 id = &"sturdy"
-display_name = "Sturdy"
+display_name = "Stalwart"

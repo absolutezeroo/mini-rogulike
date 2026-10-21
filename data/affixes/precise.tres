@@ -12,5 +12,5 @@ script = ExtResource("2_75cdq")
 slots = 1
 bonuses = SubResource("Resource_fu8v1")
 id = &"precise"
-display_name = "Precise"
+display_name = "Unerring"
 spawn_weight = 9

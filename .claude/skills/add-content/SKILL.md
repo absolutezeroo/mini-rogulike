@@ -9,7 +9,8 @@ Content is data. Read docs/adding-content.md first: its table says, for each kin
 resource to create and where to register it.
 
 1. **Start from a neighbour.** Copy the closest existing `.tres` of the same kind and change it,
-   rather than writing one from scratch. Give it a unique `id` (snake_case) and a `display_name`.
+   rather than writing one from scratch. Give it a unique `id` (snake_case) and a `display_name` in the game's voice
+   (docs/lexicon.md: naming patterns, words to avoid).
 2. **Keep the file valid.** Every `[ext_resource]` path must exist, ids must be unique within the
    file, sub-resources referenced by `SubResource("...")` must be declared. Don't add `uid=`.
 3. **Register it** where the table says (`data/content_db.tres`, an act in `data/dungeon/acts/`,

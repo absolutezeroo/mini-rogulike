@@ -73,6 +73,6 @@ scenes = Array[ExtResource("8_a48jq")]([ExtResource("9_33tul"), ExtResource("10_
 decor = Array[ExtResource("1_gbu62")]([SubResource("Resource_0ny6d"), SubResource("Resource_xu4j5")])
 light = ExtResource("7_xj62s")
 id = &"ruined_temple"
-display_name = "Ruined Temple"
+display_name = "Godless Temple"
 description = "Halls of columns raised for a god nobody remembers."
 color = Color(1, 0.85, 0.5, 1)

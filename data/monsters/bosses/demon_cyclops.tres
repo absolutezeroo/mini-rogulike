@@ -32,7 +32,7 @@
 script = ExtResource("1_dngni")
 id = &"weapon_big_sword"
 goal = 10
-text = "Fell the Demon Cyclops with a Greatsword"
+text = "Fell Gorr the One-Eyed with a Greatsword"
 souls = 70
 weapon = ExtResource("2_nk8yc")
 
@@ -112,7 +112,7 @@ move_speed = 70.0
 [resource]
 script = ExtResource("18_lv27d")
 material = ExtResource("99_material")
-title = "Warden of the Crypt"
+title = "Warden of the Ossuary"
 shockwave_power = 1.0
 portrait = ExtResource("17_hw63p")
 phases = Array[ExtResource("11_mjgm1")]([SubResource("Resource_mjgm1"), SubResource("Resource_fmbws")])
@@ -133,7 +133,7 @@ xp_reward = 120
 challenges = Array[ExtResource("1_dngni")]([SubResource("Resource_v1ga4")])
 loot = SubResource("Resource_6sotq")
 id = &"demon_cyclops"
-display_name = "Demon Cyclops"
+display_name = "Gorr the One-Eyed"
 description = "A horned giant with a burning eye."
 icon = SubResource("AtlasTexture_sogvl")
 glyph = "D"

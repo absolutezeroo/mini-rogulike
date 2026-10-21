@@ -8,10 +8,10 @@ you can then keep going in endless mode (the acts loop, monsters keep getting st
 
 | Act | Floors | Monsters | Boss |
 |---|---|---|---|
-| I. Mossy Caves | 1-3 | Cave Mouse, Blue Bat, Slime, Red Spider, Spore Cap, Viper, Acid Larva, Burrower, Giant Slime, Shell Guard, Thief Racoon | King Slime |
-| II. Haunted Crypt | 4-6 | Skeleton, Dark Sorcerer, Spirit, Flying Skull, Watcher, Ghost Lantern, Night Owl, Frost Skull, Thief Racoon, Brood Mother | Demon Cyclops |
-| III. Burning Ruins | 7-9 | Fire Shaman, Cyclops, Flame Spirit, Lizardman, Horned Beast, Drakeling, Kappa, Ink Octopus, Bomber, Brood Mother, Shell Guard | Crimson Tengu |
-| IV. Buried Kingdom | 10-12 | Dune Rex, Gold Racoon, Red Viper, Ash Lizard, Bone Lizard, Stone Mole, Bomber | Gilded Hoarder |
+| I. The Well's Maw | 1-3 | Gnawer, Gloom Bat, Slime, Blood Spider, Deathcap, Viper, Acid Larva, Burrower, Giant Slime, Shell Guard, Thief Racoon | Bloated King |
+| II. Ossuary of Kagari | 4-6 | Skeleton, Hexer, Lost Soul, Flying Skull, Watcher, Ghost Lantern, Night Owl, Frost Skull, Thief Racoon, Brood Mother | Gorr the One-Eyed |
+| III. The Pyre Temple | 7-9 | Fire Shaman, Cyclops, Flame Spirit, Lizardman, Horned Beast, Drakeling, Kappa, Ink Octopus, Bomber, Brood Mother, Shell Guard | Crimson Tengu |
+| IV. Kingdom of Dust | 10-12 | Dune Behemoth, Gold Racoon, Crimson Viper, Ash Lizard, Bone Lizard, Stone Mole, Bomber | Gilded Hoarder |
 
 **Supports** fight from behind, kill them first: the **Moss Heart** (act I) and the **Ember
 Heart** (act III) mend their hurt allies, the **Soul Moth** (act II) and the **Gilded Moth**
@@ -41,7 +41,7 @@ is `MonsterOverlay`.
   `explosion_radius`).
 - The **Fire Shaman** heals the monsters around it.
 
-## Monster ranks: Elite, Epic, Legendary, Shiny
+## Monster ranks: Elite, Fell, Legendary, Celestial
 
 Any monster can come at a rank (`MonsterRankDef`, `data/monster_ranks/`; `DungeonConfig.elite_rank`
 and `rare_ranks`, rarest first, each with its own chance from its depth, times the difficulty):
@@ -49,17 +49,17 @@ and `rare_ranks`, rarest first, each with its own chance from its depth, times t
 | Rank | Affixes | Health (depth 1 / 5 / 11) | Damage | Look | Rewards |
 |---|---|---|---|---|---|
 | **Elite** | 1 ("Vampiric Skeleton") | x2.5 / x3.7 / x5.5 | x1.15 | a ring of the affix's color | x3 XP, better loot, 1 extra drop |
-| **Epic** (from depth 3) | 2, listed over its name | - / x6.3 / x9 | x1.2 | two purple rings | x6 XP, 2 extra drops, x8 gold |
+| **Fell** (from depth 3) | 2, listed over its name | - / x6.3 / x9 | x1.2 | two purple rings | x6 XP, 2 extra drops, x8 gold |
 | **Legendary** (from depth 5) | 3 | - / x8.5 / x11.5 | x1.3 | golden rings and a crown of rays | x10 XP, 3 extra drops of high quality, x15 gold |
-| **Shiny** (1 in 400, any depth) | none | x3.3 / x3.9 / x4.8 | x1 | other colors (hue shift), a gleam sweeping its body, sparkles | x8 XP, 3 extra drops, x25 gold; joins the bestiary's Shiny collection |
+| **Celestial** (1 in 400, any depth) | none | x3.3 / x3.9 / x4.8 | x1 | other colors (hue shift), a gleam sweeping its body, sparkles | x8 XP, 3 extra drops, x25 gold; joins the bestiary's Celestial collection |
 
 A rank's Health grows with depth (`hp_multiplier` + `hp_multiplier_per_depth` per floor): the
 hero's power grows faster than the monsters' own depth scaling, so a deeper Elite needs more
-Health to stay a short duel. Its affixes' Health on top (Armored x1.3, Explosive x0.85...).
+Health to stay a short duel. Its affixes' Health on top (Ironclad x1.3, Bursting x0.85...).
 Ranked bosses use `boss_hp_multiplier` and keep their own damage.
 
-Bosses roll the rare ranks too (`boss_chance`): a **Legendary King Slime (Swift, Vampiric,
-Armored)** has its affixes' perks, more HP, better loot and one more relic to choose; a Shiny boss
+Bosses roll the rare ranks too (`boss_chance`): a **Legendary Bloated King (Swift, Vampiric,
+Ironclad)** has its affixes' perks, more HP, better loot and one more relic to choose; a Celestial boss
 other colors and one more relic. The boss bar shows the rank's color and the affixes. The debug
 panel spawns any rank and can make the next boss one.
 
@@ -83,8 +83,8 @@ with its portrait). A `BossDef` is a `MonsterDef` plus:
 
 | Floor | Boss | Style |
 |---|---|---|
-| 3 | King Slime | 360° slams, slime rain, splits into slimes at half HP |
-| 6 | Demon Cyclops | heavy club, fire eye beam, quake, calls skeletons, berserk at 20% |
+| 3 | Bloated King | 360° slams, slime rain, splits into slimes at half HP |
+| 6 | Gorr the One-Eyed | heavy club, fire eye beam, quake, calls skeletons, berserk at 20% |
 | 9 | Crimson Tengu | fast blade, dashes, feather storms, calls spirits |
 | 12 | Gilded Hoarder | crushing leaps, storms of gold coins, calls its thieves (Gold Racoons) when half dead |
 

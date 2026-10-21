@@ -6,7 +6,8 @@ description: Write or review the French translation of Le Puits des Âmes - fill
 # Translating
 
 The full rules and the glossary are in docs/translating.md: read its "French glossary" table and
-the "Style" section before writing French.
+the "Style" section before writing French. Names and lore follow the dark-fantasy voice of
+docs/lexicon.md (vocabulary bank, naming patterns, words to avoid); rules stay plain.
 
 1. `python3 tools/i18n/extract.py` updates `locale/strings.csv` (columns `keys,en,fr`; the key is
    the English text) and lists new keys.

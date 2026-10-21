@@ -70,7 +70,7 @@ func _on_monster_killed(monster: Monster) -> void:
 	if monster.is_elite():
 		Profile.add_stat("elites")
 	if monster.rank and monster.rank.shimmer and Profile.add_shiny(monster.def.id):
-		Events.log_message(tr("A Shiny %s! It joins the bestiary's collection.") % tr(monster.def.display_name), monster.rank.color)
+		Events.log_message(tr("A Celestial %s! It joins the bestiary's collection.") % tr(monster.def.display_name), monster.rank.color)
 	if monster.is_boss():
 		Profile.add_stat("bosses")
 	if monster.has_fallen() and is_instance_valid(monster.last_attacker) and monster.last_attacker is Player:

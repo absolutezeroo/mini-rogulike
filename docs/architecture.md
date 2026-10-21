@@ -29,15 +29,15 @@ data/                Game content as .tres resources (no code)
   monsters/            One file per monster type, bosses in bosses/
   perks/               Level-up perks (common/) and boss relics (relics/)
   upgrades/            Shrine upgrades (bought with souls between runs)
-  difficulties/        Easy, Normal, Hard, Nightmare
+  difficulties/        Pilgrim, Keeper, Martyr, Nightmare
   story/               story.tres: the game's name, the intro, victory and death texts
   props/               Breakable props and the lantern
   hazards/             Traps, arrow traps, holes, crumbling floor, quicksand and mud
   chests/              Chests (some trapped) and the big chest of ambushes
-  elites/              Elite affixes (Swift, Vampiric, Explosive...)
+  elites/              Elite affixes (Swift, Vampiric, Bursting...)
   affixes/             Item affixes for Magic, Rare and Epic equipment (Sharp, of the Bear...)
   shop/                The merchant (stock, prices, look)
-  encounters/          Spirit Spring, Blood Altar, Grinning Spirit, Warden's Statue
+  encounters/          Spring of the Drowned, Blood Altar, Grinning Spirit, Warden's Statue
   items/weapons/       Player weapons (monster/ = monster-only weapons)
   items/armors/        Head and body armor
   items/consumables/   Potions, scrolls, bombs...
@@ -104,7 +104,7 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
     keep a little space between them (no pile-up in doorways); wandering ones never pick a way
     into a wall.
   - **Sight**: `detect_radius()` is the kind's reach times the difficulty's `detect_range`
-    (Easy x0.85, Normal x1, Hard x1.2, Nightmare x1.4); chasing, they see 1.6x further.
+    (Pilgrim x0.85, Keeper x1, Martyr x1.2, Nightmare x1.4); chasing, they see 1.6x further.
   - **Sleep**: what isn't seen isn't run. A few times a second the World lets monsters off screen
     (beyond a 256 px margin) and out of reach of the hero sleep: no AI, no movement, no animation
     (`Monster.set_awake()`, `World.awake_monsters`). Hunting monsters and bosses stay awake; a hit

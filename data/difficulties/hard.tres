@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_md5ng")
 id = &"hard"
-display_name = "Hard"
-description = "Tougher, faster monsters, and more of them."
+display_name = "Martyr"
+description = "Martyrdom has its monsters: tougher, faster, and more of them."
 color = Color(1, 0.54901963, 0.25882354, 1)
 monster_hp = 1.3
 monster_damage = 1.35

@@ -2,10 +2,10 @@
 
 ## Difficulty
 
-Pressing Play asks for a difficulty (`data/difficulties/`, `DifficultyDef`). Every value multiplies
+Pressing Descend asks for a difficulty (`data/difficulties/`, `DifficultyDef`). Every value multiplies
 the normal game:
 
-| | Easy | Normal | Hard | Nightmare |
+| | Pilgrim | Keeper | Martyr | Nightmare |
 |---|---|---|---|---|
 | Monster HP | x0.7 | x1 | x1.3 | x1.7 |
 | Monster damage (attacks, skills, traps, bursts) | x0.6 | x1 | x1.35 | x1.8 |
@@ -26,7 +26,7 @@ Bigger floors get more of everything with their rooms: monsters, chests, hazards
 items lying around. A floor starts with at most `max_monsters_per_floor` (110) monsters, so the
 phone keeps up on Nightmare; the seal never asks for more than `seal_max` (50) kills.
 
-Easy, Normal and Hard are open; **Nightmare unlocks after a win on Hard** (`unlocked_by`).
+Pilgrim, Keeper and Martyr are open; **Nightmare unlocks after a win on Martyr** (`unlocked_by`).
 **Ascension**: a Nightmare win opens **Nightmare +1**, a +1 win opens +2, up to +10
 (`data/ascension/`, `AscensionDef`, picked on a strip under the difficulty cards, which lists every
 twist up to the chosen level, the next one and the souls multiplier). Each level adds its twist
@@ -35,7 +35,7 @@ monster per room, faster monsters, tougher bosses, darker floors, less max HP...
 souls per level.
 The last choice is remembered (gold frame), shown in the HUD and on the end-of-run screen.
 The difficulty window (`DifficultyPanel`, one `DifficultyCard` each) says what changes in plain
-words, compared with Normal (`DifficultyCard.effects()`: "Monster health +30%", "Time to dodge
+words, compared with Keeper (`DifficultyCard.effects()`: "Monster health +30%", "Time to dodge
 -15%", "+1 monster per room", "Monsters spot you sooner", "Bigger floors (+20%)"...; green helps,
 red makes it harder), the souls it pays, and for a locked one what unlocks it.
 
@@ -43,16 +43,16 @@ red makes it harder), the souls it pays, and for a locked one what unlocks it.
 
 The game opens on the **title screen** (`src/ui/title/`): play, visit the shrine, see your records.
 There is no class to pick: everyone starts the same, and becomes who they want during the run.
-The bosses of each act are shown with what a run is; the Well's Call button (the daily run) opens a card that explains it (same
+The bosses of each act are shown with what a run is; the Dawn Knell button (the daily run) opens a card that explains it (same
 dungeon for everyone today, the day's start, your score); the records sit on a strip (souls to
-spend, runs, victories, deepest floor, difficulty); the Shrine button wears an "Upgrade ready"
+spend, runs, victories, deepest floor, difficulty); the Shrine button wears an "Souls to offer"
 badge when souls can buy something. The title-side windows (shrine, difficulty, options) use the
 game's RPG skin like the bag (`MenuWindow` in `src/ui/common/`: an `RpgWindow` with its Close
 button and a header line within reach, big switches, strips and badges).
 
-**The Well's Call** (the daily run, `DailyRun`, `DailyDialog`, the button under Play): one run a day, the same all day (UTC),
+**The Dawn Knell** (the daily run: the shrine's bell tolls each dawn, `DailyRun`, `DailyDialog`, the button under Descend): one run a day, the same all day (UTC),
 offline. Each floor is generated from the day and its depth, everyone starts with the day's
-weapon and relic (shown on the button), on Normal. The day's first attempt is the official one
+weapon and relic (shown on the button), on Keeper. The day's first attempt is the official one
 (counted when it starts: quitting doesn't give another); its score is kept with the best ever and
 the days in a row (`Profile.daily_*`); later attempts that day are practice. Score: 1 per kill,
 30 per floor, 150 per boss, 1000 for a victory, 1 per 5 gold picked up. The game over screen
@@ -65,10 +65,10 @@ they buy the nodes of the **Tree of Souls** (`data/shrine/soul_tree.tres`, `Soul
 
 | Branch | Nodes, top to bottom ("or": a fork, taking one shuts the other) | Oath at the end |
 |---|---|---|
-| Body | Vitality; Toughness or Regeneration (heal 5% a level when a floor is won); Provisions; Second Chance or Blood Pact (+20% max Health, heals 30% weaker) | The Colossus |
-| Blade | Might; Keen Eye (+crit) or Quick Hands (+attack speed); Armory (pick the starting weapon); Trophy Hunter (elites drop Magic gear) | The Duelist |
-| Arcana | Arcane Talent; Pyromancy, Paladin's Oath (new items); Forbidden Library; Satchel of Tomes (start with a tome) or Quick Recharge | The Scholar |
-| Fortune | Loaded Dice (rerolls); Swiftness, Exile (banishes); Master Smith, Cartographer (stairs, merchant and forge on the minimap); Haggler (-15% prices) or Full Stalls (+2 items) | The Plunderer |
+| Flesh | Vitality; Iron Skin or Communion (heal 5% a level when a floor is won); Provisions; Death Denied or Blood Pact (+20% max Health, heals 30% weaker) | Oath of the Colossus |
+| Blade | Might; Keen Eye (+crit) or Quick Hands (+attack speed); Armory (pick the starting weapon); Spoils of the Fallen (elites drop Magic gear) | Oath of the Duelist |
+| Arcana | Gift of the Arcane; Pyromancy, Paladin's Oath (new items); Forbidden Library; Satchel of Tomes (start with a tome) or Swift Litany | Oath of the Heretic |
+| Greed | Loaded Dice (rerolls); Swiftness, Exile (banishes); Master Smith, Cartographer (stairs, merchant and forge on the minimap); Haggler (-15% prices) or Laden Stalls (+2 items) | Oath of the Vulture |
 
 A node opens once a node above it is bought; some also need a **feat** (an achievement: "?" on the
 node, the feat in its card). Tapping a node shows on the right what it does now and next, what
@@ -78,15 +78,15 @@ stats, a head start, perk choices, new items, or run rules (kind `RULES`, read b
 heals, gold, loot, the merchant, the minimap). The old shrine's levels carry over as they are.
 
 **Oaths** (`data/oaths/`, `OathDef`): the end of each branch opens one. Once one is open (or the
-Armory), "Before the descent" (`OathPanel`) comes between the difficulty and the run: swear an
+Armory), "At the Well's Edge" (`OathPanel`) comes between the difficulty and the run: swear an
 oath or none, and pick the starting weapon (Armory). An oath is an "X, but Y" start:
 
 | Oath | Rule |
 |---|---|
-| The Colossus | the Hammer, +30% max Health, 15% slower |
-| The Duelist | the Rapier, +10% crit chance, crits x2.5 (instead of x1.75), -20% max Health |
-| The Scholar | the Book, +50% skill damage, attacks 20% slower |
-| The Plunderer | +35% gold and better loot, merchant 25% dearer |
+| Oath of the Colossus | the Hammer, +30% max Health, 15% slower |
+| Oath of the Duelist | the Rapier, +10% crit chance, crits x2.5 (instead of x1.75), -20% max Health |
+| Oath of the Heretic | the Book, +50% skill damage, attacks 20% slower |
+| Oath of the Vulture | +35% gold and better loot, merchant 25% dearer |
 
 Not in the daily run (everyone starts the same). The run keeps its oath in the save (`RunState.oath`).
 
@@ -116,7 +116,7 @@ blast, charge, summons or heal, built from the WeaponDef / SkillDef data), and i
   apply (an elite one, pushed into a hole, 3 within 5 s, untouched since it saw you, a crit
   finish), every boss its own (with a ranged weapon, with a melee one, under 90 s, without a
   potion, losing less than 25% HP) plus one with a given weapon (`MonsterDef.challenges`: the
-  King Slime with a Bow, the Red Samurai with a Katana...). Done once, paid in souls, with a toast.
+  Bloated King with a Bow, the Ember Ronin with a Katana...). Done once, paid in souls, with a toast.
 
 The **Codex** (`CodexPanel`, from the title screen and the pause menu) is built in code in the
 game's skin (`RpgWindow`, like the bag and the forge): four tabs in its header, the souls you hold
@@ -127,12 +127,12 @@ with a finger (`TouchScroll`); `CodexRows` builds their rows, with a tick box fo
   its reward in souls ("Received" once paid) and the time until new ones.
 - **Bestiary**: act by act (floors, how many kinds slain), a card per monster and boss
   (`CodexCard`: picture, rank, kills, a bar toward the next rank, gold frame once Mastered,
-  Boss and Shiny badges; unknown ones are dark shapes until met). Its page has three columns:
-  look, where it lives and its Shiny; attacks with the preview, how it behaves and its stats
+  Boss and Celestial badges; unknown ones are dark shapes until met). Its page has three columns:
+  look, where it lives and its Celestial form; attacks with the preview, how it behaves and its stats
   (Health, Damage, Armor, Move speed, each with what the number means); hunter ranks (slay N,
   +X souls, done or not) and challenges.
 - **Achievements** (`data/achievements/`, `AchievementDef`): a goal on one of the profile's counters
-  (kills, elites, wardens, kinds of creatures, depth, victories on Hard / Nightmare / ascension,
+  (kills, elites, wardens, kinds of creatures, depth, victories on Martyr / Nightmare / ascension,
   monsters pushed into holes, chests, Epic items, encounters, gold or level in one run), with a
   progress bar and its reward; the closest to done first. Reaching it pays souls, with a note at
   the top of the screen.

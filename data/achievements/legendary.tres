@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_6kv1e")
 id = &"legendary"
-display_name = "Shiny!"
+display_name = "Glint in the Dark"
 description = "Find an Epic item."
 icon = ExtResource("1_ld728")
 stat = 9

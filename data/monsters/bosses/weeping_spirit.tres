@@ -30,7 +30,7 @@
 script = ExtResource("1_nx8ek")
 id = &"weapon_magic_wand"
 goal = 10
-text = "Lay the Weeping Spirit to rest with a Wand"
+text = "Lay the Mother of Tears to rest with a Wand"
 souls = 70
 weapon = ExtResource("2_ndn72")
 
@@ -106,7 +106,7 @@ move_speed = 70.0
 [resource]
 script = ExtResource("19_7aq3k")
 material = ExtResource("99_material")
-title = "Warden of the Lost"
+title = "Warden of the Lost Souls"
 shockwave_power = 1.0
 portrait = ExtResource("5_nx8ek")
 phases = Array[ExtResource("13_shtgb")]([SubResource("Resource_qkwm3"), SubResource("Resource_t02vb")])
@@ -128,8 +128,8 @@ xp_reward = 120
 challenges = Array[ExtResource("1_nx8ek")]([SubResource("Resource_xt7uf")])
 loot = SubResource("Resource_ndn72")
 id = &"weeping_spirit"
-display_name = "Weeping Spirit"
-description = "A huge ghost made of all the souls it swallowed. Its wail freezes the blood."
+display_name = "Mother of Tears"
+description = "A ghost woven of every soul she swallowed. Her wail freezes the blood."
 icon = ExtResource("5_nx8ek")
 glyph = "D"
 color = Color(0.9372549, 0.2784314, 0.43529412, 1)

@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1")
 id = &"full_stalls"
-display_name = "Full Stalls"
+display_name = "Laden Stalls"
 description = "The merchant sells 2 more pieces of equipment."
 icon = ExtResource("2")
 color = Color(0.9, 0.75, 0.45, 1)

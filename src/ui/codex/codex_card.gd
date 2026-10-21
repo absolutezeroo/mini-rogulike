@@ -75,7 +75,7 @@ func _init(def: MonsterDef, rules: BestiaryRules) -> void:
 	if is_boss:
 		add_child(_badge(tr("Boss"), Palette.DANGER, false))
 	if Profile.has_shiny(def.id):
-		add_child(_badge(tr("Shiny"), SHINY_COLOR, true))
+		add_child(_badge(tr("Celestial"), SHINY_COLOR, true))
 
 
 func _draw() -> void:

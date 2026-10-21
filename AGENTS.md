@@ -34,6 +34,8 @@ for a system before changing it.
 - Every player-facing text goes through `tr()`, as a whole sentence with `%d` or `{name}` codes,
   never glued pieces. Data texts stay English and are translated where shown. Say Health, Damage,
   Armor (never HP, ATK, DEF).
+- Names, lore and flavor lines speak in the Well's dark-fantasy voice (docs/lexicon.md); rules and
+  numbers stay plain.
 
 ## Files
 
@@ -64,6 +66,7 @@ for a system before changing it.
 | Adding content | docs/adding-content.md |
 | Tests, debug panel | docs/testing.md |
 | Languages, French glossary | docs/translating.md |
+| Naming, lore, the game's voice | docs/lexicon.md |
 | Balance tools / past passes | docs/balance.md / docs/balance-log.md |
 | Android build | docs/android.md |
 | What each system does | docs/design/ (dungeon, monsters, builds, loot, progression, interface, presentation) |

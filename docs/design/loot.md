@@ -48,7 +48,7 @@ consumables between the two ("To belt" / "To bag"). The merchant buys from the b
   - Frost: **Rime** (hits chill), **Shatter** (critical hits release a frost shockwave that slows).
   - Blood: **Leech** (your hits heal 10% of their damage), **Fury** (wounded you hit harder, kills heal).
   - Storm: **Spark** (every 3rd hit chains lightning), **Gale** (your roll throws a gust).
-  - Arcane: **Echo** (skills may be ready again at once), **Prism** (one more projectile; with Multishot, 2 more at most, the volley sharing its damage).
+  - Arcane: **Echo** (skills may be ready again at once), **Prism** (one more projectile; with Hydra's Quiver, 2 more at most, the volley sharing its damage).
 - **Sockets**: every weapon has 1 to 3, by rarity (`ItemRarity.SOCKETS`: Common and Magic 1,
   Rare 2, Epic 3). A rune works like a perk while its weapon is worn (`RuneDef.passives`, through
   `PerkSet.set_gear`); two identical runes count twice. Set runes show on the weapon's details,

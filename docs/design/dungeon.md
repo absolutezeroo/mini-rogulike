@@ -28,13 +28,13 @@
   `seal_reveal_left` (4) are missing, the minimap shows the monsters left. When the seal breaks,
   the stairs light up, the minimap shows them even unexplored and a golden light (`GuideWisp`)
   runs ahead of you along the way. No more running past everything: a floor takes a couple of
-  minutes, a run about half an hour. Floors are 72x72 cells with up to 15 rooms on Easy, and
+  minutes, a run about half an hour. Floors are 72x72 cells with up to 15 rooms on Pilgrim, and
   bigger the harder the run (see Difficulty); boss floors keep that size.
 - **Biomes** (`data/biomes/`, `BiomeDef`): every floor is one world from end to end, picked among
-  its act's (`ActDef.biomes`; the boss arena has `boss_biome`): Act I **Mossy Cave**,
-  **Underground Garden**, **Flooded Caverns**; Act II **Crypt**, **Abandoned Library**; Act III
-  **Burning Ruins**, **Ruined Temple**; Act IV **Buried City** (sand streets, an abandoned market,
-  oases and palms, a lion fountain) and **Sun Tomb** (sarcophagi, burial chambers, gold). Nothing from another biome ever shows up. A biome has:
+  its act's (`ActDef.biomes`; the boss arena has `boss_biome`): Act I **Weeping Grotto**,
+  **Pale Garden**, **Drowned Caverns**; Act II **Catacombs**, **Hushed Archive**; Act III
+  **Cinder Ruins**, **Godless Temple**; Act IV **Sandchoked City** (sand streets, an abandoned market,
+  oases and palms, a lion fountain) and **Tomb of the Dead Sun** (sarcophagi, burial chambers, gold). Nothing from another biome ever shows up. A biome has:
   - its **look** (`theme`: floor and wall tiles, tint, darkness, music) and its **lights**
     (candles in the crypt and the library, braziers in the ruins);
   - its **grounds** (`GroundLayerDef`: moss, sand, mud, shallow water, cobbles...): patches shaped
@@ -66,7 +66,7 @@
   a daily run) and the way taken is saved (`RunState.routes`), so a resumed run rebuilds the same
   floor. The second stairs stand in the room farthest from both the start and the first stairs.
 - **Curses** (`data/curses/`, `CurseDef`): the Well curses a whole floor. Never the first floor nor
-  a boss floor, rarely on Easy, more and more often up to Nightmare (`DifficultyDef.curse_chance`:
+  a boss floor, rarely on Pilgrim, more and more often up to Nightmare (`DifficultyDef.curse_chance`:
   5%, 12%, 20%, 35%). On arrival, the **curse card** (`CurseCard`) shows the Well's sigil forming
   out of souls, the curse's name, its story and its rule. A cursed floor has no floor event, but
   better loot and more gold.
@@ -92,8 +92,8 @@
 - **Elites** (`data/elites/`): any monster can be one, more often deeper and on harder
   difficulties. They glow in their color, show their name, are bigger and tougher, give 3x XP
   and always drop an item. Their affix is a perk, like the hero's: **Swift**, **Vampiric**
-  (heals when hitting), **Explosive** (blows up when it dies), **Armored**, **Venomous**
-  (poisons), **Spiked** (hurts who hits it).
+  (heals when hitting), **Bursting** (blows up when it dies), **Ironclad**, **Venomous**
+  (poisons), **Thorned** (hurts who hits it).
 
 ## Boss arenas
 
@@ -120,16 +120,16 @@ keep one away from you (`MonsterDef.knockback_resistance`). Big monsters resist 
 elites at least half.
 
 - **Special floors** (`data/floor_events/`, `FloorEventDef`): 30% of the normal floors after the first
-  (`dungeon_config.tres` > Floor events) are announced when you arrive: **Haunted** (elites, dim),
-  **Treasure Vault** (chests and gold, more traps), **The Swarm** (hordes of weak monsters),
-  **Pitch Dark** (very dark, better loot), **Quiet Halls** (few monsters, the merchant, encounters),
+  (`dungeon_config.tres` > Floor events) are announced when you arrive: **The Wandering Dead** (elites, dim),
+  **Hoard of the Dead** (chests and gold, more traps), **The Swarm** (hordes of weak monsters),
+  **Utter Dark** (very dark, better loot), **Hushed Halls** (few monsters, the merchant, encounters),
   **Blood Moon** (monsters hit harder, double gold). They multiply monsters, HP, damage, elites,
   light, chests, hazards, encounters, gold and loot quality.
 - **Two bosses per act** (`ActDef.boss` + `other_bosses`): each run draws one per act (saved with
-  the run; the title screen shows both). King Slime or the **Giant Frog** (leaps, poison spit, calls
-  its brood); Demon Cyclops or the **Weeping Spirit** (a freezing wail, blinks, calls lost souls);
-  Crimson Tengu or the **Red Samurai** (arcs of fire, dashes, a ring of fire). Gilded Hoarder or the
-  **Sun Wraith** (a burning sun buried with the kingdom: solar flares, blinks, calls its embers).
+  the run; the title screen shows both). Bloated King or the **Mire Matron** (leaps, poison spit, calls
+  its brood); Gorr the One-Eyed or the **Mother of Tears** (a freezing wail, blinks, calls lost souls);
+  Crimson Tengu or the **Ember Ronin** (arcs of fire, dashes, a ring of fire). Gilded Hoarder or the
+  **Dead Sun** (a burning sun buried with the kingdom: solar flares, blinks, calls its embers).
 
 ## Blood Moon
 
@@ -151,7 +151,7 @@ outcome in words with its odds before you choose; the words come from the outcom
 
 | Encounter | Choice | What may happen |
 |---|---|---|
-| Spirit Spring | Drink | healed (55%), a strong buff for a minute (25%), cursed water hurts (20%) |
+| Spring of the Drowned | Drink | healed (55%), a strong buff for a minute (25%), cursed water hurts (20%) |
 | Blood Altar | Offer your blood (-15% max health) | a choice of relics |
-| Grinning Spirit | Pay 30 / 80 gold (more each floor) | an item, sometimes a great one... or it laughs and runs |
-| Warden's Statue | Pray | a choice of perks (50%), or two elites (50%) |
+| Grinning Spirit | Wager 30 / 80 gold (more each floor) | an item, sometimes a great one... or it laughs and runs |
+| Warden's Statue | Kneel | a choice of perks (50%), or two elites (50%) |

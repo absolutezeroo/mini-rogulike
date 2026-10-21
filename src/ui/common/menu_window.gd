@@ -80,7 +80,7 @@ static func strip_style() -> StyleBoxTexture:
 	return style
 
 
-## A small dark badge with a gold edge and a label ("Upgrade ready").
+## A small dark badge with a gold edge and a label ("Souls to offer").
 static func badge(text: String, font_size: int, color: Color) -> PanelContainer:
 	var box := PanelContainer.new()
 	var style := StyleBoxFlat.new()

@@ -79,7 +79,7 @@ func twist_color() -> Color:
 	return Color.WHITE
 
 
-## For the log: "the Flooded Caverns, cursed: Frostbound".
+## For the log: "the Drowned Caverns, cursed: Frostbound".
 func summary() -> String:
 	if curse:
 		return tr("%s (cursed: %s)") % [title(), tr(curse.display_name)]

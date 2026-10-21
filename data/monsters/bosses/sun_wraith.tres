@@ -30,7 +30,7 @@
 script = ExtResource("1_xpnjk")
 id = &"weapon_templar_sword"
 goal = 10
-text = "Smite the Sun Wraith with the Templar Sword"
+text = "Smite the Dead Sun with the Templar Sword"
 souls = 70
 weapon = ExtResource("2_r3h8l")
 
@@ -107,7 +107,7 @@ move_speed = 70.0
 [resource]
 script = ExtResource("18_wbh2q")
 material = ExtResource("99_material")
-title = "Burning Keeper of the Well"
+title = "False God of the Well"
 shockwave_power = 1.0
 portrait = ExtResource("4_j25dn")
 phases = Array[ExtResource("12_348gy")]([SubResource("Resource_r3h8l"), SubResource("Resource_cxv8w")])
@@ -129,7 +129,7 @@ xp_reward = 120
 challenges = Array[ExtResource("1_xpnjk")]([SubResource("Resource_yx4tt")])
 loot = SubResource("Resource_hkmi6")
 id = &"sun_wraith"
-display_name = "Sun Wraith"
+display_name = "Dead Sun"
 description = "The sun the kingdom worshipped, buried with it. It burns, blinks and calls its embers."
 icon = ExtResource("4_j25dn")
 glyph = "D"

@@ -68,6 +68,6 @@ decor = Array[ExtResource("1_c2h0d")]([SubResource("Resource_a3df6"), SubResourc
 light = ExtResource("8_kofmd")
 props = Array[ExtResource("8_c2h0d")]([ExtResource("9_85e7w"), ExtResource("10_i6fqq"), ExtResource("11_657lm")])
 id = &"sun_tomb"
-display_name = "Sun Tomb"
+display_name = "Tomb of the Dead Sun"
 description = "Gold under every stone, and a curse on every coin."
 color = Color(1, 0.75, 0.3, 1)

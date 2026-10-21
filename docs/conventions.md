@@ -44,6 +44,8 @@ the ones below are those worth spelling out, or where this project chose somethi
 - Data texts stay English in `data/` and are translated where they are shown: `tr(def.display_name)`.
 - Player-facing words: **Health, Damage, Armor, Move speed** (never HP, ATK, DEF). The French
   glossary is in [translating.md](translating.md).
+- Names, lore and flavor speak in the Well's dark-fantasy voice: [lexicon.md](lexicon.md). Rules
+  and numbers stay plain.
 - After adding texts: `python3 tools/i18n/extract.py`, then fill the French. Details in
   [translating.md](translating.md).
 

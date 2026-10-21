@@ -14,7 +14,7 @@ renderer). It plays with touch controls, keyboard or gamepad, in English and Fre
   tomes teach a spell, and each level up offers 1 perk out of 3. Collect 3 perks of a family
   (Inferno, Frost, Blood, Storm, Arcane) and it wakes a new way to fight. Gear has rarity, affixes,
   item levels and rune sockets.
-- **Monsters** telegraph their attacks and come as Elites, Epics, Legendaries or rare Shinies.
+- **Monsters** telegraph their attacks and come as Elites, Fell, Legendaries or rare Celestials.
 - **Between runs**, souls buy the Tree of Souls, then come oaths, Nightmare and ten ascension
   levels. There are also a daily run, daily and weekly quests, a bestiary with challenges,
   achievements and a speedrun timer.
@@ -62,6 +62,7 @@ docs/      Everything else (below)
 | [docs/adding-content.md](docs/adding-content.md) | add monsters, items, perks, biomes, bosses... |
 | [docs/testing.md](docs/testing.md) | run and write tests, use the debug panel |
 | [docs/translating.md](docs/translating.md) | how languages work, keeping the French complete, the glossary |
+| [docs/lexicon.md](docs/lexicon.md) | name things and write lore in the game's dark-fantasy voice |
 | [docs/balance.md](docs/balance.md) | measure the balance with the tools; past passes in [balance-log.md](docs/balance-log.md) |
 | [docs/android.md](docs/android.md) | build, sign and publish the Android app |
 | [docs/design/](docs/design/README.md) | what every system does for the player, and why |

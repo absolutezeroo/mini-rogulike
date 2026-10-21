@@ -37,7 +37,7 @@ func go(path: String) -> void:
 	_path = path
 	_tip.text = tr(TIPS.tips[randi() % TIPS.tips.size()]) if not TIPS.tips.is_empty() else ""
 	_bar.value = 0.0
-	_status.text = tr("Loading...")
+	_status.text = tr("The dark gathers...")
 	_screen.modulate.a = 0.0
 	_screen.show()
 	var fade_in := create_tween()
@@ -61,7 +61,7 @@ func go(path: String) -> void:
 		_bar.value = float(_progress[0]) * 90.0 if not _progress.is_empty() else _bar.value
 		await get_tree().process_frame
 	_bar.value = 90.0
-	_status.text = tr("Lighting the torches...")
+	_status.text = tr("Rekindling the lantern...")
 	while _time - _shown_at < MIN_TIME:
 		await get_tree().process_frame
 	var scene := ResourceLoader.load_threaded_get(path) as PackedScene

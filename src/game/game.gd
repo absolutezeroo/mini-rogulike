@@ -453,7 +453,7 @@ func _announce_floor() -> void:
 			hud.show_banner(tr(world.curse.display_name), world.curse.color)
 		Events.log_message(tr("Cursed: %s. %s") % [tr(world.curse.display_name), tr(world.curse.description)], world.curse.color)
 	if world.arena:
-		Events.log_message(tr("Depth %d. Something big is waiting...") % depth, Palette.DANGER)
+		Events.log_message(tr("Depth %d. Something vast waits in the dark...") % depth, Palette.DANGER)
 	elif world.seal.is_sealed():
 		Events.log_message(tr("Depth %d. The stairs are sealed: slay %d monsters to open them.") % [depth, world.seal.needed], Palette.SEAL)
 	else:
@@ -526,9 +526,9 @@ func _on_boss_defeated(boss: Monster) -> void:
 	if content.dungeon.rerolls_per_boss > 0:
 		run.rerolls += content.dungeon.rerolls_per_boss
 		Events.log_message(tr("+%d reroll for the perk choices.") % content.dungeon.rerolls_per_boss, Palette.GOLD)
-	hud.show_banner(tr("Victory!"))
+	hud.show_banner(tr("Victory Achieved"))
 	Sfx.play_ui(Sfx.bank.boss_defeated)
-	Events.log_message(tr("%s is defeated! The way down is open.") % tr(boss.display_name), Palette.GOLD)
+	Events.log_message(tr("%s falls. The way down lies open.") % tr(boss.display_name), Palette.GOLD)
 	if world.theme:
 		Sfx.play_music(world.theme.music)
 	var def := boss.def as BossDef

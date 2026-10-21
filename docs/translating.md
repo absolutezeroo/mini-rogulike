@@ -38,7 +38,8 @@ says so).
   Î Ï … – — and the no-break spaces; `tools/i18n/add_glyphs.py` drew them on its grid, in its style.
   Typography: a plain space before `:`, `;`, `!`, `?` and `%` (`« %s »` for quotes).
 
-**French glossary** (one word per idea, everywhere; the player is "tu"):
+**French glossary** (one word per idea, everywhere; the player is "tu"; the names, lore and voice follow
+`docs/lexicon.md`, the dark-fantasy lexicon and style guide):
 
 | English | Français | English | Français |
 |---|---|---|---|
@@ -50,14 +51,18 @@ says so).
 | Tree of Souls | Arbre des Âmes | Oath | Serment |
 | Perk / Relic / Family | Atout / Relique / Famille | Rune / Forge / Smith | Rune / Forge / Forgeron |
 | Merchant | Marchand | Bag / Belt | Sac / Ceinture |
-| Elite / Epic / Legendary / Shiny (monsters) | Élite / Épique / Légendaire / Chromatique | Common / Magic / Rare / Epic (items) | Commun / Magique / Rare / Épique |
+| Elite / Fell / Legendary / Celestial (monsters) | Élite / Funeste / Légendaire / Céleste | Common / Magic / Rare / Epic (items) | Commun / Magique / Rare / Épique |
 | Item level / "Lv 7" | Niveau d'objet / "Nv 7" | Floor / Act | Étage / Acte |
 | Stairs / Seal | Escaliers / Sceau | Curse / Cursed | Malédiction / Maudit |
 | Ambush | Embuscade | Reroll / Banish | Relancer / Bannir |
-| The Well's Call (the daily run) | L'Appel du Puits | Run | Partie |
+| The Dawn Knell (the daily run); Toll the knell | Le Glas de l'Aube ; Sonner le glas | Run | Partie |
 | Bestiary / Codex / Quests / Achievements | Bestiaire / Codex / Quêtes / Succès | Level up! | Niveau supérieur ! |
-| Easy / Normal / Hard / Nightmare | Facile / Normal / Difficile / Cauchemar | Ascension | Ascension |
+| Pilgrim / Keeper / Martyr / Nightmare (difficulties) | Pèlerin / Veilleur / Martyr / Cauchemar | Ascension | Ascension |
 | Slay | Abattre (bosses: terrasser) | Warden | Gardien |
+| Descend (Play); Begin the descent | Descendre ; Entamer la descente | Unsworn / Sworn (oaths) | Sans serment / Juré |
+| Tree branches Flesh / Blade / Arcana / Greed | Chair / Lame / Arcanes / Avarice | At the Well's Edge (before a run) | Au Bord du Puits |
+| The Well claims you (death) | Le Puits te réclame | Victory Achieved | Victoire Acquise |
+| Souls to offer (shrine badge) | Âmes à offrir | Choose your ordeal (difficulty) | Choisis ton épreuve |
 
 ## After adding or changing texts
 
@@ -77,7 +82,11 @@ says so).
 
 ## Style
 
+The register (dark fantasy), the vocabulary bank, the naming patterns and the words to avoid are
+in `docs/lexicon.md`: read it before naming anything. In short:
+
 - The player is "tu". Short, punchy UI words; RPG verbs (abattre, terrasser, déferler).
 - Lore and story: written prose, a little solemn and dark.
-- Names: evocative French fantasy, not word for word ("Gilded Hoarder" -> "L'Accapareur Doré").
+- Names: evocative French dark fantasy, not word for word ("Gilded Hoarder" -> "L'Accapareur Doré",
+  "Mother of Tears" -> "La Mère des Larmes"). Rules stay plain, with the glossary's words.
 - A plain space before `:`, `;`, `!`, `?` and `%`; quotes as `« ... »`.
