@@ -526,11 +526,11 @@ Reset the tree,Reset the tree,Réinitialiser l'arbre
 or,or,ou
 "Continue your run  -  floor %d, level %d","Continue your run  -  floor %d, level %d","Reprendre ta partie  -  étage %d, niveau %d"
 Upgrade ready,Upgrade ready,Amélioration prête
-Daily run: practice (today's try is done),Daily run: practice (today's try is done),Partie du jour : entraînement (essai joué)
-Daily run: same dungeon for everyone today,Daily run: same dungeon for everyone today,Partie du jour : même donjon pour tous
-Everyone starts with %s,Everyone starts with %s,Tout le monde commence avec %s
+Daily Descent  -  practice,Daily Descent  -  practice,Descente du Jour  -  entraînement
+Daily Descent,Daily Descent,Descente du Jour
+Same Well for all: %s,Same Well for all: %s,Même puits pour tous : %s
 Today: %d points,Today: %d points,Aujourd'hui : %d points
-Your first try today is the one that counts,Your first try today is the one that counts,Ton premier essai du jour est celui qui compte
+Only your first try counts,Only your first try counts,Seul ton premier essai compte
 Best %d,Best %d,Meilleur %d
 %d days in a row,%d days in a row,%d jours d'affilée
 %d souls,%d souls,%d âmes

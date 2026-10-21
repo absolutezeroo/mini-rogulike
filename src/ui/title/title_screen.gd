@@ -3,7 +3,7 @@ extends Control
 ## First screen: play (or today's daily run, see DailyRun), visit the shrine (permanent
 ## upgrades bought with souls), read the story, see your records. No class to pick: you become
 ## who you want with what you find in the dungeon. The very first run starts with the story.
-## The Daily run button says what it is (same dungeon for everyone today, the day's weapon and
+## The Daily Descent button says what it is (same dungeon for everyone today, the day's weapon and
 ## relic, your score); the records sit on a plaque under the buttons; the Shrine button shows a
 ## badge when an upgrade can be bought.
 
@@ -136,7 +136,7 @@ func _place_scene() -> void:
 	wisps.emission_rect_extents = Vector2(backdrop.well_radius().x * 0.8, backdrop.size.y * 0.3)
 
 
-## The Daily run button's three lines: name, what it is, your score.
+## The Daily Descent button's three lines: name, what it is, your score.
 func _build_daily_button() -> void:
 	var button: Button = %DailyButton
 	button.text = ""
@@ -153,7 +153,7 @@ func _build_daily_button() -> void:
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_theme_constant_override("separation", 0)
 	margin.add_child(column)
-	_daily_title = _button_label(18)
+	_daily_title = _button_label(22)
 	_daily_text = _button_label(14)
 	_daily_score = _button_label(14)
 	for label in [_daily_title, _daily_text, _daily_score]:
@@ -179,20 +179,20 @@ func _build_shrine_badge() -> void:
 	_shrine_badge.anchor_right = 1.0
 	_shrine_badge.offset_left = 10.0
 	_shrine_badge.offset_right = 10.0
-	_shrine_badge.offset_top = -24.0
+	_shrine_badge.offset_top = -12.0
 	_shrine_badge.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	button.add_child(_shrine_badge)
 
 
-## "Daily run" (practice once played today), the same dungeon for everyone with the day's
+## "Daily Descent" (practice once played today), the same dungeon for everyone with the day's
 ## weapon and relic, and the score: today's (or "your first try counts"), best, streak.
 func _refresh_daily() -> void:
 	var day := DailyRun.today()
 	var played := Profile.daily_played(day)
-	_daily_title.text = tr("Daily run: practice (today's try is done)") if played else tr("Daily run: same dungeon for everyone today")
-	_daily_text.text = tr("Everyone starts with %s") % DailyRun.describe(content, day)
+	_daily_title.text = tr("Daily Descent  -  practice") if played else tr("Daily Descent")
+	_daily_text.text = tr("Same Well for all: %s") % DailyRun.describe(content, day)
 	var parts := PackedStringArray()
-	parts.append(tr("Today: %d points") % Profile.daily_score if played else tr("Your first try today is the one that counts"))
+	parts.append(tr("Today: %d points") % Profile.daily_score if played else tr("Only your first try counts"))
 	if Profile.daily_best > 0:
 		parts.append(tr("Best %d") % Profile.daily_best)
 	if Profile.daily_streak > 1 and (played or Profile.daily_day == day - 1):

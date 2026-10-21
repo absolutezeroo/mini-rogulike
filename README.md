@@ -575,7 +575,7 @@ says so).
 | Item level / "Lv 7" | Niveau d'objet / "Nv 7" | Floor / Act | Étage / Acte |
 | Stairs / Seal | Escaliers / Sceau | Curse / Cursed | Malédiction / Maudit |
 | Ambush | Embuscade | Reroll / Banish | Relancer / Bannir |
-| Daily run | Partie du jour | Run | Partie |
+| Daily Descent (the daily run) | Descente du Jour | Run | Partie |
 | Bestiary / Codex / Quests / Achievements | Bestiaire / Codex / Quêtes / Succès | Level up! | Niveau supérieur ! |
 | Easy / Normal / Hard / Nightmare | Facile / Normal / Difficile / Cauchemar | Ascension | Ascension |
 | Slay | Abattre (bosses: terrasser) | Warden | Gardien |
@@ -919,14 +919,14 @@ red makes it harder), the souls it pays, and for a locked one what unlocks it.
 
 The game opens on the **title screen** (`src/ui/title/`): play, visit the shrine, see your records.
 There is no class to pick: everyone starts the same, and becomes who they want during the run.
-The bosses of each act are shown with what a run is; the Daily run button says what it is (same
+The bosses of each act are shown with what a run is; the Daily Descent button says what it is (same
 dungeon for everyone today, the day's start, your score); the records sit on a strip (souls to
 spend, runs, victories, deepest floor, difficulty); the Shrine button wears an "Upgrade ready"
 badge when souls can buy something. The title-side windows (shrine, difficulty, options) use the
 game's RPG skin like the bag (`MenuWindow` in `src/ui/common/`: an `RpgWindow` with its Close
 button and a header line within reach, big switches, strips and badges).
 
-**Daily run** (`DailyRun`, the button next to Play): one run a day, the same all day (UTC),
+**Daily Descent** (the daily run, `DailyRun`, the button under Play): one run a day, the same all day (UTC),
 offline. Each floor is generated from the day and its depth, everyone starts with the day's
 weapon and relic (shown on the button), on Normal. The day's first attempt is the official one
 (counted when it starts: quitting doesn't give another); its score is kept with the best ever and
