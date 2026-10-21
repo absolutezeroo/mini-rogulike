@@ -211,7 +211,8 @@ red ash (`src/vfx/ambient/blood_ash.tscn`).
 
 ## Encounters
 
-Some rooms hold something strange (`data/encounters/`, `EncounterDef`): walk up to it and choose.
+Some rooms hold something strange (`data/encounters/`, `EncounterDef`): stand by it, tap Interact (its own word:
+Drink, Offer, Talk, Kneel; see [interface.md](interface.md#nothing-opens-by-itself)) and choose.
 Each choice has a cost (gold, a part of your max health) and outcomes drawn by weight
 (`EncounterChoice`, `EncounterOutcome`: heal, hurt, gold, an item of some quality, a choice of
 perks or relics, monsters or elites, any `Effect`). Each can be used once. The panel shows every
@@ -230,12 +231,12 @@ outcome in words with its odds before you choose; the words come from the outcom
 Some floors hold a sealed side room behind a marked door (`PactRoom`, `data/pacts/`, `PactDef`):
 crimson spikes across the doorway, a stele standing in it, a sigil of blood and gold on the floor
 before it, candles inside on either side (`DungeonConfig.pact_light`) and a red glow. Seen once,
-the room and its door go on the minimap (a red mark, grey once spent). Walking up to the stele
-shows the pact (`PactPanel`, in the RPG skin, the game paused): its lore line, then three cards,
+the room and its door go on the minimap (a red mark, grey once spent). Standing by the stele and
+tapping Interact (**Read the pact**; walking up opens nothing) shows the pact (`PactPanel`, in the RPG skin, the game paused): its lore line, then three cards,
 **the rule** in plain words (and that the door seals until every foe is slain), **kept** (in
 green: a choice of relics, as after a boss) and **broken** (in red: the max Health this hero would
 lose, and what would be left). **Swear the pact** sinks the stele and opens the door; **Leave**
-changes nothing (it asks again when you come back).
+changes nothing (Interact asks again).
 
 Walking in seals the door and the waves come, as in an ambush (`AmbushRoom`: `PactDef.waves` of
 `wave_size` foes, +1 every 3 floors). The rule is watched on a copy of `PactDef.rule` (a

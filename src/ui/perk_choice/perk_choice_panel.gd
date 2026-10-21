@@ -1,21 +1,27 @@
 class_name PerkChoicePanel
 extends Control
-## "Choose 1 of 3": shown on level up (perks) and after a boss (relics), in the game's skin
-## (RpgDialog, cards on dark wood). Built in code. The game pauses while it is open.
+## "Choose 1 of 3": a level up's perks (when the player taps the HUD's perk button) and a boss'
+## or a pact's relics, in the game's skin (RpgDialog, cards on dark wood). Built in code. The game
+## pauses while it is open; it comes in softly (the world dims, the board rises, ~0.2 s).
 ## Tap a card, or use the arrows and confirm on a keyboard or gamepad.
 ## Under the cards: Reroll (three new cards) and Banish (tap Banish, then a card: that perk is
 ## gone for the run and another takes its place), while the run has charges left (RunState).
 ## The panel only asks (`reroll_requested`, `banish_requested`); the game decides and calls
-## show_cards() with what replaces them.
+## show_cards() with what replaces them. Later (or Back) puts the choice off: it waits behind the
+## perk button with the same cards.
 
 signal chosen(perk: PerkDef)
 signal reroll_requested
 signal banish_requested(index: int)
+## Later: the choice waits (the game puts it back in line).
+signal postponed
 
 const CARD_SCENE: PackedScene = preload("res://src/ui/perk_choice/perk_card.tscn")
 ## Cards ignore input for a moment, so a player mashing attack doesn't pick by accident.
 const INPUT_DELAY := 0.45
 const BANISH_TINT := Color(1.0, 0.55, 0.55)
+## Seconds the panel takes to come in.
+const ENTER_TIME := 0.2
 
 var _perks: Array[PerkDef] = []
 var _owned: PerkSet
@@ -37,6 +43,8 @@ var _cards: HBoxContainer
 var _tools: HBoxContainer
 var _reroll: Button
 var _banish: Button
+var _later: Button
+var _enter_tween: Tween
 var _card_box: StyleBoxTexture
 var _card_hot: StyleBoxTexture
 
@@ -51,6 +59,7 @@ func _ready() -> void:
 			_set_banishing(false)
 			reroll_requested.emit())
 	_banish.pressed.connect(func() -> void: _set_banishing(not _banishing))
+	_later.pressed.connect(postpone)
 
 
 func open(title: String, subtitle: String, perks: Array[PerkDef], owned: PerkSet, rerolls: int = 0, banishes: int = 0) -> void:
@@ -61,6 +70,7 @@ func open(title: String, subtitle: String, perks: Array[PerkDef], owned: PerkSet
 	set_charges(rerolls, banishes)
 	show_cards(perks, true)
 	show()
+	_enter()
 	Sfx.play_ui(Sfx.bank.ui_open)
 	_open_count += 1
 	var this_open := _open_count
@@ -72,6 +82,27 @@ func open(title: String, subtitle: String, perks: Array[PerkDef], owned: PerkSet
 	# Keyboard and gamepad only: on a touch screen it would look like a picked card.
 	if _cards.get_child_count() > 0 and not DisplayServer.is_touchscreen_available():
 		(_cards.get_child(0) as Control).grab_focus()
+
+
+## The world dims and the board rises into place, instead of a hard cut over the fight.
+func _enter() -> void:
+	if _enter_tween:
+		_enter_tween.kill()
+	modulate.a = 0.0
+	_dialog.position.y = 28.0
+	_enter_tween = create_tween().set_parallel()
+	_enter_tween.tween_property(self, "modulate:a", 1.0, ENTER_TIME).set_ease(Tween.EASE_OUT)
+	_enter_tween.tween_property(_dialog, "position:y", 0.0, ENTER_TIME).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+
+## Puts the choice off (Later, or Back): it waits behind the HUD's perk button.
+func postpone() -> void:
+	if not visible:
+		return
+	_set_banishing(false)
+	hide()
+	Sfx.play_ui(Sfx.bank.ui_close)
+	postponed.emit()
 
 
 ## Puts these cards on the table (a reroll, a banished card replaced...).
@@ -183,10 +214,13 @@ func _build() -> void:
 	_banish.name = "BanishButton"
 	_banish.icon = load("res://assets/ui/icons/banish.png")
 	_tools.add_child(_banish)
+	_later = UiParts.button(tr("Later"), Callable(), Vector2(180, 54), 18)
+	_later.name = "LaterButton"
+	_tools.add_child(_later)
 	_tools_note = UiParts.text(tr("Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (tap Banish, then the card)."), 15, UiSkin.DIM, 900)
 	_tools_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_dialog.body.add_child(_tools_note)
-	for node: Node in [_title, _subtitle, _cards, _tools, _reroll, _banish]:
+	for node: Node in [_title, _subtitle, _cards, _tools, _reroll, _banish, _later]:
 		node.owner = self
 		node.unique_name_in_owner = true
 	# The cards on dark wood; lighter under the finger.

@@ -53,6 +53,8 @@ func back() -> bool:
 		encounter.close()
 	elif pact.visible:
 		pact.close()
+	elif perks.visible:
+		perks.postpone()  # the choice waits behind the HUD's perk button
 	else:
 		return false
 	return true

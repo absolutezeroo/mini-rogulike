@@ -3,7 +3,9 @@ extends Node
 ## Runs a play session: creates the hero, moves between floors, offers perks and relics, pauses
 ## for menus and handles the end of the run. Main scene of the project.
 ## The run itself is a RunState; the profile's records follow it in RunRecords; perk choices
-## wait in an OfferQueue; the panels live in GameMenus.
+## wait in an OfferQueue (a level up's until the player opens them: open_offers()); the panels
+## live in GameMenus; the merchant, the forge, encounters and pacts open through the Interactor
+## (the HUD's Interact button), never by walking up to them.
 
 const PLAYER_SCENE := preload("res://src/entities/player/player.tscn")
 const TITLE_SCENE := "res://src/ui/title/title_screen.tscn"
@@ -74,6 +76,11 @@ var threshold := Threshold.new()
 var hidden := HiddenPassage.new()
 ## The hero took the hidden way: the next floor is the hidden one (same depth).
 var _into_hidden := false
+## The Interact button's brain: what the hero stands by, and using it.
+var interactor := Interactor.new()
+## The player opened the perk choices (the HUD's perk button): they follow one another until
+## none is left or one is put off. Otherwise only those that come up by themselves show (relics).
+var _choosing := false
 
 
 func _ready() -> void:
@@ -89,6 +96,7 @@ func _ready() -> void:
 	run_timer.is_counting = _is_clock_running
 	add_child(run_timer)
 	_setup_threshold()
+	_setup_interactor()
 	hidden.name = "HiddenPassage"
 	hidden.game = self
 	hidden.def = content.dungeon.hidden_floor
@@ -98,6 +106,8 @@ func _ready() -> void:
 	hud.inventory_requested.connect(open_inventory)
 	hud.pause_requested.connect(open_pause_menu)
 	hud.debug_requested.connect(open_debug)
+	hud.offers_requested.connect(open_offers)
+	hud.bind_offers(offers)
 	if menus.debug:
 		menus.debug.closed.connect(_on_menu_closed)
 	_connect_menus()
@@ -134,6 +144,7 @@ func _connect_menus() -> void:
 	perk_panel.chosen.connect(_on_perk_chosen)
 	perk_panel.reroll_requested.connect(_on_perk_reroll)
 	perk_panel.banish_requested.connect(_on_perk_banish)
+	perk_panel.postponed.connect(_on_perk_postponed)
 	game_over_panel.restart_requested.connect(start_run)
 	game_over_panel.continue_requested.connect(_on_continue_endless)
 	game_over_panel.title_requested.connect(func() -> void:
@@ -181,6 +192,7 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	_fade.color.a = 0.0
 	menus.hide_all()
 	offers.clear()
+	_choosing = false
 	_transitioning = false
 	_into_hidden = false
 	if player:
@@ -208,8 +220,10 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	player = PLAYER_SCENE.instantiate() as Player
 	player.setup(content.player)
 	player.died.connect(_on_player_died)
+	# A level up opens nothing: its choice waits behind the HUD's perk button.
 	player.leveled_up.connect(func(level: int) -> void:
-		_queue_offer(PerkDef.Rarity.COMMON, PERK_CHOICES, tr("Level %d!") % level, tr("Choose an upgrade")))
+		_queue_offer(PerkDef.Rarity.COMMON, PERK_CHOICES, tr("Level %d!") % level, tr("Choose an upgrade"), true)
+		tutorial.cue(&"offer_waiting"))
 	player.damaged.connect(func(damage: int) -> void:
 		screen_fx.kick(clampf(float(damage) / player.get_max_hp() * 5.0, 0.3, 1.0)))
 	content.unlocked_items = ShrineUpgrades.unlocked_items(content)
@@ -231,6 +245,7 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	_records.bind(run, player)
 	run_timer.run = run
 	_hunt.bind(player)
+	interactor.player = player
 	hud.bind_player(player)
 	tutorial.bind(player, world, hud)
 	if show_act_cards:
@@ -290,6 +305,20 @@ func _setup_threshold() -> void:
 	threshold.closed.connect(func(won: bool) -> void:
 		if won:
 			_show_next_offer())
+
+
+func _setup_interactor() -> void:
+	interactor.name = "Interactor"
+	interactor.is_blocked = func() -> bool: return is_menu_open() or threshold.is_open()
+	interactor.used.connect(func(_target: Interactable) -> void: tutorial.action(&"interacted"))
+	add_child(interactor)
+	hud.bind_interactor(interactor)
+
+
+## Uses what the hero stands by (the merchant, the forge...), like the Interact button.
+## False if nothing is in reach.
+func interact() -> bool:
+	return interactor.interact()
 
 
 ## The daily run's weapon and relic (the same for everyone that day).
@@ -431,6 +460,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("inventory") and not is_menu_open():
 		get_viewport().set_input_as_handled()
 		open_inventory()
+	elif event.is_action_pressed("offers") and not is_menu_open():
+		get_viewport().set_input_as_handled()
+		open_offers()
 	elif event.is_action_pressed("ui_cancel"):
 		get_viewport().set_input_as_handled()
 		_back()
@@ -442,7 +474,7 @@ func _back() -> void:
 		open_pause_menu()
 
 
-## Resumes the game, or shows the next perk choice if one is waiting.
+## Resumes the game, or shows the next perk choice if one is due (see _show_next_offer()).
 func _on_menu_closed() -> void:
 	if player and player.is_dead:
 		return  # the end of the run takes it from here
@@ -664,24 +696,61 @@ func _show_end(victory: bool, earned: int, new_record: bool = false) -> void:
 
 # --- Perks -------------------------------------------------------------------
 
-func _queue_offer(rarity: PerkDef.Rarity, count: int, title: String, subtitle: String) -> void:
-	offers.add(rarity, count, title, subtitle)
-	# Deferred: level ups happen in the middle of combat code.
-	_show_next_offer.call_deferred()
+## Perk choices waiting (a level up's wait until the player opens them; see open_offers()).
+func pending_offers() -> int:
+	return offers.size()
 
 
+## Opens the waiting perk choices (the HUD's perk button): they follow one another, with
+## rerolls and banishes, until none is left or one is put off. False if none waits or a menu
+## can't open now.
+func open_offers() -> bool:
+	if offers.is_empty() or not _can_open_menu() or threshold.is_open():
+		return false
+	_choosing = true
+	tutorial.action(&"opened_offers")
+	_show_next_offer()
+	return perk_panel.visible
+
+
+## `on_demand`: it waits for the player (a level up); otherwise it comes up by itself as soon as
+## no menu is open (relics, an encounter's gift).
+func _queue_offer(rarity: PerkDef.Rarity, count: int, title: String, subtitle: String, on_demand: bool = false) -> void:
+	offers.add(rarity, count, title, subtitle, on_demand)
+	if not on_demand:
+		# Deferred: gifts are handed out in the middle of other code.
+		_show_next_offer.call_deferred()
+
+
+## Shows the next choice that is due: any of them while the player is choosing (open_offers()),
+## otherwise only those that come up by themselves.
 func _show_next_offer() -> void:
-	while not offers.is_empty():
+	while true:
 		if is_menu_open() or player == null or player.is_dead or threshold.is_open():
 			return
-		var offer := offers.pop()
-		var perks := _pick_offer(offer.count, offer.rarity, [])
+		var offer := offers.pop(not _choosing)
+		if offer == null:
+			_choosing = false
+			return
+		var perks := _cards_for(offer)
 		if perks.is_empty():
 			continue  # everything is maxed out
 		offers.shown = offer
 		_set_paused(true)
 		perk_panel.open(offer.title, offer.subtitle, perks, player.perks, run.rerolls, run.banishes)
 		return
+
+
+## An offer's cards: those dealt before (the choice was put off, or saved) while they can still
+## be taken, the rest dealt now. Putting a choice off never rerolls it.
+func _cards_for(offer: OfferQueue.Offer) -> Array[PerkDef]:
+	var cards: Array[PerkDef] = []
+	for perk in offer.cards:
+		if perk and not run.banished.has(perk) and player.perks.can_take(perk) and not cards.has(perk):
+			cards.append(perk)
+	if cards.size() < offer.count:
+		cards.append_array(_pick_offer(offer.count - cards.size(), offer.rarity, cards))
+	return cards
 
 
 ## Perks for an offer: never banished ones nor `also_left_out`, leaning toward started families.
@@ -732,6 +801,17 @@ func _on_perk_banish(index: int) -> void:
 	perk_panel.show_cards(cards)
 
 
+## Later (or Back): the choice goes back in line, first, with its cards, behind the perk button.
+func _on_perk_postponed() -> void:
+	var shown := offers.shown
+	offers.shown = null
+	_choosing = false
+	if shown:
+		shown.cards = perk_panel.get_offered().duplicate()
+		offers.put_back(shown)
+	_on_menu_closed()
+
+
 func _on_perk_chosen(perk: PerkDef) -> void:
 	offers.shown = null
 	player.perks.add(perk)
@@ -767,6 +847,8 @@ func _save_run() -> void:
 	var data := run.to_data()
 	data.boss_slain = world.arena != null and world.arena.is_defeated
 	data.player = player.save_state()
+	if perk_panel.visible and offers.shown:
+		offers.shown.cards = perk_panel.get_offered().duplicate()  # quitting can't reroll them
 	data.offers = offers.to_data(perk_panel.visible)
 	data.floors_without_forge = world.forge_drought_at_start
 	data.floor = world.spent_data()

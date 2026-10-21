@@ -14,6 +14,9 @@ const CUES: Array[StringName] = [
 	&"monster_killed", &"boss_started", &"boss_defeated", &"ambush", &"seal_broken", &"perk_chosen",
 	&"synergy", &"low_health", &"cold", &"hot", &"merchant_near", &"forge_near", &"chest_near",
 	&"gear_carried", &"rune_carried", &"spell_learned", &"two_ways", &"cracked_wall_near", &"pact_near",
+	&"encounter_near",
+	# The Game: a level up's perk choice waits behind the HUD's perk button.
+	&"offer_waiting",
 	# The Game: a second life opened the trial of the Threshold.
 	&"threshold",
 	# Title screen only (TitleScreen.show_menu_hint()): the Tree of Souls and the oaths.
@@ -22,6 +25,8 @@ const CUES: Array[StringName] = [
 ## What a hint can wait for (`done_when`).
 const ACTIONS: Array[StringName] = [
 	&"moved", &"attacked", &"rolled", &"weapon_skill", &"used_item", &"opened_bag",
+	# The Interact button was used; the perk button was tapped.
+	&"interacted", &"opened_offers",
 ]
 ## What `only_if` can ask.
 const CONDITIONS: Array[StringName] = [&"sealed", &"has_belt_item", &"has_weapon_skill"]
@@ -128,6 +133,7 @@ func _process(delta: float) -> void:
 		_poll = POLL
 		_check_world()
 	if current:
+		_follow_target()
 		if current.duration > 0.0:
 			_time_left -= delta
 			if _time_left <= 0.0:
@@ -145,6 +151,13 @@ func _track_walk() -> void:
 	_last_position = at
 	if _walked >= def.move_distance:
 		action(&"moved")
+
+
+## The control a hint points at may come and go (the Interact button shows only by something to
+## use): the ring follows it.
+func _follow_target() -> void:
+	if box and hud and current.target != &"":
+		box.set_target(hud.hint_target(current.target))
 
 
 ## The cues nobody signals: checked a few times a second.
@@ -165,6 +178,8 @@ func _check_world() -> void:
 		cue(&"cracked_wall_near")
 	if _near(&"pact_doors"):
 		cue(&"pact_near")
+	if _near(&"encounters"):
+		cue(&"encounter_near")
 	for item in player.inventory.items:
 		if item is RuneDef:
 			cue(&"rune_carried")
@@ -183,7 +198,11 @@ func _near(group: StringName) -> bool:
 			continue
 		# Seen from where it can be seen (a crack in the rock: from the floor in front of it).
 		var spot: Vector2 = thing.call(&"sight_point") if thing.has_method(&"sight_point") else thing.global_position
-		if spot.distance_to(player.global_position) <= def.near_distance and world.has_line_of_sight(player.global_position, spot):
+		# (A solid thing, the merchant or the forge, doesn't hide itself.)
+		var own: Array[RID] = []
+		if thing is CollisionObject2D:
+			own.append((thing as CollisionObject2D).get_rid())
+		if spot.distance_to(player.global_position) <= def.near_distance and world.has_line_of_sight(player.global_position, spot, own):
 			return true
 	return false
 

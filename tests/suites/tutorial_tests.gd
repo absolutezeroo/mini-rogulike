@@ -224,18 +224,23 @@ func _test_hints(game: Game) -> void:
 	check(tutorial.current == null and Profile.has_seen_hint(&"elite"), "it goes on its own")
 	elite.queue_free()
 
-	# Several at once: one at a time, the most important first.
-	tutorial.cue(&"perk_chosen")
+	# Several at once: one at a time, the most important first. (A level up: its choice waits.)
+	player.gain_xp(player.xp_to_next_level())
 	tutorial.cue(&"boss_started")
 	await _frames(gap)
 	check(tutorial.current != null and tutorial.current.id == &"boss", "the boss hint goes first")
 	tutorial.dismiss()
 	await _frames(gap)
-	check(tutorial.current != null and tutorial.current.id == &"perks", "then the next one")
-	tutorial.dismiss()
+	check(tutorial.current != null and tutorial.current.id == &"perks", "then the next one: a perk waits")
+	var offers_button := game.hud.get_node("%OffersButton") as OffersButton
+	check(game.hint_box.target.has_area() and game.hint_box.target.has_point(offers_button.get_global_rect().get_center()), "the perks hint points at the perk button")
+	check(await _tap_offers(game) and game.perk_panel.visible, "tapping the button opens the choice")
+	check(tutorial.current == null and Profile.has_seen_hint(&"perks"), "...and that ends the hint")
+	game.perk_panel.choose(0)
+	await _frames(2)
 
 	# A cracked wall in sight (a secret room behind it): once, a word about it.
-	for seen in [&"chest", &"merchant", &"forge"]:
+	for seen in [&"chest", &"merchant", &"forge", &"encounter"]:
 		Profile.mark_hint(seen)  # (only the crack's hint is looked at here)
 	var crack := (load("res://src/entities/prop/cracked_wall.tscn") as PackedScene).instantiate() as CrackedWall
 	crack.world = game.world
@@ -248,6 +253,24 @@ func _test_hints(game: Game) -> void:
 	CONTENT.tutorial.near_distance = -1.0
 	tutorial.dismiss()
 	crack.queue_free()
+	await _frames(gap)
+
+	# The merchant in sight (solid, he doesn't hide himself): walk up and tap Interact. The hint's
+	# ring finds the Interact button once he is in reach, and tapping it ends the hint.
+	Profile.hints_seen.erase("merchant")
+	var merchant := game.world.spawn_merchant(CONTENT.dungeon.merchant, game.world.map.world_to_cell(game.world.find_open_point_near(player.global_position, 150.0)))
+	CONTENT.tutorial.near_distance = 220.0
+	await _frames(gap)
+	check(tutorial.current != null and tutorial.current.id == &"merchant", "a merchant in sight: his hint")
+	CONTENT.tutorial.near_distance = -1.0
+	player.global_position = merchant.global_position + Vector2(0, 36)
+	await _frames(3)
+	var interact := game.hud.get_node("%InteractButton") as InteractButton
+	check(game.hint_box.target.has_point(interact.global_position), "by him, it points at the Interact button")
+	check(await _tap_interact(game) and game.shop_panel.visible and tutorial.current == null and Profile.has_seen_hint(&"merchant"), "tapping it opens the shop and ends the hint")
+	game.shop_panel.close()
+	await _frames(2)
+	merchant.queue_free()
 	await _frames(gap)
 
 	# Under the boss bar when it shows.
@@ -265,18 +288,21 @@ func _test_hints(game: Game) -> void:
 		index = world.map.rooms.size() - 1  # no dead end on this floor: any room will do for a hint
 	if index > 0:
 		var pact := world.spawn_pact(CONTENT.dungeon.pacts[0], world.map.rooms[index], {})
-		pact._armed = false  # (no offer: it would open its panel)
 		var near := CONTENT.tutorial.near_distance
 		CONTENT.tutorial.near_distance = 200.0
 		player.global_position = pact.front()
 		var shown := false
+		var others: Array[StringName] = []
 		for attempt in 4:  # (a chest or the merchant in reach may have its say first)
 			await _frames(gap)
 			shown = tutorial.current != null and tutorial.current.id == &"pact"
 			if shown:
 				break
+			others.append(tutorial.current.id if tutorial.current else &"none")
 			tutorial.dismiss()
-		check(shown, "a pact door in sight: its hint")
+		check(shown, "a pact door in sight: its hint (before it: %s; blocked %s, near %s, queue %s, waiting %s, seen %s, menu %s, banner %s)" % [others, tutorial.is_blocked.call(), tutorial._near(&"pact_doors"), tutorial._queue, tutorial._waiting, Profile.has_seen_hint(&"pact"), game.is_menu_open(), game.hud.is_banner_showing()])
+		check(shown and game.hint_box.target.has_area() and game.hint_box.target.has_point((game.hud.get_node("%InteractButton") as Node2D).global_position), "by the stele, it points at the Interact button")
+		check(not game.menus.pact.visible, "...and the pact itself waits for the button")
 		tutorial.dismiss()
 		CONTENT.tutorial.near_distance = near
 		pact.set_spent()

@@ -55,6 +55,7 @@ outcomes = Array[ExtResource("2_g1vk0")]([SubResource("Resource_lc2c5"), SubReso
 [resource]
 script = ExtResource("5_q3102")
 choices = Array[ExtResource("1_jrko2")]([SubResource("Resource_fbdo5"), SubResource("Resource_hrtov")])
+verb = "Talk"
 id = &"grinning_spirit"
 display_name = "Grinning Spirit"
 description = "A grinning spirit shakes its dice. \"Gold for a gift? Maybe... maybe not!\""

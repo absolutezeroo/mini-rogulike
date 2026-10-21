@@ -345,6 +345,17 @@ func run() -> void:
 	var hero: Player = game.player
 	var wand: ItemDef = load("res://data/items/weapons/magic_wand.tres")
 	var frenzy := _perk("frenzy")
+	# Perk choices wait across floors, and are saved with the run (the one on screen with its cards).
+	hero.gain_xp(hero.xp_to_next_level())
+	hero.gain_xp(hero.xp_to_next_level())
+	await _frames(2)
+	check(game.pending_offers() == 2 and not game.perk_panel.visible, "two level ups: two choices wait")
+	game.depth = 4
+	game._enter_floor()
+	await _frames(3)
+	check(game.pending_offers() == 2 and (game.hud.get_node("%OffersButton") as OffersButton).count == 2, "they wait across floors")
+	check(game.open_offers(), "the perk button opens them")
+	var on_screen := game.perk_panel.get_offered().duplicate()
 	hero.level = 3
 	hero.xp = 7
 	hero.inventory.add(wand)
@@ -361,6 +372,15 @@ func run() -> void:
 	check(back != hero and game.depth == 5 and game.kills == 12 and game.world.depth == 5, "resuming goes back to the same depth")
 	check(back.level == 3 and back.xp == 7 and back.perks.stacks_of(frenzy) == 1, "the hero comes back as saved")
 	check(back.inventory.count_of(wand) >= 1 and back.get_weapon() == weapon_before, "with their gear")
+	check(not game.perk_panel.visible and not get_tree().paused, "a resumed run opens no perk choice by itself")
+	check(game.pending_offers() == 2 and (game.hud.get_node("%OffersButton") as OffersButton).count == 2, "the waiting choices survive save and resume, behind the perk button")
+	check(await _tap_offers(game) and game.perk_panel.visible and game.perk_panel.get_offered() == on_screen, "the choice that was on screen comes back with its cards")
+	game.perk_panel.choose(0)
+	await _frames(2)
+	check(game.perk_panel.visible, "then the other one")
+	game.perk_panel.choose(0)
+	await _frames(2)
+	check(not get_tree().paused and game.pending_offers() == 0, "both taken, back to the game")
 
 	# A second bot run on the fresh character at higher depths, mortal this time.
 	# Monsters must be able to hurt a player who just stands there.

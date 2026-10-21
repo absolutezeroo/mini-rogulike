@@ -1,14 +1,13 @@
 class_name Merchant
 extends StaticBody2D
-## The wandering merchant (ShopDef). Walk up to them to open the shop. Their stock is rolled
+## The wandering merchant (ShopDef). Stand by them and press Interact ("Trade") to open the shop. Their stock is rolled
 ## when the floor is made; what you sell joins it. Rerolling the stock costs gold (more each
 ## time); a locked entry stays through rerolls, and if it isn't bought it waits at the next
 ## merchant at the same price (World.kept_stock).
 
 const SIZE := 32.0
-## The shop opens from this close, and opens again only after walking this far away.
-const OPEN_DISTANCE := 46.0
-const REARM_DISTANCE := 90.0
+## The Interact button offers the shop from this close.
+const OPEN_DISTANCE := 64.0
 
 ## One entry per item for sale: { item, price, locked }.
 var stock: Array[Dictionary] = []
@@ -17,8 +16,9 @@ var def: ShopDef
 var rerolls_done := 0
 
 var _world: World
-var _armed := true
 var _time := 0.0
+## Where the hero presses Interact to trade.
+var _spot := Interactable.new()
 
 
 func setup(shop: ShopDef, world: World) -> void:
@@ -33,6 +33,16 @@ func setup(shop: ShopDef, world: World) -> void:
 	collision.shape = shape
 	collision.position = Vector2(0, 4)
 	add_child(collision)
+	_spot.verb = "Trade"  # i18n
+	_spot.reach = OPEN_DISTANCE
+	_spot.color = Palette.GOLD
+	if def.sprite_sheet:
+		var face := AtlasTexture.new()
+		face.atlas = def.sprite_sheet
+		face.region = Rect2(0, 0, 16, 16)
+		_spot.icon = face
+	_spot.used.connect(func(_by: Player) -> void: Events.shop_requested.emit(self))
+	add_child(_spot)
 	_roll_stock()
 
 
@@ -160,15 +170,6 @@ func buy_from(player: Player, item: ItemDef, from_belt := false) -> bool:
 func _physics_process(delta: float) -> void:
 	_time += delta
 	queue_redraw()
-	var player := _world.player
-	if player == null or player.is_dead:
-		return
-	var distance := global_position.distance_to(player.global_position)
-	if _armed and distance <= OPEN_DISTANCE:
-		_armed = false
-		Events.shop_requested.emit(self)
-	elif distance >= REARM_DISTANCE:
-		_armed = true
 
 
 func _draw() -> void:
@@ -181,9 +182,7 @@ func _draw() -> void:
 	if def.sprite_sheet:
 		var bob := roundf(sin(_time * 2.0))
 		draw_texture_rect_region(def.sprite_sheet, Rect2(-16, -22 + bob, 32, 32), Rect2(0, 0, 16, 16))
-	# A "$" over their head while they wait for a customer.
-	if not _armed:
-		return
+	# A "$" over their head: a customer is welcome.
 	var font := Fonts.MAIN
 	draw_string_outline(font, Vector2(-4, -30), "$", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, 4, Color.BLACK)
 	draw_string(font, Vector2(-4, -30), "$", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Palette.GOLD)

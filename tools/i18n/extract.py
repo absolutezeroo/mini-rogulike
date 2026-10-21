@@ -43,7 +43,7 @@ UNSEEN_NAMES = {os.path.join("data", *parts) for parts in [
 TEXT_FIELDS = {
     "display_name", "description", "lore", "title", "subtitle", "text", "label", "leave_label",
     "used_text", "message", "goal_text", "short_label", "tagline", "shrine_text", "victory_text",
-    "camp_warning", "invasion_message",
+    "camp_warning", "invasion_message", "verb",
 }
 LIST_FIELDS = {"intro_pages", "death_lines", "greetings", "branches", "branch_texts", "rank_names", "tips"}
 SCENE_FIELDS = {"text", "tooltip_text", "placeholder_text"}

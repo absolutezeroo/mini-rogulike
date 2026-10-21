@@ -1,22 +1,22 @@
 class_name Forge
 extends StaticBody2D
-## The smith's forge (ForgeDef): an anvil, hot coals and the smith. Walk up to it to open the
-## forge (ForgePanel): runes from the bag go into a weapon's free sockets (RuneDef, 1 to 3 by
+## The smith's forge (ForgeDef): an anvil, hot coals and the smith. Stand by it and press
+## Interact ("Forge") to open the forge (ForgePanel): runes from the bag go into a weapon's free sockets (RuneDef, 1 to 3 by
 ## rarity) for free; taking one back out, intact, costs gold. Works on the worn weapon and on
 ## weapons in the bag. A plain weapon becomes its own copy the first time a rune goes in.
 
 const SIZE := 32.0
-## The forge opens from this close, and opens again only after walking this far away.
-const OPEN_DISTANCE := 50.0
-const REARM_DISTANCE := 95.0
+## The Interact button offers the forge from this close.
+const OPEN_DISTANCE := 68.0
 const SET_SOUND := preload("res://data/audio/forge_set.tres")
 const TAKE_SOUND := preload("res://data/audio/forge_take.tres")
 
 var def: ForgeDef
 
 var _world: World
-var _armed := true
 var _time := 0.0
+## Where the hero presses Interact to work at the anvil.
+var _spot := Interactable.new()
 
 
 func setup(forge: ForgeDef, world: World) -> void:
@@ -37,6 +37,12 @@ func setup(forge: ForgeDef, world: World) -> void:
 	coals.level = 12
 	coals.position = Vector2(14, 4)
 	add_child(coals)
+	_spot.verb = "Forge"  # i18n
+	_spot.reach = OPEN_DISTANCE
+	_spot.color = Color(1, 0.7, 0.35)
+	_spot.icon = def.anvil
+	_spot.used.connect(func(_by: Player) -> void: Events.forge_requested.emit(self))
+	add_child(_spot)
 
 
 func world_of() -> World:
@@ -113,15 +119,6 @@ func strike(taking_out: bool) -> void:
 func _physics_process(delta: float) -> void:
 	_time += delta
 	queue_redraw()
-	var player := _world.player
-	if player == null or player.is_dead:
-		return
-	var distance := global_position.distance_to(player.global_position)
-	if _armed and distance <= OPEN_DISTANCE:
-		_armed = false
-		Events.forge_requested.emit(self)
-	elif distance >= REARM_DISTANCE:
-		_armed = true
 
 
 func _draw() -> void:
@@ -140,9 +137,7 @@ func _draw() -> void:
 	if def.sprite_sheet:
 		var bob := roundf(sin(_time * 2.0))
 		draw_texture_rect_region(def.sprite_sheet, Rect2(-8, -40 + bob, 32, 32), Rect2(0, 0, 16, 16))
-	if not _armed:
-		return
-	# A hammer sign over the smith while he waits.
+	# A hammer sign over the smith: he waits for work.
 	var font := Fonts.MAIN
 	draw_string_outline(font, Vector2(4, -46), "T", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, 4, Color.BLACK)
 	draw_string(font, Vector2(4, -46), "T", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(1, 0.7, 0.35))

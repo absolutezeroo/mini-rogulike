@@ -152,8 +152,10 @@ func _test_boss_fight(game: Game) -> void:
 	await _frames(5)
 	check(arena.is_defeated and not arena.is_closed(), "the exits open again")
 	check(world.get_node("Entities").get_children().any(func(n: Node) -> bool: return n is Stairs), "stairs appear after the boss")
-	# The boss' XP may level the player up first: take those perks until the relic shows up.
+	# The relic comes up by itself after a moment; the boss' XP may level the hero up too, but
+	# those choices wait behind the perk button (a level up never opens anything by itself).
 	var relics: Array[PerkDef] = []
+	var level_ups_shown := 0
 	for attempt in 10:
 		await get_tree().create_timer(game.RELIC_DELAY * 0.5, true).timeout
 		if not game.perk_panel.visible:
@@ -164,20 +166,18 @@ func _test_boss_fight(game: Game) -> void:
 		if not offered.is_empty() and offered[0].rarity == PerkDef.Rarity.RARE:
 			relics = offered
 			break
+		level_ups_shown += 1
 		game.perk_panel.choose(0)
-	check(not relics.is_empty(), "the boss offers relics after the victory")
+	check(not relics.is_empty(), "the boss offers relics after the victory, by itself")
+	check(level_ups_shown == 0, "no level up opened by itself before the relic")
 	if relics.is_empty():
 		return
 	var stacks_before := player.perks.stacks_of(relics[0])
+	var waiting := game.pending_offers()  # (the boss' level ups, if its XP brought any)
 	game.perk_panel.choose(0)
 	await _frames(2)
-	# Level ups queued behind the relic come next: take them too.
-	for attempt in 5:
-		if not game.perk_panel.visible:
-			break
-		game.perk_panel.choose(0)
-		await _frames(2)
-	check(player.perks.stacks_of(relics[0]) == stacks_before + 1 and not get_tree().paused, "relic taken, game resumed")
+	check(player.perks.stacks_of(relics[0]) == stacks_before + 1 and not get_tree().paused and not game.perk_panel.visible, "relic taken, game resumed: the level ups don't follow by themselves")
+	check(game.pending_offers() == waiting, "they still wait behind the perk button (%d)" % game.pending_offers())
 
 	# The last act's boss wins the run; you may keep going (endless).
 	game.depth = CONTENT.dungeon.total_floors()

@@ -123,7 +123,10 @@ func _test_forge(game: Game, world: World, player: Player) -> void:
 	player.global_position = forge.global_position + Vector2(0, 30)
 	await _frames(3)
 	var panel := game.menus.forge
-	check(panel.visible and get_tree().paused, "walking up to the smith opens the forge")
+	var interact := game.hud.get_node("%InteractButton") as InteractButton
+	check(not panel.visible and not get_tree().paused, "walking up to the smith opens nothing by itself")
+	check(interact.visible and interact.caption == "Forge", "the Interact button shows by the smith: %s" % interact.caption)
+	check(await _tap_interact(game) and panel.visible and get_tree().paused, "tapping it opens the forge")
 	var sockets := worn.socket_count()
 	check(sockets >= 1, "a weapon has rune sockets (%d)" % sockets)
 	var embers := player.inventory.count_of(ember)  # (the bot may have found some already)
@@ -1106,9 +1109,17 @@ func _test_encounters(game: Game) -> void:
 
 	# The spring: walking up asks, drinking does something, then it is spent.
 	var spring := world.spawn_encounter(load("res://data/encounters/spirit_spring.tres"), _open_cell_near(world, player.global_position, 2))
+	var interact := game.hud.get_node("%InteractButton") as InteractButton
+	player.global_position = spring.global_position + Vector2(0, 160)
+	await _frames(3)
+	check(not interact.visible, "out of reach: no Interact button")
 	player.global_position = spring.global_position + Vector2(0, 40)
 	await _frames(3)
-	check(panel.visible and get_tree().paused, "walking up to an encounter asks what to do")
+	check(not panel.visible and not get_tree().paused, "walking up to an encounter opens nothing by itself")
+	check(interact.visible and interact.caption == spring.def.verb and game.interactor.focus != null and game.interactor.focus.get_parent() == spring, "the Interact button names it: %s" % interact.caption)
+	for def in CONTENT.encounters:
+		check(not def.verb.is_empty() and def.verb != "Approach", "%s has its own word on the button (%s)" % [def.id, def.verb])
+	check(await _tap_interact(game) and panel.visible and get_tree().paused, "tapping it asks what to do")
 	panel._choose(0)
 	check(spring.used and (panel.get_node("%Choices") as Control).get_child_count() == 1, "a choice was made, the spring is spent")
 	check((panel.get_node("%Result") as Label).visible and not (panel.get_node("%Result") as Label).text.is_empty(), "what happened is spelled out")
@@ -1119,7 +1130,7 @@ func _test_encounters(game: Game) -> void:
 	await _frames(3)
 	player.global_position = spring.global_position + Vector2(0, 40)
 	await _frames(3)
-	check(not panel.visible, "a spent encounter asks nothing")
+	check(not interact.visible and not await _tap_interact(game) and not panel.visible, "a spent encounter asks nothing (no button)")
 	player.global_position = spring.global_position + Vector2(0, 160)
 
 	# The blood altar: max HP for a relic.
@@ -1218,14 +1229,17 @@ func _test_pacts(game: Game) -> void:
 	game._enter_floor()
 	check(game.world.pact != null and game.world.pact.room == room and game.world.pact.def == def, "the same floor, the same pact door (seeded)")
 
-	# The offer: walking up shows it; leaving changes nothing.
+	# The offer: walking up opens nothing, Interact shows it; leaving changes nothing.
 	var world: World = game.world
 	var pact := world.pact
 	await _clear_monsters(world)
 	var panel: PactPanel = game.menus.pact
+	var interact := game.hud.get_node("%InteractButton") as InteractButton
 	player.global_position = pact.front()
 	await _frames(3)
-	check(panel.visible and get_tree().paused, "walking up to a pact door shows the pact")
+	check(not panel.visible and not get_tree().paused, "walking up to a pact door opens nothing by itself")
+	check(interact.visible and interact.caption == "Read the pact", "the Interact button reads the pact: %s" % interact.caption)
+	check(await _tap_interact(game) and panel.visible and get_tree().paused, "tapping it shows the pact")
 	check((panel.get_node("%Rule") as Label).text == pact.def.rule_text(player), "its rule, in plain words")
 	var cost := panel.get_node("%Cost") as Label
 	check(cost.text.contains(str(pact.def.max_hp_lost(player))) and cost.get_theme_color("font_color") == UiParts.BAD, "the cost, in red, before swearing: %s" % cost.text)
@@ -1235,9 +1249,10 @@ func _test_pacts(game: Game) -> void:
 	check(not get_tree().paused and pact.is_open_offer() and pact.is_closed(), "leaving changes nothing")
 	player.global_position = pact.front() + Vector2(pact.outward) * 200.0
 	await _frames(2)
+	check(not interact.visible, "walking away hides the Interact button")
 	player.global_position = pact.front()
 	await _frames(3)
-	check(panel.visible, "coming back asks again")
+	check(await _tap_interact(game) and panel.visible, "coming back, Interact asks again")
 
 	# Kept: the door opens, seals behind the hero, the waves come; a relic at the end.
 	panel.swear()
@@ -1287,7 +1302,8 @@ func _test_pacts(game: Game) -> void:
 	await _slay_pact_waves(world, player, pact)
 	check(pact.state == AmbushRoom.State.CLEARED and not pact.is_closed(), "the waves slain, the door opens anyway")
 	await _frames(120)
-	check(not game.perk_panel.visible and game.offers.is_empty(), "no relic for a broken pact")
+	# (Level ups from the waves may wait behind the perk button: they open nothing.)
+	check(not game.perk_panel.visible and not game.offers.to_data(false).any(func(o: Dictionary) -> bool: return int(o.rarity) == PerkDef.Rarity.RARE), "no relic for a broken pact")
 	if game.perk_panel.visible:
 		game.perk_panel.choose(0)
 		await _frames(2)
@@ -1305,7 +1321,7 @@ func _test_pacts(game: Game) -> void:
 	await _clear_monsters(world)
 	player.global_position = world.pact.front()
 	await _frames(3)
-	check(not panel.visible, "and never offers it again")
+	check(not panel.visible and (game.interactor.focus == null or game.interactor.focus.get_parent() != world.pact), "and never offers it again (no Interact for it)")
 	world.restore_spent({ "pact": 0 })
 	game._enter_floor(true)
 	await _frames(2)
@@ -1393,7 +1409,10 @@ func _test_loot_and_gold(game: Game) -> void:
 	check(merchant.buy_from(player, potion) and player.gold > gold_now and merchant.stock.size() == stock_before + 1, "selling gives gold back")
 	player.global_position = merchant.global_position + Vector2(0, 40)
 	await _frames(3)
-	check(game.shop_panel.visible and get_tree().paused, "walking up to the merchant opens the shop")
+	var interact := game.hud.get_node("%InteractButton") as InteractButton
+	check(not game.shop_panel.visible and not get_tree().paused, "walking up to the merchant opens nothing by itself")
+	check(interact.visible and interact.caption == "Trade" and interact.icon != null, "the Interact button shows Trade, with the merchant's face")
+	check(await _tap_interact(game) and game.shop_panel.visible and get_tree().paused, "tapping it opens the shop")
 	check(game.shop_panel.get_node("%ForSale").get_child_count() == merchant.stock.size(), "the shop lists the stock")
 
 	# The item card: what it is, its price, how it compares with what you wear, why you can't buy.
@@ -1440,6 +1459,14 @@ func _test_loot_and_gold(game: Game) -> void:
 	game._back()
 	await _frames(1)
 	check(not game.shop_panel.visible and not get_tree().paused, "leaving the shop resumes the game")
+	await _frames(3)
+	check(interact.visible and not game.shop_panel.visible, "still by the merchant: the shop doesn't come back by itself, the button stays")
+	Input.action_press(&"interact")
+	await _frames(2)
+	Input.action_release(&"interact")
+	check(game.shop_panel.visible, "the interact action (E, a trigger) opens it too")
+	game._back()
+	await _frames(2)
 	game._save_run()
 	check((RunSave.read().get("kept_stock", []) as Array).size() == 1, "a saved run keeps the locked entry")
 

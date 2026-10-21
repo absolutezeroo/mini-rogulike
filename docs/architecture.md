@@ -113,7 +113,10 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
     (beyond a 256 px margin) and out of reach of the hero sleep: no AI, no movement, no animation
     (`Monster.set_awake()`, `World.awake_monsters`). Hunting monsters and bosses stay awake; a hit
     wakes a sleeper. On a crowded Nightmare floor, monsters cost about a quarter of what they did.
-- **Game** offers the perk choices (pausing the game) and reacts to boss fights through `Events`.
+- **Game** offers the perk choices (pausing the game; a level up's only when the player taps the
+  perk button, `open_offers()`) and reacts to boss fights through `Events`. Its `Interactor` gives
+  the HUD's Interact button to the nearest `Interactable` (merchant, forge, encounter, pact): nothing
+  opens by walking up to it.
 - **UI** listens to signals (`Events`, Player signals) and never drives gameplay directly.
   Touch controls only press input actions, so keyboard, gamepad and touch share one code path.
 

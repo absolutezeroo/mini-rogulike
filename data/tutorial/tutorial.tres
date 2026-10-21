@@ -84,10 +84,12 @@ duration = 9.0
 [sub_resource type="Resource" id="Hint_perks"]
 script = ExtResource("2_hint")
 id = &"perks"
-cue = &"perk_chosen"
+cue = &"offer_waiting"
 title = "Perks"
-text = "Each level brings a perk. Three perks of one family awaken a bonus. See yours in the Bag, under Perks."
-duration = 10.0
+text = "Each level brings a perk: tap the glowing button to choose it, whenever you like. Three of a family awaken a bonus."
+target = &"OffersButton"
+done_when = &"opened_offers"
+duration = 14.0
 
 [sub_resource type="Resource" id="Hint_synergy"]
 script = ExtResource("2_hint")
@@ -137,7 +139,9 @@ script = ExtResource("2_hint")
 id = &"forge"
 cue = &"forge_near"
 title = "The forge"
-text = "Walk up to the anvil to set runes into your weapon. The smith takes them out again for gold."
+text = "Walk up to the anvil and tap Forge to set runes into your weapon. The smith takes them out again for gold."
+target = &"InteractButton"
+done_when = &"interacted"
 duration = 10.0
 
 [sub_resource type="Resource" id="Hint_merchant"]
@@ -145,7 +149,9 @@ script = ExtResource("2_hint")
 id = &"merchant"
 cue = &"merchant_near"
 title = "Merchant"
-text = "Walk up to the merchant to spend your gold, or to sell him what you don't need."
+text = "Walk up to the merchant and tap Trade to spend your gold, or to sell him what you don't need."
+target = &"InteractButton"
+done_when = &"interacted"
 duration = 10.0
 
 [sub_resource type="Resource" id="Hint_chest"]
@@ -274,10 +280,22 @@ script = ExtResource("2_hint")
 id = &"pact"
 cue = &"pact_near"
 title = "Pact door"
-text = "A pact door. Walk up to the stele to read its rule: keep it for a relic, break it and lose max Health."
+text = "A pact door. Walk up to the stele and tap Read the pact: keep it for a relic, break it and lose max Health."
+target = &"InteractButton"
+done_when = &"interacted"
 duration = 10.0
 priority = 5
 
+[sub_resource type="Resource" id="Hint_encounter"]
+script = ExtResource("2_hint")
+id = &"encounter"
+cue = &"encounter_near"
+title = "Something waits"
+text = "Altars, springs and spirits offer a deal. Walk up to one and tap the button over your skills to see it."
+target = &"InteractButton"
+done_when = &"interacted"
+duration = 10.0
+
 [resource]
 script = ExtResource("1_tutorial")
-hints = Array[ExtResource("2_hint")]([SubResource("Hint_move"), SubResource("Hint_seal"), SubResource("Hint_attack"), SubResource("Hint_roll"), SubResource("Hint_weapon_skills"), SubResource("Hint_potion"), SubResource("Hint_souls"), SubResource("Hint_perks"), SubResource("Hint_synergy"), SubResource("Hint_gear"), SubResource("Hint_spell"), SubResource("Hint_elite"), SubResource("Hint_rune"), SubResource("Hint_forge"), SubResource("Hint_merchant"), SubResource("Hint_chest"), SubResource("Hint_ambush"), SubResource("Hint_boss"), SubResource("Hint_stairs_open"), SubResource("Hint_two_ways"), SubResource("Hint_menu_souls"), SubResource("Hint_menu_shrine"), SubResource("Hint_menu_oath"), SubResource("Hint_cursed_floor"), SubResource("Hint_floor_event"), SubResource("Hint_cold"), SubResource("Hint_hot"), SubResource("Hint_threshold"), SubResource("Hint_cracked_wall"), SubResource("Hint_pact")])
+hints = Array[ExtResource("2_hint")]([SubResource("Hint_move"), SubResource("Hint_seal"), SubResource("Hint_attack"), SubResource("Hint_roll"), SubResource("Hint_weapon_skills"), SubResource("Hint_potion"), SubResource("Hint_souls"), SubResource("Hint_perks"), SubResource("Hint_synergy"), SubResource("Hint_gear"), SubResource("Hint_spell"), SubResource("Hint_elite"), SubResource("Hint_rune"), SubResource("Hint_forge"), SubResource("Hint_merchant"), SubResource("Hint_chest"), SubResource("Hint_ambush"), SubResource("Hint_boss"), SubResource("Hint_stairs_open"), SubResource("Hint_two_ways"), SubResource("Hint_menu_souls"), SubResource("Hint_menu_shrine"), SubResource("Hint_menu_oath"), SubResource("Hint_cursed_floor"), SubResource("Hint_floor_event"), SubResource("Hint_cold"), SubResource("Hint_hot"), SubResource("Hint_threshold"), SubResource("Hint_cracked_wall"), SubResource("Hint_pact"), SubResource("Hint_encounter")])

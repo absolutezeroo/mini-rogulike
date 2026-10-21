@@ -29,6 +29,7 @@ outcomes = Array[ExtResource("2_p8yni")]([SubResource("Resource_q3krr"), SubReso
 [resource]
 script = ExtResource("5_grvuo")
 choices = Array[ExtResource("1_fgadc")]([SubResource("Resource_dux4h")])
+verb = "Kneel"
 id = &"warden_statue"
 display_name = "Warden's Statue"
 description = "A statue of one of the Well's wardens. Its stone eyes follow you."
