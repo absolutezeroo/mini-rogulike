@@ -122,3 +122,26 @@ acts, a "???" card under a "???" heading until it was met.
   a line of crystals that shatter, its Frost Fang strikes with claws of ice) and **Jade Wyrm**
   (Act III, venom: Venom Spit, Coil Rush, Toxic Bloom), with their three phases and fiercer
   forms, and their own bestiary challenge (a Hammer, an Axe).
+
+## The Deeps' demons
+
+They live under every floor, in the Deeps a fall takes the hero to (dungeon.md, "The Deeps"),
+and in no act (`AbyssDef.monsters`, `data/monsters/abyss/`; `ContentDB.abyss_monsters()`): they
+come in its waves and wait in its rooms, each from its `min_depth`, and scale with the depth and
+the difficulty like any monster (`FloorRules`). Art: Ninja Adventure (CC0), sheets the floors
+don't use. The bestiary lists them under their own heading after the acts ("The Deeps"), with the
+usual hunter ranks and challenges (the hole challenge too: the Deeps have holes).
+
+| Demon (FR / EN) | Art | Health / Armor / Speed | Weapon | How it fights | From |
+|---|---|---|---|---|---|
+| Démon Écarlate / Scarlet Fiend | DemonRed | 64 / 2 / 78 | Demon Club (13, heavy push) | a slow brute, hard to push (40%), long wind-up | Act I |
+| Carcasse Cornue / Horned Carcass | SkeletonDemon | 30 / 1 / 150 | Scimitar (7) | fast, quick blows | Act I |
+| Buveur de Sang / Blood Drinker | Vampire | 46 / 1 / 108 | Claws (6, blood) | drinks 60% of the damage it deals (`PerkTrait`: a lifesteal perk, `thirst.tres`) | Act I |
+| Œil des Tréfonds / Eye of the Deeps | Eye2 | 34 / 1 / 45 | Evil Eye (6, shots) | floats, keeps away (220), flies over holes | Act I |
+| Âme de Braise / Cinder Wraith | Spirit2 | 28 / 0 / 110 | Ghost Flame (5, burns) | flies, keeps away (160), spits embers | Act I |
+| Rôdeur d'Ombre / Shade Stalker | NinjaDark | 36 / 1 / 115 | Scimitar (7) | blinks at you (Blink) | Act II (depth 4) |
+| Augure Cornu / Horned Augur | DemonGreen | 38 / 0 / 75 | Hex Staff (6, shadow bolts) | keeps away (170), a volley of shadow bolts | Act II (depth 4) |
+| Gardien de la Brèche / Breach Warden | DemonCyclop2 (50x50) | 170 / 4 / 58 | Maul (13) | stands before the Dawn Breach, War Cry, hardly pushed (85%); never in the waves | Act III |
+
+`PerkTrait` (`src/definitions/monster_traits/perk_trait.gd`) is the one new trait: a kind born
+with perks, working as they do on the hero or on an elite. XP: 8 to 13 (the Warden 40).

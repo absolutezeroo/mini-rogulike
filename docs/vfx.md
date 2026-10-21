@@ -349,6 +349,14 @@ slicer, element exports) serves the others; what each still needs:
   for every heal, buff, learned skill, level up and sealed room (holy for gold, painted in the
   caller's color otherwise). `holy_circle.png`, `magic_spark.png`, `shield.png` (a flame-like
   wave) are unused; `magic_circle.png` is only the pact sigil (pact_room, 2.25x/1.5x).
+  The Deeps' **Dawn Breach** (`AbyssDoor`, drawn in `_draw()`): a STANDING arch of holy's ramp
+  (near-white heart, steps out to a dark torn rim that jags per row and crackles a pixel at
+  10 fps), shafts leaking from its top, motes and glints drifting down (holy FALLs), a GROUND
+  spill of daylight dithering out in front of it, a `GlowHalo`, and its own daylight-white
+  `LightSource` (so the floor around it reads white in the Deeps' red, not as more embers). The
+  arrow toward it (`AbyssHud.Arrow`) is UI: a holy wedge with a dark rim, cut in whole art pixels
+  (3 screen pixels) at the nearest of 16 directions, circling the hero. Demons rising in the
+  Deeps: shadow's pop and nova.
 - **Shadow** (done): shadow_staff (Sorcerer), its Volley, the Octopus's Ink Bolt and Ink Ring,
   the Shaman's Hex Bolt fire the shadow knot; Shadow Step bursts into shadow, leaves smoke and
   its kunai land in shadow. Left: curses have no effects of their own.

@@ -123,6 +123,8 @@ func _home() -> String:
 	var hidden := _content.dungeon.hidden_floor
 	if hidden and hidden.boss == _monster:
 		return tr(hidden.title)
+	if _content.abyss_monsters().has(_monster):
+		return tr(_content.dungeon.abyss.display_name)
 	return ""
 
 

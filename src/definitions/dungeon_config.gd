@@ -161,6 +161,10 @@ extends Resource
 ## The hidden floor between two acts, reached with its key (null: none).
 @export var hidden_floor: HiddenFloorDef
 
+@export_group("The Deeps")
+## Where a fall into a floor's hole takes the hero (null: he climbs back out, hurt).
+@export var abyss: AbyssDef
+
 @export_group("Encounters")
 ## Encounters per floor (springs, altars...), from content_db.tres > Encounters.
 @export_range(0, 6) var encounters_min: int = 0

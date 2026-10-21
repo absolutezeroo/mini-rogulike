@@ -1,0 +1,53 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_def"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/horned_carcass.tres" id="2_frames"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/horned_carcass.png" id="3_icon"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="4_stats"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/scimitar.tres" id="5_weapon"]
+[ext_resource type="Resource" path="res://data/materials/bone.tres" id="6_material"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="7_entry"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="8_table"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="9_potion"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_icon"]
+atlas = ExtResource("3_icon")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_potion"]
+script = ExtResource("7_entry")
+item = ExtResource("9_potion")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_loot"]
+script = ExtResource("8_table")
+drop_chance = 0.12
+entries = Array[ExtResource("7_entry")]([SubResource("Resource_potion")])
+
+[sub_resource type="Resource" id="Resource_stats"]
+script = ExtResource("4_stats")
+max_hp = 30
+defense = 1
+move_speed = 150.0
+
+[resource]
+script = ExtResource("1_def")
+material = ExtResource("6_material")
+stats = SubResource("Resource_stats")
+weapon = ExtResource("5_weapon")
+radius = 10.0
+frames = ExtResource("2_frames")
+frames_offset = Vector2(0, -8)
+splat_color = Color(0.85, 0.82, 0.72, 0.6)
+detect_radius = 360.0
+attack_windup = 0.3
+attack_recovery = 0.35
+xp_reward = 8
+loot = SubResource("Resource_loot")
+id = &"horned_carcass"
+display_name = "Horned Carcass"
+description = "Bones under a demon's horns, quick as a cut."
+icon = SubResource("AtlasTexture_icon")
+glyph = "C"
+color = Color(0.88, 0.82, 0.7, 1)
+spawn_weight = 10

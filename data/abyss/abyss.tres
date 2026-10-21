@@ -1,0 +1,90 @@
+[gd_resource type="Resource" script_class="AbyssDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/abyss_def.gd" id="1_def"]
+[ext_resource type="Resource" path="res://data/abyss/abyss_theme.tres" id="2_theme"]
+[ext_resource type="Resource" path="res://data/abyss/abyss_lighting.tres" id="3_lighting"]
+[ext_resource type="Resource" path="res://data/abyss/abyss_ambience.tres" id="4_ambience"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/crypt.ogg" id="5_music"]
+[ext_resource type="Resource" path="res://data/biomes/burning_ruins.tres" id="6_dressing"]
+[ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="7_hazard"]
+[ext_resource type="Resource" path="res://data/hazards/pit.tres" id="8_pit"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="9_monster"]
+[ext_resource type="Resource" path="res://data/monsters/abyss/scarlet_fiend.tres" id="10_fiend"]
+[ext_resource type="Resource" path="res://data/monsters/abyss/horned_carcass.tres" id="11_carcass"]
+[ext_resource type="Resource" path="res://data/monsters/abyss/blood_drinker.tres" id="12_drinker"]
+[ext_resource type="Resource" path="res://data/monsters/abyss/shade_stalker.tres" id="13_stalker"]
+[ext_resource type="Resource" path="res://data/monsters/abyss/horned_augur.tres" id="14_augur"]
+[ext_resource type="Resource" path="res://data/monsters/abyss/abyss_eye.tres" id="15_eye"]
+[ext_resource type="Resource" path="res://data/monsters/abyss/cinder_wraith.tres" id="16_wraith"]
+[ext_resource type="Resource" path="res://data/monsters/abyss/breach_warden.tres" id="17_warden"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="18_entry"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="19_table"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="20_potion"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="21_greater"]
+[ext_resource type="Resource" path="res://data/items/consumables/bomb.tres" id="22_bomb"]
+
+[sub_resource type="Resource" id="Resource_potion"]
+script = ExtResource("18_entry")
+item = ExtResource("20_potion")
+weight = 3
+
+[sub_resource type="Resource" id="Resource_greater"]
+script = ExtResource("18_entry")
+item = ExtResource("21_greater")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_bomb"]
+script = ExtResource("18_entry")
+item = ExtResource("22_bomb")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_gift"]
+script = ExtResource("19_table")
+drop_chance = 0.6
+entries = Array[ExtResource("18_entry")]([SubResource("Resource_potion"), SubResource("Resource_greater"), SubResource("Resource_bomb")])
+
+[resource]
+script = ExtResource("1_def")
+display_name = "The Deeps"
+lore = "Under the Well there is more Well. The dark down here has teeth, and it is hungry."
+door_name = "The Dawn Breach"
+fall_damage = 0.05
+return_grace = 1.5
+quick_time = 30.0
+quick_time_per_act = 5.0
+gift_gold = 12
+gift_gold_per_act = 8
+gift_loot = SubResource("Resource_gift")
+size = Vector2i(56, 44)
+rooms = 8
+room_size = Vector2i(6, 10)
+corridor_width = 2
+hazards = Array[ExtResource("7_hazard")]([ExtResource("8_pit")])
+hazard_groups = 2
+theme = ExtResource("2_theme")
+lighting = ExtResource("3_lighting")
+dressing = ExtResource("6_dressing")
+torch_level = 9
+ambience = ExtResource("4_ambience")
+music = ExtResource("5_music")
+monsters = Array[ExtResource("9_monster")]([ExtResource("10_fiend"), ExtResource("11_carcass"), ExtResource("12_drinker"), ExtResource("13_stalker"), ExtResource("14_augur"), ExtResource("15_eye"), ExtResource("16_wraith")])
+first_wave = 2.0
+wave_every = 8.0
+wave_every_per_act = 1.0
+wave_size = 2
+wave_growth = 0.5
+wave_size_per_act = 1
+max_alive = 6
+alive_per_act = 1
+spawn_cells = Vector2i(6, 11)
+ahead_share = 0.5
+room_demons = Vector2i(1, 2)
+elite_chance = 0.05
+warden = ExtResource("17_warden")
+warden_act = 2
+color = Color(0.95, 0.42, 0.32, 1)
+veil_color = Color(0.05, 0.01, 0.02, 1)
+return_veil_color = Color(1, 0.92, 0.72, 1)
+fade_time = 0.5
+door_light = 13
+guide_every = 20.0

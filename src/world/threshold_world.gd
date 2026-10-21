@@ -1,5 +1,5 @@
 class_name ThresholdWorld
-extends World
+extends PocketWorld
 ## The limbo of the Threshold (ThresholdDef), built beside the floor while the floor waits out of
 ## the tree: one bare arena in the mist, its own light, no stairs, no seal, no loot. Every monster
 ## in it is a spectre (pale, see-through, worth nothing: no XP, gold or loot), and new ones keep
@@ -23,51 +23,16 @@ func build_trial(fell_depth: int, content: ContentDB, threshold: ThresholdDef, s
 	floor_id += 1
 	trial = threshold
 	depth = fell_depth
-	_content = content
 	rng.seed = seed_value
-	floor_event = null
-	curse = null
-	biome = null
-	route = null
-	arena_plan = null
-	next_routes.clear()
-	opened_chests.clear()
-	bought.clear()
-	theme = trial.theme
-	map = make_map(trial, content.dungeon)
-	rules = FloorRules.make(content.dungeon, difficulty, null, depth)
-	_view.show_map(map, theme)
-	lights.setup(map, trial.lighting if trial.lighting else (theme.lighting if theme else null), trial.light_tint)
-	_view.mist.bind_light(lights)
-	_pits.setup(map.tile_size)
-	fog.reset(map)
-	stairs_cells.clear()
-	WallBuilder.build(map, _walls)
-	nav.build(map)
-	seal.clear()
+	show_place(make_map(trial, content.dungeon), trial.theme, trial.lighting, trial.light_tint, content)
 	_place_pillars()
 	map_reset.emit()
 
 
-## The hero arrives in the middle of the limbo. Not place_player(): he has not left his floor,
-## so no "new floor" perk wakes up (Guardian Ring's ward...).
-func take_in(hero: Player) -> void:
-	player = hero
-	hero.world = self
-	if hero.get_parent():
-		hero.get_parent().remove_child(hero)
-	_entities.add_child(hero)
-	hero.global_position = map.cell_to_world(map.start_cell)
-	hero.reset_safe_position()
-	hero.camera.reset_smoothing()
-
-
-## The hero leaves (back to his floor): out of the tree here, nothing else changed.
+## The hero leaves (back to his floor): no more spectres rise.
 func let_go(hero: Player) -> void:
 	spectres_wanted = 0
-	if hero.get_parent() == _entities:
-		_entities.remove_child(hero)
-	player = null
+	super.let_go(hero)
 
 
 ## One arena (the trial's plan) in the middle of `margin` cells of mist; the hero starts in its

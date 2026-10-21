@@ -109,6 +109,216 @@ func _test_world_objects(game: Game, world: World, player: Player) -> void:
 
 ## Holes, crumbling floor, quicksand, arrow traps, chests, elites, ambushes and how floors use them.
 ## The smith's forge: runes go into the worn weapon's sockets, come back out for gold.
+## The Deeps (Abyss): a fall on a floor takes the hero down while his floor waits out of the tree;
+## demons come in waves; the Dawn Breach brings him back by the hole, his Health as it was down
+## there, with the dawn's gift if he was quick. A hole down there is the old rule. A second life
+## opens the Threshold from the Deeps and brings him back into them. Nothing is saved meanwhile.
+func _test_abyss(game: Game, world: World, player: Player) -> void:
+	var abyss := game.abyss
+	var def := CONTENT.dungeon.abyss
+	check(def != null and abyss.def == def, "the floors have their Deeps")
+	# The monsters around out of the way (the others stay for the bot's hunt, later).
+	for other in world.get_hostiles(Actor.Faction.PLAYER):
+		if other.global_position.distance_to(player.global_position) < 700.0:
+			other.queue_free()
+	await _frames(1)
+	player.perks.clear()
+	player.hp = player.get_max_hp()
+	var xp_saved := player.xp
+	player.xp = -1000000  # no level up (and its pause) in the middle of this
+	check(abyss.can_take(player), "a fall on a plain floor can take the hero down")
+	# Two monsters wait on the floor; one is hurt and burning.
+	var skeleton: MonsterDef = load("res://data/monsters/skeleton.tres")
+	var watchers: Array[Monster] = []
+	for spot in _free_points_away(world, player.global_position, 5, 10, 2):
+		var watcher := world.spawn_monster(skeleton, spot)
+		watcher.dormant = true
+		watchers.append(watcher)
+	check(watchers.size() == 2, "two monsters to watch over")
+	if watchers.size() < 2:
+		return
+	await _frames(1)
+	watchers[0].hp -= 3
+	watchers[0].statuses.apply_dot(&"burn", 1, 0.5, 30.0, player, Palette.FIRE)
+	game._save_run()
+	var saved := RunSave.read()
+	var floor_mode := world.process_mode
+	var torch := player.get_node("Torch") as LightSource
+	var torch_level := torch.level
+	var safe := await _walk_into_hole(world, player)
+	var counted := func() -> int:
+		return world.get_node("Entities").get_children().filter(func(n: Node) -> bool: return not n is GoldPickup and not n is ItemPickup).size()
+	var floor_children: int = counted.call()
+	var max_hp := player.get_max_hp()
+	var hp_before := player.hp
+	await _frames(int(Actor.FALL_TIME * 60.0) + 4)
+	check(abyss.is_open() and not player.is_dead, "the hero falls into the Deeps")
+	await get_tree().process_frame
+	check(world.process_mode == Node.PROCESS_MODE_DISABLED, "the floor stops where it is")
+	var frozen_at: Array[Vector2] = [watchers[0].global_position, watchers[1].global_position]
+	var hp_then: Array[int] = [watchers[0].hp, watchers[1].hp]
+	var burn_left: float = watchers[0].statuses._dots[0].time_left
+	var clock := game.run.time
+	check(await _until_deeps(game), "the veil lifts on the Deeps")
+	var depths := abyss.depths
+	check(depths != null and player.world == depths and depths.is_ancestor_of(player), "the hero is in the Deeps")
+	check(not world.is_inside_tree() and game.world == world, "his floor waits, out of the tree")
+	check(player.hp < hp_before and hp_before - player.hp <= maxi(1, roundi(max_hp * def.fall_damage)), "the fall costs up to %d%% of his max Health, less his Armor (%d -> %d)" % [roundi(def.fall_damage * 100.0), hp_before, player.hp])
+	check(torch.level == def.torch_level and torch.level < torch_level, "his torch burns low down there")
+	check(depths.lights.ambient_level == def.lighting.ambient_level and depths.theme == def.theme, "the Deeps have their own dark and look")
+	var door := depths.door
+	check(door != null and door.is_inside_tree() and depths.map.world_to_cell(door.global_position) == depths.map.stairs_cell, "the Dawn Breach stands in the farthest room")
+	check(not depths.way_to_door(player.global_position).is_empty(), "he can walk to it")
+	check(depths.lights.level_at(door.global_position) >= def.door_light - 1, "it lights the dark around it")
+	check((game.hud.get_node("AbyssHud") as Control).visible and not (game.hud.get_node("%Minimap") as Control).visible, "the HUD shows the Deeps, not the floor's map")
+	check((game.hud.get_node("%BagButton") as Control).visible, "the bag still opens down there (a fight like any other)")
+	check(not abyss.can_take(player), "no Deeps under the Deeps")
+	game._save_run()
+	check(RunSave.read() == saved, "nothing is saved in the Deeps")
+	# The first wave crawls out of the dark.
+	var waves := []
+	depths.wave_risen.connect(func(index: int, risen: Array[Monster]) -> void: waves.append(risen.duplicate()))
+	for i in int((def.first_wave + 1.0) * 60.0):
+		if not waves.is_empty():
+			break
+		await _frames(1)
+	check(not waves.is_empty() and not (waves[0] as Array).is_empty(), "demons come out of the dark (%d)" % (waves[0] as Array).size() if not waves.is_empty() else "demons come out of the dark")
+	if not waves.is_empty():
+		var first: Array = waves[0]
+		check(first.size() == mini(def.wave_size_for(0, world.depth, CONTENT.dungeon), def.max_alive_for(world.depth, CONTENT.dungeon)), "the first wave is the size the Deeps say")
+		check(first.all(func(m: Monster) -> bool: return def.monsters.has(m.def) and m.target == player and not m.summoned), "demons of the Deeps, coming for him (worth their XP)")
+		check(first.all(func(m: Monster) -> bool: return m.global_position.distance_to(player.global_position) >= (def.spawn_cells.x - 1) * depths.map.tile_size), "out of the dark, not on top of him")
+	check(game.run.time > clock, "the run's clock keeps counting")
+	# A hole down there: the old rule (climb out hurt), still in the Deeps. (The waves stop for
+	# this: the test is the fall, not the fight.)
+	depths.waves_on = false
+	for m in depths.get_hostiles(Actor.Faction.PLAYER):
+		m.queue_free()
+	await _frames(1)
+	player.invincible = false
+	player.hp = player.get_max_hp()
+	var deep_safe := await _walk_into_hole(depths, player)
+	var hp_deep := player.hp
+	await _frames(int(Actor.FALL_TIME * 60.0) + 6)
+	check(player.world == depths and not player.is_falling and player.global_position.distance_to(deep_safe) < 24.0, "a hole in the Deeps: he climbs out of it, still down there (dead %s, falling %s, %d px away)" % [player.is_dead, player.is_falling, roundi(player.global_position.distance_to(deep_safe))])
+	check(player.hp < hp_deep, "and it hurts")
+	# Out, quick: back by the hole, his Health as it is, a moment of grace and the dawn's gift.
+	player.hp = maxi(1, player.hp - 5)
+	var hp_out := player.hp
+	var gold_before := _gold_on_floor(world)
+	var home := {}
+	abyss.closed.connect(func(escaped: bool) -> void:
+		home.escaped = escaped
+		home.at = [watchers[0].global_position, watchers[1].global_position]
+		home.hp = [watchers[0].hp, watchers[1].hp]
+		home.burn = watchers[0].statuses._dots[0].time_left if watchers[0].statuses.has(&"burn") else -1.0, CONNECT_ONE_SHOT)
+	for m in depths.get_hostiles(Actor.Faction.PLAYER):
+		m.queue_free()  # (not to be hit on the way to the door)
+	await _frames(1)
+	check(await _escape_deeps(game) and home.get("escaped", false), "stepping into the Dawn Breach brings him back up")
+	check(player.world == world and world.is_inside_tree() and world.process_mode == floor_mode, "back on his floor, and it runs again")
+	check(player.global_position.distance_to(safe) < 24.0 and player.get_parent() == world.get_node("Entities"), "at the last safe spot by the hole")
+	check(home.get("at", []) == frozen_at and home.get("hp", []) == hp_then, "the floor's monsters as they were (same place, same Health)")
+	check(is_equal_approx(float(home.get("burn", -1.0)), burn_left), "their statuses too (%.2f s of burn left)" % float(home.get("burn", -1.0)))
+	check(counted.call() == floor_children, "nothing else came or went on the floor")
+	check(player.hp == hp_out, "his Health as he left the Deeps (%d)" % player.hp)
+	check(player._invulnerable_time > 0.0, "with a moment of grace")
+	check(torch.level == torch_level, "his torch burns as before")
+	check(abyss.gifted and _gold_on_floor(world) > gold_before, "out quick: the dawn's gift at his feet")
+	check(abyss.depths == null and not (game.hud.get_node("AbyssHud") as Control).visible and (game.hud.get_node("%Minimap") as Control).visible, "the Deeps are gone, the HUD is the floor's again")
+	check(Profile.stat_value("abyss_escapes") >= 1, "it counts")
+	await _frames(2)
+	check(not is_instance_valid(depths), "the Deeps are freed")
+	# Slow: no gift.
+	await _walk_into_hole(world, player)
+	check(await _until_deeps(game), "down again")
+	abyss.time_in = def.quick_time_for(world.depth, CONTENT.dungeon) + 1.0
+	for m in abyss.depths.get_hostiles(Actor.Faction.PLAYER):
+		m.queue_free()
+	await _frames(1)
+	check(await _escape_deeps(game) and not abyss.gifted, "out slow: no gift")
+	# A second life down there: the Threshold takes him from the Deeps and brings him back into them.
+	var feather := _perk("phoenix_feather")
+	player.perks.add(feather)
+	await _walk_into_hole(world, player)
+	check(await _until_deeps(game), "down again, a feather in hand")
+	depths = abyss.depths
+	depths.waves_on = false
+	var stood := player.global_position
+	_killing_blow(player)
+	check(await _until_trial(game), "slain in the Deeps with a second life: the Threshold")
+	check(not depths.is_inside_tree() and abyss.is_open() and game.threshold.limbo.is_ancestor_of(player), "the Deeps wait, out of the tree, while he is at the Threshold")
+	check(not world.is_inside_tree(), "and his floor still waits")
+	check(not abyss.can_take(player), "no Deeps from the Threshold")
+	check(not (game.hud.get_node("AbyssHud/AbyssBanner") as Control).visible, "the Threshold's screen, not the Deeps'")
+	check(await _win_trial(game), "the trial won")
+	await _frames(1)
+	check(player.world == depths and depths.is_inside_tree() and player.global_position == stood, "back into the Deeps, where he fell")
+	check(abyss.is_searching() and not world.is_inside_tree(), "still down there, the floor still waiting")
+	check((game.hud.get_node("AbyssHud/AbyssBanner") as Control).visible and not (game.hud.get_node("%Minimap") as Control).visible, "the Deeps' screen again")
+	check(await _escape_deeps(game) and player.world == world and world.is_inside_tree(), "and out of the Deeps after")
+	check((game.hud.get_node("%Minimap") as Control).visible and (game.hud.get_node("%BagButton") as Control).visible, "the floor's HUD whole again")
+	for watcher in watchers:
+		watcher.die(null)
+	_fill_holes()
+	player.perks.clear()
+	player.hp = player.get_max_hp()
+	player.xp = xp_saved
+	player.invincible = false
+	await _frames(5)
+
+
+## Where the Deeps don't open: the hidden floor (its rule: climb out, hurt); boss floors are in
+## BossTests. Every generated maze has a way to its door, holes or not.
+func _test_abyss_rules(game: Game, world: World, player: Player) -> void:
+	var abyss := game.abyss
+	world.hidden_floor = CONTENT.dungeon.hidden_floor
+	check(not abyss.can_take(player), "no Deeps on the hidden floor")
+	world.hidden_floor = null
+	check(abyss.can_take(player), "but on a plain floor, yes")
+	# Many mazes, holes in them: the door can always be reached.
+	var depths := (load("res://src/world/abyss_world.tscn") as PackedScene).instantiate() as AbyssWorld
+	depths.difficulty = world.difficulty
+	depths.boons = world.boons
+	depths.process_mode = Node.PROCESS_MODE_DISABLED
+	add_child(depths)
+	var blocked := []
+	var holes := 0
+	var wardens := 0
+	for seed_value in 40:
+		var depth := 1 + seed_value % CONTENT.dungeon.total_floors()
+		depths.build_depths(depth, CONTENT, CONTENT.dungeon.abyss, seed_value * 7919 + 13)
+		holes += 1 if depths._pits.cells().size() > 0 else 0
+		wardens += 1 if depths.warden != null else 0
+		if depths.way_to_door().is_empty() or depths.map.start_cell == depths.map.stairs_cell:
+			blocked.append(seed_value)
+		check(depths.warden == null or CONTENT.dungeon.abyss.has_warden(depth, CONTENT.dungeon), "the warden only from its act on")
+	check(blocked.is_empty(), "the Dawn Breach can be reached on every maze (40 seeds; blocked: %s)" % str(blocked))
+	check(holes > 10, "most mazes have holes (%d of 40)" % holes)
+	check(wardens > 0, "deep acts have the warden at the door (%d of 40)" % wardens)
+	depths.queue_free()
+	await _frames(2)
+
+
+## Dying in the Deeps is dying: the run ends down there; a new run leaves them for good.
+func _test_abyss_death(game: Game) -> void:
+	game.start_run()
+	await _frames(5)
+	var player := game.player
+	var world := game.world
+	await _walk_into_hole(world, player)
+	check(await _until_deeps(game), "down into the Deeps")
+	var demon := game.abyss.depths.raise_demon()
+	_killing_blow(player, demon)
+	check(player.is_dead and player.world == game.abyss.depths, "slain in the Deeps (no second life): dead, down there")
+	check(player.killed_by == demon.display_name, "of what slew him (%s)" % player.killed_by)
+	await get_tree().create_timer(1.5).timeout
+	check(game.game_over_panel.visible and not RunSave.exists(), "the run ends")
+	game.start_run()
+	await _frames(5)
+	check(not game.abyss.is_open() and game.world.is_inside_tree() and game.player.world == game.world, "a new run: the Deeps are left behind, the floor is back")
+
+
 func _test_forge(game: Game, world: World, player: Player) -> void:
 	var worn := player.equipment.get_item(EquipmentDef.Slot.WEAPON)
 	var ember: RuneDef = load("res://data/runes/ember.tres")
@@ -298,7 +508,8 @@ func _test_hazards(game: Game, world: World, player: Player) -> void:
 	check(is_instance_valid(bat) and not bat.is_dead and not bat.is_falling, "flying monsters don't fall")
 	bat.queue_free()
 
-	# The hero falls too, and climbs back out where they last stood, hurt.
+	# The hero falls too: on a floor, down into the Deeps (Abyss; climbing out hurt is the rule
+	# of boss floors, BossTests), hurt, and back up by the hole once out of them.
 	var safe := world.map.cell_to_world(hole + Vector2i.LEFT * 2)
 	player.global_position = safe
 	await _frames(3)
@@ -308,8 +519,12 @@ func _test_hazards(game: Game, world: World, player: Player) -> void:
 	await _frames(3)
 	check(player.is_falling, "the hero falls into a hole")
 	await _frames(int(Actor.FALL_TIME * 60.0) + 6)
-	check(not player.is_falling and player.global_position.distance_to(safe) < 24.0, "the hero climbs out where they stood")
-	check(player.hp < hp_before and player.rig.scale == Vector2.ONE, "falling hurts")
+	check(game.abyss.is_open(), "a fall on a floor takes the hero down into the Deeps")
+	check(await _until_deeps(game), "he lands in the Deeps")
+	check(not player.is_falling and player.world == game.abyss.depths and player.rig.scale == Vector2.ONE, "on his feet, down there")
+	check(player.hp < hp_before, "falling hurts")
+	check(await _escape_deeps(game), "and he comes back up")
+	check(player.world == world and player.global_position.distance_to(safe) < 24.0, "by the hole, where he stood")
 	player.global_position = world.map.cell_to_world(hole)
 	player.start_dash(Vector2.RIGHT * 10.0, 0.3, true)
 	await _frames(5)
@@ -329,8 +544,11 @@ func _test_hazards(game: Game, world: World, player: Player) -> void:
 	await _frames(int(crumbling.crumble_time * 60.0) + 4)
 	check(world.has_pit(cracked) and not is_instance_valid(tile), "cracked floor gives way")
 	await _frames(int(Actor.FALL_TIME * 60.0) + 10)
-	check(not player.is_falling and world.is_solid_ground(player.global_position), "and the hero falls through")
+	check(game.abyss.is_open(), "and the hero falls through (into the Deeps)")
+	check(await _until_deeps(game) and await _escape_deeps(game), "and back up")
+	check(not player.is_falling and world.is_solid_ground(player.global_position), "on solid ground")
 	player.hp = player.get_max_hp()
+	_fill_holes(world, [hole, cracked] as Array[Vector2i])  # (no later test may fall in by chance)
 
 	# Quicksand slows whoever wades in, then swallows them.
 	var sand: QuicksandDef = load("res://data/hazards/quicksand.tres")

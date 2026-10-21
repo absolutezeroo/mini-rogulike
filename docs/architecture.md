@@ -53,13 +53,14 @@ src/
     items/               ItemDef > EquipmentDef > WeaponDef / ArmorDef, ConsumableDef
     loot/                LootTable, LootEntry
     hazards/             HazardDef > TrapDef > ArrowTrapDef, PitDef, QuicksandDef, HeatSourceDef, DarkRoomDef
-    monster_traits/      MonsterTrait > GuardTrait, ThiefTrait, DeathBurstTrait, DeathSpawnTrait
+    monster_traits/      MonsterTrait > GuardTrait, ThiefTrait, DeathBurstTrait, DeathSpawnTrait, PerkTrait
     biomes/              BiomeDef, GroundLayerDef, DecorRuleDef, SceneDef (hand-made scenes), SceneKey
   dungeon/             Map data, generator (and its secret rooms: SecretRoomPlan), drawing
   world/               World (owns the current floor), FloorRules (how hard and rewarding it is),
                        NavGrid (pathfinding), FogOfWar (what the hero has seen), WallBuilder,
-                       FloorPopulator, BossArena, AmbushRoom, RoomGates, PitLayer, SecretRoom, ThresholdWorld
-                       (the limbo of a second life's trial);
+                       FloorPopulator, BossArena, AmbushRoom, RoomGates, PitLayer, SecretRoom; PocketWorld
+                       (a World built beside the floor for a while) > ThresholdWorld (the limbo of a second
+                       life's trial), AbyssWorld (the Deeps a fall takes the hero to);
                        dressing/ (FloorDresser: a floor in its biome, RoomSpace)
   entities/            Actor (shared base), Player, Monster, Projectile, ItemPickup, Stairs, Prop, Trap,
                        hazards/ (Chest, CrumblingFloor, Quicksand, HeatSource, DarkRoom, FloorPatch),
@@ -74,6 +75,8 @@ src/
                        difficulty), RunRecords (stats, bestiary, achievements, history), OfferQueue
                        (perk choices waiting), GameMenus (the panels), ShrineUpgrades, RunSave (on disk),
                        Threshold (a second life's trial: the floor out of the tree, the hero in a limbo),
+                       Abyss (the Deeps under a floor's holes), SubWorld (the hero's stay in a pocket world:
+                       his world out of the tree as it is, back as it was; stays nest),
                        HiddenPassage (the way to the hidden floor)
 tests/               Headless tests: run_tests (the runner), suites/ (unit, title, game, combat, floor, boss,
                      balance: opt-in), support/ (TestSuite: checks, scene helpers, the bot)

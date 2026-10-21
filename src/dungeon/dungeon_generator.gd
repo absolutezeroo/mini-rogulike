@@ -35,6 +35,56 @@ static func generate(config: DungeonConfig, rng: RandomNumberGenerator, size_sca
 	return map
 
 
+## A small closed maze (the Deeps, AbyssDef): up to `room_count` rooms between `room_size.x` and
+## `room_size.y` cells wide, chained by corridors in a `size` map; the start in the first room,
+## the way out (`stairs_cell`) in the room farthest from it. No secrets, no second way.
+static func generate_small(size: Vector2i, room_count: int, room_size: Vector2i, corridor_width: int, tile_size: int, rng: RandomNumberGenerator) -> DungeonMap:
+	var map := DungeonMap.new(size.x, size.y, tile_size)
+	for attempt in room_count * 30:
+		if map.rooms.size() >= room_count:
+			break
+		var room_cells := Vector2i(rng.randi_range(room_size.x, room_size.y), rng.randi_range(room_size.x, room_size.y))
+		if room_cells.x + 4 > size.x or room_cells.y + 4 > size.y:
+			continue
+		var room := Rect2i(
+			Vector2i(rng.randi_range(2, size.x - room_cells.x - 2), rng.randi_range(2, size.y - room_cells.y - 2)),
+			room_cells)
+		if _overlaps_any(room, map.rooms):
+			continue
+		_carve_rect(map, room)
+		if not map.rooms.is_empty():
+			_carve_corridor(map, map.rooms.back().get_center(), room.get_center(), corridor_width, rng)
+		map.rooms.append(room)
+	smooth(map)
+	map.start_cell = map.rooms[0].get_center()
+	map.stairs_cell = _farthest_walk(map)
+	return map
+
+
+## The middle of the room farthest from the start on foot (not as the crow flies: the way out of
+## a maze is at the end of its longest walk).
+static func _farthest_walk(map: DungeonMap) -> Vector2i:
+	var steps := {map.start_cell: 0}
+	var open: Array[Vector2i] = [map.start_cell]
+	var at := 0
+	while at < open.size():
+		var cell := open[at]
+		at += 1
+		for step: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+			var next := cell + step
+			if not steps.has(next) and map.is_floor(next):
+				steps[next] = steps[cell] + 1
+				open.append(next)
+	var best := _farthest_room(map).get_center()
+	var best_steps := -1
+	for room in map.rooms:
+		var center := room.get_center()
+		if steps.get(center, -1) > best_steps:
+			best_steps = steps[center]
+			best = center
+	return best
+
+
 ## The floor's own stream for its secrets, drawn from the floor's seed without touching `rng`:
 ## the rest of the floor (monsters, chests...) comes out the same with or without them.
 static func secret_rng(rng: RandomNumberGenerator) -> RandomNumberGenerator:

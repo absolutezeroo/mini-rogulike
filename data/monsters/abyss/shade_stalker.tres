@@ -1,0 +1,57 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_def"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/shade_stalker.tres" id="2_frames"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/shade_stalker.png" id="3_icon"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="4_stats"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/scimitar.tres" id="5_weapon"]
+[ext_resource type="Resource" path="res://data/materials/flesh.tres" id="6_material"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="7_entry"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="8_table"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="9_potion"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="10_skill"]
+[ext_resource type="Resource" path="res://data/skills/monster/blink.tres" id="11_skill_0"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_icon"]
+atlas = ExtResource("3_icon")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_potion"]
+script = ExtResource("7_entry")
+item = ExtResource("9_potion")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_loot"]
+script = ExtResource("8_table")
+drop_chance = 0.12
+entries = Array[ExtResource("7_entry")]([SubResource("Resource_potion")])
+
+[sub_resource type="Resource" id="Resource_stats"]
+script = ExtResource("4_stats")
+max_hp = 36
+defense = 1
+move_speed = 115.0
+
+[resource]
+script = ExtResource("1_def")
+material = ExtResource("6_material")
+stats = SubResource("Resource_stats")
+weapon = ExtResource("5_weapon")
+skills = Array[ExtResource("10_skill")]([ExtResource("11_skill_0")])
+radius = 10.0
+frames = ExtResource("2_frames")
+frames_offset = Vector2(0, -8)
+splat_color = Color(0.352941, 0.039216, 0.117647, 0.85)
+detect_radius = 360.0
+attack_windup = 0.35
+attack_recovery = 0.35
+xp_reward = 11
+loot = SubResource("Resource_loot")
+id = &"shade_stalker"
+display_name = "Shade Stalker"
+description = "A blade in the dark that steps through it."
+icon = SubResource("AtlasTexture_icon")
+glyph = "N"
+color = Color(0.42, 0.5, 0.42, 1)
+min_depth = 4
+spawn_weight = 7

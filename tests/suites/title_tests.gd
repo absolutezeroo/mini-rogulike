@@ -168,7 +168,9 @@ func _test_title_screen() -> void:
 	var monster_cards := codex.bestiary_cards()
 	check(codex.visible and monster_cards.size() == entries.size() and monster_cards.map(func(c: CodexCard) -> MonsterDef: return c.monster) == entries, "the bestiary lists every monster and boss")
 	check(entries.any(func(m: MonsterDef) -> bool: return m is BossDef), "bosses are in the bestiary")
-	check(entries.size() == CONTENT.all_monsters().size() + entries.filter(func(m: MonsterDef) -> bool: return m is BossDef).size(), "every monster once")
+	check(entries.size() == CONTENT.all_monsters().size() + CONTENT.abyss_monsters().size() + entries.filter(func(m: MonsterDef) -> bool: return m is BossDef).size(), "every monster once (the acts', the Deeps')")
+	check(CONTENT.abyss_monsters().all(func(m: MonsterDef) -> bool: return entries.has(m)), "the Deeps' demons are in the bestiary")
+	check(_texts(list).has(CONTENT.dungeon.abyss.display_name), "under their own heading")
 	var slime_card := monster_cards[entries.find(load("res://data/monsters/slime.tres"))]
 	var unseen := entries.filter(func(m: MonsterDef) -> bool: return Bestiary.rank_of(m, CONTENT.bestiary) == Bestiary.UNSEEN)
 	check(not slime_card.disabled and monster_cards[entries.find(unseen[0])].disabled, "slain monsters open their page, unknown ones don't")

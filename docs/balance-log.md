@@ -3,6 +3,44 @@
 Dated entries, newest first: what was measured, what changed and why, before/after numbers, open
 questions. How to measure: [balance.md](balance.md).
 
+## 2026-10-22 - The Deeps: a fall's new cost (measured, a probe)
+
+**Why:** a fall into a floor's hole now takes the hero into the Deeps (dungeon.md) instead of
+costing 15% of his max Health; the Deeps themselves must be the cost: a short fight in the dark,
+not a free detour nor a farm. Pacing and demons are new (`data/abyss/abyss.tres`,
+`data/monsters/abyss/`).
+
+**How:** a probe (`_tool/abyss_balance.gd`, not committed: `_tool/` is ignored) on Keeper: each
+act's expected build (`expected_aN`, `BalanceBuild.apply`) falls on the act's second floor, then
+walks the way to the Dawn Breach and fights (a `BalanceBot`) whatever comes within 100 px; 4 runs
+an act, two bots. "Taken" is all the damage taken down there after the 5% fall; "net" is Health
+in minus Health out (kills and lifesteal heal: the expected builds of acts II-IV carry
+lifesteal, so their net is about 0).
+
+| Act | Kite: out (s) | taken | net | gift | Face tank: out (s) | taken | net | gift | deaths |
+|---|---|---|---|---|---|---|---|---|---|
+| I | 13.9 | 6% | 6% | 4/4 | 14.0 | 24% | 24% | 4/4 | 0/8 |
+| II | 30.8 | 11% | -3% | 2/4 | 12.8 | 15% | -3% | 4/4 | 0/8 |
+| III (Warden) | 31.0 | 15% | -1% | 3/4 | 24.2 | 51% | -2% | 4/4 | 0/8 |
+| IV (Warden) | 34.8 | 14% | -2% | 3/4 | 15.7 | 28% | -2% | 4/4 | 0/8 |
+
+**Passes before these numbers:** first, a 44 x 36 maze of 6 rooms with waves only around the hero
+(behind him as he walks): out in 7-25 s, 0% taken, every gift: no cost at all. Then rooms holding
+1-2 demons, waves of 3 every 7 s up to 7 alive, half of them ahead: 50-140 s, 30-120 kills (a
+farm, Health going up). Kept between: 8 rooms in 56 x 44, the door in the room farthest on foot
+(it was the farthest as the crow flies), 1-2 demons a room, waves of 2 (+1 every second wave,
++1 an act) every 8 s (-1 s an act), at most 6 of them up (+1 an act), half ahead; the gift for
+30 s (+5 an act). A bot knows the way: a player following the arrow takes longer and gets fewer
+gifts.
+
+**Souls:** 8 new kinds in the bestiary: hunter ranks 2/4/8 and up to 15 souls of challenges
+each, about 200 souls of one-time sources (2.5% of the tree), within the campaign's targets.
+
+**Open:** the face-tank bot takes 51% in Act III (the Warden at the door and Horned Augurs'
+volleys): watch real runs; a death in the Deeps of a low-Health hero is possible on purpose
+(the fall can kill). Not measured on Martyr/Nightmare (the demons scale with the difficulty like
+the floors' monsters).
+
 ## 2026-10-21 - Souls: the Tree of Souls becomes a campaign (measured, economy mode)
 
 **Why (the owner: "we get a lot of souls"):** measured on a whole Keeper career for the first
