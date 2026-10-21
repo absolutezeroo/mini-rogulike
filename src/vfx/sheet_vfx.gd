@@ -5,9 +5,15 @@ extends Node2D
 ## drawn at one art pixel per texel; a wanted size in between snaps to the nearest even one),
 ## at a grid position, turned only to one of 16 directions (or a drawn direction row), and it
 ## doesn't vanish on its last frame: that frame lingers and dithers away (docs/vfx.md).
+## Its sheet's look picks its shader (FxLook: a column shimmering, gas churning, a sigil drawing
+## itself and burning out); it may flash the screen on a frame (a bolt striking) and glow around
+## its core (GlowHalo). An emissive element's sheet writes the emissive mask (fx.gdshaderinc).
 
 const DEFAULT_FPS := 16.0
-const SHADER := preload("res://assets/shaders/dither_fade.gdshader")
+## A rune draws itself over this share of its frames (the first quarter or so), and burns out
+## over its last frames and its linger.
+const RUNE_DRAW := 0.3
+const RUNE_BURN := 0.7
 ## Directions a turned sheet snaps to.
 const DIRECTIONS := 16
 
@@ -22,6 +28,7 @@ var _look: ShaderMaterial
 ## A standing sheet's node sits at its base (to sort with the actors): its frame is drawn this
 ## far up.
 var _lift := 0.0
+var _frame := -1
 
 
 ## `sheet` played once at `at`, facing `direction`, in `element`'s colors when it is recolored,
@@ -76,10 +83,13 @@ func in_element(of_element: VfxElementDef) -> SheetVfx:
 
 
 func _ready() -> void:
-	_look = ShaderMaterial.new()
-	_look.shader = SHADER
+	_look = FxLook.for_sheet(sheet, element)
 	material = _look
 	VfxLayer.light_up(self, element, sheet.frame_size().x * sheet.texel)
+	if sheet.halo > 0.0 and element:
+		var storm := element.bit == VfxElementDef.Bit.FORK
+		GlowHalo.attach(self, element, sheet.halo, PixelDraw.snap(Vector2(0, -_lift) + (sheet.anchor + sheet.halo_at) * sheet.texel),
+			GlowHalo.Pulse.FLICKER if storm else GlowHalo.Pulse.BREATHE)
 
 
 ## Seconds it shows: the frames, then the last one lingering.
@@ -93,7 +103,21 @@ func _process(delta: float) -> void:
 		queue_free()
 		return
 	var past := _age - sheet.duration()
-	_look.set_shader_parameter("fade", 1.0 - past / sheet.linger if past > 0.0 and sheet.linger > 0.0 else 1.0)
+	var fade := 1.0 - past / sheet.linger if past > 0.0 and sheet.linger > 0.0 else 1.0
+	if sheet.look == VfxSheetDef.Look.RUNE:
+		# Drawn stroke by stroke, then burnt out, in steps of a 24th of a second.
+		var t := floorf(_age * 24.0) / 24.0 / lifetime()
+		_look.set_shader_parameter("reveal", clampf(t / RUNE_DRAW, 0.0, 1.0))
+		_look.set_shader_parameter("burn", clampf((t - RUNE_BURN) / (1.0 - RUNE_BURN), 0.0, 1.0))
+	else:
+		_look.set_shader_parameter("fade", fade)
+	var frame := mini(int(_age * sheet.fps), sheet.frame_count() - 1)
+	if frame != _frame:
+		_frame = frame
+		if sheet.flash_frames.has(frame) and element:
+			var screen := ScreenEffects.of(get_tree())
+			if screen:
+				screen.flash(element.core())
 	queue_redraw()
 
 

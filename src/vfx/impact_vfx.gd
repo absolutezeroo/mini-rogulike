@@ -31,6 +31,7 @@ static func create(at: Vector2, direction: Vector2, color: Color, big: bool = fa
 	vfx._big = big
 	vfx.element = of_element
 	vfx._spawn(color)
+	vfx.material = FxLook.sprite(of_element != null and of_element.emissive)
 	return vfx
 
 

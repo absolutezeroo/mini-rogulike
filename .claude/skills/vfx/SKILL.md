@@ -74,6 +74,22 @@ The bar is Dead Cells / Blasphemous: hand-made pixels at the art's size, one lan
   `VfxLayer.apply(node, layer)`. Nothing flat may draw over the hero's feet.
 - Shaders quantize in world space (`MODEL_MATRIX * VERTEX`, the shape turned by a uniform);
   particle scenes use the `pixel_particles` materials (even sizes, no spin, constant ramps).
+- Shaders (docs/vfx.md 5b): include `assets/shaders/fx.gdshaderinc` (cell on the world's grid,
+  `bayer`, `noise`, `stepped_time`, the emissive mask); move pixels up/down the ramp
+  (`uniform vec4 ramp[5]`, `ramp_index`), never blend; time at 12-20 fps. A sheet picks one with
+  `VfxSheetDef.look` (SHIMMER, GAS, RUNE, FLAME), `flash_frames`, `halo`/`halo_at`; code uses
+  `FxLook`. A glow is `GlowHalo.attach` (one light per glow, never a second LightSource). Bent
+  space is a `DistortionStamp` (HEAT, COLD, PULL, SHOCK; `VfxElementDef.distortion`): never a
+  new node reading the screen, only `screen.gdshader` does (a test checks it). New shader: add it
+  to `FxLook.ALL` (warmed at load) and to fewer effects' cuts if it costs.
+- Lessons: a uniform 50% dither of added light reads as a screen door, a halo is flat bands
+  with a checker only on their edge; additive light over a bright floor washes out (halos are
+  sparser there); a halo drawn over its own core whitens it (draw it behind:
+  `show_behind_parent`); pixels added outside a sheet's silhouette overwrite the copies that
+  overlap it; bloom inside bright shapes dots them (bleed only into darker pixels); gas that is
+  only darker reads as bushes, gas needs a bright rim and holes. In a canvas shader `COLOR`
+  already holds the texel: `texture(TEXTURE, UV) * COLOR` squares the colors (much darker);
+  check a shader's output against the sheet's own colors (count them in a crop).
 - New behaviour goes in a small class or the element data, not in `Actor`/`Monster`/`World`.
 
 ## 6. Look at it (headless tests can't)
@@ -88,6 +104,10 @@ The bar is Dead Cells / Blasphemous: hand-made pixels at the art's size, one lan
 - Read the images yourself. Go through the review checklist of docs/vfx.md section 7 for each
   frame: pixel size, ramp only, silhouette reads as the element in grey, 16 directions at most,
   first quarter, dissipation, weight, dark and bright biomes, enemy vs hero. Iterate.
+- Biomes: `world.forced_biome = load("res://data/biomes/<id>.tres")` then
+  `game.debug_enter_floor(2)`: shoot the crypt (dark), buried_city (the desert, bright),
+  burning_ruins (warm grade, heat) and underground_garden (green floor). llvmpipe is slow: one
+  biome per run, runs in the background.
 
 ## 7. Tests, texts, docs
 

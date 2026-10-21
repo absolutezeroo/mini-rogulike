@@ -18,6 +18,9 @@ frames = 7
 fps = 16.0
 anchor = Vector2(0, -38)
 linger = 0.12
+look = 1
+halo = 10.0
+halo_at = Vector2(0, 38)
 
 [sub_resource type="Resource" id="Resource_33gpi"]
 script = ExtResource("3_fumns")

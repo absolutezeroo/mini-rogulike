@@ -3,7 +3,9 @@ extends Node2D
 ## A small fire that burns on its own (a brazier's bowl, a torch): the fire kit's flicker
 ## (assets/fx/fire/fire_flicker.png) looping at the art's 2x, its base on this node, one or a
 ## few flames out of step. On the grid like every effect (docs/vfx.md); the same flames as a
-## campfire and a burning body.
+## campfire and a burning body. Flame tongues lick up through it (flame.gdshader), a stepped
+## glow halo lights the air around its heart (GlowHalo; the brazier's own lamp lights the floor)
+## and the air trembles above it (a HEAT DistortionStamp).
 
 const FLICKER: Texture2D = preload("res://assets/fx/fire/fire_flicker.png")
 const FRAMES := 12
@@ -18,6 +20,13 @@ var _frame := -1
 
 func _ready() -> void:
 	_time = randf() * 2.0  # two braziers never flicker in step
+	var fire := VfxElementDef.named(&"fire")
+	material = FxLook.flame(fire)
+	var height := FLICKER.get_height() * PixelDraw.PX
+	GlowHalo.attach(self, fire, 4.0 + 2.0 * copies, Vector2(0, -height * 0.35))
+	var heat := DistortionStamp.attach(self, DistortionStamp.Kind.HEAT, 6.0 + 6.0 * copies, 1.0, 0.0, Vector2(0, -height * 0.6))
+	if heat:
+		heat.height = height * 2.0
 
 
 func _process(delta: float) -> void:

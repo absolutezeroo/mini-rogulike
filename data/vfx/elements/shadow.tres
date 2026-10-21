@@ -37,6 +37,7 @@ mark = Color(0.082353, 0.05098, 0.121569, 0.4)
 accent = 3
 bit = 8
 motion = 5
+distortion = 3
 emissive = false
 projectile = SubResource("shot")
 impact = SubResource("impact")

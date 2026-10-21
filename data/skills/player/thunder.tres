@@ -17,6 +17,9 @@ frames = 7
 fps = 20.0
 anchor = Vector2(0, -40)
 linger = 0.12
+flash_frames = PackedInt32Array(1)
+halo = 8.0
+halo_at = Vector2(0, 40)
 
 [sub_resource type="Resource" id="Resource_b1biu"]
 script = ExtResource("3_mbrcq")

@@ -1,5 +1,5 @@
 shader_type canvas_item;
-render_mode unshaded;
+render_mode unshaded, blend_disabled;
 // A burst of energy (an explosion, a shot bursting): it swells fast with a bright heart,
 // cools down its element's ramp to the dark rim, hollows out and breaks into licks, then the
 // element's residue (smoke, mist, dust) thins out. Turbulent noise, flat bands of the ramp's
@@ -15,6 +15,8 @@ uniform vec4 rim : source_color = vec4(0.56, 0.24, 0.34, 1.0);
 uniform vec4 residue : source_color = vec4(0.23, 0.21, 0.26, 1.0);  // alpha 0: none
 uniform float seed = 0.0;
 uniform float pixel = 2.0;
+// Writes the emissive mask (fx.gdshaderinc): a fire's burst keeps its colors in any biome.
+uniform bool emissive = false;
 
 varying vec2 local;
 
@@ -73,6 +75,6 @@ void fragment() {
 		}
 		c = vec4(residue.rgb, 1.0);
 	}
-	c.a = 1.0;
+	c.a = emissive ? 0.3333 : 1.0;
 	COLOR = c;
 }
