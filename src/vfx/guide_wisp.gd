@@ -6,7 +6,6 @@ extends Node2D
 const SPEED := 420.0
 const LIFETIME := 6.0
 const FADE_TIME := 0.5
-const COLOR := Color(1.0, 0.85, 0.45)
 const TRAIL_LENGTH := 10
 
 var _path := PackedVector2Array()
@@ -50,12 +49,16 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 
+## On the art's grid in the holy element's ramp, dithering away when its path ends.
 func _draw() -> void:
-	var alpha := 1.0 if _fading < 0.0 else _fading / FADE_TIME
+	var holy := VfxElementDef.named(&"holy")
+	var fade := 1.0 if _fading < 0.0 else _fading / FADE_TIME
 	for i in _trail.size():
 		var t := float(i + 1) / (_trail.size() + 1)
-		draw_circle((_trail[i] - global_position).round(), 1.5 + 2.5 * t, Color(COLOR, 0.4 * t * alpha))
-	var pulse := 0.8 + 0.2 * sin(_age * 14.0)
-	draw_circle(Vector2.ZERO, 11.0 * pulse, Color(1.0, 0.7, 0.25, 0.3 * alpha))
-	draw_circle(Vector2.ZERO, 5.0, Color(COLOR, alpha))
-	draw_circle(Vector2.ZERO, 2.5, Color(1, 1, 1, alpha))
+		var local := _trail[i] - global_position
+		if PixelDraw.dither(PixelDraw.cell_of(local), t * fade):
+			PixelDraw.pixel(self, local, holy.shade(1.0 - t * 0.7), 2 if t > 0.7 else 1)
+	var beat := PixelDraw.PX if fmod(_age * 5.0, 1.0) < 0.5 else 0.0
+	PixelDraw.disc(self, Vector2.ZERO, 9.0 + beat, holy.shade(0.75), 0.35 * fade)
+	PixelDraw.disc(self, Vector2.ZERO, 4.0, holy.color(), fade)
+	PixelDraw.pixel(self, Vector2(-2, -2), holy.core(), 2)

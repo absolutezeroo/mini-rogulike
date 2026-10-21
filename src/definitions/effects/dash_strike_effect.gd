@@ -14,6 +14,9 @@ extends Effect
 ## Slash sheet drawn along the path.
 @export var fx: Texture2D
 @export var fx_tint: Color = Color.WHITE
+## What it is made of (data/vfx/elements/): the element's pieces are left along the path
+## (Glacial Dive: ice crystals that grow behind it and shatter), a sheet takes its ramp.
+@export var element: VfxElementDef
 
 
 func apply(user: Actor, aim: Vector2) -> void:
@@ -27,9 +30,12 @@ func apply(user: Actor, aim: Vector2) -> void:
 		length = maxf(start.distance_to(wall.position) - user.radius - 2.0, 0.0)
 	var end := start + aim * length
 	var amount := flat_damage + roundi(user.get_skill_power() * damage_multiplier)
-	Combat.damage_segment(world, user, start, end, width, amount, knockback, status)
+	Combat.damage_segment(world, user, start, end, width, amount, knockback, status, element)
 	if length > 1.0:
 		user.start_dash(aim * length / duration, duration, true)
+	if element:
+		Vfx.trail(world, start, end, element, duration)
 	if fx:
+		# At the nearest whole size of the art's pixel along the path (SheetVfx snaps it).
 		var size := maxf(length, 40.0) / fx.get_height()
-		world.spawn_vfx(SheetVfx.create(fx, (start + end) * 0.5, aim.angle(), size, 20.0).with_color(fx_tint))
+		world.spawn_vfx(SheetVfx.create(fx, (start + end) * 0.5, aim.angle(), size, 20.0).with_color(fx_tint).in_element(element))

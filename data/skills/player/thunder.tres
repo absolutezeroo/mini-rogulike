@@ -14,7 +14,7 @@ damage_multiplier = 2.4
 offset = 150.0
 knockback = 160.0
 fx = ExtResource("2_gbfoa")
-fx_frames = 5
+fx_frames = 8
 fx_tint = Color(1, 1, 0.8, 1)
 
 [resource]

@@ -9,6 +9,7 @@
 
 [sub_resource type="Resource" id="Resource_r1m81"]
 script = ExtResource("2_pjv1j")
+texture_frames = 1
 damage_multiplier = 1.6
 speed = 700.0
 pierce = 3

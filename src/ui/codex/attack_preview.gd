@@ -181,14 +181,14 @@ func _release() -> void:
 			_arcs.append({ "radius": _monster.radius + weapon.reach, "half": deg_to_rad(weapon.arc_degrees) * 0.5, "color": weapon.trail_color, "age": 0.0 })
 			_lunge(14.0, 0.1)
 		else:
-			_fire(weapon.projectile_count, weapon.spread_degrees, weapon.projectile_speed, maxf(weapon.reach, GAP + 40.0), weapon.projectile_radius, SHOT_COLOR, 0.0, weapon.projectile_texture)
+			_fire(weapon.projectile_count, weapon.spread_degrees, weapon.projectile_speed, maxf(weapon.reach, GAP + 40.0), weapon.projectile_radius, weapon.element.color() if weapon.element else SHOT_COLOR, 0.0, _shot_sheet(weapon.projectile_texture, weapon.projectile_frames, weapon.element), weapon.element)
 
 
 func _apply(effect: Effect) -> void:
 	if effect is ProjectileEffect:
 		var shot := effect as ProjectileEffect
 		var aim := deg_to_rad(shot.angle_offset)
-		_fire(shot.count, shot.spread_degrees, shot.speed, shot.max_distance, shot.radius, shot.color, shot.explosion_radius, shot.texture, aim)
+		_fire(shot.count, shot.spread_degrees, shot.speed, shot.max_distance, shot.radius, shot.element.color() if shot.element else shot.color, shot.explosion_radius, _shot_sheet(shot.texture, shot.texture_frames, shot.element), shot.element, aim)
 	elif effect is DamageAreaEffect:
 		var area := effect as DamageAreaEffect
 		_ring(_sprite.position + Vector2.RIGHT * area.offset, area.radius, area.color, true)
@@ -213,7 +213,14 @@ func _apply(effect: Effect) -> void:
 		_ring(_sprite.position, _monster.radius + 26.0, Color(1, 1, 1, 0.7), false)
 
 
-func _fire(count: int, spread: float, speed: float, distance: float, radius: float, color: Color, blast: float, texture: Texture2D, aim: float = 0.0) -> void:
+## How a shot looks in flight, as in the game (Projectile): its sprite, else its element's shot.
+static func _shot_sheet(texture: Texture2D, frames: int, element: VfxElementDef) -> VfxSheetDef:
+	if texture:
+		return VfxSheetDef.from_texture(texture, frames)
+	return element.projectile if element else null
+
+
+func _fire(count: int, spread: float, speed: float, distance: float, radius: float, color: Color, blast: float, sheet: VfxSheetDef, element: VfxElementDef, aim: float = 0.0) -> void:
 	count = maxi(count, 1)
 	for i in count:
 		var angle := 0.0
@@ -229,7 +236,8 @@ func _fire(count: int, spread: float, speed: float, distance: float, radius: flo
 			"radius": maxf(radius, 4.0),
 			"color": color,
 			"blast": blast,
-			"texture": texture,
+			"sheet": sheet,
+			"element": element,
 		})
 
 
@@ -310,13 +318,9 @@ func _draw_overlay() -> void:
 				points.append(_sprite.position + Vector2.from_angle(angle) * arc.radius)
 			_overlay.draw_colored_polygon(points, Color(arc.color, 0.55 * fade))
 	for shot in _shots:
-		if shot.texture:
-			var texture: Texture2D = shot.texture
-			var frame := texture.get_height()
-			var region := Rect2(0, 0, mini(frame, texture.get_width()), frame)
-			_overlay.draw_set_transform(shot.pos, (shot.vel as Vector2).angle(), Vector2.ONE * 2.0)
-			_overlay.draw_texture_rect_region(texture, Rect2(-region.size * 0.5, region.size), region)
-			_overlay.draw_set_transform(Vector2.ZERO)
+		if shot.sheet:
+			# Its first frame, cut and turned as in the game (drawn directions, or snapped).
+			PixelDraw.sheet(_overlay, shot.sheet, 0, shot.pos, shot.vel, shot.element)
 		else:
 			_overlay.draw_circle(shot.pos, shot.radius * 2.2, Color(shot.color, 0.3))
 			_overlay.draw_circle(shot.pos, shot.radius, shot.color)

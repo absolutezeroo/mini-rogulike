@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="VfxElementSet" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_element_set.gd" id="1"]
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_element_def.gd" id="2"]
+[ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="e0"]
+[ext_resource type="Resource" path="res://data/vfx/elements/frost.tres" id="e1"]
+[ext_resource type="Resource" path="res://data/vfx/elements/water.tres" id="e2"]
+[ext_resource type="Resource" path="res://data/vfx/elements/poison.tres" id="e3"]
+[ext_resource type="Resource" path="res://data/vfx/elements/storm.tres" id="e4"]
+[ext_resource type="Resource" path="res://data/vfx/elements/holy.tres" id="e5"]
+[ext_resource type="Resource" path="res://data/vfx/elements/shadow.tres" id="e6"]
+[ext_resource type="Resource" path="res://data/vfx/elements/arcane.tres" id="e7"]
+[ext_resource type="Resource" path="res://data/vfx/elements/blood.tres" id="e8"]
+[ext_resource type="Resource" path="res://data/vfx/elements/spirit.tres" id="e9"]
+[ext_resource type="Resource" path="res://data/vfx/elements/earth.tres" id="e10"]
+[ext_resource type="Resource" path="res://data/vfx/elements/physical.tres" id="e11"]
+
+[resource]
+script = ExtResource("1")
+elements = Array[ExtResource("2")]([ExtResource("e0"), ExtResource("e1"), ExtResource("e2"), ExtResource("e3"), ExtResource("e4"), ExtResource("e5"), ExtResource("e6"), ExtResource("e7"), ExtResource("e8"), ExtResource("e9"), ExtResource("e10"), ExtResource("e11")])

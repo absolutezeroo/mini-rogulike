@@ -9,10 +9,10 @@ const DANGER := Color("ff6b6b")
 const HEAL := Color("6ee787")
 ## Health bars and blood.
 const BLOOD := Color("e84537")
-## Burning.
-const FIRE := Color("ff8c42")
-## Frost and slows.
-const FROST := Color("8ecae6")
+## Burning: the fire element's main color (data/vfx/elements/fire.tres; a test keeps them equal).
+const FIRE := Color("ffad5d")
+## Frost and slows: the frost element's main color (data/vfx/elements/frost.tres).
+const FROST := Color("8feff1")
 ## The stairs' seal: a way still closed, kills still owed.
 const SEAL := Color("b48cff")
 ## Dark outlines and frames.

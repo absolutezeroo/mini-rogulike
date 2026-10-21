@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="5_sfge4"]
 [ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="6_jahm1"]
 [ext_resource type="Resource" path="res://data/perks/synergies/frost.tres" id="7_g7x17"]
+[ext_resource type="Resource" path="res://data/vfx/elements/frost.tres" id="vfx_frost"]
 
 [sub_resource type="Resource" id="Resource_m4462"]
 script = ExtResource("4_rj6v7")
@@ -15,6 +16,7 @@ slow_duration = 1.5
 
 [sub_resource type="Resource" id="Resource_n5u4w"]
 script = ExtResource("3_ln6gm")
+shard_element = ExtResource("vfx_frost")
 shards = 4
 shard_status = SubResource("Resource_m4462")
 

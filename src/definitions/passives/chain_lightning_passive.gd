@@ -8,7 +8,10 @@ extends Passive
 @export var reach: float = 170.0
 ## Damage of each jump = the owner's power x this.
 @export var damage_multiplier: float = 0.6
+## The bolt's color when it has no element.
 @export var color: Color = Color("a8e6ff")
+## What jumps (storm): the bolt and the sparks take its ramp.
+@export var element: VfxElementDef
 
 
 func on_hit_dealt(owner: Actor, target: Actor, hit: HitInfo, _damage: int, perk: PerkSet.Entry) -> void:
@@ -26,8 +29,9 @@ func on_hit_dealt(owner: Actor, target: Actor, hit: HitInfo, _damage: int, perk:
 		var next := _nearest(world, owner, from, struck)
 		if next == null:
 			break
-		world.spawn_vfx(BeamVfx.create(from + Vector2(0, -8), next.global_position + Vector2(0, -8), color))
-		Vfx.hit(world, next.global_position, from.direction_to(next.global_position), color)
+		var bolt := element.color() if element else color
+		world.spawn_vfx(BeamVfx.create(from + Vector2(0, -8), next.global_position + Vector2(0, -8), bolt))
+		Vfx.hit(world, next.global_position, from.direction_to(next.global_position), bolt, false, element)
 		next.take_hit(Combat.make_secondary_hit(owner, amount))
 		struck.append(next)
 		from = next.global_position

@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="6_60bjh"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="7_chill"]
 [ext_resource type="Resource" path="res://data/perks/synergies/frost.tres" id="8_frost"]
+[ext_resource type="Resource" path="res://data/vfx/elements/frost.tres" id="vfx_frost"]
 
 [sub_resource type="Resource" id="Resource_uouc5"]
 script = ExtResource("1_hs2co")
@@ -19,6 +20,7 @@ slow = 0.4
 
 [sub_resource type="Resource" id="Resource_uhdlu"]
 script = ExtResource("4_sklsj")
+element = ExtResource("vfx_frost")
 color = Color(0.5568628, 0.7921569, 0.9019608, 1)
 status = SubResource("Resource_chill")
 

@@ -5,9 +5,11 @@
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_myaio"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_ar30v"]
 [ext_resource type="AudioStream" path="res://data/audio/slime.tres" id="5_gtt5l"]
+[ext_resource type="Resource" path="res://data/vfx/elements/poison.tres" id="vfx_poison"]
 
 [sub_resource type="Resource" id="Resource_pnf4m"]
 script = ExtResource("3_myaio")
+slow_element = ExtResource("vfx_poison")
 poison_damage = 1
 slow = 0.5
 slow_duration = 2.5

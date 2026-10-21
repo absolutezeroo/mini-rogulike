@@ -1,13 +1,18 @@
 shader_type canvas_item;
 render_mode unshaded;
-// A ball of fire (an explosion, a fireball bursting): it swells fast with a white-hot heart,
-// cools through yellow and the blast's color to a dark red rim, hollows out and breaks into
-// licks of flame, then smoke. Turbulent noise, flat color bands, ordered dithering between
-// them, all in 2x2 art pixels.
+// A burst of energy (an explosion, a shot bursting): it swells fast with a bright heart,
+// cools down its element's ramp to the dark rim, hollows out and breaks into licks, then the
+// element's residue (smoke, mist, dust) thins out. Turbulent noise, flat bands of the ramp's
+// exact colors (BlastVfx sets them from a VfxElementDef: fire is white-hot, yellow, orange, a
+// dark red rim, grey smoke), ordered dithering between them, all in 2x2 art pixels.
 
 uniform float radius = 40.0;
 uniform float progress = 0.0;  // 0 -> 1 over its life
-uniform vec4 tint : source_color = vec4(1.0, 0.45, 0.15, 1.0);
+uniform vec4 core : source_color = vec4(1.0, 0.96, 0.85, 1.0);
+uniform vec4 light : source_color = vec4(1.0, 0.88, 0.55, 1.0);
+uniform vec4 body : source_color = vec4(1.0, 0.68, 0.36, 1.0);
+uniform vec4 rim : source_color = vec4(0.56, 0.24, 0.34, 1.0);
+uniform vec4 residue : source_color = vec4(0.23, 0.21, 0.26, 1.0);  // alpha 0: none
 uniform float seed = 0.0;
 uniform float pixel = 2.0;
 
@@ -53,20 +58,21 @@ void fragment() {
 	heat += (bayer(cell) - 0.5) * 0.12;
 	vec4 c;
 	if (heat > 0.95) {
-		c = vec4(1.0, 1.0, 0.92, 1.0);
+		c = core;
 	} else if (heat > 0.72) {
-		c = vec4(1.0, 0.86, 0.4, 1.0);
+		c = light;
 	} else if (heat > 0.48) {
-		c = tint;
+		c = body;
 	} else if (heat > 0.25) {
-		c = vec4(tint.rgb * vec3(0.62, 0.38, 0.38), 1.0);
+		c = rim;
 	} else {
-		// Smoke, thinning out.
-		float smoke = 0.55 * (1.0 - t);
+		// The residue, thinning out.
+		float smoke = 0.55 * (1.0 - t) * residue.a;
 		if (smoke < bayer(cell + 3.0)) {
 			discard;
 		}
-		c = vec4(0.22, 0.19, 0.2, 1.0);
+		c = vec4(residue.rgb, 1.0);
 	}
+	c.a = 1.0;
 	COLOR = c;
 }

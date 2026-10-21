@@ -4,9 +4,11 @@
 [ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_mjeg1"]
 [ext_resource type="Script" path="res://src/definitions/passives/status_damage_passive.gd" id="3_uvr8t"]
 [ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="4_ik385"]
+[ext_resource type="Resource" path="res://data/vfx/elements/frost.tres" id="vfx_frost"]
 
 [sub_resource type="Resource" id="Resource_a1rtc"]
 script = ExtResource("3_uvr8t")
+crit_element = ExtResource("vfx_frost")
 condition = 2
 bonus_per_stack = 0.5
 crit_slow = 0.9

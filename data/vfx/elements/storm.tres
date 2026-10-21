@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="VfxElementDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_element_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"storm"
+ramp = PackedColorArray(0.956863, 0.941176, 1, 1, 0.788235, 0.721569, 1, 1, 0.560784, 0.45098, 0.901961, 1, 0.294118, 0.227451, 0.6, 1, 0.145098, 0.109804, 0.309804, 1)
+mark = Color(0.145098, 0.109804, 0.309804, 0.35)
+bit = 4
+motion = 4

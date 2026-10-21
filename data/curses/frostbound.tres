@@ -17,5 +17,5 @@ ambience = ExtResource("1_djhiy")
 id = &"frostbound"
 display_name = "Frostbound"
 description = "The cold gets into your bones. Warm up by the campfires, or freeze."
-color = Color(0.56078434, 0.827451, 1, 1)
+color = Color(0.5608, 0.9373, 0.9451, 1)
 min_depth = 2

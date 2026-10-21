@@ -42,6 +42,7 @@ size = Vector2i(2, 2)
 patches_max = 1
 sprite = ExtResource("2_usp6n")
 flames = ExtResource("1_kj6ro")
+flame_frames = 12
 glow_color = Color(1, 0.62, 0.25, 0.09)
 light_level = 13
 light_color = Color(1, 0.7, 0.4, 1)

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="VfxElementDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_element_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"fire"
+ramp = PackedColorArray(1, 0.964706, 0.847059, 1, 1, 0.882353, 0.552941, 1, 1, 0.678431, 0.364706, 1, 0.894118, 0.427451, 0.227451, 1, 0.560784, 0.243137, 0.337255, 1)
+residue = Color(0.231373, 0.211765, 0.262745, 1.0)
+mark = Color(0.101961, 0.078431, 0.086275, 0.55)
+accent = 2
+bit = 3
+motion = 0

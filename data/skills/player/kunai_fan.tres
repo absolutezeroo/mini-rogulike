@@ -9,6 +9,7 @@
 
 [sub_resource type="Resource" id="Resource_gxi8n"]
 script = ExtResource("2_vb6vc")
+texture_frames = 1
 damage_multiplier = 0.7
 speed = 520.0
 radius = 6.0

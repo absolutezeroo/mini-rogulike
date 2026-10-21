@@ -1,6 +1,5 @@
 [gd_resource type="Resource" script_class="MonsterDef" format=3]
 
-[ext_resource type="Texture2D" path="res://assets/fx/ice_burst.png" id="1_wwd4k"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="2_dpy18"]
 [ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="3_6am12"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/monsters/frost_skull.tres" id="4_pu4nv"]
@@ -10,11 +9,11 @@
 [ext_resource type="Resource" path="res://data/items/tomes/tome_frost.tres" id="8_xabnt"]
 [ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="9_1vel6"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="10_6am12"]
-[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="10_hi5x3"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_ynqh8"]
-[ext_resource type="Resource" path="res://data/items/weapons/monster/bite.tres" id="12_nxglq"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/death_burst_trait.gd" id="12_pu4nv"]
 [ext_resource type="Resource" path="res://data/materials/bone.tres" id="99_material"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/frost_bite.tres" id="vfx_frost_bite"]
+[ext_resource type="Resource" path="res://data/vfx/elements/frost.tres" id="vfx_frost"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_x8vpe"]
 atlas = ExtResource("5_tomrc")
@@ -47,15 +46,15 @@ slow_duration = 2.5
 
 [sub_resource type="Resource" id="Resource_tomrc"]
 script = ExtResource("12_pu4nv")
+element = ExtResource("vfx_frost")
 damage = 4
 status = SubResource("Resource_8xjqc")
-fx = ExtResource("1_wwd4k")
 
 [resource]
 script = ExtResource("3_6am12")
 material = ExtResource("99_material")
 stats = SubResource("Resource_0du8f")
-weapon = ExtResource("12_nxglq")
+weapon = ExtResource("vfx_frost_bite")
 radius = 9.0
 frames = ExtResource("4_pu4nv")
 frames_offset = Vector2(0, -8)

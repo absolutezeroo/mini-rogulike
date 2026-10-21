@@ -8,6 +8,7 @@
 
 [sub_resource type="Resource" id="Resource_sv1xe"]
 script = ExtResource("2_qphyu")
+texture_frames = 1
 damage_multiplier = 0.5
 flat_damage = 6
 speed = 210.0

@@ -2,7 +2,6 @@
 
 [ext_resource type="SpriteFrames" path="res://data/visuals/weapons/lance.tres" id="1_5yjvt"]
 [ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_vd3a5"]
-[ext_resource type="Texture2D" path="res://assets/fx/cut.png" id="2_1j72x"]
 [ext_resource type="AudioStream" path="res://data/audio/slash.tres" id="3_rrs5x"]
 [ext_resource type="AudioStream" path="res://data/audio/hit.tres" id="4_gjqev"]
 [ext_resource type="Texture2D" path="res://assets/weapons/lance.png" id="5_vd3a5"]
@@ -19,8 +18,6 @@ reach = 60.0
 knockback = 200.0
 attack_animation = 1
 attack_frames = ExtResource("1_5yjvt")
-attack_fx = ExtResource("2_1j72x")
-attack_fx_rotation = 45.0
 skills = Array[ExtResource("7_gjqev")]([ExtResource("8_vd3a5"), ExtResource("9_8yvfo")])
 arc_degrees = 40.0
 attack_sound = ExtResource("3_rrs5x")

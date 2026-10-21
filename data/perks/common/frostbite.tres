@@ -6,9 +6,11 @@
 [ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_r0d64"]
 [ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="5_636i6"]
 [ext_resource type="Resource" path="res://data/perks/synergies/frost.tres" id="6_ydi20"]
+[ext_resource type="Resource" path="res://data/vfx/elements/frost.tres" id="vfx_frost"]
 
 [sub_resource type="Resource" id="Resource_60huf"]
 script = ExtResource("3_bjf86")
+element = ExtResource("vfx_frost")
 
 [resource]
 script = ExtResource("4_r0d64")

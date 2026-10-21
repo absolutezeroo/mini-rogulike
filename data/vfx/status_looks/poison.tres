@@ -1,25 +1,14 @@
 [gd_resource type="Resource" script_class="StatusLookDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/vfx/status_look_def.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/fx/smoke.png" id="2"]
+[ext_resource type="Resource" path="res://data/vfx/elements/poison.tres" id="2"]
 
 [resource]
 script = ExtResource("1")
 status = &"poison"
-particle = ExtResource("2")
-particle_frames = 6
-particle_rate = 1.6
-particle_life = 0.9
-particle_rise = 8.0
-particle_scale = 0.4
-particle_tint = Color(0.5, 0.95, 0.55, 0.55)
+element = ExtResource("2")
 mote = 2
 mote_rate = 6.0
 mote_color = Color(0.55, 1, 0.6, 1)
-glow = Color(0.4, 0.95, 0.5, 0.1)
-burst = ExtResource("2")
-burst_frames = 6
-burst_time = 0.5
-burst_scale = 0.7
-burst_tint = Color(0.5, 0.95, 0.55, 0.7)
+mist_rate = 5.0
 text_color = Color(0.5, 0.93, 0.6, 1)

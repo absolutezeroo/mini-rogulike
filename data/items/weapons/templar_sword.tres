@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_6y3is"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/weapons/templar_sword.tres" id="1_p6dig"]
-[ext_resource type="Texture2D" path="res://assets/fx/slashcurved.png" id="2_6y3is"]
 [ext_resource type="AudioStream" path="res://data/audio/slash.tres" id="3_fftq5"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="4_le2a7"]
 [ext_resource type="AudioStream" path="res://data/audio/hit.tres" id="5_ryp70"]
@@ -22,7 +21,6 @@ damage = 7
 cooldown = 0.5
 knockback = 200.0
 attack_frames = ExtResource("1_p6dig")
-attack_fx = ExtResource("2_6y3is")
 skills = Array[ExtResource("8_bj02u")]([ExtResource("9_y8ejw"), ExtResource("10_ptoyr")])
 arc_degrees = 130.0
 trail_color = Color(1, 0.88, 0.5, 0.9)

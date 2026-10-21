@@ -17,7 +17,10 @@ enum Condition { ANY, BURNING, POISONED, SLOWED }
 @export var shard_damage: float = 0.5
 @export var shard_speed: float = 340.0
 @export var shard_distance: float = 220.0
+## The shards' color when they have no element.
 @export var shard_color: Color = Palette.FROST
+## What the shards are (Ice Shards: frost, the same shards as the skill).
+@export var shard_element: VfxElementDef
 @export var shard_status: OnHitStatus
 
 @export_group("Blast")
@@ -26,6 +29,9 @@ enum Condition { ANY, BURNING, POISONED, SLOWED }
 ## Blast damage = the killer's power x this, per stack.
 @export var blast_damage: float = 0.8
 @export var blast_status: OnHitStatus
+## What the blast is made of (fire when empty).
+@export var blast_element: VfxElementDef
+## Unused since the blast takes its element's ramp (kept for old data).
 @export var blast_color: Color = Palette.FIRE
 
 
@@ -44,15 +50,16 @@ func on_kill(owner: Actor, victim: Actor, perk: PerkSet.Entry) -> void:
 		spec.count = count
 		spec.spread_degrees = 360.0
 		spec.knockback = 80.0
-		spec.color = shard_color
+		spec.color = shard_element.color() if shard_element else shard_color
+		spec.element = shard_element
 		spec.status = shard_status
 		spec.glow = 0.8
 		spec.secondary = true  # caused by a passive: no on-hit perks (no lifesteal, no chains)
 		world.fire_projectiles(owner, Vector2.from_angle(randf() * TAU), spec, at)
 	if blast_radius > 0.0:
 		var amount := maxi(1, roundi(owner.get_power() * blast_damage * perk.stacks))
-		Combat.damage_area(world, owner, at, blast_radius, amount, 160.0, true, blast_status)
-		Vfx.explosion(world, at, blast_radius, blast_color)
+		Combat.damage_area(world, owner, at, blast_radius, amount, 160.0, true, blast_status, blast_element)
+		Vfx.explosion(world, at, blast_radius, blast_element)
 
 
 func _matches(victim: Actor) -> bool:

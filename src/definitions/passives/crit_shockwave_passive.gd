@@ -9,7 +9,10 @@ extends Passive
 @export var radius_per_stack: float = 10.0
 ## Damage = owner's power x this, per stack.
 @export var damage_multiplier: float = 0.5
+## The wave's look when it has no element (old content).
 @export var color: Color = Palette.FROST
+## What the wave is made of (data/vfx/elements/): the Shatter rune's frost, Thunderclap's storm.
+@export var element: VfxElementDef
 ## Left on the enemies caught (the Shatter rune chills them). Optional.
 @export var status: OnHitStatus
 ## Whether the enemy that took the critical hit is caught too.
@@ -25,7 +28,7 @@ func on_hit_dealt(owner: Actor, target: Actor, hit: HitInfo, _damage: int, perk:
 	var amount := roundi(owner.get_power() * damage_multiplier * perk.stacks)
 	var center := target.global_position
 	if hits_target:
-		Combat.damage_area(owner.world, owner, center, size, amount, knockback, true, status)
+		Combat.damage_area(owner.world, owner, center, size, amount, knockback, true, status, element)
 	else:
 		for other in owner.world.get_hostiles(owner.faction):
 			if other == target:
@@ -38,6 +41,7 @@ func on_hit_dealt(owner: Actor, target: Actor, hit: HitInfo, _damage: int, perk:
 			wave.origin = owner.global_position
 			wave.is_secondary = true
 			wave.status = status
+			wave.element = element
 			other.take_hit(wave)
 		Combat.hit_props(owner.world, owner, center, size)
-	owner.world.spawn_vfx(RingVfx.create(center, size, color))
+	Vfx.nova(owner.world, center, size, VfxElementDef.or_color(element, color))

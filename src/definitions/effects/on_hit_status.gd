@@ -12,17 +12,20 @@ extends Resource
 ## Slow: fraction of move speed lost (0.4 = 40% slower). 0 = no slow.
 @export_range(0.0, 0.9, 0.05) var slow: float = 0.0
 @export var slow_duration: float = 2.0
+## What slows (data/vfx/elements/): frost when empty, so the body shows rime and cold mist.
+## Sand, ink, spores or a wail slow too, but look like themselves (or like nothing), not frost.
+@export var slow_element: VfxElementDef
 
 
 func apply_to(target: Actor, source: Actor) -> void:
 	if target.is_dead:
 		return
 	if burn_damage > 0:
-		target.statuses.apply_dot(&"burn", burn_damage, 0.5, burn_duration, source, Palette.FIRE)
+		target.statuses.apply_dot(&"burn", burn_damage, 0.5, burn_duration, source, VfxElementDef.named(&"fire").color())
 	if poison_damage > 0:
-		target.statuses.apply_dot(&"poison", poison_damage, 1.0, poison_duration, source, Color("80ed99"))
+		target.statuses.apply_dot(&"poison", poison_damage, 1.0, poison_duration, source, VfxElementDef.named(&"poison").color())
 	if slow > 0.0:
-		target.statuses.apply_slow(slow, slow_duration)
+		target.statuses.apply_slow(slow, slow_duration, &"hit", slow_element)
 
 
 ## e.g. "Burns (2 / 0.5 s), slows 30%".

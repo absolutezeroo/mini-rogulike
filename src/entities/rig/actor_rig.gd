@@ -120,11 +120,15 @@ func play_attack(def: WeaponDef, aim: Vector2, duration: float) -> void:
 		weapon.play(StringName("attack_" + direction), speed)
 		# Behind the body when facing up (we see the back), in front otherwise.
 		squash_node.move_child(weapon, 0 if direction == &"up" else squash_node.get_child_count() - 1)
-	# The sheet effect, unless the swing draws its own arc (see Vfx.swing).
-	var arc := def and def.kind == WeaponDef.Kind.MELEE and def.trail_color.a > 0.0 \
-		and def.attack_animation != WeaponDef.AttackAnimation.SMASH
-	if def and def.attack_fx and not arc:
-		_spawn_fx(def.attack_fx, aim, deg_to_rad(def.attack_fx_rotation))
+	# The sheet effect, unless the swing draws its own arc (see Vfx.swing: a weapon shows one
+	# or the other, WeaponDef.shows_arc()). A creature's blow without a sheet of its own strikes
+	# with its element's claw (Frost Fang: claws of ice).
+	if def and not def.shows_arc():
+		if def.attack_fx:
+			_spawn_fx(def.attack_fx, aim, deg_to_rad(def.attack_fx_rotation), def.element)
+		elif def.element and def.element.claw:
+			var at := Vector2(0, -CHEST_HEIGHT) + aim.normalized() * FX_DISTANCE
+			add_child(SheetVfx.play(def.element.claw, at, aim, def.element))
 
 
 ## Telegraph before a monster attack: hold the attack pose and tremble.
@@ -261,9 +265,9 @@ func _lunge(aim: Vector2) -> void:
 	tween.tween_property(squash_node, "position", Vector2.ZERO, 0.12)
 
 
-func _spawn_fx(sheet: Texture2D, aim: Vector2, extra_rotation: float) -> void:
+func _spawn_fx(sheet: Texture2D, aim: Vector2, extra_rotation: float, element: VfxElementDef = null) -> void:
 	var at := Vector2(0, -CHEST_HEIGHT) + aim.normalized() * FX_DISTANCE
-	add_child(SheetVfx.create(sheet, at, aim.angle() + extra_rotation, 2.0, 18.0))
+	add_child(SheetVfx.create(sheet, at, aim.angle() + extra_rotation, 2.0, 18.0).in_element(element))
 
 
 func _end_attack() -> void:

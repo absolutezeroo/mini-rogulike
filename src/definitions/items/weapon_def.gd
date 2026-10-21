@@ -18,7 +18,8 @@ enum AttackAnimation { SLASH, THRUST, SMASH, SHOOT }
 @export var attack_animation: AttackAnimation = AttackAnimation.SLASH
 ## Weapon in hand during the attack: attack_down/up/left/right, frame by frame with the hero's attack.
 @export var attack_frames: SpriteFrames
-## Slash effect sheet (frames in a row) played in front of the wielder, rotated toward the target.
+## Slash effect sheet (frames in a row) played in front of the wielder, turned toward the target
+## (snapped to 16 directions). Only for blows that draw no swing arc (see shows_arc()).
 @export var attack_fx: Texture2D
 ## Extra rotation of the slash effect, in degrees (depends on how the sheet is drawn).
 @export var attack_fx_rotation: float = 0.0
@@ -29,6 +30,10 @@ enum AttackAnimation { SLASH, THRUST, SMASH, SHOOT }
 
 ## Statuses left on whatever this weapon hits (poison fangs, burning claws...).
 @export var on_hit: OnHitStatus
+## What its blows or shots are made of (data/vfx/elements/): a ranged weapon without a
+## projectile texture fires the element's projectile, a claw without an attack_fx strikes with
+## the element's claw, and hits flash in the element's language (docs/vfx.md).
+@export var element: VfxElementDef
 
 @export_group("Melee")
 @export_range(10.0, 360.0) var arc_degrees: float = 110.0
@@ -43,6 +48,8 @@ enum AttackAnimation { SLASH, THRUST, SMASH, SHOOT }
 
 @export_group("Ranged")
 @export var projectile_texture: Texture2D
+## Frames in a row of `projectile_texture` (0 = square frames).
+@export_range(0, 64) var projectile_frames: int = 0
 @export var projectile_speed: float = 460.0
 @export var projectile_radius: float = 5.0
 @export var projectile_count: int = 1
@@ -58,6 +65,13 @@ enum AttackAnimation { SLASH, THRUST, SMASH, SHOOT }
 
 func _init() -> void:
 	slot = Slot.WEAPON
+
+
+## A melee weapon that sweeps draws its swing's arc (SwingVfx) and no sheet: the arc is how
+## steel looks (docs/vfx.md). Claws and bites (no arc, `trail_color` alpha 0) and overhead
+## smashes play their `attack_fx` sheet instead. One or the other, never both.
+func shows_arc() -> bool:
+	return kind == Kind.MELEE and trail_color.a > 0.0 and attack_animation != AttackAnimation.SMASH
 
 
 func get_type_label() -> String:

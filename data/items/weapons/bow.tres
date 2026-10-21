@@ -23,6 +23,7 @@ skills = Array[ExtResource("8_eswvm")]([ExtResource("9_cg45v"), ExtResource("10_
 attack_sound = ExtResource("3_d1n4l")
 hit_sound = ExtResource("4_mt01t")
 projectile_texture = ExtResource("6_6xh4s")
+projectile_frames = 1
 projectile_speed = 600.0
 pierce = 1
 projectile_damage = 0.9

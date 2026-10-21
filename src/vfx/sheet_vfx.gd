@@ -1,32 +1,51 @@
 class_name SheetVfx
 extends Node2D
-## Plays a sprite sheet once (frames side by side, square by default) and frees itself.
-## Used for slashes, explosions, smoke, magic circles...
+## Plays a sprite sheet once and frees itself: slashes, impacts, smoke, magic circles...
+## Always on the art's grid: drawn at a whole number of world units per texel (2 for sheets
+## drawn at one art pixel per texel; a wanted size in between snaps to the nearest even one),
+## at a grid position, turned only to one of 16 directions (or a drawn direction row), and it
+## doesn't vanish on its last frame: that frame lingers and dithers away (docs/vfx.md).
 
 const DEFAULT_FPS := 16.0
+const SHADER := preload("res://assets/shaders/dither_fade.gdshader")
+## Directions a turned sheet snaps to.
+const DIRECTIONS := 16
 
-var _texture: Texture2D
-var _frame_size := Vector2.ZERO
-var _frame_count := 1
-var _fps := DEFAULT_FPS
+var sheet: VfxSheetDef
+var element: VfxElementDef
+## Mirrored (a claw from the other side).
+var flip := false
+var _direction := Vector2.RIGHT
 var _age := 0.0
 var _modulate_color := Color.WHITE
+var _look: ShaderMaterial
 
 
-## `rotation_angle` in radians; `size` multiplies the art (pixel art is drawn at 2x by default).
-static func create(texture: Texture2D, at: Vector2, rotation_angle: float = 0.0, size: float = 2.0, fps: float = DEFAULT_FPS, frame_width: int = 0) -> SheetVfx:
+## `sheet` played once at `at`, facing `direction`, in `element`'s colors when it is recolored.
+static func play(def: VfxSheetDef, at: Vector2, direction: Vector2 = Vector2.RIGHT, of_element: VfxElementDef = null) -> SheetVfx:
 	var vfx := SheetVfx.new()
-	vfx._texture = texture
-	var height := texture.get_height()
-	var width := frame_width if frame_width > 0 else height
-	vfx._frame_size = Vector2(width, height)
-	vfx._frame_count = maxi(1, texture.get_width() / width)
-	vfx._fps = fps
-	vfx.position = at
-	vfx.rotation = rotation_angle
-	vfx.scale = Vector2(size, size)
+	vfx.sheet = def
+	vfx.element = of_element
+	vfx._direction = direction if direction != Vector2.ZERO else Vector2.RIGHT
+	vfx.position = PixelDraw.snap(at)
 	vfx.z_index = 5
 	return vfx
+
+
+## A plain texture (frames in a row, square unless `frame_width` says) played once.
+## `rotation_angle` in radians, snapped to one of 16 directions; `size` world units per texel,
+## snapped to a whole even number (2 = the art's own size).
+static func create(texture: Texture2D, at: Vector2, rotation_angle: float = 0.0, size: float = 2.0, fps: float = DEFAULT_FPS, frame_width: int = 0) -> SheetVfx:
+	var def := VfxSheetDef.new()
+	def.texture = texture
+	def.fps = fps
+	if frame_width > 0 and frame_width != texture.get_height():
+		def.frames = maxi(texture.get_width() / frame_width, 1)
+	def.texel = int(PixelDraw.sheet_scale(size))
+	if rotation_angle != 0.0:
+		def.orient = VfxSheetDef.Orient.SNAPPED
+		def.directions = DIRECTIONS
+	return play(def, at, Vector2.from_angle(rotation_angle))
 
 
 func with_color(color: Color) -> SheetVfx:
@@ -34,15 +53,36 @@ func with_color(color: Color) -> SheetVfx:
 	return self
 
 
+## Painted in `of_element`'s ramp (a plain sheet reused by an element: Thunder's bolts in
+## storm violet). Nothing changes without an element.
+func in_element(of_element: VfxElementDef) -> SheetVfx:
+	if of_element:
+		element = of_element
+		sheet.recolor = true
+	return self
+
+
+func _ready() -> void:
+	_look = ShaderMaterial.new()
+	_look.shader = SHADER
+	material = _look
+
+
+## Seconds it shows: the frames, then the last one lingering.
+func lifetime() -> float:
+	return sheet.duration() + sheet.linger
+
+
 func _process(delta: float) -> void:
 	_age += delta
-	if _age * _fps >= _frame_count:
+	if _age >= lifetime():
 		queue_free()
 		return
+	var past := _age - sheet.duration()
+	_look.set_shader_parameter("fade", 1.0 - past / sheet.linger if past > 0.0 and sheet.linger > 0.0 else 1.0)
 	queue_redraw()
 
 
 func _draw() -> void:
-	var frame := mini(int(_age * _fps), _frame_count - 1)
-	var source := Rect2(Vector2(frame * _frame_size.x, 0), _frame_size)
-	draw_texture_rect_region(_texture, Rect2(-_frame_size * 0.5, _frame_size), source, _modulate_color)
+	var frame := mini(int(_age * sheet.fps), sheet.frame_count() - 1)
+	PixelDraw.sheet(self, sheet, frame, Vector2.ZERO, _direction, element, _modulate_color, flip)

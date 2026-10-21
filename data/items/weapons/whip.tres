@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_7ev7n"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/weapons/whip.tres" id="2_412tk"]
-[ext_resource type="Texture2D" path="res://assets/fx/cut.png" id="3_8oy1s"]
 [ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="4_gp56s"]
 [ext_resource type="AudioStream" path="res://data/audio/hit.tres" id="5_inecs"]
 [ext_resource type="Texture2D" path="res://assets/weapons/whip.png" id="6_unjqi"]
@@ -19,8 +18,6 @@ reach = 74.0
 knockback = 170.0
 attack_animation = 1
 attack_frames = ExtResource("2_412tk")
-attack_fx = ExtResource("3_8oy1s")
-attack_fx_rotation = 45.0
 skills = Array[ExtResource("8_05to4")]([ExtResource("9_extgn"), ExtResource("10_32a85")])
 arc_degrees = 22.0
 trail_color = Color(0.95, 0.8, 0.6, 0.8)

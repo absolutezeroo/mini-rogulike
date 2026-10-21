@@ -6,9 +6,11 @@
 [ext_resource type="Texture2D" path="res://assets/projectiles/energyball.png" id="4_gameb"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_dper3"]
 [ext_resource type="AudioStream" path="res://data/audio/bolt.tres" id="6_qthcf"]
+[ext_resource type="Resource" path="res://data/vfx/elements/shadow.tres" id="vfx_shadow"]
 
 [sub_resource type="Resource" id="Resource_pakcx"]
 script = ExtResource("3_gfeue")
+slow_element = ExtResource("vfx_shadow")
 slow = 0.3
 slow_duration = 1.5
 

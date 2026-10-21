@@ -971,7 +971,7 @@ Very fast stabs. Easy to crit.,Very fast stabs. Easy to crit.,Des coups d'estoc 
 Shuriken,Shuriken,Shuriken
 "Throwing stars, three at a time. The ninja's way.","Throwing stars, three at a time. The ninja's way.","Des étoiles de lancer, trois à la fois. La voie du ninja."
 Frost Staff,Frost Staff,Bâton de Givre
-Ice shards that pierce a first enemy.,Ice shards that pierce a first enemy.,Des éclats de glace qui transpercent un premier ennemi.
+Ice shards that pierce a first enemy and chill what they hit.,Ice shards that pierce a first enemy and chill what they hit.,Des éclats de glace qui transpercent un premier ennemi et glacent ce qu'ils touchent.
 Templar Sword,Templar Sword,Épée de Templier
 "A paladin's blade, blessed with holy skills.","A paladin's blade, blessed with holy skills.","La lame d'un paladin, bénie de compétences sacrées."
 Whip,Whip,Fouet
@@ -984,6 +984,7 @@ Demon Club,Demon Club,Massue Démoniaque
 Evil Eye,Evil Eye,Mauvais Œil
 Fire Breath,Fire Breath,Souffle de Feu
 Fire Touch,Fire Touch,Toucher Brûlant
+Rime Bite,Rime Bite,Morsure de Givre
 Frost Fang,Frost Fang,Croc de Givre
 Ghost Flame,Ghost Flame,Flamme Spectrale
 Hex Bolt,Hex Bolt,Trait Maléfique

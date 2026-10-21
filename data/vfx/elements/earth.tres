@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="VfxElementDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_element_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"earth"
+ramp = PackedColorArray(0.960784, 0.901961, 0.768627, 1, 0.823529, 0.701961, 0.490196, 1, 0.639216, 0.458824, 0.305882, 1, 0.419608, 0.313725, 0.25098, 1, 0.231373, 0.196078, 0.219608, 1)
+residue = Color(0.784314, 0.690196, 0.541176, 0.9)
+mark = Color(0.419608, 0.313725, 0.25098, 0.35)
+bit = 0
+motion = 1
+emissive = false

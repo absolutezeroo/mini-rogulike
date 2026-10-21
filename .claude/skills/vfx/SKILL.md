@@ -1,0 +1,100 @@
+---
+name: vfx
+description: Make or fix a visual effect in Le Puits des Âmes coherently - a shot, an impact, a nova, a slash, a status on a body, an element's whole kit (fire, frost, poison, storm, holy, shadow, arcane, blood, spirit, earth, water, physical). Covers the pixel grid rules, element ramps and shapes, drawing pixel art on a ramp with tools/vfx, palette swaps, wiring the data, screenshots and review. Use for any request about effects looking wrong, incoherent, blurry, or like the wrong element.
+---
+
+# Visual effects
+
+Read docs/vfx.md first: the grid rules (section 1), the readability order (2), timing (3), the
+element tables (4), the code (5), and "Where each element stands" (8) for what is left to do.
+The bar is Dead Cells / Blasphemous: hand-made pixels at the art's size, one language per element.
+
+## 1. Know what you are fixing
+
+- Find every user of the effect: `grep -rn "<sheet or color>" data src`. List the content per
+  element (a skill's effects, a weapon's shot, a passive's wave, a status, a monster trait).
+- Take "before" screenshots (section 6) so you can compare.
+
+## 2. Pick the element and fill its kit
+
+- The element is what a player would call it. Its file: `data/vfx/elements/<id>.tres`
+  (`VfxElementDef`): `ramp` (3-5 colors, core to edge, never pure white or black), `accent`,
+  `residue`, `mark`, `bit`, `motion`, `emissive`, and the kit sheets as `VfxSheetDef`
+  sub-resources: `projectile`, `impact`, `piece` (composed into novas, waves, dash trails),
+  `claw`, plus `slow_look` (a status look id) and `impact_sound`.
+- Shape before color: frost is faceted and angular, fire licks up, poison bubbles and sinks,
+  storm forks and flickers, holy rays, shadow converges in smoke, arcane orbits with runes. A
+  radial symmetric star is nobody's (it reads as a shuriken). Check the element's row in
+  docs/vfx.md and keep to it; if you must change the language, change the doc too.
+
+## 3. Point the data at the element
+
+- `element` on `WeaponDef`, `ProjectileEffect`, `DamageAreaEffect`, `DashStrikeEffect`,
+  `DeathBurstTrait`; on passives `element` / `shard_element` / `crit_element` / `blast_element`;
+  `slow_element` on any slowing `OnHitStatus` that is not frost (frost is the default).
+- Remove what the element replaces: a borrowed `texture` (a shot without one is the element's
+  projectile), an area's `fx` (without one it is the element's nova), free `color`s.
+- A non-square sheet always says its frame count (`texture_frames`, `projectile_frames`,
+  `fx_frames`; 1 for a single sprite). `tests/suites/vfx_tests.gd` fails otherwise.
+- Edit `.tres` by hand carefully (keep `[ext_resource]` ids; no `uid=`), or with the inspector.
+
+## 4. Draw new pixel art (on the ramp, at the art's size)
+
+- `tools/vfx/vfxkit.py`: `Element.load(id)`, `Sheet(cell=(w, h), frames, rows)`, cells of ramp
+  indices (0 = core ... last = edge, `RESIDUE`), `fill_polygon`, `rotate`, `outline`, `clean`,
+  `sheet.save(path, element)`, `sheet.preview(path, element)` (zoomed on a dark and a light
+  floor). `tools/vfx/frost.py` is the worked example: facets lit from the top left by their
+  normal, a near-white tip, the dark edge as outline, shapes rendered per direction instead of
+  rotated, near-vertical rows mirrored from near-horizontal ones, stubs shaved.
+- One art pixel per texel, hard alpha, frames in a row, directions (`Orient.ROWS`, 16, row 0
+  pointing right, clockwise) or variants in rows. A big effect is a small piece composed many
+  times (`ComposedVfx`), never a sheet stretched to the radius.
+- Reusing art in another element: set `recolor = true` on its `VfxSheetDef` (painted at runtime by
+  `VfxRamp`), or bake a file: `python3 tools/vfx/recolor.py <in.png> <element> <out.png> --preview <x6.png>`
+  then touch it up.
+- Always: `python3 tools/vfx/check.py <png> <element> --cell WxH` (palette, hard alpha, whole
+  cells). Open the preview image and look at it; iterate until it reads at a glance.
+- Put the art in `assets/fx/<element>/`, run `godot --headless --import` to make its `.import`,
+  and commit both.
+
+## 5. Code: use the helpers, never smooth shapes
+
+- In `_draw()`: `PixelDraw.snap / snap_length / pixel / ring / disc / line / bit / sheet` and
+  `PixelDraw.dither(cell, amount)` to fade. No `draw_circle`, `draw_arc`, alpha fades,
+  `color.lerp`; colors from `element.shade(t)` / `.core()` / `.color()` / `.edge()`.
+- Spawning: `Vfx.hit(..., element)`, `Vfx.pop(world, at, element, radius, direction)`,
+  `Vfx.nova(world, at, radius, element)`, `Vfx.trail(world, from, to, element)`,
+  `Vfx.explosion(world, at, radius, element)`, `SheetVfx.play(sheet, at, direction, element)`.
+  Old content with only a color: `VfxElementDef.or_color(null, color)`.
+- Sheets: whole even `texel` (2), `linger` for dissipation (the `dither_fade` shader), never
+  `rotation = angle` on pixel art (ROWS or SNAPPED).
+- New behaviour goes in a small class or the element data, not in `Actor`/`Monster`/`World`.
+
+## 6. Look at it (headless tests can't)
+
+- Copy `_tool/vfx_probe.gd` / `.tscn` if it exists (`_tool/` is gitignored), or write one like
+  it: instantiate `res://src/game/game.tscn`, make the hero invincible, spawn dormant monsters
+  with huge Health, apply skills with `effect.apply(user, aim)`, fire with
+  `world.fire_projectiles`, apply statuses, and save `get_viewport().get_texture().get_image()`
+  every few frames plus a 4x nearest crop around the effect.
+- Run: `timeout 300 xvfb-run -a godot --rendering-driver opengl3 --fixed-fps 60 res://_tool/<probe>.tscn -- <outdir>`
+  (window 1540x720, the tester's phone ratio). Write into your own folder of the scratchpad.
+- Read the images yourself. Go through the review checklist of docs/vfx.md section 7 for each
+  frame: pixel size, ramp only, silhouette reads as the element in grey, 16 directions at most,
+  first quarter, dissipation, weight, dark and bright biomes, enemy vs hero. Iterate.
+
+## 7. Tests, texts, docs
+
+- `godot --headless --fixed-fps 60 res://tests/run_tests.tscn -- --only=unit,title` (the unit
+  suite runs `tests/suites/vfx_tests.gd`): add checks for your element (its users point at it,
+  its kit is filled, nothing borrows another element's art, sheets slice and scale). Then the
+  full run (`--only=game`, `--only=tutorial`) before calling it done. Never weaken a check.
+- A changed rule or number (a weapon that now chills) changes its description text, then
+  `python3 tools/i18n/extract.py`, the French (the `translate` skill), the docs/design/ page and
+  a docs/balance-log.md entry.
+- Update docs/vfx.md: the element's rows, and "Where each element stands" (what you did, what
+  is left).
+
+Report: the element(s), the art made (paths), the content now pointing at them, the tests, the
+screenshot paths (before/after), and what you could not check (the phone screen, outdoors, the
+feel in motion).

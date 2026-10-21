@@ -3,9 +3,9 @@
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_bon3v"]
 [ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_adjye"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_vjl1q"]
-[ext_resource type="Texture2D" path="res://assets/projectiles/energyball.png" id="4_sb34y"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_kw4pg"]
 [ext_resource type="AudioStream" path="res://data/audio/slime.tres" id="6_o6vnt"]
+[ext_resource type="Resource" path="res://data/vfx/elements/poison.tres" id="vfx_poison"]
 
 [sub_resource type="Resource" id="Resource_macc1"]
 script = ExtResource("3_vjl1q")
@@ -13,6 +13,7 @@ poison_damage = 3
 
 [sub_resource type="Resource" id="Resource_h55eq"]
 script = ExtResource("2_adjye")
+element = ExtResource("vfx_poison")
 damage_multiplier = 0.5
 flat_damage = 3
 speed = 330.0
@@ -20,11 +21,11 @@ radius = 7.0
 count = 7
 spread_degrees = 50.0
 color = Color(0.5019608, 0.92941177, 0.6, 1)
-texture = ExtResource("4_sb34y")
 status = SubResource("Resource_macc1")
 
 [sub_resource type="Resource" id="Resource_8micg"]
 script = ExtResource("2_adjye")
+element = ExtResource("vfx_poison")
 damage_multiplier = 0.5
 flat_damage = 3
 speed = 330.0
@@ -32,7 +33,6 @@ radius = 7.0
 count = 7
 spread_degrees = 50.0
 color = Color(0.5019608, 0.92941177, 0.6, 1)
-texture = ExtResource("4_sb34y")
 status = SubResource("Resource_macc1")
 delay = 0.5
 

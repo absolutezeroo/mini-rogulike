@@ -16,6 +16,11 @@ var _pierce_left := 0
 var _already_hit: Array[Actor] = []
 var _done := false
 var _trail: Array[Vector2] = []  # recent global positions, newest last
+## How it looks in flight (its sprite or its element's shot); null: a dot.
+var _sheet: VfxSheetDef
+## Its element, or one made from its color (old content).
+var _element: VfxElementDef
+var _age := 0.0
 
 const TRAIL_LENGTH := 6
 ## Light of a glowing shot, above the floor's own (LightSource.relative).
@@ -43,21 +48,29 @@ func _configure(direction: Vector2, spec: ProjectileSpec) -> void:
 	_spec = spec
 	_direction = direction.normalized()
 	_pierce_left = spec.pierce
-	rotation = _direction.angle()
 	collision_layer = 0
 	var shape := CircleShape2D.new()
 	shape.radius = spec.radius
 	($CollisionShape2D as CollisionShape2D).shape = shape
+	# Its look: its own sprite, else its element's shot, else a dot in its color.
+	if spec.texture:
+		_sheet = VfxSheetDef.from_texture(spec.texture, spec.texture_frames)
+	elif spec.element and spec.element.projectile:
+		_sheet = spec.element.projectile
+	_element = VfxElementDef.or_color(spec.element, spec.color)
 	# Magic shots light up the dark in their color (not a boss's whole ring: too many lights);
-	# plain things (shurikens, arrows) don't shine at all.
+	# plain things (shurikens, arrows) and matter (blood, water) don't shine at all.
+	var shines := spec.glow > 0.0 and (spec.element == null or spec.element.emissive)
 	var glow := $Glow as LightSource
-	glow.visible = spec.glow > 0.0 and (spec.count <= 3 or spec.explosion_radius > 0.0)
-	glow.color = spec.color
+	glow.visible = shines and (spec.count <= 3 or spec.explosion_radius > 0.0)
+	glow.color = _element.color()
 	glow.level = maxi(1, roundi(GLOW_LEVEL * spec.glow))
-	if spec.glow > 0.0:
+	# A drawn shot carries its own bright core; only a plain dot gets a halo (a dithered glow
+	# around each of a boss's sixteen shards would fog the screen).
+	if shines and _sheet == null and spec.count <= 3:
 		var halo := ProjectileHalo.new()
-		halo.color = spec.color
-		halo.size = maxf(spec.radius, 5.0) * (1.4 if spec.texture else 1.0)
+		halo.element = _element
+		halo.size = maxf(spec.radius, 5.0) * (1.4 if _sheet else 1.0)
 		add_child(halo)
 
 
@@ -66,6 +79,7 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_age += delta
 	var step := _spec.speed * delta
 	_trail.append(global_position)
 	if _trail.size() > TRAIL_LENGTH:
@@ -86,7 +100,7 @@ func _on_body_entered(body: Node2D) -> void:
 			var hit := HitInfo.new()
 			hit.source = _shooter if is_instance_valid(_shooter) else null
 			(body as Prop).take_hit(hit)
-		Vfx.hit(_world, global_position, -_direction, _spec.color)
+		Vfx.hit(_world, global_position, -_direction, _element.color(), false, _spec.element)
 		Sfx.play_at(Sfx.bank.projectile_impact, global_position, -4.0)
 		_burst()
 		_finish()
@@ -110,10 +124,11 @@ func _on_body_entered(body: Node2D) -> void:
 		_finish()
 
 
-## A magic shot bursts where it lands (exploding ones have their own big blast).
+## A magic shot bursts where it lands, in its element's language (exploding ones have their
+## own big blast).
 func _burst() -> void:
 	if _spec.glow > 0.0 and _spec.explosion_radius <= 0.0:
-		Vfx.pop(_world, global_position, _spec.color, clampf(_spec.radius * 2.2, 10.0, 22.0))
+		Vfx.pop(_world, global_position, _element, clampf(_spec.radius * 2.2, 10.0, 22.0), _direction)
 
 
 func _finish() -> void:
@@ -122,11 +137,14 @@ func _finish() -> void:
 	_done = true
 	if _spec.explosion_radius > 0.0:
 		_explode()
+	elif _travelled >= _spec.max_distance and _spec.glow > 0.0:
+		# Out of range: it breaks up into a few of its bits instead of vanishing.
+		_world.spawn_vfx(ImpactVfx.create(global_position, _direction, _element.color(), false, _element if _spec.element else null))
 	queue_free()
 
 
 func _explode() -> void:
-	Vfx.explosion(_world, global_position, _spec.explosion_radius, _spec.color if _spec.glow > 0.0 else Color(1.0, 0.45, 0.15))
+	Vfx.explosion(_world, global_position, _spec.explosion_radius, _spec.element)
 	var source: Actor = _shooter if is_instance_valid(_shooter) else null
 	Combat.hit_props(_world, source, global_position, _spec.explosion_radius)
 	for target in _world.get_actors() if _hits_everyone else _world.get_hostiles(_faction):
@@ -140,42 +158,24 @@ func _explode() -> void:
 
 
 func _draw() -> void:
-	if _spec and _spec.texture:
-		_draw_sprite()
+	if _spec == null:
 		return
-	var r := _spec.radius if _spec else 5.0
-	var color := _spec.color if _spec else Color.WHITE
-	# Fading trail of squares behind the shot (pixel style).
-	for i in _trail.size():
-		var t := float(i + 1) / (_trail.size() + 1)
-		var trail_color := color
-		trail_color.a = 0.5 * t
-		var half := r * (0.4 + 0.5 * t)
-		var local := (_trail[i] - global_position).rotated(-rotation)
-		draw_rect(Rect2(local - Vector2(half, half), Vector2(half, half) * 2.0), trail_color)
-	# Glow, core and bright center.
-	var glow := color
-	glow.a = 0.3
-	draw_circle(Vector2.ZERO, r * 1.8, glow)
-	draw_circle(Vector2.ZERO, r, color)
-	draw_circle(Vector2.ZERO, r * 0.5, color.lightened(0.7))
-
-
-## Sprite projectiles: frames side by side (square), animated, pointing along the flight direction.
-func _draw_sprite() -> void:
-	var texture := _spec.texture
-	var height := texture.get_height()
-	var frame_count := texture.get_width() / height if texture.get_width() % height == 0 else 1
-	var frame_width := texture.get_width() / frame_count
-	var frame := int(_travelled / 40.0) % frame_count
-	var size := Vector2(frame_width, height) * 2.0
-	var source := Rect2(frame * frame_width, 0, frame_width, height)
-	# A glowing streak behind magic shots, thinning out (plain things just fly).
-	for i in (_trail.size() if _spec.glow > 0.0 else 0):
-		var t := float(i + 1) / (_trail.size() + 1)
-		var local := (_trail[i] - global_position).rotated(-rotation)
-		draw_circle(local, size.y * (0.12 + 0.22 * t), Color(_spec.color, 0.35 * t))
-	var glow := _spec.color
-	glow.a = 0.3
-	draw_circle(Vector2(-size.x * 0.25, 0), size.y * 0.35, glow)
-	draw_texture_rect_region(texture, Rect2(-size * 0.5, size), source, Color.WHITE)
+	# A streak of its element's bits behind magic shots, on the grid, going down its ramp
+	# and dithering out (plain things just fly).
+	# Every other position, so it reads as motes left behind, not a line.
+	if _spec.glow > 0.0:
+		for i in range(_trail.size() - 1, -1, -2):
+			var t := float(i + 1) / (_trail.size() + 1)  # 1 = newest
+			var local := _trail[i] - global_position
+			if not PixelDraw.dither(PixelDraw.cell_of(local), t):
+				continue
+			var size := 2 if t > 0.6 and _spec.radius >= 6.0 else 1
+			PixelDraw.bit(self, VfxElementDef.Bit.SQUARE if _spec.element == null else _element.bit, local, size, _element.shade(1.0 - t * 0.75), -_direction)
+	if _sheet:
+		PixelDraw.sheet(self, _sheet, int(_age * _sheet.fps), Vector2.ZERO, _direction, _element)
+		return
+	# No sprite: a stepped dot, its edge, its body, a bright heart.
+	var r := PixelDraw.snap_length(_spec.radius)
+	PixelDraw.disc(self, Vector2.ZERO, r + PixelDraw.PX, _element.edge())
+	PixelDraw.disc(self, Vector2.ZERO, r, _element.color())
+	PixelDraw.disc(self, Vector2.ZERO, maxf(r * 0.5, PixelDraw.PX), _element.core())

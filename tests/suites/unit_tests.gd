@@ -41,6 +41,9 @@ func run() -> void:
 	var sound := SoundTests.new()
 	sound.run()
 	sound.free()
+	var vfx := VfxTests.new()
+	vfx.run()
+	vfx.free()
 
 
 ## Speedrun times: how they read, the splits, the save, the records.

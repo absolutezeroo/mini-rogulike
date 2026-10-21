@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_4xvd7"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/weapons/ninjaku.tres" id="2_g5qp1"]
-[ext_resource type="Texture2D" path="res://assets/fx/cut.png" id="3_xagnq"]
 [ext_resource type="AudioStream" path="res://data/audio/slash.tres" id="4_wymdo"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="5_xwuyb"]
 [ext_resource type="AudioStream" path="res://data/audio/hit.tres" id="6_4bapg"]
@@ -22,8 +21,6 @@ cooldown = 0.34
 reach = 32.0
 knockback = 110.0
 attack_frames = ExtResource("2_g5qp1")
-attack_fx = ExtResource("3_xagnq")
-attack_fx_rotation = 45.0
 skills = Array[ExtResource("9_8jacy")]([ExtResource("10_ykh10"), ExtResource("11_5k5vi")])
 arc_degrees = 120.0
 trail_color = Color(0.75, 0.7, 1, 0.85)
