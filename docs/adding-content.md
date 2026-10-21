@@ -1,5 +1,27 @@
 # Adding content
 
+Content is data: a `.tres` resource (an instance of a class in `src/definitions/`) under `data/`,
+registered where the game looks for it, usually `data/content_db.tres` or an act in
+`data/dungeon/acts/`. Most additions need no code. Edit `.tres` files in the Godot inspector when
+you can; by hand, keep the `[ext_resource]` paths right.
+
+## Example: a new monster
+
+1. Duplicate a close one in `data/monsters/` (for a slime-like monster, `slime.tres`) and give it a
+   unique `id` and a `display_name`.
+2. Set its stats, weapon (`data/items/weapons/monster/`), skills, traits, material, loot table and
+   `splat_color`; point `frames` to a SpriteFrames in `data/visuals/monsters/` (reuse one or make one
+   from a sheet in `assets/characters/monsters/`).
+3. Add it to the Monsters of the act(s) it lives in (`data/dungeon/acts/act_N.tres`); `min_depth`
+   and `spawn_weight` decide where and how often it shows up.
+4. Texts: `python3 tools/i18n/extract.py`, fill its French name and description in
+   `locale/strings.csv`, and add its `grammar:gender:<name>` row ([translating.md](translating.md)).
+5. Run the tests (`--only=unit` checks the content database and the translations) and spawn it from
+   the debug panel to look at it ([testing.md](testing.md)).
+6. If it changes the balance of its act, measure it ([balance.md](balance.md)).
+
+## Every kind of content
+
 | To add... | Do this |
 |---|---|
 | A monster | Duplicate a file in `data/monsters/`, edit it, add it to an act's Monsters (`data/dungeon/acts/`) |

@@ -61,8 +61,8 @@ the game provably better: before/after numbers, and guard tests so it doesn't dr
 - Builds: data/balance/builds/*.tres (baseline, an expected build per act, degenerate stacks,
   one build per family). Add builds when you need to test a new combination.
 - Targets: data/balance/targets.tres - the numbers above as data. If you change a target, say why.
-- Run (Godot: /tmp/Godot_v4.7-stable_linux.x86_64, or `godot` on another machine; import the
-  project first if .godot is missing). `$G --headless --fixed-fps 60 res://tools/balance/balance.tscn -- <options>`:
+- Run (Godot 4.7: `godot`, or the downloaded binary, see docs/testing.md > Getting Godot; import
+  the project first if .godot is missing). `$G --headless --fixed-fps 60 res://tools/balance/balance.tscn -- <options>`:
   - `--mode=model` (seconds): every monster x rank x depth x difficulty, every boss x phase x
     rank x difficulty, every weapon x rarity x armor, the curve; estimates.
   - `--mode=arena [--boss=..] [--build=..] [--difficulty=..] [--bot=face_tank,kite]`: real boss
@@ -99,9 +99,9 @@ the game provably better: before/after numbers, and guard tests so it doesn't dr
 6. **Guard it.** Add or extend checks in the balance suite (and unit tests for rule fixes:
    e.g. "a burn tick heals nothing", "lifesteal per second never exceeds the cap") so the
    problem can't silently come back.
-7. **Record it.** Append a dated entry to docs/balance.md: what was measured, what changed and
+7. **Record it.** Add a dated entry at the top of docs/balance-log.md: what was measured, what changed and
    why, before/after numbers for the key scenarios, open questions. Player-facing texts that
-   describe a changed number (perk/rune/affix descriptions, the README tables) must be updated
+   describe a changed number (perk/rune/affix descriptions, the tables in docs/design/) must be updated
    in the same change, in plain words (Health, Damage, Armor... no HP/ATK/DEF).
 
 ## Constraints

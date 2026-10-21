@@ -143,3 +143,8 @@ A new armor = pick a style and a color in the inspector.
 To tweak an animation, open a file in `data/visuals/` and use the SpriteFrames panel
 (add frames, change the speed, toggle loop). The actor scripts never touch animations directly:
 they call `rig.play_attack()`, `rig.play_hurt()`, etc.
+
+## Pixel art
+
+The art is 16x16 pixel art drawn at 2x in the world, with nearest filtering (Project Settings >
+Rendering > Textures > Default Texture Filter). Effects and shaders stay on the art's pixel grid.
