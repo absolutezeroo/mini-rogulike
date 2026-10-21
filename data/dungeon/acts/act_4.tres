@@ -30,7 +30,7 @@
 script = ExtResource("21_uckqf")
 title = "Kingdom of Dust"
 subtitle = "Act IV"
-lore = "Under the temple, the Well opens onto a desert with no sky: a kingdom the sand swallowed whole. Its king still hoards what he took. Souls, mostly."
+lore = "Beneath the pyres, the Well opens onto a desert with no sky: a kingdom the dust swallowed whole. Its king still hoards what he took. Souls, mostly."
 biomes = Array[ExtResource("1_a32ab")]([ExtResource("2_egqa3"), ExtResource("3_b630q")])
 boss_biome = ExtResource("3_b630q")
 monsters = Array[ExtResource("12_samg8")]([ExtResource("13_atrv2"), ExtResource("14_1wq2o"), ExtResource("15_bk3ob"), ExtResource("16_ermry"), ExtResource("17_whiss"), ExtResource("18_43f3o"), ExtResource("19_obhqq"), ExtResource("20_2q6do"), ExtResource("21_lsqkw"), ExtResource("22_lsqkw")])

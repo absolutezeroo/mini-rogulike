@@ -33,7 +33,7 @@ func _ready() -> void:
 
 ## The whole end of a run. `rows`: [label, value] pairs (RunState.summary_rows()).
 func show_end(victory: bool, story: String, rows: Array, souls_earned: int, souls_total: int) -> void:
-	_show(tr("Victory!") if victory else tr("You died"), VICTORY_COLOR if victory else DEATH_COLOR, story, victory)
+	_show(tr("Victory Achieved") if victory else tr("The Well claims you"), VICTORY_COLOR if victory else DEATH_COLOR, story, victory)
 	UiParts.clear(_stats)
 	for row: Array in rows:
 		_stats.add_child(UiSkin.label(str(row[0]), 16, UiSkin.DIM))
@@ -48,13 +48,13 @@ func show_end(victory: bool, story: String, rows: Array, souls_earned: int, soul
 
 ## Just a text (older callers): death.
 func show_result(summary: String) -> void:
-	_show(tr("You died"), DEATH_COLOR, summary, false)
+	_show(tr("The Well claims you"), DEATH_COLOR, summary, false)
 	_columns.hide()
 
 
 ## Just a text (older callers): victory.
 func show_victory(summary: String) -> void:
-	_show(tr("Victory!"), VICTORY_COLOR, summary, true)
+	_show(tr("Victory Achieved"), VICTORY_COLOR, summary, true)
 	_columns.hide()
 
 
@@ -83,7 +83,7 @@ func _show(title: String, color: Color, summary: String, can_continue: bool) -> 
 
 
 func _build() -> void:
-	_dialog = RpgDialog.new(tr("You died"), WIDTH, 0.82)
+	_dialog = RpgDialog.new(tr("The Well claims you"), WIDTH, 0.82)
 	add_child(_dialog)
 	_dialog.title_label.name = "Title"
 	_own(_dialog.title_label)

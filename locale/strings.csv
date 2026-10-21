@@ -130,7 +130,7 @@ Level up! You are now level %d,Level up! You are now level %d,Niveau supérieur 
 LEVEL UP,LEVEL UP,NIVEAU SUPÉRIEUR
 You fell into a hole!,You fell into a hole!,Tu es tombé dans un trou !
 giving up,giving up,l'abandon
-You died.,You died.,Tu es mort.
+Your soul slips into the Well.,Your soul slips into the Well.,Ton âme glisse dans le Puits.
 Seen,Seen,Vu
 Unknown,Unknown,Inconnu
 Ambush!,Ambush!,Embuscade !
@@ -138,12 +138,12 @@ It's a trap! Survive the waves.,It's a trap! Survive the waves.,C'est un piège 
 The room falls silent. A chest appears...,The room falls silent. A chest appears...,Le silence retombe sur la salle. Un coffre apparaît...
 Level %d!,Level %d!,Niveau %d !
 Cursed: %s. %s,Cursed: %s. %s,Maudit : %s. %s
-Depth %d. Something big is waiting...,Depth %d. Something big is waiting...,Étage %d. Quelque chose d'énorme t'attend...
+Depth %d. Something vast waits in the dark...,Depth %d. Something vast waits in the dark...,Étage %d. Quelque chose d'immense t'attend dans le noir...
 Depth %d. The stairs are sealed: slay %d monsters to open them.,Depth %d. The stairs are sealed: slay %d monsters to open them.,Étage %d. Les escaliers sont scellés : abats %d monstres pour les ouvrir.
 Depth %d. Find the stairs!,Depth %d. Find the stairs!,Étage %d. Trouve les escaliers !
 +%d reroll for the perk choices.,+%d reroll for the perk choices.,+%d relance pour les choix d'atouts.
-Victory!,Victory!,Victoire !
-%s is defeated! The way down is open.,%s is defeated! The way down is open.,%s tombe ! La voie vers le bas est ouverte.
+Victory Achieved,Victory Achieved,Victoire Acquise
+%s falls. The way down lies open.,%s falls. The way down lies open.,%s s'effondre. La voie des profondeurs s'ouvre.
 New record: %s!,New record: %s!,Nouveau record : %s !
 "Endless mode: the dungeon goes on, harder and harder.","Endless mode: the dungeon goes on, harder and harder.","Mode sans fin : le donjon continue, de plus en plus dur."
 New record!,New record!,Nouveau record !
@@ -151,7 +151,7 @@ New record!,New record!,Nouveau record !
 Nothing else to offer.,Nothing else to offer.,Plus rien à proposer.
 %s is banished for this run.,%s is banished for this run.,Banni pour cette partie : %s.
 %s (level %d),%s (level %d),%s (niveau %d)
-The boss left a relic behind. Choose one.,The boss left a relic behind. Choose one.,Le boss a laissé une relique. Choisis-en une.
+A relic lies in the warden's remains. Choose one.,A relic lies in the warden's remains. Choose one.,Une relique gît dans les restes du gardien. Choisis-en une.
 %dd %dh,%dd %dh,%d j %d h
 %dh %02dm,%dh %02dm,%d h %02d min
 A Celestial %s! It joins the bestiary's collection.,A Celestial %s! It joins the bestiary's collection.,Nouvelle prise pour le bestiaire : %s Céleste !
@@ -189,7 +189,7 @@ floors %d to %d,floors %d to %d,étages %d à %d
 %s     %d of %d slain,%s     %d of %d slain,%s     %d sur %d abattus
 Achievements: %d of %d     Souls earned from them: %d,Achievements: %d of %d     Souls earned from them: %d,Succès : %d sur %d     Âmes gagnées grâce à eux : %d
 Runs: %d     Wins: %d     Deepest floor: %d,Runs: %d     Wins: %d     Deepest floor: %d,Parties : %d     Victoires : %d     Étage le plus profond : %d
-No run finished yet. Go down the Well!,No run finished yet. Go down the Well!,Aucune partie terminée. Descends dans le Puits !
+No descent finished yet. The Well is waiting.,No descent finished yet. The Well is waiting.,Aucune descente achevée. Le Puits t'attend.
 Fastest wins:   %s,Fastest wins:   %s,Victoires les plus rapides :   %s
 Codex,Codex,Codex
 Souls are kept between runs. Spend them at the Shrine.,Souls are kept between runs. Spend them at the Shrine.,Les âmes sont conservées d'une partie à l'autre. Dépense-les au Sanctuaire.
@@ -206,7 +206,7 @@ Done!,Done!,Accompli !
 Received,Received,Reçu
 Reward,Reward,Récompense
 Died on floor %d,Died on floor %d,Mort à l'étage %d
-Reached the bottom of the Well,Reached the bottom of the Well,A atteint le fond du Puits
+Reached the bottom of the Well,Reached the bottom of the Well,A touché le fond du Puits
 "Won, then slain by %s","Won, then slain by %s","Victoire, puis tué par %s"
 Slain by %s,Slain by %s,Tué par %s
 When,When,Date
@@ -319,7 +319,7 @@ Empty,Empty,Vide
 The Forge,The Forge,La Forge
 Sockets,Sockets,Emplacements
 Your runes,Your runes,Tes runes
-You died,You died,Tu es mort
+The Well claims you,The Well claims you,Le Puits te réclame
 You now have %d souls.,You now have %d souls.,Tu as maintenant %d âmes.
 New run,New run,Nouvelle partie
 Try again,Try again,Réessayer
@@ -585,8 +585,8 @@ OK,OK,OK
 The depths,The depths,Les profondeurs
 %s - better loot,%s - better loot,%s - meilleur butin
 %s (cursed: %s),%s (cursed: %s),%s (maudit : %s)
-"The seal breaks: two ways down. %s, or %s.","The seal breaks: two ways down. %s, or %s.","Le sceau se brise : deux chemins vers le bas. %s, ou %s."
-The seal breaks: the stairs are open!,The seal breaks: the stairs are open!,Le sceau se brise : les escaliers sont ouverts !
+"The seal shatters: two ways down. %s, or %s.","The seal shatters: two ways down. %s, or %s.","Le sceau vole en éclats : deux chemins vers les profondeurs. %s, ou %s."
+The seal shatters. The way down lies open.,The seal shatters. The way down lies open.,Le sceau vole en éclats. La voie des profondeurs s'ouvre.
 Sealed. Slay %d more monster to open the stairs.,Sealed. Slay %d more monster to open the stairs.,Scellé. Abats encore %d monstre pour ouvrir les escaliers.
 Sealed. Slay %d more monsters to open the stairs.,Sealed. Slay %d more monsters to open the stairs.,Scellé. Abats encore %d monstres pour ouvrir les escaliers.
 Act I,Act I,Acte I
@@ -740,16 +740,16 @@ Martyr,Martyr,Martyr
 Nightmare,Nightmare,Cauchemar
 "Darkness, hordes, and barely time to pray.","Darkness, hordes, and barely time to pray.","Ténèbres, hordes, et à peine le temps de prier."
 The vigil as it was meant to be kept.,The vigil as it was meant to be kept.,La veille telle qu'elle doit être tenue.
-"The mouth of the Well. Roots, wet stone, and things that crawl toward the light of your lantern.","The mouth of the Well. Roots, wet stone, and things that crawl toward the light of your lantern.","La gueule du Puits. Racines, pierre ruisselante, et des choses qui rampent vers la lueur de ta lanterne."
+"The Well's open maw. Roots like veins, weeping stone, and things that crawl toward your lantern's light.","The Well's open maw. Roots like veins, weeping stone, and things that crawl toward your lantern's light.","La gueule béante du Puits. Des racines comme des veines, la pierre qui suinte, et des choses qui rampent vers la lueur de ta lanterne."
 Ossuary of Kagari,Ossuary of Kagari,L'Ossuaire de Kagari
 Act II,Act II,Acte II
-"Where Kagari buried its dead, long ago. Since the Well woke up, they do not rest anymore.","Where Kagari buried its dead, long ago. Since the Well woke up, they do not rest anymore.","C'est ici que Kagari enterrait ses morts, il y a bien longtemps. Depuis que le Puits s'est éveillé, ils ne reposent plus."
+"Where Kagari laid its dead, long ago. Since the Well woke, the bones no longer lie still.","Where Kagari laid its dead, long ago. Since the Well woke, the bones no longer lie still.","Là où Kagari couchait ses morts, jadis. Depuis l'éveil du Puits, les os ne reposent plus."
 The Pyre Temple,The Pyre Temple,Le Temple-Bûcher
 Act III,Act III,Acte III
-A temple the Well swallowed whole. Its fires never went out. The souls' cries come from below.,A temple the Well swallowed whole. Its fires never went out. The souls' cries come from below.,Un temple que le Puits a englouti tout entier. Ses feux ne se sont jamais éteints. Les cris des âmes montent d'en bas.
+"A temple the Well swallowed whole, and its pyres with it. They still burn. The souls' cries rise from below.","A temple the Well swallowed whole, and its pyres with it. They still burn. The souls' cries rise from below.","Un temple que le Puits a englouti, et ses bûchers avec lui. Ils brûlent encore. Les cris des âmes montent d'en bas."
 Kingdom of Dust,Kingdom of Dust,Le Royaume de Poussière
 Act IV,Act IV,Acte IV
-"Under the temple, the Well opens onto a desert with no sky: a kingdom the sand swallowed whole. Its king still hoards what he took. Souls, mostly.","Under the temple, the Well opens onto a desert with no sky: a kingdom the sand swallowed whole. Its king still hoards what he took. Souls, mostly.","Sous le temple, le Puits s'ouvre sur un désert sans ciel : un royaume que le sable a englouti tout entier. Son roi y amasse encore ce qu'il a pris. Des âmes, surtout."
+"Beneath the pyres, the Well opens onto a desert with no sky: a kingdom the dust swallowed whole. Its king still hoards what he took. Souls, mostly.","Beneath the pyres, the Well opens onto a desert with no sky: a kingdom the dust swallowed whole. Its king still hoards what he took. Souls, mostly.","Sous les bûchers, le Puits s'ouvre sur un désert sans ciel : un royaume que la poussière a englouti tout entier. Son roi y amasse encore ce qu'il a pris. Des âmes, surtout."
 Ironclad,Ironclad,Cuirassé
 Bursting,Bursting,Fulminant
 Thorned,Thorned,Épineux
@@ -1299,42 +1299,42 @@ VOLLEY,VOLLEY,SALVE
 Whirlwind,Whirlwind,Tourbillon
 Hits every enemy around you and pushes them away.,Hits every enemy around you and pushes them away.,Frappe tous les ennemis autour de toi et les repousse.
 SPIN,SPIN,TOUPIE
-"Under the village of Kagari lies an old well.
-Nobody draws water from it.
-The elders say it has no bottom.","Under the village of Kagari lies an old well.
-Nobody draws water from it.
-The elders say it has no bottom.","Sous le village de Kagari dort un vieux puits.
-Personne n'y puise plus d'eau.
-Les anciens disent qu'il n'a pas de fond."
-"On a night without a moon, the Well woke up.
-A cold wind went through every house...
-By morning, the villagers were asleep, and would not wake.","On a night without a moon, the Well woke up.
-A cold wind went through every house...
-By morning, the villagers were asleep, and would not wake.","Par une nuit sans lune, le Puits s'est éveillé.
-Un vent glacé a traversé chaque maison...
-Au matin, les villageois dormaient, et ne se réveillaient plus."
-"Their souls were gone. Down the Well, where the dead things feed on them.","Their souls were gone. Down the Well, where the dead things feed on them.","Leurs âmes avaient disparu. Au fond du Puits, là où les choses mortes s'en repaissent."
-"Only you were spared: the ninja keeping watch at the shrine,
-with the shrine's lantern in your hand.","Only you were spared: the ninja keeping watch at the shrine,
-with the shrine's lantern in your hand.","Toi seul as été épargné : le ninja qui veillait au sanctuaire,
-la lanterne du sanctuaire à la main."
-"Three wardens guard the stolen souls, deeper and deeper in the Well.","Three wardens guard the stolen souls, deeper and deeper in the Well.","Trois gardiens veillent sur les âmes volées, toujours plus bas dans le Puits."
-"Take the lantern. Go down.
+"Beneath the village of Kagari sleeps an old well.
+No one draws water from it anymore.
+The elders say it has no bottom: only a mouth.","Beneath the village of Kagari sleeps an old well.
+No one draws water from it anymore.
+The elders say it has no bottom: only a mouth.","Sous le village de Kagari dort un vieux puits.
+Plus personne n'y puise d'eau.
+Les anciens disent qu'il n'a pas de fond : seulement une gueule."
+"On a moonless night, the Well woke.
+A cold breath passed through every house, and put out every flame...
+At dawn, the villagers slept, and would not wake.","On a moonless night, the Well woke.
+A cold breath passed through every house, and put out every flame...
+At dawn, the villagers slept, and would not wake.","Par une nuit sans lune, le Puits s'est éveillé.
+Un souffle glacé a traversé chaque maison, et éteint chaque flamme...
+À l'aube, les villageois dormaient, et ne se sont plus réveillés."
+"Their souls were gone: drawn down the Well, where the dead things feed.","Their souls were gone: drawn down the Well, where the dead things feed.","Leurs âmes n'étaient plus là : aspirées au fond du Puits, là où les choses mortes se repaissent."
+"Only you were spared: the ninja keeping vigil at the shrine,
+the shrine's lantern still burning in your hand.","Only you were spared: the ninja keeping vigil at the shrine,
+the shrine's lantern still burning in your hand.","Toi seul as été épargné : le ninja qui veillait au sanctuaire,
+la lanterne du sanctuaire encore allumée à la main."
+"Its wardens guard the stolen souls, each one deeper in the dark than the last.","Its wardens guard the stolen souls, each one deeper in the dark than the last.","Ses gardiens veillent sur les âmes volées, chacun plus profond dans les ténèbres que le précédent."
+"Take up the lantern. Descend.
 Every soul you bring back, the shrine turns into strength.
-Sword, spells or faith: become who you need to be.","Take the lantern. Go down.
+Steel, sorcery or faith: become what the dark demands.","Take up the lantern. Descend.
 Every soul you bring back, the shrine turns into strength.
-Sword, spells or faith: become who you need to be.","Prends la lanterne. Descends.
+Steel, sorcery or faith: become what the dark demands.","Prends la lanterne. Descends.
 Chaque âme que tu ramènes, le sanctuaire la change en force.
-Épée, sorts ou foi : deviens qui tu dois être."
-"The Keeper of the Well falls. Its hoard of stolen souls breaks open,
-and a river of light rises toward Kagari. The village wakes up.
-But the Well goes deeper still...","The Keeper of the Well falls. Its hoard of stolen souls breaks open,
-and a river of light rises toward Kagari. The village wakes up.
-But the Well goes deeper still...","Le Gardien du Puits s'effondre. Son trésor d'âmes volées se brise,
-et un fleuve de lumière remonte vers Kagari. Le village s'éveille.
+Acier, sorcellerie ou foi : deviens ce que l'ombre exige."
+"The last warden falls. Its hoard of stolen souls breaks open,
+and a river of light rises toward Kagari. The bell rings; the village wakes.
+But the Well goes deeper still...","The last warden falls. Its hoard of stolen souls breaks open,
+and a river of light rises toward Kagari. The bell rings; the village wakes.
+But the Well goes deeper still...","Le dernier gardien s'effondre. Son trésor d'âmes volées se brise,
+et un fleuve de lumière remonte vers Kagari. La cloche sonne ; le village s'éveille.
 Mais le Puits descend plus profond encore..."
 "Your soul joins the others, deep in the Well.","Your soul joins the others, deep in the Well.","Ton âme rejoint les autres, au fond du Puits."
-The lantern goes out... for now.,The lantern goes out... for now.,La lanterne s'éteint... pour l'instant.
+The lantern goes out... for now.,The lantern goes out... for now.,La lanterne s'éteint... pour cette nuit.
 The Well keeps you tonight. The shrine remembers the souls you brought back.,The Well keeps you tonight. The shrine remembers the souls you brought back.,Le Puits te garde cette nuit. Le sanctuaire se souvient des âmes que tu as ramenées.
 "Darkness. Then the shrine's bell, far above. Again.","Darkness. Then the shrine's bell, far above. Again.","Les ténèbres. Puis la cloche du sanctuaire, loin là-haut. Encore une fois."
 The souls you brought back from the Well lend you their strength.,The souls you brought back from the Well lend you their strength.,Les âmes que tu as ramenées du Puits te prêtent leur force.

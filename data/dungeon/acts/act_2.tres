@@ -32,7 +32,7 @@
 script = ExtResource("12_1aok4")
 title = "Ossuary of Kagari"
 subtitle = "Act II"
-lore = "Where Kagari buried its dead, long ago. Since the Well woke up, they do not rest anymore."
+lore = "Where Kagari laid its dead, long ago. Since the Well woke, the bones no longer lie still."
 biomes = Array[ExtResource("1_wenk7")]([ExtResource("2_au71w"), ExtResource("3_rhuyj")])
 boss_biome = ExtResource("2_au71w")
 monsters = Array[ExtResource("2_etibi")]([ExtResource("3_0slpj"), ExtResource("4_dw8h1"), ExtResource("5_yjv1g"), ExtResource("6_3r1nu"), ExtResource("7_rvqiy"), ExtResource("8_4wi7y"), ExtResource("9_gxe60"), ExtResource("10_wciqp"), ExtResource("11_lmuqr"), ExtResource("18_lmuqr"), ExtResource("19_1aok4"), ExtResource("23_au71w")])

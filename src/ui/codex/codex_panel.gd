@@ -242,7 +242,7 @@ func _fill_runs() -> void:
 	_records.text = records
 	_records.visible = not records.is_empty()
 	if Profile.history.is_empty():
-		_list.add_child(UiSkin.label(tr("No run finished yet. Go down the Well!"), 18, UiSkin.DIM))
+		_list.add_child(UiSkin.label(tr("No descent finished yet. The Well is waiting."), 18, UiSkin.DIM))
 	for entry: Dictionary in Profile.history:
 		_list.add_child(CodexRows.run_row(entry, _content))
 
