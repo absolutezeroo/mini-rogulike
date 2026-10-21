@@ -7,6 +7,13 @@ enum Kind { MELEE, RANGED }
 ## Which attack animation the wielder plays (see the WeaponAnimator in actor_rig.tscn).
 ## A weapon without icon (claws, bites) makes the wielder lunge instead.
 enum AttackAnimation { SLASH, THRUST, SMASH, SHOOT }
+## Where the hero carries it at rest (ActorRig, docs/vfx.md "The weapon at rest").
+enum BackKind {
+	## Across the back, on the diagonal: behind the body, in front when he turns his back to us.
+	SLUNG,
+	## At the belt, on his side (a tome, shurikens, a coiled whip).
+	HIP,
+}
 
 @export var kind: Kind = Kind.MELEE
 @export var damage: int = 4
@@ -34,6 +41,16 @@ enum AttackAnimation { SLASH, THRUST, SMASH, SHOOT }
 ## projectile texture fires the element's projectile, a claw without an attack_fx strikes with
 ## the element's claw, and hits flash in the element's language (docs/vfx.md).
 @export var element: VfxElementDef
+
+@export_group("At rest")
+## The weapon carried while the hero isn't attacking (assets/weapons/back/, made by
+## tools/vfx/back_weapons.py): small pixel art at the in-hand size, a slung one drawn along the
+## "/" diagonal with the end over the shoulder at the top right, never turned by code. None:
+## nothing shows at rest (monsters' weapons).
+@export var back_sprite: Texture2D
+## Art pixels it is moved by from its kind's place (facing down; mirrored as the hero turns).
+@export var back_offset: Vector2 = Vector2.ZERO
+@export var back_kind: BackKind = BackKind.SLUNG
 
 @export_group("Melee")
 @export_range(10.0, 360.0) var arc_degrees: float = 110.0

@@ -46,6 +46,10 @@ func run() -> void:
 	var vfx := VfxTests.new()
 	vfx.run()
 	vfx.free()
+	var gear := GearLookTests.new()
+	add_child(gear)
+	gear.run()
+	gear.free()
 
 
 ## Text keeps whole pixels (Fonts, docs/design/interface.md "Text"): the font is drawn sharp, on its

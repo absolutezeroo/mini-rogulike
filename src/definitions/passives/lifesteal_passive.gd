@@ -15,3 +15,8 @@ func on_hit_dealt(owner: Actor, target: Actor, hit: HitInfo, damage: int, perk: 
 		# The blood it drinks, drawn out of the wound into it (docs/vfx.md, blood).
 		owner.world.spawn_vfx(BloodDrainVfx.create(target.global_position + Vector2(0, -target.radius), owner, 2 if healed < 3 else 3))
 		owner.world.spawn_floating_text(owner.head_position(), "+%d" % healed, Palette.HEAL)
+
+
+## Drinking blood shows as blood on the weapon (ItemLook).
+func look_element() -> VfxElementDef:
+	return VfxElementDef.named(&"blood")

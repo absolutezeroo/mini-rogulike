@@ -189,6 +189,7 @@ bits on the rim).
 | Particles | `src/vfx/particles/`, `src/vfx/ambient/`, `pixel_particles.gdshader(.inc)` | materials `pixel_particles` (dither per art pixel), `_motes` (whole motes come and go), `_glow` (added light, stepped brightness); `PixelMotes` (`src/vfx/ambient/pixel_motes.gd`) simulates ambient motes by hand on the grid |
 | `StatusLookDef`, `StatusFx` | `data/vfx/status_looks/`, `src/vfx/status_fx.gd` | particle, motes (EMBER, BUBBLE, CHIP), crust (rime), mist, burst, all at texel 2 in the element's ramp; `body` (HEAT, RIME, WAVE, FLICKER: what the body shader paints), `heavy_at` |
 | `BodyLook`, `flash.gdshader` | `src/vfx/body_look.gd`, `assets/shaders/flash.gdshader` | the body shader (section 9): statuses, a storm hit's crackle, an elite's rim, deaths; `BodyLook.ramps()` / `row(element)`, `warm_up(parent)`; the rig's `look` |
+| `RarityLookDef`, `ItemLook`, `LootShine`, `WeaponAura` | `src/definitions/items/rarity_look_def.gd`, `data/items/rarity_looks.tres`, `src/vfx/item_look.gd`, `src/entities/pickup/loot_shine.gd`, `src/vfx/weapon_aura.gd` | gear (section 10): a rarity's look on the ground, in a slot and worn (`ItemRarity.look`), the elements a weapon carries (`ItemLook.elements`, `Passive.look_element`), loot's parts on the floor, a weapon's motes; `BodyLook.follow` for a layer's own copy of the body shader |
 | `DeathLookDef`, `DeathFx`, `DeathPiecesVfx` | `data/vfx/deaths/`, `src/vfx/death_fx.gd`, `src/vfx/death_pieces_vfx.gd` | a death by element (`VfxElementDef.death`, `HitInfo.element` of the killing blow, ticks included): style, timing, chunks, burst, shards, motes, piece, mark |
 | Tools | `tools/vfx/` | `vfxkit.py` (palette-locked drawing), `recolor.py` (palette swap to a file), `check.py` (palette, hard alpha, whole cells), `strokes.py` (lines, jagged paths, rims, glints, rhombi, ellipses), `liquid.py` (round, wet shapes: tubes, lumps of gas, drops, bubbles, rings), one rebuildable script per kit: `frost.py`, `fire.py`, `earth.py`, `storm.py`, `holy.py`, `shadow.py`, `arcane.py`, `poison.py`, `blood.py`, `spirit.py` |
 
@@ -393,11 +394,20 @@ slicer, element exports) serves the others; what each still needs:
   bodies (the body shaders' work) and the poison puddle marks (SplatLayer) don't move yet; the
   level up's light and Holy Shield have no halo of their own.
 
+- **Gear** (done, section 10): rarity shows on the ground (rim, glint, gold pulse, Epic's aura,
+  motes and pillar of light), in slots (frames, Epic's sheen, rune gems in their element) and
+  worn (a trim on the armor's hem and the weapon's outline, Epic's glint); a weapon carrying an
+  element licks with it along its rim and throws its motes, in hand and at rest; the hero
+  carries his weapon on his back or at his hip. Left: the bag's portrait of the hero shows no
+  gear; shots (arrows, the wand's sparks) don't take a rune's element; armor affixes (of
+  Thorns, of Echoes on a helm) show nothing worn.
+
 ## 9. Shaders on bodies
 
 A body's statuses, an elite's rim and its death are painted on the body itself by the rig's
 shader (`assets/shaders/flash.gdshader`, on the `Visual` node: the body, armor, helmet and
-weapon sprites share it), driven by `BodyLook` (`src/vfx/body_look.gd`, the rig's `look`).
+weapon sprites share it; the hero's rare armor and his weapon wear copies that follow it, for
+their trim: section 10), driven by `BodyLook` (`src/vfx/body_look.gd`, the rig's `look`).
 StatusFx's flames, crystals, bubbles and mist stay as the accent; the shader is the base. One
 shader for everything, flags as uniforms: each rig already had its own material (the hit
 flash), so nothing about batching changes.
@@ -474,3 +484,96 @@ ticks carry theirs) picks `VfxElementDef.death`; none (a plain blow) is physical
   calls with a burning pack.
 - `BodyLook.warm_up` draws the shader's busy path once under the floor when the world starts,
   so the Compatibility renderer compiles it while loading, not at the first burning monster.
+
+## 10. Rarity and runes, and the weapon at rest
+
+Loot used to look the same whatever it was: a plain katana and an Epic one with two runes were
+the same sprite on the floor, on the hero and in his hand. Now an item says what it is wherever
+it shows, in one language: its **rarity** is a ladder of signs (each step keeps the one below and
+adds one), the **elements it carries** show as that element's kit, and the hero **carries his
+weapon** when he isn't swinging it.
+
+### Rarity (RarityLookDef)
+
+One look per rarity in `data/items/rarity_looks.tres` (`RarityLookSet`, `ItemRarity.look(r)`),
+each with a ramp written as an element's (`element`: a `VfxElementDef` sub-resource that is not
+listed with the game's elements, so its halo, light, motes and the shader's steps come from the
+same tools). Its accent is the rarity's color (`ItemRarity.COLORS`, a test keeps them equal).
+
+| Rarity | Ramp (core → edge) | On the ground | In a slot | Worn (armor hem, weapon outline) |
+|---|---|---|---|---|
+| Common | `f6f2ea ebe6db b0aa9e 6e675f 3c3834` | plain: its shadow | plain | plain |
+| Magic | `e8f3ff a8d0ff 5ea8ff 3a66c4 24306e` | a rim of its blue round the icon, a glint running over it (then 2.2 s of rest) | blue frame | blue trim |
+| Rare | `fff6d8 ffe7a3 ffd166 c08a35 6a4220` | gold rim, a glint (1.6 s of rest), a gold ring lying under it and a pulse running out of it every 1.4 s (GROUND), a small light | gold frame | gold trim, a weapon's highlights gilded |
+| Epic (shown as Epic; the monster rank `epic` is Fell, a different thing) | `f9e8ff e3b6ff c77dff 8a3fc4 581848` | purple rim, a glint (1.2 s of rest), an aura (a band of its dark step on the floor, its edge a step brighter, a checker only on its outer rim, breathing by a pixel; GROUND), motes rising (AIR), a halo (`GlowHalo`), a light, and a **pillar of light** 36 art pixels tall (STANDING): a near-white core, its color either side, wider at the foot, its upper half broken into dashes further and further apart and thinning to the core, a brighter stretch climbing it | purple frame and a **sheen**: a band two icon pixels wide crossing the icon on the diagonal at 20 fps, then a pause | purple trim, gilded highlights, a glint sweeping across every 2.5 s |
+
+- The parts on the floor are `LootShine` children of the `ItemPickup`, each on its layer (the
+  pillar sorts with the actors: a monster in front of it hides it). The icon's rim and glint are
+  drawn by the pickup itself, on the icon's own pixels. A rune on the floor wears its element's
+  rim and glint (`ItemLook.rune_element`).
+- **Fewer effects** keeps what tells the rarity (the rim, the glint, the ring, the aura, the
+  pillar) and drops the motes, the halo, the pillar's climbing light and the worn glint.
+- Lessons: a dithered disc or a pillar faded by a Bayer pattern reads as a screen door (the
+  first try); a band of one step with a checker only on its edge, and a pillar fading by whole
+  rows missing, read as light. A trim on the whole rim of a worn armor painted the whole piece
+  (the layers are 4-5 pixels thick): armor takes it on its **hem** only (`trim_hem`: the texel
+  under it is empty: a tunic's hem, a helm's brim), weapons on their outline.
+
+### Elements carried (ItemLook)
+
+`ItemLook.elements(item)` is the one place that reads them, so new content shows for free, in
+order: the weapon's own `element` (the Frost Staff, the Spark Wand, the Ember Tome), its runes
+(`Passive.look_element()`: the passive's `element`, `blast_element`, `shard_element` or
+`crit_element`; drinking blood (Lifesteal, Heal on kill, Bloodlust) is blood, Echo and Prism are
+arcane), the statuses its hits leave (`on_hit`: burn is fire, poison is poison, a slow its
+`slow_element` or frost), its affixes' statuses and passives. Bonuses alone (Sharp, of the Bear)
+carry nothing. At most two show (`ItemLook.MOST`).
+
+- **On the weapon** (in hand and at rest): the body shader's `imbue` paints half the pixels of
+  its rim in the first element's ramp, changing ten times a second (a flicker of flame, a
+  glitter of rime, storm's violet, blood's red), and `WeaponAura` throws a few motes born on the
+  weapon's own pixels in each element's bit, ramp and motion: fire's teardrops rise, frost's
+  chips fall, poison's rings sink, storm's forks fly out, holy's glints fall slowly, shadow's
+  motes are drawn in, arcane's runes orbit, blood drops fall. Fewer effects: no motes.
+- **The swing**: the hero's blade swings in what it carries when it has no element of its own
+  (`ItemLook.swing_element`: a katana with an Ember Rune draws a fire arc). Monsters keep theirs.
+  Hits, shots and deaths keep the weapon's own element (a rune's fire is a chance, not every hit).
+- **In a slot**: rune sockets are small gems cut in their rune's element (its color, a lit
+  facet, a dark one).
+
+### The weapon at rest
+
+The hero (`ActorRig.carries_weapon`, `Actor._shows_gear()`: the Player) carries his weapon when
+it isn't in his hand: `WeaponDef.back_sprite`, `back_kind`, `back_offset`.
+
+- **Art**: `assets/weapons/back/<id>.png`, made by `tools/vfx/back_weapons.py` (rebuild:
+  `python3 tools/vfx/back_weapons.py --preview /tmp/back_x8.png`). The hero is a 15-pixel chibi
+  and a weapon in hand is about 10 pixels long, so the icons (14-23 pixels) are redrawn at that
+  size in their own colors, never turned by code: a slung weapon along a 45-degree "/" diagonal
+  (a profile along its length: core pixel, width, pixels across for a guard or a head, outlined
+  by 4-neighbours), the end that rides over the shoulder (a hilt, an axe's or hammer's head, a
+  lance's point, a staff's head) at the top right; hip things drawn as they are.
+- **Where** (`ActorRig.BACK_PLACES`, art pixels from the feet): `SLUNG` across the back, behind
+  the body facing down, left and right (the top end peeking over the shoulder beside the big
+  head), in front facing up (his back is to us), mirrored for up and right; `HIP` at the belt
+  (the Ember Tome, shurikens, the coiled whip), in front except on the far side. Bows and staffs
+  are slung. Sprites sit on whole art pixels (`centered` off, corners floored).
+- **Bob**: it moves with the body's art frame by frame (the top row of the frame's art against
+  the animation's first frame), so it never floats while he breathes, walks or rolls.
+- **Hidden** while the weapon is in hand (the attack frames take over), while winding up and
+  once dead. Monsters carry nothing (their weapons are claws and fists).
+- **Draw order** in Squash: the weapon at rest, then its `WeaponAura` right after it (so motes of
+  a weapon behind him are hidden by him), then Body, BodyArmor, Helmet, Weapon; facing up both
+  move to the end, over the armor. No cape layer exists; a future one goes over the weapon at rest.
+
+### On the body shader
+
+Worn gear needs uniforms of its own while the body's statuses, flash and death stay one: the
+hero's armor layers (above Common) and his weapon (in hand and at rest share one material: they
+never show together) wear **copies of the body shader** that follow the body's
+(`BodyLook.follow(material, own_frame)`: every uniform BodyLook or the rig's flash sets is set
+there too, but a weapon's `frame_rect`, which is its own sprite's). Their own uniforms: `trim`
+(0 none, 1 its rim or hem in the rarity's steps, 2 and a weapon's brightest pixels gilded),
+`trim_row`, `trim_hem`, `trim_sweep` (seconds between glints, 24 fps, then a pause), `imbue`,
+`imbue_row`. Bodies keep them at 0: the cheap path tests two more uniforms. The hero draws up to
+four materials instead of one (body, armor, helm, weapon): a few draw calls, for one actor.

@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_05to4"]
 [ext_resource type="Resource" path="res://data/skills/player/lash.tres" id="9_extgn"]
 [ext_resource type="Resource" path="res://data/skills/player/battle_cry.tres" id="10_32a85"]
+[ext_resource type="Texture2D" path="res://assets/weapons/back/whip.png" id="back_sprite"]
 
 [resource]
 script = ExtResource("7_uhab8")
@@ -33,3 +34,5 @@ glyph = "W"
 color = Color(0.83137256, 0.6392157, 0.4509804, 1)
 min_depth = 2
 spawn_weight = 5
+back_sprite = ExtResource("back_sprite")
+back_kind = 1

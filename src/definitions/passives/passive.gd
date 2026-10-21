@@ -55,3 +55,15 @@ func on_died(_owner: Actor, _perk: PerkSet.Entry) -> void:
 ## The owner is about to die. Return true to keep it alive (it is the passive's job to restore HP).
 func prevent_death(_owner: Actor, _perk: PerkSet.Entry) -> bool:
 	return false
+
+
+## The element it shows as on a weapon that carries it (an affix, a rune: ItemLook): the
+## element it strikes with (`element`, `blast_element`, `shard_element`, `crit_element`), null
+## when it is none (a plain bonus). Passives that are an element without saying so (drinking
+## blood, arcane echoes) override it.
+func look_element() -> VfxElementDef:
+	for property: StringName in [&"element", &"blast_element", &"shard_element", &"crit_element"]:
+		var value: Variant = get(property)
+		if value is VfxElementDef:
+			return value
+	return null

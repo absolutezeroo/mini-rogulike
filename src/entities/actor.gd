@@ -125,11 +125,12 @@ func _ready() -> void:
 
 ## Weapon in hand and worn armor, from the equipment.
 func _refresh_look() -> void:
+	rig.carries_weapon = _shows_gear()
 	rig.set_weapon(get_weapon())
 	for slot: EquipmentDef.Slot in [EquipmentDef.Slot.HEAD, EquipmentDef.Slot.BODY]:
 		var armor := equipment.get_item(slot) as ArmorDef
 		if armor and armor.wear_frames:
-			rig.set_wear(slot, armor.wear_frames, armor.wear_color)
+			rig.set_wear(slot, armor.wear_frames, armor.wear_color, armor.rarity)
 		else:
 			rig.set_wear(slot, null, Color.WHITE)
 
@@ -583,6 +584,12 @@ func _body_modulate() -> Color:
 ## the full effects on (Settings.fewer_effects: the flat tint instead).
 func _shader_shows_statuses() -> bool:
 	return rig != null and rig.visible and not Settings.fewer_effects
+
+
+## The rig shows the weapon at rest and the gear's rarity and elements (ActorRig.carries_weapon):
+## the hero's, whose gear is loot; monsters' weapons are their claws and fists.
+func _shows_gear() -> bool:
+	return false
 
 
 func _draw() -> void:

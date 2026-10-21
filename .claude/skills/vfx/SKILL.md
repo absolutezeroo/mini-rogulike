@@ -89,7 +89,13 @@ The bar is Dead Cells / Blasphemous: hand-made pixels at the art's size, one lan
   overlap it; bloom inside bright shapes dots them (bleed only into darker pixels); gas that is
   only darker reads as bushes, gas needs a bright rim and holes. In a canvas shader `COLOR`
   already holds the texel: `texture(TEXTURE, UV) * COLOR` squares the colors (much darker);
-  check a shader's output against the sheet's own colors (count them in a crop).
+  check a shader's output against the sheet's own colors (count them in a crop). A dithered
+  disc or a column faded by Bayer reads as a screen door too: a band of one step with a checker
+  only on its edge, a pillar fading by whole rows missing (dashes further apart) read as light.
+- Gear and items (docs/vfx.md section 10): what an item shows comes from its data through
+  `ItemLook` (rarity looks, carried elements); small art redrawn at the size it is seen (a weapon
+  at rest: `tools/vfx/back_weapons.py`, a profile along a 45-degree diagonal, outlined by
+  4-neighbours) rather than an icon scaled or turned.
 - New behaviour goes in a small class or the element data, not in `Actor`/`Monster`/`World`.
 
 ## 5b. On a body: the rig's shader, not another node
@@ -111,6 +117,11 @@ The bar is Dead Cells / Blasphemous: hand-made pixels at the art's size, one lan
   colors); the room's warm light turns near-white beige (use the mid steps for cold things);
   `Image.set_pixel` truncates (round colors to 8 bits yourself); `AtlasTexture.get_rid()` is
   its atlas's (don't cache by RID per frame).
+- A layer that needs uniforms of its own (a worn piece's rarity trim, a weapon's element:
+  docs/vfx.md section 10) gets a copy of the body shader that follows the body's
+  (`BodyLook.follow(material, own_frame)`), never a second shader: statuses, the flash and the
+  death stay one look. Paint a thin layer sparingly (armor layers are 4-5 pixels thick: a trim on
+  their whole rim repaints the piece; on the hem only it reads as a trim).
 - Perf: keep the plain branch cheap (no reads beyond the texel), test the busy path with
   a bench in `_tool/` (gitignored: 30 rigs at the game zoom, statuses on or off, the render
   time measured with `viewport_set_measure_render_time`) under xvfb.

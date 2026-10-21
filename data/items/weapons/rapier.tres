@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_lobrh"]
 [ext_resource type="Resource" path="res://data/skills/player/riposte.tres" id="10_a65b0"]
 [ext_resource type="Resource" path="res://data/skills/player/piercing_thrust.tres" id="11_b0na8"]
+[ext_resource type="Texture2D" path="res://assets/weapons/back/rapier.png" id="back_sprite"]
 
 [sub_resource type="Resource" id="Resource_xbxxo"]
 script = ExtResource("5_xqm3c")
@@ -38,3 +39,4 @@ glyph = "R"
 color = Color(0.95686275, 0.827451, 0.36862746, 1)
 min_depth = 2
 spawn_weight = 6
+back_sprite = ExtResource("back_sprite")

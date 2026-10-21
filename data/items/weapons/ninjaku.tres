@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_8jacy"]
 [ext_resource type="Resource" path="res://data/skills/player/kunai_fan.tres" id="10_ykh10"]
 [ext_resource type="Resource" path="res://data/skills/player/shadow_step.tres" id="11_5k5vi"]
+[ext_resource type="Texture2D" path="res://assets/weapons/back/ninjaku.png" id="back_sprite"]
 
 [sub_resource type="Resource" id="Resource_dcnbj"]
 script = ExtResource("5_xwuyb")
@@ -36,3 +37,4 @@ icon = ExtResource("7_p6yh3")
 glyph = "N"
 color = Color(0.5568628, 0.7921569, 0.9019608, 1)
 spawn_weight = 7
+back_sprite = ExtResource("back_sprite")
