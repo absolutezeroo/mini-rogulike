@@ -38,6 +38,7 @@
 [ext_resource type="Resource" path="res://data/pacts/fast.tres" id="104_fast"]
 [ext_resource type="Resource" path="res://data/pacts/tithe.tres" id="105_tithe"]
 [ext_resource type="Resource" path="res://data/props/furniture/candles.tres" id="106_candles"]
+[ext_resource type="Resource" path="res://data/abyss/abyss.tres" id="107_abyss"]
 
 [resource]
 script = ExtResource("1_qfnhp")
@@ -80,6 +81,7 @@ cracked_wall = ExtResource("92_crack")
 secret_rewards = Array[ExtResource("93_reward")]([ExtResource("94_coffer"), ExtResource("95_shrine"), ExtResource("96_rune"), ExtResource("97_gold"), ExtResource("98_draughts")])
 secret_whisper = ExtResource("99_whisper")
 hidden_floor = ExtResource("100_hidden")
+abyss = ExtResource("107_abyss")
 pact_chance = 0.7
 pacts = Array[ExtResource("101_pactdef")]([ExtResource("102_untouched"), ExtResource("103_knell"), ExtResource("104_fast"), ExtResource("105_tithe")])
 pact_light = ExtResource("106_candles")

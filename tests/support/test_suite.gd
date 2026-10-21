@@ -142,7 +142,7 @@ func _bot_play(game: Game, frames: int) -> void:
 	var chase_frames := 0
 	for frame in frames:
 		var player: Player = game.player
-		var world: World = game.world
+		var world: World = player.world  # (his floor, or the Deeps he fell into: he fights there)
 		if player.is_dead:
 			break
 		if game.perk_panel.visible:
@@ -318,3 +318,84 @@ func _win_trial(game: Game) -> bool:
 		await _frames(1)
 	player.invincible = was_invincible
 	return await _until_home(game)
+
+
+## Holes dug by the tests ([world, cell]), filled again by _fill_holes() (a hole left behind would
+## take the hero into the Deeps in a later test).
+var _dug: Array = []
+
+
+## A hole by the hero and a walk into it: he stands on safe ground two cells away first. Returns
+## where he stood (where a climb out puts him back).
+func _walk_into_hole(world: World, player: Player, margin: int = 3) -> Vector2:
+	var hole := _open_cell_near(world, player.global_position, margin)
+	world.add_pit(hole, load("res://data/hazards/pit.tres"))
+	_dug.append([world, hole])
+	var safe := world.map.cell_to_world(hole + Vector2i.LEFT * 2)
+	player.global_position = safe
+	await _frames(3)
+	player._invulnerable_time = 0.0
+	player.global_position = world.map.cell_to_world(hole)
+	return safe
+
+
+## Waits until the hero is down in the Deeps (the veil lifted). False if he never got there.
+func _until_deeps(game: Game, seconds: float = 4.0) -> bool:
+	for i in int(seconds * 60.0):
+		if game.abyss.is_searching():
+			return true
+		await _frames(1)
+	return game.abyss.is_searching()
+
+
+## Waits until the hero is back up from the Deeps. False if he never came back.
+func _until_out_of_deeps(game: Game, seconds: float = 4.0) -> bool:
+	for i in int(seconds * 60.0):
+		if not game.abyss.is_open():
+			return true
+		await _frames(1)
+	return not game.abyss.is_open()
+
+
+## The hero steps into the Dawn Breach and comes back up. False if he never came back.
+func _escape_deeps(game: Game) -> bool:
+	var depths := game.abyss.depths
+	if depths == null or depths.door == null:
+		return false
+	game.player.global_position = depths.door.global_position
+	return await _until_out_of_deeps(game)
+
+
+## Up to `count` free floor points between `near` and `far` cells from `from`, spread apart.
+func _free_points_away(world: World, from: Vector2, near: int, far: int, count: int) -> Array[Vector2]:
+	var origin := world.map.world_to_cell(from)
+	var found: Array[Vector2] = []
+	for y in range(origin.y - far, origin.y + far + 1):
+		for x in range(origin.x - far, origin.x + far + 1):
+			var cell := Vector2i(x, y)
+			var distance := Vector2(cell - origin).length()
+			if distance < near or distance > far or not world.map.in_bounds(cell) or not world.is_free_cell(cell):
+				continue
+			var point := world.map.cell_to_world(cell)
+			if found.all(func(other: Vector2) -> bool: return other.distance_to(point) > 128.0):
+				found.append(point)
+				if found.size() >= count:
+					return found
+	return found
+
+
+## Fills the holes the tests dug (and `more` cells of `world`), as solid floor again.
+func _fill_holes(world: World = null, more: Array[Vector2i] = []) -> void:
+	for cell in more:
+		_dug.append([world, cell])
+	for dug: Array in _dug:
+		if not is_instance_valid(dug[0]):
+			continue  # (the Deeps it was dug in are gone)
+		var where := dug[0] as World
+		if where.map == null:
+			continue
+		var cell: Vector2i = dug[1]
+		where._pits._pits.erase(cell)
+		where._pits.queue_redraw()
+		where.set_cell_blocked(cell, false)
+	_dug.clear()

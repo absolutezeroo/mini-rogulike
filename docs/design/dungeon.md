@@ -15,9 +15,11 @@
     **flame vents** that also set you on fire, **arrow traps** (a plate wired to a slit in a wall:
     arrows fly across the room). They always warn before they strike.
   - **Holes**: anything that walks or is knocked in falls. Monsters are gone (you get the XP if
-    you pushed them), the hero climbs out where they last stood safely and loses 15% HP.
-    Rolling carries you over; flying monsters (bats, ghosts...) don't care. Walking monsters
-    steer around holes, so knock them in.
+    you pushed them). The hero, on a floor, falls deeper into the Well: **the Deeps** (below).
+    On a boss floor (a boss must not be frozen mid-fight, and its arena's floor crumbles), on the
+    hidden floor and in the Deeps themselves he climbs out where he last stood safely instead and
+    loses 15% of his max Health (`PitDef.fall_damage`). Rolling carries you over; flying monsters
+    (bats, ghosts...) don't care. Walking monsters steer around holes, so knock them in.
   - **Crumbling floor**: cracked tiles that hold until someone stands on them, then give way.
   - **Quicksand** (ruins) and **mud** (caves): very slow to cross, and they hurt if you stay.
   - Hazards are never placed where they could cut the stairs off.
@@ -94,6 +96,52 @@
   and always drop an item. Their affix is a perk, like the hero's: **Swift**, **Vampiric**
   (heals when hitting), **Bursting** (blows up when it dies), **Ironclad**, **Venomous**
   (poisons), **Thorned** (hurts who hits it).
+
+## The Deeps (Les Tréfonds)
+
+A hole on a floor is not only a stumble: the hero **falls deeper into the Well**, into the Deeps
+(`AbyssDef`, `data/abyss/abyss.tres`, set in `DungeonConfig` > Abyss; run by `Abyss`,
+`src/game/abyss.gd`, hosted in an `AbyssWorld`). Under the Well there is more Well.
+
+- **When.** A fall into a hole or through cracked floor on a normal floor (`Abyss.can_take()`).
+  Not on a boss floor (the old rule there: climb out, lose 15%), not on the hidden floor, not
+  from the Threshold or from the Deeps themselves (a hole down there: the old rule). Monsters
+  knocked into a hole still die as before. Without a Deeps (the balance tools' bare arena,
+  `DungeonConfig.abyss` empty) a fall is the old rule everywhere.
+- **The floor waits.** As for the Threshold (a shared `SubWorld`, `src/game/sub_world.gd`): the
+  floor's `World` freezes and leaves the scene tree just as it is (its monsters, a pact's fight,
+  an ambush, the shots in the air); a dark red veil falls; the hero lands in the Deeps, **hurt by
+  the fall** (`fall_damage`: 5% of his max Health, less his Armor; it can kill), his statuses
+  left behind, his torch burning low (`torch_level` 9, 12 on the floors).
+- **The place.** A small maze of the generator's rooms (`DungeonGenerator.generate_small`:
+  8 rooms of 6 to 10 cells in 56 x 44, corridors 2 wide), its own look (`abyss_theme.tres`: dark
+  cave tiles, an ember-red light ramp at ambient 2 out of 15, embers in the air, the burning ruins'
+  grounds and decor, no scenes), a couple of holes (`hazards`, never cutting the way off), no
+  lanterns, no stairs, no seal, no loot but what the demons drop.
+- **The demons** (monsters.md, "The Deeps' demons") wait in the rooms (`room_demons`: 1-2 a
+  room, asleep until they see him) and **crawl out of the dark in waves**: the first 2 s after the
+  veil lifts, then every 8 s (1 s quicker each act, never under 3 s); 2 demons (+1 every second
+  wave, +1 per act), half of them on the way ahead to the door (`ahead_share`: outrunning them is
+  not a way out), the rest 6-11 cells around him; no more than 6 of the waves' demons up at once
+  (+1 per act). 5% of them are elites. From Act III a **Breach Warden** stands in front of the
+  door. No timer: the waves are the pressure. They are real monsters: XP, gold, kills, bestiary.
+- **The way out: the Dawn Breach** (*La Brèche de l'Aube*, `AbyssDoor`): a doorway torn in the
+  dark with daylight behind it, standing in the room farthest from where he lands **on foot**,
+  lighting the cave around it (light 13, daylight white), drawn in holy's ramp (docs/vfx.md). To
+  find it on a phone: a golden light runs ahead along the way when the veil lifts and every 20 s
+  (`guide_every`), and an **arrow of light circles the hero toward it** while it is out of sight
+  (`AbyssHud`). The top of the screen names it, with the seconds left for the dawn's gift.
+- **Back up.** Stepping into the Breach brings him back to **the last safe spot by the hole**,
+  his Health as he left the Deeps (the Deeps were the cost), with 1.5 s of grace (`return_grace`)
+  and his torch back. **Out quick** (`quick_time`: 30 s, +5 s each act) earns **the dawn's gift**
+  at his feet: gold (12, +8 an act, through the floor's gold rules) and a 60% roll of a potion, a
+  greater potion or a bomb (`gift_loot`).
+- **Death down there is death**: the run ends in the Deeps. With a second life the trial of the
+  **Threshold opens from the Deeps** and, won, puts him back in the Deeps where he fell (builds.md).
+- **Around it:** the run's clock keeps counting; nothing is saved while he is down there
+  (`Game._save_run()`: a run picked up again is as it was before the fall); the bag, the belt
+  and perk choices work (it is a fight like any other), but no menu opens on the way down or up;
+  the floor's map, seal and boss bar are put away until he is back. The first fall shows a hint.
 
 ## Secret rooms
 

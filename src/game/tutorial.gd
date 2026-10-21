@@ -19,6 +19,8 @@ const CUES: Array[StringName] = [
 	&"offer_waiting",
 	# The Game: a second life opened the trial of the Threshold.
 	&"threshold",
+	# The Game: a fall took the hero into the Deeps (Abyss).
+	&"abyss",
 	# Title screen only (TitleScreen.show_menu_hint()): the Tree of Souls and the oaths.
 	&"menu_souls", &"menu_shrine", &"menu_oath",
 ]

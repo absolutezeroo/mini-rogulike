@@ -4,6 +4,8 @@ Rekindling the lantern...,Rekindling the lantern...,On ravive la lanterne...
 The Well of Souls,The Well of Souls,Le Puits des Âmes
 Freezing!,Freezing!,Tu gèles !
 Burning up!,Burning up!,Tu brûles !
+The Deeps,The Deeps,Les Tréfonds
+The Dawn Breach,The Dawn Breach,La Brèche de l'Aube
 Act,Act,Acte
 Known,Known,Connu
 Hunted,Hunted,Traqué
@@ -161,6 +163,9 @@ LEVEL UP,LEVEL UP,NIVEAU SUPÉRIEUR
 You fell into a hole!,You fell into a hole!,Tu es tombé dans un trou !
 giving up,giving up,l'abandon
 Your soul slips into the Well.,Your soul slips into the Well.,Ton âme glisse dans le Puits.
+You fall into the Deeps. Find the Dawn Breach to climb back up.,You fall into the Deeps. Find the Dawn Breach to climb back up.,Tu chois dans les Tréfonds. Trouve la Brèche de l'Aube pour remonter.
+The light takes you back up.,The light takes you back up.,La lumière te ramène là-haut.
+Out before the dark closed in: the dawn leaves you a gift.,Out before the dark closed in: the dawn leaves you a gift.,Sorti avant que l'ombre ne se referme : l'aube te laisse un présent.
 Seen,Seen,Vu
 Unknown,Unknown,Inconnu
 Ambush!,Ambush!,Embuscade !
@@ -224,6 +229,7 @@ Slain: %d of %d kinds     Mastered: %d     Celestial found: %d,Slain: %d of %d k
 floor %d,floor %d,étage %d
 floors %d to %d,floors %d to %d,étages %d à %d
 %s     %d of %d slain,%s     %d of %d slain,%s     %d sur %d abattus
+under the holes of every floor     %d of %d slain,under the holes of every floor     %d of %d slain,sous les trous de chaque étage     %d sur %d abattus
 Achievements: %d of %d     Souls earned from them: %d,Achievements: %d of %d     Souls earned from them: %d,Succès : %d sur %d     Âmes gagnées grâce à eux : %d
 Runs: %d     Wins: %d     Deepest floor: %d,Runs: %d     Wins: %d     Deepest floor: %d,Parties : %d     Victoires : %d     Étage le plus profond : %d
 No descent finished yet. The Well is waiting.,No descent finished yet. The Well is waiting.,Aucune descente achevée. Le Puits t'attend.
@@ -367,12 +373,15 @@ Gold was only for this run.,Gold was only for this run.,L'or ne valait que pour 
 Keep going (endless),Keep going (endless),Continuer (sans fin)
 Title screen,Title screen,Écran titre
 "Keep going: endless floors, harder and harder. Your win is already counted.","Keep going: endless floors, harder and harder. Your win is already counted.","Continuer : des étages sans fin, de plus en plus durs. Ta victoire est déjà comptée."
+Find the Dawn Breach. The demons will not wait.,Find the Dawn Breach. The demons will not wait.,Trouve la Brèche de l'Aube. Les démons n'attendront pas.
+Dawn's gift: %d s,Dawn's gift: %d s,Présent de l'aube : %d s
 Achievement: %s  (+%d souls),Achievement: %s  (+%d souls),Succès : %s  (+%d âmes)
 "Bestiary: %s, %s  (+%d souls)","Bestiary: %s, %s  (+%d souls)","Bestiaire : %s, %s  (+%d âmes)"
 Challenge done: %s  (+%d souls),Challenge done: %s  (+%d souls),Défi relevé : %s  (+%d âmes)
 Daily quest done: %s  (+%d souls),Daily quest done: %s  (+%d souls),Quête du jour accomplie : %s  (+%d âmes)
 Weekly quest done: %s  (+%d souls),Weekly quest done: %s  (+%d souls),Quête de la semaine accomplie : %s  (+%d âmes)
 You come back from the Threshold.,You come back from the Threshold.,Tu reviens du Seuil.
+You climb back into the light.,You climb back into the light.,Tu remontes vers la lumière.
 Seal  %d / %d,Seal  %d / %d,Sceau  %d / %d
 Stairs open,Stairs open,Escaliers ouverts
 The stairs are open,The stairs are open,Les escaliers sont ouverts
@@ -712,6 +721,7 @@ Descend. Bring back the stolen souls. Become what the dark demands.,Descend. Bri
 > The chronicle of Kagari,> The chronicle of Kagari,> La chronique de Kagari
 Descend,Descend,Descendre
 Shrine,Shrine,Sanctuaire
+"Under the Well there is more Well. The dark down here has teeth, and it is hungry.","Under the Well there is more Well. The dark down here has teeth, and it is hungry.","Sous le Puits, il y a encore le Puits. Ici, l'obscurité a des dents, et elle a faim."
 Ascendant,Ascendant,Ascendant
 Win a run on Nightmare +3.,Win a run on Nightmare +3.,Gagne une partie en Cauchemar +3.
 The Bottom of the Well,The Bottom of the Well,Le Fond du Puits
@@ -1093,6 +1103,24 @@ Stone Mole,Stone Mole,Taupe de Pierre
 Armored in rock. Burrows under you when you keep away.,Armored in rock. Burrows under you when you keep away.,Cuirassée de roche. Creuse sous toi quand tu restes à distance.
 Thief Racoon,Thief Racoon,Raton Voleur
 "Snatches your gold and runs. Catch it to get it back, with interest.","Snatches your gold and runs. Catch it to get it back, with interest.","Te dérobe ton or et s'enfuit. Attrape-le pour le récupérer, avec les intérêts."
+Eye of the Deeps,Eye of the Deeps,Œil des Tréfonds
+It opens in the dark and does not blink.,It opens in the dark and does not blink.,Il s'ouvre dans le noir et ne cille jamais.
+Heals from the wounds it gives.,Heals from the wounds it gives.,Se soigne des blessures qu'il inflige.
+Blood Drinker,Blood Drinker,Buveur de Sang
+"Pale and thirsty: every wound it gives, it drinks.","Pale and thirsty: every wound it gives, it drinks.","Pâle et assoiffé : chaque blessure qu'il ouvre, il la boit."
+Breach Warden,Breach Warden,Gardien de la Brèche
+The Deeps keep one watchman at the way out. It does not let go of what it catches.,The Deeps keep one watchman at the way out. It does not let go of what it catches.,"Les Tréfonds gardent un veilleur à la sortie. Ce qu'il attrape, il ne le lâche pas."
+Cinder Wraith,Cinder Wraith,Âme de Braise
+A soul burnt down to its embers. It spits them.,A soul burnt down to its embers. It spits them.,Une âme consumée jusqu'aux braises. Elle les crache.
+Horned Augur,Horned Augur,Augure Cornu
+It reads the dark aloud: its words come as shadow bolts.,It reads the dark aloud: its words come as shadow bolts.,Il lit l'obscurité à voix haute : ses mots tombent en traits d'ombre.
+Horned Carcass,Horned Carcass,Carcasse Cornue
+"Bones under a demon's horns, quick as a cut.","Bones under a demon's horns, quick as a cut.","Des os sous des cornes de démon, vifs comme une entaille."
+Scarlet Fiend,Scarlet Fiend,Démon Écarlate
+A horned brute of the Deeps. Its club knocks the breath out of you.,A horned brute of the Deeps. Its club knocks the breath out of you.,Une brute cornue des Tréfonds. Sa massue te coupe le souffle.
+Shade Stalker,Shade Stalker,Rôdeur d'Ombre
+A blade in the dark that steps through it.,A blade in the dark that steps through it.,"Une lame dans le noir, qui passe au travers."
+Thirst,Thirst,Soif
 Shatter the Azure Wyrm with a Hammer,Shatter the Azure Wyrm with a Hammer,Brise la Guivre d'Azur au Marteau
 SPREADS ITS WINGS!,SPREADS ITS WINGS!,DÉPLOIE SES AILES !
 ROARS IN FURY!,ROARS IN FURY!,RUGIT DE FUREUR !
@@ -1530,6 +1558,7 @@ Something unusual is going on here: the log on the left tells you what.,Somethin
 Heat,Heat,Chaleur
 Stay by an oasis to cool down before the heat hurts you.,Stay by an oasis to cool down before the heat hurts you.,Reste près d'une oasis pour te rafraîchir avant que la chaleur ne te blesse.
 "A second life, if you earn it: slay the spectres before the countdown ends to return where you fell.","A second life, if you earn it: slay the spectres before the countdown ends to return where you fell.","Une seconde vie, si tu la mérites : abats les spectres avant la fin du compte à rebours pour revenir où tu es tombé."
+Fallen into the Deeps: follow the arrow of light to the Dawn Breach. The demons keep coming.,Fallen into the Deeps: follow the arrow of light to the Dawn Breach. The demons keep coming.,Tombé dans les Tréfonds : suis la flèche de lumière jusqu'à la Brèche de l'Aube. Les démons affluent.
 Pact door,Pact door,Porte de pacte
 "A pact door. Walk up to the stele and tap Read the pact: keep it for a relic, break it and lose max Health.","A pact door. Walk up to the stele and tap Read the pact: keep it for a relic, break it and lose max Health.","Porte de pacte. Approche de la stèle, touche Lire le pacte : tiens-le pour une relique, romps-le et perds de la Vie max."
 Something waits,Something waits,Quelque chose attend
@@ -1674,6 +1703,15 @@ grammar:gender:Blood Spider,grammar:gender:Blood Spider,f
 grammar:gender:Lost Soul,grammar:gender:Lost Soul,f
 grammar:gender:Stone Mole,grammar:gender:Stone Mole,f
 grammar:gender:Thief Racoon,grammar:gender:Thief Racoon,m
+grammar:gender:Eye of the Deeps,grammar:gender:Eye of the Deeps,m
+grammar:gender:Blood Drinker,grammar:gender:Blood Drinker,m
+grammar:gender:Breach Warden,grammar:gender:Breach Warden,m
+grammar:gender:Cinder Wraith,grammar:gender:Cinder Wraith,f
+grammar:gender:Horned Augur,grammar:gender:Horned Augur,m
+grammar:gender:Horned Carcass,grammar:gender:Horned Carcass,f
+grammar:gender:Scarlet Fiend,grammar:gender:Scarlet Fiend,m
+grammar:gender:Shade Stalker,grammar:gender:Shade Stalker,m
+grammar:gender:Thirst,grammar:gender:Thirst,f
 grammar:gender:Azure Wyrm,grammar:gender:Azure Wyrm,f
 grammar:gender:Crimson Tengu,grammar:gender:Crimson Tengu,m
 grammar:gender:Gorr the One-Eyed,grammar:gender:Gorr the One-Eyed,m

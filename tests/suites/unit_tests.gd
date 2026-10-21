@@ -40,6 +40,7 @@ func run() -> void:
 	_test_plateau_mist()
 	_test_languages()
 	_test_threshold()
+	_test_abyss()
 	_test_text_grid()
 	var sound := SoundTests.new()
 	sound.run()
@@ -1840,6 +1841,93 @@ func _test_threshold() -> void:
 				floor_cells += 1
 	check(floor_cells > 120, "room to fight (%d cells)" % floor_cells)
 	check(trial.theme != null and trial.ambience != null and trial.knell != null, "the limbo has its look and its bell")
+
+
+## The Deeps (AbyssDef): their numbers grow by act, their demons are sound and live nowhere else,
+## every maze leads to its door, and the first fall has its hint.
+func _test_abyss() -> void:
+	var def := CONTENT.dungeon.abyss
+	check(def != null, "the floors have their Deeps (DungeonConfig > Abyss)")
+	if def == null:
+		return
+	var config := CONTENT.dungeon
+	var last := config.total_floors()
+	check(def.fall_damage > 0.0 and def.fall_damage < 0.15, "the fall down there costs less than climbing out of a hole (%d%%)" % roundi(def.fall_damage * 100.0))
+	check(def.quick_time_for(last, config) > def.quick_time_for(1, config) and def.gift_gold_for(last, config) > def.gift_gold_for(1, config), "the dawn's gift: more time and more gold deeper")
+	check(def.wave_size_for(3, 1, config) > def.wave_size_for(0, 1, config), "each wave brings more demons")
+	check(def.wave_size_for(0, last, config) > def.wave_size_for(0, 1, config) and def.wave_every_for(last, config) < def.wave_every_for(1, config) and def.max_alive_for(last, config) > def.max_alive_for(1, config), "deeper acts: bigger, quicker waves")
+	check(not def.has_warden(1, config) and def.has_warden(last, config), "the warden stands at the door of the deep acts only")
+	check(def.theme != null and def.lighting != null and def.ambience != null and def.lighting.ambient_level < 5 and def.torch_level < 12, "the Deeps are dark (light %d, torch %d)" % [def.lighting.ambient_level, def.torch_level])
+	check(def.hazards.any(func(h: HazardDef) -> bool: return h is PitDef and not (h as PitDef).is_crumbling()), "holes down there too (the hole challenge can be met on their walkers)")
+	# The demons: sound, in no act, unique.
+	var in_acts := CONTENT.all_monsters()
+	for act in config.acts:
+		in_acts.append_array(act.all_bosses())
+	var ids := {}
+	for monster in CONTENT.all_monsters():
+		ids[monster.id] = true
+	for item in CONTENT.items:
+		ids[item.id] = true
+	var demons := CONTENT.abyss_monsters()
+	check(demons.size() >= 6 and demons.has(def.warden), "%d demons and the warden" % demons.size())
+	for monster in demons:
+		check(monster.weapon != null and monster.stats != null and monster.stats.max_hp > 0 and monster.xp_reward > 0, "%s has a weapon, Health and XP" % monster.id)
+		check(monster.frames != null and (monster.frames.has_animation(&"walk_down") or monster.frames.has_animation(&"walk")) and monster.icon != null, "%s is animated" % monster.id)
+		check(not ids.has(monster.id), "%s: a new id" % monster.id)
+		ids[monster.id] = true
+		check(not in_acts.has(monster), "%s lives in the Deeps only, in no act" % monster.id)
+		check(not monster.display_name.is_empty() and not monster.description.is_empty(), "%s is named and described" % monster.id)
+		check(monster.resource_path.begins_with("res://data/monsters/abyss/"), "%s is its own file" % monster.id)
+	for monster in def.monsters:
+		check(monster.spawn_weight > 0, "%s comes in the waves" % monster.id)
+	check(def.warden.spawn_weight == 0 and not def.monsters.has(def.warden), "the warden only stands at the door")
+	check(def.monsters.any(func(m: MonsterDef) -> bool: return m.flies) and def.monsters.any(func(m: MonsterDef) -> bool: return m.keep_distance > 0.0) and def.monsters.any(func(m: MonsterDef) -> bool: return m.keep_distance <= 0.0), "brutes, shooters and flyers")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 5
+	var early := {}
+	for i in 300:
+		early[def.pick_monster(1, rng)] = true
+	check(early.keys().all(func(m: MonsterDef) -> bool: return m.min_depth <= 1 and def.monsters.has(m)), "Act I's waves: no demon before its depth")
+	var drinker: MonsterDef = load("res://data/monsters/abyss/blood_drinker.tres")
+	var drinks := false
+	for monster_trait in drinker.traits:
+		if monster_trait is PerkTrait:
+			for perk in (monster_trait as PerkTrait).perks:
+				drinks = drinks or perk.passives.any(func(x: Passive) -> bool: return x is LifestealPassive)
+	check(drinks, "the Blood Drinker drinks from its blows")
+	# Every maze: rooms, a start and a door apart, a way between them (no holes yet: AbyssWorld
+	# adds them without cutting the way, see FloorTests).
+	var cut := []
+	for seed_value in 200:
+		rng.seed = seed_value
+		var map := AbyssWorld.make_map(def, config, rng)
+		if map.rooms.size() < 3 or map.start_cell == map.stairs_cell or not _reachable(map, map.start_cell, map.stairs_cell):
+			cut.append(seed_value)
+	check(cut.is_empty(), "every maze leads from where the hero lands to the door (200 seeds; failed: %s)" % str(cut))
+	# Its hint, the first time.
+	var hint: HintDef = null
+	for h in CONTENT.tutorial.hints:
+		if h.cue == &"abyss":
+			hint = h
+	check(hint != null and Tutorial.CUES.has(&"abyss"), "the first fall has its hint")
+	if hint:
+		check(hint.text.length() <= 120 and hint.duration > 0.0, "a short hint (%d characters), on screen a while" % hint.text.length())
+
+
+## Whether `to` can be walked to from `from` on `map`'s floor (4 ways).
+static func _reachable(map: DungeonMap, from: Vector2i, to: Vector2i) -> bool:
+	var seen := {from: true}
+	var open: Array[Vector2i] = [from]
+	while not open.is_empty():
+		var cell: Vector2i = open.pop_back()
+		if cell == to:
+			return true
+		for step: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+			var next := cell + step
+			if not seen.has(next) and map.is_floor(next):
+				seen[next] = true
+				open.append(next)
+	return false
 
 
 ## Every big character frame holds a whole figure: a frame cut through the middle of the drawing

@@ -76,6 +76,20 @@ func all_monsters() -> Array[MonsterDef]:
 	return result
 
 
+## The Deeps' demons and their warden (AbyssDef): in no act's pool, never on a floor.
+func abyss_monsters() -> Array[MonsterDef]:
+	var result: Array[MonsterDef] = []
+	var abyss := dungeon.abyss if dungeon else null
+	if abyss == null:
+		return result
+	var kinds: Array[MonsterDef] = abyss.monsters.duplicate()
+	kinds.append(abyss.warden)
+	for monster in kinds:
+		if monster and not result.has(monster):
+			result.append(monster)
+	return result
+
+
 ## Locked items unlocked for the current run (set by the game from the profile).
 var unlocked_items: Array[ItemDef] = []
 

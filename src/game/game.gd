@@ -72,6 +72,8 @@ var hint_box := HintBox.new()
 var run_timer := RunTimer.new()
 ## The trial of the Threshold, where a second life (Phoenix Feather) takes the hero.
 var threshold := Threshold.new()
+## The Deeps, where a fall into a floor's hole takes the hero (AbyssDef).
+var abyss := Abyss.new()
 ## The way to the hidden floor (its key, the sealed way, its boss' hoard).
 var hidden := HiddenPassage.new()
 ## The hero took the hidden way: the next floor is the hidden one (same depth).
@@ -96,6 +98,7 @@ func _ready() -> void:
 	run_timer.is_counting = _is_clock_running
 	add_child(run_timer)
 	_setup_threshold()
+	_setup_abyss()
 	_setup_interactor()
 	hidden.name = "HiddenPassage"
 	hidden.game = self
@@ -188,6 +191,7 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	if run and run.has_won:
 		_records.record_history()  # leaving a won run for a new one
 	threshold.abort()
+	abyss.abort()  # (after the Threshold: it may have opened from the Deeps)
 	_set_paused(false)
 	_fade.color.a = 0.0
 	menus.hide_all()
@@ -307,9 +311,28 @@ func _setup_threshold() -> void:
 			_show_next_offer())
 
 
+## The Deeps: a hole's fall on a floor takes the hero there (Abyss).
+func _setup_abyss() -> void:
+	abyss.name = "Abyss"
+	abyss.game = self
+	abyss.def = content.dungeon.abyss
+	add_child(abyss)
+	hud.bind_abyss(abyss)
+	abyss.opened.connect(func(_def: AbyssDef) -> void: tutorial.cue(&"abyss"))
+	abyss.closed.connect(func(escaped: bool) -> void:
+		if escaped:
+			_show_next_offer())
+
+
+## The hero is somewhere menus must wait: the Threshold's trial, or on his way into or out of
+## the Deeps.
+func is_away() -> bool:
+	return threshold.is_open() or abyss.is_passing()
+
+
 func _setup_interactor() -> void:
 	interactor.name = "Interactor"
-	interactor.is_blocked = func() -> bool: return is_menu_open() or threshold.is_open()
+	interactor.is_blocked = func() -> bool: return is_menu_open() or is_away()
 	interactor.used.connect(func(_target: Interactable) -> void: tutorial.action(&"interacted"))
 	add_child(interactor)
 	hud.bind_interactor(interactor)
@@ -419,9 +442,10 @@ func open_pause_menu() -> void:
 		pause_menu.open()
 
 
-## Not during the trial of the Threshold (a fight against the clock).
+## Not during the trial of the Threshold (a fight against the clock), nor on the way into or out
+## of the Deeps.
 func open_inventory() -> void:
-	if _can_open_menu() and not threshold.is_open():
+	if _can_open_menu() and not is_away():
 		_set_paused(true)
 		inventory_panel.open(player)
 		tutorial.action(&"opened_bag")
@@ -440,6 +464,7 @@ func debug_enter_floor(target: int, curse: CurseDef = null, event: FloorEventDef
 	world.forced_event = event
 	world.forced_plain = plain or (curse == null and event == null)
 	threshold.abort()
+	abyss.abort()
 	depth = target
 	_transitioning = true
 	_enter_floor(true)
@@ -520,8 +545,12 @@ func _enter_floor(resumed: bool = false) -> void:
 
 
 ## The floor's sound and look (its biome, its curse or event), and its music (the boss' during
-## its fight). Also when the hero comes back from the Threshold.
+## its fight). Also when the hero comes back from the Threshold (the Deeps' own, if that is where
+## he comes back to).
 func play_floor_mood() -> void:
+	if abyss.holds(player):
+		abyss.play_mood()
+		return
 	var mood := world.theme.ambience if world.theme else null
 	if world.curse and world.curse.ambience:
 		mood = world.curse.ambience
@@ -705,7 +734,7 @@ func pending_offers() -> int:
 ## rerolls and banishes, until none is left or one is put off. False if none waits or a menu
 ## can't open now.
 func open_offers() -> bool:
-	if offers.is_empty() or not _can_open_menu() or threshold.is_open():
+	if offers.is_empty() or not _can_open_menu() or is_away():
 		return false
 	_choosing = true
 	tutorial.action(&"opened_offers")
@@ -726,7 +755,7 @@ func _queue_offer(rarity: PerkDef.Rarity, count: int, title: String, subtitle: S
 ## otherwise only those that come up by themselves.
 func _show_next_offer() -> void:
 	while true:
-		if is_menu_open() or player == null or player.is_dead or threshold.is_open():
+		if is_menu_open() or player == null or player.is_dead or is_away():
 			return
 		var offer := offers.pop(not _choosing)
 		if offer == null:
@@ -839,10 +868,10 @@ func _on_player_died(_actor: Actor) -> void:
 # --- Saving ------------------------------------------------------------------
 
 ## Saves the run (see RunSave). Called when a floor begins and when the app is put away.
-## Never during the trial of the Threshold: picked up again, the run is as it was before the
-## killing blow.
+## Never during the trial of the Threshold nor in the Deeps: picked up again, the run is as it
+## was before the killing blow or the fall.
 func _save_run() -> void:
-	if player == null or player.is_dead or run == null or threshold.is_open():
+	if player == null or player.is_dead or run == null or threshold.is_open() or abyss.is_open():
 		return
 	var data := run.to_data()
 	data.boss_slain = world.arena != null and world.arena.is_defeated

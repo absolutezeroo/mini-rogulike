@@ -1,0 +1,54 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_def"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/scarlet_fiend.tres" id="2_frames"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/scarlet_fiend.png" id="3_icon"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="4_stats"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/demon_club.tres" id="5_weapon"]
+[ext_resource type="Resource" path="res://data/materials/flesh.tres" id="6_material"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="7_entry"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="8_table"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="9_potion"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_icon"]
+atlas = ExtResource("3_icon")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_potion"]
+script = ExtResource("7_entry")
+item = ExtResource("9_potion")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_loot"]
+script = ExtResource("8_table")
+drop_chance = 0.12
+entries = Array[ExtResource("7_entry")]([SubResource("Resource_potion")])
+
+[sub_resource type="Resource" id="Resource_stats"]
+script = ExtResource("4_stats")
+max_hp = 64
+defense = 2
+move_speed = 78.0
+
+[resource]
+script = ExtResource("1_def")
+material = ExtResource("6_material")
+stats = SubResource("Resource_stats")
+weapon = ExtResource("5_weapon")
+radius = 11.0
+frames = ExtResource("2_frames")
+frames_offset = Vector2(0, -8)
+splat_color = Color(0.352941, 0.039216, 0.117647, 0.85)
+knockback_resistance = 0.4
+detect_radius = 340.0
+attack_windup = 0.55
+attack_recovery = 0.45
+xp_reward = 13
+loot = SubResource("Resource_loot")
+id = &"scarlet_fiend"
+display_name = "Scarlet Fiend"
+description = "A horned brute of the Deeps. Its club knocks the breath out of you."
+icon = SubResource("AtlasTexture_icon")
+glyph = "F"
+color = Color(0.91, 0.3, 0.3, 1)
+spawn_weight = 10

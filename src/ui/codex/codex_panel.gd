@@ -106,13 +106,17 @@ func _fill_quests() -> void:
 
 # --- Bestiary -------------------------------------------------------------------
 
-## Every monster and boss, act by act (each act's monsters, then its bosses).
+## Every monster and boss, act by act (each act's monsters, then its bosses), then the Deeps'
+## demons, then the hidden floor's boss.
 func bestiary_entries() -> Array[MonsterDef]:
 	var result: Array[MonsterDef] = []
 	for act in _content.dungeon.acts:
 		for monster: MonsterDef in act.monsters + act.all_bosses():
 			if monster and not result.has(monster):
 				result.append(monster)
+	for monster in _content.abyss_monsters():
+		if not result.has(monster):
+			result.append(monster)
 	var hidden := _content.dungeon.hidden_floor
 	if hidden and hidden.boss and not result.has(hidden.boss):
 		result.append(hidden.boss)
@@ -172,7 +176,42 @@ func _fill_bestiary() -> void:
 			var gap := Control.new()
 			gap.custom_minimum_size.y = 6
 			_list.add_child(gap)
+	_fill_abyss(rules, placed)
 	_fill_hidden(rules, placed)
+
+
+## The Deeps' demons, after the acts: they live under every floor, not in an act.
+func _fill_abyss(rules: BestiaryRules, placed: Dictionary) -> void:
+	var abyss := _content.dungeon.abyss
+	var kinds: Array[MonsterDef] = []
+	for monster in _content.abyss_monsters():
+		if not placed.has(monster):
+			placed[monster] = true
+			kinds.append(monster)
+	if abyss == null or kinds.is_empty():
+		return
+	var gap := Control.new()
+	gap.custom_minimum_size.y = 6
+	_list.add_child(gap)
+	var known := kinds.filter(func(m: MonsterDef) -> bool: return Profile.kill_count(m.id) > 0).size()
+	var heading := HBoxContainer.new()
+	heading.add_theme_constant_override("separation", 14)
+	heading.add_child(UiSkin.label(tr(abyss.display_name), Fonts.BODY, UiSkin.GOLD))
+	var where := UiSkin.label(tr("under the holes of every floor     %d of %d slain") % [known, kinds.size()], Fonts.BODY, UiSkin.DIM)
+	where.size_flags_vertical = Control.SIZE_SHRINK_END
+	heading.add_child(where)
+	_list.add_child(heading)
+	var flow := HFlowContainer.new()
+	flow.add_theme_constant_override("h_separation", 8)
+	flow.add_theme_constant_override("v_separation", 8)
+	_list.add_child(flow)
+	for monster in kinds:
+		var card := CodexCard.new(monster, rules)
+		card.pressed.connect(func() -> void:
+			Sfx.play_ui(Sfx.bank.ui_open)
+			open_monster(monster))
+		flow.add_child(card)
+		_cards.append(card)
 
 
 ## The hidden floor's boss, after the acts: "???" (its floor too) until it was met.

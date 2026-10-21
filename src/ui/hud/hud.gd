@@ -23,8 +23,11 @@ var _time_text := ""
 var _toast_busy := false
 ## The trial of the Threshold's counters (see bind_threshold()).
 var _threshold_hud: ThresholdHud
-## The floor's widgets put away during the trial, to show again after (the boss bar, the map).
-var _hidden_for_trial: Array[Control] = []
+## The Deeps' name, gift and arrow (see bind_abyss()).
+var _abyss_hud: AbyssHud
+## Who put the floor's widgets away (&"threshold", &"abyss": they nest) -> the widgets it hid,
+## to show again when it is over (the boss bar, the map...).
+var _put_away := {}
 ## A word, a space, a number: the space becomes unbreakable on the info line.
 static var _word_and_number := RegEx.create_from_string("(\\S) (\\d)")
 
@@ -188,7 +191,7 @@ func bind_threshold(threshold: Threshold) -> void:
 	_threshold_hud.counters().owner = self
 	_threshold_hud.counters().unique_name_in_owner = true
 	threshold.opened.connect(func(trial: ThresholdDef, needed: int, _seconds: float) -> void:
-		_show_floor_widgets(false)
+		_show_floor_widgets(false, &"threshold")
 		_threshold_hud.open(trial, needed))
 	threshold.progressed.connect(_threshold_hud.set_progress)
 	threshold.ended.connect(func(won: bool) -> void:
@@ -199,27 +202,58 @@ func bind_threshold(threshold: Threshold) -> void:
 			show_banner(tr("The knell has tolled"), Palette.DANGER))
 	threshold.closed.connect(func(_won: bool) -> void:
 		_threshold_hud.close()
-		_show_floor_widgets(true))
+		_show_floor_widgets(true, &"threshold"))
 
 
-func _show_floor_widgets(shown: bool) -> void:
-	_in_trial = not shown
-	_refresh_offers()
-	if not shown:
-		interact_button.show_for(null)
-		_full_map.hide()
-		_hidden_for_trial.clear()
-		for widget: Control in [_minimap, _seal_label, _boss_bar, %BagButton, %SplitLabel]:
+## The Deeps: their name and rule when the hero lands, then the way out's name, the dawn's gift
+## and an arrow toward the door; the floor's map, seal and boss bar put away until he is back
+## (the bag stays: down there is a fight like any other).
+func bind_abyss(abyss: Abyss) -> void:
+	_abyss_hud = AbyssHud.new()
+	_abyss_hud.name = "AbyssHud"
+	_abyss_hud.abyss = abyss
+	add_child(_abyss_hud)
+	move_child(_abyss_hud, (%Toast as Control).get_index())  # under the toasts and banners
+	# The tutorial points at the way out's name by name (hint_target()).
+	_abyss_hud.banner().owner = self
+	_abyss_hud.banner().unique_name_in_owner = true
+	abyss.opened.connect(func(def: AbyssDef) -> void:
+		_show_floor_widgets(false, &"abyss")
+		_abyss_hud.open(def))
+	abyss.ended.connect(func(_escaped: bool) -> void:
+		_abyss_hud.close()
+		toast(tr("You climb back into the light.")))
+	abyss.closed.connect(func(_escaped: bool) -> void:
+		_abyss_hud.close()
+		_show_floor_widgets(true, &"abyss"))
+
+
+## The floor's widgets put away (`shown` false) or back (true) for `who` (the Threshold: also the
+## bag, the perk and Interact buttons; the Deeps: the floor's map, seal and boss bar). Each puts
+## back only what it put away, so the Threshold opening from the Deeps nests.
+func _show_floor_widgets(shown: bool, who: StringName) -> void:
+	if not shown and not _put_away.has(who):
+		var widgets: Array[Control] = [_minimap, _seal_label, _boss_bar, %SplitLabel]
+		if who == &"threshold":
+			widgets.append(%BagButton)
+		var hidden: Array[Control] = []
+		for widget in widgets:
 			if widget.visible:
-				_hidden_for_trial.append(widget)
+				hidden.append(widget)
 				widget.hide()
-		return
-	for widget in _hidden_for_trial:
-		if is_instance_valid(widget):
-			widget.show()
-	_hidden_for_trial.clear()
-	if _world:
-		_refresh_seal()
+		_put_away[who] = hidden
+		_full_map.hide()
+	elif shown and _put_away.has(who):
+		for widget: Control in _put_away[who]:
+			if is_instance_valid(widget):
+				widget.show()
+		_put_away.erase(who)
+		if _put_away.is_empty() and _world:
+			_refresh_seal()
+	_in_trial = _put_away.has(&"threshold")
+	if _in_trial:
+		interact_button.show_for(null)
+	_refresh_offers()
 
 
 func _refresh_seal() -> void:
@@ -455,7 +489,8 @@ func split_text() -> String:
 
 ## A big text is on screen (hints wait for it to go).
 func is_banner_showing() -> bool:
-	return _depth_banner.modulate.a > 0.05 or (_threshold_hud != null and _threshold_hud.is_card_showing())
+	return _depth_banner.modulate.a > 0.05 or (_threshold_hud != null and _threshold_hud.is_card_showing()) \
+		or (_abyss_hud != null and _abyss_hud.is_card_showing())
 
 
 func is_boss_bar_showing() -> bool:

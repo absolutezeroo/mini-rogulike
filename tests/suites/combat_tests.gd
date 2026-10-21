@@ -1268,21 +1268,3 @@ func _test_threshold_lost(game: Game) -> void:
 		check(game.threshold.limbo == null and world.process_mode != Node.PROCESS_MODE_DISABLED, "the limbo is gone, the floor runs")
 		await get_tree().create_timer(1.5).timeout
 		check(game.game_over_panel.visible and not RunSave.exists(), "the run ends")
-
-
-## Up to `count` free floor points between `near` and `far` cells from `from`, spread apart.
-func _free_points_away(world: World, from: Vector2, near: int, far: int, count: int) -> Array[Vector2]:
-	var origin := world.map.world_to_cell(from)
-	var found: Array[Vector2] = []
-	for y in range(origin.y - far, origin.y + far + 1):
-		for x in range(origin.x - far, origin.x + far + 1):
-			var cell := Vector2i(x, y)
-			var distance := Vector2(cell - origin).length()
-			if distance < near or distance > far or not world.map.in_bounds(cell) or not world.is_free_cell(cell):
-				continue
-			var point := world.map.cell_to_world(cell)
-			if found.all(func(other: Vector2) -> bool: return other.distance_to(point) > 128.0):
-				found.append(point)
-				if found.size() >= count:
-					return found
-	return found

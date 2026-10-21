@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="AmbienceDef" format=3]
+
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/ruins/bed.ogg" id="1_bed"]
+[ext_resource type="Texture2D" path="res://assets/fx/fog.png" id="2_fog"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/ruins/rumble.ogg" id="3_rumble"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/ruins/roar.ogg" id="4_roar"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/crypt/whisper.ogg" id="5_whisper"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/ruins/crackle_0.ogg" id="6_crackle"]
+[ext_resource type="PackedScene" path="res://src/vfx/ambient/embers.tscn" id="7_embers"]
+[ext_resource type="Script" path="res://src/definitions/ambience_def.gd" id="8_ambience"]
+
+[resource]
+script = ExtResource("8_ambience")
+footprint_color = Color(0.08, 0.03, 0.03, 0.3)
+bed = ExtResource("1_bed")
+bed_volume_db = -10.0
+one_shots = Array[AudioStream]([ExtResource("3_rumble"), ExtResource("4_roar"), ExtResource("5_whisper"), ExtResource("6_crackle")])
+one_shot_every = Vector2(2.5, 6)
+one_shot_volume_db = -5.0
+reverb_room_size = 0.8
+reverb_wet = 0.25
+particles = ExtResource("7_embers")
+fog = ExtResource("2_fog")
+fog_color = Color(0.45, 0.12, 0.1, 0.07)
+fog_speed = Vector2(4, -6)
+grade_shadows = Color(0.62, 0.22, 0.26, 1)
+grade_highlights = Color(1, 0.86, 0.74, 1)
+grade_strength = 0.6
+saturation = 0.8
+contrast = 1.12
+bloom = 0.45
+heat_haze = 0.4
+mist_color = Color(0.5, 0.12, 0.1, 0.1)
+mist_speed = Vector2(3, -5)
+vignette_color = Color(0.1, 0, 0.02, 1)
+vignette_pulse = 0.35
