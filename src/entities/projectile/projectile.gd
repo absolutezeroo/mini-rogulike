@@ -121,6 +121,7 @@ func _on_body_entered(body: Node2D) -> void:
 	var hit := Combat.make_hit(_spec.damage, _crit_chance, _shooter if is_instance_valid(_shooter) else null)
 	hit.knockback = _direction * _spec.knockback
 	hit.status = _spec.status
+	hit.element = _spec.element
 	hit.is_secondary = _spec.secondary
 	target.take_hit(hit)
 	if _pierce_left > 0:
@@ -159,6 +160,7 @@ func _explode() -> void:
 			var hit := Combat.make_hit(_spec.damage, _crit_chance, source)
 			hit.knockback = offset.normalized() * _spec.knockback
 			hit.status = _spec.status
+			hit.element = _spec.element
 			hit.is_secondary = _spec.secondary
 			target.take_hit(hit)
 

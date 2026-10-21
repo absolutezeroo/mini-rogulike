@@ -3,9 +3,9 @@
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_pv3lb"]
 [ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_pvcva"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_trnmv"]
-[ext_resource type="Texture2D" path="res://assets/projectiles/fireball.png" id="4_p0yl6"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_8ihgy"]
 [ext_resource type="AudioStream" path="res://data/audio/fireball.tres" id="6_1b1bh"]
+[ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="vfx_fire"]
 
 [sub_resource type="Resource" id="Resource_qedyq"]
 script = ExtResource("3_trnmv")
@@ -20,8 +20,8 @@ radius = 7.0
 count = 12
 spread_degrees = 360.0
 color = Color(1, 0.41960785, 0.20784314, 1)
-texture = ExtResource("4_p0yl6")
 status = SubResource("Resource_qedyq")
+element = ExtResource("vfx_fire")
 
 [resource]
 script = ExtResource("5_8ihgy")

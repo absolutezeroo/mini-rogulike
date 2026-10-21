@@ -150,7 +150,7 @@ func _draw_launcher() -> void:
 	if arrow_trap == null or arrow_trap.launcher_texture == null or launcher_direction == Vector2.ZERO:
 		return
 	var center := world.map.cell_to_world(launcher_cell) - global_position
-	var shake := Vector2(sin(_anim_time * 70.0), 0.0) if phase == Phase.WARNING else Vector2.ZERO
+	var shake := Vector2(PixelDraw.PX if int(_anim_time * 20.0) % 2 == 0 else 0.0, 0.0) if phase == Phase.WARNING else Vector2.ZERO  # whole art pixels
 	draw_set_transform(center + shake, launcher_direction.angle() - PI * 0.5)
 	draw_texture_rect(arrow_trap.launcher_texture, Rect2(-SIZE * 0.5, -SIZE * 0.5, SIZE, SIZE), false)
 	draw_set_transform(Vector2.ZERO)

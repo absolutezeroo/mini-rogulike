@@ -40,8 +40,9 @@ class StandingPiece extends Node2D:
 
 
 ## Pieces of `element` filling a disc of `radius` around `at`: an outer ring and, for big
-## ones, an inner one. Falls back to a RingVfx when the element has no piece.
-static func ring(at: Vector2, radius: float, of_element: VfxElementDef) -> Node2D:
+## ones, an inner one. `inner` off: an explosion's edge, one sparse ring around its blast
+## sheet. Falls back to a RingVfx when the element has no piece.
+static func ring(at: Vector2, radius: float, of_element: VfxElementDef, inner: bool = true) -> Node2D:
 	if of_element == null or of_element.piece == null:
 		return RingVfx.create(at, radius, of_element.color() if of_element else Color.WHITE, of_element)
 	var vfx := ComposedVfx.new()
@@ -52,15 +53,39 @@ static func ring(at: Vector2, radius: float, of_element: VfxElementDef) -> Node2
 	# The outer ring closes; a big one gets a sparse inner ring (a field of ice, not a wall
 	# hiding the monsters in it).
 	var rings: Array[float] = [radius * 0.92]
-	if radius > spacing * 2.2:
+	if inner and radius > spacing * 2.2:
 		rings.append(radius * 0.5)
 	for r in rings:
-		var count := clampi(roundi(TAU * r / spacing * (1.0 if r == rings[0] else 0.55)), 5, MAX_PIECES / rings.size())
+		var density := (1.0 if inner else 0.6) if r == rings[0] else 0.55
+		var count := clampi(roundi(TAU * r / spacing * density), 5, MAX_PIECES / rings.size())
 		var turn := randf() * TAU
 		for i in count:
 			var angle := turn + TAU * i / count + randf_range(-0.12, 0.12)
 			var where := Vector2.from_angle(angle) * (r + randf_range(-3.0, 3.0))
 			vfx._add(where, SPREAD_TIME * r / maxf(radius, 1.0))
+	vfx._finish()
+	return vfx
+
+
+## Pieces of `element` along the front half of a circle of `radius` around `at`, facing
+## `facing` (Flame Arc: a wall of fire licks sweeping from one side to the other), a sparse
+## second row inside. Falls back to a ring when the element has no piece.
+static func arc(at: Vector2, radius: float, facing: Vector2, of_element: VfxElementDef, sweep: float = 0.12) -> Node2D:
+	if of_element == null or of_element.piece == null:
+		return ring(at, radius, of_element)
+	var vfx := ComposedVfx.new()
+	vfx.element = of_element
+	vfx.position = PixelDraw.snap(at)
+	var spacing := vfx._spacing()
+	var half := deg_to_rad(80.0)
+	var start := facing.angle() - half
+	for row: float in [0.9, 0.55]:
+		var r := radius * row
+		var count := clampi(roundi(2.0 * half * r / spacing * (1.0 if row > 0.8 else 0.6)), 3, MAX_PIECES / 2)
+		for i in count:
+			var t := (i + 0.5) / count
+			var angle := start + 2.0 * half * t + randf_range(-0.06, 0.06)
+			vfx._add(Vector2.from_angle(angle) * (r + randf_range(-3.0, 3.0)), sweep * t)
 	vfx._finish()
 	return vfx
 

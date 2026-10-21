@@ -104,7 +104,8 @@ func _release_monsters() -> void:
 
 func _explode() -> void:
 	var damage := world.rules.dungeon_damage(def.explosion_damage)
-	Vfx.explosion(world, global_position, def.explosion_radius)
+	# The chest bursts apart (splinters, grit and dust), not a fireball.
+	Vfx.explosion(world, global_position, def.explosion_radius, VfxElementDef.named(&"earth"), false)
 	Combat.blast(world, global_position, def.explosion_radius, damage, 340.0)
 
 

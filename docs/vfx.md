@@ -65,8 +65,8 @@ floor must never draw over the hero's feet, and a crystal must hide a monster st
 | Layer | What | Where it draws | Examples |
 |---|---|---|---|
 | `GROUND` | flat on the floor | z -1: under every actor, over the floor's marks (splats -8, footprints -5) | `Vfx.magic` sigil, `RingVfx` rings, telegraphs (`TelegraphView`, `CellWarning`), storm's crackles, mist at a body's feet, level-up rings, elite auras, afterimages |
-| `STANDING` | upright, rooted on the floor | z 0 in the world's y-sorted Entities, sorted by its **base** (the bottom of its frame) | frost crystals, holy rays, shadow smoke, arcane runes, Smite's column, Thunder's bolt, dust puffs |
-| `AIR` | in flight or on a body | z 5-6: over every actor and over the floor's light | shots, impacts, hit flashes and bits, blade arcs (`SwingVfx`), bursts, beams, halos (Holy Shield), the crit cross, sparks, smoke, damage numbers |
+| `STANDING` | upright, rooted on the floor | z 0 in the world's y-sorted Entities, sorted by its **base** (the bottom of its frame) | the nova pieces: frost crystals, fire licks, earth spikes, poison clouds, blood jets, spirit flames, holy rays, shadow smoke, arcane runes; the ground bursting (earth's `blast`), Smite's column, Thunder's bolt, dust puffs |
+| `AIR` | in flight or on a body | z 5-6: over every actor and over the floor's light | shots, impacts, hit flashes and bits, blade arcs (`SwingVfx`), bursts (a ball of fire: fire's `blast`, `BlastVfx`), beams, blood drawn into a drinker, halos (Holy Shield), the crit cross, sparks, smoke, damage numbers |
 
 - A sheet says its layer: `VfxSheetDef.layer` (AIR when it doesn't say: shots, impacts, claws
   and halos need nothing). **A nova `piece`, a `strike` or a sigil must say GROUND or STANDING**
@@ -146,46 +146,47 @@ saturated pixels; smoke, blood and ash stay in the muted ramps of the floors.
 
 The kit's slots (`VfxElementDef`): `projectile` (its shot), `impact` (a shot landing), `piece`
 (one piece of its novas, waves and trails, composed by `ComposedVfx`), `claw` (a creature's
-blow), `slow_look` (the look of a body it slows, a `StatusLookDef`), `impact_sound`. Missing
+blow), `blast` (its explosion, at 2x; a wider blast adds a ring of its pieces), `slow_look`
+(the look of a body it slows, a `StatusLookDef`), `impact_sound`. Missing
 slots fall back to code that still speaks the element (a burst in its ramp, a ring with its
 bits on the rim).
 
 | Element | Projectile | Impact | On the body | Nova / area | Telegraph | Sound family |
 |---|---|---|---|---|---|---|
-| fire | a ball with a licking tail, embers behind | `BlastVfx` ball of fire, smoke, scorch | small flames rising, embers, warm tint | ring of flame licks | warm rim, embers creeping in | whoosh, crackle |
+| fire (**done**) | `fire_bolt.png`: a white-hot ball, three tongues licking back and up, 16 directions; `fire_ray.png` for the eye beam | `fire_impact.png`: tongues out and up, flames breaking off, embers, dark smoke; `fire_blast.png` for explosions | `fire_flicker.png` flames rising, embers, warm tint, a burst when it catches | `fire_lick.png`: licks rising, curling, sinking to smoke, in rings, arcs (Flame Arc) and at a blast's edge | warm rim, embers creeping in | crackle (`flames`) |
 | frost (**done**) | `frost_shard.png`: a faceted shard drawn in 16 directions, chips trailing | `frost_impact.png`: shards cracking outward, biggest early, chips falling, mist | rime growing on the edges (`frost_rime.png`), ice chips falling, cold mist at the feet, 45% cold tint | `frost_crystal.png`: crystals growing from the ground in a ring, then shattering | the shared danger rim; frost chips inside | cracking ice, glassy chime |
 | water | a drop (energy orb painted water) | splash, droplets, a ripple | drips (none yet) | ripples (`water_ripples.png`) | danger rim | splash |
-| poison | a venom drop (orb painted poison) | bubbles bursting, a sinking cloud | bubbles, a haze sinking at the feet, green tint | a cloud crawling out | danger rim, bubbles inside | squelch, hiss |
+| poison (**done**) | `poison_glob.png`: a round glob, a stubby tail and two drops sagging behind, 16 directions | `poison_splash.png`: droplets flung and falling, a cloud rising then sinking, bubbles popping, a puddle (and a puddle mark on the floor) | a splash, then bubbles swelling and popping (`poison_bubble.png`), a murky haze sinking at the feet, green tint | `poison_cloud.png`: lumps of murky gas welling up, bubbling, sinking flat | danger rim | squelch, hiss |
 | storm (**done**) | `storm_spark.png`: ball lightning, arcs leaping off it at uneven angles, flickering | `storm_impact.png`: forks out, off, a second strike, broken tips | small arcs jumping off the body (none yet) | `storm_fork.png`: crackles on the ground around a ring; Thunder's `storm_bolt.png` falls from the sky on top (`DamageAreaEffect.strike`); chain lightning is a jagged `BeamVfx` | crisp flicker | crack, zap |
 | holy (**done**) | none needed (no holy shot) | the hit's 4-point glints | short ray halo (none yet) | `holy_ray.png`: a sparse ring of thin shafts; Smite's `holy_column.png` falls on the target; Holy Shield's `holy_aegis.png` rises into a halo; heals and buffs draw `holy_sigil.png` (Vfx.magic, recolored for other colors) | rays converging | chime, bell |
 | shadow (**done**) | `shadow_knot.png`: a dark knot, a burning broken rim, smoke curling in (all shadow shots are enemy threats) | `shadow_impact.png`: a ring collapsing inward, a puff | darkened silhouette, filaments sucked in (none yet) | `shadow_smoke.png`: smoke curling up and drawn back in (Shadow Step's trail) | the ground dims | whisper, low thrum |
 | arcane (**done**) | `arcane_missile.png`: a diamond glint, three motes on a tilted orbit (behind ones darker) | `arcane_impact.png`: rune-diamonds turning outward | glyphs orbiting (none yet) | `arcane_rune.png`: glyphs lighting over the ground | runes lighting up | chime, hum |
-| blood | none (claws, spurts) | spurt, drops that stay | short spurts on each tick | spray in a fan | danger rim | wet impact |
-| spirit | a pale wisp curling | a hollow ring, wisps rising | pale flicker | a ring of wisps | pale rim | sigh, chime |
-| earth | a rock or a ball of sand | chunks on arcs, dust | dust trickling | rock spikes, dust ring | cracks spreading | thud, crumble |
+| blood (**done**) | none (claws, spurts) | `blood_spurt.png`: a ragged splash, drops on arcs, specks (and a stain) | none (no bleed status) | `blood_jet.png`: jets out of the floor, breaking into drops, a stain (Battle Cry, a broken pact) | danger rim | wet impact |
+| spirit (**done**) | `spirit_wisp.png`: a round pale head, a waving tail coming apart into motes, 16 directions | `spirit_ring.png`: a white knot, a hollow ring widening and breaking up, flames rising | `haunt` look: small pale flame licks (`spirit_mote.png`), its tint | `spirit_flame.png`: pale flames curling up, their tops rising as motes (novas, blink trails, calls) | pale rim | sigh, chime |
+| earth (**done**) | `earth_clod.png`: a lumpy clod tumbling (round: redrawn, never turned); `earth_swirl.png` for Sandstorm | `earth_impact.png`: chunks on arcs, dust rolling low; `earth_burst.png` for blasts: cracks, slabs and chunks thrown up, a wide dust cloud, cracks that stay a moment | none (sand slows without a look) | `earth_spike.png`: rock spikes thrusting up, cracking, crumbling into rubble | cracks spreading | crumble (`crumble`) |
 | physical (**done**) | `arrow`, `kunai`, `spear`, the tengu's `feather` drawn in 16 rows (shurikens and coins spin as they are) | short streaks along the blow; the bits of the target's material (blood drops, bone chips, slime, sparks off armor, spirit motes, leaf chips); a crit cuts the `cutx` cross | none | steel crescents, spins and thrusts (`SlashDef` + `SwingVfx`), an enemy's with a red rim; plain rushes kick up dust | lines, cones and lanes | swish, clang |
 
 ## 5. The code
 
 | What | Where | Use |
 |---|---|---|
-| `VfxElementDef` | `src/definitions/vfx/vfx_element_def.gd`, `data/vfx/elements/*.tres` | ramp, residue, mark, bit, motion, emissive, kit sheets. `VfxElementDef.named(&"frost")`, `.core() .color() .edge() .shade(t)`, `or_color(element, color)` for old content |
+| `VfxElementDef` | `src/definitions/vfx/vfx_element_def.gd`, `data/vfx/elements/*.tres` | ramp, residue, mark (and `impact_mark`: the puddle or stain a landing leaves), bit, motion, emissive, kit sheets. `VfxElementDef.named(&"frost")`, `.core() .color() .edge() .shade(t)`, `or_color(element, color)` for old content |
 | `VfxSheetDef` | `src/definitions/vfx/vfx_sheet_def.gd` (sub-resources of an element) | texture, frames (0 = square), orient (NONE / ROWS / SNAPPED), directions, variants, fps, loop, texel, recolor, anchor, linger. `VfxSheetDef.from_texture(tex, frames)`, `columns/cell_size/slices_evenly` (the one frame slicer) |
-| `element` exports | `WeaponDef`, `ProjectileEffect`, `DamageAreaEffect` (+ `strike`: a sheet of its own at 2x on the area's middle), `DashStrikeEffect`, `DashEffect` (a burst and a trail), `HealEffect` / `BuffEffect` (the sigil's ramp; `BuffEffect.sheet` follows the user), `ChainLightningPassive` (a forked `BeamVfx`), `OnHitStatus.slow_element`, passives (`element`, `shard_element`, `crit_element`, `blast_element`), `DeathBurstTrait` | gameplay data points to an element instead of free colors; `HitInfo.element` carries it to the hit's flash |
+| `element` exports | `WeaponDef`, `ProjectileEffect`, `DamageAreaEffect` (+ `strike`: a sheet of its own at 2x on the area's middle), `DashStrikeEffect`, `DashEffect` (vanishes, a trail, appears), `HealEffect` / `BuffEffect` (the sigil's ramp; `BuffEffect.sheet` follows the user, else a ring of the element's pieces), `AllyEffect`, `SummonEffect`, `ChainLightningPassive` (a forked `BeamVfx`), `OnHitStatus.slow_element`, passives (`element`, `shard_element`, `crit_element`, `blast_element`), `DeathBurstTrait` | gameplay data points to an element instead of free colors; `HitInfo.element` carries it to the hit's flash |
 | `PixelDraw` | `src/vfx/pixel_draw.gd` | `snap`, `snap_length`, `sheet_scale`, `dither`, `pixel`, `ring`, `disc`, `arc`, `line`, `polyline`, `polygon`, `bit` (an element's particle shape), `sheet` (draw a frame of a VfxSheetDef on the grid) |
 | `VfxLayer` | `src/vfx/vfx_layer.gd` | `Layer.GROUND / STANDING / AIR` (section 2b), `apply(node, layer)`, `of(node)`, `light_up(node, element, reach)`; `VfxSheetDef.layer` |
 | `SlashDef`, `SwingVfx` | `src/definitions/vfx/slash_def.gd`, `data/vfx/slashes/`, `src/vfx/swing_vfx.gd` | a blade's blow drawn by `swing.gdshader`: CRESCENT / SPIN / THRUST, arc, thickness, strokes, reach_scale, jitter, `finisher` sheet; on `WeaponDef.slash`, `DamageAreaEffect.slash`, `DashStrikeEffect.slash`. `SwingVfx.slash(world, look, at, aim, reach, element, danger)` |
 | Things in flight | `data/vfx/sheets/` (`arrow`, `kunai`, `spear`, `feather`), `tools/vfx/physical.py` | 16-row sheets: `ProjectileEffect.sheet`, `WeaponDef.projectile_sheet` (the `texture` stays the item's picture) |
 | `ImpactMaterialDef` | `data/materials/` | `spark_bit`, `spark_motion`, `sparks_element()`: a hit's bits in what the target is made of (`Vfx.hit(..., material)`) |
 | `VfxRamp` | `src/vfx/vfx_ramp.gd` | `recolor(texture, ramp)`: palette swap by luminance, cached (a sheet with `recolor` on is painted in its element's ramp) |
-| `Vfx` | `src/vfx/vfx.gd` | `hit(..., element, material)` (a crit cuts `CRIT_CROSS`), `dust_trail(world, from, to, duration)`, `pop(world, at, element, radius, direction)`, `nova(world, at, radius, element)`, `trail(world, from, to, element)`, `explosion(world, at, radius, element)` |
+| `Vfx` | `src/vfx/vfx.gd` | `hit(..., element, material)` (a crit cuts `CRIT_CROSS`), `pop(world, at, element, radius, direction)`, `nova(world, at, radius, element)`, `arc(world, at, radius, facing, element)`, `trail(world, from, to, element)`, `dust_trail(world, from, to, duration)`, `explosion(world, at, radius, element, pieces)` |
 | `SheetVfx` | `src/vfx/sheet_vfx.gd` | `play(sheet, at, direction, element)` (on the sheet's layer), `create(texture, ...)` (legacy: snapped, AIR), `.in_element(e)`, `.on_layer(l)`, lingering dither |
-| `ComposedVfx` | `src/vfx/composed_vfx.gd` | `ring(at, radius, element)`, `line(from, to, element)`: any size from pieces at 2x |
+| `ComposedVfx` | `src/vfx/composed_vfx.gd` | `ring(at, radius, element)`, `arc(at, radius, facing, element)` (a sweep across the front: an area with `fx_follow_aim` and no sheet), `line(from, to, element)`: any size from pieces at 2x; standing pieces are nodes of their own among the actors (`StandingPiece`) |
 | `ImpactVfx`, `RingVfx`, `BlastVfx` | `src/vfx/` | a hit's flash (`ImpactVfx.sparks`: bits only), a ring (GROUND), a burst: all in an element's ramp and bits |
 | `TelegraphView` | `src/vfx/telegraph_view.gd`, `telegraph.gdshader` | CIRCLE, CONE, LINE, LANES (one per shot of a fan or ring); `show_skill(skill, angle, progress, body_radius)` picks the shape from the skill (radius, shots, dash, area) |
-| Particles | `src/vfx/particles/`, `src/vfx/ambient/`, `pixel_particles.gdshader(.inc)` | materials `pixel_particles` (dither per art pixel), `_motes` (whole motes come and go), `_glow` (added light, stepped brightness) |
+| Particles | `src/vfx/particles/`, `src/vfx/ambient/`, `pixel_particles.gdshader(.inc)` | materials `pixel_particles` (dither per art pixel), `_motes` (whole motes come and go), `_glow` (added light, stepped brightness); `PixelMotes` (`src/vfx/ambient/pixel_motes.gd`) simulates ambient motes by hand on the grid |
 | `StatusLookDef`, `StatusFx` | `data/vfx/status_looks/`, `src/vfx/status_fx.gd` | particle, motes (EMBER, BUBBLE, CHIP), crust (rime), mist, burst, all at texel 2 in the element's ramp |
-| Tools | `tools/vfx/` | `vfxkit.py` (palette-locked drawing), `recolor.py` (palette swap to a file), `check.py` (palette, hard alpha, whole cells), `strokes.py` (lines, jagged paths, rims, glints, rhombi, ellipses), one rebuildable script per kit: `frost.py`, `storm.py`, `holy.py`, `shadow.py`, `arcane.py` |
+| Tools | `tools/vfx/` | `vfxkit.py` (palette-locked drawing), `recolor.py` (palette swap to a file), `check.py` (palette, hard alpha, whole cells), `strokes.py` (lines, jagged paths, rims, glints, rhombi, ellipses), `liquid.py` (round, wet shapes: tubes, lumps of gas, drops, bubbles, rings), one rebuildable script per kit: `frost.py`, `fire.py`, `earth.py`, `storm.py`, `holy.py`, `shadow.py`, `arcane.py`, `poison.py`, `blood.py`, `spirit.py` |
 
 Which slow shows what: a slow carries an element (`StatusSet.apply_slow(..., element)`, frost
 when none is given, none for the ground's own). Only an element with a `slow_look` shows on the
@@ -238,15 +239,17 @@ Screenshot it in the game at 1540x720 (the debug panel, or a probe scene in `_to
 Frost is the reference kit, done in full. The foundation (grid helpers, ramps, palette swap,
 slicer, element exports) serves the others; what each still needs:
 
-- **Fire**: author a fire projectile (the warm `fireball.png` works, but its tail ignores the
-  flight direction: draw 16 directions or a tail-less ball), an impact sheet, a flame-lick
-  `piece` for Fire Wave / fire rings / Blazing Roll; `flame_arc` uses an untinted
-  `circularslash` at 6x (author or compose); the burn look's `flame.png` burst is 25x30 (fine at
-  2x). Point Fireball, Fire Wave, Ember Tome, fire_breath, fire_ring, solar_flare, ignite,
-  kindling, inferno, pyre, of_embers, blazing_roll at `fire`.
-- **Poison**: `energyball` painted poison is a placeholder (Poison Spit uses it); author a venom
-  drop, a bubble-burst impact, a puddle/cloud `piece`; point venom_spit, toxic_bloom, acid_spit,
-  poison_fang, jade_fang (still a blood claw) and spore_cloud's area at `poison`.
+- **Fire** (done, `tools/vfx/fire.py`): every fire shot, Flame Arc (licks sweeping across the
+  front), Fire Touch's burning claw, the eye beam's rays, Blazing Roll, the Inferno family, the
+  burn look, the campfire, flame vents and braziers (`FlameVfx`). Ghost Flame stays fire (the
+  Ghost Lantern, the Ember Heart); the Soul Moth throws Soul Flames (spirit), the Gilded Moth, the Moss Heart and the Sand
+  Drummer shoot their own element (holy, poison, earth; holy has no shot sheet: a dot). Left: candles
+  still burn with particles; `fireball.png`, `fire_flames.png`, `flame.png` and `explosion.png`
+  are unused.
+- **Poison** (done, `tools/vfx/poison.py`): glob, splash with a puddle mark (`impact_mark`), gas
+  cloud piece, venom fangs (16 rows), bubbles on a poisoned body, its ticks in its own green.
+  Poison Spit, Venom Spit, Toxic Bloom (+fierce), Acid Spit, Poison Fang, the Jade Wyrm's Venom
+  Fang, Spore Cloud and the Venomous elite all point at it. Left: no sound of its own.
 - **Storm** (done): stays electric violet-white (holy owns gold); the Storm synergy, Thunder,
   its tome, Spark Wand, Spark Nova, Thunderclap, Shock Roll, Frenzy wear the storm's color.
   Thunder, Spark Wand/Nova, chain lightning (synergy, Spark Rune, Thundering), Thunderclap,
@@ -261,26 +264,35 @@ slicer, element exports) serves the others; what each still needs:
   its kunai land in shadow. Left: curses have no effects of their own.
 - **Arcane** (done): Arcane Bolt and the Arcane synergy's ring fire the arcane missile; the
   arcane perks wear its color. Left: no arcane area or charge-up uses the rune piece yet.
-- **Blood**: claws (`clawdouble.png`) are fine as blood; give them `element = blood` so hits
-  drop blood bits; Battle Cry's magic circle, vampiric elites, pact chunks.
-- **Spirit**: spirit_touch is a warm claw, Wailing Ring a cyan orb, soul_moth a fireball;
-  author a wisp projectile; the ward bubble and soul wisps already use the spirit ramp.
-- **Earth / sand**: `rock_spike.png` is lava-orange and drawn at 1.8x-4.3x (author earth
-  colors, compose Ground Slam); Quake and Sundering Blow should set `element = earth` on their
-  explosive area (the blast then becomes dust); sandball has a fire-orange halo color; Sand
-  Breath and Sandstorm slow as earth already (no frost).
+- **Blood** (done, `tools/vfx/blood.py`): claws raking in three gashes (16 rows), a spurt with a
+  stain, jets for its novas. Claws (spider, racoons, moles, owl), Battle Cry (`BuffEffect.element`),
+  a broken pact, splats (`MonsterDef.splat_color`, `Palette.BLOOD` = its accent), the blood moon's
+  ash (`PixelMotes`: grid flakes that tumble by shape), drinking blood (`BloodDrainVfx`: Vampiric
+  elites and affix, Leech Rune, Vampirism, Bloodlust), Executioner's and Bloodrage's blows. No
+  bleed status exists. Left: `bite` (rats, bats, skulls) is still a warm claw sheet.
+- **Spirit** (done, `tools/vfx/spirit.py`): wisp, hollow ring, curling pale flame, spectral claws
+  (16 rows), the `haunt` look (a wail slows with a pale flicker, never rime). Cold Touch, Wailing
+  Ring (+fierce), Spirit Call (`SummonEffect.element`), Soul Ward (`AllyEffect.element`; the ward
+  bubble is a flickering hollow shell with flames), the Soul Moth's Soul Flame, Blink (hero and
+  monsters, `DashEffect.element`), the Threshold's sinking soul and rising spectres. Moles burrow
+  instead (`burrow.tres`, earth). Left: soul wisps are drawn in code (on the grid, spirit ramp).
+- **Earth / sand** (done, `tools/vfx/earth.py`): Rock Spike and Fissure paint `rock_spike.png`
+  in earth at 2x, Ground Slam is a ring of spikes, Quake and Sundering Blow burst the ground,
+  every boss's stomp (`Combat.shockwave`) and a trapped chest are dust and rubble (the powder
+  keg stays fire), Sand Breath throws clods, the Sand Drummer a clod that slows, Sandstorm
+  whirls. Left: no earth claw yet; `sandball.png` is unused.
 - **Physical** (done): blades swing steel (or their element's) arcs on the grid; Cleave, Lash,
   Whirlwind, Flurry (its last stab the `cutx` cross), Iaido Dash, Piercing Thrust and the
   monsters' club, demon club and tengu blade are `SlashDef`s; arrows, kunai, the thrown spear
   and the Crimson Tengu's feathers are drawn in 16 rows; hits throw their material's bits.
-  Left: Shadow Step's kunai still uses the old snapped `kunai.png` (shadow's to repoint at
-  `data/vfx/sheets/kunai.tres`), arrow traps turn `arrow.png` by quarter turns only (exact),
+  Shadow Step's kunai is the 16-row kunai too. Left: arrow traps turn `arrow.png` by quarter
+  turns only (exact),
   the slime slam and body slam play `circularslash` unturned at 2x.
 - **Everyone** (done): swings and telegraphs quantize in world space; monster shots warn with
   their lanes, dashes with their line; plain rushes leave dust and dithered afterimages in the
   dash's element; particles snap to the grid; props, pickups, auras, the pact sigil, stairs'
   seal and heat sources draw with `PixelDraw`; the trap's peek is at 2x; fog texels are art
   pixels; every effect is on a layer (section 2b). Left: sounds per element are not wired
-  (`impact_sound` is empty everywhere); the actor's debug fallback body (no sprite) is smooth;
-  fire, earth, poison, blood and spirit sheets get their layer when their kits land (a sheet
-  that says nothing is AIR: their nova pieces must say GROUND or STANDING).
+  (`impact_sound` is empty everywhere); the actor's debug fallback body (no sprite) is smooth.
+  Every element's sheets have their layer (a new sheet that says nothing is AIR: a nova piece,
+  a strike or a mark must say GROUND or STANDING, the vfx tests check the pieces).

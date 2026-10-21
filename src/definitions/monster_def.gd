@@ -18,8 +18,8 @@ extends ContentDef
 ## Flies over holes and quicksand (bats, ghosts...).
 @export var flies: bool = false
 ## What it leaves on the floor when hit or killed (blood, slime, ink...). Alpha 0: nothing
-## (spirits, flames, skulls).
-@export var splat_color: Color = Color(0.42, 0.05, 0.08, 0.85)
+## (spirits, flames, skulls). Blood is the blood element's mark (its ramp's darkest step).
+@export var splat_color: Color = Color(0.352941, 0.039216, 0.117647, 0.85)
 ## What it is made of: how hits on it sound, its sparks, the chips it leaves when it dies.
 @export var material: ImpactMaterialDef
 ## How much of the knockback it ignores: 0 = pushed around freely, 1 = never moves.

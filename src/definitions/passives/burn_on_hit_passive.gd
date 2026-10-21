@@ -8,10 +8,13 @@ extends Passive
 @export var interval: float = 0.5
 @export var duration: float = 3.0
 @export_range(0.0, 1.0) var chance: float = 1.0
+## The ticks' color when it has no element.
 @export var color: Color = Palette.FIRE
+## What it is (Ignite, the Ember rune: fire): the ticks and the body's tint take its color.
+@export var element: VfxElementDef
 
 
 func on_hit_dealt(owner: Actor, target: Actor, _hit: HitInfo, _damage: int, perk: PerkSet.Entry) -> void:
 	if target.is_dead or randf() >= chance:
 		return
-	target.statuses.apply_dot(status_id, damage_per_stack * perk.stacks, interval, duration, owner, color)
+	target.statuses.apply_dot(status_id, damage_per_stack * perk.stacks, interval, duration, owner, element.color() if element else color)

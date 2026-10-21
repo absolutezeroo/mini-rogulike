@@ -162,7 +162,8 @@ static func shockwave(world: World, source: Actor, radius: float, amount: int, k
 		if not world.is_inside_tree():
 			return  # its floor waits out of the tree (the hero is at the Threshold): it fizzles
 		var center := source.global_position
-		Vfx.explosion(world, center, radius)
+		# A stomp: the ground bursts in dust and rubble whatever the boss is made of.
+		Vfx.explosion(world, center, radius, VfxElementDef.named(&"earth"), false)
 		Events.screen_shake.emit(0.5)
 		for target in world.get_hostiles(source.faction):
 			var offset := target.global_position - center

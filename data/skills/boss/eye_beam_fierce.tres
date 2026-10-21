@@ -2,9 +2,20 @@
 
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_8r4sh"]
 [ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_bfs2t"]
-[ext_resource type="Texture2D" path="res://assets/projectiles/fireball.png" id="3_fyja1"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_172eb"]
 [ext_resource type="AudioStream" path="res://data/audio/fireball.tres" id="5_giwuu"]
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_sheet_def.gd" id="vfx_sheet"]
+[ext_resource type="Texture2D" path="res://assets/fx/fire/fire_ray.png" id="fire_ray"]
+[ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="vfx_fire"]
+
+[sub_resource type="Resource" id="ray"]
+script = ExtResource("vfx_sheet")
+texture = ExtResource("fire_ray")
+frames = 2
+orient = 1
+directions = 16
+fps = 12.0
+loop = true
 
 [sub_resource type="Resource" id="Resource_ki2ns"]
 script = ExtResource("2_bfs2t")
@@ -16,7 +27,8 @@ count = 7
 spread_degrees = 50.0
 knockback = 140.0
 color = Color(1, 0.41960785, 0.20784314, 1)
-texture = ExtResource("3_fyja1")
+sheet = SubResource("ray")
+element = ExtResource("vfx_fire")
 
 [sub_resource type="Resource" id="Resource_ds7po"]
 script = ExtResource("2_bfs2t")
@@ -28,8 +40,9 @@ count = 7
 spread_degrees = 50.0
 knockback = 140.0
 color = Color(1, 0.41960785, 0.20784314, 1)
-texture = ExtResource("3_fyja1")
 delay = 0.5
+sheet = SubResource("ray")
+element = ExtResource("vfx_fire")
 
 [resource]
 script = ExtResource("4_172eb")

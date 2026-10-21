@@ -1,11 +1,54 @@
 [gd_resource type="Resource" script_class="VfxElementDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/vfx/vfx_element_def.gd" id="1"]
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_sheet_def.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/fx/spirit/spirit_wisp.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/fx/spirit/spirit_ring.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/fx/spirit/spirit_flame.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/fx/spirit/spirit_claw.png" id="6"]
+
+[sub_resource type="Resource" id="shot"]
+script = ExtResource("2")
+texture = ExtResource("3")
+frames = 4
+orient = 1
+directions = 16
+fps = 12.0
+loop = true
+
+[sub_resource type="Resource" id="impact"]
+script = ExtResource("2")
+texture = ExtResource("4")
+fps = 16.0
+linger = 0.15
+
+[sub_resource type="Resource" id="piece"]
+script = ExtResource("2")
+layer = 2
+texture = ExtResource("5")
+frames = 8
+variants = 3
+fps = 14.0
+anchor = Vector2(0, -8)
+linger = 0.0
+
+[sub_resource type="Resource" id="claw"]
+script = ExtResource("2")
+texture = ExtResource("6")
+frames = 5
+orient = 1
+directions = 16
+fps = 18.0
 
 [resource]
 script = ExtResource("1")
 id = &"spirit"
 ramp = PackedColorArray(0.941176, 1, 0.972549, 1, 0.721569, 0.960784, 0.862745, 1, 0.435294, 0.839216, 0.705882, 1, 0.231373, 0.560784, 0.52549, 1, 0.137255, 0.294118, 0.321569, 1)
 residue = Color(0.721569, 0.960784, 0.862745, 0.4)
+slow_look = &"haunt"
 bit = 8
 motion = 0
+projectile = SubResource("shot")
+impact = SubResource("impact")
+piece = SubResource("piece")
+claw = SubResource("claw")

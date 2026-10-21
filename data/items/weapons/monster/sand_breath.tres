@@ -2,7 +2,6 @@
 
 [ext_resource type="AudioStream" path="res://data/audio/fireball.tres" id="2_6eg7h"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_0ww3p"]
-[ext_resource type="Texture2D" path="res://assets/projectiles/sandball.png" id="4_iy2qf"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="5_4lbt6"]
 [ext_resource type="Resource" path="res://data/vfx/elements/earth.tres" id="vfx_earth"]
 
@@ -22,7 +21,6 @@ attack_animation = 3
 on_hit = SubResource("Resource_ynpsm")
 trail_color = Color(0, 0, 0, 0)
 attack_sound = ExtResource("2_6eg7h")
-projectile_texture = ExtResource("4_iy2qf")
 projectile_speed = 270.0
 projectile_radius = 7.0
 projectile_count = 3
@@ -31,5 +29,6 @@ slot = 0
 id = &"sand_breath"
 display_name = "Sand Breath"
 glyph = "F"
-color = Color(1, 0.41960785, 0.20784314, 1)
+color = Color(0.8235294, 0.7019608, 0.49019608, 1)
 spawn_weight = 0
+element = ExtResource("vfx_earth")

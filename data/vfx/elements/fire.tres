@@ -1,6 +1,55 @@
 [gd_resource type="Resource" script_class="VfxElementDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/vfx/vfx_element_def.gd" id="1"]
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_sheet_def.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/fx/fire/fire_bolt.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/fx/fire/fire_impact.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/fx/fire/fire_lick.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/fx/fire/fire_claw.png" id="6"]
+[ext_resource type="Texture2D" path="res://assets/fx/fire/fire_blast.png" id="7"]
+[ext_resource type="AudioStream" path="res://data/audio/flames.tres" id="8"]
+
+[sub_resource type="Resource" id="shot"]
+script = ExtResource("2")
+texture = ExtResource("3")
+frames = 3
+orient = 1
+directions = 16
+fps = 12.0
+loop = true
+
+[sub_resource type="Resource" id="impact"]
+script = ExtResource("2")
+texture = ExtResource("4")
+frames = 7
+fps = 20.0
+anchor = Vector2(0, -2)
+linger = 0.12
+
+[sub_resource type="Resource" id="piece"]
+script = ExtResource("2")
+layer = 2
+texture = ExtResource("5")
+frames = 8
+variants = 3
+fps = 16.0
+anchor = Vector2(0, -8)
+linger = 0.0
+
+[sub_resource type="Resource" id="claw"]
+script = ExtResource("2")
+texture = ExtResource("6")
+orient = 2
+directions = 16
+fps = 18.0
+
+[sub_resource type="Resource" id="blast"]
+script = ExtResource("2")
+texture = ExtResource("7")
+frames = 9
+fps = 18.0
+anchor = Vector2(0, -4)
+linger = 0.15
 
 [resource]
 script = ExtResource("1")
@@ -11,3 +60,9 @@ mark = Color(0.101961, 0.078431, 0.086275, 0.55)
 accent = 2
 bit = 3
 motion = 0
+projectile = SubResource("shot")
+impact = SubResource("impact")
+piece = SubResource("piece")
+claw = SubResource("claw")
+blast = SubResource("blast")
+impact_sound = ExtResource("8")

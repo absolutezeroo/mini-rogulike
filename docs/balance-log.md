@@ -17,6 +17,31 @@ Wraith, King Slime, Crimson Tengu, Gilded Hoarder) are a little easier. To measu
 arena (`boss` fights, hits taken per minute) in the next pass; shorten their cast times if they
 fell below the target.
 
+## 2026-10-21 - The Soul Moth throws soul flames, not fire (by rule, not measured in runs)
+
+**Why:** the Soul Moth (act II support, `data/monsters/soul_moth.tres`) shot the fire `ghost_flame`
+and set the hero on fire: orange flames on the body from a pale spirit. It now throws its own
+**Soul Flame** (`data/items/weapons/monster/soul_flame.tres`, the spirit element's wisp): **7
+damage** (was 5) and a spirit chill, **30% slower for 1.5 s** (shown as a pale flicker, not
+rime), instead of a burn of 2 every 0.5 s for 3 s (up to 12 more). Its shot hurts less in total
+but slows the hero while its wards protect the pack, which suits a support; cooldown, range and
+speed are unchanged. To watch: act II packs with two moths (the chill keeps the hero in range of
+the melee monsters it wards). Moles and Stone Moles now **Burrow** (`data/skills/monster/burrow.tres`)
+instead of sharing the spirits' Blink: the same numbers (160 px in 0.12 s, cooldown 4 s), a puff of
+earth instead of a ghost's vanishing. No other number changed.
+
+## 2026-10-21 - Three supports stop shooting fire (by rule, not measured in runs)
+
+**Why:** the Moss Heart, the Gilded Moth and the Sand Drummer (and the Soul Moth, see above) all borrowed the Ghost
+Lantern's burning Ghost Flame, so a moth of the dead and a heart of moss set you on fire (docs/vfx.md:
+fire is fire). Each now shoots its own element, same damage (5), cooldown (1.6 s), reach and speed:
+the Gilded Moth a Gilded Mote (holy), **no burn** (was 2
+every 0.5 s for 3 s, 12 damage); the Moss Heart Moss Spores (poison), **3 per second for 4 s** (12
+damage, as the burn); the Sand Drummer a Sand Clod (earth) that **slows 30% for 1.2 s** instead of
+burning (Sand Breath slows 35% for 1.5 s). The Gilded Moth and the drummer, supports kept at range, hurt
+a little less; open question: whether the act II and IV packs feel softer (the moths rarely land
+a shot while their wards hold). The Ember Heart and the Ghost Lantern keep the Ghost Flame.
+
 ## 2026-10-21 - The Frost Staff's shards chill (by rule, not measured in runs)
 
 **Why:** the staff's shots are now the frost element's ice shards (docs/vfx.md), and a frost hit

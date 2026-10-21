@@ -23,8 +23,9 @@ extends Effect
 @export var texture: Texture2D
 ## Frames in a row of `texture` (0 = square frames).
 @export_range(0, 64) var texture_frames: int = 0
-## Drawn in flight instead of `texture`: a thing pre-drawn in 16 directions so it never shears
-## (an arrow, a kunai, a feather: data/vfx/sheets/). `texture` stays its picture elsewhere.
+## Drawn in flight instead of `texture` and the element's own projectile: a shot or a thing
+## drawn in 16 directions so it never shears (an arrow, a kunai, a feather, the Demon Cyclops'
+## rays of fire: data/vfx/sheets/). `texture` stays its picture elsewhere.
 @export var sheet: VfxSheetDef
 ## Statuses left on the enemies hit (burn, slow...).
 @export var status: OnHitStatus

@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="2_8xws5"]
 [ext_resource type="Script" path="res://src/definitions/passives/kill_burst_passive.gd" id="3_ca7df"]
 [ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="4_4m12d"]
+[ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="vfx_fire"]
 
 [sub_resource type="Resource" id="Resource_ittn7"]
 script = ExtResource("2_8xws5")
@@ -15,6 +16,7 @@ condition = 1
 blast_radius = 55.0
 blast_damage = 0.5
 blast_status = SubResource("Resource_ittn7")
+blast_element = ExtResource("vfx_fire")
 
 [resource]
 script = ExtResource("4_4m12d")

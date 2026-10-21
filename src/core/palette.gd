@@ -7,8 +7,9 @@ const GOLD := Color("ffd166")
 const DANGER := Color("ff6b6b")
 ## Healing and life.
 const HEAL := Color("6ee787")
-## Health bars and blood.
-const BLOOD := Color("e84537")
+## Health bars and blood: the blood element's main color (data/vfx/elements/blood.tres; a test
+## keeps them equal).
+const BLOOD := Color("e0394c")
 ## Burning: the fire element's main color (data/vfx/elements/fire.tres; a test keeps them equal).
 const FIRE := Color("ffad5d")
 ## Frost and slows: the frost element's main color (data/vfx/elements/frost.tres).

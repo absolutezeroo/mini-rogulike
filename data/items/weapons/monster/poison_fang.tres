@@ -1,11 +1,9 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
-[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_6ys21"]
-[ext_resource type="Texture2D" path="res://assets/fx/claw.png" id="1_qpdn4"]
 [ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="2_6ys21"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_jarcf"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="4_25p5s"]
-[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_rlsbv"]
+[ext_resource type="Resource" path="res://data/vfx/elements/poison.tres" id="vfx_poison"]
 
 [sub_resource type="Resource" id="Resource_23epd"]
 script = ExtResource("3_jarcf")
@@ -13,10 +11,10 @@ poison_damage = 2
 
 [resource]
 script = ExtResource("4_25p5s")
+element = ExtResource("vfx_poison")
 cooldown = 1.0
 reach = 16.0
 knockback = 60.0
-attack_fx = ExtResource("1_qpdn4")
 on_hit = SubResource("Resource_23epd")
 arc_degrees = 90.0
 trail_color = Color(0, 0, 0, 0)
@@ -25,5 +23,5 @@ slot = 0
 id = &"poison_fang"
 display_name = "Poison Fang"
 glyph = "P"
-color = Color(0.5019608, 0.92941177, 0.6, 1)
+color = Color(0.607843, 0.839216, 0.290196, 1)
 spawn_weight = 0

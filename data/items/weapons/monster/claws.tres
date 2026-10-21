@@ -1,18 +1,16 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
-[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_s3e8i"]
-[ext_resource type="Texture2D" path="res://assets/fx/clawdouble.png" id="1_svnq3"]
 [ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="2_ct8ti"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="3_s3e8i"]
-[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_hlfgm"]
+[ext_resource type="Resource" path="res://data/vfx/elements/blood.tres" id="vfx_blood"]
 
 [resource]
 script = ExtResource("3_s3e8i")
+element = ExtResource("vfx_blood")
 damage = 6
 cooldown = 0.9
 reach = 18.0
 knockback = 90.0
-attack_fx = ExtResource("1_svnq3")
 arc_degrees = 100.0
 trail_color = Color(0, 0, 0, 0)
 attack_sound = ExtResource("2_ct8ti")
@@ -20,5 +18,5 @@ slot = 0
 id = &"claws"
 display_name = "Claws"
 glyph = "C"
-color = Color(0.75686276, 0.07058824, 0.12156863, 1)
+color = Color(0.878431, 0.223529, 0.298039, 1)
 spawn_weight = 0

@@ -1,14 +1,13 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
 [ext_resource type="SpriteFrames" path="res://data/visuals/weapons/book.tres" id="1_umhj5"]
-[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_w0bwa"]
 [ext_resource type="AudioStream" path="res://data/audio/fireball.tres" id="2_vpncv"]
 [ext_resource type="Texture2D" path="res://assets/weapons/book.png" id="3_ayg2s"]
-[ext_resource type="Texture2D" path="res://assets/projectiles/fireball.png" id="4_uhthc"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="5_w0bwa"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="6_uhthc"]
 [ext_resource type="Resource" path="res://data/skills/player/fireball.tres" id="7_w0bwa"]
 [ext_resource type="Resource" path="res://data/skills/player/fire_wave.tres" id="8_hkjf3"]
+[ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="vfx_fire"]
 
 [resource]
 script = ExtResource("5_w0bwa")
@@ -20,7 +19,6 @@ attack_animation = 3
 attack_frames = ExtResource("1_umhj5")
 skills = Array[ExtResource("6_uhthc")]([ExtResource("7_w0bwa"), ExtResource("8_hkjf3")])
 attack_sound = ExtResource("2_vpncv")
-projectile_texture = ExtResource("4_uhthc")
 projectile_speed = 360.0
 projectile_radius = 7.0
 projectile_count = 3
@@ -36,3 +34,4 @@ glyph = "E"
 color = Color(1, 0.54901963, 0.25882354, 1)
 min_depth = 4
 spawn_weight = 3
+element = ExtResource("vfx_fire")

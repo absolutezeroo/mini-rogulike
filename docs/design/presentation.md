@@ -68,24 +68,35 @@
   sheet, or a burst in its ramp); a shot at the end of its range breaks up instead of vanishing.
   Plain things (shurikens, arrows, feathers, coins: `projectile_glow` / `ProjectileEffect.glow`
   0) just fly: arrows, kunai, the thrown spear and the Crimson Tengu's crimson feathers are drawn
-  in 16 directions (`data/vfx/sheets/`), shurikens and coins spin as they are. Explosions are a burst drawn by a shader in their element's ramp (`BlastVfx`,
-  `blast.gdshader`: for fire a white-hot heart, flame bands, licking edges, smoke) with a
-  ripple, particles and a mark left on the floor (a scorch for fire).
+  in 16 directions (`data/vfx/sheets/`), shurikens and coins spin as they are. Explosions are their element's blast sheet at 2x (fire: a white-hot ball whose
+  tongues lick out and up into dark smoke and embers; earth: the ground cracking open, chunks
+  thrown up, a dust cloud rolling low, cracks that stay a moment), ringed by its pieces when
+  wider than the sheet (flame licks, rock spikes), or a burst drawn by a shader in its ramp
+  (`BlastVfx`) for the elements without one; a ripple and a mark on the floor (a scorch for
+  fire). A boss's stomp is the ground bursting, whatever the boss is made of, and a trapped
+  chest bursts apart in grit and dust (crates and barrels break the same way); powder kegs and
+  bombs are fire.
 - **Little details**: fights leave **splats** on the floor (`SplatLayer`, `World.add_splat`): blood,
-  green slime, purple ink, bone dust, in each monster's `splat_color` (spirits and flames leave
-  none), fading after a while. **Plants sway** in a breeze and **bend** away from whoever walks
+  green slime, purple ink, bone dust, in each monster's `splat_color` (blood is the blood
+  element's dark red; spirits and flames leave none), fading after a while. A glob of venom leaves
+  a small puddle where it bursts, a wound a stain (`VfxElementDef.impact_mark`). What drinks blood
+  shows it: a vampiric elite's hits, the Leech Rune, Vampirism and the Vampiric affix, Bloodlust's
+  kills draw a few drops out of the victim into the drinker (`BloodDrainVfx`); Executioner's
+  finishing blows and Bloodrage's wounded blows land in blood. **Plants sway** in a breeze and **bend** away from whoever walks
   through them (`DecorRuleDef.sway`, `SceneKey.sway`). Shallow water **glints** (`GroundLayerDef.shimmer`).
-  Braziers and candles **burn** (`PropDef.flame`). The HP bars keep a pale **trail** of what a hit
+  Braziers and candles **burn** (`PropDef.flame`; a brazier with the fire kit's flames, like
+  campfires and flame vents). The HP bars keep a pale **trail** of what a hit
   cost, then drain it; they glow when healed. Each biome has its **air**: fireflies in the garden,
   sand gusts in the desert, mist over the flooded caverns, dust in the library and the tomb.
   Gameplay code spawns them in one line through `Vfx` (`Vfx.hit(...)`, `Vfx.explosion(...)`).
 - **Statuses on the body** (`StatusFx`, one per actor; looks in `data/vfx/status_looks/`,
   `StatusLookDef`, each in its element's ramp, on the body's pixel grid): a **burning** body
   throws small flames and embers and catches fire in a burst with a crackle; a **poisoned** one
-  bubbles and leaks a green haze that sinks at its feet; a **chilled** one grows rime on its edges
+  splashes as the venom takes, then bubbles (bubbles that swell and pop) and leaks a murky haze
+  that sinks at its feet; a **wailed** one (a spirit's slow) flickers with small pale flames; a **chilled** one grows rime on its edges
   (it breaks into falling chips when the chill ends), sheds ice chips and breathes cold mist at
   its feet, with a burst of shards when it takes hold. Only frost and the cold show as frost:
-  sand, ink, spores, a wail and quicksand slow without it (`OnHitStatus.slow_element`). The body
+  sand, ink, spores and quicksand slow without it, a wail with its own pale flicker (`OnHitStatus.slow_element`). The body
   takes a steady 45% tint of the status's color (no pulsing glow). Their ticks show in the
   status's color. Drawn by hand over the body, 24 bits at most each, and asleep when nothing is
   on it.
@@ -122,12 +133,13 @@
 - **The Threshold** (a second life's trial, see builds.md; `ThresholdDef` > Place and Look,
   `data/threshold/`): on the killing blow the floor freezes, a **knell** tolls (a bell made for the
   game, `assets/audio/sfx/world/knell.ogg`) and the picture drains to cold grey-blue at once; the
-  hero's body fades and sinks while a pale soul is dragged down out of it (`Threshold.SinkingSoul`),
+  hero's body fades and sinks while a pale soul, a wisp in the spirit's ramp, is dragged down out
+  of it (`Threshold.SinkingSoul`),
   then a night-blue veil falls. Under it the limbo: an oval of pale stone in thick mist (its own
   `DungeonTheme`, light ramp from night blue to pale blue, `LightingDef` ambient 10), ghost wisps,
   drifting fog and low mist, a strong cold grading with little saturation and a slow pulsing
   vignette (`limbo_ambience.tres`), whispers and spirit sighs in a long reverb, the boss music.
-  Spectres rise in a puff of mist: the act's monsters blended 60% toward pale blue
+  Spectres rise out of a hollow ring of pale flames (the spirit element): the act's monsters blended 60% toward pale blue
   (`ActorRig.pallor`, under the hit flash) and a little see-through. Won, the bell again and a
   pale veil, and the hero is back with the feather's golden burst; lost, the bell and a dark veil.
 - **Hit stop**: a few frames of freeze on impacts (`HitStop.freeze(seconds)`).

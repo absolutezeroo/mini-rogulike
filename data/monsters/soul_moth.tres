@@ -12,7 +12,7 @@
 [ext_resource type="Resource" path="res://data/skills/monster/soul_ward.tres" id="10_vkult"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_e4iyj"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="12_ey5rd"]
-[ext_resource type="Resource" path="res://data/items/weapons/monster/ghost_flame.tres" id="13_l5f3q"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/soul_flame.tres" id="13_l5f3q"]
 [ext_resource type="Resource" path="res://data/materials/spirit.tres" id="99_material"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_awwon"]
@@ -64,6 +64,6 @@ display_name = "Soul Moth"
 description = "Wraps its allies in wards that soak up your blows."
 icon = SubResource("AtlasTexture_awwon")
 glyph = "G"
-color = Color(0.6, 0.85, 1, 1)
+color = Color(0.721569, 0.960784, 0.862745, 1)
 min_depth = 4
 spawn_weight = 5

@@ -41,6 +41,9 @@ enum Motion {
 @export var residue := Color.TRANSPARENT
 ## What it leaves on the floor for a while: rime, a scorch, a puddle (transparent: nothing).
 @export var mark := Color.TRANSPARENT
+## Size of the `mark` a landing shot or a spurt of it leaves on the floor (a puddle of venom, a
+## stain of blood; 1 = a monster's death). 0: its landings leave nothing (frost, light).
+@export_range(0.0, 1.0) var impact_mark: float = 0.0
 @export var bit: Bit = Bit.SQUARE
 @export var motion: Motion = Motion.OUTWARD
 ## Shines on its own (a halo and a light around its shots, unshaded sparks). Off for the
@@ -58,6 +61,10 @@ enum Motion {
 @export var piece: VfxSheetDef
 ## A creature's blow (claws, fangs) in this element.
 @export var claw: VfxSheetDef
+## Its explosion (Vfx.explosion: a fireball bursting, the ground erupting), drawn at 2x in the
+## middle; a bigger blast adds a ring of its pieces at the edge instead of stretching it.
+## Without one, a burst in its ramp (BlastVfx).
+@export var blast: VfxSheetDef
 ## The look (a StatusLookDef in data/vfx/status_looks.tres, by its status id) a body slowed by it
 ## shows: frost's is &"slow" (rime, cold mist). Empty: being slowed by it shows nothing (sand,
 ## ink: they slow, they don't freeze).
