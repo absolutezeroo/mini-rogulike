@@ -155,6 +155,8 @@ static func shockwave(world: World, source: Actor, radius: float, amount: int, k
 	world.get_tree().create_timer(fuse, false).timeout.connect(func() -> void:
 		if not is_instance_valid(world) or world.floor_id != floor_id or not is_instance_valid(source) or source.is_dead:
 			return
+		if not world.is_inside_tree():
+			return  # its floor waits out of the tree (the hero is at the Threshold): it fizzles
 		var center := source.global_position
 		Vfx.explosion(world, center, radius)
 		Events.screen_shake.emit(0.5)
@@ -176,6 +178,8 @@ static func delayed_blast(world: World, center: Vector2, radius: float, amount: 
 	world.get_tree().create_timer(fuse, false).timeout.connect(func() -> void:
 		if not is_instance_valid(world) or world.floor_id != floor_id:
 			return  # the hero took the stairs meanwhile
+		if not world.is_inside_tree():
+			return  # its floor waits out of the tree (the hero is at the Threshold): it fizzles
 		if fx:
 			world.spawn_vfx(SheetVfx.create(fx, center, 0.0, radius * 2.0 / fx.get_height()))
 			Sfx.play_at(Sfx.bank.explosion, center, -4.0)

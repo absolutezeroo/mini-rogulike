@@ -29,6 +29,22 @@ func _test_boss_fight(game: Game) -> void:
 	check(game.hud.get_node("%BossBar").visible, "boss health bar shown")
 	check(not arena.get_gate_cells().is_empty(), "the arena has spikes on its exits")
 
+	# Slain mid-fight with a Phoenix Feather: the Threshold, then back to the same fight.
+	var feather := _perk("phoenix_feather")
+	player.perks.add(feather)
+	var boss_hp := boss.hp
+	var in_blast := player.global_position.distance_to(boss.global_position) <= 110.0 + boss.radius
+	_killing_blow(player, boss)
+	check(await _until_trial(game), "slain by the boss with a second life: the Threshold")
+	check(not game.hud.get_node("%BossBar").visible, "no boss bar in the limbo")
+	check(boss.hp == boss_hp and not world.is_inside_tree(), "the boss waits on its floor, untouched")
+	check(await _win_trial(game), "the trial won")
+	check(world.is_boss_fight() and arena.is_closed() and boss.target == player and not boss.is_dead, "back to the same boss fight, the exits still shut")
+	check(boss.hp == boss_hp or (in_blast and boss.hp < boss_hp), "the boss' Health as it was (but for the blast)")
+	check(player.hp == roundi(player.get_max_hp() * (feather.passives[0] as CheatDeathPassive).boss_fight_heal_ratio), "back at a quarter of Health in a boss fight")
+	check(game.hud.get_node("%BossBar").visible, "the boss bar is back")
+	player.hp = player.get_max_hp()
+
 	# Phase 2 at half HP: new skills.
 	var def := boss.def as BossDef
 	var hurt := HitInfo.new()

@@ -32,6 +32,7 @@ SK,SK,CP
 %+d%% attack speed,%+d%% attack speed,%+d %% de Vitesse d'attaque
 %+d%% skill damage,%+d%% skill damage,%+d %% de Dégâts des compétences
 skills recharge %d%% faster,skills recharge %d%% faster,compétences rechargées %d %% plus vite
+The Threshold,The Threshold,Le Seuil
 Burns (%d every 0.5 s),Burns (%d every 0.5 s),"Brûle (%d toutes les 0,5 s)"
 Poisons (%d per second),Poisons (%d per second),Empoisonne (%d par seconde)
 Slows %d%%,Slows %d%%,Ralentit de %d %%
@@ -182,6 +183,9 @@ Daily score,Daily score,Score du jour
 %d monstres abattus, %d boss"
 Time %s,Time %s,Temps %s
 Daily score %d,Daily score %d,Score du jour %d
+%s: slay %d spectres in %d seconds to come back where you fell.,%s: slay %d spectres in %d seconds to come back where you fell.,%s : abats %d spectres en %d secondes pour revenir là où tu es tombé.
+The knell falls silent. The Well lets you go.,The knell falls silent. The Well lets you go.,Le glas se tait. Le Puits te laisse partir.
+The knell has tolled. The Threshold keeps you.,The knell has tolled. The Threshold keeps you.,Le glas a sonné. Le Seuil te garde.
 Not met yet,Not met yet,Pas encore rencontré
 not slain yet,not slain yet,pas encore abattu
 %d slain,%d slain,%d abattus
@@ -345,6 +349,8 @@ Achievement: %s  (+%d souls),Achievement: %s  (+%d souls),Succès : %s  (+%d âm
 Challenge done: %s  (+%d souls),Challenge done: %s  (+%d souls),Défi relevé : %s  (+%d âmes)
 Daily quest done: %s  (+%d souls),Daily quest done: %s  (+%d souls),Quête du jour accomplie : %s  (+%d âmes)
 Weekly quest done: %s  (+%d souls),Weekly quest done: %s  (+%d souls),Quête de la semaine accomplie : %s  (+%d âmes)
+You come back from the Threshold.,You come back from the Threshold.,Tu reviens du Seuil.
+The knell has tolled,The knell has tolled,Le glas a sonné
 Seal  %d / %d,Seal  %d / %d,Sceau  %d / %d
 Stairs open,Stairs open,Escaliers ouverts
 The stairs are open,The stairs are open,Les escaliers sont ouverts
@@ -356,6 +362,10 @@ Bare hands,Bare hands,Mains nues
 %s awakens: %s,%s awakens: %s,%s s'éveille : %s
 Floor %d  %s,Floor %d  %s,Étage %d  %s
 Depth %d,Depth %d,Étage %d
+Slay %d spectre before the knell,Slay %d spectre before the knell,Abats %d spectre avant le glas
+Slay %d spectres before the knell,Slay %d spectres before the knell,Abats %d spectres avant le glas
+Slain %d / %d,Slain %d / %d,Abattus %d / %d
+%d s,%d s,%d s
 Your perks,Your perks,Tes atouts
 Families  -  hold 3 perks of one to awaken its bonus,Families  -  hold 3 perks of one to awaken its bonus,Familles  -  réunis 3 atouts d'une famille pour éveiller son bonus
 Perks taken this run,Perks taken this run,Atouts pris dans cette partie
@@ -647,6 +657,8 @@ Naturalist,Naturalist,Naturaliste
 Discover 15 kinds of creatures in the bestiary.,Discover 15 kinds of creatures in the bestiary.,Découvre 15 espèces de créatures dans le bestiaire.
 Nightmare Walker,Nightmare Walker,Marcheur du Cauchemar
 Win a run on Nightmare.,Win a run on Nightmare.,Gagne une partie en Cauchemar.
+Not Yet,Not Yet,Pas Encore
+Win the trial of the Threshold and come back to life.,Win the trial of the Threshold and come back to life.,Remporte l'épreuve du Seuil et reviens à la vie.
 Feed the Pit,Feed the Pit,Nourrir l'Abîme
 Knock 10 monsters into holes.,Knock 10 monsters into holes.,Pousse 10 monstres dans des trous.
 Slayer,Slayer,Pourfendeur
@@ -1097,7 +1109,7 @@ Every floor starts with a shell of frost that soaks up 20 damage.,Every floor st
 Hydra's Quiver,Hydra's Quiver,Carquois de l'Hydre
 "Everything you shoot fires 1 more projectile per level, fireballs included (2 more at most with Prism runes; the volley shares its damage).","Everything you shoot fires 1 more projectile per level, fireballs included (2 more at most with Prism runes; the volley shares its damage).","Tout ce que tu tires part avec 1 projectile de plus par niveau, boules de feu comprises (2 de plus au maximum avec les runes Prisme ; la salve partage ses Dégâts)."
 Phoenix Feather,Phoenix Feather,Plume de Phénix
-Survive a killing blow once per level: back to half Health with a blast (a quarter during a boss fight).,Survive a killing blow once per level: back to half Health with a blast (a quarter during a boss fight).,Survis à un coup fatal une fois par niveau : tu reviens à la moitié de ta Vie dans une déflagration (un quart pendant un combat de boss).
+"Once per level, a killing blow sends you to the Threshold: slay 8 foes in 25 s (more in later acts) to return where you fell, at half Health (a quarter in a boss fight).","Once per level, a killing blow sends you to the Threshold: slay 8 foes in 25 s (more in later acts) to return where you fell, at half Health (a quarter in a boss fight).","Une fois par niveau, un coup fatal t'envoie au Seuil : abats 8 ennemis en 25 s (plus aux actes suivants) pour revenir où tu es tombé, à la moitié de ta Vie (un quart en combat de boss)."
 Sage's Codex,Sage's Codex,Codex du Sage
 War Banner,War Banner,Bannière de Guerre
 Arcane,Arcane,Arcanes
@@ -1353,6 +1365,7 @@ The lantern goes out... for now.,The lantern goes out... for now.,La lanterne s'
 The Well keeps you tonight. The shrine remembers the souls you brought back.,The Well keeps you tonight. The shrine remembers the souls you brought back.,Le Puits te garde cette nuit. Le sanctuaire se souvient des âmes que tu as ramenées.
 "Darkness. Then the shrine's bell, far above. Again.","Darkness. Then the shrine's bell, far above. Again.","Les ténèbres. Puis la cloche du sanctuaire, loin là-haut. Encore une fois."
 The souls you brought back from the Well lend you their strength.,The souls you brought back from the Well lend you their strength.,Les âmes que tu as ramenées du Puits te prêtent leur force.
+"Between the Well and the light, the dead wait their turn. Not yours. Not yet.","Between the Well and the light, the dead wait their turn. Not yours. Not yet.","Entre le Puits et la lumière, les morts attendent leur tour. Pas le tien. Pas encore."
 Move,Move,Bouger
 Drag your thumb on the left side of the screen to walk.,Drag your thumb on the left side of the screen to walk.,Fais glisser ton pouce sur la gauche de l'écran pour marcher.
 Sealed stairs,Sealed stairs,Escaliers scellés
@@ -1397,6 +1410,7 @@ Something unusual is going on here: the log on the left tells you what.,Somethin
 "Stay near a campfire to warm up. Frozen, you slow down and get hurt.","Stay near a campfire to warm up. Frozen, you slow down and get hurt.","Reste près d'un feu de camp pour te réchauffer. Gelé, tu ralentis et tu souffres."
 Heat,Heat,Chaleur
 Stay by an oasis to cool down before the heat hurts you.,Stay by an oasis to cool down before the heat hurts you.,Reste près d'une oasis pour te rafraîchir avant que la chaleur ne te blesse.
+"A second life, if you earn it: slay the spectres before the countdown ends to return where you fell.","A second life, if you earn it: slay the spectres before the countdown ends to return where you fell.","Une seconde vie, si tu la mérites : abats les spectres avant la fin du compte à rebours pour revenir où tu es tombé."
 "Roll through a blow: for a heartbeat, nothing can touch you.","Roll through a blow: for a heartbeat, nothing can touch you.","Roule à travers un coup : le temps d'un battement de cœur, rien ne peut te toucher."
 A weapon is as strong as the floor it was found on. Keep plundering.,A weapon is as strong as the floor it was found on. Keep plundering.,Une arme vaut l'étage où elle fut trouvée. Continue à piller.
 Hold three perks of one family to awaken its bonus.,Hold three perks of one family to awaken its bonus.,Réunis trois atouts d'une même famille pour éveiller son bonus.
@@ -1449,7 +1463,7 @@ Swift Litany,Swift Litany,Litanie Hâtive
 Communion,Communion,Communion
 Heal 5% of your max Health per level each time a floor's stairs open or its boss falls.,Heal 5% of your max Health per level each time a floor's stairs open or its boss falls.,Récupère 5 % de ta Vie max par niveau chaque fois que les escaliers d'un étage s'ouvrent ou que son boss tombe.
 Death Denied,Death Denied,La Mort Refusée
-"Start every run with a Phoenix Feather: survive one killing blow (back to half Health, a quarter during a boss fight).","Start every run with a Phoenix Feather: survive one killing blow (back to half Health, a quarter during a boss fight).","Commence chaque partie avec une Plume de Phénix : survis à un coup fatal (retour à la moitié de ta Vie, un quart pendant un combat de boss)."
+"Start every run with a Phoenix Feather: a killing blow sends you to the Threshold; win its trial to return where you fell, at half Health (a quarter in a boss fight).","Start every run with a Phoenix Feather: a killing blow sends you to the Threshold; win its trial to return where you fell, at half Health (a quarter in a boss fight).","Commence chaque partie avec une Plume de Phénix : un coup fatal t'envoie au Seuil ; remporte son épreuve pour revenir où tu es tombé, à la moitié de ta Vie (un quart en combat de boss)."
 "Your hero moves faster, in every run.","Your hero moves faster, in every run.","Ton héros se déplace plus vite, dans chaque partie."
 Satchel of Tomes,Satchel of Tomes,Besace de Grimoires
 "Start every run with a spell tome, at random among those the dungeon holds.","Start every run with a spell tome, at random among those the dungeon holds.","Commence chaque partie avec un grimoire de sort, au hasard parmi ceux que recèle le donjon."

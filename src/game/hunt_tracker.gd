@@ -80,6 +80,8 @@ func _on_monster_killed(monster: Monster) -> void:
 		return
 	if monster.world != player.world or not _by_hero(monster.last_attacker):
 		return  # slain by something else (a trap, another monster)
+	if monster.summoned:
+		return  # called in (a summoner's brood, the Threshold's spectres): worth no souls, as in RunRecords
 	var times: Array = _kill_times.get(monster.def.id, [])
 	times.append(_clock)
 	if times.size() > STREAK_MEMORY:

@@ -236,6 +236,27 @@ func _test_hints(game: Game) -> void:
 	game.hud._boss_bar.hide_now()
 	await _frames(gap)
 
+	# The first trial of the Threshold: its hint once its name and rule are gone, at the countdown.
+	await _clear_monsters(game.world)
+	player.perks.add(_perk("phoenix_feather"))
+	_killing_blow(player)
+	check(await _until_trial(game), "a second life opens the Threshold")
+	await _frames(30)
+	check(tutorial.current == null or tutorial.current.id != &"threshold", "its hint waits for the trial's name to go")
+	for i in 400:
+		if tutorial.current and tutorial.current.id == &"threshold":
+			break
+		await _frames(1)
+	check(tutorial.current != null and tutorial.current.id == &"threshold", "then the Threshold's hint")
+	check(game.hint_box.target.has_area(), "pointing at the countdown")
+	tutorial.dismiss()
+	check(await _win_trial(game), "back from the trial")
+	player.perks.clear()
+	player.hp = player.get_max_hp()
+	await _frames(gap)
+	tutorial.dismiss()  # (the souls hint, if the spectres' souls were the first gathered)
+	await _frames(gap)
+
 
 ## Never over a menu; turned off in the options, they all go.
 func _test_menus_and_off(game: Game) -> void:

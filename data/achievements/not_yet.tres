@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AchievementDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/perks/phoenix_feather.png" id="1_feather"]
+[ext_resource type="Script" path="res://src/definitions/achievement_def.gd" id="2_achievement"]
+
+[resource]
+script = ExtResource("2_achievement")
+id = &"not_yet"
+display_name = "Not Yet"
+description = "Win the trial of the Threshold and come back to life."
+icon = ExtResource("1_feather")
+stat = 15
+reward_souls = 25

@@ -57,7 +57,8 @@ src/
   dungeon/             Map data, generator, drawing
   world/               World (owns the current floor), FloorRules (how hard and rewarding it is),
                        NavGrid (pathfinding), FogOfWar (what the hero has seen), WallBuilder,
-                       FloorPopulator, BossArena, AmbushRoom, RoomGates, PitLayer;
+                       FloorPopulator, BossArena, AmbushRoom, RoomGates, PitLayer, ThresholdWorld
+                       (the limbo of a second life's trial);
                        dressing/ (FloorDresser: a floor in its biome, RoomSpace)
   entities/            Actor (shared base), Player, Monster, Projectile, ItemPickup, Stairs, Prop, Trap,
                        hazards/ (Chest, CrumblingFloor, Quicksand, HeatSource, DarkRoom, FloorPatch),
@@ -70,7 +71,8 @@ src/
                        perk choice, pause menu, options, end of run
   game/                Game: main scene, floor flow, pauses; RunState (the run: depth, kills, bosses,
                        difficulty), RunRecords (stats, bestiary, achievements, history), OfferQueue
-                       (perk choices waiting), GameMenus (the panels), ShrineUpgrades, RunSave (on disk)
+                       (perk choices waiting), GameMenus (the panels), ShrineUpgrades, RunSave (on disk),
+                       Threshold (a second life's trial: the floor out of the tree, the hero in a limbo)
 tests/               Headless tests: run_tests (the runner), suites/ (unit, title, game, combat, floor, boss,
                      balance: opt-in), support/ (TestSuite: checks, scene helpers, the bot)
 locale/              strings.csv: every player text, English (the key) and French (see Languages)

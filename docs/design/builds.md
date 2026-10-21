@@ -75,7 +75,7 @@ A `PerkDef` (in `data/perks/`) is stat bonuses + a list of `Passive`s, both mult
 | `LootOnKillPassive` | on kill | Fortune |
 | `ExecutePassive` | before a hit | Executioner |
 | `ExtraProjectilesPassive` | every volley | Hydra's Quiver |
-| `CheatDeathPassive` | before dying | Phoenix Feather |
+| `CheatDeathPassive` | before dying (opens the Threshold, see below) | Phoenix Feather (and Death Denied's) |
 
 Damage caused by a passive (burn, thorns, shockwaves, chains, Ice Shards' shards, the Arcane
 ring of bolts: `ProjectileSpec.secondary`) is a *secondary* hit: it never triggers other on-hit
@@ -92,6 +92,47 @@ points, the fractions adding up (10% of a 7-damage hit is 0.7, not 1). Burn and 
 secondary hits heal nothing, and summoned monsters and a boss's adds feed no "on kill" heal (nor
 Fortune's loot). Potions, springs, healing spells and level ups are not limited. Perks are stored per actor in a `PerkSet`,
 so monsters could use them too (elites, later).
+
+### Second lives: the trial of the Threshold
+
+A second life (`CheatDeathPassive`: the Phoenix Feather relic, one per level, and the feather the
+Tree of Souls' **Death Denied** gives) no longer heals the hero where he stands. The killing blow
+pulls him into **the Threshold** (FR *le Seuil*), a limbo between life and death, for a trial
+against the clock: **slay the spectres before the knell**. Won, he comes back to the very spot he
+fell on, just after, with the feather's heal (`heal_ratio`: half his max Health,
+`boss_fight_heal_ratio`: a quarter during a boss fight) and its blast around him, plus a second
+of grace (he blinks, nothing hurts him: monsters were frozen mid-swing). Lost (the countdown runs
+out, or he falls in there), he is put back where he fell and **dies for real**: the normal end of
+the run, and what slew him is still what slew him the first time.
+
+- **The floor waits.** The floor's `World` leaves the scene tree as it is while he is away
+  (`Threshold`, `src/game/threshold.gd`): its monsters, their Health and statuses, an elite's
+  affixes, a boss mid-fight and its arena, the shots in the air, nothing moves and nothing is lost.
+  The hero's own statuses stay behind (cleared on the way in and on the way back).
+- **The limbo** is a `ThresholdWorld` (`src/world/threshold_world.gd`, a `World` built beside the
+  floor): one oval arena in the mist (`ArenaDef` `data/threshold/limbo_arena.tres`, pale lamps for
+  pillars), no stairs, no seal, no loot. He fights at `hero_health` of his max Health (60%).
+  Spectres of the act he fell in rise around him, a few at a time, and come for him: pale,
+  see-through, `monster_health` of their Health (70%), and worth nothing (summoned: no XP, gold,
+  loot, bestiary kill, challenge or "on kill" heal).
+- **The rules** (`ThresholdDef`, `data/threshold/threshold.tres`, named by the passive's `trial`):
+
+  | Act | Spectres to slay | Seconds |
+  |---|---|---|
+  | I | 8 | 25 |
+  | II | 10 | 31 |
+  | III | 12 | 37 |
+  | IV (and endless, by act) | 14 | 43 |
+
+  (`kills` + `kills_per_act` x act, `time_limit` + `time_per_act` x act; 4 spectres up at once,
+  the next one 0.7 s after a gap opens, never closer than 5 cells.)
+- **Once per stack:** each feather opens one trial (`memory.used`). A blow taken inside the trial
+  is the trial's to judge: a second, unused feather doesn't save him in there.
+- **Around it:** the run's clock keeps counting; nothing is saved during the trial (a run picked
+  up again is as it was before the killing blow); the bag stays shut and perk choices wait;
+  the pause menu works. Without a Threshold in the scene (the balance tools' bare arena, which
+  also has no game around it), a second life heals in place as before, so revives still read in
+  the measures.
 
 ### Families (synergies)
 

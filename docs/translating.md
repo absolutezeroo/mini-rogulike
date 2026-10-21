@@ -63,6 +63,7 @@ says so).
 | Tree branches Flesh / Blade / Arcana / Greed | Chair / Lame / Arcanes / Avarice | At the Well's Edge (before a run) | Au Bord du Puits |
 | The Well claims you (death) | Le Puits te réclame | Victory Achieved | Victoire Acquise |
 | Souls to offer (shrine badge) | Âmes à offrir | Choose your ordeal (difficulty) | Choisis ton épreuve |
+| The Threshold (a second life's trial) | Le Seuil | spectre (its monsters); the knell | spectre ; le glas |
 
 ## After adding or changing texts
 

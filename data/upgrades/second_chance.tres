@@ -9,7 +9,7 @@
 script = ExtResource("4_6ncqx")
 id = &"second_chance"
 display_name = "Death Denied"
-description = "Start every run with a Phoenix Feather: survive one killing blow (back to half Health, a quarter during a boss fight)."
+description = "Start every run with a Phoenix Feather: a killing blow sends you to the Threshold; win its trial to return where you fell, at half Health (a quarter in a boss fight)."
 icon = ExtResource("1_b2no8")
 color = Color(1, 0.81960785, 0.4, 1)
 kind = 2

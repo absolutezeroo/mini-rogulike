@@ -1,1 +1,2 @@
 Footstep sounds: Kenney "Impact Sounds" (CC0, www.kenney.nl)
+Knell (knell.ogg): synthesized for this game from a church bell's partials (no outside source).

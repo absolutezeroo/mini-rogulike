@@ -3,6 +3,35 @@
 Dated entries, newest first: what was measured, what changed and why, before/after numbers, open
 questions. How to measure: [balance.md](balance.md).
 
+## 2026-10-21 - Second lives go through the trial of the Threshold
+
+**Design (from the player's request):** a revive (Phoenix Feather, Death Denied) no longer heals
+in place: the killing blow sends the hero to a limbo where he must slay spectres before a
+countdown ends; won, he comes back where he fell with the feather's old heal (half Health, a
+quarter in a boss fight, unchanged) and its blast; lost, he dies. See design/builds.md.
+
+**Numbers** (`data/threshold/threshold.tres`): 8 spectres in 25 s in act I, +2 spectres and +6 s
+per act (10 in 31 s, 12 in 37 s, 14 in 43 s); 4 up at once, the next 0.7 s after a gap; spectres
+at 70% of the same monster's Health (damage unchanged); the hero inside at 60% of his max Health;
+1 s of grace when he is back.
+
+**Measured** (a probe bot, not the balance tools: walks at the nearest spectre, holds attack,
+rolls and casts every half second, drinks under a third of Health, no dodging; the level of the
+depth, a floor-level Katana, Chain Mail and Iron Helm, no perks; 4 trials per depth):
+
+| Depth (act) | Won | Seconds used (of the limit) | Lost by |
+|---|---|---|---|
+| 1, 3 (I) | 8/8 | 6-17 of 25 | - |
+| 4, 6 (II) | 8/8 | 11-18 of 31 | - |
+| 7, 9 (III) | 6/8 | 18-30 of 37 | death (9-11 of 12 slain) |
+| 10, 12 (IV) | 5/8 | 27-39 of 43 | death (12-13 of 14 slain) |
+
+A first draft (6 in 30 s, +2 and +4 s per act) was won in 6-9 s in act I: no pressure at all.
+The bot only dies to damage, never to the clock: a hero with perks who dodges should win most
+trials in acts I-II and have to fight for them in III-IV, which is the point (a second life,
+not a free one). The balance tools' arena has no Threshold, so a revive still heals in place
+there and the measured revive value (+100% / +50%) is unchanged; it is now an upper bound.
+
 ## 2026-10-20 - Item level: gear as strong as the floor it came from
 
 **Design (from the player's request):** a floor-1 weapon must be worse than a floor-2 one, and

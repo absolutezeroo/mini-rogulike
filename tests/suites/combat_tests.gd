@@ -119,12 +119,17 @@ func _test_perks_in_game(game: Game, world: World, player: Player) -> void:
 
 	var phoenix := _perk("phoenix_feather")
 	player.perks.add(phoenix)
-	player._invulnerable_time = 0.0
-	var lethal := HitInfo.new()
-	lethal.amount = 99999
-	player.take_hit(lethal)
-	check(not player.is_dead and player.hp >= player.get_max_hp() / 3, "Phoenix Feather survives a killing blow")
+	_killing_blow(player)
+	check(not player.is_dead and game.threshold.is_open(), "Phoenix Feather survives a killing blow (off to the Threshold)")
 	check(player.perks.get_entry(phoenix).memory.get(&"used", 0) == 1, "the feather is used up")
+	check(await _win_trial(game) and not player.is_dead and player.hp >= player.get_max_hp() / 3, "won, the hero is back on his feet")
+	# Where there is no Threshold (the balance tools' bare arena), a second life heals in place.
+	var in_place := (phoenix.passives[0] as CheatDeathPassive).duplicate() as CheatDeathPassive
+	in_place.trial = null
+	var spare := PerkSet.Entry.new()
+	spare.perk = phoenix
+	player.hp = 0
+	check(in_place.prevent_death(player, spare) and player.hp == roundi(player.get_max_hp() * in_place.heal_ratio) and not game.threshold.is_open(), "without a trial, a second life heals in place")
 	player.perks.clear()
 	player.hp = player.get_max_hp()
 	await _frames(10)
@@ -1105,3 +1110,153 @@ func _test_ai_movement(game: Game) -> void:
 	await _clear_monsters(world)
 	player.invincible = false
 
+
+
+## The trial of the Threshold: a killing blow with a second life pulls the hero into the limbo
+## while his floor waits out of the tree; won, he is back on the very spot with the floor as it
+## was. Each feather opens one trial.
+func _test_threshold(game: Game, world: World, player: Player) -> void:
+	var threshold := game.threshold
+	var feather := _perk("phoenix_feather")
+	var trial := (feather.passives[0] as CheatDeathPassive).trial
+	check(trial != null, "the Phoenix Feather opens the trial of the Threshold")
+	await _clear_monsters(world)
+	player.perks.clear()
+	player.hp = player.get_max_hp()
+	player.perks.add(feather)
+	# Two monsters wait on the floor, out of the blast's reach; one is hurt and burning.
+	var skeleton: MonsterDef = load("res://data/monsters/skeleton.tres")
+	var watchers: Array[Monster] = []
+	for spot in _free_points_away(world, player.global_position, 6, 10, 2):
+		var watcher := world.spawn_monster(skeleton, spot)
+		watcher.dormant = true
+		watchers.append(watcher)
+	check(watchers.size() == 2, "two monsters to watch over")
+	if watchers.size() < 2:
+		return
+	await _frames(1)
+	watchers[0].hp -= 3
+	watchers[0].statuses.apply_dot(&"burn", 1, 0.5, 30.0, player, Palette.FIRE)
+	player.statuses.apply_dot(&"poison", 1, 0.5, 30.0, null, Color(0.5, 0.9, 0.6))
+	game._save_run()
+	var saved := RunSave.read()
+	var floor_mode := world.process_mode
+	var fell_at := player.global_position
+	var floor_children := world.get_node("Entities").get_child_count()
+	_killing_blow(player, watchers[1])
+	check(not player.is_dead and threshold.is_open(), "a killing blow with a second life opens the Threshold")
+	await get_tree().process_frame
+	check(world.process_mode == Node.PROCESS_MODE_DISABLED, "the floor stops where it is")
+	var frozen_at: Array[Vector2] = [watchers[0].global_position, watchers[1].global_position]
+	var hp_then: Array[int] = [watchers[0].hp, watchers[1].hp]
+	var burn_left: float = watchers[0].statuses._dots[0].time_left
+	var clock := game.run.time
+	check(await _until_trial(game), "the veil lifts on the trial")
+	var limbo := threshold.limbo
+	check(limbo != null and player.world == limbo and limbo.is_ancestor_of(player), "the hero is in the limbo")
+	check(not world.is_inside_tree() and game.world == world, "his floor waits, out of the tree")
+	check(player.hp == maxi(1, roundi(player.get_max_hp() * trial.hero_health)), "he fights at %d%% of his Health" % roundi(trial.hero_health * 100.0))
+	check(player.statuses.is_empty(), "his statuses stay behind")
+	check(threshold.needed == trial.kills_for(world.depth, CONTENT.dungeon) and threshold.time_left <= trial.time_for(world.depth, CONTENT.dungeon), "the rules of his act: %d spectres, %d s" % [threshold.needed, roundi(threshold.time_limit)])
+	var spectres := limbo.get_hostiles(Actor.Faction.PLAYER)
+	check(not spectres.is_empty(), "spectres rise")
+	if not spectres.is_empty():
+		var spectre := spectres[0] as Monster
+		check(spectre.summoned and spectre.modulate.a < 1.0 and (spectre.rig == null or spectre.rig.pallor > 0.0), "pale, see-through and worth nothing (no XP, gold or loot)")
+		check(spectre.target == player, "and they come for him")
+	check((game.hud.get_node("ThresholdHud") as Control).visible and not (game.hud.get_node("%Minimap") as Control).visible, "the HUD shows the trial, not the floor's map")
+	check(not (game.hud.get_node("%BagButton") as Control).visible, "no bag button in there")
+	game._save_run()
+	check(RunSave.read() == saved, "nothing is saved during the trial")
+	game.open_inventory()
+	check(not game.inventory_panel.visible, "the bag stays shut in the Threshold")
+	await _frames(30)
+	check(game.run.time > clock + 0.3, "the run's clock keeps counting")
+	check(watchers[0].global_position == frozen_at[0] and watchers[1].global_position == frozen_at[1], "the floor's monsters wait where they stood")
+	# Won: home, as if nothing had moved.
+	var home := {}
+	threshold.closed.connect(func(won: bool) -> void:
+		home.won = won
+		home.at = [watchers[0].global_position, watchers[1].global_position]
+		home.hp = [watchers[0].hp, watchers[1].hp]
+		home.burn = watchers[0].statuses._dots[0].time_left if watchers[0].statuses.has(&"burn") else -1.0, CONNECT_ONE_SHOT)
+	check(await _win_trial(game) and home.get("won", false), "slaying them all wins the trial")
+	check(player.world == world and world.is_inside_tree() and world.process_mode == floor_mode, "the hero is back on his floor, and it runs again")
+	check(player.global_position == fell_at and player.get_parent() == world.get_node("Entities"), "on the very spot he fell")
+	check(home.get("at", []) == frozen_at and home.get("hp", []) == hp_then, "the floor's monsters as they were (same place, same Health)")
+	check(is_equal_approx(float(home.get("burn", -1.0)), burn_left), "their statuses too (%.2f s of burn left)" % float(home.get("burn", -1.0)))
+	check(world.get_node("Entities").get_child_count() == floor_children, "nothing came or went on the floor")
+	check(not player.is_dead and player.hp == roundi(player.get_max_hp() * (feather.passives[0] as CheatDeathPassive).heal_ratio), "back at half Health")
+	check(player._invulnerable_time > 0.0, "with a moment of grace")
+	check(threshold.limbo == null and (game.hud.get_node("%Minimap") as Control).visible and not (game.hud.get_node("ThresholdHud") as Control).visible, "the limbo is gone, the HUD is the floor's again")
+	check(Profile.stat_value("thresholds") >= 1 and Profile.is_achieved(&"not_yet"), "it counts (the Not Yet achievement)")
+	await _frames(2)
+	check(not is_instance_valid(limbo), "the limbo is freed")
+	# The feather is spent: one trial per stack.
+	var entry := player.perks.get_entry(feather)
+	check(not (feather.passives[0] as CheatDeathPassive).prevent_death(player, entry) and not threshold.is_open(), "a spent feather opens no trial (once per stack)")
+	player.perks.add(feather)
+	_killing_blow(player, watchers[0])
+	check(threshold.is_open() and player.perks.get_entry(feather).memory.get(&"used", 0) == 2, "a second feather, a second trial")
+	check(await _until_trial(game) and await _win_trial(game) and not player.is_dead, "won again")
+	for watcher in watchers:
+		watcher.die(null)
+	player.perks.clear()
+	player.hp = player.get_max_hp()
+	await _frames(5)
+
+
+## The trial lost: the hero dies for real, back where he fell, of what slew him the first time.
+## Slain in there (a second feather doesn't help), or the knell tolls first; or he gives up in
+## there (pause menu): his floor comes back all the same.
+func _test_threshold_lost(game: Game) -> void:
+	var skeleton: MonsterDef = load("res://data/monsters/skeleton.tres")
+	for how in ["slain inside", "the knell tolled", "gave up"]:
+		game.start_run()
+		await _frames(5)
+		var player := game.player
+		var world := game.world
+		var feather := _perk("phoenix_feather")
+		player.perks.add(feather)
+		var killer := world.spawn_monster(skeleton, _free_points_away(world, player.global_position, 6, 10, 1)[0])
+		killer.dormant = true
+		var fell_at := player.global_position
+		_killing_blow(player, killer)
+		check(await _until_trial(game), "the trial opens")
+		match how:
+			"the knell tolled":
+				game.threshold.time_left = 0.05
+			"gave up":
+				player.give_up()
+			_:
+				player.perks.add(feather)  # a second feather: no help in there
+				var spectre := game.threshold.limbo.get_hostiles(Actor.Faction.PLAYER)[0]
+				_killing_blow(player, spectre)
+				check(not player.is_dead and game.threshold.state == Threshold.State.LEAVING, "slain in the Threshold, the trial is lost")
+				check(player.perks.get_entry(feather).memory.get(&"used", 0) == 1, "no second feather spent in there")
+		check(await _until_home(game), "the hero is taken back (%s)" % how)
+		check(player.is_dead, "the trial lost (%s), he dies for real" % how)
+		var cause := tr("giving up") if how == "gave up" else killer.display_name
+		check(player.killed_by == cause, "of what slew him (%s)" % player.killed_by)
+		check(player.world == world and world.is_inside_tree() and player.global_position == fell_at, "where he fell")
+		check(game.threshold.limbo == null and world.process_mode != Node.PROCESS_MODE_DISABLED, "the limbo is gone, the floor runs")
+		await get_tree().create_timer(1.5).timeout
+		check(game.game_over_panel.visible and not RunSave.exists(), "the run ends")
+
+
+## Up to `count` free floor points between `near` and `far` cells from `from`, spread apart.
+func _free_points_away(world: World, from: Vector2, near: int, far: int, count: int) -> Array[Vector2]:
+	var origin := world.map.world_to_cell(from)
+	var found: Array[Vector2] = []
+	for y in range(origin.y - far, origin.y + far + 1):
+		for x in range(origin.x - far, origin.x + far + 1):
+			var cell := Vector2i(x, y)
+			var distance := Vector2(cell - origin).length()
+			if distance < near or distance > far or not world.map.in_bounds(cell) or not world.is_free_cell(cell):
+				continue
+			var point := world.map.cell_to_world(cell)
+			if found.all(func(other: Vector2) -> bool: return other.distance_to(point) > 128.0):
+				found.append(point)
+				if found.size() >= count:
+					return found
+	return found

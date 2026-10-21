@@ -73,7 +73,7 @@ they buy the nodes of the **Tree of Souls** (`data/shrine/soul_tree.tres`, `Soul
 
 | Branch | Nodes, top to bottom ("or": a fork, taking one shuts the other) | Oath at the end |
 |---|---|---|
-| Flesh | Vitality; Iron Skin or Communion (heal 5% a level when a floor is won); Provisions; Death Denied or Blood Pact (+20% max Health, heals 30% weaker) | Oath of the Colossus |
+| Flesh | Vitality; Iron Skin or Communion (heal 5% a level when a floor is won); Provisions; Death Denied (a Phoenix Feather from the start: a second life through the trial of the Threshold, see builds.md) or Blood Pact (+20% max Health, heals 30% weaker) | Oath of the Colossus |
 | Blade | Might; Keen Eye (+crit) or Quick Hands (+attack speed); Armory (pick the starting weapon); Spoils of the Fallen (elites drop Magic gear) | Oath of the Duelist |
 | Arcana | Gift of the Arcane; Pyromancy, Paladin's Oath (new items); Forbidden Library; Satchel of Tomes (start with a tome) or Swift Litany | Oath of the Heretic |
 | Greed | Loaded Dice (rerolls); Swiftness, Exile (banishes); Master Smith, Cartographer (stairs, merchant and forge on the minimap); Haggler (-15% prices) or Laden Stalls (+2 items) | Oath of the Vulture |
@@ -126,7 +126,7 @@ blast, charge, summons or heal, built from the WeaponDef / SkillDef data), and i
   (5/15/40, bosses 30/60/120); Mastered gives **+10% damage** to that kind for good.
 - **Challenges** (`HuntChallenge`, watched by `HuntTracker`): every monster gets those that
   apply (an elite one, pushed into a hole, 3 within 5 s, untouched since it saw you, a crit
-  finish), every boss its own (with a ranged weapon, with a melee one, under 90 s, without a
+  finish; summoned monsters and the Threshold's spectres count for none), every boss its own (with a ranged weapon, with a melee one, under 90 s, without a
   potion, losing less than 25% HP) plus one with a given weapon (`MonsterDef.challenges`: the
   Bloated King with a Bow, the Ember Ronin with a Katana...). Done once, paid in souls, with a toast.
 
@@ -145,7 +145,8 @@ with a finger (`TouchScroll`); `CodexRows` builds their rows, with a tick box fo
   +X souls, done or not) and challenges.
 - **Achievements** (`data/achievements/`, `AchievementDef`): a goal on one of the profile's counters
   (kills, elites, wardens, kinds of creatures, depth, victories on Martyr / Nightmare / ascension,
-  monsters pushed into holes, chests, Epic items, encounters, gold or level in one run), with a
+  monsters pushed into holes, chests, Epic items, encounters, gold or level in one run, trials of
+  the Threshold won: *Not Yet*), with a
   progress bar and its reward; the closest to done first. Reaching it pays souls, with a note at
   the top of the screen.
 - **Runs**: the fastest wins, then the last 20 runs: how each ended (victory, or the floor and
@@ -156,7 +157,8 @@ with a finger (`TouchScroll`); `CodexRows` builds their rows, with a tick box fo
 
 Every run is timed (`RunTimer`, `RunState.time`): in-game time, in real seconds (hit stops and
 slow motion don't slow it), counting in the bag, the shop and the perk choices (deciding is part
-of the run) but not in the pause menu, while a floor loads or during its title cards. It is saved
+of the run) but not in the pause menu, while a floor loads or during its title cards. It keeps
+counting in the trial of the Threshold (a second life is part of the run). It is saved
 with the run, so quitting and coming back doesn't reset it.
 
 - **On screen**, under the map (`Hud.show_run_time()`; Options > Run timer hides it). Once the

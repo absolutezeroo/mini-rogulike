@@ -37,6 +37,7 @@ func run() -> void:
 
 	await combat._test_projectiles(world, player)
 	await combat._test_perks_in_game(game, world, player)
+	await combat._test_threshold(game, world, player)
 	await combat._test_synergies_in_game(game, world, player)
 	await combat._test_sustain_in_game(world, player)
 	await floor._test_world_objects(game, world, player)
@@ -254,6 +255,7 @@ func run() -> void:
 	player._invulnerable_time = 0.0
 	player.take_hit(hit)
 	check(player.is_dead, "player can die")
+	check(not game.threshold.is_open(), "no second life, no Threshold")
 	await get_tree().create_timer(1.5).timeout
 	check(game.game_over_panel.visible, "game over screen shown")
 	check(not RunSave.exists(), "dying ends the saved run")
@@ -367,6 +369,7 @@ func run() -> void:
 	game._enter_floor()
 	await _bot_play(game, 60 * 20)
 	print("bot (depth 4, mortal): hp %d/%d, dead=%s" % [game.player.hp, game.player.get_max_hp(), game.player.is_dead])
+	await combat._test_threshold_lost(game)
 	game.queue_free()
 	CONTENT.dungeon.merchant_chance = merchant_chance
 	CONTENT.dungeon.encounters_max = encounters_max
