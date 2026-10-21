@@ -857,7 +857,7 @@ func _test_charged_attacks(game: Game) -> void:
 	check(button.charge_ratio > 0.0, "charged: and on the attack button")
 	check(VfxLayer.of(player.charge_vfx._ring) == VfxLayer.Layer.GROUND and player.charge_vfx._ring.z_index < 0, "charged: the gauge lies on the floor, under his feet")
 	check(player.charge_vfx.get_parent() == player and player.charge_vfx.z_as_relative and player.charge_vfx.z_index == 0, "charged: the glow in his hand is on his body, never over it all")
-	check(player.rig.weapon.visible, "charged: the weapon is held up in his hand")
+	check(player.rig.weapon.visible and not player.rig.shows_back_weapon(), "charged: the weapon is held ready in his hand, not on his back")
 	player.take_hit(Combat.make_secondary_hit(target, 1))
 	check(player.charge.is_charging(), "charged: being hit does not cancel it")
 	for i in 90:
@@ -925,60 +925,255 @@ func _test_charged_attacks(game: Game) -> void:
 	player.attacked.disconnect(count_attack)
 	player.charged_attack.disconnect(count_charged)
 
-	# The hero's own effects never hide him: a staff's shot leaves his hand without a claw over
-	# him, behind him going north; the level up's column stands behind him, its rings on the floor.
-	var staff: WeaponDef = load("res://data/items/weapons/stick.tres")
-	player.equipment.equip(staff)
-	place.call()
-	await _frames(20)
-	player._attack_cooldown = 0.0
-	var fx_before := player.rig.get_children().filter(func(n: Node) -> bool: return n is SheetVfx).size()
-	player.attack(Vector2.UP)
+	target.queue_free()
+	player.equipment.equip(weapon_before)
+	player.perks.load_data(perks_before)
+	player.xp = 0
+	await _frames(5)
+
+
+## The hero's own effects never hide him (docs/vfx.md 2b), in each of 8 directions: his shots
+## leave his hand and start behind him going north, in front going south; his arcs and thrusts
+## north sort behind him, the others are over him; a staff's shot plays no claw over him; his
+## weapon's glow while charging goes behind him when he faces north; the level up's rings lie on
+## the floor, its column stands behind him, only glints rise at his sides in front; Holy Shield's
+## halo rises behind him.
+func _test_own_effects(game: Game) -> void:
+	var player: Player = game.player
+	var world: World = game.world
+	var weapon_before := player.get_weapon()
+	player.xp = -1000000
+	await _clear_monsters(world)
+	var spot := world.map.cell_to_world(_open_cell_near(world, player.global_position, 4))
+	var directions: Array[Vector2] = []
+	for i in 8:
+		directions.append(Vector2.from_angle(TAU * i / 8.0 - PI * 0.5).snapped(Vector2(0.001, 0.001)))
+	var projectiles := world.get_node("Projectiles")
+	for id: String in ["stick", "bow", "shuriken"]:
+		player.equipment.equip(load("res://data/items/weapons/%s.tres" % id))
+		await _frames(2)
+		for direction in directions:
+			player.global_position = spot
+			player._attack_cooldown = 0.0
+			var claws := player.rig.get_children().filter(func(n: Node) -> bool: return n is SheetVfx).size()
+			player.attack(direction)
+			await _frames(1)
+			var shot := projectiles.get_child(projectiles.get_child_count() - 1) as Projectile if projectiles.get_child_count() > 0 else null
+			var north := VfxLayer.goes_behind(shot._direction if shot else direction)  # a fan's star may turn north
+			var name := "%s toward (%.1f, %.1f)" % [id, direction.x, direction.y]
+			check(shot != null and shot.z_index == (VfxLayer.GROUND_Z if north else 0), "own effects: %s: the shot starts %s him" % [name, "behind" if north else "in front of"])
+			var start: Vector2 = Vector2.INF
+			if shot != null:
+				start = shot._trail[0] if not shot._trail.is_empty() else shot.global_position
+			check(start.distance_to(player.hand_point(direction) + direction * 6.0) < 12.0, "own effects: %s: it leaves his hand (%s, the hand %s)" % [name, start - player.global_position, player.hand_point(direction) - player.global_position])
+			check(player.rig.get_children().filter(func(n: Node) -> bool: return n is SheetVfx).size() == claws, "own effects: %s: no claw or burst over him" % name)
+			for child in projectiles.get_children():
+				child.queue_free()
+	for id: String in ["katana", "axe", "lance", "rapier"]:
+		player.equipment.equip(load("res://data/items/weapons/%s.tres" % id))
+		await _frames(2)
+		for direction in directions:
+			player.global_position = spot
+			player._attack_cooldown = 0.0
+			player.attack(direction)
+			var swings: Array = world.get_node("Entities").get_children().filter(func(n: Node) -> bool: return n is SwingVfx and not n.is_queued_for_deletion())
+			swings.append_array(world.get_node("Effects").get_children().filter(func(n: Node) -> bool: return n is SwingVfx and not n.is_queued_for_deletion()))
+			var swing: SwingVfx = swings[-1] if not swings.is_empty() else null
+			var north := VfxLayer.goes_behind(direction)
+			var name := "%s toward (%.1f, %.1f)" % [id, direction.x, direction.y]
+			if north:
+				check(swing != null and VfxLayer.of(swing) == VfxLayer.Layer.STANDING and swing.global_position.y < player.global_position.y, "own effects: %s: the blow sorts behind him" % name)
+			else:
+				check(swing != null and VfxLayer.of(swing) == VfxLayer.Layer.AIR, "own effects: %s: the blow is in front of him" % name)
+			for node in swings:
+				(node as Node).queue_free()
+			await _frames(1)
+	# His weapon's glow while charging: behind him facing north, in front facing us.
+	player.equipment.equip(load("res://data/items/weapons/katana.tres"))
+	player.global_position = spot
 	await _frames(2)
-	check(player.rig.get_children().filter(func(n: Node) -> bool: return n is SheetVfx).size() == fx_before, "own effects: a staff's shot plays no claw over the hero")
-	var shots := world.get_node("Projectiles").get_children()
-	check(not shots.is_empty() and (shots[-1] as Node2D).z_index < 0, "own effects: his shot going north starts behind him")
-	check(not shots.is_empty() and (shots[-1] as Node2D).global_position.y < player.global_position.y - 4.0, "own effects: it leaves from his hand, not his feet")
-	var north_shot: Node2D = shots[-1] if not shots.is_empty() else null
-	await _frames(8)
-	check(not is_instance_valid(north_shot) or north_shot.z_index == 0, "own effects: clear of him, it flies over the bodies")
-	player._attack_cooldown = 0.0
-	player.attack(Vector2.DOWN)
-	await _frames(2)
-	shots = world.get_node("Projectiles").get_children()
-	check(not shots.is_empty() and (shots[-1] as Node2D).z_index == 0, "own effects: his shot going south is in front of him")
-	var lance: WeaponDef = load("res://data/items/weapons/lance.tres")
-	player.equipment.equip(lance)
-	await _frames(2)
-	player._attack_cooldown = 0.0
-	player.attack(Vector2.UP)
-	await _frames(1)
-	var swings := world.get_node("Entities").get_children().filter(func(n: Node) -> bool: return n is SwingVfx)
-	check(not swings.is_empty() and (swings[-1] as Node2D).global_position.y < player.global_position.y, "own effects: his thrust north sorts behind him")
-	await _frames(30)
-	player.rig.play_attack(load("res://data/items/weapons/monster/frost_fang.tres"), Vector2.RIGHT, 0.3)
-	check(player.rig.get_children().any(func(n: Node) -> bool: return n is SheetVfx), "own effects: a creature's frost bite still claws (melee)")
-	await _frames(30)
+	_set_action(&"attack", true)
+	await _frames(int(player.def.charge_delay * 60.0) + 6)
+	for direction in directions:
+		player.facing = direction
+		await _frames(2)
+		check(VfxLayer.is_behind_body(player.charge_vfx) == VfxLayer.goes_behind(direction), "own effects: the glow in his hand toward (%.1f, %.1f) is %s him" % [direction.x, direction.y, "behind" if VfxLayer.goes_behind(direction) else "in front of"])
+	player.skills._cooldowns[0] = 0.0
+	player.use_skill(0)  # a roll: the charge is lost
+	_set_action(&"attack", false)
+	await _frames(40)
+
+	# The level up: rings on the floor, the column behind him, glints only at his sides.
+	player.global_position = spot
 	LevelUpVfx.attach(player)
 	await _frames(2)
 	var level_up: LevelUpVfx = null
 	for child in player.get_children():
 		if child is LevelUpVfx:
 			level_up = child
-	check(level_up != null and level_up.show_behind_parent and level_up.z_as_relative and level_up.z_index == 0, "own effects: the level up's column stands behind the hero")
-	check(level_up != null and VfxLayer.of(level_up._rings) == VfxLayer.Layer.GROUND and level_up._rings.z_index < 0, "own effects: its rings lie on the floor")
-	check(level_up != null and level_up._glints.z_index > LightField.Z, "own effects: only a few glints at his sides shine in front")
+	check(level_up != null and VfxLayer.is_behind_body(level_up) and level_up.z_as_relative and level_up.z_index == 0, "own effects: the level up's column stands behind the hero (drawn before his sprites, sorted with him)")
+	check(level_up != null and VfxLayer.of(level_up._rings) == VfxLayer.Layer.GROUND and level_up._rings.z_index < 0, "own effects: its rings lie on the floor, under his feet")
+	check(level_up != null and level_up._glints.z_index > LightField.Z and LevelUpVfx.GLINT_SIDE >= 18.0, "own effects: only a few glints at his sides shine in front, clear of his body (16 wide each side)")
 	var shield: SkillDef = load("res://data/skills/player/holy_shield.tres")
 	(shield.effects[0] as Effect).apply(player, Vector2.DOWN)
 	var aegis := player.get_children().filter(func(n: Node) -> bool: return n is SheetVfx)
-	check(not aegis.is_empty() and (aegis[-1] as Node2D).show_behind_parent, "own effects: Holy Shield's halo rises behind the hero")
+	check(not aegis.is_empty() and VfxLayer.is_behind_body(aegis[-1]), "own effects: Holy Shield's halo rises behind the hero")
 	await _frames(100)
+	player.equipment.equip(weapon_before)
+	player.xp = 0
+	await _frames(5)
 
+
+## Elemental attacks (docs/vfx.md, "Elemental attacks"): every attack of a weapon carrying an
+## element looks like it, never a steel arc tinted: its arc is in the element's ramp with its
+## matter (the shader's `matter`, bits shed by SwingMatter), a hammer's smash bursts in it, a
+## bow's arrow flies in it, the charged attack is dressed in it, and the hit lands in it when the
+## element is sure to act (an affix's status every hit; a chance rune on the hits it fires on).
+## Plain weapons stay steel. Two elements: the first draws the arc, the second adds bits.
+func _test_elemental_attacks(game: Game) -> void:
+	var player: Player = game.player
+	var world: World = game.world
+	var weapon_before := player.get_weapon()
+	player.xp = -1000000
+	var perks_before := player.perks.to_data()
+	player.perks.clear()
+	await _clear_monsters(world)
+	var spot := world.map.cell_to_world(_open_cell_near(world, player.global_position, 4))
+	var target := world.spawn_monster(load("res://data/monsters/slime.tres"), spot + Vector2(36, 0))
+	target.dormant = true
+	target.base_stats.max_hp = 100000
+	target.invalidate_stats()
+	target.hp = 100000
+	var place := func() -> void:
+		target._knockback = Vector2.ZERO
+		target.global_position = spot + Vector2(36, 0)
+		target.statuses.clear()
+		player.global_position = spot
+	var physical := VfxElementDef.named(&"physical")
+	var carried := {
+		&"fire": [load("res://data/runes/ember.tres")],
+		&"frost": [load("res://data/runes/rime.tres")],
+		&"storm": [load("res://data/runes/spark.tres")],
+		&"poison": [],
+	}
+	var affixes := { &"poison": [load("res://data/affixes/venomous.tres")] }
+	for id: String in ["katana", "axe", "lance", "hammer", "bow"]:
+		var base := load("res://data/items/weapons/%s.tres" % id) as WeaponDef
+		for element_id: StringName in [&"physical", &"fire", &"frost", &"storm", &"poison"]:
+			var weapon := _imbued(base, carried.get(element_id, []), affixes.get(element_id, []))
+			player.equipment.equip(weapon)
+			place.call()
+			await _frames(2)
+			var element := VfxElementDef.named(element_id)
+			var name := "%s %s" % [element_id, id]
+			check(ItemLook.swing_element(weapon, true) == (null if element_id == &"physical" else element), "elemental: a %s swings in its element" % name)
+			player._attack_cooldown = 0.0
+			player.attack(Vector2.RIGHT)
+			await _frames(2)
+			var made: Array = world.get_node("Effects").get_children() + world.get_node("Entities").get_children()
+			if base.kind == WeaponDef.Kind.RANGED:
+				var shots := world.get_node("Projectiles").get_children()
+				var shot := shots[-1] as Projectile if not shots.is_empty() else null
+				if element_id == &"physical":
+					check(shot != null and shot._rides == null, "elemental: a plain bow's arrow is a plain arrow")
+				else:
+					check(shot != null and shot._rides == element, "elemental: a %s's arrow flies in it" % name)
+				for child in shots:
+					child.queue_free()
+			elif base.shows_arc():
+				var swing: SwingVfx = null
+				var matter: SwingMatter = null
+				for node in made:
+					if node is SwingVfx and not node.is_queued_for_deletion():
+						swing = node
+					if node is SwingMatter and not node.is_queued_for_deletion():
+						matter = node
+				if element_id == &"physical":
+					check(swing != null and swing.element == physical and int(swing.material.get_shader_parameter("matter")) == 0 and matter == null, "elemental: a plain %s swings steel, nothing shed" % id)
+				else:
+					check(swing != null and swing.element == element, "elemental: a %s's arc is in its ramp (not steel)" % name)
+					check(swing != null and Color(swing.material.get_shader_parameter("core")) == element.shade(0.0) and int(swing.material.get_shader_parameter("matter")) == SwingVfx.matter_of(element) and SwingVfx.matter_of(element) != 0, "elemental: a %s's arc breaks into its matter" % name)
+					check(matter != null and matter.bit_count(element) > 0, "elemental: a %s's blow sheds its bits" % name)
+			else:
+				# The War Hammer's smash on the floor: dust and steel sparks, or its element.
+				var shed := made.any(func(n: Node) -> bool: return n is SwingMatter and not n.is_queued_for_deletion())
+				if element_id == &"physical":
+					check(not shed, "elemental: a plain hammer's smash sheds no element")
+				else:
+					check(shed, "elemental: a %s's smash bursts in it" % name)
+			for node in made:
+				if node is SwingVfx or node is SwingMatter:
+					(node as Node).queue_free()
+			await _frames(12)
+	# The hit lands in the element when it surely acts: a Venomous katana always, an Ember one on
+	# the hits that catch (the flash and the burn agree), a plain one never.
+	var katana := load("res://data/items/weapons/katana.tres") as WeaponDef
+	check(ItemLook.hit_element(katana) == null and ItemLook.hit_element(_imbued(katana, [], [load("res://data/affixes/venomous.tres")])) == VfxElementDef.named(&"poison"), "elemental: a Venomous blade's hits land in poison, a plain one's in nothing")
+	player.equipment.equip(_imbued(katana, [load("res://data/runes/ember.tres")], []))
+	await _frames(2)
+	var agree := 0
+	var fire_hits := 0
+	for i in 24:
+		place.call()
+		player._attack_cooldown = 0.0
+		player.attack(Vector2.RIGHT)
+		await _frames(1)
+		var burning := target.statuses.active_ids().has(&"burn")
+		var fiery := target.last_hit != null and target.last_hit.element == VfxElementDef.named(&"fire")
+		if burning == fiery:
+			agree += 1
+		if fiery:
+			fire_hits += 1
+	check(agree == 24 and fire_hits > 0 and fire_hits < 24, "elemental: an Ember katana's hit flashes fire exactly when it sets the target burning (%d of 24 agree, %d fiery)" % [agree, fire_hits])
+	# Two elements: the first draws the arc, the second sheds a few bits.
+	var both := _imbued(katana, [load("res://data/runes/ember.tres"), load("res://data/runes/rime.tres")], [])
+	player.equipment.equip(both)
+	place.call()
+	await _frames(2)
+	player._attack_cooldown = 0.0
+	player.attack(Vector2.RIGHT)
+	await _frames(2)
+	var shed: SwingMatter = null
+	for node in world.get_node("Effects").get_children():
+		if node is SwingMatter:
+			shed = node
+	check(shed != null and shed.bit_count(VfxElementDef.named(&"fire")) > shed.bit_count(VfxElementDef.named(&"frost")) and shed.bit_count(VfxElementDef.named(&"frost")) > 0, "elemental: fire and frost: the arc is fire, frost adds a few chips")
+	# The charged attack takes what the weapon carries: a fire katana's crescent burns, the Frost
+	# Staff's shard stays frost, a plain katana's stays steel.
+	var fire_katana := _imbued(katana, [load("res://data/runes/ember.tres")], [])
+	var cut := fire_katana.charged.dressed(fire_katana)[0] as DamageAreaEffect
+	check(cut.element == VfxElementDef.named(&"fire") and katana.charged.effects[0].get(&"element") == null, "elemental: a fire katana's charged crescent burns (the data stays plain)")
+	check(katana.charged.dressed(katana) == katana.charged.effects, "elemental: a plain katana's charged attack is steel")
+	var frost_bow := _imbued(load("res://data/items/weapons/bow.tres"), [load("res://data/runes/rime.tres")], [])
+	var heavy := frost_bow.charged.dressed(frost_bow)[0] as ProjectileEffect
+	check(heavy.look_element == VfxElementDef.named(&"frost") and heavy.element == null, "elemental: a frost bow's heavy arrow flies in rime and stays an arrow")
+	var hammer := _imbued(load("res://data/items/weapons/hammer.tres"), [load("res://data/runes/ember.tres")], [])
+	var slam := hammer.charged.dressed(hammer)[0] as DamageAreaEffect
+	check(slam.element == VfxElementDef.named(&"fire") and slam.second_element == VfxElementDef.named(&"earth"), "elemental: a fire hammer's slam bursts in fire, the ground's earth adding its bits")
+	check(fire_katana.charged.element_for(fire_katana) == VfxElementDef.named(&"fire") and katana.charged.element_for(katana) == physical, "elemental: the charge glows in what the weapon carries (steel when plain)")
 	target.queue_free()
 	player.equipment.equip(weapon_before)
 	player.perks.load_data(perks_before)
 	player.xp = 0
 	await _frames(5)
+
+
+## A found copy of `base` with `runes` set and `affixes` rolled (as LootRoller makes them).
+func _imbued(base: WeaponDef, runes: Array, affixes: Array) -> WeaponDef:
+	var weapon := base.duplicate() as WeaponDef
+	weapon.base_item = base
+	weapon.rarity = ItemRarity.EPIC
+	var sockets: Array[RuneDef] = []
+	for rune in runes:
+		sockets.append(rune)
+	weapon.runes = sockets
+	var rolled: Array[ItemAffixDef] = []
+	for affix in affixes:
+		rolled.append(affix)
+		if affix.on_hit and weapon.on_hit == null:
+			weapon.on_hit = affix.on_hit
+	weapon.affixes = rolled
+	return weapon
 
 
 ## Shields, thieves, summoners and bombers.

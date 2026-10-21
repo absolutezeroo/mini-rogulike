@@ -80,7 +80,9 @@ static func melee_strike(attacker: Actor, direction: Vector2, weapon: WeaponDef)
 		hit.origin = attacker.global_position
 		hit.sound = weapon.hit_sound
 		hit.status = weapon.on_hit
-		hit.element = weapon.element
+		# The hero's hits land in what the weapon carries for sure (docs/vfx.md, "Elemental
+		# attacks"); a rune that works by chance says so itself (BurnOnHitPassive).
+		hit.element = ItemLook.hit_element(weapon) if attacker is Player else weapon.element
 		target.take_hit(hit)
 
 	# Crates, pots, barrels in the arc break too.
@@ -214,4 +216,12 @@ static func spec_from_weapon(attacker: Actor, weapon: WeaponDef) -> ProjectileSp
 	spec.sheet = weapon.projectile_sheet
 	spec.element = weapon.element
 	spec.status = weapon.on_hit
+	if attacker is Player and weapon.element == null:
+		# A plain thing (an arrow, a star) from a weapon carrying an element flies in it (flames
+		# riding an arrow, an ember trail) and lands in it when the hit is elemental for sure.
+		spec.look_element = ItemLook.swing_element(weapon, true)
+		spec.second_element = ItemLook.second_element(weapon, true)
+		spec.hit_element = ItemLook.hit_element(weapon)
+	elif attacker is Player:
+		spec.second_element = ItemLook.second_element(weapon, true)
 	return spec

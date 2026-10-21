@@ -35,6 +35,10 @@ extends Effect
 @export var fx_follow_aim: bool = false
 @export var fx_tint: Color = Color.WHITE
 
+## A second element its blow sheds a few bits of (not saved, never in data: a charged attack
+## dressed in what the hero's weapon carries sets it, ChargedAttackDef).
+var second_element: VfxElementDef
+
 
 func apply(user: Actor, aim: Vector2) -> void:
 	var center := user.global_position + aim * offset
@@ -44,7 +48,7 @@ func apply(user: Actor, aim: Vector2) -> void:
 		Vfx.explosion(user.world, center, radius, element)
 	elif slash:
 		var reach := offset + radius if slash.shape != SlashDef.Shape.SPIN else radius
-		SwingVfx.slash(user.world, slash, user.global_position + Vector2(0, -6), aim, reach, element, user.faction != Actor.Faction.PLAYER)
+		SwingVfx.slash(user.world, slash, user.global_position + Vector2(0, -6), aim, reach, element, user.faction != Actor.Faction.PLAYER, second_element)
 	elif fx:
 		# The sheet at the nearest whole size of the art's pixel (SheetVfx snaps it), not
 		# stretched to the radius: a 32-pixel sheet over a 110 radius is drawn 6x, never 6.9x.

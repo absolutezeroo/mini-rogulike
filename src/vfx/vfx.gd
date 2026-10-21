@@ -57,18 +57,46 @@ static func hit(world: World, at: Vector2, direction: Vector2, color: Color = Co
 ## The arc of a melee swing (or the streak of a thrust), at the weapon's reach, in its element
 ## (the hero's: what it carries, ItemLook; steel when none); an enemy's carries the warning rim.
 static func swing(attacker: Actor, aim: Vector2, weapon: WeaponDef, duration: float) -> void:
+	var hero := attacker is Player
+	# The hero's blade swings in what it carries (a katana with an Ember Rune, in fire: ItemLook),
+	# a second element adding its bits.
+	var element := ItemLook.swing_element(weapon, hero)
+	var second := ItemLook.second_element(weapon, hero)
 	if not weapon.shows_arc():
-		return  # claws and bites play their sheet; an overhead smash, its ring and dust
+		# Claws and bites play their sheet; the hero's overhead smash lands on the floor.
+		if hero and weapon.kind == WeaponDef.Kind.MELEE and weapon.attack_animation == WeaponDef.AttackAnimation.SMASH:
+			smash(attacker.world, attacker.global_position + aim * (attacker.radius + weapon.reach * 0.8), aim, element, second)
+		return
 	var reach := attacker.radius + weapon.reach
 	var at := attacker.global_position + Vector2(0, -6)
 	var danger := attacker.faction != Actor.Faction.PLAYER
-	# The hero's blade swings in what it carries (a katana with an Ember Rune, in fire: ItemLook).
-	var element := ItemLook.swing_element(weapon, attacker is Player)
 	if weapon.slash:
-		SwingVfx.slash(attacker.world, weapon.slash, at, aim, reach, element, danger)
+		SwingVfx.slash(attacker.world, weapon.slash, at, aim, reach, element, danger, second)
 		return
 	var thrust := weapon.attack_animation == WeaponDef.AttackAnimation.THRUST
-	attacker.world.spawn_vfx(SwingVfx.create(at, aim, reach, weapon.arc_degrees, thrust, element, duration, danger))
+	attacker.world.spawn_vfx(SwingVfx.create(at, aim, reach, weapon.arc_degrees, thrust, element, duration, danger, second))
+
+
+## An overhead blow landing on the floor at `at` (the War Hammer): steel kicks up dust and a few
+## sparks; an element bursts there in its own matter (its impact: fire's tongues, frost's
+## shards, storm's forks...) and sheds its bits, a `second` one a few of its own.
+static func smash(world: World, at: Vector2, aim: Vector2, element: VfxElementDef, second: VfxElementDef = null) -> void:
+	dust(world, at + Vector2(0, 4), 1.0)
+	# North of the hero (we see his back) it lands behind him, sorted by where it lands
+	# (docs/vfx.md 2b); toward us, over him like any blow.
+	var layer := VfxLayer.Layer.STANDING if VfxLayer.goes_behind(aim) else VfxLayer.Layer.AIR
+	if not SwingMatter.sheds(element):
+		world.spawn_vfx(VfxLayer.apply(ImpactVfx.sparks(at, -aim, VfxElementDef.named(&"physical")), layer))
+		return
+	if element.impact:
+		world.spawn_vfx(SheetVfx.play(element.impact, at + Vector2(0, -4), Vector2.UP, element).on_layer(layer))
+	else:
+		world.spawn_vfx(VfxLayer.apply(BlastVfx.create(at + Vector2(0, -4), 14.0, element), layer))
+	if element.emissive:
+		world.flash_light(at, element.color(), 70.0)
+	var matter := SwingMatter.create(at, aim, 12.0, 8.0, PI * 1.6, false, 0.0, 0.05, 0.0, element, second)
+	if matter:
+		world.spawn_vfx(VfxLayer.apply(matter, layer))
 
 
 ## A shot of `element` landing (an ice shard cracking, a fireball bursting): the element's

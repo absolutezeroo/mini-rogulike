@@ -23,6 +23,10 @@ extends Effect
 ## The user dashes along the cut (off: a thrust that reaches out, the user standing still).
 @export var moves: bool = true
 
+## A second element its blow sheds a few bits of (not saved, never in data: a charged attack
+## dressed in what the hero's weapon carries sets it, ChargedAttackDef).
+var second_element: VfxElementDef
+
 
 func apply(user: Actor, aim: Vector2) -> void:
 	var world := user.world
@@ -43,7 +47,7 @@ func apply(user: Actor, aim: Vector2) -> void:
 	elif slash == null and fx == null and moves:
 		Vfx.dust_trail(world, start, end, duration)  # a plain rush kicks up dust on its way
 	if slash:
-		SwingVfx.slash(world, slash, start + Vector2(0, -6), aim, maxf(length, 40.0), element, user.faction != Actor.Faction.PLAYER)
+		SwingVfx.slash(world, slash, start + Vector2(0, -6), aim, maxf(length, 40.0), element, user.faction != Actor.Faction.PLAYER, second_element)
 	elif fx:
 		# At the nearest whole size of the art's pixel along the path (SheetVfx snaps it).
 		var size := maxf(length, 40.0) / fx.get_height()

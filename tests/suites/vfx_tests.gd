@@ -31,6 +31,7 @@ func run() -> void:
 	_test_telegraphs()
 	_test_layers()
 	_test_own_effects()
+	_test_elemental_swings()
 	_test_body_shader()
 	_test_shaders()
 	_test_no_squared_colors()
@@ -686,13 +687,58 @@ func _test_own_effects() -> void:
 	var thrust := SwingVfx.create(Vector2.ZERO, Vector2.RIGHT, 70.0, 40.0, true, null, 0.12)
 	check(float(thrust.material.get_shader_parameter("inner")) >= 10.0, "own effects: a thrust's streak starts at the hand, clear of the body")
 	thrust.free()
+	# Behind is the body's children's order (an actor draws nothing itself: its sprites are its
+	# Rig, a sibling): show_behind_parent would leave it over the Rig.
 	var body := Node2D.new()
-	var rig := Node2D.new()
+	var rig := ActorRig.new()
+	body.add_child(Node2D.new())
 	body.add_child(rig)
+	body.add_child(Node2D.new())
 	var halo := SheetVfx.play(load("res://data/vfx/sheets/holy_sigil.tres"), Vector2.ZERO)
 	VfxLayer.on_body(body, halo, true)
-	check(halo.get_parent() == body and halo.show_behind_parent and halo.z_as_relative and halo.z_index == 0, "own effects: an effect on the hero's body sits behind his sprite, sorted with him")
+	check(halo.get_parent() == body and halo.get_index() < rig.get_index() and VfxLayer.is_behind_body(halo) and halo.z_as_relative and halo.z_index == 0, "own effects: an effect on the hero's body is drawn before his sprites (behind him), sorted with him")
+	var glow := Node2D.new()
+	VfxLayer.on_body(body, glow, false)
+	check(glow.get_index() > rig.get_index() and not VfxLayer.is_behind_body(glow), "own effects: one in front is drawn after his sprites")
+	VfxLayer.set_behind(glow, true)
+	check(VfxLayer.is_behind_body(glow), "own effects: and moves behind them when he turns north")
 	body.free()
+
+
+## Elemental attacks (docs/vfx.md 11): every element but steel breaks a blow's edge into its own
+## matter (never steel's 0) and sheds its bits; steel and no element shed nothing; the main
+## elements each have their own matter; a second element adds fewer bits than the first.
+func _test_elemental_swings() -> void:
+	var physical := VfxElementDef.named(&"physical")
+	check(SwingVfx.matter_of(null) == 0 and SwingVfx.matter_of(physical) == 0, "elemental: steel's blow is plain steel")
+	check(SwingMatter.create(Vector2.ZERO, Vector2.RIGHT, 40.0, 16.0, 2.0, false, 0.0, 0.12, 0.0, physical) == null, "elemental: steel sheds nothing")
+	var seen := {}
+	for element in VfxElementDef.all():
+		if element.id == &"physical":
+			continue
+		check(SwingVfx.matter_of(element) != 0, "elemental: %s's blow breaks into its matter" % element.id)
+		var matter := SwingMatter.create(Vector2.ZERO, Vector2.RIGHT, 40.0, 16.0, 2.0, false, 0.0, 0.12, 0.0, element)
+		check(matter != null and matter.bit_count(element) >= 3, "elemental: %s's blow sheds its bits" % element.id)
+		if matter:
+			matter.free()
+		seen[SwingVfx.matter_of(element)] = true
+	for id: StringName in [&"fire", &"frost", &"poison", &"storm", &"holy", &"shadow", &"arcane", &"blood", &"earth"]:
+		check(seen.has(SwingVfx.matter_of(VfxElementDef.named(id))), "elemental: %s has a matter" % id)
+	var mattered := {}
+	for id: StringName in [&"fire", &"frost", &"poison", &"storm", &"holy", &"arcane"]:
+		mattered[SwingVfx.matter_of(VfxElementDef.named(id))] = id
+	check(mattered.size() == 6, "elemental: fire, frost, poison, storm, holy and arcane each break in their own way")
+	var fire := VfxElementDef.named(&"fire")
+	var frost := VfxElementDef.named(&"frost")
+	var both := SwingMatter.create(Vector2.ZERO, Vector2.RIGHT, 40.0, 16.0, 2.0, false, 0.0, 0.12, 0.0, fire, frost)
+	check(both.bit_count(fire) > both.bit_count(frost) and both.bit_count(frost) > 0, "elemental: a second element adds fewer bits than the first")
+	both.free()
+	var swing := SwingVfx.create(Vector2.ZERO, Vector2.RIGHT, 40.0, 110.0, false, fire, 0.12, false, frost)
+	check(swing.matter != null and int(swing.material.get_shader_parameter("matter")) == SwingVfx.matter_of(fire) and bool(swing.material.get_shader_parameter("emissive")), "elemental: a fire arc is drawn in fire's matter, shining")
+	swing.free()
+	var plain := SwingVfx.create(Vector2.ZERO, Vector2.RIGHT, 40.0, 110.0, false, null, 0.12)
+	check(plain.matter == null and int(plain.material.get_shader_parameter("matter")) == 0 and not bool(plain.material.get_shader_parameter("emissive")), "elemental: a plain arc is steel, nothing shed")
+	plain.free()
 
 
 ## Shaders on bodies (docs/vfx.md): every element has a death look, the statuses each paint

@@ -29,22 +29,71 @@ extends Resource
 @export var element: VfxElementDef
 
 
-## The element the charge glows in for `weapon`.
+## Its effects dressed in what the weapon carries, per pair of elements (`dressed`).
+var _dressed := {}
+
+
+## The element the charge glows in for `weapon`: what the weapon carries first (its own
+## element, a rune's: ItemLook), else this attack's own, else steel (`physical`).
 func element_for(weapon: WeaponDef) -> VfxElementDef:
+	var carried := ItemLook.swing_element(weapon, true)
+	if carried:
+		return carried
 	if element:
 		return element
-	if weapon and weapon.element:
-		return weapon.element
 	return VfxElementDef.named(&"physical")
 
 
-## Unleashed: its sound and its effects toward `aim`.
+## Unleashed: its sound and its effects toward `aim`, in what the weapon carries (`dressed`).
 func release(user: Actor, weapon: WeaponDef, aim: Vector2) -> void:
 	var played := sound if sound else (weapon.attack_sound if weapon else null)
 	Sfx.play_at(played, user.global_position)
-	Effect.apply_all(effects, user, aim)
+	Effect.apply_all(dressed(weapon), user, aim)
+
+
+## Its effects in what `weapon` carries (docs/vfx.md, "Elemental attacks"): a plain weapon's are
+## as written; a weapon carrying an element (its own, a rune's, an affix's: ItemLook) gathers it
+## into the blow, which is drawn and lands in it (a fire katana's crescent burns, a frost bow's
+## heavy arrow flies in rime): the first element the weapon carries replaces the effect's, and
+## the effect's own (the hammer's earth, the Templar's holy) or the weapon's second adds its
+## bits. Copies, made once per pair of elements (the data stays as written).
+func dressed(weapon: WeaponDef) -> Array[Effect]:
+	var first := ItemLook.swing_element(weapon, true)
+	if first == null:
+		return effects
+	var second := ItemLook.second_element(weapon, true)
+	var key := [first, second]
+	if not _dressed.has(key):
+		var copies: Array[Effect] = []
+		for effect in effects:
+			copies.append(ChargedAttackDef._dress(effect, first, second))
+		_dressed[key] = copies
+	return _dressed[key]
 
 
 ## The weapon card's line: "Hold: Moonless Cut. A wide double crescent in front of you."
 func describe() -> String:
 	return tr("Hold: {name}. {text}").format({ "name": tr(display_name), "text": tr(description) })
+
+
+static func _dress(effect: Effect, first: VfxElementDef, second: VfxElementDef) -> Effect:
+	if effect == null:
+		return null
+	var copy := effect.duplicate() as Effect
+	if copy is ProjectileEffect:
+		var shot := copy as ProjectileEffect
+		if shot.element == null:
+			# A thing (the heavy arrow, the stars) flies in the element without being made of it.
+			shot.look_element = first
+			shot.second_element = second
+		else:
+			# A magic shot stays itself (the Frost Staff's shard); another element adds its bits.
+			shot.second_element = second if second else (first if shot.element != first else null)
+		return copy
+	if not (&"element" in copy):
+		return copy
+	var own := copy.get(&"element") as VfxElementDef
+	copy.set(&"element", first)
+	if &"second_element" in copy:
+		copy.set(&"second_element", second if second else (own if own != first else null))
+	return copy

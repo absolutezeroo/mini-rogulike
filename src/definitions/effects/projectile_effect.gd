@@ -42,6 +42,12 @@ extends Effect
 ## A glow around the shot even when it is drawn from a sheet: a heavier, charged shot.
 @export var halo: bool = false
 
+## Not saved, never in data: set when a charged attack is dressed in what the hero's weapon
+## carries (ChargedAttackDef): a plain thing (the heavy arrow, the stars) flies in
+## `look_element` and lands in it, a second element adds bits to its trail.
+var look_element: VfxElementDef
+var second_element: VfxElementDef
+
 
 func apply(user: Actor, aim: Vector2) -> void:
 	var spec := ProjectileSpec.new()
@@ -64,6 +70,9 @@ func apply(user: Actor, aim: Vector2) -> void:
 	spec.secondary = secondary
 	spec.nova_burst = nova_burst
 	spec.halo = halo
+	spec.look_element = look_element
+	spec.hit_element = look_element
+	spec.second_element = second_element
 	var direction := aim.rotated(deg_to_rad(angle_offset)) if angle_offset != 0.0 else aim
 	# From the hand (the hero's weapon), a full ring from the middle of the body.
 	var from := user.shot_origin(direction) if spread_degrees < 360.0 else Vector2.INF

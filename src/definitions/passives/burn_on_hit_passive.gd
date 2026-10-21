@@ -14,7 +14,17 @@ extends Passive
 @export var element: VfxElementDef
 
 
-func on_hit_dealt(owner: Actor, target: Actor, _hit: HitInfo, _damage: int, perk: PerkSet.Entry) -> void:
-	if target.is_dead or randf() >= chance:
+## The chance is rolled before the hit lands, so a hit that will burn flashes in its element
+## (the Ember Rune: a fire flash on the hits that catch, a plain one on the others).
+func modify_outgoing_hit(_owner: Actor, _target: Actor, hit: HitInfo, perk: PerkSet.Entry) -> void:
+	var catches := randf() < chance
+	hit.rolled[[perk, self]] = catches
+	if catches and element and hit.element == null:
+		hit.element = element
+
+
+func on_hit_dealt(owner: Actor, target: Actor, hit: HitInfo, _damage: int, perk: PerkSet.Entry) -> void:
+	var catches: bool = hit.rolled.get([perk, self], randf() < chance)
+	if target.is_dead or not catches:
 		return
 	target.statuses.apply_dot(status_id, damage_per_stack * perk.stacks, interval, duration, owner, element.color() if element else color)
