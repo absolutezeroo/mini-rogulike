@@ -26,6 +26,7 @@ func run() -> void:
 	_test_routes()
 	_test_soul_tree()
 	_test_loader()
+	_test_pilgrim_costs()
 	_test_bosses()
 	_test_profile()
 	_test_run_time()
@@ -821,6 +822,26 @@ func _test_soul_tree() -> void:
 	Profile.levels = saved_levels
 	Profile.souls = saved_souls
 	Profile.achievements = saved_achievements
+
+
+## Pilgrim spares the hero but pays less: fewer souls, rarer good gear, no feats; and says so.
+func _test_pilgrim_costs() -> void:
+	var pilgrim := CONTENT.get_difficulty(&"easy")
+	var keeper := CONTENT.get_difficulty(&"normal")
+	check(pilgrim.souls < 1.0 and pilgrim.loot_quality < 1.0 and not pilgrim.counts_feats and keeper.counts_feats, "Pilgrim: fewer souls, rarer good gear, no feats")
+	var costs := DifficultyCard.effects(pilgrim, keeper).filter(func(e: Array) -> bool: return e[1] < 0)
+	check(costs.size() >= 2, "its card lists what it costs, in red (%d lines)" % costs.size())
+	var rules := FloorRules.make(CONTENT.dungeon, pilgrim, null, 3)
+	check(is_equal_approx(rules.loot_quality(), pilgrim.loot_quality), "its loot quality reaches the floor's rules")
+	var saved_stats := Profile.stats.duplicate()
+	var saved_periods := Profile.period_stats.duplicate(true)
+	var before := Profile.stat_value("kills")
+	var period: String = Profile._current_periods()[0]
+	var period_before := Profile.period_stat(period, "kills")
+	Profile.add_stat("kills", 1, false)
+	check(Profile.stat_value("kills") == before and Profile.period_stat(period, "kills") == period_before + 1, "a Pilgrim kill counts for quests, not for feats")
+	Profile.stats = saved_stats
+	Profile.period_stats = saved_periods
 
 
 ## The loading screen: an autoload, idle, with tips to show.

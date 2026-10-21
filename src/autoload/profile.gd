@@ -139,12 +139,16 @@ func select_difficulty(def: DifficultyDef) -> void:
 	changed.emit()
 
 
-func record_run(earned: int, depth: int, won: bool, difficulty_id: StringName = &"") -> void:
+## `feats` false (Pilgrim): the souls and the difficulty's win count (it unlocks the next), but
+## not the records (deepest floor, victories) nor the feats' stats.
+func record_run(earned: int, depth: int, won: bool, difficulty_id: StringName = &"", feats: bool = true) -> void:
 	souls += earned
-	best_depth = maxi(best_depth, depth)
+	if feats:
+		best_depth = maxi(best_depth, depth)
 	if won:
-		add_stat("wins")
-		victories += 1
+		add_stat("wins", 1, feats)
+		if feats:
+			victories += 1
 		if difficulty_id != &"":
 			wins[String(difficulty_id)] = wins.get(String(difficulty_id), 0) + 1
 	save_profile()
@@ -161,8 +165,10 @@ func kill_count(monster_id: StringName) -> int:
 	return int(kills_by_monster.get(String(monster_id), 0))
 
 
-func add_stat(key: String, amount: int = 1) -> void:
-	stats[key] = int(stats.get(key, 0)) + amount
+## `lifetime` false: the day's and week's counts only (quests), not the feats' (a Pilgrim run).
+func add_stat(key: String, amount: int = 1, lifetime: bool = true) -> void:
+	if lifetime:
+		stats[key] = int(stats.get(key, 0)) + amount
 	for period in _current_periods():
 		var counts: Dictionary = period_stats.get(period, {})
 		counts[key] = int(counts.get(key, 0)) + amount
@@ -170,8 +176,9 @@ func add_stat(key: String, amount: int = 1) -> void:
 
 
 ## Keeps the best value ever seen (deepest floor, most gold in a run...).
-func raise_stat(key: String, value: int) -> void:
-	stats[key] = maxi(int(stats.get(key, 0)), value)
+func raise_stat(key: String, value: int, lifetime: bool = true) -> void:
+	if lifetime:
+		stats[key] = maxi(int(stats.get(key, 0)), value)
 	for period in _current_periods():
 		var counts: Dictionary = period_stats.get(period, {})
 		counts[key] = maxi(int(counts.get(key, 0)), value)

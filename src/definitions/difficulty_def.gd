@@ -37,6 +37,12 @@ extends Resource
 @export_group("Rewards and help")
 ## Multiplies every monster's and prop's drop chance.
 @export var loot_chance: float = 1.0
+## Multiplies the quality of what drops (Magic, Rare and Epic come rarer below 1: LootRoller).
+@export var loot_quality: float = 1.0
+## Feats count here: achievements and their progress (the Tree's feat nodes, the oaths), the
+## deepest floor and the victories on the records. Off on Pilgrim: the Well spares you, it
+## doesn't crown you. Quests and the bestiary count everywhere.
+@export var counts_feats: bool = true
 ## Multiplies the souls earned at the end of a run.
 @export var souls: float = 1.0
 ## Fraction of max HP healed when reaching a new floor.

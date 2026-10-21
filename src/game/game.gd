@@ -426,7 +426,8 @@ func _enter_floor(resumed: bool = false) -> void:
 	if world.theme:
 		Sfx.play_music(world.theme.music)
 	_save_run()
-	Profile.best_depth = maxi(Profile.best_depth, depth)
+	if run.difficulty.counts_feats:
+		Profile.best_depth = maxi(Profile.best_depth, depth)
 	_records.check_achievements()
 	Events.depth_changed.emit(depth)
 	hud.set_souls(run_souls())

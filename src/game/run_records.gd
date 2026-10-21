@@ -15,7 +15,7 @@ func _ready() -> void:
 	Events.monster_killed.connect(_on_monster_killed)
 	Events.depth_changed.connect(_on_depth_changed)
 	Events.stat_counted.connect(func(stat: String, amount: int) -> void:
-		Profile.add_stat(stat, amount)
+		Profile.add_stat(stat, amount, _feats())
 		check_achievements())
 
 
@@ -26,8 +26,13 @@ func bind(new_run: RunState, new_player: Player) -> void:
 	_last_gold = player.gold  # a saved purse is not new gold
 	player.gold_changed.connect(_on_gold_changed)
 	player.leveled_up.connect(func(level: int) -> void:
-		Profile.raise_stat("run_level", level)
+		Profile.raise_stat("run_level", level, _feats())
 		check_achievements())
+
+
+## Feats count on this run's difficulty (not on Pilgrim: DifficultyDef.counts_feats).
+func _feats() -> bool:
+	return run == null or run.difficulty == null or run.difficulty.counts_feats
 
 
 ## Unlocks (and pays) every achievement whose goal is reached, and every finished quest.
@@ -66,15 +71,15 @@ func _on_monster_killed(monster: Monster) -> void:
 	if content and content.bestiary:
 		for reached in Bestiary.claim(monster.def, content.bestiary):
 			Events.bestiary_rank_reached.emit(monster.def, reached.rank, reached.souls)
-	Profile.add_stat("kills")
+	Profile.add_stat("kills", 1, _feats())
 	if monster.is_elite():
-		Profile.add_stat("elites")
+		Profile.add_stat("elites", 1, _feats())
 	if monster.rank and monster.rank.shimmer and Profile.add_shiny(monster.def.id):
 		Events.log_message(tr("A Celestial %s! It joins the bestiary's collection.") % tr(monster.def.display_name), monster.rank.color)
 	if monster.is_boss():
-		Profile.add_stat("bosses")
+		Profile.add_stat("bosses", 1, _feats())
 	if monster.has_fallen() and is_instance_valid(monster.last_attacker) and monster.last_attacker is Player:
-		Profile.add_stat("pushed")
+		Profile.add_stat("pushed", 1, _feats())
 	check_achievements()
 
 
@@ -83,17 +88,17 @@ func _on_depth_changed(depth: int) -> void:
 	if run == null or player == null or not is_instance_valid(player):
 		return
 	if depth > 1:
-		Profile.add_stat("floors")
-	Profile.raise_stat("run_depth", depth)
+		Profile.add_stat("floors", 1, _feats())
+	Profile.raise_stat("run_depth", depth, _feats())
 	if player.world and player.world.curse:
-		Profile.add_stat("cursed_floors")
+		Profile.add_stat("cursed_floors", 1, _feats())
 	check_achievements()
 
 
 func _on_gold_changed(gold: int) -> void:
 	if gold > _last_gold:
-		Profile.add_stat("gold", gold - _last_gold)
+		Profile.add_stat("gold", gold - _last_gold, _feats())
 		run.run_gold += gold - _last_gold
-		Profile.raise_stat("run_gold", run.run_gold)
+		Profile.raise_stat("run_gold", run.run_gold, _feats())
 		check_achievements()
 	_last_gold = gold

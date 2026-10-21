@@ -17,10 +17,18 @@ the normal game:
 | Rooms per floor (`rooms`) | 15 | 19 | 23 | 27 |
 | Boss HP | x0.7 | x1 | x1.3 | x1.6 |
 | Elite chance | x0.5 | x1 | x1.4 | x1.7 |
-| Drop chance | x1.4 | x1 | x1 | x0.9 |
+| Drop chance | x1.2 | x1 | x1 | x0.9 |
+| Drop quality (Magic, Rare, Epic) | x0.7 | x1 | x1 | x1 |
 | Heal on each new floor | 25% | - | - | - |
 | Light | brighter | - | darker | much darker |
 | Souls | x0.5 | x1 | x1.6 | x2.5 |
+| Feats count (achievements, the Tree's feats, records) | no | yes | yes | yes |
+
+Pilgrim spares the hero but pays for it, and its card says so in red: half the souls, rarer
+Magic, Rare and Epic gear (`loot_quality`), and no feats (`counts_feats`): its runs don't move
+achievements, the Tree of Souls' feat nodes (so the oaths), the deepest floor or the victories.
+Quests and the bestiary count everywhere. On every card, the souls line is red below x1 and green
+above.
 
 Bigger floors get more of everything with their rooms: monsters, chests, hazards, encounters and
 items lying around. A floor starts with at most `max_monsters_per_floor` (110) monsters, so the

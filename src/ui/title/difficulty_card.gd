@@ -60,6 +60,8 @@ func show_difficulty(def: DifficultyDef, unlocked: bool, selected: bool, referen
 			color = MenuWindow.BAD
 		_effects.add_child(UiSkin.label(effect[0], 14, color, true))
 	_souls.text = tr("Souls earned x%s") % number(def.souls)
+	# Fewer souls is a cost, more a reward: said in the same red and green as the rest.
+	_souls.add_theme_color_override("font_color", MenuWindow.BAD if def.souls < 0.99 else (MenuWindow.GOOD if def.souls > 1.01 else MenuWindow.SOULS))
 	if not unlocked:
 		var by := tr(def.unlocked_by.display_name) if def.unlocked_by else "?"
 		_footer.text = tr("To unlock: win a run on %s.") % by
@@ -105,6 +107,16 @@ static func effects(def: DifficultyDef, reference: DifficultyDef = null) -> Arra
 		lines.append([TranslationServer.tr("Darker floors"), -1])
 	elif def.light > 1.05:
 		lines.append([TranslationServer.tr("Brighter floors"), 1])
+	if def.loot_chance > 1.05:
+		lines.append([TranslationServer.tr("More drops"), 1])
+	elif def.loot_chance < 0.95:
+		lines.append([TranslationServer.tr("Fewer drops"), -1])
+	if def.loot_quality < 0.95:
+		lines.append([TranslationServer.tr("Magic, Rare and Epic gear come rarer"), -1])
+	elif def.loot_quality > 1.05:
+		lines.append([TranslationServer.tr("Magic, Rare and Epic gear come more often"), 1])
+	if not def.counts_feats:
+		lines.append([TranslationServer.tr("No feats: achievements, the Tree's feats and records don't count"), -1])
 	if def.hero_max_hp < 0.99:
 		lines.append([TranslationServer.tr("%d%% less max health") % roundi((1.0 - def.hero_max_hp) * 100.0), -1])
 	if lines.is_empty():

@@ -496,6 +496,11 @@ Fewer elite monsters,Fewer elite monsters,Moins de monstres d'élite
 Heal %d%% each new floor,Heal %d%% each new floor,Soin de %d %% à chaque nouvel étage
 Darker floors,Darker floors,Étages plus sombres
 Brighter floors,Brighter floors,Étages plus lumineux
+More drops,More drops,Plus de butin
+Fewer drops,Fewer drops,Moins de butin
+"Magic, Rare and Epic gear come rarer","Magic, Rare and Epic gear come rarer","Objets Magiques, Rares et Épiques plus rares"
+"Magic, Rare and Epic gear come more often","Magic, Rare and Epic gear come more often","Objets Magiques, Rares et Épiques plus fréquents"
+"No feats: achievements, the Tree's feats and records don't count","No feats: achievements, the Tree's feats and records don't count","Aucun exploit : succès, exploits de l'Arbre et records ne comptent pas"
 %d%% less max health,%d%% less max health,%d %% de Vie max en moins
 Everything as the game was made: the other difficulties are compared with it.,Everything as the game was made: the other difficulties are compared with it.,Le jeu tel qu'il a été conçu : les autres difficultés lui sont comparées.
 %s %+d%%,%s %+d%%,%s %+d %%
@@ -734,7 +739,7 @@ Seule ta lanterne retient les ténèbres... à peine."
 Lanternless,Lanternless,Nuit sans Lanterne
 You only see what is right around you. Better loot hides in the dark.,You only see what is right around you. Better loot hides in the dark.,Tu ne vois que ce qui t'entoure de près. Un meilleur butin se cache dans le noir.
 Pilgrim,Pilgrim,Pèlerin
-A pilgrim's pace: learn the Well without haste.,A pilgrim's pace: learn the Well without haste.,Au pas du pèlerin : apprends le Puits sans hâte.
+The Well spares the pilgrim... and pays little for lukewarm souls.,The Well spares the pilgrim... and pays little for lukewarm souls.,Le Puits ménage le pèlerin... et paie peu les âmes tièdes.
 Martyr,Martyr,Martyr
 "Martyrdom has its monsters: tougher, faster, and more of them.","Martyrdom has its monsters: tougher, faster, and more of them.","Le martyre a ses monstres : plus coriaces, plus rapides, plus nombreux."
 Nightmare,Nightmare,Cauchemar

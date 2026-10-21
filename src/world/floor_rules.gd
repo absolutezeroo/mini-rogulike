@@ -100,7 +100,7 @@ func loot_chance() -> float:
 
 ## Multiplies the quality of what drops (see LootRoller).
 func loot_quality() -> float:
-	return (event.loot_quality if event else 1.0) * (curse.loot_quality if curse else 1.0)
+	return (event.loot_quality if event else 1.0) * (curse.loot_quality if curse else 1.0) * (difficulty.loot_quality if difficulty else 1.0)
 
 
 ## Gold actually dropped for `amount`.
