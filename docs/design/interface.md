@@ -84,7 +84,8 @@ over a menu or a big banner. A tap (or OK) closes it.
 
 The bag, the forge, the shop, encounters, perk choices, the pause menu and the end of a run are drawn in the game's RPG skin (`UiSkin`, `src/ui/common/`): a wooden
 board with a gold ornate border (`RpgWindow`), the title on a red ribbon, dark recesses for each
-column, and items in square slots (`ItemSlot`): the icon at a whole-pixel scale, a frame in the
+column, scroll bars and sliders in the same pixel art (`assets/theme/main_theme.tres`, pieces in
+`assets/ui/scroll/`: a dark groove, a riveted gold bar, a gold fill and a gold knob), and items in square slots (`ItemSlot`): the icon at a whole-pixel scale, a frame in the
 item's rarity color (a rune's in its family's), how many, and a weapon's rune sockets as little
 stones lit in their runes' colors. The selected slot pulses gold.
 

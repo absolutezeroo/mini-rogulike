@@ -814,7 +814,10 @@ func _test_bag_room(game: Game) -> void:
 	check(player.inventory.items.has(better), "Better only: better gear comes by itself")
 	var gold_before := player.gold
 	world.spawn_gold(spot + Vector2(20, 0), 5)
-	await _frames(40)
+	for frame in 150:  # (the coins scatter and bounce before they fly: slower on a busy floor)
+		if player.gold > gold_before:
+			break
+		await _frames(1)
 	check(player.gold > gold_before, "gold always flies to the hero")
 
 	# By hand: no gear, but the key.

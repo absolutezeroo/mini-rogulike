@@ -7,6 +7,17 @@
 [ext_resource type="Texture2D" path="res://assets/ui/wood/nine_path_panel_2.png" id="5_xamdb"]
 [ext_resource type="FontFile" path="res://assets/fonts/normal_font.ttf" id="6_kvm4y"]
 [ext_resource type="Texture2D" path="res://assets/ui/wood/nine_path_panel.png" id="7_card"]
+[ext_resource type="Texture2D" path="res://assets/ui/scroll/track.png" id="10_track"]
+[ext_resource type="Texture2D" path="res://assets/ui/scroll/grabber.png" id="11_grab"]
+[ext_resource type="Texture2D" path="res://assets/ui/scroll/grabber_hover.png" id="12_grab_hot"]
+[ext_resource type="Texture2D" path="res://assets/ui/scroll/grabber_pressed.png" id="13_grab_press"]
+[ext_resource type="Texture2D" path="res://assets/ui/scroll/grabber_h.png" id="14_grab_h"]
+[ext_resource type="Texture2D" path="res://assets/ui/scroll/grabber_hover_h.png" id="15_grab_hot_h"]
+[ext_resource type="Texture2D" path="res://assets/ui/scroll/grabber_pressed_h.png" id="16_grab_press_h"]
+[ext_resource type="Texture2D" path="res://assets/ui/scroll/slider_fill.png" id="17_fill"]
+[ext_resource type="Texture2D" path="res://assets/ui/scroll/knob.png" id="18_knob"]
+[ext_resource type="Texture2D" path="res://assets/ui/scroll/knob_hover.png" id="19_knob_hot"]
+[ext_resource type="Texture2D" path="res://assets/ui/scroll/knob_disabled.png" id="20_knob_off"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_5hith"]
 content_margin_left = 14.0
@@ -87,6 +98,84 @@ texture_margin_top = 18.0
 texture_margin_right = 15.0
 texture_margin_bottom = 15.0
 
+[sub_resource type="StyleBoxTexture" id="Scroll_track_v"]
+content_margin_left = 6.0
+content_margin_right = 6.0
+texture = ExtResource("10_track")
+texture_margin_left = 4.0
+texture_margin_top = 4.0
+texture_margin_right = 4.0
+texture_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxTexture" id="Scroll_track_h"]
+content_margin_top = 6.0
+content_margin_bottom = 6.0
+texture = ExtResource("10_track")
+texture_margin_left = 4.0
+texture_margin_top = 4.0
+texture_margin_right = 4.0
+texture_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxTexture" id="Scroll_grab_v"]
+texture = ExtResource("11_grab")
+texture_margin_left = 4.0
+texture_margin_top = 6.0
+texture_margin_right = 4.0
+texture_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxTexture" id="Scroll_grab_v_hot"]
+texture = ExtResource("12_grab_hot")
+texture_margin_left = 4.0
+texture_margin_top = 6.0
+texture_margin_right = 4.0
+texture_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxTexture" id="Scroll_grab_v_press"]
+texture = ExtResource("13_grab_press")
+texture_margin_left = 4.0
+texture_margin_top = 6.0
+texture_margin_right = 4.0
+texture_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxTexture" id="Scroll_grab_h"]
+texture = ExtResource("14_grab_h")
+texture_margin_left = 6.0
+texture_margin_top = 4.0
+texture_margin_right = 6.0
+texture_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxTexture" id="Scroll_grab_h_hot"]
+texture = ExtResource("15_grab_hot_h")
+texture_margin_left = 6.0
+texture_margin_top = 4.0
+texture_margin_right = 6.0
+texture_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxTexture" id="Scroll_grab_h_press"]
+texture = ExtResource("16_grab_press_h")
+texture_margin_left = 6.0
+texture_margin_top = 4.0
+texture_margin_right = 6.0
+texture_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxTexture" id="Slider_track"]
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+texture = ExtResource("10_track")
+texture_margin_left = 4.0
+texture_margin_top = 4.0
+texture_margin_right = 4.0
+texture_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxTexture" id="Slider_fill"]
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+texture = ExtResource("17_fill")
+texture_margin_left = 4.0
+texture_margin_top = 4.0
+texture_margin_right = 4.0
+texture_margin_bottom = 4.0
+
 [resource]
 default_font = ExtResource("6_kvm4y")
 default_font_size = 16
@@ -100,6 +189,17 @@ Button/styles/focus = SubResource("StyleBoxEmpty_dywde")
 Button/styles/hover = SubResource("StyleBoxTexture_aq6m1")
 Button/styles/normal = SubResource("StyleBoxTexture_p3esg")
 Button/styles/pressed = SubResource("StyleBoxTexture_4i3ft")
+HScrollBar/styles/grabber = SubResource("Scroll_grab_h")
+HScrollBar/styles/grabber_highlight = SubResource("Scroll_grab_h_hot")
+HScrollBar/styles/grabber_pressed = SubResource("Scroll_grab_h_press")
+HScrollBar/styles/scroll = SubResource("Scroll_track_h")
+HScrollBar/styles/scroll_focus = SubResource("Scroll_track_h")
+HSlider/icons/grabber = ExtResource("18_knob")
+HSlider/icons/grabber_disabled = ExtResource("20_knob_off")
+HSlider/icons/grabber_highlight = ExtResource("19_knob_hot")
+HSlider/styles/grabber_area = SubResource("Slider_fill")
+HSlider/styles/grabber_area_highlight = SubResource("Slider_fill")
+HSlider/styles/slider = SubResource("Slider_track")
 Label/colors/font_outline_color = Color(0.16862746, 0.11372549, 0.14117648, 1)
 Label/constants/outline_size = 4
 PanelContainer/styles/panel = SubResource("StyleBoxTexture_xbixd")
@@ -109,3 +209,8 @@ PerkCard/styles/focus = SubResource("StyleBoxTexture_card_hot")
 PerkCard/styles/hover = SubResource("StyleBoxTexture_card_hot")
 PerkCard/styles/normal = SubResource("StyleBoxTexture_card")
 PerkCard/styles/pressed = SubResource("StyleBoxTexture_card_hot")
+VScrollBar/styles/grabber = SubResource("Scroll_grab_v")
+VScrollBar/styles/grabber_highlight = SubResource("Scroll_grab_v_hot")
+VScrollBar/styles/grabber_pressed = SubResource("Scroll_grab_v_press")
+VScrollBar/styles/scroll = SubResource("Scroll_track_v")
+VScrollBar/styles/scroll_focus = SubResource("Scroll_track_v")
