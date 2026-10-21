@@ -43,9 +43,9 @@ func apply(player: Player, at: Vector2) -> void:
 			world.spawn_loot(item, at + Vector2(0, 28), item_quality)
 	match gift:
 		Gift.PERK:
-			Events.perk_offer_requested.emit(PerkDef.Rarity.COMMON, "A gift", "Choose an upgrade")
+			Events.perk_offer_requested.emit(PerkDef.Rarity.COMMON, tr("A gift"), tr("Choose an upgrade"))
 		Gift.RELIC:
-			Events.perk_offer_requested.emit(PerkDef.Rarity.RARE, "Relic", "Choose a relic")
+			Events.perk_offer_requested.emit(PerkDef.Rarity.RARE, tr("Relic"), tr("Choose a relic"))
 	if monsters > 0:
 		(func() -> void:
 			for i in monsters:
@@ -73,28 +73,33 @@ func summary(player: Player, paid: bool = false) -> String:
 	var parts := PackedStringArray()
 	var max_hp := player.get_max_hp()
 	if heal_ratio >= 1.0:
-		parts.append("heals you fully")
+		parts.append(tr("heals you fully"))
 	elif heal_ratio > 0.0:
-		parts.append("heals %d health" % roundi(max_hp * heal_ratio))
+		parts.append(tr("heals %d health") % roundi(max_hp * heal_ratio))
 	if damage_ratio > 0.0:
-		parts.append("hurts you: you lose %d health" % roundi(max_hp * damage_ratio))
+		parts.append(tr("hurts you: you lose %d health") % roundi(max_hp * damage_ratio))
 	if gold > 0:
-		parts.append("%d gold" % (player.world.rules.gold(gold) if player.world and player.world.rules else gold))
+		parts.append(tr("%d gold") % (player.world.rules.gold(gold) if player.world and player.world.rules else gold))
 	if item_quality > 0.0:
 		parts.append(_item_words(player))
 	match gift:
 		Gift.PERK:
-			parts.append("a free perk: choose 1 of 3")
+			parts.append(tr("a free perk: choose 1 of 3"))
 		Gift.RELIC:
-			parts.append("a relic: choose 1 of 3 strong perks, like after a boss")
+			parts.append(tr("a relic: choose 1 of 3 strong perks, like after a boss"))
 	if monsters > 0:
-		parts.append("%d %smonster%s appear and attack" % [monsters, "elite " if elite_monsters else "", "s" if monsters > 1 else ""])
+		var appear := ""
+		if elite_monsters:
+			appear = tr("%d elite monsters appear and attack") if monsters > 1 else tr("%d elite monster appears and attacks")
+		else:
+			appear = tr("%d monsters appear and attack") if monsters > 1 else tr("%d monster appears and attacks")
+		parts.append(appear % monsters)
 	for effect in effects:
 		var buff := effect as BuffEffect
 		if buff and buff.bonuses:
-			parts.append("for %d seconds: %s" % [roundi(buff.duration), buff.bonuses.describe()])
+			parts.append(tr("for %d seconds: %s") % [roundi(buff.duration), buff.bonuses.describe()])
 	if parts.is_empty():
-		return "Nothing: what you paid is lost" if paid else "Nothing happens"
+		return tr("Nothing: what you paid is lost") if paid else tr("Nothing happens")
 	var text := ", ".join(parts)
 	return text.left(1).to_upper() + text.substr(1)
 
@@ -103,7 +108,7 @@ func summary(player: Player, paid: bool = false) -> String:
 func _item_words(player: Player) -> String:
 	var world := player.world
 	if world == null:
-		return "a piece of equipment"
+		return tr("a piece of equipment")
 	var config := world.config()
 	var quality := item_quality * (world.rules.loot_quality() if world.rules else 1.0)
 	var levels := world.depth - 1
@@ -111,4 +116,4 @@ func _item_words(player: Player) -> String:
 	var rare := (config.rare_weight + config.rare_weight_per_depth * levels) * quality
 	var epic := (config.epic_weight + config.epic_weight_per_depth * levels) * quality
 	var total := config.common_weight + magic + rare + epic
-	return "a piece of equipment (%d%% chance it is Rare or Epic)" % roundi((rare + epic) / total * 100.0)
+	return tr("a piece of equipment (%d%% chance it is Rare or Epic)") % roundi((rare + epic) / total * 100.0)

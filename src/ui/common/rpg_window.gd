@@ -69,7 +69,7 @@ func _init(title_text: String = "") -> void:
 	header_right.add_theme_constant_override("separation", 12)
 	header.add_child(header_right)
 	var close := Button.new()
-	close.text = "Close"
+	close.text = tr("Close")
 	close.focus_mode = Control.FOCUS_NONE
 	close.custom_minimum_size = Vector2(120, 48)
 	close.pressed.connect(func() -> void: close_requested.emit())

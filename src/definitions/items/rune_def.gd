@@ -15,7 +15,7 @@ extends ItemDef
 
 
 func get_type_label() -> String:
-	return "%s rune" % family.display_name if family else "Rune"
+	return tr("%s rune") % tr(family.display_name) if family else tr("Rune")
 
 
 func rarity_color() -> Color:
@@ -23,9 +23,9 @@ func rarity_color() -> Color:
 
 
 func get_details() -> String:
-	var text := description
+	var text := tr(description)
 	if bonuses:
 		var bonus_text := bonuses.describe()
 		if not bonus_text.is_empty():
 			text += "\n" + bonus_text
-	return text + "\nSet it into a weapon at a forge."
+	return text + "\n" + tr("Set it into a weapon at a forge.")

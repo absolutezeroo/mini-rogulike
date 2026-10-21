@@ -28,7 +28,7 @@ func _ready() -> void:
 func setup(def: UpgradeDef) -> void:
 	upgrade = def
 	_icon.texture = def.icon
-	_name.text = def.display_name
+	_name.text = tr(def.display_name)
 	_name.add_theme_color_override("font_color", def.color.lerp(Color.WHITE, 0.35))
 	_description.text = description_of(def)
 	_description.visible = not _description.text.is_empty()
@@ -41,7 +41,7 @@ func setup(def: UpgradeDef) -> void:
 			slot.item = item
 			slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			_items.add_child(slot)
-			_items.add_child(UiSkin.label(item.display_name, 15, item.rarity_color()))
+			_items.add_child(UiSkin.label(tr(item.display_name), 15, item.rarity_color()))
 	_items.visible = _items.get_child_count() > 0
 	refresh()
 
@@ -57,13 +57,13 @@ func refresh() -> void:
 	_status.add_theme_color_override("font_color", UiSkin.GOLD if maxed else UiSkin.TEXT)
 	var cost := upgrade.cost_for_level(level)
 	if maxed:
-		_buy.text = "Unlocked" if upgrade.kind == UpgradeDef.Kind.UNLOCK else ("Maxed" if upgrade.max_level > 1 else "Owned")
+		_buy.text = tr("Unlocked") if upgrade.kind == UpgradeDef.Kind.UNLOCK else (tr("Maxed") if upgrade.max_level > 1 else tr("Owned"))
 		_buy.disabled = true
 	elif Profile.can_buy(upgrade):
-		_buy.text = "Buy\n%d souls" % cost
+		_buy.text = tr("Buy\n%d souls") % cost
 		_buy.disabled = false
 	else:
-		_buy.text = "Need\n%d souls" % cost
+		_buy.text = tr("Need\n%d souls") % cost
 		_buy.disabled = true
 	_background.bg_color = Color(1.0, 0.8, 0.35, 0.1) if maxed else Color(0.0, 0.0, 0.0, 0.16)
 
@@ -73,18 +73,18 @@ func refresh() -> void:
 ## "Level 2 / 5"; one-level upgrades say "Not bought yet" / "Bought".
 static func level_text(def: UpgradeDef, level: int) -> String:
 	if def.max_level > 1:
-		return "Level %d / %d%s" % [level, def.max_level, "  (max)" if level >= def.max_level else ""]
+		return (TranslationServer.tr("Level %d / %d  (max)") if level >= def.max_level else TranslationServer.tr("Level %d / %d")) % [level, def.max_level]
 	if def.kind == UpgradeDef.Kind.UNLOCK:
-		return "Unlocked" if level > 0 else "Locked"
-	return "Bought" if level > 0 else "Not bought yet"
+		return TranslationServer.tr("Unlocked") if level > 0 else TranslationServer.tr("Locked")
+	return TranslationServer.tr("Bought") if level > 0 else TranslationServer.tr("Not bought yet")
 
 
 ## What it is, in a sentence (the data's description, or the stats it raises).
 static func description_of(def: UpgradeDef) -> String:
 	if not def.description.is_empty():
-		return def.description
+		return TranslationServer.tr(def.description)
 	if def.kind == UpgradeDef.Kind.STATS:
-		return "Your hero starts every run stronger."
+		return TranslationServer.tr("Your hero starts every run stronger.")
 	return ""
 
 
@@ -96,39 +96,40 @@ static func effect_at(def: UpgradeDef, level: int) -> String:
 		UpgradeDef.Kind.STARTING_ITEMS:
 			var names := PackedStringArray()
 			for item in def.items:
-				names.append(item.display_name)
-			return "start with %d extra %s" % [level, " + ".join(names)]
+				names.append(TranslationServer.tr(item.display_name))
+			return TranslationServer.tr("start with %d extra %s") % [level, " + ".join(names)]
 		UpgradeDef.Kind.STARTING_PERK:
-			return "start with the %s perk" % def.perk.display_name if def.perk else ""
+			return TranslationServer.tr("start with the %s perk") % TranslationServer.tr(def.perk.display_name) if def.perk else ""
 		UpgradeDef.Kind.UNLOCK:
-			return "these items can drop in every run"
+			return TranslationServer.tr("these items can drop in every run")
 		UpgradeDef.Kind.REROLLS:
-			return "%d extra reroll%s per run" % [level, "s" if level > 1 else ""]
+			return (TranslationServer.tr("%d extra rerolls per run") if level > 1 else TranslationServer.tr("%d extra reroll per run")) % level
 		UpgradeDef.Kind.BANISHES:
-			return "%d extra banish%s per run" % [level, "es" if level > 1 else ""]
+			return (TranslationServer.tr("%d extra banishes per run") if level > 1 else TranslationServer.tr("%d extra banish per run")) % level
 		UpgradeDef.Kind.RULES:
 			var parts := PackedStringArray()
 			if def.max_hp_scale != 1.0:
-				parts.append("%+d%% max health" % roundi((def.max_hp_scale - 1.0) * 100.0))
+				parts.append(TranslationServer.tr("%+d%% max health") % roundi((def.max_hp_scale - 1.0) * 100.0))
 			if def.healing_scale != 1.0:
-				parts.append("heals %d%% %s" % [absi(roundi((def.healing_scale - 1.0) * 100.0)), "weaker" if def.healing_scale < 1.0 else "stronger"])
+				var heals := TranslationServer.tr("heals %d%% weaker") if def.healing_scale < 1.0 else TranslationServer.tr("heals %d%% stronger")
+				parts.append(heals % absi(roundi((def.healing_scale - 1.0) * 100.0)))
 			if def.heal_on_clear > 0.0:
-				parts.append("heal %d%% of max health when a floor is won" % roundi(def.heal_on_clear * level * 100.0))
+				parts.append(TranslationServer.tr("heal %d%% of max health when a floor is won") % roundi(def.heal_on_clear * level * 100.0))
 			if def.shop_price_scale != 1.0:
-				parts.append("merchant prices %+d%%" % roundi((def.shop_price_scale - 1.0) * 100.0))
+				parts.append(TranslationServer.tr("merchant prices %+d%%") % roundi((def.shop_price_scale - 1.0) * 100.0))
 			if def.shop_extra_items > 0:
-				parts.append("%d more items at the merchant" % (def.shop_extra_items * level))
+				parts.append(TranslationServer.tr("%d more items at the merchant") % (def.shop_extra_items * level))
 			if def.elite_magic_drop:
-				parts.append("elites always drop Magic gear")
+				parts.append(TranslationServer.tr("elites always drop Magic gear"))
 			if def.cartographer:
-				parts.append("the minimap shows stairs, merchant and forge")
+				parts.append(TranslationServer.tr("the minimap shows stairs, merchant and forge"))
 			if def.armory:
-				parts.append("pick your starting weapon")
+				parts.append(TranslationServer.tr("pick your starting weapon"))
 			return ", ".join(parts)
 		UpgradeDef.Kind.RANDOM_STARTING_ITEM:
-			return "start with a random spell tome"
+			return TranslationServer.tr("start with a random spell tome")
 		UpgradeDef.Kind.OATH:
-			return "a new oath to swear before a run"
+			return TranslationServer.tr("a new oath to swear before a run")
 	return ""
 
 
@@ -136,13 +137,13 @@ static func effect_at(def: UpgradeDef, level: int) -> String:
 static func status_text(def: UpgradeDef, level: int) -> String:
 	if def.max_level <= 1:
 		if level > 0:
-			return "Active: " + effect_at(def, 1)
-		return "Gives: " + effect_at(def, 1)
+			return TranslationServer.tr("Active: %s") % effect_at(def, 1)
+		return TranslationServer.tr("Gives: %s") % effect_at(def, 1)
 	if level <= 0:
-		return "Level 1 gives: " + effect_at(def, 1)
+		return TranslationServer.tr("Level 1 gives: %s") % effect_at(def, 1)
 	if level >= def.max_level:
-		return "Now: %s  (maxed)" % effect_at(def, level)
-	return "Now: %s   >   Next: %s" % [effect_at(def, level), effect_at(def, level + 1)]
+		return TranslationServer.tr("Now: %s  (maxed)") % effect_at(def, level)
+	return TranslationServer.tr("Now: %s   >   Next: %s") % [effect_at(def, level), effect_at(def, level + 1)]
 
 
 # --- Building -----------------------------------------------------------------------

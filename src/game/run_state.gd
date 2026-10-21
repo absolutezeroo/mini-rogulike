@@ -193,29 +193,31 @@ func summary_rows(content: ContentDB, level: int, time_note: String = "") -> Arr
 	if not time_note.is_empty():
 		time_text += "  " + time_note
 	elif record > 0.0 and finish_time < 0.0:
-		time_text += "  (record %s)" % TimeText.of(record)
+		time_text += "  " + tr("(record %s)") % TimeText.of(record)
 	var rows: Array = [
-		["Difficulty", difficulty.display_name],
-		["Reached", "%s, depth %d" % [act.title if act else "Dungeon", depth]],
-		["Hero level", str(level)],
-		["Monsters slain", str(kills)],
-		["Bosses slain", str(bosses_slain)],
-		["Time", time_text],
+		[tr("Difficulty"), tr(difficulty.display_name)],
+		[tr("Reached"), tr("%s, depth %d") % [tr(act.title) if act else tr("Dungeon"), depth]],
+		[tr("Hero level"), str(level)],
+		[tr("Monsters slain"), str(kills)],
+		[tr("Bosses slain"), str(bosses_slain)],
+		[tr("Time"), time_text],
 	]
 	if is_daily():
-		rows.append(["Daily score", "%d%s" % [DailyRun.score(self), ("  (best %d)" % Profile.daily_best) if daily_official else "  (practice)"]])
+		var note := tr("(best %d)") % Profile.daily_best if daily_official else tr("(practice)")
+		rows.append([tr("Daily score"), "%d  %s" % [DailyRun.score(self), note]])
 	return rows
 
 
 ## "Normal - Mossy Caves, depth 3, level 5 / 42 monsters slain, 1 boss" (+ the daily score).
 func summary(content: ContentDB, level: int) -> String:
 	var act := content.dungeon.act_for_depth(depth)
-	var text := "%s - %s, depth %d, level %d\n%d monsters slain, %d bosses" % [
-		difficulty.display_name, act.title if act else "Dungeon", depth, level, kills, bosses_slain]
-	text += "\nTime %s" % TimeText.of(run_time())
+	var text := tr("%s - %s, depth %d, level %d\n%d monsters slain, %d bosses") % [
+		tr(difficulty.display_name), tr(act.title) if act else tr("Dungeon"), depth, level, kills, bosses_slain]
+	text += "\n" + tr("Time %s") % TimeText.of(run_time())
 	var record := Profile.best_time(record_key())
 	if record > 0.0 and finish_time < 0.0:
-		text += "   (record %s)" % TimeText.of(record)
+		text += "   " + tr("(record %s)") % TimeText.of(record)
 	if is_daily():
-		text += "\nDaily score %d%s" % [DailyRun.score(self), ("  (best %d)" % Profile.daily_best) if daily_official else "  (practice)"]
+		var note := tr("(best %d)") % Profile.daily_best if daily_official else tr("(practice)")
+		text += "\n" + tr("Daily score %d") % DailyRun.score(self) + "  " + note
 	return text

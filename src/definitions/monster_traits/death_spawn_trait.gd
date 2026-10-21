@@ -24,4 +24,4 @@ func on_died(monster: Monster, _killer: Actor, fell: bool, _rewards: bool) -> vo
 
 
 func describe() -> String:
-	return "Splits when it dies."
+	return tr("Splits when it dies.")

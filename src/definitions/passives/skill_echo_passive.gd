@@ -26,4 +26,4 @@ func on_skill_used(owner: Actor, skill: SkillDef, perk: PerkSet.Entry) -> void:
 		return
 	owner.set_meta(STATE, { "skill": skill, "frame": frame, "spent": false })
 	owner.skills.reset_cooldown(skill)
-	owner.world.spawn_floating_text(owner.head_position(), "ECHO", color)
+	owner.world.spawn_floating_text(owner.head_position(), tr("ECHO"), color)

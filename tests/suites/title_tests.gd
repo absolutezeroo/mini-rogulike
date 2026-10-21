@@ -270,6 +270,19 @@ func _test_options_screen(title: TitleScreen) -> void:
 	(battery.get_parent().get_child(0) as Control).gui_input.emit(tap)
 	check(Settings.battery_saver != before and battery.button_pressed != before, "options: tapping the name flips the switch")
 	battery.button_pressed = before
+	# The language: French at once (the window rebuilt in it), then back to English.
+	var french: Button = options.get_node_or_null("%FrenchButton")
+	check(french != null and options.get_node_or_null("%EnglishButton") != null, "options: the language buttons")
+	if french:
+		french.pressed.emit()
+		await _frames(2)
+		check(Settings.language == "fr" and TranslationServer.get_locale() == "fr", "options: Français switches the game to French")
+		var english: Button = options.get_node("%EnglishButton")
+		check(english != null and options.visible and _texts(options).has("Langue") and _texts(options).has("Son"), "options: the window is rebuilt in French")
+		check((options.get_node("%FrenchButton") as Button).button_pressed and not english.button_pressed, "options: the language in use stays pressed")
+		english.pressed.emit()
+		await _frames(2)
+		check(Settings.language == "en" and TranslationServer.get_locale() == "en" and _texts(options).has("Language"), "options: English switches back")
 	(options.get_node("%CloseButton") as Button).pressed.emit()
 	await _frames(1)
 	check(not options.visible, "options: Close")

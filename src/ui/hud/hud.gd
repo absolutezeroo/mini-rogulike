@@ -54,14 +54,15 @@ func _ready() -> void:
 	_full_map.tapped.connect(func() -> void: _full_map.hide())
 	Settings.changed.connect(_apply_settings)
 	Events.achievement_unlocked.connect(func(achievement: AchievementDef) -> void:
-		toast("Achievement: %s  (+%d souls)" % [achievement.display_name, achievement.reward_souls]))
+		toast(tr("Achievement: %s  (+%d souls)") % [tr(achievement.display_name), achievement.reward_souls]))
 	Events.bestiary_rank_reached.connect(func(monster: MonsterDef, rank: int, souls: int) -> void:
 		var rules := _player.world.bestiary_rules() if _player and _player.world else null
-		toast("Bestiary: %s, %s  (+%d souls)" % [monster.display_name, Bestiary.rank_name(rank, rules) if rules else str(rank), souls]))
+		toast(tr("Bestiary: %s, %s  (+%d souls)") % [tr(monster.display_name), Bestiary.rank_name(rank, rules) if rules else str(rank), souls]))
 	Events.hunt_challenge_done.connect(func(monster: MonsterDef, challenge: HuntChallenge) -> void:
-		toast("Challenge done: %s  (+%d souls)" % [challenge.describe(monster), challenge.souls]))
+		toast(tr("Challenge done: %s  (+%d souls)") % [challenge.describe(monster), challenge.souls]))
 	Events.quest_completed.connect(func(quest: Dictionary) -> void:
-		toast("%s quest done: %s  (+%d souls)" % ["Daily" if (quest.def as QuestDef).period == QuestDef.Period.DAILY else "Weekly", QuestBoard.text(quest), quest.reward]))
+		var done := tr("Daily quest done: %s  (+%d souls)") if (quest.def as QuestDef).period == QuestDef.Period.DAILY else tr("Weekly quest done: %s  (+%d souls)")
+		toast(done % [QuestBoard.text(quest), quest.reward]))
 	_apply_settings()
 	Events.depth_changed.connect(_on_depth_changed)
 	_depth_banner.modulate.a = 0.0
@@ -109,15 +110,15 @@ func _refresh_seal() -> void:
 	var seal := _world.seal
 	_seal_label.visible = seal.needed > 0 or _world.arena == null
 	if seal.is_sealed():
-		_seal_label.text = "Seal  %d / %d" % [seal.kills, seal.needed]
+		_seal_label.text = tr("Seal  %d / %d") % [seal.kills, seal.needed]
 		_seal_label.add_theme_color_override("font_color", Palette.SEAL)
 	else:
-		_seal_label.text = "Stairs open"
+		_seal_label.text = tr("Stairs open")
 		_seal_label.add_theme_color_override("font_color", Palette.GOLD)
 
 
 func _on_seal_broken() -> void:
-	show_banner("The stairs are open", Palette.GOLD)
+	show_banner(tr("The stairs are open"), Palette.GOLD)
 	if _seal_tween:
 		_seal_tween.kill()
 	_seal_label.pivot_offset = _seal_label.size * Vector2(1.0, 0.5)
@@ -188,7 +189,7 @@ func _refresh_skill_buttons() -> void:
 		var skill: SkillDef = _player.skills.skills[i] if i < _player.skills.skills.size() else null
 		button.visible = skill != null
 		if skill:
-			button.label = skill.short_label
+			button.label = tr(skill.short_label)
 			button.icon = skill.icon
 			button.color = skill.color
 
@@ -208,7 +209,7 @@ func _refresh_temperature() -> void:
 	if not shown:
 		return
 	var is_cold := temperature.value < 0.0
-	var label := ("Freezing!" if is_cold else "Burning up!") if temperature.is_extreme() else ("Cold" if is_cold else "Hot")
+	var label := (tr("Freezing!") if is_cold else tr("Burning up!")) if temperature.is_extreme() else (tr("Cold") if is_cold else tr("Hot"))
 	_temp_bar.fill_color = BodyTemperature.COLD_COLOR if is_cold else BodyTemperature.HOT_COLOR
 	if temperature.is_extreme() and int(Time.get_ticks_msec() / 250) % 2 == 0:
 		_temp_bar.fill_color = _temp_bar.fill_color.lightened(0.4)
@@ -220,7 +221,7 @@ func _on_health_changed(current: int, maximum: int) -> void:
 
 
 func _on_xp_changed(xp: int, needed: int, level: int) -> void:
-	_xp_bar.set_values(xp, needed, "Lv %d" % level)
+	_xp_bar.set_values(xp, needed, tr("Lv %d") % level)
 
 
 func _refresh_info() -> void:
@@ -229,23 +230,22 @@ func _refresh_info() -> void:
 	var stats := _player.get_stats()
 	var weapon := _player.get_weapon()
 	var difficulty := _player.world.difficulty if _player.world else null
-	_info_label.text = "%sDepth %d   Damage %d   Armor %d   %s" % [
-		(difficulty.display_name + "   ") if difficulty else "",
+	_info_label.text = (tr(difficulty.display_name) + "   " if difficulty else "") + tr("Depth %d   Damage %d   Armor %d   %s") % [
 		_player.world.depth if _player.world else 1,
 		_player.get_power(),
 		stats.defense,
-		weapon.display_name if weapon else "Bare hands",
+		tr(weapon.display_name) if weapon else tr("Bare hands"),
 	]
 
 
 func _on_gold_changed(gold: int) -> void:
-	(%GoldLabel as Label).text = "Gold %d" % gold
+	(%GoldLabel as Label).text = tr("Gold %d") % gold
 
 
 ## Three of a family: its name across the screen, what it does in the log.
 func _on_synergy_awakened(synergy: SynergyDef) -> void:
-	show_banner("%s awakens" % synergy.display_name, synergy.color)
-	Events.log_message("%s awakens: %s" % [synergy.display_name, synergy.description], synergy.color)
+	show_banner(tr("%s awakens") % tr(synergy.display_name), synergy.color)
+	Events.log_message(tr("%s awakens: %s") % [tr(synergy.display_name), tr(synergy.description)], synergy.color)
 
 
 ## A short note at the top of the screen (achievements...). Several wait their turn.
@@ -272,7 +272,7 @@ func _next_toast() -> void:
 
 ## Souls gathered this run (what the shrine will get). `pulse` when a new one arrives.
 func set_souls(count: int, pulse: bool = false) -> void:
-	_souls_label.text = "Souls %d" % count
+	_souls_label.text = tr("Souls %d") % count
 	if not pulse:
 		return
 	if _souls_tween:
@@ -315,7 +315,7 @@ func show_split(depth: int, seconds: float, ahead: float) -> void:
 	if not Settings.run_timer:
 		return
 	var label := %SplitLabel as Label
-	var text := "Floor %d  %s" % [depth, TimeText.of(seconds, 1)]
+	var text := tr("Floor %d  %s") % [depth, TimeText.of(seconds, 1)]
 	var color := Color(1, 1, 1, 0.85)
 	if not is_nan(ahead):
 		text += "  " + TimeText.delta(ahead)
@@ -364,4 +364,4 @@ func hint_target(control_name: StringName) -> Rect2:
 
 func _on_depth_changed(depth: int) -> void:
 	_refresh_info()
-	show_banner("Depth %d" % depth)
+	show_banner(tr("Depth %d") % depth)

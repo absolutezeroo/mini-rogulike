@@ -55,7 +55,7 @@ func next_page() -> void:
 		finish()
 		return
 	Sfx.play_ui(Sfx.bank.ui_click)
-	_text.text = pages()[page]
+	_text.text = tr(pages()[page])
 	_text.visible_ratio = 0.0
 	_hint.hide()
 	_typing = create_tween()

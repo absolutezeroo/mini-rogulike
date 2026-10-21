@@ -419,10 +419,10 @@ func _check_ground() -> void:
 
 func _death_cause(killer: Actor) -> String:
 	if is_falling:
-		return "a fall"
+		return tr("a fall")
 	if is_instance_valid(killer):
 		return killer.display_name
-	return "the dungeon"
+	return tr("the dungeon")
 
 
 ## The fall is over: the actor is at the bottom of `pit`.

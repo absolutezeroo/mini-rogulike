@@ -113,21 +113,21 @@ func _card(oath: OathDef, open: bool) -> Control:
 	icon.modulate = Color.WHITE if open else Color(0.4, 0.38, 0.36)
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(icon)
-	var name := UiSkin.label(oath.display_name if oath else "No oath", 19, (oath.color.lerp(Color.WHITE, 0.3) if oath else UiSkin.TEXT) if open else UiSkin.DIM)
+	var name := UiSkin.label(tr(oath.display_name) if oath else tr("No oath"), 19, (oath.color.lerp(Color.WHITE, 0.3) if oath else UiSkin.TEXT) if open else UiSkin.DIM)
 	name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(name)
-	var text := oath.description if oath else "The usual start: the Katana, no rule changed."
+	var text := tr(oath.description) if oath else tr("The usual start: the Katana, no rule changed.")
 	if not open:
 		var branch := ""
 		for node in _content.soul_tree.nodes:
 			if node.oath == oath and node.branch < _content.soul_tree.branches.size():
-				branch = _content.soul_tree.branches[node.branch]
-		text = "Opens at the end of the %s branch of the Tree of Souls, at the shrine." % branch
+				branch = tr(_content.soul_tree.branches[node.branch])
+		text = tr("Opens at the end of the %s branch of the Tree of Souls, at the shrine.") % branch
 	var words := UiSkin.label(text, 14, UiSkin.TEXT if open else UiSkin.DIM, true)
 	words.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(words)
 	if chosen:
-		var mark := UiSkin.label("Sworn", 15, UiSkin.GOLD)
+		var mark := UiSkin.label(tr("Sworn"), 15, UiSkin.GOLD)
 		mark.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		column.add_child(mark)
 	for child in column.get_children():
@@ -143,13 +143,13 @@ func _fill_weapons() -> void:
 	var oath := Game.sworn_oath(_content)
 	var picked := Game.picked_weapon(_content)
 	if oath and oath.starting_weapon:
-		_weapon_text.text = "Your starting weapon (Armory): your oath brings its own, the %s. Without the oath, pick one below." % oath.starting_weapon.display_name
+		_weapon_text.text = tr("Your starting weapon (Armory): your oath brings its own, the %s. Without the oath, pick one below.") % tr(oath.starting_weapon.display_name)
 	else:
-		_weapon_text.text = "Your starting weapon (Armory): %s." % (picked.display_name if picked else "the usual one")
+		_weapon_text.text = tr("Your starting weapon (Armory): %s.") % (tr(picked.display_name) if picked else tr("the usual one"))
 	for weapon in weapons(_content):
 		var slot := ItemSlot.new(56.0)
 		slot.item = weapon
-		slot.tooltip_text = weapon.display_name
+		slot.tooltip_text = tr(weapon.display_name)
 		slot.selected = weapon == picked
 		slot.show_level = false
 		slot.pressed.connect(func() -> void:
@@ -159,14 +159,14 @@ func _fill_weapons() -> void:
 
 
 func _build() -> void:
-	_window = MenuWindow.new("Before the descent")
+	_window = MenuWindow.new(tr("Before the descent"))
 	add_child(_window)
 	var scene_owner: Node = owner if owner != null else self
-	_window.close_button.text = "Back"
+	_window.close_button.text = tr("Back")
 	_window.close_button.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_close)
 		hide())
-	var intro := UiSkin.label("Swear an oath for this run, or go as you are. It changes how you start: pick one, then Start.", 16, UiSkin.TEXT, true)
+	var intro := UiSkin.label(tr("Swear an oath for this run, or go as you are. It changes how you start: pick one, then Start."), 16, UiSkin.TEXT, true)
 	intro.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_window.header_left.add_child(intro)
 	var scroll := ScrollContainer.new()
@@ -197,7 +197,7 @@ func _build() -> void:
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_window.body.add_child(spacer)
-	_start = MenuWindow.button("Start the run", 22, 60)
+	_start = MenuWindow.button(tr("Start the run"), 22, 60)
 	_start.pressed.connect(start)
 	_window.body.add_child(_start)
 	MenuWindow.expose(_start, "StartRunButton", scene_owner)

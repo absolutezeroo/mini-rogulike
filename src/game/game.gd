@@ -140,11 +140,11 @@ func _connect_events() -> void:
 	Events.boss_started.connect(_on_boss_started)
 	Events.boss_defeated.connect(_on_boss_defeated)
 	Events.ambush_started.connect(func(_room: AmbushRoom) -> void:
-		hud.show_banner("Ambush!", Palette.DANGER)
-		Events.log_message("It's a trap! Survive the waves.", Palette.DANGER))
+		hud.show_banner(tr("Ambush!"), Palette.DANGER)
+		Events.log_message(tr("It's a trap! Survive the waves."), Palette.DANGER))
 	Events.ambush_cleared.connect(func(_room: AmbushRoom) -> void:
 		Sfx.play_ui(Sfx.bank.boss_defeated)
-		Events.log_message("The room falls silent. A chest appears...", Palette.GOLD))
+		Events.log_message(tr("The room falls silent. A chest appears..."), Palette.GOLD))
 
 
 # --- Runs --------------------------------------------------------------------
@@ -193,7 +193,7 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	player.setup(content.player)
 	player.died.connect(_on_player_died)
 	player.leveled_up.connect(func(level: int) -> void:
-		_queue_offer(PerkDef.Rarity.COMMON, PERK_CHOICES, "Level %d!" % level, "Choose an upgrade"))
+		_queue_offer(PerkDef.Rarity.COMMON, PERK_CHOICES, tr("Level %d!") % level, tr("Choose an upgrade")))
 	player.damaged.connect(func(damage: int) -> void:
 		screen_fx.kick(clampf(float(damage) / player.get_max_hp() * 5.0, 0.3, 1.0)))
 	content.unlocked_items = ShrineUpgrades.unlocked_items(content)
@@ -443,21 +443,21 @@ func _announce_floor() -> void:
 	var act := content.dungeon.act_for_depth(depth)
 	if act and content.dungeon.floor_in_act(depth) == 1:
 		if not show_act_cards:
-			hud.show_banner(act.title)
-		Events.log_message("%s: %s" % [act.subtitle, act.title], Palette.GOLD)
+			hud.show_banner(tr(act.title))
+		Events.log_message(tr("%s: %s") % [tr(act.subtitle), tr(act.title)], Palette.GOLD)
 	if world.floor_event:
-		hud.show_banner(world.floor_event.display_name, world.floor_event.color)
-		Events.log_message(world.floor_event.description, world.floor_event.color)
+		hud.show_banner(tr(world.floor_event.display_name), world.floor_event.color)
+		Events.log_message(tr(world.floor_event.description), world.floor_event.color)
 	if world.curse:
 		if not show_act_cards:
-			hud.show_banner(world.curse.display_name, world.curse.color)
-		Events.log_message("Cursed: %s. %s" % [world.curse.display_name, world.curse.description], world.curse.color)
+			hud.show_banner(tr(world.curse.display_name), world.curse.color)
+		Events.log_message(tr("Cursed: %s. %s") % [tr(world.curse.display_name), tr(world.curse.description)], world.curse.color)
 	if world.arena:
-		Events.log_message("Depth %d. Something big is waiting..." % depth, Palette.DANGER)
+		Events.log_message(tr("Depth %d. Something big is waiting...") % depth, Palette.DANGER)
 	elif world.seal.is_sealed():
-		Events.log_message("Depth %d. The stairs are sealed: slay %d monsters to open them." % [depth, world.seal.needed], Palette.SEAL)
+		Events.log_message(tr("Depth %d. The stairs are sealed: slay %d monsters to open them.") % [depth, world.seal.needed], Palette.SEAL)
 	else:
-		Events.log_message("Depth %d. Find the stairs!" % depth, Palette.GOLD)
+		Events.log_message(tr("Depth %d. Find the stairs!") % depth, Palette.GOLD)
 
 
 ## The way the hero took to floor `floor_depth`, or null (no choice there).
@@ -513,9 +513,9 @@ func _show_cards() -> void:
 
 func _on_boss_started(boss: Monster) -> void:
 	var def := boss.def as BossDef
-	hud.show_banner(boss.display_name, Palette.DANGER)
+	hud.show_banner(tr(boss.display_name), Palette.DANGER)
 	if def and not def.title.is_empty():
-		Events.log_message("%s, %s" % [boss.display_name, def.title], Palette.DANGER)
+		Events.log_message("%s, %s" % [tr(boss.display_name), tr(def.title)], Palette.DANGER)
 	var music := def.music if def and def.music else Sfx.bank.boss_music
 	if music:
 		Sfx.play_music(music)
@@ -525,10 +525,10 @@ func _on_boss_defeated(boss: Monster) -> void:
 	run.bosses_slain += 1
 	if content.dungeon.rerolls_per_boss > 0:
 		run.rerolls += content.dungeon.rerolls_per_boss
-		Events.log_message("+%d reroll for the perk choices." % content.dungeon.rerolls_per_boss, Palette.GOLD)
-	hud.show_banner("Victory!")
+		Events.log_message(tr("+%d reroll for the perk choices.") % content.dungeon.rerolls_per_boss, Palette.GOLD)
+	hud.show_banner(tr("Victory!"))
 	Sfx.play_ui(Sfx.bank.boss_defeated)
-	Events.log_message("%s is defeated! The way down is open." % boss.display_name, Palette.GOLD)
+	Events.log_message(tr("%s is defeated! The way down is open.") % tr(boss.display_name), Palette.GOLD)
 	if world.theme:
 		Sfx.play_music(world.theme.music)
 	var def := boss.def as BossDef
@@ -545,7 +545,7 @@ func _on_boss_defeated(boss: Monster) -> void:
 		_split(depth)
 		new_record = Profile.record_time(run.record_key(), run.finish_time, run.splits)
 		if new_record:
-			Events.log_message("New record: %s!" % TimeText.of(run.finish_time), Palette.GOLD)
+			Events.log_message(tr("New record: %s!") % TimeText.of(run.finish_time), Palette.GOLD)
 		earned = _award_souls(true)
 	else:
 		offers.add_relic(def, boss.rank.extra_relics if boss.rank else 0)
@@ -565,7 +565,7 @@ func _on_boss_defeated(boss: Monster) -> void:
 
 func _on_continue_endless() -> void:
 	_set_paused(false)
-	Events.log_message("Endless mode: the dungeon goes on, harder and harder.", Palette.DANGER)
+	Events.log_message(tr("Endless mode: the dungeon goes on, harder and harder."), Palette.DANGER)
 	offers.add_relic(run.last_boss)
 	_show_next_offer()
 
@@ -573,16 +573,16 @@ func _on_continue_endless() -> void:
 ## Beside a win's time: a new record, or the record to beat.
 func _record_text(new_record: bool) -> String:
 	if new_record:
-		return "New record!"
+		return tr("New record!")
 	var record := Profile.best_time(run.record_key())
-	return "(record %s)" % TimeText.of(record) if record > 0.0 else ""
+	return tr("(record %s)") % TimeText.of(record) if record > 0.0 else ""
 
 
 ## The end-of-run screen: how it ended (a line of the story), the run's numbers, the souls.
 func _show_end(victory: bool, earned: int, new_record: bool = false) -> void:
 	var story := ""
 	if content.story:
-		story = content.story.victory_text if victory else content.story.random_death_line()
+		story = tr(content.story.victory_text if victory else content.story.random_death_line())
 	var rows := run.summary_rows(content, player.level, _record_text(new_record) if victory else "")
 	game_over_panel.show_end(victory, story, rows, earned, Profile.souls)
 
@@ -624,7 +624,7 @@ func _on_perk_reroll() -> void:
 	var current := perk_panel.get_offered()
 	var fresh := _pick_offer(current.size(), shown.rarity, current)
 	if fresh.is_empty():
-		Events.log_message("Nothing else to offer.", Palette.DANGER)
+		Events.log_message(tr("Nothing else to offer."), Palette.DANGER)
 		return
 	run.rerolls -= 1
 	perk_panel.set_charges(run.rerolls, run.banishes)
@@ -641,7 +641,7 @@ func _on_perk_banish(index: int) -> void:
 	var gone := current[index]
 	run.banishes -= 1
 	run.banished.append(gone)
-	Events.log_message("%s is banished for this run." % gone.display_name, Palette.DANGER)
+	Events.log_message(tr("%s is banished for this run.") % tr(gone.display_name), Palette.DANGER)
 	var cards: Array[PerkDef] = current.duplicate()
 	var replacement := _pick_offer(1, shown.rarity, current)
 	if replacement.is_empty():
@@ -660,7 +660,7 @@ func _on_perk_banish(index: int) -> void:
 func _on_perk_chosen(perk: PerkDef) -> void:
 	offers.shown = null
 	player.perks.add(perk)
-	Events.log_message("%s (level %d)" % [perk.display_name, player.perks.stacks_of(perk)], perk.color)
+	Events.log_message(tr("%s (level %d)") % [tr(perk.display_name), player.perks.stacks_of(perk)], perk.color)
 	Vfx.sparkles(world, player.global_position, perk.color)
 	tutorial.cue(&"perk_chosen")
 	_on_menu_closed()

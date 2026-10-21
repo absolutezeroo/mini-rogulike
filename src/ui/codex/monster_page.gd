@@ -74,7 +74,7 @@ func _column(width: float, fill: Callable) -> Control:
 
 func _fill_identity(column: VBoxContainer, rank: int, rules: BestiaryRules) -> void:
 	var back := Button.new()
-	back.text = "< All monsters"
+	back.text = tr("< All monsters")
 	back.name = "BackButton"
 	back.custom_minimum_size = Vector2(0, 46)
 	back.focus_mode = Control.FOCUS_NONE
@@ -82,27 +82,27 @@ func _fill_identity(column: VBoxContainer, rank: int, rules: BestiaryRules) -> v
 	back.pressed.connect(func() -> void: back_requested.emit())
 	column.add_child(back)
 	column.add_child(_look())
-	var name_label := UiSkin.label(_monster.display_name, 24, Palette.DANGER if _monster is BossDef else UiSkin.GOLD)
+	var name_label := UiSkin.label(tr(_monster.display_name), 24, Palette.DANGER if _monster is BossDef else UiSkin.GOLD)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(name_label)
 	var boss := _monster as BossDef
 	if boss:
-		var kind_label := UiSkin.label("Boss  -  %s" % boss.title if not boss.title.is_empty() else "Boss", 15, UiSkin.DIM, true)
+		var kind_label := UiSkin.label(tr("Boss  -  %s") % tr(boss.title) if not boss.title.is_empty() else tr("Boss"), 15, UiSkin.DIM, true)
 		kind_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		column.add_child(kind_label)
 	var kills := Profile.kill_count(_monster.id)
-	var status := UiSkin.label("%s  -  %d slain" % [Bestiary.rank_name(rank, rules), kills], 17, CodexRows.DONE if Bestiary.is_mastered(_monster, rules) else UiSkin.TEXT, true)
+	var status := UiSkin.label(tr("%s  -  %d slain") % [Bestiary.rank_name(rank, rules), kills], 17, CodexRows.DONE if Bestiary.is_mastered(_monster, rules) else UiSkin.TEXT, true)
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(status)
 	if rank < 1:
-		column.add_child(UiSkin.label("You have seen it, but never slain one. Slay one to learn what it is, its stats and how it attacks.", 15, UiSkin.DIM, true))
+		column.add_child(UiSkin.label(tr("You have seen it, but never slain one. Slay one to learn what it is, its stats and how it attacks."), 15, UiSkin.DIM, true))
 		_add_shiny(column)
 		return
 	if not _monster.description.is_empty():
-		column.add_child(UiSkin.label(_monster.description, 16, UiSkin.TEXT, true))
+		column.add_child(UiSkin.label(tr(_monster.description), 16, UiSkin.TEXT, true))
 	var home := _home()
 	if not home.is_empty():
-		column.add_child(CodexRows.fact("Lives in", home))
+		column.add_child(CodexRows.fact(tr("Lives in"), home))
 	_add_shiny(column)
 
 
@@ -115,9 +115,11 @@ func _home() -> String:
 		var first := _content.dungeon.first_depth(i)
 		var last := first + act.floors - 1
 		if act.all_bosses().has(_monster):
-			return "%s, floor %d" % [act.subtitle, last]
+			return tr("%s, floor %d") % [tr(act.subtitle), last]
 		if act.monsters.has(_monster):
-			return "%s, floor%s" % [act.subtitle, " %d" % first if act.floors <= 1 else "s %d to %d" % [first, last]]
+			if act.floors <= 1:
+				return tr("%s, floor %d") % [tr(act.subtitle), first]
+			return tr("%s, floors %d to %d") % [tr(act.subtitle), first, last]
 	return ""
 
 
@@ -130,24 +132,24 @@ func _stats() -> Array[Array]:
 	var damage := weapon.damage if weapon else 0
 	var armor := stats.defense if stats else 0
 	var speed := roundi(stats.move_speed) if stats else 0
-	var health_note := "How much damage it takes to slay it."
-	var damage_note := "Health you lose when its basic attack hits you."
+	var health_note := tr("How much damage it takes to slay it.")
+	var damage_note := tr("Health you lose when its basic attack hits you.")
 	if hero:
-		damage_note += " You start a run with %d Health." % hero.max_hp
-	var armor_note := "Softens your hits, small ones most: a 10-damage hit does %d, a 30-damage hit %d." % [Combat.mitigate(10, armor), Combat.mitigate(30, armor)] if armor > 0 else "None: your hits land in full."
-	var speed_note := "How fast it walks."
+		damage_note += " " + tr("You start a run with %d Health.") % hero.max_hp
+	var armor_note := tr("Softens your hits, small ones most: a 10-damage hit does %d, a 30-damage hit %d.") % [Combat.mitigate(10, armor), Combat.mitigate(30, armor)] if armor > 0 else tr("None: your hits land in full.")
+	var speed_note := tr("How fast it walks.")
 	if hero and stats:
 		var ratio := stats.move_speed / maxf(hero.move_speed, 1.0)
-		speed_note = "Slower than you (%d)." % roundi(hero.move_speed)
+		speed_note = tr("Slower than you (%d).") % roundi(hero.move_speed)
 		if ratio > 1.08:
-			speed_note = "Faster than you (%d): you can't outrun it." % roundi(hero.move_speed)
+			speed_note = tr("Faster than you (%d): you can't outrun it.") % roundi(hero.move_speed)
 		elif ratio > 0.92:
-			speed_note = "About as fast as you (%d)." % roundi(hero.move_speed)
+			speed_note = tr("About as fast as you (%d).") % roundi(hero.move_speed)
 	return [
-		["Health", str(health), health_note],
-		["Damage", str(damage), damage_note],
-		["Armor", str(armor), armor_note],
-		["Move speed", str(speed), speed_note],
+		[tr("Health"), str(health), health_note],
+		[tr("Damage"), str(damage), damage_note],
+		[tr("Armor"), str(armor), armor_note],
+		[tr("Move speed"), str(speed), speed_note],
 	]
 
 
@@ -172,11 +174,11 @@ func _look() -> Control:
 # --- Middle: how it fights -----------------------------------------------------------
 
 func _fill_attacks(column: VBoxContainer, rank: int) -> void:
-	column.add_child(_heading("Attacks"))
+	column.add_child(_heading(tr("Attacks")))
 	if rank < 1:
-		column.add_child(UiSkin.label("Slay one to see how it attacks.", 16, UiSkin.DIM, true))
+		column.add_child(UiSkin.label(tr("Slay one to see how it attacks."), 16, UiSkin.DIM, true))
 		return
-	column.add_child(UiSkin.label("Tap an attack to watch it. Red marks on the ground show where it will land: step out!", 14, UiSkin.DIM, true))
+	column.add_child(UiSkin.label(tr("Tap an attack to watch it. Red marks on the ground show where it will land: step out!"), 14, UiSkin.DIM, true))
 	_preview = AttackPreview.new()
 	_preview.custom_minimum_size = Vector2(0, 184)
 	_preview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -200,11 +202,11 @@ func _fill_attacks(column: VBoxContainer, rank: int) -> void:
 	column.add_child(_attack_text)
 	var ways := _ways()
 	if not ways.is_empty():
-		column.add_child(_heading("How it behaves"))
+		column.add_child(_heading(tr("How it behaves")))
 		for line in ways:
 			column.add_child(UiSkin.label("-  " + line, 15, UiSkin.TEXT, true))
-	column.add_child(_heading("Stats"))
-	column.add_child(UiSkin.label("On the floors where it first shows up: deeper down, it grows stronger.", 14, UiSkin.DIM, true))
+	column.add_child(_heading(tr("Stats")))
+	column.add_child(UiSkin.label(tr("On the floors where it first shows up: deeper down, it grows stronger."), 14, UiSkin.DIM, true))
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.add_theme_constant_override("h_separation", 18)
@@ -224,12 +226,12 @@ func _attacks() -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	var weapon := _monster.weapon
 	if weapon:
-		var how := "Up close"
+		var how := tr("Up close")
 		if weapon.kind == WeaponDef.Kind.RANGED:
-			how = "Shoots %d at once, from afar" % weapon.projectile_count if weapon.projectile_count > 1 else "Shoots from afar"
+			how = tr("Shoots %d at once, from afar") % weapon.projectile_count if weapon.projectile_count > 1 else tr("Shoots from afar")
 		elif weapon.reach >= 40.0:
-			how = "Up close, with a long reach"
-		result.append({ "name": weapon.display_name if not weapon.display_name.is_empty() else "Attack", "attack": weapon, "text": "Basic attack. %s: %d damage." % [how, weapon.damage] })
+			how = tr("Up close, with a long reach")
+		result.append({ "name": tr(weapon.display_name) if not weapon.display_name.is_empty() else tr("Attack"), "attack": weapon, "text": tr("Basic attack. %s: %d damage.") % [how, weapon.damage] })
 	var skills: Array[SkillDef] = []
 	for skill in _monster.skills:
 		if skill and not skills.has(skill):
@@ -244,14 +246,14 @@ func _attacks() -> Array[Dictionary]:
 					phase_of[skill] = p + 2
 	var names := {}
 	for skill in skills:
-		var text := skill.description if not skill.description.is_empty() else ""
-		text += "%sUsed every %.0f seconds." % [" " if not text.is_empty() else "", skill.cooldown]
-		var name := skill.display_name
+		var text := tr(skill.description) if not skill.description.is_empty() else ""
+		text += (" " if not text.is_empty() else "") + tr("Used every %.0f seconds.") % skill.cooldown
+		var name := tr(skill.display_name)
 		if phase_of.has(skill):
-			text = "From phase %d. %s" % [phase_of[skill], text]
+			text = tr("From phase %d. %s") % [phase_of[skill], text]
 			if names.has(name):
-				name += " (phase %d)" % phase_of[skill]  # its fiercer form
-		names[skill.display_name] = true
+				name += " " + tr("(phase %d)") % phase_of[skill]  # its fiercer form
+		names[tr(skill.display_name)] = true
 		result.append({ "name": name, "attack": skill, "text": text })
 	return result
 
@@ -270,11 +272,11 @@ func _show_attack(attack: Dictionary, index: int) -> void:
 func _ways() -> PackedStringArray:
 	var lines := PackedStringArray()
 	if _monster.flies:
-		lines.append("Flies: holes and water don't stop it.")
+		lines.append(tr("Flies: holes and water don't stop it."))
 	if _monster.keep_distance > 0.0:
-		lines.append("Keeps its distance: close in on it.")
+		lines.append(tr("Keeps its distance: close in on it."))
 	if _monster.knockback_resistance >= 0.5:
-		lines.append("Hard to push around (or into holes).")
+		lines.append(tr("Hard to push around (or into holes)."))
 	for monster_trait in _monster.traits:
 		if monster_trait and not monster_trait.describe().is_empty():
 			lines.append(monster_trait.describe())
@@ -283,10 +285,10 @@ func _ways() -> PackedStringArray:
 		if not boss.phases.is_empty():
 			var at := PackedStringArray()
 			for phase in boss.phases:
-				at.append("%d%%" % roundi(phase.hp_ratio * 100.0))
-			lines.append("Fights in %d phases: stronger and faster once its Health drops to %s." % [boss.phases.size() + 1, ", then ".join(at)])
+				at.append(tr("%d%%") % roundi(phase.hp_ratio * 100.0))
+			lines.append(tr("Fights in %d phases: stronger and faster once its Health drops to %s.") % [boss.phases.size() + 1, tr(", then ").join(at)])
 		if boss.shockwave_after_hits > 0:
-			lines.append("Hit it too many times in a row and it throws you off with a shockwave.")
+			lines.append(tr("Hit it too many times in a row and it throws you off with a shockwave."))
 	return lines
 
 
@@ -294,10 +296,10 @@ func _ways() -> PackedStringArray:
 
 ## The Shiny: a rare glowing one of this kind, found (slain) or not yet.
 func _add_shiny(column: VBoxContainer) -> void:
-	column.add_child(_heading("Shiny"))
+	column.add_child(_heading(tr("Shiny")))
 	var found := Profile.has_shiny(_monster.id)
-	column.add_child(_goal_row(found, "Found!" if found else "Not found yet", ""))
-	column.add_child(UiSkin.label("A rare glowing version%s: tougher, but it drops plenty of loot and gold. Slay one to add it to your collection." % _shiny_odds(), 14, UiSkin.DIM, true))
+	column.add_child(_goal_row(found, tr("Found!") if found else tr("Not found yet"), ""))
+	column.add_child(UiSkin.label(tr("A rare glowing version%s: tougher, but it drops plenty of loot and gold. Slay one to add it to your collection.") % _shiny_odds(), 14, UiSkin.DIM, true))
 
 
 ## " (about 1 in 400)", from the Shiny rank's chance ("" if there is none).
@@ -305,32 +307,32 @@ func _shiny_odds() -> String:
 	for rank in _content.dungeon.rare_ranks:
 		if rank and rank.shimmer:
 			var chance := rank.boss_chance if _monster is BossDef else rank.chance
-			return " (about 1 in %d)" % roundi(1.0 / chance) if chance > 0.0 else ""
+			return tr(" (about 1 in %d)") % roundi(1.0 / chance) if chance > 0.0 else ""
 	return ""
 
 
 func _fill_hunt(column: VBoxContainer, rank: int, rules: BestiaryRules) -> void:
 	var kills := Profile.kill_count(_monster.id)
-	column.add_child(_heading("Hunter rank"))
-	column.add_child(UiSkin.label("Slay more of this kind to rank up. Each rank pays its souls once.", 14, UiSkin.DIM, true))
+	column.add_child(_heading(tr("Hunter rank")))
+	column.add_child(UiSkin.label(tr("Slay more of this kind to rank up. Each rank pays its souls once."), 14, UiSkin.DIM, true))
 	var thresholds := rules.kills_for(_monster)
 	var souls := rules.souls_for(_monster)
 	for i in thresholds.size():
 		var reward := CodexRows.souls(souls[i]) if i < souls.size() else ""
 		var extra := ""
 		if i == thresholds.size() - 1:
-			extra = "and +%d%% damage to this kind, for good" % roundi(rules.mastery_damage * 100.0)
-		column.add_child(_goal_row(rank > i, "%s: slay %d" % [rules.rank_names[i], thresholds[i]], reward, extra))
+			extra = tr("and +%d%% damage to this kind, for good") % roundi(rules.mastery_damage * 100.0)
+		column.add_child(_goal_row(rank > i, tr("%s: slay %d") % [tr(rules.rank_names[i]), thresholds[i]], reward, extra))
 	var next := Bestiary.next_kills(_monster, rules)
 	if next > 0:
-		column.add_child(CodexRows.bar(kills, next, "%d / %d slain, to %s" % [kills, next, Bestiary.rank_name(maxi(rank, 0) + 1, rules)]))
+		column.add_child(CodexRows.bar(kills, next, tr("%d / %d slain, to %s") % [kills, next, Bestiary.rank_name(maxi(rank, 0) + 1, rules)]))
 	else:
-		column.add_child(CodexRows.bar(1, 1, "Mastered!"))
+		column.add_child(CodexRows.bar(1, 1, tr("Mastered!")))
 
 	var challenges := rules.challenges_for(_monster)
 	if not challenges.is_empty():
-		column.add_child(_heading("Challenges"))
-		column.add_child(UiSkin.label("Slay it in a special way. Each one pays its souls once.", 14, UiSkin.DIM, true))
+		column.add_child(_heading(tr("Challenges")))
+		column.add_child(UiSkin.label(tr("Slay it in a special way. Each one pays its souls once."), 14, UiSkin.DIM, true))
 		for challenge in challenges:
 			column.add_child(_goal_row(Profile.is_challenge_done(_monster.id, challenge.id), challenge.describe(_monster), CodexRows.souls(challenge.souls)))
 

@@ -11,20 +11,20 @@ var _perks: VBoxContainer
 
 
 func _init() -> void:
-	super._init("Your perks")
+	super._init(tr("Your perks"))
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	var columns := HBoxContainer.new()
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	columns.add_theme_constant_override("separation", 14)
 	body.add_child(columns)
-	var left := RpgWindow.section("Families  -  hold 3 perks of one to awaken its bonus")
+	var left := RpgWindow.section(tr("Families  -  hold 3 perks of one to awaken its bonus"))
 	left.box.custom_minimum_size.x = 470
 	left.box.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	columns.add_child(left.box)
 	_families = VBoxContainer.new()
 	_families.add_theme_constant_override("separation", 6)
 	left.column.add_child(_scrolling(_families))
-	var right := RpgWindow.section("Perks taken this run")
+	var right := RpgWindow.section(tr("Perks taken this run"))
 	right.box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	right.box.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	columns.add_child(right.box)
@@ -45,7 +45,7 @@ func show_build(owned: PerkSet, families: Array[SynergyDef]) -> void:
 	for synergy: SynergyDef in sorted:
 		_families.add_child(PerkCard.family_box(synergy, owned, null))
 	if owned.entries.is_empty():
-		_perks.add_child(UiSkin.label("No perk yet: you pick one at every level up.", 16, UiSkin.DIM, true))
+		_perks.add_child(UiSkin.label(tr("No perk yet: you pick one at every level up."), 16, UiSkin.DIM, true))
 	for entry in owned.entries:
 		_perks.add_child(_perk_row(entry))
 	show()
@@ -70,12 +70,12 @@ func _perk_row(entry: PerkSet.Entry) -> Control:
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_theme_constant_override("separation", 0)
 	row.add_child(column)
-	var families := ", ".join(perk.synergies.filter(func(s: SynergyDef) -> bool: return s != null).map(func(s: SynergyDef) -> String: return s.display_name))
-	var head := "%s   Level %d / %d" % [perk.display_name, entry.stacks, perk.max_stacks]
+	var families := ", ".join(perk.synergies.filter(func(s: SynergyDef) -> bool: return s != null).map(func(s: SynergyDef) -> String: return tr(s.display_name)))
+	var head := tr("%s   Level %d / %d") % [tr(perk.display_name), entry.stacks, perk.max_stacks]
 	column.add_child(UiSkin.label(head, 18, perk.color.lerp(Color.WHITE, 0.4)))
 	column.add_child(UiSkin.label(perk.describe(), 14, UiSkin.TEXT, true))
 	if not families.is_empty():
-		column.add_child(UiSkin.label("Family: %s" % families, 13, UiSkin.DIM))
+		column.add_child(UiSkin.label(tr("Family: %s") % families, 13, UiSkin.DIM))
 	return row
 
 

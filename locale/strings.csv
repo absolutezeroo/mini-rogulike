@@ -1,0 +1,1529 @@
+keys,en,fr
+Loading...,Loading...,Chargement...
+Lighting the torches...,Lighting the torches...,On allume les torches...
+The Well of Souls,The Well of Souls,Le Puits des Âmes
+Freezing!,Freezing!,Gelé !
+Burning up!,Burning up!,Brûlant !
+Act,Act,Acte
+Known,Known,Connu
+Hunted,Hunted,Traqué
+Mastered,Mastered,Maîtrisé
+ENRAGED!,ENRAGED!,ENRAGÉ !
+Slay an elite %s,Slay an elite %s,Élite à abattre : %s
+Push a %s into a hole,Push a %s into a hole,%s : à pousser dans un trou
+Slay %d %s within %d seconds,Slay %d %s within %d seconds,Abats %d × %s en moins de %d secondes
+Slay a %s without being hurt once it has seen you,Slay a %s without being hurt once it has seen you,%s : à abattre sans être touché une fois repéré
+Finish a %s with a critical hit (a lucky hit for extra damage),Finish a %s with a critical hit (a lucky hit for extra damage),%s : à achever d'un coup critique (un coup chanceux aux dégâts accrus)
+Slay %s with a ranged weapon,Slay %s with a ranged weapon,%s : à abattre avec une arme à distance
+Slay %s with a melee weapon,Slay %s with a melee weapon,%s : à abattre avec une arme de mêlée
+Slay %s within %d seconds of the fight's start,Slay %s within %d seconds of the fight's start,%s : à abattre dans les %d premières secondes du combat
+Slay %s without drinking a potion during the fight,Slay %s without drinking a potion during the fight,%s : à abattre sans boire de potion pendant le combat
+Slay %s losing less than %d%% of your Health,Slay %s losing less than %d%% of your Health,%s : à abattre en perdant moins de %d %% de ta Vie
+Slay %s with the %s,Slay %s with the %s,%s : à abattre avec l'arme %s
+Hero,Hero,Héros
+Slay %d monsters,Slay %d monsters,Abats %d monstres
+Merchant,Merchant,Marchand
+SK,SK,CP
+%+d max health,%+d max health,%+d Vie max
+%+d damage,%+d damage,%+d Dégâts
+%+d armor,%+d armor,%+d Armure
+%+d move speed,%+d move speed,%+d Vitesse
+%+d%% critical hit chance,%+d%% critical hit chance,%+d %% de chance de coup critique
+%+d%% attack speed,%+d%% attack speed,%+d %% de Vitesse d'attaque
+%+d%% skill damage,%+d%% skill damage,%+d %% de Dégâts des compétences
+skills recharge %d%% faster,skills recharge %d%% faster,compétences rechargées %d %% plus vite
+Burns (%d every 0.5 s),Burns (%d every 0.5 s),"Brûle (%d toutes les 0,5 s)"
+Poisons (%d per second),Poisons (%d per second),Empoisonne (%d par seconde)
+Slows %d%%,Slows %d%%,Ralentit de %d %%
+(%d gold),(%d gold),(%d or)
+(-%d max health),(-%d max health),(-%d Vie max)
+%d gold,%d gold,%d or
+"%d max health, for the rest of the run","%d max health, for the rest of the run","%d de Vie max, pour le reste de la partie"
+Free,Free,Gratuit
+Costs %s,Costs %s,Coûte %s
+ and , and , et 
+Not enough gold (%d more),Not enough gold (%d more),Pas assez d'or (il en manque %d)
+Your max health is too low,Your max health is too low,Ta Vie max est trop basse
+Accept,Accept,Accepter
+Leave,Leave,Partir
+Nothing more happens.,Nothing more happens.,Plus rien ne se passe.
+A gift,A gift,Un cadeau
+Choose an upgrade,Choose an upgrade,Choisis une amélioration
+Relic,Relic,Relique
+Choose a relic,Choose a relic,Choisis une relique
+heals you fully,heals you fully,te soigne entièrement
+heals %d health,heals %d health,rend %d de Vie
+hurts you: you lose %d health,hurts you: you lose %d health,te blesse : tu perds %d de Vie
+a free perk: choose 1 of 3,a free perk: choose 1 of 3,un atout gratuit : choisis-en 1 parmi 3
+"a relic: choose 1 of 3 strong perks, like after a boss","a relic: choose 1 of 3 strong perks, like after a boss","une relique : choisis 1 atout puissant parmi 3, comme après un boss"
+%d elite monsters appear and attack,%d elite monsters appear and attack,%d monstres d'élite surgissent et attaquent
+%d elite monster appears and attacks,%d elite monster appears and attacks,%d monstre d'élite surgit et attaque
+%d monsters appear and attack,%d monsters appear and attack,%d monstres surgissent et attaquent
+%d monster appears and attacks,%d monster appears and attacks,%d monstre surgit et attaque
+for %d seconds: %s,for %d seconds: %s,pendant %d secondes : %s
+Nothing: what you paid is lost,Nothing: what you paid is lost,Rien : ce que tu as payé est perdu
+Nothing happens,Nothing happens,Il ne se passe rien
+a piece of equipment,a piece of equipment,une pièce d'équipement
+a piece of equipment (%d%% chance it is Rare or Epic),a piece of equipment (%d%% chance it is Rare or Epic),une pièce d'équipement (%d %% de chances qu'elle soit Rare ou Épique)
+Darkness swallows the room.,Darkness swallows the room.,Les ténèbres engloutissent la salle.
+"Things stir in the dark, drawn by the light...","Things stir in the dark, drawn by the light...","Des choses s'agitent dans le noir, attirées par la lumière..."
+They come for the light!,They come for the light!,Ils viennent pour la lumière !
+Armor (%s),Armor (%s),Armure (%s)
+Consumable,Consumable,Consommable
+{rarity} {kind_lower},{rarity} {kind_lower},{kind} {rarity_lower}
+Item level %d (as strong as floor %d),Item level %d (as strong as floor %d),Niveau d'objet %d (aussi fort que l'étage %d)
+%s: %s,%s: %s,%s : %s
+%d empty rune sockets,%d empty rune sockets,%d emplacements de rune libres
+%d empty rune socket,%d empty rune socket,%d emplacement de rune libre
+Weapon,Weapon,Arme
+Head,Head,Tête
+Body,Body,Corps
+Smith,Smith,Forgeron
+Item,Item,Objet
+Common,Common,Commun
+Magic,Magic,Magique
+Rare,Rare,Rare
+Epic,Epic,Épique
+%s rune,%s rune,Rune (%s)
+Rune,Rune,Rune
+Set it into a weapon at a forge.,Set it into a weapon at a forge.,"À sertir dans une arme, à une forge."
+Skill tome,Skill tome,Grimoire de compétence
+Teaches %s (cooldown %.1f s).,Teaches %s (cooldown %.1f s).,Enseigne %s (recharge %.1f s).
+Melee weapon,Melee weapon,Arme de mêlée
+Ranged weapon,Ranged weapon,Arme à distance
+"%d damage, %.1f hits/s","%d damage, %.1f hits/s","%d Dégâts, %.1f coups/s"
+", %d projectiles",", %d projectiles",", %d projectiles"
+", pierces %d",", pierces %d",", perce %d"
+Skills: %s,Skills: %s,Compétences : %s
+{prefix} {item} {suffix},{prefix} {item} {suffix},{item} {prefix} {suffix}
+{prefix} {item},{prefix} {item},{item} {prefix}
+{item} {suffix},{item} {suffix},{item} {suffix}
+Bursts when it dies.,Bursts when it dies.,Explose à sa mort.
+Splits when it dies.,Splits when it dies.,Se divise à sa mort.
+Blocked,Blocked,Bloqué
+Blocks %d%% of the blows from the front.,Blocks %d%% of the blows from the front.,Bloque %d %% des coups portés de face.
+-%d gold,-%d gold,-%d or
++%d gold,+%d gold,+%d or
+Steals gold and runs. Slay it to get it back.,Steals gold and runs. Slay it to get it back.,Vole de l'or et s'enfuit. Abats-le pour le récupérer.
+Its long body burns at a touch: only the head can be hurt,Its long body burns at a touch: only the head can be hurt,Son long corps brûle au contact : seule la tête peut être blessée
+ECHO,ECHO,ÉCHO
+You took %s instead (reset the tree to change).,You took %s instead (reset the tree to change).,Tu as pris %s à la place (réinitialise l'arbre pour changer).
+Needs %s first.,Needs %s first.,Nécessite d'abord %s.
+ or , or , ou 
+Feat: %s,Feat: %s,Exploit : %s
+a fall,a fall,une chute
+the dungeon,the dungeon,le donjon
+%s set into %s,%s set into %s,%s serti dans %s
+%s taken out of %s,%s taken out of %s,%s retiré de %s
+Trap!,Trap!,Piège !
+Bought %s,Bought %s,Acheté : %s
+Sold %s for %d gold,Sold %s for %d gold,Vendu : %s pour %d or
+{rank} {monster},{rank} {monster},{monster} {rank}
+{affix} {monster},{affix} {monster},{monster} {affix}
+Fell!,Fell!,Tombé !
+Learned %s!,Learned %s!,Appris : %s !
+Equipped %s,Equipped %s,Équipé : %s
+Picked up %s,Picked up %s,Ramassé : %s
+Inventory full!,Inventory full!,Sac plein !
+Used %s,Used %s,Utilisé : %s
+Level up! You are now level %d,Level up! You are now level %d,Niveau supérieur ! Tu es maintenant niveau %d
+LEVEL UP,LEVEL UP,NIVEAU SUPÉRIEUR
+You fell into a hole!,You fell into a hole!,Tu es tombé dans un trou !
+giving up,giving up,l'abandon
+You died.,You died.,Tu es mort.
+Seen,Seen,Vu
+Unknown,Unknown,Inconnu
+Ambush!,Ambush!,Embuscade !
+It's a trap! Survive the waves.,It's a trap! Survive the waves.,C'est un piège ! Survis aux vagues.
+The room falls silent. A chest appears...,The room falls silent. A chest appears...,Le silence retombe sur la salle. Un coffre apparaît...
+Level %d!,Level %d!,Niveau %d !
+Cursed: %s. %s,Cursed: %s. %s,Maudit : %s. %s
+Depth %d. Something big is waiting...,Depth %d. Something big is waiting...,Étage %d. Quelque chose d'énorme t'attend...
+Depth %d. The stairs are sealed: slay %d monsters to open them.,Depth %d. The stairs are sealed: slay %d monsters to open them.,Étage %d. Les escaliers sont scellés : abats %d monstres pour les ouvrir.
+Depth %d. Find the stairs!,Depth %d. Find the stairs!,Étage %d. Trouve les escaliers !
++%d reroll for the perk choices.,+%d reroll for the perk choices.,+%d relance pour les choix d'atouts.
+Victory!,Victory!,Victoire !
+%s is defeated! The way down is open.,%s is defeated! The way down is open.,%s tombe ! La voie vers le bas est ouverte.
+New record: %s!,New record: %s!,Nouveau record : %s !
+"Endless mode: the dungeon goes on, harder and harder.","Endless mode: the dungeon goes on, harder and harder.","Mode sans fin : le donjon continue, de plus en plus dur."
+New record!,New record!,Nouveau record !
+(record %s),(record %s),(record %s)
+Nothing else to offer.,Nothing else to offer.,Plus rien à proposer.
+%s is banished for this run.,%s is banished for this run.,Banni pour cette partie : %s.
+%s (level %d),%s (level %d),%s (niveau %d)
+The boss left a relic behind. Choose one.,The boss left a relic behind. Choose one.,Le boss a laissé une relique. Choisis-en une.
+%dd %dh,%dd %dh,%d j %d h
+%dh %02dm,%dh %02dm,%d h %02d min
+A Shiny %s! It joins the bestiary's collection.,A Shiny %s! It joins the bestiary's collection.,Nouvelle prise pour le bestiaire : %s Chromatique !
+Difficulty,Difficulty,Difficulté
+Reached,Reached,Atteint
+"%s, depth %d","%s, depth %d","%s, étage %d"
+Dungeon,Dungeon,Donjon
+Hero level,Hero level,Niveau du héros
+Monsters slain,Monsters slain,Monstres abattus
+Bosses slain,Bosses slain,Boss abattus
+Time,Time,Temps
+(best %d),(best %d),(meilleur %d)
+(practice),(practice),(entraînement)
+Daily score,Daily score,Score du jour
+"%s - %s, depth %d, level %d
+%d monsters slain, %d bosses","%s - %s, depth %d, level %d
+%d monsters slain, %d bosses","%s - %s, étage %d, niveau %d
+%d monstres abattus, %d boss"
+Time %s,Time %s,Temps %s
+Daily score %d,Daily score %d,Score du jour %d
+Not met yet,Not met yet,Pas encore rencontré
+not slain yet,not slain yet,pas encore abattu
+%d slain,%d slain,%d abattus
+Boss,Boss,Boss
+Shiny,Shiny,Chromatique
+Souls %d,Souls %d,Âmes %d
+Daily quests,Daily quests,Quêtes du jour
+Weekly quests,Weekly quests,Quêtes de la semaine
+New ones in %s. Counts every run today.,New ones in %s. Counts every run today.,Nouvelles dans %s. Toutes les parties d'aujourd'hui comptent.
+New ones in %s. Counts every run this week (from Monday).,New ones in %s. Counts every run this week (from Monday).,Nouvelles dans %s. Toutes les parties de la semaine comptent (depuis lundi).
+Quests done: %d of %d,Quests done: %d of %d,Quêtes accomplies : %d sur %d
+Slain: %d of %d kinds     Mastered: %d     Shiny found: %d,Slain: %d of %d kinds     Mastered: %d     Shiny found: %d,Abattus : %d espèces sur %d     Maîtrisés : %d     Chromatiques trouvés : %d
+floor %d,floor %d,étage %d
+floors %d to %d,floors %d to %d,étages %d à %d
+%s     %d of %d slain,%s     %d of %d slain,%s     %d sur %d abattus
+Achievements: %d of %d     Souls earned from them: %d,Achievements: %d of %d     Souls earned from them: %d,Succès : %d sur %d     Âmes gagnées grâce à eux : %d
+Runs: %d     Wins: %d     Deepest floor: %d,Runs: %d     Wins: %d     Deepest floor: %d,Parties : %d     Victoires : %d     Étage le plus profond : %d
+No run finished yet. Go down the Well!,No run finished yet. Go down the Well!,Aucune partie terminée. Descends dans le Puits !
+Fastest wins:   %s,Fastest wins:   %s,Victoires les plus rapides :   %s
+Codex,Codex,Codex
+Souls are kept between runs. Spend them at the Shrine.,Souls are kept between runs. Spend them at the Shrine.,Les âmes sont conservées d'une partie à l'autre. Dépense-les au Sanctuaire.
+Quests,Quests,Quêtes
+Bestiary,Bestiary,Bestiaire
+Achievements,Achievements,Succès
+Runs,Runs,Parties
+"Quests change every day and every week. Everything you do in any run counts toward them, and a finished quest pays its souls at once. Souls are kept between runs: spend them at the Shrine on lasting upgrades.","Quests change every day and every week. Everything you do in any run counts toward them, and a finished quest pays its souls at once. Souls are kept between runs: spend them at the Shrine on lasting upgrades.","Les quêtes changent chaque jour et chaque semaine. Tout ce que tu fais dans n'importe quelle partie compte, et une quête accomplie rapporte ses âmes aussitôt. Les âmes sont conservées d'une partie à l'autre : dépense-les au Sanctuaire en améliorations durables."
+"Every monster you meet goes in here. Slay more of a kind to raise your hunter rank with it: each rank pays souls, and Mastered also gives +%d%% damage against that kind for good. Tap a monster for its attacks and challenges.","Every monster you meet goes in here. Slay more of a kind to raise your hunter rank with it: each rank pays souls, and Mastered also gives +%d%% damage against that kind for good. Tap a monster for its attacks and challenges.","Chaque monstre rencontré est consigné ici. Abats-en d'une même espèce pour monter ton rang de chasseur : chaque rang rapporte des âmes, et Maîtrisé donne aussi +%d %% de Dégâts contre cette espèce, pour toujours. Touche un monstre pour voir ses attaques et ses défis."
+Big goals across all your runs. Reaching one pays its souls at once.,Big goals across all your runs. Reaching one pays its souls at once.,"De grands objectifs, sur toutes tes parties. En atteindre un rapporte ses âmes aussitôt."
+"Your last runs, newest first. Gold is lost when a run ends; souls are kept.","Your last runs, newest first. Gold is lost when a run ends; souls are kept.","Tes dernières parties, les plus récentes d'abord. L'or est perdu à la fin d'une partie ; les âmes sont conservées."
++%d souls,+%d souls,+%d âmes
+Done!,Done!,Accompli !
+Received,Received,Reçu
+Reward,Reward,Récompense
+Died on floor %d,Died on floor %d,Mort à l'étage %d
+Reached the bottom of the Well,Reached the bottom of the Well,A atteint le fond du Puits
+"Won, then slain by %s","Won, then slain by %s","Victoire, puis tué par %s"
+Slain by %s,Slain by %s,Tué par %s
+When,When,Date
+Slain,Slain,Abattus
+"%d monsters, %d boss","%d monsters, %d boss","%d monstres, %d boss"
+"%d monsters, %d bosses","%d monsters, %d bosses","%d monstres, %d boss"
+Earned,Earned,Gagné
+"{month} {day}, {time}","{month} {day}, {time}","{day} {month}, {time}"
+floor %d (endless),floor %d (endless),étage %d (sans fin)
+floor %d of %d,floor %d of %d,étage %d sur %d
+Jan,Jan,janv.
+Feb,Feb,févr.
+Mar,Mar,mars
+Apr,Apr,avr.
+May,May,mai
+Jun,Jun,juin
+Jul,Jul,juil.
+Aug,Aug,août
+Sep,Sep,sept.
+Oct,Oct,oct.
+Nov,Nov,nov.
+Dec,Dec,déc.
+< All monsters,< All monsters,< Tous les monstres
+Boss  -  %s,Boss  -  %s,Boss  -  %s
+%s  -  %d slain,%s  -  %d slain,%s  -  %d abattus
+"You have seen it, but never slain one. Slay one to learn what it is, its stats and how it attacks.","You have seen it, but never slain one. Slay one to learn what it is, its stats and how it attacks.","Tu l'as vu, mais tu n'en as jamais abattu. Abats-en un pour savoir ce que c'est, ses statistiques et ses attaques."
+Lives in,Lives in,Vit dans
+"%s, floor %d","%s, floor %d","%s, étage %d"
+"%s, floors %d to %d","%s, floors %d to %d","%s, étages %d à %d"
+How much damage it takes to slay it.,How much damage it takes to slay it.,Les dégâts qu'il faut pour l'abattre.
+Health you lose when its basic attack hits you.,Health you lose when its basic attack hits you.,La Vie que tu perds quand son attaque de base te touche.
+You start a run with %d Health.,You start a run with %d Health.,Tu commences une partie avec %d de Vie.
+"Softens your hits, small ones most: a 10-damage hit does %d, a 30-damage hit %d.","Softens your hits, small ones most: a 10-damage hit does %d, a 30-damage hit %d.","Amortit tes coups, surtout les petits : un coup de 10 dégâts en fait %d, un coup de 30, %d."
+None: your hits land in full.,None: your hits land in full.,Aucune : tes coups portent en entier.
+How fast it walks.,How fast it walks.,La vitesse à laquelle il marche.
+Slower than you (%d).,Slower than you (%d).,Plus lent que toi (%d).
+Faster than you (%d): you can't outrun it.,Faster than you (%d): you can't outrun it.,Plus rapide que toi (%d) : impossible de le distancer.
+About as fast as you (%d).,About as fast as you (%d).,À peu près aussi rapide que toi (%d).
+Health,Health,Vie
+Damage,Damage,Dégâts
+Armor,Armor,Armure
+Move speed,Move speed,Vitesse
+Attacks,Attacks,Attaques
+Slay one to see how it attacks.,Slay one to see how it attacks.,Abats-en un pour voir comment il attaque.
+Tap an attack to watch it. Red marks on the ground show where it will land: step out!,Tap an attack to watch it. Red marks on the ground show where it will land: step out!,Touche une attaque pour la voir. Les marques rouges au sol montrent où elle va frapper : écarte-toi !
+How it behaves,How it behaves,Son comportement
+Stats,Stats,Statistiques
+"On the floors where it first shows up: deeper down, it grows stronger.","On the floors where it first shows up: deeper down, it grows stronger.","Aux étages où il apparaît pour la première fois : plus bas, il devient plus fort."
+Up close,Up close,Au corps à corps
+"Shoots %d at once, from afar","Shoots %d at once, from afar","Tire %d projectiles à la fois, de loin"
+Shoots from afar,Shoots from afar,Tire de loin
+"Up close, with a long reach","Up close, with a long reach","Au corps à corps, avec une longue allonge"
+Attack,Attack,Attaque
+Basic attack. %s: %d damage.,Basic attack. %s: %d damage.,Attaque de base. %s : %d Dégâts.
+Used every %.0f seconds.,Used every %.0f seconds.,Utilisée toutes les %.0f secondes.
+From phase %d. %s,From phase %d. %s,Dès la phase %d. %s
+(phase %d),(phase %d),(phase %d)
+Flies: holes and water don't stop it.,Flies: holes and water don't stop it.,Vole : ni les trous ni l'eau ne l'arrêtent.
+Keeps its distance: close in on it.,Keeps its distance: close in on it.,Garde ses distances : rapproche-toi.
+Hard to push around (or into holes).,Hard to push around (or into holes).,Difficile à repousser (ou à pousser dans un trou).
+%d%%,%d%%,%d %%
+Fights in %d phases: stronger and faster once its Health drops to %s.,Fights in %d phases: stronger and faster once its Health drops to %s.,Combat en %d phases : plus fort et plus rapide quand sa Vie tombe à %s.
+", then ",", then ",", puis "
+Hit it too many times in a row and it throws you off with a shockwave.,Hit it too many times in a row and it throws you off with a shockwave.,Frappe-le trop de fois d'affilée et il te repousse d'une onde de choc.
+Found!,Found!,Trouvé !
+Not found yet,Not found yet,Pas encore trouvé
+"A rare glowing version%s: tougher, but it drops plenty of loot and gold. Slay one to add it to your collection.","A rare glowing version%s: tougher, but it drops plenty of loot and gold. Slay one to add it to your collection.","Une version rare et lumineuse%s : plus coriace, mais elle lâche plein de butin et d'or. Abats-en une pour l'ajouter à ta collection."
+ (about 1 in %d), (about 1 in %d), (environ 1 sur %d)
+Hunter rank,Hunter rank,Rang de chasseur
+Slay more of this kind to rank up. Each rank pays its souls once.,Slay more of this kind to rank up. Each rank pays its souls once.,Abats-en davantage pour monter de rang. Chaque rang rapporte ses âmes une seule fois.
+"and +%d%% damage to this kind, for good","and +%d%% damage to this kind, for good","et +%d %% de Dégâts contre cette espèce, pour toujours"
+%s: slay %d,%s: slay %d,%s : en abattre %d
+"%d / %d slain, to %s","%d / %d slain, to %s","%d / %d abattus, vers %s"
+Mastered!,Mastered!,Maîtrisé !
+Challenges,Challenges,Défis
+Slay it in a special way. Each one pays its souls once.,Slay it in a special way. Each one pays its souls once.,Abats-le d'une façon particulière. Chaque défi rapporte ses âmes une seule fois.
+Compared with your %s:,Compared with your %s:,Comparé à l'objet porté (%s) :
+You hold no weapon yet. It adds:,You hold no weapon yet. It adds:,Tu n'as pas encore d'arme. Cet objet ajoute :
+Nothing on your head yet. It adds:,Nothing on your head yet. It adds:,Rien sur ta tête pour l'instant. Cet objet ajoute :
+Nothing on your body yet. It adds:,Nothing on your body yet. It adds:,Rien sur ton corps pour l'instant. Cet objet ajoute :
+%+d item level,%+d item level,%+d niveau d'objet
+%+d item levels,%+d item levels,%+d niveaux d'objet
+%+.1f hits per second,%+.1f hits per second,%+.1f coups par seconde
+skills recharge %d%% slower,skills recharge %d%% slower,compétences rechargées %d %% moins vite
+Lv %d,Lv %d,Nv %d
+Close,Close,Fermer
+Continue,Continue,Continuer
+Always:,Always:,À coup sûr :
+What can happen:,What can happen:,Ce qui peut arriver :
+Nothing happens. You can come back later.,Nothing happens. You can come back later.,Il ne se passe rien. Tu peux revenir plus tard.
+"""%s""","""%s""",« %s »
+Gold %d,Gold %d,Or %d
+Worn: %s,Worn: %s,Porté : %s
+No weapon to work on,No weapon to work on,Aucune arme à travailler
+Worn,Worn,Équipée
+%d damage,%d damage,%d Dégâts
+%d rune sockets,%d rune sockets,%d emplacements de rune
+%d rune socket,%d rune socket,%d emplacement de rune
+Pick a socket to take its rune out,Pick a socket to take its rune out,Choisis un emplacement pour en retirer la rune
+Your bag is full,Your bag is full,Ton sac est plein
+Take out %s  (%d gold),Take out %s  (%d gold),Retirer %s  (%d or)
+No runes in your bag,No runes in your bag,Aucune rune dans ton sac
+"Elites, bosses and chests drop them.","Elites, bosses and chests drop them.","Les élites, les boss et les coffres en lâchent."
+Pick a rune,Pick a rune,Choisis une rune
+Setting one is free. Taking one out costs gold; you get it back.,Setting one is free. Taking one out costs gold; you get it back.,Sertir une rune est gratuit. En retirer une coûte de l'or ; tu la récupères.
+Set it in,Set it in,Sertir
+No free socket,No free socket,Aucun emplacement libre
+Set,Set,Sertir
+Empty,Empty,Vide
+The Forge,The Forge,La Forge
+Sockets,Sockets,Emplacements
+Your runes,Your runes,Tes runes
+You died,You died,Tu es mort
+You now have %d souls.,You now have %d souls.,Tu as maintenant %d âmes.
+New run,New run,Nouvelle partie
+Try again,Try again,Réessayer
+This run,This run,Cette partie
+Souls,Souls,Âmes
+Souls are kept between runs. Spend them at the Shrine (title screen) on upgrades that make every next run stronger.,Souls are kept between runs. Spend them at the Shrine (title screen) on upgrades that make every next run stronger.,Les âmes sont conservées d'une partie à l'autre. Dépense-les au Sanctuaire (écran titre) en améliorations qui renforcent chaque partie suivante.
+Gold was only for this run.,Gold was only for this run.,L'or ne valait que pour cette partie.
+Keep going (endless),Keep going (endless),Continuer (sans fin)
+Title screen,Title screen,Écran titre
+"Keep going: endless floors, harder and harder. Your win is already counted.","Keep going: endless floors, harder and harder. Your win is already counted.","Continuer : des étages sans fin, de plus en plus durs. Ta victoire est déjà comptée."
+Achievement: %s  (+%d souls),Achievement: %s  (+%d souls),Succès : %s  (+%d âmes)
+"Bestiary: %s, %s  (+%d souls)","Bestiary: %s, %s  (+%d souls)","Bestiaire : %s, %s  (+%d âmes)"
+Challenge done: %s  (+%d souls),Challenge done: %s  (+%d souls),Défi relevé : %s  (+%d âmes)
+Daily quest done: %s  (+%d souls),Daily quest done: %s  (+%d souls),Quête du jour accomplie : %s  (+%d âmes)
+Weekly quest done: %s  (+%d souls),Weekly quest done: %s  (+%d souls),Quête de la semaine accomplie : %s  (+%d âmes)
+Seal  %d / %d,Seal  %d / %d,Sceau  %d / %d
+Stairs open,Stairs open,Escaliers ouverts
+The stairs are open,The stairs are open,Les escaliers sont ouverts
+Cold,Cold,Froid
+Hot,Hot,Chaud
+Depth %d   Damage %d   Armor %d   %s,Depth %d   Damage %d   Armor %d   %s,Étage %d   Dégâts %d   Armure %d   %s
+Bare hands,Bare hands,Mains nues
+%s awakens,%s awakens,%s s'éveille
+%s awakens: %s,%s awakens: %s,%s s'éveille : %s
+Floor %d  %s,Floor %d  %s,Étage %d  %s
+Depth %d,Depth %d,Étage %d
+Your perks,Your perks,Tes atouts
+Families  -  hold 3 perks of one to awaken its bonus,Families  -  hold 3 perks of one to awaken its bonus,Familles  -  réunis 3 atouts d'une famille pour éveiller son bonus
+Perks taken this run,Perks taken this run,Atouts pris dans cette partie
+No perk yet: you pick one at every level up.,No perk yet: you pick one at every level up.,Aucun atout pour l'instant : tu en choisis un à chaque niveau.
+%s   Level %d / %d,%s   Level %d / %d,%s   Niveau %d / %d
+Family: %s,Family: %s,Famille : %s
+Perks (%d),Perks (%d),Atouts (%d)
+Bag  %d / %d,Bag  %d / %d,Sac  %d / %d
+Level,Level,Niveau
+Critical hits,Critical hits,Coups critiques
+Attack speed,Attack speed,Vitesse d'attaque
+%+d%%,%+d%%,%+d %%
+Skill damage,Skill damage,Dégâts des compétences
+Skill recharge,Skill recharge,Recharge des compétences
+To bag,To bag,Vers le sac
+To belt,To belt,Vers la ceinture
+Pick an item,Pick an item,Choisis un objet
+Tap a slot to see what it does.,Tap a slot to see what it does.,Touche un emplacement pour voir ce qu'il fait.
+Unequip,Unequip,Retirer
+Equip,Equip,Équiper
+Learn,Learn,Apprendre
+Use,Use,Utiliser
+the same stats,the same stats,les mêmes statistiques
+Runes,Runes,Runes
+An empty socket: a forge sets runes in it.,An empty socket: a forge sets runes in it.,Un emplacement vide : une forge peut y sertir une rune.
+Inventory,Inventory,Inventaire
+Perks,Perks,Atouts
+Belt,Belt,Ceinture
+Bag,Bag,Sac
+Drop,Drop,Jeter
+Done! Tips are back,Done! Tips are back,C'est fait ! Les conseils sont de retour
+Replay tutorial,Replay tutorial,Rejouer le tutoriel
+Options,Options,Options
+Language changed: some menus follow from the next run.,Language changed: some menus follow from the next run.,Langue changée : certains menus suivront à la prochaine partie.
+Every change is saved right away.,Every change is saved right away.,Chaque changement est enregistré aussitôt.
+Sound,Sound,Son
+Music,Music,Musique
+Background music.,Background music.,La musique de fond.
+Sounds,Sounds,Effets sonores
+"Hits, spells, menus.","Hits, spells, menus.","Coups, sorts, menus."
+Touch controls,Touch controls,Commandes tactiles
+Buttons size,Buttons size,Taille des boutons
+Joystick and buttons.,Joystick and buttons.,Joystick et boutons.
+Fixed joystick,Fixed joystick,Joystick fixe
+Stays in its corner instead of following your thumb.,Stays in its corner instead of following your thumb.,Reste dans son coin au lieu de suivre ton pouce.
+Vibrations,Vibrations,Vibrations
+The phone buzzes on big hits and critical hits.,The phone buzzes on big hits and critical hits.,Le téléphone vibre lors des gros coups et des coups critiques.
+Screen and battery,Screen and battery,Écran et batterie
+Screen shake,Screen shake,Tremblement de l'écran
+On big hits.,On big hits.,Lors des gros coups.
+Fewer effects,Fewer effects,Moins d'effets
+Half the particles: smoother on older phones.,Half the particles: smoother on older phones.,Deux fois moins de particules : plus fluide sur les vieux téléphones.
+Battery saver,Battery saver,Économie de batterie
+30 FPS: the phone stays cooler.,30 FPS: the phone stays cooler.,30 FPS : le téléphone chauffe moins.
+Run timer,Run timer,Chronomètre
+"The run's time, under the map.","The run's time, under the map.","Le temps de la partie, sous la carte."
+Tutorial,Tutorial,Tutoriel
+Tutorial hints,Tutorial hints,Conseils du tutoriel
+Short tips during your first runs.,Short tips during your first runs.,De courts conseils pendant tes premières parties.
+"Every tip again, from the first steps.","Every tip again, from the first steps.","Tous les conseils à nouveau, depuis les premiers pas."
+Language,Language,Langue
+Paused,Paused,Pause
+Resume,Resume,Reprendre
+Back to the fight.,Back to the fight.,Retour au combat.
+"Sound, music, button size, effects.","Sound, music, button size, effects.","Son, musique, taille des boutons, effets."
+The monsters you have met: how they attack and how to beat them.,The monsters you have met: how they attack and how to beat them.,Les monstres rencontrés : comment ils attaquent et comment les vaincre.
+Save and quit,Save and quit,Sauvegarder et quitter
+Your run is saved: pick Continue on the title screen.,Your run is saved: pick Continue on the title screen.,Ta partie est sauvegardée : choisis Continuer sur l'écran titre.
+Gold and souls,Gold and souls,Or et âmes
+Gold: only for this run. Spend it at the merchant and the forge; it is lost when the run ends.,Gold: only for this run. Spend it at the merchant and the forge; it is lost when the run ends.,Or : seulement pour cette partie. Dépense-le chez le marchand et à la forge ; il est perdu à la fin de la partie.
+Souls: kept between runs. Spend them at the Shrine (title screen) on upgrades for every run.,Souls: kept between runs. Spend them at the Shrine (title screen) on upgrades for every run.,Âmes : conservées d'une partie à l'autre. Dépense-les au Sanctuaire (écran titre) en améliorations pour toutes tes parties.
+Give up the run,Give up the run,Abandonner la partie
+Really? Tap again,Really? Tap again,Vraiment ? Touche encore
+Ends this run now. You keep the souls earned so far.,Ends this run now. You keep the souls earned so far.,Met fin à la partie maintenant. Tu gardes les âmes gagnées jusqu'ici.
+Tap again to end the run. Anything else to cancel.,Tap again to end the run. Anything else to cancel.,Touche encore pour abandonner. N'importe quoi d'autre pour annuler.
+RELIC,RELIC,RELIQUE
+New perk,New perk,Nouvel atout
+New perk  (up to level %d),New perk  (up to level %d),Nouvel atout  (jusqu'au niveau %d)
+Level %d > %d  (max %d),Level %d > %d  (max %d),Niveau %d > %d  (max %d)
+%s family,%s family,Famille %s
+This one makes %d/%d: the family bonus AWAKENS!,This one makes %d/%d: the family bonus AWAKENS!,Celui-ci fait %d/%d : le bonus de famille S'ÉVEILLE !
+Bonus active: %s,Bonus active: %s,Bonus actif : %s
+Bonus already active: %s,Bonus already active: %s,Bonus déjà actif : %s
+%d more %s perk to awaken its bonus: %s,%d more %s perk to awaken its bonus: %s,Encore %d atout de la famille %s pour éveiller son bonus : %s
+%d more %s perks to awaken its bonus: %s,%d more %s perks to awaken its bonus: %s,Encore %d atouts de la famille %s pour éveiller son bonus : %s
+Reroll (%d),Reroll (%d),Relancer (%d)
+Cancel,Cancel,Annuler
+Banish (%d),Banish (%d),Bannir (%d)
+Tap the perk to banish: it won't be offered again this run,Tap the perk to banish: it won't be offered again this run,Touche l'atout à bannir : il ne sera plus proposé de la partie
+Level up!,Level up!,Niveau supérieur !
+Every perk belongs to a family. Hold 3 different perks of one family to awaken its bonus.,Every perk belongs to a family. Hold 3 different perks of one family to awaken its bonus.,Chaque atout appartient à une famille. Réunis 3 atouts différents d'une même famille pour éveiller son bonus.
+"Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (tap Banish, then the card).","Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (tap Banish, then the card).","Relancer : 3 nouveaux atouts au choix.   Bannir : retire un atout des offres de la partie (touche Bannir, puis la carte)."
+Reroll  -  %d gold,Reroll  -  %d gold,Relancer  -  %d or
+New items for sale. Locked ones stay.,New items for sale. Locked ones stay.,De nouveaux objets en vente. Ceux verrouillés restent.
+New items for sale. You need %d more gold.,New items for sale. You need %d more gold.,De nouveaux objets en vente. Il te manque %d or.
+Sold out!,Sold out!,Tout est vendu !
+Belt: %s,Belt: %s,Ceinture : %s
+"Tap something for sale to see what it does, or one of your things to sell it.","Tap something for sale to see what it does, or one of your things to sell it.","Touche un article en vente pour voir ce qu'il fait, ou l'un de tes objets pour le vendre."
+Gold is only for this run: spend it here and at the forge.,Gold is only for this run: spend it here and at the forge.,L'or ne vaut que pour cette partie : dépense-le ici et à la forge.
+Sell price: %d gold,Sell price: %d gold,Prix de revente : %d or
+The merchant doesn't buy this,The merchant doesn't buy this,Le marchand n'achète pas ça
+Sell for %d gold,Sell for %d gold,Vendre pour %d or
+Can't be sold,Can't be sold,Invendable
+Price: %d gold,Price: %d gold,Prix : %d or
+Your bag is full: sell something first,Your bag is full: sell something first,Ton sac est plein : vends d'abord quelque chose
+Buy for %d gold,Buy for %d gold,Acheter pour %d or
+Unlock,Unlock,Déverrouiller
+Lock,Lock,Verrouiller
+"Locked: it stays when you reroll, and if you don't buy it, the next merchant sells it to you at this price.","Locked: it stays when you reroll, and if you don't buy it, the next merchant sells it to you at this price.","Verrouillé : il reste quand tu relances, et si tu ne l'achètes pas, le prochain marchand te le vend à ce prix."
+"Lock keeps this item: it stays when you reroll, and the next merchant sells it at this price.","Lock keeps this item: it stays when you reroll, and the next merchant sells it at this price.","Verrouiller garde cet objet : il reste quand tu relances, et le prochain marchand te le vend à ce prix."
+You carry %d. It goes on your belt if there is room.,You carry %d. It goes on your belt if there is room.,Tu en portes %d. Il va dans ta ceinture s'il y a de la place.
+You carry none. It goes on your belt if there is room.,You carry none. It goes on your belt if there is room.,Tu n'en portes aucun. Il va dans ta ceinture s'il y a de la place.
+For sale,For sale,En vente
+Reroll,Reroll,Relancer
+Sell your things,Sell your things,Vendre tes affaires
+Your bag and belt are empty.,Your bag and belt are empty.,Ton sac et ta ceinture sont vides.
+Tap one to see what the merchant pays.,Tap one to see what the merchant pays.,Touche un objet pour voir ce que le marchand en donne.
+Buy,Buy,Acheter
+Sell,Sell,Vendre
+Your last choice,Your last choice,Ton dernier choix
+Locked,Locked,Verrouillé
+Souls earned x%s,Souls earned x%s,Âmes gagnées x%s
+To unlock: win a run on %s.,To unlock: win a run on %s.,Pour débloquer : gagne une partie en %s.
+"A win opens Nightmare +1, +2...: harder, more souls.","A win opens Nightmare +1, +2...: harder, more souls.","Une victoire ouvre Cauchemar +1, +2... : plus dur, plus d'âmes."
+Monster health,Monster health,Vie des monstres
+Monster damage,Monster damage,Dégâts des monstres
+Time to dodge,Time to dodge,Temps pour esquiver
++%d monsters per room,+%d monsters per room,+%d monstres par salle
++%d monster per room,+%d monster per room,+%d monstre par salle
+Monsters spot you sooner,Monsters spot you sooner,Les monstres te repèrent plus tôt
+Monsters spot you later,Monsters spot you later,Les monstres te repèrent plus tard
+Bigger floors (+%d%%),Bigger floors (+%d%%),Étages plus grands (+%d %%)
+Smaller floors (-%d%%),Smaller floors (-%d%%),Étages plus petits (-%d %%)
+Elite monsters x%s,Elite monsters x%s,Monstres d'élite x%s
+Fewer elite monsters,Fewer elite monsters,Moins de monstres d'élite
+Heal %d%% each new floor,Heal %d%% each new floor,Soin de %d %% à chaque nouvel étage
+Darker floors,Darker floors,Étages plus sombres
+Brighter floors,Brighter floors,Étages plus lumineux
+%d%% less max health,%d%% less max health,%d %% de Vie max en moins
+Everything as the game was made: the other difficulties are compared with it.,Everything as the game was made: the other difficulties are compared with it.,Le jeu tel qu'il a été conçu : les autres difficultés lui sont comparées.
+%s %+d%%,%s %+d%%,%s %+d %%
+"+0: Nightmare as it is. Each level adds one twist on top of the ones before, and 10% more souls.","+0: Nightmare as it is. Each level adds one twist on top of the ones before, and 10% more souls.","+0 : Cauchemar tel quel. Chaque niveau ajoute une épreuve à celles d'avant, et 10 % d'âmes en plus."
++%d  %s: %s,+%d  %s: %s,+%d  %s : %s
+"Next, +%d  %s: %s","Next, +%d  %s: %s","Ensuite, +%d  %s : %s"
+Win Nightmare +%d to open +%d  %s: %s,Win Nightmare +%d to open +%d  %s: %s,Gagne en Cauchemar +%d pour ouvrir +%d  %s : %s
+Choose a difficulty,Choose a difficulty,Choisis une difficulté
+Back,Back,Retour
+Tap one to start the run. Harder ones pay more souls.,Tap one to start the run. Harder ones pay more souls.,Touche-en une pour lancer la partie. Les plus dures rapportent plus d'âmes.
+Nightmare ascension,Nightmare ascension,Ascension du Cauchemar
+No oath,No oath,Aucun serment
+"The usual start: the Katana, no rule changed.","The usual start: the Katana, no rule changed.","Le départ habituel : le Katana, aucune règle changée."
+"Opens at the end of the %s branch of the Tree of Souls, at the shrine.","Opens at the end of the %s branch of the Tree of Souls, at the shrine.","S'ouvre au bout de la branche %s de l'Arbre des Âmes, au Sanctuaire."
+Sworn,Sworn,Choisi
+"Your starting weapon (Armory): your oath brings its own, the %s. Without the oath, pick one below.","Your starting weapon (Armory): your oath brings its own, the %s. Without the oath, pick one below.","Ton arme de départ (Armurerie) : ton serment apporte la sienne, %s. Sans serment, choisis-en une ci-dessous."
+Your starting weapon (Armory): %s.,Your starting weapon (Armory): %s.,Ton arme de départ (Armurerie) : %s.
+the usual one,the usual one,l'habituelle
+Before the descent,Before the descent,Avant la descente
+"Swear an oath for this run, or go as you are. It changes how you start: pick one, then Start.","Swear an oath for this run, or go as you are. It changes how you start: pick one, then Start.","Prête un serment pour cette partie, ou pars tel quel. Il change ton départ : choisis-en un, puis Commencer."
+Start the run,Start the run,Commencer la partie
+Sworn before a run: %s,Sworn before a run: %s,Prêté avant une partie : %s
+Opens: %s,Opens: %s,Ouvre : %s
+Nothing bought yet.,Nothing bought yet.,Rien d'acheté pour l'instant.
+"Every soul spent comes back (%d), for free.","Every soul spent comes back (%d), for free.","Chaque âme dépensée te revient (%d), gratuitement."
+"Every soul spent comes back (%d), minus %d.","Every soul spent comes back (%d), minus %d.","Chaque âme dépensée te revient (%d), moins %d."
+%s branch  -  pick one of two,%s branch  -  pick one of two,Branche %s  -  choisis l'un des deux
+%s branch,%s branch,Branche %s
+Oath open,Oath open,Serment ouvert
+Oath locked,Oath locked,Serment verrouillé
+"Pick it before a run, after the difficulty.","Pick it before a run, after the difficulty.","À choisir avant une partie, après la difficulté."
+Owned,Owned,Acquis
+Maxed,Maxed,Au maximum
+Buy  -  %d souls,Buy  -  %d souls,Acheter  -  %d âmes
+Need %d souls,Need %d souls,Il faut %d âmes
+The Shrine: Tree of Souls,The Shrine: Tree of Souls,Le Sanctuaire : l'Arbre des Âmes
+The node,The node,Le nœud
+"Gold ring: bought. Glowing: you can buy it. Dark: buy a node above it first. ""or"": pick one of the two. ?: a feat opens it.","Gold ring: bought. Glowing: you can buy it. Dark: buy a node above it first. ""or"": pick one of the two. ?: a feat opens it.",Anneau doré : acheté. Lumineux : tu peux l'acheter. Sombre : achète d'abord un nœud au-dessus. « ou » : choisis l'un des deux. ? : un exploit l'ouvre.
+Reset the tree,Reset the tree,Réinitialiser l'arbre
+or,or,ou
+"Continue your run  -  floor %d, level %d","Continue your run  -  floor %d, level %d","Reprendre ta partie  -  étage %d, niveau %d"
+Upgrade ready,Upgrade ready,Amélioration prête
+Daily run: practice (today's try is done),Daily run: practice (today's try is done),Partie du jour : entraînement (essai joué)
+Daily run: same dungeon for everyone today,Daily run: same dungeon for everyone today,Partie du jour : même donjon pour tous
+Everyone starts with %s,Everyone starts with %s,Tout le monde commence avec %s
+Today: %d points,Today: %d points,Aujourd'hui : %d points
+Your first try today is the one that counts,Your first try today is the one that counts,Ton premier essai du jour est celui qui compte
+Best %d,Best %d,Meilleur %d
+%d days in a row,%d days in a row,%d jours d'affilée
+%d souls,%d souls,%d âmes
+to spend,to spend,à dépenser
+Victories,Victories,Victoires
+Deepest floor,Deepest floor,Étage le plus profond
+Normal,Normal,Normal
+Unlocked,Unlocked,Débloqué
+"Buy
+%d souls","Buy
+%d souls","Acheter
+%d âmes"
+"Need
+%d souls","Need
+%d souls","Il faut
+%d âmes"
+Level %d / %d  (max),Level %d / %d  (max),Niveau %d / %d  (max)
+Level %d / %d,Level %d / %d,Niveau %d / %d
+Bought,Bought,Acheté
+Not bought yet,Not bought yet,Pas encore acheté
+Your hero starts every run stronger.,Your hero starts every run stronger.,Ton héros commence chaque partie plus fort.
+start with %d extra %s,start with %d extra %s,commence avec %d × %s en plus
+start with the %s perk,start with the %s perk,commence avec l'atout %s
+these items can drop in every run,these items can drop in every run,ces objets peuvent apparaître dans chaque partie
+%d extra rerolls per run,%d extra rerolls per run,%d relances de plus par partie
+%d extra reroll per run,%d extra reroll per run,%d relance de plus par partie
+%d extra banishes per run,%d extra banishes per run,%d bannissements de plus par partie
+%d extra banish per run,%d extra banish per run,%d bannissement de plus par partie
+%+d%% max health,%+d%% max health,%+d %% de Vie max
+heals %d%% weaker,heals %d%% weaker,soins %d %% plus faibles
+heals %d%% stronger,heals %d%% stronger,soins %d %% plus forts
+heal %d%% of max health when a floor is won,heal %d%% of max health when a floor is won,soigne %d %% de la Vie max à chaque étage remporté
+merchant prices %+d%%,merchant prices %+d%%,prix du marchand %+d %%
+%d more items at the merchant,%d more items at the merchant,%d objets de plus chez le marchand
+elites always drop Magic gear,elites always drop Magic gear,les élites lâchent toujours de l'équipement Magique
+"the minimap shows stairs, merchant and forge","the minimap shows stairs, merchant and forge","la minicarte montre escaliers, marchand et forge"
+pick your starting weapon,pick your starting weapon,choisis ton arme de départ
+start with a random spell tome,start with a random spell tome,commence avec un grimoire de sort au hasard
+a new oath to swear before a run,a new oath to swear before a run,un nouveau serment à prêter avant une partie
+Active: %s,Active: %s,Actif : %s
+Gives: %s,Gives: %s,Donne : %s
+Level 1 gives: %s,Level 1 gives: %s,Le niveau 1 donne : %s
+Now: %s  (maxed),Now: %s  (maxed),Actuel : %s  (au maximum)
+Now: %s   >   Next: %s,Now: %s   >   Next: %s,Actuel : %s   >   Suivant : %s
+OK,OK,OK
+The depths,The depths,Les profondeurs
+%s - better loot,%s - better loot,%s - meilleur butin
+%s (cursed: %s),%s (cursed: %s),%s (maudit : %s)
+"The seal breaks: two ways down. %s, or %s.","The seal breaks: two ways down. %s, or %s.","Le sceau se brise : deux chemins vers le bas. %s, ou %s."
+The seal breaks: the stairs are open!,The seal breaks: the stairs are open!,Le sceau se brise : les escaliers sont ouverts !
+Sealed. Slay %d more monster to open the stairs.,Sealed. Slay %d more monster to open the stairs.,Scellé. Abats encore %d monstre pour ouvrir les escaliers.
+Sealed. Slay %d more monsters to open the stairs.,Sealed. Slay %d more monsters to open the stairs.,Scellé. Abats encore %d monstres pour ouvrir les escaliers.
+Act I,Act I,Acte I
+Mossy Caves,Mossy Caves,Grottes Moussues
+Lore,Lore,Récit
+The Well stirs... a curse falls on this floor,The Well stirs... a curse falls on this floor,Le Puits s'agite... une malédiction s'abat sur cet étage
+Frostbound,Frostbound,Étreinte du Givre
+Rule,Rule,Règle
+Depth 1,Depth 1,Étage 1
+Souls 0,Souls 0,Âmes 0
+Gold 0,Gold 0,Or 0
+II,II,II
+Seal 0 / 0,Seal 0 / 0,Sceau 0 / 0
+Tap to continue,Tap to continue,Touche pour continuer
+Skip,Skip,Passer
+Go down the Well.,Go down the Well.,Descends dans le Puits.
+> Read the story,> Read the story,> Lire l'histoire
+Play,Play,Jouer
+Shrine,Shrine,Sanctuaire
+Ascendant,Ascendant,Ascendant
+Win a run on Nightmare +3.,Win a run on Nightmare +3.,Gagne une partie en Cauchemar +3.
+The Bottom of the Well,The Bottom of the Well,Le Fond du Puits
+Win a run.,Win a run.,Gagne une partie.
+Curious,Curious,Curieux
+Answer 10 encounters.,Answer 10 encounters.,Réponds à 10 rencontres.
+Deep Diver,Deep Diver,Plongée Profonde
+"Reach floor 12, the last one.","Reach floor 12, the last one.","Atteins l'étage 12, le dernier."
+Elite Hunter,Elite Hunter,Chasseur d'Élites
+Slay 20 elite monsters.,Slay 20 elite monsters.,Abats 20 monstres d'élite.
+Exterminator,Exterminator,Exterminateur
+Slay 1500 monsters.,Slay 1500 monsters.,Abats 1500 monstres.
+First Blood,First Blood,Premier Sang
+Slay your first monster.,Slay your first monster.,Abats ton premier monstre.
+Hardened,Hardened,Endurci
+Win a run on Hard.,Win a run on Hard.,Gagne une partie en Difficile.
+Into the Dark,Into the Dark,Vers les Ténèbres
+Reach floor 4.,Reach floor 4.,Atteins l'étage 4.
+Shiny!,Shiny!,Ça brille !
+Find an Epic item.,Find an Epic item.,Trouve un objet Épique.
+Money Bags,Money Bags,Bourse Pleine
+Pick up 400 gold in a single run.,Pick up 400 gold in a single run.,Ramasse 400 or en une seule partie.
+Naturalist,Naturalist,Naturaliste
+Discover 15 kinds of creatures in the bestiary.,Discover 15 kinds of creatures in the bestiary.,Découvre 15 espèces de créatures dans le bestiaire.
+Nightmare Walker,Nightmare Walker,Marcheur du Cauchemar
+Win a run on Nightmare.,Win a run on Nightmare.,Gagne une partie en Cauchemar.
+Pushover,Pushover,Bousculeur
+Knock 10 monsters into holes.,Knock 10 monsters into holes.,Pousse 10 monstres dans des trous.
+Slayer,Slayer,Pourfendeur
+Slay 250 monsters.,Slay 250 monsters.,Abats 250 monstres.
+Treasure Hunter,Treasure Hunter,Chasseur de Trésors
+Open 25 chests.,Open 25 chests.,Ouvre 25 coffres.
+Veteran,Veteran,Vétéran
+Reach level 12 in a single run.,Reach level 12 in a single run.,Atteins le niveau 12 en une seule partie.
+Bane of the Wardens,Bane of the Wardens,Fléau des Gardiens
+Defeat 10 wardens.,Defeat 10 wardens.,Terrasse 10 gardiens.
+Warden Slayer,Warden Slayer,Tombeur de Gardien
+Defeat a warden of the Well.,Defeat a warden of the Well.,Terrasse un gardien du Puits.
+Brutal,Brutal,Brutal
+Burning,Burning,Ardent
+Fortified,Fortified,Renforcé
+Frozen,Frozen,Glacial
+Light,Light,Léger
+of Echoes,of Echoes,des Échos
+Skills have a 12% chance to be ready again at once (an echo can't echo).,Skills have a 12% chance to be ready again at once (an echo can't echo).,Les compétences ont 12 % de chances d'être aussitôt prêtes à nouveau (un écho ne fait pas d'écho).
+of Embers,of Embers,des Braises
+Enemies that die burning explode.,Enemies that die burning explode.,Les ennemis qui meurent en brûlant explosent.
+of Fury,of Fury,de Furie
+of Haste,of Haste,de Célérité
+of Sorcery,of Sorcery,de Sorcellerie
+of the Bear,of the Bear,de l'Ours
+of the Fox,of the Fox,du Renard
+of the Titan,of the Titan,du Titan
+of Thorns,of Thorns,des Épines
+Enemies that hit you up close take 3 damage.,Enemies that hit you up close take 3 damage.,Les ennemis qui te frappent au corps à corps subissent 3 Dégâts.
+Precise,Precise,Précis
+Sharp,Sharp,Affûté
+Shattering,Shattering,Fracassant
++25% damage to slowed enemies.,+25% damage to slowed enemies.,+25 % de Dégâts contre les ennemis ralentis.
+Shocking,Shocking,Foudroyant
+"Every 4th hit, lightning jumps to 2 enemies.","Every 4th hit, lightning jumps to 2 enemies.","Tous les 4 coups, un éclair bondit sur 2 ennemis."
+Sturdy,Sturdy,Robuste
+Swift,Swift,Véloce
+Vampiric,Vampiric,Vampirique
+Heals 1 Health per kill.,Heals 1 Health per kill.,Rend 1 de Vie par ennemi abattu.
+Venomous,Venomous,Venimeux
+Spikes burst from the floor!,Spikes burst from the floor!,Des pointes jaillissent du sol !
+The ground caves in!,The ground caves in!,Le sol s'effondre !
+The floor gives way at the edges!,The floor gives way at the edges!,Le sol cède sur les bords !
+The floor cracks!,The floor cracks!,Le sol se fissure !
+The corners fall away!,The corners fall away!,Les coins s'écroulent !
+The pit closes in!,The pit closes in!,La fosse se resserre !
+Hardened Foes,Hardened Foes,Ennemis Endurcis
+Monsters have 15% more health.,Monsters have 15% more health.,Les monstres ont 15 % de Vie en plus.
+Sharp Fangs,Sharp Fangs,Crocs Acérés
+Monsters deal 10% more damage.,Monsters deal 10% more damage.,Les monstres infligent 10 % de Dégâts en plus.
+Elite Guard,Elite Guard,Garde d'Élite
+Elite monsters are 30% more common.,Elite monsters are 30% more common.,Les monstres d'élite sont 30 % plus fréquents.
+Thin Purse,Thin Purse,Bourse Maigre
+The merchant asks 30% more gold.,The merchant asks 30% more gold.,Le marchand demande 30 % d'or en plus.
+Restless Dead,Restless Dead,Morts sans Repos
+One more monster in every room.,One more monster in every room.,Un monstre de plus dans chaque salle.
+Swift Hunters,Swift Hunters,Chasseurs Véloces
+Monsters move faster and you get less time to dodge.,Monsters move faster and you get less time to dodge.,Les monstres vont plus vite et tu as moins de temps pour esquiver.
+Wardens' Wrath,Wardens' Wrath,Courroux des Gardiens
+Bosses have 25% more health.,Bosses have 25% more health.,Les boss ont 25 % de Vie en plus.
+Deeper Dark,Deeper Dark,Ténèbres Profondes
+The floors are darker.,The floors are darker.,Les étages sont plus sombres.
+Frail,Frail,Fragile
+You start with 15% less max health.,You start with 15% less max health.,Tu commences avec 15 % de Vie max en moins.
+The Well's Heart,The Well's Heart,Le Cœur du Puits
+Monsters have 15% more health and deal 10% more damage.,Monsters have 15% more health and deal 10% more damage.,Les monstres ont 15 % de Vie en plus et infligent 10 % de Dégâts en plus.
+Abandoned Library,Abandoned Library,Bibliothèque Abandonnée
+Shelves of forgotten books. Some still hold a spell.,Shelves of forgotten books. Some still hold a spell.,Des rayonnages de livres oubliés. Certains renferment encore un sort.
+Buried City,Buried City,Cité Ensevelie
+"Streets of sand, stalls nobody keeps. The wind still sells what is left.","Streets of sand, stalls nobody keeps. The wind still sells what is left.","Des rues de sable, des étals sans marchands. Le vent vend encore ce qu'il reste."
+Burning Ruins,Burning Ruins,Ruines Ardentes
+A city burned here. The embers never quite went out.,A city burned here. The embers never quite went out.,Une cité a brûlé ici. Les braises ne se sont jamais tout à fait éteintes.
+Crypt,Crypt,Crypte
+Row after row of the dead. They do not sleep well.,Row after row of the dead. They do not sleep well.,"Des rangées de morts, à perte de vue. Leur sommeil n'est pas paisible."
+Flooded Caverns,Flooded Caverns,Cavernes Englouties
+The Well's water rose here once. It never went back down.,The Well's water rose here once. It never went back down.,"Les eaux du Puits sont montées jusqu'ici, un jour. Elles ne sont jamais redescendues."
+Mossy Cave,Mossy Cave,Grotte Moussue
+Damp stone and soft moss. Something drips in the dark.,Damp stone and soft moss. Something drips in the dark.,Pierre humide et mousse tendre. Quelque chose goutte dans le noir.
+Ruined Temple,Ruined Temple,Temple en Ruine
+Halls of columns raised for a god nobody remembers.,Halls of columns raised for a god nobody remembers.,Des salles à colonnes élevées pour un dieu que plus personne ne se rappelle.
+Sun Tomb,Sun Tomb,Tombeau du Soleil
+"Gold under every stone, and a curse on every coin.","Gold under every stone, and a curse on every coin.","De l'or sous chaque pierre, et une malédiction sur chaque pièce."
+Underground Garden,Underground Garden,Jardin Souterrain
+Light from cracks above feeds a garden nobody tends anymore.,Light from cracks above feeds a garden nobody tends anymore.,La lumière qui filtre des fissures nourrit un jardin que plus personne n'entretient.
+"Deep below, something burns.
+The Well breathes it up, and the air itself scorches.","Deep below, something burns.
+The Well breathes it up, and the air itself scorches.","Tout au fond, quelque chose brûle.
+Le Puits en exhale le souffle, et l'air lui-même se met à brûler."
+Ashen Breath,Ashen Breath,Souffle de Cendres
+"The heat builds up. Cool down by the oases, or burn.","The heat builds up. Cool down by the oases, or burn.","La chaleur monte. Rafraîchis-toi aux oasis, ou brûle."
+"The Well exhales. Its breath is the cold of the grave:
+frost creeps over the stone... and over you.","The Well exhales. Its breath is the cold of the grave:
+frost creeps over the stone... and over you.","Le Puits expire. Son haleine a le froid de la tombe :
+le givre gagne la pierre... et te gagne aussi."
+"The cold gets into your bones. Warm up by the campfires, or freeze.","The cold gets into your bones. Warm up by the campfires, or freeze.","Le froid te pénètre jusqu'aux os. Réchauffe-toi près des feux de camp, ou gèle."
+"The Well swallows the light.
+Only your lantern holds the dark back... barely.","The Well swallows the light.
+Only your lantern holds the dark back... barely.","Le Puits dévore la lumière.
+Seule ta lanterne retient les ténèbres... à peine."
+Lanternless,Lanternless,Sans Lanterne
+You only see what is right around you. Better loot hides in the dark.,You only see what is right around you. Better loot hides in the dark.,Tu ne vois que ce qui t'entoure de près. Un meilleur butin se cache dans le noir.
+Easy,Easy,Facile
+Learn the game at your own pace.,Learn the game at your own pace.,Apprends le jeu à ton rythme.
+Hard,Hard,Difficile
+"Tougher, faster monsters, and more of them.","Tougher, faster monsters, and more of them.","Des monstres plus coriaces, plus rapides, et plus nombreux."
+Nightmare,Nightmare,Cauchemar
+"Darkness, crowds, and very little time to react.","Darkness, crowds, and very little time to react.","Ténèbres, hordes, et presque pas le temps de réagir."
+The game as designed.,The game as designed.,Le jeu tel qu'il a été conçu.
+"The mouth of the Well. Roots, wet stone, and things that crawl toward the light of your lantern.","The mouth of the Well. Roots, wet stone, and things that crawl toward the light of your lantern.","La gueule du Puits. Racines, pierre ruisselante, et des choses qui rampent vers la lueur de ta lanterne."
+Haunted Crypt,Haunted Crypt,Crypte Hantée
+Act II,Act II,Acte II
+"Where Kagari buried its dead, long ago. Since the Well woke up, they do not rest anymore.","Where Kagari buried its dead, long ago. Since the Well woke up, they do not rest anymore.","C'est ici que Kagari enterrait ses morts, il y a bien longtemps. Depuis que le Puits s'est éveillé, ils ne reposent plus."
+Act III,Act III,Acte III
+A temple the Well swallowed whole. Its fires never went out. The souls' cries come from below.,A temple the Well swallowed whole. Its fires never went out. The souls' cries come from below.,Un temple que le Puits a englouti tout entier. Ses feux ne se sont jamais éteints. Les cris des âmes montent d'en bas.
+Buried Kingdom,Buried Kingdom,Royaume Enseveli
+Act IV,Act IV,Acte IV
+"Under the temple, the Well opens onto a desert with no sky: a kingdom the sand swallowed whole. Its king still hoards what he took. Souls, mostly.","Under the temple, the Well opens onto a desert with no sky: a kingdom the sand swallowed whole. Its king still hoards what he took. Souls, mostly.","Sous le temple, le Puits s'ouvre sur un désert sans ciel : un royaume que le sable a englouti tout entier. Son roi y amasse encore ce qu'il a pris. Des âmes, surtout."
+Armored,Armored,Cuirassé
+Explosive,Explosive,Explosif
+Spiked,Spiked,Épineux
+The altar drinks. A relic rises from the stone.,The altar drinks. A relic rises from the stone.,L'autel boit. Une relique s'élève de la pierre.
+Offer your blood,Offer your blood,Offrir ton sang
+Blood Altar,Blood Altar,Autel de Sang
+An altar stained with old blood. It wants a part of you... and it pays well.,An altar stained with old blood. It wants a part of you... and it pays well.,Un autel souillé de sang ancien. Il veut une part de toi... et il paie bien.
+It giggles and drops something shiny.,It giggles and drops something shiny.,Il ricane et laisse tomber quelque chose de brillant.
+"""Lucky, lucky!"" Something very shiny falls at your feet.","""Lucky, lucky!"" Something very shiny falls at your feet.","« Veinard, veinard ! » Quelque chose de très brillant tombe à tes pieds."
+"It laughs, and vanishes with your gold.","It laughs, and vanishes with your gold.","Il éclate de rire, et disparaît avec ton or."
+Pay,Pay,Payer
+"""A big spender!"" A treasure falls at your feet.","""A big spender!"" A treasure falls at your feet.",« Quel panier percé ! » Un trésor tombe à tes pieds.
+Pay a lot,Pay a lot,Payer cher
+Grinning Spirit,Grinning Spirit,Esprit Ricaneur
+"A grinning spirit shakes its dice. ""Gold for a gift? Maybe... maybe not!""","A grinning spirit shakes its dice. ""Gold for a gift? Maybe... maybe not!""",Un esprit ricaneur agite ses dés. « De l'or contre un cadeau ? Peut-être... ou peut-être pas ! »
+The water is cool and kind. You feel whole again.,The water is cool and kind. You feel whole again.,L'eau est fraîche et bienveillante. Tu te sens entier à nouveau.
+Strength flows into you: the drowned lend you their fury.,Strength flows into you: the drowned lend you their fury.,La force afflue en toi : les noyés te prêtent leur fureur.
+The water was cursed! It burns your throat.,The water was cursed! It burns your throat.,L'eau était maudite ! Elle te brûle la gorge.
+Drink,Drink,Boire
+Spirit Spring,Spirit Spring,Source des Esprits
+Clear water glows faintly. The souls of the drowned linger here.,Clear water glows faintly. The souls of the drowned linger here.,Une eau claire luit faiblement. Les âmes des noyés s'attardent ici.
+The statue hums. Its strength becomes yours.,The statue hums. Its strength becomes yours.,La statue bourdonne. Sa force devient tienne.
+Its eyes light up red. Its servants answer!,Its eyes light up red. Its servants answer!,Ses yeux s'embrasent de rouge. Ses serviteurs répondent à l'appel !
+Pray,Pray,Prier
+Warden's Statue,Warden's Statue,Statue du Gardien
+A statue of one of the Well's wardens. Its stone eyes follow you.,A statue of one of the Well's wardens. Its stone eyes follow you.,La statue d'un des gardiens du Puits. Ses yeux de pierre te suivent.
+Blood Moon,Blood Moon,Lune de Sang
+"The monsters are frenzied: they hit harder, and drop twice the gold.","The monsters are frenzied: they hit harder, and drop twice the gold.","Les monstres sont pris de frénésie : ils frappent plus fort, et lâchent deux fois plus d'or."
+Pitch Dark,Pitch Dark,Nuit Noire
+Your lantern barely lights the way. Rare things hide in the dark.,Your lantern barely lights the way. Rare things hide in the dark.,Ta lanterne éclaire à peine le chemin. Des choses rares se cachent dans le noir.
+Haunted Floor,Haunted Floor,Étage Hanté
+"The dead walk here: elites everywhere, and little light.","The dead walk here: elites everywhere, and little light.","Les morts arpentent ces lieux : des élites partout, et peu de lumière."
+Quiet Halls,Quiet Halls,Salles Paisibles
+"Few monsters here. Someone has set up shop, and strange things wait in the rooms.","Few monsters here. Someone has set up shop, and strange things wait in the rooms.","Peu de monstres ici. Quelqu'un a installé son étal, et d'étranges choses attendent dans les salles."
+The Swarm,The Swarm,La Nuée
+"They come in hordes, but they are weak.","They come in hordes, but they are weak.","Ils déferlent en hordes, mais ils sont faibles."
+Treasure Vault,Treasure Vault,Salle au Trésor
+Gold glitters everywhere... and so do the traps.,Gold glitters everywhere... and so do the traps.,L'or scintille partout... et les pièges aussi.
+Brann the Smith,Brann the Smith,Brann le Forgeron
+"Runes, eh? Hand me that blade.","Runes, eh? Hand me that blade.","Des runes, hein ? Passe-moi cette lame."
+Steel remembers every rune you give it.,Steel remembers every rune you give it.,L'acier se souvient de chaque rune que tu lui confies.
+"Hot coals, cold hands. What'll it be?","Hot coals, cold hands. What'll it be?","Braises chaudes, mains froides. Qu'est-ce que ce sera ?"
+Each socket holds one rune. Choose well.,Each socket holds one rune. Choose well.,Chaque emplacement accueille une rune. Choisis bien.
+Changed your mind? I can pry it out. For a price.,Changed your mind? I can pry it out. For a price.,Changé d'avis ? Je peux la déloger. Contre paiement.
+"Things stir in the dark, drawn by the fire...","Things stir in the dark, drawn by the fire...","Des choses s'agitent dans le noir, attirées par le feu..."
+They come for the fire!,They come for the fire!,Ils viennent pour le feu !
+"Things stir in the heat haze, drawn by the water...","Things stir in the heat haze, drawn by the water...","Des choses s'agitent dans la brume de chaleur, attirées par l'eau..."
+They come for the water!,They come for the water!,Ils viennent pour l'eau !
+Chain Mail,Chain Mail,Cotte de Mailles
+"Good protection, slows you down a little.","Good protection, slows you down a little.","Bonne protection, mais te ralentit un peu."
+Iron Helm,Iron Helm,Heaume de Fer
+Solid and heavy.,Solid and heavy.,Solide et lourd.
+Leather Armor,Leather Armor,Armure de Cuir
+Light protection.,Light protection.,Une protection légère.
+Leather Cap,Leather Cap,Coiffe de Cuir
+Better than nothing.,Better than nothing.,Mieux que rien.
+Plate Armor,Plate Armor,Armure de Plates
+A walking fortress.,A walking fortress.,Une forteresse ambulante.
+Shadow Cloak,Shadow Cloak,Cape d'Ombre
+"Move fast, strike true.","Move fast, strike true.","Bouge vite, frappe juste."
+Bomb,Bomb,Bombe
+Explodes around you. Deals 25 damage.,Explodes around you. Deals 25 damage.,Explose autour de toi. Inflige 25 Dégâts.
+Scroll of Fire,Scroll of Fire,Parchemin de Feu
+Launches an exploding fireball at the nearest enemy.,Launches an exploding fireball at the nearest enemy.,Projette une boule de feu explosive sur l'ennemi le plus proche.
+Heart Container,Heart Container,Réceptacle de Cœur
+Restores 70% of your HP.,Restores 70% of your HP.,Rend 70 % de ta Vie.
+Haste Draught,Haste Draught,Breuvage de Célérité
+Run much faster for 6 seconds.,Run much faster for 6 seconds.,Cours bien plus vite pendant 6 secondes.
+Health Potion,Health Potion,Potion de Vie
+Restores 35% of your HP.,Restores 35% of your HP.,Rend 35 % de ta Vie.
+Elixir of Rage,Elixir of Rage,Élixir de Rage
++5 ATK and +15% crit for 8 seconds.,+5 ATK and +15% crit for 8 seconds.,+5 Dégâts et +15 % de chance de coup critique pendant 8 secondes.
+Tome of Fire,Tome of Fire,Grimoire du Feu
+Read it to learn a skill (last skill button).,Read it to learn a skill (last skill button).,Lis-le pour apprendre une compétence (dernier bouton de compétence).
+Tome of Frost,Tome of Frost,Grimoire du Givre
+Tome of Holy Light,Tome of Holy Light,Grimoire de la Lumière Sacrée
+Tome of Thunder,Tome of Thunder,Grimoire du Tonnerre
+Tome of Battle,Tome of Battle,Grimoire de la Bataille
+Tome of Wind,Tome of Wind,Grimoire du Vent
+Battle Axe,Battle Axe,Hache de Guerre
+"Slow, wide and brutal.","Slow, wide and brutal.","Lente, large et brutale."
+Greatsword,Greatsword,Espadon
+Huge and slow. Everything in front of you goes flying.,Huge and slow. Everything in front of you goes flying.,Immense et lent. Tout ce qui est devant toi s'envole.
+Ember Tome,Ember Tome,Grimoire des Braises
+Spits three embers at once.,Spits three embers at once.,Crache trois braises à la fois.
+Bow,Bow,Arc
+Arrows that go through the first enemy.,Arrows that go through the first enemy.,Des flèches qui transpercent le premier ennemi.
+War Hammer,War Hammer,Marteau de Guerre
+Crushing blows that send enemies flying.,Crushing blows that send enemies flying.,Des coups écrasants qui projettent les ennemis.
+Katana,Katana,Katana
+Quick and reliable.,Quick and reliable.,Rapide et fiable.
+Lance,Lance,Lance
+"Long reach, narrow thrust.","Long reach, narrow thrust.","Longue allonge, estocade étroite."
+Spark Wand,Spark Wand,Baguette d'Étincelles
+Fires quick magic sparks.,Fires quick magic sparks.,Tire de rapides étincelles magiques.
+Ninjaku,Ninjaku,Ninjaku
+"A ninja's straight blade: quick, wide cuts.","A ninja's straight blade: quick, wide cuts.",La lame droite du ninja : des entailles rapides et larges.
+Pickaxe,Pickaxe,Pioche
+A miner's tool. Pierces armor.,A miner's tool. Pierces armor.,Un outil de mineur. Perce les armures.
+Rapier,Rapier,Rapière
+A fencer's blade: lightning thrusts that find the weak spots.,A fencer's blade: lightning thrusts that find the weak spots.,La lame du bretteur : des estocades éclair qui trouvent les points faibles.
+Sai,Sai,Saï
+Very fast stabs. Easy to crit.,Very fast stabs. Easy to crit.,Des coups d'estoc très rapides. Coups critiques faciles.
+Shuriken,Shuriken,Shuriken
+"Throwing stars, three at a time. The ninja's way.","Throwing stars, three at a time. The ninja's way.","Des étoiles de lancer, trois à la fois. La voie du ninja."
+Frost Staff,Frost Staff,Bâton de Givre
+Ice shards that pierce a first enemy.,Ice shards that pierce a first enemy.,Des éclats de glace qui transpercent un premier ennemi.
+Templar Sword,Templar Sword,Épée de Templier
+"A paladin's blade, blessed with holy skills.","A paladin's blade, blessed with holy skills.","La lame d'un paladin, bénie de compétences sacrées."
+Whip,Whip,Fouet
+"Long reach, thin and stinging. Keep them at a distance.","Long reach, thin and stinging. Keep them at a distance.","Longue allonge, fin et cinglant. Garde-les à distance."
+Acid Spit,Acid Spit,Crachat Acide
+Bite,Bite,Morsure
+Claws,Claws,Griffes
+Cyclops Club,Cyclops Club,Massue de Cyclope
+Demon Club,Demon Club,Massue Démoniaque
+Evil Eye,Evil Eye,Mauvais Œil
+Fire Breath,Fire Breath,Souffle de Feu
+Fire Touch,Fire Touch,Toucher Brûlant
+Frost Fang,Frost Fang,Croc de Givre
+Ghost Flame,Ghost Flame,Flamme Spectrale
+Hex Bolt,Hex Bolt,Trait Maléfique
+Ink Bolt,Ink Bolt,Trait d'Encre
+Venom Fang,Venom Fang,Croc Venimeux
+Maul,Maul,Maillet
+Poison Fang,Poison Fang,Croc Empoisonné
+Rusty Blade,Rusty Blade,Lame Rouillée
+Sand Breath,Sand Breath,Souffle de Sable
+Scimitar,Scimitar,Cimeterre
+Shadow Bolt,Shadow Bolt,Trait d'Ombre
+Slam,Slam,Écrasement
+Royal Slam,Royal Slam,Écrasement Royal
+Cold Touch,Cold Touch,Toucher Glacé
+Tengu Blade,Tengu Blade,Lame du Tengu
+Water Jet,Water Jet,Jet d'Eau
+Elite,Elite,Élite
+Legendary,Legendary,Légendaire
+Ash Lizard,Ash Lizard,Lézard des Cendres
+A masked hunter that charges from across the room.,A masked hunter that charges from across the room.,Un chasseur masqué qui charge d'un bout à l'autre de la salle.
+Blue Bat,Blue Bat,Chauve-souris Bleue
+"Fragile, fast and erratic.","Fragile, fast and erratic.","Fragile, rapide et imprévisible."
+Horned Beast,Horned Beast,Bête Cornue
+"Huge. Charges, then crushes.","Huge. Charges, then crushes.","Énorme. Charge, puis écrase."
+Giant Slime,Giant Slime,Gluant Géant
+Splits into two slimes when it dies.,Splits into two slimes when it dies.,Se divise en deux gluants à sa mort.
+Bomber,Bomber,Bombardier
+"Lobs bombs from afar. Dodge the blast, then close in.","Lobs bombs from afar. Dodge the blast, then close in.","Lance des bombes de loin. Esquive l'explosion, puis rapproche-toi."
+Bone Lizard,Bone Lizard,Lézard d'Os
+Wears a skull and spits acid from afar.,Wears a skull and spits acid from afar.,Porte un crâne et crache de l'acide à distance.
+Brood Mother,Brood Mother,Mère de la Couvée
+Stays back and lays spiders. Kill her first.,Stays back and lays spiders. Kill her first.,Reste en retrait et pond des araignées. Abats-la en premier.
+Cyclops,Cyclops,Cyclope
+"Huge, slow, hits like a truck. Watch the wind-up.","Huge, slow, hits like a truck. Watch the wind-up.","Énorme, lent, frappe comme un bélier. Surveille son élan."
+Drakeling,Drakeling,Dragonnet
+Breathes fire from a distance.,Breathes fire from a distance.,Crache du feu à distance.
+Dune Rex,Dune Rex,Rex des Dunes
+"A sand-colored brute. Charges across the room, then crushes.","A sand-colored brute. Charges across the room, then crushes.","Une brute couleur de sable. Charge à travers la salle, puis écrase."
+Ember Heart,Ember Heart,Cœur de Braise
+A burning heart that mends whoever fights beside it.,A burning heart that mends whoever fights beside it.,Un cœur ardent qui soigne quiconque combat à ses côtés.
+Watcher,Watcher,Guetteur
+Floats at a distance and fires evil bolts.,Floats at a distance and fires evil bolts.,Flotte à distance et tire des traits maléfiques.
+Flame Spirit,Flame Spirit,Esprit de Flamme
+"Burning touch, and it explodes when it dies.","Burning touch, and it explodes when it dies.","Toucher brûlant, et il explose à sa mort."
+Frost Skull,Frost Skull,Crâne de Givre
+Bursts into ice when it dies: slows everything around.,Bursts into ice when it dies: slows everything around.,Éclate en glace à sa mort : ralentit tout alentour.
+Gilded Moth,Gilded Moth,Phalène Dorée
+Wraps its allies in golden wards.,Wraps its allies in golden wards.,Enveloppe ses alliés de protections dorées.
+Gold Racoon,Gold Racoon,Raton Doré
+"The king's own thief. Takes far more gold than its cousins, and runs faster.","The king's own thief. Takes far more gold than its cousins, and runs faster.","Le voleur attitré du roi. Prend bien plus d'or que ses cousins, et court plus vite."
+Kappa,Kappa,Kappa
+Water jets that slow you down.,Water jets that slow you down.,Des jets d'eau qui te ralentissent.
+Ghost Lantern,Ghost Lantern,Lanterne Spectrale
+Throws ghost flames and blinks around.,Throws ghost flames and blinks around.,Lance des flammes spectrales et se téléporte.
+Acid Larva,Acid Larva,Larve Acide
+Spits acid from a distance.,Spits acid from a distance.,Crache de l'acide à distance.
+Burrower,Burrower,Fouisseur
+Tough. Burrows under you when you keep away.,Tough. Burrows under you when you keep away.,Coriace. Creuse sous toi quand tu restes à distance.
+Moss Heart,Moss Heart,Cœur de Mousse
+A floating heart of moss that mends the monsters around it. Kill it first.,A floating heart of moss that mends the monsters around it. Kill it first.,Un cœur de mousse flottant qui soigne les monstres alentour. Abats-le en premier.
+Spore Cap,Spore Cap,Chapeau-Spore
+Slow. Puffs a cloud of spores that slows and poisons.,Slow. Puffs a cloud of spores that slows and poisons.,Lent. Souffle un nuage de spores qui ralentit et empoisonne.
+Ink Octopus,Ink Octopus,Pieuvre d'Encre
+Fires ink bolts and rings of ink.,Fires ink bolts and rings of ink.,Tire des traits d'encre et des anneaux d'encre.
+Night Owl,Night Owl,Hibou Nocturne
+Dives at you from afar. Watch the wind-up.,Dives at you from afar. Watch the wind-up.,Fond sur toi de loin. Surveille son élan.
+Cave Mouse,Cave Mouse,Souris des Cavernes
+Fast and weak. Comes in numbers.,Fast and weak. Comes in numbers.,Rapide et faible. Arrive en nombre.
+Red Viper,Red Viper,Vipère Rouge
+"Hides in the sand. Fast, and its bite burns with poison.","Hides in the sand. Fast, and its bite burns with poison.","Se cache dans le sable. Rapide, et sa morsure brûle de poison."
+Lizardman,Lizardman,Homme-Lézard
+A warrior that charges across the room.,A warrior that charges across the room.,Un guerrier qui charge à travers la salle.
+Sand Drake,Sand Drake,Drake des Sables
+"Breathes scouring sand that slows you, and whips up a sandstorm.","Breathes scouring sand that slows you, and whips up a sandstorm.","Crache un sable abrasif qui te ralentit, et soulève une tempête de sable."
+Sand Drummer,Sand Drummer,Tambour des Sables
+Beats a war drum: its allies hit harder and run faster.,Beats a war drum: its allies hit harder and run faster.,Bat un tambour de guerre : ses alliés frappent plus fort et courent plus vite.
+Fire Shaman,Fire Shaman,Chaman de Feu
+Casts hexes and heals itself.,Casts hexes and heals itself.,Lance des maléfices et se soigne.
+Shell Guard,Shell Guard,Garde-Carapace
+Hides behind its shell: blows from the front barely scratch it. Get behind it.,Hides behind its shell: blows from the front barely scratch it. Get behind it.,Se cache derrière sa carapace : les coups de face l'égratignent à peine. Passe derrière lui.
+Skeleton,Skeleton,Squelette
+Rattling bones with a rusty blade.,Rattling bones with a rusty blade.,Des os qui cliquettent et une lame rouillée.
+Flying Skull,Flying Skull,Crâne Volant
+Fast and fragile. Comes in swarms.,Fast and fragile. Comes in swarms.,Rapide et fragile. Arrive en nuées.
+Slime,Slime,Gluant
+"Slow, tough, hits all around itself.","Slow, tough, hits all around itself.","Lent, coriace, frappe tout autour de lui."
+Viper,Viper,Vipère
+"Fast, and its bite is poisoned.","Fast, and its bite is poisoned.","Rapide, et sa morsure est empoisonnée."
+Dark Sorcerer,Dark Sorcerer,Sorcier Noir
+Keeps its distance and throws shadow bolts.,Keeps its distance and throws shadow bolts.,Garde ses distances et lance des traits d'ombre.
+Soul Moth,Soul Moth,Phalène des Âmes
+Wraps its allies in wards that soak up your blows.,Wraps its allies in wards that soak up your blows.,Enveloppe ses alliés de protections qui absorbent tes coups.
+Red Spider,Red Spider,Araignée Rouge
+Skitters in fast. Nasty bite.,Skitters in fast. Nasty bite.,Accourt à toute vitesse. Morsure vicieuse.
+Spirit,Spirit,Esprit
+Blinks towards you out of nowhere.,Blinks towards you out of nowhere.,Surgit de nulle part et fond sur toi.
+Stone Mole,Stone Mole,Taupe de Pierre
+Armored in rock. Burrows under you when you keep away.,Armored in rock. Burrows under you when you keep away.,Cuirassée de roche. Creuse sous toi quand tu restes à distance.
+Thief Racoon,Thief Racoon,Raton Voleur
+"Snatches your gold and runs. Catch it to get it back, with interest.","Snatches your gold and runs. Catch it to get it back, with interest.","Te dérobe ton or et s'enfuit. Attrape-le pour le récupérer, avec les intérêts."
+Shatter the Azure Wyrm with a Hammer,Shatter the Azure Wyrm with a Hammer,Brise la Guivre d'Azur au Marteau
+SPREADS ITS WINGS!,SPREADS ITS WINGS!,DÉPLOIE SES AILES !
+ROARS IN FURY!,ROARS IN FURY!,RUGIT DE FUREUR !
+Frozen Breath of the Crypt,Frozen Breath of the Crypt,Souffle Gelé de la Crypte
+Azure Wyrm,Azure Wyrm,La Guivre d'Azur
+A dragon of ice that sleeps under the crypt. Its breath slows you; its body burns cold. Strike the head.,A dragon of ice that sleeps under the crypt. Its breath slows you; its body burns cold. Strike the head.,Un dragon de glace qui dort sous la crypte. Son souffle te ralentit ; son corps brûle de froid. Frappe la tête.
+Pin the Crimson Tengu with a Lance,Pin the Crimson Tengu with a Lance,Transperce le Tengu Écarlate à la Lance
+TAKES FLIGHT!,TAKES FLIGHT!,PREND SON ENVOL !
+STORM OF BLADES!,STORM OF BLADES!,TEMPÊTE DE LAMES !
+Warden of the Burning Temple,Warden of the Burning Temple,Gardien du Temple Ardent
+Crimson Tengu,Crimson Tengu,Tengu Écarlate
+"A winged swordsman. Fast, precise, merciless.","A winged swordsman. Fast, precise, merciless.","Un épéiste ailé. Rapide, précis, impitoyable."
+Fell the Demon Cyclops with a Greatsword,Fell the Demon Cyclops with a Greatsword,Terrasse le Cyclope Démoniaque à l'Espadon
+CALLS THE DEAD!,CALLS THE DEAD!,APPELLE LES MORTS !
+BERSERK!,BERSERK!,FOLIE FURIEUSE !
+Warden of the Crypt,Warden of the Crypt,Gardien de la Crypte
+Demon Cyclops,Demon Cyclops,Cyclope Démoniaque
+A horned giant with a burning eye.,A horned giant with a burning eye.,Un géant cornu à l'œil ardent.
+Tame the Giant Frog with a Whip,Tame the Giant Frog with a Whip,Dompte la Grenouille Géante au Fouet
+CALLS ITS BROOD!,CALLS ITS BROOD!,APPELLE SA COUVÉE !
+FRENZY!,FRENZY!,FRÉNÉSIE !
+Croaking Warden,Croaking Warden,Gardienne Coassante
+Giant Frog,Giant Frog,Grenouille Géante
+"A frog the size of a house. It leaps, spits poison and calls its brood.","A frog the size of a house. It leaps, spits poison and calls its brood.","Une grenouille grande comme une maison. Elle bondit, crache du poison et appelle sa couvée."
+Rob the Gilded Hoarder with Shuriken,Rob the Gilded Hoarder with Shuriken,Dépouille l'Accapareur Doré au Shuriken
+SPILLS ITS HOARD!,SPILLS ITS HOARD!,RÉPAND SON TRÉSOR !
+GOLD FEVER!,GOLD FEVER!,FIÈVRE DE L'OR !
+Keeper of the Well,Keeper of the Well,Gardien du Puits
+Gilded Hoarder,Gilded Hoarder,L'Accapareur Doré
+"A golden giant on a mountain of stolen gold and stolen souls. It leaps, throws its coins and calls its thieves.","A golden giant on a mountain of stolen gold and stolen souls. It leaps, throws its coins and calls its thieves.","Un géant d'or sur une montagne d'or et d'âmes volés. Il bondit, jette ses pièces et appelle ses voleurs."
+Cut down the Jade Wyrm with an Axe,Cut down the Jade Wyrm with an Axe,Abats la Guivre de Jade à la Hache
+Coiled Guardian of the Temple,Coiled Guardian of the Temple,Gardienne Lovée du Temple
+Jade Wyrm,Jade Wyrm,La Guivre de Jade
+"An old dragon of jade scales, coiled around the temple's heart. Its body burns; strike the head.","An old dragon of jade scales, coiled around the temple's heart. Its body burns; strike the head.","Un vieux dragon aux écailles de jade, lové autour du cœur du temple. Son corps brûle ; frappe la tête."
+Pop the King Slime with a Bow,Pop the King Slime with a Bow,Crève le Roi Gluant à l'Arc
+SPLITS!,SPLITS!,SE DIVISE !
+BOILS OVER!,BOILS OVER!,DÉBORDE !
+Warden of the Mouth of the Well,Warden of the Mouth of the Well,Gardien de la Gueule du Puits
+King Slime,King Slime,Roi Gluant
+"A huge slime that bounces, slams and splits.","A huge slime that bounces, slams and splits.","Un gluant colossal qui rebondit, écrase et se divise."
+Beat the Red Samurai at his own game: a Katana,Beat the Red Samurai at his own game: a Katana,Bats le Samouraï Pourpre à son propre jeu : au Katana
+BLAZES!,BLAZES!,S'EMBRASE !
+INFERNO!,INFERNO!,BRASIER !
+Burning Warden of the Temple,Burning Warden of the Temple,Gardien Ardent du Temple
+Red Samurai,Red Samurai,Samouraï Pourpre
+A giant in burning armor. His blade cuts arcs of fire.,A giant in burning armor. His blade cuts arcs of fire.,Un géant en armure embrasée. Sa lame trace des arcs de feu.
+Smite the Sun Wraith with the Templar Sword,Smite the Sun Wraith with the Templar Sword,Châtie le Spectre Solaire avec l'Épée de Templier
+RISES HIGH!,RISES HIGH!,S'ÉLÈVE DANS LES AIRS !
+NOON SUN!,NOON SUN!,SOLEIL DE MIDI !
+Burning Keeper of the Well,Burning Keeper of the Well,Gardien Ardent du Puits
+Sun Wraith,Sun Wraith,Spectre Solaire
+"The sun the kingdom worshipped, buried with it. It burns, blinks and calls its embers.","The sun the kingdom worshipped, buried with it. It burns, blinks and calls its embers.","Le soleil que vénérait le royaume, enseveli avec lui. Il brûle, se téléporte et appelle ses braises."
+Lay the Weeping Spirit to rest with a Wand,Lay the Weeping Spirit to rest with a Wand,Apaise l'Esprit Éploré avec une Baguette
+CALLS THE LOST!,CALLS THE LOST!,APPELLE LES ÉGARÉS !
+SHRIEKS!,SHRIEKS!,HURLE !
+Warden of the Lost,Warden of the Lost,Gardien des Égarés
+Weeping Spirit,Weeping Spirit,L'Esprit Éploré
+A huge ghost made of all the souls it swallowed. Its wail freezes the blood.,A huge ghost made of all the souls it swallowed. Its wail freezes the blood.,"Un spectre immense, fait de toutes les âmes qu'il a englouties. Sa plainte glace le sang."
+The Colossus,The Colossus,Serment du Colosse
+"Start with the Hammer and 30% more max Health, but move 15% slower.","Start with the Hammer and 30% more max Health, but move 15% slower.","Commence avec le Marteau et 30 % de Vie max en plus, mais avance 15 % moins vite."
+The Duelist,The Duelist,Serment du Duelliste
+"Start with the Rapier, +10% critical hit chance, and critical hits deal x2.5 instead of x1.75, but 20% less max Health.","Start with the Rapier, +10% critical hit chance, and critical hits deal x2.5 instead of x1.75, but 20% less max Health.","Commence avec la Rapière, +10 % de chance de coup critique, et les coups critiques infligent x2,5 au lieu de x1,75, mais 20 % de Vie max en moins."
+The Plunderer,The Plunderer,Serment du Pillard
+"35% more gold and better loot, but the merchant charges you 25% more.","35% more gold and better loot, but the merchant charges you 25% more.","35 % d'or en plus et un meilleur butin, mais le marchand te fait payer 25 % de plus."
+The Scholar,The Scholar,Serment de l'Érudit
+"Start with the Book: skills deal 50% more damage, but your attacks are 20% slower.","Start with the Book: skills deal 50% more damage, but your attacks are 20% slower.","Commence avec le Grimoire : les compétences infligent 50 % de Dégâts en plus, mais tes attaques sont 20 % plus lentes."
+Arcane Focus,Arcane Focus,Concentration Arcanique
+Arcane Power,Arcane Power,Puissance Arcanique
+Blazing Roll,Blazing Roll,Roulade Embrasée
+Rolling bursts into flames that hurt and set enemies around on fire.,Rolling bursts into flames that hurt and set enemies around on fire.,Ta roulade s'embrase : les flammes blessent et enflamment les ennemis alentour.
+Bloodrage,Bloodrage,Rage Sanguinaire
+"Below half Health, you deal 20% more damage per level.","Below half Health, you deal 20% more damage per level.","Sous la moitié de ta Vie, tu infliges 20 % de Dégâts en plus par niveau."
+Cold Snap,Cold Snap,Coup de Froid
+Rolling releases a wave of cold that hurts and slows enemies around by 50%.,Rolling releases a wave of cold that hurts and slows enemies around by 50%.,Ta roulade libère une vague de froid qui blesse et ralentit de 50 % les ennemis alentour.
+Devotion,Devotion,Dévotion
+Using a skill (not the roll) heals 3 Health per level.,Using a skill (not the roll) heals 3 Health per level.,Utiliser une compétence (pas la roulade) rend 3 de Vie par niveau.
+Echo,Echo,Écho
+Using a skill has a 15% chance per level to leave it ready again at once (an echo can't echo).,Using a skill has a 15% chance per level to leave it ready again at once (an echo can't echo).,Utiliser une compétence a 15 % de chances par niveau de la rendre aussitôt prête à nouveau (un écho ne fait pas d'écho).
+Fortune,Fortune,Fortune
+Slain monsters have a 12% chance per level to drop extra loot.,Slain monsters have a 12% chance per level to drop extra loot.,Les monstres abattus ont 12 % de chances par niveau de lâcher du butin en plus.
+Frenzy,Frenzy,Frénésie
+Frostbite,Frostbite,Morsure du Givre
+Your hits chill: enemies are 15% slower per level for 2 s.,Your hits chill: enemies are 15% slower per level for 2 s.,Tes coups glacent : les ennemis sont 15 % plus lents par niveau pendant 2 s.
+Ice Shards,Ice Shards,Éclats de Glace
+Slain enemies burst into 4 ice shards (+1 per level) that slow.,Slain enemies burst into 4 ice shards (+1 per level) that slow.,Les ennemis abattus éclatent en 4 éclats de glace (+1 par niveau) qui ralentissent.
+Ignite,Ignite,Embrasement
+"Your hits set enemies on fire: 3 damage per level every half second, for 3 s.","Your hits set enemies on fire: 3 damage per level every half second, for 3 s.","Tes coups enflamment les ennemis : 3 Dégâts par niveau toutes les demi-secondes, pendant 3 s."
+Frost Armor,Frost Armor,Armure de Givre
+Getting hit releases a wave of cold: enemies around you are thrown back and slowed by 40% (once every 3 s).,Getting hit releases a wave of cold: enemies around you are thrown back and slowed by 40% (once every 3 s).,Être touché libère une vague de froid : les ennemis autour de toi sont repoussés et ralentis de 40 % (une fois toutes les 3 s).
+Kindling,Kindling,Petit Bois
+Burning enemies take 20% more damage per level.,Burning enemies take 20% more damage per level.,Les ennemis en feu subissent 20 % de Dégâts en plus par niveau.
+Precision,Precision,Précision
+Your first blow on an unhurt enemy is always a critical hit.,Your first blow on an unhurt enemy is always a critical hit.,Ton premier coup sur un ennemi indemne est toujours un coup critique.
+Shock Roll,Shock Roll,Roulade de Choc
+Rolling releases a shockwave that hurts and pushes enemies away.,Rolling releases a shockwave that hurts and pushes enemies away.,Ta roulade libère une onde de choc qui blesse et repousse les ennemis.
+Strength,Strength,Force
+Swiftness,Swiftness,Vivacité
+"For 1.5 s after a roll, your hits deal 25% more per level.","For 1.5 s after a roll, your hits deal 25% more per level.","Pendant 1,5 s après une roulade, tes coups infligent 25 % de plus par niveau."
+Burning Thorns,Burning Thorns,Épines Ardentes
+Enemies that hit you up close take 4 damage per level and catch fire.,Enemies that hit you up close take 4 damage per level and catch fire.,Les ennemis qui te frappent au corps à corps subissent 4 Dégâts par niveau et prennent feu.
+Thunderclap,Thunderclap,Coup de Tonnerre
+Critical hits release a shockwave that hurts the enemies around the target.,Critical hits release a shockwave that hurts the enemies around the target.,Les coups critiques libèrent une onde de choc qui blesse les ennemis autour de la cible.
+Vampirism,Vampirism,Vampirisme
+Slaying an enemy heals 3 Health per level (summoned monsters don't count).,Slaying an enemy heals 3 Health per level (summoned monsters don't count).,Abattre un ennemi rend 3 de Vie par niveau (les monstres invoqués ne comptent pas).
+Vitality,Vitality,Vitalité
+Executioner,Executioner,Bourreau
++75% damage per level against enemies below 35% Health.,+75% damage per level against enemies below 35% Health.,+75 % de Dégâts par niveau contre les ennemis sous 35 % de Vie.
+Guardian Ring,Guardian Ring,Anneau du Gardien
+Every floor starts with a shell of frost that soaks up 20 damage.,Every floor starts with a shell of frost that soaks up 20 damage.,Chaque étage commence avec une carapace de givre qui absorbe 20 Dégâts.
+Multishot,Multishot,Tir Multiple
+"Everything you shoot fires 1 more projectile per level, fireballs included (2 more at most with Prism runes; the volley shares its damage).","Everything you shoot fires 1 more projectile per level, fireballs included (2 more at most with Prism runes; the volley shares its damage).","Tout ce que tu tires part avec 1 projectile de plus par niveau, boules de feu comprises (2 de plus au maximum avec les runes Prisme ; la salve partage ses Dégâts)."
+Phoenix Feather,Phoenix Feather,Plume de Phénix
+Survive a killing blow once per level: back to half Health with a blast (a quarter during a boss fight).,Survive a killing blow once per level: back to half Health with a blast (a quarter during a boss fight).,Survis à un coup fatal une fois par niveau : tu reviens à la moitié de ta Vie dans une déflagration (un quart pendant un combat de boss).
+Sage's Codex,Sage's Codex,Codex du Sage
+War Banner,War Banner,Bannière de Guerre
+Arcane,Arcane,Arcanes
+Using a skill also fires a ring of 8 arcane bolts.,Using a skill also fires a ring of 8 arcane bolts.,Utiliser une compétence tire aussi un anneau de 8 traits arcaniques.
+Blood,Blood,Sang
+"Below half Health you deal 40% more damage, and every kill heals 4% of your max Health.","Below half Health you deal 40% more damage, and every kill heals 4% of your max Health.","Sous la moitié de ta Vie, tu infliges 40 % de Dégâts en plus, et chaque ennemi abattu rend 4 % de ta Vie max."
+Frost,Frost,Givre
+"Slowed enemies take 50% more damage, and critical hits freeze them solid for a moment.","Slowed enemies take 50% more damage, and critical hits freeze them solid for a moment.","Les ennemis ralentis subissent 50 % de Dégâts en plus, et les coups critiques les figent dans la glace un instant."
+Inferno,Inferno,Brasier
+"Enemies that die burning explode, setting everything around them on fire.","Enemies that die burning explode, setting everything around them on fire.",Les ennemis qui meurent en brûlant explosent et embrasent tout autour d'eux.
+Storm,Storm,Tempête
+"Your attacks are 15% faster, and every 3rd hit, lightning jumps to up to 3 enemies nearby.","Your attacks are 15% faster, and every 3rd hit, lightning jumps to up to 3 enemies nearby.","Tes attaques sont 15 % plus rapides, et tous les 3 coups, un éclair bondit sur jusqu'à 3 ennemis proches."
+Defeat %d bosses,Defeat %d bosses,Terrasse %d boss
+Defeat 1 bosses,Defeat 1 bosses,Terrasse 1 boss
+Open %d chests,Open %d chests,Ouvre %d coffres
+Open 3 chests,Open 3 chests,Ouvre 3 coffres
+Go through %d cursed floor,Go through %d cursed floor,Traverse %d étage maudit
+Go through 1 cursed floor,Go through 1 cursed floor,Traverse 1 étage maudit
+Reach floor %d in one run,Reach floor %d in one run,Atteins l'étage %d en une partie
+Reach floor 4 in one run,Reach floor 4 in one run,Atteins l'étage 4 en une partie
+Slay %d elite monsters,Slay %d elite monsters,Abats %d monstres d'élite
+Slay 3 elite monsters,Slay 3 elite monsters,Abats 3 monstres d'élite
+Meet %d strange encounters,Meet %d strange encounters,Fais %d rencontres étranges
+Meet 2 strange encounters,Meet 2 strange encounters,Fais 2 rencontres étranges
+Go down %d floors,Go down %d floors,Descends de %d étages
+Go down 5 floors,Go down 5 floors,Descends de 5 étages
+Pick up %d gold,Pick up %d gold,Ramasse %d or
+Pick up 150 gold,Pick up 150 gold,Ramasse 150 or
+Slay 40 monsters,Slay 40 monsters,Abats 40 monstres
+Knock %d monsters into holes,Knock %d monsters into holes,Pousse %d monstres dans des trous
+Knock 2 monsters into holes,Knock 2 monsters into holes,Pousse 2 monstres dans des trous
+Defeat 4 bosses,Defeat 4 bosses,Terrasse 4 boss
+Go through %d cursed floors,Go through %d cursed floors,Traverse %d étages maudits
+Go through 4 cursed floors,Go through 4 cursed floors,Traverse 4 étages maudits
+Reach floor 9 in one run,Reach floor 9 in one run,Atteins l'étage 9 en une partie
+Slay 20 elite monsters,Slay 20 elite monsters,Abats 20 monstres d'élite
+Go down 35 floors,Go down 35 floors,Descends de 35 étages
+Pick up 1500 gold,Pick up 1500 gold,Ramasse 1500 or
+Slay 400 monsters,Slay 400 monsters,Abats 400 monstres
+Win %d run,Win %d run,Gagne %d partie
+Win 1 run,Win 1 run,Gagne 1 partie
+Echo Rune,Echo Rune,Rune d'Écho
+Ember Rune,Ember Rune,Rune de Braise
+Hits have a 50% chance to set enemies on fire.,Hits have a 50% chance to set enemies on fire.,Les coups ont 50 % de chances d'enflammer les ennemis.
+Fury Rune,Fury Rune,Rune de Furie
+"Below half Health, +30% damage; every kill heals 2% of your max Health.","Below half Health, +30% damage; every kill heals 2% of your max Health.","Sous la moitié de ta Vie, +30 % de Dégâts ; chaque ennemi abattu rend 2 % de ta Vie max."
+Gale Rune,Gale Rune,Rune de Bourrasque
+Your roll releases a gust that hurts and throws enemies back.,Your roll releases a gust that hurts and throws enemies back.,Ta roulade libère une rafale qui blesse et repousse les ennemis.
+Leech Rune,Leech Rune,Rune de Sangsue
+Your hits heal 10% of the damage they deal (burns and side effects don't).,Your hits heal 10% of the damage they deal (burns and side effects don't).,Tes coups te soignent de 10 % des Dégâts infligés (pas les brûlures ni les effets secondaires).
+Prism Rune,Prism Rune,Rune Prisme
+Your shots and spells fire one more projectile (2 more at most with Multishot; the volley shares its damage).,Your shots and spells fire one more projectile (2 more at most with Multishot; the volley shares its damage).,Tes tirs et tes sorts lancent un projectile de plus (2 de plus au maximum avec Tir Multiple ; la salve partage ses Dégâts).
+Pyre Rune,Pyre Rune,Rune du Bûcher
+Enemies that die burning burst into flames around them.,Enemies that die burning burst into flames around them.,Les ennemis qui meurent en brûlant s'embrasent et enflamment leurs voisins.
+Rime Rune,Rime Rune,Rune de Frimas
+Hits chill enemies: 20% slower for 2 s.,Hits chill enemies: 20% slower for 2 s.,Les coups glacent les ennemis : 20 % plus lents pendant 2 s.
+Shatter Rune,Shatter Rune,Rune de Fracas
+Critical hits release a frost shockwave that hurts the enemies around the target and slows them by 40%.,Critical hits release a frost shockwave that hurts the enemies around the target and slows them by 40%.,Les coups critiques libèrent une onde de givre qui blesse les ennemis autour de la cible et les ralentit de 40 %.
+Spark Rune,Spark Rune,Rune d'Étincelle
+"Every 3rd hit, lightning jumps to 2 enemies.","Every 3rd hit, lightning jumps to 2 enemies.","Tous les 3 coups, un éclair bondit sur 2 ennemis."
+Old Wanderer,Old Wanderer,Vieux Vagabond
+I sell what the Well's victims left behind. No refunds.,I sell what the Well's victims left behind. No refunds.,"Je vends ce que les victimes du Puits ont laissé derrière elles. Ni repris, ni échangé."
+Gold is useless down here... but I like it anyway.,Gold is useless down here... but I like it anyway.,L'or ne sert à rien ici-bas... mais je l'aime quand même.
+Still alive? Good. Dead people don't buy much.,Still alive? Good. Dead people don't buy much.,Toujours en vie ? Tant mieux. Les morts n'achètent pas grand-chose.
+The wardens never come to this room. I wonder why.,The wardens never come to this room. I wonder why.,Les gardiens ne viennent jamais dans cette salle. Je me demande pourquoi.
+Blade,Blade,Lame
+Arcana,Arcana,Arcanes
+"Health, Armor, healing: a hero who lasts.","Health, Armor, healing: a hero who lasts.","Vie, Armure, soins : un héros qui tient bon."
+"Damage, critical hits, speed: a hero who strikes.","Damage, critical hits, speed: a hero who strikes.","Dégâts, coups critiques, vitesse : un héros qui frappe."
+"Skills, spells, tomes: a hero who casts.","Skills, spells, tomes: a hero who casts.",Sorts et grimoires : un héros qui incante.
+"Gold, loot, the merchant, perk choices: a hero who finds.","Gold, loot, the merchant, perk choices: a hero who finds.","Or, butin, marchand, choix d'atouts : un héros qui trouve."
+Call the Embers,Call the Embers,Appel des Braises
+Call the Dead,Call the Dead,Appel des Morts
+Spirit Call,Spirit Call,Appel des Esprits
+Call the Brood,Call the Brood,Appel de la Couvée
+Call the Thieves,Call the Thieves,Appel des Voleurs
+Coil Rush,Coil Rush,Ruée Ondulante
+"Lunges along a line, coils and all.","Lunges along a line, coils and all.","Fond en ligne droite, anneaux compris."
+Lunges twice in a row.,Lunges twice in a row.,Fond deux fois d'affilée.
+Coin Storm,Coin Storm,Pluie de Pièces
+Eye Beam,Eye Beam,Rayon Oculaire
+Feather Storm,Feather Storm,Tempête de Plumes
+Feather Tempest,Feather Tempest,Ouragan de Plumes
+Ring of Fire,Ring of Fire,Anneau de Feu
+Flame Arc,Flame Arc,Arc de Flammes
+Frog Leap,Frog Leap,Bond de Grenouille
+Frost Breath,Frost Breath,Souffle de Givre
+A fan of ice shards: they slow.,A fan of ice shards: they slow.,Un éventail d'éclats de glace : ils ralentissent.
+"Two fans of ice, one after the other.","Two fans of ice, one after the other.","Deux éventails de glace, l'un après l'autre."
+Glacial Dive,Glacial Dive,Plongeon Glacial
+Dives along a line; what it touches is chilled.,Dives along a line; what it touches is chilled.,Plonge en ligne droite ; ce qu'il touche est glacé.
+Dives twice in a row.,Dives twice in a row.,Plonge deux fois d'affilée.
+Hailstorm,Hailstorm,Tempête de Grêle
+Ice bursts out all around it.,Ice bursts out all around it.,La glace jaillit tout autour de lui.
+"Two bursts of ice, the second between the gaps.","Two bursts of ice, the second between the gaps.","Deux salves de glace, la seconde dans les trous de la première."
+Crushing Leap,Crushing Leap,Bond Écrasant
+Poison Spit,Poison Spit,Crachat de Poison
+Quake,Quake,Séisme
+Sandstorm,Sandstorm,Tempête de Sable
+A ring of sand bursts out of it: it slows.,A ring of sand bursts out of it: it slows.,Un anneau de sable jaillit de lui : il ralentit.
+Slime Rain,Slime Rain,Pluie Gluante
+Split,Split,Division
+Slime Storm,Slime Storm,Tempête Gluante
+Solar Flare,Solar Flare,Éruption Solaire
+Gale Step,Gale Step,Pas de la Bourrasque
+Toxic Bloom,Toxic Bloom,Floraison Toxique
+A ring of venom bursts all around it.,A ring of venom bursts all around it.,Un anneau de venin jaillit tout autour de lui.
+"Two rings of venom, the second between the gaps.","Two rings of venom, the second between the gaps.","Deux anneaux de venin, le second dans les trous du premier."
+Venom Spit,Venom Spit,Crachat de Venin
+A fan of venom: it poisons.,A fan of venom: it poisons.,Un éventail de venin : il empoisonne.
+"Two fans of venom, one after the other.","Two fans of venom, one after the other.","Deux éventails de venin, l'un après l'autre."
+Wailing Ring,Wailing Ring,Cercle des Lamentations
+Blink,Blink,Clignement
+Charge,Charge,Charge
+Dive,Dive,Piqué
+Ember Mending,Ember Mending,Soin des Braises
+Gilded Ward,Gilded Ward,Égide Dorée
+Ink Ring,Ink Ring,Anneau d'Encre
+Lay the Brood,Lay the Brood,Ponte de la Couvée
+Mending Light,Mending Light,Lumière Apaisante
+Dark Mending,Dark Mending,Soin Ténébreux
+Mends the shaman and its allies around it.,Mends the shaman and its allies around it.,Soigne le chaman et ses alliés alentour.
+Soul Ward,Soul Ward,Égide des Âmes
+Spore Cloud,Spore Cloud,Nuage de Spores
+Throw Bomb,Throw Bomb,Lancer de Bombe
+Volley,Volley,Salve
+War Cry,War Cry,Cri de Guerre
+War Drum,War Drum,Tambour de Guerre
+Arcane Bolt,Arcane Bolt,Trait Arcanique
+"A slow, heavy bolt that goes through four enemies.","A slow, heavy bolt that goes through four enemies.",Un trait lent et lourd qui transperce quatre ennemis.
+BOLT,BOLT,TRAIT
+Arrow Rain,Arrow Rain,Pluie de Flèches
+"Arrows fall on the area ahead, four times.","Arrows fall on the area ahead, four times.",Des flèches s'abattent quatre fois sur la zone devant toi.
+RAIN,RAIN,PLUIE
+Battle Cry,Battle Cry,Cri de Bataille
++4 ATK and attacks 25% faster for 6 s.,+4 ATK and attacks 25% faster for 6 s.,+4 Dégâts et attaques 25 % plus rapides pendant 6 s.
+CRY,CRY,CRI
+Teleport-dash a long way toward your target.,Teleport-dash a long way toward your target.,Une ruée téléportée sur une longue distance vers ta cible.
+BLINK,BLINK,SAUT
+Cleave,Cleave,Fendoir
+A huge swing in front of you.,A huge swing in front of you.,Un immense coup de taille devant toi.
+CLEAVE,CLEAVE,TAILLE
+Roll,Roll,Roulade
+Quick invulnerable roll in the direction you move.,Quick invulnerable roll in the direction you move.,Une roulade rapide et invulnérable dans la direction où tu vas.
+ROLL,ROLL,ROULE
+Iaido Dash,Iaido Dash,Ruée Iaido
+Dash forward and cut everything on the way.,Dash forward and cut everything on the way.,Fonce en avant et tranche tout sur ton passage.
+DASH,DASH,RUÉE
+Fire Wave,Fire Wave,Vague de Feu
+A wide fan of embers that set enemies on fire.,A wide fan of embers that set enemies on fire.,Un large éventail de braises qui enflamment les ennemis.
+WAVE,WAVE,VAGUE
+Fireball,Fireball,Boule de Feu
+Explodes on impact.,Explodes on impact.,Explose à l'impact.
+FIRE,FIRE,FEU
+Fissure,Fissure,Fissure
+"A crack runs forward, rock spikes bursting along it.","A crack runs forward, rock spikes bursting along it.","Une faille court droit devant, hérissée de pics de roche."
+CRACK,CRACK,FAILLE
+Flurry,Flurry,Rafale
+Three lightning-fast stabs in front of you.,Three lightning-fast stabs in front of you.,Trois coups d'estoc fulgurants devant toi.
+STAB,STAB,ESTOC
+Frost Nova,Frost Nova,Nova de Givre
+Freezing burst around you: enemies are slowed.,Freezing burst around you: enemies are slowed.,Une déflagration glaciale autour de toi : les ennemis sont ralentis.
+FROST,FROST,GIVRE
+Ground Slam,Ground Slam,Frappe Sismique
+Rock spikes burst all around you.,Rock spikes burst all around you.,Des pics de roche jaillissent tout autour de toi.
+SLAM,SLAM,SÉISME
+Holy Light,Holy Light,Lumière Sacrée
+Heals 30% of your Health (half during a boss fight) and burns the enemies around you.,Heals 30% of your Health (half during a boss fight) and burns the enemies around you.,Rend 30 % de ta Vie (moitié moins pendant un combat de boss) et brûle les ennemis autour de toi.
+LIGHT,LIGHT,LUMIÈRE
+Holy Shield,Holy Shield,Bouclier Sacré
++6 Armor for 5 s and heals 8% of your Health (half during a boss fight).,+6 Armor for 5 s and heals 8% of your Health (half during a boss fight).,+6 Armure pendant 5 s et rend 8 % de ta Vie (moitié moins pendant un combat de boss).
+GUARD,GUARD,GARDE
+A fan of ice shards that slow what they hit.,A fan of ice shards that slow what they hit.,Un éventail d'éclats de glace qui ralentissent ce qu'ils touchent.
+ICE,ICE,GLACE
+Kunai Fan,Kunai Fan,Éventail de Kunaïs
+Throw five kunai in a fan.,Throw five kunai in a fan.,Lance cinq kunaïs en éventail.
+KUNAI,KUNAI,KUNAÏ
+Lash,Lash,Coup de Fouet
+"Crack the whip all around you, hurling enemies away.","Crack the whip all around you, hurling enemies away.",Fais claquer le fouet tout autour de toi et projette les ennemis au loin.
+LASH,LASH,FOUET
+Piercing Thrust,Piercing Thrust,Estocade Perçante
+A long lunge that runs through every enemy in line.,A long lunge that runs through every enemy in line.,Une longue fente qui transperce tous les ennemis alignés.
+LUNGE,LUNGE,FENTE
+Riposte,Riposte,Riposte
+"Leap back, then strike faster and deadlier for 3 s.","Leap back, then strike faster and deadlier for 3 s.","Bondis en arrière, puis frappe plus vite et plus fort pendant 3 s."
+RIPOSTE,RIPOSTE,RIPOSTE
+Rock Spike,Rock Spike,Pic de Roche
+Rock spikes burst from the ground in front of you.,Rock spikes burst from the ground in front of you.,Des pics de roche jaillissent du sol devant toi.
+SPIKE,SPIKE,PIC
+Shadow Step,Shadow Step,Pas de l'Ombre
+Leap back and throw three kunai.,Leap back and throw three kunai.,Bondis en arrière et lance trois kunaïs.
+STEP,STEP,OMBRE
+Shuriken Storm,Shuriken Storm,Tempête de Shurikens
+Sixteen shuriken fly out all around you.,Sixteen shuriken fly out all around you.,Seize shurikens volent tout autour de toi.
+STORM,STORM,TEMPÊTE
+Smite,Smite,Châtiment
+Holy strike in front of you that also heals you a little (less during a boss fight).,Holy strike in front of you that also heals you a little (less during a boss fight).,Une frappe sacrée devant toi qui te soigne aussi un peu (moins pendant un combat de boss).
+SMITE,SMITE,CHÂTIE
+Spark Nova,Spark Nova,Nova d'Étincelles
+A ring of sparks flies out in every direction.,A ring of sparks flies out in every direction.,Un anneau d'étincelles jaillit dans toutes les directions.
+NOVA,NOVA,NOVA
+Spear Throw,Spear Throw,Lancer de Javelot
+Throws a spear that goes through three enemies.,Throws a spear that goes through three enemies.,Lance un javelot qui transperce trois ennemis.
+THROW,THROW,JAVELOT
+Sundering Blow,Sundering Blow,Coup Fendeur
+A crushing blow that bursts the ground in front of you.,A crushing blow that bursts the ground in front of you.,Un coup écrasant qui fait éclater le sol devant toi.
+SUNDER,SUNDER,FENDRE
+Thunder,Thunder,Tonnerre
+Lightning strikes ahead of you.,Lightning strikes ahead of you.,La foudre s'abat devant toi.
+Loose five arrows at once.,Loose five arrows at once.,Décoche cinq flèches à la fois.
+VOLLEY,VOLLEY,SALVE
+Whirlwind,Whirlwind,Tourbillon
+Hits every enemy around you and pushes them away.,Hits every enemy around you and pushes them away.,Frappe tous les ennemis autour de toi et les repousse.
+SPIN,SPIN,TOUPIE
+Go down the Well. Bring the souls back. Become who you need to be.,Go down the Well. Bring the souls back. Become who you need to be.,Descends dans le Puits. Ramène les âmes. Deviens qui tu dois être.
+"Under the village of Kagari lies an old well.
+Nobody draws water from it.
+The elders say it has no bottom.","Under the village of Kagari lies an old well.
+Nobody draws water from it.
+The elders say it has no bottom.","Sous le village de Kagari dort un vieux puits.
+Personne n'y puise plus d'eau.
+Les anciens disent qu'il n'a pas de fond."
+"On a night without a moon, the Well woke up.
+A cold wind went through every house...
+By morning, the villagers were asleep, and would not wake.","On a night without a moon, the Well woke up.
+A cold wind went through every house...
+By morning, the villagers were asleep, and would not wake.","Par une nuit sans lune, le Puits s'est éveillé.
+Un vent glacé a traversé chaque maison...
+Au matin, les villageois dormaient, et ne se réveillaient plus."
+"Their souls were gone. Down the Well, where the dead things feed on them.","Their souls were gone. Down the Well, where the dead things feed on them.","Leurs âmes avaient disparu. Au fond du Puits, là où les choses mortes s'en repaissent."
+"Only you were spared: the ninja keeping watch at the shrine,
+with the shrine's lantern in your hand.","Only you were spared: the ninja keeping watch at the shrine,
+with the shrine's lantern in your hand.","Toi seul as été épargné : le ninja qui veillait au sanctuaire,
+la lanterne du sanctuaire à la main."
+"Three wardens guard the stolen souls, deeper and deeper in the Well.","Three wardens guard the stolen souls, deeper and deeper in the Well.","Trois gardiens veillent sur les âmes volées, toujours plus bas dans le Puits."
+"Take the lantern. Go down.
+Every soul you bring back, the shrine turns into strength.
+Sword, spells or faith: become who you need to be.","Take the lantern. Go down.
+Every soul you bring back, the shrine turns into strength.
+Sword, spells or faith: become who you need to be.","Prends la lanterne. Descends.
+Chaque âme que tu ramènes, le sanctuaire la change en force.
+Épée, sorts ou foi : deviens qui tu dois être."
+"The Keeper of the Well falls. Its hoard of stolen souls breaks open,
+and a river of light rises toward Kagari. The village wakes up.
+But the Well goes deeper still...","The Keeper of the Well falls. Its hoard of stolen souls breaks open,
+and a river of light rises toward Kagari. The village wakes up.
+But the Well goes deeper still...","Le Gardien du Puits s'effondre. Son trésor d'âmes volées se brise,
+et un fleuve de lumière remonte vers Kagari. Le village s'éveille.
+Mais le Puits descend plus profond encore..."
+"Your soul joins the others, deep in the Well.","Your soul joins the others, deep in the Well.","Ton âme rejoint les autres, au fond du Puits."
+The lantern goes out... for now.,The lantern goes out... for now.,La lanterne s'éteint... pour l'instant.
+The Well keeps you tonight. The shrine remembers the souls you brought back.,The Well keeps you tonight. The shrine remembers the souls you brought back.,Le Puits te garde cette nuit. Le sanctuaire se souvient des âmes que tu as ramenées.
+"Darkness. Then the shrine's bell, far above. Again.","Darkness. Then the shrine's bell, far above. Again.","Les ténèbres. Puis la cloche du sanctuaire, loin là-haut. Encore une fois."
+The souls you brought back from the Well lend you their strength.,The souls you brought back from the Well lend you their strength.,Les âmes que tu as ramenées du Puits te prêtent leur force.
+Move,Move,Bouger
+Drag your thumb on the left side of the screen to walk.,Drag your thumb on the left side of the screen to walk.,Fais glisser ton pouce sur la gauche de l'écran pour marcher.
+Sealed stairs,Sealed stairs,Escaliers scellés
+The way down is sealed. Slay monsters to break the seal: the count is under the map.,The way down is sealed. Slay monsters to break the seal: the count is under the map.,La voie vers le bas est scellée. Abats des monstres pour briser le sceau : le compte est sous la carte.
+Hold the big button to strike. It aims at the closest enemy by itself.,Hold the big button to strike. It aims at the closest enemy by itself.,Maintiens le gros bouton pour frapper. Il vise tout seul l'ennemi le plus proche.
+Tap Roll to dash the way you walk. Nothing can hurt you mid-roll.,Tap Roll to dash the way you walk. Nothing can hurt you mid-roll.,Touche Roulade pour filer dans la direction où tu marches. Rien ne peut te blesser pendant une roulade.
+Weapon skills,Weapon skills,Compétences d'arme
+"Your weapon has two skills of its own, and every weapon has different ones. Try them!","Your weapon has two skills of its own, and every weapon has different ones. Try them!","Ton arme a deux compétences bien à elle, et chaque arme a les siennes. Essaie-les !"
+Low health,Low health,Vie basse
+Tap a potion on your belt to drink it. Potions are rare: keep them for when it counts.,Tap a potion on your belt to drink it. Potions are rare: keep them for when it counts.,Touche une potion de ta ceinture pour la boire. Les potions sont rares : garde-les pour les moments critiques.
+"Slain monsters free their souls. Between runs, spend them on the Tree of Souls, at the shrine.","Slain monsters free their souls. Between runs, spend them on the Tree of Souls, at the shrine.","Les monstres abattus libèrent leurs âmes. Entre deux parties, dépense-les dans l'Arbre des Âmes, au Sanctuaire."
+"Each level brings a perk. Three perks of one family awaken a bonus. See yours in the Bag, under Perks.","Each level brings a perk. Three perks of one family awaken a bonus. See yours in the Bag, under Perks.","Chaque niveau apporte un atout. Trois atouts d'une même famille éveillent un bonus. Retrouve les tiens dans le Sac, sous Atouts."
+Family bonus,Family bonus,Bonus de famille
+Three of a family: its bonus is yours for the rest of the run.,Three of a family: its bonus is yours for the rest of the run.,Trois atouts d'une famille : son bonus est à toi pour le reste de la partie.
+New gear,New gear,Nouvel équipement
+You picked up gear. Open the Bag to compare it and equip it.,You picked up gear. Open the Bag to compare it and equip it.,Tu as ramassé de l'équipement. Ouvre le Sac pour le comparer et l'équiper.
+Spell,Spell,Sort
+The tome taught you a spell: it has its own button. Reading another tome replaces it.,The tome taught you a spell: it has its own button. Reading another tome replaces it.,Le grimoire t'a appris un sort : il a son propre bouton. Lire un autre grimoire le remplace.
+"Elites have powers, named after them. Tougher, but they drop better loot, and sometimes runes.","Elites have powers, named after them. Tougher, but they drop better loot, and sometimes runes.","Les élites ont des pouvoirs, qui leur donnent leur nom. Plus coriaces, mais ils lâchent un meilleur butin, et parfois des runes."
+Runes go into your weapon's sockets at a smith's forge. Better weapons have more sockets.,Runes go into your weapon's sockets at a smith's forge. Better weapons have more sockets.,"Les runes se sertissent dans les emplacements de ton arme, à la forge d'un forgeron. Les meilleures armes ont plus d'emplacements."
+The forge,The forge,La forge
+Walk up to the anvil to set runes into your weapon. The smith takes them out again for gold.,Walk up to the anvil to set runes into your weapon. The smith takes them out again for gold.,Approche-toi de l'enclume pour sertir des runes dans ton arme. Le forgeron les retire contre de l'or.
+"Walk up to the merchant to spend your gold, or to sell him what you don't need.","Walk up to the merchant to spend your gold, or to sell him what you don't need.","Approche-toi du marchand pour dépenser ton or, ou lui vendre ce dont tu n'as pas besoin."
+Chest,Chest,Coffre
+Walk up to a chest to open it. Careful: some are trapped.,Walk up to a chest to open it. Careful: some are trapped.,Approche-toi d'un coffre pour l'ouvrir. Prudence : certains sont piégés.
+Ambush,Ambush,Embuscade
+"The exits stay shut until every wave is dead. Survive, and a chest appears.","The exits stay shut until every wave is dead. Survive, and a chest appears.","Les sorties restent closes jusqu'à ce que chaque vague soit morte. Survis, et un coffre apparaît."
+Watch the ground: red marks show where it will strike. It changes its attacks as it weakens.,Watch the ground: red marks show where it will strike. It changes its attacks as it weakens.,Surveille le sol : les marques rouges montrent où il va frapper. Il change d'attaques en s'affaiblissant.
+Find the stairs on the map. Tap the map to see the whole floor.,Find the stairs on the map. Tap the map to see the whole floor.,Trouve les escaliers sur la carte. Touche la carte pour voir tout l'étage.
+Two ways down,Two ways down,Deux chemins
+This floor has two stairs. The sign over each tells where it leads: a cursed floor is harder but has better loot.,This floor has two stairs. The sign over each tells where it leads: a cursed floor is harder but has better loot.,Cet étage a deux escaliers. Le panneau au-dessus de chacun indique où il mène : un étage maudit est plus dur mais offre un meilleur butin.
+Souls to spend,Souls to spend,Des âmes à dépenser
+You brought souls back. The shrine's Tree of Souls turns them into lasting upgrades.,You brought souls back. The shrine's Tree of Souls turns them into lasting upgrades.,Tu as ramené des âmes. L'Arbre des Âmes du Sanctuaire les change en améliorations durables.
+The Tree of Souls,The Tree of Souls,L'Arbre des Âmes
+"Tap a node, then Buy. Nodes open from the top down; ""or"": pick one of two. Reset gives all your souls back.","Tap a node, then Buy. Nodes open from the top down; ""or"": pick one of two. Reset gives all your souls back.","Touche un nœud, puis Acheter. Les nœuds s'ouvrent de haut en bas ; « ou » : choisis l'un des deux. Réinitialiser te rend toutes tes âmes."
+Oaths,Oaths,Serments
+"An oath changes your start: a gain and a cost. Pick one or No oath, then Start the run.","An oath changes your start: a gain and a cost. Pick one or No oath, then Start the run.","Un serment change ton départ : un gain et un prix. Choisis-en un ou Aucun serment, puis Commencer la partie."
+Cursed floor,Cursed floor,Étage maudit
+A curse changes this floor's rules. It lasts until you take the stairs.,A curse changes this floor's rules. It lasts until you take the stairs.,Une malédiction change les règles de cet étage. Elle dure jusqu'à ce que tu prennes les escaliers.
+Strange floor,Strange floor,Étage étrange
+Something unusual is going on here: the log on the left tells you what.,Something unusual is going on here: the log on the left tells you what.,Il se passe quelque chose d'inhabituel ici : le journal à gauche te dit quoi.
+"Stay near a campfire to warm up. Frozen, you slow down and get hurt.","Stay near a campfire to warm up. Frozen, you slow down and get hurt.","Reste près d'un feu de camp pour te réchauffer. Gelé, tu ralentis et tu souffres."
+Heat,Heat,Chaleur
+Stay by an oasis to cool down before the heat hurts you.,Stay by an oasis to cool down before the heat hurts you.,Reste près d'une oasis pour te rafraîchir avant que la chaleur ne te blesse.
+Rolling through an attack makes you untouchable for a moment.,Rolling through an attack makes you untouchable for a moment.,Rouler à travers une attaque te rend intouchable un instant.
+A weapon is as strong as the floor it was found on: keep looting.,A weapon is as strong as the floor it was found on: keep looting.,Une arme est aussi forte que l'étage où elle a été trouvée : continue à piller.
+Hold three perks of one family to awaken its bonus.,Hold three perks of one family to awaken its bonus.,Réunis trois atouts d'une même famille pour éveiller son bonus.
+The sign over each stairs tells where it leads. Cursed floors pay better loot.,The sign over each stairs tells where it leads. Cursed floors pay better loot.,Le panneau au-dessus des escaliers indique où ils mènent. Les étages maudits offrent un meilleur butin.
+Elites carry a rank and an affix: read their name before you charge.,Elites carry a rank and an affix: read their name before you charge.,Les élites portent un rang et un affixe : lis leur nom avant de charger.
+"Souls are kept forever. Spend them on the Tree of Souls, at the shrine.","Souls are kept forever. Spend them on the Tree of Souls, at the shrine.","Les âmes sont conservées pour toujours. Dépense-les dans l'Arbre des Âmes, au Sanctuaire."
+Gold only lasts for the run: spend it at the merchant.,Gold only lasts for the run: spend it at the merchant.,L'or ne dure que le temps de la partie : dépense-le chez le marchand.
+A forge sets runes in your weapon for free.,A forge sets runes in your weapon for free.,Une forge sertit gratuitement des runes dans ton arme.
+Bosses wind up their big strikes: step away when they do.,Bosses wind up their big strikes: step away when they do.,Les boss prennent leur élan avant leurs grandes frappes : écarte-toi quand ils le font.
+Lock an item at the merchant: the next one sells it at the same price.,Lock an item at the merchant: the next one sells it at the same price.,Verrouille un objet chez le marchand : le suivant te le vend au même prix.
+"A banish removes a perk you never want to see again, for the whole run.","A banish removes a perk you never want to see again, for the whole run.","Un bannissement retire un atout que tu ne veux plus jamais voir, pour toute la partie."
+"Healing can't out-heal a boss: dodge, don't trade blows.","Healing can't out-heal a boss: dodge, don't trade blows.","Aucun soin ne suit le rythme d'un boss : esquive, n'échange pas les coups."
+Campfires warm you on frozen floors; oases cool you on burning ones.,Campfires warm you on frozen floors; oases cool you on burning ones.,Les feux de camp te réchauffent sur les étages gelés ; les oasis te rafraîchissent sur les étages brûlants.
+"On Easy, every new floor heals you a quarter of your Health.","On Easy, every new floor heals you a quarter of your Health.","En Facile, chaque nouvel étage te rend un quart de ta Vie."
+Arcane Talent,Arcane Talent,Talent Arcanique
+"Your weapons' skills deal more damage, in every run.","Your weapons' skills deal more damage, in every run.","Les compétences de tes armes infligent plus de Dégâts, dans chaque partie."
+Armory,Armory,Armurerie
+"Pick the weapon you start every run with, among those the dungeon holds (before each run).","Pick the weapon you start every run with, among those the dungeon holds (before each run).","Choisis l'arme avec laquelle tu commences chaque partie, parmi celles que recèle le donjon (avant chaque partie)."
+Blood Pact,Blood Pact,Pacte de Sang
+"20% more max Health in every run, but every heal is 30% weaker.","20% more max Health in every run, but every heal is 30% weaker.","20 % de Vie max en plus dans chaque partie, mais chaque soin est 30 % plus faible."
+Cartographer,Cartographer,Cartographe
+"The minimap shows each floor's stairs, merchant and forge from the start.","The minimap shows each floor's stairs, merchant and forge from the start.","La minicarte montre dès le départ les escaliers, le marchand et la forge de chaque étage."
+Exile,Exile,Exil
+One more banish every run: a perk you never want to see again is gone for the run.,One more banish every run: a perk you never want to see again is gone for the run.,Un bannissement de plus par partie : un atout que tu ne veux plus jamais voir disparaît pour la partie.
+Forbidden Library,Forbidden Library,Bibliothèque Interdite
+The Tomes of Thunder and Wind can be found in the dungeon.,The Tomes of Thunder and Wind can be found in the dungeon.,Les Grimoires du Tonnerre et du Vent peuvent apparaître dans le donjon.
+Full Stalls,Full Stalls,Étals Garnis
+The merchant sells 2 more pieces of equipment.,The merchant sells 2 more pieces of equipment.,Le marchand vend 2 pièces d'équipement de plus.
+Quick Hands,Quick Hands,Mains Vives
+"Faster attacks: +4% attack speed per level, in every run.","Faster attacks: +4% attack speed per level, in every run.","Des attaques plus rapides : +4 % de Vitesse d'attaque par niveau, dans chaque partie."
+Haggler,Haggler,Marchandeur
+The merchant's prices are 15% lower.,The merchant's prices are 15% lower.,Les prix du marchand sont 15 % plus bas.
+Loaded Dice,Loaded Dice,Dés Pipés
+One more reroll of the perk cards every run.,One more reroll of the perk cards every run.,Une relance de plus des cartes d'atouts par partie.
+Master Smith,Master Smith,Maître Forgeron
+Plate Armor and the Shadow Cloak can be found in the dungeon.,Plate Armor and the Shadow Cloak can be found in the dungeon.,L'Armure de Plates et la Cape d'Ombre peuvent apparaître dans le donjon.
+Might,Might,Puissance
+"Every hit you land deals more damage, in every run.","Every hit you land deals more damage, in every run.","Chaque coup porté inflige plus de Dégâts, dans chaque partie."
+Oath of the Colossus,Oath of the Colossus,Serment du Colosse
+"Opens this oath: sworn before a run, it changes how you start it.","Opens this oath: sworn before a run, it changes how you start it.","Ouvre ce serment : prêté avant une partie, il change ton départ."
+Oath of the Duelist,Oath of the Duelist,Serment du Duelliste
+Oath of the Plunderer,Oath of the Plunderer,Serment du Pillard
+Oath of the Scholar,Oath of the Scholar,Serment de l'Érudit
+Paladin's Oath,Paladin's Oath,Serment du Paladin
+The Templar Sword (holy skills) can be found in the dungeon.,The Templar Sword (holy skills) can be found in the dungeon.,L'Épée de Templier (compétences sacrées) peut apparaître dans le donjon.
+Keen Eye,Keen Eye,Œil Acéré
+"More critical hits: +2% critical hit chance per level, in every run.","More critical hits: +2% critical hit chance per level, in every run.","Plus de coups critiques : +2 % de chance de coup critique par niveau, dans chaque partie."
+Provisions,Provisions,Provisions
+Start every run with one more health potion per level.,Start every run with one more health potion per level.,Commence chaque partie avec une potion de Vie de plus par niveau.
+Pyromancy,Pyromancy,Pyromancie
+The Ember Tome (fire skills) can be found in the dungeon.,The Ember Tome (fire skills) can be found in the dungeon.,Le Grimoire des Braises (compétences de feu) peut apparaître dans le donjon.
+Quick Recharge,Quick Recharge,Recharge Rapide
+"Skills recharge 4% faster per level, in every run.","Skills recharge 4% faster per level, in every run.","Compétences rechargées 4 % plus vite par niveau, dans chaque partie."
+Regeneration,Regeneration,Régénération
+Heal 5% of your max Health per level each time a floor's stairs open or its boss falls.,Heal 5% of your max Health per level each time a floor's stairs open or its boss falls.,Récupère 5 % de ta Vie max par niveau chaque fois que les escaliers d'un étage s'ouvrent ou que son boss tombe.
+Second Chance,Second Chance,Seconde Chance
+"Start every run with a Phoenix Feather: survive one killing blow (back to half Health, a quarter during a boss fight).","Start every run with a Phoenix Feather: survive one killing blow (back to half Health, a quarter during a boss fight).","Commence chaque partie avec une Plume de Phénix : survis à un coup fatal (retour à la moitié de ta Vie, un quart pendant un combat de boss)."
+"Your hero moves faster, in every run.","Your hero moves faster, in every run.","Ton héros se déplace plus vite, dans chaque partie."
+Satchel of Tomes,Satchel of Tomes,Besace de Grimoires
+"Start every run with a spell tome, at random among those the dungeon holds.","Start every run with a spell tome, at random among those the dungeon holds.","Commence chaque partie avec un grimoire de sort, au hasard parmi ceux que recèle le donjon."
+Toughness,Toughness,Ténacité
+"Armor: the hits you take hurt less, in every run.","Armor: the hits you take hurt less, in every run.","Armure : les coups que tu encaisses font moins mal, dans chaque partie."
+Trophy Hunter,Trophy Hunter,Chasseur de Trophées
+"Elites, Epic and Legendary monsters always drop a Magic (or better) piece of equipment.","Elites, Epic and Legendary monsters always drop a Magic (or better) piece of equipment.","Les monstres d'élite, Épiques et Légendaires lâchent toujours une pièce d'équipement Magique (ou mieux)."
+More max health at the start of every run.,More max health at the start of every run.,Plus de Vie max au début de chaque partie.
+grammar:feminine:Brutal,grammar:feminine:Brutal,Brutale
+grammar:feminine:Burning,grammar:feminine:Burning,Ardente
+grammar:feminine:Fortified,grammar:feminine:Fortified,Renforcée
+grammar:feminine:Frozen,grammar:feminine:Frozen,Glaciale
+grammar:feminine:Light,grammar:feminine:Light,Légère
+grammar:feminine:Precise,grammar:feminine:Precise,Précise
+grammar:feminine:Sharp,grammar:feminine:Sharp,Affûtée
+grammar:feminine:Shattering,grammar:feminine:Shattering,Fracassante
+grammar:feminine:Shocking,grammar:feminine:Shocking,Foudroyante
+grammar:feminine:Sturdy,grammar:feminine:Sturdy,Robuste
+grammar:feminine:Swift,grammar:feminine:Swift,Véloce
+grammar:feminine:Vampiric,grammar:feminine:Vampiric,Vampirique
+grammar:feminine:Venomous,grammar:feminine:Venomous,Venimeuse
+grammar:feminine:Armored,grammar:feminine:Armored,Cuirassée
+grammar:feminine:Explosive,grammar:feminine:Explosive,Explosive
+grammar:feminine:Spiked,grammar:feminine:Spiked,Épineuse
+grammar:gender:Chain Mail,grammar:gender:Chain Mail,f
+grammar:gender:Iron Helm,grammar:gender:Iron Helm,m
+grammar:gender:Leather Armor,grammar:gender:Leather Armor,f
+grammar:gender:Leather Cap,grammar:gender:Leather Cap,f
+grammar:gender:Plate Armor,grammar:gender:Plate Armor,f
+grammar:gender:Shadow Cloak,grammar:gender:Shadow Cloak,f
+grammar:gender:Battle Axe,grammar:gender:Battle Axe,f
+grammar:gender:Greatsword,grammar:gender:Greatsword,m
+grammar:gender:Ember Tome,grammar:gender:Ember Tome,m
+grammar:gender:Bow,grammar:gender:Bow,m
+grammar:gender:War Hammer,grammar:gender:War Hammer,m
+grammar:gender:Katana,grammar:gender:Katana,m
+grammar:gender:Lance,grammar:gender:Lance,f
+grammar:gender:Spark Wand,grammar:gender:Spark Wand,f
+grammar:gender:Ninjaku,grammar:gender:Ninjaku,m
+grammar:gender:Pickaxe,grammar:gender:Pickaxe,f
+grammar:gender:Rapier,grammar:gender:Rapier,f
+grammar:gender:Sai,grammar:gender:Sai,m
+grammar:gender:Shuriken,grammar:gender:Shuriken,m
+grammar:gender:Frost Staff,grammar:gender:Frost Staff,m
+grammar:gender:Templar Sword,grammar:gender:Templar Sword,f
+grammar:gender:Whip,grammar:gender:Whip,m
+grammar:gender:Ash Lizard,grammar:gender:Ash Lizard,m
+grammar:gender:Blue Bat,grammar:gender:Blue Bat,f
+grammar:gender:Horned Beast,grammar:gender:Horned Beast,f
+grammar:gender:Giant Slime,grammar:gender:Giant Slime,m
+grammar:gender:Bomber,grammar:gender:Bomber,m
+grammar:gender:Bone Lizard,grammar:gender:Bone Lizard,m
+grammar:gender:Brood Mother,grammar:gender:Brood Mother,f
+grammar:gender:Cyclops,grammar:gender:Cyclops,m
+grammar:gender:Drakeling,grammar:gender:Drakeling,m
+grammar:gender:Dune Rex,grammar:gender:Dune Rex,m
+grammar:gender:Ember Heart,grammar:gender:Ember Heart,m
+grammar:gender:Watcher,grammar:gender:Watcher,m
+grammar:gender:Flame Spirit,grammar:gender:Flame Spirit,m
+grammar:gender:Frost Skull,grammar:gender:Frost Skull,m
+grammar:gender:Gilded Moth,grammar:gender:Gilded Moth,f
+grammar:gender:Gold Racoon,grammar:gender:Gold Racoon,m
+grammar:gender:Kappa,grammar:gender:Kappa,m
+grammar:gender:Ghost Lantern,grammar:gender:Ghost Lantern,f
+grammar:gender:Acid Larva,grammar:gender:Acid Larva,f
+grammar:gender:Burrower,grammar:gender:Burrower,m
+grammar:gender:Moss Heart,grammar:gender:Moss Heart,m
+grammar:gender:Spore Cap,grammar:gender:Spore Cap,m
+grammar:gender:Ink Octopus,grammar:gender:Ink Octopus,f
+grammar:gender:Night Owl,grammar:gender:Night Owl,m
+grammar:gender:Cave Mouse,grammar:gender:Cave Mouse,f
+grammar:gender:Red Viper,grammar:gender:Red Viper,f
+grammar:gender:Lizardman,grammar:gender:Lizardman,m
+grammar:gender:Sand Drake,grammar:gender:Sand Drake,m
+grammar:gender:Sand Drummer,grammar:gender:Sand Drummer,m
+grammar:gender:Fire Shaman,grammar:gender:Fire Shaman,m
+grammar:gender:Shell Guard,grammar:gender:Shell Guard,m
+grammar:gender:Skeleton,grammar:gender:Skeleton,m
+grammar:gender:Flying Skull,grammar:gender:Flying Skull,m
+grammar:gender:Slime,grammar:gender:Slime,m
+grammar:gender:Viper,grammar:gender:Viper,f
+grammar:gender:Dark Sorcerer,grammar:gender:Dark Sorcerer,m
+grammar:gender:Soul Moth,grammar:gender:Soul Moth,f
+grammar:gender:Red Spider,grammar:gender:Red Spider,f
+grammar:gender:Spirit,grammar:gender:Spirit,m
+grammar:gender:Stone Mole,grammar:gender:Stone Mole,f
+grammar:gender:Thief Racoon,grammar:gender:Thief Racoon,m
+grammar:gender:Azure Wyrm,grammar:gender:Azure Wyrm,f
+grammar:gender:Crimson Tengu,grammar:gender:Crimson Tengu,m
+grammar:gender:Demon Cyclops,grammar:gender:Demon Cyclops,m
+grammar:gender:Giant Frog,grammar:gender:Giant Frog,f
+grammar:gender:Gilded Hoarder,grammar:gender:Gilded Hoarder,m
+grammar:gender:Jade Wyrm,grammar:gender:Jade Wyrm,f
+grammar:gender:King Slime,grammar:gender:King Slime,m
+grammar:gender:Red Samurai,grammar:gender:Red Samurai,m
+grammar:gender:Sun Wraith,grammar:gender:Sun Wraith,m
+grammar:gender:Weeping Spirit,grammar:gender:Weeping Spirit,m

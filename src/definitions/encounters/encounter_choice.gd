@@ -23,11 +23,11 @@ func max_hp_lost(player: Player) -> int:
 
 ## Button text with its price, e.g. "Pay (36 gold)".
 func describe(player: Player, depth: int) -> String:
-	var parts := PackedStringArray([label])
+	var parts := PackedStringArray([tr(label)])
 	if gold_cost > 0:
-		parts.append("(%d gold)" % cost_in_gold(depth))
+		parts.append(tr("(%d gold)") % cost_in_gold(depth))
 	if max_hp_cost > 0.0:
-		parts.append("(-%d max health)" % max_hp_lost(player))
+		parts.append(tr("(-%d max health)") % max_hp_lost(player))
 	return " ".join(parts)
 
 
@@ -35,18 +35,18 @@ func describe(player: Player, depth: int) -> String:
 func cost_text(player: Player, depth: int) -> String:
 	var parts := PackedStringArray()
 	if gold_cost > 0:
-		parts.append("%d gold" % cost_in_gold(depth))
+		parts.append(tr("%d gold") % cost_in_gold(depth))
 	if max_hp_cost > 0.0:
-		parts.append("%d max health, for the rest of the run" % max_hp_lost(player))
-	return "Free" if parts.is_empty() else "Costs " + " and ".join(parts)
+		parts.append(tr("%d max health, for the rest of the run") % max_hp_lost(player))
+	return tr("Free") if parts.is_empty() else tr("Costs %s") % tr(" and ").join(parts)
 
 
 ## Why it can't be chosen now ("" if it can).
 func cannot_afford_reason(player: Player, depth: int) -> String:
 	if player.gold < cost_in_gold(depth):
-		return "Not enough gold (%d more)" % (cost_in_gold(depth) - player.gold)
+		return tr("Not enough gold (%d more)") % (cost_in_gold(depth) - player.gold)
 	if player.base_stats.max_hp - max_hp_lost(player) < 10:
-		return "Your max health is too low"
+		return tr("Your max health is too low")
 	return ""
 
 

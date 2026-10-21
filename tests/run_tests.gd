@@ -28,6 +28,9 @@ func _ready() -> void:
 	# Hints would pop up all over the other tests (the tutorial tests turn them on).
 	Settings.tutorial_hints = false
 	Settings.path = ""
+	# The checks read English texts, whatever the machine's (or the saved) language.
+	Settings.language = "en"
+	Settings.apply()
 	RunSave.path = "user://test_run_%d.json" % OS.get_process_id()  # one per test process
 	RunSave.erase()
 	var only := _only()

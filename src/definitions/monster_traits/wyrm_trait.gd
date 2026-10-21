@@ -23,4 +23,4 @@ func on_spawn(monster: Monster) -> void:
 
 
 func describe() -> String:
-	return "Its long body burns at a touch: only the head can be hurt"
+	return tr("Its long body burns at a touch: only the head can be hurt")

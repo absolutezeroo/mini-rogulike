@@ -31,6 +31,7 @@ func run() -> void:
 	_test_run_time()
 	_test_floor_size()
 	_test_plateau_mist()
+	_test_languages()
 
 
 ## Speedrun times: how they read, the splits, the save, the records.
@@ -1255,3 +1256,70 @@ func _test_plateau_mist() -> void:
 		var theme: DungeonTheme = load("res://data/dungeon/themes/" + theme_path)
 		check(theme.mist_density > 0.3 and theme.mist_density <= 1.0 and theme.mist_wisp.get_luminance() > theme.mist_deep.get_luminance(), "%s has its mist (darker depths, lighter wisps)" % theme_path)
 
+
+
+## The languages: the translations load, every text has its French, tr() follows the locale
+## (code texts, data texts, the grammar of rolled names), the setting persists. Back to English.
+func _test_languages() -> void:
+	var file := FileAccess.open("res://locale/strings.csv", FileAccess.READ)
+	check(file != null, "languages: locale/strings.csv is there")
+	if file == null:
+		return
+	var header := file.get_csv_line()
+	check(Array(header) == ["keys", "en", "fr"], "languages: the CSV's columns are keys, en, fr (%s)" % header)
+	var rows := 0
+	var missing := PackedStringArray()
+	var broken := PackedStringArray()
+	var codes := RegEx.create_from_string("%[-+0#]*\\d*(?:\\.\\d+)?[a-zA-Z%]|\\{\\w+\\}")
+	while not file.eof_reached():
+		var row := file.get_csv_line()
+		if row.size() < 3 or row[0].is_empty():
+			continue
+		rows += 1
+		if row[2].strip_edges().is_empty():
+			missing.append(row[0])
+		elif row[0].begins_with(" ") != row[2].begins_with(" ") or row[0].ends_with(" ") != row[2].ends_with(" "):
+			broken.append(row[0])  # " and " joins words: its spaces matter
+		elif not row[0].begins_with("grammar:") and _codes(codes, row[0]) != _codes(codes, row[2]) and not row[0].contains("{rarity}"):
+			broken.append(row[0])
+	check(rows > 1000, "languages: the CSV holds the game's texts (%d)" % rows)
+	check(missing.is_empty(), "languages: every text has its French (missing: %s)" % ", ".join(missing.slice(0, 5)))
+	check(broken.is_empty(), "languages: the French keeps the numbers' places (%s)" % ", ".join(broken.slice(0, 5)))
+	check(TranslationServer.get_loaded_locales().has("fr"), "languages: the French translation is loaded")
+
+	TranslationServer.set_locale("fr")
+	check(tr("Level up!") == "Niveau supérieur !", "languages: tr() in French (%s)" % tr("Level up!"))
+	check(tr("Seal  %d / %d") % [3, 7] == "Sceau  3 / 7", "languages: a format, translated then filled")
+	var skeleton: MonsterDef = load("res://data/monsters/skeleton.tres")
+	check(tr(skeleton.display_name) == "Squelette", "languages: a monster's name (%s)" % tr(skeleton.display_name))
+	var vampirism := _perk("vampirism")
+	check(vampirism != null and vampirism.describe().begins_with("Abattre un ennemi rend 3 de Vie"), "languages: a perk's description (%s)" % (vampirism.describe() if vampirism else "?"))
+	var hint := CONTENT.tutorial.hint(&"move")
+	check(hint != null and tr(hint.text).begins_with("Fais glisser ton pouce"), "languages: a tutorial hint")
+	check(LootRoller.rolled_name("Battle Axe", "Sharp", "of the Bear") == "Hache de Guerre Affûtée de l'Ours", "languages: a rolled name agrees in French (%s)" % LootRoller.rolled_name("Battle Axe", "Sharp", "of the Bear"))
+	check(LootRoller.rolled_name("Katana", "Sharp", "") == "Katana Affûté", "languages: ...and with a masculine item")
+	var stats := StatBlock.from_dict({ "attack": 3, "cooldown_reduction": 0.05 })
+	check(stats.describe() == "+3 Dégâts, compétences rechargées 5 % plus vite", "languages: stats in plain French words (%s)" % stats.describe())
+	TranslationServer.set_locale("en")
+	check(tr("Level up!") == "Level up!", "languages: tr() back in English")
+	check(LootRoller.rolled_name("Battle Axe", "Sharp", "of the Bear") == "Sharp Battle Axe of the Bear", "languages: a rolled name in English")
+
+	# The setting: picked, applied, saved and read back.
+	var path := "user://test_settings_%d.cfg" % OS.get_process_id()
+	Settings.path = path
+	Settings.set_option(&"language", "fr")
+	check(TranslationServer.get_locale() == "fr", "languages: the setting changes the locale")
+	Settings.language = "en"
+	Settings.load_settings()
+	check(Settings.language == "fr", "languages: the setting is saved")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+	Settings.path = ""
+	Settings.set_option(&"language", "en")
+	check(TranslationServer.get_locale() == "en" and Settings.language == "en", "languages: back to English for the other tests")
+	check(Settings.device_language() in Settings.LANGUAGES, "languages: the first launch follows the phone's language")
+
+
+func _codes(pattern: RegEx, text: String) -> Array:
+	var found := pattern.search_all(text).map(func(m: RegExMatch) -> String: return m.get_string())
+	found.sort()
+	return found

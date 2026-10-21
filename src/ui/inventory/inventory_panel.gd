@@ -87,7 +87,7 @@ func _unhandled_input(event: InputEvent) -> void:
 # --- Display -----------------------------------------------------------------
 
 func _refresh() -> void:
-	_perks_button.text = "Perks (%d)" % _player.perks.entries.size()
+	_perks_button.text = tr("Perks (%d)") % _player.perks.entries.size()
 	for slot: EquipmentDef.Slot in _slot_buttons:
 		var button: ItemSlot = _slot_buttons[slot]
 		button.item = _player.equipment.get_item(slot)
@@ -97,12 +97,12 @@ func _refresh() -> void:
 		button.item = _player.belt.item_at(i)
 		button.count = _player.belt.count_at(i)
 		button.selected = _selected_belt == i
-	_gold.text = "Gold %d" % _player.gold
+	_gold.text = tr("Gold %d") % _player.gold
 	_portrait.texture = _hero_picture()
 	_fill_stats()
 
 	var inventory := _player.inventory
-	_bag_title.text = "Bag  %d / %d" % [inventory.items.size(), inventory.capacity]
+	_bag_title.text = tr("Bag  %d / %d") % [inventory.items.size(), inventory.capacity]
 	for child in _item_grid.get_children():
 		_item_grid.remove_child(child)
 		child.queue_free()
@@ -130,15 +130,15 @@ func _fill_stats() -> void:
 		child.queue_free()
 	var stats := _player.get_stats()
 	var lines := [
-		["Level", str(_player.level)],
-		["Health", "%d / %d" % [_player.hp, _player.get_max_hp()]],
-		["Damage", str(_player.get_power())],
-		["Armor", str(stats.defense)],
-		["Move speed", str(roundi(stats.move_speed))],
-		["Critical hits", "%d%%" % roundi(stats.crit_chance * 100.0)],
-		["Attack speed", "%+d%%" % roundi(stats.attack_speed * 100.0)],
-		["Skill damage", "%+d%%" % roundi(stats.skill_power * 100.0)],
-		["Skill recharge", "%+d%%" % roundi(minf(stats.cooldown_reduction, SkillSet.MAX_COOLDOWN_REDUCTION) * 100.0)],
+		[tr("Level"), str(_player.level)],
+		[tr("Health"), "%d / %d" % [_player.hp, _player.get_max_hp()]],
+		[tr("Damage"), str(_player.get_power())],
+		[tr("Armor"), str(stats.defense)],
+		[tr("Move speed"), str(roundi(stats.move_speed))],
+		[tr("Critical hits"), tr("%d%%") % roundi(stats.crit_chance * 100.0)],
+		[tr("Attack speed"), tr("%+d%%") % roundi(stats.attack_speed * 100.0)],
+		[tr("Skill damage"), tr("%+d%%") % roundi(stats.skill_power * 100.0)],
+		[tr("Skill recharge"), tr("%+d%%") % roundi(minf(stats.cooldown_reduction, SkillSet.MAX_COOLDOWN_REDUCTION) * 100.0)],
 	]
 	for line: Array in lines:
 		_stats.add_child(UiSkin.label(line[0], 15, UiSkin.DIM))
@@ -180,31 +180,31 @@ func _refresh_details() -> void:
 	_drop_button.visible = item != null and _selected_slot == NO_SLOT and _selected_belt == NO_SLOT
 	# Consumables move between the belt and the bag.
 	_belt_button.visible = item is ConsumableDef and (_selected_belt != NO_SLOT or _player.belt.can_add(item))
-	_belt_button.text = "To bag" if _selected_belt != NO_SLOT else "To belt"
+	_belt_button.text = tr("To bag") if _selected_belt != NO_SLOT else tr("To belt")
 	_card_slot.item = item
 	_card_slot.count = _player.belt.count_at(_selected_belt) if _selected_belt != NO_SLOT else 1
 	for child in _sockets.get_children():
 		_sockets.remove_child(child)
 		child.queue_free()
 	if item == null:
-		_item_name.text = "Pick an item"
+		_item_name.text = tr("Pick an item")
 		_item_name.add_theme_color_override("font_color", UiSkin.GOLD)
-		_item_type.text = "Tap a slot to see what it does."
+		_item_type.text = tr("Tap a slot to see what it does.")
 		_item_details.text = ""
 		return
-	_item_name.text = item.display_name
+	_item_name.text = tr(item.display_name)
 	_item_name.add_theme_color_override("font_color", item.rarity_color())
 	_item_type.text = item.get_type_label()
 	_item_details.text = item.get_details() + _compare_text(item)
 	_fill_sockets(item as EquipmentDef)
 	if _selected_slot != NO_SLOT:
-		_use_button.text = "Unequip"
+		_use_button.text = tr("Unequip")
 	elif item is EquipmentDef:
-		_use_button.text = "Equip"
+		_use_button.text = tr("Equip")
 	elif item is SkillTomeDef:
-		_use_button.text = "Learn"
+		_use_button.text = tr("Learn")
 	else:
-		_use_button.text = "Use"
+		_use_button.text = tr("Use")
 
 
 ## Equipment in the bag: what wearing it would change ("Compared with your Katana: +3 item
@@ -217,19 +217,19 @@ func _compare_text(item: ItemDef) -> String:
 	if worn == equipment:
 		return ""
 	var changes := ItemCompare.lines(equipment, worn).map(func(change: Dictionary) -> String: return change.text)
-	return "\n\n%s %s" % [ItemCompare.heading(equipment, worn), ", ".join(changes) if not changes.is_empty() else "the same stats"]
+	return "\n\n%s %s" % [ItemCompare.heading(equipment, worn), ", ".join(changes) if not changes.is_empty() else tr("the same stats")]
 
 
 ## A weapon's rune sockets, as slots (set at a forge).
 func _fill_sockets(equipment: EquipmentDef) -> void:
 	if equipment == null or equipment.socket_count() <= 0:
 		return
-	_sockets.add_child(UiSkin.label("Runes", 15, UiSkin.DIM))
+	_sockets.add_child(UiSkin.label(tr("Runes"), 15, UiSkin.DIM))
 	for i in equipment.socket_count():
 		var socket := ItemSlot.new(46.0)
 		socket.item = equipment.runes[i] if i < equipment.runes.size() else null
 		socket.caption = "-"
-		socket.tooltip_text = socket.item.description if socket.item else "An empty socket: a forge sets runes in it."
+		socket.tooltip_text = tr(socket.item.description) if socket.item else tr("An empty socket: a forge sets runes in it.")
 		socket.mouse_filter = Control.MOUSE_FILTER_PASS
 		_sockets.add_child(socket)
 
@@ -303,13 +303,13 @@ func _on_drop_pressed() -> void:
 # --- Building ----------------------------------------------------------------
 
 func _build() -> void:
-	_window = RpgWindow.new("Inventory")
+	_window = RpgWindow.new(tr("Inventory"))
 	_window.close_requested.connect(close)
 	add_child(_window)
 	_gold = UiSkin.label("", 22, UiSkin.GOLD)
 	_window.header_right.add_child(_gold)
 	_perks_button = Button.new()
-	_perks_button.text = "Perks"
+	_perks_button.text = tr("Perks")
 	_perks_button.focus_mode = Control.FOCUS_NONE
 	_perks_button.custom_minimum_size = Vector2(140, 48)
 	_perks_button.pressed.connect(open_build)
@@ -326,7 +326,7 @@ func _build() -> void:
 	_window.body.add_child(columns)
 
 	# Left: the hero, what they wear, the belt, their stats.
-	var hero: Dictionary = RpgWindow.section("Hero")
+	var hero: Dictionary = RpgWindow.section(tr("Hero"))
 	(hero.box as Control).custom_minimum_size.x = 330
 	columns.add_child(hero.box)
 	var gear_row := HBoxContainer.new()
@@ -340,13 +340,13 @@ func _build() -> void:
 	gear_row.add_child(_portrait)
 	for slot: EquipmentDef.Slot in [EquipmentDef.Slot.WEAPON, EquipmentDef.Slot.HEAD, EquipmentDef.Slot.BODY]:
 		var button := ItemSlot.new(GEAR_SLOT)
-		button.caption = EquipmentDef.SLOT_NAMES[slot]
+		button.caption = tr(EquipmentDef.SLOT_NAMES[slot])
 		button.name = "%sSlot" % EquipmentDef.SLOT_NAMES[slot]
 		button.pressed.connect(_select_slot.bind(slot))
 		_own(button)
 		gear_row.add_child(button)
 		_slot_buttons[slot] = button
-	hero.column.add_child(UiSkin.label("Belt", 17, UiSkin.GOLD))
+	hero.column.add_child(UiSkin.label(tr("Belt"), 17, UiSkin.GOLD))
 	var belt_row := HBoxContainer.new()
 	belt_row.add_theme_constant_override("separation", 8)
 	hero.column.add_child(belt_row)
@@ -366,7 +366,7 @@ func _build() -> void:
 	hero.column.add_child(_stats)
 
 	# Middle: the bag.
-	var bag: Dictionary = RpgWindow.section("Bag")
+	var bag: Dictionary = RpgWindow.section(tr("Bag"))
 	_bag_title = bag.title
 	columns.add_child(bag.box)
 	var scroll := ScrollContainer.new()
@@ -383,7 +383,7 @@ func _build() -> void:
 	scroll.add_child(_item_grid)
 
 	# Right: the picked item.
-	var card: Dictionary = RpgWindow.section("Item", true)
+	var card: Dictionary = RpgWindow.section(tr("Item"), true)
 	(card.box as Control).size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	columns.add_child(card.box)
 	(card.title as Label).hide()
@@ -415,11 +415,11 @@ func _build() -> void:
 	var actions := HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 8)
 	card.column.add_child(actions)
-	_use_button = _action("Use", "UseButton", _on_use_pressed)
+	_use_button = _action(tr("Use"), "UseButton", _on_use_pressed)
 	actions.add_child(_use_button)
-	_belt_button = _action("To belt", "BeltButton", _on_belt_pressed)
+	_belt_button = _action(tr("To belt"), "BeltButton", _on_belt_pressed)
 	actions.add_child(_belt_button)
-	_drop_button = _action("Drop", "DropButton", _on_drop_pressed)
+	_drop_button = _action(tr("Drop"), "DropButton", _on_drop_pressed)
 	actions.add_child(_drop_button)
 	for node in _named:
 		node.owner = self

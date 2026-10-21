@@ -85,18 +85,23 @@ func reset_tree() -> bool:
 ## The words for a node: what it does now and next (UpgradeRow's), and the oath's rule.
 static func status_of(node: SoulNodeDef) -> String:
 	if node.oath:
-		return ("Sworn before a run: " if node.is_owned() else "Opens: ") + node.oath.description
+		return (TranslationServer.tr("Sworn before a run: %s") if node.is_owned() else TranslationServer.tr("Opens: %s")) % TranslationServer.tr(node.oath.description)
 	return UpgradeRow.status_text(node.upgrade, node.level())
 
 
 func _refresh() -> void:
 	if _tree == null:
 		return
-	_souls.text = "Souls %d" % Profile.souls
+	_souls.text = tr("Souls %d") % Profile.souls
 	_view.refresh()
 	var spent := _tree.spent()
 	_reset.disabled = spent <= 0
-	_reset_text.text = "Every soul spent comes back (%d)%s." % [spent, ", for free" if _tree.reset_cost <= 0 else ", minus %d" % _tree.reset_cost] if spent > 0 else "Nothing bought yet."
+	if spent <= 0:
+		_reset_text.text = tr("Nothing bought yet.")
+	elif _tree.reset_cost <= 0:
+		_reset_text.text = tr("Every soul spent comes back (%d), for free.") % spent
+	else:
+		_reset_text.text = tr("Every soul spent comes back (%d), minus %d.") % [spent, _tree.reset_cost]
 	var node := _picked
 	if node == null:
 		return
@@ -106,33 +111,34 @@ func _refresh() -> void:
 	var color := node.oath.color if node.oath else upgrade.color
 	_name.add_theme_color_override("font_color", color.lerp(Color.WHITE, 0.35))
 	var branch_color := _tree.branch_colors[node.branch] if node.branch < _tree.branch_colors.size() else UiSkin.DIM
-	_branch.text = "%s branch%s" % [_tree.branches[node.branch] if node.branch < _tree.branches.size() else "", "  -  pick one of two" if node.partner() else ""]
+	var branch_name := tr(_tree.branches[node.branch]) if node.branch < _tree.branches.size() else ""
+	_branch.text = (tr("%s branch  -  pick one of two") if node.partner() else tr("%s branch")) % branch_name
 	_branch.add_theme_color_override("font_color", branch_color.lerp(Color.WHITE, 0.3))
-	_level.text = UpgradeRow.level_text(upgrade, node.level()) if not node.oath else ("Oath open" if node.is_owned() else "Oath locked")
-	_text.text = (node.oath.description if node.oath else UpgradeRow.description_of(upgrade))
-	_status.text = status_of(node) if not node.oath else ("Pick it before a run, after the difficulty." if node.is_owned() else "")
+	_level.text = UpgradeRow.level_text(upgrade, node.level()) if not node.oath else (tr("Oath open") if node.is_owned() else tr("Oath locked"))
+	_text.text = (tr(node.oath.description) if node.oath else UpgradeRow.description_of(upgrade))
+	_status.text = status_of(node) if not node.oath else (tr("Pick it before a run, after the difficulty.") if node.is_owned() else "")
 	_status.visible = not _status.text.is_empty()
 	var blocker := node.blocker()
 	_blocker.text = blocker
 	_blocker.visible = not blocker.is_empty()
 	if node.is_maxed():
-		_buy.text = "Owned" if node.max_level() <= 1 else "Maxed"
+		_buy.text = tr("Owned") if node.max_level() <= 1 else tr("Maxed")
 		_buy.disabled = true
 	elif not blocker.is_empty():
-		_buy.text = "Locked"
+		_buy.text = tr("Locked")
 		_buy.disabled = true
 	elif Profile.can_buy_node(node):
-		_buy.text = "Buy  -  %d souls" % node.next_cost()
+		_buy.text = tr("Buy  -  %d souls") % node.next_cost()
 		_buy.disabled = false
 	else:
-		_buy.text = "Need %d souls" % node.next_cost()
+		_buy.text = tr("Need %d souls") % node.next_cost()
 		_buy.disabled = true
 
 
 # --- Building -----------------------------------------------------------------------
 
 func _build() -> void:
-	_window = MenuWindow.new("The Shrine: Tree of Souls")
+	_window = MenuWindow.new(tr("The Shrine: Tree of Souls"))
 	_window.close_requested.connect(close)
 	add_child(_window)
 	var scene_owner: Node = owner if owner != null else self
@@ -171,7 +177,7 @@ func _build() -> void:
 	MenuWindow.expose(_view, "TreeView", scene_owner)
 
 	# Right: the picked node.
-	var right: Dictionary = RpgWindow.section("The node")
+	var right: Dictionary = RpgWindow.section(tr("The node"))
 	(right.box as Control).custom_minimum_size.x = DETAIL_WIDTH
 	columns.add_child(right.box)
 	var column: VBoxContainer = right.column
@@ -216,13 +222,13 @@ func _build() -> void:
 	text.add_child(_status)
 	_blocker = UiSkin.label("", 15, MenuWindow.BAD, true)
 	text.add_child(_blocker)
-	var legend := UiSkin.label("Gold ring: bought. Glowing: you can buy it. Dark: buy a node above it first. \"or\": pick one of the two. ?: a feat opens it.", 13, UiSkin.DIM, true)
+	var legend := UiSkin.label(tr("Gold ring: bought. Glowing: you can buy it. Dark: buy a node above it first. \"or\": pick one of the two. ?: a feat opens it."), 13, UiSkin.DIM, true)
 	text.add_child(legend)
 	_buy = MenuWindow.button("", 19, 58)
 	_buy.pressed.connect(buy_picked)
 	column.add_child(_buy)
 	MenuWindow.expose(_buy, "BuyButton", scene_owner)
-	_reset = MenuWindow.button("Reset the tree", 16, 44)
+	_reset = MenuWindow.button(tr("Reset the tree"), 16, 44)
 	_reset.pressed.connect(reset_tree)
 	column.add_child(_reset)
 	MenuWindow.expose(_reset, "ResetButton", scene_owner)

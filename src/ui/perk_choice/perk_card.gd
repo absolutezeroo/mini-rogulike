@@ -20,10 +20,10 @@ var completes := false
 
 func show_perk(perk: PerkDef, owned: PerkSet) -> void:
 	var owned_stacks := owned.stacks_of(perk)
-	_rarity.text = "RELIC" if perk.rarity == PerkDef.Rarity.RARE else ""
+	_rarity.text = tr("RELIC") if perk.rarity == PerkDef.Rarity.RARE else ""
 	_rarity.visible = perk.rarity == PerkDef.Rarity.RARE
 	_icon.texture = perk.icon
-	_name.text = perk.display_name
+	_name.text = tr(perk.display_name)
 	_name.add_theme_color_override("font_color", perk.color.lerp(Color.WHITE, 0.4))
 	_level.text = level_text(owned_stacks, perk.max_stacks)
 	_description.text = perk.describe()
@@ -38,8 +38,8 @@ func show_perk(perk: PerkDef, owned: PerkSet) -> void:
 ## "New perk  (up to level 3)", "Level 1 > 2  (max 3)", "New relic".
 static func level_text(owned_stacks: int, max_stacks: int) -> String:
 	if owned_stacks == 0:
-		return "New perk" if max_stacks == 1 else "New perk  (up to level %d)" % max_stacks
-	return "Level %d > %d  (max %d)" % [owned_stacks, owned_stacks + 1, max_stacks]
+		return TranslationServer.tr("New perk") if max_stacks == 1 else TranslationServer.tr("New perk  (up to level %d)") % max_stacks
+	return TranslationServer.tr("Level %d > %d  (max %d)") % [owned_stacks, owned_stacks + 1, max_stacks]
 
 
 ## What the card's family means, spelled out: its name and how many of its perks you hold (with
@@ -73,18 +73,21 @@ static func family_box(synergy: SynergyDef, owned: PerkSet, perk: PerkDef) -> Pa
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	head.add_child(icon)
-	var title := _label("%s family" % synergy.display_name, 15, synergy.color.lerp(Color.WHITE, 0.35))
+	var family_name := TranslationServer.tr(synergy.display_name)
+	var bonus := TranslationServer.tr(synergy.description)
+	var title := _label(TranslationServer.tr("%s family") % family_name, 15, synergy.color.lerp(Color.WHITE, 0.35))
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(title)
 	head.add_child(Pips.new(mini(after, synergy.pieces) if not awake else synergy.pieces, synergy.pieces, synergy.color))
 	var text := ""
 	if wakes:
-		text = "This one makes %d/%d: the family bonus AWAKENS!\n%s" % [synergy.pieces, synergy.pieces, synergy.description]
+		text = TranslationServer.tr("This one makes %d/%d: the family bonus AWAKENS!") % [synergy.pieces, synergy.pieces] + "\n" + bonus
 	elif awake:
-		text = "%s: %s" % ["Bonus active" if perk == null else "Bonus already active", synergy.description]
+		text = (TranslationServer.tr("Bonus active: %s") if perk == null else TranslationServer.tr("Bonus already active: %s")) % bonus
 	else:
 		var missing := synergy.pieces - after
-		text = "%d more %s perk%s to awaken its bonus: %s" % [missing, synergy.display_name, "" if missing == 1 else "s", synergy.description]
+		var more := TranslationServer.tr("%d more %s perk to awaken its bonus: %s") if missing == 1 else TranslationServer.tr("%d more %s perks to awaken its bonus: %s")
+		text = more % [missing, family_name, bonus]
 	var words := _label(text, 13, Color(1, 1, 1, 0.95) if wakes else Color(1, 0.95, 0.88, 0.78))
 	words.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	words.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT

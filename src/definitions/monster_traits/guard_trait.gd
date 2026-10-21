@@ -50,7 +50,7 @@ func incoming_damage(monster: Monster, hit: HitInfo, damage: int) -> int:
 	var world := monster.world
 	Vfx.hit(world, monster.global_position + from * monster.radius, from, color)
 	Sfx.play_at(Sfx.bank.projectile_impact, monster.global_position, -2.0, 1.4)
-	world.spawn_floating_text(monster.head_position() + Vector2(0, -8), "Blocked", color)
+	world.spawn_floating_text(monster.head_position() + Vector2(0, -8), tr("Blocked"), color)
 	return maxi(1, roundi(damage * (1.0 - block)))
 
 
@@ -62,4 +62,4 @@ func draw_under(monster: Monster, canvas: CanvasItem) -> void:
 
 
 func describe() -> String:
-	return "Blocks %d%% of the blows from the front." % roundi(block * 100.0)
+	return tr("Blocks %d%% of the blows from the front.") % roundi(block * 100.0)

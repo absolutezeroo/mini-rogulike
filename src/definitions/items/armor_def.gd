@@ -11,4 +11,4 @@ extends EquipmentDef
 
 
 func get_type_label() -> String:
-	return "Armor (%s)" % SLOT_NAMES[slot]
+	return tr("Armor (%s)") % tr(SLOT_NAMES[slot])

@@ -59,15 +59,15 @@ func is_plain() -> bool:
 
 ## The sign over its stairs: the world's name.
 func title() -> String:
-	return biome.display_name if biome else "The depths"
+	return tr(biome.display_name) if biome else tr("The depths")
 
 
 ## The second line of the sign: the curse or event and what it means, or "".
 func twist() -> String:
 	if curse:
-		return "%s - better loot" % curse.display_name
+		return tr("%s - better loot") % tr(curse.display_name)
 	if floor_event:
-		return floor_event.display_name
+		return tr(floor_event.display_name)
 	return ""
 
 
@@ -82,7 +82,7 @@ func twist_color() -> Color:
 ## For the log: "the Flooded Caverns, cursed: Frostbound".
 func summary() -> String:
 	if curse:
-		return "%s (cursed: %s)" % [title(), curse.display_name]
+		return tr("%s (cursed: %s)") % [title(), tr(curse.display_name)]
 	if floor_event:
-		return "%s (%s)" % [title(), floor_event.display_name]
+		return "%s (%s)" % [title(), tr(floor_event.display_name)]
 	return title()

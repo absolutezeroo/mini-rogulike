@@ -5,9 +5,9 @@ extends ItemDef
 enum Slot { WEAPON, HEAD, BODY }
 
 const SLOT_NAMES := {
-	Slot.WEAPON: "Weapon",
-	Slot.HEAD: "Head",
-	Slot.BODY: "Body",
+	Slot.WEAPON: "Weapon",  # i18n
+	Slot.HEAD: "Head",  # i18n
+	Slot.BODY: "Body",  # i18n
 }
 
 @export var slot: Slot = Slot.BODY
@@ -43,23 +43,31 @@ func rarity_color() -> Color:
 
 func get_type_label() -> String:
 	if rarity > ItemRarity.COMMON:
-		return "%s %s" % [ItemRarity.NAMES[rarity], SLOT_NAMES[slot].to_lower()]
-	return SLOT_NAMES[slot]
+		return rarity_words(rarity, tr(SLOT_NAMES[slot]))
+	return tr(SLOT_NAMES[slot])
+
+
+## "Rare weapon" ("Arme rare"): a rarity and a kind of item (already translated).
+static func rarity_words(item_rarity: int, kind: String) -> String:
+	var rarity_name := TranslationServer.tr(ItemRarity.NAMES[item_rarity])
+	return TranslationServer.tr("{rarity} {kind_lower}").format({
+		"rarity": rarity_name, "rarity_lower": rarity_name.to_lower(),
+		"kind": kind, "kind_lower": kind.to_lower() })
 
 
 func get_details() -> String:
-	var text := base_item.description if base_item else description
-	text = "Item level %d (as strong as floor %d)\n%s" % [item_level, item_level, text]
+	var text := tr(base_item.description if base_item else description)
+	text = tr("Item level %d (as strong as floor %d)") % [item_level, item_level] + "\n" + text
 	if bonuses:
 		var bonus_text := bonuses.describe()
 		if not bonus_text.is_empty():
 			text += "\n" + bonus_text
 	for affix in affixes:
 		if affix and not affix.description.is_empty():
-			text += "\n" + affix.description
+			text += "\n" + tr(affix.description)
 	for rune in runes:
 		if rune:
-			text += "\n%s: %s" % [rune.display_name, rune.description]
+			text += "\n" + tr("%s: %s") % [tr(rune.display_name), tr(rune.description)]
 	if free_sockets() > 0:
-		text += "\n%d empty rune socket%s" % [free_sockets(), "s" if free_sockets() > 1 else ""]
+		text += "\n" + (tr("%d empty rune sockets") if free_sockets() > 1 else tr("%d empty rune socket")) % free_sockets()
 	return text

@@ -61,8 +61,8 @@ func _ready() -> void:
 func open(merchant: Merchant, player: Player) -> void:
 	_merchant = merchant
 	_player = player
-	_name.text = merchant.def.display_name
-	_greeting.text = "\"%s\"" % merchant.def.random_greeting()
+	_name.text = tr(merchant.def.display_name)
+	_greeting.text = tr("\"%s\"") % tr(merchant.def.random_greeting())
 	_portrait.texture = merchant.def.portrait
 	if merchant.stock.is_empty():
 		_pick = Pick.NONE
@@ -159,14 +159,14 @@ func _carries(item: ItemDef, from_belt: bool) -> bool:
 # --- Look -------------------------------------------------------------------------
 
 func _refresh() -> void:
-	_gold.text = "Gold %d" % _player.gold
+	_gold.text = tr("Gold %d") % _player.gold
 	_fill_stock()
 	_fill_bag()
 	var price := _merchant.reroll_price()
-	_reroll.text = "Reroll  -  %d gold" % price
+	_reroll.text = tr("Reroll  -  %d gold") % price
 	_reroll.disabled = _player.gold < price
-	_reroll_note.text = "New items for sale. Locked ones stay." if _player.gold >= price \
-		else "New items for sale. You need %d more gold." % (price - _player.gold)
+	_reroll_note.text = tr("New items for sale. Locked ones stay.") if _player.gold >= price \
+		else tr("New items for sale. You need %d more gold.") % (price - _player.gold)
 	_refresh_card()
 
 
@@ -180,9 +180,9 @@ func _fill_stock() -> void:
 		slot.selected = _pick == Pick.STOCK and _pick_index == i
 		slot.pressed.connect(_on_slot.bind(func() -> void: select_stock(i)))
 		var affordable: bool = _player.gold >= entry.price
-		_for_sale.add_child(_cell(slot, "%d gold" % entry.price, UiSkin.GOLD if affordable else UiParts.BAD))
+		_for_sale.add_child(_cell(slot, tr("%d gold") % entry.price, UiSkin.GOLD if affordable else UiParts.BAD))
 	if _merchant.stock.is_empty():
-		var empty := UiSkin.label("Sold out!", 17, UiSkin.DIM)
+		var empty := UiSkin.label(tr("Sold out!"), 17, UiSkin.DIM)
 		empty.custom_minimum_size.x = STOCK_SLOT * 2
 		_for_sale.add_child(empty)
 
@@ -206,10 +206,10 @@ func _own_cell(item: ItemDef, count: int, from_belt: bool) -> Control:
 	slot.item = item
 	slot.count = count
 	slot.selected = _pick == Pick.OWN and _pick_item == item and _pick_belt == from_belt
-	slot.tooltip_text = ("Belt: " if from_belt else "") + item.display_name
+	slot.tooltip_text = tr("Belt: %s") % tr(item.display_name) if from_belt else tr(item.display_name)
 	slot.pressed.connect(_on_slot.bind(func() -> void: select_own(item, from_belt)))
 	var price := _merchant.def.sell_price(item, _player.world.depth)
-	return _cell(slot, "+%d gold" % price if price > 0 else "-", UiSkin.DIM)
+	return _cell(slot, tr("+%d gold") % price if price > 0 else "-", UiSkin.DIM)
 
 
 ## A slot with a line under it (its price).
@@ -239,13 +239,13 @@ func _refresh_card() -> void:
 	UiParts.clear(_compare)
 	_compare_title.hide()
 	if item == null:
-		_item_name.text = "Pick an item"
+		_item_name.text = tr("Pick an item")
 		_item_name.add_theme_color_override("font_color", UiSkin.GOLD)
-		_item_type.text = "Tap something for sale to see what it does, or one of your things to sell it."
+		_item_type.text = tr("Tap something for sale to see what it does, or one of your things to sell it.")
 		_price.text = ""
-		_details.text = "Gold is only for this run: spend it here and at the forge."
+		_details.text = tr("Gold is only for this run: spend it here and at the forge.")
 		return
-	_item_name.text = item.display_name
+	_item_name.text = tr(item.display_name)
 	_item_name.add_theme_color_override("font_color", item.rarity_color())
 	_item_type.text = item.get_type_label()
 	_details.text = item.get_details()
@@ -254,28 +254,28 @@ func _refresh_card() -> void:
 		_refresh_buy(_merchant.stock[_pick_index])
 	else:
 		var price := _merchant.def.sell_price(item, _player.world.depth)
-		_price.text = "Sell price: %d gold" % price if price > 0 else "The merchant doesn't buy this"
+		_price.text = tr("Sell price: %d gold") % price if price > 0 else tr("The merchant doesn't buy this")
 		_price.add_theme_color_override("font_color", UiSkin.GOLD)
 		_sell.disabled = price <= 0
-		_sell.text = "Sell for %d gold" % price if price > 0 else "Can't be sold"
+		_sell.text = tr("Sell for %d gold") % price if price > 0 else tr("Can't be sold")
 
 
 func _refresh_buy(entry: Dictionary) -> void:
 	var price: int = entry.price
-	_price.text = "Price: %d gold" % price
+	_price.text = tr("Price: %d gold") % price
 	var fits := _player.can_store(entry.item)
 	_buy.disabled = _player.gold < price or not fits
 	_price.add_theme_color_override("font_color", UiSkin.GOLD if _player.gold >= price else UiParts.BAD)
 	if not fits:
-		_buy.text = "Your bag is full: sell something first"
+		_buy.text = tr("Your bag is full: sell something first")
 	elif _player.gold < price:
-		_buy.text = "Not enough gold (%d more)" % (price - _player.gold)
+		_buy.text = tr("Not enough gold (%d more)") % (price - _player.gold)
 	else:
-		_buy.text = "Buy for %d gold" % price
+		_buy.text = tr("Buy for %d gold") % price
 	var locked: bool = entry.get("locked", false)
-	_lock.text = "Unlock" if locked else "Lock"
-	_lock_note.text = "Locked: it stays when you reroll, and if you don't buy it, the next merchant sells it to you at this price." if locked \
-		else "Lock keeps this item: it stays when you reroll, and the next merchant sells it at this price."
+	_lock.text = tr("Unlock") if locked else tr("Lock")
+	_lock_note.text = tr("Locked: it stays when you reroll, and if you don't buy it, the next merchant sells it to you at this price.") if locked \
+		else tr("Lock keeps this item: it stays when you reroll, and the next merchant sells it at this price.")
 	_lock_note.add_theme_color_override("font_color", UiSkin.GOLD if locked else UiSkin.DIM)
 
 
@@ -290,13 +290,13 @@ func _fill_compare(item: ItemDef) -> void:
 		_compare_title.show()
 		var changes := ItemCompare.lines(equipment, worn)
 		if changes.is_empty():
-			_compare.add_child(UiSkin.label("the same stats", 16, UiSkin.DIM))
+			_compare.add_child(UiSkin.label(tr("the same stats"), 16, UiSkin.DIM))
 		for change in changes:
 			_compare.add_child(UiSkin.label(change.text, 16, UiParts.GOOD if change.good else UiParts.BAD))
 	elif item is ConsumableDef and _pick == Pick.STOCK:
 		var carried := _player.carried_count(item)
-		_compare_title.text = "You carry %d. It goes on your belt if there is room." % carried if carried > 0 \
-			else "You carry none. It goes on your belt if there is room."
+		_compare_title.text = tr("You carry %d. It goes on your belt if there is room.") % carried if carried > 0 \
+			else tr("You carry none. It goes on your belt if there is room.")
 		_compare_title.show()
 
 
@@ -315,7 +315,7 @@ func _picked_item() -> ItemDef:
 # --- Building -----------------------------------------------------------------------
 
 func _build() -> void:
-	_window = RpgWindow.new("Merchant")
+	_window = RpgWindow.new(tr("Merchant"))
 	_window.close_requested.connect(close)
 	add_child(_window)
 	# The merchant, at the left of the header row (the window's title is on its ribbon).
@@ -339,7 +339,7 @@ func _build() -> void:
 	words.alignment = BoxContainer.ALIGNMENT_CENTER
 	words.add_theme_constant_override("separation", 0)
 	who.add_child(words)
-	_name = UiSkin.label("Merchant", 22, Color(1, 0.7, 0.35))
+	_name = UiSkin.label(tr("Merchant"), 22, Color(1, 0.7, 0.35))
 	_name.name = "MerchantName"
 	_own(_name)
 	words.add_child(_name)
@@ -352,7 +352,7 @@ func _build() -> void:
 	_own(_gold)
 	_window.header_right.add_child(_gold)
 	var close_button := header.get_child(header.get_child_count() - 1) as Button
-	close_button.text = "Leave"
+	close_button.text = tr("Leave")
 	close_button.name = "CloseButton"
 	_own(close_button)
 
@@ -362,7 +362,7 @@ func _build() -> void:
 	_window.body.add_child(columns)
 
 	# Left: for sale, and Reroll.
-	var sale: Dictionary = RpgWindow.section("For sale")
+	var sale: Dictionary = RpgWindow.section(tr("For sale"))
 	columns.add_child(sale.box)
 	var sale_scroll := UiParts.scroll()
 	sale_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -375,7 +375,7 @@ func _build() -> void:
 	_for_sale.add_theme_constant_override("v_separation", 6)
 	_own(_for_sale)
 	sale_scroll.add_child(_for_sale)
-	_reroll = UiParts.button("Reroll", _reroll_stock, Vector2(0, 50), 16)
+	_reroll = UiParts.button(tr("Reroll"), _reroll_stock, Vector2(0, 50), 16)
 	_reroll.name = "RerollButton"
 	_reroll.icon = load("res://assets/ui/icons/reroll.png")
 	_reroll.expand_icon = false
@@ -385,7 +385,7 @@ func _build() -> void:
 	sale.column.add_child(_reroll_note)
 
 	# Middle: what the hero carries, to sell.
-	var mine: Dictionary = RpgWindow.section("Sell your things")
+	var mine: Dictionary = RpgWindow.section(tr("Sell your things"))
 	columns.add_child(mine.box)
 	var bag_scroll := UiParts.scroll()
 	bag_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -400,12 +400,12 @@ func _build() -> void:
 	_bag.add_theme_constant_override("v_separation", 6)
 	_own(_bag)
 	bag_column.add_child(_bag)
-	_bag_note = UiParts.text("Your bag and belt are empty.", 15, UiSkin.DIM, BAG_COLUMNS * (BAG_SLOT + 6))
+	_bag_note = UiParts.text(tr("Your bag and belt are empty."), 15, UiSkin.DIM, BAG_COLUMNS * (BAG_SLOT + 6))
 	bag_column.add_child(_bag_note)
-	mine.column.add_child(UiParts.text("Tap one to see what the merchant pays.", 14, UiSkin.DIM, BAG_COLUMNS * (BAG_SLOT + 6)))
+	mine.column.add_child(UiParts.text(tr("Tap one to see what the merchant pays."), 14, UiSkin.DIM, BAG_COLUMNS * (BAG_SLOT + 6)))
 
 	# Right: the picked item.
-	var card: Dictionary = RpgWindow.section("Item", true)
+	var card: Dictionary = RpgWindow.section(tr("Item"), true)
 	(card.box as Control).size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	(card.title as Label).hide()
 	columns.add_child(card.box)
@@ -451,17 +451,17 @@ func _build() -> void:
 	var actions := HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 8)
 	card.column.add_child(actions)
-	_buy = UiParts.button("Buy", func() -> void: buy_selected(), Vector2(0, 52), 17)
+	_buy = UiParts.button(tr("Buy"), func() -> void: buy_selected(), Vector2(0, 52), 17)
 	_buy.name = "BuyButton"
 	_buy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_own(_buy)
 	actions.add_child(_buy)
-	_sell = UiParts.button("Sell", func() -> void: sell_selected(), Vector2(0, 52), 17)
+	_sell = UiParts.button(tr("Sell"), func() -> void: sell_selected(), Vector2(0, 52), 17)
 	_sell.name = "SellButton"
 	_sell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_own(_sell)
 	actions.add_child(_sell)
-	_lock = UiParts.button("Lock", _toggle_lock, Vector2(130, 52), 17)
+	_lock = UiParts.button(tr("Lock"), _toggle_lock, Vector2(130, 52), 17)
 	_lock.name = "LockButton"
 	_own(_lock)
 	actions.add_child(_lock)

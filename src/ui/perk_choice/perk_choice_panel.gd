@@ -54,8 +54,8 @@ func _ready() -> void:
 
 
 func open(title: String, subtitle: String, perks: Array[PerkDef], owned: PerkSet, rerolls: int = 0, banishes: int = 0) -> void:
-	_title.text = title
-	_subtitle_text = subtitle
+	_title.text = tr(title)
+	_subtitle_text = tr(subtitle)
 	_owned = owned
 	_banishing = false
 	set_charges(rerolls, banishes)
@@ -100,7 +100,7 @@ func show_cards(perks: Array[PerkDef], waiting: bool = false) -> void:
 func set_charges(rerolls: int, banishes: int) -> void:
 	_rerolls = rerolls
 	_banishes = banishes
-	_reroll.text = "Reroll (%d)" % rerolls
+	_reroll.text = tr("Reroll (%d)") % rerolls
 	_reroll.disabled = rerolls <= 0
 	_banish.disabled = banishes <= 0
 	_reroll.visible = rerolls > 0 or banishes > 0
@@ -125,8 +125,8 @@ func _set_banishing(on: bool) -> void:
 func _refresh_banish() -> void:
 	if _banish == null:
 		return
-	_banish.text = "Cancel" if _banishing else "Banish (%d)" % _banishes
-	_subtitle.text = "Tap the perk to banish: it won't be offered again this run" if _banishing else _subtitle_text
+	_banish.text = tr("Cancel") if _banishing else tr("Banish (%d)") % _banishes
+	_subtitle.text = tr("Tap the perk to banish: it won't be offered again this run") if _banishing else _subtitle_text
 	_subtitle.add_theme_color_override("font_color", BANISH_TINT if _banishing else UiSkin.TEXT)
 	for card: PerkCard in _cards.get_children():
 		card.self_modulate = BANISH_TINT if _banishing else Color.WHITE
@@ -154,15 +154,15 @@ func choose(index: int) -> void:
 # --- Building -----------------------------------------------------------------------
 
 func _build() -> void:
-	_dialog = RpgDialog.new("Level up!")
+	_dialog = RpgDialog.new(tr("Level up!"))
 	add_child(_dialog)
 	_title = _dialog.title_label
 	_title.name = "Title"
-	_subtitle = UiSkin.label("Choose an upgrade", 20, UiSkin.TEXT)
+	_subtitle = UiSkin.label(tr("Choose an upgrade"), 20, UiSkin.TEXT)
 	_subtitle.name = "Subtitle"
 	_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_dialog.body.add_child(_subtitle)
-	_rule = UiParts.text("Every perk belongs to a family. Hold 3 different perks of one family to awaken its bonus.", 15, UiSkin.DIM, 900)
+	_rule = UiParts.text(tr("Every perk belongs to a family. Hold 3 different perks of one family to awaken its bonus."), 15, UiSkin.DIM, 900)
 	_rule.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_dialog.body.add_child(_rule)
 	_cards = HBoxContainer.new()
@@ -175,15 +175,15 @@ func _build() -> void:
 	_tools.alignment = BoxContainer.ALIGNMENT_CENTER
 	_tools.add_theme_constant_override("separation", 24)
 	_dialog.body.add_child(_tools)
-	_reroll = UiParts.button("Reroll (1)", Callable(), Vector2(220, 54), 18)
+	_reroll = UiParts.button(tr("Reroll (%d)") % 1, Callable(), Vector2(220, 54), 18)
 	_reroll.name = "RerollButton"
 	_reroll.icon = load("res://assets/ui/icons/reroll.png")
 	_tools.add_child(_reroll)
-	_banish = UiParts.button("Banish (1)", Callable(), Vector2(220, 54), 18)
+	_banish = UiParts.button(tr("Banish (%d)") % 1, Callable(), Vector2(220, 54), 18)
 	_banish.name = "BanishButton"
 	_banish.icon = load("res://assets/ui/icons/banish.png")
 	_tools.add_child(_banish)
-	_tools_note = UiParts.text("Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (tap Banish, then the card).", 15, UiSkin.DIM, 900)
+	_tools_note = UiParts.text(tr("Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (tap Banish, then the card)."), 15, UiSkin.DIM, 900)
 	_tools_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_dialog.body.add_child(_tools_note)
 	for node: Node in [_title, _subtitle, _cards, _tools, _reroll, _banish]:

@@ -61,21 +61,21 @@ func _init() -> void:
 
 
 func get_type_label() -> String:
-	var label := "Melee weapon" if kind == Kind.MELEE else "Ranged weapon"
-	return "%s %s" % [ItemRarity.NAMES[rarity], label.to_lower()] if rarity > ItemRarity.COMMON else label
+	var label := tr("Melee weapon") if kind == Kind.MELEE else tr("Ranged weapon")
+	return EquipmentDef.rarity_words(rarity, label) if rarity > ItemRarity.COMMON else label
 
 
 func get_details() -> String:
-	var text := "%d damage, %.1f hits/s" % [damage, 1.0 / maxf(cooldown, 0.01)]
+	var text := tr("%d damage, %.1f hits/s") % [damage, 1.0 / maxf(cooldown, 0.01)]
 	if kind == Kind.RANGED and projectile_count > 1:
-		text += ", %d projectiles" % projectile_count
+		text += tr(", %d projectiles") % projectile_count
 	if kind == Kind.RANGED and pierce > 0:
-		text += ", pierces %d" % pierce
+		text += tr(", pierces %d") % pierce
 	if not skills.is_empty():
 		var names := PackedStringArray()
 		for skill in skills:
-			names.append(skill.display_name)
-		text += "\nSkills: " + ", ".join(names)
+			names.append(tr(skill.display_name))
+		text += "\n" + tr("Skills: %s") % ", ".join(names)
 	if on_hit and not (base_item and (base_item as WeaponDef).on_hit):
 		text += "\n" + on_hit.describe()
 	# The item level line first (EquipmentDef), then the weapon's numbers, then the rest.

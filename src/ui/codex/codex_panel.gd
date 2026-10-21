@@ -8,13 +8,13 @@ extends Control
 
 enum Tab { QUESTS, BESTIARY, ACHIEVEMENTS, RUNS }
 
-const TAB_NAMES := ["Quests", "Bestiary", "Achievements", "Runs"]
+const TAB_NAMES := ["Quests", "Bestiary", "Achievements", "Runs"]  # i18n
 ## What each tab is for, under its summary.
 const TAB_HELP := [
-	"Quests change every day and every week. Everything you do in any run counts toward them, and a finished quest pays its souls at once. Souls are kept between runs: spend them at the Shrine on lasting upgrades.",
-	"Every monster you meet goes in here. Slay more of a kind to raise your hunter rank with it: each rank pays souls, and Mastered also gives +%d%% damage against that kind for good. Tap a monster for its attacks and challenges.",
-	"Big goals across all your runs. Reaching one pays its souls at once.",
-	"Your last runs, newest first. Gold is lost when a run ends; souls are kept.",
+	"Quests change every day and every week. Everything you do in any run counts toward them, and a finished quest pays its souls at once. Souls are kept between runs: spend them at the Shrine on lasting upgrades.",  # i18n
+	"Every monster you meet goes in here. Slay more of a kind to raise your hunter rank with it: each rank pays souls, and Mastered also gives +%d%% damage against that kind for good. Tap a monster for its attacks and challenges.",  # i18n
+	"Big goals across all your runs. Reaching one pays its souls at once.",  # i18n
+	"Your last runs, newest first. Gold is lost when a run ends; souls are kept.",  # i18n
 ]
 
 var _content: ContentDB
@@ -69,11 +69,11 @@ func show_tab(tab: int) -> void:
 			_fill_achievements()
 		Tab.RUNS:
 			_fill_runs()
-	var help: String = TAB_HELP[_tab]
+	var help: String = tr(TAB_HELP[_tab])
 	if _tab == Tab.BESTIARY:
 		help = help % roundi((_content.bestiary.mastery_damage if _content.bestiary else 0.1) * 100.0)
 	_help.text = help
-	_souls.text = "Souls %d" % Profile.souls
+	_souls.text = tr("Souls %d") % Profile.souls
 	_scroll.scroll_vertical = 0
 
 
@@ -93,14 +93,15 @@ func _fill_quests() -> void:
 		column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		column.add_theme_constant_override("separation", 8)
 		columns.add_child(column)
-		column.add_child(UiSkin.label("Daily quests" if daily else "Weekly quests", 20, UiSkin.GOLD))
+		column.add_child(UiSkin.label(tr("Daily quests") if daily else tr("Weekly quests"), 20, UiSkin.GOLD))
 		var left := QuestBoard.time_text(QuestBoard.seconds_left(period))
-		column.add_child(UiSkin.label("New ones in %s. Counts every run %s." % [left, "today" if daily else "this week (from Monday)"], 15, UiSkin.DIM, true))
+		var when := tr("New ones in %s. Counts every run today.") if daily else tr("New ones in %s. Counts every run this week (from Monday).")
+		column.add_child(UiSkin.label(when % left, 15, UiSkin.DIM, true))
 		for quest in QuestBoard.current(_content.quests, period):
 			column.add_child(CodexRows.quest_row(quest))
 			total += 1
 			done += 1 if QuestBoard.is_done(quest) else 0
-	_summary.text = "Quests done: %d of %d" % [done, total]
+	_summary.text = tr("Quests done: %d of %d") % [done, total]
 
 
 # --- Bestiary -------------------------------------------------------------------
@@ -130,7 +131,7 @@ func _fill_bestiary() -> void:
 	var slain := entries.filter(func(m: MonsterDef) -> bool: return Profile.kill_count(m.id) > 0).size()
 	var mastered := entries.filter(func(m: MonsterDef) -> bool: return Bestiary.is_mastered(m, rules)).size()
 	var shiny := entries.filter(func(m: MonsterDef) -> bool: return Profile.has_shiny(m.id)).size()
-	_summary.text = "Slain: %d of %d kinds     Mastered: %d     Shiny found: %d" % [slain, entries.size(), mastered, shiny]
+	_summary.text = tr("Slain: %d of %d kinds     Mastered: %d     Shiny found: %d") % [slain, entries.size(), mastered, shiny]
 	_list.add_theme_constant_override("separation", 6)
 	var placed := {}
 	var acts := _content.dungeon.acts
@@ -147,9 +148,9 @@ func _fill_bestiary() -> void:
 		var known := kinds.filter(func(m: MonsterDef) -> bool: return Profile.kill_count(m.id) > 0).size()
 		var heading := HBoxContainer.new()
 		heading.add_theme_constant_override("separation", 14)
-		heading.add_child(UiSkin.label("%s  -  %s" % [act.subtitle, act.title], 19, UiSkin.GOLD))
-		var floors := "floor %d" % first if act.floors <= 1 else "floors %d to %d" % [first, first + act.floors - 1]
-		var where := UiSkin.label("%s     %d of %d slain" % [floors, known, kinds.size()], 15, UiSkin.DIM)
+		heading.add_child(UiSkin.label("%s  -  %s" % [tr(act.subtitle), tr(act.title)], 19, UiSkin.GOLD))
+		var floors := tr("floor %d") % first if act.floors <= 1 else tr("floors %d to %d") % [first, first + act.floors - 1]
+		var where := UiSkin.label(tr("%s     %d of %d slain") % [floors, known, kinds.size()], 15, UiSkin.DIM)
 		where.size_flags_vertical = Control.SIZE_SHRINK_END
 		heading.add_child(where)
 		_list.add_child(heading)
@@ -218,7 +219,7 @@ func _fill_achievements() -> void:
 	var earned := 0
 	for achievement: AchievementDef in unlocked:
 		earned += achievement.reward_souls
-	_summary.text = "Achievements: %d of %d     Souls earned from them: %d" % [unlocked.size(), list.size(), earned]
+	_summary.text = tr("Achievements: %d of %d     Souls earned from them: %d") % [unlocked.size(), list.size(), earned]
 	# The ones under way first (closest to done), then the ones done.
 	var sorted := list.duplicate()
 	sorted.sort_custom(func(a: AchievementDef, b: AchievementDef) -> bool:
@@ -236,12 +237,12 @@ static func _closeness(achievement: AchievementDef) -> float:
 # --- Runs -----------------------------------------------------------------------
 
 func _fill_runs() -> void:
-	_summary.text = "Runs: %d     Wins: %d     Deepest floor: %d" % [Profile.runs, Profile.victories, Profile.best_depth]
+	_summary.text = tr("Runs: %d     Wins: %d     Deepest floor: %d") % [Profile.runs, Profile.victories, Profile.best_depth]
 	var records := _records_text()
 	_records.text = records
 	_records.visible = not records.is_empty()
 	if Profile.history.is_empty():
-		_list.add_child(UiSkin.label("No run finished yet. Go down the Well!", 18, UiSkin.DIM))
+		_list.add_child(UiSkin.label(tr("No run finished yet. Go down the Well!"), 18, UiSkin.DIM))
 	for entry: Dictionary in Profile.history:
 		_list.add_child(CodexRows.run_row(entry, _content))
 
@@ -251,21 +252,21 @@ func _records_text() -> String:
 	var parts: PackedStringArray = []
 	for key: String in Profile.best_times:
 		parts.append("%s %s" % [_record_name(key), TimeText.of(Profile.best_time(key))])
-	return ("Fastest wins:   " + "     ".join(parts)) if not parts.is_empty() else ""
+	return (tr("Fastest wins:   %s") % "     ".join(parts)) if not parts.is_empty() else ""
 
 
 ## A record's difficulty, as the title screen names it ("Nightmare +3").
 func _record_name(key: String) -> String:
 	var parts := key.split("/a")
 	var difficulty := _content.get_difficulty(StringName(parts[0])) if _content else null
-	var name := difficulty.display_name if difficulty else parts[0].capitalize()
+	var name := tr(difficulty.display_name) if difficulty else parts[0].capitalize()
 	return name + (" +%s" % parts[1] if parts.size() > 1 else "")
 
 
 # --- Building ---------------------------------------------------------------------
 
 func _build() -> void:
-	_window = RpgWindow.new("Codex")
+	_window = RpgWindow.new(tr("Codex"))
 	_window.close_requested.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_close)
 		hide())
@@ -278,7 +279,7 @@ func _build() -> void:
 	header.move_child(tabs, 0)
 	for i in TAB_NAMES.size():
 		var button := Button.new()
-		button.text = TAB_NAMES[i]
+		button.text = tr(TAB_NAMES[i])
 		button.name = "%sTab" % TAB_NAMES[i]
 		button.toggle_mode = true
 		button.focus_mode = Control.FOCUS_NONE
@@ -294,7 +295,7 @@ func _build() -> void:
 		_own(button)
 	_souls = UiSkin.label("", 22, CodexRows.SOUL)
 	_souls.name = "Souls"
-	_souls.tooltip_text = "Souls are kept between runs. Spend them at the Shrine."
+	_souls.tooltip_text = tr("Souls are kept between runs. Spend them at the Shrine.")
 	_window.header_right.add_child(_souls)
 	_own(_souls)
 

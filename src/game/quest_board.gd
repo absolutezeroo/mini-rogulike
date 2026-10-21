@@ -68,7 +68,7 @@ static func is_claimed(quest: Dictionary) -> bool:
 
 
 static func text(quest: Dictionary) -> String:
-	return (quest.def as QuestDef).goal_text % int(quest.target)
+	return TranslationServer.tr((quest.def as QuestDef).goal_text) % int(quest.target)
 
 
 ## Pays every finished quest of today and this week not paid yet. Returns them.
@@ -84,5 +84,5 @@ static func claim_finished(quests: Array[QuestDef]) -> Array[Dictionary]:
 ## "5h 12m", "2d 4h".
 static func time_text(seconds: int) -> String:
 	if seconds >= DAY:
-		return "%dd %dh" % [seconds / DAY, (seconds % DAY) / 3600]
-	return "%dh %02dm" % [seconds / 3600, (seconds % 3600) / 60]
+		return TranslationServer.tr("%dd %dh") % [seconds / DAY, (seconds % DAY) / 3600]
+	return TranslationServer.tr("%dh %02dm") % [seconds / 3600, (seconds % 3600) / 60]

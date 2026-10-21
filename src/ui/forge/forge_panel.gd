@@ -48,8 +48,8 @@ func _ready() -> void:
 func open(forge: Forge, player: Player) -> void:
 	_forge = forge
 	_player = player
-	_name.text = forge.def.display_name
-	_greeting.text = "\"%s\"" % forge.def.random_greeting()
+	_name.text = tr(forge.def.display_name)
+	_greeting.text = tr("\"%s\"") % tr(forge.def.random_greeting())
 	_portrait.texture = forge.def.portrait
 	var weapons := Forge.weapons_of(player)
 	_weapon = weapons[0] if not weapons.is_empty() else null
@@ -124,7 +124,7 @@ func take_rune() -> bool:
 # --- Look -------------------------------------------------------------------------
 
 func _refresh() -> void:
-	_gold.text = "Gold %d" % _player.gold
+	_gold.text = tr("Gold %d") % _player.gold
 	_clear(_weapons)
 	_clear(_sockets)
 	_clear(_runes)
@@ -136,19 +136,24 @@ func _refresh() -> void:
 		var slot := ItemSlot.new(WEAPON_SLOT)
 		slot.item = weapon
 		slot.selected = weapon == _weapon
-		slot.tooltip_text = ("Worn: " if weapon == worn else "") + weapon.display_name
+		slot.tooltip_text = tr("Worn: %s") % tr(weapon.display_name) if weapon == worn else tr(weapon.display_name)
 		slot.pressed.connect(_select_weapon.bind(weapon))
 		_weapons.add_child(slot)
 	_weapon_slot.item = _weapon
 	if _weapon == null:
-		_weapon_title.text = "No weapon to work on"
+		_weapon_title.text = tr("No weapon to work on")
 		_weapon_details.text = ""
 		_action.hide()
 	else:
-		_weapon_title.text = _weapon.display_name
+		_weapon_title.text = tr(_weapon.display_name)
 		_weapon_title.add_theme_color_override("font_color", _weapon.rarity_color())
-		var damage := "%d damage  -  " % (_weapon as WeaponDef).damage if _weapon is WeaponDef else ""
-		_weapon_details.text = "%s%s%d rune socket%s" % ["Worn  -  " if _weapon == worn else "", damage, _weapon.socket_count(), "s" if _weapon.socket_count() > 1 else ""]
+		var parts := PackedStringArray()
+		if _weapon == worn:
+			parts.append(tr("Worn"))
+		if _weapon is WeaponDef:
+			parts.append(tr("%d damage") % (_weapon as WeaponDef).damage)
+		parts.append((tr("%d rune sockets") if _weapon.socket_count() > 1 else tr("%d rune socket")) % _weapon.socket_count())
+		_weapon_details.text = "  -  ".join(parts)
 		for i in _weapon.socket_count():
 			_sockets.add_child(_socket_slot(i))
 		_refresh_action()
@@ -159,12 +164,12 @@ func _refresh_action() -> void:
 	_action.show()
 	if _socket < 0 or _socket >= _weapon.runes.size():
 		_action.disabled = true
-		_action.text = "Pick a socket to take its rune out"
+		_action.text = tr("Pick a socket to take its rune out")
 		return
 	var rune := _weapon.runes[_socket]
 	var price := _forge.removal_cost()
 	_action.disabled = _player.gold < price or _player.inventory.is_full()
-	_action.text = "Your bag is full" if _player.inventory.is_full() else "Take out %s  (%d gold)" % [rune.display_name, price]
+	_action.text = tr("Your bag is full") if _player.inventory.is_full() else tr("Take out %s  (%d gold)") % [tr(rune.display_name), price]
 
 
 func _fill_runes() -> void:
@@ -187,30 +192,30 @@ func _fill_runes() -> void:
 	if _rune and not _player.inventory.items.has(_rune):
 		_rune = null
 	if _rune:
-		_rune_name.text = _rune.display_name
+		_rune_name.text = tr(_rune.display_name)
 		_rune_name.add_theme_color_override("font_color", _rune.rarity_color())
-		_rune_text.text = "%s  -  %s" % [_rune.get_type_label(), _rune.description]
+		_rune_text.text = "%s  -  %s" % [_rune.get_type_label(), tr(_rune.description)]
 	elif count == 0:
-		_rune_name.text = "No runes in your bag"
+		_rune_name.text = tr("No runes in your bag")
 		_rune_name.add_theme_color_override("font_color", UiSkin.GOLD)
-		_rune_text.text = "Elites, bosses and chests drop them."
+		_rune_text.text = tr("Elites, bosses and chests drop them.")
 	else:
-		_rune_name.text = "Pick a rune"
+		_rune_name.text = tr("Pick a rune")
 		_rune_name.add_theme_color_override("font_color", UiSkin.GOLD)
-		_rune_text.text = "Setting one is free. Taking one out costs gold; you get it back."
+		_rune_text.text = tr("Setting one is free. Taking one out costs gold; you get it back.")
 	var free := _weapon != null and _weapon.free_sockets() > 0
 	_set_button.disabled = _rune == null or not free
-	_set_button.text = ("Set it in" if free else "No free socket") if _rune else "Set"
+	_set_button.text = (tr("Set it in") if free else tr("No free socket")) if _rune else tr("Set")
 
 
 ## A socket of the weapon: its rune (tap it to take it out), or empty.
 func _socket_slot(index: int) -> ItemSlot:
 	var slot := ItemSlot.new(SOCKET_SLOT)
-	slot.caption = "Empty"
+	slot.caption = tr("Empty")
 	if index < _weapon.runes.size():
 		slot.item = _weapon.runes[index]
 		slot.selected = index == _socket
-		slot.tooltip_text = _weapon.runes[index].description
+		slot.tooltip_text = tr(_weapon.runes[index].description)
 		slot.pressed.connect(_select_socket.bind(index))
 	else:
 		slot.disabled = true
@@ -220,7 +225,7 @@ func _socket_slot(index: int) -> ItemSlot:
 # --- Building -----------------------------------------------------------------------
 
 func _build() -> void:
-	_window = RpgWindow.new("The Forge")
+	_window = RpgWindow.new(tr("The Forge"))
 	_window.close_requested.connect(close)
 	add_child(_window)
 	_gold = UiSkin.label("", 22, UiSkin.GOLD)
@@ -240,7 +245,7 @@ func _build() -> void:
 	words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	words.alignment = BoxContainer.ALIGNMENT_CENTER
 	smith.add_child(words)
-	_name = UiSkin.label("Smith", 22, Color(1, 0.7, 0.35))
+	_name = UiSkin.label(tr("Smith"), 22, Color(1, 0.7, 0.35))
 	words.add_child(_name)
 	_greeting = UiSkin.label("", 16, UiSkin.TEXT, true)
 	words.add_child(_greeting)
@@ -251,7 +256,7 @@ func _build() -> void:
 	_window.body.add_child(columns)
 
 	# Left: the weapons, and the picked one's sockets.
-	var left: Dictionary = RpgWindow.section("Weapon")
+	var left: Dictionary = RpgWindow.section(tr("Weapon"))
 	(left.box as Control).size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	columns.add_child(left.box)
 	var weapon_scroll := ScrollContainer.new()
@@ -275,7 +280,7 @@ func _build() -> void:
 	naming.add_child(_weapon_title)
 	_weapon_details = UiSkin.label("", 15, UiSkin.DIM, true)
 	naming.add_child(_weapon_details)
-	left.column.add_child(UiSkin.label("Sockets", 17, UiSkin.GOLD))
+	left.column.add_child(UiSkin.label(tr("Sockets"), 17, UiSkin.GOLD))
 	_sockets = HBoxContainer.new()
 	_sockets.add_theme_constant_override("separation", 12)
 	left.column.add_child(_sockets)
@@ -286,7 +291,7 @@ func _build() -> void:
 	left.column.add_child(_action)
 
 	# Right: the runes in the bag.
-	var right: Dictionary = RpgWindow.section("Your runes")
+	var right: Dictionary = RpgWindow.section(tr("Your runes"))
 	columns.add_child(right.box)
 	var rune_scroll := ScrollContainer.new()
 	rune_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -303,7 +308,7 @@ func _build() -> void:
 	_rune_text = UiSkin.label("", 15, UiSkin.TEXT, true)
 	_rune_text.custom_minimum_size.x = RUNE_COLUMNS * (RUNE_SLOT + 6)
 	right.column.add_child(_rune_text)
-	_set_button = _button("Set", func() -> void:
+	_set_button = _button(tr("Set"), func() -> void:
 		if _rune:
 			set_rune(_rune))
 	right.column.add_child(_set_button)

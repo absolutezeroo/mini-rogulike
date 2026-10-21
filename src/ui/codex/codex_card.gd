@@ -48,18 +48,18 @@ func _init(def: MonsterDef, rules: BestiaryRules) -> void:
 	picture.modulate = Color.WHITE if rank >= Bestiary.SEEN else UNKNOWN_COLOR
 	inside.add_child(picture)
 	var is_boss := def is BossDef
-	var name_label := _centered(def.display_name if rank >= Bestiary.SEEN else "???", 16, Palette.DANGER if is_boss else UiSkin.TEXT)
+	var name_label := _centered(tr(def.display_name) if rank >= Bestiary.SEEN else "???", 16, Palette.DANGER if is_boss else UiSkin.TEXT)
 	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	inside.add_child(name_label)
 	if rank == Bestiary.UNSEEN:
-		inside.add_child(_centered("Not met yet", 14, UiSkin.DIM))
+		inside.add_child(_centered(tr("Not met yet"), 14, UiSkin.DIM))
 		inside.add_child(_centered(" ", 14, UiSkin.DIM))
 	elif rank == Bestiary.SEEN:
-		inside.add_child(_centered("Seen", 15, UiSkin.TEXT))
-		inside.add_child(_centered("not slain yet", 14, UiSkin.DIM))
+		inside.add_child(_centered(tr("Seen"), 15, UiSkin.TEXT))
+		inside.add_child(_centered(tr("not slain yet"), 14, UiSkin.DIM))
 	else:
 		inside.add_child(_centered(Bestiary.rank_name(rank, rules), 15, CodexRows.DONE if _mastered else UiSkin.GOLD))
-		inside.add_child(_centered("%d slain" % kills, 14, UiSkin.DIM))
+		inside.add_child(_centered(tr("%d slain") % kills, 14, UiSkin.DIM))
 	# Toward the next rank (full and green once mastered). Unknown ones keep its room empty.
 	var next := Bestiary.next_kills(def, rules) if rules else 0
 	var meter := CodexRows.bar(kills if next > 0 else 1, next if next > 0 else 1, "", 10)
@@ -73,9 +73,9 @@ func _init(def: MonsterDef, rules: BestiaryRules) -> void:
 	room.add_child(meter)
 	inside.add_child(room)
 	if is_boss:
-		add_child(_badge("Boss", Palette.DANGER, false))
+		add_child(_badge(tr("Boss"), Palette.DANGER, false))
 	if Profile.has_shiny(def.id):
-		add_child(_badge("Shiny", SHINY_COLOR, true))
+		add_child(_badge(tr("Shiny"), SHINY_COLOR, true))
 
 
 func _draw() -> void:

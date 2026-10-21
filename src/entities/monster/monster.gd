@@ -74,7 +74,7 @@ func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
 	def = monster_def
 	_depth = depth
 	faction = Faction.MONSTER
-	display_name = def.display_name
+	display_name = tr(def.display_name)
 	glyph = def.glyph
 	body_color = def.color
 	frames = def.frames
@@ -140,9 +140,9 @@ func make_ranked(new_rank: MonsterRankDef, new_affixes: Array[EliteAffixDef]) ->
 		if not is_boss():
 			hp_factor *= affix.hp_multiplier
 	if rank.show_in_name:
-		display_name = "%s %s" % [rank.display_name, def.display_name]
+		display_name = tr("{rank} {monster}").format({ "rank": tr(rank.display_name), "monster": tr(def.display_name) })
 	elif elite:
-		display_name = "%s %s" % [elite.display_name, def.display_name]
+		display_name = tr("{affix} {monster}").format({ "affix": Grammar.adjective(elite.display_name, def.display_name), "monster": tr(def.display_name) })
 	base_stats.max_hp = roundi(base_stats.max_hp * hp_factor)
 	invalidate_stats()
 	hp = get_max_hp()
@@ -177,7 +177,7 @@ func rank_color() -> Color:
 func affix_names() -> String:
 	var names := PackedStringArray()
 	for affix in affixes:
-		names.append(affix.display_name)
+		names.append(Grammar.adjective(affix.display_name, def.display_name))
 	return ", ".join(names)
 
 
@@ -528,8 +528,8 @@ func _enter_phase(phase: BossPhase) -> void:
 	_roar_time = (def as BossDef).phase_roar_time
 	_shockwave(0.35)
 	if not phase.message.is_empty():
-		world.spawn_floating_text(head_position() + Vector2(0, -12), phase.message, Palette.DANGER)
-		Events.log_message("%s: %s" % [display_name, phase.message], Palette.DANGER)
+		world.spawn_floating_text(head_position() + Vector2(0, -12), tr(phase.message), Palette.DANGER)
+		Events.log_message(tr("%s: %s") % [display_name, tr(phase.message)], Palette.DANGER)
 	Vfx.magic(world, global_position, Palette.DANGER)
 	Sfx.play_at(Sfx.bank.boss_roar, global_position)
 	Events.screen_shake.emit(0.6)
@@ -594,7 +594,7 @@ func _on_died(killer: Actor) -> void:
 	if fell:
 		if killer is Player and not summoned:  # summons pay nothing, even pushed into a hole
 			(killer as Player).gain_xp(def.xp_reward * _xp_multiplier)
-		world.spawn_floating_text(global_position, "Fell!", Palette.GOLD)
+		world.spawn_floating_text(global_position, tr("Fell!"), Palette.GOLD)
 		return
 	if is_boss():
 		Vfx.boss_death(world, global_position + Vector2(0, -head_height * 0.5), radius * 1.5)

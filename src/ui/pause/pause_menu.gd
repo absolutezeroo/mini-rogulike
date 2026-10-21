@@ -9,10 +9,10 @@ signal resume_requested
 signal quit_requested
 signal abandon_requested
 
-const ABANDON_TEXT := "Give up the run"
-const CONFIRM_TEXT := "Really? Tap again"
-const ABANDON_NOTE := "Ends this run now. You keep the souls earned so far."
-const CONFIRM_NOTE := "Tap again to end the run. Anything else to cancel."
+const ABANDON_TEXT := "Give up the run"  # i18n
+const CONFIRM_TEXT := "Really? Tap again"  # i18n
+const ABANDON_NOTE := "Ends this run now. You keep the souls earned so far."  # i18n
+const CONFIRM_NOTE := "Tap again to end the run. Anything else to cancel."  # i18n
 const BUTTON_SIZE := Vector2(300, 58)
 const NOTE_WIDTH := 380.0
 
@@ -35,8 +35,8 @@ func _ready() -> void:
 
 
 func open() -> void:
-	_confirm.text = ABANDON_TEXT
-	_abandon_note.text = ABANDON_NOTE
+	_confirm.text = tr(ABANDON_TEXT)
+	_abandon_note.text = tr(ABANDON_NOTE)
 	_options.hide()
 	_codex.hide()
 	show()
@@ -53,33 +53,33 @@ func back() -> void:
 
 
 func _build() -> void:
-	_dialog = RpgDialog.new("Paused", 0.0, 0.75)
+	_dialog = RpgDialog.new(tr("Paused"), 0.0, 0.75)
 	add_child(_dialog)
 	move_child(_dialog, 0)  # under the options and the bestiary
-	var resume := _row("Resume", "ResumeButton", "Back to the fight.", func() -> void:
+	var resume := _row(tr("Resume"), "ResumeButton", tr("Back to the fight."), func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_close)
 		resume_requested.emit())
 	resume.add_theme_font_size_override("font_size", 24)
-	_row("Options", "OptionsButton", "Sound, music, button size, effects.", func() -> void:
+	_row(tr("Options"), "OptionsButton", tr("Sound, music, button size, effects."), func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		_options.open())
-	_row("Bestiary", "BestiaryButton", "The monsters you have met: how they attack and how to beat them.", func() -> void:
+	_row(tr("Bestiary"), "BestiaryButton", tr("The monsters you have met: how they attack and how to beat them."), func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		if content:
 			_codex.open(content, CodexPanel.Tab.BESTIARY))
-	_row("Save and quit", "QuitButton", "Your run is saved: pick Continue on the title screen.", func() -> void:
+	_row(tr("Save and quit"), "QuitButton", tr("Your run is saved: pick Continue on the title screen."), func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_click)
 		quit_requested.emit())
 	# Giving up takes two taps, so it never happens by accident.
-	var give_up := _row(ABANDON_TEXT, "AbandonButton", ABANDON_NOTE, _on_abandon)
+	var give_up := _row(tr(ABANDON_TEXT), "AbandonButton", tr(ABANDON_NOTE), _on_abandon)
 	for state in ["font_color", "font_hover_color", "font_pressed_color"]:
 		give_up.add_theme_color_override(state, Color(0.55, 0.06, 0.06))
 	_abandon_note = _dialog.body.get_child(_dialog.body.get_child_count() - 1).get_child(1) as Label
 
 	# What the two currencies are for.
-	var money: Dictionary = RpgWindow.section("Gold and souls")
-	money.column.add_child(UiParts.text("Gold: only for this run. Spend it at the merchant and the forge; it is lost when the run ends.", 15, UiSkin.TEXT, BUTTON_SIZE.x + NOTE_WIDTH))
-	money.column.add_child(UiParts.text("Souls: kept between runs. Spend them at the Shrine (title screen) on upgrades for every run.", 15, UiSkin.TEXT, BUTTON_SIZE.x + NOTE_WIDTH))
+	var money: Dictionary = RpgWindow.section(tr("Gold and souls"))
+	money.column.add_child(UiParts.text(tr("Gold: only for this run. Spend it at the merchant and the forge; it is lost when the run ends."), 15, UiSkin.TEXT, BUTTON_SIZE.x + NOTE_WIDTH))
+	money.column.add_child(UiParts.text(tr("Souls: kept between runs. Spend them at the Shrine (title screen) on upgrades for every run."), 15, UiSkin.TEXT, BUTTON_SIZE.x + NOTE_WIDTH))
 	_dialog.body.add_child(money.box)
 	for node in _named:
 		node.owner = self
@@ -88,9 +88,9 @@ func _build() -> void:
 
 func _on_abandon() -> void:
 	Sfx.play_ui(Sfx.bank.ui_click)
-	if _confirm.text == ABANDON_TEXT:
-		_confirm.text = CONFIRM_TEXT
-		_abandon_note.text = CONFIRM_NOTE
+	if _confirm.text == tr(ABANDON_TEXT):
+		_confirm.text = tr(CONFIRM_TEXT)
+		_abandon_note.text = tr(CONFIRM_NOTE)
 	else:
 		abandon_requested.emit()
 

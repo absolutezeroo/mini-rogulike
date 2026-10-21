@@ -39,8 +39,8 @@ func open(encounter: Encounter, player: Player) -> void:
 	_player = player
 	_icon.texture = encounter.def.icon
 	_icon.modulate = encounter.def.icon_tint
-	_dialog.set_title(encounter.def.display_name, encounter.def.color.lightened(0.45))
-	_text.text = encounter.def.description
+	_dialog.set_title(tr(encounter.def.display_name), encounter.def.color.lightened(0.45))
+	_text.text = tr(encounter.def.description)
 	_text.add_theme_color_override("font_color", UiSkin.TEXT)
 	_result.hide()
 	UiParts.clear(_choices)
@@ -48,7 +48,7 @@ func open(encounter: Encounter, player: Player) -> void:
 	var depth := player.world.depth
 	for i in encounter.def.choices.size():
 		_choices.add_child(_choice_card(encounter.def.choices[i], i, depth))
-	_leave.text = encounter.def.leave_label
+	_leave.text = tr(encounter.def.leave_label)
 	_leave_row.show()
 	show()
 
@@ -69,7 +69,7 @@ func _choose(index: int) -> void:
 	if outcome == null:
 		return
 	Sfx.play_ui(Sfx.bank.perk_chosen)
-	_text.text = outcome.text
+	_text.text = tr(outcome.text)
 	_text.add_theme_color_override("font_color", outcome.color)
 	var choice := _encounter.def.choices[index]
 	var paid := choice.gold_cost > 0 or choice.max_hp_cost > 0.0
@@ -79,7 +79,7 @@ func _choose(index: int) -> void:
 	UiParts.clear(_choices)
 	_buttons.clear()
 	_leave_row.hide()
-	var go_on := UiParts.button("Continue", close, Vector2(320, 58), 20)
+	var go_on := UiParts.button(tr("Continue"), close, Vector2(320, 58), 20)
 	_choices.add_child(go_on)
 
 
@@ -87,7 +87,7 @@ func _choose(index: int) -> void:
 
 ## A choice as a card: its name, its cost, what can happen (with the odds), and its button.
 func _choice_card(choice: EncounterChoice, index: int, depth: int) -> Control:
-	var card: Dictionary = RpgWindow.section(choice.label)
+	var card: Dictionary = RpgWindow.section(tr(choice.label))
 	var box := card.box as Control
 	box.custom_minimum_size.x = CARD_WIDTH
 	var column := card.column as VBoxContainer
@@ -97,14 +97,14 @@ func _choice_card(choice: EncounterChoice, index: int, depth: int) -> Control:
 	column.add_child(cost)
 	var chances := choice.chances()
 	var paid := choice.gold_cost > 0 or choice.max_hp_cost > 0.0
-	column.add_child(UiSkin.label("Always:" if chances.size() == 1 else "What can happen:", 15, UiSkin.DIM))
+	column.add_child(UiSkin.label(tr("Always:") if chances.size() == 1 else tr("What can happen:"), 15, UiSkin.DIM))
 	for i in choice.outcomes.size():
 		var outcome := choice.outcomes[i]
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 8)
 		column.add_child(row)
 		if chances.size() > 1:
-			var odds := UiSkin.label("%d%%" % roundi(chances[i] * 100.0), 16, UiSkin.TEXT)
+			var odds := UiSkin.label(tr("%d%%") % roundi(chances[i] * 100.0), 16, UiSkin.TEXT)
 			odds.custom_minimum_size.x = 48
 			odds.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 			row.add_child(odds)
@@ -162,11 +162,11 @@ func _build() -> void:
 	_leave_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	_leave_row.add_theme_constant_override("separation", 14)
 	_dialog.body.add_child(_leave_row)
-	_leave = UiParts.button("Leave", close, Vector2(200, 52), 18)
+	_leave = UiParts.button(tr("Leave"), close, Vector2(200, 52), 18)
 	_leave.name = "LeaveButton"
 	_own(_leave)
 	_leave_row.add_child(_leave)
-	_leave_note = UiSkin.label("Nothing happens. You can come back later.", 15, UiSkin.DIM)
+	_leave_note = UiSkin.label(tr("Nothing happens. You can come back later."), 15, UiSkin.DIM)
 	_leave_row.add_child(_leave_note)
 	for node in _named:
 		node.owner = self
