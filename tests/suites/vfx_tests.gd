@@ -32,6 +32,7 @@ func run() -> void:
 	_test_layers()
 	_test_body_shader()
 	_test_shaders()
+	_test_no_squared_colors()
 
 
 ## Each element: an id, a ramp of 3 to 5 colors from a bright core to a dark edge (shadow turned
@@ -859,3 +860,20 @@ func _statuses(resource: Resource) -> Array[OnHitStatus]:
 		if status:
 			found.append(status)
 	return found
+
+
+## In a Godot 4 canvas shader the fragment's COLOR already holds the texture's color: a texture
+## read multiplied by COLOR squares every color (the bodies were drawn far darker than their art
+## until the rig's shader took its tint from vertex() instead). No shader may do it again.
+func _test_no_squared_colors() -> void:
+	var regex := RegEx.create_from_string("texture\\(\\s*TEXTURE[^;]*\\)\\s*\\*\\s*COLOR\\b")
+	var scanned := 0
+	for folder: String in ["res://assets/shaders/", "res://src/vfx/", "res://src/world/atmosphere/", "res://src/entities/hazards/"]:
+		for file in DirAccess.get_files_at(folder):
+			if not (file.ends_with(".gdshader") or file.ends_with(".gdshaderinc")):
+				continue
+			scanned += 1
+			var code := FileAccess.get_file_as_string(folder + file)
+			check(regex.search(code) == null, "shaders: %s never multiplies a texture read by COLOR (it squares the colors)" % file)
+	check(scanned >= 8, "shaders scanned for squared colors (%d)" % scanned)
+

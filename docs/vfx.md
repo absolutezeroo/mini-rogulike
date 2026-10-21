@@ -212,7 +212,10 @@ by `FxLook.five(element)`): a shader moves a pixel up or down the ramp (`ramp_in
 texel's step), it never blends. Fades are ordered dithering (`bayer(cell)`); alpha is 1-bit.
 In `fragment()`, `COLOR` already is the texel times the tint: use it (or `texture()` alone),
 never `texture(TEXTURE, UV) * COLOR`, which squares every color (a mid step turns nearly
-black: `dither_fade` did it until this pass, so every sheet was drawn darker than its ramp).
+black: `dither_fade` did it until this pass, so every sheet was drawn darker than its ramp; the
+rig's `flash.gdshader` did it too, so every body was drawn far darker than its art). To read the
+texture at another texel, take the tint from `vertex()` (`varying vec4 tint; tint = COLOR;`) and
+multiply by that. A vfx test scans every shader for the mistake.
 The shared helpers are in `assets/shaders/fx.gdshaderinc`.
 
 | Shader | On | Recipe | Uniforms |

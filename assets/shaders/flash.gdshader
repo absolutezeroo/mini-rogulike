@@ -51,9 +51,14 @@ uniform int death_row = 0;
 const float BAYER[16] = float[](0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0);
 
 varying vec2 local;
+// The node's modulate and vertex color alone. In a Godot 4 canvas shader the fragment's COLOR
+// already holds the texture's color: multiplying a texture read by it squared every color (the
+// bodies were drawn much darker than their art). Reads at other texels use this instead.
+varying vec4 tint;
 
 void vertex() {
 	local = VERTEX;
+	tint = COLOR;
 }
 
 vec3 rotate_hue(vec3 color, float turns) {
@@ -122,7 +127,7 @@ void fragment() {
 	// Most bodies most of the time: nothing on them but maybe a flash. The cheap path (the
 	// shader as it was before statuses), no texel reads, no noise.
 	if (dissolve <= 0.0 && burn <= 0.0 && chill <= 0.0 && poison <= 0.0 && haunt <= 0.0 && crackle <= 0.0 && outline_color.a <= 0.0) {
-		vec4 plain = texture(TEXTURE, UV) * COLOR;
+		vec4 plain = texture(TEXTURE, UV) * tint;
 		if (hue_shift > 0.0) {
 			plain.rgb = rotate_hue(plain.rgb, hue_shift);
 		}
@@ -170,7 +175,7 @@ void fragment() {
 		vec2 uv = UV + (src - cell) * px;
 		vec4 color = vec4(0.0);
 		if (src == cell || in_frame(src)) {
-			color = texture(TEXTURE, uv) * COLOR;
+			color = texture(TEXTURE, uv) * tint;
 		}
 		bool opaque = color.a > 0.5;
 		// From the feet (0) to the top of the frame (1), and the dither threshold of this texel.
