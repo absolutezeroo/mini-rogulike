@@ -19,3 +19,4 @@
 
 # Compiled translations (made from locale/strings.csv on import)
 /locale/*.translation
+__pycache__/
