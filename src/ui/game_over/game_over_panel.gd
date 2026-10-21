@@ -36,8 +36,8 @@ func show_end(victory: bool, story: String, rows: Array, souls_earned: int, soul
 	_show(tr("Victory Achieved") if victory else tr("The Well claims you"), VICTORY_COLOR if victory else DEATH_COLOR, story, victory)
 	UiParts.clear(_stats)
 	for row: Array in rows:
-		_stats.add_child(UiSkin.label(str(row[0]), 16, UiSkin.DIM))
-		var value := UiSkin.label(str(row[1]), 16, UiSkin.GOLD if str(row[1]).contains(tr("New record!")) else UiSkin.TEXT)
+		_stats.add_child(UiSkin.label(str(row[0]), Fonts.BODY, UiSkin.DIM))
+		var value := UiSkin.label(str(row[1]), Fonts.BODY, UiSkin.GOLD if str(row[1]).contains(tr("New record!")) else UiSkin.TEXT)
 		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_stats.add_child(value)
@@ -87,7 +87,7 @@ func _build() -> void:
 	add_child(_dialog)
 	_dialog.title_label.name = "Title"
 	_own(_dialog.title_label)
-	_summary = UiParts.text("", 17, UiSkin.TEXT, WIDTH - 60)
+	_summary = UiParts.text("", Fonts.BODY, UiSkin.TEXT, WIDTH - 60)
 	_summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_summary.name = "Summary"
 	_own(_summary)
@@ -109,14 +109,14 @@ func _build() -> void:
 	var souls: Dictionary = RpgWindow.section(tr("Souls"))
 	(souls.box as Control).custom_minimum_size.x = 400
 	_columns.add_child(souls.box)
-	_souls_earned = UiSkin.label("", 30, UiSkin.GOLD)
+	_souls_earned = UiSkin.label("", Fonts.TITLE, UiSkin.GOLD)
 	_souls_earned.name = "SoulsEarned"
 	_own(_souls_earned)
 	souls.column.add_child(_souls_earned)
-	_souls_total = UiSkin.label("", 16, UiSkin.TEXT)
+	_souls_total = UiSkin.label("", Fonts.BODY, UiSkin.TEXT)
 	souls.column.add_child(_souls_total)
-	souls.column.add_child(UiParts.text(tr("Souls are kept between runs. Spend them at the Shrine (title screen) on upgrades that make every next run stronger."), 15, UiSkin.DIM, 360))
-	souls.column.add_child(UiParts.text(tr("Gold was only for this run."), 15, UiSkin.DIM, 360))
+	souls.column.add_child(UiParts.text(tr("Souls are kept between runs. Spend them at the Shrine (title screen) on upgrades that make every next run stronger."), Fonts.BODY, UiSkin.DIM, 360))
+	souls.column.add_child(UiParts.text(tr("Gold was only for this run."), Fonts.BODY, UiSkin.DIM, 360))
 
 	var buttons := HBoxContainer.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -125,23 +125,23 @@ func _build() -> void:
 	_continue_button = UiParts.button(tr("Keep going (endless)"), func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_click)
 		hide()
-		continue_requested.emit(), Vector2(260, 58), 19)
+		continue_requested.emit(), Vector2(260, 58), Fonts.BODY)
 	_continue_button.name = "ContinueButton"
 	_own(_continue_button)
 	buttons.add_child(_continue_button)
 	_restart_button = UiParts.button(tr("Try again"), func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_click)
-		restart_requested.emit(), Vector2(240, 58), 19)
+		restart_requested.emit(), Vector2(240, 58), Fonts.BODY)
 	_restart_button.name = "RestartButton"
 	_own(_restart_button)
 	buttons.add_child(_restart_button)
 	var title_button := UiParts.button(tr("Title screen"), func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_click)
-		title_requested.emit(), Vector2(240, 58), 19)
+		title_requested.emit(), Vector2(240, 58), Fonts.BODY)
 	title_button.name = "TitleButton"
 	_own(title_button)
 	buttons.add_child(title_button)
-	_continue_note = UiParts.text(tr("Keep going: endless floors, harder and harder. Your win is already counted."), 15, UiSkin.DIM, WIDTH - 60)
+	_continue_note = UiParts.text(tr("Keep going: endless floors, harder and harder. Your win is already counted."), Fonts.BODY, UiSkin.DIM, WIDTH - 60)
 	_continue_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_dialog.body.add_child(_continue_note)
 	for node in _named:

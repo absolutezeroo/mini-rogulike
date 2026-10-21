@@ -41,7 +41,7 @@ func setup(def: UpgradeDef) -> void:
 			slot.item = item
 			slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			_items.add_child(slot)
-			_items.add_child(UiSkin.label(tr(item.display_name), 15, item.rarity_color()))
+			_items.add_child(UiSkin.label(tr(item.display_name), Fonts.BODY, item.rarity_color()))
 	_items.visible = _items.get_child_count() > 0
 	refresh()
 
@@ -184,20 +184,20 @@ func _build() -> void:
 	var head := HBoxContainer.new()
 	head.add_theme_constant_override("separation", 14)
 	text.add_child(head)
-	_name = UiSkin.label("", 20)
+	_name = UiSkin.label("", Fonts.BODY)
 	head.add_child(_name)
-	_level = UiSkin.label("", 15, UiSkin.DIM)
+	_level = UiSkin.label("", Fonts.BODY, UiSkin.DIM)
 	_level.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	head.add_child(_level)
-	_description = UiSkin.label("", 15, UiSkin.DIM, true)
+	_description = UiSkin.label("", Fonts.BODY, UiSkin.DIM, true)
 	text.add_child(_description)
-	_status = UiSkin.label("", 15, UiSkin.TEXT, true)
+	_status = UiSkin.label("", Fonts.BODY, UiSkin.TEXT, true)
 	text.add_child(_status)
 	_items = HBoxContainer.new()
 	_items.add_theme_constant_override("separation", 8)
 	text.add_child(_items)
 
-	_buy = MenuWindow.button("", 17, 60)
+	_buy = MenuWindow.button("", Fonts.BODY, 60)
 	_buy.custom_minimum_size.x = 150
 	_buy.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_buy.pressed.connect(func() -> void: buy_requested.emit(upgrade))

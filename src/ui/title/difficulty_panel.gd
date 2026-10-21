@@ -122,7 +122,7 @@ func _build() -> void:
 	var scene_owner: Node = owner if owner != null else self
 	_window.close_button.text = tr("Back")
 	MenuWindow.expose(_window.close_button, "BackButton", scene_owner)
-	var intro := UiSkin.label(tr("Tap one to begin the descent. Harder ones pay more souls."), 16, UiSkin.TEXT, true)
+	var intro := UiSkin.label(tr("Tap one to begin the descent. Harder ones pay more souls."), Fonts.BODY, UiSkin.TEXT, true)
 	intro.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_window.header_left.add_child(intro)
 	_cards = HBoxContainer.new()
@@ -141,25 +141,25 @@ func _build() -> void:
 	var left := VBoxContainer.new()
 	left.add_theme_constant_override("separation", 2)
 	line.add_child(left)
-	left.add_child(UiSkin.label(tr("Nightmare ascension"), 18, Color(0.85, 0.6, 1.0)))
+	left.add_child(UiSkin.label(tr("Nightmare ascension"), Fonts.BODY, Color(0.85, 0.6, 1.0)))
 	_ascension_row = HBoxContainer.new()
 	_ascension_row.add_theme_constant_override("separation", 8)
 	left.add_child(_ascension_row)
 	MenuWindow.expose(_ascension_row, "AscensionRow", scene_owner)
-	_minus = MenuWindow.button("-", 24, 46)
+	_minus = MenuWindow.button("-", Fonts.TITLE, 46)
 	_minus.custom_minimum_size.x = 52
 	_ascension_row.add_child(_minus)
 	MenuWindow.expose(_minus, "AscensionMinus", scene_owner)
-	_ascension_level = UiSkin.label("+0", 26, Color(0.85, 0.6, 1.0))
+	_ascension_level = UiSkin.label("+0", Fonts.TITLE, Color(0.85, 0.6, 1.0))
 	_ascension_level.custom_minimum_size.x = 56
 	_ascension_level.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_ascension_row.add_child(_ascension_level)
 	MenuWindow.expose(_ascension_level, "AscensionLevel", scene_owner)
-	_plus = MenuWindow.button("+", 24, 46)
+	_plus = MenuWindow.button("+", Fonts.TITLE, 46)
 	_plus.custom_minimum_size.x = 52
 	_ascension_row.add_child(_plus)
 	MenuWindow.expose(_plus, "AscensionPlus", scene_owner)
-	_ascension_souls = UiSkin.label("", 17, MenuWindow.SOULS)
+	_ascension_souls = UiSkin.label("", Fonts.BODY, MenuWindow.SOULS)
 	_ascension_souls.custom_minimum_size.x = 180
 	_ascension_souls.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_ascension_row.add_child(_ascension_souls)
@@ -168,6 +168,6 @@ func _build() -> void:
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	line.add_child(scroll)
-	_ascension_text = UiSkin.label("", 15, UiSkin.TEXT, true)
+	_ascension_text = UiSkin.label("", Fonts.BODY, UiSkin.TEXT, true)
 	scroll.add_child(_ascension_text)
 	MenuWindow.expose(_ascension_text, "AscensionText", scene_owner)

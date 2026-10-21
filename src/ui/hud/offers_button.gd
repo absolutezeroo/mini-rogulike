@@ -63,14 +63,10 @@ func _draw() -> void:
 	draw_circle(badge, 14.0, Color("7a1f2b"))
 	draw_circle(badge, 14.0, GOLD, false, 2.0, true)
 	var text := str(count)
-	var text_size := Fonts.MAIN.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 18)
-	draw_string(Fonts.MAIN, badge + Vector2(-text_size.x * 0.5, 6.5), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color.WHITE)
+	Fonts.draw(self, badge + Vector2(0, 6), text, Fonts.BODY, Color.WHITE, 0.5, Color.TRANSPARENT)
 	# What it is, under it.
 	var caption := tr("Perks")
-	var caption_size := Fonts.MAIN.get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 16)
-	var at := Vector2(center.x - caption_size.x * 0.5, size.y + 12.0)
-	draw_string_outline(Fonts.MAIN, at, caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, 5, Color.BLACK)
-	draw_string(Fonts.MAIN, at, caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, GOLD)
+	Fonts.draw(self, Vector2(center.x, size.y + 12.0), caption, Fonts.BODY, GOLD, 0.5, Color.BLACK)
 
 
 ## A four-pointed star rising out of the wood: a perk waits.

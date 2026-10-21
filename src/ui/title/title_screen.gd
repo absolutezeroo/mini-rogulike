@@ -121,7 +121,7 @@ func _setup_continue() -> void:
 		return
 	var player: Dictionary = saved.get("player", {})
 	# Two lines like the Dawn Knell's, inside the column's width (one long line ran past it).
-	var lines := _two_line_button(button, 22)
+	var lines := _two_line_button(button, Fonts.BODY)
 	lines[0].text = tr("Resume the descent")
 	lines[1].text = tr("Floor %d, level %d") % [int(saved.get("depth", 1)), int(player.get("level", 1))]
 	button.pressed.connect(func() -> void:
@@ -148,7 +148,7 @@ func _place_scene() -> void:
 
 ## The Daily Descent button's three lines: name, what it is, your score.
 func _build_daily_button() -> void:
-	var lines := _two_line_button(%DailyButton, 24)
+	var lines := _two_line_button(%DailyButton, Fonts.BODY)
 	_daily_title = lines[0]
 	_daily_text = lines[1]
 
@@ -169,7 +169,7 @@ func _two_line_button(button: Button, title_size: int) -> Array[Label]:
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_theme_constant_override("separation", 0)
 	margin.add_child(column)
-	var lines: Array[Label] = [_button_label(title_size), _button_label(14)]
+	var lines: Array[Label] = [_button_label(title_size), _button_label(Fonts.SMALL)]
 	for label in lines:
 		column.add_child(label)
 	return lines
@@ -179,6 +179,7 @@ func _button_label(font_size: int) -> Label:
 	var label := Label.new()
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_constant_override("outline_size", 0)  # dark words on the orange button
 	label.add_theme_color_override("font_color", BUTTON_TEXT)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS  # never wider than the button
@@ -188,7 +189,7 @@ func _button_label(font_size: int) -> Label:
 ## A small plaque on the Shrine button's corner when an upgrade can be bought.
 func _build_shrine_badge() -> void:
 	var button: Button = %ShrineButton
-	_shrine_badge = MenuWindow.badge(tr("Souls to offer"), 14, MenuWindow.SOULS)
+	_shrine_badge = MenuWindow.badge(tr("Souls to offer"), Fonts.BODY, MenuWindow.SOULS)
 	# Its right edge just past the button's, over the top edge (it grows to the left).
 	_shrine_badge.anchor_left = 1.0
 	_shrine_badge.anchor_right = 1.0
@@ -230,10 +231,10 @@ func _record(first: String, second: String, color: Color = UiSkin.TEXT) -> void:
 	var pair := HBoxContainer.new()
 	pair.add_theme_constant_override("separation", 18)
 	var is_souls := color == MenuWindow.SOULS
-	var word := UiSkin.label(first, 18 if is_souls else 15, color if is_souls else UiSkin.DIM)
+	var word := UiSkin.label(first, Fonts.BODY, color if is_souls else UiSkin.DIM)
 	word.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	pair.add_child(word)
-	var value := UiSkin.label(second, 15, UiSkin.DIM if is_souls else color)
+	var value := UiSkin.label(second, Fonts.BODY, UiSkin.DIM if is_souls else color)
 	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	pair.add_child(value)
 	_records.add_child(pair)

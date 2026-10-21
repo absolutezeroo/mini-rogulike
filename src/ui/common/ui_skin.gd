@@ -44,8 +44,8 @@ static func ribbon() -> StyleBoxTexture:
 	box.texture_margin_bottom = 18
 	box.content_margin_left = 48
 	box.content_margin_right = 48
-	box.content_margin_top = 4
-	box.content_margin_bottom = 10
+	box.content_margin_top = 10  # a BODY line, its capitals on the ribbon's middle, 48 high as the art
+	box.content_margin_bottom = 14
 	return box
 
 
@@ -64,17 +64,25 @@ static func plaque() -> StyleBoxTexture:
 
 
 ## A label in the skin's text style, with a dark outline (readable on wood and in any color).
-static func label(text: String, font_size: int, color: Color = TEXT, wrap := false) -> Label:
+## `font_size`: one of the Fonts sizes (Fonts.BODY for anything read, Fonts.TITLE...), so its
+## letters keep whole pixels (Fonts); the outline is one font pixel.
+static func label(text: String, font_size: int = Fonts.BODY, color: Color = TEXT, wrap := false) -> Label:
 	var result := Label.new()
 	result.text = text
-	result.add_theme_font_size_override("font_size", font_size)
+	set_text_style(result, font_size)
 	result.add_theme_color_override("font_color", color)
-	result.add_theme_constant_override("outline_size", 5)
-	result.add_theme_color_override("font_outline_color", Color(0.12, 0.07, 0.05))
 	if wrap:
 		result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		result.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	return result
+
+
+## Gives `control` (a Label, a Button...) the font size `font_size` and the dark outline of one
+## font pixel that goes with it.
+static func set_text_style(control: Control, font_size: int) -> void:
+	control.add_theme_font_size_override("font_size", font_size)
+	control.add_theme_constant_override("outline_size", Fonts.outline_size(font_size))
+	control.add_theme_color_override("font_outline_color", Fonts.OUTLINE)
 
 
 ## A title on the red ribbon.
@@ -83,7 +91,7 @@ static func title(text: String) -> PanelContainer:
 	box.add_theme_stylebox_override("panel", ribbon())
 	box.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var words := label(text, 26, Color(1.0, 0.95, 0.85))
+	var words := label(text, Fonts.BODY, Color(1.0, 0.95, 0.85))
 	words.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(words)
 	return box

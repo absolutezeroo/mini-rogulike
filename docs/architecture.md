@@ -133,6 +133,7 @@ Few, each with one job (`project.godot` > Autoload):
 | `Settings` | `src/autoload/settings.gd` | Options and language (`user://settings.cfg`) |
 | `TouchScrolling` | `src/autoload/touch_scrolling.gd` | Adds finger scrolling to every `ScrollContainer` |
 | `Loader` | `src/autoload/scene_loader.gd` | Loading screen between the title and the game |
+| `PixelGrid` | `src/autoload/pixel_grid.gd` | Shifts the screen a quarter of a pixel so text and pixel art at half-pixel spots draw whole (design/interface.md, Text) |
 
 Tests empty `Profile.save_path` and `Settings.path`, so they never touch a player's files.
 

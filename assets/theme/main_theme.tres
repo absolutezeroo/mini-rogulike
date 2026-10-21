@@ -178,7 +178,7 @@ texture_margin_bottom = 4.0
 
 [resource]
 default_font = ExtResource("6_kvm4y")
-default_font_size = 16
+default_font_size = 18
 Button/colors/font_color = Color(0.16862746, 0.11372549, 0.14117648, 1)
 Button/colors/font_disabled_color = Color(0.16862746, 0.11372549, 0.14117648, 0.5)
 Button/colors/font_hover_color = Color(0.16862746, 0.11372549, 0.14117648, 1)
@@ -201,7 +201,7 @@ HSlider/styles/grabber_area = SubResource("Slider_fill")
 HSlider/styles/grabber_area_highlight = SubResource("Slider_fill")
 HSlider/styles/slider = SubResource("Slider_track")
 Label/colors/font_outline_color = Color(0.16862746, 0.11372549, 0.14117648, 1)
-Label/constants/outline_size = 4
+Label/constants/outline_size = 8
 PanelContainer/styles/panel = SubResource("StyleBoxTexture_xbixd")
 PerkCard/base_type = &"Button"
 PerkCard/styles/disabled = SubResource("StyleBoxTexture_card")

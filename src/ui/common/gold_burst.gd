@@ -54,10 +54,5 @@ func _draw() -> void:
 		var at := _from.lerp(out, ease(minf(t * 3.0, 1.0), 0.4)) if t < 0.33 else out.lerp(_to, ease((t - 0.33) / 0.67, 2.2))
 		draw_texture_rect(TEXTURE, Rect2(at - coin_size * 0.5, coin_size), false)
 	var rise := clampf(_time / (DURATION + 0.3), 0.0, 1.0)
-	var font := get_theme_default_font()
-	var font_size := 26
-	var width := font.get_string_size(_text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-	var spot := _from + Vector2(-width * 0.5, -20.0 - 40.0 * rise)
 	var alpha := 1.0 - maxf(rise - 0.6, 0.0) / 0.4
-	draw_string_outline(font, spot, _text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 6, Color(0.12, 0.07, 0.05, alpha))
-	draw_string(font, spot, _text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color(UiSkin.GOLD, alpha))
+	Fonts.draw(self, _from + Vector2(0, -20.0 - 40.0 * rise), _text, Fonts.TITLE, Color(UiSkin.GOLD, alpha), 0.5, Color(Fonts.OUTLINE, alpha))

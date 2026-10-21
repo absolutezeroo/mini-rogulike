@@ -93,10 +93,10 @@ func _fill_quests() -> void:
 		column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		column.add_theme_constant_override("separation", 8)
 		columns.add_child(column)
-		column.add_child(UiSkin.label(tr("Daily quests") if daily else tr("Weekly quests"), 20, UiSkin.GOLD))
+		column.add_child(UiSkin.label(tr("Daily quests") if daily else tr("Weekly quests"), Fonts.BODY, UiSkin.GOLD))
 		var left := QuestBoard.time_text(QuestBoard.seconds_left(period))
 		var when := tr("New ones in %s. Counts every run today.") if daily else tr("New ones in %s. Counts every run this week (from Monday).")
-		column.add_child(UiSkin.label(when % left, 15, UiSkin.DIM, true))
+		column.add_child(UiSkin.label(when % left, Fonts.BODY, UiSkin.DIM, true))
 		for quest in QuestBoard.current(_content.quests, period):
 			column.add_child(CodexRows.quest_row(quest))
 			total += 1
@@ -151,9 +151,9 @@ func _fill_bestiary() -> void:
 		var known := kinds.filter(func(m: MonsterDef) -> bool: return Profile.kill_count(m.id) > 0).size()
 		var heading := HBoxContainer.new()
 		heading.add_theme_constant_override("separation", 14)
-		heading.add_child(UiSkin.label("%s  -  %s" % [tr(act.subtitle), tr(act.title)], 19, UiSkin.GOLD))
+		heading.add_child(UiSkin.label("%s  -  %s" % [tr(act.subtitle), tr(act.title)], Fonts.BODY, UiSkin.GOLD))
 		var floors := tr("floor %d") % first if act.floors <= 1 else tr("floors %d to %d") % [first, first + act.floors - 1]
-		var where := UiSkin.label(tr("%s     %d of %d slain") % [floors, known, kinds.size()], 15, UiSkin.DIM)
+		var where := UiSkin.label(tr("%s     %d of %d slain") % [floors, known, kinds.size()], Fonts.BODY, UiSkin.DIM)
 		where.size_flags_vertical = Control.SIZE_SHRINK_END
 		heading.add_child(where)
 		_list.add_child(heading)
@@ -185,7 +185,7 @@ func _fill_hidden(rules: BestiaryRules, placed: Dictionary) -> void:
 	gap.custom_minimum_size.y = 6
 	_list.add_child(gap)
 	var heading := "%s  -  %s" % [tr(hidden.subtitle), tr(hidden.title)] if met else "???"
-	_list.add_child(UiSkin.label(heading, 19, UiSkin.GOLD))
+	_list.add_child(UiSkin.label(heading, Fonts.BODY, UiSkin.GOLD))
 	var flow := HFlowContainer.new()
 	_list.add_child(flow)
 	var card := CodexCard.new(hidden.boss, rules)
@@ -267,7 +267,7 @@ func _fill_runs() -> void:
 	_records.text = records
 	_records.visible = not records.is_empty()
 	if Profile.history.is_empty():
-		_list.add_child(UiSkin.label(tr("No descent finished yet. The Well is waiting."), 18, UiSkin.DIM))
+		_list.add_child(UiSkin.label(tr("No descent finished yet. The Well is waiting."), Fonts.BODY, UiSkin.DIM))
 	for entry: Dictionary in Profile.history:
 		_list.add_child(CodexRows.run_row(entry, _content))
 
@@ -309,7 +309,7 @@ func _build() -> void:
 		button.toggle_mode = true
 		button.focus_mode = Control.FOCUS_NONE
 		button.custom_minimum_size = Vector2(150, 48)
-		button.add_theme_font_size_override("font_size", 18)
+		button.add_theme_font_size_override("font_size", Fonts.BODY)
 		button.pressed.connect(func() -> void:
 			if _tab != i or _page.visible:
 				show_tab(i)
@@ -318,7 +318,7 @@ func _build() -> void:
 		tabs.add_child(button)
 		_tab_buttons.append(button)
 		_own(button)
-	_souls = UiSkin.label("", 22, CodexRows.SOUL)
+	_souls = UiSkin.label("", Fonts.BODY, CodexRows.SOUL)
 	_souls.name = "Souls"
 	_souls.tooltip_text = tr("Souls are kept between runs. Spend them at the Shrine.")
 	_window.header_right.add_child(_souls)
@@ -328,15 +328,15 @@ func _build() -> void:
 	_intro = VBoxContainer.new()
 	_intro.add_theme_constant_override("separation", 2)
 	_window.body.add_child(_intro)
-	_summary = UiSkin.label("", 19, UiSkin.GOLD)
+	_summary = UiSkin.label("", Fonts.BODY, UiSkin.GOLD)
 	_summary.name = "Summary"
 	_intro.add_child(_summary)
 	_own(_summary)
-	_help = UiSkin.label("", 15, UiSkin.TEXT, true)
+	_help = UiSkin.label("", Fonts.BODY, UiSkin.TEXT, true)
 	_help.name = "Help"
 	_intro.add_child(_help)
 	_own(_help)
-	_records = UiSkin.label("", 17, UiSkin.GOLD)
+	_records = UiSkin.label("", Fonts.BODY, UiSkin.GOLD)
 	_records.name = "Records"
 	_intro.add_child(_records)
 

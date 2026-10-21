@@ -8,7 +8,7 @@ const BAD := Color(1.0, 0.4, 0.32)
 
 
 ## A plain button (the game's default look), never keeping keyboard focus.
-static func button(text: String, action: Callable, min_size := Vector2(0, 52), font_size := 17) -> Button:
+static func button(text: String, action: Callable, min_size := Vector2(0, 52), font_size := Fonts.BODY) -> Button:
 	var result := Button.new()
 	result.text = text
 	result.focus_mode = Control.FOCUS_NONE

@@ -19,7 +19,8 @@ func add_message(text: String, color: Color) -> void:
 	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	line.add_theme_color_override("font_color", color)
 	line.add_theme_color_override("font_outline_color", Color.BLACK)
-	line.add_theme_constant_override("outline_size", 5)
+	line.add_theme_font_size_override("font_size", Fonts.BODY)
+	line.add_theme_constant_override("outline_size", Fonts.outline_size(Fonts.BODY))
 	add_child(line)
 	while get_child_count() > max_lines:
 		var oldest := get_child(0)

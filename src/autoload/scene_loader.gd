@@ -119,10 +119,10 @@ func _build() -> void:
 	emblem.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	emblem.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	column.add_child(emblem)
-	var title := UiSkin.label(tr("The Well of Souls"), 44, UiSkin.GOLD)
+	var title := UiSkin.label(tr("The Well of Souls"), Fonts.HUGE, UiSkin.GOLD)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(title)
-	_status = UiSkin.label("", 16, UiSkin.DIM)
+	_status = UiSkin.label("", Fonts.BODY, UiSkin.DIM)
 	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(_status)
 	_bar = ProgressBar.new()
@@ -139,7 +139,7 @@ func _build() -> void:
 	_bar.add_theme_stylebox_override("background", under)
 	_bar.add_theme_stylebox_override("fill", fill)
 	column.add_child(_bar)
-	_tip = UiSkin.label("", 17, UiSkin.TEXT, true)
+	_tip = UiSkin.label("", Fonts.BODY, UiSkin.TEXT, true)
 	_tip.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_tip.custom_minimum_size.x = 560
 	column.add_child(_tip)

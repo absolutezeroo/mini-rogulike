@@ -4,7 +4,8 @@ extends Node2D
 
 const LIFETIME := 0.75
 const RISE := 28.0
-const FONT_SIZE := 16
+## The share of its life it shows at twice its size, before settling.
+const POP_TIME := 0.08
 
 var _text := ""
 var _color := Color.WHITE
@@ -29,13 +30,8 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	var t := _age / LIFETIME
-	var font := Fonts.MAIN
-	var width := font.get_string_size(_text, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE).x
-	# Pops in big, then settles.
-	var pop := 1.0 + 0.6 * maxf(1.0 - t * 6.0, 0.0)
-	draw_set_transform(Vector2(0, -RISE * ease(t, 0.5)), 0.0, Vector2(pop, pop))
-	var pos := Vector2(-width * 0.5, 0.0)
 	var color := _color
 	color.a = 1.0 - maxf(t - 0.5, 0.0) * 2.0
-	draw_string_outline(font, pos, _text, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE, 4, Color(0.247, 0.149, 0.192, color.a))
-	draw_string(font, pos, _text, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE, color)
+	# Pops in at twice the size, then settles: whole sizes, so its pixels stay whole (Fonts).
+	var font_size := Fonts.TITLE if t < POP_TIME else Fonts.BODY
+	Fonts.draw(self, Vector2(0, -RISE * ease(t, 0.5)), _text, font_size, color, 0.5, Color(0.247, 0.149, 0.192, color.a))

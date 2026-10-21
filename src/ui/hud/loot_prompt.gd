@@ -7,7 +7,7 @@ extends PanelContainer
 ## Also says, in a toast, when the bag is full (Events.bag_full), at most every few seconds.
 ## Built by the HUD; listens to Events.
 
-const WIDTH := 520.0
+const WIDTH := 600.0
 ## Seconds between two "bag full" toasts (walking over loot again and again).
 const FULL_TOAST_GAP := 4.0
 const REFRESH := 0.25
@@ -57,11 +57,11 @@ func _ready() -> void:
 	words.alignment = BoxContainer.ALIGNMENT_CENTER
 	words.add_theme_constant_override("separation", 0)
 	row.add_child(words)
-	_name = UiSkin.label("", 18, UiSkin.GOLD)
+	_name = UiSkin.label("", Fonts.BODY, UiSkin.GOLD)
 	_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	words.add_child(_name)
-	_type = UiSkin.label("", 14, UiSkin.DIM)
+	_type = UiSkin.label("", Fonts.BODY, UiSkin.DIM)
 	_type.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_type.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	words.add_child(_type)
@@ -71,12 +71,12 @@ func _ready() -> void:
 	_compare.fit_content = true
 	_compare.scroll_active = false
 	_compare.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_compare.add_theme_font_size_override("normal_font_size", 14)
-	_compare.add_theme_constant_override("outline_size", 5)
-	_compare.add_theme_color_override("font_outline_color", Color(0.12, 0.07, 0.05))
+	_compare.add_theme_font_size_override("normal_font_size", Fonts.BODY)
+	_compare.add_theme_constant_override("outline_size", Fonts.outline_size(Fonts.BODY))
+	_compare.add_theme_color_override("font_outline_color", Fonts.OUTLINE)
 	_compare.add_theme_color_override("default_color", UiSkin.TEXT)
 	words.add_child(_compare)
-	_take = UiParts.button(tr("Take"), _on_take, Vector2(130, 60), 19)
+	_take = UiParts.button(tr("Take"), _on_take, Vector2(130, 60))
 	_take.name = "TakeButton"
 	_take.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(_take)

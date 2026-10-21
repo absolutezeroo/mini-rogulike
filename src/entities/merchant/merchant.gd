@@ -181,6 +181,4 @@ func _draw() -> void:
 		var bob := roundf(sin(_time * 2.0))
 		draw_texture_rect_region(def.sprite_sheet, Rect2(-16, -22 + bob, 32, 32), Rect2(0, 0, 16, 16))
 	# A "$" over their head: a customer is welcome.
-	var font := Fonts.MAIN
-	draw_string_outline(font, Vector2(-4, -30), "$", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, 4, Color.BLACK)
-	draw_string(font, Vector2(-4, -30), "$", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Palette.GOLD)
+	Fonts.draw(self, Vector2(0, -30), "$", Fonts.BODY, Palette.GOLD, 0.5, Color.BLACK)

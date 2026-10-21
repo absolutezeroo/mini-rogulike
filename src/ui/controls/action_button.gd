@@ -61,12 +61,8 @@ func _draw() -> void:
 		var offset := Vector2(0, 2) if is_pressed() else Vector2.ZERO
 		draw_texture_rect(icon, Rect2(-icon_size * 0.5 + offset, icon_size), false, icon_tint)
 	elif not label.is_empty():
-		var font := Fonts.MAIN
-		var font_size := 16 if radius < 60.0 else 24
-		var text_size := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
-		var pos := Vector2(-text_size.x * 0.5, font_size * 0.35)
-		draw_string_outline(font, pos, label, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 6, Color("2b1d24"))
-		draw_string(font, pos, label, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color.WHITE)
+		var font_size := Fonts.BODY if radius < 60.0 else Fonts.TITLE
+		Fonts.draw(self, Vector2(0, font_size / 3.0), label, font_size, Color.WHITE, 0.5, Color("2b1d24"))
 
 	if cooldown_ratio > 0.01:
 		var points := PackedVector2Array([Vector2.ZERO])
@@ -81,5 +77,4 @@ func _draw() -> void:
 		draw_circle(badge, 14.0, Color("2b1d24"))
 		draw_circle(badge, 14.0, Color("e9a85a"), false, 2.0)
 		var count_text := str(counter)
-		var count_size := Fonts.MAIN.get_string_size(count_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 16)
-		draw_string(Fonts.MAIN, badge + Vector2(-count_size.x * 0.5, 6.0), count_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color.WHITE)
+		Fonts.draw(self, badge + Vector2(0, 6), count_text, Fonts.BODY, Color.WHITE, 0.5, Color.TRANSPARENT)

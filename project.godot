@@ -40,6 +40,7 @@ Profile="*res://src/autoload/profile.gd"
 Settings="*res://src/autoload/settings.gd"
 TouchScrolling="*res://src/autoload/touch_scrolling.gd"
 Loader="*res://src/autoload/scene_loader.gd"
+PixelGrid="*res://src/autoload/pixel_grid.gd"
 
 [display]
 

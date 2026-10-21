@@ -50,7 +50,7 @@ func _rebuild() -> void:
 		if entry.stacks > 1:
 			var level := Label.new()
 			level.text = str(entry.stacks)
-			level.add_theme_font_size_override("font_size", 12)
+			UiSkin.set_text_style(level, Fonts.SMALL)
 			level.position = Vector2(16, 10)
 			icon.add_child(level)
 		add_child(icon)

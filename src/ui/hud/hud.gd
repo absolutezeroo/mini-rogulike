@@ -25,6 +25,8 @@ var _toast_busy := false
 var _threshold_hud: ThresholdHud
 ## The floor's widgets put away during the trial, to show again after (the boss bar, the map).
 var _hidden_for_trial: Array[Control] = []
+## A word, a space, a number: the space becomes unbreakable on the info line.
+static var _word_and_number := RegEx.create_from_string("(\\S) (\\d)")
 
 @onready var _hp_bar: StatBar = %HpBar
 @onready var _xp_bar: StatBar = %XpBar
@@ -99,7 +101,7 @@ func _add_debug_button() -> void:
 	button.name = "DebugButton"
 	button.text = "DBG"
 	button.focus_mode = Control.FOCUS_NONE
-	button.add_theme_font_size_override("font_size", 16)
+	button.add_theme_font_size_override("font_size", Fonts.BODY)
 	button.anchor_left = 1.0
 	button.anchor_right = 1.0
 	button.offset_left = pause.offset_left - 80.0
@@ -345,12 +347,14 @@ func _refresh_info() -> void:
 	var stats := _player.get_stats()
 	var weapon := _player.get_weapon()
 	var difficulty := _player.world.difficulty if _player.world else null
-	_info_label.text = (tr(difficulty.display_name) + "   " if difficulty else "") + tr("Depth %d   Damage %d   Armor %d   %s") % [
+	var line := (tr(difficulty.display_name) + "   " if difficulty else "") + tr("Depth %d   Damage %d   Armor %d   %s") % [
 		_player.world.depth if _player.world else 1,
 		_player.get_power(),
 		stats.defense,
 		tr(weapon.display_name) if weapon else tr("Bare hands"),
 	]
+	# When the line wraps, a stat keeps its number ("Armor" never ends a line, its 0 on the next).
+	_info_label.text = _word_and_number.sub(line, "$1\u00a0$2", true)
 
 
 func _on_gold_changed(gold: int) -> void:

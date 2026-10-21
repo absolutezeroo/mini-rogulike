@@ -16,7 +16,7 @@ static func souls(amount: int) -> String:
 
 
 ## A bar with its numbers written on it ("12 / 40"), gold while running, green once full.
-static func bar(value: float, max_value: float, text: String, height := 22.0, font_size := 14) -> StatBar:
+static func bar(value: float, max_value: float, text: String, height := 22.0, font_size := Fonts.BODY) -> StatBar:
 	var result := StatBar.new()
 	result.custom_minimum_size = Vector2(0, height)
 	result.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -65,10 +65,10 @@ static func row_box() -> PanelContainer:
 static func fact(name: String, value: String, value_color: Color = UiSkin.TEXT) -> HBoxContainer:
 	var line := HBoxContainer.new()
 	line.add_theme_constant_override("separation", 8)
-	var label := UiSkin.label(name, 14, UiSkin.DIM)
+	var label := UiSkin.label(name, Fonts.BODY, UiSkin.DIM)
 	label.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	line.add_child(label)
-	line.add_child(UiSkin.label(value, 16, value_color, true))  # wraps rather than overflows
+	line.add_child(UiSkin.label(value, Fonts.BODY, value_color, true))  # wraps rather than overflows
 	return line
 
 
@@ -101,7 +101,7 @@ static func quest_row(quest: Dictionary) -> Control:
 	middle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	middle.add_theme_constant_override("separation", 4)
 	row.add_child(middle)
-	middle.add_child(UiSkin.label(QuestBoard.text(quest), 18, DONE if done else UiSkin.TEXT, true))
+	middle.add_child(UiSkin.label(QuestBoard.text(quest), Fonts.BODY, DONE if done else UiSkin.TEXT, true))
 	var progress := QuestBoard.progress(quest)
 	var target := int(quest.target)
 	middle.add_child(bar(progress, target, TranslationServer.tr("Done!") if done else "%d / %d" % [progress, target]))
@@ -109,10 +109,10 @@ static func quest_row(quest: Dictionary) -> Control:
 	reward.custom_minimum_size.x = 118
 	reward.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_child(reward)
-	var amount := UiSkin.label(souls(int(quest.reward)), 17, SOUL)
+	var amount := UiSkin.label(souls(int(quest.reward)), Fonts.BODY, SOUL)
 	amount.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	reward.add_child(amount)
-	var status := UiSkin.label(TranslationServer.tr("Received") if done else TranslationServer.tr("Reward"), 14, DONE if done else UiSkin.DIM)
+	var status := UiSkin.label(TranslationServer.tr("Received") if done else TranslationServer.tr("Reward"), Fonts.BODY, DONE if done else UiSkin.DIM)
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	reward.add_child(status)
 	return box
@@ -134,8 +134,8 @@ static func achievement_row(achievement: AchievementDef) -> Control:
 	text.add_theme_constant_override("separation", 0)
 	row.add_child(text)
 	var hidden := achievement.secret and not unlocked
-	text.add_child(UiSkin.label("???" if hidden else TranslationServer.tr(achievement.display_name), 18, UiSkin.GOLD if unlocked else UiSkin.TEXT))
-	text.add_child(UiSkin.label(TranslationServer.tr("A secret feat. Some doors only open from the other side.") if hidden else TranslationServer.tr(achievement.description), 15, UiSkin.DIM, true))
+	text.add_child(UiSkin.label("???" if hidden else TranslationServer.tr(achievement.display_name), Fonts.BODY, UiSkin.GOLD if unlocked else UiSkin.TEXT))
+	text.add_child(UiSkin.label(TranslationServer.tr("A secret feat. Some doors only open from the other side.") if hidden else TranslationServer.tr(achievement.description), Fonts.BODY, UiSkin.DIM, true))
 	var progress := achievement.target if unlocked else achievement.progress()
 	var meter := bar(progress, achievement.target, TranslationServer.tr("Done!") if unlocked else "%d / %d" % [progress, achievement.target])
 	meter.custom_minimum_size.x = 240
@@ -145,10 +145,10 @@ static func achievement_row(achievement: AchievementDef) -> Control:
 	reward.custom_minimum_size.x = 118
 	reward.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_child(reward)
-	var amount := UiSkin.label(souls(achievement.reward_souls), 17, SOUL)
+	var amount := UiSkin.label(souls(achievement.reward_souls), Fonts.BODY, SOUL)
 	amount.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	reward.add_child(amount)
-	var status := UiSkin.label(TranslationServer.tr("Received") if unlocked else TranslationServer.tr("Reward"), 14, DONE if unlocked else UiSkin.DIM)
+	var status := UiSkin.label(TranslationServer.tr("Received") if unlocked else TranslationServer.tr("Reward"), Fonts.BODY, DONE if unlocked else UiSkin.DIM)
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	reward.add_child(status)
 	return box
@@ -171,13 +171,13 @@ static func run_row(entry: Dictionary, content: ContentDB) -> Control:
 	ending.add_theme_constant_override("separation", 0)
 	row.add_child(ending)
 	var headline := TranslationServer.tr("Victory Achieved") if won else TranslationServer.tr("Died on floor %d") % depth
-	ending.add_child(UiSkin.label(headline, 20, DONE if won else Palette.DANGER))
+	ending.add_child(UiSkin.label(headline, Fonts.BODY, DONE if won else Palette.DANGER))
 	var how := TranslationServer.tr("Reached the bottom of the Well")
 	if won and not cause.is_empty():
 		how = TranslationServer.tr("Won, then slain by %s") % cause
 	elif not won:
 		how = TranslationServer.tr("Slain by %s") % (cause if not cause.is_empty() else "?")
-	ending.add_child(UiSkin.label(how, 15, UiSkin.TEXT, true))
+	ending.add_child(UiSkin.label(how, Fonts.BODY, UiSkin.TEXT, true))
 	# Three columns of facts, the same widths on every row so they line up.
 	var facts := GridContainer.new()
 	facts.columns = 3

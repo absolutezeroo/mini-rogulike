@@ -59,7 +59,7 @@ func _build() -> void:
 	var resume := _row(tr("Resume"), "ResumeButton", tr("Back to the fight."), func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_close)
 		resume_requested.emit())
-	resume.add_theme_font_size_override("font_size", 24)
+	resume.add_theme_font_size_override("font_size", Fonts.TITLE)
 	_row(tr("Options"), "OptionsButton", tr("Sound, music, button size, effects."), func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		_options.open())
@@ -78,8 +78,8 @@ func _build() -> void:
 
 	# What the two currencies are for.
 	var money: Dictionary = RpgWindow.section(tr("Gold and souls"))
-	money.column.add_child(UiParts.text(tr("Gold: only for this run. Spend it at the merchant and the forge; it is lost when the run ends."), 15, UiSkin.TEXT, BUTTON_SIZE.x + NOTE_WIDTH))
-	money.column.add_child(UiParts.text(tr("Souls: kept between runs. Spend them at the Shrine (title screen) on upgrades for every run."), 15, UiSkin.TEXT, BUTTON_SIZE.x + NOTE_WIDTH))
+	money.column.add_child(UiParts.text(tr("Gold: only for this run. Spend it at the merchant and the forge; it is lost when the run ends."), Fonts.BODY, UiSkin.TEXT, BUTTON_SIZE.x + NOTE_WIDTH))
+	money.column.add_child(UiParts.text(tr("Souls: kept between runs. Spend them at the Shrine (title screen) on upgrades for every run."), Fonts.BODY, UiSkin.TEXT, BUTTON_SIZE.x + NOTE_WIDTH))
 	_dialog.body.add_child(money.box)
 	for node in _named:
 		node.owner = self
@@ -100,11 +100,11 @@ func _row(text: String, node_name: String, note: String, action: Callable) -> Bu
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)
 	_dialog.body.add_child(row)
-	var button := UiParts.button(text, action, BUTTON_SIZE, 20)
+	var button := UiParts.button(text, action, BUTTON_SIZE, Fonts.BODY)
 	button.name = node_name
 	row.add_child(button)
 	_named.append(button)
-	var words := UiParts.text(note, 15, UiSkin.DIM, NOTE_WIDTH)
+	var words := UiParts.text(note, Fonts.BODY, UiSkin.DIM, NOTE_WIDTH)
 	words.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(words)
 	return button

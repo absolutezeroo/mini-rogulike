@@ -181,7 +181,7 @@ func _build() -> void:
 	# In a run, the menus already built keep their words until the next run: say so.
 	var in_run := _language_changed and not get_tree().current_scene is TitleScreen
 	var note := tr("Language changed: some menus follow from the next run.") if in_run else tr("Every change is saved right away.")
-	var saved := UiSkin.label(note, 16, UiSkin.DIM, true)
+	var saved := UiSkin.label(note, Fonts.BODY, UiSkin.DIM, true)
 	saved.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	saved.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	window.header_left.add_child(saved)
@@ -223,7 +223,7 @@ func _build() -> void:
 	replay_row.add_theme_constant_override("separation", 12)
 	tutorial.add_child(replay_row)
 	replay_row.add_child(_words(tr("Replay tutorial"), tr("Every tip again, from the first steps.")))
-	_replay = MenuWindow.button(tr("Replay tutorial"), 17, 44)
+	_replay = MenuWindow.button(tr("Replay tutorial"), Fonts.BODY, 44)
 	_replay.custom_minimum_size.x = 190
 	_replay.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	replay_row.add_child(_replay)
@@ -244,24 +244,24 @@ func _build_loot(section: VBoxContainer) -> void:
 		[Settings.LOOT_OFF, tr("By hand"), "AutoLootOff"],
 	]
 	for entry: Array in modes:
-		var button := MenuWindow.button(entry[1], 16, 44)
+		var button := MenuWindow.button(entry[1], Fonts.BODY, 44)
 		button.toggle_mode = true
 		button.custom_minimum_size.x = 118
 		row.add_child(button)
 		_loot_modes[entry[0]] = button
 		MenuWindow.expose(button, entry[2], self)
-	_loot_help = UiSkin.label("", 14, UiSkin.GOLD, true)
+	_loot_help = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
 	section.add_child(_loot_help)
 
 
 ## In the header, always in sight: "Language" and two big buttons, each language's name in
 ## itself; the one in use stays pressed.
 func _build_languages(row: HBoxContainer) -> void:
-	var title := UiSkin.label(tr("Language"), 18, UiSkin.GOLD)
+	var title := UiSkin.label(tr("Language"), Fonts.BODY, UiSkin.GOLD)
 	title.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(title)
 	for code: String in Settings.LANGUAGES:
-		var button := MenuWindow.button(Settings.LANGUAGE_NAMES[code], 19, 48)
+		var button := MenuWindow.button(Settings.LANGUAGE_NAMES[code], Fonts.BODY, 48)
 		button.toggle_mode = true
 		button.custom_minimum_size.x = 160
 		button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -298,8 +298,8 @@ func _words(title: String, helper: String) -> VBoxContainer:
 	var words := VBoxContainer.new()
 	words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	words.add_theme_constant_override("separation", 0)
-	words.add_child(UiSkin.label(title, 18))
-	words.add_child(UiSkin.label(helper, 14, UiSkin.DIM, true))
+	words.add_child(UiSkin.label(title, Fonts.BODY))
+	words.add_child(UiSkin.label(helper, Fonts.BODY, UiSkin.DIM, true))
 	return words
 
 
@@ -316,7 +316,7 @@ func _slider(section: VBoxContainer, title: String, helper: String, low: float, 
 	slider.custom_minimum_size = Vector2(SLIDER_WIDTH, 44)
 	slider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(slider)
-	var value := UiSkin.label("", 17, UiSkin.GOLD)
+	var value := UiSkin.label("", Fonts.BODY, UiSkin.GOLD)
 	value.custom_minimum_size.x = 58
 	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	value.size_flags_vertical = Control.SIZE_SHRINK_CENTER

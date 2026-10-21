@@ -76,6 +76,4 @@ func _draw() -> void:
 		var tint := def.icon_tint if not used else def.icon_tint.darkened(0.45)
 		draw_texture_rect(def.icon, Rect2(-16, -20, 32, 32), false, tint)
 	if not used:
-		var font := Fonts.MAIN
-		draw_string_outline(font, Vector2(-4, -26), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, 4, Color.BLACK)
-		draw_string(font, Vector2(-4, -26), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, def.color.lightened(0.3))
+		Fonts.draw(self, Vector2(0, -26), "?", Fonts.BODY, def.color.lightened(0.3), 0.5, Color.BLACK)

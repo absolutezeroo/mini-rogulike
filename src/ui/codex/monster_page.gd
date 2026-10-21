@@ -78,28 +78,28 @@ func _fill_identity(column: VBoxContainer, rank: int, rules: BestiaryRules) -> v
 	back.name = "BackButton"
 	back.custom_minimum_size = Vector2(0, 46)
 	back.focus_mode = Control.FOCUS_NONE
-	back.add_theme_font_size_override("font_size", 17)
+	back.add_theme_font_size_override("font_size", Fonts.BODY)
 	back.pressed.connect(func() -> void: back_requested.emit())
 	column.add_child(back)
 	column.add_child(_look())
-	var name_label := UiSkin.label(tr(_monster.display_name), 24, Palette.DANGER if _monster is BossDef else UiSkin.GOLD)
+	var name_label := UiSkin.label(tr(_monster.display_name), Fonts.TITLE, Palette.DANGER if _monster is BossDef else UiSkin.GOLD)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(name_label)
 	var boss := _monster as BossDef
 	if boss:
-		var kind_label := UiSkin.label(tr("Boss  -  %s") % tr(boss.title) if not boss.title.is_empty() else tr("Boss"), 15, UiSkin.DIM, true)
+		var kind_label := UiSkin.label(tr("Boss  -  %s") % tr(boss.title) if not boss.title.is_empty() else tr("Boss"), Fonts.BODY, UiSkin.DIM, true)
 		kind_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		column.add_child(kind_label)
 	var kills := Profile.kill_count(_monster.id)
-	var status := UiSkin.label(tr("%s  -  %d slain") % [Bestiary.rank_name(rank, rules), kills], 17, CodexRows.DONE if Bestiary.is_mastered(_monster, rules) else UiSkin.TEXT, true)
+	var status := UiSkin.label(tr("%s  -  %d slain") % [Bestiary.rank_name(rank, rules), kills], Fonts.BODY, CodexRows.DONE if Bestiary.is_mastered(_monster, rules) else UiSkin.TEXT, true)
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(status)
 	if rank < 1:
-		column.add_child(UiSkin.label(tr("You have seen it, but never slain one. Slay one to learn what it is, its stats and how it attacks."), 15, UiSkin.DIM, true))
+		column.add_child(UiSkin.label(tr("You have seen it, but never slain one. Slay one to learn what it is, its stats and how it attacks."), Fonts.BODY, UiSkin.DIM, true))
 		_add_shiny(column)
 		return
 	if not _monster.description.is_empty():
-		column.add_child(UiSkin.label(tr(_monster.description), 16, UiSkin.TEXT, true))
+		column.add_child(UiSkin.label(tr(_monster.description), Fonts.BODY, UiSkin.TEXT, true))
 	var home := _home()
 	if not home.is_empty():
 		column.add_child(CodexRows.fact(tr("Lives in"), home))
@@ -179,9 +179,9 @@ func _look() -> Control:
 func _fill_attacks(column: VBoxContainer, rank: int) -> void:
 	column.add_child(_heading(tr("Attacks")))
 	if rank < 1:
-		column.add_child(UiSkin.label(tr("Slay one to see how it attacks."), 16, UiSkin.DIM, true))
+		column.add_child(UiSkin.label(tr("Slay one to see how it attacks."), Fonts.BODY, UiSkin.DIM, true))
 		return
-	column.add_child(UiSkin.label(tr("Tap an attack to watch it. Red marks on the ground show where it will land: step out!"), 14, UiSkin.DIM, true))
+	column.add_child(UiSkin.label(tr("Tap an attack to watch it. Red marks on the ground show where it will land: step out!"), Fonts.BODY, UiSkin.DIM, true))
 	_preview = AttackPreview.new()
 	_preview.custom_minimum_size = Vector2(0, 184)
 	_preview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -197,19 +197,19 @@ func _fill_attacks(column: VBoxContainer, rank: int) -> void:
 		button.toggle_mode = true
 		button.focus_mode = Control.FOCUS_NONE
 		button.custom_minimum_size = Vector2(0, 44)
-		button.add_theme_font_size_override("font_size", 16)
+		button.add_theme_font_size_override("font_size", Fonts.BODY)
 		button.pressed.connect(_show_attack.bind(attacks[i], i))
 		row.add_child(button)
 		_attack_buttons.append(button)
-	_attack_text = UiSkin.label("", 16, UiSkin.TEXT, true)
+	_attack_text = UiSkin.label("", Fonts.BODY, UiSkin.TEXT, true)
 	column.add_child(_attack_text)
 	var ways := _ways()
 	if not ways.is_empty():
 		column.add_child(_heading(tr("How it behaves")))
 		for line in ways:
-			column.add_child(UiSkin.label("-  " + line, 15, UiSkin.TEXT, true))
+			column.add_child(UiSkin.label("-  " + line, Fonts.BODY, UiSkin.TEXT, true))
 	column.add_child(_heading(tr("Stats")))
-	column.add_child(UiSkin.label(tr("On the floors where it first shows up: deeper down, it grows stronger."), 14, UiSkin.DIM, true))
+	column.add_child(UiSkin.label(tr("On the floors where it first shows up: deeper down, it grows stronger."), Fonts.BODY, UiSkin.DIM, true))
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.add_theme_constant_override("h_separation", 18)
@@ -220,7 +220,7 @@ func _fill_attacks(column: VBoxContainer, rank: int) -> void:
 		cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		cell.add_theme_constant_override("separation", 0)
 		cell.add_child(CodexRows.fact(line[0], line[1], UiSkin.GOLD))
-		cell.add_child(UiSkin.label(line[2], 14, UiSkin.DIM, true))
+		cell.add_child(UiSkin.label(line[2], Fonts.BODY, UiSkin.DIM, true))
 		grid.add_child(cell)
 
 
@@ -302,7 +302,7 @@ func _add_shiny(column: VBoxContainer) -> void:
 	column.add_child(_heading(tr("Celestial")))
 	var found := Profile.has_shiny(_monster.id)
 	column.add_child(_goal_row(found, tr("Found!") if found else tr("Not found yet"), ""))
-	column.add_child(UiSkin.label(tr("A rare glowing version%s: tougher, but it drops plenty of loot and gold. Slay one to add it to your collection.") % _shiny_odds(), 14, UiSkin.DIM, true))
+	column.add_child(UiSkin.label(tr("A rare glowing version%s: tougher, but it drops plenty of loot and gold. Slay one to add it to your collection.") % _shiny_odds(), Fonts.BODY, UiSkin.DIM, true))
 
 
 ## " (about 1 in 400)", from the Shiny rank's chance ("" if there is none).
@@ -317,7 +317,7 @@ func _shiny_odds() -> String:
 func _fill_hunt(column: VBoxContainer, rank: int, rules: BestiaryRules) -> void:
 	var kills := Profile.kill_count(_monster.id)
 	column.add_child(_heading(tr("Hunter rank")))
-	column.add_child(UiSkin.label(tr("Slay more of this kind to rank up. Each rank pays its souls once."), 14, UiSkin.DIM, true))
+	column.add_child(UiSkin.label(tr("Slay more of this kind to rank up. Each rank pays its souls once."), Fonts.BODY, UiSkin.DIM, true))
 	var thresholds := rules.kills_for(_monster)
 	var souls := rules.souls_for(_monster)
 	for i in thresholds.size():
@@ -335,7 +335,7 @@ func _fill_hunt(column: VBoxContainer, rank: int, rules: BestiaryRules) -> void:
 	var challenges := rules.challenges_for(_monster)
 	if not challenges.is_empty():
 		column.add_child(_heading(tr("Challenges")))
-		column.add_child(UiSkin.label(tr("Slay it in a special way. Each one pays its souls once."), 14, UiSkin.DIM, true))
+		column.add_child(UiSkin.label(tr("Slay it in a special way. Each one pays its souls once."), Fonts.BODY, UiSkin.DIM, true))
 		for challenge in challenges:
 			column.add_child(_goal_row(Profile.is_challenge_done(_monster.id, challenge.id), challenge.describe(_monster), CodexRows.souls(challenge.souls)))
 
@@ -350,17 +350,17 @@ func _goal_row(done: bool, text: String, reward: String, extra := "") -> Control
 	words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	words.add_theme_constant_override("separation", 0)
 	row.add_child(words)
-	words.add_child(UiSkin.label(text, 16, CodexRows.DONE if done else UiSkin.TEXT, true))
+	words.add_child(UiSkin.label(text, Fonts.BODY, CodexRows.DONE if done else UiSkin.TEXT, true))
 	if not extra.is_empty():
-		words.add_child(UiSkin.label(extra, 14, CodexRows.SOUL, true))
+		words.add_child(UiSkin.label(extra, Fonts.BODY, CodexRows.SOUL, true))
 	if not reward.is_empty():
-		var amount := UiSkin.label(reward, 15, CodexRows.SOUL)
+		var amount := UiSkin.label(reward, Fonts.BODY, CodexRows.SOUL)
 		amount.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		row.add_child(amount)
 	return row
 
 
 func _heading(text: String) -> Label:
-	var label := UiSkin.label(text, 19, UiSkin.GOLD)
+	var label := UiSkin.label(text, Fonts.BODY, UiSkin.GOLD)
 	label.custom_minimum_size.y = 28
 	return label

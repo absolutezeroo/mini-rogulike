@@ -48,10 +48,10 @@ func _init() -> void:
 	column.add_theme_constant_override("separation", 2)
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(column)
-	_title = UiSkin.label("", 20, UiSkin.GOLD)
+	_title = UiSkin.label("", Fonts.BODY, UiSkin.GOLD)
 	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(_title)
-	_text = UiSkin.label("", 16, UiSkin.TEXT, true)
+	_text = UiSkin.label("", Fonts.BODY, UiSkin.TEXT, true)
 	_text.custom_minimum_size.x = WIDTH - 140.0  # wraps at the board's width from the start
 	_text.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(_text)

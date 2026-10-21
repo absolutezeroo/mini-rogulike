@@ -45,7 +45,7 @@ func show_build(owned: PerkSet, families: Array[SynergyDef]) -> void:
 	for synergy: SynergyDef in sorted:
 		_families.add_child(PerkCard.family_box(synergy, owned, null))
 	if owned.entries.is_empty():
-		_perks.add_child(UiSkin.label(tr("No perk yet: you pick one at every level up."), 16, UiSkin.DIM, true))
+		_perks.add_child(UiSkin.label(tr("No perk yet: you pick one at every level up."), Fonts.BODY, UiSkin.DIM, true))
 	for entry in owned.entries:
 		_perks.add_child(_perk_row(entry))
 	show()
@@ -72,10 +72,10 @@ func _perk_row(entry: PerkSet.Entry) -> Control:
 	row.add_child(column)
 	var families := ", ".join(perk.synergies.filter(func(s: SynergyDef) -> bool: return s != null).map(func(s: SynergyDef) -> String: return tr(s.display_name)))
 	var head := tr("%s   Level %d / %d") % [tr(perk.display_name), entry.stacks, perk.max_stacks]
-	column.add_child(UiSkin.label(head, 18, perk.color.lerp(Color.WHITE, 0.4)))
-	column.add_child(UiSkin.label(perk.describe(), 14, UiSkin.TEXT, true))
+	column.add_child(UiSkin.label(head, Fonts.BODY, perk.color.lerp(Color.WHITE, 0.4)))
+	column.add_child(UiSkin.label(perk.describe(), Fonts.BODY, UiSkin.TEXT, true))
 	if not families.is_empty():
-		column.add_child(UiSkin.label(tr("Family: %s") % families, 13, UiSkin.DIM))
+		column.add_child(UiSkin.label(tr("Family: %s") % families, Fonts.BODY, UiSkin.DIM))
 	return row
 
 
