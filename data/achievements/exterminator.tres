@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_fdwem")
 id = &"exterminator"
-display_name = "Exterminator"
+display_name = "Reaper"
 description = "Slay 1500 monsters."
 icon = ExtResource("1_xcbj2")
 target = 1500

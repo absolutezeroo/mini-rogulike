@@ -67,6 +67,6 @@ scenes = Array[ExtResource("8_p5tib")]([ExtResource("9_hc1sm"), ExtResource("10_
 decor = Array[ExtResource("1_8hhvf")]([SubResource("Resource_gneqh"), SubResource("Resource_25rvi")])
 light = ExtResource("7_js8e0")
 id = &"burning_ruins"
-display_name = "Burning Ruins"
+display_name = "Cinder Ruins"
 description = "A city burned here. The embers never quite went out."
 color = Color(1, 0.6, 0.35, 1)

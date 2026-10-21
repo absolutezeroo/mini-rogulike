@@ -31,7 +31,7 @@
 
 [resource]
 script = ExtResource("12_4gi1q")
-title = "Burning Ruins"
+title = "The Pyre Temple"
 subtitle = "Act III"
 lore = "A temple the Well swallowed whole. Its fires never went out. The souls' cries come from below."
 biomes = Array[ExtResource("1_1k2vl")]([ExtResource("2_4g6yy"), ExtResource("3_5f32u")])

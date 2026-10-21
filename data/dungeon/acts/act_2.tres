@@ -30,7 +30,7 @@
 
 [resource]
 script = ExtResource("12_1aok4")
-title = "Haunted Crypt"
+title = "Ossuary of Kagari"
 subtitle = "Act II"
 lore = "Where Kagari buried its dead, long ago. Since the Well woke up, they do not rest anymore."
 biomes = Array[ExtResource("1_wenk7")]([ExtResource("2_au71w"), ExtResource("3_rhuyj")])

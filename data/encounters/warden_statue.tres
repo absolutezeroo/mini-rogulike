@@ -23,7 +23,7 @@ elite_monsters = true
 
 [sub_resource type="Resource" id="Resource_dux4h"]
 script = ExtResource("1_fgadc")
-label = "Pray"
+label = "Kneel"
 outcomes = Array[ExtResource("2_p8yni")]([SubResource("Resource_q3krr"), SubResource("Resource_fyttb")])
 
 [resource]

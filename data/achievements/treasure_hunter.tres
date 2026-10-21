@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_k5cps")
 id = &"treasure_hunter"
-display_name = "Treasure Hunter"
+display_name = "Coffer Breaker"
 description = "Open 25 chests."
 icon = ExtResource("1_fp3vo")
 stat = 11

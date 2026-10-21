@@ -158,7 +158,7 @@ func _test_title_screen() -> void:
 	await _frames(2)
 	check(codex.is_page_open() and not (codex.get_node("%Scroll") as Control).is_visible_in_tree(), "tapping a monster opens its page")
 	var page_text := " ".join(_texts(codex.get_node("%MonsterPage")))
-	check(page_text.contains("Health") and page_text.contains("Move speed") and page_text.contains("Mastered: slay") and page_text.contains("Shiny"), "the page explains the stats, the ranks and the Shiny")
+	check(page_text.contains("Health") and page_text.contains("Move speed") and page_text.contains("Mastered: slay") and page_text.contains("Celestial"), "the page explains the stats, the ranks and the Celestial")
 	# Every page, every attack plays in the preview (warning, then what it does).
 	for monster in entries:
 		Profile.record_kill(monster.id)

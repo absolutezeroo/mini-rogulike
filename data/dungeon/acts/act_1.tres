@@ -30,7 +30,7 @@
 
 [resource]
 script = ExtResource("12_f35h4")
-title = "Mossy Caves"
+title = "The Well's Maw"
 subtitle = "Act I"
 lore = "The mouth of the Well. Roots, wet stone, and things that crawl toward the light of your lantern."
 biomes = Array[ExtResource("1_tfj5l")]([ExtResource("2_vhkbm"), ExtResource("3_8qpxp"), ExtResource("4_nyfmu")])

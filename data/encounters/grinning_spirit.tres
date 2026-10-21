@@ -28,7 +28,7 @@ color = Color(1, 0.41960785, 0.41960785, 1)
 
 [sub_resource type="Resource" id="Resource_fbdo5"]
 script = ExtResource("1_jrko2")
-label = "Pay"
+label = "Wager"
 gold_cost = 30
 outcomes = Array[ExtResource("2_g1vk0")]([SubResource("Resource_0vb2i"), SubResource("Resource_e8ex0"), SubResource("Resource_xt3as")])
 
@@ -48,7 +48,7 @@ color = Color(1, 0.41960785, 0.41960785, 1)
 
 [sub_resource type="Resource" id="Resource_hrtov"]
 script = ExtResource("1_jrko2")
-label = "Pay a lot"
+label = "Wager big"
 gold_cost = 80
 outcomes = Array[ExtResource("2_g1vk0")]([SubResource("Resource_lc2c5"), SubResource("Resource_v2ve7")])
 

@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_30l5b")
 id = &"money_bags"
-display_name = "Money Bags"
+display_name = "Heavy Purse"
 description = "Pick up 400 gold in a single run."
 icon = ExtResource("1_it2ty")
 stat = 12

@@ -66,6 +66,6 @@ scenes = Array[ExtResource("7_pu0ae")]([ExtResource("8_ldwwl"), ExtResource("9_1
 decor = Array[ExtResource("1_2xhpk")]([SubResource("Resource_1j4vd"), SubResource("Resource_iikri")])
 light = ExtResource("6_1j4vd")
 id = &"crypt"
-display_name = "Crypt"
+display_name = "Catacombs"
 description = "Row after row of the dead. They do not sleep well."
 color = Color(0.72, 0.76, 0.95, 1)

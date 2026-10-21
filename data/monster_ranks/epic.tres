@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_fm5st")
 id = &"epic"
-display_name = "Epic"
+display_name = "Fell"
 color = Color(0.7019608, 0.53333336, 0.92156863, 1)
 affixes = 2
 hp_multiplier = 4.5
