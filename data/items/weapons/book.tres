@@ -8,6 +8,7 @@
 [ext_resource type="Resource" path="res://data/skills/player/fireball.tres" id="7_w0bwa"]
 [ext_resource type="Resource" path="res://data/skills/player/fire_wave.tres" id="8_hkjf3"]
 [ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="vfx_fire"]
+[ext_resource type="Texture2D" path="res://assets/weapons/back/book.png" id="back_sprite"]
 
 [resource]
 script = ExtResource("5_w0bwa")
@@ -35,3 +36,5 @@ color = Color(1, 0.54901963, 0.25882354, 1)
 min_depth = 4
 spawn_weight = 3
 element = ExtResource("vfx_fire")
+back_sprite = ExtResource("back_sprite")
+back_kind = 1

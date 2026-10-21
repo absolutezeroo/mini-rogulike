@@ -226,7 +226,9 @@ Rig                  at the actor's feet
         ├── Body       AnimatedSprite2D: the character (SpriteFrames from the data)
         ├── BodyArmor  AnimatedSprite2D: worn body armor, same animation and frame as Body
         ├── Helmet     AnimatedSprite2D: worn helmet, same animation and frame as Body
-        └── Weapon     AnimatedSprite2D: the weapon in hand, same animation and frame as Body
+        ├── Weapon     AnimatedSprite2D: the weapon in hand, same animation and frame as Body
+        ├── WeaponBack Sprite2D: the hero's weapon at rest (added in code, hero only)
+        └── WeaponAura the motes of the elements his weapon carries, right after the weapon shown
 ```
 
 The animations live in `SpriteFrames` resources in `data/visuals/`, named `<pose>_<direction>`:
@@ -249,6 +251,15 @@ The sheets in `assets/weapons/attack/` are 64x64 cells, one column per direction
 drawn so the handle sits in the hero's hand on that frame. The weapon is drawn behind the body when
 facing up. `attack_fx` is the slash effect played in front of the actor.
 
+**The weapon at rest**: between attacks the hero carries his weapon (`WeaponDef.back_sprite`,
+`back_kind`, `back_offset`; art in `assets/weapons/back/`, redrawn at the in-hand size by
+`tools/vfx/back_weapons.py`). Blades, axes, hammers, the lance, bows and staffs are slung across
+his back on the diagonal: behind him facing down, left and right (the hilt or the head peeks over
+his shoulder), in front of him facing up (we see his back), mirrored as he turns; the Ember Tome,
+shurikens and the whip hang at his hip. It bobs with the body's frames, hides while the weapon is
+in his hand (the attack frames) and when he dies. Monsters carry nothing. The rules and the draw
+order: docs/vfx.md section 10.
+
 **Armor (paper doll)**: what you wear shows on the hero. Each `ArmorDef` has `wear_frames`, a layer
 with the same animations as the hero, and a `wear_color`. The layers copy the body's animation and
 frame every frame, so they can't drift. The layer sheets (`assets/characters/hero/wear/`) are grayscale
@@ -262,7 +273,9 @@ and were made from the hero's own frames (hood and outfit pixels), so one style 
 | mail | body | Chain Mail |
 | plate | body | Plate Armor |
 
-A new armor = pick a style and a color in the inspector.
+A new armor = pick a style and a color in the inspector. Found armor above Common shows its
+rarity worn: a trim of the rarity's color on its hem (the tunic's hem, the helm's brim), and a
+glint sweeping across an Epic piece (docs/vfx.md section 10).
 
 To tweak an animation, open a file in `data/visuals/` and use the SpriteFrames panel
 (add frames, change the speed, toggle loop). The actor scripts never touch animations directly:

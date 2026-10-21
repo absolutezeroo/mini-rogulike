@@ -47,6 +47,20 @@ func _process(delta: float) -> void:
 	if selected:
 		_time += delta
 		queue_redraw()
+	elif _has_sheen():
+		# The sheen moves at 20 frames a second: redrawn only when it steps.
+		var before := floori(_time * 20.0)
+		_time += delta
+		if floori(_time * 20.0) != before:
+			queue_redraw()
+
+
+## Epic gear (RarityLookDef.sheen) has a band of light sweeping over its icon now and then.
+func _has_sheen() -> bool:
+	if item == null or item.icon == null or disabled:
+		return false
+	var look := ItemLook.rarity_look(item)
+	return look != null and look.sheen and ItemRarity.of(item) > ItemRarity.COMMON
 
 
 func _draw() -> void:
@@ -60,7 +74,10 @@ func _draw() -> void:
 			draw_rect(area.grow(-9), Color(frame_color, 0.16))  # a glow of its rarity inside
 		var inner := area.grow(-9)
 		if item.icon:
-			draw_texture_rect(item.icon, _fit(item.icon, inner), false, item.icon_tint if not disabled else Color(item.icon_tint, 0.4))
+			var icon_rect := _fit(item.icon, inner)
+			draw_texture_rect(item.icon, icon_rect, false, item.icon_tint if not disabled else Color(item.icon_tint, 0.4))
+			if _has_sheen():
+				_draw_sheen(icon_rect)
 		if frame_color.a > 0.0:
 			draw_style_box(_frame_box(frame_color), area.grow(-3))
 		_draw_sockets(area)
@@ -92,7 +109,23 @@ func _draw_level() -> void:
 	_text(tr("Lv %d") % equipment.item_level, Vector2(7, 17), HORIZONTAL_ALIGNMENT_LEFT, Fonts.SMALL, Color(1, 0.92, 0.7))
 
 
-## A weapon's rune sockets: little stones along the bottom, lit in their rune's color.
+## A band of light, two icon pixels wide, crossing the icon on the diagonal over its own pixels
+## (in the rarity's core and next step), then a pause: Epic things look alive in the bag.
+func _draw_sheen(icon_rect: Rect2) -> void:
+	var look := ItemLook.rarity_look(item)
+	var frame := floori(_time * 20.0) % 64
+	var front := frame - 4
+	if front > 36:
+		return
+	var texel := icon_rect.size / item.icon.get_size()
+	for p in WeaponAura.pixels_of(item.icon):
+		var d := int(p.x) + int(p.y)
+		if d == front or d == front - 1:
+			draw_rect(Rect2(icon_rect.position + p * texel, texel), look.element.shade(0.0 if d == front else 0.25))
+
+
+## A weapon's rune sockets: little gems along the bottom, cut in their rune's element (its
+## color, a lit facet and a dark one: the element the weapon carries, ItemLook), dark when empty.
 func _draw_sockets(area: Rect2) -> void:
 	var equipment := item as EquipmentDef
 	if equipment == null or equipment.socket_count() <= 0:
@@ -104,7 +137,14 @@ func _draw_sockets(area: Rect2) -> void:
 		var rect := Rect2(x + i * (dot + 3.0), y, dot, dot)
 		draw_rect(rect.grow(1.5), Color(0.12, 0.07, 0.05))
 		var rune := equipment.runes[i] if i < equipment.runes.size() else null
-		draw_rect(rect, rune.rarity_color() if rune else Color(0.3, 0.24, 0.2))
+		var element := ItemLook.rune_element(rune) if rune else null
+		if element == null:
+			draw_rect(rect, rune.rarity_color() if rune else Color(0.3, 0.24, 0.2))
+			continue
+		var third := dot / 3.0
+		draw_rect(rect, element.color())
+		draw_rect(Rect2(rect.position, Vector2(third, third)), element.core())
+		draw_rect(Rect2(rect.end - Vector2(third, third), Vector2(third, third)), element.edge())
 
 
 func _text(text: String, at: Vector2, align: HorizontalAlignment, font_size: int, color: Color) -> void:

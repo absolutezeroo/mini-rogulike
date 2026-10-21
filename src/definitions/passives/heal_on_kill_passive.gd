@@ -13,3 +13,8 @@ func on_kill(owner: Actor, victim: Actor, perk: PerkSet.Entry) -> void:
 	if healed > 0:
 		owner.world.spawn_vfx(BloodDrainVfx.create(victim.global_position + Vector2(0, -victim.radius), owner, 3))
 		owner.world.spawn_floating_text(owner.head_position(), "+%d" % healed, Palette.HEAL)
+
+
+## Drinking blood shows as blood on the weapon (ItemLook).
+func look_element() -> VfxElementDef:
+	return VfxElementDef.named(&"blood")

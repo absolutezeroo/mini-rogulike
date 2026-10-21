@@ -18,7 +18,22 @@
   joined to the hero's `PerkSet` by `set_gear()`; their `description` shows on the item):
   **Vampiric** (heal on kill), **Shocking** (every 4th hit chains lightning), **of Embers**
   (burning enemies explode), **Shattering** (+25% on slowed enemies), **of Echoes** (skills may be
-  ready again at once), **of Thorns**. Rare and Epic items on the floor shine with a beam.
+  ready again at once), **of Thorns**.
+- **Rarity you can see** (`RarityLookDef`, `data/items/rarity_looks.tres`; docs/vfx.md section
+  10): each rarity keeps the signs of the one below and adds one. On the floor, Common lies
+  plain; Magic has a blue rim and a glint running over it; Rare a gold rim, a gold ring under it
+  and a pulse running out, and a small light; Epic a purple rim, an aura on the floor, motes
+  rising, a halo, a light and a short pillar of light seen across the room. In the bag, the shop,
+  the forge and the loot board the slot's frame is the rarity's color and Epic icons have a
+  sheen sweeping over them. Worn, the hero's armor takes a trim of its rarity's color on its hem
+  (a tunic's hem, a helm's brim) and his weapon on its outline, Epic pieces a glint sweeping
+  across. Fewer effects keeps the rims, glints, ring, aura and pillar, and drops the motes, the
+  halo and the moving glints.
+- **What a weapon carries shows** (`ItemLook`): a weapon with an element of its own, a rune or an
+  affix that burns, chills, poisons, chains lightning or drinks blood licks with that element
+  along its rim and throws its motes (embers rising, ice chips falling, venom sinking, sparks,
+  drops of blood), in hand and on the hero's back; the hero's swing is drawn in it (a katana with
+  an Ember Rune swings fire). A rune in a socket is a small gem of its element on the slot.
   `LootRoller` makes rolled copies; the plain .tres is the Common version. Chances grow with depth
   (`dungeon_config.tres` > Loot) and with the source: elites, chests and bosses drop better.
 - **Gold** drops from monsters (always from elites and bosses), chests and sometimes crates, and

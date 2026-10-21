@@ -563,6 +563,10 @@ func carried_count(item: ItemDef) -> int:
 	return belt.count_of(item) + inventory.count_of(item)
 
 
+func _shows_gear() -> bool:
+	return true
+
+
 func _body_modulate() -> Color:
 	var color := super._body_modulate() * temperature.tint()
 	# Blink while invulnerable after a hit (but not during a dash).

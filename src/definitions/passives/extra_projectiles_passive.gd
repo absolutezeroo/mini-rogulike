@@ -32,3 +32,8 @@ func modify_projectiles(_owner: Actor, spec: ProjectileSpec, perk: PerkSet.Entry
 	spec.damage = maxi(1, roundi(int(base.damage) * share))
 	if spec.spread_degrees < 360.0:
 		spec.spread_degrees = maxf(spec.spread_degrees, spread_per_projectile * (spec.count - 1))
+
+
+## Arcane on the weapon that carries it (ItemLook).
+func look_element() -> VfxElementDef:
+	return VfxElementDef.named(&"arcane")

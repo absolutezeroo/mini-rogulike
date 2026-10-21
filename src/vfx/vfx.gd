@@ -55,18 +55,20 @@ static func hit(world: World, at: Vector2, direction: Vector2, color: Color = Co
 
 
 ## The arc of a melee swing (or the streak of a thrust), at the weapon's reach, in its element
-## (steel when it has none); an enemy's carries the warning rim.
+## (the hero's: what it carries, ItemLook; steel when none); an enemy's carries the warning rim.
 static func swing(attacker: Actor, aim: Vector2, weapon: WeaponDef, duration: float) -> void:
 	if not weapon.shows_arc():
 		return  # claws and bites play their sheet; an overhead smash, its ring and dust
 	var reach := attacker.radius + weapon.reach
 	var at := attacker.global_position + Vector2(0, -6)
 	var danger := attacker.faction != Actor.Faction.PLAYER
+	# The hero's blade swings in what it carries (a katana with an Ember Rune, in fire: ItemLook).
+	var element := ItemLook.swing_element(weapon, attacker is Player)
 	if weapon.slash:
-		SwingVfx.slash(attacker.world, weapon.slash, at, aim, reach, weapon.element, danger)
+		SwingVfx.slash(attacker.world, weapon.slash, at, aim, reach, element, danger)
 		return
 	var thrust := weapon.attack_animation == WeaponDef.AttackAnimation.THRUST
-	attacker.world.spawn_vfx(SwingVfx.create(at, aim, reach, weapon.arc_degrees, thrust, weapon.element, duration, danger))
+	attacker.world.spawn_vfx(SwingVfx.create(at, aim, reach, weapon.arc_degrees, thrust, element, duration, danger))
 
 
 ## A shot of `element` landing (an ice shard cracking, a fireball bursting): the element's

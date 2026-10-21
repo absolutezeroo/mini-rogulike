@@ -14,3 +14,22 @@ const POWER: Array[float] = [1.0, 1.1, 1.2, 1.35]
 const VALUE: Array[float] = [1.0, 1.8, 3.0, 5.0]
 ## Rune sockets of a weapon of this rarity (see RuneDef, Forge).
 const SOCKETS: Array[int] = [1, 1, 2, 3]
+## How each rarity shows (on the ground, in a slot, worn): data/items/rarity_looks.tres.
+const LOOKS_PATH := "res://data/items/rarity_looks.tres"
+
+static var _looks: RarityLookSet
+
+
+## The look of `rarity` (RarityLookDef), Common's for anything out of range.
+static func look(rarity: int) -> RarityLookDef:
+	if _looks == null:
+		_looks = load(LOOKS_PATH) as RarityLookSet
+	if _looks == null or _looks.looks.is_empty():
+		return null
+	return _looks.looks[clampi(rarity, 0, _looks.looks.size() - 1)]
+
+
+## The rarity of `item`: found equipment's own, Common for everything else.
+static func of(item: ItemDef) -> int:
+	var equipment := item as EquipmentDef
+	return equipment.rarity if equipment else COMMON

@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_153jf"]
 [ext_resource type="Resource" path="res://data/skills/player/rock_spike.tres" id="8_ebxw1"]
 [ext_resource type="Resource" path="res://data/skills/player/fissure.tres" id="9_vabj2"]
+[ext_resource type="Texture2D" path="res://assets/weapons/back/pickaxe.png" id="back_sprite"]
 
 [sub_resource type="Resource" id="Resource_p1snk"]
 script = ExtResource("3_apxa1")
@@ -38,3 +39,4 @@ glyph = "P"
 color = Color(0.7882353, 0.8, 0.81960785, 1)
 min_depth = 2
 spawn_weight = 4
+back_sprite = ExtResource("back_sprite")

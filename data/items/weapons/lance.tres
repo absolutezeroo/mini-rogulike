@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_gjqev"]
 [ext_resource type="Resource" path="res://data/skills/player/piercing_thrust.tres" id="8_vd3a5"]
 [ext_resource type="Resource" path="res://data/skills/player/spear_throw.tres" id="9_8yvfo"]
+[ext_resource type="Texture2D" path="res://assets/weapons/back/lance.png" id="back_sprite"]
 
 [resource]
 script = ExtResource("6_8yvfo")
@@ -32,3 +33,4 @@ glyph = "L"
 color = Color(0.9137255, 0.76862746, 0.41568628, 1)
 min_depth = 2
 spawn_weight = 6
+back_sprite = ExtResource("back_sprite")

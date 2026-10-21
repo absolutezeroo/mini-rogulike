@@ -30,6 +30,11 @@ static var _rows := {}  # VfxElementDef -> row
 static var _looks := {}  # status id -> StatusLookDef (or null)
 
 var material: ShaderMaterial
+## Other layers' materials that follow this one (the hero's armor layers and weapon have their
+## own, for their trim: ActorRig): every uniform set here is set there too, but the frame for
+## the ones that show frames of their own (the weapon).
+var _followers: Array[ShaderMaterial] = []
+var _own_frames: Array[bool] = []
 ## The elite rim's color (transparent: none).
 var outline := Color.TRANSPARENT
 ## Armor layers are on: the rim and the crackle stay on the sprite's own pixels.
@@ -202,7 +207,28 @@ func set_dying(progress: float) -> void:
 	_param(&"dissolve", progress)
 
 
+## `other` (a layer's own material, the same shader) wears what this body wears from now on:
+## flash, statuses, deaths; its own frame when `own_frame` (a weapon's frames aren't the body's).
+func follow(other: ShaderMaterial, own_frame: bool = false) -> void:
+	if other == null or _followers.has(other):
+		return
+	other.set_shader_parameter(&"ramps", ramps())
+	for name: StringName in _set:
+		if not (own_frame and name == &"frame_rect"):
+			other.set_shader_parameter(name, _set[name])
+	_followers.append(other)
+	_own_frames.append(own_frame)
+
+
+## Sets a uniform on the body and the layers that follow it (the rig's hit flash).
+func set_shared(name: StringName, value: Variant) -> void:
+	_param(name, value)
+
+
 func _param(name: StringName, value: Variant) -> void:
 	if _set.get(name) != value:
 		_set[name] = value
 		material.set_shader_parameter(name, value)
+		for i in _followers.size():
+			if not (_own_frames[i] and name == &"frame_rect"):
+				_followers[i].set_shader_parameter(name, value)

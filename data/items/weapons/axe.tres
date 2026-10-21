@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_067vu"]
 [ext_resource type="Resource" path="res://data/skills/player/cleave.tres" id="8_5isy5"]
 [ext_resource type="Resource" path="res://data/skills/player/whirlwind.tres" id="9_qc47v"]
+[ext_resource type="Texture2D" path="res://assets/weapons/back/axe.png" id="back_sprite"]
 
 [sub_resource type="Resource" id="Resource_bx67p"]
 script = ExtResource("3_6wfb0")
@@ -38,3 +39,4 @@ glyph = "B"
 color = Color(0.83137256, 0.6392157, 0.4509804, 1)
 min_depth = 2
 spawn_weight = 5
+back_sprite = ExtResource("back_sprite")

@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="6_akday"]
 [ext_resource type="Resource" path="res://data/skills/player/whirlwind.tres" id="7_r15cl"]
 [ext_resource type="Resource" path="res://data/skills/player/dash_strike.tres" id="8_jh3j1"]
+[ext_resource type="Texture2D" path="res://assets/weapons/back/katana.png" id="back_sprite"]
 
 [resource]
 script = ExtResource("5_r15cl")
@@ -29,3 +30,4 @@ icon = ExtResource("4_akday")
 glyph = "K"
 color = Color(0.84705883, 0.8862745, 0.9098039, 1)
 spawn_weight = 0
+back_sprite = ExtResource("back_sprite")

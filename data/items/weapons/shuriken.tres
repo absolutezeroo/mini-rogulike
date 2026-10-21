@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_8gwpx"]
 [ext_resource type="Resource" path="res://data/skills/player/shuriken_storm.tres" id="9_c1b58"]
 [ext_resource type="Resource" path="res://data/skills/player/shadow_step.tres" id="10_kden6"]
+[ext_resource type="Texture2D" path="res://assets/weapons/back/shuriken.png" id="back_sprite"]
 
 [resource]
 script = ExtResource("7_o0nko")
@@ -38,3 +39,5 @@ icon = ExtResource("5_6wfog")
 glyph = "S"
 color = Color(0.8784314, 0.88235295, 0.8666667, 1)
 spawn_weight = 6
+back_sprite = ExtResource("back_sprite")
+back_kind = 1

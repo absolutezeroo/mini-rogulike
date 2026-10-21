@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_14pce"]
 [ext_resource type="Resource" path="res://data/skills/player/flurry.tres" id="9_sbson"]
 [ext_resource type="Resource" path="res://data/skills/player/shadow_step.tres" id="10_174so"]
+[ext_resource type="Texture2D" path="res://assets/weapons/back/sai.png" id="back_sprite"]
 
 [sub_resource type="Resource" id="Resource_46fwj"]
 script = ExtResource("4_14pce")
@@ -38,3 +39,4 @@ icon = ExtResource("6_174so")
 glyph = "S"
 color = Color(0.62352943, 0.827451, 1, 1)
 spawn_weight = 8
+back_sprite = ExtResource("back_sprite")

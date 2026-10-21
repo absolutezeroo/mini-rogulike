@@ -9,6 +9,7 @@
 [ext_resource type="Resource" path="res://data/skills/player/ice_shards.tres" id="8_wnfc2"]
 [ext_resource type="Resource" path="res://data/vfx/elements/frost.tres" id="vfx_frost"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="vfx_on_hit_status"]
+[ext_resource type="Texture2D" path="res://assets/weapons/back/stick.png" id="back_sprite"]
 
 [sub_resource type="Resource" id="chill"]
 script = ExtResource("vfx_on_hit_status")
@@ -42,3 +43,4 @@ glyph = "F"
 color = Color(0.29803923, 0.7882353, 0.9411765, 1)
 min_depth = 3
 spawn_weight = 4
+back_sprite = ExtResource("back_sprite")
