@@ -46,6 +46,10 @@ the ones below are those worth spelling out, or where this project chose somethi
   glossary is in [translating.md](translating.md).
 - Names, lore and flavor speak in the Well's dark-fantasy voice: [lexicon.md](lexicon.md). Rules
   and numbers stay plain.
+- **Ids are not names.** A resource's `id` is for code, data, saves and tool options and never
+  changes; its `display_name` is what the player reads and can be renamed freely. Several ids kept
+  the game's first names (difficulty `easy` is Pilgrim, rank `shiny` is Celestial...): the
+  list is in [balance.md](balance.md).
 - After adding texts: `python3 tools/i18n/extract.py`, then fill the French. Details in
   [translating.md](translating.md).
 

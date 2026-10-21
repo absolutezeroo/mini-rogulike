@@ -36,6 +36,10 @@ for a system before changing it.
   Armor (never HP, ATK, DEF).
 - Names, lore and flavor lines speak in the Well's dark-fantasy voice (docs/lexicon.md); rules and
   numbers stay plain.
+- Ids kept the first names when the names changed: difficulty `easy`/`normal`/`hard` is shown as
+  Pilgrim/Keeper/Martyr, rank `epic`/`shiny` as Fell/Celestial, perk `multishot` as Hydra's Quiver.
+  Code, data and tool options use the id; texts and docs use the `display_name`. Never rename an id
+  (saves, records and data refer to it).
 
 ## Files
 

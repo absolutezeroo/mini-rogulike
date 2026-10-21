@@ -25,7 +25,7 @@ the game provably better: before/after numbers, and guard tests so it doesn't dr
    a family only if its effect plainly belongs to that fantasy; otherwise move it, rework it,
    or leave it familyless. Runes follow the same families.
 5. **A steady curve.** Each act is a little harder than the last at the expected power, on
-   every difficulty; Easy is forgiving, Nightmare is demanding but fair; ascension adds twists,
+   every difficulty; Pilgrim is forgiving, Nightmare is demanding but fair; ascension adds twists,
    not walls. Gold and souls arrive at a pace that lets a player buy something meaningful most
    visits.
 
@@ -80,7 +80,7 @@ the game provably better: before/after numbers, and guard tests so it doesn't dr
 
 ## Method (every pass)
 
-1. **Measure the baseline.** Run `--mode=all` on Normal and Hard (and the extremes when relevant).
+1. **Measure the baseline.** Run `--mode=all` on Keeper and Martyr (and the extremes when relevant).
    Save the report as the "before".
 2. **Triage.** List every FLAG and every outlier: severity (breaks a pillar > misses a target by
    far > misses by a little), how many builds/bosses it touches, and the root cause in the

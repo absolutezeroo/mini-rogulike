@@ -17,6 +17,18 @@ From the project root (Godot 4.7; import the project first if `.godot/` is missi
 godot --headless --fixed-fps 60 res://tools/balance/balance.tscn -- --mode=all --jobs=2 --out=/tmp/balance
 ```
 
+The tools take ids, which kept the game's first names when the dark-fantasy names came in
+(docs/lexicon.md); reports may show either:
+
+| Id (options, data, reports) | Name in the game |
+|---|---|
+| `easy`, `normal`, `hard`, `nightmare` (difficulties) | Pilgrim, Keeper, Martyr, Nightmare |
+| `elite`, `epic`, `legendary`, `shiny` (monster ranks) | Elite, Fell, Legendary, Celestial |
+| `multishot` (perk) | Hydra's Quiver |
+
+Bosses, monsters, perks and affixes are named the same way: the `id` in the `.tres`, the
+`display_name` on screen.
+
 | Option | What |
 |---|---|
 | `--mode=` | `model`, `arena`, `pack`, `marginal`, `economy`, `compound`, `all` (default `model`); `merge --in=a,b` combines earlier runs |
@@ -45,14 +57,14 @@ take 5 s to a minute each; the `balance` test suite about a minute.
 
 - **model** (static, seconds): the content's numbers put through the game's own code (a real
   `Player` gets each build; `FloorRules` scales monsters; `Combat`'s variance, crit and armor),
-  fights as arithmetic. Every monster kind x every rank (plain, Elite with each affix, Epic and
-  Legendary with spreads of affixes, Shiny) x every depth it appears at x every difficulty:
+  fights as arithmetic. Every monster kind x every rank (plain, Elite with each affix, Fell and
+  Legendary with spreads of affixes, Celestial) x every depth it appears at x every difficulty:
   health, armor, hit and damage per second on the act's expected build (after its armor), time to
   kill, hits to kill the hero, damage taken while killing it; rank chances per depth; the
-  commons' curve and the ranks' ladder (medians per act on Normal, table "monster_ladder"). Every boss
+  commons' curve and the ranks' ladder (medians per act on Keeper, table "monster_ladder"). Every boss
   (alternates too) x every phase x every boss rank x every difficulty: health, armor, hit and
   damage per second per phase, time to kill, a face-tank estimate, the threat (share of the
-  hero's health a face-tank fight costs) and the curve (act over act, difficulty over Normal);
+  hero's health a face-tank fight costs) and the curve (act over act, difficulty over Keeper);
   each elite affix on each boss. Every weapon x every rarity x every armor value monsters have:
   DPS on each act's expected hero, weapon skills' damage and cooldowns. Builds, degenerate and
   family DPS ratios, a static perk estimate. Assumptions: 100% uptime; fans land 1 + 0.6 per
@@ -65,19 +77,19 @@ take 5 s to a minute each; the `balance` test suite about a minute.
   roll's invulnerability) and only where the whole roll is solid ground, and holds the hit that
   would set off a boss' shockwave when its roll isn't ready.
   Every boss x the builds of its act (expected on every difficulty; degenerate, family and baseline
-  builds on Normal and Hard) x both bots; every boss rank (Epic, Legendary, Shiny, with the affixes
-  the game rolls) with the expected build on Normal and Hard. Result, time, phase reached, boss
+  builds on Keeper and Martyr) x both bots; every boss rank (Fell, Legendary, Celestial, with the affixes
+  the game rolls) with the expected build on Keeper and Martyr. Result, time, phase reached, boss
   health left (and the time to kill projected from it), damage dealt and taken, hits, healing by
   source (perk, rune, affix, family, skill, item, revive), damage taken by kind (melee, skill,
   shockwave, adds, ticks, traps, falls; printed per fight), lowest health. Then the **weapon arena**:
-  every weapon (Common, on the act's expected build otherwise) against every boss, kite, Normal.
-- **pack** (engine): on each act's last normal floor, Normal and Hard: three of each monster kind
+  every weapon (Common, on the act's expected build otherwise) against every boss, kite, Keeper.
+- **pack** (engine): on each act's last normal floor, Keeper and Martyr: three of each monster kind
   (time from first hurt to death, damage taken), mixed rooms of the act's list by spawn weight
   (room size of that depth and difficulty, 3 rooms) for every build of the act and both bots, and
-  rooms with one ranked monster (Elite with each affix, Epic, Legendary, Shiny) + 2 commons.
+  rooms with one ranked monster (Elite with each affix, Fell, Legendary, Celestial) + 2 commons.
 - **marginal** (engine): every perk at each level, every relic, every family's bonus alone, every
   rune, every item affix, every shrine level (stats and starting perks), every encounter outcome,
-  added alone to each act's expected build (Normal). Each variant: DPS and boss time to kill on
+  added alone to each act's expected build (Keeper). Each variant: DPS and boss time to kill on
   the act's boss as a dummy (no AI, health scaled to ~15 s for the base build; the hero
   untouchable, held at 45% health for the second half so low-health bonuses and heals show);
   pack clear time on a room of the act's monsters that don't fight back (cleaves, chains, kill
@@ -97,7 +109,7 @@ take 5 s to a minute each; the `balance` test suite about a minute.
   prices, rerolls and rune removal; XP before each boss -> level (the expected builds' reasoning);
   rarity per depth and source; souls per run by result and difficulty vs the shrine's total.
 - **compound** (engine): attack speed x crit x damage (Frenzy, Precision, Strength, War Banner
-  alone and together vs the product of the parts); Multishot and Prism on every ranged weapon at
+  alone and together vs the product of the parts); Hydra's Quiver and Prism on every ranged weapon at
   64, 128, 256 px; echo (Echo perk, Echo runes, of Echoes, Arcane Focus); burn stacking (Ignite,
   Ember, Burning, Kindling, Inferno); armor vs many weak hits (share of each act's monsters hitting
   each build for 1); healing vs the sustain cap (lifesteal stacks with and without `SustainRules`,
@@ -122,36 +134,36 @@ lab before changing data.
 
 | Target | Value | Why |
 |---|---|---|
-| Boss time to kill, expected build, Normal | 40-100 s (rare-rank boss <= 150 s) | under it the boss is not a fight; over it the fight drags on a phone |
-| Face-tank (never dodges) with expected and degenerate builds | must lose to every boss from Normal | skill beats stats: standing and trading blows must never win (pillar 1) |
-| Kite (keeps range, rolls) with the expected build | wins on Easy and Normal | the fight must be beatable by playing it |
+| Boss time to kill, expected build, Keeper | 40-100 s (rare-rank boss <= 150 s) | under it the boss is not a fight; over it the fight drags on a phone |
+| Face-tank (never dodges) with expected and degenerate builds | must lose to every boss from Keeper | skill beats stats: standing and trading blows must never win (pillar 1) |
+| Kite (keeps range, rolls) with the expected build | wins on Pilgrim and Keeper | the fight must be beatable by playing it |
 | Healing in a boss fight / damage taken | <= 25% expected, <= 50% degenerate and family | healing forgives mistakes, it doesn't out-heal a boss |
-| Boss hits to kill the expected build (Normal) | 6-12 | one mistake isn't the end; ignoring the patterns kills |
-| Common monster time to kill (expected build, Normal) | 0.5-2.5 s | paper below, a slog above |
-| Elite / Epic / Legendary / Shiny time to kill | 3-10 / 5-16 / 8-25 / 2-10 s | a short duel, a longer one, a mini-boss, a treasure |
-| Rank ladder (medians per act, Normal) | each rank >= x1.2 the time to kill of the one below, and costs more health | a rank is a clearly tougher fight, not a recolor |
+| Boss hits to kill the expected build (Keeper) | 6-12 | one mistake isn't the end; ignoring the patterns kills |
+| Common monster time to kill (expected build, Keeper) | 0.5-2.5 s | paper below, a slog above |
+| Elite / Fell / Legendary / Celestial time to kill | 3-10 / 5-16 / 8-25 / 2-10 s | a short duel, a longer one, a mini-boss, a treasure |
+| Rank ladder (medians per act, Keeper) | each rank >= x1.2 the time to kill of the one below, and costs more health | a rank is a clearly tougher fight, not a recolor |
 | Commons' curve (median health lost killing one, act over act) | x0.9-x1.6 (the act curve's step) | each act's monsters a little harder than the last |
 | Common monster hits to kill the expected build | >= 6 | never a two-shot |
 | Room damage (kite, expected build) / clear time | <= 35% of max health / <= 25 s | a room shouldn't cost half your life when you play well |
 | Act curve (boss threat, act over act) | x0.9-x1.6 | a steady curve, no wall (pillar 5) |
-| Difficulty vs Normal (boss threat) | Easy x0.2-0.7, Hard x1.3-2.6, Nightmare x2-5, +5 x2.5-8, +10 x3-12 | Easy forgiving, Nightmare demanding, ascensions add twists not walls |
+| Difficulty vs Keeper (boss threat) | Pilgrim x0.2-0.7, Martyr x1.3-2.6, Nightmare x2-5, +5 x2.5-8, +10 x3-12 | Pilgrim forgiving, Nightmare demanding, ascensions add twists not walls |
 | Any pick at max vs its category's median (marginal value) | 0.5x-2x | every pick a real choice (pillar 2) |
 | Degenerate build DPS / expected build's | <= 2.5x | stacking pays, it doesn't trivialise (pillar 3) |
 | Weapon DPS vs the median weapon (same rarity, same hero) | 0.75x-1.4x (phase 2C; was 0.6-1.6) | no trap, no only choice |
-| Weapon arena: bosses beaten (Common, kite, Normal) | >= 50% | a weapon that loses to most bosses is a trap |
+| Weapon arena: bosses beaten (Common, kite, Keeper) | >= 50% | a weapon that loses to most bosses is a trap |
 | A stack of multiplying bonuses (compound) | <= 2.5x the expected build's DPS | check the products, not the parts |
 | Most armored build: monsters hitting it for 1 | <= 50% of the act's | armor makes weak monsters weaker, not harmless |
 | One sustain source alone, cut by the budget in rooms | <= 10% | a single Leech or Vampirism is never capped on packs |
 | Gold between merchants / an average stock item | 0.8-3 items | buy something most visits, never everything |
 | A reroll / rune removal vs a floor's gold | <= 35% / <= 60% | cheap enough to use |
-| Runs to buy the whole shrine (dying in act II-III, Normal) | 15-60 | a long goal, not a grind |
+| Runs to buy the whole shrine (dying in act II-III, Keeper) | 15-60 | a long goal, not a grind |
 | First run (dies at the act I boss) | buys a shrine level | something to show for it |
 
 ### Builds (data/balance/builds/)
 
 - `baseline`: a fresh hero (level 1, the Katana).
 - `expected_a1`..`expected_a4`: what an average player has at each act's boss. Level from the XP
-  curve and the XP measured on Normal floors (economy table "XP gathered before each act's boss",
+  curve and the XP measured on Keeper floors (economy table "XP gathered before each act's boss",
   kills 80/75/65/60% of the act's monsters), one perk per level up leaning to families, a relic
   per boss slain, gear rarity from the loot weights at that depth, runes from bosses and elites,
   a few shrine levels. Each file's `description` says why.
