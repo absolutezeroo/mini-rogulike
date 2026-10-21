@@ -9,9 +9,11 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="6_akday"]
 [ext_resource type="Resource" path="res://data/skills/player/whirlwind.tres" id="7_r15cl"]
 [ext_resource type="Resource" path="res://data/skills/player/dash_strike.tres" id="8_jh3j1"]
+[ext_resource type="Resource" path="res://data/skills/charged/katana.tres" id="charged"]
 
 [resource]
 script = ExtResource("5_r15cl")
+charged = ExtResource("charged")
 damage = 5
 cooldown = 0.38
 reach = 32.0

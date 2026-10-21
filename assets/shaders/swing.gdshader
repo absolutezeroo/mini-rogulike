@@ -2,7 +2,8 @@ shader_type canvas_item;
 // A blow's arc (SwingVfx), drawn on a square around the attacker:
 //   mode 0: a crescent sweeping over `arc` radians around `aim` (more than a turn for a spin),
 //           its cutting edge bright, its body down the element's ramp, thinning toward the tail;
-//   mode 1: a thrust, a streak shooting out along `aim` over `radius`.
+//   mode 1: a thrust, a streak shooting out along `aim` from `inner` (the hand, clear of the
+//           wielder's body) to `radius`.
 // The node is never turned: the shape turns with `aim`, but its pixels are 2x2 art pixels on
 // the world's grid (like the art), so a diagonal swing has the same pixels as a straight one.
 // `progress` moves the head (0..1), `fade` dissolves it pixel by pixel (ordered dithering).
@@ -16,6 +17,7 @@ uniform float aim = 0.0;
 uniform float progress = 0.0;
 uniform float fade = 0.0;
 uniform float trail = 0.75;
+uniform float inner = 0.0;
 uniform vec4 core : source_color = vec4(0.95, 0.92, 0.95, 1.0);
 uniform vec4 light : source_color = vec4(0.78, 0.78, 0.78, 1.0);
 uniform vec4 body : source_color = vec4(0.55, 0.55, 0.55, 1.0);
@@ -73,9 +75,10 @@ void fragment() {
 		across = (radius - r) / width;
 		rim = radius - r;
 	} else {
-		float head = radius * progress;
-		float tail = head - radius * trail;
-		if (p.x > head || p.x < tail || p.x < 0.0) {
+		float span = max(radius - inner, 1.0);
+		float head = inner + span * progress;
+		float tail = head - span * trail;
+		if (p.x > head || p.x < tail || p.x < inner) {
 			discard;
 		}
 		along = (p.x - tail) / max(head - tail, 1.0);

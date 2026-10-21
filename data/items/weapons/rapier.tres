@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_lobrh"]
 [ext_resource type="Resource" path="res://data/skills/player/riposte.tres" id="10_a65b0"]
 [ext_resource type="Resource" path="res://data/skills/player/piercing_thrust.tres" id="11_b0na8"]
+[ext_resource type="Resource" path="res://data/skills/charged/rapier.tres" id="charged"]
 
 [sub_resource type="Resource" id="Resource_xbxxo"]
 script = ExtResource("5_xqm3c")
@@ -17,6 +18,7 @@ crit_chance = 0.15
 
 [resource]
 script = ExtResource("8_de2vx")
+charged = ExtResource("charged")
 damage = 2
 cooldown = 0.31
 reach = 42.0

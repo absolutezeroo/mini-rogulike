@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="ChargedAttackDef" format=3]
+
+[ext_resource type="Resource" path="res://data/vfx/slashes/whirlwind.tres" id="1_whirlwind"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="2_damage_area_effect"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="3_effect"]
+[ext_resource type="Script" path="res://src/definitions/items/charged_attack_def.gd" id="4_charged_attack_def"]
+
+[sub_resource type="Resource" id="wheel"]
+script = ExtResource("2_damage_area_effect")
+radius = 80.0
+damage_multiplier = 2.4
+knockback = 380.0
+slash = ExtResource("1_whirlwind")
+
+[resource]
+script = ExtResource("4_charged_attack_def")
+id = &"axe"
+display_name = "Headsman's Wheel"
+description = "A full spin that hits everything around you."
+charge_time = 1.1
+move_speed_scale = 0.5
+effects = Array[ExtResource("3_effect")]([SubResource("wheel")])

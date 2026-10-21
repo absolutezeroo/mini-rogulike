@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_153jf"]
 [ext_resource type="Resource" path="res://data/skills/player/rock_spike.tres" id="8_ebxw1"]
 [ext_resource type="Resource" path="res://data/skills/player/fissure.tres" id="9_vabj2"]
+[ext_resource type="Resource" path="res://data/skills/charged/pickaxe.tres" id="charged"]
 
 [sub_resource type="Resource" id="Resource_p1snk"]
 script = ExtResource("3_apxa1")
@@ -18,6 +19,7 @@ crit_chance = 0.05
 
 [resource]
 script = ExtResource("6_vabj2")
+charged = ExtResource("charged")
 damage = 7
 cooldown = 0.6
 reach = 32.0

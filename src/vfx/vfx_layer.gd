@@ -32,6 +32,9 @@ const STANDING_Z := 0
 const AIR_Z := 5
 
 const _META := &"vfx_layer"
+## An effect leaving a body toward a direction with less than this y goes north, away from the
+## camera: it starts behind that body (`goes_behind`).
+const NORTH := -0.2
 
 
 ## Puts `node` on `layer`: its z (absolute, whatever its parent), and a mark World.spawn_vfx
@@ -67,3 +70,27 @@ static func light_up(node: Node2D, element: VfxElementDef, reach: float) -> void
 ## The layer `node` was put on (AIR when it never was).
 static func of(node: Node) -> Layer:
 	return node.get_meta(_META, Layer.AIR) as Layer
+
+
+## The hero's own effects never hide him (docs/vfx.md 2b): one leaving his body toward
+## `direction` (a shot, a blow, the charge in his hand) starts behind it when it goes north
+## (we see his back), in front of it otherwise.
+static func goes_behind(direction: Vector2) -> bool:
+	return direction.y < NORTH * direction.length()
+
+
+## Puts `node` on `body` (an actor): a child of it, sorted with it among the actors, drawn
+## behind its sprite (`behind`: a halo rising around the hero, a column of light, his weapon's
+## glow when he faces north) or over it (the glow when he faces us). Lit with the room like
+## the body. Returns `node`.
+static func on_body(body: Node2D, node: Node2D, behind: bool = true) -> Node2D:
+	node.set_meta(_META, Layer.STANDING)
+	node.z_as_relative = true
+	node.z_index = 0
+	node.show_behind_parent = behind
+	if node.get_parent() != body:
+		if node.get_parent():
+			node.reparent(body, false)
+		else:
+			body.add_child(node)
+	return node

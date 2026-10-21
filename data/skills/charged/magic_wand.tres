@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="ChargedAttackDef" format=3]
+
+[ext_resource type="Resource" path="res://data/vfx/elements/storm.tres" id="1_storm"]
+[ext_resource type="Script" path="res://src/definitions/effects/chain_lightning_effect.gd" id="2_chain_lightning_effect"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="3_effect"]
+[ext_resource type="AudioStream" path="res://data/audio/bolt.tres" id="4_bolt"]
+[ext_resource type="Script" path="res://src/definitions/items/charged_attack_def.gd" id="5_charged_attack_def"]
+
+[sub_resource type="Resource" id="bolt"]
+script = ExtResource("2_chain_lightning_effect")
+element = ExtResource("1_storm")
+max_range = 360.0
+damage_multiplier = 2.1
+jumps = 3
+jump_reach = 150.0
+jump_falloff = 0.7
+
+[resource]
+script = ExtResource("5_charged_attack_def")
+id = &"magic_wand"
+display_name = "Forked Wrath"
+description = "A bolt strikes the closest enemy ahead, then leaps to three more."
+charge_time = 0.85
+move_speed_scale = 0.55
+effects = Array[ExtResource("3_effect")]([SubResource("bolt")])
+sound = ExtResource("4_bolt")

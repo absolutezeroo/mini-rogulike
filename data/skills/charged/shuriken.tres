@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="ChargedAttackDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/projectiles/shuriken.png" id="1_shuriken"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_projectile_effect"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="3_effect"]
+[ext_resource type="Script" path="res://src/definitions/items/charged_attack_def.gd" id="4_charged_attack_def"]
+
+[sub_resource type="Resource" id="fan"]
+script = ExtResource("2_projectile_effect")
+texture_frames = 1
+damage_multiplier = 0.55
+speed = 560.0
+radius = 5.0
+max_distance = 380.0
+count = 7
+spread_degrees = 40.0
+pierce = 1
+knockback = 80.0
+texture = ExtResource("1_shuriken")
+glow = 0.0
+
+[resource]
+script = ExtResource("4_charged_attack_def")
+id = &"shuriken"
+display_name = "Bladed Gale"
+description = "A fan of seven stars that pierce a first enemy."
+charge_time = 0.8
+move_speed_scale = 0.6
+effects = Array[ExtResource("3_effect")]([SubResource("fan")])

@@ -9,6 +9,7 @@
 [ext_resource type="Resource" path="res://data/skills/player/ice_shards.tres" id="8_wnfc2"]
 [ext_resource type="Resource" path="res://data/vfx/elements/frost.tres" id="vfx_frost"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="vfx_on_hit_status"]
+[ext_resource type="Resource" path="res://data/skills/charged/stick.tres" id="charged"]
 
 [sub_resource type="Resource" id="chill"]
 script = ExtResource("vfx_on_hit_status")
@@ -17,6 +18,7 @@ slow_duration = 1.0
 
 [resource]
 script = ExtResource("5_0gw0y")
+charged = ExtResource("charged")
 on_hit = SubResource("chill")
 element = ExtResource("vfx_frost")
 kind = 1

@@ -27,6 +27,9 @@ enum AttackAnimation { SLASH, THRUST, SMASH, SHOOT }
 ## Skills you get while holding this weapon (2 at most): a staff makes you a mage,
 ## an axe a warrior... Monsters ignore them (their skills are in their MonsterDef).
 @export var skills: Array[SkillDef] = []
+## Hold the attack button, let go when full: the hero's charged attack with this weapon
+## (data/skills/charged/). Monsters ignore it.
+@export var charged: ChargedAttackDef
 
 ## Statuses left on whatever this weapon hits (poison fangs, burning claws...).
 @export var on_hit: OnHitStatus
@@ -99,6 +102,8 @@ func get_details() -> String:
 		for skill in skills:
 			names.append(tr(skill.display_name))
 		text += "\n" + tr("Skills: %s") % ", ".join(names)
+	if charged:
+		text += "\n" + charged.describe()
 	if on_hit and not (base_item and (base_item as WeaponDef).on_hit):
 		text += "\n" + on_hit.describe()
 	# The item level line first (EquipmentDef), then the weapon's numbers, then the rest.

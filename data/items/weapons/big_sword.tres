@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="9_06n4e"]
 [ext_resource type="Resource" path="res://data/skills/player/sundering_blow.tres" id="10_c0h1f"]
 [ext_resource type="Resource" path="res://data/skills/player/whirlwind.tres" id="11_0cbet"]
+[ext_resource type="Resource" path="res://data/skills/charged/big_sword.tres" id="charged"]
 
 [sub_resource type="Resource" id="Resource_rbsyd"]
 script = ExtResource("5_teqs5")
@@ -18,6 +19,7 @@ move_speed = -10.0
 
 [resource]
 script = ExtResource("8_i07dq")
+charged = ExtResource("charged")
 damage = 12
 cooldown = 0.8
 reach = 44.0

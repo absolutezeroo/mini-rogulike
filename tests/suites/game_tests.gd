@@ -232,6 +232,7 @@ func run() -> void:
 	await floor._test_loot_and_gold(game)
 	await floor._test_bag_room(game)
 	await combat._test_weapon_kits(game)
+	await combat._test_charged_attacks(game)
 	await floor._test_encounters(game)
 	await floor._test_pacts(game)
 	await floor._test_variety(game)

@@ -9,9 +9,11 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_05to4"]
 [ext_resource type="Resource" path="res://data/skills/player/lash.tres" id="9_extgn"]
 [ext_resource type="Resource" path="res://data/skills/player/battle_cry.tres" id="10_32a85"]
+[ext_resource type="Resource" path="res://data/skills/charged/whip.tres" id="charged"]
 
 [resource]
 script = ExtResource("7_uhab8")
+charged = ExtResource("charged")
 damage = 5
 cooldown = 0.42
 reach = 74.0

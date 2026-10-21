@@ -9,9 +9,11 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_gjqev"]
 [ext_resource type="Resource" path="res://data/skills/player/piercing_thrust.tres" id="8_vd3a5"]
 [ext_resource type="Resource" path="res://data/skills/player/spear_throw.tres" id="9_8yvfo"]
+[ext_resource type="Resource" path="res://data/skills/charged/lance.tres" id="charged"]
 
 [resource]
 script = ExtResource("6_8yvfo")
+charged = ExtResource("charged")
 damage = 7
 cooldown = 0.5
 reach = 60.0

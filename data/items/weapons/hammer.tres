@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_ippst"]
 [ext_resource type="Resource" path="res://data/skills/player/ground_slam.tres" id="8_hgxcw"]
 [ext_resource type="Resource" path="res://data/skills/player/fissure.tres" id="9_jfn3b"]
+[ext_resource type="Resource" path="res://data/skills/charged/hammer.tres" id="charged"]
 
 [sub_resource type="Resource" id="Resource_scl1l"]
 script = ExtResource("3_5gd55")
@@ -17,6 +18,7 @@ move_speed = -20.0
 
 [resource]
 script = ExtResource("6_jfn3b")
+charged = ExtResource("charged")
 damage = 14
 cooldown = 0.95
 reach = 34.0

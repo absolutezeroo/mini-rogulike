@@ -9,6 +9,7 @@
 [ext_resource type="Resource" path="res://data/items/weapons/katana.tres" id="9_prejf"]
 [ext_resource type="Script" path="res://src/definitions/items/item_def.gd" id="10_23thu"]
 [ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="11_j77us"]
+[ext_resource type="AudioStream" path="res://data/audio/magic.tres" id="12_charge"]
 
 [sub_resource type="Resource" id="Resource_wtmd1"]
 script = ExtResource("1_bnges")
@@ -32,3 +33,5 @@ starting_items = Array[ExtResource("10_23thu")]([ExtResource("11_j77us"), ExtRes
 innate_skills = Array[ExtResource("4_ohl2f")]([ExtResource("5_isphs")])
 xp_growth = 1.45
 level_bonus = SubResource("Resource_jnkeh")
+charge_delay = 0.22
+charge_full_sound = ExtResource("12_charge")

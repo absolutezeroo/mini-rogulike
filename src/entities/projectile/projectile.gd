@@ -27,6 +27,13 @@ var _phase := 0
 const TRAIL_LENGTH := 6
 ## Light of a glowing shot, above the floor's own (LightSource.relative).
 const GLOW_LEVEL := 3
+## The hero's shot going north (we see his back) is drawn behind every body for this many
+## world units, the length of his body, then over them like any shot: it never covers him
+## (docs/vfx.md 2b).
+const BEHIND_SHOOTER := 30.0
+
+## World units of flight left behind the shooter's body (0: drawn over the bodies).
+var _behind_left := 0.0
 
 
 func setup(shooter: Actor, direction: Vector2, spec: ProjectileSpec) -> void:
@@ -35,6 +42,9 @@ func setup(shooter: Actor, direction: Vector2, spec: ProjectileSpec) -> void:
 	_faction = shooter.faction
 	_crit_chance = shooter.get_stats().crit_chance
 	_configure(direction, spec)
+	if shooter is Player and VfxLayer.goes_behind(direction):
+		_behind_left = BEHIND_SHOOTER
+		z_index = VfxLayer.GROUND_Z  # under the bodies (his own first) while it clears him
 	collision_mask = Layers.WORLD | (Layers.MONSTERS if _faction == Actor.Faction.PLAYER else Layers.PLAYER)
 
 
@@ -73,7 +83,7 @@ func _configure(direction: Vector2, spec: ProjectileSpec) -> void:
 	glow.level = maxi(1, roundi(GLOW_LEVEL * spec.glow))
 	# A drawn shot carries its own bright core; only a plain dot gets a halo (a dithered glow
 	# around each of a boss's sixteen shards would fog the screen).
-	if shines and _sheet == null and spec.count <= 3:
+	if shines and ((_sheet == null and spec.count <= 3) or spec.halo):
 		var halo := ProjectileHalo.new()
 		halo.element = _element
 		halo.size = maxf(spec.radius, 5.0) * (1.4 if _sheet else 1.0)
@@ -93,6 +103,10 @@ func _physics_process(delta: float) -> void:
 	position += _direction * step
 	queue_redraw()
 	_travelled += step
+	if _behind_left > 0.0:
+		_behind_left -= step
+		if _behind_left <= 0.0:
+			z_index = 0  # clear of the hero: over the bodies like any shot
 	if _travelled >= _spec.max_distance:
 		_finish()
 
@@ -151,7 +165,12 @@ func _finish() -> void:
 
 
 func _explode() -> void:
-	Vfx.explosion(_world, global_position, _spec.explosion_radius, _spec.element)
+	if _spec.nova_burst and _spec.element:
+		Vfx.nova(_world, global_position, _spec.explosion_radius, _spec.element)
+		Vfx.pop(_world, global_position, _spec.element, 20.0, _direction)
+		Sfx.play_at(Sfx.bank.explosion, global_position, -6.0)
+	else:
+		Vfx.explosion(_world, global_position, _spec.explosion_radius, _spec.element)
 	var source: Actor = _shooter if is_instance_valid(_shooter) else null
 	Combat.hit_props(_world, source, global_position, _spec.explosion_radius)
 	for target in _world.get_actors() if _hits_everyone else _world.get_hostiles(_faction):

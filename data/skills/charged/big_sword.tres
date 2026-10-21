@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="ChargedAttackDef" format=3]
+
+[ext_resource type="Resource" path="res://data/vfx/slashes/lunge.tres" id="1_lunge"]
+[ext_resource type="Script" path="res://src/definitions/effects/dash_strike_effect.gd" id="2_dash_strike_effect"]
+[ext_resource type="Script" path="res://src/definitions/vfx/slash_def.gd" id="3_slash_def"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="4_damage_area_effect"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="5_effect"]
+[ext_resource type="Script" path="res://src/definitions/items/charged_attack_def.gd" id="6_charged_attack_def"]
+
+[sub_resource type="Resource" id="lunge"]
+script = ExtResource("2_dash_strike_effect")
+distance = 110.0
+duration = 0.13
+width = 34.0
+damage_multiplier = 1.6
+knockback = 260.0
+slash = ExtResource("1_lunge")
+
+[sub_resource type="Resource" id="crescent"]
+script = ExtResource("3_slash_def")
+arc_degrees = 190.0
+thickness = 30.0
+strokes = 2
+reach_scale = 1.0
+duration = 0.16
+trail = 0.8
+
+[sub_resource type="Resource" id="sweep"]
+script = ExtResource("4_damage_area_effect")
+delay = 0.14
+radius = 62.0
+damage_multiplier = 1.1
+offset = 28.0
+knockback = 340.0
+slash = SubResource("crescent")
+
+[resource]
+script = ExtResource("6_charged_attack_def")
+id = &"big_sword"
+display_name = "Grave Sweep"
+description = "A lunge that cuts all in its way, then a wide sweep."
+charge_time = 1.1
+move_speed_scale = 0.5
+effects = Array[ExtResource("5_effect")]([SubResource("lunge"), SubResource("sweep")])

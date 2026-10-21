@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="ChargedAttackDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/vfx/slash_def.gd" id="1_slash_def"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="2_damage_area_effect"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="3_effect"]
+[ext_resource type="Script" path="res://src/definitions/items/charged_attack_def.gd" id="4_charged_attack_def"]
+
+[sub_resource type="Resource" id="crack"]
+script = ExtResource("1_slash_def")
+arc_degrees = 110.0
+thickness = 10.0
+reach_scale = 1.0
+duration = 0.16
+trail = 0.6
+
+[sub_resource type="Resource" id="lash"]
+script = ExtResource("2_damage_area_effect")
+radius = 70.0
+damage_multiplier = 2.3
+offset = 62.0
+knockback = 320.0
+slash = SubResource("crack")
+
+[resource]
+script = ExtResource("4_charged_attack_def")
+id = &"whip"
+display_name = "Flaying Arc"
+description = "A long crack of the whip, far in front of you."
+charge_time = 0.85
+move_speed_scale = 0.55
+effects = Array[ExtResource("3_effect")]([SubResource("lash")])

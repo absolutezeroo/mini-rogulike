@@ -10,9 +10,11 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_8gwpx"]
 [ext_resource type="Resource" path="res://data/skills/player/shuriken_storm.tres" id="9_c1b58"]
 [ext_resource type="Resource" path="res://data/skills/player/shadow_step.tres" id="10_kden6"]
+[ext_resource type="Resource" path="res://data/skills/charged/shuriken.tres" id="charged"]
 
 [resource]
 script = ExtResource("7_o0nko")
+charged = ExtResource("charged")
 kind = 1
 damage = 8
 cooldown = 0.36
