@@ -195,8 +195,8 @@ func _build_shrine_badge() -> void:
 func _refresh_daily() -> void:
 	var day := DailyRun.today()
 	var played := Profile.daily_played(day)
-	_daily_title.text = tr("The Well's Call")
-	_daily_text.text = tr("Played today: %d points") % Profile.daily_score if played else tr("A new descent awaits, the same for all")
+	_daily_title.text = tr("The Dawn Knell")
+	_daily_text.text = tr("Tolled today: %d points") % Profile.daily_score if played else tr("The bell tolls: one descent, the same for all")
 
 
 func _refresh() -> void:

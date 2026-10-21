@@ -1,8 +1,8 @@
 class_name DailyDialog
 extends RpgDialog
-## "The Well's Call", the daily run (DailyRun) explained before it starts: a line of lore, the
+## "The Dawn Knell", the daily run (DailyRun) explained before it starts: a line of lore, the
 ## day's weapon and relic, the rules (same floors for everyone, first try counts, how the score
-## is made), your scores, and Answer the call / Back.
+## is made), your scores, and Toll the knell / Back.
 
 signal accepted
 
@@ -10,14 +10,14 @@ const WIDTH := 640.0
 
 
 func _init() -> void:
-	super._init(TranslationServer.tr("The Well's Call"), WIDTH, 0.8)
+	super._init(TranslationServer.tr("The Dawn Knell"), WIDTH, 0.8)
 
 
 ## Fills it for `day` and shows it.
 func open(content: ContentDB, day: int) -> void:
 	UiParts.clear(body)
 	var played := Profile.daily_played(day)
-	var lore := UiSkin.label(tr("Each dawn the Well calls, and everyone answers the same descent."), 16, UiSkin.DIM, true)
+	var lore := UiSkin.label(tr("Each dawn the shrine's bell tolls a knell for the living. All who hear it go down the same Well."), 16, UiSkin.DIM, true)
 	lore.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	body.add_child(lore)
 	# Today's start: the weapon and the relic, with their pictures.
@@ -46,23 +46,23 @@ func open(content: ContentDB, day: int) -> void:
 		start.add_child(UiSkin.label(tr(relic.display_name), 18, relic.color.lerp(Color.WHITE, 0.3)))
 	for rule in [
 		tr("The same floors and bosses for everyone today, on Normal, with this weapon and relic."),
-		tr("Only your first try counts; the next ones today are practice."),
+		tr("Only the first toll counts; the next ones today are practice."),
 		tr("Score: 1 per kill, 30 per floor, 150 per boss, 1000 for a win, 1 per 5 gold."),
 	]:
 		body.add_child(UiSkin.label("- " + rule, 15, UiSkin.TEXT, true))
 	var scores := PackedStringArray()
-	scores.append(tr("Today: %d points") % Profile.daily_score if played else tr("Today's try is waiting"))
+	scores.append(tr("Today: %d points") % Profile.daily_score if played else tr("Today's knell awaits you"))
 	if Profile.daily_best > 0:
 		scores.append(tr("Best %d") % Profile.daily_best)
 	if Profile.daily_streak > 1:
-		scores.append(tr("%d days in a row") % Profile.daily_streak)
+		scores.append(tr("%d dawns in a row") % Profile.daily_streak)
 	var line := UiSkin.label("  -  ".join(scores), 16, UiSkin.GOLD)
 	line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	body.add_child(line)
 	var buttons := HBoxContainer.new()
 	buttons.add_theme_constant_override("separation", 14)
 	body.add_child(buttons)
-	var go := UiParts.button(tr("Practice") if played else tr("Answer the call"), func() -> void:
+	var go := UiParts.button(tr("Toll again") if played else tr("Toll the knell"), func() -> void:
 		hide()
 		accepted.emit(), Vector2(0, 56), 20)
 	go.size_flags_horizontal = Control.SIZE_EXPAND_FILL

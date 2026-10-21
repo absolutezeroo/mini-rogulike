@@ -465,17 +465,17 @@ Your bag and belt are empty.,Your bag and belt are empty.,Ton sac et ta ceinture
 Tap one to see what the merchant pays.,Tap one to see what the merchant pays.,Touche un objet pour voir ce que le marchand en donne.
 Buy,Buy,Acheter
 Sell,Sell,Vendre
-The Well's Call,The Well's Call,L'Appel du Puits
-"Each dawn the Well calls, and everyone answers the same descent.","Each dawn the Well calls, and everyone answers the same descent.","À chaque aube, le Puits appelle, et tous répondent à la même descente."
+The Dawn Knell,The Dawn Knell,Le Glas de l'Aube
+Each dawn the shrine's bell tolls a knell for the living. All who hear it go down the same Well.,Each dawn the shrine's bell tolls a knell for the living. All who hear it go down the same Well.,"À chaque aube, la cloche du sanctuaire sonne le glas des vivants. Tous ceux qui l'entendent descendent le même Puits."
 "The same floors and bosses for everyone today, on Normal, with this weapon and relic.","The same floors and bosses for everyone today, on Normal, with this weapon and relic.","Les mêmes étages et les mêmes boss pour tous aujourd'hui, en Normal, avec cette arme et cette relique."
-Only your first try counts; the next ones today are practice.,Only your first try counts; the next ones today are practice.,Seul ton premier essai compte ; les suivants du jour sont de l'entraînement.
+Only the first toll counts; the next ones today are practice.,Only the first toll counts; the next ones today are practice.,Seul le premier glas compte ; les suivants du jour sont de l'entraînement.
 "Score: 1 per kill, 30 per floor, 150 per boss, 1000 for a win, 1 per 5 gold.","Score: 1 per kill, 30 per floor, 150 per boss, 1000 for a win, 1 per 5 gold.","Score : 1 par monstre abattu, 30 par étage, 150 par boss, 1000 pour une victoire, 1 par tranche de 5 or."
 Today: %d points,Today: %d points,Aujourd'hui : %d points
-Today's try is waiting,Today's try is waiting,L'essai du jour t'attend
+Today's knell awaits you,Today's knell awaits you,Le glas du jour t'attend
 Best %d,Best %d,Meilleur %d
-%d days in a row,%d days in a row,%d jours d'affilée
-Practice,Practice,S'entraîner
-Answer the call,Answer the call,Répondre à l'appel
+%d dawns in a row,%d dawns in a row,%d aubes d'affilée
+Toll again,Toll again,Sonner encore
+Toll the knell,Toll the knell,Sonner le glas
 Back,Back,Retour
 Your last choice,Your last choice,Ton dernier choix
 Locked,Locked,Verrouillé
@@ -537,8 +537,8 @@ Reset the tree,Reset the tree,Réinitialiser l'arbre
 or,or,ou
 "Continue your run  -  floor %d, level %d","Continue your run  -  floor %d, level %d","Reprendre ta partie  -  étage %d, niveau %d"
 Upgrade ready,Upgrade ready,Amélioration prête
-Played today: %d points,Played today: %d points,Joué aujourd'hui : %d points
-"A new descent awaits, the same for all","A new descent awaits, the same for all","Une nouvelle descente t'attend, la même pour tous"
+Tolled today: %d points,Tolled today: %d points,Glas sonné : %d points
+"The bell tolls: one descent, the same for all","The bell tolls: one descent, the same for all","La cloche sonne : une descente, la même pour tous"
 %d souls,%d souls,%d âmes
 to spend,to spend,à dépenser
 Victories,Victories,Victoires
