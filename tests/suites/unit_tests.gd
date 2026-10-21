@@ -1278,6 +1278,8 @@ func _test_languages() -> void:
 		rows += 1
 		if row[2].strip_edges().is_empty():
 			missing.append(row[0])
+		elif row[0].begins_with(" ") != row[2].begins_with(" ") or row[0].ends_with(" ") != row[2].ends_with(" "):
+			broken.append(row[0])  # " and " joins words: its spaces matter
 		elif not row[0].begins_with("grammar:") and _codes(codes, row[0]) != _codes(codes, row[2]) and not row[0].contains("{rarity}"):
 			broken.append(row[0])
 	check(rows > 1000, "languages: the CSV holds the game's texts (%d)" % rows)

@@ -21,7 +21,7 @@ Slay %s without drinking a potion during the fight,Slay %s without drinking a po
 Slay %s losing less than %d%% of your Health,Slay %s losing less than %d%% of your Health,%s : à abattre en perdant moins de %d %% de ta Vie
 Slay %s with the %s,Slay %s with the %s,%s : à abattre avec l'arme %s
 Hero,Hero,Héros
-Slay %d monsters,Slay %d monsters,Tue %d monstres
+Slay %d monsters,Slay %d monsters,Abats %d monstres
 Merchant,Merchant,Marchand
 SK,SK,CP
 %+d max health,%+d max health,%+d Vie max
@@ -41,7 +41,7 @@ Slows %d%%,Slows %d%%,Ralentit de %d %%
 "%d max health, for the rest of the run","%d max health, for the rest of the run","%d de Vie max, pour le reste de la partie"
 Free,Free,Gratuit
 Costs %s,Costs %s,Coûte %s
- and , and , et
+ and , and , et 
 Not enough gold (%d more),Not enough gold (%d more),Pas assez d'or (il en manque %d)
 Your max health is too low,Your max health is too low,Ta Vie max est trop basse
 Accept,Accept,Accepter
@@ -109,7 +109,7 @@ Its long body burns at a touch: only the head can be hurt,Its long body burns at
 ECHO,ECHO,ÉCHO
 You took %s instead (reset the tree to change).,You took %s instead (reset the tree to change).,Tu as pris %s à la place (réinitialise l'arbre pour changer).
 Needs %s first.,Needs %s first.,Nécessite d'abord %s.
- or , or , ou
+ or , or , ou 
 Feat: %s,Feat: %s,Exploit : %s
 a fall,a fall,une chute
 the dungeon,the dungeon,le donjon
@@ -265,11 +265,11 @@ Used every %.0f seconds.,Used every %.0f seconds.,Utilisée toutes les %.0f seco
 From phase %d. %s,From phase %d. %s,Dès la phase %d. %s
 (phase %d),(phase %d),(phase %d)
 Flies: holes and water don't stop it.,Flies: holes and water don't stop it.,Vole : ni les trous ni l'eau ne l'arrêtent.
-Keeps its distance: close in on it.,Keeps its distance: close in on it.,Garde ses distances : colle-lui au train.
+Keeps its distance: close in on it.,Keeps its distance: close in on it.,Garde ses distances : rapproche-toi.
 Hard to push around (or into holes).,Hard to push around (or into holes).,Difficile à repousser (ou à pousser dans un trou).
 %d%%,%d%%,%d %%
 Fights in %d phases: stronger and faster once its Health drops to %s.,Fights in %d phases: stronger and faster once its Health drops to %s.,Combat en %d phases : plus fort et plus rapide quand sa Vie tombe à %s.
-", then ",", then ",", puis"
+", then ",", then ",", puis "
 Hit it too many times in a row and it throws you off with a shockwave.,Hit it too many times in a row and it throws you off with a shockwave.,Frappe-le trop de fois d'affilée et il te repousse d'une onde de choc.
 Found!,Found!,Trouvé !
 Not found yet,Not found yet,Pas encore trouvé
@@ -497,14 +497,14 @@ Nightmare ascension,Nightmare ascension,Ascension du Cauchemar
 No oath,No oath,Aucun serment
 "The usual start: the Katana, no rule changed.","The usual start: the Katana, no rule changed.","Le départ habituel : le Katana, aucune règle changée."
 "Opens at the end of the %s branch of the Tree of Souls, at the shrine.","Opens at the end of the %s branch of the Tree of Souls, at the shrine.","S'ouvre au bout de la branche %s de l'Arbre des Âmes, au Sanctuaire."
-Sworn,Sworn,Juré
+Sworn,Sworn,Choisi
 "Your starting weapon (Armory): your oath brings its own, the %s. Without the oath, pick one below.","Your starting weapon (Armory): your oath brings its own, the %s. Without the oath, pick one below.","Ton arme de départ (Armurerie) : ton serment apporte la sienne, %s. Sans serment, choisis-en une ci-dessous."
 Your starting weapon (Armory): %s.,Your starting weapon (Armory): %s.,Ton arme de départ (Armurerie) : %s.
 the usual one,the usual one,l'habituelle
 Before the descent,Before the descent,Avant la descente
 "Swear an oath for this run, or go as you are. It changes how you start: pick one, then Start.","Swear an oath for this run, or go as you are. It changes how you start: pick one, then Start.","Prête un serment pour cette partie, ou pars tel quel. Il change ton départ : choisis-en un, puis Commencer."
 Start the run,Start the run,Commencer la partie
-Sworn before a run: %s,Sworn before a run: %s,Juré avant une partie : %s
+Sworn before a run: %s,Sworn before a run: %s,Prêté avant une partie : %s
 Opens: %s,Opens: %s,Ouvre : %s
 Nothing bought yet.,Nothing bought yet.,Rien d'acheté pour l'instant.
 "Every soul spent comes back (%d), for free.","Every soul spent comes back (%d), for free.","Chaque âme dépensée te revient (%d), gratuitement."
@@ -525,8 +525,8 @@ Reset the tree,Reset the tree,Réinitialiser l'arbre
 or,or,ou
 "Continue your run  -  floor %d, level %d","Continue your run  -  floor %d, level %d","Reprendre ta partie  -  étage %d, niveau %d"
 Upgrade ready,Upgrade ready,Amélioration prête
-Daily run: practice (today's try is done),Daily run: practice (today's try is done),Partie du jour : entraînement (essai du jour déjà joué)
-Daily run: same dungeon for everyone today,Daily run: same dungeon for everyone today,Partie du jour : le même donjon pour tous aujourd'hui
+Daily run: practice (today's try is done),Daily run: practice (today's try is done),Partie du jour : entraînement (essai joué)
+Daily run: same dungeon for everyone today,Daily run: same dungeon for everyone today,Partie du jour : même donjon pour tous
 Everyone starts with %s,Everyone starts with %s,Tout le monde commence avec %s
 Today: %d points,Today: %d points,Aujourd'hui : %d points
 Your first try today is the one that counts,Your first try today is the one that counts,Ton premier essai du jour est celui qui compte
@@ -627,7 +627,7 @@ Nightmare Walker,Nightmare Walker,Marcheur du Cauchemar
 Win a run on Nightmare.,Win a run on Nightmare.,Gagne une partie en Cauchemar.
 Pushover,Pushover,Bousculeur
 Knock 10 monsters into holes.,Knock 10 monsters into holes.,Pousse 10 monstres dans des trous.
-Slayer,Slayer,Tueur
+Slayer,Slayer,Pourfendeur
 Slay 250 monsters.,Slay 250 monsters.,Abats 250 monstres.
 Treasure Hunter,Treasure Hunter,Chasseur de Trésors
 Open 25 chests.,Open 25 chests.,Ouvre 25 coffres.
@@ -635,7 +635,7 @@ Veteran,Veteran,Vétéran
 Reach level 12 in a single run.,Reach level 12 in a single run.,Atteins le niveau 12 en une seule partie.
 Bane of the Wardens,Bane of the Wardens,Fléau des Gardiens
 Defeat 10 wardens.,Defeat 10 wardens.,Terrasse 10 gardiens.
-Warden Slayer,Warden Slayer,Tueur de Gardien
+Warden Slayer,Warden Slayer,Tombeur de Gardien
 Defeat a warden of the Well.,Defeat a warden of the Well.,Terrasse un gardien du Puits.
 Brutal,Brutal,Brutal
 Burning,Burning,Ardent
@@ -1143,7 +1143,7 @@ Blade,Blade,Lame
 Arcana,Arcana,Arcanes
 "Health, Armor, healing: a hero who lasts.","Health, Armor, healing: a hero who lasts.","Vie, Armure, soins : un héros qui tient bon."
 "Damage, critical hits, speed: a hero who strikes.","Damage, critical hits, speed: a hero who strikes.","Dégâts, coups critiques, vitesse : un héros qui frappe."
-"Skills, spells, tomes: a hero who casts.","Skills, spells, tomes: a hero who casts.","Compétences, sorts, grimoires : un héros qui incante."
+"Skills, spells, tomes: a hero who casts.","Skills, spells, tomes: a hero who casts.",Sorts et grimoires : un héros qui incante.
 "Gold, loot, the merchant, perk choices: a hero who finds.","Gold, loot, the merchant, perk choices: a hero who finds.","Or, butin, marchand, choix d'atouts : un héros qui trouve."
 Call the Embers,Call the Embers,Appel des Braises
 Call the Dead,Call the Dead,Appel des Morts
@@ -1218,7 +1218,7 @@ A huge swing in front of you.,A huge swing in front of you.,Un immense coup de t
 CLEAVE,CLEAVE,TAILLE
 Roll,Roll,Roulade
 Quick invulnerable roll in the direction you move.,Quick invulnerable roll in the direction you move.,Une roulade rapide et invulnérable dans la direction où tu vas.
-ROLL,ROLL,ROULÉ
+ROLL,ROLL,ROULE
 Iaido Dash,Iaido Dash,Ruée Iaido
 Dash forward and cut everything on the way.,Dash forward and cut everything on the way.,Fonce en avant et tranche tout sur ton passage.
 DASH,DASH,RUÉE

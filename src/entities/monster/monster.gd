@@ -529,7 +529,7 @@ func _enter_phase(phase: BossPhase) -> void:
 	_shockwave(0.35)
 	if not phase.message.is_empty():
 		world.spawn_floating_text(head_position() + Vector2(0, -12), tr(phase.message), Palette.DANGER)
-		Events.log_message("%s: %s" % [display_name, tr(phase.message)], Palette.DANGER)
+		Events.log_message(tr("%s: %s") % [display_name, tr(phase.message)], Palette.DANGER)
 	Vfx.magic(world, global_position, Palette.DANGER)
 	Sfx.play_at(Sfx.bank.boss_roar, global_position)
 	Events.screen_shake.emit(0.6)

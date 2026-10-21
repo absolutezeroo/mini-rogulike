@@ -278,7 +278,7 @@ func _test_options_screen(title: TitleScreen) -> void:
 		await _frames(2)
 		check(Settings.language == "fr" and TranslationServer.get_locale() == "fr", "options: Français switches the game to French")
 		var english: Button = options.get_node("%EnglishButton")
-		check(english != null and options.visible and _texts(options).has("Langue"), "options: the window is rebuilt in French")
+		check(english != null and options.visible and _texts(options).has("Langue") and _texts(options).has("Son"), "options: the window is rebuilt in French")
 		check((options.get_node("%FrenchButton") as Button).button_pressed and not english.button_pressed, "options: the language in use stays pressed")
 		english.pressed.emit()
 		await _frames(2)

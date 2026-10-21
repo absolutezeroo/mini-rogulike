@@ -133,15 +133,17 @@ func _build() -> void:
 	window.close_requested.connect(close)
 	add_child(window)
 	MenuWindow.expose(window.close_button, "CloseButton", self)
-	window.header_left.add_child(UiSkin.label(tr("Every change is saved right away."), 16, UiSkin.DIM))
+	var saved := UiSkin.label(tr("Every change is saved right away."), 16, UiSkin.DIM, true)
+	saved.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	saved.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	window.header_left.add_child(saved)
+	_build_languages(window.header_left)
 	var columns := HBoxContainer.new()
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	columns.add_theme_constant_override("separation", 14)
 	window.body.add_child(columns)
 	var left := _column(columns)
 	var right := _column(columns)
-
-	_build_languages(_section(left, tr("Language")))
 
 	var sound := _section(left, tr("Sound"))
 	_music = _slider(sound, tr("Music"), tr("Background music."), 0.0, 1.0, 0.05, "MusicSlider")
@@ -172,15 +174,17 @@ func _build() -> void:
 	MenuWindow.expose(_replay, "ReplayTutorialButton", self)
 
 
-## Two big buttons, each language's name in itself: the one in use stays pressed.
-func _build_languages(section: VBoxContainer) -> void:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 12)
-	section.add_child(row)
+## In the header, always in sight: "Language" and two big buttons, each language's name in
+## itself; the one in use stays pressed.
+func _build_languages(row: HBoxContainer) -> void:
+	var title := UiSkin.label(tr("Language"), 18, UiSkin.GOLD)
+	title.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(title)
 	for code: String in Settings.LANGUAGES:
-		var button := MenuWindow.button(Settings.LANGUAGE_NAMES[code], 20, 48)
+		var button := MenuWindow.button(Settings.LANGUAGE_NAMES[code], 19, 48)
 		button.toggle_mode = true
-		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.custom_minimum_size.x = 160
+		button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		# A language's own name is never translated.
 		button.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 		row.add_child(button)

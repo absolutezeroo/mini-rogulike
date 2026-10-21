@@ -444,7 +444,7 @@ func _announce_floor() -> void:
 	if act and content.dungeon.floor_in_act(depth) == 1:
 		if not show_act_cards:
 			hud.show_banner(tr(act.title))
-		Events.log_message("%s: %s" % [tr(act.subtitle), tr(act.title)], Palette.GOLD)
+		Events.log_message(tr("%s: %s") % [tr(act.subtitle), tr(act.title)], Palette.GOLD)
 	if world.floor_event:
 		hud.show_banner(tr(world.floor_event.display_name), world.floor_event.color)
 		Events.log_message(tr(world.floor_event.description), world.floor_event.color)
