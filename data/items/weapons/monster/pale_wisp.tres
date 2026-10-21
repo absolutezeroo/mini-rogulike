@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/spirit.tres" id="1_sound"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="2_weapon"]
+[ext_resource type="Resource" path="res://data/vfx/elements/spirit.tres" id="vfx_spirit"]
+
+[resource]
+script = ExtResource("2_weapon")
+kind = 1
+damage = 5
+cooldown = 1.6
+reach = 320.0
+attack_animation = 3
+trail_color = Color(0, 0, 0, 0)
+attack_sound = ExtResource("1_sound")
+projectile_speed = 260.0
+projectile_radius = 7.0
+slot = 0
+id = &"pale_wisp"
+display_name = "Pale Wisp"
+glyph = "G"
+color = Color(0.72156864, 0.9607843, 0.8627451, 1)
+spawn_weight = 0
+element = ExtResource("vfx_spirit")

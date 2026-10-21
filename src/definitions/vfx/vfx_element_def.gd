@@ -56,6 +56,10 @@ enum Motion {
 @export var piece: VfxSheetDef
 ## A creature's blow (claws, fangs) in this element.
 @export var claw: VfxSheetDef
+## Its explosion (Vfx.explosion: a fireball bursting, the ground erupting), drawn at 2x in the
+## middle; a bigger blast adds a ring of its pieces at the edge instead of stretching it.
+## Without one, a burst in its ramp (BlastVfx).
+@export var blast: VfxSheetDef
 ## The look (a StatusLookDef in data/vfx/status_looks.tres, by its status id) a body slowed by it
 ## shows: frost's is &"slow" (rime, cold mist). Empty: being slowed by it shows nothing (sand,
 ## ink: they slow, they don't freeze).

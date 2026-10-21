@@ -12,7 +12,7 @@
 [ext_resource type="Resource" path="res://data/skills/monster/war_drum.tres" id="10_nyhtw"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="11_q2pgr"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="12_v0l6v"]
-[ext_resource type="Resource" path="res://data/items/weapons/monster/ghost_flame.tres" id="13_5msrb"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/sand_clod.tres" id="13_5msrb"]
 [ext_resource type="Resource" path="res://data/materials/armor.tres" id="99_material"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_vg4r1"]

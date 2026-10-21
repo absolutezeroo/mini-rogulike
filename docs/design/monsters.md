@@ -16,7 +16,10 @@ you can then keep going in endless mode (the acts loop, monsters keep getting st
 **Supports** fight from behind, kill them first: the **Moss Heart** (act I) and the **Ember
 Heart** (act III) mend their hurt allies, the **Soul Moth** (act II) and the **Gilded Moth**
 (act IV) wrap them in wards that soak up your blows, the **Sand Drummer** (act IV) beats a war
-drum (allies hit harder, run faster); the **Fire Shaman** now mends its allies too
+drum (allies hit harder, run faster); each shoots its own element (the Moss Heart poisoning
+spores, the Soul Moth a pale wisp, the Gilded Moth a golden mote, the Sand Drummer a clod of
+sand that slows; only the Ember Heart and the Ghost Lantern throw burning ghost flames); the
+**Fire Shaman** now mends its allies too
 (`AllyEffect`: heal, buff or ward the allies around; `SkillDef.ai_ally_need`: only when an ally
 needs it). A beam of light shows who is helped.
 
@@ -84,7 +87,7 @@ with its portrait). A `BossDef` is a `MonsterDef` plus:
 | Floor | Boss | Style |
 |---|---|---|
 | 3 | Bloated King | 360° slams, slime rain, splits into slimes at half HP |
-| 6 | Gorr the One-Eyed | heavy club, fire eye beam, quake, calls skeletons, berserk at 20% |
+| 6 | Gorr the One-Eyed | heavy club, fire eye beam (a fan of long rays of fire), quake (the ground bursts), calls skeletons, berserk at 20% |
 | 9 | Crimson Tengu | fast blade, dashes, feather storms, calls spirits |
 | 12 | Gilded Hoarder | crushing leaps, storms of gold coins, calls its thieves (Gold Racoons) when half dead |
 | 6 (hidden) | The Nameless Effigy | twin cold blades, dashes, wailing rings, calls the dead; only on the hidden floor |

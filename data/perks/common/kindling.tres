@@ -6,10 +6,12 @@
 [ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_m7xef"]
 [ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="5_w3jem"]
 [ext_resource type="Resource" path="res://data/perks/synergies/inferno.tres" id="6_e0gdn"]
+[ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="vfx_fire"]
 
 [sub_resource type="Resource" id="Resource_nkhm5"]
 script = ExtResource("3_56hnf")
 bonus_per_stack = 0.2
+element = ExtResource("vfx_fire")
 
 [resource]
 script = ExtResource("4_m7xef")

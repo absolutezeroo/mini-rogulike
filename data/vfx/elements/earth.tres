@@ -1,13 +1,54 @@
 [gd_resource type="Resource" script_class="VfxElementDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/vfx/vfx_element_def.gd" id="1"]
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_sheet_def.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/fx/earth/earth_clod.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/fx/earth/earth_impact.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/fx/earth/earth_spike.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/fx/earth/earth_burst.png" id="6"]
+[ext_resource type="AudioStream" path="res://data/audio/crumble.tres" id="7"]
+
+[sub_resource type="Resource" id="shot"]
+script = ExtResource("2")
+texture = ExtResource("3")
+fps = 10.0
+loop = true
+
+[sub_resource type="Resource" id="impact"]
+script = ExtResource("2")
+texture = ExtResource("4")
+fps = 16.0
+anchor = Vector2(0, -2)
+linger = 0.15
+
+[sub_resource type="Resource" id="piece"]
+script = ExtResource("2")
+texture = ExtResource("5")
+frames = 8
+variants = 3
+fps = 14.0
+anchor = Vector2(0, -10)
+linger = 0.0
+
+[sub_resource type="Resource" id="blast"]
+script = ExtResource("2")
+texture = ExtResource("6")
+frames = 8
+fps = 14.0
+anchor = Vector2(0, -8)
+linger = 1.2
 
 [resource]
 script = ExtResource("1")
 id = &"earth"
 ramp = PackedColorArray(0.960784, 0.901961, 0.768627, 1, 0.823529, 0.701961, 0.490196, 1, 0.639216, 0.458824, 0.305882, 1, 0.419608, 0.313725, 0.25098, 1, 0.231373, 0.196078, 0.219608, 1)
 residue = Color(0.784314, 0.690196, 0.541176, 0.9)
-mark = Color(0.419608, 0.313725, 0.25098, 0.35)
+mark = Color(0.419608, 0.313725, 0.25098, 0)
 bit = 0
 motion = 1
 emissive = false
+projectile = SubResource("shot")
+impact = SubResource("impact")
+piece = SubResource("piece")
+blast = SubResource("blast")
+impact_sound = ExtResource("7")

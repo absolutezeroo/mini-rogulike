@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="2_bphus"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_dmk67"]
 [ext_resource type="AudioStream" path="res://data/audio/explosion.tres" id="4_pdequ"]
+[ext_resource type="Resource" path="res://data/vfx/elements/earth.tres" id="vfx_earth"]
 
 [sub_resource type="Resource" id="Resource_gltyt"]
 script = ExtResource("2_bphus")
@@ -12,6 +13,7 @@ damage_multiplier = 1.0
 flat_damage = 8
 knockback = 380.0
 explosive = true
+element = ExtResource("vfx_earth")
 
 [resource]
 script = ExtResource("3_dmk67")

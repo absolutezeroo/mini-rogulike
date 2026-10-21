@@ -24,7 +24,8 @@ extends Effect
 @export var fx: Texture2D
 ## Frames in the sheet. 0 = square frames.
 @export var fx_frames: int = 0
-## Turn the sheet toward the aim (slashes in front of the user).
+## Turn the sheet toward the aim (slashes in front of the user). Without a sheet, the element's
+## pieces sweep across the front of the area instead of ringing it (Flame Arc).
 @export var fx_follow_aim: bool = false
 @export var fx_tint: Color = Color.WHITE
 
@@ -42,6 +43,8 @@ func apply(user: Actor, aim: Vector2) -> void:
 		var size := radius * 2.0 / maxi(frame.x, frame.y)
 		var sheet := SheetVfx.create(fx, center, aim.angle() if fx_follow_aim else 0.0, size, SheetVfx.DEFAULT_FPS, frame.x)
 		user.world.spawn_vfx(sheet.with_color(fx_tint).in_element(element))
+	elif element and fx_follow_aim:
+		Vfx.arc(user.world, center, radius, aim, element)
 	elif element:
 		Vfx.nova(user.world, center, radius, element)
 	else:

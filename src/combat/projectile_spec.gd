@@ -15,6 +15,8 @@ var color := Color.WHITE
 var texture: Texture2D
 ## Frames in a row of `texture` (0 = square frames).
 var texture_frames: int = 0
+## A drawn sheet (16 directions...) instead of `texture`.
+var sheet: VfxSheetDef
 ## What it is made of: its look in flight and where it lands, its hits' flash (VfxElementDef).
 ## Without a texture, the element's own projectile sheet is drawn.
 var element: VfxElementDef

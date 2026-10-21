@@ -84,7 +84,9 @@ func _break() -> void:
 		world.set_cell_blocked(cell, false)
 	Sfx.play_world(def.break_sound, global_position)
 	Vfx.burst(world, Vfx.DEATH_CHUNKS, global_position, def.debris_color)
-	Vfx.puff(world, global_position + Vector2(0, 8))
+	# It breaks into grit and dust (the earth's impact), not a puff of magic smoke.
+	var dust := VfxElementDef.named(&"earth")
+	world.spawn_vfx(SheetVfx.play(dust.impact, global_position + Vector2(0, 6), Vector2.RIGHT, dust))
 	world.add_debris(global_position + Vector2(0, 6), _chips(), 0.8)
 	if def.loot:
 		for item in def.loot.roll(world.rng, world.rules.loot_chance()):

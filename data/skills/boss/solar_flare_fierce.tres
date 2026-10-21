@@ -3,9 +3,9 @@
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_vsvk2"]
 [ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_iyk20"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_parig"]
-[ext_resource type="Texture2D" path="res://assets/projectiles/fireball.png" id="4_eioth"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_fs03h"]
 [ext_resource type="AudioStream" path="res://data/audio/fireball.tres" id="6_jcn3y"]
+[ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="vfx_fire"]
 
 [sub_resource type="Resource" id="Resource_qedyq"]
 script = ExtResource("3_parig")
@@ -20,8 +20,8 @@ radius = 7.0
 count = 20
 spread_degrees = 360.0
 color = Color(1, 0.75, 0.25, 1)
-texture = ExtResource("4_eioth")
 status = SubResource("Resource_qedyq")
+element = ExtResource("vfx_fire")
 
 [sub_resource type="Resource" id="Resource_dy8hq"]
 script = ExtResource("2_iyk20")
@@ -32,10 +32,10 @@ radius = 7.0
 count = 20
 spread_degrees = 360.0
 color = Color(1, 0.75, 0.25, 1)
-texture = ExtResource("4_eioth")
 status = SubResource("Resource_qedyq")
 angle_offset = 9.0
 delay = 0.5
+element = ExtResource("vfx_fire")
 
 [resource]
 script = ExtResource("5_fs03h")

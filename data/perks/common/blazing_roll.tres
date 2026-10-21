@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="5_85sbx"]
 [ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="6_ku2h6"]
 [ext_resource type="Resource" path="res://data/perks/synergies/inferno.tres" id="7_bq8dm"]
+[ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="vfx_fire"]
 
 [sub_resource type="Resource" id="Resource_u4q6u"]
 script = ExtResource("4_hgdfy")
@@ -18,6 +19,7 @@ damage_multiplier = 0.7
 knockback = 160.0
 color = Color(1, 0.54901963, 0.25882354, 1)
 status = SubResource("Resource_u4q6u")
+element = ExtResource("vfx_fire")
 
 [resource]
 script = ExtResource("5_85sbx")

@@ -45,14 +45,20 @@
   color, leave a trail of its bits and land in its language (`Vfx.pop`: the element's impact
   sheet, or a burst in its ramp); a shot at the end of its range breaks up instead of vanishing.
   Plain things (shurikens, arrows, feathers, coins: `projectile_glow` / `ProjectileEffect.glow`
-  0) just fly. Explosions are a burst drawn by a shader in their element's ramp (`BlastVfx`,
-  `blast.gdshader`: for fire a white-hot heart, flame bands, licking edges, smoke) with a
-  ripple, particles and a mark left on the floor (a scorch for fire).
+  0) just fly. Explosions are their element's blast sheet at 2x (fire: a white-hot ball whose
+  tongues lick out and up into dark smoke and embers; earth: the ground cracking open, chunks
+  thrown up, a dust cloud rolling low, cracks that stay a moment), ringed by its pieces when
+  wider than the sheet (flame licks, rock spikes), or a burst drawn by a shader in its ramp
+  (`BlastVfx`) for the elements without one; a ripple and a mark on the floor (a scorch for
+  fire). A boss's stomp is the ground bursting, whatever the boss is made of, and a trapped
+  chest bursts apart in grit and dust (crates and barrels break the same way); powder kegs and
+  bombs are fire.
 - **Little details**: fights leave **splats** on the floor (`SplatLayer`, `World.add_splat`): blood,
   green slime, purple ink, bone dust, in each monster's `splat_color` (spirits and flames leave
   none), fading after a while. **Plants sway** in a breeze and **bend** away from whoever walks
   through them (`DecorRuleDef.sway`, `SceneKey.sway`). Shallow water **glints** (`GroundLayerDef.shimmer`).
-  Braziers and candles **burn** (`PropDef.flame`). The HP bars keep a pale **trail** of what a hit
+  Braziers and candles **burn** (`PropDef.flame`; a brazier with the fire kit's flames, like
+  campfires and flame vents). The HP bars keep a pale **trail** of what a hit
   cost, then drain it; they glow when healed. Each biome has its **air**: fireflies in the garden,
   sand gusts in the desert, mist over the flooded caverns, dust in the library and the tomb.
   Gameplay code spawns them in one line through `Vfx` (`Vfx.hit(...)`, `Vfx.explosion(...)`).

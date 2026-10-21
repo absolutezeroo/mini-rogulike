@@ -1,11 +1,9 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
-[ext_resource type="Texture2D" path="res://assets/fx/claw.png" id="1_buejj"]
-[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_nswvi"]
 [ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="2_nswvi"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_rm5pq"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="4_krfps"]
-[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_48iq1"]
+[ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="vfx_fire"]
 
 [sub_resource type="Resource" id="Resource_r44ri"]
 script = ExtResource("3_rm5pq")
@@ -17,7 +15,6 @@ damage = 5
 cooldown = 1.0
 reach = 16.0
 knockback = 80.0
-attack_fx = ExtResource("1_buejj")
 on_hit = SubResource("Resource_r44ri")
 arc_degrees = 120.0
 trail_color = Color(0, 0, 0, 0)
@@ -28,3 +25,4 @@ display_name = "Fire Touch"
 glyph = "F"
 color = Color(1, 0.54901963, 0.25882354, 1)
 spawn_weight = 0
+element = ExtResource("vfx_fire")

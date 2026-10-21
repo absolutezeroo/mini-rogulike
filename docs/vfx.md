@@ -113,13 +113,14 @@ saturated pixels; smoke, blood and ash stay in the muted ramps of the floors.
 
 The kit's slots (`VfxElementDef`): `projectile` (its shot), `impact` (a shot landing), `piece`
 (one piece of its novas, waves and trails, composed by `ComposedVfx`), `claw` (a creature's
-blow), `slow_look` (the look of a body it slows, a `StatusLookDef`), `impact_sound`. Missing
+blow), `blast` (its explosion, at 2x; a wider blast adds a ring of its pieces), `slow_look`
+(the look of a body it slows, a `StatusLookDef`), `impact_sound`. Missing
 slots fall back to code that still speaks the element (a burst in its ramp, a ring with its
 bits on the rim).
 
 | Element | Projectile | Impact | On the body | Nova / area | Telegraph | Sound family |
 |---|---|---|---|---|---|---|
-| fire | a ball with a licking tail, embers behind | `BlastVfx` ball of fire, smoke, scorch | small flames rising, embers, warm tint | ring of flame licks | warm rim, embers creeping in | whoosh, crackle |
+| fire (**done**) | `fire_bolt.png`: a white-hot ball, three tongues licking back and up, 16 directions; `fire_ray.png` for the eye beam | `fire_impact.png`: tongues out and up, flames breaking off, embers, dark smoke; `fire_blast.png` for explosions | `fire_flicker.png` flames rising, embers, warm tint, a burst when it catches | `fire_lick.png`: licks rising, curling, sinking to smoke, in rings, arcs (Flame Arc) and at a blast's edge | warm rim, embers creeping in | crackle (`flames`) |
 | frost (**done**) | `frost_shard.png`: a faceted shard drawn in 16 directions, chips trailing | `frost_impact.png`: shards cracking outward, biggest early, chips falling, mist | rime growing on the edges (`frost_rime.png`), ice chips falling, cold mist at the feet, 45% cold tint | `frost_crystal.png`: crystals growing from the ground in a ring, then shattering | the shared danger rim; frost chips inside | cracking ice, glassy chime |
 | water | a drop (energy orb painted water) | splash, droplets, a ripple | drips (none yet) | ripples (`water_ripples.png`) | danger rim | splash |
 | poison | a venom drop (orb painted poison) | bubbles bursting, a sinking cloud | bubbles, a haze sinking at the feet, green tint | a cloud crawling out | danger rim, bubbles inside | squelch, hiss |
@@ -129,7 +130,7 @@ bits on the rim).
 | arcane | a glinting orb, runes orbiting | a ring of runes | glyphs orbiting | a rune circle | runes lighting up | chime, hum |
 | blood | none (claws, spurts) | spurt, drops that stay | short spurts on each tick | spray in a fan | danger rim | wet impact |
 | spirit | a pale wisp curling | a hollow ring, wisps rising | pale flicker | a ring of wisps | pale rim | sigh, chime |
-| earth | a rock or a ball of sand | chunks on arcs, dust | dust trickling | rock spikes, dust ring | cracks spreading | thud, crumble |
+| earth (**done**) | `earth_clod.png`: a lumpy clod tumbling (round: redrawn, never turned); `earth_swirl.png` for Sandstorm | `earth_impact.png`: chunks on arcs, dust rolling low; `earth_burst.png` for blasts: cracks, slabs and chunks thrown up, a wide dust cloud, cracks that stay a moment | none (sand slows without a look) | `earth_spike.png`: rock spikes thrusting up, cracking, crumbling into rubble | cracks spreading | crumble (`crumble`) |
 | physical | arrows, kunai, shurikens (drawn, not glowing) | short streaks along the blow, sparks in the target's material | none | crescent arcs (`SwingVfx`) | lines and arcs | swish, clang |
 
 ## 5. The code
@@ -141,12 +142,12 @@ bits on the rim).
 | `element` exports | `WeaponDef`, `ProjectileEffect`, `DamageAreaEffect`, `DashStrikeEffect`, `OnHitStatus.slow_element`, passives (`element`, `shard_element`, `crit_element`, `blast_element`), `DeathBurstTrait` | gameplay data points to an element instead of free colors; `HitInfo.element` carries it to the hit's flash |
 | `PixelDraw` | `src/vfx/pixel_draw.gd` | `snap`, `snap_length`, `sheet_scale`, `dither`, `pixel`, `ring`, `disc`, `line`, `bit` (an element's particle shape), `sheet` (draw a frame of a VfxSheetDef on the grid) |
 | `VfxRamp` | `src/vfx/vfx_ramp.gd` | `recolor(texture, ramp)`: palette swap by luminance, cached (a sheet with `recolor` on is painted in its element's ramp) |
-| `Vfx` | `src/vfx/vfx.gd` | `hit(..., element)`, `pop(world, at, element, radius, direction)`, `nova(world, at, radius, element)`, `trail(world, from, to, element)`, `explosion(world, at, radius, element)` |
+| `Vfx` | `src/vfx/vfx.gd` | `hit(..., element)`, `pop(world, at, element, radius, direction)`, `nova(world, at, radius, element)`, `arc(world, at, radius, facing, element)`, `trail(world, from, to, element)`, `explosion(world, at, radius, element, pieces)` |
 | `SheetVfx` | `src/vfx/sheet_vfx.gd` | `play(sheet, at, direction, element)`, `create(texture, ...)` (legacy: snapped), `.in_element(e)`, lingering dither |
-| `ComposedVfx` | `src/vfx/composed_vfx.gd` | `ring(at, radius, element)`, `line(from, to, element)`: any size from pieces at 2x |
+| `ComposedVfx` | `src/vfx/composed_vfx.gd` | `ring(at, radius, element)`, `arc(at, radius, facing, element)` (a sweep across the front: an area with `fx_follow_aim` and no sheet), `line(from, to, element)`: any size from pieces at 2x |
 | `ImpactVfx`, `RingVfx`, `BlastVfx` | `src/vfx/` | a hit's flash, a ring, a burst: all in an element's ramp and bits |
 | `StatusLookDef`, `StatusFx` | `data/vfx/status_looks/`, `src/vfx/status_fx.gd` | particle, motes (EMBER, BUBBLE, CHIP), crust (rime), mist, burst, all at texel 2 in the element's ramp |
-| Tools | `tools/vfx/` | `vfxkit.py` (palette-locked drawing), `recolor.py` (palette swap to a file), `check.py` (palette, hard alpha, whole cells), `frost.py` (the frost kit, rebuildable) |
+| Tools | `tools/vfx/` | `vfxkit.py` (palette-locked drawing), `recolor.py` (palette swap to a file), `check.py` (palette, hard alpha, whole cells), `frost.py`, `fire.py`, `earth.py` (the kits, rebuildable) |
 
 Which slow shows what: a slow carries an element (`StatusSet.apply_slow(..., element)`, frost
 when none is given, none for the ground's own). Only an element with a `slow_look` shows on the
@@ -197,12 +198,13 @@ Screenshot it in the game at 1540x720 (the debug panel, or a probe scene in `_to
 Frost is the reference kit, done in full. The foundation (grid helpers, ramps, palette swap,
 slicer, element exports) serves the others; what each still needs:
 
-- **Fire**: author a fire projectile (the warm `fireball.png` works, but its tail ignores the
-  flight direction: draw 16 directions or a tail-less ball), an impact sheet, a flame-lick
-  `piece` for Fire Wave / fire rings / Blazing Roll; `flame_arc` uses an untinted
-  `circularslash` at 6x (author or compose); the burn look's `flame.png` burst is 25x30 (fine at
-  2x). Point Fireball, Fire Wave, Ember Tome, fire_breath, fire_ring, solar_flare, ignite,
-  kindling, inferno, pyre, of_embers, blazing_roll at `fire`.
+- **Fire** (done, `tools/vfx/fire.py`): every fire shot, Flame Arc (licks sweeping across the
+  front), Fire Touch's burning claw, the eye beam's rays, Blazing Roll, the Inferno family, the
+  burn look, the campfire, flame vents and braziers (`FlameVfx`). Ghost Flame stays fire (the
+  Ghost Lantern, the Ember Heart); the moths, the Moss Heart and the Sand Drummer shoot their own
+  element (spirit, holy, poison, earth: those kits may still lack a projectile). Left: candles
+  still burn with particles; `fireball.png`, `fire_flames.png`, `flame.png` and `explosion.png`
+  are unused.
 - **Poison**: `energyball` painted poison is a placeholder (Poison Spit uses it); author a venom
   drop, a bubble-burst impact, a puddle/cloud `piece`; point venom_spit, toxic_bloom, acid_spit,
   poison_fang, jade_fang (still a blood claw) and spore_cloud's area at `poison`.
@@ -221,10 +223,11 @@ slicer, element exports) serves the others; what each still needs:
   drop blood bits; Battle Cry's magic circle, vampiric elites, pact chunks.
 - **Spirit**: spirit_touch is a warm claw, Wailing Ring a cyan orb, soul_moth a fireball;
   author a wisp projectile; the ward bubble and soul wisps already use the spirit ramp.
-- **Earth / sand**: `rock_spike.png` is lava-orange and drawn at 1.8x-4.3x (author earth
-  colors, compose Ground Slam); Quake and Sundering Blow should set `element = earth` on their
-  explosive area (the blast then becomes dust); sandball has a fire-orange halo color; Sand
-  Breath and Sandstorm slow as earth already (no frost).
+- **Earth / sand** (done, `tools/vfx/earth.py`): Rock Spike and Fissure paint `rock_spike.png`
+  in earth at 2x, Ground Slam is a ring of spikes, Quake and Sundering Blow burst the ground,
+  every boss's stomp (`Combat.shockwave`) and a trapped chest are dust and rubble (the powder
+  keg stays fire), Sand Breath throws clods, the Sand Drummer a clod that slows, Sandstorm
+  whirls. Left: no earth claw yet; `sandball.png` is unused.
 - **Physical**: the default swing `trail_color` is pale blue (reads icy): give steel its own
   `trail_color` or derive it from `physical`; Cleave, Lash, Whirlwind, Flurry, Iaido, Piercing
   Thrust sheets are drawn at 4x-6x (compose or author bigger); arrows and kunai turn on 16

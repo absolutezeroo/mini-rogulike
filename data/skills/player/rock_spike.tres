@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" path="res://assets/ui/skills/rock_spike.png" id="4_22o0h"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_sl3lt"]
 [ext_resource type="AudioStream" path="res://data/audio/explosion.tres" id="6_j4qqy"]
+[ext_resource type="Resource" path="res://data/vfx/elements/earth.tres" id="vfx_earth"]
 
 [sub_resource type="Resource" id="Resource_k8un7"]
 script = ExtResource("3_5g1q6")
@@ -15,6 +16,7 @@ offset = 60.0
 knockback = 260.0
 fx = ExtResource("2_23xnj")
 fx_frames = 10
+element = ExtResource("vfx_earth")
 
 [resource]
 script = ExtResource("5_sl3lt")

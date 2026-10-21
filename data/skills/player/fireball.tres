@@ -2,10 +2,10 @@
 
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_pjtvv"]
 [ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_p7vtj"]
-[ext_resource type="Texture2D" path="res://assets/projectiles/fireball.png" id="3_6yfki"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/fireball.png" id="4_5eju7"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_sa7wt"]
 [ext_resource type="AudioStream" path="res://data/audio/fireball.tres" id="6_a066x"]
+[ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="vfx_fire"]
 
 [sub_resource type="Resource" id="Resource_tak68"]
 script = ExtResource("2_p7vtj")
@@ -15,7 +15,7 @@ speed = 420.0
 radius = 9.0
 explosion_radius = 70.0
 color = Color(1, 0.41960785, 0.20784314, 1)
-texture = ExtResource("3_6yfki")
+element = ExtResource("vfx_fire")
 
 [resource]
 script = ExtResource("5_sa7wt")
