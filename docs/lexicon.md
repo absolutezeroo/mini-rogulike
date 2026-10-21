@@ -3,8 +3,8 @@
 *The Well of Souls / Le Puits des Âmes* is dark fantasy: a bottomless well under a sleeping
 village, stolen souls, wardens in the dark, a shrine's lantern and its bell. This guide sets how
 the game speaks, in French first and in English. Read it before you name anything or write a
-line of lore. For the routine of adding and translating texts, see `docs/translating.md`. For the
-rules glossary, see the README (Languages).
+line of lore. For the routine of adding and translating texts, and the rules glossary, see
+`docs/translating.md`.
 
 ## (a) Principles of the register
 
@@ -105,7 +105,7 @@ House rules:
 
 Dark fantasy is for **names, titles, lore, flavor lines, banners and the buttons that start
 things**. It is **not** for numbers and rules. A rule line keeps its numbers exact and uses the
-stat words of the README glossary, one word per idea:
+stat words of the glossary in `docs/translating.md`, one word per idea:
 
 | English | Français |
 |---|---|
