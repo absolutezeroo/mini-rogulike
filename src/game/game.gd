@@ -343,13 +343,14 @@ static func sworn_oath(content: ContentDB) -> OathDef:
 	return null
 
 
-## The weapon picked to start with (the Armory node; any the dungeon holds), or null.
+## The weapon picked to start with (the Armory node), or null: none picked, or one its level
+## doesn't offer (an older save, a reset tree), and the run starts with the usual one.
 static func picked_weapon(content: ContentDB) -> WeaponDef:
 	if Profile.starting_weapon == &"":
 		return null
-	for item in content.items + content.locked_items:
-		if item is WeaponDef and item.id == Profile.starting_weapon:
-			return item
+	for weapon in ShrineUpgrades.armory_weapons(content):
+		if weapon.id == Profile.starting_weapon:
+			return weapon
 	return null
 
 

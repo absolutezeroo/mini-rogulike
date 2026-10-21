@@ -125,9 +125,26 @@ func _test_title_screen() -> void:
 	check(shrine.buy_picked() and fork.partner().is_shut() and not Profile.can_buy_node(fork.partner()), "a fork: taking one side shuts the other")
 	var spent := CONTENT.soul_tree.spent()
 	var before := Profile.souls
-	(title.get_node("%ResetButton") as Button).pressed.emit()
+	var reset_button: Button = title.get_node("%ResetButton")
+	var saved_runs := Profile.runs_since_reset
+	Profile.runs_since_reset = CONTENT.soul_tree.reset_runs - 2
+	Profile.changed.emit()
+	check(reset_button.disabled and reset_button.text == "Reset in 2 runs", "the reset waits for its runs: \"Reset in 2 runs\", disabled (%s)" % reset_button.text)
+	reset_button.pressed.emit()
+	await _frames(1)
+	check(Profile.souls == before and CONTENT.soul_tree.spent() == spent, "...and does nothing then")
+	Profile.record_run(0, 2, false, &"normal")
+	await _frames(1)
+	check(reset_button.disabled and reset_button.text == "Reset in 1 run", "a run later: \"Reset in 1 run\" (%s)" % reset_button.text)
+	Profile.record_run(0, 2, false, &"normal")
+	await _frames(1)
+	check(not reset_button.disabled and reset_button.text == "Reset the tree", "the runs done: the reset is open (%s)" % reset_button.text)
+	before = Profile.souls
+	reset_button.pressed.emit()
 	await _frames(1)
 	check(Profile.souls == before + spent and CONTENT.soul_tree.spent() == 0 and not fork.partner().is_shut(), "resetting the tree gives every soul back (%d)" % spent)
+	check(reset_button.disabled and reset_button.text == "Reset in %d runs" % CONTENT.soul_tree.reset_runs, "after a reset, the next one takes its runs again (%s)" % reset_button.text)
+	Profile.runs_since_reset = saved_runs
 	Profile.buy_node(vitality_node)
 	_test_shrine_words(shrine)
 	# At the Well's Edge: the oaths the tree opened, and the Armory's weapon.
@@ -148,10 +165,27 @@ func _test_title_screen() -> void:
 	await _frames(1)
 	check(Profile.oath == &"colossus" and Game.sworn_oath(CONTENT) != null, "tapping a card swears the oath")
 	var weapon_row: HBoxContainer = oaths.get_node("%WeaponRow")
-	check(weapon_row.is_visible_in_tree() and weapon_row.get_child_count() == OathPanel.weapons(CONTENT).size(), "the Armory: a slot per weapon the dungeon holds")
-	(weapon_row.get_child(0) as ItemSlot).pressed.emit()
+	var armory: UpgradeDef = CONTENT.soul_tree.find(&"armory").upgrade
+	var level_one := armory.armory_weapons.slice(0, armory.armory_count(1))
+	var shown := weapon_row.get_children().map(func(slot: Node) -> ItemDef: return (slot as ItemSlot).item)
+	check(weapon_row.is_visible_in_tree() and shown == level_one and OathPanel.weapons(CONTENT) == level_one, "the Armory level 1: a slot per weapon it opened, no other (%s)" % [shown.map(func(w: ItemDef) -> StringName: return w.id)])
+	var armory_text: Label = oaths.get_node("%ArmoryText")
+	check(armory_text.is_visible_in_tree() and armory_text.text == "Armory level 1: %d weapons. More in the Tree of Souls." % level_one.size(), "...and says its level and where to get more (%s)" % armory_text.text)
+	(weapon_row.get_child(1) as ItemSlot).pressed.emit()
 	await _frames(1)
-	check(Profile.starting_weapon == OathPanel.weapons(CONTENT)[0].id and Game.picked_weapon(CONTENT) == OathPanel.weapons(CONTENT)[0], "tapping a weapon picks it")
+	check(Profile.starting_weapon == level_one[1].id and Game.picked_weapon(CONTENT) == level_one[1] and (weapon_row.get_child(1) as ItemSlot).selected, "tapping a weapon picks it")
+	Profile.levels["armory"] = 3
+	oaths.open(CONTENT)
+	await _frames(1)
+	shown = weapon_row.get_children().map(func(slot: Node) -> ItemDef: return (slot as ItemSlot).item)
+	var level_three := armory.armory_weapons.slice(0, armory.armory_count(3)).filter(func(w: WeaponDef) -> bool: return not CONTENT.locked_items.has(w))
+	check(shown == level_three and shown.size() == level_one.size() + 2 * armory.armory_per_level and armory_text.text.begins_with("Armory level 3: %d weapons" % shown.size()), "the Armory level 3: two more weapons a level (%d)" % shown.size())
+	check(not shown.any(func(w: ItemDef) -> bool: return CONTENT.locked_items.has(w) and not ShrineUpgrades.unlocked_items(CONTENT).has(w)), "never a weapon still locked in the dungeon")
+	Profile.levels["armory"] = 1
+	Profile.starting_weapon = level_three[level_three.size() - 1].id
+	oaths.open(CONTENT)
+	await _frames(1)
+	check(Game.picked_weapon(CONTENT) == null and weapon_row.get_child_count() == level_one.size() and (weapon_row.get_child(0) as ItemSlot).selected, "a weapon the level no longer offers: the usual one, shown picked")
 	oaths.hide()
 	Profile.levels = saved_levels
 	Profile.oath = &""

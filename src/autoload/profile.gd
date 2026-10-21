@@ -57,8 +57,14 @@ var best_splits := {}
 ## with (the Armory node; WeaponDef id, "" = the usual one).
 var oath: StringName = &""
 var starting_weapon: StringName = &""
+## Runs finished since the Tree of Souls was last reset (SoulTreeDef.reset_runs earns the next
+## reset). A save from before this rule starts with a reset earned (RESET_EARNED).
+var runs_since_reset := 0
 
 const HISTORY_SIZE := 20
+## What an older save (no count yet) starts with: enough runs for any reset, so nobody who
+## bought nodes before the rule is stuck with them.
+const RESET_EARNED := 1000
 ## Empty = nothing is read or written (tests).
 var save_path := SAVE_PATH
 
@@ -85,15 +91,28 @@ func buy_node(node: SoulNodeDef) -> bool:
 	return can_buy_node(node) and buy(node.upgrade)
 
 
-## Gives back every soul spent on the tree (minus its reset price) and empties it.
-func reset_tree(tree: SoulTreeDef) -> bool:
+## Runs still to finish before the tree can be reset (0: a reset is earned).
+func reset_runs_left(tree: SoulTreeDef) -> int:
+	return maxi(tree.reset_runs - runs_since_reset, 0)
+
+
+## Something bought, the reset earned (runs) and its price affordable.
+func can_reset_tree(tree: SoulTreeDef) -> bool:
 	var refund := tree.spent()
-	if refund <= 0 or souls + refund < tree.reset_cost:
+	return refund > 0 and reset_runs_left(tree) <= 0 and souls + refund >= tree.reset_cost
+
+
+## Gives back every soul spent on the tree, every level (minus its reset price), and empties it.
+## The next reset takes `tree.reset_runs` more runs.
+func reset_tree(tree: SoulTreeDef) -> bool:
+	if not can_reset_tree(tree):
 		return false
+	var refund := tree.spent()
 	for node in tree.nodes:
 		if node and node.upgrade:
 			levels.erase(String(node.upgrade.id))
 	souls += refund - tree.reset_cost
+	runs_since_reset = 0
 	if not tree.open_oaths().any(func(o: OathDef) -> bool: return o.id == oath):
 		oath = &""
 	save_profile()
@@ -135,9 +154,13 @@ func select_difficulty(def: DifficultyDef) -> void:
 
 
 ## `feats` false (Pilgrim): the souls and the difficulty's win count (it unlocks the next), but
-## not the records (deepest floor, victories) nor the feats' stats.
-func record_run(earned: int, depth: int, won: bool, difficulty_id: StringName = &"", feats: bool = true) -> void:
+## not the records (deepest floor, victories) nor the feats' stats. `finished`: the run ended
+## here (a death, or the win), counted toward the next reset of the tree; false for the souls
+## of the endless floors after a win, the same run paid again.
+func record_run(earned: int, depth: int, won: bool, difficulty_id: StringName = &"", feats: bool = true, finished: bool = true) -> void:
 	souls += earned
+	if finished:
+		runs_since_reset += 1
 	if feats:
 		best_depth = maxi(best_depth, depth)
 	if won:
@@ -414,6 +437,7 @@ func reset() -> void:
 	best_splits = {}
 	oath = &""
 	starting_weapon = &""
+	runs_since_reset = 0
 	changed.emit()
 
 
@@ -431,6 +455,7 @@ func save_profile() -> void:
 		"hints_seen": hints_seen,
 		"best_times": best_times, "best_splits": best_splits,
 		"oath": String(oath), "starting_weapon": String(starting_weapon),
+		"runs_since_reset": runs_since_reset,
 	})
 
 
@@ -468,6 +493,7 @@ func load_profile() -> void:
 	best_times = _ints(data.get("best_times", {}))
 	oath = StringName(data.get("oath", ""))
 	starting_weapon = StringName(data.get("starting_weapon", ""))
+	runs_since_reset = int(data.get("runs_since_reset", RESET_EARNED))
 	best_splits = {}
 	var saved_splits: Variant = data.get("best_splits", {})
 	if saved_splits is Dictionary:

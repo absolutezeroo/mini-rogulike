@@ -85,7 +85,7 @@ func _ready() -> void:
 		daily_dialog.open(content, DailyRun.today()))
 	%ShrineButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
-		_shrine.open(content.soul_tree)
+		_shrine.open(content.soul_tree, content)
 		show_menu_hint(&"menu_shrine"))
 	%QuestsButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)

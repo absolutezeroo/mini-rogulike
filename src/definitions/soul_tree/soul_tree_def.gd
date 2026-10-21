@@ -3,7 +3,8 @@ extends Resource
 ## The Tree of Souls, the shrine's upgrades: four branches (a fantasy each), nodes bought with
 ## souls, forks where taking one side shuts the other, feats that open some nodes, and at the end
 ## of each branch an oath (a way to start a run). Every node's effect is an UpgradeDef, so the
-## run reads them all through ShrineUpgrades. The tree can be reset: every soul spent comes back.
+## run reads them all through ShrineUpgrades. The tree can be reset every `reset_runs` runs:
+## every soul spent comes back.
 
 ## The branches' names, colors and what they are about, in column order (two columns each).
 @export var branches: PackedStringArray = []
@@ -17,8 +18,11 @@ extends Resource
 		for node in nodes:
 			if node and node.excludes:
 				node.excludes.link_partner(node)
-## Souls to reset the tree (0: free, so trying another path costs nothing).
+## Souls to reset the tree (0: free: every soul spent comes back).
 @export var reset_cost: int = 0
+## Runs to finish (deaths or wins, daily runs too) before the tree can be reset again: a new
+## path is earned, not tried on a whim (Profile.runs_since_reset).
+@export_range(0, 20) var reset_runs: int = 3
 
 
 func node_of(upgrade: UpgradeDef) -> SoulNodeDef:
