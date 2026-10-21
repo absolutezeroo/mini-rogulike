@@ -55,6 +55,17 @@
   sounds, monsters hurt and death sounds, skills and consumables a use sound; everything else comes
   from `data/audio/sound_bank.tres`. Each sound is an `AudioStreamRandomizer` listing its variations.
   Buses: Master > SFX, UI, Music, Ambience (`default_bus_layout.tres`). Each floor theme has its own music.
+- **The Threshold** (a second life's trial, see builds.md; `ThresholdDef` > Place and Look,
+  `data/threshold/`): on the killing blow the floor freezes, a **knell** tolls (a bell made for the
+  game, `assets/audio/sfx/world/knell.ogg`) and the picture drains to cold grey-blue at once; the
+  hero's body fades and sinks while a pale soul is dragged down out of it (`Threshold.SinkingSoul`),
+  then a night-blue veil falls. Under it the limbo: an oval of pale stone in thick mist (its own
+  `DungeonTheme`, light ramp from night blue to pale blue, `LightingDef` ambient 10), ghost wisps,
+  drifting fog and low mist, a strong cold grading with little saturation and a slow pulsing
+  vignette (`limbo_ambience.tres`), whispers and spirit sighs in a long reverb, the boss music.
+  Spectres rise in a puff of mist: the act's monsters blended 60% toward pale blue
+  (`ActorRig.pallor`, under the hit flash) and a little see-through. Won, the bell again and a
+  pale veil, and the hero is back with the feather's golden burst; lost, the bell and a dark veil.
 - **Hit stop**: a few frames of freeze on impacts (`HitStop.freeze(seconds)`).
 - **Light**: in steps, tile by tile (see [Lights](#lights)): the hero's torch, room lanterns, braziers,
   campfires, glowing shots and explosions light up each floor's own darkness.

@@ -6,16 +6,18 @@
 [ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_hn4sr"]
 [ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="5_0wo34"]
 [ext_resource type="Resource" path="res://data/perks/synergies/inferno.tres" id="6_hn4sr"]
+[ext_resource type="Resource" path="res://data/threshold/threshold.tres" id="7_trial"]
 
 [sub_resource type="Resource" id="Resource_fk5ly"]
 script = ExtResource("3_0wo34")
 boss_fight_heal_ratio = 0.25
+trial = ExtResource("7_trial")
 
 [resource]
 script = ExtResource("4_hn4sr")
 id = &"phoenix_feather"
 display_name = "Phoenix Feather"
-description = "Survive a killing blow once per level: back to half Health with a blast (a quarter during a boss fight)."
+description = "Once per level, a killing blow sends you to the Threshold: slay 8 foes in 25 s (more in later acts) to return where you fell, at half Health (a quarter in a boss fight)."
 icon = ExtResource("1_ktbff")
 color = Color(1, 0.81960785, 0.4, 1)
 rarity = 1

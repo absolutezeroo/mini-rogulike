@@ -33,6 +33,7 @@ func run() -> void:
 	_test_floor_size()
 	_test_plateau_mist()
 	_test_languages()
+	_test_threshold()
 
 
 ## Speedrun times: how they read, the splits, the save, the records.
@@ -1348,3 +1349,37 @@ func _codes(pattern: RegEx, text: String) -> Array:
 	var found := pattern.search_all(text).map(func(m: RegExMatch) -> String: return m.get_string())
 	found.sort()
 	return found
+
+
+## The trial of the Threshold's rules: harder in each act, stated on the relic and the Tree's node,
+## a limbo the hero can stand in.
+func _test_threshold() -> void:
+	var feather := _perk("phoenix_feather")
+	var passive := feather.passives[0] as CheatDeathPassive
+	var trial := passive.trial
+	check(trial != null, "the Phoenix Feather's second life is the trial of the Threshold")
+	if trial == null:
+		return
+	var config := CONTENT.dungeon
+	var first := trial.kills_for(1, config)
+	check(first == trial.kills and is_equal_approx(trial.time_for(1, config), trial.time_limit), "act I: %d spectres in %d s" % [first, roundi(trial.time_limit)])
+	var second_act := config.first_depth(1)
+	check(trial.kills_for(second_act, config) == first + trial.kills_per_act and trial.time_for(second_act, config) > trial.time_for(1, config), "each act asks for more")
+	check(trial.kills_for(config.total_floors(), config) == first + trial.kills_per_act * (config.acts.size() - 1), "the last act asks for %d" % trial.kills_for(config.total_floors(), config))
+	var rule := "slay %d foes in %d s" % [first, roundi(trial.time_limit)]
+	check(feather.description.contains(rule), "the relic states the act I rule (%s)" % rule)
+	check(feather.description.contains("half Health") and feather.description.contains("quarter"), "and what it brings back")
+	check(is_equal_approx(passive.heal_ratio, 0.5) and is_equal_approx(passive.boss_fight_heal_ratio, 0.25), "half Health, a quarter in a boss fight (as its text says)")
+	check(_upgrade("second_chance").description.contains("Threshold"), "Death Denied says where the killing blow sends you")
+	check(trial.hero_health > 0.0 and trial.time_limit > 0.0 and trial.alive_at_once >= 1, "the hero can fight in there")
+	var map := ThresholdWorld.make_map(trial, config)
+	var room := map.boss_room
+	check(map.is_floor(map.start_cell) and room.has_point(map.start_cell), "the hero starts on the arena's floor")
+	check(room.position.x >= trial.margin and map.width - room.end.x >= trial.margin, "mist all around the arena")
+	var floor_cells := 0
+	for y in range(room.position.y, room.end.y):
+		for x in range(room.position.x, room.end.x):
+			if map.is_floor(Vector2i(x, y)):
+				floor_cells += 1
+	check(floor_cells > 120, "room to fight (%d cells)" % floor_cells)
+	check(trial.theme != null and trial.ambience != null and trial.knell != null, "the limbo has its look and its bell")

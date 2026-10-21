@@ -221,3 +221,51 @@ func _drag(index: int, at: Vector2) -> void:
 func _frames(count: int) -> void:
 	for i in count:
 		await get_tree().physics_frame
+
+
+# --- The Threshold (second lives) --------------------------------------------
+
+## A killing blow on the hero, struck by `source` (null: the dungeon).
+func _killing_blow(player: Player, source: Actor = null) -> void:
+	player._invulnerable_time = 0.0
+	var blow := HitInfo.new()
+	blow.amount = 99999
+	blow.source = source
+	player.take_hit(blow)
+
+
+## Waits until the trial of the Threshold is on (the veil lifted). False if it never came.
+func _until_trial(game: Game, seconds: float = 4.0) -> bool:
+	for i in int(seconds * 60.0):
+		if game.threshold.is_fighting():
+			return true
+		await _frames(1)
+	return game.threshold.is_fighting()
+
+
+## Waits until the hero is home from the Threshold (won or lost). False if he never came back.
+func _until_home(game: Game, seconds: float = 4.0) -> bool:
+	for i in int(seconds * 60.0):
+		if not game.threshold.is_open():
+			return true
+		await _frames(1)
+	return not game.threshold.is_open()
+
+
+## Slays every spectre as it rises until the trial is won, then waits for the hero to be home.
+## (He can't be hurt meanwhile: the trial is the test, not the fight.)
+func _win_trial(game: Game) -> bool:
+	var threshold := game.threshold
+	var player := game.player
+	var was_invincible := player.invincible
+	player.invincible = true
+	if not threshold.is_fighting():
+		await _until_trial(game)
+	for i in 60 * 20:
+		if not threshold.is_fighting():
+			break
+		for spectre in threshold.limbo.get_hostiles(Actor.Faction.PLAYER):
+			spectre.die(player)
+		await _frames(1)
+	player.invincible = was_invincible
+	return await _until_home(game)

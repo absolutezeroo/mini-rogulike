@@ -32,6 +32,10 @@ var _flash := 0.0
 var _squash := 0.0
 var _hurt := 0.0
 var _weapon_def: WeaponDef
+## A ghost's washed-out look (the spectres of the Threshold): the body blended this much toward
+## `pallor_color` for good, under the hit flash.
+var pallor := 0.0
+var pallor_color := Color.WHITE
 
 @onready var visual: Node2D = $Visual
 @onready var squash_node: Node2D = $Visual/Squash
@@ -198,7 +202,10 @@ func _process(delta: float) -> void:
 	_squash = maxf(_squash - delta, 0.0)
 	var t := _squash / SQUASH_TIME
 	squash_node.scale = Vector2(1.0 + 0.25 * t, 1.0 - 0.2 * t)
-	(visual.material as ShaderMaterial).set_shader_parameter("flash_amount", 1.0 if _flash > 0.0 else 0.0)
+	var look := visual.material as ShaderMaterial
+	look.set_shader_parameter("flash_amount", 1.0 if _flash > 0.0 else pallor)
+	if pallor > 0.0:
+		look.set_shader_parameter("flash_color", Color.WHITE if _flash > 0.0 else pallor_color)
 	_sync_layers()
 
 

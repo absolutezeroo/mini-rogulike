@@ -23,6 +23,8 @@ anywhere in it, cards and buttons included, with a bit of momentum (`TouchScroll
   to the background (a call, switching apps...). The title screen then offers **Continue**: same
   depth (a fresh floor), the hero exactly as saved (level, stats, gear, bag, perks, spell, perk
   choices left open). Dying erases it. "Save and quit" in the pause menu does the same on purpose.
+  Never during the trial of the Threshold: quit in there, and the run picks up as it was before
+  the killing blow.
 - **Pause menu** (the II button, Escape, or the phone's back button): resume, options, save and quit,
   give up the run (two taps). Coming back to the app, the game waits paused.
 - **Options** (`Settings` autoload, `user://settings.cfg`), on the title screen and in the pause menu:
@@ -34,6 +36,12 @@ anywhere in it, cards and buttons included, with a bit of momentum (`TouchScroll
   **Replay tutorial**, and the **language** (English / Français, see Languages). The window (`OptionsPanel`, built in code on `MenuWindow`) groups them
   (Sound, Touch controls, Screen and battery, Tutorial), each with a one-line "what it does";
   on/off options are big switches, and tapping an option's name flips it too.
+- **The trial of the Threshold** (`ThresholdHud`, built by the HUD from the `Threshold`'s signals):
+  its name and rule across the screen for three seconds ("The Threshold" / "Slay 8 spectres before
+  the knell"), then a panel at the top center with the spectres slain ("Slain 3 / 8") and a big
+  countdown in seconds, red and beating in the last ten. The minimap, the seal, the boss bar and
+  the bag button are put away until the hero is back; a toast says he came back ("You come back
+  from the Threshold."), a red banner that the knell has tolled.
 - **Minimap** (`Minimap`): rooms are revealed when you walk in, corridors around you; it shows holes,
   the stairs (violet while sealed), unopened chests, a running ambush, the boss and, near the
   end of a seal, the last monsters. Tap it for the whole floor.
@@ -50,7 +58,7 @@ over a menu or a big banner. A tap (or OK) closes it.
 - **The first time something happens**: low health (drink a potion from the belt), gear in the bag
   (open the Bag), your first soul, perks and families, a family bonus, a spell, an elite, a rune, the
   forge, the merchant, a chest, an ambush, a boss, the stairs opening, a cursed or strange floor,
-  cold and heat.
+  cold and heat, the first trial of the Threshold (pointing at its countdown, once its name is gone).
 - **Data**: `data/tutorial/tutorial.tres` (`TutorialDef`): the hints (`HintDef`: its cue, the hint
   it comes after, a condition, the title and text, the HUD control it points at, the action that
   ends it or how long it stays, its priority) and the distances and thresholds. The cues, actions

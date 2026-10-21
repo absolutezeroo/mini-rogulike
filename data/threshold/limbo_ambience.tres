@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="AmbienceDef" format=3]
+
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/crypt/bed.ogg" id="1_bed"]
+[ext_resource type="Texture2D" path="res://assets/fx/fog.png" id="2_fog"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/crypt/eerie.ogg" id="3_eerie"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/crypt/whisper.ogg" id="4_whisper"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/crypt/spirit.ogg" id="5_spirit"]
+[ext_resource type="PackedScene" path="res://src/vfx/ambient/wisps.tscn" id="6_wisps"]
+[ext_resource type="Script" path="res://src/definitions/ambience_def.gd" id="7_ambience"]
+
+[resource]
+script = ExtResource("7_ambience")
+footprint_color = Color(0.75, 0.85, 1, 0.12)
+bed = ExtResource("1_bed")
+bed_volume_db = -12.0
+one_shots = Array[AudioStream]([ExtResource("3_eerie"), ExtResource("4_whisper"), ExtResource("5_spirit")])
+one_shot_every = Vector2(2.5, 5)
+one_shot_volume_db = -6.0
+reverb_room_size = 0.95
+reverb_wet = 0.38
+particles = ExtResource("6_wisps")
+fog = ExtResource("2_fog")
+fog_color = Color(0.75, 0.85, 1, 0.07)
+fog_speed = Vector2(5, 2)
+grade_shadows = Color(0.42, 0.52, 0.95, 1)
+grade_highlights = Color(0.86, 0.94, 1.1, 1)
+grade_strength = 0.75
+saturation = 0.35
+contrast = 1.1
+bloom = 0.35
+mist_color = Color(0.72, 0.84, 1, 0.12)
+mist_speed = Vector2(6, 2)
+vignette_color = Color(0.02, 0.03, 0.12, 1)
+vignette_pulse = 0.3

@@ -425,6 +425,12 @@ func _on_fell(pit: PitDef) -> void:
 		_invulnerable_time = FALL_INVULNERABILITY
 
 
+## Nothing hurts the hero for `seconds` (he blinks): back from the Threshold among monsters frozen
+## mid-swing.
+func shield_for(seconds: float) -> void:
+	_invulnerable_time = maxf(_invulnerable_time, seconds)
+
+
 ## Abandoning the run (pause menu): dead now, no perk or relic can save it.
 func give_up() -> void:
 	if is_dead:

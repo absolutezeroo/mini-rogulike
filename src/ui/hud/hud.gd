@@ -19,6 +19,10 @@ var _split_tween: Tween
 ## The run time's text on screen (rebuilt only when it changes).
 var _time_text := ""
 var _toast_busy := false
+## The trial of the Threshold's counters (see bind_threshold()).
+var _threshold_hud: ThresholdHud
+## The floor's widgets put away during the trial, to show again after (the boss bar, the map).
+var _hidden_for_trial: Array[Control] = []
 
 @onready var _hp_bar: StatBar = %HpBar
 @onready var _xp_bar: StatBar = %XpBar
@@ -104,6 +108,49 @@ func bind_world(world: World) -> void:
 	world.seal.changed.connect(_refresh_seal)
 	world.seal.broken.connect(_on_seal_broken)
 	_refresh_seal()
+
+
+## The trial of the Threshold: its name, countdown and kills while it is on; the floor's map,
+## seal and boss bar (and the bag, closed in there) put away until the hero is back.
+func bind_threshold(threshold: Threshold) -> void:
+	_threshold_hud = ThresholdHud.new()
+	_threshold_hud.name = "ThresholdHud"
+	_threshold_hud.threshold = threshold
+	add_child(_threshold_hud)
+	move_child(_threshold_hud, (%Toast as Control).get_index())  # under the toasts and banners
+	# The tutorial points at the counters by name (hint_target()).
+	_threshold_hud.counters().owner = self
+	_threshold_hud.counters().unique_name_in_owner = true
+	threshold.opened.connect(func(trial: ThresholdDef, needed: int, _seconds: float) -> void:
+		_show_floor_widgets(false)
+		_threshold_hud.open(trial, needed))
+	threshold.progressed.connect(_threshold_hud.set_progress)
+	threshold.ended.connect(func(won: bool) -> void:
+		_threshold_hud.close()
+		if won:
+			toast(tr("You come back from the Threshold."))
+		else:
+			show_banner(tr("The knell has tolled"), Palette.DANGER))
+	threshold.closed.connect(func(_won: bool) -> void:
+		_threshold_hud.close()
+		_show_floor_widgets(true))
+
+
+func _show_floor_widgets(shown: bool) -> void:
+	if not shown:
+		_full_map.hide()
+		_hidden_for_trial.clear()
+		for widget: Control in [_minimap, _seal_label, _boss_bar, %BagButton, %SplitLabel]:
+			if widget.visible:
+				_hidden_for_trial.append(widget)
+				widget.hide()
+		return
+	for widget in _hidden_for_trial:
+		if is_instance_valid(widget):
+			widget.show()
+	_hidden_for_trial.clear()
+	if _world:
+		_refresh_seal()
 
 
 func _refresh_seal() -> void:
@@ -336,7 +383,7 @@ func split_text() -> String:
 
 ## A big text is on screen (hints wait for it to go).
 func is_banner_showing() -> bool:
-	return _depth_banner.modulate.a > 0.05
+	return _depth_banner.modulate.a > 0.05 or (_threshold_hud != null and _threshold_hud.is_card_showing())
 
 
 func is_boss_bar_showing() -> bool:

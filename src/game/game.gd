@@ -68,6 +68,8 @@ var tutorial := Tutorial.new()
 var hint_box := HintBox.new()
 ## The run's in-game time (speedruns).
 var run_timer := RunTimer.new()
+## The trial of the Threshold, where a second life (Phoenix Feather) takes the hero.
+var threshold := Threshold.new()
 
 
 func _ready() -> void:
@@ -82,6 +84,7 @@ func _ready() -> void:
 	run_timer.hud = hud
 	run_timer.is_counting = _is_clock_running
 	add_child(run_timer)
+	_setup_threshold()
 	world.stairs_reached.connect(_on_stairs_reached)
 	hud.bind_world(world)
 	hud.inventory_requested.connect(open_inventory)
@@ -162,6 +165,7 @@ func resume_run(saved: Dictionary) -> void:
 func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	if run and run.has_won:
 		_records.record_history()  # leaving a won run for a new one
+	threshold.abort()
 	_set_paused(false)
 	_fade.color.a = 0.0
 	menus.hide_all()
@@ -264,6 +268,18 @@ func _setup_tutorial() -> void:
 	layer.add_child(hint_box)
 
 
+func _setup_threshold() -> void:
+	threshold.name = "Threshold"
+	threshold.game = self
+	add_child(threshold)
+	hud.bind_threshold(threshold)
+	threshold.opened.connect(func(_trial: ThresholdDef, _needed: int, _seconds: float) -> void:
+		tutorial.cue(&"threshold"))
+	threshold.closed.connect(func(won: bool) -> void:
+		if won:
+			_show_next_offer())
+
+
 ## The daily run's weapon and relic (the same for everyone that day).
 func _give_daily_start() -> void:
 	var weapon := DailyRun.weapon(content, run.daily_day)
@@ -343,8 +359,9 @@ func open_pause_menu() -> void:
 		pause_menu.open()
 
 
+## Not during the trial of the Threshold (a fight against the clock).
 func open_inventory() -> void:
-	if _can_open_menu():
+	if _can_open_menu() and not threshold.is_open():
 		_set_paused(true)
 		inventory_panel.open(player)
 		tutorial.action(&"opened_bag")
@@ -362,6 +379,7 @@ func debug_enter_floor(target: int, curse: CurseDef = null, event: FloorEventDef
 	world.forced_curse = curse
 	world.forced_event = event
 	world.forced_plain = plain or (curse == null and event == null)
+	threshold.abort()
 	depth = target
 	_transitioning = true
 	_enter_floor(true)
@@ -417,14 +435,9 @@ func _enter_floor(resumed: bool = false) -> void:
 	world.next_routes = FloorRoute.offer(content, depth + 1, difficulty, run.route_seed(depth + 1))
 	world.build_floor(depth, content, _route_to(depth))
 	world.place_player(player)
-	var mood := world.theme.ambience if world.theme else null
-	if world.curse and world.curse.ambience:
-		mood = world.curse.ambience
-	ambience.play(mood, world, player, world.floor_event.atmosphere if world.floor_event else null)
+	play_floor_mood()
 	if not resumed and depth > 1 and difficulty.heal_on_new_floor > 0.0:
 		player.heal(roundi(player.get_max_hp() * difficulty.heal_on_new_floor))
-	if world.theme:
-		Sfx.play_music(world.theme.music)
 	_save_run()
 	if run.difficulty.counts_feats:
 		Profile.best_depth = maxi(Profile.best_depth, depth)
@@ -437,6 +450,20 @@ func _enter_floor(resumed: bool = false) -> void:
 		tutorial.cue(&"cursed_floor")
 	if world.floor_event:
 		tutorial.cue(&"event_floor")
+
+
+## The floor's sound and look (its biome, its curse or event), and its music (the boss' during
+## its fight). Also when the hero comes back from the Threshold.
+func play_floor_mood() -> void:
+	var mood := world.theme.ambience if world.theme else null
+	if world.curse and world.curse.ambience:
+		mood = world.curse.ambience
+	ambience.play(mood, world, player, world.floor_event.atmosphere if world.floor_event else null)
+	var boss_def := world.arena.boss.def as BossDef if world.is_boss_fight() else null
+	if boss_def:
+		Sfx.play_music(boss_def.music if boss_def.music else Sfx.bank.boss_music)
+	elif world.theme:
+		Sfx.play_music(world.theme.music)
 
 
 ## The log (and banners when the cards are off): the act, the floor's event or curse, the goal.
@@ -598,7 +625,7 @@ func _queue_offer(rarity: PerkDef.Rarity, count: int, title: String, subtitle: S
 
 func _show_next_offer() -> void:
 	while not offers.is_empty():
-		if is_menu_open() or player == null or player.is_dead:
+		if is_menu_open() or player == null or player.is_dead or threshold.is_open():
 			return
 		var offer := offers.pop()
 		var perks := _pick_offer(offer.count, offer.rarity, [])
@@ -685,8 +712,10 @@ func _on_player_died(_actor: Actor) -> void:
 # --- Saving ------------------------------------------------------------------
 
 ## Saves the run (see RunSave). Called when a floor begins and when the app is put away.
+## Never during the trial of the Threshold: picked up again, the run is as it was before the
+## killing blow.
 func _save_run() -> void:
-	if player == null or player.is_dead or run == null:
+	if player == null or player.is_dead or run == null or threshold.is_open():
 		return
 	var data := run.to_data()
 	data.boss_slain = world.arena != null and world.arena.is_defeated

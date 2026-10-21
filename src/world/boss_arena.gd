@@ -88,6 +88,8 @@ func shift(change: ArenaShiftDef) -> void:
 	_world.spawn_vfx(warning)
 	var floor_id := _world.floor_id
 	await get_tree().create_timer(change.warning_time, false).timeout
+	if is_instance_valid(_world) and not is_inside_tree():
+		await tree_entered  # the floor waits out of the tree (the hero is at the Threshold): so does the change
 	if not is_instance_valid(_world) or _world.floor_id != floor_id:
 		return
 	Events.screen_shake.emit(0.5)

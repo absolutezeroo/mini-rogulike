@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="ThresholdDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/threshold_def.gd" id="1_def"]
+[ext_resource type="Resource" path="res://data/threshold/limbo_arena.tres" id="2_arena"]
+[ext_resource type="Resource" path="res://data/threshold/limbo_theme.tres" id="3_theme"]
+[ext_resource type="Resource" path="res://data/threshold/limbo_lighting.tres" id="4_lighting"]
+[ext_resource type="Resource" path="res://data/threshold/limbo_ambience.tres" id="5_ambience"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/boss.ogg" id="6_music"]
+[ext_resource type="AudioStream" path="res://data/audio/knell.tres" id="7_knell"]
+
+[resource]
+script = ExtResource("1_def")
+display_name = "The Threshold"
+lore = "Between the Well and the light, the dead wait their turn. Not yours. Not yet."
+kills = 8
+kills_per_act = 2
+time_limit = 25.0
+time_per_act = 6.0
+hero_health = 0.6
+return_grace = 1.0
+alive_at_once = 4
+spawn_every = 0.7
+monster_health = 0.7
+spawn_distance = 5
+spectral_color = Color(0.86, 0.95, 1, 1)
+spectral_pallor = 0.6
+spectral_alpha = 0.88
+arena = ExtResource("2_arena")
+theme = ExtResource("3_theme")
+lighting = ExtResource("4_lighting")
+ambience = ExtResource("5_ambience")
+music = ExtResource("6_music")
+knell = ExtResource("7_knell")
+margin = 10
+color = Color(0.72, 0.86, 1, 1)
+veil_color = Color(0.03, 0.04, 0.09, 1)
+return_veil_color = Color(0.85, 0.92, 1, 1)
+fade_time = 0.55
+sink_time = 0.45
