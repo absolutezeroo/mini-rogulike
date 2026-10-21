@@ -1,592 +1,595 @@
 keys,en,fr
-Loading...,Loading...,
-Lighting the torches...,Lighting the torches...,
-The Well of Souls,The Well of Souls,
-Freezing!,Freezing!,
-Burning up!,Burning up!,
-Act,Act,
-Known,Known,
-Hunted,Hunted,
-Mastered,Mastered,
-ENRAGED!,ENRAGED!,
-Slay an elite %s,Slay an elite %s,
-Push a %s into a hole,Push a %s into a hole,
-Slay %d %s within %d seconds,Slay %d %s within %d seconds,
-Slay a %s without being hurt once it has seen you,Slay a %s without being hurt once it has seen you,
-Finish a %s with a critical hit (a lucky hit for extra damage),Finish a %s with a critical hit (a lucky hit for extra damage),
-Slay %s with a ranged weapon,Slay %s with a ranged weapon,
-Slay %s with a melee weapon,Slay %s with a melee weapon,
-Slay %s within %d seconds of the fight's start,Slay %s within %d seconds of the fight's start,
-Slay %s without drinking a potion during the fight,Slay %s without drinking a potion during the fight,
-Slay %s losing less than %d%% of your Health,Slay %s losing less than %d%% of your Health,
-Slay %s with the %s,Slay %s with the %s,
-Hero,Hero,
-Slay %d monsters,Slay %d monsters,
-Merchant,Merchant,
-SK,SK,
-%+d max health,%+d max health,
-%+d damage,%+d damage,
-%+d armor,%+d armor,
-%+d move speed,%+d move speed,
-%+d%% critical hit chance,%+d%% critical hit chance,
-%+d%% attack speed,%+d%% attack speed,
-%+d%% skill damage,%+d%% skill damage,
-skills recharge %d%% faster,skills recharge %d%% faster,
-Burns (%d every 0.5 s),Burns (%d every 0.5 s),
-Poisons (%d per second),Poisons (%d per second),
-Slows %d%%,Slows %d%%,
-(%d gold),(%d gold),
-(-%d max health),(-%d max health),
-%d gold,%d gold,
-"%d max health, for the rest of the run","%d max health, for the rest of the run",
-Free,Free,
-Costs %s,Costs %s,
- and , and ,
-Not enough gold (%d more),Not enough gold (%d more),
-Your max health is too low,Your max health is too low,
-Accept,Accept,
-Leave,Leave,
-Nothing more happens.,Nothing more happens.,
-A gift,A gift,
-Choose an upgrade,Choose an upgrade,
-Relic,Relic,
-Choose a relic,Choose a relic,
-heals you fully,heals you fully,
-heals %d health,heals %d health,
-hurts you: you lose %d health,hurts you: you lose %d health,
-a free perk: choose 1 of 3,a free perk: choose 1 of 3,
-"a relic: choose 1 of 3 strong perks, like after a boss","a relic: choose 1 of 3 strong perks, like after a boss",
-%d elite monsters appear and attack,%d elite monsters appear and attack,
-%d elite monster appears and attacks,%d elite monster appears and attacks,
-%d monsters appear and attack,%d monsters appear and attack,
-%d monster appears and attacks,%d monster appears and attacks,
-for %d seconds: %s,for %d seconds: %s,
-Nothing: what you paid is lost,Nothing: what you paid is lost,
-Nothing happens,Nothing happens,
-a piece of equipment,a piece of equipment,
-a piece of equipment (%d%% chance it is Rare or Epic),a piece of equipment (%d%% chance it is Rare or Epic),
-Darkness swallows the room.,Darkness swallows the room.,
-"Things stir in the dark, drawn by the light...","Things stir in the dark, drawn by the light...",
-They come for the light!,They come for the light!,
-Armor (%s),Armor (%s),
-Consumable,Consumable,
-{rarity} {kind_lower},{rarity} {kind_lower},
-Item level %d (as strong as floor %d),Item level %d (as strong as floor %d),
-%s: %s,%s: %s,
-%d empty rune sockets,%d empty rune sockets,
-%d empty rune socket,%d empty rune socket,
-Weapon,Weapon,
-Head,Head,
-Body,Body,
-Smith,Smith,
-Item,Item,
-Common,Common,
-Magic,Magic,
-Rare,Rare,
-Epic,Epic,
-%s rune,%s rune,
-Rune,Rune,
-Set it into a weapon at a forge.,Set it into a weapon at a forge.,
-Skill tome,Skill tome,
-Teaches %s (cooldown %.1f s).,Teaches %s (cooldown %.1f s).,
-Melee weapon,Melee weapon,
-Ranged weapon,Ranged weapon,
-"%d damage, %.1f hits/s","%d damage, %.1f hits/s",
-", %d projectiles",", %d projectiles",
-", pierces %d",", pierces %d",
-Skills: %s,Skills: %s,
-{prefix} {item} {suffix},{prefix} {item} {suffix},
-{prefix} {item},{prefix} {item},
-{item} {suffix},{item} {suffix},
-Bursts when it dies.,Bursts when it dies.,
-Splits when it dies.,Splits when it dies.,
-Blocked,Blocked,
-Blocks %d%% of the blows from the front.,Blocks %d%% of the blows from the front.,
--%d gold,-%d gold,
-+%d gold,+%d gold,
-Steals gold and runs. Slay it to get it back.,Steals gold and runs. Slay it to get it back.,
-Its long body burns at a touch: only the head can be hurt,Its long body burns at a touch: only the head can be hurt,
-ECHO,ECHO,
-You took %s instead (reset the tree to change).,You took %s instead (reset the tree to change).,
-Needs %s first.,Needs %s first.,
- or , or ,
-Feat: %s,Feat: %s,
-a fall,a fall,
-the dungeon,the dungeon,
-%s set into %s,%s set into %s,
-%s taken out of %s,%s taken out of %s,
-Trap!,Trap!,
-Bought %s,Bought %s,
-Sold %s for %d gold,Sold %s for %d gold,
-{rank} {monster},{rank} {monster},
-{affix} {monster},{affix} {monster},
-Fell!,Fell!,
-Learned %s!,Learned %s!,
-Equipped %s,Equipped %s,
-Picked up %s,Picked up %s,
-Inventory full!,Inventory full!,
-Used %s,Used %s,
-Level up! You are now level %d,Level up! You are now level %d,
-LEVEL UP,LEVEL UP,
-You fell into a hole!,You fell into a hole!,
-giving up,giving up,
-You died.,You died.,
-Seen,Seen,
-Unknown,Unknown,
-Ambush!,Ambush!,
-It's a trap! Survive the waves.,It's a trap! Survive the waves.,
-The room falls silent. A chest appears...,The room falls silent. A chest appears...,
-Level %d!,Level %d!,
-Cursed: %s. %s,Cursed: %s. %s,
-Depth %d. Something big is waiting...,Depth %d. Something big is waiting...,
-Depth %d. The stairs are sealed: slay %d monsters to open them.,Depth %d. The stairs are sealed: slay %d monsters to open them.,
-Depth %d. Find the stairs!,Depth %d. Find the stairs!,
-+%d reroll for the perk choices.,+%d reroll for the perk choices.,
-Victory!,Victory!,
-%s is defeated! The way down is open.,%s is defeated! The way down is open.,
-New record: %s!,New record: %s!,
-"Endless mode: the dungeon goes on, harder and harder.","Endless mode: the dungeon goes on, harder and harder.",
-New record!,New record!,
-(record %s),(record %s),
-Nothing else to offer.,Nothing else to offer.,
-%s is banished for this run.,%s is banished for this run.,
-%s (level %d),%s (level %d),
-The boss left a relic behind. Choose one.,The boss left a relic behind. Choose one.,
-%dd %dh,%dd %dh,
-%dh %02dm,%dh %02dm,
-A Shiny %s! It joins the bestiary's collection.,A Shiny %s! It joins the bestiary's collection.,
-Difficulty,Difficulty,
-Reached,Reached,
-"%s, depth %d","%s, depth %d",
-Dungeon,Dungeon,
-Hero level,Hero level,
-Monsters slain,Monsters slain,
-Bosses slain,Bosses slain,
-Time,Time,
-(best %d),(best %d),
-(practice),(practice),
-Daily score,Daily score,
+Loading...,Loading...,Chargement...
+Lighting the torches...,Lighting the torches...,On allume les torches...
+The Well of Souls,The Well of Souls,Le Puits des Âmes
+Freezing!,Freezing!,Gelé !
+Burning up!,Burning up!,Brûlant !
+Act,Act,Acte
+Known,Known,Connu
+Hunted,Hunted,Traqué
+Mastered,Mastered,Maîtrisé
+ENRAGED!,ENRAGED!,ENRAGÉ !
+Slay an elite %s,Slay an elite %s,Élite à abattre : %s
+Push a %s into a hole,Push a %s into a hole,%s : à pousser dans un trou
+Slay %d %s within %d seconds,Slay %d %s within %d seconds,Abats %d × %s en moins de %d secondes
+Slay a %s without being hurt once it has seen you,Slay a %s without being hurt once it has seen you,%s : à abattre sans être touché une fois repéré
+Finish a %s with a critical hit (a lucky hit for extra damage),Finish a %s with a critical hit (a lucky hit for extra damage),%s : à achever d'un coup critique (un coup chanceux aux dégâts accrus)
+Slay %s with a ranged weapon,Slay %s with a ranged weapon,%s : à abattre avec une arme à distance
+Slay %s with a melee weapon,Slay %s with a melee weapon,%s : à abattre avec une arme de mêlée
+Slay %s within %d seconds of the fight's start,Slay %s within %d seconds of the fight's start,%s : à abattre dans les %d premières secondes du combat
+Slay %s without drinking a potion during the fight,Slay %s without drinking a potion during the fight,%s : à abattre sans boire de potion pendant le combat
+Slay %s losing less than %d%% of your Health,Slay %s losing less than %d%% of your Health,%s : à abattre en perdant moins de %d %% de ta Vie
+Slay %s with the %s,Slay %s with the %s,%s : à abattre avec l'arme %s
+Hero,Hero,Héros
+Slay %d monsters,Slay %d monsters,Tue %d monstres
+Merchant,Merchant,Marchand
+SK,SK,CP
+%+d max health,%+d max health,%+d Vie max
+%+d damage,%+d damage,%+d Dégâts
+%+d armor,%+d armor,%+d Armure
+%+d move speed,%+d move speed,%+d Vitesse
+%+d%% critical hit chance,%+d%% critical hit chance,%+d %% de chance de coup critique
+%+d%% attack speed,%+d%% attack speed,%+d %% de Vitesse d'attaque
+%+d%% skill damage,%+d%% skill damage,%+d %% de Dégâts des compétences
+skills recharge %d%% faster,skills recharge %d%% faster,compétences rechargées %d %% plus vite
+Burns (%d every 0.5 s),Burns (%d every 0.5 s),"Brûle (%d toutes les 0,5 s)"
+Poisons (%d per second),Poisons (%d per second),Empoisonne (%d par seconde)
+Slows %d%%,Slows %d%%,Ralentit de %d %%
+(%d gold),(%d gold),(%d or)
+(-%d max health),(-%d max health),(-%d Vie max)
+%d gold,%d gold,%d or
+"%d max health, for the rest of the run","%d max health, for the rest of the run","%d de Vie max, pour le reste de la partie"
+Free,Free,Gratuit
+Costs %s,Costs %s,Coûte %s
+ and , and , et
+Not enough gold (%d more),Not enough gold (%d more),Pas assez d'or (il en manque %d)
+Your max health is too low,Your max health is too low,Ta Vie max est trop basse
+Accept,Accept,Accepter
+Leave,Leave,Partir
+Nothing more happens.,Nothing more happens.,Plus rien ne se passe.
+A gift,A gift,Un cadeau
+Choose an upgrade,Choose an upgrade,Choisis une amélioration
+Relic,Relic,Relique
+Choose a relic,Choose a relic,Choisis une relique
+heals you fully,heals you fully,te soigne entièrement
+heals %d health,heals %d health,rend %d de Vie
+hurts you: you lose %d health,hurts you: you lose %d health,te blesse : tu perds %d de Vie
+a free perk: choose 1 of 3,a free perk: choose 1 of 3,un atout gratuit : choisis-en 1 parmi 3
+"a relic: choose 1 of 3 strong perks, like after a boss","a relic: choose 1 of 3 strong perks, like after a boss","une relique : choisis 1 atout puissant parmi 3, comme après un boss"
+%d elite monsters appear and attack,%d elite monsters appear and attack,%d monstres d'élite surgissent et attaquent
+%d elite monster appears and attacks,%d elite monster appears and attacks,%d monstre d'élite surgit et attaque
+%d monsters appear and attack,%d monsters appear and attack,%d monstres surgissent et attaquent
+%d monster appears and attacks,%d monster appears and attacks,%d monstre surgit et attaque
+for %d seconds: %s,for %d seconds: %s,pendant %d secondes : %s
+Nothing: what you paid is lost,Nothing: what you paid is lost,Rien : ce que tu as payé est perdu
+Nothing happens,Nothing happens,Il ne se passe rien
+a piece of equipment,a piece of equipment,une pièce d'équipement
+a piece of equipment (%d%% chance it is Rare or Epic),a piece of equipment (%d%% chance it is Rare or Epic),une pièce d'équipement (%d %% de chances qu'elle soit Rare ou Épique)
+Darkness swallows the room.,Darkness swallows the room.,Les ténèbres engloutissent la salle.
+"Things stir in the dark, drawn by the light...","Things stir in the dark, drawn by the light...","Des choses s'agitent dans le noir, attirées par la lumière..."
+They come for the light!,They come for the light!,Ils viennent pour la lumière !
+Armor (%s),Armor (%s),Armure (%s)
+Consumable,Consumable,Consommable
+{rarity} {kind_lower},{rarity} {kind_lower},{kind} {rarity_lower}
+Item level %d (as strong as floor %d),Item level %d (as strong as floor %d),Niveau d'objet %d (aussi fort que l'étage %d)
+%s: %s,%s: %s,%s : %s
+%d empty rune sockets,%d empty rune sockets,%d emplacements de rune libres
+%d empty rune socket,%d empty rune socket,%d emplacement de rune libre
+Weapon,Weapon,Arme
+Head,Head,Tête
+Body,Body,Corps
+Smith,Smith,Forgeron
+Item,Item,Objet
+Common,Common,Commun
+Magic,Magic,Magique
+Rare,Rare,Rare
+Epic,Epic,Épique
+%s rune,%s rune,Rune %s
+Rune,Rune,Rune
+Set it into a weapon at a forge.,Set it into a weapon at a forge.,"À sertir dans une arme, à une forge."
+Skill tome,Skill tome,Grimoire de compétence
+Teaches %s (cooldown %.1f s).,Teaches %s (cooldown %.1f s).,Enseigne %s (recharge %.1f s).
+Melee weapon,Melee weapon,Arme de mêlée
+Ranged weapon,Ranged weapon,Arme à distance
+"%d damage, %.1f hits/s","%d damage, %.1f hits/s","%d Dégâts, %.1f coups/s"
+", %d projectiles",", %d projectiles",", %d projectiles"
+", pierces %d",", pierces %d",", perce %d"
+Skills: %s,Skills: %s,Compétences : %s
+{prefix} {item} {suffix},{prefix} {item} {suffix},{item} {prefix} {suffix}
+{prefix} {item},{prefix} {item},{item} {prefix}
+{item} {suffix},{item} {suffix},{item} {suffix}
+Bursts when it dies.,Bursts when it dies.,Explose à sa mort.
+Splits when it dies.,Splits when it dies.,Se divise à sa mort.
+Blocked,Blocked,Bloqué
+Blocks %d%% of the blows from the front.,Blocks %d%% of the blows from the front.,Bloque %d %% des coups portés de face.
+-%d gold,-%d gold,-%d or
++%d gold,+%d gold,+%d or
+Steals gold and runs. Slay it to get it back.,Steals gold and runs. Slay it to get it back.,Vole de l'or et s'enfuit. Abats-le pour le récupérer.
+Its long body burns at a touch: only the head can be hurt,Its long body burns at a touch: only the head can be hurt,Son long corps brûle au contact : seule la tête peut être blessée
+ECHO,ECHO,ÉCHO
+You took %s instead (reset the tree to change).,You took %s instead (reset the tree to change).,Tu as pris %s à la place (réinitialise l'arbre pour changer).
+Needs %s first.,Needs %s first.,Nécessite d'abord %s.
+ or , or , ou
+Feat: %s,Feat: %s,Exploit : %s
+a fall,a fall,une chute
+the dungeon,the dungeon,le donjon
+%s set into %s,%s set into %s,%s serti dans %s
+%s taken out of %s,%s taken out of %s,%s retiré de %s
+Trap!,Trap!,Piège !
+Bought %s,Bought %s,Acheté : %s
+Sold %s for %d gold,Sold %s for %d gold,Vendu : %s pour %d or
+{rank} {monster},{rank} {monster},{monster} {rank}
+{affix} {monster},{affix} {monster},{monster} {affix}
+Fell!,Fell!,Tombé !
+Learned %s!,Learned %s!,Appris : %s !
+Equipped %s,Equipped %s,Équipé : %s
+Picked up %s,Picked up %s,Ramassé : %s
+Inventory full!,Inventory full!,Sac plein !
+Used %s,Used %s,Utilisé : %s
+Level up! You are now level %d,Level up! You are now level %d,Niveau supérieur ! Tu es maintenant niveau %d
+LEVEL UP,LEVEL UP,NIVEAU SUPÉRIEUR
+You fell into a hole!,You fell into a hole!,Tu es tombé dans un trou !
+giving up,giving up,l'abandon
+You died.,You died.,Tu es mort.
+Seen,Seen,Vu
+Unknown,Unknown,Inconnu
+Ambush!,Ambush!,Embuscade !
+It's a trap! Survive the waves.,It's a trap! Survive the waves.,C'est un piège ! Survis aux vagues.
+The room falls silent. A chest appears...,The room falls silent. A chest appears...,Le silence retombe sur la salle. Un coffre apparaît...
+Level %d!,Level %d!,Niveau %d !
+Cursed: %s. %s,Cursed: %s. %s,Maudit : %s. %s
+Depth %d. Something big is waiting...,Depth %d. Something big is waiting...,Étage %d. Quelque chose d'énorme t'attend...
+Depth %d. The stairs are sealed: slay %d monsters to open them.,Depth %d. The stairs are sealed: slay %d monsters to open them.,Étage %d. Les escaliers sont scellés : abats %d monstres pour les ouvrir.
+Depth %d. Find the stairs!,Depth %d. Find the stairs!,Étage %d. Trouve les escaliers !
++%d reroll for the perk choices.,+%d reroll for the perk choices.,+%d relance pour les choix d'atouts.
+Victory!,Victory!,Victoire !
+%s is defeated! The way down is open.,%s is defeated! The way down is open.,%s est vaincu ! La voie vers le bas est ouverte.
+New record: %s!,New record: %s!,Nouveau record : %s !
+"Endless mode: the dungeon goes on, harder and harder.","Endless mode: the dungeon goes on, harder and harder.","Mode sans fin : le donjon continue, de plus en plus dur."
+New record!,New record!,Nouveau record !
+(record %s),(record %s),(record %s)
+Nothing else to offer.,Nothing else to offer.,Plus rien à proposer.
+%s is banished for this run.,%s is banished for this run.,%s est banni pour cette partie.
+%s (level %d),%s (level %d),%s (niveau %d)
+The boss left a relic behind. Choose one.,The boss left a relic behind. Choose one.,Le boss a laissé une relique. Choisis-en une.
+%dd %dh,%dd %dh,%d j %d h
+%dh %02dm,%dh %02dm,%d h %02d min
+A Shiny %s! It joins the bestiary's collection.,A Shiny %s! It joins the bestiary's collection.,Nouvelle prise pour le bestiaire : %s Chromatique !
+Difficulty,Difficulty,Difficulté
+Reached,Reached,Atteint
+"%s, depth %d","%s, depth %d","%s, étage %d"
+Dungeon,Dungeon,Donjon
+Hero level,Hero level,Niveau du héros
+Monsters slain,Monsters slain,Monstres abattus
+Bosses slain,Bosses slain,Boss abattus
+Time,Time,Temps
+(best %d),(best %d),(meilleur %d)
+(practice),(practice),(entraînement)
+Daily score,Daily score,Score du jour
 "%s - %s, depth %d, level %d
 %d monsters slain, %d bosses","%s - %s, depth %d, level %d
-%d monsters slain, %d bosses",
-Time %s,Time %s,
-Daily score %d,Daily score %d,
-Not met yet,Not met yet,
-not slain yet,not slain yet,
-%d slain,%d slain,
-Boss,Boss,
-Shiny,Shiny,
-Souls %d,Souls %d,
-Daily quests,Daily quests,
-Weekly quests,Weekly quests,
-New ones in %s. Counts every run today.,New ones in %s. Counts every run today.,
-New ones in %s. Counts every run this week (from Monday).,New ones in %s. Counts every run this week (from Monday).,
-Quests done: %d of %d,Quests done: %d of %d,
-Slain: %d of %d kinds     Mastered: %d     Shiny found: %d,Slain: %d of %d kinds     Mastered: %d     Shiny found: %d,
-floor %d,floor %d,
-floors %d to %d,floors %d to %d,
-%s     %d of %d slain,%s     %d of %d slain,
-Achievements: %d of %d     Souls earned from them: %d,Achievements: %d of %d     Souls earned from them: %d,
-Runs: %d     Wins: %d     Deepest floor: %d,Runs: %d     Wins: %d     Deepest floor: %d,
-No run finished yet. Go down the Well!,No run finished yet. Go down the Well!,
-Fastest wins:   %s,Fastest wins:   %s,
-Codex,Codex,
-Souls are kept between runs. Spend them at the Shrine.,Souls are kept between runs. Spend them at the Shrine.,
-Quests,Quests,
-Bestiary,Bestiary,
-Achievements,Achievements,
-Runs,Runs,
-"Quests change every day and every week. Everything you do in any run counts toward them, and a finished quest pays its souls at once. Souls are kept between runs: spend them at the Shrine on lasting upgrades.","Quests change every day and every week. Everything you do in any run counts toward them, and a finished quest pays its souls at once. Souls are kept between runs: spend them at the Shrine on lasting upgrades.",
-"Every monster you meet goes in here. Slay more of a kind to raise your hunter rank with it: each rank pays souls, and Mastered also gives +%d%% damage against that kind for good. Tap a monster for its attacks and challenges.","Every monster you meet goes in here. Slay more of a kind to raise your hunter rank with it: each rank pays souls, and Mastered also gives +%d%% damage against that kind for good. Tap a monster for its attacks and challenges.",
-Big goals across all your runs. Reaching one pays its souls at once.,Big goals across all your runs. Reaching one pays its souls at once.,
-"Your last runs, newest first. Gold is lost when a run ends; souls are kept.","Your last runs, newest first. Gold is lost when a run ends; souls are kept.",
-+%d souls,+%d souls,
-Done!,Done!,
-Received,Received,
-Reward,Reward,
-Died on floor %d,Died on floor %d,
-Reached the bottom of the Well,Reached the bottom of the Well,
-"Won, then slain by %s","Won, then slain by %s",
-Slain by %s,Slain by %s,
-When,When,
-Slain,Slain,
-"%d monsters, %d boss","%d monsters, %d boss",
-"%d monsters, %d bosses","%d monsters, %d bosses",
-Earned,Earned,
-"{month} {day}, {time}","{month} {day}, {time}",
-floor %d (endless),floor %d (endless),
-floor %d of %d,floor %d of %d,
-Jan,Jan,
-Feb,Feb,
-Mar,Mar,
-Apr,Apr,
-May,May,
-Jun,Jun,
-Jul,Jul,
-Aug,Aug,
-Sep,Sep,
-Oct,Oct,
-Nov,Nov,
-Dec,Dec,
-< All monsters,< All monsters,
-Boss  -  %s,Boss  -  %s,
-%s  -  %d slain,%s  -  %d slain,
-"You have seen it, but never slain one. Slay one to learn what it is, its stats and how it attacks.","You have seen it, but never slain one. Slay one to learn what it is, its stats and how it attacks.",
-Lives in,Lives in,
-"%s, floor %d","%s, floor %d",
-"%s, floors %d to %d","%s, floors %d to %d",
-How much damage it takes to slay it.,How much damage it takes to slay it.,
-Health you lose when its basic attack hits you.,Health you lose when its basic attack hits you.,
-You start a run with %d Health.,You start a run with %d Health.,
-"Softens your hits, small ones most: a 10-damage hit does %d, a 30-damage hit %d.","Softens your hits, small ones most: a 10-damage hit does %d, a 30-damage hit %d.",
-None: your hits land in full.,None: your hits land in full.,
-How fast it walks.,How fast it walks.,
-Slower than you (%d).,Slower than you (%d).,
-Faster than you (%d): you can't outrun it.,Faster than you (%d): you can't outrun it.,
-About as fast as you (%d).,About as fast as you (%d).,
-Health,Health,
-Damage,Damage,
-Armor,Armor,
-Move speed,Move speed,
-Attacks,Attacks,
-Slay one to see how it attacks.,Slay one to see how it attacks.,
-Tap an attack to watch it. Red marks on the ground show where it will land: step out!,Tap an attack to watch it. Red marks on the ground show where it will land: step out!,
-How it behaves,How it behaves,
-Stats,Stats,
-"On the floors where it first shows up: deeper down, it grows stronger.","On the floors where it first shows up: deeper down, it grows stronger.",
-Up close,Up close,
-"Shoots %d at once, from afar","Shoots %d at once, from afar",
-Shoots from afar,Shoots from afar,
-"Up close, with a long reach","Up close, with a long reach",
-Attack,Attack,
-Basic attack. %s: %d damage.,Basic attack. %s: %d damage.,
-Used every %.0f seconds.,Used every %.0f seconds.,
-From phase %d. %s,From phase %d. %s,
-(phase %d),(phase %d),
-Flies: holes and water don't stop it.,Flies: holes and water don't stop it.,
-Keeps its distance: close in on it.,Keeps its distance: close in on it.,
-Hard to push around (or into holes).,Hard to push around (or into holes).,
-%d%%,%d%%,
-Fights in %d phases: stronger and faster once its Health drops to %s.,Fights in %d phases: stronger and faster once its Health drops to %s.,
-", then ",", then ",
-Hit it too many times in a row and it throws you off with a shockwave.,Hit it too many times in a row and it throws you off with a shockwave.,
-Found!,Found!,
-Not found yet,Not found yet,
-"A rare glowing version%s: tougher, but it drops plenty of loot and gold. Slay one to add it to your collection.","A rare glowing version%s: tougher, but it drops plenty of loot and gold. Slay one to add it to your collection.",
- (about 1 in %d), (about 1 in %d),
-Hunter rank,Hunter rank,
-Slay more of this kind to rank up. Each rank pays its souls once.,Slay more of this kind to rank up. Each rank pays its souls once.,
-"and +%d%% damage to this kind, for good","and +%d%% damage to this kind, for good",
-%s: slay %d,%s: slay %d,
-"%d / %d slain, to %s","%d / %d slain, to %s",
-Mastered!,Mastered!,
-Challenges,Challenges,
-Slay it in a special way. Each one pays its souls once.,Slay it in a special way. Each one pays its souls once.,
-Compared with your %s:,Compared with your %s:,
-You hold no weapon yet. It adds:,You hold no weapon yet. It adds:,
-Nothing on your head yet. It adds:,Nothing on your head yet. It adds:,
-Nothing on your body yet. It adds:,Nothing on your body yet. It adds:,
-%+d item level,%+d item level,
-%+d item levels,%+d item levels,
-%+.1f hits per second,%+.1f hits per second,
-skills recharge %d%% slower,skills recharge %d%% slower,
-Lv %d,Lv %d,
-Close,Close,
-Continue,Continue,
-Always:,Always:,
-What can happen:,What can happen:,
-Nothing happens. You can come back later.,Nothing happens. You can come back later.,
-"""%s""","""%s""",
-Gold %d,Gold %d,
-Worn: %s,Worn: %s,
-No weapon to work on,No weapon to work on,
-Worn,Worn,
-%d damage,%d damage,
-%d rune sockets,%d rune sockets,
-%d rune socket,%d rune socket,
-Pick a socket to take its rune out,Pick a socket to take its rune out,
-Your bag is full,Your bag is full,
-Take out %s  (%d gold),Take out %s  (%d gold),
-No runes in your bag,No runes in your bag,
-"Elites, bosses and chests drop them.","Elites, bosses and chests drop them.",
-Pick a rune,Pick a rune,
-Setting one is free. Taking one out costs gold; you get it back.,Setting one is free. Taking one out costs gold; you get it back.,
-Set it in,Set it in,
-No free socket,No free socket,
-Set,Set,
-Empty,Empty,
-The Forge,The Forge,
-Sockets,Sockets,
-Your runes,Your runes,
-You died,You died,
-You now have %d souls.,You now have %d souls.,
-New run,New run,
-Try again,Try again,
-This run,This run,
-Souls,Souls,
-Souls are kept between runs. Spend them at the Shrine (title screen) on upgrades that make every next run stronger.,Souls are kept between runs. Spend them at the Shrine (title screen) on upgrades that make every next run stronger.,
-Gold was only for this run.,Gold was only for this run.,
-Keep going (endless),Keep going (endless),
-Title screen,Title screen,
-"Keep going: endless floors, harder and harder. Your win is already counted.","Keep going: endless floors, harder and harder. Your win is already counted.",
-Achievement: %s  (+%d souls),Achievement: %s  (+%d souls),
-"Bestiary: %s, %s  (+%d souls)","Bestiary: %s, %s  (+%d souls)",
-Challenge done: %s  (+%d souls),Challenge done: %s  (+%d souls),
-Daily quest done: %s  (+%d souls),Daily quest done: %s  (+%d souls),
-Weekly quest done: %s  (+%d souls),Weekly quest done: %s  (+%d souls),
-Seal  %d / %d,Seal  %d / %d,
-Stairs open,Stairs open,
-The stairs are open,The stairs are open,
-Cold,Cold,
-Hot,Hot,
-Depth %d   Damage %d   Armor %d   %s,Depth %d   Damage %d   Armor %d   %s,
-Bare hands,Bare hands,
-%s awakens,%s awakens,
-%s awakens: %s,%s awakens: %s,
-Floor %d  %s,Floor %d  %s,
-Depth %d,Depth %d,
-Your perks,Your perks,
-Families  -  hold 3 perks of one to awaken its bonus,Families  -  hold 3 perks of one to awaken its bonus,
-Perks taken this run,Perks taken this run,
-No perk yet: you pick one at every level up.,No perk yet: you pick one at every level up.,
-%s   Level %d / %d,%s   Level %d / %d,
-Family: %s,Family: %s,
-Perks (%d),Perks (%d),
-Bag  %d / %d,Bag  %d / %d,
-Level,Level,
-Critical hits,Critical hits,
-Attack speed,Attack speed,
-%+d%%,%+d%%,
-Skill damage,Skill damage,
-Skill recharge,Skill recharge,
-To bag,To bag,
-To belt,To belt,
-Pick an item,Pick an item,
-Tap a slot to see what it does.,Tap a slot to see what it does.,
-Unequip,Unequip,
-Equip,Equip,
-Learn,Learn,
-Use,Use,
-the same stats,the same stats,
-Runes,Runes,
-An empty socket: a forge sets runes in it.,An empty socket: a forge sets runes in it.,
-Inventory,Inventory,
-Perks,Perks,
-Belt,Belt,
-Bag,Bag,
-Drop,Drop,
-Done! Tips are back,Done! Tips are back,
-Replay tutorial,Replay tutorial,
-Options,Options,
-Every change is saved right away.,Every change is saved right away.,
-Language,Language,
-Sound,Sound,
-Music,Music,
-Background music.,Background music.,
-Sounds,Sounds,
-"Hits, spells, menus.","Hits, spells, menus.",
-Touch controls,Touch controls,
-Buttons size,Buttons size,
-Joystick and buttons.,Joystick and buttons.,
-Fixed joystick,Fixed joystick,
-Stays in its corner instead of following your thumb.,Stays in its corner instead of following your thumb.,
-Vibrations,Vibrations,
-The phone buzzes on big hits and critical hits.,The phone buzzes on big hits and critical hits.,
-Screen and battery,Screen and battery,
-Screen shake,Screen shake,
-On big hits.,On big hits.,
-Fewer effects,Fewer effects,
-Half the particles: smoother on older phones.,Half the particles: smoother on older phones.,
-Battery saver,Battery saver,
-30 FPS: the phone stays cooler.,30 FPS: the phone stays cooler.,
-Run timer,Run timer,
-"The run's time, under the map.","The run's time, under the map.",
-Tutorial,Tutorial,
-Tutorial hints,Tutorial hints,
-Short tips during your first runs.,Short tips during your first runs.,
-"Every tip again, from the first steps.","Every tip again, from the first steps.",
-Paused,Paused,
-Resume,Resume,
-Back to the fight.,Back to the fight.,
-"Sound, music, button size, effects.","Sound, music, button size, effects.",
-The monsters you have met: how they attack and how to beat them.,The monsters you have met: how they attack and how to beat them.,
-Save and quit,Save and quit,
-Your run is saved: pick Continue on the title screen.,Your run is saved: pick Continue on the title screen.,
-Gold and souls,Gold and souls,
-Gold: only for this run. Spend it at the merchant and the forge; it is lost when the run ends.,Gold: only for this run. Spend it at the merchant and the forge; it is lost when the run ends.,
-Souls: kept between runs. Spend them at the Shrine (title screen) on upgrades for every run.,Souls: kept between runs. Spend them at the Shrine (title screen) on upgrades for every run.,
-Give up the run,Give up the run,
-Really? Tap again,Really? Tap again,
-Ends this run now. You keep the souls earned so far.,Ends this run now. You keep the souls earned so far.,
-Tap again to end the run. Anything else to cancel.,Tap again to end the run. Anything else to cancel.,
-RELIC,RELIC,
-New perk,New perk,
-New perk  (up to level %d),New perk  (up to level %d),
-Level %d > %d  (max %d),Level %d > %d  (max %d),
-%s family,%s family,
-This one makes %d/%d: the family bonus AWAKENS!,This one makes %d/%d: the family bonus AWAKENS!,
-Bonus active: %s,Bonus active: %s,
-Bonus already active: %s,Bonus already active: %s,
-%d more %s perk to awaken its bonus: %s,%d more %s perk to awaken its bonus: %s,
-%d more %s perks to awaken its bonus: %s,%d more %s perks to awaken its bonus: %s,
-Reroll (%d),Reroll (%d),
-Cancel,Cancel,
-Banish (%d),Banish (%d),
-Tap the perk to banish: it won't be offered again this run,Tap the perk to banish: it won't be offered again this run,
-Level up!,Level up!,
-Every perk belongs to a family. Hold 3 different perks of one family to awaken its bonus.,Every perk belongs to a family. Hold 3 different perks of one family to awaken its bonus.,
-"Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (tap Banish, then the card).","Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (tap Banish, then the card).",
-Reroll  -  %d gold,Reroll  -  %d gold,
-New items for sale. Locked ones stay.,New items for sale. Locked ones stay.,
-New items for sale. You need %d more gold.,New items for sale. You need %d more gold.,
-Sold out!,Sold out!,
-Belt: %s,Belt: %s,
-"Tap something for sale to see what it does, or one of your things to sell it.","Tap something for sale to see what it does, or one of your things to sell it.",
-Gold is only for this run: spend it here and at the forge.,Gold is only for this run: spend it here and at the forge.,
-Sell price: %d gold,Sell price: %d gold,
-The merchant doesn't buy this,The merchant doesn't buy this,
-Sell for %d gold,Sell for %d gold,
-Can't be sold,Can't be sold,
-Price: %d gold,Price: %d gold,
-Your bag is full: sell something first,Your bag is full: sell something first,
-Buy for %d gold,Buy for %d gold,
-Unlock,Unlock,
-Lock,Lock,
-"Locked: it stays when you reroll, and if you don't buy it, the next merchant sells it to you at this price.","Locked: it stays when you reroll, and if you don't buy it, the next merchant sells it to you at this price.",
-"Lock keeps this item: it stays when you reroll, and the next merchant sells it at this price.","Lock keeps this item: it stays when you reroll, and the next merchant sells it at this price.",
-You carry %d. It goes on your belt if there is room.,You carry %d. It goes on your belt if there is room.,
-You carry none. It goes on your belt if there is room.,You carry none. It goes on your belt if there is room.,
-For sale,For sale,
-Reroll,Reroll,
-Sell your things,Sell your things,
-Your bag and belt are empty.,Your bag and belt are empty.,
-Tap one to see what the merchant pays.,Tap one to see what the merchant pays.,
-Buy,Buy,
-Sell,Sell,
-Your last choice,Your last choice,
-Locked,Locked,
-Souls earned x%s,Souls earned x%s,
-To unlock: win a run on %s.,To unlock: win a run on %s.,
-"A win opens Nightmare +1, +2...: harder, more souls.","A win opens Nightmare +1, +2...: harder, more souls.",
-Monster health,Monster health,
-Monster damage,Monster damage,
-Time to dodge,Time to dodge,
-+%d monsters per room,+%d monsters per room,
-+%d monster per room,+%d monster per room,
-Monsters spot you sooner,Monsters spot you sooner,
-Monsters spot you later,Monsters spot you later,
-Bigger floors (+%d%%),Bigger floors (+%d%%),
-Smaller floors (-%d%%),Smaller floors (-%d%%),
-Elite monsters x%s,Elite monsters x%s,
-Fewer elite monsters,Fewer elite monsters,
-Heal %d%% each new floor,Heal %d%% each new floor,
-Darker floors,Darker floors,
-Brighter floors,Brighter floors,
-%d%% less max health,%d%% less max health,
-Everything as the game was made: the other difficulties are compared with it.,Everything as the game was made: the other difficulties are compared with it.,
-%s %+d%%,%s %+d%%,
-"+0: Nightmare as it is. Each level adds one twist on top of the ones before, and 10% more souls.","+0: Nightmare as it is. Each level adds one twist on top of the ones before, and 10% more souls.",
-+%d  %s: %s,+%d  %s: %s,
-"Next, +%d  %s: %s","Next, +%d  %s: %s",
-Win Nightmare +%d to open +%d  %s: %s,Win Nightmare +%d to open +%d  %s: %s,
-Choose a difficulty,Choose a difficulty,
-Back,Back,
-Tap one to start the run. Harder ones pay more souls.,Tap one to start the run. Harder ones pay more souls.,
-Nightmare ascension,Nightmare ascension,
-No oath,No oath,
-"The usual start: the Katana, no rule changed.","The usual start: the Katana, no rule changed.",
-"Opens at the end of the %s branch of the Tree of Souls, at the shrine.","Opens at the end of the %s branch of the Tree of Souls, at the shrine.",
-Sworn,Sworn,
-"Your starting weapon (Armory): your oath brings its own, the %s. Without the oath, pick one below.","Your starting weapon (Armory): your oath brings its own, the %s. Without the oath, pick one below.",
-Your starting weapon (Armory): %s.,Your starting weapon (Armory): %s.,
-the usual one,the usual one,
-Before the descent,Before the descent,
-"Swear an oath for this run, or go as you are. It changes how you start: pick one, then Start.","Swear an oath for this run, or go as you are. It changes how you start: pick one, then Start.",
-Start the run,Start the run,
-Sworn before a run: %s,Sworn before a run: %s,
-Opens: %s,Opens: %s,
-Nothing bought yet.,Nothing bought yet.,
-"Every soul spent comes back (%d), for free.","Every soul spent comes back (%d), for free.",
-"Every soul spent comes back (%d), minus %d.","Every soul spent comes back (%d), minus %d.",
-%s branch  -  pick one of two,%s branch  -  pick one of two,
-%s branch,%s branch,
-Oath open,Oath open,
-Oath locked,Oath locked,
-"Pick it before a run, after the difficulty.","Pick it before a run, after the difficulty.",
-Owned,Owned,
-Maxed,Maxed,
-Buy  -  %d souls,Buy  -  %d souls,
-Need %d souls,Need %d souls,
-The Shrine: Tree of Souls,The Shrine: Tree of Souls,
-The node,The node,
-"Gold ring: bought. Glowing: you can buy it. Dark: buy a node above it first. ""or"": pick one of the two. ?: a feat opens it.","Gold ring: bought. Glowing: you can buy it. Dark: buy a node above it first. ""or"": pick one of the two. ?: a feat opens it.",
-Reset the tree,Reset the tree,
-or,or,
-"Continue your run  -  floor %d, level %d","Continue your run  -  floor %d, level %d",
-Upgrade ready,Upgrade ready,
-Daily run: practice (today's try is done),Daily run: practice (today's try is done),
-Daily run: same dungeon for everyone today,Daily run: same dungeon for everyone today,
-Everyone starts with %s,Everyone starts with %s,
-Today: %d points,Today: %d points,
-Your first try today is the one that counts,Your first try today is the one that counts,
-Best %d,Best %d,
-%d days in a row,%d days in a row,
-%d souls,%d souls,
-to spend,to spend,
-Victories,Victories,
-Deepest floor,Deepest floor,
-Normal,Normal,
-Unlocked,Unlocked,
+%d monsters slain, %d bosses","%s - %s, étage %d, niveau %d
+%d monstres abattus, %d boss"
+Time %s,Time %s,Temps %s
+Daily score %d,Daily score %d,Score du jour %d
+Not met yet,Not met yet,Pas encore rencontré
+not slain yet,not slain yet,pas encore abattu
+%d slain,%d slain,%d abattus
+Boss,Boss,Boss
+Shiny,Shiny,Chromatique
+Souls %d,Souls %d,Âmes %d
+Daily quests,Daily quests,Quêtes du jour
+Weekly quests,Weekly quests,Quêtes de la semaine
+New ones in %s. Counts every run today.,New ones in %s. Counts every run today.,Nouvelles dans %s. Toutes les parties d'aujourd'hui comptent.
+New ones in %s. Counts every run this week (from Monday).,New ones in %s. Counts every run this week (from Monday).,Nouvelles dans %s. Toutes les parties de la semaine comptent (depuis lundi).
+Quests done: %d of %d,Quests done: %d of %d,Quêtes accomplies : %d sur %d
+Slain: %d of %d kinds     Mastered: %d     Shiny found: %d,Slain: %d of %d kinds     Mastered: %d     Shiny found: %d,Abattus : %d espèces sur %d     Maîtrisés : %d     Chromatiques trouvés : %d
+floor %d,floor %d,étage %d
+floors %d to %d,floors %d to %d,étages %d à %d
+%s     %d of %d slain,%s     %d of %d slain,%s     %d sur %d abattus
+Achievements: %d of %d     Souls earned from them: %d,Achievements: %d of %d     Souls earned from them: %d,Succès : %d sur %d     Âmes gagnées grâce à eux : %d
+Runs: %d     Wins: %d     Deepest floor: %d,Runs: %d     Wins: %d     Deepest floor: %d,Parties : %d     Victoires : %d     Étage le plus profond : %d
+No run finished yet. Go down the Well!,No run finished yet. Go down the Well!,Aucune partie terminée. Descends dans le Puits !
+Fastest wins:   %s,Fastest wins:   %s,Victoires les plus rapides :   %s
+Codex,Codex,Codex
+Souls are kept between runs. Spend them at the Shrine.,Souls are kept between runs. Spend them at the Shrine.,Les âmes sont conservées d'une partie à l'autre. Dépense-les au Sanctuaire.
+Quests,Quests,Quêtes
+Bestiary,Bestiary,Bestiaire
+Achievements,Achievements,Succès
+Runs,Runs,Parties
+"Quests change every day and every week. Everything you do in any run counts toward them, and a finished quest pays its souls at once. Souls are kept between runs: spend them at the Shrine on lasting upgrades.","Quests change every day and every week. Everything you do in any run counts toward them, and a finished quest pays its souls at once. Souls are kept between runs: spend them at the Shrine on lasting upgrades.","Les quêtes changent chaque jour et chaque semaine. Tout ce que tu fais dans n'importe quelle partie compte, et une quête accomplie rapporte ses âmes aussitôt. Les âmes sont conservées d'une partie à l'autre : dépense-les au Sanctuaire en améliorations durables."
+"Every monster you meet goes in here. Slay more of a kind to raise your hunter rank with it: each rank pays souls, and Mastered also gives +%d%% damage against that kind for good. Tap a monster for its attacks and challenges.","Every monster you meet goes in here. Slay more of a kind to raise your hunter rank with it: each rank pays souls, and Mastered also gives +%d%% damage against that kind for good. Tap a monster for its attacks and challenges.","Chaque monstre rencontré est consigné ici. Abats-en d'une même espèce pour monter ton rang de chasseur : chaque rang rapporte des âmes, et Maîtrisé donne aussi +%d %% de Dégâts contre cette espèce, pour toujours. Touche un monstre pour voir ses attaques et ses défis."
+Big goals across all your runs. Reaching one pays its souls at once.,Big goals across all your runs. Reaching one pays its souls at once.,"De grands objectifs, sur toutes tes parties. En atteindre un rapporte ses âmes aussitôt."
+"Your last runs, newest first. Gold is lost when a run ends; souls are kept.","Your last runs, newest first. Gold is lost when a run ends; souls are kept.","Tes dernières parties, les plus récentes d'abord. L'or est perdu à la fin d'une partie ; les âmes sont conservées."
++%d souls,+%d souls,+%d âmes
+Done!,Done!,Accompli !
+Received,Received,Reçu
+Reward,Reward,Récompense
+Died on floor %d,Died on floor %d,Mort à l'étage %d
+Reached the bottom of the Well,Reached the bottom of the Well,A atteint le fond du Puits
+"Won, then slain by %s","Won, then slain by %s","Victoire, puis tué par %s"
+Slain by %s,Slain by %s,Tué par %s
+When,When,Date
+Slain,Slain,Abattus
+"%d monsters, %d boss","%d monsters, %d boss","%d monstres, %d boss"
+"%d monsters, %d bosses","%d monsters, %d bosses","%d monstres, %d boss"
+Earned,Earned,Gagné
+"{month} {day}, {time}","{month} {day}, {time}","{day} {month}, {time}"
+floor %d (endless),floor %d (endless),étage %d (sans fin)
+floor %d of %d,floor %d of %d,étage %d sur %d
+Jan,Jan,janv.
+Feb,Feb,févr.
+Mar,Mar,mars
+Apr,Apr,avr.
+May,May,mai
+Jun,Jun,juin
+Jul,Jul,juil.
+Aug,Aug,août
+Sep,Sep,sept.
+Oct,Oct,oct.
+Nov,Nov,nov.
+Dec,Dec,déc.
+< All monsters,< All monsters,< Tous les monstres
+Boss  -  %s,Boss  -  %s,Boss  -  %s
+%s  -  %d slain,%s  -  %d slain,%s  -  %d abattus
+"You have seen it, but never slain one. Slay one to learn what it is, its stats and how it attacks.","You have seen it, but never slain one. Slay one to learn what it is, its stats and how it attacks.","Tu l'as vu, mais tu n'en as jamais abattu. Abats-en un pour savoir ce que c'est, ses statistiques et ses attaques."
+Lives in,Lives in,Vit dans
+"%s, floor %d","%s, floor %d","%s, étage %d"
+"%s, floors %d to %d","%s, floors %d to %d","%s, étages %d à %d"
+How much damage it takes to slay it.,How much damage it takes to slay it.,Les dégâts qu'il faut pour l'abattre.
+Health you lose when its basic attack hits you.,Health you lose when its basic attack hits you.,La Vie que tu perds quand son attaque de base te touche.
+You start a run with %d Health.,You start a run with %d Health.,Tu commences une partie avec %d de Vie.
+"Softens your hits, small ones most: a 10-damage hit does %d, a 30-damage hit %d.","Softens your hits, small ones most: a 10-damage hit does %d, a 30-damage hit %d.","Amortit tes coups, surtout les petits : un coup de 10 dégâts en fait %d, un coup de 30, %d."
+None: your hits land in full.,None: your hits land in full.,Aucune : tes coups portent en entier.
+How fast it walks.,How fast it walks.,La vitesse à laquelle il marche.
+Slower than you (%d).,Slower than you (%d).,Plus lent que toi (%d).
+Faster than you (%d): you can't outrun it.,Faster than you (%d): you can't outrun it.,Plus rapide que toi (%d) : impossible de le distancer.
+About as fast as you (%d).,About as fast as you (%d).,À peu près aussi rapide que toi (%d).
+Health,Health,Vie
+Damage,Damage,Dégâts
+Armor,Armor,Armure
+Move speed,Move speed,Vitesse
+Attacks,Attacks,Attaques
+Slay one to see how it attacks.,Slay one to see how it attacks.,Abats-en un pour voir comment il attaque.
+Tap an attack to watch it. Red marks on the ground show where it will land: step out!,Tap an attack to watch it. Red marks on the ground show where it will land: step out!,Touche une attaque pour la voir. Les marques rouges au sol montrent où elle va frapper : écarte-toi !
+How it behaves,How it behaves,Son comportement
+Stats,Stats,Statistiques
+"On the floors where it first shows up: deeper down, it grows stronger.","On the floors where it first shows up: deeper down, it grows stronger.","Aux étages où il apparaît pour la première fois : plus bas, il devient plus fort."
+Up close,Up close,Au corps à corps
+"Shoots %d at once, from afar","Shoots %d at once, from afar","Tire %d projectiles à la fois, de loin"
+Shoots from afar,Shoots from afar,Tire de loin
+"Up close, with a long reach","Up close, with a long reach","Au corps à corps, avec une longue allonge"
+Attack,Attack,Attaque
+Basic attack. %s: %d damage.,Basic attack. %s: %d damage.,Attaque de base. %s : %d Dégâts.
+Used every %.0f seconds.,Used every %.0f seconds.,Utilisée toutes les %.0f secondes.
+From phase %d. %s,From phase %d. %s,Dès la phase %d. %s
+(phase %d),(phase %d),(phase %d)
+Flies: holes and water don't stop it.,Flies: holes and water don't stop it.,Vole : ni les trous ni l'eau ne l'arrêtent.
+Keeps its distance: close in on it.,Keeps its distance: close in on it.,Garde ses distances : colle-lui au train.
+Hard to push around (or into holes).,Hard to push around (or into holes).,Difficile à repousser (ou à pousser dans un trou).
+%d%%,%d%%,%d %%
+Fights in %d phases: stronger and faster once its Health drops to %s.,Fights in %d phases: stronger and faster once its Health drops to %s.,Combat en %d phases : plus fort et plus rapide quand sa Vie tombe à %s.
+", then ",", then ",", puis"
+Hit it too many times in a row and it throws you off with a shockwave.,Hit it too many times in a row and it throws you off with a shockwave.,Frappe-le trop de fois d'affilée et il te repousse d'une onde de choc.
+Found!,Found!,Trouvé !
+Not found yet,Not found yet,Pas encore trouvé
+"A rare glowing version%s: tougher, but it drops plenty of loot and gold. Slay one to add it to your collection.","A rare glowing version%s: tougher, but it drops plenty of loot and gold. Slay one to add it to your collection.","Une version rare et lumineuse%s : plus coriace, mais elle lâche plein de butin et d'or. Abats-en une pour l'ajouter à ta collection."
+ (about 1 in %d), (about 1 in %d), (environ 1 sur %d)
+Hunter rank,Hunter rank,Rang de chasseur
+Slay more of this kind to rank up. Each rank pays its souls once.,Slay more of this kind to rank up. Each rank pays its souls once.,Abats-en davantage pour monter de rang. Chaque rang rapporte ses âmes une seule fois.
+"and +%d%% damage to this kind, for good","and +%d%% damage to this kind, for good","et +%d %% de Dégâts contre cette espèce, pour toujours"
+%s: slay %d,%s: slay %d,%s : en abattre %d
+"%d / %d slain, to %s","%d / %d slain, to %s","%d / %d abattus, vers %s"
+Mastered!,Mastered!,Maîtrisé !
+Challenges,Challenges,Défis
+Slay it in a special way. Each one pays its souls once.,Slay it in a special way. Each one pays its souls once.,Abats-le d'une façon particulière. Chaque défi rapporte ses âmes une seule fois.
+Compared with your %s:,Compared with your %s:,Comparé à l'objet porté (%s) :
+You hold no weapon yet. It adds:,You hold no weapon yet. It adds:,Tu n'as pas encore d'arme. Cet objet ajoute :
+Nothing on your head yet. It adds:,Nothing on your head yet. It adds:,Rien sur ta tête pour l'instant. Cet objet ajoute :
+Nothing on your body yet. It adds:,Nothing on your body yet. It adds:,Rien sur ton corps pour l'instant. Cet objet ajoute :
+%+d item level,%+d item level,%+d niveau d'objet
+%+d item levels,%+d item levels,%+d niveaux d'objet
+%+.1f hits per second,%+.1f hits per second,%+.1f coups par seconde
+skills recharge %d%% slower,skills recharge %d%% slower,compétences rechargées %d %% moins vite
+Lv %d,Lv %d,Nv %d
+Close,Close,Fermer
+Continue,Continue,Continuer
+Always:,Always:,À coup sûr :
+What can happen:,What can happen:,Ce qui peut arriver :
+Nothing happens. You can come back later.,Nothing happens. You can come back later.,Il ne se passe rien. Tu peux revenir plus tard.
+"""%s""","""%s""",« %s »
+Gold %d,Gold %d,Or %d
+Worn: %s,Worn: %s,Porté : %s
+No weapon to work on,No weapon to work on,Aucune arme à travailler
+Worn,Worn,Équipée
+%d damage,%d damage,%d Dégâts
+%d rune sockets,%d rune sockets,%d emplacements de rune
+%d rune socket,%d rune socket,%d emplacement de rune
+Pick a socket to take its rune out,Pick a socket to take its rune out,Choisis un emplacement pour en retirer la rune
+Your bag is full,Your bag is full,Ton sac est plein
+Take out %s  (%d gold),Take out %s  (%d gold),Retirer %s  (%d or)
+No runes in your bag,No runes in your bag,Aucune rune dans ton sac
+"Elites, bosses and chests drop them.","Elites, bosses and chests drop them.","Les élites, les boss et les coffres en lâchent."
+Pick a rune,Pick a rune,Choisis une rune
+Setting one is free. Taking one out costs gold; you get it back.,Setting one is free. Taking one out costs gold; you get it back.,Sertir une rune est gratuit. En retirer une coûte de l'or ; tu la récupères.
+Set it in,Set it in,Sertir
+No free socket,No free socket,Aucun emplacement libre
+Set,Set,Sertir
+Empty,Empty,Vide
+The Forge,The Forge,La Forge
+Sockets,Sockets,Emplacements
+Your runes,Your runes,Tes runes
+You died,You died,Tu es mort
+You now have %d souls.,You now have %d souls.,Tu as maintenant %d âmes.
+New run,New run,Nouvelle partie
+Try again,Try again,Réessayer
+This run,This run,Cette partie
+Souls,Souls,Âmes
+Souls are kept between runs. Spend them at the Shrine (title screen) on upgrades that make every next run stronger.,Souls are kept between runs. Spend them at the Shrine (title screen) on upgrades that make every next run stronger.,Les âmes sont conservées d'une partie à l'autre. Dépense-les au Sanctuaire (écran titre) en améliorations qui renforcent chaque partie suivante.
+Gold was only for this run.,Gold was only for this run.,L'or ne valait que pour cette partie.
+Keep going (endless),Keep going (endless),Continuer (sans fin)
+Title screen,Title screen,Écran titre
+"Keep going: endless floors, harder and harder. Your win is already counted.","Keep going: endless floors, harder and harder. Your win is already counted.","Continuer : des étages sans fin, de plus en plus durs. Ta victoire est déjà comptée."
+Achievement: %s  (+%d souls),Achievement: %s  (+%d souls),Succès : %s  (+%d âmes)
+"Bestiary: %s, %s  (+%d souls)","Bestiary: %s, %s  (+%d souls)","Bestiaire : %s, %s  (+%d âmes)"
+Challenge done: %s  (+%d souls),Challenge done: %s  (+%d souls),Défi relevé : %s  (+%d âmes)
+Daily quest done: %s  (+%d souls),Daily quest done: %s  (+%d souls),Quête du jour accomplie : %s  (+%d âmes)
+Weekly quest done: %s  (+%d souls),Weekly quest done: %s  (+%d souls),Quête de la semaine accomplie : %s  (+%d âmes)
+Seal  %d / %d,Seal  %d / %d,Sceau  %d / %d
+Stairs open,Stairs open,Escaliers ouverts
+The stairs are open,The stairs are open,Les escaliers sont ouverts
+Cold,Cold,Froid
+Hot,Hot,Chaud
+Depth %d   Damage %d   Armor %d   %s,Depth %d   Damage %d   Armor %d   %s,Étage %d   Dégâts %d   Armure %d   %s
+Bare hands,Bare hands,Mains nues
+%s awakens,%s awakens,%s s'éveille
+%s awakens: %s,%s awakens: %s,%s s'éveille : %s
+Floor %d  %s,Floor %d  %s,Étage %d  %s
+Depth %d,Depth %d,Étage %d
+Your perks,Your perks,Tes atouts
+Families  -  hold 3 perks of one to awaken its bonus,Families  -  hold 3 perks of one to awaken its bonus,Familles  -  réunis 3 atouts d'une famille pour éveiller son bonus
+Perks taken this run,Perks taken this run,Atouts pris dans cette partie
+No perk yet: you pick one at every level up.,No perk yet: you pick one at every level up.,Aucun atout pour l'instant : tu en choisis un à chaque niveau.
+%s   Level %d / %d,%s   Level %d / %d,%s   Niveau %d / %d
+Family: %s,Family: %s,Famille : %s
+Perks (%d),Perks (%d),Atouts (%d)
+Bag  %d / %d,Bag  %d / %d,Sac  %d / %d
+Level,Level,Niveau
+Critical hits,Critical hits,Coups critiques
+Attack speed,Attack speed,Vitesse d'attaque
+%+d%%,%+d%%,%+d %%
+Skill damage,Skill damage,Dégâts des compétences
+Skill recharge,Skill recharge,Recharge des compétences
+To bag,To bag,Vers le sac
+To belt,To belt,Vers la ceinture
+Pick an item,Pick an item,Choisis un objet
+Tap a slot to see what it does.,Tap a slot to see what it does.,Touche un emplacement pour voir ce qu'il fait.
+Unequip,Unequip,Retirer
+Equip,Equip,Équiper
+Learn,Learn,Apprendre
+Use,Use,Utiliser
+the same stats,the same stats,les mêmes statistiques
+Runes,Runes,Runes
+An empty socket: a forge sets runes in it.,An empty socket: a forge sets runes in it.,Un emplacement vide : une forge peut y sertir une rune.
+Inventory,Inventory,Inventaire
+Perks,Perks,Atouts
+Belt,Belt,Ceinture
+Bag,Bag,Sac
+Drop,Drop,Jeter
+Done! Tips are back,Done! Tips are back,C'est fait ! Les conseils sont de retour
+Replay tutorial,Replay tutorial,Rejouer le tutoriel
+Options,Options,Options
+Every change is saved right away.,Every change is saved right away.,Chaque changement est enregistré aussitôt.
+Language,Language,Langue
+Sound,Sound,Son
+Music,Music,Musique
+Background music.,Background music.,La musique de fond.
+Sounds,Sounds,Effets sonores
+"Hits, spells, menus.","Hits, spells, menus.","Coups, sorts, menus."
+Touch controls,Touch controls,Commandes tactiles
+Buttons size,Buttons size,Taille des boutons
+Joystick and buttons.,Joystick and buttons.,Joystick et boutons.
+Fixed joystick,Fixed joystick,Joystick fixe
+Stays in its corner instead of following your thumb.,Stays in its corner instead of following your thumb.,Reste dans son coin au lieu de suivre ton pouce.
+Vibrations,Vibrations,Vibrations
+The phone buzzes on big hits and critical hits.,The phone buzzes on big hits and critical hits.,Le téléphone vibre lors des gros coups et des coups critiques.
+Screen and battery,Screen and battery,Écran et batterie
+Screen shake,Screen shake,Tremblement de l'écran
+On big hits.,On big hits.,Lors des gros coups.
+Fewer effects,Fewer effects,Moins d'effets
+Half the particles: smoother on older phones.,Half the particles: smoother on older phones.,Deux fois moins de particules : plus fluide sur les vieux téléphones.
+Battery saver,Battery saver,Économie de batterie
+30 FPS: the phone stays cooler.,30 FPS: the phone stays cooler.,30 FPS : le téléphone chauffe moins.
+Run timer,Run timer,Chronomètre
+"The run's time, under the map.","The run's time, under the map.","Le temps de la partie, sous la carte."
+Tutorial,Tutorial,Tutoriel
+Tutorial hints,Tutorial hints,Conseils du tutoriel
+Short tips during your first runs.,Short tips during your first runs.,De courts conseils pendant tes premières parties.
+"Every tip again, from the first steps.","Every tip again, from the first steps.","Tous les conseils à nouveau, depuis les premiers pas."
+Paused,Paused,Pause
+Resume,Resume,Reprendre
+Back to the fight.,Back to the fight.,Retour au combat.
+"Sound, music, button size, effects.","Sound, music, button size, effects.","Son, musique, taille des boutons, effets."
+The monsters you have met: how they attack and how to beat them.,The monsters you have met: how they attack and how to beat them.,Les monstres rencontrés : comment ils attaquent et comment les vaincre.
+Save and quit,Save and quit,Sauvegarder et quitter
+Your run is saved: pick Continue on the title screen.,Your run is saved: pick Continue on the title screen.,Ta partie est sauvegardée : choisis Continuer sur l'écran titre.
+Gold and souls,Gold and souls,Or et âmes
+Gold: only for this run. Spend it at the merchant and the forge; it is lost when the run ends.,Gold: only for this run. Spend it at the merchant and the forge; it is lost when the run ends.,Or : seulement pour cette partie. Dépense-le chez le marchand et à la forge ; il est perdu à la fin de la partie.
+Souls: kept between runs. Spend them at the Shrine (title screen) on upgrades for every run.,Souls: kept between runs. Spend them at the Shrine (title screen) on upgrades for every run.,Âmes : conservées d'une partie à l'autre. Dépense-les au Sanctuaire (écran titre) en améliorations pour toutes tes parties.
+Give up the run,Give up the run,Abandonner la partie
+Really? Tap again,Really? Tap again,Vraiment ? Touche encore
+Ends this run now. You keep the souls earned so far.,Ends this run now. You keep the souls earned so far.,Met fin à la partie maintenant. Tu gardes les âmes gagnées jusqu'ici.
+Tap again to end the run. Anything else to cancel.,Tap again to end the run. Anything else to cancel.,Touche encore pour abandonner. N'importe quoi d'autre pour annuler.
+RELIC,RELIC,RELIQUE
+New perk,New perk,Nouvel atout
+New perk  (up to level %d),New perk  (up to level %d),Nouvel atout  (jusqu'au niveau %d)
+Level %d > %d  (max %d),Level %d > %d  (max %d),Niveau %d > %d  (max %d)
+%s family,%s family,Famille %s
+This one makes %d/%d: the family bonus AWAKENS!,This one makes %d/%d: the family bonus AWAKENS!,Celui-ci fait %d/%d : le bonus de famille S'ÉVEILLE !
+Bonus active: %s,Bonus active: %s,Bonus actif : %s
+Bonus already active: %s,Bonus already active: %s,Bonus déjà actif : %s
+%d more %s perk to awaken its bonus: %s,%d more %s perk to awaken its bonus: %s,Encore %d atout %s pour éveiller son bonus : %s
+%d more %s perks to awaken its bonus: %s,%d more %s perks to awaken its bonus: %s,Encore %d atouts %s pour éveiller son bonus : %s
+Reroll (%d),Reroll (%d),Relancer (%d)
+Cancel,Cancel,Annuler
+Banish (%d),Banish (%d),Bannir (%d)
+Tap the perk to banish: it won't be offered again this run,Tap the perk to banish: it won't be offered again this run,Touche l'atout à bannir : il ne sera plus proposé de la partie
+Level up!,Level up!,Niveau supérieur !
+Every perk belongs to a family. Hold 3 different perks of one family to awaken its bonus.,Every perk belongs to a family. Hold 3 different perks of one family to awaken its bonus.,Chaque atout appartient à une famille. Réunis 3 atouts différents d'une même famille pour éveiller son bonus.
+"Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (tap Banish, then the card).","Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (tap Banish, then the card).","Relancer : 3 nouveaux atouts au choix.   Bannir : retire un atout des offres de la partie (touche Bannir, puis la carte)."
+Reroll  -  %d gold,Reroll  -  %d gold,Relancer  -  %d or
+New items for sale. Locked ones stay.,New items for sale. Locked ones stay.,De nouveaux objets en vente. Ceux verrouillés restent.
+New items for sale. You need %d more gold.,New items for sale. You need %d more gold.,De nouveaux objets en vente. Il te manque %d or.
+Sold out!,Sold out!,Tout est vendu !
+Belt: %s,Belt: %s,Ceinture : %s
+"Tap something for sale to see what it does, or one of your things to sell it.","Tap something for sale to see what it does, or one of your things to sell it.","Touche un article en vente pour voir ce qu'il fait, ou l'un de tes objets pour le vendre."
+Gold is only for this run: spend it here and at the forge.,Gold is only for this run: spend it here and at the forge.,L'or ne vaut que pour cette partie : dépense-le ici et à la forge.
+Sell price: %d gold,Sell price: %d gold,Prix de revente : %d or
+The merchant doesn't buy this,The merchant doesn't buy this,Le marchand n'achète pas ça
+Sell for %d gold,Sell for %d gold,Vendre pour %d or
+Can't be sold,Can't be sold,Invendable
+Price: %d gold,Price: %d gold,Prix : %d or
+Your bag is full: sell something first,Your bag is full: sell something first,Ton sac est plein : vends d'abord quelque chose
+Buy for %d gold,Buy for %d gold,Acheter pour %d or
+Unlock,Unlock,Déverrouiller
+Lock,Lock,Verrouiller
+"Locked: it stays when you reroll, and if you don't buy it, the next merchant sells it to you at this price.","Locked: it stays when you reroll, and if you don't buy it, the next merchant sells it to you at this price.","Verrouillé : il reste quand tu relances, et si tu ne l'achètes pas, le prochain marchand te le vend à ce prix."
+"Lock keeps this item: it stays when you reroll, and the next merchant sells it at this price.","Lock keeps this item: it stays when you reroll, and the next merchant sells it at this price.","Verrouiller garde cet objet : il reste quand tu relances, et le prochain marchand te le vend à ce prix."
+You carry %d. It goes on your belt if there is room.,You carry %d. It goes on your belt if there is room.,Tu en portes %d. Il va dans ta ceinture s'il y a de la place.
+You carry none. It goes on your belt if there is room.,You carry none. It goes on your belt if there is room.,Tu n'en portes aucun. Il va dans ta ceinture s'il y a de la place.
+For sale,For sale,En vente
+Reroll,Reroll,Relancer
+Sell your things,Sell your things,Vendre tes affaires
+Your bag and belt are empty.,Your bag and belt are empty.,Ton sac et ta ceinture sont vides.
+Tap one to see what the merchant pays.,Tap one to see what the merchant pays.,Touche un objet pour voir ce que le marchand en donne.
+Buy,Buy,Acheter
+Sell,Sell,Vendre
+Your last choice,Your last choice,Ton dernier choix
+Locked,Locked,Verrouillé
+Souls earned x%s,Souls earned x%s,Âmes gagnées x%s
+To unlock: win a run on %s.,To unlock: win a run on %s.,Pour débloquer : gagne une partie en %s.
+"A win opens Nightmare +1, +2...: harder, more souls.","A win opens Nightmare +1, +2...: harder, more souls.","Une victoire ouvre Cauchemar +1, +2... : plus dur, plus d'âmes."
+Monster health,Monster health,Vie des monstres
+Monster damage,Monster damage,Dégâts des monstres
+Time to dodge,Time to dodge,Temps pour esquiver
++%d monsters per room,+%d monsters per room,+%d monstres par salle
++%d monster per room,+%d monster per room,+%d monstre par salle
+Monsters spot you sooner,Monsters spot you sooner,Les monstres te repèrent plus tôt
+Monsters spot you later,Monsters spot you later,Les monstres te repèrent plus tard
+Bigger floors (+%d%%),Bigger floors (+%d%%),Étages plus grands (+%d %%)
+Smaller floors (-%d%%),Smaller floors (-%d%%),Étages plus petits (-%d %%)
+Elite monsters x%s,Elite monsters x%s,Monstres d'élite x%s
+Fewer elite monsters,Fewer elite monsters,Moins de monstres d'élite
+Heal %d%% each new floor,Heal %d%% each new floor,Soin de %d %% à chaque nouvel étage
+Darker floors,Darker floors,Étages plus sombres
+Brighter floors,Brighter floors,Étages plus lumineux
+%d%% less max health,%d%% less max health,%d %% de Vie max en moins
+Everything as the game was made: the other difficulties are compared with it.,Everything as the game was made: the other difficulties are compared with it.,Le jeu tel qu'il a été conçu : les autres difficultés lui sont comparées.
+%s %+d%%,%s %+d%%,%s %+d %%
+"+0: Nightmare as it is. Each level adds one twist on top of the ones before, and 10% more souls.","+0: Nightmare as it is. Each level adds one twist on top of the ones before, and 10% more souls.","+0 : Cauchemar tel quel. Chaque niveau ajoute une épreuve à celles d'avant, et 10 % d'âmes en plus."
++%d  %s: %s,+%d  %s: %s,+%d  %s : %s
+"Next, +%d  %s: %s","Next, +%d  %s: %s","Ensuite, +%d  %s : %s"
+Win Nightmare +%d to open +%d  %s: %s,Win Nightmare +%d to open +%d  %s: %s,Gagne en Cauchemar +%d pour ouvrir +%d  %s : %s
+Choose a difficulty,Choose a difficulty,Choisis une difficulté
+Back,Back,Retour
+Tap one to start the run. Harder ones pay more souls.,Tap one to start the run. Harder ones pay more souls.,Touche-en une pour lancer la partie. Les plus dures rapportent plus d'âmes.
+Nightmare ascension,Nightmare ascension,Ascension du Cauchemar
+No oath,No oath,Aucun serment
+"The usual start: the Katana, no rule changed.","The usual start: the Katana, no rule changed.","Le départ habituel : le Katana, aucune règle changée."
+"Opens at the end of the %s branch of the Tree of Souls, at the shrine.","Opens at the end of the %s branch of the Tree of Souls, at the shrine.","S'ouvre au bout de la branche %s de l'Arbre des Âmes, au Sanctuaire."
+Sworn,Sworn,Juré
+"Your starting weapon (Armory): your oath brings its own, the %s. Without the oath, pick one below.","Your starting weapon (Armory): your oath brings its own, the %s. Without the oath, pick one below.","Ton arme de départ (Armurerie) : ton serment apporte la sienne, %s. Sans serment, choisis-en une ci-dessous."
+Your starting weapon (Armory): %s.,Your starting weapon (Armory): %s.,Ton arme de départ (Armurerie) : %s.
+the usual one,the usual one,l'habituelle
+Before the descent,Before the descent,Avant la descente
+"Swear an oath for this run, or go as you are. It changes how you start: pick one, then Start.","Swear an oath for this run, or go as you are. It changes how you start: pick one, then Start.","Prête un serment pour cette partie, ou pars tel quel. Il change ton départ : choisis-en un, puis Commencer."
+Start the run,Start the run,Commencer la partie
+Sworn before a run: %s,Sworn before a run: %s,Juré avant une partie : %s
+Opens: %s,Opens: %s,Ouvre : %s
+Nothing bought yet.,Nothing bought yet.,Rien d'acheté pour l'instant.
+"Every soul spent comes back (%d), for free.","Every soul spent comes back (%d), for free.","Chaque âme dépensée te revient (%d), gratuitement."
+"Every soul spent comes back (%d), minus %d.","Every soul spent comes back (%d), minus %d.","Chaque âme dépensée te revient (%d), moins %d."
+%s branch  -  pick one of two,%s branch  -  pick one of two,Branche %s  -  choisis l'un des deux
+%s branch,%s branch,Branche %s
+Oath open,Oath open,Serment ouvert
+Oath locked,Oath locked,Serment verrouillé
+"Pick it before a run, after the difficulty.","Pick it before a run, after the difficulty.","À choisir avant une partie, après la difficulté."
+Owned,Owned,Acquis
+Maxed,Maxed,Au maximum
+Buy  -  %d souls,Buy  -  %d souls,Acheter  -  %d âmes
+Need %d souls,Need %d souls,Il faut %d âmes
+The Shrine: Tree of Souls,The Shrine: Tree of Souls,Le Sanctuaire : l'Arbre des Âmes
+The node,The node,Le nœud
+"Gold ring: bought. Glowing: you can buy it. Dark: buy a node above it first. ""or"": pick one of the two. ?: a feat opens it.","Gold ring: bought. Glowing: you can buy it. Dark: buy a node above it first. ""or"": pick one of the two. ?: a feat opens it.",Anneau doré : acheté. Lumineux : tu peux l'acheter. Sombre : achète d'abord un nœud au-dessus. « ou » : choisis l'un des deux. ? : un exploit l'ouvre.
+Reset the tree,Reset the tree,Réinitialiser l'arbre
+or,or,ou
+"Continue your run  -  floor %d, level %d","Continue your run  -  floor %d, level %d","Reprendre ta partie  -  étage %d, niveau %d"
+Upgrade ready,Upgrade ready,Amélioration prête
+Daily run: practice (today's try is done),Daily run: practice (today's try is done),Partie du jour : entraînement (essai du jour déjà joué)
+Daily run: same dungeon for everyone today,Daily run: same dungeon for everyone today,Partie du jour : le même donjon pour tous aujourd'hui
+Everyone starts with %s,Everyone starts with %s,Tout le monde commence avec %s
+Today: %d points,Today: %d points,Aujourd'hui : %d points
+Your first try today is the one that counts,Your first try today is the one that counts,Ton premier essai du jour est celui qui compte
+Best %d,Best %d,Meilleur %d
+%d days in a row,%d days in a row,%d jours d'affilée
+%d souls,%d souls,%d âmes
+to spend,to spend,à dépenser
+Victories,Victories,Victoires
+Deepest floor,Deepest floor,Étage le plus profond
+Normal,Normal,Normal
+Unlocked,Unlocked,Débloqué
 "Buy
 %d souls","Buy
-%d souls",
+%d souls","Acheter
+%d âmes"
 "Need
 %d souls","Need
-%d souls",
-Level %d / %d  (max),Level %d / %d  (max),
-Level %d / %d,Level %d / %d,
-Bought,Bought,
-Not bought yet,Not bought yet,
-Your hero starts every run stronger.,Your hero starts every run stronger.,
-start with %d extra %s,start with %d extra %s,
-start with the %s perk,start with the %s perk,
-these items can drop in every run,these items can drop in every run,
-%d extra rerolls per run,%d extra rerolls per run,
-%d extra reroll per run,%d extra reroll per run,
-%d extra banishes per run,%d extra banishes per run,
-%d extra banish per run,%d extra banish per run,
-%+d%% max health,%+d%% max health,
-heals %d%% weaker,heals %d%% weaker,
-heals %d%% stronger,heals %d%% stronger,
-heal %d%% of max health when a floor is won,heal %d%% of max health when a floor is won,
-merchant prices %+d%%,merchant prices %+d%%,
-%d more items at the merchant,%d more items at the merchant,
-elites always drop Magic gear,elites always drop Magic gear,
-"the minimap shows stairs, merchant and forge","the minimap shows stairs, merchant and forge",
-pick your starting weapon,pick your starting weapon,
-start with a random spell tome,start with a random spell tome,
-a new oath to swear before a run,a new oath to swear before a run,
-Active: %s,Active: %s,
-Gives: %s,Gives: %s,
-Level 1 gives: %s,Level 1 gives: %s,
-Now: %s  (maxed),Now: %s  (maxed),
-Now: %s   >   Next: %s,Now: %s   >   Next: %s,
-OK,OK,
-The depths,The depths,
-%s - better loot,%s - better loot,
-%s (cursed: %s),%s (cursed: %s),
-"The seal breaks: two ways down. %s, or %s.","The seal breaks: two ways down. %s, or %s.",
-The seal breaks: the stairs are open!,The seal breaks: the stairs are open!,
-Sealed. Slay %d more monster to open the stairs.,Sealed. Slay %d more monster to open the stairs.,
-Sealed. Slay %d more monsters to open the stairs.,Sealed. Slay %d more monsters to open the stairs.,
-Act I,Act I,
-Mossy Caves,Mossy Caves,
-Lore,Lore,
-The Well stirs... a curse falls on this floor,The Well stirs... a curse falls on this floor,
-Frostbound,Frostbound,
-Rule,Rule,
-Depth 1,Depth 1,
-Souls 0,Souls 0,
+%d souls","Il faut
+%d âmes"
+Level %d / %d  (max),Level %d / %d  (max),Niveau %d / %d  (max)
+Level %d / %d,Level %d / %d,Niveau %d / %d
+Bought,Bought,Acheté
+Not bought yet,Not bought yet,Pas encore acheté
+Your hero starts every run stronger.,Your hero starts every run stronger.,Ton héros commence chaque partie plus fort.
+start with %d extra %s,start with %d extra %s,commence avec %d × %s en plus
+start with the %s perk,start with the %s perk,commence avec l'atout %s
+these items can drop in every run,these items can drop in every run,ces objets peuvent apparaître dans chaque partie
+%d extra rerolls per run,%d extra rerolls per run,%d relances de plus par partie
+%d extra reroll per run,%d extra reroll per run,%d relance de plus par partie
+%d extra banishes per run,%d extra banishes per run,%d bannissements de plus par partie
+%d extra banish per run,%d extra banish per run,%d bannissement de plus par partie
+%+d%% max health,%+d%% max health,%+d %% de Vie max
+heals %d%% weaker,heals %d%% weaker,soins %d %% plus faibles
+heals %d%% stronger,heals %d%% stronger,soins %d %% plus forts
+heal %d%% of max health when a floor is won,heal %d%% of max health when a floor is won,soigne %d %% de la Vie max à chaque étage remporté
+merchant prices %+d%%,merchant prices %+d%%,prix du marchand %+d %%
+%d more items at the merchant,%d more items at the merchant,%d objets de plus chez le marchand
+elites always drop Magic gear,elites always drop Magic gear,les élites lâchent toujours de l'équipement Magique
+"the minimap shows stairs, merchant and forge","the minimap shows stairs, merchant and forge","la minicarte montre escaliers, marchand et forge"
+pick your starting weapon,pick your starting weapon,choisis ton arme de départ
+start with a random spell tome,start with a random spell tome,commence avec un grimoire de sort au hasard
+a new oath to swear before a run,a new oath to swear before a run,un nouveau serment à prêter avant une partie
+Active: %s,Active: %s,Actif : %s
+Gives: %s,Gives: %s,Donne : %s
+Level 1 gives: %s,Level 1 gives: %s,Le niveau 1 donne : %s
+Now: %s  (maxed),Now: %s  (maxed),Actuel : %s  (au maximum)
+Now: %s   >   Next: %s,Now: %s   >   Next: %s,Actuel : %s   >   Suivant : %s
+OK,OK,OK
+The depths,The depths,Les profondeurs
+%s - better loot,%s - better loot,%s - meilleur butin
+%s (cursed: %s),%s (cursed: %s),%s (maudit : %s)
+"The seal breaks: two ways down. %s, or %s.","The seal breaks: two ways down. %s, or %s.","Le sceau se brise : deux chemins vers le bas. %s, ou %s."
+The seal breaks: the stairs are open!,The seal breaks: the stairs are open!,Le sceau se brise : les escaliers sont ouverts !
+Sealed. Slay %d more monster to open the stairs.,Sealed. Slay %d more monster to open the stairs.,Scellé. Abats encore %d monstre pour ouvrir les escaliers.
+Sealed. Slay %d more monsters to open the stairs.,Sealed. Slay %d more monsters to open the stairs.,Scellé. Abats encore %d monstres pour ouvrir les escaliers.
+Act I,Act I,Acte I
+Mossy Caves,Mossy Caves,Grottes Moussues
+Lore,Lore,Récit
+The Well stirs... a curse falls on this floor,The Well stirs... a curse falls on this floor,Le Puits s'agite... une malédiction s'abat sur cet étage
+Frostbound,Frostbound,Étreinte du Givre
+Rule,Rule,Règle
+Depth 1,Depth 1,Étage 1
+Souls 0,Souls 0,Âmes 0
 Gold 0,Gold 0,
 II,II,
 Seal 0 / 0,Seal 0 / 0,
@@ -664,15 +667,10 @@ Heals 1 Health per kill.,Heals 1 Health per kill.,
 Venomous,Venomous,
 Spikes burst from the floor!,Spikes burst from the floor!,
 The ground caves in!,The ground caves in!,
-Cross Court,Cross Court,
 The floor gives way at the edges!,The floor gives way at the edges!,
-Great Hall,Great Hall,
 The floor cracks!,The floor cracks!,
-Old Chamber,Old Chamber,
 The corners fall away!,The corners fall away!,
-Pillared Nave,Pillared Nave,
 The pit closes in!,The pit closes in!,
-Round Pit,Round Pit,
 Hardened Foes,Hardened Foes,
 Monsters have 15% more health.,Monsters have 15% more health.,
 Sharp Fangs,Sharp Fangs,
@@ -711,57 +709,6 @@ Sun Tomb,Sun Tomb,
 "Gold under every stone, and a curse on every coin.","Gold under every stone, and a curse on every coin.",
 Underground Garden,Underground Garden,
 Light from cracks above feeds a garden nobody tends anymore.,Light from cracks above feeds a garden nobody tends anymore.,
-Aisle,Aisle,
-Boulder Pile,Boulder Pile,
-Braziers,Braziers,
-Burial Chamber,Burial Chamber,
-Candle Altar,Candle Altar,
-Cave Spring,Cave Spring,
-Coffins,Coffins,
-Collapsed Columns,Collapsed Columns,
-Colonnade,Colonnade,
-Columns,Columns,
-Crystal Cluster,Crystal Cluster,
-Crystal Nook,Crystal Nook,
-Fallen Idol,Fallen Idol,
-Fallen Shelf,Fallen Shelf,
-Flooded Hollow,Flooded Hollow,
-Flower Bed,Flower Bed,
-Frog Shrine,Frog Shrine,
-Graveyard,Graveyard,
-Grave Row,Grave Row,
-Hedge Row,Hedge Row,
-Lily Pond,Lily Pond,
-Lion Gallery,Lion Gallery,
-Lion Fountain,Lion Fountain,
-Abandoned Market,Abandoned Market,
-Mossy Columns,Mossy Columns,
-Oasis,Oasis,
-Offerings,Offerings,
-Orb Niche,Orb Niche,
-Ore Vein,Ore Vein,
-Ossuary,Ossuary,
-Palm Grove,Palm Grove,
-Sandstone Pillars,Sandstone Pillars,
-Puddle,Puddle,
-Reading Corner,Reading Corner,
-Rubble,Rubble,
-Rubble Heap,Rubble Heap,
-Sarcophagi,Sarcophagi,
-Shelf Wall,Shelf Wall,
-Shelves,Shelves,
-Stall,Stall,
-Study,Study,
-Old Stumps,Old Stumps,
-Sunken Pillars,Sunken Pillars,
-Thicket,Thicket,
-Pillar Hall,Pillar Hall,
-Treasure Heap,Treasure Heap,
-Tree Grove,Tree Grove,
-Well Square,Well Square,
-Wet Rocks,Wet Rocks,
-Big Chest,Big Chest,
-Chest,Chest,
 "Deep below, something burns.
 The Well breathes it up, and the air itself scorches.","Deep below, something burns.
 The Well breathes it up, and the air itself scorches.",
@@ -836,31 +783,10 @@ Steel remembers every rune you give it.,Steel remembers every rune you give it.,
 "Hot coals, cold hands. What'll it be?","Hot coals, cold hands. What'll it be?",
 Each socket holds one rune. Choose well.,Each socket holds one rune. Choose well.,
 Changed your mind? I can pry it out. For a price.,Changed your mind? I can pry it out. For a price.,
-Arrow Trap,Arrow Trap,
-A pressure plate wired to an arrow slit in the wall.,A pressure plate wired to an arrow slit in the wall.,
 "Things stir in the dark, drawn by the fire...","Things stir in the dark, drawn by the fire...",
 They come for the fire!,They come for the fire!,
-Campfire,Campfire,
-Warms you back up on frozen floors. Stay close.,Warms you back up on frozen floors. Stay close.,
-Crumbling Floor,Crumbling Floor,
-Cracked floor that gives way under your feet.,Cracked floor that gives way under your feet.,
-Darkness,Darkness,
-The whole floor in the dark (Lanternless).,The whole floor in the dark (Lanternless).,
-Flame Vent,Flame Vent,
-Flooded Pool,Flooded Pool,
-Ice,Ice,
-Frozen floor (the look of a Frostbound floor).,Frozen floor (the look of a Frostbound floor).,
-Mud Pool,Mud Pool,
-"Thick mud: you wade slowly, and it pulls you down.","Thick mud: you wade slowly, and it pulls you down.",
 "Things stir in the heat haze, drawn by the water...","Things stir in the heat haze, drawn by the water...",
 They come for the water!,They come for the water!,
-A pool of cool water on a burning floor. Stay by the shore to cool down.,A pool of cool water on a burning floor. Stay by the shore to cool down.,
-Pit,Pit,
-"A hole in the floor. Roll over it, or knock monsters in.","A hole in the floor. Roll over it, or knock monsters in.",
-Quicksand,Quicksand,
-Slows you down. Stay in it and it swallows you.,Slows you down. Stay in it and it swallows you.,
-Pressure Plate,Pressure Plate,
-Spike Trap,Spike Trap,
 Chain Mail,Chain Mail,
 "Good protection, slows you down a little.","Good protection, slows you down a little.",
 Iron Helm,Iron Helm,
@@ -948,11 +874,6 @@ Royal Slam,Royal Slam,
 Cold Touch,Cold Touch,
 Tengu Blade,Tengu Blade,
 Water Jet,Water Jet,
-Bone,Bone,
-Flesh,Flesh,
-Plant,Plant,
-Slime,Slime,
-Spirit,Spirit,
 Elite,Elite,
 Legendary,Legendary,
 Ash Lizard,Ash Lizard,
@@ -1021,6 +942,7 @@ Skeleton,Skeleton,
 Rattling bones with a rusty blade.,Rattling bones with a rusty blade.,
 Flying Skull,Flying Skull,
 Fast and fragile. Comes in swarms.,Fast and fragile. Comes in swarms.,
+Slime,Slime,
 "Slow, tough, hits all around itself.","Slow, tough, hits all around itself.",
 Viper,Viper,
 "Fast, and its bite is poisoned.","Fast, and its bite is poisoned.",
@@ -1030,6 +952,7 @@ Soul Moth,Soul Moth,
 Wraps its allies in wards that soak up your blows.,Wraps its allies in wards that soak up your blows.,
 Red Spider,Red Spider,
 Skitters in fast. Nasty bite.,Skitters in fast. Nasty bite.,
+Spirit,Spirit,
 Blinks towards you out of nowhere.,Blinks towards you out of nowhere.,
 Stone Mole,Stone Mole,
 Armored in rock. Burrows under you when you keep away.,Armored in rock. Burrows under you when you keep away.,
@@ -1160,66 +1083,6 @@ Inferno,Inferno,
 "Enemies that die burning explode, setting everything around them on fire.","Enemies that die burning explode, setting everything around them on fire.",
 Storm,Storm,
 "Your attacks are 15% faster, and every 3rd hit, lightning jumps to up to 3 enemies nearby.","Your attacks are 15% faster, and every 3rd hit, lightning jumps to up to 3 enemies nearby.",
-Barrel,Barrel,
-Crate,Crate,
-Lantern,Lantern,
-Powder Keg,Powder Keg,
-"Explodes when hit. Hurts everyone around, you included.","Explodes when hit. Hurts everyone around, you included.",
-Vase,Vase,
-Bookcase,Bookcase,
-Empty Bookcase,Empty Bookcase,
-Big Rock,Big Rock,
-Blue Crystal,Blue Crystal,
-Blue Orb,Blue Orb,
-Bookshelf,Bookshelf,
-Empty Bookshelf,Empty Bookshelf,
-Brazier,Brazier,
-Broken Column,Broken Column,
-Bush,Bush,
-Candles,Candles,
-Carved Skull,Carved Skull,
-Cauldron,Cauldron,
-Cave Tree,Cave Tree,
-Coffin,Coffin,
-Palm,Palm,
-Dead Tree,Dead Tree,
-Old Well,Old Well,
-Dresser,Dresser,
-Dry Bush,Dry Bush,
-Dry Thicket,Dry Thicket,
-Frog Idol,Frog Idol,
-Tree,Tree,
-Basket,Basket,
-Market Stall,Market Stall,
-Grave Cross,Grave Cross,
-Lamp,Lamp,
-Lion Statue,Lion Statue,
-Mossy Boulder,Mossy Boulder,
-Mossy Column,Mossy Column,
-Mossy Jar,Mossy Jar,
-Old Coffin,Old Coffin,
-Old Stump,Old Stump,
-Old Tombstone,Old Tombstone,
-Rock,Rock,
-Ore Rock,Ore Rock,
-Pink Crystal,Pink Crystal,
-Potted Plant,Potted Plant,
-Reading Table,Reading Table,
-Red Orb,Red Orb,
-Red Ore Rock,Red Ore Rock,
-Round Bush,Round Bush,
-Sandstone Pillar,Sandstone Pillar,
-Mossy Statue,Mossy Statue,
-Small Stump,Small Stump,
-Small Table,Small Table,
-Young Palm,Young Palm,
-Stone Pillar,Stone Pillar,
-Stool,Stool,
-Stump,Stump,
-Thick Bush,Thick Bush,
-Thorn Bush,Thorn Bush,
-Tombstone,Tombstone,
-Pale Pillar,Pale Pillar,
 Defeat %d bosses,Defeat %d bosses,
 Defeat 1 bosses,Defeat 1 bosses,
 Open %d chests,Open %d chests,
@@ -1476,6 +1339,7 @@ Runes go into your weapon's sockets at a smith's forge. Better weapons have more
 The forge,The forge,
 Walk up to the anvil to set runes into your weapon. The smith takes them out again for gold.,Walk up to the anvil to set runes into your weapon. The smith takes them out again for gold.,
 "Walk up to the merchant to spend your gold, or to sell him what you don't need.","Walk up to the merchant to spend your gold, or to sell him what you don't need.",
+Chest,Chest,
 Walk up to a chest to open it. Careful: some are trapped.,Walk up to a chest to open it. Careful: some are trapped.,
 Ambush,Ambush,
 "The exits stay shut until every wave is dead. Survive, and a chest appears.","The exits stay shut until every wave is dead. Survive, and a chest appears.",

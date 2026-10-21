@@ -142,7 +142,7 @@ func make_ranked(new_rank: MonsterRankDef, new_affixes: Array[EliteAffixDef]) ->
 	if rank.show_in_name:
 		display_name = tr("{rank} {monster}").format({ "rank": tr(rank.display_name), "monster": tr(def.display_name) })
 	elif elite:
-		display_name = tr("{affix} {monster}").format({ "affix": tr(elite.display_name), "monster": tr(def.display_name) })
+		display_name = tr("{affix} {monster}").format({ "affix": Grammar.adjective(elite.display_name, def.display_name), "monster": tr(def.display_name) })
 	base_stats.max_hp = roundi(base_stats.max_hp * hp_factor)
 	invalidate_stats()
 	hp = get_max_hp()
@@ -177,7 +177,7 @@ func rank_color() -> Color:
 func affix_names() -> String:
 	var names := PackedStringArray()
 	for affix in affixes:
-		names.append(tr(affix.display_name))
+		names.append(Grammar.adjective(affix.display_name, def.display_name))
 	return ", ".join(names)
 
 

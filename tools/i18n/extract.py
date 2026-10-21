@@ -32,6 +32,10 @@ LANGUAGES = ["en", "fr"]
 SKIP_DIRS = {".godot", ".git", ".claude", "_tool", "tests", "android", "build"}
 # Data folders that are not part of the game (balance tools).
 SKIP_DATA = {os.path.join("data", "balance")}
+# Data whose names and descriptions the player never reads (only their other texts count:
+# an arena's or a hazard's messages): scenes, props, materials, arenas, chests, hazards.
+UNSEEN_NAMES = {os.path.join("data", *parts) for parts in [
+    ("biomes", "scenes"), ("props",), ("materials",), ("arenas",), ("chests",), ("hazards",)]}
 
 # Resource fields the player reads (data/*.tres and @export defaults).
 TEXT_FIELDS = {
@@ -158,8 +162,10 @@ def from_data(found):
         if not path.startswith("data" + os.sep) or any(path.startswith(skip + os.sep) for skip in SKIP_DATA):
             continue
         source = open(os.path.join(ROOT, path), encoding="utf-8").read()
-        for _, text in resource_values(source, TEXT_FIELDS, LIST_FIELDS):
-            add(found, text, path)
+        unseen = any(path.startswith(folder + os.sep) for folder in UNSEEN_NAMES)
+        for field, text in resource_values(source, TEXT_FIELDS, LIST_FIELDS):
+            if not (unseen and field in ("display_name", "description")):
+                add(found, text, path)
 
 
 def add(found, text, path, always=False):

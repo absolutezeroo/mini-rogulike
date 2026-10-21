@@ -93,13 +93,13 @@ static func make(base: EquipmentDef, rarity: int, affixes: Array[ItemAffixDef], 
 
 # --- Saving -------------------------------------------------------------------
 
-## "Sharp Katana of the Bear", in the player's language ("Katana Redoutable de l'Ours"): the
-## words go where the language puts them. Rolled names are made when the item is (and again
-## when a saved run is loaded).
+## "Sharp Katana of the Bear", in the player's language ("Katana Affûté de l'Ours", "Hache
+## Affûtée"): the words go where the language puts them, the adjective agrees with the item
+## (Grammar). Rolled names are made when the item is (and again when a saved run is loaded).
 static func rolled_name(base_name: String, prefix: String, suffix: String) -> String:
 	var words := {
 		"item": TranslationServer.tr(base_name),
-		"prefix": TranslationServer.tr(prefix),
+		"prefix": Grammar.adjective(prefix, base_name),
 		"suffix": TranslationServer.tr(suffix),
 	}
 	if not prefix.is_empty() and not suffix.is_empty():
