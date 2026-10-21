@@ -49,7 +49,7 @@
 - **Statuses on the body** (`StatusFx`, one per actor; looks in `data/vfx/status_looks/`,
   `StatusLookDef`): a **burning** body throws small flames and embers with a warm glow, and catches
   fire in a burst with a crackle; a **poisoned** one bubbles and puffs green smoke; a **slowed** one
-  sheds frost, with an ice burst when it takes hold. Their ticks show in the status's color (orange,
+  sheds frost, with an ice burst when it takes hold (quicksand slows without frost: the ground is no status). Their ticks show in the status's color (orange,
   green). Drawn by hand over the body, 24 bits at most each, and asleep when nothing is on it.
 - **SFX**: the `Sfx` autoload plays world sounds (positional) and UI sounds. Weapons have attack and hit
   sounds, monsters hurt and death sounds, skills and consumables a use sound; everything else comes

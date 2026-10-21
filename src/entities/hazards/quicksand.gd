@@ -37,7 +37,7 @@ func _physics_process(delta: float) -> void:
 			_time_in.erase(id)
 			_next_tick.erase(id)
 			continue
-		actor.statuses.apply_slow(def.slow, 0.2, &"ground")
+		actor.statuses.apply_slow(def.slow, 0.2, StatusSet.GROUND_SLOW)
 		var time: float = _time_in.get(id, 0.0) + delta
 		_time_in[id] = time
 		if time < def.sink_delay:

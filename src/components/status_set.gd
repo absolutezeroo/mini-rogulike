@@ -15,6 +15,8 @@ class Dot:
 
 
 const SLOW_COLOR := Palette.FROST
+## The slow source of the ground itself (quicksand): it slows but is no status to show.
+const GROUND_SLOW := &"ground"
 
 var _dots: Array[Dot] = []
 ## Slows by source (a frost hit, the cold, quicksand...): source -> [amount, seconds left].
@@ -69,12 +71,13 @@ func has(id: StringName) -> bool:
 	return _dots.any(func(dot: Dot) -> bool: return dot.id == id)
 
 
-## The statuses on now: the damage-over-time ids, and &"slow" when slowed (StatusFx shows them).
+## The statuses on now: the damage-over-time ids, and &"slow" when frost or cold slows the body
+## (StatusFx shows them; sinking in quicksand is not frost).
 func active_ids() -> Array[StringName]:
 	var ids: Array[StringName] = []
 	for dot in _dots:
 		ids.append(dot.id)
-	if is_slowed():
+	if _slows.keys().any(func(source: StringName) -> bool: return source != GROUND_SLOW):
 		ids.append(&"slow")
 	return ids
 

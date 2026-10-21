@@ -655,8 +655,12 @@ func _test_status_looks(game: Game) -> void:
 	rat.base_stats.max_hp = 9999
 	rat.invalidate_stats()
 	rat.hp = 9999
+	rat.statuses.clear()  # (the floor may have slowed it: quicksand, the cold)
 	await _frames(2)
 	check(rat.status_fx != null and not rat.status_fx.visible, "a body with no status shows nothing over it")
+	rat.statuses.apply_slow(0.5, 1.0, StatusSet.GROUND_SLOW)
+	check(not rat.statuses.active_ids().has(&"slow"), "sinking in quicksand is no frost to show")
+	rat.statuses.clear()
 	var colors: Array[Color] = []
 	var on_text := func(text: Node) -> void:
 		if text is FloatingText:
