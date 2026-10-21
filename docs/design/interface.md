@@ -63,7 +63,9 @@ player decides when the fight stops.
   hits you land, crits; `Settings.vibrate()`; exported Android builds need the Vibrate permission),
   **fixed joystick** (it stays in its corner and starts only when touched there, instead of
   appearing under the thumb), **battery saver** (30 FPS cap, `Engine.max_fps`), **fewer effects**
-  (half the particles in `Vfx.burst`), **run timer** (on/off), **auto loot** (All / Better only /
+  (half the particles in `Vfx.burst`; no heat, cold or pull distortion, no bloom, halos' inner
+  band only), **screen flashes** (lightning lights the screen for one frame, at most 3 a second;
+  off for players sensitive to flashes), **run timer** (on/off), **auto loot** (All / Better only /
   By hand, three buttons, the picked one's rule spelled out under them; see design/loot.md),
   **tutorial hints** (on/off) and **Replay tutorial**, and the **language** (English / Français,
   see Languages). The window (`OptionsPanel`, built in code on `MenuWindow`) groups them

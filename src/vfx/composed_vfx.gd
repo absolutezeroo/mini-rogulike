@@ -10,10 +10,16 @@ extends Node2D
 ## actors; upright ones (ice crystals, rays, smoke) each sorted with the actors by its base, so
 ## a hero standing in a Frost Nova stands among the crystals, not under them. The wave's edge
 ## and the residue lie on the ground, under everyone.
+## Its pieces draw with their sheet's look (FxLook: poison's gas churning, arcane glyphs drawing
+## themselves one after the other); its element bends the space over it (DistortionStamp: heat
+## above a ring of fire, a cold shimmer through a Frost Nova); a few frost crystals catch a glint
+## of light (GlowHalo) while they stand.
 
 ## Seconds for the wave to reach its outer pieces (the main action, in the first quarter).
 const SPREAD_TIME := 0.12
 const MAX_PIECES := 48
+## One frost crystal in this many catches a glint of light.
+const GLINT_EVERY := 5
 
 var element: VfxElementDef
 var _pieces: Array[Dictionary] = []  # {at, delay, variant, flip}
@@ -31,8 +37,10 @@ class StandingPiece extends Node2D:
 	var composed: ComposedVfx
 	var piece: Dictionary
 	var lift := 0.0
+	var glint: GlowHalo
 
 	func _process(_delta: float) -> void:
+		composed.drive_piece(self, piece, glint)
 		queue_redraw()
 
 	func _draw() -> void:
@@ -129,6 +137,7 @@ func _finish() -> void:
 		# them; each piece a node of its own at its base, sorted with them.
 		_standing = true
 		z_index = VfxLayer.GROUND_Z
+		material = FxLook.sprite(element.emissive)  # its edge and residue; the pieces have their own
 		var lift := roundf(element.piece.base_offset() / PixelDraw.PX) * PixelDraw.PX
 		for piece in _pieces:
 			var node := StandingPiece.new()
@@ -136,12 +145,55 @@ func _finish() -> void:
 			node.piece = piece
 			node.lift = lift
 			node.position = piece.at + Vector2(0, lift)
+			node.material = FxLook.for_piece(element.piece, element)
 			VfxLayer.apply(node, VfxLayer.Layer.STANDING)
 			add_child(node)
+			if element.distortion == VfxElementDef.Distortion.COLD and node.get_index() % GLINT_EVERY == 0:
+				# A glint near the crystal's tip, only while it stands (drive_piece).
+				node.glint = GlowHalo.attach(node, element, 2.0, Vector2(0, -lift - element.piece.frame_size().y * element.piece.texel * 0.25))
+				if node.glint:
+					node.glint.visible = false
+	else:
+		material = FxLook.for_piece(element.piece, element)
 	var longest := 0.0
 	for piece in _pieces:
 		longest = maxf(longest, piece.delay)
 	_life = longest + element.piece.duration() + 0.4
+	_bend()
+
+
+## The element's distortion over the pieces (heat rising above a ring of fire, cold through a
+## Frost Nova, a pull toward the heart of a shadow one), for as long as they stand.
+func _bend() -> void:
+	if element.distortion == VfxElementDef.Distortion.NONE or _pieces.is_empty():
+		return
+	var area := Rect2(_pieces[0].at, Vector2.ZERO)
+	for piece in _pieces:
+		area = area.expand(piece.at)
+	var size := maxf(area.size.x, area.size.y) * 0.5 + 12.0
+	if element.distortion == VfxElementDef.Distortion.HEAT:
+		# At the fire's foot (the lowest pieces), rising over all of it.
+		var stamp := DistortionStamp.of_element(self, element, area.size.x * 0.5 + 12.0, 1.0, _life, Vector2(area.get_center().x, area.end.y))
+		if stamp:
+			stamp.height = area.size.y + 40.0
+	else:
+		DistortionStamp.of_element(self, element, size, 1.0, _life, area.get_center())
+
+
+## Each frame, a piece's own shader and glint: a rune piece draws itself and burns out over its
+## own frames; a crystal's glint shows while the crystal stands.
+func drive_piece(canvas: CanvasItem, piece: Dictionary, glint: GlowHalo) -> void:
+	var local: float = _age - piece.delay
+	var sheet := element.piece
+	if sheet.look == VfxSheetDef.Look.RUNE:
+		var t := clampf(floorf(local * 24.0) / 24.0 / maxf(sheet.duration(), 0.01), 0.0, 1.0)
+		var look := canvas.material as ShaderMaterial
+		look.set_shader_parameter("reveal", clampf(t / SheetVfx.RUNE_DRAW, 0.0, 1.0))
+		look.set_shader_parameter("burn", clampf((t - SheetVfx.RUNE_BURN) / (1.0 - SheetVfx.RUNE_BURN), 0.0, 1.0))
+		look.set_shader_parameter("center", Vector2(0, -(canvas as StandingPiece).lift) if canvas is StandingPiece else piece.at)
+	if glint:
+		var frame := int(local * sheet.fps)
+		glint.visible = frame >= 1 and frame < int(sheet.frame_count() * 0.6)
 
 
 func _process(delta: float) -> void:

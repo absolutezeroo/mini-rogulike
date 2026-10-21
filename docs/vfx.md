@@ -38,8 +38,8 @@ The art is 16x16 pixel art drawn at 2x (`ActorRig`'s Visual node, scale 2): **1 
   Particle scenes use `pixel_particles.gdshader` (corners snapped to the grid,
   fades dithered): even sizes in steps, no spin, `Gradient` interpolation CONSTANT.
 - **Additive light only for emissive cores**, from the ramp's darker steps (it brightens without
-  burning to white): projectile halos of plain dots, the level up's light. Sparks, dust, blood,
-  smoke: opaque ramp colors, normal blending.
+  burning to white): glow halos (`GlowHalo`, section 5b), the level up's light. Sparks, dust,
+  blood, smoke: opaque ramp colors, normal blending.
 
 ## 2. Readability (a phone screen in a busy fight)
 
@@ -175,6 +175,7 @@ bits on the rim).
 | `VfxSheetDef` | `src/definitions/vfx/vfx_sheet_def.gd` (sub-resources of an element) | texture, frames (0 = square), orient (NONE / ROWS / SNAPPED), directions, variants, fps, loop, texel, recolor, anchor, linger. `VfxSheetDef.from_texture(tex, frames)`, `columns/cell_size/slices_evenly` (the one frame slicer) |
 | `element` exports | `WeaponDef`, `ProjectileEffect`, `DamageAreaEffect` (+ `strike`: a sheet of its own at 2x on the area's middle), `DashStrikeEffect`, `DashEffect` (vanishes, a trail, appears), `HealEffect` / `BuffEffect` (the sigil's ramp; `BuffEffect.sheet` follows the user, else a ring of the element's pieces), `AllyEffect`, `SummonEffect`, `ChainLightningPassive` (a forked `BeamVfx`), `OnHitStatus.slow_element`, passives (`element`, `shard_element`, `crit_element`, `blast_element`), `DeathBurstTrait` | gameplay data points to an element instead of free colors; `HitInfo.element` carries it to the hit's flash |
 | `PixelDraw` | `src/vfx/pixel_draw.gd` | `snap`, `snap_length`, `sheet_scale`, `dither`, `pixel`, `ring`, `disc`, `arc`, `line`, `polyline`, `polygon`, `bit` (an element's particle shape), `sheet` (draw a frame of a VfxSheetDef on the grid) |
+| `GlowHalo`, `DistortionStamp`, `FxLook`, `ScreenEffects`, `ShaderWarmup` | `src/vfx/` | halos (`attach`, one light per glow), stamps of the one screen pass (`attach`, `of_element`), a sheet's shader (`for_sheet`, `for_piece`, `flame`, `rune`, `sprite`), the screen pass (`flash`, `of(tree)`), the warm-up (section 5b) |
 | `VfxLayer` | `src/vfx/vfx_layer.gd` | `Layer.GROUND / STANDING / AIR` (section 2b), `apply(node, layer)`, `of(node)`, `light_up(node, element, reach)`; `VfxSheetDef.layer` |
 | `SlashDef`, `SwingVfx` | `src/definitions/vfx/slash_def.gd`, `data/vfx/slashes/`, `src/vfx/swing_vfx.gd` | a blade's blow drawn by `swing.gdshader`: CRESCENT / SPIN / THRUST, arc, thickness, strokes, reach_scale, jitter, `finisher` sheet; on `WeaponDef.slash`, `DamageAreaEffect.slash`, `DashStrikeEffect.slash`. `SwingVfx.slash(world, look, at, aim, reach, element, danger)` |
 | Things in flight | `data/vfx/sheets/` (`arrow`, `kunai`, `spear`, `feather`), `tools/vfx/physical.py` | 16-row sheets: `ProjectileEffect.sheet`, `WeaponDef.projectile_sheet` (the `texture` stays the item's picture) |
@@ -195,6 +196,85 @@ Which slow shows what: a slow carries an element (`StatusSet.apply_slow(..., ele
 when none is given, none for the ground's own). Only an element with a `slow_look` shows on the
 body: frost (and the cold of a frostbound floor) grows rime; sand, ink, spores and wails slow
 without looking like ice.
+
+## 5b. Shaders: light, space and screen
+
+Shaders make what sheets can't: light around a core, bent space, motion inside a flame. They
+obey the same grid as the art, so they never look like a filter laid over it.
+
+**The grid trick.** Every effect shader takes the art pixel its fragment falls in on the
+world's grid: `world = (MODEL_MATRIX * vec4(VERTEX, 0, 1)).xy` in `vertex()`, then
+`cell = floor(world / 2.0)` (or the texel, `floor(UV / TEXTURE_PIXEL_SIZE)`, for a sheet at 2x).
+Noise, dither, distance and rings are computed per cell, so no shader draws a pixel smaller
+than the art's. Time is stepped (`stepped_time(TIME, 12.0)`): things move at the hand-animated
+12-20 fps, never every frame. Colors come from the element's ramp (`uniform vec4 ramp[5]`, set
+by `FxLook.five(element)`): a shader moves a pixel up or down the ramp (`ramp_index` finds a
+texel's step), it never blends. Fades are ordered dithering (`bayer(cell)`); alpha is 1-bit.
+In `fragment()`, `COLOR` already is the texel times the tint: use it (or `texture()` alone),
+never `texture(TEXTURE, UV) * COLOR`, which squares every color (a mid step turns nearly
+black: `dither_fade` did it until this pass, so every sheet was drawn darker than its ramp).
+The shared helpers are in `assets/shaders/fx.gdshaderinc`.
+
+| Shader | On | Recipe | Uniforms |
+|---|---|---|---|
+| `glow_halo` | `GlowHalo` (projectiles' cores, braziers, campfires, a sheet's `halo`, frost glints) | two flat bands of added light (premultiplied, alpha 0) in the ramp's 0.7 step and its edge, a checker one art pixel wide where bands meet; breathes by a pixel (12 fps) or flickers (storm) | `inner`, `outer` (radii), `inner_color`, `outer_color`, `inner_density`, `outer_density` (share of the color added), `pulse`, `strength` (0.4 on the brightest floor .. 1 in the dark), `squash` |
+| `flame` | `FlameVfx` (braziers), campfires (`HeatSource`) | stepped value noise climbing the flame (texel space, 12 fps): patches a ramp step hotter or cooler, dark tips eaten away; never outside the frame's flame (copies overlap) | `ramp[5]`, `fps`, `climb`, `emissive` |
+| `gas` | poison's nova piece (`look = GAS`) | the top rim in the ramp's brightest steps (an emissive edge), murk welling a step greener, drifting noise holes the floor shows through: gas, not a bush | `ramp[5]`, `fps`, `thin`, `emissive` |
+| `shimmer` | Smite's column (`look = SHIMMER`) | bands a step brighter climbing the column, one-sided edges flickering a pixel | `ramp[5]`, `band_gap`, `climb`, `fade` |
+| `rune` | the holy sigil (`Vfx.magic`), arcane glyphs (`look = RUNE`, `glyph`), the pact's circle | a reveal mask: a ring drawn in a few arcs (each traced end to end, every other one the other way, in a hand's order), what is inside after, a glyph top-down, the stroke's tip in `head`; then burnt away in patches, each pixel turning to `ember` before it goes | `reveal`, `burn` (set in 24ths of a second), `order_mode`, `strokes`, `radius`, `squash`, `center`, `head`, `ember` |
+| `fx_sprite` | code-drawn effects: nova pieces, shots, impacts | translucent draws dithered per art pixel; the emissive mask | `emissive` |
+| `dither_fade` | `SheetVfx` (PLAIN), afterimages | as before, plus the emissive mask (blending off) | `fade`, `emissive` |
+| `screen` | `ScreenEffects` (one per game) | the one screen pass, below | see below |
+
+A sheet picks its shader with `VfxSheetDef.look` (PLAIN, SHIMMER, GAS, RUNE, FLAME) and may add
+`flash_frames` (frames that flash the screen) and `halo` / `halo_at` (a glow around its core);
+`FxLook.for_sheet` / `for_piece` build the material in the element's ramp.
+
+**Light: halos and LightField.** A glow is one `GlowHalo` (the air around the core, two bands,
+drawn right behind the core) plus at most one `LightSource` (the floor, lit in steps by
+LightField). `GlowHalo.attach(parent, element, size, offset, pulse, light_level)` adds a light
+only when the parent has none (a shot's Glow, a prop's lamp, `VfxLayer.light_up`), so nothing is
+lit twice. Additive light on a bright floor washes out, so halos are sparser there
+(`BRIGHT_FLOOR`, from the floor's ambient light). Only emissive elements glow. The biome's own
+`bloom` is a flat rim one art pixel wide around bright pixels (the screen pass), never a blur.
+
+**Space: the distortion pass.** Reading the screen costs a copy of it (a back-buffer copy per
+canvas layer with a screen-reading item), so **only `screen.gdshader` reads the screen** (a test
+checks it). Every distortion is a `DistortionStamp` (a Node2D in the group
+`distortion_stamps`): `HEAT` (rows of art pixels sliding sideways above a fire, the waves
+climbing, ragged edge), `COLD` (facets of 3x3 art pixels shifted a pixel through a frost
+nova's front), `PULL` (rings of the picture drawn toward a shadow or arcane shot), `SHOCK` (a
+blast's ring pushing outward, `ShockwaveVfx`). `ScreenEffects` gathers the stamps on screen each
+frame, shockwaves first then the nearest, at most 8, and passes them as uniform arrays
+(`stamps`, `stamp_info`); the shader adds their offsets per art pixel of the world (it knows the
+camera: `view_origin`, `view_size`), rounds them to whole art pixels and reads the screen once.
+An element says how it bends space (`VfxElementDef.distortion`: fire HEAT, frost COLD, shadow
+and arcane PULL); `ComposedVfx` stamps its novas, projectiles their element's, `FlameVfx` and
+campfires their heat. `DistortionStamp.attach(node, kind, size, power, seconds, offset)`.
+
+**Screen: grading, the emissive mask, flashes.** Effects draw with blending off (they are 1-bit
+anyway) and write their alpha: an emissive one writes `EMISSIVE_ALPHA` (1/3), matter 1. The
+game's viewport is transparent while `ScreenEffects` lives, so anything opaque drawn over an
+effect later (a monster in front of a crystal) writes 1 again. The screen pass keeps 75% of the
+biome's grading, saturation and moon tint off those pixels (`emissive_keep`): frost stays cyan in
+the warm ruins, fire keeps its yellows in the blue crypt. `ScreenEffects.flash(color)` lifts the
+whole picture for one frame (Thunder's bolt, `flash_frames`), at most 3 a second, never when
+Options > Screen flashes is off.
+
+**Fewer effects** drops what costs the most: no HEAT, COLD or PULL stamps (shockwaves stay), no
+bloom (4 more reads of the screen per pixel), the halos' inner band only. **Warm-up:**
+`ShaderWarmup` draws every shader of `FxLook.ALL` once under the world when the game starts, so
+the phone compiles them then and not in the first fight; a new effect shader goes in that list.
+
+**Cost** (measured when the pass was written, a busy fight in the crypt: 20 monsters, a ring of
+fire, Thunder and a Spark Nova every half second, an explosion and an ink ring every second, a
+brazier and a campfire; 1540x720). The screen used to be copied once more for every living
+shockwave (each a screen-reading node of its own) and the bloom read 8 more pixels; now one copy,
+at most 8 stamps, a 4-tap bloom. Software rendering (llvmpipe, so fill-bound like a phone's GPU):
+before 444-490 ms a frame on average, after 255-330 ms; draw calls about the same (160-163 before,
+155-178 after: halos are a quad each, alike ones share a material). Headless (scripts only):
+p50 7.5-8.2 ms before, 7.7-7.9 ms after: gathering stamps and driving runes costs nothing
+measurable. Not measured on the phone itself.
 
 ## 6. Adding or fixing an effect
 
@@ -233,7 +313,10 @@ Screenshot it in the game at 1540x720 (the debug panel, or a probe scene in `_to
 - [ ] The main action is in the first quarter; the flash lasts 2-3 frames; it dissipates
       instead of vanishing.
 - [ ] Its size and noise match its gameplay weight; it never hides a telegraph or an enemy shot.
-- [ ] It reads on the darkest biome (the crypt) and the brightest (the desert).
+- [ ] It reads on the darkest biome (the crypt) and the brightest (the desert), and keeps its
+      colors under a warm grade (the ruins) if it shines.
+- [ ] A shader on it moves at 12-20 fps in whole art pixels and only in its ramp; no smooth
+      glow, no new screen-reading node (a distortion is a `DistortionStamp`).
 - [ ] An enemy's version is told apart from the hero's at a glance.
 - [ ] One dominant hue.
 
@@ -300,6 +383,12 @@ slicer, element exports) serves the others; what each still needs:
   (`impact_sound` is empty everywhere); the actor's debug fallback body (no sprite) is smooth.
   Every element's sheets have their layer (a new sheet that says nothing is AIR: a nova piece,
   a strike or a mark must say GROUND or STANDING, the vfx tests check the pieces).
+- **Light, space and screen** (done, section 5b): glow halos (shots, braziers, campfires, Smite's
+  foot, Thunder's strike, frost glints), one distortion pass (heat, cold, pull, shockwaves), flame
+  tongues, poison gas, Smite's shimmer, Thunder's flash, runes that draw themselves (the sigil,
+  arcane glyphs, the pact's circle), the emissive mask. Left: candles, flame vents, the burn on
+  bodies (the body shaders' work) and the poison puddle marks (SplatLayer) don't move yet; the
+  level up's light and Holy Shield have no halo of their own.
 
 ## 9. Shaders on bodies
 

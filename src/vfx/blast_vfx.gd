@@ -31,6 +31,7 @@ static func create(at: Vector2, radius: float, element: VfxElementDef) -> BlastV
 	look.set_shader_parameter("rim", ramp[last])
 	look.set_shader_parameter("residue", element.residue)
 	look.set_shader_parameter("seed", randf() * 100.0)
+	look.set_shader_parameter("emissive", element.emissive)
 	vfx._look = look
 	vfx.material = look  # unshaded: the burst is its own light
 	return vfx

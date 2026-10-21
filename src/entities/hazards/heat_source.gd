@@ -20,6 +20,8 @@ var _cracks: Array[PackedVector2Array] = []
 var _ripples: Array[Vector3] = []
 ## The rough ground around a pond: circles [x, y, radius].
 var _ground_blobs: Array[Vector3] = []
+## A campfire's flames, on a node of their own: tongues licking up through them (flame.gdshader).
+var _flames: Node2D
 
 
 func setup(source_def: HeatSourceDef, floor_world: World, cells: Rect2i) -> void:
@@ -66,6 +68,8 @@ func setup(source_def: HeatSourceDef, floor_world: World, cells: Rect2i) -> void
 		light.color = def.light_color
 		light.level = def.light_level
 		add_child(light)
+	if def.comfort and def.flames:
+		_add_flames()
 
 
 ## True if `actor` feels it.
@@ -83,6 +87,8 @@ func _process(delta: float) -> void:
 	_time += delta
 	if def.ground_shader == null:
 		queue_redraw()  # the shader animates by itself
+	if _flames:
+		_flames.queue_redraw()
 	if def.sound:
 		_sound_timer -= delta
 		if _sound_timer <= 0.0:
@@ -102,7 +108,7 @@ func _draw() -> void:
 		_draw_hot_ground()
 
 
-## The warm circle (so you see where it helps), the pit, the flames.
+## The warm circle (so you see where it helps), the pit; the flames are on their own node.
 func _draw_campfire() -> void:
 	var glow := def.glow_color
 	var breathing := Color(glow, glow.a * (0.6 + 0.15 * sin(_time * 3.0)))
@@ -115,20 +121,40 @@ func _draw_campfire() -> void:
 	if def.sprite:
 		var size := def.sprite.get_size() * 2.0
 		draw_texture_rect(def.sprite, Rect2(-size * 0.5, size), false)
-	if def.flames:
-		var frame_size := VfxSheetDef.cell_size(def.flames, def.flame_frames)
-		var frames := VfxSheetDef.columns(def.flames, def.flame_frames)
-		var copies := def.flame_copies
-		for i in copies:
-			# Side by side and out of step; the middle one a bit higher.
-			var frame := int(_time * 9.0 + i * 1.7) % frames
-			var middle := (copies - 1) * 0.5
-			var offset := Vector2((i - middle) * 10.0, (-14.0 - (6.0 if absf(i - middle) < 0.6 else 0.0)) if copies > 1 else 0.0)
-			var size := Vector2(frame_size) * PixelDraw.sheet_scale(def.flame_scale)
-			draw_texture_rect_region(def.flames, Rect2(PixelDraw.snap(offset - size * 0.5), size),
-				Rect2(Vector2(frame * frame_size.x, 0), Vector2(frame_size)))
-	elif def.sprite == null and def.pond == null:
+	if def.flames == null and def.sprite == null and def.pond == null:
 		PixelDraw.disc(self, Vector2.ZERO, 10.0, VfxElementDef.named(&"fire").color())  # nothing to show: a plain fire
+
+
+## The flames on a node of their own (flame tongues, flame.gdshader), a stepped glow halo
+## around their heart (GlowHalo; the fire's LightSource lights the floor) and the air trembling
+## above them (a HEAT DistortionStamp).
+func _add_flames() -> void:
+	_flames = Node2D.new()
+	var fire := VfxElementDef.named(&"fire")
+	_flames.material = FxLook.flame(fire)
+	_flames.draw.connect(_draw_flames)
+	add_child(_flames)
+	var height := VfxSheetDef.cell_size(def.flames, def.flame_frames).y * PixelDraw.sheet_scale(def.flame_scale)
+	# The flames' middle (_draw_flames: side by side around -14, the middle one higher).
+	var core := Vector2(0, -16.0 if def.flame_copies > 1 else 0.0)
+	GlowHalo.attach(_flames, fire, 4.0 + 2.0 * def.flame_copies, PixelDraw.snap(core))
+	var heat := DistortionStamp.attach(_flames, DistortionStamp.Kind.HEAT, 6.0 + 5.0 * def.flame_copies, 1.0, 0.0, PixelDraw.snap(core))
+	if heat:
+		heat.height = height * 2.0 + 16.0
+
+
+func _draw_flames() -> void:
+	var frame_size := VfxSheetDef.cell_size(def.flames, def.flame_frames)
+	var frames := VfxSheetDef.columns(def.flames, def.flame_frames)
+	var copies := def.flame_copies
+	for i in copies:
+		# Side by side and out of step; the middle one a bit higher.
+		var frame := int(_time * 9.0 + i * 1.7) % frames
+		var middle := (copies - 1) * 0.5
+		var offset := Vector2((i - middle) * 10.0, (-14.0 - (6.0 if absf(i - middle) < 0.6 else 0.0)) if copies > 1 else 0.0)
+		var size := Vector2(frame_size) * PixelDraw.sheet_scale(def.flame_scale)
+		_flames.draw_texture_rect_region(def.flames, Rect2(PixelDraw.snap(offset - size * 0.5), size),
+			Rect2(Vector2(frame * frame_size.x, 0), Vector2(frame_size)))
 
 
 ## The pond: each cell takes the shore tile matching its place (corner, edge, water), then

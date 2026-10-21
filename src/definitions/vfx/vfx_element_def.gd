@@ -29,6 +29,16 @@ enum Motion {
 	## Around the source (arcane runes).
 	ORBIT,
 }
+## How it bends the space around it (DistortionStamp, drawn by the screen pass).
+enum Distortion {
+	NONE,
+	## The air trembles above it, rows of pixels sliding sideways (fire).
+	HEAT,
+	## Pixels caught askew, like through ice (frost novas).
+	COLD,
+	## Rings of the picture drawn in toward it (shadow, arcane shots).
+	PULL,
+}
 
 @export var id: StringName
 ## Its colors from the bright core to the dark edge, 3 to 5 of them (shadow is the one turned
@@ -49,6 +59,8 @@ enum Motion {
 ## Shines on its own (a halo and a light around its shots, unshaded sparks). Off for the
 ## elements that are matter, not energy (blood, earth, steel).
 @export var emissive: bool = true
+## How it bends the space around its fires, novas and shots (docs/vfx.md, "Shaders").
+@export var distortion: Distortion = Distortion.NONE
 
 @export_group("Kit")
 ## Its shot in flight.

@@ -34,8 +34,11 @@
   squash on hit, popping damage numbers, red vignette when hurt or low on HP.
 - **Atmosphere** (`AmbienceDef` > Atmosphere, one per biome and curse): the whole picture takes
   the biome's colors (`screen.gdshader`: shadows and highlights graded toward two tints,
-  saturation, contrast), bright things **bloom** (fire, gold, lights), the air **trembles** with
-  heat in the ruins and the desert (rows of pixels sliding by whole pixels). Over the floor, in
+  saturation, contrast), bright things **bloom** (a flat rim of light one art pixel wide around
+  them, never a blur), the air **trembles** with heat in the ruins and the desert (rows of pixels
+  sliding by whole pixels). Glowing effects (fire, frost, holy, storm, arcane, poison, spirit)
+  keep most of their own colors under the biome's grading (the emissive mask), so frost stays
+  cyan in the warm ruins. Over the floor, in
   world space (`AtmosphereLayer`, `atmosphere.gdshader`, dithered on the art's grid): **shafts of
   light** falling from cracks above (garden, temple, library, cave, desert), **leaf shadows**
   drifting in the garden, **mist** creeping over the crypt and the flooded caverns, **water light**
@@ -52,11 +55,23 @@
   and throw the blow's element's bits away from it (`ImpactVfx`: ice chips falling, embers
   rising; a plain blow throws short streaks), plus the bits of what the monster is made of
   (blood drops, bone chips, slime, sparks off armor, spirit motes, leaf chips); a crit also cuts
-  a cross over the target. Blasts ripple the picture (`ShockwaveVfx`, `shockwave.gdshader`).
+  a cross over the target. Blasts ripple the picture (`ShockwaveVfx`, a stamp of the screen pass).
   Monster warnings (`TelegraphView`, `telegraph.gdshader`): zone, cone, line or the lanes of a
   fan or ring of shots (so the gaps read), with crawling hazard stripes and a solid rim, filling
   up from the monster as the attack comes, flashing just before it lands; every monster shot
   and dash now warns (lanes, line). Shots leave a glowing streak.
+- **Light, space and screen** (docs/vfx.md, "Shaders"): glowing cores have a stepped **halo**
+  (two flat bands of added light in their element's darker steps, sparser on bright floors):
+  fire's heart in braziers and campfires, magic shots, Smite's column foot, Thunder's strike, a
+  glint on some Frost Nova crystals. Space bends in one screen pass: **heat** trembles above
+  fires and rings of flame, a **cold shimmer** catches facets of the picture through a Frost Nova,
+  shadow and arcane shots **pull** rings of the picture toward them, blasts send a **shockwave**.
+  Braziers' and campfires' flames have **tongues** climbing through them, poison clouds **churn**
+  with a glowing rim and holes the floor shows through (gas, not bushes), Smite's column
+  **shimmers**, Thunder **flashes** the whole screen for one frame (at most 3 a second; Options >
+  Screen flashes turns it off). The holy sigil, arcane glyphs and the pact's circle **draw
+  themselves** stroke by stroke and burn out. Fewer effects drops the halos' outer band, the
+  heat, cold and pull (shockwaves stay) and the bloom.
 - **Layers** (docs/vfx.md, 2b): flat effects (sigils, rings, telegraphs, crackles, mist at the
   feet, elite auras) lie under every body; upright ones (ice crystals, rays and columns of
   light, bolts, smoke, dust) sort with the bodies by their base, so the hero stands among a

@@ -52,6 +52,7 @@ mark = Color(0.721569, 0.862745, 0.898039, 0.35)
 slow_look = &"slow"
 bit = 1
 motion = 1
+distortion = 2
 projectile = SubResource("shot")
 impact = SubResource("impact")
 piece = SubResource("piece")

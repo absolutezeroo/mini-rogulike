@@ -71,13 +71,16 @@ func _configure(direction: Vector2, spec: ProjectileSpec) -> void:
 	glow.visible = shines and (spec.count <= 3 or spec.explosion_radius > 0.0)
 	glow.color = _element.color()
 	glow.level = maxi(1, roundi(GLOW_LEVEL * spec.glow))
-	# A drawn shot carries its own bright core; only a plain dot gets a halo (a dithered glow
-	# around each of a boss's sixteen shards would fog the screen).
-	if shines and _sheet == null and spec.count <= 3:
-		var halo := ProjectileHalo.new()
-		halo.element = _element
-		halo.size = maxf(spec.radius, 5.0) * (1.4 if _sheet else 1.0)
-		add_child(halo)
+	# A glow halo around a few shots' cores (GlowHalo: dithered rings of added light, its light
+	# on the floor is the Glow above): never around each of a boss's sixteen shards, it would fog
+	# the screen. A storm spark flickers.
+	if shines and spec.count <= 3:
+		var storm := _element.bit == VfxElementDef.Bit.FORK
+		GlowHalo.attach(self, _element, maxf(spec.radius, 5.0), Vector2.ZERO, GlowHalo.Pulse.FLICKER if storm else GlowHalo.Pulse.BREATHE)
+	# Shadow and arcane bend the picture toward them (the screen pass keeps the nearest few).
+	DistortionStamp.of_element(self, spec.element, maxf(spec.radius, 5.0) * 3.0, 1.0)
+	# Drawn on the grid; a shining shot keeps its colors out of the floor's grading.
+	material = FxLook.sprite(shines or (spec.element != null and spec.element.emissive))
 
 
 func _ready() -> void:

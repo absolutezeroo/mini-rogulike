@@ -6,6 +6,20 @@ extends Resource
 ## Drawn at a whole number of world units per texel (`texel`, 2 = the art's 2x), never stretched.
 ## See docs/vfx.md.
 
+## How it moves beyond its own frames (a shader over it, docs/vfx.md "Shaders").
+enum Look {
+	## Its frames, dithered away at the end.
+	PLAIN,
+	## Bands of light climbing it, its sides flickering (a column of light).
+	SHIMMER,
+	## A cloud of gas: its surface churning, a glowing rim, the floor showing through.
+	GAS,
+	## Draws itself stroke by stroke, then burns out (a sigil, a glyph).
+	RUNE,
+	## Flame tongues licking up through it.
+	FLAME,
+}
+
 ## How a sheet follows the direction it travels in.
 enum Orient {
 	## Drawn as it is (a round orb, a spinning star, a ring on the ground).
@@ -41,6 +55,19 @@ enum Orient {
 ## an impact, a halo) over them; GROUND (a sigil, crackles) flat under them; STANDING (a crystal,
 ## a column of light, a bolt) sorted with them by the bottom of its frame.
 @export var layer: VfxLayer.Layer = VfxLayer.Layer.AIR
+
+@export_group("Shader")
+## How it moves beyond its frames: PLAIN, SHIMMER, GAS, RUNE, FLAME (FxLook).
+@export var look: Look = Look.PLAIN
+## RUNE: a glyph drawn top-down (on) or a ring drawn around (off).
+@export var glyph: bool = false
+## Frames on which the whole screen flashes for one frame (a bolt striking; at most 3 a second,
+## never when the player turned flashes off).
+@export var flash_frames := PackedInt32Array()
+## A glow halo (GlowHalo) around its core while it plays: the core's radius in world units
+## (0: none), and where the core is, in texels from the frame's middle.
+@export var halo: float = 0.0
+@export var halo_at := Vector2.ZERO
 
 
 ## How far below its center (`at` + anchor) the bottom of its drawn frame is, in world units:

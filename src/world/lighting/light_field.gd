@@ -30,6 +30,8 @@ const MIST_DIAGONAL := DIAGONAL * 2
 const MAX_MOVING := 24
 ## Over the floor, whoever walks on it and their hits' sparks below 5 (those shine on their own).
 const Z := 3
+## The group of the floor's light (a glow halo asks how dark the floor is: GlowHalo).
+const GROUP := &"light_field"
 const SHADER := preload("res://src/world/lighting/light_cells.gdshader")
 const NEIGHBOURS: Array[Vector3i] = [
 	Vector3i(1, 0, SIDE), Vector3i(-1, 0, SIDE), Vector3i(0, 1, SIDE), Vector3i(0, -1, SIDE),
@@ -60,6 +62,7 @@ var _material := ShaderMaterial.new()
 
 
 func _ready() -> void:
+	add_to_group(GROUP)
 	z_index = Z
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	var multiply := CanvasItemMaterial.new()

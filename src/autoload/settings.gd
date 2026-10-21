@@ -1,6 +1,6 @@
 extends Node
 ## Player options (autoload "Settings"): volumes, screen shake, vibrations, size of the touch
-## controls, fixed or floating joystick, battery saver (30 FPS), fewer effects, tutorial hints, run timer,
+## controls, fixed or floating joystick, battery saver (30 FPS), fewer effects, screen flashes, tutorial hints, run timer,
 ## language (English or French: TranslationServer's locale, see locale/strings.csv).
 ## Saved in user://settings.cfg and applied as soon as they change.
 
@@ -20,7 +20,7 @@ const VOLUME_BUSES := {
 const OLD_SOUND_KEY := "sound_volume"
 const SPLIT_SOUND_KEYS: Array[String] = ["ui_volume", "combat_volume", "ambience_volume"]
 const MIN_VIBRATION_GAP_MS := 50
-const KEYS: Array[String] = ["master_volume", "music_volume", "ui_volume", "combat_volume", "ambience_volume", "screen_shake", "vibrations", "controls_scale", "fixed_joystick", "battery_saver", "fewer_effects", "tutorial_hints", "run_timer", "language", "auto_loot"]
+const KEYS: Array[String] = ["master_volume", "music_volume", "ui_volume", "combat_volume", "ambience_volume", "screen_shake", "vibrations", "controls_scale", "fixed_joystick", "battery_saver", "fewer_effects", "screen_flashes", "tutorial_hints", "run_timer", "language", "auto_loot"]
 ## Frames per second: normal (0 = no cap), and with the battery saver.
 const FPS := 0
 const SAVER_FPS := 30
@@ -50,8 +50,11 @@ var controls_scale := 1.0
 var fixed_joystick := false
 ## 30 frames per second instead of 60: the phone lasts longer and stays cooler.
 var battery_saver := false
-## Half the particles (sparks, chunks, dust): for older phones.
+## Half the particles (sparks, chunks, dust), no heat haze nor glow: for older phones.
 var fewer_effects := false
+## Lightning lights the whole screen for one frame (never more than 3 times a second). Off for
+## players sensitive to flashes.
+var screen_flashes := true
 ## Tutorial hints (see Tutorial): on until turned off.
 var tutorial_hints := true
 ## The run's time on the HUD, with the splits of each floor (for speedrunners).
@@ -132,6 +135,7 @@ func load_settings() -> void:
 	fixed_joystick = bool(file.get_value("options", "fixed_joystick", fixed_joystick))
 	battery_saver = bool(file.get_value("options", "battery_saver", battery_saver))
 	fewer_effects = bool(file.get_value("options", "fewer_effects", fewer_effects))
+	screen_flashes = bool(file.get_value("options", "screen_flashes", screen_flashes))
 	tutorial_hints = bool(file.get_value("options", "tutorial_hints", tutorial_hints))
 	run_timer = bool(file.get_value("options", "run_timer", run_timer))
 	language = str(file.get_value("options", "language", language))

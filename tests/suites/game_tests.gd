@@ -47,6 +47,7 @@ func run() -> void:
 	await floor._test_hazards(game, world, player)
 	await floor._test_forge(game, world, player)
 	await floor._test_feel(game, world, player)
+	await floor._test_screen_pass(game, world, player)
 	await combat._test_skills(game, world, player)
 	await combat._test_bestiary(world, player)
 	await combat._test_difficulty_in_game(game, world, player)

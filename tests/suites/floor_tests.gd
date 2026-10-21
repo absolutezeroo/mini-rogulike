@@ -211,6 +211,56 @@ func _test_feel(_game: Game, world: World, player: Player) -> void:
 	check(Engine.time_scale == 1.0, "...for a moment")
 
 
+## The screen pass in the game (docs/vfx.md, "Shaders"): one node reads the screen, the
+## distortions of the frame are its stamps, the viewport carries the emissive mask, fewer effects
+## drops the heavy passes, and every new effect runs a frame without errors.
+func _test_screen_pass(_game: Game, world: World, player: Player) -> void:
+	var screen := ScreenEffects.of(get_tree())
+	check(screen != null and get_viewport().transparent_bg, "screen pass: there, and the viewport keeps the emissive mask (transparent)")
+	var at := player.global_position
+	Vfx.explosion(world, at + Vector2(60, 0), 60.0)
+	Vfx.nova(world, at + Vector2(-60, 40), 50.0, VfxElementDef.named(&"fire"))
+	Vfx.nova(world, at + Vector2(0, 60), 50.0, VfxElementDef.named(&"frost"))
+	Vfx.nova(world, at + Vector2(0, -60), 40.0, VfxElementDef.named(&"poison"))
+	Vfx.nova(world, at + Vector2(60, -60), 40.0, VfxElementDef.named(&"arcane"))
+	Vfx.magic(world, at, Palette.GOLD)
+	for path: String in ["smite", "thunder"]:
+		var area := (load("res://data/skills/player/%s.tres" % path) as SkillDef).effects[0] as DamageAreaEffect
+		world.spawn_vfx(SheetVfx.play(area.strike, at + Vector2(80, 20), Vector2.RIGHT, area.element))
+	var flame := (load("res://src/vfx/flame_vfx.tscn") as PackedScene).instantiate() as FlameVfx
+	flame.position = at + Vector2(-40, -40)
+	world.spawn_vfx(flame)
+	await _frames(2)
+	var readers := 0
+	for node in _all_nodes(get_tree().root):
+		var item := node as CanvasItem
+		if item and item.visible and item.material is ShaderMaterial and (item.material as ShaderMaterial).shader and (item.material as ShaderMaterial).shader.code.contains("hint_screen_texture"):
+			readers += 1
+	check(readers == 1, "screen pass: one node reads the screen in a busy frame (%d)" % readers)
+	var stamps := screen.stamp_count()
+	check(stamps >= 3 and stamps <= DistortionStamp.MAX, "screen pass: heat, cold and a shockwave are stamps of the one pass (%d)" % stamps)
+	check(flame.material is ShaderMaterial and (flame.material as ShaderMaterial).shader == FxLook.FLAME, "flames lick (flame tongues)")
+	check(flame.get_children().any(func(n: Node) -> bool: return n is GlowHalo) and flame.get_children().any(func(n: Node) -> bool: return n is DistortionStamp), "a brazier's flame glows and the air trembles above it")
+	var fewer := Settings.fewer_effects
+	Settings.set_option(&"fewer_effects", true)
+	await _frames(1)
+	var shocks := 0
+	for node in get_tree().get_nodes_in_group(DistortionStamp.GROUP):
+		if (node as DistortionStamp).kind == DistortionStamp.Kind.SHOCK and (node as DistortionStamp).is_visible_in_tree():
+			shocks += 1
+	check(screen.stamp_count() <= shocks and float((screen.material as ShaderMaterial).get_shader_parameter("bloom")) == 0.0, "fewer effects: no heat, cold or pull, no glow (shockwaves kept)")
+	Settings.set_option(&"fewer_effects", fewer)
+	flame.queue_free()
+	await _frames(60)
+
+
+static func _all_nodes(node: Node) -> Array[Node]:
+	var found: Array[Node] = [node]
+	for child in node.get_children():
+		found.append_array(_all_nodes(child))
+	return found
+
+
 func _test_hazards(game: Game, world: World, player: Player) -> void:
 	var pit: PitDef = load("res://data/hazards/pit.tres")
 	var slime_def: MonsterDef = load("res://data/monsters/slime.tres")

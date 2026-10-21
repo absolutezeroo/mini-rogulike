@@ -31,6 +31,7 @@ func run() -> void:
 	_test_telegraphs()
 	_test_layers()
 	_test_body_shader()
+	_test_shaders()
 
 
 ## Each element: an id, a ramp of 3 to 5 colors from a bright core to a dark edge (shadow turned
@@ -742,6 +743,81 @@ func _test_body_shader() -> void:
 	check(float(material.get_shader_parameter("crackle")) == 0.0, "body shader: a fire hit doesn't crackle")
 	look.die(DeathLookDef.of(VfxElementDef.named(&"holy")), VfxElementDef.named(&"holy"))
 	check(int(material.get_shader_parameter("death_style")) == DeathLookDef.Style.ASCEND and int(material.get_shader_parameter("death_row")) == BodyLook.row(VfxElementDef.named(&"holy")), "body shader: a holy death lifts the body away in holy's ramp")
+## The light, space and screen shaders (docs/vfx.md, "Shaders"): every shader compiles, one
+## alone reads the screen (one copy of it a frame), the elements bend space and glow as they
+## should, sheets get their look, fewer effects drops the heavy passes, flashes are capped.
+func _test_shaders() -> void:
+	var readers: Array[String] = []
+	for dir: String in ["res://assets/shaders", "res://src"]:
+		for path in _shader_files(dir):
+			var shader := load(path) as Shader
+			# A shader that fails to compile lists no uniforms (all of ours have some).
+			check(shader != null and not shader.get_shader_uniform_list().is_empty(), "shaders: %s compiles" % path.get_file())
+			if FileAccess.get_file_as_string(path).contains("hint_screen_texture"):
+				readers.append(path.get_file())
+	check(readers.size() == 1 and readers[0] == "screen.gdshader", "shaders: only the screen pass reads the screen, one copy a frame (%s)" % ", ".join(readers))
+	for shader in ShaderWarmup.shaders():
+		check(shader.get_shader_uniform_list().size() > 0, "shaders: %s is warmed at load" % shader.resource_path.get_file())
+	check(ShaderWarmup.shaders().has(FxLook.FLAME) and ShaderWarmup.shaders().has(FxLook.RUNE) and ShaderWarmup.shaders().has(FxLook.GAS), "shaders: every new effect shader is warmed at load")
+	# Space: each element bends it its own way.
+	var kinds := { &"fire": VfxElementDef.Distortion.HEAT, &"frost": VfxElementDef.Distortion.COLD, &"shadow": VfxElementDef.Distortion.PULL, &"arcane": VfxElementDef.Distortion.PULL, &"earth": VfxElementDef.Distortion.NONE }
+	for id: StringName in kinds:
+		check(VfxElementDef.named(id).distortion == kinds[id], "shaders: %s bends space as it should" % id)
+	var host := Node2D.new()
+	var heat := DistortionStamp.of_element(host, VfxElementDef.named(&"fire"), 20.0)
+	check(heat != null and heat.kind == DistortionStamp.Kind.HEAT, "shaders: fire's heat is a stamp of the one screen pass")
+	check(DistortionStamp.of_element(host, VfxElementDef.named(&"earth"), 20.0) == null, "shaders: earth bends nothing")
+	var fewer := Settings.fewer_effects
+	Settings.fewer_effects = true
+	check(DistortionStamp.of_element(host, VfxElementDef.named(&"frost"), 20.0) == null, "shaders: fewer effects, no cold shimmer")
+	check(DistortionStamp.attach(host, DistortionStamp.Kind.SHOCK, 40.0, 2.0) != null, "shaders: fewer effects keeps a blast's shockwave")
+	Settings.fewer_effects = fewer
+	var shock := ShockwaveVfx.create(Vector2.ZERO, 80.0)
+	check(shock.material == null and shock.get_children().any(func(n: Node) -> bool: return n is DistortionStamp and n.kind == DistortionStamp.Kind.SHOCK), "shaders: a shockwave is a stamp, not a screen-reading node")
+	shock.free()
+	# Light: a halo around what shines, one light per glow.
+	check(GlowHalo.attach(host, VfxElementDef.named(&"earth"), 6.0) == null, "glow: matter has no halo")
+	var halo := GlowHalo.attach(host, VfxElementDef.named(&"fire"), 6.0, Vector2.ZERO, GlowHalo.Pulse.BREATHE, 10)
+	check(halo != null, "glow: fire has a halo")
+	GlowHalo.attach(host, VfxElementDef.named(&"fire"), 6.0, Vector2.ZERO, GlowHalo.Pulse.BREATHE, 10)
+	check(host.get_children().filter(func(n: Node) -> bool: return n is LightSource).size() == 1, "glow: a second glow on the same effect lights nothing twice")
+	host.free()
+	# Looks: each sheet its shader, the emissive mask for what shines.
+	var sigil := FxLook.for_sheet(Vfx.SIGIL, VfxElementDef.named(&"holy"))
+	check(sigil.shader == FxLook.RUNE and sigil.get_shader_parameter("emissive") == true, "looks: the sigil draws itself (rune) and keeps its colors (emissive mask)")
+	check(VfxElementDef.named(&"arcane").piece.look == VfxSheetDef.Look.RUNE and VfxElementDef.named(&"arcane").piece.glyph, "looks: arcane glyphs draw themselves top-down")
+	check(FxLook.for_piece(VfxElementDef.named(&"poison").piece, VfxElementDef.named(&"poison")).shader == FxLook.GAS, "looks: poison clouds are gas (churning, see-through, a glowing rim)")
+	var smite := ((load("res://data/skills/player/smite.tres") as SkillDef).effects[0] as DamageAreaEffect).strike
+	check(FxLook.for_sheet(smite, VfxElementDef.named(&"holy")).shader == FxLook.SHIMMER and smite.halo > 0.0, "looks: Smite's column shimmers and glows at its foot")
+	var bolt := ((load("res://data/skills/player/thunder.tres") as SkillDef).effects[0] as DamageAreaEffect).strike
+	check(not bolt.flash_frames.is_empty() and bolt.halo > 0.0, "looks: Thunder's bolt flashes the screen and glows where it strikes")
+	check(FxLook.for_sheet(VfxElementDef.named(&"earth").impact, VfxElementDef.named(&"earth")).get_shader_parameter("emissive") == false, "looks: matter is graded with the floor (no emissive mask)")
+	check(FxLook.for_sheet(VfxElementDef.named(&"frost").impact, VfxElementDef.named(&"frost")).get_shader_parameter("emissive") == true, "looks: frost keeps its cyan in a warm biome (emissive mask)")
+	check(FxLook.flame().shader == FxLook.FLAME and FxLook.five(VfxElementDef.named(&"fire")).size() == 5, "looks: flames lick in fire's ramp")
+	# Flashes: at most 3 a second, never when turned off.
+	var screen := ScreenEffects.new()
+	var look := ShaderMaterial.new()
+	look.shader = load("res://assets/shaders/screen.gdshader")
+	screen.material = look
+	var flashes := Settings.screen_flashes
+	Settings.screen_flashes = true
+	check(screen.flash(Color.WHITE) and screen.is_flashing(), "flash: lightning lights the screen")
+	check(not screen.flash(Color.WHITE), "flash: never more than 3 a second")
+	Settings.screen_flashes = false
+	screen._last_flash_ms = -100000
+	check(not screen.flash(Color.WHITE), "flash: none when the player turned flashes off")
+	Settings.screen_flashes = flashes
+	screen.free()
+
+
+static func _shader_files(dir: String) -> Array[String]:
+	var found: Array[String] = []
+	for file in DirAccess.get_files_at(dir):
+		if file.ends_with(".gdshader"):
+			found.append(dir.path_join(file))
+	for sub in DirAccess.get_directories_at(dir):
+		found.append_array(_shader_files(dir.path_join(sub)))
+	return found
 
 
 # --- Helpers -------------------------------------------------------------------

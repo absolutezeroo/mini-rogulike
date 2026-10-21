@@ -6,7 +6,7 @@ extends Control
 ## Built in code; every control is reachable as %Name from the panel (%EnglishButton,
 ## %FrenchButton, %MasterSlider, %MusicSlider, %InterfaceSlider, %CombatSlider, %AmbienceSlider,
 ## %ShakeSlider, %ControlsSlider, %VibrationsCheck, %FixedStickCheck, %BatteryCheck,
-## %FewerEffectsCheck, %RunTimerCheck, %TutorialCheck, %ReplayTutorialButton, %AutoLootAll, %AutoLootBetter,
+## %FewerEffectsCheck, %FlashesCheck, %RunTimerCheck, %TutorialCheck, %ReplayTutorialButton, %AutoLootAll, %AutoLootBetter,
 ## %AutoLootOff, %CloseButton).
 ## Picking a language rebuilds the window in it at once; the title screen behind is rebuilt when
 ## the window closes (other screens pick it up the next time they open).
@@ -207,7 +207,8 @@ func _build() -> void:
 
 	var screen := _section(right, tr("Screen and battery"))
 	_shake = _slider(screen, tr("Screen shake"), tr("On big hits."), 0.0, 1.5, 0.1, "ShakeSlider")
-	_checks[_check(screen, tr("Fewer effects"), tr("Half the particles: smoother on older phones."), "FewerEffectsCheck")] = &"fewer_effects"
+	_checks[_check(screen, tr("Fewer effects"), tr("Half the particles, no heat haze nor glow: smoother on older phones."), "FewerEffectsCheck")] = &"fewer_effects"
+	_checks[_check(screen, tr("Screen flashes"), tr("Lightning lights up the whole screen for an instant."), "FlashesCheck")] = &"screen_flashes"
 	_checks[_check(screen, tr("Battery saver"), tr("30 FPS: the phone stays cooler."), "BatteryCheck")] = &"battery_saver"
 	_checks[_check(screen, tr("Run timer"), tr("The run's time, under the map."), "RunTimerCheck")] = &"run_timer"
 

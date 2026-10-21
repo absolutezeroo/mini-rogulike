@@ -43,6 +43,12 @@ var _sink := 0.0
 var _altar: Node2D
 var _sigil: Node2D
 var _glow: LightSource
+## The sigil draws itself stroke by stroke the first time it shows on screen and when a kept pact
+## turns it gold; swearing burns part of it away, a broken pact more (rune.gdshader).
+var _rune: ShaderMaterial
+var _rune_start := -1.0
+var _rune_burn := 0.0
+var _rune_burn_to := 0.0
 ## By the stele: where the hero presses Interact to read the pact (while it is offered).
 var _spot := Interactable.new()
 
@@ -174,6 +180,14 @@ func setup_pact(world: World, pact_room: Rect2i, pact: PactDef, light: PropDef, 
 	_sigil.add_to_group("pact_doors")
 	_sigil.draw.connect(_draw_sigil)
 	add_child(_sigil)
+	_rune = FxLook.rune(VfxElementDef.named(&"holy"), 34.0)
+	_rune.set_shader_parameter("ember", CRIMSON.darkened(0.45))
+	_rune.set_shader_parameter("reveal", 0.0)
+	_sigil.material = _rune
+	var on_screen := VisibleOnScreenNotifier2D.new()
+	on_screen.rect = Rect2(-36, -36, 72, 72)
+	on_screen.screen_entered.connect(_draw_rune)
+	_sigil.add_child(on_screen)
 	_altar = Node2D.new()
 	_altar.name = "Stele"
 	_altar.position = world.map.cell_to_world(door_cell) + Vector2(0, ts * 0.3)
@@ -227,6 +241,7 @@ func accept() -> void:
 		return
 	accepted = true
 	_spot.enabled = false
+	_rune_burn_to = 0.3
 	_gates.open()
 	create_tween().tween_property(self, "_sink", 1.0, 0.8).set_trans(Tween.TRANS_SINE)
 	Vfx.dust(_world, _world.map.cell_to_world(door_cell), 1.4)
@@ -247,6 +262,9 @@ func set_spent() -> void:
 	outcome = Outcome.SPENT
 	state = State.CLEARED
 	_sink = 1.0
+	_rune_start = -10.0
+	_rune_burn = 0.55
+	_rune_burn_to = 0.55
 	_gates.open(true)
 	_glow.level = 6
 
@@ -283,6 +301,7 @@ func _on_rule_broken() -> void:
 	if outcome != Outcome.NONE:
 		return
 	outcome = Outcome.BROKEN
+	_rune_burn_to = 0.55
 	var player := _world.player
 	if player and not player.is_dead:
 		hp_lost = def.max_hp_lost(player)
@@ -307,6 +326,10 @@ func _finish() -> void:
 		rule.finish()
 	if outcome == Outcome.NONE:
 		outcome = Outcome.KEPT
+		# Drawn again, in gold.
+		_rune_start = _time
+		_rune_burn = 0.0
+		_rune_burn_to = 0.0
 		var at := _world.map.cell_to_world(_reward_cell())
 		Vfx.magic(_world, at, SIGIL_GOLD)
 		Vfx.burst(_world, Vfx.SPARKLES, at + Vector2(0, -16), def.color, Vector2.UP, 1.6)
@@ -326,6 +349,7 @@ func _physics_process(delta: float) -> void:
 	_time += delta
 	if _sigil:
 		_sigil.queue_redraw()
+		_drive_rune(delta)
 	if _altar and _sink < 1.0:
 		_altar.queue_redraw()
 	var player := _world.player
@@ -356,6 +380,23 @@ func _look_for(player: Player) -> void:
 
 
 # --- Look -------------------------------------------------------------------------
+
+## The sigil starts drawing itself (the first time it shows, or once more when the hero sees the
+## door from afar).
+func _draw_rune() -> void:
+	if _rune_start < 0.0 and _rune_start > -5.0:
+		_rune_start = _time
+
+
+## Its reveal and burn, in steps of a 24th of a second.
+func _drive_rune(delta: float) -> void:
+	if seen:
+		_draw_rune()
+	_rune_burn = move_toward(_rune_burn, _rune_burn_to, delta * 0.6)
+	var drawn := 1.0 if _rune_start <= -5.0 else (0.0 if _rune_start < 0.0 else clampf(floorf((_time - _rune_start) * 24.0) / 24.0, 0.0, 1.0))
+	_rune.set_shader_parameter("reveal", drawn)
+	_rune.set_shader_parameter("burn", floorf(_rune_burn * 24.0) / 24.0)
+
 
 ## The sigil on the floor before the door: a crimson ring, a gold one and a seven-pointed star,
 ## slowly turning; dim once sworn, gold once kept, ash once broken.
