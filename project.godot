@@ -16,11 +16,12 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 config/name="The Well of Souls"
 config/name_localized={
+"en": "The Well of Souls",
 "fr": "Le Puits des Âmes"
 }
-config/use_custom_user_dir=true
-config/custom_user_dir_name="godot/app_userdata/Mini Roguelike"
 config/quit_on_go_back=false
+config/use_custom_user_dir=true
+config/custom_user_dir_name="Mini Roguelike"
 config/description="Real-time action roguelike built with GDScript."
 run/main_scene="res://src/ui/title/title_screen.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
