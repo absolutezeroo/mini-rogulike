@@ -71,6 +71,7 @@ for a system before changing it.
 | Tests, debug panel | docs/testing.md |
 | Languages, French glossary | docs/translating.md |
 | Naming, lore, the game's voice | docs/lexicon.md |
+| Visual effects: the pixel grid, elements and their kits, reviewing an effect | docs/vfx.md |
 | Balance tools / past passes | docs/balance.md / docs/balance-log.md |
 | Android build | docs/android.md |
 | What each system does | docs/design/ (dungeon, monsters, builds, loot, progression, interface, presentation) |
