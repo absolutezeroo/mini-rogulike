@@ -74,7 +74,7 @@ func open() -> void:
 		_spring()
 		_drop_items(1)
 	else:
-		Sfx.play_at(def.open_sound, global_position)
+		Sfx.play_world(def.open_sound, global_position)
 		Vfx.sparkles(world, global_position, Palette.GOLD)
 		_drop_items(world.rng.randi_range(def.items_min, def.items_max))
 

@@ -652,7 +652,7 @@ func _on_monster_killed(monster: Monster) -> void:
 ## The way down opens, and a guiding light shows it.
 func _on_seal_broken() -> void:
 	var stairs_at := map.cell_to_world(map.stairs_cell)
-	Sfx.play_at(Sfx.bank.gate, player.global_position if player else stairs_at)
+	Sfx.play_world(Sfx.bank.gate, player.global_position if player else stairs_at)
 	if stairs_cells.size() >= 2 and next_routes.size() >= 2:
 		Events.log_message(tr("The seal shatters: two ways down. %s, or %s.") % [next_routes[0].summary(), next_routes[1].summary()], Palette.GOLD)
 	else:

@@ -55,7 +55,7 @@ func _physics_process(delta: float) -> void:
 
 func _collect(player: Player) -> void:
 	player.add_gold(amount)
-	Sfx.play_at(Sfx.bank.coin, global_position, -6.0)
+	Sfx.play_world(Sfx.bank.coin, global_position, -6.0)
 	queue_free()
 
 

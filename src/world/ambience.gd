@@ -73,7 +73,7 @@ func _process(delta: float) -> void:
 			_one_shot_timer = _next_delay()
 			# Somewhere off to the side, so it sounds distant and directional.
 			var at := _player.global_position + Vector2.from_angle(randf() * TAU) * randf_range(250.0, 500.0)
-			Sfx.play_at(_def.one_shots.pick_random(), at, _def.one_shot_volume_db, randf_range(0.85, 1.1))
+			Sfx.play_world(_def.one_shots.pick_random(), at, _def.one_shot_volume_db, randf_range(0.85, 1.1))
 	if _low_health and not _player.is_dead:
 		_heartbeat_timer -= delta
 		if _heartbeat_timer <= 0.0:

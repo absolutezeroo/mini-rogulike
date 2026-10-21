@@ -37,6 +37,9 @@ func run() -> void:
 	_test_plateau_mist()
 	_test_languages()
 	_test_threshold()
+	var sound := SoundTests.new()
+	sound.run()
+	sound.free()
 
 
 ## Speedrun times: how they read, the splits, the save, the records.

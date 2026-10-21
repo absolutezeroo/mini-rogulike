@@ -49,7 +49,7 @@ func close(quiet: bool = false) -> void:
 		_amount = 1.0
 		queue_redraw()
 		return
-	Sfx.play_at(Sfx.bank.gate, _world.player.global_position if _world.player else global_position)
+	Sfx.play_world(Sfx.bank.gate, _world.player.global_position if _world.player else global_position)
 	create_tween().tween_property(self, "_amount", 1.0, GATE_TIME)
 
 
@@ -64,7 +64,7 @@ func open(quiet: bool = false) -> void:
 		_amount = 0.0
 		queue_redraw()
 		return
-	Sfx.play_at(Sfx.bank.gate, _world.player.global_position if _world.player else global_position)
+	Sfx.play_world(Sfx.bank.gate, _world.player.global_position if _world.player else global_position)
 	create_tween().tween_property(self, "_amount", 0.0, GATE_TIME)
 
 

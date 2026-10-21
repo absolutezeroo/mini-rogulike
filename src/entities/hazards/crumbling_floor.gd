@@ -36,7 +36,7 @@ func step_on() -> void:
 		return
 	state = State.CRACKING
 	_time_left = def.crumble_time
-	Sfx.play_at(def.crack_sound, global_position, -4.0)
+	Sfx.play_world(def.crack_sound, global_position, -4.0)
 	Vfx.dust(world, global_position, 0.8)
 
 
@@ -46,7 +46,7 @@ func collapse() -> void:
 		return
 	world.forget_crack(cell)
 	world.add_pit(cell, def)
-	Sfx.play_at(def.crumble_sound, global_position)
+	Sfx.play_world(def.crumble_sound, global_position)
 	Vfx.burst(world, Vfx.DEATH_CHUNKS, global_position, def.debris_color)
 	Vfx.dust(world, global_position, 1.5)
 	queue_free()

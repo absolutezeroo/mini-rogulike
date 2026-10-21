@@ -56,7 +56,7 @@ func take_hit(hit: HitInfo) -> void:
 	_shake = SHAKE_TIME
 	Vfx.burst(world, Vfx.HIT_SPARKS, global_position, def.debris_color)
 	if _hits_left > 0:
-		Sfx.play_at(def.break_sound, global_position, -6.0)
+		Sfx.play_world(def.break_sound, global_position, -6.0)
 		return
 	_breaker = hit.source if is_instance_valid(hit.source) else null
 	if def.is_explosive():
@@ -82,7 +82,7 @@ func _break() -> void:
 	collision_layer = 0
 	for cell in cells():
 		world.set_cell_blocked(cell, false)
-	Sfx.play_at(def.break_sound, global_position)
+	Sfx.play_world(def.break_sound, global_position)
 	Vfx.burst(world, Vfx.DEATH_CHUNKS, global_position, def.debris_color)
 	Vfx.puff(world, global_position + Vector2(0, 8))
 	world.add_debris(global_position + Vector2(0, 6), _chips(), 0.8)

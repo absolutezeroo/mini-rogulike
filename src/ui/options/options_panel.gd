@@ -4,9 +4,9 @@ extends Control
 ## (language, sound, controls, screen, tutorial), each option with its name and a short line saying
 ## what it does. Every change goes straight to Settings (applied and saved).
 ## Built in code; every control is reachable as %Name from the panel (%EnglishButton,
-## %FrenchButton, %MusicSlider, %SoundSlider, %ShakeSlider, %ControlsSlider, %VibrationsCheck,
-## %FixedStickCheck, %BatteryCheck, %FewerEffectsCheck, %RunTimerCheck, %TutorialCheck,
-## %ReplayTutorialButton, %CloseButton).
+## %FrenchButton, %MasterSlider, %MusicSlider, %InterfaceSlider, %CombatSlider, %AmbienceSlider,
+## %ShakeSlider, %ControlsSlider, %VibrationsCheck, %FixedStickCheck, %BatteryCheck,
+## %FewerEffectsCheck, %RunTimerCheck, %TutorialCheck, %ReplayTutorialButton, %CloseButton).
 ## Picking a language rebuilds the window in it at once; the title screen behind is rebuilt when
 ## the window closes (other screens pick it up the next time they open).
 
@@ -16,8 +16,8 @@ signal language_changed
 
 const SLIDER_WIDTH := 180.0
 
-var _music: HSlider
-var _sounds: HSlider
+## Volume sliders: Settings key -> slider (general, music, interface, combat, ambience).
+var _volumes := {}
 var _shake: HSlider
 var _controls: HSlider
 var _vibrations: CheckButton
@@ -45,8 +45,8 @@ func _ready() -> void:
 func _wire() -> void:
 	for code: String in _languages:
 		(_languages[code] as Button).pressed.connect(_pick_language.bind(code))
-	_bind_slider(_music, &"music_volume")
-	_bind_slider(_sounds, &"sound_volume")
+	for key: StringName in _volumes:
+		_bind_slider(_volumes[key], key)
 	_bind_slider(_shake, &"screen_shake")
 	_bind_slider(_controls, &"controls_scale")
 	_vibrations.toggled.connect(func(on: bool) -> void:
@@ -68,7 +68,7 @@ func _wire() -> void:
 
 
 func open() -> void:
-	for slider: HSlider in [_music, _sounds, _shake, _controls]:
+	for slider: HSlider in _volumes.values() + [_shake, _controls]:
 		var key: StringName = slider.get_meta(&"option")
 		slider.set_value_no_signal(Settings.get(key))
 		_show_value(slider)
@@ -104,6 +104,7 @@ func _pick_language(code: String) -> void:
 		child.queue_free()
 	_checks.clear()
 	_values.clear()
+	_volumes.clear()
 	_languages.clear()
 	_build()
 	_wire()
@@ -116,8 +117,22 @@ func _bind_slider(slider: HSlider, option: StringName) -> void:
 	slider.value_changed.connect(func(value: float) -> void:
 		Settings.set_option(option, value)
 		_show_value(slider))
-	# A click when letting go, to hear the new sound volume.
-	slider.drag_ended.connect(func(_changed: bool) -> void: Sfx.play_ui(Sfx.bank.ui_click))
+	# Letting go plays a sound of what it sets, to hear the new volume.
+	slider.drag_ended.connect(func(_changed: bool) -> void: _preview(option))
+
+
+## A short sound of what a slider sets: a click for the interface, a hit for combat, coins for
+## the ambience (the music is its own preview).
+func _preview(option: StringName) -> void:
+	match option:
+		&"music_volume":
+			pass
+		&"combat_volume":
+			Sfx.play_at(Sfx.bank.monster_hurt, Sfx.listener_position())
+		&"ambience_volume":
+			Sfx.play_world(Sfx.bank.coin, Sfx.listener_position())
+		_:
+			Sfx.play_ui(Sfx.bank.ui_click)
 
 
 func _show_value(slider: HSlider) -> void:
@@ -149,10 +164,13 @@ func _build() -> void:
 	var right := _column(columns)
 
 	var sound := _section(left, tr("Sound"))
-	_music = _slider(sound, tr("Music"), tr("Background music."), 0.0, 1.0, 0.05, "MusicSlider")
-	_sounds = _slider(sound, tr("Sounds"), tr("Hits, spells, menus."), 0.0, 1.0, 0.05, "SoundSlider")
+	_volumes[&"master_volume"] = _slider(sound, tr("General"), tr("Every sound at once."), 0.0, 1.0, 0.05, "MasterSlider")
+	_volumes[&"music_volume"] = _slider(sound, tr("Music"), tr("Background music."), 0.0, 1.0, 0.05, "MusicSlider")
+	_volumes[&"ui_volume"] = _slider(sound, tr("Interface"), tr("Menus, buttons, level up."), 0.0, 1.0, 0.05, "InterfaceSlider")
+	_volumes[&"combat_volume"] = _slider(sound, tr("Combat"), tr("Weapons, hits, cries, spells."), 0.0, 1.0, 0.05, "CombatSlider")
+	_volumes[&"ambience_volume"] = _slider(sound, tr("Ambience"), tr("Footsteps, wind, doors, chests."), 0.0, 1.0, 0.05, "AmbienceSlider")
 
-	var controls := _section(left, tr("Touch controls"))
+	var controls := _section(right, tr("Touch controls"))
 	_controls = _slider(controls, tr("Buttons size"), tr("Joystick and buttons."), 0.7, 1.3, 0.05, "ControlsSlider")
 	_checks[_check(controls, tr("Fixed joystick"), tr("Stays in its corner instead of following your thumb."), "FixedStickCheck")] = &"fixed_joystick"
 	_vibrations = _check(controls, tr("Vibrations"), tr("The phone buzzes on big hits and critical hits."), "VibrationsCheck")
@@ -163,7 +181,7 @@ func _build() -> void:
 	_checks[_check(screen, tr("Battery saver"), tr("30 FPS: the phone stays cooler."), "BatteryCheck")] = &"battery_saver"
 	_checks[_check(screen, tr("Run timer"), tr("The run's time, under the map."), "RunTimerCheck")] = &"run_timer"
 
-	var tutorial := _section(right, tr("Tutorial"))
+	var tutorial := _section(left, tr("Tutorial"))
 	_tutorial = _check(tutorial, tr("Tutorial hints"), tr("Short tips during your first runs."), "TutorialCheck")
 	_checks[_tutorial] = &"tutorial_hints"
 	var replay_row := HBoxContainer.new()
@@ -171,7 +189,7 @@ func _build() -> void:
 	tutorial.add_child(replay_row)
 	replay_row.add_child(_words(tr("Replay tutorial"), tr("Every tip again, from the first steps.")))
 	_replay = MenuWindow.button(tr("Replay tutorial"), 17, 44)
-	_replay.custom_minimum_size.x = 220
+	_replay.custom_minimum_size.x = 190
 	_replay.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	replay_row.add_child(_replay)
 	MenuWindow.expose(_replay, "ReplayTutorialButton", self)
@@ -204,7 +222,7 @@ func _column(parent: Control) -> VBoxContainer:
 	parent.add_child(scroll)
 	var column := VBoxContainer.new()
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	column.add_theme_constant_override("separation", 10)
+	column.add_theme_constant_override("separation", 8)
 	scroll.add_child(column)
 	return column
 
@@ -212,7 +230,7 @@ func _column(parent: Control) -> VBoxContainer:
 func _section(column: VBoxContainer, heading: String) -> VBoxContainer:
 	var section: Dictionary = RpgWindow.section(heading)
 	column.add_child(section.box)
-	(section.column as VBoxContainer).add_theme_constant_override("separation", 6)
+	(section.column as VBoxContainer).add_theme_constant_override("separation", 4)
 	return section.column
 
 

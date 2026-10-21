@@ -424,10 +424,16 @@ Options,Options,Options
 Language changed: some menus follow from the next run.,Language changed: some menus follow from the next run.,Langue changée : certains menus suivront à la prochaine partie.
 Every change is saved right away.,Every change is saved right away.,Chaque changement est enregistré aussitôt.
 Sound,Sound,Son
+General,General,Général
+Every sound at once.,Every sound at once.,Tous les sons à la fois.
 Music,Music,Musique
 Background music.,Background music.,La musique de fond.
-Sounds,Sounds,Effets sonores
-"Hits, spells, menus.","Hits, spells, menus.","Coups, sorts, menus."
+Interface,Interface,Interface
+"Menus, buttons, level up.","Menus, buttons, level up.","Menus, boutons, niveau supérieur."
+Combat,Combat,Combat
+"Weapons, hits, cries, spells.","Weapons, hits, cries, spells.","Armes, coups, cris, sorts."
+Ambience,Ambience,Ambiance
+"Footsteps, wind, doors, chests.","Footsteps, wind, doors, chests.","Pas, vent, portes, coffres."
 Touch controls,Touch controls,Commandes tactiles
 Buttons size,Buttons size,Taille des boutons
 Joystick and buttons.,Joystick and buttons.,Joystick et boutons.

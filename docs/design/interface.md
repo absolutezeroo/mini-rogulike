@@ -28,7 +28,10 @@ anywhere in it, cards and buttons included, with a bit of momentum (`TouchScroll
 - **Pause menu** (the II button, Escape, or the phone's back button): resume, options, save and quit,
   give up the run (two taps). Coming back to the app, the game waits paused.
 - **Options** (`Settings` autoload, `user://settings.cfg`), on the title screen and in the pause menu:
-  music and sound volumes, screen shake, size of the touch controls, **vibrations** (big shakes,
+  five volumes (**General**, **Music**, **Interface**, **Combat**, **Ambience**: which sounds
+  each one sets is in presentation.md, SFX; letting go of a slider plays a sound of what it sets: a
+  click, a hit, coins; settings files from before, with one sound volume, give it to Interface,
+  Combat and Ambience), screen shake, size of the touch controls, **vibrations** (big shakes,
   hits you land, crits; `Settings.vibrate()`; exported Android builds need the Vibrate permission),
   **fixed joystick** (it stays in its corner and starts only when touched there, instead of
   appearing under the thumb), **battery saver** (30 FPS cap, `Engine.max_fps`), **fewer effects**

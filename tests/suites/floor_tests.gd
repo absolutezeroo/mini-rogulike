@@ -719,6 +719,10 @@ func _test_comfort(game: Game) -> void:
 	check(options.visible, "options open from the pause menu")
 	(options.get_node("%MusicSlider") as HSlider).value = 0.5
 	check(is_equal_approx(Settings.music_volume, 0.5) and absf(AudioServer.get_bus_volume_db(AudioServer.get_bus_index(&"Music")) - linear_to_db(0.5)) < 0.01, "the music slider sets the music volume")
+	(options.get_node("%CombatSlider") as HSlider).value = 0.5
+	var combat_db := AudioServer.get_bus_volume_db(AudioServer.get_bus_index(&"Combat"))
+	check(is_equal_approx(Settings.combat_volume, 0.5) and absf(combat_db - linear_to_db(0.5) - Sfx.mix.gain_db(&"Combat")) < 0.01 and is_equal_approx(Settings.ui_volume, 1.0), "the combat slider sets the combat bus alone")
+	Settings.set_option(&"combat_volume", 1.0)
 	(options.get_node("%ControlsSlider") as HSlider).value = 1.2
 	check(is_equal_approx((hud.get_node("%Controls") as Control).scale.x, 1.2), "the buttons size option scales the controls")
 	var battery: CheckButton = options.get_node("%BatteryCheck")

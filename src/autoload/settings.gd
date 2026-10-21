@@ -7,9 +7,20 @@ extends Node
 signal changed
 
 const PATH := "user://settings.cfg"
-const SOUND_BUSES: Array[StringName] = [&"SFX", &"UI", &"Ambience"]
+## Each volume and the buses it sets (see Sfx: which sound plays on which bus).
+const VOLUME_BUSES := {
+	&"master_volume": [&"Master"],
+	&"music_volume": [&"Music"],
+	&"ui_volume": [&"UI"],
+	&"combat_volume": [&"Combat"],
+	&"ambience_volume": [&"World", &"Ambience"],
+}
+## Older settings files have one "sound_volume" for interface, combat and ambience together:
+## it is given to each of them.
+const OLD_SOUND_KEY := "sound_volume"
+const SPLIT_SOUND_KEYS: Array[String] = ["ui_volume", "combat_volume", "ambience_volume"]
 const MIN_VIBRATION_GAP_MS := 50
-const KEYS: Array[String] = ["music_volume", "sound_volume", "screen_shake", "vibrations", "controls_scale", "fixed_joystick", "battery_saver", "fewer_effects", "tutorial_hints", "run_timer", "language"]
+const KEYS: Array[String] = ["master_volume", "music_volume", "ui_volume", "combat_volume", "ambience_volume", "screen_shake", "vibrations", "controls_scale", "fixed_joystick", "battery_saver", "fewer_effects", "tutorial_hints", "run_timer", "language"]
 ## Frames per second: normal (0 = no cap), and with the battery saver.
 const FPS := 0
 const SAVER_FPS := 30
@@ -19,9 +30,12 @@ const LANGUAGE_NAMES := { "en": "English", "fr": "Français" }
 
 ## Empty = nothing is read or written (tests).
 var path := PATH
-## 0..1 each.
+## 0..1 each (see VOLUME_BUSES).
+var master_volume := 1.0
 var music_volume := 0.8
-var sound_volume := 1.0
+var ui_volume := 1.0
+var combat_volume := 1.0
+var ambience_volume := 1.0
 ## Multiplies every camera shake (0 = none).
 var screen_shake := 1.0
 var vibrations := true
@@ -57,9 +71,9 @@ func set_option(key: StringName, value: Variant) -> void:
 
 
 func apply() -> void:
-	_set_bus_volume(&"Music", music_volume)
-	for bus in SOUND_BUSES:
-		_set_bus_volume(bus, sound_volume)
+	for key: StringName in VOLUME_BUSES:
+		for bus: StringName in VOLUME_BUSES[key]:
+			_set_bus_volume(bus, get(key))
 	Engine.max_fps = SAVER_FPS if battery_saver else FPS
 	if TranslationServer.get_locale() != language:
 		TranslationServer.set_locale(language)
@@ -98,8 +112,12 @@ func load_settings() -> void:
 	var file := ConfigFile.new()
 	if file.load(path) != OK:
 		return
-	music_volume = float(file.get_value("options", "music_volume", music_volume))
-	sound_volume = float(file.get_value("options", "sound_volume", sound_volume))
+	for key: StringName in VOLUME_BUSES:
+		set(key, clampf(float(file.get_value("options", key, get(key))), 0.0, 1.0))
+	if file.has_section_key("options", OLD_SOUND_KEY) and not file.has_section_key("options", "combat_volume"):
+		var old := clampf(float(file.get_value("options", OLD_SOUND_KEY)), 0.0, 1.0)
+		for key in SPLIT_SOUND_KEYS:
+			set(key, old)
 	screen_shake = float(file.get_value("options", "screen_shake", screen_shake))
 	vibrations = bool(file.get_value("options", "vibrations", vibrations))
 	controls_scale = clampf(float(file.get_value("options", "controls_scale", controls_scale)), 0.7, 1.3)  # bigger would cover the minimap
@@ -113,9 +131,10 @@ func load_settings() -> void:
 		language = device_language()
 
 
+## The slider's volume on top of the bus's own gain in the mix (headroom, see SoundMixDef).
 func _set_bus_volume(bus_name: StringName, volume: float) -> void:
 	var bus := AudioServer.get_bus_index(bus_name)
 	if bus < 0:
 		return
 	AudioServer.set_bus_mute(bus, volume <= 0.001)
-	AudioServer.set_bus_volume_db(bus, linear_to_db(maxf(volume, 0.001)))
+	AudioServer.set_bus_volume_db(bus, linear_to_db(maxf(volume, 0.001)) + Sfx.mix.gain_db(bus_name))

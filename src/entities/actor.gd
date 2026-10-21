@@ -394,7 +394,7 @@ func fall(pit: PitDef) -> void:
 	velocity = Vector2.ZERO
 	_knockback = Vector2.ZERO
 	_dash_time = 0.0
-	Sfx.play_at(Sfx.bank.fall, global_position)
+	Sfx.play_world(Sfx.bank.fall, global_position)
 	var into := world.map.cell_to_world(world.map.world_to_cell(global_position))
 	var tween := create_tween().set_parallel()
 	tween.tween_property(self, "global_position", global_position.lerp(into, 0.6), FALL_TIME)

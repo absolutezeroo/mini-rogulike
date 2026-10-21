@@ -1,77 +1,220 @@
 extends Node
-## Sound effects player (autoload "Sfx").
-## World sounds go through a pool of AudioStreamPlayer2D (panned and attenuated
-## around the camera); interface sounds through plain AudioStreamPlayers.
+## Sound effects player (autoload "Sfx"). Every sound goes to the bus of its slider in Options:
+## - play_at(): the fight (weapons, hits, cries, skills, spells, shots, explosions, traps,
+##   statuses, deaths) on the Combat bus, positional;
+## - play_world(): the place and its things (footsteps, distant sounds, doors and gates, chests,
+##   coins and pickups, crates breaking, crumbling floors, fires, the forge) on the World bus,
+##   positional, under the Ambience slider;
+## - play_ui(): menus, buttons and jingles (level up, stairs, a boss slain, the knell) on the UI bus.
+## Music on the Music bus; the floor's background loop and the heartbeat are played by Ambience
+## on the Ambience bus. Combat and World send to the SFX bus (the room's reverb), then Master
+## (a limiter).
+## Busy fights used to stack dozens of sounds and clip: voices are capped (per sound, per pool),
+## the same sound started again within a few milliseconds plays quieter or not at all, and a
+## crowded fight lowers each new voice a little. The numbers are in SoundMixDef
+## (data/audio/sound_mix.tres).
 
-const POOL_2D_SIZE := 24
-const POOL_UI_SIZE := 6
-## The same sound can play at most MAX_SAME times within SPAM_WINDOW seconds
-## (a whirlwind hitting 8 monsters should not play 8 identical hits at once).
-const SPAM_WINDOW := 0.06
-const MAX_SAME := 2
+const MIX: SoundMixDef = preload("res://data/audio/sound_mix.tres")
+const COMBAT := &"Combat"
+const WORLD := &"World"
+const UI := &"UI"
+const MUSIC := &"Music"
+const AMBIENCE := &"Ambience"
+## The room's reverb, shared by the Combat and World buses.
+const ROOM := &"SFX"
+## Every sound is played on one of these (tests check it).
+const BUSES: Array[StringName] = [COMBAT, WORLD, UI, MUSIC, AMBIENCE]
 
 ## Generic sounds, set by the Game from the ContentDB.
 var bank := SoundBank.new()
 ## Master switch (the headless tests turn sound off).
 var enabled := true
+var mix: SoundMixDef = MIX
 
 var _music: AudioStreamPlayer
-var _pool_2d: Array[AudioStreamPlayer2D] = []
-var _pool_ui: Array[AudioStreamPlayer] = []
-var _next_2d := 0
+var _combat: Array[AudioStreamPlayer2D] = []
+var _world: Array[AudioStreamPlayer2D] = []
+var _ui: Array[AudioStreamPlayer] = []
 var _next_ui := 0
-var _recent := {}  # AudioStream -> PackedFloat64Array of play times
+var _recent := {}  # AudioStream -> PackedFloat64Array of start times
+var _source := {}  # player -> the AudioStream it was asked to play (not the picked variation)
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	for i in POOL_2D_SIZE:
-		var player := AudioStreamPlayer2D.new()
-		player.bus = &"SFX"
-		player.max_distance = 1100.0
-		player.attenuation = 1.5
-		add_child(player)
-		_pool_2d.append(player)
+	for i in mix.combat_voices:
+		_combat.append(_make_2d(COMBAT, mix.combat_attenuation))
+	for i in mix.world_voices:
+		_world.append(_make_2d(WORLD, mix.world_attenuation))
 	_music = AudioStreamPlayer.new()
-	_music.bus = &"Music"
+	_music.bus = MUSIC
 	_music.volume_db = -8.0
 	add_child(_music)
-	for i in POOL_UI_SIZE:
+	for i in mix.ui_voices:
 		var player := AudioStreamPlayer.new()
-		player.bus = &"UI"
+		player.bus = UI
 		add_child(player)
-		_pool_ui.append(player)
+		_ui.append(player)
+	apply_mix()
 
 
-## Plays a sound in the world at `position`.
+## Copies the mix's numbers into the bus effects (limiter, compressor, high shelves).
+func apply_mix() -> void:
+	var limiter := _effect(&"Master", "AudioEffectHardLimiter") as AudioEffectHardLimiter
+	if limiter:
+		limiter.ceiling_db = mix.limiter_ceiling_db
+		limiter.release = mix.limiter_release
+	var compressor := _effect(COMBAT, "AudioEffectCompressor") as AudioEffectCompressor
+	if compressor:
+		compressor.threshold = mix.compressor_threshold_db
+		compressor.ratio = mix.compressor_ratio
+		compressor.attack_us = mix.compressor_attack_us
+		compressor.release_ms = mix.compressor_release_ms
+	for bus: StringName in [COMBAT, UI]:
+		var shelf := _effect(bus, "AudioEffectHighShelfFilter") as AudioEffectHighShelfFilter
+		if shelf:
+			shelf.cutoff_hz = mix.high_shelf_hz
+			shelf.gain = mix.combat_high_shelf_gain if bus == COMBAT else mix.ui_high_shelf_gain
+
+
+## A fight sound in the world at `position` (Combat bus).
 func play_at(stream: AudioStream, position: Vector2, volume_db: float = 0.0, pitch: float = 1.0) -> void:
-	if stream == null or not _allowed(stream):
-		return
-	var player := _pool_2d[_next_2d]
-	_next_2d = (_next_2d + 1) % _pool_2d.size()
-	var variation := _pick_variation(stream)
-	player.stream = variation[0]
-	player.global_position = position
-	player.volume_db = volume_db + variation[2]
-	player.pitch_scale = pitch * variation[1]
-	player.play()
+	_play_2d(_combat, stream, position, volume_db, pitch, true)
 
 
-## Plays a non-positional sound (menus, jingles).
+## A sound of the place or its things at `position` (World bus, under the Ambience slider).
+func play_world(stream: AudioStream, position: Vector2, volume_db: float = 0.0, pitch: float = 1.0) -> void:
+	_play_2d(_world, stream, position, volume_db, pitch, false)
+
+
+## Plays a non-positional sound (menus, jingles) on the UI bus.
 func play_ui(stream: AudioStream, volume_db: float = 0.0) -> void:
-	if stream == null or not _allowed(stream):
+	if stream == null or not enabled:
 		return
-	var player := _pool_ui[_next_ui]
-	_next_ui = (_next_ui + 1) % _pool_ui.size()
+	var gain := _admit(stream, _ui)
+	if is_nan(gain):
+		return
+	var player := _ui[_next_ui]
+	_next_ui = (_next_ui + 1) % _ui.size()
 	var variation := _pick_variation(stream)
+	_source[player] = stream
 	player.stream = variation[0]
-	player.volume_db = volume_db + variation[2]
+	player.volume_db = volume_db + gain + variation[2]
 	player.pitch_scale = variation[1]
 	player.play()
 
 
+## The buses of the voices last given `stream` (tests).
+func buses_playing(stream: AudioStream) -> Array[StringName]:
+	var buses: Array[StringName] = []
+	for player: Node in _source:
+		if _source[player] == stream:
+			buses.append(player.get(&"bus"))
+	return buses
+
+
+func _play_2d(pool: Array[AudioStreamPlayer2D], stream: AudioStream, position: Vector2, volume_db: float, pitch: float, crowd: bool) -> void:
+	if stream == null or not enabled:
+		return
+	var gain := _admit(stream, pool)
+	if is_nan(gain):
+		return
+	var player := _free_voice(pool, position)
+	if player == null:
+		return
+	if crowd:
+		gain += _crowd_db(pool)
+	var variation := _pick_variation(stream)
+	_source[player] = stream
+	player.stream = variation[0]
+	player.global_position = position
+	player.volume_db = volume_db + gain + variation[2]
+	player.pitch_scale = pitch * variation[1]
+	player.play()
+
+
+## Whether `stream` may start now, and its gain (trim, quieter repeats); NAN = not played.
+## The same sound at most max_same_voices at once, and max_same_in_window times within
+## same_window (one swing on a pack: a couple of hits, not ten stacked).
+func _admit(stream: AudioStream, pool: Array) -> float:
+	var same := 0
+	for player: Node in pool:
+		if _source.get(player) == stream and player.get(&"playing"):
+			same += 1
+	if same >= mix.max_same_voices:
+		return NAN
+	var now := Time.get_ticks_msec() / 1000.0
+	var kept := PackedFloat64Array()
+	for t: float in _recent.get(stream, PackedFloat64Array()):
+		if now - t < mix.same_window:
+			kept.append(t)
+	if kept.size() >= mix.max_same_in_window:
+		_recent[stream] = kept
+		return NAN
+	var gain := mix.trim_db(stream) + mix.repeat_db * kept.size()
+	kept.append(now)
+	_recent[stream] = kept
+	return gain
+
+
+## A player that is free, else the one farthest from the hero if this sound is nearer
+## (it is cut), else null (the sound is not played).
+func _free_voice(pool: Array[AudioStreamPlayer2D], position: Vector2) -> AudioStreamPlayer2D:
+	var listener := listener_position()
+	var farthest: AudioStreamPlayer2D = null
+	var far := -1.0
+	for player in pool:
+		if not player.playing:
+			return player
+		var distance := player.global_position.distance_squared_to(listener)
+		if distance > far:
+			far = distance
+			farthest = player
+	if farthest and position.distance_squared_to(listener) < far:
+		farthest.stop()
+		return farthest
+	return null
+
+
+## Past crowd_start voices playing, each new one a bit quieter.
+func _crowd_db(pool: Array[AudioStreamPlayer2D]) -> float:
+	var playing := 0
+	for player in pool:
+		if player.playing:
+			playing += 1
+	return maxf(mix.crowd_max_db, mix.crowd_db_per_voice * maxi(0, playing - mix.crowd_start))
+
+
+## Where the ears are: the middle of the screen, in world space (the camera's, if any).
+func listener_position() -> Vector2:
+	var viewport := get_viewport()
+	return viewport.get_canvas_transform().affine_inverse() * viewport.get_visible_rect().get_center()
+
+
+func _make_2d(bus: StringName, attenuation: float) -> AudioStreamPlayer2D:
+	var player := AudioStreamPlayer2D.new()
+	player.bus = bus
+	player.max_distance = mix.max_distance
+	player.attenuation = attenuation
+	add_child(player)
+	return player
+
+
+func _effect(bus_name: StringName, type: String) -> AudioEffect:
+	var bus := AudioServer.get_bus_index(bus_name)
+	if bus < 0:
+		return null
+	for i in AudioServer.get_bus_effect_count(bus):
+		var effect := AudioServer.get_bus_effect(bus, i)
+		if effect.is_class(type):
+			return effect
+	return null
+
+
 ## AudioStreamRandomizer is used as data (variations + pitch/volume ranges), but we pick
 ## the variation ourselves: playing the randomizer directly leaks its playbacks in Godot 4.
+## The pitch goes down as far as the randomizer says, up only to mix.max_random_pitch_up
+## (pitched up, sounds turn shrill).
 ## Returns [stream, pitch multiplier, volume offset in dB].
 func _pick_variation(stream: AudioStream) -> Array:
 	var randomizer := stream as AudioStreamRandomizer
@@ -79,26 +222,9 @@ func _pick_variation(stream: AudioStream) -> Array:
 		return [stream, 1.0, 0.0]
 	var picked := randomizer.get_stream(randi() % randomizer.streams_count)
 	var pitch_range := maxf(randomizer.random_pitch, 1.0)
-	var pitch := exp(randf_range(-log(pitch_range), log(pitch_range)))
+	var pitch := exp(randf_range(-log(pitch_range), log(minf(pitch_range, maxf(mix.max_random_pitch_up, 1.0)))))
 	var volume := randf_range(-randomizer.random_volume_offset_db, randomizer.random_volume_offset_db)
 	return [picked, pitch, volume]
-
-
-func _allowed(stream: AudioStream) -> bool:
-	if not enabled:
-		return false
-	var now := Time.get_ticks_msec() / 1000.0
-	var times: PackedFloat64Array = _recent.get(stream, PackedFloat64Array())
-	var kept := PackedFloat64Array()
-	for t in times:
-		if now - t < SPAM_WINDOW:
-			kept.append(t)
-	if kept.size() >= MAX_SAME:
-		_recent[stream] = kept
-		return false
-	kept.append(now)
-	_recent[stream] = kept
-	return true
 
 
 ## Starts a looping music track, fading from the current one. Same track = keeps playing.
@@ -121,10 +247,11 @@ func play_music(stream: AudioStream, volume_db: float = -8.0) -> void:
 func stop_all() -> void:
 	_music.stop()
 	_music.stream = null
-	for player in _pool_2d:
+	for player in _combat + _world:
 		player.stop()
 		player.stream = null
-	for player in _pool_ui:
+	for player in _ui:
 		player.stop()
 		player.stream = null
 	_recent.clear()
+	_source.clear()

@@ -119,8 +119,8 @@ func open(quiet: bool = false, looted: bool = false, held_key: bool = false) -> 
 		return
 	var at := plan.crack_position(_world.map)
 	var out := -Vector2(plan.direction)  # toward the room it opened from
-	Sfx.play_at(_world.config().cracked_wall.break_sound, at)
-	Sfx.play_at(Sfx.bank.gate, at, -4.0)
+	Sfx.play_world(_world.config().cracked_wall.break_sound, at)
+	Sfx.play_world(Sfx.bank.gate, at, -4.0)
 	Events.screen_shake.emit(0.45)
 	for i in 3:
 		Vfx.dust(_world, at + out * (20.0 + i * 6.0) + out.orthogonal() * randf_range(-14.0, 14.0), 1.6)
@@ -162,7 +162,7 @@ func _process(delta: float) -> void:
 				_whisper_in = randf_range(4.0, 7.0)
 				var whisper := _world.config().secret_whisper
 				if whisper and global_position.distance_to(_world.player.global_position) <= WHISPER_DISTANCE:
-					Sfx.play_at(whisper, global_position, -14.0)
+					Sfx.play_world(whisper, global_position, -14.0)
 		State.OPEN:
 			_check_in -= delta
 			if _check_in <= 0.0:

@@ -471,7 +471,7 @@ func _update_heavy_steps() -> void:
 	if _step_timer > 0.0:
 		return
 	_step_timer = HEAVY_STEP_INTERVAL
-	Sfx.play_at(Sfx.bank.footstep, global_position, -6.0, 0.55)
+	Sfx.play_world(Sfx.bank.footstep, global_position, -6.0, 0.55)
 	Vfx.dust(world, global_position + Vector2(0, _feet_y()), 1.2)
 	if world.player and world.player.global_position.distance_to(global_position) < 260.0:
 		Events.screen_shake.emit(0.15 if not is_boss() else 0.3)
