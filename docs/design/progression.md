@@ -50,6 +50,8 @@ red makes it harder), the souls it pays, and for a locked one what unlocks it.
 ## Between runs
 
 The game opens on the **title screen** (`src/ui/title/`): play, visit the shrine, see your records.
+A run left open (the app closed mid-run) shows **Resume the descent** above Descend, as wide as
+the other buttons, its floor and level on a second line.
 There is no class to pick: everyone starts the same, and becomes who they want during the run.
 The bosses of each act are shown with what a run is; the Dawn Knell button (the daily run) opens a card that explains it (same
 dungeon for everyone today, the day's start, your score); the records sit on a strip (souls to

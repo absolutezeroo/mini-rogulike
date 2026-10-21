@@ -120,7 +120,10 @@ func _setup_continue() -> void:
 	if saved.is_empty():
 		return
 	var player: Dictionary = saved.get("player", {})
-	button.text = tr("Resume the descent  -  floor %d, level %d") % [int(saved.get("depth", 1)), int(player.get("level", 1))]
+	# Two lines like the Dawn Knell's, inside the column's width (one long line ran past it).
+	var lines := _two_line_button(button, 22)
+	lines[0].text = tr("Resume the descent")
+	lines[1].text = tr("Floor %d, level %d") % [int(saved.get("depth", 1)), int(player.get("level", 1))]
 	button.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_click)
 		Game.resume_requested = true
@@ -145,7 +148,13 @@ func _place_scene() -> void:
 
 ## The Daily Descent button's three lines: name, what it is, your score.
 func _build_daily_button() -> void:
-	var button: Button = %DailyButton
+	var lines := _two_line_button(%DailyButton, 24)
+	_daily_title = lines[0]
+	_daily_text = lines[1]
+
+
+## A title and a line under it, centered in `button` and never wider than it: [title, line].
+func _two_line_button(button: Button, title_size: int) -> Array[Label]:
 	button.text = ""
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -160,10 +169,10 @@ func _build_daily_button() -> void:
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_theme_constant_override("separation", 0)
 	margin.add_child(column)
-	_daily_title = _button_label(24)
-	_daily_text = _button_label(14)
-	for label in [_daily_title, _daily_text]:
+	var lines: Array[Label] = [_button_label(title_size), _button_label(14)]
+	for label in lines:
 		column.add_child(label)
+	return lines
 
 
 func _button_label(font_size: int) -> Label:

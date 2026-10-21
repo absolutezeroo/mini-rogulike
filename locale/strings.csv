@@ -631,7 +631,8 @@ The node,The node,Le nœud
 "Gold ring: bought. Glowing: you can buy it. Dark: buy a node above it first. ""or"": pick one of the two. ?: a feat opens it.","Gold ring: bought. Glowing: you can buy it. Dark: buy a node above it first. ""or"": pick one of the two. ?: a feat opens it.",Anneau doré : acheté. Lumineux : tu peux l'acheter. Sombre : achète d'abord un nœud au-dessus. « ou » : choisis l'un des deux. ? : un exploit l'ouvre.
 Reset the tree,Reset the tree,Réinitialiser l'arbre
 or,or,ou
-"Resume the descent  -  floor %d, level %d","Resume the descent  -  floor %d, level %d","Reprendre la descente  -  étage %d, niveau %d"
+Resume the descent,Resume the descent,Reprendre la descente
+"Floor %d, level %d","Floor %d, level %d","Étage %d, niveau %d"
 Souls to offer,Souls to offer,Âmes à offrir
 Tolled today: %d points,Tolled today: %d points,Glas sonné : %d points
 "The bell tolls: one descent, the same for all","The bell tolls: one descent, the same for all","La cloche sonne : une descente, la même pour tous"

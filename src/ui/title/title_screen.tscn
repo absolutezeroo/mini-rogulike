@@ -103,11 +103,10 @@ size_flags_vertical = 3
 [node name="ContinueButton" type="Button" parent="Margin/Columns/Left"]
 unique_name_in_owner = true
 visible = false
-custom_minimum_size = Vector2(500, 62)
+custom_minimum_size = Vector2(500, 72)
 layout_mode = 2
 size_flags_horizontal = 0
-theme_override_font_sizes/font_size = 22
-text = "Continue"
+theme_override_font_sizes/font_size = 16
 
 [node name="PlayButton" type="Button" parent="Margin/Columns/Left"]
 unique_name_in_owner = true

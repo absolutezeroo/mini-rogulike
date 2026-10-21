@@ -5,6 +5,27 @@ extends TestSuite
 func run() -> void:
 	await _test_title_screen()
 	await _test_touch_scroll()
+	await _test_resume_button()
+
+
+## A run in progress: the Resume button sits in the column like the others, its floor on a line
+## of its own (a long one-line label ran past the column on phones).
+func _test_resume_button() -> void:
+	var file := FileAccess.open(RunSave.path, FileAccess.WRITE)
+	file.store_string(JSON.stringify({"version": RunSave.VERSION, "depth": 11, "player": {"level": 23}}))
+	file.close()
+	var title: TitleScreen = load("res://src/ui/title/title_screen.tscn").instantiate()
+	add_child(title)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var resume: Button = title.get_node("%ContinueButton")
+	var play: Button = title.get_node("%PlayButton")
+	var labels := resume.find_children("*", "Label", true, false)
+	check(resume.visible and resume.text.is_empty() and labels.size() == 2 and (labels[1] as Label).text.contains("11"), "a run in progress: Resume, its floor on a second line")
+	check(is_equal_approx(resume.size.x, play.size.x), "Resume is as wide as Descend (%d vs %d)" % [resume.size.x, play.size.x])
+	title.queue_free()
+	RunSave.erase()
+	await get_tree().process_frame
 
 
 ## Dragging over a list scrolls it, even when the drag starts on a card or a button, and a
