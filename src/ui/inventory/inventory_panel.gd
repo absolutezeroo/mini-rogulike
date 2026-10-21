@@ -5,6 +5,9 @@ extends Control
 ## middle, the picked item's card on the right (rarity, stats, rune sockets, what to do with it).
 ## Pauses the game while open. Built in code. "Perks" in the header opens the build (BuildWindow):
 ## the families and the perks taken, in words.
+## Identical items stack (Inventory): one slot, "x2", one place of the bag. Gear in the bag can be
+## dismantled for gold (two taps), and "Dismantle the worse" breaks down, after a confirmation,
+## every piece worse than what is worn (Player.worse_gear()).
 
 signal closed
 
@@ -36,6 +39,17 @@ var _sockets: HBoxContainer
 var _use_button: Button
 var _drop_button: Button
 var _belt_button: Button
+var _dismantle_button: Button
+## The card's "Dismantle value: 12 gold" line.
+var _dismantle_note: Label
+## The item the Dismantle button was tapped once for (a second tap breaks it).
+var _dismantle_armed: ItemDef
+var _worse_button: Button
+## "Dismantle the worse": the list, the gold, Dismantle / Keep them.
+var _confirm: RpgDialog
+var _confirm_text: Label
+var _confirm_items: HFlowContainer
+var _confirm_yes: Button
 var _gold: Label
 var _named: Array[Node] = []
 var _build_window: BuildWindow
@@ -50,7 +64,12 @@ func _ready() -> void:
 
 
 func open(player: Player) -> void:
+	if _player != player:
+		if _player:
+			_player.dismantled.disconnect(_on_dismantled)
+		player.dismantled.connect(_on_dismantled)
 	_player = player
+	_confirm.hide()
 	_clear_selection()
 	_refresh()
 	show()
@@ -60,6 +79,7 @@ func open(player: Player) -> void:
 func close() -> void:
 	Sfx.play_ui(Sfx.bank.ui_close)
 	_build_window.hide()
+	_confirm.hide()
 	hide()
 	closed.emit()
 
@@ -78,7 +98,9 @@ func is_build_open() -> bool:
 func _unhandled_input(event: InputEvent) -> void:
 	if visible and (event.is_action_pressed("inventory") or event.is_action_pressed("ui_cancel")):
 		get_viewport().set_input_as_handled()
-		if _build_window.visible and event.is_action_pressed("ui_cancel"):
+		if _confirm.visible and event.is_action_pressed("ui_cancel"):
+			_confirm.hide()
+		elif _build_window.visible and event.is_action_pressed("ui_cancel"):
 			_build_window.hide()
 		else:
 			close()
@@ -102,7 +124,8 @@ func _refresh() -> void:
 	_fill_stats()
 
 	var inventory := _player.inventory
-	_bag_title.text = tr("Bag  %d / %d") % [inventory.items.size(), inventory.capacity]
+	# Places, not items: a stack takes one.
+	_bag_title.text = tr("Bag  %d / %d") % [inventory.places_used(), inventory.capacity]
 	for child in _item_grid.get_children():
 		_item_grid.remove_child(child)
 		child.queue_free()
@@ -116,11 +139,14 @@ func _refresh() -> void:
 		button.pressed.connect(_select_item.bind(item))
 		_item_grid.add_child(button)
 		shown += 1
-	# The empty places left in the bag (identical items share a slot).
-	for i in range(shown, inventory.capacity - (inventory.items.size() - shown)):
+	# The empty places left in the bag.
+	for i in range(shown, inventory.capacity):
 		var empty := ItemSlot.new(BAG_SLOT)
 		empty.disabled = true
 		_item_grid.add_child(empty)
+	var worse := _player.worse_gear()
+	_worse_button.text = tr("Dismantle the worse (%d)") % worse.size()
+	_worse_button.disabled = worse.is_empty()
 	_refresh_details()
 
 
@@ -181,6 +207,17 @@ func _refresh_details() -> void:
 	# Consumables move between the belt and the bag.
 	_belt_button.visible = item is ConsumableDef and (_selected_belt != NO_SLOT or _player.belt.can_add(item))
 	_belt_button.text = tr("To bag") if _selected_belt != NO_SLOT else tr("To belt")
+	# Gear in the bag breaks down for gold (never what is worn).
+	var gold := Player.DISMANTLE.gold_for(item) if _selected_slot == NO_SLOT and _selected_belt == NO_SLOT and DismantleRules.can_dismantle(item) else 0
+	_dismantle_button.visible = gold > 0
+	_dismantle_note.visible = gold > 0
+	if _dismantle_armed != item:
+		_dismantle_armed = null
+	_dismantle_button.text = tr("Sure? +%d gold") % gold if _dismantle_armed else tr("Dismantle")
+	_dismantle_button.add_theme_color_override("font_color", UiSkin.GOLD if _dismantle_armed else UiSkin.TEXT)
+	_dismantle_note.text = tr("Dismantle value: %d gold") % gold
+	if gold > 0 and not (item as EquipmentDef).runes.is_empty():
+		_dismantle_note.text += "\n" + tr("The runes set in it break with it (counted in the gold).")
 	_card_slot.item = item
 	_card_slot.count = _player.belt.count_at(_selected_belt) if _selected_belt != NO_SLOT else 1
 	for child in _sockets.get_children():
@@ -278,8 +315,7 @@ func _on_use_pressed() -> void:
 		_clear_selection()
 	elif _selected_item:
 		_player.use_item(_selected_item)
-		if not _player.inventory.items.has(_selected_item):
-			_clear_selection()
+		_keep_stack_selected()
 	_refresh()
 
 
@@ -295,9 +331,82 @@ func _on_belt_pressed() -> void:
 func _on_drop_pressed() -> void:
 	if _selected_item:
 		_player.drop_item(_selected_item)
-		if not _player.inventory.items.has(_selected_item):
-			_clear_selection()
+		_keep_stack_selected()
 	_refresh()
+
+
+## After one of a stack is gone, the rest of it stays picked (else nothing is).
+func _keep_stack_selected() -> void:
+	var rest := _player.inventory.find_like(_selected_item)
+	if rest:
+		_selected_item = rest
+	else:
+		_clear_selection()
+
+
+## First tap: the button asks again (with the gold); second tap: broken down.
+func _on_dismantle_pressed() -> void:
+	if _selected_item == null:
+		return
+	if _dismantle_armed != _selected_item:
+		_dismantle_armed = _selected_item
+		Sfx.play_ui(Sfx.bank.ui_click)
+		_refresh_details()
+		return
+	_dismantle_armed = null
+	_player.dismantle(_selected_item)
+	_keep_stack_selected()
+	_refresh()
+
+
+## "Dismantle the worse": what would go, and the gold, before anything breaks.
+func _on_worse_pressed() -> void:
+	var worse := _player.worse_gear()
+	if worse.is_empty():
+		return
+	Sfx.play_ui(Sfx.bank.ui_open)
+	var gold := 0
+	var shown := Inventory.new(worse.size())
+	for item in worse:
+		gold += Player.DISMANTLE.gold_for(item)
+		shown.add(item)
+	_confirm_text.text = (tr("Dismantle 1 piece of gear worse than what you wear, for %d gold?") % gold) if worse.size() == 1 \
+		else tr("Dismantle %d pieces of gear worse than what you wear, for %d gold?") % [worse.size(), gold]
+	UiParts.clear(_confirm_items)
+	for entry in shown.grouped():
+		var slot := ItemSlot.new(58.0)
+		slot.item = entry.item
+		slot.count = entry.count
+		slot.tooltip_text = tr(entry.item.display_name)
+		slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_confirm_items.add_child(slot)
+	_confirm_yes.text = tr("Dismantle: +%d gold") % gold
+	_confirm.show()
+
+
+## Is the confirmation of "Dismantle the worse" up? (tests)
+func is_confirm_open() -> bool:
+	return _confirm.visible
+
+
+func _on_worse_confirmed() -> void:
+	_confirm.hide()
+	_player.dismantle_all(_player.worse_gear())
+	if _selected_item:
+		_keep_stack_selected()
+	_refresh()
+
+
+## Coins fly from the bag (or the card) to the gold counter.
+func _on_dismantled(_items: Array[ItemDef], gold: int) -> void:
+	if not visible:
+		return
+	var from := _dismantle_button.get_global_rect().get_center() if _dismantle_button.is_visible_in_tree() else _item_grid.get_global_rect().get_center()
+	GoldBurst.play(self, from, _gold.get_global_rect().get_center(), gold)
+	var tween := create_tween()
+	_gold.pivot_offset = _gold.size * 0.5
+	tween.tween_property(_gold, "scale", Vector2.ONE * 1.3, 0.12).set_delay(0.6)
+	tween.tween_property(_gold, "scale", Vector2.ONE, 0.2)
 
 
 # --- Building ----------------------------------------------------------------
@@ -381,6 +490,11 @@ func _build() -> void:
 	_item_grid.add_theme_constant_override("v_separation", 6)
 	_own(_item_grid)
 	scroll.add_child(_item_grid)
+	_worse_button = _action(tr("Dismantle the worse (%d)") % 0, "DismantleWorseButton", _on_worse_pressed)
+	_worse_button.add_theme_font_size_override("font_size", 16)
+	_worse_button.custom_minimum_size = Vector2(0, 50)
+	_worse_button.size_flags_horizontal = Control.SIZE_FILL
+	bag.column.add_child(_worse_button)
 
 	# Right: the picked item.
 	var card: Dictionary = RpgWindow.section(tr("Item"), true)
@@ -412,6 +526,10 @@ func _build() -> void:
 	_sockets.alignment = BoxContainer.ALIGNMENT_BEGIN
 	_sockets.add_theme_constant_override("separation", 6)
 	card.column.add_child(_sockets)
+	_dismantle_note = UiSkin.label("", 15, UiSkin.GOLD, true)
+	_dismantle_note.name = "DismantleNote"
+	_own(_dismantle_note)
+	card.column.add_child(_dismantle_note)
 	var actions := HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 8)
 	card.column.add_child(actions)
@@ -421,10 +539,48 @@ func _build() -> void:
 	actions.add_child(_belt_button)
 	_drop_button = _action(tr("Drop"), "DropButton", _on_drop_pressed)
 	actions.add_child(_drop_button)
+	_dismantle_button = _action(tr("Dismantle"), "DismantleButton", _on_dismantle_pressed)
+	_dismantle_button.add_theme_font_size_override("font_size", 16)
+	actions.add_child(_dismantle_button)
+	_build_confirm()
 	for node in _named:
 		node.owner = self
 		node.unique_name_in_owner = true
 	add_child(_build_window)  # over the bag
+
+
+func _build_confirm() -> void:
+	_confirm = RpgDialog.new(tr("Dismantle the worse"), 640.0)
+	_confirm.name = "DismantleConfirm"
+	_confirm.hide()
+	add_child(_confirm)  # over the window (the build window comes over both)
+	_confirm_text = UiParts.text("", 19, UiSkin.TEXT, 580.0)
+	_confirm_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_confirm.body.add_child(_confirm_text)
+	_confirm_items = HFlowContainer.new()
+	_confirm_items.alignment = FlowContainer.ALIGNMENT_CENTER
+	_confirm_items.custom_minimum_size.x = 580.0
+	_confirm_items.add_theme_constant_override("h_separation", 6)
+	_confirm_items.add_theme_constant_override("v_separation", 6)
+	_confirm.body.add_child(_confirm_items)
+	var note := UiParts.text(tr("What you wear, potions, runes, tomes and keys are never touched."), 15, UiSkin.DIM, 580.0)
+	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_confirm.body.add_child(note)
+	var buttons := HBoxContainer.new()
+	buttons.add_theme_constant_override("separation", 12)
+	_confirm.body.add_child(buttons)
+	_confirm_yes = UiParts.button(tr("Dismantle"), _on_worse_confirmed, Vector2(0, 56), 18)
+	_confirm_yes.name = "ConfirmDismantleButton"
+	_confirm_yes.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_own(_confirm_yes)
+	buttons.add_child(_confirm_yes)
+	var keep := UiParts.button(tr("Keep them"), func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_close)
+		_confirm.hide(), Vector2(0, 56), 18)
+	keep.name = "KeepButton"
+	keep.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_own(keep)
+	buttons.add_child(keep)
 
 
 func _action(text: String, node_name: String, callback: Callable) -> Button:
@@ -432,7 +588,7 @@ func _action(text: String, node_name: String, callback: Callable) -> Button:
 	button.text = text
 	button.name = node_name
 	button.focus_mode = Control.FOCUS_NONE
-	button.custom_minimum_size = Vector2(120, 52)
+	button.custom_minimum_size = Vector2(96, 52)  # three in a row on a 16:9 phone (Equip, Drop, Dismantle)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.pressed.connect(callback)
 	_own(button)

@@ -14,6 +14,49 @@ static func heading(item: EquipmentDef, worn: EquipmentDef) -> String:
 	return TranslationServer.tr("Nothing on your body yet. It adds:")
 
 
+## `item` is worse than what is worn (`worn`): what "Dismantle the worse" breaks down and what
+## "Better only" leaves on the ground. Never when it is of a higher item level or rarer, has a rune
+## set, or an affix (or a weapon's own status) doing something the worn one doesn't (Vampiric,
+## Burning...). Of a lower level or rarity: worse unless it is better at its main job (more damage
+## per second for a weapon; more Health, Armor or Damage for an armor), quicker or lighter does
+## not save it. Same level and rarity: worse only with not one stat line in its favour (lines()).
+## Nothing is worse than an empty slot.
+static func is_worse(item: EquipmentDef, worn: EquipmentDef) -> bool:
+	if item == null or worn == null or item == worn or item.slot != worn.slot:
+		return false
+	if item.item_level > worn.item_level or item.rarity > worn.rarity or not item.runes.is_empty():
+		return false
+	for affix in item.affixes:
+		if affix and (affix.on_hit or not affix.passives.is_empty()) and not worn.affixes.has(affix):
+			return false
+	var weapon := item as WeaponDef
+	if weapon and weapon.on_hit and weapon.on_hit != (worn as WeaponDef).on_hit:
+		return false  # it poisons, burns or slows: not the same tool
+	if item.item_level < worn.item_level or item.rarity < worn.rarity:
+		return not _better_at_main_job(item, worn)
+	for change in lines(item, worn):
+		if change.good:
+			return false
+	return true
+
+
+## A weapon: more damage per second (what item levels grow). An armor: more Health, Armor or Damage.
+static func _better_at_main_job(item: EquipmentDef, worn: EquipmentDef) -> bool:
+	if item is WeaponDef and worn is WeaponDef:
+		return damage_per_second(item as WeaponDef) > damage_per_second(worn as WeaponDef) + 0.05
+	var mine := _stats(item)
+	var theirs := _stats(worn)
+	return mine.max_hp > theirs.max_hp or mine.defense > theirs.defense or mine.attack > theirs.attack
+
+
+## A weapon's damage per second with its own bonuses (a volley counts its share: ItemLevelRules).
+static func damage_per_second(weapon: WeaponDef) -> float:
+	var share := 1.0
+	if weapon.kind == WeaponDef.Kind.RANGED:
+		share = maxf(weapon.projectile_damage * maxi(weapon.projectile_count, 1), 0.1)
+	return _damage(weapon) * share / maxf(weapon.cooldown, 0.01)
+
+
 ## One entry per stat that changes: { text, good }. Empty when nothing changes.
 static func lines(item: EquipmentDef, worn: EquipmentDef) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []

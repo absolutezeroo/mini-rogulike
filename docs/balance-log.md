@@ -3,6 +3,32 @@
 Dated entries, newest first: what was measured, what changed and why, before/after numbers, open
 questions. How to measure: [balance.md](balance.md).
 
+## 2026-10-21 - Dismantling gear for gold (new economy source, by rule, not measured in runs)
+
+**Design (from the player's request: "the bag fills too fast"):** gear in the bag breaks down for
+gold anywhere, one piece or every piece worse than what is worn (design/loot.md, Room in the bag).
+With stacks and auto loot "Better only", it is the way out of a full bag between merchants.
+
+**Numbers** (`data/items/dismantle.tres`): gold = value x rarity (1 / 1.8 / 3 / 5) x 0.15 x
+(1 + 0.2 per item level above 1), runes set in it at 0.15 of their value. The merchant pays value
+x rarity x 1.5 x (1 + 0.2 per floor above 1) x 0.25 = 0.375 x the same worth, so dismantling gives
+**40% of what he pays on the item's own floor**, less on deeper floors (a unit check holds it under
+for every item, rarity and level 1-15). Dismantle / merchant, gold:
+
+| Item (value) | Lv 1 | Lv 3 | Lv 6 | Lv 10 |
+|---|---|---|---|---|
+| Katana (35), Common | 5 / 13 | 7 / 18 | 10 / 26 | 15 / 37 |
+| Katana, Magic | 9 / 24 | 13 / 33 | 19 / 47 | 26 / 66 |
+| Katana, Rare | 16 / 40 | 22 / 55 | 32 / 79 | 44 / 110 |
+| Katana, Epic | 26 / 66 | 37 / 92 | 52 / 131 | 73 / 184 |
+| Leather Cap (20), Common | 3 / 8 | 4 / 10 | 6 / 15 | 8 / 21 |
+| Plate Armor (45), Rare | 20 / 50 | 28 / 71 | 40 / 101 | 57 / 142 |
+
+For scale: a Health Potion costs 18 gold on floor 1, a reroll 10. A floor's worth of commons and
+magics dismantled (5-8 pieces) is about one or two potions: a tidy-up, not an income. Not measured:
+how much gold a whole run gains (the balance bot never fills its bag); if gold runs high, lower
+`gold_share`.
+
 ## 2026-10-21 - Second lives go through the trial of the Threshold
 
 **Design (from the player's request):** a revive (Phoenix Feather, Death Denied) no longer heals

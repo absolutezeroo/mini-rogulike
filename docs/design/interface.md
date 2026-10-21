@@ -35,10 +35,18 @@ anywhere in it, cards and buttons included, with a bit of momentum (`TouchScroll
   hits you land, crits; `Settings.vibrate()`; exported Android builds need the Vibrate permission),
   **fixed joystick** (it stays in its corner and starts only when touched there, instead of
   appearing under the thumb), **battery saver** (30 FPS cap, `Engine.max_fps`), **fewer effects**
-  (half the particles in `Vfx.burst`), **run timer** (on/off), **tutorial hints** (on/off) and
-  **Replay tutorial**, and the **language** (English / Français, see Languages). The window (`OptionsPanel`, built in code on `MenuWindow`) groups them
-  (Sound, Touch controls, Screen and battery, Tutorial), each with a one-line "what it does";
+  (half the particles in `Vfx.burst`), **run timer** (on/off), **auto loot** (All / Better only /
+  By hand, three buttons, the picked one's rule spelled out under them; see design/loot.md),
+  **tutorial hints** (on/off) and **Replay tutorial**, and the **language** (English / Français,
+  see Languages). The window (`OptionsPanel`, built in code on `MenuWindow`) groups them
+  (Sound, Touch controls, Screen and battery, Loot, Tutorial), each with a one-line "what it does";
   on/off options are big switches, and tapping an option's name flips it too.
+- **Loot left on the ground** (auto loot, or no room in the bag): while the hero stands on it, a
+  small board low in the middle of the screen, above the belt and skill buttons (`LootPrompt`,
+  built by the HUD from `Events.loot_offered` / `loot_left`), shows its slot, its name in its
+  rarity, its type and the first changes against what is worn (green / red), with **Take**; with
+  no room, the button reads "Open the bag". Only the button catches touches (the joystick's thumb
+  may slide under the board). A full bag also says so in a toast.
 - **The trial of the Threshold** (`ThresholdHud`, built by the HUD from the `Threshold`'s signals):
   its name and rule across the screen for three seconds ("The Threshold" / "Slay 8 spectres before
   the knell"), then a panel at the top center with the spectres slain ("Slain 3 / 8") and a big
@@ -81,9 +89,15 @@ item's rarity color (a rune's in its family's), how many, and a weapon's rune so
 stones lit in their runes' colors. The selected slot pulses gold.
 
 - **Bag** (`InventoryPanel`, built in code): the hero, the weapon / head / body slots, the belt and
-  the stats on the left; the bag as a 4-column grid of slots (empty places shown); the picked
-  item's card on the right (name in its rarity, type, every line of its details, its rune sockets)
-  with Equip / Use / Learn, To belt and Drop.
+  the stats on the left; the bag as a 4-column grid of slots, one per stack with its count ("x3"),
+  empty places shown, its title counting places ("Bag 5 / 16"), and under it **Dismantle the
+  worse (n)**; the picked item's card on the right (name in its rarity, type, every line of its
+  details, its rune sockets, for gear in the bag "Dismantle value: 12 gold") with Equip / Use /
+  Learn, To belt, Drop and Dismantle (a second tap breaks it: "Sure? +12 gold"). Dismantle the
+  worse opens a confirmation (`RpgDialog`): how many and the gold, their slots, "what you wear,
+  potions, runes, tomes and keys are never touched", Dismantle: +n gold / Keep them. Gold won
+  flies as coins to the counter (`GoldBurst`) with the coin sound. After one of a stack is used,
+  dropped or dismantled, the rest stays picked. Three action buttons fit a 16:9 phone in French.
 - **Forge** (`ForgePanel`): the smith and what he says; the weapons you can work on as slots, the
   picked one big with its sockets; your runes as a grid. Pick a rune, then "Set it in"; pick a
   set rune, then "Take out (gold)".

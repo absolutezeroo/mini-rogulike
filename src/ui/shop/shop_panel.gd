@@ -128,7 +128,10 @@ func _buy_entry(index: int) -> bool:
 func _sell_item(item: ItemDef, from_belt: bool) -> bool:
 	if not _merchant.buy_from(_player, item, from_belt):
 		return false
-	if not _carries(item, from_belt):
+	var rest := _player.inventory.find_like(item) if not from_belt else null
+	if rest:
+		_pick_item = rest  # the rest of its stack stays picked
+	elif not _carries(item, from_belt):
 		_pick = Pick.NONE
 	_refresh()
 	return true

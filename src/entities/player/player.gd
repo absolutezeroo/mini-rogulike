@@ -17,6 +17,8 @@ signal consumable_used(item: ItemDef)
 signal attacked
 ## A skill button worked (index: Player slot, 0 the roll).
 signal skill_used(index: int)
+## Gear from the bag was broken down (gold already added): the bag shows the gold flying.
+signal dismantled(items: Array[ItemDef], gold: int)
 
 const HIT_INVULNERABILITY := 0.6
 const AIM_HOLD_TIME := 0.35         ## Keep facing the aim direction this long after attacking.
@@ -31,6 +33,8 @@ const SWAP_COOLDOWN := 1.5
 const STEP_INTERVAL := 0.3
 ## Invulnerable this long after climbing out of a hole.
 const FALL_INVULNERABILITY := 1.0
+## Gold for breaking gear down from the bag.
+const DISMANTLE: DismantleRules = preload("res://data/items/dismantle.tres")
 
 ## Physics frame of the last damage taken (-1: none). For the bestiary challenges.
 var last_hurt_frame := -1
@@ -213,7 +217,19 @@ func store(item: ItemDef) -> bool:
 
 
 func can_store(item: ItemDef) -> bool:
-	return belt.can_add(item) or not inventory.is_full()
+	return belt.can_add(item) or inventory.can_add(item)
+
+
+## Auto loot (Settings.auto_loot, `mode`): does walking over `item` take it? Potions, runes,
+## tomes and keys always (gold flies to the hero on its own). "Better only" leaves the gear that
+## is worse than what is worn (ItemCompare.is_worse), "By hand" all gear: it waits on the ground,
+## and walking over it shows it with a Take button (LootPrompt).
+func wants(item: ItemDef, mode: int) -> bool:
+	if mode == Settings.LOOT_ALL or not item is EquipmentDef:
+		return true
+	if mode == Settings.LOOT_OFF:
+		return false
+	return not ItemCompare.is_worse(item as EquipmentDef, equipment.get_item((item as EquipmentDef).slot))
 
 
 ## Called when walking over an item. Returns false if it could not be taken.
@@ -228,6 +244,7 @@ func pick_up(item: ItemDef) -> bool:
 		_pickup_feedback(item, Sfx.bank.pickup)
 		return true
 	Events.log_message(tr("Inventory full!"), Palette.DANGER)
+	Events.bag_full.emit(item)
 	return false
 
 
@@ -250,6 +267,11 @@ func use_item(item: ItemDef) -> void:
 		inventory.remove(item)
 		learn_skill((item as SkillTomeDef).skill)
 	elif item is EquipmentDef:
+		# One of a stack: it frees no place, and what is worn now needs one.
+		if not inventory.fits_after_taking(item, equipment.get_item((item as EquipmentDef).slot)):
+			Events.log_message(tr("Inventory full!"), Palette.DANGER)
+			Events.bag_full.emit(equipment.get_item((item as EquipmentDef).slot))
+			return
 		inventory.remove(item)
 		var previous := equipment.equip(item)
 		if previous:
@@ -261,7 +283,7 @@ func use_item(item: ItemDef) -> void:
 func unequip(slot: EquipmentDef.Slot) -> void:
 	if equipment.get_item(slot) == null:
 		return
-	if inventory.is_full():
+	if not inventory.can_add(equipment.get_item(slot)):
 		Events.log_message(tr("Inventory full!"), Palette.DANGER)
 		return
 	inventory.add(equipment.unequip(slot))
@@ -270,6 +292,49 @@ func unequip(slot: EquipmentDef.Slot) -> void:
 func drop_item(item: ItemDef) -> void:
 	if inventory.remove(item):
 		world.spawn_item(item, global_position, false)
+
+
+## Breaks `item` (one of its stack in the bag) down for gold (DismantleRules). The gold it gave,
+## 0 if it can't be (not equipment, not in the bag).
+func dismantle(item: ItemDef) -> int:
+	var one: Array[ItemDef] = [item]
+	return dismantle_all(one)
+
+
+## Breaks these down at once (each entry is one item of the bag). Only gear in the bag: what is
+## worn, potions, runes, tomes and keys are never touched. The gold it gave.
+func dismantle_all(list: Array[ItemDef]) -> int:
+	var gold_gained := 0
+	var broken: Array[ItemDef] = []
+	for item in list:
+		if not DismantleRules.can_dismantle(item):
+			continue
+		var taken := inventory.take(item)
+		if taken == null:
+			continue
+		gold_gained += DISMANTLE.gold_for(taken)
+		broken.append(taken)
+	if broken.is_empty():
+		return 0
+	add_gold(gold_gained)
+	Sfx.play_ui(Sfx.bank.coin)
+	if broken.size() == 1:
+		Events.log_message(tr("Dismantled %s: +%d gold") % [tr(broken[0].display_name), gold_gained], Palette.GOLD)
+	else:
+		Events.log_message(tr("Dismantled %d pieces of gear: +%d gold") % [broken.size(), gold_gained], Palette.GOLD)
+	dismantled.emit(broken, gold_gained)
+	return gold_gained
+
+
+## The gear in the bag worse than what is worn in its slot (ItemCompare.is_worse): what
+## "Dismantle the worse" breaks down. Every item of a stack is listed.
+func worse_gear() -> Array[ItemDef]:
+	var result: Array[ItemDef] = []
+	for item in inventory.items:
+		var gear := item as EquipmentDef
+		if gear and DismantleRules.can_dismantle(gear) and ItemCompare.is_worse(gear, equipment.get_item(gear.slot)):
+			result.append(item)
+	return result
 
 
 ## Uses the item in belt slot `index` (the buttons next to the skills).
@@ -296,7 +361,7 @@ func move_to_belt(item: ItemDef) -> bool:
 
 
 func move_to_bag(index: int) -> bool:
-	if belt.item_at(index) == null or inventory.is_full():
+	if belt.item_at(index) == null or not inventory.can_add(belt.item_at(index)):
 		return false
 	inventory.add(belt.take(index))
 	return true
@@ -493,7 +558,7 @@ func _tick_timers(delta: float) -> void:
 
 ## How many of `item` the hero carries (belt and bag).
 func carried_count(item: ItemDef) -> int:
-	return belt.count_of(item) + inventory.items.count(item)
+	return belt.count_of(item) + inventory.count_of(item)
 
 
 func _body_modulate() -> Color:

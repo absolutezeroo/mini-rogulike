@@ -47,6 +47,8 @@ var _hidden_for_trial: Array[Control] = []
 @onready var _full_map: Minimap = %FullMap
 ## Under the map during a pact's fight: its rule and how it holds (built in code).
 var pact_line := PactLine.new()
+## Loot left on the ground (auto loot, a full bag) with its Take button (built in code).
+var loot_prompt := LootPrompt.new()
 
 
 func _ready() -> void:
@@ -72,6 +74,8 @@ func _ready() -> void:
 	_apply_settings()
 	pact_line.hud = self
 	add_child(pact_line)
+	loot_prompt.hud = self
+	add_child(loot_prompt)
 	Events.depth_changed.connect(_on_depth_changed)
 	_depth_banner.modulate.a = 0.0
 
@@ -189,6 +193,7 @@ func bind_player(player: Player) -> void:
 		_player.gold_changed.disconnect(_on_gold_changed)
 		_player.perks.synergy_awakened.disconnect(_on_synergy_awakened)
 	_player = player
+	loot_prompt.player = player
 	_player.health_changed.connect(_on_health_changed)
 	_vignette.reset()
 	_player.health_changed.connect(_vignette.on_health_changed)

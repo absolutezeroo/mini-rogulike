@@ -1,6 +1,8 @@
 class_name ItemPickup
 extends Area2D
-## An item lying on the floor. Walking over it picks it up.
+## An item lying on the floor. Walking over it picks it up, if auto loot wants it
+## (Settings.auto_loot, Player.wants()); else, or when the bag has no room, it stays and the HUD
+## shows it with a Take button while the hero stands on it (Events.loot_offered, LootPrompt).
 
 const PICKUP_RADIUS := 14.0
 
@@ -8,6 +10,8 @@ var item: ItemDef
 ## Dropped items wait until the player walks away before they can be picked up again.
 var _armed := true
 var _taken := false
+## Shown on the HUD (walked over, left on the ground).
+var _offered := false
 var _time := 0.0
 
 
@@ -37,14 +41,42 @@ func _on_body_entered(body: Node2D) -> void:
 	if _taken or not _armed or not body is Player:
 		return
 	var player := body as Player
-	if not player.is_dead and player.pick_up(item):
-		_taken = true
-		queue_free()
+	if player.is_dead:
+		return
+	if player.wants(item, Settings.auto_loot) and take(player):
+		return
+	_offered = true
+	Events.loot_offered.emit(self)
 
 
 func _on_body_exited(body: Node2D) -> void:
 	if body is Player:
 		_armed = true
+		_left()
+
+
+## Picks it up (walked over, or the Take button). False if the hero has no room for it.
+func take(player: Player) -> bool:
+	if _taken or player == null or player.is_dead or not player.pick_up(item):
+		return false
+	_taken = true
+	_left()
+	queue_free()
+	return true
+
+
+func is_taken() -> bool:
+	return _taken
+
+
+func _left() -> void:
+	if _offered:
+		_offered = false
+		Events.loot_left.emit(self)
+
+
+func _exit_tree() -> void:
+	_left()
 
 
 func _draw() -> void:

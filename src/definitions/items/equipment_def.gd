@@ -29,6 +29,15 @@ func is_rolled() -> bool:
 
 
 ## Rune sockets: weapons only, 1 to 3 by rarity.
+## Rolled copies made apart (each drop is its own resource) stack when they are the same item:
+## same base item, rarity, item level, affixes (in order: they make the name) and set runes. That
+## is exactly what a saved run keeps of it (LootRoller.to_data), so equal keys come back equal.
+func stack_key() -> String:
+	if not is_rolled():
+		return super.stack_key()
+	return base_item.stack_key() + "|" + JSON.stringify(LootRoller.to_data(self))
+
+
 func socket_count() -> int:
 	return ItemRarity.SOCKETS[rarity] if slot == Slot.WEAPON else 0
 

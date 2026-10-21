@@ -152,8 +152,8 @@ func run() -> void:
 	for child in grid.get_children():
 		if (child as ItemSlot).item and (child as ItemSlot).item.id == cap.id:  # (or a cap picked up on the way)
 			cap_slot = child
-	var stacked := player.inventory.items.size() - player.inventory.grouped().size()  # identical items share a slot
-	check(grid.get_child_count() == player.inventory.capacity - stacked and cap_slot != null, "inventory shows the bag as slots (%d of %d)" % [grid.get_child_count(), player.inventory.capacity - stacked])
+	# A stack takes one place: as many slots as the bag has places.
+	check(grid.get_child_count() == player.inventory.capacity and cap_slot != null, "inventory shows the bag as slots (%d of %d)" % [grid.get_child_count(), player.inventory.capacity])
 	cap_slot.pressed.emit()
 	(game.inventory_panel.get_node("%UseButton") as Button).pressed.emit()
 	check(player.equipment.get_item(EquipmentDef.Slot.HEAD) != null, "equip from the inventory screen")
@@ -230,6 +230,7 @@ func run() -> void:
 	await floor._test_souls(game)
 	await floor._test_comfort(game)
 	await floor._test_loot_and_gold(game)
+	await floor._test_bag_room(game)
 	await combat._test_weapon_kits(game)
 	await floor._test_encounters(game)
 	await floor._test_pacts(game)

@@ -270,7 +270,7 @@ func _test_hints(game: Game) -> void:
 		CONTENT.tutorial.near_distance = 200.0
 		player.global_position = pact.front()
 		var shown := false
-		for attempt in 4:  # (a chest or the merchant in reach may have its say first)
+		for attempt in 8:  # (a chest, the merchant or a crack in reach may have its say first)
 			await _frames(gap)
 			shown = tutorial.current != null and tutorial.current.id == &"pact"
 			if shown:
