@@ -30,6 +30,8 @@ func run() -> void:
 	_test_routes()
 	_test_pacts()
 	_test_soul_tree()
+	_test_armory_levels()
+	_test_tree_reset_runs()
 	_test_loader()
 	_test_pilgrim_costs()
 	_test_bosses()
@@ -40,6 +42,7 @@ func run() -> void:
 	_test_plateau_mist()
 	_test_languages()
 	_test_threshold()
+	_test_abyss()
 	_test_text_grid()
 	_test_charged_attacks()
 	var sound := SoundTests.new()
@@ -1278,6 +1281,7 @@ func _test_soul_tree() -> void:
 	check(Profile.buy_node(trophy), "...then opens")
 	var spent := tree.spent()
 	var souls := Profile.souls
+	Profile.runs_since_reset = tree.reset_runs
 	check(Profile.reset_tree(tree) and Profile.souls == souls + spent and tree.spent() == 0 and Profile.level_of(might.upgrade) == 0, "a reset gives every soul back")
 
 	# What they do to a run.
@@ -1316,6 +1320,133 @@ func _test_soul_tree() -> void:
 	Profile.levels = saved_levels
 	Profile.souls = saved_souls
 	Profile.achievements = saved_achievements
+
+
+## The Armory is bought in levels: level 1 a weapon per way to fight, each next level two more,
+## in the order its data lists them (the rare ones last); weapons still locked in the dungeon are
+## never offered; a starting weapon the level doesn't offer falls back to the usual one.
+func _test_armory_levels() -> void:
+	var armory: UpgradeDef = load("res://data/upgrades/armory.tres")
+	check(armory.armory and armory.max_level >= 4 and armory.max_level <= 6, "the Armory has 4-6 levels (%d)" % armory.max_level)
+	check(armory.armory_count(armory.max_level) == armory.armory_weapons.size() and armory.armory_count(armory.max_level - 1) < armory.armory_weapons.size(), "its last level opens the last weapon of its list, not before")
+	var ids := armory.armory_weapons.map(func(w: WeaponDef) -> StringName: return w.id)
+	check(ids.slice(0, 3) == [&"katana", &"bow", &"stick"], "level 1: the Katana, the Bow and the Frost Staff (%s)" % [ids.slice(0, 3)])
+	var oath_weapons := CONTENT.soul_tree.oaths().map(func(o: OathDef) -> WeaponDef: return o.starting_weapon)
+	check(armory.armory_weapons.all(func(w: WeaponDef) -> bool: return w != null and not oath_weapons.has(w) and ids.count(w.id) == 1), "each weapon once, none an oath's (they come with their oath)")
+	for level in range(1, armory.max_level):
+		check(armory.cost_for_level(level) > armory.cost_for_level(level - 1), "Armory level %d costs more than the one before (%d > %d)" % [level + 1, armory.cost_for_level(level), armory.cost_for_level(level - 1)])
+	check(armory.cost_for_level(0) <= 150, "its first level is cheap (%d souls)" % armory.cost_for_level(0))
+	var saved_levels := Profile.levels.duplicate()
+	var saved_weapon := Profile.starting_weapon
+	Profile.levels = {}
+	check(ShrineUpgrades.armory_weapons(CONTENT).is_empty() and not OathPanel.has_armory(CONTENT), "no Armory: no weapon to pick")
+	var offered: Array[WeaponDef] = []
+	for level in range(1, armory.max_level + 1):
+		Profile.levels = { "armory": level }
+		var weapons := ShrineUpgrades.armory_weapons(CONTENT)
+		var expected := armory.armory_weapons.slice(0, armory.armory_count(level)).filter(func(w: WeaponDef) -> bool: return not CONTENT.locked_items.has(w))
+		check(weapons == expected, "Armory level %d: its weapons in data order (%s)" % [level, weapons.map(func(w: WeaponDef) -> StringName: return w.id)])
+		check(weapons.slice(0, offered.size()) == offered and (level == 1 or armory.armory_added(level).size() == armory.armory_per_level), "Armory level %d keeps the ones before and adds %d" % [level, armory.armory_per_level])
+		check(weapons.all(func(w: WeaponDef) -> bool: return not CONTENT.locked_items.has(w)), "Armory level %d: nothing still locked in the dungeon" % level)
+		offered = weapons
+	check(offered.size() >= 9, "the whole Armory offers most of the roster (%d)" % offered.size())
+	var templar: WeaponDef = load("res://data/items/weapons/templar_sword.tres")
+	check(CONTENT.locked_items.has(templar) and armory.armory_weapons.has(templar) and not offered.has(templar), "the Templar Sword waits for its unlock (Paladin's Oath)")
+	var next := UpgradeRow.armory_status(armory, armory.max_level - 1, CONTENT)
+	check(next.contains(templar.display_name + " (locked)"), "the detail marks a weapon still locked (%s)" % next)
+	var unlock := CONTENT.upgrades.filter(func(u: UpgradeDef) -> bool: return u.kind == UpgradeDef.Kind.UNLOCK and u.items.has(templar))
+	check(unlock.size() == 1, "an upgrade unlocks the Templar Sword")
+	if unlock.size() == 1:
+		Profile.levels[String(unlock[0].id)] = 1
+		check(ShrineUpgrades.armory_weapons(CONTENT).has(templar), "...then the Armory offers it")
+		check(not UpgradeRow.armory_status(armory, armory.max_level - 1, CONTENT).contains("(locked)"), "...and the detail no longer says locked")
+	var status := UpgradeRow.armory_status(armory, 2, CONTENT)
+	check(status.contains("Next: +2 weapons: %s, %s" % [armory.armory_weapons[5].display_name, armory.armory_weapons[6].display_name]), "the Armory's detail names the next level's weapons (%s)" % status)
+	check(UpgradeRow.armory_status(armory, 0).contains("Katana, Bow, Frost Staff") and UpgradeRow.armory_status(armory, armory.max_level).contains("maxed"), "...what level 1 gives, and maxed")
+	# An older save: the Armory bought once (now level 1), and any weapon picked then.
+	Profile.levels = { "armory": 1 }
+	Profile.starting_weapon = &"big_sword"
+	check(Game.picked_weapon(CONTENT) == null, "a starting weapon the Armory's level doesn't offer: the usual one")
+	var hero := PLAYER.instantiate() as Player
+	hero.setup(CONTENT.player)
+	ShrineUpgrades.apply_to(hero, CONTENT, CONTENT.get_difficulty(&"normal"), null, load("res://data/items/weapons/big_sword.tres"))
+	check(hero.equipment.get_item(EquipmentDef.Slot.WEAPON) == OathPanel.usual_weapon(CONTENT), "...and the run starts with it, whatever is asked")
+	hero.free()
+	Profile.starting_weapon = &"bow"
+	check(Game.picked_weapon(CONTENT) == load("res://data/items/weapons/bow.tres"), "a weapon of level 1 is kept")
+	Profile.starting_weapon = &"no_such_weapon"
+	check(Game.picked_weapon(CONTENT) == null, "an unknown id: the usual one, no crash")
+	Profile.levels = saved_levels
+	Profile.starting_weapon = saved_weapon
+
+
+## Resetting the Tree of Souls is earned: once every `reset_runs` finished runs (daily ones too),
+## counted by Profile.record_run; it gives back every soul spent, every level; older saves start
+## with one earned.
+func _test_tree_reset_runs() -> void:
+	var tree := CONTENT.soul_tree
+	check(tree.reset_runs == 3, "a reset takes 3 runs (%d)" % tree.reset_runs)
+	# The profile as it is, put back at the end (runs are recorded and saves loaded below).
+	var backup := "user://test_profile_backup_%d.json" % OS.get_process_id()
+	Profile.save_path = backup
+	Profile.save_profile()
+	Profile.save_path = ""
+	Profile.levels = {}
+	Profile.runs_since_reset = 0
+	Profile.souls = 100000
+	var might := tree.find(&"might")
+	var fury := tree.find(&"fury_training")
+	var armory := tree.find(&"armory")
+	check(Profile.buy_node(might) and Profile.buy_node(might) and Profile.buy_node(might) and Profile.buy_node(fury), "a few levels bought")
+	for i in 3:
+		check(Profile.buy_node(armory), "Armory level %d bought" % (i + 1))
+	check(armory.level() == 3 and might.level() == 3, "levels on two nodes")
+	var spent := tree.spent()
+	var paid := fury.upgrade.cost_for_level(0)
+	for level in 3:
+		paid += might.upgrade.cost_for_level(level) + armory.upgrade.cost_for_level(level)
+	check(spent == paid and spent == 100000 - Profile.souls, "the tree knows every soul spent, every level (%d)" % spent)
+	check(Profile.reset_runs_left(tree) == 3 and not Profile.can_reset_tree(tree) and not Profile.reset_tree(tree) and armory.level() == 3, "no reset before its runs")
+	check(ShrinePanel.reset_label(Profile.reset_runs_left(tree)) == "Reset in 3 runs" and ShrinePanel.reset_label(1) == "Reset in 1 run" and ShrinePanel.reset_label(0) == "Reset the tree", "the button says how many runs are left")
+	Profile.record_run(0, 3, false, &"normal")
+	Profile.record_run(0, 5, false, &"easy", false, true)
+	check(Profile.reset_runs_left(tree) == 1, "each finished run counts, Pilgrim's too (%d left)" % Profile.reset_runs_left(tree))
+	Profile.record_run(10, 12, false, &"normal", true, false)
+	check(Profile.reset_runs_left(tree) == 1, "the endless floors after a win are not another run")
+	var quit := RunState.create(CONTENT, {}, RandomNumberGenerator.new())
+	quit.award_souls(false, CONTENT.ascensions.size())
+	check(Profile.reset_runs_left(tree) == 1, "a run given up on its first floor doesn't count toward the reset")
+	var daily := RunState.create(CONTENT, {}, RandomNumberGenerator.new(), 20000)
+	daily.depth = tree.reset_min_depth
+	daily.award_souls(false, CONTENT.ascensions.size())
+	check(daily.is_daily() and Profile.reset_runs_left(tree) == 0 and Profile.can_reset_tree(tree), "a daily run counts too: the reset is earned")
+	var won := RunState.create(CONTENT, {}, RandomNumberGenerator.new())
+	won.depth = 12
+	won.has_won = true
+	won.award_souls(true, CONTENT.ascensions.size())
+	var count := Profile.runs_since_reset
+	won.award_souls(false, CONTENT.ascensions.size())
+	check(Profile.runs_since_reset == count, "a won run dying later in the endless floors counted once")
+	var souls := Profile.souls
+	check(Profile.reset_tree(tree) and Profile.souls == souls + spent and tree.spent() == 0 and armory.level() == 0 and might.level() == 0, "the reset gives back every level's souls (%d)" % spent)
+	check(Profile.runs_since_reset == 0 and Profile.reset_runs_left(tree) == 3 and not Profile.can_reset_tree(tree), "then the count starts again")
+	# An older save (no count kept) starts with a reset earned; the count is saved after that.
+	var path := "user://test_profile_reset_%d.json" % OS.get_process_id()
+	SafeFile.write_json(path, { "souls": 5, "levels": { "might": 2, "armory": 1 }, "starting_weapon": "big_sword" })
+	Profile.save_path = path
+	Profile.load_profile()
+	check(Profile.reset_runs_left(tree) == 0 and Profile.can_reset_tree(tree) and might.level() == 2, "an older save starts with a reset earned")
+	check(armory.level() == 1 and Game.picked_weapon(CONTENT) == null, "an older save's Armory is level 1, its weapon out of it falls back to the usual one")
+	Profile.runs_since_reset = 2
+	Profile.save_profile()
+	Profile.runs_since_reset = 0
+	Profile.load_profile()
+	check(Profile.runs_since_reset == 2, "the count is saved")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+	Profile.save_path = backup
+	Profile.load_profile()
+	Profile.save_path = ""
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(backup))
 
 
 ## Pilgrim spares the hero but pays less: fewer souls, rarer good gear, no feats; and says so.
@@ -1663,7 +1794,9 @@ func _test_profile() -> void:
 	check(config.souls_for_run(10, 4, 1, false) == roundi(10 * config.souls_per_kill + 3 * config.souls_per_floor + config.souls_per_boss), "souls: kills + depth + bosses")
 	check(config.souls_for_run(0, 9, 3, true) > config.souls_for_run(0, 9, 3, false), "winning gives a big bonus")
 	var vitality := _upgrade("vitality")
+	Profile.runs_since_reset = 2
 	Profile.reset()
+	check(Profile.runs_since_reset == 0, "a new profile counts its runs toward a reset from zero")
 	check(not Profile.buy(vitality), "no souls, no upgrade")
 	Profile.souls = 1000
 	check(Profile.buy(vitality) and Profile.level_of(vitality) == 1, "buying an upgrade")
@@ -1911,6 +2044,93 @@ func _test_threshold() -> void:
 				floor_cells += 1
 	check(floor_cells > 120, "room to fight (%d cells)" % floor_cells)
 	check(trial.theme != null and trial.ambience != null and trial.knell != null, "the limbo has its look and its bell")
+
+
+## The Deeps (AbyssDef): their numbers grow by act, their demons are sound and live nowhere else,
+## every maze leads to its door, and the first fall has its hint.
+func _test_abyss() -> void:
+	var def := CONTENT.dungeon.abyss
+	check(def != null, "the floors have their Deeps (DungeonConfig > Abyss)")
+	if def == null:
+		return
+	var config := CONTENT.dungeon
+	var last := config.total_floors()
+	check(def.fall_damage > 0.0 and def.fall_damage < 0.15, "the fall down there costs less than climbing out of a hole (%d%%)" % roundi(def.fall_damage * 100.0))
+	check(def.quick_time_for(last, config) > def.quick_time_for(1, config) and def.gift_gold_for(last, config) > def.gift_gold_for(1, config), "the dawn's gift: more time and more gold deeper")
+	check(def.wave_size_for(3, 1, config) > def.wave_size_for(0, 1, config), "each wave brings more demons")
+	check(def.wave_size_for(0, last, config) > def.wave_size_for(0, 1, config) and def.wave_every_for(last, config) < def.wave_every_for(1, config) and def.max_alive_for(last, config) > def.max_alive_for(1, config), "deeper acts: bigger, quicker waves")
+	check(not def.has_warden(1, config) and def.has_warden(last, config), "the warden stands at the door of the deep acts only")
+	check(def.theme != null and def.lighting != null and def.ambience != null and def.lighting.ambient_level < 5 and def.torch_level < 12, "the Deeps are dark (light %d, torch %d)" % [def.lighting.ambient_level, def.torch_level])
+	check(def.hazards.any(func(h: HazardDef) -> bool: return h is PitDef and not (h as PitDef).is_crumbling()), "holes down there too (the hole challenge can be met on their walkers)")
+	# The demons: sound, in no act, unique.
+	var in_acts := CONTENT.all_monsters()
+	for act in config.acts:
+		in_acts.append_array(act.all_bosses())
+	var ids := {}
+	for monster in CONTENT.all_monsters():
+		ids[monster.id] = true
+	for item in CONTENT.items:
+		ids[item.id] = true
+	var demons := CONTENT.abyss_monsters()
+	check(demons.size() >= 6 and demons.has(def.warden), "%d demons and the warden" % demons.size())
+	for monster in demons:
+		check(monster.weapon != null and monster.stats != null and monster.stats.max_hp > 0 and monster.xp_reward > 0, "%s has a weapon, Health and XP" % monster.id)
+		check(monster.frames != null and (monster.frames.has_animation(&"walk_down") or monster.frames.has_animation(&"walk")) and monster.icon != null, "%s is animated" % monster.id)
+		check(not ids.has(monster.id), "%s: a new id" % monster.id)
+		ids[monster.id] = true
+		check(not in_acts.has(monster), "%s lives in the Deeps only, in no act" % monster.id)
+		check(not monster.display_name.is_empty() and not monster.description.is_empty(), "%s is named and described" % monster.id)
+		check(monster.resource_path.begins_with("res://data/monsters/abyss/"), "%s is its own file" % monster.id)
+	for monster in def.monsters:
+		check(monster.spawn_weight > 0, "%s comes in the waves" % monster.id)
+	check(def.warden.spawn_weight == 0 and not def.monsters.has(def.warden), "the warden only stands at the door")
+	check(def.monsters.any(func(m: MonsterDef) -> bool: return m.flies) and def.monsters.any(func(m: MonsterDef) -> bool: return m.keep_distance > 0.0) and def.monsters.any(func(m: MonsterDef) -> bool: return m.keep_distance <= 0.0), "brutes, shooters and flyers")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 5
+	var early := {}
+	for i in 300:
+		early[def.pick_monster(1, rng)] = true
+	check(early.keys().all(func(m: MonsterDef) -> bool: return m.min_depth <= 1 and def.monsters.has(m)), "Act I's waves: no demon before its depth")
+	var drinker: MonsterDef = load("res://data/monsters/abyss/blood_drinker.tres")
+	var drinks := false
+	for monster_trait in drinker.traits:
+		if monster_trait is PerkTrait:
+			for perk in (monster_trait as PerkTrait).perks:
+				drinks = drinks or perk.passives.any(func(x: Passive) -> bool: return x is LifestealPassive)
+	check(drinks, "the Blood Drinker drinks from its blows")
+	# Every maze: rooms, a start and a door apart, a way between them (no holes yet: AbyssWorld
+	# adds them without cutting the way, see FloorTests).
+	var cut := []
+	for seed_value in 200:
+		rng.seed = seed_value
+		var map := AbyssWorld.make_map(def, config, rng)
+		if map.rooms.size() < 3 or map.start_cell == map.stairs_cell or not _reachable(map, map.start_cell, map.stairs_cell):
+			cut.append(seed_value)
+	check(cut.is_empty(), "every maze leads from where the hero lands to the door (200 seeds; failed: %s)" % str(cut))
+	# Its hint, the first time.
+	var hint: HintDef = null
+	for h in CONTENT.tutorial.hints:
+		if h.cue == &"abyss":
+			hint = h
+	check(hint != null and Tutorial.CUES.has(&"abyss"), "the first fall has its hint")
+	if hint:
+		check(hint.text.length() <= 120 and hint.duration > 0.0, "a short hint (%d characters), on screen a while" % hint.text.length())
+
+
+## Whether `to` can be walked to from `from` on `map`'s floor (4 ways).
+static func _reachable(map: DungeonMap, from: Vector2i, to: Vector2i) -> bool:
+	var seen := {from: true}
+	var open: Array[Vector2i] = [from]
+	while not open.is_empty():
+		var cell: Vector2i = open.pop_back()
+		if cell == to:
+			return true
+		for step: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+			var next := cell + step
+			if not seen.has(next) and map.is_floor(next):
+				seen[next] = true
+				open.append(next)
+	return false
 
 
 ## Every big character frame holds a whole figure: a frame cut through the middle of the drawing

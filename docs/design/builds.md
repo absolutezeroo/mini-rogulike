@@ -205,6 +205,12 @@ the run, and what slew him is still what slew him the first time.
   the pause menu works. Without a Threshold in the scene (the balance tools' bare arena, which
   also has no game around it), a second life heals in place as before, so revives still read in
   the measures.
+- **From the Deeps** (dungeon.md, "The Deeps"): a killing blow down there (a demon's, or the fall
+  itself) opens the Threshold from the Deeps. The Deeps wait out of the tree as the floor does
+  (and the floor goes on waiting under them: the stays nest, `SubWorld`); won, the hero comes back
+  **into the Deeps**, where he fell, and must still find the Dawn Breach; lost, he dies down
+  there. The Threshold never sends him into the Deeps (its limbo has no holes, and
+  `Abyss.can_take()` refuses while a trial is on).
 
 ### Families (synergies)
 

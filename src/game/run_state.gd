@@ -53,6 +53,8 @@ var secrets_found := 0
 var bonus_souls := 0
 ## The dungeon's rules (what a run's souls are worth). Set by create(); not saved.
 var config: DungeonConfig
+## The floor a run must reach to count toward the next reset of the tree (SoulTreeDef).
+var reset_min_depth := 1
 
 
 ## A new run, or the saved one (`saved` from RunSave; empty for a new run).
@@ -60,6 +62,8 @@ var config: DungeonConfig
 static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGenerator, daily_day: int = -1) -> RunState:
 	var run := RunState.new()
 	run.config = content.dungeon
+	if content.soul_tree:
+		run.reset_min_depth = content.soul_tree.reset_min_depth
 	run.daily_day = int(saved.get("daily_day", daily_day))
 	run.daily_official = bool(saved.get("daily_official", false))
 	if run.daily_day >= 0 and saved.is_empty():
@@ -131,7 +135,10 @@ func award_souls(won_now: bool, ascension_count: int) -> int:
 	var total := souls()
 	var earned := total - souls_awarded
 	souls_awarded = total
-	Profile.record_run(earned, depth, won_now, difficulty.id, difficulty.counts_feats)
+	# A run won then lost in the endless floors ends once: at the win; a run given up before
+	# its second floor doesn't count toward the tree's reset.
+	var finished := (won_now or not has_won) and depth >= reset_min_depth
+	Profile.record_run(earned, depth, won_now, difficulty.id, difficulty.counts_feats, finished)
 	if won_now and difficulty.has_ascensions:
 		Profile.win_ascension(difficulty.ascension, ascension_count)
 	return earned

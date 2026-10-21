@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="MonsterDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="1_def"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/monsters/blood_drinker.tres" id="2_frames"]
+[ext_resource type="Texture2D" path="res://assets/characters/monsters/blood_drinker.png" id="3_icon"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="4_stats"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/claws.tres" id="5_weapon"]
+[ext_resource type="Resource" path="res://data/materials/flesh.tres" id="6_material"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="7_entry"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="8_table"]
+[ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="9_potion"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="12_trait"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/perk_trait.gd" id="13_perk_trait"]
+[ext_resource type="Resource" path="res://data/monsters/abyss/thirst.tres" id="14_vampiric"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="15_perk"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_icon"]
+atlas = ExtResource("3_icon")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_potion"]
+script = ExtResource("7_entry")
+item = ExtResource("9_potion")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_loot"]
+script = ExtResource("8_table")
+drop_chance = 0.12
+entries = Array[ExtResource("7_entry")]([SubResource("Resource_potion")])
+
+[sub_resource type="Resource" id="Resource_stats"]
+script = ExtResource("4_stats")
+max_hp = 46
+defense = 1
+move_speed = 108.0
+
+[sub_resource type="Resource" id="Resource_drink"]
+script = ExtResource("13_perk_trait")
+perks = Array[ExtResource("15_perk")]([ExtResource("14_vampiric")])
+text = "Heals from the wounds it gives."
+
+[resource]
+script = ExtResource("1_def")
+material = ExtResource("6_material")
+stats = SubResource("Resource_stats")
+weapon = ExtResource("5_weapon")
+radius = 10.0
+frames = ExtResource("2_frames")
+frames_offset = Vector2(0, -8)
+splat_color = Color(0.352941, 0.039216, 0.117647, 0.85)
+traits = Array[ExtResource("12_trait")]([SubResource("Resource_drink")])
+detect_radius = 340.0
+attack_windup = 0.35
+attack_recovery = 0.3
+xp_reward = 11
+loot = SubResource("Resource_loot")
+id = &"blood_drinker"
+display_name = "Blood Drinker"
+description = "Pale and thirsty: every wound it gives, it drinks."
+icon = SubResource("AtlasTexture_icon")
+glyph = "V"
+color = Color(0.85, 0.2, 0.32, 1)
+spawn_weight = 8

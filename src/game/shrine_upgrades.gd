@@ -11,6 +11,20 @@ static func unlocked_items(content: ContentDB) -> Array[ItemDef]:
 	return items
 
 
+## The weapons the Armory lets the hero start with: those its level opened (UpgradeDef
+## `armory_weapons`, in data order), minus the ones still locked in ContentDB. Empty: no Armory.
+static func armory_weapons(content: ContentDB) -> Array[WeaponDef]:
+	var unlocked := unlocked_items(content)
+	var result: Array[WeaponDef] = []
+	for upgrade in content.upgrades:
+		if upgrade.kind != UpgradeDef.Kind.RULES or not upgrade.armory:
+			continue
+		for weapon in upgrade.armory_weapons.slice(0, upgrade.armory_count(Profile.level_of(upgrade))):
+			if weapon and not result.has(weapon) and (not content.locked_items.has(weapon) or unlocked.has(weapon)):
+				result.append(weapon)
+	return result
+
+
 ## Rerolls (`kind` REROLLS) or banishes (BANISHES) the shrine adds to every run.
 static func extra_charges(content: ContentDB, kind: UpgradeDef.Kind) -> int:
 	var total := 0
@@ -21,10 +35,9 @@ static func extra_charges(content: ContentDB, kind: UpgradeDef.Kind) -> int:
 
 
 ## A new hero: stats, starting items and perks from the shrine, the oath sworn (OathDef) and the
-## weapon picked (the Armory node), then the difficulty's max HP.
+## weapon picked (the Armory node: only one its level opened), then the difficulty's max HP.
 static func apply_to(player: Player, content: ContentDB, difficulty: DifficultyDef, oath: OathDef = null, picked_weapon: WeaponDef = null) -> void:
 	var hp_scale := 1.0
-	var armory := false
 	for upgrade in content.upgrades:
 		var level := Profile.level_of(upgrade)
 		if level <= 0:
@@ -42,13 +55,12 @@ static func apply_to(player: Player, content: ContentDB, difficulty: DifficultyD
 					player.perks.add(upgrade.perk)
 			UpgradeDef.Kind.RULES:
 				hp_scale *= upgrade.max_hp_scale
-				armory = armory or upgrade.armory
 			UpgradeDef.Kind.RANDOM_STARTING_ITEM:
 				var choices := upgrade.items.filter(func(item: ItemDef) -> bool: return item != null and content.is_available(item))
 				if not choices.is_empty():
 					player.store(choices[randi() % choices.size()])
 	var weapon: WeaponDef = null
-	if armory and picked_weapon and content.is_available(picked_weapon):
+	if picked_weapon and armory_weapons(content).has(picked_weapon):
 		weapon = picked_weapon
 	if oath:
 		if oath.bonuses:

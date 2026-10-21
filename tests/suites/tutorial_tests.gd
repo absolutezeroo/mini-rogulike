@@ -359,6 +359,29 @@ func _test_hints(game: Game) -> void:
 	tutorial.dismiss()  # (the souls hint, if the spectres' souls were the first gathered)
 	await _frames(gap)
 
+	# The first fall into the Deeps: its hint once their name and rule are gone, at the way out.
+	await _clear_monsters(game.world)
+	player.invincible = true
+	await _walk_into_hole(game.world, player)
+	check(await _until_deeps(game), "a fall takes the hero into the Deeps")
+	game.abyss.depths.waves_on = false
+	await _frames(30)
+	check(tutorial.current == null or tutorial.current.id != &"abyss", "its hint waits for the Deeps' name to go")
+	for i in 400:
+		if tutorial.current and tutorial.current.id == &"abyss":
+			break
+		await _frames(1)
+	check(tutorial.current != null and tutorial.current.id == &"abyss", "then the Deeps' hint")
+	check(game.hint_box.target.has_area(), "pointing at the way out's name")
+	tutorial.dismiss()
+	check(await _escape_deeps(game), "back up from the Deeps")
+	_fill_holes()
+	player.invincible = false
+	player.hp = player.get_max_hp()
+	await _frames(gap)
+	tutorial.dismiss()
+	await _frames(gap)
+
 
 ## Never over a menu; turned off in the options, they all go.
 func _test_menus_and_off(game: Game) -> void:

@@ -2,12 +2,16 @@ class_name OathPanel
 extends Control
 ## "At the Well's Edge", between the difficulty and the run, once the Tree of Souls opened an oath
 ## or the Armory: swear an oath (OathDef, "X, but Y") or none, and pick the weapon to start with.
-## The choice is remembered for the next runs (Profile.oath, Profile.starting_weapon).
-## Built in code; %OathCards, %WeaponRow and %StartRunButton are reachable from the title screen.
+## The choice is remembered for the next runs (Profile.oath, Profile.starting_weapon). The Armory
+## offers only the weapons its level opened (UpgradeDef.armory_weapons), and says so.
+## Built in code; %OathCards, %WeaponRow, %ArmoryText and %StartRunButton are reachable from the
+## title screen.
 
 signal started
 
 const CARD_SIZE := Vector2(250, 296)
+## The Armory's line, right of the weapon slots (two lines at most beside them).
+const ARMORY_TEXT_WIDTH := 440.0
 
 var _content: ContentDB
 var _window: MenuWindow
@@ -15,6 +19,8 @@ var _cards: HBoxContainer
 var _weapons_box: Control
 var _weapons: HBoxContainer
 var _weapon_text: Label
+## "Armory level 2: 5 weapons. More in the Tree of Souls."
+var _armory_text: Label
 var _start: Button
 
 
@@ -33,14 +39,30 @@ static func has_armory(content: ContentDB) -> bool:
 	return content.upgrades.any(func(u: UpgradeDef) -> bool: return u.kind == UpgradeDef.Kind.RULES and u.armory and Profile.level_of(u) > 0)
 
 
-## The weapons the hero may start with: those the dungeon holds (unlocked ones included).
+## The weapons the hero may start with: those the Armory's level opened, in its order, minus
+## the ones still locked in the dungeon.
 static func weapons(content: ContentDB) -> Array[WeaponDef]:
-	var unlocked := ShrineUpgrades.unlocked_items(content)
-	var result: Array[WeaponDef] = []
-	for item in content.items + content.locked_items:
-		if item is WeaponDef and not result.has(item) and (not content.locked_items.has(item) or unlocked.has(item)):
-			result.append(item)
-	return result
+	return ShrineUpgrades.armory_weapons(content)
+
+
+## The Armory's level and its words: "Armory level 2: 5 weapons. More in the Tree of Souls."
+static func armory_line(content: ContentDB) -> String:
+	for upgrade in content.upgrades:
+		if upgrade.kind == UpgradeDef.Kind.RULES and upgrade.armory and Profile.level_of(upgrade) > 0:
+			var level := Profile.level_of(upgrade)
+			var count := weapons(content).size()
+			if level >= upgrade.max_level:
+				return TranslationServer.tr("Armory level %d (max): %d weapons.") % [level, count]
+			return TranslationServer.tr("Armory level %d: %d weapons. More in the Tree of Souls.") % [level, count]
+	return ""
+
+
+## The weapon a run starts with when none is picked (the hero's usual one).
+static func usual_weapon(content: ContentDB) -> WeaponDef:
+	for item in content.player.starting_equipment:
+		if item is WeaponDef:
+			return item
+	return null
 
 
 func open(content: ContentDB) -> void:
@@ -150,20 +172,24 @@ func _fill_weapons() -> void:
 	if not _weapons_box.visible:
 		return
 	var oath := Game.sworn_oath(_content)
+	var usual := usual_weapon(_content)
 	var picked := Game.picked_weapon(_content)
+	var shown := picked if picked else usual
 	if oath and oath.starting_weapon:
 		_weapon_text.text = tr("Your starting weapon (Armory): your oath brings its own, the %s. Without the oath, pick one below.") % tr(oath.starting_weapon.display_name)
 	else:
-		_weapon_text.text = tr("Your starting weapon (Armory): %s.") % (tr(picked.display_name) if picked else tr("the usual one"))
+		_weapon_text.text = tr("Your starting weapon (Armory): %s.") % (tr(shown.display_name) if shown else tr("the usual one"))
+	_armory_text.text = armory_line(_content)
 	for weapon in weapons(_content):
 		var slot := ItemSlot.new(56.0)
 		slot.item = weapon
 		slot.tooltip_text = tr(weapon.display_name)
-		slot.selected = weapon == picked
+		slot.selected = weapon == shown
 		slot.show_level = false
+		# Tapping the usual weapon, or the one picked again, goes back to the usual start.
 		slot.pressed.connect(func() -> void:
 			Sfx.play_ui(Sfx.bank.ui_click)
-			choose_weapon(null if weapon == picked else weapon))
+			choose_weapon(null if weapon == picked or weapon == usual else weapon))
 		_weapons.add_child(slot)
 
 
@@ -194,10 +220,22 @@ func _build() -> void:
 	_weapons_box.add_child(column)
 	_weapon_text = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
 	column.add_child(_weapon_text)
+	# The slots, and beside them the Armory's level (on one line with them: the window is full
+	# on a 720-line screen).
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 16)
+	column.add_child(row)
 	var weapon_scroll := ScrollContainer.new()
 	weapon_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	weapon_scroll.custom_minimum_size.y = 64
-	column.add_child(weapon_scroll)
+	weapon_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(weapon_scroll)
+	_armory_text = UiSkin.label("", Fonts.BODY, UiSkin.DIM, true)
+	_armory_text.custom_minimum_size.x = ARMORY_TEXT_WIDTH
+	_armory_text.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_armory_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	row.add_child(_armory_text)
+	MenuWindow.expose(_armory_text, "ArmoryText", scene_owner)
 	TouchScroll.attach(weapon_scroll)
 	_weapons = HBoxContainer.new()
 	_weapons.add_theme_constant_override("separation", 6)

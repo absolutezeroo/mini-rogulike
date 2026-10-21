@@ -45,6 +45,25 @@ func _test_boss_fight(game: Game) -> void:
 	check(game.hud.get_node("%BossBar").visible, "the boss bar is back")
 	player.hp = player.get_max_hp()
 
+	# A fall in a boss fight: no Deeps (the boss must not be frozen), the old rule: the hero climbs
+	# back out where he stood, hurt.
+	check(not game.abyss.can_take(player), "no Deeps on a boss floor")
+	var boss_skills_saved := boss.skills.skills.duplicate()
+	var none: Array[SkillDef] = []
+	boss.skills.set_skills(none)
+	var safe := await _walk_into_hole(world, player, 2)
+	var hp_before_fall := player.hp
+	for frame in int(Actor.FALL_TIME * 60.0) + 6:
+		boss._attack_cooldown = 1.0  # (its blows would blur the fall's cost)
+		await _frames(1)
+	check(not game.abyss.is_open() and player.world == world, "the boss floor stays: no Deeps")
+	check(not player.is_falling and player.global_position.distance_to(safe) < 24.0, "the hero climbs out where they stood")
+	check(player.hp < hp_before_fall and player.rig.scale == Vector2.ONE, "falling hurts")
+	check(hp_before_fall - player.hp <= roundi(player.get_max_hp() * 0.15) + 1, "a fall's cost there: up to 15%% of max Health (%d)" % (hp_before_fall - player.hp))
+	boss.skills.set_skills(boss_skills_saved)
+	_fill_holes()
+	player.hp = player.get_max_hp()
+
 	# Phase 2 at half HP: new skills.
 	var def := boss.def as BossDef
 	var hurt := HitInfo.new()

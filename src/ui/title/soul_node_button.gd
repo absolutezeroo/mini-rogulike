@@ -26,6 +26,11 @@ func _init(def: SoulNodeDef) -> void:
 		add_theme_stylebox_override(state, none)
 
 
+## Its name and what it gives now and next (the Armory: the weapons its next level adds).
+func _get_tooltip(_at: Vector2) -> String:
+	return "%s\n%s" % [node.display_name(), ShrinePanel.status_of(node)]
+
+
 func _process(delta: float) -> void:
 	_time += delta
 	if Profile.can_buy_node(node) or selected:

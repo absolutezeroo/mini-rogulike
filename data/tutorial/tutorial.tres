@@ -286,6 +286,16 @@ target = &"ThresholdCounters"
 duration = 9.0
 priority = 8
 
+[sub_resource type="Resource" id="Hint_abyss"]
+script = ExtResource("2_hint")
+id = &"abyss"
+cue = &"abyss"
+title = "The Deeps"
+text = "Fallen into the Deeps: follow the arrow of light to the Dawn Breach. The demons keep coming."
+target = &"AbyssBanner"
+duration = 9.0
+priority = 8
+
 [sub_resource type="Resource" id="Hint_pact"]
 script = ExtResource("2_hint")
 id = &"pact"
@@ -309,4 +319,4 @@ duration = 10.0
 
 [resource]
 script = ExtResource("1_tutorial")
-hints = Array[ExtResource("2_hint")]([SubResource("Hint_move"), SubResource("Hint_seal"), SubResource("Hint_attack"), SubResource("Hint_roll"), SubResource("Hint_weapon_skills"), SubResource("Hint_charge"), SubResource("Hint_potion"), SubResource("Hint_souls"), SubResource("Hint_perks"), SubResource("Hint_synergy"), SubResource("Hint_gear"), SubResource("Hint_spell"), SubResource("Hint_elite"), SubResource("Hint_rune"), SubResource("Hint_forge"), SubResource("Hint_merchant"), SubResource("Hint_chest"), SubResource("Hint_ambush"), SubResource("Hint_boss"), SubResource("Hint_stairs_open"), SubResource("Hint_two_ways"), SubResource("Hint_menu_souls"), SubResource("Hint_menu_shrine"), SubResource("Hint_menu_oath"), SubResource("Hint_cursed_floor"), SubResource("Hint_floor_event"), SubResource("Hint_cold"), SubResource("Hint_hot"), SubResource("Hint_threshold"), SubResource("Hint_cracked_wall"), SubResource("Hint_pact"), SubResource("Hint_encounter")])
+hints = Array[ExtResource("2_hint")]([SubResource("Hint_move"), SubResource("Hint_seal"), SubResource("Hint_attack"), SubResource("Hint_roll"), SubResource("Hint_weapon_skills"), SubResource("Hint_charge"), SubResource("Hint_potion"), SubResource("Hint_souls"), SubResource("Hint_perks"), SubResource("Hint_synergy"), SubResource("Hint_gear"), SubResource("Hint_spell"), SubResource("Hint_elite"), SubResource("Hint_rune"), SubResource("Hint_forge"), SubResource("Hint_merchant"), SubResource("Hint_chest"), SubResource("Hint_ambush"), SubResource("Hint_boss"), SubResource("Hint_stairs_open"), SubResource("Hint_two_ways"), SubResource("Hint_menu_souls"), SubResource("Hint_menu_shrine"), SubResource("Hint_menu_oath"), SubResource("Hint_cursed_floor"), SubResource("Hint_floor_event"), SubResource("Hint_cold"), SubResource("Hint_hot"), SubResource("Hint_threshold"), SubResource("Hint_abyss"), SubResource("Hint_cracked_wall"), SubResource("Hint_pact"), SubResource("Hint_encounter")])

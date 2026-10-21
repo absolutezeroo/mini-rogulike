@@ -41,14 +41,9 @@ var limbo: ThresholdWorld
 var game: Game
 
 var _hero: Player
-var _floor: World
-var _floor_index := 0
-var _floor_process := Node.PROCESS_MODE_INHERIT
-var _floor_frozen := false
-## Where the hero stood, and under which node of his floor.
-var _hero_parent: Node
-var _fell_at := Vector2.ZERO
-var _temperature := 0.0
+## The hero's stay in the limbo: the world he fell in (his floor, or the Deeps) waits out of the
+## tree meanwhile, and he comes back to the spot he fell on.
+var _stay: SubWorld
 var _rig_position := Vector2.ZERO
 var _rig_scale := Vector2.ONE
 ## The rig's place and size were noted (the soul started sinking): put them back.
@@ -78,10 +73,10 @@ func _ready() -> void:
 	Events.monster_killed.connect(_on_monster_killed)
 
 
-## The game goes (quit to the title mid-trial): the floor waiting out of the tree goes with it.
+## The game goes (quit to the title mid-trial): the world waiting out of the tree goes with it.
 func _exit_tree() -> void:
-	if _floor and is_instance_valid(_floor) and not _floor.is_inside_tree() and _floor.get_parent() == null:
-		_floor.queue_free()
+	if _stay:
+		_stay.discard()
 
 
 ## The Threshold of the game `node` is in (null: none, e.g. the balance tools' bare arena).
@@ -100,10 +95,11 @@ func is_fighting() -> bool:
 	return state == State.FIGHTING
 
 
-## It can take `hero` in now: the game's hero, on a floor in play, no trial already on.
+## It can take `hero` in now: the game's hero, in a world in play (his floor, or the Deeps he
+## fell into: the trial then brings him back there), no trial already on.
 func can_host(hero: Actor) -> bool:
 	return state == State.CLOSED and game != null and hero is Player and hero == game.player \
-		and not hero.is_dead and game.world != null and game.world.is_inside_tree() and game.world.map != null
+		and not hero.is_dead and hero.world != null and hero.world.is_inside_tree() and hero.world.map != null
 
 
 ## A killing blow on `hero`, who has a second life: off to the trial. `on_won` brings him back
@@ -114,13 +110,13 @@ func open(hero: Player, threshold: ThresholdDef, on_won: Callable) -> void:
 	_hero = hero
 	_on_won = on_won
 	_won = false
-	_floor = game.world
+	_stay = SubWorld.new(game, hero)
 	var source := hero.last_hit.source if hero.last_hit else null
 	_killer = source if is_instance_valid(source) and source != hero else null
 	# A fall names itself ("a fall") before the blow lands; otherwise the one who struck it.
 	_cause = hero.killed_by if not hero.killed_by.is_empty() else (_killer.display_name if _killer else tr("the dungeon"))
-	needed = trial.kills_for(_floor.depth, game.content.dungeon)
-	time_limit = trial.time_for(_floor.depth, game.content.dungeon)
+	needed = trial.kills_for(_stay.home.depth, game.content.dungeon)
+	time_limit = trial.time_for(_stay.home.depth, game.content.dungeon)
 	time_left = time_limit
 	kills = 0
 	if not hero.died.is_connected(_on_hero_died):
@@ -164,7 +160,7 @@ func _enter() -> void:
 	if state != State.ENTERING or not is_instance_valid(_hero):
 		return
 	HitStop.reset()
-	_freeze_floor()
+	_stay.freeze()
 	if trial.knell:
 		Sfx.play_ui(trial.knell)
 	# The bell tolls and the floor drains of its colors; the soul sinks out of the body.
@@ -180,12 +176,6 @@ func _enter() -> void:
 	_tween.tween_interval(0.15)
 	_tween.tween_property(_veil, "color:a", 0.0, trial.fade_time)
 	_tween.tween_callback(_begin)
-
-
-func _freeze_floor() -> void:
-	_floor_process = _floor.process_mode
-	_floor.process_mode = Node.PROCESS_MODE_DISABLED
-	_floor_frozen = true
 
 
 ## The hero's body fades and sinks, and his soul is pulled down into the floor.
@@ -206,24 +196,14 @@ func _sink_soul() -> void:
 	soul.play(trial.sink_time + trial.fade_time)
 
 
-## Under the veil: the floor leaves the tree as it is, the limbo takes the hero.
+## Under the veil: the world he fell in leaves the tree as it is, the limbo takes the hero.
 func _cross_over() -> void:
 	var hero := _hero
-	_hero_parent = hero.get_parent()
-	_fell_at = hero.global_position
-	_temperature = hero.temperature.value
 	_restore_rig()
-	_hero_parent.remove_child(hero)
-	_floor_index = _floor.get_index()
-	game.remove_child(_floor)
 	limbo = WORLD_SCENE.instantiate() as ThresholdWorld
 	limbo.name = "ThresholdWorld"
-	limbo.process_mode = Node.PROCESS_MODE_PAUSABLE
-	limbo.difficulty = _floor.difficulty
-	limbo.boons = _floor.boons
-	game.add_child(limbo)
-	game.move_child(limbo, _floor_index)
-	limbo.build_trial(_floor.depth, game.content, trial, randi())
+	_stay.cross(limbo)
+	limbo.build_trial(_stay.home.depth, game.content, trial, randi())
 	limbo.take_in(hero)
 	# He came from 0: enough to fight, his statuses left behind.
 	hero.statuses.clear()
@@ -299,35 +279,17 @@ func _go_home() -> void:
 	closed.emit(_won)
 
 
-## The floor back in the tree as it was, the limbo gone, the hero on the spot he fell on.
+## The world he fell in back in the tree as it was, the limbo gone, the hero on the spot he
+## fell on.
 func _bring_back() -> void:
 	var hero := _hero if is_instance_valid(_hero) else null
 	if hero and hero.died.is_connected(_on_hero_died):
 		hero.died.disconnect(_on_hero_died)
-	if limbo:
-		if hero:
-			limbo.let_go(hero)
-		if limbo.get_parent():
-			limbo.get_parent().remove_child(limbo)
-		limbo.queue_free()
-		limbo = null
-	if _floor and is_instance_valid(_floor):
-		if not _floor.is_inside_tree():
-			game.add_child(_floor)
-			game.move_child(_floor, _floor_index)
-		if _floor_frozen:
-			_floor.process_mode = _floor_process
-			_floor_frozen = false
 	if hero:
 		_restore_rig()
-		if hero.get_parent() == null and is_instance_valid(_hero_parent):
-			_hero_parent.add_child(hero)
-			hero.world = _floor
-			hero.global_position = _fell_at
-			hero.reset_safe_position()
-			hero.temperature.value = _temperature
-			hero.statuses.clear()
-			hero.camera.reset_smoothing()
+	if _stay:
+		_stay.come_back()
+	limbo = null
 	game.play_floor_mood()
 
 

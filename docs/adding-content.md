@@ -25,6 +25,7 @@ you can; by hand, keep the `[ext_resource]` paths right.
 | To add... | Do this |
 |---|---|
 | A monster | Duplicate a file in `data/monsters/`, edit it, add it to an act's Monsters (`data/dungeon/acts/`) |
+| A demon of the Deeps | A `MonsterDef` in `data/monsters/abyss/`, add it to `data/abyss/abyss.tres` > Monsters (in no act) |
 | An act | New `ActDef` in `data/dungeon/acts/` (biomes, monsters, boss), add it to `dungeon_config.tres` > Acts |
 | A weapon / armor / consumable | Duplicate a file in `data/items/...`, edit, add it to `content_db.tres` > Items |
 | A loot drop | Edit the monster's Loot table (items don't need to be in the DB to drop) |

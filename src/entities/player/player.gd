@@ -578,7 +578,8 @@ func _check_ground() -> void:
 		_safe_position = global_position
 
 
-## Climbs back out where the hero last stood safely, hurt.
+## Down into the Deeps when they can take him (Abyss: a floor's hole); otherwise (a boss floor,
+## the hidden floor, the Deeps themselves) climbs back out where the hero last stood safely, hurt.
 func _on_fell(pit: PitDef) -> void:
 	if is_dead:
 		return  # killed during the fall: the body stays down there
@@ -586,16 +587,31 @@ func _on_fell(pit: PitDef) -> void:
 	# floor then, or they would fall again and again.
 	if not world.is_solid_ground(_safe_position):
 		_safe_position = world.nearest_free_point(_safe_position)
+	var abyss := Abyss.of(self)
+	if abyss and abyss.can_take(self):
+		abyss.open(self, _safe_position)
+		return
 	global_position = _safe_position
 	_recover_from_fall()
 	Vfx.puff(world, global_position)
 	Events.log_message(tr("You fell into a hole!"), Palette.DANGER)
+	take_fall(pit.fall_damage)
+
+
+## Hurt by a fall: `share` of max Health, named "a fall" if it kills; then a moment of grace.
+func take_fall(share: float) -> void:
 	_invulnerable_time = 0.0
 	killed_by = tr("a fall")  # if this is what kills the hero
-	take_hit(Combat.make_secondary_hit(null, maxi(1, roundi(get_max_hp() * pit.fall_damage))))
+	take_hit(Combat.make_secondary_hit(null, maxi(1, roundi(get_max_hp() * share))))
 	if not is_dead:
 		killed_by = ""
 		_invulnerable_time = FALL_INVULNERABILITY
+
+
+## On his feet again after a fall that took him somewhere else (the Deeps, and back up).
+func stand_up() -> void:
+	if is_falling:
+		_recover_from_fall()
 
 
 ## Nothing hurts the hero for `seconds` (he blinks): back from the Threshold among monsters frozen
