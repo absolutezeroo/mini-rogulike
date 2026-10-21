@@ -11,6 +11,8 @@ const SPARKLES: PackedScene = preload("res://src/vfx/particles/sparkles.tscn")
 const EXPLOSION_SHEET: Texture2D = preload("res://assets/fx/explosion.png")
 const SMOKE_SHEET: Texture2D = preload("res://assets/fx/smoke.png")
 const MAGIC_CIRCLE_SHEET: Texture2D = preload("res://assets/fx/magic_circle.png")
+## The cross a critical hit cuts (cutx.png, painted in the blow's element).
+const CRIT_CROSS: VfxSheetDef = preload("res://data/vfx/sheets/crit_cross.tres")
 const ALERT_EMOTE: Texture2D = preload("res://assets/ui/emotes/emote22.png")
 
 
@@ -24,29 +26,42 @@ static func burst(world: World, scene: PackedScene, at: Vector2, color: Color = 
 	if direction != Vector2.ZERO:
 		particles.direction = direction
 	if not is_equal_approx(size, 1.0):
-		particles.scale_amount_min *= size
-		particles.scale_amount_max *= size
+		# Bigger by whole times only, so the particles stay whole art pixels (pixel_particles).
+		var times := maxf(roundf(size), 1.0)
+		particles.scale_amount_min *= times
+		particles.scale_amount_max *= times
 		particles.initial_velocity_min *= size
 		particles.initial_velocity_max *= size
 	world.spawn_vfx(particles)
 
 
-## A flash and sparks flying away from an impact (bigger for a critical hit): sparks in `color`
-## (what the target is made of), the flash in the hitting `element`'s language (ImpactVfx).
-static func hit(world: World, at: Vector2, direction: Vector2, color: Color = Color.WHITE, big: bool = false, element: VfxElementDef = null) -> void:
-	burst(world, HIT_SPARKS, at, color, direction)
+## A flash and sparks flying away from an impact (bigger for a critical hit): the bits of what
+## the target is made of (`material`: blood drops, bone chips, sparks off armor...; else sparks
+## in `color`), the flash in the hitting `element`'s language (ImpactVfx). A critical hit also
+## cuts a cross over the target, in the blow's element (steel for a plain blade).
+static func hit(world: World, at: Vector2, direction: Vector2, color: Color = Color.WHITE, big: bool = false, element: VfxElementDef = null, material: ImpactMaterialDef = null) -> void:
+	if material:
+		world.spawn_vfx(ImpactVfx.sparks(at, direction, material.sparks_element(), big))
+	else:
+		burst(world, HIT_SPARKS, at, color, direction)
 	world.spawn_vfx(ImpactVfx.create(at, direction, color, big, element))
+	if big:
+		world.spawn_vfx(SheetVfx.play(CRIT_CROSS, at, direction, element if element else VfxElementDef.named(&"physical")))
 
 
-## The arc of a melee swing (or the streak of a thrust), at the weapon's reach.
+## The arc of a melee swing (or the streak of a thrust), at the weapon's reach, in its element
+## (steel when it has none); an enemy's carries the warning rim.
 static func swing(attacker: Actor, aim: Vector2, weapon: WeaponDef, duration: float) -> void:
-	if weapon.trail_color.a <= 0.0 or weapon.kind != WeaponDef.Kind.MELEE:
-		return
-	if weapon.attack_animation == WeaponDef.AttackAnimation.SMASH:
-		return  # an overhead blow: its ring and dust say it
-	var thrust := weapon.attack_animation == WeaponDef.AttackAnimation.THRUST
+	if not weapon.shows_arc():
+		return  # claws and bites play their sheet; an overhead smash, its ring and dust
 	var reach := attacker.radius + weapon.reach
-	attacker.world.spawn_vfx(SwingVfx.create(attacker.global_position + Vector2(0, -6), aim, reach, weapon.arc_degrees, thrust, weapon.trail_color, duration))
+	var at := attacker.global_position + Vector2(0, -6)
+	var danger := attacker.faction != Actor.Faction.PLAYER
+	if weapon.slash:
+		SwingVfx.slash(attacker.world, weapon.slash, at, aim, reach, weapon.element, danger)
+		return
+	var thrust := weapon.attack_animation == WeaponDef.AttackAnimation.THRUST
+	attacker.world.spawn_vfx(SwingVfx.create(at, aim, reach, weapon.arc_degrees, thrust, weapon.element, duration, danger))
 
 
 ## A shot of `element` landing (an ice shard cracking, a fireball bursting): the element's
@@ -146,3 +161,15 @@ static func alert(world: World, at: Vector2) -> void:
 
 static func dust(world: World, at: Vector2, size: float = 1.0) -> void:
 	burst(world, DUST, at, Color.WHITE, Vector2.ZERO, size)
+
+
+## Dust kicked up along a rush from `from` to `to` (a charge, a leap): puffs at the feet, one
+## after the other over `duration` seconds.
+static func dust_trail(world: World, from: Vector2, to: Vector2, duration: float) -> void:
+	var count := clampi(roundi(from.distance_to(to) / 40.0), 1, 6)
+	for i in count:
+		var t := (i + 0.5) / count
+		var at := from.lerp(to, t) + Vector2(0, 8)
+		world.get_tree().create_timer(duration * t, false).timeout.connect(func() -> void:
+			if is_instance_valid(world):
+				dust(world, at, 1.0))

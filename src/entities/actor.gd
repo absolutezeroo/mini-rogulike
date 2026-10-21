@@ -95,6 +95,8 @@ var _dash_velocity := Vector2.ZERO
 var _dash_time := 0.0
 var _flash_time := 0.0
 var _afterimage_timer := 0.0
+## What the current dash is made of: its afterimages take its color (steel when null).
+var _dash_element: VfxElementDef
 
 ## Visual body (sprite, hand, weapon, animations). Null for actors without sprite.
 @onready var rig: ActorRig = get_node_or_null("Rig")
@@ -238,10 +240,11 @@ func _on_attacked(_weapon: WeaponDef) -> void:
 	pass
 
 
-func start_dash(dash_velocity: Vector2, duration: float, invulnerable: bool) -> void:
+func start_dash(dash_velocity: Vector2, duration: float, invulnerable: bool, element: VfxElementDef = null) -> void:
 	_dash_velocity = dash_velocity
 	_dash_time = duration
 	_afterimage_timer = 0.0
+	_dash_element = element
 	Vfx.dust(world, global_position + Vector2(0, _feet_y()), 1.4)
 	if invulnerable:
 		_invulnerable_time = maxf(_invulnerable_time, duration + 0.05)
@@ -281,7 +284,7 @@ func take_hit(hit: HitInfo) -> void:
 		rig.play_hurt()
 	if not hit.is_secondary:
 		var spark_direction := hit.knockback.normalized() if hit.knockback != Vector2.ZERO else Vector2.UP
-		Vfx.hit(world, global_position + Vector2(0, -radius * 0.5), spark_direction, _hit_spark_color(hit), hit.is_crit, hit.element)
+		Vfx.hit(world, global_position + Vector2(0, -radius * 0.5), spark_direction, _hit_spark_color(hit), hit.is_crit, hit.element, _impact_material())
 		Sfx.play_at(_hurt_sound(hit), global_position)
 		var impact := _impact_material()
 		if impact and impact.sound:
@@ -504,7 +507,7 @@ func _physics_process(delta: float) -> void:
 		_afterimage_timer -= delta
 		if _afterimage_timer <= 0.0 and rig and rig.visible and rig.current_frame():
 			_afterimage_timer = AFTERIMAGE_INTERVAL
-			world.spawn_vfx(AfterimageVfx.from_body(rig, Color(0.7, 0.9, 1.2)))
+			world.spawn_vfx(AfterimageVfx.from_body(rig, _dash_element))
 	else:
 		velocity = _get_desired_velocity() + _knockback
 	_knockback = _knockback.move_toward(Vector2.ZERO, KNOCKBACK_FRICTION * delta)

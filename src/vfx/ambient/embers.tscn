@@ -1,15 +1,14 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3]
 
-[sub_resource type="Gradient" id="Gradient_fade"]
-offsets = PackedFloat32Array(0, 0.2, 0.75, 1)
-colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0.8, 1, 1, 1, 0)
+[ext_resource type="Material" path="res://src/vfx/particles/pixel_particles_glow.tres" id="pixel_material"]
 
-[sub_resource type="CanvasItemMaterial" id="Material_glow"]
-blend_mode = 1
-light_mode = 1
+[sub_resource type="Gradient" id="Gradient_steps"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.12, 0.7, 0.88)
+colors = PackedColorArray(1, 1, 1, 0.5, 1, 1, 1, 1, 1, 1, 1, 0.5, 1, 1, 1, 0.25)
 
 [node name="Embers" type="CPUParticles2D"]
-material = SubResource("Material_glow")
+material = ExtResource("pixel_material")
 z_index = 4
 amount = 70
 lifetime = 5.0
@@ -22,7 +21,7 @@ spread = 180.0
 gravity = Vector2(4, -26)
 initial_velocity_min = 2.0
 initial_velocity_max = 18.0
-scale_amount_min = 2.0
-scale_amount_max = 3.0
 color = Color(1, 0.6, 0.25, 0.9)
-color_ramp = SubResource("Gradient_fade")
+scale_amount_min = 2.0
+scale_amount_max = 2.0
+color_ramp = SubResource("Gradient_steps")

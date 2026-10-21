@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="8_eswvm"]
 [ext_resource type="Resource" path="res://data/skills/player/volley.tres" id="9_cg45v"]
 [ext_resource type="Resource" path="res://data/skills/player/arrow_rain.tres" id="10_dy2j0"]
+[ext_resource type="Resource" path="res://data/vfx/sheets/arrow.tres" id="sheet_arrow"]
 
 [resource]
 script = ExtResource("7_wbbmo")
@@ -23,6 +24,7 @@ skills = Array[ExtResource("8_eswvm")]([ExtResource("9_cg45v"), ExtResource("10_
 attack_sound = ExtResource("3_d1n4l")
 hit_sound = ExtResource("4_mt01t")
 projectile_texture = ExtResource("6_6xh4s")
+projectile_sheet = ExtResource("sheet_arrow")
 projectile_frames = 1
 projectile_speed = 600.0
 pierce = 1

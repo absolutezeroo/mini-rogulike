@@ -70,6 +70,6 @@ func _draw() -> void:
 		return
 	var grow := minf(_time / 0.18, 1.0)
 	var pulse := 0.6 + 0.4 * sin(_time * 4.0)
-	draw_set_transform(Vector2(0, 10), 0.0, Vector2(1.0, 0.45))
-	draw_circle(Vector2.ZERO, 22.0 * grow, Color(color, 0.08 * pulse * grow))
-	draw_arc(Vector2.ZERO, 22.0 * grow, 0.0, TAU, 40, Color(color, 0.6 * pulse * grow), 2.0)
+	var ring := Color(color, 1.0)
+	PixelDraw.disc(self, Vector2(0, 10), 22.0 * grow, Color(ring, 0.08 * grow), 1.0, 0.45)
+	PixelDraw.ring(self, Vector2(0, 10), 22.0 * grow, ring, 1, 0.55 + 0.45 * pulse, 0.45)

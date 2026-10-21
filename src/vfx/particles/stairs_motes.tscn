@@ -1,10 +1,14 @@
 [gd_scene format=3]
 
-[sub_resource type="Gradient" id="Gradient_gl8qq"]
-offsets = PackedFloat32Array(0, 0.3, 1)
-colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0)
+[ext_resource type="Material" path="res://src/vfx/particles/pixel_particles_motes.tres" id="pixel_material"]
+
+[sub_resource type="Gradient" id="Gradient_steps"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.15, 0.7, 0.88)
+colors = PackedColorArray(1, 1, 1, 0.5, 1, 1, 1, 1, 1, 1, 1, 0.5, 1, 1, 1, 0.25)
 
 [node name="StairsMotes" type="CPUParticles2D" unique_id=1366960033]
+material = ExtResource("pixel_material")
 amount = 10
 lifetime = 1.6
 emission_shape = 3
@@ -14,7 +18,7 @@ spread = 15.0
 gravity = Vector2(0, 0)
 initial_velocity_min = 10.0
 initial_velocity_max = 28.0
-scale_amount_min = 2.0
-scale_amount_max = 3.0
 color = Color(1, 0.81960785, 0.4, 1)
-color_ramp = SubResource("Gradient_gl8qq")
+scale_amount_min = 2.0
+scale_amount_max = 2.0
+color_ramp = SubResource("Gradient_steps")

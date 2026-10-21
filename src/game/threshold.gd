@@ -370,9 +370,11 @@ class SinkingSoul extends Node2D:
 		# It rises a little out of the body, then is dragged down and fades.
 		var y := -10.0 * sin(minf(t * 2.5, 1.0) * PI * 0.5) + 70.0 * pow(maxf(t - 0.35, 0.0) / 0.65, 2.0)
 		var fade := 1.0 - smoothstep(0.6, 1.0, t)
+		# Stepped discs of art pixels, the trail and the halo dithered, all dithering out at the end.
+		var solid := Color(color, 1.0)
 		for i in 6:
 			var back := float(i + 1) * 5.0 * t
-			draw_circle(Vector2(0, y - back), 6.0 - i * 0.8, Color(color, 0.18 * fade))
-		draw_circle(Vector2(0, y), 12.0, Color(color, 0.25 * fade))
-		draw_circle(Vector2(0, y), 6.0, Color(color.lightened(0.5), 0.9 * fade))
-		draw_arc(Vector2(0, 26), 16.0 + 20.0 * t, 0.0, TAU, 24, Color(color, 0.5 * fade), 2.0)
+			PixelDraw.disc(self, Vector2(0, y - back), 6.0 - i * 0.8, solid.darkened(0.3), 0.3 * fade)
+		PixelDraw.disc(self, Vector2(0, y), 12.0, solid, 0.35 * fade)
+		PixelDraw.disc(self, Vector2(0, y), 6.0, solid.lightened(0.5), fade)
+		PixelDraw.ring(self, Vector2(0, 26), 16.0 + 20.0 * t, solid, 1, 0.6 * fade, 0.5)

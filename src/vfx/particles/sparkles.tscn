@@ -1,16 +1,19 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://src/vfx/particle_burst.gd" id="1_hsleq"]
+[ext_resource type="Material" path="res://src/vfx/particles/pixel_particles_motes.tres" id="pixel_material"]
 
-[sub_resource type="Curve" id="Curve_6g6mi"]
-_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.5, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
-point_count = 3
+[sub_resource type="Curve" id="Curve_steps"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.55, 1), 0.0, 0.0, 0, 0, Vector2(0.551, 0.5), 0.0, 0.0, 0, 0, Vector2(1, 0.5), 0.0, 0.0, 0, 0]
+point_count = 4
 
-[sub_resource type="Gradient" id="Gradient_hyrb5"]
-offsets = PackedFloat32Array(0, 0.1, 0.6, 1)
-colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+[sub_resource type="Gradient" id="Gradient_steps"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.1, 0.65, 0.85)
+colors = PackedColorArray(1, 1, 1, 0.5, 1, 1, 1, 1, 1, 1, 1, 0.5, 1, 1, 1, 0.25)
 
 [node name="Sparkles" type="CPUParticles2D" unique_id=399624068]
+material = ExtResource("pixel_material")
 emitting = false
 amount = 14
 lifetime = 0.8
@@ -25,8 +28,8 @@ initial_velocity_min = 30.0
 initial_velocity_max = 80.0
 damping_min = 20.0
 damping_max = 40.0
-scale_amount_min = 2.0
+scale_amount_min = 4.0
 scale_amount_max = 4.0
-scale_amount_curve = SubResource("Curve_6g6mi")
-color_ramp = SubResource("Gradient_hyrb5")
+scale_amount_curve = SubResource("Curve_steps")
+color_ramp = SubResource("Gradient_steps")
 script = ExtResource("1_hsleq")

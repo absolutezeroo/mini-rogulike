@@ -1,16 +1,19 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://src/vfx/particle_burst.gd" id="1_an0mn"]
+[ext_resource type="Material" path="res://src/vfx/particles/pixel_particles_motes.tres" id="pixel_material"]
 
-[sub_resource type="Curve" id="Curve_pltam"]
-_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.3, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
-point_count = 3
+[sub_resource type="Curve" id="Curve_steps"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.4, 1), 0.0, 0.0, 0, 0, Vector2(0.401, 0.5), 0.0, 0.0, 0, 0, Vector2(1, 0.5), 0.0, 0.0, 0, 0]
+point_count = 4
 
-[sub_resource type="Gradient" id="Gradient_kjgan"]
-offsets = PackedFloat32Array(0, 0.6, 1)
-colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+[sub_resource type="Gradient" id="Gradient_steps"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.5, 0.75)
+colors = PackedColorArray(1, 1, 1, 1, 0.8, 0.8, 0.8, 1, 0.6, 0.6, 0.6, 0.5)
 
 [node name="HitSparks" type="CPUParticles2D" unique_id=2137827616]
+material = ExtResource("pixel_material")
 emitting = false
 amount = 9
 lifetime = 0.28
@@ -22,8 +25,8 @@ initial_velocity_min = 140.0
 initial_velocity_max = 300.0
 damping_min = 500.0
 damping_max = 800.0
-scale_amount_min = 3.0
-scale_amount_max = 5.0
-scale_amount_curve = SubResource("Curve_pltam")
-color_ramp = SubResource("Gradient_kjgan")
+scale_amount_min = 4.0
+scale_amount_max = 4.0
+scale_amount_curve = SubResource("Curve_steps")
+color_ramp = SubResource("Gradient_steps")
 script = ExtResource("1_an0mn")

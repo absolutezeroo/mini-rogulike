@@ -13,6 +13,8 @@ const FLASH_TIME := 0.034
 var element: VfxElementDef
 var _direction := Vector2.RIGHT
 var _big := false
+## Only the bits (a hit's sparks in what the target is made of, under the blow's own flash).
+var _bits_only := false
 var _age := 0.0
 var _bits: Array[Dictionary] = []  # {from: Vector2, velocity: Vector2, size: int, life: float}
 var _streaks: Array[Vector2] = []
@@ -28,6 +30,20 @@ static func create(at: Vector2, direction: Vector2, color: Color, big: bool = fa
 	vfx._big = big
 	vfx.element = of_element
 	vfx._spawn(color)
+	return vfx
+
+
+## The bits a blow knocks out of what it hits (ImpactMaterialDef.sparks_element: blood drops,
+## bone chips, slime, sparks off armor...), without a flash: the blow's own ImpactVfx has it.
+static func sparks(at: Vector2, direction: Vector2, material: VfxElementDef, big: bool = false) -> ImpactVfx:
+	var vfx := ImpactVfx.new()
+	vfx.position = PixelDraw.snap(at)
+	vfx.z_index = 6
+	vfx._direction = direction.normalized() if direction != Vector2.ZERO else Vector2.UP
+	vfx._big = big
+	vfx._bits_only = true
+	vfx.element = material
+	vfx._spawn(Color.WHITE)
 	return vfx
 
 
@@ -63,7 +79,9 @@ func _draw() -> void:
 	var t := _age / LIFETIME
 	# The flash: the core color, full strength for two frames, then the ramp's next step.
 	var flash := 3 if _big else 2
-	if _age < FLASH_TIME:
+	if _bits_only:
+		pass
+	elif _age < FLASH_TIME:
 		PixelDraw.disc(self, Vector2.ZERO, PixelDraw.PX * flash, element.core())
 	elif t < 0.35:
 		PixelDraw.ring(self, Vector2.ZERO, PixelDraw.PX * (flash + 1), element.shade(0.5), 1, 1.0 - t)

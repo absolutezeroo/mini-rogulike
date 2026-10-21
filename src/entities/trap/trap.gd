@@ -129,17 +129,19 @@ func _draw() -> void:
 	var frames := def.active_frames
 	var frame_size := Vector2(def.active_sheet.get_width() / float(frames), def.active_sheet.get_height())
 	if phase == Phase.WARNING:
-		# The danger peeks out and rattles: its lower third, first frame.
-		var peek := 0.35
-		var source := Rect2(0, frame_size.y * (1.0 - peek), frame_size.x, frame_size.y * peek)
-		var shake := Vector2(sin(_anim_time * 60.0), 0.0)
-		draw_texture_rect_region(def.active_sheet, Rect2(Vector2(-half, half - SIZE * peek) + shake, Vector2(SIZE, SIZE * peek)), source)
+		# The danger peeks out and rattles: its lower third (whole rows), first frame, at the art's
+		# own 2x like the active frames, shaking by a whole art pixel.
+		var rows := maxf(roundf(frame_size.y * 0.35), 1.0)
+		var source := Rect2(0, frame_size.y - rows, frame_size.x, rows)
+		var size := source.size * (SIZE / 16.0)
+		var shake := Vector2(PixelDraw.PX if int(_anim_time * 20.0) % 2 == 0 else 0.0, 0.0)
+		draw_texture_rect_region(def.active_sheet, Rect2(PixelDraw.snap(Vector2(-size.x * 0.5, half - size.y)) + shake, size), source)
 	else:
 		# Plays once and holds its last frames while active.
 		var frame := mini(int(_anim_time * def.active_fps), frames - 1)
 		var source := Rect2(frame * frame_size.x, 0, frame_size.x, frame_size.y)
 		var size := frame_size * (SIZE / 16.0)
-		draw_texture_rect_region(def.active_sheet, Rect2(Vector2(-size.x * 0.5, half - size.y), size), source)
+		draw_texture_rect_region(def.active_sheet, Rect2(PixelDraw.snap(Vector2(-size.x * 0.5, half - size.y)), size), source)
 
 
 ## The arrow slit, in its wall.

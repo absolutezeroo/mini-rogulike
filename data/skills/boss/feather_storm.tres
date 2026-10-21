@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_jh4j6"]
 [ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_0tuor"]
-[ext_resource type="Texture2D" path="res://assets/projectiles/shuriken.png" id="3_cagyn"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_id6ui"]
 [ext_resource type="AudioStream" path="res://data/audio/magic.tres" id="5_bpmam"]
+[ext_resource type="Resource" path="res://data/vfx/sheets/feather.tres" id="sheet_feather"]
 
 [sub_resource type="Resource" id="Resource_8d4jf"]
 script = ExtResource("2_0tuor")
@@ -16,7 +16,7 @@ count = 12
 spread_degrees = 360.0
 knockback = 140.0
 color = Color(0.9019608, 0.22352941, 0.27450982, 1)
-texture = ExtResource("3_cagyn")
+sheet = ExtResource("sheet_feather")
 glow = 0.0
 
 [resource]

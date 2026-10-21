@@ -128,16 +128,14 @@ func _physics_process(delta: float) -> void:
 
 
 func _draw() -> void:
-	draw_set_transform(Vector2(0, 14), 0.0, Vector2(1.0, 0.35))
-	draw_circle(Vector2.ZERO, 22.0, Color(0, 0, 0, 0.35))
-	draw_set_transform(Vector2.ZERO)
+	PixelDraw.disc(self, Vector2(0, 14), 22.0, Color(0, 0, 0, 0.35), 1.0, 0.35)
 	# The coal pit, glowing and breathing.
 	var glow := 0.75 + 0.25 * sin(_time * 3.1) * sin(_time * 1.7 + 1.0)
 	draw_rect(Rect2(8, -2, 16, 12), Color("2b1d1a"))
 	draw_rect(Rect2(10, 0, 12, 8), Color(1.0, 0.42, 0.12).darkened(0.35 * (1.0 - glow)))
 	for i in 3:
 		var x := 11.0 + i * 4.0
-		draw_rect(Rect2(x, 2 + int(_time * 4.0 + i) % 3, 2, 2), Color(1.0, 0.85, 0.4, glow))
+		draw_rect(Rect2(x - 1.0, 2.0 * (int(_time * 4.0 + i) % 3), 2, 2), Color(Color(1.0, 0.85, 0.4) * glow, 1.0))
 	if def.anvil:
 		draw_texture_rect(def.anvil, Rect2(-24, -10, 32, 32), false)
 	if def.sprite_sheet:

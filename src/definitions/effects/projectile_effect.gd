@@ -23,6 +23,9 @@ extends Effect
 @export var texture: Texture2D
 ## Frames in a row of `texture` (0 = square frames).
 @export_range(0, 64) var texture_frames: int = 0
+## Drawn in flight instead of `texture`: a thing pre-drawn in 16 directions so it never shears
+## (an arrow, a kunai, a feather: data/vfx/sheets/). `texture` stays its picture elsewhere.
+@export var sheet: VfxSheetDef
 ## Statuses left on the enemies hit (burn, slow...).
 @export var status: OnHitStatus
 ## Magic shots glow and burst on impact; 0 for plain things (feathers, coins, arrows).
@@ -48,6 +51,7 @@ func apply(user: Actor, aim: Vector2) -> void:
 	spec.color = element.color() if element else color
 	spec.texture = texture
 	spec.texture_frames = texture_frames
+	spec.sheet = sheet
 	spec.element = element
 	spec.status = status
 	spec.glow = glow

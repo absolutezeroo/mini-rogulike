@@ -173,9 +173,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _draw() -> void:
-	draw_set_transform(Vector2(0, 12), 0.0, Vector2(1.0, 0.4))
-	draw_circle(Vector2.ZERO, 11.0, Color(0, 0, 0, 0.35))
-	draw_set_transform(Vector2.ZERO)
+	PixelDraw.disc(self, Vector2(0, 12), 11.0, Color(0, 0, 0, 0.35), 1.0, 0.4)
 	# A rug with the goods laid out.
 	draw_rect(Rect2(-22, 4, 44, 14), Color("6d2f3a"))
 	draw_rect(Rect2(-20, 6, 40, 10), Color("9c4a4a"))

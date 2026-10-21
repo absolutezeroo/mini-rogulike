@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" path="res://assets/ui/skills/spear_throw.png" id="4_gjxpc"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_wx0w3"]
 [ext_resource type="AudioStream" path="res://data/audio/launch.tres" id="6_4vh0r"]
+[ext_resource type="Resource" path="res://data/vfx/sheets/spear.tres" id="sheet_spear"]
 
 [sub_resource type="Resource" id="Resource_r1m81"]
 script = ExtResource("2_pjv1j")
@@ -15,6 +16,7 @@ speed = 700.0
 pierce = 3
 color = Color(0.9137255, 0.76862746, 0.41568628, 1)
 texture = ExtResource("3_munj6")
+sheet = ExtResource("sheet_spear")
 
 [resource]
 script = ExtResource("5_wx0w3")

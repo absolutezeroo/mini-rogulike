@@ -125,7 +125,9 @@ func play_attack(def: WeaponDef, aim: Vector2, duration: float) -> void:
 	# with its element's claw (Frost Fang: claws of ice).
 	if def and not def.shows_arc():
 		if def.attack_fx:
-			_spawn_fx(def.attack_fx, aim, deg_to_rad(def.attack_fx_rotation), def.element)
+			# A blow all around (a body slam's ring) is round: drawn as it is, never turned.
+			var round_blow := def.arc_degrees >= 359.0
+			_spawn_fx(def.attack_fx, Vector2.ZERO if round_blow else aim, 0.0 if round_blow else deg_to_rad(def.attack_fx_rotation), def.element)
 		elif def.element and def.element.claw:
 			var at := Vector2(0, -CHEST_HEIGHT) + aim.normalized() * FX_DISTANCE
 			add_child(SheetVfx.play(def.element.claw, at, aim, def.element))

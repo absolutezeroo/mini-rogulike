@@ -11,6 +11,8 @@ extends Effect
 @export var flat_damage: int = 0
 @export var knockback: float = 160.0
 @export var status: OnHitStatus
+## The cut drawn along the path (a thrust's streak: data/vfx/slashes/), instead of a sheet.
+@export var slash: SlashDef
 ## Slash sheet drawn along the path.
 @export var fx: Texture2D
 @export var fx_tint: Color = Color.WHITE
@@ -32,10 +34,14 @@ func apply(user: Actor, aim: Vector2) -> void:
 	var amount := flat_damage + roundi(user.get_skill_power() * damage_multiplier)
 	Combat.damage_segment(world, user, start, end, width, amount, knockback, status, element)
 	if length > 1.0:
-		user.start_dash(aim * length / duration, duration, true)
+		user.start_dash(aim * length / duration, duration, true, element)
 	if element:
 		Vfx.trail(world, start, end, element, duration)
-	if fx:
+	elif slash == null and fx == null:
+		Vfx.dust_trail(world, start, end, duration)  # a plain rush kicks up dust on its way
+	if slash:
+		SwingVfx.slash(world, slash, start + Vector2(0, -6), aim, maxf(length, 40.0), element, user.faction != Actor.Faction.PLAYER)
+	elif fx:
 		# At the nearest whole size of the art's pixel along the path (SheetVfx snaps it).
 		var size := maxf(length, 40.0) / fx.get_height()
 		world.spawn_vfx(SheetVfx.create(fx, (start + end) * 0.5, aim.angle(), size, 20.0).with_color(fx_tint).in_element(element))

@@ -20,4 +20,6 @@ sound = SubResource("AudioStreamRandomizer_hit")
 volume_db = -7.0
 spark_color = Color(0.75, 1, 0.6, 1)
 debris_colors = PackedColorArray(0.4, 0.75, 0.25, 1, 0.55, 0.88, 0.35, 1, 0.3, 0.55, 0.18, 1)
+spark_bit = 7
+spark_motion = 2
 debris_count = 7

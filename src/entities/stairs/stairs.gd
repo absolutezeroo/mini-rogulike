@@ -92,8 +92,9 @@ func _draw() -> void:
 		_draw_seal(1.0 - t, t)
 	# Pulsing golden frame so the exit is easy to spot.
 	var glow := Palette.GOLD
-	glow.a = 0.5 + 0.4 * sin(_time * 3.0)
-	draw_rect(rect.grow(2.0), glow, false, 2.0)
+	glow.a = 0.9 if sin(_time * 3.0) > 0.0 else 0.55
+	# A line one art pixel wide just outside the opening (a stroke is centered on its rect).
+	draw_rect(rect.grow(PixelDraw.PX * 0.5), glow, false, PixelDraw.PX)
 
 
 ## A violet ring of runes turning over the stairs, a bar across them. `fade` 1 = whole;
@@ -103,19 +104,21 @@ func _draw_seal(fade: float, burst: float) -> void:
 	var color := Palette.SEAL
 	var radius := SIZE * 0.72 + burst * SIZE
 	color.a = 0.9 * fade * pulse
-	draw_circle(Vector2.ZERO, radius * 1.15, Color(color, 0.16 * fade * pulse))
-	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 32, color, 2.5, true)
-	draw_arc(Vector2.ZERO, radius * 0.7, 0.0, TAU, 24, Color(color, color.a * 0.5), 1.0, true)
+	var solid := Color(color, 1.0)
+	# Stepped rings of art pixels; the whole seal dithers away as it fades (no alpha).
+	PixelDraw.disc(self, Vector2.ZERO, radius * 1.15, Color(solid, 0.16 * pulse), fade)
+	PixelDraw.ring(self, Vector2.ZERO, radius, solid, 1, fade)
+	PixelDraw.ring(self, Vector2.ZERO, radius * 0.7, solid.darkened(0.3), 1, fade * 0.5)
 	for i in RUNES:
 		var angle := _time * 0.6 + TAU * i / RUNES
 		var at := Vector2.from_angle(angle) * radius
-		var size := 3.5 + burst * 3.0
+		var size := 4.0 + burst * 3.0
 		var rune := PackedVector2Array([at + Vector2(0, -size), at + Vector2(size * 0.7, 0), at + Vector2(0, size), at + Vector2(-size * 0.7, 0)])
-		draw_colored_polygon(rune, Color(1.0, 0.9, 1.0, fade * pulse))
+		PixelDraw.polygon(self, rune, Color(1.0, 0.9, 1.0), fade * pulse)
 	if burst <= 0.0:
 		# The bar across the way down.
-		var bar := Color(color, 0.7 * fade)
-		draw_line(Vector2(-SIZE * 0.42, -SIZE * 0.42), Vector2(SIZE * 0.42, SIZE * 0.42), bar, 3.0, true)
-		draw_line(Vector2(SIZE * 0.42, -SIZE * 0.42), Vector2(-SIZE * 0.42, SIZE * 0.42), bar, 3.0, true)
+		var bar := solid.darkened(0.15)
+		PixelDraw.line(self, Vector2(-SIZE * 0.42, -SIZE * 0.42), Vector2(SIZE * 0.42, SIZE * 0.42), bar, 2, fade)
+		PixelDraw.line(self, Vector2(SIZE * 0.42, -SIZE * 0.42), Vector2(-SIZE * 0.42, SIZE * 0.42), bar, 2, fade)
 	else:
-		draw_circle(Vector2.ZERO, SIZE * 0.5 * (1.0 - burst), Color(1, 0.95, 0.8, 0.6 * (1.0 - burst)))
+		PixelDraw.disc(self, Vector2.ZERO, SIZE * 0.5 * (1.0 - burst), Color(1, 0.95, 0.8), 1.0 - burst)

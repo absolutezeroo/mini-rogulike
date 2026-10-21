@@ -136,21 +136,14 @@ func _show_warning(progress: float) -> void:
 	if _attack is SkillDef:
 		var skill := _attack as SkillDef
 		_play_anim(_sprite, [&"cast", &"idle_right", &"idle"])
-		if skill.telegraph_radius > 0.0:
-			_telegraph.show_shape(TelegraphView.Shape.CIRCLE, skill.telegraph_radius, aim, progress)
-			return
+		# The game's own warning (TelegraphView.show_skill), around the preview's monster.
+		_telegraph.position = Vector2.ZERO
 		var first: Effect = skill.effects[0] if not skill.effects.is_empty() else null
-		if first is DamageAreaEffect:
-			var area := first as DamageAreaEffect
-			_telegraph.position = _home + Vector2.RIGHT * area.offset
-			_telegraph.show_shape(TelegraphView.Shape.CIRCLE, area.radius, aim, progress)
-		elif first is DashEffect or first is DashStrikeEffect:
-			var reach: float = first.get("distance")
-			_telegraph.show_shape(TelegraphView.Shape.LINE, reach, aim, progress, 0.0, 14.0)
-		elif first is ProjectileEffect:
-			_telegraph.show_shape(TelegraphView.Shape.LINE, minf((first as ProjectileEffect).max_distance, GAP), aim, progress, 0.0, 8.0)
-		else:
+		if first is DashEffect:
+			_telegraph.show_shape(TelegraphView.Shape.LINE, (first as DashEffect).get("distance"), aim, progress, 0.0, 14.0)
+		elif not _telegraph.show_skill(skill, aim, progress, _monster.radius):
 			_telegraph.show_shape(TelegraphView.Shape.CIRCLE, _monster.radius + 30.0, aim, progress)
+		_telegraph.position += _home
 		return
 	var weapon := _attack as WeaponDef
 	if weapon == null:
@@ -181,14 +174,14 @@ func _release() -> void:
 			_arcs.append({ "radius": _monster.radius + weapon.reach, "half": deg_to_rad(weapon.arc_degrees) * 0.5, "color": weapon.trail_color, "age": 0.0 })
 			_lunge(14.0, 0.1)
 		else:
-			_fire(weapon.projectile_count, weapon.spread_degrees, weapon.projectile_speed, maxf(weapon.reach, GAP + 40.0), weapon.projectile_radius, weapon.element.color() if weapon.element else SHOT_COLOR, 0.0, _shot_sheet(weapon.projectile_texture, weapon.projectile_frames, weapon.element), weapon.element)
+			_fire(weapon.projectile_count, weapon.spread_degrees, weapon.projectile_speed, maxf(weapon.reach, GAP + 40.0), weapon.projectile_radius, weapon.element.color() if weapon.element else SHOT_COLOR, 0.0, weapon.projectile_sheet if weapon.projectile_sheet else _shot_sheet(weapon.projectile_texture, weapon.projectile_frames, weapon.element), weapon.element)
 
 
 func _apply(effect: Effect) -> void:
 	if effect is ProjectileEffect:
 		var shot := effect as ProjectileEffect
 		var aim := deg_to_rad(shot.angle_offset)
-		_fire(shot.count, shot.spread_degrees, shot.speed, shot.max_distance, shot.radius, shot.element.color() if shot.element else shot.color, shot.explosion_radius, _shot_sheet(shot.texture, shot.texture_frames, shot.element), shot.element, aim)
+		_fire(shot.count, shot.spread_degrees, shot.speed, shot.max_distance, shot.radius, shot.element.color() if shot.element else shot.color, shot.explosion_radius, shot.sheet if shot.sheet else _shot_sheet(shot.texture, shot.texture_frames, shot.element), shot.element, aim)
 	elif effect is DamageAreaEffect:
 		var area := effect as DamageAreaEffect
 		_ring(_sprite.position + Vector2.RIGHT * area.offset, area.radius, area.color, true)

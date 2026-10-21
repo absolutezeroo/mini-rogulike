@@ -371,16 +371,17 @@ func _draw_sigil() -> void:
 		_:
 			if accepted:
 				strength = 0.55 + 0.15 * sin(_time * 6.0)
-	_sigil.draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.6))
-	_sigil.draw_circle(Vector2.ZERO, 34.0, Color(color, 0.18 * strength))
-	_sigil.draw_texture_rect_region(RINGS, Rect2(-36, -36, 72, 72), Rect2(32, 0, 32, 32), Color(color, 0.9 * strength))
-	_sigil.draw_texture_rect_region(RINGS, Rect2(-24, -24, 48, 48), Rect2(96, 0, 32, 32), Color(gold, strength))
+	# On the art's grid: the rings at the art's own 2x (never squashed or stretched), the glow a
+	# flat stepped oval, the star in lines of art pixels lying on the floor.
+	var level := 1.0 if strength >= 0.75 else 0.7
+	_sigil.draw_texture_rect_region(RINGS, Rect2(-32, -32, 64, 64), Rect2(32, 0, 32, 32), Color(color * level, 1.0))
+	_sigil.draw_texture_rect_region(RINGS, Rect2(-32, -32, 64, 64), Rect2(96, 0, 32, 32), Color(gold * level, 1.0))
+	PixelDraw.disc(_sigil, Vector2.ZERO, 34.0, Color(color, 0.18 * strength), 1.0, 0.6)
 	var points := PackedVector2Array()
 	var turn := _time * 0.35
 	for i in 8:
-		points.append(Vector2.from_angle(turn + TAU * float(i * 3 % 7) / 7.0 - PI / 2.0) * 21.0)
-	_sigil.draw_polyline(points, Color(gold, 0.85 * strength), 2.0)
-	_sigil.draw_set_transform(Vector2.ZERO)
+		points.append(Vector2.from_angle(turn + TAU * float(i * 3 % 7) / 7.0 - PI / 2.0) * Vector2(21.0, 12.6))
+	PixelDraw.polyline(_sigil, points, Color(gold, 1.0), 1, 0.85 * strength)
 
 
 ## The stele in the doorway, sinking once the pact is sworn; a crimson glow breathes around it
@@ -392,13 +393,11 @@ func _draw_altar() -> void:
 	var drop := _sink * 30.0
 	if is_open_offer():
 		var glow := 0.7 + 0.3 * sin(_time * 3.0)
-		_altar.draw_circle(Vector2(0, -16), 26.0, Color(CRIMSON, 0.22 * glow))
-		_altar.draw_circle(Vector2(0, -16), 16.0, Color(CRIMSON.lightened(0.2), 0.25 * glow))
-	_altar.draw_set_transform(Vector2(0, 2), 0.0, Vector2(1.0, 0.35))
-	_altar.draw_circle(Vector2.ZERO, 16.0, Color(0, 0, 0, 0.4 * fade))
-	_altar.draw_set_transform(Vector2.ZERO)
-	_altar.draw_texture_rect(ALTAR, Rect2(-20, -38 + drop, 40, 40), false, Color(0.8, 0.42, 0.42, fade))
+		PixelDraw.disc(_altar, Vector2(0, -16), 26.0, Color(CRIMSON, 0.22 * glow))
+		PixelDraw.disc(_altar, Vector2(0, -16), 16.0, Color(CRIMSON.lightened(0.2), 0.25 * glow))
+	PixelDraw.disc(_altar, Vector2(0, 2), 16.0, Color(0, 0, 0, 0.4 * fade), 1.0, 0.35)
+	_altar.draw_texture_rect(ALTAR, Rect2(PixelDraw.snap(Vector2(-20, -38 + drop)), Vector2(40, 40)), false, Color(0.8, 0.42, 0.42, fade))
 	if is_open_offer():
 		# A gold glint on the stele's face.
 		var glint := 0.6 + 0.4 * sin(_time * 4.0)
-		_altar.draw_circle(Vector2(0, -24), 3.0, Color(SIGIL_GOLD, glint))
+		PixelDraw.disc(_altar, Vector2(0, -24), 3.0, Color(SIGIL_GOLD, 1.0), glint)

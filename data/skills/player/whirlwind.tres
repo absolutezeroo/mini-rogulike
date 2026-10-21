@@ -1,11 +1,11 @@
 [gd_resource type="Resource" script_class="SkillDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_03v5c"]
-[ext_resource type="Texture2D" path="res://assets/fx/circularslash.png" id="2_1lgok"]
 [ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="3_rdsqh"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/cut.png" id="4_68b0v"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_7bg32"]
 [ext_resource type="AudioStream" path="res://data/audio/slash_heavy.tres" id="6_mnd04"]
+[ext_resource type="Resource" path="res://data/vfx/slashes/whirlwind.tres" id="slash_whirlwind"]
 
 [sub_resource type="Resource" id="Resource_lyoj4"]
 script = ExtResource("3_rdsqh")
@@ -13,7 +13,7 @@ radius = 85.0
 damage_multiplier = 1.2
 knockback = 260.0
 color = Color(1, 0.81960785, 0.4, 1)
-fx = ExtResource("2_1lgok")
+slash = ExtResource("slash_whirlwind")
 
 [resource]
 script = ExtResource("5_7bg32")

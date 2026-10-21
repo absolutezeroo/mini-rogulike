@@ -61,12 +61,10 @@ func _collect(player: Player) -> void:
 
 func _draw() -> void:
 	var size := TEXTURE.get_size() * 2.0
-	draw_set_transform(Vector2(0, 5), 0.0, Vector2(1.0, 0.4))
-	draw_circle(Vector2.ZERO, 5.0, Color(0, 0, 0, 0.3))
-	draw_set_transform(Vector2.ZERO)
+	PixelDraw.disc(self, Vector2(0, 5), 5.0, Color(0, 0, 0, 0.3), 1.0, 0.4)
 	# A glint every now and then.
 	var glint := 1.0 + 0.5 * maxf(sin(_time * 3.0), 0.0) ** 8
-	var at := Vector2(0, -_height - 2.0 + sin(_time * 4.0))
+	var at := PixelDraw.snap(Vector2(0, -_height - 2.0 + sin(_time * 4.0)))
 	draw_texture_rect(TEXTURE, Rect2(at - size * 0.5, size), false, Color(glint, glint, glint))
 	if amount > 4:
 		draw_texture_rect(TEXTURE, Rect2(at - size * 0.5 + Vector2(5, 3), size), false)

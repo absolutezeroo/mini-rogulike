@@ -1,16 +1,19 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://src/vfx/particle_burst.gd" id="1_fdvwq"]
+[ext_resource type="Material" path="res://src/vfx/particles/pixel_particles.tres" id="pixel_material"]
 
-[sub_resource type="Curve" id="Curve_lcwpn"]
-_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.6, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
-point_count = 3
+[sub_resource type="Curve" id="Curve_steps"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.45, 1), 0.0, 0.0, 0, 0, Vector2(0.451, 0.6667), 0.0, 0.0, 0, 0, Vector2(0.75, 0.6667), 0.0, 0.0, 0, 0, Vector2(0.751, 0.3333), 0.0, 0.0, 0, 0, Vector2(1, 0.3333), 0.0, 0.0, 0, 0]
+point_count = 6
 
-[sub_resource type="Gradient" id="Gradient_73hsa"]
-offsets = PackedFloat32Array(0, 0.15, 0.4, 0.7, 1)
-colors = PackedColorArray(1, 0.9529412, 0.6901961, 1, 1, 0.81960785, 0.4, 1, 0.96862745, 0.49803922, 0, 1, 0.8392157, 0.15686275, 0.15686275, 1, 0.25, 0.15, 0.15, 0)
+[sub_resource type="Gradient" id="Gradient_steps"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.12, 0.3, 0.55, 0.8)
+colors = PackedColorArray(1, 0.9647, 0.8471, 1, 1, 0.8824, 0.5529, 1, 1, 0.6784, 0.3647, 1, 0.8941, 0.4275, 0.2275, 1, 0.5608, 0.2431, 0.3373, 0.5)
 
 [node name="Fire" type="CPUParticles2D" unique_id=561211477]
+material = ExtResource("pixel_material")
 emitting = false
 amount = 28
 lifetime = 0.5
@@ -24,8 +27,8 @@ initial_velocity_min = 110.0
 initial_velocity_max = 300.0
 damping_min = 300.0
 damping_max = 520.0
-scale_amount_min = 4.0
-scale_amount_max = 9.0
-scale_amount_curve = SubResource("Curve_lcwpn")
-color_ramp = SubResource("Gradient_73hsa")
+scale_amount_min = 6.0
+scale_amount_max = 6.0
+scale_amount_curve = SubResource("Curve_steps")
+color_ramp = SubResource("Gradient_steps")
 script = ExtResource("1_fdvwq")

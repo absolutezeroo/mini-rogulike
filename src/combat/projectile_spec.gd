@@ -13,6 +13,8 @@ var knockback: float = 100.0
 var explosion_radius: float = 0.0
 var color := Color.WHITE
 var texture: Texture2D
+## Drawn in flight instead of `texture`: a thing drawn in 16 directions (an arrow, a kunai).
+var sheet: VfxSheetDef
 ## Frames in a row of `texture` (0 = square frames).
 var texture_frames: int = 0
 ## What it is made of: its look in flight and where it lands, its hits' flash (VfxElementDef).

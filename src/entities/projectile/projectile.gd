@@ -52,8 +52,10 @@ func _configure(direction: Vector2, spec: ProjectileSpec) -> void:
 	var shape := CircleShape2D.new()
 	shape.radius = spec.radius
 	($CollisionShape2D as CollisionShape2D).shape = shape
-	# Its look: its own sprite, else its element's shot, else a dot in its color.
-	if spec.texture:
+	# Its look: its own drawn sheet or sprite, else its element's shot, else a dot in its color.
+	if spec.sheet:
+		_sheet = spec.sheet
+	elif spec.texture:
 		_sheet = VfxSheetDef.from_texture(spec.texture, spec.texture_frames)
 	elif spec.element and spec.element.projectile:
 		_sheet = spec.element.projectile

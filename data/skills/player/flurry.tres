@@ -1,11 +1,12 @@
 [gd_resource type="Resource" script_class="SkillDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_4xjef"]
-[ext_resource type="Texture2D" path="res://assets/fx/cut.png" id="2_bwref"]
 [ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="3_eue84"]
 [ext_resource type="Texture2D" path="res://assets/ui/skills/flurry.png" id="4_n0j1n"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_g23db"]
 [ext_resource type="AudioStream" path="res://data/audio/slash.tres" id="6_kdmdv"]
+[ext_resource type="Resource" path="res://data/vfx/slashes/stab.tres" id="slash_stab"]
+[ext_resource type="Resource" path="res://data/vfx/slashes/stab_finisher.tres" id="slash_stab_finisher"]
 
 [sub_resource type="Resource" id="Resource_rcv0t"]
 script = ExtResource("3_eue84")
@@ -13,8 +14,7 @@ radius = 42.0
 damage_multiplier = 0.7
 offset = 36.0
 knockback = 60.0
-fx = ExtResource("2_bwref")
-fx_follow_aim = true
+slash = ExtResource("slash_stab")
 
 [sub_resource type="Resource" id="Resource_kjgeb"]
 script = ExtResource("3_eue84")
@@ -22,8 +22,7 @@ radius = 42.0
 damage_multiplier = 0.7
 offset = 36.0
 knockback = 60.0
-fx = ExtResource("2_bwref")
-fx_follow_aim = true
+slash = ExtResource("slash_stab")
 delay = 0.1
 
 [sub_resource type="Resource" id="Resource_57soe"]
@@ -32,8 +31,7 @@ radius = 42.0
 damage_multiplier = 0.8
 offset = 40.0
 knockback = 120.0
-fx = ExtResource("2_bwref")
-fx_follow_aim = true
+slash = ExtResource("slash_stab_finisher")
 delay = 0.2
 
 [resource]

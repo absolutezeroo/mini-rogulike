@@ -132,6 +132,48 @@ static func line(canvas: CanvasItem, from: Vector2, to: Vector2, color: Color, t
 			at.y += sy
 
 
+## A part of a ring (`ring`), from angle `from` to `to` (radians, clockwise on screen), measured
+## on the squashed ring (a shield's arc in front of a body, lying on the ground).
+static func arc(canvas: CanvasItem, center: Vector2, radius: float, from: float, to: float, color: Color, thickness_px: int = 1, squash: float = 1.0) -> void:
+	var c := cell_of(snap(center))
+	var r := maxf(radius / PX, 1.0)
+	var inner := maxf(r - thickness_px, 0.0)
+	var rows := ceili(r * squash)
+	var span := to - from
+	for y in range(-rows, rows + 1):
+		var dy := y / maxf(squash, 0.01)
+		for x in range(-ceili(r), ceili(r) + 1):
+			var d := sqrt(x * x + dy * dy)
+			if d > r + 0.5 or d <= inner + 0.5:
+				continue
+			if fposmod(atan2(dy, x) - from, TAU) > span:
+				continue
+			cell(canvas, Vector2i(c.x + x, c.y + y), color)
+
+
+## Straight lines through `points` (closed when the last equals the first), on the grid.
+static func polyline(canvas: CanvasItem, points: PackedVector2Array, color: Color, thickness_px: int = 1, fade: float = 1.0) -> void:
+	for i in points.size() - 1:
+		line(canvas, points[i], points[i + 1], color, thickness_px, fade)
+
+
+## A filled polygon: the art pixels whose centers fall inside it (runes, a crack), dithered by
+## `fade`. Keep it small: one rect per pixel.
+static func polygon(canvas: CanvasItem, points: PackedVector2Array, color: Color, fade: float = 1.0) -> void:
+	if points.size() < 3:
+		return
+	var box := Rect2(points[0], Vector2.ZERO)
+	for point in points:
+		box = box.expand(point)
+	var from := cell_of(box.position)
+	var to := cell_of(box.end)
+	for y in range(from.y, to.y + 1):
+		for x in range(from.x, to.x + 1):
+			var at := Vector2i(x, y)
+			if Geometry2D.is_point_in_polygon((Vector2(at) + Vector2(0.5, 0.5)) * PX, points) and dither(at, fade):
+				cell(canvas, at, color)
+
+
 ## A particle "bit" of an element (VfxElementDef.Bit) of `size_px` art pixels (1 to 3), pointing
 ## along `direction` for the shapes that have one (a shard, a teardrop). Drawn in `color`, with
 ## `core` for its brightest pixel when given.
