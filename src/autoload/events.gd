@@ -40,6 +40,8 @@ signal boss_defeated(boss: Monster)
 signal ambush_started(room: AmbushRoom)
 ## Every wave of the ambush is dead: the exits open.
 signal ambush_cleared(room: AmbushRoom)
+## A cracked wall broke and a secret room opened (SecretRoom).
+signal secret_found(room: Node2D)
 
 
 func log_message(text: String, color: Color = Color.WHITE) -> void:

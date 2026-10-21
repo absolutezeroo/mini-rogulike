@@ -14,6 +14,10 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 	_reserve_around(taken, map.start_cell, 2)
 	for cell in map.exit_cells():
 		_reserve_around(taken, cell, 1)
+	# Nothing in front of a cracked wall (SecretRoomPlan): the way to it stays clear.
+	for secret in map.secrets:
+		for cell in secret.crack:
+			_reserve_around(taken, cell - secret.direction, 1)
 	if map.rooms.size() < 2:
 		for room in map.rooms:
 			place_lights(world, config, room, taken)

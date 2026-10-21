@@ -38,6 +38,7 @@ data/                Game content as .tres resources (no code)
   affixes/             Item affixes for Magic, Rare and Epic equipment (Sharp, of the Bear...)
   shop/                The merchant (stock, prices, look)
   encounters/          Spring of the Drowned, Blood Altar, Grinning Spirit, Warden's Statue
+  secrets/             What secret rooms hold (SecretRewardDef), the hidden floor (HiddenFloorDef)
   items/weapons/       Player weapons (monster/ = monster-only weapons)
   items/armors/        Head and body armor
   items/consumables/   Potions, scrolls, bombs...
@@ -54,10 +55,10 @@ src/
     hazards/             HazardDef > TrapDef > ArrowTrapDef, PitDef, QuicksandDef, HeatSourceDef, DarkRoomDef
     monster_traits/      MonsterTrait > GuardTrait, ThiefTrait, DeathBurstTrait, DeathSpawnTrait
     biomes/              BiomeDef, GroundLayerDef, DecorRuleDef, SceneDef (hand-made scenes), SceneKey
-  dungeon/             Map data, generator, drawing
+  dungeon/             Map data, generator (and its secret rooms: SecretRoomPlan), drawing
   world/               World (owns the current floor), FloorRules (how hard and rewarding it is),
                        NavGrid (pathfinding), FogOfWar (what the hero has seen), WallBuilder,
-                       FloorPopulator, BossArena, AmbushRoom, RoomGates, PitLayer, ThresholdWorld
+                       FloorPopulator, BossArena, AmbushRoom, RoomGates, PitLayer, SecretRoom, ThresholdWorld
                        (the limbo of a second life's trial);
                        dressing/ (FloorDresser: a floor in its biome, RoomSpace)
   entities/            Actor (shared base), Player, Monster, Projectile, ItemPickup, Stairs, Prop, Trap,
@@ -72,7 +73,8 @@ src/
   game/                Game: main scene, floor flow, pauses; RunState (the run: depth, kills, bosses,
                        difficulty), RunRecords (stats, bestiary, achievements, history), OfferQueue
                        (perk choices waiting), GameMenus (the panels), ShrineUpgrades, RunSave (on disk),
-                       Threshold (a second life's trial: the floor out of the tree, the hero in a limbo)
+                       Threshold (a second life's trial: the floor out of the tree, the hero in a limbo),
+                       HiddenPassage (the way to the hidden floor)
 tests/               Headless tests: run_tests (the runner), suites/ (unit, title, game, combat, floor, boss,
                      balance: opt-in), support/ (TestSuite: checks, scene helpers, the bot)
 locale/              strings.csv: every player text, English (the key) and French (see Languages)

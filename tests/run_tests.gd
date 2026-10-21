@@ -3,7 +3,7 @@ extends Node
 ##   godot --headless --fixed-fps 60 res://tests/run_tests.tscn
 ## Only some suites:  ... res://tests/run_tests.tscn -- --only=unit,title
 ## Suites (tests/suites/): unit (rules and data), title (title screen), game (a bot plays the real
-## game, then combat, floor and boss tests on it), tutorial (the first steps and the hints). Exit code = number of failed checks.
+## game, then combat, floor, secret and boss tests on it), tutorial (the first steps and the hints). Exit code = number of failed checks.
 
 const SUITES := {
 	"unit": preload("res://tests/suites/unit_tests.gd"),
@@ -73,7 +73,7 @@ func _only() -> PackedStringArray:
 ## The suites the game suite borrows from compile too (a parse error in one would otherwise
 ## only show as a script error, with 0 failed).
 func _helpers_compile() -> bool:
-	for path in ["res://tests/suites/floor_tests.gd", "res://tests/suites/combat_tests.gd", "res://tests/suites/boss_tests.gd"]:
+	for path in ["res://tests/suites/floor_tests.gd", "res://tests/suites/combat_tests.gd", "res://tests/suites/boss_tests.gd", "res://tests/suites/secret_tests.gd"]:
 		var helper := load(path) as GDScript
 		if helper == null or not helper.can_instantiate():
 			printerr("FAIL: %s doesn't compile" % path)

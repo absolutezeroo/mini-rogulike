@@ -23,6 +23,15 @@
 [ext_resource type="Resource" path="res://data/monster_ranks/epic.tres" id="13_wlvxj"]
 [ext_resource type="Resource" path="res://data/forge/smith.tres" id="90_forge"]
 [ext_resource type="Resource" path="res://data/dungeon/sustain.tres" id="91_sustain"]
+[ext_resource type="Resource" path="res://data/props/cracked_wall.tres" id="92_crack"]
+[ext_resource type="Script" path="res://src/definitions/secrets/secret_reward_def.gd" id="93_reward"]
+[ext_resource type="Resource" path="res://data/secrets/hidden_coffer.tres" id="94_coffer"]
+[ext_resource type="Resource" path="res://data/secrets/forgotten_shrine.tres" id="95_shrine"]
+[ext_resource type="Resource" path="res://data/secrets/buried_rune.tres" id="96_rune"]
+[ext_resource type="Resource" path="res://data/secrets/hoarders_cache.tres" id="97_gold"]
+[ext_resource type="Resource" path="res://data/secrets/sealed_draughts.tres" id="98_draughts"]
+[ext_resource type="AudioStream" path="res://data/audio/spirit.tres" id="99_whisper"]
+[ext_resource type="Resource" path="res://data/secrets/nameless_charnel.tres" id="100_hidden"]
 
 [resource]
 script = ExtResource("1_qfnhp")
@@ -50,3 +59,14 @@ boss_hp_scale_per_depth = 0.33
 boss_attack_per_depth = 1.0
 route_count = 2
 route_twist_chance = 0.6
+secret_room_chance = 0.5
+secret_rooms_max = 1
+secret_rooms_big = 2
+secret_big_floor_rooms = 20
+secret_room_size = Vector2i(7, 5)
+secret_passage_length = 3
+secret_passage_width = 1
+cracked_wall = ExtResource("92_crack")
+secret_rewards = Array[ExtResource("93_reward")]([ExtResource("94_coffer"), ExtResource("95_shrine"), ExtResource("96_rune"), ExtResource("97_gold"), ExtResource("98_draughts")])
+secret_whisper = ExtResource("99_whisper")
+hidden_floor = ExtResource("100_hidden")

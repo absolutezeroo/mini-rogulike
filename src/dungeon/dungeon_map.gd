@@ -18,6 +18,8 @@ var stairs_cell := Vector2i.ZERO
 var second_stairs_cell := NO_CELL
 ## Boss floors only: the arena (empty rect on normal floors).
 var boss_room := Rect2i()
+## Rooms hidden behind a cracked wall (SecretRoomPlan). Their cells stay wall until one opens.
+var secrets: Array[SecretRoomPlan] = []
 
 
 func _init(map_width: int, map_height: int, cell_size: int) -> void:

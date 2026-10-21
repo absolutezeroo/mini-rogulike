@@ -95,6 +95,75 @@
   (heals when hitting), **Bursting** (blows up when it dies), **Ironclad**, **Venomous**
   (poisons), **Thorned** (hurts who hits it).
 
+## Secret rooms
+
+Some floors hide a small room behind a **cracked wall** (`SecretRoomPlan`, `SecretRoom`,
+`dungeon_config.tres` > Secret rooms): `secret_room_chance` (50%) on a normal floor, one at most
+(`secret_rooms_max`), two at most on floors of `secret_big_floor_rooms` (20) rooms or more
+(Martyr, Nightmare). Never on a boss floor, the first room or a room with the stairs.
+
+- **Where**: the generator plans it once the floor is made: a 7x5 room (`secret_room_size`) behind
+  a wall of an existing room, joined to it by a passage through the rock 3 cells long
+  (`secret_passage_length`) and 1 wide (`secret_passage_width`). Above a room first (the crack
+  on a cliff face, where it reads best), else beside or below it. The rock all around it is at
+  least `DungeonGenerator.MIN_WALL_THICKNESS` thick, so it never touches another floor and the
+  main path never needs it. Its cells stay wall in the map (nothing walks, draws, lights or
+  dresses them) until it opens. Planned from its own stream of the floor's seed: the rest of the
+  floor is the same with or without it, and a daily run hides the same rooms for everyone.
+- **The tells**, subtle but learnable: dark fissures on the stone and chips at its foot
+  (`CrackedWall`, a prop in the wall), a faint draft of dust motes drifting into the room, now and
+  then a whisper when the hero is close (`secret_whisper`). The first time one is in sight, a
+  hint says what it is (`cracked_wall`). Nothing in front of it: the populator keeps its foot free.
+- **Breaking in**: any hit of the hero (a blow, a shot, a skill) or a blast breaks it
+  (`cracked_wall.tres` > hits: 1); monsters' blows don't, or they would give it away. The rock
+  crumbles (sound, dust, debris, a shake), the passage and the room become floor
+  (`World.open_cells()`: walls, light, mist, pathfinding and drawing redone), the room shows on the
+  minimap, lanterns light it, and the log says "The wall gives way: a hidden room."
+- **What it holds**: one of `secret_rewards` (`data/secrets/`, `SecretRewardDef`, by
+  `spawn_weight` and `min_depth`, drawn from the floor's seed), its name floating over it:
+
+  | Reward | Weight | What |
+  |---|---|---|
+  | Hidden Coffer | 30 | a chest better than the ones lying around (2-3 items, quality 3.5), never trapped |
+  | Forgotten Shrine | 20 | an altar, a statue or a spring (an encounter) |
+  | Buried Rune | 20 | a rune |
+  | Hoarder's Cache | 20 | 30-50 gold, +6 a floor (the floor's gold rules apply) |
+  | Sealed Draughts | 15 | two rare draughts or scrolls |
+
+  In the acts of the hidden floor, the room may hold its key instead (below).
+- **Saved**: a broken wall stays broken and a looted room stays empty after a resume
+  (`World.spent_data()` > secrets: each room's state, and whether it held the key).
+- **Counted**: secret rooms found go to the profile's stats (the feat "What the Walls Keep":
+  find 5) and to the end-of-run screen ("Secret rooms found").
+
+## The hidden floor
+
+**The Nameless Charnel** (`data/secrets/nameless_charnel.tres`, `HiddenFloorDef`,
+`dungeon_config.tres` > Hidden Floor): a floor between Act II and Act III that nothing announces.
+
+- **The key**: a secret room of Act II (`key_acts`: [1]) holds the **Bone Key** instead of its
+  reward half the time (`key_chance`), while the hero has none and the run hasn't been down yet.
+  The key's card says only: "It fits no door on this side of the Warden."
+- **The way**: slaying Act II's boss with the key in the bag opens a third way in the arena, a
+  sealed fissure of cold light under a ring of runes (`HiddenWay`, opened by `HiddenPassage`), its
+  sign naming the floor, beside the two usual stairs. Taking it is a choice: the stairs still lead
+  on to Act III. Stepping in spends the key.
+- **The floor**: a start room, three rooms of its own monsters (Skeleton, Frost Skull, Lost Soul,
+  Hexer, Ghost Lantern, Soul Moth, Cyclops), then an arena (`DungeonGenerator.generate_hidden()`),
+  in its own world (a cold catacomb, `nameless_charnel` biome and `charnel` theme), with its
+  title card ("Between the Acts"). No curse, no event.
+- **Its boss**: The Nameless Effigy (see monsters.md), in a Pillared Nave or a Round Pit. When it
+  falls: the usual relic choice, a Big Chest, 60 souls on top of the run's (times the
+  difficulty's), the secret feat "Laid to Rest at Last", and the arena's stairs to Act III's first
+  floor (the same two ways the Act II boss offered).
+- **Depth and the run**: the floor keeps the depth of the boss floor before it
+  (`RunState.hidden_floor`): the HUD says Depth 6, its monsters and boss scale like floor 6, the
+  run's numbering, records and quests don't move. Its floor seed is its own (the daily run's
+  hidden floor is the same for everyone). Splits: the Act II boss floor's split is taken going
+  down; the hidden floor takes none, its time goes into the next floor's. Saved like any floor:
+  quitting on it comes back to it; quitting once its boss is dead goes on to Act III. Once a run
+  (`RunState.hidden_done`): no more keys afterwards, in endless mode too.
+
 ## Boss arenas
 
 A boss floor is a start room and an arena picked among `DungeonConfig.arenas` (or the boss' own,

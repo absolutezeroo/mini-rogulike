@@ -13,7 +13,7 @@ const CUES: Array[StringName] = [
 	&"run_start", &"floor_start", &"cursed_floor", &"event_floor", &"monster_noticed", &"elite_noticed",
 	&"monster_killed", &"boss_started", &"boss_defeated", &"ambush", &"seal_broken", &"perk_chosen",
 	&"synergy", &"low_health", &"cold", &"hot", &"merchant_near", &"forge_near", &"chest_near",
-	&"gear_carried", &"rune_carried", &"spell_learned", &"two_ways",
+	&"gear_carried", &"rune_carried", &"spell_learned", &"two_ways", &"cracked_wall_near",
 	# The Game: a second life opened the trial of the Threshold.
 	&"threshold",
 	# Title screen only (TitleScreen.show_menu_hint()): the Tree of Souls and the oaths.
@@ -161,6 +161,8 @@ func _check_world() -> void:
 		cue(&"forge_near")
 	if _near(&"chests"):
 		cue(&"chest_near")
+	if _near(&"cracked_walls"):
+		cue(&"cracked_wall_near")
 	for item in player.inventory.items:
 		if item is RuneDef:
 			cue(&"rune_carried")
@@ -175,8 +177,11 @@ func _near(group: StringName) -> bool:
 		return false
 	for node in get_tree().get_nodes_in_group(group):
 		var thing := node as Node2D
-		if thing and thing.is_inside_tree() and thing.global_position.distance_to(player.global_position) <= def.near_distance \
-				and world.has_line_of_sight(player.global_position, thing.global_position):
+		if thing == null or not thing.is_inside_tree():
+			continue
+		# Seen from where it can be seen (a crack in the rock: from the floor in front of it).
+		var spot: Vector2 = thing.call(&"sight_point") if thing.has_method(&"sight_point") else thing.global_position
+		if spot.distance_to(player.global_position) <= def.near_distance and world.has_line_of_sight(player.global_position, spot):
 			return true
 	return false
 

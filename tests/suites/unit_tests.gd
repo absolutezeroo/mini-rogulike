@@ -11,6 +11,8 @@ func run() -> void:
 	_test_biome_content()
 	_test_quests()
 	_test_generation()
+	_test_secret_rooms()
+	_test_hidden_floor()
 	_test_stairs_seal()
 	_test_inventory_and_equipment()
 	_test_perks()
@@ -241,6 +243,138 @@ func _test_generation() -> void:
 		for x in map.width:
 			check(not map.is_floor(Vector2i(x, 0)) and not map.is_floor(Vector2i(x, map.height - 1)), "closed border")
 			break
+
+
+## Secret rooms (SecretRoomPlan): planned off a room, behind rock, reachable only through their
+## crack once it breaks; never on the main path; the same for the same seed.
+func _test_secret_rooms() -> void:
+	var config := CONTENT.dungeon
+	check(config.secret_room_chance > 0.0 and config.secret_rooms_max >= 1 and config.cracked_wall != null, "floors may hide a secret room (dungeon_config.tres)")
+	check(config.secret_rewards.size() >= 4 and config.secret_rewards.all(func(r: SecretRewardDef) -> bool: return r.spawn_weight > 0 and not r.display_name.is_empty()), "secret rooms hold one of several rewards, by weight")
+	var kinds := {}
+	for reward in config.secret_rewards:
+		kinds[reward.get_script()] = true
+	check(kinds.size() >= 4, "chests, shrines, items and gold among them (%d kinds)" % kinds.size())
+	var chance := config.secret_room_chance
+	config.secret_room_chance = 1.0
+	var rng := RandomNumberGenerator.new()
+	var planned := 0
+	var upward := 0
+	for i in 60:
+		rng.seed = 7000 + i
+		var map := DungeonGenerator.generate(config, rng, 1.0 + (i % 3) * 0.2, 1.0 + (i % 3) * 0.4)
+		if map.secrets.is_empty():
+			continue
+		planned += 1
+		var before := _flood(map, map.start_cell)
+		var stairs_distance := _distance(map, map.start_cell, map.stairs_cell)
+		for plan in map.secrets:
+			upward += 1 if plan.direction == Vector2i.UP else 0
+			var cells := plan.cells()
+			check(cells.all(func(c: Vector2i) -> bool: return not map.is_floor(c)), "a secret room is rock until it opens")
+			check(plan.host > 0 and not map.exit_cells().any(func(c: Vector2i) -> bool: return map.rooms[plan.host].grow(1).has_point(c)), "never off the first room nor a room with the stairs")
+			check(plan.crack.all(func(c: Vector2i) -> bool: return map.rooms[plan.host].has_point(c - plan.direction)), "its crack is on its room's wall")
+		var opened := DungeonMap.new(map.width, map.height, map.tile_size)
+		opened.tiles = map.tiles.duplicate()
+		opened.rooms = map.rooms
+		var inside := {}
+		for plan in map.secrets:
+			for cell in plan.cells():
+				opened.set_floor(cell)
+				inside[cell] = true
+		# Its only way in is through its crack.
+		var doors: Array[Vector2i] = []
+		for cell: Vector2i in inside:
+			for dir: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+				if map.is_floor(cell + dir):
+					doors.append(cell)
+		var cracks: Array[Vector2i] = []
+		for plan in map.secrets:
+			cracks.append_array(plan.crack)
+		check(not doors.is_empty() and doors.all(func(c: Vector2i) -> bool: return cracks.has(c)), "a secret room touches the floor only at its crack")
+		var after := _flood(opened, map.start_cell)
+		check(map.secrets.all(func(plan: SecretRoomPlan) -> bool: return after.has(plan.room.get_center())), "broken open, it is reachable")
+		check(not before.keys().any(func(c: Vector2i) -> bool: return inside.has(c)), "the main path never goes through it")
+		check(_distance(opened, map.start_cell, map.stairs_cell) == stairs_distance, "and opening it never shortens the way to the stairs")
+		var bad := _bad_wall_cells(opened)
+		check(bad.is_empty(), "opened, no thin walls or pinches (%s)" % str(bad.slice(0, 3)))
+		var again_rng := RandomNumberGenerator.new()
+		again_rng.seed = 7000 + i
+		var again := DungeonGenerator.generate(config, again_rng, 1.0 + (i % 3) * 0.2, 1.0 + (i % 3) * 0.4)
+		check(again.secrets.size() == map.secrets.size() and again.secrets[0].room == map.secrets[0].room and again.secrets[0].crack == map.secrets[0].crack, "the same seed hides the same secret rooms")
+	check(planned >= 40, "most floors find room for a secret (%d of 60)" % planned)
+	check(upward > 0, "some behind a cliff face")
+	config.secret_room_chance = 0.0
+	rng.seed = 7001
+	check(DungeonGenerator.generate(config, rng).secrets.is_empty(), "chance 0: no secret room")
+	config.secret_room_chance = chance
+	# The secrets have their own stream: with or without them, the rest of a floor is the same.
+	rng.seed = 99
+	var with_secrets := DungeonGenerator.generate(config, rng)
+	var next_with := rng.randi()
+	config.secret_room_chance = 0.0
+	rng.seed = 99
+	var without := DungeonGenerator.generate(config, rng)
+	config.secret_room_chance = chance
+	check(with_secrets.tiles == without.tiles and rng.randi() == next_with, "secret rooms change nothing else on the floor")
+
+
+## Steps from `from` to `to` on the floor (-1: no way).
+func _distance(map: DungeonMap, from: Vector2i, to: Vector2i) -> int:
+	var steps := { from: 0 }
+	var queue: Array[Vector2i] = [from]
+	var head := 0
+	while head < queue.size():
+		var cell := queue[head]
+		head += 1
+		if cell == to:
+			return steps[cell]
+		for dir: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+			var next := cell + dir
+			if map.is_floor(next) and not steps.has(next):
+				steps[next] = steps[cell] + 1
+				queue.append(next)
+	return -1
+
+
+## The hidden floor's data: its key, its acts, its floor and its boss, balanced between the two
+## acts' bosses; and its map (a way in, one arena).
+func _test_hidden_floor() -> void:
+	var config := CONTENT.dungeon
+	var hidden := config.hidden_floor
+	check(hidden != null and hidden.key is KeyItemDef and hidden.boss != null and hidden.biome != null, "the hidden floor has its key, its look and its boss")
+	if hidden == null or hidden.boss == null:
+		return
+	check(hidden.key.value == 0 and hidden.key.resource_path.begins_with("res://data/items/") and hidden.key.icon != null, "its key is its own file, can't be sold and has an icon")
+	check(not hidden.key_acts.is_empty() and hidden.key_acts.all(func(i: int) -> bool: return i >= 0 and i < config.acts.size() - 1), "its key belongs to acts before the last")
+	check(hidden.opens_after(config, config.first_depth(hidden.key_acts[0]) + config.acts[hidden.key_acts[0]].floors - 1) and not hidden.opens_after(config, config.first_depth(hidden.key_acts[0])), "the way opens after its act's boss only")
+	check(not config.acts.any(func(act: ActDef) -> bool: return act.biomes.has(hidden.biome)), "its world is its own")
+	check(hidden.monsters.size() >= 4 and hidden.monsters.all(func(m: MonsterDef) -> bool: return m != null and m.spawn_weight > 0), "its own mix of monsters")
+	var boss := hidden.boss
+	check(boss.portrait != null and boss.frames != null and boss.frames.has_animation(&"idle") and boss.frames.has_animation(&"walk"), "its boss has a portrait and animations")
+	check(boss.weapon != null and boss.loot != null and not boss.title.is_empty() and boss.relic_choices > 0, "its boss has a weapon, loot, a title and relics")
+	check(boss.phases.size() == 2 and boss.phases[1].skills.any(func(s: SkillDef) -> bool: return String(s.id).ends_with("_fierce")) and boss.phases[1].windup_multiplier < boss.phases[0].windup_multiplier, "its boss has three phases, the last fierce and faster")
+	check(not boss.challenges.is_empty(), "its boss has its bestiary challenge")
+	# Between the bosses of the acts around it, each at its own floor (Keeper).
+	var act := hidden.key_acts[0]
+	var depth := config.first_depth(act) + config.acts[act].floors - 1
+	var next_depth := depth + config.acts[act + 1].floors
+	var keeper := CONTENT.default_difficulty
+	var health := func(def: BossDef, at: int) -> int: return FloorRules.make(config, keeper, null, at).scale_monster(def.stats, true).max_hp
+	var hp: int = health.call(boss, depth)
+	for before in config.acts[act].all_bosses():
+		check(hp > health.call(before, depth), "%s is tougher than %s (%d)" % [boss.id, before.id, hp])
+	for after in config.acts[act + 1].all_bosses():
+		check(hp < health.call(after, next_depth), "%s is weaker than %s at floor %d (%d)" % [boss.id, after.id, next_depth, hp])
+	var rng := RandomNumberGenerator.new()
+	for i in 20:
+		rng.seed = 300 + i
+		var plan := boss.arenas[i % boss.arenas.size()] if not boss.arenas.is_empty() else null
+		var map := DungeonGenerator.generate_hidden(config, rng, plan, hidden.rooms)
+		var reach := _flood(map, map.start_cell)
+		check(map.rooms.size() == hidden.rooms + 2 and map.boss_room == map.rooms.back(), "the hidden floor: a start, its rooms, then the arena (%d rooms)" % map.rooms.size())
+		check(map.rooms.all(func(room: Rect2i) -> bool: return reach.has(room.get_center())) and reach.has(map.stairs_cell), "every room and the arena reachable")
+		check(_bad_wall_cells(map).is_empty(), "no thin walls on the hidden floor")
 
 
 ## The stairs' seal: a share of the floor's monsters, the last few shown, broken once.

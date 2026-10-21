@@ -70,6 +70,10 @@ var hint_box := HintBox.new()
 var run_timer := RunTimer.new()
 ## The trial of the Threshold, where a second life (Phoenix Feather) takes the hero.
 var threshold := Threshold.new()
+## The way to the hidden floor (its key, the sealed way, its boss' hoard).
+var hidden := HiddenPassage.new()
+## The hero took the hidden way: the next floor is the hidden one (same depth).
+var _into_hidden := false
 
 
 func _ready() -> void:
@@ -85,6 +89,10 @@ func _ready() -> void:
 	run_timer.is_counting = _is_clock_running
 	add_child(run_timer)
 	_setup_threshold()
+	hidden.name = "HiddenPassage"
+	hidden.game = self
+	hidden.def = content.dungeon.hidden_floor
+	add_child(hidden)  # (before the Game's own boss handler: its hoard is in the save)
 	world.stairs_reached.connect(_on_stairs_reached)
 	hud.bind_world(world)
 	hud.inventory_requested.connect(open_inventory)
@@ -171,6 +179,7 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	menus.hide_all()
 	offers.clear()
 	_transitioning = false
+	_into_hidden = false
 	if player:
 		player.get_parent().remove_child(player)
 		player.queue_free()
@@ -432,6 +441,10 @@ func _enter_floor(resumed: bool = false) -> void:
 		world.rng.seed = DailyRun.floor_seed(run.daily_day, depth)  # the same floors all day
 	else:
 		world.rng.seed = hash("%d-floor-%d" % [run.seed, depth])  # quitting can't reroll a floor
+	if run.hidden_floor:
+		world.rng.seed = hash("hidden-%d" % world.rng.seed)  # not the boss floor of the same depth
+	world.hidden_floor = content.dungeon.hidden_floor if run.hidden_floor else null
+	world.hidden_floor_done = run.hidden_done
 	world.next_routes = FloorRoute.offer(content, depth + 1, difficulty, run.route_seed(depth + 1))
 	world.build_floor(depth, content, _route_to(depth))
 	world.place_player(player)
@@ -480,6 +493,9 @@ func _announce_floor() -> void:
 		if not show_act_cards:
 			hud.show_banner(tr(world.curse.display_name), world.curse.color)
 		Events.log_message(tr("Cursed: %s. %s") % [tr(world.curse.display_name), tr(world.curse.description)], world.curse.color)
+	if world.hidden_floor:
+		hud.show_banner(tr(world.hidden_floor.title), world.hidden_floor.color)
+		Events.log_message(tr(world.hidden_floor.lore), world.hidden_floor.color)
 	if world.arena:
 		Events.log_message(tr("Depth %d. Something vast waits in the dark...") % depth, Palette.DANGER)
 	elif world.seal.is_sealed():
@@ -500,7 +516,10 @@ func _route_to(floor_depth: int) -> FloorRoute:
 func _on_stairs_reached(route: int = 0) -> void:
 	if _transitioning or player == null or player.is_dead:
 		return
-	if world.next_routes.size() >= 2:
+	_into_hidden = route == HiddenPassage.ROUTE
+	if _into_hidden:
+		hidden.spend_key()
+	elif world.next_routes.size() >= 2:
 		run.routes[depth + 1] = clampi(route, 0, world.next_routes.size() - 1)
 	Sfx.play_ui(Sfx.bank.stairs)
 	_transitioning = true
@@ -514,9 +533,13 @@ func _descend() -> void:
 	var fade_out := create_tween()
 	fade_out.tween_property(_fade, "color:a", 1.0, FADE_TIME)
 	await fade_out.finished
-	if run.finish_time < 0.0:
-		_split(depth)
-	depth += 1  # only now: a save during the fade still points at the floor being left
+	if run.finish_time < 0.0 and not run.hidden_floor:
+		_split(depth)  # (the hidden floor's time goes to the next floor's split)
+	# The hidden floor keeps the depth of the boss before it (RunState.hidden_floor).
+	run.hidden_floor = _into_hidden
+	_into_hidden = false
+	if not run.hidden_floor:
+		depth += 1  # only now: a save during the fade still points at the floor being left
 	_enter_floor()
 	await _show_cards()
 	_transitioning = false
@@ -531,7 +554,9 @@ func _show_cards() -> void:
 	if not show_act_cards:
 		return
 	var act := content.dungeon.act_for_depth(depth)
-	if act and content.dungeon.floor_in_act(depth) == 1:
+	if world.hidden_floor:
+		await act_card.play(world.hidden_floor.as_act())
+	elif act and content.dungeon.floor_in_act(depth) == 1:
 		await act_card.play(act)
 	if world.curse:
 		await curse_card.play(world.curse)

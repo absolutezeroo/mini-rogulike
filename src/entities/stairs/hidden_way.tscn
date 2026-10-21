@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://src/entities/stairs/stairs.tscn" id="1_stairs"]
+[ext_resource type="Script" path="res://src/entities/stairs/hidden_way.gd" id="2_way"]
+
+[node name="HiddenWay" instance=ExtResource("1_stairs")]
+script = ExtResource("2_way")

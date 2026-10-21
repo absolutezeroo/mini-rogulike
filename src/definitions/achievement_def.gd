@@ -9,6 +9,7 @@ enum Stat {
 	PUSHED, EPICS, ENCOUNTERS, CHESTS, RUN_GOLD, RUN_LEVEL, ASCENSION,
 	## Trials of the Threshold won (back to life with a second life).
 	THRESHOLDS,
+	SECRETS, HIDDEN_BOSSES,
 }
 
 ## The Profile key of each Stat.
@@ -18,6 +19,7 @@ const STAT_KEYS := {
 	Stat.NIGHTMARE_WINS: "nightmare_wins", Stat.PUSHED: "pushed", Stat.EPICS: "epics",
 	Stat.ENCOUNTERS: "encounters", Stat.CHESTS: "chests", Stat.RUN_GOLD: "run_gold",
 	Stat.RUN_LEVEL: "run_level", Stat.ASCENSION: "ascension", Stat.THRESHOLDS: "thresholds",
+	Stat.SECRETS: "secrets", Stat.HIDDEN_BOSSES: "hidden_bosses",
 }
 
 @export var id: StringName
@@ -27,6 +29,9 @@ const STAT_KEYS := {
 @export var stat: Stat = Stat.KILLS
 @export var target: int = 1
 @export var reward_souls: int = 10
+## Kept secret until reached: the codex shows "???" instead of its name and goal (it would give
+## away something the game hides, like the hidden floor).
+@export var secret := false
 
 
 func stat_key() -> String:

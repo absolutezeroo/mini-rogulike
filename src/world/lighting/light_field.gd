@@ -99,18 +99,13 @@ func setup(map: DungeonMap, lighting: LightingDef, tint: Color = Color.WHITE) ->
 		colors[level] = (lighting.color_of(level) if lighting else Color.WHITE) * hue.lerp(Color.WHITE, lamp)
 		ramp.set_pixel(level, 0, Color(colors[level], 1.0))
 	var count := _size.x * _size.y
-	_walls.resize(count)
-	for y in _size.y:
-		for x in _size.x:
-			var tile := Vector2i(x / CELLS, y / CELLS)
-			_walls[y * _size.x + x] = OPEN if map.is_floor(tile) else (FACE if _is_face(map, tile) else SOLID)
 	_levels.resize(count)
 	_tints.resize(count * 4)
 	_value.resize(count)
 	_starts.resize(count)
 	_viewport.size = _size
 	_cells.size = Vector2(_size)
-	_material.set_shader_parameter("walls", ImageTexture.create_from_image(Image.create_from_data(_size.x, _size.y, false, Image.FORMAT_R8, _scaled(_walls, 127))))
+	_read_walls()
 	_material.set_shader_parameter("ramp", ImageTexture.create_from_image(ramp))
 	_material.set_shader_parameter("grid", Vector2(_size))
 	_material.set_shader_parameter("ambient_level", float(ambient_level))
@@ -118,6 +113,25 @@ func setup(map: DungeonMap, lighting: LightingDef, tint: Color = Color.WHITE) ->
 	_revision = -1
 	_bake()
 	queue_redraw()
+
+
+## The map changed (a secret room opened): the light finds its new walls.
+func refresh_walls() -> void:
+	if _map == null:
+		return
+	_read_walls()
+	_bake()
+	queue_redraw()
+
+
+## What each cell is for the light (open, cliff face, solid), from the map.
+func _read_walls() -> void:
+	_walls.resize(_size.x * _size.y)
+	for y in _size.y:
+		for x in _size.x:
+			var tile := Vector2i(x / CELLS, y / CELLS)
+			_walls[y * _size.x + x] = OPEN if _map.is_floor(tile) else (FACE if _is_face(_map, tile) else SOLID)
+	_material.set_shader_parameter("walls", ImageTexture.create_from_image(Image.create_from_data(_size.x, _size.y, false, Image.FORMAT_R8, _scaled(_walls, 127))))
 
 
 ## The light level at a point of the floor (what the shader shows there).

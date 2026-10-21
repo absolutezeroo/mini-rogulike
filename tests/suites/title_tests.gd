@@ -152,6 +152,11 @@ func _test_title_screen() -> void:
 	var unseen := entries.filter(func(m: MonsterDef) -> bool: return Bestiary.rank_of(m, CONTENT.bestiary) == Bestiary.UNSEEN)
 	check(not slime_card.disabled and monster_cards[entries.find(unseen[0])].disabled, "slain monsters open their page, unknown ones don't")
 	check(_texts(slime_card).has("Known") and _texts(slime_card).has("1 slain") and _texts(monster_cards[entries.find(unseen[0])]).has("???"), "a card shows the rank and the kills (unknown ones: ???)")
+	# The hidden floor's boss: last, its card and its floor's heading kept secret until met.
+	var hidden_boss := CONTENT.dungeon.hidden_floor.boss
+	var list_texts := _texts(list)
+	check(entries.back() == hidden_boss and monster_cards.back().disabled and _texts(monster_cards.back()).has("???"), "the hidden boss is last in the bestiary, a ??? card until met")
+	check(not list_texts.any(func(text: String) -> bool: return text.contains(CONTENT.dungeon.hidden_floor.title) or text.contains(hidden_boss.display_name)), "nothing in the bestiary names the hidden floor or its boss before they are met")
 	check(Profile.bestiary_rank(&"slime") == 1, "the first kill pays the first rank")
 	check((codex.get_node("%Help") as Label).text.contains("rank"), "the bestiary explains the hunter ranks")
 	slime_card.pressed.emit()
