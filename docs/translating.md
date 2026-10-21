@@ -21,7 +21,11 @@ the routine for keeping the French complete.
 
 ## Style
 
+The register (dark fantasy), the vocabulary bank, the naming patterns and the words to avoid are
+in `docs/lexicon.md`: read it before naming anything. In short:
+
 - The player is "tu". Short, punchy UI words; RPG verbs (abattre, terrasser, déferler).
 - Lore and story: written prose, a little solemn and dark.
-- Names: evocative French fantasy, not word for word ("Gilded Hoarder" -> "L'Accapareur Doré").
+- Names: evocative French dark fantasy, not word for word ("Gilded Hoarder" -> "L'Accapareur Doré",
+  "Mother of Tears" -> "La Mère des Larmes"). Rules stay plain, with the glossary's words.
 - A plain space before `:`, `;`, `!`, `?` and `%`; quotes as `« ... »`.

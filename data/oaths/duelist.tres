@@ -12,7 +12,7 @@ crit_chance = 0.1
 [resource]
 script = ExtResource("1")
 id = &"duelist"
-display_name = "The Duelist"
+display_name = "Oath of the Duelist"
 description = "Start with the Rapier, +10% critical hit chance, and critical hits deal x2.5 instead of x1.75, but 20% less max Health."
 icon = ExtResource("2")
 color = Color(1, 0.8, 0.35, 1)

@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_oilub")
 id = &"curious"
-display_name = "Curious"
+display_name = "Seeker of Omens"
 description = "Answer 10 encounters."
 icon = ExtResource("1_y024x")
 stat = 10

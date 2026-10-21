@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_521hs")
 id = &"pushover"
-display_name = "Pushover"
+display_name = "Feed the Pit"
 description = "Knock 10 monsters into holes."
 icon = ExtResource("1_r03in")
 stat = 8

@@ -214,7 +214,7 @@ script = ExtResource("2_hint")
 id = &"menu_oath"
 cue = &"menu_oath"
 title = "Oaths"
-text = "An oath changes your start: a gain and a cost. Pick one or No oath, then Start the run."
+text = "An oath changes your start: a gain and a cost. Pick one or Unsworn, then Begin the descent."
 duration = 20.0
 
 [sub_resource type="Resource" id="Hint_cursed_floor"]

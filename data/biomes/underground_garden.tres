@@ -97,6 +97,6 @@ scenes = Array[ExtResource("6_jc1ov")]([ExtResource("7_r2mqf"), ExtResource("8_1
 decor = Array[ExtResource("1_r4t5t")]([SubResource("Resource_jc1ov"), SubResource("Resource_r2mqf")])
 props = Array[ExtResource("6_74m5r")]([ExtResource("7_flrqm"), ExtResource("8_jc1ov"), ExtResource("9_r2mqf")])
 id = &"underground_garden"
-display_name = "Underground Garden"
+display_name = "Pale Garden"
 description = "Light from cracks above feeds a garden nobody tends anymore."
 color = Color(0.65, 0.95, 0.4, 1)

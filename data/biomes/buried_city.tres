@@ -70,6 +70,6 @@ decor = Array[ExtResource("1_d8iow")]([SubResource("Resource_3cgww"), SubResourc
 light = ExtResource("7_uf87t")
 props = Array[ExtResource("7_wske4")]([ExtResource("8_gmate"), ExtResource("9_40lpv"), ExtResource("10_a6sec"), ExtResource("11_uf87t")])
 id = &"buried_city"
-display_name = "Buried City"
+display_name = "Sandchoked City"
 description = "Streets of sand, stalls nobody keeps. The wind still sells what is left."
 color = Color(1, 0.82, 0.45, 1)

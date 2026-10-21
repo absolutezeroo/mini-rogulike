@@ -270,7 +270,7 @@ func run() -> void:
 	game.start_run()
 	await _frames(5)
 	check(game.difficulty.id == &"easy" and game.world.difficulty == game.difficulty, "the run uses the chosen difficulty")
-	check((game.hud.get_node("%InfoLabel") as Label).text.contains("Easy"), "the HUD shows the difficulty")
+	check((game.hud.get_node("%InfoLabel") as Label).text.contains("Pilgrim"), "the HUD shows the difficulty")
 	Profile.difficulty = &"nightmare"
 	game.start_run()
 	await _frames(3)

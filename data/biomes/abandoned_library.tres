@@ -57,6 +57,6 @@ decor = Array[ExtResource("1_e0dof")]([SubResource("Resource_ksdkl")])
 light = ExtResource("7_01g1b")
 props = Array[ExtResource("7_e0dof")]([ExtResource("8_6hrak"), ExtResource("9_ksdkl"), ExtResource("10_gwlth")])
 id = &"abandoned_library"
-display_name = "Abandoned Library"
+display_name = "Hushed Archive"
 description = "Shelves of forgotten books. Some still hold a spell."
 color = Color(0.95, 0.78, 0.5, 1)

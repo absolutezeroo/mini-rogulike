@@ -13,7 +13,7 @@ attack_speed = -0.2
 [resource]
 script = ExtResource("1")
 id = &"scholar"
-display_name = "The Scholar"
+display_name = "Oath of the Heretic"
 description = "Start with the Book: skills deal 50% more damage, but your attacks are 20% slower."
 icon = ExtResource("2")
 color = Color(0.7, 0.55, 1, 1)

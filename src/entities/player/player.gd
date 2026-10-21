@@ -463,7 +463,7 @@ func _on_damaged(hit: HitInfo, damage: int) -> void:
 
 
 func _on_died(_killer: Actor) -> void:
-	Events.log_message(tr("You died."), Palette.DANGER)
+	Events.log_message(tr("Your soul slips into the Well."), Palette.DANGER)
 	camera.shake(1.0)
 	Vfx.death(world, global_position, def.color)
 

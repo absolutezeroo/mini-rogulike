@@ -1,6 +1,6 @@
 class_name OathPanel
 extends Control
-## "Before the descent", between the difficulty and the run, once the Tree of Souls opened an oath
+## "At the Well's Edge", between the difficulty and the run, once the Tree of Souls opened an oath
 ## or the Armory: swear an oath (OathDef, "X, but Y") or none, and pick the weapon to start with.
 ## The choice is remembered for the next runs (Profile.oath, Profile.starting_weapon).
 ## Built in code; %OathCards, %WeaponRow and %StartRunButton are reachable from the title screen.
@@ -113,7 +113,7 @@ func _card(oath: OathDef, open: bool) -> Control:
 	icon.modulate = Color.WHITE if open else Color(0.4, 0.38, 0.36)
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(icon)
-	var name := UiSkin.label(tr(oath.display_name) if oath else tr("No oath"), 19, (oath.color.lerp(Color.WHITE, 0.3) if oath else UiSkin.TEXT) if open else UiSkin.DIM)
+	var name := UiSkin.label(tr(oath.display_name) if oath else tr("Unsworn"), 19, (oath.color.lerp(Color.WHITE, 0.3) if oath else UiSkin.TEXT) if open else UiSkin.DIM)
 	name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(name)
 	var text := tr(oath.description) if oath else tr("The usual start: the Katana, no rule changed.")
@@ -159,14 +159,14 @@ func _fill_weapons() -> void:
 
 
 func _build() -> void:
-	_window = MenuWindow.new(tr("Before the descent"))
+	_window = MenuWindow.new(tr("At the Well's Edge"))
 	add_child(_window)
 	var scene_owner: Node = owner if owner != null else self
 	_window.close_button.text = tr("Back")
 	_window.close_button.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_close)
 		hide())
-	var intro := UiSkin.label(tr("Swear an oath for this run, or go as you are. It changes how you start: pick one, then Start."), 16, UiSkin.TEXT, true)
+	var intro := UiSkin.label(tr("Swear an oath for this run, or go down unsworn. It changes how you start: pick one, then Begin the descent."), 16, UiSkin.TEXT, true)
 	intro.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_window.header_left.add_child(intro)
 	var scroll := ScrollContainer.new()
@@ -197,7 +197,7 @@ func _build() -> void:
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_window.body.add_child(spacer)
-	_start = MenuWindow.button(tr("Start the run"), 22, 60)
+	_start = MenuWindow.button(tr("Begin the descent"), 22, 60)
 	_start.pressed.connect(start)
 	_window.body.add_child(_start)
 	MenuWindow.expose(_start, "StartRunButton", scene_owner)

@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_dcg2y")
 id = &"shiny"
-display_name = "Shiny"
+display_name = "Celestial"
 color = Color(1, 0.6117647, 0.9411765, 1)
 affixes = 0
 hp_multiplier = 3.3

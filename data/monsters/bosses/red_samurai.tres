@@ -31,7 +31,7 @@
 script = ExtResource("1_pmauv")
 id = &"weapon_katana"
 goal = 10
-text = "Beat the Red Samurai at his own game: a Katana"
+text = "Beat the Ember Ronin at his own game: a Katana"
 souls = 70
 weapon = ExtResource("2_nfwhk")
 
@@ -108,7 +108,7 @@ crit_chance = 0.1
 [resource]
 script = ExtResource("19_uawpc")
 material = ExtResource("99_material")
-title = "Burning Warden of the Temple"
+title = "Burning Warden of the Pyre"
 shockwave_power = 1.0
 portrait = ExtResource("5_npp6p")
 phases = Array[ExtResource("13_mesb5")]([SubResource("Resource_1euo2"), SubResource("Resource_oqev3")])
@@ -129,8 +129,8 @@ xp_reward = 200
 challenges = Array[ExtResource("1_pmauv")]([SubResource("Resource_mesb5")])
 loot = SubResource("Resource_pmauv")
 id = &"red_samurai"
-display_name = "Red Samurai"
-description = "A giant in burning armor. His blade cuts arcs of fire."
+display_name = "Ember Ronin"
+description = "A masterless giant in burning armor. His blade cuts arcs of fire."
 icon = ExtResource("5_npp6p")
 glyph = "C"
 color = Color(0.9019608, 0.22352941, 0.27450982, 1)

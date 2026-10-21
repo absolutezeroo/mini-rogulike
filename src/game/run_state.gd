@@ -208,7 +208,7 @@ func summary_rows(content: ContentDB, level: int, time_note: String = "") -> Arr
 	return rows
 
 
-## "Normal - Mossy Caves, depth 3, level 5 / 42 monsters slain, 1 boss" (+ the daily score).
+## "Keeper - The Well's Maw, depth 3, level 5 / 42 monsters slain, 1 boss" (+ the daily score).
 func summary(content: ContentDB, level: int) -> String:
 	var act := content.dungeon.act_for_depth(depth)
 	var text := tr("%s - %s, depth %d, level %d\n%d monsters slain, %d bosses") % [

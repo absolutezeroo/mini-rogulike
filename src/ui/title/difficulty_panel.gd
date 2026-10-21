@@ -1,6 +1,6 @@
 class_name DifficultyPanel
 extends Control
-## "Choose a difficulty", shown when pressing Play, in the game's skin (MenuWindow): one card per
+## "Choose your ordeal", shown when pressing Descend, in the game's skin (MenuWindow): one card per
 ## difficulty with what changes in plain words (DifficultyCard); locked ones say how to unlock
 ## them. Once Nightmare has been won, its ascension level (+1, +2...) is picked below the cards,
 ## with every twist up to that level and the next one to win.
@@ -117,12 +117,12 @@ static func ascension_lines(ascensions: Array[AscensionDef], level: int, open_le
 # --- Building -----------------------------------------------------------------------
 
 func _build() -> void:
-	_window = MenuWindow.new(tr("Choose a difficulty"))
+	_window = MenuWindow.new(tr("Choose your ordeal"))
 	add_child(_window)
 	var scene_owner: Node = owner if owner != null else self
 	_window.close_button.text = tr("Back")
 	MenuWindow.expose(_window.close_button, "BackButton", scene_owner)
-	var intro := UiSkin.label(tr("Tap one to start the run. Harder ones pay more souls."), 16, UiSkin.TEXT, true)
+	var intro := UiSkin.label(tr("Tap one to begin the descent. Harder ones pay more souls."), 16, UiSkin.TEXT, true)
 	intro.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_window.header_left.add_child(intro)
 	_cards = HBoxContainer.new()

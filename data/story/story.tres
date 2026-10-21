@@ -4,10 +4,10 @@
 
 [resource]
 script = ExtResource("1_22qmx")
-tagline = "Go down the Well. Bring the souls back. Become who you need to be."
-intro_pages = PackedStringArray("Under the village of Kagari lies an old well.\nNobody draws water from it.\nThe elders say it has no bottom.", "On a night without a moon, the Well woke up.\nA cold wind went through every house...\nBy morning, the villagers were asleep, and would not wake.", "Their souls were gone. Down the Well, where the dead things feed on them.", "Only you were spared: the ninja keeping watch at the shrine,\nwith the shrine\'s lantern in your hand.", "Three wardens guard the stolen souls, deeper and deeper in the Well.", "Take the lantern. Go down.\nEvery soul you bring back, the shrine turns into strength.\nSword, spells or faith: become who you need to be.")
-victory_text = "The Keeper of the Well falls. Its hoard of stolen souls breaks open,
-and a river of light rises toward Kagari. The village wakes up.
+tagline = "Descend. Bring back the stolen souls. Become what the dark demands."
+intro_pages = PackedStringArray("Beneath the village of Kagari sleeps an old well.\nNo one draws water from it anymore.\nThe elders say it has no bottom: only a mouth.", "On a moonless night, the Well woke.\nA cold breath passed through every house, and put out every flame...\nAt dawn, the villagers slept, and would not wake.", "Their souls were gone: drawn down the Well, where the dead things feed.", "Only you were spared: the ninja keeping vigil at the shrine,\nthe shrine\'s lantern still burning in your hand.", "Its wardens guard the stolen souls, each one deeper in the dark than the last.", "Take up the lantern. Descend.\nEvery soul you bring back, the shrine turns into strength.\nSteel, sorcery or faith: become what the dark demands.")
+victory_text = "The last warden falls. Its hoard of stolen souls breaks open,
+and a river of light rises toward Kagari. The bell rings; the village wakes.
 But the Well goes deeper still..."
 death_lines = PackedStringArray("Your soul joins the others, deep in the Well.", "The lantern goes out... for now.", "The Well keeps you tonight. The shrine remembers the souls you brought back.", "Darkness. Then the shrine\'s bell, far above. Again.")
 shrine_text = "The souls you brought back from the Well lend you their strength."

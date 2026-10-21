@@ -76,7 +76,7 @@ func _test_title_screen() -> void:
 	(title.get_node("%DailyButton") as Button).pressed.emit()
 	await _frames(2)
 	check(title.daily_dialog.visible and not Game.daily_requested, "the daily run explains itself before it starts")
-	check(title.daily_dialog.body.find_child("AnswerButton", true, false) != null, "...with a button to answer the call")
+	check(title.daily_dialog.body.find_child("AnswerButton", true, false) != null, "...with a button to toll the knell")
 	title.daily_dialog.hide()
 	Profile.souls = 500
 	var hints_were := Settings.tutorial_hints
@@ -109,7 +109,7 @@ func _test_title_screen() -> void:
 	check(Profile.souls == before + spent and CONTENT.soul_tree.spent() == 0 and not fork.partner().is_shut(), "resetting the tree gives every soul back (%d)" % spent)
 	Profile.buy_node(vitality_node)
 	_test_shrine_words(shrine)
-	# Before the descent: the oaths the tree opened, and the Armory's weapon.
+	# At the Well's Edge: the oaths the tree opened, and the Armory's weapon.
 	var saved_levels := Profile.levels.duplicate()
 	check(not OathPanel.has_choices(CONTENT) or Profile.levels.has("armory"), "nothing to swear before the tree opens it")
 	Profile.levels["oath_colossus"] = 1
@@ -120,7 +120,7 @@ func _test_title_screen() -> void:
 	await _frames(1)
 	var oath_cards: HBoxContainer = oaths.get_node("%OathCards")
 	var order := CONTENT.soul_tree.oaths()
-	check(oaths.visible and oath_cards.get_child_count() == order.size() + 1, "a card per oath, and No oath")
+	check(oaths.visible and oath_cards.get_child_count() == order.size() + 1, "a card per oath, and Unsworn")
 	var colossus_index := order.find(CONTENT.soul_tree.find(&"oath_colossus").oath) + 1
 	check(not (oath_cards.get_child(colossus_index) as Button).disabled and order.size() == 4 and oath_cards.get_children().filter(func(c: Node) -> bool: return (c as Button).disabled).size() == 3, "the oath bought is open, the others locked")
 	(oath_cards.get_child(colossus_index) as Button).pressed.emit()
@@ -158,7 +158,7 @@ func _test_title_screen() -> void:
 	await _frames(2)
 	check(codex.is_page_open() and not (codex.get_node("%Scroll") as Control).is_visible_in_tree(), "tapping a monster opens its page")
 	var page_text := " ".join(_texts(codex.get_node("%MonsterPage")))
-	check(page_text.contains("Health") and page_text.contains("Move speed") and page_text.contains("Mastered: slay") and page_text.contains("Shiny"), "the page explains the stats, the ranks and the Shiny")
+	check(page_text.contains("Health") and page_text.contains("Move speed") and page_text.contains("Mastered: slay") and page_text.contains("Celestial"), "the page explains the stats, the ranks and the Celestial")
 	# Every page, every attack plays in the preview (warning, then what it does).
 	for monster in entries:
 		Profile.record_kill(monster.id)

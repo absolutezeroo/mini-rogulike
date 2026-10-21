@@ -127,7 +127,7 @@ tail = ExtResource("28_y4pna")
 [resource]
 script = ExtResource("23_shxrq")
 material = ExtResource("99_material")
-title = "Coiled Guardian of the Temple"
+title = "Coiled Guardian of the Pyre"
 shockwave_power = 1.0
 portrait = ExtResource("6_ek3pd")
 arenas = Array[ExtResource("1_d6sup")]([ExtResource("2_ek3pd"), ExtResource("3_ijmc7"), ExtResource("4_47kvs")])

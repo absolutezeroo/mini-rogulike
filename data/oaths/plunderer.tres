@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1")
 id = &"plunderer"
-display_name = "The Plunderer"
+display_name = "Oath of the Vulture"
 description = "35% more gold and better loot, but the merchant charges you 25% more."
 icon = ExtResource("2")
 color = Color(1, 0.85, 0.3, 1)

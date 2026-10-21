@@ -108,7 +108,7 @@ move_speed = 65.0
 [resource]
 script = ExtResource("18_nlcxe")
 material = ExtResource("99_material")
-title = "Keeper of the Well"
+title = "Tyrant of the Well"
 shockwave_power = 1.0
 portrait = ExtResource("4_brnay")
 phases = Array[ExtResource("12_wvbbl")]([SubResource("Resource_myfj7"), SubResource("Resource_u0ub8")])

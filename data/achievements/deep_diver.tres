@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_40h45")
 id = &"deep_diver"
-display_name = "Deep Diver"
+display_name = "Abyss Walker"
 description = "Reach floor 12, the last one."
 icon = ExtResource("1_7jonj")
 stat = 4

@@ -13,7 +13,7 @@ damage = 12
 [sub_resource type="Resource" id="Resource_ddpr6"]
 script = ExtResource("3_uj5oa")
 id = &"elite_explosive"
-display_name = "Explosive"
+display_name = "Bursting"
 color = Color(1, 0.54901963, 0.25882354, 1)
 passives = Array[ExtResource("1_3kbkq")]([SubResource("Resource_uglly")])
 
@@ -22,6 +22,6 @@ script = ExtResource("4_4ukmk")
 perk = SubResource("Resource_ddpr6")
 hp_multiplier = 0.85
 id = &"explosive"
-display_name = "Explosive"
+display_name = "Bursting"
 glyph = "E"
 color = Color(1, 0.54901963, 0.25882354, 1)

@@ -83,7 +83,7 @@ custom_minimum_size = Vector2(680, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.94, 0.82, 0.8)
 theme_override_font_sizes/font_size = 18
-text = "Go down the Well."
+text = "Descend. Bring back the stolen souls. Become what the dark demands."
 
 [node name="StoryButton" type="Button" parent="Margin/Columns/Left"]
 unique_name_in_owner = true
@@ -93,7 +93,7 @@ theme_override_colors/font_color = Color(1, 0.82, 0.4, 0.85)
 theme_override_colors/font_hover_color = Color(1, 0.9, 0.6, 1)
 theme_override_colors/font_pressed_color = Color(1, 0.75, 0.3, 1)
 theme_override_font_sizes/font_size = 17
-text = "> Read the story"
+text = "> The chronicle of Kagari"
 flat = true
 
 [node name="Spacer" type="Control" parent="Margin/Columns/Left"]
@@ -115,7 +115,7 @@ custom_minimum_size = Vector2(500, 80)
 layout_mode = 2
 size_flags_horizontal = 0
 theme_override_font_sizes/font_size = 32
-text = "Play"
+text = "Descend"
 
 [node name="DailyButton" type="Button" parent="Margin/Columns/Left"]
 unique_name_in_owner = true

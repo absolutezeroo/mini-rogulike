@@ -110,6 +110,6 @@ grounds = Array[ExtResource("2_uv4ov")]([SubResource("Resource_tbdxu")])
 scenes = Array[ExtResource("7_3v1q8")]([ExtResource("8_gvx1m"), ExtResource("9_wg6do"), ExtResource("10_emtqk"), ExtResource("11_ygtgs"), ExtResource("12_2rjg3"), ExtResource("13_oy2j0")])
 decor = Array[ExtResource("1_tbdxu")]([SubResource("Resource_gvx1m"), SubResource("Resource_oy2j0"), SubResource("Resource_6fkgg")])
 id = &"mossy_cave"
-display_name = "Mossy Cave"
+display_name = "Weeping Grotto"
 description = "Damp stone and soft moss. Something drips in the dark."
 color = Color(0.6, 0.85, 0.45, 1)

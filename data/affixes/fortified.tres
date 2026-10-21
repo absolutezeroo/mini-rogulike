@@ -12,6 +12,6 @@ script = ExtResource("2_y6clt")
 slots = 6
 bonuses = SubResource("Resource_xbs42")
 id = &"fortified"
-display_name = "Fortified"
+display_name = "Ironbound"
 min_depth = 4
 spawn_weight = 6

@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_dmant")
-title = "Swift Hunters"
+title = "Swift Stalkers"
 description = "Monsters move faster and you get less time to dodge."
 monster_speed = 1.08
 telegraph_time = 0.9

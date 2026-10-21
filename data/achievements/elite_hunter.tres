@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_yktcd")
 id = &"elite_hunter"
-display_name = "Elite Hunter"
+display_name = "Hunter of the Chosen"
 description = "Slay 20 elite monsters."
 icon = ExtResource("1_5q65m")
 stat = 1

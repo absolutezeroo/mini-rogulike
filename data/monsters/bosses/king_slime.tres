@@ -31,7 +31,7 @@
 script = ExtResource("1_20bwb")
 id = &"weapon_bow"
 goal = 10
-text = "Pop the King Slime with a Bow"
+text = "Burst the Bloated King with a Bow"
 souls = 70
 weapon = ExtResource("2_psvo5")
 
@@ -111,7 +111,7 @@ move_speed = 60.0
 [resource]
 script = ExtResource("17_pf55w")
 material = ExtResource("99_material")
-title = "Warden of the Mouth of the Well"
+title = "Warden of the Well's Maw"
 shockwave_power = 1.0
 portrait = ExtResource("16_w05qf")
 phases = Array[ExtResource("11_aad1y")]([SubResource("Resource_ghebr"), SubResource("Resource_aad1y")])
@@ -133,7 +133,7 @@ xp_reward = 60
 challenges = Array[ExtResource("1_20bwb")]([SubResource("Resource_ookps")])
 loot = SubResource("Resource_mrmjo")
 id = &"king_slime"
-display_name = "King Slime"
+display_name = "Bloated King"
 description = "A huge slime that bounces, slams and splits."
 icon = SubResource("AtlasTexture_yg8ir")
 glyph = "K"

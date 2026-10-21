@@ -31,9 +31,9 @@
 
 [resource]
 script = ExtResource("12_4gi1q")
-title = "Burning Ruins"
+title = "The Pyre Temple"
 subtitle = "Act III"
-lore = "A temple the Well swallowed whole. Its fires never went out. The souls' cries come from below."
+lore = "A temple the Well swallowed whole, and its pyres with it. They still burn. The souls' cries rise from below."
 biomes = Array[ExtResource("1_1k2vl")]([ExtResource("2_4g6yy"), ExtResource("3_5f32u")])
 boss_biome = ExtResource("2_4g6yy")
 monsters = Array[ExtResource("2_0pn66")]([ExtResource("3_vlwa2"), ExtResource("4_7j4pw"), ExtResource("5_lokq4"), ExtResource("6_b4bba"), ExtResource("7_7pb75"), ExtResource("8_pcd8x"), ExtResource("9_k1810"), ExtResource("10_pa3y5"), ExtResource("11_0hwi7"), ExtResource("18_4gi1q"), ExtResource("19_uago2"), ExtResource("20_1k2vl"), ExtResource("24_4g6yy")])

@@ -11,7 +11,7 @@ cooldown_reduction = 0.04
 [resource]
 script = ExtResource("1")
 id = &"quick_recharge"
-display_name = "Quick Recharge"
+display_name = "Swift Litany"
 description = "Skills recharge 4% faster per level, in every run."
 icon = ExtResource("2")
 color = Color(0.6, 0.7, 1, 1)
