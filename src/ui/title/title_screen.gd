@@ -20,9 +20,9 @@ const BUTTON_TEXT := Color(0.16862746, 0.11372549, 0.14117648)
 
 var _daily_title: Label
 var _daily_text: Label
-var _daily_score: Label
 var _shrine_badge: Control
 var oath_panel: OathPanel
+var daily_dialog: DailyDialog
 ## The tutorial's title-screen hints (the Tree of Souls, the oaths), over everything.
 var hint_box: HintBox
 
@@ -73,9 +73,16 @@ func _ready() -> void:
 			show_menu_hint(&"menu_oath")
 		else:
 			play())
-	%DailyButton.pressed.connect(func() -> void:
+	# The daily run: tapping it explains it first (DailyDialog), then it starts.
+	daily_dialog = DailyDialog.new()
+	daily_dialog.hide()
+	add_child(daily_dialog)
+	daily_dialog.accepted.connect(func() -> void:
 		Game.daily_requested = true
 		play())
+	%DailyButton.pressed.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_open)
+		daily_dialog.open(content, DailyRun.today()))
 	%ShrineButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		_shrine.open(content.soul_tree)
@@ -153,10 +160,9 @@ func _build_daily_button() -> void:
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_theme_constant_override("separation", 0)
 	margin.add_child(column)
-	_daily_title = _button_label(22)
+	_daily_title = _button_label(24)
 	_daily_text = _button_label(14)
-	_daily_score = _button_label(14)
-	for label in [_daily_title, _daily_text, _daily_score]:
+	for label in [_daily_title, _daily_text]:
 		column.add_child(label)
 
 
@@ -189,15 +195,8 @@ func _build_shrine_badge() -> void:
 func _refresh_daily() -> void:
 	var day := DailyRun.today()
 	var played := Profile.daily_played(day)
-	_daily_title.text = tr("Daily Descent  -  practice") if played else tr("Daily Descent")
-	_daily_text.text = tr("Same Well for all: %s") % DailyRun.describe(content, day)
-	var parts := PackedStringArray()
-	parts.append(tr("Today: %d points") % Profile.daily_score if played else tr("Only your first try counts"))
-	if Profile.daily_best > 0:
-		parts.append(tr("Best %d") % Profile.daily_best)
-	if Profile.daily_streak > 1 and (played or Profile.daily_day == day - 1):
-		parts.append(tr("%d days in a row") % Profile.daily_streak)
-	_daily_score.text = "  -  ".join(parts)
+	_daily_title.text = tr("The Well's Call")
+	_daily_text.text = tr("Played today: %d points") % Profile.daily_score if played else tr("A new descent awaits, the same for all")
 
 
 func _refresh() -> void:
@@ -261,6 +260,8 @@ func _notification(what: int) -> void:
 		_shrine.close()
 	elif oath_panel and oath_panel.visible:
 		oath_panel.hide()
+	elif daily_dialog and daily_dialog.visible:
+		daily_dialog.hide()
 	elif (%CodexPanel as Control).visible:
 		(%CodexPanel as CodexPanel).back()
 	elif (%DifficultyPanel as Control).visible:

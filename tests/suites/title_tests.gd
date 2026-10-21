@@ -73,6 +73,11 @@ func _test_title_screen() -> void:
 	(title.get_node("%BackButton") as Button).pressed.emit()
 	await _frames(1)
 	check(not title.get_node("%DifficultyPanel").visible, "back to the title")
+	(title.get_node("%DailyButton") as Button).pressed.emit()
+	await _frames(2)
+	check(title.daily_dialog.visible and not Game.daily_requested, "the daily run explains itself before it starts")
+	check(title.daily_dialog.body.find_child("AnswerButton", true, false) != null, "...with a button to answer the call")
+	title.daily_dialog.hide()
 	Profile.souls = 500
 	var hints_were := Settings.tutorial_hints
 	Settings.tutorial_hints = true

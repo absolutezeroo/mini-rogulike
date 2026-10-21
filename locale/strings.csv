@@ -465,6 +465,18 @@ Your bag and belt are empty.,Your bag and belt are empty.,Ton sac et ta ceinture
 Tap one to see what the merchant pays.,Tap one to see what the merchant pays.,Touche un objet pour voir ce que le marchand en donne.
 Buy,Buy,Acheter
 Sell,Sell,Vendre
+The Well's Call,The Well's Call,L'Appel du Puits
+"Each dawn the Well calls, and everyone answers the same descent.","Each dawn the Well calls, and everyone answers the same descent.","À chaque aube, le Puits appelle, et tous répondent à la même descente."
+"The same floors and bosses for everyone today, on Normal, with this weapon and relic.","The same floors and bosses for everyone today, on Normal, with this weapon and relic.","Les mêmes étages et les mêmes boss pour tous aujourd'hui, en Normal, avec cette arme et cette relique."
+Only your first try counts; the next ones today are practice.,Only your first try counts; the next ones today are practice.,Seul ton premier essai compte ; les suivants du jour sont de l'entraînement.
+"Score: 1 per kill, 30 per floor, 150 per boss, 1000 for a win, 1 per 5 gold.","Score: 1 per kill, 30 per floor, 150 per boss, 1000 for a win, 1 per 5 gold.","Score : 1 par monstre abattu, 30 par étage, 150 par boss, 1000 pour une victoire, 1 par tranche de 5 or."
+Today: %d points,Today: %d points,Aujourd'hui : %d points
+Today's try is waiting,Today's try is waiting,L'essai du jour t'attend
+Best %d,Best %d,Meilleur %d
+%d days in a row,%d days in a row,%d jours d'affilée
+Practice,Practice,S'entraîner
+Answer the call,Answer the call,Répondre à l'appel
+Back,Back,Retour
 Your last choice,Your last choice,Ton dernier choix
 Locked,Locked,Verrouillé
 Souls earned x%s,Souls earned x%s,Âmes gagnées x%s
@@ -492,7 +504,6 @@ Everything as the game was made: the other difficulties are compared with it.,Ev
 "Next, +%d  %s: %s","Next, +%d  %s: %s","Ensuite, +%d  %s : %s"
 Win Nightmare +%d to open +%d  %s: %s,Win Nightmare +%d to open +%d  %s: %s,Gagne en Cauchemar +%d pour ouvrir +%d  %s : %s
 Choose a difficulty,Choose a difficulty,Choisis une difficulté
-Back,Back,Retour
 Tap one to start the run. Harder ones pay more souls.,Tap one to start the run. Harder ones pay more souls.,Touche-en une pour lancer la partie. Les plus dures rapportent plus d'âmes.
 Nightmare ascension,Nightmare ascension,Ascension du Cauchemar
 No oath,No oath,Aucun serment
@@ -526,13 +537,8 @@ Reset the tree,Reset the tree,Réinitialiser l'arbre
 or,or,ou
 "Continue your run  -  floor %d, level %d","Continue your run  -  floor %d, level %d","Reprendre ta partie  -  étage %d, niveau %d"
 Upgrade ready,Upgrade ready,Amélioration prête
-Daily Descent  -  practice,Daily Descent  -  practice,Descente du Jour  -  entraînement
-Daily Descent,Daily Descent,Descente du Jour
-Same Well for all: %s,Same Well for all: %s,Même puits pour tous : %s
-Today: %d points,Today: %d points,Aujourd'hui : %d points
-Only your first try counts,Only your first try counts,Seul ton premier essai compte
-Best %d,Best %d,Meilleur %d
-%d days in a row,%d days in a row,%d jours d'affilée
+Played today: %d points,Played today: %d points,Joué aujourd'hui : %d points
+"A new descent awaits, the same for all","A new descent awaits, the same for all","Une nouvelle descente t'attend, la même pour tous"
 %d souls,%d souls,%d âmes
 to spend,to spend,à dépenser
 Victories,Victories,Victoires

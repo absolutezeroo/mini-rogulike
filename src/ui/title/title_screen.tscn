@@ -119,7 +119,7 @@ text = "Play"
 
 [node name="DailyButton" type="Button" parent="Margin/Columns/Left"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(500, 96)
+custom_minimum_size = Vector2(500, 82)
 layout_mode = 2
 size_flags_horizontal = 0
 theme_override_font_sizes/font_size = 16
