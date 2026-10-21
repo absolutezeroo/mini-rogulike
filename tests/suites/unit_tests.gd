@@ -15,6 +15,7 @@ func run() -> void:
 	_test_hidden_floor()
 	_test_stairs_seal()
 	_test_inventory_and_equipment()
+	_test_bag_stacks_and_dismantle()
 	_test_perks()
 	_test_sustain()
 	_test_synergies()
@@ -623,9 +624,12 @@ func _flood(map: DungeonMap, from: Vector2i) -> Dictionary:
 func _test_inventory_and_equipment() -> void:
 	var inventory := Inventory.new(2)
 	var potion: ItemDef = load("res://data/items/consumables/health_potion.tres")
-	check(inventory.add(potion) and inventory.add(potion), "inventory accepts items")
-	check(not inventory.add(potion), "inventory refuses items when full")
-	check(inventory.grouped().size() == 1 and inventory.grouped()[0].count == 2, "identical items are grouped")
+	var bomb: ItemDef = load("res://data/items/consumables/bomb.tres")
+	var scroll: ItemDef = load("res://data/items/consumables/fire_scroll.tres")
+	check(inventory.add(potion) and inventory.add(potion) and inventory.add(bomb), "inventory accepts items")
+	check(not inventory.add(scroll), "inventory refuses items when full")
+	check(inventory.add(potion), "...but a full bag still takes one more of a stack")
+	check(inventory.grouped().size() == 2 and inventory.grouped()[0].count == 3, "identical items are grouped")
 
 	var equipment := Equipment.new()
 	var cap: EquipmentDef = load("res://data/items/armors/leather_cap.tres")
@@ -633,6 +637,134 @@ func _test_inventory_and_equipment() -> void:
 	check(equipment.equip(cap) == null, "equip into empty slot")
 	check(equipment.equip(helm) == cap, "equip returns the replaced item")
 	check(equipment.total_bonuses().defense == helm.bonuses.defense, "bonuses come from equipped items")
+
+
+## A full bag: identical drops stack (one place), gear breaks down for gold (never above what the
+## merchant pays), "Dismantle the worse" and "Better only" agree on what is worse, stacks survive
+## a saved run.
+func _test_bag_stacks_and_dismantle() -> void:
+	var katana: WeaponDef = load("res://data/items/weapons/katana.tres")
+	var axe: WeaponDef = load("res://data/items/weapons/axe.tres")
+	var cap: EquipmentDef = load("res://data/items/armors/leather_cap.tres")
+	var sharp: ItemAffixDef = load("res://data/affixes/sharp.tres")
+	var bear: ItemAffixDef = load("res://data/affixes/of_the_bear.tres")
+	var vampiric: ItemAffixDef = load("res://data/affixes/vampiric.tres")
+	var potion: ItemDef = load("res://data/items/consumables/health_potion.tres")
+	var key: ItemDef = load("res://data/items/keys/bone_key.tres")
+	var tome: ItemDef = load("res://data/items/tomes/tome_fire.tres")
+	var rune: RuneDef = CONTENT.runes[0]
+	var none: Array[ItemAffixDef] = []
+	var no_runes: Array[RuneDef] = []
+	var one_rune: Array[RuneDef] = [rune]
+
+	# The stack key: two drops rolled apart are one thing when everything about them is the same.
+	var one := LootRoller.make(katana, ItemRarity.RARE, [sharp, bear] as Array[ItemAffixDef], no_runes, 4)
+	var two := LootRoller.make(katana, ItemRarity.RARE, [sharp, bear] as Array[ItemAffixDef], no_runes, 4)
+	check(one != two and one.stack_key() == two.stack_key(), "same base, rarity, level and affixes: the same stack key")
+	check(one.stack_key() != LootRoller.make(katana, ItemRarity.RARE, [sharp, vampiric] as Array[ItemAffixDef], no_runes, 4).stack_key(), "a different affix: no stack")
+	check(one.stack_key() != LootRoller.make(katana, ItemRarity.RARE, [bear, sharp] as Array[ItemAffixDef], no_runes, 4).stack_key(), "affixes in another order (another name): no stack")
+	check(one.stack_key() != LootRoller.make(katana, ItemRarity.RARE, [sharp, bear] as Array[ItemAffixDef], no_runes, 5).stack_key(), "another item level: no stack")
+	check(one.stack_key() != LootRoller.make(katana, ItemRarity.EPIC, [sharp, bear] as Array[ItemAffixDef], no_runes, 4).stack_key(), "another rarity: no stack")
+	check(one.stack_key() != LootRoller.make(axe, ItemRarity.RARE, [sharp, bear] as Array[ItemAffixDef], no_runes, 4).stack_key(), "another base item: no stack")
+	check(one.stack_key() != LootRoller.make(katana, ItemRarity.RARE, [sharp, bear] as Array[ItemAffixDef], one_rune, 4).stack_key(), "a rune set in it: no stack")
+	check(katana.stack_key() == (load("res://data/items/weapons/katana.tres") as ItemDef).stack_key() and katana.stack_key() != LootRoller.make(katana, ItemRarity.COMMON, none, no_runes, 2).stack_key(), "plain items stack with themselves, not with a deeper copy")
+
+	# Capacity counts stacks.
+	var bag := Inventory.new(3)
+	for item: ItemDef in [one, two, potion, potion, katana]:
+		check(bag.add(item), "the bag takes %s" % item.display_name)
+	check(bag.items.size() == 5 and bag.places_used() == 3 and bag.is_full(), "5 items in 3 stacks: 3 places of 3")
+	check(bag.add(LootRoller.make(katana, ItemRarity.RARE, [sharp, bear] as Array[ItemAffixDef], no_runes, 4)), "full, it still takes a third of a stack")
+	check(not bag.add(cap) and not bag.can_add(cap), "but nothing new")
+	check(bag.grouped().size() == 3 and bag.grouped()[0].count == 3 and bag.count_of(two) == 3, "one slot per stack, with its count")
+	# Taking one from a stack.
+	var taken := bag.take(LootRoller.make(katana, ItemRarity.RARE, [sharp, bear] as Array[ItemAffixDef], no_runes, 4))
+	check(taken != null and not bag.items.has(taken) and bag.count_of(one) == 2 and bag.places_used() == 3, "take one from a stack: the rest stays, in its place")
+	check(bag.remove(one) and bag.count_of(two) == 1 and bag.find_like(one) != null, "remove takes one too")
+	check(not bag.fits_after_taking(potion, cap), "equipping one of a stack frees no place for what was worn")
+	check(bag.fits_after_taking(katana, cap), "the last of a stack frees its place")
+
+	# Dismantle gold: from data, below what the merchant pays.
+	var rules: DismantleRules = Player.DISMANTLE
+	check(rules.gold_share > 0.0 and rules.gold_for(katana) == roundi(katana.value * rules.gold_share), "a plain katana gives its value x %.2f (%d gold)" % [rules.gold_share, rules.gold_for(katana)])
+	check(rules.gold_for(one) > rules.gold_for(katana) and rules.gold_for(LootRoller.make(katana, ItemRarity.EPIC, none, no_runes, 4)) > rules.gold_for(LootRoller.make(katana, ItemRarity.MAGIC, none, no_runes, 4)), "rarer and deeper gear gives more")
+	check(rules.gold_for(potion) == 0 and rules.gold_for(key) == 0 and rules.gold_for(rune) == 0 and rules.gold_for(tome) == 0, "potions, keys, runes and tomes don't break down")
+	var merchant: ShopDef = CONTENT.dungeon.merchant
+	var cheaper := true
+	for base: ItemDef in CONTENT.items:
+		if not base is EquipmentDef:
+			continue
+		for rarity: int in [ItemRarity.COMMON, ItemRarity.MAGIC, ItemRarity.RARE, ItemRarity.EPIC]:
+			for level: int in [1, 3, 8, 15]:
+				var gear := LootRoller.make(base as EquipmentDef, rarity, none, one_rune if base is WeaponDef else no_runes, level)
+				if rules.gold_for(gear) >= merchant.sell_price(gear, level):
+					cheaper = false
+	check(cheaper, "dismantling always gives less than the merchant pays on the item's own floor")
+
+	# What is worse than what is worn.
+	var worn := LootRoller.make(katana, ItemRarity.RARE, [sharp, bear] as Array[ItemAffixDef], no_runes, 5)
+	check(ItemCompare.is_worse(LootRoller.make(katana, ItemRarity.COMMON, none, no_runes, 3), worn), "a lower, plainer katana is worse")
+	check(ItemCompare.is_worse(LootRoller.make(katana, ItemRarity.RARE, [sharp, bear] as Array[ItemAffixDef], no_runes, 5), worn), "a copy of what is worn is worse (nothing to gain)")
+	check(not ItemCompare.is_worse(LootRoller.make(katana, ItemRarity.COMMON, none, no_runes, 6), worn), "a higher item level is not")
+	check(not ItemCompare.is_worse(LootRoller.make(katana, ItemRarity.EPIC, none, no_runes, 2), worn), "a higher rarity is not")
+	check(not ItemCompare.is_worse(LootRoller.make(katana, ItemRarity.MAGIC, [vampiric] as Array[ItemAffixDef], no_runes, 2), worn), "an affix that does something the worn one doesn't is not")
+	check(not ItemCompare.is_worse(LootRoller.make(katana, ItemRarity.COMMON, none, one_rune, 1), worn), "a weapon with a rune set is not")
+	check(not ItemCompare.is_worse(cap, null), "nothing is worse than an empty slot")
+	var deep_axe := LootRoller.make(axe, ItemRarity.RARE, none, no_runes, 6)
+	var quick := LootRoller.make(katana, ItemRarity.COMMON, none, no_runes, 2)
+	check(ItemCompare.lines(quick, deep_axe).any(func(change: Dictionary) -> bool: return change.good) and ItemCompare.is_worse(quick, deep_axe), "a shallower katana is worse than a deep axe, quicker as it is")
+	var leather: EquipmentDef = load("res://data/items/armors/leather_armor.tres")
+	var plate: EquipmentDef = load("res://data/items/armors/plate_armor.tres")
+	check(not ItemCompare.is_worse(LootRoller.make(plate, ItemRarity.COMMON, none, no_runes, 3), LootRoller.make(leather, ItemRarity.MAGIC, none, no_runes, 5)), "a shallower armor with more Armor and Health is not worse")
+	check(ItemCompare.is_worse(LootRoller.make(leather, ItemRarity.COMMON, none, no_runes, 3), LootRoller.make(plate, ItemRarity.MAGIC, none, no_runes, 5)), "a shallower, thinner one is, lighter as it is")
+
+	# The hero: dismantling, the worse gear, auto loot.
+	var hero := PLAYER.instantiate() as Player
+	hero.setup(CONTENT.player)
+	hero.inventory.items.clear()
+	hero.equipment.equip(worn)
+	hero.equipment.equip(LootRoller.make(cap, ItemRarity.MAGIC, none, no_runes, 5))
+	var junk := LootRoller.make(katana, ItemRarity.COMMON, none, no_runes, 2)
+	var junk2 := LootRoller.make(katana, ItemRarity.COMMON, none, no_runes, 2)
+	var keeper := LootRoller.make(katana, ItemRarity.EPIC, none, no_runes, 7)
+	var old_cap := LootRoller.make(cap, ItemRarity.COMMON, none, no_runes, 1)
+	for item: ItemDef in [junk, junk2, keeper, old_cap, potion, key, tome, rune]:
+		hero.inventory.add(item)
+	var worse := hero.worse_gear()
+	check(worse.size() == 3 and worse.has(junk) and worse.has(junk2) and worse.has(old_cap), "the worse gear: both plain katanas and the old cap (%d)" % worse.size())
+	hero.gold = 0
+	var expected := rules.gold_for(junk) * 2 + rules.gold_for(old_cap)
+	var got := hero.dismantle_all(hero.worse_gear())
+	check(got == expected and hero.gold == expected, "dismantling the worse gives their gold (%d)" % got)
+	check(hero.inventory.items.has(keeper) and hero.inventory.items.has(potion) and hero.inventory.items.has(key) and hero.inventory.items.has(tome) and hero.inventory.items.has(rune), "and keeps the better gear, potions, keys, tomes, runes")
+	check(hero.equipment.get_item(EquipmentDef.Slot.WEAPON) == worn and hero.equipment.get_item(EquipmentDef.Slot.HEAD) != null, "and never touches what is worn")
+	var count_before := hero.inventory.items.size()
+	check(hero.dismantle(key) == 0 and hero.dismantle(potion) == 0 and hero.dismantle(rune) == 0 and hero.dismantle(tome) == 0 and hero.dismantle(worn) == 0, "keys, potions, runes, tomes and worn gear can't be dismantled")
+	check(hero.inventory.items.size() == count_before and hero.gold == expected and hero.equipment.get_item(EquipmentDef.Slot.WEAPON) == worn, "(nothing taken, no gold)")
+	check(hero.dismantle(keeper) == rules.gold_for(keeper) and not hero.inventory.items.has(keeper), "one piece dismantled: its gold")
+	check(hero.wants(junk, Settings.LOOT_ALL), "auto loot All: everything")
+	check(not hero.wants(junk, Settings.LOOT_BETTER) and hero.wants(keeper, Settings.LOOT_BETTER), "Better only: worse gear stays, better comes")
+	var plain_axe := LootRoller.make(axe, ItemRarity.COMMON, none, no_runes, 1)
+	check(hero.wants(plain_axe, Settings.LOOT_BETTER) == not ItemCompare.is_worse(plain_axe, worn), "Better only and Dismantle the worse agree")
+	check(not hero.wants(keeper, Settings.LOOT_OFF), "By hand: no gear")
+	for always: ItemDef in [potion, key, rune, tome]:
+		check(hero.wants(always, Settings.LOOT_OFF) and hero.wants(always, Settings.LOOT_BETTER), "%s is always taken" % always.display_name)
+	var defaults: Node = (load("res://src/autoload/settings.gd") as GDScript).new()
+	check(defaults.get(&"auto_loot") == Settings.LOOT_BETTER, "Better only by default")
+	defaults.free()
+
+	# Stacks survive a saved run.
+	hero.inventory.items.clear()
+	for item: ItemDef in [junk, junk2, keeper, potion, potion]:
+		hero.inventory.add(item)
+	var saved: Dictionary = JSON.parse_string(JSON.stringify(hero.save_state()))
+	var resumed := PLAYER.instantiate() as Player
+	resumed.setup(CONTENT.player)
+	resumed.load_state(saved)
+	var stacks := resumed.inventory.grouped()
+	check(resumed.inventory.items.size() == 5 and resumed.inventory.places_used() == 3 and stacks.size() == 3 and stacks[0].count == 2 and stacks[2].count == 2, "a saved bag comes back with its stacks (%d places)" % resumed.inventory.places_used())
+	hero.free()
+	resumed.free()
 
 
 func _test_perks() -> void:

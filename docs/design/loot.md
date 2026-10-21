@@ -31,6 +31,44 @@
   merchant). **Lock** keeps an entry through rerolls; if you don't buy it, it waits at the next
   merchant at the same price (`World.kept_stock`, kept in saved runs).
 
+## Room in the bag
+
+The bag (`Inventory`, 16 places, `PlayerDef.inventory_size`) fills with gear fast; three things
+keep it from getting in the way.
+
+- **Stacks**: identical items share one place and one slot ("x3"), potions and runes as before,
+  and now rolled gear too. Two drops are identical when their `ItemDef.stack_key()` is: the same
+  .tres for plain items; for rolled equipment the same base item, rarity, item level, affixes (in
+  order: they make the name) and set runes, which is exactly what a saved run keeps of it
+  (`LootRoller.to_data`), so stacks come back after Continue. The bag counter ("Bag 5 / 16") and
+  "bag full" count places, not items: a full bag still takes one more of a stack. Equipping,
+  dropping, selling or dismantling takes one from the stack; equipping one of a stack checks
+  there is a place for what was worn (it frees none). A weapon with a rune set leaves its stack.
+- **Dismantle** (`DismantleRules`, `data/items/dismantle.tres`): any piece of gear in the bag
+  breaks down into gold, anywhere (two taps on the item card: Dismantle, then "Sure? +12 gold").
+  Gold = value x rarity (`ItemRarity.VALUE`) x `gold_share` (0.15) x (1 + `gold_per_level` (0.2)
+  per item level above 1), plus 0.15 of the value of the runes set in it (they break with it).
+  That is 40% of what the merchant pays for it on its own floor (`sell_ratio` 0.25 of prices
+  x1.5, +20% a floor), and less deeper: carrying gear to him stays worth it, and dismantling is
+  never a way to make gold. Never what is worn, potions, runes, tomes or keys.
+- **Dismantle the worse**: the bag's button breaks down, after a confirmation that shows them and
+  the gold, every piece **worse** than what is worn in its slot (`ItemCompare.is_worse`,
+  `Player.worse_gear()`). Worse means: not a higher item level, not rarer, no rune set, no affix
+  (or weapon status) doing something the worn one doesn't (Vampiric, Burning...); and then, if it
+  is of a lower level or rarity, not better at its main job (damage per second for a weapon;
+  Health, Armor or Damage for an armor), quicker or lighter does not save it; of the same level
+  and rarity, not one stat in its favour. Nothing is worse than an empty slot.
+- **Auto loot** (Options, `Settings.auto_loot`, `Player.wants()`): what walking over an item does.
+  **All** takes everything (the old way). **Better only** (the default) takes gear only when it is
+  not worse than what is worn (the same rule as above), and every potion, rune, tome and key.
+  **By hand** takes no gear. Gold always flies to the hero, and the hidden floor's Bone Key is
+  always taken. Gear left on the ground shows, while the hero stands on it, on a small board low
+  on the screen (`LootPrompt`): its slot, name, how it compares, and **Take**. Better only is the
+  default because on a phone stopping to tap every drop mid-fight is a chore, while taking
+  everything is what filled the bag with worse gear; what it leaves is still one step away.
+- **Bag full**: an item that has no room stays on the ground; a toast says so ("Your bag is full:
+  ... Dismantle or drop something", at most every 4 s) and the board's button opens the bag.
+
 ## The belt
 
 Potions, bombs and scrolls don't take room in the bag: they go on the **belt** (`Belt`),

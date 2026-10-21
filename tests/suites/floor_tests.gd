@@ -768,6 +768,132 @@ func _test_comfort(game: Game) -> void:
 	game.player.xp = 0
 
 
+## Room in the bag, in a running game: auto loot (Better only leaves worse gear on the ground and
+## shows it with a Take button; By hand leaves all gear; gold and keys always come), a full bag
+## says so, a stack never needs a new place, and the bag screen shows stacks and dismantles.
+func _test_bag_room(game: Game) -> void:
+	var world: World = game.world
+	var player: Player = game.player
+	await _clear_monsters(world)
+	for pickup in get_tree().get_nodes_in_group("pickups"):
+		pickup.queue_free()
+	await _frames(2)
+	var saved_bag := player.inventory.items.duplicate()
+	var saved_mode := Settings.auto_loot
+	var saved_weapon := player.equipment.get_item(EquipmentDef.Slot.WEAPON)
+	player.inventory.items.clear()
+	var katana: WeaponDef = load("res://data/items/weapons/katana.tres")
+	var sharp: ItemAffixDef = load("res://data/affixes/sharp.tres")
+	var bear: ItemAffixDef = load("res://data/affixes/of_the_bear.tres")
+	var key: ItemDef = load("res://data/items/keys/bone_key.tres")
+	var none: Array[ItemAffixDef] = []
+	var no_runes: Array[RuneDef] = []
+	var worn := LootRoller.make(katana, ItemRarity.RARE, [sharp, bear] as Array[ItemAffixDef], no_runes, 6)
+	player.equipment.equip(worn)
+	var prompt: LootPrompt = game.hud.loot_prompt
+	var spot := player.global_position
+
+	# Better only: worse gear waits on the ground, shown with Take.
+	Settings.auto_loot = Settings.LOOT_BETTER
+	var worse := LootRoller.make(katana, ItemRarity.COMMON, none, no_runes, 2)
+	var pickup := world.spawn_item(worse, spot)
+	await _frames(4)
+	check(is_instance_valid(pickup) and not pickup.is_taken() and player.inventory.items.is_empty(), "Better only: worse gear stays on the ground")
+	check(prompt.visible and prompt.shown_item() == worse and prompt.find_child("TakeButton", true, false) != null, "walking over it shows it, with a Take button")
+	prompt.press_take()
+	await _frames(2)
+	check(player.inventory.items.has(worse) and (not is_instance_valid(pickup) or pickup.is_taken()), "Take puts it in the bag")
+	check(not prompt.visible, "and the board goes away")
+	var better := LootRoller.make(katana, ItemRarity.EPIC, none, no_runes, 9)
+	pickup = world.spawn_item(better, spot)
+	await _frames(4)
+	check(player.inventory.items.has(better), "Better only: better gear comes by itself")
+	var gold_before := player.gold
+	world.spawn_gold(spot + Vector2(20, 0), 5)
+	await _frames(40)
+	check(player.gold > gold_before, "gold always flies to the hero")
+
+	# By hand: no gear, but the key.
+	Settings.auto_loot = Settings.LOOT_OFF
+	pickup = world.spawn_item(LootRoller.make(katana, ItemRarity.EPIC, none, no_runes, 12), spot)
+	var key_pickup := world.spawn_item(key, spot)
+	await _frames(4)
+	check(is_instance_valid(pickup) and not pickup.is_taken(), "By hand: even better gear waits")
+	check(player.inventory.items.has(key), "the hidden floor's key is always taken")
+	player.inventory.remove(key)
+	pickup.queue_free()
+	if is_instance_valid(key_pickup):
+		key_pickup.queue_free()
+	await _frames(2)
+	check(not prompt.visible, "a pickup gone: the board goes")
+
+	# All: walking over takes it, and an identical drop joins its stack.
+	Settings.auto_loot = Settings.LOOT_ALL
+	var twin := LootRoller.make(katana, ItemRarity.COMMON, none, no_runes, 2)
+	world.spawn_item(twin, spot)
+	await _frames(4)
+	check(player.inventory.count_of(worse) == 2 and player.inventory.places_used() == 2, "All: a second identical drop stacks (2 places for 3 items)")
+
+	# A full bag: it says so, and a stack still fits.
+	for level in range(20, 20 + player.inventory.capacity - player.inventory.places_used()):
+		player.inventory.add(LootRoller.make(katana, ItemRarity.COMMON, none, no_runes, level))
+	check(player.inventory.is_full(), "the bag is full (%d / %d)" % [player.inventory.places_used(), player.inventory.capacity])
+	pickup = world.spawn_item(LootRoller.make(katana, ItemRarity.MAGIC, [sharp] as Array[ItemAffixDef], no_runes, 30), spot)
+	await _frames(4)
+	check(is_instance_valid(pickup) and not pickup.is_taken(), "a full bag leaves a new item on the ground")
+	var toasts: Array[String] = game.hud._toasts.duplicate()
+	toasts.append((game.hud.get_node("%ToastLabel") as Label).text)
+	check(toasts.any(func(text: String) -> bool: return text.contains("bag is full")), "and says so (a toast): %s" % [toasts])
+	check(prompt.visible and (prompt.find_child("TakeButton", true, false) as Button).text == "Open the bag", "the board offers to open the bag")
+	pickup.queue_free()
+	world.spawn_item(LootRoller.make(katana, ItemRarity.COMMON, none, no_runes, 2), spot)
+	await _frames(4)
+	check(player.inventory.count_of(worse) == 3, "but a third of a stack still comes in")
+
+	# The bag screen: places counted by stacks, the count on the slot, dismantling.
+	game.open_inventory()
+	await _frames(2)
+	var panel: InventoryPanel = game.inventory_panel
+	var grid: GridContainer = panel.get_node("%ItemGrid")
+	var stack_slot: ItemSlot = null
+	for child in grid.get_children():
+		if (child as ItemSlot).item == player.inventory.find_like(worse):
+			stack_slot = child
+	check(stack_slot != null and stack_slot.count == 3 and grid.get_child_count() == player.inventory.capacity, "the stack is one slot with its count (x%d)" % (stack_slot.count if stack_slot else 0))
+	check(panel._bag_title.text == "Bag  %d / %d" % [player.inventory.places_used(), player.inventory.capacity], "the bag counts places: %s" % panel._bag_title.text)
+	stack_slot.pressed.emit()
+	var dismantle: Button = panel.get_node("%DismantleButton")
+	var gold := Player.DISMANTLE.gold_for(worse)
+	check(dismantle.visible and (panel.get_node("%DismantleNote") as Label).text.contains("%d gold" % gold), "the card shows what dismantling gives")
+	gold_before = player.gold
+	dismantle.pressed.emit()
+	check(player.gold == gold_before and player.inventory.count_of(worse) == 3 and dismantle.text.contains("+%d" % gold), "a first tap asks again")
+	dismantle.pressed.emit()
+	check(player.gold == gold_before + gold and player.inventory.count_of(worse) == 2, "a second tap breaks one down for its gold")
+	check(panel._selected_item != null and panel._selected_item.stack_key() == worse.stack_key(), "the rest of the stack stays picked")
+	var worse_button: Button = panel.get_node("%DismantleWorseButton")
+	var worse_list := player.worse_gear()
+	var worse_gold := 0
+	for item in worse_list:
+		worse_gold += Player.DISMANTLE.gold_for(item)
+	check(not worse_button.disabled and worse_button.text.contains("(%d)" % worse_list.size()), "Dismantle the worse counts them: %s" % worse_button.text)
+	worse_button.pressed.emit()
+	check(panel.is_confirm_open() and (panel.get_node("%ConfirmDismantleButton") as Button).text.contains("+%d" % worse_gold), "it asks first, with the gold")
+	gold_before = player.gold
+	(panel.get_node("%ConfirmDismantleButton") as Button).pressed.emit()
+	check(player.gold == gold_before + worse_gold and player.worse_gear().is_empty() and not panel.is_confirm_open(), "confirmed: the worse gear is gold")
+	check(player.inventory.items.has(better) and player.equipment.get_item(EquipmentDef.Slot.WEAPON) == worn, "the better gear and what is worn stay")
+	panel.close()
+	await _frames(2)
+
+	Settings.auto_loot = saved_mode
+	player.equipment.equip(saved_weapon)
+	player.inventory.items.assign(saved_bag)
+	for left in get_tree().get_nodes_in_group("pickups"):
+		left.queue_free()
+	await _frames(2)
+
+
 ## Potions live on the belt, not in the bag. Bosses can't be juggled.
 func _test_belt_and_balance(game: Game) -> void:
 	var player: Player = game.player

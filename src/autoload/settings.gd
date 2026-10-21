@@ -9,13 +9,18 @@ signal changed
 const PATH := "user://settings.cfg"
 const SOUND_BUSES: Array[StringName] = [&"SFX", &"UI", &"Ambience"]
 const MIN_VIBRATION_GAP_MS := 50
-const KEYS: Array[String] = ["music_volume", "sound_volume", "screen_shake", "vibrations", "controls_scale", "fixed_joystick", "battery_saver", "fewer_effects", "tutorial_hints", "run_timer", "language"]
+const KEYS: Array[String] = ["music_volume", "sound_volume", "screen_shake", "vibrations", "controls_scale", "fixed_joystick", "battery_saver", "fewer_effects", "tutorial_hints", "run_timer", "language", "auto_loot"]
 ## Frames per second: normal (0 = no cap), and with the battery saver.
 const FPS := 0
 const SAVER_FPS := 30
 ## The game's languages (locale codes, see locale/strings.csv) and their names, each in itself.
 const LANGUAGES: Array[String] = ["en", "fr"]
 const LANGUAGE_NAMES := { "en": "English", "fr": "Français" }
+## Auto loot: walking over an item takes it (all), only gear better than what is worn (and every
+## potion, rune, tome, key), or no gear at all (it waits, shown with a Take button). See Player.wants().
+const LOOT_ALL := 0
+const LOOT_BETTER := 1
+const LOOT_OFF := 2
 
 ## Empty = nothing is read or written (tests).
 var path := PATH
@@ -39,6 +44,9 @@ var tutorial_hints := true
 var run_timer := true
 ## "en" or "fr". On first launch, the phone's language (French if it is French, else English).
 var language := device_language()
+## LOOT_ALL, LOOT_BETTER or LOOT_OFF. "Better only" by default: on a phone, stopping to tap
+## every drop mid-fight is a chore, and taking everything fills the bag with worse gear.
+var auto_loot := LOOT_BETTER
 
 var _last_vibration := 0
 
@@ -111,6 +119,7 @@ func load_settings() -> void:
 	language = str(file.get_value("options", "language", language))
 	if not language in LANGUAGES:
 		language = device_language()
+	auto_loot = clampi(int(file.get_value("options", "auto_loot", auto_loot)), LOOT_ALL, LOOT_OFF)
 
 
 func _set_bus_volume(bus_name: StringName, volume: float) -> void:

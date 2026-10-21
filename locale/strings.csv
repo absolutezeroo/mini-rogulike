@@ -137,6 +137,7 @@ Needs %s first.,Needs %s first.,Nécessite d'abord %s.
 Feat: %s,Feat: %s,Exploit : %s
 a fall,a fall,une chute
 the dungeon,the dungeon,le donjon
+Your bag is full,Your bag is full,Ton sac est plein
 %s set into %s,%s set into %s,%s serti dans %s
 %s taken out of %s,%s taken out of %s,%s retiré de %s
 Trap!,Trap!,Piège !
@@ -150,6 +151,8 @@ Equipped %s,Equipped %s,Équipé : %s
 Picked up %s,Picked up %s,Ramassé : %s
 Inventory full!,Inventory full!,Sac plein !
 Used %s,Used %s,Utilisé : %s
+Dismantled %s: +%d gold,Dismantled %s: +%d gold,"Démantèlement : %s, +%d or"
+Dismantled %d pieces of gear: +%d gold,Dismantled %d pieces of gear: +%d gold,%d pièces d'équipement démantelées : +%d or
 Level up! You are now level %d,Level up! You are now level %d,Niveau supérieur ! Tu es maintenant niveau %d
 LEVEL UP,LEVEL UP,NIVEAU SUPÉRIEUR
 You fell into a hole!,You fell into a hole!,Tu es tombé dans un trou !
@@ -338,7 +341,6 @@ Worn,Worn,Équipée
 %d rune sockets,%d rune sockets,%d emplacements de rune
 %d rune socket,%d rune socket,%d emplacement de rune
 Pick a socket to take its rune out,Pick a socket to take its rune out,Choisis un emplacement pour en retirer la rune
-Your bag is full,Your bag is full,Ton sac est plein
 Take out %s  (%d gold),Take out %s  (%d gold),Retirer %s  (%d or)
 No runes in your bag,No runes in your bag,Aucune rune dans ton sac
 "Elites, bosses and chests drop them.","Elites, bosses and chests drop them.","Les élites, les boss et les coffres en lâchent."
@@ -379,6 +381,13 @@ Bare hands,Bare hands,Mains nues
 %s awakens: %s,%s awakens: %s,%s s'éveille : %s
 Floor %d  %s,Floor %d  %s,Étage %d  %s
 Depth %d,Depth %d,Étage %d
+Take,Take,Prendre
+Your bag is full: %s stays on the ground. Dismantle or drop something in the bag.,Your bag is full: %s stays on the ground. Dismantle or drop something in the bag.,Ton sac est plein : %s reste au sol. Démantèle ou jette quelque chose dans le sac.
+Your bag is full. Dismantle or drop something in the bag.,Your bag is full. Dismantle or drop something in the bag.,Ton sac est plein. Démantèle ou jette quelque chose dans le sac.
+Open the bag,Open the bag,Ouvrir le sac
+Your bag is full.,Your bag is full.,Ton sac est plein.
+Nothing worn there yet.,Nothing worn there yet.,Tu ne portes rien à cet emplacement.
+The same as what you wear.,The same as what you wear.,Identique à ce que tu portes.
 Pact broken,Pact broken,Pacte rompu
 -%d max Health for the rest of the run,-%d max Health for the rest of the run,-%d Vie max pour le reste de la partie
 Pact kept,Pact kept,Pacte tenu
@@ -396,6 +405,7 @@ No perk yet: you pick one at every level up.,No perk yet: you pick one at every 
 Family: %s,Family: %s,Famille : %s
 Perks (%d),Perks (%d),Atouts (%d)
 Bag  %d / %d,Bag  %d / %d,Sac  %d / %d
+Dismantle the worse (%d),Dismantle the worse (%d),Démanteler le moins bon (%d)
 Level,Level,Niveau
 Critical hits,Critical hits,Coups critiques
 Attack speed,Attack speed,Vitesse d'attaque
@@ -404,6 +414,10 @@ Skill damage,Skill damage,Dégâts des compétences
 Skill recharge,Skill recharge,Recharge des compétences
 To bag,To bag,Vers le sac
 To belt,To belt,Vers la ceinture
+Sure? +%d gold,Sure? +%d gold,Sûr ? +%d or
+Dismantle,Dismantle,Démanteler
+Dismantle value: %d gold,Dismantle value: %d gold,Démantèlement : %d or
+The runes set in it break with it (counted in the gold).,The runes set in it break with it (counted in the gold).,Les runes serties se brisent avec (comptées dans l'or).
 Pick an item,Pick an item,Choisis un objet
 Tap a slot to see what it does.,Tap a slot to see what it does.,Touche un emplacement pour voir ce qu'il fait.
 Unequip,Unequip,Retirer
@@ -413,13 +427,22 @@ Use,Use,Utiliser
 the same stats,the same stats,les mêmes statistiques
 Runes,Runes,Runes
 An empty socket: a forge sets runes in it.,An empty socket: a forge sets runes in it.,Un emplacement vide : une forge peut y sertir une rune.
+"Dismantle 1 piece of gear worse than what you wear, for %d gold?","Dismantle 1 piece of gear worse than what you wear, for %d gold?","Démanteler 1 pièce d'équipement moins bonne que ce que tu portes, pour %d or ?"
+"Dismantle %d pieces of gear worse than what you wear, for %d gold?","Dismantle %d pieces of gear worse than what you wear, for %d gold?","Démanteler %d pièces d'équipement moins bonnes que ce que tu portes, pour %d or ?"
+Dismantle: +%d gold,Dismantle: +%d gold,Démanteler : +%d or
 Inventory,Inventory,Inventaire
 Perks,Perks,Atouts
 Belt,Belt,Ceinture
 Bag,Bag,Sac
 Drop,Drop,Jeter
+Dismantle the worse,Dismantle the worse,Démanteler le moins bon
+"What you wear, potions, runes, tomes and keys are never touched.","What you wear, potions, runes, tomes and keys are never touched.","Ce que tu portes, les potions, les runes, les grimoires et les clefs ne sont jamais touchés."
+Keep them,Keep them,Les garder
 Done! Tips are back,Done! Tips are back,C'est fait ! Les conseils sont de retour
 Replay tutorial,Replay tutorial,Rejouer le tutoriel
+Walking over an item takes it.,Walking over an item takes it.,Marcher sur un objet le ramasse.
+"Gear stays on the ground: walk over it to see it, then Take. Potions, runes and keys are taken.","Gear stays on the ground: walk over it to see it, then Take. Potions, runes and keys are taken.","L'équipement reste au sol : marche dessus pour le voir, puis Prendre. Potions, runes et clefs sont ramassées."
+"Gear only if it beats what you wear; worse gear stays on the ground (walk over it to see it). Potions, runes and keys are taken.","Gear only if it beats what you wear; worse gear stays on the ground (walk over it to see it). Potions, runes and keys are taken.","L'équipement seulement s'il bat ce que tu portes ; le moins bon reste au sol (marche dessus pour le voir). Potions, runes et clefs sont ramassées."
 Options,Options,Options
 Language changed: some menus follow from the next run.,Language changed: some menus follow from the next run.,Langue changée : certains menus suivront à la prochaine partie.
 Every change is saved right away.,Every change is saved right away.,Chaque changement est enregistré aussitôt.
@@ -444,10 +467,16 @@ Battery saver,Battery saver,Économie de batterie
 30 FPS: the phone stays cooler.,30 FPS: the phone stays cooler.,30 FPS : le téléphone chauffe moins.
 Run timer,Run timer,Chronomètre
 "The run's time, under the map.","The run's time, under the map.","Le temps de la partie, sous la carte."
+Loot,Loot,Butin
 Tutorial,Tutorial,Tutoriel
 Tutorial hints,Tutorial hints,Conseils du tutoriel
 Short tips during your first runs.,Short tips during your first runs.,De courts conseils pendant tes premières parties.
 "Every tip again, from the first steps.","Every tip again, from the first steps.","Tous les conseils à nouveau, depuis les premiers pas."
+Auto loot,Auto loot,Ramassage auto
+What walking over an item picks up. Gold is always taken.,What walking over an item picks up. Gold is always taken.,Ce que tu ramasses en marchant dessus. L'or est toujours pris.
+All,All,Tout
+Better only,Better only,Le meilleur
+By hand,By hand,À la main
 Language,Language,Langue
 The door seals behind you until every foe is slain: %d waves.,The door seals behind you until every foe is slain: %d waves.,La porte se scelle derrière toi jusqu'à ce que tous les ennemis soient abattus : %d vagues.
 The door seals behind you until every foe is slain.,The door seals behind you until every foe is slain.,La porte se scelle derrière toi jusqu'à ce que tous les ennemis soient abattus.

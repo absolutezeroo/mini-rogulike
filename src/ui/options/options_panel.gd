@@ -6,7 +6,7 @@ extends Control
 ## Built in code; every control is reachable as %Name from the panel (%EnglishButton,
 ## %FrenchButton, %MusicSlider, %SoundSlider, %ShakeSlider, %ControlsSlider, %VibrationsCheck,
 ## %FixedStickCheck, %BatteryCheck, %FewerEffectsCheck, %RunTimerCheck, %TutorialCheck,
-## %ReplayTutorialButton, %CloseButton).
+## %ReplayTutorialButton, %AutoLootAll, %AutoLootBetter, %AutoLootOff, %CloseButton).
 ## Picking a language rebuilds the window in it at once; the title screen behind is rebuilt when
 ## the window closes (other screens pick it up the next time they open).
 
@@ -29,6 +29,9 @@ var _replay: Button
 var _tutorial: CheckButton
 ## Language code -> its button.
 var _languages := {}
+## Auto loot: Settings.LOOT_* -> its button, and the line saying what the picked one does.
+var _loot_modes := {}
+var _loot_help: Label
 ## The language changed while the window was open.
 var _language_changed := false
 
@@ -58,6 +61,8 @@ func _wire() -> void:
 		check.toggled.connect(func(on: bool) -> void:
 			Settings.set_option(key, on)
 			Sfx.play_ui(Sfx.bank.ui_click))
+	for mode: int in _loot_modes:
+		(_loot_modes[mode] as Button).pressed.connect(_pick_loot_mode.bind(mode))
 	# Every hint shows again, from the first steps (and the hints come back on).
 	_replay.pressed.connect(func() -> void:
 		Profile.reset_hints()
@@ -78,6 +83,7 @@ func open() -> void:
 	_replay.text = tr("Replay tutorial")
 	for code: String in _languages:
 		(_languages[code] as Button).set_pressed_no_signal(code == Settings.language)
+	_show_loot_mode()
 	show()
 
 
@@ -105,10 +111,33 @@ func _pick_language(code: String) -> void:
 	_checks.clear()
 	_values.clear()
 	_languages.clear()
+	_loot_modes.clear()
 	_build()
 	_wire()
 	open()
 	language_changed.emit()
+
+
+func _pick_loot_mode(mode: int) -> void:
+	Settings.set_option(&"auto_loot", mode)
+	Sfx.play_ui(Sfx.bank.ui_click)
+	_show_loot_mode()
+
+
+func _show_loot_mode() -> void:
+	for mode: int in _loot_modes:
+		(_loot_modes[mode] as Button).set_pressed_no_signal(mode == Settings.auto_loot)
+	if _loot_help:
+		_loot_help.text = _loot_help_text(Settings.auto_loot)
+
+
+## What a mode does, in a line.
+static func _loot_help_text(mode: int) -> String:
+	if mode == Settings.LOOT_ALL:
+		return TranslationServer.tr("Walking over an item takes it.")
+	if mode == Settings.LOOT_OFF:
+		return TranslationServer.tr("Gear stays on the ground: walk over it to see it, then Take. Potions, runes and keys are taken.")
+	return TranslationServer.tr("Gear only if it beats what you wear; worse gear stays on the ground (walk over it to see it). Potions, runes and keys are taken.")
 
 
 func _bind_slider(slider: HSlider, option: StringName) -> void:
@@ -163,6 +192,8 @@ func _build() -> void:
 	_checks[_check(screen, tr("Battery saver"), tr("30 FPS: the phone stays cooler."), "BatteryCheck")] = &"battery_saver"
 	_checks[_check(screen, tr("Run timer"), tr("The run's time, under the map."), "RunTimerCheck")] = &"run_timer"
 
+	_build_loot(_section(right, tr("Loot")))
+
 	var tutorial := _section(right, tr("Tutorial"))
 	_tutorial = _check(tutorial, tr("Tutorial hints"), tr("Short tips during your first runs."), "TutorialCheck")
 	_checks[_tutorial] = &"tutorial_hints"
@@ -175,6 +206,29 @@ func _build() -> void:
 	_replay.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	replay_row.add_child(_replay)
 	MenuWindow.expose(_replay, "ReplayTutorialButton", self)
+
+
+## Auto loot: its name, three buttons (one stays pressed), what the picked one does. Gold always
+## flies to you.
+func _build_loot(section: VBoxContainer) -> void:
+	section.add_child(_words(tr("Auto loot"), tr("What walking over an item picks up. Gold is always taken.")))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	section.add_child(row)
+	var modes := [
+		[Settings.LOOT_ALL, tr("All"), "AutoLootAll"],
+		[Settings.LOOT_BETTER, tr("Better only"), "AutoLootBetter"],
+		[Settings.LOOT_OFF, tr("By hand"), "AutoLootOff"],
+	]
+	for entry: Array in modes:
+		var button := MenuWindow.button(entry[1], 17, 46)
+		button.toggle_mode = true
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(button)
+		_loot_modes[entry[0]] = button
+		MenuWindow.expose(button, entry[2], self)
+	_loot_help = UiSkin.label("", 14, UiSkin.GOLD, true)
+	section.add_child(_loot_help)
 
 
 ## In the header, always in sight: "Language" and two big buttons, each language's name in

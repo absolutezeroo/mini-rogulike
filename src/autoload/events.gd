@@ -22,6 +22,12 @@ signal stat_counted(stat: String, amount: int)
 signal encounter_requested(encounter: Encounter)
 ## Something (an encounter...) grants a choice of perks: rarity is PerkDef.Rarity.
 signal perk_offer_requested(rarity: int, title: String, subtitle: String)
+## The hero could not take `item`: the bag has no room for it (the HUD says so).
+signal bag_full(item: ItemDef)
+## Walking over an item that auto loot leaves on the ground (or that has no room): the HUD
+## shows it with a Take button until the hero walks off (`loot_left`).
+signal loot_offered(pickup: ItemPickup)
+signal loot_left(pickup: ItemPickup)
 ## The hero walked up to the merchant.
 signal shop_requested(merchant: Merchant)
 ## The hero walked up to the smith's forge.

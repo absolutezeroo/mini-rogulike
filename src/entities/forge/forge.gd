@@ -54,8 +54,8 @@ static func weapons_of(player: Player) -> Array[EquipmentDef]:
 	var worn := player.equipment.get_item(EquipmentDef.Slot.WEAPON)
 	if worn:
 		result.append(worn)
-	for item in player.inventory.items:
-		var weapon := item as EquipmentDef
+	for entry in player.inventory.grouped():  # one per stack
+		var weapon := entry.item as EquipmentDef
 		if weapon and weapon.slot == EquipmentDef.Slot.WEAPON and not result.has(weapon):
 			result.append(weapon)
 	return result
@@ -65,6 +65,12 @@ static func weapons_of(player: Player) -> Array[EquipmentDef]:
 ## now (a plain weapon becomes its own copy), or null if it can't (no free socket...).
 static func set_rune(player: Player, weapon: EquipmentDef, rune: RuneDef) -> EquipmentDef:
 	if weapon == null or rune == null or weapon.free_sockets() <= 0 or not player.inventory.items.has(rune):
+		return null
+	# One of a stack in the bag leaves it and needs a place of its own (the rune may free one).
+	var bag := player.inventory
+	if bag.items.has(weapon) and bag.count_of(weapon) > 1 \
+			and bag.places_used() - (1 if bag.count_of(rune) == 1 else 0) >= bag.capacity:
+		Events.log_message(TranslationServer.tr("Your bag is full"), Palette.DANGER)
 		return null
 	var worked := weapon if weapon.is_rolled() else LootRoller.make(weapon, weapon.rarity, weapon.affixes.duplicate(), [], weapon.item_level)
 	worked.runes.append(rune)
@@ -80,7 +86,7 @@ static func take_rune(player: Player, weapon: EquipmentDef, index: int, price: i
 	if weapon == null or index < 0 or index >= weapon.runes.size():
 		return false
 	var rune := weapon.runes[index]
-	if player.inventory.is_full() or player.gold < price or not player.spend_gold(price):
+	if not player.inventory.can_add(rune) or player.gold < price or not player.spend_gold(price):
 		return false
 	weapon.runes.remove_at(index)
 	player.inventory.add(rune)
