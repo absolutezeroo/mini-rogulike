@@ -6,9 +6,11 @@
 [ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="4_5o7og"]
 [ext_resource type="Script" path="res://src/definitions/passives/effects_on_skill_passive.gd" id="5_e8o13"]
 [ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="6_lv1dn"]
+[ext_resource type="Resource" path="res://data/vfx/elements/arcane.tres" id="vfx_arcane"]
 
 [sub_resource type="Resource" id="Resource_fpsxq"]
 script = ExtResource("4_5o7og")
+element = ExtResource("vfx_arcane")
 damage_multiplier = 0.4
 speed = 360.0
 radius = 6.0
@@ -17,7 +19,6 @@ count = 8
 spread_degrees = 360.0
 knockback = 90.0
 secondary = true
-color = Color(0.7019608, 0.53333336, 0.92156863, 1)
 
 [sub_resource type="Resource" id="Resource_4lxhq"]
 script = ExtResource("5_e8o13")
@@ -29,5 +30,5 @@ id = &"arcane"
 display_name = "Arcane"
 description = "Using a skill also fires a ring of 8 arcane bolts."
 icon = ExtResource("1_vue4l")
-color = Color(0.7019608, 0.53333336, 0.92156863, 1)
+color = Color(0.941176, 0.478431, 0.847059, 1)
 passives = Array[ExtResource("2_h2orh")]([SubResource("Resource_4lxhq")])

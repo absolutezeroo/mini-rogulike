@@ -12,6 +12,6 @@ id = &"tome_thunder"
 display_name = "Tome of Thunder"
 description = "Read it to learn a skill (last skill button)."
 icon = ExtResource("1_uxn5d")
-color = Color(1, 0.9019608, 0.42745098, 1)
+color = Color(0.788235, 0.721569, 1, 1)
 min_depth = 3
 spawn_weight = 3

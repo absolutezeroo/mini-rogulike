@@ -21,6 +21,8 @@ var _sheet: VfxSheetDef
 ## Its element, or one made from its color (old content).
 var _element: VfxElementDef
 var _age := 0.0
+## Its sheet's first frame, picked at random: a ring of twelve sparks doesn't flicker in step.
+var _phase := 0
 
 const TRAIL_LENGTH := 6
 ## Light of a glowing shot, above the floor's own (LightSource.relative).
@@ -60,6 +62,8 @@ func _configure(direction: Vector2, spec: ProjectileSpec) -> void:
 	elif spec.element and spec.element.projectile:
 		_sheet = spec.element.projectile
 	_element = VfxElementDef.or_color(spec.element, spec.color)
+	if _sheet:
+		_phase = randi() % maxi(_sheet.frame_count(), 1)
 	# Magic shots light up the dark in their color (not a boss's whole ring: too many lights);
 	# plain things (shurikens, arrows) and matter (blood, water) don't shine at all.
 	var shines := spec.glow > 0.0 and (spec.element == null or spec.element.emissive)
@@ -174,7 +178,7 @@ func _draw() -> void:
 			var size := 2 if t > 0.6 and _spec.radius >= 6.0 else 1
 			PixelDraw.bit(self, VfxElementDef.Bit.SQUARE if _spec.element == null else _element.bit, local, size, _element.shade(1.0 - t * 0.75), -_direction)
 	if _sheet:
-		PixelDraw.sheet(self, _sheet, int(_age * _sheet.fps), Vector2.ZERO, _direction, _element)
+		PixelDraw.sheet(self, _sheet, int(_age * _sheet.fps) + _phase, Vector2.ZERO, _direction, _element)
 		return
 	# No sprite: a stepped dot, its edge, its body, a bright heart.
 	var r := PixelDraw.snap_length(_spec.radius)

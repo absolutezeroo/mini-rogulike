@@ -7,19 +7,33 @@
 [ext_resource type="Texture2D" path="res://assets/ui/skills/holy_shield.png" id="5_63te0"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="6_yxu1e"]
 [ext_resource type="AudioStream" path="res://data/audio/buff.tres" id="7_p2c2l"]
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_sheet_def.gd" id="vfx_sheet"]
+[ext_resource type="Texture2D" path="res://assets/fx/holy/holy_aegis.png" id="vfx_aegis"]
+[ext_resource type="Resource" path="res://data/vfx/elements/holy.tres" id="vfx_holy"]
 
 [sub_resource type="Resource" id="Resource_kbnvb"]
 script = ExtResource("2_g5v1i")
 defense = 6
 
+[sub_resource type="Resource" id="aegis"]
+script = ExtResource("vfx_sheet")
+texture = ExtResource("vfx_aegis")
+frames = 7
+fps = 14.0
+anchor = Vector2(0, -13)
+linger = 0.12
+
 [sub_resource type="Resource" id="Resource_4n3j2"]
 script = ExtResource("3_ku5fj")
+sheet = SubResource("aegis")
+element = ExtResource("vfx_holy")
 bonuses = SubResource("Resource_kbnvb")
 duration = 5.0
 color = Color(1, 0.81960785, 0.4, 1)
 
 [sub_resource type="Resource" id="Resource_mh2mi"]
 script = ExtResource("4_wi1md")
+element = ExtResource("vfx_holy")
 amount = 0
 max_hp_ratio = 0.08
 boss_fight_ratio = 0.5

@@ -2,19 +2,18 @@
 
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_i3vcv"]
 [ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_xstij"]
-[ext_resource type="Texture2D" path="res://assets/projectiles/energyball.png" id="3_bxfg1"]
 [ext_resource type="Texture2D" path="res://assets/ui/skills/spark_nova.png" id="4_1dvw4"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_sif74"]
 [ext_resource type="AudioStream" path="res://data/audio/magic.tres" id="6_y5gf3"]
+[ext_resource type="Resource" path="res://data/vfx/elements/storm.tres" id="vfx_storm"]
 
 [sub_resource type="Resource" id="Resource_gisnt"]
 script = ExtResource("2_xstij")
+element = ExtResource("vfx_storm")
 damage_multiplier = 0.7
 radius = 7.0
 count = 12
 spread_degrees = 360.0
-color = Color(0.47843137, 0.827451, 1, 1)
-texture = ExtResource("3_bxfg1")
 
 [resource]
 script = ExtResource("5_sif74")
@@ -23,6 +22,6 @@ display_name = "Spark Nova"
 description = "A ring of sparks flies out in every direction."
 short_label = "NOVA"
 icon = ExtResource("4_1dvw4")
-color = Color(0.47843137, 0.827451, 1, 1)
+color = Color(0.788235, 0.721569, 1, 1)
 effects = Array[ExtResource("1_i3vcv")]([SubResource("Resource_gisnt")])
 sound = ExtResource("6_y5gf3")

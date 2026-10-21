@@ -18,6 +18,9 @@ extends Effect
 @export var status: OnHitStatus
 ## A blast (its element's burst, a ripple, screen shake) instead of a simple ring.
 @export var explosive: bool = false
+## A sheet of its own played on the area's middle at the art's size, never stretched to the
+## radius (Thunder's bolt from the sky, Smite's column of light), over the element's nova.
+@export var strike: VfxSheetDef
 
 @export_group("Effect sheet")
 ## Drawn as a blade's blow (Cleave's crescent, Whirlwind's spin: data/vfx/slashes/) from the
@@ -52,3 +55,5 @@ func apply(user: Actor, aim: Vector2) -> void:
 		Vfx.nova(user.world, center, radius, element)
 	else:
 		user.world.spawn_vfx(RingVfx.create(center, radius, color))
+	if strike:
+		user.world.spawn_vfx(SheetVfx.play(strike, center, aim, element))

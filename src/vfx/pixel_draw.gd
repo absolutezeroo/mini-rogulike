@@ -245,6 +245,34 @@ static func bit(canvas: CanvasItem, shape: int, at: Vector2, size_px: int, color
 			_cells(canvas, c, cells, color)
 			if core.a > 0.0:
 				cell(canvas, c, core)
+		VfxElementDef.Bit.FORK:
+			# A spark of lightning: a diagonal pair, a step, a staircase; turned along
+			# `direction` (storm: jagged, never a plus, which is holy's glint).
+			var cells: Array[Vector2i] = [Vector2i.ZERO, Vector2i(1, 1)]
+			if s == 2:
+				cells = [Vector2i.ZERO, Vector2i(1, 0), Vector2i(1, 1), Vector2i(2, 1)]
+			elif s >= 3:
+				cells = [Vector2i(-1, -1), Vector2i(0, -1), Vector2i.ZERO, Vector2i(1, 0), Vector2i(1, 1), Vector2i(2, 1)]
+			var turn := posmod(roundi(direction.angle() / (PI / 2.0)), 4)
+			for offset in cells:
+				var o := offset
+				for i in turn:
+					o = Vector2i(-o.y, o.x)
+				cell(canvas, c + o, color)
+			if core.a > 0.0:
+				cell(canvas, c, core)
+		VfxElementDef.Bit.RUNE:
+			# An arcane rune-glint: a hollow rhombus (4 pixels round an empty heart when
+			# small: a lit heart there would make a plus), a lit heart when big.
+			var r := 1 if s < 2 else 2
+			var cells: Array[Vector2i] = []
+			for y in range(-r, r + 1):
+				for x in range(-r, r + 1):
+					if absi(x) + absi(y) == r:
+						cells.append(Vector2i(x, y))
+			_cells(canvas, c, cells, color)
+			if core.a > 0.0 and r > 1:
+				cell(canvas, c, core)
 		_:
 			# SQUARE, MOTE: a block of s x s pixels.
 			canvas.draw_rect(Rect2(Vector2(c) * PX, Vector2.ONE * PX * s), color)

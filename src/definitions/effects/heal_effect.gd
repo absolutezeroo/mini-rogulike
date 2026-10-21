@@ -9,6 +9,9 @@ extends Effect
 ## mistakes, they must not out-heal a boss when cast on cooldown (Holy Shield and Smite carried
 ## builds that never dodged through act IV bosses). 1 = the same everywhere.
 @export_range(0.0, 1.0) var boss_fight_ratio: float = 1.0
+## Whose light it is (Holy Light, Smite: holy): its sigil on the ground is drawn in the
+## element's ramp instead of the plain green of a heal.
+@export var element: VfxElementDef
 
 
 ## What a cast heals now.
@@ -23,4 +26,4 @@ func apply(user: Actor, _aim: Vector2) -> void:
 	var healed := user.heal(heal_amount(user))
 	if healed > 0:
 		user.world.spawn_floating_text(user.head_position(), "+%d" % healed, Palette.HEAL)
-	Vfx.magic(user.world, user.global_position, Palette.HEAL)
+	Vfx.magic(user.world, user.global_position, Palette.HEAL, element)

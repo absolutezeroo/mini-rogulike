@@ -1,6 +1,31 @@
 [gd_resource type="Resource" script_class="VfxElementDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/vfx/vfx_element_def.gd" id="1"]
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_sheet_def.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/fx/shadow/shadow_knot.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/fx/shadow/shadow_impact.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/fx/shadow/shadow_smoke.png" id="5"]
+
+[sub_resource type="Resource" id="shot"]
+script = ExtResource("2")
+texture = ExtResource("3")
+fps = 10.0
+loop = true
+
+[sub_resource type="Resource" id="impact"]
+script = ExtResource("2")
+texture = ExtResource("4")
+fps = 18.0
+linger = 0.15
+
+[sub_resource type="Resource" id="piece"]
+script = ExtResource("2")
+texture = ExtResource("5")
+frames = 7
+variants = 3
+fps = 14.0
+anchor = Vector2(0, -5)
+linger = 0.0
 
 [resource]
 script = ExtResource("1")
@@ -12,3 +37,6 @@ accent = 3
 bit = 8
 motion = 5
 emissive = false
+projectile = SubResource("shot")
+impact = SubResource("impact")
+piece = SubResource("piece")

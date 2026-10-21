@@ -2,25 +2,25 @@
 
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_hp407"]
 [ext_resource type="Script" path="res://src/definitions/effects/heal_effect.gd" id="2_w8y4f"]
-[ext_resource type="Texture2D" path="res://assets/fx/holy_circle.png" id="3_xigwt"]
 [ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="4_ukl8y"]
 [ext_resource type="Texture2D" path="res://assets/ui/skills/holy_light.png" id="5_xf2l2"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="6_yi1fu"]
 [ext_resource type="AudioStream" path="res://data/audio/heal.tres" id="7_bim2t"]
+[ext_resource type="Resource" path="res://data/vfx/elements/holy.tres" id="vfx_holy"]
 
 [sub_resource type="Resource" id="Resource_i6ql6"]
 script = ExtResource("2_w8y4f")
+element = ExtResource("vfx_holy")
 amount = 0
 max_hp_ratio = 0.3
 boss_fight_ratio = 0.5
 
 [sub_resource type="Resource" id="Resource_6d2na"]
 script = ExtResource("4_ukl8y")
+element = ExtResource("vfx_holy")
 radius = 90.0
 damage_multiplier = 0.8
 knockback = 200.0
-fx = ExtResource("3_xigwt")
-fx_tint = Color(1, 0.95, 0.7, 1)
 
 [resource]
 script = ExtResource("6_yi1fu")

@@ -61,4 +61,6 @@ func _draw() -> void:
 	var beat := PixelDraw.PX if fmod(_age * 5.0, 1.0) < 0.5 else 0.0
 	PixelDraw.disc(self, Vector2.ZERO, 9.0 + beat, holy.shade(0.75), 0.35 * fade)
 	PixelDraw.disc(self, Vector2.ZERO, 4.0, holy.color(), fade)
-	PixelDraw.pixel(self, Vector2(-2, -2), holy.core(), 2)
+	# Its heart is holy's 4-point glint, flaring on the beat.
+	if PixelDraw.dither(Vector2i.ZERO, fade):
+		PixelDraw.bit(self, VfxElementDef.Bit.GLINT, Vector2.ZERO, 2 if beat > 0.0 else 1, holy.core())

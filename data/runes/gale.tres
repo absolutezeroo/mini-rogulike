@@ -1,13 +1,15 @@
-[gd_resource type="Resource" script_class="RuneDef" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="RuneDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/items/rune_def.gd" id="1_rune"]
 [ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="2_passive"]
 [ext_resource type="Script" path="res://src/definitions/passives/dash_shockwave_passive.gd" id="3_kind"]
 [ext_resource type="Resource" path="res://data/perks/synergies/storm.tres" id="4_family"]
 [ext_resource type="Texture2D" path="res://assets/items/runes/gale.png" id="5_icon"]
+[ext_resource type="Resource" path="res://data/vfx/elements/storm.tres" id="vfx_storm"]
 
 [sub_resource type="Resource" id="Resource_passive"]
 script = ExtResource("3_kind")
+element = ExtResource("vfx_storm")
 radius = 70.0
 damage_multiplier = 0.5
 knockback = 260.0

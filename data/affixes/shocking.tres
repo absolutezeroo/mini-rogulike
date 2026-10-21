@@ -3,9 +3,11 @@
 [ext_resource type="Script" path="res://src/definitions/passives/passive.gd" id="1_4fqtp"]
 [ext_resource type="Script" path="res://src/definitions/passives/chain_lightning_passive.gd" id="2_uf3oi"]
 [ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="3_73inp"]
+[ext_resource type="Resource" path="res://data/vfx/elements/storm.tres" id="vfx_storm"]
 
 [sub_resource type="Resource" id="Resource_ku6hh"]
 script = ExtResource("2_uf3oi")
+element = ExtResource("vfx_storm")
 every_hits = 4
 jumps = 2
 damage_multiplier = 0.5

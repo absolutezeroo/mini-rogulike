@@ -1,11 +1,39 @@
 [gd_resource type="Resource" script_class="VfxElementDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/vfx/vfx_element_def.gd" id="1"]
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_sheet_def.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/fx/storm/storm_spark.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/fx/storm/storm_impact.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/fx/storm/storm_fork.png" id="5"]
+
+[sub_resource type="Resource" id="shot"]
+script = ExtResource("2")
+texture = ExtResource("3")
+fps = 16.0
+loop = true
+
+[sub_resource type="Resource" id="impact"]
+script = ExtResource("2")
+texture = ExtResource("4")
+fps = 20.0
+linger = 0.08
+
+[sub_resource type="Resource" id="piece"]
+script = ExtResource("2")
+texture = ExtResource("5")
+frames = 7
+variants = 3
+fps = 18.0
+anchor = Vector2(0, -2)
+linger = 0.0
 
 [resource]
 script = ExtResource("1")
 id = &"storm"
 ramp = PackedColorArray(0.956863, 0.941176, 1, 1, 0.788235, 0.721569, 1, 1, 0.560784, 0.45098, 0.901961, 1, 0.294118, 0.227451, 0.6, 1, 0.145098, 0.109804, 0.309804, 1)
 mark = Color(0.145098, 0.109804, 0.309804, 0.35)
-bit = 4
+bit = 9
 motion = 4
+projectile = SubResource("shot")
+impact = SubResource("impact")
+piece = SubResource("piece")

@@ -6,9 +6,11 @@
 [ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="4_h3flf"]
 [ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="5_7fkon"]
 [ext_resource type="Resource" path="res://data/perks/synergies/storm.tres" id="6_h3flf"]
+[ext_resource type="Resource" path="res://data/vfx/elements/storm.tres" id="vfx_storm"]
 
 [sub_resource type="Resource" id="Resource_uj7g7"]
 script = ExtResource("3_7fkon")
+element = ExtResource("vfx_storm")
 
 [resource]
 script = ExtResource("4_h3flf")
@@ -16,7 +18,7 @@ id = &"shock_roll"
 display_name = "Shock Roll"
 description = "Rolling releases a shockwave that hurts and pushes enemies away."
 icon = ExtResource("1_t7gjp")
-color = Color(0.6039216, 0.81960785, 0.83137256, 1)
+color = Color(0.788235, 0.721569, 1, 1)
 weight = 6
 synergies = Array[ExtResource("5_7fkon")]([ExtResource("6_h3flf")])
 passives = Array[ExtResource("2_uqqca")]([SubResource("Resource_uj7g7")])

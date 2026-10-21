@@ -3,7 +3,6 @@
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_d1du3"]
 [ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_tixe3"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_gfeue"]
-[ext_resource type="Texture2D" path="res://assets/projectiles/energyball.png" id="4_gameb"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_dper3"]
 [ext_resource type="AudioStream" path="res://data/audio/bolt.tres" id="6_qthcf"]
 [ext_resource type="Resource" path="res://data/vfx/elements/shadow.tres" id="vfx_shadow"]
@@ -16,19 +15,18 @@ slow_duration = 1.5
 
 [sub_resource type="Resource" id="Resource_typk1"]
 script = ExtResource("2_tixe3")
+element = ExtResource("vfx_shadow")
 damage_multiplier = 0.6
 speed = 220.0
 count = 8
 spread_degrees = 360.0
-color = Color(0.42745098, 0.34901962, 0.47843137, 1)
-texture = ExtResource("4_gameb")
 status = SubResource("Resource_pakcx")
 
 [resource]
 script = ExtResource("5_dper3")
 id = &"ink_ring"
 display_name = "Ink Ring"
-color = Color(0.42745098, 0.34901962, 0.47843137, 1)
+color = Color(0.823529, 0.290196, 0.52549, 1)
 effects = Array[ExtResource("1_d1du3")]([SubResource("Resource_typk1")])
 sound = ExtResource("6_qthcf")
 ai_max_range = 200.0
