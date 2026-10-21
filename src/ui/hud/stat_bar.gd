@@ -10,7 +10,7 @@ const GLOW_TIME := 0.35
 
 @export var fill_color := Palette.BLOOD
 @export var show_text := true
-@export var font_size := 16
+@export var font_size := Fonts.BODY
 
 var _value := 1.0
 var _max_value := 1.0
@@ -79,8 +79,6 @@ func _draw() -> void:
 		if _glow > 0.0:
 			draw_rect(fill, Color(1, 1, 1, 0.45 * _glow / GLOW_TIME))
 	if show_text and not _text.is_empty():
-		var font := Fonts.MAIN
-		var text_size := font.get_string_size(_text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
-		var pos := Vector2((size.x - text_size.x) * 0.5, (size.y + font_size * 0.7) * 0.5)
-		draw_string_outline(font, pos, _text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 6, Palette.INK)
-		draw_string(font, pos, _text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color.WHITE)
+		# Centred: the baseline under the middle by half a capital (6 of the font's 9 pixels).
+		var baseline := (size.y + font_size * 6.0 / Fonts.GRID) * 0.5
+		Fonts.draw(self, Vector2(size.x * 0.5, baseline), _text, font_size, Color.WHITE, 0.5, Palette.INK)

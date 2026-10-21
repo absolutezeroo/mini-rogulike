@@ -142,6 +142,4 @@ func _draw() -> void:
 		var bob := roundf(sin(_time * 2.0))
 		draw_texture_rect_region(def.sprite_sheet, Rect2(-8, -40 + bob, 32, 32), Rect2(0, 0, 16, 16))
 	# A hammer sign over the smith: he waits for work.
-	var font := Fonts.MAIN
-	draw_string_outline(font, Vector2(4, -46), "T", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, 4, Color.BLACK)
-	draw_string(font, Vector2(4, -46), "T", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(1, 0.7, 0.35))
+	Fonts.draw(self, Vector2(8, -46), "T", Fonts.BODY, Color(1, 0.7, 0.35), 0.5, Color.BLACK)

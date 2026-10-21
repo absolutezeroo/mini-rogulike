@@ -229,7 +229,7 @@ func _build() -> void:
 	_window = RpgWindow.new(tr("The Forge"))
 	_window.close_requested.connect(close)
 	add_child(_window)
-	_gold = UiSkin.label("", 22, UiSkin.GOLD)
+	_gold = UiSkin.label("", Fonts.BODY, UiSkin.GOLD)
 	_window.header_right.add_child(_gold)
 
 	# The smith, and what he says.
@@ -246,9 +246,9 @@ func _build() -> void:
 	words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	words.alignment = BoxContainer.ALIGNMENT_CENTER
 	smith.add_child(words)
-	_name = UiSkin.label(tr("Smith"), 22, Color(1, 0.7, 0.35))
+	_name = UiSkin.label(tr("Smith"), Fonts.BODY, Color(1, 0.7, 0.35))
 	words.add_child(_name)
-	_greeting = UiSkin.label("", 16, UiSkin.TEXT, true)
+	_greeting = UiSkin.label("", Fonts.BODY, UiSkin.TEXT, true)
 	words.add_child(_greeting)
 
 	var columns := HBoxContainer.new()
@@ -277,11 +277,11 @@ func _build() -> void:
 	naming.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	naming.alignment = BoxContainer.ALIGNMENT_CENTER
 	top.add_child(naming)
-	_weapon_title = UiSkin.label("", 22, UiSkin.GOLD, true)
+	_weapon_title = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
 	naming.add_child(_weapon_title)
-	_weapon_details = UiSkin.label("", 15, UiSkin.DIM, true)
+	_weapon_details = UiSkin.label("", Fonts.BODY, UiSkin.DIM, true)
 	naming.add_child(_weapon_details)
-	left.column.add_child(UiSkin.label(tr("Sockets"), 17, UiSkin.GOLD))
+	left.column.add_child(UiSkin.label(tr("Sockets"), Fonts.BODY, UiSkin.GOLD))
 	_sockets = HBoxContainer.new()
 	_sockets.add_theme_constant_override("separation", 12)
 	left.column.add_child(_sockets)
@@ -304,9 +304,9 @@ func _build() -> void:
 	_runes.add_theme_constant_override("h_separation", 6)
 	_runes.add_theme_constant_override("v_separation", 6)
 	rune_scroll.add_child(_runes)
-	_rune_name = UiSkin.label("", 19, UiSkin.GOLD)
+	_rune_name = UiSkin.label("", Fonts.BODY, UiSkin.GOLD)
 	right.column.add_child(_rune_name)
-	_rune_text = UiSkin.label("", 15, UiSkin.TEXT, true)
+	_rune_text = UiSkin.label("", Fonts.BODY, UiSkin.TEXT, true)
 	_rune_text.custom_minimum_size.x = RUNE_COLUMNS * (RUNE_SLOT + 6)
 	right.column.add_child(_rune_text)
 	_set_button = _button(tr("Set"), func() -> void:
@@ -326,12 +326,12 @@ func _button(text: String, action: Callable) -> Button:
 	button.text = text
 	button.focus_mode = Control.FOCUS_NONE
 	button.custom_minimum_size = Vector2(0, 52)
-	button.add_theme_font_size_override("font_size", 17)
+	button.add_theme_font_size_override("font_size", Fonts.BODY)
 	button.pressed.connect(action)
 	return button
 
 
 ## A dark edge around colored text on the orange buttons (rune colors, rarities).
 static func _outline(control: Control) -> void:
-	control.add_theme_constant_override("outline_size", 5)
+	control.add_theme_constant_override("outline_size", Fonts.outline_size(Fonts.BODY))
 	control.add_theme_color_override("font_outline_color", Color(0.1, 0.06, 0.08))

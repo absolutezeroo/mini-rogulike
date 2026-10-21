@@ -101,6 +101,4 @@ func _draw() -> void:
 		var size := item.icon.get_size() * icon_scale
 		draw_texture_rect(item.icon, Rect2(bob - size * 0.5, size), false, item.icon_tint)
 	else:
-		var font := Fonts.MAIN
-		var text_size := font.get_string_size(item.glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, 16)
-		draw_string(font, bob + Vector2(-text_size.x * 0.5, 6.0), item.glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, item.color)
+		Fonts.draw(self, bob + Vector2(0, 4), item.glyph, Fonts.BODY, item.color, 0.5, Color.TRANSPARENT)

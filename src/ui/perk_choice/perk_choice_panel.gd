@@ -189,11 +189,11 @@ func _build() -> void:
 	add_child(_dialog)
 	_title = _dialog.title_label
 	_title.name = "Title"
-	_subtitle = UiSkin.label(tr("Choose an upgrade"), 20, UiSkin.TEXT)
+	_subtitle = UiSkin.label(tr("Choose an upgrade"), Fonts.BODY, UiSkin.TEXT)
 	_subtitle.name = "Subtitle"
 	_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_dialog.body.add_child(_subtitle)
-	_rule = UiParts.text(tr("Every perk belongs to a family. Hold 3 different perks of one family to awaken its bonus."), 15, UiSkin.DIM, 900)
+	_rule = UiParts.text(tr("Every perk belongs to a family. Hold 3 different perks of one family to awaken its bonus."), Fonts.SMALL, UiSkin.DIM, 1100)
 	_rule.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_dialog.body.add_child(_rule)
 	_cards = HBoxContainer.new()
@@ -206,18 +206,18 @@ func _build() -> void:
 	_tools.alignment = BoxContainer.ALIGNMENT_CENTER
 	_tools.add_theme_constant_override("separation", 24)
 	_dialog.body.add_child(_tools)
-	_reroll = UiParts.button(tr("Reroll (%d)") % 1, Callable(), Vector2(220, 54), 18)
+	_reroll = UiParts.button(tr("Reroll (%d)") % 1, Callable(), Vector2(220, 54), Fonts.BODY)
 	_reroll.name = "RerollButton"
 	_reroll.icon = load("res://assets/ui/icons/reroll.png")
 	_tools.add_child(_reroll)
-	_banish = UiParts.button(tr("Banish (%d)") % 1, Callable(), Vector2(220, 54), 18)
+	_banish = UiParts.button(tr("Banish (%d)") % 1, Callable(), Vector2(220, 54), Fonts.BODY)
 	_banish.name = "BanishButton"
 	_banish.icon = load("res://assets/ui/icons/banish.png")
 	_tools.add_child(_banish)
-	_later = UiParts.button(tr("Later"), Callable(), Vector2(180, 54), 18)
+	_later = UiParts.button(tr("Later"), Callable(), Vector2(180, 54), Fonts.BODY)
 	_later.name = "LaterButton"
 	_tools.add_child(_later)
-	_tools_note = UiParts.text(tr("Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (tap Banish, then the card)."), 15, UiSkin.DIM, 900)
+	_tools_note = UiParts.text(tr("Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (tap Banish, then the card)."), Fonts.SMALL, UiSkin.DIM, 1100)
 	_tools_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_dialog.body.add_child(_tools_note)
 	for node: Node in [_title, _subtitle, _cards, _tools, _reroll, _banish, _later]:

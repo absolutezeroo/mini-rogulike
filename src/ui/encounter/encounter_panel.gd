@@ -79,7 +79,7 @@ func _choose(index: int) -> void:
 	UiParts.clear(_choices)
 	_buttons.clear()
 	_leave_row.hide()
-	var go_on := UiParts.button(tr("Continue"), close, Vector2(320, 58), 20)
+	var go_on := UiParts.button(tr("Continue"), close, Vector2(320, 58), Fonts.BODY)
 	_choices.add_child(go_on)
 
 
@@ -91,29 +91,29 @@ func _choice_card(choice: EncounterChoice, index: int, depth: int) -> Control:
 	var box := card.box as Control
 	box.custom_minimum_size.x = CARD_WIDTH
 	var column := card.column as VBoxContainer
-	(card.title as Label).add_theme_font_size_override("font_size", 21)
+	(card.title as Label).add_theme_font_size_override("font_size", Fonts.BODY)
 	var reason := choice.cannot_afford_reason(_player, depth)
-	var cost := UiSkin.label(choice.cost_text(_player, depth), 16, UiSkin.GOLD if reason.is_empty() else UiParts.BAD, true)
+	var cost := UiSkin.label(choice.cost_text(_player, depth), Fonts.BODY, UiSkin.GOLD if reason.is_empty() else UiParts.BAD, true)
 	column.add_child(cost)
 	var chances := choice.chances()
 	var paid := choice.gold_cost > 0 or choice.max_hp_cost > 0.0
-	column.add_child(UiSkin.label(tr("Always:") if chances.size() == 1 else tr("What can happen:"), 15, UiSkin.DIM))
+	column.add_child(UiSkin.label(tr("Always:") if chances.size() == 1 else tr("What can happen:"), Fonts.BODY, UiSkin.DIM))
 	for i in choice.outcomes.size():
 		var outcome := choice.outcomes[i]
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 8)
 		column.add_child(row)
 		if chances.size() > 1:
-			var odds := UiSkin.label(tr("%d%%") % roundi(chances[i] * 100.0), 16, UiSkin.TEXT)
+			var odds := UiSkin.label(tr("%d%%") % roundi(chances[i] * 100.0), Fonts.BODY, UiSkin.TEXT)
 			odds.custom_minimum_size.x = 48
 			odds.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 			row.add_child(odds)
-		var words := UiSkin.label(outcome.summary(_player, paid), 16, UiParts.BAD if outcome.is_bad() else UiParts.GOOD, true)
+		var words := UiSkin.label(outcome.summary(_player, paid), Fonts.BODY, UiParts.BAD if outcome.is_bad() else UiParts.GOOD, true)
 		row.add_child(words)
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(spacer)
-	var button := UiParts.button(choice.describe(_player, depth) if reason.is_empty() else reason, _choose.bind(index), Vector2(0, 54), 18)
+	var button := UiParts.button(choice.describe(_player, depth) if reason.is_empty() else reason, _choose.bind(index), Vector2(0, 54), Fonts.BODY)
 	button.disabled = not reason.is_empty()
 	column.add_child(button)
 	_buttons.append(button)
@@ -142,11 +142,11 @@ func _build() -> void:
 	words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	words.alignment = BoxContainer.ALIGNMENT_CENTER
 	top.add_child(words)
-	_text = UiParts.text("", 19, UiSkin.TEXT, WIDTH - 160)
+	_text = UiParts.text("", Fonts.BODY, UiSkin.TEXT, WIDTH - 160)
 	_text.name = "Text"
 	_own(_text)
 	words.add_child(_text)
-	_result = UiParts.text("", 18, UiParts.GOOD, WIDTH - 160)
+	_result = UiParts.text("", Fonts.BODY, UiParts.GOOD, WIDTH - 160)
 	_result.name = "Result"
 	_own(_result)
 	words.add_child(_result)
@@ -162,11 +162,11 @@ func _build() -> void:
 	_leave_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	_leave_row.add_theme_constant_override("separation", 14)
 	_dialog.body.add_child(_leave_row)
-	_leave = UiParts.button(tr("Leave"), close, Vector2(200, 52), 18)
+	_leave = UiParts.button(tr("Leave"), close, Vector2(200, 52), Fonts.BODY)
 	_leave.name = "LeaveButton"
 	_own(_leave)
 	_leave_row.add_child(_leave)
-	_leave_note = UiSkin.label(tr("Nothing happens. You can come back later."), 15, UiSkin.DIM)
+	_leave_note = UiSkin.label(tr("Nothing happens. You can come back later."), Fonts.BODY, UiSkin.DIM)
 	_leave_row.add_child(_leave_note)
 	for node in _named:
 		node.owner = self

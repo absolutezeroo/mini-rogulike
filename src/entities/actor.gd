@@ -620,7 +620,4 @@ func _draw_fallback_body(color: Color) -> void:
 	var side := facing.orthogonal() * 4.0
 	draw_colored_polygon(PackedVector2Array([tip, facing * radius + side, facing * radius - side]), color.lightened(0.3))
 	if not glyph.is_empty():
-		var font := Fonts.MAIN
-		var font_size := 16
-		var text_size := font.get_string_size(glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
-		draw_string(font, Vector2(-text_size.x * 0.5, font_size * 0.35), glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color.darkened(0.7))
+		Fonts.draw(self, Vector2(0, 4), glyph, Fonts.BODY, color.darkened(0.7), 0.5, Color.TRANSPARENT)

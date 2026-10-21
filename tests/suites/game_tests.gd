@@ -397,6 +397,8 @@ func run() -> void:
 	await _bot_play(game, 60 * 20)
 	print("bot (depth 4, mortal): hp %d/%d, dead=%s" % [game.player.hp, game.player.get_max_hp(), game.player.is_dead])
 	await combat._test_threshold_lost(game)
+	var off_grid := _off_grid_texts(game)
+	check(off_grid.is_empty(), "every text of the HUD and the in-run panels is on the font's grid (Fonts.SIZES, a one-pixel outline): %s" % ", ".join(off_grid.slice(0, 6)))
 	game.queue_free()
 	CONTENT.dungeon.merchant_chance = merchant_chance
 	CONTENT.dungeon.encounters_max = encounters_max

@@ -58,7 +58,7 @@ func show_difficulty(def: DifficultyDef, unlocked: bool, selected: bool, referen
 			color = MenuWindow.GOOD
 		elif effect[1] < 0:
 			color = MenuWindow.BAD
-		_effects.add_child(UiSkin.label(effect[0], 14, color, true))
+		_effects.add_child(UiSkin.label(effect[0], Fonts.SMALL, color, true))  # fine print: a long list
 	_souls.text = tr("Souls earned x%s") % number(def.souls)
 	# Fewer souls is a cost, more a reward: said in the same red and green as the rest.
 	_souls.add_theme_color_override("font_color", MenuWindow.BAD if def.souls < 0.99 else (MenuWindow.GOOD if def.souls > 1.01 else MenuWindow.SOULS))
@@ -160,13 +160,13 @@ func _build() -> void:
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_theme_constant_override("separation", 5)
 	margin.add_child(column)
-	_name = UiSkin.label("", 24)
+	_name = UiSkin.label("", Fonts.TITLE)
 	_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(_name)
-	_tag = UiSkin.label("", 14, UiSkin.GOLD)
+	_tag = UiSkin.label("", Fonts.BODY, UiSkin.GOLD)
 	_tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(_tag)
-	_description = UiSkin.label("", 14, UiSkin.TEXT, true)
+	_description = UiSkin.label("", Fonts.BODY, UiSkin.TEXT, true)
 	_description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(_description)
 	column.add_child(MenuWindow.separator())
@@ -178,10 +178,10 @@ func _build() -> void:
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(spacer)
-	_souls = UiSkin.label("", 18, MenuWindow.SOULS)
+	_souls = UiSkin.label("", Fonts.BODY, MenuWindow.SOULS)
 	_souls.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(_souls)
-	_footer = UiSkin.label("", 14, UiSkin.DIM, true)
+	_footer = UiSkin.label("", Fonts.BODY, UiSkin.DIM, true)
 	_footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(_footer)
 	for node in column.get_children():

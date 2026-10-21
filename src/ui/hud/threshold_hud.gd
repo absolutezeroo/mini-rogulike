@@ -53,10 +53,10 @@ func _build_counters() -> void:
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.mouse_filter = MOUSE_FILTER_IGNORE
 	_counters.add_child(row)
-	_kills_label = _label(30, 6)
+	_kills_label = _label(Fonts.TITLE)
 	_kills_label.name = "ThresholdKills"
 	row.add_child(_kills_label)
-	_time_label = _label(46, 8)
+	_time_label = _label(Fonts.HUGE)
 	_time_label.name = "ThresholdTime"
 	_time_label.custom_minimum_size.x = 110.0
 	row.add_child(_time_label)
@@ -73,24 +73,24 @@ func _build_card() -> void:
 	_card.offset_top = 104.0
 	_card.add_theme_constant_override("separation", 2)
 	add_child(_card)
-	_title = _label(52, 10)
+	_title = _label(Fonts.HUGE)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_card.add_child(_title)
-	_rule = _label(26, 6)
+	_rule = _label(Fonts.TITLE)
 	_rule.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_rule.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_card.add_child(_rule)
 	_card.modulate.a = 0.0
 
 
-func _label(size: int, outline: int) -> Label:
+func _label(size: int) -> Label:
 	var label := Label.new()
 	label.mouse_filter = MOUSE_FILTER_IGNORE
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.add_theme_font_size_override("font_size", size)
 	label.add_theme_color_override("font_outline_color", Color(0.01, 0.02, 0.06))
-	label.add_theme_constant_override("outline_size", outline)
+	label.add_theme_constant_override("outline_size", Fonts.outline_size(size))
 	return label
 
 

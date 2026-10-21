@@ -38,12 +38,47 @@ func run() -> void:
 	_test_plateau_mist()
 	_test_languages()
 	_test_threshold()
+	_test_text_grid()
 	var sound := SoundTests.new()
 	sound.run()
 	sound.free()
 	var vfx := VfxTests.new()
 	vfx.run()
 	vfx.free()
+
+
+## Text keeps whole pixels (Fonts, docs/design/interface.md "Text"): the font is drawn sharp, on its
+## 9-pixel grid, at sizes whose font pixel is a whole number of screen pixels at the UI's x1 and
+## x1.5 (a phone's 1080 lines); scenes and the theme use only those sizes, and outlines of one
+## font pixel.
+func _test_text_grid() -> void:
+	var font := Fonts.MAIN as FontFile
+	check(font != null and font.antialiasing == TextServer.FONT_ANTIALIASING_NONE and font.hinting == TextServer.HINTING_NONE and font.subpixel_positioning == TextServer.SUBPIXEL_POSITIONING_DISABLED, "the pixel font is drawn sharp: no smoothing, no hinting, whole-pixel positions")
+	for font_size in Fonts.SIZES:
+		var phone := font_size * 1.5 / Fonts.GRID
+		check(is_equal_approx(phone, roundf(phone)), "size %d: whole font pixels on a phone (x1.5)" % font_size)
+		if font_size != Fonts.SMALL:
+			check(font_size % Fonts.GRID == 0, "size %d: whole font pixels at x1 too" % font_size)
+	check(Fonts.outline_size(Fonts.BODY) == 8 and Fonts.outline_size(Fonts.TITLE) == 16, "outlines are one font pixel (a quarter of a pixel per unit)")
+	var theme: Theme = load("res://assets/theme/main_theme.tres")
+	check(Fonts.SIZES.has(theme.default_font_size) and theme.get_constant(&"outline_size", &"Label") == Fonts.outline_size(theme.default_font_size), "the theme's text is on the grid (%d, outline %d)" % [theme.default_font_size, theme.get_constant(&"outline_size", &"Label")])
+	var off: Array[String] = []
+	for path in _files_under("res://src", ".tscn"):
+		var scene := (load(path) as PackedScene).instantiate()
+		for line in _off_grid_texts(scene):
+			off.append("%s %s" % [path.get_file(), line])
+		scene.free()
+	check(off.is_empty(), "every Label and Button in the scenes is on the font's grid: %s" % ", ".join(off.slice(0, 6)))
+
+
+func _files_under(dir: String, extension: String) -> Array[String]:
+	var found: Array[String] = []
+	for file in DirAccess.get_files_at(dir):
+		if file.ends_with(extension):
+			found.append(dir.path_join(file))
+	for sub in DirAccess.get_directories_at(dir):
+		found.append_array(_files_under(dir.path_join(sub), extension))
+	return found
 
 
 ## Speedrun times: how they read, the splits, the save, the records.

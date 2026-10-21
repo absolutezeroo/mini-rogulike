@@ -167,8 +167,8 @@ func _fill_stats() -> void:
 		[tr("Skill recharge"), tr("%+d%%") % roundi(minf(stats.cooldown_reduction, SkillSet.MAX_COOLDOWN_REDUCTION) * 100.0)],
 	]
 	for line: Array in lines:
-		_stats.add_child(UiSkin.label(line[0], 15, UiSkin.DIM))
-		var value := UiSkin.label(line[1], 15, UiSkin.TEXT)
+		_stats.add_child(UiSkin.label(line[0], Fonts.BODY, UiSkin.DIM))
+		var value := UiSkin.label(line[1], Fonts.BODY, UiSkin.TEXT)
 		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_stats.add_child(value)
@@ -261,7 +261,7 @@ func _compare_text(item: ItemDef) -> String:
 func _fill_sockets(equipment: EquipmentDef) -> void:
 	if equipment == null or equipment.socket_count() <= 0:
 		return
-	_sockets.add_child(UiSkin.label(tr("Runes"), 15, UiSkin.DIM))
+	_sockets.add_child(UiSkin.label(tr("Runes"), Fonts.BODY, UiSkin.DIM))
 	for i in equipment.socket_count():
 		var socket := ItemSlot.new(46.0)
 		socket.item = equipment.runes[i] if i < equipment.runes.size() else null
@@ -415,7 +415,7 @@ func _build() -> void:
 	_window = RpgWindow.new(tr("Inventory"))
 	_window.close_requested.connect(close)
 	add_child(_window)
-	_gold = UiSkin.label("", 22, UiSkin.GOLD)
+	_gold = UiSkin.label("", Fonts.BODY, UiSkin.GOLD)
 	_window.header_right.add_child(_gold)
 	_perks_button = Button.new()
 	_perks_button.text = tr("Perks")
@@ -455,7 +455,7 @@ func _build() -> void:
 		_own(button)
 		gear_row.add_child(button)
 		_slot_buttons[slot] = button
-	hero.column.add_child(UiSkin.label(tr("Belt"), 17, UiSkin.GOLD))
+	hero.column.add_child(UiSkin.label(tr("Belt"), Fonts.BODY, UiSkin.GOLD))
 	var belt_row := HBoxContainer.new()
 	belt_row.add_theme_constant_override("separation", 8)
 	hero.column.add_child(belt_row)
@@ -491,7 +491,7 @@ func _build() -> void:
 	_own(_item_grid)
 	scroll.add_child(_item_grid)
 	_worse_button = _action(tr("Dismantle the worse (%d)") % 0, "DismantleWorseButton", _on_worse_pressed)
-	_worse_button.add_theme_font_size_override("font_size", 16)
+	_worse_button.add_theme_font_size_override("font_size", Fonts.BODY)
 	_worse_button.custom_minimum_size = Vector2(0, 50)
 	_worse_button.size_flags_horizontal = Control.SIZE_FILL
 	bag.column.add_child(_worse_button)
@@ -511,22 +511,22 @@ func _build() -> void:
 	naming.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	naming.alignment = BoxContainer.ALIGNMENT_CENTER
 	top.add_child(naming)
-	_item_name = UiSkin.label("", 22, UiSkin.GOLD, true)
+	_item_name = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
 	naming.add_child(_item_name)
-	_item_type = UiSkin.label("", 15, UiSkin.DIM, true)
+	_item_type = UiSkin.label("", Fonts.BODY, UiSkin.DIM, true)
 	naming.add_child(_item_type)
 	var details_scroll := ScrollContainer.new()
 	details_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	details_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	card.column.add_child(details_scroll)
-	_item_details = UiSkin.label("", 16, UiSkin.TEXT, true)
+	_item_details = UiSkin.label("", Fonts.BODY, UiSkin.TEXT, true)
 	_item_details.name = "ItemDetails"
 	details_scroll.add_child(_item_details)
 	_sockets = HBoxContainer.new()
 	_sockets.alignment = BoxContainer.ALIGNMENT_BEGIN
 	_sockets.add_theme_constant_override("separation", 6)
 	card.column.add_child(_sockets)
-	_dismantle_note = UiSkin.label("", 15, UiSkin.GOLD, true)
+	_dismantle_note = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
 	_dismantle_note.name = "DismantleNote"
 	_own(_dismantle_note)
 	card.column.add_child(_dismantle_note)
@@ -540,7 +540,7 @@ func _build() -> void:
 	_drop_button = _action(tr("Drop"), "DropButton", _on_drop_pressed)
 	actions.add_child(_drop_button)
 	_dismantle_button = _action(tr("Dismantle"), "DismantleButton", _on_dismantle_pressed)
-	_dismantle_button.add_theme_font_size_override("font_size", 16)
+	_dismantle_button.add_theme_font_size_override("font_size", Fonts.BODY)
 	actions.add_child(_dismantle_button)
 	_build_confirm()
 	for node in _named:
@@ -554,7 +554,7 @@ func _build_confirm() -> void:
 	_confirm.name = "DismantleConfirm"
 	_confirm.hide()
 	add_child(_confirm)  # over the window (the build window comes over both)
-	_confirm_text = UiParts.text("", 19, UiSkin.TEXT, 580.0)
+	_confirm_text = UiParts.text("", Fonts.BODY, UiSkin.TEXT, 580.0)
 	_confirm_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_confirm.body.add_child(_confirm_text)
 	_confirm_items = HFlowContainer.new()
@@ -563,20 +563,20 @@ func _build_confirm() -> void:
 	_confirm_items.add_theme_constant_override("h_separation", 6)
 	_confirm_items.add_theme_constant_override("v_separation", 6)
 	_confirm.body.add_child(_confirm_items)
-	var note := UiParts.text(tr("What you wear, potions, runes, tomes and keys are never touched."), 15, UiSkin.DIM, 580.0)
+	var note := UiParts.text(tr("What you wear, potions, runes, tomes and keys are never touched."), Fonts.BODY, UiSkin.DIM, 580.0)
 	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_confirm.body.add_child(note)
 	var buttons := HBoxContainer.new()
 	buttons.add_theme_constant_override("separation", 12)
 	_confirm.body.add_child(buttons)
-	_confirm_yes = UiParts.button(tr("Dismantle"), _on_worse_confirmed, Vector2(0, 56), 18)
+	_confirm_yes = UiParts.button(tr("Dismantle"), _on_worse_confirmed, Vector2(0, 56), Fonts.BODY)
 	_confirm_yes.name = "ConfirmDismantleButton"
 	_confirm_yes.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_own(_confirm_yes)
 	buttons.add_child(_confirm_yes)
 	var keep := UiParts.button(tr("Keep them"), func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_close)
-		_confirm.hide(), Vector2(0, 56), 18)
+		_confirm.hide(), Vector2(0, 56), Fonts.BODY)
 	keep.name = "KeepButton"
 	keep.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_own(keep)

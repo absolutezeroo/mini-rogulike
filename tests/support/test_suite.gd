@@ -23,6 +23,27 @@ func check(condition: bool, message: String) -> void:
 		printerr("FAIL: " + message)
 
 
+## Every text under `root` that leaves the font's grid (Fonts): a size not in Fonts.SIZES, or a
+## Label's outline other than one font pixel (or none). Empty when all is whole.
+func _off_grid_texts(root: Node) -> Array[String]:
+	var found: Array[String] = []
+	var nodes: Array[Node] = [root]
+	nodes.append_array(root.find_children("*", "Control", true, false))
+	for node in nodes:
+		if not (node is Label or node is Button or node is RichTextLabel):
+			continue
+		var control := node as Control
+		var key := &"normal_font_size" if node is RichTextLabel else &"font_size"
+		var font_size := control.get_theme_font_size(key)
+		if not Fonts.SIZES.has(font_size):
+			found.append("%s: size %d" % [root.get_path_to(node), font_size])
+		elif node is Label or node is RichTextLabel:
+			var outline := control.get_theme_constant(&"outline_size")
+			if outline != 0 and outline != Fonts.outline_size(font_size):
+				found.append("%s: outline %d at %d" % [root.get_path_to(node), outline, font_size])
+	return found
+
+
 func _perk(id: String) -> PerkDef:
 	for perk in CONTENT.perks:
 		if perk.id == StringName(id):

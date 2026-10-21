@@ -185,7 +185,7 @@ func _fill_stock() -> void:
 		var affordable: bool = _player.gold >= entry.price
 		_for_sale.add_child(_cell(slot, tr("%d gold") % entry.price, UiSkin.GOLD if affordable else UiParts.BAD))
 	if _merchant.stock.is_empty():
-		var empty := UiSkin.label(tr("Sold out!"), 17, UiSkin.DIM)
+		var empty := UiSkin.label(tr("Sold out!"), Fonts.BODY, UiSkin.DIM)
 		empty.custom_minimum_size.x = STOCK_SLOT * 2
 		_for_sale.add_child(empty)
 
@@ -220,7 +220,7 @@ func _cell(slot: ItemSlot, words: String, color: Color) -> VBoxContainer:
 	var cell := VBoxContainer.new()
 	cell.add_theme_constant_override("separation", 0)
 	cell.add_child(slot)
-	var label := UiSkin.label(words, 14, color)
+	var label := UiSkin.label(words, Fonts.BODY, color)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.custom_minimum_size.x = slot.custom_minimum_size.x
 	cell.add_child(label)
@@ -293,9 +293,9 @@ func _fill_compare(item: ItemDef) -> void:
 		_compare_title.show()
 		var changes := ItemCompare.lines(equipment, worn)
 		if changes.is_empty():
-			_compare.add_child(UiSkin.label(tr("the same stats"), 16, UiSkin.DIM))
+			_compare.add_child(UiSkin.label(tr("the same stats"), Fonts.BODY, UiSkin.DIM))
 		for change in changes:
-			_compare.add_child(UiSkin.label(change.text, 16, UiParts.GOOD if change.good else UiParts.BAD))
+			_compare.add_child(UiSkin.label(change.text, Fonts.BODY, UiParts.GOOD if change.good else UiParts.BAD))
 	elif item is ConsumableDef and _pick == Pick.STOCK:
 		var carried := _player.carried_count(item)
 		_compare_title.text = tr("You carry %d. It goes on your belt if there is room.") % carried if carried > 0 \
@@ -342,15 +342,15 @@ func _build() -> void:
 	words.alignment = BoxContainer.ALIGNMENT_CENTER
 	words.add_theme_constant_override("separation", 0)
 	who.add_child(words)
-	_name = UiSkin.label(tr("Merchant"), 22, Color(1, 0.7, 0.35))
+	_name = UiSkin.label(tr("Merchant"), Fonts.BODY, Color(1, 0.7, 0.35))
 	_name.name = "MerchantName"
 	_own(_name)
 	words.add_child(_name)
-	_greeting = UiSkin.label("", 15, UiSkin.TEXT, true)
+	_greeting = UiSkin.label("", Fonts.BODY, UiSkin.TEXT, true)
 	_greeting.name = "Greeting"
 	_own(_greeting)
 	words.add_child(_greeting)
-	_gold = UiSkin.label("", 24, UiSkin.GOLD)
+	_gold = UiSkin.label("", Fonts.BODY, UiSkin.GOLD)
 	_gold.name = "Gold"
 	_own(_gold)
 	_window.header_right.add_child(_gold)
@@ -378,13 +378,13 @@ func _build() -> void:
 	_for_sale.add_theme_constant_override("v_separation", 6)
 	_own(_for_sale)
 	sale_scroll.add_child(_for_sale)
-	_reroll = UiParts.button(tr("Reroll"), _reroll_stock, Vector2(0, 50), 16)
+	_reroll = UiParts.button(tr("Reroll"), _reroll_stock, Vector2(0, 50), Fonts.BODY)
 	_reroll.name = "RerollButton"
 	_reroll.icon = load("res://assets/ui/icons/reroll.png")
 	_reroll.expand_icon = false
 	_own(_reroll)
 	sale.column.add_child(_reroll)
-	_reroll_note = UiParts.text("", 14, UiSkin.DIM, STOCK_COLUMNS * (STOCK_SLOT + 8))
+	_reroll_note = UiParts.text("", Fonts.BODY, UiSkin.DIM, STOCK_COLUMNS * (STOCK_SLOT + 8))
 	sale.column.add_child(_reroll_note)
 
 	# Middle: what the hero carries, to sell.
@@ -403,9 +403,9 @@ func _build() -> void:
 	_bag.add_theme_constant_override("v_separation", 6)
 	_own(_bag)
 	bag_column.add_child(_bag)
-	_bag_note = UiParts.text(tr("Your bag and belt are empty."), 15, UiSkin.DIM, BAG_COLUMNS * (BAG_SLOT + 6))
+	_bag_note = UiParts.text(tr("Your bag and belt are empty."), Fonts.BODY, UiSkin.DIM, BAG_COLUMNS * (BAG_SLOT + 6))
 	bag_column.add_child(_bag_note)
-	mine.column.add_child(UiParts.text(tr("Tap one to see what the merchant pays."), 14, UiSkin.DIM, BAG_COLUMNS * (BAG_SLOT + 6)))
+	mine.column.add_child(UiParts.text(tr("Tap one to see what the merchant pays."), Fonts.BODY, UiSkin.DIM, BAG_COLUMNS * (BAG_SLOT + 6)))
 
 	# Right: the picked item.
 	var card: Dictionary = RpgWindow.section(tr("Item"), true)
@@ -423,11 +423,11 @@ func _build() -> void:
 	naming.alignment = BoxContainer.ALIGNMENT_CENTER
 	naming.add_theme_constant_override("separation", 0)
 	top.add_child(naming)
-	_item_name = UiSkin.label("", 22, UiSkin.GOLD, true)
+	_item_name = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
 	naming.add_child(_item_name)
-	_item_type = UiSkin.label("", 15, UiSkin.DIM, true)
+	_item_type = UiSkin.label("", Fonts.BODY, UiSkin.DIM, true)
 	naming.add_child(_item_type)
-	_price = UiSkin.label("", 19, UiSkin.GOLD)
+	_price = UiSkin.label("", Fonts.BODY, UiSkin.GOLD)
 	_price.name = "Price"
 	_own(_price)
 	naming.add_child(_price)
@@ -438,33 +438,33 @@ func _build() -> void:
 	details_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	details_column.add_theme_constant_override("separation", 4)
 	details_scroll.add_child(details_column)
-	_details = UiSkin.label("", 16, UiSkin.TEXT, true)
+	_details = UiSkin.label("", Fonts.BODY, UiSkin.TEXT, true)
 	_details.name = "Details"
 	_own(_details)
 	details_column.add_child(_details)
-	_compare_title = UiSkin.label("", 16, UiSkin.GOLD, true)
+	_compare_title = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
 	details_column.add_child(_compare_title)
 	_compare = VBoxContainer.new()
 	_compare.name = "Compare"
 	_compare.add_theme_constant_override("separation", 0)
 	_own(_compare)
 	details_column.add_child(_compare)
-	_lock_note = UiSkin.label("", 14, UiSkin.DIM, true)
+	_lock_note = UiSkin.label("", Fonts.BODY, UiSkin.DIM, true)
 	card.column.add_child(_lock_note)
 	var actions := HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 8)
 	card.column.add_child(actions)
-	_buy = UiParts.button(tr("Buy"), func() -> void: buy_selected(), Vector2(0, 52), 17)
+	_buy = UiParts.button(tr("Buy"), func() -> void: buy_selected(), Vector2(0, 52), Fonts.BODY)
 	_buy.name = "BuyButton"
 	_buy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_own(_buy)
 	actions.add_child(_buy)
-	_sell = UiParts.button(tr("Sell"), func() -> void: sell_selected(), Vector2(0, 52), 17)
+	_sell = UiParts.button(tr("Sell"), func() -> void: sell_selected(), Vector2(0, 52), Fonts.BODY)
 	_sell.name = "SellButton"
 	_sell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_own(_sell)
 	actions.add_child(_sell)
-	_lock = UiParts.button(tr("Lock"), _toggle_lock, Vector2(130, 52), 17)
+	_lock = UiParts.button(tr("Lock"), _toggle_lock, Vector2(130, 52), Fonts.BODY)
 	_lock.name = "LockButton"
 	_own(_lock)
 	actions.add_child(_lock)

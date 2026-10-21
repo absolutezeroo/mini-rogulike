@@ -71,7 +71,7 @@ func _draw() -> void:
 		draw_line(Vector2(14, 14), size - Vector2(14, 14), red, 4.0, true)
 		draw_line(Vector2(size.x - 14, 14), Vector2(14, size.y - 14), red, 4.0, true)
 	if node.feat and not node.is_feat_done() and not owned:
-		_text("?", Vector2(size.x - 9, 17), 15, Color(0.85, 0.6, 1.0))
+		_text("?", Vector2(size.x - 9, 17), Fonts.BODY, Color(0.85, 0.6, 1.0))
 	# Level pips along the bottom.
 	var levels := node.max_level()
 	if levels > 1:
@@ -88,7 +88,4 @@ func _draw() -> void:
 
 
 func _text(text: String, at: Vector2, font_size: int, color: Color) -> void:
-	var font := get_theme_default_font()
-	var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-	draw_string_outline(font, Vector2(at.x - width * 0.5, at.y), text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 5, Color(0.12, 0.07, 0.05))
-	draw_string(font, Vector2(at.x - width * 0.5, at.y), text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)
+	Fonts.draw(self, at, text, font_size, color, 0.5)

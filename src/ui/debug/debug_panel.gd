@@ -52,12 +52,12 @@ func _ready() -> void:
 	column.add_child(header)
 	var title := Label.new()
 	title.text = "Debug"
-	title.add_theme_font_size_override("font_size", 30)
+	UiSkin.set_text_style(title, Fonts.TITLE)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title)
 	_status = Label.new()
 	_status.add_theme_color_override("font_color", Palette.GOLD)
-	_status.add_theme_font_size_override("font_size", 18)
+	_status.add_theme_font_size_override("font_size", Fonts.BODY)
 	header.add_child(_status)
 	header.add_child(_button("Close", close))
 
@@ -308,7 +308,7 @@ func _game_content() -> ContentDB:
 func _section(parent: Control, title: String) -> HFlowContainer:
 	var label := _label(title)
 	label.add_theme_color_override("font_color", Color(1, 0.94, 0.82))
-	label.add_theme_font_size_override("font_size", 20)
+	label.add_theme_font_size_override("font_size", Fonts.BODY)
 	parent.add_child(label)
 	var row := HFlowContainer.new()
 	row.add_theme_constant_override("h_separation", 8)
@@ -322,7 +322,7 @@ func _button(text: String, action: Callable) -> Button:
 	button.text = text
 	button.focus_mode = Control.FOCUS_NONE
 	button.custom_minimum_size = BUTTON_SIZE
-	button.add_theme_font_size_override("font_size", 18)
+	button.add_theme_font_size_override("font_size", Fonts.BODY)
 	button.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_click)
 		action.call())
@@ -334,5 +334,5 @@ func _label(text: String) -> Label:
 	label.text = text
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.custom_minimum_size.y = BUTTON_SIZE.y
-	label.add_theme_font_size_override("font_size", 18)
+	label.add_theme_font_size_override("font_size", Fonts.BODY)
 	return label

@@ -49,11 +49,8 @@ func _draw() -> void:
 	if caption.is_empty():
 		return
 	# The verb on a dark plaque under the button.
-	var font := Fonts.MAIN
-	var text_size := font.get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 18)
-	var plaque := Rect2(Vector2(-text_size.x * 0.5 - 10.0, radius + 4.0), Vector2(text_size.x + 20.0, 28.0))
+	var text_width := Fonts.width(caption, Fonts.BODY)
+	var plaque := Rect2(Vector2(-text_width * 0.5 - 10.0, radius + 4.0), Vector2(text_width + 20.0, 28.0))
 	draw_rect(plaque, Color(0.1, 0.06, 0.07, 0.85))
 	draw_rect(plaque, Color(color, 0.9), false, 2.0)
-	var at := Vector2(-text_size.x * 0.5, plaque.position.y + 21.0)
-	draw_string_outline(font, at, caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, 4, Color.BLACK)
-	draw_string(font, at, caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color.WHITE)
+	Fonts.draw(self, Vector2(0, plaque.position.y + 20.0), caption, Fonts.BODY, Color.WHITE, 0.5, Color.BLACK)

@@ -220,6 +220,8 @@ func _test_title_screen() -> void:
 	(codex.get_node("%BestiaryTab") as Button).pressed.emit()
 	await _frames(1)
 	check(codex.bestiary_cards().size() == entries.size(), "a tab button shows its tab")
+	var off_grid := _off_grid_texts(title)
+	check(off_grid.is_empty(), "every text of the title screen and its panels is on the font's grid (Fonts.SIZES, a one-pixel outline): %s" % ", ".join(off_grid.slice(0, 6)))
 	title.queue_free()
 	Profile.reset()
 	await _frames(2)

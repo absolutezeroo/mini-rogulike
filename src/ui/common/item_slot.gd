@@ -66,9 +66,9 @@ func _draw() -> void:
 		_draw_sockets(area)
 		_draw_level()
 		if count > 1:
-			_text("x%d" % count, Vector2(size.x - 6, size.y - 6), HORIZONTAL_ALIGNMENT_RIGHT, 15, Color.WHITE)
+			_text("x%d" % count, Vector2(size.x - 6, size.y - 6), HORIZONTAL_ALIGNMENT_RIGHT, Fonts.BODY, Color.WHITE)
 	elif not caption.is_empty():
-		_text(caption, Vector2(size.x * 0.5, size.y * 0.5 + 6), HORIZONTAL_ALIGNMENT_CENTER, 14, EMPTY_TEXT)
+		_text(caption, Vector2(size.x * 0.5, size.y * 0.5 + 4), HORIZONTAL_ALIGNMENT_CENTER, Fonts.SMALL, EMPTY_TEXT)
 	if selected:
 		var pulse := 0.75 + 0.25 * sin(_time * 5.0)
 		draw_style_box(_frame_box(Color(1.0, 0.85, 0.35, pulse)), area.grow(2))
@@ -89,7 +89,7 @@ func _draw_level() -> void:
 	var equipment := item as EquipmentDef
 	if equipment == null or size.x < 44.0 or not show_level:
 		return
-	_text(tr("Lv %d") % equipment.item_level, Vector2(7, 19), HORIZONTAL_ALIGNMENT_LEFT, 13, Color(1, 0.92, 0.7))
+	_text(tr("Lv %d") % equipment.item_level, Vector2(7, 17), HORIZONTAL_ALIGNMENT_LEFT, Fonts.SMALL, Color(1, 0.92, 0.7))
 
 
 ## A weapon's rune sockets: little stones along the bottom, lit in their rune's color.
@@ -108,11 +108,7 @@ func _draw_sockets(area: Rect2) -> void:
 
 
 func _text(text: String, at: Vector2, align: HorizontalAlignment, font_size: int, color: Color) -> void:
-	var font := get_theme_default_font()
-	var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-	var x := at.x - (width if align == HORIZONTAL_ALIGNMENT_RIGHT else (width * 0.5 if align == HORIZONTAL_ALIGNMENT_CENTER else 0.0))
-	draw_string_outline(font, Vector2(x, at.y), text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 5, Color(0.12, 0.07, 0.05))
-	draw_string(font, Vector2(x, at.y), text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)
+	Fonts.draw(self, at, text, font_size, color, 1.0 if align == HORIZONTAL_ALIGNMENT_RIGHT else (0.5 if align == HORIZONTAL_ALIGNMENT_CENTER else 0.0))
 
 
 ## The biggest whole-pixel scale of `texture` that fits in `box`, centred.

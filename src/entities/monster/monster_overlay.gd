@@ -109,17 +109,8 @@ func _draw_elite_aura() -> void:
 
 
 func _draw_elite_name() -> void:
-	var font := Fonts.MAIN
-	var font_size := 12
-	var text := monster.display_name
-	var text_size := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
-	var at := monster.head_position() - monster.global_position + Vector2(-text_size.x * 0.5, -12.0)
-	draw_string_outline(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 4, Color(0, 0, 0, 0.8))
-	draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, monster.rank_color().lightened(0.3))
-	# An Epic or Legendary: its affixes on a small line above.
+	var at := monster.head_position() - monster.global_position + Vector2(0, -12.0)
+	Fonts.draw(self, at, monster.display_name, Fonts.BODY, monster.rank_color().lightened(0.3), 0.5, Color(0, 0, 0, 0.8))
+	# An Epic or Legendary: its affixes on a line above.
 	if monster.rank.show_in_name and monster.affixes.size() > 0:
-		var line := monster.affix_names()
-		var line_size := font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, 10)
-		var line_at := at + Vector2((text_size.x - line_size.x) * 0.5, -12.0)
-		draw_string_outline(font, line_at, line, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, 4, Color(0, 0, 0, 0.8))
-		draw_string(font, line_at, line, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(1, 1, 1, 0.85))
+		Fonts.draw(self, at + Vector2(0, -14.0), monster.affix_names(), Fonts.BODY, Color(1, 1, 1, 0.85), 0.5, Color(0, 0, 0, 0.8))

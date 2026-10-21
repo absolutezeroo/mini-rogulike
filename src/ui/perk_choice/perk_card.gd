@@ -75,7 +75,7 @@ static func family_box(synergy: SynergyDef, owned: PerkSet, perk: PerkDef) -> Pa
 	head.add_child(icon)
 	var family_name := TranslationServer.tr(synergy.display_name)
 	var bonus := TranslationServer.tr(synergy.description)
-	var title := _label(TranslationServer.tr("%s family") % family_name, 15, synergy.color.lerp(Color.WHITE, 0.35))
+	var title := _label(TranslationServer.tr("%s family") % family_name, Fonts.BODY, synergy.color.lerp(Color.WHITE, 0.35))
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(title)
 	head.add_child(Pips.new(mini(after, synergy.pieces) if not awake else synergy.pieces, synergy.pieces, synergy.color))
@@ -88,7 +88,7 @@ static func family_box(synergy: SynergyDef, owned: PerkSet, perk: PerkDef) -> Pa
 		var missing := synergy.pieces - after
 		var more := TranslationServer.tr("%d more %s perk to awaken its bonus: %s") if missing == 1 else TranslationServer.tr("%d more %s perks to awaken its bonus: %s")
 		text = more % [missing, family_name, bonus]
-	var words := _label(text, 13, Color(1, 1, 1, 0.95) if wakes else Color(1, 0.95, 0.88, 0.78))
+	var words := _label(text, Fonts.SMALL, Color(1, 1, 1, 0.95) if wakes else Color(1, 0.95, 0.88, 0.78))
 	words.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	words.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	column.add_child(words)
@@ -106,7 +106,7 @@ static func _label(text: String, size: int, color: Color) -> Label:
 	label.add_theme_font_size_override("font_size", size)
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_color_override("font_outline_color", Color.BLACK)
-	label.add_theme_constant_override("outline_size", 4)
+	label.add_theme_constant_override("outline_size", Fonts.outline_size(size))
 	return label
 
 

@@ -113,7 +113,7 @@ func _card(oath: OathDef, open: bool) -> Control:
 	icon.modulate = Color.WHITE if open else Color(0.4, 0.38, 0.36)
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(icon)
-	var name := UiSkin.label(tr(oath.display_name) if oath else tr("Unsworn"), 19, (oath.color.lerp(Color.WHITE, 0.3) if oath else UiSkin.TEXT) if open else UiSkin.DIM)
+	var name := UiSkin.label(tr(oath.display_name) if oath else tr("Unsworn"), Fonts.BODY, (oath.color.lerp(Color.WHITE, 0.3) if oath else UiSkin.TEXT) if open else UiSkin.DIM)
 	name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(name)
 	# What it changes: gains in green, costs in red (faded while it is locked).
@@ -124,7 +124,7 @@ func _card(oath: OathDef, open: bool) -> Control:
 			color = MenuWindow.GOOD
 		elif line[1] < 0:
 			color = MenuWindow.BAD
-		var words := UiSkin.label(line[0], 13, color if open else Color(color, 0.55), true)
+		var words := UiSkin.label(line[0], Fonts.SMALL, color if open else Color(color, 0.55), true)  # fine print: five cards abreast
 		words.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		column.add_child(words)
 	if not open:
@@ -132,11 +132,11 @@ func _card(oath: OathDef, open: bool) -> Control:
 		for node in _content.soul_tree.nodes:
 			if node.oath == oath and node.branch < _content.soul_tree.branches.size():
 				branch = tr(_content.soul_tree.branches[node.branch])
-		var lock := UiSkin.label(tr("Opens at the end of the %s branch of the Tree of Souls, at the shrine.") % branch, 13, UiSkin.DIM, true)
+		var lock := UiSkin.label(tr("Opens at the end of the %s branch of the Tree of Souls, at the shrine.") % branch, Fonts.SMALL, UiSkin.DIM, true)
 		lock.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		column.add_child(lock)
 	if chosen:
-		var mark := UiSkin.label(tr("Sworn"), 15, UiSkin.GOLD)
+		var mark := UiSkin.label(tr("Sworn"), Fonts.BODY, UiSkin.GOLD)
 		mark.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		column.add_child(mark)
 	for child in column.get_children():
@@ -175,7 +175,7 @@ func _build() -> void:
 	_window.close_button.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_close)
 		hide())
-	var intro := UiSkin.label(tr("Swear an oath for this run, or go down unsworn. It changes how you start: pick one, then Begin the descent."), 16, UiSkin.TEXT, true)
+	var intro := UiSkin.label(tr("Swear an oath for this run, or go down unsworn. It changes how you start: pick one, then Begin the descent."), Fonts.BODY, UiSkin.TEXT, true)
 	intro.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_window.header_left.add_child(intro)
 	var scroll := ScrollContainer.new()
@@ -192,7 +192,7 @@ func _build() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 6)
 	_weapons_box.add_child(column)
-	_weapon_text = UiSkin.label("", 16, UiSkin.GOLD, true)
+	_weapon_text = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
 	column.add_child(_weapon_text)
 	var weapon_scroll := ScrollContainer.new()
 	weapon_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -206,7 +206,7 @@ func _build() -> void:
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_window.body.add_child(spacer)
-	_start = MenuWindow.button(tr("Begin the descent"), 22, 60)
+	_start = MenuWindow.button(tr("Begin the descent"), Fonts.BODY, 60)
 	_start.pressed.connect(start)
 	_window.body.add_child(_start)
 	MenuWindow.expose(_start, "StartRunButton", scene_owner)

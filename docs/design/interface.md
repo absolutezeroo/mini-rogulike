@@ -110,6 +110,41 @@ over a menu or a big banner. A tap (or OK) closes it.
   unique names (`Hud.hint_target()`).
 - **Options**: "Tutorial hints" turns them off; "Replay tutorial" shows them all again.
 
+## Text
+
+The font (`assets/fonts/normal_font.ttf`) is pixel art on a 9-pixel em (2048 units, 227.5 a
+pixel): capitals 6 pixels high, strokes 1 pixel wide. It is drawn sharp (no antialiasing, hinting
+or subpixel positioning), so a letter stays whole only when one of its pixels covers a whole
+number of screen pixels; otherwise some rows and columns double and others vanish, and letters
+look cut. The UI is laid out at 1280x720 and stretched (`canvas_items`): x1 on a 720-line window,
+x1.5 on most phones (1080 lines), x2 on 1440.
+
+- **Sizes** (`Fonts`, `src/core/fonts.gd`), multiples of 18 (2, 4, 6 UI pixels a font pixel: whole
+  at x1, x1.5 and x2): **`Fonts.BODY` 18** for everything read (sentences, notes, buttons, names,
+  headings in a panel), **`Fonts.TITLE` 36** (the story, a difficulty's or a monster's name, big
+  numbers, the Descend and Resume buttons), **`Fonts.HUGE` 54** (the game's name, act and curse
+  cards, the Threshold's countdown).
+  **`Fonts.SMALL` 12** only for fine print BODY cannot fit (a slot's item level and empty-slot
+  words, the difficulty cards' lists, the oath cards, a perk card's level and family bonus and
+  the perk choice's two rules under and over the cards, the Daily button's second line, the Tree
+  of Souls' branch lines): whole on phones (2 screen pixels a font
+  pixel), a little uneven on a 720-line screen. No size in between: hierarchy comes from color
+  (gold headings, dim notes), ribbons and boards. The unit, title and game suites hold every
+  scene, the theme and the panels built in code to `Fonts.SIZES`.
+- **Outline**: one font pixel (`Fonts.outline_size()`: 8 at BODY, 16 at TITLE, 24 at HUGE), set by
+  `UiSkin.label()`, `UiSkin.set_text_style()` and the theme's Label. It is drawn under the letters
+  and never eats a stroke. Dark words on the orange buttons have none.
+- **Drawn by hand** (`Fonts.draw()`: damage numbers, signs and names over the world, the HUD's
+  round buttons, slots, the Tree of Souls): the size is counted in UI units whatever the camera's
+  zoom, and the text is put on a whole screen pixel, with the same outline. Damage numbers pop in
+  at TITLE for an instant, then settle at BODY (no in-between scale).
+- **Half pixels**: at x1.5 an odd UI position falls between two screen pixels, where every pixel
+  samples a letter's texture right on an edge and picks a side by rounding luck. `PixelGrid`
+  (autoload) shifts the whole screen a quarter of a pixel, which takes whole and half positions
+  off those edges.
+- A wrapped line never splits a stat from its number (the HUD's info line uses unbreakable
+  spaces).
+
 ## Bag, forge and the other in-run screens
 
 The bag, the forge, the shop, encounters, perk choices, the pause menu and the end of a run are drawn in the game's RPG skin (`UiSkin`, `src/ui/common/`): a wooden

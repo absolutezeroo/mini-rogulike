@@ -48,18 +48,19 @@ func _init(def: MonsterDef, rules: BestiaryRules) -> void:
 	picture.modulate = Color.WHITE if rank >= Bestiary.SEEN else UNKNOWN_COLOR
 	inside.add_child(picture)
 	var is_boss := def is BossDef
-	var name_label := _centered(tr(def.display_name) if rank >= Bestiary.SEEN else "???", 16, Palette.DANGER if is_boss else UiSkin.TEXT)
+	var name_label := _centered(tr(def.display_name) if rank >= Bestiary.SEEN else "???", Fonts.BODY, Palette.DANGER if is_boss else UiSkin.TEXT)
 	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	inside.add_child(name_label)
 	if rank == Bestiary.UNSEEN:
-		inside.add_child(_centered(tr("Not met yet"), 14, UiSkin.DIM))
-		inside.add_child(_centered(" ", 14, UiSkin.DIM))
+		var unmet := _centered(tr("Not met yet"), Fonts.BODY, UiSkin.DIM)
+		unmet.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART  # on two lines if it must, as the others use
+		inside.add_child(unmet)
 	elif rank == Bestiary.SEEN:
-		inside.add_child(_centered(tr("Seen"), 15, UiSkin.TEXT))
-		inside.add_child(_centered(tr("not slain yet"), 14, UiSkin.DIM))
+		inside.add_child(_centered(tr("Seen"), Fonts.BODY, UiSkin.TEXT))
+		inside.add_child(_centered(tr("not slain yet"), Fonts.BODY, UiSkin.DIM))
 	else:
-		inside.add_child(_centered(Bestiary.rank_name(rank, rules), 15, CodexRows.DONE if _mastered else UiSkin.GOLD))
-		inside.add_child(_centered(tr("%d slain") % kills, 14, UiSkin.DIM))
+		inside.add_child(_centered(Bestiary.rank_name(rank, rules), Fonts.BODY, CodexRows.DONE if _mastered else UiSkin.GOLD))
+		inside.add_child(_centered(tr("%d slain") % kills, Fonts.BODY, UiSkin.DIM))
 	# Toward the next rank (full and green once mastered). Unknown ones keep its room empty.
 	var next := Bestiary.next_kills(def, rules) if rules else 0
 	var meter := CodexRows.bar(kills if next > 0 else 1, next if next > 0 else 1, "", 10)
@@ -95,7 +96,7 @@ func _centered(text: String, font_size: int, color: Color) -> Label:
 
 ## A word in a top corner ("Boss", "Shiny").
 func _badge(text: String, color: Color, right: bool) -> Label:
-	var badge := UiSkin.label(text, 14, color)
+	var badge := UiSkin.label(text, Fonts.BODY, color)
 	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	badge.position = Vector2(SIZE.x - 14 - badge.get_minimum_size().x if right else 14, 11)
 	return badge

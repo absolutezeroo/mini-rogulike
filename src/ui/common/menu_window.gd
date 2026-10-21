@@ -43,7 +43,7 @@ static func expose(node: Node, node_name: String, scene_owner: Node) -> void:
 
 
 ## A plain button in the game's theme (no keyboard focus: phones).
-static func button(text: String, font_size: int = 18, height: float = 52.0) -> Button:
+static func button(text: String, font_size: int = Fonts.BODY, height: float = 52.0) -> Button:
 	var result := Button.new()
 	result.text = text
 	result.focus_mode = Control.FOCUS_NONE
@@ -100,14 +100,12 @@ static func badge(text: String, font_size: int, color: Color) -> PanelContainer:
 
 ## A CheckButton drawn as a big on/off switch with its name in the skin's text style (the
 ## default icons are too small to see on a phone).
-static func style_switch(check: CheckButton, font_size: int = 18) -> void:
+static func style_switch(check: CheckButton, font_size: int = Fonts.BODY) -> void:
 	check.focus_mode = Control.FOCUS_NONE
 	check.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	check.add_theme_font_size_override("font_size", font_size)
+	UiSkin.set_text_style(check, font_size)
 	for state in ["font_color", "font_hover_color", "font_pressed_color", "font_hover_pressed_color", "font_focus_color"]:
 		check.add_theme_color_override(state, UiSkin.TEXT)
-	check.add_theme_constant_override("outline_size", 5)
-	check.add_theme_color_override("font_outline_color", Color(0.12, 0.07, 0.05))
 	var flat := StyleBoxEmpty.new()
 	for state in ["normal", "hover", "pressed", "hover_pressed", "focus"]:
 		check.add_theme_stylebox_override(state, flat)

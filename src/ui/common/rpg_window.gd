@@ -102,6 +102,6 @@ static func section(heading: String, stone := false) -> Dictionary:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 8)
 	box.add_child(column)
-	var title := UiSkin.label(heading, 19, UiSkin.GOLD)
+	var title := UiSkin.label(heading, Fonts.BODY, UiSkin.GOLD)
 	column.add_child(title)
 	return { "box": box, "column": column, "title": title }

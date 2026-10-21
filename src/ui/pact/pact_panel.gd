@@ -88,7 +88,7 @@ func _build() -> void:
 	_icon.name = "Icon"
 	_own(_icon)
 	top.add_child(_icon)
-	_lore = UiParts.text("", 19, UiSkin.TEXT, WIDTH - 160)
+	_lore = UiParts.text("", Fonts.BODY, UiSkin.TEXT, WIDTH - 160)
 	_lore.name = "Lore"
 	_lore.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_own(_lore)
@@ -101,43 +101,43 @@ func _build() -> void:
 	_own(cards)
 	_dialog.body.add_child(cards)
 	var rule_card := _card(cards, tr("The rule"))
-	_rule = UiSkin.label("", 18, UiSkin.TEXT, true)
+	_rule = UiSkin.label("", Fonts.BODY, UiSkin.TEXT, true)
 	_rule.name = "Rule"
 	_own(_rule)
 	rule_card.add_child(_rule)
-	_elites = UiSkin.label("", 17, UiSkin.GOLD, true)
+	_elites = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
 	_elites.name = "Elites"
 	_own(_elites)
 	rule_card.add_child(_elites)
-	_seal_note = UiSkin.label("", 15, UiSkin.DIM, true)
+	_seal_note = UiSkin.label("", Fonts.BODY, UiSkin.DIM, true)
 	_seal_note.name = "SealNote"
 	_own(_seal_note)
 	rule_card.add_child(_seal_note)
 	var kept_card := _card(cards, tr("Kept"))
-	_reward = UiSkin.label("", 18, UiParts.GOOD, true)
+	_reward = UiSkin.label("", Fonts.BODY, UiParts.GOOD, true)
 	_reward.name = "Reward"
 	_own(_reward)
 	kept_card.add_child(_reward)
 	var broken_card := _card(cards, tr("Broken"))
-	_cost = UiSkin.label("", 18, UiParts.BAD, true)
+	_cost = UiSkin.label("", Fonts.BODY, UiParts.BAD, true)
 	_cost.name = "Cost"
 	_own(_cost)
 	broken_card.add_child(_cost)
-	broken_card.add_child(UiSkin.label(tr("The fight goes on: the door opens once the waves are slain."), 15, UiSkin.DIM, true))
+	broken_card.add_child(UiSkin.label(tr("The fight goes on: the door opens once the waves are slain."), Fonts.BODY, UiSkin.DIM, true))
 
 	var buttons := HBoxContainer.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 18)
 	_dialog.body.add_child(buttons)
-	_swear = UiParts.button(tr("Swear the pact"), swear, Vector2(320, 60), 21)
+	_swear = UiParts.button(tr("Swear the pact"), swear, Vector2(320, 60), Fonts.BODY)
 	_swear.name = "SwearButton"
 	_own(_swear)
 	buttons.add_child(_swear)
-	var leave := UiParts.button(tr("Leave"), close, Vector2(200, 60), 19)
+	var leave := UiParts.button(tr("Leave"), close, Vector2(200, 60), Fonts.BODY)
 	leave.name = "LeaveButton"
 	_own(leave)
 	buttons.add_child(leave)
-	var note := UiSkin.label(tr("Nothing happens. You can come back later."), 15, UiSkin.DIM)
+	var note := UiSkin.label(tr("Nothing happens. You can come back later."), Fonts.BODY, UiSkin.DIM)
 	note.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	buttons.add_child(note)
 	for node in _named:
@@ -152,7 +152,7 @@ func _card(row: HBoxContainer, heading: String) -> VBoxContainer:
 	box.custom_minimum_size.x = CARD_WIDTH
 	box.size_flags_vertical = Control.SIZE_FILL
 	row.add_child(box)
-	(card.title as Label).add_theme_font_size_override("font_size", 21)
+	(card.title as Label).add_theme_font_size_override("font_size", Fonts.BODY)
 	return card.column as VBoxContainer
 
 

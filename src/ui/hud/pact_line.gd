@@ -28,9 +28,9 @@ func _ready() -> void:
 	offset_bottom = 360.0
 	grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	add_theme_constant_override("separation", 0)
-	_name = _label(18)
+	_name = _label(Fonts.BODY)
 	_name.name = "PactName"
-	_state = _label(22)
+	_state = _label(Fonts.BODY)
 	_state.name = "PactState"
 	hide()
 	Events.pact_started.connect(_on_started)
@@ -51,7 +51,7 @@ func _label(font_size: int) -> Label:
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.add_theme_font_size_override("font_size", font_size)
-	label.add_theme_constant_override("outline_size", 6)
+	label.add_theme_constant_override("outline_size", Fonts.outline_size(font_size))
 	label.add_theme_color_override("font_outline_color", Color.BLACK)
 	add_child(label)
 	return label
