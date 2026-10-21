@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="ChargedAttackDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/projectiles/bow_arrow.png" id="1_bow_arrow"]
+[ext_resource type="Resource" path="res://data/vfx/sheets/arrow.tres" id="2_arrow"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="3_projectile_effect"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="4_effect"]
+[ext_resource type="Script" path="res://src/definitions/items/charged_attack_def.gd" id="5_charged_attack_def"]
+
+[sub_resource type="Resource" id="arrow"]
+script = ExtResource("3_projectile_effect")
+texture_frames = 1
+damage_multiplier = 2.3
+speed = 900.0
+radius = 7.0
+max_distance = 560.0
+pierce = 99
+knockback = 260.0
+texture = ExtResource("1_bow_arrow")
+sheet = ExtResource("2_arrow")
+glow = 0.0
+
+[resource]
+script = ExtResource("5_charged_attack_def")
+id = &"bow"
+display_name = "Soulpiercer"
+description = "A heavy arrow that runs through every enemy in its path."
+charge_time = 0.9
+move_speed_scale = 0.55
+effects = Array[ExtResource("4_effect")]([SubResource("arrow")])

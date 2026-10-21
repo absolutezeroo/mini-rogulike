@@ -27,6 +27,8 @@ const CUES: Array[StringName] = [
 ## What a hint can wait for (`done_when`).
 const ACTIONS: Array[StringName] = [
 	&"moved", &"attacked", &"rolled", &"weapon_skill", &"used_item", &"opened_bag",
+	# A charged attack was unleashed (the attack button held, then let go).
+	&"charged",
 	# The Interact button was used; the perk button was tapped.
 	&"interacted", &"opened_offers",
 ]
@@ -79,6 +81,7 @@ func is_enabled() -> bool:
 func bind(new_player: Player, new_world: World, new_hud: Hud) -> void:
 	if player and is_instance_valid(player):
 		player.attacked.disconnect(_on_attacked)
+		player.charged_attack.disconnect(_on_charged)
 		player.skill_used.disconnect(_on_skill_used)
 		player.consumable_used.disconnect(_on_consumable_used)
 		player.perks.synergy_awakened.disconnect(_on_synergy)
@@ -86,6 +89,7 @@ func bind(new_player: Player, new_world: World, new_hud: Hud) -> void:
 	player = new_player
 	hud = new_hud
 	player.attacked.connect(_on_attacked)
+	player.charged_attack.connect(_on_charged)
 	player.skill_used.connect(_on_skill_used)
 	player.consumable_used.connect(_on_consumable_used)
 	player.perks.synergy_awakened.connect(_on_synergy)
@@ -274,6 +278,10 @@ func _on_monster_noticed(monster: Monster) -> void:
 
 func _on_attacked() -> void:
 	action(&"attacked")
+
+
+func _on_charged(_attack: ChargedAttackDef) -> void:
+	action(&"charged")
 
 
 ## Slot 0 is the roll; 1 and 2 the weapon's skills (Player._rebuild_skills).

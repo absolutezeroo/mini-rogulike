@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="ChargedAttackDef" format=3]
+
+[ext_resource type="Resource" path="res://data/vfx/elements/earth.tres" id="1_earth"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="2_damage_area_effect"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="3_effect"]
+[ext_resource type="Script" path="res://src/definitions/items/charged_attack_def.gd" id="4_charged_attack_def"]
+
+[sub_resource type="Resource" id="burst"]
+script = ExtResource("2_damage_area_effect")
+radius = 58.0
+damage_multiplier = 2.5
+offset = 48.0
+knockback = 300.0
+explosive = true
+element = ExtResource("1_earth")
+
+[resource]
+script = ExtResource("4_charged_attack_def")
+id = &"pickaxe"
+display_name = "Rockbreaker"
+description = "Split the ground in front of you: it bursts in rubble."
+charge_time = 0.95
+move_speed_scale = 0.5
+effects = Array[ExtResource("3_effect")]([SubResource("burst")])

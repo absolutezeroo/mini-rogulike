@@ -29,3 +29,16 @@ var secondary: bool = false
 ## Magic shots (fireballs, bolts) glow in their color, light up the dark and burst on impact;
 ## 0 for plain things (shurikens, arrows).
 var glow: float = 1.0
+## An exploding shot (`explosion_radius`) bursts into its element's nova (a ring of ice crystals)
+## instead of a blast: the Frost Staff's charged shard shattering.
+var nova_burst: bool = false
+## A glow around it even when it is drawn from a sheet (a charged shot, heavier than the others).
+var halo: bool = false
+## A plain thing (an arrow, a shuriken) shot by a weapon that carries an element: it flies in
+## it (its matter riding the shot, a trail of its bits, a glow if it shines) without being
+## made of it (`element` stays null: the arrow is still an arrow).
+var look_element: VfxElementDef
+## A second element the weapon carries: a few of its bits in the trail.
+var second_element: VfxElementDef
+## The element its hits land in when it has no `element` (a Burning bow's arrows: fire).
+var hit_element: VfxElementDef

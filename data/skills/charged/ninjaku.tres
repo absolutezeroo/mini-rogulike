@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="ChargedAttackDef" format=3]
+
+[ext_resource type="Resource" path="res://data/vfx/slashes/blade.tres" id="1_blade"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="2_damage_area_effect"]
+[ext_resource type="Script" path="res://src/definitions/vfx/slash_def.gd" id="3_slash_def"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="4_effect"]
+[ext_resource type="Script" path="res://src/definitions/items/charged_attack_def.gd" id="5_charged_attack_def"]
+
+[sub_resource type="Resource" id="cut_1"]
+script = ExtResource("2_damage_area_effect")
+radius = 54.0
+damage_multiplier = 1.25
+offset = 22.0
+knockback = 120.0
+slash = ExtResource("1_blade")
+
+[sub_resource type="Resource" id="cross"]
+script = ExtResource("3_slash_def")
+arc_degrees = 150.0
+thickness = 18.0
+reach_scale = 1.0
+duration = 0.13
+trail = 0.75
+jitter_degrees = 40.0
+
+[sub_resource type="Resource" id="cut_2"]
+script = ExtResource("2_damage_area_effect")
+delay = 0.1
+radius = 54.0
+damage_multiplier = 1.25
+offset = 22.0
+knockback = 200.0
+slash = SubResource("cross")
+
+[resource]
+script = ExtResource("5_charged_attack_def")
+id = &"ninjaku"
+display_name = "Crossed Shadows"
+description = "Two crossing cuts in front of you."
+charge_time = 0.75
+move_speed_scale = 0.6
+effects = Array[ExtResource("4_effect")]([SubResource("cut_1"), SubResource("cut_2")])

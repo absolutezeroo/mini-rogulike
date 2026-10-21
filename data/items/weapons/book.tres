@@ -9,9 +9,11 @@
 [ext_resource type="Resource" path="res://data/skills/player/fire_wave.tres" id="8_hkjf3"]
 [ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="vfx_fire"]
 [ext_resource type="Texture2D" path="res://assets/weapons/back/book.png" id="back_sprite"]
+[ext_resource type="Resource" path="res://data/skills/charged/book.tres" id="charged"]
 
 [resource]
 script = ExtResource("5_w0bwa")
+charged = ExtResource("charged")
 kind = 1
 damage = 5
 cooldown = 0.55

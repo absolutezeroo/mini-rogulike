@@ -182,7 +182,8 @@ func _bot_play(game: Game, frames: int) -> void:
 				if path.size() > 0:
 					direction = player.global_position.direction_to(path[0])
 		_set_move(direction)
-		_set_action(&"attack", target != null)
+		# Taps (holding would charge the weapon's charged attack): a frame down, a frame up.
+		_set_action(&"attack", target != null and frame % 2 == 0)
 		_set_action(&"skill_%d" % (frame / 30 % 3 + 1), frame % 30 == 0)
 		_set_action(&"quick_item", player.hp < player.get_max_hp() / 3 and frame % 20 == 0)
 		await get_tree().physics_frame

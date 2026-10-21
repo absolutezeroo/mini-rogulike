@@ -10,9 +10,11 @@
 [ext_resource type="Resource" path="res://data/skills/player/arcane_bolt.tres" id="8_qldgc"]
 [ext_resource type="Resource" path="res://data/vfx/elements/storm.tres" id="vfx_storm"]
 [ext_resource type="Texture2D" path="res://assets/weapons/back/magic_wand.png" id="back_sprite"]
+[ext_resource type="Resource" path="res://data/skills/charged/magic_wand.tres" id="charged"]
 
 [resource]
 script = ExtResource("5_86yvw")
+charged = ExtResource("charged")
 element = ExtResource("vfx_storm")
 kind = 1
 cooldown = 0.4

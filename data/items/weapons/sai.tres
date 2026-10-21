@@ -11,6 +11,7 @@
 [ext_resource type="Resource" path="res://data/skills/player/flurry.tres" id="9_sbson"]
 [ext_resource type="Resource" path="res://data/skills/player/shadow_step.tres" id="10_174so"]
 [ext_resource type="Texture2D" path="res://assets/weapons/back/sai.png" id="back_sprite"]
+[ext_resource type="Resource" path="res://data/skills/charged/sai.tres" id="charged"]
 
 [sub_resource type="Resource" id="Resource_46fwj"]
 script = ExtResource("4_14pce")
@@ -19,6 +20,7 @@ crit_chance = 0.1
 
 [resource]
 script = ExtResource("7_rqmo2")
+charged = ExtResource("charged")
 damage = 3
 cooldown = 0.34
 reach = 26.0

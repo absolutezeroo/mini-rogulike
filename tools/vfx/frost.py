@@ -4,6 +4,7 @@ resolution, with hard alpha. Re-run it to rebuild them after a change:
     python3 tools/vfx/frost.py [--preview DIR]
 
     assets/fx/frost/frost_shard.png    the shot: 16 directions (rows) x 2 frames, 16x16
+    assets/fx/frost/frost_lance.png    the Frost Staff's charged shot, a great shard: 16 directions x 2 frames, 24x24
     assets/fx/frost/frost_impact.png   a shard landing: 6 frames, 32x32
     assets/fx/frost/frost_crystal.png  a nova's piece: 8 frames (grow, hold, crack, shatter) x 3 variants, 16x24
     assets/fx/frost/frost_rime.png     rime on a chilled body's edge: 4 frames (it grows), 8x8
@@ -129,6 +130,39 @@ def build_shard() -> Sheet:
             dst = sheet.cell(frame, row)
             for y in range(16):
                 for x in range(16):
+                    dst.px[y][x] = src.px[x][y]
+    return sheet
+
+
+def build_lance() -> Sheet:
+    """The charged shot: the shard's shape authored bigger (never the shard stretched): a long
+    faceted lance with a second, shorter shard riding its flank, a near-white ridge, the dark
+    edge around, two glints that slide back along the ridge."""
+    sheet = Sheet(cell=(24, 24), frames=2, rows=16)
+    for row in range(16):
+        angle = row * math.tau / 16
+        ca, sa = math.cos(angle), math.sin(angle)
+        for frame in range(2):
+            cell = sheet.cell(frame, row)
+            center = (12.0 + 0.5 * ca, 12.0 + 0.5 * sa)
+            shard(cell, center, angle, 21.0, 9.0, ridge_glint=0.0, with_outline=False, skew=3.0)
+            # A shorter shard riding its flank, a little behind (irregular, never symmetric).
+            side = (center[0] - 3.0 * ca + 2.6 * -sa, center[1] - 3.0 * sa + 2.6 * ca)
+            shard(cell, side, angle + 0.18, 11.0, 4.5, ridge_glint=0.0, with_outline=False, skew=1.2)
+            outline(cell, EDGE)
+            clean(cell)
+            despike(cell)
+            glints = (9.6, 8.6, 5.0 if frame == 0 else 2.0, 4.0 if frame == 0 else 1.0)
+            for d in glints:
+                x, y = int(center[0] + d * ca + 0.5), int(center[1] + d * sa + 0.5)
+                if cell.get(x, y) is not None:
+                    cell.set(x, y, CORE)
+    for row, source in ((3, 1), (4, 0), (5, 15), (11, 9), (12, 8), (13, 7)):
+        for frame in range(2):
+            src = sheet.cell(frame, source)
+            dst = sheet.cell(frame, row)
+            for y in range(24):
+                for x in range(24):
                     dst.px[y][x] = src.px[x][y]
     return sheet
 
@@ -298,6 +332,7 @@ def main() -> None:
     rng = random.Random(7)
     sheets = {
         "frost_shard": build_shard(),
+        "frost_lance": build_lance(),
         "frost_impact": build_impact(rng),
         "frost_crystal": build_crystal(rng),
         "frost_rime": build_rime(),

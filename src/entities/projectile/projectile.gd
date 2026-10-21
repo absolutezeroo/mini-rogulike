@@ -20,6 +20,10 @@ var _trail: Array[Vector2] = []  # recent global positions, newest last
 var _sheet: VfxSheetDef
 ## Its element, or one made from its color (old content).
 var _element: VfxElementDef
+## The element it flies in without being made of it (an arrow from a bow with an Ember Rune:
+## flames riding it, embers trailing; ProjectileSpec.look_element), and a second one's bits.
+var _rides: VfxElementDef
+var _second: VfxElementDef
 var _age := 0.0
 ## Its sheet's first frame, picked at random: a ring of twelve sparks doesn't flicker in step.
 var _phase := 0
@@ -27,6 +31,13 @@ var _phase := 0
 const TRAIL_LENGTH := 6
 ## Light of a glowing shot, above the floor's own (LightSource.relative).
 const GLOW_LEVEL := 3
+## The hero's shot going north (we see his back) is drawn behind every body for this many
+## world units, the length of his body, then over them like any shot: it never covers him
+## (docs/vfx.md 2b).
+const BEHIND_SHOOTER := 30.0
+
+## World units of flight left behind the shooter's body (0: drawn over the bodies).
+var _behind_left := 0.0
 
 
 func setup(shooter: Actor, direction: Vector2, spec: ProjectileSpec) -> void:
@@ -35,6 +46,9 @@ func setup(shooter: Actor, direction: Vector2, spec: ProjectileSpec) -> void:
 	_faction = shooter.faction
 	_crit_chance = shooter.get_stats().crit_chance
 	_configure(direction, spec)
+	if shooter is Player and VfxLayer.goes_behind(direction):
+		_behind_left = BEHIND_SHOOTER
+		z_index = VfxLayer.GROUND_Z  # under the bodies (his own first) while it clears him
 	collision_mask = Layers.WORLD | (Layers.MONSTERS if _faction == Actor.Faction.PLAYER else Layers.PLAYER)
 
 
@@ -62,21 +76,32 @@ func _configure(direction: Vector2, spec: ProjectileSpec) -> void:
 	elif spec.element and spec.element.projectile:
 		_sheet = spec.element.projectile
 	_element = VfxElementDef.or_color(spec.element, spec.color)
+	_rides = spec.look_element if SwingMatter.sheds(spec.look_element) else null
+	_second = spec.second_element if SwingMatter.sheds(spec.second_element) else null
 	if _sheet:
 		_phase = randi() % maxi(_sheet.frame_count(), 1)
 	# Magic shots light up the dark in their color (not a boss's whole ring: too many lights);
 	# plain things (shurikens, arrows) and matter (blood, water) don't shine at all.
 	var shines := spec.glow > 0.0 and (spec.element == null or spec.element.emissive)
+	var glow_element: VfxElementDef = null
+	if _rides and _rides.emissive:
+		# An arrow of fire lights its way and wears a halo of its flames.
+		shines = true
+		glow_element = _rides
 	var glow := $Glow as LightSource
 	glow.visible = shines and (spec.count <= 3 or spec.explosion_radius > 0.0)
-	glow.color = _element.color()
+	glow.color = (glow_element if glow_element else _element).color()
 	glow.level = maxi(1, roundi(GLOW_LEVEL * spec.glow))
 	# A glow halo around a few shots' cores (GlowHalo: dithered rings of added light, its light
 	# on the floor is the Glow above): never around each of a boss's sixteen shards, it would fog
-	# the screen. A storm spark flickers.
-	if shines and spec.count <= 3:
-		var storm := _element.bit == VfxElementDef.Bit.FORK
-		GlowHalo.attach(self, _element, maxf(spec.radius, 5.0), Vector2.ZERO, GlowHalo.Pulse.FLICKER if storm else GlowHalo.Pulse.BREATHE)
+	# the screen; a charged shot (`halo`) always has one, wider. A storm spark flickers.
+	# (A thing riding an element has no halo: its matter on it is its light; a checker round an
+	# arrow reads as a blur.)
+	if shines and (spec.count <= 3 or spec.halo) and glow_element == null:
+		var halo_element := glow_element if glow_element else _element
+		var storm := halo_element.bit == VfxElementDef.Bit.FORK
+		var core := maxf(spec.radius, 5.0) * (1.4 if spec.halo else 1.0)
+		GlowHalo.attach(self, halo_element, core, Vector2.ZERO, GlowHalo.Pulse.FLICKER if storm else GlowHalo.Pulse.BREATHE)
 	# Shadow and arcane bend the picture toward them (the screen pass keeps the nearest few).
 	DistortionStamp.of_element(self, spec.element, maxf(spec.radius, 5.0) * 3.0, 1.0)
 	# Drawn on the grid; a shining shot keeps its colors out of the floor's grading.
@@ -96,6 +121,10 @@ func _physics_process(delta: float) -> void:
 	position += _direction * step
 	queue_redraw()
 	_travelled += step
+	if _behind_left > 0.0:
+		_behind_left -= step
+		if _behind_left <= 0.0:
+			z_index = 0  # clear of the hero: over the bodies like any shot
 	if _travelled >= _spec.max_distance:
 		_finish()
 
@@ -124,7 +153,7 @@ func _on_body_entered(body: Node2D) -> void:
 	var hit := Combat.make_hit(_spec.damage, _crit_chance, _shooter if is_instance_valid(_shooter) else null)
 	hit.knockback = _direction * _spec.knockback
 	hit.status = _spec.status
-	hit.element = _spec.element
+	hit.element = _spec.element if _spec.element else _spec.hit_element
 	hit.is_secondary = _spec.secondary
 	target.take_hit(hit)
 	if _pierce_left > 0:
@@ -150,11 +179,18 @@ func _finish() -> void:
 	elif _travelled >= _spec.max_distance and _spec.glow > 0.0:
 		# Out of range: it breaks up into a few of its bits instead of vanishing.
 		_world.spawn_vfx(ImpactVfx.create(global_position, _direction, _element.color(), false, _element if _spec.element else null))
+	elif _travelled >= _spec.max_distance and _rides:
+		_world.spawn_vfx(ImpactVfx.sparks(global_position, _direction, _rides))  # its flames go out
 	queue_free()
 
 
 func _explode() -> void:
-	Vfx.explosion(_world, global_position, _spec.explosion_radius, _spec.element)
+	if _spec.nova_burst and _spec.element:
+		Vfx.nova(_world, global_position, _spec.explosion_radius, _spec.element)
+		Vfx.pop(_world, global_position, _spec.element, 20.0, _direction)
+		Sfx.play_at(Sfx.bank.explosion, global_position, -6.0)
+	else:
+		Vfx.explosion(_world, global_position, _spec.explosion_radius, _spec.element)
 	var source: Actor = _shooter if is_instance_valid(_shooter) else null
 	Combat.hit_props(_world, source, global_position, _spec.explosion_radius)
 	for target in _world.get_actors() if _hits_everyone else _world.get_hostiles(_faction):
@@ -163,7 +199,7 @@ func _explode() -> void:
 			var hit := Combat.make_hit(_spec.damage, _crit_chance, source)
 			hit.knockback = offset.normalized() * _spec.knockback
 			hit.status = _spec.status
-			hit.element = _spec.element
+			hit.element = _spec.element if _spec.element else _spec.hit_element
 			hit.is_secondary = _spec.secondary
 			target.take_hit(hit)
 
@@ -181,12 +217,86 @@ func _draw() -> void:
 			if not PixelDraw.dither(PixelDraw.cell_of(local), t):
 				continue
 			var size := 2 if t > 0.6 and _spec.radius >= 6.0 else 1
+			if _second and i % 3 == 0:
+				# A second element the weapon carries: a few of its bits in the trail.
+				PixelDraw.bit(self, _second.bit, local, size, _second.shade(1.0 - t * 0.75), Vector2.UP if _second.motion == VfxElementDef.Motion.RISE else -_direction)
+				continue
 			PixelDraw.bit(self, VfxElementDef.Bit.SQUARE if _spec.element == null else _element.bit, local, size, _element.shade(1.0 - t * 0.75), -_direction)
+	if _rides:
+		_draw_riding()
 	if _sheet:
 		PixelDraw.sheet(self, _sheet, int(_age * _sheet.fps) + _phase, Vector2.ZERO, _direction, _element)
+		if _rides:
+			_draw_riding_front()
 		return
 	# No sprite: a stepped dot, its edge, its body, a bright heart.
 	var r := PixelDraw.snap_length(_spec.radius)
 	PixelDraw.disc(self, Vector2.ZERO, r + PixelDraw.PX, _element.edge())
 	PixelDraw.disc(self, Vector2.ZERO, r, _element.color())
 	PixelDraw.disc(self, Vector2.ZERO, maxf(r * 0.5, PixelDraw.PX), _element.core())
+
+
+## A plain thing flying in an element (ProjectileSpec.look_element): a trail of its bits left
+## behind (fire's embers rising off the path, frost's chips falling, poison's drips, storm's
+## forks), every other position so it reads as bits, not a line; a second element's every
+## third one. Behind the sheet.
+func _draw_riding() -> void:
+	var step := int(_age * 12.0)  # bits come and go at 12 fps
+	for i in range(_trail.size() - 1, -1, -2):
+		var t := float(i + 1) / (_trail.size() + 1)  # 1 = newest
+		var element := _second if _second and (i / 2 + step) % 3 == 0 else _rides
+		var local := _trail[i] - global_position
+		var drift := Vector2.ZERO
+		match element.motion:
+			VfxElementDef.Motion.RISE:
+				drift = Vector2(0, -(1.0 - t) * 8.0)
+			VfxElementDef.Motion.FALL, VfxElementDef.Motion.SINK:
+				drift = Vector2(0, (1.0 - t) * 6.0)
+			VfxElementDef.Motion.OUTWARD:
+				drift = _direction.orthogonal() * (4.0 if (i + step) % 2 == 0 else -4.0) * (1.0 - t)
+		var at := local + drift
+		if not PixelDraw.dither(PixelDraw.cell_of(at), t):
+			continue
+		var direction := Vector2.UP if element.motion == VfxElementDef.Motion.RISE else -_direction
+		PixelDraw.bit(self, element.bit, at, 2 if t > 0.7 and element.bit != VfxElementDef.Bit.TEARDROP else 1, element.shade(0.2 + (1.0 - t) * 0.8), direction)
+
+
+## Over the sheet: the element's matter riding the thing along its back half, redrawn at 12
+## fps: fire's licks climbing off the shaft (a white-hot foot, red tips), frost's rime crusting
+## it with a glint, poison dripping under it, storm's sparks crackling on and off, blood
+## dripping, holy's glints; whole art pixels, its ramp only.
+func _draw_riding_front() -> void:
+	var step := int(_age * 12.0)
+	var back := -_direction
+	var across := _direction.orthogonal()
+	for k in 4:
+		var foot := PixelDraw.snap(back * (5.0 * k - 4.0) + across * (PixelDraw.PX if (step + k) % 2 == 0 else 0.0))
+		var flicker := (step * 7 + k * 3) % 5  # each lick its own height, changing 12 times a second
+		match _rides.motion:
+			VfxElementDef.Motion.RISE:
+				# A lick: a column of 3-5 pixels up from the shaft, white-hot at its foot, red at
+				# its tip, the tip curling a pixel aside; the first ones the tallest.
+				var tall := 4 + flicker % 3 - (2 if k == 3 else 0)
+				for y in tall:
+					var t := float(y) / maxf(tall - 1, 1.0)
+					var curl := PixelDraw.PX * (1.0 if flicker % 2 == 0 else -1.0) if y == tall - 1 else 0.0
+					var color := _rides.shade(t * 0.95)
+					PixelDraw.pixel(self, foot + Vector2(curl, -PixelDraw.PX * y), color)
+					if y < tall / 2:
+						PixelDraw.pixel(self, foot + Vector2(PixelDraw.PX, -PixelDraw.PX * y), _rides.shade(minf(t * 0.95 + 0.25, 1.0)))  # a wider foot
+			VfxElementDef.Motion.FALL, VfxElementDef.Motion.SINK:
+				if _rides.bit == VfxElementDef.Bit.DIAMOND:
+					# Rime crusting the shaft: a lit chip on it, a shard of ice under it now and then.
+					PixelDraw.bit(self, _rides.bit, foot + Vector2(0, -PixelDraw.PX), 2, _rides.shade(0.3), Vector2.from_angle(k * 1.7), _rides.core())
+					if flicker == k % 5:
+						PixelDraw.pixel(self, foot + Vector2(0, PixelDraw.PX * 2.0), _rides.shade(0.6))
+				else:
+					# Drips hanging under it (poison, blood), each its own length.
+					var hang := 1 + flicker % 3
+					for y in hang:
+						PixelDraw.pixel(self, foot + Vector2(0, PixelDraw.PX * (y + 1)), _rides.shade(0.2 + float(y) / hang * 0.7))
+			_:
+				if _rides.bit == VfxElementDef.Bit.FORK and (step + k) % 3 == 2:
+					continue  # storm flickers
+				var side := 1.0 if (k + step) % 2 == 0 else -1.0
+				PixelDraw.bit(self, _rides.bit, foot + across * PixelDraw.PX * 2.0 * side, 2, _rides.shade(0.15 + k * 0.2), across * side, _rides.core())

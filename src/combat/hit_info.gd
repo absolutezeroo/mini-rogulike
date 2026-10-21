@@ -27,3 +27,7 @@ var status: OnHitStatus
 ## What the blow is made of (frost, fire...): its flash takes the element's shape (ImpactVfx).
 ## Null: a plain blow.
 var element: VfxElementDef
+## Chances the attacker's passives rolled before the hit landed ([PerkSet.Entry, Passive] ->
+## bool): the Ember Rune decides before the flash whether this hit sets the target on fire, so
+## the flash is in fire exactly when it does (docs/vfx.md, "Elemental attacks").
+var rolled := {}

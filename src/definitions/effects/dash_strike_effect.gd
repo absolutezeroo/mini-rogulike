@@ -1,6 +1,7 @@
 class_name DashStrikeEffect
 extends Effect
-## Dashes along the aim and cuts every enemy on the way (stops at walls).
+## Dashes along the aim and cuts every enemy on the way (stops at walls). Without `moves`, the
+## user stays put and the cut runs out along the aim (a lance's long thrust).
 
 @export var distance: float = 160.0
 @export var duration: float = 0.14
@@ -19,6 +20,12 @@ extends Effect
 ## What it is made of (data/vfx/elements/): the element's pieces are left along the path
 ## (Glacial Dive: ice crystals that grow behind it and shatter), a sheet takes its ramp.
 @export var element: VfxElementDef
+## The user dashes along the cut (off: a thrust that reaches out, the user standing still).
+@export var moves: bool = true
+
+## A second element its blow sheds a few bits of (not saved, never in data: a charged attack
+## dressed in what the hero's weapon carries sets it, ChargedAttackDef).
+var second_element: VfxElementDef
 
 
 func apply(user: Actor, aim: Vector2) -> void:
@@ -33,14 +40,14 @@ func apply(user: Actor, aim: Vector2) -> void:
 	var end := start + aim * length
 	var amount := flat_damage + roundi(user.get_skill_power() * damage_multiplier)
 	Combat.damage_segment(world, user, start, end, width, amount, knockback, status, element)
-	if length > 1.0:
+	if moves and length > 1.0:
 		user.start_dash(aim * length / duration, duration, true, element)
 	if element:
 		Vfx.trail(world, start, end, element, duration)
-	elif slash == null and fx == null:
+	elif slash == null and fx == null and moves:
 		Vfx.dust_trail(world, start, end, duration)  # a plain rush kicks up dust on its way
 	if slash:
-		SwingVfx.slash(world, slash, start + Vector2(0, -6), aim, maxf(length, 40.0), element, user.faction != Actor.Faction.PLAYER)
+		SwingVfx.slash(world, slash, start + Vector2(0, -6), aim, maxf(length, 40.0), element, user.faction != Actor.Faction.PLAYER, second_element)
 	elif fx:
 		# At the nearest whole size of the art's pixel along the path (SheetVfx snaps it).
 		var size := maxf(length, 40.0) / fx.get_height()

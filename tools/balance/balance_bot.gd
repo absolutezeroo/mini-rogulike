@@ -385,10 +385,13 @@ func _move(direction: Vector2) -> void:
 	_strength(&"move_down", maxf(direction.y, 0.0))
 
 
+## Attacks in reach: taps the attack button (a frame down, a frame up), as fast as the weapon
+## swings. Holding it would charge the weapon's charged attack instead: the measures keep to
+## basic attacks.
 func _hold_attack(on: bool) -> void:
 	if on:
-		Input.action_press(&"attack")
-	else:
+		_press(&"attack")
+	elif not _pressed.has(&"attack"):
 		Input.action_release(&"attack")
 
 

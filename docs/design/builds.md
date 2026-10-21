@@ -24,6 +24,52 @@ The weapon in the hero's hand is animated frame by frame with the attack. For we
 hand-drawn sheet, the sheet is baked from the item sprite rotated around its handle (a swing,
 a heavy swing, a thrust, a lash or an aim; 4 directions x 4 frames, `assets/weapons/attack/`).
 
+### Charged attacks
+
+Every hero's weapon has a **charged attack** (`WeaponDef.charged`, a `ChargedAttackDef` in
+`data/skills/charged/<weapon id>.tres`; monsters' weapons have none). A **tap** on the attack
+button is one basic attack, as before, aimed at the closest enemy. **Holding** it no longer
+repeats the attack: past `PlayerDef.charge_delay` (0.22 s, so a tap never charges) the charge
+fills over the weapon's `charge_time`, the hero moving at `move_speed_scale` of his speed and
+winding up toward the closest enemy (or the way he walks). Full, it flashes and chimes
+(`charge_full_sound`); **letting go** then unleashes the weapon's charged attack toward the
+closest enemy; let go earlier, it is wasted. A roll (or any skill), a weapon swap or a fall cancels
+the charge until the button is let go; being hit does not (holding the blow is the risk). A
+charge is never saved. Keyboard (J / Space) and gamepad (X) hold the same way (`AttackCharge`,
+`Player._update_attack`).
+
+It is no skill: no cooldown of its own (the weapon swings again after its usual cooldown), no
+"on skill" perk (Echo, Devotion, the Arcane ring). Its damage goes through its effects like a
+skill's (`skill power x multiplier`); the multipliers are 2.2-3 times a basic hit (for a ranged
+weapon, its `projectile_damage` x shots; a unit check holds the range), the price being the
+charge and moving slower meanwhile. A weapon carrying an element unleashes it in that element
+(docs/vfx.md, "Elemental attacks"). The weapon's card says "Hold: <name>. <what it does>".
+
+| Weapon | Charged attack | What it does | x a basic hit | Charge (s) | Speed |
+|---|---|---|---|---|---|
+| Katana | Moonless Cut | a wide double crescent (200 degrees, radius 62) | 2.5 | 0.8 | 55% |
+| Ninjaku | Crossed Shadows | two crossing cuts, 0.1 s apart (1.25 + 1.25) | 2.5 | 0.75 | 60% |
+| Sai | Viper's Litany | three quick stabs, the last harder (0.8 + 0.8 + 1.0) | 2.6 | 0.75 | 60% |
+| Rapier | Heartseeker | a short lunge (90) through every enemy in line | 2.6 | 0.75 | 60% |
+| Lance | Impaling Reach | a long thrust (150) through every enemy in line, without moving | 2.6 | 0.9 | 55% |
+| Battle Axe | Headsman's Wheel | a full spin, radius 80, heavy knockback | 2.4 | 1.1 | 50% |
+| Greatsword | Grave Sweep | a lunge (110) cutting all in its way, then a wide sweep (1.6 + 1.1) | 2.7 | 1.1 | 50% |
+| War Hammer | Anvil Fall | slams the ground ahead (44 out, clear of him): an earth blast, radius 85, hurls enemies | 2.7 | 1.15 | 45% |
+| Pickaxe | Rockbreaker | the ground bursts in rubble ahead (radius 58) | 2.5 | 0.95 | 50% |
+| Whip | Flaying Arc | a long crack far ahead (radius 70, 62 out) | 2.3 | 0.85 | 55% |
+| Templar Sword | Judgement | a wide blessed crescent (holy) | 2.5 | 0.9 | 55% |
+| Bow | Soulpiercer | a heavy arrow through every enemy in its path (2.3 vs 0.9) | 2.56 | 0.9 | 55% |
+| Shuriken | Bladed Gale | a fan of 7 stars that pierce one enemy (7 x 0.55 vs 3 x 0.45) | 2.85 | 0.8 | 60% |
+| Frost Staff | Glacial Lance | a great ice shard (drawn bigger, 16 directions) shattering into a frost nova (radius 64) that slows 50% for 2 s (2.7 vs 1.05) | 2.57 | 1.0 | 50% |
+| Spark Wand | Forked Wrath | a bolt from the hand to the closest enemy ahead, leaping to 3 more (each 70% of the last; 2.1 vs 0.85) | 2.47 | 0.85 | 55% |
+| Ember Tome | Pyre Heart | a great fireball exploding (radius 64), burning (4.0 vs 3 x 0.6) | 2.22 | 1.05 | 50% |
+
+Shown: a gauge of twelve steps on the floor around his feet and on the attack button's rim, in
+the element the weapon carries (steel when plain), the weapon held up in his hand with the
+element's motes drawn into it; full, a flash of the core and a beat (under three a second).
+The first time, a hint points at the attack button ("Hold the big button to charge your
+weapon...", after the weapon skills' hint).
+
 Tomes (found on the floor, dropped by casters and bosses) teach Holy Light, Battle Cry, Frost Nova,
 Fireball, Blink or Thunder, whatever weapon you hold: a warrior can heal, a mage can blink.
 Battle Cry bursts jets of blood out of the floor around the hero; Blink vanishes and appears in

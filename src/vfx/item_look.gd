@@ -56,6 +56,39 @@ static func swing_element(weapon: WeaponDef, hero: bool) -> VfxElementDef:
 	return carried[0] if not carried.is_empty() else null
 
 
+## The second element the hero's blows show (a few of its bits beside the first's): the next one
+## the weapon carries, null when it carries one or none. Monsters' blows show one.
+static func second_element(weapon: WeaponDef, hero: bool) -> VfxElementDef:
+	if weapon == null or not hero:
+		return null
+	var first := swing_element(weapon, hero)
+	for element in elements(weapon):
+		if element != first:
+			return element
+	return null
+
+
+## The element a hit of the hero's weapon lands in (its flash, the death it gives: HitInfo.element):
+## the weapon's own, else a status every hit leaves (a Burning affix: fire). A rune that works by
+## chance (the Ember Rune's 50%) lands in its element only on the hits it fires on (its passive
+## says so: BurnOnHitPassive); the swing shows it always (`swing_element`).
+static func hit_element(weapon: WeaponDef) -> VfxElementDef:
+	if weapon == null:
+		return null
+	if weapon.element:
+		return weapon.element
+	var status := weapon.on_hit
+	if status == null:
+		return null
+	if status.burn_damage > 0:
+		return VfxElementDef.named(&"fire")
+	if status.poison_damage > 0:
+		return VfxElementDef.named(&"poison")
+	if status.slow > 0.0:
+		return status.slow_element if status.slow_element else VfxElementDef.named(&"frost")
+	return null
+
+
 ## The rarity look of `item` (Common's for anything that isn't found equipment).
 static func rarity_look(item: ItemDef) -> RarityLookDef:
 	return ItemRarity.look(ItemRarity.of(item))

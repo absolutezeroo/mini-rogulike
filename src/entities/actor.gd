@@ -231,9 +231,14 @@ func attack(direction: Vector2) -> bool:
 	if weapon.kind == WeaponDef.Kind.MELEE:
 		Combat.melee_strike(self, facing, weapon)
 	else:
-		world.fire_projectiles(self, facing, Combat.spec_from_weapon(self, weapon))
+		world.fire_projectiles(self, facing, Combat.spec_from_weapon(self, weapon), shot_origin(facing))
 	_on_attacked(weapon)
 	return true
+
+
+## Where its shots toward `direction` start (World.fire_projectiles' `from`); INF: its center.
+func shot_origin(_direction: Vector2) -> Vector2:
+	return Vector2.INF
 
 
 ## After an attack goes out (the hero's camera recoils).

@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="ChargedAttackDef" format=3]
+
+[ext_resource type="Resource" path="res://data/vfx/slashes/lunge.tres" id="1_lunge"]
+[ext_resource type="Script" path="res://src/definitions/effects/dash_strike_effect.gd" id="2_dash_strike_effect"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="3_effect"]
+[ext_resource type="Script" path="res://src/definitions/items/charged_attack_def.gd" id="4_charged_attack_def"]
+
+[sub_resource type="Resource" id="lunge"]
+script = ExtResource("2_dash_strike_effect")
+distance = 90.0
+duration = 0.12
+width = 22.0
+damage_multiplier = 2.6
+knockback = 200.0
+slash = ExtResource("1_lunge")
+
+[resource]
+script = ExtResource("4_charged_attack_def")
+id = &"rapier"
+display_name = "Heartseeker"
+description = "A short lunge that runs through every enemy in line."
+charge_time = 0.75
+move_speed_scale = 0.6
+effects = Array[ExtResource("3_effect")]([SubResource("lunge")])

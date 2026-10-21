@@ -19,9 +19,21 @@ signal attacked
 signal skill_used(index: int)
 ## Gear from the bag was broken down (gold already added): the bag shows the gold flying.
 signal dismantled(items: Array[ItemDef], gold: int)
+## Holding the attack button: the charge started filling, then it is full (ChargeVfx, the HUD).
+signal charge_started
+signal charge_full
+## The weapon's charged attack was unleashed (the tutorial listens).
+signal charged_attack(attack: ChargedAttackDef)
 
 const HIT_INVULNERABILITY := 0.6
 const AIM_HOLD_TIME := 0.35         ## Keep facing the aim direction this long after attacking.
+## A press of the attack button while the weapon is still swinging waits this long for it (taps
+## in a hurry are not lost; holding never chains attacks: it charges).
+const ATTACK_BUFFER := 0.3
+## Where the weapon is in the hero's hand: this far above his center (his chest, on the rig's
+## 2x art) and this far out toward the aim. His shots leave from there (docs/vfx.md 2b).
+const HAND_LIFT := 6.0
+const HAND_REACH := 8.0
 const MELEE_AIM_ASSIST := 70.0      ## Extra auto-aim distance beyond melee reach.
 const SKILL_AIM_RANGE := 520.0
 ## Skill buttons: innate skills (the roll), then the weapon's skills, then the learned spell.
@@ -50,15 +62,26 @@ var learned_skill: SkillDef
 var gold := 0
 ## Cold floors and hot ground (see BodyTemperature).
 var temperature := BodyTemperature.new()
+## Holding the attack button: the weapon's charged attack (AttackCharge, ChargedAttackDef).
+var charge := AttackCharge.new()
 
 var _move_direction := Vector2.ZERO
 var _aim_hold := 0.0
+## A press of the attack button not yet turned into a swing (ATTACK_BUFFER).
+var _attack_buffer := 0.0
 var _step_timer := 0.0
 var _left_foot := false
 ## Where the hero climbs back out after falling into a hole: the last solid ground stood on.
 var _safe_position := Vector2.ZERO
 
 @onready var camera: GameCamera = $Camera
+## The charge's gauge at his feet and the glow in his hand.
+var charge_vfx: ChargeVfx
+
+
+func _ready() -> void:
+	super._ready()
+	charge_vfx = ChargeVfx.attach(self)
 
 
 func setup(player_def: PlayerDef) -> void:
@@ -81,6 +104,7 @@ func setup(player_def: PlayerDef) -> void:
 		store(item)
 	_rebuild_skills(0.0)
 	equipment.changed.connect(_rebuild_skills.bind(SWAP_COOLDOWN))
+	equipment.changed.connect(charge.cancel)  # a weapon swap loses the charge
 	equipment.changed.connect(func() -> void: perks.set_gear(equipment.affixes(), equipment.runes()))
 	perks.set_gear(equipment.affixes(), equipment.runes())
 	invalidate_stats()
@@ -104,11 +128,7 @@ func _think(delta: float) -> void:
 	if _move_direction != Vector2.ZERO and _aim_hold <= 0.0:
 		facing = _move_direction.normalized()
 	_update_footsteps(delta)
-
-	if Input.is_action_pressed("attack") and can_attack():
-		if attack(get_aim_direction(_auto_aim_range())):
-			attacked.emit()
-		_aim_hold = AIM_HOLD_TIME
+	_update_attack(delta)
 
 	for i in mini(skills.skills.size(), SKILL_COUNT):
 		if skills.skills[i] and Input.is_action_just_pressed("skill_%d" % (i + 1)):
@@ -119,6 +139,90 @@ func _think(delta: float) -> void:
 	for i in range(1, Belt.SLOTS):
 		if Input.is_action_just_pressed("belt_%d" % (i + 1)):
 			use_belt(i)
+
+
+## The attack button: a tap swings (or shoots) once, aimed at the closest enemy; holding it
+## no longer repeats the swing, it charges the weapon's charged attack (AttackCharge), unleashed
+## when the button is let go with the charge full (docs/design/interface.md).
+func _update_attack(delta: float) -> void:
+	var weapon := get_weapon()
+	var charged := weapon.charged if weapon else null
+	_attack_buffer = maxf(_attack_buffer - delta, 0.0)
+	if Input.is_action_just_pressed("attack"):
+		_attack_buffer = ATTACK_BUFFER
+		charge.press()
+	if is_falling:
+		charge.cancel()  # a fall loses the charge (a roll or a dash: start_dash)
+	if Input.is_action_pressed("attack"):
+		if charged:
+			match charge.hold(delta, def.charge_delay, charged.charge_time):
+				AttackCharge.State.CHARGING:
+					charge_started.emit()
+				AttackCharge.State.FULL:
+					Sfx.play_at(def.charge_full_sound, global_position)
+					charge_full.emit()
+	elif charge.state != AttackCharge.State.IDLE:
+		if charge.release() and charged and weapon:
+			_unleash(weapon, charged)
+	if charge.is_charging():
+		_attack_buffer = 0.0
+		# Winding up toward the closest enemy; with none in sight, the way he walks.
+		var target := get_aim_target(SKILL_AIM_RANGE)
+		if target:
+			facing = global_position.direction_to(target.global_position)
+		elif _move_direction != Vector2.ZERO:
+			facing = _move_direction.normalized()
+		_aim_hold = AIM_HOLD_TIME
+	if rig:
+		rig.show_charge(weapon if charge.is_charging() else null)
+	if _attack_buffer > 0.0 and can_attack():
+		_attack_buffer = 0.0
+		if attack(get_aim_direction(_auto_aim_range())):
+			attacked.emit()
+		_aim_hold = AIM_HOLD_TIME
+
+
+## The charge was full and the button let go: the weapon's charged attack toward the closest
+## enemy (or straight ahead). The weapon swings again after its usual cooldown.
+func _unleash(weapon: WeaponDef, charged: ChargedAttackDef) -> void:
+	if is_dead or is_falling:
+		return
+	var aim := get_aim_direction(SKILL_AIM_RANGE)
+	facing = aim
+	_aim_hold = AIM_HOLD_TIME
+	_attack_cooldown = get_attack_cooldown(weapon)
+	if rig:
+		rig.play_attack(weapon, aim, maxf(_attack_cooldown, 0.3))
+	charged.release(self, weapon, aim)
+	_on_attacked(weapon)
+	camera.shake(0.3)
+	charged_attack.emit(charged)
+
+
+## Where the weapon is in the hand when striking toward `aim`.
+func hand_point(aim: Vector2) -> Vector2:
+	return global_position + Vector2(0, -HAND_LIFT) + aim.normalized() * HAND_REACH
+
+
+## His shots leave from the weapon in his hand, not from his feet (World.fire_projectiles
+## starts them a few units further along).
+func shot_origin(direction: Vector2) -> Vector2:
+	return hand_point(direction)
+
+
+## Rolling (or any dash) loses the charge.
+func start_dash(dash_velocity: Vector2, duration: float, invulnerable: bool, element: VfxElementDef = null) -> void:
+	charge.cancel()
+	super.start_dash(dash_velocity, duration, invulnerable, element)
+
+
+## Slower while charging (the charged attack's `move_speed_scale`).
+func get_move_speed() -> float:
+	var speed := super.get_move_speed()
+	var weapon := get_weapon()
+	if charge.is_charging() and weapon and weapon.charged:
+		speed = maxf(speed * weapon.charged.move_speed_scale, 20.0)
+	return speed
 
 
 func _update_footsteps(delta: float) -> void:
@@ -179,6 +283,7 @@ func _auto_aim_range() -> float:
 func use_skill(index: int) -> void:
 	var aim := get_aim_direction(SKILL_AIM_RANGE)
 	if skills.try_use(index, self, aim):
+		charge.cancel()  # a skill (the roll first) loses the charge
 		facing = aim
 		_aim_hold = AIM_HOLD_TIME
 		skill_used.emit(index)
@@ -451,6 +556,7 @@ func load_state(data: Dictionary) -> void:
 	belt.load_data(data.get("belt", []))
 	perks.load_data(data.get("perks", []))
 	learned_skill = RunSave.load_ref(data.get("learned_skill")) as SkillDef
+	charge.reset()  # a charge is never saved: back from a save, the button starts afresh
 	_rebuild_skills(0.0)
 	invalidate_stats()
 	hp = clampi(int(data.get("hp", get_max_hp())), 1, get_max_hp())

@@ -12,9 +12,11 @@
 [ext_resource type="Resource" path="res://data/skills/player/arrow_rain.tres" id="10_dy2j0"]
 [ext_resource type="Resource" path="res://data/vfx/sheets/arrow.tres" id="sheet_arrow"]
 [ext_resource type="Texture2D" path="res://assets/weapons/back/bow.png" id="back_sprite"]
+[ext_resource type="Resource" path="res://data/skills/charged/bow.tres" id="charged"]
 
 [resource]
 script = ExtResource("7_wbbmo")
+charged = ExtResource("charged")
 kind = 1
 cooldown = 0.42
 reach = 460.0

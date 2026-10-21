@@ -86,6 +86,33 @@ floor must never draw over the hero's feet, and a crystal must hide a monster st
 - A status on a body (`StatusFx`) is on the body (its crust, flames, bubbles sort with it); its
   mist at the feet is GROUND. The body itself is painted by its own shader (section 9).
 
+### The hero's own effects never cover him
+
+The hero is the most readable thing on screen (section 2), and the effects he makes himself are
+the ones that would bury him: they leave from where he holds his weapon and go **behind his body
+when they go north** (we see his back), **in front when they go south** (`VfxLayer.goes_behind`:
+a direction whose y is below -0.2 of its length).
+
+| Effect | Where it starts | North (back to us) | South, east, west |
+|---|---|---|---|
+| A shot (staff, wand, tome, bow, stars; skills' shots) | his hand (`Player.hand_point`: 6 above his center, 8 out along the aim), then 6 further | GROUND z for its first 30 units (his body's length: under every body), then over the bodies like any shot | over him (z 0, after the Entities) |
+| A blade's arc, a thrust, a slash of a skill or a charged attack (`SwingVfx`) | his chest; a thrust's streak from 12 out (`THRUST_START`) | STANDING, sorted by its origin just above his feet: behind him, over whoever stands further north | AIR |
+| A hammer's smash, its matter (`Vfx.smash`) | where the head lands | STANDING (sorted by where it lands) | AIR |
+| His glow while charging (`ChargeVfx`) | in his hand | behind his sprites (`VfxLayer.set_behind`) | in front of them |
+| The charge's gauge, the level up's rings | at his feet | GROUND (under every body) | GROUND |
+| The level up's column, Holy Shield's halo (`VfxLayer.on_body`) | around him | behind his sprites: their middle hidden by him, their sides and top shining round him | same |
+| The level up's glints | at his sides (14+ out) | AIR, never over him | same |
+
+- **Behind is tree order**: an actor draws nothing itself, its sprites are its `Rig`, a child.
+  `show_behind_parent` only puts a node behind the actor's own (empty) drawing, so a column
+  "behind" him was drawn over his Rig (what was still seen in front of him). `VfxLayer.on_body`
+  moves a node behind before every child (the Rig first) and `is_behind_body` checks it.
+- A ranged weapon plays no claw or burst over him: the shot itself is the attack (`ActorRig.play_attack`
+  plays an `attack_fx` or the element's claw for melee weapons only).
+- Checked in 8 directions for shots (staff, bow, stars), arcs and thrusts (katana, axe, lance,
+  rapier), the glow in hand, the level up and Holy Shield (`CombatTests._test_own_effects`,
+  `VfxTests._test_own_effects`).
+
 ## 3. Timing
 
 - **The main action happens in the first quarter** of an effect's life, then it erodes. A nova
@@ -177,7 +204,8 @@ bits on the rim).
 | `PixelDraw` | `src/vfx/pixel_draw.gd` | `snap`, `snap_length`, `sheet_scale`, `dither`, `pixel`, `ring`, `disc`, `arc`, `line`, `polyline`, `polygon`, `bit` (an element's particle shape), `sheet` (draw a frame of a VfxSheetDef on the grid) |
 | `GlowHalo`, `DistortionStamp`, `FxLook`, `ScreenEffects`, `ShaderWarmup` | `src/vfx/` | halos (`attach`, one light per glow), stamps of the one screen pass (`attach`, `of_element`), a sheet's shader (`for_sheet`, `for_piece`, `flame`, `rune`, `sprite`), the screen pass (`flash`, `of(tree)`), the warm-up (section 5b) |
 | `VfxLayer` | `src/vfx/vfx_layer.gd` | `Layer.GROUND / STANDING / AIR` (section 2b), `apply(node, layer)`, `of(node)`, `light_up(node, element, reach)`; `VfxSheetDef.layer` |
-| `SlashDef`, `SwingVfx` | `src/definitions/vfx/slash_def.gd`, `data/vfx/slashes/`, `src/vfx/swing_vfx.gd` | a blade's blow drawn by `swing.gdshader`: CRESCENT / SPIN / THRUST, arc, thickness, strokes, reach_scale, jitter, `finisher` sheet; on `WeaponDef.slash`, `DamageAreaEffect.slash`, `DashStrikeEffect.slash`. `SwingVfx.slash(world, look, at, aim, reach, element, danger)` |
+| `SlashDef`, `SwingVfx`, `SwingMatter` | `src/definitions/vfx/slash_def.gd`, `data/vfx/slashes/`, `src/vfx/swing_vfx.gd`, `src/vfx/swing_matter.gd` | a blade's blow drawn by `swing.gdshader`: CRESCENT / SPIN / THRUST, arc, thickness, strokes, reach_scale, jitter, `finisher` sheet; on `WeaponDef.slash`, `DamageAreaEffect.slash`, `DashStrikeEffect.slash`. `SwingVfx.slash(world, look, at, aim, reach, element, danger, second)`; an element's blow breaks into its matter (`SwingVfx.matter_of`) and sheds its bits (`SwingMatter`, section 11) |
+| `ChargeVfx`, `LevelUpVfx` | `src/vfx/charge_vfx.gd`, `src/vfx/level_up_vfx.gd` | the charged attack's gauge at the feet (GROUND) and glow in hand (on the body, behind facing north); the level up's rings (GROUND), column (behind his sprites) and side glints (AIR) |
 | Things in flight | `data/vfx/sheets/` (`arrow`, `kunai`, `spear`, `feather`), `tools/vfx/physical.py` | 16-row sheets: `ProjectileEffect.sheet`, `WeaponDef.projectile_sheet` (the `texture` stays the item's picture) |
 | `ImpactMaterialDef` | `data/materials/` | `spark_bit`, `spark_motion`, `sparks_element()`: a hit's bits in what the target is made of (`Vfx.hit(..., material)`) |
 | `VfxRamp` | `src/vfx/vfx_ramp.gd` | `recolor(texture, ramp)`: palette swap by luminance, cached (a sheet with `recolor` on is painted in its element's ramp) |
@@ -407,8 +435,7 @@ slicer, element exports) serves the others; what each still needs:
   worn (a trim on the armor's hem and the weapon's outline, Epic's glint); a weapon carrying an
   element licks with it along its rim and throws its motes, in hand and at rest; the hero
   carries his weapon on his back or at his hip. Left: the bag's portrait of the hero shows no
-  gear; shots (arrows, the wand's sparks) don't take a rune's element; armor affixes (of
-  Thorns, of Echoes on a helm) show nothing worn.
+  gear; armor affixes (of Thorns, of Echoes on a helm) show nothing worn.
 
 ## 9. Shaders on bodies
 
@@ -543,9 +570,7 @@ carry nothing. At most two show (`ItemLook.MOST`).
   weapon's own pixels in each element's bit, ramp and motion: fire's teardrops rise, frost's
   chips fall, poison's rings sink, storm's forks fly out, holy's glints fall slowly, shadow's
   motes are drawn in, arcane's runes orbit, blood drops fall. Fewer effects: no motes.
-- **The swing**: the hero's blade swings in what it carries when it has no element of its own
-  (`ItemLook.swing_element`: a katana with an Ember Rune draws a fire arc). Monsters keep theirs.
-  Hits, shots and deaths keep the weapon's own element (a rune's fire is a chance, not every hit).
+- **The attacks**: every attack of a weapon carrying an element is drawn in it, section 11.
 - **In a slot**: rune sockets are small gems cut in their rune's element (its color, a lit
   facet, a dark one).
 
@@ -585,3 +610,73 @@ there too, but a weapon's `frame_rect`, which is its own sprite's). Their own un
 `trim_row`, `trim_hem`, `trim_sweep` (seconds between glints, 24 fps, then a pause), `imbue`,
 `imbue_row`. Bodies keep them at 0: the cheap path tests two more uniforms. The hero draws up to
 four materials instead of one (body, armor, helm, weapon): a few draw calls, for one actor.
+
+## 11. Elemental attacks
+
+"A katana, an axe... when I attack nothing changes. With fire, the slash should be red with
+flames." Every attack of a weapon that carries an element (`ItemLook.elements`: its own
+element, its runes, its affixes) is drawn **in** that element, end to end, not tinted: the
+element's ramp, its shapes, its motion. Plain weapons stay steel. Monsters' blows keep their
+weapon's own element.
+
+**Which element.** The first element the weapon carries (`ItemLook.swing_element`: the weapon's
+own, else in data order: runes, then statuses its hits leave, then affixes) draws the attack;
+a second one (`ItemLook.second_element`) adds a few of its bits (a third of the first's). At most
+two show, like the motes on the weapon (section 10).
+
+**Arcs and thrusts** (`swing.gdshader` `matter`, from the element's bit by
+`SwingVfx.matter_of`, so a new element is drawn as itself for free). The arc keeps its steel
+shape (the head bright, bands down the ramp, the tail thinning) in the element's ramp, and its
+edge breaks into the element's matter, per art pixel at 12 fps:
+
+| Element | The arc | Off its edge (shader) | Bits shed (`SwingMatter`) |
+|---|---|---|---|
+| fire | red-orange-white, its tail eaten in drifting patches (licks) | flame tongues two pixels wide, each its own height (0-4), changing 12 times a second, hot at the foot, red at the tips | licks and embers rising and swaying |
+| frost | faceted: every other column a step darker (lit and shaded faces) | ice crystals jutting from the edge, sharp, lit on one face | angular chips falling |
+| poison | green, dark inner rim | drips hanging under it (screen down), longer as the blow goes | drips falling, bubbles welling out and sinking |
+| storm | a violet body (a step darker) with a jagged white fork running through it, flickering | - | forks jumping off, a frame on and off |
+| holy | gold, glints catching in it | short rays off the edge | glints drifting down |
+| shadow, spirit | the ramp (shadow's inverted: a dark core, a bright edge), patches drifting away | wisps half there | motes drawn in (shadow) or rising (spirit) |
+| arcane | magenta, hollow rune rhombi riding it | - | runes orbiting |
+| blood, water | its ramp | droplets flung off | drops on ballistic arcs |
+| earth | crumbling by 2x2 blocks, dark cracks | chunks breaking off | chunks falling |
+| steel | as always | nothing | nothing |
+
+An emissive element's arc writes the emissive mask (section 5b). Bits are born where the head
+passes, live 0.12-0.5 s, go down the ramp and dither out; fewer effects halves them. A fire
+teardrop bit is never bigger than one pixel and its tip (a bigger one is a plus: holy's glint).
+
+**Overhead smashes** (the War Hammer: no arc, its head lands on the floor, `Vfx.smash`): steel
+kicks up dust and a few steel sparks; an element bursts there in its own impact (fire's tongues,
+frost's shards, storm's forks, poison's splash) and sheds its bits. Monsters' clubs keep their
+slash (`club.tres`) or their `attack_fx` sheet painted in their element (`SheetVfx.in_element`).
+
+**Shots.** A magic shot is its element already (the Frost Staff's shard); a second element the
+weapon carries adds bits to its trail. A plain thing (an arrow, a star) from a weapon carrying an
+element flies **in** it without becoming it (`ProjectileSpec.look_element`): the element's
+matter rides its back half (fire's licks climbing off the shaft, rime crusting it with a glint,
+drips hanging, storm's sparks crackling), its bits trail behind it (embers rising off the path,
+chips falling), a shining element lights the floor around it (no halo: a checker round an arrow
+reads as a blur), and it goes out in its bits at the end of its range.
+
+**Charged attacks** (`ChargedAttackDef.dressed`): the weapon's element replaces the effect's
+(a fire katana's Moonless Cut burns, a frost bow's Soulpiercer flies in rime, a storm hammer's
+Anvil Fall bursts in lightning); the effect's own element (the hammer's earth, the Templar's
+holy) or the weapon's second adds its bits. Copies per pair of elements; the data stays as
+written. The charge's gauge and glow take the same element.
+
+**The hit.** The swing always shows the element the weapon carries; the **hit** (its flash, its
+sparks, the death it deals: `HitInfo.element`) lands in it only when the element surely acts on
+that hit, so what the player sees on the target is what happens to it:
+
+- the weapon's own element, or a status every hit leaves (a Burning, Frozen or Venomous affix,
+  `ItemLook.hit_element`): every hit;
+- a rune that works by chance (the Ember Rune's 50%): `BurnOnHitPassive` rolls before the hit
+  lands (`HitInfo.rolled`) and the hit flashes in fire exactly when it sets the target burning;
+- a rune that acts on every hit (the Rime Rune, Frostbite: `SlowOnHitPassive`): every hit;
+- runes that act apart from the hit (the Spark Rune's chain every 3rd hit, the Shatter Rune's
+  crit shockwave, the Gale Rune's roll) show their own effect when they fire; the hit stays steel;
+- a charged attack is the element gathered: its hits land in it.
+
+Checked for each element (fire, frost, storm, poison) on a katana, an axe, a lance, the War
+Hammer and the Bow, plus plain steel (`CombatTests._test_elemental_attacks`).

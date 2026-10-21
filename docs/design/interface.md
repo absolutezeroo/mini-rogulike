@@ -10,7 +10,7 @@ anywhere in it, cards and buttons included, with a bit of momentum (`TouchScroll
 | Action | Touch | Keyboard | Gamepad |
 |---|---|---|---|
 | Move | Drag on the left side | WASD / arrows | Left stick |
-| Attack (auto-aim, hold) | Big red button | J / Space | X |
+| Attack (auto-aim): tap; hold to charge, let go to unleash | Big red button | J / Space | X |
 | Skills 1-4 | Small round buttons | K L O P or 1 2 3 4 | A B Y RB |
 | Belt (potions, bombs, scrolls) | The 3 small buttons left of the skills | Q / H, 5, 6 | LB (slot 1) |
 | Use what you stand by (trade, forge, drink...) | The Interact button (shows only then) | E / F | RT |
@@ -18,6 +18,13 @@ anywhere in it, cards and buttons included, with a bit of momentum (`TouchScroll
 | Pause | II button / phone back button | Escape | - |
 | Choose a perk | Tap a card | Arrows + Enter | D-pad + A |
 | Inventory | Bag button | I / Tab | Back |
+
+**Attack: tap or hold.** A tap (or a press) is one basic attack at once, aimed at the closest
+enemy; a press while the weapon is still swinging waits for it (0.3 s), so quick taps are never
+lost. Holding no longer repeats the attack: past 0.22 s it charges the weapon's charged attack
+(builds.md, "Charged attacks"), shown at the hero's feet and as twelve steps lighting up around
+the attack button's rim (its thumb may hide the hero), in the element the weapon carries; full,
+they beat. Letting go full unleashes it; a roll cancels it.
 
 ## Nothing opens by itself
 
@@ -97,7 +104,8 @@ around it with an arrow. Each hint shows **once ever** (`Profile.hints_seen`), o
 over a menu or a big banner. A tap (or OK) closes it.
 
 - **First steps**: move (it stays until you have walked a few tiles), then the sealed stairs; when
-  a monster first sees you, attack (until you swing), then roll, then the weapon's two skills.
+  a monster first sees you, attack (tap; until you swing), then roll, then the weapon's two
+  skills, then the charged attack (pointing at the attack button until one is unleashed).
 - **The first time something happens**: low health (drink a potion from the belt), gear in the bag
   (open the Bag), your first soul, a perk waiting (pointing at the perk button until it is
   tapped), a family bonus, a spell, an elite, a rune, the forge, the merchant, an encounter, a pact

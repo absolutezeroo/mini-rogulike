@@ -17,6 +17,13 @@ extends Resource
 @export var innate_skills: Array[SkillDef] = []
 @export_range(4, 40) var inventory_size: int = 16
 
+@export_group("Charged attack")
+## Seconds the attack button must be held before the weapon's charge starts filling: a tap is
+## always a plain attack (Player, AttackCharge).
+@export_range(0.05, 0.6, 0.01) var charge_delay: float = 0.22
+## Played when the charge is full.
+@export var charge_full_sound: AudioStream
+
 @export_group("Leveling")
 @export var xp_base: int = 20
 @export var xp_growth: float = 1.5

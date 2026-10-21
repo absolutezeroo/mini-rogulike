@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="ChargedAttackDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/fx/frost/frost_lance.png" id="1_frost_lance"]
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_sheet_def.gd" id="2_vfx_sheet_def"]
+[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_on_hit_status"]
+[ext_resource type="Resource" path="res://data/vfx/elements/frost.tres" id="4_frost"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="5_projectile_effect"]
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="6_effect"]
+[ext_resource type="Script" path="res://src/definitions/items/charged_attack_def.gd" id="7_charged_attack_def"]
+
+[sub_resource type="Resource" id="lance"]
+script = ExtResource("2_vfx_sheet_def")
+texture = ExtResource("1_frost_lance")
+frames = 2
+orient = 1
+directions = 16
+fps = 8.0
+loop = true
+
+[sub_resource type="Resource" id="chill"]
+script = ExtResource("3_on_hit_status")
+slow = 0.5
+slow_duration = 2.0
+
+[sub_resource type="Resource" id="shard"]
+script = ExtResource("5_projectile_effect")
+element = ExtResource("4_frost")
+damage_multiplier = 2.7
+speed = 560.0
+radius = 9.0
+max_distance = 520.0
+knockback = 200.0
+explosion_radius = 64.0
+sheet = SubResource("lance")
+status = SubResource("chill")
+nova_burst = true
+halo = true
+
+[resource]
+script = ExtResource("7_charged_attack_def")
+id = &"stick"
+display_name = "Glacial Lance"
+description = "A great ice shard that shatters into a frost nova: enemies around are slowed."
+charge_time = 1.0
+move_speed_scale = 0.5
+effects = Array[ExtResource("6_effect")]([SubResource("shard")])

@@ -331,6 +331,14 @@ func _process(_delta: float) -> void:
 	_attack_button.icon = weapon.icon if weapon else null
 	_attack_button.icon_tint = weapon.icon_tint if weapon else Color.WHITE
 	_attack_button.label = weapon.glyph if weapon else "-"
+	# The charge on the button too (the gauge at the hero's feet may be under a thumb).
+	var charging := _player.charge.is_charging() and weapon != null and weapon.charged != null
+	_attack_button.charge_ratio = _player.charge.ratio if charging else 0.0
+	_attack_button.charge_full = charging and _player.charge.is_full()
+	if charging:
+		var element := weapon.charged.element_for(weapon)
+		_attack_button.charge_color = element.shade(0.25)
+		_attack_button.charge_core = element.core()
 
 
 ## One button per skill slot; empty slots (no weapon skill, no spell learned) are hidden.
