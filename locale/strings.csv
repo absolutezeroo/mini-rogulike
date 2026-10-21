@@ -890,7 +890,7 @@ Fell,Fell,Funeste
 Legendary,Legendary,Légendaire
 Ash Lizard,Ash Lizard,Lézard des Cendres
 A masked hunter that charges from across the room.,A masked hunter that charges from across the room.,Un chasseur masqué qui charge d'un bout à l'autre de la salle.
-Gloom Bat,Gloom Bat,Chauve-souris Blême
+Gloom Bat,Gloom Bat,Noctule
 "Fragile, fast and erratic.","Fragile, fast and erratic.","Fragile, rapide et imprévisible."
 Horned Beast,Horned Beast,Bête Cornue
 "Huge. Charges, then crushes.","Huge. Charges, then crushes.","Énorme. Charge, puis écrase."
@@ -930,7 +930,7 @@ Burrower,Burrower,Fouisseur
 Tough. Burrows under you when you keep away.,Tough. Burrows under you when you keep away.,Coriace. Creuse sous toi quand tu restes à distance.
 Moss Heart,Moss Heart,Cœur de Mousse
 A floating heart of moss that mends the monsters around it. Kill it first.,A floating heart of moss that mends the monsters around it. Kill it first.,Un cœur de mousse flottant qui soigne les monstres alentour. Abats-le en premier.
-Rotcap,Rotcap,Champignon Putride
+Deathcap,Deathcap,Amanite
 Slow. Puffs a cloud of spores that slows and poisons.,Slow. Puffs a cloud of spores that slows and poisons.,Lent. Souffle un nuage de spores qui ralentit et empoisonne.
 Ink Octopus,Ink Octopus,Pieuvre d'Encre
 Fires ink bolts and rings of ink.,Fires ink bolts and rings of ink.,Tire des traits d'encre et des anneaux d'encre.
@@ -962,7 +962,7 @@ Hexer,Hexer,Envoûteur
 Keeps its distance and throws shadow bolts.,Keeps its distance and throws shadow bolts.,Garde ses distances et lance des traits d'ombre.
 Soul Moth,Soul Moth,Phalène des Âmes
 Wraps its allies in wards that soak up your blows.,Wraps its allies in wards that soak up your blows.,Enveloppe ses alliés de protections qui absorbent tes coups.
-Blood Spider,Blood Spider,Araignée Sanguine
+Blood Spider,Blood Spider,Saigneuse
 Skitters in fast. Nasty bite.,Skitters in fast. Nasty bite.,Accourt à toute vitesse. Morsure vicieuse.
 Lost Soul,Lost Soul,Âme Errante
 A soul the Well kept. It blinks towards you out of nowhere.,A soul the Well kept. It blinks towards you out of nowhere.,Une âme que le Puits a gardée. Elle surgit de nulle part et fond sur toi.
@@ -1502,7 +1502,7 @@ grammar:gender:Ghost Lantern,grammar:gender:Ghost Lantern,f
 grammar:gender:Acid Larva,grammar:gender:Acid Larva,f
 grammar:gender:Burrower,grammar:gender:Burrower,m
 grammar:gender:Moss Heart,grammar:gender:Moss Heart,m
-grammar:gender:Rotcap,grammar:gender:Rotcap,m
+grammar:gender:Deathcap,grammar:gender:Deathcap,f
 grammar:gender:Ink Octopus,grammar:gender:Ink Octopus,f
 grammar:gender:Night Owl,grammar:gender:Night Owl,f
 grammar:gender:Gnawer,grammar:gender:Gnawer,m
