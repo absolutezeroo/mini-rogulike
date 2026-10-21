@@ -1061,11 +1061,13 @@ func _test_ai_movement(game: Game) -> void:
 	await _frames(40)
 	check(walker.is_stuck(), "walking into a wall for a moment: stuck")
 	walker.move_direction = -wall_dir
+	var stuck_at := walker.global_position
 	for i in 120:  # (a prop or a pond a few steps back may slow it a moment)
+		walker.target = player
 		await _frames(1)
 		if not walker.is_stuck():
 			break
-	check(not walker.is_stuck(), "walking away: not stuck any more")
+	check(not walker.is_stuck(), "walking away: not stuck any more (moved %d px, %d free cells behind, awake %s, %s)" % [walker.global_position.distance_to(stuck_at), best_room, world.awake_monsters.has(walker), walker.get_node("StateMachine").process_mode])
 	await _clear_monsters(world)
 
 	# From another room, out of sight, around the walls: it finds the hero.
