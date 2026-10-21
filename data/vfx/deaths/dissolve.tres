@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DeathLookDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/vfx/death_look_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+style = 0
+delay = 0.15
+duration = 0.45
+chunks = true

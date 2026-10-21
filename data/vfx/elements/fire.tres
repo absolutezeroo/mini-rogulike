@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" path="res://assets/fx/fire/fire_claw.png" id="6"]
 [ext_resource type="Texture2D" path="res://assets/fx/fire/fire_blast.png" id="7"]
 [ext_resource type="AudioStream" path="res://data/audio/flames.tres" id="8"]
+[ext_resource type="Resource" path="res://data/vfx/deaths/ash.tres" id="death"]
 
 [sub_resource type="Resource" id="shot"]
 script = ExtResource("2")
@@ -53,6 +54,7 @@ linger = 0.15
 
 [resource]
 script = ExtResource("1")
+death = ExtResource("death")
 id = &"fire"
 ramp = PackedColorArray(1, 0.964706, 0.847059, 1, 1, 0.882353, 0.552941, 1, 1, 0.678431, 0.364706, 1, 0.894118, 0.427451, 0.227451, 1, 0.560784, 0.243137, 0.337255, 1)
 residue = Color(0.231373, 0.211765, 0.262745, 1.0)

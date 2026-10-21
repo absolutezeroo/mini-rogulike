@@ -76,6 +76,29 @@ The bar is Dead Cells / Blasphemous: hand-made pixels at the art's size, one lan
   particle scenes use the `pixel_particles` materials (even sizes, no spin, constant ramps).
 - New behaviour goes in a small class or the element data, not in `Actor`/`Monster`/`World`.
 
+## 5b. On a body: the rig's shader, not another node
+
+- A status's look on the body, an elite's rim, a death: `assets/shaders/flash.gdshader` (one
+  shader, uniforms as flags; each rig has its own material already), driven by `BodyLook`
+  (`rig.look`). Read docs/vfx.md section 9 first.
+- Work in the sprite's texel space (`local` from `VERTEX`, `floor(local)` = the art pixel), bound
+  every neighbour read by `frame_rect` (frames are packed edge to edge in AtlasTextures), take
+  colors from the `ramps` texture (`ramp(row, step)`, `luma_step` to repaint a sprite color),
+  fade with the Bayer dither, step `TIME`. `TEXTURE` can't go into a function: use the macros.
+- A new status look: `StatusLookDef.body` (HEAT, RIME, WAVE, FLICKER) or a new one (a uniform,
+  a case in `BodyLook.show_statuses`, a block in the shader's busy path, the cheap-path test at
+  the top of `fragment()`), and thin its particles: the shader is the base, particles the accent.
+- A new death: a `DeathLookDef` in `data/vfx/deaths/` (style, timing, chunks, burst, shards,
+  motes, piece, mark) pointed to by the element's `death`; a new style is a case in the shader
+  (keep `DeathLookDef.Style` in step) and maybe a piece in `DeathFx`/`DeathPiecesVfx`.
+- Pitfalls: the node's modulate multiplies after the shader (set it white for exact ramp
+  colors); the room's warm light turns near-white beige (use the mid steps for cold things);
+  `Image.set_pixel` truncates (round colors to 8 bits yourself); `AtlasTexture.get_rid()` is
+  its atlas's (don't cache by RID per frame).
+- Perf: keep the plain branch cheap (no reads beyond the texel), test the busy path with
+  a bench in `_tool/` (gitignored: 30 rigs at the game zoom, statuses on or off, the render
+  time measured with `viewport_set_measure_render_time`) under xvfb.
+
 ## 6. Look at it (headless tests can't)
 
 - Copy `_tool/vfx_probe.gd` / `.tscn` if it exists (`_tool/` is gitignored), or write one like

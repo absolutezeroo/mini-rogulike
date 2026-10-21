@@ -17,10 +17,28 @@ enum Mote {
 	CHIP,
 }
 
+## What the body shader paints on the body itself, in the element's ramp (BodyLook,
+## flash.gdshader); the particles here are its accent.
+enum Body {
+	NONE,
+	## Heat crawling up the lower rim, flickering (burn).
+	HEAT,
+	## Rime creeping in from the edges as it lasts, cold colors; heavy: a glint sweeping (frost).
+	RIME,
+	## A wave rising up the body on each tick, dithered (poison).
+	WAVE,
+	## A pale flicker of the silhouette, a see-through rim (a wail's haunt).
+	FLICKER,
+}
+
 ## The status: a damage-over-time id (&"burn", &"poison") or &"slow" (frost's).
 @export var status: StringName
 ## Its colors and shapes (data/vfx/elements/).
 @export var element: VfxElementDef
+## What it paints on the body (the base of the look; the particles are the accent).
+@export var body: Body = Body.NONE
+## RIME only: a slow at least this strong freezes the body (thicker rime, a glint sweeping).
+@export_range(0.0, 1.0) var heavy_at: float = 0.5
 
 @export_group("While it lasts")
 ## A small animated sheet (frames in a row) spawned over the body, rising or falling.

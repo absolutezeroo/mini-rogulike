@@ -1,0 +1,208 @@
+class_name BodyLook
+extends RefCounted
+## What the body shader (assets/shaders/flash.gdshader, on the rig's Visual node) paints on a
+## body, in the elements' ramps: statuses (a burn's heat crawling up the rim, rime creeping in,
+## a poison wave on each tick, a haunt's pale flicker, a storm hit's crackle), an elite's rim,
+## and the death in the killing element (DeathFx). The rig owns one per body (its material is
+## its own); it only sets a uniform when its value changes. StatusFx's particles are the accent;
+## this is the base. With Settings.fewer_effects the statuses and the rim are off (the body takes
+## the old flat tint instead, Actor._body_modulate) and only the deaths stay (one pass, no
+## neighbour reads but the frozen edge). docs/vfx.md, "Shaders on bodies".
+
+const LOOKS: StatusLookSet = preload("res://data/vfx/status_looks.tres")
+const SHADER: Shader = preload("res://assets/shaders/flash.gdshader")
+## Seconds a burn takes to catch the whole lower rim (in three steps).
+const CATCH_TIME := 0.24
+## Seconds the rime takes to creep in to its full depth.
+const RIME_TIME := 1.2
+## Seconds a poison tick's wave takes to rise up the body.
+const WAVE_TIME := 0.5
+## A storm hit's crackle, frame by frame at 60 fps: two frames on, two off, a second strike,
+## a gap, the afterglow (docs/vfx.md: storm flickers, 1-3 frames on).
+const CRACKLE := [true, true, false, false, true, false, false, false, true, true]
+## Ramp steps per element in the ramp texture (core to edge).
+const STEPS := 5
+
+## Every element's ramp, a row each (shared by every body's material).
+static var _ramps: ImageTexture
+static var _image: Image
+static var _rows := {}  # VfxElementDef -> row
+static var _looks := {}  # status id -> StatusLookDef (or null)
+
+var material: ShaderMaterial
+## The elite rim's color (transparent: none).
+var outline := Color.TRANSPARENT
+## Armor layers are on: the rim and the crackle stay on the sprite's own pixels.
+var layered := false
+var _set := {}
+var _ages := {}  # status id -> seconds it has been on
+var _crackle := -1  # frame of the current crackle, -1: none
+var _crackle_row := 0
+var _dying := false
+## Nothing is on the body and the shader knows it (for this rim and these layers): nothing to do
+## until a status, a hit or a change comes.
+var _quiet := false
+var _quiet_key := []
+var _values := PackedFloat32Array()
+## The uniforms set every frame something changes, in `_values`' order.
+const VALUES: Array[StringName] = [&"burn", &"chill", &"frozen", &"poison", &"poison_wave", &"haunt", &"crackle"]
+
+
+func _init(look: ShaderMaterial) -> void:
+	material = look
+	material.set_shader_parameter("ramps", ramps())
+
+
+## The ramp texture: one row per element (VfxElementDef.all(), then any other met), STEPS
+## columns from core to edge, each an exact ramp color (`shade`, never a blend).
+static func ramps() -> ImageTexture:
+	if _ramps == null:
+		var all := VfxElementDef.all()
+		_image = Image.create(STEPS, maxi(all.size(), 1) + 8, false, Image.FORMAT_RGBA8)
+		for element in all:
+			_paint_row(element)
+		_ramps = ImageTexture.create_from_image(_image)
+	return _ramps
+
+
+## The row of `element` in the ramp texture (added on first use: content made from a color).
+static func row(element: VfxElementDef) -> int:
+	ramps()
+	if element == null:
+		return 0
+	if not _rows.has(element):
+		if _rows.size() >= _image.get_height():
+			return 0
+		_paint_row(element)
+		_ramps.update(_image)
+	return _rows[element]
+
+
+static func _paint_row(element: VfxElementDef) -> void:
+	var y := _rows.size()
+	_rows[element] = y
+	for x in STEPS:
+		# Rounded to 8 bits here (set_pixel truncates: 239.99 would become 239, off the ramp).
+		var color := element.shade(float(x) / (STEPS - 1))
+		_image.set_pixel(x, y, Color8(roundi(color.r * 255.0), roundi(color.g * 255.0), roundi(color.b * 255.0)))
+
+
+## Draws the body shader once with its busy path on (statuses, a death), under the floor where
+## nobody sees it, while a floor is being set up: the Compatibility renderer compiles a shader
+## the first time it draws it, and that is a hitch nobody should feel at the first burning
+## monster. Every body's material shares this one shader (one program, uniforms only).
+static func warm_up(parent: Node2D) -> void:
+	var sprite := Sprite2D.new()
+	sprite.texture = ramps()
+	var material := ShaderMaterial.new()
+	material.shader = SHADER
+	material.set_shader_parameter(&"ramps", ramps())
+	for name: StringName in [&"burn", &"chill", &"poison", &"dissolve"]:
+		material.set_shader_parameter(name, 0.5)
+	sprite.material = material
+	sprite.z_as_relative = false
+	sprite.z_index = RenderingServer.CANVAS_ITEM_Z_MIN
+	parent.add_child(sprite)
+	# In view (a culled item is never drawn, never compiled), then gone.
+	var place := func() -> void:
+		var camera := sprite.get_viewport().get_camera_2d() if sprite.is_inside_tree() else null
+		if camera:
+			sprite.global_position = camera.get_screen_center_position()
+	place.call_deferred()
+	parent.get_tree().create_timer(0.2, true, false, true).timeout.connect(sprite.queue_free)
+
+
+## Every physics frame: the body's statuses as the shader draws them (all off when `enabled` is
+## false: fewer effects, a body without frames).
+func show_statuses(statuses: StatusSet, delta: float, enabled: bool) -> void:
+	if _dying:
+		return
+	var calm := (not enabled or statuses.is_empty()) and _crackle < 0
+	var key := [enabled, outline, layered]
+	if calm and _quiet and key == _quiet_key:
+		return
+	var burn := 0.0
+	var chill := 0.0
+	var frozen := 0.0
+	var poison := 0.0
+	var wave := 2.0
+	var haunt := 0.0
+	var ages := {}
+	if enabled and not statuses.is_empty():
+		for id in statuses.active_ids():
+			if not _looks.has(id):
+				_looks[id] = LOOKS.look(id)
+			var look: StatusLookDef = _looks[id]
+			if look == null or look.body == StatusLookDef.Body.NONE or look.element == null:
+				continue
+			var age: float = _ages.get(id, 0.0) + delta
+			ages[id] = age
+			var on_row := row(look.element)
+			match look.body:
+				StatusLookDef.Body.HEAT:
+					burn = ceilf(clampf(age / CATCH_TIME, 0.01, 1.0) * 3.0) / 3.0
+					_param(&"burn_row", on_row)
+				StatusLookDef.Body.RIME:
+					chill = clampf(floorf(age / RIME_TIME * 4.0) / 4.0, 0.05, 1.0)
+					frozen = 1.0 if statuses.slow_of(id) >= look.heavy_at else 0.0
+					_param(&"chill_row", on_row)
+				StatusLookDef.Body.WAVE:
+					poison = 1.0
+					var since := statuses.since_tick(id)
+					wave = since / WAVE_TIME if since >= 0.0 and since < WAVE_TIME else 2.0
+					_param(&"poison_row", on_row)
+				StatusLookDef.Body.FLICKER:
+					haunt = 1.0
+					_param(&"haunt_row", on_row)
+	_ages = ages
+	var crackling := false
+	if _crackle >= 0:
+		crackling = enabled and CRACKLE[_crackle]
+		_crackle += 1
+		if _crackle >= CRACKLE.size():
+			_crackle = -1
+	# Most frames nothing moved a step: one comparison instead of a uniform each.
+	var values := PackedFloat32Array([burn, chill, frozen, poison, wave, haunt, 1.0 if crackling else 0.0])
+	if values != _values:
+		_values = values
+		for i in VALUES.size():
+			_param(VALUES[i], values[i])
+		_param(&"crackle_row", _crackle_row)
+	if key != _quiet_key:
+		_param(&"outline_color", outline if enabled else Color.TRANSPARENT)
+		_param(&"outer_rim", not layered)
+	_quiet = calm
+	_quiet_key = key
+
+
+## The body's frame now shown (its quad in the sprite's local space, art pixels).
+func set_frame(rect: Rect2) -> void:
+	_param(&"frame_rect", Vector4(rect.position.x, rect.position.y, rect.size.x, rect.size.y))
+
+
+## A hit of `element` landed: storm crackles over the body a few frames.
+func hit(element: VfxElementDef) -> void:
+	if element and element.crackles and not _dying:
+		_crackle = 0
+		_crackle_row = row(element)
+
+
+## The body starts dying as `look` in `element`'s ramp: statuses and rim off, the death's style.
+func die(look: DeathLookDef, element: VfxElementDef) -> void:
+	_dying = true
+	for name: StringName in [&"burn", &"chill", &"frozen", &"poison", &"haunt", &"crackle"]:
+		_param(name, 0.0)
+	_param(&"outline_color", Color.TRANSPARENT)
+	_param(&"death_style", int(look.style))
+	_param(&"death_row", row(element))
+
+
+## How far the death has gone (0..1).
+func set_dying(progress: float) -> void:
+	_param(&"dissolve", progress)
+
+
+func _param(name: StringName, value: Variant) -> void:
+	if _set.get(name) != value:
+		_set[name] = value
+		material.set_shader_parameter(name, value)

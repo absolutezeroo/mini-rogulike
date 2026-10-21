@@ -1,0 +1,209 @@
+class_name DeathPiecesVfx
+extends Node2D
+## What flies off a dying body (DeathFx), on the art's grid, in its element's ramp:
+## - shards: the frozen body broken along cracks into pieces of its own art (painted in the ice
+##   as the body shader froze it, each piece lit on its top left and dark on its bottom right),
+##   thrown out, falling to the floor, lying a moment, then gone piece by piece (dithered);
+## - motes: the element's bits rising off the body while it goes (embers off a burning front,
+##   motes of light, pale wisps), going down the ramp and dithering out.
+
+## Art pixels per shard, about (a 16x16 body breaks into a dozen).
+const SHARD_AREA := 18
+const GRAVITY := 520.0
+
+class Piece:
+	var region := Rect2()  # in the atlas (texels), shards only
+	var position := Vector2.ZERO
+	var velocity := Vector2.ZERO
+	var floor_y := 0.0
+	var born := 0.0
+	var life := 1.0
+	var size := 1
+	var landed := false
+
+var element: VfxElementDef
+var _texture: Texture2D
+var _texel := 2.0
+var _pieces: Array[Piece] = []
+var _age := 0.0
+var _life := 1.2
+var _shards := false
+var _look: DeathLookDef
+var _height := 30.0
+
+
+## The body of `rig`, frozen in `of_element`'s ramp, broken into pieces flying from its feet.
+static func shards(rig: ActorRig, of_element: VfxElementDef, fewer: bool = false) -> DeathPiecesVfx:
+	var vfx := DeathPiecesVfx.new()
+	vfx.element = of_element
+	vfx._shards = true
+	vfx.position = PixelDraw.snap(rig.global_position)
+	# Flying, and ice that keeps its color in a torch's warm light: over the floor's light.
+	VfxLayer.apply(vfx, VfxLayer.Layer.AIR)
+	vfx._texel = PixelDraw.PX * absf(rig.scale.x)
+	var frame := rig.current_frame()
+	if frame:
+		vfx._break(frame, rig.body.offset - frame.get_size() / 2.0, fewer)
+	return vfx
+
+
+## `count` bits of `of_element` rising off `rig`'s body over its death (`look`'s timing).
+static func motes(rig: ActorRig, of_element: VfxElementDef, look: DeathLookDef, count: int) -> DeathPiecesVfx:
+	var vfx := DeathPiecesVfx.new()
+	vfx.element = of_element
+	vfx._look = look
+	vfx.position = PixelDraw.snap(rig.global_position)
+	VfxLayer.apply(vfx, VfxLayer.Layer.AIR)
+	var frame := rig.current_frame()
+	var size := frame.get_size() if frame else Vector2(16, 16)
+	var texel := PixelDraw.PX * absf(rig.scale.x)
+	vfx._height = size.y * texel
+	var width := size.x * texel * 0.6
+	for i in count:
+		var piece := Piece.new()
+		var t := (i + randf()) / count * 0.85
+		piece.born = look.delay + look.duration * t
+		# Off the front for a death that eats the body from the feet up (ash, light), anywhere
+		# on it otherwise.
+		var height := clampf(t * 1.3 - 0.1, 0.05, 0.95) if look.style in [DeathLookDef.Style.ASH, DeathLookDef.Style.ASCEND] else randf_range(0.2, 0.9)
+		piece.position = Vector2(randf_range(-width, width) * 0.5, -height * vfx._height)
+		piece.velocity = Vector2(randf_range(-10.0, 10.0), -randf_range(26.0, 52.0))
+		piece.life = randf_range(0.45, 0.75)
+		piece.size = 2 if randf() < 0.35 else 1
+		vfx._pieces.append(piece)
+	vfx._life = look.delay + look.duration + 0.8
+	return vfx
+
+
+func _process(delta: float) -> void:
+	_age += delta
+	if _age >= _life:
+		queue_free()
+		return
+	for piece in _pieces:
+		if _shards:
+			if piece.landed:
+				continue
+			piece.velocity.y += GRAVITY * delta
+			piece.position += piece.velocity * delta
+			if piece.velocity.y > 0.0 and piece.position.y >= piece.floor_y:
+				piece.position.y = piece.floor_y
+				if piece.velocity.y > 140.0:
+					piece.velocity = Vector2(piece.velocity.x * 0.4, -piece.velocity.y * 0.3)  # one small bounce
+				else:
+					piece.landed = true
+		elif _age >= piece.born:
+			piece.velocity.x += sin(_age * 9.0 + piece.born * 40.0) * 30.0 * delta
+			piece.position += piece.velocity * delta
+	queue_redraw()
+
+
+func _draw() -> void:
+	for piece in _pieces:
+		var t := (_age - piece.born) / piece.life
+		if t < 0.0 or t >= 1.0:
+			continue
+		var at := PixelDraw.snap(piece.position)
+		if _shards:
+			# Whole pieces lie a while, then go one by one (each its own dither threshold).
+			if not PixelDraw.dither(PixelDraw.cell_of(at), 1.0 - maxf(t - 0.55, 0.0) / 0.45):
+				continue
+			draw_texture_rect_region(_texture, Rect2(at, piece.region.size * _texel), piece.region)
+		else:
+			if not PixelDraw.dither(PixelDraw.cell_of(at), 1.0 - maxf(t - 0.6, 0.0) / 0.4):
+				continue
+			var color := element.shade(0.1 + t * 0.8) if not element.id == &"shadow" else element.shade(1.0 - t * 0.7)
+			PixelDraw.bit(self, element.bit, at, piece.size if t < 0.5 else 1, color, piece.velocity, element.core() if t < 0.2 else Color.TRANSPARENT)
+
+
+## Breaks `frame` (drawn with its top left at `corner`, in art pixels from the feet) into
+## pieces: a few seeds, each art pixel to the nearest, packed side by side in one texture.
+func _break(frame: Texture2D, corner: Vector2, fewer: bool) -> void:
+	var image := frame.get_image()
+	if image == null or image.is_empty():
+		return
+	if image.is_compressed():
+		image.decompress()
+	image.convert(Image.FORMAT_RGBA8)
+	var size := image.get_size()
+	var opaque := 0
+	for y in size.y:
+		for x in size.x:
+			if image.get_pixel(x, y).a >= 0.5:
+				opaque += 1
+	if opaque == 0:
+		return
+	var seeds: Array[Vector2] = []
+	for i in clampi(opaque / (SHARD_AREA * (2 if fewer else 1)), 3, 24):
+		seeds.append(Vector2(randf() * size.x, randf() * size.y))
+	# Which piece each art pixel falls in (stretched a little: ice breaks in slabs).
+	var owner := PackedInt32Array()
+	owner.resize(size.x * size.y)
+	var boxes: Array[Rect2i] = []
+	boxes.resize(seeds.size())
+	var used := PackedByteArray()
+	used.resize(seeds.size())
+	for y in size.y:
+		for x in size.x:
+			var i := y * size.x + x
+			owner[i] = -1
+			if image.get_pixel(x, y).a < 0.5:
+				continue
+			var best := 0
+			var best_d := INF
+			for s in seeds.size():
+				var d := (Vector2(x + 0.5, y + 0.5) - seeds[s]) * Vector2(1.0, 1.4)
+				if d.length_squared() < best_d:
+					best_d = d.length_squared()
+					best = s
+			owner[i] = best
+			var cell := Rect2i(x, y, 1, 1)
+			boxes[best] = cell if used[best] == 0 else boxes[best].merge(cell)
+			used[best] = 1
+	# One texture: each piece in its own slot, side by side, a column of space between.
+	var width := 0
+	for s in seeds.size():
+		if used[s]:
+			width += boxes[s].size.x + 1
+	var atlas := Image.create(maxi(width, 1), size.y, false, Image.FORMAT_RGBA8)
+	var x0 := 0
+	var center := Vector2(size) * Vector2(0.5, 0.55)
+	for s in seeds.size():
+		if not used[s]:
+			continue
+		var box := boxes[s]
+		for y in range(box.position.y, box.end.y):
+			for x in range(box.position.x, box.end.x):
+				if owner[y * size.x + x] != s:
+					continue
+				atlas.set_pixel(x0 + x - box.position.x, y, _ice(image, owner, size, x, y, s))
+		var piece := Piece.new()
+		piece.region = Rect2(x0, box.position.y, box.size.x, box.size.y)
+		piece.position = (corner + Vector2(box.position)) * _texel
+		var out := (Vector2(box.get_center()) - center)
+		var direction := out.normalized() if out.length() > 0.5 else Vector2.from_angle(randf() * TAU)
+		piece.velocity = direction * randf_range(50.0, 120.0) + Vector2(0, -randf_range(60.0, 140.0))
+		piece.floor_y = randf_range(-6.0, 6.0) - box.size.y * _texel * 0.5
+		piece.life = randf_range(0.8, 1.1)
+		_pieces.append(piece)
+		x0 += box.size.x + 1
+	_texture = ImageTexture.create_from_image(atlas)
+	_life = 1.2
+
+
+## The ice color of art pixel (x, y) of piece `s`: the frozen body's step for its brightness
+## (as flash.gdshader's freeze), lit on the piece's top left edge, dark on its bottom right.
+func _ice(image: Image, owner: PackedInt32Array, size: Vector2i, x: int, y: int, s: int) -> Color:
+	var source := image.get_pixel(x, y)
+	var luma := source.r * 0.299 + source.g * 0.587 + source.b * 0.114
+	var step := 0 if luma > 0.72 else (1 if luma > 0.5 else (2 if luma > 0.32 else (3 if luma > 0.17 else 4)))
+	step = clampi(step - 1, 0, 3)
+	var inside := func(dx: int, dy: int) -> bool:
+		var nx := x + dx
+		var ny := y + dy
+		return nx >= 0 and ny >= 0 and nx < size.x and ny < size.y and owner[ny * size.x + nx] == s
+	if not inside.call(0, -1) or not inside.call(-1, 0):
+		step = 0
+	elif not inside.call(0, 1) or not inside.call(1, 0):
+		step = 4
+	return element.shade(step / 4.0)

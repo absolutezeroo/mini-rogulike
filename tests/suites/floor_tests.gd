@@ -676,13 +676,68 @@ func _test_status_looks(game: Game) -> void:
 	check(burn != null and StatusFx.LOOKS.look(&"poison") != null and StatusFx.LOOKS.look(&"slow") != null, "burn, poison and frost each have a look")
 	check(colors.has(Palette.FIRE), "its burn damage shows in the fire's color")
 	world.get_node("Effects").child_entered_tree.disconnect(on_text)
+	# The body shader paints the burn on the body itself (no flat orange wash); fewer effects
+	# turns it off and the old tint comes back.
+	var fewer := Settings.fewer_effects
+	Settings.fewer_effects = false
+	await _frames(2)
+	var body := rat.rig.visual.material as ShaderMaterial
+	check(float(body.get_shader_parameter("burn")) > 0.0 and rat.rig.modulate == Color.WHITE, "a burning body is painted by the body shader, not tinted")
+	Settings.fewer_effects = true
+	await _frames(2)
+	check(float(body.get_shader_parameter("burn")) == 0.0 and rat.rig.modulate != Color.WHITE, "with fewer effects the burn is a plain tint")
+	Settings.fewer_effects = fewer
 	for frame in 180:  # (the last embers live about a second; a brazier nearby may light it again)
 		rat.statuses.clear()
 		if not rat.status_fx.visible and not rat.status_fx.is_processing():
 			break
 		await _frames(1)
 	check(not rat.status_fx.visible and not rat.status_fx.is_processing(), "the fire out, the flames die down and it sleeps again (%d bits left)" % rat.status_fx._bits.size())
+	if not Settings.fewer_effects:
+		check(float((rat.rig.visual.material as ShaderMaterial).get_shader_parameter("burn")) == 0.0, "the fire out, the body shader lets go of it")
 	rat.queue_free()
+	await _test_element_deaths(game)
+
+
+## A body dies in the element that killed it: a frost kill freezes it and breaks it into pieces,
+## a burn's last tick burns it to ash; it is gone all the same.
+func _test_element_deaths(game: Game) -> void:
+	var world: World = game.world
+	var at := world.find_open_point_near(game.player.global_position + Vector2(-80, 0), 40.0)
+	var frozen := world.spawn_monster(load("res://data/monsters/rat.tres"), at)
+	frozen.dormant = true
+	await _frames(2)
+	var shards := []
+	var on_vfx := func(node: Node) -> void:
+		if node is DeathPiecesVfx:
+			shards.append(node)
+	world.get_node("Effects").child_entered_tree.connect(on_vfx)
+	var hit := Combat.make_secondary_hit(null, 99999)
+	hit.element = VfxElementDef.named(&"frost")
+	frozen.take_hit(hit)
+	var look := frozen.rig.visual.material as ShaderMaterial
+	check(int(look.get_shader_parameter("death_style")) == DeathLookDef.Style.SHATTER, "a frost kill freezes the body")
+	for i in 120:
+		if not is_instance_valid(frozen):
+			break
+		await _frames(1)
+	world.get_node("Effects").child_entered_tree.disconnect(on_vfx)
+	check(not is_instance_valid(frozen), "...and it is gone")
+	check(shards.size() >= 1, "...broken into pieces of ice")
+	var burnt := world.spawn_monster(load("res://data/monsters/rat.tres"), at)
+	burnt.dormant = true
+	await _frames(2)
+	burnt.hp = 1
+	burnt.statuses.apply_dot(&"burn", 5, 0.05, 1.0, null, Palette.FIRE)
+	for i in 30:
+		if burnt.is_dead:
+			break
+		await _frames(1)
+	check(burnt.is_dead and burnt.killing_element() == VfxElementDef.named(&"fire") and int((burnt.rig.visual.material as ShaderMaterial).get_shader_parameter("death_style")) == DeathLookDef.Style.ASH, "burnt to death, it goes to ash")
+	for i in 120:
+		if not is_instance_valid(burnt):
+			break
+		await _frames(1)
 
 
 func _kill_one(world: World, player: Player) -> void:

@@ -134,6 +134,7 @@ const WAKE_MARGIN := 256.0
 func _ready() -> void:
 	Events.monster_killed.connect(_on_monster_killed)
 	seal.broken.connect(_on_seal_broken)
+	BodyLook.warm_up(self)  # the body shader compiled while loading, not at the first burn
 
 
 ## `taken`: the way down the hero chose to get here (its world, curse or event), or null.

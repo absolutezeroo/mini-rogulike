@@ -281,7 +281,7 @@ func take_hit(hit: HitInfo) -> void:
 	_knockback += hit.knockback * (1.0 - get_knockback_resistance())
 	_flash_time = FLASH_TIME
 	if rig:
-		rig.play_hurt()
+		rig.play_hurt(hit.element)
 	if not hit.is_secondary:
 		var spark_direction := hit.knockback.normalized() if hit.knockback != Vector2.ZERO else Vector2.UP
 		Vfx.hit(world, global_position + Vector2(0, -radius * 0.5), spark_direction, _hit_spark_color(hit), hit.is_crit, hit.element, _impact_material())
@@ -374,12 +374,19 @@ func die(killer: Actor) -> void:
 	died.emit(self)
 	if free_on_death:
 		if rig and rig.visible:
-			rig.dissolve(0.45, queue_free)
+			# In the element of the blow that killed it: ash, shards, a puddle... (DeathFx).
+			DeathFx.play(self, killing_element(), queue_free)
 		else:
 			var tween := create_tween()
 			tween.tween_property(self, "modulate:a", 0.0, 0.25)
 			tween.tween_callback(queue_free)
 	queue_redraw()
+
+
+## What the blow that killed it was made of (a burn's ticks: fire), null for a plain one or a
+## death without a blow (DeathLookDef: ash, shards, a puddle...).
+func killing_element() -> VfxElementDef:
+	return last_hit.element if last_hit and hp <= 0 else null
 
 
 # --- Holes ------------------------------------------------------------------
@@ -516,6 +523,7 @@ func _physics_process(delta: float) -> void:
 	if rig:
 		rig.update_state(facing, velocity.length(), is_dashing(), delta)
 		rig.modulate = _body_modulate()
+		rig.look.show_statuses(statuses, delta, _shader_shows_statuses())
 	queue_redraw()
 
 
@@ -561,13 +569,20 @@ func _feet_y() -> float:
 func _body_modulate() -> Color:
 	if is_dead:
 		return Color(0.45, 0.4, 0.4, 1.0)
-	if not statuses.is_empty():
-		# Burning, poisoned, chilled...: tinted a steady 45% toward the status's color (a body
-		# that pulses reads as one about to strike, docs/vfx.md). Quicksand and sand: no tint.
+	if not statuses.is_empty() and not _shader_shows_statuses():
+		# Burning, poisoned, chilled... with fewer effects (or no sprite): tinted a steady 45%
+		# toward the status's color. Otherwise the body shader paints them (BodyLook).
+		# Quicksand and sand: no tint.
 		var tint := statuses.tint()
 		if tint.a > 0.0:
 			return Color.WHITE.lerp(Color(tint, 1.0), 0.45)
 	return Color.WHITE
+
+
+## The body shader paints the statuses (heat, rime, a poison wave...): a body with a sprite, and
+## the full effects on (Settings.fewer_effects: the flat tint instead).
+func _shader_shows_statuses() -> bool:
+	return rig != null and rig.visible and not Settings.fewer_effects
 
 
 func _draw() -> void:
