@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" path="res://assets/fx/storm/storm_spark.png" id="3"]
 [ext_resource type="Texture2D" path="res://assets/fx/storm/storm_impact.png" id="4"]
 [ext_resource type="Texture2D" path="res://assets/fx/storm/storm_fork.png" id="5"]
+[ext_resource type="Resource" path="res://data/vfx/deaths/scatter.tres" id="death"]
 
 [sub_resource type="Resource" id="shot"]
 script = ExtResource("2")
@@ -30,6 +31,8 @@ linger = 0.0
 
 [resource]
 script = ExtResource("1")
+death = ExtResource("death")
+crackles = true
 id = &"storm"
 ramp = PackedColorArray(0.956863, 0.941176, 1, 1, 0.788235, 0.721569, 1, 1, 0.560784, 0.45098, 0.901961, 1, 0.294118, 0.227451, 0.6, 1, 0.145098, 0.109804, 0.309804, 1)
 mark = Color(0.145098, 0.109804, 0.309804, 0.35)

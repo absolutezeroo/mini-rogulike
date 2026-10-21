@@ -12,6 +12,9 @@ class Dot:
 	var next_tick: float
 	var source: Actor
 	var color: Color
+	## What it is made of (its look's element: fire for a burn): its ticks carry it, so a body
+	## burnt to death goes to ash (DeathLookDef).
+	var element: VfxElementDef
 
 
 ## The slow source of the ground itself (quicksand): it slows but is no status to show.
@@ -40,6 +43,8 @@ func apply_dot(id: StringName, damage: int, interval: float, duration: float, so
 	dot.next_tick = dot.interval
 	dot.source = source
 	dot.color = color
+	var look := StatusFx.LOOKS.look(id)
+	dot.element = look.element if look else null
 	_dots.append(dot)
 
 
@@ -69,6 +74,26 @@ func speed_multiplier() -> float:
 
 func is_slowed() -> bool:
 	return not _slows.is_empty()
+
+
+## The strongest slow showing `look` on the body (frost's &"slow": a hit, the cold...), 0 if
+## none: a strong one freezes the body over (BodyLook).
+func slow_of(look: StringName) -> float:
+	var strongest := 0.0
+	for source: StringName in _slows:
+		var element: VfxElementDef = _slows[source][2]
+		if element and element.slow_look == look:
+			strongest = maxf(strongest, _slows[source][0])
+	return strongest
+
+
+## Seconds since the damage-over-time `id` last ticked (or took hold), -1 when it is not on:
+## the body's poison wave rises with each tick (BodyLook).
+func since_tick(id: StringName) -> float:
+	for dot in _dots:
+		if dot.id == id:
+			return maxf(dot.interval - dot.next_tick, 0.0)
+	return -1.0
 
 
 func has(id: StringName) -> bool:
@@ -130,6 +155,7 @@ func tick(owner: Actor, delta: float) -> void:
 			var source: Actor = dot.source if is_instance_valid(dot.source) else null
 			var tick := Combat.make_tick(source, dot.damage)
 			tick.text_color = dot.color  # its number in the status's color
+			tick.element = dot.element  # burnt to death: ash (DeathLookDef)
 			owner.take_hit(tick)
 			if owner.is_dead:
 				_dots.clear()

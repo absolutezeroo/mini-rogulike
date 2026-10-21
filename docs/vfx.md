@@ -34,7 +34,8 @@ The art is 16x16 pixel art drawn at 2x (`ActorRig`'s Visual node, scale 2): **1 
 - **Shaders and particles quantize in world space.** A shader that draws a shape (a swing, a
   telegraph, a blast) takes the art pixel its fragment falls in on the world's grid
   (`MODEL_MATRIX * VERTEX`, like `frozen_ground.gdshader`), and turns the shape with a uniform,
-  never the node. Particle scenes use `pixel_particles.gdshader` (corners snapped to the grid,
+  never the node. A shader on a body works in the sprite's own texels instead (section 9).
+  Particle scenes use `pixel_particles.gdshader` (corners snapped to the grid,
   fades dithered): even sizes in steps, no spin, `Gradient` interpolation CONSTANT.
 - **Additive light only for emissive cores**, from the ramp's darker steps (it brightens without
   burning to white): projectile halos of plain dots, the level up's light. Sparks, dust, blood,
@@ -83,7 +84,7 @@ floor must never draw over the hero's feet, and a crystal must hide a monster st
   a telegraph carries a red light (`TelegraphView.add_light`). Matter (blood, earth, steel)
   takes the room's light.
 - A status on a body (`StatusFx`) is on the body (its crust, flames, bubbles sort with it); its
-  mist at the feet is GROUND.
+  mist at the feet is GROUND. The body itself is painted by its own shader (section 9).
 
 ## 3. Timing
 
@@ -153,16 +154,16 @@ bits on the rim).
 
 | Element | Projectile | Impact | On the body | Nova / area | Telegraph | Sound family |
 |---|---|---|---|---|---|---|
-| fire (**done**) | `fire_bolt.png`: a white-hot ball, three tongues licking back and up, 16 directions; `fire_ray.png` for the eye beam | `fire_impact.png`: tongues out and up, flames breaking off, embers, dark smoke; `fire_blast.png` for explosions | `fire_flicker.png` flames rising, embers, warm tint, a burst when it catches | `fire_lick.png`: licks rising, curling, sinking to smoke, in rings, arcs (Flame Arc) and at a blast's edge | warm rim, embers creeping in | crackle (`flames`) |
-| frost (**done**) | `frost_shard.png`: a faceted shard drawn in 16 directions, chips trailing | `frost_impact.png`: shards cracking outward, biggest early, chips falling, mist | rime growing on the edges (`frost_rime.png`), ice chips falling, cold mist at the feet, 45% cold tint | `frost_crystal.png`: crystals growing from the ground in a ring, then shattering | the shared danger rim; frost chips inside | cracking ice, glassy chime |
+| fire (**done**) | `fire_bolt.png`: a white-hot ball, three tongues licking back and up, 16 directions; `fire_ray.png` for the eye beam | `fire_impact.png`: tongues out and up, flames breaking off, embers, dark smoke; `fire_blast.png` for explosions | heat crawling up the lower rim (body shader), a few `fire_flicker.png` flames and embers, a burst when it catches; killed: burnt to ash from the feet up | `fire_lick.png`: licks rising, curling, sinking to smoke, in rings, arcs (Flame Arc) and at a blast's edge | warm rim, embers creeping in | crackle (`flames`) |
+| frost (**done**) | `frost_shard.png`: a faceted shard drawn in 16 directions, chips trailing | `frost_impact.png`: shards cracking outward, biggest early, chips falling, mist | rime creeping in from the edges and cold colors (body shader; heavy: a glint sweeping), two `frost_rime.png` crystals, ice chips, cold mist at the feet; killed: frozen, then shattered into pieces of its own art | `frost_crystal.png`: crystals growing from the ground in a ring, then shattering | the shared danger rim; frost chips inside | cracking ice, glassy chime |
 | water | a drop (energy orb painted water) | splash, droplets, a ripple | drips (none yet) | ripples (`water_ripples.png`) | danger rim | splash |
-| poison (**done**) | `poison_glob.png`: a round glob, a stubby tail and two drops sagging behind, 16 directions | `poison_splash.png`: droplets flung and falling, a cloud rising then sinking, bubbles popping, a puddle (and a puddle mark on the floor) | a splash, then bubbles swelling and popping (`poison_bubble.png`), a murky haze sinking at the feet, green tint | `poison_cloud.png`: lumps of murky gas welling up, bubbling, sinking flat | danger rim | squelch, hiss |
-| storm (**done**) | `storm_spark.png`: ball lightning, arcs leaping off it at uneven angles, flickering | `storm_impact.png`: forks out, off, a second strike, broken tips | small arcs jumping off the body (none yet) | `storm_fork.png`: crackles on the ground around a ring; Thunder's `storm_bolt.png` falls from the sky on top (`DamageAreaEffect.strike`); chain lightning is a jagged `BeamVfx` | crisp flicker | crack, zap |
+| poison (**done**) | `poison_glob.png`: a round glob, a stubby tail and two drops sagging behind, 16 directions | `poison_splash.png`: droplets flung and falling, a cloud rising then sinking, bubbles popping, a puddle (and a puddle mark on the floor) | a splash, then a green wave up the body on each tick (body shader), bubbles (`poison_bubble.png`), a murky haze sinking at the feet; killed: melts into a puddle | `poison_cloud.png`: lumps of murky gas welling up, bubbling, sinking flat | danger rim | squelch, hiss |
+| storm (**done**) | `storm_spark.png`: ball lightning, arcs leaping off it at uneven angles, flickering | `storm_impact.png`: forks out, off, a second strike, broken tips | a hit crackles over the body: forks on its rim for a frame or two (body shader, `crackles`); killed: a white flash, scattered in sparks | `storm_fork.png`: crackles on the ground around a ring; Thunder's `storm_bolt.png` falls from the sky on top (`DamageAreaEffect.strike`); chain lightning is a jagged `BeamVfx` | crisp flicker | crack, zap |
 | holy (**done**) | none needed (no holy shot) | the hit's 4-point glints | short ray halo (none yet) | `holy_ray.png`: a sparse ring of thin shafts; Smite's `holy_column.png` falls on the target; Holy Shield's `holy_aegis.png` rises into a halo; heals and buffs draw `holy_sigil.png` (Vfx.magic, recolored for other colors) | rays converging | chime, bell |
 | shadow (**done**) | `shadow_knot.png`: a dark knot, a burning broken rim, smoke curling in (all shadow shots are enemy threats) | `shadow_impact.png`: a ring collapsing inward, a puff | darkened silhouette, filaments sucked in (none yet) | `shadow_smoke.png`: smoke curling up and drawn back in (Shadow Step's trail) | the ground dims | whisper, low thrum |
 | arcane (**done**) | `arcane_missile.png`: a diamond glint, three motes on a tilted orbit (behind ones darker) | `arcane_impact.png`: rune-diamonds turning outward | glyphs orbiting (none yet) | `arcane_rune.png`: glyphs lighting over the ground | runes lighting up | chime, hum |
 | blood (**done**) | none (claws, spurts) | `blood_spurt.png`: a ragged splash, drops on arcs, specks (and a stain) | none (no bleed status) | `blood_jet.png`: jets out of the floor, breaking into drops, a stain (Battle Cry, a broken pact) | danger rim | wet impact |
-| spirit (**done**) | `spirit_wisp.png`: a round pale head, a waving tail coming apart into motes, 16 directions | `spirit_ring.png`: a white knot, a hollow ring widening and breaking up, flames rising | `haunt` look: small pale flame licks (`spirit_mote.png`), its tint | `spirit_flame.png`: pale flames curling up, their tops rising as motes (novas, blink trails, calls) | pale rim | sigh, chime |
+| spirit (**done**) | `spirit_wisp.png`: a round pale head, a waving tail coming apart into motes, 16 directions | `spirit_ring.png`: a white knot, a hollow ring widening and breaking up, flames rising | `haunt` look: a pale flicker and a see-through rim (body shader), small pale flame licks (`spirit_mote.png`); killed: pale wisps rising | `spirit_flame.png`: pale flames curling up, their tops rising as motes (novas, blink trails, calls) | pale rim | sigh, chime |
 | earth (**done**) | `earth_clod.png`: a lumpy clod tumbling (round: redrawn, never turned); `earth_swirl.png` for Sandstorm | `earth_impact.png`: chunks on arcs, dust rolling low; `earth_burst.png` for blasts: cracks, slabs and chunks thrown up, a wide dust cloud, cracks that stay a moment | none (sand slows without a look) | `earth_spike.png`: rock spikes thrusting up, cracking, crumbling into rubble | cracks spreading | crumble (`crumble`) |
 | physical (**done**) | `arrow`, `kunai`, `spear`, the tengu's `feather` drawn in 16 rows (shurikens and coins spin as they are) | short streaks along the blow; the bits of the target's material (blood drops, bone chips, slime, sparks off armor, spirit motes, leaf chips); a crit cuts the `cutx` cross | none | steel crescents, spins and thrusts (`SlashDef` + `SwingVfx`), an enemy's with a red rim; plain rushes kick up dust | lines, cones and lanes | swish, clang |
 
@@ -185,7 +186,9 @@ bits on the rim).
 | `ImpactVfx`, `RingVfx`, `BlastVfx` | `src/vfx/` | a hit's flash (`ImpactVfx.sparks`: bits only), a ring (GROUND), a burst: all in an element's ramp and bits |
 | `TelegraphView` | `src/vfx/telegraph_view.gd`, `telegraph.gdshader` | CIRCLE, CONE, LINE, LANES (one per shot of a fan or ring); `show_skill(skill, angle, progress, body_radius)` picks the shape from the skill (radius, shots, dash, area) |
 | Particles | `src/vfx/particles/`, `src/vfx/ambient/`, `pixel_particles.gdshader(.inc)` | materials `pixel_particles` (dither per art pixel), `_motes` (whole motes come and go), `_glow` (added light, stepped brightness); `PixelMotes` (`src/vfx/ambient/pixel_motes.gd`) simulates ambient motes by hand on the grid |
-| `StatusLookDef`, `StatusFx` | `data/vfx/status_looks/`, `src/vfx/status_fx.gd` | particle, motes (EMBER, BUBBLE, CHIP), crust (rime), mist, burst, all at texel 2 in the element's ramp |
+| `StatusLookDef`, `StatusFx` | `data/vfx/status_looks/`, `src/vfx/status_fx.gd` | particle, motes (EMBER, BUBBLE, CHIP), crust (rime), mist, burst, all at texel 2 in the element's ramp; `body` (HEAT, RIME, WAVE, FLICKER: what the body shader paints), `heavy_at` |
+| `BodyLook`, `flash.gdshader` | `src/vfx/body_look.gd`, `assets/shaders/flash.gdshader` | the body shader (section 9): statuses, a storm hit's crackle, an elite's rim, deaths; `BodyLook.ramps()` / `row(element)`, `warm_up(parent)`; the rig's `look` |
+| `DeathLookDef`, `DeathFx`, `DeathPiecesVfx` | `data/vfx/deaths/`, `src/vfx/death_fx.gd`, `src/vfx/death_pieces_vfx.gd` | a death by element (`VfxElementDef.death`, `HitInfo.element` of the killing blow, ticks included): style, timing, chunks, burst, shards, motes, piece, mark |
 | Tools | `tools/vfx/` | `vfxkit.py` (palette-locked drawing), `recolor.py` (palette swap to a file), `check.py` (palette, hard alpha, whole cells), `strokes.py` (lines, jagged paths, rims, glints, rhombi, ellipses), `liquid.py` (round, wet shapes: tubes, lumps of gas, drops, bubbles, rings), one rebuildable script per kit: `frost.py`, `fire.py`, `earth.py`, `storm.py`, `holy.py`, `shadow.py`, `arcane.py`, `poison.py`, `blood.py`, `spirit.py` |
 
 Which slow shows what: a slow carries an element (`StatusSet.apply_slow(..., element)`, frost
@@ -253,7 +256,8 @@ slicer, element exports) serves the others; what each still needs:
 - **Storm** (done): stays electric violet-white (holy owns gold); the Storm synergy, Thunder,
   its tome, Spark Wand, Spark Nova, Thunderclap, Shock Roll, Frenzy wear the storm's color.
   Thunder, Spark Wand/Nova, chain lightning (synergy, Spark Rune, Thundering), Thunderclap,
-  Shock Roll and the Gale Rune are storm. Left: arcs on a shocked body (no shock status yet);
+  Shock Roll and the Gale Rune are storm. A storm hit crackles over the body (section 9). Left:
+  no shock status yet;
   `thunder.png` and the skill icons are unused/untouched art.
 - **Holy** (done): Smite, Holy Light, Holy Shield, holy heals; `Vfx.magic` is the holy sigil
   for every heal, buff, learned skill, level up and sealed room (holy for gold, painted in the
@@ -296,3 +300,85 @@ slicer, element exports) serves the others; what each still needs:
   (`impact_sound` is empty everywhere); the actor's debug fallback body (no sprite) is smooth.
   Every element's sheets have their layer (a new sheet that says nothing is AIR: a nova piece,
   a strike or a mark must say GROUND or STANDING, the vfx tests check the pieces).
+
+## 9. Shaders on bodies
+
+A body's statuses, an elite's rim and its death are painted on the body itself by the rig's
+shader (`assets/shaders/flash.gdshader`, on the `Visual` node: the body, armor, helmet and
+weapon sprites share it), driven by `BodyLook` (`src/vfx/body_look.gd`, the rig's `look`).
+StatusFx's flames, crystals, bubbles and mist stay as the accent; the shader is the base. One
+shader for everything, flags as uniforms: each rig already had its own material (the hit
+flash), so nothing about batching changes.
+
+### The grid trick
+
+- **Work in the sprite's texel space.** `vertex()` passes `VERTEX` (the sprite's local space:
+  one unit = one texel = one art pixel, the Visual node scales it 2x) to a varying `local`;
+  `floor(local)` is the art pixel a fragment is in. Noise is per texel (`hash(cell)`), dither
+  is a 4x4 Bayer on the cell, heights are measured from the frame's bottom. Never `UV` noise:
+  frames are AtlasTextures packed in one sheet, and UV changes with the frame.
+- **Know the frame.** `frame_rect` (the shown frame's quad in local space, set on every frame
+  change: `ActorRig._fit_frame`) bounds every neighbour read (`ALPHA_AT(off)`): frames are packed
+  edge to edge in their sheet, and reading past the frame takes the next frame's pixels.
+- **Colors are ramp steps, never blends.** `ramps` is a small texture, a row per element, its
+  ramp in 5 steps core to edge (`BodyLook.ramps()`, `row(element)`; rounded to 8 bits by hand:
+  `Image.set_pixel` truncates and would put 239 where the ramp says 240). A sprite color is
+  repainted in an element by its brightness (`luma_step`: bright = core, the dark outline = the
+  edge). Only the cold drain of a chill is a mix (toward a blue grey, in two steps).
+- **Distances to the edge** are read along the four axes, up to 3-4 texels (`edge` = 1 on the
+  rim): rime creeping inward, heat on the rim, a see-through rim. Outside the sprite (a texel
+  touching it: `TOUCHES_BODY`): an elite's rim, storm's outer sparks; not when armor layers are
+  on (a helmet's rim would cover the face: `outer_rim`).
+- **Time is stepped**: `floor(TIME * 10)` for the licks of heat, 12 for flickers, 60 for a
+  crackle's strikes, 24 for the frozen glint's sweep.
+- **GLSL limits met on the way**: `TEXTURE` can't be passed to a function (the macros
+  `ALPHA_AT`, `TOUCHES_BODY` read it inline); the node's `modulate` is applied after the
+  shader, so a recolored death sets the rig's modulate white first (DeathFx), or the corpse's
+  grey darkens its ramp; the room's light (LightField) is over the bodies, so near-white reads
+  beige by the hero's torch: rime uses the cyan steps, the core only on its lit rim.
+
+### Statuses (StatusLookDef.body)
+
+| Body | Status | What the shader does |
+|---|---|---|
+| HEAT | burn | tongues of heat two texels wide, each its own height (changing 10 times a second), on the lower rim and dithered in the lower half: bright at the base, red at the tips; a white-hot crackle and an ember crawling up the outline now and then. No orange wash. |
+| RIME | slow (frost, the cold) | colors drained toward a blue grey; rime from the edges inward, one texel deeper as the chill lasts (`chill` 0..1 over 1.2 s, jagged per texel), a lit cap on top, facet lines; the outline itself turns the ice's dark edge (on sand a pale rim made the body vanish). A slow at `heavy_at` (0.5) or more freezes: rime 3 texels deep and a glint sweeping diagonally every two seconds. |
+| WAVE | poison | a sparse sickly rim; on each tick (`since_tick`) a wave rises up the body in 0.5 s: a bright crest, a dithered wake. |
+| FLICKER | haunt (a wail) | the rim in the spirit's darker steps and half see-through (Bayer holes that move), the whole silhouette pale for a frame now and then (under two a second). |
+| (hit) | storm (`VfxElementDef.crackles`) | for 10 frames, on, on, off, off, on...: forks of the core running down the body, the rim crackling, sparks just outside. Over the hit flash. |
+
+Fewer effects (`Settings.fewer_effects`) turns all of these off, and the body takes the old
+steady 45% tint of the status's color (`Actor._body_modulate`); a body without frames too.
+
+### Deaths (DeathLookDef, `data/vfx/deaths/`)
+
+The killing hit's element (`Actor.killing_element()`: `HitInfo.element`; a burn's or poison's
+ticks carry theirs) picks `VfxElementDef.death`; none (a plain blow) is physical's.
+
+| Style | Elements | Body | Off it |
+|---|---|---|---|
+| DISSOLVE | physical, blood | pixels gone in a random order behind a glowing edge (as before) | the body's chunks and a puff of smoke (`chunks`) |
+| ASH | fire | burnt away from the feet up behind a ragged edge: core, bright, red steps; above it the body chars dark | embers rising off the front (`motes`), a scorch (`mark`) |
+| SHATTER | frost | frozen from the edges in (core on the lit rim), cracks (a Voronoi of 5 texels) showing, gone at half way | `DeathPiecesVfx.shards`: the frame broken into ~a dozen pieces of its own art, painted in ice, lit top left, dark bottom right, thrown out, one bounce, lying a moment, dithered away; the frost impact |
+| MELT | poison, water | each column sags toward the feet at its own pace, the base spreading; the ramp takes it from the top; dithered away | the element's puddle (`mark`) |
+| SCATTER | storm, arcane | two frames of the core, then flickering in the ramp while its pixels fly apart | the element's impact (forks, rune diamonds) |
+| ASCEND | holy | turned to light, lifted away from the feet up | the shaft of light (`piece`), motes rising off the front |
+| IMPLODE | shadow | drawn into one point (texels sampled further out each frame), a dark inside and a bright rim, down to two dark texels | the shadow impact: a ring collapsing |
+| WISP | spirit | pale, wavering and rising, dithered away from the feet first | pale flames (`piece`), motes |
+| CRUMBLE | earth | turned to stone, cracking, the columns slumping, gone in dust | the earth impact: chunks and dust |
+
+### Performance
+
+- Plain bodies take a cheap branch (the shader as it was: one read, the flash): measured equal
+  to the old shader. 30 bodies at the game's zoom, all burning, frozen and poisoned at once:
+  about +2.5 ms of raster on llvmpipe (software GL, a bench of 30 bare rigs; old 2.5-3.2 ms, plain
+  2.6-3.0, statuses 5.4-5.5, dying 4.8-5.2), which on a phone GPU is a few hundred thousand texel
+  reads: nothing. Draw calls: unchanged (one per body, as before).
+- CPU: `BodyLook.show_statuses` returns at once for a body with nothing on it; with three
+  statuses about 20 us per body on a loaded desktop (it sets a uniform only when its value
+  changes).
+- The status particles were thinned now that the body carries the look (burn 11 flames a
+  second to 4, two rime crystals instead of four, fewer bubbles and pale licks): fewer draw
+  calls with a burning pack.
+- `BodyLook.warm_up` draws the shader's busy path once under the floor when the world starts,
+  so the Compatibility renderer compiles it while loading, not at the first burning monster.

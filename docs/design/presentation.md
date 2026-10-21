@@ -97,9 +97,22 @@
   (it breaks into falling chips when the chill ends), sheds ice chips and breathes cold mist at
   its feet, with a burst of shards when it takes hold. Only frost and the cold show as frost:
   sand, ink, spores and quicksand slow without it, a wail with its own pale flicker (`OnHitStatus.slow_element`). The body
-  takes a steady 45% tint of the status's color (no pulsing glow). Their ticks show in the
-  status's color. Drawn by hand over the body, 24 bits at most each, and asleep when nothing is
-  on it.
+  itself is painted by the rig's shader in the status's element (`BodyLook`, docs/vfx.md
+  section 9): heat crawling up the lower rim of a burning body, rime creeping in from the edges
+  of a chilled one as the chill lasts (a hard chill freezes it over, a glint sweeping across), a
+  green wave rising up a poisoned one on each tick, a pale flicker and a see-through rim on a
+  wailed one; a storm hit crackles over the body for a frame or two. The particles are the
+  accent. With **Fewer effects** the shader leaves the statuses alone and the body takes a steady
+  45% tint of the status's color instead. Their ticks show in the status's color. Drawn by hand
+  over the body, 24 bits at most each, and asleep when nothing is on it.
+- **Deaths by element** (`DeathLookDef`, `data/vfx/deaths/`, one per element): a monster goes the
+  way the blow that killed it was made (a burn's last tick counts): fire burns it to ash from the
+  feet up, frost freezes it then shatters it into pieces of its own art, poison and water melt
+  it into a puddle, storm and arcane flash it and scatter it in sparks, holy lifts it away as
+  light, shadow sucks it into a dark point, spirit thins it into rising wisps, earth crumbles
+  it; a plain blow or blood dissolves it pixel by pixel with its chunks, as before.
+- **Elites** wear a rim of their rank's color around the body (one art pixel, a second dithered
+  on the beat), on top of their aura at the feet.
 - **SFX**: the `Sfx` autoload plays every sound. Weapons have attack and hit sounds, monsters hurt
   and death sounds, skills and consumables a use sound; everything else comes from
   `data/audio/sound_bank.tres`. Each sound is an `AudioStreamRandomizer` listing its variations.
@@ -145,8 +158,9 @@
 - **Hit stop**: a few frames of freeze on impacts (`HitStop.freeze(seconds)`).
 - **Light**: in steps, tile by tile (see [Lights](#lights)): the hero's torch, room lanterns, braziers,
   campfires, glowing shots and explosions light up each floor's own darkness.
-- **Shaders**: everything stays on the art's pixel grid. The rig shader flashes actors when hit and
-  dissolves monsters pixel by pixel when they die; light falls off in flat steps, tile by tile
+- **Shaders**: everything stays on the art's pixel grid. The rig shader flashes actors when hit,
+  paints their statuses and an elite's rim, and takes monsters away in the element that killed
+  them (computed in the sprite's own texels); light falls off in flat steps, tile by tile
   (`LightField`); a full-screen shader (`ScreenFx` in `game.tscn`) adds a dithered vignette,
   a bit of contrast and saturation, and splits the colors by whole pixels when the hero takes a big hit.
 - **Ambience** (`AmbienceDef`, `data/dungeon/ambience/`, set on each floor theme): footsteps that sound
@@ -192,7 +206,7 @@ Every actor (player and monsters) has a **rig**: `src/entities/rig/actor_rig.tsc
 
 ```
 Rig                  at the actor's feet
-└── Visual           flash shader, scaled 2x (units = art pixels)
+└── Visual           body shader (flash.gdshader: flash, statuses, rim, deaths), scaled 2x (units = art pixels)
     └── Squash       squash & stretch on hits
         ├── Body       AnimatedSprite2D: the character (SpriteFrames from the data)
         ├── BodyArmor  AnimatedSprite2D: worn body armor, same animation and frame as Body

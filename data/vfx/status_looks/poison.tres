@@ -9,9 +9,10 @@
 script = ExtResource("1")
 status = &"poison"
 element = ExtResource("2")
+body = 3
 particle = ExtResource("3")
 particle_frames = 6
-particle_rate = 4.5
+particle_rate = 3.0
 particle_life = 0.6
 particle_rise = 6.0
 mist_rate = 5.0

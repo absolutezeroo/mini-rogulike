@@ -30,6 +30,7 @@ func run() -> void:
 	_test_smooth_shapes()
 	_test_telegraphs()
 	_test_layers()
+	_test_body_shader()
 
 
 ## Each element: an id, a ramp of 3 to 5 colors from a bright core to a dark edge (shadow turned
@@ -666,6 +667,81 @@ func _test_layers() -> void:
 		sorted = sorted and piece.z_index == 0 and not piece.z_as_relative and piece.y_sort_enabled
 	check(sorted, "layers: each crystal sorts with the actors by its base")
 	nova.free()
+
+
+## Shaders on bodies (docs/vfx.md): every element has a death look, the statuses each paint
+## the body in their element's ramp through the rig's one material and stop when they end,
+## fewer effects turns them off, a storm hit crackles a few frames.
+func _test_body_shader() -> void:
+	var styles := {}
+	for element in VfxElementDef.all():
+		check(element.death != null, "body shader: %s has a death look (VfxElementDef.death)" % element.id)
+		if element.death:
+			styles[element.death.style] = true
+			check(element.death.duration > 0.0 and element.death.duration <= 1.0, "body shader: %s's death is over within a second" % element.id)
+	check(styles.size() == DeathLookDef.Style.size(), "body shader: every death style is someone's (%d of %d)" % [styles.size(), DeathLookDef.Style.size()])
+	check(DeathLookDef.of(null) == VfxElementDef.named(&"physical").death and DeathLookDef.of(null).style == DeathLookDef.Style.DISSOLVE, "body shader: a plain blow dissolves the body as before")
+	check(DeathLookDef.of(VfxElementDef.named(&"fire")).style == DeathLookDef.Style.ASH and DeathLookDef.of(VfxElementDef.named(&"frost")).shards, "body shader: fire burns to ash, frost shatters")
+	check(DeathLookDef.of(VfxElementDef.named(&"poison")).mark > 0.0, "body shader: poison melts into a puddle")
+	check(VfxElementDef.named(&"storm").crackles and not VfxElementDef.named(&"fire").crackles, "body shader: storm crackles over the bodies it hits")
+	for id: StringName in [&"burn", &"slow", &"poison", &"haunt"]:
+		var look := StatusFx.LOOKS.look(id)
+		check(look != null and look.body != StatusLookDef.Body.NONE, "body shader: %s paints the body" % id)
+	# The shader parses, with the uniforms BodyLook drives (a parse error leaves none).
+	var shader: Shader = load("res://assets/shaders/flash.gdshader")
+	var uniforms := shader.get_shader_uniform_list().map(func(u: Dictionary) -> String: return u.name)
+	for name: String in ["flash_amount", "dissolve", "ramps", "frame_rect", "burn", "chill", "frozen", "poison", "poison_wave", "haunt", "crackle", "outline_color", "death_style", "death_row"]:
+		check(uniforms.has(name), "body shader: the rig shader has its %s uniform" % name)
+	# The ramps: a row per element, each step an exact color of its ramp.
+	var ramps := BodyLook.ramps().get_image()
+	var exact := true
+	for element in VfxElementDef.all():
+		var row := BodyLook.row(element)
+		for x in BodyLook.STEPS:
+			exact = exact and ramps.get_pixel(x, row).to_html(false) == element.shade(float(x) / (BodyLook.STEPS - 1)).to_html(false)
+	check(exact, "body shader: the ramp texture holds every element's steps, exactly")
+	# Statuses set their uniforms and clear them.
+	var material := ShaderMaterial.new()
+	material.shader = shader
+	var look := BodyLook.new(material)
+	var statuses := StatusSet.new()
+	statuses.apply_dot(&"burn", 1, 0.5, 3.0, null, Palette.FIRE)
+	look.show_statuses(statuses, 0.3, true)
+	check(float(material.get_shader_parameter("burn")) > 0.0 and int(material.get_shader_parameter("burn_row")) == BodyLook.row(VfxElementDef.named(&"fire")), "body shader: a burn paints the body in fire")
+	check(statuses._dots[0].element == VfxElementDef.named(&"fire"), "body shader: a burn's ticks are fire (burnt to death: ash)")
+	statuses.apply_slow(0.3, 3.0)
+	look.show_statuses(statuses, 0.1, true)
+	check(float(material.get_shader_parameter("chill")) > 0.0 and float(material.get_shader_parameter("frozen")) == 0.0, "body shader: a chill grows rime, a light one doesn't freeze")
+	statuses.apply_slow(0.7, 3.0, &"freeze")
+	look.show_statuses(statuses, 0.1, true)
+	check(float(material.get_shader_parameter("frozen")) == 1.0, "body shader: a heavy chill freezes the body over")
+	look.show_statuses(statuses, 0.1, false)
+	check(float(material.get_shader_parameter("burn")) == 0.0 and float(material.get_shader_parameter("chill")) == 0.0, "body shader: fewer effects turns the statuses off")
+	statuses.clear()
+	statuses.apply_dot(&"poison", 1, 1.0, 3.0, null, Palette.FIRE)
+	look.show_statuses(statuses, 0.1, true)
+	check(float(material.get_shader_parameter("poison")) == 1.0 and float(material.get_shader_parameter("poison_wave")) <= 1.0, "body shader: poison takes hold with a wave up the body")
+	statuses.clear()
+	look.show_statuses(statuses, 0.1, true)
+	var off := true
+	for name: String in ["burn", "chill", "frozen", "poison", "haunt", "crackle"]:
+		off = off and float(material.get_shader_parameter(name)) == 0.0
+	check(off, "body shader: statuses gone, the body is itself again")
+	statuses.apply_slow(0.3, 3.0, &"hit", VfxElementDef.named(&"spirit"))
+	look.show_statuses(statuses, 0.1, true)
+	check(float(material.get_shader_parameter("haunt")) == 1.0 and float(material.get_shader_parameter("chill")) == 0.0, "body shader: a wail haunts, it doesn't freeze")
+	statuses.clear()
+	look.hit(VfxElementDef.named(&"storm"))
+	look.show_statuses(statuses, 0.016, true)
+	var crackled := float(material.get_shader_parameter("crackle")) == 1.0
+	for i in BodyLook.CRACKLE.size():
+		look.show_statuses(statuses, 0.016, true)
+	check(crackled and float(material.get_shader_parameter("crackle")) == 0.0, "body shader: a storm hit crackles a few frames, then stops")
+	look.hit(VfxElementDef.named(&"fire"))
+	look.show_statuses(statuses, 0.016, true)
+	check(float(material.get_shader_parameter("crackle")) == 0.0, "body shader: a fire hit doesn't crackle")
+	look.die(DeathLookDef.of(VfxElementDef.named(&"holy")), VfxElementDef.named(&"holy"))
+	check(int(material.get_shader_parameter("death_style")) == DeathLookDef.Style.ASCEND and int(material.get_shader_parameter("death_row")) == BodyLook.row(VfxElementDef.named(&"holy")), "body shader: a holy death lifts the body away in holy's ramp")
 
 
 # --- Helpers -------------------------------------------------------------------

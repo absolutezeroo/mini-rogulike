@@ -112,8 +112,11 @@ static func shockwave(world: World, at: Vector2, reach: float, strength: float =
 	world.spawn_vfx(ShockwaveVfx.create(at, reach, strength))
 
 
-## Chunks in the monster's color plus a puff of smoke.
-static func death(world: World, at: Vector2, color: Color) -> void:
+## Chunks in the monster's color plus a puff of smoke: a plain blow's death (an element's own
+## death, `look`, may have its pieces instead: DeathFx).
+static func death(world: World, at: Vector2, color: Color, look: DeathLookDef = null) -> void:
+	if look and not look.chunks:
+		return
 	burst(world, DEATH_CHUNKS, at, color)
 	world.spawn_vfx(SheetVfx.create(SMOKE_SHEET, at + Vector2(0, -12), 0.0, 2.0, 14.0))
 

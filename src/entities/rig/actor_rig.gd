@@ -3,7 +3,8 @@ extends Node2D
 ## Visual body of an actor, animated frame by frame like a classic 2D RPG.
 ##
 ##   Rig (this, at the actor's feet)
-##   └── Visual        flash shader, scaled 2x (units inside = art pixels)
+##   └── Visual        body shader (flash.gdshader: hit flash, statuses, elite rim, deaths; driven
+##       │             by `look`, a BodyLook), scaled 2x (units inside = art pixels)
 ##       └── Squash    squash & stretch on hits, lunges
 ##           ├── Body       AnimatedSprite2D: idle_/walk_/attack_/hit_/dash_ + down/up/left/right, dead,
 ##           │              and for bosses cast (telegraphed skills) and intro (wakes up)
@@ -36,6 +37,8 @@ var _weapon_def: WeaponDef
 ## `pallor_color` for good, under the hit flash.
 var pallor := 0.0
 var pallor_color := Color.WHITE
+## What the body shader paints on it (statuses, an elite's rim, its death).
+var look: BodyLook
 
 @onready var visual: Node2D = $Visual
 @onready var squash_node: Node2D = $Visual/Squash
@@ -48,6 +51,9 @@ var pallor_color := Color.WHITE
 func _ready() -> void:
 	body.animation_finished.connect(_on_body_animation_finished)
 	weapon.visible = false
+	look = BodyLook.new(visual.material as ShaderMaterial)
+	body.frame_changed.connect(_fit_frame)
+	body.animation_changed.connect(_fit_frame)
 
 
 func setup(frames: SpriteFrames, offset: Vector2) -> void:
@@ -55,6 +61,7 @@ func setup(frames: SpriteFrames, offset: Vector2) -> void:
 	for sprite: AnimatedSprite2D in [body, body_armor, helmet, weapon]:
 		sprite.offset = offset
 	_play(&"idle")
+	_fit_frame()
 
 
 ## Shows (or hides, with null frames) the armor worn on `slot` (HEAD or BODY).
@@ -171,7 +178,9 @@ func play_intro() -> void:
 	_play(&"intro", 1.0, true)
 
 
-func play_hurt() -> void:
+## Hit (by `element`: a storm hit crackles over the body).
+func play_hurt(element: VfxElementDef = null) -> void:
+	look.hit(element)
 	_flash = FLASH_TIME
 	_squash = SQUASH_TIME
 	_hurt = HURT_TIME
@@ -187,12 +196,13 @@ func play_death() -> void:
 		tween.tween_property(squash_node, "rotation", -PI / 2.0, 0.25)
 
 
-## Pixels vanish one by one, then `finished` is called (monster deaths).
-func dissolve(duration: float, finished: Callable) -> void:
+## Goes as `death` says in `element`'s ramp (the body shader's death), then `finished` is
+## called (monster deaths; what flies off it: DeathFx).
+func dissolve(death: DeathLookDef, element: VfxElementDef, finished: Callable) -> void:
+	look.die(death, element)
 	var tween := create_tween()
-	tween.tween_interval(0.15)
-	tween.tween_method(func(value: float) -> void:
-		(visual.material as ShaderMaterial).set_shader_parameter("dissolve", value), 0.0, 1.0, duration)
+	tween.tween_interval(death.delay)
+	tween.tween_method(look.set_dying, 0.0, 1.0, death.duration)
 	tween.tween_callback(finished)
 
 
@@ -208,24 +218,41 @@ func _process(delta: float) -> void:
 	_squash = maxf(_squash - delta, 0.0)
 	var t := _squash / SQUASH_TIME
 	squash_node.scale = Vector2(1.0 + 0.25 * t, 1.0 - 0.2 * t)
-	var look := visual.material as ShaderMaterial
-	look.set_shader_parameter("flash_amount", 1.0 if _flash > 0.0 else pallor)
+	var material := visual.material as ShaderMaterial
+	material.set_shader_parameter("flash_amount", 1.0 if _flash > 0.0 else pallor)
 	if pallor > 0.0:
-		look.set_shader_parameter("flash_color", Color.WHITE if _flash > 0.0 else pallor_color)
+		material.set_shader_parameter("flash_color", Color.WHITE if _flash > 0.0 else pallor_color)
 	_sync_layers()
 
 
 ## Armor layers show the same animation and frame as the body (hidden if they don't have it).
 func _sync_layers() -> void:
+	var layered := false
 	for layer: AnimatedSprite2D in [body_armor, helmet]:
 		if layer.sprite_frames == null:
 			continue
 		var shown := layer.sprite_frames.has_animation(body.animation)
 		layer.visible = shown
+		layered = layered or shown
 		if shown:
 			if layer.animation != body.animation:
 				layer.animation = body.animation
 			layer.frame = body.frame
+	look.layered = layered
+
+
+## The shader's idea of the body's frame (its quad in the sprite's local space, art pixels), so
+## its heights, edges and deaths are measured on the frame shown, never reading the next frame
+## of the sheet.
+func _fit_frame() -> void:
+	if body.sprite_frames == null or not body.sprite_frames.has_animation(body.animation):
+		return
+	var texture := body.sprite_frames.get_frame_texture(body.animation, body.frame)
+	if texture == null:
+		return
+	var size := texture.get_size()
+	var corner := body.offset - (size / 2.0 if body.centered else Vector2.ZERO)
+	look.set_frame(Rect2(corner, size))
 
 
 # --- Helpers -----------------------------------------------------------------

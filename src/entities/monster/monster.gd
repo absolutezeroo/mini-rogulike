@@ -158,6 +158,8 @@ func make_ranked(new_rank: MonsterRankDef, new_affixes: Array[EliteAffixDef]) ->
 		var look := rig.visual.material as ShaderMaterial
 		look.set_shader_parameter("hue_shift", rank.hue_shift)
 		look.set_shader_parameter("shimmer", 1.0 if rank.shimmer else 0.0)
+	if rig:
+		rig.look.outline = rank_color()  # a rim of its color around the body (BodyLook)
 
 
 func is_elite() -> bool:
@@ -600,7 +602,7 @@ func _on_died(killer: Actor) -> void:
 		Vfx.boss_death(world, global_position + Vector2(0, -head_height * 0.5), radius * 1.5)
 		HitStop.freeze(0.25)
 	else:
-		Vfx.death(world, global_position, def.color)
+		Vfx.death(world, global_position, def.color, DeathLookDef.of(killing_element()))
 		if killer is Player:
 			_kill_punch()
 	world.add_splat(global_position, def.splat_color, clampf(radius / 11.0, 0.8, 2.2))

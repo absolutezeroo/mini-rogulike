@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" path="res://assets/fx/earth/earth_spike.png" id="5"]
 [ext_resource type="Texture2D" path="res://assets/fx/earth/earth_burst.png" id="6"]
 [ext_resource type="AudioStream" path="res://data/audio/crumble.tres" id="7"]
+[ext_resource type="Resource" path="res://data/vfx/deaths/crumble.tres" id="death"]
 
 [sub_resource type="Resource" id="shot"]
 script = ExtResource("2")
@@ -42,6 +43,7 @@ linger = 1.2
 
 [resource]
 script = ExtResource("1")
+death = ExtResource("death")
 id = &"earth"
 ramp = PackedColorArray(0.960784, 0.901961, 0.768627, 1, 0.823529, 0.701961, 0.490196, 1, 0.639216, 0.458824, 0.305882, 1, 0.419608, 0.313725, 0.25098, 1, 0.231373, 0.196078, 0.219608, 1)
 residue = Color(0.784314, 0.690196, 0.541176, 0.9)

@@ -69,6 +69,11 @@ enum Motion {
 ## shows: frost's is &"slow" (rime, cold mist). Empty: being slowed by it shows nothing (sand,
 ## ink: they slow, they don't freeze).
 @export var slow_look: StringName
+## How a body it kills goes (data/vfx/deaths/: burns to ash, shatters, melts...), in its ramp.
+## Every element has one (the vfx tests check it).
+@export var death: DeathLookDef
+## A body it hits crackles a moment: forks of its ramp on the rim for a frame or two (storm).
+@export var crackles: bool = false
 ## Its impact sound (the "sound family" of docs/vfx.md). Optional.
 @export var impact_sound: AudioStream
 
