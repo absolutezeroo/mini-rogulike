@@ -4,7 +4,7 @@ extends Resource
 ## The hero is a ninja going down the Well under their village to bring back the souls it stole:
 ## souls are what monsters drop, what the shrine turns into upgrades, what bosses guard.
 
-@export var title: String = "Le Puits des Âmes"
+@export var title: String = "The Well of Souls"
 @export var tagline: String = ""
 ## Told before the first run (and from the title screen). One page per entry.
 @export_multiline var intro_pages: PackedStringArray = []

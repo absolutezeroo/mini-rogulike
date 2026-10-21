@@ -206,7 +206,7 @@ func _test_content() -> void:
 	check(CONTENT.all_monsters().any(func(m: MonsterDef) -> bool: return m.flies), "some monsters fly")
 	check(CONTENT.sounds.fall != null and CONTENT.sounds.ambush != null and CONTENT.sounds.soul != null, "falls, ambushes and souls have sounds")
 	var story := CONTENT.story
-	check(story != null and story.title == "Le Puits des Âmes" and not story.tagline.is_empty(), "the game has its name")
+	check(story != null and story.title == "The Well of Souls" and not story.tagline.is_empty(), "the game has its name")
 	check(story.intro_pages.size() >= 4 and not story.victory_text.is_empty() and story.death_lines.size() >= 2, "the story is written")
 	check(CONTENT.floor_events.size() >= 5, "special floors listed")
 	for act in CONTENT.dungeon.acts:
