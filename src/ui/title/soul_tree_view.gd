@@ -85,13 +85,13 @@ func _draw() -> void:
 		var color := tree.branch_colors[i] if i < tree.branch_colors.size() else Color.WHITE
 		var band := Rect2(i * 3 * column + 4.0, 0.0, 3 * column - 8.0, size.y)
 		draw_rect(band, Color(color, 0.07))
-		var title := tree.branches[i]
+		var title := tr(tree.branches[i])
 		var width := font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x
 		var x := band.position.x + (band.size.x - width) * 0.5
 		draw_string_outline(font, Vector2(x, 24), title, HORIZONTAL_ALIGNMENT_LEFT, -1, 20, 5, Color(0.12, 0.07, 0.05))
 		draw_string(font, Vector2(x, 24), title, HORIZONTAL_ALIGNMENT_LEFT, -1, 20, color.lerp(Color.WHITE, 0.3))
 		if i < tree.branch_texts.size():
-			draw_multiline_string(font, Vector2(band.position.x + 6, 42), tree.branch_texts[i], HORIZONTAL_ALIGNMENT_CENTER, band.size.x - 12, 12, 2, UiSkin.DIM)
+			draw_multiline_string(font, Vector2(band.position.x + 6, 42), tr(tree.branch_texts[i]), HORIZONTAL_ALIGNMENT_CENTER, band.size.x - 12, 12, 2, UiSkin.DIM)
 	# The paths: from each node up to the nodes it needs.
 	for node in tree.nodes:
 		if node == null:

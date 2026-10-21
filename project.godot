@@ -14,7 +14,12 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
 
-config/name="Mini Roguelike"
+config/name="The Well of Souls"
+config/name_localized={
+"fr": "Le Puits des Âmes"
+}
+config/use_custom_user_dir=true
+config/custom_user_dir_name="godot/app_userdata/Mini Roguelike"
 config/quit_on_go_back=false
 config/description="Real-time action roguelike built with GDScript."
 run/main_scene="res://src/ui/title/title_screen.tscn"
@@ -140,6 +145,10 @@ inventory={
 [input_devices]
 
 pointing/emulate_touch_from_mouse=true
+
+[internationalization]
+
+locale/translations=PackedStringArray("res://locale/strings.en.translation", "res://locale/strings.fr.translation")
 
 [layer_names]
 

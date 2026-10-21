@@ -600,9 +600,9 @@ func _on_seal_broken() -> void:
 	var stairs_at := map.cell_to_world(map.stairs_cell)
 	Sfx.play_at(Sfx.bank.gate, player.global_position if player else stairs_at)
 	if stairs_cells.size() >= 2 and next_routes.size() >= 2:
-		Events.log_message("The seal breaks: two ways down. %s, or %s." % [next_routes[0].summary(), next_routes[1].summary()], Palette.GOLD)
+		Events.log_message(tr("The seal breaks: two ways down. %s, or %s.") % [next_routes[0].summary(), next_routes[1].summary()], Palette.GOLD)
 	else:
-		Events.log_message("The seal breaks: the stairs are open!", Palette.GOLD)
+		Events.log_message(tr("The seal breaks: the stairs are open!"), Palette.GOLD)
 	for cell in stairs_cells:
 		flash_light(map.cell_to_world(cell), Palette.GOLD, 220.0)
 	if player:
@@ -638,7 +638,8 @@ func _on_stairs_blocked() -> void:
 		return
 	_blocked_note_at = now
 	Sfx.play_ui(Sfx.bank.ui_close, -4.0)
-	Events.log_message("Sealed. Slay %d more monster%s to open the stairs." % [seal.left(), "" if seal.left() == 1 else "s"], Palette.SEAL)
+	var sealed := tr("Sealed. Slay %d more monster to open the stairs.") if seal.left() == 1 else tr("Sealed. Slay %d more monsters to open the stairs.")
+	Events.log_message(sealed % seal.left(), Palette.SEAL)
 
 
 ## The floor's way down, or two when `next_routes` offers a choice (each with its sign).

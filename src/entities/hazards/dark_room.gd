@@ -44,7 +44,7 @@ func _process(_delta: float) -> void:
 	if not _entered and covers(player.global_position):
 		_entered = true
 		if not def.message.is_empty():
-			Events.log_message(def.message, Color("8e86a8"))
+			Events.log_message(tr(def.message), Color("8e86a8"))
 
 
 func _draw() -> void:

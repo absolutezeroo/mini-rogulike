@@ -121,7 +121,7 @@ func sell_to(player: Player, index: int) -> bool:
 	stock.remove_at(index)
 	_world.bought.append(LootRoller.to_data(entry.item))
 	Sfx.play_ui(Sfx.bank.coin)
-	Events.log_message("Bought %s" % entry.item.display_name, entry.item.rarity_color())
+	Events.log_message(tr("Bought %s") % tr(entry.item.display_name), entry.item.rarity_color())
 	return true
 
 
@@ -153,7 +153,7 @@ func buy_from(player: Player, item: ItemDef, from_belt := false) -> bool:
 	player.add_gold(price)
 	_add(item)
 	Sfx.play_ui(Sfx.bank.coin)
-	Events.log_message("Sold %s for %d gold" % [item.display_name, price], Palette.GOLD)
+	Events.log_message(tr("Sold %s for %d gold") % [tr(item.display_name), price], Palette.GOLD)
 	return true
 
 

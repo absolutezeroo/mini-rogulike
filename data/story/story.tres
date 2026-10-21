@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_22qmx")
+title = "The Well of Souls"
 tagline = "Go down the Well. Bring the souls back. Become who you need to be."
 intro_pages = PackedStringArray("Under the village of Kagari lies an old well.\nNobody draws water from it.\nThe elders say it has no bottom.", "On a night without a moon, the Well woke up.\nA cold wind went through every house...\nBy morning, the villagers were asleep, and would not wake.", "Their souls were gone. Down the Well, where the dead things feed on them.", "Only you were spared: the ninja keeping watch at the shrine,\nwith the shrine\'s lantern in your hand.", "Three wardens guard the stolen souls, deeper and deeper in the Well.", "Take the lantern. Go down.\nEvery soul you bring back, the shrine turns into strength.\nSword, spells or faith: become who you need to be.")
 victory_text = "The Keeper of the Well falls. Its hoard of stolen souls breaks open,

@@ -5,9 +5,9 @@ extends ItemDef
 enum Slot { WEAPON, HEAD, BODY }
 
 const SLOT_NAMES := {
-	Slot.WEAPON: "Weapon",
-	Slot.HEAD: "Head",
-	Slot.BODY: "Body",
+	Slot.WEAPON: "Weapon",  # i18n
+	Slot.HEAD: "Head",  # i18n
+	Slot.BODY: "Body",  # i18n
 }
 
 @export var slot: Slot = Slot.BODY

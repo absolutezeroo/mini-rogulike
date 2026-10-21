@@ -82,8 +82,8 @@ func shift(change: ArenaShiftDef) -> void:
 	if cells.is_empty():
 		return
 	if not change.message.is_empty():
-		Events.log_message(change.message, Palette.DANGER)
-		_world.spawn_floating_text(boss.head_position() + Vector2(0, -28), change.message.to_upper(), Palette.DANGER)
+		Events.log_message(tr(change.message), Palette.DANGER)
+		_world.spawn_floating_text(boss.head_position() + Vector2(0, -28), tr(change.message).to_upper(), Palette.DANGER)
 	var warning := CellWarning.create(cells, _world.map.tile_size, change.warning_time)
 	_world.spawn_vfx(warning)
 	var floor_id := _world.floor_id

@@ -8,7 +8,7 @@ const SOUL := Color(0.65, 0.95, 1.0)
 const DONE := Palette.HEAL
 ## The widths of a run's fact columns.
 const RUN_COLUMNS := [190.0, 290.0, 170.0]
-const MONTHS := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+const MONTHS := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]  # i18n
 
 
 static func souls(amount: int) -> String:

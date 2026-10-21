@@ -340,7 +340,7 @@ func _build() -> void:
 	gear_row.add_child(_portrait)
 	for slot: EquipmentDef.Slot in [EquipmentDef.Slot.WEAPON, EquipmentDef.Slot.HEAD, EquipmentDef.Slot.BODY]:
 		var button := ItemSlot.new(GEAR_SLOT)
-		button.caption = EquipmentDef.SLOT_NAMES[slot]
+		button.caption = tr(EquipmentDef.SLOT_NAMES[slot])
 		button.name = "%sSlot" % EquipmentDef.SLOT_NAMES[slot]
 		button.pressed.connect(_select_slot.bind(slot))
 		_own(button)

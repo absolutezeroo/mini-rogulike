@@ -70,7 +70,7 @@ static func set_rune(player: Player, weapon: EquipmentDef, rune: RuneDef) -> Equ
 	worked.runes.append(rune)
 	player.inventory.remove(rune)
 	_put_back(player, weapon, worked)
-	Events.log_message("%s set into %s" % [rune.display_name, worked.display_name], rune.rarity_color())
+	Events.log_message(TranslationServer.tr("%s set into %s") % [TranslationServer.tr(rune.display_name), TranslationServer.tr(worked.display_name)], rune.rarity_color())
 	return worked
 
 
@@ -85,7 +85,7 @@ static func take_rune(player: Player, weapon: EquipmentDef, index: int, price: i
 	weapon.runes.remove_at(index)
 	player.inventory.add(rune)
 	_put_back(player, weapon, weapon)
-	Events.log_message("%s taken out of %s" % [rune.display_name, weapon.display_name], rune.rarity_color())
+	Events.log_message(TranslationServer.tr("%s taken out of %s") % [TranslationServer.tr(rune.display_name), TranslationServer.tr(weapon.display_name)], rune.rarity_color())
 	return true
 
 

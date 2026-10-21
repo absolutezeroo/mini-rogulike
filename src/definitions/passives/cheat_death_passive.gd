@@ -17,7 +17,7 @@ func prevent_death(owner: Actor, perk: PerkSet.Entry) -> bool:
 	var ratio := boss_fight_heal_ratio if owner.world and owner.world.is_boss_fight() else heal_ratio
 	owner.hp = maxi(1, roundi(owner.get_max_hp() * ratio))
 	owner.health_changed.emit(owner.hp, owner.get_max_hp())
-	owner.world.spawn_floating_text(owner.head_position(), perk.perk.display_name.to_upper(), color)
+	owner.world.spawn_floating_text(owner.head_position(), tr(perk.perk.display_name).to_upper(), color)
 	Vfx.magic(owner.world, owner.global_position, color)
 	Combat.damage_area(owner.world, owner, owner.global_position, 110.0, owner.get_power(), 320.0, true)
 	return true

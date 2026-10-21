@@ -24,7 +24,7 @@ func _physics_process(delta: float) -> void:
 		camped = maxf(camped - delta * 0.5, 0.0)
 	if not _warned and camped >= limit * 0.6:
 		_warned = true
-		Events.log_message(source.def.camp_warning, Palette.DANGER)
+		Events.log_message(tr(source.def.camp_warning), Palette.DANGER)
 		world.spawn_floating_text(source.global_position + Vector2(0, -30), "!", Palette.DANGER)
 		Sfx.play_at(Sfx.bank.monster_alert, source.global_position)
 	if camped >= limit:
@@ -48,6 +48,6 @@ func invade() -> void:
 	waves += 1
 	camped = 0.0
 	_warned = false
-	Events.log_message(source.def.invasion_message, Palette.DANGER)
+	Events.log_message(tr(source.def.invasion_message), Palette.DANGER)
 	Events.screen_shake.emit(0.4)
 	Sfx.play_at(Sfx.bank.ambush, source.global_position)

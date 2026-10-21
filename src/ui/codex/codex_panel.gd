@@ -8,13 +8,13 @@ extends Control
 
 enum Tab { QUESTS, BESTIARY, ACHIEVEMENTS, RUNS }
 
-const TAB_NAMES := ["Quests", "Bestiary", "Achievements", "Runs"]
+const TAB_NAMES := ["Quests", "Bestiary", "Achievements", "Runs"]  # i18n
 ## What each tab is for, under its summary.
 const TAB_HELP := [
-	"Quests change every day and every week. Everything you do in any run counts toward them, and a finished quest pays its souls at once. Souls are kept between runs: spend them at the Shrine on lasting upgrades.",
-	"Every monster you meet goes in here. Slay more of a kind to raise your hunter rank with it: each rank pays souls, and Mastered also gives +%d%% damage against that kind for good. Tap a monster for its attacks and challenges.",
-	"Big goals across all your runs. Reaching one pays its souls at once.",
-	"Your last runs, newest first. Gold is lost when a run ends; souls are kept.",
+	"Quests change every day and every week. Everything you do in any run counts toward them, and a finished quest pays its souls at once. Souls are kept between runs: spend them at the Shrine on lasting upgrades.",  # i18n
+	"Every monster you meet goes in here. Slay more of a kind to raise your hunter rank with it: each rank pays souls, and Mastered also gives +%d%% damage against that kind for good. Tap a monster for its attacks and challenges.",  # i18n
+	"Big goals across all your runs. Reaching one pays its souls at once.",  # i18n
+	"Your last runs, newest first. Gold is lost when a run ends; souls are kept.",  # i18n
 ]
 
 var _content: ContentDB

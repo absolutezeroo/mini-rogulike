@@ -61,7 +61,7 @@ func setup(player_def: PlayerDef) -> void:
 	def = player_def
 	faction = Faction.PLAYER
 	free_on_death = false
-	display_name = def.display_name
+	display_name = tr(def.display_name)
 	body_color = def.color
 	frames = def.frames
 	frames_offset = def.frames_offset
@@ -199,7 +199,7 @@ func _rebuild_skills(new_skill_cooldown: float) -> void:
 func learn_skill(skill: SkillDef) -> void:
 	learned_skill = skill
 	_rebuild_skills(0.0)
-	Events.log_message("Learned %s!" % skill.display_name, skill.color)
+	Events.log_message(tr("Learned %s!") % tr(skill.display_name), skill.color)
 	Vfx.magic(world, global_position, skill.color)
 	Sfx.play_ui(Sfx.bank.level_up)
 
@@ -220,14 +220,14 @@ func can_store(item: ItemDef) -> bool:
 func pick_up(item: ItemDef) -> bool:
 	if item is EquipmentDef and equipment.get_item(item.slot) == null:
 		equipment.equip(item)
-		Events.log_message("Equipped %s" % item.display_name, item.color)
+		Events.log_message(tr("Equipped %s") % tr(item.display_name), item.color)
 		_pickup_feedback(item, Sfx.bank.equip)
 		return true
 	if store(item):
-		Events.log_message("Picked up %s" % item.display_name, item.rarity_color() if item is RuneDef else item.color)
+		Events.log_message(tr("Picked up %s") % tr(item.display_name), item.rarity_color() if item is RuneDef else item.color)
 		_pickup_feedback(item, Sfx.bank.pickup)
 		return true
-	Events.log_message("Inventory full!", Palette.DANGER)
+	Events.log_message(tr("Inventory full!"), Palette.DANGER)
 	return false
 
 
@@ -244,7 +244,7 @@ func use_item(item: ItemDef) -> void:
 	if item is ConsumableDef:
 		inventory.remove(item)
 		item.use(self, get_aim_direction(SKILL_AIM_RANGE))
-		Events.log_message("Used %s" % item.display_name, item.color)
+		Events.log_message(tr("Used %s") % tr(item.display_name), item.color)
 		consumable_used.emit(item)
 	elif item is SkillTomeDef:
 		inventory.remove(item)
@@ -255,14 +255,14 @@ func use_item(item: ItemDef) -> void:
 		if previous:
 			inventory.add(previous)
 		Sfx.play_ui(Sfx.bank.equip)
-		Events.log_message("Equipped %s" % item.display_name, item.color)
+		Events.log_message(tr("Equipped %s") % tr(item.display_name), item.color)
 
 
 func unequip(slot: EquipmentDef.Slot) -> void:
 	if equipment.get_item(slot) == null:
 		return
 	if inventory.is_full():
-		Events.log_message("Inventory full!", Palette.DANGER)
+		Events.log_message(tr("Inventory full!"), Palette.DANGER)
 		return
 	inventory.add(equipment.unequip(slot))
 
@@ -278,7 +278,7 @@ func use_belt(index: int) -> void:
 		return
 	var item := belt.take(index)
 	item.use(self, get_aim_direction(SKILL_AIM_RANGE))
-	Events.log_message("Used %s" % item.display_name, item.color)
+	Events.log_message(tr("Used %s") % tr(item.display_name), item.color)
 	consumable_used.emit(item)
 
 
@@ -316,8 +316,8 @@ func gain_xp(amount: int) -> void:
 		invalidate_stats()
 		hp = get_max_hp()
 		health_changed.emit(hp, get_max_hp())
-		Events.log_message("Level up! You are now level %d" % level, Palette.GOLD)
-		world.spawn_floating_text(head_position() + Vector2(0, -10), "LEVEL UP", Palette.GOLD)
+		Events.log_message(tr("Level up! You are now level %d") % level, Palette.GOLD)
+		world.spawn_floating_text(head_position() + Vector2(0, -10), tr("LEVEL UP"), Palette.GOLD)
 		Vfx.magic(world, global_position, Palette.GOLD)
 		Sfx.play_ui(Sfx.bank.level_up)
 		leveled_up.emit(level)
@@ -416,9 +416,9 @@ func _on_fell(pit: PitDef) -> void:
 	global_position = _safe_position
 	_recover_from_fall()
 	Vfx.puff(world, global_position)
-	Events.log_message("You fell into a hole!", Palette.DANGER)
+	Events.log_message(tr("You fell into a hole!"), Palette.DANGER)
 	_invulnerable_time = 0.0
-	killed_by = "a fall"  # if this is what kills the hero
+	killed_by = tr("a fall")  # if this is what kills the hero
 	take_hit(Combat.make_secondary_hit(null, maxi(1, roundi(get_max_hp() * pit.fall_damage))))
 	if not is_dead:
 		killed_by = ""
@@ -429,7 +429,7 @@ func _on_fell(pit: PitDef) -> void:
 func give_up() -> void:
 	if is_dead:
 		return
-	killed_by = "giving up"
+	killed_by = tr("giving up")
 	hp = 0
 	health_changed.emit(hp, get_max_hp())
 	die(null)
@@ -463,7 +463,7 @@ func _on_damaged(hit: HitInfo, damage: int) -> void:
 
 
 func _on_died(_killer: Actor) -> void:
-	Events.log_message("You died.", Palette.DANGER)
+	Events.log_message(tr("You died."), Palette.DANGER)
 	camera.shake(1.0)
 	Vfx.death(world, global_position, def.color)
 

@@ -36,9 +36,9 @@ func _ready() -> void:
 	if biome and biome.theme:
 		Sfx.play_music(biome.theme.music)
 	if content.story:
-		(%Title as Label).text = content.story.title
-		(%Subtitle as Label).text = content.story.tagline
-		(%ShrineText as Label).text = content.story.shrine_text
+		(%Title as Label).text = tr(content.story.title)
+		(%Subtitle as Label).text = tr(content.story.tagline)
+		(%ShrineText as Label).text = tr(content.story.shrine_text)
 	_hero.sprite_frames = content.player.frames
 	_hero.play(&"idle_right")  # (looking at the Well)
 	# The hero on the Well's rim, the souls rising from it (the picture follows the screen's size).
@@ -113,7 +113,7 @@ func _setup_continue() -> void:
 	if saved.is_empty():
 		return
 	var player: Dictionary = saved.get("player", {})
-	button.text = "Continue your run  -  floor %d, level %d" % [int(saved.get("depth", 1)), int(player.get("level", 1))]
+	button.text = tr("Continue your run  -  floor %d, level %d") % [int(saved.get("depth", 1)), int(player.get("level", 1))]
 	button.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_click)
 		Game.resume_requested = true
@@ -173,7 +173,7 @@ func _button_label(font_size: int) -> Label:
 ## A small plaque on the Shrine button's corner when an upgrade can be bought.
 func _build_shrine_badge() -> void:
 	var button: Button = %ShrineButton
-	_shrine_badge = MenuWindow.badge("Upgrade ready", 14, MenuWindow.SOULS)
+	_shrine_badge = MenuWindow.badge(tr("Upgrade ready"), 14, MenuWindow.SOULS)
 	# Its right edge just past the button's, over the top edge (it grows to the left).
 	_shrine_badge.anchor_left = 1.0
 	_shrine_badge.anchor_right = 1.0
@@ -189,14 +189,14 @@ func _build_shrine_badge() -> void:
 func _refresh_daily() -> void:
 	var day := DailyRun.today()
 	var played := Profile.daily_played(day)
-	_daily_title.text = "Daily run: practice (today's try is done)" if played else "Daily run: same dungeon for everyone today"
-	_daily_text.text = "Everyone starts with %s" % DailyRun.describe(content, day)
+	_daily_title.text = tr("Daily run: practice (today's try is done)") if played else tr("Daily run: same dungeon for everyone today")
+	_daily_text.text = tr("Everyone starts with %s") % DailyRun.describe(content, day)
 	var parts := PackedStringArray()
-	parts.append("Today: %d points" % Profile.daily_score if played else "Your first try today is the one that counts")
+	parts.append(tr("Today: %d points") % Profile.daily_score if played else tr("Your first try today is the one that counts"))
 	if Profile.daily_best > 0:
-		parts.append("Best %d" % Profile.daily_best)
+		parts.append(tr("Best %d") % Profile.daily_best)
 	if Profile.daily_streak > 1 and (played or Profile.daily_day == day - 1):
-		parts.append("%d days in a row" % Profile.daily_streak)
+		parts.append(tr("%d days in a row") % Profile.daily_streak)
 	_daily_score.text = "  -  ".join(parts)
 
 
@@ -209,11 +209,11 @@ func _refresh() -> void:
 		_records.remove_child(child)
 		child.queue_free()
 	var difficulty := content.get_difficulty(Profile.difficulty)
-	_record("%d souls" % Profile.souls, "to spend", MenuWindow.SOULS)
-	_record("Runs", str(Profile.runs))
-	_record("Victories", str(Profile.victories))
-	_record("Deepest floor", str(Profile.best_depth))
-	_record("Difficulty", difficulty.display_name if difficulty else "Normal",
+	_record(tr("%d souls") % Profile.souls, tr("to spend"), MenuWindow.SOULS)
+	_record(tr("Runs"), str(Profile.runs))
+	_record(tr("Victories"), str(Profile.victories))
+	_record(tr("Deepest floor"), str(Profile.best_depth))
+	_record(tr("Difficulty"), tr(difficulty.display_name) if difficulty else tr("Normal"),
 		difficulty.color if difficulty else UiSkin.TEXT)
 
 

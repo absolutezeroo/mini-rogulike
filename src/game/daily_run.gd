@@ -58,4 +58,4 @@ static func score(run: RunState) -> int:
 static func describe(content: ContentDB, day: int) -> String:
 	var start_weapon := weapon(content, day)
 	var start_relic := relic(content, day)
-	return "%s + %s" % [start_weapon.display_name if start_weapon else "?", start_relic.display_name if start_relic else "?"]
+	return "%s + %s" % [TranslationServer.tr(start_weapon.display_name) if start_weapon else "?", TranslationServer.tr(start_relic.display_name) if start_relic else "?"]
