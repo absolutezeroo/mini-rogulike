@@ -156,6 +156,10 @@ func _build_hero(parent: Control) -> void:
 		for rune in _game_content().runes:
 			_game.player.inventory.add(rune), "Runes in the bag")))
 
+	var pacts := _section(parent, "Pact door (a dead-end room of this floor)")
+	for pact_def in _game_content().dungeon.pacts:
+		pacts.add_child(_button(pact_def.id.capitalize(), _debug_pact.bind(pact_def)))
+
 	var heat := _section(parent, "Temperature")
 	heat.add_child(_button("Freezing", func() -> void: _act(func() -> void: _game.player.temperature.value = -90.0, "Cold")))
 	heat.add_child(_button("Burning", func() -> void: _act(func() -> void: _game.player.temperature.value = 90.0, "Hot")))
@@ -196,6 +200,26 @@ func _go(depth: int, curse: CurseDef = null, event: FloorEventDef = null, plain:
 
 
 ## Runs `action` and says it happened (the panel stays open).
+## Seals a dead-end room of this floor (not the hero's) behind a pact door, shown on the map.
+func _debug_pact(pact_def: PactDef) -> void:
+	var world: World = _game.world
+	if world.pact or world.arena:
+		_status.text = "This floor already has a pact door, or is a boss floor"
+		return
+	var here: Array[int] = []
+	for i in world.map.rooms.size():
+		if world.map.rooms[i].grow(1).has_point(world.map.world_to_cell(_game.player.global_position)):
+			here.append(i)
+	var index := PactRoom.find_room(world.map, world.rng, here, world.config().corridor_width + 3)
+	if index < 0:
+		_status.text = "No dead-end room on this floor"
+		return
+	var pact := world.spawn_pact(pact_def, world.map.rooms[index], {})
+	pact.seen = true
+	world.cells_changed.emit(world.fog.reveal_rect(pact.room.grow(1)))
+	_status.text = "%s: see the map" % pact_def.display_name
+
+
 func _act(action: Callable, message: String) -> void:
 	action.call()
 	_status.text = message

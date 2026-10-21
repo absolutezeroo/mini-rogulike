@@ -28,7 +28,8 @@ func is_closed() -> bool:
 	return _body != null
 
 
-func close() -> void:
+## `quiet`: at once, without a sound (a door sealed from the start: PactRoom).
+func close(quiet: bool = false) -> void:
 	if _body:
 		return
 	_body = StaticBody2D.new()
@@ -44,17 +45,25 @@ func close() -> void:
 		_body.add_child(collision)
 		_world.set_cell_blocked(cell, true)
 	add_child.call_deferred(_body)  # may happen inside a physics callback
+	if quiet:
+		_amount = 1.0
+		queue_redraw()
+		return
 	Sfx.play_at(Sfx.bank.gate, _world.player.global_position if _world.player else global_position)
 	create_tween().tween_property(self, "_amount", 1.0, GATE_TIME)
 
 
-func open() -> void:
+func open(quiet: bool = false) -> void:
 	if _body == null:
 		return
 	_body.queue_free()
 	_body = null
 	for cell in _cells:
 		_world.set_cell_blocked(cell, false)
+	if quiet:
+		_amount = 0.0
+		queue_redraw()
+		return
 	Sfx.play_at(Sfx.bank.gate, _world.player.global_position if _world.player else global_position)
 	create_tween().tween_property(self, "_amount", 0.0, GATE_TIME)
 

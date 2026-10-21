@@ -40,6 +40,14 @@ signal boss_defeated(boss: Monster)
 signal ambush_started(room: AmbushRoom)
 ## Every wave of the ambush is dead: the exits open.
 signal ambush_cleared(room: AmbushRoom)
+## The hero walked up to a pact door (PactRoom): its rule, reward and cost are shown.
+signal pact_requested(pact: PactRoom)
+## The hero walked into a sworn pact's room: the door sealed, its rule is watched.
+signal pact_started(pact: PactRoom)
+## The pact's rule was broken: its cost is paid (the fight goes on).
+signal pact_broken(pact: PactRoom)
+## The pact's last foe fell and the door opened (`pact.outcome`: kept or broken).
+signal pact_ended(pact: PactRoom)
 
 
 func log_message(text: String, color: Color = Color.WHITE) -> void:

@@ -2,7 +2,8 @@ class_name Minimap
 extends Control
 ## The explored part of the floor, as a little map: rooms and corridors seen so far, holes,
 ## stairs (violet while sealed, shown even unexplored once open), unopened chests, a running
-## ambush, the boss, the hero, and the last monsters the seal still wants (StairsSeal).
+## ambush, a pact door once seen (its room outlined during the fight), the boss, the hero, and
+## the last monsters the seal still wants (StairsSeal).
 ## The explored cells live in an image (one pixel per cell) updated as the hero discovers them.
 ## `whole_floor` shows the entire floor fitted to the control (the big map) instead of a window
 ## around the hero.
@@ -18,6 +19,8 @@ const HERO_COLOR := Color(1, 1, 1)
 const STAIRS_COLOR := Color(1, 0.82, 0.4)
 const CHEST_COLOR := Color(1, 0.65, 0.2)
 const DANGER_COLOR := Color(1, 0.3, 0.3)
+const PACT_COLOR := Color(0.95, 0.2, 0.3)
+const SPENT_COLOR := Color(0.55, 0.5, 0.5)
 const REDRAW_INTERVAL := 0.1
 
 @export var whole_floor := false
@@ -126,6 +129,13 @@ func _draw_markers(origin: Vector2, scale: float) -> void:
 	if _world.ambush and _world.ambush.state == AmbushRoom.State.FIGHTING:
 		var room := _world.ambush.room
 		_draw_clipped_outline(Rect2(origin + Vector2(room.position) * scale, Vector2(room.size) * scale), DANGER_COLOR)
+	var pact := _world.pact
+	if pact and is_instance_valid(pact):
+		if pact.state == AmbushRoom.State.FIGHTING:
+			_draw_clipped_outline(Rect2(origin + Vector2(pact.room.position) * scale, Vector2(pact.room.size) * scale), PACT_COLOR)
+		elif pact.seen:
+			var door := origin + (Vector2(pact.door_cell) + Vector2(0.5, 0.5)) * scale
+			_marker(door, dot * 1.6, PACT_COLOR if pact.is_open_offer() else SPENT_COLOR)
 	if _world.arena and _world.arena.boss and not _world.arena.boss.is_dead and _world.arena.is_started:
 		_marker(origin + _world.arena.boss.global_position / map.tile_size * scale, dot * 1.6, DANGER_COLOR)
 	if _world.player:

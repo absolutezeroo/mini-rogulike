@@ -41,6 +41,8 @@ var _toast_busy := false
 @onready var _boss_bar: BossBar = %BossBar
 @onready var _minimap: Minimap = %Minimap
 @onready var _full_map: Minimap = %FullMap
+## Under the map during a pact's fight: its rule and how it holds (built in code).
+var pact_line := PactLine.new()
 
 
 func _ready() -> void:
@@ -64,6 +66,8 @@ func _ready() -> void:
 		var done := tr("Daily quest done: %s  (+%d souls)") if (quest.def as QuestDef).period == QuestDef.Period.DAILY else tr("Weekly quest done: %s  (+%d souls)")
 		toast(done % [QuestBoard.text(quest), quest.reward]))
 	_apply_settings()
+	pact_line.hud = self
+	add_child(pact_line)
 	Events.depth_changed.connect(_on_depth_changed)
 	_depth_banner.modulate.a = 0.0
 

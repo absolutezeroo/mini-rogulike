@@ -41,7 +41,8 @@ path), heal, buff, summon. Statuses (`OnHitStatus`): burn and slow.
 ## Perks and relics
 
 Every level up pauses the game and offers **1 perk out of 3**. Taking a perk again levels it up
-(up to its `max_stacks`). Bosses drop a choice of **relics** (rare perks).
+(up to its `max_stacks`). Bosses drop a choice of **relics** (rare perks), and so does a kept pact
+(pact doors, see [dungeon.md](dungeon.md)).
 
 Everything on a card is spelled out for someone who never played a roguelike: "New perk (up to
 level 3)" or "Level 1 > 2 (max 3)", what it does, and a box per **family** with its name, little

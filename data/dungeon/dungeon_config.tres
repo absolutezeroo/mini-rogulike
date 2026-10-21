@@ -23,6 +23,12 @@
 [ext_resource type="Resource" path="res://data/monster_ranks/epic.tres" id="13_wlvxj"]
 [ext_resource type="Resource" path="res://data/forge/smith.tres" id="90_forge"]
 [ext_resource type="Resource" path="res://data/dungeon/sustain.tres" id="91_sustain"]
+[ext_resource type="Script" path="res://src/definitions/pacts/pact_def.gd" id="92_pactdef"]
+[ext_resource type="Resource" path="res://data/pacts/untouched.tres" id="93_untouched"]
+[ext_resource type="Resource" path="res://data/pacts/knell.tres" id="94_knell"]
+[ext_resource type="Resource" path="res://data/pacts/fast.tres" id="95_fast"]
+[ext_resource type="Resource" path="res://data/pacts/tithe.tres" id="96_tithe"]
+[ext_resource type="Resource" path="res://data/props/furniture/candles.tres" id="97_candles"]
 
 [resource]
 script = ExtResource("1_qfnhp")
@@ -50,3 +56,6 @@ boss_hp_scale_per_depth = 0.33
 boss_attack_per_depth = 1.0
 route_count = 2
 route_twist_chance = 0.6
+pact_chance = 0.7
+pacts = Array[ExtResource("92_pactdef")]([ExtResource("93_untouched"), ExtResource("94_knell"), ExtResource("95_fast"), ExtResource("96_tithe")])
+pact_light = ExtResource("97_candles")

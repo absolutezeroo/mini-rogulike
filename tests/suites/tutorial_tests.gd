@@ -16,8 +16,10 @@ func run() -> void:
 	# Nor an ambush, a strange or cursed floor (their hints would cut in).
 	var ambush_chance := CONTENT.dungeon.ambush_chance
 	var event_chance := CONTENT.dungeon.floor_event_chance
+	var pact_chance := CONTENT.dungeon.pact_chance
 	CONTENT.dungeon.ambush_chance = 0.0
 	CONTENT.dungeon.floor_event_chance = 0.0
+	CONTENT.dungeon.pact_chance = 0.0
 	var curse_chances := {}
 	for difficulty in CONTENT.difficulties:
 		curse_chances[difficulty] = difficulty.curse_chance
@@ -38,6 +40,7 @@ func run() -> void:
 	CONTENT.tutorial.near_distance = near
 	CONTENT.dungeon.ambush_chance = ambush_chance
 	CONTENT.dungeon.floor_event_chance = event_chance
+	CONTENT.dungeon.pact_chance = pact_chance
 	for difficulty in curse_chances:
 		difficulty.curse_chance = curse_chances[difficulty]
 
@@ -59,6 +62,10 @@ func _test_data() -> void:
 	for hint in tutorial.hints:
 		check(hint.after == &"" or ids.has(hint.after), "%s comes after a hint that exists (%s)" % [hint.id, hint.after])
 	check(tutorial.hint(&"move") != null and tutorial.hint(&"move").cue == &"run_start", "the first step is moving, at the start of a run")
+	var pact := tutorial.hint(&"pact")
+	check(pact != null and pact.cue == &"pact_near" and pact.duration > 0.0, "a pact door, first seen, gets a short hint")
+	var french := TranslationServer.get_translation_object("fr")
+	check(pact != null and french != null and String(french.get_message(pact.text)).length() <= 120, "...short in French too")
 	check(tutorial.hint(&"nope") == null, "no hint for an unknown id")
 
 
@@ -234,6 +241,32 @@ func _test_hints(game: Game) -> void:
 	check(game.hint_box.lowered, "a hint moves down under the boss bar")
 	tutorial.dismiss()
 	game.hud._boss_bar.hide_now()
+
+	# A pact door in sight (a room of this floor sealed for the test): its hint.
+	var world := game.world
+	var index := PactRoom.find_room(world.map, world.rng, [], CONTENT.dungeon.corridor_width + 3)
+	if index < 0:
+		index = world.map.rooms.size() - 1  # no dead end on this floor: any room will do for a hint
+	if index > 0:
+		var pact := world.spawn_pact(CONTENT.dungeon.pacts[0], world.map.rooms[index], {})
+		pact._armed = false  # (no offer: it would open its panel)
+		var near := CONTENT.tutorial.near_distance
+		CONTENT.tutorial.near_distance = 200.0
+		player.global_position = pact.front()
+		var shown := false
+		for attempt in 4:  # (a chest or the merchant in reach may have its say first)
+			await _frames(gap)
+			shown = tutorial.current != null and tutorial.current.id == &"pact"
+			if shown:
+				break
+			tutorial.dismiss()
+		check(shown, "a pact door in sight: its hint")
+		tutorial.dismiss()
+		CONTENT.tutorial.near_distance = near
+		pact.set_spent()
+		pact.queue_free()
+		world.pact = null
+		await _frames(gap)
 	await _frames(gap)
 
 

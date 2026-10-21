@@ -72,6 +72,8 @@ var forced_boss_rank: MonsterRankDef
 var run_bosses: Array[BossDef] = []
 ## The floor's ambush room, if it has one.
 var ambush: AmbushRoom
+## The floor's pact door, if it has one.
+var pact: PactRoom
 ## Merchant stock the hero locked and didn't buy: { item, price, locked } entries waiting for the
 ## next merchant (see Merchant). Lives as long as the run.
 var kept_stock: Array[Dictionary] = []
@@ -209,6 +211,7 @@ func clear_floor() -> void:
 			merchant.remove_from_group("merchants")  # counted once
 	arena = null
 	ambush = null
+	pact = null
 	awake_monsters.clear()
 	_activity_timer = 0.0
 	_cracks.clear()
@@ -473,6 +476,7 @@ func spent_data() -> Dictionary:
 	return {
 		"chests": opened_chests.map(func(cell: Vector2i) -> Array: return [cell.x, cell.y]),
 		"bought": bought.duplicate(),
+		"pact": pact.save_code() if pact else 0,
 	}
 
 
@@ -500,6 +504,8 @@ func _apply_restore() -> void:
 			if merchant.world_of() == self and merchant.forget_sold(saved_item):
 				bought.append(saved_item)
 				break
+	if pact and int(data.get("pact", 0)) > 0:
+		pact.set_spent()  # sworn before quitting: never offered again
 
 
 func spawn_ambush(room: Rect2i) -> AmbushRoom:
@@ -507,6 +513,14 @@ func spawn_ambush(room: Rect2i) -> AmbushRoom:
 	_entities.add_child(ambush)
 	ambush.setup(self, room)
 	return ambush
+
+
+## A pact door on `room` (PactRoom): sealed at once, candles inside by the door (pact_light).
+func spawn_pact(def: PactDef, room: Rect2i, taken: Dictionary) -> PactRoom:
+	pact = PactRoom.new()
+	_entities.add_child(pact)
+	pact.setup_pact(self, room, def, config().pact_light, taken)
+	return pact
 
 
 func spawn_crumbling_floor(def: PitDef, cell: Vector2i) -> CrumblingFloor:

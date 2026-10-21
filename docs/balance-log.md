@@ -3,6 +3,29 @@
 Dated entries, newest first: what was measured, what changed and why, before/after numbers, open
 questions. How to measure: [balance.md](balance.md).
 
+## 2026-10-21 - Pact doors: a relic for a hard rule, max Health if it breaks
+
+**Design:** an optional risk room on some floors (`PactRoom`, `data/pacts/`, see
+[design/dungeon.md](design/dungeon.md)). Swear the pact, fight the waves behind the sealed door
+under its rule: kept, a choice of 3 relics (as after a boss); broken, max Health lost for the rest
+of the run, the fight goes on, no relic.
+
+| Pact | Rule | Waves (foes, +1 every 3 floors) | Elites | Cost if broken |
+|---|---|---|---|---|
+| Untouched | no damage taken | 2 x 2 | the last wave's leader | 12% max Health |
+| Knell | all slain in 30 s + 2 s per floor below the first (34 s on floor 3, 46 s on floor 9) | 2 x 3 | the last wave's leader | 12% |
+| Fast | no consumable | 3 x 3 | the last wave's leader | 10% |
+| Tithe (floor 3+) | lose at most 50% of max Health | 2 x 1 | all of them | 15% |
+
+- **How often:** `pact_chance` 0.7 per normal floor (not the first, not a boss floor); it also needs
+  a free dead-end room. Measured with a probe building real floors (25 runs, floors 2-11 without
+  the bosses, 175 floors, Keeper): 51% of the floors can hold one (89/175 at a chance of 1), so 31%
+  get one at 0.7 (55/175). Pure generation (no merchant or forge taking rooms): 52-63% of the
+  floors, from Pilgrim to Nightmare sizes.
+- **Not measured yet:** how hard each rule is in play (no bot plays the rules). Open questions: the
+  Knell's time (about 3 s per foe with the spawn pauses) and whether the Tithe's elites at depth 9+
+  (2 x 4) are fair for a 15% cost. Watch the first playtests on the phone.
+
 ## 2026-10-20 - Item level: gear as strong as the floor it came from
 
 **Design (from the player's request):** a floor-1 weapon must be worse than a floor-2 one, and
