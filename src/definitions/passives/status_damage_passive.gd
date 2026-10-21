@@ -15,6 +15,8 @@ enum Condition { BURNING, POISONED, SLOWED }
 @export var crit_color: Color = Palette.FROST
 ## What freezes them (the Frost synergy: frost): a ring of crystals closing on the body.
 @export var crit_element: VfxElementDef
+## What the extra damage is (Kindling: fire feeding on fire): those hits flash in its language.
+@export var element: VfxElementDef
 
 
 static func matches(target: Actor, wanted: Condition) -> bool:
@@ -31,6 +33,8 @@ static func matches(target: Actor, wanted: Condition) -> bool:
 func modify_outgoing_hit(_owner: Actor, target: Actor, hit: HitInfo, perk: PerkSet.Entry) -> void:
 	if matches(target, condition):
 		hit.amount = maxi(1, roundi(hit.amount * (1.0 + bonus_per_stack * perk.stacks)))
+		if element and hit.element == null:
+			hit.element = element
 
 
 func on_hit_dealt(owner: Actor, target: Actor, hit: HitInfo, _damage: int, _perk: PerkSet.Entry) -> void:

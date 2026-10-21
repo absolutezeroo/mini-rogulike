@@ -1,11 +1,11 @@
 [gd_resource type="Resource" script_class="SkillDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_yxx1a"]
-[ext_resource type="Texture2D" path="res://assets/fx/circularslash.png" id="2_0dko0"]
 [ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="3_3u2bv"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="4_hmgmx"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_ugyrb"]
 [ext_resource type="AudioStream" path="res://data/audio/slash_heavy.tres" id="6_oncxq"]
+[ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="vfx_fire"]
 
 [sub_resource type="Resource" id="Resource_qedyq"]
 script = ExtResource("4_hmgmx")
@@ -19,8 +19,8 @@ offset = 60.0
 knockback = 280.0
 color = Color(1, 0.54901963, 0.25882354, 1)
 status = SubResource("Resource_qedyq")
-fx = ExtResource("2_0dko0")
 fx_follow_aim = true
+element = ExtResource("vfx_fire")
 
 [sub_resource type="Resource" id="Resource_uynmm"]
 script = ExtResource("3_3u2bv")
@@ -30,9 +30,9 @@ offset = 60.0
 knockback = 280.0
 color = Color(1, 0.54901963, 0.25882354, 1)
 status = SubResource("Resource_qedyq")
-fx = ExtResource("2_0dko0")
 fx_follow_aim = true
 delay = 0.5
+element = ExtResource("vfx_fire")
 
 [resource]
 script = ExtResource("5_ugyrb")

@@ -3,9 +3,9 @@
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_2prd0"]
 [ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_w5moa"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_mbews"]
-[ext_resource type="Texture2D" path="res://assets/projectiles/fireball.png" id="4_r3jqb"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_7pqnv"]
 [ext_resource type="AudioStream" path="res://data/audio/fireball.tres" id="6_jdvff"]
+[ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="vfx_fire"]
 
 [sub_resource type="Resource" id="Resource_qedyq"]
 script = ExtResource("3_mbews")
@@ -20,8 +20,8 @@ radius = 7.0
 count = 15
 spread_degrees = 360.0
 color = Color(1, 0.41960785, 0.20784314, 1)
-texture = ExtResource("4_r3jqb")
 status = SubResource("Resource_qedyq")
+element = ExtResource("vfx_fire")
 
 [sub_resource type="Resource" id="Resource_06okw"]
 script = ExtResource("2_w5moa")
@@ -32,10 +32,10 @@ radius = 7.0
 count = 15
 spread_degrees = 360.0
 color = Color(1, 0.41960785, 0.20784314, 1)
-texture = ExtResource("4_r3jqb")
 status = SubResource("Resource_qedyq")
 angle_offset = 12.0
 delay = 0.5
+element = ExtResource("vfx_fire")
 
 [resource]
 script = ExtResource("5_7pqnv")

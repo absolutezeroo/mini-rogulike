@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" path="res://assets/ui/skills/sundering_blow.png" id="3_l0jio"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="4_o7suf"]
 [ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="5_4c1p6"]
+[ext_resource type="Resource" path="res://data/vfx/elements/earth.tres" id="vfx_earth"]
 
 [sub_resource type="Resource" id="Resource_bsh7n"]
 script = ExtResource("2_gaddb")
@@ -14,6 +15,7 @@ offset = 60.0
 knockback = 360.0
 explosive = true
 delay = 0.15
+element = ExtResource("vfx_earth")
 
 [resource]
 script = ExtResource("4_o7suf")

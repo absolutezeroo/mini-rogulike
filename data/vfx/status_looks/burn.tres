@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="StatusLookDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/vfx/status_look_def.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/fx/fire_flames.png" id="2"]
-[ext_resource type="Texture2D" path="res://assets/fx/flame.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/fx/fire/fire_flicker.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/fx/fire/fire_impact.png" id="3"]
 [ext_resource type="AudioStream" path="res://data/audio/flames.tres" id="4"]
 [ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="5"]
 
@@ -19,8 +19,8 @@ mote = 1
 mote_rate = 7.0
 mote_color = Color(1, 0.85, 0.45, 1)
 burst = ExtResource("3")
-burst_frames = 8
-burst_time = 0.45
+burst_frames = 7
+burst_time = 0.35
 sound = ExtResource("4")
 sound_db = -10.0
 text_color = Color(1, 0.55, 0.26, 1)

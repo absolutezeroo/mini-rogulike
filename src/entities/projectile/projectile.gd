@@ -54,8 +54,10 @@ func _configure(direction: Vector2, spec: ProjectileSpec) -> void:
 	var shape := CircleShape2D.new()
 	shape.radius = spec.radius
 	($CollisionShape2D as CollisionShape2D).shape = shape
-	# Its look: its own sprite, else its element's shot, else a dot in its color.
-	if spec.texture:
+	# Its look: its own sheet or sprite, else its element's shot, else a dot in its color.
+	if spec.sheet:
+		_sheet = spec.sheet
+	elif spec.texture:
 		_sheet = VfxSheetDef.from_texture(spec.texture, spec.texture_frames)
 	elif spec.element and spec.element.projectile:
 		_sheet = spec.element.projectile
@@ -119,6 +121,7 @@ func _on_body_entered(body: Node2D) -> void:
 	var hit := Combat.make_hit(_spec.damage, _crit_chance, _shooter if is_instance_valid(_shooter) else null)
 	hit.knockback = _direction * _spec.knockback
 	hit.status = _spec.status
+	hit.element = _spec.element
 	hit.is_secondary = _spec.secondary
 	target.take_hit(hit)
 	if _pierce_left > 0:
@@ -157,6 +160,7 @@ func _explode() -> void:
 			var hit := Combat.make_hit(_spec.damage, _crit_chance, source)
 			hit.knockback = offset.normalized() * _spec.knockback
 			hit.status = _spec.status
+			hit.element = _spec.element
 			hit.is_secondary = _spec.secondary
 			target.take_hit(hit)
 

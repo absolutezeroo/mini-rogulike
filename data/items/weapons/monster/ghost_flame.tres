@@ -1,11 +1,9 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
 [ext_resource type="AudioStream" path="res://data/audio/fireball.tres" id="1_7k2lf"]
-[ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_21yhs"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="2_21yhs"]
-[ext_resource type="Texture2D" path="res://assets/projectiles/fireball.png" id="3_u8j3l"]
 [ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="4_cudfo"]
-[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_fbvwr"]
+[ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="vfx_fire"]
 
 [sub_resource type="Resource" id="Resource_tw6s1"]
 script = ExtResource("2_21yhs")
@@ -21,7 +19,6 @@ attack_animation = 3
 on_hit = SubResource("Resource_tw6s1")
 trail_color = Color(0, 0, 0, 0)
 attack_sound = ExtResource("1_7k2lf")
-projectile_texture = ExtResource("3_u8j3l")
 projectile_speed = 260.0
 projectile_radius = 7.0
 slot = 0
@@ -30,3 +27,4 @@ display_name = "Ghost Flame"
 glyph = "G"
 color = Color(1, 0.41960785, 0.41960785, 1)
 spawn_weight = 0
+element = ExtResource("vfx_fire")

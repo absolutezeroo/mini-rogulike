@@ -23,6 +23,8 @@ func run() -> void:
 	_test_poison_kit()
 	_test_blood_kit()
 	_test_spirit_kit()
+	_test_fire_kit()
+	_test_earth_kit()
 
 
 ## Each element: an id, a ramp of 3 to 5 colors from a bright core to a dark edge (shadow turned
@@ -47,7 +49,7 @@ func _test_elements() -> void:
 			check(bright > dark, "vfx: %s goes from a bright core to a dark edge" % element.id)
 		for color in element.ramp:
 			check(color.a == 1.0, "vfx: %s's ramp is opaque" % element.id)
-		for sheet: VfxSheetDef in [element.projectile, element.impact, element.piece, element.claw]:
+		for sheet: VfxSheetDef in [element.projectile, element.impact, element.piece, element.claw, element.blast]:
 			if sheet:
 				_check_sheet(sheet, "%s's kit" % element.id)
 		if element.slow_look != &"":
@@ -414,6 +416,103 @@ func _test_spirit_kit() -> void:
 		for skill in (load("res://data/monsters/%s.tres" % id) as MonsterDef).skills:
 			for effect in skill.effects:
 				check(effect.get("element") != spirit, "spirit: the %s burrows, it doesn't vanish like a ghost" % id)
+## Fire: a full kit (a ball licking back in 16 directions, a burst, licks for novas and arcs, a
+## burning claw, an explosion), and every fire user on it: no borrowed fireball.png, no white
+## slash for the Flame Arc, no eye beam that is a fireball.
+func _test_fire_kit() -> void:
+	var fire := VfxElementDef.named(&"fire")
+	check(fire.projectile and fire.impact and fire.piece and fire.claw and fire.blast and fire.impact_sound, "fire: its kit is full (shot, impact, licks, claw, explosion, sound)")
+	check(fire.projectile.orient == VfxSheetDef.Orient.ROWS and fire.projectile.directions == 16, "fire: the fireball is drawn in 16 directions, its tail never rotated")
+	for sheet: VfxSheetDef in [fire.projectile, fire.impact, fire.piece, fire.claw, fire.blast]:
+		check(sheet.texture.resource_path.begins_with("res://assets/fx/fire/"), "fire: %s is fire's own art" % sheet.texture.resource_path.get_file())
+	var look := StatusFx.LOOKS.look(&"burn")
+	check(look.element == fire and look.particle.resource_path.begins_with("res://assets/fx/fire/") and look.burst.resource_path.begins_with("res://assets/fx/fire/"), "fire: a burning body throws the kit's flames")
+	check(look.particle.get_width() == look.particle_frames * 8, "fire: the burn's flames are cut 8 wide (12 frames)")
+	var shots: Array[String] = ["res://data/skills/player/fireball.tres", "res://data/skills/player/fire_wave.tres",
+		"res://data/skills/boss/fire_ring.tres", "res://data/skills/boss/fire_ring_fierce.tres", "res://data/skills/boss/solar_flare.tres",
+		"res://data/skills/boss/solar_flare_fierce.tres", "res://data/skills/boss/eye_beam.tres", "res://data/skills/boss/eye_beam_fierce.tres"]
+	for path in shots:
+		for effect in _effects_of(load(path)):
+			var shot := effect as ProjectileEffect
+			check(shot.element == fire and shot.texture == null, "fire: %s shoots fire, not a borrowed sprite" % path.get_file())
+	var scroll := (load("res://data/items/consumables/fire_scroll.tres") as ConsumableDef).effects[0] as ProjectileEffect
+	check(scroll.element == fire and scroll.texture == null, "fire: the Scroll of Fire shoots fire")
+	for path: String in ["res://data/skills/boss/eye_beam.tres", "res://data/skills/boss/eye_beam_fierce.tres"]:
+		for effect in _effects_of(load(path)):
+			var ray := (effect as ProjectileEffect).sheet
+			check(ray != null and ray.orient == VfxSheetDef.Orient.ROWS and ray.directions == 16 and ray.frame_size().x > fire.projectile.frame_size().x, "fire: the Demon Cyclops' eye shoots long rays drawn in 16 directions, not fireballs")
+			if ray:
+				_check_sheet(ray, "the eye beam's")
+	for path: String in ["res://data/items/weapons/book.tres", "res://data/items/weapons/monster/fire_breath.tres", "res://data/items/weapons/monster/ghost_flame.tres"]:
+		var weapon := load(path) as WeaponDef
+		check(weapon.element == fire and weapon.projectile_texture == null, "fire: %s shoots fire" % path.get_file())
+	var touch := load("res://data/items/weapons/monster/fire_touch.tres") as WeaponDef
+	check(touch.element == fire and touch.attack_fx == null, "fire: the Flame Spirit strikes with a burning claw")
+	for path: String in ["res://data/skills/boss/flame_arc.tres", "res://data/skills/boss/flame_arc_fierce.tres"]:
+		for effect in _effects_of(load(path)):
+			var area := effect as DamageAreaEffect
+			check(area.element == fire and area.fx == null and area.fx_follow_aim, "fire: %s sweeps fire licks across its front, not a white slash" % path.get_file())
+	check((load("res://data/perks/common/blazing_roll.tres") as PerkDef).passives[0].get("element") == fire, "fire: Blazing Roll leaves a ring of fire")
+	for path: String in ["res://data/perks/common/ignite.tres", "res://data/perks/common/kindling.tres"]:
+		check((load(path) as PerkDef).passives[0].get("element") == fire, "fire: %s is fire" % path.get_file())
+	check((load("res://data/runes/ember.tres") as Resource).get("passives")[0].get("element") == fire, "fire: the Ember rune is fire")
+	check((load("res://data/perks/synergies/inferno.tres") as SynergyDef).passives[0].get("blast_element") == fire, "fire: the Inferno synergy bursts in fire")
+	for path: String in ["res://data/runes/pyre.tres", "res://data/affixes/of_embers.tres"]:
+		check((load(path) as Resource).get("passives")[0].get("blast_element") == fire, "fire: %s bursts in fire" % path.get_file())
+	# The dungeon's own flames are the kit's: the campfire, the flame vent, the brazier.
+	check((load("res://data/hazards/campfire.tres") as HeatSourceDef).flames.resource_path.begins_with("res://assets/fx/fire/"), "fire: the campfire burns with the kit's flames")
+	check((load("res://data/hazards/flame_vent.tres") as TrapDef).active_sheet.resource_path.begins_with("res://assets/fx/fire/"), "fire: the flame vent roars with the kit's column of fire")
+	check((load("res://data/props/furniture/brazier.tres") as PropDef).flame.resource_path == "res://src/vfx/flame_vfx.tscn", "fire: a brazier burns with the kit's flames, not soft particles")
+	# What only borrowed the fireball isn't fire: a spirit, moss, gold and sand shoot their own.
+	var own := {"soul_moth": &"spirit", "moss_heart": &"poison", "gilded_moth": &"holy", "sand_drummer": &"earth"}
+	for id: String in own:
+		var weapon := (load("res://data/monsters/%s.tres" % id) as MonsterDef).weapon
+		check(weapon.element == VfxElementDef.named(own[id]) and weapon.projectile_texture == null, "fire: the %s shoots %s, not fire" % [id, own[id]])
+		check(weapon.on_hit == null or weapon.on_hit.burn_damage == 0, "fire: the %s doesn't set you burning" % id)
+
+
+## Earth: rock spikes, a clod, the ground bursting in dust and rubble; its explosions are dust
+## and chunks in its ramp, never fire bands; every earth user on it.
+func _test_earth_kit() -> void:
+	var earth := VfxElementDef.named(&"earth")
+	var fire := VfxElementDef.named(&"fire")
+	check(earth.projectile and earth.impact and earth.piece and earth.blast and not earth.emissive, "earth: its kit is full (a clod, an impact, spikes, the ground bursting), and it doesn't glow")
+	for sheet: VfxSheetDef in [earth.projectile, earth.impact, earth.piece, earth.blast]:
+		check(sheet.texture.resource_path.begins_with("res://assets/fx/earth/"), "earth: %s is earth's own art" % sheet.texture.resource_path.get_file())
+	check(earth.blast.linger >= 0.5, "earth: the cracks of a burst stay a moment")
+	check(earth.slow_look == &"", "earth: sand slows without frost's rime")
+	# Explosion sheets are drawn in their own ramp: no fire band in the ground bursting.
+	for element: VfxElementDef in [earth, fire]:
+		var allowed: Array = Array(element.ramp).map(func(c: Color) -> String: return c.to_html(false))
+		allowed.append(Color(element.residue, 1.0).to_html(false))
+		var stray := {}
+		var image := element.blast.texture.get_image()
+		for y in image.get_height():
+			for x in image.get_width():
+				var c := image.get_pixel(x, y)
+				if c.a > 0.0 and not allowed.has(c.to_html(false)):
+					stray[c.to_html(false)] = true
+		check(stray.is_empty(), "%s: its explosion sheet is drawn in its ramp only (%s)" % [element.id, ", ".join(stray.keys())])
+	for color in earth.ramp:
+		check(not fire.ramp.has(color), "earth: no step of its ramp is a fire color")
+	for path: String in ["res://data/skills/boss/quake.tres", "res://data/skills/boss/quake_fierce.tres", "res://data/skills/player/sundering_blow.tres"]:
+		for effect in _effects_of(load(path)):
+			var area := effect as DamageAreaEffect
+			check(area.explosive and area.element == earth, "earth: %s bursts the ground (earth), not a fireball" % path.get_file())
+	for path: String in ["res://data/skills/player/rock_spike.tres", "res://data/skills/player/fissure.tres", "res://data/skills/player/ground_slam.tres"]:
+		for effect in _effects_of(load(path)):
+			var area := effect as DamageAreaEffect
+			check(area.element == earth, "earth: %s is earth (its rock spikes painted in earth, not lava)" % path.get_file())
+			if area.fx:
+				var frame := VfxSheetDef.cell_size(area.fx, area.fx_frames)
+				check(PixelDraw.sheet_scale(area.radius * 2.0 / maxi(frame.x, frame.y)) == 2.0, "earth: %s's spikes are drawn at the art's 2x" % path.get_file())
+	var slam := _effects_of(load("res://data/skills/player/ground_slam.tres"))[0] as DamageAreaEffect
+	check(slam.fx == null, "earth: Ground Slam is a ring of spikes composed at 2x, not one sheet at 4x")
+	var breath := load("res://data/items/weapons/monster/sand_breath.tres") as WeaponDef
+	check(breath.element == earth and breath.projectile_texture == null, "earth: Sand Breath throws clods of sand, no orange halo")
+	for effect in _effects_of(load("res://data/skills/boss/sandstorm.tres")):
+		var gust := effect as ProjectileEffect
+		check(gust.element == earth and gust.texture != null and gust.texture.resource_path.begins_with("res://assets/fx/earth/"), "earth: Sandstorm blows whirls of sand")
 
 
 # --- Helpers -------------------------------------------------------------------

@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="HeatSourceDef" format=3]
 
-[ext_resource type="Texture2D" path="res://assets/fx/fire_flames.png" id="1_kj6ro"]
+[ext_resource type="Texture2D" path="res://assets/fx/fire/fire_flicker.png" id="1_kj6ro"]
 [ext_resource type="Texture2D" path="res://assets/tiles/nature.png" id="1_usp6n"]
 [ext_resource type="Texture2D" path="res://assets/fx/campfire_pit.png" id="2_usp6n"]
 [ext_resource type="Script" path="res://src/definitions/hazards/heat_source_def.gd" id="3_6374w"]

@@ -8,7 +8,6 @@ const SMOKE: PackedScene = preload("res://src/vfx/particles/smoke.tscn")
 const DUST: PackedScene = preload("res://src/vfx/particles/dust.tscn")
 const FIRE: PackedScene = preload("res://src/vfx/particles/fire.tscn")
 const SPARKLES: PackedScene = preload("res://src/vfx/particles/sparkles.tscn")
-const EXPLOSION_SHEET: Texture2D = preload("res://assets/fx/explosion.png")
 const SMOKE_SHEET: Texture2D = preload("res://assets/fx/smoke.png")
 const SIGIL: VfxSheetDef = preload("res://data/vfx/sheets/holy_sigil.tres")
 const ALERT_EMOTE: Texture2D = preload("res://assets/ui/emotes/emote22.png")
@@ -72,6 +71,14 @@ static func nova(world: World, at: Vector2, radius: float, element: VfxElementDe
 		world.flash_light(at, element.color(), radius * 2.0)
 
 
+## A sweep of `element` across the front half of a circle (`radius` around `at`, facing
+## `facing`): Flame Arc's wall of fire licks, one side to the other. A ring when it has no piece.
+static func arc(world: World, at: Vector2, radius: float, facing: Vector2, element: VfxElementDef) -> void:
+	world.spawn_vfx(ComposedVfx.arc(at, radius, facing, element))
+	if element and element.emissive:
+		world.flash_light(at, element.color(), radius * 2.0)
+
+
 ## `element` left along a line (a dash through ice): its pieces one after the other.
 static func trail(world: World, from: Vector2, to: Vector2, element: VfxElementDef, duration: float = 0.15) -> void:
 	var line := ComposedVfx.line(from, to, element, duration)
@@ -105,25 +112,34 @@ static func boss_death(world: World, at: Vector2, size: float) -> void:
 				explosion(world, at + offset, 50.0 + 12.0 * i))
 
 
-## A blast of `element` (fire when none: barrels, bombs): a burst in its ramp, a ripple through
-## the picture, its particles (fire and smoke; dust and chips for earth...), its mark on the floor
-## (a scorch, cracks).
-static func explosion(world: World, at: Vector2, radius: float, element: VfxElementDef = null) -> void:
+## A blast of `element` (fire when none: barrels, bombs): its explosion sheet (a ball of fire,
+## the ground erupting) or a burst in its ramp, a ripple through the picture, its mark on the
+## floor (a scorch, disturbed earth). `pieces` off: no ring of its pieces at the edge (a boss's
+## stomp is dust and rubble, not a ring of rock spikes).
+static func explosion(world: World, at: Vector2, radius: float, element: VfxElementDef = null, pieces: bool = true) -> void:
 	if element == null:
 		element = VfxElementDef.named(&"fire")
 	var size := clampf(radius / 80.0, 0.6, 1.6)
-	world.spawn_vfx(BlastVfx.create(at, radius * 1.05, element))
 	if element.mark.a > 0.0:
 		world.add_splat(at, element.mark, clampf(radius / 45.0, 0.8, 2.5))
 	if element.emissive:
 		world.flash_light(at, element.shade(0.5), radius * 3.0)
-	if element.id == &"fire":
-		burst(world, FIRE, at, Color.WHITE, Vector2.ZERO, size * 0.7)
-		burst(world, SMOKE, at, Color.WHITE, Vector2.ZERO, size)
+	if element.blast:
+		# Its own explosion sheet at 2x (its smoke, embers, chunks and dust are drawn in it);
+		# a blast wider than the sheet gets a ring of its pieces at the edge, never a stretch.
+		world.spawn_vfx(SheetVfx.play(element.blast, at, Vector2.RIGHT, element))
+		var reach := element.blast.frame_size().x * element.blast.texel * 0.5
+		if pieces and element.piece and radius > reach * 1.2:
+			world.spawn_vfx(ComposedVfx.ring(at, radius, element, false))
 	else:
-		burst(world, DEATH_CHUNKS, at, element.color(), Vector2.ZERO, size)
-		if element.residue.a > 0.0:
-			burst(world, DUST, at, Color(element.residue, 1.0), Vector2.ZERO, size * 1.6)
+		world.spawn_vfx(BlastVfx.create(at, radius * 1.05, element))
+		if element.id == &"fire":
+			burst(world, FIRE, at, Color.WHITE, Vector2.ZERO, size * 0.7)
+			burst(world, SMOKE, at, Color.WHITE, Vector2.ZERO, size)
+		else:
+			burst(world, DEATH_CHUNKS, at, element.color(), Vector2.ZERO, size)
+			if element.residue.a > 0.0:
+				burst(world, DUST, at, Color(element.residue, 1.0), Vector2.ZERO, size * 1.6)
 	shockwave(world, at, radius * 1.4, clampf(radius / 12.0, 4.0, 9.0))
 	Sfx.play_at(Sfx.bank.explosion, at)
 	if world.player and world.player.global_position.distance_to(at) < 600.0:

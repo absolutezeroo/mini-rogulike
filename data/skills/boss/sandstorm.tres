@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_o33wo"]
 [ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_pwuq6"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_divap"]
-[ext_resource type="Texture2D" path="res://assets/projectiles/sandball.png" id="4_u41aw"]
+[ext_resource type="Texture2D" path="res://assets/fx/earth/earth_swirl.png" id="4_u41aw"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_rtf4c"]
 [ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="6_n1sya"]
 [ext_resource type="Resource" path="res://data/vfx/elements/earth.tres" id="vfx_earth"]
@@ -27,6 +27,7 @@ knockback = 120.0
 color = Color(0.9137255, 0.76862746, 0.41568628, 1)
 texture = ExtResource("4_u41aw")
 status = SubResource("Resource_kylvq")
+element = ExtResource("vfx_earth")
 
 [resource]
 script = ExtResource("5_rtf4c")

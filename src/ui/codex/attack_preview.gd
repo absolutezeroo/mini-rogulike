@@ -188,7 +188,7 @@ func _apply(effect: Effect) -> void:
 	if effect is ProjectileEffect:
 		var shot := effect as ProjectileEffect
 		var aim := deg_to_rad(shot.angle_offset)
-		_fire(shot.count, shot.spread_degrees, shot.speed, shot.max_distance, shot.radius, shot.element.color() if shot.element else shot.color, shot.explosion_radius, _shot_sheet(shot.texture, shot.texture_frames, shot.element), shot.element, aim)
+		_fire(shot.count, shot.spread_degrees, shot.speed, shot.max_distance, shot.radius, shot.element.color() if shot.element else shot.color, shot.explosion_radius, shot.sheet if shot.sheet else _shot_sheet(shot.texture, shot.texture_frames, shot.element), shot.element, aim)
 	elif effect is DamageAreaEffect:
 		var area := effect as DamageAreaEffect
 		_ring(_sprite.position + Vector2.RIGHT * area.offset, area.radius, area.color, true)

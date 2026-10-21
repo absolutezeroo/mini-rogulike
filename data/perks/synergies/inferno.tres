@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_o4t6t"]
 [ext_resource type="Script" path="res://src/definitions/passives/kill_burst_passive.gd" id="4_hbgmx"]
 [ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="5_6ndur"]
+[ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="vfx_fire"]
 
 [sub_resource type="Resource" id="Resource_ha8em"]
 script = ExtResource("3_o4t6t")
@@ -15,6 +16,7 @@ script = ExtResource("4_hbgmx")
 condition = 1
 blast_radius = 70.0
 blast_status = SubResource("Resource_ha8em")
+blast_element = ExtResource("vfx_fire")
 
 [resource]
 script = ExtResource("5_6ndur")

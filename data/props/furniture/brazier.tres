@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="PropDef" format=3]
 
 [ext_resource type="AudioStream" path="res://data/audio/break.tres" id="1_mke3n"]
-[ext_resource type="PackedScene" path="res://src/vfx/particles/prop_flame.tscn" id="2_2xmva"]
+[ext_resource type="PackedScene" path="res://src/vfx/flame_vfx.tscn" id="2_2xmva"]
 [ext_resource type="Texture2D" path="res://assets/tiles/dungeon.png" id="2_mg7u4"]
 [ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="3_2xmva"]
 
