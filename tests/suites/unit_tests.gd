@@ -8,6 +8,7 @@ func run() -> void:
 	_test_stat_block()
 	_test_combat_rules()
 	_test_content()
+	_test_sprite_frames_whole()
 	_test_biome_content()
 	_test_quests()
 	_test_generation()
@@ -1760,3 +1761,40 @@ func _test_threshold() -> void:
 				floor_cells += 1
 	check(floor_cells > 120, "room to fight (%d cells)" % floor_cells)
 	check(trial.theme != null and trial.ambience != null and trial.knell != null, "the limbo has its look and its bell")
+
+
+## Every big character frame holds a whole figure: a frame cut through the middle of the drawing
+## (the Ember Ronin's 96-wide frames once sliced at 48 showed a half samurai) shows as a long run
+## of drawn pixels on both sides of a frame's edge. (16x16 packs fill their cells edge to edge
+## by design, so only frames of 32 pixels and more are looked at.)
+func _test_sprite_frames_whole() -> void:
+	var checked := 0
+	for folder: String in ["res://data/visuals/bosses/", "res://data/visuals/monsters/", "res://data/visuals/"]:
+		for file in DirAccess.get_files_at(folder):
+			if not file.ends_with(".tres"):
+				continue
+			var frames := load(folder + file) as SpriteFrames
+			if frames == null:
+				continue
+			for anim in frames.get_animation_names():
+				for i in frames.get_frame_count(anim):
+					var atlas := frames.get_frame_texture(anim, i) as AtlasTexture
+					if atlas == null or atlas.atlas == null or atlas.region.size.x < 32.0:
+						continue
+					checked += 1
+					var image := atlas.atlas.get_image()
+					if image.is_compressed():
+						image.decompress()
+					var region := Rect2i(atlas.region)
+					var cut_rows := 0
+					for edge_x: int in [region.position.x, region.end.x]:
+						if edge_x <= 0 or edge_x >= image.get_width():
+							continue
+						var run := 0
+						for y in range(region.position.y, region.end.y):
+							var both := image.get_pixel(edge_x - 1, y).a > 0.0 and image.get_pixel(edge_x, y).a > 0.0
+							run = run + 1 if both else 0
+							cut_rows = maxi(cut_rows, run)
+					check(cut_rows < 10, "%s %s frame %d: not cut through the drawing (%d rows drawn across its edge)" % [file, anim, i, cut_rows])
+	check(checked >= 20, "big character frames checked (%d)" % checked)
+
