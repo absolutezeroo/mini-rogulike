@@ -269,7 +269,7 @@ func _test_options_screen(title: TitleScreen) -> void:
 	(title.get_node("%OptionsButton") as Button).pressed.emit()
 	await _frames(2)
 	check(options.visible, "the options open from the title")
-	for name in ["MusicSlider", "SoundSlider", "ShakeSlider", "ControlsSlider", "VibrationsCheck", "FixedStickCheck", "BatteryCheck", "FewerEffectsCheck", "RunTimerCheck", "TutorialCheck", "ReplayTutorialButton", "CloseButton"]:
+	for name in ["MasterSlider", "MusicSlider", "InterfaceSlider", "CombatSlider", "AmbienceSlider", "ShakeSlider", "ControlsSlider", "VibrationsCheck", "FixedStickCheck", "BatteryCheck", "FewerEffectsCheck", "RunTimerCheck", "TutorialCheck", "ReplayTutorialButton", "CloseButton"]:
 		check(options.get_node_or_null("%" + name) != null, "options: %s" % name)
 	var battery: CheckButton = options.get_node("%BatteryCheck")
 	var before := Settings.battery_saver

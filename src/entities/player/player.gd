@@ -126,7 +126,7 @@ func _update_footsteps(delta: float) -> void:
 		_step_timer = STEP_INTERVAL
 		var ambience := world.theme.ambience if world.theme else null
 		var step_sound := ambience.footstep if ambience and ambience.footstep else Sfx.bank.footstep
-		Sfx.play_at(step_sound, global_position, -10.0)
+		Sfx.play_world(step_sound, global_position, -10.0)
 		var feet := global_position + Vector2(0, _feet_y())
 		Vfx.dust(world, feet, 0.6)
 		if ambience and ambience.footprint_color.a > 0.0:
@@ -234,7 +234,7 @@ func pick_up(item: ItemDef) -> bool:
 func _pickup_feedback(item: ItemDef, sound: AudioStream) -> void:
 	if item is EquipmentDef and (item as EquipmentDef).rarity == ItemRarity.EPIC:
 		Events.stat_counted.emit("epics", 1)
-	Sfx.play_at(sound, global_position)
+	Sfx.play_world(sound, global_position)
 	Vfx.sparkles(world, global_position, item.color)
 
 

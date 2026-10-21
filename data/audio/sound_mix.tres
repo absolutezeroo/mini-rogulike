@@ -1,0 +1,74 @@
+[gd_resource type="Resource" script_class="SoundMixDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/sound_mix_def.gd" id="1_mix"]
+[ext_resource type="AudioStream" path="res://data/audio/hit.tres" id="2_hit"]
+[ext_resource type="AudioStream" path="res://data/audio/hurt.tres" id="3_hurt"]
+[ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="4_hit_heavy"]
+[ext_resource type="AudioStream" path="res://data/audio/boss_roar.tres" id="5_roar"]
+[ext_resource type="AudioStream" path="res://data/audio/explosion.tres" id="6_explosion"]
+[ext_resource type="AudioStream" path="res://data/audio/slash.tres" id="7_slash"]
+[ext_resource type="AudioStream" path="res://data/audio/slash_heavy.tres" id="8_slash_heavy"]
+[ext_resource type="AudioStream" path="res://data/audio/spikes.tres" id="9_spikes"]
+[ext_resource type="AudioStream" path="res://data/audio/arrow.tres" id="10_arrow"]
+[ext_resource type="AudioStream" path="res://data/audio/launch.tres" id="11_launch"]
+[ext_resource type="AudioStream" path="res://data/audio/fireball.tres" id="12_fireball"]
+[ext_resource type="AudioStream" path="res://data/audio/wings.tres" id="13_wings"]
+[ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="14_whoosh"]
+[ext_resource type="AudioStream" path="res://data/audio/gate.tres" id="15_gate"]
+[ext_resource type="AudioStream" path="res://data/audio/sink.tres" id="16_sink"]
+[ext_resource type="AudioStream" path="res://data/audio/forge_set.tres" id="17_forge_set"]
+[ext_resource type="AudioStream" path="res://data/audio/forge_take.tres" id="18_forge_take"]
+[ext_resource type="AudioStream" path="res://data/audio/knell.tres" id="19_knell"]
+
+[resource]
+script = ExtResource("1_mix")
+bus_gain_db = Dictionary[StringName, float]({
+&"Ambience": 0.0,
+&"Combat": -3.0,
+&"Music": -4.0,
+&"UI": -2.0,
+&"World": -1.0
+})
+limiter_ceiling_db = -1.0
+limiter_release = 0.1
+compressor_threshold_db = -16.0
+compressor_ratio = 3.0
+compressor_attack_us = 2000.0
+compressor_release_ms = 180.0
+high_shelf_hz = 6500.0
+combat_high_shelf_gain = 0.5
+ui_high_shelf_gain = 0.7
+max_random_pitch_up = 1.06
+combat_voices = 16
+world_voices = 8
+ui_voices = 6
+max_same_voices = 3
+same_window = 0.04
+max_same_in_window = 2
+repeat_db = -5.0
+crowd_start = 6
+crowd_db_per_voice = -0.6
+crowd_max_db = -6.0
+max_distance = 1100.0
+combat_attenuation = 2.0
+world_attenuation = 1.5
+trims = Dictionary[AudioStream, float]({
+ExtResource("2_hit"): -4.0,
+ExtResource("3_hurt"): -3.0,
+ExtResource("4_hit_heavy"): -2.0,
+ExtResource("5_roar"): -4.0,
+ExtResource("6_explosion"): -2.0,
+ExtResource("7_slash"): -3.0,
+ExtResource("8_slash_heavy"): -4.0,
+ExtResource("9_spikes"): -4.0,
+ExtResource("10_arrow"): -2.0,
+ExtResource("11_launch"): -2.0,
+ExtResource("12_fireball"): -2.0,
+ExtResource("13_wings"): -2.0,
+ExtResource("14_whoosh"): -1.0,
+ExtResource("15_gate"): -3.0,
+ExtResource("16_sink"): -2.0,
+ExtResource("17_forge_set"): -3.0,
+ExtResource("18_forge_take"): -4.0,
+ExtResource("19_knell"): -3.0
+})

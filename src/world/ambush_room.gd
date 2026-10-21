@@ -56,7 +56,7 @@ func _begin_fight() -> void:
 	state = State.FIGHTING
 	waves_left = _wave_count()
 	_gates.close()
-	Sfx.play_at(Sfx.bank.ambush, _world.player.global_position)
+	Sfx.play_world(Sfx.bank.ambush, _world.player.global_position)
 	Events.screen_shake.emit(0.6)
 	_queue_wave()
 

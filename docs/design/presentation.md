@@ -51,10 +51,36 @@
   fire in a burst with a crackle; a **poisoned** one bubbles and puffs green smoke; a **slowed** one
   sheds frost, with an ice burst when it takes hold (quicksand slows without frost: the ground is no status). Their ticks show in the status's color (orange,
   green). Drawn by hand over the body, 24 bits at most each, and asleep when nothing is on it.
-- **SFX**: the `Sfx` autoload plays world sounds (positional) and UI sounds. Weapons have attack and hit
-  sounds, monsters hurt and death sounds, skills and consumables a use sound; everything else comes
-  from `data/audio/sound_bank.tres`. Each sound is an `AudioStreamRandomizer` listing its variations.
-  Buses: Master > SFX, UI, Music, Ambience (`default_bus_layout.tres`). Each floor theme has its own music.
+- **SFX**: the `Sfx` autoload plays every sound. Weapons have attack and hit sounds, monsters hurt
+  and death sounds, skills and consumables a use sound; everything else comes from
+  `data/audio/sound_bank.tres`. Each sound is an `AudioStreamRandomizer` listing its variations.
+  Each floor theme has its own music.
+  - **Buses** (`default_bus_layout.tres`), one per slider in Options:
+
+    | Slider | Bus | What plays there | Call |
+    |---|---|---|---|
+    | General | Master | everything (a limiter at -1 dB on it) | |
+    | Music | Music | the floor's or the boss's music | `Sfx.play_music` |
+    | Interface | UI | menus, buttons, jingles (level up, stairs, a boss slain, game over, the knell, a curse's card) | `Sfx.play_ui` |
+    | Combat | Combat | the fight: weapons, hits and what monsters are made of, cries, skills, spells, potions and bombs, shots, explosions, statuses, traps going off, deaths | `Sfx.play_at` |
+    | Ambience | World + Ambience | the place: footsteps, distant sounds, doors and gates, chests opening, gold and pickups, crates breaking, crumbling floors, quicksand, fires, the forge, falls; the background loop and the heartbeat (Ambience) | `Sfx.play_world` |
+
+    Combat and World send to the SFX bus, which holds the room's reverb (set per floor by the
+    ambience), then to Master. A trap is a fight sound (it hurts you), a chest or a door is the
+    place's. A unit check (`tests/suites/sound_tests.gd`) holds every scene's player and every bank
+    sound to its bus.
+  - **The mix** (`SoundMixDef`, `data/audio/sound_mix.tres`): busy fights used to clip (two dozen
+    hot sounds at once, the Master peaking near +10 dB) and some sounds were shrill. Now: each bus
+    sits a little under its slider (Combat -3 dB, Interface -2, World -1, Music -4: the fights lost about 10 dB of loudness when they stopped clipping, so the music comes down with them), a hard limiter on Master
+    (ceiling -1 dB), a soft compressor on Combat, a high-shelf cut over 6.5 kHz on Combat (-6 dB)
+    and Interface (-3 dB); random pitch goes up 6% at most (pitched up, sounds turn shrill);
+    16 combat voices, 8 world, 6 interface; the same sound at most 3 at once and twice within
+    40 ms, the repeat 5 dB quieter (a swing through a pack: a couple of hits, not ten); past 6
+    combat voices each new one a bit quieter (down to -6 dB); when the pool is full a nearer sound
+    replaces the farthest. Fight sounds fade with distance faster than the place's. `trims` lowers
+    sounds that came in too loud or too bright (hits, the player's hurt, roars, slashes, spikes,
+    arrows, gates, the forge, the knell...); what monsters are made of sits 7 to 10 dB under the
+    cry (`ImpactMaterialDef.volume_db`), and the deepest reverbs are drier (wet 0.2, the limbo 0.3).
 - **The Threshold** (a second life's trial, see builds.md; `ThresholdDef` > Place and Look,
   `data/threshold/`): on the killing blow the floor freezes, a **knell** tolls (a bell made for the
   game, `assets/audio/sfx/world/knell.ogg`) and the picture drains to cold grey-blue at once; the
@@ -77,7 +103,8 @@
   like the floor (dull in the caves, echoing in the crypt, crunchy in the ruins) and footprints that
   fade, a looping background (wind, storm), random distant sounds around the hero (drops, whispers,
   chains, roars), the SFX bus reverb of the place, floating particles (dust, ghost wisps, embers) and
-  drifting pixel fog. Played by `Ambience` (`src/world/ambience.tscn`) on the Ambience bus.
+  drifting pixel fog. Played by `Ambience` (`src/world/ambience.tscn`): the loop on the Ambience bus,
+  footsteps and distant sounds on the World bus (both under the Ambience slider).
   Big monsters and bosses shake the ground when they walk. Under 30% HP a heartbeat plays and the
   music gets muffled (a low-pass filter on the Music bus). The screen fades to black on the stairs.
 

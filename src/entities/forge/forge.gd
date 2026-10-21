@@ -105,7 +105,7 @@ static func _put_back(player: Player, weapon: EquipmentDef, worked: EquipmentDef
 
 ## Sparks fly off the anvil, and its sound.
 func strike(taking_out: bool) -> void:
-	Sfx.play_at(TAKE_SOUND if taking_out else SET_SOUND, global_position)
+	Sfx.play_world(TAKE_SOUND if taking_out else SET_SOUND, global_position)
 	Vfx.burst(_world, Vfx.HIT_SPARKS, global_position + Vector2(-6, -8), Color(1, 0.75, 0.35), Vector2.UP)
 	Events.screen_shake.emit(0.15)
 

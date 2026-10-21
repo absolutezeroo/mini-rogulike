@@ -25,7 +25,7 @@ data/                Game content as .tres resources (no code)
   dungeon/             The run (acts/), floor size, difficulty curve, floor looks (themes/)
   biomes/              The worlds a floor can be (one per file) and their hand-made scenes (scenes/)
   visuals/             SpriteFrames: hero.tres, monsters/, weapons/ (the animations themselves)
-  audio/               Sounds as AudioStreamRandomizer (variations + pitch) and sound_bank.tres
+  audio/               Sounds as AudioStreamRandomizer (variations + pitch), sound_bank.tres, sound_mix.tres
   monsters/            One file per monster type, bosses in bosses/
   perks/               Level-up perks (common/) and boss relics (relics/)
   upgrades/            Shrine upgrades (bought with souls between runs)
@@ -124,7 +124,7 @@ Few, each with one job (`project.godot` > Autoload):
 | Autoload | Script | Job |
 |---|---|---|
 | `Events` | `src/autoload/events.gd` | Signal bus for notifications (screen shake, camera kick, boss fight...). Emit and listen; never use it to give orders |
-| `Sfx` | `src/autoload/sfx.gd` | Plays world (positional) and UI sounds from `data/audio/sound_bank.tres` |
+| `Sfx` | `src/autoload/sfx.gd` | Plays combat, world (positional) and UI sounds from `data/audio/sound_bank.tres`, each on its bus, mixed by `data/audio/sound_mix.tres` |
 | `HitStop` | `src/autoload/hit_stop.gd` | Impact freeze and slow motion |
 | `Profile` | `src/autoload/profile.gd` | What lasts between runs: souls, Tree of Souls, records, bestiary, quests (`user://profile.json`) |
 | `Settings` | `src/autoload/settings.gd` | Options and language (`user://settings.cfg`) |

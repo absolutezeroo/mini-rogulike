@@ -54,7 +54,7 @@ func open_way() -> HiddenWay:
 	world.add_entity(way)
 	way.reached.connect(func() -> void: world.stairs_reached.emit(ROUTE))
 	Events.screen_shake.emit(0.6)
-	Sfx.play_at(Sfx.bank.gate, way.position)
+	Sfx.play_world(Sfx.bank.gate, way.position)
 	Vfx.magic(world, way.position, def.color)
 	world.flash_light(way.position, def.color, 200.0)
 	Events.log_message(tr("The key in your bag turns to ice. Beneath the arena, a sealed way opens."), def.color)

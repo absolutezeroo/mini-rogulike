@@ -46,7 +46,7 @@ func on_hit_player(monster: Monster, player: Player) -> void:
 	state.stolen = stolen(monster) + amount
 	state.flee = flee_time
 	monster.world.spawn_floating_text(player.head_position(), tr("-%d gold") % amount, Palette.GOLD)
-	Sfx.play_at(Sfx.bank.coin, monster.global_position, 0.0, 0.7)
+	Sfx.play_world(Sfx.bank.coin, monster.global_position, 0.0, 0.7)
 
 
 func on_died(monster: Monster, _killer: Actor, fell: bool, rewards: bool) -> void:

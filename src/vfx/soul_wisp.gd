@@ -44,7 +44,7 @@ func _process(delta: float) -> void:
 	global_position += _velocity * delta
 	queue_redraw()
 	if _age > RISE_TIME and global_position.distance_to(goal) < 14.0:
-		Sfx.play_at(Sfx.bank.soul, global_position, -12.0)
+		Sfx.play_world(Sfx.bank.soul, global_position, -12.0)
 		Events.soul_gathered.emit()
 		queue_free()
 

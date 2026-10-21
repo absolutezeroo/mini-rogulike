@@ -46,7 +46,7 @@ func _physics_process(delta: float) -> void:
 		if tick <= 0.0:
 			tick = def.tick_interval
 			actor.take_hit(Combat.make_tick(null, world.rules.dungeon_damage(def.damage, 0.5)))
-			Sfx.play_at(def.sink_sound, actor.global_position, -6.0)
+			Sfx.play_world(def.sink_sound, actor.global_position, -6.0)
 			Vfx.dust(world, actor.global_position, 0.7)
 		_next_tick[id] = tick
 

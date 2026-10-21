@@ -88,7 +88,7 @@ func _process(delta: float) -> void:
 		if _sound_timer <= 0.0:
 			_sound_timer = randf_range(1.5, 3.0)
 			if world.player and world.player.global_position.distance_to(global_position) < 300.0:
-				Sfx.play_at(def.sound, global_position, -10.0, randf_range(0.85, 1.15))
+				Sfx.play_world(def.sound, global_position, -10.0, randf_range(0.85, 1.15))
 
 
 func _draw() -> void:
