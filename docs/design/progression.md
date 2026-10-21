@@ -88,7 +88,8 @@ node, the feat in its card). Tapping a node shows on the right what it does now 
 opens it, and Buy. **Reset the tree** gives every soul back, every level of every node
 (`SoulTreeDef.reset_cost`, 0: free), but it is earned: once every `reset_runs` (3) finished runs
 (`Profile.runs_since_reset`, counted by `Profile.record_run`: a death or a win, daily and Pilgrim
-runs included; a run won then lost in the endless floors counts once). Until then the button is
+runs included; a run won then lost in the endless floors counts once; a run given up before
+floor `reset_min_depth` (2) doesn't count, so quick give-ups don't buy a new tree). Until then the button is
 greyed and says "Reset in 2 runs"; a reset starts the count again. Saves from before the rule
 start with a reset earned, so nobody is stuck with an old path. Each node's effect is an `UpgradeDef` (`data/upgrades/`):
 stats, a head start, perk choices, new items, or run rules (kind `RULES`, read by `RunBoons`:

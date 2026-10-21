@@ -23,6 +23,9 @@ extends Resource
 ## Runs to finish (deaths or wins, daily runs too) before the tree can be reset again: a new
 ## path is earned, not tried on a whim (Profile.runs_since_reset).
 @export_range(0, 20) var reset_runs: int = 3
+## A run counts toward the reset only once it reached this floor: giving up at once from the
+## pause menu, three times over, must not buy a new tree.
+@export_range(1, 12) var reset_min_depth: int = 2
 
 
 func node_of(upgrade: UpgradeDef) -> SoulNodeDef:

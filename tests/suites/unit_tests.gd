@@ -1342,10 +1342,15 @@ func _test_tree_reset_runs() -> void:
 	check(Profile.reset_runs_left(tree) == 1, "each finished run counts, Pilgrim's too (%d left)" % Profile.reset_runs_left(tree))
 	Profile.record_run(10, 12, false, &"normal", true, false)
 	check(Profile.reset_runs_left(tree) == 1, "the endless floors after a win are not another run")
+	var quit := RunState.create(CONTENT, {}, RandomNumberGenerator.new())
+	quit.award_souls(false, CONTENT.ascensions.size())
+	check(Profile.reset_runs_left(tree) == 1, "a run given up on its first floor doesn't count toward the reset")
 	var daily := RunState.create(CONTENT, {}, RandomNumberGenerator.new(), 20000)
+	daily.depth = tree.reset_min_depth
 	daily.award_souls(false, CONTENT.ascensions.size())
 	check(daily.is_daily() and Profile.reset_runs_left(tree) == 0 and Profile.can_reset_tree(tree), "a daily run counts too: the reset is earned")
 	var won := RunState.create(CONTENT, {}, RandomNumberGenerator.new())
+	won.depth = 12
 	won.has_won = true
 	won.award_souls(true, CONTENT.ascensions.size())
 	var count := Profile.runs_since_reset
