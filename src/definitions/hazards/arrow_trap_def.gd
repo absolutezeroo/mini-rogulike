@@ -27,6 +27,7 @@ func on_fire(trap: Trap) -> void:
 	spec.max_distance = (max_range + 4) * world.map.tile_size
 	spec.knockback = knockback
 	spec.texture = arrow_texture
+	spec.texture_frames = 1  # one arrow, not a strip
 	spec.color = Color("d9d3c7")
 	spec.glow = 0.0
 	var from := trap.get_launcher_position()

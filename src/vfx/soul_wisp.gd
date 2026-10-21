@@ -6,7 +6,6 @@ extends Node2D
 const RISE_TIME := 0.35
 const SPEED := 520.0
 const LIFETIME := 3.0
-const COLOR := Color(0.65, 0.95, 1.0)
 const TRAIL_LENGTH := 7
 
 var _target: Node2D
@@ -49,13 +48,16 @@ func _process(delta: float) -> void:
 		queue_free()
 
 
+## On the art's grid in the spirit element's ramp: a trail of pixels going down the ramp, a
+## dithered glow that breathes by whole pixels, the body, a bright heart.
 func _draw() -> void:
+	var spirit := VfxElementDef.named(&"spirit")
 	for i in _trail.size():
 		var t := float(i + 1) / (_trail.size() + 1)
-		var color := COLOR
-		color.a = 0.35 * t
-		draw_circle((_trail[i] - global_position).round(), 1.5 + 2.0 * t, color)
-	var pulse := 0.8 + 0.2 * sin(_age * 20.0)
-	draw_circle(Vector2.ZERO, 10.0 * pulse, Color(0.25, 0.75, 1.0, 0.3))
-	draw_circle(Vector2.ZERO, 5.0, COLOR)
-	draw_circle(Vector2.ZERO, 2.5, Color.WHITE)
+		var local := _trail[i] - global_position
+		if PixelDraw.dither(PixelDraw.cell_of(local), t):
+			PixelDraw.pixel(self, local, spirit.shade(1.0 - t * 0.6), 2 if t > 0.7 else 1)
+	var beat := PixelDraw.PX if fmod(_age * 6.0, 1.0) < 0.5 else 0.0
+	PixelDraw.disc(self, Vector2.ZERO, 8.0 + beat, spirit.shade(0.75), 0.35)
+	PixelDraw.disc(self, Vector2.ZERO, 4.0, spirit.color())
+	PixelDraw.pixel(self, Vector2(-2, -2), spirit.core(), 2)

@@ -1,6 +1,5 @@
 [gd_resource type="Resource" script_class="WeaponDef" format=3]
 
-[ext_resource type="Texture2D" path="res://assets/fx/slashdoublecurved.png" id="1_ehvmk"]
 [ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_la2d8"]
 [ext_resource type="AudioStream" path="res://data/audio/slash_heavy.tres" id="2_la2d8"]
 [ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="3_rtcny"]
@@ -13,7 +12,6 @@ damage = 13
 cooldown = 1.8
 reach = 34.0
 knockback = 380.0
-attack_fx = ExtResource("1_ehvmk")
 arc_degrees = 150.0
 trail_color = Color(1, 0.45, 0.4, 0.75)
 attack_sound = ExtResource("2_la2d8")

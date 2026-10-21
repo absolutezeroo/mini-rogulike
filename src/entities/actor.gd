@@ -281,7 +281,7 @@ func take_hit(hit: HitInfo) -> void:
 		rig.play_hurt()
 	if not hit.is_secondary:
 		var spark_direction := hit.knockback.normalized() if hit.knockback != Vector2.ZERO else Vector2.UP
-		Vfx.hit(world, global_position + Vector2(0, -radius * 0.5), spark_direction, _hit_spark_color(hit), hit.is_crit)
+		Vfx.hit(world, global_position + Vector2(0, -radius * 0.5), spark_direction, _hit_spark_color(hit), hit.is_crit, hit.element)
 		Sfx.play_at(_hurt_sound(hit), global_position)
 		var impact := _impact_material()
 		if impact and impact.sound:
@@ -559,19 +559,19 @@ func _body_modulate() -> Color:
 	if is_dead:
 		return Color(0.45, 0.4, 0.4, 1.0)
 	if not statuses.is_empty():
-		# Burning, poisoned...: tinted, pulsing slightly.
+		# Burning, poisoned, chilled...: tinted a steady 45% toward the status's color (a body
+		# that pulses reads as one about to strike, docs/vfx.md). Quicksand and sand: no tint.
 		var tint := statuses.tint()
-		return Color.WHITE.lerp(tint * 1.4, 0.35 + 0.15 * sin(Time.get_ticks_msec() * 0.02))
+		if tint.a > 0.0:
+			return Color.WHITE.lerp(Color(tint, 1.0), 0.45)
 	return Color.WHITE
 
 
 func _draw() -> void:
 	if is_falling:
 		return
-	# Shadow under the feet.
-	draw_set_transform(Vector2(0, _feet_y() - 1.0), 0.0, Vector2(1.0, 0.4))
-	draw_circle(Vector2.ZERO, radius, Color(0, 0, 0, 0.35))
-	draw_set_transform(Vector2.ZERO)
+	# Shadow under the feet: a flat oval of art pixels.
+	PixelDraw.disc(self, Vector2(0, _feet_y() - 1.0), radius, Color(0, 0, 0, 0.35), 1.0, 0.4)
 	if frames == null:
 		var color := Color.WHITE if _flash_time > 0.0 else body_color * _body_modulate()
 		_draw_fallback_body(color)
@@ -581,13 +581,17 @@ func _draw() -> void:
 
 ## A shimmering bubble around a warded actor, drawn on `canvas` (centered on the actor; monsters
 ## draw it over their body, see MonsterOverlay).
+## A shell of art pixels in the spirit element's ramp: a sparse dithered inside, a solid rim,
+## and a glint running around it (docs/vfx.md: no smooth circle, no translucent fill).
 func draw_ward(canvas: CanvasItem) -> void:
 	var t := Time.get_ticks_msec() * 0.001
+	var spirit := VfxElementDef.named(&"spirit")
 	var center := Vector2(0, -radius * 0.7)
-	var size := radius + 9.0
-	canvas.draw_circle(center, size, Color(0.55, 0.8, 1.0, 0.18))
-	canvas.draw_arc(center, size, 0.0, TAU, 24, Color(0.75, 0.92, 1.0, 0.75 + 0.2 * sin(t * 6.0)), 2.0)
-	canvas.draw_arc(center, size - 3.0, t * 2.0, t * 2.0 + 1.2, 6, Color(1, 1, 1, 0.8), 2.0)
+	var size := PixelDraw.snap_length(radius + 9.0)
+	PixelDraw.disc(canvas, center, size - PixelDraw.PX, spirit.shade(0.75), 0.12)
+	PixelDraw.ring(canvas, center, size, spirit.shade(0.5))
+	for i in 3:
+		PixelDraw.pixel(canvas, center + Vector2.from_angle(t * 2.5 + i * 0.18) * size - Vector2.ONE, spirit.core())
 
 
 func _draw_fallback_body(color: Color) -> void:

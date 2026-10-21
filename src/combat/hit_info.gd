@@ -24,3 +24,6 @@ var text_color := Color.TRANSPARENT
 var unavoidable: bool = false
 ## Statuses left on the target (burn, slow...). Optional.
 var status: OnHitStatus
+## What the blow is made of (frost, fire...): its flash takes the element's shape (ImpactVfx).
+## Null: a plain blow.
+var element: VfxElementDef

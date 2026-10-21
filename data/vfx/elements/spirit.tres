@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="VfxElementDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_element_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"spirit"
+ramp = PackedColorArray(0.941176, 1, 0.972549, 1, 0.721569, 0.960784, 0.862745, 1, 0.435294, 0.839216, 0.705882, 1, 0.231373, 0.560784, 0.52549, 1, 0.137255, 0.294118, 0.321569, 1)
+residue = Color(0.721569, 0.960784, 0.862745, 0.4)
+bit = 8
+motion = 0

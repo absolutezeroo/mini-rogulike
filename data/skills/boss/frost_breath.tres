@@ -3,9 +3,9 @@
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_3mukr"]
 [ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_jyucx"]
 [ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_tewqa"]
-[ext_resource type="Texture2D" path="res://assets/projectiles/icespike.png" id="4_y6n60"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_vubkc"]
 [ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="6_h558l"]
+[ext_resource type="Resource" path="res://data/vfx/elements/frost.tres" id="vfx_frost"]
 
 [sub_resource type="Resource" id="Resource_8rvm2"]
 script = ExtResource("3_tewqa")
@@ -13,6 +13,7 @@ slow = 0.4
 
 [sub_resource type="Resource" id="Resource_tbqfk"]
 script = ExtResource("2_jyucx")
+element = ExtResource("vfx_frost")
 damage_multiplier = 0.42
 flat_damage = 4
 speed = 360.0
@@ -22,7 +23,6 @@ count = 5
 spread_degrees = 46.0
 knockback = 120.0
 color = Color(0.43137255, 0.7764706, 1, 1)
-texture = ExtResource("4_y6n60")
 status = SubResource("Resource_8rvm2")
 
 [resource]

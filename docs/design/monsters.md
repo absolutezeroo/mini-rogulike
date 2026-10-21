@@ -29,7 +29,7 @@ What a monster draws besides its body (warnings, elite aura and name, health bar
 is `MonsterOverlay`.
 
 - **DeathBurstTrait**: bursts after a short warning (a flame spirit explodes, a frost skull
-  freezes everything around).
+  bursts into a ring of ice crystals that slows everything around: `element`, docs/vfx.md).
 - **DeathSpawnTrait**: monsters come out when it dies (a giant slime splits in two).
 - **GuardTrait** (Shell Guard): the shell, the silver arc in front of it, blocks most of the damage
   and push of blows from the front. It turns slowly: roll behind it. Burns, poison and blasts
@@ -107,6 +107,7 @@ acts, a "???" card under a "???" heading until it was met.
 - **The Wyrms** (`WyrmTrait`, `WyrmBody`): long dragons. The boss is the head; a body of
   segments follows the path the head took, wings flap on its sides, a pointed tail ends it.
   The body burns at a touch (and throws you back); only the head can be hurt. They fly.
-  **Azure Wyrm** (Act II, frost: Frost Breath, Glacial Dive, Hailstorm) and **Jade Wyrm**
+  **Azure Wyrm** (Act II, frost: Frost Breath and Hailstorm throw ice shards, Glacial Dive leaves
+  a line of crystals that shatter, its Frost Fang strikes with claws of ice) and **Jade Wyrm**
   (Act III, venom: Venom Spit, Coil Rush, Toxic Bloom), with their three phases and fiercer
   forms, and their own bestiary challenge (a Hammer, an Axe).

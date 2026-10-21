@@ -4,24 +4,23 @@
 [ext_resource type="Texture2D" path="res://assets/fx/fire_flames.png" id="2"]
 [ext_resource type="Texture2D" path="res://assets/fx/flame.png" id="3"]
 [ext_resource type="AudioStream" path="res://data/audio/flames.tres" id="4"]
+[ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="5"]
 
 [resource]
 script = ExtResource("1")
 status = &"burn"
+element = ExtResource("5")
 particle = ExtResource("2")
-particle_frames = 8
+particle_frames = 12
 particle_rate = 11.0
 particle_life = 0.55
 particle_rise = 22.0
-particle_scale = 1.0
 mote = 1
 mote_rate = 7.0
 mote_color = Color(1, 0.85, 0.45, 1)
-glow = Color(1, 0.55, 0.2, 0.16)
 burst = ExtResource("3")
 burst_frames = 8
 burst_time = 0.45
-burst_scale = 0.9
 sound = ExtResource("4")
 sound_db = -10.0
 text_color = Color(1, 0.55, 0.26, 1)

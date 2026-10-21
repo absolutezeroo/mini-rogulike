@@ -9,6 +9,8 @@ extends MonsterTrait
 @export var status: OnHitStatus
 ## Sheet played for the burst (square frames). Empty = an explosion.
 @export var fx: Texture2D
+## What it bursts into (data/vfx/elements/): the element's nova, instead of `fx`.
+@export var element: VfxElementDef
 ## Seconds between the death and the burst.
 @export var fuse: float = 0.35
 
@@ -17,7 +19,7 @@ func on_died(monster: Monster, _killer: Actor, fell: bool, _rewards: bool) -> vo
 	if fell:
 		return
 	var world := monster.world
-	Combat.delayed_blast(world, monster.global_position, radius, world.rules.dungeon_damage(damage), fuse, fx, status)
+	Combat.delayed_blast(world, monster.global_position, radius, world.rules.dungeon_damage(damage), fuse, fx, status, element)
 
 
 func describe() -> String:

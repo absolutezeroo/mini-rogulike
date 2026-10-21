@@ -31,10 +31,11 @@ static func burst(world: World, scene: PackedScene, at: Vector2, color: Color = 
 	world.spawn_vfx(particles)
 
 
-## A sharp flash and sparks flying away from an impact (bigger for a critical hit).
-static func hit(world: World, at: Vector2, direction: Vector2, color: Color = Color.WHITE, big: bool = false) -> void:
+## A flash and sparks flying away from an impact (bigger for a critical hit): sparks in `color`
+## (what the target is made of), the flash in the hitting `element`'s language (ImpactVfx).
+static func hit(world: World, at: Vector2, direction: Vector2, color: Color = Color.WHITE, big: bool = false, element: VfxElementDef = null) -> void:
 	burst(world, HIT_SPARKS, at, color, direction)
-	world.spawn_vfx(ImpactVfx.create(at, direction, color, big))
+	world.spawn_vfx(ImpactVfx.create(at, direction, color, big, element))
 
 
 ## The arc of a melee swing (or the streak of a thrust), at the weapon's reach.
@@ -48,10 +49,32 @@ static func swing(attacker: Actor, aim: Vector2, weapon: WeaponDef, duration: fl
 	attacker.world.spawn_vfx(SwingVfx.create(attacker.global_position + Vector2(0, -6), aim, reach, weapon.arc_degrees, thrust, weapon.trail_color, duration))
 
 
-## A small burst of a glowing shot hitting something (a fireball, a magic bolt).
-static func pop(world: World, at: Vector2, color: Color, radius: float = 14.0) -> void:
-	world.spawn_vfx(BlastVfx.create(at, radius, color))
-	world.flash_light(at, color, radius * 5.0)
+## A shot of `element` landing (an ice shard cracking, a fireball bursting): the element's
+## impact sheet, or a burst in its ramp when its kit has none. `direction`: where it flew.
+static func pop(world: World, at: Vector2, element: VfxElementDef, radius: float = 14.0, direction: Vector2 = Vector2.RIGHT) -> void:
+	if element.impact:
+		world.spawn_vfx(SheetVfx.play(element.impact, at, direction, element))
+	else:
+		world.spawn_vfx(BlastVfx.create(at, radius, element))
+	if element.emissive:
+		world.flash_light(at, element.color(), radius * 5.0)
+	if element.impact_sound:
+		Sfx.play_at(element.impact_sound, at, -6.0)
+
+
+## A nova of `element` filling `radius` around `at` (Frost Nova, a cold wave): its pieces
+## composed around the ring (ComposedVfx), or a ring in its ramp.
+static func nova(world: World, at: Vector2, radius: float, element: VfxElementDef) -> void:
+	world.spawn_vfx(ComposedVfx.ring(at, radius, element))
+	if element and element.emissive:
+		world.flash_light(at, element.color(), radius * 2.0)
+
+
+## `element` left along a line (a dash through ice): its pieces one after the other.
+static func trail(world: World, from: Vector2, to: Vector2, element: VfxElementDef, duration: float = 0.15) -> void:
+	var line := ComposedVfx.line(from, to, element, duration)
+	if line:
+		world.spawn_vfx(line)
 
 
 ## A ripple running through the picture around a blast.
@@ -80,14 +103,25 @@ static func boss_death(world: World, at: Vector2, size: float) -> void:
 				explosion(world, at + offset, 50.0 + 12.0 * i))
 
 
-## A ball of fire, a ripple through the picture, fire and smoke, a scorch mark on the floor.
-static func explosion(world: World, at: Vector2, radius: float, tint: Color = Color(1.0, 0.45, 0.15)) -> void:
+## A blast of `element` (fire when none: barrels, bombs): a burst in its ramp, a ripple through
+## the picture, its particles (fire and smoke; dust and chips for earth...), its mark on the floor
+## (a scorch, cracks).
+static func explosion(world: World, at: Vector2, radius: float, element: VfxElementDef = null) -> void:
+	if element == null:
+		element = VfxElementDef.named(&"fire")
 	var size := clampf(radius / 80.0, 0.6, 1.6)
-	world.spawn_vfx(BlastVfx.create(at, radius * 1.05, tint))
-	world.add_splat(at, Color(0.08, 0.06, 0.06, 0.55), clampf(radius / 45.0, 0.8, 2.5))
-	world.flash_light(at, Color(1.0, 0.62, 0.32), radius * 3.0)
-	burst(world, FIRE, at, Color.WHITE, Vector2.ZERO, size * 0.7)
-	burst(world, SMOKE, at, Color.WHITE, Vector2.ZERO, size)
+	world.spawn_vfx(BlastVfx.create(at, radius * 1.05, element))
+	if element.mark.a > 0.0:
+		world.add_splat(at, element.mark, clampf(radius / 45.0, 0.8, 2.5))
+	if element.emissive:
+		world.flash_light(at, element.shade(0.5), radius * 3.0)
+	if element.id == &"fire":
+		burst(world, FIRE, at, Color.WHITE, Vector2.ZERO, size * 0.7)
+		burst(world, SMOKE, at, Color.WHITE, Vector2.ZERO, size)
+	else:
+		burst(world, DEATH_CHUNKS, at, element.color(), Vector2.ZERO, size)
+		if element.residue.a > 0.0:
+			burst(world, DUST, at, Color(element.residue, 1.0), Vector2.ZERO, size * 1.6)
 	shockwave(world, at, radius * 1.4, clampf(radius / 12.0, 4.0, 9.0))
 	Sfx.play_at(Sfx.bank.explosion, at)
 	if world.player and world.player.global_position.distance_to(at) < 600.0:
@@ -100,7 +134,7 @@ static func sparkles(world: World, at: Vector2, color: Color) -> void:
 
 ## Magic circle on the ground (heals, buffs, level up).
 static func magic(world: World, at: Vector2, color: Color) -> void:
-	world.spawn_vfx(SheetVfx.create(MAGIC_CIRCLE_SHEET, at, 0.0, 2.5, 12.0).with_color(color))
+	world.spawn_vfx(SheetVfx.create(MAGIC_CIRCLE_SHEET, at, 0.0, 2.0, 12.0).with_color(color))
 	world.flash_light(at, color, 200.0)
 	sparkles(world, at + Vector2(0, -10), color)
 

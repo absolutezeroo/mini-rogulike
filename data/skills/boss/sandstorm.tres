@@ -6,9 +6,11 @@
 [ext_resource type="Texture2D" path="res://assets/projectiles/sandball.png" id="4_u41aw"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_rtf4c"]
 [ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="6_n1sya"]
+[ext_resource type="Resource" path="res://data/vfx/elements/earth.tres" id="vfx_earth"]
 
 [sub_resource type="Resource" id="Resource_kylvq"]
 script = ExtResource("3_divap")
+slow_element = ExtResource("vfx_earth")
 slow = 0.35
 slow_duration = 1.5
 

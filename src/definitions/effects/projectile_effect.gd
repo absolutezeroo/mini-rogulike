@@ -16,8 +16,13 @@ extends Effect
 ## Greater than 0: the projectile explodes on impact and hits everything around.
 @export var explosion_radius: float = 0.0
 @export var color: Color = Color(1.0, 0.5, 0.2)
-## Sprite (or frames in a row) of the projectile. Without one, a glowing dot is drawn.
+## What it is made of (data/vfx/elements/): without a texture, the shot is the element's own
+## projectile; it lands and hits in the element's language (docs/vfx.md).
+@export var element: VfxElementDef
+## Sprite (or frames in a row) of the projectile. Without one (and no element), a glowing dot.
 @export var texture: Texture2D
+## Frames in a row of `texture` (0 = square frames).
+@export_range(0, 64) var texture_frames: int = 0
 ## Statuses left on the enemies hit (burn, slow...).
 @export var status: OnHitStatus
 ## Magic shots glow and burst on impact; 0 for plain things (feathers, coins, arrows).
@@ -40,8 +45,10 @@ func apply(user: Actor, aim: Vector2) -> void:
 	spec.pierce = pierce
 	spec.knockback = knockback
 	spec.explosion_radius = explosion_radius
-	spec.color = color
+	spec.color = element.color() if element else color
 	spec.texture = texture
+	spec.texture_frames = texture_frames
+	spec.element = element
 	spec.status = status
 	spec.glow = glow
 	spec.secondary = secondary

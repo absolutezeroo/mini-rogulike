@@ -2,19 +2,19 @@
 
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_y6ktm"]
 [ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_2g5pd"]
-[ext_resource type="Texture2D" path="res://assets/projectiles/energyball.png" id="3_lyy2b"]
 [ext_resource type="Texture2D" path="res://assets/ui/skills/arcane_bolt.png" id="4_xugpm"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_86n2a"]
 [ext_resource type="AudioStream" path="res://data/audio/bolt.tres" id="6_mts1u"]
+[ext_resource type="Resource" path="res://data/vfx/elements/arcane.tres" id="vfx_arcane"]
 
 [sub_resource type="Resource" id="Resource_o41nl"]
 script = ExtResource("2_2g5pd")
+element = ExtResource("vfx_arcane")
 damage_multiplier = 2.2
 speed = 520.0
 radius = 12.0
 pierce = 4
 color = Color(0.7019608, 0.53333336, 0.92156863, 1)
-texture = ExtResource("3_lyy2b")
 
 [resource]
 script = ExtResource("5_86n2a")

@@ -13,6 +13,11 @@ var knockback: float = 100.0
 var explosion_radius: float = 0.0
 var color := Color.WHITE
 var texture: Texture2D
+## Frames in a row of `texture` (0 = square frames).
+var texture_frames: int = 0
+## What it is made of: its look in flight and where it lands, its hits' flash (VfxElementDef).
+## Without a texture, the element's own projectile sheet is drawn.
+var element: VfxElementDef
 ## Statuses left on the enemies hit (burn, slow...).
 var status: OnHitStatus
 ## Fired by a passive (shards out of a body, a family's ring of bolts): its hits are secondary

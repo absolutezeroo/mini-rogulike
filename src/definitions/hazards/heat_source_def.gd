@@ -24,13 +24,15 @@ extends HazardDef
 @export_group("Look")
 ## Drawn in the middle at 2x (a fire pit...).
 @export var sprite: Texture2D
-## Animated on it (flames dancing, water rippling): square frames in a row.
+## Animated on it (flames dancing, water rippling): frames in a row.
 @export var flames: Texture2D
 ## How many copies of the animation, side by side and out of step (3 flames, 1 ripple).
 @export_range(1, 5) var flame_copies: int = 3
-## Frames of the sheet used (the first ones).
-@export_range(1, 16) var flame_frames: int = 5
-@export var flame_scale: float = 3.0
+## Frames in a row of `flames` (0 = square frames). An 8x12 flame strip needs it, or each frame
+## would cut two flames in half.
+@export_range(0, 32) var flame_frames: int = 0
+## World units per texel of the flames, snapped to a whole even number (2 = the art's size).
+@export var flame_scale: float = 2.0
 ## A pond over the covered cells: 3x3 tiles of 16 px (shore corners and edges around water),
 ## stretched to the pond's size. Nobody walks on it (it blocks like a wall, not shots nor sight).
 @export var pond: Texture2D

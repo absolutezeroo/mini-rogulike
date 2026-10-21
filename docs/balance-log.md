@@ -3,6 +3,16 @@
 Dated entries, newest first: what was measured, what changed and why, before/after numbers, open
 questions. How to measure: [balance.md](balance.md).
 
+## 2026-10-21 - The Frost Staff's shards chill (by rule, not measured in runs)
+
+**Why:** the staff's shots are now the frost element's ice shards (docs/vfx.md), and a frost hit
+shows as rime on the body; a frost staff whose shards didn't chill read as a lie. Its basic
+attack (`data/items/weapons/stick.tres`) gets a small slow: **20% for 1 s** on hit (Ice Shards
+35% for 1.5 s, Frost Nova 50% for 2.5 s, Frostbite 15% per level). It wakes the Frost synergy's
+"+50% damage to slowed enemies" on every staff hit, so a staff + Frost family build gains the
+bonus without its slowing perks: to measure with the Frost family arena build
+(`data/balance/builds/family_frost_a3.tres`). No other number changed.
+
 ## 2026-10-21 - Dismantling gear for gold (new economy source, by rule, not measured in runs)
 
 **Design (from the player's request: "the bag fills too fast"):** gear in the bag breaks down for

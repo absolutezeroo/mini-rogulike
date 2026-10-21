@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" path="res://src/definitions/items/item_affix_def.gd" id="1_7oon0"]
 [ext_resource type="SpriteFrames" path="res://data/visuals/weapons/rapier.tres" id="2_66l2u"]
-[ext_resource type="Texture2D" path="res://assets/fx/cut.png" id="3_dlls5"]
 [ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="4_1jhcp"]
 [ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="5_xqm3c"]
 [ext_resource type="AudioStream" path="res://data/audio/hit.tres" id="6_3bv1y"]
@@ -24,8 +23,6 @@ reach = 42.0
 knockback = 60.0
 attack_animation = 1
 attack_frames = ExtResource("2_66l2u")
-attack_fx = ExtResource("3_dlls5")
-attack_fx_rotation = 45.0
 skills = Array[ExtResource("9_lobrh")]([ExtResource("10_a65b0"), ExtResource("11_b0na8")])
 arc_degrees = 30.0
 attack_sound = ExtResource("4_1jhcp")

@@ -14,13 +14,13 @@ class Dot:
 	var color: Color
 
 
-const SLOW_COLOR := Palette.FROST
 ## The slow source of the ground itself (quicksand): it slows but is no status to show.
 const GROUND_SLOW := &"ground"
 
 var _dots: Array[Dot] = []
-## Slows by source (a frost hit, the cold, quicksand...): source -> [amount, seconds left].
-## The strongest active one counts; each runs out on its own.
+## Slows by source (a frost hit, the cold, quicksand...): source -> [amount, seconds left,
+## element]. The strongest active one counts; each runs out on its own. The element says how
+## the body shows it (frost: rime and cold mist; sand or ink: nothing, VfxElementDef.slow_look).
 var _slows := {}
 
 
@@ -44,15 +44,19 @@ func apply_dot(id: StringName, damage: int, interval: float, duration: float, so
 
 
 ## Slows by `amount` for `duration` seconds. `source` keeps different slows apart: things that
-## re-apply every frame (cold, quicksand) don't stretch a frost hit forever.
-func apply_slow(amount: float, duration: float, source: StringName = &"hit") -> void:
+## re-apply every frame (cold, quicksand) don't stretch a frost hit forever. `element`: what
+## slows it (frost when not given; the ground's own slow has none), which decides its look.
+func apply_slow(amount: float, duration: float, source: StringName = &"hit", element: VfxElementDef = null) -> void:
 	amount = clampf(amount, 0.0, 0.9)
-	var current: Array = _slows.get(source, [0.0, 0.0])
+	if element == null and source != GROUND_SLOW:
+		element = VfxElementDef.named(&"frost")
+	var current: Array = _slows.get(source, [0.0, 0.0, null])
 	if source == &"hit":
-		# Hits: the strongest one, the longest one.
-		_slows[source] = [maxf(current[0], amount), maxf(current[1], duration)]
+		# Hits: the strongest one, the longest one; a frost hit's look wins over a plain one.
+		var kept: VfxElementDef = current[2] if current[2] != null and current[1] > 0.0 and (element == null or element.slow_look == &"") else element
+		_slows[source] = [maxf(current[0], amount), maxf(current[1], duration), kept]
 	else:
-		_slows[source] = [amount, duration]
+		_slows[source] = [amount, duration, element]
 
 
 ## Multiplier for the move speed (1 = not slowed).
@@ -71,26 +75,41 @@ func has(id: StringName) -> bool:
 	return _dots.any(func(dot: Dot) -> bool: return dot.id == id)
 
 
-## The statuses on now: the damage-over-time ids, and &"slow" when frost or cold slows the body
-## (StatusFx shows them; sinking in quicksand is not frost).
+## The statuses on now: the damage-over-time ids, and the look of each element slowing the
+## body (frost's is &"slow": StatusFx shows rime; sinking in quicksand, sand or ink show none).
 func active_ids() -> Array[StringName]:
 	var ids: Array[StringName] = []
 	for dot in _dots:
 		ids.append(dot.id)
-	if _slows.keys().any(func(source: StringName) -> bool: return source != GROUND_SLOW):
-		ids.append(&"slow")
+	for element in slow_elements():
+		if element.slow_look != &"" and not ids.has(element.slow_look):
+			ids.append(element.slow_look)
 	return ids
+
+
+## The elements slowing the body now (not the ground's own slow).
+func slow_elements() -> Array[VfxElementDef]:
+	var elements: Array[VfxElementDef] = []
+	for source: StringName in _slows:
+		var element: VfxElementDef = _slows[source][2]
+		if element and not elements.has(element):
+			elements.append(element)
+	return elements
 
 
 func is_empty() -> bool:
 	return _dots.is_empty() and _slows.is_empty()
 
 
-## Tint of the strongest active status (for the actor's body), or transparent.
+## Tint of the strongest active status (for the actor's body), or transparent: a slow tints
+## only when its element shows on the body (frost), not sand or the ground.
 func tint() -> Color:
 	if not _dots.is_empty():
 		return _dots[0].color
-	return SLOW_COLOR if is_slowed() else Color.TRANSPARENT
+	for element in slow_elements():
+		if element.slow_look != &"":
+			return element.color()
+	return Color.TRANSPARENT
 
 
 func clear() -> void:

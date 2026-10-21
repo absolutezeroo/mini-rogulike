@@ -116,17 +116,17 @@ func _draw_campfire() -> void:
 		var size := def.sprite.get_size() * 2.0
 		draw_texture_rect(def.sprite, Rect2(-size * 0.5, size), false)
 	if def.flames:
-		var frame_size := def.flames.get_height()
-		var frames := mini(maxi(def.flames.get_width() / frame_size, 1), def.flame_frames)
+		var frame_size := VfxSheetDef.cell_size(def.flames, def.flame_frames)
+		var frames := VfxSheetDef.columns(def.flames, def.flame_frames)
 		var copies := def.flame_copies
 		for i in copies:
 			# Side by side and out of step; the middle one a bit higher.
 			var frame := int(_time * 9.0 + i * 1.7) % frames
 			var middle := (copies - 1) * 0.5
 			var offset := Vector2((i - middle) * 10.0, (-14.0 - (6.0 if absf(i - middle) < 0.6 else 0.0)) if copies > 1 else 0.0)
-			var size := Vector2.ONE * frame_size * def.flame_scale
-			draw_texture_rect_region(def.flames, Rect2(offset - size * 0.5, size),
-				Rect2(frame * frame_size, 0, frame_size, frame_size))
+			var size := Vector2(frame_size) * PixelDraw.sheet_scale(def.flame_scale)
+			draw_texture_rect_region(def.flames, Rect2(PixelDraw.snap(offset - size * 0.5), size),
+				Rect2(Vector2(frame * frame_size.x, 0), Vector2(frame_size)))
 	elif def.sprite == null and def.pond == null:
 		draw_circle(Vector2.ZERO, 10.0, Color("ff9f1c"))  # nothing to show: a plain fire
 

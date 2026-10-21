@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="VfxElementDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_element_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"physical"
+ramp = PackedColorArray(0.94902, 0.917647, 0.945098, 1, 0.780392, 0.780392, 0.780392, 1, 0.54902, 0.54902, 0.54902, 1, 0.305882, 0.282353, 0.290196, 1)
+bit = 0
+motion = 4
+emissive = false

@@ -1,0 +1,55 @@
+[gd_resource type="Resource" script_class="VfxElementDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_element_def.gd" id="1"]
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_sheet_def.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/fx/frost/frost_shard.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/fx/frost/frost_impact.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/fx/frost/frost_crystal.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/fx/clawdouble.png" id="6"]
+
+[sub_resource type="Resource" id="shot"]
+script = ExtResource("2")
+texture = ExtResource("3")
+frames = 2
+orient = 1
+directions = 16
+fps = 8.0
+loop = true
+
+[sub_resource type="Resource" id="impact"]
+script = ExtResource("2")
+texture = ExtResource("4")
+fps = 20.0
+anchor = Vector2(0, 1)
+linger = 0.12
+
+[sub_resource type="Resource" id="piece"]
+script = ExtResource("2")
+texture = ExtResource("5")
+frames = 8
+variants = 3
+fps = 16.0
+anchor = Vector2(0, -10)
+linger = 0.0
+
+[sub_resource type="Resource" id="claw"]
+script = ExtResource("2")
+texture = ExtResource("6")
+orient = 2
+directions = 16
+fps = 18.0
+recolor = true
+
+[resource]
+script = ExtResource("1")
+id = &"frost"
+ramp = PackedColorArray(0.921569, 0.972549, 1, 1, 0.560784, 0.937255, 0.945098, 1, 0.47451, 0.721569, 0.807843, 1, 0.290196, 0.447059, 0.658824, 1, 0.172549, 0.207843, 0.376471, 1)
+residue = Color(0.784314, 0.894118, 0.941176, 0.8)
+mark = Color(0.721569, 0.862745, 0.898039, 0.35)
+slow_look = &"slow"
+bit = 1
+motion = 1
+projectile = SubResource("shot")
+impact = SubResource("impact")
+piece = SubResource("piece")
+claw = SubResource("claw")

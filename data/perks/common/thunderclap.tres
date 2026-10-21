@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="5_lu8fu"]
 [ext_resource type="Script" path="res://src/definitions/synergy_def.gd" id="6_767ow"]
 [ext_resource type="Resource" path="res://data/perks/synergies/storm.tres" id="7_ombh6"]
+[ext_resource type="Resource" path="res://data/vfx/elements/storm.tres" id="vfx_storm"]
 
 [sub_resource type="Resource" id="Resource_yl21y"]
 script = ExtResource("1_6cj6c")
@@ -14,6 +15,7 @@ crit_chance = 0.03
 
 [sub_resource type="Resource" id="Resource_d6wmg"]
 script = ExtResource("4_ombh6")
+element = ExtResource("vfx_storm")
 
 [resource]
 script = ExtResource("5_lu8fu")

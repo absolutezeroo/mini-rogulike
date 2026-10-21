@@ -5,9 +5,11 @@
 [ext_resource type="Script" path="res://src/definitions/passives/slow_on_hit_passive.gd" id="3_kind"]
 [ext_resource type="Resource" path="res://data/perks/synergies/frost.tres" id="4_family"]
 [ext_resource type="Texture2D" path="res://assets/items/runes/rime.png" id="5_icon"]
+[ext_resource type="Resource" path="res://data/vfx/elements/frost.tres" id="vfx_frost"]
 
 [sub_resource type="Resource" id="Resource_passive"]
 script = ExtResource("3_kind")
+element = ExtResource("vfx_frost")
 slow_per_stack = 0.2
 
 [resource]

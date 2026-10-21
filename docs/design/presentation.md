@@ -13,8 +13,14 @@
   sparks take its color, and when it dies it flings **chips** of itself that land and stay for the
   whole floor (`SplatLayer.add_debris`): bone shards, slime drops, bits of armor. Broken crates and
   barrels leave their splinters too. Sounds: Kenney "Impact Sounds" (CC0).
-- **VFX**: hand-drawn sprite-sheet effects (slashes, claws, explosions, smoke, magic circles,
-  "!" emote when a monster spots you) plus pixel particles for hits, dust and sparkles
+- **VFX** (the style guide, its rules and every element's kit: [docs/vfx.md](../vfx.md)): every
+  effect speaks its **element** (`VfxElementDef`, `data/vfx/elements/`: a ramp of 3-5 colors, a
+  particle shape, a direction of motion, a kit of sheets), on the art's 2-unit pixel grid, never
+  stretched or freely turned, fading by dithering. Frost is faceted ice shards drawn in 16
+  directions, cracking impacts, novas of crystals growing then shattering, rime on chilled
+  bodies; fire licks up, poison bubbles and sinks, storm forks. Hand-drawn sprite-sheet effects
+  (slashes, claws, explosions, smoke, magic circles, "!" emote when a monster spots you) plus
+  pixel particles for hits, dust and sparkles
   (`src/vfx/particles/*.tscn`, edit them in the inspector), dash afterimages, animated projectiles,
   squash on hit, popping damage numbers, red vignette when hurt or low on HP.
 - **Atmosphere** (`AmbienceDef` > Atmosphere, one per biome and curse): the whole picture takes
@@ -28,16 +34,20 @@
 - **Attack effects** (shaders, all on the art's pixel grid): a melee swing draws a crescent at the
   weapon's reach and arc (`SwingVfx`, `swing.gdshader`: white cutting edge, the weapon's
   `trail_color` behind, thinning out in dithered pixels), a thrust a streak; claws and bites keep
-  their sheets. Hits pop a sharp star (`ImpactVfx`, bigger on crits). Blasts ripple the picture
+  their sheets (a weapon shows its arc or its sheet, never both: `WeaponDef.shows_arc()`). Hits
+  flash for two frames and throw the blow's element's bits away from it (`ImpactVfx`: ice chips
+  falling, embers rising; a plain blow throws short streaks), bigger on crits. Blasts ripple the picture
   (`ShockwaveVfx`, `shockwave.gdshader`). Monster warnings (`TelegraphView`, `telegraph.gdshader`):
   zone, cone or line with crawling hazard stripes and a solid rim, filling up from the monster as
   the attack comes, flashing just before it lands. Shots leave a glowing streak.
-- **Shots and blasts**: magic shots (fireballs, bolts, spells) glow in their color (a pulsing
-  halo, `ProjectileHalo`, and a light in the dark), leave a glowing streak and burst on impact
-  (`Vfx.pop`); plain things (shurikens, arrows, feathers, coins: `projectile_glow` /
-  `ProjectileEffect.glow` 0) just fly. Explosions are a ball of fire drawn by a shader
-  (`BlastVfx`, `blast.gdshader`: white-hot heart, flame bands, licking edges, smoke) with a
-  ripple, fire and smoke particles and a scorch mark left on the floor.
+- **Shots and blasts**: magic shots (fireballs, bolts, spells) are their element's shot (the
+  frost shard, drawn in 16 directions; round orbs are never turned), light the dark in its
+  color, leave a trail of its bits and land in its language (`Vfx.pop`: the element's impact
+  sheet, or a burst in its ramp); a shot at the end of its range breaks up instead of vanishing.
+  Plain things (shurikens, arrows, feathers, coins: `projectile_glow` / `ProjectileEffect.glow`
+  0) just fly. Explosions are a burst drawn by a shader in their element's ramp (`BlastVfx`,
+  `blast.gdshader`: for fire a white-hot heart, flame bands, licking edges, smoke) with a
+  ripple, particles and a mark left on the floor (a scorch for fire).
 - **Little details**: fights leave **splats** on the floor (`SplatLayer`, `World.add_splat`): blood,
   green slime, purple ink, bone dust, in each monster's `splat_color` (spirits and flames leave
   none), fading after a while. **Plants sway** in a breeze and **bend** away from whoever walks
@@ -47,10 +57,15 @@
   sand gusts in the desert, mist over the flooded caverns, dust in the library and the tomb.
   Gameplay code spawns them in one line through `Vfx` (`Vfx.hit(...)`, `Vfx.explosion(...)`).
 - **Statuses on the body** (`StatusFx`, one per actor; looks in `data/vfx/status_looks/`,
-  `StatusLookDef`): a **burning** body throws small flames and embers with a warm glow, and catches
-  fire in a burst with a crackle; a **poisoned** one bubbles and puffs green smoke; a **slowed** one
-  sheds frost, with an ice burst when it takes hold (quicksand slows without frost: the ground is no status). Their ticks show in the status's color (orange,
-  green). Drawn by hand over the body, 24 bits at most each, and asleep when nothing is on it.
+  `StatusLookDef`, each in its element's ramp, on the body's pixel grid): a **burning** body
+  throws small flames and embers and catches fire in a burst with a crackle; a **poisoned** one
+  bubbles and leaks a green haze that sinks at its feet; a **chilled** one grows rime on its edges
+  (it breaks into falling chips when the chill ends), sheds ice chips and breathes cold mist at
+  its feet, with a burst of shards when it takes hold. Only frost and the cold show as frost:
+  sand, ink, spores, a wail and quicksand slow without it (`OnHitStatus.slow_element`). The body
+  takes a steady 45% tint of the status's color (no pulsing glow). Their ticks show in the
+  status's color. Drawn by hand over the body, 24 bits at most each, and asleep when nothing is
+  on it.
 - **SFX**: the `Sfx` autoload plays every sound. Weapons have attack and hit sounds, monsters hurt
   and death sounds, skills and consumables a use sound; everything else comes from
   `data/audio/sound_bank.tres`. Each sound is an `AudioStreamRandomizer` listing its variations.
@@ -190,4 +205,6 @@ they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 ## Pixel art
 
 The art is 16x16 pixel art drawn at 2x in the world, with nearest filtering (Project Settings >
-Rendering > Textures > Default Texture Filter). Effects and shaders stay on the art's pixel grid.
+Rendering > Textures > Default Texture Filter). Effects and shaders stay on the art's pixel grid:
+the rules (whole-pixel sizes, 16 directions at most, dithering instead of alpha, one ramp per
+element) are in [docs/vfx.md](../vfx.md), the tools in `tools/vfx/`.

@@ -80,6 +80,7 @@ static func melee_strike(attacker: Actor, direction: Vector2, weapon: WeaponDef)
 		hit.origin = attacker.global_position
 		hit.sound = weapon.hit_sound
 		hit.status = weapon.on_hit
+		hit.element = weapon.element
 		target.take_hit(hit)
 
 	# Crates, pots, barrels in the arc break too.
@@ -90,7 +91,8 @@ static func melee_strike(attacker: Actor, direction: Vector2, weapon: WeaponDef)
 
 
 ## Hits every enemy of the attacker inside a circle. `secondary`: see HitInfo.is_secondary.
-static func damage_area(world: World, attacker: Actor, center: Vector2, radius: float, base_amount: int, knockback: float, secondary: bool = false, status: OnHitStatus = null) -> void:
+## `element`: what the blow is made of (its hits flash in its language).
+static func damage_area(world: World, attacker: Actor, center: Vector2, radius: float, base_amount: int, knockback: float, secondary: bool = false, status: OnHitStatus = null, element: VfxElementDef = null) -> void:
 	for target in world.get_hostiles(attacker.faction):
 		var offset := target.global_position - center
 		if offset.length() > radius + target.radius:
@@ -100,12 +102,13 @@ static func damage_area(world: World, attacker: Actor, center: Vector2, radius: 
 		hit.origin = attacker.global_position if is_instance_valid(attacker) else center
 		hit.is_secondary = secondary
 		hit.status = status
+		hit.element = element
 		target.take_hit(hit)
 	hit_props(world, attacker, center, radius)
 
 
 ## Hits every enemy of the attacker close to the segment from `from` to `to` (dash strikes).
-static func damage_segment(world: World, attacker: Actor, from: Vector2, to: Vector2, width: float, base_amount: int, knockback: float, status: OnHitStatus = null) -> void:
+static func damage_segment(world: World, attacker: Actor, from: Vector2, to: Vector2, width: float, base_amount: int, knockback: float, status: OnHitStatus = null, element: VfxElementDef = null) -> void:
 	var direction := from.direction_to(to) if from != to else Vector2.RIGHT
 	for target in world.get_hostiles(attacker.faction):
 		var closest := Geometry2D.get_closest_point_to_segment(target.global_position, from, to)
@@ -115,6 +118,7 @@ static func damage_segment(world: World, attacker: Actor, from: Vector2, to: Vec
 		hit.knockback = direction.orthogonal() * signf(direction.cross(target.global_position - from)) * knockback
 		hit.origin = from
 		hit.status = status
+		hit.element = element
 		target.take_hit(hit)
 	for prop in world.get_breakable_props():
 		var closest := Geometry2D.get_closest_point_to_segment(prop.global_position, from, to)
@@ -171,8 +175,9 @@ static func shockwave(world: World, source: Actor, radius: float, amount: int, k
 
 
 ## A warning ring, then after `fuse` seconds a blast (see blast()). `fx`: a sheet of square
-## frames to play instead of the usual explosion.
-static func delayed_blast(world: World, center: Vector2, radius: float, amount: int, fuse: float, fx: Texture2D = null, status: OnHitStatus = null) -> void:
+## frames to play instead of the usual explosion; `element`: its nova instead (a frost skull
+## bursting into a ring of ice).
+static func delayed_blast(world: World, center: Vector2, radius: float, amount: int, fuse: float, fx: Texture2D = null, status: OnHitStatus = null, element: VfxElementDef = null) -> void:
 	world.spawn_vfx(RingVfx.create(center, radius, Color(1.0, 0.3, 0.2, 0.8)))
 	var floor_id := world.floor_id
 	world.get_tree().create_timer(fuse, false).timeout.connect(func() -> void:
@@ -180,7 +185,10 @@ static func delayed_blast(world: World, center: Vector2, radius: float, amount: 
 			return  # the hero took the stairs meanwhile
 		if not world.is_inside_tree():
 			return  # its floor waits out of the tree (the hero is at the Threshold): it fizzles
-		if fx:
+		if element:
+			Vfx.nova(world, center, radius, element)
+			Sfx.play_at(Sfx.bank.explosion, center, -4.0)
+		elif fx:
 			world.spawn_vfx(SheetVfx.create(fx, center, 0.0, radius * 2.0 / fx.get_height()))
 			Sfx.play_at(Sfx.bank.explosion, center, -4.0)
 		else:
@@ -199,7 +207,9 @@ static func spec_from_weapon(attacker: Actor, weapon: WeaponDef) -> ProjectileSp
 	spec.spread_degrees = weapon.spread_degrees
 	spec.pierce = weapon.pierce
 	spec.knockback = weapon.knockback
-	spec.color = weapon.color
+	spec.color = weapon.element.color() if weapon.element else weapon.color
 	spec.texture = weapon.projectile_texture
+	spec.texture_frames = weapon.projectile_frames
+	spec.element = weapon.element
 	spec.status = weapon.on_hit
 	return spec
