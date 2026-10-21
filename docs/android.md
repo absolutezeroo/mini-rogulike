@@ -2,7 +2,7 @@
 
 Everything is ready in `export_presets.cfg` (preset **Android**): the app takes the game's name
 (`config/name_localized`: "The Well of Souls", "Le Puits des Âmes" on a French phone), package
-`com.absolutezeroo.puitsdesames`, version 0.2.0 (code 2), arm64-v8a, landscape, immersive, the
+`com.absolutezeroo.puitsdesames`, version 0.3.0 (code 3), arm64-v8a, landscape, immersive, the
 Vibrate permission, no Gradle build needed. Tests and tools are left out (`exclude_filter`). The
 icon is adaptive (`assets/icon/`: the hero over the well's glow and its souls, plus a monochrome
 version for themed icons); the splash shows it on the night color.
