@@ -1,24 +1,35 @@
 [gd_resource type="Resource" script_class="SkillDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_rrrlh"]
-[ext_resource type="Texture2D" path="res://assets/fx/holy_circle.png" id="2_5sba8"]
 [ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="3_fumns"]
 [ext_resource type="Script" path="res://src/definitions/effects/heal_effect.gd" id="4_e3yb5"]
 [ext_resource type="Texture2D" path="res://assets/ui/skills/smite.png" id="5_kuqkl"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="6_in4i3"]
 [ext_resource type="AudioStream" path="res://data/audio/magic.tres" id="7_2o7br"]
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_sheet_def.gd" id="vfx_sheet"]
+[ext_resource type="Texture2D" path="res://assets/fx/holy/holy_column.png" id="vfx_column"]
+[ext_resource type="Resource" path="res://data/vfx/elements/holy.tres" id="vfx_holy"]
+
+[sub_resource type="Resource" id="column"]
+script = ExtResource("vfx_sheet")
+texture = ExtResource("vfx_column")
+frames = 7
+fps = 16.0
+anchor = Vector2(0, -38)
+linger = 0.12
 
 [sub_resource type="Resource" id="Resource_33gpi"]
 script = ExtResource("3_fumns")
+strike = SubResource("column")
+element = ExtResource("vfx_holy")
 radius = 70.0
 damage_multiplier = 1.8
 offset = 40.0
 knockback = 260.0
-fx = ExtResource("2_5sba8")
-fx_tint = Color(1, 0.9, 0.5, 1)
 
 [sub_resource type="Resource" id="Resource_00nwx"]
 script = ExtResource("4_e3yb5")
+element = ExtResource("vfx_holy")
 amount = 4
 boss_fight_ratio = 0.5
 
@@ -29,7 +40,7 @@ display_name = "Smite"
 description = "Holy strike in front of you that also heals you a little (less during a boss fight)."
 short_label = "SMITE"
 icon = ExtResource("5_kuqkl")
-color = Color(1, 0.81960785, 0.4, 1)
+color = Color(1, 0.882353, 0.552941, 1)
 cooldown = 5.0
 effects = Array[ExtResource("1_rrrlh")]([SubResource("Resource_33gpi"), SubResource("Resource_00nwx")])
 sound = ExtResource("7_2o7br")
