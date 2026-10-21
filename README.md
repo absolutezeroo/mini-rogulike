@@ -527,7 +527,9 @@ English and French (`Settings.language`, saved with the other options). On first
 follows the phone (`OS.get_locale_language()`: French if it is French, English otherwise); the
 **Options** header has the picker (English / Français, each in its own language). Picking one sets
 `TranslationServer`'s locale and rebuilds the Options window in it; the title screen is rebuilt
-when the window closes, other screens pick it up the next time they open.
+when the window closes. During a run (pause menu), what is filled when a menu opens follows at
+once, but the menus built when the run began keep their words until the next run (the window
+says so).
 
 - **The translations** are `locale/strings.csv` (columns `keys,en,fr`), registered in `project.godot`
   (`internationalization/locale/translations`, the `.translation` files Godot imports from it). The

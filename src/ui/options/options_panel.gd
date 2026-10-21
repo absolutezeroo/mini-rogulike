@@ -133,7 +133,10 @@ func _build() -> void:
 	window.close_requested.connect(close)
 	add_child(window)
 	MenuWindow.expose(window.close_button, "CloseButton", self)
-	var saved := UiSkin.label(tr("Every change is saved right away."), 16, UiSkin.DIM, true)
+	# In a run, the menus already built keep their words until the next run: say so.
+	var in_run := _language_changed and not get_tree().current_scene is TitleScreen
+	var note := tr("Language changed: some menus follow from the next run.") if in_run else tr("Every change is saved right away.")
+	var saved := UiSkin.label(note, 16, UiSkin.DIM, true)
 	saved.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	saved.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	window.header_left.add_child(saved)
