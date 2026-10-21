@@ -3,8 +3,8 @@ class_name UiParts
 ## on top of UiSkin: buttons, a touch-friendly scroll, emptying a container, good / bad colors.
 
 ## A gain, a loss (comparisons, encounter outcomes).
-const GOOD := Color(0.6, 1.0, 0.55)
-const BAD := Color(1.0, 0.55, 0.5)
+const GOOD := Color(0.45, 1.0, 0.4)
+const BAD := Color(1.0, 0.4, 0.32)
 
 
 ## A plain button (the game's default look), never keeping keyboard focus.

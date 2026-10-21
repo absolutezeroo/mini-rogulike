@@ -96,6 +96,10 @@ oath or none, and pick the starting weapon (Armory). An oath is an "X, but Y" st
 | Oath of the Heretic | the Book, +50% skill damage, attacks 20% slower |
 | Oath of the Vulture | +35% gold and better loot, merchant 25% dearer |
 
+Each oath card (and its node in the tree) lists the oath line by line (`OathDef.effects()`): the
+weapon in plain text, every gain in green, every cost in red, so the price of an oath reads at a
+glance. Every oath has at least one of each (a unit check).
+
 Not in the daily run (everyone starts the same). The run keeps its oath in the save (`RunState.oath`).
 
 Locked items (`content_db.tres` > Locked Items) never appear on the floor until unlocked.

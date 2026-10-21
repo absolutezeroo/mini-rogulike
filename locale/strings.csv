@@ -107,6 +107,16 @@ Blocks %d%% of the blows from the front.,Blocks %d%% of the blows from the front
 Steals gold and runs. Slay it to get it back.,Steals gold and runs. Slay it to get it back.,Vole de l'or et s'enfuit. Abats-le pour le récupérer.
 Its long body burns at a touch: only the head can be hurt,Its long body burns at a touch: only the head can be hurt,Son long corps brûle au contact : seule la tête peut être blessée
 ECHO,ECHO,ÉCHO
+Starts with the %s,Starts with the %s,Commence avec : %s
+%+d%% max Health,%+d%% max Health,%+d %% de Vie max
+%+d%% move speed,%+d%% move speed,%+d %% de Vitesse
+%+d max Health,%+d max Health,%+d Vie max
+%+d Damage,%+d Damage,%+d Dégâts
+%+d Armor,%+d Armor,%+d Armure
+Critical hits deal x%s (instead of x%s),Critical hits deal x%s (instead of x%s),Critiques à x%s (au lieu de x%s)
+%+d%% gold,%+d%% gold,%+d %% d'or
+%+d%% chance of better gear,%+d%% chance of better gear,%+d %% de chances d'objets meilleurs
+Merchant prices %+d%%,Merchant prices %+d%%,Prix du marchand %+d %%
 You took %s instead (reset the tree to change).,You took %s instead (reset the tree to change).,Tu as pris %s à la place (réinitialise l'arbre pour changer).
 Needs %s first.,Needs %s first.,Nécessite d'abord %s.
  or , or , ou 

@@ -764,6 +764,10 @@ func _test_soul_tree() -> void:
 		var ends := tree.nodes.filter(func(n: SoulNodeDef) -> bool: return n.branch == branch and n.oath != null)
 		check(roots.size() == 1 and ends.size() == 1, "branch %s: one root, one oath at the end" % tree.branches[branch])
 	check(tree.oaths().size() == 4, "four oaths")
+	for oath: OathDef in tree.oaths():
+		var gains := oath.effects().filter(func(line: Array) -> bool: return line[1] > 0)
+		var costs := oath.effects().filter(func(line: Array) -> bool: return line[1] < 0)
+		check(not gains.is_empty() and not costs.is_empty(), "%s: its card shows a gain and a cost (%d, %d)" % [oath.id, gains.size(), costs.size()])
 
 	var saved_levels := Profile.levels.duplicate()
 	var saved_souls := Profile.souls

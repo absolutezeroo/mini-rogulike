@@ -7,7 +7,7 @@ extends Control
 
 signal started
 
-const CARD_SIZE := Vector2(250, 250)
+const CARD_SIZE := Vector2(250, 296)
 
 var _content: ContentDB
 var _window: MenuWindow
@@ -101,7 +101,7 @@ func _card(oath: OathDef, open: bool) -> Control:
 	column.offset_right = -12
 	column.offset_top = 10
 	column.offset_bottom = -10
-	column.add_theme_constant_override("separation", 6)
+	column.add_theme_constant_override("separation", 3)
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(column)
 	var icon := TextureRect.new()
@@ -116,16 +116,25 @@ func _card(oath: OathDef, open: bool) -> Control:
 	var name := UiSkin.label(tr(oath.display_name) if oath else tr("Unsworn"), 19, (oath.color.lerp(Color.WHITE, 0.3) if oath else UiSkin.TEXT) if open else UiSkin.DIM)
 	name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(name)
-	var text := tr(oath.description) if oath else tr("The usual start: the Katana, no rule changed.")
+	# What it changes: gains in green, costs in red (faded while it is locked).
+	var lines: Array = oath.effects() if oath else [[tr("The usual start: the Katana, no rule changed."), 0]]
+	for line: Array in lines:
+		var color: Color = UiSkin.TEXT
+		if line[1] > 0:
+			color = MenuWindow.GOOD
+		elif line[1] < 0:
+			color = MenuWindow.BAD
+		var words := UiSkin.label(line[0], 13, color if open else Color(color, 0.55), true)
+		words.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		column.add_child(words)
 	if not open:
 		var branch := ""
 		for node in _content.soul_tree.nodes:
 			if node.oath == oath and node.branch < _content.soul_tree.branches.size():
 				branch = tr(_content.soul_tree.branches[node.branch])
-		text = tr("Opens at the end of the %s branch of the Tree of Souls, at the shrine.") % branch
-	var words := UiSkin.label(text, 14, UiSkin.TEXT if open else UiSkin.DIM, true)
-	words.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	column.add_child(words)
+		var lock := UiSkin.label(tr("Opens at the end of the %s branch of the Tree of Souls, at the shrine.") % branch, 13, UiSkin.DIM, true)
+		lock.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		column.add_child(lock)
 	if chosen:
 		var mark := UiSkin.label(tr("Sworn"), 15, UiSkin.GOLD)
 		mark.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

@@ -23,6 +23,8 @@ var _level: Label
 var _text: Label
 var _status: Label
 var _blocker: Label
+## An oath's costs, in red (its gains go in green in _status).
+var _costs: Label
 var _buy: Button
 var _reset: Button
 var _reset_text: Label
@@ -82,6 +84,15 @@ func reset_tree() -> bool:
 	return false
 
 
+## An oath's gains (`kind` 1), costs (-1) or plain facts like its weapon (0), one per line.
+static func _oath_lines(oath: OathDef, kind: int) -> String:
+	var lines := PackedStringArray()
+	for line: Array in oath.effects():
+		if signi(line[1]) == kind:
+			lines.append(line[0])
+	return "\n".join(lines)
+
+
 ## The words for a node: what it does now and next (UpgradeRow's), and the oath's rule.
 static func status_of(node: SoulNodeDef) -> String:
 	if node.oath:
@@ -115,9 +126,11 @@ func _refresh() -> void:
 	_branch.text = (tr("%s branch  -  pick one of two") if node.partner() else tr("%s branch")) % branch_name
 	_branch.add_theme_color_override("font_color", branch_color.lerp(Color.WHITE, 0.3))
 	_level.text = UpgradeRow.level_text(upgrade, node.level()) if not node.oath else (tr("Oath open") if node.is_owned() else tr("Oath locked"))
-	_text.text = (tr(node.oath.description) if node.oath else UpgradeRow.description_of(upgrade))
-	_status.text = status_of(node) if not node.oath else (tr("Pick it before a run, after the difficulty.") if node.is_owned() else "")
+	_text.text = (tr("Pick it before a run, after the difficulty.") + "\n" + _oath_lines(node.oath, 0)).strip_edges() if node.oath else UpgradeRow.description_of(upgrade)
+	_status.text = status_of(node) if not node.oath else _oath_lines(node.oath, 1)
 	_status.visible = not _status.text.is_empty()
+	_costs.text = _oath_lines(node.oath, -1) if node.oath else ""
+	_costs.visible = not _costs.text.is_empty()
 	var blocker := node.blocker()
 	_blocker.text = blocker
 	_blocker.visible = not blocker.is_empty()
@@ -220,6 +233,8 @@ func _build() -> void:
 	text.add_child(_text)
 	_status = UiSkin.label("", 15, MenuWindow.GOOD, true)
 	text.add_child(_status)
+	_costs = UiSkin.label("", 15, MenuWindow.BAD, true)
+	text.add_child(_costs)
 	_blocker = UiSkin.label("", 15, MenuWindow.BAD, true)
 	text.add_child(_blocker)
 	var legend := UiSkin.label(tr("Gold ring: bought. Glowing: you can buy it. Dark: buy a node above it first. \"or\": pick one of the two. ?: a feat opens it."), 13, UiSkin.DIM, true)
