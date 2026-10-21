@@ -83,14 +83,44 @@ static func goes_behind(direction: Vector2) -> bool:
 ## behind its sprite (`behind`: a halo rising around the hero, a column of light, his weapon's
 ## glow when he faces north) or over it (the glow when he faces us). Lit with the room like
 ## the body. Returns `node`.
+##
+## Behind is the body's children's order, not `show_behind_parent`: an actor draws nothing of
+## its own, its sprites are its Rig, a sibling drawn in tree order. A node behind is moved
+## before every other child (the Rig first), one in front after them.
 static func on_body(body: Node2D, node: Node2D, behind: bool = true) -> Node2D:
 	node.set_meta(_META, Layer.STANDING)
 	node.z_as_relative = true
 	node.z_index = 0
-	node.show_behind_parent = behind
 	if node.get_parent() != body:
 		if node.get_parent():
 			node.reparent(body, false)
 		else:
 			body.add_child(node)
+	set_behind(node, behind)
 	return node
+
+
+## Moves `node` (a child of a body, `on_body`) behind the body's sprites or in front of them:
+## the hero's glow in hand goes behind him when he turns to face north.
+static func set_behind(node: Node2D, behind: bool) -> void:
+	var body := node.get_parent()
+	if body == null:
+		return
+	var last := body.get_child_count() - 1
+	if behind and node.get_index() != 0:
+		body.move_child(node, 0)
+	elif not behind and node.get_index() != last:
+		body.move_child(node, last)
+
+
+## Whether `node` is drawn behind the sprites of the body it is on (`on_body`): before its rig.
+static func is_behind_body(node: Node2D) -> bool:
+	var body := node.get_parent()
+	if body == null:
+		return false
+	for child in body.get_children():
+		if child == node:
+			return true
+		if child is ActorRig:
+			return false
+	return false

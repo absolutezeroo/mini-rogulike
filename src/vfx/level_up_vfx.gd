@@ -20,7 +20,7 @@ const RING_TIME := 0.9
 ## Glints rising at the hero's sides, in front of him.
 const GLINTS := 4
 ## How far out to the sides the front glints rise: clear of the hero's body.
-const GLINT_SIDE := 14.0
+const GLINT_SIDE := 20.0
 
 var _age := 0.0
 ## The rings, on the floor under every body (VfxLayer.GROUND).
@@ -66,30 +66,42 @@ func _process(delta: float) -> void:
 	_glints.queue_redraw()
 
 
-## The column of light, behind the body: densest at the feet, gone at its top, quick to rise;
-## the ramp's darker steps (it is added onto the picture), dithered on the art's grid.
+## The column of light, behind the body: shafts of light one art pixel wide rising from the
+## floor around him, each its own height (the middle ones the tallest and brightest), quick to
+## rise; light added onto what is behind him in the ramp's darker steps. A shaft is solid at its
+## foot and breaks into dashes further and further apart toward its top, and lifts off the
+## floor as it dies (a Bayer-dithered column, or whole rows across it, read as a screen door or
+## scanlines: docs/vfx.md, section 10's lesson).
+const SHAFTS: Array[Vector2i] = [Vector2i(-7, 22), Vector2i(-5, 30), Vector2i(-3, 36), Vector2i(-1, 42), Vector2i(1, 40), Vector2i(3, 34), Vector2i(5, 28), Vector2i(7, 20)]
+
+
 func _draw() -> void:
 	var holy := VfxElementDef.named(&"holy")
 	var t := _age / LIFETIME
-	var fade := 1.0 - ease(t, 2.4)
-	var height := 78.0 * ease(minf(t * 3.0, 1.0), 0.3)
-	var bands := 8
-	for i in bands:
-		var band := float(i) / bands
-		var half := PixelDraw.snap_length(15.0 * (1.0 - band * 0.5))
-		var top := PixelDraw.snap(Vector2(0, 6.0 - height * (band + 1.0 / bands))).y
-		var rows := maxi(roundi(height / bands / PixelDraw.PX), 1)
-		for row in rows:
-			for x in range(-roundi(half / PixelDraw.PX), roundi(half / PixelDraw.PX)):
-				var cell := Vector2i(x, roundi(top / PixelDraw.PX) + row)
-				if PixelDraw.dither(cell, 0.55 * fade * (1.0 - band)):
-					PixelDraw.cell(self, cell, holy.shade(0.75))
+	var rise := ease(minf(t * 3.0, 1.0), 0.3)
+	var dying := clampf((t - 0.4) / 0.6, 0.0, 1.0)
+	var foot := roundi(4.0 / PixelDraw.PX)
+	for i in SHAFTS.size():
+		var shaft := SHAFTS[i]
+		var tall := roundi(shaft.y * rise)
+		var solid := tall / 3
+		var bright := absi(shaft.x) <= 1
+		# Dying, it lifts off the floor: its foot climbs up the shaft.
+		var row := roundi(tall * dying)
+		var gap := 1
+		while row < tall:
+			PixelDraw.cell(self, Vector2i(shaft.x, foot - row), holy.shade(0.5 if bright and row < solid else 0.75))
+			if row >= solid:
+				gap += 1  # dashes further and further apart
+				row += gap
+			else:
+				row += 1
 	# Holy's 4-point glints rising up the column, seen through it above his head.
 	for i in 2:
 		var glint_t := (_age - 0.2 - i * 0.25) / 0.8
 		if glint_t <= 0.0 or glint_t >= 1.0:
 			continue
-		var at := Vector2(-4.0 + i * 8.0, -34.0 - 40.0 * glint_t)
+		var at := Vector2(-4.0 + i * 8.0, -40.0 - 40.0 * glint_t)
 		PixelDraw.bit(self, VfxElementDef.Bit.GLINT, at, 1, holy.shade(0.25 + glint_t * 0.5), Vector2.UP)
 
 
