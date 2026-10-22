@@ -297,7 +297,8 @@ stones lit in their runes' colors. The selected slot pulses gold.
     16 / 16 [E], [LB] ... [RB]). A compartment holding more than its places (a run saved before,
     a compartment made smaller) keeps it all and says so under it ("More than it has room for:
     make room before anything new goes in."). Tap a tab, or Q / E, LB / RB (`MenuNav`,
-    "menu_tabs"). The tab picked stays picked until the run ends (the bag opens on it).
+    "menu_tabs"). The tab picked stays picked until the run ends (the bag opens on it); a new
+    run, Restart included, opens it on the first tab with nothing seen yet.
   - **In a tab**: a 4-column grid, one slot per stack with its count ("x3"), the rarest first,
     then weapons, helms, body armors (a rune's family, a consumable's kind), the higher item
     level, then by name; after them the compartment's free places (empty slots). A slot new since the bag

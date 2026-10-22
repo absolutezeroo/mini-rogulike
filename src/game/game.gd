@@ -222,6 +222,7 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	_set_paused(false)
 	_fade.color.a = 0.0
 	menus.hide_all()
+	inventory_panel.forget_run()  # the last run's new marks and tab
 	offers.clear()
 	_choosing = false
 	_transitioning = false

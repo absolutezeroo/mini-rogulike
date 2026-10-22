@@ -978,8 +978,8 @@
     {
       "id": "task_69",
       "title": "Sac : marques « nouveau » et onglet gardés d'une partie à la suivante",
-      "description": "InventoryPanel garde les objets déjà vus (_seen) et l'onglet ouvert tant que vit la scène Game ; « Recommencer » depuis l'écran de fin relance une partie dans la même scène, donc un objet vu dans la partie précédente n'est plus marqué nouveau, et l'onglet reste. La doc dit « tant que dure la partie ». Remettre à zéro dans Game._begin_run (petit correctif à décider).",
-      "status": "backlog",
+      "description": "InventoryPanel garde les objets déjà vus (_seen) et l'onglet ouvert tant que vit la scène Game ; « Recommencer » depuis l'écran de fin relance une partie dans la même scène, donc un objet vu dans la partie précédente n'est plus marqué nouveau, et l'onglet reste. La doc dit « tant que dure la partie ». Remettre à zéro dans Game._begin_run (petit correctif à décider).\n\nFait : InventoryPanel.forget_run(), appelé par Game._begin_run() (Recommencer, nouvelle partie, partie reprise) : plus rien de vu, premier onglet, sélection vidée. Test (suite game, avant la mort et le redémarrage) : une rune vue dans la partie, sur son onglet ; après Recommencer le sac s'ouvre sur le premier onglet et la rune est de nouveau marquée nouvelle. Doc : design/interface.md.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -988,7 +988,7 @@
         "bug"
       ],
       "created_at": 1792704927,
-      "updated_at": 1792704927
+      "updated_at": 1792710522
     },
     {
       "id": "task_70",
