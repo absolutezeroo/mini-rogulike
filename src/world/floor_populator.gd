@@ -213,14 +213,16 @@ static func _pick_quiet_room(map: DungeonMap, rng: RandomNumberGenerator, except
 
 
 ## Lanterns along the walls of a room (also used for boss arenas).
-static func place_lights(world: World, config: DungeonConfig, room: Rect2i, taken: Dictionary) -> void:
+## `count`: how many at most (-1: the dungeon's `lights_per_room`).
+static func place_lights(world: World, config: DungeonConfig, room: Rect2i, taken: Dictionary, count: int = -1) -> void:
 	var light := world.biome.light if world.biome and world.biome.light else config.room_light
-	if light == null:
+	var most := config.lights_per_room if count < 0 else count
+	if light == null or most <= 0:
 		return
 	var cells := edge_cells(world.map, room, taken)
 	var placed: Array[Vector2i] = []
 	for cell in _shuffled(cells, world.rng):
-		if placed.size() >= config.lights_per_room:
+		if placed.size() >= most:
 			break
 		# Spread them out.
 		if placed.any(func(other: Vector2i) -> bool: return Vector2(other).distance_to(Vector2(cell)) < 5.0):

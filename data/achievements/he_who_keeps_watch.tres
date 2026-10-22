@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="AchievementDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/master_toma/portrait.png" id="1_icon"]
+[ext_resource type="Script" path="res://src/definitions/achievement_def.gd" id="2_def"]
+
+[resource]
+script = ExtResource("2_def")
+id = &"he_who_keeps_watch"
+display_name = "He Who Keeps Watch"
+description = "Take your master's place at the bottom of the Well."
+icon = ExtResource("1_icon")
+stat = 19
+target = 1
+reward_souls = 100
+secret = true

@@ -161,6 +161,11 @@ extends Resource
 ## The hidden floor between two acts, reached with its key (null: none).
 @export var hidden_floor: HiddenFloorDef
 
+@export_group("The bottom")
+## The true last floor, below the last act's boss once the profile has won (null: the last
+## act's boss always ends the run). See FinaleDef.
+@export var finale: FinaleDef
+
 @export_group("The Deeps")
 ## Where a fall into a floor's hole takes the hero (null: he climbs back out, hurt).
 @export var abyss: AbyssDef

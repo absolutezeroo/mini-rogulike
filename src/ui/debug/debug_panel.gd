@@ -102,6 +102,11 @@ func _build_floor(parent: Control) -> void:
 	row.add_child(_button("Next floor", func() -> void: _go(_game.depth + 1)))
 	row.add_child(_button("Rebuild floor", func() -> void: _go(_game.depth)))
 	row.add_child(_button("Next boss", func() -> void: _go(_next_boss_depth())))
+	if _game_content().dungeon.finale:
+		row.add_child(_button("The Well's bottom", func() -> void:
+			hide()
+			closed.emit()
+			_game.debug_enter_finale()))
 	row.add_child(_button("Stairs", func() -> void: _act(func() -> void:
 		var world := _game.world
 		if not world.stairs_cells.is_empty():

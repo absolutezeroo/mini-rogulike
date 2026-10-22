@@ -97,6 +97,9 @@ var secrets: Array[SecretRoom] = []
 var hidden_floor_done := false
 ## Set by the Game before building the hidden floor (its look, monsters and boss); null otherwise.
 var hidden_floor: HiddenFloorDef
+## Set by the Game before building the bottom of the Well (its look, arena and boss); null
+## otherwise.
+var finale: FinaleDef
 ## Where walking monsters can go (pathfinding, blocked cells).
 var nav := NavGrid.new()
 ## What the hero has seen (the minimap).
@@ -148,10 +151,13 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 	forge_drought_at_start = floors_without_forge
 	_content = content
 	var hidden := hidden_floor
+	var bottom := finale
 	var boss := hidden.boss if hidden else content.dungeon.boss_for_depth(depth)
 	var act_index := content.dungeon.act_index(depth)
 	if boss and not hidden and act_index < run_bosses.size() and run_bosses[act_index] != null:
 		boss = run_bosses[act_index]
+	if bottom:
+		boss = bottom.boss
 	floor_event = null
 	curse = null
 	if forced_curse or forced_event or forced_plain:
@@ -172,6 +178,8 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 	arena_plan = null
 	if boss:
 		arena_plan = _pick_arena(boss, content.dungeon)
+		if bottom and bottom.arena:
+			arena_plan = bottom.arena
 		if hidden:
 			map = DungeonGenerator.generate_hidden(content.dungeon, rng, arena_plan, hidden.rooms)
 		else:
@@ -179,6 +187,8 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 	else:
 		map = DungeonGenerator.generate(content.dungeon, rng, difficulty.floor_size if difficulty else 1.0, difficulty.rooms if difficulty else 1.0)
 	biome = hidden.biome if hidden and hidden.biome else _pick_biome(content, boss != null)
+	if bottom and bottom.biome:
+		biome = bottom.biome
 	theme = biome.theme if biome else null
 	rules = FloorRules.make(content.dungeon, difficulty, floor_event, depth, curse)
 	var light_tint := rules.light()
@@ -198,7 +208,9 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 		_entities.add_child(arena)
 		arena.setup(self, boss, arena_plan)
 		for room in map.rooms:
-			FloorPopulator.place_lights(self, content.dungeon, room, {})
+			# The bottom of the Well: its own lamps in the arena (the hero's lantern, mostly).
+			var lamps := bottom.arena_lights if bottom and room == map.boss_room else -1
+			FloorPopulator.place_lights(self, content.dungeon, room, {}, lamps)
 		FloorDresser.dress(self, {}, false)  # the arena keeps clear: grounds and decor only
 		if hidden:
 			hidden.populate(self)
@@ -701,7 +713,9 @@ func _on_stairs_blocked() -> void:
 func spawn_exits() -> Array[Stairs]:
 	var result: Array[Stairs] = []
 	var choice := next_routes.size() >= 2 and map.second_stairs_cell != DungeonMap.NO_CELL
-	result.append(spawn_stairs(map.stairs_cell, 0, next_routes[0] if choice else null))
+	# A lone way is named on its sign too (the way down to the bottom of the Well).
+	var lone := next_routes.size() == 1
+	result.append(spawn_stairs(map.stairs_cell, 0, next_routes[0] if choice or lone else null))
 	if choice:
 		result.append(spawn_stairs(map.second_stairs_cell, 1, next_routes[1]))
 	return result

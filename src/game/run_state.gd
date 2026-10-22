@@ -46,6 +46,15 @@ var oath: OathDef
 ## this run (once a run). Both saved.
 var hidden_floor := false
 var hidden_done := false
+## The bottom of the Well (FinaleDef) waits below the last act's boss in this run: the profile
+## had won when the run began (decided once, saved: a run doesn't change course midway).
+var finale_open := false
+## On the bottom of the Well right now: like the hidden floor, it keeps the depth of the boss
+## floor before it. Saved.
+var finale := false
+## The last form fell and the run is won, but no ending was chosen yet (the app was put away
+## meanwhile): the choice comes back first when the run is picked up. Saved.
+var ending_due := false
 ## Secret rooms opened this run (SecretRoom), for the end of the run.
 var secrets_found := 0
 ## Souls earned on top of the usual ones (the hidden floor's boss), before the difficulty's
@@ -74,14 +83,24 @@ static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGener
 	run.depth = int(saved.get("depth", 1))
 	run.hidden_floor = bool(saved.get("hidden_floor", false))
 	run.hidden_done = bool(saved.get("hidden_done", false))
+	var finale_def := content.dungeon.finale
+	run.finale_open = bool(saved.get("finale_open", finale_def != null and finale_def.is_open()))
+	run.finale = bool(saved.get("finale", false))
+	run.ending_due = bool(saved.get("ending_due", false))
 	run.secrets_found = int(saved.get("secrets_found", 0))
 	run.bonus_souls = int(saved.get("bonus_souls", 0))
-	if saved.get("boss_slain", false):
-		run.depth += 1  # saved after the floor's boss died: on to the next floor
-		run.hidden_floor = false
 	run.kills = int(saved.get("kills", 0))
 	run.bosses_slain = int(saved.get("bosses_slain", 0))
 	run.has_won = bool(saved.get("has_won", false))
+	if saved.get("boss_slain", false):
+		# Saved after the floor's boss died: on to the next floor (the bottom of the Well, when
+		# the last act's boss leads there).
+		if run.leads_to_finale():
+			run.finale = true
+		else:
+			run.depth += 1
+			run.finale = false
+		run.hidden_floor = false
 	run.souls_awarded = int(saved.get("souls_awarded", 0))
 	run.run_gold = int(saved.get("run_gold", 0))
 	run.history_recorded = bool(saved.get("history_recorded", false))
@@ -168,11 +187,35 @@ func to_data() -> Dictionary:
 		"oath": RunSave.ref(oath),
 		"hidden_floor": hidden_floor,
 		"hidden_done": hidden_done,
+		"finale_open": finale_open,
+		"finale": finale,
+		"ending_due": ending_due,
 		"secrets_found": secrets_found,
 		"bonus_souls": bonus_souls,
 		"difficulty": String(difficulty.id),
 		"ascension": difficulty.ascension,
 	}
+
+
+## The way down from this floor leads to the bottom of the Well (FinaleDef): the last act's
+## floor of the first pass, the way open this run, not won yet, not there yet.
+func leads_to_finale() -> bool:
+	return finale_open and config.finale != null and config.finale.boss != null and not has_won \
+		and not finale and not hidden_floor and config.is_final_floor(depth)
+
+
+## The last act's boss (or the bottom's last form, when the bottom is open) wins the run.
+func wins_with(boss: BossDef) -> bool:
+	if has_won or not config.is_final_floor(depth):
+		return false
+	if finale_open and config.finale and config.finale.boss:
+		return finale and boss == config.finale.final_boss()
+	return not finale
+
+
+## The split a floor's end is counted under: the bottom of the Well after the last act's.
+func split_depth() -> int:
+	return depth + 1 if finale else depth
 
 
 ## The seed of the ways down offered toward floor `floor_depth` (the same all day in a daily run).
@@ -216,6 +259,8 @@ func record_key() -> String:
 func place_name(content: ContentDB) -> String:
 	if hidden_floor and content.dungeon.hidden_floor:
 		return tr(content.dungeon.hidden_floor.title)
+	if finale and content.dungeon.finale:
+		return tr(content.dungeon.finale.title)
 	var act := content.dungeon.act_for_depth(depth)
 	return tr(act.title) if act else tr("Dungeon")
 

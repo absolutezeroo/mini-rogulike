@@ -10,6 +10,8 @@ enum Stat {
 	## Trials of the Threshold won (back to life with a second life).
 	THRESHOLDS,
 	SECRETS, HIDDEN_BOSSES,
+	## The two true endings chosen at the bottom of the Well (EndingDef.stat).
+	ENDING_BELL, ENDING_KEEPER,
 }
 
 ## The Profile key of each Stat.
@@ -20,6 +22,7 @@ const STAT_KEYS := {
 	Stat.ENCOUNTERS: "encounters", Stat.CHESTS: "chests", Stat.RUN_GOLD: "run_gold",
 	Stat.RUN_LEVEL: "run_level", Stat.ASCENSION: "ascension", Stat.THRESHOLDS: "thresholds",
 	Stat.SECRETS: "secrets", Stat.HIDDEN_BOSSES: "hidden_bosses",
+	Stat.ENDING_BELL: "ending_bell", Stat.ENDING_KEEPER: "ending_keeper",
 }
 
 @export var id: StringName

@@ -14,6 +14,7 @@ func run() -> void:
 	_test_generation()
 	_test_secret_rooms()
 	_test_hidden_floor()
+	_test_finale()
 	_test_stairs_seal()
 	_test_inventory_and_equipment()
 	_test_bag_stacks_and_dismantle()
@@ -462,6 +463,100 @@ func _distance(map: DungeonMap, from: Vector2i, to: Vector2i) -> int:
 
 ## The hidden floor's data: its key, its acts, its floor and its boss, balanced between the two
 ## acts' bosses; and its map (a way in, one arena).
+## The bottom of the Well (FinaleDef): its data, the gate, the save rules, its numbers.
+func _test_finale() -> void:
+	var config := CONTENT.dungeon
+	var finale := config.finale
+	check(finale != null and finale.boss != null and finale.biome != null and finale.arena != null, "the bottom of the Well has its boss, its look and its arena")
+	if finale == null or finale.boss == null:
+		return
+	var forms := finale.boss.forms()
+	check(forms.size() == 2 and finale.final_boss() == forms[1] and finale.boss.last_form() == forms[1], "two forms: Tôma, then the Maw")
+	check(not config.acts.any(func(act: ActDef) -> bool: return act.all_bosses().has(forms[0]) or act.all_bosses().has(forms[1]) or act.biomes.has(finale.biome)), "they and the bottom's world belong to no act")
+	for form in forms:
+		check(form.portrait != null and form.frames != null and form.frames.has_animation(&"idle") and form.frames.has_animation(&"dead") and form.frames.has_animation(&"attack"), "%s has a portrait and its animations" % form.id)
+		check(form.body_stays and form.phases.size() == 2 and not form.title.is_empty() and not form.waking_line.is_empty() and not form.dying_line.is_empty(), "%s keeps its body, has two phases, a title and its words" % form.id)
+		check(form.phases[1].windup_multiplier < form.phases[0].windup_multiplier and form.phases[1].cooldown_multiplier < form.phases[0].cooldown_multiplier, "%s: its last phase is faster" % form.id)
+	var toma := forms[0]
+	check(toma.frames.has_animation(&"intro") and toma.frames.has_animation(&"cast") and toma.frames.has_animation(&"windup"), "Tôma wakes (intro), raises his lantern (cast), draws his blade (windup)")
+	check(toma.relic_choices == 0 and toma.arena_anchor.y > 0.5, "Tôma: no relic (the fight goes on), kneeling below the middle")
+	var kinds := {}
+	for skill: SkillDef in toma.skills + toma.phases[0].skills + toma.phases[1].skills:
+		for effect in skill.effects:
+			kinds[effect.get_script()] = true
+	check(kinds.has(DashStrikeEffect) and kinds.has(DamageAreaEffect) and kinds.has(GroundStrikeEffect), "Tôma fights with the hero's techniques: a dash strike, a charged slash, the lantern")
+	var slash: SkillDef = toma.phases[0].skills.filter(func(s: SkillDef) -> bool: return s.effects[0] is DamageAreaEffect)[0]
+	check(slash.cast_time >= 1.0 and slash.cast_animation == &"windup", "his wide slash has a long wind-up")
+	var maw := forms[1]
+	var jaw := maw.traits[0] as WeakPointTrait if not maw.traits.is_empty() else null
+	check(jaw != null and jaw.rooted and maw.knockback_resistance >= 1.0, "the Maw: a weak point, rooted, never pushed")
+	if jaw:
+		check(jaw.closed_times.size() == 3 and jaw.closed_times[2] < jaw.closed_times[1] and jaw.closed_times[1] < jaw.closed_times[0], "its phases shorten the closed time")
+		check(jaw.open_times[0] >= 3.0 and jaw.open_times[0] <= 4.0, "its window: 3-4 s")
+		check(maw.frames.has_animation(jaw.open_animation) and maw.frames.has_animation(jaw.open_pose), "its jaw opens (an animation, then the open pose)")
+		check(jaw.pull_speed < CONTENT.player.base_stats.move_speed * 0.5, "its pull never outruns the hero")
+	check(maw.shockwave_after_hits == 0 and maw.phases.all(func(p: BossPhase) -> bool: return p.shockwave_after_hits == 0), "no shockwave for hitting the open jaw (its bite answers)")
+	check(maw.arena_anchor.y < 0.3 and maw.relic_choices > 0 and maw.loot != null, "the Maw rises at the top of the arena; its relic and its spoils")
+	var summons := maw.phases[1].skills.filter(func(s: SkillDef) -> bool: return s.effects[0] is SummonEffect)
+	check(not summons.is_empty() and (summons[0].effects[0] as SummonEffect).monsters.all(func(m: MonsterDef) -> bool: return CONTENT.abyss_monsters().has(m)), "it calls the Damned (the Deeps' demons)")
+	check(maw.phases[1].skills.size() > maw.skills.size(), "its last phase adds attacks")
+	# The endings: two, counted for their achievements.
+	var stats := AchievementDef.STAT_KEYS.values()
+	for ending in finale.endings:
+		check(not ending.choice.is_empty() and not ending.hint.is_empty() and not ending.title.is_empty() and ending.text.split("\n").size() <= 3, "%s: a button, a line, a title, a short text" % ending.id)
+		check(stats.has(ending.stat) and CONTENT.achievements.any(func(a: AchievementDef) -> bool: return a.stat_key() == ending.stat and a.secret), "%s has its secret achievement" % ending.id)
+	check(AchievementDef.Stat.HIDDEN_BOSSES == 17 and AchievementDef.Stat.ENDING_BELL == 18 and AchievementDef.Stat.ENDING_KEEPER == 19, "the endings' stats come after the others (saved achievements keep their numbers)")
+	# The gate: a won profile, the last act's floor of the first pass, not won yet.
+	Profile.reset()
+	var rng := RandomNumberGenerator.new()
+	var run := RunState.create(CONTENT, {}, rng)
+	check(not run.finale_open, "no win yet: the bottom is closed")
+	run.depth = config.total_floors()
+	check(not run.leads_to_finale() and run.wins_with(config.acts.back().boss), "closed: the last act's boss wins the run (the first ending)")
+	Profile.wins = { "easy": 1 }
+	check(finale.is_open(), "a win (even on Pilgrim) opens it")
+	run = RunState.create(CONTENT, {}, rng)
+	run.depth = config.total_floors()
+	check(run.finale_open and run.leads_to_finale() and not run.wins_with(config.acts.back().boss), "open: the last act's boss leads down instead of winning")
+	run.depth = config.total_floors() - 1
+	check(not run.leads_to_finale(), "only from the last act's floor")
+	run.depth = config.total_floors()
+	var data := run.to_data()
+	data.boss_slain = true
+	var resumed := RunState.create(CONTENT, data, rng)
+	check(resumed.finale and resumed.depth == config.total_floors(), "saved once the last act's boss fell: picked up at the bottom, same depth")
+	check(resumed.split_depth() == config.total_floors() + 1 and resumed.wins_with(finale.final_boss()) and not resumed.wins_with(finale.boss), "there, only the last form wins the run, its split after the last act's")
+	Profile.reset()
+	data.finale = true
+	data.boss_slain = false
+	resumed = RunState.create(CONTENT, data, rng)
+	check(resumed.finale_open and resumed.finale and resumed.depth == config.total_floors(), "a run saved at the bottom stays there (the gate decided when it began)")
+	data.has_won = true
+	data.boss_slain = true
+	data.ending_due = true
+	resumed = RunState.create(CONTENT, data, rng)
+	check(not resumed.finale and resumed.depth == config.total_floors() + 1 and resumed.ending_due, "won at the bottom: on to the endless floors, the ending still due")
+	var old := run.to_data()
+	old.erase("finale_open")
+	old.erase("finale")
+	old.erase("ending_due")
+	resumed = RunState.create(CONTENT, old, rng)
+	check(not resumed.finale_open and not resumed.finale and not resumed.ending_due, "an older save without these keys is read")
+	# Its numbers: the hardest fight, 1.3 to 1.5 times the last act's boss' Health (Keeper).
+	var keeper := CONTENT.default_difficulty
+	var depth := config.total_floors()
+	var health := func(def: BossDef) -> int: return FloorRules.make(config, keeper, null, depth).scale_monster(def.stats, true).max_hp
+	var total: int = health.call(forms[0]) + health.call(forms[1])
+	for last in config.acts.back().all_bosses():
+		var ratio: float = float(total) / float(health.call(last))
+		check(ratio >= 1.3 and ratio <= 1.5, "the final fight is 1.3-1.5x %s's Health (%.2f)" % [last.id, ratio])
+	# Profile: the ending chosen is kept (and an older profile has none).
+	Profile.choose_ending(&"ring_the_bell", "ending_bell")
+	check(Profile.ending == &"ring_the_bell" and Profile.stat_value("ending_bell") == 1, "the ending chosen is kept and counted")
+	Profile.reset()
+	check(Profile.ending == &"", "none by default")
+
+
 func _test_hidden_floor() -> void:
 	var config := CONTENT.dungeon
 	var hidden := config.hidden_floor

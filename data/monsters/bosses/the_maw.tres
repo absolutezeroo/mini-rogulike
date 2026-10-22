@@ -1,0 +1,147 @@
+[gd_resource type="Resource" script_class="BossDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_death"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/bosses/the_maw.tres" id="2_frames"]
+[ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="3_hurt"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/the_maw/portrait.png" id="4_portrait"]
+[ext_resource type="Script" path="res://src/definitions/boss_phase.gd" id="5_phase"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="6_stats"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_skill"]
+[ext_resource type="Resource" path="res://data/skills/boss/maw_tentacles.tres" id="8_tentacles"]
+[ext_resource type="Resource" path="res://data/skills/boss/maw_call_damned.tres" id="9_call"]
+[ext_resource type="Resource" path="res://data/skills/boss/maw_false_dawn.tres" id="10_dawn"]
+[ext_resource type="Resource" path="res://data/skills/boss/maw_sun_gaze.tres" id="11_gaze"]
+[ext_resource type="Resource" path="res://data/skills/boss/maw_tentacles_fierce.tres" id="12_tentacles_fierce"]
+[ext_resource type="Resource" path="res://data/skills/boss/maw_call_damned_fierce.tres" id="13_call_fierce"]
+[ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="14_boss"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/slime_slam.tres" id="15_weapon"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="16_trait"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/weak_point_trait.gd" id="17_weak"]
+[ext_resource type="Resource" path="res://data/vfx/elements/blood.tres" id="18_blood"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="19_entry"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="20_table"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="21_potion"]
+[ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="22_plate"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_healing.tres" id="23_tome"]
+[ext_resource type="Resource" path="res://data/materials/armor.tres" id="99_material"]
+
+[sub_resource type="Resource" id="Resource_jaw"]
+script = ExtResource("17_weak")
+closed_times = PackedFloat32Array(6.5, 5.0, 3.8)
+open_times = PackedFloat32Array(3.6, 3.6, 3.2)
+opening_time = 0.75
+closing_time = 0.4
+immune_text = "No effect"
+mouth_offset = Vector2(0, 30)
+pull_radius = 420.0
+pull_speed = 55.0
+bite_radius = 72.0
+bite_windup = 0.55
+bite_power = 1.5
+bite_knockback = 460.0
+bite_cooldown = 1.3
+bite_element = ExtResource("18_blood")
+glow_level = 7
+open_glow = 3
+glow_color = Color(1, 0.78, 0.42, 1)
+pool_color = Color(0.07, 0.05, 0.09, 1)
+pool_rim = Color(0.3, 0.24, 0.34, 1)
+pool_size = Vector2(176, 40)
+pool_offset = Vector2(0, 18)
+
+[sub_resource type="Resource" id="Resource_dawn_stats"]
+script = ExtResource("6_stats")
+attack = 2
+
+[sub_resource type="Resource" id="Resource_dawn"]
+script = ExtResource("5_phase")
+hp_ratio = 0.6
+message = "THE FALSE SUN RISES"
+bonuses = SubResource("Resource_dawn_stats")
+skills = Array[ExtResource("7_skill")]([ExtResource("8_tentacles"), ExtResource("10_dawn"), ExtResource("9_call")])
+windup_multiplier = 0.85
+tint = Color(1, 0.92, 0.78, 1)
+cooldown_multiplier = 0.85
+
+[sub_resource type="Resource" id="Resource_hunger_stats"]
+script = ExtResource("6_stats")
+attack = 3
+
+[sub_resource type="Resource" id="Resource_hunger"]
+script = ExtResource("5_phase")
+hp_ratio = 0.3
+message = "THE HUNGER WAKES"
+bonuses = SubResource("Resource_hunger_stats")
+skills = Array[ExtResource("7_skill")]([ExtResource("12_tentacles_fierce"), ExtResource("11_gaze"), ExtResource("10_dawn"), ExtResource("13_call_fierce")])
+windup_multiplier = 0.75
+tint = Color(1, 0.75, 0.7, 1)
+cooldown_multiplier = 0.75
+
+[sub_resource type="Resource" id="Resource_potion"]
+script = ExtResource("19_entry")
+item = ExtResource("21_potion")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_plate"]
+script = ExtResource("19_entry")
+item = ExtResource("22_plate")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_tome"]
+script = ExtResource("19_entry")
+item = ExtResource("23_tome")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_loot"]
+script = ExtResource("20_table")
+drop_chance = 1.0
+rolls = 3
+entries = Array[ExtResource("19_entry")]([SubResource("Resource_potion"), SubResource("Resource_plate"), SubResource("Resource_tome")])
+
+[sub_resource type="Resource" id="Resource_stats"]
+script = ExtResource("6_stats")
+max_hp = 1300
+attack = 4
+defense = 3
+move_speed = 20.0
+
+[resource]
+script = ExtResource("14_boss")
+material = ExtResource("99_material")
+title = "The Well's Hunger"
+portrait = ExtResource("4_portrait")
+phases = Array[ExtResource("5_phase")]([SubResource("Resource_dawn"), SubResource("Resource_hunger")])
+shockwave_after_hits = 0
+shockwave_power = 1.0
+phase_roar_time = 1.0
+relic_choices = 3
+soul_wisps = 30
+waking_line = "Papa... stay."
+dying_line = "The sun sets."
+arena_anchor = Vector2(0.5, 0.24)
+body_stays = true
+settle_offset = Vector2(0, 30)
+stats = SubResource("Resource_stats")
+weapon = ExtResource("15_weapon")
+skills = Array[ExtResource("7_skill")]([ExtResource("8_tentacles"), ExtResource("9_call")])
+radius = 40.0
+frames = ExtResource("2_frames")
+frames_offset = Vector2(0, -50)
+head_height = 228.0
+knockback_resistance = 1.0
+camera_lean = 0.45
+traits = Array[ExtResource("16_trait")]([SubResource("Resource_jaw")])
+detect_radius = 1400.0
+attack_windup = 0.6
+attack_recovery = 0.5
+hurt_sound = ExtResource("3_hurt")
+death_sound = ExtResource("1_death")
+xp_reward = 320
+loot = SubResource("Resource_loot")
+id = &"the_maw"
+display_name = "The Maw"
+description = "The hunger at the bottom of the Well. Solhar took its mask for a sun. It gives nothing back. Its jaw must open for a blow to land."
+icon = ExtResource("4_portrait")
+glyph = "M"
+color = Color(1, 0.8, 0.45, 1)
+spawn_weight = 0

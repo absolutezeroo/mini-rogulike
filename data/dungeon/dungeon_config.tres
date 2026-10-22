@@ -32,6 +32,7 @@
 [ext_resource type="Resource" path="res://data/secrets/sealed_draughts.tres" id="98_draughts"]
 [ext_resource type="AudioStream" path="res://data/audio/spirit.tres" id="99_whisper"]
 [ext_resource type="Resource" path="res://data/secrets/nameless_charnel.tres" id="100_hidden"]
+[ext_resource type="Resource" path="res://data/story/finale.tres" id="200_finale"]
 [ext_resource type="Script" path="res://src/definitions/pacts/pact_def.gd" id="101_pactdef"]
 [ext_resource type="Resource" path="res://data/pacts/untouched.tres" id="102_untouched"]
 [ext_resource type="Resource" path="res://data/pacts/knell.tres" id="103_knell"]
@@ -81,6 +82,7 @@ cracked_wall = ExtResource("92_crack")
 secret_rewards = Array[ExtResource("93_reward")]([ExtResource("94_coffer"), ExtResource("95_shrine"), ExtResource("96_rune"), ExtResource("97_gold"), ExtResource("98_draughts")])
 secret_whisper = ExtResource("99_whisper")
 hidden_floor = ExtResource("100_hidden")
+finale = ExtResource("200_finale")
 abyss = ExtResource("107_abyss")
 pact_chance = 0.7
 pacts = Array[ExtResource("101_pactdef")]([ExtResource("102_untouched"), ExtResource("103_knell"), ExtResource("104_fast"), ExtResource("105_tithe")])

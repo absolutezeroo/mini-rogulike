@@ -123,6 +123,9 @@ func _home() -> String:
 	var hidden := _content.dungeon.hidden_floor
 	if hidden and hidden.boss == _monster:
 		return tr(hidden.title)
+	var finale := _content.dungeon.finale
+	if finale and finale.boss and finale.boss.forms().any(func(form: BossDef) -> bool: return form == _monster):
+		return tr(finale.title)
 	if _content.abyss_monsters().has(_monster):
 		return tr(_content.dungeon.abyss.display_name)
 	return ""

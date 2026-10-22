@@ -47,9 +47,16 @@ The player learns this **in pieces, over many runs**. No single line states it.
 - **How he shows before the end:** never in person. His **journal pages** (fragments), the
   wardens' lines ("the keeper chained me here"), the Veilleuse's silences, the shrine's
   extinguished lamps, a sword cut in the Effigy's seal made with the hero's own school.
-- **The final fight** (to build): phase 1, Tôma fights with the hero's own techniques (dash,
-  charged blow, the lantern's light turned against him); phase 2, **the Maw** (la Gueule) wears
-  him like a mask.
+- **The final fight** (built: docs/design/monsters.md, "The bottom of the Well"): phase 1, Tôma
+  fights with the hero's own techniques (a dash strike, a long-drawn wide cut, the lantern's
+  light turned against him: a violet flame closing on the ground under the hero); phase 2,
+  when he falls to his knees, **the Maw** (la Gueule) rises behind him out of a pool of tar, takes
+  his kneeling body into its mouth and wears him like a mask. It can only be hurt when its jaw
+  opens: then Tôma is seen inside, standing. When the Maw dies its golden mask crumbles and
+  leaves him standing in the dark, freed.
+- **His words at the bottom:** waking, « Tu es venu, mon élève. » / "You came, my pupil."; on
+  his knees, « Ta garde est juste, mon élève. » / "Your guard is true, my pupil." (a teacher's
+  last judgement: he is proud of the cut that beat him).
 - **Voice:** few words, a teacher's calm, never shouts. Calls the hero "mon élève" / "my pupil",
   never by a name (the hero has none).
 
@@ -65,6 +72,7 @@ The player learns this **in pieces, over many runs**. No single line states it.
 | under | Les Tréfonds / The Deeps | The Maw's gut. The Damned are Solhar's people, gnawed. |
 | between | Le Seuil / The Threshold | Where the dead wait to be eaten. The hero is sent back because the lantern still burns above. |
 | exit | La Brèche de l'Aube / The Dawn Breach | The lantern's light reaching down for its bearer. |
+| bottom | Le Fond du Puits / The Well's Bottom | Below the Kingdom of Dust the stone ends: a round floor of grey stone in the dark, a pool of tar under the far wall, bones. No lamp: the hero's lantern is the only light, and the Maw's golden face. Where Tôma kneels, waiting for the Maw to keep its word. |
 
 ## 5. The wardens (bosses)
 
@@ -85,6 +93,8 @@ changing with each meeting).
 | L'Accapareur Doré / Gilded Hoarder | the last king of Solhar | why Solhar fell: he fed it everything. |
 | Le Soleil Mort / Dead Sun | Solhar's god: the Maw's old mask | it speaks as the Maw's echo; never says "I" (the Well never says "I"). |
 | Le Gisant Sans Nom / Nameless Effigy | the first keeper, who sealed the Maw | the seal, the price of a name, the cut in the seal. |
+| Maître Tôma, le Gardien Parjure / Master Tôma, the Oathbreaker | the keeper who fed Kagari to the Maw (section 3) | everything; says almost nothing. |
+| La Gueule, la Faim du Puits / The Maw, the Well's Hunger | the hunger itself; its golden face is Solhar's "sun" (the Dead Sun was its old mask) | speaks only with what it took: Hana's voice from the spring at waking (« Papa... reste. » / "Papa... stay."), the Dead Sun's echo when it dies (« Le soleil se couche. » / "The sun sets."). |
 
 ## 6. The keepers and the voices you meet
 
@@ -112,8 +122,13 @@ fragments found, the Effigy slain, victories). A rough order:
    current ending = **first ending**). The Veilleuse admits the lamps were put out by hand.
 5. **The Nameless Effigy slain:** the seal was cut, by a blade of the hero's own school.
 6. **Enough fragments (journal of Tôma):** Tôma's grief, Hana, the pact. The Veilleuse breaks.
-7. **The bottom (to build):** Tôma, then the Maw. **True ending:** ring the bell (seal the Maw,
-   Tôma dies in peace, Hana rests) or take his place (become the nameless keeper of the seal).
+7. **The bottom** (built, once the profile has won a run): the last act's boss no longer ends
+   the run, a way leads down to **the Bottom of the Well** (« Le Fond du Puits » / "The Well's
+   Bottom"). Tôma, then the Maw. Tôma is named here for the first time. **True ending**, chosen
+   by the player when the Maw's mask crumbles: **ring the bell** (« Sonner la cloche »: the Well
+   closes, Tôma sits against the stone and dies in peace, "She sleeps now", Hana rests, Kagari
+   wakes) or **take his place** (« Prendre sa place »: the hero stays before the seal, the Well
+   forgets his face; Tôma climbs back to wake the village and answer to it).
 
 Rule: a line may **hint** at a later step, never **state** it.
 
@@ -137,5 +152,16 @@ Rule: a line may **hint** at a later step, never **state** it.
 ## 9. Still open (decide before writing these)
 
 - The Veilleuse's exact place and art at the shrine (a figure on the title screen?).
-- The final fight's arena and the Maw's look.
-- Whether "take his place" leads to a new game mode (endless as the keeper).
+- Whether "take his place" leads to a new game mode (endless as the keeper). Today both
+  endings lead to the same victory screen (and endless mode if the player keeps going); the
+  choice is kept in the profile (`Profile.ending`) for whatever comes next.
+
+Decided:
+
+- **The Maw's look:** a huge golden skull-mask crowned with spikes like a sun's rays (the "sun"
+  Solhar worshipped), cracked, its jaw full of teeth; black tentacles of tar hang from it into a
+  pool of tar. Its jaw shut, it is a mask; open, Tôma stands inside its mouth. It never walks: it
+  rises out of the tar at the top of the arena and stays there.
+- **The arena:** the Bottom of the Well, a round floor of grey stone (an oval arena, no pillars)
+  in near-total dark (ambient light 2 of 15, no lamps): the hero's lantern and the Maw's own
+  golden glow light it. Tôma kneels below its middle; the Maw rises at its top.

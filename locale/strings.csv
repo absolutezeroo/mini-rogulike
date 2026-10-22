@@ -112,6 +112,8 @@ Blocks %d%% of the blows from the front.,Blocks %d%% of the blows from the front
 -%d gold,-%d gold,-%d or
 +%d gold,+%d gold,+%d or
 Steals gold and runs. Slay it to get it back.,Steals gold and runs. Slay it to get it back.,Vole de l'or et s'enfuit. Abats-le pour le récupérer.
+Only its open mouth can be hurt.,Only its open mouth can be hurt.,Seule sa gueule ouverte peut être blessée.
+No effect,No effect,Sans effet
 Its long body burns at a touch: only the head can be hurt,Its long body burns at a touch: only the head can be hurt,Son long corps brûle au contact : seule la tête peut être blessée
 Take no damage until the last foe falls.,Take no damage until the last foe falls.,Ne subis aucun dégât avant que le dernier ennemi ne tombe.
 Lose no more than %d Health in all until the last foe falls.,Lose no more than %d Health in all until the last foe falls.,Ne perds pas plus de %d de Vie en tout avant que le dernier ennemi ne tombe.
@@ -751,6 +753,8 @@ Martyrdom,Martyrdom,Le Martyre
 Win a run on Martyr.,Win a run on Martyr.,Gagne une partie en Martyr.
 Laid to Rest at Last,Laid to Rest at Last,Enfin le Repos
 "Slay the Nameless Effigy, below the Ossuary.","Slay the Nameless Effigy, below the Ossuary.","Terrasse le Gisant Sans Nom, sous l'Ossuaire."
+He Who Keeps Watch,He Who Keeps Watch,Celui qui Veille
+Take your master's place at the bottom of the Well.,Take your master's place at the bottom of the Well.,Prends la place de ton maître au fond du Puits.
 Into the Dark,Into the Dark,Vers les Ténèbres
 Reach floor 4.,Reach floor 4.,Atteins l'étage 4.
 Glint in the Dark,Glint in the Dark,Lueur dans le Noir
@@ -767,6 +771,8 @@ Feed the Pit,Feed the Pit,Nourrir l'Abîme
 Knock 10 monsters into holes.,Knock 10 monsters into holes.,Pousse 10 monstres dans des trous.
 Slayer,Slayer,Pourfendeur
 Slay 250 monsters.,Slay 250 monsters.,Abats 250 monstres.
+The Last Knell,The Last Knell,Le Dernier Glas
+Ring the bell at the bottom of the Well.,Ring the bell at the bottom of the Well.,Sonne la cloche au fond du Puits.
 Coffer Breaker,Coffer Breaker,Briseur de Coffres
 Open 25 chests.,Open 25 chests.,Ouvre 25 coffres.
 Veteran,Veteran,Vétéran
@@ -851,6 +857,8 @@ Tomb of the Dead Sun,Tomb of the Dead Sun,Tombeau du Soleil Mort
 "Gold under every stone, and a curse on every coin.","Gold under every stone, and a curse on every coin.","De l'or sous chaque pierre, et une malédiction sur chaque pièce."
 Pale Garden,Pale Garden,Le Jardin Blême
 Light from cracks above feeds a garden nobody tends anymore.,Light from cracks above feeds a garden nobody tends anymore.,La lumière qui filtre des fissures nourrit un jardin que plus personne n'entretient.
+The Well's Bottom,The Well's Bottom,Le Fond du Puits
+"Below the kingdom of dust, the stone ends. What waits here has waited for a long time.","Below the kingdom of dust, the stone ends. What waits here has waited for a long time.","Sous le royaume de poussière, la pierre s'arrête. Ce qui attend ici attend depuis longtemps."
 "Deep below, something burns.
 The Well breathes it up, and the air itself scorches.","Deep below, something burns.
 The Well breathes it up, and the air itself scorches.","Tout au fond, quelque chose brûle.
@@ -1015,6 +1023,7 @@ Gilded Mote,Gilded Mote,Éclat Doré
 Hex Bolt,Hex Bolt,Trait Maléfique
 Ink Bolt,Ink Bolt,Trait d'Encre
 Venom Fang,Venom Fang,Croc Venimeux
+Keeper's Katana,Keeper's Katana,Katana du Gardien
 Maul,Maul,Maillet
 Moss Spores,Moss Spores,Spores de Mousse
 Poison Fang,Poison Fang,Croc Empoisonné
@@ -1172,6 +1181,13 @@ BOILS OVER!,BOILS OVER!,BOUILLONNE !
 Warden of the Well's Maw,Warden of the Well's Maw,Gardien de la Gueule du Puits
 Bloated King,Bloated King,Le Roi Boursouflé
 "A huge slime that bounces, slams and splits.","A huge slime that bounces, slams and splits.","Un gluant colossal qui rebondit, écrase et se divise."
+HE TAKES THE HIGH GUARD,HE TAKES THE HIGH GUARD,IL PREND LA GARDE HAUTE
+THE LANTERN BURNS VIOLET,THE LANTERN BURNS VIOLET,LA LANTERNE BRÛLE VIOLETTE
+The Oathbreaker,The Oathbreaker,Le Gardien Parjure
+"You came, my pupil.","You came, my pupil.","Tu es venu, mon élève."
+"Your guard is true, my pupil.","Your guard is true, my pupil.","Ta garde est juste, mon élève."
+Master Tôma,Master Tôma,Maître Tôma
+"The keeper of Kagari's shrine, who taught you the blade and the lantern. He put out every flame of the village to buy back his daughter. He fights as he taught you.","The keeper of Kagari's shrine, who taught you the blade and the lantern. He put out every flame of the village to buy back his daughter. He fights as he taught you.","Le gardien du sanctuaire de Kagari, qui t'a appris la lame et la lanterne. Il a éteint chaque flamme du village pour racheter sa fille. Il se bat comme il te l'a appris."
 Shatter the Nameless Effigy with a Pickaxe,Shatter the Nameless Effigy with a Pickaxe,Brise le Gisant Sans Nom à la Pioche
 THE DEAD ANSWER!,THE DEAD ANSWER!,LES MORTS RÉPONDENT !
 IT WILL NOT REST!,IT WILL NOT REST!,IL NE REPOSERA PAS !
@@ -1190,6 +1206,13 @@ NOON SUN!,NOON SUN!,ZÉNITH !
 False God of the Well,False God of the Well,Faux Dieu du Puits
 Dead Sun,Dead Sun,Le Soleil Mort
 "The sun the kingdom worshipped, buried with it. It burns, blinks and calls its embers.","The sun the kingdom worshipped, buried with it. It burns, blinks and calls its embers.","Le soleil que vénérait le royaume, enseveli avec lui. Il brûle, se téléporte et appelle ses braises."
+THE FALSE SUN RISES,THE FALSE SUN RISES,LE FAUX SOLEIL SE LÈVE
+THE HUNGER WAKES,THE HUNGER WAKES,LA FAIM S'ÉVEILLE
+The Well's Hunger,The Well's Hunger,La Faim du Puits
+Papa... stay.,Papa... stay.,Papa... reste.
+The sun sets.,The sun sets.,Le soleil se couche.
+The Maw,The Maw,La Gueule
+The hunger at the bottom of the Well. Solhar took its mask for a sun. It gives nothing back. Its jaw must open for a blow to land.,The hunger at the bottom of the Well. Solhar took its mask for a sun. It gives nothing back. Its jaw must open for a blow to land.,La faim au fond du Puits. Solhar prenait son masque pour un soleil. Elle ne rend rien. Sa mâchoire doit s'ouvrir pour qu'un coup porte.
 Lay the Mother of Tears to rest with a Wand,Lay the Mother of Tears to rest with a Wand,Apaise la Mère des Larmes avec une Baguette
 CALLS THE LOST!,CALLS THE LOST!,APPELLE LES ÉGARÉS !
 SHRIEKS!,SHRIEKS!,HURLE !
@@ -1363,6 +1386,10 @@ Hailstorm,Hailstorm,Tempête de Grêle
 Ice bursts out all around it.,Ice bursts out all around it.,La glace jaillit tout autour de lui.
 "Two bursts of ice, the second between the gaps.","Two bursts of ice, the second between the gaps.","Deux salves de glace, la seconde dans les trous de la première."
 Crushing Leap,Crushing Leap,Bond Écrasant
+Call the Damned,Call the Damned,L'Appel des Damnés
+False Dawn,False Dawn,Fausse Aube
+Dead Sun's Gaze,Dead Sun's Gaze,Regard du Soleil Mort
+Tar Lash,Tar Lash,Fouet de Goudron
 Poison Spit,Poison Spit,Crachat de Poison
 Quake,Quake,Séisme
 Sandstorm,Sandstorm,Tempête de Sable
@@ -1372,6 +1399,9 @@ Split,Split,Division
 Slime Storm,Slime Storm,Tempête Gluante
 Solar Flare,Solar Flare,Éruption Solaire
 Gale Step,Gale Step,Pas de la Bourrasque
+Keeper's Step,Keeper's Step,Pas du Gardien
+The Lantern Turned,The Lantern Turned,La Lanterne Retournée
+Severing Arc,Severing Arc,Arc Tranchant
 Toxic Bloom,Toxic Bloom,Floraison Toxique
 A ring of venom bursts all around it.,A ring of venom bursts all around it.,Un anneau de venin jaillit tout autour de lui.
 "Two rings of venom, the second between the gaps.","Two rings of venom, the second between the gaps.","Deux anneaux de venin, le second dans les trous du premier."
@@ -1514,6 +1544,10 @@ VOLLEY,VOLLEY,SALVE
 Whirlwind,Whirlwind,Tourbillon
 Hits every enemy around you and pushes them away.,Hits every enemy around you and pushes them away.,Frappe tous les ennemis autour de toi et les repousse.
 SPIN,SPIN,TOUPIE
+The End of the Descent,The End of the Descent,Le Terme de la Descente
+"Below the kingdom of dust, the stone ends. Someone kneels in the dark, an unlit lantern in his hand.","Below the kingdom of dust, the stone ends. Someone kneels in the dark, an unlit lantern in his hand.","Sous le royaume de poussière, la pierre s'arrête. Quelqu'un est agenouillé dans le noir, une lanterne éteinte à la main."
+What Is Left,What Is Left,Ce Qui Reste
+"The mask is dust. Your master stands in the dark, free, and looks at the lantern in your hand. Far above, the bell waits.","The mask is dust. Your master stands in the dark, free, and looks at the lantern in your hand. Far above, the bell waits.","Le masque n'est plus que poussière. Ton maître se tient dans le noir, libre, et regarde la lanterne dans ta main. Loin là-haut, la cloche attend."
 "Beneath the village of Kagari sleeps an old well.
 No one draws water from it anymore.
 The elders say it has no bottom: only a mouth.","Beneath the village of Kagari sleeps an old well.
@@ -1553,6 +1587,25 @@ The lantern goes out... for now.,The lantern goes out... for now.,La lanterne s'
 The Well keeps you tonight. The shrine remembers the souls you brought back.,The Well keeps you tonight. The shrine remembers the souls you brought back.,Le Puits te garde cette nuit. Le sanctuaire se souvient des âmes que tu as ramenées.
 "Darkness. Then the shrine's bell, far above. Again.","Darkness. Then the shrine's bell, far above. Again.","Les ténèbres. Puis la cloche du sanctuaire, loin là-haut. Encore une fois."
 The souls you brought back from the Well lend you their strength.,The souls you brought back from the Well lend you their strength.,Les âmes que tu as ramenées du Puits te prêtent leur force.
+Ring the bell,Ring the bell,Sonner la cloche
+"Seal the Maw. Your master finds rest, and Hana with him.","Seal the Maw. Your master finds rest, and Hana with him.","Scelle la Gueule. Ton maître trouve le repos, et Hana avec lui."
+"You ring the bell, and the Well closes.
+Tôma sits against the stone, his hand on your lantern. ""She sleeps now."" Then he sleeps too.
+Far above, Kagari wakes. The knell carries until dawn.","You ring the bell, and the Well closes.
+Tôma sits against the stone, his hand on your lantern. ""She sleeps now."" Then he sleeps too.
+Far above, Kagari wakes. The knell carries until dawn.","Tu sonnes la cloche, et le Puits se referme.
+Tôma s'assied contre la pierre, la main sur ta lanterne. « Elle dort, maintenant. » Puis il s'endort aussi.
+Loin là-haut, Kagari s'éveille. Le glas porte jusqu'à l'aube."
+Take his place,Take his place,Prendre sa place
+"Become the keeper of the seal: nameless, down here, for as long as it holds.","Become the keeper of the seal: nameless, down here, for as long as it holds.","Deviens le gardien du sceau : sans nom, ici-bas, aussi longtemps qu'il tiendra."
+The Nameless Keeper,The Nameless Keeper,Le Gardien Sans Nom
+"You take his place before the seal, and the Well forgets your face.
+Tôma climbs toward the light, to wake the village and answer to it.
+Below, a lantern keeps watch. No one will know who holds it.","You take his place before the seal, and the Well forgets your face.
+Tôma climbs toward the light, to wake the village and answer to it.
+Below, a lantern keeps watch. No one will know who holds it.","Tu prends sa place devant le sceau, et le Puits oublie ton visage.
+Tôma remonte vers la lumière, réveiller le village et lui répondre.
+En bas, une lanterne veille. Personne ne saura qui la tient."
 "Between the Well and the light, the dead wait their turn. Not yours. Not yet.","Between the Well and the light, the dead wait their turn. Not yours. Not yet.","Entre le Puits et la lumière, les morts attendent leur tour. Pas le tien. Pas encore."
 Move,Move,Bouger
 Drag your thumb on the left side of the screen to walk.,Drag your thumb on the left side of the screen to walk.,Fais glisser ton pouce sur la gauche de l'écran pour marcher.
@@ -1764,7 +1817,9 @@ grammar:gender:Mire Matron,grammar:gender:Mire Matron,f
 grammar:gender:Gilded Hoarder,grammar:gender:Gilded Hoarder,m
 grammar:gender:Jade Wyrm,grammar:gender:Jade Wyrm,f
 grammar:gender:Bloated King,grammar:gender:Bloated King,m
+grammar:gender:Master Tôma,grammar:gender:Master Tôma,m
 grammar:gender:The Nameless Effigy,grammar:gender:The Nameless Effigy,m
 grammar:gender:Ember Ronin,grammar:gender:Ember Ronin,m
 grammar:gender:Dead Sun,grammar:gender:Dead Sun,m
+grammar:gender:The Maw,grammar:gender:The Maw,f
 grammar:gender:Mother of Tears,grammar:gender:Mother of Tears,f

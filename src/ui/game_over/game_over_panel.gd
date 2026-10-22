@@ -31,9 +31,12 @@ func _ready() -> void:
 	_build()
 
 
-## The whole end of a run. `rows`: [label, value] pairs (RunState.summary_rows()).
-func show_end(victory: bool, story: String, rows: Array, souls_earned: int, souls_total: int) -> void:
-	_show(tr("Victory Achieved") if victory else tr("The Well claims you"), VICTORY_COLOR if victory else DEATH_COLOR, story, victory)
+## The whole end of a run. `rows`: [label, value] pairs (RunState.summary_rows()). `title`:
+## instead of the usual one (an ending's, chosen at the bottom of the Well).
+func show_end(victory: bool, story: String, rows: Array, souls_earned: int, souls_total: int, title: String = "") -> void:
+	if title.is_empty():
+		title = tr("Victory Achieved") if victory else tr("The Well claims you")
+	_show(title, VICTORY_COLOR if victory else DEATH_COLOR, story, victory)
 	UiParts.clear(_stats)
 	for row: Array in rows:
 		_stats.add_child(UiSkin.label(str(row[0]), Fonts.BODY, UiSkin.DIM))

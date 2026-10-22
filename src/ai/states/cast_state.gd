@@ -18,7 +18,7 @@ func enter() -> void:
 	_cast_time = skill.cast_time * actor.get_telegraph_scale()
 	_timer = _cast_time
 	if actor.rig:
-		actor.rig.play_cast(_aim, _cast_time)
+		actor.rig.play_cast(_aim, _cast_time, skill.cast_animation)
 
 
 func exit() -> void:
