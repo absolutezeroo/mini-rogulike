@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 75,
+  "next_id": 76,
   "tags": [
     "pc",
     "test",
@@ -1034,6 +1034,21 @@
       ],
       "created_at": 1792710637,
       "updated_at": 1792710637
+    },
+    {
+      "id": "task_75",
+      "title": "Test instable : « where he fell » (Seuil perdu)",
+      "description": "Vu une fois dans la suite game (CombatTests._test_threshold_lost : le héros ramené du Seuil perdu n'était pas exactement où il était tombé), pas reproduit ensuite (24 essais isolés et une suite game complète sans échec). Le message dit maintenant ce qu'il a vu (comment, position, où il était tombé) : à la prochaine fois, en trouver la cause.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "tests",
+        "bug"
+      ],
+      "created_at": 1792710655,
+      "updated_at": 1792710655
     }
   ]
 }
