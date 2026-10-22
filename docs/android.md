@@ -27,4 +27,4 @@ change it, or players lose their saves.
   build/le-puits-des-ames.aab`. Raise `version/code` (and `version/name`) for each upload.
 - **Privacy policy**: `docs/privacy.html` (the game sends nothing anywhere; saves stay on the
   phone). With GitHub Pages on (Settings > Pages > branch `main`, folder `/docs`) it is at
-  `https://absolutezeroo.github.io/mini-rogulike/privacy.html`, the link the Play Console asks for.
+  `https://absolutezeroo.github.io/the-well-of-souls/privacy.html`, the link the Play Console asks for.
