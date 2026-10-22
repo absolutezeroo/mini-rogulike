@@ -138,6 +138,8 @@ camp, ou gèle.*). Buttons that only manage menus (*Retour*, *Fermer*, *Acheter*
   talk in quotes. Weary, dry, a little wry: the dark humour of people who stayed too long down
   there (*"Les morts n'achètent pas grand-chose."*). The Old Wanderer is a scavenger, Brann the
   smith is curt, the Grinning Spirit is a gambler.
+- **Who is who, and what is true** (the Maw, Solhar, Maître Tôma, Hana, the Veilleuse, the wardens'
+  pasts, the revelation schedule): docs/lore.md. Write lore with the `lore` skill.
 - **The shrine** (Tree of Souls, oaths): solemn and ritual. Oaths are sworn, souls are offered,
   the bell tolls at dawn.
 - **French:** the player is always **tu** (*Descends*, *Ta lanterne s'éteint*). Typography: a space

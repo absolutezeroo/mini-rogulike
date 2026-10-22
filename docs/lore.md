@@ -1,0 +1,141 @@
+# Lore bible: the truth of the Well
+
+The canon of *Le Puits des Âmes / The Well of Souls*. Every name, line of lore, dialogue, fragment
+and ending must agree with this page. The **voice** (vocabulary, naming patterns, who speaks how)
+is in `docs/lexicon.md`; this page is **what is true**. To write lore, use the `lore` skill
+(`.claude/skills/lore/`).
+
+French is written first; English is its equal, not a word-for-word copy. Names below are given
+FR / EN.
+
+## 1. The one-paragraph truth (never shown whole to the player)
+
+Under Kagari lies the Gueule (the Maw), an old hunger at the bottom of the Well that gives
+plenty in exchange for souls. Centuries ago the kingdom of **Solhar** worshipped it as a sun and
+fed it its people until it swallowed the kingdom whole. A nameless knight sealed it and gave
+his name to the seal; Kagari was built on top, with a shrine, a bell and a lantern that must
+never go out. On a moonless night, **Maître Tôma**, keeper of the shrine and the hero's master,
+put out every flame of Kagari and fed the village's souls to the Maw, to buy back his drowned
+daughter **Hana**. He spared one soul: the disciple holding the lantern. The hero goes down to
+bring the souls back, and at the bottom finds his master, worn by the Maw like a mask.
+
+The player learns this **in pieces, over many runs**. No single line states it.
+
+## 2. Timeline
+
+| When | What happened |
+|---|---|
+| Ages ago | Solhar, a kingdom under a sky that is now stone, worships a "sun" that answers prayers. The sun is the Maw's mask. The Dîme (Tithe): souls given at blood altars for harvests, gold, victories. |
+| The fall of Solhar | The king, greedy for more, gives the whole tithe at once, then his people. When no soul is left, the Maw takes the kingdom. Solhar becomes the **Kingdom of Dust**; the king becomes the **Gilded Hoarder** on his hoard; the false god becomes the **Dead Sun**, buried with them. |
+| The sealing | A knight of Solhar (or of no land: the texts disagree on purpose) goes down and seals the Maw with a rite that costs his name. He becomes **the Nameless Effigy**, "He Who Does Not Rest", guarding the seal in the Nameless Charnel. Brann forged his blades. |
+| The founding of Kagari | Settlers build Kagari over the Well: a shrine, a bronze **bell**, and the **lantern** whose flame keeps the Well asleep. Keepers succeed each other; their statues stand down the Well (the Warden's Statues). The village lays its dead in the **Ossuary**; a **Pyre Temple** burns the rest. Both later sink into the Well as it stirs. |
+| Some years ago | Hana, Tôma's daughter, drowns in the spring under the village (the **Spring of the Drowned**). Tôma, keeper of the shrine, raises an orphan as his disciple: the hero. |
+| The years after | Tôma searches the drowned archives of Solhar (the **Hushed Archive** (les Archives Muettes)) and finds the old pact: the Maw gives back what it took, if it is fed. |
+| The moonless night | Tôma puts out every flame of Kagari, unbinds the seal's last knot and offers the village's souls. The villagers sleep and do not wake. He leaves one lantern burning, in the disciple's hand: he could not give him too. He goes down. |
+| The game | The hero descends. The souls brought back wake the shrine (the Tree of Souls). The **Veilleuse**, who never slept, waits at the shrine. |
+
+## 3. The antagonist: Maître Tôma, the Oathbreaker (le Gardien parjure)
+
+- **Who:** the keeper of Kagari's shrine, master of the hero, father of Hana. Patient, exact,
+  kind to the hero; a man who believed rules keep the dark away until the dark took his child.
+- **Want:** Hana back. Not power, not revenge. He tells himself the village will wake when Hana
+  does; he is lying to himself and half knows it.
+- **Act:** fed Kagari to the Maw, bound the dead of the Well as wardens to guard the souls until
+  the feast, went down to the bottom to wait for the Maw to keep its word.
+- **Truth he refuses:** the Maw never gives back. What waits with him is not Hana but a thing
+  wearing her voice (heard at the Spring of the Drowned).
+- **How he shows before the end:** never in person. His **journal pages** (fragments), the
+  wardens' lines ("the keeper chained me here"), the Veilleuse's silences, the shrine's
+  extinguished lamps, a sword cut in the Effigy's seal made with the hero's own school.
+- **The final fight** (to build): phase 1, Tôma fights with the hero's own techniques (dash,
+  charged blow, the lantern's light turned against him); phase 2, **the Maw** (la Gueule) wears
+  him like a mask.
+- **Voice:** few words, a teacher's calm, never shouts. Calls the hero "mon élève" / "my pupil",
+  never by a name (the hero has none).
+
+## 4. Places (the descent)
+
+| Act | Place (FR / EN) | Truth |
+|---|---|---|
+| I | La Gueule du Puits / The Well's Maw (Weeping Grotto, Pale Garden) | The Well's throat. Roots of the village's trees reach down; the Maw's breath rises. |
+| II | Ossuaire de Kagari / Ossuary of Kagari (Catacombs, Drowned Caverns) | Kagari's dead, sunk with the earth when the Well stirred. The Spring of the Drowned is here: Hana drowned in its waters. |
+| III | Le Temple-Bûcher / The Pyre Temple (Godless Temple, Cinder Ruins, Hushed Archive / Archives Muettes) | Built by Solhar's priests over the Maw to "feed the sun". Its pyres still burn souls. The Archive holds the pact Tôma found. |
+| IV | Royaume de Poussière / Kingdom of Dust (Sandchoked City, Tomb of the Dead Sun) | Solhar itself, under a stone sky. Its king hoards, its god lies dead. The bottom of the Well is beneath it. |
+| hidden | Le Charnier Sans Nom / The Nameless Charnel | Where the seal is kept, between the Ossuary and the Temple. The Effigy guards it. |
+| under | Les Tréfonds / The Deeps | The Maw's gut. The Damned are Solhar's people, gnawed. |
+| between | Le Seuil / The Threshold | Where the dead wait to be eaten. The hero is sent back because the lantern still burns above. |
+| exit | La Brèche de l'Aube / The Dawn Breach | The lantern's light reaching down for its bearer. |
+
+## 5. The wardens (bosses)
+
+Every warden is a dead thing of the Well **bound by Tôma** to guard a share of Kagari's souls.
+Each knows a little of the truth and says it in its own way (lines at waking and at death,
+changing with each meeting).
+
+| Warden (FR / EN) | Was | Knows |
+|---|---|---|
+| Le Roi Boursouflé / Bloated King | the slime of the Well's throat, fattened on the first souls | "The keeper fed me first." |
+| La Matrone du Bourbier / Mire Matron | a frog that drank the drowned spring's water | Hana's name, croaked without knowing it. |
+| Gorr le Borgne / Gorr the One-Eyed | an ossuary guardian of Kagari, risen | the keeper's lantern-oath, broken. |
+| La Guivre d'Azur / Azure Wyrm | a dragon of ice sleeping under the crypt, woken by the cold breath | the night of the cold breath. |
+| La Mère des Larmes / Mother of Tears | the souls of Kagari's mourners, woven together | she weeps for a child who is not hers. |
+| Tengu Écarlate / Crimson Tengu | the Pyre Temple's warden-priest | the rite of feeding the sun. |
+| Le Rônin des Braises / Ember Ronin | Solhar's temple guard, masterless since the fall | the king's betrayal of his people. |
+| La Guivre de Jade / Jade Wyrm | coiled around the temple's heart, the Maw's old pet | what the "sun" really is. |
+| L'Accapareur Doré / Gilded Hoarder | the last king of Solhar | why Solhar fell: he fed it everything. |
+| Le Soleil Mort / Dead Sun | Solhar's god: the Maw's old mask | it speaks as the Maw's echo; never says "I" (the Well never says "I"). |
+| Le Gisant Sans Nom / Nameless Effigy | the first keeper, who sealed the Maw | the seal, the price of a name, the cut in the seal. |
+
+## 6. The keepers and the voices you meet
+
+| Character (FR / EN) | Truth | Voice |
+|---|---|---|
+| La Veilleuse / the Vigil-Keeper (to add, at the shrine) | an old blind priestess of the bell; raised Hana beside Tôma; never slept on the moonless night because she never sleeps. She comments the hero's deaths and progress, gives the truth slowly, refuses to believe Tôma did it until the end. | slow, warm, ritual; calls the hero "petit" / "child"; speaks of Tôma as "ton maître". |
+| Le Vieil Errant / Old Wanderer (merchant) | a peddler of Solhar who sold his name to the Well to keep trading forever. Coins are memories to him; he sells what the Well lets through. Knew the king. | scavenger's dry humour, haggles, every line ends on a hint. |
+| Brann le Forgeron / Brann the Smith | a foreign smith of Solhar's army: forged the wardens' chains and the Effigy's blades. Forges for the hero to atone. Knows how the first seal was made. | curt, few words, metal metaphors. |
+| L'Esprit Ricaneur / Grinning Spirit | a gambler of Solhar who wagered his soul and lost; still plays. | giggling, rhymes, dice. |
+| Autel de Sang / Blood Altar | Solhar's tithe altars. | (the Well's hunger, no voice) |
+| Source des Noyés / Spring of the Drowned | where Hana drowned; a girl's voice sometimes sings in it (the Maw imitating her). | a child's humming, three words at most. |
+| Statue du Gardien / Warden's Statue | statues of Kagari's past keepers; one niche is empty (Tôma's). | silent; inscriptions. |
+| The oaths (Colossus, Duelist, Heretic, Vulture) | vows sworn at the bell by keepers of old; each was a keeper's way. | solemn, one line each. |
+
+## 7. What the player learns, and when (revelation schedule)
+
+Lines and fragments are gated by **progress counters** (runs, deaths, wardens slain, acts reached,
+fragments found, the Effigy slain, victories). A rough order:
+
+1. **First runs:** the Well woke, Kagari sleeps, the hero alone was spared. The Veilleuse is there.
+2. **Act II reached:** the dead were laid down by Kagari; the Spring of the Drowned; a girl's voice.
+3. **Act III reached / first fragments:** Solhar existed; the pyres fed a "sun"; someone read the
+   archives recently (fresh candle wax, a keeper's seal).
+4. **First victory:** the souls come back, the bell rings, "the Well goes deeper still" (the
+   current ending = **first ending**). The Veilleuse admits the lamps were put out by hand.
+5. **The Nameless Effigy slain:** the seal was cut, by a blade of the hero's own school.
+6. **Enough fragments (journal of Tôma):** Tôma's grief, Hana, the pact. The Veilleuse breaks.
+7. **The bottom (to build):** Tôma, then the Maw. **True ending:** ring the bell (seal the Maw,
+   Tôma dies in peace, Hana rests) or take his place (become the nameless keeper of the seal).
+
+Rule: a line may **hint** at a later step, never **state** it.
+
+## 8. Rules of the canon
+
+- The Maw (la Gueule) is the Well's hunger. It never speaks as "I"; things speak for it (the Dead
+  Sun, the voice in the spring).
+- Souls are not destroyed until eaten: the hero can bring them back. That is why the shrine grows
+  strong (the Tree of Souls is the village's souls lending their strength).
+- The lantern is the hero's life-line: the Threshold, the Dawn Breach and the light of the shrine
+  are all the lantern. If it goes out, the run ends ("La lanterne s'éteint... pour cette fois.").
+- Gold is Solhar's: everything gold in the Well (coins, the Hoarder, the gilded moths) comes
+  from the fallen kingdom.
+- Demons are not from elsewhere: the Damned are what the Maw leaves of the souls it ate.
+- Kagari is Japanese-rooted (shrine, bell, ninja, rônin, tengu, kappa); Solhar is older and
+  foreign (sun cult, desert, gold, plate armor). Names follow each: Tôma, Hana, Kagari; Solhar,
+  Brann.
+- Time in the Well is wrong: the dead remember centuries as nights.
+- The hero has no name, never speaks in lines (the player is "tu" / "you").
+
+## 9. Still open (decide before writing these)
+
+- The Veilleuse's exact place and art at the shrine (a figure on the title screen?).
+- The final fight's arena and the Maw's look.
+- Whether "take his place" leads to a new game mode (endless as the keeper).
