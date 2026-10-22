@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="2_keepernamed"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/keeper_journal.tres" id="3_keeperjourna"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="4_progresscond"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"jade_wyrm_journal"
+title = "Tôma's Journal, a Green-Stained Page"
+author = "Tôma, keeper of the shrine"
+place = "The heart of the temple"
+lines = PackedStringArray("The Gentle One needed no chains. She already belongs to what waits for me below.", "I felt the breath beneath her. Warm, patient, pleased with me.", "Pleased with me. I wrote it twice to believe it.")
+look = ExtResource("3_keeperjourna")
+conditions = Array[ExtResource("4_progresscond")]([ExtResource("2_keepernamed")])

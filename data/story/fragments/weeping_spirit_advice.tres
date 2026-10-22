@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/village_scrap.tres" id="2_villagescrap"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"weeping_spirit_advice"
+title = "An Old Mourner's Advice"
+author = "Old Sayo, mourner"
+place = "Kagari, to her niece"
+lines = PackedStringArray("Never weep in front of the dead. Tears bind them here.", "Stay dry, stay straight. Let nothing touch you, not even a blow.", "Then the dead will speak to you, because you do not hold them back.")
+look = ExtResource("2_villagescrap")

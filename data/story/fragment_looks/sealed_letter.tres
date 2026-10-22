@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="FragmentLookDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_look_def.gd" id="1_fragmentlook"]
+[ext_resource type="Texture2D" path="res://assets/items/fragments/letter.png" id="2_letter"]
+[ext_resource type="Resource" path="res://data/vfx/elements/holy.tres" id="3_holy"]
+
+[resource]
+script = ExtResource("1_fragmentlook")
+icon = ExtResource("2_letter")
+element = ExtResource("3_holy")
+verb = "Read"

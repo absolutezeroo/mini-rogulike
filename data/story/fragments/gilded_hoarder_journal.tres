@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="2_keepernamed"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/keeper_journal.tres" id="3_keeperjourna"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="4_progresscond"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"gilded_hoarder_journal"
+title = "Tôma's Journal, a Gilded Page"
+author = "Tôma, keeper of the shrine"
+place = "The Kingdom of Dust"
+lines = PackedStringArray("The king of Solhar smiled when I offered him the souls. He had already done what I am doing.", "I asked him whether the promise was kept. He showed me his gold.", "It is not the same. Hana is not gold. It is not the same.")
+look = ExtResource("3_keeperjourna")
+conditions = Array[ExtResource("4_progresscond")]([ExtResource("2_keepernamed")])

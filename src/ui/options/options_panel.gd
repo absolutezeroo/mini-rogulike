@@ -7,7 +7,7 @@ extends Control
 ## %FrenchButton, %MasterSlider, %MusicSlider, %InterfaceSlider, %CombatSlider, %AmbienceSlider,
 ## %ShakeSlider, %ControlsSlider, %VibrationsCheck, %FixedStickCheck, %BatteryCheck,
 ## %FewerEffectsCheck, %FlashesCheck, %RunTimerCheck, %TutorialCheck, %ReplayTutorialButton, %AutoLootAll, %AutoLootBetter,
-## %AutoLootOff, %CloseButton).
+## %AutoLootOff, %StoriesFull, %StoriesShort, %StoriesOff, %CloseButton).
 ## Picking a language rebuilds the window in it at once; the title screen behind is rebuilt when
 ## the window closes (other screens pick it up the next time they open).
 
@@ -33,6 +33,9 @@ var _languages := {}
 ## Auto loot: Settings.LOOT_* -> its button, and the line saying what the picked one does.
 var _loot_modes := {}
 var _loot_help: Label
+## Boss stories: Settings.STORIES_* -> its button, and the line saying what the picked one does.
+var _story_modes := {}
+var _story_help: Label
 ## The language changed while the window was open.
 var _language_changed := false
 
@@ -64,6 +67,8 @@ func _wire() -> void:
 			Sfx.play_ui(Sfx.bank.ui_click))
 	for mode: int in _loot_modes:
 		(_loot_modes[mode] as Button).pressed.connect(_pick_loot_mode.bind(mode))
+	for mode: int in _story_modes:
+		(_story_modes[mode] as Button).pressed.connect(_pick_story_mode.bind(mode))
 	# Every hint shows again, from the first steps (and the hints come back on).
 	_replay.pressed.connect(func() -> void:
 		Profile.reset_hints()
@@ -85,6 +90,7 @@ func open() -> void:
 	for code: String in _languages:
 		(_languages[code] as Button).set_pressed_no_signal(code == Settings.language)
 	_show_loot_mode()
+	_show_story_mode()
 	show()
 
 
@@ -114,6 +120,7 @@ func _pick_language(code: String) -> void:
 	_volumes.clear()
 	_languages.clear()
 	_loot_modes.clear()
+	_story_modes.clear()
 	_build()
 	_wire()
 	open()
@@ -131,6 +138,28 @@ func _show_loot_mode() -> void:
 		(_loot_modes[mode] as Button).set_pressed_no_signal(mode == Settings.auto_loot)
 	if _loot_help:
 		_loot_help.text = _loot_help_text(Settings.auto_loot)
+
+
+func _pick_story_mode(mode: int) -> void:
+	Settings.set_option(&"boss_stories", mode)
+	Sfx.play_ui(Sfx.bank.ui_click)
+	_show_story_mode()
+
+
+func _show_story_mode() -> void:
+	for mode: int in _story_modes:
+		(_story_modes[mode] as Button).set_pressed_no_signal(mode == Settings.boss_stories)
+	if _story_help:
+		_story_help.text = _story_help_text(Settings.boss_stories)
+
+
+## What a Boss stories mode does, in a line.
+static func _story_help_text(mode: int) -> String:
+	if mode == Settings.STORIES_SHORT:
+		return TranslationServer.tr("Only its name and a line it remembers, about two seconds.")
+	if mode == Settings.STORIES_OFF:
+		return TranslationServer.tr("No scene: the fight starts at once.")
+	return TranslationServer.tr("A new chapter of its story when there is one; otherwise two seconds.")
 
 
 ## What a mode does, in a line.
@@ -215,6 +244,7 @@ func _build() -> void:
 	# Loot under Sound, where it shows without scrolling; the tutorial (set once) closes the right
 	# column, scrolled to on a small screen.
 	_build_loot(_section(left, tr("Loot")))
+	_build_stories(_section(left, tr("Story")))
 
 	var tutorial := _section(right, tr("Tutorial"))
 	_tutorial = _check(tutorial, tr("Tutorial hints"), tr("Short tips during your first runs."), "TutorialCheck")
@@ -252,6 +282,29 @@ func _build_loot(section: VBoxContainer) -> void:
 		MenuWindow.expose(button, entry[2], self)
 	_loot_help = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
 	section.add_child(_loot_help)
+
+
+## Boss stories: its name, three buttons (one stays pressed), what the picked one does. A tap
+## skips a story anyway.
+func _build_stories(section: VBoxContainer) -> void:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	section.add_child(row)
+	row.add_child(_words(tr("Boss stories"), tr("Before a warden's fight. A tap skips it.")))
+	var modes := [
+		[Settings.STORIES_FULL, tr("Full"), "StoriesFull"],
+		[Settings.STORIES_SHORT, tr("Short"), "StoriesShort"],
+		[Settings.STORIES_OFF, tr("Off"), "StoriesOff"],
+	]
+	for entry: Array in modes:
+		var button := MenuWindow.button(entry[1], Fonts.BODY, 44)
+		button.toggle_mode = true
+		button.custom_minimum_size.x = 118
+		row.add_child(button)
+		_story_modes[entry[0]] = button
+		MenuWindow.expose(button, entry[2], self)
+	_story_help = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
+	section.add_child(_story_help)
 
 
 ## In the header, always in sight: "Language" and two big buttons, each language's name in

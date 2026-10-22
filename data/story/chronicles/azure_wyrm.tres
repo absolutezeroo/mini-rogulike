@@ -1,0 +1,92 @@
+[gd_resource type="Resource" script_class="BossChronicleDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/boss_chronicle_def.gd" id="1_bosschronicl"]
+[ext_resource type="Resource" path="res://data/story/fragments/azure_wyrm_brann.tres" id="2_azurewyrmbra"]
+[ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="3_fire"]
+[ext_resource type="Script" path="res://src/definitions/story/deeds/element_deed.gd" id="4_elementdeed"]
+[ext_resource type="Script" path="res://src/definitions/story/chronicle_chapter.gd" id="5_chroniclecha"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/fragments_condition.gd" id="6_fragmentscon"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="7_progresscond"]
+[ext_resource type="Script" path="res://src/definitions/story/waking_line.gd" id="8_wakingline"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="9_keepernamed"]
+[ext_resource type="Resource" path="res://data/story/fragments/azure_wyrm_prayer.tres" id="10_azurewyrmpra"]
+[ext_resource type="Resource" path="res://data/story/fragments/azure_wyrm_journal.tres" id="11_azurewyrmjou"]
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="12_fragmentdef"]
+
+[sub_resource type="Resource" id="Resource_1"]
+script = ExtResource("4_elementdeed")
+id = &"warmed_by_fire"
+hint = "Only fire reminds her of the sky she left."
+rule = "Finish her with fire: a burning weapon or a burn."
+revealed_by = ExtResource("2_azurewyrmbra")
+element = ExtResource("3_fire")
+
+[sub_resource type="Resource" id="Resource_2"]
+script = ExtResource("5_chroniclecha")
+id = &"sleeping_winter"
+title = "The Sleeping Winter"
+lines = PackedStringArray("An ice wyrm, as long as a street. Wherever she passes, the stone grows rime.", "Her eyes are still heavy with sleep.")
+slain = 0
+
+[sub_resource type="Resource" id="Resource_3"]
+script = ExtResource("5_chroniclecha")
+id = &"winter_sleeper"
+title = "The Winter Sleeper"
+lines = PackedStringArray("She slept under Kagari's crypt for longer than the village has stood. Her breath kept the dead from rotting.", "The old folk called her the Winter Sleeper, and left cold rice on the steps for her.", "In her sleep she flew under a sky. She counted the snowflakes.")
+slain = 1
+
+[sub_resource type="Resource" id="Resource_4"]
+script = ExtResource("6_fragmentscon")
+count = 2
+
+[sub_resource type="Resource" id="Resource_5"]
+script = ExtResource("5_chroniclecha")
+id = &"jade_sister"
+title = "The Jade Sister"
+lines = PackedStringArray("She had a sister with green scales, who loved warmth. One day the sister went down toward the fire.", "The Azure Wyrm stayed with the dead, in the cold. They never said goodbye.")
+slain = 1
+conditions = Array[ExtResource("7_progresscond")]([SubResource("Resource_4")])
+
+[sub_resource type="Resource" id="Resource_6"]
+script = ExtResource("5_chroniclecha")
+id = &"cold_breath"
+title = "The Cold Breath"
+lines = PackedStringArray("On the moonless night a cold breath rose from the bottom and passed through every house. It was not hers.", "It came from lower down, and it was hungry. It woke her as it passed.", "She opened her eyes. Every flame in Kagari was already dead.")
+slain = 2
+
+[sub_resource type="Resource" id="Resource_7"]
+script = ExtResource("5_chroniclecha")
+id = &"foreign_chains"
+title = "The Foreign Chains"
+lines = PackedStringArray("The keeper found her awake and trembling. He carried chains of a steel frost cannot bite, forged by a foreign hand.", "\"Sleep if you will. But keep these until I come back.\"", "She keeps the souls he left her. She no longer sleeps.")
+slain = 4
+
+[sub_resource type="Resource" id="Resource_8"]
+script = ExtResource("5_chroniclecha")
+id = &"drawn_breath"
+title = "The Drawn Breath"
+lines = PackedStringArray("She knows that cold breath now: it is the bottom drawing breath. It sucks in everything warm.", "One day it will breathe out. That day there will be no winter, no flame, nothing left to keep.", "She fights off sleep to be there when it comes.")
+slain = 6
+conditions = Array[ExtResource("7_progresscond")]([SubResource("Resource_1")])
+
+[sub_resource type="Resource" id="Resource_9"]
+script = ExtResource("6_fragmentscon")
+count = 1
+
+[sub_resource type="Resource" id="Resource_10"]
+script = ExtResource("8_wakingline")
+id = &"is_there_a_sky"
+line = "You read what they wrote about me... It is so cold. Is there still a sky?"
+conditions = Array[ExtResource("7_progresscond")]([SubResource("Resource_9")])
+
+[sub_resource type="Resource" id="Resource_11"]
+script = ExtResource("8_wakingline")
+id = &"his_hands_shook"
+line = "Tôma. His hands shook more than I did, holding the chains."
+conditions = Array[ExtResource("7_progresscond")]([ExtResource("9_keepernamed")])
+
+[resource]
+script = ExtResource("1_bosschronicl")
+chapters = Array[ExtResource("5_chroniclecha")]([SubResource("Resource_2"), SubResource("Resource_3"), SubResource("Resource_5"), SubResource("Resource_6"), SubResource("Resource_7"), SubResource("Resource_8")])
+waking_lines = Array[ExtResource("8_wakingline")]([SubResource("Resource_10"), SubResource("Resource_11")])
+fragments = Array[ExtResource("12_fragmentdef")]([ExtResource("10_azurewyrmpra"), ExtResource("2_azurewyrmbra"), ExtResource("11_azurewyrmjou")])

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="2_keepernamed"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/keeper_journal.tres" id="3_keeperjourna"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="4_progresscond"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"azure_wyrm_journal"
+title = "Tôma's Journal, a Frosted Page"
+author = "Tôma, keeper of the shrine"
+place = "Beneath the crypt"
+lines = PackedStringArray("The Sleeper woke before I came down. The breath reached her first, or I came too late.", "Brann gave me the chains without looking at me. He knew what they were for.", "I was cold all night. Hana did not like the cold.")
+look = ExtResource("3_keeperjourna")
+conditions = Array[ExtResource("4_progresscond")]([ExtResource("2_keepernamed")])

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/sealed_letter.tres" id="2_sealedletter"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"sun_wraith_hymn"
+title = "The Noon Hymn"
+author = "A choir of Solhar"
+place = "Sung on the temple steps"
+lines = PackedStringArray("Great Noon, you drink our shadows, and our fields are golden.", "Great Noon, you drink our sons, and our blades are victorious.", "Great Noon, drink again. It is so bright.")
+look = ExtResource("2_sealedletter")

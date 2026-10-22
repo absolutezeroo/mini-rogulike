@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/sealed_letter.tres" id="2_sealedletter"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"red_samurai_roll"
+title = "Roll of the Seventh Step"
+author = "Vardan, temple guard"
+place = "Solhar, the day of the Tithe"
+lines = PackedStringArray("Merel the baker, and her two sons. Osk the tanner. Old Ilse, who brought me water.", "All went up at dawn. None came down.", "Order carried out.")
+look = ExtResource("2_sealedletter")

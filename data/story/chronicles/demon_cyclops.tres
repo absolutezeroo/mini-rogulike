@@ -1,0 +1,92 @@
+[gd_resource type="Resource" script_class="BossChronicleDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/boss_chronicle_def.gd" id="1_bosschronicl"]
+[ext_resource type="Resource" path="res://data/story/fragments/demon_cyclops_rite.tres" id="2_demoncyclops"]
+[ext_resource type="Script" path="res://src/definitions/story/deeds/mark_deed.gd" id="3_markdeed"]
+[ext_resource type="Script" path="res://src/definitions/story/chronicle_chapter.gd" id="4_chroniclecha"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/fragments_condition.gd" id="5_fragmentscon"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="6_progresscond"]
+[ext_resource type="Script" path="res://src/definitions/story/waking_line.gd" id="7_wakingline"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="8_keepernamed"]
+[ext_resource type="Resource" path="res://data/story/fragments/demon_cyclops_register.tres" id="9_demoncyclops"]
+[ext_resource type="Resource" path="res://data/story/fragments/demon_cyclops_journal.tres" id="10_demoncyclops"]
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="11_fragmentdef"]
+
+[sub_resource type="Resource" id="Resource_1"]
+script = ExtResource("3_markdeed")
+id = &"sworn_visitor"
+hint = "He only bows to a sworn oath."
+rule = "Slay him while sworn to an oath of the Tree of Souls."
+revealed_by = ExtResource("2_demoncyclops")
+mark = &"oath"
+present = true
+
+[sub_resource type="Resource" id="Resource_2"]
+script = ExtResource("4_chroniclecha")
+id = &"the_gravedigger"
+title = "The Gravedigger"
+lines = PackedStringArray("A horned giant with a single eye, a club of bone in his hand. He counts something under his breath.", "Listen closely: they are names.")
+slain = 0
+
+[sub_resource type="Resource" id="Resource_3"]
+script = ExtResource("4_chroniclecha")
+id = &"gorr_of_the_ossuary"
+title = "Gorr of the Ossuary"
+lines = PackedStringArray("His name was Gorr, and he laid Kagari's dead in the Ossuary. Every skull had its niche, every niche its name.", "A stone fell from the vault and took one of his eyes. He said one eye was enough to count.", "The horns came later, with the Well's breath.")
+slain = 1
+
+[sub_resource type="Resource" id="Resource_4"]
+script = ExtResource("5_fragmentscon")
+count = 2
+
+[sub_resource type="Resource" id="Resource_5"]
+script = ExtResource("4_chroniclecha")
+id = &"beast_under_the_floor"
+title = "The Beast Under the Floor"
+lines = PackedStringArray("A beast of frost sleeps under the Ossuary. Gorr sang it the names so that it would not wake.", "It woke anyway. He says it was not the song that failed, but the flame.")
+slain = 1
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_4")])
+
+[sub_resource type="Resource" id="Resource_6"]
+script = ExtResource("4_chroniclecha")
+id = &"lantern_oath"
+title = "The Lantern Oath"
+lines = PackedStringArray("Every keeper of the shrine swears at the bell that the lantern shall not go out. Gorr held the rope while they swore.", "He heard the last keeper swear. Young, his voice clear, his hand over the flame.", "Gorr remembers every word. He counts them with the names.")
+slain = 2
+
+[sub_resource type="Resource" id="Resource_7"]
+script = ExtResource("4_chroniclecha")
+id = &"too_many"
+title = "The Night of Too Many"
+lines = PackedStringArray("On the moonless night the lantern went out, and the souls came down by the hundred. Gorr could not name them all.", "The keeper came down with a cold lantern. \"Keep them among the bones. No one will look for them there.\"", "Gorr obeyed. A hand that swore cannot lie, he thought.")
+slain = 4
+
+[sub_resource type="Resource" id="Resource_8"]
+script = ExtResource("4_chroniclecha")
+id = &"what_the_bottom_counts"
+title = "What the Bottom Counts"
+lines = PackedStringArray("The dead of the Ossuary no longer rest. Gorr believed it was his fault, that he had miscounted.", "But something further down counts too. Faster than he does, and it never names.", "He holds the village's souls in the hollow of his hand. He will not close it.")
+slain = 6
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_1")])
+
+[sub_resource type="Resource" id="Resource_9"]
+script = ExtResource("5_fragmentscon")
+count = 1
+
+[sub_resource type="Resource" id="Resource_10"]
+script = ExtResource("7_wakingline")
+id = &"tell_me_your_name"
+line = "You smell of the niches' stone. Tell me your name, so I can put it away."
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_9")])
+
+[sub_resource type="Resource" id="Resource_11"]
+script = ExtResource("7_wakingline")
+id = &"buried_without_niche"
+line = "Tôma. I held the rope when he swore. That name I bury without a niche."
+conditions = Array[ExtResource("6_progresscond")]([ExtResource("8_keepernamed")])
+
+[resource]
+script = ExtResource("1_bosschronicl")
+chapters = Array[ExtResource("4_chroniclecha")]([SubResource("Resource_2"), SubResource("Resource_3"), SubResource("Resource_5"), SubResource("Resource_6"), SubResource("Resource_7"), SubResource("Resource_8")])
+waking_lines = Array[ExtResource("7_wakingline")]([SubResource("Resource_10"), SubResource("Resource_11")])
+fragments = Array[ExtResource("11_fragmentdef")]([ExtResource("9_demoncyclops"), ExtResource("2_demoncyclops"), ExtResource("10_demoncyclops")])

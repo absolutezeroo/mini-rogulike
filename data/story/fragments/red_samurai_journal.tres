@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="2_keepernamed"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/keeper_journal.tres" id="3_keeperjourna"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="4_progresscond"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"red_samurai_journal"
+title = "Tôma's Journal, a Page Folded in Four"
+author = "Tôma, keeper of the shrine"
+place = "The Pyre Temple, the seventh step"
+lines = PackedStringArray("The guard of Solhar listened to me as one listens to a king. I was ashamed of how easy it was.", "I told him no one would drive these souls up. I am the one who will.", "I lied to him with the words of my oath. They still obey me.")
+look = ExtResource("3_keeperjourna")
+conditions = Array[ExtResource("4_progresscond")]([ExtResource("2_keepernamed")])

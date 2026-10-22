@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/bone_tablet.tres" id="2_bonetablet"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"azure_wyrm_brann"
+title = "Brann's Note on Frost"
+author = "Brann the Smith"
+place = "An anvil beneath the crypt"
+lines = PackedStringArray("Frost does not fear steel. It bites it.", "Heat your blade red, and the beast will remember the sun.", "Finish her with fire. She will not fight it. She will listen.")
+look = ExtResource("2_bonetablet")

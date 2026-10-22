@@ -31,6 +31,8 @@ var _list_box: PanelContainer
 var _scroll: ScrollContainer
 var _list: VBoxContainer
 var _page: MonsterPage
+## A warden's fragment, read again from its chronicle.
+var _fragment := FragmentPanel.new()
 var _cards: Array[CodexCard] = []
 var _named: Array[Node] = []
 
@@ -257,6 +259,9 @@ func is_page_open() -> bool:
 
 ## The back button: a monster's page goes back to the list, the list closes the codex.
 func back() -> void:
+	if _fragment.visible:
+		_fragment.close()
+		return
 	Sfx.play_ui(Sfx.bank.ui_close)
 	if _page.visible:
 		_close_page()
@@ -403,6 +408,12 @@ func _build() -> void:
 		_close_page())
 	_window.body.add_child(_page)
 	_own(_page)
+	_fragment.name = "FragmentPanel"
+	add_child(_fragment)
+	_page.fragment_requested.connect(func(fragment: FragmentDef, boss: BossDef) -> void:
+		Sfx.play_ui(Sfx.bank.ui_open)
+		_fragment.open(fragment, boss))
+	_own(_fragment)
 	for node in _named:
 		node.owner = self
 		node.unique_name_in_owner = true

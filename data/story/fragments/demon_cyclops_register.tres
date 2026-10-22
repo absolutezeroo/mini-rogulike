@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/bone_tablet.tres" id="2_bonetablet"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"demon_cyclops_register"
+title = "The Ossuary Register"
+author = "Gorr, gravedigger"
+place = "Ossuary of Kagari, niche forty"
+lines = PackedStringArray("Niche thirty-eight: the old potter. He laughed loudly.", "Niche thirty-nine: the ferryman's wife, and her comb.", "Niche forty: empty. I am keeping it for myself.")
+look = ExtResource("2_bonetablet")

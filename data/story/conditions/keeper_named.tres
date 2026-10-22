@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AllCondition" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/conditions/all_condition.gd" id="1_allcondition"]
+[ext_resource type="Resource" path="res://data/story/conditions/effigy_slain.tres" id="2_effigyslain"]
+[ext_resource type="Resource" path="res://data/story/conditions/first_victory.tres" id="3_firstvictory"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="4_progresscond"]
+
+[resource]
+script = ExtResource("1_allcondition")
+conditions = Array[ExtResource("4_progresscond")]([ExtResource("2_effigyslain"), ExtResource("3_firstvictory")])
+text = "Find the one who does not rest, then win a run"

@@ -1,0 +1,92 @@
+[gd_resource type="Resource" script_class="BossChronicleDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/boss_chronicle_def.gd" id="1_bosschronicl"]
+[ext_resource type="Resource" path="res://data/story/fragments/gilded_hoarder_letter.tres" id="2_gildedhoarde"]
+[ext_resource type="Script" path="res://src/definitions/story/deeds/mark_deed.gd" id="3_markdeed"]
+[ext_resource type="Script" path="res://src/definitions/story/chronicle_chapter.gd" id="4_chroniclecha"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/fragments_condition.gd" id="5_fragmentscon"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="6_progresscond"]
+[ext_resource type="Script" path="res://src/definitions/story/waking_line.gd" id="7_wakingline"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="8_keepernamed"]
+[ext_resource type="Resource" path="res://data/story/fragments/gilded_hoarder_ledger.tres" id="9_gildedhoarde"]
+[ext_resource type="Resource" path="res://data/story/fragments/gilded_hoarder_journal.tres" id="10_gildedhoarde"]
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="11_fragmentdef"]
+
+[sub_resource type="Resource" id="Resource_1"]
+script = ExtResource("3_markdeed")
+id = &"bought_nothing"
+hint = "He speaks only to one who bought nothing with his gold."
+rule = "Slay him without buying anything from the merchant this run."
+revealed_by = ExtResource("2_gildedhoarde")
+mark = &"bought"
+present = false
+
+[sub_resource type="Resource" id="Resource_2"]
+script = ExtResource("4_chroniclecha")
+id = &"king_on_the_heap"
+title = "The King on His Heap"
+lines = PackedStringArray("A giant of gold seated on a mountain of coins. Every coin bears the same face: his.", "He counts. He stops counting for you, and he does not like it.")
+slain = 0
+
+[sub_resource type="Resource" id="Resource_3"]
+script = ExtResource("4_chroniclecha")
+id = &"last_king"
+title = "Ostarion, Last King"
+lines = PackedStringArray("His name was Ostarion, last king of Solhar, under a sky that was not yet stone.", "His kingdom knew famine when he was a child. He swore Solhar would never be hungry again.", "The sun granted prayers. One had only to pay the Tithe.")
+slain = 1
+
+[sub_resource type="Resource" id="Resource_4"]
+script = ExtResource("5_fragmentscon")
+count = 2
+
+[sub_resource type="Resource" id="Resource_5"]
+script = ExtResource("4_chroniclecha")
+id = &"the_peddler"
+title = "The Peddler Who Knew Him"
+lines = PackedStringArray("A peddler of Solhar once sold him spices. He still wanders the Well, and he never haggles with him.", "And the guard of the seventh step no longer comes. Ostarion counts that absence too.")
+slain = 1
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_4")])
+
+[sub_resource type="Resource" id="Resource_6"]
+script = ExtResource("4_chroniclecha")
+id = &"whole_tithe"
+title = "The Whole Tithe"
+lines = PackedStringArray("One soul for a harvest, ten for a victory. Ostarion wanted everything at once: he gave the whole Tithe in a day.", "Then his people, step after step. Then there was no one left to feed.", "The sun paid in gold. It never paid in bread.")
+slain = 2
+
+[sub_resource type="Resource" id="Resource_7"]
+script = ExtResource("4_chroniclecha")
+id = &"a_bargain"
+title = "A Bargain"
+lines = PackedStringArray("The shrine's keeper came to bargain, and Ostarion recognised a man who wanted something too much.", "\"Keep these souls with your gold. Your heap will grow.\" The king said yes before the sentence was done.", "He keeps Kagari's souls the way he kept his people. He counts them.")
+slain = 4
+
+[sub_resource type="Resource" id="Resource_8"]
+script = ExtResource("4_chroniclecha")
+id = &"what_hunger_gives"
+title = "What Hunger Gives"
+lines = PackedStringArray("He knows what the promise from below is worth: he was promised plenty, and given gold.", "Gold cannot be eaten. In the last winter, he chewed on coins.", "He could warn the keeper. He will not: he wants to see whether the keeper pays too.")
+slain = 6
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_1")])
+
+[sub_resource type="Resource" id="Resource_9"]
+script = ExtResource("5_fragmentscon")
+count = 1
+
+[sub_resource type="Resource" id="Resource_10"]
+script = ExtResource("7_wakingline")
+id = &"my_accounts"
+line = "You read my accounts. One soul, one harvest. It was a fair price, back then."
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_9")])
+
+[sub_resource type="Resource" id="Resource_11"]
+script = ExtResource("7_wakingline")
+id = &"among_a_thousand"
+line = "Tôma. A man who wants something too much. I would know him among a thousand."
+conditions = Array[ExtResource("6_progresscond")]([ExtResource("8_keepernamed")])
+
+[resource]
+script = ExtResource("1_bosschronicl")
+chapters = Array[ExtResource("4_chroniclecha")]([SubResource("Resource_2"), SubResource("Resource_3"), SubResource("Resource_5"), SubResource("Resource_6"), SubResource("Resource_7"), SubResource("Resource_8")])
+waking_lines = Array[ExtResource("7_wakingline")]([SubResource("Resource_10"), SubResource("Resource_11")])
+fragments = Array[ExtResource("11_fragmentdef")]([ExtResource("9_gildedhoarde"), ExtResource("2_gildedhoarde"), ExtResource("10_gildedhoarde")])

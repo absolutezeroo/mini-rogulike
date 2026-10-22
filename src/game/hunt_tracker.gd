@@ -2,11 +2,15 @@ class_name HuntTracker
 extends Node
 ## Watches the run for the bestiary challenges (HuntChallenge): how each monster was slain
 ## (an elite, pushed into a hole, a crit, with what weapon, untouched...), kill streaks, and
-## each boss fight (how long, potions drunk, HP lost). A challenge met is done for good and
-## paid in souls (Profile). Owned by the Game; pauses with it (its clock too).
+## each boss fight (how long, potions drunk, HP lost, heals). A challenge met is done for good and
+## paid in souls (Profile). A warden's death is also checked against the deeds of its chronicle
+## (DeedCondition, through Narrative), with the same context and the run's (its marks, its
+## difficulty). Owned by the Game; pauses with it (its clock too).
 
 var player: Player
 var content: ContentDB
+## The run (its marks and difficulty, for the deeds). Null: none asked.
+var run: RunState
 
 ## Seconds of play (stops while paused).
 var _clock := 0.0
@@ -16,6 +20,7 @@ var _kill_times := {}
 var _fight_start := -1.0
 var _fight_hp_lost := 0
 var _fight_potions := 0
+var _fight_healed := 0
 
 const STREAK_MEMORY := 12
 
@@ -25,14 +30,16 @@ func _ready() -> void:
 	Events.boss_started.connect(func(_boss: Monster) -> void:
 		_fight_start = _clock
 		_fight_hp_lost = 0
-		_fight_potions = 0)
+		_fight_potions = 0
+		_fight_healed = 0)
 	Events.depth_changed.connect(func(_depth: int) -> void:
 		_fight_start = -1.0
 		_kill_times.clear())
 
 
-func bind(new_player: Player) -> void:
+func bind(new_player: Player, new_run: RunState = null) -> void:
 	player = new_player
+	run = new_run
 	_fight_start = -1.0
 	_kill_times.clear()
 	player.damaged.connect(func(amount: int) -> void:
@@ -41,6 +48,9 @@ func bind(new_player: Player) -> void:
 	player.consumable_used.connect(func(_item: ItemDef) -> void:
 		if _fight_start >= 0.0:
 			_fight_potions += 1)
+	player.healed.connect(func(amount: int, _source: StringName) -> void:
+		if _fight_start >= 0.0 and amount > 0:
+			_fight_healed += amount)
 
 
 func _physics_process(delta: float) -> void:
@@ -67,6 +77,12 @@ func kill_context(monster: Monster) -> Dictionary:
 		"fight_time": (_clock - _fight_start) if monster.is_boss() and _fight_start >= 0.0 else -1.0,
 		"potions_in_fight": _fight_potions,
 		"hp_lost_in_fight": float(_fight_hp_lost) / max_hp,
+		"healed_in_fight": _fight_healed,
+		"killing_element": monster.killing_element(),
+		"gold": player.gold if player else 0,
+		"marks": run.marks if run else {},
+		"difficulty": run.difficulty.id if run and run.difficulty else &"",
+		"ascension": run.difficulty.ascension if run and run.difficulty else 0,
 	}
 
 
@@ -88,6 +104,9 @@ func _on_monster_killed(monster: Monster) -> void:
 		times.pop_front()
 	_kill_times[monster.def.id] = times
 	var kill := kill_context(monster)
+	if monster.def is BossDef:
+		for deed in Narrative.record_deeds(monster.def as BossDef, kill):
+			Events.deed_done.emit(monster.def as BossDef, deed)
 	for challenge in content.bestiary.challenges_for(monster.def):
 		if Profile.is_challenge_done(monster.def.id, challenge.id) or not challenge.met(kill):
 			continue

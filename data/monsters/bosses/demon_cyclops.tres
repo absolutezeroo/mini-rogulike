@@ -27,6 +27,7 @@
 [ext_resource type="Resource" path="res://data/skills/boss/call_skeletons_fierce.tres" id="20_dngni"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="23_nk8yc"]
 [ext_resource type="Resource" path="res://data/materials/flesh.tres" id="99_material"]
+[ext_resource type="Resource" path="res://data/story/chronicles/demon_cyclops.tres" id="90_chronicle"]
 
 [sub_resource type="Resource" id="Resource_v1ga4"]
 script = ExtResource("1_dngni")
@@ -111,6 +112,7 @@ move_speed = 70.0
 
 [resource]
 script = ExtResource("18_lv27d")
+chronicle = ExtResource("90_chronicle")
 material = ExtResource("99_material")
 title = "Warden of the Ossuary"
 shockwave_power = 1.0
@@ -134,7 +136,7 @@ challenges = Array[ExtResource("1_dngni")]([SubResource("Resource_v1ga4")])
 loot = SubResource("Resource_6sotq")
 id = &"demon_cyclops"
 display_name = "Gorr the One-Eyed"
-description = "A horned giant with a burning eye."
+description = "The Ossuary's gravedigger, risen with horns and one burning eye. His club shakes the ground; the dead answer his call."
 icon = SubResource("AtlasTexture_sogvl")
 glyph = "D"
 color = Color(0.9372549, 0.2784314, 0.43529412, 1)

@@ -1,0 +1,100 @@
+[gd_resource type="Resource" script_class="BossChronicleDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/boss_chronicle_def.gd" id="1_bosschronicl"]
+[ext_resource type="Resource" path="res://data/story/fragments/sun_wraith_templar.tres" id="2_sunwraithtem"]
+[ext_resource type="Resource" path="res://data/items/weapons/templar_sword.tres" id="3_templarsword"]
+[ext_resource type="Script" path="res://src/definitions/hunt_challenge.gd" id="4_huntchalleng"]
+[ext_resource type="Script" path="res://src/definitions/story/deeds/challenge_deed.gd" id="5_challengedee"]
+[ext_resource type="Script" path="res://src/definitions/story/chronicle_chapter.gd" id="6_chroniclecha"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/fragments_condition.gd" id="7_fragmentscon"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="8_progresscond"]
+[ext_resource type="Script" path="res://src/definitions/story/waking_line.gd" id="9_wakingline"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="10_keepernamed"]
+[ext_resource type="Resource" path="res://data/story/fragments/sun_wraith_hymn.tres" id="11_sunwraithhym"]
+[ext_resource type="Resource" path="res://data/story/fragments/sun_wraith_journal.tres" id="12_sunwraithjou"]
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="13_fragmentdef"]
+
+[sub_resource type="Resource" id="Resource_1"]
+script = ExtResource("4_huntchalleng")
+id = &"weapon_templar_sword"
+goal = 10
+souls = 0
+weapon = ExtResource("3_templarsword")
+
+[sub_resource type="Resource" id="Resource_2"]
+script = ExtResource("5_challengedee")
+id = &"weapon_templar_sword"
+hint = "Only a blessed blade dares look this sun in the face."
+rule = "Slay it with the Templar Sword."
+revealed_by = ExtResource("2_sunwraithtem")
+challenge = SubResource("Resource_1")
+
+[sub_resource type="Resource" id="Resource_3"]
+script = ExtResource("6_chroniclecha")
+id = &"sun_beneath_stone"
+title = "A Sun Beneath the Stone"
+lines = PackedStringArray("A dead sun floats in the tomb, crowned with embers. Its light shows nothing; it draws in.", "It does not look at you. It weighs you.")
+slain = 0
+
+[sub_resource type="Resource" id="Resource_4"]
+script = ExtResource("6_chroniclecha")
+id = &"great_noon"
+title = "The Great Noon"
+lines = PackedStringArray("Solhar called it the Great Noon. Hymns were sung to it at the hour when shadows vanish.", "It granted. A harvest, a rain, a victory: one had only to give.", "No one wondered why a sun needed to be given anything.")
+slain = 1
+
+[sub_resource type="Resource" id="Resource_5"]
+script = ExtResource("7_fragmentscon")
+count = 2
+
+[sub_resource type="Resource" id="Resource_6"]
+script = ExtResource("6_chroniclecha")
+id = &"the_hymns"
+title = "The Hymns"
+lines = PackedStringArray("Solhar's dead still sing its hymns at noon, in the dust. They no longer know why.", "The sun listens. It counts the voices, the way one counts mouthfuls.")
+slain = 1
+conditions = Array[ExtResource("8_progresscond")]([SubResource("Resource_5")])
+
+[sub_resource type="Resource" id="Resource_7"]
+script = ExtResource("6_chroniclecha")
+id = &"buried"
+title = "Buried"
+lines = PackedStringArray("When no souls were left in Solhar, the Great Noon took the whole kingdom. The sky turned to stone.", "It was buried with those who prayed to it. It still shines for them at noon, in the dark.")
+slain = 2
+
+[sub_resource type="Resource" id="Resource_8"]
+script = ExtResource("6_chroniclecha")
+id = &"the_one_who_knelt"
+title = "The One Who Knelt"
+lines = PackedStringArray("The sun needed no binding. The shrine's keeper came to kneel before it, like the priests of old.", "The sun answered. It always answers those who have lost something.", "The keeper left with a promise. The sun kept its share of the souls.")
+slain = 4
+
+[sub_resource type="Resource" id="Resource_9"]
+script = ExtResource("6_chroniclecha")
+id = &"the_mask"
+title = "The Mask"
+lines = PackedStringArray("It is no god. It is not even a sun. It is a mask, and behind the mask, a mouth.", "When it speaks, it is not the one speaking. It is what hungers, at the very bottom, trying on a face.", "The mask is cracked. Soon the mouth will not need it.")
+slain = 6
+conditions = Array[ExtResource("8_progresscond")]([SubResource("Resource_2")])
+
+[sub_resource type="Resource" id="Resource_10"]
+script = ExtResource("7_fragmentscon")
+count = 1
+
+[sub_resource type="Resource" id="Resource_11"]
+script = ExtResource("9_wakingline")
+id = &"give_and_harvest"
+line = "Pray. The harvest will come. Give, and the harvest will come."
+conditions = Array[ExtResource("8_progresscond")]([SubResource("Resource_10")])
+
+[sub_resource type="Resource" id="Resource_12"]
+script = ExtResource("9_wakingline")
+id = &"toma_gave"
+line = "Tôma gave. The harvest will come. The harvest always comes."
+conditions = Array[ExtResource("8_progresscond")]([ExtResource("10_keepernamed")])
+
+[resource]
+script = ExtResource("1_bosschronicl")
+chapters = Array[ExtResource("6_chroniclecha")]([SubResource("Resource_3"), SubResource("Resource_4"), SubResource("Resource_6"), SubResource("Resource_7"), SubResource("Resource_8"), SubResource("Resource_9")])
+waking_lines = Array[ExtResource("9_wakingline")]([SubResource("Resource_11"), SubResource("Resource_12")])
+fragments = Array[ExtResource("13_fragmentdef")]([ExtResource("11_sunwraithhym"), ExtResource("2_sunwraithtem"), ExtResource("12_sunwraithjou")])

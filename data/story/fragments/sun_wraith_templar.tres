@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/bone_tablet.tres" id="2_bonetablet"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"sun_wraith_templar"
+title = "A Templar's Warning"
+author = "A templar without an order"
+place = "Carved on a slab of the tomb"
+lines = PackedStringArray("Our prayers fed it; only our blessed steel wounds it.", "Strike it with the Templar's sword, and the mask cracks.", "I did not have the time. You, perhaps.")
+look = ExtResource("2_bonetablet")

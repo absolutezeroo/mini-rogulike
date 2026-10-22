@@ -118,6 +118,8 @@ func is_closed() -> bool:
 	return _gates.is_closed()
 
 
+## The hero walked in: the exits close, the World's storyteller tells the warden's story (a
+## cinematic over the frozen world, or nothing), then it wakes and the fight begins.
 func start() -> void:
 	if is_started or boss == null or boss.is_dead:
 		return
@@ -126,7 +128,12 @@ func start() -> void:
 	# must not end up locked outside its own room.
 	if _is_inside(boss.global_position) and _is_inside(_world.player.global_position):
 		_gates.close()
-	boss.wake_up(_world.player)
+	var woke_on_screen := false
+	if _world.storyteller:
+		woke_on_screen = await _world.storyteller.meet(boss)
+		if not is_instance_valid(boss) or boss.is_dead or not is_instance_valid(_world) or _world.player == null:
+			return
+	boss.wake_up(_world.player, not woke_on_screen)
 	Sfx.play_at(Sfx.bank.boss_roar, boss.global_position)
 	Events.screen_shake.emit(0.8)
 	Events.boss_started.emit(boss)

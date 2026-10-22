@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/singed_page.tres" id="2_singedpage"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"crimson_tengu_feather"
+title = "A Written Feather"
+author = "The Crimson Tengu"
+place = "The Pyre Temple, east altar"
+lines = PackedStringArray("Dawn. Swept the ash. Three lost souls to the pyres.", "Dawn. Swept the ash. A feather fell from me. It will not grow back.", "Dawn. Swept the ash.")
+look = ExtResource("2_singedpage")
