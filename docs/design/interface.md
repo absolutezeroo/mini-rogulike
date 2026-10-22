@@ -70,6 +70,11 @@ shows to the device in hand.
   code `Prompts.pick("Tap to skip", "Press {ui_accept} to skip")`); the codes are filled with the
   device's key ("Press [Enter] to skip", "Press [✕] to skip"). Others are worded for every device
   ("Choose a slot to see what it does."). A hint on screen changes its words when the device does.
+- **Keyboard layouts**: keys picked for their place (moving, attack, skills, belt) are bound by
+  `physical_keycode`, so WASD is Z Q S D on a French keyboard and the caps say so; keys named after
+  what they do (M the map, I the bag, E or F interact, C the perks) are bound by their letter
+  (`keycode`), wherever the layout puts it. A cap shows a sign as itself ("," not "Comma":
+  `InputPromptsDef.key_words`).
 - **Menus with keys and a gamepad** (`MenuNav`, autoload): every window built on `RpgWindow` or
   `RpgDialog`, and the title screen, is a menu (the group "menu"). The one on top holds the focus:
   opening, its first button outside its header gets it (or the one it names: the codex its tab, the

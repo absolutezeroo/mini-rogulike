@@ -97,19 +97,29 @@ static func glyphs(action: StringName, kind: int) -> Array[Dictionary]:
 	return result
 
 
-## A key's word on its cap: its own word in the data ("Esc"), else its name in the layout of the
-## player's keyboard (the key in W's place reads Z on a French one).
-static func key_word(physical: int) -> String:
-	var word := DATA.key_word(physical)
+## Marks a key bound by its letter (`keycode`: M for the map wherever M is), not by its place
+## (`physical_keycode`: the movement keys, Z Q S D on a French keyboard). See _keys().
+const LOGICAL := 1 << 30
+
+
+## A key's word on its cap: its own word in the data ("Esc", ","), else its name in the layout of
+## the player's keyboard (the key in W's place reads Z on a French one). A key bound by its
+## letter (LOGICAL) reads as itself.
+static func key_word(code: int) -> String:
+	var word := DATA.key_word(code & ~LOGICAL)
 	if not word.is_empty():
 		return word
-	var shown := physical
-	if DisplayServer.get_name() != "headless":
-		shown = DisplayServer.keyboard_get_label_from_physical(physical as Key)
+	var shown := code & ~LOGICAL
+	if code & LOGICAL == 0 and DisplayServer.get_name() != "headless":
+		shown = DisplayServer.keyboard_get_label_from_physical(shown as Key)
+		word = DATA.key_word(shown)  # the label may be a sign: "," not "Comma"
+		if not word.is_empty():
+			return word
 	return OS.get_keycode_string(shown as Key)
 
 
-## The action's keys (physical keycodes), `preferred` first when it is one of them.
+## The action's keys (physical keycodes, or keycodes | LOGICAL for keys bound by their letter),
+## `preferred` first when it is one of them.
 static func _keys(action: StringName, preferred: Key) -> Array[int]:
 	var keys: Array[int] = []
 	if not InputMap.has_action(action):
@@ -118,14 +128,16 @@ static func _keys(action: StringName, preferred: Key) -> Array[int]:
 		var key := event as InputEventKey
 		if key == null:
 			continue
-		var code := int(key.physical_keycode) if key.physical_keycode != KEY_NONE else int(key.keycode)
-		if code == KEY_KP_ENTER or (code >= KEY_KP_MULTIPLY and code <= KEY_KP_9):
+		var code := int(key.physical_keycode) if key.physical_keycode != KEY_NONE else int(key.keycode) | LOGICAL
+		var bare := code & ~LOGICAL
+		if bare == KEY_KP_ENTER or (bare >= KEY_KP_MULTIPLY and bare <= KEY_KP_9):
 			continue  # the keypad's twin of a key already listed (Enter)
-		if code != KEY_NONE and not keys.has(code):
+		if bare != KEY_NONE and not keys.has(code):
 			keys.append(code)
-	if preferred != KEY_NONE and keys.has(int(preferred)):
-		keys.erase(int(preferred))
-		keys.push_front(int(preferred))
+	for wanted: int in [int(preferred), int(preferred) | LOGICAL]:
+		if preferred != KEY_NONE and keys.has(wanted):
+			keys.erase(wanted)
+			keys.push_front(wanted)
 	return keys
 
 

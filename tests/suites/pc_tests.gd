@@ -204,6 +204,17 @@ func _test_input_map() -> void:
 		var on_pad := InputMap.action_get_events(action).any(func(e: InputEvent) -> bool: return e is InputEventJoypadButton or e is InputEventJoypadMotion)
 		var on_keys := InputMap.action_get_events(action).any(func(e: InputEvent) -> bool: return e is InputEventKey)
 		check(on_pad and on_keys, "%s works on keys and on a gamepad" % action)
+	# Keys named after what they do (M the map, I the bag, E interact, C the perks) follow the
+	# letter wherever the layout puts it (on a French keyboard, M is not in QWERTY's M place: it
+	# showed "Comma" and sat on the comma key); keys chosen for their place (move, attack, skills,
+	# belt) follow the place (Z Q S D on a French keyboard).
+	for action: StringName in [&"map", &"inventory", &"interact", &"offers"]:
+		var letters := InputMap.action_get_events(action).filter(func(e: InputEvent) -> bool: return e is InputEventKey and (e as InputEventKey).keycode != KEY_NONE and (e as InputEventKey).physical_keycode == KEY_NONE)
+		check(not letters.is_empty(), "%s is bound by its letter, not its place" % action)
+	for action: StringName in [&"move_up", &"move_left", &"attack", &"skill_1", &"quick_item"]:
+		var places := InputMap.action_get_events(action).filter(func(e: InputEvent) -> bool: return e is InputEventKey and (e as InputEventKey).physical_keycode != KEY_NONE)
+		check(not places.is_empty(), "%s is bound by its place on the keyboard" % action)
+	check(Prompts.key_word(KEY_M | Prompts.LOGICAL) == "M" and Prompts.key_word(KEY_COMMA) == ",", "a key cap reads its letter or its sign, never a key name like \"Comma\" (%s, %s)" % [Prompts.key_word(KEY_M | Prompts.LOGICAL), Prompts.key_word(KEY_COMMA)])
 
 
 ## The device in use follows the last real input (events reach the game on the next frame).
