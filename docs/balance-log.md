@@ -117,7 +117,7 @@ by run 3, and a Pilgrim run never pays more than a Keeper run with the same end.
 Pilgrim's souls x0.6-0.75, below Keeper's. The card shows "Souls earned x0.65" (from the data);
 docs/design/progression.md updated.
 
-**Tests:** unit,title, game, tutorial: see the commit; balance suite 85 checks, 10 failed: the
+**Tests (after merging main):** unit,title 13869 checks, game 1953, tutorial 397: 0 failed; balance suite 85 checks, 10 failed: the
 known ones plus "model: degenerate DPS" (degenerate_skills_a3 2.84x) and "content: unlisted"
 (Tôma, the Maw, the Nameless Effigy), both failing before this pass.
 
