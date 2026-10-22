@@ -336,6 +336,7 @@ stones lit in their runes' colors. The selected slot pulses gold.
   the title in her `DialogueBox` (presentation.md); with nothing for her to say, the story's line.
 - **Keepers' words**: the shop and the forge open on a line of the merchant's or the smith's
   (their dialogue's, else a greeting) in quotes beside their face; the grinning spirit's line
-  shows under its encounter's text, in its color, and goes when a choice is made.
+  shows in place of its encounter's description, in its color (the panel keeps its height on a
+  720-line screen), and the outcome takes its place when a choice is made.
 - **Codex, Voices** (*Paroles*): what each speaker said and is kept, by speaker, and how many
   lines are still to hear.

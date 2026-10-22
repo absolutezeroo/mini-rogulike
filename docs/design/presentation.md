@@ -420,8 +420,8 @@ speaker is special in the code. How to add a speaker, a line, an advice or a con
   Tree of Souls (the share of its levels bought).
 - **The keepers**: the merchant's and the smith's panels open on a line of theirs where their
   greeting was (in quotes, their own voice: the Wanderer's dry bargaining ending on a hint,
-  Brann's curt metal, the Spirit's giggling rhymes and dice under the encounter's text in its
-  color); new lines come with meetings and progress, one a meeting, each once; with nothing new,
+  Brann's curt metal, the Spirit's giggling rhymes and dice in place of the encounter's
+  description, in its color); new lines come with meetings and progress, one a meeting, each once; with nothing new,
   their greetings as before.
 - **Remembered**: the codex's **Voices** tab (*Paroles*) lists, by speaker (face, name, title),
   every line they said that is kept, and how many are still to hear; lines made of one run's facts

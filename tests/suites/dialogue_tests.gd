@@ -777,6 +777,22 @@ func _test_keeper_panels(game: Game) -> void:
 	var speech := game.encounter_panel.get_node("%Speech") as Label
 	check(speech.visible and speech.text.contains(tr(gambler.def.dialogue.line(&"dice").lines[0])), "the grinning spirit giggles a line over its dice")
 	game.encounter_panel.close()
+	# Its panel, the line under its text, in French: still inside a 720-line screen.
+	Settings.language = "fr"
+	Settings.apply()
+	var before := get_tree().root.size
+	for size in [Vector2i(1280, 720), Vector2i(1540, 720), Vector2i(2340, 1080)]:
+		await _window(size)
+		Profile.stats["talk:grinning_spirit"] = 1  # its longest line yet: "seven"
+		Profile.lines_told.erase("grinning_spirit/seven")
+		game.open_encounter(gambler)
+		await _frames(3)
+		var outside := _panel_outside(game.encounter_panel)
+		check(speech.visible and outside.is_empty(), "%s in French: the spirit's panel with its line fits (%s)" % [size, ", ".join(outside.slice(0, 3))])
+		game.encounter_panel.close()
+	await _restore_window(before)
+	Settings.language = "en"
+	Settings.apply()
 	gambler.queue_free()
 	await _frames(2)
 	_fresh()

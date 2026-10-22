@@ -769,8 +769,8 @@
     {
       "id": "task_57",
       "title": "Vérifier la hauteur du panneau de l'Esprit Ricaneur en FR à 720 lignes",
-      "description": "Avec sa réplique sous la description, le panneau de rencontre de l'Esprit Ricaneur approche le bord de l'écran à 720 lignes (vu à 2340x1080). Aucun test de mise en page ne couvre ce panneau : à vérifier à 1280x720 et 1540x720, réduire si besoin.",
-      "status": "todo",
+      "description": "Avec sa réplique sous la description, le panneau de rencontre de l'Esprit Ricaneur dépassait le haut de l'écran à 720 lignes en français (le ruban, de 8 pixels). Corrigé : sa réplique prend la place de la description ; un test de mise en page (1280x720, 1540x720, 2340x1080, FR) le tient dans DialogueTests.",
+      "status": "done",
       "priority": "low",
       "epic_id": "epic_4",
       "due_date": null,
@@ -779,7 +779,7 @@
         "qualité"
       ],
       "created_at": 1792698522,
-      "updated_at": 1792698522
+      "updated_at": 1792700110
     }
   ]
 }
