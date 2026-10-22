@@ -44,6 +44,8 @@ var _hero: Player
 var _stay: SubWorld
 ## Where he comes back to: the last safe spot by the hole.
 var _return_at := Vector2.ZERO
+## Where he fell in (Vector2.INF: unknown), sealed on the way back (AbyssDef.seal_hole).
+var _hole := Vector2.INF
 var _torch_level := -1
 var _tween: Tween
 var _veil: ColorRect
@@ -109,12 +111,13 @@ func can_take(hero: Actor) -> bool:
 	return not game.threshold.is_open()
 
 
-## `hero` fell into a hole: down into the Deeps. He comes back to `return_at` (the last safe spot
-## by the hole).
-func open(hero: Player, return_at: Vector2) -> void:
+## `hero` fell into a hole (at `hole`): down into the Deeps. He comes back to `return_at` (the
+## last safe spot by the hole), and the hole closes behind him if AbyssDef.seal_hole.
+func open(hero: Player, return_at: Vector2, hole: Vector2 = Vector2.INF) -> void:
 	state = State.ENTERING
 	_hero = hero
 	_return_at = return_at
+	_hole = hole
 	_stay = SubWorld.new(game, hero)
 	gifted = false
 	time_in = 0.0
@@ -290,5 +293,9 @@ func _bring_back() -> void:
 		if is_instance_valid(home) and home.map and not home.is_solid_ground(at):
 			at = home.nearest_free_point(at)
 		_stay.come_back(at)
+		# Back in the tree: the hole he fell through fills in behind him.
+		if def and def.seal_hole and _hole != Vector2.INF and is_instance_valid(home) and home.map:
+			home.seal_hole(home.map.world_to_cell(_hole))
+	_hole = Vector2.INF
 	depths = null
 	game.play_floor_mood()

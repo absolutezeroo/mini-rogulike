@@ -22,6 +22,11 @@ func add(cell: Vector2i, def: PitDef) -> void:
 	queue_redraw()
 
 
+func remove(cell: Vector2i) -> void:
+	if _pits.erase(cell):
+		queue_redraw()
+
+
 func get_def(cell: Vector2i) -> PitDef:
 	return _pits.get(cell)
 

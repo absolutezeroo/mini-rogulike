@@ -78,19 +78,22 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 	var encounter_count := roundi(rng.randi_range(config.encounters_min, config.encounters_max) * spread)
 	if event and config.encounters_max > 0:
 		encounter_count += event.extra_encounters
+	var encounter_rooms: Array[int] = []  # one encounter per room: never two side by side
 	for n in encounter_count:
 		var encounter := ContentDB.pick_from(content.encounters, depth, rng) as EncounterDef
 		if encounter == null:
 			continue
 		# A few tries: a room's middle may hold a scene (a statue, a pond...); then near it.
-		for attempt in 4:
+		for attempt in 8:
 			var index := rng.randi_range(1, map.rooms.size() - 1)
-			if index == merchant_index or index == forge_index or index == ambush_index or index == pact_index:
+			if index in encounter_rooms or index == merchant_index or index == forge_index \
+					or index == ambush_index or index == pact_index:
 				continue
 			var cell := _free_near_middle(world, map.rooms[index], taken)
 			if cell != Vector2i(-1, -1):
 				world.spawn_encounter(encounter, cell)
-				_reserve_around(taken, cell, 1)
+				_reserve_around(taken, cell, config.encounter_clearance)
+				encounter_rooms.append(index)
 				break
 
 	if world.curse:
@@ -181,8 +184,12 @@ static func place_curse(world: World, curse: CurseDef, taken: Dictionary) -> voi
 	if curse.warm_spot == null:
 		return
 	if not curse.warm_spot.place_one(world, map.rooms[0], taken):
-		# A small first room: right next to where the hero appears.
-		world.spawn_heat_source(curse.warm_spot, Rect2i(map.start_cell + Vector2i(2, -1), curse.warm_spot.size))
+		# A small first room: the nearest free spot to where the hero appears (on floor, never
+		# in a wall: a blind offset used to put the oasis inside the rock).
+		var rect := HazardDef.nearest_free_rect(world, map.start_cell, taken, curse.warm_spot.size)
+		if rect.size != Vector2i.ZERO:
+			HazardDef.take_rect(taken, rect)
+			world.spawn_heat_source(curse.warm_spot, rect)
 	var rooms := range(1, map.rooms.size())
 	RandomUtils.shuffle(rooms, world.rng)
 	var wanted := world.rng.randi_range(curse.spot_count.x, curse.spot_count.y)

@@ -20,6 +20,9 @@ extends Resource
 @export_range(0.0, 0.5, 0.01) var fall_damage: float = 0.05
 ## Seconds he can't be hurt once back on his floor.
 @export_range(0.0, 5.0) var return_grace: float = 1.5
+## Back from the Deeps, the hole he fell through closes behind him (rubble fills it): stepping
+## out by its edge must not drop him straight back in.
+@export var seal_hole: bool = true
 ## Out within this many seconds (plus `quick_time_per_act` each later act): the dawn's gift.
 @export_range(5.0, 300.0) var quick_time: float = 40.0
 @export_range(0.0, 60.0) var quick_time_per_act: float = 5.0

@@ -77,7 +77,9 @@
     up, with logs and stones scattered around them, never twice the same.
   - **Ashen Breath**: the air scorches, embers drift. **Oases** cool you down: a pond of real
     water tiles (`HeatSourceDef.pond`, nobody walks on it: `Layers.WATER`) of a random size, in
-    a rough patch of grass with plants and flowers around, each one different.
+    a rough patch of grass with plants and flowers around, each one different. One is by where
+    you arrive: in the first room, or, if it is too small, on the nearest free floor
+    (`HazardDef.nearest_free_rect`), never in the rock.
   - **No camping**: stay too long by a campfire or an oasis (`camp_limit`, 12 s) and the light
     draws monsters in (`CampWatch`): a warning first, then a wave, bigger each time. They give
     nothing.
@@ -132,6 +134,8 @@ A hole on a floor is not only a stumble: the hero **falls deeper into the Well**
   (`guide_every`), and an **arrow of light circles the hero toward it** while it is out of sight
   (`AbyssHud`). The top of the screen names it, with the seconds left for the dawn's gift.
 - **Back up.** Stepping into the Breach brings him back to **the last safe spot by the hole**,
+  and the hole fills in behind him (`AbyssDef.seal_hole`, `World.seal_hole()`: dust, solid floor)
+  so a step to the side doesn't drop him straight back in;
   his Health as he left the Deeps (the Deeps were the cost), with 1.5 s of grace (`return_grace`)
   and his torch back. **Out quick** (`quick_time`: 30 s, +5 s each act) earns **the dawn's gift**
   at his feet: gold (12, +8 an act, through the floor's gold rules) and a 60% roll of a potion, a
@@ -265,7 +269,9 @@ Each choice has a cost (gold, a part of your max health) and outcomes drawn by w
 (`EncounterChoice`, `EncounterOutcome`: heal, hurt, gold, an item of some quality, a choice of
 perks or relics, monsters or elites, any `Effect`). Each can be used once. The panel shows every
 outcome in words with its odds before you choose; the words come from the outcome's fields
-(`EncounterOutcome.summary()`), so new encounters explain themselves.
+(`EncounterOutcome.summary()`), so new encounters explain themselves. An encounter has a room of
+its own and nothing (chest, prop, hazard, another encounter) within
+`DungeonConfig.encounter_clearance` cells (2) of it.
 
 | Encounter | Choice | What may happen |
 |---|---|---|

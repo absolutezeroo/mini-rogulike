@@ -795,6 +795,28 @@ func add_pit(cell: Vector2i, def: PitDef) -> void:
 	cells_changed.emit([cell] as Array[Vector2i])
 
 
+## Fills the hole `cell` belongs to (every hole cell joined to it): solid floor again, walkable,
+## with dust where it closed. Returns the cells filled (none if `cell` is no hole).
+func seal_hole(cell: Vector2i) -> Array[Vector2i]:
+	var sealed: Array[Vector2i] = []
+	if not _pits.has(cell):
+		return sealed
+	var todo: Array[Vector2i] = [cell]
+	while not todo.is_empty():
+		var next: Vector2i = todo.pop_back()
+		if not _pits.has(next):
+			continue
+		_pits.remove(next)
+		sealed.append(next)
+		set_cell_blocked(next, not map.is_floor(next))
+		for step: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+			todo.append(next + step)
+	for filled in sealed:
+		Vfx.puff(self, map.cell_to_world(filled))
+	cells_changed.emit(sealed)
+	return sealed
+
+
 func has_pit(cell: Vector2i) -> bool:
 	return _pits.has(cell)
 

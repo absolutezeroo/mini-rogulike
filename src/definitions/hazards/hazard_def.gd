@@ -38,6 +38,20 @@ static func find_free_rect(world: World, room: Rect2i, taken: Dictionary, size: 
 	return Rect2i()
 
 
+## The free `size` rectangle closest to `around` (searched ring by ring up to `reach` cells),
+## not covering `around` itself; an empty Rect2i if none.
+static func nearest_free_rect(world: World, around: Vector2i, taken: Dictionary, size: Vector2i, reach: int = 10) -> Rect2i:
+	for radius in range(1, reach + 1):
+		for dy in range(-radius, radius + 1):
+			for dx in range(-radius, radius + 1):
+				if maxi(absi(dx), absi(dy)) != radius:
+					continue
+				var rect := Rect2i(around + Vector2i(dx, dy), size)
+				if not rect.has_point(around) and is_free(world, rect, taken):
+					return rect
+	return Rect2i()
+
+
 static func is_free(world: World, rect: Rect2i, taken: Dictionary) -> bool:
 	for y in range(rect.position.y, rect.end.y):
 		for x in range(rect.position.x, rect.end.x):
