@@ -244,7 +244,7 @@ func _refresh_card() -> void:
 	if item == null:
 		_item_name.text = tr("Pick an item")
 		_item_name.add_theme_color_override("font_color", UiSkin.GOLD)
-		_item_type.text = tr("Tap something for sale to see what it does, or one of your things to sell it.")
+		_item_type.text = tr("Choose something for sale to see what it does, or one of your things to sell it.")
 		_price.text = ""
 		_details.text = tr("Gold is only for this run: spend it here and at the forge.")
 		return
@@ -405,7 +405,7 @@ func _build() -> void:
 	bag_column.add_child(_bag)
 	_bag_note = UiParts.text(tr("Your bag and belt are empty."), Fonts.BODY, UiSkin.DIM, BAG_COLUMNS * (BAG_SLOT + 6))
 	bag_column.add_child(_bag_note)
-	mine.column.add_child(UiParts.text(tr("Tap one to see what the merchant pays."), Fonts.BODY, UiSkin.DIM, BAG_COLUMNS * (BAG_SLOT + 6)))
+	mine.column.add_child(UiParts.text(tr("Choose one to see what the merchant pays."), Fonts.BODY, UiSkin.DIM, BAG_COLUMNS * (BAG_SLOT + 6)))
 
 	# Right: the picked item.
 	var card: Dictionary = RpgWindow.section(tr("Item"), true)

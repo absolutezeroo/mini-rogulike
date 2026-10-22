@@ -39,6 +39,21 @@ static func make(for_action: StringName) -> PromptGlyph:
 	return glyph
 
 
+## `action`'s cap on `control`'s top edge, in its middle (`centered`) or over its top left
+## corner, sticking out a little: the key of a button that does the same (the bag, Leave...).
+static func badge(control: Control, for_action: StringName, centered := true) -> PromptGlyph:
+	var glyph := make(for_action)
+	glyph.name = "%sKey" % String(for_action).to_pascal_case()
+	control.add_child(glyph)
+	var place := func() -> void:
+		var x := roundf((control.size.x - glyph.size.x) * 0.5) if centered else -10.0
+		glyph.position = Vector2(x, -12.0)
+	glyph.resized.connect(place)
+	control.resized.connect(place)
+	place.call()
+	return glyph
+
+
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	size_flags_vertical = Control.SIZE_SHRINK_CENTER

@@ -253,6 +253,9 @@ func _drag(index: int, at: Vector2) -> void:
 
 ## Taps the HUD's Interact button like a finger. False if it isn't showing (nothing in reach).
 func _tap_interact(game: Game) -> bool:
+	# A finger: the touch controls are out (a key pressed before, a "tap" sent as Space, put
+	# them away for the action bar).
+	InputDevice.use(InputDevice.Kind.TOUCH)
 	await _frames(2)  # (it follows what the hero stands by, each physics frame)
 	var button := game.hud.get_node("%InteractButton") as InteractButton
 	if not button.is_visible_in_tree():

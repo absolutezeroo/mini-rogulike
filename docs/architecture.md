@@ -47,8 +47,11 @@ data/                Game content as .tres resources (no code)
   items/consumables/   Potions, scrolls, bombs...
   items/tomes/         Skill tomes (teach a spell)
   skills/              Player, monster and boss skills
+  ui/                  Loading tips, input_prompts.tres (the controls as the player is told about them: the
+                       Controls page, the keys prompts show, the gamepad families' button names)
 src/
-  autoload/            Events (signal bus), Sfx (sound player), HitStop (impact freeze), Profile (save), Settings (options)
+  autoload/            Events (signal bus), Sfx (sound player), HitStop (impact freeze), Profile (save), Settings (options),
+                       InputDevice (the device in use), MenuNav (menus with keys and gamepads), PixelGrid (the canvas's scale)
   core/                Small shared helpers (physics layers, weighted random, SafeFile)
   definitions/         Resource classes describing content (the "schema" of data/)
     effects/             Building blocks for skills and consumables
@@ -58,6 +61,8 @@ src/
     hazards/             HazardDef > TrapDef > ArrowTrapDef, PitDef, QuicksandDef, HeatSourceDef, DarkRoomDef
     monster_traits/      MonsterTrait > GuardTrait, ThiefTrait, DeathBurstTrait, DeathSpawnTrait, PerkTrait
     biomes/              BiomeDef, GroundLayerDef, DecorRuleDef, SceneDef (hand-made scenes), SceneKey
+    input/               InputPromptsDef, ActionPromptDef, PadGlyphsDef (what a control is called on each device),
+                         DeviceText (a sentence for touch and one for keys and gamepads)
     story/               The story: ProgressCondition (conditions/), DeedCondition (deeds/), chronicles,
                          chapters, waking lines, fragments, NarrativeDef, CinematicDef and CinematicStep (cinematic/)
   dungeon/             Map data, generator (and its secret rooms: SecretRoomPlan), drawing
@@ -74,8 +79,9 @@ src/
   combat/              Damage rules, hits, projectile specs
   ai/                  StateMachine + monster states (Idle, Chase, Attack, Cast)
   vfx/                 Particles (particles/), sprite-sheet FX, emotes, afterimages, damage numbers; Vfx helpers
-  ui/                  Title screen and shrine, story, act cards, HUD and minimap, touch controls, inventory,
-                       perk choice, pause menu, options, end of run
+  ui/                  Title screen and shrine, story, act cards, HUD and minimap, touch controls, the action
+                       bar and mouse controls, prompts (Prompts, PromptGlyph), inventory, perk choice, pause
+                       menu, options (and its Controls page), end of run
   game/                Game: main scene, floor flow, pauses; RunState (the run: depth, kills, bosses,
                        difficulty), RunRecords (stats, bestiary, achievements, history), OfferQueue
                        (perk choices waiting), GameMenus (the panels), ShrineUpgrades, RunSave (on disk),
@@ -128,7 +134,14 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   the HUD's Interact button to the nearest `Interactable` (merchant, forge, encounter, pact): nothing
   opens by walking up to it.
 - **UI** listens to signals (`Events`, Player signals) and never drives gameplay directly.
-  Touch controls only press input actions, so keyboard, gamepad and touch share one code path.
+  Touch controls only press input actions, so keyboard, gamepad and touch share one code path;
+  the mouse's clicks in a fight do the same (`MouseControls`).
+- **Devices** (design/interface.md "Devices"): `InputDevice` says which device is in use; the HUD
+  swaps its touch controls for the `ActionBar` (which mirrors them) on keys and gamepads; `Prompts`
+  turns an action into the key or button to show (`PromptGlyph` draws it as a cap) from the input
+  map and `data/ui/input_prompts.tres` (`InputPromptsDef`: the controls told about, the gamepad
+  families' names, the dead zone), and picks a sentence's version for the device (`DeviceText`,
+  `HintDef.button_text`, `Prompts.pick()`); `MenuNav` lets keys and gamepads use every window.
 
 - **The story** (design/presentation.md "Boss stories"): the content is data (`data/story/`, a
   `BossChronicleDef` on each `BossDef`), gated by `ProgressCondition`s. `Narrative` (static, like
@@ -154,7 +167,9 @@ Few, each with one job (`project.godot` > Autoload):
 | `Settings` | `src/autoload/settings.gd` | Options and language (`user://settings.cfg`) |
 | `TouchScrolling` | `src/autoload/touch_scrolling.gd` | Adds finger scrolling to every `ScrollContainer` |
 | `Loader` | `src/autoload/scene_loader.gd` | Loading screen between the title and the game |
-| `PixelGrid` | `src/autoload/pixel_grid.gd` | Shifts the screen a quarter of a pixel so text and pixel art at half-pixel spots draw whole (design/interface.md, Text) |
+| `PixelGrid` | `src/autoload/pixel_grid.gd` | Picks the canvas's scale (whole steps of 0.5, the interface size option; the camera keeps the framing: `world_zoom()`) and shifts the screen a quarter of a pixel so text and pixel art at half-pixel spots draw whole (design/interface.md, Text and Screens) |
+| `InputDevice` | `src/autoload/input_device.gd` | The device in use (touch, keyboard and mouse, gamepad and its family) from the last real input; `changed` for the HUD, prompts and menus |
+| `MenuNav` | `src/autoload/menu_nav.gd` | Menus with keys and gamepads: the menu on top (group "menu") holds the focus, directions with wrap, tabs, the focus frame |
 
 Tests empty `Profile.save_path` and `Settings.path`, so they never touch a player's files.
 

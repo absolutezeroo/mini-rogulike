@@ -25,6 +25,7 @@ var _title: Label
 var _text: Label
 var _time := 0.0
 var _tween: Tween
+var _hint: HintDef
 
 
 func _init() -> void:
@@ -67,12 +68,17 @@ func _init() -> void:
 
 func _ready() -> void:
 	resized.connect(_place)
+	# Picking up a gamepad mid-hint: its words follow ("Tap" / "Press [A]").
+	InputDevice.changed.connect(func() -> void:
+		if visible and _hint:
+			_text.text = _hint.shown_text())
 
 
 ## `at`: the control it is about (screen rect), or an empty rect.
 func show_hint(hint: HintDef, at: Rect2) -> void:
+	_hint = hint
 	_title.text = tr(hint.title)
-	_text.text = tr(hint.text)
+	_text.text = hint.shown_text()
 	target = at
 	_time = 0.0
 	show()

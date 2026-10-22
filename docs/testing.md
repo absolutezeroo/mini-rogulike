@@ -40,6 +40,14 @@ The suites (`tests/suites/`, each a `TestSuite`):
   (the cinematic in an arena, skipping, no replay on a run picked up again, Short and Off, a deed,
   fragments on the floors and their panel). The runner turns Boss stories off for every other test
   (`Settings.boss_stories`), as it does the tutorial hints; the story tests turn them on.
+- Keyboards, mice and gamepads (`pc_tests.gd`, `PcTests`): its unit part in the unit suite (the
+  device in use from keys, gamepad buttons and sticks with the dead zone, touches and the mouse;
+  the prompts per device and gamepad family; the input map; the settings; the canvas's scale at
+  every screen size; MenuNav on a little menu), its title part in the title suite (the title's
+  panels with keys: move, accept, Back, tabs; their layouts at every size), its game part in the
+  game suite (the HUD per device, the mouse in a fight, pausing, every in-run panel with keys and a
+  gamepad, the HUD's layout at every size, on touch and on keys). The runner starts every suite on
+  touch (`InputDevice.use(TOUCH)`): the other tests play the phone's game.
 - **tutorial**: the hints' data, the first steps played with the real controls, the hints that come
   up once, menus, the options and the profile.
 

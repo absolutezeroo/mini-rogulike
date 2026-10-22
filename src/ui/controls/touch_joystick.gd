@@ -30,6 +30,8 @@ func _ready() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if not is_visible_in_tree():
+		return  # put away (keys or a gamepad in use: the mouse's touches mean nothing here)
 	if event is InputEventScreenTouch:
 		var local := (make_input_local(event) as InputEventScreenTouch).position
 		if event.pressed and _finger == -1 and _in_zone(local):
@@ -80,7 +82,9 @@ func _set_action(action: StringName, strength: float) -> void:
 
 func _notification(what: int) -> void:
 	# Paused (a panel opened under the thumb): the release would never reach us.
-	if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_EXIT_TREE or what == NOTIFICATION_PAUSED:
+	# Put away under the thumb (a key pressed): let go too.
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_EXIT_TREE or what == NOTIFICATION_PAUSED \
+			or (what == NOTIFICATION_VISIBILITY_CHANGED and not is_visible_in_tree()):
 		_finger = -1
 		_apply(Vector2.ZERO)
 

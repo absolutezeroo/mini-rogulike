@@ -226,7 +226,7 @@ func _refresh_details() -> void:
 	if item == null:
 		_item_name.text = tr("Pick an item")
 		_item_name.add_theme_color_override("font_color", UiSkin.GOLD)
-		_item_type.text = tr("Tap a slot to see what it does.")
+		_item_type.text = tr("Choose a slot to see what it does.")
 		_item_details.text = ""
 		return
 	_item_name.text = tr(item.display_name)

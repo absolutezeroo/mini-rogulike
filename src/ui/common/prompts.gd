@@ -119,6 +119,8 @@ static func _keys(action: StringName, preferred: Key) -> Array[int]:
 		if key == null:
 			continue
 		var code := int(key.physical_keycode) if key.physical_keycode != KEY_NONE else int(key.keycode)
+		if code == KEY_KP_ENTER or (code >= KEY_KP_MULTIPLY and code <= KEY_KP_9):
+			continue  # the keypad's twin of a key already listed (Enter)
 		if code != KEY_NONE and not keys.has(code):
 			keys.append(code)
 	if preferred != KEY_NONE and keys.has(int(preferred)):

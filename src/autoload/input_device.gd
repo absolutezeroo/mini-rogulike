@@ -5,7 +5,9 @@ extends Node
 ## prompts), the prompts (Prompts, PromptGlyph) and the menus (MenuNav: the focus frame).
 ##
 ## - A screen touch (a real one: the mouse's emulated touches don't count) is touch.
-## - A key, a mouse button or a mouse moved far enough is keyboard and mouse.
+## - A key is keyboard and mouse; so is the mouse (a button, or moved far enough) after a gamepad.
+##   After a touch the mouse changes nothing: on a touch screen with a mouse, the on-screen buttons
+##   stay (the mouse presses them too), until a key is pressed.
 ## - A gamepad button, or a stick or trigger pushed past the dead zone
 ##   (InputPromptsDef.stick_deadzone: a drifting stick never takes over), is that gamepad.
 ## - The gamepad in use unplugged: back to the keyboard (touch on a phone).
@@ -85,10 +87,12 @@ func _read(event: InputEvent) -> void:
 	elif event is InputEventMouseButton:
 		if event.pressed and event.device != InputEvent.DEVICE_ID_EMULATION:  # (a touch's mouse)
 			_navigate(false)
-			use(Kind.KEYBOARD)
+			if kind == Kind.GAMEPAD:
+				use(Kind.KEYBOARD)
 	elif event is InputEventMouseMotion:
+		# In screen pixels: the canvas's scale must not make a twitch look big.
 		var motion := event as InputEventMouseMotion
-		if motion.device != InputEvent.DEVICE_ID_EMULATION and motion.relative.length() >= PROMPTS.mouse_threshold:
+		if motion.device != InputEvent.DEVICE_ID_EMULATION and motion.screen_relative.length() >= PROMPTS.mouse_threshold:
 			_navigate(false)
 			if kind == Kind.GAMEPAD:
 				use(Kind.KEYBOARD)

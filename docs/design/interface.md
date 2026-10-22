@@ -7,17 +7,25 @@ anywhere in it, cards and buttons included, with a bit of momentum (`TouchScroll
 `ScrollContainer` by the `TouchScrolling` autoload); a drag never presses a button, a tap does.
 
 
-| Action | Touch | Keyboard | Gamepad |
+| Action | Touch | Keyboard and mouse | Gamepad (Xbox names) |
 |---|---|---|---|
 | Move | Drag on the left side | WASD / arrows | Left stick |
-| Attack (auto-aim): tap; hold to charge, let go to unleash | Big red button | J / Space | X |
-| Skills 1-4 | Small round buttons | K L O P or 1 2 3 4 | A B Y RB |
-| Belt (potions, bombs, scrolls) | The 3 small buttons left of the skills | Q / H, 5, 6 | LB (slot 1) |
-| Use what you stand by (trade, forge, drink...) | The Interact button (shows only then) | E / F | RT |
+| Attack (auto-aim): tap; hold to charge, let go to unleash | Big red button | Space / J, left click | X |
+| Roll (skill 1), weapon skills 2-3, spell 4 | Small round buttons | 1 2 3 4 or K L O P; roll: right click too | A B Y RB |
+| Belt (potions, bombs, scrolls) | The 3 small buttons left of the skills | Q / H, 5, 6 | LB, D-pad left, D-pad right |
+| Use what you stand by (trade, forge, drink...), or take loot left on the ground | The Interact button (shows only then) | E / F | RT |
 | Open the waiting perk choices | The perk button (shows only then) | C | LT |
-| Pause | II button / phone back button | Escape | - |
-| Choose a perk | Tap a card | Arrows + Enter | D-pad + A |
-| Inventory | Bag button | I / Tab | Back |
+| Whole floor's map | Tap the minimap | M | D-pad up |
+| Bag | Bag button | I / Tab | View (Back) |
+| Pause (or close what is open) | II button / phone back button | Escape | Menu (Start) |
+| In a menu: move / accept / back | Tap | Arrows or WASD / Enter or Space / Escape | D-pad or left stick / A / B |
+| In a menu with tabs: previous / next tab | Tap a tab | Q / E | LB / RB |
+| Fullscreen or a window | - | F11, Alt+Enter | - |
+
+A keyboard's letters are named as the player's keyboard prints them (`Prompts.key_word()`: the key
+in W's place reads Z on a French keyboard); the bindings are the input map's (project.godot), and
+what the player is told about them is `data/ui/input_prompts.tres` (see Devices below). B never
+pauses in a fight (it is a skill): only Escape, Start and the phone's back button do.
 
 **Attack: tap or hold.** A tap (or a press) is one basic attack at once, aimed at the closest
 enemy; a press while the weapon is still swinging waits for it (0.3 s), so quick taps are never
@@ -25,6 +33,80 @@ lost. Holding no longer repeats the attack: past 0.22 s it charges the weapon's 
 (builds.md, "Charged attacks"), shown at the hero's feet and as twelve steps lighting up around
 the attack button's rim (its thumb may hide the hero), in the element the weapon carries; full,
 they beat. Letting go full unleashes it; a roll cancels it.
+
+## Devices: touch, keyboard and mouse, gamepad
+
+The game plays the same with a finger, a keyboard and mouse or a gamepad, and changes what it
+shows to the device in hand.
+
+- **Which device** (`InputDevice`, autoload): the last real input decides. A screen touch is touch
+  (not the touches the mouse emulates); a key, a mouse button or the mouse moved more than a few
+  screen pixels is keyboard and mouse; a gamepad button, or a stick or trigger pushed past the dead
+  zone (`InputPromptsDef.stick_deadzone`, 0.5: a drifting stick never takes over) is that gamepad.
+  The gamepad's family comes from its name (`PadGlyphsDef.name_hints`: Xbox, PlayStation,
+  Nintendo, any other): its buttons' names and colors. Unplugging the gamepad in use goes back to
+  the keyboard (touch on a phone). At start: touch on a phone, the keyboard on a computer.
+  `InputDevice.changed` tells the HUD, the prompts and the menus.
+- **The HUD** (`Hud._apply_device()`): on touch, the joystick and the round buttons as always. On
+  keys or a gamepad they are put away for the **action bar** (`ActionBar`), low in the middle: one
+  slot per round button (attack, the four skills, the three belt slots), each with its key or
+  button under it, its cooldown (shade falling a pixel row at a time), its charge (twelve steps on
+  its lower edge) and its count; it mirrors the touch buttons (the HUD keeps those up to date shown
+  or not), so both always say the same. Beside it, while something is in reach, Interact's prompt:
+  its key, the thing's picture and what it does ("[E] Trade"); Interact also takes loot left on the
+  ground. The bag, pause, map and perk buttons show their key on their top edge. The first touch
+  brings the touch controls back. The tutorial's ring points at the bar's slot instead of the round
+  button (`Hud.hint_target()`), at nothing for the joystick.
+- **The mouse in a fight** (`MouseControls`): a click the HUD doesn't take (not on a button, the map,
+  a hint) holds its action down: the left button attacks (auto-aim as always: the closest enemy),
+  the right one rolls (`ActionPromptDef.mouse`). Never from a touch screen's own mouse events.
+- **Prompts** (`Prompts`, `PromptGlyph`): a key or button is shown as a little cap in pixel art on
+  the 2-unit grid of a BODY letter's pixels, its word at `Fonts.BODY`: a key (its face over a darker
+  lower edge), a round face button rimmed in its color (the font has PlayStation's ✕ ○ □ △ and the
+  arrows, `tools/i18n/add_glyphs.py`), a shoulder or trigger, a stick, a little mouse with its
+  button lit. In a sentence it is "[E]". Every instruction that says "tap" or names a control has
+  two versions, each a whole sentence translated as such: one for touch, one for keys and
+  gamepads with `{action}` codes (`HintDef.button_text`, `DeviceText` in the loading tips, and in
+  code `Prompts.pick("Tap to skip", "Press {ui_accept} to skip")`); the codes are filled with the
+  device's key ("Press [Enter] to skip", "Press [✕] to skip"). Others are worded for every device
+  ("Choose a slot to see what it does."). A hint on screen changes its words when the device does.
+- **Menus with keys and a gamepad** (`MenuNav`, autoload): every window built on `RpgWindow` or
+  `RpgDialog`, and the title screen, is a menu (the group "menu"). The one on top holds the focus:
+  opening, its first button outside its header gets it (or the one it names: the codex its tab, the
+  perk choice its first card, even while the cards wait out their first moments); when what covered
+  it closes, or its focused button goes away (a list rebuilt), the focus comes back to the one it
+  was on. Directions (arrows, WASD, D-pad, left stick: one move a push) go to the nearest button
+  that way in that menu only, wrapping at its edges; a slider takes left and right; a list follows
+  the focus (`ScrollContainer.follow_focus`), and a box with nothing to focus scrolls. Q / E and LB /
+  RB switch tabs (buttons in the group "menu_tabs": the codex, the options). Enter, Space or A press;
+  Escape or B go back (the screens' own Back: `GameMenus.back()`, `TitleScreen.back()`); Escape on
+  the bare title quits nothing. A gold pixel frame (corner brackets, breathing by a pixel) shows
+  around the focused button while keys or a gamepad drive (`InputDevice.navigating`), never on
+  touch or after the mouse moved; the mouse hovers and clicks as always. Buttons are focusable
+  again everywhere but the HUD, where nothing keeps the focus (Space attacks). The debug panel stays
+  mouse-only.
+- **The Controls page** (Options > Controls): what does what on the device in use, read-only: each
+  control of `input_prompts.tres` with every key and mouse button (caps), the gamepad's buttons in
+  its family's names, or how it is done by touch. Picking up another device turns the page.
+  Remapping is not there yet.
+
+## Screens: windows, sizes, scale
+
+- **Windows** (computers): resizable; **Fullscreen** in Options (Screen), or F11 / Alt+Enter
+  anywhere (`Settings.fullscreen`, saved).
+- **Scale** (`PixelGrid`): the UI is laid out at 1280x720 and the canvas grows with the screen's
+  shape (`canvas_items`, expand). Its scale is rounded down to a step of 0.5 (x1 from 720 to 1079
+  lines, x1.5 at 1080, x2 at 1440, x3 at 2160), where BODY letters keep whole pixels, and the canvas
+  takes the rest (1366x768 lays out at 1366x768, 21:9 at 1720x720, 16:10 at 1280x800). A screen too
+  small for x1 (1024x768) keeps its own scale (x0.8: letters a little uneven). The camera zooms in
+  by what the rounding took off, so a floor is framed as before on every screen
+  (`PixelGrid.world_zoom()`, `GameCamera`).
+- **Interface size** (Options > Screen): Big (the largest step that fits), Medium, Small: one or two
+  steps smaller, never under x1, for more room on a big monitor; the floor's framing stays
+  (`Settings.ui_size`, saved).
+- The layouts are checked at 1280x720, 1366x768, 1920x1080, 2560x1440, 1280x800, 3440x1440,
+  1024x768 and the phones' 2340x1080 and 1540x720: nothing out of the screen, no HUD control over
+  another, on touch and on keys (`PcTests`).
 
 ## Nothing opens by itself
 
@@ -61,7 +143,7 @@ player decides when the fight stops.
   perk choices still waiting, the one on screen with its cards). Dying erases it. "Save and quit" in the pause menu does the same on purpose.
   Never during the trial of the Threshold: quit in there, and the run picks up as it was before
   the killing blow.
-- **Pause menu** (the II button, Escape, or the phone's back button): resume, options, save and quit,
+- **Pause menu** (the II button, Escape, a gamepad's Start, or the phone's back button): resume, options, save and quit,
   give up the run (two taps). Coming back to the app, the game waits paused.
 - **Options** (`Settings` autoload, `user://settings.cfg`), on the title screen and in the pause menu:
   five volumes (**General**, **Music**, **Interface**, **Combat**, **Ambience**: which sounds
@@ -77,9 +159,11 @@ player decides when the fight stops.
   By hand, three buttons, the picked one's rule spelled out under them; see design/loot.md),
   **boss stories** (Full / Short / Off, three buttons the same way: the cinematic before a
   warden's fight, presentation.md "Boss stories"),
-  **tutorial hints** (on/off) and **Replay tutorial**, and the **language** (English / Français,
+  **tutorial hints** (on/off) and **Replay tutorial**, on a computer **fullscreen**, the
+**interface size** (Big / Medium / Small), and the **language** (English / Français,
   see Languages). The window (`OptionsPanel`, built in code on `MenuWindow`) groups them
-  (Sound, Touch controls, Screen and battery, Loot, Story, Tutorial), each with a one-line "what it does";
+  (Sound, Touch controls, Screen and battery, Loot, Story, Tutorial), each with a one-line "what it does",
+on a Settings tab beside a Controls tab (the keys and buttons of the device in use, above);
   on/off options are big switches, and tapping an option's name flips it too.
 - **Loot left on the ground** (auto loot, or no room in the bag): while the hero stands on it, a
   small board low in the middle of the screen, above the belt and skill buttons (`LootPrompt`,
@@ -104,7 +188,8 @@ player decides when the fight stops.
 No separate tutorial level: the first run teaches as it goes. A small wooden board comes up at the
 top of the screen (`HintBox`), says what to do, and, when it is about a control, a gold ring pulses
 around it with an arrow. Each hint shows **once ever** (`Profile.hints_seen`), one at a time, never
-over a menu or a big banner. A tap (or OK) closes it.
+over a menu or a big banner. A tap or a click (or OK) closes it. A hint about a control says it
+in the device's words ("Tap the big button" / "Press [Space]", `HintDef.button_text`).
 
 - **First steps**: move (it stays until you have walked a few tiles), then the sealed stairs; when
   a monster first sees you, attack (tap; until you swing), then roll, then the weapon's two

@@ -1,13 +1,16 @@
 class_name OptionsPanel
 extends Control
-## Options window (title screen and pause menu), in the game's skin (MenuWindow). Grouped
-## (language, sound, controls, screen, tutorial), each option with its name and a short line saying
-## what it does. Every change goes straight to Settings (applied and saved).
+## Options window (title screen and pause menu), in the game's skin (MenuWindow). Two tabs: the
+## settings, grouped (language, sound, controls, screen, tutorial), each option with its name and
+## a short line saying what it does; and Controls, what does what on the device in use (its keys,
+## buttons or touch, ControlsPage). Every change goes straight to Settings (applied and saved).
 ## Built in code; every control is reachable as %Name from the panel (%EnglishButton,
 ## %FrenchButton, %MasterSlider, %MusicSlider, %InterfaceSlider, %CombatSlider, %AmbienceSlider,
 ## %ShakeSlider, %ControlsSlider, %VibrationsCheck, %FixedStickCheck, %BatteryCheck,
 ## %FewerEffectsCheck, %FlashesCheck, %RunTimerCheck, %TutorialCheck, %ReplayTutorialButton, %AutoLootAll, %AutoLootBetter,
-## %AutoLootOff, %StoriesFull, %StoriesShort, %StoriesOff, %CloseButton).
+## %AutoLootOff, %StoriesFull, %StoriesShort, %StoriesOff, %FullscreenCheck (computers),
+## %UiSizeBig, %UiSizeMedium, %UiSizeSmall, %SettingsTab, %ControlsTab, %ControlsPage,
+## %CloseButton).
 ## Picking a language rebuilds the window in it at once; the title screen behind is rebuilt when
 ## the window closes (other screens pick it up the next time they open).
 
@@ -36,6 +39,13 @@ var _loot_help: Label
 ## Boss stories: Settings.STORIES_* -> its button, and the line saying what the picked one does.
 var _story_modes := {}
 var _story_help: Label
+## Interface size: Settings.UI_* -> its button.
+var _ui_sizes := {}
+## The two tabs and what they show.
+var _settings_tab: Button
+var _controls_tab: Button
+var _settings_page: Control
+var _controls_page: ControlsPage
 ## The language changed while the window was open.
 var _language_changed := false
 
@@ -69,6 +79,13 @@ func _wire() -> void:
 		(_loot_modes[mode] as Button).pressed.connect(_pick_loot_mode.bind(mode))
 	for mode: int in _story_modes:
 		(_story_modes[mode] as Button).pressed.connect(_pick_story_mode.bind(mode))
+	for size: int in _ui_sizes:
+		(_ui_sizes[size] as Button).pressed.connect(func() -> void:
+			Settings.set_option(&"ui_size", size)
+			Sfx.play_ui(Sfx.bank.ui_click)
+			_show_ui_size())
+	_settings_tab.pressed.connect(show_page.bind(false))
+	_controls_tab.pressed.connect(show_page.bind(true))
 	# Every hint shows again, from the first steps (and the hints come back on).
 	_replay.pressed.connect(func() -> void:
 		Profile.reset_hints()
@@ -91,7 +108,19 @@ func open() -> void:
 		(_languages[code] as Button).set_pressed_no_signal(code == Settings.language)
 	_show_loot_mode()
 	_show_story_mode()
+	_show_ui_size()
+	show_page(false)
 	show()
+
+
+## The settings (`controls` false) or what does what on the device in use (true).
+func show_page(controls: bool) -> void:
+	_settings_tab.set_pressed_no_signal(not controls)
+	_controls_tab.set_pressed_no_signal(controls)
+	_settings_page.visible = not controls
+	_controls_page.visible = controls
+	if controls:
+		_controls_page.refresh()
 
 
 func close() -> void:
@@ -121,6 +150,7 @@ func _pick_language(code: String) -> void:
 	_languages.clear()
 	_loot_modes.clear()
 	_story_modes.clear()
+	_ui_sizes.clear()
 	_build()
 	_wire()
 	open()
@@ -138,6 +168,11 @@ func _show_loot_mode() -> void:
 		(_loot_modes[mode] as Button).set_pressed_no_signal(mode == Settings.auto_loot)
 	if _loot_help:
 		_loot_help.text = _loot_help_text(Settings.auto_loot)
+
+
+func _show_ui_size() -> void:
+	for size: int in _ui_sizes:
+		(_ui_sizes[size] as Button).set_pressed_no_signal(size == Settings.ui_size)
 
 
 func _pick_story_mode(mode: int) -> void:
@@ -215,10 +250,16 @@ func _build() -> void:
 	saved.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	window.header_left.add_child(saved)
 	_build_languages(window.header_left)
+	_build_tabs(window.body)
 	var columns := HBoxContainer.new()
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	columns.add_theme_constant_override("separation", 14)
 	window.body.add_child(columns)
+	_settings_page = columns
+	_controls_page = ControlsPage.new()
+	_controls_page.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	window.body.add_child(_controls_page)
+	MenuWindow.expose(_controls_page, "ControlsPage", self)
 	var left := _column(columns)
 	var right := _column(columns)
 
@@ -240,6 +281,9 @@ func _build() -> void:
 	_checks[_check(screen, tr("Screen flashes"), tr("Lightning lights up the whole screen for an instant."), "FlashesCheck")] = &"screen_flashes"
 	_checks[_check(screen, tr("Battery saver"), tr("30 FPS: the phone stays cooler."), "BatteryCheck")] = &"battery_saver"
 	_checks[_check(screen, tr("Run timer"), tr("The run's time, under the map."), "RunTimerCheck")] = &"run_timer"
+	if Settings.has_window_modes():
+		_checks[_check(screen, tr("Fullscreen"), tr("The whole screen, or a window you can resize (F11, Alt+Enter)."), "FullscreenCheck")] = &"fullscreen"
+	_build_ui_size(screen)
 
 	# Loot under Sound, where it shows without scrolling; the tutorial (set once) closes the right
 	# column, scrolled to on a small screen.
@@ -290,7 +334,7 @@ func _build_stories(section: VBoxContainer) -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	section.add_child(row)
-	row.add_child(_words(tr("Boss stories"), tr("Before a warden's fight. A tap skips it.")))
+	row.add_child(_words(tr("Boss stories"), Prompts.pick("Before a warden's fight. A tap skips it.", "Before a warden's fight. {ui_accept} skips it.")))  # i18n
 	var modes := [
 		[Settings.STORIES_FULL, tr("Full"), "StoriesFull"],
 		[Settings.STORIES_SHORT, tr("Short"), "StoriesShort"],
@@ -307,6 +351,49 @@ func _build_stories(section: VBoxContainer) -> void:
 	section.add_child(_story_help)
 
 
+## The two tabs over the window's body: the settings, and what does what (switched with the tab
+## keys too: MenuNav).
+func _build_tabs(body: VBoxContainer) -> void:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	body.add_child(row)
+	_settings_tab = _tab(row, tr("Settings"), "SettingsTab")
+	_controls_tab = _tab(row, tr("Controls"), "ControlsTab")
+	var keys := PromptGlyph.make(&"menu_tabs")
+	row.add_child(keys)
+
+
+func _tab(row: HBoxContainer, text: String, node_name: String) -> Button:
+	var button := MenuWindow.button(text, Fonts.BODY, 44)
+	button.toggle_mode = true
+	button.custom_minimum_size.x = 160
+	button.add_to_group(MenuNav.TABS)
+	row.add_child(button)
+	MenuWindow.expose(button, node_name, self)
+	return button
+
+
+## Interface size: its name, three buttons (one stays pressed).
+func _build_ui_size(section: VBoxContainer) -> void:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	section.add_child(row)
+	row.add_child(_words(tr("Interface size"), tr("Smaller leaves more room on a big screen.")))
+	var sizes := [
+		[Settings.UI_BIG, tr("Big"), "UiSizeBig"],
+		[Settings.UI_MEDIUM, tr("Medium"), "UiSizeMedium"],
+		[Settings.UI_SMALL, tr("Small"), "UiSizeSmall"],
+	]
+	for entry: Array in sizes:
+		var button := MenuWindow.button(entry[1], Fonts.BODY, 44)
+		button.toggle_mode = true
+		button.custom_minimum_size.x = 96
+		button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		row.add_child(button)
+		_ui_sizes[entry[0]] = button
+		MenuWindow.expose(button, entry[2], self)
+
+
 ## In the header, always in sight: "Language" and two big buttons, each language's name in
 ## itself; the one in use stays pressed.
 func _build_languages(row: HBoxContainer) -> void:
@@ -320,6 +407,7 @@ func _build_languages(row: HBoxContainer) -> void:
 		button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		# A language's own name is never translated.
 		button.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+		button.set_meta(MenuNav.NOT_FIRST, true)
 		row.add_child(button)
 		_languages[code] = button
 		MenuWindow.expose(button, "FrenchButton" if code == "fr" else "EnglishButton", self)

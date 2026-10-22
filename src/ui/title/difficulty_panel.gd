@@ -122,7 +122,7 @@ func _build() -> void:
 	var scene_owner: Node = owner if owner != null else self
 	_window.close_button.text = tr("Back")
 	MenuWindow.expose(_window.close_button, "BackButton", scene_owner)
-	var intro := UiSkin.label(tr("Tap one to begin the descent. Harder ones pay more souls."), Fonts.BODY, UiSkin.TEXT, true)
+	var intro := UiSkin.label(tr("Choose one to begin the descent. Harder ones pay more souls."), Fonts.BODY, UiSkin.TEXT, true)
 	intro.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_window.header_left.add_child(intro)
 	_cards = HBoxContainer.new()

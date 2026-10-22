@@ -3,7 +3,8 @@ extends CanvasLayer
 ## RpgDialog, the title screen...) can be used without a finger or a mouse.
 ##
 ## - The topmost open menu holds the focus: when it opens (or the keys take over), its first
-##   button gets it (or the one focused there last, or the one it named: set_first()); focus
+##   button gets it (the one it named, set_first(), or its first outside a header); when what
+##   covered it closes, or the focused button goes away, the one focused there before; focus
 ##   never leaves it for a menu underneath.
 ## - Directions (arrows, WASD, the D-pad, the left stick) move to the nearest button that way, in
 ##   that menu only, and wrap around at its edges; a list too long for its box follows the focus
@@ -21,7 +22,8 @@ const GROUP := &"menu"
 const TABS := &"menu_tabs"
 ## Meta on a menu: the control to focus first when it opens.
 const FIRST := &"nav_first"
-## Meta on a control: never focused first (a header's Close, the language buttons).
+## Meta on a control: neither it nor what it holds is focused first (a window's header, with
+## its Close; the language buttons).
 const NOT_FIRST := &"nav_not_first"
 ## How far one press scrolls a box with nothing to focus (UI units).
 const SCROLL_STEP := 96.0
@@ -35,8 +37,13 @@ const DIRECTIONS := {
 }
 
 var _frame: FocusFrame
-## Menu -> the control focused in it last (to come back to it when what covered it closes).
-var _last := {}
+## Menu (its instance id) -> the controls focused in it lately, the latest last (WeakRefs): when
+## what covered it closes, or its focused button goes away, the focus comes back to them.
+var _history := {}
+## The menus open on the last frame (instance ids): one not in it has just opened.
+var _open := {}
+## How many controls each menu remembers.
+const HISTORY := 8
 ## The left stick's axes pushed past the dead zone (a stick sends many events: one move a push).
 var _stick_held := {}
 
@@ -78,6 +85,13 @@ func focus_first(menu: Control) -> bool:
 	return true
 
 
+## Keys or a gamepad in use: moves the focus to the first control in `part` (a page shown inside
+## a menu: a monster's page in the codex). Nothing on touch.
+func focus_in(part: Control) -> void:
+	if InputDevice.uses_buttons() and part.is_visible_in_tree():
+		focus_first(part)
+
+
 ## The controls of `menu` the keys can reach, in tree order.
 func focusables(menu: Control) -> Array[Control]:
 	var found: Array[Control] = []
@@ -86,9 +100,17 @@ func focusables(menu: Control) -> Array[Control]:
 
 
 func _process(_delta: float) -> void:
+	var open := {}
+	for node in get_tree().get_nodes_in_group(GROUP):
+		if node is Control and (node as Control).is_visible_in_tree():
+			open[node.get_instance_id()] = true
+	for id: int in _open:
+		if not open.has(id):
+			_history.erase(id)  # closed: it starts afresh next time
+	_open = open
 	var top := top_menu() if InputDevice.uses_buttons() else null
 	var focus := get_viewport().gui_get_focus_owner()
-	if top != null and (focus == null or not top.is_ancestor_of(focus) or not _can_focus(focus)):
+	if top != null and (focus == null or not top.is_ancestor_of(focus) or not focus.is_visible_in_tree()):
 		if focus_first(top):
 			focus = get_viewport().gui_get_focus_owner()
 	var shown := top != null and focus != null and top.is_ancestor_of(focus) and InputDevice.navigating
@@ -145,7 +167,7 @@ func neighbor(menu: Control, from: Control, direction: Vector2) -> Control:
 		var rect := _rect(control)
 		var along := (rect.get_center() - origin.get_center()).dot(direction)
 		# Past `from`'s far edge that way (half a button's overlap allowed: rows of uneven heights).
-		var past := _edge(rect, -direction) - _edge(origin, direction)
+		var past := _near_edge(rect, direction) - _far_edge(origin, direction)
 		if along <= 1.0 or past < -minf(_extent(origin, direction), _extent(rect, direction)) * 0.5:
 			continue
 		var score := maxf(past, 0.0) + _sideways_gap(origin, rect, direction) * SIDEWAYS_WEIGHT
@@ -206,21 +228,33 @@ func switch_tab(menu: Control, step: int) -> bool:
 # --- Inside ------------------------------------------------------------------------------
 
 func _first_of(menu: Control) -> Control:
-	var named: Variant = menu.get_meta(FIRST, null)
-	if named is Control and is_instance_valid(named) and menu.is_ancestor_of(named) and _can_focus(named):
-		return named
-	var last: Variant = _last.get(menu.get_instance_id())
-	if last is WeakRef:
-		var control := (last as WeakRef).get_ref() as Control
+	var seen: Array = _history.get(menu.get_instance_id(), [])
+	for i in range(seen.size() - 1, -1, -1):
+		var control := (seen[i] as WeakRef).get_ref() as Control
 		if control and menu.is_ancestor_of(control) and _can_focus(control):
 			return control
+	# The named one even while disabled (perk cards ignore presses for a moment: an accept
+	# pressed too soon must not land on another button).
+	var named: Variant = menu.get_meta(FIRST) if menu.has_meta(FIRST) else null
+	if named is Control and is_instance_valid(named) and menu.is_ancestor_of(named) \
+			and (named as Control).is_visible_in_tree() and (named as Control).focus_mode == Control.FOCUS_ALL:
+		return named
 	var fallback: Control = null
 	for control in focusables(menu):
-		if not control.has_meta(NOT_FIRST):
+		if not _kept_from_first(control, menu):
 			return control
 		if fallback == null:
 			fallback = control
 	return fallback
+
+
+func _kept_from_first(control: Control, menu: Control) -> bool:
+	var node: Node = control
+	while node and node != menu:
+		if node.has_meta(NOT_FIRST):
+			return true
+		node = node.get_parent()
+	return false
 
 
 func _collect(node: Node, found: Array[Control]) -> void:
@@ -248,8 +282,14 @@ func _can_focus(control: Control) -> bool:
 
 func _on_focus_changed(control: Control) -> void:
 	var menu := _menu_of(control)
-	if menu:
-		_last[menu.get_instance_id()] = weakref(control)
+	if menu == null:
+		return
+	var seen: Array = _history.get(menu.get_instance_id(), [])
+	seen = seen.filter(func(ref: WeakRef) -> bool: return ref.get_ref() != null and ref.get_ref() != control)
+	seen.append(weakref(control))
+	if seen.size() > HISTORY:
+		seen.pop_front()
+	_history[menu.get_instance_id()] = seen
 
 
 func _menu_of(control: Control) -> Control:
@@ -336,10 +376,14 @@ func _rect(control: Control) -> Rect2:
 	return control.get_global_transform_with_canvas() * Rect2(Vector2.ZERO, control.size)
 
 
-## The rect's edge on `direction`'s side (its bottom for DOWN), along that way.
-func _edge(rect: Rect2, direction: Vector2) -> float:
-	var corner := rect.end if direction.x + direction.y > 0.0 else rect.position
-	return corner.dot(direction)
+## How far along `direction` a rect begins (its top going down, its bottom going up).
+func _near_edge(rect: Rect2, direction: Vector2) -> float:
+	return (rect.position if direction.x + direction.y > 0.0 else rect.end).dot(direction)
+
+
+## How far along `direction` a rect ends (its bottom going down).
+func _far_edge(rect: Rect2, direction: Vector2) -> float:
+	return (rect.end if direction.x + direction.y > 0.0 else rect.position).dot(direction)
 
 
 func _extent(rect: Rect2, direction: Vector2) -> float:
@@ -367,22 +411,23 @@ class FocusFrame:
 	const PIXEL := 2.0
 	const ARM := 10.0
 
-	var target: Control:
-		set(value):
-			if value != target:
-				target = value
-				queue_redraw()
+	## The focused control to frame (null: none). A freed one counts as none.
+	var target: Control
+	## A frame is on screen now (it stays drawn until redrawn: cleared once when it goes).
+	var _shown := false
 
 	func _init() -> void:
 		set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	func _process(_delta: float) -> void:
-		if target != null:
-			queue_redraw()
+		var showing := is_instance_valid(target) and target.is_visible_in_tree()
+		if showing or _shown:
+			queue_redraw()  # it follows its control and breathes
+		_shown = showing
 
 	func _draw() -> void:
-		if target == null or not is_instance_valid(target) or not target.is_visible_in_tree():
+		if not is_instance_valid(target) or not target.is_visible_in_tree():
 			return
 		var rect := target.get_global_transform_with_canvas() * Rect2(Vector2.ZERO, target.size)
 		var beat := 1.0 if int(Time.get_ticks_msec() / 400) % 2 == 0 else 0.0

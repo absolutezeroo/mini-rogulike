@@ -62,6 +62,7 @@ func _init(title_text: String = "") -> void:
 	column.add_theme_constant_override("separation", 10)
 	margin.add_child(column)
 	var header := HBoxContainer.new()
+	header.set_meta(MenuNav.NOT_FIRST, true)  # the keys start in the body, not on Close
 	header.add_theme_constant_override("separation", 12)
 	column.add_child(header)
 	var spacer := Control.new()
@@ -72,7 +73,6 @@ func _init(title_text: String = "") -> void:
 	header.add_child(header_right)
 	var close := Button.new()
 	close.text = tr("Close")
-	close.set_meta(MenuNav.NOT_FIRST, true)
 	close.custom_minimum_size = Vector2(120, 48)
 	close.pressed.connect(func() -> void: close_requested.emit())
 	header.add_child(PromptGlyph.make(&"ui_cancel"))

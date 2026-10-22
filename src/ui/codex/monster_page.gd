@@ -250,7 +250,7 @@ func _fill_attacks(column: VBoxContainer, rank: int) -> void:
 	if rank < 1:
 		column.add_child(UiSkin.label(tr("Slay one to see how it attacks."), Fonts.BODY, UiSkin.DIM, true))
 		return
-	column.add_child(UiSkin.label(tr("Tap an attack to watch it. Red marks on the ground show where it will land: step out!"), Fonts.BODY, UiSkin.DIM, true))
+	column.add_child(UiSkin.label(tr("Choose an attack to watch it. Red marks on the ground show where it will land: step out!"), Fonts.BODY, UiSkin.DIM, true))
 	_preview = AttackPreview.new()
 	_preview.custom_minimum_size = Vector2(0, 184)
 	_preview.size_flags_horizontal = Control.SIZE_EXPAND_FILL

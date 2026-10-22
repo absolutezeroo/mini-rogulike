@@ -120,8 +120,9 @@ func _ready() -> void:
 	_depth_banner.modulate.a = 0.0
 
 
-## Dev builds: a DBG button left of the pause button. It grows to the left: the theme's margins
-## make it wider than its place, and growing right it covered the pause button.
+## Dev builds: a DBG button left of the pause button, wherever the pause button really is (the
+## theme's margins make both wider than their places, and they grow to the left: placed by the
+## numbers, DBG sat under the pause button).
 func _add_debug_button() -> void:
 	var pause := %PauseButton as Button
 	var button := Button.new()
@@ -132,10 +133,14 @@ func _add_debug_button() -> void:
 	button.anchor_left = 1.0
 	button.anchor_right = 1.0
 	button.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	button.offset_right = pause.offset_left - 8.0
-	button.offset_left = button.offset_right - maxf(72.0, button.get_combined_minimum_size().x)
 	button.offset_top = pause.offset_top
 	button.offset_bottom = pause.offset_bottom
+	var place := func() -> void:
+		var right := pause.position.x - pause.get_parent_area_size().x - 8.0
+		button.offset_right = right
+		button.offset_left = right - 72.0
+	pause.item_rect_changed.connect(place)
+	place.call()
 	button.modulate = Color(1, 1, 1, 0.75)
 	button.pressed.connect(func() -> void: debug_requested.emit())
 	add_child(button)
@@ -184,11 +189,9 @@ func _add_action_bar() -> void:
 ## touch): the bag, pause, the map and the perk button.
 func _add_key_badges() -> void:
 	for pair: Array in [[%BagButton, &"inventory"], [%PauseButton, &"pause"], [_minimap, &"map"], [offers_button, &"offers"]]:
-		var glyph := PromptGlyph.make(pair[1])
-		glyph.name = "%sKey" % String(pair[1]).capitalize().replace(" ", "")
-		# Over the control's top left corner, sticking out a little.
-		glyph.position = Vector2(-10, -8)
-		(pair[0] as Control).add_child(glyph)
+		# Over the middle of the control's top edge (the map: its top left corner); never over a
+		# neighbour.
+		PromptGlyph.badge(pair[0], pair[1], pair[0] != _minimap)
 
 
 ## Touch: the joystick and the round buttons. Keys or a gamepad: the action bar instead.

@@ -28,3 +28,16 @@ change it, or players lose their saves.
 - **Privacy policy**: `docs/privacy.html` (the game sends nothing anywhere; saves stay on the
   phone). With GitHub Pages on (Settings > Pages > branch `main`, folder `/docs`) it is at
   `https://absolutezeroo.github.io/the-well-of-souls/privacy.html`, the link the Play Console asks for.
+
+## Windows build
+
+The preset **Windows Desktop** (`export_presets.cfg`) makes one .exe with the game packed in it
+(`binary_format/embed_pck`), x86_64, the project's icon, tests and tools left out like Android's.
+Install the Windows export templates (Editor > Manage Export Templates), then
+`godot --headless --export-release "Windows Desktop" build/windows/le-puits-des-ames.exe`.
+It is not signed (`codesign/enable=false`): signing needs a certificate, and like the Android key it
+is never committed; turn it on on your own machine only, with the certificate's path and password
+given to Godot through the environment (`GODOT_WINDOWS_CODESIGN_IDENTITY`,
+`GODOT_WINDOWS_CODESIGN_PASSWORD`) or Editor Settings > Export > Windows. Saves go to
+`%APPDATA%/Mini Roguelike` (the same folder name as on the phone). On a computer the game opens in a
+window (resizable, F11 or Alt+Enter for fullscreen, saved in the options).
