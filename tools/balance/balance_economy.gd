@@ -19,6 +19,8 @@ const KILL_SHARE := [0.8, 0.75, 0.65, 0.6]
 const SHOP_SAMPLES := 4
 
 var lab: BalanceLab
+## Units of work (BalanceJobs): each floor harvested is one, kept and shared between workers.
+var jobs := BalanceJobs.new()
 var content: ContentDB
 var targets: BalanceTargets
 var all_builds: Array[BalanceBuildDef] = []
@@ -44,8 +46,12 @@ func run() -> BalanceReport:
 	for difficulty in d_list:
 		for depth in depths:
 			for i in (SEEDS if not quick else 1):
-				var f := await harvest(depth, difficulty, seed_value * 7919 + depth * 31 + i)
-				floors.append(f)
+				var floor_seed := seed_value * 7919 + depth * 31 + i
+				# A floor depends on nearly all the data (its monsters, loot, props, merchant...).
+				var f: Variant = await jobs.unit("economy|%s|%d|%d" % [BalanceContent.key(difficulty), depth, floor_seed], PackedStringArray(["res://data/"]),
+					func() -> Dictionary: return await harvest(depth, difficulty, floor_seed))
+				if f != null:
+					floors.append(f)
 		if verbose:
 			print("  economy: %s done (%d floors)" % [BalanceContent.key(difficulty), floors.size()])
 	var per_depth := _per_depth(floors)

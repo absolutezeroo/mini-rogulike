@@ -55,6 +55,10 @@ var rules: FloorRules
 var forced_curse: CurseDef
 var forced_event: FloorEventDef
 var forced_plain := false
+## The floors built from now on leave out their monsters and loose items, the last things a
+## floor places (FloorPopulator): everything else lands where it would. For the balance tools,
+## which spawn their own fights on a floor's ground and would only clear these away.
+var unpeopled := false
 ## The ways down from this floor (FloorRoute), set by the Game before the floor is built.
 ## Two or more: each stairs leads to one, its sign says where. Empty: one stairs, no choice.
 var next_routes: Array[FloorRoute] = []
@@ -637,6 +641,8 @@ func fire_trap_projectile(from: Vector2, direction: Vector2, spec: ProjectileSpe
 
 ## A short burst of light (explosions...).
 func flash_light(at: Vector2, color: Color, size: float) -> void:
+	if not Vfx.shown:
+		return
 	var flash := FLASH_SCENE.instantiate() as LightFlash
 	flash.position = at
 	flash.setup(color, size)
@@ -724,6 +730,9 @@ func spawn_stairs(cell: Vector2i, index: int = 0, way: FloorRoute = null) -> Sta
 ## Adds an effect where its layer says (VfxLayer): a standing one among the actors, sorted with
 ## them by its base; the others with the effects (their z puts them under or over the actors).
 func spawn_vfx(node: Node2D) -> void:
+	if not Vfx.shown and Vfx.is_cosmetic(node):
+		node.queue_free()  # a simulation: nothing to see (Vfx.shown)
+		return
 	if VfxLayer.of(node) == VfxLayer.Layer.STANDING:
 		_entities.add_child(node)
 	else:
@@ -732,14 +741,14 @@ func spawn_vfx(node: Node2D) -> void:
 
 ## Blood, slime, ink... on the floor (SplatLayer). Nothing over walls or holes.
 func add_splat(at: Vector2, color: Color, size: float = 1.0, direction: Vector2 = Vector2.ZERO) -> void:
-	if color.a <= 0.0 or not is_solid_ground(at):
+	if not Vfx.shown or color.a <= 0.0 or not is_solid_ground(at):
 		return
 	_splat_layer().add(at, color, size, direction, rng)
 
 
 ## Chips of what a monster was made of, left where it died for the whole floor.
 func add_debris(at: Vector2, material: ImpactMaterialDef, size: float = 1.0, direction: Vector2 = Vector2.ZERO) -> void:
-	if not is_solid_ground(at):
+	if not Vfx.shown or not is_solid_ground(at):
 		return
 	_splat_layer().add_debris(at, material, size, direction, rng, is_solid_ground)
 
@@ -761,6 +770,8 @@ func splat_count() -> int:
 
 
 func spawn_floating_text(at: Vector2, text: String, color: Color) -> void:
+	if not Vfx.shown:
+		return
 	spawn_vfx(FloatingText.create(at, text, color))
 
 

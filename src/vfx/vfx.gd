@@ -14,6 +14,22 @@ const SIGIL: VfxSheetDef = preload("res://data/vfx/sheets/holy_sigil.tres")
 const CRIT_CROSS: VfxSheetDef = preload("res://data/vfx/sheets/crit_cross.tres")
 const ALERT_EMOTE: Texture2D = preload("res://assets/ui/emotes/emote22.png")
 
+## False when the game runs as a simulation, nothing watching (the balance tools, BalanceLab):
+## what only shows something is not made or not updated (effects, floating numbers, splats,
+## light flashes, the bodies' looks, the camera's shake). Gameplay never reads any of it, so a
+## fight goes the same, only faster to simulate. True in the game and the tests.
+static var shown := true
+
+
+## An effect that is only seen (sparks, arcs, sheets, numbers, rings...): skipped when nothing
+## is shown (`shown` off). Warnings that something reads (CellWarning) and the dungeon's own
+## layers are not.
+static func is_cosmetic(node: Node) -> bool:
+	return node is CPUParticles2D or node is ImpactVfx or node is SheetVfx or node is RingVfx or node is BeamVfx \
+		or node is SwingVfx or node is SwingMatter or node is FloatingText or node is BloodDrainVfx or node is AfterimageVfx \
+		or node is FootprintVfx or node is DeathPiecesVfx or node is BlastVfx or node is ComposedVfx or node is ShockwaveVfx \
+		or node is EmoteVfx or node is LightFlash
+
 
 ## Particles of `scene` at `at`: sparks, chunks, smoke and fire in the air (over the actors);
 ## dust (DUST) rises from the floor, sorted with the actors (VfxLayer).

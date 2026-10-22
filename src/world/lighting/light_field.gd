@@ -114,7 +114,8 @@ func setup(map: DungeonMap, lighting: LightingDef, tint: Color = Color.WHITE) ->
 	_material.set_shader_parameter("ambient_level", float(ambient_level))
 	_material.set_shader_parameter("tint_strength", tint_strength)
 	_revision = -1
-	_bake()
+	if Vfx.shown:  # a simulation (Vfx.shown off) sees no light
+		_bake()
 	queue_redraw()
 
 
@@ -123,7 +124,8 @@ func refresh_walls() -> void:
 	if _map == null:
 		return
 	_read_walls()
-	_bake()
+	if Vfx.shown:
+		_bake()
 	queue_redraw()
 
 
@@ -165,6 +167,8 @@ func color_at(point: Vector2) -> Color:
 
 
 func _process(_delta: float) -> void:
+	if not Vfx.shown:
+		return  # a simulation: nothing to see (Vfx.shown)
 	if _map == null:
 		return
 	if _revision != LightSource.revision:
