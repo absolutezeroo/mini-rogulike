@@ -10,6 +10,7 @@
 [sub_resource type="Resource" id="Resource_8rvm2"]
 script = ExtResource("3_tewqa")
 slow = 0.4
+slow_duration = 1.0
 
 [sub_resource type="Resource" id="Resource_tbqfk"]
 script = ExtResource("2_jyucx")

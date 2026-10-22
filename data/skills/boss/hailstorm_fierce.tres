@@ -2,14 +2,9 @@
 
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_whwxm"]
 [ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_gjny1"]
-[ext_resource type="Script" path="res://src/definitions/effects/on_hit_status.gd" id="3_bb3x0"]
 [ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="5_dokqt"]
 [ext_resource type="AudioStream" path="res://data/audio/whoosh.tres" id="6_7mk70"]
 [ext_resource type="Resource" path="res://data/vfx/elements/frost.tres" id="vfx_frost"]
-
-[sub_resource type="Resource" id="Resource_8rvm2"]
-script = ExtResource("3_bb3x0")
-slow = 0.4
 
 [sub_resource type="Resource" id="Resource_6cn2n"]
 script = ExtResource("2_gjny1")
@@ -23,7 +18,6 @@ count = 16
 spread_degrees = 360.0
 knockback = 120.0
 color = Color(0.43137255, 0.7764706, 1, 1)
-status = SubResource("Resource_8rvm2")
 
 [sub_resource type="Resource" id="Resource_5ghgf"]
 script = ExtResource("2_gjny1")
@@ -37,7 +31,6 @@ count = 16
 spread_degrees = 360.0
 knockback = 120.0
 color = Color(0.43137255, 0.7764706, 1, 1)
-status = SubResource("Resource_8rvm2")
 angle_offset = 11.25
 delay = 0.45
 

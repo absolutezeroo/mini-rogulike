@@ -38,6 +38,7 @@ func run() -> void:
 	_test_export_presets()
 	_test_pilgrim_costs()
 	_test_bosses()
+	_test_boss_slows()
 	_test_profile()
 	_test_soul_economy()
 	_test_run_time()
@@ -1599,6 +1600,10 @@ func _test_pilgrim_costs() -> void:
 	var pilgrim := CONTENT.get_difficulty(&"easy")
 	var keeper := CONTENT.get_difficulty(&"normal")
 	check(pilgrim.souls < 1.0 and pilgrim.loot_quality < 1.0 and not pilgrim.counts_feats and keeper.counts_feats, "Pilgrim: fewer souls, rarer good gear, no feats")
+	# Its souls (balance-log 2026-10-23): a Pilgrim career must still fill the tree (x0.5 paid
+	# under half a Keeper run's souls for the same run, with smaller floors on top: 77 runs to the
+	# tree vs Keeper's 47), and never as fast as Keeper (less risk). x0.65: 64 runs.
+	check(pilgrim.souls >= 0.6 and pilgrim.souls <= 0.75 and pilgrim.souls < keeper.souls, "Pilgrim pays about two thirds of Keeper's souls (x%s)" % pilgrim.souls)
 	var costs := DifficultyCard.effects(pilgrim, keeper).filter(func(e: Array) -> bool: return e[1] < 0)
 	check(costs.size() >= 2, "its card lists what it costs, in red (%d lines)" % costs.size())
 	var rules := FloorRules.make(CONTENT.dungeon, pilgrim, null, 3)
@@ -1955,6 +1960,54 @@ func _test_soul_economy() -> void:
 	first_run += first_blood.reward_souls
 	check(first_run >= BalanceSouls.first_node_cost(tree), "a first run buys a node (%d souls, the cheapest costs %d)" % [first_run, BalanceSouls.first_node_cost(tree)])
 
+
+
+## Slows from a boss must not chain into a lock (balance-log 2026-10-23, the Azure Wyrm: her fang,
+## breath, dive and hail all slowed 40% for 2 s, so the hero was slowed nearly the whole last
+## phase and could neither outrun her nor clear her short-warned dives).
+func _test_boss_slows() -> void:
+	var bosses: Array[BossDef] = []
+	for act in CONTENT.dungeon.acts:
+		bosses.append_array(act.all_bosses())
+	if CONTENT.dungeon.finale and CONTENT.dungeon.finale.boss:
+		bosses.append_array(CONTENT.dungeon.finale.boss.forms())
+	for boss in bosses:
+		var phases: Array = [boss.skills]
+		for phase in boss.phases:
+			if not phase.skills.is_empty():
+				phases.append(phase.skills)
+		for i in phases.size():
+			var sources := PackedStringArray()
+			if boss.weapon and boss.weapon.on_hit and boss.weapon.on_hit.slow > 0.0:
+				sources.append(String(boss.weapon.id))
+				check(boss.weapon.on_hit.slow_duration <= 2.0, "%s: its weapon's slow lasts 2 s at most" % boss.id)
+			for skill: SkillDef in phases[i]:
+				for effect in skill.effects:
+					var status := effect.get("status") as OnHitStatus
+					if status and status.slow > 0.0:
+						if not sources.has(String(skill.id)):
+							sources.append(String(skill.id))
+						check(status.slow_duration <= 2.0, "%s: %s slows 2 s at most" % [boss.id, skill.id])
+			check(sources.size() <= 2, "%s, phase %d: two things at most slow the hero (%s)" % [boss.id, i + 1, ", ".join(sources)])
+	# The Azure Wyrm herself: her breath and fang slow, briefly; her dive is read in time and hits
+	# what her body crosses.
+	var wyrm: BossDef = null
+	for boss in bosses:
+		if boss.id == &"azure_wyrm":
+			wyrm = boss
+	check(wyrm != null, "the Azure Wyrm guards act II")
+	if wyrm == null:
+		return
+	var scale := CONTENT.get_difficulty(&"normal").telegraph_time
+	for phase in wyrm.phases:
+		scale *= phase.windup_multiplier
+	for skill: SkillDef in wyrm.phases[-1].skills:
+		for effect in skill.effects:
+			var dive := effect as DashStrikeEffect
+			if dive:
+				check(skill.cast_time * scale >= 0.45, "Azure Wyrm: %s warns %.2f s in her last phase on Keeper (0.45 s at least)" % [skill.id, skill.cast_time * scale])
+				check(dive.width <= wyrm.radius + 8.0, "Azure Wyrm: %s hits a band her body could cross (%.0f vs radius %.0f)" % [skill.id, dive.width, wyrm.radius])
+				check(dive.status == null or dive.status.slow <= 0.0, "Azure Wyrm: %s does not slow (a slowed hero could not clear the second dive)" % skill.id)
 
 func _test_profile() -> void:
 	check(CONTENT.upgrades.size() >= 8, "the shrine sells upgrades")

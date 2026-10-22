@@ -7,7 +7,9 @@ extends TestSuite
 ## - the model (Normal and Hard): one check per kind of target (all its flags are target breaks);
 ## - three real duels against the act I boss on Normal: the degenerate lifesteal build and the
 ##   expected build face-tanking (both must lose, with little healing), the expected build kiting
-##   (should win);
+##   (should win); the expected builds of acts II-IV face-tanking their boss; the Azure Wyrm on
+##   Keeper (kite wins, face-tank loses). A face-tank win after dying once (a second life) is a
+##   loss, and a second life's heal is not counted as healing (targets.facetank_second_life_is_loss);
 ## - the lab's quick marginal values (act II, a few picks) and economy (two Normal floors) run.
 ## Some of these FAIL today, on purpose: they are the balance work to do. Those are listed in
 ## KNOWN and printed as "FAIL (KNOWN ...)": they still count as failures. When one starts
@@ -92,10 +94,10 @@ func run() -> void:
 		print("  duel: %s" % line)
 		check(r.result != "error", "the duel %s %s ran (%s)" % [duel[0], duel[1], r.get("error", "")])
 		if duel[1] == "face_tank":
-			_target(r.result != "win", "duel: %s face-tank loses" % duel[0], "%s vs %s on Normal: %s" % [duel[0], boss.id, line])
+			_target(not BalanceArena.facetank_won(r, targets), "duel: %s face-tank loses" % duel[0], "%s vs %s on Normal: %s" % [duel[0], boss.id, line])
 			var share_max := targets.heal_share_max_degenerate if build.has_tag("degenerate") else targets.heal_share_max_expected
-			_target(r.heal_share <= share_max, "duel: %s heal share" % duel[0], "healed %d%% of the damage taken (target <= %d%%): %s" % [
-				roundi(r.heal_share * 100.0), roundi(share_max * 100.0), BalanceLab.sources_text(r.get("heal_sources", {}))])
+			_target(BalanceArena.sustain_share(r) <= share_max, "duel: %s heal share" % duel[0], "healed %d%% of the damage taken (target <= %d%%): %s" % [
+				roundi(BalanceArena.sustain_share(r) * 100.0), roundi(share_max * 100.0), BalanceLab.sources_text(r.get("heal_sources", {}))])
 		else:
 			_target(r.result == "win", "duel: %s kite wins" % duel[0], "%s vs %s on Normal: %s" % [duel[0], boss.id, line])
 	await _boss_guards(arena, builds, targets, normal)
@@ -183,11 +185,38 @@ func _boss_guards(arena: BalanceArena, builds: Array[BalanceBuildDef], targets: 
 		var r := await arena.fight_boss(boss, build, normal, "face_tank")
 		var line := BalanceArena.fight_line(r)
 		print("  duel: %s" % line)
-		_target(r.result == "loss", "duel: %s face-tank loses" % build.name, "%s vs %s on Normal: %s" % [build.name, boss.id, line])
-		_target(r.heal_share <= targets.heal_share_max_expected, "duel: %s heal share" % build.name,
-			"healed %d%% of the damage taken (target <= %d%%): %s" % [roundi(r.heal_share * 100.0), roundi(targets.heal_share_max_expected * 100.0),
+		_target(r.result == "loss" or (r.result == "win" and not BalanceArena.facetank_won(r, targets)), "duel: %s face-tank loses" % build.name, "%s vs %s on Normal: %s" % [build.name, boss.id, line])
+		_target(BalanceArena.sustain_share(r) <= targets.heal_share_max_expected, "duel: %s heal share" % build.name,
+			"healed %d%% of the damage taken (target <= %d%%): %s" % [roundi(BalanceArena.sustain_share(r) * 100.0), roundi(targets.heal_share_max_expected * 100.0),
 			BalanceLab.sources_text(r.get("heal_sources", {}))])
 
+	# The Azure Wyrm's pass (2026-10-23): she beat the kite bot on Keeper on every seed (her
+	# slows chained into short-warned dives); now hard but fair: playing her wins most fights,
+	# standing in front of her still loses. Four seeds (one fight may be lost to a pit: the
+	# command line measured 6 kite wins of 8, 1 of 8 before).
+	var wyrm: BossDef = null
+	for candidate: BossDef in BalanceContent.bosses(CONTENT):
+		if candidate.id == &"azure_wyrm":
+			wyrm = candidate
+	var expected_ii := BalanceBuild.expected(builds, 2)
+	check(wyrm != null and expected_ii != null, "the Azure Wyrm and the act II expected build exist")
+	if wyrm and expected_ii:
+		var kept_seed := arena.lab.seed_value
+		var kite_wins := 0
+		var lines := PackedStringArray()
+		for s in range(1, 5):
+			arena.lab.seed_value = s
+			for bot in ["kite", "face_tank"]:
+				var r := await arena.fight_boss(wyrm, expected_ii, normal, bot)
+				var line := BalanceArena.fight_line(r)
+				print("  duel (seed %d): %s" % [s, line])
+				if bot == "kite":
+					kite_wins += 1 if r.result == "win" else 0
+					lines.append(line)
+				else:
+					_target(r.result == "loss" or (r.result == "win" and not BalanceArena.facetank_won(r, targets)), "duel: Azure Wyrm face-tank loses on Keeper", "seed %d: %s" % [s, line])
+		arena.lab.seed_value = kept_seed
+		_target(kite_wins >= 2, "duel: Azure Wyrm kite wins on Keeper", "%d of 4 seeds won (target >= 2): %s" % [kite_wins, " / ".join(lines)])
 
 ## One _target per category: passes when the report has no flag of it.
 func _targets_of(report: BalanceReport, categories: Array) -> void:

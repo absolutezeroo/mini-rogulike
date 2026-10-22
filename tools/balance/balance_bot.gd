@@ -8,10 +8,11 @@ extends RefCounted
 ## - KITE: keeps its target at the weapon's range (melee: the edge of its reach) and attacks
 ##   whenever in reach (attacks don't root the hero), even while stepping aside. It reads each
 ##   threat as a player would: steps out of a swing's reach or a skill's circle, off a leap's
-##   line, sideways from shots heading its way, off blinking arena cells and live traps; it
-##   rolls only when the blow lands within the roll's invulnerability (late, not early), and
-##   only where the whole roll is solid ground (no pit, crack or wall). It holds the hit that
-##   would set off a boss' shockwave when its roll isn't ready. A decent player, not a perfect one.
+##   line, sideways from shots heading its way, off blinking arena cells, live traps and a
+##   wyrm's burning coils; it rolls only when the blow lands within the roll's invulnerability
+##   (late, not early), and only where the whole roll is solid ground (no pit, crack or wall).
+##   It holds the hit that would set off a boss' shockwave when its roll isn't ready. A decent
+##   player, not a perfect one.
 ## - PLAYER ("player"): the kite bot with a human's reaction time (REACTION): a threat (a wind-up,
 ##   a shot, a shockwave's ring) is only answered once it has been there that long, so short
 ##   wind-ups and fast shots land. An average player, for the gauntlet.
@@ -34,6 +35,8 @@ const SHOT_ALERT := 120.0
 ## A wind-up this far along (0..1) makes the kite bot roll.
 const ROLL_AT_TELEGRAPH := 0.55
 const REPATH_FRAMES := 15
+## The kite bot keeps this much room (px) between itself and a wyrm's coils.
+const COIL_MARGIN := 14.0
 
 var style: Style = Style.FACE_TANK
 var player: Player
@@ -216,6 +219,14 @@ func _threat() -> Dictionary:
 		var offset := here - monster.global_position
 		var distance := offset.length()
 		var direction := offset.normalized() if distance > 0.1 else Vector2.DOWN
+		# A wyrm's burning coils (WyrmBody), always in sight: step off them as off a live trap.
+		var coils := _coils(monster)
+		if coils:
+			var near := WyrmBody.TOUCH_RADIUS + player.radius + COIL_MARGIN
+			for point in coils.segment_points():
+				var off := here - point
+				if off.length() < near:
+					away += (off.normalized() if off.length() > 0.1 else direction) * 1.5
 		# A boss' shockwave ring (it answers too many hits in a row, and roars into a phase):
 		# the cooldown is set to 3 s when the ring appears, the blast follows 0.35-0.45 s later.
 		if monster.is_boss() and monster._shockwave_cooldown > 2.5:
@@ -282,6 +293,14 @@ func _threat() -> Dictionary:
 		if offset.length() < world.map.tile_size * 1.2:
 			away += offset.normalized() if offset.length() > 0.1 else Vector2.DOWN
 	return { "danger": away != Vector2.ZERO, "urgent": urgent, "away": away.normalized() }
+
+
+## A monster's wyrm body (its burning coils), if it has one.
+static func _coils(monster: Monster) -> WyrmBody:
+	for child in monster.get_children():
+		if child is WyrmBody:
+			return child as WyrmBody
+	return null
 
 
 ## Whether the threat `key` has been seen for the bot's reaction time (always, without one).

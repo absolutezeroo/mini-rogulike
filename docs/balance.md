@@ -104,7 +104,7 @@ three difficulties ~8 min; the `balance` test suite a few minutes.
 - **arena** (engine): real fights in the Game scene with a bot at the controls (`BalanceBot`):
   `face_tank` stands in reach and hits, uses skills when ready, never rolls or drinks; `kite`
   keeps its weapon's range and hits whenever in reach, steps out of swings, skill circles, leap
-  lines, shots, blinking arena cells and live traps, rolls only as a blow lands (within the
+  lines, shots, blinking arena cells, live traps and a wyrm's burning coils, rolls only as a blow lands (within the
   roll's invulnerability) and only where the whole roll is solid ground, and holds the hit that
   would set off a boss' shockwave when its roll isn't ready.
   Every boss x the builds of its act (expected on every difficulty; degenerate, family and baseline
@@ -112,7 +112,9 @@ three difficulties ~8 min; the `balance` test suite a few minutes.
   the game rolls) with the expected build on Keeper and Martyr. Result, time, phase reached, boss
   health left (and the time to kill projected from it), damage dealt and taken, hits, healing by
   source (perk, rune, affix, family, skill, item, revive), damage taken by kind (melee, skill,
-  shockwave, adds, ticks, traps, falls; printed per fight), lowest health. Then the **weapon arena**:
+  shockwave, body: a wyrm's coils, blasts, adds, ticks, traps, falls; printed per fight), lowest
+  health, second lives spent (a second life sends the hero to the Threshold's trial, which the
+  bots play; what he takes and heals there is left out of the fight's numbers). Then the **weapon arena**:
   every weapon (Common, on the act's expected build otherwise) against every boss, kite, Keeper.
 - **pack** (engine): on each act's last normal floor, Keeper and Martyr: three of each monster kind
   (time from first hurt to death, damage taken), mixed rooms of the act's list by spawn weight
@@ -144,8 +146,12 @@ three difficulties ~8 min; the `balance` test suite a few minutes.
   source of souls added as expected values: the run's souls and the hidden floor, hunter ranks
   (from the kills of each kind measured on the floors), bestiary challenges (a chance per kill of
   each kind), achievements (from the counters a career reaches), quests (two runs a day) - against
-  the Tree of Souls (a full tree: the dearer side of each fork; every node). The assumptions are
-  constants at the top of `balance_souls.gd`, each with its reason. Skipped with `--quick`.
+  the Tree of Souls (a full tree: the dearer side of each fork; every node). The same for a
+  **Pilgrim career** when Pilgrim is measured (`--difficulty=easy,normal`; table
+  "economy_campaign_easy": Pilgrim's souls, no achievements since feats don't count there, a
+  faster career of results), and **Pilgrim vs Keeper** (table "economy_pilgrim": what a run pays
+  by how it ends, each career's runs to the tree). The assumptions are constants at the top of
+  `balance_souls.gd`, each with its reason. Skipped with `--quick`.
 - **compound** (engine): attack speed x crit x damage (Frenzy, Precision, Strength, War Banner
   alone and together vs the product of the parts); Hydra's Quiver and Prism on every ranged weapon at
   64, 128, 256 px; echo (Echo perk, Echo runes, of Echoes, Arcane Focus); burn stacking (Ignite,
@@ -191,12 +197,12 @@ lab before changing data.
 | Target | Value | Why |
 |---|---|---|
 | Boss time to kill, expected build, Keeper | 40-100 s (rare-rank boss <= 150 s) | under it the boss is not a fight; over it the fight drags on a phone |
-| Face-tank (never dodges) with expected and degenerate builds | must lose to every boss from Keeper | skill beats stats: standing and trading blows must never win (pillar 1) |
+| Face-tank (never dodges) with expected and degenerate builds | must lose to every boss from Keeper; a win after dying once (a second life, the Threshold played) counts as a loss (`facetank_second_life_is_loss`) | skill beats stats: standing and trading blows must never win (pillar 1); the boss killed him, and bosses are not tuned to kill twice around the rarest relic |
 | Kite (keeps range, rolls) with the expected build | wins on Pilgrim and Keeper (boss fights and the gauntlet) | the fight must be beatable by playing it |
 | Gauntlet, `player` bot (an average player) | wins every act on Pilgrim | Pilgrim stays accessible |
 | Gauntlet on Keeper, `player` bot: floor cost (share of Health and potion healing spent on an act's last floor before the boss), mean over the acts | 20-60% | the rooms are a fight, not a stroll that hands out potions; the boss is still reached with a chance |
 | Gauntlet on Keeper, `player` bot: acts won | >= 75% | Keeper is a real challenge for an average player, not a wall |
-| Healing in a boss fight / damage taken | <= 25% expected, <= 50% degenerate and family | healing forgives mistakes, it doesn't out-heal a boss |
+| Healing in a boss fight / damage taken | <= 25% expected, <= 50% degenerate and family (a second life's heal left out) | healing forgives mistakes, it doesn't out-heal a boss; a second life is not sustain |
 | Boss hits to kill the expected build (Keeper) | 6-12 | one mistake isn't the end; ignoring the patterns kills |
 | Common monster time to kill (expected build, Keeper) | 0.5-2.5 s | paper below, a slog above |
 | Elite / Fell / Legendary / Celestial time to kill | 3-10 / 5-16 / 8-25 / 2-10 s | a short duel, a longer one, a mini-boss, a treasure |
@@ -219,6 +225,7 @@ lab before changing data.
 | A reroll / rune removal vs a floor's gold | <= 35% / <= 60% | cheap enough to use |
 | Runs to a full Tree of Souls, a Keeper career with every source (economy_campaign) | 40-60 (was: 15-60 runs dying in act II-III, run souls only) | a campaign, not a few evenings; the old target ignored the bestiary, achievements and quests, which paid more than the whole tree |
 | Runs to the first node (Keeper career) | <= 2 | something to show for the first runs |
+| Runs to a full tree, Pilgrim career / Keeper career (economy_pilgrim) | x1.25-x2; Pilgrim's first node by run 3; a Pilgrim run never pays more than a Keeper run that ends the same way | Pilgrim progresses, more slowly than Keeper, never faster for less risk |
 | One-time souls (hunter ranks, challenges, achievements) in the first 10 runs | <= 20% of the full tree | the first hours' burst must not hand out the tree |
 
 ### Builds (data/balance/builds/)
