@@ -75,6 +75,9 @@ var _fall_tween: Tween
 var last_attacker: Actor
 ## What killed it, for the run history ("Skeleton", "a fall"...). Empty while alive.
 var killed_by := ""
+## How it died, in words the dialogue's conditions know (RunFacts.CAUSES: "monster", "trap",
+## "fall", "burn"...). Empty while alive; may be set just before dying (giving up).
+var death_cause: StringName = &""
 
 var base_stats := StatBlock.new()
 var equipment := Equipment.new()
@@ -367,6 +370,8 @@ func die(killer: Actor) -> void:
 	is_dead = true
 	if killed_by.is_empty():  # a cause may be set just before (a fall, giving up)
 		killed_by = _death_cause(killer)
+	if death_cause == &"":
+		death_cause = cause_of_death(killer)
 	velocity = Vector2.ZERO
 	set_deferred("collision_layer", 0)
 	set_deferred("collision_mask", 0)
@@ -454,6 +459,17 @@ func _check_ground() -> void:
 
 
 # --- Hooks for subclasses ----------------------------------------------------
+
+## How a blow from `killer` (null: none) would kill it now, in RunFacts.CAUSES' words.
+func cause_of_death(killer: Actor) -> StringName:
+	if is_falling:
+		return &"fall"
+	if last_hit and last_hit.cause != &"":
+		return last_hit.cause
+	if is_instance_valid(killer) and killer != self:
+		return &"monster"
+	return &"unknown"
+
 
 func _death_cause(killer: Actor) -> String:
 	if is_falling:

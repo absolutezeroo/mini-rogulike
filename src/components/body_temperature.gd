@@ -54,7 +54,9 @@ func _hurt(actor: Actor, world: World, rules: DungeonConfig) -> void:
 	var amount := world.rules.dungeon_damage(rules.temperature_damage, 0.5)
 	var frozen := value < 0.0
 	world.spawn_floating_text(actor.head_position() + Vector2(0, -12), tr("Freezing!") if frozen else tr("Burning up!"), COLD_COLOR if frozen else HOT_COLOR)
-	actor.take_hit(Combat.make_tick(null, amount))
+	var tick := Combat.make_tick(null, amount)
+	tick.cause = &"cold" if frozen else &"heat"
+	actor.take_hit(tick)
 
 
 ## -1 (frozen) .. 1 (burning up).

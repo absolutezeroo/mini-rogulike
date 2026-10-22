@@ -12,6 +12,11 @@ func run() -> void:
 	add_child(pc)
 	await pc.run_title()
 	pc.free()
+	# The Vigil-Keeper at the shrine (DialogueTests).
+	var dialogue := DialogueTests.new()
+	add_child(dialogue)
+	await dialogue.run_title()
+	dialogue.free()
 
 
 ## A run in progress: the Resume button sits in the column like the others, its floor on a line

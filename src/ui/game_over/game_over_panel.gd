@@ -1,8 +1,9 @@
 class_name GameOverPanel
 extends Control
 ## End of a run, in the game's skin (RpgDialog): death, or victory over the last boss (then you
-## may keep going: endless mode). How it ended (a line of the story), the run's numbers (time,
-## depth, kills...), the souls it earned and what souls are for, then what to do next.
+## may keep going: endless mode). How it ended (the Vigil-Keeper telling it and giving advice, in
+## a DialogueBox typing beside everything else; else a line of the story), the run's numbers
+## (time, depth, kills...), the souls it earned and what souls are for, then what to do next.
 
 signal restart_requested
 signal continue_requested
@@ -14,10 +15,16 @@ const WIDTH := 880.0
 
 var _dialog: RpgDialog
 var _summary: Label
+## The Vigil-Keeper's words (STACKED: never holding the buttons back).
+var _voice: DialogueBox
 var _columns: HBoxContainer
 var _stats: GridContainer
 var _souls_earned: Label
 var _souls_total: Label
+## What souls are for, in full; in a line while the Vigil-Keeper speaks (the screen keeps its
+## height on a 720-line phone).
+var _souls_note: Label
+var _souls_short: Label
 var _continue_note: Label
 var _continue_button: Button
 var _restart_button: Button
@@ -33,10 +40,16 @@ func _ready() -> void:
 
 ## The whole end of a run. `rows`: [label, value] pairs (RunState.summary_rows()). `title`:
 ## instead of the usual one (an ending's, chosen at the bottom of the Well).
-func show_end(victory: bool, story: String, rows: Array, souls_earned: int, souls_total: int, title: String = "") -> void:
+## `spoken`: what the Vigil-Keeper says of it (Dialogues.Spoken: the tale, then the advice).
+func show_end(victory: bool, story: String, rows: Array, souls_earned: int, souls_total: int, title: String = "", spoken: Array[Dialogues.Spoken] = []) -> void:
 	if title.is_empty():
 		title = tr("Victory Achieved") if victory else tr("The Well claims you")
 	_show(title, VICTORY_COLOR if victory else DEATH_COLOR, story, victory)
+	_voice.visible = not spoken.is_empty()
+	_souls_note.visible = spoken.is_empty()
+	_souls_short.visible = not spoken.is_empty()
+	if not spoken.is_empty():
+		_voice.say(spoken)
 	UiParts.clear(_stats)
 	for row: Array in rows:
 		_stats.add_child(UiSkin.label(str(row[0]), Fonts.BODY, UiSkin.DIM))
@@ -52,21 +65,32 @@ func show_end(victory: bool, story: String, rows: Array, souls_earned: int, soul
 ## Just a text (older callers): death.
 func show_result(summary: String) -> void:
 	_show(tr("The Well claims you"), DEATH_COLOR, summary, false)
+	_voice.hide()
 	_columns.hide()
 
 
 ## Just a text (older callers): victory.
 func show_victory(summary: String) -> void:
 	_show(tr("Victory Achieved"), VICTORY_COLOR, summary, true)
+	_voice.hide()
 	_columns.hide()
 
 
-## Every word on the screen, top to bottom (tests).
+## The Vigil-Keeper's box (tests).
+func voice() -> DialogueBox:
+	return _voice
+
+
+## Every word on the screen, top to bottom (tests); the Vigil-Keeper's whole, typed or not.
 func shown_text() -> String:
 	var parts := PackedStringArray()
 	var stack: Array[Node] = [_dialog]
 	while not stack.is_empty():
 		var node: Node = stack.pop_front()
+		if node == _voice:
+			if _voice.is_visible_in_tree():
+				parts.append(_voice.shown_text())
+			continue
 		if node is Label and (node as Label).is_visible_in_tree():
 			parts.append((node as Label).text)
 		elif node is Button and (node as Button).is_visible_in_tree():
@@ -95,6 +119,11 @@ func _build() -> void:
 	_summary.name = "Summary"
 	_own(_summary)
 	_dialog.body.add_child(_summary)
+	_voice = DialogueBox.new(DialogueBox.Mode.STACKED, WIDTH - 60)
+	_voice.name = "Voice"
+	_voice.hide()
+	_own(_voice)
+	_dialog.body.add_child(_voice)
 
 	_columns = HBoxContainer.new()
 	_columns.add_theme_constant_override("separation", 14)
@@ -118,7 +147,11 @@ func _build() -> void:
 	souls.column.add_child(_souls_earned)
 	_souls_total = UiSkin.label("", Fonts.BODY, UiSkin.TEXT)
 	souls.column.add_child(_souls_total)
-	souls.column.add_child(UiParts.text(tr("Souls are kept between runs. Spend them at the Shrine (title screen) on upgrades that make every next run stronger."), Fonts.BODY, UiSkin.DIM, 360))
+	_souls_note = UiParts.text(tr("Souls are kept between runs. Spend them at the Shrine (title screen) on upgrades that make every next run stronger."), Fonts.BODY, UiSkin.DIM, 360)
+	souls.column.add_child(_souls_note)
+	_souls_short = UiParts.text(tr("Kept between runs: spend them at the Shrine."), Fonts.BODY, UiSkin.DIM, 360)
+	_souls_short.hide()
+	souls.column.add_child(_souls_short)
 	souls.column.add_child(UiParts.text(tr("Gold was only for this run."), Fonts.BODY, UiSkin.DIM, 360))
 
 	var buttons := HBoxContainer.new()

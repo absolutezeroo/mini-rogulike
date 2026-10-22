@@ -1,0 +1,571 @@
+[gd_resource type="Resource" script_class="DialogueDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/dialogue/dialogue_def.gd" id="1_dialogue"]
+[ext_resource type="Script" path="res://src/definitions/dialogue/dialogue_line_def.gd" id="2_line"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="3_condition"]
+[ext_resource type="Resource" path="res://data/story/dialogue/speakers/vigil_keeper.tres" id="4_speaker"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/run/outcome_condition.gd" id="5_outcome_cond"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/run/killer_condition.gd" id="6_killer_condi"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/run/death_count_condition.gd" id="7_death_count_"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/run/cause_condition.gd" id="8_cause_condit"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/run/place_condition.gd" id="9_place_condit"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/run/death_streak_condition.gd" id="10_death_streak"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/stat_condition.gd" id="11_stat_conditi"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/not_condition.gd" id="12_not_conditio"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/run/gear_condition.gd" id="13_gear_conditi"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/run/run_mark_condition.gd" id="14_run_mark_con"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/run/level_condition.gd" id="15_level_condit"]
+
+[sub_resource type="Resource" id="c1"]
+script = ExtResource("5_outcome_cond")
+outcome = 1
+
+[sub_resource type="Resource" id="c2"]
+script = ExtResource("6_killer_condi")
+monster_ids = Array[StringName]([&"king_slime"])
+kind = 0
+
+[sub_resource type="Resource" id="l_king_slime"]
+script = ExtResource("2_line")
+id = &"king_slime"
+lines = PackedStringArray("The Bloated King spits its rain in a crown: stand between two drops, never in their line.", "And when it splits, child, cut the little ones down one by one.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c2")])
+priority = 80
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c3"]
+script = ExtResource("6_killer_condi")
+monster_ids = Array[StringName]([&"giant_frog"])
+kind = 0
+
+[sub_resource type="Resource" id="l_giant_frog"]
+script = ExtResource("2_line")
+id = &"giant_frog"
+lines = PackedStringArray("The Matron leaps in a straight line and lands hard: step aside, not back.", "Her spit opens like a fan; go wide around it, child.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c3")])
+priority = 80
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c4"]
+script = ExtResource("6_killer_condi")
+monster_ids = Array[StringName]([&"demon_cyclops"])
+kind = 0
+
+[sub_resource type="Resource" id="l_demon_cyclops"]
+script = ExtResource("2_line")
+id = &"demon_cyclops"
+lines = PackedStringArray("Gorr's eye spits fire in a fan before him: keep to his flank.", "When the ground reddens in a wide circle, child, leave it before his club falls.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c4")])
+priority = 80
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c5"]
+script = ExtResource("6_killer_condi")
+monster_ids = Array[StringName]([&"azure_wyrm"])
+kind = 0
+
+[sub_resource type="Resource" id="l_azure_wyrm"]
+script = ExtResource("2_line")
+id = &"azure_wyrm"
+lines = PackedStringArray("Only the Azure Wyrm's head bleeds; its body burns cold at a touch. When it dives along a line, roll across it, child, not along it.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c5")])
+priority = 80
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c6"]
+script = ExtResource("6_killer_condi")
+monster_ids = Array[StringName]([&"weeping_spirit"])
+kind = 0
+
+[sub_resource type="Resource" id="l_weeping_spirit"]
+script = ExtResource("2_line")
+id = &"weeping_spirit"
+lines = PackedStringArray("The Mother of Tears' wail goes out in a ring, and the ring widens as it travels.", "Far from her the gaps are wider, child: that is where you pass.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c6")])
+priority = 80
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c7"]
+script = ExtResource("6_killer_condi")
+monster_ids = Array[StringName]([&"crimson_tengu"])
+kind = 0
+
+[sub_resource type="Resource" id="l_crimson_tengu"]
+script = ExtResource("2_line")
+id = &"crimson_tengu"
+lines = PackedStringArray("When the line of its step marks the ground, the Tengu is about to cross it in one stroke. Leave it sideways, child, then strike where it stops.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c7")])
+priority = 80
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c8"]
+script = ExtResource("6_killer_condi")
+monster_ids = Array[StringName]([&"red_samurai"])
+kind = 0
+
+[sub_resource type="Resource" id="l_red_samurai"]
+script = ExtResource("2_line")
+id = &"red_samurai"
+lines = PackedStringArray("The Ronin's flame arc burns all around him, up close. Step out of the circle when he draws, child, and come back when the flame dies down.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c8")])
+priority = 80
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c9"]
+script = ExtResource("6_killer_condi")
+monster_ids = Array[StringName]([&"jade_wyrm"])
+kind = 0
+
+[sub_resource type="Resource" id="l_jade_wyrm"]
+script = ExtResource("2_line")
+id = &"jade_wyrm"
+lines = PackedStringArray("Only the Jade Wyrm's head can be wounded; its coils burn. When the venom blooms all around it, child, be far away already.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c9")])
+priority = 80
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c10"]
+script = ExtResource("6_killer_condi")
+monster_ids = Array[StringName]([&"gilded_hoarder"])
+kind = 0
+
+[sub_resource type="Resource" id="l_gilded_hoarder"]
+script = ExtResource("2_line")
+id = &"gilded_hoarder"
+lines = PackedStringArray("The Hoarder leaps along a line and crushes where he lands: step off his line.", "At half his life he calls his thieves; cut them down fast, child, they carry off your gold.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c10")])
+priority = 80
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c11"]
+script = ExtResource("6_killer_condi")
+monster_ids = Array[StringName]([&"sun_wraith"])
+kind = 0
+
+[sub_resource type="Resource" id="l_sun_wraith"]
+script = ExtResource("2_line")
+id = &"sun_wraith"
+lines = PackedStringArray("The Dead Sun fades and appears elsewhere: never stand still before it. Its flare goes out in a ring; look for the gaps far from it, child.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c11")])
+priority = 80
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c12"]
+script = ExtResource("6_killer_condi")
+monster_ids = Array[StringName]([&"nameless_effigy"])
+kind = 0
+
+[sub_resource type="Resource" id="l_nameless_effigy"]
+script = ExtResource("2_line")
+id = &"nameless_effigy"
+lines = PackedStringArray("The effigy calls the dead to its side: cut them down before they close around you. Its rush marks a line on the ground, child; do not stay on it.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c12")])
+priority = 80
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c13"]
+script = ExtResource("6_killer_condi")
+monster_ids = Array[StringName]([&"master_toma"])
+kind = 0
+
+[sub_resource type="Resource" id="l_master_toma"]
+script = ExtResource("2_line")
+id = &"master_toma"
+lines = PackedStringArray("When his lantern flares violet, a circle fills under your feet: leave it before it closes.", "Your master taught you never to stay where you are expected, child.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c13")])
+priority = 80
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c14"]
+script = ExtResource("6_killer_condi")
+monster_ids = Array[StringName]([&"the_maw"])
+kind = 0
+
+[sub_resource type="Resource" id="l_the_maw"]
+script = ExtResource("2_line")
+id = &"the_maw"
+lines = PackedStringArray("Strike the Maw only with its jaw open, and from the edge: too near its mouth, it bites.", "Shut, it lashes the ground around you; do not stop moving, child.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c14")])
+priority = 80
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c15"]
+script = ExtResource("6_killer_condi")
+monster_ids = Array[StringName]([])
+kind = 1
+
+[sub_resource type="Resource" id="c16"]
+script = ExtResource("7_death_count_")
+at_least = 3
+
+[sub_resource type="Resource" id="l_boss_codex"]
+script = ExtResource("2_line")
+id = &"boss_codex"
+lines = PackedStringArray("{killer} has taken you too often for chance. Open the codex at its name, child: its blows are written there, one by one.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c15"), SubResource("c16")])
+priority = 85
+cooldown_runs = 3
+remembered = false
+
+[sub_resource type="Resource" id="c17"]
+script = ExtResource("8_cause_condit")
+causes = Array[StringName]([&"shockwave"])
+
+[sub_resource type="Resource" id="l_shockwave"]
+script = ExtResource("2_line")
+id = &"shockwave"
+lines = PackedStringArray("Do not strike a warden endlessly: after too many blows in a row, it answers with a blast. Step back, or roll through the red ring, child.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c17")])
+priority = 90
+cooldown_runs = 1
+
+[sub_resource type="Resource" id="c18"]
+script = ExtResource("9_place_condit")
+where = 1
+min_depth = 0
+max_depth = 0
+
+[sub_resource type="Resource" id="l_deeps"]
+script = ExtResource("2_line")
+id = &"deeps"
+lines = PackedStringArray("In the Deeps, do not linger to fight: seek the Dawn Breach. The golden light shows you the way, child.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c18")])
+priority = 75
+cooldown_runs = 1
+
+[sub_resource type="Resource" id="c19"]
+script = ExtResource("9_place_condit")
+where = 5
+min_depth = 0
+max_depth = 0
+
+[sub_resource type="Resource" id="l_threshold"]
+script = ExtResource("2_line")
+id = &"threshold"
+lines = PackedStringArray("At the Threshold every spectre slain counts, and the knell does not wait. Strike without rest, child: there, running is no use.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c19")])
+priority = 74
+cooldown_runs = 1
+
+[sub_resource type="Resource" id="c20"]
+script = ExtResource("8_cause_condit")
+causes = Array[StringName]([&"trap"])
+
+[sub_resource type="Resource" id="l_trap"]
+script = ExtResource("2_line")
+id = &"trap"
+lines = PackedStringArray("Traps always warn before they strike: a click, a glow. Never stand on a flagstone that has spoken, child.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c20")])
+priority = 70
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c21"]
+script = ExtResource("8_cause_condit")
+causes = Array[StringName]([&"fall"])
+
+[sub_resource type="Resource" id="l_fall"]
+script = ExtResource("2_line")
+id = &"fall"
+lines = PackedStringArray("A hole is crossed by rolling over it, child. And monsters fall in too, if you push them.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c21")])
+priority = 70
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c22"]
+script = ExtResource("8_cause_condit")
+causes = Array[StringName]([&"burn"])
+
+[sub_resource type="Resource" id="l_burn"]
+script = ExtResource("2_line")
+id = &"burn"
+lines = PackedStringArray("Fire keeps biting a while after the flame. Get out of the embers, child, and drink while you burn, not after.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c22")])
+priority = 68
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c23"]
+script = ExtResource("8_cause_condit")
+causes = Array[StringName]([&"poison"])
+
+[sub_resource type="Resource" id="l_poison"]
+script = ExtResource("2_line")
+id = &"poison"
+lines = PackedStringArray("Venom gnaws until its time runs out. Keep clear of the clouds and the spit, child, and mend yourself before it is done.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c23")])
+priority = 68
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c24"]
+script = ExtResource("8_cause_condit")
+causes = Array[StringName]([&"cold"])
+
+[sub_resource type="Resource" id="l_cold"]
+script = ExtResource("2_line")
+id = &"cold"
+lines = PackedStringArray("On floors gripped by frost, the campfires are your life. Never stray from them longer than your warmth lasts, child.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c24")])
+priority = 70
+cooldown_runs = 1
+
+[sub_resource type="Resource" id="c25"]
+script = ExtResource("8_cause_condit")
+causes = Array[StringName]([&"heat"])
+
+[sub_resource type="Resource" id="l_heat"]
+script = ExtResource("2_line")
+id = &"heat"
+lines = PackedStringArray("When the ash burns you from within, find the oasis and stay on its shore, child, until you cool.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c25")])
+priority = 70
+cooldown_runs = 1
+
+[sub_resource type="Resource" id="c26"]
+script = ExtResource("8_cause_condit")
+causes = Array[StringName]([&"quicksand"])
+
+[sub_resource type="Resource" id="l_quicksand"]
+script = ExtResource("2_line")
+id = &"quicksand"
+lines = PackedStringArray("Quicksand slows you first, then swallows. Roll out the moment it takes your ankles, child.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c26")])
+priority = 70
+cooldown_runs = 1
+
+[sub_resource type="Resource" id="c27"]
+script = ExtResource("8_cause_condit")
+causes = Array[StringName]([&"blast"])
+
+[sub_resource type="Resource" id="l_blast"]
+script = ExtResource("2_line")
+id = &"blast"
+lines = PackedStringArray("What is about to burst warns first, with a red circle on the ground. Leave the circle, child, then come back to strike.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c27")])
+priority = 66
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c28"]
+script = ExtResource("8_cause_condit")
+causes = Array[StringName]([&"altar"])
+
+[sub_resource type="Resource" id="l_altar"]
+script = ExtResource("2_line")
+id = &"altar"
+lines = PackedStringArray("The altar takes what it is offered, and it does not count. Never offer your blood when your Health is low, child.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c28")])
+priority = 70
+cooldown_runs = 1
+
+[sub_resource type="Resource" id="c29"]
+script = ExtResource("10_death_streak")
+count = 3
+max_depth = 3
+
+[sub_resource type="Resource" id="c30"]
+script = ExtResource("11_stat_conditi")
+stat = "souls"
+at_least = 40
+
+[sub_resource type="Resource" id="l_early_shrine"]
+script = ExtResource("2_line")
+id = &"early_shrine"
+lines = PackedStringArray("You fall early, child, again and again. Offer your souls to the shrine's Tree: every knot of it makes you stronger for every descent.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c29"), SubResource("c30")])
+priority = 64
+cooldown_runs = 3
+
+[sub_resource type="Resource" id="c31"]
+script = ExtResource("10_death_streak")
+count = 4
+max_depth = 3
+
+[sub_resource type="Resource" id="c32"]
+script = ExtResource("5_outcome_cond")
+outcome = 1
+difficulties = Array[StringName]([&"normal", &"hard"])
+
+[sub_resource type="Resource" id="c34"]
+script = ExtResource("11_stat_conditi")
+stat = "all_wins"
+at_least = 1
+
+[sub_resource type="Resource" id="c33"]
+script = ExtResource("12_not_conditio")
+condition = SubResource("c34")
+
+[sub_resource type="Resource" id="l_pilgrim"]
+script = ExtResource("2_line")
+id = &"pilgrim"
+lines = PackedStringArray("Go down as a Pilgrim for a while, child: the blows there are lighter and the souls fewer, but you will learn their moves.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c31"), SubResource("c32"), SubResource("c33")])
+priority = 62
+cooldown_runs = 4
+
+[sub_resource type="Resource" id="c35"]
+script = ExtResource("13_gear_conditi")
+potions_at_least = 1
+
+[sub_resource type="Resource" id="c36"]
+script = ExtResource("8_cause_condit")
+causes = Array[StringName]([&"monster", &"shockwave", &"burn", &"poison"])
+
+[sub_resource type="Resource" id="l_potions"]
+script = ExtResource("2_line")
+id = &"potions"
+lines = PackedStringArray("You still had potions on you, child. Drink before the last breath, not after.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c35"), SubResource("c36")])
+priority = 60
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c37"]
+script = ExtResource("14_run_mark_con")
+mark = &"drank"
+present = false
+
+[sub_resource type="Resource" id="c38"]
+script = ExtResource("9_place_condit")
+where = 6
+min_depth = 3
+max_depth = 0
+
+[sub_resource type="Resource" id="l_never_drank"]
+script = ExtResource("2_line")
+id = &"never_drank"
+lines = PackedStringArray("Not a single potion the whole way down, child. Keep them on your belt: they are drunk in one move, without opening the bag.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c37"), SubResource("c38")])
+priority = 50
+cooldown_runs = 3
+
+[sub_resource type="Resource" id="c39"]
+script = ExtResource("14_run_mark_con")
+mark = &"rolled"
+present = false
+
+[sub_resource type="Resource" id="c40"]
+script = ExtResource("8_cause_condit")
+causes = Array[StringName]([&"monster", &"shockwave"])
+
+[sub_resource type="Resource" id="l_never_rolled"]
+script = ExtResource("2_line")
+id = &"never_rolled"
+lines = PackedStringArray("You did not roll once, child. Your master taught you: while you roll, no blow can touch you.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c39"), SubResource("c40")])
+priority = 55
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="l_boss_windup"]
+script = ExtResource("2_line")
+id = &"boss_windup"
+lines = PackedStringArray("Wardens freeze before they strike, and the ground reddens where the blow will fall. Roll through, child: the roll slips under the blade.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c15")])
+priority = 45
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c41"]
+script = ExtResource("13_gear_conditi")
+armor_at_most = 0
+
+[sub_resource type="Resource" id="c42"]
+script = ExtResource("9_place_condit")
+where = 6
+min_depth = 2
+max_depth = 0
+
+[sub_resource type="Resource" id="l_no_armor"]
+script = ExtResource("2_line")
+id = &"no_armor"
+lines = PackedStringArray("You went down without armor, child. Even a little leather on your head stops one blow too many.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c41"), SubResource("c42")])
+priority = 42
+cooldown_runs = 3
+
+[sub_resource type="Resource" id="c43"]
+script = ExtResource("15_level_condit")
+behind_by = 3
+
+[sub_resource type="Resource" id="l_underlevel"]
+script = ExtResource("2_line")
+id = &"underlevel"
+lines = PackedStringArray("You ran for the stairs, and the Well went down faster than you. Cut down what prowls on the way, child: every soul hardens you.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c43")])
+priority = 40
+cooldown_runs = 3
+
+[sub_resource type="Resource" id="c44"]
+script = ExtResource("6_killer_condi")
+monster_ids = Array[StringName]([])
+kind = 4
+
+[sub_resource type="Resource" id="l_ranged"]
+script = ExtResource("2_line")
+id = &"ranged"
+lines = PackedStringArray("Those who strike from afar fear being reached. Close the distance, child, or put a wall between you.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c44")])
+priority = 35
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="c45"]
+script = ExtResource("6_killer_condi")
+monster_ids = Array[StringName]([])
+kind = 3
+
+[sub_resource type="Resource" id="l_elite"]
+script = ExtResource("2_line")
+id = &"elite"
+lines = PackedStringArray("Those ringed in colored light are tougher than the rest. Never face them in the middle of a pack, child: draw them out alone.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c45")])
+priority = 35
+cooldown_runs = 2
+
+[sub_resource type="Resource" id="l_watch_shoulder"]
+script = ExtResource("2_line")
+id = &"watch_shoulder"
+lines = PackedStringArray("Your master used to say: \"Do not watch the blade, watch the shoulder.\" What strikes freezes first; that is when you roll, child.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1")])
+priority = 5
+cooldown_runs = 3
+
+[sub_resource type="Resource" id="l_charged"]
+script = ExtResource("2_line")
+id = &"charged"
+lines = PackedStringArray("Hold your attack down, child, and let go when the circle is full: one charged blow is worth more than three hurried ones.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1")])
+priority = 5
+cooldown_runs = 3
+
+[sub_resource type="Resource" id="l_families"]
+script = ExtResource("2_line")
+id = &"families"
+lines = PackedStringArray("Perks of one family wake together. Choose them with the ones you already carry in mind, child.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1")])
+priority = 5
+cooldown_runs = 3
+
+[sub_resource type="Resource" id="l_runes"]
+script = ExtResource("2_line")
+id = &"runes"
+lines = PackedStringArray("Brann sets runes for nothing. Never keep a rune in your bag while your weapon has an empty socket, child.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1")])
+priority = 5
+cooldown_runs = 3
+
+[sub_resource type="Resource" id="l_belt"]
+script = ExtResource("2_line")
+id = &"belt"
+lines = PackedStringArray("Put your potions on your belt, child. One does not dig through a bag while death is watching.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1")])
+priority = 4
+cooldown_runs = 3
+
+[sub_resource type="Resource" id="l_breathe"]
+script = ExtResource("2_line")
+id = &"breathe"
+lines = PackedStringArray("Your master used to say that a guard is knowing when not to strike. Step back, child, and watch before you strike back.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1")])
+priority = 4
+cooldown_runs = 3
+
+[resource]
+script = ExtResource("1_dialogue")
+id = &"vigil_advice"
+speaker = ExtResource("4_speaker")
+lines = Array[ExtResource("2_line")]([SubResource("l_king_slime"), SubResource("l_giant_frog"), SubResource("l_demon_cyclops"), SubResource("l_azure_wyrm"), SubResource("l_weeping_spirit"), SubResource("l_crimson_tengu"), SubResource("l_red_samurai"), SubResource("l_jade_wyrm"), SubResource("l_gilded_hoarder"), SubResource("l_sun_wraith"), SubResource("l_nameless_effigy"), SubResource("l_master_toma"), SubResource("l_the_maw"), SubResource("l_boss_codex"), SubResource("l_shockwave"), SubResource("l_deeps"), SubResource("l_threshold"), SubResource("l_trap"), SubResource("l_fall"), SubResource("l_burn"), SubResource("l_poison"), SubResource("l_cold"), SubResource("l_heat"), SubResource("l_quicksand"), SubResource("l_blast"), SubResource("l_altar"), SubResource("l_early_shrine"), SubResource("l_pilgrim"), SubResource("l_potions"), SubResource("l_never_drank"), SubResource("l_never_rolled"), SubResource("l_boss_windup"), SubResource("l_no_armor"), SubResource("l_underlevel"), SubResource("l_ranged"), SubResource("l_elite"), SubResource("l_watch_shoulder"), SubResource("l_charged"), SubResource("l_families"), SubResource("l_runes"), SubResource("l_belt"), SubResource("l_breathe")])

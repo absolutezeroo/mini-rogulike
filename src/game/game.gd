@@ -31,6 +31,8 @@ static var daily_requested := false
 
 var run: RunState
 var player: Player
+## The facts of the run that just ended (the Vigil-Keeper's tale), null while it goes on.
+var end_facts: RunFacts
 var offers := OfferQueue.new()
 
 ## Shortcuts to the run.
@@ -216,6 +218,7 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 		_records.record_history()  # leaving a won run for a new one
 	threshold.abort()
 	abyss.abort()  # (after the Threshold: it may have opened from the Deeps)
+	end_facts = null
 	_set_paused(false)
 	_fade.color.a = 0.0
 	menus.hide_all()
@@ -881,13 +884,18 @@ func _record_text(new_record: bool) -> String:
 ## The end-of-run screen: how it ended (a line of the story, or the ending chosen at the bottom
 ## of the Well), the run's numbers, the souls.
 func _show_end(victory: bool, earned: int, new_record: bool = false, ending: EndingDef = null) -> void:
+	# The Vigil-Keeper tells it (NarrativeDef.death_dialogues, victory_dialogues): this death's
+	# facts, read as it happened; a victory's, now.
+	var facts := end_facts if not victory and end_facts else RunFacts.of_victory(run, player, content, world, ending)
+	end_facts = facts
+	var spoken: Array[Dialogues.Spoken] = content.narrative.tell_end(facts) if content.narrative else []
 	var story := ""
 	if ending:
 		story = tr(ending.text)
-	elif content.story:
+	elif content.story and (victory or spoken.is_empty()):
 		story = tr(content.story.victory_text if victory else content.story.random_death_line())
 	var rows := run.summary_rows(content, player.level, _record_text(new_record) if victory else "")
-	game_over_panel.show_end(victory, story, rows, earned, Profile.souls, tr(ending.title) if ending else "")
+	game_over_panel.show_end(victory, story, rows, earned, Profile.souls, tr(ending.title) if ending else "", spoken)
 
 
 # --- Perks -------------------------------------------------------------------
@@ -1020,6 +1028,8 @@ func _on_perk_chosen(perk: PerkDef) -> void:
 # --- End of the run -------------------------------------------------------------
 
 func _on_player_died(_actor: Actor) -> void:
+	# What the Vigil-Keeper will tell (read now: the floor may change during the pause).
+	end_facts = RunFacts.of_death(run, player, content, world, abyss.holds(player))
 	RunSave.erase()
 	offers.clear()
 	# Souls and history right away (the app may be closed during the pause below).

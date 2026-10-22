@@ -191,5 +191,61 @@ static func echo_line(boss: BossDef) -> String:
 	return all[0].lines[0] if not all.is_empty() and not all[0].lines.is_empty() else ""
 
 
+# --- Dialogue -----------------------------------------------------------------
+
+## `line` of `dialogue` was said at least once.
+static func is_line_told(dialogue: DialogueDef, line: DialogueLineDef) -> bool:
+	return dialogue != null and line != null and Profile.lines_told.has(_line_key(dialogue, line))
+
+
+## The run it was last said in (-1: never).
+static func line_told_run(dialogue: DialogueDef, line: DialogueLineDef) -> int:
+	return int(Profile.lines_told.get(_line_key(dialogue, line), -1)) if dialogue and line else -1
+
+
+## When it was last said among all the lines (bigger: later; -1: never).
+static func line_told_order(dialogue: DialogueDef, line: DialogueLineDef) -> int:
+	return int(Profile.lines_order.get(_line_key(dialogue, line), -1)) if dialogue and line else -1
+
+
+## `line` of `dialogue` is being said now: kept (this run, after every line said before).
+static func tell_line(dialogue: DialogueDef, line: DialogueLineDef) -> void:
+	if dialogue == null or line == null:
+		return
+	var latest := -1
+	for order: int in Profile.lines_order.values():
+		latest = maxi(latest, order)
+	var key := _line_key(dialogue, line)
+	Profile.lines_told[key] = Profile.runs
+	Profile.lines_order[key] = latest + 1
+	Profile.save_profile()
+
+
+## `dialogue` was opened once more (the merchant's shop, the forge...): a StatCondition on
+## "talk:<its id>" waits for so many meetings (Profile.stat_value).
+static func count_talk(dialogue: DialogueDef) -> void:
+	if dialogue:
+		var key := "talk:%s" % dialogue.id
+		Profile.stats[key] = int(Profile.stats.get(key, 0)) + 1
+
+
+static func talks(dialogue: DialogueDef) -> int:
+	return int(Profile.stats.get("talk:%s" % dialogue.id, 0)) if dialogue else 0
+
+
+## The lines of `dialogue` said and kept for the codex (remembered), in the data's order.
+static func told_lines(dialogue: DialogueDef) -> Array[DialogueLineDef]:
+	var result: Array[DialogueLineDef] = []
+	if dialogue:
+		for line in dialogue.lines:
+			if line and line.remembered and is_line_told(dialogue, line):
+				result.append(line)
+	return result
+
+
+static func _line_key(dialogue: DialogueDef, line: DialogueLineDef) -> String:
+	return "%s/%s" % [dialogue.id, line.id]
+
+
 static func _key(boss: BossDef, id: StringName) -> String:
 	return "%s/%s" % [boss.id, id]

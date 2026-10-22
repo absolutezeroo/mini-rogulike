@@ -29,6 +29,7 @@ func apply(player: Player, at: Vector2) -> void:
 		Vfx.magic(world, player.global_position, Palette.HEAL)
 	if damage_ratio > 0.0:
 		var price := Combat.make_secondary_hit(null, roundi(player.get_max_hp() * damage_ratio))
+		price.cause = &"altar"
 		price.unavoidable = true
 		player.take_hit(price)
 	if gold > 0:

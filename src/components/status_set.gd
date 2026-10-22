@@ -156,6 +156,7 @@ func tick(owner: Actor, delta: float) -> void:
 			var tick := Combat.make_tick(source, dot.damage)
 			tick.text_color = dot.color  # its number in the status's color
 			tick.element = dot.element  # burnt to death: ash (DeathLookDef)
+			tick.cause = dot.id  # "burn", "poison": how the Vigil-Keeper tells it (RunFacts)
 			owner.take_hit(tick)
 			if owner.is_dead:
 				_dots.clear()

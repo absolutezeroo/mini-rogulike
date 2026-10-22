@@ -5,7 +5,9 @@ extends Control
 ## who you want with what you find in the dungeon. The very first run starts with the story.
 ## The Daily Descent button says what it is (same dungeon for everyone today, the day's weapon and
 ## relic, your score); the records sit on a plaque under the buttons; the Shrine button shows a
-## badge when an upgrade can be bought.
+## badge when an upgrade can be bought. The Vigil-Keeper stands by the Well (ShrineKeeper): a
+## tap on her (or the focus and accept) opens her words (DialogueScreen); the shrine's lamps burn
+## again with the souls offered to the Tree (TitleBackdrop.lamps_lit).
 
 const GAME_SCENE := "res://src/game/game.tscn"
 const STORY_SCENE := "res://src/ui/story/story_screen.tscn"
@@ -25,6 +27,9 @@ var oath_panel: OathPanel
 var daily_dialog: DailyDialog
 ## The tutorial's title-screen hints (the Tree of Souls, the oaths), over everything.
 var hint_box: HintBox
+## Who keeps vigil at the shrine (NarrativeDef.shrine_speaker), and her words when she speaks.
+var keeper: ShrineKeeper
+var talk: DialogueScreen
 
 
 func _ready() -> void:
@@ -45,6 +50,7 @@ func _ready() -> void:
 	# The hero on the Well's rim, the souls rising from it (the picture follows the screen's size).
 	var backdrop: TitleBackdrop = %Backdrop
 	backdrop.resized.connect(_place_scene)
+	_build_keeper()
 	_place_scene.call_deferred()
 	AchievementDef.unlock_reached(content.achievements)  # goals reached by older saves
 	_build_daily_button()
@@ -64,6 +70,13 @@ func _ready() -> void:
 	oath_panel = OathPanel.new()
 	add_child(oath_panel)
 	oath_panel.started.connect(play)
+	talk = DialogueScreen.new()
+	talk.name = "KeeperTalk"
+	add_child(talk)
+	talk.closed.connect(func() -> void:
+		_refresh_keeper()
+		if keeper and InputDevice.uses_buttons():
+			keeper.grab_focus())
 	hint_box = HintBox.new()
 	add_child(hint_box)
 	hint_box.dismissed.connect(hint_box.hide_hint)
@@ -138,10 +151,58 @@ func tell_story(next_scene: String) -> void:
 	get_tree().change_scene_to_file(STORY_SCENE)
 
 
+## The Vigil-Keeper by the Well, if the story has someone at the shrine.
+func _build_keeper() -> void:
+	var narrative := content.narrative
+	if narrative == null or narrative.shrine_speaker == null or narrative.shrine_dialogues.is_empty():
+		return
+	keeper = ShrineKeeper.new(narrative.shrine_speaker)
+	keeper.name = "Keeper"
+	add_child(keeper)
+	# Over the full-screen menu's margins (they would take her taps), under the panels.
+	move_child(keeper, ($Margin as Control).get_index() + 1)
+	keeper.pressed.connect(talk_to_keeper)
+
+
+## She says the first of her dialogues with something to say (one line a tap), over the screen.
+func talk_to_keeper() -> void:
+	if content.narrative == null or talk.visible:
+		return
+	var spoken: Array[Dialogues.Spoken] = []
+	for dialogue in content.narrative.shrine_dialogues:
+		var said := Dialogues.say(dialogue)
+		if said:
+			spoken.append(said)
+			break
+	if spoken.is_empty():
+		return
+	Sfx.play_ui(Sfx.bank.ui_open)
+	talk.open(spoken)
+	_refresh_keeper()
+
+
+func _refresh_keeper() -> void:
+	if keeper:
+		keeper.has_news = content.narrative.shrine_dialogues.any(func(dialogue: DialogueDef) -> bool:
+			return Dialogues.has_new(dialogue))
+	var tree := content.soul_tree
+	if tree:
+		var owned := 0
+		var total := 0
+		for node in tree.nodes:
+			if node and node.upgrade:
+				owned += mini(node.level(), node.max_level())
+				total += node.max_level()
+		var backdrop: TitleBackdrop = %Backdrop
+		backdrop.lamps_lit = ceili(float(backdrop.lamps) * owned / total) if total > 0 and owned > 0 else 0
+
+
 ## The hero and the souls where the Well is drawn.
 func _place_scene() -> void:
 	var backdrop: TitleBackdrop = %Backdrop
 	_hero.position = backdrop.hero_spot()
+	if keeper:
+		keeper.position = (backdrop.keeper_spot() - keeper.feet()).round()
 	var wisps: CPUParticles2D = %Wisps
 	wisps.position = backdrop.well_center() + Vector2(0, -backdrop.size.y * 0.3)
 	wisps.emission_rect_extents = Vector2(backdrop.well_radius().x * 0.8, backdrop.size.y * 0.3)
@@ -212,6 +273,7 @@ func _refresh_daily() -> void:
 
 func _refresh() -> void:
 	_refresh_daily()
+	_refresh_keeper()
 	_shrine_badge.visible = content.soul_tree != null and content.soul_tree.nodes.any(func(n: SoulNodeDef) -> bool: return Profile.can_buy_node(n))
 	if _shrine_badge.visible and hint_box and not hint_box.visible and not _shrine.visible:
 		show_menu_hint.call_deferred(&"menu_souls")
@@ -273,6 +335,9 @@ func _unhandled_input(event: InputEvent) -> void:
 func back() -> bool:
 	if hint_box and hint_box.visible:
 		hint_box.hide_hint()
+		return true
+	if talk and talk.visible:
+		talk.close()
 		return true
 	var options: OptionsPanel = %OptionsPanel
 	if options.visible:

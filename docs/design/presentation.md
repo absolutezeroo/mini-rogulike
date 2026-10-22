@@ -352,6 +352,83 @@ one are in [adding-content.md](../adding-content.md#the-story-chronicles-fragmen
   title on the ribbon, who wrote it and where, its lines, "A new page for its chronicle: ..."); a
   tap anywhere closes it. Found for good (Profile), read again in the codex.
 
+## The Vigil-Keeper and the keepers (dialogue)
+
+Who speaks to the hero outside the fights: **the Vigil-Keeper** (*la Veilleuse*, the blind
+priestess of the bell, docs/lore.md section 6) on the end screen and at the shrine, and the
+keepers met on the floors (**the Old Wanderer**, **Brann**, **the Grinning Spirit**). One system
+for all of them, the boss stories' own pieces reused (conditions, the Narrative service); no
+speaker is special in the code. How to add a speaker, a line, an advice or a condition:
+[adding-content.md](../adding-content.md#dialogue-speakers-lines-advice).
+
+- **Data** (`data/story/dialogue/`): a `SpeakerDef` (name, title, face, body, the color of its
+  name, its voice: a short sound as a line begins, how fast its words are typed: the Vigil-Keeper
+  slowly, 32 letters a second) and `DialogueDef`s, each a pool of `DialogueLineDef`s: one to three
+  pages of at most two sentences, gated by `ProgressCondition`s, a `priority` (the highest open
+  line is said: something precise before something general, something new before a line said
+  before), `once` or a `cooldown_runs`, and `remembered` (kept in the codex). Where a dialogue is
+  said: `NarrativeDef` (Dialogue: `death_dialogues`, `victory_dialogues`, `shrine_dialogues`,
+  `shrine_speaker`; `dialogues` lists them all), `ShopDef.dialogue`, `ForgeDef.dialogue`,
+  `EncounterDef.dialogue`.
+- **Picking** (`Dialogues`, `src/game/story/dialogues.gd`): the open lines that may be said again,
+  the highest priority, then one never said, then the one said longest ago, then any. Said, a line
+  is kept (`Narrative.tell_line()`: `Profile.lines_told`, the run it was said in, and
+  `lines_order`, saved; older saves load with nothing said). Each opening of a dialogue is counted
+  (`talk:<dialogue id>` in the Profile's stats), which a `StatCondition` reads: the keepers tell
+  their past a meeting at a time.
+- **What is known of a run** (`RunFacts`, `src/game/story/run_facts.gd`): read by the Game the
+  moment the hero falls (`RunFacts.of_death()`), or as the run is won (`of_victory()`): what killed
+  him (the monster, a boss, an elite, one fighting from afar), how (`Actor.death_cause`, from the
+  hit's `HitInfo.cause`: a monster's blow, a boss's shockwave, a trap, a fall, a burn's or a
+  poison's last tick, the cold or the heat of a cursed floor, quicksand, a blast, the blood altar,
+  giving up), where (act, floor, its biome, the Deeps, the hidden floor, the bottom, the Threshold
+  lost), his level, how long, the potions he still carried, his armor, the run's marks (a potion
+  drunk, a roll, bought, cursed...). It is the `subject` of the run's conditions
+  (`RunCondition` subclasses: `KillerCondition`, `CauseCondition`, `PlaceCondition`,
+  `RunMarkCondition`, `LevelCondition`, `GearCondition`, `OutcomeCondition`,
+  `DeathStreakCondition` (the last runs, from the history), `DeathCountCondition` (deaths to the
+  same monster, `Profile.deaths_by`)), never met without it, and it fills the lines' codes
+  (`{killer}`, `{floor}`, `{act}`, `{biome}`, `{place}`, `{level}`, `{time}`, `{kills}`, `{curse}`,
+  `{weapon}`, `{boss}`; `{killer}` only where a name stands alone, at a sentence's start or after a
+  colon: French bosses carry their article). Story conditions read the Profile and ignore it;
+  `NotCondition` and `EndingCondition` were added for her.
+- **The end screen**: after a death, the Vigil-Keeper **tells this death** in one or two lines
+  (`vigil_tale`), then gives **one piece of advice** (`vigil_advice`, in gold), in a `DialogueBox`
+  under the title that types them one after the other without waiting; a tap, Enter or A writes
+  everything out, and the buttons answer at any time. The tale is the most precise one open (the
+  Maw, Tôma once named, the Threshold lost, the Deeps, giving up, a warden's shockwave, the same
+  warden again, a cause, an elite, a shot from afar, an early death, any monster, nothing known);
+  her first-ever tale welcomes the hero back once. The advice is ranked: the warden's own moves
+  (each true to its skills: monsters.md), its shockwave, the cause (traps warn, roll over holes,
+  stay by the campfires...), early deaths again and again (offer souls to the Tree, or go down as
+  a Pilgrim, on Keeper or Martyr, before any win), potions left, no roll, no armor, behind in
+  levels, killed from afar, an elite, the same warden three times (its page in the codex), and the
+  master's lessons when nothing more precise is open; most wait a run or two before being said
+  again. A victory has her lines too (`vigil_victory`: the first one, the lamps put out by hand;
+  each ending). With nothing for her to say, the story's death line, as before.
+- **At the shrine** (the title screen): she stands right of the Well (`ShrineKeeper`: Ninja
+  Adventure's old woman, CC0, recolored: silver hair, the shrine's white robe over a bell-rope red;
+  her two idle frames at x4, her name under her), a speech bubble over her head while she has a
+  line she never said. A tap, or the focus and Enter / A, opens her words over the screen
+  (`DialogueScreen`: a `DialogueBox` low in the middle, a page at a time; a tap anywhere, Enter or
+  A goes on, Back closes it, the last page closes it): one line an opening, her progression first
+  (docs/lore.md section 7: the moonless night, the Ossuary and the girl's voice, the pages, the
+  Pyre Temple's sun, the fresh wax, the lamps put out by hand after the first victory, the seal cut
+  by a blade of the hero's school, her breaking once the keeper is named, the endings), then her
+  everyday words. **The shrine's lamps**: seven lamps in niches over the Well
+  (`TitleBackdrop`), put out on the moonless night; they burn again as souls are offered to the
+  Tree of Souls (the share of its levels bought).
+- **The keepers**: the merchant's and the smith's panels open on a line of theirs where their
+  greeting was (in quotes, their own voice: the Wanderer's dry bargaining ending on a hint,
+  Brann's curt metal, the Spirit's giggling rhymes and dice in place of the encounter's
+  description, in its color); new lines come with meetings and progress, one a meeting, each once; with nothing new,
+  their greetings as before.
+- **Remembered**: the codex's **Voices** tab (*Paroles*) lists, by speaker (face, name, title),
+  every line they said that is kept, and how many are still to hear; lines made of one run's facts
+  (the tales) are not kept.
+- **The reveal**: any line naming Tôma waits for `keeper_named` (tested in both languages, like
+  the chronicles); before it, she speaks of "ton maître" / "your master" and refuses to believe.
+
 ## Pixel art
 
 The art is 16x16 pixel art drawn at 2x in the world, with nearest filtering (Project Settings >

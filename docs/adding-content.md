@@ -62,6 +62,7 @@ you can; by hand, keep the `[ext_resource]` paths right.
 | An item affix | New `ItemAffixDef` in `data/affixes/` (prefix or suffix, slots, stats, on-hit or passives + description), add it to `content_db.tres` > Item Affixes |
 | Story texts | Edit `data/story/story.tres` (intro pages, death lines...); an act's line is its `ActDef` > Lore |
 | A boss's story, a fragment, a condition, a deed, a cinematic step | See "The story" below |
+| A speaker, a line of dialogue, an advice of the Vigil-Keeper, a condition on the run | See "Dialogue" below |
 | A secret room's reward | New `SecretRewardDef` in `data/secrets/` (a chest, an encounter, items or runes, gold: `SecretChestReward`, `SecretEncounterReward`, `SecretItemReward`, `SecretGoldReward`; `spawn_weight`, `min_depth`), add it to `dungeon_config.tres` > Secret Rewards |
 | A new kind of secret reward | New script in `src/definitions/secrets/` extending `SecretRewardDef`, override `place()` (and `is_claimed()`, `place_spent()`) |
 | The hidden floor | `data/secrets/nameless_charnel.tres` (`HiddenFloorDef`: its key, the acts that hide it, its world, monsters, boss, rewards), set in `dungeon_config.tres` > Hidden Floor |
@@ -152,3 +153,40 @@ by `RunRecords` from the `Events`). Recorded for good by `Narrative.record_deeds
 `always_run` for a step that must run even when skipped (putting things back). Then add it to a
 cinematic's Steps. A scene for an NPC or the final fight is another `CinematicDef` played by a
 `CinematicDirector` with its own subject and `StoryBeat`.
+
+## Dialogue: speakers, lines, advice
+
+What it is for the player: [design/presentation.md](design/presentation.md#the-vigil-keeper-and-the-keepers-dialogue);
+what may be said and when: [lore.md](lore.md) (sections 6 and 7; write with the `lore` skill,
+French first). The pieces:
+
+| Piece | Class | Data | What it is |
+|---|---|---|---|
+| A speaker | `SpeakerDef` (`src/definitions/dialogue/`) | `data/story/dialogue/speakers/<id>.tres` | name, title, `portrait` (a faceset, drawn at a whole scale), `figure` (a 16x16 sheet: the shrine draws its first column), `color`, `voice` (`assets/audio/sfx/voice/`), `letters_per_second` |
+| What it says at one moment | `DialogueDef` | `data/story/dialogue/<id>.tres` | `id` (saved, never rename), `speaker`, `lines` |
+| A line | `DialogueLineDef` (sub-resource) | in the dialogue | `id` (saved), 1-3 `lines` (pages, at most two sentences and 150 letters each), `conditions`, `priority`, `once`, `cooldown_runs`, `remembered` (false for a line holding the run's {codes}: the tests ask for it) |
+| A condition on the run | `RunCondition` subclasses (`src/definitions/story/conditions/run/`) | sub-resources of the line | `KillerCondition`, `CauseCondition`, `PlaceCondition`, `RunMarkCondition`, `LevelCondition`, `GearCondition`, `OutcomeCondition`, `DeathStreakCondition`, `DeathCountCondition`; any story condition works too (`StatCondition` on `talk:<dialogue id>` for meetings, `keeper_named.tres`, `NotCondition`, `EndingCondition`) |
+
+- **A line for a speaker**: add a `DialogueLineDef` to its dialogue (the inspector, or by hand:
+  copy a sub-resource), a new `id`, its pages in English (the key), its conditions and priority;
+  `python3 tools/i18n/extract.py`, the French in `locale/strings.csv`, `--check`. A line naming
+  Tôma asks for `data/story/conditions/keeper_named.tres` (the tests scan both languages).
+- **An advice of the Vigil-Keeper**: a line in `data/story/dialogue/vigil_advice.tres`: an
+  `OutcomeCondition` (a death), what the death or the run must be (a `KillerCondition` with the
+  monster's id, a `CauseCondition`...), a priority among the others (a warden's own moves 80, a
+  cause 66-75, the run's habits 40-64, the master's lessons 4-5), a `cooldown_runs` so it is not
+  said every death. **Say only what the game does**: read the monster's data and docs/design
+  first (its skills, their telegraphs), never invent a mechanic or a number.
+- **A tale of a death**: the same in `vigil_tale.tres` (`{killer}` at a sentence's start or after a
+  colon only; `remembered` false).
+- **A new speaker**: a `SpeakerDef`, its dialogues, listed in `NarrativeDef.dialogues` (the codex's
+  Voices and the tests), and hung where it speaks: a `dialogue` export on its data (as
+  `ShopDef`, `ForgeDef`, `EncounterDef`), its panel showing `Dialogues.say(dialogue)` (a line on
+  the panel) or a `DialogueBox` / `DialogueScreen` (a conversation). Nothing in the code knows a
+  speaker by name.
+- **A new kind of condition on the run**: a script extending `RunCondition`: `met(facts)` reads
+  the `RunFacts`. A fact the run does not know yet: a field in `RunFacts`, read in `of_death()` /
+  `of_victory()` (a cause of death: set `HitInfo.cause` where the hit is made; something the run
+  did: a mark set by `RunRecords`, `Events.run_marked`).
+- **A new code** (`{something}` in a line): a key in `RunFacts.codes()`, and in the tests' `CODES`.
+

@@ -133,7 +133,7 @@ voice once the hero has found it). The Vigil-Keeper blesses the lanterns of thos
 
 | Character (FR / EN) | Truth | Voice |
 |---|---|---|
-| La Veilleuse / the Vigil-Keeper (to add, at the shrine) | an old blind priestess of the bell; raised Hana beside Tôma; never slept on the moonless night because she never sleeps. She comments the hero's deaths and progress, gives the truth slowly, refuses to believe Tôma did it until the end. | slow, warm, ritual; calls the hero "petit" / "child"; speaks of Tôma as "ton maître". |
+| La Veilleuse / the Vigil-Keeper (at the shrine, right of the Well) | an old blind priestess of the bell; raised Hana beside Tôma (she rocked her); never slept on the moonless night because she never sleeps. She comments the hero's deaths and progress, gives the truth slowly, refuses to believe Tôma did it until the end. | slow, warm, ritual; calls the hero "petit" / "child"; speaks of Tôma as "ton maître". |
 | Le Vieil Errant / Old Wanderer (merchant) | a peddler of Solhar who sold his name to the Well to keep trading forever. Coins are memories to him; he sells what the Well lets through. Knew the king. | scavenger's dry humour, haggles, every line ends on a hint. |
 | Brann le Forgeron / Brann the Smith | a foreign smith of Solhar's army: forged the wardens' chains and the Effigy's blades. Forges for the hero to atone. Knows how the first seal was made. | curt, few words, metal metaphors. |
 | L'Esprit Ricaneur / Grinning Spirit | a gambler of Solhar who wagered his soul and lost; still plays. | giggling, rhymes, dice. |
@@ -141,6 +141,44 @@ voice once the hero has found it). The Vigil-Keeper blesses the lanterns of thos
 | Source des Noyés / Spring of the Drowned | where Hana drowned; a girl's voice sometimes sings in it (the Maw imitating her). | a child's humming, three words at most. |
 | Statue du Gardien / Warden's Statue | statues of Kagari's past keepers; one niche is empty (Tôma's). | silent; inscriptions. |
 | The oaths (Colossus, Duelist, Heretic, Vulture) | vows sworn at the bell by keepers of old; each was a keeper's way. | solemn, one line each. |
+
+### 6b. What the voices hold (the dialogue: `data/story/dialogue/`)
+
+Facts the Vigil-Keeper's and the keepers' lines hold; anything new written for them goes here.
+
+- **The Vigil-Keeper** has no eyes left, she **hears**: the bell tells her who took the hero (« le
+  nom que la cloche m'a soufflé »), she hears a lantern burn (the hero's crackles like a child's
+  laugh), an arrow whistle, souls climbing the bell rope "warm as bread"; she smells ash. She
+  never sleeps; her bell rings only for souls coming home. While the hero's lantern burns at the
+  shrine, the Well gives him back to her (the death screen). She quotes her lessons as "ton
+  maître disait..." (watch the shoulder, not the blade; a guard is knowing when not to strike)
+  and believes, until the reveal, that the master went down before the hero to bring the souls
+  back. Her masters spoke of a kingdom under Kagari that prayed to a hungry sun (a tale for
+  children, she thought). After the first victory she admits the lamps were blown out **by hand,
+  in the order of the rite**, and will not hear who knows that order; after the Effigy she
+  refuses that "a blade of our school" means anyone ("many learned the guard here"). Once the
+  keeper is named she breaks: she rocked Hana beside Tôma; he gave the village to a hunger that
+  gives nothing back; he spared the hero because he could not give him too, "all I still love of
+  him". After "ring the bell" she sleeps for the first time in many nights; after "take his
+  place" Tôma knocks at every door of the village to answer for it, and she keeps the hero's
+  lantern as she kept his.
+- **The shrine's lamps**: seven lamps in niches over the Well, put out by hand on the moonless
+  night; one burns again for every share of souls offered to the Tree (the title screen).
+- **The Old Wanderer** sold his name to the Well for the right to trade forever (the Well lets
+  him through: a man without a name does not feed it); every coin bears the same king's face; he
+  sold spices in Solhar "when its sky was not stone" and the king paid in gold, never in bread;
+  **Ostarion owes him three sacks of saffron**; the Sandchoked City was his finest market (a stall
+  with blue shutters is his); after the reveal: **Tôma once bought a lantern without a wick from
+  him** (the unlit lantern he cut the seal with). He hints at the Hoarder's deed (buy nothing).
+- **Brann** served an army "under a sky that burned" (Solhar); metal there tasted of salt and
+  gold; he knows the steel of the Azure Wyrm's frost-proof chains and the hand that hammered it
+  (his); he forged the Effigy's blades weeping into the quench; a seal is "a lock of iron and of
+  name": the first keeper gave the name, Brann the iron; after the reveal he tells of Tôma
+  ordering the chains, given without looking at him.
+- **The Grinning Spirit** bet everything on a double six one night in Solhar; the Well rolled a
+  seven on two dice. Solhar played dice on the temple stairs: the king bet his people, the sun
+  took all the shares. After the reveal: the master bet the whole village on one throw, believing
+  the Well gives back what is bet.
 
 ## 7. What the player learns, and when (revelation schedule)
 
@@ -192,12 +230,15 @@ told at the bottom (their first chapters never name him), their last words as th
 
 ## 9. Still open (decide before writing these)
 
-- The Veilleuse's exact place and art at the shrine (a figure on the title screen?).
 - Whether "take his place" leads to a new game mode (endless as the keeper). Today both
   endings lead to the same victory screen (and endless mode if the player keeps going); the
   choice is kept in the profile (`Profile.ending`) for whatever comes next.
 
 Decided:
+
+- **The Vigil-Keeper's place and art**: she stands on the title screen, right of the Well, the
+  hero sitting left of it; Ninja Adventure's old woman (CC0) recolored: silver hair, eyes closed
+  (blind), the shrine's white robe over a bell-rope red (`assets/characters/npc/vigil_keeper*.png`).
 
 - **The Maw's look:** a huge golden skull-mask crowned with spikes like a sun's rays (the "sun"
   Solhar worshipped), cracked, its jaw full of teeth; black tentacles of tar hang from it into a

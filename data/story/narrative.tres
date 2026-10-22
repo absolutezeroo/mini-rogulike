@@ -6,6 +6,15 @@
 [ext_resource type="Resource" path="res://data/story/conditions/fragments_open.tres" id="4_fragmentsope"]
 [ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="5_progresscond"]
 [ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="6_keepernamed"]
+[ext_resource type="Script" path="res://src/definitions/dialogue/dialogue_def.gd" id="7_dialoguedef"]
+[ext_resource type="Resource" path="res://data/story/dialogue/speakers/vigil_keeper.tres" id="8_vigilkeeper"]
+[ext_resource type="Resource" path="res://data/story/dialogue/vigil_shrine.tres" id="9_vigilshrine"]
+[ext_resource type="Resource" path="res://data/story/dialogue/vigil_tale.tres" id="10_vigiltale"]
+[ext_resource type="Resource" path="res://data/story/dialogue/vigil_advice.tres" id="11_vigiladvice"]
+[ext_resource type="Resource" path="res://data/story/dialogue/vigil_victory.tres" id="12_vigilvictor"]
+[ext_resource type="Resource" path="res://data/story/dialogue/wanderer.tres" id="13_wanderer"]
+[ext_resource type="Resource" path="res://data/story/dialogue/smith.tres" id="14_smith"]
+[ext_resource type="Resource" path="res://data/story/dialogue/grinning_spirit.tres" id="15_spirit"]
 
 [resource]
 script = ExtResource("1_narrativedef")
@@ -17,3 +26,8 @@ fragment_message = "A fragment of the past: %s."
 deed_message = "The Well remembers how %s fell."
 keeper_reveal = ExtResource("6_keepernamed")
 reveal_words = PackedStringArray("Tôma", "Toma")
+shrine_speaker = ExtResource("8_vigilkeeper")
+shrine_dialogues = Array[ExtResource("7_dialoguedef")]([ExtResource("9_vigilshrine")])
+death_dialogues = Array[ExtResource("7_dialoguedef")]([ExtResource("10_vigiltale"), ExtResource("11_vigiladvice")])
+victory_dialogues = Array[ExtResource("7_dialoguedef")]([ExtResource("12_vigilvictor")])
+dialogues = Array[ExtResource("7_dialoguedef")]([ExtResource("9_vigilshrine"), ExtResource("10_vigiltale"), ExtResource("11_vigiladvice"), ExtResource("12_vigilvictor"), ExtResource("13_wanderer"), ExtResource("14_smith"), ExtResource("15_spirit")])

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SpeakerDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/dialogue/speaker_def.gd" id="1_speaker"]
+[ext_resource type="Texture2D" path="res://assets/characters/npc/vigil_keeper_face.png" id="2_portrait"]
+[ext_resource type="Texture2D" path="res://assets/characters/npc/vigil_keeper.png" id="3_figure"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/voice/vigil_keeper.ogg" id="4_voice"]
+
+[resource]
+script = ExtResource("1_speaker")
+id = &"vigil_keeper"
+display_name = "The Vigil-Keeper"
+title = "Priestess of the bell"
+portrait = ExtResource("2_portrait")
+figure = ExtResource("3_figure")
+color = Color(0.93, 0.87, 0.72, 1)
+voice = ExtResource("4_voice")
+letters_per_second = 32.0

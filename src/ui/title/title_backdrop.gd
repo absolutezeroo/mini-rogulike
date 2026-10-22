@@ -2,7 +2,10 @@ class_name TitleBackdrop
 extends Control
 ## The title screen's picture, drawn in big pixels: a cave at night, its rock closing in from the
 ## sides and the top, and on the right the Well itself, a ring of old stones with the souls' light
-## rising from its depth. The hero sits on its rim (TitleScreen places him at hero_spot()).
+## rising from its depth. The hero sits on its rim (TitleScreen places him at hero_spot()), the
+## Vigil-Keeper stands on its other side (keeper_spot()). Above it, the shrine's lamps in their
+## niches of the cave's wall, put out on the moonless night: one more burns again for every share
+## of the souls offered to the Tree (`lamps_lit`, set by the TitleScreen).
 
 ## Screen pixels per art pixel.
 const PIXEL := 4.0
@@ -15,6 +18,16 @@ const STONE := Color(0.36, 0.3, 0.32)
 const STONE_DARK := Color(0.2, 0.16, 0.19)
 const STONE_LIGHT := Color(0.52, 0.45, 0.44)
 const SOUL := Color(0.55, 0.95, 0.95)
+const FLAME := Color(1.0, 0.72, 0.3)
+const FLAME_CORE := Color(1.0, 0.93, 0.6)
+const LAMP_STONE := Color(0.3, 0.25, 0.27)
+
+## The shrine's lamps, and how many burn.
+var lamps := 7
+var lamps_lit := 0:
+	set(value):
+		lamps_lit = clampi(value, 0, lamps)
+		queue_redraw()
 
 var _time := 0.0
 var _rocks_left := PackedFloat32Array()
@@ -53,6 +66,23 @@ func hero_spot() -> Vector2:
 	return center + Vector2(-well_radius().x - 64.0, -6.0)
 
 
+## Where the Vigil-Keeper stands (her feet): on the ground, right of the mouth.
+func keeper_spot() -> Vector2:
+	var center := well_center()
+	return (center + Vector2(well_radius().x + 62.0, 10.0)).snapped(Vector2(PIXEL, PIXEL))
+
+
+## The middle of lamp `index`'s niche (screen position).
+func lamp_spot(index: int) -> Vector2:
+	var center := well_center()
+	var spread := well_radius().x * 2.1
+	var t := float(index) / maxf(lamps - 1, 1)
+	var x := center.x - spread + spread * 2.0 * t
+	# A gentle arch over the Well: the middle ones higher.
+	var y := center.y - well_radius().y * 3.4 - sin(t * PI) * well_radius().y * 0.9
+	return Vector2(x, y).snapped(Vector2(PIXEL, PIXEL))
+
+
 func _draw() -> void:
 	var w := size.x
 	var h := size.y
@@ -71,6 +101,7 @@ func _draw() -> void:
 		draw_rect(Rect2(x, ground_y - bump, PIXEL * 6, bump + PIXEL), GROUND)
 		draw_rect(Rect2(x, ground_y - bump, PIXEL * 6, PIXEL), ROCK_EDGE)
 	_draw_rock_walls()
+	_draw_lamps()
 	_draw_well()
 
 
@@ -151,6 +182,29 @@ func _draw_well() -> void:
 			brick.size.x = minf(brick.size.x, wall.end.x - brick.position.x)
 			if brick.size.x > PIXEL:
 				draw_rect(Rect2(brick.position.snapped(Vector2(PIXEL, PIXEL)), brick.size.snapped(Vector2(PIXEL, PIXEL))), STONE_DARK if (row + column) % 3 else STONE)
+
+
+## Each lamp in its niche: a dark arch in the wall, a stone bowl, and, lit, a flame breathing with
+## a soft square of light around it (in big pixels like the rest).
+func _draw_lamps() -> void:
+	for i in lamps:
+		var at := lamp_spot(i)
+		var niche := Rect2(at + Vector2(-PIXEL * 3, -PIXEL * 5), Vector2(PIXEL * 6, PIXEL * 8))
+		draw_rect(niche, ROCK)
+		draw_rect(Rect2(niche.position + Vector2(PIXEL, -PIXEL), Vector2(PIXEL * 4, PIXEL)), ROCK)
+		draw_rect(Rect2(niche.position + Vector2(0, niche.size.y), Vector2(niche.size.x, PIXEL)), ROCK_EDGE)
+		# The bowl.
+		draw_rect(Rect2(at + Vector2(-PIXEL * 2, PIXEL), Vector2(PIXEL * 4, PIXEL)), LAMP_STONE)
+		draw_rect(Rect2(at + Vector2(-PIXEL, PIXEL * 2), Vector2(PIXEL * 2, PIXEL)), LAMP_STONE)
+		if i >= lamps_lit:
+			draw_rect(Rect2(at + Vector2(-PIXEL, 0), Vector2(PIXEL * 2, PIXEL)), Color(0.12, 0.1, 0.12))
+			continue
+		var flicker := 0.75 + 0.25 * sin(_time * 5.0 + i * 1.7)
+		draw_rect(Rect2(at + Vector2(-PIXEL * 5, -PIXEL * 6), Vector2(PIXEL * 10, PIXEL * 10)), Color(FLAME, 0.05 * flicker))
+		draw_rect(Rect2(at + Vector2(-PIXEL * 3, -PIXEL * 4), Vector2(PIXEL * 6, PIXEL * 7)), Color(FLAME, 0.08 * flicker))
+		var tall := 2 if flicker > 0.8 else 1
+		draw_rect(Rect2(at + Vector2(-PIXEL, -PIXEL * tall), Vector2(PIXEL * 2, PIXEL * (tall + 1))), FLAME)
+		draw_rect(Rect2(at + Vector2(0, -PIXEL * (tall - 1)), Vector2(PIXEL, PIXEL * tall)), FLAME_CORE)
 
 
 func _ellipse(center: Vector2, radius: Vector2, color: Color) -> void:

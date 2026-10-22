@@ -108,6 +108,7 @@ func hurt_overlapping() -> void:
 			continue
 		_hit_this_time.append(actor)
 		var hit := Combat.make_secondary_hit(null, def.damage_on(world))
+		hit.cause = &"trap"
 		hit.knockback = global_position.direction_to(actor.global_position) * def.knockback
 		hit.status = def.status
 		actor.take_hit(hit)

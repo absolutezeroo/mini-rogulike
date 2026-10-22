@@ -49,7 +49,7 @@ func open(forge: Forge, player: Player) -> void:
 	_forge = forge
 	_player = player
 	_name.text = tr(forge.def.display_name)
-	_greeting.text = tr("\"%s\"") % tr(forge.def.random_greeting())
+	_greeting.text = tr("\"%s\"") % forge.def.opening_line()
 	_portrait.texture = forge.def.portrait
 	var weapons := Forge.weapons_of(player)
 	_weapon = weapons[0] if not weapons.is_empty() else null

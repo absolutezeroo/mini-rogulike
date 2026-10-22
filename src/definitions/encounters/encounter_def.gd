@@ -12,3 +12,6 @@ extends ContentDef
 @export var leave_label: String = "Leave"
 ## Shown on it once used.
 @export var used_text: String = "Nothing more happens."
+## What it says as it is opened, in quotes in place of its description (Dialogues; null or
+## nothing open: the description). The Grinning Spirit's past, told over the runs.
+@export var dialogue: DialogueDef

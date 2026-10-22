@@ -51,6 +51,8 @@ var _rig_saved := false
 ## What slew him the first time (kept if the trial is lost).
 var _killer: Actor
 var _cause := ""
+## How (RunFacts.CAUSES), for the Vigil-Keeper's tale if the trial is lost.
+var _cause_id: StringName = &""
 var _on_won: Callable
 var _won := false
 var _tween: Tween
@@ -115,6 +117,7 @@ func open(hero: Player, threshold: ThresholdDef, on_won: Callable) -> void:
 	_killer = source if is_instance_valid(source) and source != hero else null
 	# A fall names itself ("a fall") before the blow lands; otherwise the one who struck it.
 	_cause = hero.killed_by if not hero.killed_by.is_empty() else (_killer.display_name if _killer else tr("the dungeon"))
+	_cause_id = hero.cause_of_death(_killer)
 	needed = trial.kills_for(_stay.home.depth, game.content.dungeon)
 	time_limit = trial.time_for(_stay.home.depth, game.content.dungeon)
 	time_left = time_limit
@@ -252,6 +255,7 @@ func _end(won: bool) -> void:
 		Events.log_message(tr("The knell falls silent. The Well lets you go."), trial.color)
 	else:
 		Events.log_message(tr("The knell has tolled. The Threshold keeps you."), Palette.DANGER)
+		Events.run_marked.emit("threshold_lost")  # the Vigil-Keeper knows (RunFacts)
 	ended.emit(won)
 	_tween = create_tween()
 	_veil.color = Color(trial.return_veil_color if won else trial.veil_color, 0.0)
@@ -273,6 +277,7 @@ func _go_home() -> void:
 		Events.stat_counted.emit("thresholds", 1)
 	else:
 		hero.killed_by = _cause
+		hero.death_cause = _cause_id
 		hero.hp = 0
 		hero.health_changed.emit(0, hero.get_max_hp())
 		hero.die(_killer if is_instance_valid(_killer) else null)

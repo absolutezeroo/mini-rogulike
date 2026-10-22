@@ -1,9 +1,10 @@
-[gd_resource type="Resource" script_class="ForgeDef" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="ForgeDef" load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://src/definitions/items/forge_def.gd" id="1_forge"]
 [ext_resource type="Texture2D" path="res://assets/characters/npc/smith_face.png" id="2_face"]
 [ext_resource type="Texture2D" path="res://assets/characters/npc/smith.png" id="3_sheet"]
 [ext_resource type="Texture2D" path="res://assets/props/anvil.png" id="4_anvil"]
+[ext_resource type="Resource" path="res://data/story/dialogue/smith.tres" id="5_smith"]
 
 [resource]
 script = ExtResource("1_forge")
@@ -11,6 +12,7 @@ display_name = "Brann the Smith"
 portrait = ExtResource("2_face")
 sprite_sheet = ExtResource("3_sheet")
 anvil = ExtResource("4_anvil")
+dialogue = ExtResource("5_smith")
 greetings = PackedStringArray("Runes, eh? Hand me that blade.", "Steel remembers every rune you give it.", "Hot coals, cold hands. What'll it be?", "Each socket holds one rune. Choose well.", "Changed your mind? I can pry it out. For a price.")
 removal_price = 25
 removal_price_per_depth = 4.0

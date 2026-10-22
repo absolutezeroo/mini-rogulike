@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 58,
+  "next_id": 62,
   "tags": [
     "pc",
     "test",
@@ -141,8 +141,8 @@
     {
       "id": "task_13",
       "title": "La Veilleuse : récit des morts et conseils",
-      "description": "Aujourd'hui l'écran de mort tire une phrase au hasard (story.tres). La Veilleuse (prêtresse aveugle du sanctuaire, docs/lore.md §6) doit raconter TA mort : qui t'a tué, où, à quel étage, ce que tu portais, et te donner un conseil utile (esquiver tel boss, utiliser telle compétence, potions…), dans la voix du Puits. Répliques selon la progression (premières morts, morts répétées au même endroit, révélations sur Tôma). À bâtir sur les conditions de la Chronique (modulaire, dans les données).",
-      "status": "todo",
+      "description": "Aujourd'hui l'écran de mort tire une phrase au hasard (story.tres). La Veilleuse (prêtresse aveugle du sanctuaire, docs/lore.md §6) doit raconter TA mort : qui t'a tué, où, à quel étage, ce que tu portais, et te donner un conseil utile (esquiver tel boss, utiliser telle compétence, potions…), dans la voix du Puits. Répliques selon la progression (premières morts, morts répétées au même endroit, révélations sur Tôma). À bâtir sur les conditions de la Chronique (modulaire, dans les données). — Fait : la Veilleuse raconte chaque mort à partir des faits de la partie (RunFacts : tueur, cause, lieu, niveau, durée, potions, armure…) puis donne UN conseil choisi dans les données (vigil_tale : 29 récits, vigil_advice : 42 conseils, fidèles aux attaques de chaque gardien), sans répétition (mémoire, délais en parties). Victoires et fins aussi. À relire en jeu.",
+      "status": "review",
       "priority": "high",
       "epic_id": "epic_1",
       "due_date": null,
@@ -151,13 +151,13 @@
         "pnj"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792698522
     },
     {
       "id": "task_43",
       "title": "Dialogues des PNJ",
-      "description": "Système de dialogue réutilisable (conditions de la Chronique) : le Vieil Errant (marchand), Brann (forgeron), l'Esprit Ricaneur, la Veilleuse au sanctuaire. Chacun a sa voix (docs/lore.md §6) et révèle son passé au fil des parties.",
-      "status": "todo",
+      "description": "Système de dialogue réutilisable (conditions de la Chronique) : le Vieil Errant (marchand), Brann (forgeron), l'Esprit Ricaneur, la Veilleuse au sanctuaire. Chacun a sa voix (docs/lore.md §6) et révèle son passé au fil des parties. — Fait : DialogueDef / DialogueLineDef / SpeakerDef, service Dialogues, DialogueBox ; le Vieil Errant, Brann et l'Esprit Ricaneur disent une ligne de leur passé à l'ouverture de leur panneau (10 chacun, selon les rencontres et la progression), gardée dans l'onglet Paroles du codex.",
+      "status": "review",
       "priority": "high",
       "epic_id": "epic_1",
       "due_date": null,
@@ -166,13 +166,13 @@
         "pnj"
       ],
       "created_at": 1792685100,
-      "updated_at": 1792685100
+      "updated_at": 1792698522
     },
     {
       "id": "task_44",
       "title": "Le sanctuaire vivant",
-      "description": "La Veilleuse visible au sanctuaire (écran titre) ; les lampes éteintes se rallument avec les âmes ramenées ; la niche vide de Tôma parmi les Statues du Gardien.",
-      "status": "backlog",
+      "description": "La Veilleuse visible au sanctuaire (écran titre) ; les lampes éteintes se rallument avec les âmes ramenées ; la niche vide de Tôma parmi les Statues du Gardien. — Fait : la Veilleuse se tient à droite du Puits sur l'écran titre (un tap, Entrée ou A ouvre ses paroles ; une bulle quand elle a du nouveau) ; sept lampes dans des niches se rallument avec les âmes offertes à l'Arbre. Reste : la niche vide de Tôma (carte à part).",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_1",
       "due_date": null,
@@ -181,7 +181,7 @@
         "ui"
       ],
       "created_at": 1792685100,
-      "updated_at": 1792685100
+      "updated_at": 1792698522
     },
     {
       "id": "task_14",
@@ -748,6 +748,97 @@
       ],
       "created_at": 1792699113,
       "updated_at": 1792699113
+    },
+    {
+      "id": "task_52",
+      "title": "La niche vide de Tôma parmi les Statues du Gardien",
+      "description": "Reste de « Le sanctuaire vivant » : parmi les Statues du Gardien (rencontre), une niche vide, celle du dernier gardien ; une inscription effacée, à révéler après keeper_named.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_1",
+      "due_date": null,
+      "tags": [
+        "lore"
+      ],
+      "created_at": 1792698522,
+      "updated_at": 1792698522
+    },
+    {
+      "id": "task_53",
+      "title": "Relire en jeu les paroles de la Veilleuse et des gardiens",
+      "description": "Jouer quelques morts variées (boss, piège, Tréfonds, froid, Seuil) et des visites du sanctuaire, du marchand, de Brann et de l'Esprit Ricaneur, en FR puis en EN : ton, longueur, rythme de la frappe (32 lettres/s pour la Veilleuse), conseils utiles et pas trop répétés.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_1",
+      "due_date": null,
+      "tags": [
+        "lore",
+        "pnj",
+        "playtest"
+      ],
+      "created_at": 1792698522,
+      "updated_at": 1792698522
+    },
+    {
+      "id": "task_58",
+      "title": "Voix des PNJ : écouter et choisir",
+      "description": "Les sons de voix (assets/audio/sfx/voice/, Ninja Adventure « Voice ») ont été choisis sans être écoutés (hauteur estimée) : Voice3 pour la Veilleuse, Voice2 l'Errant, Voice1 Brann, Voice6 l'Esprit. À écouter et ajuster (volume voice_db, autre son).",
+      "status": "todo",
+      "priority": "low",
+      "epic_id": "epic_1",
+      "due_date": null,
+      "tags": [
+        "pnj",
+        "playtest"
+      ],
+      "created_at": 1792698522,
+      "updated_at": 1792698522
+    },
+    {
+      "id": "task_59",
+      "title": "Idée : la Veilleuse commente la dernière partie au sanctuaire",
+      "description": "Au sanctuaire, elle pourrait relire la dernière partie (Profile.history[0] : tueur, étage) en RunFacts pour une remarque « quoi de neuf » (un gardien tombé pour la première fois, un fragment trouvé ce jour-là).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "idée",
+        "lore",
+        "pnj"
+      ],
+      "created_at": 1792698522,
+      "updated_at": 1792698522
+    },
+    {
+      "id": "task_60",
+      "title": "Idée : d'autres voix par le même système",
+      "description": "La Source des Noyés (un fredonnement, trois mots), les Statues du Gardien (inscriptions), les serments : des DialogueDef sur leurs EncounterDef, sans code nouveau.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "idée",
+        "pnj"
+      ],
+      "created_at": 1792698522,
+      "updated_at": 1792698522
+    },
+    {
+      "id": "task_61",
+      "title": "Vérifier la hauteur du panneau de l'Esprit Ricaneur en FR à 720 lignes",
+      "description": "Avec sa réplique sous la description, le panneau de rencontre de l'Esprit Ricaneur dépassait le haut de l'écran à 720 lignes en français (le ruban, de 8 pixels). Corrigé : sa réplique prend la place de la description ; un test de mise en page (1280x720, 1540x720, 2340x1080, FR) le tient dans DialogueTests.",
+      "status": "done",
+      "priority": "low",
+      "epic_id": "epic_4",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "qualité"
+      ],
+      "created_at": 1792698522,
+      "updated_at": 1792700110
     }
   ]
 }

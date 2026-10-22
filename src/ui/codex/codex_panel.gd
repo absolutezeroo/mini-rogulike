@@ -4,18 +4,23 @@ extends Control
 ## header. Quests: today's and this week's goals and the souls they pay. Bestiary: every monster
 ## and boss, act by act (CodexCard: unknown, seen or slain, your hunter rank); tap one for its
 ## page (MonsterPage). Achievements: goals across all runs, with progress. Runs: the last runs and
-## the fastest wins. Each tab opens with a line saying what it is for. Built in code.
+## the fastest wins. Voices: what the Vigil-Keeper and the keepers said, by speaker (their lines
+## kept: DialogueLineDef.remembered, Narrative.told_lines()). Each tab opens with a line saying
+## what it is for. Built in code.
 
-enum Tab { QUESTS, BESTIARY, ACHIEVEMENTS, RUNS }
+enum Tab { QUESTS, BESTIARY, ACHIEVEMENTS, RUNS, VOICES }
 
-const TAB_NAMES := ["Quests", "Bestiary", "Achievements", "Runs"]  # i18n
+const TAB_NAMES := ["Quests", "Bestiary", "Achievements", "Runs", "Voices"]  # i18n
 ## What each tab is for, under its summary.
 const TAB_HELP := [
 	"Quests change every day and every week. Everything you do in any run counts toward them, and a finished quest pays its souls at once. Souls are kept between runs: spend them at the Shrine on lasting upgrades.",  # i18n
 	"Every monster you meet goes in here. Slay more of a kind to raise your hunter rank with it: each rank pays souls, and Mastered also gives +%d%% damage against that kind for good. Choose a monster for its attacks and challenges.",  # i18n
 	"Big goals across all your runs. Reaching one pays its souls at once.",  # i18n
 	"Your last runs, newest first. Gold is lost when a run ends; souls are kept.",  # i18n
+	"What the Vigil-Keeper and the keepers of the Well told you, kept here. They say more as your descents go deeper.",  # i18n
 ]
+## A speaker's face in the Voices tab (a 38-pixel faceset at x2, a 16-pixel picture at x4).
+const VOICE_FACE := 76.0
 
 var _content: ContentDB
 var _tab := Tab.BESTIARY
@@ -72,6 +77,8 @@ func show_tab(tab: int) -> void:
 			_fill_achievements()
 		Tab.RUNS:
 			_fill_runs()
+		Tab.VOICES:
+			_fill_voices()
 	var help: String = tr(TAB_HELP[_tab])
 	if _tab == Tab.BESTIARY:
 		help = help % roundi((_content.bestiary.mastery_damage if _content.bestiary else 0.1) * 100.0)
@@ -360,6 +367,59 @@ func _record_name(key: String) -> String:
 	return name + (" +%s" % parts[1] if parts.size() > 1 else "")
 
 
+# --- Voices -----------------------------------------------------------------------
+
+## Every speaker of NarrativeDef.dialogues, in its order: its face, name and title, then the lines
+## it said that are kept (in the data's order, in quotes), and how many are still to hear.
+func _fill_voices() -> void:
+	var narrative := _content.narrative
+	var heard := 0
+	var total := 0
+	if narrative == null:
+		_summary.text = ""
+		return
+	for group in Dialogues.by_speaker(narrative.dialogues):
+		var speaker: SpeakerDef = group.speaker
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 14)
+		_list.add_child(row)
+		var frame := PanelContainer.new()
+		frame.add_theme_stylebox_override("panel", UiSkin.plaque())
+		frame.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		row.add_child(frame)
+		var face := PixelPortrait.new(VOICE_FACE)
+		face.texture = speaker.portrait
+		frame.add_child(face)
+		var column := VBoxContainer.new()
+		column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		column.add_theme_constant_override("separation", 4)
+		row.add_child(column)
+		var heading := HBoxContainer.new()
+		heading.add_theme_constant_override("separation", 12)
+		column.add_child(heading)
+		heading.add_child(UiSkin.label(tr(speaker.display_name), Fonts.BODY, speaker.color))
+		if not speaker.title.is_empty():
+			heading.add_child(UiSkin.label(tr(speaker.title), Fonts.BODY, UiSkin.DIM))
+		var kept := 0
+		var left := 0
+		for dialogue: DialogueDef in group.dialogues:
+			for line in Narrative.told_lines(dialogue):
+				var words := UiSkin.label(tr("\"%s\"") % " ".join(Dialogues.pages(line)), Fonts.BODY, UiSkin.TEXT, true)
+				words.name = "Voice_%s_%s" % [dialogue.id, line.id]
+				column.add_child(words)
+				kept += 1
+			for line in dialogue.lines:
+				if line and line.remembered and not Narrative.is_line_told(dialogue, line):
+					left += 1
+		if kept == 0:
+			column.add_child(UiSkin.label(tr("Nothing heard yet."), Fonts.BODY, UiSkin.DIM))
+		if left > 0:
+			column.add_child(UiSkin.label(tr("Still unheard: %d") % left, Fonts.BODY, UiSkin.DIM))
+		heard += kept
+		total += kept + left
+	_summary.text = tr("Words kept: %d of %d") % [heard, total]
+
+
 # --- Building ---------------------------------------------------------------------
 
 func _build() -> void:
@@ -380,7 +440,7 @@ func _build() -> void:
 		button.name = "%sTab" % TAB_NAMES[i]
 		button.toggle_mode = true
 		button.add_to_group(MenuNav.TABS)
-		button.custom_minimum_size = Vector2(150, 48)
+		button.custom_minimum_size = Vector2(136, 48)
 		button.add_theme_font_size_override("font_size", Fonts.BODY)
 		button.pressed.connect(func() -> void:
 			if _tab != i or _page.visible:

@@ -71,6 +71,11 @@ func run() -> void:
 	add_child(bag_suite)
 	bag_suite.run_bag_unit()
 	bag_suite.free()
+	# The Vigil-Keeper and the keepers: lines, tales, advice, memory, the box (DialogueTests).
+	var dialogue := DialogueTests.new()
+	add_child(dialogue)
+	await dialogue.run_unit()
+	dialogue.free()
 
 
 ## Text keeps whole pixels (Fonts, docs/design/interface.md "Text"): the font is drawn sharp, on its

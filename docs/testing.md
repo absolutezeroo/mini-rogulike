@@ -57,6 +57,15 @@ The suites (`tests/suites/`, each a `TestSuite`):
   touch: tabs tapped, the card's buttons, new marks, the tab remembered, a right click; with a
   gamepad: LB / RB, A, X, Y, B, the confirmation for rare pieces, what is worn never broken; with
   keys: Q / E, Enter, X, Delete, G, Escape; and the bag inside a 1280x720 screen in French).
+- The dialogue (`dialogue_tests.gd`, `DialogueTests`, on PcTests' helpers): its unit part in the
+  unit suite (every speaker's lines: lengths, translations, codes, the reveal; the tale and the
+  advice a staged death gets: a warden, its shockwave, a trap, the Deeps, the cold, the Threshold,
+  early deaths again and again, potions left...; once, cooldowns and turns; the keepers' lines
+  gated and kept; the save; the codex's Voices; the DialogueBox by touch, keys and gamepad), its
+  title part in the title suite (the Vigil-Keeper at the shrine by touch, keys and gamepad, the
+  lamps, her box at every size in French), its game part in the game suite (a real death told on
+  the end screen, a trap's, the fallback line, the merchant's and the spirit's lines, the end
+  screen in French at 1280x720 and the phones' sizes).
 - **tutorial**: the hints' data, the first steps played with the real controls, the hints that come
   up once, menus, the options and the profile.
 

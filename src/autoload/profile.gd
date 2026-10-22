@@ -69,6 +69,13 @@ var chronicle_told := {}
 var fragments_found := {}
 var deeds_done := {}
 var boss_meetings := {}
+## The dialogue (written through Narrative only): the lines said, "dialogue_id/line_id" -> the
+## run they were last said in (Profile.runs then), and -> the order they were said in (a count
+## that only grows: the oldest is said again first). And the deaths by what caused them: a
+## monster's id ("" for no monster) -> how many times it killed the hero (RunRecords).
+var lines_told := {}
+var lines_order := {}
+var deaths_by := {}
 ## The deepest floor ever reached, on any difficulty (the story's progress; best_depth is the
 ## feats' record, without Pilgrim runs). An older save starts from best_depth.
 var deepest := 0
@@ -213,6 +220,15 @@ func kill_count(monster_id: StringName) -> int:
 	return int(kills_by_monster.get(String(monster_id), 0))
 
 
+## The hero died to `killer_id` (a monster's id; "" for a trap, a fall...).
+func record_death(killer_id: StringName) -> void:
+	deaths_by[String(killer_id)] = deaths_to(killer_id) + 1
+
+
+func deaths_to(killer_id: StringName) -> int:
+	return int(deaths_by.get(String(killer_id), 0))
+
+
 ## `lifetime` false: the day's and week's counts only (quests), not the feats' (a Pilgrim run).
 func add_stat(key: String, amount: int = 1, lifetime: bool = true) -> void:
 	if lifetime:
@@ -289,6 +305,13 @@ func stat_value(key: String) -> int:
 			return maxi(total, victories)
 		"fragments":
 			return fragments_found.size()
+		"souls":
+			return souls
+		"deaths":
+			var deaths := 0
+			for count: int in deaths_by.values():
+				deaths += count
+			return deaths
 		"runs":
 			return runs
 	return int(stats.get(key, 0))
@@ -484,6 +507,9 @@ func reset() -> void:
 	fragments_found = {}
 	deeds_done = {}
 	boss_meetings = {}
+	lines_told = {}
+	lines_order = {}
+	deaths_by = {}
 	deepest = 0
 	changed.emit()
 
@@ -511,6 +537,7 @@ func save_profile() -> void:
 		"ending": String(ending),
 		"chronicle_told": chronicle_told, "fragments_found": fragments_found, "deeds_done": deeds_done,
 		"boss_meetings": boss_meetings, "deepest": deepest,
+		"lines_told": lines_told, "lines_order": lines_order, "deaths_by": deaths_by,
 	})
 
 
@@ -554,6 +581,9 @@ func load_profile() -> void:
 	fragments_found = _ints(data.get("fragments_found", {}))
 	deeds_done = _ints(data.get("deeds_done", {}))
 	boss_meetings = _ints(data.get("boss_meetings", {}))
+	lines_told = _ints(data.get("lines_told", {}))
+	lines_order = _ints(data.get("lines_order", {}))
+	deaths_by = _ints(data.get("deaths_by", {}))
 	deepest = maxi(int(data.get("deepest", 0)), best_depth)
 	best_splits = {}
 	var saved_splits: Variant = data.get("best_splits", {})

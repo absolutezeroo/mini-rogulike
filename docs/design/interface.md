@@ -94,6 +94,15 @@ shows to the device in hand.
   touch or after the mouse moved; the mouse hovers and clicks as always. Buttons are focusable
   again everywhere but the HUD, where nothing keeps the focus (Space attacks). The debug panel stays
   mouse-only.
+- **Someone speaking** (`DialogueBox`, `src/ui/dialogue/`; presentation.md, "The Vigil-Keeper
+  and the keepers"): a face, a name, words typed letter by letter. A tap or a click on it, Enter,
+  Space or a gamepad's A write the page out, then go on; a touch and the click the screen makes of
+  it count once (`TAP_GAP_FRAMES`). Paged (the shrine's `DialogueScreen`, a menu of its own: the
+  box holds the focus, a tap anywhere goes on, Back closes it, the focus comes back to her), the
+  "more" sign is a bobbing gold arrow on touch, the accept key's cap on keys and pads. Stacked (the
+  end screen) it types everything by itself and never holds the buttons: accept is its own only
+  while it writes. The Vigil-Keeper on the title screen is a button like the others (the arrows
+  reach her; Enter or A on her opens her words).
 - **The Controls page** (Options > Controls): what does what on the device in use, read-only: each
   control of `input_prompts.tres` with every key and mouse button (caps), the gamepad's buttons in
   its family's names, or how it is done by touch. Picking up another device turns the page.
@@ -323,4 +332,11 @@ stones lit in their runes' colors. The selected slot pulses gold.
   perk button; Back does the same), coming in softly (the world dims, the board rises, 0.2 s)
   instead of cutting over the fight; each pause button says what it does, with
   what gold and souls are for; the end screen shows the run's numbers (`RunState.summary_rows()`),
-  the souls earned and what they buy.
+  the souls earned and what they buy. After a death, the Vigil-Keeper's tale and advice sit under
+  the title in her `DialogueBox` (presentation.md); with nothing for her to say, the story's line.
+- **Keepers' words**: the shop and the forge open on a line of the merchant's or the smith's
+  (their dialogue's, else a greeting) in quotes beside their face; the grinning spirit's line
+  shows in place of its encounter's description, in its color (the panel keeps its height on a
+  720-line screen), and the outcome takes its place when a choice is made.
+- **Codex, Voices** (*Paroles*): what each speaker said and is kept, by speaker, and how many
+  lines are still to hear.

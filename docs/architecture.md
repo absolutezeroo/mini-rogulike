@@ -33,7 +33,8 @@ data/                Game content as .tres resources (no code)
   story/               story.tres: the game's name, the intro, victory and death texts; narrative.tres (how the
                        story is told), chronicles/ (each warden's), fragments/, fragment_looks/, conditions/
                        (shared reveal gates), cinematics/ (the boss meetings' steps); finale.tres (the bottom
-                       of the Well) and its endings (endings/)
+                       of the Well) and its endings (endings/); dialogue/ (who speaks and what: the
+                       Vigil-Keeper's tales, advice and shrine words, the keepers' lines; speakers/)
   props/               Breakable props and the lantern
   hazards/             Traps, arrow traps, holes, crumbling floor, quicksand and mud
   chests/              Chests (some trapped) and the big chest of ambushes
@@ -64,8 +65,10 @@ src/
     biomes/              BiomeDef, GroundLayerDef, DecorRuleDef, SceneDef (hand-made scenes), SceneKey
     input/               InputPromptsDef, ActionPromptDef, PadGlyphsDef (what a control is called on each device),
                          DeviceText (a sentence for touch and one for keys and gamepads)
-    story/               The story: ProgressCondition (conditions/), DeedCondition (deeds/), chronicles,
-                         chapters, waking lines, fragments, NarrativeDef, CinematicDef and CinematicStep (cinematic/)
+    story/               The story: ProgressCondition (conditions/; conditions on the run that ended:
+                         conditions/run/, RunCondition), DeedCondition (deeds/), chronicles, chapters, waking
+                         lines, fragments, NarrativeDef, CinematicDef and CinematicStep (cinematic/)
+    dialogue/            SpeakerDef, DialogueDef, DialogueLineDef (who speaks, what may be said, when)
   dungeon/             Map data, generator (and its secret rooms: SecretRoomPlan), drawing
   world/               World (owns the current floor), FloorRules (how hard and rewarding it is),
                        NavGrid (pathfinding), FogOfWar (what the hero has seen), WallBuilder,
@@ -92,7 +95,8 @@ src/
                        his world out of the tree as it is, back as it was; stays nest),
                        HiddenPassage (the way to the hidden floor); story/: Narrative (the story's progress
                        and answers), BossMeeting (a warden met: its cinematic), CinematicDirector (plays a
-                       CinematicDef's steps), StoryBeat (what one telling holds)
+                       CinematicDef's steps), StoryBeat (what one telling holds), Dialogues (what a speaker
+                       says now), RunFacts (what is known of a run as it ends)
 tests/               Headless tests: run_tests (the runner), suites/ (unit, title, game, combat, floor, boss,
                      balance: opt-in), support/ (TestSuite: checks, scene helpers, the bot)
 locale/              strings.csv: every player text, English (the key) and French (see Languages)
@@ -155,6 +159,14 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   populated; reading one goes through the Interactor and `Events.fragment_requested`. Deeds are
   checked by the `HuntTracker` at a warden's death; what the run did is `RunState.marks` (set by
   `RunRecords` from the Events).
+- **The dialogue** (design/presentation.md "The Vigil-Keeper and the keepers"): `DialogueDef`s of
+  `DialogueLineDef`s, gated by the same conditions; `Dialogues` picks a line and keeps it said
+  through `Narrative` (`Profile.lines_told`). When the hero falls, the Game reads `RunFacts` at once
+  (`Game.end_facts`: the killer and the cause come from `Player.killer_def` and
+  `Actor.death_cause`, itself from the killing `HitInfo.cause`); the end screen asks
+  `NarrativeDef.tell_end()` and shows it in a `DialogueBox` (`src/ui/dialogue/`). The title screen
+  puts the shrine's speaker by the Well (`ShrineKeeper`) and opens a `DialogueScreen`; the shop,
+  forge and encounter panels show their def's `dialogue` line where their greeting was.
 
 ## Autoloads
 

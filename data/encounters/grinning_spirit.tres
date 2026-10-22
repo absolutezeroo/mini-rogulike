@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="3_1c467"]
 [ext_resource type="Texture2D" path="res://assets/props/grinning_spirit.png" id="4_o1nuq"]
 [ext_resource type="Script" path="res://src/definitions/encounters/encounter_def.gd" id="5_q3102"]
+[ext_resource type="Resource" path="res://data/story/dialogue/grinning_spirit.tres" id="6_spirit"]
 
 [sub_resource type="Resource" id="Resource_0vb2i"]
 script = ExtResource("2_g1vk0")
@@ -62,3 +63,4 @@ description = "A grinning spirit shakes its dice. \"Gold for a gift? Maybe... ma
 icon = ExtResource("4_o1nuq")
 color = Color(1, 0.81960785, 0.4, 1)
 spawn_weight = 8
+dialogue = ExtResource("6_spirit")

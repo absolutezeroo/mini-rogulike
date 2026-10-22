@@ -19,6 +19,9 @@ var _buttons: Array[Button] = []
 var _dialog: RpgDialog
 var _icon: TextureRect
 var _text: Label
+## What it says as it opens (its dialogue's line, in its speaker's color), in place of its
+## description; hidden if nothing.
+var _speech: Label
 var _result: Label
 var _choices: HBoxContainer
 var _leave_row: HBoxContainer
@@ -42,6 +45,13 @@ func open(encounter: Encounter, player: Player) -> void:
 	_dialog.set_title(tr(encounter.def.display_name), encounter.def.color.lightened(0.45))
 	_text.text = tr(encounter.def.description)
 	_text.add_theme_color_override("font_color", UiSkin.TEXT)
+	var spoken := Dialogues.say(encounter.def.dialogue) if encounter.def.dialogue else null
+	_speech.text = tr("\"%s\"") % spoken.text() if spoken else ""
+	_speech.visible = spoken != null
+	# Its line says more than its description's (and a 720-line screen has room for one of them).
+	_text.visible = spoken == null
+	if spoken and spoken.speaker():
+		_speech.add_theme_color_override("font_color", spoken.speaker().color)
 	_result.hide()
 	UiParts.clear(_choices)
 	_buttons.clear()
@@ -69,6 +79,8 @@ func _choose(index: int) -> void:
 	if outcome == null:
 		return
 	Sfx.play_ui(Sfx.bank.perk_chosen)
+	_speech.hide()
+	_text.show()
 	_text.text = tr(outcome.text)
 	_text.add_theme_color_override("font_color", outcome.color)
 	var choice := _encounter.def.choices[index]
@@ -146,6 +158,11 @@ func _build() -> void:
 	_text.name = "Text"
 	_own(_text)
 	words.add_child(_text)
+	_speech = UiParts.text("", Fonts.BODY, UiSkin.GOLD, WIDTH - 160)
+	_speech.name = "Speech"
+	_speech.hide()
+	_own(_speech)
+	words.add_child(_speech)
 	_result = UiParts.text("", Fonts.BODY, UiParts.GOOD, WIDTH - 160)
 	_result.name = "Result"
 	_own(_result)

@@ -1,0 +1,123 @@
+[gd_resource type="Resource" script_class="DialogueDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/dialogue/dialogue_def.gd" id="1_dialogue"]
+[ext_resource type="Script" path="res://src/definitions/dialogue/dialogue_line_def.gd" id="2_line"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="3_condition"]
+[ext_resource type="Resource" path="res://data/story/dialogue/speakers/smith.tres" id="4_speaker"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/stat_condition.gd" id="5_stat_conditi"]
+[ext_resource type="Resource" path="res://data/story/conditions/act_ii_reached.tres" id="6_act_ii_reach"]
+[ext_resource type="Resource" path="res://data/story/conditions/act_iii_reached.tres" id="7_act_iii_reac"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/slain_condition.gd" id="8_slain_condit"]
+[ext_resource type="Resource" path="res://data/story/conditions/effigy_slain.tres" id="9_effigy_slain"]
+[ext_resource type="Resource" path="res://data/story/conditions/first_victory.tres" id="10_first_victor"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="11_keeper_named"]
+
+[sub_resource type="Resource" id="c1"]
+script = ExtResource("5_stat_conditi")
+stat = "talk:smith"
+at_least = 2
+
+[sub_resource type="Resource" id="l_each_metal"]
+script = ExtResource("2_line")
+id = &"each_metal"
+lines = PackedStringArray("I forge, you strike: each to his metal.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1")])
+priority = 90
+once = true
+
+[sub_resource type="Resource" id="c2"]
+script = ExtResource("5_stat_conditi")
+stat = "talk:smith"
+at_least = 3
+
+[sub_resource type="Resource" id="l_temper"]
+script = ExtResource("2_line")
+id = &"temper"
+lines = PackedStringArray("A rune is like a temper: chosen badly, the blade remembers the bad blow. Choose, then strike.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c2")])
+priority = 85
+once = true
+
+[sub_resource type="Resource" id="l_an_army"]
+script = ExtResource("2_line")
+id = &"an_army"
+lines = PackedStringArray("I served an army, once. Far from here, under a sky that burned.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("6_act_ii_reach"), SubResource("c1")])
+priority = 80
+once = true
+
+[sub_resource type="Resource" id="l_solhar"]
+script = ExtResource("2_line")
+id = &"solhar"
+lines = PackedStringArray("Solhar, yes: I come from there. Metal there tasted of salt and gold.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("7_act_iii_reac"), SubResource("c1")])
+priority = 75
+once = true
+
+[sub_resource type="Resource" id="c3"]
+script = ExtResource("8_slain_condit")
+monster_id = &"azure_wyrm"
+
+[sub_resource type="Resource" id="l_frost_chains"]
+script = ExtResource("2_line")
+id = &"frost_chains"
+lines = PackedStringArray("The blue wyrm wore chains that frost cannot bite. I know that steel; I know the hand that hammered it.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c3")])
+priority = 72
+once = true
+
+[sub_resource type="Resource" id="c4"]
+script = ExtResource("5_stat_conditi")
+stat = "bosses"
+at_least = 3
+
+[sub_resource type="Resource" id="l_three_wardens"]
+script = ExtResource("2_line")
+id = &"three_wardens"
+lines = PackedStringArray("A blade that has killed three wardens is not the same blade. Keep it, or melt it; never sell it.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c4")])
+priority = 60
+once = true
+
+[sub_resource type="Resource" id="l_effigy_blades"]
+script = ExtResource("2_line")
+id = &"effigy_blades"
+lines = PackedStringArray("The effigy... I forged its blades weeping into the quench. It remembers nothing; I remember everything.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("9_effigy_slain")])
+priority = 88
+once = true
+
+[sub_resource type="Resource" id="c5"]
+script = ExtResource("5_stat_conditi")
+stat = "talk:smith"
+at_least = 4
+
+[sub_resource type="Resource" id="l_seal"]
+script = ExtResource("2_line")
+id = &"seal"
+lines = PackedStringArray("A seal is a lock of iron and of name. The first keeper gave the name; the iron was mine.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("9_effigy_slain"), SubResource("c5")])
+priority = 70
+once = true
+
+[sub_resource type="Resource" id="l_reforge"]
+script = ExtResource("2_line")
+id = &"reforge"
+lines = PackedStringArray("The souls are coming up. Metal remembers the heat too; that is why we reforge it.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("10_first_victor")])
+priority = 65
+once = true
+
+[sub_resource type="Resource" id="l_chains"]
+script = ExtResource("2_line")
+id = &"chains"
+lines = PackedStringArray("Tôma came to my forge for chains. I gave them to him without looking at him; I forge for you to pay for it.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("11_keeper_named")])
+priority = 95
+once = true
+
+[resource]
+script = ExtResource("1_dialogue")
+id = &"smith"
+speaker = ExtResource("4_speaker")
+lines = Array[ExtResource("2_line")]([SubResource("l_each_metal"), SubResource("l_temper"), SubResource("l_an_army"), SubResource("l_solhar"), SubResource("l_frost_chains"), SubResource("l_three_wardens"), SubResource("l_effigy_blades"), SubResource("l_seal"), SubResource("l_reforge"), SubResource("l_chains")])

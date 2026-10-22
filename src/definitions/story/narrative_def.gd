@@ -30,3 +30,24 @@ extends Resource
 @export var keeper_reveal: ProgressCondition
 ## The words only texts gated by `keeper_reveal` may hold, in every language ("Tôma", "Toma").
 @export var reveal_words: PackedStringArray = []
+
+@export_group("Dialogue")
+## Who keeps vigil at the shrine (the title screen): her figure by the Well, a tap opens her
+## words (`shrine_dialogues`).
+@export var shrine_speaker: SpeakerDef
+## Said at the shrine, one line a tap (the first with something to say).
+@export var shrine_dialogues: Array[DialogueDef] = []
+## Said on the end screen after a death, one line of each in turn (the tale, then the advice);
+## nothing open: the StoryDef's death lines.
+@export var death_dialogues: Array[DialogueDef] = []
+## The same after a victory (the first, the endings at the bottom of the Well).
+@export var victory_dialogues: Array[DialogueDef] = []
+## Every dialogue of the game (the codex's Voices lists what they said, by speaker, in this
+## order; the tests check them all). The keepers' are hung on their own data too (ShopDef,
+## ForgeDef, EncounterDef).
+@export var dialogues: Array[DialogueDef] = []
+
+
+## The death or victory tale, said now (RunFacts: the run's facts). Empty: nothing to say.
+func tell_end(facts: RunFacts, rng: RandomNumberGenerator = null) -> Array[Dialogues.Spoken]:
+	return Dialogues.say_all(victory_dialogues if facts and facts.won else death_dialogues, facts, rng)

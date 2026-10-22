@@ -6,6 +6,9 @@ extends Resource
 @export var display_name: String = "Merchant"
 ## One is said when the shop opens.
 @export_multiline var greetings: PackedStringArray = []
+## What he says as his shop opens, his past told over the runs (Dialogues); nothing open: one of
+## the greetings.
+@export var dialogue: DialogueDef
 ## Body (first frame of a 16x16 sheet, drawn at 2x) and the face shown in the shop.
 @export var sprite_sheet: Texture2D
 @export var portrait: Texture2D
@@ -47,6 +50,12 @@ func reroll_price(done: int, depth: int, extra: float = 1.0) -> int:
 ## What the merchant pays (never touched by the difficulty).
 func sell_price(item: ItemDef, depth: int) -> int:
 	return maxi(1, roundi(buy_price(item, depth) * sell_ratio)) if item.value > 0 else 0
+
+
+## The line said as the shop opens now, translated: his dialogue's, else a greeting.
+func opening_line() -> String:
+	var spoken := Dialogues.say(dialogue) if dialogue else null
+	return spoken.text() if spoken else tr(random_greeting())
 
 
 func random_greeting() -> String:

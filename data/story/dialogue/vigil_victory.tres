@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="DialogueDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/dialogue/dialogue_def.gd" id="1_dialogue"]
+[ext_resource type="Script" path="res://src/definitions/dialogue/dialogue_line_def.gd" id="2_line"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="3_condition"]
+[ext_resource type="Resource" path="res://data/story/dialogue/speakers/vigil_keeper.tres" id="4_speaker"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/run/outcome_condition.gd" id="5_outcome_cond"]
+
+[sub_resource type="Resource" id="c1"]
+script = ExtResource("5_outcome_cond")
+outcome = 2
+
+[sub_resource type="Resource" id="c2"]
+script = ExtResource("5_outcome_cond")
+outcome = 2
+ending = &"ring_the_bell"
+
+[sub_resource type="Resource" id="l_bell_below"]
+script = ExtResource("2_line")
+id = &"bell_below"
+lines = PackedStringArray("You rang the bell from below, child. Hana sleeps at last.", "And tonight, for the first time in a long while, I think I shall sleep.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c2")])
+priority = 95
+
+[sub_resource type="Resource" id="c3"]
+script = ExtResource("5_outcome_cond")
+outcome = 2
+ending = &"take_his_place"
+
+[sub_resource type="Resource" id="l_his_place"]
+script = ExtResource("2_line")
+id = &"his_place"
+lines = PackedStringArray("You stayed below in his place, and your master climbed back to answer to the village.", "I will keep your lantern lit, child, as I kept his.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c3")])
+priority = 95
+
+[sub_resource type="Resource" id="l_first"]
+script = ExtResource("2_line")
+id = &"first"
+lines = PackedStringArray("The bell rang, child. I felt it in my bones before I heard it.", "There is something I must tell you: that night, the lamps did not go out by themselves. Someone blew them out, one by one.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1")])
+priority = 90
+once = true
+
+[sub_resource type="Resource" id="l_again"]
+script = ExtResource("2_line")
+id = &"again"
+lines = PackedStringArray("More souls given back to the village, child. And still the Well goes deeper.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1")])
+priority = 10
+
+[sub_resource type="Resource" id="l_again_doors"]
+script = ExtResource("2_line")
+id = &"again_doors"
+lines = PackedStringArray("I heard shutters open in the village. Someone lit a fire, child; it smelled of rice.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1")])
+priority = 10
+
+[resource]
+script = ExtResource("1_dialogue")
+id = &"vigil_victory"
+speaker = ExtResource("4_speaker")
+lines = Array[ExtResource("2_line")]([SubResource("l_bell_below"), SubResource("l_his_place"), SubResource("l_first"), SubResource("l_again"), SubResource("l_again_doors")])
