@@ -270,7 +270,7 @@ func _refresh_buy(entry: Dictionary) -> void:
 	_buy.disabled = _player.gold < price or not fits
 	_price.add_theme_color_override("font_color", UiSkin.GOLD if _player.gold >= price else UiParts.BAD)
 	if not fits:
-		_buy.text = tr("Your bag is full: sell something first")
+		_buy.text = tr("{room}: sell something first").format({ "room": _player.inventory.full_text(entry.item) })
 	elif _player.gold < price:
 		_buy.text = tr("Not enough gold (%d more)") % (price - _player.gold)
 	else:

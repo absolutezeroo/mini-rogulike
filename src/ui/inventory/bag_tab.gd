@@ -1,16 +1,21 @@
 class_name BagTab
 extends Button
-## A tab of the bag (BagCategoryDef): its icon, how many items it holds in the corner, and a small
-## gold gem when something new waits in it. The open tab is pressed (a ButtonGroup) and its name
+## A tab of the bag (BagCategoryDef: a compartment): its icon, how many items it holds in the
+## corner (red when the compartment is full), and a small gold gem when something new waits in it. The open tab is pressed (a ButtonGroup) and its name
 ## is written under the row (InventoryPanel). Tapped or clicked; Q / E and LB / RB switch tabs
 ## (MenuNav, group "menu_tabs"), so it never takes the focus itself.
 
-const SIZE := Vector2(54, 46)
+const SIZE := Vector2(44, 46)
 
 var category: BagCategoryDef
 var count := 0:
 	set(value):
 		count = value
+		queue_redraw()
+## Its compartment has no free place (the count turns red).
+var full := false:
+	set(value):
+		full = value
 		queue_redraw()
 ## Something in it the player hasn't seen yet.
 var fresh := false:
@@ -44,10 +49,10 @@ func _draw() -> void:
 		draw_rect(area.grow(-9), Color(UiSkin.GOLD, 0.14))
 		draw_style_box(ItemSlot.frame_box(UiSkin.GOLD), area.grow(-1))
 	if category.icon:
-		var box := Rect2(area.position + Vector2(7, 7), Vector2(32, 32))
+		var box := Rect2(area.position + Vector2(4, 5), Vector2(32, 32))
 		var drawn := ItemSlot.fit(category.icon, box)
 		draw_texture_rect(category.icon, drawn, false, Color(1, 1, 1, 0.35 if dim else 1.0))
-	var color := UiSkin.GOLD if button_pressed else (UiSkin.DIM if dim else UiSkin.TEXT)
-	Fonts.draw(self, Vector2(size.x - 6, size.y - 8), str(count), Fonts.BODY, color, 1.0)
+	var color := UiParts.BAD if full else (UiSkin.GOLD if button_pressed else (UiSkin.DIM if dim else UiSkin.TEXT))
+	Fonts.draw(self, Vector2(size.x - 5, size.y - 7), str(count), Fonts.BODY, color, 1.0)
 	if fresh:
 		ItemSlot.draw_fresh(self, Vector2(size.x - 6, 6))

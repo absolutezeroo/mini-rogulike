@@ -170,7 +170,7 @@ func _refresh_action() -> void:
 	var price := _forge.removal_cost()
 	var room := _player.inventory.can_add(rune)
 	_action.disabled = _player.gold < price or not room
-	_action.text = tr("Your bag is full") if not room else tr("Take out %s  (%d gold)") % [tr(rune.display_name), price]
+	_action.text = _player.inventory.full_text(rune) if not room else tr("Take out %s  (%d gold)") % [tr(rune.display_name), price]
 
 
 func _fill_runes() -> void:

@@ -1173,16 +1173,17 @@ func _test_bag_room(game: Game) -> void:
 	await _frames(4)
 	check(player.inventory.count_of(worse) == 2 and player.inventory.places_used() == 2, "All: a second identical drop stacks (2 places for 3 items)")
 
-	# A full bag: it says so, and a stack still fits.
-	for level in range(20, 20 + player.inventory.capacity - player.inventory.places_used()):
+	# A full compartment (the weapons'): it says so, and a stack still fits.
+	var weapons := player.inventory.compartment_of(worse)
+	for level in range(20, 20 + player.inventory.free_in(weapons)):
 		player.inventory.add(LootRoller.make(katana, ItemRarity.COMMON, none, no_runes, level))
-	check(player.inventory.is_full(), "the bag is full (%d / %d)" % [player.inventory.places_used(), player.inventory.capacity])
+	check(player.inventory.is_compartment_full(weapons), "the weapons' compartment is full (%d / %d)" % [player.inventory.places_used_in(weapons), player.inventory.capacity_of(weapons)])
 	pickup = world.spawn_item(LootRoller.make(katana, ItemRarity.MAGIC, [sharp] as Array[ItemAffixDef], no_runes, 30), spot)
 	await _frames(4)
-	check(is_instance_valid(pickup) and not pickup.is_taken(), "a full bag leaves a new item on the ground")
+	check(is_instance_valid(pickup) and not pickup.is_taken(), "a full compartment leaves a new item on the ground")
 	var toasts: Array[String] = game.hud._toasts.duplicate()
 	toasts.append((game.hud.get_node("%ToastLabel") as Label).text)
-	check(toasts.any(func(text: String) -> bool: return text.contains("bag is full")), "and says so (a toast): %s" % [toasts])
+	check(toasts.any(func(text: String) -> bool: return text.contains("No room left for weapons")), "and says which compartment (a toast): %s" % [toasts])
 	check(prompt.visible and (prompt.find_child("TakeButton", true, false) as Button).text == "Open the bag", "the board offers to open the bag")
 	pickup.queue_free()
 	world.spawn_item(LootRoller.make(katana, ItemRarity.COMMON, none, no_runes, 2), spot)
@@ -1190,7 +1191,7 @@ func _test_bag_room(game: Game) -> void:
 	check(player.inventory.count_of(worse) == 3, "but a third of a stack still comes in")
 
 	# The bag screen: places counted by stacks, the count on the slot, dismantling.
-	game.inventory_panel.show_category(0)  # weapons and armor
+	game.inventory_panel.show_category(weapons)
 	game.open_inventory()
 	await _frames(2)
 	var panel: InventoryPanel = game.inventory_panel
@@ -1200,8 +1201,9 @@ func _test_bag_room(game: Game) -> void:
 		if (child as ItemSlot).item == player.inventory.find_like(worse):
 			stack_slot = child
 	var stacks := InventoryPanel.CATEGORIES.entries_in(panel.category_index(), player.inventory.grouped()).size()
-	check(stack_slot != null and stack_slot.count == 3 and grid.get_child_count() == stacks + player.inventory.capacity - player.inventory.places_used(), "the stack is one slot with its count (x%d), then the free places" % (stack_slot.count if stack_slot else 0))
-	check(panel._bag_title.text == "Bag  %d / %d" % [player.inventory.places_used(), player.inventory.capacity], "the bag counts places: %s" % panel._bag_title.text)
+	check(stack_slot != null and stack_slot.count == 3 and grid.get_child_count() == stacks + player.inventory.free_in(weapons), "the stack is one slot with its count (x%d), then the free places" % (stack_slot.count if stack_slot else 0))
+	var places_text := (panel.get_node("%CategoryName") as Label).text
+	check(places_text == "Weapons  %d / %d" % [player.inventory.places_used_in(weapons), player.inventory.capacity_of(weapons)], "the tab counts its compartment's places: %s" % places_text)
 	stack_slot.pressed.emit()
 	var dismantle: Button = panel.get_node("%DismantleButton")
 	var gold := Player.DISMANTLE.gold_for(worse)

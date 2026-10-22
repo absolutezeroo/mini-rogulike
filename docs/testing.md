@@ -48,9 +48,12 @@ The suites (`tests/suites/`, each a `TestSuite`):
   game suite (the HUD per device, the mouse in a fight, pausing, every in-run panel with keys and a
   gamepad, the HUD's layout at every size, on touch and on keys). The runner starts every suite on
   touch (`InputDevice.use(TOUCH)`): the other tests play the phone's game.
-- The bag's tabs and quick actions (`bag_tests.gd`, `BagTests`, on PcTests' helpers): its unit
-  part in the unit suite (which tab every item lands in, the order in a tab, the counts, which
-  dismantles ask first, the actions and their keys), its game part in the game suite (the bag on
+- The bag's compartments, tabs and quick actions (`bag_tests.gd`, `BagTests`, on PcTests'
+  helpers): its unit part in the unit suite (which compartment every item lands in, each one's
+  own places, upgrades, an old save's list coming back past its places, the order in a tab,
+  which dismantles ask first, the actions and their keys), its game part in the game suite (loot,
+  auto loot and the merchant asking the item's compartment, a full tab, Dismantle the worse per
+  tab; the bag on
   touch: tabs tapped, the card's buttons, new marks, the tab remembered, a right click; with a
   gamepad: LB / RB, A, X, Y, B, the confirmation for rare pieces, what is worn never broken; with
   keys: Q / E, Enter, X, Delete, G, Escape; and the bag inside a 1280x720 screen in French).

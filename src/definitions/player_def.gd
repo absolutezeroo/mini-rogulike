@@ -15,7 +15,9 @@ extends Resource
 ## Skills the hero always has (the roll), on the first buttons. The weapon adds its own
 ## skills and a tome can teach one more (see Player.SKILL_COUNT).
 @export var innate_skills: Array[SkillDef] = []
-@export_range(4, 40) var inventory_size: int = 16
+## Places added to every compartment of the bag (each has its own: BagCategoryDef.capacity in
+## data/items/bag_categories.tres). 0: the compartments as they are.
+@export_range(0, 40) var bag_bonus: int = 0
 
 @export_group("Charged attack")
 ## Seconds the attack button must be held before the weapon's charge starts filling: a tap is
