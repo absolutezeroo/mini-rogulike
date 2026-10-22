@@ -20,6 +20,14 @@ extends Resource
 @export var facetank_must_lose_tags: PackedStringArray = ["expected", "degenerate"]
 ## Difficulty key from which the face-tank must lose (and every harder one).
 @export var facetank_must_lose_from: StringName = &"normal"
+## A face-tank fight the hero only won after dying once (a second life: Phoenix Feather, Second
+## Chance; he played the Threshold's trial and came back) counts as a LOSS for the face-tank
+## target: the boss' patterns killed the hero who did not dodge, which is what the pillar asks.
+## The second life is a once-a-run safety net the player paid for (a relic, a shrine upgrade)
+## and pays again with the trial; tuning bosses to kill a face-tank twice would tune them around
+## the rarest relic, against everyone else. Its heal is not sustain either: the heal share
+## targets leave it out (it is still listed among the heal sources, as "other (revive)").
+@export var facetank_second_life_is_loss: bool = true
 ## Healing received during a boss fight, as a share of the damage taken, for "expected" builds:
 ## at most this. Sustain should top you up, not undo the boss' damage.
 @export var heal_share_max_expected: float = 0.25
@@ -150,3 +158,11 @@ extends Resource
 ## Souls from one-time sources (hunter ranks, challenges, achievements) in the first 10 runs:
 ## at most this share of the full tree (the first hours' burst must not hand out the tree).
 @export var campaign_burst_share_max: float = 0.2
+## A Pilgrim career (BalanceSouls.PILGRIM_CAREER: Pilgrim's souls, no achievements) fills the
+## tree in at least this many times the runs of a Keeper career: Pilgrim takes less risk, so it
+## progresses more slowly, never faster...
+@export var pilgrim_tree_runs_ratio_min: float = 1.25
+## ...and in at most this many times: it still progresses (a Pilgrim player sees the tree grow).
+@export var pilgrim_tree_runs_ratio_max: float = 2.0
+## The first node bought by this run at the latest, on Pilgrim.
+@export var pilgrim_first_node_runs_max: int = 3

@@ -9,6 +9,8 @@ const ART_SCALE := 2.0
 ## Trail points are this far apart.
 const TRAIL_STEP := 4.0
 const FADE_TIME := 0.6
+## How far from a segment's centre the coils burn (half a segment's art), before the hero's radius.
+const TOUCH_RADIUS := 14.0 * ART_SCALE * 0.5
 
 var _monster: Monster
 var _shape: WyrmTrait
@@ -57,6 +59,12 @@ func _physics_process(delta: float) -> void:
 	queue_redraw()
 
 
+## Where the burning segments are now (head side first, then the tail): what a player watching
+## the fight steps away from (the balance bots read it too).
+func segment_points() -> Array[Vector2]:
+	return _points
+
+
 ## Segment i sits `spacing * (i + 1)` along the trail.
 func _place() -> void:
 	_points.clear()
@@ -79,7 +87,7 @@ func _touch() -> void:
 	var player := _monster.world.player if _monster.world else null
 	if player == null or player.is_dead or _monster.dormant:
 		return
-	var reach := 14.0 * ART_SCALE * 0.5 + player.radius
+	var reach := TOUCH_RADIUS + player.radius
 	for point in _points:
 		if point.distance_to(player.global_position) <= reach:
 			var amount := _monster.world.rules.dungeon_damage(_shape.contact_damage) if _monster.world.rules else roundi(_shape.contact_damage)

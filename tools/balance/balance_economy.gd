@@ -62,7 +62,9 @@ func run() -> BalanceReport:
 	_souls_table(report, per_depth)
 	if not quick:  # (--quick measures two floors only: no career to model)
 		var souls := BalanceSouls.new(content, targets, _level_for)
-		souls.campaign(report, per_depth)
+		var keeper := souls.campaign(report, per_depth, "normal")
+		var pilgrim := souls.campaign(report, per_depth, "easy")
+		souls.compare_pilgrim(report, keeper, pilgrim)
 	var seconds := (Time.get_ticks_msec() - started) / 1000.0
 	report.notes.append("Economy: %d floors generated and harvested in %.0f s of real time (seed %d)." % [floors.size(), seconds, seed_value])
 	report.timings["economy"] = seconds

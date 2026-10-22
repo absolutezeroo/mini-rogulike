@@ -3,6 +3,134 @@
 Dated entries, newest first: what was measured, what changed and why, before/after numbers, open
 questions. How to measure: [balance.md](balance.md).
 
+## 2026-10-23 - The Azure Wyrm hard but fair; Pilgrim's souls; a second life in the face-tank test (measured)
+
+Keeper's level stays as the last pass left it (the owner: "sporty, much better"): no curve,
+monster or difficulty number moved except Pilgrim's souls.
+
+### The Azure Wyrm (act II): she beat the kite bot on Keeper on every seed
+
+**Measured (arena, expected_a2, Keeper, seeds 1-8):** kite 0 of 4 (old bot), player 0, face-tank
+0 (boss left at 5-32%). Her siblings: the Mother of Tears kite 7 of 8, player 4 of 8; Gorr kite 1
+of 8, player 0 of 8 (see Open). The model hid it: her threat 206% (Gorr 164%, the Mother 221%),
+her last phase's damage per second 30.5 (14.2, 23.8), the act's highest but not a wall. A probe
+logging every hit (amount, knockback, her state, the hero's slow) found why:
+
+- **A slow-lock.** Her fang, Frost Breath, Glacial Dive and Hailstorm all slowed 40% for 2 s:
+  the hero was slowed for most of her last phase (9 of 13 hits taken while slowed in one fight),
+  running 102 against her 115-135: he could neither leave her reach nor clear her dives.
+- **Her dives killed.** In her last phase 4-6 dive hits of 16-40 (12-20% of max Health each)
+  made 100-130 of the ~210 the kite bot took. On Keeper the fierce dive warned 0.30 s (0.5 s x her
+  phases' 0.85 x 0.7), its two legs 0.55 s apart, the second with no warning of its own (a hero
+  slowed by the first could not leave the line), and its hit band was 44 px each side of its line
+  (`DashStrikeEffect.width` is a half-width): 88 px plus the hero, almost twice her body (radius 24).
+- **Her coils.** Her body burns at a touch (WyrmBody); the bots never stepped off it: 20-117 of the
+  damage in a lost fight came from the coils, counted as "shockwave" by the tools.
+
+**Changed (data; her identity kept: a fast flying frost dragon whose breath slows, who dives and
+bursts ice, whose body burns):**
+
+| | Before | After |
+|---|---|---|
+| What slows | fang, breath, dive, hail: 40% for 2 s | fang and breath only, 40% for 1 s |
+| Glacial Dive warning (cast) | 0.6 s (phase 3 on Keeper: fierce 0.30 s) | 0.75 s (fierce 0.8 s: 0.48 s) |
+| Glacial Dive band | 44 px each side | 30 px each side (her body) |
+| Fierce dive: second leg / cooldown | 0.55 s after / 4 s | 0.7 s after / 5 s |
+| Fierce breath cooldown | 3 s | 3.5 s (as the plain one) |
+| Her claw's wind-up | 0.5 s | 0.6 s (the act's others 0.65) |
+
+Glacial Dive's text now says what it does ("Dives along a line and throws back what it touches";
+it no longer chills). The tools: the kite bot steps off a wyrm's coils as off a live trap (a
+player sees them), and the arena counts the coils as "body" (and blasts as "blasts"), no longer
+as "shockwave".
+
+**After (same seeds; Keeper, expected_a2):**
+
+| | Kite | Player (0.3 s reaction) | Face-tank |
+|---|---|---|---|
+| Before, old bot (seeds 1-4) | 0 of 4 | 0 of 4 | 0 of 4 (boss 5-32% left) |
+| Before, coil-aware bot (seeds 1-8) | 1 of 8 (losses at 4-23%) | 0 of 8 | 0 of 8 (5-33%) |
+| After (seeds 1-8) | **6 of 8** (two lost to pits: falls 81, 108) | **2 of 8** | **0 of 8** (8-40% left) |
+| The Mother of Tears / Gorr (unchanged) | 7 / 1 of 8 | 4 / 0 of 8 | 0 / 0 of 8 |
+
+Pilgrim (seeds 1-4): every bot wins, as before (the face-tank may win there). Martyr: every bot
+loses, as before and as her siblings. Degenerate builds (crit, lifesteal) face-tanking her lose on
+Keeper and Martyr; kiting, they win on Keeper. Model: threat 206% -> 200%, last phase 30.5 ->
+28.3 damage a second (the model counts both dive legs now; it can't see warnings, bands or slows,
+which were the problem). The Jade Wyrm (act III, unchanged) is the same kind of dragon: with the
+coil-aware bot her kite record goes from 1 to 3 of 4.
+
+**Guards:** unit `_test_boss_slows`: no boss slows the hero from more than two things in a phase,
+none for more than 2 s; the Azure Wyrm's dives warn >= 0.45 s in her last phase on Keeper, hit a
+band her body could cross (<= radius + 8) and don't slow. Balance suite: the Azure Wyrm on Keeper
+over four seeds, the kite bot wins at least 2 (it won 2: one fight lost to a pit), the face-tank
+loses every time.
+
+### A second life in the face-tank test
+
+The bots now play the Threshold's trial of a second life (Phoenix Feather, Second Chance), so a
+face-tank build with one died, came back and sometimes finished the boss: 3 "arena: face-tank
+wins" errors, and the revive's heal counted in "arena: heal share".
+
+**Decided:** a face-tank fight won only after dying once counts as a **loss**
+(`targets.facetank_second_life_is_loss`), and a second life's heal is left out of the heal share
+targets (still listed as "other (revive)"). Why: pillar 1 asks that the boss' patterns kill a hero
+who never dodges, and they did; the second life is a once-a-run safety net the player paid for
+(a relic, a shrine level) and pays again with the trial, so spending it on a boss is a real loss
+for the run; tuning bosses to kill a face-tank twice would tune every boss around the rarest
+relic, against everyone else. A face-tank that wins without dying is still an error. The arena
+also records the second lives spent (`lives_used`, printed with each fight) and no longer counts
+what the hero takes and heals inside the Threshold as part of the boss fight (the Deeps after a
+fall still count: the fight threw him there).
+
+**Before / after (arena, every boss and its act's builds, Keeper and Martyr, seed 1):**
+"arena: face-tank wins" 3 -> 1 (degenerate_max_health_a4 vs the Gilded Hoarder and
+degenerate_thorns_a4 vs the Dead Sun: both spent two lives; left: degenerate_skills_a3 vs the
+Jade Wyrm, won at 23% without dying, Devotion's heals: a real break, open). "arena: heal share"
+16 -> 7 (degenerate_max_health_a4 vs the Hoarder 69% -> 28%: most of its "healing" was its Leech
+working on the Threshold's spectres). Left: degenerate_skills_a3 (68-100%, its skills' heals),
+degenerate_thorns_a4 and degenerate_max_health_a4 vs the Dead Sun (53-56%), expected_a4's Leech
+on Keeper (32-35% vs 25%): sustain findings, open.
+
+### Pilgrim's souls
+
+**Measured (economy mode, Pilgrim and Keeper, seed 1; new: a Pilgrim career in BalanceSouls,
+table "economy_campaign_easy", and "economy_pilgrim"):** a Pilgrim run paid 0.44-0.47x a Keeper
+run that ends the same way (x0.5, and its floors are smaller: 15 rooms, not 19): 6 souls for a
+death at act I's boss (Keeper 13), 79 for a win (166). A career kept to Pilgrim (no achievements:
+feats don't count there; its runs reach the end sooner, PILGRIM_CAREER: then 3 wins in 4) filled
+the tree in 77 runs (Keeper: 47), 1.64x.
+
+**Changed:** Pilgrim's souls x0.5 -> **x0.65** (`data/difficulties/easy.tres`).
+
+| | Keeper | Pilgrim before | Pilgrim after |
+|---|---|---|---|
+| A run that dies at act I / II / III / IV's boss | 13 / 45 / 83 / 116 | 6 / 20 / 39 / 54 | **8 / 27 / 49 / 69** |
+| A win | 166 | 79 | **101** |
+| Same run, Pilgrim / Keeper | - | 0.44-0.47x | **0.59-0.62x** |
+| Runs to a full tree (a career on it) | 47 (~29 h) | 77 | **64 (~43 h), 1.36x Keeper** |
+| First node | run 1 | run 1 | run 1 |
+
+Pilgrim still progresses more slowly than Keeper, per run and per hour, never faster for less
+risk. **Targets (new):** a Pilgrim career fills the tree in 1.25-2x Keeper's runs, its first node
+by run 3, and a Pilgrim run never pays more than a Keeper run with the same end. Unit guard:
+Pilgrim's souls x0.6-0.75, below Keeper's. The card shows "Souls earned x0.65" (from the data);
+docs/design/progression.md updated.
+
+**Tests:** unit,title, game, tutorial: see the commit; balance suite 85 checks, 10 failed: the
+known ones plus "model: degenerate DPS" (degenerate_skills_a3 2.84x) and "content: unlisted"
+(Tôma, the Maw, the Nameless Effigy), both failing before this pass.
+
+**Open:**
+- *Gorr the One-Eyed* (act II's main boss) is now the act's hardest on Keeper: kite 1 of 8, player
+  0 of 8, the kite bot often thrown into pits by his quake (falls 54-162). The gauntlet's act II
+  (which meets him) was won by both bots in the last pass; to measure on several seeds.
+- *The Jade Wyrm* shares the Azure Wyrm's old dive (Coil Rush: 0.30 s warning in her last phase,
+  44 px band, 0.55 s second leg); with the coil-aware bot she is kite 3 of 4 on Keeper. Same
+  fixes to consider in an act III pass.
+- *degenerate_skills_a3* wins face-tanking the Jade Wyrm without dying (Devotion's heals).
+- The balance bots lose fights to pits (knocked back by blows): a person avoids edges better.
+
 ## 2026-10-22 - Keeper's curve: acts II and III carry their own threat (measured; and faster tools)
 
 **Why (the owner, on Keeper):** first "I still feel I roll over everything", then, playing the

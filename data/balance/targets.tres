@@ -19,6 +19,8 @@ ranked_boss_ttk_max = 150.0
 facetank_must_lose_tags = PackedStringArray("expected", "degenerate")
 ; ...from Normal up (Easy may forgive it).
 facetank_must_lose_from = &"normal"
+; A face-tank win that spent a second life (it died, played the Threshold and came back) is a loss: the boss killed the hero who did not dodge; a once-a-run safety net is not a way to beat a boss by standing still, and bosses must not be tuned to kill twice. Its heal is left out of the heal shares below (2026-10-23).
+facetank_second_life_is_loss = true
 ; Healing in a boss fight tops you up, it doesn't undo the boss: at most 25% of the damage taken for an expected build...
 heal_share_max_expected = 0.25
 ; ...and at most 50% for a build that stacks sustain on purpose (degenerate, family builds).
@@ -104,3 +106,8 @@ campaign_runs_to_tree_max = 60.0
 campaign_first_node_runs_max = 2
 ; Hunter ranks, challenges and achievements pay at most 20% of the full tree in the first 10 runs.
 campaign_burst_share_max = 0.2
+; A Pilgrim career (Pilgrim's souls, no achievements: feats don't count there) fills the tree in 1.25-2x the runs of a Keeper career: it progresses, more slowly than Keeper, never faster for less risk (2026-10-23).
+pilgrim_tree_runs_ratio_min = 1.25
+pilgrim_tree_runs_ratio_max = 2.0
+; The first node is bought after Pilgrim run 3 at the latest.
+pilgrim_first_node_runs_max = 3

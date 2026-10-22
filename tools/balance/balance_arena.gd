@@ -177,6 +177,7 @@ func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef
 		player.health_changed.emit(player.hp, player.get_max_hp())
 	var boss_actor := world.arena.boss
 	result["affixes"] = boss_actor.affix_names()
+	var lives_before := lives_used(player)
 	var log := FightLog.new(player, boss_actor)
 	var bot := BalanceBot.create(bot_name, player, world, boss_actor)
 	var frames := 0
@@ -198,12 +199,14 @@ func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef
 			# In a world of his own for a while (the Deeps after a fall, the Threshold's trial):
 			# the boss waits frozen, the bot plays there; lost there for good, the fight is lost.
 			away_frames += 1
+			log.away = is_instance_valid(player.world) and player.world is ThresholdWorld
 			if away_frames > AWAY_LIMIT:
 				outcome = "loss"
 				result["error"] = "lost in the Deeps or the Threshold"
 				break
 			bot.step()
 			continue
+		log.away = false
 		if world.arena.is_started:
 			fight_frames += 1
 			log.frame()
@@ -226,11 +229,35 @@ func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef
 	result["skills_used"] = bot.skills_used
 	result["drinks"] = bot.drinks
 	result["away_time"] = away_frames / BalanceLab.FPS
+	# Second lives spent in this fight: deaths the hero came back from (the Threshold's trial).
+	result["lives_used"] = lives_used(player) - lives_before
 	# Time to kill, measured or (lost, timed out) projected from the damage dealt so far.
 	var dealt_share: float = 1.0 - float(result.boss_hp_left_share)
 	result["ttk_projected"] = float(result.time) / maxf(dealt_share, 0.01) if outcome != "win" else float(result.time)
 	await lab.end_game(game)
 	return result
+
+
+## Second lives (CheatDeathPassive: Phoenix Feather, Second Chance) the hero has spent this run.
+static func lives_used(player: Player) -> int:
+	var used := 0
+	for entry in player.perks.entries:
+		used += int(entry.memory.get(&"used", 0))
+	return used
+
+
+## The face-tank test's verdict (targets.facetank_second_life_is_loss): a win only counts when
+## the hero never died; a win on a second life is the boss killing him once, a loss.
+static func facetank_won(r: Dictionary, targets: BalanceTargets) -> bool:
+	if r.get("result") != "win":
+		return false
+	return int(r.get("lives_used", 0)) == 0 or not targets.facetank_second_life_is_loss
+
+
+## Healing in the fight as a share of the damage taken, for the heal share targets: a second
+## life's heal is not sustain and is left out (targets.facetank_second_life_is_loss).
+static func sustain_share(r: Dictionary) -> float:
+	return float(r.get("heal_share_sustain", r.get("heal_share", 0.0)))
 
 
 static func fight_line(r: Dictionary) -> String:
@@ -239,7 +266,7 @@ static func fight_line(r: Dictionary) -> String:
 		str(r.get("result", "?")).to_upper(), r.get("time", 0.0), r.get("phases", 0),
 		roundi(100.0 * r.get("boss_hp_left_share", 0.0)), roundi(r.get("min_hp_share", 0.0) * 100.0),
 		r.get("damage_taken", 0), r.get("hits_taken", 0), BalanceLab.sources_text(r.get("taken_by", {})), r.get("healed", 0), BalanceLab.sources_text(r.get("heal_sources", {})),
-		r.get("dps", 0.0), r.get("rolls", 0)]
+		r.get("dps", 0.0), r.get("rolls", 0)] + (", second life used %d" % r.lives_used if int(r.get("lives_used", 0)) > 0 else "")
 
 
 func _boss_report(report: BalanceReport, fights: Array) -> void:
@@ -287,7 +314,7 @@ func _check_fight(report: BalanceReport, r: Dictionary) -> void:
 	for tag in targets.facetank_must_lose_tags:
 		must_lose = must_lose or tags.has(tag)
 	if r.bot == "face_tank" and must_lose and own and plain \
-			and BalanceContent.rank_of(r.difficulty) >= BalanceContent.rank_of(String(targets.facetank_must_lose_from)) and r.result == "win":
+			and BalanceContent.rank_of(r.difficulty) >= BalanceContent.rank_of(String(targets.facetank_must_lose_from)) and facetank_won(r, targets):
 		report.flag(BalanceReport.ERROR, "arena: face-tank wins", subject, "won in %.0f s, %d%% health at worst" % [r.time, roundi(r.min_hp_share * 100.0)],
 			"must die from %s" % targets.facetank_must_lose_from, "healed %d of %d taken (%s)" % [r.healed, r.damage_taken, BalanceLab.sources_text(r.heal_sources)])
 	var share_max := -1.0
@@ -295,8 +322,8 @@ func _check_fight(report: BalanceReport, r: Dictionary) -> void:
 		share_max = targets.heal_share_max_expected
 	elif tags.has("degenerate") or tags.has("family"):
 		share_max = targets.heal_share_max_degenerate
-	if share_max >= 0.0 and own and plain and r.damage_taken > 0 and r.heal_share > share_max:
-		report.flag(BalanceReport.ERROR, "arena: heal share", subject, BalanceReport.pct(r.heal_share), "<= %s" % BalanceReport.pct(share_max),
+	if share_max >= 0.0 and own and plain and r.damage_taken > 0 and sustain_share(r) > share_max:
+		report.flag(BalanceReport.ERROR, "arena: heal share", subject, BalanceReport.pct(sustain_share(r)), "<= %s" % BalanceReport.pct(share_max),
 			"healed %d of %d taken (%s)" % [r.healed, r.damage_taken, BalanceLab.sources_text(r.heal_sources)])
 	if tags.has("expected") and own and r.bot == "kite":
 		if plain and targets.kite_should_win_on.has(r.difficulty) and r.result != "win":
@@ -539,6 +566,8 @@ static func foes_id(foes: Array) -> String:
 
 ## What a boss fight did, frame by frame: damage both ways, heals by source, phases, the lowest HP.
 class FightLog:
+	## Health that came back without a heal() (a second life), in `heal_sources`.
+	const REVIVE := "other (revive)"
 	var player: Player
 	var boss: Monster
 	var dealt := 0
@@ -552,6 +581,10 @@ class FightLog:
 	## Damage taken by kind (ticks, shockwave, melee, shots, skill, adds, blasts): where a bot
 	## gets hurt.
 	var taken_by := {}
+	## The hero is at the Threshold (a second life's trial): what he takes and heals there is
+	## not the boss fight's (the trial's spectres, its own rules). The Deeps after a fall are:
+	## the fight threw him there.
+	var away := false
 	var _expected_hp := 0
 	var _boss_hp := 0
 
@@ -568,12 +601,18 @@ class FightLog:
 		Events.monster_killed.connect(_on_killed)
 
 	func _on_healed(amount: int, source: StringName) -> void:
+		if away:
+			_expected_hp += amount
+			return
 		var key := String(source) if not String(source).is_empty() else "unattributed"
 		healed_by[key] = int(healed_by.get(key, 0)) + amount
 		_expected_hp += amount
 
 	func _on_damaged(amount: int) -> void:
 		if amount <= 0:
+			return
+		if away:
+			_expected_hp -= amount
 			return
 		taken += amount
 		_expected_hp -= amount
@@ -595,7 +634,12 @@ class FightLog:
 		if hit.source != boss:
 			return "adds"
 		if hit.is_secondary:
-			return "shockwave"
+			# A shockwave (too many hits, a phase's roar), a blast, or the boss' body itself
+			# (a wyrm's burning coils: WyrmBody).
+			match hit.cause:
+				&"shockwave": return "shockwave"
+				&"blast": return "blasts"
+			return "body"
 		if hit.origin != Vector2.INF and hit.origin.distance_to(boss.global_position) > boss.radius + 60.0:
 			return "shots"
 		var machine := boss.get_node_or_null("StateMachine") as StateMachine
@@ -618,7 +662,7 @@ class FightLog:
 		if not is_instance_valid(player):
 			return
 		if player.hp > maxi(_expected_hp, 0):
-			healed_by["other (revive)"] = int(healed_by.get("other (revive)", 0)) + player.hp - maxi(_expected_hp, 0)
+			healed_by[REVIVE] = int(healed_by.get(REVIVE, 0)) + player.hp - maxi(_expected_hp, 0)
 		_expected_hp = player.hp
 		min_hp = mini(min_hp, player.hp)
 
@@ -628,10 +672,12 @@ class FightLog:
 		var healed := 0
 		for value: int in healed_by.values():
 			healed += value
+		var revived: int = healed_by.get(REVIVE, 0)
 		return {
 			"time": seconds, "phases": phases + 1, "damage_dealt": dealt, "dps": dealt / maxf(seconds, 0.01),
 			"damage_taken": taken, "hits_taken": hits_taken, "tick_damage": tick_damage, "healed": healed,
 			"heal_sources": healed_by.duplicate(), "heal_share": healed / maxf(taken, 1.0),
+			"heal_share_sustain": (healed - revived) / maxf(taken, 1.0),
 			"min_hp": min_hp, "min_hp_share": min_hp / float(maxi(player.get_max_hp(), 1)),
 			"summons_killed": summons_killed, "taken_by": taken_by.duplicate(),
 		}

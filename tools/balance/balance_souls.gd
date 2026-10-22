@@ -1,17 +1,24 @@
 class_name BalanceSouls
 extends RefCounted
-## The souls of a whole campaign on Keeper, against the Tree of Souls: every source a player
-## gets, run after run, from the measured floors (BalanceEconomy's per-depth averages: kills,
-## kills of each kind, elites, chests, encounters, gold, XP) and the game's own data (the run's
-## souls in DungeonConfig, the hidden floor, the bestiary's ranks and challenges, achievements,
-## quests). Expected values, not a dice roll: run n adds what an average run of its result adds.
-## What can't be measured is an assumption below, each with its reason; change them here.
+## The souls of a whole campaign on Keeper (and on Pilgrim), against the Tree of Souls: every
+## source a player gets, run after run, from the measured floors (BalanceEconomy's per-depth
+## averages: kills, kills of each kind, elites, chests, encounters, gold, XP) and the game's
+## own data (the run's souls in DungeonConfig, the hidden floor, the bestiary's ranks and
+## challenges, achievements, quests). Expected values, not a dice roll: run n adds what an
+## average run of its result adds. What can't be measured is an assumption below, each with its
+## reason; change them here.
 
 ## A Keeper career, run by run: [runs, result]. Result k = dies at act k's boss, 5 = wins; a
 ## fraction mixes the two around it (4.5: half the runs win). The last entry repeats. A first
 ## run dies to the first boss, the player learns an act every few runs and wins one run in two
 ## once the tree and practice carry him (the shrine's stats and the oaths make that possible).
 const CAREER := [[2, 1.0], [4, 2.0], [8, 3.0], [10, 4.0], [0, 4.5]]
+## A career on Pilgrim, the same way: Pilgrim forgives (its average player, the gauntlet's
+## `player` bot, wins every act there), so a player who keeps to it reaches each act in about
+## half the runs a Keeper player needs and wins three runs in four once he knows the Well.
+const PILGRIM_CAREER := [[1, 1.0], [2, 2.0], [4, 3.0], [5, 4.0], [0, 4.75]]
+## Careers by difficulty key (the economy mode models those it measured).
+const CAREERS := { "normal": CAREER, "easy": PILGRIM_CAREER }
 ## Runs played a day (the daily quests pay once a day, the weekly ones once a week): an evening
 ## of one to two runs.
 const RUNS_PER_DAY := 2.0
@@ -47,6 +54,8 @@ const MAX_RUNS := 300
 var content: ContentDB
 var targets: BalanceTargets
 var level_for: Callable
+## The career modelled (CAREERS), set by campaign().
+var _career: Array = CAREER
 
 
 func _init(content_db: ContentDB, balance_targets: BalanceTargets, level_of_xp: Callable) -> void:
@@ -126,11 +135,19 @@ static func _bestiary_kinds(content_db: ContentDB) -> Array[MonsterDef]:
 	return kinds
 
 
-## The career on Keeper, run by run, every source; table "economy_campaign" and its flags.
-func campaign(report: BalanceReport, per_depth: Array) -> void:
-	var acts := _acts(per_depth.filter(func(p: Dictionary) -> bool: return p.difficulty == "normal"))
-	if acts.is_empty():
-		return
+## A career on the difficulty `difficulty_key` (Keeper: "normal", Pilgrim: "easy"), run by run, every
+## source; table "economy_campaign" (Keeper) or "economy_campaign_<key>", and Keeper's flags.
+## The run's souls and the hidden floor's are paid times the difficulty's `souls`; achievements
+## only where it counts feats (`counts_feats`: not on Pilgrim); the bestiary and the quests count
+## everywhere. Returns { full_run, first_node_run, all_run, souls_by_result } (empty: not measured).
+func campaign(report: BalanceReport, per_depth: Array, difficulty_key := "normal") -> Dictionary:
+	var acts := _acts(per_depth.filter(func(p: Dictionary) -> bool: return p.difficulty == difficulty_key))
+	var difficulty := BalanceContent.difficulty(content, difficulty_key)
+	if acts.is_empty() or difficulty == null or not CAREERS.has(difficulty_key):
+		return {}
+	_career = CAREERS[difficulty_key]
+	var multiplier := difficulty.souls
+	var feats := difficulty.counts_feats
 	var tree := content.soul_tree
 	var full_tree := full_tree_cost(tree)
 	var all_nodes := all_nodes_cost(tree)
@@ -156,7 +173,7 @@ func campaign(report: BalanceReport, per_depth: Array) -> void:
 	var burst_at_10 := 0.0
 	for n in range(1, MAX_RUNS + 1):
 		var result := _result_of(n)
-		var run := _mix(acts, result)
+		var run := _mix(acts, result, multiplier)
 		minutes += run.floors * MINUTES_PER_FLOOR
 		sums.run += run.souls
 		sums.quests += quest_rate
@@ -191,7 +208,7 @@ func campaign(report: BalanceReport, per_depth: Array) -> void:
 				challenge_paid[c_key] = done
 		stats["species"] = species
 		for achievement in content.achievements:
-			if not unlocked.has(achievement.id) and float(stats.get(achievement.stat_key(), 0.0)) >= achievement.target:
+			if feats and not unlocked.has(achievement.id) and float(stats.get(achievement.stat_key(), 0.0)) >= achievement.target:
 				unlocked[achievement.id] = n
 				sums.achievements += achievement.reward_souls
 		var total: float = sums.run + sums.ranks + sums.challenges + sums.achievements + sums.quests
@@ -213,15 +230,23 @@ func campaign(report: BalanceReport, per_depth: Array) -> void:
 			return "never (%d runs)" % MAX_RUNS
 		var m := 0.0
 		for i in range(1, runs + 1):
-			m += float(_mix(acts, _result_of(i)).floors) * MINUTES_PER_FLOOR
+			m += float(_mix(acts, _result_of(i), multiplier).floors) * MINUTES_PER_FLOOR
 		return "run %d (~%.0f h)" % [runs, m / 60.0]
-	report.table("economy_campaign", "Economy",
-		("A Keeper career (expected values; results %s; %.0f runs a day for the quests; %.1f min a floor) vs the Tree of Souls: full tree %d souls (the dearer side of each fork), "
+	var name := "Keeper" if difficulty_key == "normal" else difficulty.display_name
+	report.table("economy_campaign" if difficulty_key == "normal" else "economy_campaign_" + difficulty_key, "Economy",
+		("A %s career (expected values; souls x%s%s; results %s; %.0f runs a day for the quests; %.1f min a floor) vs the Tree of Souls: full tree %d souls (the dearer side of each fork), "
 		+ "every node %d. First node (%d souls): %s. Full tree: %s. Every node: %s. One-time pools: hunter ranks %d, challenges %d, achievements %d (%s of the full tree)") % [
-			", ".join(CAREER.map(func(c: Array) -> String: return ("%d x %s" % [c[0], _result_text(c[1])]) if c[0] > 0 else ("then " + _result_text(c[1])))),
+			name, str(multiplier), "" if feats else ", no achievements (feats don't count)",
+			", ".join(_career.map(func(c: Array) -> String: return ("%d x %s" % [c[0], _result_text(c[1])]) if c[0] > 0 else ("then " + _result_text(c[1])))),
 			RUNS_PER_DAY, MINUTES_PER_FLOOR, full_tree, all_nodes, first_node, hours_of.call(first_node_run), hours_of.call(full_run), hours_of.call(all_run),
 			pools.ranks, pools.challenges, pools.achievements, BalanceReport.pct(float(pools.ranks + pools.challenges + pools.achievements) / maxf(full_tree, 1.0))],
 		PackedStringArray(["Run", "Result", "Hours", "This run", "Runs (sum)", "Hunter ranks", "Challenges", "Achievements", "Quests", "Total", "Of the full tree"]), rows)
+	var souls_by_result := {}
+	for result in range(1, acts.size() + 2):
+		souls_by_result[result] = float(_run(acts, result, multiplier).souls)
+	var summary := { "full_run": full_run, "first_node_run": first_node_run, "all_run": all_run, "souls_by_result": souls_by_result, "full_tree": full_tree }
+	if difficulty_key != "normal":
+		return summary
 	var later := content.achievements.filter(func(a: AchievementDef) -> bool: return not unlocked.has(a.id))
 	report.notes.append("Campaign: achievements a Keeper career doesn't reach (Martyr, Nightmare, ascension, the Threshold...): %s." % ", ".join(later.map(func(a: AchievementDef) -> String: return "%s (%d)" % [a.id, a.reward_souls])))
 	# Flags.
@@ -234,6 +259,38 @@ func campaign(report: BalanceReport, per_depth: Array) -> void:
 	if burst_at_10 > targets.campaign_burst_share_max * full_tree:
 		report.flag(BalanceReport.WARN, "economy: souls", "one-time souls in the first 10 runs (ranks, challenges, achievements)", "%d souls (%s of the full tree)" % [roundi(burst_at_10), BalanceReport.pct(burst_at_10 / full_tree)],
 			"<= %s" % BalanceReport.pct(targets.campaign_burst_share_max), "the first hours' burst must not hand out the tree")
+	return summary
+
+
+## Pilgrim against Keeper: a Pilgrim career fills the tree, more slowly than Keeper's (targets
+## pilgrim_tree_runs_ratio_*), and a Pilgrim run never pays more than a Keeper run that ends the
+## same way (less risk, never more souls). Table "economy_pilgrim" and its flags.
+func compare_pilgrim(report: BalanceReport, keeper: Dictionary, pilgrim: Dictionary) -> void:
+	if keeper.is_empty() or pilgrim.is_empty():
+		return
+	var rows: Array = []
+	var k_by: Dictionary = keeper.souls_by_result
+	var p_by: Dictionary = pilgrim.souls_by_result
+	for result: int in k_by:
+		var k: float = k_by[result]
+		var p: float = p_by.get(result, 0.0)
+		rows.append([_result_text(result), roundi(k), roundi(p), "%.2fx" % (p / maxf(k, 1.0))])
+		if p > k:
+			report.flag(BalanceReport.WARN, "economy: pilgrim souls", "a Pilgrim run that %s" % _result_text(result), "%d souls" % roundi(p),
+				"<= Keeper's %d" % roundi(k), "Pilgrim must never pay more for less risk")
+	var k_runs: int = keeper.full_run
+	var p_runs: int = pilgrim.full_run
+	var ratio := float(p_runs) / maxf(float(k_runs), 1.0) if p_runs > 0 and k_runs > 0 else INF
+	rows.append(["runs to a full tree (career)", k_runs, p_runs, "%.2fx" % ratio])
+	rows.append(["runs to the first node (career)", keeper.first_node_run, pilgrim.first_node_run, ""])
+	report.table("economy_pilgrim", "Economy", "Pilgrim vs Keeper: souls a run pays by how it ends (the run's souls and the hidden floor, x the difficulty), and each career's runs to the Tree of Souls (tables economy_campaign, economy_campaign_easy)",
+		PackedStringArray(["", "Keeper", "Pilgrim", "Pilgrim / Keeper"]), rows)
+	if ratio < targets.pilgrim_tree_runs_ratio_min or ratio > targets.pilgrim_tree_runs_ratio_max:
+		report.flag(BalanceReport.WARN, "economy: pilgrim souls", "runs to a full Tree of Souls, Pilgrim career / Keeper career", "%d / %d runs (%.2fx)" % [p_runs, k_runs, ratio],
+			"%.2fx-%.2fx" % [targets.pilgrim_tree_runs_ratio_min, targets.pilgrim_tree_runs_ratio_max], "Pilgrim progresses, more slowly than Keeper")
+	if pilgrim.first_node_run < 0 or pilgrim.first_node_run > targets.pilgrim_first_node_runs_max:
+		report.flag(BalanceReport.WARN, "economy: pilgrim souls", "runs to the first node (Pilgrim career)", "%d runs" % pilgrim.first_node_run,
+			"<= %d" % targets.pilgrim_first_node_runs_max, "something to show for the first Pilgrim runs")
 
 
 ## The measured acts on Keeper: per act, what its normal floors give a typical player.
@@ -277,22 +334,22 @@ func _acts(per_depth: Array) -> Array[Dictionary]:
 ## Run n's result in the career.
 func _result_of(n: int) -> float:
 	var seen := 0
-	for step: Array in CAREER:
+	for step: Array in _career:
 		seen += int(step[0])
 		if step[0] == 0 or n <= seen:
 			return float(step[1])
-	return float(CAREER[CAREER.size() - 1][1])
+	return float(_career[_career.size() - 1][1])
 
 
-## An average run of `result` (fractions mix the results around it).
-func _mix(acts: Array[Dictionary], result: float) -> Dictionary:
+## An average run of `result` (fractions mix the results around it); souls x `multiplier`.
+func _mix(acts: Array[Dictionary], result: float, multiplier := 1.0) -> Dictionary:
 	var low := clampi(floori(result), 1, acts.size() + 1)
 	var high := clampi(low + 1, 1, acts.size() + 1)
 	var weight := clampf(result - low, 0.0, 1.0)
-	var a := _run(acts, low)
+	var a := _run(acts, low, multiplier)
 	if weight <= 0.0:
 		return a
-	var b := _run(acts, high)
+	var b := _run(acts, high, multiplier)
 	var mixed := {}
 	for key: String in a:
 		if a[key] is Dictionary:
@@ -307,8 +364,9 @@ func _mix(acts: Array[Dictionary], result: float) -> Dictionary:
 	return mixed
 
 
-## A run that dies at act `result`'s boss (or wins: acts + 1): what it slays, finds and earns.
-func _run(acts: Array[Dictionary], result: int) -> Dictionary:
+## A run that dies at act `result`'s boss (or wins: acts + 1): what it slays, finds and earns
+## (the run's souls and the hidden floor's x `multiplier`, the difficulty's, as RunState.souls()).
+func _run(acts: Array[Dictionary], result: int, multiplier := 1.0) -> Dictionary:
 	var config := content.dungeon
 	var won := result > acts.size()
 	var passed := mini(result, acts.size())
@@ -336,11 +394,11 @@ func _run(acts: Array[Dictionary], result: int) -> Dictionary:
 	var depth := config.total_floors() if won else BalanceContent.boss_depth(content, result)
 	run["best_depth"] = float(depth)
 	run["run_level"] = float(level_for.call(acts[passed - 1].xp_before_boss))
-	var souls := float(config.souls_for_run(roundi(run.kills) + bosses, depth, bosses, won))
+	var souls := float(config.souls_for_run(roundi(run.kills) + bosses, depth, bosses, won, multiplier))
 	var hidden := config.hidden_floor
 	if hidden and bosses >= 2:  # past act II's boss: the hidden floor, sometimes
 		var found := hidden.key_chance * HIDDEN_FOUND
-		souls += hidden.bonus_souls * found
+		souls += roundi(hidden.bonus_souls * multiplier) * found
 		run.hidden_bosses = found
 		if hidden.boss:
 			run.by_kind[String(hidden.boss.id)] = float(run.by_kind.get(String(hidden.boss.id), 0.0)) + found

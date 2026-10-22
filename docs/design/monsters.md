@@ -205,8 +205,9 @@ bite_mark`). Numbers: docs/balance-log.md.
 - **The Wyrms** (`WyrmTrait`, `WyrmBody`): long dragons. The boss is the head; a body of
   segments follows the path the head took, wings flap on its sides, a pointed tail ends it.
   The body burns at a touch (and throws you back); only the head can be hurt. They fly.
-  **Azure Wyrm** (Act II, frost: Frost Breath and Hailstorm throw ice shards, Glacial Dive leaves
-  a line of crystals that shatter, its Frost Fang strikes with claws of ice) and **Jade Wyrm**
+  **Azure Wyrm** (Act II, frost: Frost Breath throws fans of ice shards that slow, 40% for 1 s,
+  the only thing of hers that slows; Hailstorm bursts ice all around; Glacial Dive throws back
+  and leaves a line of crystals that shatter; its Frost Fang strikes with claws of ice) and **Jade Wyrm**
   (Act III, venom: Venom Spit, Coil Rush, Toxic Bloom), with their three phases and fiercer
   forms, and their own bestiary challenge (a Hammer, an Axe).
 

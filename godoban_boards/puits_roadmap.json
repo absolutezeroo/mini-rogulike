@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 73,
+  "next_id": 77,
   "tags": [
     "pc",
     "test",
@@ -243,8 +243,8 @@
     {
       "id": "task_18",
       "title": "Guivre d'Azur trop dure en Gardien",
-      "description": "Elle bat le bot « kite » à tous les coups, avant et après la passe. Passe dédiée.",
-      "status": "backlog",
+      "description": "Mesuré (arène, build attendu de l'acte II, Gardien, graines 1-8) : elle ralentissait de partout (griffe, souffle, plongeon, grêle : 40 % pendant 2 s), son plongeon furieux prévenait 0,30 s, frappait une bande de 44 px de chaque côté (le double de son corps) et enchaînait un second plongeon sans avertissement. Corrigé en données : seuls la griffe et le souffle ralentissent (1 s), plongeon prévenu 0,75 s (furieux 0,48 s en phase 3), bande de 30 px, second plongeon 0,7 s après, recharge 5 s ; souffle furieux 3,5 s ; griffe 0,6 s. Les bots évitent maintenant ses anneaux brûlants. Kite : 0/4 (ancien bot), 1/8 -> 6/8 ; bot « joueur » 0/8 -> 2/8 ; face-tank perd toujours (0/8, boss à 8-40 %). Pèlerin : tout gagne ; Martyr : tout perd (comme ses sœurs). Garde-fous : test unitaire des ralentissements de boss, suite balance (4 graines). À tester en jeu : lisibilité du plongeon.",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_2",
       "due_date": null,
@@ -253,13 +253,13 @@
         "boss"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792710765
     },
     {
       "id": "task_19",
       "title": "Le Pèlerin rapporte peu d'âmes",
-      "description": "À mesurer et ajuster (économie des âmes).",
-      "status": "backlog",
+      "description": "Mesuré (mode économie, nouvelle carrière Pèlerin) : une partie Pèlerin rapportait 0,44-0,47x une partie Gardien qui finit pareil (x0,5 et des étages plus petits) : 6 âmes pour une mort au boss de l'acte I (Gardien 13), 79 pour une victoire (166) ; l'arbre complet en 77 parties (Gardien 47). Âmes du Pèlerin x0,5 -> x0,65 : 8/27/49/69 âmes selon le boss où l'on meurt, 101 pour une victoire (0,59-0,62x Gardien) ; arbre complet en 64 parties (1,36x Gardien, ~43 h). Nouvelles cibles : 1,25-2x les parties du Gardien, jamais plus d'âmes qu'au Gardien pour la même partie. La carte affiche « x0,65 ».",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_2",
       "due_date": null,
@@ -267,13 +267,13 @@
         "économie"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792710765
     },
     {
       "id": "task_20",
       "title": "Seconde vie et test « face-tank »",
-      "description": "Les bots jouent désormais l'épreuve du Seuil : doit-elle compter comme une défaite dans la cible face-tank ?",
-      "status": "backlog",
+      "description": "Décidé : une victoire du face-tank après une mort (seconde vie, épreuve du Seuil jouée) compte comme une DÉFAITE (le boss l'a tué ; la seconde vie est un filet payé une fois par partie ; on ne règle pas les boss pour tuer deux fois). Le soin de la seconde vie sort des cibles de part de soin, et ce que le héros prend/soigne au Seuil ne compte plus dans le combat. Arène (tous les boss, Gardien et Martyr) : « face-tank gagne » 3 -> 1 (reste degenerate_skills_a3 contre la Guivre de Jade, sans mourir) ; « part de soin » 16 -> 7. Cible dans data/balance/targets.tres (facetank_second_life_is_loss), documentée dans docs/balance.md.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_2",
       "due_date": null,
@@ -281,7 +281,7 @@
         "équilibrage"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792710765
     },
     {
       "id": "task_21",
@@ -1004,6 +1004,65 @@
       ],
       "created_at": 1792704927,
       "updated_at": 1792704927
+    },
+    {
+      "id": "task_73",
+      "title": "Gorr le Borgne : le boss le plus dur de l'acte II en Gardien",
+      "description": "Après la passe de la Guivre d'Azur, Gorr est le plus dur de l'acte II en Gardien : kite 1/8, bot « joueur » 0/8 (graines 1-8), souvent projeté dans les fosses par son séisme (chutes 54-162). C'est le boss principal (celui du parcours « gauntlet »). Mesurer sur plusieurs graines, puis passe dédiée si ça se confirme.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "équilibrage",
+        "boss"
+      ],
+      "created_at": 1792710765,
+      "updated_at": 1792710765
+    },
+    {
+      "id": "task_74",
+      "title": "Guivre de Jade : même plongeon que l'ancienne Guivre d'Azur",
+      "description": "Sa Ruée annelée furieuse prévient 0,30 s en phase 3 (Gardien), frappe une bande de 44 px de chaque côté et enchaîne un second élan 0,55 s après. Avec le bot qui évite les anneaux, kite 3/4 en Gardien. À revoir lors d'une passe sur l'acte III (mêmes corrections que la Guivre d'Azur si besoin).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "équilibrage",
+        "boss"
+      ],
+      "created_at": 1792710765,
+      "updated_at": 1792710765
+    },
+    {
+      "id": "task_75",
+      "title": "degenerate_skills_a3 gagne en face-tank contre la Guivre de Jade",
+      "description": "Gagne à 23 % de vie sans mourir (soins de Dévotion) : vraie entorse au pilier « le face-tank perd ». Aussi : part de soin 68-100 % de ce build contre le Tengu et la Jade. À traiter dans une passe soins/compétences.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "équilibrage"
+      ],
+      "created_at": 1792710765,
+      "updated_at": 1792710765
+    },
+    {
+      "id": "task_76",
+      "title": "Bots d'équilibrage : chutes dans les fosses",
+      "description": "Les bots perdent des combats en tombant dans les fosses après un coup qui repousse (ex. Guivre d'Azur graines 2 et 8, Gorr). Un joueur évite mieux les bords : apprendre aux bots à se tenir loin des trous pendant un combat de boss, pour des mesures plus justes.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "équilibrage",
+        "test"
+      ],
+      "created_at": 1792710765,
+      "updated_at": 1792710765
     }
   ]
 }

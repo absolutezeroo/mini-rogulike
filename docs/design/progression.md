@@ -21,11 +21,12 @@ the normal game:
 | Drop quality (Magic, Rare, Epic) | x0.7 | x1 | x1 | x1 |
 | Heal on each new floor | 25% | - | - | - |
 | Light | brighter | - | darker | much darker |
-| Souls | x0.5 | x1 | x1.6 | x2.5 |
+| Souls | x0.65 | x1 | x1.6 | x2.5 |
 | Feats count (achievements, the Tree's feats, records) | no | yes | yes | yes |
 
-Pilgrim spares the hero but pays for it, and its card says so in red: half the souls, rarer
-Magic, Rare and Epic gear (`loot_quality`), and no feats (`counts_feats`): its runs don't move
+Pilgrim spares the hero but pays for it, and its card says so in red: about two thirds of the
+souls (x0.65; with its smaller floors, a Pilgrim run pays about 0.6x a Keeper run that ends the
+same way), rarer Magic, Rare and Epic gear (`loot_quality`), and no feats (`counts_feats`): its runs don't move
 achievements, the Tree of Souls' feat nodes (so the oaths), the deepest floor or the victories.
 Quests and the bestiary count everywhere. On every card, the souls line is red below x1 and green
 above.
@@ -138,7 +139,10 @@ full tree (the dearer side of each fork) is a campaign of about 47 runs on Keepe
 counted (runs, quests, the bestiary's ranks and challenges, achievements), some 29 hours; the
 first node is bought after the first run; the bestiary and the achievements pay about a sixth of
 the tree in the first 10 runs (they used to pay more than the whole tree). Martyr and Nightmare
-pay more per run (x1.6, x2.5, and more monsters).
+pay more per run (x1.6, x2.5, and more monsters). A career kept to **Pilgrim** (no achievements
+there, its runs reaching the end sooner: table "economy_campaign_easy") fills the tree in about
+64 runs (~43 hours): it progresses, more slowly than Keeper, never faster (it paid x0.5 until
+2026-10-23: 77 runs, and a Pilgrim run brought under half a Keeper run's souls).
 
 Locked items (`content_db.tres` > Locked Items) never appear on the floor until unlocked.
 The `Profile` autoload keeps souls, upgrades and records in `user://profile.json` (works on phones).
