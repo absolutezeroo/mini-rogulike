@@ -37,10 +37,17 @@ func monster_hp(is_boss: bool) -> float:
 	return base * scale * (event.monster_hp if event else 1.0)
 
 
-## Multiplies everything the dungeon deals: monster attacks and skills, traps, bursts, the cold
-## (the game's own lethality, DungeonConfig, times the difficulty's and the event's).
-func monster_damage() -> float:
-	return (config.monster_damage_scale if config else 1.0) * difficulty.monster_damage * (event.monster_damage if event else 1.0)
+## Multiplies a monster's attacks and skills: the game's own lethality (DungeonConfig: the
+## monsters', or `is_boss` the bosses'), times the difficulty's and the event's.
+func monster_damage(is_boss: bool = false) -> float:
+	var base := (config.boss_damage_scale if is_boss else config.monster_damage_scale) if config else 1.0
+	return base * floor_damage()
+
+
+## Multiplies everything the floor deals: the difficulty's and the event's (monsters, traps,
+## bursts, the cold).
+func floor_damage() -> float:
+	return difficulty.monster_damage * (event.monster_damage if event else 1.0)
 
 
 func monster_speed() -> float:
@@ -70,9 +77,10 @@ func scale_monster(base: StatBlock, is_boss: bool) -> StatBlock:
 
 
 ## Damage from the dungeon itself (a trap, quicksand, a blast, the cold): `base`, plus
-## `per_depth` for each floor, times the floor's damage multiplier.
+## `per_depth` for each floor, times the floor's damage multiplier (not the monsters' own
+## lethality: DungeonConfig.monster_damage_scale is for their attacks).
 func dungeon_damage(base: float, per_depth: float = 1.0) -> int:
-	return maxi(1, roundi((base + depth * per_depth) * monster_damage()))
+	return maxi(1, roundi((base + depth * per_depth) * floor_damage()))
 
 
 ## Chance for a monster to come at a rare rank (Epic, Legendary, Shiny): its own chance at

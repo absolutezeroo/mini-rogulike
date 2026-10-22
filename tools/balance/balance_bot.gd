@@ -1,9 +1,9 @@
 class_name BalanceBot
 extends RefCounted
 ## A bot playing the hero through the real input actions (like the touch controls do), one
-## physics frame at a time (step()). Two styles:
+## physics frame at a time (step()). The styles:
 ## - FACE_TANK: walks into attack range of its target and holds attack, uses the weapon's skills
-##   (and the learned spell) whenever they are ready; never rolls, never drinks. What a player
+##   (and the learned spell) whenever they are ready; never rolls. What a player
 ##   does who ignores the boss' patterns.
 ## - KITE: keeps its target at the weapon's range (melee: the edge of its reach) and attacks
 ##   whenever in reach (attacks don't root the hero), even while stepping aside. It reads each
@@ -15,6 +15,7 @@ extends RefCounted
 ## - PLAYER ("player"): the kite bot with a human's reaction time (REACTION): a threat (a wind-up,
 ##   a shot, a shockwave's ring) is only answered once it has been there that long, so short
 ##   wind-ups and fast shots land. An average player, for the gauntlet.
+## No bot drinks, except while `drink_below` is set (the gauntlet, which hands out potions).
 
 enum Style { FACE_TANK, KITE }
 
@@ -22,6 +23,8 @@ const STYLE_NAMES := { "face_tank": Style.FACE_TANK, "kite": Style.KITE, "player
 ## Seconds before the "player" bot answers what it sees (a visual reaction on a phone, with the
 ## decision: about 0.25-0.35 s for an average player).
 const REACTION := 0.3
+## Frames between two potions (the first one's heal shows first).
+const DRINK_WAIT := 45
 const ACTIONS: Array[StringName] = [&"move_left", &"move_right", &"move_up", &"move_down", &"attack",
 	&"skill_1", &"skill_2", &"skill_3", &"skill_4", &"quick_item"]
 ## Shots closer than this, heading at the hero, are dodged.
@@ -40,9 +43,15 @@ var focus: Monster
 var hold_distance := 0.0
 ## The same for every bot made while it is above 0 (the compound checks set it around a measure).
 static var hold_override := 0.0
+## Below this share of max Health, every bot made while it is above 0 drinks what is in the
+## belt's first slot (the quick item key; the gauntlet gives it potions). 0: bots never drink.
+static var drink_below := 0.0
 ## Skill presses and rolls, for the logs.
 var skills_used := 0
 var rolls := 0
+## Potions drunk (drink_below), for the logs.
+var drinks := 0
+var _drink_wait := 0
 ## Seconds before a threat is answered (0: at once; the "player" style: REACTION).
 var reaction := 0.0
 ## Threat key -> the physics frame it was first seen (reaction).
@@ -84,6 +93,7 @@ func step() -> void:
 	for action: StringName in _pressed.keys():
 		Input.action_release(action)
 	_pressed.clear()
+	_drink()
 	var target := _target()
 	if target == null:
 		_move(Vector2.ZERO)
@@ -93,6 +103,18 @@ func step() -> void:
 		_face_tank(target)
 	else:
 		_kite(target)
+
+
+## A potion when Health runs low (drink_below), not two in a row.
+func _drink() -> void:
+	if drink_below <= 0.0 or player.belt.count_at(0) <= 0:
+		return
+	_drink_wait -= 1
+	if _drink_wait > 0 or player.hp >= player.get_max_hp() * drink_below:
+		return
+	if _press(&"quick_item"):
+		drinks += 1
+		_drink_wait = DRINK_WAIT
 
 
 func _target() -> Monster:

@@ -31,9 +31,11 @@ boss_hits_to_kill_max = 12.0
 kite_should_win_on = PackedStringArray("easy", "normal")
 ; The average player (gauntlet's player bot: kite with a 0.3 s reaction) plays every act through (last floor, then the boss, Health carried) on Pilgrim: it stays accessible.
 gauntlet_player_wins_on = PackedStringArray("easy")
-; Keeper: an act takes the average player down by 40-80% of his max Health at worst (a death counts 100%), mean over the acts: a real challenge, not a stroll nor a wall.
-gauntlet_keeper_lost_min = 0.4
-gauntlet_keeper_lost_max = 0.8
+; Keeper: the average player spends 20-60% of his resources (Health and what his potions heal) on an act's last floor before the boss, mean over the acts: the rooms are a fight, not a stroll that hands out potions; he still reaches the boss with a chance.
+gauntlet_keeper_floor_cost_min = 0.2
+gauntlet_keeper_floor_cost_max = 0.6
+; Keeper: the average player wins at least 3 acts in 4 (boss included): a challenge, not a wall.
+gauntlet_keeper_player_wins_min = 0.75
 ; Each act a little harder than the last (threat x0.9-x1.6 act over act): a steady curve, no wall.
 act_threat_step_min = 0.9
 act_threat_step_max = 1.6

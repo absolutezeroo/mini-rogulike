@@ -400,7 +400,7 @@ func foe_numbers(def: MonsterDef, rules: FloorRules, rank: MonsterRankDef, affix
 		stats = stats.plus(stat_bonus)
 	var hero_defense := hero.get_stats().defense
 	var rank_damage := rank.damage_multiplier if rank and not is_boss else 1.0
-	var power := maxi(1, roundi(((def.weapon.damage if def.weapon else 1) + stats.attack) * rules.monster_damage() * rank_damage))
+	var power := maxi(1, roundi(((def.weapon.damage if def.weapon else 1) + stats.attack) * rules.monster_damage(is_boss) * rank_damage))
 	var skill_power := power * maxf(1.0 + stats.skill_power, 0.1)
 	var melee := hit_mean(power * (def.weapon.projectile_damage if def.weapon and def.weapon.kind == WeaponDef.Kind.RANGED else 1.0), stats.crit_chance, hero_defense)
 	var weapon_cd := (def.weapon.cooldown if def.weapon else 1.0) / maxf(1.0 + stats.attack_speed, 0.25)

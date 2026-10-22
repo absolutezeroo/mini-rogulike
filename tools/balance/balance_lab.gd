@@ -490,6 +490,7 @@ func pack(s: Dictionary, build: BalanceBuildDef, foes: Array, bot_name: String, 
 	result["clear_time"] = frames / FPS
 	result["hero_max_hp"] = player.get_max_hp()
 	result["rolls"] = bot.rolls
+	result["drinks"] = bot.drinks
 	# (The next measure clears the room, or starts a fresh run.)
 	return result
 

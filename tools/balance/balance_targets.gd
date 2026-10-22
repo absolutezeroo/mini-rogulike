@@ -39,12 +39,15 @@ extends Resource
 ## plays every act through on these difficulties (an act's last floor, then its boss, Health
 ## carried): Pilgrim must stay accessible.
 @export var gauntlet_player_wins_on: PackedStringArray = ["easy"]
-## On Keeper, the share of max Health an act takes from the average player at worst (1 - his
-## lowest Health over the rooms and the boss; a death counts 1), mean over the acts: at least
-## this (Keeper is a real challenge, not a stroll)...
-@export var gauntlet_keeper_lost_min: float = 0.4
-## ...and at most this (a challenge, not a wall: most acts are won).
-@export var gauntlet_keeper_lost_max: float = 0.8
+## On Keeper, what the average player spends on the act's last floor before its boss: the share
+## of his resources (Health, plus what his Health Potions heal) gone by the boss' door, mean over
+## the acts: at least this (the rooms are a fight, not a stroll that hands out potions)...
+@export var gauntlet_keeper_floor_cost_min: float = 0.2
+## ...and at most this (he still reaches the boss with a chance).
+@export var gauntlet_keeper_floor_cost_max: float = 0.6
+## On Keeper the average player wins at least this share of the acts (boss included): a
+## challenge, not a wall.
+@export var gauntlet_keeper_player_wins_min: float = 0.75
 
 @export_group("Curve")
 ## Threat of a boss for the act's expected build = share of the hero's health a face-tank fight

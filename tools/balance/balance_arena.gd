@@ -146,8 +146,10 @@ static func difficulty_roots(difficulty: DifficultyDef) -> PackedStringArray:
 
 
 ## One fight. Returns what happened (see the keys at the end). `start_hp`: the hero's Health
-## when the fight starts (the gauntlet: what the floor left him; 0: full).
-func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef, bot_name: String, rank: MonsterRankDef = null, start_hp: int = 0) -> Dictionary:
+## when the fight starts (the gauntlet: what the floor left him; 0: full). `belt`: what he
+## carries on his belt when `set_belt` (the gauntlet: the potions left; else as the build has it).
+func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef, bot_name: String, rank: MonsterRankDef = null, start_hp: int = 0,
+		belt: Array[ItemDef] = [], set_belt: bool = false) -> Dictionary:
 	var act := BalanceContent.act_of_boss(content, boss)
 	var depth := BalanceContent.boss_depth(content, act)
 	var game := await lab.start_game(depth, difficulty, boss, true, rank)
@@ -164,6 +166,10 @@ func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef
 	BalanceBuild.apply(build, player, content, difficulty)
 	player.perks.on_floor_started(player)  # floor-start perks (a ward) as on arrival
 	player.xp = -1000000  # the build keeps its level: no level up (and no perk menu) mid-fight
+	if set_belt:
+		BalanceGauntlet.empty_belt(player)
+		for item in belt:
+			player.store(item)
 	if start_hp > 0:
 		player.hp = clampi(start_hp, 1, player.get_max_hp())
 		player.health_changed.emit(player.hp, player.get_max_hp())
@@ -205,6 +211,7 @@ func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef
 	result["boss_hp_left_share"] = maxi(boss_actor.hp, 0) / maxf(boss_actor.get_max_hp(), 1.0)
 	result["rolls"] = bot.rolls
 	result["skills_used"] = bot.skills_used
+	result["drinks"] = bot.drinks
 	# Time to kill, measured or (lost, timed out) projected from the damage dealt so far.
 	var dealt_share: float = 1.0 - float(result.boss_hp_left_share)
 	result["ttk_projected"] = float(result.time) / maxf(dealt_share, 0.01) if outcome != "win" else float(result.time)

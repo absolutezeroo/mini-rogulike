@@ -149,14 +149,17 @@ take 5 s to a minute each; the `balance` test suite about a minute.
 - **gauntlet** (engine; the difficulties' measure): each act as a player meets it, the act's
   expected build on its last normal floor: 8 rooms one after the other (the act's monsters by
   spawn weight, the room size of that depth and difficulty, every monster rolled for a rank with
-  the floor's own chances), Health carried from room to room with only the build's own sustain,
-  then the act's boss with the Health that is left. Bots: `kite` (a decent player) and `player`
+  the floor's own chances), Health and potions carried from room to room (2 Health Potions to
+  start, those picked up on the way join them, a bot drinks one below 35% Health), then the
+  act's boss with what is left. Bots: `kite` (a decent player) and `player`
   (the kite bot with a 0.3 s reaction: a threat is answered only once it has shown that long,
   `BalanceBot.REACTION`; an average player), `face_tank` when asked. Every act x Pilgrim, Keeper,
-  Martyr by default. Tables "gauntlet" (rooms cleared, ranked met, damage taken in the rooms,
-  lowest Health, Health at the boss, the boss fight, the outcome) and "gauntlet_summary" (acts won
-  per difficulty and bot); `summary.md` shows it as act x difficulty. No potions, springs or
-  shrines on the way (the bots never drink), no walking between rooms.
+  Martyr by default. Tables "gauntlet" (rooms cleared, ranked met, damage taken and healed in the
+  rooms, potions drunk, lowest Health, Health and potions at the boss, the **floor cost**: the
+  share of Health and potion healing spent before the boss, the boss fight, the outcome) and
+  "gauntlet_summary" (acts won, mean floor cost, per difficulty and bot); `summary.md` shows it
+  as act x difficulty. No springs or shrines on the way, no walking between rooms, the earlier
+  floors not played.
 
 ### Reading the report
 
@@ -181,7 +184,8 @@ lab before changing data.
 | Face-tank (never dodges) with expected and degenerate builds | must lose to every boss from Keeper | skill beats stats: standing and trading blows must never win (pillar 1) |
 | Kite (keeps range, rolls) with the expected build | wins on Pilgrim and Keeper (boss fights and the gauntlet) | the fight must be beatable by playing it |
 | Gauntlet, `player` bot (an average player) | wins every act on Pilgrim | Pilgrim stays accessible |
-| Gauntlet on Keeper, `player` bot: share of max Health an act takes at worst (a death counts 100%), mean over the acts | 40-80% | Keeper is a real challenge for an average player: not a stroll, not a wall |
+| Gauntlet on Keeper, `player` bot: floor cost (share of Health and potion healing spent on an act's last floor before the boss), mean over the acts | 20-60% | the rooms are a fight, not a stroll that hands out potions; the boss is still reached with a chance |
+| Gauntlet on Keeper, `player` bot: acts won | >= 75% | Keeper is a real challenge for an average player, not a wall |
 | Healing in a boss fight / damage taken | <= 25% expected, <= 50% degenerate and family | healing forgives mistakes, it doesn't out-heal a boss |
 | Boss hits to kill the expected build (Keeper) | 6-12 | one mistake isn't the end; ignoring the patterns kills |
 | Common monster time to kill (expected build, Keeper) | 0.5-2.5 s | paper below, a slog above |

@@ -247,9 +247,10 @@ func _test_combat_rules() -> void:
 	var plain := FloorRules.make(CONTENT.dungeon, null, null, 1)
 	var hard := FloorRules.make(CONTENT.dungeon, nightmare, blood_moon, 5)
 	var lethality := CONTENT.dungeon.monster_damage_scale
-	check(is_equal_approx(plain.monster_damage(), lethality) and plain.dungeon_damage(4) == maxi(1, roundi(5 * lethality)), "no difficulty: the game's own rules (trap 4 + depth 1, the dungeon's lethality)")
+	check(is_equal_approx(plain.monster_damage(), lethality) and is_equal_approx(plain.monster_damage(true), CONTENT.dungeon.boss_damage_scale), "no difficulty: the game's own lethality, the monsters' and the bosses'")
+	check(plain.dungeon_damage(4) == 5, "no difficulty: a trap deals its own damage (trap 4 + depth 1)")
 	check(is_equal_approx(hard.monster_damage(), lethality * nightmare.monster_damage * blood_moon.monster_damage), "the game's lethality, the difficulty and the event multiply")
-	check(hard.dungeon_damage(4) == roundi(9 * hard.monster_damage()), "dungeon damage grows with depth and the multipliers")
+	check(hard.dungeon_damage(4) == roundi(9 * nightmare.monster_damage * blood_moon.monster_damage), "dungeon damage grows with depth and the difficulty's and event's multipliers")
 	check(hard.gold(10) == roundi(10 * blood_moon.gold), "the event changes the gold")
 	var slime: MonsterDef = load("res://data/monsters/slime.tres")
 	check(hard.scale_monster(slime.stats, false).max_hp > plain.scale_monster(slime.stats, false).max_hp and roundi(slime.stats.max_hp * CONTENT.dungeon.monster_hp_scale) == plain.scale_monster(slime.stats, false).max_hp, "monster stats scale without touching the def")
