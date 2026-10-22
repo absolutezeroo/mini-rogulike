@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/singed_page.tres" id="2_singedpage"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"jade_wyrm_scale"
+title = "A Scale Charm"
+author = "An offering of Solhar"
+place = "Scratched on a jade scale"
+lines = PackedStringArray("Gentle One, put me to sleep before the fire.", "I gave my fields and my goats. I have nothing left but me.", "If you sting me, sting softly.")
+look = ExtResource("2_singedpage")

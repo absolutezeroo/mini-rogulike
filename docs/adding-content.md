@@ -36,7 +36,7 @@ you can; by hand, keep the `[ext_resource]` paths right.
 | A new monster AI state | New state script in `src/ai/states/`, add a node for it in `monster.tscn` |
 | A perk | New `PerkDef` in `data/perks/`, add it to `content_db.tres` > Perks |
 | A new kind of perk | New script in `src/definitions/passives/` extending `Passive`, override the hooks you need |
-| A boss | New `BossDef` in `data/monsters/bosses/`, set it as an act's Boss |
+| A boss | New `BossDef` in `data/monsters/bosses/`, set it as an act's Boss, and give it a chronicle (below, "The story") |
 | A shrine upgrade | New `UpgradeDef` in `data/upgrades/`, add it to `content_db.tres` > Upgrades |
 | An achievement | New `AchievementDef` in `data/achievements/` (stat, target, souls), add it to `content_db.tres` > Achievements |
 | An ascension level | New `AscensionDef` in `data/ascension/`, add it at the end of `content_db.tres` > Ascensions |
@@ -61,6 +61,7 @@ you can; by hand, keep the `[ext_resource]` paths right.
 | A new kind of pact rule | New script in `src/definitions/pacts/` extending `PactRule`: `describe()`, `status_text()`, listen in `_on_begin()`, call `_break()` |
 | An item affix | New `ItemAffixDef` in `data/affixes/` (prefix or suffix, slots, stats, on-hit or passives + description), add it to `content_db.tres` > Item Affixes |
 | Story texts | Edit `data/story/story.tres` (intro pages, death lines...); an act's line is its `ActDef` > Lore |
+| A boss's story, a fragment, a condition, a deed, a cinematic step | See "The story" below |
 | A secret room's reward | New `SecretRewardDef` in `data/secrets/` (a chest, an encounter, items or runes, gold: `SecretChestReward`, `SecretEncounterReward`, `SecretItemReward`, `SecretGoldReward`; `spawn_weight`, `min_depth`), add it to `dungeon_config.tres` > Secret Rewards |
 | A new kind of secret reward | New script in `src/definitions/secrets/` extending `SecretRewardDef`, override `place()` (and `is_claimed()`, `place_spent()`) |
 | The hidden floor | `data/secrets/nameless_charnel.tres` (`HiddenFloorDef`: its key, the acts that hide it, its world, monsters, boss, rewards), set in `dungeon_config.tres` > Hidden Floor |
@@ -75,3 +76,69 @@ elites happen, is in `dungeon_config.tres`.
 
 `min_depth` and `spawn_weight` control where and how often something appears.
 A `spawn_weight` of 0 means it never spawns on its own (starting gear, loot-only items, monster weapons).
+
+## The story: chronicles, fragments, conditions, deeds, cinematics
+
+How a warden's story is told is in [design/presentation.md](design/presentation.md#boss-stories);
+what is true in it is [lore.md](lore.md) (write with the `lore` skill). The pieces:
+
+| Piece | Class (`src/definitions/story/`) | Data | What it is |
+|---|---|---|---|
+| A warden's story | `BossChronicleDef` | `data/story/chronicles/<boss id>.tres`, set on the `BossDef` > Chronicle | its chapters, its waking lines, its fragments |
+| A chapter | `ChronicleChapter` (sub-resource) | in the chronicle | `id` (saved, never rename), `title`, 2-4 `lines`, `slain` (times the warden was slain), `conditions` |
+| Its waking words | `WakingLine` (sub-resource) | in the chronicle | one line the warden says in quotes as it wakes, once its `conditions` are met (the last open one is said) |
+| A fragment | `FragmentDef` | `data/story/fragments/<id>.tres`, listed in the chronicle's Fragments | `id` (saved), `title`, `author`, `place`, 2-5 `lines`, a `look`, `conditions` before it may lie on a floor |
+| A fragment's look | `FragmentLookDef` | `data/story/fragment_looks/` | its 16x16 picture (`assets/items/fragments/`), the element of its glow, the word on the Interact button |
+| A condition | `ProgressCondition` and its subclasses (`conditions/`) | a sub-resource, or shared in `data/story/conditions/` | `SlainCondition`, `MetCondition`, `StatCondition` (a profile counter: deepest floor, runs won...), `FragmentsCondition`, `AllCondition`; deeds (`deeds/`) |
+| A deed | `DeedCondition` subclasses (`deeds/`) | a sub-resource of the chronicle | something precise done as the warden fell: `ChallengeDeed` (a `HuntChallenge` way of killing: a weapon, untouched, fast, without a potion...), `ElementDeed`, `MarkDeed` (the run bought nothing, drank at the spring, swore an oath...), `PurseDeed`, `HardshipDeed`, `UnhealedDeed`; its `hint` (a riddle) and `rule` (plain), and the fragment that gives the rule away |
+| A cinematic | `CinematicDef` (`cinematic/`) | `data/story/cinematics/` | its steps and the tuning they share (bars' height, letters a second, reading time, skip rules) |
+| A cinematic step | `CinematicStep` subclasses (`cinematic/steps/`) | sub-resources of a cinematic | `LetterboxStep`, `CameraStep`, `AnimationStep`, `NameStep`, `NarrateStep` (a chapter, the warden's words, or the line it remembers), `ClearTextStep`, `WaitStep` |
+| The whole | `NarrativeDef` | `data/story/narrative.tres` (`content_db.tres` > Narrative) | the full and short cinematics, the fragments' chance and when they start, the reveal gate (`keeper_reveal`) and its words |
+
+The code that uses them: `Narrative` (`src/game/story/narrative.gd`, the only one writing the
+story's part of the Profile, and answering what is open, told, found, done, and what a meeting
+tells: `plan()`), `BossMeeting` (plays a meeting's cinematic when the hero walks into an arena),
+`CinematicDirector` (runs a cinematic's steps) and `CinematicView` (draws it), `FragmentPlacer` (lays
+fragments on the floors), `Fragment` (one on the floor) and `FragmentPanel` (reading it), and the
+codex's `ChronicleRows`. None knows a warden by name: everything comes from the data.
+
+**A new boss's chronicle.** Write it first (the `lore` skill: French first, English its equal;
+docs/lore.md section 5 for who it was and what it knows; section 7 for what may be said when).
+Copy a chronicle of `data/story/chronicles/`, then:
+1. Chapters in the order they are told: the first one `slain = 0` and no conditions (the first
+   meeting), then its life, how it fell, the keeper who bound it, its own truth; `slain` grows
+   (1, 2, 4, 6 in ours). Each 2-4 lines, at most two sentences and 150 letters each.
+2. One or two chapters or waking lines earned by a deed that means something for it (a sub-resource
+   `DeedCondition` subclass in the chapter's Conditions, with an `id`, a `hint` in the Well's voice
+   and a plain `rule`). A chapter can wait for its fragments (`FragmentsCondition`).
+3. Two waking lines: one when a fragment of it was found, one naming the keeper with
+   `data/story/conditions/keeper_named.tres` in its Conditions. **Any text naming Tôma must ask for
+   that condition** (the tests scan every text in both languages for `NarrativeDef.reveal_words`).
+4. Two or three fragments in `data/story/fragments/` (a real author, a place, 2-5 lines ending on
+   an image), one of them giving the deed's rule away (`revealed_by`); a page of Tôma's journal
+   waits for `keeper_named`. A hidden warden's fragments wait for a `MetCondition`. They lie on the
+   floors of its act (or of the acts that hide its way, for the hidden floor's warden).
+5. Set the chronicle on the `BossDef` (> Chronicle). Beware loops of resources: a condition inside
+   a warden's own chronicle names that warden by `monster_id`, not by its `BossDef`.
+6. `python3 tools/i18n/extract.py`, the French (the `translate` skill: « », a narrow no-break space
+   before `: ; ! ?` and inside the quotes), `--check`. The unit suite checks every warden of the
+   acts has a chronicle with 4 chapters or more, every line is translated and fits, and the reveal.
+7. Add what is new about it to docs/lore.md (section 5b).
+
+**A new kind of condition**: a script in `src/definitions/story/conditions/` extending
+`ProgressCondition`: `is_met(subject)` (read the Profile through Narrative or the Profile's
+counters, never the UI) and `describe(subject)` (plain words for the codex's lock). A new counter:
+a key in `Profile.stat_value()`, read by a `StatCondition`. Dialogue and NPCs can use the same
+conditions (`ProgressCondition.all_met(conditions, subject)`).
+
+**A new kind of deed**: a script in `src/definitions/story/deeds/` extending `DeedCondition`:
+`achieved(kill)`, reading the warden's death as `HuntTracker.kill_context()` describes it (add a
+key there if it needs one, from the run or the fight: `RunState.marks` for what the run did, set
+by `RunRecords` from the `Events`). Recorded for good by `Narrative.record_deeds()`.
+
+**A new kind of cinematic step**: a script in `src/definitions/story/cinematic/steps/` extending
+`CinematicStep`: `play(director)` uses the director's stage (`camera`, `subject`, `hero`, `view`,
+`story`, `def`'s tuning) and waits with `await director.wait(seconds)` so a tap can hurry or end it;
+`always_run` for a step that must run even when skipped (putting things back). Then add it to a
+cinematic's Steps. A scene for an NPC or the final fight is another `CinematicDef` played by a
+`CinematicDirector` with its own subject and `StoryBeat`.

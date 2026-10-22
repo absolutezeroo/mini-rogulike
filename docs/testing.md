@@ -33,6 +33,12 @@ The suites (`tests/suites/`, each a `TestSuite`):
   encounters, pact doors, the merchant, loot, curses, biomes, act cards, the belt), **boss** (a full boss fight
   with its phases and relic, then winning the run) and **finale** (the bottom of the Well after a
   win: the gate, saves around it, Tôma, the Maw's jaw, the endings).
+- The story (`story_tests.gd`, `StoryTests`): its unit part runs in the unit suite (every
+  warden's chronicle, lengths and translations, the reveal rule, conditions, deeds, what a meeting
+  tells, fragments, the codex's Chronicle, the option), its game part at the end of the game suite
+  (the cinematic in an arena, skipping, no replay on a run picked up again, Short and Off, a deed,
+  fragments on the floors and their panel). The runner turns Boss stories off for every other test
+  (`Settings.boss_stories`), as it does the tutorial hints; the story tests turn them on.
 - **tutorial**: the hints' data, the first steps played with the real controls, the hints that come
   up once, menus, the options and the profile.
 

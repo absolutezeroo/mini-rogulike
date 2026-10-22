@@ -1,0 +1,67 @@
+[gd_resource type="Resource" script_class="CinematicDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/cinematic/cinematic_def.gd" id="1_cinematicdef"]
+[ext_resource type="Script" path="res://src/definitions/story/cinematic/steps/letterbox_step.gd" id="2_letterboxste"]
+[ext_resource type="Script" path="res://src/definitions/story/cinematic/steps/camera_step.gd" id="3_camerastep"]
+[ext_resource type="Script" path="res://src/definitions/story/cinematic/steps/animation_step.gd" id="4_animationste"]
+[ext_resource type="Script" path="res://src/definitions/story/cinematic/steps/name_step.gd" id="5_namestep"]
+[ext_resource type="Script" path="res://src/definitions/story/cinematic/steps/narrate_step.gd" id="6_narratestep"]
+[ext_resource type="Script" path="res://src/definitions/story/cinematic/steps/wait_step.gd" id="7_waitstep"]
+[ext_resource type="Script" path="res://src/definitions/story/cinematic/steps/clear_text_step.gd" id="8_cleartextste"]
+[ext_resource type="Script" path="res://src/definitions/story/cinematic/cinematic_step.gd" id="9_cinematicste"]
+
+[sub_resource type="Resource" id="Resource_1"]
+script = ExtResource("2_letterboxste")
+show = true
+time = 0.45
+
+[sub_resource type="Resource" id="Resource_2"]
+script = ExtResource("3_camerastep")
+target = 0
+time = 0.8
+lift = 36.0
+
+[sub_resource type="Resource" id="Resource_3"]
+script = ExtResource("4_animationste")
+animation = &"intro"
+max_time = 1.6
+
+[sub_resource type="Resource" id="Resource_4"]
+script = ExtResource("5_namestep")
+hold = 0.9
+
+[sub_resource type="Resource" id="Resource_5"]
+script = ExtResource("6_narratestep")
+source = 0
+
+[sub_resource type="Resource" id="Resource_6"]
+script = ExtResource("7_waitstep")
+seconds = 0.3
+
+[sub_resource type="Resource" id="Resource_7"]
+script = ExtResource("8_cleartextste")
+always_run = true
+time = 0.3
+
+[sub_resource type="Resource" id="Resource_8"]
+script = ExtResource("3_camerastep")
+always_run = true
+target = 1
+time = 0.6
+
+[sub_resource type="Resource" id="Resource_9"]
+script = ExtResource("2_letterboxste")
+always_run = true
+show = false
+time = 0.4
+
+[resource]
+script = ExtResource("1_cinematicdef")
+steps = Array[ExtResource("9_cinematicste")]([SubResource("Resource_1"), SubResource("Resource_2"), SubResource("Resource_3"), SubResource("Resource_4"), SubResource("Resource_5"), SubResource("Resource_6"), SubResource("Resource_7"), SubResource("Resource_8"), SubResource("Resource_9")])
+letterbox_height = 0.12
+chars_per_second = 55.0
+fade_time = 0.35
+line_hold = 0.7
+hold_per_char = 0.035
+tap_grace = 0.35
+tap_completes_first = true

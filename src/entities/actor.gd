@@ -8,9 +8,10 @@ extends CharacterBody2D
 signal health_changed(current: int, maximum: int)
 signal stats_changed
 signal died(actor: Actor)
-## HP actually restored by heal(), and who did it (see heal_source). Nothing in the game listens:
-## it is a measuring hook for the balance tools (tools/balance/), so they can tell a Leech rune's
-## healing from Vampirism's or a potion's. Changes nothing.
+## HP actually restored by heal(), and who did it (see heal_source). A measuring hook for the
+## balance tools (tools/balance/), so they can tell a Leech rune's healing from Vampirism's or a
+## potion's; the HuntTracker counts the hero's heals during a boss fight (UnhealedDeed). Changes
+## nothing.
 signal healed(amount: int, source: StringName)
 
 ## What is healing right now ("perk:vampirism", "rune:leech_rune", "skill:smite", "item:health_potion"...),
@@ -331,7 +332,7 @@ func heal(amount: int) -> int:
 	hp = mini(hp + amount, get_max_hp())
 	health_changed.emit(hp, get_max_hp())
 	if hp > before:
-		healed.emit(hp - before, heal_source)  # balance tools only (see `healed`)
+		healed.emit(hp - before, heal_source)  # balance tools and deeds (see `healed`)
 	return hp - before
 
 

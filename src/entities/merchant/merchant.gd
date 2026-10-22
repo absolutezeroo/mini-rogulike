@@ -130,6 +130,7 @@ func sell_to(player: Player, index: int) -> bool:
 	player.store(entry.item)
 	stock.remove_at(index)
 	_world.bought.append(LootRoller.to_data(entry.item))
+	Events.item_bought.emit(entry.item)
 	Sfx.play_ui(Sfx.bank.coin)
 	Events.log_message(tr("Bought %s") % tr(entry.item.display_name), entry.item.rarity_color())
 	return true

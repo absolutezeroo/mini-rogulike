@@ -60,6 +60,12 @@ var secrets_found := 0
 ## Souls earned on top of the usual ones (the hidden floor's boss), before the difficulty's
 ## multiplier.
 var bonus_souls := 0
+## What the run did that a warden's deed may ask about (MarkDeed): "bought", "secret",
+## "hidden_floor", "oath", "cursed", "encounter:<id>" -> true. Set by RunRecords; saved.
+var marks := {}
+## The boss floors whose warden was already met this run ("3", "6h" on the hidden floor): a run
+## picked up again on that floor never tells its story twice. Saved.
+var met_floors: Array[String] = []
 ## The dungeon's rules (what a run's souls are worth). Set by create(); not saved.
 var config: DungeonConfig
 ## The floor a run must reach to count toward the next reset of the tree (SoulTreeDef).
@@ -89,6 +95,14 @@ static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGener
 	run.ending_due = bool(saved.get("ending_due", false))
 	run.secrets_found = int(saved.get("secrets_found", 0))
 	run.bonus_souls = int(saved.get("bonus_souls", 0))
+	var saved_marks: Variant = saved.get("marks", {})
+	if saved_marks is Dictionary:
+		for mark: Variant in saved_marks:
+			run.marks[str(mark)] = true
+	var saved_met: Variant = saved.get("met_floors", [])
+	if saved_met is Array:
+		for key: Variant in saved_met:
+			run.met_floors.append(str(key))
 	run.kills = int(saved.get("kills", 0))
 	run.bosses_slain = int(saved.get("bosses_slain", 0))
 	run.has_won = bool(saved.get("has_won", false))
@@ -192,6 +206,8 @@ func to_data() -> Dictionary:
 		"ending_due": ending_due,
 		"secrets_found": secrets_found,
 		"bonus_souls": bonus_souls,
+		"marks": marks,
+		"met_floors": met_floors,
 		"difficulty": String(difficulty.id),
 		"ascension": difficulty.ascension,
 	}
@@ -216,6 +232,26 @@ func wins_with(boss: BossDef) -> bool:
 ## The split a floor's end is counted under: the bottom of the Well after the last act's.
 func split_depth() -> int:
 	return depth + 1 if finale else depth
+
+
+## Something a warden's deed may ask about happened this run (MarkDeed).
+func mark(name: String) -> void:
+	marks[name] = true
+
+
+## This floor, as met_floors keeps it.
+func floor_key() -> String:
+	return "%d%s" % [depth, "h" if hidden_floor else ""]
+
+
+## The warden of this floor was met already this run (its story is not told again).
+func has_met_here() -> bool:
+	return met_floors.has(floor_key())
+
+
+func meet_here() -> void:
+	if not has_met_here():
+		met_floors.append(floor_key())
 
 
 ## The seed of the ways down offered toward floor `floor_depth` (the same all day in a daily run).

@@ -37,7 +37,8 @@ player decides when the fight stops.
   tapping does on a plaque under it: **Trade** (the merchant), **Forge** (the smith), the
   encounter's own word (`EncounterDef.verb`: **Drink** at the spring, **Offer** at the blood
   altar, **Talk** to the grinning spirit, **Kneel** before the statue), **Read the pact** (a pact
-  door, until it is sworn). A soft gold ring lies at the thing's feet while the button is its.
+  door, until it is sworn), **Read** (a fragment of the past lying on the floor: it opens in a
+  panel over the paused game, a tap closes it; presentation.md, Boss stories). A soft gold ring lies at the thing's feet while the button is its.
   Tapping (or E / F, the right trigger) opens its window; walking out of reach hides the button.
   Closing the window leaves the button there: tap again to come back. Spent things (a used
   encounter, a sworn pact) offer nothing.
@@ -74,9 +75,11 @@ player decides when the fight stops.
   band only), **screen flashes** (lightning lights the screen for one frame, at most 3 a second;
   off for players sensitive to flashes), **run timer** (on/off), **auto loot** (All / Better only /
   By hand, three buttons, the picked one's rule spelled out under them; see design/loot.md),
+  **boss stories** (Full / Short / Off, three buttons the same way: the cinematic before a
+  warden's fight, presentation.md "Boss stories"),
   **tutorial hints** (on/off) and **Replay tutorial**, and the **language** (English / Français,
   see Languages). The window (`OptionsPanel`, built in code on `MenuWindow`) groups them
-  (Sound, Touch controls, Screen and battery, Loot, Tutorial), each with a one-line "what it does";
+  (Sound, Touch controls, Screen and battery, Loot, Story, Tutorial), each with a one-line "what it does";
   on/off options are big switches, and tapping an option's name flips it too.
 - **Loot left on the ground** (auto loot, or no room in the bag): while the hero stands on it, a
   small board low in the middle of the screen, above the belt and skill buttons (`LootPrompt`,

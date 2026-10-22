@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/met_condition.gd" id="2_metcondition"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/bone_tablet.tres" id="3_bonetablet"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="4_progresscond"]
+
+[sub_resource type="Resource" id="Resource_1"]
+script = ExtResource("2_metcondition")
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"nameless_effigy_epitaph"
+title = "An Effaced Epitaph"
+author = "A stonecutter"
+place = "On a tomb without an inscription"
+lines = PackedStringArray("Here lies —, knight of —, who gave his name to the seal.", "Passer-by, do not try to read it. The name is below, and it holds the door.")
+look = ExtResource("3_bonetablet")
+conditions = Array[ExtResource("4_progresscond")]([SubResource("Resource_1")])

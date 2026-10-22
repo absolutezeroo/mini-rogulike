@@ -62,6 +62,16 @@ var starting_weapon: StringName = &""
 var runs_since_reset := 0
 ## The ending chosen at the bottom of the Well the last time (EndingDef id; "" = none yet).
 var ending: StringName = &""
+## The story (written through Narrative only): chapters and waking words of the wardens'
+## chronicles already told ("boss_id/chapter_id" -> 1), fragments found (id -> 1), deeds done
+## ("boss_id/deed_id" -> 1), and how many times each warden was met (id -> count).
+var chronicle_told := {}
+var fragments_found := {}
+var deeds_done := {}
+var boss_meetings := {}
+## The deepest floor ever reached, on any difficulty (the story's progress; best_depth is the
+## feats' record, without Pilgrim runs). An older save starts from best_depth.
+var deepest := 0
 
 const HISTORY_SIZE := 20
 ## What an older save (no count yet) starts with: enough runs for any reset, so nobody who
@@ -270,6 +280,17 @@ func stat_value(key: String) -> int:
 			return int(wins.get("hard", 0)) + int(wins.get("nightmare", 0))
 		"nightmare_wins":
 			return int(wins.get("nightmare", 0))
+		"deepest":
+			return maxi(deepest, best_depth)
+		"all_wins":
+			var total := 0
+			for count: int in wins.values():
+				total += count
+			return maxi(total, victories)
+		"fragments":
+			return fragments_found.size()
+		"runs":
+			return runs
 	return int(stats.get(key, 0))
 
 
@@ -459,7 +480,17 @@ func reset() -> void:
 	starting_weapon = &""
 	runs_since_reset = 0
 	ending = &""
+	chronicle_told = {}
+	fragments_found = {}
+	deeds_done = {}
+	boss_meetings = {}
+	deepest = 0
 	changed.emit()
+
+
+## A floor reached, on any difficulty (the story's progress).
+func reach_depth(depth: int) -> void:
+	deepest = maxi(deepest, depth)
 
 
 func save_profile() -> void:
@@ -478,6 +509,8 @@ func save_profile() -> void:
 		"oath": String(oath), "starting_weapon": String(starting_weapon),
 		"runs_since_reset": runs_since_reset,
 		"ending": String(ending),
+		"chronicle_told": chronicle_told, "fragments_found": fragments_found, "deeds_done": deeds_done,
+		"boss_meetings": boss_meetings, "deepest": deepest,
 	})
 
 
@@ -517,6 +550,11 @@ func load_profile() -> void:
 	starting_weapon = StringName(data.get("starting_weapon", ""))
 	runs_since_reset = int(data.get("runs_since_reset", RESET_EARNED))
 	ending = StringName(data.get("ending", ""))
+	chronicle_told = _ints(data.get("chronicle_told", {}))
+	fragments_found = _ints(data.get("fragments_found", {}))
+	deeds_done = _ints(data.get("deeds_done", {}))
+	boss_meetings = _ints(data.get("boss_meetings", {}))
+	deepest = maxi(int(data.get("deepest", 0)), best_depth)
 	best_splits = {}
 	var saved_splits: Variant = data.get("best_splits", {})
 	if saved_splits is Dictionary:

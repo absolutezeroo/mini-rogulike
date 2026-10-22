@@ -85,6 +85,8 @@ var hidden := HiddenPassage.new()
 var _into_hidden := false
 ## The Interact button's brain: what the hero stands by, and using it.
 var interactor := Interactor.new()
+## A warden's story told as the hero walks into its arena (the World's storyteller).
+var meeting := BossMeeting.new()
 ## The player opened the perk choices (the HUD's perk button): they follow one another until
 ## none is left or one is put off. Otherwise only those that come up by themselves show (relics).
 var _choosing := false
@@ -109,6 +111,11 @@ func _ready() -> void:
 	_setup_threshold()
 	_setup_abyss()
 	_setup_interactor()
+	meeting.name = "BossMeeting"
+	meeting.game = self
+	meeting.narrative = content.narrative
+	add_child(meeting)
+	world.storyteller = meeting
 	hidden.name = "HiddenPassage"
 	hidden.game = self
 	hidden.def = content.dungeon.hidden_floor
@@ -152,6 +159,7 @@ func _connect_menus() -> void:
 	shop_panel.closed.connect(_on_menu_closed)
 	menus.forge.closed.connect(_on_menu_closed)
 	menus.pact.closed.connect(_on_menu_closed)
+	menus.fragment.closed.connect(_on_menu_closed)
 	encounter_panel.closed.connect(_on_menu_closed)
 	perk_panel.chosen.connect(_on_perk_chosen)
 	perk_panel.reroll_requested.connect(_on_perk_reroll)
@@ -170,6 +178,8 @@ func _connect_events() -> void:
 	Events.forge_requested.connect(open_forge)
 	Events.encounter_requested.connect(open_encounter)
 	Events.pact_requested.connect(open_pact)
+	Events.fragment_requested.connect(open_fragment)
+	Events.deed_done.connect(_on_deed_done)
 	Events.pact_ended.connect(_on_pact_ended)
 	Events.perk_offer_requested.connect(func(rarity: int, title: String, subtitle: String) -> void:
 		_queue_offer(rarity as PerkDef.Rarity, PERK_CHOICES, title, subtitle))
@@ -263,7 +273,7 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	player.crit_damage_bonus = world.boons.crit_damage_bonus
 	_records.bind(run, player)
 	run_timer.run = run
-	_hunt.bind(player)
+	_hunt.bind(player, run)
 	interactor.player = player
 	hud.bind_player(player)
 	tutorial.bind(player, world, hud)
@@ -411,7 +421,12 @@ func _award_souls(won_now: bool) -> int:
 # --- Menus -------------------------------------------------------------------
 
 func is_menu_open() -> bool:
-	return _transitioning or menus.any_open()
+	return _transitioning or menus.any_open() or meeting.is_playing()
+
+
+## A cinematic (a warden's story) freezes the world while it plays.
+func pause_for_cinematic(on: bool) -> void:
+	_set_paused(on or is_menu_open())
 
 
 func open_encounter(encounter: Encounter) -> void:
@@ -438,6 +453,30 @@ func _on_pact_ended(pact: PactRoom) -> void:
 	await get_tree().create_timer(RELIC_DELAY, false).timeout
 	if player == keeper and not player.is_dead:
 		_show_next_offer()
+
+
+## A fragment lying on the floor is read: kept for good (Narrative), gone from the floor.
+func open_fragment(piece: Fragment) -> void:
+	if piece == null or piece.taken or not _can_open_menu():
+		return
+	var first := Narrative.find(piece.def)
+	if first:
+		Events.fragment_found.emit(piece.def, piece.boss)
+		if content.narrative:
+			Events.log_message(tr(content.narrative.fragment_message) % tr(piece.def.title), UiSkin.GOLD)
+	world.fragment_taken = true
+	piece.take()
+	Sfx.play_ui(Sfx.bank.ui_open)
+	_set_paused(true)
+	menus.fragment.open(piece.def, piece.boss, first)
+
+
+## A warden fell the way one of its deeds asks: the Well remembers.
+func _on_deed_done(boss: BossDef, _deed: DeedCondition) -> void:
+	if content.narrative and not content.narrative.deed_message.is_empty():
+		var line := tr(content.narrative.deed_message) % tr(boss.display_name)
+		Events.log_message(line, UiSkin.GOLD)
+		hud.toast(line)
 
 
 func open_shop(merchant: Merchant) -> void:
@@ -576,6 +615,7 @@ func _enter_floor(resumed: bool = false) -> void:
 	if not resumed and depth > 1 and difficulty.heal_on_new_floor > 0.0:
 		player.heal(roundi(player.get_max_hp() * difficulty.heal_on_new_floor))
 	_save_run()
+	Profile.reach_depth(depth)
 	if run.difficulty.counts_feats:
 		Profile.best_depth = maxi(Profile.best_depth, depth)
 	_records.check_achievements()
@@ -702,7 +742,8 @@ func _show_cards() -> void:
 
 func _on_boss_started(boss: Monster) -> void:
 	var def := boss.def as BossDef
-	hud.show_banner(tr(boss.display_name), Palette.DANGER)
+	if meeting.last_told != boss.get_instance_id():
+		hud.show_banner(tr(boss.display_name), Palette.DANGER)  # (a cinematic already named it)
 	if def and not def.title.is_empty():
 		Events.log_message("%s, %s" % [tr(boss.display_name), tr(def.title)], Palette.DANGER)
 	if def and not def.waking_line.is_empty():

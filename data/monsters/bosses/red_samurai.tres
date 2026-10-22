@@ -26,6 +26,7 @@
 [ext_resource type="Resource" path="res://data/skills/boss/fire_ring_fierce.tres" id="20_pmauv"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="22_nfwhk"]
 [ext_resource type="Resource" path="res://data/materials/armor.tres" id="99_material"]
+[ext_resource type="Resource" path="res://data/story/chronicles/red_samurai.tres" id="90_chronicle"]
 
 [sub_resource type="Resource" id="Resource_mesb5"]
 script = ExtResource("1_pmauv")
@@ -107,6 +108,7 @@ crit_chance = 0.1
 
 [resource]
 script = ExtResource("19_uawpc")
+chronicle = ExtResource("90_chronicle")
 material = ExtResource("99_material")
 title = "Burning Warden of the Pyre"
 shockwave_power = 1.0
@@ -130,7 +132,7 @@ challenges = Array[ExtResource("1_pmauv")]([SubResource("Resource_mesb5")])
 loot = SubResource("Resource_pmauv")
 id = &"red_samurai"
 display_name = "Ember Ronin"
-description = "A masterless giant in burning armor. His blade cuts arcs of fire."
+description = "A guard of Solhar's temple, masterless since the fall, in burning armor. His curved blade cuts arcs of fire."
 icon = ExtResource("5_npp6p")
 glyph = "C"
 color = Color(0.9019608, 0.22352941, 0.27450982, 1)

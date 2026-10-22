@@ -59,6 +59,20 @@ signal pact_started(pact: PactRoom)
 signal pact_broken(pact: PactRoom)
 ## The pact's last foe fell and the door opened (`pact.outcome`: kept or broken).
 signal pact_ended(pact: PactRoom)
+## A cinematic began over the frozen world (a warden's story, CinematicDirector): the HUD steps
+## aside until it is finished.
+signal cinematic_started
+signal cinematic_finished
+## The hero tapped Interact by a fragment lying on the floor (Fragment): it is read.
+signal fragment_requested(fragment: Fragment)
+## A fragment was found for the first time (Narrative): kept in the warden's chronicle.
+signal fragment_found(fragment: FragmentDef, boss: BossDef)
+## A warden fell the way one of its chronicle's deeds asks (DeedCondition): done for good.
+signal deed_done(boss: BossDef, deed: DeedCondition)
+## The hero bought something from the merchant (RunState.marks: "bought").
+signal item_bought(item: ItemDef)
+## An encounter was used (a choice made at a spring, an altar...).
+signal encounter_used(encounter: Encounter)
 
 
 func log_message(text: String, color: Color = Color.WHITE) -> void:

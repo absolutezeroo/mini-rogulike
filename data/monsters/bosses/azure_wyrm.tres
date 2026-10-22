@@ -34,6 +34,7 @@
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/azure_wyrm/wing.png" id="28_6blim"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/frost_fang.tres" id="29_6v430"]
 [ext_resource type="Resource" path="res://data/materials/flesh.tres" id="99_material"]
+[ext_resource type="Resource" path="res://data/story/chronicles/azure_wyrm.tres" id="90_chronicle"]
 
 [sub_resource type="Resource" id="Resource_3qefx"]
 script = ExtResource("1_e5a27")
@@ -125,6 +126,7 @@ tail = ExtResource("27_0lqao")
 
 [resource]
 script = ExtResource("22_o4fo3")
+chronicle = ExtResource("90_chronicle")
 material = ExtResource("99_material")
 title = "Frozen Breath of the Ossuary"
 shockwave_power = 1.0

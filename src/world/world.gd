@@ -72,8 +72,15 @@ var forced_boss_rank: MonsterRankDef
 var run_bosses: Array[BossDef] = []
 ## The floor's ambush room, if it has one.
 var ambush: AmbushRoom
+## Tells a warden's story when the hero walks into its arena, before it wakes (the Game's
+## BossMeeting; null: the fight starts at once). Not owned by the World.
+var storyteller: Storyteller
 ## The floor's pact door, if it has one.
 var pact: PactRoom
+## The fragment lying on this floor (FragmentPlacer), if any; `fragment_taken`: read already
+## (saved with the floor: a run picked up again doesn't lay another).
+var fragment: Fragment
+var fragment_taken := false
 ## Merchant stock the hero locked and didn't buy: { item, price, locked } entries waiting for the
 ## next merchant (see Merchant). Lives as long as the run.
 var kept_stock: Array[Dictionary] = []
@@ -239,6 +246,8 @@ func clear_floor() -> void:
 	ambush = null
 	secrets.clear()
 	pact = null
+	fragment = null
+	fragment_taken = false
 	awake_monsters.clear()
 	_activity_timer = 0.0
 	_cracks.clear()
@@ -318,6 +327,15 @@ func spawn_encounter(def: EncounterDef, cell: Vector2i) -> Encounter:
 	encounter.setup(def, self)
 	_place_on_cell(encounter, cell)
 	return encounter
+
+
+## A fragment of `boss`'s past lying on `cell` (it doesn't block the way).
+func spawn_fragment(def: FragmentDef, boss: BossDef, cell: Vector2i) -> Fragment:
+	var piece := Fragment.new()
+	piece.setup(def, boss)
+	_place_on_cell(piece, cell, false)
+	fragment = piece
+	return piece
 
 
 func spawn_forge(def: ForgeDef, cell: Vector2i) -> Forge:
@@ -529,6 +547,7 @@ func spent_data() -> Dictionary:
 		"bought": bought.duplicate(),
 		"secrets": SecretRoom.states(secrets),
 		"pact": pact.save_code() if pact else 0,
+		"fragment": fragment_taken,
 	}
 
 
@@ -557,6 +576,9 @@ func _apply_restore() -> void:
 			if merchant.world_of() == self and merchant.forget_sold(saved_item):
 				bought.append(saved_item)
 				break
+	if bool(data.get("fragment", false)) and fragment and is_instance_valid(fragment):
+		fragment_taken = true
+		fragment.take()  # read before quitting: not laid again
 	if pact and int(data.get("pact", 0)) > 0:
 		pact.set_spent()  # sworn before quitting: never offered again
 

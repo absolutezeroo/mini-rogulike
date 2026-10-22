@@ -8,6 +8,9 @@ extends MonsterDef
 
 ## Shown under the name when the fight starts, e.g. "Guardian of the Ruins".
 @export var title: String
+## Its story, told a chapter at a time before its fights and kept in the codex (Narrative).
+## Empty: none (its name in a banner, as before).
+@export var chronicle: BossChronicleDef
 ## Face shown next to the boss health bar.
 @export var portrait: Texture2D
 ## Played during the fight. Empty = SoundBank.boss_music.

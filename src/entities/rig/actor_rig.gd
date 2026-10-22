@@ -298,10 +298,20 @@ func play_intro() -> void:
 	_play(&"intro", 1.0, true)
 
 
-## Seconds its intro lasts (0 without one).
-func intro_length() -> float:
-	var animation := _animation_for(&"intro")
+## How long animation `base` lasts, in seconds (0: the actor has none). A cinematic waits for it.
+func animation_length(base: StringName) -> float:
+	if body.sprite_frames == null:
+		return 0.0
+	var animation := _animation_for(base)
 	return _length(body.sprite_frames, animation) if animation != &"" else 0.0
+
+
+## Plays a one-shot animation by its name (a cinematic step: a warden's "intro").
+func play_named(base: StringName) -> void:
+	if base == &"intro":
+		play_intro()
+	elif not _dead:
+		_play(base, 1.0, true)
 
 
 ## Hit (by `element`: a storm hit crackles over the body).

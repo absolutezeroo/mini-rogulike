@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/singed_page.tres" id="2_singedpage"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"crimson_tengu_rubric"
+title = "Rubric of the Rite"
+author = "A priest of Solhar"
+place = "Carved in the Pyre Temple's wall"
+lines = PackedStringArray("The priest takes no balm and no remedy while the offering burns.", "Whoever heals during the rite defiles it. Then the sun turns its face away.", "Burn without remedy, and the face will look upon you.")
+look = ExtResource("2_singedpage")

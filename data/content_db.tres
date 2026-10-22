@@ -229,6 +229,7 @@
 [ext_resource type="Resource" path="res://data/achievements/he_who_does_not_rest.tres" id="901_rest"]
 [ext_resource type="Resource" path="res://data/achievements/the_last_knell.tres" id="902_knell"]
 [ext_resource type="Resource" path="res://data/achievements/he_who_keeps_watch.tres" id="903_watch"]
+[ext_resource type="Resource" path="res://data/story/narrative.tres" id="90_narrative"]
 
 [resource]
 script = ExtResource("34_tx8pl")
@@ -236,6 +237,7 @@ player = ExtResource("33_bx8nx")
 dungeon = ExtResource("1_q2vv8")
 sounds = ExtResource("35_vxbuw")
 story = ExtResource("81_du3p3")
+narrative = ExtResource("90_narrative")
 items = Array[ExtResource("2_cewcx")]([ExtResource("3_kwdc3"), ExtResource("4_7ya5d"), ExtResource("5_pbmnr"), ExtResource("6_m0rk7"), ExtResource("7_ecbkd"), ExtResource("8_m5vms"), ExtResource("9_8li55"), ExtResource("10_ng0jj"), ExtResource("11_te2ty"), ExtResource("12_prpil"), ExtResource("13_q2763"), ExtResource("14_3wmne"), ExtResource("15_rjx6h"), ExtResource("16_h0egv"), ExtResource("17_hbtgr"), ExtResource("18_jjy75"), ExtResource("19_lnxyg"), ExtResource("20_vfprf"), ExtResource("21_nlt3e"), ExtResource("22_7cyc7"), ExtResource("23_dianq"), ExtResource("53_q206c"), ExtResource("54_xvm7b"), ExtResource("55_ptr0g"), ExtResource("56_h4mc1"), ExtResource("38_1b8ag"), ExtResource("37_gyds2"), ExtResource("59_f7s8q"), ExtResource("60_ilejg"), ExtResource("61_g2ao2"), ExtResource("62_y455n"), ExtResource("63_xepax"), ExtResource("64_uppjc")])
 perks = Array[ExtResource("33_lnxyg")]([ExtResource("34_vfprf"), ExtResource("35_nlt3e"), ExtResource("36_7cyc7"), ExtResource("37_2j2up"), ExtResource("38_urwiy"), ExtResource("39_sw1r8"), ExtResource("40_qfpny"), ExtResource("40_bldrg"), ExtResource("41_d3nxt"), ExtResource("42_yjg1c"), ExtResource("43_dianq"), ExtResource("44_kqkbc"), ExtResource("45_xx7nh"), ExtResource("46_6esje"), ExtResource("47_bx8nx"), ExtResource("48_tx8pl"), ExtResource("49_vxbuw"), ExtResource("50_qapwd"), ExtResource("58_e0sb6"), ExtResource("59_y15mf"), ExtResource("60_5rwny"), ExtResource("61_mmfdi"), ExtResource("134_nrgv6"), ExtResource("135_cwkh5"), ExtResource("136_l46qw"), ExtResource("137_r632x"), ExtResource("138_m0624"), ExtResource("139_lp0ch")])
 bestiary = ExtResource("32_f6o1n")

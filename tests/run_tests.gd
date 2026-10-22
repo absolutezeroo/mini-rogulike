@@ -27,6 +27,8 @@ func _ready() -> void:
 	Profile.reset()
 	# Hints would pop up all over the other tests (the tutorial tests turn them on).
 	Settings.tutorial_hints = false
+	# No boss story before each fight either (the story tests turn them on).
+	Settings.boss_stories = Settings.STORIES_OFF
 	Settings.path = ""
 	# The checks read English texts, whatever the machine's (or the saved) language.
 	Settings.language = "en"
@@ -73,7 +75,7 @@ func _only() -> PackedStringArray:
 ## The suites the game suite borrows from compile too (a parse error in one would otherwise
 ## only show as a script error, with 0 failed).
 func _helpers_compile() -> bool:
-	for path in ["res://tests/suites/floor_tests.gd", "res://tests/suites/combat_tests.gd", "res://tests/suites/boss_tests.gd", "res://tests/suites/secret_tests.gd", "res://tests/suites/finale_tests.gd"]:
+	for path in ["res://tests/suites/floor_tests.gd", "res://tests/suites/combat_tests.gd", "res://tests/suites/boss_tests.gd", "res://tests/suites/secret_tests.gd", "res://tests/suites/story_tests.gd", "res://tests/suites/finale_tests.gd"]:
 		var helper := load(path) as GDScript
 		if helper == null or not helper.can_instantiate():
 			printerr("FAIL: %s doesn't compile" % path)

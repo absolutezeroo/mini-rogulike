@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/sealed_letter.tres" id="2_sealedletter"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"jade_wyrm_ordinance"
+title = "The Priests' Ordinance"
+author = "The high priest of Solhar"
+place = "The Hushed Archive, shelf of rites"
+lines = PackedStringArray("The Gentle One rises only for the willing, those who come at the hardest of the rite.", "The lukewarm she swallows without a glance.", "Let only those who come down as martyrs approach her head.")
+look = ExtResource("2_sealedletter")

@@ -1,5 +1,6 @@
 class_name FloorPopulator
 ## Fills a freshly generated floor: the merchant, the smith's forge, a pact door, lights, the biome's dressing (FloorDresser),
+## a fragment of the past now and then (FragmentPlacer, last),
 ## props and hazards first (they claim their cells), then the ambush room, chests, monsters and
 ## items on the free cells. The first room is where the player starts: no monsters or hazards.
 
@@ -162,6 +163,9 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 		var item := content.pick_item(depth, rng)
 		if item:
 			world.spawn_loot(item, _free_point_in(world, room, rng, taken))
+
+	# Last, from its own random numbers: a fragment of the past, now and then (FragmentPlacer).
+	FragmentPlacer.place(world, content, depth, taken)
 
 
 ## A cursed floor: the look over every room, the darkness, and campfires (or springs) spread

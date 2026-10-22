@@ -35,6 +35,7 @@
 [ext_resource type="Texture2D" path="res://assets/characters/bosses/jade_wyrm/wing.png" id="29_o505x"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/jade_fang.tres" id="30_nil01"]
 [ext_resource type="Resource" path="res://data/materials/flesh.tres" id="99_material"]
+[ext_resource type="Resource" path="res://data/story/chronicles/jade_wyrm.tres" id="90_chronicle"]
 
 [sub_resource type="Resource" id="Resource_x73cv"]
 script = ExtResource("1_o02c8")
@@ -126,6 +127,7 @@ tail = ExtResource("28_y4pna")
 
 [resource]
 script = ExtResource("23_shxrq")
+chronicle = ExtResource("90_chronicle")
 material = ExtResource("99_material")
 title = "Coiled Guardian of the Pyre"
 shockwave_power = 1.0

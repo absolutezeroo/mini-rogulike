@@ -264,15 +264,16 @@ func can_heal_killer() -> bool:
 	return not summoned and (is_boss() or world == null or not world.is_boss_fight())
 
 
-## Ends dormancy and goes straight for `new_target`.
-func wake_up(new_target: Actor) -> void:
+## Ends dormancy and goes straight for `new_target`. `intro`: plays its waking animation (not
+## when a cinematic just showed it).
+func wake_up(new_target: Actor, intro := true) -> void:
 	dormant = false
 	target = new_target
 	_noticed(new_target)
-	if rig:
+	if rig and intro:
 		rig.play_intro()
 		if def is BossDef and (def as BossDef).waits_intro:
-			_intro_left = rig.intro_length()
+			_intro_left = rig.animation_length(&"intro")
 
 
 ## Returns true if the monster has (or just acquired) a target to fight.

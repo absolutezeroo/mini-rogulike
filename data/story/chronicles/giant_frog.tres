@@ -1,0 +1,92 @@
+[gd_resource type="Resource" script_class="BossChronicleDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/boss_chronicle_def.gd" id="1_bosschronicl"]
+[ext_resource type="Resource" path="res://data/story/fragments/giant_frog_well_digger.tres" id="2_giantfrogwel"]
+[ext_resource type="Script" path="res://src/definitions/story/deeds/mark_deed.gd" id="3_markdeed"]
+[ext_resource type="Script" path="res://src/definitions/story/chronicle_chapter.gd" id="4_chroniclecha"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/fragments_condition.gd" id="5_fragmentscon"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="6_progresscond"]
+[ext_resource type="Script" path="res://src/definitions/story/waking_line.gd" id="7_wakingline"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="8_keepernamed"]
+[ext_resource type="Resource" path="res://data/story/fragments/giant_frog_rhyme.tres" id="9_giantfrogrhy"]
+[ext_resource type="Resource" path="res://data/story/fragments/giant_frog_journal.tres" id="10_giantfrogjou"]
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="11_fragmentdef"]
+
+[sub_resource type="Resource" id="Resource_1"]
+script = ExtResource("3_markdeed")
+id = &"drank_her_water"
+hint = "She only knows those who drank from her spring."
+rule = "Drink at the Spring of the Drowned, then slay her in the same run."
+revealed_by = ExtResource("2_giantfrogwel")
+mark = &"encounter:spirit_spring"
+present = true
+
+[sub_resource type="Resource" id="Resource_2"]
+script = ExtResource("4_chroniclecha")
+id = &"queen_of_mud"
+title = "Queen of the Mud"
+lines = PackedStringArray("A frog the size of a house, cloaked in duckweed. Her brood swims around her and never strays.", "She still sings. Her song has one word too many.")
+slain = 0
+
+[sub_resource type="Resource" id="Resource_3"]
+script = ExtResource("4_chroniclecha")
+id = &"the_spring"
+title = "The Spring Beneath the Village"
+lines = PackedStringArray("She lived in the spring under Kagari, where the water leaves the rock, cold and clear.", "On summer evenings the village girls set paper boats on it, a candle in each.", "She watched them drift, and sang to them with her brood.")
+slain = 1
+
+[sub_resource type="Resource" id="Resource_4"]
+script = ExtResource("5_fragmentscon")
+count = 2
+
+[sub_resource type="Resource" id="Resource_5"]
+script = ExtResource("4_chroniclecha")
+id = &"paper_boats"
+title = "The Paper Boats"
+lines = PackedStringArray("At the bottom of her pool she keeps every paper boat that sank. She counts them when she is afraid.", "One is missing. She is still looking for it.")
+slain = 1
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_4")])
+
+[sub_resource type="Resource" id="Resource_6"]
+script = ExtResource("4_chroniclecha")
+id = &"the_water_she_drank"
+title = "The Water She Drank"
+lines = PackedStringArray("One rainy day, a paper boat stayed alone on the water. No one came to take it back.", "That night she drank water that tasted of a last breath.", "Since then her song ends on two syllables she does not know: Ha. Na.")
+slain = 2
+
+[sub_resource type="Resource" id="Resource_7"]
+script = ExtResource("4_chroniclecha")
+id = &"little_ones"
+title = "The Keeper's Little Ones"
+lines = PackedStringArray("The keeper came to sit by the spring each evening, without a word. She had grown used to him.", "On the moonless night he came with children's souls in his hands. \"You know how to keep little ones.\"", "She hides them under the mud with her own. She can no longer tell them apart.")
+slain = 4
+
+[sub_resource type="Resource" id="Resource_8"]
+script = ExtResource("4_chroniclecha")
+id = &"voice_in_the_water"
+title = "The Voice in the Water"
+lines = PackedStringArray("Sometimes a girl's voice sings in the spring. The Matron answers it with all her heart.", "But a frog knows what lives in water. That voice has no throat.", "It is hungry, and it waits for someone to come down for it.")
+slain = 6
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_1")])
+
+[sub_resource type="Resource" id="Resource_9"]
+script = ExtResource("5_fragmentscon")
+count = 1
+
+[sub_resource type="Resource" id="Resource_10"]
+script = ExtResource("7_wakingline")
+id = &"one_missing"
+line = "Croak... Did you see the boats? One is missing... Ha... na."
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_9")])
+
+[sub_resource type="Resource" id="Resource_11"]
+script = ExtResource("7_wakingline")
+id = &"he_wept"
+line = "The keeper's name is Tôma. He wept by the water, for the missing boat."
+conditions = Array[ExtResource("6_progresscond")]([ExtResource("8_keepernamed")])
+
+[resource]
+script = ExtResource("1_bosschronicl")
+chapters = Array[ExtResource("4_chroniclecha")]([SubResource("Resource_2"), SubResource("Resource_3"), SubResource("Resource_5"), SubResource("Resource_6"), SubResource("Resource_7"), SubResource("Resource_8")])
+waking_lines = Array[ExtResource("7_wakingline")]([SubResource("Resource_10"), SubResource("Resource_11")])
+fragments = Array[ExtResource("11_fragmentdef")]([ExtResource("9_giantfrogrhy"), ExtResource("2_giantfrogwel"), ExtResource("10_giantfrogjou")])
