@@ -26,6 +26,8 @@
     loses 15% of his max Health (`PitDef.fall_damage`). Rolling carries you over; flying monsters
     (bats, ghosts...) don't care. Walking monsters steer around holes, so knock them in.
   - **Crumbling floor**: cracked tiles that hold until someone stands on them, then give way.
+    A crack that gave way is saved with the floor (`World.spent_data()` "collapsed"): a resumed
+    run finds the hole there, not the crack again.
   - **Quicksand** (ruins) and **mud** (caves): very slow to cross, and they hurt if you stay.
   - Hazards are never placed where they could cut the stairs off.
 - **Sealed stairs** (`StairsSeal`, `DungeonConfig` > Stairs seal): a normal floor's stairs stay

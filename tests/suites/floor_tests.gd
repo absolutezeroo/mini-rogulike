@@ -283,6 +283,7 @@ func _test_abyss(game: Game, world: World, player: Player) -> void:
 		watcher.die(null)
 	_fill_holes()
 	await _test_sealed_hole_restored(world, player)
+	await _test_collapsed_crack_restored(world, player)
 	player.perks.clear()
 	player.hp = player.get_max_hp()
 	player.xp = xp_saved
@@ -312,6 +313,33 @@ func _test_sealed_hole_restored(world: World, player: Player) -> void:
 	check(world.sealed_cells.has(hole) and world.sealed_cells.has(cracked), "kept for the next save too (%s)" % [world.sealed_cells])
 	world._restore_sealed([[1.5], "x"])  # a damaged entry is skipped
 	check(world.sealed_cells.size() == 2, "a damaged entry fills nothing")
+
+
+## Cracked floor that gave way (and that nobody fell through: no Deeps, no filling) is a hole
+## again on the resumed floor, not the crack its seed lays again.
+func _test_collapsed_crack_restored(world: World, player: Player) -> void:
+	var crumbling: PitDef = load("res://data/hazards/crumbling_floor.tres")
+	var others: Array[Vector2] = []
+	var gave_way := _open_cell_near(world, player.global_position, 3, others, world.map.tile_size * 3.0)
+	others.append(world.map.cell_to_world(gave_way))
+	var again := _open_cell_near(world, player.global_position, 3, others, world.map.tile_size * 3.0)
+	var first := world.spawn_crumbling_floor(crumbling, gave_way)
+	world.collapsed_cells.clear()
+	first.collapse()
+	_dug.append([world, gave_way])
+	var saved_cells: Array = world.spent_data().get("collapsed", [])
+	check(saved_cells.has([gave_way.x, gave_way.y]), "the floor's save keeps the cracked floor that gave way (%s)" % [saved_cells])
+	# As build_floor does on a saved floor (restore_spent): the crack is laid again from the seed,
+	# then what the save says gave way gives way.
+	var crack := world.spawn_crumbling_floor(crumbling, again)
+	var saved: Array = JSON.parse_string(JSON.stringify([[again.x, again.y], [1.5], "x"]))  # (as a save file reads them; damaged entries)
+	world._restore_collapsed(saved)
+	_dug.append([world, again])
+	await _frames(1)
+	check(world.has_pit(again) and world.nav.is_blocked(again) and not world.is_solid_ground(world.map.cell_to_world(again)), "cracked floor that gave way before quitting is a hole on the resumed floor")
+	check(not is_instance_valid(crack) and world._cracks.get(again) == null, "and its crack is gone")
+	check(world.collapsed_cells.has(again), "kept for the next save too (%s)" % [world.collapsed_cells])
+	_fill_holes()
 
 
 ## A body put down on the floor never starts inside a wall's or a prop's shape (from inside one

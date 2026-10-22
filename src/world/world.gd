@@ -102,6 +102,9 @@ var bought: Array = []
 ## Hole cells filled in on this floor (seal_hole: the hole the hero fell into the Deeps through),
 ## saved with the floor so a resumed run doesn't find it open again.
 var sealed_cells: Array[Vector2i] = []
+## Cracked floor cells that gave way on this floor (CrumblingFloor), saved with the floor so a
+## resumed run finds a hole there, not the crack its seed lays again.
+var collapsed_cells: Array[Vector2i] = []
 ## Set before rebuilding a saved floor (restore_spent), used once by build_floor.
 var _to_restore := {}
 ## Where the stairs are (boss floors get theirs when the boss dies).
@@ -166,6 +169,7 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 	opened_chests.clear()
 	bought.clear()
 	sealed_cells.clear()
+	collapsed_cells.clear()
 	forge_drought_at_start = floors_without_forge
 	_content = content
 	var hidden := hidden_floor
@@ -564,6 +568,7 @@ func spent_data() -> Dictionary:
 		"fragment": fragment_taken,
 		"seal_kills": seal.kills,
 		"sealed": sealed_cells.map(func(cell: Vector2i) -> Array: return [cell.x, cell.y]),
+		"collapsed": collapsed_cells.map(func(cell: Vector2i) -> Array: return [cell.x, cell.y]),
 	}
 
 
@@ -598,16 +603,31 @@ func _apply_restore() -> void:
 		fragment.take()  # read before quitting: not laid again
 	if pact and int(data.get("pact", 0)) > 0:
 		pact.set_spent()  # sworn before quitting: never offered again
-	_restore_sealed(data.get("sealed", []))  # (older saves have none)
+	_restore_collapsed(data.get("collapsed", []))  # (older saves have none)
+	_restore_sealed(data.get("sealed", []))  # after: a crack the hero fell through was filled
 
 
 ## Holes filled in before quitting stay filled: `saved` is spent_data()'s "sealed".
 func _restore_sealed(saved: Array) -> void:
-	var filled: Array[Vector2i] = []
+	_fill_cells(_saved_cells(saved))
+
+
+## Cracked floor that gave way before quitting is a hole again, without a sound: `saved` is
+## spent_data()'s "collapsed".
+func _restore_collapsed(saved: Array) -> void:
+	for cell in _saved_cells(saved):
+		var crack := _cracks.get(cell) as CrumblingFloor
+		if crack and is_instance_valid(crack):
+			crack.collapse(true)
+
+
+## Cells saved as [x, y] pairs (numbers as a save file reads them); a damaged entry is skipped.
+static func _saved_cells(saved: Array) -> Array[Vector2i]:
+	var cells: Array[Vector2i] = []
 	for pair: Variant in saved:
 		if pair is Array and (pair as Array).size() == 2:
-			filled.append(Vector2i(int(pair[0]), int(pair[1])))
-	_fill_cells(filled)
+			cells.append(Vector2i(int(pair[0]), int(pair[1])))
+	return cells
 
 
 func spawn_ambush(room: Rect2i) -> AmbushRoom:
@@ -646,6 +666,14 @@ func _step_on_cracks() -> void:
 
 func forget_crack(cell: Vector2i) -> void:
 	_cracks.erase(cell)
+
+
+## Cracked floor at `cell` gave way (CrumblingFloor.collapse()): a hole now, kept for the save.
+func crack_collapsed(cell: Vector2i, def: PitDef) -> void:
+	forget_crack(cell)
+	add_pit(cell, def)
+	if not collapsed_cells.has(cell):
+		collapsed_cells.append(cell)
 
 
 func spawn_heat_source(def: HeatSourceDef, rect: Rect2i) -> HeatSource:

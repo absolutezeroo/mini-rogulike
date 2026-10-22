@@ -1083,8 +1083,8 @@
     {
       "id": "task_78",
       "title": "Sol fissuré effondré : pas gardé dans la sauvegarde",
-      "description": "Vu en traitant le trou des Tréfonds (task_68) : un sol fissuré qui s'est effondré (hors Tréfonds) redevient un sol fissuré intact quand la partie est reprise sur cet étage (World.spent_data() ne garde que les trous rebouchés). Petit ; à garder si on veut une reprise fidèle.",
-      "status": "backlog",
+      "description": "Vu en traitant le trou des Tréfonds (task_68) : un sol fissuré qui s'est effondré (hors Tréfonds) redevient un sol fissuré intact quand la partie est reprise sur cet étage (World.spent_data() ne garde que les trous rebouchés). Petit ; à garder si on veut une reprise fidèle.\n\nFait : un sol fissuré qui s'effondre est noté (World.crack_collapsed → collapsed_cells) et gardé dans la sauvegarde de l'étage (World.spent_data() « collapsed ») ; à la reprise, l'étage reconstruit depuis sa graine repose la fissure, puis _restore_collapsed la fait céder sans bruit ni poussière (CrumblingFloor.collapse(quiet)), avant que les trous rebouchés (« sealed ») soient rebouchés : une fissure par où le héros est tombé dans les Tréfonds reste un sol plein. Les anciennes sauvegardes n'ont pas la liste (rien ne change pour elles). Test : FloorTests._test_collapsed_crack_restored (la sauvegarde garde la case, à la reprise un trou bloqué pour la navigation et plus de fissure, gardée pour la sauvegarde suivante, entrées abîmées ignorées). Vérifié aussi par une sonde sur le vrai chemin (fissure naturelle effondrée, _save_run, resume_run : trou à la reprise). docs/design/dungeon.md mis à jour.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -1092,7 +1092,7 @@
         "sauvegarde"
       ],
       "created_at": 1792710637,
-      "updated_at": 1792710637
+      "updated_at": 1792711519
     },
     {
       "id": "task_79",
