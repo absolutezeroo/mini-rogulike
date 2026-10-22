@@ -114,7 +114,9 @@ shows to the device in hand.
 ## Screens: windows, sizes, scale
 
 - **Windows** (computers): resizable; **Fullscreen** in Options (Screen), or F11 / Alt+Enter
-  anywhere (`Settings.fullscreen`, saved).
+  anywhere (`Settings.fullscreen`, saved). The keys do only that, in any menu: `Settings`'
+  WindowKeys node stays the root's last child, so it reads them before any menu's `_input` (Godot
+  goes from the last node up) and the bag never takes Alt+Enter for Enter, nor a card F11 for a skip.
 - **Scale** (`PixelGrid`): the UI is laid out at 1280x720 and the canvas grows with the screen's
   shape (`canvas_items`, expand). Its scale is rounded down to a step of 0.5 (x1 from 720 to 1079
   lines, x1.5 at 1080, x2 at 1440, x3 at 2160), where BODY letters keep whole pixels, and the canvas
@@ -127,7 +129,12 @@ shows to the device in hand.
   (`Settings.ui_size`, saved).
 - The layouts are checked at 1280x720, 1366x768, 1920x1080, 2560x1440, 1280x800, 3440x1440,
   1024x768 and the phones' 2340x1080 and 1540x720: nothing out of the screen, no HUD control over
-  another, on touch and on keys (`PcTests`).
+  another, on touch and on keys (`PcTests`). French runs 20-30% longer: in French, at 1280x720,
+  1540x720, 2340x1080 and 2548x1296, every in-run panel is checked with its longest words
+  (`PcTests._test_french_panels()`: the bag, the merchant saying why it can't sell, the forge
+  taking out the longest rune's name or with no room for it, the four encounters, the pause, the
+  options, the codex's tabs and every monster's page, the longest fragment, the ending's choice,
+  the longest perks). Long words wrap; letters never go under `Fonts.SMALL`.
 
 ## Nothing opens by itself
 
@@ -295,7 +302,8 @@ stones lit in their runes' colors. The selected slot pulses gold.
     16 / 16 [E], [LB] ... [RB]). A compartment holding more than its places (a run saved before,
     a compartment made smaller) keeps it all and says so under it ("More than it has room for:
     make room before anything new goes in."). Tap a tab, or Q / E, LB / RB (`MenuNav`,
-    "menu_tabs"). The tab picked stays picked until the run ends (the bag opens on it).
+    "menu_tabs"). The tab picked stays picked until the run ends (the bag opens on it); a new
+    run, Restart included, opens it on the first tab with nothing seen yet.
   - **In a tab**: a 4-column grid, one slot per stack with its count ("x3"), the rarest first,
     then weapons, helms, body armors (a rune's family, a consumable's kind), the higher item
     level, then by name; after them the compartment's free places (empty slots). A slot new since the bag

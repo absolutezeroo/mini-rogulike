@@ -53,7 +53,7 @@ func apply(player: Player, at: Vector2) -> void:
 				var def := world.pick_monster()
 				if def == null:
 					return
-				var monster := world.spawn_monster(def, world.find_open_point_near(at, 60.0))
+				var monster := world.spawn_monster(def, world.find_open_point_near(at, 60.0, World.room_for(def)))
 				if elite_monsters:
 					world.make_elite(monster)
 				monster.target = player

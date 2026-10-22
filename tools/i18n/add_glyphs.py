@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Adds the French glyphs the pixel font (assets/fonts/normal_font.ttf, Ninja Adventure) lacks:
-œ Œ « » Î Ï … – — and the no-break spaces (U+00A0, U+202F), plus the controls' prompt glyphs
+œ Œ « » Î Ï … – — × and the no-break spaces (U+00A0, U+202F), plus the controls' prompt glyphs
 (PlayStation's ✕ ○ □ △ and the arrows ← → ↑ ↓), drawn on its 9-pixel grid in its own style.
 Runs once (it skips glyphs the font already has). Needs fontTools
 (pip install fonttools); not used by the game itself.
@@ -81,6 +81,14 @@ GLYPHS = {
         "#########",
         "",
         "",
+    ]),
+    # The multiplication sign ("Abats 5 × Rat"): the plus sign's size and place, its strokes crossed.
+    "×": ("multiply", 6, [
+        "#...#",
+        ".#.#.",
+        "..#..",
+        ".#.#.",
+        "#...#",
     ]),
     # The prompts' glyphs (Prompts, PromptGlyph): PlayStation's face buttons and the arrow keys,
     # capital-high (6 pixels) like the letters on the other caps.

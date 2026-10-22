@@ -223,6 +223,8 @@ func _test_abyss(game: Game, world: World, player: Player) -> void:
 	check(player.global_position.distance_to(safe) < 24.0 and player.get_parent() == world.get_node("Entities"), "at the last safe spot by the hole")
 	var fell_in := world.map.world_to_cell(safe) + Vector2i.RIGHT * 2
 	check(def.seal_hole and not world.has_pit(fell_in) and world.is_solid_ground(world.map.cell_to_world(fell_in)) and not world.nav.is_blocked(fell_in), "the hole he fell through has closed behind him (no falling straight back in)")
+	var sealed_saved: Array = world.spent_data().get("sealed", [])
+	check(sealed_saved.has([fell_in.x, fell_in.y]), "the floor's save keeps the hole filled (%s)" % [sealed_saved])
 	check(home.get("at", []) == frozen_at and home.get("hp", []) == hp_then, "the floor's monsters as they were (same place, same Health)")
 	check(is_equal_approx(float(home.get("burn", -1.0)), burn_left), "their statuses too (%.2f s of burn left)" % float(home.get("burn", -1.0)))
 	var floor_changes := _things_diff(floor_things, _floor_things(world, false))
@@ -280,11 +282,111 @@ func _test_abyss(game: Game, world: World, player: Player) -> void:
 	for watcher in watchers:
 		watcher.die(null)
 	_fill_holes()
+	await _test_sealed_hole_restored(world, player)
 	player.perks.clear()
 	player.hp = player.get_max_hp()
 	player.xp = xp_saved
 	player.invincible = false
 	await _frames(5)
+
+
+## A run picked up again rebuilds its floor from the seed: the holes filled in before quitting
+## (the Deeps' hole, which may have been cracked floor before it gave way) are filled again.
+func _test_sealed_hole_restored(world: World, player: Player) -> void:
+	var others: Array[Vector2] = []
+	var hole := _open_cell_near(world, player.global_position, 3, others, world.map.tile_size * 3.0)
+	others.append(world.map.cell_to_world(hole))
+	var cracked := _open_cell_near(world, player.global_position, 3, others, world.map.tile_size * 3.0)
+	var pit: PitDef = load("res://data/hazards/pit.tres")
+	world.add_pit(hole, pit)
+	_dug.append([world, hole])
+	var crack := world.spawn_crumbling_floor(pit, cracked)
+	world.sealed_cells.clear()
+	# As build_floor does on a saved floor (restore_spent): the holes and cracks are there again,
+	# then what the save says is filled.
+	var saved: Array = JSON.parse_string(JSON.stringify([[hole.x, hole.y], [cracked.x, cracked.y]]))  # (numbers as a save file reads them)
+	world._restore_sealed(saved)
+	await _frames(1)
+	check(not world.has_pit(hole) and not world.nav.is_blocked(hole) and world.is_solid_ground(world.map.cell_to_world(hole)), "a hole filled before quitting is filled again on the resumed floor")
+	check(not is_instance_valid(crack) and world._cracks.get(cracked) == null, "and the cracked floor it was before it gave way is solid floor")
+	check(world.sealed_cells.has(hole) and world.sealed_cells.has(cracked), "kept for the next save too (%s)" % [world.sealed_cells])
+	world._restore_sealed([[1.5], "x"])  # a damaged entry is skipped
+	check(world.sealed_cells.size() == 2, "a damaged entry fills nothing")
+
+
+## A body put down on the floor never starts inside a wall's or a prop's shape (from inside one
+## it may never get out): the monsters a floor puts down, and those put down near a spot later
+## (summons, a trapped chest's, a split's, an encounter's: World.find_open_point_near()), even
+## from a spot against a wall. On many generated floors; builds them on the game's world.
+func _test_bodies_fit(game: Game) -> void:
+	var world := game.world
+	var player := game.player
+	var rat: MonsterDef = load("res://data/monsters/rat.tres")
+	var dune_rex: MonsterDef = load("res://data/monsters/dune_rex.tres")
+	var monsters := 0
+	var inside: Array[String] = []
+	var points := 0
+	var bad_points: Array[String] = []
+	var rng := RandomNumberGenerator.new()
+	for n in 12:
+		var depth := 1 + n % (CONTENT.dungeon.total_floors() - 1)
+		if CONTENT.dungeon.boss_for_depth(depth) != null:
+			depth += 1
+		world.rng.seed = hash("bodies-%d" % n)
+		world.build_floor(depth, CONTENT)
+		world.place_player(player)
+		player.global_position = Vector2(-100000, -100000)  # far: nothing wakes, nothing moves
+		await get_tree().physics_frame
+		for monster in world.get_hostiles(Actor.Faction.PLAYER):
+			monsters += 1
+			if not world.body_fits(monster.global_position, monster.radius):
+				inside.append("%s on floor %d at %s" % [monster.def.id, n, monster.global_position])
+		var by_wall: Array[Vector2i] = []
+		for y in world.map.height:
+			for x in world.map.width:
+				var cell := Vector2i(x, y)
+				if world.is_free_cell(cell) and not world.map.is_floor(cell + Vector2i.UP):
+					by_wall.append(cell)
+		rng.seed = n
+		for k in 30:
+			if by_wall.is_empty():
+				break
+			var spot := world.map.cell_to_world(by_wall[rng.randi_range(0, by_wall.size() - 1)])
+			for kind: MonsterDef in [rat, dune_rex]:
+				var at := world.find_open_point_near(spot, [24.0, 40.0, 60.0][k % 3], World.room_for(kind))
+				points += 1
+				if not world.is_solid_ground(at) or not world.body_fits(at, kind.radius):
+					bad_points.append("%s near %s: %s" % [kind.id, spot, at])
+	check(monsters > 100 and inside.is_empty(), "no monster a floor puts down starts inside a wall or a prop (%d monsters on 12 floors; inside: %s)" % [monsters, ", ".join(inside.slice(0, 3))])
+	check(points > 300 and bad_points.is_empty(), "a body put down near a spot by a wall fits where it lands (%d points; inside: %s)" % [points, ", ".join(bad_points.slice(0, 3))])
+	# And one put down there walks out: a rat by every wall it was put against.
+	var stuck: Array[String] = []
+	for k in 10:
+		var cells: Array[Vector2i] = []
+		for y in world.map.height:
+			for x in world.map.width:
+				if world.is_free_cell(Vector2i(x, y)) and not world.map.is_floor(Vector2i(x, y - 1)):
+					cells.append(Vector2i(x, y))
+		if cells.is_empty():
+			break
+		var spot := world.map.cell_to_world(cells[(k * 7919) % cells.size()])
+		var rat_body := world.spawn_monster(rat, world.find_open_point_near(spot, 24.0, World.room_for(rat)))
+		rat_body.dormant = true
+		await get_tree().physics_frame
+		var start := rat_body.global_position
+		var farthest := 0.0
+		for way: Vector2 in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]:
+			rat_body.global_position = start
+			for i in 10:
+				rat_body.velocity = way * 60.0
+				rat_body.move_and_slide()
+			farthest = maxf(farthest, rat_body.global_position.distance_to(start))
+		if farthest < 4.0:
+			stuck.append(str(start))
+		rat_body.queue_free()
+	check(stuck.is_empty(), "a rat put down by a wall can walk away (stuck at %s)" % ", ".join(stuck))
+	player.global_position = world.map.cell_to_world(world.map.start_cell)
+	await _frames(2)
 
 
 ## Where the Deeps don't open: the hidden floor (its rule: climb out, hurt); boss floors are in

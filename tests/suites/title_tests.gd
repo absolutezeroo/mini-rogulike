@@ -305,6 +305,15 @@ func _test_title_screen() -> void:
 	check(list.get_child_count() == 1, "the last runs are listed")
 	var run_text := " ".join(_texts(list))
 	check(run_text.contains("Died on floor 3") and run_text.contains("Slain by Skeleton") and run_text.contains("10:00"), "a run says how far it went, how it ended, how long it took")
+	var records := codex.get_node("%Records") as Label
+	check(not records.visible, "no win, no record")
+	Profile.best_times = { "normal": 1930450, "hard/a3/bottom": 3062100, "normal/bottom": 2400000 }
+	codex.show_tab(CodexPanel.Tab.RUNS)
+	await _frames(1)
+	var lines := records.text.split("\n")
+	check(records.visible and lines.size() == 2 and lines[0].begins_with("Fastest wins:") and lines[0].contains("Keeper 32:10") and not lines[0].contains("Martyr"), "the fastest wins, without the bottom (%s)" % records.text)
+	check(lines.size() == 2 and lines[1].begins_with("Fastest to the Well's Bottom:") and lines[1].contains("Martyr +3 51:02") and lines[1].contains("Keeper 40:00"), "and the runs won at the bottom on their own line")
+	Profile.best_times = {}
 	(codex.get_node("%BestiaryTab") as Button).pressed.emit()
 	await _frames(1)
 	check(codex.bestiary_cards().size() == entries.size(), "a tab button shows its tab")

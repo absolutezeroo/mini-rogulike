@@ -1731,7 +1731,7 @@ func _test_threshold_lost(game: Game) -> void:
 		check(player.is_dead, "the trial lost (%s), he dies for real" % how)
 		var cause := tr("giving up") if how == "gave up" else killer.display_name
 		check(player.killed_by == cause, "of what slew him (%s)" % player.killed_by)
-		check(player.world == world and world.is_inside_tree() and player.global_position == fell_at, "where he fell")
+		check(player.world == world and world.is_inside_tree() and player.global_position == fell_at, "where he fell (%s: %s, fell at %s)" % [how, player.global_position, fell_at])
 		check(game.threshold.limbo == null and world.process_mode != Node.PROCESS_MODE_DISABLED, "the limbo is gone, the floor runs")
 		await get_tree().create_timer(1.5).timeout
 		check(game.game_over_panel.visible and not RunSave.exists(), "the run ends")

@@ -264,6 +264,26 @@ func run() -> void:
 	await secrets._test_hidden_floor(game)
 	await boss._test_boss_fight(game)
 
+	await floor._test_bodies_fit(game)  # (it builds other floors: the run ends right after)
+
+	# The bag's new marks and its tab belong to the run: seen now, a rune is new in the next one.
+	var rune: RuneDef = load("res://data/runes/ember.tres")
+	var bag_panel := game.inventory_panel
+	var rune_tab := Inventory.CATEGORIES.index_of(rune)
+	player.inventory.add(rune)
+	game.open_inventory()
+	await _frames(2)
+	bag_panel.show_category(rune_tab)
+	await _frames(1)
+	check(bag_panel.category_index() == rune_tab and rune_tab != 0, "the bag open on the rune's tab (%d)" % bag_panel.category_index())
+	bag_panel.close()  # (what was shown is seen once the bag closes)
+	await _frames(2)
+	bag_panel.open(player)
+	await _frames(2)
+	check(not bag_panel.tab(rune_tab).fresh, "the rune seen: no longer new in this run")
+	bag_panel.close()
+	await _frames(2)
+
 	# Death and restart (without perks: a Phoenix Feather from the boss would save the hero).
 	var souls_before_death := Profile.souls
 	player.perks.clear()
@@ -290,6 +310,13 @@ func run() -> void:
 	Profile.difficulty = &"easy"
 	game.start_run()
 	await _frames(5)
+	check(bag_panel.category_index() == 0, "a restart opens the bag on its first tab again, not the last run's")
+	game.player.inventory.add(rune)
+	bag_panel.open(game.player)  # (the panel itself: whatever else the new run opens first)
+	await _frames(2)
+	check(bag_panel.tab(rune_tab).fresh, "and what the last run had seen is new in this one")
+	bag_panel.close()
+	await _frames(2)
 	check(game.difficulty.id == &"easy" and game.world.difficulty == game.difficulty, "the run uses the chosen difficulty")
 	check((game.hud.get_node("%InfoLabel") as Label).text.contains("Pilgrim"), "the HUD shows the difficulty")
 	Profile.difficulty = &"nightmare"

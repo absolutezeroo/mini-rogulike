@@ -38,8 +38,8 @@ var _selected_item: ItemDef
 var _selected_slot := NO_SLOT
 ## Belt slot selected (-1 = none).
 var _selected_belt := NO_SLOT
-## The tab shown (an index of CATEGORIES.categories). The panel lives as long as the run's Game,
-## so the tab picked stays picked until the run ends.
+## The tab shown (an index of CATEGORIES.categories). The tab picked stays picked until the run
+## ends (forget_run(): the Game, and its panel, live on through a restart).
 var _category := 0
 ## The stacks (ItemDef.stack_key()) the player has looked at: any other one in the bag is new.
 var _seen := {}
@@ -132,6 +132,14 @@ func open_build() -> void:
 
 func is_build_open() -> bool:
 	return _build_window.visible
+
+
+## A new run begins in the same Game (Restart): nothing seen yet, the first tab.
+func forget_run() -> void:
+	_seen.clear()
+	_shown.clear()
+	_category = 0
+	_clear_selection()
 
 
 ## The tab shown (an index of CATEGORIES.categories).
