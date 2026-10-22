@@ -23,6 +23,8 @@ const STYLE_NAMES := { "face_tank": Style.FACE_TANK, "kite": Style.KITE, "player
 ## Seconds before the "player" bot answers what it sees (a visual reaction on a phone, with the
 ## decision: about 0.25-0.35 s for an average player).
 const REACTION := 0.3
+## In the Deeps, monsters farther than this are left alone: the bot makes for the Dawn Breach.
+const DEEPS_FIGHT_RANGE := 110.0
 ## Frames between two potions (the first one's heal shows first).
 const DRINK_WAIT := 45
 const ACTIONS: Array[StringName] = [&"move_left", &"move_right", &"move_up", &"move_down", &"attack",
@@ -101,6 +103,14 @@ func step() -> void:
 	_pressed.clear()
 	_drink()
 	var target := _target()
+	var deeps := world as AbyssWorld
+	if deeps and is_instance_valid(deeps.door) and (target == null or player.global_position.distance_to(target.global_position) > DEEPS_FIGHT_RANGE):
+		# The Deeps (a fall): make for the Dawn Breach, fighting only what comes close (as the
+		# Deeps' own probe did, balance-log "The Deeps").
+		_move(_way_to(deeps.door.global_position))
+		if not _pressed.has(&"attack"):
+			Input.action_release(&"attack")
+		return
 	if target == null:
 		_move(Vector2.ZERO)
 		Input.action_release(&"attack")

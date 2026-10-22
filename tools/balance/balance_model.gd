@@ -76,6 +76,7 @@ func run() -> BalanceReport:
 	_coverage()
 	_build_table()
 	_monster_tables()
+	_floor_curve()
 	_rank_chances()
 	_boss_tables()
 	_weapon_tables()
@@ -752,9 +753,10 @@ func _check_monster_curve(ladder: Dictionary) -> void:
 		if plain[0] < targets.common_ttk_min or plain[0] > targets.common_ttk_max:
 			report.flag(BalanceReport.WARN, "model: monster curve", "act %d commons (normal, median)" % act, BalanceReport.secs(plain[0]),
 				"%.1f-%.1f s" % [targets.common_ttk_min, targets.common_ttk_max], "median time to kill of the act's commons")
-		if previous > 0.0 and (step < targets.act_threat_step_min or step > targets.act_threat_step_max):
+		var step_max := targets.first_act_step_max if act == 2 else targets.act_threat_step_max
+		if previous > 0.0 and (step < targets.monster_step_min or step > step_max):
 			report.flag(BalanceReport.WARN, "model: monster curve", "act %d vs act %d commons (normal, median)" % [act, act - 1], "x%.2f" % step,
-				"x%.1f-x%.1f" % [targets.act_threat_step_min, targets.act_threat_step_max], "share of the hero's health lost killing one, face to face")
+				"x%.2f-x%.1f" % [targets.monster_step_min, step_max], "share of the hero's health lost killing one, face to face: %s" % ("a flat stretch" if step < targets.monster_step_min else "a cliff"))
 		previous = plain[1]
 		var below: Array = plain
 		var below_id := "plain"
@@ -1229,3 +1231,112 @@ func _perk_table() -> void:
 	report.data["perks_model"] = { "reference": reference.name, "base": base, "values": entries }
 	report.table("perks_model", "Marginal values", "Perk values at max level on %s, static estimate (fight power = faster kill x longer life, vs the act's main boss on Normal and vs a room of %d monsters; TTD capped at %d s). The lab measures them (tables above)" % [reference.name, ROOM_PACK, TTD_CAP],
 		PackedStringArray(["Perk", "Rarity", "Stacks", "Boss value", "Room value", "Boss TTK s", "Boss TTD s", "Room clear s", "Room TTD s"]), rows)
+
+
+# --- The floors' curve ------------------------------------------------------------------------
+
+## Every normal floor (each difficulty): what a room of it costs, face to face, the hero an
+## average player has there (BalanceBuild.hero_at: what he brought into the act on its first
+## floor, the act's expected build later) and the same hero with the starting weapon (Common,
+## item level 1). A room = the floor's room
+## size of monsters drawn by spawn weight, each at a rank with the floor's own chances (rank cost:
+## the mean over its affixes). The model's view of the curve the gauntlet measures on the engine
+## (its "curve" part): deterministic, every floor, every difficulty.
+func _floor_curve() -> void:
+	var rows: Array = []
+	var by_act := {}  # difficulty -> act -> [room costs] (the hero there)
+	var variants := rank_variants()
+	var starters := {}
+	for act_index in content.dungeon.acts.size():
+		var act := content.dungeon.acts[act_index]
+		var first := content.dungeon.first_depth(act_index)
+		for depth in range(first, boss_depth(act_index + 1)):
+			var at := BalanceBuild.hero_at(all_builds, content, depth)
+			if at == null:
+				continue
+			if not starters.has(at):
+				starters[at] = BalanceBuild.with_starter_weapon(all_builds, content, at)
+			var heroes: Array[BalanceBuildDef] = [at]
+			if starters[at]:
+				heroes.append(starters[at])
+			for difficulty in difficulties:
+				var rules := FloorRules.make(content.dungeon, difficulty, null, depth)
+				var room := _room_size(depth, difficulty)
+				for build in heroes:
+					var hero := player_for(build)
+					var weight_sum := 0.0
+					var cost := 0.0
+					var plain_cost := 0.0
+					for monster in act.monsters:
+						if monster == null or monster.spawn_weight <= 0 or depth < monster.min_depth:
+							continue
+						var w := float(monster.spawn_weight)
+						var per_rank := {}  # rank (or null) -> [costs over its affixes]
+						for variant: Dictionary in variants:
+							var rank: MonsterRankDef = variant.rank
+							if rank and depth < rank.min_depth and rank != content.dungeon.elite_rank:
+								continue
+							var foe := foe_numbers(monster, rules, rank, variant.affixes, hero)
+							var ttk := ttk_on(foe, hero_output(hero, int(foe.defense), false))
+							per_rank.get_or_add(rank, []).append(minf(float(foe.dps) * ttk / maxf(hero.get_max_hp(), 1.0), 2.0))
+						var plain := BalanceContent.mean(per_rank.get(null, [0.0]))
+						var expected := 0.0
+						var rest := 1.0
+						for rank in content.dungeon.rare_ranks:
+							if rank and per_rank.has(rank):
+								var p := rest * rules.rank_chance(rank)
+								expected += p * BalanceContent.mean(per_rank[rank])
+								rest -= p
+						var elite := content.dungeon.elite_rank
+						if elite and per_rank.has(elite):
+							var p := rest * rules.elite_chance()
+							expected += p * BalanceContent.mean(per_rank[elite])
+							rest -= p
+						expected += rest * plain
+						weight_sum += w
+						cost += w * expected
+						plain_cost += w * plain
+					if weight_sum <= 0.0:
+						continue
+					var per_monster := cost / weight_sum
+					var room_cost := per_monster * room
+					var d_key := BalanceContent.key(difficulty)
+					var starter := build.name.ends_with("+starter_weapon")
+					rows.append([depth, act_index + 1, d_key, build.name, room, _pct1(plain_cost / weight_sum), _pct1(per_monster), BalanceReport.pct(room_cost)])
+					report.data.get_or_add("floor_curve", []).append({ "depth": depth, "act": act_index + 1, "difficulty": d_key, "hero": build.name,
+						"starter": starter, "room": room, "common": plain_cost / weight_sum, "per_monster": per_monster, "room_cost": room_cost })
+					if not starter:
+						by_act.get_or_add(d_key, {}).get_or_add(act_index + 1, []).append(room_cost)
+	report.table("floor_curve", "Monsters", "The floors' curve (model): every normal floor, a room of its monsters (its room size, drawn by spawn weight, ranks with the floor's chances) vs the hero an average player has there (on an act's first floor what he brought in: the previous act's expected build, a fresh hero in act I; later the act's expected build) and the same hero with the starting weapon; cost = share of max Health lost killing them face to face",
+		PackedStringArray(["Depth", "Act", "Difficulty", "Hero", "Monsters a room", "A common", "A monster (ranks counted)", "A room"]), rows, 60)
+	_check_floor_curve(by_act)
+
+
+## Keeper's floors: act I's rooms gentle, then no act's rooms cheaper than the last's (no dip).
+## Not a step's size: the hero's power is a step at each act (an act's first floor meets what he
+## brought in, the next ones the act's expected build), so this curve is a saw; the commons' curve
+## ("model: monster curve") holds the steps.
+func _check_floor_curve(by_act: Dictionary) -> void:
+	var keeper: Dictionary = by_act.get("normal", {})
+	var previous := 0.0
+	var acts := keeper.keys()
+	acts.sort()
+	for act: int in acts:
+		var cost := BalanceContent.mean(keeper[act])
+		if act == 1 and cost > targets.curve_first_act_cost_max:
+			report.flag(BalanceReport.WARN, "model: floor curve", "act I rooms (normal, a fresh hero)", BalanceReport.pct(cost),
+				"<= %s" % BalanceReport.pct(targets.curve_first_act_cost_max), "the first floors are where a player learns: they stay gentle")
+		if previous > 0.0:
+			var step := cost / previous
+			if step < targets.act_threat_step_min:
+				report.flag(BalanceReport.WARN, "model: floor curve", "act %d vs act %d rooms (normal, the hero there)" % [act, act - 1], "x%.2f" % step,
+					">= x%.1f" % targets.act_threat_step_min, "a dip: this act's floors cost less than the last's")
+		previous = cost
+
+
+## Monsters in a room at `depth` on `difficulty` (as BalanceLab.room_size()).
+func _room_size(depth: int, difficulty: DifficultyDef) -> int:
+	var config := content.dungeon
+	var rules := FloorRules.make(config, difficulty, null, depth)
+	var base := roundi((config.monsters_per_room_min + config.monsters_per_room_max) * 0.5)
+	return mini(base + rules.extra_monsters(), config.max_monsters_per_room + difficulty.extra_monsters)

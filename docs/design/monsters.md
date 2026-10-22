@@ -13,6 +13,13 @@ you can then keep going in endless mode (the acts loop, monsters keep getting st
 | III. The Pyre Temple | 7-9 | Fire Shaman, Cyclops, Flame Spirit, Lizardman, Horned Beast, Drakeling, Kappa, Ink Octopus, Bomber, Brood Mother, Shell Guard | Crimson Tengu |
 | IV. Kingdom of Dust | 10-12 | Dune Behemoth, Gold Racoon, Crimson Viper, Ash Lizard, Bone Lizard, Stone Mole, Bomber | Gilded Hoarder |
 
+Monsters grow with depth (`DungeonConfig` > Difficulty: +32% Health and +1 attack a floor), and
+an act can add its own threat on top, on every difficulty (`ActDef.monster_hp`,
+`monster_damage`; not its bosses, which are tuned one by one): **Act II's monsters have +8%
+Health and deal +8% damage, Act III's +10% and +10%**; acts I and IV keep the depth's numbers.
+Without it floors 4-8 were a flat stretch between a gentle Act I and Act IV (docs/balance-log.md,
+"Keeper's curve").
+
 **Supports** fight from behind, kill them first: the **Moss Heart** (act I) and the **Ember
 Heart** (act III) mend their hurt allies, the **Soul Moth** (act II) and the **Gilded Moth**
 (act IV) wrap them in wards that soak up your blows, the **Sand Drummer** (act IV) beats a war

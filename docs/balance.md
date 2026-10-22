@@ -63,8 +63,9 @@ How a run is made fast (`BalanceLab`, `BalanceJobs`):
 - **Floors without their own monsters** (`World.unpeopled`), and a fresh measure rebuilds its
   floor in the running game instead of starting a new game (`BalanceLab.renew`).
 - **Units of work shared by processes.** The engine measures are cut into units (a fight, a room,
-  a gauntlet, a measured build, a floor); `--jobs=N` deals them out to N processes, each its own
-  share, then the first assembles the reports.
+  a gauntlet, a measured build, a floor); `--jobs=N` processes walk them in the same order, each
+  taking the next one no other has claimed (`BalanceJobs`: a folder made per unit, the first one
+  wins), then the first assembles the reports.
 - **A cache.** A unit's result is kept (`--cache`) under its id, the seed and options, the code
   (every script of `src/` and `tools/balance/`) and the data it depends on (its act with its
   monsters, bosses and biomes, the build's perks, runes, affixes and gear, the difficulty, and
@@ -86,7 +87,11 @@ take 5 s to a minute each; the `balance` test suite about a minute.
   Legendary with spreads of affixes, Celestial) x every depth it appears at x every difficulty:
   health, armor, hit and damage per second on the act's expected build (after its armor), time to
   kill, hits to kill the hero, damage taken while killing it; rank chances per depth; the
-  commons' curve and the ranks' ladder (medians per act on Keeper, table "monster_ladder"). Every boss
+  commons' curve and the ranks' ladder (medians per act on Keeper, table "monster_ladder"); the
+  **floors' curve** (table "floor_curve"): every normal floor, what a room of it costs face to face
+  (its room size, monsters by spawn weight, ranks with its chances) the hero an average player
+  has there (`BalanceBuild.hero_at`: on an act's first floor what he brought in, a fresh hero in
+  act I, later the act's expected build) and the same hero with the starting weapon. Every boss
   (alternates too) x every phase x every boss rank x every difficulty: health, armor, hit and
   damage per second per phase, time to kill, a face-tank estimate, the threat (share of the
   hero's health a face-tank fight costs) and the curve (act over act, difficulty over Keeper);
@@ -159,7 +164,11 @@ take 5 s to a minute each; the `balance` test suite about a minute.
   share of Health and potion healing spent before the boss, the boss fight, the outcome) and
   "gauntlet_summary" (acts won, mean floor cost, per difficulty and bot); `summary.md` shows it
   as act x difficulty. No springs or shrines on the way, no walking between rooms, the earlier
-  floors not played.
+  floors not played. Its **curve** part (`--gauntlet=curve`; `acts` for the acts alone): every
+  normal floor, 6 rooms of its depth one after the other, no potions, for the hero there
+  (`hero_at`) and the same with the starting weapon (Common, item level 1), each bot: the Health
+  a floor costs (table "curve", and in `summary.md`). Sustain dominates it: a build with
+  lifesteal comes out of most floors at full Health.
 
 ### Reading the report
 
@@ -191,7 +200,9 @@ lab before changing data.
 | Common monster time to kill (expected build, Keeper) | 0.5-2.5 s | paper below, a slog above |
 | Elite / Fell / Legendary / Celestial time to kill | 3-10 / 5-16 / 8-25 / 2-10 s | a short duel, a longer one, a mini-boss, a treasure |
 | Rank ladder (medians per act, Keeper) | each rank >= x1.2 the time to kill of the one below, and costs more health | a rank is a clearly tougher fight, not a recolor |
-| Commons' curve (median health lost killing one, act over act) | x0.9-x1.6 (the act curve's step) | each act's monsters a little harder than the last |
+| Commons' curve (median health lost killing one, act over act) | x1.05-x1.6, act II over act I up to x2.5 (was x0.9-x1.6) | each act's monsters a little harder than the last, no flat stretch ("you roll until floor 8", the owner); act I is gentle on purpose, so its step is bigger |
+| Floors' curve (model, Keeper: a room of each normal floor for the hero there) | act I <= 25%; no act cheaper than the last (x0.9) | the first floors are where a player learns; no dip |
+| Gauntlet curve (engine, Keeper, kite bot) | act I floors <= 25% of max Health | the first floors stay gentle; later floors are informative (the bots' sustain makes most of them free, see the balance log) |
 | Common monster hits to kill the expected build | >= 6 | never a two-shot |
 | Room damage (kite, expected build) / clear time | <= 35% of max health / <= 25 s | a room shouldn't cost half your life when you play well |
 | Act curve (boss threat, act over act) | x0.9-x1.6 | a steady curve, no wall (pillar 5) |

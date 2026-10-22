@@ -36,15 +36,16 @@ gauntlet_keeper_floor_cost_min = 0.2
 gauntlet_keeper_floor_cost_max = 0.6
 ; Keeper: the average player wins at least 3 acts in 4 (boss included): a challenge, not a wall.
 gauntlet_keeper_player_wins_min = 0.75
-; Keeper's curve (gauntlet: each normal floor, player bot, the hero brought into the act, no potions): act I's floors cost at most 25% of max Health (where a player learns), every later act's at least 15% (no rolling through), and the mean cost grows act over act by 0 to 25 points (no flat stretch, no cliff).
+; Keeper's curve: act I's floors cost at most 25% of max Health (model: a room face to face; gauntlet: a floor of rooms for the kite bot), where a player learns.
 curve_bot = &"kite"
 curve_first_act_cost_max = 0.25
-curve_floor_cost_min = 0.15
-curve_step_min = 0.0
-curve_step_max = 0.25
 ; Each act a little harder than the last (threat x0.9-x1.6 act over act): a steady curve, no wall.
 act_threat_step_min = 0.9
 act_threat_step_max = 1.6
+; The monsters' curves (commons, rooms): act II may be up to x2.5 act I, which is gentle on purpose (where a player learns, the hero levelling from 1 to 6); later steps x0.9-x1.6.
+first_act_step_max = 2.5
+; The commons' curve: each act's commons cost at least x1.05 the last's (no flat stretch: "you roll until floor 8", the owner).
+monster_step_min = 1.05
 ; Each difficulty's boss threat vs Normal: Easy forgiving, Nightmare demanding, ascensions add on top without walls.
 difficulty_threat = {
 "easy": Vector2(0.2, 0.7),

@@ -116,9 +116,8 @@ func run() -> BalanceReport:
 
 ## Every normal floor of the acts asked for, on each difficulty: CURVE_ROOMS rooms of its own
 ## depth, one after the other, by the `player` bot, Health carried, no potions: what the floor
-## costs (Health lost by its end). Two heroes: the one an average player brings into the act
-## (the previous act's expected build; a fresh hero in act I) and the same with the weapon a run
-## starts with (the baseline's, Common, item level 1).
+## costs (Health lost by its end). Two heroes: the one an average player has there
+## (BalanceBuild.hero_at) and the same with the weapon a run starts with (Common, item level 1).
 func run_curve(d_list: Array[DifficultyDef]) -> Array:
 	var floors: Array = []
 	var act_list: Array = range(1, content.dungeon.acts.size() + 1)
@@ -130,15 +129,15 @@ func run_curve(d_list: Array[DifficultyDef]) -> Array:
 		d_list = d_list.slice(0, 1)
 		curve_bots = curve_bots.slice(0, 1)
 	for act: int in act_list:
-		var hero := entering_build(act)
-		if hero == null:
-			continue
-		var heroes: Array[BalanceBuildDef] = [hero]
-		var starter := starter_variant(hero)
-		if starter:
-			heroes.append(starter)
 		var first := content.dungeon.first_depth(act - 1)
 		for depth in range(first, BalanceContent.boss_depth(content, act)):
+			var hero := BalanceBuild.hero_at(all_builds, content, depth)
+			if hero == null:
+				continue
+			var heroes: Array[BalanceBuildDef] = [hero]
+			var starter := BalanceBuild.with_starter_weapon(all_builds, content, hero)
+			if starter:
+				heroes.append(starter)
 			for difficulty in d_list:
 				for build in heroes:
 					for bot in curve_bots:
@@ -154,26 +153,6 @@ func run_curve(d_list: Array[DifficultyDef]) -> Array:
 							print("  curve: depth %d | %s | %s | %s: lost %d%% (taken %d%%, healed %d%%, lowest %d%%)%s" % [got.depth, got.difficulty, got.bot, got.hero, roundi(100.0 * got.cost),
 								roundi(100.0 * got.taken_share), roundi(100.0 * got.healed_share), roundi(100.0 * got.min_share), ", died in room %d" % got.died_in if got.died_in > 0 else ""])
 	return floors
-
-
-## The build an average player brings into `act`: the previous act's expected build (a fresh
-## hero, `baseline`, in act I).
-func entering_build(act: int) -> BalanceBuildDef:
-	if act <= 1:
-		return BalanceBuild.find(all_builds, "baseline")
-	return BalanceBuild.expected(all_builds, act - 1)
-
-
-## `build` with the weapon a run starts with (the baseline's), Common, item level 1, nothing on
-## it; null when the build already is that hero.
-func starter_variant(build: BalanceBuildDef) -> BalanceBuildDef:
-	var base := BalanceBuild.find(all_builds, "baseline")
-	if base == null or base.weapon == null or build == base:
-		return null
-	var copy := BalanceBuild.variant(build, content, "weapon", String(base.weapon.id), 0, base.weapon)
-	copy.weapon_item_level = 1
-	copy.name = build.name + "+starter_weapon"
-	return copy
 
 
 ## One floor: its rooms one after the other. { depth, act, difficulty, hero, starter, cost,
@@ -225,35 +204,21 @@ func _curve_tables(report: BalanceReport, floors: Array) -> void:
 	for f: Dictionary in floors:
 		rows.append([f.depth, f.act, f.difficulty, f.bot, f.hero, "%d/%d" % [f.cleared, f.rooms], BalanceReport.pct(f.taken_share), BalanceReport.pct(f.healed_share),
 			BalanceReport.pct(f.min_share), BalanceReport.pct(f.cost), "room %d" % f.died_in if f.died_in > 0 else "-"])
-	report.table("curve", "Monsters", "The curve: every normal floor, %d rooms of its depth one after the other (ranks rolled with its chances), each bot, Health carried, no potions (engine). Hero: what an average player brings into the act (the previous act's expected build; a fresh hero in act I), and the same with the starting weapon (Common, item level 1). Cost = Health lost by the floor's end (100%%: died)" % CURVE_ROOMS,
+	report.table("curve", "Monsters", "The curve: every normal floor, %d rooms of its depth one after the other (ranks rolled with its chances), each bot, Health carried, no potions (engine). Hero: what an average player has there (on an act's first floor what he brought in, later the act's expected build), and the same with the starting weapon (Common, item level 1). Cost = Health lost by the floor's end (100%%: died)" % CURVE_ROOMS,
 		PackedStringArray(["Depth", "Act", "Difficulty", "Bot", "Hero", "Rooms cleared", "Taken", "Healed", "Lowest", "Cost", "Died"]), rows)
 
 
-## Keeper's curve: the first floors gentle, then a floor costs more act after act, with no flat
-## stretch and no cliff (targets curve_*), for the hero an average player brings.
+## Keeper's curve on the engine: the first floors gentle (curve_first_act_cost_max, for the
+## curve bot). Only that: the bots' sustain makes most later floors free, so their costs say
+## more about lifesteal than about the floors (the model's "floor_curve" holds the shape).
 func _check_curve(report: BalanceReport, floors: Array) -> void:
 	var means := act_costs(floors, "normal", false, String(targets.curve_bot))
-	if means.is_empty():
-		return
-	var acts_seen: Array = means.keys()
-	acts_seen.sort()
-	for act: int in acts_seen:
-		var cost: float = means[act]
-		if act == 1 and cost > targets.curve_first_act_cost_max:
-			report.flag(BalanceReport.WARN, "curve: act I", "Keeper, act I floors (%s)" % targets.curve_bot, BalanceReport.pct(cost), "<= %s" % BalanceReport.pct(targets.curve_first_act_cost_max),
-				"the first floors are where a player learns: they must stay gentle")
-		if act > 1 and cost < targets.curve_floor_cost_min:
-			report.flag(BalanceReport.WARN, "curve: stroll", "Keeper, act %d floors (%s)" % [act, targets.curve_bot], BalanceReport.pct(cost), ">= %s" % BalanceReport.pct(targets.curve_floor_cost_min),
-				"a floor of this act costs an average player almost nothing: it rolls")
-		if act > 1 and means.has(act - 1):
-			var step := cost - float(means[act - 1])
-			if step < targets.curve_step_min or step > targets.curve_step_max:
-				report.flag(BalanceReport.WARN, "curve: step", "Keeper, act %d over act %d (%s)" % [act, act - 1, targets.curve_bot], "%+d points" % roundi(step * 100.0),
-					"%+d to %+d points" % [roundi(targets.curve_step_min * 100.0), roundi(targets.curve_step_max * 100.0)],
-					"a flat stretch" if step < targets.curve_step_min else "a cliff")
+	if means.has(1) and float(means[1]) > targets.curve_first_act_cost_max:
+		report.flag(BalanceReport.WARN, "curve: act I", "Keeper, act I floors (%s)" % targets.curve_bot, BalanceReport.pct(means[1]),
+			"<= %s" % BalanceReport.pct(targets.curve_first_act_cost_max), "the first floors are where a player learns: they must stay gentle")
 
 
-## Mean cost of each act's normal floors on `d_key` (the hero brought in, or with the starting
+## Mean cost of each act's normal floors on `d_key` (the hero there, or with the starting
 ## weapon), by `bot`: { act: cost }.
 static func act_costs(floors: Array, d_key: String, starter: bool, bot: String) -> Dictionary:
 	var sums := {}
@@ -269,7 +234,7 @@ static func act_costs(floors: Array, d_key: String, starter: bool, bot: String) 
 	return means
 
 
-## The summary's curve table: depth x difficulty, the floor's cost for the hero brought in /
+## The summary's curve table: depth x difficulty, the floor's cost for the hero there /
 ## with the starting weapon ("+": died).
 func curve_headline(floors: Array) -> String:
 	if floors.is_empty():
@@ -284,7 +249,7 @@ func curve_headline(floors: Array) -> String:
 			depths.append(f.depth)
 	depths.sort()
 	var lines := PackedStringArray()
-	lines.append("Curve (each normal floor, %d rooms, no potions: Health lost, the hero brought into the act / with the starting weapon; + died):" % (CURVE_ROOMS if not quick else 2))
+	lines.append("Curve (each normal floor, %d rooms, no potions: Health lost, the hero there / with the starting weapon; + died):" % (CURVE_ROOMS if not quick else 2))
 	lines.append("")
 	lines.append("| Depth | %s |" % " | ".join(PackedStringArray(keys)))
 	lines.append("|%s" % "---|".repeat(keys.size() + 1))
