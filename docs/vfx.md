@@ -250,7 +250,7 @@ The shared helpers are in `assets/shaders/fx.gdshaderinc`.
 
 | Shader | On | Recipe | Uniforms |
 |---|---|---|---|
-| `glow_halo` | `GlowHalo` (projectiles' cores, braziers, campfires, a sheet's `halo`, frost glints) | two flat bands of added light (premultiplied, alpha 0) in the ramp's 0.7 step and its edge, a checker one art pixel wide where bands meet; breathes by a pixel (12 fps) or flickers (storm) | `inner`, `outer` (radii), `inner_color`, `outer_color`, `inner_density`, `outer_density` (share of the color added), `pulse`, `strength` (0.4 on the brightest floor .. 1 in the dark), `squash` |
+| `glow_halo` | `GlowHalo` (projectiles' cores, braziers, campfires, a sheet's `halo`, frost glints) | two flat bands of added light (premultiplied, alpha 0) in the ramp's 0.7 step and its edge (`bright`: its 0.35 and 0.7 steps, the Maw's false sun), a checker one art pixel wide where bands meet; breathes by a pixel (12 fps) or flickers (storm) | `inner`, `outer` (radii), `inner_color`, `outer_color`, `inner_density`, `outer_density` (share of the color added), `pulse`, `strength` (0.4 on the brightest floor .. 1 in the dark), `squash` |
 | `flame` | `FlameVfx` (braziers), campfires (`HeatSource`) | stepped value noise climbing the flame (texel space, 12 fps): patches a ramp step hotter or cooler, dark tips eaten away; never outside the frame's flame (copies overlap) | `ramp[5]`, `fps`, `climb`, `emissive` |
 | `gas_pool` | poison's novas (`GasPoolVfx`, `VfxElementDef.pool`) | per art pixel of the world: a lumpy disc growing to `radius` (ease out, the first eighth), its rim a band of the ramp's brightest steps (lit on top), the dark edge on its lower side only, a body of low wisps (noise stretched sideways, drifting at 8 fps) in the residue with patches a step greener, holes growing as it sinks, the rim breaking pixel by pixel | `ramp[5]`, `residue`, `radius`, `progress`, `seed`, `emissive`, `fps` |
 | `gas` | poison's piece (`look = GAS`: its trails and arcs) | the top rim in the ramp's brightest steps (an emissive edge), murk welling a step greener, drifting noise holes the floor shows through: gas, not a bush | `ramp[5]`, `fps`, `thin`, `emissive` |
@@ -454,8 +454,14 @@ slicer, element exports) serves the others; what each still needs:
   (each tentacle steps down to tar and dithers away on its own row). The Maw is the false sun:
   `lit_from_within` draws its body over the floor's light and the wall mist (z
   `PlateauMist.Z + 1`, under the AIR effects drawn after the actors) with a holy `GlowHalo`
-  behind its mask, and a golden `LightSource` on the floor, brighter while its jaw is open. Its
-  body still takes the cast telegraph's red glow (the rule for every monster).
+  behind its mask (`bright`: its bands a step up the ramp, gold rather than brown, and wider than
+  the mask, so it reads round it), and a golden `LightSource` on the floor, brighter while its jaw
+  is open. (Until this pass none of it showed: the trait ran before the body existed.) Casting, it
+  warns by a red rim round its silhouette (the body shader's rank rim, `MonsterDef.cast_warning`
+  RIM: one art pixel, no dithered beat, none in the holes of its dithered tentacles) instead of
+  the red glow every other monster takes, which turned its gold red-brown. Drawn over the actors,
+  it would hide the hero standing by its tentacles: there he is drawn over it
+  (`WeakPointTrait._keep_hero_in_front`). Its halo goes out once its mask has crumbled.
 
 ## 9. Shaders on bodies
 

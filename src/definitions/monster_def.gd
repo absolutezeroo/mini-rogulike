@@ -37,6 +37,11 @@ extends ContentDef
 @export var attack_windup: float = 0.35
 ## Pause after attacking.
 @export var attack_recovery: float = 0.3
+## How its body warns while it winds up or casts (the red area on the ground warns either way):
+## TINT glows the whole body red (most monsters); RIM draws a red rim round its silhouette
+## instead, for a body whose own colors must keep reading (the Maw's gold mask).
+enum CastWarning { TINT, RIM }
+@export var cast_warning: CastWarning = CastWarning.TINT
 ## Ranged monsters back off when the player is closer than this. 0 = always close in.
 @export var keep_distance: float = 0.0
 
@@ -50,3 +55,7 @@ extends ContentDef
 ## Its own bestiary challenges, on top of the common ones (BestiaryRules).
 @export var challenges: Array[HuntChallenge] = []
 @export var loot: LootTable
+## Where its loot, runes and gold land, from its feet (world units): in front of a huge body
+## that stays where it fell (the Maw: past its jaw and its pool), never under it. Zero: around
+## its feet.
+@export var loot_offset: Vector2 = Vector2.ZERO

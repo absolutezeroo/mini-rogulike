@@ -43,6 +43,9 @@ uniform int crackle_row = 0;
 // armor layers on: a helmet's rim would cover the face).
 uniform vec4 outline_color : source_color = vec4(0.0);
 uniform bool outer_rim = true;
+// The rim's second ring, dithered on the beat (a rank's); off for a cast warning's rim (on a big
+// body's dithered edge it read as a screen door).
+uniform bool outline_beat = true;
 // Deaths: 0 dissolve, 1 ash, 2 shatter, 3 melt, 4 scatter, 5 ascend, 6 implode, 7 wisp,
 // 8 crumble (DeathLookDef.Style).
 uniform int death_style = 0;
@@ -381,9 +384,12 @@ void fragment() {
 		if (outline_color.a > 0.0 && !opaque && outer_rim && !dying) {
 			// The rank's rim: one art pixel around the silhouette, and a second one dithered on the
 			// beat (stepped, under two beats a second).
-			if (TOUCHES_BODY) {
+			float around = ALPHA_AT(vec2(1.0, 0.0)) + ALPHA_AT(vec2(-1.0, 0.0)) + ALPHA_AT(vec2(0.0, 1.0)) + ALPHA_AT(vec2(0.0, -1.0));
+			if (TOUCHES_BODY && (outline_beat || around < 2.5)) {
+				// (A warning's rim skips the holes of a dithered edge: a tentacle dithering into
+				// its tar would fill with red, a checker.)
 				color = vec4(outline_color.rgb, 1.0);
-			} else if (mod(floor(TIME * 3.0), 2.0) < 1.0 && b < 0.5) {
+			} else if (outline_beat && mod(floor(TIME * 3.0), 2.0) < 1.0 && b < 0.5) {
 				float far = max(max(ALPHA_AT(vec2(2.0, 0.0)), ALPHA_AT(vec2(-2.0, 0.0))),
 						max(ALPHA_AT(vec2(0.0, 2.0)), ALPHA_AT(vec2(0.0, -2.0))));
 				far = max(far, max(max(ALPHA_AT(vec2(1.0, 1.0)), ALPHA_AT(vec2(-1.0, 1.0))),

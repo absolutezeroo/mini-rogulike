@@ -27,6 +27,13 @@ var size := 6.0
 var pulse := Pulse.BREATHE
 ## Under 1: an oval on the floor.
 var squash := 1.0
+## A great light (the Maw's false sun behind its mask): its bands a step up the ramp, so it
+## reads round a big body in the dark (its color, not only its darker steps).
+var bright := false:
+	set(value):
+		bright = value
+		if is_inside_tree():
+			_refresh()
 
 
 ## A halo around `parent`'s core (`offset` from its origin), in `element`'s darker steps; with
@@ -62,9 +69,14 @@ static func light(parent: Node2D, color: Color, level: int) -> LightSource:
 
 func _ready() -> void:
 	show_behind_parent = true  # right behind its core, never over it
+	_refresh()
+
+
+## Its material for its element, size and pulse, dimmed on a bright floor.
+func _refresh() -> void:
 	var field := get_tree().get_first_node_in_group(LightField.GROUP) as LightField
 	var dark := 1.0 - (field.ambient_level if field else LightField.MAX_LEVEL) / float(LightField.MAX_LEVEL)
-	material = _material_for(element, size, pulse, squash, lerpf(BRIGHT_FLOOR, 1.0, dark))
+	material = _material_for(element, size, pulse, squash, lerpf(BRIGHT_FLOOR, 1.0, dark), bright)
 
 
 ## How far it reaches, world units.
@@ -77,17 +89,17 @@ func _draw() -> void:
 	draw_rect(Rect2(-r, -r * squash, r * 2.0, r * 2.0 * squash), Color.WHITE)
 
 
-static func _material_for(of_element: VfxElementDef, core_size: float, how: Pulse, oval: float, strength: float) -> ShaderMaterial:
+static func _material_for(of_element: VfxElementDef, core_size: float, how: Pulse, oval: float, strength: float, great: bool = false) -> ShaderMaterial:
 	strength = snappedf(strength, 0.1)
-	var key := "%s/%d/%d/%.2f/%.1f/%s" % [of_element.id, roundi(core_size), how, oval, strength, Settings.fewer_effects]
+	var key := "%s/%d/%d/%.2f/%.1f/%s/%s" % [of_element.id, roundi(core_size), how, oval, strength, Settings.fewer_effects, great]
 	if _materials.has(key):
 		return _materials[key]
 	var look := ShaderMaterial.new()
 	look.shader = SHADER
 	look.set_shader_parameter("inner", PixelDraw.snap_length(core_size * 1.1))
 	look.set_shader_parameter("outer", PixelDraw.snap_length(core_size * 1.7))
-	look.set_shader_parameter("inner_color", of_element.shade(0.7))
-	look.set_shader_parameter("outer_color", of_element.edge())
+	look.set_shader_parameter("inner_color", of_element.shade(0.35 if great else 0.7))
+	look.set_shader_parameter("outer_color", of_element.shade(0.7) if great else of_element.edge())
 	# Fewer effects: the inner band only.
 	look.set_shader_parameter("outer_density", 0.0 if Settings.fewer_effects else 0.22)
 	look.set_shader_parameter("pulse", how)
