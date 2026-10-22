@@ -35,6 +35,7 @@ func run() -> void:
 	_test_armory_levels()
 	_test_tree_reset_runs()
 	_test_loader()
+	_test_export_presets()
 	_test_pilgrim_costs()
 	_test_bosses()
 	_test_profile()
@@ -1604,6 +1605,29 @@ func _test_loader() -> void:
 	check(loader != null and loader.has_method("go") and not loader.busy, "the Loader autoload is there, idle")
 	var tips: LoadingTipsDef = load("res://data/ui/loading_tips.tres")
 	check(tips.tips.size() >= 10 and Array(tips.tips).all(func(t: String) -> bool: return t.length() > 20 and t.length() <= 110), "loading tips: at least 10, each one short line or two")
+
+
+## The builds (export_presets.cfg) leave out what is only for making the game: the tests, the
+## tools, the docs, the roadmap (a .json is a resource: it would ship), and hold no password.
+func _test_export_presets() -> void:
+	var presets := ConfigFile.new()
+	check(presets.load("res://export_presets.cfg") == OK, "the export presets are readable")
+	var names: Array[String] = []
+	for section in presets.get_sections():
+		if section.ends_with(".options") or not section.begins_with("preset."):
+			if section.ends_with(".options"):
+				for key in presets.get_section_keys(section):
+					var value := str(presets.get_value(section, key))
+					check(not ("password" in key and not value.is_empty()), "%s: no password in the presets (%s)" % [section, key])
+			continue
+		var preset_name := str(presets.get_value(section, "name", section))
+		names.append(preset_name)
+		var excluded := str(presets.get_value(section, "exclude_filter", "")).split(",", false)
+		for i in excluded.size():
+			excluded[i] = excluded[i].strip_edges()
+		for folder in ["tests/*", "tools/*", "_tool/*", "docs/*", "data/balance/*", "godoban_boards/*"]:
+			check(excluded.has(folder), "the %s build leaves out %s" % [preset_name, folder])
+	check(names.has("Android") and names.has("Windows Desktop"), "Android and Windows builds (%s)" % [names])
 
 
 func _test_runes() -> void:

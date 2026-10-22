@@ -549,5 +549,28 @@ func _test_french_fit(game: Game) -> void:
 	problems.append_array(_panel_outside(panel))
 	check(problems.is_empty(), "the bag fits a 1280x720 screen in French, on every tab: %s" % ", ".join(problems.slice(0, 4)))
 	panel.close()
+	await _frames(2)
+	# The merchant too, its Buy saying why it can't (the longest words: a full compartment, gold
+	# missing): the reason wraps, the panel stays inside the screen.
+	var world := game.world
+	var merchant := world.spawn_merchant(CONTENT.dungeon.merchant, world.map.world_to_cell(world.find_open_point_near(player.global_position + Vector2(-60, 0), 40.0)))
+	await _frames(2)
+	merchant.stock.clear()
+	merchant.stock.append({ "item": _katana(ItemRarity.RARE, 5), "price": 1 })
+	merchant.stock.append({ "item": _mail(ItemRarity.RARE, 5), "price": 9999 })
+	var gold := player.gold
+	player.gold = 0
+	game.open_shop(merchant)
+	await _frames(2)
+	var shop_problems: Array[String] = []
+	for index in 2:
+		game.shop_panel.select_stock(index)
+		await _frames(2)
+		shop_problems.append_array(_panel_outside(game.shop_panel))
+	var buy := game.shop_panel.get_node("%BuyButton") as Button
+	check(shop_problems.is_empty(), "the merchant fits a 1280x720 screen in French, Buy saying why it can't (%s): %s" % [buy.text, ", ".join(shop_problems.slice(0, 3))])
+	game.shop_panel.close()
+	player.gold = gold
+	merchant.queue_free()
 	TranslationServer.set_locale("en")
 	await _restore_window(before)

@@ -3,7 +3,8 @@
 Everything is ready in `export_presets.cfg` (preset **Android**): the app takes the game's name
 (`config/name_localized`: "The Well of Souls", "Le Puits des Âmes" on a French phone), package
 `com.absolutezeroo.puitsdesames`, version 0.3.0 (code 3), arm64-v8a, landscape, immersive, the
-Vibrate permission, no Gradle build needed. Tests and tools are left out (`exclude_filter`). The
+Vibrate permission, no Gradle build needed. Tests, tools, docs and the roadmap
+(`godoban_boards/`) are left out (`exclude_filter`, checked by the unit tests). The
 icon is adaptive (`assets/icon/`: the hero over the well's glow and its souls, plus a monochrome
 version for themed icons); the splash shows it on the night color.
 Saves stay in the user folder named "Mini Roguelike" (`config/custom_user_dir_name`), the project's first name: don't
