@@ -181,7 +181,7 @@ func run_unit() -> void:
 	_test_prompts()
 	_test_texts_per_device()
 	_test_font_glyphs()
-	_test_settings()
+	await _test_settings()
 	await _test_canvas_scale()
 	await _test_menu_nav_unit()
 	InputDevice.use(before)
@@ -390,6 +390,15 @@ func _test_settings() -> void:
 	check(Settings.ui_size == Settings.UI_SMALL, "an interface size out of range is held to the smallest")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 	Settings.path = saved_path
+	# F11 and Alt+Enter, anywhere.
+	Settings.fullscreen = false
+	await _tap_key(KEY_F11)
+	check(Settings.fullscreen, "F11: fullscreen")
+	_key(KEY_ENTER, true, true)
+	await _frames(1)
+	_key(KEY_ENTER, false, true)
+	await _frames(1)
+	check(not Settings.fullscreen, "Alt+Enter: back to a window")
 	Settings.fullscreen = full
 	Settings.ui_size = size
 	Settings.apply()
@@ -684,6 +693,25 @@ func _test_title_layouts(title: TitleScreen) -> void:
 		outside = _panel_outside(shrine)
 		check(outside.is_empty(), "%s: the shrine fits (%s)" % [size, ", ".join(outside.slice(0, 3))])
 		shrine.hide()
+	# French runs longer: the options and their Controls page still fit the narrowest canvas.
+	Settings.language = "fr"
+	Settings.apply()
+	var french := (load("res://src/ui/options/options_panel.tscn") as PackedScene).instantiate() as OptionsPanel
+	add_child(french)
+	for size in [Vector2i(1280, 720), Vector2i(1024, 768), Vector2i(1366, 768)]:
+		await _window(size)
+		french.open()
+		await _frames(2)
+		var outside := _panel_outside(french)
+		check(outside.is_empty(), "%s in French: the options fit (%s)" % [size, ", ".join(outside.slice(0, 3))])
+		french.show_page(true)
+		await _frames(2)
+		outside = _panel_outside(french)
+		check(outside.is_empty(), "%s in French: the Controls page fits (%s)" % [size, ", ".join(outside.slice(0, 3))])
+		french.hide()
+	french.queue_free()
+	Settings.language = "en"
+	Settings.apply()
 	await _restore_window(before)
 
 

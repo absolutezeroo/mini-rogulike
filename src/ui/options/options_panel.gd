@@ -439,7 +439,9 @@ func _words(title: String, helper: String) -> VBoxContainer:
 	var words := VBoxContainer.new()
 	words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	words.add_theme_constant_override("separation", 0)
-	words.add_child(UiSkin.label(title, Fonts.BODY))
+	# Both wrap: a long name in French (beside three buttons) must not push the window past a
+	# 1280-wide screen.
+	words.add_child(UiSkin.label(title, Fonts.BODY, UiSkin.TEXT, true))
 	words.add_child(UiSkin.label(helper, Fonts.BODY, UiSkin.DIM, true))
 	return words
 
