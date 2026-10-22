@@ -146,7 +146,7 @@ func codes() -> Dictionary:
 		"biome": TranslationServer.tr(biome),
 		"place": TranslationServer.tr(place),
 		"level": str(level),
-		"time": TimeText.of(seconds),
+		"time": TimeText.of(seconds, 0),
 		"kills": str(kills),
 		"curse": TranslationServer.tr(curse_name),
 		"weapon": TranslationServer.tr(weapon_name),

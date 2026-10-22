@@ -99,6 +99,7 @@ func _init(box_mode: Mode = Mode.PAGED, width: float = 760.0) -> void:
 	foot.alignment = BoxContainer.ALIGNMENT_END
 	foot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	foot.custom_minimum_size.y = PromptGlyph.HEIGHT
+	foot.visible = mode == Mode.PAGED  # stacked, nothing waits for a tap
 	column.add_child(foot)
 	_more = MoreArrow.new()
 	_more.name = "More"

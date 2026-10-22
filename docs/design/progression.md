@@ -155,6 +155,9 @@ and show on the title screen (**Quests**, also a tab of the Codex) with the time
 
 ## Codex: bestiary, achievements, runs
 
+Five tabs: Quests, Bestiary, Achievements, Runs and **Voices** (what the Vigil-Keeper and the
+keepers said, by speaker: presentation.md, "The Vigil-Keeper and the keepers").
+
 **The bestiary** (codex tab, also in the pause menu): every monster and boss, unknown, *seen*
 (it spotted you: `Profile.mark_seen`) or slain. Tap one for its page (`MonsterPage`): its look,
 what it is, its stats and ways (flies, keeps its distance, traits, a boss' phases), its

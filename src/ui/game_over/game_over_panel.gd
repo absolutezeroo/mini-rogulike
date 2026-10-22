@@ -21,6 +21,10 @@ var _columns: HBoxContainer
 var _stats: GridContainer
 var _souls_earned: Label
 var _souls_total: Label
+## What souls are for, in full; in a line while the Vigil-Keeper speaks (the screen keeps its
+## height on a 720-line phone).
+var _souls_note: Label
+var _souls_short: Label
 var _continue_note: Label
 var _continue_button: Button
 var _restart_button: Button
@@ -42,6 +46,8 @@ func show_end(victory: bool, story: String, rows: Array, souls_earned: int, soul
 		title = tr("Victory Achieved") if victory else tr("The Well claims you")
 	_show(title, VICTORY_COLOR if victory else DEATH_COLOR, story, victory)
 	_voice.visible = not spoken.is_empty()
+	_souls_note.visible = spoken.is_empty()
+	_souls_short.visible = not spoken.is_empty()
 	if not spoken.is_empty():
 		_voice.say(spoken)
 	UiParts.clear(_stats)
@@ -141,7 +147,11 @@ func _build() -> void:
 	souls.column.add_child(_souls_earned)
 	_souls_total = UiSkin.label("", Fonts.BODY, UiSkin.TEXT)
 	souls.column.add_child(_souls_total)
-	souls.column.add_child(UiParts.text(tr("Souls are kept between runs. Spend them at the Shrine (title screen) on upgrades that make every next run stronger."), Fonts.BODY, UiSkin.DIM, 360))
+	_souls_note = UiParts.text(tr("Souls are kept between runs. Spend them at the Shrine (title screen) on upgrades that make every next run stronger."), Fonts.BODY, UiSkin.DIM, 360)
+	souls.column.add_child(_souls_note)
+	_souls_short = UiParts.text(tr("Kept between runs: spend them at the Shrine."), Fonts.BODY, UiSkin.DIM, 360)
+	_souls_short.hide()
+	souls.column.add_child(_souls_short)
 	souls.column.add_child(UiParts.text(tr("Gold was only for this run."), Fonts.BODY, UiSkin.DIM, 360))
 
 	var buttons := HBoxContainer.new()
