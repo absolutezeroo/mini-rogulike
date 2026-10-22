@@ -949,7 +949,7 @@
     {
       "id": "task_67",
       "title": "Glyphe « × » absent de la police",
-      "description": "Deux textes français utilisent « × » (quête « Abats %d × %s en moins de %d secondes », amélioration « commence avec %d × %s en plus ») : la police pixel ne l'a pas, il s'affiche dans la police de secours. L'ajouter à tools/i18n/add_glyphs.py (sur la grille de 9 pixels) ou écrire « x ». Vu par un script qui cherche chaque caractère des textes dans la police ; aucun autre manquant.\n\nFait : « × » dessiné dans la police par tools/i18n/add_glyphs.py (la taille et la place du « + », traits croisés, 5x5 sur la grille de 9 pixels) ; les deux textes le gardent (« Abats 5 × Rat »). Test unitaire : la police pixel a chaque caractère de locale/strings.csv (anglais et français), vu en échec avec l'ancienne police. docs/translating.md le dit. Non vu à l'écran (glyphe vérifié dans la police).",
+      "description": "Deux textes français utilisent « × » (quête « Abats %d × %s en moins de %d secondes », amélioration « commence avec %d × %s en plus ») : la police pixel ne l'a pas, il s'affiche dans la police de secours. L'ajouter à tools/i18n/add_glyphs.py (sur la grille de 9 pixels) ou écrire « x ». Vu par un script qui cherche chaque caractère des textes dans la police ; aucun autre manquant.\n\nFait : « × » dessiné dans la police par tools/i18n/add_glyphs.py (la taille et la place du « + », traits croisés, 5x5 sur la grille de 9 pixels) ; les deux textes le gardent (« Abats 5 × Rat »). Test unitaire : la police pixel a chaque caractère de locale/strings.csv (anglais et français), vu en échec avec l'ancienne police. docs/translating.md le dit. Vu à l'écran en français (capture des deux textes : le « × » est dessiné dans le style de la police).",
       "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
@@ -959,7 +959,7 @@
         "bug"
       ],
       "created_at": 1792704927,
-      "updated_at": 1792706993
+      "updated_at": 1792710685
     },
     {
       "id": "task_68",
