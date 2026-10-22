@@ -105,7 +105,6 @@ func _card(oath: OathDef, open: bool) -> Control:
 	var chosen := (oath == null and Profile.oath == &"") or (oath != null and Profile.oath == oath.id)
 	var card := Button.new()
 	card.custom_minimum_size = CARD_SIZE
-	card.focus_mode = Control.FOCUS_NONE
 	card.disabled = not open
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(1.0, 0.8, 0.35, 0.16) if chosen else Color(0, 0, 0, 0.22)

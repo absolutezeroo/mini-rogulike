@@ -29,6 +29,7 @@ var hint_box: HintBox
 
 func _ready() -> void:
 	get_tree().paused = false
+	add_to_group(MenuNav.GROUP)  # its buttons, for keys and gamepads
 	if content.sounds:
 		Sfx.bank = content.sounds
 	var first_act := content.dungeon.acts[0] if not content.dungeon.acts.is_empty() else null
@@ -258,11 +259,21 @@ func show_menu_hint(id: StringName) -> bool:
 
 ## The phone's back button: closes what is open, or leaves the game.
 func _notification(what: int) -> void:
-	if what != NOTIFICATION_WM_GO_BACK_REQUEST:
-		return
+	if what == NOTIFICATION_WM_GO_BACK_REQUEST and not back():
+		get_tree().quit()
+
+
+## Escape or a gamepad's B: closes what is open (on a computer, the title stays).
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") and back():
+		get_viewport().set_input_as_handled()
+
+
+## Closes the panel on top (a hint first); false if none was open.
+func back() -> bool:
 	if hint_box and hint_box.visible:
 		hint_box.hide_hint()
-		return
+		return true
 	var options: OptionsPanel = %OptionsPanel
 	if options.visible:
 		options.close()
@@ -277,4 +288,5 @@ func _notification(what: int) -> void:
 	elif (%DifficultyPanel as Control).visible:
 		(%DifficultyPanel as Control).hide()
 	else:
-		get_tree().quit()
+		return false
+	return true

@@ -365,7 +365,6 @@ func _slider(section: VBoxContainer, title: String, helper: String, low: float, 
 	slider.min_value = low
 	slider.max_value = high
 	slider.step = step
-	slider.focus_mode = Control.FOCUS_NONE
 	slider.custom_minimum_size = Vector2(SLIDER_WIDTH, 44)
 	slider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(slider)

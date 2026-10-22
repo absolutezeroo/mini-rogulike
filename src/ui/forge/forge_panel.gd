@@ -324,7 +324,6 @@ func _clear(container: Container) -> void:
 func _button(text: String, action: Callable) -> Button:
 	var button := Button.new()
 	button.text = text
-	button.focus_mode = Control.FOCUS_NONE
 	button.custom_minimum_size = Vector2(0, 52)
 	button.add_theme_font_size_override("font_size", Fonts.BODY)
 	button.pressed.connect(action)

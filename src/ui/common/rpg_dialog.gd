@@ -4,6 +4,7 @@ extends Control
 ## dimmed behind, a wooden board with a gold ornate border, its title on a red ribbon over the
 ## top edge. No Close button (the panel using it puts its own buttons in `body`). For the
 ## pause menu, encounters, perk choices and the end of a run; RpgWindow is the full-screen one.
+## A menu for keys and gamepads (MenuNav).
 
 ## Where the dialog's contents go.
 var body: VBoxContainer
@@ -18,6 +19,7 @@ var _ornate: StyleBoxTexture
 ## `width`: the board's minimum width (0: as wide as its contents).
 func _init(title_text: String = "", width: float = 0.0, dim_alpha: float = 0.72) -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	add_to_group(MenuNav.GROUP)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var dim := ColorRect.new()
 	dim.color = Color(0.03, 0.02, 0.05, dim_alpha)

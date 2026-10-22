@@ -23,7 +23,7 @@ static var _switches := {}
 
 func _init(title_text: String = "") -> void:
 	super._init(title_text)
-	# RpgWindow's header: [spacer][header_right][Close].
+	# RpgWindow's header: [spacer][header_right][Back's glyph][Close].
 	var header := header_right.get_parent()
 	close_button = header.get_child(header.get_child_count() - 1) as Button
 	header_left = HBoxContainer.new()
@@ -42,11 +42,10 @@ static func expose(node: Node, node_name: String, scene_owner: Node) -> void:
 	node.unique_name_in_owner = true
 
 
-## A plain button in the game's theme (no keyboard focus: phones).
+## A plain button in the game's theme (keys and gamepads reach it: MenuNav).
 static func button(text: String, font_size: int = Fonts.BODY, height: float = 52.0) -> Button:
 	var result := Button.new()
 	result.text = text
-	result.focus_mode = Control.FOCUS_NONE
 	result.custom_minimum_size = Vector2(0, height)
 	result.add_theme_font_size_override("font_size", font_size)
 	return result
@@ -101,7 +100,6 @@ static func badge(text: String, font_size: int, color: Color) -> PanelContainer:
 ## A CheckButton drawn as a big on/off switch with its name in the skin's text style (the
 ## default icons are too small to see on a phone).
 static func style_switch(check: CheckButton, font_size: int = Fonts.BODY) -> void:
-	check.focus_mode = Control.FOCUS_NONE
 	check.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	UiSkin.set_text_style(check, font_size)
 	for state in ["font_color", "font_hover_color", "font_pressed_color", "font_hover_pressed_color", "font_focus_color"]:

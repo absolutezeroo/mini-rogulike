@@ -7,11 +7,10 @@ const GOOD := Color(0.45, 1.0, 0.4)
 const BAD := Color(1.0, 0.4, 0.32)
 
 
-## A plain button (the game's default look), never keeping keyboard focus.
+## A plain button (the game's default look); keys and gamepads reach it (MenuNav).
 static func button(text: String, action: Callable, min_size := Vector2(0, 52), font_size := Fonts.BODY) -> Button:
 	var result := Button.new()
 	result.text = text
-	result.focus_mode = Control.FOCUS_NONE
 	result.custom_minimum_size = min_size
 	result.add_theme_font_size_override("font_size", font_size)
 	if action.is_valid():

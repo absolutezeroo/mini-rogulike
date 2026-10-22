@@ -1,7 +1,8 @@
 extends Node
 ## Player options (autoload "Settings"): volumes, screen shake, vibrations, size of the touch
 ## controls, fixed or floating joystick, battery saver (30 FPS), fewer effects, screen flashes, tutorial hints, run timer,
-## boss stories (full, short, off),
+## boss stories (full, short, off), on a computer fullscreen or a window (F11, Alt+Enter), the
+## interface's size (PixelGrid),
 ## language (English or French: TranslationServer's locale, see locale/strings.csv).
 ## Saved in user://settings.cfg and applied as soon as they change.
 
@@ -21,7 +22,7 @@ const VOLUME_BUSES := {
 const OLD_SOUND_KEY := "sound_volume"
 const SPLIT_SOUND_KEYS: Array[String] = ["ui_volume", "combat_volume", "ambience_volume"]
 const MIN_VIBRATION_GAP_MS := 50
-const KEYS: Array[String] = ["master_volume", "music_volume", "ui_volume", "combat_volume", "ambience_volume", "screen_shake", "vibrations", "controls_scale", "fixed_joystick", "battery_saver", "fewer_effects", "screen_flashes", "tutorial_hints", "run_timer", "language", "auto_loot", "boss_stories"]
+const KEYS: Array[String] = ["master_volume", "music_volume", "ui_volume", "combat_volume", "ambience_volume", "screen_shake", "vibrations", "controls_scale", "fixed_joystick", "battery_saver", "fewer_effects", "screen_flashes", "tutorial_hints", "run_timer", "language", "auto_loot", "boss_stories", "fullscreen", "ui_size"]
 ## Frames per second: normal (0 = no cap), and with the battery saver.
 const FPS := 0
 const SAVER_FPS := 30
@@ -38,6 +39,10 @@ const LOOT_OFF := 2
 const STORIES_FULL := 0
 const STORIES_SHORT := 1
 const STORIES_OFF := 2
+## The interface's size (PixelGrid): as big as the screen allows, a step smaller, two steps.
+const UI_BIG := 0
+const UI_MEDIUM := 1
+const UI_SMALL := 2
 
 ## Empty = nothing is read or written (tests).
 var path := PATH
@@ -73,11 +78,17 @@ var auto_loot := LOOT_BETTER
 ## STORIES_FULL, STORIES_SHORT or STORIES_OFF. Full by default: the story is told a chapter at a
 ## time, and only when there is a new one (otherwise two seconds).
 var boss_stories := STORIES_FULL
+## On a computer: the whole screen instead of a window (F11 or Alt+Enter switch it too).
+var fullscreen := false
+## UI_BIG, UI_MEDIUM or UI_SMALL: smaller leaves more room on a big monitor (the view of the
+## floor stays the same).
+var ui_size := UI_BIG
 
 var _last_vibration := 0
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS  # F11 works in a paused menu too
 	load_settings()
 	apply()
 
@@ -97,6 +108,31 @@ func apply() -> void:
 	Engine.max_fps = SAVER_FPS if battery_saver else FPS
 	if TranslationServer.get_locale() != language:
 		TranslationServer.set_locale(language)
+	_apply_window()
+
+
+## Whether the game runs in a window it can make fullscreen (a computer's, not a phone's).
+static func has_window_modes() -> bool:
+	return not OS.has_feature("mobile") and not OS.has_feature("web") and DisplayServer.get_name() != "headless"
+
+
+func _apply_window() -> void:
+	if not has_window_modes():
+		return
+	var mode := DisplayServer.window_get_mode()
+	var full := mode == DisplayServer.WINDOW_MODE_FULLSCREEN or mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN
+	if fullscreen and not full:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	elif not fullscreen and full:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+
+
+## F11 or Alt+Enter: fullscreen or back to a window, anywhere in the game (before a menu's
+## button takes Enter).
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed(&"toggle_fullscreen", false, true):
+		get_viewport().set_input_as_handled()
+		set_option(&"fullscreen", not fullscreen)
 
 
 ## The device's language if the game speaks it, else English.
@@ -152,6 +188,8 @@ func load_settings() -> void:
 		language = device_language()
 	auto_loot = clampi(int(file.get_value("options", "auto_loot", auto_loot)), LOOT_ALL, LOOT_OFF)
 	boss_stories = clampi(int(file.get_value("options", "boss_stories", boss_stories)), STORIES_FULL, STORIES_OFF)
+	fullscreen = bool(file.get_value("options", "fullscreen", fullscreen))
+	ui_size = clampi(int(file.get_value("options", "ui_size", ui_size)), UI_BIG, UI_SMALL)
 
 
 ## The slider's volume on top of the bus's own gain in the mix (headroom, see SoundMixDef).

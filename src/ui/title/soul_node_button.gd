@@ -19,7 +19,6 @@ func _init(def: SoulNodeDef) -> void:
 	node = def
 	custom_minimum_size = Vector2(SIDE, SIDE)
 	size = custom_minimum_size
-	focus_mode = Control.FOCUS_NONE
 	tooltip_text = def.display_name()
 	var none := StyleBoxEmpty.new()
 	for state in ["normal", "hover", "pressed", "disabled", "focus", "hover_pressed"]:

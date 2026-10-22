@@ -33,6 +33,9 @@ func _ready() -> void:
 	# The checks read English texts, whatever the machine's (or the saved) language.
 	Settings.language = "en"
 	Settings.apply()
+	# The suites play the phone's game (touch controls, "Tap" texts) unless a test picks a
+	# keyboard or a gamepad (the pc tests); a test that sends a key puts touch back after it.
+	InputDevice.use(InputDevice.Kind.TOUCH)
 	RunSave.path = "user://test_run_%d.json" % OS.get_process_id()  # one per test process
 	RunSave.erase()
 	var only := _only()

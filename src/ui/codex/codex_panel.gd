@@ -377,7 +377,7 @@ func _build() -> void:
 		button.text = tr(TAB_NAMES[i])
 		button.name = "%sTab" % TAB_NAMES[i]
 		button.toggle_mode = true
-		button.focus_mode = Control.FOCUS_NONE
+		button.add_to_group(MenuNav.TABS)
 		button.custom_minimum_size = Vector2(150, 48)
 		button.add_theme_font_size_override("font_size", Fonts.BODY)
 		button.pressed.connect(func() -> void:

@@ -78,7 +78,10 @@ func _ready() -> void:
 	words.add_child(_compare)
 	_take = UiParts.button(tr("Take"), _on_take, Vector2(130, 60))
 	_take.name = "TakeButton"
+	_take.focus_mode = Control.FOCUS_NONE  # nothing on the HUD keeps the focus (Space attacks)
 	_take.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	# Interact takes it too on keys and gamepads (Hud): its key, left of the button.
+	row.add_child(PromptGlyph.make(&"interact"))
 	row.add_child(_take)
 	hide()
 	Events.loot_offered.connect(_on_offered)

@@ -70,7 +70,6 @@ static func _fragment(fragment: FragmentDef, boss: BossDef, where: String, read:
 	if Narrative.is_found(fragment):
 		var button := Button.new()
 		button.text = TranslationServer.tr(fragment.title)
-		button.focus_mode = Control.FOCUS_NONE
 		button.custom_minimum_size = Vector2(0, 44)
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.add_theme_font_size_override("font_size", Fonts.BODY)
