@@ -29,15 +29,18 @@ static func make(floor_config: DungeonConfig, run_difficulty: DifficultyDef, flo
 
 # --- Monsters ----------------------------------------------------------------
 
-## Multiplies a monster's HP (after the depth scaling, see scale_monster()).
+## Multiplies a monster's HP (after the depth scaling, see scale_monster()): the game's own
+## (DungeonConfig), the difficulty's, the event's.
 func monster_hp(is_boss: bool) -> float:
+	var base := (config.boss_hp_scale if is_boss else config.monster_hp_scale) if config else 1.0
 	var scale := difficulty.boss_hp if is_boss else difficulty.monster_hp
-	return scale * (event.monster_hp if event else 1.0)
+	return base * scale * (event.monster_hp if event else 1.0)
 
 
-## Multiplies everything the dungeon deals: monster attacks and skills, traps, bursts, the cold.
+## Multiplies everything the dungeon deals: monster attacks and skills, traps, bursts, the cold
+## (the game's own lethality, DungeonConfig, times the difficulty's and the event's).
 func monster_damage() -> float:
-	return difficulty.monster_damage * (event.monster_damage if event else 1.0)
+	return (config.monster_damage_scale if config else 1.0) * difficulty.monster_damage * (event.monster_damage if event else 1.0)
 
 
 func monster_speed() -> float:

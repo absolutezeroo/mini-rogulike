@@ -295,7 +295,10 @@ func _run_mode(m: String, content: ContentDB, targets: BalanceTargets, every_bui
 			gauntlet.targets = targets
 			gauntlet.all_builds = every_build
 			gauntlet.builds = builds
-			gauntlet.difficulties = difficulties if not args.difficulties.is_empty() or args.quick else BalanceContent.difficulties(content, PackedStringArray(["easy", "normal", "hard", "nightmare"]))
+			gauntlet.difficulties = difficulties if not args.difficulties.is_empty() or args.quick else BalanceContent.difficulties(content, PackedStringArray(["easy", "normal", "hard"]))
+			if args.bots_given:
+				gauntlet.bots = args.bots
+			gauntlet.timeout = args.timeout
 			gauntlet.seed_value = args.seed
 			gauntlet.quick = args.quick
 			gauntlet.verbose = _jobs.measuring
@@ -423,7 +426,7 @@ static func parse_args(user_args: PackedStringArray) -> Dictionary:
 		"bots": PackedStringArray(["face_tank", "kite"]), "acts": PackedStringArray(), "weapons": PackedStringArray(),
 		"only": PackedStringArray(), "out": DEFAULT_OUT, "seed": 1,
 		"all_pairs": false, "timeout": 240.0, "quick": false, "jobs": 2, "worker": "", "cache": DEFAULT_CACHE, "no_cache": false,
-		"inputs": PackedStringArray(), "plain": false, "no_weapons": false, "classic": false,
+		"inputs": PackedStringArray(), "plain": false, "no_weapons": false, "classic": false, "bots_given": false,
 	}
 	for arg in user_args:
 		var key := arg.get_slice("=", 0)
@@ -433,7 +436,9 @@ static func parse_args(user_args: PackedStringArray) -> Dictionary:
 			"--boss", "--bosses": args.bosses = value.split(",", false)
 			"--build", "--builds": args.builds = value.split(",", false)
 			"--difficulty", "--difficulties": args.difficulties = value.split(",", false)
-			"--bot", "--bots": args.bots = value.split(",", false)
+			"--bot", "--bots":
+				args.bots = value.split(",", false)
+				args.bots_given = true
 			"--acts", "--act": args.acts = value.split(",", false)
 			"--only": args.only = value.split(",", false)
 			"--out": args.out = value

@@ -145,8 +145,9 @@ static func difficulty_roots(difficulty: DifficultyDef) -> PackedStringArray:
 	return PackedStringArray(["res://data/difficulties/%s.tres" % difficulty.id, "res://data/ascension/"])
 
 
-## One fight. Returns what happened (see the keys at the end).
-func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef, bot_name: String, rank: MonsterRankDef = null) -> Dictionary:
+## One fight. Returns what happened (see the keys at the end). `start_hp`: the hero's Health
+## when the fight starts (the gauntlet: what the floor left him; 0: full).
+func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef, bot_name: String, rank: MonsterRankDef = null, start_hp: int = 0) -> Dictionary:
 	var act := BalanceContent.act_of_boss(content, boss)
 	var depth := BalanceContent.boss_depth(content, act)
 	var game := await lab.start_game(depth, difficulty, boss, true, rank)
@@ -163,6 +164,9 @@ func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef
 	BalanceBuild.apply(build, player, content, difficulty)
 	player.perks.on_floor_started(player)  # floor-start perks (a ward) as on arrival
 	player.xp = -1000000  # the build keeps its level: no level up (and no perk menu) mid-fight
+	if start_hp > 0:
+		player.hp = clampi(start_hp, 1, player.get_max_hp())
+		player.health_changed.emit(player.hp, player.get_max_hp())
 	var boss_actor := world.arena.boss
 	result["affixes"] = boss_actor.affix_names()
 	var log := FightLog.new(player, boss_actor)
@@ -241,7 +245,7 @@ func _boss_report(report: BalanceReport, fights: Array) -> void:
 			for bot in bots:
 				for r: Dictionary in fights:
 					if r.boss == String(boss.id) and r.build == expected.name and r.difficulty == d_key and r.bot == bot and r.get("rank", "plain") == "plain":
-						cell.append("%s %s %.0fs" % ["K" if bot == "kite" else "F", "W" if r.result == "win" else ("L" if r.result == "loss" else "T"), r.time])
+						cell.append("%s %s %.0fs" % [{ "kite": "K", "face_tank": "F", "player": "P" }.get(bot, bot), "W" if r.result == "win" else ("L" if r.result == "loss" else "T"), r.time])
 			row.append(" / ".join(cell) if not cell.is_empty() else "-")
 		summary.append(row)
 	var columns := PackedStringArray(["Boss", "Build"])

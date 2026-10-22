@@ -12,10 +12,16 @@ extends RefCounted
 ##   rolls only when the blow lands within the roll's invulnerability (late, not early), and
 ##   only where the whole roll is solid ground (no pit, crack or wall). It holds the hit that
 ##   would set off a boss' shockwave when its roll isn't ready. A decent player, not a perfect one.
+## - PLAYER ("player"): the kite bot with a human's reaction time (REACTION): a threat (a wind-up,
+##   a shot, a shockwave's ring) is only answered once it has been there that long, so short
+##   wind-ups and fast shots land. An average player, for the gauntlet.
 
 enum Style { FACE_TANK, KITE }
 
-const STYLE_NAMES := { "face_tank": Style.FACE_TANK, "kite": Style.KITE }
+const STYLE_NAMES := { "face_tank": Style.FACE_TANK, "kite": Style.KITE, "player": Style.KITE }
+## Seconds before the "player" bot answers what it sees (a visual reaction on a phone, with the
+## decision: about 0.25-0.35 s for an average player).
+const REACTION := 0.3
 const ACTIONS: Array[StringName] = [&"move_left", &"move_right", &"move_up", &"move_down", &"attack",
 	&"skill_1", &"skill_2", &"skill_3", &"skill_4", &"quick_item"]
 ## Shots closer than this, heading at the hero, are dodged.
@@ -37,6 +43,10 @@ static var hold_override := 0.0
 ## Skill presses and rolls, for the logs.
 var skills_used := 0
 var rolls := 0
+## Seconds before a threat is answered (0: at once; the "player" style: REACTION).
+var reaction := 0.0
+## Threat key -> the physics frame it was first seen (reaction).
+var _seen := {}
 
 var _hazards: Array[Vector2i] = []
 var _hazard_timer := 0
@@ -51,6 +61,8 @@ var _released := {}
 static func create(style_name: String, hero: Player, in_world: World, boss: Monster = null) -> BalanceBot:
 	var bot := BalanceBot.new()
 	bot.style = STYLE_NAMES.get(style_name, Style.FACE_TANK)
+	if style_name == "player":
+		bot.reaction = REACTION
 	bot.player = hero
 	bot.world = in_world
 	bot.focus = boss
@@ -170,11 +182,16 @@ func _threat() -> Dictionary:
 		# the cooldown is set to 3 s when the ring appears, the blast follows 0.35-0.45 s later.
 		if monster.is_boss() and monster._shockwave_cooldown > 2.5:
 			var ring := (monster.def as BossDef).shockwave_radius + monster.radius + player.radius + 20.0
-			if distance < ring:
+			if distance < ring and _noticed("ring%d" % monster.get_instance_id()):
 				away += direction * 2.0
 				urgent = urgent or monster._shockwave_cooldown <= 2.75
 			continue
+		if reaction > 0.0 and monster.is_boss():
+			_seen.erase("ring%d" % monster.get_instance_id())  # the next ring is seen afresh
 		if monster.telegraph <= 0.0:
+			_seen.erase(monster.get_instance_id())
+			continue
+		if not _noticed(monster.get_instance_id()):
 			continue
 		var skill := monster.casting_skill()
 		if skill == null:
@@ -213,6 +230,8 @@ func _threat() -> Dictionary:
 		var miss := absf(offset.cross(shot._direction))
 		if miss > player.radius + shot._spec.radius + 10.0:
 			continue
+		if not _noticed(shot.get_instance_id()):
+			continue
 		var time_to_hit := maxf(along, 0.0) / maxf(shot._spec.speed, 1.0)
 		var side := shot._direction.orthogonal()
 		if side.dot(offset) < 0.0:
@@ -225,6 +244,18 @@ func _threat() -> Dictionary:
 		if offset.length() < world.map.tile_size * 1.2:
 			away += offset.normalized() if offset.length() > 0.1 else Vector2.DOWN
 	return { "danger": away != Vector2.ZERO, "urgent": urgent, "away": away.normalized() }
+
+
+## Whether the threat `key` has been seen for the bot's reaction time (always, without one).
+func _noticed(key: Variant) -> bool:
+	if reaction <= 0.0:
+		return true
+	var now := Engine.get_physics_frames()
+	if _seen.size() > 400:
+		_seen.clear()  # shots long gone: their ids pile up
+	if not _seen.has(key):
+		_seen[key] = now
+	return now - int(_seen[key]) >= roundi(reaction * Engine.physics_ticks_per_second)
 
 
 ## What a monster's skill does, for dodging: "area" (a circle around or in front of it),

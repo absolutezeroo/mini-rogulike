@@ -18,14 +18,17 @@ extends RefCounted
 
 ## Files that list everything (followed, they would make every unit depend on all the data):
 ## hashed as files, their references not followed. What a unit needs from them it names itself.
+## An act is followed (its monsters, bosses, biomes and hazards): a unit that names its act
+## depends on all of them, so a change to one of its monsters measures the act again.
 const SHALLOW := ["res://data/content_db.tres", "res://data/dungeon/dungeon_config.tres"]
-const SHALLOW_DIRS := ["res://data/dungeon/acts/"]
-## Data every engine measure depends on (the hero, the rules of the floor, ranks and affixes).
+const SHALLOW_DIRS: Array[String] = []
+## Data every engine measure depends on (the hero, the rules of the floor, ranks and affixes,
+## what stands on a floor: props, chests, arenas, hazards).
 const COMMON_ROOTS := ["res://data/content_db.tres", "res://data/dungeon/dungeon_config.tres", "res://data/player/",
 	"res://data/monster_ranks/", "res://data/elites/", "res://data/perks/synergies/", "res://data/items/item_levels.tres",
-	"res://data/dungeon/sustain.tres"]
+	"res://data/dungeon/sustain.tres", "res://data/props/", "res://data/chests/", "res://data/arenas/", "res://data/hazards/"]
 const CODE_DIRS := ["res://src/", "res://tools/balance/"]
-const VERSION := "1"
+const VERSION := "2"
 
 ## This process' share: units whose turn % workers == worker.
 var worker := 0

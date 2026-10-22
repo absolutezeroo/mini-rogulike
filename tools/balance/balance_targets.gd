@@ -34,6 +34,18 @@ extends Resource
 ## on these difficulties: the fight must be beatable by playing it.
 @export var kite_should_win_on: PackedStringArray = ["easy", "normal"]
 
+@export_group("Gauntlet")
+## The average player (the gauntlet's `player` bot: the kite bot with a human's reaction time)
+## plays every act through on these difficulties (an act's last floor, then its boss, Health
+## carried): Pilgrim must stay accessible.
+@export var gauntlet_player_wins_on: PackedStringArray = ["easy"]
+## On Keeper, the share of max Health an act takes from the average player at worst (1 - his
+## lowest Health over the rooms and the boss; a death counts 1), mean over the acts: at least
+## this (Keeper is a real challenge, not a stroll)...
+@export var gauntlet_keeper_lost_min: float = 0.4
+## ...and at most this (a challenge, not a wall: most acts are won).
+@export var gauntlet_keeper_lost_max: float = 0.8
+
 @export_group("Curve")
 ## Threat of a boss for the act's expected build = share of the hero's health a face-tank fight
 ## would cost (boss damage per second x time to kill / max health). From one act to the next it

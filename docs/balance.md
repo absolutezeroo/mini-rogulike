@@ -31,21 +31,46 @@ Bosses, monsters, perks and affixes are named the same way: the `id` in the `.tr
 
 | Option | What |
 |---|---|
-| `--mode=` | `model`, `arena`, `pack`, `marginal`, `economy`, `compound`, `all` (default `model`); `merge --in=a,b` combines earlier runs |
+| `--mode=` | `model`, `arena`, `pack`, `marginal`, `economy`, `compound`, `gauntlet`, `all` (default `model`); `merge --in=a,b` combines earlier runs |
 | `--quick` | a small subset of each mode (what the `balance` test suite runs) |
-| `--difficulty=` | `easy`, `normal`, `hard`, `nightmare`, `nightmare+N` (Nightmare with its first N ascensions); default all of easy..nightmare+10 (`--quick`: normal) |
-| `--build=`, `--boss=`, `--bot=` | restrict the builds (`data/balance/builds/<name>.tres`), bosses, bots (`face_tank`, `kite`) |
-| `--acts=2,4` | marginal values: acts measured (default all) |
+| `--only=act2,normal,king_slime` | restrict to acts (`act1`..`act4`: their bosses, builds, rooms, marginal values), difficulties, bosses, builds or weapons, in any mix |
+| `--difficulty=` | `easy`, `normal`, `hard`, `nightmare`, `nightmare+N` (Nightmare with its first N ascensions); default all of easy..nightmare+10 (`--quick`: normal; the gauntlet: easy, normal, hard) |
+| `--build=`, `--boss=`, `--bot=` | restrict the builds (`data/balance/builds/<name>.tres`), bosses, bots (`face_tank`, `kite`, `player`; the gauntlet runs `kite,player` unless told) |
+| `--acts=2,4` | marginal values, rooms and the gauntlet: acts measured (default all) |
 | `--seed=N` | every measure starts from this seed (default 1): the same command gives the same numbers |
 | `--all-pairs` | arena: every build against every boss, not only its act's |
-| `--timeout=240` | arena: game seconds before a boss fight is a timeout |
+| `--timeout=240` | arena and gauntlet: game seconds before a boss fight is a timeout |
 | `--plain`, `--no-weapons` | arena: plain bosses only (no ranked fights); skip the weapon arena (targeted runs) |
-| `--jobs=2` | `all`: the arena runs in a second Godot process (2 CPUs: about half the time) |
+| `--jobs=N` | worker processes sharing the measures (default 2, this machine's CPUs; `--jobs=1`: one process) |
+| `--cache=<dir>`, `--no-cache` | where measures are kept between runs (default `user://balance_cache`); measure everything again (results still kept) |
+| `--classic` | the game as seen (effects, HUD, light, a new game for every measure): the tools as they were before they simulated, slower, to compare |
 | `--out=` | where the reports go (default `user://balance`) |
 
 Each mode writes `<out>/<mode>/report.md`, `data.json`, `csv/<table>.csv` and `state.json`
 (for `merge`); `--mode=all` also writes `<out>/report.md` and `<out>/data.json` with everything,
 and prints a short summary (flags per category, the first ones). Exit code 0: flags are findings.
+Every run also writes `<out>/summary.md` (printed too): time, measures made or kept, flags per
+mode, the gauntlet's act x difficulty table when it ran.
+
+How a run is made fast (`BalanceLab`, `BalanceJobs`):
+
+- **A simulation.** The tools run the game with nothing to see (`Vfx.shown` off): effects,
+  floating numbers, splats, light, ambience, the HUD and the bodies' looks are not made or not
+  updated. Nothing a rule or a bot reads is skipped (a cell's warning, telegraph values), and the
+  game and the tests always show everything (`vfx_tests` checks it). Visual code draws from the
+  same random numbers as the game, so a fight can differ from the one `--classic` gives: within
+  the seed noise (below), same verdicts.
+- **Floors without their own monsters** (`World.unpeopled`), and a fresh measure rebuilds its
+  floor in the running game instead of starting a new game (`BalanceLab.renew`).
+- **Units of work shared by processes.** The engine measures are cut into units (a fight, a room,
+  a gauntlet, a measured build, a floor); `--jobs=N` deals them out to N processes, each its own
+  share, then the first assembles the reports.
+- **A cache.** A unit's result is kept (`--cache`) under its id, the seed and options, the code
+  (every script of `src/` and `tools/balance/`) and the data it depends on (its act with its
+  monsters, bosses and biomes, the build's perks, runes, affixes and gear, the difficulty, and
+  what every measure uses: the hero, ranks, elite affixes, families, props, arenas, hazards): run
+  again, only what a change touched is measured again. A code change measures everything again.
+  `--no-cache` ignores what is kept.
 
 Run time on 2 CPUs (2026-10-20, all six difficulties, measured): model ~2 s; economy ~3 min
 (96 floors); compound ~4 min; pack ~9 min (478 rooms); marginal ~34 min (572 variants, 4 acts);
@@ -121,6 +146,17 @@ take 5 s to a minute each; the `balance` test suite about a minute.
   Ember, Burning, Kindling, Inferno); armor vs many weak hits (share of each act's monsters hitting
   each build for 1); healing vs the sustain cap (lifesteal stacks with and without `SustainRules`,
   in a room and on a boss dummy, and what a real boss fight's budget would pay).
+- **gauntlet** (engine; the difficulties' measure): each act as a player meets it, the act's
+  expected build on its last normal floor: 8 rooms one after the other (the act's monsters by
+  spawn weight, the room size of that depth and difficulty, every monster rolled for a rank with
+  the floor's own chances), Health carried from room to room with only the build's own sustain,
+  then the act's boss with the Health that is left. Bots: `kite` (a decent player) and `player`
+  (the kite bot with a 0.3 s reaction: a threat is answered only once it has shown that long,
+  `BalanceBot.REACTION`; an average player), `face_tank` when asked. Every act x Pilgrim, Keeper,
+  Martyr by default. Tables "gauntlet" (rooms cleared, ranked met, damage taken in the rooms,
+  lowest Health, Health at the boss, the boss fight, the outcome) and "gauntlet_summary" (acts won
+  per difficulty and bot); `summary.md` shows it as act x difficulty. No potions, springs or
+  shrines on the way (the bots never drink), no walking between rooms.
 
 ### Reading the report
 
@@ -143,7 +179,9 @@ lab before changing data.
 |---|---|---|
 | Boss time to kill, expected build, Keeper | 40-100 s (rare-rank boss <= 150 s) | under it the boss is not a fight; over it the fight drags on a phone |
 | Face-tank (never dodges) with expected and degenerate builds | must lose to every boss from Keeper | skill beats stats: standing and trading blows must never win (pillar 1) |
-| Kite (keeps range, rolls) with the expected build | wins on Pilgrim and Keeper | the fight must be beatable by playing it |
+| Kite (keeps range, rolls) with the expected build | wins on Pilgrim and Keeper (boss fights and the gauntlet) | the fight must be beatable by playing it |
+| Gauntlet, `player` bot (an average player) | wins every act on Pilgrim | Pilgrim stays accessible |
+| Gauntlet on Keeper, `player` bot: share of max Health an act takes at worst (a death counts 100%), mean over the acts | 40-80% | Keeper is a real challenge for an average player: not a stroll, not a wall |
 | Healing in a boss fight / damage taken | <= 25% expected, <= 50% degenerate and family | healing forgives mistakes, it doesn't out-heal a boss |
 | Boss hits to kill the expected build (Keeper) | 6-12 | one mistake isn't the end; ignoring the patterns kills |
 | Common monster time to kill (expected build, Keeper) | 0.5-2.5 s | paper below, a slog above |
@@ -197,7 +235,10 @@ add it to the table above. To change a target, say why in the [balance log](bala
   (the arena runs each fight once). Read flags across several bosses or acts, not one fight.
 - **The bots are decent, not good.** `kite` doesn't use the terrain, doesn't drink, and rolls
   only on what it sees coming (it still eats some shockwaves and falls when thrown off); a lost kite fight means "hard for a careful player", not
-  "impossible". `face_tank` is the pillar-1 test as written: it never dodges.
+  "impossible". `face_tank` is the pillar-1 test as written: it never dodges. `player` is `kite`
+  answering every threat 0.3 s late, one fixed reaction for everything: a person is quicker on
+  some patterns and slower or careless on others, and learns a boss. Read its numbers as "an
+  average player's first meetings", not as a measured person.
 - **Dummies don't fight back.** The marginal values' boss and rooms don't move or attack: slows,
   freezes, knockback, thorns and retaliation, roll effects and other crowd control show no value
   there (they are in the live rooms' "Taken" column and in the arena). A pick at +0% is either a

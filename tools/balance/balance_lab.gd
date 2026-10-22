@@ -32,7 +32,7 @@ var _saved_chances := {}
 
 
 ## The game runs as a simulation (`Vfx.shown` off, no HUD, no light, no ambience): nothing in
-## the measures reads them, and a fight runs about twice as fast. `--visuals` keeps them (to
+## the measures reads them, and a fight runs about twice as fast. `--classic` keeps them (to
 ## compare, or to look at a fight).
 static var simulate := true
 
@@ -434,12 +434,23 @@ func dummy_pack(s: Dictionary, build: BalanceBuildDef, defs: Array, hp_share: fl
 ## `bot_name` plays. Until they (and what they summon) are all dead, the hero dies, or `limit`.
 ## Returns { result: clear | died | timeout, clear_time, ttks, ttk_by_kind, taken, hits, healed,
 ## heal_sources, min_hp_share, hero_max_hp, kills }.
-func pack(s: Dictionary, build: BalanceBuildDef, foes: Array, bot_name: String, limit: float, measure_seed: int) -> Dictionary:
-	var game: Game = await ensure(s)
+## `carry`: the hero comes as the last room left it (Health, statuses, cooldowns: the gauntlet's
+## rooms one after the other), only put back at the floor's start; the build is not put on again.
+func pack(s: Dictionary, build: BalanceBuildDef, foes: Array, bot_name: String, limit: float, measure_seed: int, carry: bool = false) -> Dictionary:
+	var game: Game = s.game
+	if not carry or game == null or not is_instance_valid(game):
+		game = await ensure(s)
 	var difficulty: DifficultyDef = s.difficulty
 	var world := game.world
 	await clear_monsters(world, not s.fresh)
-	var player := ready_hero(game, build, difficulty, measure_seed)
+	var player := game.player
+	if carry:
+		player.global_position = world.map.cell_to_world(world.map.start_cell)
+		player.velocity = Vector2.ZERO
+		seed(measure_seed)
+		world.rng.seed = measure_seed
+	else:
+		player = ready_hero(game, build, difficulty, measure_seed)
 	var spawned: Array[Monster] = []
 	for foe: Dictionary in foes:
 		var at := world.find_open_point_near(player.global_position, world.rng.randf_range(140.0, 200.0))

@@ -29,6 +29,11 @@ boss_hits_to_kill_min = 6.0
 boss_hits_to_kill_max = 12.0
 ; Keeping range and rolling away from telegraphs should beat the act's boss with the expected build on Easy and Normal.
 kite_should_win_on = PackedStringArray("easy", "normal")
+; The average player (gauntlet's player bot: kite with a 0.3 s reaction) plays every act through (last floor, then the boss, Health carried) on Pilgrim: it stays accessible.
+gauntlet_player_wins_on = PackedStringArray("easy")
+; Keeper: an act takes the average player down by 40-80% of his max Health at worst (a death counts 100%), mean over the acts: a real challenge, not a stroll nor a wall.
+gauntlet_keeper_lost_min = 0.4
+gauntlet_keeper_lost_max = 0.8
 ; Each act a little harder than the last (threat x0.9-x1.6 act over act): a steady curve, no wall.
 act_threat_step_min = 0.9
 act_threat_step_max = 1.6
