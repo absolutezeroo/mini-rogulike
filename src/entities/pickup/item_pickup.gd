@@ -106,7 +106,7 @@ func _draw() -> void:
 	var shine := _shine_color()
 	if shine.a > 0.0:
 		# The rarity's (or a rune's element's) rim: one art pixel round the icon's silhouette.
-		for p in _rim_of(item.icon):
+		for p in rim_of(item.icon):
 			draw_rect(Rect2(corner + p * icon_scale, Vector2.ONE * icon_scale), shine)
 	draw_texture_rect(item.icon, Rect2(corner, size), false, item.icon_tint)
 	_draw_glint(corner, icon_scale)
@@ -149,7 +149,9 @@ func _draw_glint(corner: Vector2, icon_scale: float) -> void:
 static var _rims := {}  # Texture2D -> the transparent pixels touching its silhouette
 
 
-static func _rim_of(texture: Texture2D) -> PackedVector2Array:
+## The transparent pixels of `texture` touching its silhouette (4-neighbours): where a rim one art
+## pixel wide goes (loot's rarity, a rune's element, a fragment's glow: Fragment).
+static func rim_of(texture: Texture2D) -> PackedVector2Array:
 	if _rims.has(texture):
 		return _rims[texture]
 	var solid := {}

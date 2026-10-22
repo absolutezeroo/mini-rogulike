@@ -65,8 +65,8 @@ floor must never draw over the hero's feet, and a crystal must hide a monster st
 
 | Layer | What | Where it draws | Examples |
 |---|---|---|---|
-| `GROUND` | flat on the floor | z -1: under every actor, over the floor's marks (splats -8, footprints -5) | `Vfx.magic` sigil, `RingVfx` rings, telegraphs (`TelegraphView`, `CellWarning`), storm's crackles, mist at a body's feet, level-up rings, elite auras, afterimages |
-| `STANDING` | upright, rooted on the floor | z 0 in the world's y-sorted Entities, sorted by its **base** (the bottom of its frame) | the nova pieces: frost crystals, fire licks, earth spikes, poison clouds, blood jets, spirit flames, holy rays, shadow smoke, arcane runes; the ground bursting (earth's `blast`), Smite's column, Thunder's bolt, dust puffs |
+| `GROUND` | flat on the floor | z -1: under every actor, over the floor's marks (splats -8, footprints -5) | `Vfx.magic` sigil, `RingVfx` rings, telegraphs (`TelegraphView`, `CellWarning`), storm's crackles, poison's pool of gas (`GasPoolVfx`), mist at a body's feet, level-up rings, elite auras, afterimages |
+| `STANDING` | upright, rooted on the floor | z 0 in the world's y-sorted Entities, sorted by its **base** (the bottom of its frame) | the nova pieces: frost crystals, fire licks, earth spikes, poison's trail clouds, blood jets, spirit flames, holy rays, shadow smoke, arcane runes; the ground bursting (earth's `blast`), Smite's column, Thunder's bolt, dust puffs |
 | `AIR` | in flight or on a body | z 5-6: over every actor and over the floor's light | shots, impacts, hit flashes and bits, blade arcs (`SwingVfx`), bursts (a ball of fire: fire's `blast`, `BlastVfx`), beams, blood drawn into a drinker, halos (Holy Shield), the crit cross, sparks, smoke, damage numbers |
 
 - A sheet says its layer: `VfxSheetDef.layer` (AIR when it doesn't say: shots, impacts, claws
@@ -184,7 +184,7 @@ bits on the rim).
 | fire (**done**) | `fire_bolt.png`: a white-hot ball, three tongues licking back and up, 16 directions; `fire_ray.png` for the eye beam | `fire_impact.png`: tongues out and up, flames breaking off, embers, dark smoke; `fire_blast.png` for explosions | heat crawling up the lower rim (body shader), a few `fire_flicker.png` flames and embers, a burst when it catches; killed: burnt to ash from the feet up | `fire_lick.png`: licks rising, curling, sinking to smoke, in rings, arcs (Flame Arc) and at a blast's edge | warm rim, embers creeping in | crackle (`flames`) |
 | frost (**done**) | `frost_shard.png`: a faceted shard drawn in 16 directions, chips trailing | `frost_impact.png`: shards cracking outward, biggest early, chips falling, mist | rime creeping in from the edges and cold colors (body shader; heavy: a glint sweeping), two `frost_rime.png` crystals, ice chips, cold mist at the feet; killed: frozen, then shattered into pieces of its own art | `frost_crystal.png`: crystals growing from the ground in a ring, then shattering | the shared danger rim; frost chips inside | cracking ice, glassy chime |
 | water | a drop (energy orb painted water) | splash, droplets, a ripple | drips (none yet) | ripples (`water_ripples.png`) | danger rim | splash |
-| poison (**done**) | `poison_glob.png`: a round glob, a stubby tail and two drops sagging behind, 16 directions | `poison_splash.png`: droplets flung and falling, a cloud rising then sinking, bubbles popping, a puddle (and a puddle mark on the floor) | a splash, then a green wave up the body on each tick (body shader), bubbles (`poison_bubble.png`), a murky haze sinking at the feet; killed: melts into a puddle | `poison_cloud.png`: lumps of murky gas welling up, bubbling, sinking flat | danger rim | squelch, hiss |
+| poison (**done**) | `poison_glob.png`: a round glob, a stubby tail and two drops sagging behind, 16 directions | `poison_splash.png`: droplets flung and falling, a cloud rising then sinking, bubbles popping, a puddle (and a puddle mark on the floor) | a splash, then a green wave up the body on each tick (body shader), bubbles (`poison_bubble.png`), a murky haze sinking at the feet; killed: melts into a puddle | one **pool of gas** on the ground (`GasPoolVfx`, `gas_pool.gdshader`): it wells out to the area's edge in its first eighth, a crisp rim of the brightest steps where the area ends (the dark edge under it where it sags), low wisps of murk drawn out sideways with the floor showing between them, bubbles (`poison_bubble.png`) swelling and popping, then it sinks and thins away (~1 s); `poison_cloud.png` lumps for trails and arcs | danger rim; the pool's rim lands on the telegraph's circle | squelch, hiss |
 | storm (**done**) | `storm_spark.png`: ball lightning, arcs leaping off it at uneven angles, flickering | `storm_impact.png`: forks out, off, a second strike, broken tips | a hit crackles over the body: forks on its rim for a frame or two (body shader, `crackles`); killed: a white flash, scattered in sparks | `storm_fork.png`: crackles on the ground around a ring; Thunder's `storm_bolt.png` falls from the sky on top (`DamageAreaEffect.strike`); chain lightning is a jagged `BeamVfx` | crisp flicker | crack, zap |
 | holy (**done**) | none needed (no holy shot) | the hit's 4-point glints | short ray halo (none yet) | `holy_ray.png`: a sparse ring of thin shafts; Smite's `holy_column.png` falls on the target; Holy Shield's `holy_aegis.png` rises into a halo; heals and buffs draw `holy_sigil.png` (Vfx.magic, recolored for other colors) | rays converging | chime, bell |
 | shadow (**done**) | `shadow_knot.png`: a dark knot, a burning broken rim, smoke curling in (all shadow shots are enemy threats) | `shadow_impact.png`: a ring collapsing inward, a puff | darkened silhouette, filaments sucked in (none yet) | `shadow_smoke.png`: smoke curling up and drawn back in (Shadow Step's trail) | the ground dims | whisper, low thrum |
@@ -211,6 +211,7 @@ bits on the rim).
 | `VfxRamp` | `src/vfx/vfx_ramp.gd` | `recolor(texture, ramp)`: palette swap by luminance, cached (a sheet with `recolor` on is painted in its element's ramp) |
 | `Vfx` | `src/vfx/vfx.gd` | `hit(..., element, material)` (a crit cuts `CRIT_CROSS`), `pop(world, at, element, radius, direction)`, `nova(world, at, radius, element)`, `arc(world, at, radius, facing, element)`, `trail(world, from, to, element)`, `dust_trail(world, from, to, duration)`, `explosion(world, at, radius, element, pieces)` |
 | `SheetVfx` | `src/vfx/sheet_vfx.gd` | `play(sheet, at, direction, element)` (on the sheet's layer), `create(texture, ...)` (legacy: snapped, AIR), `.in_element(e)`, `.on_layer(l)`, lingering dither |
+| `GasPoolVfx` | `src/vfx/gas_pool_vfx.gd` | `create(at, radius, element)`: a nova lying as one pool of its matter on the GROUND (an element with `pool`: poison), its `pool_bubble` welling in it; `Vfx.nova` picks it |
 | `ComposedVfx` | `src/vfx/composed_vfx.gd` | `ring(at, radius, element)`, `arc(at, radius, facing, element)` (a sweep across the front: an area with `fx_follow_aim` and no sheet), `line(from, to, element)`: any size from pieces at 2x; standing pieces are nodes of their own among the actors (`StandingPiece`) |
 | `ImpactVfx`, `RingVfx`, `BlastVfx` | `src/vfx/` | a hit's flash (`ImpactVfx.sparks`: bits only), a ring (GROUND), a burst: all in an element's ramp and bits |
 | `TelegraphView` | `src/vfx/telegraph_view.gd`, `telegraph.gdshader` | CIRCLE, CONE, LINE, LANES (one per shot of a fan or ring); `show_skill(skill, angle, progress, body_radius)` picks the shape from the skill (radius, shots, dash, area) |
@@ -249,9 +250,10 @@ The shared helpers are in `assets/shaders/fx.gdshaderinc`.
 
 | Shader | On | Recipe | Uniforms |
 |---|---|---|---|
-| `glow_halo` | `GlowHalo` (projectiles' cores, braziers, campfires, a sheet's `halo`, frost glints) | two flat bands of added light (premultiplied, alpha 0) in the ramp's 0.7 step and its edge, a checker one art pixel wide where bands meet; breathes by a pixel (12 fps) or flickers (storm) | `inner`, `outer` (radii), `inner_color`, `outer_color`, `inner_density`, `outer_density` (share of the color added), `pulse`, `strength` (0.4 on the brightest floor .. 1 in the dark), `squash` |
+| `glow_halo` | `GlowHalo` (projectiles' cores, braziers, campfires, a sheet's `halo`, frost glints) | two flat bands of added light (premultiplied, alpha 0) in the ramp's 0.7 step and its edge (`bright`: its 0.35 and 0.7 steps, the Maw's false sun), a checker one art pixel wide where bands meet; breathes by a pixel (12 fps) or flickers (storm) | `inner`, `outer` (radii), `inner_color`, `outer_color`, `inner_density`, `outer_density` (share of the color added), `pulse`, `strength` (0.4 on the brightest floor .. 1 in the dark), `squash` |
 | `flame` | `FlameVfx` (braziers), campfires (`HeatSource`) | stepped value noise climbing the flame (texel space, 12 fps): patches a ramp step hotter or cooler, dark tips eaten away; never outside the frame's flame (copies overlap) | `ramp[5]`, `fps`, `climb`, `emissive` |
-| `gas` | poison's nova piece (`look = GAS`) | the top rim in the ramp's brightest steps (an emissive edge), murk welling a step greener, drifting noise holes the floor shows through: gas, not a bush | `ramp[5]`, `fps`, `thin`, `emissive` |
+| `gas_pool` | poison's novas (`GasPoolVfx`, `VfxElementDef.pool`) | per art pixel of the world: a lumpy disc growing to `radius` (ease out, the first eighth), its rim a band of the ramp's brightest steps (lit on top), the dark edge on its lower side only, a body of low wisps (noise stretched sideways, drifting at 8 fps) in the residue with patches a step greener, holes growing as it sinks, the rim breaking pixel by pixel | `ramp[5]`, `residue`, `radius`, `progress`, `seed`, `emissive`, `fps` |
+| `gas` | poison's piece (`look = GAS`: its trails and arcs) | the top rim in the ramp's brightest steps (an emissive edge), murk welling a step greener, drifting noise holes the floor shows through: gas, not a bush | `ramp[5]`, `fps`, `thin`, `emissive` |
 | `shimmer` | Smite's column (`look = SHIMMER`) | bands a step brighter climbing the column, one-sided edges flickering a pixel | `ramp[5]`, `band_gap`, `climb`, `fade` |
 | `rune` | the holy sigil (`Vfx.magic`), arcane glyphs (`look = RUNE`, `glyph`), the pact's circle | a reveal mask: a ring drawn in a few arcs (each traced end to end, every other one the other way, in a hand's order), what is inside after, a glyph top-down, the stroke's tip in `head`; then burnt away in patches, each pixel turning to `ember` before it goes | `reveal`, `burn` (set in 24ths of a second), `order_mode`, `strokes`, `radius`, `squash`, `center`, `head`, `ember` |
 | `fx_sprite` | code-drawn effects: nova pieces, shots, impacts | translucent draws dithered per art pixel; the emissive mask | `emissive` |
@@ -365,7 +367,9 @@ slicer, element exports) serves the others; what each still needs:
   still burn with particles; `fireball.png`, `fire_flames.png`, `flame.png` and `explosion.png`
   are unused.
 - **Poison** (done, `tools/vfx/poison.py`): glob, splash with a puddle mark (`impact_mark`), gas
-  cloud piece, venom fangs (16 rows), bubbles on a poisoned body, its ticks in its own green.
+  cloud piece, venom fangs (16 rows), bubbles on a poisoned body, its ticks in its own green. Its
+  novas are one pool of gas on the ground (`GasPoolVfx`): the ring of standing lumps read as
+  bushes, lumpy, on a green floor.
   Poison Spit, Venom Spit, Toxic Bloom (+fierce), Acid Spit, Poison Fang, the Jade Wyrm's Venom
   Fang, Spore Cloud and the Venomous elite all point at it. Left: no sound of its own.
 - **Storm** (done): stays electric violet-white (holy owns gold); the Storm synergy, Thunder,
@@ -434,8 +438,9 @@ slicer, element exports) serves the others; what each still needs:
   motes and pillar of light), in slots (frames, Epic's sheen, rune gems in their element) and
   worn (a trim on the armor's hem and the weapon's outline, Epic's glint); a weapon carrying an
   element licks with it along its rim and throws its motes, in hand and at rest; the hero
-  carries his weapon on his back or at his hip. Left: the bag's portrait of the hero shows no
-  gear; armor affixes (of Thorns, of Echoes on a helm) show nothing worn.
+  carries his weapon on his back or at his hip. Worn armor shows its affixes' marks (an element
+  glittering on its trim, of Thorns' steel points); the bag's portrait is the hero's own rig,
+  dressed alike (`HeroPortrait`).
 
 - **The final fight** (the bottom of the Well, monsters.md): no new element. Marked spots on the
   ground (`GroundStrikeEffect`, `GroundStrike`) are the usual danger telegraph (`TelegraphView`,
@@ -449,8 +454,14 @@ slicer, element exports) serves the others; what each still needs:
   (each tentacle steps down to tar and dithers away on its own row). The Maw is the false sun:
   `lit_from_within` draws its body over the floor's light and the wall mist (z
   `PlateauMist.Z + 1`, under the AIR effects drawn after the actors) with a holy `GlowHalo`
-  behind its mask, and a golden `LightSource` on the floor, brighter while its jaw is open. Its
-  body still takes the cast telegraph's red glow (the rule for every monster).
+  behind its mask (`bright`: its bands a step up the ramp, gold rather than brown, and wider than
+  the mask, so it reads round it), and a golden `LightSource` on the floor, brighter while its jaw
+  is open. (Until this pass none of it showed: the trait ran before the body existed.) Casting, it
+  warns by a red rim round its silhouette (the body shader's rank rim, `MonsterDef.cast_warning`
+  RIM: one art pixel, no dithered beat, none in the holes of its dithered tentacles) instead of
+  the red glow every other monster takes, which turned its gold red-brown. Drawn over the actors,
+  it would hide the hero standing by its tentacles: there he is drawn over it
+  (`WeakPointTrait._keep_hero_in_front`). Its halo goes out once its mask has crumbled.
 
 ## 9. Shaders on bodies
 
@@ -563,6 +574,14 @@ same tools). Its accent is the rarity's color (`ItemRarity.COLORS`, a test keeps
   rim and glint (`ItemLook.rune_element`).
 - **Fewer effects** keeps what tells the rarity (the rim, the glint, the ring, the aura, the
   pillar) and drops the motes, the halo, the pillar's climbing light and the worn glint.
+- **Armor affixes, worn** (`ActorRig.set_wear`, `ItemLook.elements` / `toothed`): an affix
+  carrying an element (of Echoes: arcane) glitters on the piece's trim, a third of its hem
+  pixels a bright step of the element's ramp changing ten times a second (the trim stays its
+  rarity's around them); an affix without one may say how it looks worn
+  (`ItemAffixDef.worn_teeth`: of Thorns turns the hem into steel points, every other hem pixel
+  lit steel with a dark tip hanging a pixel under it: serrated in grey too). Stat affixes
+  (Stalwart, of the Bear) carry nothing, like a weapon's (the rarity's trim says there are some;
+  the item's card lists them). Shown on the hero and in the bag's portrait.
 - Lessons: a dithered disc or a pillar faded by a Bayer pattern reads as a screen door (the
   first try); a band of one step with a checker only on its edge, and a pillar fading by whole
   rows missing, read as light. A trim on the whole rim of a worn armor painted the whole piece
@@ -617,13 +636,13 @@ it isn't in his hand: `WeaponDef.back_sprite`, `back_kind`, `back_offset`.
 ### On the body shader
 
 Worn gear needs uniforms of its own while the body's statuses, flash and death stay one: the
-hero's armor layers (above Common) and his weapon (in hand and at rest share one material: they
+hero's armor layers (above Common, or carrying an affix's mark) and his weapon (in hand and at rest share one material: they
 never show together) wear **copies of the body shader** that follow the body's
 (`BodyLook.follow(material, own_frame)`: every uniform BodyLook or the rig's flash sets is set
 there too, but a weapon's `frame_rect`, which is its own sprite's). Their own uniforms: `trim`
 (0 none, 1 its rim or hem in the rarity's steps, 2 and a weapon's brightest pixels gilded),
 `trim_row`, `trim_hem`, `trim_sweep` (seconds between glints, 24 fps, then a pause), `imbue`,
-`imbue_row`. Bodies keep them at 0: the cheap path tests two more uniforms. The hero draws up to
+`imbue_row` (on an armor: on its hem, a third of the pixels), `teeth`, `teeth_row` (of Thorns). Bodies keep them at 0: the cheap path tests two more uniforms. The hero draws up to
 four materials instead of one (body, armor, helm, weapon): a few draw calls, for one actor.
 
 ## 11. Elemental attacks
@@ -666,19 +685,31 @@ kicks up dust and a few steel sparks; an element bursts there in its own impact 
 frost's shards, storm's forks, poison's splash) and sheds its bits. Monsters' clubs keep their
 slash (`club.tres`) or their `attack_fx` sheet painted in their element (`SheetVfx.in_element`).
 
-**Shots.** A magic shot is its element already (the Frost Staff's shard); a second element the
-weapon carries adds bits to its trail. A plain thing (an arrow, a star) from a weapon carrying an
-element flies **in** it without becoming it (`ProjectileSpec.look_element`): the element's
-matter rides its back half (fire's licks climbing off the shaft, rime crusting it with a glint,
-drips hanging, storm's sparks crackling), its bits trail behind it (embers rising off the path,
-chips falling), a shining element lights the floor around it (no halo: a checker round an arrow
-reads as a blur), and it goes out in its bits at the end of its range.
+**Shots.** A plain thing (an arrow, a star) from a weapon carrying an element flies **in** it
+without becoming it (`ProjectileSpec.look_element`): the element's matter rides its back half
+(fire's licks climbing off the shaft, rime crusting it with a glint, drips hanging, storm's
+sparks crackling), its bits trail behind it (embers rising off the path, chips falling), a
+shining element lights the floor around it (no halo: a checker round an arrow reads as a blur),
+and it goes out in its bits at the end of its range. A magic shot is its element already (the
+Frost Staff's shard) and stays it, its hits too; another element the weapon carries (an Ember
+Rune on the Spark Wand) **rides its back**, behind its glowing core, and every other bit of its
+trail is that element's (the shot keeps its own light and halo).
+
+**The weapon's skills** (Volley and Arrow Rain on the bow, Ice Shards on the Frost Staff...:
+`SkillDef.effects_for`) shoot in what the weapon's runes and affixes carry
+(`ItemLook.passive_elements`: they work like perks, on every hit, skills included), dressed like
+the basic shots (`ProjectileEffect.dressed_in`): Volley's arrows ride an Ember Rune's flames, a
+Rime Rune crusts the stars of Shuriken Storm, Ice Shards carry flames. The weapon's own element
+and its `on_hit` don't (a Burning bow's affix burns its basic arrows only, so Volley stays plain),
+and only the look changes: a skill's hit lands in the element when the rune's rule acts on it
+(the Ember Rune's roll), never always. A learned spell or a monster's cast stays as written. Not
+yet: skills that are no shot (Cleave's arc, Frost Nova, Arrow Rain's area) keep their own look.
 
 **Charged attacks** (`ChargedAttackDef.dressed`): the weapon's element replaces the effect's
 (a fire katana's Moonless Cut burns, a frost bow's Soulpiercer flies in rime, a storm hammer's
 Anvil Fall bursts in lightning); the effect's own element (the hammer's earth, the Templar's
-holy) or the weapon's second adds its bits. Copies per pair of elements; the data stays as
-written. The charge's gauge and glow take the same element.
+holy) or the weapon's second adds its bits; a magic shot keeps its element, the other riding
+it (as above). Copies per pair of elements; the data stays as written. The charge's gauge and glow take the same element.
 
 **The hit.** The swing always shows the element the weapon carries; the **hit** (its flash, its
 sparks, the death it deals: `HitInfo.element`) lands in it only when the element surely acts on
@@ -694,4 +725,5 @@ that hit, so what the player sees on the target is what happens to it:
 - a charged attack is the element gathered: its hits land in it.
 
 Checked for each element (fire, frost, storm, poison) on a katana, an axe, a lance, the War
-Hammer and the Bow, plus plain steel (`CombatTests._test_elemental_attacks`).
+Hammer and the Bow, plus plain steel (`CombatTests._test_elemental_attacks`); shots and the
+weapon's skills with a rune in `_test_rune_shots`.

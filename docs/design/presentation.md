@@ -66,8 +66,10 @@
   glint on some Frost Nova crystals. Space bends in one screen pass: **heat** trembles above
   fires and rings of flame, a **cold shimmer** catches facets of the picture through a Frost Nova,
   shadow and arcane shots **pull** rings of the picture toward them, blasts send a **shockwave**.
-  Braziers' and campfires' flames have **tongues** climbing through them, poison clouds **churn**
-  with a glowing rim and holes the floor shows through (gas, not bushes), Smite's column
+  Braziers' and campfires' flames have **tongues** climbing through them, a poison cloud lies on
+  the ground as **one pool of gas** (Spore Cloud, a Venomous burst): it wells out to the edge of
+  the area it hits, a glowing rim exactly there, low wisps churning with the floor showing
+  between them and bubbles popping, then sinks away (gas, not bushes), Smite's column
   **shimmers**, Thunder **flashes** the whole screen for one frame (at most 3 a second; Options >
   Screen flashes turns it off). The holy sigil, arcane glyphs and the pact's circle **draw
   themselves** stroke by stroke and burn out. Fewer effects drops the halos' outer band, the
@@ -345,10 +347,12 @@ one are in [adding-content.md](../adding-content.md#the-story-chronicles-fragmen
   II's floors once it was met; Tôma's and the Maw's on the last act's once the bottom is open,
   Tôma's after the reveal, the Maw's once it was met): at most one a floor, a 35% chance, not during the first run, never
   one already found while that warden has others to find (`FragmentPlacer`, its own random numbers,
-  on free ground). On the floor: its 16x16 picture drawn at 2x, bobbing a pixel, in a breathing glow
-  of two steps of its element's ramp (spirit for Kagari's papers, frost for the bone tablets,
-  fire for the singed pages, holy for Solhar's letters, water for the journal), three motes rising,
-  a small light. Interact (**Read**) opens it in a panel over the paused game (`FragmentPanel`: its
+  on free ground). On the floor: its 16x16 picture drawn at 2x, bobbing a pixel, glowing in its
+  element (spirit for Kagari's papers, frost for the bone tablets, fire for the singed pages, holy
+  for Solhar's letters, water for the journal) so it reads on every floor: a rim of the element's
+  light round the picture (on dark stone), a ring on the floor in its color outlined by its dark
+  edge, breathing by a pixel (on light grass and sand), a glow halo, three motes rising, a small
+  light. Interact (**Read**) opens it in a panel over the paused game (`FragmentPanel`: its
   title on the ribbon, who wrote it and where, its lines, "A new page for its chronicle: ..."); a
   tap anywhere closes it. Found for good (Profile), read again in the codex.
 

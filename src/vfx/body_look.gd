@@ -37,6 +37,8 @@ var _followers: Array[ShaderMaterial] = []
 var _own_frames: Array[bool] = []
 ## The elite rim's color (transparent: none).
 var outline := Color.TRANSPARENT
+## The rim's second ring dithered on the beat (a rank's); off: one art pixel only (a warning).
+var outline_beat := true
 ## Armor layers are on: the rim and the crackle stay on the sprite's own pixels.
 var layered := false
 var _set := {}
@@ -123,7 +125,7 @@ func show_statuses(statuses: StatusSet, delta: float, enabled: bool) -> void:
 	if _dying:
 		return
 	var calm := (not enabled or statuses.is_empty()) and _crackle < 0
-	var key := [enabled, outline, layered]
+	var key := [enabled, outline, layered, outline_beat]
 	if calm and _quiet and key == _quiet_key:
 		return
 	var burn := 0.0
@@ -175,6 +177,7 @@ func show_statuses(statuses: StatusSet, delta: float, enabled: bool) -> void:
 		_param(&"crackle_row", _crackle_row)
 	if key != _quiet_key:
 		_param(&"outline_color", outline if enabled else Color.TRANSPARENT)
+		_param(&"outline_beat", outline_beat)
 		_param(&"outer_rim", not layered)
 	_quiet = calm
 	_quiet_key = key

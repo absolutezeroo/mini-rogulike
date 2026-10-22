@@ -13,7 +13,8 @@ const FLAME := preload("res://assets/shaders/flame.gdshader")
 ## Every shader an effect may use (warmed at load: ShaderWarmup).
 const ALL: Array[Shader] = [DITHER, SPRITE, SHIMMER, GAS, RUNE, FLAME,
 	preload("res://assets/shaders/glow_halo.gdshader"), preload("res://assets/shaders/blast.gdshader"),
-	preload("res://assets/shaders/swing.gdshader"), preload("res://assets/shaders/telegraph.gdshader")]
+	preload("res://assets/shaders/swing.gdshader"), preload("res://assets/shaders/telegraph.gdshader"),
+	preload("res://assets/shaders/gas_pool.gdshader")]
 
 static var _shared := {}
 

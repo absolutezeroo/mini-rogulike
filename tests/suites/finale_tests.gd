@@ -122,6 +122,33 @@ func _test_finale(game: Game) -> void:
 	check(game.offers.to_data(false).all(func(o: Dictionary) -> bool: return int(o.rarity) != PerkDef.Rarity.RARE) and not game.perk_panel.visible, "no relic between the two forms (Tôma's XP may level the hero up)")
 	check((game.hud.get_node("%BossName") as Label).text == finale.boss.next_boss.display_name, "the boss bar passes to the Maw")
 	check(maw.global_position.y < world.map.cell_to_world(world.map.boss_room.get_center()).y - world.map.tile_size * 4, "it rises at the top of the arena")
+	# The false sun: lit from within (over the floor's light and the wall mist), its halo behind
+	# its mask a step up holy's ramp; casting, it warns by a red rim and keeps its gold.
+	var halos := maw.get_children().filter(func(n: Node) -> bool: return n is GlowHalo)
+	check(maw.rig.z_index == PlateauMist.Z + 1 and not maw.rig.z_as_relative, "the Maw is lit from within: drawn over the floor's light and the wall mist")
+	check(halos.size() == 1 and (halos[0] as GlowHalo).bright and (halos[0] as Node).get_index() < maw.rig.get_index() and (halos[0] as GlowHalo).size >= 80.0, "a bright halo behind its mask, wider than the mask")
+	maw.dormant = true  # (its own casts would set the telegraph meanwhile)
+	maw.casting_index = -1
+	maw.telegraph = 0.0
+	await _wait(game, 0.05)
+	var own_rim := maw.rig.look.outline
+	maw.telegraph = 0.8
+	await _wait(game, 0.05)
+	var tint := maw._body_modulate()
+	check(maw.rig.look.outline == Monster.WARNING_RIM and is_equal_approx(tint.g, tint.r) and is_equal_approx(tint.b, tint.r), "casting, the Maw warns by a red rim and keeps its colors (no red tint dulling the gold)")
+	maw.telegraph = 0.0
+	await _wait(game, 0.05)
+	check(maw.rig.look.outline == own_rim and own_rim != Monster.WARNING_RIM, "the cast over, the red rim goes (its own rim back: %s)" % own_rim)
+	maw.dormant = false
+	# Drawn over every actor, it never hides the hero: in front of its lower body he is drawn
+	# over it; away from it, among the actors again.
+	var jaw0 := maw.def.traits[0] as WeakPointTrait
+	player.global_position = jaw0.mouth_of(maw) + Vector2(60, 10)
+	await _wait(game, 0.05)
+	check(not player.z_as_relative and player.z_index > maw.rig.z_index, "in front of the Maw's lower body, the hero is drawn over it")
+	player.global_position = jaw0.mouth_of(maw) + Vector2(0, 260)
+	await _wait(game, 0.05)
+	check(player.z_as_relative and player.z_index == 0, "away from it, the hero is among the actors again")
 
 	# The jaw: closed, blows glance off; open, they land.
 	var jaw := maw.def.traits[0] as WeakPointTrait
@@ -176,9 +203,16 @@ func _test_finale(game: Game) -> void:
 	var wins_before := Profile.total_wins()
 	jaw.open_now(maw)
 	await _wait(game, jaw.opening_time + 0.1)
+	var lying := get_tree().get_nodes_in_group(&"pickups")
 	maw.take_hit(finish)
 	await _frames(3)
 	check(maw.is_dead and game.has_won and game.run.finish_time > 0.0, "the Maw's fall wins the run")
+	# Its loot lands in front of it, past its jaw and its pool, where the hero can walk to it.
+	var dropped := get_tree().get_nodes_in_group(&"pickups").filter(func(n: Node) -> bool: return not lying.has(n))
+	var pool_edge := maw.global_position.y + jaw.pool_offset.y + jaw.pool_size.y * 0.5
+	var in_front := dropped.filter(func(n: Node2D) -> bool: return n.global_position.y > pool_edge and n.global_position.y > jaw.mouth_of(maw).y + jaw.bite_radius * 0.5 and not world.find_path(player.global_position, n.global_position).is_empty() and world.is_solid_ground(n.global_position))
+	check(not dropped.is_empty() and in_front.size() == dropped.size(), "the Maw's loot lands in front of it, reachable (%d of %d)" % [in_front.size(), dropped.size()])
+	check(player.z_as_relative and player.z_index == 0, "fallen, the Maw leaves the hero among the actors")
 	check(not Narrative.is_deed_done(maw.def as BossDef, (maw.def as BossDef).chronicle.deeds()[0]), "bitten this run: not its deed")
 	check(Profile.total_wins() == wins_before + 1 and game.run.splits.size() == total + 1, "the win counts at once, the bottom with its own split")
 	check(game.run.ending_due, "an ending is due")

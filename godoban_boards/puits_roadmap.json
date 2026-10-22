@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 71,
+  "next_id": 73,
   "tags": [
     "pc",
     "test",
@@ -314,7 +314,7 @@
     {
       "id": "task_23",
       "title": "Armes en main : 8 directions",
-      "description": "Les frames d'arme en main n'existent qu'en 4 directions.",
+      "description": "Les frames d'arme en main n'existent qu'en 4 directions.\n\nÉvaluation (non construit) : les frames d'arme en main viennent du pack (assets/weapons/attack/<arme>.png, 16 armes, cases 64x64, 4 directions x 4 images : levée, traînée blanche en croissant, bras tendu x2 ; data/visuals/weapons/<arme>.tres). Le corps du héros (idle, walk, attack, roll, hit) et les couches d'armure portées n'existent qu'en 4 directions aussi (pack 16x16) : 8 vraies directions demanderaient de redessiner le héros et chaque style d'armure, hors de portée. Faisable à moindre coût : garder le corps de côté pour les diagonales et ne dessiner que l'arme en 8 directions. Il faudrait : (1) un outil (comme tools/vfx/back_weapons.py : profil de l'arme sur la diagonale, contour par 4-voisins) qui dessine les 4 diagonales x 3 images utiles pour les 16 armes (la traînée du pack est inutile : SwingVfx dessine l'arc), soit ~190 petites images à revoir à l'œil ; (2) ActorRig : direction_name en 8 pour l'arme seule, ancrage de la main par image et par diagonale, devant/derrière le corps pour les diagonales vers le haut, la pose de charge ; (3) générer les SpriteFrames ; (4) tests en 8 directions (CombatTests._test_own_effects couvre déjà les effets). Estimation : 2 à 3 jours avec la revue visuelle. Gain : l'arme pointe dans l'axe du coup en diagonale (aujourd'hui elle prend la direction cardinale la plus proche alors que l'arc, lui, suit la visée). Pas bon marché : à décider.",
       "status": "backlog",
       "priority": "low",
       "epic_id": "epic_3",
@@ -323,13 +323,13 @@
         "sprites"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792706319
     },
     {
       "id": "task_24",
       "title": "Nuage de poison grumeleux",
-      "description": "L'effet de nuage de poison manque de netteté.",
-      "status": "backlog",
+      "description": "L'effet de nuage de poison manque de netteté.\n\nFait : une nova de poison (Nuage de Spores, explosion venimeuse...) n'est plus un anneau de mottes debout (qui faisaient des buissons sur l'herbe) mais une seule nappe de gaz AU SOL (GasPoolVfx, gas_pool.gdshader, VfxElementDef.pool) : elle s'étend jusqu'au bord de la zone en un huitième de sa vie, un liseré net des tons les plus clairs là où la zone finit (sur le cercle du télégraphe), le bord sombre dessous, des volutes basses de brume qui laissent voir le sol, des bulles qui éclosent, puis elle s'affaisse et s'efface (~1 s). Sur la grille, dans la rampe du poison. Vérifié sur la crypte (sombre), le désert (clair) et l'herbe. À voir en jeu : le ressenti en mouvement ; les traînées et arcs de poison gardent les mottes.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_3",
       "due_date": null,
@@ -337,13 +337,13 @@
         "vfx"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792704571
     },
     {
       "id": "task_25",
       "title": "Portrait du sac sans équipement",
-      "description": "Le portrait du héros dans le sac ne montre pas l'équipement porté.",
-      "status": "backlog",
+      "description": "Le portrait du héros dans le sac ne montre pas l'équipement porté.\n\nFait : le portrait du sac est un vrai rig du héros (HeroPortrait, dans une SubViewport), habillé comme son corps dans le monde (ActorRig.wear) : l'arme à l'épaule avec ses éléments et leurs motes, le casque et l'armure avec leur liseré de rareté et les marques de leurs affixes ; il respire (idle) et se met à jour quand l'équipement change. 4 pixels écran par pixel d'art (avant : ~4,35, flou), 20x22 pixels d'art (80x88). Essayé l'arme en main (pose de charge) et de profil : moins lisible que l'arme à l'épaule face à nous. À voir : la place sur petits écrans (le cadre est un peu plus haut qu'avant), l'arme ne fait que dépasser de l'épaule.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_3",
       "due_date": null,
@@ -351,13 +351,13 @@
         "ui"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792703842
     },
     {
       "id": "task_26",
       "title": "Tirs et runes élémentaires",
-      "description": "Les tirs ne prennent pas l'élément d'une rune.",
-      "status": "backlog",
+      "description": "Les tirs ne prennent pas l'élément d'une rune.\n\nFait : un tir magique (Baguette d'Étincelles, Bâton de Givre, Grimoire des Braises) garde son élément et porte celui de la rune sur son dos (flammes, givre...) avec la moitié de sa traînée ; les compétences de tir de l'arme (Salve, Éclats de Glace, Tempête de Shurikens...) tirent dans l'élément des runes et affixes passifs de l'arme, comme l'attaque de base. Seul le rendu change : un coup ne prend l'élément que si la règle de la rune agit (jet de la Rune de Braise). Les sorts appris et les monstres restent tels quels. À vérifier en jeu : la lisibilité en mouvement.",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_3",
       "due_date": null,
@@ -366,13 +366,13 @@
         "combat"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792702009
     },
     {
       "id": "task_27",
       "title": "Affixes d'armure invisibles",
-      "description": "Les affixes d'armure n'ont aucun rendu visuel.",
-      "status": "backlog",
+      "description": "Les affixes d'armure n'ont aucun rendu visuel.\n\nFait : l'armure portée montre ses affixes à effet, sur le héros (et dans le portrait du sac) : un affixe avec un élément scintille sur le liseré de rareté (des Échos : arcane, un tiers des pixels de l'ourlet) ; « des Ronces » change l'ourlet en pointes d'acier (un pixel clair, sa pointe sombre qui dépasse d'un pixel : lisible en gris aussi), donnée par ItemAffixDef.worn_teeth. Les affixes de stats ne montrent rien (comme sur les armes ; le liseré dit qu'il y en a). La fiche de l'objet les listait déjà (bonus et description) : vérifié. À voir en jeu : la lisibilité sur téléphone, les pointes sur chaque style d'armure.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_3",
       "due_date": null,
@@ -380,13 +380,13 @@
         "vfx"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792703786
     },
     {
       "id": "task_28",
       "title": "Lueur des fragments sur l'herbe claire",
-      "description": "Peu visible sur les sols clairs.",
-      "status": "backlog",
+      "description": "Peu visible sur les sols clairs.\n\nFait : la lueur en disques translucides (presque invisible sur sol clair, et contraire aux règles VFX : pas d'alpha) est remplacée par : un liseré d'un pixel de la lumière de l'élément autour de l'image (lisible sur pierre sombre), un anneau au sol (sous les acteurs) de sa couleur bordé de son ton sombre, qui respire d'un pixel (lisible sur herbe claire et sable), un halo GlowHalo (plus discret sur sol clair), les motes et la lumière. Vérifié sur l'herbe claire de l'acte I, le jardin souterrain et la crypte. À voir sur téléphone.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_3",
       "due_date": null,
@@ -394,13 +394,13 @@
         "vfx"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792704852
     },
     {
       "id": "task_29",
       "title": "La Gueule : butin et lueur",
-      "description": "Le butin tombe sur son corps ; elle vire au rouge-brun pendant ses incantations ; le halo derrière le masque se voit peu.",
-      "status": "backlog",
+      "description": "Le butin tombe sur son corps ; elle vire au rouge-brun pendant ses incantations ; le halo derrière le masque se voit peu.\n\nFait : (1) le butin, les runes et l'or tombent devant elle, au-delà de sa mâchoire et de sa mare, sur un sol atteignable (MonsterDef.loot_offset (0, 104)) ; (2) en incantation elle ne vire plus au rouge-brun : MonsterDef.cast_warning = RIM, un liseré rouge autour de sa silhouette (plus vif dans la 2e moitié), le télégraphe au sol reste ; (3) la lueur derrière le masque : en fait elle n'existait pas (le trait s'exécutait avant la création du corps : ni halo ni dessin au-dessus de la brume) ; corrigé, et le halo est plus large que le masque et un cran plus clair (GlowHalo.bright). Le corps éclairé de l'intérieur passe maintenant au-dessus des acteurs (comme le prévoyait la doc) : le héros devant le bas de son corps (ses tentacules dans le goudron) est alors dessiné par-dessus, pour ne jamais être caché ; les démons appelés, eux, peuvent passer derrière. Le liseré rouge saute les trous de ses tentacules tramés (sinon un damier rouge). Le halo s'éteint une fois le masque effondré. Tests dans finale_tests.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_3",
       "due_date": null,
@@ -408,7 +408,7 @@
         "boss"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792705646
     },
     {
       "id": "task_30",
@@ -842,6 +842,35 @@
     },
     {
       "id": "task_62",
+      "title": "Compétences sans tir et runes",
+      "description": "Suite de « Tirs et runes élémentaires » : les compétences d'arme qui ne tirent pas (l'arc de Taillade, la Nova de Givre, la zone de Pluie de Flèches) gardent leur propre rendu quand une rune élémentaire est sertie dans l'arme. Décider s'il faut les habiller aussi (ex. quelques éclats de l'élément de la rune, sans changer l'élément de leurs coups).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "vfx",
+        "combat"
+      ],
+      "created_at": 1792701997,
+      "updated_at": 1792702009
+    },
+    {
+      "id": "task_63",
+      "title": "Poison : traînées et arcs en mottes",
+      "description": "Suite de « Nuage de poison grumeleux » : les novas de poison sont maintenant une nappe de gaz au sol, mais les traînées (ComposedVfx.line) et les arcs (ComposedVfx.arc) de poison utilisent encore la pièce poison_cloud.png (mottes debout). Voir s'il faut une version en nappe allongée (gas_pool.gdshader sur un segment).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "vfx"
+      ],
+      "created_at": 1792706331,
+      "updated_at": 1792706331
+    },
+    {
+      "id": "task_71",
       "title": "Relire le nouveau lore en jeu (téléphone)",
       "description": "Les textes du lore ont été vérifiés en captures FR 2548x1296 et 2340x1080, pas en 1540x720 ni en anglais : intro, cartes d'acte, codex des monstres, cartes d'objets, statue, Nuit sans Lune. Lire, dire ce qui sonne faux.",
       "status": "todo",
@@ -857,7 +886,7 @@
       "updated_at": 1792704041
     },
     {
-      "id": "task_63",
+      "id": "task_72",
       "title": "Trancher les noms ouverts du lore (docs/lore.md §9)",
       "description": "« Veilleur » (difficulté) et « la Veilleuse » ; « gardien » pour les boss et pour les gardiens du sanctuaire ; la relique « Codex du Sage » et l'écran Codex ; l'école de la lame courbe (sanctuaire ou gardes de Solhar ?) ; la Plume de Phénix, la Lune de Sang, les ratons plutôt que des tanuki.",
       "status": "backlog",

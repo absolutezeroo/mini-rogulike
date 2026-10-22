@@ -36,6 +36,8 @@ const SPACING := 4.0
 ## A straight walk to a point is checked again after this long (see has_clear_walk()).
 const WALK_CHECK_INTERVAL := 0.2
 const HEAVY_STEP_INTERVAL := 0.45
+## The rim a body that warns by its rim wears while it winds up (TelegraphView's red).
+const WARNING_RIM := Color(1.0, 0.22, 0.2)
 
 var _step_timer := 0.0
 var _phases_done := 0
@@ -48,6 +50,9 @@ var _xp_multiplier := 1
 ## Called in by another monster (SummonEffect): gives no XP, loot or gold.
 var summoned := false
 var _bonus_drops := 0
+## A rim warning on (MonsterDef.CastWarning.RIM), and the rim it had before.
+var _warning_rim := false
+var _rim_before := Color.TRANSPARENT
 ## Per-monster values of the def's traits (see trait_state()).
 var _trait_state := {}
 var _under: MonsterOverlay
@@ -440,6 +445,8 @@ func _get_desired_velocity() -> Vector2:
 
 
 func _physics_process(delta: float) -> void:
+	if rig and def.cast_warning == MonsterDef.CastWarning.RIM:
+		_show_cast_rim()  # before the body's look is drawn this frame (Actor)
 	super._physics_process(delta)
 	_track_progress(delta)
 
@@ -644,18 +651,19 @@ func _on_died(killer: Actor) -> void:
 	var quality := config.boss_loot_quality if is_boss() else (rank.loot_quality if rank else 1.0)
 	if is_boss() and rank:
 		quality *= 1.0 + 0.25 * maxi(affixes.size(), 1)
+	var drop_at := loot_origin()
 	if def.loot:
 		for item in def.loot.roll(world.rng, world.rules.loot_chance()):
 			var offset := Vector2.from_angle(world.rng.randf() * TAU) * world.rng.randf_range(4.0, 14.0)
-			world.spawn_loot(item, global_position + offset, quality)
+			world.spawn_loot(item, drop_at + offset, quality)
 	for i in _bonus_drops:
 		var item := world.pick_random_item()
 		if item:
-			world.spawn_loot(item, global_position + Vector2.from_angle(world.rng.randf() * TAU) * world.rng.randf_range(6.0, 16.0), quality)
+			world.spawn_loot(item, drop_at + Vector2.from_angle(world.rng.randf() * TAU) * world.rng.randf_range(6.0, 16.0), quality)
 	if rank and not is_boss() and killer is Player and world.boons.elite_magic_drop:
-		world.drop_trophy(global_position + Vector2.from_angle(world.rng.randf() * TAU) * 12.0)
+		world.drop_trophy(drop_at + Vector2.from_angle(world.rng.randf() * TAU) * 12.0)
 	# Runes: always from a boss, often from elites and up, rarely from the others.
-	var rune_at := global_position + Vector2.from_angle(world.rng.randf() * TAU) * world.rng.randf_range(8.0, 18.0)
+	var rune_at := drop_at + Vector2.from_angle(world.rng.randf() * TAU) * world.rng.randf_range(8.0, 18.0)
 	if is_boss():
 		for i in config.boss_runes:
 			world.drop_rune(rune_at + Vector2(i * 14.0, 0))
@@ -680,7 +688,16 @@ func _drop_gold() -> void:
 	if rank:
 		multiplier *= rank.gold_multiplier
 	if multiplier > 1.0 or world.rng.randf() < config.gold_drop_chance:
-		world.spawn_gold(global_position, config.gold_for_kill(world.depth, multiplier, world.rng))
+		world.spawn_gold(loot_origin(), config.gold_for_kill(world.depth, multiplier, world.rng))
+
+
+## Where what it drops lands: its feet, or in front of a huge body (MonsterDef.loot_offset), on
+## open ground the hero can reach.
+func loot_origin() -> Vector2:
+	if def.loot_offset == Vector2.ZERO:
+		return global_position
+	var at := global_position + def.loot_offset
+	return at if world.is_solid_ground(at) else world.find_open_point_near(at, 32.0)
 
 
 ## The souls it fed on fly back to the hero's lantern (bosses hold many).
@@ -696,6 +713,21 @@ func _body_modulate() -> Color:
 	if is_dead and not free_on_death:
 		return Color.WHITE  # a body the story keeps (BossDef.body_stays): its own colors
 	var color := super._body_modulate() * _phase_tint
-	if telegraph > 0.0 and _flash_time <= 0.0:
+	if telegraph > 0.0 and _flash_time <= 0.0 and def.cast_warning == MonsterDef.CastWarning.TINT:
 		color = color.lerp(Color(2.0, 0.7, 0.7), telegraph)
 	return color
+
+
+## A body that warns by its rim (MonsterDef.CastWarning.RIM): the telegraph's red round its
+## silhouette while it winds up or casts, a step brighter in the second half; then its own rim
+## again (a rank's color, or none).
+func _show_cast_rim() -> void:
+	var warning := telegraph > 0.0 and not is_dead
+	if warning and not _warning_rim:
+		_rim_before = rig.look.outline
+	_warning_rim = warning
+	rig.look.outline_beat = not warning  # one art pixel: on a big body a beat reads as a screen door
+	if warning:
+		rig.look.outline = WARNING_RIM if telegraph >= 0.5 else WARNING_RIM.darkened(0.35)
+	elif rig.look.outline != _rim_before:
+		rig.look.outline = _rim_before

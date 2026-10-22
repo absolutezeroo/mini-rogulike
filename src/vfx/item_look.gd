@@ -34,6 +34,35 @@ static func elements(item: ItemDef) -> Array[VfxElementDef]:
 	return found
 
 
+## The elements of what reaches every hit of the hero, his weapon's skills included: the runes
+## set in `item` and its affixes' passives (they work like perks: docs/design/loot.md), in that
+## order. Not the weapon's own element nor the status its plain hits leave (`on_hit` is its
+## basic attack's alone), so a skill shot dressed in these never shows what it doesn't do.
+static func passive_elements(item: EquipmentDef) -> Array[VfxElementDef]:
+	var found: Array[VfxElementDef] = []
+	if item == null:
+		return found
+	for rune in item.runes:
+		_add(found, rune_element(rune))
+	for affix in item.affixes:
+		if affix == null:
+			continue
+		for passive in affix.passives:
+			_add(found, passive.look_element() if passive else null)
+	return found
+
+
+## Whether worn `item` shows teeth on its hem (an affix of Thorns: ItemAffixDef.worn_teeth).
+static func toothed(item: ItemDef) -> bool:
+	var equipment := item as EquipmentDef
+	if equipment == null:
+		return false
+	for affix in equipment.affixes:
+		if affix and affix.worn_teeth:
+			return true
+	return false
+
+
 ## What `rune` is made of: its passives' element, else its family's color.
 static func rune_element(rune: RuneDef) -> VfxElementDef:
 	if rune == null:

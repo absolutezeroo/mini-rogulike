@@ -163,8 +163,14 @@ do but watch), **the Maw** rises out of a pool of tar at the top of the arena (`
 chapter or Hana's voice), and the boss bar passes to it. The arena stays shut, no stairs, no relic between the two.
 
 **La Gueule, la Faim du Puits / The Maw, the Well's Hunger.** Rooted, never pushed, lit from
-within (the false sun: drawn over the floor's light with a holy halo behind its mask, and its own
-golden light on the floor, brighter while open: `lit_from_within`, `halo_element`, `glow_level`); the view leans toward it (`camera_lean` 0.45) so it and the hero both
+within (the false sun: drawn over the floor's light with a holy halo behind its mask, wider than
+the mask and a step up holy's ramp, and its own golden light on the floor, brighter while open:
+`lit_from_within`, `halo_element`, `halo_size` 92, `halo_bright`, `glow_level`). Casting, it doesn't glow
+red like the others (that dulled its gold to a red-brown): a red rim runs round its silhouette,
+a step brighter in the cast's second half, and its skills mark the ground as usual
+(`MonsterDef.cast_warning` RIM). Drawn over every actor, it never hides the hero: in front of
+its lower body (its tentacles in the tar) he is drawn over it; its halo goes out once its mask has
+crumbled; the view leans toward it (`camera_lean` 0.45) so it and the hero both
 stay on a phone's screen. Hana's voice wakes with it (its waking words): « Papa... reste. » /
 "Papa... stay."
 Its jaw is a **WeakPointTrait**: closed 6.5 s (5 s from 60%, 3.8 s from 30%), open 3.6 s (3.2 s
@@ -183,7 +189,9 @@ the bite is the price of standing in its mouth. Closed, its skills:
 "THE FALSE SUN RISES" at 60%, "THE HUNGER WAKES" at 30%. 1300 base Health, 3 Armor. Its death:
 the golden mask cracks and crumbles (its dead animation), "The sun sets." / « Le soleil se
 couche. » (its last words), and only Tôma is left, standing, set down on the ground. The run is won, and the hero
-chooses an ending (progression.md, "The two endings"). Then its relic, if he keeps going.
+chooses an ending (progression.md, "The two endings"). Then its relic, if he keeps going. Its loot,
+runes and gold land in front of it, past its jaw and its pool, where the hero can reach them
+(`MonsterDef.loot_offset` 0, 104), not on its body.
 
 Both are in the bestiary after the hidden floor's boss, "???" (their floor's heading too) until
 met, each with its chronicle (`data/story/chronicles/master_toma.tres`, `the_maw.tres`: docs/lore.md

@@ -42,11 +42,15 @@ extends Effect
 ## A glow around the shot even when it is drawn from a sheet: a heavier, charged shot.
 @export var halo: bool = false
 
-## Not saved, never in data: set when a charged attack is dressed in what the hero's weapon
-## carries (ChargedAttackDef): a plain thing (the heavy arrow, the stars) flies in
-## `look_element` and lands in it, a second element adds bits to its trail.
+## Not saved, never in data: set when a weapon's attack is dressed in what the hero's weapon
+## carries (`dressed_in`: a charged attack, the weapon's skills): a plain thing (the heavy arrow,
+## Volley's arrows, the stars) flies in `look_element`, a magic shot (Ice Shards) wears it riding
+## its back; a second element adds bits to a plain thing's trail.
 var look_element: VfxElementDef
 var second_element: VfxElementDef
+## Not saved: its hits land in `look_element` (a charged attack: the element gathered). Else a
+## hit lands in it only when its own rules say so (the Ember Rune's roll: BurnOnHitPassive).
+var lands_in_look := false
 
 
 func apply(user: Actor, aim: Vector2) -> void:
@@ -71,9 +75,28 @@ func apply(user: Actor, aim: Vector2) -> void:
 	spec.nova_burst = nova_burst
 	spec.halo = halo
 	spec.look_element = look_element
-	spec.hit_element = look_element
+	spec.hit_element = look_element if lands_in_look else null
 	spec.second_element = second_element
 	var direction := aim.rotated(deg_to_rad(angle_offset)) if angle_offset != 0.0 else aim
 	# From the hand (the hero's weapon), a full ring from the middle of the body.
 	var from := user.shot_origin(direction) if spread_degrees < 360.0 else Vector2.INF
 	user.world.fire_projectiles(user, direction, spec, from)
+
+
+## A copy dressed in the elements the hero's weapon carries (`carried`, the strongest first:
+## docs/vfx.md "Elemental attacks"): a plain thing flies in the first (its matter riding it, its
+## bits trailing) and the second adds bits; a magic shot stays itself (a frost shard is a frost
+## shard) and the first other element rides its back. `lands`: its hits land in that element
+## (a charged attack); else the hit's own rules decide (a rune's roll). The data stays as written.
+func dressed_in(carried: Array[VfxElementDef], lands: bool) -> ProjectileEffect:
+	var copy := duplicate() as ProjectileEffect
+	var others: Array[VfxElementDef] = []
+	for other in carried:
+		if other and other != element:
+			others.append(other)
+	if others.is_empty():
+		return copy
+	copy.look_element = others[0]
+	copy.second_element = others[1] if element == null and others.size() > 1 else null
+	copy.lands_in_look = lands and element == null
+	return copy

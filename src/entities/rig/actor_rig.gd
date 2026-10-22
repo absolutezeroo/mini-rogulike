@@ -106,19 +106,46 @@ func setup(frames: SpriteFrames, offset: Vector2) -> void:
 
 
 ## Shows (or hides, with null frames) the armor worn on `slot` (HEAD or BODY); above Common the
-## piece wears its rarity's trim (RarityLookDef.trim, a glint sweeping across an Epic one).
-func set_wear(slot: EquipmentDef.Slot, frames: SpriteFrames, color: Color, rarity: int = ItemRarity.COMMON) -> void:
+## piece wears its rarity's trim (RarityLookDef.trim, a glint sweeping across an Epic one), the
+## first of `elements` it carries glitters on that trim (ItemLook.elements: an affix of Echoes
+## is arcane), and with `teeth` its hem is a row of steel points (ItemLook.toothed: of Thorns).
+func set_wear(slot: EquipmentDef.Slot, frames: SpriteFrames, color: Color, rarity: int = ItemRarity.COMMON, elements: Array[VfxElementDef] = [], teeth: bool = false) -> void:
 	var layer := helmet if slot == EquipmentDef.Slot.HEAD else body_armor
 	layer.sprite_frames = frames
 	layer.self_modulate = color
 	layer.visible = frames != null
 	_wear_rarity[slot] = rarity if frames else ItemRarity.COMMON
-	if rarity > ItemRarity.COMMON and not _wear_materials.has(slot):
+	var carried: VfxElementDef = elements[0] if frames and not elements.is_empty() else null
+	teeth = teeth and frames != null
+	if (rarity > ItemRarity.COMMON or carried or teeth) and not _wear_materials.has(slot):
 		_wear_materials[slot] = _own_material(layer, false)
 		(_wear_materials[slot] as ShaderMaterial).set_shader_parameter(&"trim_hem", true)
 	if _wear_materials.has(slot):
-		_set_trim(_wear_materials[slot], _wear_rarity[slot])
+		var material := _wear_materials[slot] as ShaderMaterial
+		_set_trim(material, _wear_rarity[slot])
+		material.set_shader_parameter(&"imbue", 1.0 if carried else 0.0)
+		if carried:
+			material.set_shader_parameter(&"imbue_row", BodyLook.row(carried))
+		material.set_shader_parameter(&"teeth", teeth)
+		if teeth:
+			material.set_shader_parameter(&"teeth_row", BodyLook.row(VfxElementDef.named(&"physical")))
 	_sync_layers()
+
+
+## Dresses the rig in what `equipment` holds: the weapon (in hand, and at rest for a rig that
+## `carries_weapon`), the armor worn with its rarity and the elements it carries. The Actor's
+## rig and the bag's portrait of the hero (HeroPortrait) both come here, so they never differ.
+func wear(equipment: Equipment) -> void:
+	set_weapon(equipment.get_item(EquipmentDef.Slot.WEAPON) as WeaponDef)
+	for slot: EquipmentDef.Slot in [EquipmentDef.Slot.HEAD, EquipmentDef.Slot.BODY]:
+		var armor := equipment.get_item(slot) as ArmorDef
+		if armor and armor.wear_frames:
+			if carries_weapon:
+				set_wear(slot, armor.wear_frames, armor.wear_color, armor.rarity, ItemLook.elements(armor), ItemLook.toothed(armor))
+			else:
+				set_wear(slot, armor.wear_frames, armor.wear_color, armor.rarity)
+		else:
+			set_wear(slot, null, Color.WHITE)
 
 
 ## The weapon in hand (and for the hero at rest: its sprite on his back, its rarity's trim and

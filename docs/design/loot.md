@@ -27,13 +27,18 @@
   the forge and the loot board the slot's frame is the rarity's color and Epic icons have a
   sheen sweeping over them. Worn, the hero's armor takes a trim of its rarity's color on its hem
   (a tunic's hem, a helm's brim) and his weapon on its outline, Epic pieces a glint sweeping
-  across. Fewer effects keeps the rims, glints, ring, aura and pillar, and drops the motes, the
+  across; an armor's affix with an effect shows too (of Echoes glitters arcane on the trim, of
+  Thorns turns the hem into steel points), on him and on his portrait in the bag. Fewer effects keeps the rims, glints, ring, aura and pillar, and drops the motes, the
   halo and the moving glints.
 - **What a weapon carries shows** (`ItemLook`): a weapon with an element of its own, a rune or an
   affix that burns, chills, poisons, chains lightning or drinks blood licks with that element
   along its rim and throws its motes (embers rising, ice chips falling, venom sinking, sparks,
   drops of blood), in hand and on the hero's back; the hero's swing is drawn in it (a katana with
-  an Ember Rune swings fire). A rune in a socket is a small gem of its element on the slot.
+  an Ember Rune swings fire), and so are his shots: a bow's arrows fly in it, a staff's or wand's
+  own shot carries a rune's element on its back (an Ember Spark Wand's sparks trail flames), and
+  the weapon's skills shoot in its runes and affixes too (Volley's arrows ride an Ember Rune's
+  flames, Ice Shards carry them), only the look: a hit lands in the element when the rune's own
+  rule acts on it. A rune in a socket is a small gem of its element on the slot.
   `LootRoller` makes rolled copies; the plain .tres is the Common version. Chances grow with depth
   (`dungeon_config.tres` > Loot) and with the source: elites, chests and bosses drop better.
 - **Gold** drops from monsters (always from elites and bosses), chests and sometimes crates, and

@@ -232,5 +232,7 @@ static func spec_from_weapon(attacker: Actor, weapon: WeaponDef) -> ProjectileSp
 		spec.second_element = ItemLook.second_element(weapon, true)
 		spec.hit_element = ItemLook.hit_element(weapon)
 	elif attacker is Player:
-		spec.second_element = ItemLook.second_element(weapon, true)
+		# A magic shot (the Spark Wand's) stays itself; another element the weapon carries (an
+		# Ember Rune) rides its back. Its hits land in its own element.
+		spec.look_element = ItemLook.second_element(weapon, true)
 	return spec

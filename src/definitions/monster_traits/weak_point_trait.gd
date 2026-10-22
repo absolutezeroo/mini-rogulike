@@ -63,6 +63,8 @@ enum Stage { CLOSED, OPENING, OPEN, CLOSING }
 @export var halo_element: VfxElementDef
 @export var halo_size: float = 50.0
 @export var halo_offset: Vector2 = Vector2(0, -150)
+## The halo a step up its ramp (GlowHalo.bright): the false sun's light, reading round the mask.
+@export var halo_bright: bool = false
 ## The pool it rises from, on the ground under it (alpha 0: none): its size and where.
 @export var pool_color: Color = Color(0, 0, 0, 0)
 @export var pool_rim: Color = Color(0.3, 0.26, 0.32)
@@ -87,16 +89,74 @@ func on_spawn(monster: Monster) -> void:
 		light.position = mouth_offset + Vector2(0, -60)
 		monster.add_child(light)
 		state.light = light
-	if lit_from_within and monster.rig:
-		# Over the floor's light (LightField.Z) and the mist over the walls it rises from
-		# (PlateauMist.Z): its own colors. Under the effects in the air (drawn after the actors).
+	if lit_from_within:
+		# Its body is made once it enters the world (setup comes first): lit then.
+		if monster.rig:
+			_light_from_within(monster)
+		else:
+			monster.ready.connect(_light_from_within.bind(monster), CONNECT_ONE_SHOT)
+
+
+## Its body shines of its own (`lit_from_within`): over the floor's light (LightField.Z) and the
+## mist over the walls it rises from (PlateauMist.Z), its own colors, under the effects in the
+## air (drawn after the actors); its halo behind it.
+func _light_from_within(monster: Monster) -> void:
+	if monster.rig:
 		monster.rig.z_as_relative = false
 		monster.rig.z_index = PlateauMist.Z + 1
 		var halo := GlowHalo.attach(monster, halo_element, halo_size, halo_offset, GlowHalo.Pulse.BREATHE)
 		if halo:
+			halo.bright = halo_bright
 			halo.z_as_relative = false
 			halo.z_index = PlateauMist.Z + 1
 			monster.move_child(halo, monster.rig.get_index())  # behind the body, never over it
+
+
+## A body lit from within is drawn over every actor (over the floor's light and the mist): the
+## hero standing in front of its lower body (its tentacles in the tar, the pool's reach) is drawn
+## over it while he is there, so he is never hidden behind it (docs/vfx.md 2b: the hero first).
+func _keep_hero_in_front(monster: Monster) -> void:
+	var hero := monster.world.player if monster.world else null
+	if hero == null or monster.rig == null:
+		return
+	var state := monster.trait_state(self)
+	var away := hero.global_position - monster.global_position
+	var front := not monster.is_dead and away.y > -PixelDraw.PX * 4.0 and away.y < pool_offset.y + pool_size.y and absf(away.x) < pool_size.x * 0.5 + 16.0
+	if front == bool(state.get("hero_over", false)):
+		return
+	state.hero_over = front
+	if front:
+		hero.z_as_relative = false
+		hero.z_index = monster.rig.z_index + 1
+		if not monster.tree_exiting.is_connected(_release_hero):
+			monster.tree_exiting.connect(_release_hero.bind(monster), CONNECT_ONE_SHOT)
+	else:
+		_release_hero(monster)
+
+
+## Fallen: the hero is drawn among the actors again; the halo goes out once its mask has
+## crumbled (its dead animation), leaving no sun behind what stays of it.
+func on_died(monster: Monster, _killer: Actor, _fell: bool, _rewards: bool) -> void:
+	if not lit_from_within:
+		return
+	_release_hero(monster)
+	var crumbling := monster.rig.animation_length(&"dead") if monster.rig else 0.0
+	for child in monster.get_children():
+		if child is GlowHalo:
+			var halo_ref: WeakRef = weakref(child)  # (the timer outlives a freed body: see Effect.apply_all())
+			monster.get_tree().create_timer(maxf(crumbling, 0.1), false).timeout.connect(func() -> void:
+				var halo := halo_ref.get_ref() as GlowHalo
+				if halo:
+					halo.queue_free())
+
+
+## The hero drawn among the actors again (he left its front, it died or left the world).
+func _release_hero(monster: Monster) -> void:
+	monster.trait_state(self).hero_over = false
+	var hero := monster.world.player if monster.world else null
+	if hero and is_instance_valid(hero):
+		hero.z_as_relative = true
+		hero.z_index = 0
 
 
 ## Which stage it is in (CLOSED, OPENING, OPEN, CLOSING).
@@ -126,6 +186,8 @@ func close_now(monster: Monster) -> void:
 
 func update(monster: Monster, delta: float) -> void:
 	var state := monster.trait_state(self)
+	if lit_from_within:
+		_keep_hero_in_front(monster)
 	if monster.dormant:
 		return
 	state.bite_cooldown = maxf(float(state.bite_cooldown) - delta, 0.0)
