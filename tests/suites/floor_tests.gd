@@ -1011,6 +1011,60 @@ func _test_stairs_seal(game: Game) -> void:
 	Events.message_logged.disconnect(on_log)
 
 
+## A run picked up again rebuilds its floor from the seed: the floor's own monsters slain before
+## quitting stay slain (World.spent_data() "slain"), the others come back, and what came later
+## (a summons, a wave) isn't saved at all. Ends with a fresh run on floor 1 (resume_run makes a
+## new hero: callers fetch game.player again).
+func _test_slain_stay_dead(game: Game) -> void:
+	game.start_run()
+	await _frames(5)
+	var world: World = game.world
+	var player: Player = game.player
+	player.invincible = true
+	player.xp = -1000000  # no level up (and its pause) from these kills
+	var own := world.get_hostiles(Actor.Faction.PLAYER).filter(func(m: Actor) -> bool: return m is Monster and (m as Monster).floor_index >= 0)
+	var all_before := world.monster_count()
+	check(own.size() == all_before and own.size() >= 4, "every monster a new floor puts down has its number (%d of %d)" % [own.size(), all_before])
+	var indexes := own.map(func(m: Actor) -> int: return (m as Monster).floor_index)
+	indexes.sort()
+	check(indexes == range(own.size()), "numbered in order, once each (%s)" % [indexes])
+	var slain: Array[int] = []
+	var slain_ids: Array[String] = []
+	for monster: Monster in [own[0], own[own.size() / 2], own[own.size() - 1]]:
+		slain.append(monster.floor_index)
+		slain_ids.append(String(monster.def.id))
+		monster.take_hit(Combat.make_secondary_hit(player, 99999))
+	var rat: MonsterDef = load("res://data/monsters/rat.tres")
+	var later := world.spawn_monster(rat, world.find_open_point_near(player.global_position + Vector2(200, 0), 80.0))
+	later.take_hit(Combat.make_secondary_hit(player, 99999))
+	await _frames(2)
+	var kills := world.seal.kills
+	var saved: Array = world.spent_data().get("slain", [])
+	check(saved.size() == 3 and slain.all(func(i: int) -> bool: return saved.any(func(pair: Array) -> bool: return pair[0] == i)), "the floor's save keeps the floor's monsters slain, not the one that came later (%s)" % [saved])
+	game._save_run()
+	game.resume_run(RunSave.read())
+	await _frames(3)
+	world = game.world
+	var back: Array[int] = []
+	var kinds := {}
+	for node in world.get_node("Entities").get_children():
+		var monster := node as Monster
+		if monster and monster.floor_index >= 0 and not monster.is_queued_for_deletion():
+			back.append(monster.floor_index)
+			kinds[monster.floor_index] = String(monster.def.id)
+	check(not slain.any(func(i: int) -> bool: return back.has(i)), "resumed, the slain don't stand up again (%s among %s)" % [slain, back])
+	check(back.size() == all_before - 3 and world.monster_count() == all_before - 3, "and the others are all back (%d of %d, %d monsters)" % [back.size(), all_before - 3, world.monster_count()])
+	check(world.seal.kills == kills and world.seal.needed == ceili(all_before * CONTENT.dungeon.seal_share), "the seal counts the kills as before, of the whole floor (%d / %d)" % [world.seal.kills, world.seal.needed])
+	check(world.slain_spawns.size() == 3, "the slain kept for the next save too (%s)" % [world.slain_spawns])
+	# A number that came out as another kind of monster (a floor not rebuilt quite the same):
+	# that one stays rather than the wrong one going. Damaged entries are skipped.
+	var standing: int = back[0]
+	var other_kind := "rat" if kinds[standing] != "rat" else "skeleton"
+	world._restore_slain(JSON.parse_string(JSON.stringify([[standing, other_kind], [1.5], "x", ["a", "rat"]])))
+	check(world.monster_count() == all_before - 3, "a saved number of another kind takes no monster away (%d)" % world.monster_count())
+	game.player.invincible = false
+
+
 ## Two ways down: each stairs leads to a different world of the next floor (FloorRoute), its sign
 ## says which; the way taken builds the next floor and is kept in the save.
 func _test_routes(game: Game) -> void:

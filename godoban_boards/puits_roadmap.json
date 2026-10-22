@@ -286,8 +286,8 @@
     {
       "id": "task_21",
       "title": "Monstres tués qui restent morts après reprise",
-      "description": "Le compteur du Sceau est sauvegardé, mais les monstres réapparaissent quand on reprend une partie.",
-      "status": "backlog",
+      "description": "Le compteur du Sceau est sauvegardé, mais les monstres réapparaissent quand on reprend une partie.\n\nFait : les monstres propres à l'étage (ceux que FloorPopulator pose, dans l'ordre que décide la graine de l'étage) reçoivent un numéro (Monster.floor_index) ; un monstre numéroté tué est noté [numéro, id] (World.slain_spawns) et gardé dans la sauvegarde de l'étage (World.spent_data() « slain »). À la reprise, l'étage reconstruit depuis sa graine retire ces numéros tout de suite (rien ne tombe, aucune mise à mort comptée : le Sceau garde son propre compte, calculé sur l'étage entier comme avant). L'id sert de garde-fou : si un numéro ressort sur une autre espèce (un étage pas reconstruit tout à fait pareil), le monstre reste (mieux un de trop qu'un mauvais en moins). Embuscades, invocations, vagues du feu de camp, rencontres, coffres piégés : non numérotés, comme avant. Anciennes sauvegardes : pas de liste, rien ne change.\nDéterminisme vérifié par une sonde : 20 étages (profondeurs 1-14 hors boss) sauvegardés puis repris → même liste de monstres (espèce, rang, ordre) 20 fois sur 20.\nTest : FloorTests._test_slain_stay_dead (dans la suite game, avant le Seuil perdu) : chaque monstre d'un nouvel étage a son numéro, une fois chacun ; 3 tués + un venu après → la sauvegarde en garde 3 ; repris, les 3 ne reviennent pas, tous les autres sont là, le Sceau compte pareil sur l'étage entier, la liste est gardée pour la prochaine sauvegarde ; un numéro d'une autre espèce ne retire rien, entrées abîmées ignorées. docs/design/dungeon.md mis à jour.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_2",
       "due_date": null,
@@ -295,7 +295,7 @@
         "sauvegarde"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792711716
     },
     {
       "id": "task_22",

@@ -456,6 +456,7 @@ func run() -> void:
 	game._enter_floor()
 	await _bot_play(game, 60 * 20)
 	print("bot (depth 4, mortal): hp %d/%d, dead=%s" % [game.player.hp, game.player.get_max_hp(), game.player.is_dead])
+	await floor._test_slain_stay_dead(game)
 	await combat._test_threshold_lost(game)
 	await floor._test_abyss_death(game)
 	# Keyboards, mice and gamepads: the HUD, the panels, the layouts (PcTests).

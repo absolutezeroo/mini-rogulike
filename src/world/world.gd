@@ -105,6 +105,10 @@ var sealed_cells: Array[Vector2i] = []
 ## Cracked floor cells that gave way on this floor (CrumblingFloor), saved with the floor so a
 ## resumed run finds a hole there, not the crack its seed lays again.
 var collapsed_cells: Array[Vector2i] = []
+## The floor's own monsters slain on it (Monster.floor_index), each saved as [floor_index, id]: a
+## resumed run rebuilds the floor from its seed and leaves these out. The id is a guard: a
+## monster whose number came out as another kind (a floor not rebuilt quite the same) stays.
+var slain_spawns: Array = []
 ## Set before rebuilding a saved floor (restore_spent), used once by build_floor.
 var _to_restore := {}
 ## Where the stairs are (boss floors get theirs when the boss dies).
@@ -170,6 +174,7 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 	bought.clear()
 	sealed_cells.clear()
 	collapsed_cells.clear()
+	slain_spawns.clear()
 	forge_drought_at_start = floors_without_forge
 	_content = content
 	var hidden := hidden_floor
@@ -569,6 +574,7 @@ func spent_data() -> Dictionary:
 		"seal_kills": seal.kills,
 		"sealed": sealed_cells.map(func(cell: Vector2i) -> Array: return [cell.x, cell.y]),
 		"collapsed": collapsed_cells.map(func(cell: Vector2i) -> Array: return [cell.x, cell.y]),
+		"slain": slain_spawns.duplicate(true),
 	}
 
 
@@ -584,6 +590,7 @@ func _apply_restore() -> void:
 	_to_restore = {}
 	SecretRoom.restore(secrets, data.get("secrets", []))  # (its chest, if opened, is in "chests")
 	seal.restore(int(data.get("seal_kills", 0)))  # the kills already made on this floor
+	_restore_slain(data.get("slain", []))  # (after the seal took its count from the whole floor)
 	var cells: Array[Vector2i] = []
 	for pair: Array in data.get("chests", []):
 		if pair.size() == 2:
@@ -619,6 +626,27 @@ func _restore_collapsed(saved: Array) -> void:
 		var crack := _cracks.get(cell) as CrumblingFloor
 		if crack and is_instance_valid(crack):
 			crack.collapse(true)
+
+
+## The floor's own monsters slain before quitting stay slain: `saved` is spent_data()'s "slain"
+## ([floor_index, id] pairs). They are taken off the rebuilt floor at once, with nothing dropped
+## and no kill counted (the seal's count is saved on its own).
+func _restore_slain(saved: Array) -> void:
+	var slain := {}
+	for pair: Variant in saved:
+		if pair is Array and (pair as Array).size() == 2 and (pair[0] is float or pair[0] is int):
+			slain[int(pair[0])] = str(pair[1])
+	if slain.is_empty():
+		return
+	for node in _entities.get_children():
+		var monster := node as Monster
+		if monster == null or monster.floor_index < 0 or not slain.has(monster.floor_index):
+			continue
+		if String(monster.def.id) != slain[monster.floor_index]:
+			continue  # not the same monster: better one too many than one missing
+		slain_spawns.append([monster.floor_index, String(monster.def.id)])
+		_entities.remove_child(monster)
+		monster.queue_free()
 
 
 ## Cells saved as [x, y] pairs (numbers as a save file reads them); a damaged entry is skipped.
@@ -739,6 +767,8 @@ func flash_light(at: Vector2, color: Color, size: float) -> void:
 func _on_monster_killed(monster: Monster) -> void:
 	if monster.world == self:
 		seal.add_kill()
+		if monster.floor_index >= 0:
+			slain_spawns.append([monster.floor_index, String(monster.def.id)])
 
 
 ## The way down opens, and a guiding light shows it.
