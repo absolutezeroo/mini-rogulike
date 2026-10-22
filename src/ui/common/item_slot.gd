@@ -29,6 +29,11 @@ var selected := false:
 	set(value):
 		selected = value
 		queue_redraw()
+## New in the bag since the player last looked (a small gold gem in the top right corner).
+var fresh := false:
+	set(value):
+		fresh = value
+		queue_redraw()
 
 var _time := 0.0
 
@@ -85,9 +90,33 @@ func _draw() -> void:
 			_text("x%d" % count, Vector2(size.x - 6, size.y - 6), HORIZONTAL_ALIGNMENT_RIGHT, Fonts.BODY, Color.WHITE)
 	elif not caption.is_empty():
 		_text(caption, Vector2(size.x * 0.5, size.y * 0.5 + 4), HORIZONTAL_ALIGNMENT_CENTER, Fonts.SMALL, EMPTY_TEXT)
+	if fresh and item:
+		draw_fresh(self, Vector2(size.x - 5, 5))
 	if selected:
 		var pulse := 0.75 + 0.25 * sin(_time * 5.0)
 		draw_style_box(_frame_box(Color(1.0, 0.85, 0.35, pulse)), area.grow(2))
+
+
+## The "new" mark: a small gold gem, its top right corner at `corner` (on the 2-unit grid of the
+## UI's pixels, dark rim, a light facet). Bag slots and the bag's tabs.
+static func draw_fresh(canvas: CanvasItem, corner: Vector2) -> void:
+	var pixel := 2.0
+	var at := (corner / pixel).round() * pixel - Vector2(pixel * 5, 0)
+	# A diamond 5 pixels wide: rows 1, 3, 5, 3, 1 (dark around it).
+	var rows := [1, 3, 5, 3, 1]
+	for row in rows.size():
+		var width: int = rows[row]
+		var x := at.x + (5 - width) * 0.5 * pixel
+		var y := at.y + row * pixel
+		canvas.draw_rect(Rect2(x - pixel, y, (width + 2) * pixel, pixel), Fonts.OUTLINE)
+	canvas.draw_rect(Rect2(at.x + pixel * 2, at.y - pixel, pixel, pixel), Fonts.OUTLINE)
+	canvas.draw_rect(Rect2(at.x + pixel * 2, at.y + pixel * 5, pixel, pixel), Fonts.OUTLINE)
+	for row in rows.size():
+		var width: int = rows[row]
+		var x := at.x + (5 - width) * 0.5 * pixel
+		canvas.draw_rect(Rect2(x, at.y + row * pixel, width * pixel, pixel), UiSkin.GOLD)
+	canvas.draw_rect(Rect2(at.x + pixel, at.y + pixel * 2, pixel, pixel), Color(1.0, 0.97, 0.8))
+	canvas.draw_rect(Rect2(at.x + pixel * 2, at.y + pixel, pixel, pixel), Color(1.0, 0.97, 0.8))
 
 
 ## Its rarity's color (Magic and better), a rune's family color; clear for plain things.
@@ -181,6 +210,11 @@ static func _slot_box() -> StyleBoxTexture:
 		for side in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
 			_slot.set_texture_margin(side, 15)
 	return _slot
+
+
+## The rarity frame's style, in `color` (the bag's tabs frame the one shown with it).
+static func frame_box(color: Color) -> StyleBoxTexture:
+	return _frame_box(color)
 
 
 static func _frame_box(color: Color) -> StyleBoxTexture:

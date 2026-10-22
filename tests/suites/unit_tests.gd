@@ -66,6 +66,11 @@ func run() -> void:
 	add_child(pc)
 	await pc.run_unit()
 	pc.free()
+	# The bag's tabs and actions (BagTests).
+	var bag_suite := BagTests.new()
+	add_child(bag_suite)
+	bag_suite.run_bag_unit()
+	bag_suite.free()
 
 
 ## Text keeps whole pixels (Fonts, docs/design/interface.md "Text"): the font is drawn sharp, on its

@@ -148,6 +148,7 @@ func run() -> void:
 	while player.inventory.is_full():
 		player.inventory.items.pop_back()  # (loot picked up on the way may have filled it)
 	player.inventory.add(cap)
+	game.inventory_panel.show_category(0)  # weapons and armor
 	game.open_inventory()
 	await _frames(2)
 	check(get_tree().paused, "inventory pauses the game")
@@ -156,8 +157,11 @@ func run() -> void:
 	for child in grid.get_children():
 		if (child as ItemSlot).item and (child as ItemSlot).item.id == cap.id:  # (or a cap picked up on the way)
 			cap_slot = child
-	# A stack takes one place: as many slots as the bag has places.
-	check(grid.get_child_count() == player.inventory.capacity and cap_slot != null, "inventory shows the bag as slots (%d of %d)" % [grid.get_child_count(), player.inventory.capacity])
+	# A stack takes one place: the tab's stacks, then the bag's free places.
+	var bag_tabs: BagCategorySet = load(BagCategorySet.PATH)
+	var stacks := bag_tabs.entries_in(0, player.inventory.grouped()).size()
+	var free := player.inventory.capacity - player.inventory.places_used()
+	check(grid.get_child_count() == stacks + free and cap_slot != null, "inventory shows the tab's stacks and the free places as slots (%d = %d + %d)" % [grid.get_child_count(), stacks, free])
 	cap_slot.pressed.emit()
 	(game.inventory_panel.get_node("%UseButton") as Button).pressed.emit()
 	check(player.equipment.get_item(EquipmentDef.Slot.HEAD) != null, "equip from the inventory screen")
@@ -432,6 +436,10 @@ func run() -> void:
 	var pc := PcTests.new()
 	add_child(pc)
 	await pc.run_game(game)
+	# The bag's tabs and quick actions on every device (BagTests).
+	var bag_suite := BagTests.new()
+	add_child(bag_suite)
+	await bag_suite.run_bag_game(game)
 	# The wardens' stories, on a fresh run (StoryTests).
 	var story := StoryTests.new()
 	add_child(story)

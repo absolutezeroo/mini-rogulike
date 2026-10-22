@@ -878,14 +878,13 @@ func _test_panels_keys(game: Game) -> void:
 	var player := game.player
 	var world := game.world
 	_keys_mode()
-	# The bag: Enter on the weapon's slot shows it.
+	# The bag: the slot the keys stand on is the one picked (Enter uses it: BagTests).
 	game.open_inventory()
 	await _frames(2)
 	await _check_keys_reach(game.inventory_panel, "the bag")
 	var focused := _focus()
 	if focused is ItemSlot:
-		await _tap_key(KEY_ENTER)
-		check((focused as ItemSlot).selected or (focused as ItemSlot).item == null, "Enter picks the slot")
+		check((focused as ItemSlot).selected or (focused as ItemSlot).item == null, "the focused slot is the one picked")
 	await _tap_key(KEY_ESCAPE)
 	check(not game.inventory_panel.visible, "Escape closes the bag")
 	# The shop.

@@ -456,18 +456,10 @@ Attack speed,Attack speed,Vitesse d'attaque
 %+d%%,%+d%%,%+d %%
 Skill damage,Skill damage,Dégâts des compétences
 Skill recharge,Skill recharge,Recharge des compétences
-To bag,To bag,Vers le sac
-To belt,To belt,Vers la ceinture
-Sure? +%d gold,Sure? +%d gold,Sûr ? +%d or
-Dismantle,Dismantle,Démanteler
 Dismantle value: %d gold,Dismantle value: %d gold,Démantèlement : %d or
 The runes set in it break with it (counted in the gold).,The runes set in it break with it (counted in the gold).,Les runes serties se brisent avec (comptées dans l'or).
 Pick an item,Pick an item,Choisis un objet
 Choose a slot to see what it does.,Choose a slot to see what it does.,Choisis un emplacement pour voir ce qu'il fait.
-Unequip,Unequip,Retirer
-Equip,Equip,Équiper
-Learn,Learn,Apprendre
-Use,Use,Utiliser
 the same stats,the same stats,les mêmes statistiques
 Runes,Runes,Runes
 An empty socket: a forge sets runes in it.,An empty socket: a forge sets runes in it.,Un emplacement vide : une forge peut y sertir une rune.
@@ -477,10 +469,20 @@ Dismantle: +%d gold,Dismantle: +%d gold,Démanteler : +%d or
 Inventory,Inventory,Inventaire
 Belt,Belt,Ceinture
 Bag,Bag,Sac
-Drop,Drop,Jeter
 Dismantle the worse,Dismantle the worse,Démanteler le moins bon
 "What you wear, potions, runes, tomes and keys are never touched.","What you wear, potions, runes, tomes and keys are never touched.","Ce que tu portes, les potions, les runes, les grimoires et les clefs ne sont jamais touchés."
+Dismantle,Dismantle,Démanteler
 Keep them,Keep them,Les garder
+To bag,To bag,Vers le sac
+To belt,To belt,Vers la ceinture
+Sure?,Sure?,Sûr ?
+Tap again to break it: +%d gold,Tap again to break it: +%d gold,Touche encore pour le briser : +%d or
+Press {item_dismantle} again to break it: +%d gold,Press {item_dismantle} again to break it: +%d gold,Appuie encore sur {item_dismantle} pour le briser : +%d or
+Drop,Drop,Jeter
+Unequip,Unequip,Retirer
+Equip,Equip,Équiper
+Learn,Learn,Apprendre
+Use,Use,Utiliser
 Gamepad: %s,Gamepad: %s,Manette : %s
 Gamepad,Gamepad,Manette
 Keyboard and mouse,Keyboard and mouse,Clavier et souris
@@ -998,6 +1000,10 @@ Changed your mind? I can pry it out. For a price.,Changed your mind? I can pry i
 They come for the fire!,They come for the fire!,Ils viennent pour le feu !
 "Things stir in the heat haze, drawn by the water...","Things stir in the heat haze, drawn by the water...","Des choses s'agitent dans la brume de chaleur, attirées par l'eau..."
 They come for the water!,They come for the water!,Ils viennent pour l'eau !
+Weapons & Armor,Weapons & Armor,Armes & Armures
+Tomes & Scrolls,Tomes & Scrolls,Grimoires & Parchemins
+Consumables,Consumables,Consommables
+Other,Other,Divers
 Chain Mail,Chain Mail,Cotte de Mailles
 "Good protection, slows you down a little.","Good protection, slows you down a little.","Bonne protection, mais te ralentit un peu."
 Iron Helm,Iron Helm,Heaume de Fer
@@ -2301,6 +2307,12 @@ Back in a menu,Back in a menu,Retour dans un menu
 "Close, or the phone's back button","Close, or the phone's back button","Fermer, ou le bouton retour du téléphone"
 Previous / next tab,Previous / next tab,Onglet précédent / suivant
 Tap a tab,Tap a tab,Touche un onglet
+Dismantle (in the bag),Dismantle (in the bag),Démanteler (dans le sac)
+The Dismantle button on the item's card,The Dismantle button on the item's card,"Le bouton Démanteler, sur la fiche de l'objet"
+Drop (in the bag),Drop (in the bag),Jeter (dans le sac)
+The Drop button on the item's card,The Drop button on the item's card,"Le bouton Jeter, sur la fiche de l'objet"
+Scroll an item's card,Scroll an item's card,Faire défiler la fiche
+Drag the details,Drag the details,Fais glisser la fiche
 Xbox,Xbox,Xbox
 PlayStation,PlayStation,PlayStation
 Nintendo,Nintendo,Nintendo
