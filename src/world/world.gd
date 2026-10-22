@@ -20,6 +20,9 @@ const TRAP_SCENE := preload("res://src/entities/trap/trap.tscn")
 const FLASH_SCENE := preload("res://src/vfx/light_flash.tscn")
 ## Pixels of a hole's edge you can stand on without falling.
 const PIT_EDGE := 6.0
+## Room a body put down on the floor needs around it (find_open_point_near()): the usual
+## monsters' bodies, an elite's grown one included. A bigger one asks for its own radius.
+const BODY_ROOM := 14.0
 
 ## Goes up with every floor built: delayed effects started on an old floor are dropped.
 var floor_id := 0
@@ -1094,14 +1097,34 @@ func find_path(from: Vector2, to: Vector2) -> PackedVector2Array:
 	return nav.find_path(from, to)
 
 
-## A walkable point about `distance` away from `center`, in sight of it (or `center` itself).
-## Never over a hole or cracked floor.
-func find_open_point_near(center: Vector2, distance: float) -> Vector2:
+## A walkable point about `distance` away from `center`, in sight of it, where a body of
+## `room` px fits: never over a hole or cracked floor, never into a wall's, a prop's or a pond's
+## shape (a body put down inside one may never get out). Else `center` if a body fits there, else
+## the nearest free cell's centre.
+func find_open_point_near(center: Vector2, distance: float, room: float = BODY_ROOM) -> Vector2:
 	for attempt in 10:
 		var point := center + Vector2.from_angle(rng.randf() * TAU) * distance
-		if is_solid_ground(point) and has_line_of_sight(center, point):
+		if is_solid_ground(point) and has_line_of_sight(center, point) and body_fits(point, room):
 			return point
-	return center
+	if is_solid_ground(center) and body_fits(center, room):
+		return center
+	return nearest_free_point(center)
+
+
+## Room for the body of a monster of `def`, put down by find_open_point_near().
+static func room_for(def: MonsterDef) -> float:
+	return maxf(BODY_ROOM, def.radius) if def else BODY_ROOM
+
+
+## Nothing that stops a body (walls, props, chests, ponds...) within `radius` of `point`.
+func body_fits(point: Vector2, radius: float = BODY_ROOM) -> bool:
+	var shape := CircleShape2D.new()
+	shape.radius = radius
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = shape
+	query.transform = Transform2D(0.0, point)
+	query.collision_mask = Layers.WORLD | Layers.WATER
+	return get_world_2d().direct_space_state.intersect_shape(query, 1).is_empty()
 
 
 func monster_count() -> int:

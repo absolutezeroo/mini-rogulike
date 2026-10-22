@@ -30,7 +30,8 @@ The suites (`tests/suites/`, each a `TestSuite`):
 - **game**: a bot plays the real game (kills, level ups and perk choices, stairs, death and
   restart, saving and resuming), then on that same game: **combat** (projectiles, perks, skills,
   monsters and their traits, difficulty, weapons), **floor** (props, hazards, chests, ambushes,
-  encounters, pact doors, the merchant, loot, curses, biomes, act cards, the belt), **boss** (a full boss fight
+  encounters, pact doors, the merchant, loot, curses, biomes, act cards, the belt; on 12 more
+  floors, no body put down inside a wall or a prop), **boss** (a full boss fight
   with its phases and relic, then winning the run) and **finale** (the bottom of the Well after a
   win: the gate, saves around it, Tôma, the Maw's jaw, the endings, and with Boss stories on
   their meetings, last words and deeds).

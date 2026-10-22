@@ -9,6 +9,11 @@
 - **Props** (`data/props/`): crates, vases and barrels break under any attack and may drop loot;
   **powder kegs** blink then explode, hurting everyone (you too) and setting off other kegs.
   Explosions you trigger give you the XP of what they kill. Props block movement, sight and shots.
+- **Bodies put down** never start inside a wall's, a prop's or a pond's shape (from inside one a
+  body may never get out): the floor's monsters stand inside the rooms, away from their walls,
+  and those put down near a spot later (summons, a trapped chest's, a split's, an encounter's, a
+  camp's: `World.find_open_point_near()`) only where their body fits (`World.body_fits()`,
+  `BODY_ROOM` 14 px or the monster's own radius), else on the nearest free cell's centre.
 - **Hazards** (`data/hazards/`): each act has its own list (`ActDef.hazards`), and every hazard
   knows how to lay itself out in a room (`HazardDef.place()`). They hurt monsters too: lure them in.
   - **Traps**: rows of **spikes** firing in a wave, **pressure plates** that strike when stepped on,

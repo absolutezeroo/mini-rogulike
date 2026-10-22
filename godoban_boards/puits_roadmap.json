@@ -722,8 +722,8 @@
     {
       "id": "task_56",
       "title": "Vérifier : des formes de murs ou d'accessoires muraux débordent sur une case libre",
-      "description": "En traquant le test « walking away », un rat posé sur une case libre (nav) au pied d'un mur se retrouvait dans la forme physique du mur ou d'un accessoire mural (contact 6 px au-dessus de son centre) et ne pouvait plus bouger. Le test évite désormais ces places (_body_fits) ; à vérifier dans le jeu : un monstre qui apparaît sur une telle case (FloorPopulator) reste-t-il coincé ?",
-      "status": "backlog",
+      "description": "En traquant le test « walking away », un rat posé sur une case libre (nav) au pied d'un mur se retrouvait dans la forme physique du mur ou d'un accessoire mural (contact 6 px au-dessus de son centre) et ne pouvait plus bouger. Le test évite désormais ces places (_body_fits) ; à vérifier dans le jeu : un monstre qui apparaît sur une telle case (FloorPopulator) reste-t-il coincé ?\n\nVérifié (sonde sur 60 étages générés, 3933 monstres) : les monstres posés par FloorPopulator ne touchent jamais un mur ni un accessoire (ils sont placés à l'intérieur des pièces, à une case des murs). Mais ceux posés près d'un point plus tard passaient par World.find_open_point_near(), qui acceptait n'importe quel point de sol : invocations, monstres d'un coffre piégé, d'une scission, d'une rencontre, d'un camp. Depuis un point au pied d'un mur : 568 points sur 3600 dans une forme (mur, accessoire), et 57 rats posés là ne pouvaient plus bouger dans aucune direction. Corrigé à la source : find_open_point_near() ne garde qu'un point où le corps tient (World.body_fits(), murs, accessoires, coffres, mares ; BODY_ROOM 14 px ou le rayon du monstre, World.room_for()), sinon le centre, sinon le centre de la case libre la plus proche. Après : 0 sur 3600. Test (suite game, _test_bodies_fit, 12 étages) : aucun monstre de l'étage dans une forme, aucun point au pied d'un mur où un corps (rat, Dune Rex) ne tient pas, un rat posé contre un mur repart. Doc : design/dungeon.md, testing.md. Reste (non corrigé, rare) : la fissure d'une salle secrète déborde de 8 px sur la case devant elle ; nearest_free_point() peut tomber sur cette case.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -732,7 +732,7 @@
         "combat"
       ],
       "created_at": 1792696695,
-      "updated_at": 1792696695
+      "updated_at": 1792710543
     },
     {
       "id": "task_57",

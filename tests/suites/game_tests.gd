@@ -264,6 +264,8 @@ func run() -> void:
 	await secrets._test_hidden_floor(game)
 	await boss._test_boss_fight(game)
 
+	await floor._test_bodies_fit(game)  # (it builds other floors: the run ends right after)
+
 	# The bag's new marks and its tab belong to the run: seen now, a rune is new in the next one.
 	var rune: RuneDef = load("res://data/runes/ember.tres")
 	var bag_panel := game.inventory_panel
