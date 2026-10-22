@@ -31,3 +31,6 @@ var element: VfxElementDef
 ## bool): the Ember Rune decides before the flash whether this hit sets the target on fire, so
 ## the flash is in fire exactly when it does (docs/vfx.md, "Elemental attacks").
 var rolled := {}
+## What the blow was, when it was not a monster's own (RunFacts.CAUSES: "trap", "burn", "cold",
+## "shockwave"...): how the Vigil-Keeper tells a death. Empty: a monster's blow, or unknown.
+var cause: StringName = &""

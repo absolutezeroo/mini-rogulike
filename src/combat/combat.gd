@@ -149,6 +149,7 @@ static func blast(world: World, center: Vector2, radius: float, amount: int, kno
 		var hit := make_secondary_hit(source, amount)
 		hit.knockback = offset.normalized() * knockback
 		hit.status = status
+		hit.cause = &"blast"
 		target.take_hit(hit)
 	hit_props(world, source, center, radius)
 
@@ -173,6 +174,7 @@ static func shockwave(world: World, source: Actor, radius: float, amount: int, k
 				continue
 			var hit := make_secondary_hit(source, amount)
 			hit.knockback = (offset.normalized() if offset != Vector2.ZERO else Vector2.DOWN) * knockback
+			hit.cause = &"shockwave"  # a boss answering a hero who struck too often (RunFacts)
 			target.take_hit(hit)
 		hit_props(world, source, center, radius))
 

@@ -142,7 +142,7 @@
       "id": "task_13",
       "title": "La Veilleuse : récit des morts et conseils",
       "description": "Aujourd'hui l'écran de mort tire une phrase au hasard (story.tres). La Veilleuse (prêtresse aveugle du sanctuaire, docs/lore.md §6) doit raconter TA mort : qui t'a tué, où, à quel étage, ce que tu portais, et te donner un conseil utile (esquiver tel boss, utiliser telle compétence, potions…), dans la voix du Puits. Répliques selon la progression (premières morts, morts répétées au même endroit, révélations sur Tôma). À bâtir sur les conditions de la Chronique (modulaire, dans les données).",
-      "status": "todo",
+      "status": "in_progress",
       "priority": "high",
       "epic_id": "epic_1",
       "due_date": null,
@@ -151,13 +151,13 @@
         "pnj"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792695929
     },
     {
       "id": "task_43",
       "title": "Dialogues des PNJ",
       "description": "Système de dialogue réutilisable (conditions de la Chronique) : le Vieil Errant (marchand), Brann (forgeron), l'Esprit Ricaneur, la Veilleuse au sanctuaire. Chacun a sa voix (docs/lore.md §6) et révèle son passé au fil des parties.",
-      "status": "todo",
+      "status": "in_progress",
       "priority": "high",
       "epic_id": "epic_1",
       "due_date": null,
@@ -166,13 +166,13 @@
         "pnj"
       ],
       "created_at": 1792685100,
-      "updated_at": 1792685100
+      "updated_at": 1792695929
     },
     {
       "id": "task_44",
       "title": "Le sanctuaire vivant",
       "description": "La Veilleuse visible au sanctuaire (écran titre) ; les lampes éteintes se rallument avec les âmes ramenées ; la niche vide de Tôma parmi les Statues du Gardien.",
-      "status": "backlog",
+      "status": "in_progress",
       "priority": "medium",
       "epic_id": "epic_1",
       "due_date": null,
@@ -181,7 +181,7 @@
         "ui"
       ],
       "created_at": 1792685100,
-      "updated_at": 1792685100
+      "updated_at": 1792695929
     },
     {
       "id": "task_14",

@@ -60,6 +60,10 @@ var xp := 0
 var learned_skill: SkillDef
 ## Coins found during this run (spent at the merchant).
 var gold := 0
+## What killed him (the monster's kind, and whether it was an elite), for the Vigil-Keeper's
+## tale (RunFacts). Null: no monster (a trap, a fall...), or alive.
+var killer_def: MonsterDef
+var killer_was_elite := false
 ## Cold floors and hot ground (see BodyTemperature).
 var temperature := BodyTemperature.new()
 ## Holding the attack button: the weapon's charged attack (AttackCharge, ChargedAttackDef).
@@ -608,7 +612,9 @@ func _on_fell(pit: PitDef) -> void:
 func take_fall(share: float) -> void:
 	_invulnerable_time = 0.0
 	killed_by = tr("a fall")  # if this is what kills the hero
-	take_hit(Combat.make_secondary_hit(null, maxi(1, roundi(get_max_hp() * share))))
+	var hit := Combat.make_secondary_hit(null, maxi(1, roundi(get_max_hp() * share)))
+	hit.cause = &"fall"
+	take_hit(hit)
 	if not is_dead:
 		killed_by = ""
 		_invulnerable_time = FALL_INVULNERABILITY
@@ -631,6 +637,7 @@ func give_up() -> void:
 	if is_dead:
 		return
 	killed_by = tr("giving up")
+	death_cause = &"giving_up"
 	hp = 0
 	health_changed.emit(hp, get_max_hp())
 	die(null)
@@ -663,7 +670,14 @@ func _on_damaged(hit: HitInfo, damage: int) -> void:
 		camera.kick(hit.knockback.normalized(), 7.0)
 
 
-func _on_died(_killer: Actor) -> void:
+func _on_died(killer: Actor) -> void:
+	# A shot whose shooter fell before it landed still says who loosed it (its last hit's source).
+	var who: Actor = killer
+	if who == null and last_hit and is_instance_valid(last_hit.source) and last_hit.source != self:
+		who = last_hit.source
+	if killer_def == null and who is Monster:
+		killer_def = (who as Monster).def
+		killer_was_elite = (who as Monster).is_elite()
 	Events.log_message(tr("Your soul slips into the Well."), Palette.DANGER)
 	camera.shake(1.0)
 	Vfx.death(world, global_position, def.color)
@@ -684,6 +698,24 @@ func _hit_spark_color(_hit: HitInfo) -> Color:
 func _tick_timers(delta: float) -> void:
 	super._tick_timers(delta)
 	temperature.update(self, delta)
+
+
+## Healing potions carried, belt and bag (a consumable that heals: HealEffect).
+func healing_carried() -> int:
+	var total := 0
+	for slot in belt.slots:
+		var item := slot.get("item") as ConsumableDef
+		if item and Player.heals(item):
+			total += int(slot.get("count", 0))
+	for item in inventory.items:
+		if item is ConsumableDef and Player.heals(item as ConsumableDef):
+			total += 1
+	return total
+
+
+## `item` mends the one who drinks it (a potion, not a bomb or a scroll).
+static func heals(item: ConsumableDef) -> bool:
+	return item != null and item.effects.any(func(effect: Effect) -> bool: return effect is HealEffect)
 
 
 ## How many of `item` the hero carries (belt and bag).

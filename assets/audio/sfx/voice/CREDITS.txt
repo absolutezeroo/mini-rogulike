@@ -1,0 +1,3 @@
+Voices of the speakers (a short sound as a line begins, SpeakerDef.voice): Ninja Adventure's
+"Voice" sounds by Pixel-boy and AAA (CC0, assets/LICENSE_NinjaAdventure.txt), made mono ogg:
+vigil_keeper.ogg = Voice3, wanderer.ogg = Voice2, smith.ogg = Voice1, spirit.ogg = Voice6.

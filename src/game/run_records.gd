@@ -46,6 +46,13 @@ func bind(new_run: RunState, new_player: Player) -> void:
 	player.leveled_up.connect(func(level: int) -> void:
 		Profile.raise_stat("run_level", level, _feats())
 		check_achievements())
+	# What the Vigil-Keeper reads in a death (RunMarkCondition): a potion drunk, a roll.
+	player.consumable_used.connect(func(item: ItemDef) -> void:
+		if run and item is ConsumableDef and Player.heals(item as ConsumableDef):
+			run.mark("drank"))
+	player.skill_used.connect(func(index: int) -> void:
+		if run and index == 0:
+			run.mark("rolled"))
 
 
 ## Feats count on this run's difficulty (not on Pilgrim: DifficultyDef.counts_feats).
@@ -78,7 +85,12 @@ func record_history() -> void:
 		"weapon": weapon.display_name if weapon else "Bare hands",
 		"cause": player.killed_by if player.is_dead else "",
 		"duration": roundi(run.run_time() * 1000.0),  # ms: the win's time, or how long it lasted
+		# What the Vigil-Keeper remembers of it (DeathStreakCondition): who, how.
+		"killer": String(player.killer_def.id) if player.is_dead and player.killer_def else "",
+		"death": String(player.death_cause) if player.is_dead else "",
 	})
+	if player.is_dead:
+		Profile.record_death(player.killer_def.id if player.killer_def else &"")
 
 
 func _on_monster_killed(monster: Monster) -> void:

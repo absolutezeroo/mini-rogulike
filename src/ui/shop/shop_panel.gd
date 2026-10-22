@@ -62,7 +62,7 @@ func open(merchant: Merchant, player: Player) -> void:
 	_merchant = merchant
 	_player = player
 	_name.text = tr(merchant.def.display_name)
-	_greeting.text = tr("\"%s\"") % tr(merchant.def.random_greeting())
+	_greeting.text = tr("\"%s\"") % merchant.def.opening_line()
 	_portrait.texture = merchant.def.portrait
 	if merchant.stock.is_empty():
 		_pick = Pick.NONE

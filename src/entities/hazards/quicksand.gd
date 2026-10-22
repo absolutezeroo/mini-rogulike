@@ -45,7 +45,9 @@ func _physics_process(delta: float) -> void:
 		var tick: float = _next_tick.get(id, 0.0) - delta
 		if tick <= 0.0:
 			tick = def.tick_interval
-			actor.take_hit(Combat.make_tick(null, world.rules.dungeon_damage(def.damage, 0.5)))
+			var sink := Combat.make_tick(null, world.rules.dungeon_damage(def.damage, 0.5))
+			sink.cause = &"quicksand"
+			actor.take_hit(sink)
 			Sfx.play_world(def.sink_sound, actor.global_position, -6.0)
 			Vfx.dust(world, actor.global_position, 0.7)
 		_next_tick[id] = tick

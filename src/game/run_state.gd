@@ -62,7 +62,9 @@ var secrets_found := 0
 var bonus_souls := 0
 ## What the run did that a warden's deed may ask about (MarkDeed): "bought", "secret",
 ## "hidden_floor", "oath", "cursed", "encounter:<id>", "bitten" (the Maw's jaw closed on the
-## hero) -> true. Set by RunRecords (Events.run_marked for a monster's own); saved.
+## hero) -> true; and what the Vigil-Keeper reads in a death (RunMarkCondition): "drank" (a
+## healing potion), "rolled" (a roll), "threshold_lost" (the trial of the Threshold lost). Set
+## by RunRecords (Events.run_marked for a monster's or the Threshold's own); saved.
 var marks := {}
 ## The boss floors whose warden was already met this run ("3", "6h" on the hidden floor, "12f"
 ## and "12f/the_maw" at the bottom of the Well): a run picked up again on that floor never tells
@@ -300,12 +302,17 @@ func record_key() -> String:
 
 ## Where the run is: its act's name, or the hidden floor's.
 func place_name(content: ContentDB) -> String:
+	return tr(place_name_key(content))
+
+
+## place_name() as its English key (RunFacts keeps keys, translated where shown).
+func place_name_key(content: ContentDB) -> String:
 	if hidden_floor and content.dungeon.hidden_floor:
-		return tr(content.dungeon.hidden_floor.title)
+		return content.dungeon.hidden_floor.title
 	if finale and content.dungeon.finale:
-		return tr(content.dungeon.finale.title)
+		return content.dungeon.finale.title
 	var act := content.dungeon.act_for_depth(depth)
-	return tr(act.title) if act else tr("Dungeon")
+	return act.title if act else tr("Dungeon")
 
 
 ## The run's numbers for the end-of-run screen, as [label, value] pairs (Difficulty, Reached,
