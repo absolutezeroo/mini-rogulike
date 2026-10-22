@@ -32,7 +32,8 @@ The suites (`tests/suites/`, each a `TestSuite`):
   monsters and their traits, difficulty, weapons), **floor** (props, hazards, chests, ambushes,
   encounters, pact doors, the merchant, loot, curses, biomes, act cards, the belt), **boss** (a full boss fight
   with its phases and relic, then winning the run) and **finale** (the bottom of the Well after a
-  win: the gate, saves around it, Tôma, the Maw's jaw, the endings).
+  win: the gate, saves around it, Tôma, the Maw's jaw, the endings, and with Boss stories on
+  their meetings, last words and deeds).
 - The story (`story_tests.gd`, `StoryTests`): its unit part runs in the unit suite (every
   warden's chronicle, lengths and translations, the reveal rule, conditions, deeds, what a meeting
   tells, fragments, the codex's Chronicle, the option), its game part at the end of the game suite

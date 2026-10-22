@@ -39,13 +39,15 @@ enum Stage { CLOSED, OPENING, OPEN, CLOSING }
 @export var pull_radius: float = 420.0
 @export var pull_speed: float = 55.0
 ## A bite on the hero within `bite_radius` of the mouth: a warning for `bite_windup`, then
-## `bite_power` x its power, thrown back. Not again before `bite_cooldown`.
+## `bite_power` x its power, thrown back. Not again before `bite_cooldown`. A bite that hurts
+## him marks the run `bite_mark` (Events.run_marked: a deed may ask for a run never bitten).
 @export var bite_radius: float = 72.0
 @export var bite_windup: float = 0.55
 @export_range(0.0, 5.0, 0.05) var bite_power: float = 1.5
 @export var bite_knockback: float = 460.0
 @export var bite_cooldown: float = 1.3
 @export var bite_element: VfxElementDef
+@export var bite_mark: String = "bitten"
 
 @export_group("Body")
 ## Never walks (the AI still turns and casts).
@@ -234,6 +236,8 @@ func _try_bite(monster: Monster) -> void:
 	bite.shake = 0.5
 	bite.sound = monster.def.hurt_sound
 	bite.landed.connect(func() -> void:
+		if is_instance_valid(hero) and hero.last_hurt_frame == Engine.get_physics_frames() and not bite_mark.is_empty():
+			Events.run_marked.emit(bite_mark)  # (hurt by the bite this very frame)
 		if is_instance_valid(monster) and bite_element and bite_element.claw:
 			monster.world.spawn_vfx(SheetVfx.play(bite_element.claw, mouth + Vector2(0, -20), Vector2.DOWN, bite_element)))
 	monster.world.spawn_vfx(bite)

@@ -6,7 +6,9 @@ extends Storyteller
 ## the game paused around it so nothing moves and nothing hurts. Owned by the Game.
 ## Never twice on the same floor of a run (RunState.met_floors: a run picked up again mid-fight
 ## doesn't replay it), never with Boss stories off (Settings), never for a boss without a
-## chronicle.
+## chronicle. A form rising from a fallen one (BossDef.next_boss: the Maw out of the tar) is met
+## too, once its rise is over, under its own key. When a warden falls it may say its last words
+## (Narrative.last_words(), on its banner).
 
 var game: Game
 var narrative: NarrativeDef
@@ -33,16 +35,18 @@ func is_playing() -> bool:
 	return director.is_playing()
 
 
-## The hero met `boss` in its arena. Plays its story if there is one to tell (the game paused
-## meanwhile). Returns true if the boss already woke on screen (its intro animation played).
-func meet(boss: Monster) -> bool:
+## The hero met `boss` in its arena (`risen`: it just rose from a fallen form). Plays its story
+## if there is one to tell (the game paused meanwhile). Returns true if the boss already woke on
+## screen (its intro animation played).
+func meet(boss: Monster, risen := false) -> bool:
 	var def := boss.def as BossDef if boss else null
 	var run := game.run if game else null
 	if def == null or run == null:
 		return false
-	if run.has_met_here():
+	var form := def.id if risen else &""
+	if run.has_met_here(form):
 		return false  # told already on this floor (a run picked up again)
-	run.meet_here()
+	run.meet_here(form)
 	Narrative.count_meeting(def)
 	var beat := Narrative.plan(def, Settings.boss_stories)
 	if narrative == null or def.chronicle == null or not beat.has_words():
@@ -60,3 +64,12 @@ func meet(boss: Monster) -> bool:
 	if is_instance_valid(game):
 		game.pause_for_cinematic(false)
 	return director.played_animation
+
+
+## What `def` says as it falls (an English key, "" for nothing): its chronicle's last open last
+## words, with Boss stories on (Short too: they are one line).
+func last_words(def: BossDef) -> String:
+	if def == null or Settings.boss_stories == Settings.STORIES_OFF:
+		return ""
+	var words := Narrative.last_words(def)
+	return words.line if words else ""

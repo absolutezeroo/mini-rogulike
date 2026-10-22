@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/keeper_journal.tres" id="2_look"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="3_progresscond"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="4_keepernamed"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"master_toma_journal"
+title = "Tôma's Journal, the First Page"
+author = "Tôma, keeper of the shrine"
+place = "Kagari, the summer Hana drowned"
+lines = PackedStringArray("Hana went into the water at dusk, among the paper boats. I was sweeping the shrine; I heard nothing.", "I have taken in the child who sleeps at the door. He holds the broom badly and never cries.", "I will teach him everything. Then at least I will have taught someone.")
+look = ExtResource("2_look")
+conditions = Array[ExtResource("3_progresscond")]([ExtResource("4_keepernamed")])

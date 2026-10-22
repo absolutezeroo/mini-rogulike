@@ -3,6 +3,7 @@ extends Resource
 ## What a warden says as it wakes, when the hero carries some memory of it (a fragment found, a
 ## deed done): its own words, shown in quotes « ... » before the chapter. The last open one of
 ## a chronicle is the one it says; told once in full, then it is what the short version recalls.
+## Its last words as it falls are lines too (BossChronicleDef.last_words), said on its banner.
 
 ## Unique in its chronicle (saved as told: never rename).
 @export var id: StringName

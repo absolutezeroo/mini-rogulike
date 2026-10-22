@@ -61,10 +61,12 @@ var secrets_found := 0
 ## multiplier.
 var bonus_souls := 0
 ## What the run did that a warden's deed may ask about (MarkDeed): "bought", "secret",
-## "hidden_floor", "oath", "cursed", "encounter:<id>" -> true. Set by RunRecords; saved.
+## "hidden_floor", "oath", "cursed", "encounter:<id>", "bitten" (the Maw's jaw closed on the
+## hero) -> true. Set by RunRecords (Events.run_marked for a monster's own); saved.
 var marks := {}
-## The boss floors whose warden was already met this run ("3", "6h" on the hidden floor): a run
-## picked up again on that floor never tells its story twice. Saved.
+## The boss floors whose warden was already met this run ("3", "6h" on the hidden floor, "12f"
+## and "12f/the_maw" at the bottom of the Well): a run picked up again on that floor never tells
+## its story twice. Saved.
 var met_floors: Array[String] = []
 ## The dungeon's rules (what a run's souls are worth). Set by create(); not saved.
 var config: DungeonConfig
@@ -239,19 +241,24 @@ func mark(name: String) -> void:
 	marks[name] = true
 
 
-## This floor, as met_floors keeps it.
+## This floor, as met_floors keeps it ("12f": the bottom of the Well, at the depth before it).
 func floor_key() -> String:
-	return "%d%s" % [depth, "h" if hidden_floor else ""]
+	return "%d%s%s" % [depth, "h" if hidden_floor else "", "f" if finale else ""]
 
 
-## The warden of this floor was met already this run (its story is not told again).
-func has_met_here() -> bool:
-	return met_floors.has(floor_key())
+## The warden of this floor was met already this run (its story is not told again). `form`: a
+## form risen there from a fallen one (BossDef.next_boss), kept apart ("12f/the_maw").
+func has_met_here(form: StringName = &"") -> bool:
+	return met_floors.has(_meeting_key(form))
 
 
-func meet_here() -> void:
-	if not has_met_here():
-		met_floors.append(floor_key())
+func meet_here(form: StringName = &"") -> void:
+	if not has_met_here(form):
+		met_floors.append(_meeting_key(form))
+
+
+func _meeting_key(form: StringName) -> String:
+	return floor_key() if form == &"" else "%s/%s" % [floor_key(), form]
 
 
 ## The seed of the ways down offered toward floor `floor_depth` (the same all day in a daily run).

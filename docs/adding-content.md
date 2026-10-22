@@ -84,13 +84,14 @@ what is true in it is [lore.md](lore.md) (write with the `lore` skill). The piec
 
 | Piece | Class (`src/definitions/story/`) | Data | What it is |
 |---|---|---|---|
-| A warden's story | `BossChronicleDef` | `data/story/chronicles/<boss id>.tres`, set on the `BossDef` > Chronicle | its chapters, its waking lines, its fragments |
+| A warden's story | `BossChronicleDef` | `data/story/chronicles/<boss id>.tres`, set on the `BossDef` > Chronicle | its chapters, its waking lines, its last words, its fragments |
 | A chapter | `ChronicleChapter` (sub-resource) | in the chronicle | `id` (saved, never rename), `title`, 2-4 `lines`, `slain` (times the warden was slain), `conditions` |
 | Its waking words | `WakingLine` (sub-resource) | in the chronicle | one line the warden says in quotes as it wakes, once its `conditions` are met (the last open one is said) |
+| Its last words | `WakingLine` (sub-resource) | in the chronicle's Last Words | one line it says as it falls, on its banner (the last open one; most wardens have none: Tôma and the Maw do) |
 | A fragment | `FragmentDef` | `data/story/fragments/<id>.tres`, listed in the chronicle's Fragments | `id` (saved), `title`, `author`, `place`, 2-5 `lines`, a `look`, `conditions` before it may lie on a floor |
 | A fragment's look | `FragmentLookDef` | `data/story/fragment_looks/` | its 16x16 picture (`assets/items/fragments/`), the element of its glow, the word on the Interact button |
-| A condition | `ProgressCondition` and its subclasses (`conditions/`) | a sub-resource, or shared in `data/story/conditions/` | `SlainCondition`, `MetCondition`, `StatCondition` (a profile counter: deepest floor, runs won...), `FragmentsCondition`, `AllCondition`; deeds (`deeds/`) |
-| A deed | `DeedCondition` subclasses (`deeds/`) | a sub-resource of the chronicle | something precise done as the warden fell: `ChallengeDeed` (a `HuntChallenge` way of killing: a weapon, untouched, fast, without a potion...), `ElementDeed`, `MarkDeed` (the run bought nothing, drank at the spring, swore an oath...), `PurseDeed`, `HardshipDeed`, `UnhealedDeed`; its `hint` (a riddle) and `rule` (plain), and the fragment that gives the rule away |
+| A condition | `ProgressCondition` and its subclasses (`conditions/`) | a sub-resource, or shared in `data/story/conditions/` | `SlainCondition`, `MetCondition`, `StatCondition` (a profile counter: deepest floor, runs won...), `FragmentsCondition`, `AllCondition`, `AnyCondition` (one of several ways: the reveal); deeds (`deeds/`) |
+| A deed | `DeedCondition` subclasses (`deeds/`) | a sub-resource of the chronicle | something precise done as the warden fell: `ChallengeDeed` (a `HuntChallenge` way of killing: a weapon, untouched, fast, without a potion...), `ElementDeed`, `MarkDeed` (the run bought nothing, drank at the spring, swore an oath...), `PurseDeed`, `HardshipDeed`, `UnhealedDeed`, `StandingDeed` (not a single roll in the fight); its `hint` (a riddle) and `rule` (plain), and the fragment that gives the rule away |
 | A cinematic | `CinematicDef` (`cinematic/`) | `data/story/cinematics/` | its steps and the tuning they share (bars' height, letters a second, reading time, skip rules) |
 | A cinematic step | `CinematicStep` subclasses (`cinematic/steps/`) | sub-resources of a cinematic | `LetterboxStep`, `CameraStep`, `AnimationStep`, `NameStep`, `NarrateStep` (a chapter, the warden's words, or the line it remembers), `ClearTextStep`, `WaitStep` |
 | The whole | `NarrativeDef` | `data/story/narrative.tres` (`content_db.tres` > Narrative) | the full and short cinematics, the fragments' chance and when they start, the reveal gate (`keeper_reveal`) and its words |
@@ -117,12 +118,16 @@ Copy a chronicle of `data/story/chronicles/`, then:
 4. Two or three fragments in `data/story/fragments/` (a real author, a place, 2-5 lines ending on
    an image), one of them giving the deed's rule away (`revealed_by`); a page of Tôma's journal
    waits for `keeper_named`. A hidden warden's fragments wait for a `MetCondition`. They lie on the
-   floors of its act (or of the acts that hide its way, for the hidden floor's warden).
+   floors of its act (or of the acts that hide its way, for the hidden floor's warden; of the last
+   act for the bottom of the Well's forms, once it is open).
 5. Set the chronicle on the `BossDef` (> Chronicle). Beware loops of resources: a condition inside
-   a warden's own chronicle names that warden by `monster_id`, not by its `BossDef`.
-6. `python3 tools/i18n/extract.py`, the French (the `translate` skill: « », a narrow no-break space
-   before `: ; ! ?` and inside the quotes), `--check`. The unit suite checks every warden of the
-   acts has a chronicle with 4 chapters or more, every line is translated and fits, and the reveal.
+   a warden's own chronicle names that warden by `monster_id`, not by its `BossDef` (`SlainCondition`
+   and `MetCondition` take one). What a boss says when it falls goes in its Last Words, never in the
+   `BossDef`: a boss of several forms gets a chronicle for each, the risen one is met in its turn.
+6. `python3 tools/i18n/extract.py`, the French (the `translate` skill: « », a plain space before
+   `: ; ! ?` and inside the quotes), `--check`. The unit suite checks every warden of the acts, the
+   hidden floor and the bottom of the Well has a chronicle with 4 chapters or more, every line is
+   translated and fits, and the reveal.
 7. Add what is new about it to docs/lore.md (section 5b).
 
 **A new kind of condition**: a script in `src/definitions/story/conditions/` extending

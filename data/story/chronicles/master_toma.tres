@@ -1,0 +1,117 @@
+[gd_resource type="Resource" script_class="BossChronicleDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/boss_chronicle_def.gd" id="1_bosschronicl"]
+[ext_resource type="Script" path="res://src/definitions/story/deeds/standing_deed.gd" id="2_standingdeed"]
+[ext_resource type="Resource" path="res://data/story/fragments/master_toma_lessons.tres" id="3_mastertomale"]
+[ext_resource type="Script" path="res://src/definitions/story/chronicle_chapter.gd" id="4_chroniclecha"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="5_keepernamed"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="6_progresscond"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/fragments_condition.gd" id="7_fragmentscon"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/met_condition.gd" id="8_metcondition"]
+[ext_resource type="Script" path="res://src/definitions/story/waking_line.gd" id="9_wakingline"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/slain_condition.gd" id="10_slainconditi"]
+[ext_resource type="Resource" path="res://data/story/fragments/master_toma_journal.tres" id="11_mastertomajo"]
+[ext_resource type="Resource" path="res://data/story/fragments/master_toma_letter.tres" id="12_mastertomale"]
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="13_fragmentdef"]
+
+[sub_resource type="Resource" id="Resource_1"]
+script = ExtResource("2_standingdeed")
+id = &"stood_your_guard"
+max_rolls = 0
+hint = "He taught you every way to step aside. He waits to see you stand."
+rule = "Slay him without rolling once."
+revealed_by = ExtResource("3_mastertomale")
+
+[sub_resource type="Resource" id="Resource_2"]
+script = ExtResource("4_chroniclecha")
+id = &"the_kneeling_man"
+title = "The Kneeling Man"
+lines = PackedStringArray("At the bottom of the Well a man kneels in the dark, his back to you, before a pool of tar.", "He wears the shrine's robe. He rises the way he taught you: without haste.")
+slain = 0
+
+[sub_resource type="Resource" id="Resource_3"]
+script = ExtResource("4_chroniclecha")
+id = &"your_master"
+title = "Your Master"
+lines = PackedStringArray("Tôma, keeper of Kagari's shrine. He found you at its door, an orphan, and gave you a broom, then a blade.", "He taught you the dash, the long cut and the lantern. He knows the answer to every one of your strokes.")
+slain = 0
+conditions = Array[ExtResource("6_progresscond")]([ExtResource("5_keepernamed")])
+
+[sub_resource type="Resource" id="Resource_4"]
+script = ExtResource("4_chroniclecha")
+id = &"hana"
+title = "Hana"
+lines = PackedStringArray("His daughter Hana drowned in the spring under the village. He searched the water for three nights, lantern in hand.", "Then he took you in. You never knew whether it was to fill the house or to forget it.")
+slain = 1
+conditions = Array[ExtResource("6_progresscond")]([ExtResource("5_keepernamed")])
+
+[sub_resource type="Resource" id="Resource_5"]
+script = ExtResource("7_fragmentscon")
+count = 1
+
+[sub_resource type="Resource" id="Resource_6"]
+script = ExtResource("4_chroniclecha")
+id = &"the_promise"
+title = "The Promise"
+lines = PackedStringArray("In Solhar's drowned archives he found a promise: what the Maw takes, it gives back, if it is fed.", "He put out every flame of Kagari but one. That one he left in your hand: he could not give you too.")
+slain = 2
+conditions = Array[ExtResource("6_progresscond")]([ExtResource("5_keepernamed"), SubResource("Resource_5")])
+
+[sub_resource type="Resource" id="Resource_7"]
+script = ExtResource("4_chroniclecha")
+id = &"what_he_will_not_hear"
+title = "What He Will Not Hear"
+lines = PackedStringArray("He knows, deep down, that what waits with him is not Hana. The voice in the tar has no throat.", "So he kneels lower, and keeps the last rule he has left: to wait without moving.")
+slain = 3
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_1")])
+
+[sub_resource type="Resource" id="Resource_8"]
+script = ExtResource("8_metcondition")
+
+[sub_resource type="Resource" id="Resource_9"]
+script = ExtResource("9_wakingline")
+id = &"you_came"
+line = "You came, my pupil."
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_8")])
+
+[sub_resource type="Resource" id="Resource_10"]
+script = ExtResource("10_slainconditi")
+count = 1
+
+[sub_resource type="Resource" id="Resource_11"]
+script = ExtResource("9_wakingline")
+id = &"show_me_the_cut"
+line = "Again, then. Show me the cut that beat me."
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_10")])
+
+[sub_resource type="Resource" id="Resource_12"]
+script = ExtResource("7_fragmentscon")
+count = 2
+
+[sub_resource type="Resource" id="Resource_13"]
+script = ExtResource("9_wakingline")
+id = &"almost_here"
+line = "She is almost here, my pupil. Do not make me choose."
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_12")])
+
+[sub_resource type="Resource" id="Resource_14"]
+script = ExtResource("8_metcondition")
+
+[sub_resource type="Resource" id="Resource_15"]
+script = ExtResource("9_wakingline")
+id = &"your_guard_is_true"
+line = "Your guard is true, my pupil."
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_14")])
+
+[sub_resource type="Resource" id="Resource_16"]
+script = ExtResource("9_wakingline")
+id = &"you_stood"
+line = "You stood. That much, at least, I taught you."
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_1")])
+
+[resource]
+script = ExtResource("1_bosschronicl")
+chapters = Array[ExtResource("4_chroniclecha")]([SubResource("Resource_2"), SubResource("Resource_3"), SubResource("Resource_4"), SubResource("Resource_6"), SubResource("Resource_7")])
+waking_lines = Array[ExtResource("9_wakingline")]([SubResource("Resource_9"), SubResource("Resource_11"), SubResource("Resource_13")])
+last_words = Array[ExtResource("9_wakingline")]([SubResource("Resource_15"), SubResource("Resource_16")])
+fragments = Array[ExtResource("13_fragmentdef")]([ExtResource("11_mastertomajo"), ExtResource("3_mastertomale"), ExtResource("12_mastertomale")])

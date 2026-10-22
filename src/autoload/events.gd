@@ -73,6 +73,9 @@ signal deed_done(boss: BossDef, deed: DeedCondition)
 signal item_bought(item: ItemDef)
 ## An encounter was used (a choice made at a spring, an altar...).
 signal encounter_used(encounter: Encounter)
+## Something a warden's deed may ask about happened, told by whatever saw it (a monster's trait:
+## "bitten", the Maw's jaw closed on the hero): kept in RunState.marks (MarkDeed).
+signal run_marked(mark: String)
 
 
 func log_message(text: String, color: Color = Color.WHITE) -> void:

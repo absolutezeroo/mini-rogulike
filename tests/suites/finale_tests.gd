@@ -159,6 +159,7 @@ func _test_finale(game: Game) -> void:
 		player._invulnerable_time = 0.0
 		await _frames(1)
 	check(player.hp < hp_before, "too close to the open mouth: it bites")
+	check(game.run.marks.has("bitten"), "the run remembers it was bitten (the Maw's deed asks for a run never bitten)")
 	player.invincible = true
 	player.hp = player.get_max_hp()
 	player.global_position = mouth + Vector2(0, 260)
@@ -173,6 +174,7 @@ func _test_finale(game: Game) -> void:
 	maw.take_hit(finish)
 	await _frames(3)
 	check(maw.is_dead and game.has_won and game.run.finish_time > 0.0, "the Maw's fall wins the run")
+	check(not Narrative.is_deed_done(maw.def as BossDef, (maw.def as BossDef).chronicle.deeds()[0]), "bitten this run: not its deed")
 	check(Profile.total_wins() == wins_before + 1 and game.run.splits.size() == total + 1, "the win counts at once, the bottom with its own split")
 	check(game.run.ending_due, "an ending is due")
 	game._save_run()
@@ -207,6 +209,127 @@ func _test_finale(game: Game) -> void:
 	_close_offers(game)
 	check(not get_tree().paused and not game.run.finale and game.depth == total + 1, "keep going: endless mode, past the bottom")
 	Profile.reset()
+
+
+## The story at the bottom (Boss stories on, as players have them): Tôma's meeting plays with
+## his waking and names him (the reveal), the Maw is met once risen, each says its last words,
+## their deeds, their meeting keys apart from the last act's arena at the same depth, and their
+## past on the last act's floors.
+func _test_finale_story(game: Game) -> void:
+	var finale := CONTENT.dungeon.finale
+	var narrative := CONTENT.narrative
+	var stories := Settings.boss_stories
+	Profile.reset()
+	Profile.wins = { "easy": 1 }
+	Settings.boss_stories = Settings.STORIES_FULL
+	game.start_run()
+	await _frames(3)
+	var toma_def := finale.boss
+	var maw_def := toma_def.next_boss
+	var total := CONTENT.dungeon.total_floors()
+	check(not narrative.keeper_reveal.is_met(), "a won profile that never slew the Effigy: the keeper is not named yet")
+	var ahead := FragmentPlacer.wardens_ahead(game.world, CONTENT.dungeon, total - 1)
+	check(ahead.has(toma_def) and ahead.has(maw_def), "the last act's floors may hold Tôma's and the Maw's past (the bottom open)")
+	check(not FragmentPlacer.wardens_ahead(game.world, CONTENT.dungeon, 1).has(toma_def), "not the first act's")
+	check(Narrative.fragments_to_place(toma_def).is_empty(), "his journal waits for the reveal")
+	var said := PackedStringArray()
+	var listen := func(text: String, _color: Color) -> void: said.append(text)
+	Events.message_logged.connect(listen)
+
+	# The last act's arena is met at depth 12; the bottom, at the same depth, has its own key.
+	game.run.met_floors.clear()
+	game.depth = total
+	game.run.finale = false
+	game.run.meet_here()
+	game.run.finale = true
+	check(not game.run.has_met_here() and game.run.floor_key() == "%df" % total, "the bottom's meeting is kept apart from the last act's arena")
+	game._enter_floor()
+	await _frames(3)
+	var arena := game.world.arena
+	var toma := arena.boss
+	var meeting := game.meeting
+	var view := meeting.view
+	game.player.invincible = true
+	game.player.global_position = game.world.map.cell_to_world(game.world.map.boss_room.get_center() + Vector2i(0, 6))
+	await _frames(3)
+	check(meeting.is_playing() and toma.dormant and meeting.director.subject == toma, "walking in: Tôma's story plays first, over the frozen world")
+	var woke := false
+	var spoke := false
+	for i in 600:
+		woke = woke or (meeting.director.played_animation and toma.rig.body.animation == &"intro")
+		spoke = spoke or view.speech_text() == "\"%s\"" % toma_def.chronicle.waking_lines[0].line
+		if view.heading_text() == toma_def.chronicle.chapters[0].title:
+			break
+		await _frames(1)
+	check(woke, "his waking (intro) plays in the scene")
+	check(view.name_text() == toma_def.display_name and spoke, "his name, and his first words: \"%s\"" % toma_def.chronicle.waking_lines[0].line)
+	check(view.heading_text() == toma_def.chronicle.chapters[0].title, "then the first chapter of his story")
+	await _end_scene(meeting)
+	check(not meeting.is_playing() and not toma.dormant and not get_tree().paused, "then he fights")
+	check(narrative.keeper_reveal.is_met(), "met at the bottom of the Well, the keeper may be named")
+	check(Narrative.next_chapter(toma_def) == toma_def.chronicle.chapter_by_id(&"your_master"), "his next meeting tells who he is, by his name")
+
+	# He falls to a hero who never rolled: his deed, his last words; the Maw rises, and is met.
+	var finish := HitInfo.new()
+	finish.amount = 999999
+	finish.source = game.player
+	toma.take_hit(finish)
+	await _frames(3)
+	var stood: DeedCondition = toma_def.chronicle.deeds()[0]
+	check(Narrative.is_deed_done(toma_def, stood), "slain without a single roll: his deed is done")
+	var maw_met := false
+	for i in int((toma_def.rise_time + 2.0) * 60.0):
+		_close_offers(game)
+		if meeting.is_playing() and meeting.director.subject == arena.boss and arena.boss != toma:
+			maw_met = true
+			break
+		await _frames(1)
+	var last_words := "\"%s\"" % Narrative.last_words(toma_def).line
+	check(said.has(last_words), "his last words, on his banner and in the log: %s" % last_words)
+	var maw := arena.boss
+	check(maw_met and maw.def == maw_def and arena.is_rising and maw.dormant, "risen, the Maw is met in its turn (a scene of its own)")
+	check(maw.rig.modulate.a > 0.9, "after its rise, which the scene doesn't cut short")
+	for i in 300:
+		if view.name_text() == maw_def.display_name:
+			break
+		await _frames(1)
+	check(view.name_text() == maw_def.display_name, "its name in the scene")
+	await _end_scene(meeting)
+	check(not meeting.is_playing() and not maw.dormant and not arena.is_rising and maw.target == game.player, "then it fights")
+	check(game.run.has_met_here(maw_def.id) and game.run.met_floors.has("%df/%s" % [total, maw_def.id]), "its meeting is kept, apart from Tôma's")
+
+	# Struck while open, never bitten: its deed; its last words.
+	var jaw := maw.def.traits[0] as WeakPointTrait
+	jaw.open_now(maw)
+	await _wait(game, jaw.opening_time + 0.1)
+	said.clear()
+	maw.take_hit(finish)
+	await _wait(game, Game.LAST_WORDS_DELAY + 0.3)
+	var never: DeedCondition = maw_def.chronicle.deeds()[0]
+	check(not game.run.marks.has("bitten") and Narrative.is_deed_done(maw_def, never), "never bitten: the Maw's deed is done")
+	check(said.has("\"%s\"" % Narrative.last_words(maw_def).line), "its last words: the sun sets")
+	await _wait(game, Game.ENDING_DELAY)
+	check(game.menus.ending.visible, "then the choice of an ending, as without the story")
+	if game.menus.ending.visible:
+		game.menus.ending.choose(0)
+		await _frames(3)
+	(game.game_over_panel.get_node("%ContinueButton") as Button).pressed.emit()
+	await _frames(3)
+	_close_offers(game)
+	Events.message_logged.disconnect(listen)
+	Settings.boss_stories = stories
+	Profile.reset()
+
+
+## Hurries the scene, then ends it (two taps), and waits for it to be over.
+func _end_scene(meeting: BossMeeting) -> void:
+	for tap in 2:
+		meeting.director.tap()
+		await _frames(3)
+	for i in 120:
+		if not meeting.is_playing():
+			return
+		await _frames(1)
 
 
 ## Puts the hero in the last act's arena (a fresh floor) and slays its boss. True once it fell.

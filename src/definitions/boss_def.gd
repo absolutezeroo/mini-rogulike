@@ -43,12 +43,6 @@ extends MonsterDef
 ## Neither moves nor strikes while its intro plays (its waking is a moment of its own).
 @export var waits_intro: bool = false
 
-@export_group("Words")
-## Spoken when it wakes (under its name's banner), and when it falls. Empty: silent. Wardens
-## and keepers speak in docs/lore.md's voice; the Maw never says "I".
-@export var waking_line: String
-@export var dying_line: String
-
 @export_group("Two forms")
 ## Where it waits in its arena: (0.5, 0.5) is the middle, (0.5, 0) the top wall's middle.
 @export var arena_anchor: Vector2 = Vector2(0.5, 0.5)

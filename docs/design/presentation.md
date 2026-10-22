@@ -254,8 +254,10 @@ bursting and dissolving; when the next form rises, the screen darkens a moment (
 55%), the ground shakes, the new form comes up out of the floor fading in, and the fallen body is
 drawn into it. A boss too big for the view (`BossDef.camera_lean`: the Maw, 256 pixels tall)
 makes the camera lean toward its middle (`GameCamera.lean_toward()`, at most 170 pixels, easing
-in and out) so it and the hero both stay on a phone's screen. A boss's words (`waking_line`,
-`dying_line`) come as the big banner and in the log, a moment after its name.
+in and out) so it and the hero both stay on a phone's screen (a cinematic stops the lean and
+frames its subject itself; the fight leans again after). Once risen, the new form is met like any
+warden (its cinematic, below), then fights. What the forms say is their chronicle's, as for every
+warden (Boss stories, below).
 
 **Weapons**: each `WeaponDef` has `attack_frames` (a SpriteFrames with `attack_down/up/left/right`).
 The sheets in `assets/weapons/attack/` are 64x64 cells, one column per direction, one row per frame,
@@ -315,7 +317,16 @@ one are in [adding-content.md](../adding-content.md#the-story-chronicles-fragmen
   gamepad button) writes everything out at once; the next one ends it, the camera back and the bars
   out in a moment (taps in its first third of a second are ignored: a thumb leaving the joystick).
   Never twice on the same floor of a run: a run picked up again mid-fight starts the fight at once
-  (`RunState.met_floors`, saved).
+  (`RunState.met_floors`, saved; the bottom of the Well has its own key though it keeps the last
+  act's depth, and a form risen from a fallen one its own: "12f", "12f/the_maw").
+- **Bosses of several forms** (the bottom of the Well): the first form's meeting plays when the
+  hero walks in, with its waking (Tôma draws his blade in the scene); a form rising from the fallen
+  one (`BossDef.next_boss`) is met once its rise is over, the same cinematic (the Maw has no waking
+  animation: the bars, the camera on it, its name, its words or a chapter), then it fights.
+- **Last words** (`BossChronicleDef.last_words`, `WakingLine`s like its waking words): the last
+  open one is said as the warden falls, in quotes on its banner and in the log, a moment after its
+  fall (a deed done by that very fall counts: Tôma, slain by a hero who never rolled, "You stood.
+  That much, at least, I taught you."). With Boss stories off, nothing (as its waking words).
 - **Option**: Boss stories, Full / Short / Off (Settings, Story section): Off is the banner as
   before; the codex keeps every chapter whatever the option.
 - **What opens a chapter** (`ChronicleChapter`): the warden's deaths (0, 1, 2, 4 and 6 in ours, its
@@ -323,12 +334,15 @@ one are in [adding-content.md](../adding-content.md#the-story-chronicles-fragmen
   won, the Nameless Effigy slain), its **fragments** found, and a **deed**: something precise done
   as it fell, chosen to mean something for it (the Ember Ronin slain with a Katana, the Gilded
   Hoarder by a run that bought nothing, the Azure Wyrm finished by fire, the Mother of Tears
-  without a single wound, the Jade Wyrm on Martyr...: `DeedCondition`). The keeper is never named
-  before the Effigy is slain and a run is won (`data/story/conditions/keeper_named.tres`); after,
-  each warden names him as it wakes, and his journal's pages may be found.
+  without a single wound, the Jade Wyrm on Martyr, Tôma slain without a roll, the Maw by a run it
+  never bit...: `DeedCondition`). The keeper is never named before the Effigy is slain and a run
+  is won, or before the hero meets him at the bottom of the Well (`data/story/conditions/
+  keeper_named.tres`, an `AnyCondition`); after, each warden names him as it wakes, and his
+  journal's pages may be found.
 - **Fragments** (`FragmentDef`): pages, bone tablets, sealed letters, the keeper's journal, lying on
   the floors of an act before its warden (the one drawn for this run; the hidden floor's on Act
-  II's floors once it was met): at most one a floor, a 35% chance, not during the first run, never
+  II's floors once it was met; Tôma's and the Maw's on the last act's once the bottom is open,
+  Tôma's after the reveal, the Maw's once it was met): at most one a floor, a 35% chance, not during the first run, never
   one already found while that warden has others to find (`FragmentPlacer`, its own random numbers,
   on free ground). On the floor: its 16x16 picture drawn at 2x, bobbing a pixel, in a breathing glow
   of two steps of its element's ramp (spirit for Kagari's papers, frost for the bone tablets,

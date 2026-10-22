@@ -7,8 +7,8 @@ extends Node2D
 ## phases (ArenaShiftDef): the cells blink red, then crumble, open into pits or grow spikes.
 ## A boss with a next form (BossDef.next_boss) doesn't end the fight when it falls: the arena
 ## darkens and shakes, the next form rises where it waits (BossDef.arena_anchor) and takes the
-## fallen body, and the fight goes on with it (Events.boss_rising, then boss_started). Only the
-## last form's death opens the arena.
+## fallen body, the storyteller meets it (its name, a line), and the fight goes on with it
+## (Events.boss_rising, then boss_started). Only the last form's death opens the arena.
 
 ## How far from the hero and the boss a change keeps clear (cells).
 const KEEP_CLEAR := 1
@@ -222,9 +222,15 @@ func _rise(fallen: Monster, def: BossDef) -> void:
 	if not await _still_here(floor_id):
 		return
 	boss = risen
+	# Risen, it is met: the storyteller may tell its story now (a cinematic: its name, a line).
+	var woke_on_screen := false
+	if _world.storyteller and _world.player and not _world.player.is_dead:
+		woke_on_screen = await _world.storyteller.meet(risen, true)
+		if not is_instance_valid(risen) or risen.is_dead or not is_instance_valid(_world) or _world.player == null:
+			return
 	is_rising = false
 	if _world.player and not _world.player.is_dead:
-		risen.wake_up(_world.player)
+		risen.wake_up(_world.player, not woke_on_screen)
 	Events.boss_started.emit(risen)
 
 

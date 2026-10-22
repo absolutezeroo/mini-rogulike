@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/keeper_journal.tres" id="2_look"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="3_progresscond"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="4_keepernamed"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"the_maw_journal"
+title = "Tôma's Journal, a Page Stuck with Tar"
+author = "Tôma, keeper of the shrine"
+place = "The bottom of the Well"
+lines = PackedStringArray("It rose out of the tar, golden, and I knelt as the priests of Solhar knelt.", "It speaks with her voice. It says papa as she did, only a little too slowly.", "I will wait here until it keeps its word. It has all the time in the world; so have I.")
+look = ExtResource("2_look")
+conditions = Array[ExtResource("3_progresscond")]([ExtResource("4_keepernamed")])

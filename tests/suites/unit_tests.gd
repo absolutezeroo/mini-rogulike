@@ -479,7 +479,8 @@ func _test_finale() -> void:
 	check(not config.acts.any(func(act: ActDef) -> bool: return act.all_bosses().has(forms[0]) or act.all_bosses().has(forms[1]) or act.biomes.has(finale.biome)), "they and the bottom's world belong to no act")
 	for form in forms:
 		check(form.portrait != null and form.frames != null and form.frames.has_animation(&"idle") and form.frames.has_animation(&"dead") and form.frames.has_animation(&"attack"), "%s has a portrait and its animations" % form.id)
-		check(form.body_stays and form.phases.size() == 2 and not form.title.is_empty() and not form.waking_line.is_empty() and not form.dying_line.is_empty(), "%s keeps its body, has two phases, a title and its words" % form.id)
+		check(form.body_stays and form.phases.size() == 2 and not form.title.is_empty(), "%s keeps its body, has two phases and a title" % form.id)
+		check(form.chronicle != null and not form.chronicle.waking_lines.is_empty() and not form.chronicle.last_words.is_empty(), "%s has its story, its waking and its last words (its chronicle)" % form.id)
 		check(form.phases[1].windup_multiplier < form.phases[0].windup_multiplier and form.phases[1].cooldown_multiplier < form.phases[0].cooldown_multiplier, "%s: its last phase is faster" % form.id)
 	var toma := forms[0]
 	check(toma.frames.has_animation(&"intro") and toma.frames.has_animation(&"cast") and toma.frames.has_animation(&"windup"), "Tôma wakes (intro), raises his lantern (cast), draws his blade (windup)")

@@ -132,9 +132,11 @@ One arena, two forms (`BossDef.next_boss`): `data/monsters/bosses/master_toma.tr
 64x64 cells; `the_maw/`, 128x136: the 128x128 frames padded 4 pixels top and bottom).
 
 **Maître Tôma, le Gardien Parjure / Master Tôma, the Oathbreaker.** Kneels below the arena's
-middle (`arena_anchor` 0.5, 0.62); walking in, he opens his eyes and draws (intro): « Tu es venu,
-mon élève. » / "You came, my pupil." (his `waking_line`, a banner after his name). He waits
-his waking out (`waits_intro`: 1.3 s, no step, no blow) before the duel starts. A duelist with
+middle (`arena_anchor` 0.5, 0.62); walking in, his meeting plays (presentation.md, "Boss
+stories"): he opens his eyes and draws (intro) in the scene, « Tu es venu, mon élève. » / "You
+came, my pupil." (his chronicle's first waking words), then a chapter of his story. With Boss
+stories off he wakes on screen and waits his waking out (`waits_intro`: 1.3 s, no step, no blow)
+before the duel starts. A duelist with
 the hero's techniques, every one telegraphed:
 
 | Skill | What | Warning |
@@ -147,16 +149,17 @@ His katana (Keeper's Katana: 13, reach 52, a 150° arc) between them, its own wi
 At two thirds "HE TAKES THE HIGH GUARD" (the wide cut joins); at one third "THE LANTERN BURNS
 VIOLET" (the fierce step, cutting twice; three flames in a row). 1300 base Health, 5 Armor, speed
 95; shockwave after 8 / 7 / 5 hits as for the others. **No relic** (`relic_choices` 0).
-When he falls, his body stays, kneeling (`body_stays`): « Ta garde est juste, mon élève. » /
-"Your guard is true, my pupil." Then the arena darkens and shakes (`rise_time` 2.6 s: nothing to
+When he falls, his body stays, kneeling (`body_stays`), and he says his last words (his
+chronicle's): « Ta garde est juste, mon élève. » / "Your guard is true, my pupil." Then the arena darkens and shakes (`rise_time` 2.6 s: nothing to
 do but watch), **the Maw** rises out of a pool of tar at the top of the arena (`arena_anchor`
-0.5, 0.24), his body is drawn into its mouth, and the boss bar passes to it with its name's
-banner. The arena stays shut, no stairs, no relic between the two.
+0.5, 0.24), his body is drawn into its mouth, the Maw is met (its own cinematic, its name, a
+chapter or Hana's voice), and the boss bar passes to it. The arena stays shut, no stairs, no relic between the two.
 
 **La Gueule, la Faim du Puits / The Maw, the Well's Hunger.** Rooted, never pushed, lit from
 within (the false sun: drawn over the floor's light with a holy halo behind its mask, and its own
 golden light on the floor, brighter while open: `lit_from_within`, `halo_element`, `glow_level`); the view leans toward it (`camera_lean` 0.45) so it and the hero both
-stay on a phone's screen. Hana's voice wakes with it: « Papa... reste. » / "Papa... stay."
+stay on a phone's screen. Hana's voice wakes with it (its waking words): « Papa... reste. » /
+"Papa... stay."
 Its jaw is a **WeakPointTrait**: closed 6.5 s (5 s from 60%, 3.8 s from 30%), open 3.6 s (3.2 s
 at the end). Open, Tôma is seen standing in its mouth: every hit lands; it draws the hero in (55
 a second, he runs 170) and bites him within 72 of its mouth (0.55 s warning, x1.5 its power,
@@ -172,11 +175,14 @@ the bite is the price of standing in its mouth. Closed, its skills:
 
 "THE FALSE SUN RISES" at 60%, "THE HUNGER WAKES" at 30%. 1300 base Health, 3 Armor. Its death:
 the golden mask cracks and crumbles (its dead animation), "The sun sets." / « Le soleil se
-couche. », and only Tôma is left, standing, set down on the ground. The run is won, and the hero
+couche. » (its last words), and only Tôma is left, standing, set down on the ground. The run is won, and the hero
 chooses an ending (progression.md, "The two endings"). Then its relic, if he keeps going.
 
 Both are in the bestiary after the hidden floor's boss, "???" (their floor's heading too) until
-met. Numbers: docs/balance-log.md.
+met, each with its chronicle (`data/story/chronicles/master_toma.tres`, `the_maw.tres`: docs/lore.md
+5b): their deeds are Tôma slain without a single roll (`StandingDeed`) and the Maw slain by a run
+it never bit (`MarkDeed` "bitten": a bite that hurts the hero marks the run, `WeakPointTrait.
+bite_mark`). Numbers: docs/balance-log.md.
 
 ## Dragons
 

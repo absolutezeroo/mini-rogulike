@@ -15,8 +15,8 @@ const RELIC_DELAY := 1.6
 ## Pause between the last form's death at the bottom of the Well and the choice of an ending
 ## (its death plays out: the mask crumbles, its keeper is set down).
 const ENDING_DELAY := 2.8
-## Seconds a boss' words wait behind its name's banner.
-const WORDS_DELAY := 1.8
+## Seconds a warden's last words wait after its fall (its death starts to play).
+const LAST_WORDS_DELAY := 0.4
 ## Seconds of fade to black when taking the stairs.
 const FADE_TIME := 0.3
 
@@ -188,9 +188,8 @@ func _connect_events() -> void:
 	Events.boss_defeated.connect(_on_boss_defeated)
 	Events.boss_rising.connect(_on_boss_rising)
 	Events.monster_killed.connect(func(monster: Monster) -> void:
-		var def := monster.def as BossDef
-		if def and not def.dying_line.is_empty() and monster.world == world:
-			_say(def.dying_line, def.color, 0.4))
+		if monster.world == world and monster.def is BossDef:
+			_say_last_words(monster.def as BossDef))
 	menus.ending.chosen.connect(_on_ending_chosen)
 	Events.ambush_started.connect(func(_room: AmbushRoom) -> void:
 		hud.show_banner(tr("Ambush!"), Palette.DANGER)
@@ -746,8 +745,6 @@ func _on_boss_started(boss: Monster) -> void:
 		hud.show_banner(tr(boss.display_name), Palette.DANGER)  # (a cinematic already named it)
 	if def and not def.title.is_empty():
 		Events.log_message("%s, %s" % [tr(boss.display_name), tr(def.title)], Palette.DANGER)
-	if def and not def.waking_line.is_empty():
-		_say(def.waking_line, def.color, WORDS_DELAY)
 	if def and player:
 		player.camera.lean_toward(boss, def.camera_lean, boss.head_height * 0.45)
 	var music := def.music if def and def.music else Sfx.bank.boss_music
@@ -755,15 +752,21 @@ func _on_boss_started(boss: Monster) -> void:
 		Sfx.play_music(music)
 
 
-## A boss' words (BossDef.waking_line, dying_line): its banner after `delay`, and the log.
-func _say(line: String, color: Color, delay: float) -> void:
+## A warden's last words (BossMeeting.last_words()), a moment after its fall (a deed just done
+## by that fall counts): in quotes on its banner, and in the log.
+func _say_last_words(def: BossDef) -> void:
 	var speaker := player
 	var floor_id := world.floor_id
-	await get_tree().create_timer(delay, false).timeout
+	await get_tree().create_timer(LAST_WORDS_DELAY, false).timeout
 	if player != speaker or world.floor_id != floor_id:
 		return
-	hud.show_banner(tr(line), color.lightened(0.25))
-	Events.log_message(tr(line), color.lightened(0.25))
+	var line := meeting.last_words(def)
+	if line.is_empty():
+		return
+	var color := def.color
+	var words := tr("\"%s\"") % tr(line)
+	hud.show_banner(words, color.lightened(0.25))
+	Events.log_message(words, color.lightened(0.25))
 
 
 ## A boss' next form rises (BossDef.next_boss): no relic, no stairs; the screen darkens a moment

@@ -58,6 +58,8 @@ func play(cinematic: CinematicDef, about: Node2D, beat: StoryBeat) -> void:
 	_playing = true
 	if camera:
 		keep_running(camera)
+		if camera is GameCamera:
+			(camera as GameCamera).lean_toward(null, 0.0)  # the scene frames its subject itself (the fight leans again)
 	view.tapped.connect(tap)
 	view.open()
 	Events.cinematic_started.emit()

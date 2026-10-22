@@ -237,6 +237,7 @@ Its story is not known.,Its story is not known.,Son histoire n'est pas connue.
 Chapters %d of %d     Fragments %d of %d,Chapters %d of %d     Fragments %d of %d,Chapitres %d sur %d     Fragments %d sur %d
 "Each meeting tells the next open chapter before the fight. Slay it again, find its fragments and do what it asks of you to open the rest.","Each meeting tells the next open chapter before the fight. Slay it again, find its fragments and do what it asks of you to open the rest.","Chaque rencontre raconte le chapitre suivant avant le combat. Terrasse-le encore, trouve ses fragments et fais ce qu'il attend de toi pour ouvrir les autres."
 Its words,Its words,Ses paroles
+Its last words,Its last words,Ses derniers mots
 Fragments,Fragments,Fragments
 Found on the floors of %s,Found on the floors of %s,Se trouve dans les étages de l'%s
 ", ",", ",", "
@@ -772,7 +773,7 @@ Shrine,Shrine,Sanctuaire
 "Under the Well there is more Well. The dark down here has teeth, and it is hungry.","Under the Well there is more Well. The dark down here has teeth, and it is hungry.","Sous le Puits, il y a encore le Puits. Ici, l'obscurité a des dents, et elle a faim."
 Ascendant,Ascendant,Ascendant
 Win a run on Nightmare +3.,Win a run on Nightmare +3.,Gagne une partie en Cauchemar +3.
-The Bottom of the Well,The Bottom of the Well,Le Fond du Puits
+The Souls Return,The Souls Return,Le Retour des Âmes
 Win a run.,Win a run.,Gagne une partie.
 Seeker of Omens,Seeker of Omens,Chercheur de Présages
 Answer 10 encounters.,Answer 10 encounters.,Réponds à 10 rencontres.
@@ -1800,6 +1801,28 @@ The Throat,The Throat,La gorge
 It holds them back with all its bulk. It is the only promise it ever kept.,It holds them back with all its bulk. It is the only promise it ever kept.,Il les retient de toute sa masse. C'est la seule promesse qu'il ait jamais tenue.
 You smell of the well-rim. The children... are they coming back?,You smell of the well-rim. The children... are they coming back?,Tu sens la margelle. Les enfants... ils reviennent ?
 Tôma. The bowl smelled of him; he said he would come back.,Tôma. The bowl smelled of him; he said he would come back.,Tôma. Le bol avait son odeur ; il a dit qu'il reviendrait.
+He taught you every way to step aside. He waits to see you stand.,He taught you every way to step aside. He waits to see you stand.,Il t'a appris toutes les façons de t'écarter. Il attend de te voir tenir.
+Slay him without rolling once.,Slay him without rolling once.,Terrasse-le sans faire une seule roulade.
+The Kneeling Man,The Kneeling Man,L'homme à genoux
+"At the bottom of the Well a man kneels in the dark, his back to you, before a pool of tar.","At the bottom of the Well a man kneels in the dark, his back to you, before a pool of tar.","Au fond du Puits, un homme est agenouillé dans le noir, dos à toi, devant une mare de goudron."
+He wears the shrine's robe. He rises the way he taught you: without haste.,He wears the shrine's robe. He rises the way he taught you: without haste.,Il porte la robe du sanctuaire. Il se relève comme il te l'a appris : sans hâte.
+Your Master,Your Master,Ton maître
+"Tôma, keeper of Kagari's shrine. He found you at its door, an orphan, and gave you a broom, then a blade.","Tôma, keeper of Kagari's shrine. He found you at its door, an orphan, and gave you a broom, then a blade.","Tôma, gardien du sanctuaire de Kagari. Il t'a trouvé orphelin à sa porte, et t'a donné un balai, puis une lame."
+"He taught you the dash, the long cut and the lantern. He knows the answer to every one of your strokes.","He taught you the dash, the long cut and the lantern. He knows the answer to every one of your strokes.","Il t'a appris l'élan, la longue coupe et la lanterne. Chacun de tes coups, il en connaît la réponse."
+Hana,Hana,Hana
+"His daughter Hana drowned in the spring under the village. He searched the water for three nights, lantern in hand.","His daughter Hana drowned in the spring under the village. He searched the water for three nights, lantern in hand.","Sa fille Hana s'est noyée dans la source sous le village. Il a fouillé l'eau trois nuits, la lanterne à la main."
+Then he took you in. You never knew whether it was to fill the house or to forget it.,Then he took you in. You never knew whether it was to fill the house or to forget it.,"Puis il t'a recueilli. Tu n'as jamais su si c'était pour remplir la maison, ou pour l'oublier."
+The Promise,The Promise,La promesse
+"In Solhar's drowned archives he found a promise: what the Maw takes, it gives back, if it is fed.","In Solhar's drowned archives he found a promise: what the Maw takes, it gives back, if it is fed.","Dans les archives noyées de Solhar, il a trouvé une promesse : ce que la Gueule prend, elle le rend, si on la nourrit."
+He put out every flame of Kagari but one. That one he left in your hand: he could not give you too.,He put out every flame of Kagari but one. That one he left in your hand: he could not give you too.,"Il a éteint toutes les flammes de Kagari sauf une. Celle-là, il l'a laissée dans ta main : toi, il n'a pas pu te donner."
+What He Will Not Hear,What He Will Not Hear,Ce qu'il refuse d'entendre
+"He knows, deep down, that what waits with him is not Hana. The voice in the tar has no throat.","He knows, deep down, that what waits with him is not Hana. The voice in the tar has no throat.","Il sait, au fond, que ce qui attend avec lui n'est pas Hana. La voix dans le goudron n'a pas de gorge."
+"So he kneels lower, and keeps the last rule he has left: to wait without moving.","So he kneels lower, and keeps the last rule he has left: to wait without moving.","Alors il s'agenouille plus bas, et garde la dernière règle qui lui reste : attendre sans bouger."
+"You came, my pupil.","You came, my pupil.","Tu es venu, mon élève."
+"Again, then. Show me the cut that beat me.","Again, then. Show me the cut that beat me.","Encore, donc. Montre-moi la coupe qui m'a battu."
+"She is almost here, my pupil. Do not make me choose.","She is almost here, my pupil. Do not make me choose.","Elle est presque là, mon élève. Ne m'oblige pas à choisir."
+"Your guard is true, my pupil.","Your guard is true, my pupil.","Ta garde est juste, mon élève."
+"You stood. That much, at least, I taught you.","You stood. That much, at least, I taught you.","Tu as tenu. Ça, au moins, je te l'ai appris."
 He only yields to a blade that does not tremble.,He only yields to a blade that does not tremble.,Il ne s'avoue vaincu que devant une lame qui ne tremble pas.
 Slay him losing less than a quarter of your Health.,Slay him losing less than a quarter of your Health.,Terrasse-le en perdant moins d'un quart de ta Vie.
 The Stone Knight,The Stone Knight,Le chevalier de pierre
@@ -1876,6 +1899,26 @@ The Mask,The Mask,Le masque
 The mask is cracked. Soon the mouth will not need it.,The mask is cracked. Soon the mouth will not need it.,"Le masque est fendu. Bientôt, la bouche n'en aura plus besoin."
 "Pray, and the harvest will come. Give, and the harvest will come.","Pray, and the harvest will come. Give, and the harvest will come.","Prie, et la moisson viendra. Donne, et la moisson viendra."
 "Tôma gave, and the harvest will come. The harvest always comes.","Tôma gave, and the harvest will come. The harvest always comes.","Tôma a donné, et la moisson viendra. La moisson vient toujours."
+It only yields to one it has never tasted.,It only yields to one it has never tasted.,Elle ne cède qu'à celui qu'elle n'a jamais goûté.
+Slay it without being caught in its bite once.,Slay it without being caught in its bite once.,Terrasse-la sans te faire prendre une seule fois par sa morsure.
+The Risen Sun,The Risen Sun,Le soleil levé
+"Out of the tar rises a face of gold crowned with rays: the sun Solhar prayed to, cracked.","Out of the tar rises a face of gold crowned with rays: the sun Solhar prayed to, cracked.","Du goudron s'élève un visage d'or couronné de rayons : le soleil que priait Solhar, fendu."
+"Behind it, no body. Only a hunger that has learned to wear faces.","Behind it, no body. Only a hunger that has learned to wear faces.","Derrière, pas de corps. Seulement une faim, qui a appris à porter des visages."
+The Mask It Wears,The Mask It Wears,Le masque qu'elle porte
+"When the master fell to his knees, it took him into its mouth. Tôma stands there now, his eyes open.","When the master fell to his knees, it took him into its mouth. Tôma stands there now, his eyes open.","Quand le maître est tombé à genoux, elle l'a pris dans sa gueule. Tôma s'y tient debout, les yeux ouverts."
+"It wears him as it wore the sun: to be looked at, to be prayed to, to be fed.","It wears him as it wore the sun: to be looked at, to be prayed to, to be fed.","Elle le porte comme elle portait le soleil : pour qu'on la regarde, qu'on la prie, qu'on la nourrisse."
+What It Gives Back,What It Gives Back,Ce qu'elle rend
+"It answered Solhar with harvests and gold, and Tôma with his daughter's voice.","It answered Solhar with harvests and gold, and Tôma with his daughter's voice.","Elle a répondu à Solhar par des moissons et de l'or, et à Tôma par la voix de sa fille."
+It has never given anything back. It gives only what it has learned to imitate.,It has never given anything back. It gives only what it has learned to imitate.,Elle n'a jamais rien rendu. Elle ne donne que ce qu'elle a appris à imiter.
+The Door,The Door,La porte
+"It does not die. The first keeper never killed it: he made it wait, behind a door that remembers it is a door.","It does not die. The first keeper never killed it: he made it wait, behind a door that remembers it is a door.","Elle ne meurt pas. Le premier gardien ne l'a jamais tuée : il l'a fait attendre, derrière une porte qui se souvient d'être une porte."
+"The bell of Kagari, rung from below, shuts that door. Then someone must keep it.","The bell of Kagari, rung from below, shuts that door. Then someone must keep it.","La cloche de Kagari, sonnée d'en bas, ferme cette porte. Ensuite, quelqu'un doit la garder."
+What It Never Tasted,What It Never Tasted,Ce qu'elle n'a jamais goûté
+"What it has tasted, it keeps: a name, a voice, a kingdom. Of you, it has had nothing.","What it has tasted, it keeps: a name, a voice, a kingdom. Of you, it has had nothing.","Ce qu'elle a goûté, elle le garde : un nom, une voix, un royaume. De toi, elle n'a rien eu."
+That is why the bell answers you. A soul it never tasted can still close the door.,That is why the bell answers you. A soul it never tasted can still close the door.,Voilà pourquoi la cloche te répond. Une âme qu'elle n'a jamais goûtée peut encore fermer la porte.
+Papa... stay.,Papa... stay.,Papa... reste.
+Papa... the boat.,Papa... the boat.,Papa... le bateau.
+The sun sets.,The sun sets.,Le soleil se couche.
 She speaks only to one who sheds neither blood nor tears.,She speaks only to one who sheds neither blood nor tears.,Elle ne parle qu'à qui ne verse ni sang ni larme.
 Slay her without being hurt once.,Slay her without being hurt once.,Terrasse-la sans être blessé une seule fois.
 The Mourners,The Mourners,Les pleureuses
@@ -1906,6 +1949,7 @@ Reach floor %d,Reach floor %d,Atteins l'étage %d
 "Find the one who does not rest, and slay him","Find the one who does not rest, and slay him","Trouve celui qui ne repose pas, et terrasse-le"
 Win a run,Win a run,Remporte une descente
 "Find the one who does not rest, then win a run","Find the one who does not rest, then win a run","Trouve celui qui ne repose pas, puis remporte une descente"
+Find the one who waits at the bottom,Find the one who waits at the bottom,Trouve celui qui attend au fond
 Ring the bell,Ring the bell,Sonner la cloche
 "Seal the Maw. Your master finds rest, and Hana with him.","Seal the Maw. Your master finds rest, and Hana with him.","Scelle la Gueule. Ton maître trouve le repos, et Hana avec lui."
 "You ring the bell, and the Well closes.
@@ -2043,6 +2087,22 @@ Tied to the well-rim,Tied to the well-rim,Nouée à la margelle
 "Nushi, I gave you my finest coin.","Nushi, I gave you my finest coin.","Nushi, je t'ai donné ma plus belle piécette."
 "Make spring come back soon, and make Mother well.","Make spring come back soon, and make Mother well.","Fais que le printemps revienne vite, et que maman guérisse."
 And do not eat the moon. It belongs to everyone.,And do not eat the moon. It belongs to everyone.,Et ne mange pas la lune. Elle est à tout le monde.
+"Tôma's Journal, the First Page","Tôma's Journal, the First Page","Journal de Tôma, première page"
+"Kagari, the summer Hana drowned","Kagari, the summer Hana drowned","Kagari, l'été où Hana s'est noyée"
+"Hana went into the water at dusk, among the paper boats. I was sweeping the shrine; I heard nothing.","Hana went into the water at dusk, among the paper boats. I was sweeping the shrine; I heard nothing.","Hana est entrée dans l'eau au crépuscule, parmi les bateaux de papier. Je balayais le sanctuaire ; je n'ai rien entendu."
+I have taken in the child who sleeps at the door. He holds the broom badly and never cries.,I have taken in the child who sleeps at the door. He holds the broom badly and never cries.,J'ai recueilli l'enfant qui dort devant la porte. Il tient mal le balai et ne pleure jamais.
+I will teach him everything. Then at least I will have taught someone.,I will teach him everything. Then at least I will have taught someone.,"Je lui apprendrai tout. Ainsi, j'aurai au moins appris quelque chose à quelqu'un."
+The Shrine's Fencing Lessons,The Shrine's Fencing Lessons,Les leçons d'escrime du sanctuaire
+Pinned inside the dojo's door,Pinned inside the dojo's door,Épinglées à l'intérieur de la porte du dojo
+"The dash: go in, strike, never stay where the answer will fall.","The dash: go in, strike, never stay where the answer will fall.","L'élan : entrer, frapper, ne jamais rester là où tombera la réponse."
+"The guard: do not step aside. Let it come, and be there when it does.","The guard: do not step aside. Let it come, and be there when it does.","La garde : ne pas s'écarter. Laisser venir, et être là quand ça vient."
+The lantern: it never goes out. That rule I will not teach him to break.,The lantern: it never goes out. That rule I will not teach him to break.,"La lanterne : elle ne s'éteint jamais. Cette règle-là, je ne lui apprendrai pas à la briser."
+A Letter Never Sent,A Letter Never Sent,Une lettre jamais envoyée
+"Tôma, to the Vigil-Keeper","Tôma, to the Vigil-Keeper","Tôma, à la Veilleuse"
+Found on the stairs of the Well,Found on the stairs of the Well,Trouvée dans les escaliers du Puits
+"Old mother, you will hear the bell fall silent. Do not ring it; let them sleep.","Old mother, you will hear the bell fall silent. Do not ring it; let them sleep.","Vieille mère, tu entendras la cloche se taire. Ne la sonne pas ; laisse-les dormir."
+"If my pupil goes down after me, do not bless his lantern. He must not come this far.","If my pupil goes down after me, do not bless his lantern. He must not come this far.","Si mon élève descend après moi, ne bénis pas sa lanterne. Il ne doit pas venir jusqu'ici."
+Hana will knock at your door first. Open to her.,Hana will knock at your door first. Open to her.,Hana frappera d'abord à ta porte. Ouvre-lui.
 Brann's Note on Two Blades,Brann's Note on Two Blades,Note de Brann sur deux lames
 Scratched on a cold blade's guard,Scratched on a cold blade's guard,Gravée sur la garde d'une lame froide
 Forged for a man going to die without a name. I did not want to know his.,Forged for a man going to die without a name. I did not want to know his.,Forgées pour un homme qui allait mourir sans nom. Je n'ai pas voulu savoir le sien.
@@ -2091,6 +2151,22 @@ Carved on a slab of the tomb,Carved on a slab of the tomb,Gravé sur une dalle d
 Our prayers fed it; only our blessed steel wounds it.,Our prayers fed it; only our blessed steel wounds it.,Nos prières l'ont nourri ; seul notre acier béni le blesse.
 "Strike it with the Templar's sword, and the mask cracks.","Strike it with the Templar's sword, and the mask cracks.","Frappe-le avec l'épée du Templier, et le masque se fend."
 "I did not have the time. You, perhaps.","I did not have the time. You, perhaps.","Je n'en ai pas eu le temps. Toi, peut-être."
+A Paper Boat,A Paper Boat,Un bateau de papier
+"Hana, in a child's hand","Hana, in a child's hand","Hana, d'une main d'enfant"
+"Found dry, in the tar","Found dry, in the tar","Trouvé sec, dans le goudron"
+"Little boat, go down to the bottom and say hello to the sun.","Little boat, go down to the bottom and say hello to the sun.","Petit bateau, descends jusqu'au fond et dis bonjour au soleil."
+Bring a ray back for papa. He is always cold.,Bring a ray back for papa. He is always cold.,Rapporte un rayon pour papa. Il a toujours froid.
+"Tôma's Journal, a Page Stuck with Tar","Tôma's Journal, a Page Stuck with Tar","Journal de Tôma, page collée de goudron"
+The bottom of the Well,The bottom of the Well,Le fond du Puits
+"It rose out of the tar, golden, and I knelt as the priests of Solhar knelt.","It rose out of the tar, golden, and I knelt as the priests of Solhar knelt.","Elle est montée du goudron, dorée, et je me suis agenouillé comme les prêtres de Solhar."
+"It speaks with her voice. It says papa as she did, only a little too slowly.","It speaks with her voice. It says papa as she did, only a little too slowly.","Elle parle avec sa voix. Elle dit papa comme elle, juste un peu trop lentement."
+I will wait here until it keeps its word. It has all the time in the world; so have I.,I will wait here until it keeps its word. It has all the time in the world; so have I.,J'attendrai ici qu'elle tienne parole. Elle a tout le temps du monde ; moi aussi.
+The First Keeper's Rite,The First Keeper's Rite,Le rite du premier gardien
+A knight with no name,A knight with no name,Un chevalier sans nom
+"A copy, taken from under the bell of Kagari","A copy, taken from under the bell of Kagari","Une copie, relevée sous la cloche de Kagari"
+It does not die. A lack is not killed; it is made to wait.,It does not die. A lack is not killed; it is made to wait.,Elle ne meurt pas. On ne tue pas un manque ; on le fait attendre.
+"Ring the bell from below, and the door remembers it is a door.","Ring the bell from below, and the door remembers it is a door.","Sonne la cloche d'en bas, et la porte se souvient qu'elle est une porte."
+"Give it nothing, not even a drop of blood. What it has tasted, it keeps.","Give it nothing, not even a drop of blood. What it has tasted, it keeps.","Ne lui donne rien, pas même une goutte de sang. Ce qu'elle a goûté, elle le garde."
 An Old Mourner's Advice,An Old Mourner's Advice,Conseil d'une vieille pleureuse
 "Old Sayo, mourner","Old Sayo, mourner","La vieille Sayo, pleureuse"
 "Kagari, to her niece","Kagari, to her niece","Kagari, à sa nièce"

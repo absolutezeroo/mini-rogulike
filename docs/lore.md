@@ -116,13 +116,18 @@ The keeper is "le gardien du sanctuaire" / "the shrine's keeper" until the revea
 | Gilded Hoarder | **Ostarion**, last king of Solhar, who knew famine as a child and swore Solhar would never hunger again; he gave the whole Tithe in a day, then his people. The sun paid in gold, never in bread; in the last winter he chewed coins. Every coin bears his face. The Old Wanderer sold him spices. | he could warn the keeper; he wants to see whether he pays too. | slain by a run that bought nothing from the merchant. | the Tithe ledger's last page; the Old Wanderer's letter; a journal page. |
 | Dead Sun | **the Great Noon**, hymned at the hour shadows vanish; it took the whole kingdom when no souls were left, and still shines for its dead at noon. It needed no binding: the keeper knelt to it and it answered with Hana's voice. Speaks only in commands, never "I". | (a mask has none: it is what hungers, trying on a face; the mask is cracking). | slain with the Templar Sword (only blessed steel wounds it). | the noon hymn; a templar's warning; a journal page. |
 | Nameless Effigy | the **first keeper**, a knight Solhar claims (others say he had no land), who gave his name to the seal and tries the names of the dead on himself. The last keeper of Kagari came with his lantern unlit, cut the seal's last knot the way he teaches his pupil, and bound him to guard what he had sworn to prevent. He saw the Maw: "a lack that had taken shape". The door could close again by giving him back his name, or by someone giving their own. | the first keeper serves the last. | slain losing less than a quarter of one's Health ("a blade that does not tremble"). | an effaced epitaph; Brann's note on his blades; Tôma's last journal page. |
+| Master Tôma (at the bottom; named there: meeting him is the reveal) | **Tôma**, keeper of Kagari's shrine. Hana drowned at dusk among the paper boats while he swept the shrine; he searched the water three nights, then took in the orphan sleeping at the door, gave him a broom, then a blade, and taught him the dash, the long cut, the guard and the lantern (his fencing lessons were pinned inside the dojo's door). In Solhar's drowned archives he found the promise; he put out every flame but the pupil's. He wrote the Vigil-Keeper a letter he never sent: not to ring the bell, not to bless the pupil's lantern. | he knows what waits with him is not Hana (the voice in the tar has no throat) and kneels lower so as not to hear it. | slain without a single roll ("he waits to see you stand"). | his journal's first page; the shrine's fencing lessons; a letter never sent. |
+| The Maw | the **hunger** itself: a face of gold crowned with rays (Solhar's sun, cracked), no body behind it. It answered Solhar with harvests and gold, Tôma with his daughter's voice; it never gave anything back, it gives only what it has learned to imitate. It wears Tôma as it wore the sun. It does not die: the first keeper made it wait behind a door; the bell, rung from below, shuts that door, and someone must keep it. What it has tasted, it keeps. | (none: it never says "I"; Hana's voice and the Dead Sun's echo speak for it) | slain by a run it never bit ("it only yields to one it has never tasted"). | the first keeper's rite (a copy from under the bell); Hana's paper boat, found dry in the tar (the boat the Mire Matron looks for); Tôma's journal, a page stuck with tar. |
 
 New facts these hold: **Brann forged the chains with which Tôma bound the wardens** (he gave them
 "without looking at me"), and the Effigy's blades long before, weeping; this is what he atones
 for. **Tôma found the promise in the Hushed Archive and the way (the rite of feeding) from the
 Crimson Tengu.** The Dead Sun answered him with Hana's voice. Each warden carries a page of
 **Tôma's journal** (found only after the reveal), one per warden, from the first soul poured in
-the bronze bowl to the cut in the seal.
+the bronze bowl to the cut in the seal, and its first page (the summer Hana drowned) on the last
+act's floors once the bottom is open. **The missing paper boat** the Mire Matron looks for went
+down to the bottom: the Maw keeps it, dry, in the tar (it says "Papa... the boat." with Hana's
+voice once the hero has found it). The Vigil-Keeper blesses the lanterns of those who go down.
 
 ## 6. The keepers and the voices you meet
 
@@ -163,8 +168,10 @@ Rule: a line may **hint** at a later step, never **state** it.
 In the data: the steps are `ProgressCondition`s (data/story/conditions/: `act_ii_reached`,
 `act_iii_reached`, `first_victory`, `keeper_named`). **The keeper may be named** (steps 5 and 6 for
 the chronicles: his name in the wardens' mouths, his journal's pages) once the Nameless Effigy is
-slain and a run is won (`keeper_named`, `NarrativeDef.keeper_reveal`); every text holding "Tôma"
-asks for it, which the tests check in both languages.
+slain and a run is won, or once the hero has met him at the bottom of the Well (step 7: there he
+is named; `keeper_named`, an `AnyCondition`, `NarrativeDef.keeper_reveal`); every text holding
+"Tôma" asks for it, which the tests check in both languages. Tôma's and the Maw's chronicles are
+told at the bottom (their first chapters never name him), their last words as they fall.
 
 ## 8. Rules of the canon
 

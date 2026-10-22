@@ -1,9 +1,9 @@
 class_name ChronicleRows
 ## A warden's chronicle in the codex (its page's Chronicle tab, MonsterPage): the chapters open
 ## in order with their lines, the locked ones as "???" with what opens them (plain words, or a
-## deed's riddle until a fragment gives its rule away); what it says as it wakes; its fragments,
-## the found ones to read again (`read` is called with the fragment), the others as "???" with
-## where they lie. Asks Narrative; decides nothing.
+## deed's riddle until a fragment gives its rule away); what it says as it wakes and as it falls;
+## its fragments, the found ones to read again (`read` is called with the fragment), the others
+## as "???" with where they lie. Asks Narrative; decides nothing.
 
 const LOCKED := Color(0.62, 0.58, 0.55)
 const SPEECH := Color(0.78, 0.9, 1.0)
@@ -24,6 +24,11 @@ static func fill(column: VBoxContainer, boss: BossDef, content: ContentDB, read:
 	if not lines.is_empty():
 		column.add_child(_heading(TranslationServer.tr("Its words")))
 		for line: WakingLine in lines:
+			column.add_child(_speech(line, boss))
+	var last := boss.chronicle.last_words.filter(func(line: WakingLine) -> bool: return line != null)
+	if not last.is_empty():
+		column.add_child(_heading(TranslationServer.tr("Its last words")))
+		for line: WakingLine in last:
 			column.add_child(_speech(line, boss))
 	if not fragments.is_empty():
 		column.add_child(_heading(TranslationServer.tr("Fragments")))
@@ -93,6 +98,9 @@ static func _where(boss: BossDef, content: ContentDB) -> String:
 		for i: int in hidden.key_acts:
 			if i >= 0 and i < acts.size():
 				names.append(TranslationServer.tr(acts[i].subtitle))
+	var finale := content.dungeon.finale
+	if finale and finale.boss and finale.boss.forms().has(boss) and not acts.is_empty():
+		names.append(TranslationServer.tr(acts[acts.size() - 1].subtitle))  # (the way down to it)
 	if names.is_empty():
 		return ""
 	return TranslationServer.tr("Found on the floors of %s") % TranslationServer.tr(", ").join(names)
