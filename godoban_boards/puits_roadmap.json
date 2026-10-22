@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 63,
+  "next_id": 64,
   "tags": [
     "pc",
     "test",
@@ -314,7 +314,7 @@
     {
       "id": "task_23",
       "title": "Armes en main : 8 directions",
-      "description": "Les frames d'arme en main n'existent qu'en 4 directions.",
+      "description": "Les frames d'arme en main n'existent qu'en 4 directions.\n\nÉvaluation (non construit) : les frames d'arme en main viennent du pack (assets/weapons/attack/<arme>.png, 16 armes, cases 64x64, 4 directions x 4 images : levée, traînée blanche en croissant, bras tendu x2 ; data/visuals/weapons/<arme>.tres). Le corps du héros (idle, walk, attack, roll, hit) et les couches d'armure portées n'existent qu'en 4 directions aussi (pack 16x16) : 8 vraies directions demanderaient de redessiner le héros et chaque style d'armure, hors de portée. Faisable à moindre coût : garder le corps de côté pour les diagonales et ne dessiner que l'arme en 8 directions. Il faudrait : (1) un outil (comme tools/vfx/back_weapons.py : profil de l'arme sur la diagonale, contour par 4-voisins) qui dessine les 4 diagonales x 3 images utiles pour les 16 armes (la traînée du pack est inutile : SwingVfx dessine l'arc), soit ~190 petites images à revoir à l'œil ; (2) ActorRig : direction_name en 8 pour l'arme seule, ancrage de la main par image et par diagonale, devant/derrière le corps pour les diagonales vers le haut, la pose de charge ; (3) générer les SpriteFrames ; (4) tests en 8 directions (CombatTests._test_own_effects couvre déjà les effets). Estimation : 2 à 3 jours avec la revue visuelle. Gain : l'arme pointe dans l'axe du coup en diagonale (aujourd'hui elle prend la direction cardinale la plus proche alors que l'arc, lui, suit la visée). Pas bon marché : à décider.",
       "status": "backlog",
       "priority": "low",
       "epic_id": "epic_3",
@@ -323,7 +323,7 @@
         "sprites"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792706319
     },
     {
       "id": "task_24",
@@ -854,6 +854,20 @@
       ],
       "created_at": 1792701997,
       "updated_at": 1792702009
+    },
+    {
+      "id": "task_63",
+      "title": "Poison : traînées et arcs en mottes",
+      "description": "Suite de « Nuage de poison grumeleux » : les novas de poison sont maintenant une nappe de gaz au sol, mais les traînées (ComposedVfx.line) et les arcs (ComposedVfx.arc) de poison utilisent encore la pièce poison_cloud.png (mottes debout). Voir s'il faut une version en nappe allongée (gas_pool.gdshader sur un segment).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "vfx"
+      ],
+      "created_at": 1792706331,
+      "updated_at": 1792706331
     }
   ]
 }
