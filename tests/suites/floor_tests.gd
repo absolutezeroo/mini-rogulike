@@ -223,6 +223,8 @@ func _test_abyss(game: Game, world: World, player: Player) -> void:
 	check(player.global_position.distance_to(safe) < 24.0 and player.get_parent() == world.get_node("Entities"), "at the last safe spot by the hole")
 	var fell_in := world.map.world_to_cell(safe) + Vector2i.RIGHT * 2
 	check(def.seal_hole and not world.has_pit(fell_in) and world.is_solid_ground(world.map.cell_to_world(fell_in)) and not world.nav.is_blocked(fell_in), "the hole he fell through has closed behind him (no falling straight back in)")
+	var sealed_saved: Array = world.spent_data().get("sealed", [])
+	check(sealed_saved.has([fell_in.x, fell_in.y]), "the floor's save keeps the hole filled (%s)" % [sealed_saved])
 	check(home.get("at", []) == frozen_at and home.get("hp", []) == hp_then, "the floor's monsters as they were (same place, same Health)")
 	check(is_equal_approx(float(home.get("burn", -1.0)), burn_left), "their statuses too (%.2f s of burn left)" % float(home.get("burn", -1.0)))
 	var floor_changes := _things_diff(floor_things, _floor_things(world, false))
@@ -280,11 +282,36 @@ func _test_abyss(game: Game, world: World, player: Player) -> void:
 	for watcher in watchers:
 		watcher.die(null)
 	_fill_holes()
+	await _test_sealed_hole_restored(world, player)
 	player.perks.clear()
 	player.hp = player.get_max_hp()
 	player.xp = xp_saved
 	player.invincible = false
 	await _frames(5)
+
+
+## A run picked up again rebuilds its floor from the seed: the holes filled in before quitting
+## (the Deeps' hole, which may have been cracked floor before it gave way) are filled again.
+func _test_sealed_hole_restored(world: World, player: Player) -> void:
+	var others: Array[Vector2] = []
+	var hole := _open_cell_near(world, player.global_position, 3, others, world.map.tile_size * 3.0)
+	others.append(world.map.cell_to_world(hole))
+	var cracked := _open_cell_near(world, player.global_position, 3, others, world.map.tile_size * 3.0)
+	var pit: PitDef = load("res://data/hazards/pit.tres")
+	world.add_pit(hole, pit)
+	_dug.append([world, hole])
+	var crack := world.spawn_crumbling_floor(pit, cracked)
+	world.sealed_cells.clear()
+	# As build_floor does on a saved floor (restore_spent): the holes and cracks are there again,
+	# then what the save says is filled.
+	var saved: Array = JSON.parse_string(JSON.stringify([[hole.x, hole.y], [cracked.x, cracked.y]]))  # (numbers as a save file reads them)
+	world._restore_sealed(saved)
+	await _frames(1)
+	check(not world.has_pit(hole) and not world.nav.is_blocked(hole) and world.is_solid_ground(world.map.cell_to_world(hole)), "a hole filled before quitting is filled again on the resumed floor")
+	check(not is_instance_valid(crack) and world._cracks.get(cracked) == null, "and the cracked floor it was before it gave way is solid floor")
+	check(world.sealed_cells.has(hole) and world.sealed_cells.has(cracked), "kept for the next save too (%s)" % [world.sealed_cells])
+	world._restore_sealed([[1.5], "x"])  # a damaged entry is skipped
+	check(world.sealed_cells.size() == 2, "a damaged entry fills nothing")
 
 
 ## Where the Deeps don't open: the hidden floor (its rule: climb out, hurt); boss floors are in

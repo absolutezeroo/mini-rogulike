@@ -964,8 +964,8 @@
     {
       "id": "task_68",
       "title": "Trou des Tréfonds rebouché : pas gardé dans la sauvegarde",
-      "description": "Revenu des Tréfonds, le trou se rebouche (World.seal_hole) mais World.spent_data ne le garde pas : une partie reprise sur cet étage retrouve le trou ouvert. Pas une régression (avant, il ne se rebouchait jamais) ; à garder si on veut que la reprise soit fidèle.",
-      "status": "backlog",
+      "description": "Revenu des Tréfonds, le trou se rebouche (World.seal_hole) mais World.spent_data ne le garde pas : une partie reprise sur cet étage retrouve le trou ouvert. Pas une régression (avant, il ne se rebouchait jamais) ; à garder si on veut que la reprise soit fidèle.\n\nFait : World.seal_hole() garde les cases rebouchées (World.sealed_cells) ; World.spent_data() les sauve (« sealed ») et une partie reprise les rebouche (World._restore_sealed() : trou rebouché, et fissure redevenue sol si le trou était un sol fissuré effondré). Anciennes sauvegardes : rien à reboucher. Tests (suite game, _test_abyss) : la sauvegarde de l'étage garde le trou des Tréfonds, la reprise rebouche trou et fissure, entrée abîmée ignorée. Doc : design/dungeon.md.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -973,7 +973,7 @@
         "sauvegarde"
       ],
       "created_at": 1792704927,
-      "updated_at": 1792704927
+      "updated_at": 1792707174
     },
     {
       "id": "task_69",

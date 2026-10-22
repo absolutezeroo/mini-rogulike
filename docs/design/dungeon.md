@@ -140,7 +140,8 @@ A hole on a floor is not only a stumble: the hero **falls deeper into the Well**
   (`AbyssHud`). The top of the screen names it, with the seconds left for the dawn's gift.
 - **Back up.** Stepping into the Breach brings him back to **the last safe spot by the hole**,
   and the hole fills in behind him (`AbyssDef.seal_hole`, `World.seal_hole()`: dust, solid floor)
-  so a step to the side doesn't drop him straight back in;
+  so a step to the side doesn't drop him straight back in; the floor's save keeps it filled
+  (`World.spent_data()` "sealed": a resumed run fills it again, cracked floor included);
   his Health as he left the Deeps (the Deeps were the cost), with 1.5 s of grace (`return_grace`)
   and his torch back. **Out quick** (`quick_time`: 30 s, +5 s each act) earns **the dawn's gift**
   at his feet: gold (12, +8 an act, through the floor's gold rules) and a 60% roll of a potion, a
