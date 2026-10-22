@@ -1,0 +1,131 @@
+[gd_resource type="Resource" script_class="DialogueDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/dialogue/dialogue_def.gd" id="1_dialogue"]
+[ext_resource type="Script" path="res://src/definitions/dialogue/dialogue_line_def.gd" id="2_line"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="3_condition"]
+[ext_resource type="Resource" path="res://data/story/dialogue/speakers/wanderer.tres" id="4_speaker"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/stat_condition.gd" id="5_stat_conditi"]
+[ext_resource type="Resource" path="res://data/story/conditions/act_iii_reached.tres" id="6_act_iii_reac"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/met_condition.gd" id="7_met_conditio"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/slain_condition.gd" id="8_slain_condit"]
+[ext_resource type="Resource" path="res://data/story/conditions/first_victory.tres" id="9_first_victor"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="10_keeper_named"]
+
+[sub_resource type="Resource" id="c1"]
+script = ExtResource("5_stat_conditi")
+stat = "talk:wanderer"
+at_least = 2
+
+[sub_resource type="Resource" id="l_no_name"]
+script = ExtResource("2_line")
+id = &"no_name"
+lines = PackedStringArray("I have no name, friend. I sold it to the Well for the right to trade forever, and the price was fair.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1")])
+priority = 90
+once = true
+
+[sub_resource type="Resource" id="c2"]
+script = ExtResource("5_stat_conditi")
+stat = "talk:wanderer"
+at_least = 3
+
+[sub_resource type="Resource" id="l_sell_junk"]
+script = ExtResource("2_line")
+id = &"sell_junk"
+lines = PackedStringArray("I take everything back, even what is worthless; especially what is worthless. Empty your bag here before the warden, friend.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c2")])
+priority = 85
+once = true
+
+[sub_resource type="Resource" id="c3"]
+script = ExtResource("5_stat_conditi")
+stat = "talk:wanderer"
+at_least = 4
+
+[sub_resource type="Resource" id="l_faces"]
+script = ExtResource("2_line")
+id = &"faces"
+lines = PackedStringArray("Every coin has a face, and every face a memory. Look closely at the ones you pick up: it is always the same king.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c3")])
+priority = 80
+once = true
+
+[sub_resource type="Resource" id="l_solhar"]
+script = ExtResource("2_line")
+id = &"solhar"
+lines = PackedStringArray("Solhar? I sold spices there when its sky was not stone, and the king paid well: in gold, never in bread.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("6_act_iii_reac"), SubResource("c1")])
+priority = 75
+once = true
+
+[sub_resource type="Resource" id="c4"]
+script = ExtResource("7_met_conditio")
+monster_id = &"gilded_hoarder"
+
+[sub_resource type="Resource" id="l_nothing_bought"]
+script = ExtResource("2_line")
+id = &"nothing_bought"
+lines = PackedStringArray("Free advice, for once: the Hoarder only respects those who bought nothing from me. It pains me to say it.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c4"), SubResource("c2")])
+priority = 72
+once = true
+
+[sub_resource type="Resource" id="c5"]
+script = ExtResource("8_slain_condit")
+monster_id = &"gilded_hoarder"
+
+[sub_resource type="Resource" id="l_ostarion"]
+script = ExtResource("2_line")
+id = &"ostarion"
+lines = PackedStringArray("You saw old Ostarion on his pile of gold? He still owes me three sacks of saffron; remind him before you strike.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c5")])
+priority = 70
+once = true
+
+[sub_resource type="Resource" id="c6"]
+script = ExtResource("5_stat_conditi")
+stat = "talk:wanderer"
+at_least = 7
+
+[sub_resource type="Resource" id="l_no_taste"]
+script = ExtResource("2_line")
+id = &"no_taste"
+lines = PackedStringArray("The Well lets me through because I am worth nothing to it: a man without a name does not feed. You, friend, have a taste.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c6")])
+priority = 60
+once = true
+
+[sub_resource type="Resource" id="c7"]
+script = ExtResource("5_stat_conditi")
+stat = "deepest"
+at_least = 10
+
+[sub_resource type="Resource" id="l_blue_shutters"]
+script = ExtResource("2_line")
+id = &"blue_shutters"
+lines = PackedStringArray("The Sandchoked City was my finest market. If you pass a stall with blue shutters, touch nothing: it is mine.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c7"), SubResource("c2")])
+priority = 55
+once = true
+
+[sub_resource type="Resource" id="l_bad_business"]
+script = ExtResource("2_line")
+id = &"bad_business"
+lines = PackedStringArray("You emptied a warden of its souls? Bad for business: the dead never buy from me.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("9_first_victor")])
+priority = 65
+once = true
+
+[sub_resource type="Resource" id="l_wickless"]
+script = ExtResource("2_line")
+id = &"wickless"
+lines = PackedStringArray("Tôma, your keeper? He bought a lantern without a wick from me once, and I still wonder what it was for.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("10_keeper_named")])
+priority = 95
+once = true
+
+[resource]
+script = ExtResource("1_dialogue")
+id = &"wanderer"
+speaker = ExtResource("4_speaker")
+lines = Array[ExtResource("2_line")]([SubResource("l_no_name"), SubResource("l_sell_junk"), SubResource("l_faces"), SubResource("l_solhar"), SubResource("l_nothing_bought"), SubResource("l_ostarion"), SubResource("l_no_taste"), SubResource("l_blue_shutters"), SubResource("l_bad_business"), SubResource("l_wickless")])

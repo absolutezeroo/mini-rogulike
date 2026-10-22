@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SpeakerDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/dialogue/speaker_def.gd" id="1_speaker"]
+[ext_resource type="Texture2D" path="res://assets/props/grinning_spirit.png" id="2_portrait"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/voice/spirit.ogg" id="4_voice"]
+
+[resource]
+script = ExtResource("1_speaker")
+id = &"grinning_spirit"
+display_name = "Grinning Spirit"
+title = "Gambler of the dead"
+portrait = ExtResource("2_portrait")
+figure = ExtResource("2_portrait")
+color = Color(0.8, 0.66, 1, 1)
+voice = ExtResource("4_voice")
+letters_per_second = 60.0

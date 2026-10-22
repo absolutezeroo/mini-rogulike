@@ -1,0 +1,226 @@
+[gd_resource type="Resource" script_class="DialogueDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/dialogue/dialogue_def.gd" id="1_dialogue"]
+[ext_resource type="Script" path="res://src/definitions/dialogue/dialogue_line_def.gd" id="2_line"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="3_condition"]
+[ext_resource type="Resource" path="res://data/story/dialogue/speakers/vigil_keeper.tres" id="4_speaker"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/stat_condition.gd" id="5_stat_conditi"]
+[ext_resource type="Resource" path="res://data/story/conditions/act_ii_reached.tres" id="6_act_ii_reach"]
+[ext_resource type="Resource" path="res://data/story/conditions/act_iii_reached.tres" id="7_act_iii_reac"]
+[ext_resource type="Resource" path="res://data/story/conditions/first_victory.tres" id="8_first_victor"]
+[ext_resource type="Resource" path="res://data/story/conditions/effigy_slain.tres" id="9_effigy_slain"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="10_keeper_named"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/ending_condition.gd" id="11_ending_condi"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/not_condition.gd" id="12_not_conditio"]
+
+[sub_resource type="Resource" id="l_welcome"]
+script = ExtResource("2_line")
+id = &"welcome"
+lines = PackedStringArray("There you are, child. I am the Vigil-Keeper: I keep the bell, and I never sleep.", "All of Kagari sleeps but the two of us. Your lantern, I can hear it burning from here.")
+priority = 100
+once = true
+
+[sub_resource type="Resource" id="c1"]
+script = ExtResource("5_stat_conditi")
+stat = "runs"
+at_least = 2
+
+[sub_resource type="Resource" id="l_moonless"]
+script = ExtResource("2_line")
+id = &"moonless"
+lines = PackedStringArray("The Well woke on a moonless night. A cold breath went through every house, and every flame lay down.", "All but yours. I do not know why yet, child.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1")])
+priority = 90
+once = true
+
+[sub_resource type="Resource" id="c2"]
+script = ExtResource("5_stat_conditi")
+stat = "bosses"
+at_least = 1
+
+[sub_resource type="Resource" id="l_first_warden"]
+script = ExtResource("2_line")
+id = &"first_warden"
+lines = PackedStringArray("A warden has fallen, child. I felt souls climb the bell rope, warm as bread.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c2")])
+priority = 85
+once = true
+
+[sub_resource type="Resource" id="l_ossuary"]
+script = ExtResource("2_line")
+id = &"ossuary"
+lines = PackedStringArray("You went as far as the Ossuary. Our dead sank there when the earth moved; greet them for me.", "And if you hear a little girl's voice by the water, child, do not answer it.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("6_act_ii_reach")])
+priority = 80
+once = true
+
+[sub_resource type="Resource" id="c3"]
+script = ExtResource("5_stat_conditi")
+stat = "fragments"
+at_least = 1
+
+[sub_resource type="Resource" id="l_pages"]
+script = ExtResource("2_line")
+id = &"pages"
+lines = PackedStringArray("You bring back pages from below. Read them to me, child; my eyes read nothing now but wax and wind.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c3")])
+priority = 75
+once = true
+
+[sub_resource type="Resource" id="l_pyre_temple"]
+script = ExtResource("2_line")
+id = &"pyre_temple"
+lines = PackedStringArray("The Pyre Temple... My masters spoke of a kingdom beneath ours that prayed to a sun.", "They said that sun was hungry, child. I thought it a tale for children.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("7_act_iii_reac")])
+priority = 75
+once = true
+
+[sub_resource type="Resource" id="c4"]
+script = ExtResource("5_stat_conditi")
+stat = "fragments"
+at_least = 3
+
+[sub_resource type="Resource" id="l_fresh_wax"]
+script = ExtResource("2_line")
+id = &"fresh_wax"
+lines = PackedStringArray("Fresh wax in the Hushed Archive, and a keeper's seal? Someone read them, and not long ago.", "No: many keepers have worn that seal, child. Many.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("7_act_iii_reac"), SubResource("c4")])
+priority = 72
+once = true
+
+[sub_resource type="Resource" id="l_hands"]
+script = ExtResource("2_line")
+id = &"hands"
+lines = PackedStringArray("I kept silent too long, child. That night the lamps of Kagari were blown out by hand, one by one, in the order of the rite.", "Do not ask me who knows that order. I do not want to hear it.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("8_first_victor")])
+priority = 95
+once = true
+
+[sub_resource type="Resource" id="l_doors"]
+script = ExtResource("2_line")
+id = &"doors"
+lines = PackedStringArray("Souls have gone home to their bodies. I heard a door open in the village, the first since that night.", "But the Well still goes down, child. As long as it does, your lantern and my bell have work to do.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("8_first_victor")])
+priority = 93
+once = true
+
+[sub_resource type="Resource" id="l_seal_cut"]
+script = ExtResource("2_line")
+id = &"seal_cut"
+lines = PackedStringArray("The nameless effigy has fallen? Then the seal below was cut... by a blade of our school, you say.", "Many learned the guard here, child, many. Do not look at me like that.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("9_effigy_slain")])
+priority = 90
+once = true
+
+[sub_resource type="Resource" id="c5"]
+script = ExtResource("5_stat_conditi")
+stat = "runs"
+at_least = 3
+
+[sub_resource type="Resource" id="l_someone_waits"]
+script = ExtResource("2_line")
+id = &"someone_waits"
+lines = PackedStringArray("The Well has a bottom, child. I hear it when you come back up: a silence heavier than the rest, where someone waits on his knees.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("8_first_victor"), SubResource("c5")])
+priority = 70
+once = true
+
+[sub_resource type="Resource" id="l_she_breaks"]
+script = ExtResource("2_line")
+id = &"she_breaks"
+lines = PackedStringArray("Tôma: there, I have said it. I rocked Hana beside him, and I refused to hear what the stones kept saying.", "He blew out the lamps to have her back, child. Your master gave the village to a hunger that gives nothing back.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("10_keeper_named")])
+priority = 99
+once = true
+
+[sub_resource type="Resource" id="l_spared"]
+script = ExtResource("2_line")
+id = &"spared"
+lines = PackedStringArray("He spared you. He left your lantern lit because he could not give you too.", "That is all I still love of him, child.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("10_keeper_named"), SubResource("c1")])
+priority = 68
+once = true
+
+[sub_resource type="Resource" id="c6"]
+script = ExtResource("11_ending_condi")
+ending = &"ring_the_bell"
+
+[sub_resource type="Resource" id="l_ending_bell"]
+script = ExtResource("2_line")
+id = &"ending_bell"
+lines = PackedStringArray("You rang the bell from below. Hana sleeps, and Tôma too, against the stone.", "And I, child, for the first time in many nights, I slept.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("10_keeper_named"), SubResource("c6")])
+priority = 98
+once = true
+
+[sub_resource type="Resource" id="c7"]
+script = ExtResource("11_ending_condi")
+ending = &"take_his_place"
+
+[sub_resource type="Resource" id="l_ending_keeper"]
+script = ExtResource("2_line")
+id = &"ending_keeper"
+lines = PackedStringArray("Tôma has come back up. He knocks at every door in the village and answers for what he did, one house after another.", "You keep the bottom in his place. I keep your lantern, child; it is all I know how to do.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("10_keeper_named"), SubResource("c7")])
+priority = 98
+once = true
+
+[sub_resource type="Resource" id="c8"]
+script = ExtResource("5_stat_conditi")
+stat = "deaths"
+at_least = 10
+
+[sub_resource type="Resource" id="l_ten_deaths"]
+script = ExtResource("2_line")
+id = &"ten_deaths"
+lines = PackedStringArray("Ten times, child, I have heard you climb the rope. The bell is learning your step.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c8")])
+priority = 50
+once = true
+
+[sub_resource type="Resource" id="c9"]
+script = ExtResource("12_not_conditio")
+condition = ExtResource("10_keeper_named")
+
+[sub_resource type="Resource" id="l_master_returns"]
+script = ExtResource("2_line")
+id = &"master_returns"
+lines = PackedStringArray("Your master will come back, child. He went down before you, I am sure of it; he will come back up with the souls, you will see.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c9"), SubResource("c5")])
+priority = 2
+
+[sub_resource type="Resource" id="l_never_sleep"]
+script = ExtResource("2_line")
+id = &"never_sleep"
+lines = PackedStringArray("The Well never sleeps, and neither do I. We keep each other company, it and I.")
+priority = 1
+
+[sub_resource type="Resource" id="l_tree"]
+script = ExtResource("2_line")
+id = &"tree"
+lines = PackedStringArray("Offer your souls to the Tree, child. They are our neighbours': they remember you and lend you their strength.")
+priority = 1
+
+[sub_resource type="Resource" id="l_sweeping"]
+script = ExtResource("2_line")
+id = &"sweeping"
+lines = PackedStringArray("Your master swept this step every morning, at the hour when only the crows are heard. I still hear him, sometimes.")
+priority = 1
+
+[sub_resource type="Resource" id="l_bell_sings"]
+script = ExtResource("2_line")
+id = &"bell_sings"
+lines = PackedStringArray("My bell rings only for souls coming home. Bring me some, child, and it will sing.")
+priority = 1
+
+[sub_resource type="Resource" id="l_crackle"]
+script = ExtResource("2_line")
+id = &"crackle"
+lines = PackedStringArray("I have had no eyes for a long time, child. But a lantern can be heard: yours crackles like a child's laugh.")
+priority = 1
+
+[resource]
+script = ExtResource("1_dialogue")
+id = &"vigil_shrine"
+speaker = ExtResource("4_speaker")
+lines = Array[ExtResource("2_line")]([SubResource("l_welcome"), SubResource("l_moonless"), SubResource("l_first_warden"), SubResource("l_ossuary"), SubResource("l_pages"), SubResource("l_pyre_temple"), SubResource("l_fresh_wax"), SubResource("l_hands"), SubResource("l_doors"), SubResource("l_seal_cut"), SubResource("l_someone_waits"), SubResource("l_she_breaks"), SubResource("l_spared"), SubResource("l_ending_bell"), SubResource("l_ending_keeper"), SubResource("l_ten_deaths"), SubResource("l_master_returns"), SubResource("l_never_sleep"), SubResource("l_tree"), SubResource("l_sweeping"), SubResource("l_bell_sings"), SubResource("l_crackle")])

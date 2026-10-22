@@ -1,0 +1,131 @@
+[gd_resource type="Resource" script_class="DialogueDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/dialogue/dialogue_def.gd" id="1_dialogue"]
+[ext_resource type="Script" path="res://src/definitions/dialogue/dialogue_line_def.gd" id="2_line"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="3_condition"]
+[ext_resource type="Resource" path="res://data/story/dialogue/speakers/grinning_spirit.tres" id="4_speaker"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/stat_condition.gd" id="5_stat_conditi"]
+[ext_resource type="Resource" path="res://data/story/conditions/act_iii_reached.tres" id="6_act_iii_reac"]
+[ext_resource type="Resource" path="res://data/story/conditions/first_victory.tres" id="7_first_victor"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="8_keeper_named"]
+
+[sub_resource type="Resource" id="c1"]
+script = ExtResource("5_stat_conditi")
+stat = "talk:grinning_spirit"
+at_least = 1
+
+[sub_resource type="Resource" id="l_dice"]
+script = ExtResource("2_line")
+id = &"dice"
+lines = PackedStringArray("Hee hee... One die, two dice, three souls to play; who loses pays, who wins... plays again.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1")])
+priority = 90
+once = true
+
+[sub_resource type="Resource" id="c2"]
+script = ExtResource("5_stat_conditi")
+stat = "talk:grinning_spirit"
+at_least = 2
+
+[sub_resource type="Resource" id="l_seven"]
+script = ExtResource("2_line")
+id = &"seven"
+lines = PackedStringArray("I bet it all one night on a double six. The Well rolled a seven, hee hee, with two dice.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c2")])
+priority = 85
+once = true
+
+[sub_resource type="Resource" id="c3"]
+script = ExtResource("5_stat_conditi")
+stat = "talk:grinning_spirit"
+at_least = 3
+
+[sub_resource type="Resource" id="l_no_name"]
+script = ExtResource("2_line")
+id = &"no_name"
+lines = PackedStringArray("Bet big, bet small, the die does not know your name... Hee hee, mine it won long ago.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c3")])
+priority = 80
+once = true
+
+[sub_resource type="Resource" id="c4"]
+script = ExtResource("5_stat_conditi")
+stat = "talk:grinning_spirit"
+at_least = 4
+
+[sub_resource type="Resource" id="l_heads"]
+script = ExtResource("2_line")
+id = &"heads"
+lines = PackedStringArray("Heads you win, tails I laugh... Hee hee, down here coins are all heads, and always the same king.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c4")])
+priority = 75
+once = true
+
+[sub_resource type="Resource" id="l_temple_steps"]
+script = ExtResource("2_line")
+id = &"temple_steps"
+lines = PackedStringArray("Solhar played dice on the temple stairs; the king bet his people, and the sun took all the shares.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("6_act_iii_reac"), SubResource("c2")])
+priority = 78
+once = true
+
+[sub_resource type="Resource" id="c5"]
+script = ExtResource("5_stat_conditi")
+stat = "bosses"
+at_least = 3
+
+[sub_resource type="Resource" id="l_three_wardens"]
+script = ExtResource("2_line")
+id = &"three_wardens"
+lines = PackedStringArray("Three wardens down, three lucky throws? Hee hee... The Well counts the dice, and it hates to lose.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c5"), SubResource("c2")])
+priority = 60
+once = true
+
+[sub_resource type="Resource" id="l_revenge"]
+script = ExtResource("2_line")
+id = &"revenge"
+lines = PackedStringArray("You won a game against the Well, hee hee. It always asks for revenge, lower down, ever lower.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("7_first_victor")])
+priority = 70
+once = true
+
+[sub_resource type="Resource" id="c6"]
+script = ExtResource("5_stat_conditi")
+stat = "deaths"
+at_least = 5
+
+[sub_resource type="Resource" id="l_family"]
+script = ExtResource("2_line")
+id = &"family"
+lines = PackedStringArray("You die often, you. Hee hee... I like that: we are almost family.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c6"), SubResource("c2")])
+priority = 55
+once = true
+
+[sub_resource type="Resource" id="c7"]
+script = ExtResource("5_stat_conditi")
+stat = "talk:grinning_spirit"
+at_least = 6
+
+[sub_resource type="Resource" id="l_cheat"]
+script = ExtResource("2_line")
+id = &"cheat"
+lines = PackedStringArray("The die spins, the flame dances; who cheats the Well loses his chance. Hee hee... and yet, everyone cheats.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c7")])
+priority = 50
+once = true
+
+[sub_resource type="Resource" id="l_whole_village"]
+script = ExtResource("2_line")
+id = &"whole_village"
+lines = PackedStringArray("Your master played too: the whole village on a single throw. Hee hee... he thought the Well gave back what you bet.")
+conditions = Array[ExtResource("3_condition")]([ExtResource("8_keeper_named")])
+priority = 95
+once = true
+
+[resource]
+script = ExtResource("1_dialogue")
+id = &"grinning_spirit"
+speaker = ExtResource("4_speaker")
+lines = Array[ExtResource("2_line")]([SubResource("l_dice"), SubResource("l_seven"), SubResource("l_no_name"), SubResource("l_heads"), SubResource("l_temple_steps"), SubResource("l_three_wardens"), SubResource("l_revenge"), SubResource("l_family"), SubResource("l_cheat"), SubResource("l_whole_village")])

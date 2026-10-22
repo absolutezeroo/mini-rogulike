@@ -140,7 +140,7 @@ func has_mark(mark: String) -> bool:
 ## {place}, {level}, {time}, {kills}, {curse}, {weapon}, {boss}.
 func codes() -> Dictionary:
 	return {
-		"killer": TranslationServer.tr(killer_name) if not killer_name.is_empty() else TranslationServer.tr("the dark"),
+		"killer": TranslationServer.tr(killer_name) if not killer_name.is_empty() else TranslationServer.tr("The dark"),
 		"floor": str(depth),
 		"act": TranslationServer.tr(act_title),
 		"biome": TranslationServer.tr(biome),

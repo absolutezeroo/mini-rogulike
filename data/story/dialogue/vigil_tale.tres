@@ -1,0 +1,371 @@
+[gd_resource type="Resource" script_class="DialogueDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/dialogue/dialogue_def.gd" id="1_dialogue"]
+[ext_resource type="Script" path="res://src/definitions/dialogue/dialogue_line_def.gd" id="2_line"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="3_condition"]
+[ext_resource type="Resource" path="res://data/story/dialogue/speakers/vigil_keeper.tres" id="4_speaker"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/run/outcome_condition.gd" id="5_outcome_cond"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/run/place_condition.gd" id="6_place_condit"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="7_keeper_named"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/run/killer_condition.gd" id="8_killer_condi"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/run/cause_condition.gd" id="9_cause_condit"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/run/death_count_condition.gd" id="10_death_count_"]
+[ext_resource type="Resource" path="res://data/story/conditions/act_iii_reached.tres" id="11_act_iii_reac"]
+
+[sub_resource type="Resource" id="c1"]
+script = ExtResource("5_outcome_cond")
+outcome = 1
+
+[sub_resource type="Resource" id="l_first_death"]
+script = ExtResource("2_line")
+id = &"first_death"
+lines = PackedStringArray("There you are, child. I never sleep: I was waiting for you.", "{killer} took you on floor {floor}. While your lantern burns here, the Well gives you back to me.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1")])
+priority = 90
+once = true
+remembered = false
+
+[sub_resource type="Resource" id="c2"]
+script = ExtResource("6_place_condit")
+where = 5
+min_depth = 0
+max_depth = 0
+
+[sub_resource type="Resource" id="l_threshold"]
+script = ExtResource("2_line")
+id = &"threshold"
+lines = PackedStringArray("You knocked at the Threshold, child, and the knell rang before you. I heard your lantern waver, then fall quiet.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c2")])
+priority = 65
+remembered = false
+
+[sub_resource type="Resource" id="c3"]
+script = ExtResource("6_place_condit")
+where = 1
+min_depth = 0
+max_depth = 0
+
+[sub_resource type="Resource" id="l_deeps"]
+script = ExtResource("2_line")
+id = &"deeps"
+lines = PackedStringArray("You fell lower than the Well, into the Deeps. Even there your flame reached me, child.", "{killer} smothered it. The Deeps have no bell.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c3")])
+priority = 62
+remembered = false
+
+[sub_resource type="Resource" id="c4"]
+script = ExtResource("6_place_condit")
+where = 2
+min_depth = 0
+max_depth = 0
+
+[sub_resource type="Resource" id="l_charnel"]
+script = ExtResource("2_line")
+id = &"charnel"
+lines = PackedStringArray("{place}. Few lanterns have shone down there, child, and this one went out.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c4")])
+priority = 60
+remembered = false
+
+[sub_resource type="Resource" id="c5"]
+script = ExtResource("8_killer_condi")
+monster_ids = Array[StringName]([&"master_toma"])
+kind = 0
+
+[sub_resource type="Resource" id="l_by_master"]
+script = ExtResource("2_line")
+id = &"by_master"
+lines = PackedStringArray("So it was Tôma who sent you back. He always struck where the guard opens, child, and he taught you so.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), ExtResource("7_keeper_named"), SubResource("c5")])
+priority = 75
+remembered = false
+
+[sub_resource type="Resource" id="c6"]
+script = ExtResource("8_killer_condi")
+monster_ids = Array[StringName]([&"the_maw"])
+kind = 0
+
+[sub_resource type="Resource" id="l_by_maw"]
+script = ExtResource("2_line")
+id = &"by_maw"
+lines = PackedStringArray("The Maw has tasted you, child. What it tastes it keeps, but your lantern still burns here, beside me.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c6")])
+priority = 75
+remembered = false
+
+[sub_resource type="Resource" id="c7"]
+script = ExtResource("9_cause_condit")
+causes = Array[StringName]([&"giving_up"])
+
+[sub_resource type="Resource" id="l_giving_up"]
+script = ExtResource("2_line")
+id = &"giving_up"
+lines = PackedStringArray("You set the lantern down yourself, child. There is no shame in it: one goes down better rested.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c7")])
+priority = 70
+remembered = false
+
+[sub_resource type="Resource" id="c8"]
+script = ExtResource("9_cause_condit")
+causes = Array[StringName]([&"shockwave"])
+
+[sub_resource type="Resource" id="c9"]
+script = ExtResource("8_killer_condi")
+monster_ids = Array[StringName]([])
+kind = 1
+
+[sub_resource type="Resource" id="l_shockwave"]
+script = ExtResource("2_line")
+id = &"shockwave"
+lines = PackedStringArray("{killer} threw you off with a single breath, child. You struck without pausing for air, so the warden paused for you.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c8"), SubResource("c9")])
+priority = 55
+remembered = false
+
+[sub_resource type="Resource" id="c10"]
+script = ExtResource("10_death_count_")
+at_least = 3
+
+[sub_resource type="Resource" id="l_boss_again"]
+script = ExtResource("2_line")
+id = &"boss_again"
+lines = PackedStringArray("{killer}, again. The same shadow keeps falling on your flame, child, and I am learning its step.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c9"), SubResource("c10")])
+priority = 50
+remembered = false
+
+[sub_resource type="Resource" id="l_boss"]
+script = ExtResource("2_line")
+id = &"boss"
+lines = PackedStringArray("{killer}. That is the name the bell breathed to me, child, on floor {floor}.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c9")])
+priority = 40
+remembered = false
+
+[sub_resource type="Resource" id="l_boss_time"]
+script = ExtResource("2_line")
+id = &"boss_time"
+lines = PackedStringArray("{act}, floor {floor}. You held out {time} in the dark, and a warden had the last word.", "{killer}. Souls from our village are in its keeping, child; you will have to take them back.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c9")])
+priority = 40
+remembered = false
+
+[sub_resource type="Resource" id="c11"]
+script = ExtResource("9_cause_condit")
+causes = Array[StringName]([&"cold"])
+
+[sub_resource type="Resource" id="l_cold"]
+script = ExtResource("2_line")
+id = &"cold"
+lines = PackedStringArray("The cold took you, child. No blade: the cold that climbs from the stones when the Well breathes out.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c11")])
+priority = 45
+remembered = false
+
+[sub_resource type="Resource" id="c12"]
+script = ExtResource("9_cause_condit")
+causes = Array[StringName]([&"heat"])
+
+[sub_resource type="Resource" id="l_heat"]
+script = ExtResource("2_line")
+id = &"heat"
+lines = PackedStringArray("The heat consumed you, child. Some nights the Well burns like an oven left untended.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c12")])
+priority = 45
+remembered = false
+
+[sub_resource type="Resource" id="c13"]
+script = ExtResource("9_cause_condit")
+causes = Array[StringName]([&"quicksand"])
+
+[sub_resource type="Resource" id="l_quicksand"]
+script = ExtResource("2_line")
+id = &"quicksand"
+lines = PackedStringArray("The sand swallowed you, child, without a sound. Even I heard nothing.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c13")])
+priority = 45
+remembered = false
+
+[sub_resource type="Resource" id="c14"]
+script = ExtResource("9_cause_condit")
+causes = Array[StringName]([&"altar"])
+
+[sub_resource type="Resource" id="l_altar_solhar"]
+script = ExtResource("2_line")
+id = &"altar_solhar"
+lines = PackedStringArray("You paid the altar with your own life, child. That is how Solhar took its tithes, and it died of it.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c14"), ExtResource("11_act_iii_reac")])
+priority = 46
+remembered = false
+
+[sub_resource type="Resource" id="l_altar"]
+script = ExtResource("2_line")
+id = &"altar"
+lines = PackedStringArray("You gave your blood to the altar, and it took it all. Those old stones do not know when to stop, child.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c14")])
+priority = 45
+remembered = false
+
+[sub_resource type="Resource" id="c15"]
+script = ExtResource("9_cause_condit")
+causes = Array[StringName]([&"trap"])
+
+[sub_resource type="Resource" id="l_trap"]
+script = ExtResource("2_line")
+id = &"trap"
+lines = PackedStringArray("No beast this time: the stone itself. The Well hides teeth under its flagstones, child, on floor {floor}.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c15")])
+priority = 40
+remembered = false
+
+[sub_resource type="Resource" id="c16"]
+script = ExtResource("9_cause_condit")
+causes = Array[StringName]([&"fall"])
+
+[sub_resource type="Resource" id="l_fall"]
+script = ExtResource("2_line")
+id = &"fall"
+lines = PackedStringArray("You fell, child. The Well did not need to strike: it only opened its mouth.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c16")])
+priority = 40
+remembered = false
+
+[sub_resource type="Resource" id="c17"]
+script = ExtResource("9_cause_condit")
+causes = Array[StringName]([&"burn"])
+
+[sub_resource type="Resource" id="l_burn"]
+script = ExtResource("2_line")
+id = &"burn"
+lines = PackedStringArray("Fire took you slowly, ember by ember. I smelled the ash as far as the shrine's step.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c17")])
+priority = 40
+remembered = false
+
+[sub_resource type="Resource" id="c18"]
+script = ExtResource("9_cause_condit")
+causes = Array[StringName]([&"poison"])
+
+[sub_resource type="Resource" id="l_poison"]
+script = ExtResource("2_line")
+id = &"poison"
+lines = PackedStringArray("The venom did its work, drop by drop. Your flame paled, child, before it went out.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c18")])
+priority = 40
+remembered = false
+
+[sub_resource type="Resource" id="c19"]
+script = ExtResource("9_cause_condit")
+causes = Array[StringName]([&"blast"])
+
+[sub_resource type="Resource" id="l_blast"]
+script = ExtResource("2_line")
+id = &"blast"
+lines = PackedStringArray("A rumble, then fire. You stood too near when it burst, child.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c19")])
+priority = 40
+remembered = false
+
+[sub_resource type="Resource" id="c20"]
+script = ExtResource("8_killer_condi")
+monster_ids = Array[StringName]([])
+kind = 3
+
+[sub_resource type="Resource" id="l_elite"]
+script = ExtResource("2_line")
+id = &"elite"
+lines = PackedStringArray("{killer}, ringed in light. The bell tolled deeper for that one.", "Floor {floor}, {biome}. I keep the names of the places where you fall, child.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c20")])
+priority = 32
+remembered = false
+
+[sub_resource type="Resource" id="c21"]
+script = ExtResource("8_killer_condi")
+monster_ids = Array[StringName]([])
+kind = 4
+
+[sub_resource type="Resource" id="l_ranged"]
+script = ExtResource("2_line")
+id = &"ranged"
+lines = PackedStringArray("{killer}, from afar. You never saw the blow coming, child; I heard it whistle.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c21")])
+priority = 30
+remembered = false
+
+[sub_resource type="Resource" id="c22"]
+script = ExtResource("8_killer_condi")
+monster_ids = Array[StringName]([])
+kind = 2
+
+[sub_resource type="Resource" id="c23"]
+script = ExtResource("6_place_condit")
+where = 6
+min_depth = 10
+max_depth = 0
+
+[sub_resource type="Resource" id="l_deep_act"]
+script = ExtResource("2_line")
+id = &"deep_act"
+lines = PackedStringArray("{act}, floor {floor}. No lantern of Kagari ever went so deep, child, save one.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c22"), SubResource("c23")])
+priority = 28
+cooldown_runs = 3
+remembered = false
+
+[sub_resource type="Resource" id="c24"]
+script = ExtResource("6_place_condit")
+where = 6
+min_depth = 0
+max_depth = 2
+
+[sub_resource type="Resource" id="l_early"]
+script = ExtResource("2_line")
+id = &"early"
+lines = PackedStringArray("So soon, child. The well-rim is still warm from your hand.", "{killer}, on floor {floor}. Come up, breathe, and go down again.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c24")])
+priority = 25
+cooldown_runs = 2
+remembered = false
+
+[sub_resource type="Resource" id="c25"]
+script = ExtResource("8_killer_condi")
+monster_ids = Array[StringName]([])
+kind = 0
+
+[sub_resource type="Resource" id="l_monster"]
+script = ExtResource("2_line")
+id = &"monster"
+lines = PackedStringArray("{killer}, floor {floor}, {biome}: I felt your flame waver, then nothing.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c25")])
+priority = 20
+remembered = false
+
+[sub_resource type="Resource" id="l_monster_level"]
+script = ExtResource("2_line")
+id = &"monster_level"
+lines = PackedStringArray("You fell on floor {floor}, child, at level {level}, after {time} in the dark. {killer} was hungry.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c25")])
+priority = 20
+remembered = false
+
+[sub_resource type="Resource" id="l_monster_rope"]
+script = ExtResource("2_line")
+id = &"monster_rope"
+lines = PackedStringArray("{act}, floor {floor}. {killer} sent you back to me, and I heard you climb the bell rope.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c25")])
+priority = 20
+remembered = false
+
+[sub_resource type="Resource" id="l_unknown"]
+script = ExtResource("2_line")
+id = &"unknown"
+lines = PackedStringArray("Floor {floor}, {biome}. Something took you down there, child, and the bell could not tell me what.")
+conditions = Array[ExtResource("3_condition")]([SubResource("c1")])
+priority = 10
+remembered = false
+
+[resource]
+script = ExtResource("1_dialogue")
+id = &"vigil_tale"
+speaker = ExtResource("4_speaker")
+lines = Array[ExtResource("2_line")]([SubResource("l_first_death"), SubResource("l_threshold"), SubResource("l_deeps"), SubResource("l_charnel"), SubResource("l_by_master"), SubResource("l_by_maw"), SubResource("l_giving_up"), SubResource("l_shockwave"), SubResource("l_boss_again"), SubResource("l_boss"), SubResource("l_boss_time"), SubResource("l_cold"), SubResource("l_heat"), SubResource("l_quicksand"), SubResource("l_altar_solhar"), SubResource("l_altar"), SubResource("l_trap"), SubResource("l_fall"), SubResource("l_burn"), SubResource("l_poison"), SubResource("l_blast"), SubResource("l_elite"), SubResource("l_ranged"), SubResource("l_deep_act"), SubResource("l_early"), SubResource("l_monster"), SubResource("l_monster_level"), SubResource("l_monster_rope"), SubResource("l_unknown")])

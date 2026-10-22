@@ -24,6 +24,9 @@ const PORTRAIT := 76.0
 ## A breath between two stacked lines (seconds).
 const LINE_PAUSE := 0.35
 const OPEN_GRACE := 0.25
+## One tap is often seen twice (the touch and the mouse click the screen makes of it): presses
+## this close together count once.
+const TAP_GAP_FRAMES := 6
 const ACCENT := Color(1.0, 0.82, 0.4)
 
 var mode: Mode = Mode.PAGED
@@ -38,8 +41,9 @@ var _letters := 0.0
 var _pause := 0.0
 var _age := 0.0
 var _done := true
+var _last_tap := -100
 
-var _portrait: TextureRect
+var _portrait: PixelPortrait
 var _portrait_frame: PanelContainer
 var _name: Label
 var _title: Label
@@ -67,13 +71,8 @@ func _init(box_mode: Mode = Mode.PAGED, width: float = 760.0) -> void:
 	_portrait_frame.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	_portrait_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(_portrait_frame)
-	_portrait = TextureRect.new()
+	_portrait = PixelPortrait.new(PORTRAIT)
 	_portrait.name = "Portrait"
-	_portrait.custom_minimum_size = Vector2(PORTRAIT, PORTRAIT)
-	_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_portrait_frame.add_child(_portrait)
 	var column := VBoxContainer.new()
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -177,7 +176,18 @@ func shown_text() -> String:
 	return "\n".join(parts)
 
 
-## A tap, Enter or A: writes the page (STACKED: everything) out, else goes on to the next page,
+## A tap, a click, Enter or A (seen twice in a few frames: once). See advance().
+func tap() -> bool:
+	var now := Engine.get_process_frames()
+	if now - _last_tap < TAP_GAP_FRAMES:
+		return true
+	var took := advance()
+	if took:
+		_last_tap = now
+	return took
+
+
+## Writes the page (STACKED: everything) out, else goes on to the next page,
 ## else it is over. False if it took nothing (STACKED and already written: the tap is not its).
 func advance() -> bool:
 	if _pages.is_empty() or (mode == Mode.STACKED and _done):
@@ -263,7 +273,7 @@ func _gui_input(event: InputEvent) -> void:
 	var tapped := (event is InputEventMouseButton and (event as InputEventMouseButton).pressed \
 		and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT) \
 		or (event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed)
-	if tapped and advance():
+	if tapped and tap():
 		accept_event()
 
 
@@ -277,7 +287,7 @@ func _input(event: InputEvent) -> void:
 	var top := MenuNav.top_menu()
 	if top != null and not top.is_ancestor_of(self):
 		return
-	if advance():
+	if tap():
 		get_viewport().set_input_as_handled()
 
 

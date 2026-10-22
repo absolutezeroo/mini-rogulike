@@ -67,5 +67,5 @@ func _on_dim_input(event: InputEvent) -> void:
 		and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT) \
 		or (event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed)
 	if tapped:
-		box.advance()
+		box.tap()
 		_dim.accept_event()

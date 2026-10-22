@@ -281,11 +281,10 @@ func run() -> void:
 	check(not Profile.history.is_empty() and not str(Profile.history[0].cause).is_empty(), "the run goes to the history, with what ended it")
 	check(Profile.stat_value("kills") > 0 and Profile.stat_value("species") > 0, "kills count in the bestiary")
 	check(Profile.is_achieved(&"first_blood"), "first kill, first achievement")
-	var summary := (game.game_over_panel.get_node("%Summary") as Label).text
 	var end_text := game.game_over_panel.shown_text()
 	check(Profile.souls >= souls_before_death and end_text.contains("souls") and end_text.contains("Shrine"), "the end of a run shows its souls and what they are for")
 	check(end_text.contains("Monsters slain") and end_text.contains("Time"), "and the run's numbers")
-	check(Array(CONTENT.story.death_lines).any(func(line: String) -> bool: return summary.begins_with(line)), "and a line of the story")
+	check(game.game_over_panel.voice().is_visible_in_tree() and end_text.contains("The Vigil-Keeper"), "and the Vigil-Keeper tells how it ended (DialogueTests: what she says; with nothing to say, a line of the story)")
 	# Shrine upgrades apply to the next run.
 	Profile.levels = { "vitality": 2, "provisions": 1, "second_chance": 1, "paladin_oath": 1 }
 	Profile.difficulty = &"easy"
@@ -444,6 +443,10 @@ func run() -> void:
 	var story := StoryTests.new()
 	add_child(story)
 	await story.run_game(game)
+	# The Vigil-Keeper tells a real death; the keepers' panels (DialogueTests).
+	var dialogue := DialogueTests.new()
+	add_child(dialogue)
+	await dialogue.run_game(game)
 	var off_grid := _off_grid_texts(game)
 	check(off_grid.is_empty(), "every text of the HUD and the in-run panels is on the font's grid (Fonts.SIZES, a one-pixel outline): %s" % ", ".join(off_grid.slice(0, 6)))
 	game.queue_free()
