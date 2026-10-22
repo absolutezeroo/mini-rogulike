@@ -35,6 +35,32 @@ enum AllyNeed { NONE, HURT_ALLY, ALLY_NEAR }
 @export var cast_animation: StringName = &"cast"
 
 
+## Its shots dressed in what the hero's weapon carries, per list of elements (`effects_for`).
+var _dressed := {}
+
+
 func activate(user: Actor, aim: Vector2) -> void:
 	Sfx.play_at(sound, user.global_position)
-	Effect.apply_all(effects, user, aim)
+	Effect.apply_all(effects_for(user), user, aim)
+
+
+## Its effects as `user` casts it. A skill of the hero's weapon (Volley on a bow, Ice Shards on a
+## staff) shoots in the elements of the runes and affixes set in it, as his basic shots do
+## (docs/vfx.md "Elemental attacks"): Volley's arrows ride an Ember Rune's flames, a frost shard
+## carries them on its back. Only the elements that act on a skill's hits (`ItemLook.
+## passive_elements`: runes and affixes work like perks; the weapon's `on_hit` doesn't reach
+## skills), and only the look: each hit lands in an element when its own rules say so.
+## Copies, made once per list of elements (the data stays as written).
+func effects_for(user: Actor) -> Array[Effect]:
+	var weapon := user.get_weapon() if user is Player else null
+	if weapon == null or not weapon.skills.has(self):
+		return effects
+	var carried := ItemLook.passive_elements(weapon)
+	if carried.is_empty():
+		return effects
+	if not _dressed.has(carried):
+		var copies: Array[Effect] = []
+		for effect in effects:
+			copies.append((effect as ProjectileEffect).dressed_in(carried, false) if effect is ProjectileEffect else effect)
+		_dressed[carried] = copies
+	return _dressed[carried]

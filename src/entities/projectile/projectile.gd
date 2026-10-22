@@ -84,8 +84,9 @@ func _configure(direction: Vector2, spec: ProjectileSpec) -> void:
 	# plain things (shurikens, arrows) and matter (blood, water) don't shine at all.
 	var shines := spec.glow > 0.0 and (spec.element == null or spec.element.emissive)
 	var glow_element: VfxElementDef = null
-	if _rides and _rides.emissive:
-		# An arrow of fire lights its way and wears a halo of its flames.
+	if _rides and _rides.emissive and spec.element == null:
+		# An arrow of fire lights its way and wears a halo of its flames (a magic shot keeps
+		# its own light and halo).
 		shines = true
 		glow_element = _rides
 	var glow := $Glow as LightSource
@@ -217,12 +218,14 @@ func _draw() -> void:
 			if not PixelDraw.dither(PixelDraw.cell_of(local), t):
 				continue
 			var size := 2 if t > 0.6 and _spec.radius >= 6.0 else 1
-			if _second and i % 3 == 0:
-				# A second element the weapon carries: a few of its bits in the trail.
-				PixelDraw.bit(self, _second.bit, local, size, _second.shade(1.0 - t * 0.75), Vector2.UP if _second.motion == VfxElementDef.Motion.RISE else -_direction)
+			# Another element the weapon carries: every other bit of a magic shot's trail is the
+			# one riding it (a frost shard trailing embers), a few of a second one's.
+			var other: VfxElementDef = _rides if _rides and _spec.element and (i / 2) % 2 == 0 else (_second if _second and i % 3 == 0 else null)
+			if other:
+				PixelDraw.bit(self, other.bit, local + _drift(other, t, i), size, other.shade(1.0 - t * 0.75), Vector2.UP if other.motion == VfxElementDef.Motion.RISE else -_direction)
 				continue
 			PixelDraw.bit(self, VfxElementDef.Bit.SQUARE if _spec.element == null else _element.bit, local, size, _element.shade(1.0 - t * 0.75), -_direction)
-	if _rides:
+	if _rides and _spec.element == null:
 		_draw_riding()
 	if _sheet:
 		PixelDraw.sheet(self, _sheet, int(_age * _sheet.fps) + _phase, Vector2.ZERO, _direction, _element)
@@ -234,6 +237,8 @@ func _draw() -> void:
 	PixelDraw.disc(self, Vector2.ZERO, r + PixelDraw.PX, _element.edge())
 	PixelDraw.disc(self, Vector2.ZERO, r, _element.color())
 	PixelDraw.disc(self, Vector2.ZERO, maxf(r * 0.5, PixelDraw.PX), _element.core())
+	if _rides:
+		_draw_riding_front()
 
 
 ## A plain thing flying in an element (ProjectileSpec.look_element): a trail of its bits left
@@ -246,19 +251,24 @@ func _draw_riding() -> void:
 		var t := float(i + 1) / (_trail.size() + 1)  # 1 = newest
 		var element := _second if _second and (i / 2 + step) % 3 == 0 else _rides
 		var local := _trail[i] - global_position
-		var drift := Vector2.ZERO
-		match element.motion:
-			VfxElementDef.Motion.RISE:
-				drift = Vector2(0, -(1.0 - t) * 8.0)
-			VfxElementDef.Motion.FALL, VfxElementDef.Motion.SINK:
-				drift = Vector2(0, (1.0 - t) * 6.0)
-			VfxElementDef.Motion.OUTWARD:
-				drift = _direction.orthogonal() * (4.0 if (i + step) % 2 == 0 else -4.0) * (1.0 - t)
-		var at := local + drift
+		var at := local + _drift(element, t, i)
 		if not PixelDraw.dither(PixelDraw.cell_of(at), t):
 			continue
 		var direction := Vector2.UP if element.motion == VfxElementDef.Motion.RISE else -_direction
 		PixelDraw.bit(self, element.bit, at, 2 if t > 0.7 and element.bit != VfxElementDef.Bit.TEARDROP else 1, element.shade(0.2 + (1.0 - t) * 0.8), direction)
+
+
+## How a bit of `element` left `t` ago (1 = newest) has drifted: fire's rise, frost's fall,
+## storm's fly out to the sides.
+func _drift(element: VfxElementDef, t: float, i: int) -> Vector2:
+	match element.motion:
+		VfxElementDef.Motion.RISE:
+			return Vector2(0, -(1.0 - t) * 8.0)
+		VfxElementDef.Motion.FALL, VfxElementDef.Motion.SINK:
+			return Vector2(0, (1.0 - t) * 6.0)
+		VfxElementDef.Motion.OUTWARD:
+			return _direction.orthogonal() * (4.0 if (i + int(_age * 12.0)) % 2 == 0 else -4.0) * (1.0 - t)
+	return Vector2.ZERO
 
 
 ## Over the sheet: the element's matter riding the thing along its back half, redrawn at 12
@@ -269,8 +279,10 @@ func _draw_riding_front() -> void:
 	var step := int(_age * 12.0)
 	var back := -_direction
 	var across := _direction.orthogonal()
+	# A magic shot carries it on its back, behind its glowing core (a plain thing, along it).
+	var start := -4.0 if _spec.element == null else maxf(_spec.radius, 4.0)
 	for k in 4:
-		var foot := PixelDraw.snap(back * (5.0 * k - 4.0) + across * (PixelDraw.PX if (step + k) % 2 == 0 else 0.0))
+		var foot := PixelDraw.snap(back * (5.0 * k + start) + across * (PixelDraw.PX if (step + k) % 2 == 0 else 0.0))
 		var flicker := (step * 7 + k * 3) % 5  # each lick its own height, changing 12 times a second
 		match _rides.motion:
 			VfxElementDef.Motion.RISE:

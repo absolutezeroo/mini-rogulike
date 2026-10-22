@@ -1154,6 +1154,7 @@ func _test_elemental_attacks(game: Game) -> void:
 	var slam := hammer.charged.dressed(hammer)[0] as DamageAreaEffect
 	check(slam.element == VfxElementDef.named(&"fire") and slam.second_element == VfxElementDef.named(&"earth"), "elemental: a fire hammer's slam bursts in fire, the ground's earth adding its bits")
 	check(fire_katana.charged.element_for(fire_katana) == VfxElementDef.named(&"fire") and katana.charged.element_for(katana) == physical, "elemental: the charge glows in what the weapon carries (steel when plain)")
+	await _test_rune_shots(game, place)
 	target.queue_free()
 	player.equipment.equip(weapon_before)
 	player.perks.load_data(perks_before)
@@ -1161,7 +1162,66 @@ func _test_elemental_attacks(game: Game) -> void:
 	await _frames(5)
 
 
-## A found copy of `base` with `runes` set and `affixes` rolled (as LootRoller makes them).
+## Shots take a rune's element too (docs/vfx.md "Elemental attacks"): a magic weapon's shot stays
+## itself with the rune riding it, the weapon's skills shoot in its runes (Volley's arrows ride
+## an Ember Rune's flames, Ice Shards carry them), only the look: no hit is forced into the
+## element, a weapon's `on_hit` (its basic attack's alone) dresses no skill, monsters' and a
+## learned spell's shots stay as written.
+func _test_rune_shots(game: Game, place: Callable) -> void:
+	var player: Player = game.player
+	var world: World = game.world
+	var fire := VfxElementDef.named(&"fire")
+	var ember: Array = [load("res://data/runes/ember.tres")]
+	var shots := world.get_node("Projectiles")
+	var fired := func() -> Array:
+		return shots.get_children().filter(func(n: Node) -> bool: return n is Projectile and (n as Projectile)._shooter == player and not n.is_queued_for_deletion())
+	var clear := func() -> void:
+		for child in shots.get_children():
+			child.queue_free()
+	# A magic weapon's own shot: still a storm spark, the Ember Rune's flames riding it.
+	var wand := _imbued(load("res://data/items/weapons/magic_wand.tres"), ember, [])
+	player.equipment.equip(wand)
+	place.call()
+	await _frames(2)
+	clear.call()
+	player._attack_cooldown = 0.0
+	player.attack(Vector2.LEFT)  # away from the target: the shot is still in the air
+	await _frames(2)
+	var own: Array = fired.call()
+	var spark := own[-1] as Projectile if not own.is_empty() else null
+	check(spark != null and spark._spec.element == VfxElementDef.named(&"storm") and spark._rides == fire, "rune shots: an Ember Spark Wand's spark stays storm, flames riding it")
+	# The weapon's skills: Volley's arrows fly in the Ember Rune, landing in fire only when it burns.
+	var cases := [
+		["bow", "volley", ember, [], fire, "an Ember bow's Volley flies in fire"],
+		["stick", "ice_shards", ember, [], fire, "an Ember Frost Staff's Ice Shards carry flames"],
+		["bow", "volley", [], [], null, "a plain bow's Volley stays plain"],
+		["bow", "volley", [], [load("res://data/affixes/burning.tres")], null, "a Burning bow's Volley stays plain (on_hit is its basic attack's)"],
+	]
+	for c: Array in cases:
+		var weapon := _imbued(load("res://data/items/weapons/%s.tres" % c[0]), c[2], c[3])
+		player.equipment.equip(weapon)
+		place.call()
+		await _frames(2)
+		clear.call()
+		var skill := load("res://data/skills/player/%s.tres" % c[1]) as SkillDef
+		player.skills.reset_cooldown(skill)
+		var used := player.skills.try_use(player.skills.skills.find(skill), player, Vector2.LEFT)  # away from the target
+		await _frames(2)
+		var arrows: Array = fired.call()
+		var riding := arrows.filter(func(n: Projectile) -> bool: return n._rides == c[4])
+		var forced := arrows.filter(func(n: Projectile) -> bool: return n._spec.hit_element != null)
+		check(used and not arrows.is_empty() and riding.size() == arrows.size() and forced.is_empty(), "rune shots: %s (%d shots, %d riding it, %d forced)" % [c[5], arrows.size(), riding.size(), forced.size()])
+		check((skill.effects[0] as ProjectileEffect).look_element == null, "rune shots: %s's data stays as written" % c[1])
+	# Not the weapon's: a learned spell, a monster's cast.
+	var bow := _imbued(load("res://data/items/weapons/bow.tres"), ember, [])
+	var fireball := load("res://data/skills/player/fireball.tres") as SkillDef
+	var volley := load("res://data/skills/player/volley.tres") as SkillDef
+	player.equipment.equip(bow)
+	await _frames(1)
+	check(fireball.effects_for(player) == fireball.effects and volley.effects_for(player) != volley.effects, "rune shots: a spell not of the weapon isn't dressed in it")
+	clear.call()
+	player.equipment.equip(load("res://data/items/weapons/katana.tres"))
+	await _frames(2)
 func _imbued(base: WeaponDef, runes: Array, affixes: Array) -> WeaponDef:
 	var weapon := base.duplicate() as WeaponDef
 	weapon.base_item = base

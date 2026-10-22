@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 62,
+  "next_id": 63,
   "tags": [
     "pc",
     "test",
@@ -356,8 +356,8 @@
     {
       "id": "task_26",
       "title": "Tirs et runes élémentaires",
-      "description": "Les tirs ne prennent pas l'élément d'une rune.",
-      "status": "backlog",
+      "description": "Les tirs ne prennent pas l'élément d'une rune.\n\nFait : un tir magique (Baguette d'Étincelles, Bâton de Givre, Grimoire des Braises) garde son élément et porte celui de la rune sur son dos (flammes, givre...) avec la moitié de sa traînée ; les compétences de tir de l'arme (Salve, Éclats de Glace, Tempête de Shurikens...) tirent dans l'élément des runes et affixes passifs de l'arme, comme l'attaque de base. Seul le rendu change : un coup ne prend l'élément que si la règle de la rune agit (jet de la Rune de Braise). Les sorts appris et les monstres restent tels quels. À vérifier en jeu : la lisibilité en mouvement.",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_3",
       "due_date": null,
@@ -366,7 +366,7 @@
         "combat"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792702009
     },
     {
       "id": "task_27",
@@ -839,6 +839,21 @@
       ],
       "created_at": 1792698522,
       "updated_at": 1792700110
+    },
+    {
+      "id": "task_62",
+      "title": "Compétences sans tir et runes",
+      "description": "Suite de « Tirs et runes élémentaires » : les compétences d'arme qui ne tirent pas (l'arc de Taillade, la Nova de Givre, la zone de Pluie de Flèches) gardent leur propre rendu quand une rune élémentaire est sertie dans l'arme. Décider s'il faut les habiller aussi (ex. quelques éclats de l'élément de la rune, sans changer l'élément de leurs coups).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "vfx",
+        "combat"
+      ],
+      "created_at": 1792701997,
+      "updated_at": 1792702009
     }
   ]
 }

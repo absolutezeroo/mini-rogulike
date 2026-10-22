@@ -79,17 +79,13 @@ func describe() -> String:
 static func _dress(effect: Effect, first: VfxElementDef, second: VfxElementDef) -> Effect:
 	if effect == null:
 		return null
+	if effect is ProjectileEffect:
+		# A thing (the heavy arrow, the stars) flies in the element without being made of it and
+		# lands in it; a magic shot stays itself (the Frost Staff's shard) and another element
+		# rides it.
+		var carried: Array[VfxElementDef] = [first, second]
+		return (effect as ProjectileEffect).dressed_in(carried, true)
 	var copy := effect.duplicate() as Effect
-	if copy is ProjectileEffect:
-		var shot := copy as ProjectileEffect
-		if shot.element == null:
-			# A thing (the heavy arrow, the stars) flies in the element without being made of it.
-			shot.look_element = first
-			shot.second_element = second
-		else:
-			# A magic shot stays itself (the Frost Staff's shard); another element adds its bits.
-			shot.second_element = second if second else (first if shot.element != first else null)
-		return copy
 	if not (&"element" in copy):
 		return copy
 	var own := copy.get(&"element") as VfxElementDef

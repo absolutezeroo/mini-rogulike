@@ -666,19 +666,31 @@ kicks up dust and a few steel sparks; an element bursts there in its own impact 
 frost's shards, storm's forks, poison's splash) and sheds its bits. Monsters' clubs keep their
 slash (`club.tres`) or their `attack_fx` sheet painted in their element (`SheetVfx.in_element`).
 
-**Shots.** A magic shot is its element already (the Frost Staff's shard); a second element the
-weapon carries adds bits to its trail. A plain thing (an arrow, a star) from a weapon carrying an
-element flies **in** it without becoming it (`ProjectileSpec.look_element`): the element's
-matter rides its back half (fire's licks climbing off the shaft, rime crusting it with a glint,
-drips hanging, storm's sparks crackling), its bits trail behind it (embers rising off the path,
-chips falling), a shining element lights the floor around it (no halo: a checker round an arrow
-reads as a blur), and it goes out in its bits at the end of its range.
+**Shots.** A plain thing (an arrow, a star) from a weapon carrying an element flies **in** it
+without becoming it (`ProjectileSpec.look_element`): the element's matter rides its back half
+(fire's licks climbing off the shaft, rime crusting it with a glint, drips hanging, storm's
+sparks crackling), its bits trail behind it (embers rising off the path, chips falling), a
+shining element lights the floor around it (no halo: a checker round an arrow reads as a blur),
+and it goes out in its bits at the end of its range. A magic shot is its element already (the
+Frost Staff's shard) and stays it, its hits too; another element the weapon carries (an Ember
+Rune on the Spark Wand) **rides its back**, behind its glowing core, and every other bit of its
+trail is that element's (the shot keeps its own light and halo).
+
+**The weapon's skills** (Volley and Arrow Rain on the bow, Ice Shards on the Frost Staff...:
+`SkillDef.effects_for`) shoot in what the weapon's runes and affixes carry
+(`ItemLook.passive_elements`: they work like perks, on every hit, skills included), dressed like
+the basic shots (`ProjectileEffect.dressed_in`): Volley's arrows ride an Ember Rune's flames, a
+Rime Rune crusts the stars of Shuriken Storm, Ice Shards carry flames. The weapon's own element
+and its `on_hit` don't (a Burning bow's affix burns its basic arrows only, so Volley stays plain),
+and only the look changes: a skill's hit lands in the element when the rune's rule acts on it
+(the Ember Rune's roll), never always. A learned spell or a monster's cast stays as written. Not
+yet: skills that are no shot (Cleave's arc, Frost Nova, Arrow Rain's area) keep their own look.
 
 **Charged attacks** (`ChargedAttackDef.dressed`): the weapon's element replaces the effect's
 (a fire katana's Moonless Cut burns, a frost bow's Soulpiercer flies in rime, a storm hammer's
 Anvil Fall bursts in lightning); the effect's own element (the hammer's earth, the Templar's
-holy) or the weapon's second adds its bits. Copies per pair of elements; the data stays as
-written. The charge's gauge and glow take the same element.
+holy) or the weapon's second adds its bits; a magic shot keeps its element, the other riding
+it (as above). Copies per pair of elements; the data stays as written. The charge's gauge and glow take the same element.
 
 **The hit.** The swing always shows the element the weapon carries; the **hit** (its flash, its
 sparks, the death it deals: `HitInfo.element`) lands in it only when the element surely acts on
@@ -694,4 +706,5 @@ that hit, so what the player sees on the target is what happens to it:
 - a charged attack is the element gathered: its hits land in it.
 
 Checked for each element (fire, frost, storm, poison) on a katana, an axe, a lance, the War
-Hammer and the Bow, plus plain steel (`CombatTests._test_elemental_attacks`).
+Hammer and the Bow, plus plain steel (`CombatTests._test_elemental_attacks`); shots and the
+weapon's skills with a rune in `_test_rune_shots`.
