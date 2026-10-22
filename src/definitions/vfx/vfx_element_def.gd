@@ -71,6 +71,11 @@ enum Distortion {
 ## line (ice crystals growing then shattering, licks of fire, rock spikes). Its frames: grow,
 ## hold, break.
 @export var piece: VfxSheetDef
+## Its novas lie on the ground as one pool of its matter (GasPoolVfx: poison's gas, its rim
+## where the area ends) instead of a ring of pieces; `piece` still makes its trails and arcs.
+@export var pool: bool = false
+## What wells up in its pool and pops (poison's bubbles), on the ground with it. Optional.
+@export var pool_bubble: VfxSheetDef
 ## A creature's blow (claws, fangs) in this element.
 @export var claw: VfxSheetDef
 ## Its explosion (Vfx.explosion: a fireball bursting, the ground erupting), drawn at 2x in the

@@ -328,8 +328,8 @@
     {
       "id": "task_24",
       "title": "Nuage de poison grumeleux",
-      "description": "L'effet de nuage de poison manque de netteté.",
-      "status": "backlog",
+      "description": "L'effet de nuage de poison manque de netteté.\n\nFait : une nova de poison (Nuage de Spores, explosion venimeuse...) n'est plus un anneau de mottes debout (qui faisaient des buissons sur l'herbe) mais une seule nappe de gaz AU SOL (GasPoolVfx, gas_pool.gdshader, VfxElementDef.pool) : elle s'étend jusqu'au bord de la zone en un huitième de sa vie, un liseré net des tons les plus clairs là où la zone finit (sur le cercle du télégraphe), le bord sombre dessous, des volutes basses de brume qui laissent voir le sol, des bulles qui éclosent, puis elle s'affaisse et s'efface (~1 s). Sur la grille, dans la rampe du poison. Vérifié sur la crypte (sombre), le désert (clair) et l'herbe. À voir en jeu : le ressenti en mouvement ; les traînées et arcs de poison gardent les mottes.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_3",
       "due_date": null,
@@ -337,7 +337,7 @@
         "vfx"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792704571
     },
     {
       "id": "task_25",

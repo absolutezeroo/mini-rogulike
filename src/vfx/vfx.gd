@@ -133,7 +133,10 @@ static func pop(world: World, at: Vector2, element: VfxElementDef, radius: float
 ## A nova of `element` filling `radius` around `at` (Frost Nova, a cold wave): its pieces
 ## composed around the ring (ComposedVfx), or a ring in its ramp.
 static func nova(world: World, at: Vector2, radius: float, element: VfxElementDef) -> void:
-	world.spawn_vfx(ComposedVfx.ring(at, radius, element))
+	if element and element.pool:
+		world.spawn_vfx(GasPoolVfx.create(at, radius, element))  # poison: one pool of gas
+	else:
+		world.spawn_vfx(ComposedVfx.ring(at, radius, element))
 	if element and element.emissive:
 		world.flash_light(at, element.color(), radius * 2.0)
 

@@ -378,6 +378,18 @@ func _test_poison_kit() -> void:
 		check(weapon.element == poison and weapon.attack_fx == null and weapon.projectile_texture == null, "poison: %s is venom (its glob or its fangs, not a borrowed sheet)" % path.get_file())
 	var wyrm := load("res://data/monsters/bosses/jade_wyrm.tres") as MonsterDef
 	check(wyrm.weapon.element == poison, "poison: the Jade Wyrm bites with venom fangs, not a blood claw")
+	# Its novas are one pool of gas on the ground (not a ring of lumps): its rim where the area
+	# ends, under every actor, on the world's grid, in its ramp, bubbles welling in it.
+	check(poison.pool and poison.pool_bubble != null and poison.pool_bubble.texture != null and poison.pool_bubble.frames > 0, "poison: its novas lie as a pool of gas, bubbles welling in it")
+	var pool := GasPoolVfx.create(Vector2(13, 7), 70.0, poison)
+	var gas_look := pool.material as ShaderMaterial
+	check(VfxLayer.of(pool) == VfxLayer.Layer.GROUND and pool.z_index < 0 and not pool.z_as_relative, "poison: the pool of gas lies under every actor (never over the hero's feet)")
+	check(pool.position == PixelDraw.snap(Vector2(13, 7)) and is_equal_approx(pool.radius, 70.0) and is_equal_approx(float(gas_look.get_shader_parameter(&"radius")), 70.0), "poison: the pool sits on the grid and covers exactly the area it hit")
+	check(gas_look.shader == GasPoolVfx.SHADER and FxLook.ALL.has(GasPoolVfx.SHADER), "poison: the pool is drawn by gas_pool.gdshader, warmed at load")
+	var ramp: Array = gas_look.get_shader_parameter(&"ramp")
+	check(ramp.size() == 5 and Color(ramp[1]) == poison.ramp[1] and Color(gas_look.get_shader_parameter(&"residue")) == poison.residue, "poison: the pool is drawn in poison's ramp and its murk")
+	pool.free()
+	check(not VfxElementDef.named(&"frost").pool, "poison: other elements keep their ring of pieces (a Frost Nova's crystals)")
 
 
 ## Blood: claws rake in blood, a wound spurts and stains, Battle Cry bursts jets of blood, and
