@@ -242,11 +242,14 @@ with the run, so quitting and coming back doesn't reset it.
   seconds: "Floor 3  4:12.3  -0:05.2", green when ahead of the record run, red when behind.
   The hidden floor (dungeon.md) has no split of its own: it keeps the depth of the boss before
   it, and its time goes into the next floor's split. The bottom of the Well has one, after the
-  last act's (13), the win's. A win at the bottom is raced under the same record as a first win
-  (the same difficulty key), so the first win's record, without the bottom, is the hardest to
-  beat.
+  last act's (13), the win's.
 - **Records** (`Profile.best_times`, `best_splits`): the fastest win per difficulty and ascension
   level (`RunState.record_key()`: "normal", "nightmare/a3"), with its splits to race against.
+  A run won at the bottom of the Well (`RunState.goes_to_bottom()`: the bottom was open when it
+  began) is a longer race and has its own record ("normal/bottom", "nightmare/a3/bottom"): its
+  splits race the last run to the bottom, and a first win's record stays the first win's.
+  (Profiles from before kept a win at the bottom under the first win's key: it stays there.)
   Daily runs keep none (their own race).
 - **Where it shows**: the end screens (the time, then "New record!" or the record to beat), the
-  log, and the Codex > Runs (each run's time, the fastest wins).
+  log, and the Codex > Runs (each run's time; the fastest wins, then the fastest to the Well's
+  Bottom on their own line).

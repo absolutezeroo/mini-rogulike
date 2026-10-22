@@ -300,8 +300,8 @@
     {
       "id": "task_22",
       "title": "Record du Fond du Puits",
-      "description": "Une victoire au Fond est chronométrée sous le même record qu'une première victoire (plus courte) : séparer les records ?",
-      "status": "backlog",
+      "description": "Une victoire au Fond est chronométrée sous le même record qu'une première victoire (plus courte) : séparer les records ?\n\nFait : une partie gagnée au Fond du Puits (le Fond ouvert quand elle a commencé : RunState.goes_to_bottom()) a son propre record, clé « normal/bottom », « nightmare/a3/bottom » (RunState.record_key()) ; ses temps intermédiaires se mesurent à la dernière course jusqu'au Fond, et le record d'une première victoire reste le sien. Codex > Parties : « Victoires les plus rapides » puis, sur sa ligne, « Au Fond du Puits, les plus rapides ». Écran de fin et HUD suivent la clé. Sauvegardes : les profils gardent leurs clés ; une victoire au Fond enregistrée avant reste sous la clé de la difficulté (impossible de la distinguer). Tests : unitaires (clés, records séparés, partie reprise) et titre (codex, deux lignes).",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_2",
       "due_date": null,
@@ -309,7 +309,7 @@
         "records"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792708116
     },
     {
       "id": "task_23",

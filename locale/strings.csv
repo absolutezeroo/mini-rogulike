@@ -262,6 +262,7 @@ Achievements: %d of %d     Souls earned from them: %d,Achievements: %d of %d    
 Runs: %d     Wins: %d     Deepest floor: %d,Runs: %d     Wins: %d     Deepest floor: %d,Parties : %d     Victoires : %d     Étage le plus profond : %d
 No descent finished yet. The Well is waiting.,No descent finished yet. The Well is waiting.,Aucune descente achevée. Le Puits t'attend.
 Fastest wins:   %s,Fastest wins:   %s,Victoires les plus rapides :   %s
+Fastest to the Well's Bottom:   %s,Fastest to the Well's Bottom:   %s,"Au Fond du Puits, les plus rapides :   %s"
 Nothing heard yet.,Nothing heard yet.,Rien entendu encore.
 Still unheard: %d,Still unheard: %d,Encore à entendre : %d
 Words kept: %d of %d,Words kept: %d of %d,Paroles gardées : %d sur %d

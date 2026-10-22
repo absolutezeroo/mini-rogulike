@@ -228,6 +228,16 @@ func _test_run_time() -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 	Profile.best_times = {}
 	Profile.best_splits = {}
+	# A run won at the bottom of the Well is a longer race: its own record, the first win's kept.
+	var deep := RunState.create(CONTENT, {}, rng)
+	deep.finale_open = true
+	check(deep.goes_to_bottom() and deep.record_key() == String(deep.difficulty.id) + "/bottom" and RunState.is_bottom_record(deep.record_key()) and not RunState.is_bottom_record(run.record_key()), "a run to the bottom is raced under its own record (%s)" % deep.record_key())
+	var deep_again := RunState.create(CONTENT, deep.to_data(), rng)
+	check(deep_again.record_key() == deep.record_key(), "...still when the run is picked up again")
+	check(Profile.record_time(deep.record_key(), 200.0, splits) and Profile.best_time("normal") == 0.0 and is_equal_approx(Profile.best_time("normal/bottom"), 200.0), "a win at the bottom doesn't take the first win's record, nor the other way")
+	check(Profile.record_time("normal", 85.0, splits) and is_equal_approx(Profile.best_time("normal"), 85.0) and is_equal_approx(Profile.best_time("normal/bottom"), 200.0), "a faster first win leaves the bottom's record alone")
+	Profile.best_times = {}
+	Profile.best_splits = {}
 
 
 func _test_stat_block() -> void:

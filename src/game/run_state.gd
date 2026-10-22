@@ -3,6 +3,9 @@ extends RefCounted
 ## The run in progress: how deep, how well it goes, on what difficulty, which bosses were drawn.
 ## Saved with the run (see Game._save_run() and RunSave), restored by load_data().
 
+## The end of a record key for the runs won at the bottom of the Well (record_key()).
+const BOTTOM_RECORD := "bottom"
+
 var depth := 1
 var kills := 0
 var bosses_slain := 0
@@ -228,7 +231,7 @@ func leads_to_finale() -> bool:
 func wins_with(boss: BossDef) -> bool:
 	if has_won or not config.is_final_floor(depth):
 		return false
-	if finale_open and config.finale and config.finale.boss:
+	if goes_to_bottom():
 		return finale and boss == config.finale.final_boss()
 	return not finale
 
@@ -289,15 +292,28 @@ func run_time() -> float:
 	return finish_time if finish_time >= 0.0 else time
 
 
-## What its records are kept under: the difficulty and its ascension ("normal", "nightmare/a3").
-## Empty for a daily run (its own race).
+## What its records are kept under: the difficulty and its ascension ("normal", "nightmare/a3"),
+## and BOTTOM_RECORD for a run won at the bottom of the Well, a longer race than a first win
+## ("normal/bottom", "nightmare/a3/bottom"). Empty for a daily run (its own race).
 func record_key() -> String:
 	if is_daily():
 		return ""
 	var key := String(difficulty.id)
 	if difficulty.ascension > 0:
 		key += "/a%d" % difficulty.ascension
+	if goes_to_bottom():
+		key += "/" + BOTTOM_RECORD
 	return key
+
+
+## A record kept for runs won at the bottom of the Well (a key of record_key()).
+static func is_bottom_record(key: String) -> bool:
+	return key.ends_with("/" + BOTTOM_RECORD)
+
+
+## This run is won at the bottom of the Well, not on the last act's boss (finale_open).
+func goes_to_bottom() -> bool:
+	return finale_open and config.finale != null and config.finale.boss != null
 
 
 ## Where the run is: its act's name, or the hidden floor's.
