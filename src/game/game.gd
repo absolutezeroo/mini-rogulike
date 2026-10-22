@@ -739,8 +739,9 @@ func _on_boss_rising(_fallen: Monster, risen: Monster, seconds: float) -> void:
 
 func _on_boss_defeated(boss: Monster) -> void:
 	run.bosses_slain += 1
-	if player:
-		player.camera.lean_toward(null, 0.0)
+	var fallen := boss.def as BossDef
+	if player and not (fallen and fallen.body_stays):
+		player.camera.lean_toward(null, 0.0)  # (a body that stays is still worth looking at)
 	if content.dungeon.rerolls_per_boss > 0:
 		run.rerolls += content.dungeon.rerolls_per_boss
 		Events.log_message(tr("+%d reroll for the perk choices.") % content.dungeon.rerolls_per_boss, Palette.GOLD)

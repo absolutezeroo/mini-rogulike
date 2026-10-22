@@ -153,8 +153,9 @@ do but watch), **the Maw** rises out of a pool of tar at the top of the arena (`
 0.5, 0.24), his body is drawn into its mouth, and the boss bar passes to it with its name's
 banner. The arena stays shut, no stairs, no relic between the two.
 
-**La Gueule, la Faim du Puits / The Maw, the Well's Hunger.** Rooted, never pushed, its own
-golden light in the dark; the view leans toward it (`camera_lean` 0.45) so it and the hero both
+**La Gueule, la Faim du Puits / The Maw, the Well's Hunger.** Rooted, never pushed, lit from
+within (the false sun: drawn over the floor's light with a holy halo behind its mask, and its own
+golden light on the floor, brighter while open: `lit_from_within`, `halo_element`, `glow_level`); the view leans toward it (`camera_lean` 0.45) so it and the hero both
 stay on a phone's screen. Hana's voice wakes with it: « Papa... reste. » / "Papa... stay."
 Its jaw is a **WeakPointTrait**: closed 6.5 s (5 s from 60%, 3.8 s from 30%), open 3.6 s (3.2 s
 at the end). Open, Tôma is seen standing in its mouth: every hit lands; it draws the hero in (55

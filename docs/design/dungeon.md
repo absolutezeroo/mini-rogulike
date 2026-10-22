@@ -228,7 +228,7 @@ bottom of the Well"; the canon in docs/lore.md, section 7, step 7).
   `FinaleDef.route()`, `RunState.leads_to_finale()`). Only on the first pass (not in endless
   mode, not once won).
 - **The floor**: a start room and an arena (`DungeonGenerator.generate_arena()`) in its own
-  world (`well_bottom` biome and theme: grey stone, a violet grade, ambient light 2 of 15, no
+  world (`well_bottom` biome and theme: grey stone, a violet grade, ambient light 3 of 15, no
   lamp in the arena: `FinaleDef.arena_lights` 0, the hero's lantern and the Maw's glow light it),
   an oval arena of 27x21 with no pillars and no changes (`data/arenas/well_bottom.tres`; a fight
   of several forms keeps its arena as it is). Its title card ("The End of the Descent"), no

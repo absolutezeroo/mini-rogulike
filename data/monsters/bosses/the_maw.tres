@@ -23,6 +23,7 @@
 [ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="21_potion"]
 [ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="22_plate"]
 [ext_resource type="Resource" path="res://data/items/tomes/tome_healing.tres" id="23_tome"]
+[ext_resource type="Resource" path="res://data/vfx/elements/holy.tres" id="24_holy"]
 [ext_resource type="Resource" path="res://data/materials/armor.tres" id="99_material"]
 
 [sub_resource type="Resource" id="Resource_jaw"]
@@ -44,10 +45,14 @@ bite_element = ExtResource("18_blood")
 glow_level = 7
 open_glow = 3
 glow_color = Color(1, 0.78, 0.42, 1)
+lit_from_within = true
+halo_element = ExtResource("24_holy")
+halo_size = 50.0
+halo_offset = Vector2(0, -150)
 pool_color = Color(0.07, 0.05, 0.09, 1)
 pool_rim = Color(0.3, 0.24, 0.34, 1)
-pool_size = Vector2(176, 40)
-pool_offset = Vector2(0, 18)
+pool_size = Vector2(230, 56)
+pool_offset = Vector2(0, 14)
 
 [sub_resource type="Resource" id="Resource_dawn_stats"]
 script = ExtResource("6_stats")

@@ -163,5 +163,5 @@ Decided:
   pool of tar. Its jaw shut, it is a mask; open, Tôma stands inside its mouth. It never walks: it
   rises out of the tar at the top of the arena and stays there.
 - **The arena:** the Bottom of the Well, a round floor of grey stone (an oval arena, no pillars)
-  in near-total dark (ambient light 2 of 15, no lamps): the hero's lantern and the Maw's own
+  in near-total dark (ambient light 3 of 15, no lamps): the hero's lantern and the Maw's own
   golden glow light it. Tôma kneels below its middle; the Maw rises at its top.

@@ -20,6 +20,8 @@ var _toasts: Array[String] = []
 var _split_tween: Tween
 ## The run time's text on screen (rebuilt only when it changes).
 var _time_text := ""
+## The note on screen (its fade in, wait and fade out), stopped when a banner comes up.
+var _toast_tween: Tween
 var _toast_busy := false
 ## The trial of the Threshold's counters (see bind_threshold()).
 var _threshold_hud: ThresholdHud
@@ -409,7 +411,8 @@ func _on_synergy_awakened(synergy: SynergyDef) -> void:
 	Events.log_message(tr("%s awakens: %s") % [tr(synergy.display_name), tr(synergy.description)], synergy.color)
 
 
-## A short note at the top of the screen (achievements...). Several wait their turn.
+## A short note at the top of the screen (achievements...). Several wait their turn, and none
+## comes up while a banner shows (a boss's name, its words): they never stack in the middle.
 func toast(text: String) -> void:
 	_toasts.append(text)
 	if not _toast_busy:
@@ -421,14 +424,29 @@ func _next_toast() -> void:
 		_toast_busy = false
 		return
 	_toast_busy = true
+	if _depth_banner.modulate.a > 0.05:
+		# A banner is up (a boss' name, its words): the note waits under it, never over it.
+		get_tree().create_timer(0.3, false).timeout.connect(_next_toast)
+		return
 	(%ToastLabel as Label).text = _toasts.pop_front()
 	Sfx.play_ui(Sfx.bank.level_up, -6.0)
 	var toast_panel: Control = %Toast
-	var tween := create_tween()
-	tween.tween_property(toast_panel, "modulate:a", 1.0, 0.25)
-	tween.tween_interval(2.4)
-	tween.tween_property(toast_panel, "modulate:a", 0.0, 0.4)
-	tween.tween_callback(_next_toast)
+	_toast_tween = create_tween()
+	_toast_tween.tween_property(toast_panel, "modulate:a", 1.0, 0.25)
+	_toast_tween.tween_interval(2.4)
+	_toast_tween.tween_property(toast_panel, "modulate:a", 0.0, 0.4)
+	_toast_tween.tween_callback(_next_toast)
+
+
+## A banner comes up while a note shows: the note steps aside and comes back after it.
+func _yield_toast() -> void:
+	var toast_panel: Control = %Toast
+	if toast_panel.modulate.a <= 0.05 or _toast_tween == null or not _toast_tween.is_valid():
+		return
+	_toast_tween.kill()
+	toast_panel.modulate.a = 0.0
+	_toasts.push_front((%ToastLabel as Label).text)
+	get_tree().create_timer(0.3, false).timeout.connect(_next_toast)
 
 
 ## Souls gathered this run (what the shrine will get). `pulse` when a new one arrives.
@@ -446,6 +464,7 @@ func set_souls(count: int, pulse: bool = false) -> void:
 
 ## Big centered text that fades out (floor names, boss names...).
 func show_banner(text: String, color: Color = Color(1, 0.82, 0.4)) -> void:
+	_yield_toast()
 	_depth_banner.text = text
 	_depth_banner.add_theme_color_override("font_color", color)
 	if _banner_tween:

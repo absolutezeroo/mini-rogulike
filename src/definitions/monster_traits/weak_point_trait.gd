@@ -54,6 +54,13 @@ enum Stage { CLOSED, OPENING, OPEN, CLOSING }
 @export_range(0, 15) var glow_level: int = 0
 @export_range(0, 6) var open_glow: int = 2
 @export var glow_color: Color = Color(1.0, 0.8, 0.45)
+## Its body shines of its own (the false sun's gold): drawn over the floor's light and the mist
+## over the walls, so the dark arena never dulls it, with a halo of `halo_element` behind it
+## (null: none; GlowHalo).
+@export var lit_from_within: bool = false
+@export var halo_element: VfxElementDef
+@export var halo_size: float = 50.0
+@export var halo_offset: Vector2 = Vector2(0, -150)
 ## The pool it rises from, on the ground under it (alpha 0: none): its size and where.
 @export var pool_color: Color = Color(0, 0, 0, 0)
 @export var pool_rim: Color = Color(0.3, 0.26, 0.32)
@@ -78,6 +85,16 @@ func on_spawn(monster: Monster) -> void:
 		light.position = mouth_offset + Vector2(0, -60)
 		monster.add_child(light)
 		state.light = light
+	if lit_from_within and monster.rig:
+		# Over the floor's light (LightField.Z) and the mist over the walls it rises from
+		# (PlateauMist.Z): its own colors. Under the effects in the air (drawn after the actors).
+		monster.rig.z_as_relative = false
+		monster.rig.z_index = PlateauMist.Z + 1
+		var halo := GlowHalo.attach(monster, halo_element, halo_size, halo_offset, GlowHalo.Pulse.BREATHE)
+		if halo:
+			halo.z_as_relative = false
+			halo.z_index = PlateauMist.Z + 1
+			monster.move_child(halo, monster.rig.get_index())  # behind the body, never over it
 
 
 ## Which stage it is in (CLOSED, OPENING, OPEN, CLOSING).
@@ -270,8 +287,8 @@ func deflects(monster: Monster, hit: HitInfo) -> bool:
 	return true
 
 
-## The pool it rises from (ground layer, under every body): a flat oval of art pixels, its rim
-## catching the light, its tar swelling slowly.
+## The pool it rises from (ground layer, under every body): a flat, ragged puddle of art pixels
+## (its edge wavers, tar drips out of it), its far rim catching the light.
 func draw_under(monster: Monster, canvas: CanvasItem) -> void:
 	if pool_color.a <= 0.0:
 		return
@@ -284,22 +301,31 @@ func _pool_texture() -> Texture2D:
 	var key := [pool_color, pool_rim, pool_size]
 	if _pools.has(key):
 		return _pools[key]
-	var cells := Vector2i(maxi(4, roundi(pool_size.x / PixelDraw.PX)), maxi(2, roundi(pool_size.y / PixelDraw.PX)))
+	var cells := Vector2i(maxi(8, roundi(pool_size.x / PixelDraw.PX)), maxi(4, roundi(pool_size.y / PixelDraw.PX)))
 	var image := Image.create(cells.x, cells.y, false, Image.FORMAT_RGBA8)
 	var half := Vector2(cells) * 0.5
-	var dark := Color(pool_color.r * 0.6, pool_color.g * 0.6, pool_color.b * 0.6, 1.0)
+	var body := Color(pool_color, 1.0)
+	var depth := Color(pool_color.r * 0.6, pool_color.g * 0.6, pool_color.b * 0.6, 1.0)
+	# The main puddle (its edge wavering by angle), and a few drips around it.
+	var blobs: Array[Vector3] = [Vector3(0.0, 0.0, 0.78), Vector3(-0.62, 0.25, 0.3), Vector3(0.58, 0.3, 0.34), Vector3(0.2, 0.55, 0.22), Vector3(-0.3, -0.45, 0.2)]
 	for y in cells.y:
 		for x in cells.x:
 			var at := (Vector2(x, y) + Vector2(0.5, 0.5) - half) / half
-			var d := at.length()
-			if d > 1.0:
+			var inside := 0.0  # how deep in the tar (1: the middle of a blob)
+			for blob in blobs:
+				var from := (at - Vector2(blob.x, blob.y)) / blob.z
+				var angle := from.angle()
+				var edge := 1.0 + 0.12 * sin(angle * 3.0 + 1.0) + 0.08 * sin(angle * 5.0 + 2.3) + 0.05 * sin(angle * 9.0)
+				inside = maxf(inside, 1.0 - from.length() / edge)
+			if inside <= 0.0:
 				continue
-			var color := Color(pool_color, 1.0)
-			if d > 0.86:
-				color = pool_rim if at.y < 0.0 else dark  # the far rim catches the light
-			elif d > 0.7 and PixelDraw.dither(Vector2i(x, y), (d - 0.7) / 0.3):
-				color = dark
-			elif at.y < -0.2 and absf(at.x) < 0.5 and (x + y * 3) % 11 == 0:
+			var color := body
+			var cell := Vector2i(x, y)
+			if inside < 0.12:
+				color = pool_rim if at.y < 0.05 else depth  # the far rim catches the light
+			elif inside > 0.45 and PixelDraw.dither(cell, clampf((inside - 0.45) * 2.0, 0.0, 1.0)):
+				color = depth  # deeper in the middle
+			elif at.y < -0.1 and inside > 0.2 and inside < 0.4 and (x * 7 + y * 3) % 23 == 0:
 				color = pool_rim  # a glint on the tar
 			image.set_pixel(x, y, color)
 	var texture := ImageTexture.create_from_image(image)
