@@ -66,7 +66,7 @@ slain = 2
 script = ExtResource("6_chroniclecha")
 id = &"an_order_at_last"
 title = "An Order, at Last"
-lines = PackedStringArray("When the kingdom fell, his king became a heap of gold. Vardan refused to guard gold.", "The shrine's keeper brought him what he lacked: an order. \"Guard these souls. Let no one drive them up.\"", "A guard without orders is only armor. He said yes.")
+lines = PackedStringArray("When the kingdom fell, his king became a heap of gold. Vardan refused to guard gold.", "The shrine's keeper brought him what he lacked, an order: \"Guard these souls, and let no one drive them up.\"", "A guard without orders is only armor. He said yes.")
 slain = 4
 
 [sub_resource type="Resource" id="Resource_9"]
@@ -84,7 +84,7 @@ count = 1
 [sub_resource type="Resource" id="Resource_11"]
 script = ExtResource("9_wakingline")
 id = &"the_roll"
-line = "You read the roll of the seventh step. All those names. I pushed them, one by one."
+line = "You read the roll of the seventh step, all those names. I pushed them, one by one."
 conditions = Array[ExtResource("8_progresscond")]([SubResource("Resource_10")])
 
 [sub_resource type="Resource" id="Resource_12"]

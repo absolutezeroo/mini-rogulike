@@ -74,7 +74,7 @@ count = 1
 [sub_resource type="Resource" id="Resource_10"]
 script = ExtResource("7_wakingline")
 id = &"a_worshipper_who_reads"
-line = "A worshipper who reads. Good. Read what was scratched out, too."
+line = "A worshipper who reads, good. Read what was scratched out, too."
 conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_9")])
 
 [sub_resource type="Resource" id="Resource_11"]

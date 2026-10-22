@@ -10,7 +10,7 @@ extends Control
 signal tapped
 
 ## Room around the text in the bottom bar, and the widest the text may be (UI pixels).
-const TEXT_MARGIN := Vector2(40, 14)
+const TEXT_MARGIN := Vector2(40, 18)
 const TEXT_MAX_WIDTH := 1000.0
 ## The bottom bar's height follows its text at this speed (UI pixels a second).
 const GROW_SPEED := 900.0
@@ -24,6 +24,8 @@ var _name_box: VBoxContainer
 var _name: Label
 var _title: Label
 var _text_box: VBoxContainer
+## The subject's own words, above the chapter's title.
+var _speech: Label
 var _heading_row: HBoxContainer
 var _heading: Label
 var _new_mark: PanelContainer
@@ -92,6 +94,8 @@ func begin_text(heading: String, is_new: bool) -> void:
 	for child in _lines.get_children():
 		_lines.remove_child(child)
 		child.queue_free()
+	_speech.text = ""
+	_speech.hide()
 	_heading.text = heading
 	_heading_row.visible = not heading.is_empty()
 	_new_mark.visible = is_new and not heading.is_empty()
@@ -106,6 +110,16 @@ func add_line(text: String, color: Color) -> Label:
 	label.visible_characters = 0
 	_lines.add_child(label)
 	return label
+
+
+## The subject's words, above the heading, empty-looking until the director writes them out.
+func set_speech(text: String, color: Color) -> Label:
+	_speech.text = text
+	_speech.add_theme_color_override("font_color", color)
+	_speech.custom_minimum_size.x = _text_width()
+	_speech.visible_characters = 0
+	_speech.show()
+	return _speech
 
 
 ## The name and the lines fade out.
@@ -123,6 +137,11 @@ func lines_text() -> PackedStringArray:
 	for label: Label in _lines.get_children():
 		result.append(label.text)
 	return result
+
+
+## The subject's words on screen ("" for none).
+func speech_text() -> String:
+	return _speech.text if _speech.visible else ""
 
 
 func heading_text() -> String:
@@ -151,6 +170,7 @@ func _clear_now() -> void:
 		_lines.remove_child(child)
 		child.queue_free()
 	_heading_row.visible = false
+	_speech.hide()
 	_name.text = ""
 	_title.text = ""
 	_name_box.modulate.a = 0.0
@@ -236,6 +256,10 @@ func _build() -> void:
 	_text_box.add_theme_constant_override("separation", 6)
 	_text_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_text_box)
+	_speech = UiSkin.label("", Fonts.BODY, UiSkin.TEXT, true)
+	_speech.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_speech.hide()
+	_text_box.add_child(_speech)
 	_heading_row = HBoxContainer.new()
 	_heading_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	_heading_row.add_theme_constant_override("separation", 10)

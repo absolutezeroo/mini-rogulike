@@ -86,6 +86,34 @@ changing with each meeting).
 | Le Soleil Mort / Dead Sun | Solhar's god: the Maw's old mask | it speaks as the Maw's echo; never says "I" (the Well never says "I"). |
 | Le Gisant Sans Nom / Nameless Effigy | the first keeper, who sealed the Maw | the seal, the price of a name, the cut in the seal. |
 
+### 5b. Their chronicles (who they were, as if they had lived)
+
+Each warden's story is told a chapter at a time before its fights (`data/story/chronicles/`, the
+`lore` skill; how it is told: docs/design/presentation.md "Boss stories"). These are the facts
+the chronicles, their fragments and their deeds hold; anything new written for a warden goes here.
+The keeper is "le gardien du sanctuaire" / "the shrine's keeper" until the reveal (section 7).
+
+| Warden | Who it was (a name, a place, a habit) | Its regret | Its deed (what earns its truth) | Its fragments |
+|---|---|---|---|---|
+| Bloated King | **the Nushi** of the well-rim: a living puddle in the Well's throat that drank the lanterns' wax and ate moss; Kagari's children threw it coins for wishes. Everything it swallowed floats in it; the shrine's bronze offering bowl, in which the keeper poured the first soul, stuck on its head as a crown. | it thought the coins were love; it keeps a holed coin on a red cord a little girl threw, laughing (Hana: never said). | burst within 60 s ("it only grows on the time you give it"). | a child's wish slip ("do not eat the moon"); the sexton's register of offerings; a journal page. |
+| Mire Matron | the old frog of the spring under Kagari, where the village girls floated **paper boats** with candles on summer evenings; she sang to them with her brood. She drank the water of a drowning: her song ends on "Ha. Na.". The keeper sat by her spring every evening, then gave her the children's souls. | one boat is missing; she still looks for it. She knows the girl's voice in the spring has no throat. | drink at the Spring of the Drowned, then slay her in the same run. | the boat rhyme; a well-digger's note; a journal page. |
+| Gorr the One-Eyed | **Gorr**, Kagari's gravedigger: every skull a niche, every niche a name; a falling stone took one eye. He held the bell's rope at every keeper's lantern-oath and heard the last keeper swear. Horns grew with the Well's breath. | he could not name all the souls of the moonless night; he trusted "a hand that swore". He carved Hana a doll from an ox bone. | slain while sworn to an oath of the Tree of Souls. | the Ossuary register (niche forty kept for himself); the rite of the oath; a journal page. |
+| Azure Wyrm | **the Winter Sleeper**: slept under the crypt longer than Kagari stood, her breath keeping the dead from rot; the old folk left cold rice on the steps. The cold breath of the moonless night was not hers: it came from below, and every flame was already out when she woke. Bound with chains of a steel frost cannot bite. | she never said goodbye to her green sister. | finished by fire. | the prayer of the cold steps; Brann's note on frost; a journal page. |
+| Mother of Tears | Kagari's **mourners**, paid in rice to sing at funerals, their veils knotted together in the Ossuary. They weep for the one child no one buried. The keeper was the only living man who came to weep with them; he gave them the souls of the grieving. | they never asked him whom he wept for. They know the song below lies. | slain without a single wound. | their lament; old Sayo's advice to her niece; a journal page. |
+| Crimson Tengu | a **mountain tengu** of the peaks above Kagari who dove into the Well after a falling feather, burned his wings, found the Pyre Temple still burning and made himself its priest; sweeps the ash every dawn. **He taught the keeper the words of the rite.** Under the soot, the rite's scratched-out word is not "sun" but "mouth". | he answered when he should have kept silent. | slain without healing during the fight (the rite forbids a remedy while the offering burns). | his feather journal; a Solhar priest's rubric of the rite; a journal page. |
+| Ember Ronin | **Vardan**, guard of the seventh step of Solhar's temple, of the guards' school of curved single-edged blades ("one edge, one loyalty"); Kagari later called him rônin. On the day of the great Tithe he obeyed and drove up the steps people whose names he knew; he saw the sun up close: a mouth that thanked the king. He refused to guard his king's gold; the keeper gave him an order instead. | he obeyed. | slain with a Katana (a blade of his school). | the roll of the seventh step; the guards' code on his scabbard; a journal page. |
+| Jade Wyrm | the Azure Wyrm's **sister**, who loved warmth and went down to it; Solhar's priests fed her and called her **the Gentle One**: her venom put the offerings to sleep before the pyres. She coils around a crack where the Maw's warm breath rises. She needed no chains; she serves gladly. | she knows a hunger never gives back, and stays for the warmth. | slain on Martyr or Nightmare ("only those who come down as martyrs"). | a scale charm of an offering; the priests' ordinance (Hushed Archive); a journal page. |
+| Gilded Hoarder | **Ostarion**, last king of Solhar, who knew famine as a child and swore Solhar would never hunger again; he gave the whole Tithe in a day, then his people. The sun paid in gold, never in bread; in the last winter he chewed coins. Every coin bears his face. The Old Wanderer sold him spices. | he could warn the keeper; he wants to see whether he pays too. | slain by a run that bought nothing from the merchant. | the Tithe ledger's last page; the Old Wanderer's letter; a journal page. |
+| Dead Sun | **the Great Noon**, hymned at the hour shadows vanish; it took the whole kingdom when no souls were left, and still shines for its dead at noon. It needed no binding: the keeper knelt to it and it answered with Hana's voice. Speaks only in commands, never "I". | (a mask has none: it is what hungers, trying on a face; the mask is cracking). | slain with the Templar Sword (only blessed steel wounds it). | the noon hymn; a templar's warning; a journal page. |
+| Nameless Effigy | the **first keeper**, a knight Solhar claims (others say he had no land), who gave his name to the seal and tries the names of the dead on himself. The last keeper of Kagari came with his lantern unlit, cut the seal's last knot the way he teaches his pupil, and bound him to guard what he had sworn to prevent. He saw the Maw: "a lack that had taken shape". The door could close again by giving him back his name, or by someone giving their own. | the first keeper serves the last. | slain losing less than a quarter of one's Health ("a blade that does not tremble"). | an effaced epitaph; Brann's note on his blades; Tôma's last journal page. |
+
+New facts these hold: **Brann forged the chains with which Tôma bound the wardens** (he gave them
+"without looking at me"), and the Effigy's blades long before, weeping; this is what he atones
+for. **Tôma found the promise in the Hushed Archive and the way (the rite of feeding) from the
+Crimson Tengu.** The Dead Sun answered him with Hana's voice. Each warden carries a page of
+**Tôma's journal** (found only after the reveal), one per warden, from the first soul poured in
+the bronze bowl to the cut in the seal.
+
 ## 6. The keepers and the voices you meet
 
 | Character (FR / EN) | Truth | Voice |
@@ -116,6 +144,12 @@ fragments found, the Effigy slain, victories). A rough order:
    Tôma dies in peace, Hana rests) or take his place (become the nameless keeper of the seal).
 
 Rule: a line may **hint** at a later step, never **state** it.
+
+In the data: the steps are `ProgressCondition`s (data/story/conditions/: `act_ii_reached`,
+`act_iii_reached`, `first_victory`, `keeper_named`). **The keeper may be named** (steps 5 and 6 for
+the chronicles: his name in the wardens' mouths, his journal's pages) once the Nameless Effigy is
+slain and a run is won (`keeper_named`, `NarrativeDef.keeper_reveal`); every text holding "Tôma"
+asks for it, which the tests check in both languages.
 
 ## 8. Rules of the canon
 

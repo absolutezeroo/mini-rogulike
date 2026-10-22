@@ -11,6 +11,6 @@ id = &"crimson_tengu_journal"
 title = "Tôma's Journal, a Scorched Page"
 author = "Tôma, keeper of the shrine"
 place = "The Pyre Temple"
-lines = PackedStringArray("The Tengu told me the words of the rite without a pause. He was glad someone listened.", "In the Hushed Archive I had found the promise. Here I found the way.", "It must be fed, a great deal. Forgive me, Kagari. Hana first.")
+lines = PackedStringArray("The Tengu told me the words of the rite without a pause. He was glad someone listened.", "In the Hushed Archive I had found the promise. Here I found the way.", "It must be fed, a great deal. Forgive me, Kagari: Hana first.")
 look = ExtResource("3_keeperjourna")
 conditions = Array[ExtResource("4_progresscond")]([ExtResource("2_keepernamed")])

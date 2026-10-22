@@ -73,7 +73,7 @@ slain = 4
 script = ExtResource("6_chroniclecha")
 id = &"the_mask"
 title = "The Mask"
-lines = PackedStringArray("It is no god. It is not even a sun. It is a mask, and behind the mask, a mouth.", "When it speaks, it is not the one speaking. It is what hungers, at the very bottom, trying on a face.", "The mask is cracked. Soon the mouth will not need it.")
+lines = PackedStringArray("It is no god, not even a sun. It is a mask, and behind the mask, a mouth.", "When it speaks, it is not the one speaking. It is what hungers, at the very bottom, trying on a face.", "The mask is cracked. Soon the mouth will not need it.")
 slain = 6
 conditions = Array[ExtResource("8_progresscond")]([SubResource("Resource_2")])
 
@@ -84,13 +84,13 @@ count = 1
 [sub_resource type="Resource" id="Resource_11"]
 script = ExtResource("9_wakingline")
 id = &"give_and_harvest"
-line = "Pray. The harvest will come. Give, and the harvest will come."
+line = "Pray, and the harvest will come. Give, and the harvest will come."
 conditions = Array[ExtResource("8_progresscond")]([SubResource("Resource_10")])
 
 [sub_resource type="Resource" id="Resource_12"]
 script = ExtResource("9_wakingline")
 id = &"toma_gave"
-line = "Tôma gave. The harvest will come. The harvest always comes."
+line = "Tôma gave, and the harvest will come. The harvest always comes."
 conditions = Array[ExtResource("8_progresscond")]([ExtResource("10_keepernamed")])
 
 [resource]

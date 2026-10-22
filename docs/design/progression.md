@@ -185,7 +185,14 @@ with a finger (`TouchScroll`); `CodexRows` builds their rows, with a tick box fo
   Boss and Celestial badges; unknown ones are dark shapes until met). Its page has three columns:
   look, where it lives and its Celestial form; attacks with the preview, how it behaves and its stats
   (Health, Damage, Armor, Move speed, each with what the number means); hunter ranks (slay N,
-  +X souls, done or not) and challenges.
+  +X souls, done or not) and challenges. A warden's page has two tabs in its middle column,
+  **Attacks** and **Chronicle** (`ChronicleRows`, asking `Narrative`): "Chapters 3 of 6, Fragments 1
+  of 3", the open chapters in order with their lines, the locked ones as "???" with what opens them
+  in plain words ("Slay it 4 times", "Find 2 fragments about it", "Reach floor 7"; a deed as its
+  riddle in the Well's voice until the fragment that gives its rule away is found), its waking
+  words, and its fragments (found ones are buttons that open their reading panel again, the
+  others "???" with where they lie: "Found on the floors of Act II"). Unmet wardens show nothing
+  but "Meet it to begin its chronicle".
 - **Achievements** (`data/achievements/`, `AchievementDef`): a goal on one of the profile's counters
   (kills, elites, wardens, kinds of creatures, depth, victories on Martyr / Nightmare / ascension,
   monsters pushed into holes, chests, Epic items, encounters, gold or level in one run, secret

@@ -65,7 +65,7 @@ slain = 2
 script = ExtResource("5_chroniclecha")
 id = &"fed_first"
 title = "The Keeper Fed It First"
-lines = PackedStringArray("The shrine's keeper fed it first, by his own hand. Then he spoke to it as one speaks to a dog in training.", "\"Keep them. Do not digest them. I will come back for them.\"", "He never came back. The souls weigh, and the King swells.")
+lines = PackedStringArray("The shrine's keeper fed it first, by his own hand. Then he spoke to it as one speaks to a dog in training.", "\"Keep them, and do not digest them. I will come back for them.\"", "He never came back. The souls weigh, and the King swells.")
 slain = 4
 
 [sub_resource type="Resource" id="Resource_9"]
@@ -89,7 +89,7 @@ conditions = Array[ExtResource("7_progresscond")]([SubResource("Resource_10")])
 [sub_resource type="Resource" id="Resource_12"]
 script = ExtResource("8_wakingline")
 id = &"his_bowl"
-line = "Tôma. The bowl smelled of him. He said he would come back."
+line = "Tôma. The bowl smelled of him; he said he would come back."
 conditions = Array[ExtResource("7_progresscond")]([ExtResource("9_keepernamed")])
 
 [resource]

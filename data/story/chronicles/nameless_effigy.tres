@@ -85,13 +85,13 @@ count = 1
 [sub_resource type="Resource" id="Resource_11"]
 script = ExtResource("9_wakingline")
 id = &"what_was_i_called"
-line = "You carry the lantern. I carried it too. Tell me... what was I called?"
+line = "You carry the lantern; I carried it too. Tell me... what was I called?"
 conditions = Array[ExtResource("7_progresscond")]([SubResource("Resource_10")])
 
 [sub_resource type="Resource" id="Resource_12"]
 script = ExtResource("9_wakingline")
 id = &"mine_in_the_seal"
-line = "Tôma. I know his name. Mine he left in the seal, with the cut."
+line = "Tôma, I know his name. Mine he left in the seal, with the cut."
 conditions = Array[ExtResource("7_progresscond")]([ExtResource("10_keepernamed")])
 
 [resource]

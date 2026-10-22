@@ -6,9 +6,10 @@ extends CinematicStep
 ## short version remembers.
 
 enum Source {
-	## The chapter told this time, under its title (with "New" when it is not the first one).
+	## The chapter told this time, under its title (with "New" when it is not the first one),
+	## after the subject's own words if it says some: one block, written out at once by a tap.
 	CHAPTER,
-	## What the subject says as it wakes, in quotes (nothing if it says nothing).
+	## Only what the subject says as it wakes, in quotes (nothing if it says nothing).
 	SPEECH,
 	## One line: its words if it has some, else a line of a chapter already told.
 	ECHO,
@@ -25,29 +26,19 @@ func play(director: CinematicDirector) -> void:
 	var beat := director.story
 	if beat == null:
 		return
-	var heading := ""
-	var is_new := false
-	var lines := PackedStringArray()
-	var speech := false
+	var speech := tr("\"%s\"") % tr(beat.speech.line) if beat.speech else ""
 	match source:
 		Source.CHAPTER:
-			if beat.chapter == null:
-				return
-			heading = tr(beat.chapter.title)
-			is_new = beat.chapter_is_new
-			for line in beat.chapter.lines:
-				lines.append(tr(line))
+			var lines := PackedStringArray()
+			if beat.chapter:
+				for line in beat.chapter.lines:
+					lines.append(tr(line))
+			var heading := tr(beat.chapter.title) if beat.chapter else ""
+			await director.narrate(heading, beat.chapter_is_new, lines, text_color, typed, speech, speech_color)
 		Source.SPEECH:
-			if beat.speech == null:
-				return
-			lines.append(tr("\"%s\"") % tr(beat.speech.line))
-			speech = true
+			await director.narrate("", false, PackedStringArray(), text_color, typed, speech, speech_color)
 		Source.ECHO:
-			if beat.speech:
-				lines.append(tr("\"%s\"") % tr(beat.speech.line))
-				speech = true
+			if not speech.is_empty():
+				await director.narrate("", false, PackedStringArray(), text_color, typed, speech, speech_color)
 			elif not beat.echo.is_empty():
-				lines.append(tr(beat.echo))
-			else:
-				return
-	await director.narrate(heading, is_new, lines, speech_color if speech else text_color, typed)
+				await director.narrate("", false, PackedStringArray([tr(beat.echo)]), text_color, typed)

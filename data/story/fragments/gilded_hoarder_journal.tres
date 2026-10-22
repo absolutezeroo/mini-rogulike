@@ -11,6 +11,6 @@ id = &"gilded_hoarder_journal"
 title = "Tôma's Journal, a Gilded Page"
 author = "Tôma, keeper of the shrine"
 place = "The Kingdom of Dust"
-lines = PackedStringArray("The king of Solhar smiled when I offered him the souls. He had already done what I am doing.", "I asked him whether the promise was kept. He showed me his gold.", "It is not the same. Hana is not gold. It is not the same.")
+lines = PackedStringArray("The king of Solhar smiled when I offered him the souls. He had already done what I am doing.", "I asked him whether the promise was kept. He showed me his gold.", "It is not the same. Hana is not gold; it is not the same.")
 look = ExtResource("3_keeperjourna")
 conditions = Array[ExtResource("4_progresscond")]([ExtResource("2_keepernamed")])

@@ -64,7 +64,7 @@ slain = 4
 script = ExtResource("4_chroniclecha")
 id = &"what_the_sun_is"
 title = "What the Sun Is"
-lines = PackedStringArray("She knows Solhar's sun better than its priests did: she sleeps against its cheek.", "It is no god. It is a mask laid over a hunger, and she has never seen a hunger give anything back.", "She knows it. She stays anyway. It is so warm here.")
+lines = PackedStringArray("She knows Solhar's sun better than its priests did: she sleeps against its cheek.", "It is no god. It is a mask laid over a hunger, and she has never seen a hunger give anything back.", "She knows it, and stays anyway. It is so warm here.")
 slain = 6
 conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_1")])
 

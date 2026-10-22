@@ -6,7 +6,9 @@ description: Add game content to Le Puits des Âmes - a monster, boss, weapon, a
 # Adding content
 
 Content is data. Read docs/adding-content.md first: its table says, for each kind, which
-resource to create and where to register it.
+resource to create and where to register it. A new boss also needs its chronicle and fragments
+(docs/adding-content.md, "The story"; write them with the `lore` skill); a new kind of condition,
+deed or cinematic step is a small subclass described there.
 
 1. **Start from a neighbour.** Copy the closest existing `.tres` of the same kind and change it,
    rather than writing one from scratch. Give it a unique `id` (snake_case) and a `display_name` in the game's voice

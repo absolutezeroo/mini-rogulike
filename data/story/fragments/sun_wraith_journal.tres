@@ -11,6 +11,6 @@ id = &"sun_wraith_journal"
 title = "Tôma's Journal, a Page Burnt Through"
 author = "Tôma, keeper of the shrine"
 place = "The Tomb of the Dead Sun"
-lines = PackedStringArray("It answered me. It was not a voice: it was hers. Hana, in the light.", "\"Give, and she will come.\" I will give.", "I did not look behind the light. I will not look.")
+lines = PackedStringArray("It answered me, and it was not a voice: it was hers. Hana, in the light.", "\"Give, and she will come.\" I will give.", "I did not look behind the light. I will not look.")
 look = ExtResource("3_keeperjourna")
 conditions = Array[ExtResource("4_progresscond")]([ExtResource("2_keepernamed")])

@@ -96,21 +96,26 @@ func wait(seconds: float, even_if_skipped := false) -> void:
 		left -= get_process_delta_time()
 
 
-## Writes `lines` in the view (under `heading`, "New" beside it if `is_new`), one after the
-## other, each typed or faded, then left to be read. Hurried, the rest is written at once and
-## waits for the tap that ends the scene (or for its reading time).
-func narrate(heading: String, is_new: bool, lines: PackedStringArray, color: Color, typed: bool) -> void:
-	if ended or lines.is_empty():
+## Writes a block of text in the view: first `speech` (the subject's own words, in
+## `speech_color`; "" for none), then `lines` under `heading` ("New" beside it if `is_new`), one
+## after the other, each typed or faded, then left to be read. Hurried (the first tap), the
+## whole block is written at once and waits for the tap that ends the scene (or its reading time).
+func narrate(heading: String, is_new: bool, lines: PackedStringArray, color: Color, typed: bool, speech := "", speech_color := Color.WHITE) -> void:
+	if ended or (lines.is_empty() and speech.is_empty()):
 		return
-	view.begin_text(heading, is_new)
+	view.begin_text(heading if not lines.is_empty() else "", is_new)
 	var reading := 0.0
+	var labels: Array[Label] = []
+	if not speech.is_empty():
+		labels.append(view.set_speech(speech, speech_color))
 	for line in lines:
-		var label := view.add_line(line, color)
-		reading += def.read_time(line)
+		labels.append(view.add_line(line, color))
+	for label in labels:
+		reading += def.read_time(label.text)
 		await _write(label, typed)
 		if ended:
 			return
-		await wait(def.read_time(line))
+		await wait(def.read_time(label.text))
 	if hurried and not ended:
 		# Everything is on screen: the next tap ends it (or it is read in its time).
 		var left := reading

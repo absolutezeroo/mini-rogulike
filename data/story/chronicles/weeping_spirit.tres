@@ -64,7 +64,7 @@ slain = 2
 script = ExtResource("5_chroniclecha")
 id = &"wept_with_them"
 title = "The One Who Wept With Them"
-lines = PackedStringArray("Only one living man came to weep with them: the shrine's keeper. He gave them no rice, only his tears.", "On the moonless night he gave them the souls of the grieving. \"You know how to comfort. Keep them.\"", "They have rocked those souls ever since. They never asked him whom he wept for.")
+lines = PackedStringArray("Only one living man came to weep with them: the shrine's keeper. He gave them no rice, only his tears.", "On the moonless night he gave them the souls of the grieving: \"You know how to comfort; keep them.\"", "They have rocked those souls ever since. They never asked him whom he wept for.")
 slain = 4
 
 [sub_resource type="Resource" id="Resource_9"]

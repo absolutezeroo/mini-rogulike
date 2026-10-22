@@ -9,5 +9,5 @@ id = &"crimson_tengu_feather"
 title = "A Written Feather"
 author = "The Crimson Tengu"
 place = "The Pyre Temple, east altar"
-lines = PackedStringArray("Dawn. Swept the ash. Three lost souls to the pyres.", "Dawn. Swept the ash. A feather fell from me. It will not grow back.", "Dawn. Swept the ash.")
+lines = PackedStringArray("Dawn, swept the ash. Three lost souls to the pyres.", "Dawn, swept the ash. A feather fell from me; it will not grow back.", "Dawn, swept the ash.")
 look = ExtResource("2_singedpage")

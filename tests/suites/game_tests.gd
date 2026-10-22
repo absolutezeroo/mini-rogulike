@@ -1,7 +1,7 @@
 class_name GameTests
 extends TestSuite
 ## The real game, played: sets the game up, a bot plays, then runs the other game suites on it
-## (CombatTests, FloorTests, SecretTests, BossTests).
+## (CombatTests, FloorTests, SecretTests, BossTests, StoryTests).
 
 
 func run() -> void:
@@ -404,6 +404,10 @@ func run() -> void:
 	print("bot (depth 4, mortal): hp %d/%d, dead=%s" % [game.player.hp, game.player.get_max_hp(), game.player.is_dead])
 	await combat._test_threshold_lost(game)
 	await floor._test_abyss_death(game)
+	# The wardens' stories, on a fresh run (StoryTests).
+	var story := StoryTests.new()
+	add_child(story)
+	await story.run_game(game)
 	var off_grid := _off_grid_texts(game)
 	check(off_grid.is_empty(), "every text of the HUD and the in-run panels is on the font's grid (Fonts.SIZES, a one-pixel outline): %s" % ", ".join(off_grid.slice(0, 6)))
 	game.queue_free()

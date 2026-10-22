@@ -58,7 +58,7 @@ slain = 2
 script = ExtResource("4_chroniclecha")
 id = &"too_many"
 title = "The Night of Too Many"
-lines = PackedStringArray("On the moonless night the lantern went out, and the souls came down by the hundred. Gorr could not name them all.", "The keeper came down with a cold lantern. \"Keep them among the bones. No one will look for them there.\"", "Gorr obeyed. A hand that swore cannot lie, he thought.")
+lines = PackedStringArray("On the moonless night the lantern went out, and the souls came down by the hundred. Gorr could not name them all.", "The keeper came down with a cold lantern: \"Keep them among the bones, where no one will look for them.\"", "Gorr obeyed. A hand that swore cannot lie, he thought.")
 slain = 4
 
 [sub_resource type="Resource" id="Resource_8"]
@@ -82,7 +82,7 @@ conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_9")])
 [sub_resource type="Resource" id="Resource_11"]
 script = ExtResource("7_wakingline")
 id = &"buried_without_niche"
-line = "Tôma. I held the rope when he swore. That name I bury without a niche."
+line = "Tôma. I held the rope when he swore; that name I bury without a niche."
 conditions = Array[ExtResource("6_progresscond")]([ExtResource("8_keepernamed")])
 
 [resource]

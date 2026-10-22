@@ -32,28 +32,24 @@ hold = 0.9
 
 [sub_resource type="Resource" id="Resource_5"]
 script = ExtResource("6_narratestep")
-source = 1
-
-[sub_resource type="Resource" id="Resource_6"]
-script = ExtResource("6_narratestep")
 source = 0
 
-[sub_resource type="Resource" id="Resource_7"]
+[sub_resource type="Resource" id="Resource_6"]
 script = ExtResource("7_waitstep")
 seconds = 0.3
 
-[sub_resource type="Resource" id="Resource_8"]
+[sub_resource type="Resource" id="Resource_7"]
 script = ExtResource("8_cleartextste")
 always_run = true
 time = 0.3
 
-[sub_resource type="Resource" id="Resource_9"]
+[sub_resource type="Resource" id="Resource_8"]
 script = ExtResource("3_camerastep")
 always_run = true
 target = 1
 time = 0.6
 
-[sub_resource type="Resource" id="Resource_10"]
+[sub_resource type="Resource" id="Resource_9"]
 script = ExtResource("2_letterboxste")
 always_run = true
 show = false
@@ -61,7 +57,7 @@ time = 0.4
 
 [resource]
 script = ExtResource("1_cinematicdef")
-steps = Array[ExtResource("9_cinematicste")]([SubResource("Resource_1"), SubResource("Resource_2"), SubResource("Resource_3"), SubResource("Resource_4"), SubResource("Resource_5"), SubResource("Resource_6"), SubResource("Resource_7"), SubResource("Resource_8"), SubResource("Resource_9"), SubResource("Resource_10")])
+steps = Array[ExtResource("9_cinematicste")]([SubResource("Resource_1"), SubResource("Resource_2"), SubResource("Resource_3"), SubResource("Resource_4"), SubResource("Resource_5"), SubResource("Resource_6"), SubResource("Resource_7"), SubResource("Resource_8"), SubResource("Resource_9")])
 letterbox_height = 0.12
 chars_per_second = 55.0
 fade_time = 0.35
