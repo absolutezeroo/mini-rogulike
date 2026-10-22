@@ -186,7 +186,7 @@
     {
       "id": "task_14",
       "title": "Chasse aux tests instables",
-      "description": "Échecs au hasard vus : « stairs lead to the next depth », coût de la chute (84 → 76), horloge, astuce du marchand, IA qui s'éloigne. Les rendre déterministes.\n\nFait (à relire) : chaque échec reproduit (boucles de tests sur des étages variés), cause trouvée, corrigée sans affaiblir le contrôle. Bugs du jeu : chute interrompue par un nouvel étage (task_51), horloge qui sautait à chaque arrêt sur coup (task_50), lambdas des minuteurs (task_48), vagues des Profondeurs incomplètes (task_53). Tests : esquive à travers un accessoire (couloir dégagé pour la ruée Iaido), corps de monstres tués qui partent pendant le gel (comptes de l'étage), accessoires cassés par le souffle du retour du Seuil, rat posé dans un accessoire mural (IA qui s'éloigne), flèche d'un piège prise pour celle du héros (arc d'orage), statuts venus de l'étage sur le rat (place calme), héros pas immobile avant le coup fatal (« on the very spot »), héros repoussé hors du trou par un coup avant de tomber (Profondeurs, coût de la chute), astuces du tutoriel (marchand hors de vue, monstre qui repère le héros avant le nettoyage). Nouveaux outils dans test_suite.gd, règles dans docs/testing.md. Avant : 5 parties sur 15 de la suite game en échec ; après : voir le commit.",
+      "description": "Échecs au hasard vus : « stairs lead to the next depth », coût de la chute (84 → 76), horloge, astuce du marchand, IA qui s'éloigne. Les rendre déterministes.\n\nFait (à relire) : chaque échec reproduit (boucles de tests sur des étages variés), cause trouvée, corrigée sans affaiblir le contrôle. Bugs du jeu : chute interrompue par un nouvel étage (task_55), horloge qui sautait à chaque arrêt sur coup (task_54), lambdas des minuteurs (task_48), vagues des Profondeurs incomplètes (task_57). Tests : esquive à travers un accessoire (couloir dégagé pour la ruée Iaido), corps de monstres tués qui partent pendant le gel (comptes de l'étage), accessoires cassés par le souffle du retour du Seuil, rat posé dans un accessoire mural (IA qui s'éloigne), flèche d'un piège prise pour celle du héros (arc d'orage), statuts venus de l'étage sur le rat (place calme), héros pas immobile avant le coup fatal (« on the very spot »), héros repoussé hors du trou par un coup avant de tomber (Profondeurs, coût de la chute), astuces du tutoriel (marchand hors de vue, monstre qui repère le héros avant le nettoyage). Nouveaux outils dans test_suite.gd, règles dans docs/testing.md. Avant : 5 parties sur 15 de la suite game en échec ; après : voir le commit.",
       "status": "review",
       "priority": "medium",
       "epic_id": "epic_5",
@@ -195,7 +195,7 @@
         "tests"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792699113
+      "updated_at": 1792704292
     },
     {
       "id": "task_15",
