@@ -65,7 +65,10 @@ you can; by hand, keep the `[ext_resource]` paths right.
 | A secret room's reward | New `SecretRewardDef` in `data/secrets/` (a chest, an encounter, items or runes, gold: `SecretChestReward`, `SecretEncounterReward`, `SecretItemReward`, `SecretGoldReward`; `spawn_weight`, `min_depth`), add it to `dungeon_config.tres` > Secret Rewards |
 | A new kind of secret reward | New script in `src/definitions/secrets/` extending `SecretRewardDef`, override `place()` (and `is_claimed()`, `place_spent()`) |
 | The hidden floor | `data/secrets/nameless_charnel.tres` (`HiddenFloorDef`: its key, the acts that hide it, its world, monsters, boss, rewards), set in `dungeon_config.tres` > Hidden Floor |
-| A tutorial hint | Add a `HintDef` to `data/tutorial/tutorial.tres` > Hints (a cue from `Tutorial.CUES`, a text, a HUD control to point at) |
+| A tutorial hint | Add a `HintDef` to `data/tutorial/tutorial.tres` > Hints (a cue from `Tutorial.CUES`, a text, a HUD control to point at). A hint that names a control ("tap...") also gets a `button_text` for keys and gamepads, with `{action}` codes ("Press {interact} to trade") |
+| A loading tip about a control | A `DeviceText` (`touch_text`, `button_text` with `{action}` codes) in `data/ui/loading_tips.tres` > Control Tips (plain tips: Tips) |
+| A new input action, or a control shown to the player | Bind it in project.godot > Input Map (keys, gamepad), then add an `ActionPromptDef` to `data/ui/input_prompts.tres` > Actions: its name on the Options' Controls page, the key its prompts show (`key`), a mouse button that also does it in a fight (`mouse`), how it is done by touch (`touch_text`) |
+| A gamepad family's button names | A `PadGlyphsDef` in `data/ui/input_prompts.tres` > Pads (the pieces of a pad's name that say it is of this family, its buttons' and axes' words, its face buttons' colors); the last one is for every other pad |
 
 Each piece of content has an **icon** (any `Texture2D`) and an **icon tint** to recolor it.
 Monsters and the player also have `frames` (their SpriteFrames in `data/visuals/`): a new monster

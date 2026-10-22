@@ -6,6 +6,11 @@ func run() -> void:
 	await _test_title_screen()
 	await _test_touch_scroll()
 	await _test_resume_button()
+	# The title's panels with keys and a gamepad, and their layouts (PcTests).
+	var pc := PcTests.new()
+	add_child(pc)
+	await pc.run_title()
+	pc.free()
 
 
 ## A run in progress: the Resume button sits in the column like the others, its floor on a line

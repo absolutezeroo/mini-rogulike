@@ -92,7 +92,6 @@ func _fill_identity(column: VBoxContainer, rank: int, rules: BestiaryRules) -> v
 	back.text = tr("< All monsters")
 	back.name = "BackButton"
 	back.custom_minimum_size = Vector2(0, 46)
-	back.focus_mode = Control.FOCUS_NONE
 	back.add_theme_font_size_override("font_size", Fonts.BODY)
 	back.pressed.connect(func() -> void: back_requested.emit())
 	column.add_child(back)
@@ -211,7 +210,6 @@ func _fill_middle(column: VBoxContainer) -> void:
 		button.text = entry[1]
 		button.name = entry[2]
 		button.toggle_mode = true
-		button.focus_mode = Control.FOCUS_NONE
 		button.custom_minimum_size = Vector2(150, 44)
 		button.add_theme_font_size_override("font_size", Fonts.BODY)
 		button.pressed.connect(show_middle.bind(entry[0]))
@@ -252,7 +250,7 @@ func _fill_attacks(column: VBoxContainer, rank: int) -> void:
 	if rank < 1:
 		column.add_child(UiSkin.label(tr("Slay one to see how it attacks."), Fonts.BODY, UiSkin.DIM, true))
 		return
-	column.add_child(UiSkin.label(tr("Tap an attack to watch it. Red marks on the ground show where it will land: step out!"), Fonts.BODY, UiSkin.DIM, true))
+	column.add_child(UiSkin.label(tr("Choose an attack to watch it. Red marks on the ground show where it will land: step out!"), Fonts.BODY, UiSkin.DIM, true))
 	_preview = AttackPreview.new()
 	_preview.custom_minimum_size = Vector2(0, 184)
 	_preview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -266,7 +264,6 @@ func _fill_attacks(column: VBoxContainer, rank: int) -> void:
 		var button := Button.new()
 		button.text = attacks[i].name
 		button.toggle_mode = true
-		button.focus_mode = Control.FOCUS_NONE
 		button.custom_minimum_size = Vector2(0, 44)
 		button.add_theme_font_size_override("font_size", Fonts.BODY)
 		button.pressed.connect(_show_attack.bind(attacks[i], i))

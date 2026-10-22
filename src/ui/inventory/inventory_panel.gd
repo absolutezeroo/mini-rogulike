@@ -226,7 +226,7 @@ func _refresh_details() -> void:
 	if item == null:
 		_item_name.text = tr("Pick an item")
 		_item_name.add_theme_color_override("font_color", UiSkin.GOLD)
-		_item_type.text = tr("Tap a slot to see what it does.")
+		_item_type.text = tr("Choose a slot to see what it does.")
 		_item_details.text = ""
 		return
 	_item_name.text = tr(item.display_name)
@@ -419,7 +419,6 @@ func _build() -> void:
 	_window.header_right.add_child(_gold)
 	_perks_button = Button.new()
 	_perks_button.text = tr("Perks")
-	_perks_button.focus_mode = Control.FOCUS_NONE
 	_perks_button.custom_minimum_size = Vector2(140, 48)
 	_perks_button.pressed.connect(open_build)
 	_window.header_right.add_child(_perks_button)
@@ -587,7 +586,6 @@ func _action(text: String, node_name: String, callback: Callable) -> Button:
 	var button := Button.new()
 	button.text = text
 	button.name = node_name
-	button.focus_mode = Control.FOCUS_NONE
 	button.custom_minimum_size = Vector2(96, 52)  # three in a row on a 16:9 phone (Equip, Drop, Dismantle)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.pressed.connect(callback)

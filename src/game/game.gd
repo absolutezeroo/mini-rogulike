@@ -564,12 +564,20 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("offers") and not is_menu_open():
 		get_viewport().set_input_as_handled()
 		open_offers()
-	elif event.is_action_pressed("ui_cancel"):
+	elif event.is_action_pressed("map") and not is_menu_open():
+		get_viewport().set_input_as_handled()
+		hud.toggle_full_map()
+	elif event.is_action_pressed("pause"):
+		# Escape or Start: closes what is open, or pauses.
 		get_viewport().set_input_as_handled()
 		_back()
+	elif event.is_action_pressed("ui_cancel") and is_menu_open():
+		# A gamepad's B only closes: in a fight it is a skill, never a pause.
+		get_viewport().set_input_as_handled()
+		menus.back()
 
 
-## Escape or the phone's back button: closes what is open, or pauses.
+## Escape, Start or the phone's back button: closes what is open, or pauses.
 func _back() -> void:
 	if not menus.back() and not is_menu_open():
 		open_pause_menu()

@@ -285,6 +285,14 @@ func _build() -> void:
 	_lines.add_theme_constant_override("separation", 4)
 	_text_box.add_child(_lines)
 
-	_skip = UiSkin.label(tr("Tap to skip"), Fonts.SMALL, UiSkin.DIM)
+	_skip = UiSkin.label("", Fonts.SMALL, UiSkin.DIM)
 	_skip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_skip)
+	_say_skip()
+	InputDevice.changed.connect(_say_skip)
+
+
+## How to skip, in the words of the device in hand (any tap, key or button does it).
+func _say_skip() -> void:
+	_skip.text = Prompts.pick("Tap to skip", "Press {ui_accept} to skip")  # i18n
+	_skip.size = Vector2.ZERO

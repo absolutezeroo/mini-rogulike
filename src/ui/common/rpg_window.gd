@@ -2,7 +2,8 @@ class_name RpgWindow
 extends Control
 ## A big panel in the game's skin (UiSkin): the world dimmed behind, a wooden board with a gold
 ## ornate border, its title on a red ribbon over the top edge, a Close button. Put what it shows
-## in `body`. Runs while the game is paused.
+## in `body`. Runs while the game is paused. A menu for keys and gamepads (MenuNav): Close shows
+## the Back key or button beside it.
 
 signal close_requested
 
@@ -19,6 +20,7 @@ var _board: PanelContainer
 
 func _init(title_text: String = "") -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	add_to_group(MenuNav.GROUP)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var dim := ColorRect.new()
 	dim.color = Color(0.03, 0.02, 0.05, 0.72)
@@ -60,6 +62,7 @@ func _init(title_text: String = "") -> void:
 	column.add_theme_constant_override("separation", 10)
 	margin.add_child(column)
 	var header := HBoxContainer.new()
+	header.set_meta(MenuNav.NOT_FIRST, true)  # the keys start in the body, not on Close
 	header.add_theme_constant_override("separation", 12)
 	column.add_child(header)
 	var spacer := Control.new()
@@ -70,9 +73,9 @@ func _init(title_text: String = "") -> void:
 	header.add_child(header_right)
 	var close := Button.new()
 	close.text = tr("Close")
-	close.focus_mode = Control.FOCUS_NONE
 	close.custom_minimum_size = Vector2(120, 48)
 	close.pressed.connect(func() -> void: close_requested.emit())
+	header.add_child(PromptGlyph.make(&"ui_cancel"))
 	header.add_child(close)
 	body = VBoxContainer.new()
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL

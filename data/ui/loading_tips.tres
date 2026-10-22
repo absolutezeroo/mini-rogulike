@@ -1,7 +1,24 @@
 [gd_resource type="Resource" script_class="LoadingTipsDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/loading_tips_def.gd" id="1"]
+[ext_resource type="Script" path="res://src/definitions/input/device_text.gd" id="2_device_text"]
+
+[sub_resource type="Resource" id="Tip_map"]
+script = ExtResource("2_device_text")
+touch_text = "Tap the minimap to see the whole floor and find the stairs."
+button_text = "Press {map} to see the whole floor and find the stairs."
+
+[sub_resource type="Resource" id="Tip_charge"]
+script = ExtResource("2_device_text")
+touch_text = "Hold the attack button to charge a heavy blow; let go when the ring is full."
+button_text = "Hold {attack} to charge a heavy blow; let go when the ring is full."
+
+[sub_resource type="Resource" id="Tip_perks"]
+script = ExtResource("2_device_text")
+touch_text = "A level up's perk waits behind the golden star: tap it when the fight allows."
+button_text = "A level up's perk waits: press {offers} when the fight allows."
 
 [resource]
 script = ExtResource("1")
 tips = PackedStringArray("Roll through a blow: for a heartbeat, nothing can touch you.", "A weapon is as strong as the floor it was found on. Keep plundering.", "Hold three perks of one family to awaken its bonus.", "The sign over each stairs tells where it leads. Cursed floors pay better loot.", "Elites wear their powers in their names. Read before you charge.", "Souls outlive you. Offer them to the Tree of Souls, at the shrine.", "Gold dies with you: spend it at the merchant while you still breathe.", "A forge sets runes in your weapon for free.", "Wardens wind up their great blows: step away when they do.", "Lock an item at the merchant: the next one sells it at the same price.", "A banish removes a perk you never want to see again, for the whole run.", "No prayer heals faster than a warden strikes: dodge, don't trade blows.", "Campfires warm you on frozen floors; oases cool you on burning ones.", "On Pilgrim, every new floor heals you a quarter of your Health.")
+control_tips = Array[ExtResource("2_device_text")]([SubResource("Tip_map"), SubResource("Tip_charge"), SubResource("Tip_perks")])

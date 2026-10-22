@@ -15,7 +15,11 @@ extends Resource
 ## back the next time its cue does.
 @export var only_if: StringName
 @export var title: String
+## What to do by touch (or on any device, when `button_text` is empty).
 @export_multiline var text: String
+## The same on a keyboard or a gamepad, with {action} codes for its keys ("Press {interact}"):
+## see Prompts.pick(). Empty: `text` says it for every device.
+@export_multiline var button_text: String
 ## The HUD control it points at (see Hud.hint_target()). Empty: none.
 @export var target: StringName
 ## It stays until the player does this (see Tutorial.ACTIONS). Empty: it goes after `duration`.
@@ -24,3 +28,8 @@ extends Resource
 @export var duration := 8.0
 ## Several waiting: the highest first.
 @export var priority := 0
+
+
+## The text for the device in use, translated, its codes filled.
+func shown_text() -> String:
+	return Prompts.pick(text, button_text)

@@ -233,6 +233,7 @@ The knell falls silent. The Well lets you go.,The knell falls silent. The Well l
 The knell has tolled. The Threshold keeps you.,The knell has tolled. The Threshold keeps you.,Le glas a sonné. Le Seuil te garde.
 New,New,Nouveau
 Tap to skip,Tap to skip,Touche pour passer
+Press {ui_accept} to skip,Press {ui_accept} to skip,Appuie sur {ui_accept} pour passer
 Its story is not known.,Its story is not known.,Son histoire n'est pas connue.
 Chapters %d of %d     Fragments %d of %d,Chapters %d of %d     Fragments %d of %d,Chapitres %d sur %d     Fragments %d sur %d
 "Each meeting tells the next open chapter before the fight. Slay it again, find its fragments and do what it asks of you to open the rest.","Each meeting tells the next open chapter before the fight. Slay it again, find its fragments and do what it asks of you to open the rest.","Chaque rencontre raconte le chapitre suivant avant le combat. Terrasse-le encore, trouve ses fragments et fais ce qu'il attend de toi pour ouvrir les autres."
@@ -268,7 +269,7 @@ Bestiary,Bestiary,Bestiaire
 Achievements,Achievements,Succès
 Runs,Runs,Parties
 "Quests change every day and every week. Everything you do in any run counts toward them, and a finished quest pays its souls at once. Souls are kept between runs: spend them at the Shrine on lasting upgrades.","Quests change every day and every week. Everything you do in any run counts toward them, and a finished quest pays its souls at once. Souls are kept between runs: spend them at the Shrine on lasting upgrades.","Les quêtes changent chaque jour et chaque semaine. Tout ce que tu fais dans n'importe quelle partie compte, et une quête accomplie rapporte ses âmes aussitôt. Les âmes sont conservées d'une partie à l'autre : dépense-les au Sanctuaire en améliorations durables."
-"Every monster you meet goes in here. Slay more of a kind to raise your hunter rank with it: each rank pays souls, and Mastered also gives +%d%% damage against that kind for good. Tap a monster for its attacks and challenges.","Every monster you meet goes in here. Slay more of a kind to raise your hunter rank with it: each rank pays souls, and Mastered also gives +%d%% damage against that kind for good. Tap a monster for its attacks and challenges.","Chaque monstre rencontré est consigné ici. Abats-en d'une même espèce pour monter ton rang de chasseur : chaque rang rapporte des âmes, et Maîtrisé donne aussi +%d %% de Dégâts contre cette espèce, pour toujours. Touche un monstre pour voir ses attaques et ses défis."
+"Every monster you meet goes in here. Slay more of a kind to raise your hunter rank with it: each rank pays souls, and Mastered also gives +%d%% damage against that kind for good. Choose a monster for its attacks and challenges.","Every monster you meet goes in here. Slay more of a kind to raise your hunter rank with it: each rank pays souls, and Mastered also gives +%d%% damage against that kind for good. Choose a monster for its attacks and challenges.","Chaque monstre rencontré est consigné ici. Abats-en d'une même espèce pour monter ton rang de chasseur : chaque rang rapporte des âmes, et Maîtrisé donne aussi +%d %% de Dégâts contre cette espèce, pour toujours. Choisis un monstre pour voir ses attaques et ses défis."
 Big goals across all your runs. Reaching one pays its souls at once.,Big goals across all your runs. Reaching one pays its souls at once.,"De grands objectifs, sur toutes tes parties. En atteindre un rapporte ses âmes aussitôt."
 "Your last runs, newest first. Gold is lost when a run ends; souls are kept.","Your last runs, newest first. Gold is lost when a run ends; souls are kept.","Tes dernières parties, les plus récentes d'abord. L'or est perdu à la fin d'une partie ; les âmes sont conservées."
 +%d souls,+%d souls,+%d âmes
@@ -324,7 +325,7 @@ Attacks,Attacks,Attaques
 Chronicle,Chronicle,Chronique
 Meet it to begin its chronicle.,Meet it to begin its chronicle.,Rencontre-le pour ouvrir sa chronique.
 Slay one to see how it attacks.,Slay one to see how it attacks.,Abats-en un pour voir comment il attaque.
-Tap an attack to watch it. Red marks on the ground show where it will land: step out!,Tap an attack to watch it. Red marks on the ground show where it will land: step out!,Touche une attaque pour la voir. Les marques rouges au sol montrent où elle va frapper : écarte-toi !
+Choose an attack to watch it. Red marks on the ground show where it will land: step out!,Choose an attack to watch it. Red marks on the ground show where it will land: step out!,Choisis une attaque pour la voir. Les marques rouges au sol montrent où elle va frapper : écarte-toi !
 How it behaves,How it behaves,Son comportement
 Stats,Stats,Statistiques
 "On the floors where it first shows up: deeper down, it grows stronger.","On the floors where it first shows up: deeper down, it grows stronger.","Aux étages où il apparaît pour la première fois : plus bas, il devient plus fort."
@@ -462,7 +463,7 @@ Dismantle,Dismantle,Démanteler
 Dismantle value: %d gold,Dismantle value: %d gold,Démantèlement : %d or
 The runes set in it break with it (counted in the gold).,The runes set in it break with it (counted in the gold).,Les runes serties se brisent avec (comptées dans l'or).
 Pick an item,Pick an item,Choisis un objet
-Tap a slot to see what it does.,Tap a slot to see what it does.,Touche un emplacement pour voir ce qu'il fait.
+Choose a slot to see what it does.,Choose a slot to see what it does.,Choisis un emplacement pour voir ce qu'il fait.
 Unequip,Unequip,Retirer
 Equip,Equip,Équiper
 Learn,Learn,Apprendre
@@ -480,6 +481,11 @@ Drop,Drop,Jeter
 Dismantle the worse,Dismantle the worse,Démanteler le moins bon
 "What you wear, potions, runes, tomes and keys are never touched.","What you wear, potions, runes, tomes and keys are never touched.","Ce que tu portes, les potions, les runes, les grimoires et les clefs ne sont jamais touchés."
 Keep them,Keep them,Les garder
+Gamepad: %s,Gamepad: %s,Manette : %s
+Gamepad,Gamepad,Manette
+Keyboard and mouse,Keyboard and mouse,Clavier et souris
+Touch,Touch,Tactile
+"The controls of the device in hand. Pick up another (a key, a gamepad, a touch) and this page follows.","The controls of the device in hand. Pick up another (a key, a gamepad, a touch) and this page follows.","Les commandes de l'appareil en main. Prends-en un autre (une touche, une manette, l'écran) et cette page suit."
 Done! Tips are back,Done! Tips are back,C'est fait ! Les conseils sont de retour
 Replay tutorial,Replay tutorial,Rejouer le tutoriel
 "Only its name and a line it remembers, about two seconds.","Only its name and a line it remembers, about two seconds.","Seulement son nom et une phrase dont il se souvient, environ deux secondes."
@@ -520,6 +526,8 @@ Battery saver,Battery saver,Économie de batterie
 30 FPS: the phone stays cooler.,30 FPS: the phone stays cooler.,30 FPS : le téléphone chauffe moins.
 Run timer,Run timer,Chronomètre
 "The run's time, under the map.","The run's time, under the map.","Le temps de la partie, sous la carte."
+Fullscreen,Fullscreen,Plein écran
+"The whole screen, or a window you can resize (F11, Alt+Enter).","The whole screen, or a window you can resize (F11, Alt+Enter).","Tout l'écran, ou une fenêtre redimensionnable (F11, Alt+Entrée)."
 Loot,Loot,Butin
 Story,Story,Histoire
 Tutorial,Tutorial,Tutoriel
@@ -532,11 +540,19 @@ All,All,Tout
 Better only,Better only,Le meilleur
 By hand,By hand,À la main
 Boss stories,Boss stories,Histoires des gardiens
-Before a warden's fight. A tap skips it.,Before a warden's fight. A tap skips it.,Avant le combat d'un gardien. Une touche la passe.
 Full,Full,Complètes
 Short,Short,Courtes
 Off,Off,Aucune
+Settings,Settings,Réglages
+Controls,Controls,Commandes
+Interface size,Interface size,Taille de l'interface
+Smaller leaves more room on a big screen.,Smaller leaves more room on a big screen.,"Plus petite, elle laisse plus de place sur un grand écran."
+Big,Big,Grande
+Medium,Medium,Moyenne
+Small,Small,Petite
 Language,Language,Langue
+Before a warden's fight. A tap skips it.,Before a warden's fight. A tap skips it.,Avant le combat d'un gardien. Une touche la passe.
+Before a warden's fight. {ui_accept} skips it.,Before a warden's fight. {ui_accept} skips it.,Avant le combat d'un gardien. {ui_accept} la passe.
 The door seals behind you until every foe is slain: %d waves.,The door seals behind you until every foe is slain: %d waves.,La porte se scelle derrière toi jusqu'à ce que tous les ennemis soient abattus : %d vagues.
 The door seals behind you until every foe is slain.,The door seals behind you until every foe is slain.,La porte se scelle derrière toi jusqu'à ce que tous les ennemis soient abattus.
 Every foe is an elite.,Every foe is an elite.,Tous les ennemis sont des élites.
@@ -559,8 +575,10 @@ Gold: only for this run. Spend it at the merchant and the forge; it is lost when
 Souls: kept between runs. Spend them at the Shrine (title screen) on upgrades for every run.,Souls: kept between runs. Spend them at the Shrine (title screen) on upgrades for every run.,Âmes : conservées d'une partie à l'autre. Dépense-les au Sanctuaire (écran titre) en améliorations pour toutes tes parties.
 Give up the run,Give up the run,Abandonner la partie
 Really? Tap again,Really? Tap again,Vraiment ? Touche encore
+Really? Press again,Really? Press again,Vraiment ? Appuie encore
 Ends this run now. You keep the souls earned so far.,Ends this run now. You keep the souls earned so far.,Met fin à la partie maintenant. Tu gardes les âmes gagnées jusqu'ici.
 Tap again to end the run. Anything else to cancel.,Tap again to end the run. Anything else to cancel.,Touche encore pour abandonner. N'importe quoi d'autre pour annuler.
+Press again to end the run. Anything else to cancel.,Press again to end the run. Anything else to cancel.,Appuie encore pour abandonner. N'importe quoi d'autre pour annuler.
 RELIC,RELIC,RELIQUE
 New perk,New perk,Nouvel atout
 New perk  (up to level %d),New perk  (up to level %d),Nouvel atout  (jusqu'au niveau %d)
@@ -574,17 +592,17 @@ Bonus already active: %s,Bonus already active: %s,Bonus déjà actif : %s
 Reroll (%d),Reroll (%d),Relancer (%d)
 Cancel,Cancel,Annuler
 Banish (%d),Banish (%d),Bannir (%d)
-Tap the perk to banish: it won't be offered again this run,Tap the perk to banish: it won't be offered again this run,Touche l'atout à bannir : il ne sera plus proposé de la partie
+Choose the perk to banish: it won't be offered again this run,Choose the perk to banish: it won't be offered again this run,Choisis l'atout à bannir : il ne sera plus proposé de la partie
 Level up!,Level up!,Niveau supérieur !
 Every perk belongs to a family. Hold 3 different perks of one family to awaken its bonus.,Every perk belongs to a family. Hold 3 different perks of one family to awaken its bonus.,Chaque atout appartient à une famille. Réunis 3 atouts différents d'une même famille pour éveiller son bonus.
 Later,Later,Plus tard
-"Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (tap Banish, then the card).","Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (tap Banish, then the card).","Relancer : 3 nouveaux atouts au choix.   Bannir : retire un atout des offres de la partie (touche Bannir, puis la carte)."
+"Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (Banish, then the card).","Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (Banish, then the card).","Relancer : 3 nouveaux atouts au choix.   Bannir : retire un atout des offres de la partie (Bannir, puis la carte)."
 Reroll  -  %d gold,Reroll  -  %d gold,Relancer  -  %d or
 New items for sale. Locked ones stay.,New items for sale. Locked ones stay.,De nouveaux objets en vente. Ceux verrouillés restent.
 New items for sale. You need %d more gold.,New items for sale. You need %d more gold.,De nouveaux objets en vente. Il te manque %d or.
 Sold out!,Sold out!,Tout est vendu !
 Belt: %s,Belt: %s,Ceinture : %s
-"Tap something for sale to see what it does, or one of your things to sell it.","Tap something for sale to see what it does, or one of your things to sell it.","Touche un article en vente pour voir ce qu'il fait, ou l'un de tes objets pour le vendre."
+"Choose something for sale to see what it does, or one of your things to sell it.","Choose something for sale to see what it does, or one of your things to sell it.","Choisis un article en vente pour voir ce qu'il fait, ou l'un de tes objets pour le vendre."
 Gold is only for this run: spend it here and at the forge.,Gold is only for this run: spend it here and at the forge.,L'or ne vaut que pour cette partie : dépense-le ici et à la forge.
 Sell price: %d gold,Sell price: %d gold,Prix de revente : %d or
 The merchant doesn't buy this,The merchant doesn't buy this,Le marchand n'achète pas ça
@@ -603,9 +621,11 @@ For sale,For sale,En vente
 Reroll,Reroll,Relancer
 Sell your things,Sell your things,Vendre tes affaires
 Your bag and belt are empty.,Your bag and belt are empty.,Ton sac et ta ceinture sont vides.
-Tap one to see what the merchant pays.,Tap one to see what the merchant pays.,Touche un objet pour voir ce que le marchand en donne.
+Choose one to see what the merchant pays.,Choose one to see what the merchant pays.,Choisis un objet pour voir ce que le marchand en donne.
 Buy,Buy,Acheter
 Sell,Sell,Vendre
+Tap to continue,Tap to continue,Touche pour continuer
+Press {ui_accept} to continue,Press {ui_accept} to continue,Appuie sur {ui_accept} pour continuer
 The Dawn Knell,The Dawn Knell,Le Glas de l'Aube
 Each dawn the shrine's bell tolls a knell for the living. All who hear it go down the same Well.,Each dawn the shrine's bell tolls a knell for the living. All who hear it go down the same Well.,"À chaque aube, la cloche du sanctuaire sonne le glas des vivants. Tous ceux qui l'entendent descendent le même Puits."
 "The same floors and bosses for everyone today, on Keeper, with this weapon and relic.","The same floors and bosses for everyone today, on Keeper, with this weapon and relic.","Les mêmes étages et les mêmes boss pour tous aujourd'hui, en Veilleur, avec cette arme et cette relique."
@@ -650,7 +670,7 @@ Everything as the game was made: the other difficulties are compared with it.,Ev
 "Next, +%d  %s: %s","Next, +%d  %s: %s","Ensuite, +%d  %s : %s"
 Win Nightmare +%d to open +%d  %s: %s,Win Nightmare +%d to open +%d  %s: %s,Gagne en Cauchemar +%d pour ouvrir +%d  %s : %s
 Choose your ordeal,Choose your ordeal,Choisis ton épreuve
-Tap one to begin the descent. Harder ones pay more souls.,Tap one to begin the descent. Harder ones pay more souls.,Touche-en une pour entamer la descente. Les plus dures rapportent plus d'âmes.
+Choose one to begin the descent. Harder ones pay more souls.,Choose one to begin the descent. Harder ones pay more souls.,Choisis-en une pour entamer la descente. Les plus dures rapportent plus d'âmes.
 Nightmare ascension,Nightmare ascension,Ascension du Cauchemar
 Armory level %d (max): %d weapons.,Armory level %d (max): %d weapons.,Armurerie niveau %d (max) : %d armes.
 Armory level %d: %d weapons. More in the Tree of Souls.,Armory level %d: %d weapons. More in the Tree of Souls.,Armurerie niveau %d : %d armes. D'autres dans l'Arbre des Âmes.
@@ -764,7 +784,6 @@ Souls 0,Souls 0,Âmes 0
 Gold 0,Gold 0,Or 0
 II,II,II
 Seal 0 / 0,Seal 0 / 0,Sceau 0 / 0
-Tap to continue,Tap to continue,Touche pour continuer
 Skip,Skip,Passer
 Descend. Bring back the stolen souls. Become what the dark demands.,Descend. Bring back the stolen souls. Become what the dark demands.,Descends. Ramène les âmes volées. Deviens ce que l'ombre exige.
 > The chronicle of Kagari,> The chronicle of Kagari,> La chronique de Kagari
@@ -1006,7 +1025,7 @@ Elixir of Rage,Elixir of Rage,Élixir de Rage
 Bone Key,Bone Key,Clef d'Ossements
 "Finger bones fused into a key, cold as the grave. It fits no door on this side of the Warden.","Finger bones fused into a key, cold as the grave. It fits no door on this side of the Warden.","Des phalanges soudées en clef, froides comme la tombe. Elle n'ouvre aucune porte de ce côté du Gardien."
 Tome of Fire,Tome of Fire,Grimoire du Feu
-Read it to learn a skill (last skill button).,Read it to learn a skill (last skill button).,Lis-le pour apprendre une compétence (dernier bouton de compétence).
+Read it to learn a skill: it becomes your fourth skill.,Read it to learn a skill: it becomes your fourth skill.,Lis-le pour apprendre une compétence : elle devient ta quatrième.
 Tome of Frost,Tome of Frost,Grimoire du Givre
 Tome of Holy Light,Tome of Holy Light,Grimoire de la Lumière Sacrée
 Tome of Thunder,Tome of Thunder,Grimoire du Tonnerre
@@ -2186,29 +2205,40 @@ Sung in the Ossuary,Sung in the Ossuary,Chantée à l'Ossuaire
 "Between the Well and the light, the dead wait their turn. Not yours. Not yet.","Between the Well and the light, the dead wait their turn. Not yours. Not yet.","Entre le Puits et la lumière, les morts attendent leur tour. Pas le tien. Pas encore."
 Move,Move,Bouger
 Drag your thumb on the left side of the screen to walk.,Drag your thumb on the left side of the screen to walk.,Fais glisser ton pouce sur la gauche de l'écran pour marcher.
+Walk with {move}.,Walk with {move}.,Marche avec {move}.
 Sealed stairs,Sealed stairs,Escaliers scellés
 The way down is sealed. Slay monsters to break the seal: the count is under the map.,The way down is sealed. Slay monsters to break the seal: the count is under the map.,La voie vers le bas est scellée. Abats des monstres pour briser le sceau : le compte est sous la carte.
 Tap the big button to strike. It aims at the closest enemy by itself.,Tap the big button to strike. It aims at the closest enemy by itself.,Touche le gros bouton pour frapper. Il vise tout seul l'ennemi le plus proche.
+Press {attack} to strike. It aims at the closest enemy by itself.,Press {attack} to strike. It aims at the closest enemy by itself.,Appuie sur {attack} pour frapper. Le coup vise tout seul l'ennemi le plus proche.
 Tap Roll to dash the way you walk. Nothing can hurt you mid-roll.,Tap Roll to dash the way you walk. Nothing can hurt you mid-roll.,Touche Roulade pour filer dans la direction où tu marches. Rien ne peut te blesser pendant une roulade.
+Press {skill_1} to roll the way you walk. Nothing can hurt you mid-roll.,Press {skill_1} to roll the way you walk. Nothing can hurt you mid-roll.,Appuie sur {skill_1} pour rouler là où tu marches. Rien ne peut te blesser pendant une roulade.
 Weapon skills,Weapon skills,Compétences d'arme
 "Your weapon has two skills of its own, and every weapon has different ones. Try them!","Your weapon has two skills of its own, and every weapon has different ones. Try them!","Ton arme a deux compétences bien à elle, et chaque arme a les siennes. Essaie-les !"
+"Your weapon has two skills of its own, on {skill_2} and {skill_3}. Every weapon has different ones. Try them!","Your weapon has two skills of its own, on {skill_2} and {skill_3}. Every weapon has different ones. Try them!","Ton arme a deux compétences à elle, sur {skill_2} et {skill_3}. Chaque arme a les siennes. Essaie-les !"
 Charged attack,Charged attack,Attaque chargée
 Hold the big button to charge your weapon. Let go when the ring is full to unleash its heavy blow.,Hold the big button to charge your weapon. Let go when the ring is full to unleash its heavy blow.,Maintiens le gros bouton pour charger ton arme. Relâche quand l'anneau est plein pour libérer son coup puissant.
+Hold {attack} to charge your weapon. Let go when the ring is full to unleash its heavy blow.,Hold {attack} to charge your weapon. Let go when the ring is full to unleash its heavy blow.,Maintiens {attack} pour charger ton arme. Relâche quand l'anneau est plein pour libérer son coup puissant.
 Low health,Low health,Vie basse
 Tap a potion on your belt to drink it. Potions are rare: keep them for when it counts.,Tap a potion on your belt to drink it. Potions are rare: keep them for when it counts.,Touche une potion de ta ceinture pour la boire. Les potions sont rares : garde-les pour les moments critiques.
+Press {quick_item} to drink the potion on your belt. Potions are rare: keep them for when it counts.,Press {quick_item} to drink the potion on your belt. Potions are rare: keep them for when it counts.,Appuie sur {quick_item} pour boire la potion de ta ceinture. Les potions sont rares : garde-les pour les moments critiques.
 "Slain monsters free their souls. Between runs, spend them on the Tree of Souls, at the shrine.","Slain monsters free their souls. Between runs, spend them on the Tree of Souls, at the shrine.","Les monstres abattus libèrent leurs âmes. Entre deux parties, dépense-les dans l'Arbre des Âmes, au Sanctuaire."
 "Each level brings a perk: tap the glowing button to choose it, whenever you like. Three of a family awaken a bonus.","Each level brings a perk: tap the glowing button to choose it, whenever you like. Three of a family awaken a bonus.","Chaque niveau apporte un atout : touche le bouton qui luit pour le choisir, quand tu veux. Trois d'une famille éveillent un bonus."
+"Each level brings a perk: press {offers} to choose it, whenever you like. Three of a family awaken a bonus.","Each level brings a perk: press {offers} to choose it, whenever you like. Three of a family awaken a bonus.","Chaque niveau apporte un atout : appuie sur {offers} pour le choisir, quand tu veux. Trois d'une famille éveillent un bonus."
 Family bonus,Family bonus,Bonus de famille
 Three of a family: its bonus is yours for the rest of the run.,Three of a family: its bonus is yours for the rest of the run.,Trois atouts d'une famille : son bonus est à toi pour le reste de la partie.
 New gear,New gear,Nouvel équipement
 You picked up gear. Open the Bag to compare it and equip it.,You picked up gear. Open the Bag to compare it and equip it.,Tu as ramassé de l'équipement. Ouvre le Sac pour le comparer et l'équiper.
+You picked up gear. Open the Bag ({inventory}) to compare it and equip it.,You picked up gear. Open the Bag ({inventory}) to compare it and equip it.,Tu as ramassé de l'équipement. Ouvre le Sac ({inventory}) pour le comparer et l'équiper.
 Spell,Spell,Sort
 The tome taught you a spell: it has its own button. Reading another tome replaces it.,The tome taught you a spell: it has its own button. Reading another tome replaces it.,Le grimoire t'a appris un sort : il a son propre bouton. Lire un autre grimoire le remplace.
+The tome taught you a spell: {skill_4} casts it. Reading another tome replaces it.,The tome taught you a spell: {skill_4} casts it. Reading another tome replaces it.,Le grimoire t'a appris un sort : {skill_4} le lance. Lire un autre grimoire le remplace.
 "Elites have powers, named after them. Tougher, but they drop better loot, and sometimes runes.","Elites have powers, named after them. Tougher, but they drop better loot, and sometimes runes.","Les élites ont des pouvoirs, qui leur donnent leur nom. Plus coriaces, mais ils lâchent un meilleur butin, et parfois des runes."
 Runes go into your weapon's sockets at a smith's forge. Better weapons have more sockets.,Runes go into your weapon's sockets at a smith's forge. Better weapons have more sockets.,"Les runes se sertissent dans les emplacements de ton arme, à la forge d'un forgeron. Les meilleures armes ont plus d'emplacements."
 The forge,The forge,La forge
 Walk up to the anvil and tap Forge to set runes into your weapon. The smith takes them out again for gold.,Walk up to the anvil and tap Forge to set runes into your weapon. The smith takes them out again for gold.,Approche-toi de l'enclume et touche Forger pour sertir des runes dans ton arme. Le forgeron les retire contre de l'or.
+Walk up to the anvil and press {interact} to set runes into your weapon. The smith takes them out for gold.,Walk up to the anvil and press {interact} to set runes into your weapon. The smith takes them out for gold.,Approche-toi de l'enclume et appuie sur {interact} pour sertir des runes dans ton arme. Le forgeron les retire contre de l'or.
 "Walk up to the merchant and tap Trade to spend your gold, or to sell him what you don't need.","Walk up to the merchant and tap Trade to spend your gold, or to sell him what you don't need.","Approche-toi du marchand et touche Marchander pour dépenser ton or, ou lui vendre ce dont tu n'as pas besoin."
+"Walk up to the merchant and press {interact} to spend your gold, or to sell him what you don't need.","Walk up to the merchant and press {interact} to spend your gold, or to sell him what you don't need.","Approche-toi du marchand et appuie sur {interact} pour dépenser ton or, ou lui vendre ce dont tu n'as pas besoin."
 Chest,Chest,Coffre
 Walk up to a chest to open it. Careful: some are trapped.,Walk up to a chest to open it. Careful: some are trapped.,Approche-toi d'un coffre pour l'ouvrir. Prudence : certains sont piégés.
 Cracked wall,Cracked wall,Mur fissuré
@@ -2217,12 +2247,14 @@ Ambush,Ambush,Embuscade
 "The exits stay shut until every wave is dead. Survive, and a chest appears.","The exits stay shut until every wave is dead. Survive, and a chest appears.","Les sorties restent closes jusqu'à ce que chaque vague soit morte. Survis, et un coffre apparaît."
 Watch the ground: red marks show where it will strike. It changes its attacks as it weakens.,Watch the ground: red marks show where it will strike. It changes its attacks as it weakens.,Surveille le sol : les marques rouges montrent où il va frapper. Il change d'attaques en s'affaiblissant.
 Find the stairs on the map. Tap the map to see the whole floor.,Find the stairs on the map. Tap the map to see the whole floor.,Trouve les escaliers sur la carte. Touche la carte pour voir tout l'étage.
+Find the stairs on the map. Press {map} to see the whole floor.,Find the stairs on the map. Press {map} to see the whole floor.,Trouve les escaliers sur la carte. Appuie sur {map} pour voir tout l'étage.
 Two ways down,Two ways down,Deux chemins
 This floor has two stairs. The sign over each tells where it leads: a cursed floor is harder but has better loot.,This floor has two stairs. The sign over each tells where it leads: a cursed floor is harder but has better loot.,Cet étage a deux escaliers. Le panneau au-dessus de chacun indique où il mène : un étage maudit est plus dur mais offre un meilleur butin.
 Souls to spend,Souls to spend,Des âmes à dépenser
 You brought souls back. The shrine's Tree of Souls turns them into lasting upgrades.,You brought souls back. The shrine's Tree of Souls turns them into lasting upgrades.,Tu as ramené des âmes. L'Arbre des Âmes du Sanctuaire les change en améliorations durables.
 The Tree of Souls,The Tree of Souls,L'Arbre des Âmes
 "Tap a node, then Buy. Nodes open from the top down; ""or"": pick one of two. Reset gives all your souls back.","Tap a node, then Buy. Nodes open from the top down; ""or"": pick one of two. Reset gives all your souls back.","Touche un nœud, puis Acheter. Les nœuds s'ouvrent de haut en bas ; « ou » : choisis l'un des deux. Réinitialiser te rend toutes tes âmes."
+"Choose a node, then Buy. Nodes open from the top down; ""or"": pick one of two. Reset gives all your souls back.","Choose a node, then Buy. Nodes open from the top down; ""or"": pick one of two. Reset gives all your souls back.","Choisis un nœud, puis Acheter. Les nœuds s'ouvrent de haut en bas ; « ou » : choisis l'un des deux. Réinitialiser te rend toutes tes âmes."
 Oaths,Oaths,Serments
 "An oath changes your start: a gain and a cost. Pick one or Unsworn, then Begin the descent.","An oath changes your start: a gain and a cost. Pick one or Unsworn, then Begin the descent.","Un serment change ton départ : un gain et un prix. Choisis-en un ou Sans serment, puis Entamer la descente."
 Cursed floor,Cursed floor,Étage maudit
@@ -2236,8 +2268,60 @@ Stay by an oasis to cool down before the heat hurts you.,Stay by an oasis to coo
 Fallen into the Deeps: follow the arrow of light to the Dawn Breach. The demons keep coming.,Fallen into the Deeps: follow the arrow of light to the Dawn Breach. The demons keep coming.,Tombé dans les Tréfonds : suis la flèche de lumière jusqu'à la Brèche de l'Aube. Les démons affluent.
 Pact door,Pact door,Porte de pacte
 "A pact door. Walk up to the stele and tap Read the pact: keep it for a relic, break it and lose max Health.","A pact door. Walk up to the stele and tap Read the pact: keep it for a relic, break it and lose max Health.","Porte de pacte. Approche de la stèle, touche Lire le pacte : tiens-le pour une relique, romps-le et perds de la Vie max."
+"A pact door. Walk up to the stele and press {interact}: keep the pact for a relic, break it and lose max Health.","A pact door. Walk up to the stele and press {interact}: keep the pact for a relic, break it and lose max Health.","Porte de pacte. Approche de la stèle, appuie sur {interact} : tiens le pacte pour une relique, romps-le et perds de la Vie max."
 Something waits,Something waits,Quelque chose attend
 "Altars, springs and spirits offer a deal. Walk up to one and tap the button over your skills to see it.","Altars, springs and spirits offer a deal. Walk up to one and tap the button over your skills to see it.","Autels, sources et esprits proposent un marché. Approche-toi et touche le bouton au-dessus de tes compétences."
+"Altars, springs and spirits offer a deal. Walk up to one and press {interact} to see it.","Altars, springs and spirits offer a deal. Walk up to one and press {interact} to see it.","Autels, sources et esprits proposent un marché. Approche-toi et appuie sur {interact} pour le voir."
+Drag on the left side of the screen,Drag on the left side of the screen,Glisse le doigt sur la gauche de l'écran
+Attack (hold to charge),Attack (hold to charge),Attaquer (maintenir pour charger)
+"The big button, bottom right","The big button, bottom right","Le gros bouton, en bas à droite"
+The round button left of the attack,The round button left of the attack,Le bouton rond à gauche de l'attaque
+Weapon skill,Weapon skill,Compétence d'arme
+The round button above the roll,The round button above the roll,Le bouton rond au-dessus de la roulade
+Second weapon skill,Second weapon skill,Seconde compétence d'arme
+The round button above the attack,The round button above the attack,Le bouton rond au-dessus de l'attaque
+Spell (from a tome),Spell (from a tome),Sort (d'un grimoire)
+"The fourth round button, once you know a spell","The fourth round button, once you know a spell","Le quatrième bouton rond, une fois un sort appris"
+"Belt, first slot","Belt, first slot","Ceinture, premier emplacement"
+The small buttons left of the skills,The small buttons left of the skills,Les petits boutons à gauche des compétences
+"Belt, second slot","Belt, second slot","Ceinture, deuxième emplacement"
+"Belt, third slot","Belt, third slot","Ceinture, troisième emplacement"
+"Use (trade, forge, read...)","Use (trade, forge, read...)","Utiliser (marchander, forger, lire…)"
+"The button over the skills, when something is in reach","The button over the skills, when something is in reach","Le bouton au-dessus des compétences, quand quelque chose est à portée"
+Choose a waiting perk,Choose a waiting perk,Choisir un atout en attente
+"The golden star, left of the map","The golden star, left of the map","L'étoile dorée, à gauche de la carte"
+The Bag button,The Bag button,Le bouton Sac
+Whole floor's map,Whole floor's map,Carte de tout l'étage
+Tap the minimap,Tap the minimap,Touche la mini-carte
+Pause,Pause,Pause
+"The II button, or the phone's back button","The II button, or the phone's back button","Le bouton II, ou le bouton retour du téléphone"
+Confirm in a menu,Confirm in a menu,Valider dans un menu
+Tap it,Tap it,Touche-le
+Back in a menu,Back in a menu,Retour dans un menu
+"Close, or the phone's back button","Close, or the phone's back button","Fermer, ou le bouton retour du téléphone"
+Previous / next tab,Previous / next tab,Onglet précédent / suivant
+Tap a tab,Tap a tab,Touche un onglet
+Xbox,Xbox,Xbox
+PlayStation,PlayStation,PlayStation
+Nintendo,Nintendo,Nintendo
+Esc,Esc,Échap
+Space,Space,Espace
+Tab,Tab,Tab
+Enter,Enter,Entrée
+Backspace,Backspace,Retour
+Shift,Shift,Maj
+Ctrl,Ctrl,Ctrl
+Alt,Alt,Alt
+F11,F11,F11
+Left click,Left click,Clic gauche
+Right click,Right click,Clic droit
+Middle click,Middle click,Clic molette
+Tap the minimap to see the whole floor and find the stairs.,Tap the minimap to see the whole floor and find the stairs.,Touche la mini-carte pour voir tout l'étage et trouver les escaliers.
+Press {map} to see the whole floor and find the stairs.,Press {map} to see the whole floor and find the stairs.,Appuie sur {map} pour voir tout l'étage et trouver les escaliers.
+Hold the attack button to charge a heavy blow; let go when the ring is full.,Hold the attack button to charge a heavy blow; let go when the ring is full.,Maintiens le bouton d'attaque pour charger un coup puissant ; relâche quand l'anneau est plein.
+Hold {attack} to charge a heavy blow; let go when the ring is full.,Hold {attack} to charge a heavy blow; let go when the ring is full.,Maintiens {attack} pour charger un coup puissant ; relâche quand l'anneau est plein.
+A level up's perk waits behind the golden star: tap it when the fight allows.,A level up's perk waits behind the golden star: tap it when the fight allows.,L'atout d'un niveau attend derrière l'étoile dorée : touche-la quand le combat le permet.
+A level up's perk waits: press {offers} when the fight allows.,A level up's perk waits: press {offers} when the fight allows.,L'atout d'un niveau attend : appuie sur {offers} quand le combat le permet.
 "Roll through a blow: for a heartbeat, nothing can touch you.","Roll through a blow: for a heartbeat, nothing can touch you.","Roule à travers un coup : le temps d'un battement de cœur, rien ne peut te toucher."
 A weapon is as strong as the floor it was found on. Keep plundering.,A weapon is as strong as the floor it was found on. Keep plundering.,Une arme vaut l'étage où elle fut trouvée. Continue à piller.
 Hold three perks of one family to awaken its bonus.,Hold three perks of one family to awaken its bonus.,Réunis trois atouts d'une même famille pour éveiller son bonus.

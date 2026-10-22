@@ -1,0 +1,177 @@
+[gd_resource type="Resource" script_class="InputPromptsDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/input/input_prompts_def.gd" id="1_prompts"]
+[ext_resource type="Script" path="res://src/definitions/input/action_prompt_def.gd" id="2_action"]
+[ext_resource type="Script" path="res://src/definitions/input/pad_glyphs_def.gd" id="3_pad"]
+
+[sub_resource type="Resource" id="Action_move"]
+script = ExtResource("2_action")
+action = &"move"
+display_name = "Move"
+parts = Array[StringName]([&"move_up", &"move_left", &"move_down", &"move_right"])
+touch_text = "Drag on the left side of the screen"
+joined = true
+
+[sub_resource type="Resource" id="Action_attack"]
+script = ExtResource("2_action")
+action = &"attack"
+display_name = "Attack (hold to charge)"
+key = 32
+mouse = 1
+touch_text = "The big button, bottom right"
+
+[sub_resource type="Resource" id="Action_skill_1"]
+script = ExtResource("2_action")
+action = &"skill_1"
+display_name = "Roll"
+key = 49
+mouse = 2
+touch_text = "The round button left of the attack"
+
+[sub_resource type="Resource" id="Action_skill_2"]
+script = ExtResource("2_action")
+action = &"skill_2"
+display_name = "Weapon skill"
+key = 50
+touch_text = "The round button above the roll"
+
+[sub_resource type="Resource" id="Action_skill_3"]
+script = ExtResource("2_action")
+action = &"skill_3"
+display_name = "Second weapon skill"
+key = 51
+touch_text = "The round button above the attack"
+
+[sub_resource type="Resource" id="Action_skill_4"]
+script = ExtResource("2_action")
+action = &"skill_4"
+display_name = "Spell (from a tome)"
+key = 52
+touch_text = "The fourth round button, once you know a spell"
+
+[sub_resource type="Resource" id="Action_quick_item"]
+script = ExtResource("2_action")
+action = &"quick_item"
+display_name = "Belt, first slot"
+key = 81
+touch_text = "The small buttons left of the skills"
+
+[sub_resource type="Resource" id="Action_belt_2"]
+script = ExtResource("2_action")
+action = &"belt_2"
+display_name = "Belt, second slot"
+key = 53
+
+[sub_resource type="Resource" id="Action_belt_3"]
+script = ExtResource("2_action")
+action = &"belt_3"
+display_name = "Belt, third slot"
+key = 54
+
+[sub_resource type="Resource" id="Action_interact"]
+script = ExtResource("2_action")
+action = &"interact"
+display_name = "Use (trade, forge, read...)"
+key = 69
+touch_text = "The button over the skills, when something is in reach"
+
+[sub_resource type="Resource" id="Action_offers"]
+script = ExtResource("2_action")
+action = &"offers"
+display_name = "Choose a waiting perk"
+key = 67
+touch_text = "The golden star, left of the map"
+
+[sub_resource type="Resource" id="Action_inventory"]
+script = ExtResource("2_action")
+action = &"inventory"
+display_name = "Bag"
+key = 73
+touch_text = "The Bag button"
+
+[sub_resource type="Resource" id="Action_map"]
+script = ExtResource("2_action")
+action = &"map"
+display_name = "Whole floor's map"
+key = 77
+touch_text = "Tap the minimap"
+
+[sub_resource type="Resource" id="Action_pause"]
+script = ExtResource("2_action")
+action = &"pause"
+display_name = "Pause"
+key = 4194305
+touch_text = "The II button, or the phone's back button"
+
+[sub_resource type="Resource" id="Action_ui_accept"]
+script = ExtResource("2_action")
+action = &"ui_accept"
+display_name = "Confirm in a menu"
+key = 4194309
+touch_text = "Tap it"
+
+[sub_resource type="Resource" id="Action_ui_cancel"]
+script = ExtResource("2_action")
+action = &"ui_cancel"
+display_name = "Back in a menu"
+key = 4194305
+touch_text = "Close, or the phone's back button"
+
+[sub_resource type="Resource" id="Action_menu_tabs"]
+script = ExtResource("2_action")
+action = &"menu_tabs"
+display_name = "Previous / next tab"
+parts = Array[StringName]([&"menu_prev_tab", &"menu_next_tab"])
+touch_text = "Tap a tab"
+
+[sub_resource type="Resource" id="Action_toggle_fullscreen"]
+script = ExtResource("2_action")
+action = &"toggle_fullscreen"
+display_name = "Fullscreen"
+key = 4194342
+
+[sub_resource type="Resource" id="Pad_xbox"]
+script = ExtResource("3_pad")
+id = &"xbox"
+brand = "Xbox"
+name_hints = PackedStringArray("xbox", "xinput", "microsoft", "x-box")
+button_glyphs = PackedStringArray("A", "B", "X", "Y", "View", "Guide", "Menu", "LS", "RS", "LB", "RB", "↑", "↓", "←", "→")
+axis_glyphs = PackedStringArray("L", "L", "R", "R", "LT", "RT")
+face_colors = PackedColorArray(0.45, 0.8, 0.3, 1, 0.92, 0.32, 0.27, 1, 0.33, 0.56, 0.95, 1, 0.96, 0.8, 0.26, 1)
+
+[sub_resource type="Resource" id="Pad_playstation"]
+script = ExtResource("3_pad")
+id = &"playstation"
+brand = "PlayStation"
+name_hints = PackedStringArray("playstation", "ps3", "ps4", "ps5", "dualshock", "dualsense", "sony", "wireless controller")
+button_glyphs = PackedStringArray("✕", "○", "□", "△", "Share", "PS", "Options", "L3", "R3", "L1", "R1", "↑", "↓", "←", "→")
+axis_glyphs = PackedStringArray("L", "L", "R", "R", "L2", "R2")
+face_colors = PackedColorArray(0.5, 0.64, 0.98, 1, 0.96, 0.4, 0.4, 1, 0.92, 0.55, 0.85, 1, 0.38, 0.84, 0.68, 1)
+
+[sub_resource type="Resource" id="Pad_nintendo"]
+script = ExtResource("3_pad")
+id = &"nintendo"
+brand = "Nintendo"
+name_hints = PackedStringArray("nintendo", "switch", "joy-con", "joycon", "pro controller")
+button_glyphs = PackedStringArray("B", "A", "Y", "X", "-", "Home", "+", "LS", "RS", "L", "R", "↑", "↓", "←", "→")
+axis_glyphs = PackedStringArray("L", "L", "R", "R", "ZL", "ZR")
+face_colors = PackedColorArray(0.9, 0.86, 0.8, 1, 0.9, 0.86, 0.8, 1, 0.9, 0.86, 0.8, 1, 0.9, 0.86, 0.8, 1)
+
+[sub_resource type="Resource" id="Pad_generic"]
+script = ExtResource("3_pad")
+id = &"generic"
+brand = "Gamepad"
+name_hints = PackedStringArray()
+button_glyphs = PackedStringArray("A", "B", "X", "Y", "Back", "Guide", "Start", "LS", "RS", "LB", "RB", "↑", "↓", "←", "→")
+axis_glyphs = PackedStringArray("L", "L", "R", "R", "LT", "RT")
+face_colors = PackedColorArray(0.45, 0.8, 0.3, 1, 0.92, 0.32, 0.27, 1, 0.33, 0.56, 0.95, 1, 0.96, 0.8, 0.26, 1)
+
+[resource]
+script = ExtResource("1_prompts")
+actions = Array[ExtResource("2_action")]([SubResource("Action_move"), SubResource("Action_attack"), SubResource("Action_skill_1"), SubResource("Action_skill_2"), SubResource("Action_skill_3"), SubResource("Action_skill_4"), SubResource("Action_quick_item"), SubResource("Action_belt_2"), SubResource("Action_belt_3"), SubResource("Action_interact"), SubResource("Action_offers"), SubResource("Action_inventory"), SubResource("Action_map"), SubResource("Action_pause"), SubResource("Action_ui_accept"), SubResource("Action_ui_cancel"), SubResource("Action_menu_tabs"), SubResource("Action_toggle_fullscreen")])
+pads = Array[ExtResource("3_pad")]([SubResource("Pad_xbox"), SubResource("Pad_playstation"), SubResource("Pad_nintendo"), SubResource("Pad_generic")])
+key_codes = PackedInt32Array(4194305, 32, 4194306, 4194309, 4194308, 4194319, 4194320, 4194321, 4194322, 4194325, 4194326, 4194328, 4194342)
+key_words = PackedStringArray("Esc", "Space", "Tab", "Enter", "Backspace", "←", "↑", "→", "↓", "Shift", "Ctrl", "Alt", "F11")
+mouse_glyphs = PackedStringArray("", "Left click", "Right click", "Middle click")
+stick_deadzone = 0.5
+mouse_threshold = 6.0

@@ -11,8 +11,10 @@ signal abandon_requested
 
 const ABANDON_TEXT := "Give up the run"  # i18n
 const CONFIRM_TEXT := "Really? Tap again"  # i18n
+const CONFIRM_TEXT_BUTTONS := "Really? Press again"  # i18n
 const ABANDON_NOTE := "Ends this run now. You keep the souls earned so far."  # i18n
 const CONFIRM_NOTE := "Tap again to end the run. Anything else to cancel."  # i18n
+const CONFIRM_NOTE_BUTTONS := "Press again to end the run. Anything else to cancel."  # i18n
 const BUTTON_SIZE := Vector2(300, 58)
 const NOTE_WIDTH := 380.0
 
@@ -60,6 +62,7 @@ func _build() -> void:
 		Sfx.play_ui(Sfx.bank.ui_close)
 		resume_requested.emit())
 	resume.add_theme_font_size_override("font_size", Fonts.TITLE)
+	PromptGlyph.badge(resume, &"pause", PromptGlyph.Place.INSIDE)  # Escape or Start resumes too
 	_row(tr("Options"), "OptionsButton", tr("Sound, music, button size, effects."), func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		_options.open())
@@ -89,8 +92,8 @@ func _build() -> void:
 func _on_abandon() -> void:
 	Sfx.play_ui(Sfx.bank.ui_click)
 	if _confirm.text == tr(ABANDON_TEXT):
-		_confirm.text = tr(CONFIRM_TEXT)
-		_abandon_note.text = tr(CONFIRM_NOTE)
+		_confirm.text = Prompts.pick(CONFIRM_TEXT, CONFIRM_TEXT_BUTTONS)
+		_abandon_note.text = Prompts.pick(CONFIRM_NOTE, CONFIRM_NOTE_BUTTONS)
 	else:
 		abandon_requested.emit()
 

@@ -166,6 +166,7 @@ func _build() -> void:
 	_leave.name = "LeaveButton"
 	_own(_leave)
 	_leave_row.add_child(_leave)
+	PromptGlyph.badge(_leave, &"ui_cancel", PromptGlyph.Place.INSIDE)  # Back leaves too
 	_leave_note = UiSkin.label(tr("Nothing happens. You can come back later."), Fonts.BODY, UiSkin.DIM)
 	_leave_row.add_child(_leave_note)
 	for node in _named:

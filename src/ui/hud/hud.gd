@@ -1,6 +1,9 @@
 class_name Hud
 extends CanvasLayer
-## In-game overlay: bars, stats, messages and the touch controls.
+## In-game overlay: bars, stats, messages and the controls. On touch, the joystick and the round
+## buttons; on a keyboard or a gamepad (InputDevice), those are put away for the ActionBar (the
+## same actions as compact slots with their keys) and the bag, pause, map and perk buttons show
+## their key in a corner (PromptGlyph). The mouse fights with MouseControls.
 
 signal inventory_requested
 signal pause_requested
@@ -71,6 +74,10 @@ var interact_button := InteractButton.new()
 var _offers: OfferQueue
 ## During the trial of the Threshold the perk and Interact buttons are put away.
 var _in_trial := false
+## The fight's controls on a keyboard or a gamepad, mirroring the touch buttons (built in code).
+var action_bar := ActionBar.new()
+## Clicks in the fight (built in code).
+var mouse_controls := MouseControls.new()
 
 
 func _ready() -> void:
@@ -103,11 +110,19 @@ func _ready() -> void:
 	add_child(loot_prompt)
 	_add_offers_button()
 	_add_interact_button()
+	_add_action_bar()
+	_add_key_badges()
+	mouse_controls.name = "MouseControls"
+	add_child(mouse_controls)
+	InputDevice.changed.connect(_apply_device)
+	_apply_device()
 	Events.depth_changed.connect(_on_depth_changed)
 	_depth_banner.modulate.a = 0.0
 
 
-## Dev builds: a DBG button next to the pause button.
+## Dev builds: a DBG button left of the pause button, wherever the pause button really is (the
+## theme's margins make both wider than their places, and they grow to the left: placed by the
+## numbers, DBG sat under the pause button).
 func _add_debug_button() -> void:
 	var pause := %PauseButton as Button
 	var button := Button.new()
@@ -117,10 +132,15 @@ func _add_debug_button() -> void:
 	button.add_theme_font_size_override("font_size", Fonts.BODY)
 	button.anchor_left = 1.0
 	button.anchor_right = 1.0
-	button.offset_left = pause.offset_left - 80.0
-	button.offset_right = pause.offset_left - 8.0
+	button.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	button.offset_top = pause.offset_top
 	button.offset_bottom = pause.offset_bottom
+	var place := func() -> void:
+		var right := pause.position.x - pause.get_parent_area_size().x - 8.0
+		button.offset_right = right
+		button.offset_left = right - 72.0
+	pause.item_rect_changed.connect(place)
+	place.call()
 	button.modulate = Color(1, 1, 1, 0.75)
 	button.pressed.connect(func() -> void: debug_requested.emit())
 	add_child(button)
@@ -151,6 +171,53 @@ func _add_interact_button() -> void:
 	%Controls.add_child(interact_button)
 	interact_button.owner = self
 	interact_button.unique_name_in_owner = true
+
+
+## The fight's controls for keys and gamepads, low in the middle: the touch buttons' twins.
+func _add_action_bar() -> void:
+	var buttons: Array[ActionButton] = [_attack_button]
+	buttons.append_array(_skill_buttons)
+	buttons.append_array(_belt_buttons)
+	action_bar.setup(buttons, 1 + _skill_buttons.size(), interact_button)
+	add_child(action_bar)
+	move_child(action_bar, (%Controls as Control).get_index())
+	action_bar.owner = self
+	action_bar.unique_name_in_owner = true
+
+
+## The keys of the buttons a keyboard or a gamepad can also use, on a corner of each (hidden on
+## touch): the bag, pause, the map and the perk button.
+func _add_key_badges() -> void:
+	for pair: Array in [[%BagButton, &"inventory"], [%PauseButton, &"pause"], [_minimap, &"map"], [offers_button, &"offers"]]:
+		# Over the middle of the control's top edge (the map: its top left corner); never over a
+		# neighbour.
+		PromptGlyph.badge(pair[0], pair[1], PromptGlyph.Place.CORNER if pair[0] == _minimap else PromptGlyph.Place.TOP)
+
+
+## Touch: the joystick and the round buttons. Keys or a gamepad: the action bar instead.
+func _apply_device() -> void:
+	var touch := InputDevice.uses_touch()
+	(%Controls as Control).visible = touch
+	(%Joystick as Control).visible = touch
+	action_bar.visible = not touch
+
+
+## Whether the touch controls are on screen (false with keys or a gamepad).
+func touch_controls_shown() -> bool:
+	return (%Controls as Control).visible
+
+
+## The map key: the whole floor, or back to the fight.
+func toggle_full_map() -> void:
+	if _minimap.visible:
+		_full_map.visible = not _full_map.visible
+
+
+## Interact on loot left on the ground, with nothing else in reach: takes it (like its button).
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(&"interact") and loot_prompt.visible and not interact_button.visible:
+		loot_prompt.press_take()
+		get_viewport().set_input_as_handled()
 
 
 ## The perk choices waiting: the button shows how many.
@@ -542,6 +609,13 @@ func is_boss_bar_showing() -> bool:
 ## Where a control of the HUD is on screen (unique name: "AttackButton", "Joystick",
 ## "SealLabel"...), for the tutorial to point at. Empty if it isn't there or is hidden.
 func hint_target(control_name: StringName) -> Rect2:
+	if not touch_controls_shown():
+		# Keys or a gamepad: the action bar's twin of a touch button (none for the joystick).
+		var slot := action_bar.slot_for(control_name)
+		if slot:
+			return slot.get_global_rect()
+		if control_name == &"Joystick":
+			return Rect2()
 	var node := get_node_or_null("%" + String(control_name))
 	if node == null or not node.is_visible_in_tree():
 		return Rect2()

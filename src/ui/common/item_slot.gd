@@ -35,7 +35,6 @@ var _time := 0.0
 
 func _init(side: float = 60.0) -> void:
 	custom_minimum_size = Vector2(side, side)
-	focus_mode = Control.FOCUS_NONE
 	toggle_mode = false
 	clip_contents = false
 	var none := StyleBoxEmpty.new()
@@ -152,6 +151,11 @@ func _text(text: String, at: Vector2, align: HorizontalAlignment, font_size: int
 
 
 ## The biggest whole-pixel scale of `texture` that fits in `box`, centred.
+## `texture`'s rect in `box`: centred, at the biggest whole scale that fits (pixels stay square).
+static func fit(texture: Texture2D, box: Rect2) -> Rect2:
+	return _fit(texture, box)
+
+
 static func _fit(texture: Texture2D, box: Rect2) -> Rect2:
 	var source := texture.get_size()
 	var scale := floorf(minf(box.size.x / source.x, box.size.y / source.y))
@@ -163,6 +167,11 @@ static func _fit(texture: Texture2D, box: Rect2) -> Rect2:
 
 static var _slot: StyleBoxTexture
 static var _frames := {}
+
+
+## The wooden slot's style (the HUD's action bar draws its slots with it).
+static func slot_box() -> StyleBoxTexture:
+	return _slot_box()
 
 
 static func _slot_box() -> StyleBoxTexture:

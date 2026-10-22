@@ -35,7 +35,7 @@ func go(path: String) -> void:
 		return
 	busy = true
 	_path = path
-	_tip.text = tr(TIPS.tips[randi() % TIPS.tips.size()]) if not TIPS.tips.is_empty() else ""
+	_tip.text = TIPS.pick()
 	_bar.value = 0.0
 	_status.text = tr("The dark gathers...")
 	_screen.modulate.a = 0.0

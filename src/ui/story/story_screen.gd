@@ -28,7 +28,16 @@ func _ready() -> void:
 	var spot: Control = %HeroSpot
 	spot.resized.connect(func() -> void: _hero.position.x = spot.size.x * 0.5)
 	%SkipButton.pressed.connect(finish)
+	# Its keys on a computer or a gamepad: continue, and skip (Back) beside the button.
+	PromptGlyph.badge(%SkipButton, &"ui_cancel")
+	_say_hint()
+	InputDevice.changed.connect(_say_hint)
 	next_page()
+
+
+## "Tap to continue", or the key or button that does it.
+func _say_hint() -> void:
+	_hint.text = Prompts.pick("Tap to continue", "Press {ui_accept} to continue")  # i18n
 
 
 func pages() -> PackedStringArray:
@@ -85,3 +94,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_accept") or event.is_action_pressed("attack"):
 		get_viewport().set_input_as_handled()
 		advance()
+	elif event.is_action_pressed("ui_cancel"):
+		# Escape or a gamepad's B: like Skip.
+		get_viewport().set_input_as_handled()
+		finish()

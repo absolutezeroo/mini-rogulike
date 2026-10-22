@@ -30,7 +30,9 @@ for a system before changing it.
   subclass rather than another branch in `Actor`, `Monster` or `World`.
 - Ask `FloorRules` for a floor's numbers; never multiply difficulty x depth x event x curse yourself.
 - UI listens to `Events` and signals and never drives gameplay. Touch controls only press input
-  actions.
+  actions. A text naming a control has a touch version and a keys/gamepad one (`Prompts.pick()`,
+  `{action}` codes); a new window built on `RpgWindow`/`RpgDialog` works with keys by itself
+  (MenuNav, design/interface.md "Devices").
 - Every player-facing text goes through `tr()`, as a whole sentence with `%d` or `{name}` codes,
   never glued pieces. Data texts stay English and are translated where shown. Say Health, Damage,
   Armor (never HP, ATK, DEF).
@@ -74,5 +76,5 @@ for a system before changing it.
 | The story's canon: the antagonist, places, characters, what is revealed when | docs/lore.md |
 | Visual effects: the pixel grid, elements and their kits, reviewing an effect | docs/vfx.md |
 | Balance tools / past passes | docs/balance.md / docs/balance-log.md |
-| Android build | docs/android.md |
+| Android and Windows builds | docs/android.md |
 | What each system does | docs/design/ (dungeon, monsters, builds, loot, progression, interface, presentation) |

@@ -69,6 +69,10 @@ func open(title: String, subtitle: String, perks: Array[PerkDef], owned: PerkSet
 	_banishing = false
 	set_charges(rerolls, banishes)
 	show_cards(perks, true)
+	# Keys and gamepads start on the first card (MenuNav; never on touch, where it would look
+	# like a picked card).
+	if _cards.get_child_count() > 0:
+		MenuNav.set_first(_dialog, _cards.get_child(0) as Control)
 	show()
 	_enter()
 	Sfx.play_ui(Sfx.bank.ui_open)
@@ -79,9 +83,6 @@ func open(title: String, subtitle: String, perks: Array[PerkDef], owned: PerkSet
 		return  # already closed, or reopened with other cards
 	for card: PerkCard in _cards.get_children():
 		card.disabled = false
-	# Keyboard and gamepad only: on a touch screen it would look like a picked card.
-	if _cards.get_child_count() > 0 and not DisplayServer.is_touchscreen_available():
-		(_cards.get_child(0) as Control).grab_focus()
 
 
 ## The world dims and the board rises into place, instead of a hard cut over the fight.
@@ -157,7 +158,7 @@ func _refresh_banish() -> void:
 	if _banish == null:
 		return
 	_banish.text = tr("Cancel") if _banishing else tr("Banish (%d)") % _banishes
-	_subtitle.text = tr("Tap the perk to banish: it won't be offered again this run") if _banishing else _subtitle_text
+	_subtitle.text = tr("Choose the perk to banish: it won't be offered again this run") if _banishing else _subtitle_text
 	_subtitle.add_theme_color_override("font_color", BANISH_TINT if _banishing else UiSkin.TEXT)
 	for card: PerkCard in _cards.get_children():
 		card.self_modulate = BANISH_TINT if _banishing else Color.WHITE
@@ -215,9 +216,10 @@ func _build() -> void:
 	_banish.icon = load("res://assets/ui/icons/banish.png")
 	_tools.add_child(_banish)
 	_later = UiParts.button(tr("Later"), Callable(), Vector2(180, 54), Fonts.BODY)
+	PromptGlyph.badge(_later, &"ui_cancel", PromptGlyph.Place.INSIDE)  # Back puts the choice off too
 	_later.name = "LaterButton"
 	_tools.add_child(_later)
-	_tools_note = UiParts.text(tr("Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (tap Banish, then the card)."), Fonts.SMALL, UiSkin.DIM, 1100)
+	_tools_note = UiParts.text(tr("Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (Banish, then the card)."), Fonts.SMALL, UiSkin.DIM, 1100)
 	_tools_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_dialog.body.add_child(_tools_note)
 	for node: Node in [_title, _subtitle, _cards, _tools, _reroll, _banish, _later]:

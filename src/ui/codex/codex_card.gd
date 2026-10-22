@@ -17,7 +17,6 @@ var _frame: StyleBoxTexture
 func _init(def: MonsterDef, rules: BestiaryRules) -> void:
 	monster = def
 	custom_minimum_size = SIZE
-	focus_mode = Control.FOCUS_NONE
 	var none := StyleBoxEmpty.new()
 	for state in ["normal", "hover", "pressed", "disabled", "focus", "hover_pressed"]:
 		add_theme_stylebox_override(state, none)

@@ -61,6 +61,11 @@ func run() -> void:
 	add_child(story)
 	await story.run_unit()
 	story.free()
+	# Keyboards, mice and gamepads (PcTests).
+	var pc := PcTests.new()
+	add_child(pc)
+	await pc.run_unit()
+	pc.free()
 
 
 ## Text keeps whole pixels (Fonts, docs/design/interface.md "Text"): the font is drawn sharp, on its

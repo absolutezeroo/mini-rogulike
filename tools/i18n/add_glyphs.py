@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Adds the French glyphs the pixel font (assets/fonts/normal_font.ttf, Ninja Adventure) lacks:
-œ Œ « » Î Ï … – — and the no-break spaces (U+00A0, U+202F), drawn on its 9-pixel grid in its
-own style. Runs once (it skips glyphs the font already has). Needs fontTools
+œ Œ « » Î Ï … – — and the no-break spaces (U+00A0, U+202F), plus the controls' prompt glyphs
+(PlayStation's ✕ ○ □ △ and the arrows ← → ↑ ↓), drawn on its 9-pixel grid in its own style.
+Runs once (it skips glyphs the font already has). Needs fontTools
 (pip install fonttools); not used by the game itself.
 
 Usage: python3 tools/i18n/add_glyphs.py [path/to/font.ttf]
@@ -80,6 +81,72 @@ GLYPHS = {
         "#########",
         "",
         "",
+    ]),
+    # The prompts' glyphs (Prompts, PromptGlyph): PlayStation's face buttons and the arrow keys,
+    # capital-high (6 pixels) like the letters on the other caps.
+    "✕": ("uni2715", 7, [
+        "#....#",
+        ".#..#.",
+        "..##..",
+        "..##..",
+        ".#..#.",
+        "#....#",
+    ]),
+    "○": ("uni25CB", 7, [
+        ".####.",
+        "#....#",
+        "#....#",
+        "#....#",
+        "#....#",
+        ".####.",
+    ]),
+    "□": ("uni25A1", 7, [
+        "######",
+        "#....#",
+        "#....#",
+        "#....#",
+        "#....#",
+        "######",
+    ]),
+    "△": ("uni25B3", 7, [
+        "..##..",
+        "..##..",
+        ".#..#.",
+        ".#..#.",
+        "#....#",
+        "######",
+    ]),
+    "←": ("arrowleft", 7, [
+        "..#...",
+        ".#....",
+        "######",
+        ".#....",
+        "..#...",
+        "",
+    ]),
+    "→": ("arrowright", 7, [
+        "...#..",
+        "....#.",
+        "######",
+        "....#.",
+        "...#..",
+        "",
+    ]),
+    "↑": ("arrowup", 6, [
+        "..#..",
+        ".###.",
+        "#.#.#",
+        "..#..",
+        "..#..",
+        "..#..",
+    ]),
+    "↓": ("arrowdown", 6, [
+        "..#..",
+        "..#..",
+        "..#..",
+        "#.#.#",
+        ".###.",
+        "..#..",
     ]),
 }
 # Spaces: the same width as the font's space.

@@ -47,8 +47,11 @@ TEXT_FIELDS = {
     "immune_text",
     # The story (data/story/): chapters, waking lines, fragments, deeds, the narrative's messages.
     "line", "author", "place", "hint", "rule", "fragment_message", "deed_message",
+    # The controls (data/ui/input_prompts.tres, DeviceText, HintDef): what to do on each device.
+    "touch_text", "button_text", "brand",
 }
-LIST_FIELDS = {"intro_pages", "death_lines", "greetings", "branches", "branch_texts", "rank_names", "tips", "lines"}
+LIST_FIELDS = {"intro_pages", "death_lines", "greetings", "branches", "branch_texts", "rank_names", "tips", "lines",
+               "key_words", "mouse_glyphs"}
 SCENE_FIELDS = {"text", "tooltip_text", "placeholder_text"}
 
 # A GDScript or Godot resource string literal: "..." with backslash escapes.

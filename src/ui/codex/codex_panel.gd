@@ -12,7 +12,7 @@ const TAB_NAMES := ["Quests", "Bestiary", "Achievements", "Runs"]  # i18n
 ## What each tab is for, under its summary.
 const TAB_HELP := [
 	"Quests change every day and every week. Everything you do in any run counts toward them, and a finished quest pays its souls at once. Souls are kept between runs: spend them at the Shrine on lasting upgrades.",  # i18n
-	"Every monster you meet goes in here. Slay more of a kind to raise your hunter rank with it: each rank pays souls, and Mastered also gives +%d%% damage against that kind for good. Tap a monster for its attacks and challenges.",  # i18n
+	"Every monster you meet goes in here. Slay more of a kind to raise your hunter rank with it: each rank pays souls, and Mastered also gives +%d%% damage against that kind for good. Choose a monster for its attacks and challenges.",  # i18n
 	"Big goals across all your runs. Reaching one pays its souls at once.",  # i18n
 	"Your last runs, newest first. Gold is lost when a run ends; souls are kept.",  # i18n
 ]
@@ -53,6 +53,7 @@ func open(content: ContentDB, tab: int = -1) -> void:
 func show_tab(tab: int) -> void:
 	_tab = tab as Tab
 	Sfx.play_ui(Sfx.bank.ui_click)
+	MenuNav.set_first(_window, _tab_buttons[tab])  # keys and pads start on the tab shown
 	_close_page()
 	for i in _tab_buttons.size():
 		_tab_buttons[i].set_pressed_no_signal(i == tab)
@@ -269,6 +270,7 @@ func open_monster(monster: MonsterDef) -> void:
 	_list_box.hide()
 	_intro.hide()
 	_page.show()
+	MenuNav.focus_in(_page)
 
 
 func _close_page() -> void:
@@ -377,7 +379,7 @@ func _build() -> void:
 		button.text = tr(TAB_NAMES[i])
 		button.name = "%sTab" % TAB_NAMES[i]
 		button.toggle_mode = true
-		button.focus_mode = Control.FOCUS_NONE
+		button.add_to_group(MenuNav.TABS)
 		button.custom_minimum_size = Vector2(150, 48)
 		button.add_theme_font_size_override("font_size", Fonts.BODY)
 		button.pressed.connect(func() -> void:
