@@ -293,7 +293,9 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 		_enter_floor(not saved.is_empty())
 	tutorial.cue(&"run_start")
 	if run.ending_due:
-		_offer_ending.call_deferred(0, false)  # won at the bottom, the ending not chosen yet
+		# Won at the bottom, the ending not chosen yet: the souls were given at the win, and the
+		# victory screen still says how many (all the run gave: souls are given only at its end).
+		_offer_ending.call_deferred(run.souls_awarded, false)
 		return
 	_show_next_offer.call_deferred()  # choices left open in a saved run
 
