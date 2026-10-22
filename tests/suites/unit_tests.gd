@@ -252,12 +252,24 @@ func _test_combat_rules() -> void:
 	var blood_moon: FloorEventDef = load("res://data/floor_events/blood_moon.tres")
 	var plain := FloorRules.make(CONTENT.dungeon, null, null, 1)
 	var hard := FloorRules.make(CONTENT.dungeon, nightmare, blood_moon, 5)
-	check(plain.monster_damage() == 1.0 and plain.dungeon_damage(4) == 5, "no difficulty: neutral rules (trap 4 + depth 1)")
-	check(is_equal_approx(hard.monster_damage(), nightmare.monster_damage * blood_moon.monster_damage), "difficulty and event multiply")
-	check(hard.dungeon_damage(4) == roundi(9 * hard.monster_damage()), "dungeon damage grows with depth and the multipliers")
+	var act_one := CONTENT.dungeon.act_for_depth(1)
+	var act_two := CONTENT.dungeon.act_for_depth(5)
+	check(is_equal_approx(plain.monster_damage(), act_one.monster_damage) and is_equal_approx(plain.monster_damage(true), 1.0), "no difficulty: the act's own threat for its monsters, none for bosses")
+	check(plain.dungeon_damage(4) == 5, "no difficulty: a trap deals its own damage (trap 4 + depth 1)")
+	check(is_equal_approx(hard.monster_damage(), act_two.monster_damage * nightmare.monster_damage * blood_moon.monster_damage), "the act's threat, the difficulty and the event multiply")
+	check(is_equal_approx(hard.monster_hp(true), nightmare.boss_hp * blood_moon.monster_hp) and is_equal_approx(hard.monster_damage(true), nightmare.monster_damage * blood_moon.monster_damage), "a boss leaves the act's threat out (tuned one by one)")
+	check(hard.dungeon_damage(4) == roundi(9 * nightmare.monster_damage * blood_moon.monster_damage), "dungeon damage grows with depth and the difficulty's and event's multipliers")
+	# Keeper's curve (balance-log 2026-10-22): act I gentle, acts II and III carry their own
+	# threat (floors 4-8 were a stroll), act IV as the owner likes it; a nudge, never a wall.
+	var acts := CONTENT.dungeon.acts
+	check(acts[0].monster_hp == 1.0 and acts[0].monster_damage == 1.0, "act I's monsters keep the depth's own numbers: floors 1-2 are where a player learns")
+	check(acts[1].monster_hp > 1.0 and acts[1].monster_damage > 1.0 and acts[2].monster_hp > 1.0 and acts[2].monster_damage > 1.0, "acts II and III add their own threat to their monsters")
+	check(acts[3].monster_hp == 1.0 and acts[3].monster_damage == 1.0, "act IV's monsters keep the depth's own numbers")
+	for act in acts:
+		check(act.monster_hp <= 1.5 and act.monster_damage <= 1.5, "an act's own threat is a nudge, x1.5 at most (%s)" % act.title)
 	check(hard.gold(10) == roundi(10 * blood_moon.gold), "the event changes the gold")
 	var slime: MonsterDef = load("res://data/monsters/slime.tres")
-	check(hard.scale_monster(slime.stats, false).max_hp > plain.scale_monster(slime.stats, false).max_hp and slime.stats.max_hp == plain.scale_monster(slime.stats, false).max_hp, "monster stats scale without touching the def")
+	check(hard.scale_monster(slime.stats, false).max_hp > plain.scale_monster(slime.stats, false).max_hp and roundi(slime.stats.max_hp * act_one.monster_hp) == plain.scale_monster(slime.stats, false).max_hp, "monster stats scale without touching the def")
 
 
 func _test_content() -> void:
@@ -1649,8 +1661,8 @@ func _test_monster_ranks() -> void:
 	var boss: BossDef = config.acts[0].boss
 	check(deep.scale_monster(boss.stats, true).max_hp == roundi(boss.stats.max_hp * (1.0 + config.boss_hp_scale_per_depth * 8))
 		and deep.scale_monster(boss.stats, true).attack == boss.stats.attack + roundi(config.boss_attack_per_depth * 8), "bosses scale with the boss depth values")
-	check(deep.scale_monster(slime.stats, false).max_hp == roundi(slime.stats.max_hp * (1.0 + config.monster_hp_scale_per_depth * 8))
-		and deep.scale_monster(slime.stats, false).attack == slime.stats.attack + roundi(config.monster_attack_per_depth * 8), "monsters scale with the monster depth values")
+	check(deep.scale_monster(slime.stats, false).max_hp == roundi(slime.stats.max_hp * (1.0 + config.monster_hp_scale_per_depth * 8) * config.act_for_depth(9).monster_hp)
+		and deep.scale_monster(slime.stats, false).attack == slime.stats.attack + roundi(config.monster_attack_per_depth * 8), "monsters scale with the monster depth values (and their act's own threat)")
 
 
 ## The bestiary: ranks paid once, challenges met by the right kills, mastery.

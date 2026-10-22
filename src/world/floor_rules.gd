@@ -29,14 +29,29 @@ static func make(floor_config: DungeonConfig, run_difficulty: DifficultyDef, flo
 
 # --- Monsters ----------------------------------------------------------------
 
-## Multiplies a monster's HP (after the depth scaling, see scale_monster()).
+## Multiplies a monster's HP (after the depth scaling, see scale_monster()): the act's (not
+## bosses), the difficulty's, the event's.
 func monster_hp(is_boss: bool) -> float:
+	var act := _act()
 	var scale := difficulty.boss_hp if is_boss else difficulty.monster_hp
-	return scale * (event.monster_hp if event else 1.0)
+	return (act.monster_hp if act and not is_boss else 1.0) * scale * (event.monster_hp if event else 1.0)
 
 
-## Multiplies everything the dungeon deals: monster attacks and skills, traps, bursts, the cold.
-func monster_damage() -> float:
+## Multiplies a monster's attacks and skills: the act's (ActDef.monster_damage, not bosses), the
+## difficulty's and the event's.
+func monster_damage(is_boss: bool = false) -> float:
+	var act := _act()
+	return (act.monster_damage if act and not is_boss else 1.0) * floor_damage()
+
+
+## The act this floor is in (null outside the acts' floors, or without a config).
+func _act() -> ActDef:
+	return config.act_for_depth(depth) if config else null
+
+
+## Multiplies everything the floor deals: the difficulty's and the event's (monsters, traps,
+## bursts, the cold).
+func floor_damage() -> float:
 	return difficulty.monster_damage * (event.monster_damage if event else 1.0)
 
 
@@ -67,9 +82,10 @@ func scale_monster(base: StatBlock, is_boss: bool) -> StatBlock:
 
 
 ## Damage from the dungeon itself (a trap, quicksand, a blast, the cold): `base`, plus
-## `per_depth` for each floor, times the floor's damage multiplier.
+## `per_depth` for each floor, times the floor's damage multiplier (not the monsters' own
+## threat: ActDef.monster_damage is for their attacks).
 func dungeon_damage(base: float, per_depth: float = 1.0) -> int:
-	return maxi(1, roundi((base + depth * per_depth) * monster_damage()))
+	return maxi(1, roundi((base + depth * per_depth) * floor_damage()))
 
 
 ## Chance for a monster to come at a rare rank (Epic, Legendary, Shiny): its own chance at

@@ -35,6 +35,7 @@ func run() -> void:
 	_test_body_shader()
 	_test_shaders()
 	_test_no_squared_colors()
+	_test_simulation()
 
 
 ## Each element: an id, a ramp of 3 to 5 colors from a bright core to a dark edge (shadow turned
@@ -610,6 +611,18 @@ func _test_smooth_shapes() -> void:
 		var source := FileAccess.get_file_as_string(path)
 		var smooth := source.contains("draw_circle(") or source.contains("draw_arc(") or source.contains("draw_polyline(") or source.contains("draw_colored_polygon(")
 		check(not smooth, "smooth shapes: %s draws on the art's grid (PixelDraw)" % path.get_file())
+
+
+## The balance tools simulate fights with nothing to see (Vfx.shown off): only what is seen is
+## left out, never what a rule or a bot reads; the game and the tests always show everything.
+func _test_simulation() -> void:
+	check(Vfx.shown, "vfx: effects are shown in the game and the tests (only the balance tools turn them off)")
+	var number := FloatingText.create(Vector2.ZERO, "7", Color.WHITE)
+	check(Vfx.is_cosmetic(number), "vfx: a floating number is only seen (a simulation leaves it out)")
+	number.free()
+	var warning := CellWarning.new()
+	check(not Vfx.is_cosmetic(warning), "vfx: an arena's cell warning is read (by the bots): a simulation keeps it")
+	warning.free()
 
 
 ## A monster's shots and dashes warn before they come: the lanes of its shots, the line of its

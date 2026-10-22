@@ -32,6 +32,8 @@ static func create(owner: Monster, overlay_layer: Layer) -> MonsterOverlay:
 
 
 func _process(delta: float) -> void:
+	if not Vfx.shown:
+		return  # a simulation: nothing to see (Vfx.shown)
 	# Off screen nothing needs drawing (the telegraph still follows what the monster does).
 	if monster.world and monster.world.view_rect().has_point(monster.global_position):
 		queue_redraw()

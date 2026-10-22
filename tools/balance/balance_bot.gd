@@ -1,9 +1,9 @@
 class_name BalanceBot
 extends RefCounted
 ## A bot playing the hero through the real input actions (like the touch controls do), one
-## physics frame at a time (step()). Two styles:
+## physics frame at a time (step()). The styles:
 ## - FACE_TANK: walks into attack range of its target and holds attack, uses the weapon's skills
-##   (and the learned spell) whenever they are ready; never rolls, never drinks. What a player
+##   (and the learned spell) whenever they are ready; never rolls. What a player
 ##   does who ignores the boss' patterns.
 ## - KITE: keeps its target at the weapon's range (melee: the edge of its reach) and attacks
 ##   whenever in reach (attacks don't root the hero), even while stepping aside. It reads each
@@ -12,10 +12,21 @@ extends RefCounted
 ##   rolls only when the blow lands within the roll's invulnerability (late, not early), and
 ##   only where the whole roll is solid ground (no pit, crack or wall). It holds the hit that
 ##   would set off a boss' shockwave when its roll isn't ready. A decent player, not a perfect one.
+## - PLAYER ("player"): the kite bot with a human's reaction time (REACTION): a threat (a wind-up,
+##   a shot, a shockwave's ring) is only answered once it has been there that long, so short
+##   wind-ups and fast shots land. An average player, for the gauntlet.
+## No bot drinks, except while `drink_below` is set (the gauntlet, which hands out potions).
 
 enum Style { FACE_TANK, KITE }
 
-const STYLE_NAMES := { "face_tank": Style.FACE_TANK, "kite": Style.KITE }
+const STYLE_NAMES := { "face_tank": Style.FACE_TANK, "kite": Style.KITE, "player": Style.KITE }
+## Seconds before the "player" bot answers what it sees (a visual reaction on a phone, with the
+## decision: about 0.25-0.35 s for an average player).
+const REACTION := 0.3
+## In the Deeps, monsters farther than this are left alone: the bot makes for the Dawn Breach.
+const DEEPS_FIGHT_RANGE := 110.0
+## Frames between two potions (the first one's heal shows first).
+const DRINK_WAIT := 45
 const ACTIONS: Array[StringName] = [&"move_left", &"move_right", &"move_up", &"move_down", &"attack",
 	&"skill_1", &"skill_2", &"skill_3", &"skill_4", &"quick_item"]
 ## Shots closer than this, heading at the hero, are dodged.
@@ -34,9 +45,19 @@ var focus: Monster
 var hold_distance := 0.0
 ## The same for every bot made while it is above 0 (the compound checks set it around a measure).
 static var hold_override := 0.0
+## Below this share of max Health, every bot made while it is above 0 drinks what is in the
+## belt's first slot (the quick item key; the gauntlet gives it potions). 0: bots never drink.
+static var drink_below := 0.0
 ## Skill presses and rolls, for the logs.
 var skills_used := 0
 var rolls := 0
+## Potions drunk (drink_below), for the logs.
+var drinks := 0
+var _drink_wait := 0
+## Seconds before a threat is answered (0: at once; the "player" style: REACTION).
+var reaction := 0.0
+## Threat key -> the physics frame it was first seen (reaction).
+var _seen := {}
 
 var _hazards: Array[Vector2i] = []
 var _hazard_timer := 0
@@ -51,6 +72,8 @@ var _released := {}
 static func create(style_name: String, hero: Player, in_world: World, boss: Monster = null) -> BalanceBot:
 	var bot := BalanceBot.new()
 	bot.style = STYLE_NAMES.get(style_name, Style.FACE_TANK)
+	if style_name == "player":
+		bot.reaction = REACTION
 	bot.player = hero
 	bot.world = in_world
 	bot.focus = boss
@@ -67,12 +90,27 @@ func step() -> void:
 	if player == null or player.is_dead:
 		release_all()
 		return
+	if is_instance_valid(player.world) and player.world != world:
+		# He crossed into another world (the Deeps, the Threshold): play there.
+		world = player.world
+		_path.clear()
+		_hazards.clear()
+		_hazard_timer = 0
 	# Skill buttons are read as "just pressed": let go every other frame.
 	_released = _pressed.duplicate()
 	for action: StringName in _pressed.keys():
 		Input.action_release(action)
 	_pressed.clear()
+	_drink()
 	var target := _target()
+	var deeps := world as AbyssWorld
+	if deeps and is_instance_valid(deeps.door) and (target == null or player.global_position.distance_to(target.global_position) > DEEPS_FIGHT_RANGE):
+		# The Deeps (a fall): make for the Dawn Breach, fighting only what comes close (as the
+		# Deeps' own probe did, balance-log "The Deeps").
+		_move(_way_to(deeps.door.global_position))
+		if not _pressed.has(&"attack"):
+			Input.action_release(&"attack")
+		return
 	if target == null:
 		_move(Vector2.ZERO)
 		Input.action_release(&"attack")
@@ -83,8 +121,20 @@ func step() -> void:
 		_kite(target)
 
 
+## A potion when Health runs low (drink_below), not two in a row.
+func _drink() -> void:
+	if drink_below <= 0.0 or player.belt.count_at(0) <= 0:
+		return
+	_drink_wait -= 1
+	if _drink_wait > 0 or player.hp >= player.get_max_hp() * drink_below:
+		return
+	if _press(&"quick_item"):
+		drinks += 1
+		_drink_wait = DRINK_WAIT
+
+
 func _target() -> Monster:
-	if is_instance_valid(focus) and not focus.is_dead:
+	if is_instance_valid(focus) and not focus.is_dead and focus.is_inside_tree():
 		return focus
 	var best: Monster = null
 	var best_distance := INF
@@ -170,11 +220,16 @@ func _threat() -> Dictionary:
 		# the cooldown is set to 3 s when the ring appears, the blast follows 0.35-0.45 s later.
 		if monster.is_boss() and monster._shockwave_cooldown > 2.5:
 			var ring := (monster.def as BossDef).shockwave_radius + monster.radius + player.radius + 20.0
-			if distance < ring:
+			if distance < ring and _noticed("ring%d" % monster.get_instance_id()):
 				away += direction * 2.0
 				urgent = urgent or monster._shockwave_cooldown <= 2.75
 			continue
+		if reaction > 0.0 and monster.is_boss():
+			_seen.erase("ring%d" % monster.get_instance_id())  # the next ring is seen afresh
 		if monster.telegraph <= 0.0:
+			_seen.erase(monster.get_instance_id())
+			continue
+		if not _noticed(monster.get_instance_id()):
 			continue
 		var skill := monster.casting_skill()
 		if skill == null:
@@ -213,6 +268,8 @@ func _threat() -> Dictionary:
 		var miss := absf(offset.cross(shot._direction))
 		if miss > player.radius + shot._spec.radius + 10.0:
 			continue
+		if not _noticed(shot.get_instance_id()):
+			continue
 		var time_to_hit := maxf(along, 0.0) / maxf(shot._spec.speed, 1.0)
 		var side := shot._direction.orthogonal()
 		if side.dot(offset) < 0.0:
@@ -225,6 +282,18 @@ func _threat() -> Dictionary:
 		if offset.length() < world.map.tile_size * 1.2:
 			away += offset.normalized() if offset.length() > 0.1 else Vector2.DOWN
 	return { "danger": away != Vector2.ZERO, "urgent": urgent, "away": away.normalized() }
+
+
+## Whether the threat `key` has been seen for the bot's reaction time (always, without one).
+func _noticed(key: Variant) -> bool:
+	if reaction <= 0.0:
+		return true
+	var now := Engine.get_physics_frames()
+	if _seen.size() > 400:
+		_seen.clear()  # shots long gone: their ids pile up
+	if not _seen.has(key):
+		_seen[key] = now
+	return now - int(_seen[key]) >= roundi(reaction * Engine.physics_ticks_per_second)
 
 
 ## What a monster's skill does, for dodging: "area" (a circle around or in front of it),

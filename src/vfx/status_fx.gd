@@ -52,6 +52,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if not Vfx.shown:
+		return  # a simulation: nothing to see (Vfx.shown)
 	if actor == null or not is_instance_valid(actor):
 		return
 	_time += delta

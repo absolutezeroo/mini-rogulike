@@ -46,6 +46,28 @@ static func find(all: Array[BalanceBuildDef], build_name: String) -> BalanceBuil
 
 
 ## The act's expected build (tag "expected"), or null.
+## The hero an average player has on the normal floor `depth`: on an act's first floor what he
+## brings in (the previous act's expected build; a fresh hero, `baseline`, in act I), on its
+## later floors the act's expected build (he is close to its boss). The curve's heroes.
+static func hero_at(all: Array[BalanceBuildDef], content: ContentDB, depth: int) -> BalanceBuildDef:
+	var act := content.dungeon.act_index(depth) + 1
+	if content.dungeon.floor_in_act(depth) > 1:
+		return expected(all, act)
+	return find(all, "baseline") if act <= 1 else expected(all, act - 1)
+
+
+## `build` with the weapon a run starts with (the baseline's), Common, item level 1, nothing on
+## it; null when `build` is the baseline itself.
+static func with_starter_weapon(all: Array[BalanceBuildDef], content: ContentDB, build: BalanceBuildDef) -> BalanceBuildDef:
+	var base := find(all, "baseline")
+	if base == null or base.weapon == null or build == null or build == base:
+		return null
+	var copy := variant(build, content, "weapon", String(base.weapon.id), 0, base.weapon)
+	copy.weapon_item_level = 1
+	copy.name = build.name + "+starter_weapon"
+	return copy
+
+
 static func expected(all: Array[BalanceBuildDef], act: int) -> BalanceBuildDef:
 	for build in all:
 		if build.act == act and build.has_tag("expected"):
@@ -222,7 +244,7 @@ static func make_weapon(build: BalanceBuildDef, content: ContentDB) -> WeaponDef
 		var r := rune(content, id)
 		if r and (runes.size() < sockets or build.ignore_sockets):
 			runes.append(r)
-	var level := gear_level(build, content)
+	var level := build.weapon_item_level if build.weapon_item_level > 0 else gear_level(build, content)
 	if build.weapon_rarity <= ItemRarity.COMMON and affixes.is_empty() and runes.is_empty() and level <= 1:
 		return build.weapon
 	return LootRoller.make(build.weapon, clampi(build.weapon_rarity, 0, 3), affixes, runes, level) as WeaponDef

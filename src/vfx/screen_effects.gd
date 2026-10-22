@@ -91,6 +91,8 @@ func _apply_settings() -> void:
 
 
 func _process(delta: float) -> void:
+	if not Vfx.shown:
+		return  # a simulation: nothing to see (Vfx.shown)
 	var shader := material as ShaderMaterial
 	var view := get_viewport().get_canvas_transform().affine_inverse()
 	var size := get_viewport_rect().size

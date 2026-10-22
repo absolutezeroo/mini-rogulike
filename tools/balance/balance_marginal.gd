@@ -39,6 +39,8 @@ const TTD_CAP := 200.0
 const CATEGORIES := ["perk", "relic", "family", "rune", "affix", "upgrade", "encounter"]
 
 var lab: BalanceLab
+## Units of work (BalanceJobs): each build measured is one, kept and shared between workers.
+var jobs := BalanceJobs.new()
 var content: ContentDB
 var targets: BalanceTargets
 var all_builds: Array[BalanceBuildDef] = []
@@ -70,11 +72,12 @@ func run() -> BalanceReport:
 		if expected == null:
 			continue
 		var ctx := await _setup(act, expected)
-		var base: Dictionary = ctx.base
-		var repeat: Dictionary = await measure(act, expected, seed_value, true)
-		var other_seed: Dictionary = await measure(act, expected, seed_value + 101, true)
-		base_rows.append([act, expected.name, base.dps, base.boss_ttk, base.pack_clear, base.boss_dps_in, base.sustain_boss, base.boss_ttd,
-			base.ehp, base.live_taken, BalanceReport.delta(_value(base, repeat).value), BalanceReport.delta(_value(base, other_seed).value)])
+		var base: Variant = ctx.base
+		var repeat: Variant = await measure_unit(act, expected, seed_value, true, "repeat")
+		var other_seed: Variant = await measure_unit(act, expected, seed_value + 101, true)
+		if base != null and repeat != null and other_seed != null:
+			base_rows.append([act, expected.name, base.dps, base.boss_ttk, base.pack_clear, base.boss_dps_in, base.sustain_boss, base.boss_ttd,
+				base.ehp, base.live_taken, BalanceReport.delta(_value(base, repeat).value), BalanceReport.delta(_value(base, other_seed).value)])
 		var variants := variants_for(expected)
 		if quick:
 			variants = variants.filter(func(v: Dictionary) -> bool: return ["vampirism", "strength", "leech_rune", "sharp", "might", "blood"].has(v.id))
@@ -84,10 +87,13 @@ func run() -> BalanceReport:
 			count += 1
 			var from_key: String = v.get("from", "")
 			if not bases.has(from_key):
-				bases[from_key] = await measure(act, v.from_build, seed_value, true)
-			var reference: Dictionary = bases[from_key]
+				bases[from_key] = await measure_unit(act, v.from_build, seed_value, true)
 			var top: bool = int(v.level) >= int(v.max_level)
-			var m: Dictionary = await measure(act, v.build, seed_value, top)
+			var measured: Variant = await measure_unit(act, v.build, seed_value, top)
+			if measured == null or bases[from_key] == null:
+				continue  # another worker's
+			var reference: Dictionary = bases[from_key]
+			var m: Dictionary = measured
 			var value := _value(reference, m)
 			var entry := {
 				"act": act, "category": v.category, "id": v.id, "level": v.level, "max_level": v.max_level, "label": v.label,
@@ -138,11 +144,26 @@ func _setup(act: int, expected: BalanceBuildDef) -> Dictionary:
 	var ctx := { "session": s, "boss": boss, "room": room, "raw_hits": raw_hits, "hp_scale": 1.0, "boss_rules": boss_rules,
 		"boss_hp": boss_rules.scale_monster(boss.stats, true).max_hp }
 	_ctx[act] = ctx
-	# Scale the dummy so the base build needs about DUMMY_SECONDS.
-	var probe: Dictionary = await lab.dummy(s, expected, boss, 1.0, 8.0, seed_value, null, ctx.boss_hp)
+	# Scale the dummy so the base build needs about DUMMY_SECONDS (every worker needs it: shared).
+	var probe: Dictionary = await jobs.unit("marginal-probe|%d|%s|%d" % [act, BalanceJobs.build_id(expected), seed_value], _roots(act, expected),
+		func() -> Dictionary: return await lab.dummy(s, expected, boss, 1.0, 8.0, seed_value, null, ctx.boss_hp), true)
 	ctx.hp_scale = clampf(DUMMY_SECONDS * float(probe.dps) / maxf(float(probe.full_hp), 1.0), 0.05, 1.0)
-	ctx["base"] = await measure(act, expected, seed_value, true)
+	ctx["base"] = await measure_unit(act, expected, seed_value, true)
 	return ctx
+
+
+## measure() as a unit of work (BalanceJobs): kept in the cache, dealt to a worker; null when it
+## is another worker's. `tag` tells two identical measures apart (the repeat).
+func measure_unit(act: int, build: BalanceBuildDef, measure_seed: int, live: bool, tag: String = "") -> Variant:
+	var ctx: Dictionary = _ctx[act]
+	var id := "marginal|%d|%s|%d|%s|%.5f|%s" % [act, BalanceJobs.build_id(build), measure_seed, str(live), ctx.hp_scale, tag]
+	return await jobs.unit(id, _roots(act, build), func() -> Dictionary: return await measure(act, build, measure_seed, live))
+
+
+func _roots(act: int, build: BalanceBuildDef) -> PackedStringArray:
+	var roots := PackedStringArray([content.dungeon.acts[act - 1].resource_path, "res://data/difficulties/normal.tres"])
+	roots.append_array(BalanceJobs.build_roots(build, content))
+	return roots
 
 
 ## One build measured: { dps, boss_ttk, sustain_boss, pack_clear, sustain_pack, boss_dps_in,

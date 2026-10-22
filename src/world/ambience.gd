@@ -58,6 +58,8 @@ func is_low_health() -> bool:
 
 
 func _process(delta: float) -> void:
+	if not Vfx.shown:
+		return  # a simulation: nothing to see (Vfx.shown)
 	if _player == null or not is_instance_valid(_player):
 		return
 	if _particles and is_instance_valid(_particles):

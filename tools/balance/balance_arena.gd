@@ -12,6 +12,8 @@ extends Node
 ##   rooms by spawn weight, and rooms with an Elite (each affix) / Epic / Legendary / Shiny.
 ## Every fight starts from the same seeds (`seed_value`): the same command gives the same numbers.
 
+## Frames the hero may spend in a world of his own (the Deeps, the Threshold) mid-fight.
+const AWAY_LIMIT := 60 * 120
 ## Frames allowed to walk from the floor's start into the arena.
 const APPROACH_LIMIT := 60 * 40
 ## Game seconds a room gets before it counts as a timeout.
@@ -42,6 +44,13 @@ var timeout := 240.0
 var verbose := true
 ## Boss fights: plain bosses only (no ranked fights).
 var plain_only := false
+## Units of work (BalanceJobs): each fight and room is one, kept in the cache and shared
+## between worker processes. A plain one (no cache, one process) when none is given.
+var jobs := BalanceJobs.new()
+## Weapon arena: only these weapons (ids; empty: all).
+var weapon_ids: PackedStringArray = []
+## Packs: only these acts (empty: all).
+var acts: Array[int] = []
 
 
 func core_difficulties() -> Array[DifficultyDef]:
@@ -93,11 +102,16 @@ func run_bosses() -> BalanceReport:
 	lab.override_chances()
 	var fights: Array = []
 	print("balance arena: %d boss fights" % matrix.size())
+	var index := 0
 	for f: Dictionary in matrix:
-		var result := await fight_boss(f.boss, f.build, f.difficulty, f.bot, f.rank)
+		index += 1
+		var result: Variant = await jobs.unit(fight_id(f.boss, f.build, f.difficulty, f.bot, f.rank), fight_roots(f.boss, f.build, f.difficulty),
+			func() -> Dictionary: return await fight_boss(f.boss, f.build, f.difficulty, f.bot, f.rank))
+		if result == null:
+			continue  # another worker's
 		fights.append(result)
-		if verbose:
-			print("  [%d/%d] %s" % [fights.size(), matrix.size(), fight_line(result)])
+		if verbose and jobs.measuring:
+			print("  [%d/%d] %s" % [index, matrix.size(), fight_line(result)])
 	lab.restore_chances()
 	var seconds := (Time.get_ticks_msec() - started) / 1000.0
 	report.notes.append("Arena: %d boss fights in %.0f s of real time (seed %d, timeout %.0f game s, hit stop off; times are game seconds)." % [fights.size(), seconds, seed_value, timeout])
@@ -107,8 +121,37 @@ func run_bosses() -> BalanceReport:
 	return report
 
 
-## One fight. Returns what happened (see the keys at the end).
-func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef, bot_name: String, rank: MonsterRankDef = null) -> Dictionary:
+## A fight's unit id (BalanceJobs): everything that makes it this fight.
+func fight_id(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef, bot_name: String, rank: MonsterRankDef = null) -> String:
+	return "boss|%s|%s|%s|%s|%s|%.0f" % [boss.id, BalanceJobs.build_id(build), BalanceContent.key(difficulty), bot_name, rank.id if rank else "plain", timeout]
+
+
+## What a boss fight depends on: the boss, its act (its monsters, its places), the arenas, the
+## build and the difficulty.
+func fight_roots(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef) -> PackedStringArray:
+	var act := BalanceContent.act_of_boss(content, boss)
+	var roots := PackedStringArray([boss.resource_path, "res://data/arenas/"])
+	if act >= 1:
+		roots.append(content.dungeon.acts[act - 1].resource_path)
+	roots.append_array(BalanceJobs.build_roots(build, content))
+	roots.append_array(difficulty_roots(difficulty))
+	return roots
+
+
+## A difficulty's files (an ascension is a copy made at run time: its base and the ascensions).
+static func difficulty_roots(difficulty: DifficultyDef) -> PackedStringArray:
+	if difficulty == null:
+		return PackedStringArray()
+	if not difficulty.resource_path.is_empty():
+		return PackedStringArray([difficulty.resource_path])
+	return PackedStringArray(["res://data/difficulties/%s.tres" % difficulty.id, "res://data/ascension/"])
+
+
+## One fight. Returns what happened (see the keys at the end). `start_hp`: the hero's Health
+## when the fight starts (the gauntlet: what the floor left him; 0: full). `belt`: what he
+## carries on his belt when `set_belt` (the gauntlet: the potions left; else as the build has it).
+func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef, bot_name: String, rank: MonsterRankDef = null, start_hp: int = 0,
+		belt: Array[ItemDef] = [], set_belt: bool = false) -> Dictionary:
 	var act := BalanceContent.act_of_boss(content, boss)
 	var depth := BalanceContent.boss_depth(content, act)
 	var game := await lab.start_game(depth, difficulty, boss, true, rank)
@@ -125,11 +168,19 @@ func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef
 	BalanceBuild.apply(build, player, content, difficulty)
 	player.perks.on_floor_started(player)  # floor-start perks (a ward) as on arrival
 	player.xp = -1000000  # the build keeps its level: no level up (and no perk menu) mid-fight
+	if set_belt:
+		BalanceGauntlet.empty_belt(player)
+		for item in belt:
+			player.store(item)
+	if start_hp > 0:
+		player.hp = clampi(start_hp, 1, player.get_max_hp())
+		player.health_changed.emit(player.hp, player.get_max_hp())
 	var boss_actor := world.arena.boss
 	result["affixes"] = boss_actor.affix_names()
 	var log := FightLog.new(player, boss_actor)
 	var bot := BalanceBot.create(bot_name, player, world, boss_actor)
 	var frames := 0
+	var away_frames := 0
 	var fight_frames := 0
 	var limit := roundi(timeout * BalanceLab.FPS)
 	var outcome := "timeout"
@@ -143,6 +194,16 @@ func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef
 		if boss_actor.is_dead:
 			outcome = "win"
 			break
+		if not world.is_inside_tree():
+			# In a world of his own for a while (the Deeps after a fall, the Threshold's trial):
+			# the boss waits frozen, the bot plays there; lost there for good, the fight is lost.
+			away_frames += 1
+			if away_frames > AWAY_LIMIT:
+				outcome = "loss"
+				result["error"] = "lost in the Deeps or the Threshold"
+				break
+			bot.step()
+			continue
 		if world.arena.is_started:
 			fight_frames += 1
 			log.frame()
@@ -163,6 +224,8 @@ func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef
 	result["boss_hp_left_share"] = maxi(boss_actor.hp, 0) / maxf(boss_actor.get_max_hp(), 1.0)
 	result["rolls"] = bot.rolls
 	result["skills_used"] = bot.skills_used
+	result["drinks"] = bot.drinks
+	result["away_time"] = away_frames / BalanceLab.FPS
 	# Time to kill, measured or (lost, timed out) projected from the damage dealt so far.
 	var dealt_share: float = 1.0 - float(result.boss_hp_left_share)
 	result["ttk_projected"] = float(result.time) / maxf(dealt_share, 0.01) if outcome != "win" else float(result.time)
@@ -203,7 +266,7 @@ func _boss_report(report: BalanceReport, fights: Array) -> void:
 			for bot in bots:
 				for r: Dictionary in fights:
 					if r.boss == String(boss.id) and r.build == expected.name and r.difficulty == d_key and r.bot == bot and r.get("rank", "plain") == "plain":
-						cell.append("%s %s %.0fs" % ["K" if bot == "kite" else "F", "W" if r.result == "win" else ("L" if r.result == "loss" else "T"), r.time])
+						cell.append("%s %s %.0fs" % [{ "kite": "K", "face_tank": "F", "player": "P" }.get(bot, bot), "W" if r.result == "win" else ("L" if r.result == "loss" else "T"), r.time])
 			row.append(" / ".join(cell) if not cell.is_empty() else "-")
 		summary.append(row)
 	var columns := PackedStringArray(["Boss", "Build"])
@@ -256,6 +319,8 @@ func run_weapons() -> BalanceReport:
 	lab.override_chances()
 	var normal := BalanceContent.difficulty(content, "normal")
 	var weapons := BalanceContent.weapons()
+	if not weapon_ids.is_empty():
+		weapons = weapons.filter(func(w: WeaponDef) -> bool: return weapon_ids.has(String(w.id)))
 	var boss_list := bosses
 	if quick:
 		weapons = weapons.slice(0, 3)
@@ -271,10 +336,14 @@ func run_weapons() -> BalanceReport:
 				continue
 			var build := BalanceBuild.variant(expected, content, "weapon", String(weapon.id), 0, weapon)
 			build.name = "%s+%s" % [expected.name, weapon.id]
-			var r := await fight_boss(boss, build, normal, "kite")
+			var result: Variant = await jobs.unit("weapon|" + fight_id(boss, build, normal, "kite"), fight_roots(boss, build, normal),
+				func() -> Dictionary: return await fight_boss(boss, build, normal, "kite"))
+			if result == null:
+				continue
+			var r: Dictionary = result
 			r["weapon"] = String(weapon.id)
 			fights.append(r)
-			if verbose:
+			if verbose and jobs.measuring:
 				print("  [%d/%d] %s" % [fights.size(), total, fight_line(r)])
 	lab.restore_chances()
 	var rows: Array = []
@@ -322,10 +391,12 @@ func run_packs() -> BalanceReport:
 	var kind_rows: Array = []
 	var room_rows: Array = []
 	var rank_rows: Array = []
-	var acts := range(1, content.dungeon.acts.size() + 1)
+	var act_list: Array = range(1, content.dungeon.acts.size() + 1)
+	if not acts.is_empty():
+		act_list = act_list.filter(func(a: int) -> bool: return acts.has(a))
 	if quick:
-		acts = [1]
-	for act: int in acts:
+		act_list = [act_list[0]] if not act_list.is_empty() else []
+	for act: int in act_list:
 		var expected := BalanceBuild.expected(all_builds, act)
 		if expected == null:
 			continue
@@ -343,7 +414,10 @@ func run_packs() -> BalanceReport:
 					if monster == null:
 						continue
 					var foes := [{ "def": monster }, { "def": monster }, { "def": monster }]
-					var r := await lab.pack(s, expected, foes, "kite", PACK_TIMEOUT, seed_value)
+					var got: Variant = await room(s, act, expected, foes, "kite", PACK_TIMEOUT, seed_value)
+					if got == null:
+						continue
+					var r: Dictionary = got
 					var kind_ttk := BalanceContent.mean(r.ttk_by_kind.get(String(monster.id), []))
 					r.merge({ "act": act, "difficulty": d_key, "build": expected.name, "bot": "kite", "room": "3 x %s" % monster.id, "kind": String(monster.id), "kind_ttk": kind_ttk })
 					results.append(r)
@@ -363,7 +437,10 @@ func run_packs() -> BalanceReport:
 					var outcomes := PackedStringArray()
 					for i in rooms:
 						var foes := lab.roll_room(act, depth, size, seed_value * 1000 + act * 10 + i)
-						var r := await lab.pack(s, build, foes, bot, PACK_TIMEOUT, seed_value + i)
+						var got: Variant = await room(s, act, build, foes, bot, PACK_TIMEOUT, seed_value + i)
+						if got == null:
+							continue
+						var r: Dictionary = got
 						r.merge({ "act": act, "difficulty": d_key, "build": build.name, "tags": build.tags, "bot": bot, "room": "mixed %d" % size })
 						results.append(r)
 						clear.append(r.clear_time)
@@ -400,7 +477,10 @@ func run_packs() -> BalanceReport:
 				for v: Dictionary in variants:
 					for bot in bots:
 						var foes: Array = [{ "def": commons[0].def, "rank": v.rank, "affixes": v.affixes }, commons[1], commons[2]]
-						var r := await lab.pack(s, expected, foes, bot, PACK_TIMEOUT, seed_value)
+						var got: Variant = await room(s, act, expected, foes, bot, PACK_TIMEOUT, seed_value)
+						if got == null:
+							continue
+						var r: Dictionary = got
 						var ranked_ttk: float = r.foe_ttks[0]
 						r.merge({ "act": act, "difficulty": d_key, "build": expected.name, "bot": bot, "room": v.label, "ranked_ttk": ranked_ttk })
 						results.append(r)
@@ -425,6 +505,36 @@ func run_packs() -> BalanceReport:
 	report.table("pack_ranks", "Monsters", "Rooms with one ranked monster (Elite with each affix, Epic, Legendary, Shiny) + 2 commons vs the act's expected build (engine)",
 		PackedStringArray(["Act", "Ranked", "Kind", "Its HP", "Its armor", "Difficulty", "Bot", "Result", "Ranked TTK s", "Clear s", "Taken", "Healed"]), rank_rows)
 	return report
+
+
+## A room (BalanceLab.pack) as a unit of work: kept in the cache, dealt to a worker.
+func room(s: Dictionary, act: int, build: BalanceBuildDef, foes: Array, bot_name: String, limit: float, measure_seed: int) -> Variant:
+	var id := "pack|%d|%d|%s|%s|%s|%s|%d|%.0f" % [act, s.depth, BalanceContent.key(s.difficulty), BalanceJobs.build_id(build), bot_name,
+		foes_id(foes), measure_seed, limit]
+	var roots := PackedStringArray([content.dungeon.acts[act - 1].resource_path])
+	roots.append_array(BalanceJobs.build_roots(build, content))
+	roots.append_array(difficulty_roots(s.difficulty))
+	for foe: Dictionary in foes:
+		roots.append((foe.def as MonsterDef).resource_path)
+		for a: EliteAffixDef in foe.get("affixes", []):
+			roots.append(a.resource_path)
+	return await jobs.unit(id, roots, func() -> Dictionary: return await lab.pack(s, build, foes, bot_name, limit, measure_seed))
+
+
+## "slime+elite:burning,rat,rat": a room's foes for its unit id.
+static func foes_id(foes: Array) -> String:
+	var parts := PackedStringArray()
+	for foe: Dictionary in foes:
+		var text := String((foe.def as MonsterDef).id)
+		if foe.get("rank"):
+			text += "+%s" % (foe.rank as MonsterRankDef).id
+			var affixes := PackedStringArray()
+			for a: EliteAffixDef in foe.get("affixes", []):
+				affixes.append(String(a.id))
+			if not affixes.is_empty():
+				text += ":" + ":".join(affixes)
+		parts.append(text)
+	return ",".join(parts)
 
 
 ## What a boss fight did, frame by frame: damage both ways, heals by source, phases, the lowest HP.

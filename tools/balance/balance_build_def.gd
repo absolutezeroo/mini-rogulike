@@ -26,6 +26,8 @@ extends Resource
 @export var weapon: WeaponDef
 ## ItemRarity: 0 Common, 1 Magic, 2 Rare, 3 Epic (more damage, more affixes, more rune sockets).
 @export_range(0, 3) var weapon_rarity: int = 0
+## The weapon's own item level when above 0 (1: the weapon a run starts with); 0: item_level.
+@export_range(0, 60) var weapon_item_level: int = 0
 ## ItemAffixDef ids on the weapon ("sharp", "swift", "vampiric"...).
 @export var weapon_affixes: PackedStringArray = []
 ## RuneDef ids set in its sockets ("leech_rune" twice = two Leech runes). At most its sockets

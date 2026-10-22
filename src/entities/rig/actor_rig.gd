@@ -353,6 +353,8 @@ func current_frame() -> Texture2D:
 
 
 func _process(delta: float) -> void:
+	if not Vfx.shown:
+		return  # a simulation: nothing to see (Vfx.shown)
 	_flash = maxf(_flash - delta, 0.0)
 	_squash = maxf(_squash - delta, 0.0)
 	var t := _squash / SQUASH_TIME

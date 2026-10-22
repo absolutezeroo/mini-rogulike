@@ -21,14 +21,25 @@ const FPS := 60.0
 ## Frames waited between two measures (timers of the last one go off first).
 const SETTLE_FRAMES := 90
 
+## Fresh measures rebuild the session's floor in the running game (restart(), renew()) instead
+## of starting a new game each time. Off: a new game every time (the old way, to compare).
+static var renew_floors := true
+
 var content: ContentDB
 var seed_value := 1
 ## Dungeon and rank chances changed for the measures (restored by restore_chances()).
 var _saved_chances := {}
 
 
+## The game runs as a simulation (`Vfx.shown` off, no HUD, no light, no ambience): nothing in
+## the measures reads them, and a fight runs about twice as fast. `--classic` keeps them (to
+## compare, or to look at a fight).
+static var simulate := true
+
+
 ## Sound off, the profile, settings and run save in memory only (like tests/run_tests.gd).
 static func isolate_profile() -> void:
+	Vfx.shown = not simulate
 	Sfx.enabled = false
 	Profile.save_path = ""
 	Profile.reset()
@@ -51,7 +62,9 @@ func fresh_profile() -> void:
 
 ## A run resumed at `depth` (RunSave in memory: the same seed every time), with `boss` drawn for
 ## its act. `plain`: no floor event or curse. `rank`: the boss comes at this rank.
-func start_game(depth: int, difficulty: DifficultyDef, boss: BossDef = null, plain: bool = true, rank: MonsterRankDef = null, run_seed: int = -1) -> Game:
+## `unpeopled`: the floor without its monsters and loose items (World.unpeopled: the lab's
+## sessions spawn their own fights and would only clear them away).
+func start_game(depth: int, difficulty: DifficultyDef, boss: BossDef = null, plain: bool = true, rank: MonsterRankDef = null, run_seed: int = -1, unpeopled: bool = false) -> Game:
 	fresh_profile()
 	HitStop.enabled = false
 	HitStop.reset()
@@ -73,6 +86,15 @@ func start_game(depth: int, difficulty: DifficultyDef, boss: BossDef = null, pla
 	var world := game.get_node("World") as World
 	world.forced_plain = plain
 	world.forced_boss_rank = rank
+	world.unpeopled = unpeopled
+	if not Vfx.shown:
+		# Nobody watches: the HUD and the screen's layers stay asleep (they only show the game).
+		for layer: String in ["Hud", "ScreenFx", "Ambience"]:
+			var node := game.get_node_or_null(layer)
+			if node:
+				node.process_mode = Node.PROCESS_MODE_DISABLED
+				if node is CanvasLayer:
+					(node as CanvasLayer).visible = false
 	add_child(game)
 	for i in 3:
 		await get_tree().physics_frame
@@ -99,8 +121,13 @@ func end_game(game: Game) -> void:
 ## same seed - lights, effects and timers of a floor roll random numbers on their own schedule,
 ## so a measure is only repeatable (and two builds comparable) on a world that starts from
 ## scratch. A hero who died is always replaced by a fresh run.
+## The floor is built without its own monsters and items (`unpeopled`): the lab clears them
+## before each measure anyway, and they are the last things a floor places, so the ground is the
+## same. A new run for a fresh measure rebuilds the same floor in the running game (`renew`)
+## instead of starting a new game: the same world from scratch, without the HUD, the menus and
+## the hero made again (a new game when the hero died or left the floor).
 func session(depth: int, difficulty: DifficultyDef, boss: BossDef = null, plain: bool = true, fresh: bool = true) -> Dictionary:
-	return { "game": null, "depth": depth, "difficulty": difficulty, "boss": boss, "plain": plain, "fresh": fresh, "used": false, "restarts": 0 }
+	return { "game": null, "depth": depth, "difficulty": difficulty, "boss": boss, "plain": plain, "fresh": fresh, "used": false, "restarts": 0, "renewals": 0 }
 
 
 ## The session's game for the next measure: started, or started again (fresh session, dead hero).
@@ -115,14 +142,47 @@ func ensure(s: Dictionary) -> Game:
 	return s.game
 
 
-## A new run of the same seed for the session.
+## A new run of the same seed for the session: its floor rebuilt in the running game when it
+## can be (`renew`), else a new game.
 func restart(s: Dictionary) -> Game:
 	if s.game != null and is_instance_valid(s.game):
+		var game: Game = s.game
+		if renew_floors and not game.player.is_dead and game.player.world == game.world and game.world.is_inside_tree():
+			await renew(s)
+			s.renewals += 1
+			s.used = false
+			return s.game
 		await end_game(s.game)
 		s.restarts += 1
-	s.game = await start_game(s.depth, s.difficulty, s.boss, s.plain)
+	s.game = await start_game(s.depth, s.difficulty, s.boss, s.plain, null, -1, renew_floors)
 	s.used = false
 	return s.game
+
+
+## The session's floor built again from its seed in the same game, as start_game() would build
+## it: the last measure's timers go off on a frozen world first (a blast's fuse, a combo's next
+## stab), then the floor is cleared and made again, the hero put back at its start. Everything a
+## measure reads starts from scratch (ready_hero() puts the build on the hero, seeds the rest).
+func renew(s: Dictionary) -> void:
+	var game: Game = s.game
+	BalanceBot.release_all()
+	get_tree().paused = false
+	HitStop.reset()
+	game.process_mode = Node.PROCESS_MODE_DISABLED
+	for i in SETTLE_FRAMES:
+		await get_tree().physics_frame
+	game.process_mode = Node.PROCESS_MODE_INHERIT
+	fresh_profile()
+	var world := game.world
+	world.forced_plain = s.plain
+	world.unpeopled = true
+	# As Game._enter_floor(): the same seed, the same ways down, the same way in.
+	world.rng.seed = hash("%d-floor-%d" % [game.run.seed, s.depth])
+	world.next_routes = FloorRoute.offer(content, s.depth + 1, game.difficulty, game.run.route_seed(s.depth + 1))
+	world.build_floor(s.depth, content, game._route_to(s.depth))
+	world.place_player(game.player)
+	for i in 3:
+		await get_tree().physics_frame
 
 
 func close(s: Dictionary) -> void:
@@ -374,14 +434,26 @@ func dummy_pack(s: Dictionary, build: BalanceBuildDef, defs: Array, hp_share: fl
 
 ## A room: `foes` ([{ def, rank, affixes }]) appear around the hero at 140-200 px and go for it;
 ## `bot_name` plays. Until they (and what they summon) are all dead, the hero dies, or `limit`.
-## Returns { result: clear | died | timeout, clear_time, ttks, ttk_by_kind, taken, hits, healed,
+## Returns { result: clear | died | timeout, clear_time, away_time (in the Deeps or the
+## Threshold), ttks, ttk_by_kind, taken, hits, healed,
 ## heal_sources, min_hp_share, hero_max_hp, kills }.
-func pack(s: Dictionary, build: BalanceBuildDef, foes: Array, bot_name: String, limit: float, measure_seed: int) -> Dictionary:
-	var game: Game = await ensure(s)
+## `carry`: the hero comes as the last room left it (Health, statuses, cooldowns: the gauntlet's
+## rooms one after the other), only put back at the floor's start; the build is not put on again.
+func pack(s: Dictionary, build: BalanceBuildDef, foes: Array, bot_name: String, limit: float, measure_seed: int, carry: bool = false) -> Dictionary:
+	var game: Game = s.game
+	if not carry or game == null or not is_instance_valid(game):
+		game = await ensure(s)
 	var difficulty: DifficultyDef = s.difficulty
 	var world := game.world
 	await clear_monsters(world, not s.fresh)
-	var player := ready_hero(game, build, difficulty, measure_seed)
+	var player := game.player
+	if carry:
+		player.global_position = world.map.cell_to_world(world.map.start_cell)
+		player.velocity = Vector2.ZERO
+		seed(measure_seed)
+		world.rng.seed = measure_seed
+	else:
+		player = ready_hero(game, build, difficulty, measure_seed)
 	var spawned: Array[Monster] = []
 	for foe: Dictionary in foes:
 		var at := world.find_open_point_near(player.global_position, world.rng.randf_range(140.0, 200.0))
@@ -398,6 +470,7 @@ func pack(s: Dictionary, build: BalanceBuildDef, foes: Array, bot_name: String, 
 		spawned.append(monster)
 	var log := PackLog.new(player, spawned, world)
 	var bot := BalanceBot.create(bot_name, player, world)
+	var away_frames := 0
 	var frames := 0
 	var limit_frames := roundi(limit * FPS)
 	var outcome := "timeout"
@@ -405,6 +478,12 @@ func pack(s: Dictionary, build: BalanceBuildDef, foes: Array, bot_name: String, 
 		await get_tree().physics_frame
 		frames += 1
 		unpause(game)
+		if not world.is_inside_tree():
+			# The hero is in a world of his own for a while (the Deeps after a fall, the
+			# Threshold's trial): the room waits frozen, the bot plays there.
+			away_frames += 1
+			bot.step()
+			continue
 		log.frame()
 		if player.is_dead:
 			outcome = "died"
@@ -421,6 +500,8 @@ func pack(s: Dictionary, build: BalanceBuildDef, foes: Array, bot_name: String, 
 	result["clear_time"] = frames / FPS
 	result["hero_max_hp"] = player.get_max_hp()
 	result["rolls"] = bot.rolls
+	result["drinks"] = bot.drinks
+	result["away_time"] = away_frames / FPS
 	# (The next measure clears the room, or starts a fresh run.)
 	return result
 
@@ -516,6 +597,8 @@ class PackLog:
 			foe_ttks[index] = ttk
 
 	func frame() -> void:
+		if not world.is_inside_tree():
+			return  # the hero fell into the Deeps: this room is gone
 		# Summoned adds join the room.
 		for actor in world.get_hostiles(player.faction):
 			var m := actor as Monster

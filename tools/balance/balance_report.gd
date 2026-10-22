@@ -217,6 +217,24 @@ static func _json_value(value: Variant) -> Variant:
 
 
 ## Everything, to be read back by load_state() (a part run in another process, --jobs).
+## Everything in memory, to keep (BalanceJobs) and rebuild with from_state().
+func to_state() -> Dictionary:
+	return { "title": title, "notes": notes, "flags": flags, "tables": tables, "data": data, "timings": timings }
+
+
+static func from_state(state: Dictionary) -> BalanceReport:
+	var report := BalanceReport.new()
+	report.title = state.get("title", "?")
+	report.notes = PackedStringArray(state.get("notes", []))
+	for f: Dictionary in state.get("flags", []):
+		report.flags.append(f)
+	for t: Dictionary in state.get("tables", []):
+		report.tables.append(t)
+	report.data = state.get("data", {})
+	report.timings = state.get("timings", {})
+	return report
+
+
 func save_state(path: String) -> void:
 	var state := { "title": title, "notes": Array(notes), "flags": flags, "tables": tables.map(func(t: Dictionary) -> Dictionary:
 		var copy := t.duplicate()

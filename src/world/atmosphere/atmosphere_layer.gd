@@ -38,6 +38,8 @@ static func create(def: AmbienceDef, map: DungeonMap) -> AtmosphereLayer:
 
 
 func _process(_delta: float) -> void:
+	if not Vfx.shown:
+		return  # a simulation: nothing to see (Vfx.shown)
 	queue_redraw()
 
 

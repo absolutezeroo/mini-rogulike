@@ -93,7 +93,7 @@ func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
 	# Depth, difficulty and the floor's event (see FloorRules).
 	var rules := world.rules if world and world.rules else FloorRules.make(config, null, null, depth)
 	base_stats = rules.scale_monster(def.stats, def is BossDef)
-	_damage_multiplier = rules.monster_damage()
+	_damage_multiplier = rules.monster_damage(def is BossDef)
 	_windup_multiplier = rules.telegraph_time()
 	_detect_multiplier = rules.detect_range()
 	if def is BossDef:

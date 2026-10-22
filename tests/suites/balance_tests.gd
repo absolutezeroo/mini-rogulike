@@ -28,6 +28,8 @@ const KNOWN_DATE := "2026-10-20"
 
 
 func run() -> void:
+	var shown := Vfx.shown
+	Vfx.shown = false  # the tools simulate (BalanceLab.simulate): nothing to see, twice as fast
 	var targets := BalanceBuild.load_targets()
 	var builds := BalanceBuild.load_all()
 	check(builds.size() >= 10, "balance builds found in data/balance/builds/ (%d)" % builds.size())
@@ -51,7 +53,7 @@ func run() -> void:
 	check(report.tables.size() >= 10, "the model wrote its tables (%d)" % report.tables.size())
 	_targets_of(report, ["model: boss TTK", "model: boss hits to kill", "model: face-tank wins", "model: heal share",
 		"model: monster TTK", "model: monster hits to kill", "model: elite TTK", "model: epic TTK", "model: legendary TTK",
-		"model: shiny TTK", "model: monster curve", "model: rank ladder", "model: ranked boss TTK", "model: act curve", "model: difficulty curve", "model: degenerate DPS",
+		"model: shiny TTK", "model: monster curve", "model: floor curve", "model: rank ladder", "model: ranked boss TTK", "model: act curve", "model: difficulty curve", "model: degenerate DPS",
 		"model: weapon DPS", "content: unlisted", "build data"])
 
 	# Phase 2C: the five families built on purpose stay comparable (DPS vs the expected act III
@@ -97,6 +99,7 @@ func run() -> void:
 		else:
 			_target(r.result == "win", "duel: %s kite wins" % duel[0], "%s vs %s on Normal: %s" % [duel[0], boss.id, line])
 	await _boss_guards(arena, builds, targets, normal)
+	await _gauntlet_guards(lab, builds, targets)
 	lab.restore_chances()
 	arena.queue_free()
 
@@ -134,6 +137,7 @@ func run() -> void:
 	economy.queue_free()
 	lab.queue_free()
 	BalanceLab.isolate_profile()  # back to a clean in-memory profile for whatever runs next
+	Vfx.shown = shown
 
 
 ## Phase 2A (bosses, sustain, armor): the rules that let a build out-heal or out-armor a boss.
@@ -201,6 +205,34 @@ func _targets_of(report: BalanceReport, categories: Array) -> void:
 
 
 ## A target check: counted like check(), printed as KNOWN when it is a known failure.
+## Keeper's pass (2026-10-22): act I played through as a player meets it (its last floor's rooms,
+## then its boss, BalanceGauntlet): the average player (player bot) on Pilgrim and the decent
+## one (kite) on Keeper get through; floors 1-2 stay gentle for the hero who walks them.
+func _gauntlet_guards(lab: BalanceLab, builds: Array[BalanceBuildDef], targets: BalanceTargets) -> void:
+	var gauntlet := BalanceGauntlet.new()
+	gauntlet.lab = lab
+	gauntlet.content = CONTENT
+	gauntlet.targets = targets
+	gauntlet.all_builds = builds
+	gauntlet.difficulties = BalanceContent.difficulties(CONTENT, PackedStringArray(["easy", "normal"]))
+	gauntlet.bots = PackedStringArray(["kite", "player"])
+	gauntlet.acts = [1] as Array[int]
+	gauntlet.verbose = false
+	add_child(gauntlet)
+	var report := await gauntlet.run()
+	gauntlet.queue_free()
+	var runs: Array = report.data.get("gauntlet", [])
+	check(runs.size() == 4, "the act I gauntlet ran (%d runs)" % runs.size())
+	for r: Dictionary in runs:
+		print("  gauntlet: %s" % BalanceGauntlet.run_line(r))
+		if (r.difficulty == "easy" and r.bot == "player") or (r.difficulty == "normal" and r.bot == "kite"):
+			_target(r.outcome == "win", "gauntlet: act I %s wins on %s" % [r.bot, r.difficulty], BalanceGauntlet.run_line(r))
+	for f: Dictionary in report.data.get("curve", []):
+		if f.difficulty == "normal" and f.bot == "kite" and not f.starter:
+			_target(float(f.cost) <= targets.curve_first_act_cost_max, "curve: floor %d gentle on Keeper" % f.depth,
+				"the kite bot lost %d%% of its Health over the floor's rooms (target <= %d%%)" % [roundi(100.0 * f.cost), roundi(100.0 * targets.curve_first_act_cost_max)])
+
+
 func _target(ok: bool, key: String, details: String) -> void:
 	checks += 1
 	if ok:

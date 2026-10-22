@@ -34,6 +34,28 @@ extends Resource
 ## on these difficulties: the fight must be beatable by playing it.
 @export var kite_should_win_on: PackedStringArray = ["easy", "normal"]
 
+@export_group("Gauntlet")
+## The average player (the gauntlet's `player` bot: the kite bot with a human's reaction time)
+## plays every act through on these difficulties (an act's last floor, then its boss, Health
+## carried): Pilgrim must stay accessible.
+@export var gauntlet_player_wins_on: PackedStringArray = ["easy"]
+## On Keeper, what the average player spends on the act's last floor before its boss: the share
+## of his resources (Health, plus what his Health Potions heal) gone by the boss' door, mean over
+## the acts: at least this (the rooms are a fight, not a stroll that hands out potions)...
+@export var gauntlet_keeper_floor_cost_min: float = 0.2
+## ...and at most this (he still reaches the boss with a chance).
+@export var gauntlet_keeper_floor_cost_max: float = 0.6
+## On Keeper the average player wins at least this share of the acts (boss included): a
+## challenge, not a wall.
+@export var gauntlet_keeper_player_wins_min: float = 0.75
+
+@export_group("Curve of the floors")
+## The bot whose curve is checked (a skilled player feels the curve's shape first).
+@export var curve_bot: StringName = &"kite"
+## Keeper, the floors' curve: act I's floors cost at most this share of max Health (model: a
+## room face to face, for a fresh hero on floor 1; the gauntlet: a floor of rooms for the curve
+## bot): the first floors are where a player learns.
+@export var curve_first_act_cost_max: float = 0.25
 @export_group("Curve")
 ## Threat of a boss for the act's expected build = share of the hero's health a face-tank fight
 ## would cost (boss damage per second x time to kill / max health). From one act to the next it
@@ -41,6 +63,13 @@ extends Resource
 @export var act_threat_step_min: float = 0.9
 ## ...and at most this (no wall between two acts).
 @export var act_threat_step_max: float = 1.6
+## The monsters' curves only (commons, rooms): act II may be this much harder than act I. Act I
+## is where a player learns (its floors gentle on purpose, met by a hero who levels from 1 to 6
+## there), so the first step is bigger; from act II on the step is act_threat_step_min-max.
+@export var first_act_step_max: float = 2.5
+## The commons' curve: each act's commons cost at least this much more than the last's (no flat
+## stretch: "you roll until floor 8", the owner, 2026-10-22).
+@export var monster_step_min: float = 1.05
 ## Threat on each difficulty relative to Normal (same act, same build): [min, max].
 @export var difficulty_threat: Dictionary = {
 	"easy": Vector2(0.2, 0.7), "hard": Vector2(1.3, 2.6), "nightmare": Vector2(2.0, 5.0),
