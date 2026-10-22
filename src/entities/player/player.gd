@@ -616,8 +616,7 @@ func take_fall(share: float) -> void:
 
 ## On his feet again after a fall that took him somewhere else (the Deeps, and back up).
 func stand_up() -> void:
-	if is_falling:
-		_recover_from_fall()
+	cancel_fall()
 
 
 ## Nothing hurts the hero for `seconds` (he blinks): back from the Threshold among monsters frozen

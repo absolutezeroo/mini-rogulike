@@ -158,23 +158,28 @@ static func blast(world: World, center: Vector2, radius: float, amount: int, kno
 static func shockwave(world: World, source: Actor, radius: float, amount: int, knockback: float, fuse: float) -> void:
 	world.spawn_vfx(RingVfx.create(source.global_position, radius, Color(1.0, 0.3, 0.2, 0.8)))
 	var floor_id := world.floor_id
+	# (Weak references: the timer outlives a freed world or boss; see Effect.apply_all().)
+	var world_ref: WeakRef = weakref(world)
+	var source_ref: WeakRef = weakref(source)
 	world.get_tree().create_timer(fuse, false).timeout.connect(func() -> void:
-		if not is_instance_valid(world) or world.floor_id != floor_id or not is_instance_valid(source) or source.is_dead:
+		var home := world_ref.get_ref() as World
+		var boss := source_ref.get_ref() as Actor
+		if home == null or home.floor_id != floor_id or boss == null or boss.is_dead:
 			return
-		if not world.is_inside_tree():
+		if not home.is_inside_tree():
 			return  # its floor waits out of the tree (the hero is at the Threshold): it fizzles
-		var center := source.global_position
+		var center := boss.global_position
 		# A stomp: the ground bursts in dust and rubble whatever the boss is made of.
-		Vfx.explosion(world, center, radius, VfxElementDef.named(&"earth"), false)
+		Vfx.explosion(home, center, radius, VfxElementDef.named(&"earth"), false)
 		Events.screen_shake.emit(0.5)
-		for target in world.get_hostiles(source.faction):
+		for target in home.get_hostiles(boss.faction):
 			var offset := target.global_position - center
 			if offset.length() > radius + target.radius:
 				continue
-			var hit := make_secondary_hit(source, amount)
+			var hit := make_secondary_hit(boss, amount)
 			hit.knockback = (offset.normalized() if offset != Vector2.ZERO else Vector2.DOWN) * knockback
 			target.take_hit(hit)
-		hit_props(world, source, center, radius))
+		hit_props(home, boss, center, radius))
 
 
 ## A warning ring, then after `fuse` seconds a blast (see blast()). `fx`: a sheet of square
@@ -183,20 +188,22 @@ static func shockwave(world: World, source: Actor, radius: float, amount: int, k
 static func delayed_blast(world: World, center: Vector2, radius: float, amount: int, fuse: float, fx: Texture2D = null, status: OnHitStatus = null, element: VfxElementDef = null) -> void:
 	world.spawn_vfx(RingVfx.create(center, radius, Color(1.0, 0.3, 0.2, 0.8)))
 	var floor_id := world.floor_id
+	var world_ref: WeakRef = weakref(world)  # (the timer outlives a freed world: see Effect.apply_all())
 	world.get_tree().create_timer(fuse, false).timeout.connect(func() -> void:
-		if not is_instance_valid(world) or world.floor_id != floor_id:
+		var home := world_ref.get_ref() as World
+		if home == null or home.floor_id != floor_id:
 			return  # the hero took the stairs meanwhile
-		if not world.is_inside_tree():
+		if not home.is_inside_tree():
 			return  # its floor waits out of the tree (the hero is at the Threshold): it fizzles
 		if element:
-			Vfx.nova(world, center, radius, element)
+			Vfx.nova(home, center, radius, element)
 			Sfx.play_at(Sfx.bank.explosion, center, -4.0)
 		elif fx:
-			world.spawn_vfx(SheetVfx.create(fx, center, 0.0, radius * 2.0 / fx.get_height()))
+			home.spawn_vfx(SheetVfx.create(fx, center, 0.0, radius * 2.0 / fx.get_height()))
 			Sfx.play_at(Sfx.bank.explosion, center, -4.0)
 		else:
-			Vfx.explosion(world, center, radius)
-		blast(world, center, radius, amount, 260.0, null, status))
+			Vfx.explosion(home, center, radius)
+		blast(home, center, radius, amount, 260.0, null, status))
 
 
 static func spec_from_weapon(attacker: Actor, weapon: WeaponDef) -> ProjectileSpec:

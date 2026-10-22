@@ -177,9 +177,11 @@ static func boss_death(world: World, at: Vector2, size: float) -> void:
 	for i in 6:
 		var offset := Vector2.from_angle(randf() * TAU) * randf_range(0.0, size)
 		var delay := 0.12 * i
+		var world_ref: WeakRef = weakref(world)  # (the timer outlives a freed world: see Effect.apply_all())
 		world.get_tree().create_timer(delay, false).timeout.connect(func() -> void:
-			if is_instance_valid(world):
-				explosion(world, at + offset, 50.0 + 12.0 * i))
+			var where := world_ref.get_ref() as World
+			if where:
+				explosion(where, at + offset, 50.0 + 12.0 * i))
 
 
 ## A blast of `element` (fire when none: barrels, bombs): its explosion sheet (a ball of fire,
@@ -248,6 +250,8 @@ static func dust_trail(world: World, from: Vector2, to: Vector2, duration: float
 	for i in count:
 		var t := (i + 0.5) / count
 		var at := from.lerp(to, t) + Vector2(0, 8)
+		var world_ref: WeakRef = weakref(world)  # (the timer outlives a freed world: see Effect.apply_all())
 		world.get_tree().create_timer(duration * t, false).timeout.connect(func() -> void:
-			if is_instance_valid(world):
-				dust(world, at, 1.0))
+			var where := world_ref.get_ref() as World
+			if where:
+				dust(where, at, 1.0))

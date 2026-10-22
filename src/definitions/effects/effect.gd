@@ -21,6 +21,11 @@ static func apply_all(effects: Array[Effect], user: Actor, aim: Vector2) -> void
 			effect.apply(user, aim)
 			continue
 		var floor_id := user.world.floor_id
+		# A weak reference, not the user itself: the timer outlives a monster freed meanwhile, and
+		# Godot checks a lambda's captured nodes before running it ("Lambda capture at index 0 was
+		# freed"), even one whose first line asks is_instance_valid().
+		var user_ref: WeakRef = weakref(user)
 		user.get_tree().create_timer(effect.delay, false).timeout.connect(func() -> void:
-			if is_instance_valid(user) and not user.is_dead and user.is_inside_tree() and user.world.floor_id == floor_id:
-				effect.apply(user, aim))
+			var who := user_ref.get_ref() as Actor
+			if who and not who.is_dead and who.is_inside_tree() and who.world.floor_id == floor_id:
+				effect.apply(who, aim))

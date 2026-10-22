@@ -645,22 +645,23 @@ func _test_skills(game: Game, world: World, player: Player) -> void:
 	# Dash strike: moves the hero and cuts what is on the way.
 	player.equipment.equip(katana)
 	await _frames(100)
-	var free := world.find_open_point_near(player.global_position, 1.0)
+	# Open floor all around, and a way the dash itself finds clear: it stops at whatever its ray
+	# hits on the world's layer (a wall, but also a barrel or a pillar the sight goes past).
+	# (Solid ground all along too: a hole at the end would drop the hero back where he started.)
+	var dash := katana.skills[1].effects[0] as DashStrikeEffect
+	var lane := _clear_lane(world, player.global_position, dash.distance + player.radius + 4.0)
+	var free: Vector2 = lane[0] if not lane.is_empty() else player.global_position
+	var dir: Vector2 = lane[1] if not lane.is_empty() else Vector2.RIGHT
 	player.global_position = free
-	var dir := Vector2.RIGHT
-	for candidate: Vector2 in [Vector2.RIGHT, Vector2.LEFT, Vector2.DOWN, Vector2.UP]:
-		if world.has_line_of_sight(free, free + candidate * 200.0):
-			dir = candidate
-			break
 	var target := world.spawn_monster(load("res://data/monsters/cyclops.tres"), free + dir * 90.0)
 	target.dormant = true
 	await _frames(1)
 	var target_hp := target.hp
 	var before := player.global_position
-	player.skills.try_use(2, player, dir)
+	var dashed := player.skills.try_use(2, player, dir)
 	await _frames(15)
-	check(target.hp < target_hp, "Iaido Dash cuts enemies on the way")
-	check(player.global_position.distance_to(before) > 60.0, "Iaido Dash moves the hero")
+	check(target.hp < target_hp, "Iaido Dash cuts enemies on the way (used %s)" % dashed)
+	check(player.global_position.distance_to(before) > 60.0, "Iaido Dash moves the hero (%d px)" % roundi(player.global_position.distance_to(before)))
 	target.die(null)
 
 	# Skill stats from perks.
@@ -1073,11 +1074,13 @@ func _test_elemental_attacks(game: Game) -> void:
 			var made: Array = world.get_node("Effects").get_children() + world.get_node("Entities").get_children()
 			if base.kind == WeaponDef.Kind.RANGED:
 				var shots := world.get_node("Projectiles").get_children()
-				var shot := shots[-1] as Projectile if not shots.is_empty() else null
+				# The hero's own arrow (a trap's bolt or a monster's shot may be in the air too).
+				var own := shots.filter(func(n: Node) -> bool: return n is Projectile and (n as Projectile)._shooter == player)
+				var shot := own[-1] as Projectile if not own.is_empty() else null
 				if element_id == &"physical":
 					check(shot != null and shot._rides == null, "elemental: a plain bow's arrow is a plain arrow")
 				else:
-					check(shot != null and shot._rides == element, "elemental: a %s's arrow flies in it" % name)
+					check(shot != null and shot._rides == element, "elemental: a %s's arrow flies in it (%d of %d shots his, riding %s, target %d px away)" % [name, own.size(), shots.size(), shot._rides.id if shot and shot._rides else &"nothing", roundi(target.global_position.distance_to(player.global_position))])
 				for child in shots:
 					child.queue_free()
 			elif base.shows_arc():
@@ -1446,10 +1449,12 @@ func _test_ai_movement(game: Game) -> void:
 	world.set_cell_blocked(cell + Vector2i(2, 0), false)
 	walker._walk_checks.clear()
 	var other_side := world.map.cell_to_world(cell) + Vector2(0, -2000)
-	check(not walker.has_clear_walk(other_side), "nor through walls")
+	check(not walker.has_clear_walk(other_side), "nor through walls (from %s at cell %s to %s, map %dx%d, its cell a floor %s)" % [walker.global_position, world.map.world_to_cell(walker.global_position), other_side, world.map.width, world.map.height, world.map.is_floor(world.map.world_to_cell(walker.global_position))])
 
 	# Walking into a wall: stuck.
-	# (The wall with the most open floor behind it, so walking away really goes somewhere.)
+	# (The wall with the most open floor behind it, so walking away really goes somewhere. The rat
+	# is put down by it: that spot must be free and fit its body, or it starts inside a prop along
+	# the wall, or a wall's shape reaching into the cell, and can't get out at all.)
 	var wall_dir := Vector2.ZERO
 	var best_room := -1
 	for dir: Vector2i in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
@@ -1458,7 +1463,7 @@ func _test_ai_movement(game: Game) -> void:
 		while world.map.is_floor(c) and steps < 40:
 			c += dir
 			steps += 1
-		if world.map.is_floor(c):
+		if world.map.is_floor(c) or not world.is_free_cell(c - dir) or not _body_fits(world, world.map.cell_to_world(c - dir), walker.radius):
 			continue
 		var room := 0
 		while room < 12 and world.map.is_floor(c - dir * (room + 2)) and not world.nav.is_blocked(c - dir * (room + 2)):
@@ -1467,9 +1472,23 @@ func _test_ai_movement(game: Game) -> void:
 			best_room = room
 			wall_dir = Vector2(dir)
 			walker.global_position = world.map.cell_to_world(c - dir)
+	# The hero out of its way back: the free cells counted above say nothing of bodies, and the
+	# rat walking away into him would not move at all.
+	var tile := float(world.map.tile_size)
+	var lane_from := walker.global_position
+	var lane_to := lane_from - wall_dir * tile * (best_room + 1)
+	var off_lane := func(point: Vector2) -> float:
+		return Geometry2D.get_closest_point_to_segment(point, lane_from, lane_to).distance_to(point)
+	if off_lane.call(player.global_position) < tile * 2.0:
+		for point in _free_points_away(world, lane_from, 3, 10, 30):
+			if off_lane.call(point) >= tile * 3.0:
+				player.global_position = point
+				break
+	await _frames(1)
 	walker.target = player  # (hunting: it stays awake wherever it stands)
 	walker.move_direction = wall_dir
 	await _frames(40)
+	check(best_room >= 0, "a wall to walk into, with room for the rat by it")
 	check(walker.is_stuck(), "walking into a wall for a moment: stuck")
 	walker.move_direction = -wall_dir
 	var stuck_at := walker.global_position
@@ -1478,7 +1497,9 @@ func _test_ai_movement(game: Game) -> void:
 		await _frames(1)
 		if not walker.is_stuck():
 			break
-	check(not walker.is_stuck(), "walking away: not stuck any more (moved %d px, %d free cells behind, awake %s, %s)" % [walker.global_position.distance_to(stuck_at), best_room, world.awake_monsters.has(walker), walker.get_node("StateMachine").process_mode])
+	var blocker := walker.move_and_collide(-wall_dir * 8.0, true)  # (test only: what it bumps into)
+	var blocked_by := "nothing" if blocker == null else "%s (%s) at %s" % [blocker.get_collider(), (blocker.get_collider() as Node).get_parent() if blocker.get_collider() is Node else null, blocker.get_position()]
+	check(not walker.is_stuck(), "walking away: not stuck any more (moved %d px, %d free cells behind, awake %s, hero %d px off its way, blocked by %s, wall %s)" % [walker.global_position.distance_to(stuck_at), best_room, world.awake_monsters.has(walker), roundi(off_lane.call(player.global_position)), blocked_by, wall_dir])
 	await _clear_monsters(world)
 
 	# From another room, out of sight, around the walls: it finds the hero.
@@ -1530,6 +1551,11 @@ func _test_threshold(game: Game, world: World, player: Player) -> void:
 	player.perks.clear()
 	player.hp = player.get_max_hp()
 	player.perks.add(feather)
+	# He comes back on the very spot he stood when the floor froze (a frame after the blow): at
+	# rest, that is where he fell. With a blast around him (CheatDeathPassive, 110 px) that
+	# breaks props: none in its reach, so the floor is as it was.
+	player.global_position = _point_without_props(world, player.global_position, 110.0)
+	await _stand_still(world, player)
 	# Two monsters wait on the floor, out of the blast's reach; one is hurt and burning.
 	var skeleton: MonsterDef = load("res://data/monsters/skeleton.tres")
 	var watchers: Array[Monster] = []
@@ -1548,7 +1574,7 @@ func _test_threshold(game: Game, world: World, player: Player) -> void:
 	var saved := RunSave.read()
 	var floor_mode := world.process_mode
 	var fell_at := player.global_position
-	var floor_children := world.get_node("Entities").get_child_count()
+	var floor_things := _floor_things(world)
 	_killing_blow(player, watchers[1])
 	check(not player.is_dead and threshold.is_open(), "a killing blow with a second life opens the Threshold")
 	await get_tree().process_frame
@@ -1588,10 +1614,11 @@ func _test_threshold(game: Game, world: World, player: Player) -> void:
 		home.burn = watchers[0].statuses._dots[0].time_left if watchers[0].statuses.has(&"burn") else -1.0, CONNECT_ONE_SHOT)
 	check(await _win_trial(game) and home.get("won", false), "slaying them all wins the trial")
 	check(player.world == world and world.is_inside_tree() and world.process_mode == floor_mode, "the hero is back on his floor, and it runs again")
-	check(player.global_position == fell_at and player.get_parent() == world.get_node("Entities"), "on the very spot he fell")
+	check(player.global_position == fell_at and player.get_parent() == world.get_node("Entities"), "on the very spot he fell (%.1f px away)" % player.global_position.distance_to(fell_at))
 	check(home.get("at", []) == frozen_at and home.get("hp", []) == hp_then, "the floor's monsters as they were (same place, same Health)")
 	check(is_equal_approx(float(home.get("burn", -1.0)), burn_left), "their statuses too (%.2f s of burn left)" % float(home.get("burn", -1.0)))
-	check(world.get_node("Entities").get_child_count() == floor_children, "nothing came or went on the floor")
+	var floor_changes := _things_diff(floor_things, _floor_things(world))
+	check(floor_changes.is_empty(), "nothing came or went on the floor %s" % floor_changes)
 	check(not player.is_dead and player.hp == roundi(player.get_max_hp() * (feather.passives[0] as CheatDeathPassive).heal_ratio), "back at half Health")
 	check(player._invulnerable_time > 0.0, "with a moment of grace")
 	check(threshold.limbo == null and (game.hud.get_node("%Minimap") as Control).visible and not (game.hud.get_node("ThresholdHud") as Control).visible, "the limbo is gone, the HUD is the floor's again")

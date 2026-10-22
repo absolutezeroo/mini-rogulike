@@ -195,11 +195,31 @@ func _spawn_point(ahead: bool = false) -> Vector2:
 				return map.cell_to_world(cell)
 	for attempt in 60:
 		var offset := Vector2.from_angle(rng.randf() * TAU) * rng.randf_range(near, far)
-		var cell := hero + Vector2i(roundi(offset.x), roundi(offset.y))
-		if not map.in_bounds(cell) or not is_free_cell(cell) or (map.cell_to_world(cell) - door.global_position).length() < map.tile_size * 2.5:
-			continue
-		var at := map.cell_to_world(cell)
-		var path := find_path(at, player.global_position)
-		if not path.is_empty() and path.size() <= far * 2:
+		var at := _spawn_cell_point(hero + Vector2i(roundi(offset.x), roundi(offset.y)), far)
+		if at != Vector2.INF:
 			return at
+	# In a cramped maze the random tries may all miss (a wave came out short): every cell of the
+	# ring then, in a random order, so a demon rises whenever there is room for one.
+	var ring: Array[Vector2i] = []
+	for y in range(hero.y - far, hero.y + far + 1):
+		for x in range(hero.x - far, hero.x + far + 1):
+			var length := Vector2(x - hero.x, y - hero.y).length()
+			if length >= near and length <= far:
+				ring.append(Vector2i(x, y))
+	while not ring.is_empty():
+		var at := _spawn_cell_point(ring.pop_at(rng.randi_range(0, ring.size() - 1)), far)
+		if at != Vector2.INF:
+			return at
+	return Vector2.INF
+
+
+## `cell`'s point if a demon may rise there (free, not by the door, a short walk from the hero);
+## INF otherwise.
+func _spawn_cell_point(cell: Vector2i, far: int) -> Vector2:
+	if not map.in_bounds(cell) or not is_free_cell(cell) or (map.cell_to_world(cell) - door.global_position).length() < map.tile_size * 2.5:
+		return Vector2.INF
+	var at := map.cell_to_world(cell)
+	var path := find_path(at, player.global_position)
+	if not path.is_empty() and path.size() <= far * 2:
+		return at
 	return Vector2.INF

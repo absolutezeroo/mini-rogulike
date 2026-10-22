@@ -146,13 +146,16 @@ func _test_abyss(game: Game, world: World, player: Player) -> void:
 	var torch := player.get_node("Torch") as LightSource
 	var torch_level := torch.level
 	var safe := await _walk_into_hole(world, player)
-	var counted := func() -> int:
-		return world.get_node("Entities").get_children().filter(func(n: Node) -> bool: return not n is GoldPickup and not n is ItemPickup).size()
-	var floor_children: int = counted.call()
+	var first_hole := player.global_position
+	var floor_things := _floor_things(world, false)  # (the dawn's gift falls at his feet)
 	var max_hp := player.get_max_hp()
 	var hp_before := player.hp
+	var landing := { "statuses before": player.statuses.active_ids(), "temperature": player.temperature.value }
+	# (His Health as he lands, before the fall's cost. The game, not the hero, in the lambda: the
+	# Abyss goes with it, while a hero may be freed before a fall that never came.)
+	abyss.opened.connect(func(_def: AbyssDef) -> void: landing.hp = game.player.hp, CONNECT_ONE_SHOT)
 	await _frames(int(Actor.FALL_TIME * 60.0) + 4)
-	check(abyss.is_open() and not player.is_dead, "the hero falls into the Deeps")
+	check(abyss.is_open() and not player.is_dead, "the hero falls into the Deeps (%s)" % _fall_state(game, first_hole))
 	await get_tree().process_frame
 	check(world.process_mode == Node.PROCESS_MODE_DISABLED, "the floor stops where it is")
 	var frozen_at: Array[Vector2] = [watchers[0].global_position, watchers[1].global_position]
@@ -163,7 +166,7 @@ func _test_abyss(game: Game, world: World, player: Player) -> void:
 	var depths := abyss.depths
 	check(depths != null and player.world == depths and depths.is_ancestor_of(player), "the hero is in the Deeps")
 	check(not world.is_inside_tree() and game.world == world, "his floor waits, out of the tree")
-	check(player.hp < hp_before and hp_before - player.hp <= maxi(1, roundi(max_hp * def.fall_damage)), "the fall costs up to %d%% of his max Health, less his Armor (%d -> %d)" % [roundi(def.fall_damage * 100.0), hp_before, player.hp])
+	check(player.hp < hp_before and hp_before - player.hp <= maxi(1, roundi(max_hp * def.fall_damage)), "the fall costs up to %d%% of his max Health, less his Armor (%d -> %d, %s)" % [roundi(def.fall_damage * 100.0), hp_before, player.hp, landing])
 	check(torch.level == def.torch_level and torch.level < torch_level, "his torch burns low down there")
 	check(depths.lights.ambient_level == def.lighting.ambient_level and depths.theme == def.theme, "the Deeps have their own dark and look")
 	var door := depths.door
@@ -222,7 +225,8 @@ func _test_abyss(game: Game, world: World, player: Player) -> void:
 	check(def.seal_hole and not world.has_pit(fell_in) and world.is_solid_ground(world.map.cell_to_world(fell_in)) and not world.nav.is_blocked(fell_in), "the hole he fell through has closed behind him (no falling straight back in)")
 	check(home.get("at", []) == frozen_at and home.get("hp", []) == hp_then, "the floor's monsters as they were (same place, same Health)")
 	check(is_equal_approx(float(home.get("burn", -1.0)), burn_left), "their statuses too (%.2f s of burn left)" % float(home.get("burn", -1.0)))
-	check(counted.call() == floor_children, "nothing else came or went on the floor")
+	var floor_changes := _things_diff(floor_things, _floor_things(world, false))
+	check(floor_changes.is_empty(), "nothing else came or went on the floor %s" % floor_changes)
 	check(player.hp == hp_out, "his Health as he left the Deeps (%d)" % player.hp)
 	check(player._invulnerable_time > 0.0, "with a moment of grace")
 	check(torch.level == torch_level, "his torch burns as before")
@@ -233,7 +237,13 @@ func _test_abyss(game: Game, world: World, player: Player) -> void:
 	check(not is_instance_valid(depths), "the Deeps are freed")
 	# Slow: no gift.
 	await _walk_into_hole(world, player)
-	check(await _until_deeps(game), "down again")
+	var again_at := player.global_position
+	var again := await _until_deeps(game)
+	check(again, "down again (%s)" % _fall_state(game, again_at))
+	if not again:
+		_fill_holes()
+		player.xp = xp_saved
+		return
 	abyss.time_in = def.quick_time_for(world.depth, CONTENT.dungeon) + 1.0
 	for m in abyss.depths.get_hostiles(Actor.Faction.PLAYER):
 		m.queue_free()
@@ -243,7 +253,14 @@ func _test_abyss(game: Game, world: World, player: Player) -> void:
 	var feather := _perk("phoenix_feather")
 	player.perks.add(feather)
 	await _walk_into_hole(world, player)
-	check(await _until_deeps(game), "down again, a feather in hand")
+	var hole_at := player.global_position
+	var down := await _until_deeps(game)
+	check(down, "down again, a feather in hand (%s)" % _fall_state(game, hole_at))
+	if not down:
+		_fill_holes()
+		player.perks.clear()
+		player.xp = xp_saved
+		return
 	depths = abyss.depths
 	depths.waves_on = false
 	var stood := player.global_position
@@ -308,8 +325,26 @@ func _test_abyss_death(game: Game) -> void:
 	await _frames(5)
 	var player := game.player
 	var world := game.world
+	# A fall cut short by a new floor (the stairs or the debug panel while he drops): he stands
+	# at the new floor's start; its old hole doesn't drag him away nor drop him into the Deeps.
 	await _walk_into_hole(world, player)
-	check(await _until_deeps(game), "down into the Deeps")
+	await _frames(3)
+	check(player.is_falling, "the hero is falling into a hole")
+	player.invincible = true  # (no knockback from a monster by the start while we wait)
+	await game.debug_enter_floor(game.depth)
+	_dug.clear()  # (that floor is gone: the hole with it)
+	var start := world.map.cell_to_world(world.map.start_cell)
+	await _frames(int(Actor.FALL_TIME * 60.0) + 10)
+	check(not player.is_falling and not game.abyss.is_open() and player.world == game.world and world.is_inside_tree(), "a fall cut short by a new floor ends there: no Deeps under the new floor (falling %s, Deeps %s)" % [player.is_falling, game.abyss.is_open()])
+	check(player.global_position.distance_to(start) < 4.0 and player.rig.scale == Vector2.ONE, "on his feet at the new floor's start (%d px away)" % roundi(player.global_position.distance_to(start)))
+	player.invincible = false
+	await _walk_into_hole(world, player)
+	var hole_at := player.global_position
+	var down := await _until_deeps(game)
+	check(down, "down into the Deeps (%s)" % _fall_state(game, hole_at))
+	if not down:
+		_fill_holes()
+		return
 	var demon := game.abyss.depths.raise_demon()
 	_killing_blow(player, demon)
 	check(player.is_dead and player.world == game.abyss.depths, "slain in the Deeps (no second life): dead, down there")
@@ -924,16 +959,23 @@ func _test_soul_tree_run(game: Game) -> void:
 ## A status shows on the body: flames on a burning monster, its ticks in the fire's color.
 func _test_status_looks(game: Game) -> void:
 	var world: World = game.world
-	var rat := world.spawn_monster(load("res://data/monsters/rat.tres"), world.find_open_point_near(game.player.global_position + Vector2(80, 0), 40.0))
+	# Only the test gives it statuses: in view (a monster off screen sleeps), away from the floor's
+	# fires, ponds, sand and traps, and nothing strikes back for a hero hit nearby (thorns, a
+	# retaliating perk would reach it).
+	var invincible := game.player.invincible
+	game.player.invincible = true
+	var rat := world.spawn_monster(load("res://data/monsters/rat.tres"), _quiet_point(world, game.player.global_position, 2, 5))
 	rat.dormant = true
 	rat.base_stats.max_hp = 9999
 	rat.invalidate_stats()
 	rat.hp = 9999
 	rat.statuses.clear()  # (the floor may have slowed it: quicksand, the cold)
 	await _frames(2)
-	check(rat.status_fx != null and not rat.status_fx.visible, "a body with no status shows nothing over it")
+	var statuses_of := func() -> String:
+		return "dots %s, slows %s" % [rat.statuses._dots.map(func(d: StatusSet.Dot) -> String: return "%s from %s" % [d.id, d.source.name if is_instance_valid(d.source) else "?"]), rat.statuses._slows.keys()]
+	check(rat.status_fx != null and not rat.status_fx.visible, "a body with no status shows nothing over it (%s)" % statuses_of.call())
 	rat.statuses.apply_slow(0.5, 1.0, StatusSet.GROUND_SLOW)
-	check(not rat.statuses.active_ids().has(&"slow"), "sinking in quicksand is no frost to show")
+	check(not rat.statuses.active_ids().has(&"slow"), "sinking in quicksand is no frost to show (%s)" % statuses_of.call())
 	rat.statuses.clear()
 	var colors: Array[Color] = []
 	var on_text := func(text: Node) -> void:
@@ -953,7 +995,7 @@ func _test_status_looks(game: Game) -> void:
 	Settings.fewer_effects = false
 	await _frames(2)
 	var body := rat.rig.visual.material as ShaderMaterial
-	check(float(body.get_shader_parameter("burn")) > 0.0 and rat.rig.modulate == Color.WHITE, "a burning body is painted by the body shader, not tinted")
+	check(float(body.get_shader_parameter("burn")) > 0.0 and rat.rig.modulate == Color.WHITE, "a burning body is painted by the body shader, not tinted (burn %.2f, modulate %s, telegraph %.2f, %s)" % [float(body.get_shader_parameter("burn")), rat.rig.modulate, rat.telegraph, statuses_of.call()])
 	Settings.fewer_effects = true
 	await _frames(2)
 	check(float(body.get_shader_parameter("burn")) == 0.0 and rat.rig.modulate != Color.WHITE, "with fewer effects the burn is a plain tint")
@@ -967,6 +1009,7 @@ func _test_status_looks(game: Game) -> void:
 	if not Settings.fewer_effects:
 		check(float((rat.rig.visual.material as ShaderMaterial).get_shader_parameter("burn")) == 0.0, "the fire out, the body shader lets go of it")
 	rat.queue_free()
+	game.player.invincible = invincible
 	await _test_element_deaths(game)
 
 

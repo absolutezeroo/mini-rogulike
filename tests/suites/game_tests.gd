@@ -477,7 +477,17 @@ func _test_run_timer(game: Game) -> void:
 	HitStop.slow(1.0, 0.25)
 	var slow := run.time
 	await _frames(30)
-	check(run.time - slow > 0.4, "slow motion doesn't slow the clock (%.2f)" % (run.time - slow))
+	check(run.time - slow > 0.4 and run.time - slow < 0.6, "slow motion doesn't slow the clock (%.2f)" % (run.time - slow))
+	HitStop.reset()
+	# A blow lands during physics and freezes the world: the clock neither jumps nor stalls. (It
+	# used to add up to a quarter of a second at each hit stop: that frame's delta, scaled at 1,
+	# divided by the freeze's scale. Each frame is 1/60 s here, frozen or not.)
+	await _frames(2)
+	var before_freeze := run.time
+	await get_tree().physics_frame
+	HitStop.freeze(0.1)
+	await _frames(30)
+	check(absf(run.time - before_freeze - 0.5) < 0.04, "a hit stop doesn't change the clock (%.2f s in 30 frames)" % (run.time - before_freeze))
 	HitStop.reset()
 	var label := game.hud.get_node("%TimerLabel") as Label
 	await _frames(1)

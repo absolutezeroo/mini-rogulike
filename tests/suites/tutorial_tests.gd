@@ -27,6 +27,12 @@ func run() -> void:
 	var game := GAME_SCENE.instantiate() as Game
 	game.show_act_cards = false
 	add_child(game)
+	# The floor's monsters go before they ever look around: one spotting the hero in the first
+	# frames would put its "attack" hint in line ahead of the first steps (which bring their own
+	# monster when they want one).
+	for monster in game.world.get_hostiles(Actor.Faction.PLAYER):
+		monster.process_mode = Node.PROCESS_MODE_DISABLED
+		monster.queue_free()
 	await _frames(5)
 	await _test_targets(game)
 	await _test_first_steps(game)
@@ -144,7 +150,7 @@ func _test_first_steps(game: Game) -> void:
 	check(tutorial.current == null and not game.hint_box.visible, "and its hint goes")
 	await _frames(int(CONTENT.tutorial.gap * 60) + 10)
 	if game.world.seal.is_sealed():
-		check(tutorial.current != null and tutorial.current.id == &"seal", "then the sealed stairs (got %s)" % (tutorial.current.id if tutorial.current else "none"))
+		check(tutorial.current != null and tutorial.current.id == &"seal", "then the sealed stairs (got %s; %s)" % [tutorial.current.id if tutorial.current else "none", _floor_stir(game)])
 		check(game.hint_box.target.has_area(), "pointing at the seal's count")
 		game.hint_box.dismissed.emit()  # tapped
 		check(Profile.has_seen_hint(&"seal") and tutorial.current == null, "a tap closes a hint for good")
@@ -178,6 +184,32 @@ func _test_first_steps(game: Game) -> void:
 	rat.queue_free()
 	game.player.invincible = false
 	await _frames(int(CONTENT.tutorial.gap * 60) + 10)
+
+
+## Waits for the hint `id`: another hint of this floor may have its say first (a chest, a crack or
+## the merchant in reach, a rune picked up on the way, the cold...). Each one up is dismissed in
+## turn, for up to `attempts` gaps. Returns the hints that came before it.
+func _until_hint(tutorial: Tutorial, id: StringName, gap: int, attempts: int = 6) -> Array[StringName]:
+	var before: Array[StringName] = []
+	for attempt in attempts:
+		await _frames(gap)
+		if tutorial.current != null and tutorial.current.id == id:
+			break
+		before.append(tutorial.current.id if tutorial.current else &"none")
+		tutorial.dismiss()
+	return before
+
+
+## Who is about on the floor (for a failed check's message): the monsters, and how long the
+## hero has camped by each fire.
+func _floor_stir(game: Game) -> String:
+	var monsters := game.world.get_hostiles(Actor.Faction.PLAYER).map(func(m: Actor) -> String: return "%s%s %d px" % [m.name, " (summoned)" if (m as Monster).summoned else "", roundi(m.global_position.distance_to(game.player.global_position))])
+	var camped: Array[String] = []
+	for source in get_tree().get_nodes_in_group("heat_sources"):
+		for child in source.get_children():
+			if child is CampWatch:
+				camped.append("%.1f s (%d waves)" % [(child as CampWatch).camped, (child as CampWatch).waves])
+	return "monsters %s, camped %s" % [monsters, camped]
 
 
 func _press(action: StringName) -> void:
@@ -256,15 +288,8 @@ func _test_hints(game: Game) -> void:
 	crack.position = player.global_position + Vector2(0, -90)
 	game.world.add_entity(crack)
 	CONTENT.tutorial.near_distance = 220.0
-	var crack_shown := false
-	var before_crack: Array[StringName] = []
-	for attempt in 6:  # (another hint of this floor may come first: cold, an ambush...)
-		await _frames(gap)
-		crack_shown = tutorial.current != null and tutorial.current.id == &"cracked_wall"
-		if crack_shown:
-			break
-		before_crack.append(tutorial.current.id if tutorial.current else &"none")
-		tutorial.dismiss()
+	var before_crack := await _until_hint(tutorial, &"cracked_wall", gap)
+	var crack_shown := tutorial.current != null and tutorial.current.id == &"cracked_wall"
 	check(crack_shown, "a cracked wall nearby: its hint (before it: %s, near %s, seen %s, hero %s at %s, crack at %s, hp %d, same world %s, sight %s)" % [before_crack, tutorial._near(&"cracked_walls"), Profile.has_seen_hint(&"cracked_wall"), player.name, player.global_position, crack.sight_point() if crack.has_method(&"sight_point") else crack.global_position, player.hp, player.world == game.world, game.world.has_line_of_sight(player.global_position, crack.sight_point() if crack.has_method(&"sight_point") else crack.global_position)])
 	CONTENT.tutorial.near_distance = -1.0
 	tutorial.dismiss()
@@ -273,11 +298,19 @@ func _test_hints(game: Game) -> void:
 
 	# The merchant in sight (solid, he doesn't hide himself): walk up and tap Interact. The hint's
 	# ring finds the Interact button once he is in reach, and tapping it ends the hint.
+	# (In sight for sure, with free floor in front of him: a random point near the hero may sit
+	# behind a corner, or be the hero's own spot when none was found.)
 	Profile.hints_seen.erase("merchant")
-	var merchant := game.world.spawn_merchant(CONTENT.dungeon.merchant, game.world.map.world_to_cell(game.world.find_open_point_near(player.global_position, 150.0)))
+	var merchant_at := game.world.find_open_point_near(player.global_position, 150.0)
+	for point in _free_points_away(game.world, player.global_position, 3, 5, 12):
+		var front := game.world.map.world_to_cell(point + Vector2(0, 36))
+		if game.world.has_line_of_sight(player.global_position, point) and game.world.is_free_cell(front):
+			merchant_at = point
+			break
+	var merchant := game.world.spawn_merchant(CONTENT.dungeon.merchant, game.world.map.world_to_cell(merchant_at))
 	CONTENT.tutorial.near_distance = 220.0
-	await _frames(gap)
-	check(tutorial.current != null and tutorial.current.id == &"merchant", "a merchant in sight: his hint")
+	var before_merchant := await _until_hint(tutorial, &"merchant", gap)
+	check(tutorial.current != null and tutorial.current.id == &"merchant", "a merchant in sight: his hint (before it: %s, %d px away, in sight %s)" % [before_merchant, roundi(merchant.global_position.distance_to(player.global_position)), game.world.has_line_of_sight(player.global_position, merchant.global_position)])
 	CONTENT.tutorial.near_distance = -1.0
 	player.global_position = merchant.global_position + Vector2(0, 36)
 	await _frames(3)
@@ -318,15 +351,8 @@ func _test_hints(game: Game) -> void:
 		var near := CONTENT.tutorial.near_distance
 		CONTENT.tutorial.near_distance = 200.0
 		player.global_position = world.nearest_free_point(pact.front())  # (the front may sit on rock when no dead end was found)
-		var shown := false
-		var others: Array[StringName] = []
-		for attempt in 8:  # (a chest, the merchant or a crack in reach may have its say first)
-			await _frames(gap)
-			shown = tutorial.current != null and tutorial.current.id == &"pact"
-			if shown:
-				break
-			others.append(tutorial.current.id if tutorial.current else &"none")
-			tutorial.dismiss()
+		var others := await _until_hint(tutorial, &"pact", gap, 8)
+		var shown := tutorial.current != null and tutorial.current.id == &"pact"
 		check(shown, "a pact door in sight: its hint (before it: %s; blocked %s, near %s, queue %s, waiting %s, seen %s, menu %s, banner %s)" % [others, tutorial.is_blocked.call(), tutorial._near(&"pact_doors"), tutorial._queue, tutorial._waiting, Profile.has_seen_hint(&"pact"), game.is_menu_open(), game.hud.is_banner_showing()] + " hero %s hp %d same world %s, sigils %s" % [player.global_position, player.hp, player.world == game.world, get_tree().get_nodes_in_group(&"pact_doors").map(func(n: Node2D) -> String: return "%s d=%d los=%s" % [n.global_position, roundi(n.global_position.distance_to(player.global_position)), game.world.has_line_of_sight(player.global_position, n.global_position)])])
 		check(shown and game.hint_box.target.has_area() and game.hint_box.target.has_point((game.hud.get_node("%InteractButton") as Node2D).global_position), "by the stele, it points at the Interact button")
 		check(not game.menus.pact.visible, "...and the pact itself waits for the button")

@@ -38,6 +38,7 @@ func take_in(hero: Player, at: Vector2 = Vector2.INF) -> void:
 	if hero.get_parent():
 		hero.get_parent().remove_child(hero)
 	_entities.add_child(hero)
+	hero.stand_up()  # (a fall cut short by the crossing: its hole is not here)
 	hero.global_position = map.cell_to_world(map.start_cell) if at == Vector2.INF else at
 	hero.reset_safe_position()
 	hero.camera.reset_smoothing()
