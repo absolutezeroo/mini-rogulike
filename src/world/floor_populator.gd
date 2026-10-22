@@ -127,6 +127,8 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 					_reserve_around(taken, cells[0], 1)
 					break
 
+	if world.unpeopled:
+		return  # the monsters and the items lying around come last: the rest is as it would be
 	var extra := world.rules.extra_monsters()
 	var max_per_room := config.max_monsters_per_room + world.rules.difficulty.extra_monsters
 	var counts := {}  # room index -> monsters

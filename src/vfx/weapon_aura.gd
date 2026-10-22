@@ -82,6 +82,8 @@ static func pixels_of(texture: Texture2D) -> PackedVector2Array:
 
 
 func _process(delta: float) -> void:
+	if not Vfx.shown:
+		return  # a simulation: nothing to see (Vfx.shown)
 	_clock += delta
 	_tick += delta
 	if _tick < 1.0 / FPS:

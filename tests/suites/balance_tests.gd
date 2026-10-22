@@ -28,6 +28,8 @@ const KNOWN_DATE := "2026-10-20"
 
 
 func run() -> void:
+	var shown := Vfx.shown
+	Vfx.shown = false  # the tools simulate (BalanceLab.simulate): nothing to see, twice as fast
 	var targets := BalanceBuild.load_targets()
 	var builds := BalanceBuild.load_all()
 	check(builds.size() >= 10, "balance builds found in data/balance/builds/ (%d)" % builds.size())
@@ -134,6 +136,7 @@ func run() -> void:
 	economy.queue_free()
 	lab.queue_free()
 	BalanceLab.isolate_profile()  # back to a clean in-memory profile for whatever runs next
+	Vfx.shown = shown
 
 
 ## Phase 2A (bosses, sustain, armor): the rules that let a build out-heal or out-armor a boss.
