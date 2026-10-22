@@ -552,6 +552,7 @@ func spent_data() -> Dictionary:
 		"secrets": SecretRoom.states(secrets),
 		"pact": pact.save_code() if pact else 0,
 		"fragment": fragment_taken,
+		"seal_kills": seal.kills,
 	}
 
 
@@ -566,6 +567,7 @@ func _apply_restore() -> void:
 	var data := _to_restore
 	_to_restore = {}
 	SecretRoom.restore(secrets, data.get("secrets", []))  # (its chest, if opened, is in "chests")
+	seal.restore(int(data.get("seal_kills", 0)))  # the kills already made on this floor
 	var cells: Array[Vector2i] = []
 	for pair: Array in data.get("chests", []):
 		if pair.size() == 2:

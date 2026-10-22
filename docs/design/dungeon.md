@@ -29,7 +29,9 @@
   the minimap ("Seal 12 / 18"); stepping on sealed stairs says how many are missing. When only
   `seal_reveal_left` (4) are missing, the minimap shows the monsters left. When the seal breaks,
   the stairs light up, the minimap shows them even unexplored and a golden light (`GuideWisp`)
-  runs ahead of you along the way. No more running past everything: a floor takes a couple of
+  runs ahead of you along the way. The kills made on a floor are saved with the run
+  (`World.spent_data()` "seal_kills"): resumed, the counter picks up where it was, and a broken
+  seal stays broken. No more running past everything: a floor takes a couple of
   minutes, a run about half an hour. Floors are 72x72 cells with up to 15 rooms on Pilgrim, and
   bigger the harder the run (see Difficulty); boss floors keep that size.
 - **Biomes** (`data/biomes/`, `BiomeDef`): every floor is one world from end to end, picked among

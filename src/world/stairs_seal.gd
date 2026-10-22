@@ -59,6 +59,17 @@ func add_kill() -> bool:
 	return true
 
 
+## A floor picked up again from a save: the kills made on it before quitting count again (the
+## counter used to start over at 0). Opens the seal if they were enough.
+func restore(saved_kills: int) -> void:
+	if needed <= 0 or saved_kills <= 0:
+		return
+	kills = mini(saved_kills, needed)
+	changed.emit()
+	if not is_sealed():
+		broken.emit()
+
+
 ## Debug: open at once.
 func break_now() -> void:
 	if is_sealed():

@@ -396,6 +396,22 @@ func run() -> void:
 	game.perk_panel.choose(0)
 	await _frames(2)
 	check(not get_tree().paused and game.pending_offers() == 0, "both taken, back to the game")
+	# The seal's kills on this floor survive a save (they used to start over at 0).
+	var seal: StairsSeal = game.world.seal
+	check(seal.needed >= 3, "a sealed floor to count on (%d kills asked)" % seal.needed)
+	seal.add_kill()
+	seal.add_kill()
+	game._save_run()
+	game.resume_run(RunSave.read())
+	await _frames(5)
+	check(game.world.seal.kills == 2 and game.world.seal.is_sealed(), "the seal's kills on the floor come back with the run (%d / %d)" % [game.world.seal.kills, game.world.seal.needed])
+	game.world.seal.kills = 0
+	game.world.seal.add_kill()
+	game.world.seal.break_now()
+	game._save_run()
+	game.resume_run(RunSave.read())
+	await _frames(5)
+	check(not game.world.seal.is_sealed(), "a seal broken before quitting stays broken")
 
 	# A second bot run on the fresh character at higher depths, mortal this time.
 	# Monsters must be able to hurt a player who just stands there.
