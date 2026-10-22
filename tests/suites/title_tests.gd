@@ -209,11 +209,20 @@ func _test_title_screen() -> void:
 	var unseen := entries.filter(func(m: MonsterDef) -> bool: return Bestiary.rank_of(m, CONTENT.bestiary) == Bestiary.UNSEEN)
 	check(not slime_card.disabled and monster_cards[entries.find(unseen[0])].disabled, "slain monsters open their page, unknown ones don't")
 	check(_texts(slime_card).has("Known") and _texts(slime_card).has("1 slain") and _texts(monster_cards[entries.find(unseen[0])]).has("???"), "a card shows the rank and the kills (unknown ones: ???)")
-	# The hidden floor's boss: last, its card and its floor's heading kept secret until met.
+	# The hidden floor's boss: after the acts and the Deeps (only the bottom of the Well's forms
+	# follow it), its card and its floor's heading kept secret until met.
 	var hidden_boss := CONTENT.dungeon.hidden_floor.boss
+	var forms := CONTENT.dungeon.finale.boss.forms()
+	var hidden_at := entries.size() - forms.size() - 1
 	var list_texts := _texts(list)
-	check(entries.back() == hidden_boss and monster_cards.back().disabled and _texts(monster_cards.back()).has("???"), "the hidden boss is last in the bestiary, a ??? card until met")
+	check(entries[hidden_at] == hidden_boss and monster_cards[hidden_at].disabled and _texts(monster_cards[hidden_at]).has("???"), "the hidden boss is last but the bottom's forms in the bestiary, a ??? card until met")
 	check(not list_texts.any(func(text: String) -> bool: return text.contains(CONTENT.dungeon.hidden_floor.title) or text.contains(hidden_boss.display_name)), "nothing in the bestiary names the hidden floor or its boss before they are met")
+	# The bottom of the Well's forms: last, in order, ??? cards under a ??? heading until met.
+	check(entries.slice(entries.size() - forms.size()) == forms and forms.size() == 2, "the bottom of the Well's two forms close the bestiary, in order")
+	for i in forms.size():
+		var card := monster_cards[entries.size() - forms.size() + i]
+		check(card.disabled and _texts(card).has("???"), "%s: a ??? card until met" % forms[i].id)
+	check(not list_texts.any(func(text: String) -> bool: return text.contains(CONTENT.dungeon.finale.title) or forms.any(func(form: BossDef) -> bool: return text.contains(form.display_name))), "nothing in the bestiary names the bottom of the Well or its forms before they are met")
 	check(Profile.bestiary_rank(&"slime") == 1, "the first kill pays the first rank")
 	check((codex.get_node("%Help") as Label).text.contains("rank"), "the bestiary explains the hunter ranks")
 	slime_card.pressed.emit()

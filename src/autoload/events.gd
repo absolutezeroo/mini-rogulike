@@ -42,6 +42,9 @@ signal camera_kick(direction: Vector2, pixels: float)
 signal boss_started(boss: Monster)
 ## The boss of the floor died: the arena opens and the stairs appear.
 signal boss_defeated(boss: Monster)
+## A boss with a next form fell (BossDef.next_boss) and `risen` comes up in the same arena: it
+## takes the fight in `seconds` (no relic, no stairs between; boss_started follows for it).
+signal boss_rising(fallen: Monster, risen: Monster, seconds: float)
 ## The hero walked into an ambush room: the exits closed, monsters are coming.
 signal ambush_started(room: AmbushRoom)
 ## Every wave of the ambush is dead: the exits open.
@@ -70,6 +73,9 @@ signal deed_done(boss: BossDef, deed: DeedCondition)
 signal item_bought(item: ItemDef)
 ## An encounter was used (a choice made at a spring, an altar...).
 signal encounter_used(encounter: Encounter)
+## Something a warden's deed may ask about happened, told by whatever saw it (a monster's trait:
+## "bitten", the Maw's jaw closed on the hero): kept in RunState.marks (MarkDeed).
+signal run_marked(mark: String)
 
 
 func log_message(text: String, color: Color = Color.WHITE) -> void:

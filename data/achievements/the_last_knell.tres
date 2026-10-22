@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="AchievementDef" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/the_maw/portrait.png" id="1_icon"]
+[ext_resource type="Script" path="res://src/definitions/achievement_def.gd" id="2_def"]
+
+[resource]
+script = ExtResource("2_def")
+id = &"the_last_knell"
+display_name = "The Last Knell"
+description = "Ring the bell at the bottom of the Well."
+icon = ExtResource("1_icon")
+stat = 18
+target = 1
+reward_souls = 100
+secret = true

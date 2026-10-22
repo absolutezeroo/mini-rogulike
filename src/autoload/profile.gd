@@ -60,6 +60,8 @@ var starting_weapon: StringName = &""
 ## Runs finished since the Tree of Souls was last reset (SoulTreeDef.reset_runs earns the next
 ## reset). A save from before this rule starts with a reset earned (RESET_EARNED).
 var runs_since_reset := 0
+## The ending chosen at the bottom of the Well the last time (EndingDef id; "" = none yet).
+var ending: StringName = &""
 ## The story (written through Narrative only): chapters and waking words of the wardens'
 ## chronicles already told ("boss_id/chapter_id" -> 1), fragments found (id -> 1), deeds done
 ## ("boss_id/deed_id" -> 1), and how many times each warden was met (id -> count).
@@ -179,6 +181,24 @@ func record_run(earned: int, depth: int, won: bool, difficulty_id: StringName = 
 			victories += 1
 		if difficulty_id != &"":
 			wins[String(difficulty_id)] = wins.get(String(difficulty_id), 0) + 1
+	save_profile()
+	changed.emit()
+
+
+## Runs won on any difficulty (Pilgrim's too): the bottom of the Well opens after the first.
+func total_wins() -> int:
+	var total := 0
+	for key: Variant in wins:
+		total += int(wins[key])
+	return total
+
+
+## The hero chose an ending at the bottom of the Well (EndingDef): kept, and counted (`stat`,
+## for its achievement; `feats` false on Pilgrim, as for every feat).
+func choose_ending(ending_id: StringName, stat: String, feats: bool = true) -> void:
+	ending = ending_id
+	if not stat.is_empty():
+		add_stat(stat, 1, feats)
 	save_profile()
 	changed.emit()
 
@@ -459,6 +479,7 @@ func reset() -> void:
 	oath = &""
 	starting_weapon = &""
 	runs_since_reset = 0
+	ending = &""
 	chronicle_told = {}
 	fragments_found = {}
 	deeds_done = {}
@@ -487,6 +508,7 @@ func save_profile() -> void:
 		"best_times": best_times, "best_splits": best_splits,
 		"oath": String(oath), "starting_weapon": String(starting_weapon),
 		"runs_since_reset": runs_since_reset,
+		"ending": String(ending),
 		"chronicle_told": chronicle_told, "fragments_found": fragments_found, "deeds_done": deeds_done,
 		"boss_meetings": boss_meetings, "deepest": deepest,
 	})
@@ -527,6 +549,7 @@ func load_profile() -> void:
 	oath = StringName(data.get("oath", ""))
 	starting_weapon = StringName(data.get("starting_weapon", ""))
 	runs_since_reset = int(data.get("runs_since_reset", RESET_EARNED))
+	ending = StringName(data.get("ending", ""))
 	chronicle_told = _ints(data.get("chronicle_told", {}))
 	fragments_found = _ints(data.get("fragments_found", {}))
 	deeds_done = _ints(data.get("deeds_done", {}))

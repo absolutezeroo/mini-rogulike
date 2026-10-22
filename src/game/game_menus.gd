@@ -14,6 +14,8 @@ extends CanvasLayer
 var forge: ForgePanel
 ## A pact door's offer (built in code).
 var pact: PactPanel
+## The choice of an ending at the bottom of the Well (built in code). Back never closes it.
+var ending: EndingPanel
 ## A fragment of the past, read (built in code).
 var fragment: FragmentPanel
 ## Dev tools: debug builds only (null otherwise).
@@ -29,6 +31,10 @@ func _ready() -> void:
 	pact.name = "PactPanel"
 	add_child(pact)
 	move_child(pact, pause.get_index())
+	ending = EndingPanel.new()
+	ending.name = "EndingPanel"
+	add_child(ending)
+	move_child(ending, pause.get_index())
 	fragment = FragmentPanel.new()
 	fragment.name = "FragmentPanel"
 	add_child(fragment)
@@ -80,7 +86,7 @@ func show_on_top(panel: Control) -> void:
 
 
 func _panels() -> Array[Control]:
-	var panels: Array[Control] = [inventory, perks, game_over, shop, forge, encounter, pact, fragment, pause]
+	var panels: Array[Control] = [inventory, perks, game_over, shop, forge, encounter, pact, ending, fragment, pause]
 	if debug:
 		panels.append(debug)
 	return panels

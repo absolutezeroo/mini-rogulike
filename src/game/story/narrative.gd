@@ -59,6 +59,17 @@ static func speech(boss: BossDef) -> WakingLine:
 	return result
 
 
+## What it says as it falls: the last open one of its last words (null: nothing).
+static func last_words(boss: BossDef) -> WakingLine:
+	if boss == null or boss.chronicle == null:
+		return null
+	var result: WakingLine = null
+	for line in boss.chronicle.last_words:
+		if line and line.is_open(boss):
+			result = line
+	return result
+
+
 static func is_speech_told(boss: BossDef, line: WakingLine) -> bool:
 	return line != null and Profile.chronicle_told.has(_key(boss, line.id))
 

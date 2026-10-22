@@ -30,6 +30,9 @@ func _ready() -> void:
 	Events.encounter_used.connect(func(encounter: Encounter) -> void:
 		if run and encounter.def:
 			run.mark("encounter:%s" % encounter.def.id))
+	Events.run_marked.connect(func(mark: String) -> void:
+		if run:
+			run.mark(mark))
 
 
 ## Follows a new run (and its hero).

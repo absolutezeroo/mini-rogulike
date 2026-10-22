@@ -1,7 +1,7 @@
 class_name GameTests
 extends TestSuite
 ## The real game, played: sets the game up, a bot plays, then runs the other game suites on it
-## (CombatTests, FloorTests, SecretTests, BossTests, StoryTests).
+## (CombatTests, FloorTests, SecretTests, BossTests, StoryTests, FinaleTests).
 
 
 func run() -> void:
@@ -10,7 +10,8 @@ func run() -> void:
 	var floor := FloorTests.new()
 	var boss := BossTests.new()
 	var secrets := SecretTests.new()
-	for suite: Node in [combat, floor, boss, secrets]:
+	var finale := FinaleTests.new()
+	for suite: Node in [combat, floor, boss, secrets, finale]:
 		add_child(suite)
 	# No merchant, encounter, ambush or special floor popping up in the middle of other tests (they have their own).
 	var merchant_chance := CONTENT.dungeon.merchant_chance
@@ -347,6 +348,12 @@ func run() -> void:
 	await _frames(3)
 	check(not game.run.is_daily(), "Play starts a normal run")
 	Profile.reset()
+
+	# The bottom of the Well, once a run was won: Tôma, the Maw, an ending.
+	await finale._test_finale(game)
+	await finale._test_finale_story(game)
+	game.start_run()
+	await _frames(3)
 
 	# The run in progress is saved, and picked up again as it was.
 	check(RunSave.exists(), "the run in progress is saved")

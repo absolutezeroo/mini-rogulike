@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/village_scrap.tres" id="2_look"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="3_progresscond"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/met_condition.gd" id="4_metcondition"]
+
+[sub_resource type="Resource" id="Resource_1"]
+script = ExtResource("4_metcondition")
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"the_maw_boat"
+title = "A Paper Boat"
+author = "Hana, in a child's hand"
+place = "Found dry, in the tar"
+lines = PackedStringArray("Little boat, go down to the bottom and say hello to the sun.", "Bring a ray back for papa. He is always cold.")
+look = ExtResource("2_look")
+conditions = Array[ExtResource("3_progresscond")]([SubResource("Resource_1")])

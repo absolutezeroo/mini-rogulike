@@ -5,6 +5,10 @@ extends Node2D
 ## and the stairs appear where it stood.
 ## Its plan (ArenaDef) gives it a shape and pillars, and changes it as the boss enters its next
 ## phases (ArenaShiftDef): the cells blink red, then crumble, open into pits or grow spikes.
+## A boss with a next form (BossDef.next_boss) doesn't end the fight when it falls: the arena
+## darkens and shakes, the next form rises where it waits (BossDef.arena_anchor) and takes the
+## fallen body, the storyteller meets it (its name, a line), and the fight goes on with it
+## (Events.boss_rising, then boss_started). Only the last form's death opens the arena.
 
 ## How far from the hero and the boss a change keeps clear (cells).
 const KEEP_CLEAR := 1
@@ -14,6 +18,10 @@ var is_started := false
 var is_defeated := false
 ## Changes already made (one per phase).
 var shifts_done := 0
+## Between a form's fall and the next one's rise.
+var is_rising := false
+## Forms in this arena's fight (BossDef.forms()).
+var _forms := 1
 
 var _world: World
 var _room: Rect2i
@@ -29,13 +37,25 @@ func setup(world: World, boss_def: BossDef, plan: ArenaDef = null) -> void:
 	add_child(_gates)
 	_gates.setup(world, _room)
 
-	boss = world.spawn_monster(boss_def, world.map.cell_to_world(_room.get_center()))
-	world.roll_boss_rank(boss)
-	boss.dormant = true
-	boss.facing = Vector2.DOWN
-	boss.died.connect(_on_boss_died)
-	boss.phase_entered.connect(_on_phase_entered)
+	_forms = boss_def.forms().size()
+	boss = _spawn_form(boss_def)
+	if boss_def.next_boss == null:
+		world.roll_boss_rank(boss)  # (a fight of several forms stays as written)
 	_place_pillars()
+
+
+## A form of the boss, asleep where it waits in the arena.
+func _spawn_form(def: BossDef) -> Monster:
+	var cell := _room.position + Vector2i(roundi(def.arena_anchor.x * (_room.size.x - 1)), roundi(def.arena_anchor.y * (_room.size.y - 1)))
+	if def.arena_anchor == Vector2(0.5, 0.5):
+		cell = _room.get_center()
+	var at := _world.map.cell_to_world(cell) if _world.is_free_cell(cell) else _world.nearest_free_point(_world.map.cell_to_world(cell))
+	var form := _world.spawn_monster(def, at)
+	form.dormant = true
+	form.facing = Vector2.DOWN
+	form.died.connect(_on_boss_died)
+	form.phase_entered.connect(_on_phase_entered)
+	return form
 
 
 ## The plan's pillars, where the floor is (never in the middle, where the boss stands).
@@ -61,6 +81,8 @@ func floor_cells() -> Array[Vector2i]:
 
 
 func _on_phase_entered(index: int) -> void:
+	if _forms > 1:
+		return  # a fight of several forms keeps its arena as it is (the phases' indexes restart)
 	if _plan == null or index - 1 >= _plan.shifts.size() or index <= shifts_done:
 		return
 	shifts_done = index
@@ -154,9 +176,83 @@ func _is_inside(point: Vector2) -> bool:
 	return _room.grow(-1).has_point(_world.map.world_to_cell(point))
 
 
-func _on_boss_died(_actor: Actor) -> void:
+func _on_boss_died(actor: Actor) -> void:
+	var fallen := actor as Monster
+	var def := fallen.def as BossDef if fallen else null
+	if def and def.next_boss and not is_rising:
+		_rise(fallen, def)
+		return
 	is_defeated = true
+	if def and def.body_stays and def.settle_offset != Vector2.ZERO:
+		_settle(fallen, def)
 	_finish.call_deferred()
+
+
+## `fallen` is down; its next form rises in the arena, takes its body, and the fight goes on.
+func _rise(fallen: Monster, def: BossDef) -> void:
+	is_rising = true
+	var next := def.next_boss
+	var floor_id := _world.floor_id
+	await get_tree().create_timer(def.rise_time * 0.4, false).timeout
+	if not await _still_here(floor_id):
+		return
+	# The next form rises out of the ground where it waits.
+	var risen := _spawn_form(next)
+	var rest := risen.rig.position if risen.rig else Vector2.ZERO
+	if risen.rig:
+		risen.rig.position = rest + Vector2(0, 90)
+		risen.rig.modulate.a = 0.0
+		var rising := risen.create_tween().set_parallel()
+		rising.tween_property(risen.rig, "position", rest, def.rise_time * 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		rising.tween_property(risen.rig, "modulate:a", 1.0, def.rise_time * 0.3)
+	Events.boss_rising.emit(fallen, risen, def.rise_time * 0.6)
+	Events.screen_shake.emit(0.9)
+	Sfx.play_at(Sfx.bank.boss_roar, risen.global_position)
+	Vfx.nova(_world, risen.global_position, 90.0, VfxElementDef.named(&"shadow"))
+	# It takes the fallen body: drawn into its mouth, gone.
+	if is_instance_valid(fallen):
+		var mouth := risen.global_position + Vector2(0, -risen.def.head_height * 0.35)
+		var taken := fallen.create_tween().set_parallel()
+		taken.tween_property(fallen, "global_position", mouth, def.rise_time * 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		if fallen.rig:
+			taken.tween_property(fallen.rig, "modulate:a", 0.0, def.rise_time * 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+			taken.tween_property(fallen.rig, "scale", Vector2(0.5, 0.5), def.rise_time * 0.5)
+		taken.chain().tween_callback(fallen.queue_free)
+	await get_tree().create_timer(def.rise_time * 0.6, false).timeout
+	if not await _still_here(floor_id):
+		return
+	boss = risen
+	# Risen, it is met: the storyteller may tell its story now (a cinematic: its name, a line).
+	var woke_on_screen := false
+	if _world.storyteller and _world.player and not _world.player.is_dead:
+		woke_on_screen = await _world.storyteller.meet(risen, true)
+		if not is_instance_valid(risen) or risen.is_dead or not is_instance_valid(_world) or _world.player == null:
+			return
+	is_rising = false
+	if _world.player and not _world.player.is_dead:
+		risen.wake_up(_world.player, not woke_on_screen)
+	Events.boss_started.emit(risen)
+
+
+## The floor is still this one (it may wait out of the tree while the hero is at the Threshold).
+func _still_here(floor_id: int) -> bool:
+	if is_instance_valid(_world) and not is_inside_tree():
+		await tree_entered
+	return is_instance_valid(_world) and _world.floor_id == floor_id
+
+
+## A body that stays (BossDef.body_stays) settles once its death is played (the Maw's last frame
+## leaves Tôma standing in its empty mouth: set down on the ground).
+func _settle(fallen: Monster, def: BossDef) -> void:
+	if fallen.rig == null:
+		return
+	var frames := fallen.rig.body.sprite_frames
+	var length := 1.0
+	if frames and frames.has_animation(&"dead"):
+		length = frames.get_frame_count(&"dead") / maxf(frames.get_animation_speed(&"dead"), 0.1)
+	var tween := fallen.create_tween()
+	tween.tween_interval(length + 0.2)
+	tween.tween_property(fallen.rig, "position", fallen.rig.position + def.settle_offset, 0.6).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 
 
 func _finish() -> void:

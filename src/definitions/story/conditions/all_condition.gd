@@ -1,7 +1,8 @@
 class_name AllCondition
 extends ProgressCondition
-## Several conditions at once, kept as one resource so many texts can share it: "the keeper's
-## name may be said" is the Nameless Effigy slain and a first victory (data/story/conditions/).
+## Several conditions at once, kept as one resource so many texts can share it: one way to "the
+## keeper's name may be said" is the Nameless Effigy slain and a first victory
+## (data/story/conditions/keeper_named.tres, an AnyCondition).
 
 @export var conditions: Array[ProgressCondition] = []
 ## Plain words for the whole (optional). Empty: the unmet parts, one per line.
@@ -30,5 +31,7 @@ func deeds() -> Array[DeedCondition]:
 func contains(condition: ProgressCondition) -> bool:
 	for inner in conditions:
 		if inner == condition or (inner is AllCondition and (inner as AllCondition).contains(condition)):
+			return true
+		if inner is AnyCondition and (inner as AnyCondition).contains(condition):
 			return true
 	return false

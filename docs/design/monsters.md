@@ -3,8 +3,10 @@
 ## Acts and their monsters
 
 A run is **4 acts of 3 floors** (`data/dungeon/acts/`, listed in `dungeon_config.tres`). Each act has
-its biomes, its own monsters and a boss on its last floor. Beating the last boss **wins the run**;
-you can then keep going in endless mode (the acts loop, monsters keep getting stronger with depth).
+its biomes, its own monsters and a boss on its last floor. Beating the last boss **wins the run**
+the first time; once the profile has won a run, the last act's boss leads down to **the Bottom
+of the Well** instead (below, and dungeon.md), whose last form wins it. You can then keep going in
+endless mode (the acts loop, monsters keep getting stronger with depth).
 
 | Act | Floors | Monsters | Boss |
 |---|---|---|---|
@@ -48,6 +50,15 @@ is `MonsterOverlay`.
 - **ThiefTrait** (Thief Racoon): each hit takes some of your gold, then it runs away. Slay it to
   get the gold back, with interest.
 - **Brood Mother**: keeps her distance and lays red spiders (a `SummonEffect` skill). Kill her first.
+- **WeakPointTrait** (the Maw): only its weak point can be hurt, and only while it opens. Closed,
+  every blow glances off whole (no damage, no status, no streak toward the shockwave: a clang off
+  its mask, sparks, "No effect") and it uses its skills; every `closed_times` seconds (shorter in
+  each phase) it opens (`open_animation`, then `open_pose` held) for `open_times` seconds, its
+  skills put away: hits land, it draws the hero toward its mouth (`pull_speed`, a third of his
+  pace) and bites him if he comes too close (a warning circle, then the bite, thrown back). It
+  can be rooted (never walks), carry its own light (`glow_level`, brighter open) and stand in a
+  pool drawn on the ground under it. Hooks it added to `MonsterTrait`: `deflects()` (a hit turned
+  away before anything happens) and `can_cast()`.
 - **Bomber**: keeps away and lobs bombs that blow up where they land (a projectile skill with an
   `explosion_radius`).
 - The **Fire Shaman** heals the monsters around it.
@@ -99,6 +110,7 @@ with its portrait). A `BossDef` is a `MonsterDef` plus:
 | 9 | Crimson Tengu | fast blade, dashes, feather storms, calls spirits |
 | 12 | Gilded Hoarder | crushing leaps, storms of gold coins, calls its thieves (Gold Racoons) when half dead |
 | 6 (hidden) | The Nameless Effigy | twin cold blades, dashes, wailing rings, calls the dead; only on the hidden floor |
+| bottom (after a first win) | Master Tôma, then the Maw | the hero's own blade and lantern; then a jaw that must open to be hurt |
 
 **The Nameless Effigy** / *Le Gisant Sans Nom*, "He Who Does Not Rest" / *Celui qui ne repose
 pas* (`data/monsters/bosses/nameless_effigy.tres`): the boss of the hidden floor between Act II
@@ -111,6 +123,66 @@ fierce dash, ring and call, faster wind-ups and cooldowns). 1500 base Health, 6 
 on floor 6 that is 3975 Health on Keeper, between Act II's bosses (2650-3048) and Act III's on
 floor 9 (5278-5642). Its challenge: shatter it with a Pickaxe. In the bestiary it comes after the
 acts, a "???" card under a "???" heading until it was met.
+
+## The bottom of the Well: Master Tôma and the Maw
+
+The final fight (dungeon.md, "The bottom of the Well"; the canon in docs/lore.md, section 3).
+One arena, two forms (`BossDef.next_boss`): `data/monsters/bosses/master_toma.tres`, then
+`the_maw.tres`. Art: PixelLab sheets made for the game (`assets/characters/bosses/master_toma/`,
+64x64 cells; `the_maw/`, 128x136: the 128x128 frames padded 4 pixels top and bottom).
+
+**Maître Tôma, le Gardien Parjure / Master Tôma, the Oathbreaker.** Kneels below the arena's
+middle (`arena_anchor` 0.5, 0.62); walking in, his meeting plays (presentation.md, "Boss
+stories"): he opens his eyes and draws (intro) in the scene, « Tu es venu, mon élève. » / "You
+came, my pupil." (his chronicle's first waking words), then a chapter of his story. With Boss
+stories off he wakes on screen and waits his waking out (`waits_intro`: 1.3 s, no step, no blow)
+before the duel starts. A duelist with
+the hero's techniques, every one telegraphed:
+
+| Skill | What | Warning |
+|---|---|---|
+| Keeper's Step / Pas du Gardien (`toma_dash`) | a dash strike, the hero's iaido cut along it (230 units) | 0.55 s: he draws (`windup`), the line of the dash |
+| Severing Arc / Arc Tranchant (`toma_wide_slash`, from two thirds) | a wide cleave in front (96 radius, x1.4) | 1.25 s: he draws and holds his guard, the circle of the cut |
+| The Lantern Turned / La Lanterne Retournée (`toma_lantern`) | he raises the unlit lantern, it flares violet: a circle on the ground under the hero fills for 1 s, then a violet flame (shadow) closes on it | the cast (0.8 s), then the circle (1 s) |
+
+His katana (Keeper's Katana: 13, reach 52, a 150° arc) between them, its own wind-up animation.
+At two thirds "HE TAKES THE HIGH GUARD" (the wide cut joins); at one third "THE LANTERN BURNS
+VIOLET" (the fierce step, cutting twice; three flames in a row). 1300 base Health, 5 Armor, speed
+95; shockwave after 8 / 7 / 5 hits as for the others. **No relic** (`relic_choices` 0).
+When he falls, his body stays, kneeling (`body_stays`), and he says his last words (his
+chronicle's): « Ta garde est juste, mon élève. » / "Your guard is true, my pupil." Then the arena darkens and shakes (`rise_time` 2.6 s: nothing to
+do but watch), **the Maw** rises out of a pool of tar at the top of the arena (`arena_anchor`
+0.5, 0.24), his body is drawn into its mouth, the Maw is met (its own cinematic, its name, a
+chapter or Hana's voice), and the boss bar passes to it. The arena stays shut, no stairs, no relic between the two.
+
+**La Gueule, la Faim du Puits / The Maw, the Well's Hunger.** Rooted, never pushed, lit from
+within (the false sun: drawn over the floor's light with a holy halo behind its mask, and its own
+golden light on the floor, brighter while open: `lit_from_within`, `halo_element`, `glow_level`); the view leans toward it (`camera_lean` 0.45) so it and the hero both
+stay on a phone's screen. Hana's voice wakes with it (its waking words): « Papa... reste. » /
+"Papa... stay."
+Its jaw is a **WeakPointTrait**: closed 6.5 s (5 s from 60%, 3.8 s from 30%), open 3.6 s (3.2 s
+at the end). Open, Tôma is seen standing in its mouth: every hit lands; it draws the hero in (55
+a second, he runs 170) and bites him within 72 of its mouth (0.55 s warning, x1.5 its power,
+thrown back hard, every 1.3 s at most). No shockwave for hitting it (`shockwave_after_hits` 0):
+the bite is the price of standing in its mouth. Closed, its skills:
+
+| Skill | What |
+|---|---|
+| Tar Lash / Fouet de Goudron | three (fierce: five) circles fill on the ground around the hero, one after the other, and tentacles of tar slam them (earth: the ground bursts) |
+| Call the Damned / L'Appel des Damnés | 2 (fierce: 3) of the Deeps' demons crawl out (Horned Carcass, Shade Stalker, Cinder Wraith; 4-5 at most) |
+| False Dawn / Fausse Aube (from 60%) | four columns of false sunlight (holy) fall on circles around the hero |
+| Dead Sun's Gaze / Regard du Soleil Mort (from 30%) | a fan of seven sun rays (fire), the Dead Sun's echo |
+
+"THE FALSE SUN RISES" at 60%, "THE HUNGER WAKES" at 30%. 1300 base Health, 3 Armor. Its death:
+the golden mask cracks and crumbles (its dead animation), "The sun sets." / « Le soleil se
+couche. » (its last words), and only Tôma is left, standing, set down on the ground. The run is won, and the hero
+chooses an ending (progression.md, "The two endings"). Then its relic, if he keeps going.
+
+Both are in the bestiary after the hidden floor's boss, "???" (their floor's heading too) until
+met, each with its chronicle (`data/story/chronicles/master_toma.tres`, `the_maw.tres`: docs/lore.md
+5b): their deeds are Tôma slain without a single roll (`StandingDeed`) and the Maw slain by a run
+it never bit (`MarkDeed` "bitten": a bite that hurts the hero marks the run, `WeakPointTrait.
+bite_mark`). Numbers: docs/balance-log.md.
 
 ## Dragons
 

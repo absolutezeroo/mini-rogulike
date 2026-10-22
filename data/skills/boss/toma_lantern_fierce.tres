@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_effect"]
+[ext_resource type="Script" path="res://src/definitions/effects/ground_strike_effect.gd" id="2_strike"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_skill"]
+[ext_resource type="AudioStream" path="res://data/audio/magic.tres" id="4_sound"]
+[ext_resource type="Resource" path="res://data/vfx/elements/shadow.tres" id="5_shadow"]
+[ext_resource type="AudioStream" path="res://data/audio/spirit.tres" id="6_land"]
+
+[sub_resource type="Resource" id="Resource_strike"]
+script = ExtResource("2_strike")
+count = 3
+radius = 64.0
+fuse = 1.0
+stagger = 0.35
+spread = 130.0
+damage_multiplier = 1.1
+flat_damage = 6
+knockback = 160.0
+element = ExtResource("5_shadow")
+shake = 0.25
+sound = ExtResource("6_land")
+glow = Color(0.82, 0.29, 0.53, 1)
+
+[resource]
+script = ExtResource("3_skill")
+id = &"toma_lantern_fierce"
+display_name = "The Lantern Turned"
+color = Color(0.82, 0.29, 0.53, 1)
+cooldown = 5.5
+effects = Array[ExtResource("1_effect")]([SubResource("Resource_strike")])
+sound = ExtResource("4_sound")
+ai_max_range = 520.0
+cast_time = 0.7

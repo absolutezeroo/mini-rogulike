@@ -68,6 +68,9 @@ var _streak_time := 0.0
 var _shockwave_after := 0
 var _shockwave_cooldown := 0.0
 var _roar_time := 0.0
+## Seconds of its intro still playing, while a boss that waits it out (BossDef.waits_intro)
+## neither moves nor strikes.
+var _intro_left := 0.0
 
 
 func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
@@ -95,6 +98,7 @@ func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
 	_detect_multiplier = rules.detect_range()
 	if def is BossDef:
 		_shockwave_after = (def as BossDef).shockwave_after_hits
+		free_on_death = not (def as BossDef).body_stays
 	if def.weapon:
 		equipment.equip(def.weapon)
 	skills.set_skills(def.skills)
@@ -191,6 +195,8 @@ func get_knockback_resistance() -> float:
 
 
 func can_attack() -> bool:
+	if _intro_left > 0.0:
+		return false
 	for monster_trait in def.traits:
 		if not monster_trait.can_attack(self):
 			return false
@@ -247,6 +253,11 @@ func is_boss() -> bool:
 	return def is BossDef
 
 
+## The boss phases it went through (0: still in its first). See BossDef.phases.
+func phase_index() -> int:
+	return _phases_done
+
+
 ## Summons and a boss's adds feed no "on kill" heals: a boss calling its brood must not become
 ## a health fountain.
 func can_heal_killer() -> bool:
@@ -261,6 +272,8 @@ func wake_up(new_target: Actor, intro := true) -> void:
 	_noticed(new_target)
 	if rig and intro:
 		rig.play_intro()
+		if def is BossDef and (def as BossDef).waits_intro:
+			_intro_left = rig.animation_length(&"intro")
 
 
 ## Returns true if the monster has (or just acquired) a target to fight.
@@ -305,6 +318,10 @@ func set_awake(awake: bool) -> void:
 ## Hit while asleep (a stray shot, a fire): it wakes up to answer.
 func take_hit(hit: HitInfo) -> void:
 	set_awake(true)
+	if not is_dead:
+		for monster_trait in def.traits:
+			if monster_trait.deflects(self, hit):
+				return  # turned away whole (a closed maw): the trait shows it
 	super.take_hit(hit)
 
 
@@ -370,6 +387,11 @@ func attack_range(other: Actor) -> float:
 
 ## Index of the first ready skill whose AI conditions match, or -1.
 func pick_skill(distance: float) -> int:
+	if _intro_left > 0.0:
+		return -1
+	for monster_trait in def.traits:
+		if not monster_trait.can_cast(self):
+			return -1
 	for i in skills.skills.size():
 		var skill := skills.skills[i]
 		if skill == null or not skills.is_ready(i):
@@ -405,7 +427,7 @@ func get_attack_windup() -> float:
 
 func _get_desired_velocity() -> Vector2:
 	_update_heavy_steps()
-	var direction := move_direction
+	var direction := move_direction if _intro_left <= 0.0 else Vector2.ZERO
 	var delta := get_physics_process_delta_time()
 	for monster_trait in def.traits:
 		monster_trait.update(self, delta)
@@ -558,6 +580,7 @@ func _shockwave(fuse: float) -> void:
 
 func _tick_timers(delta: float) -> void:
 	super._tick_timers(delta)
+	_intro_left = maxf(_intro_left - delta, 0.0)
 	if not is_boss():
 		return
 	_streak_time = maxf(_streak_time - delta, 0.0)
@@ -599,9 +622,12 @@ func _on_died(killer: Actor) -> void:
 			(killer as Player).gain_xp(def.xp_reward * _xp_multiplier)
 		world.spawn_floating_text(global_position, tr("Fell!"), Palette.GOLD)
 		return
-	if is_boss():
+	if is_boss() and free_on_death:
 		Vfx.boss_death(world, global_position + Vector2(0, -head_height * 0.5), radius * 1.5)
 		HitStop.freeze(0.25)
+	elif is_boss():
+		HitStop.freeze(0.25)  # a body that stays plays its own death (BossDef.body_stays)
+		Events.screen_shake.emit(0.6)
 	else:
 		Vfx.death(world, global_position, def.color, DeathLookDef.of(killing_element()))
 		if killer is Player:
@@ -667,6 +693,8 @@ func _free_souls() -> void:
 
 ## Glows red while winding up an attack, so the player sees it coming.
 func _body_modulate() -> Color:
+	if is_dead and not free_on_death:
+		return Color.WHITE  # a body the story keeps (BossDef.body_stays): its own colors
 	var color := super._body_modulate() * _phase_tint
 	if telegraph > 0.0 and _flash_time <= 0.0:
 		color = color.lerp(Color(2.0, 0.7, 0.7), telegraph)

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/bone_tablet.tres" id="2_look"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="3_progresscond"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/met_condition.gd" id="4_metcondition"]
+
+[sub_resource type="Resource" id="Resource_1"]
+script = ExtResource("4_metcondition")
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"the_maw_rite"
+title = "The First Keeper's Rite"
+author = "A knight with no name"
+place = "A copy, taken from under the bell of Kagari"
+lines = PackedStringArray("It does not die. A lack is not killed; it is made to wait.", "Ring the bell from below, and the door remembers it is a door.", "Give it nothing, not even a drop of blood. What it has tasted, it keeps.")
+look = ExtResource("2_look")
+conditions = Array[ExtResource("3_progresscond")]([SubResource("Resource_1")])

@@ -1,8 +1,8 @@
 class_name FragmentPlacer
 ## Lays a fragment of the past on a floor (NarrativeDef: its chance, when they start to appear):
 ## at most one a floor, on the floors of an act before its arena, about the warden waiting at
-## its end this run (World.run_bosses), or about the hidden floor's warden on the acts that hide
-## its way. Never one already found while that warden has others to find (Narrative.
+## its end this run (World.run_bosses), about the hidden floor's warden on the acts that hide
+## its way, or about Tôma and the Maw on the last act once the bottom of the Well is open. Never one already found while that warden has others to find (Narrative.
 ## fragments_to_place()). On a free cell of a room, away from the start, never in a wall.
 ## Drawn from its own random numbers, so the rest of the floor stays as it was.
 
@@ -33,8 +33,8 @@ static func place(world: World, content: ContentDB, depth: int, taken: Dictionar
 	return world.spawn_fragment(pick.fragment, pick.boss, cell)
 
 
-## The wardens whose past may lie on floor `depth`: its act's warden this run, and the hidden
-## floor's on the acts that hide its way.
+## The wardens whose past may lie on floor `depth`: its act's warden this run, the hidden
+## floor's on the acts that hide its way, the bottom's forms on the last act (once open).
 static func wardens_ahead(world: World, config: DungeonConfig, depth: int) -> Array[BossDef]:
 	var result: Array[BossDef] = []
 	var index := config.act_index(depth)
@@ -48,6 +48,12 @@ static func wardens_ahead(world: World, config: DungeonConfig, depth: int) -> Ar
 	var hidden := config.hidden_floor
 	if hidden and hidden.boss and hidden.key_acts.has(index) and not result.has(hidden.boss):
 		result.append(hidden.boss)
+	# The last act leads down to the bottom of the Well once it is open: its wardens' past too.
+	var finale := config.finale
+	if finale and finale.boss and index == config.acts.size() - 1 and finale.is_open():
+		for form in finale.boss.forms():
+			if not result.has(form):
+				result.append(form)
 	return result
 
 

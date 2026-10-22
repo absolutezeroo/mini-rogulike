@@ -1,0 +1,101 @@
+[gd_resource type="Resource" script_class="BossChronicleDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/boss_chronicle_def.gd" id="1_bosschronicl"]
+[ext_resource type="Script" path="res://src/definitions/story/deeds/mark_deed.gd" id="2_markdeed"]
+[ext_resource type="Resource" path="res://data/story/fragments/the_maw_rite.tres" id="3_themawrite"]
+[ext_resource type="Script" path="res://src/definitions/story/chronicle_chapter.gd" id="4_chroniclecha"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="5_keepernamed"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="6_progresscond"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/fragments_condition.gd" id="7_fragmentscon"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/met_condition.gd" id="8_metcondition"]
+[ext_resource type="Script" path="res://src/definitions/story/waking_line.gd" id="9_wakingline"]
+[ext_resource type="Resource" path="res://data/story/fragments/the_maw_boat.tres" id="10_themawboat"]
+[ext_resource type="Resource" path="res://data/story/fragments/the_maw_journal.tres" id="11_themawjourna"]
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="12_fragmentdef"]
+
+[sub_resource type="Resource" id="Resource_1"]
+script = ExtResource("2_markdeed")
+id = &"never_tasted"
+mark = &"bitten"
+present = false
+hint = "It only yields to one it has never tasted."
+rule = "Slay it without being caught in its bite once."
+revealed_by = ExtResource("3_themawrite")
+
+[sub_resource type="Resource" id="Resource_2"]
+script = ExtResource("4_chroniclecha")
+id = &"the_risen_sun"
+title = "The Risen Sun"
+lines = PackedStringArray("Out of the tar rises a face of gold crowned with rays: the sun Solhar prayed to, cracked.", "Behind it, no body. Only a hunger that has learned to wear faces.")
+slain = 0
+
+[sub_resource type="Resource" id="Resource_3"]
+script = ExtResource("4_chroniclecha")
+id = &"the_mask_it_wears"
+title = "The Mask It Wears"
+lines = PackedStringArray("When the master fell to his knees, it took him into its mouth. Tôma stands there now, his eyes open.", "It wears him as it wore the sun: to be looked at, to be prayed to, to be fed.")
+slain = 0
+conditions = Array[ExtResource("6_progresscond")]([ExtResource("5_keepernamed")])
+
+[sub_resource type="Resource" id="Resource_4"]
+script = ExtResource("4_chroniclecha")
+id = &"what_it_gives_back"
+title = "What It Gives Back"
+lines = PackedStringArray("It answered Solhar with harvests and gold, and Tôma with his daughter's voice.", "It has never given anything back. It gives only what it has learned to imitate.")
+slain = 1
+conditions = Array[ExtResource("6_progresscond")]([ExtResource("5_keepernamed")])
+
+[sub_resource type="Resource" id="Resource_5"]
+script = ExtResource("7_fragmentscon")
+count = 1
+
+[sub_resource type="Resource" id="Resource_6"]
+script = ExtResource("4_chroniclecha")
+id = &"the_door"
+title = "The Door"
+lines = PackedStringArray("It does not die. The first keeper never killed it: he made it wait, behind a door that remembers it is a door.", "The bell of Kagari, rung from below, shuts that door. Then someone must keep it.")
+slain = 2
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_5")])
+
+[sub_resource type="Resource" id="Resource_7"]
+script = ExtResource("4_chroniclecha")
+id = &"never_tasted"
+title = "What It Never Tasted"
+lines = PackedStringArray("What it has tasted, it keeps: a name, a voice, a kingdom. Of you, it has had nothing.", "That is why the bell answers you. A soul it never tasted can still close the door.")
+slain = 3
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_1")])
+
+[sub_resource type="Resource" id="Resource_8"]
+script = ExtResource("8_metcondition")
+
+[sub_resource type="Resource" id="Resource_9"]
+script = ExtResource("9_wakingline")
+id = &"papa_stay"
+line = "Papa... stay."
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_8")])
+
+[sub_resource type="Resource" id="Resource_10"]
+script = ExtResource("7_fragmentscon")
+fragment = ExtResource("10_themawboat")
+
+[sub_resource type="Resource" id="Resource_11"]
+script = ExtResource("9_wakingline")
+id = &"papa_the_boat"
+line = "Papa... the boat."
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_10")])
+
+[sub_resource type="Resource" id="Resource_12"]
+script = ExtResource("8_metcondition")
+
+[sub_resource type="Resource" id="Resource_13"]
+script = ExtResource("9_wakingline")
+id = &"the_sun_sets"
+line = "The sun sets."
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_12")])
+
+[resource]
+script = ExtResource("1_bosschronicl")
+chapters = Array[ExtResource("4_chroniclecha")]([SubResource("Resource_2"), SubResource("Resource_3"), SubResource("Resource_4"), SubResource("Resource_6"), SubResource("Resource_7")])
+waking_lines = Array[ExtResource("9_wakingline")]([SubResource("Resource_9"), SubResource("Resource_11")])
+last_words = Array[ExtResource("9_wakingline")]([SubResource("Resource_13")])
+fragments = Array[ExtResource("12_fragmentdef")]([ExtResource("3_themawrite"), ExtResource("10_themawboat"), ExtResource("11_themawjourna")])

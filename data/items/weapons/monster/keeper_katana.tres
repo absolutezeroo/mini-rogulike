@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="WeaponDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/slash.tres" id="1_sound"]
+[ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="2_hit"]
+[ext_resource type="Script" path="res://src/definitions/items/weapon_def.gd" id="3_weapon"]
+[ext_resource type="Resource" path="res://data/vfx/slashes/blade.tres" id="4_slash"]
+
+[resource]
+script = ExtResource("3_weapon")
+damage = 13
+cooldown = 1.0
+reach = 52.0
+knockback = 260.0
+attack_animation = 2
+slash = ExtResource("4_slash")
+arc_degrees = 150.0
+trail_color = Color(0, 0, 0, 0)
+attack_sound = ExtResource("1_sound")
+hit_sound = ExtResource("2_hit")
+slot = 0
+id = &"keeper_katana"
+display_name = "Keeper's Katana"
+glyph = "K"
+color = Color(0.78, 0.8, 0.86, 1)
+spawn_weight = 0
