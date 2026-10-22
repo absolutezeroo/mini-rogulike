@@ -201,7 +201,7 @@
       "id": "task_15",
       "title": "Vérification complète du jeu",
       "description": "Passe d'agents : code, gameplay, équilibrage, UI, textes, son, perfs, docs. Corriger ce qui sort.",
-      "status": "todo",
+      "status": "in_progress",
       "priority": "medium",
       "epic_id": "epic_5",
       "due_date": null,
@@ -209,7 +209,7 @@
         "qualité"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792703672
     },
     {
       "id": "task_16",
