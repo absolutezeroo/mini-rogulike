@@ -385,8 +385,8 @@
     {
       "id": "task_28",
       "title": "Lueur des fragments sur l'herbe claire",
-      "description": "Peu visible sur les sols clairs.",
-      "status": "backlog",
+      "description": "Peu visible sur les sols clairs.\n\nFait : la lueur en disques translucides (presque invisible sur sol clair, et contraire aux règles VFX : pas d'alpha) est remplacée par : un liseré d'un pixel de la lumière de l'élément autour de l'image (lisible sur pierre sombre), un anneau au sol (sous les acteurs) de sa couleur bordé de son ton sombre, qui respire d'un pixel (lisible sur herbe claire et sable), un halo GlowHalo (plus discret sur sol clair), les motes et la lumière. Vérifié sur l'herbe claire de l'acte I, le jardin souterrain et la crypte. À voir sur téléphone.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_3",
       "due_date": null,
@@ -394,7 +394,7 @@
         "vfx"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792704852
     },
     {
       "id": "task_29",

@@ -347,10 +347,12 @@ one are in [adding-content.md](../adding-content.md#the-story-chronicles-fragmen
   II's floors once it was met; Tôma's and the Maw's on the last act's once the bottom is open,
   Tôma's after the reveal, the Maw's once it was met): at most one a floor, a 35% chance, not during the first run, never
   one already found while that warden has others to find (`FragmentPlacer`, its own random numbers,
-  on free ground). On the floor: its 16x16 picture drawn at 2x, bobbing a pixel, in a breathing glow
-  of two steps of its element's ramp (spirit for Kagari's papers, frost for the bone tablets,
-  fire for the singed pages, holy for Solhar's letters, water for the journal), three motes rising,
-  a small light. Interact (**Read**) opens it in a panel over the paused game (`FragmentPanel`: its
+  on free ground). On the floor: its 16x16 picture drawn at 2x, bobbing a pixel, glowing in its
+  element (spirit for Kagari's papers, frost for the bone tablets, fire for the singed pages, holy
+  for Solhar's letters, water for the journal) so it reads on every floor: a rim of the element's
+  light round the picture (on dark stone), a ring on the floor in its color outlined by its dark
+  edge, breathing by a pixel (on light grass and sand), a glow halo, three motes rising, a small
+  light. Interact (**Read**) opens it in a panel over the paused game (`FragmentPanel`: its
   title on the ribbon, who wrote it and where, its lines, "A new page for its chronicle: ..."); a
   tap anywhere closes it. Found for good (Profile), read again in the codex.
 

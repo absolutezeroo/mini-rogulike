@@ -736,6 +736,14 @@ func _test_fragments_in_game(game: Game) -> void:
 		var cell := game.world.map.world_to_cell(piece.global_position)
 		check(game.world.is_free_cell(cell) and cell != game.world.map.start_cell, "floor %d: on free ground, not where the hero starts" % depth)
 		check(not game.world.find_path(game.player.global_position, piece.global_position).is_empty(), "floor %d: it can be reached" % depth)
+		if not found_any:
+			# It reads on every floor: a rim of its element's light round its picture (on dark
+			# stone), a ring on the floor under every actor outlined by the element's dark edge
+			# (on light grass and sand).
+			var ring := piece.get_node_or_null(^"Ring") as Node2D
+			var element := piece.glow_element()
+			check(not piece.rim().is_empty() and element.shade(0.3).get_luminance() > 0.55, "a fragment: a rim of its element's light round its picture")
+			check(ring != null and VfxLayer.of(ring) == VfxLayer.Layer.GROUND and ring.z_index < 0 and element.edge().get_luminance() < 0.3, "a fragment: a ring on the floor under the actors, outlined dark for light floors")
 		found_any = true
 	check(found_any, "fragments were laid")
 	# Read it: the panel, kept for good, gone from the floor.
