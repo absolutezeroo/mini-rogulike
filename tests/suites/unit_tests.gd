@@ -1479,7 +1479,7 @@ func _test_armory_levels() -> void:
 		offered = weapons
 	check(offered.size() >= 9, "the whole Armory offers most of the roster (%d)" % offered.size())
 	var templar: WeaponDef = load("res://data/items/weapons/templar_sword.tres")
-	check(CONTENT.locked_items.has(templar) and armory.armory_weapons.has(templar) and not offered.has(templar), "the Templar Sword waits for its unlock (Paladin's Oath)")
+	check(CONTENT.locked_items.has(templar) and armory.armory_weapons.has(templar) and not offered.has(templar), "the Templar Sword waits for its unlock (Templar's Vow)")
 	var next := UpgradeRow.armory_status(armory, armory.max_level - 1, CONTENT)
 	check(next.contains(templar.display_name + " (locked)"), "the detail marks a weapon still locked (%s)" % next)
 	var unlock := CONTENT.upgrades.filter(func(u: UpgradeDef) -> bool: return u.kind == UpgradeDef.Kind.UNLOCK and u.items.has(templar))

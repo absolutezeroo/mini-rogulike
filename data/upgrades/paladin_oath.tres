@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("4_ig5gi")
 id = &"paladin_oath"
-display_name = "Paladin's Oath"
+display_name = "Templar's Vow"
 description = "The Templar Sword (holy skills) can be found in the dungeon."
 icon = ExtResource("1_mrv2j")
 color = Color(1, 0.81960785, 0.4, 1)

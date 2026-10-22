@@ -41,7 +41,7 @@ data/                Game content as .tres resources (no code)
   elites/              Elite affixes (Swift, Vampiric, Bursting...)
   affixes/             Item affixes for Magic, Rare and Epic equipment (Sharp, of the Bear...)
   shop/                The merchant (stock, prices, look)
-  encounters/          Spring of the Drowned, Blood Altar, Grinning Spirit, Warden's Statue
+  encounters/          Spring of the Drowned, Blood Altar, Grinning Spirit, Keeper's Statue
   secrets/             What secret rooms hold (SecretRewardDef), the hidden floor (HiddenFloorDef)
   items/weapons/       Player weapons (monster/ = monster-only weapons)
   items/armors/        Head and body armor

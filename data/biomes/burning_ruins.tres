@@ -68,5 +68,5 @@ decor = Array[ExtResource("1_8hhvf")]([SubResource("Resource_gneqh"), SubResourc
 light = ExtResource("7_js8e0")
 id = &"burning_ruins"
 display_name = "Cinder Ruins"
-description = "A city burned here. The embers never quite went out."
+description = "The temple's lower town burned here. Its embers never quite went out."
 color = Color(1, 0.6, 0.35, 1)

@@ -12,8 +12,8 @@ endless mode (the acts loop, monsters keep getting stronger with depth).
 |---|---|---|---|
 | I. The Well's Maw | 1-3 | Gnawer, Gloom Bat, Slime, Blood Spider, Deathcap, Viper, Acid Larva, Burrower, Giant Slime, Shell Guard, Thief Racoon | Bloated King |
 | II. Ossuary of Kagari | 4-6 | Skeleton, Hexer, Lost Soul, Flying Skull, Watcher, Ghost Lantern, Night Owl, Frost Skull, Thief Racoon, Brood Mother | Gorr the One-Eyed |
-| III. The Pyre Temple | 7-9 | Fire Shaman, Cyclops, Flame Spirit, Lizardman, Horned Beast, Drakeling, Kappa, Ink Octopus, Bomber, Brood Mother, Shell Guard | Crimson Tengu |
-| IV. Kingdom of Dust | 10-12 | Dune Behemoth, Gold Racoon, Crimson Viper, Ash Lizard, Bone Lizard, Stone Mole, Bomber | Gilded Hoarder |
+| III. The Pyre Temple | 7-9 | Pyre Acolyte, Cyclops, Flame Spirit, Lizardman, Horned Beast, Drakeling, Kappa, Ink Octopus, Sapper, Brood Mother, Shell Guard | Crimson Tengu |
+| IV. Kingdom of Dust | 10-12 | Dune Behemoth, Gold Racoon, Crimson Viper, Ash Lizard, Bone Lizard, Stone Mole, Sapper | Gilded Hoarder |
 
 Monsters grow with depth (`DungeonConfig` > Difficulty: +32% Health and +1 attack a floor), and
 an act can add its own threat on top, on every difficulty (`ActDef.monster_hp`,
@@ -28,7 +28,7 @@ Heart** (act III) mend their hurt allies, the **Soul Moth** (act II) and the **G
 drum (allies hit harder, run faster); each shoots its own element (the Moss Heart poisoning
 spores, the Soul Moth a pale wisp, the Gilded Moth a golden mote, the Sand Drummer a clod of
 sand that slows; only the Ember Heart and the Ghost Lantern throw burning ghost flames); the
-**Fire Shaman** now mends its allies too
+**Pyre Acolyte** now mends its allies too
 (`AllyEffect`: heal, buff or ward the allies around; `SkillDef.ai_ally_need`: only when an ally
 needs it). A beam of light shows who is helped; the Soul Moth's wards are spirit (each warded ally
 flares in a hollow ring, the ward is a flickering shell with pale flames licking off it), and the
@@ -66,9 +66,9 @@ is `MonsterOverlay`.
   can be rooted (never walks), carry its own light (`glow_level`, brighter open) and stand in a
   pool drawn on the ground under it. Hooks it added to `MonsterTrait`: `deflects()` (a hit turned
   away before anything happens) and `can_cast()`.
-- **Bomber**: keeps away and lobs bombs that blow up where they land (a projectile skill with an
+- **Sapper**: keeps away and lobs bombs that blow up where they land (a projectile skill with an
   `explosion_radius`).
-- The **Fire Shaman** heals the monsters around it.
+- The **Pyre Acolyte** heals the monsters around it.
 
 ## Monster ranks: Elite, Fell, Legendary, Celestial
 
@@ -220,7 +220,7 @@ usual hunter ranks and challenges (the hole challenge too: the Deeps have holes)
 | Âme de Braise / Cinder Wraith | Spirit2 | 28 / 0 / 110 | Ghost Flame (5, burns) | flies, keeps away (160), spits embers | Act I |
 | Rôdeur d'Ombre / Shade Stalker | NinjaDark | 36 / 1 / 115 | Scimitar (7) | blinks at you (Blink) | Act II (depth 4) |
 | Augure Cornu / Horned Augur | DemonGreen | 38 / 0 / 75 | Hex Staff (6, shadow bolts) | keeps away (170), a volley of shadow bolts | Act II (depth 4) |
-| Gardien de la Brèche / Breach Warden | DemonCyclop2 (50x50) | 170 / 4 / 58 | Maul (13) | stands before the Dawn Breach, War Cry, hardly pushed (85%); never in the waves | Act III |
+| Sentinelle de la Brèche / Breach Sentinel | DemonCyclop2 (50x50) | 170 / 4 / 58 | Maul (13) | stands before the Dawn Breach, War Cry, hardly pushed (85%); never in the waves | Act III |
 
 `PerkTrait` (`src/definitions/monster_traits/perk_trait.gd`) is the one new trait: a kind born
 with perks, working as they do on the hero or on an elite. XP: 8 to 13 (the Warden 40).

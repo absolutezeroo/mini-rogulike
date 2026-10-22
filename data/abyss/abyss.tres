@@ -46,7 +46,7 @@ entries = Array[ExtResource("18_entry")]([SubResource("Resource_potion"), SubRes
 [resource]
 script = ExtResource("1_def")
 display_name = "The Deeps"
-lore = "Under the Well there is more Well. The dark down here has teeth, and it is hungry."
+lore = "Under the Well there is more Well. Down here the dark has teeth, and what it has chewed still wanders."
 door_name = "The Dawn Breach"
 fall_damage = 0.05
 return_grace = 1.5

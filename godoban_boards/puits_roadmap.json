@@ -128,7 +128,7 @@
       "id": "task_12",
       "title": "Révision du lore partout",
       "description": "Actes, monstres, objets, marchand, forgeron, malédictions, événements, pactes : tout aligner sur docs/lore.md avec le skill lore.",
-      "status": "todo",
+      "status": "in_progress",
       "priority": "high",
       "epic_id": "epic_1",
       "due_date": null,
@@ -136,7 +136,7 @@
         "lore"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792701974
     },
     {
       "id": "task_13",

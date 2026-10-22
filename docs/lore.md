@@ -28,7 +28,7 @@ The player learns this **in pieces, over many runs**. No single line states it.
 | Ages ago | Solhar, a kingdom under a sky that is now stone, worships a "sun" that answers prayers. The sun is the Maw's mask. The Dîme (Tithe): souls given at blood altars for harvests, gold, victories. |
 | The fall of Solhar | The king, greedy for more, gives the whole tithe at once, then his people. When no soul is left, the Maw takes the kingdom. Solhar becomes the **Kingdom of Dust**; the king becomes the **Gilded Hoarder** on his hoard; the false god becomes the **Dead Sun**, buried with them. |
 | The sealing | A knight of Solhar (or of no land: the texts disagree on purpose) goes down and seals the Maw with a rite that costs his name. He becomes **the Nameless Effigy**, "He Who Does Not Rest", guarding the seal in the Nameless Charnel. Brann forged his blades. |
-| The founding of Kagari | Settlers build Kagari over the Well: a shrine, a bronze **bell**, and the **lantern** whose flame keeps the Well asleep. Keepers succeed each other; their statues stand down the Well (the Warden's Statues). The village lays its dead in the **Ossuary**; a **Pyre Temple** burns the rest. Both later sink into the Well as it stirs. |
+| The founding of Kagari | Settlers build Kagari over the Well: a shrine, a bronze **bell**, and the **lantern** whose flame keeps the Well asleep. Keepers succeed each other; their statues stand down the Well (the Keeper's Statues, « Statues du Gardien »). The village lays its dead in the **Ossuary**, which later sinks into the Well as it stirs. Below it, unknown to Kagari, lie the ruins of Solhar: its drowned archives, its **Pyre Temple**, its buried city. |
 | Some years ago | Hana, Tôma's daughter, drowns in the spring under the village (the **Spring of the Drowned**). Tôma, keeper of the shrine, raises an orphan as his disciple: the hero. |
 | The years after | Tôma searches the drowned archives of Solhar (the **Hushed Archive** (les Archives Muettes)) and finds the old pact: the Maw gives back what it took, if it is fed. |
 | The moonless night | Tôma puts out every flame of Kagari, unbinds the seal's last knot and offers the village's souls. The villagers sleep and do not wake. He leaves one lantern burning, in the disciple's hand: he could not give him too. He goes down. |
@@ -64,10 +64,9 @@ The player learns this **in pieces, over many runs**. No single line states it.
 
 | Act | Place (FR / EN) | Truth |
 |---|---|---|
-| I | La Gueule du Puits / The Well's Maw (Weeping Grotto, Pale Garden) | The Well's throat. Roots of the village's trees reach down; the Maw's breath rises. |
-| II | Ossuaire de Kagari / Ossuary of Kagari (Catacombs, Drowned Caverns) | Kagari's dead, sunk with the earth when the Well stirred. The Spring of the Drowned is here: Hana drowned in its waters. |
-| III | Le Temple-Bûcher / The Pyre Temple (Godless Temple, Cinder Ruins, Hushed Archive / Archives Muettes) | Built by Solhar's priests over the Maw to "feed the sun". Its pyres still burn souls. The Archive holds the pact Tôma found. |
-| IV | Royaume de Poussière / Kingdom of Dust (Sandchoked City, Tomb of the Dead Sun) | Solhar itself, under a stone sky. Its king hoards, its god lies dead. The bottom of the Well is beneath it. |
+| I | La Gueule du Puits / The Well's Maw (Weeping Grotto / Grotte Suintante, Pale Garden / Jardin Blême, Drowned Caverns / Cavernes des Noyés) | The Well's throat. Roots of the village's trees reach down; the Maw's warm breath rises. The Drowned Caverns are the water of the spring under Kagari, come down: the water of the **Spring of the Drowned**, where Hana drowned (paper boats rot on its banks); the Mire Matron, one of Act I's wardens, keeps it. |
+| II | Ossuaire de Kagari / Ossuary of Kagari (Catacombs / Catacombes, Hushed Archive / Archives Muettes) | Kagari's dead, sunk with the earth when the Well stirred. Under the Ossuary's lowest rows the stone changes: the **Hushed Archive** is the first ruin of Solhar, its drowned records, older than Kagari and written in a tongue no one in Kagari reads. Tôma found the pact there; its texts never name Solhar before Act III (a candle's fresh wax, a keeper's seal). |
+| III | Le Temple-Bûcher / The Pyre Temple (Godless Temple / Temple sans Dieu, Cinder Ruins / Ruines de Braise) | Built by Solhar's priests over the Maw to "feed the sun". Its pyres still burn souls. The Cinder Ruins are the temple's lower town, burnt. |
 | hidden | Le Charnier Sans Nom / The Nameless Charnel | Where the seal is kept, between the Ossuary and the Temple. The Effigy guards it. |
 | under | Les Tréfonds / The Deeps | The Maw's gut. The Damned are Solhar's people, gnawed. |
 | between | Le Seuil / The Threshold | Where the dead wait to be eaten. The hero is sent back because the lantern still burns above. |
@@ -129,6 +128,22 @@ act's floors once the bottom is open. **The missing paper boat** the Mire Matron
 down to the bottom: the Maw keeps it, dry, in the tar (it says "Papa... the boat." with Hana's
 voice once the hero has found it). The Vigil-Keeper blesses the lanterns of those who go down.
 
+### 5c. The creatures of the Well (the codex)
+
+Every monster's codex entry (`description`) says first what it was, then how it fights (the rule,
+plain). Nothing in the Well comes from elsewhere; each creature is one of these:
+
+| Where | What they are | Who |
+|---|---|---|
+| Act I, the throat | **Kagari's beasts and leavings**, fallen or drawn down the Well and changed by its breath; the slimes are drops of the Bloated King; the Moss Heart is the Well's moss that drank the lanterns' wax and began to beat; the Shell Guard is an old beast of the spring under Kagari | Gnawer, Gloom Bat, Slime, Giant Slime, Blood Spider, Deathcap, Viper, Acid Larva, Burrower, Shell Guard, Thief Racoon (it stole the shrine's offerings), Moss Heart |
+| Act II, the Ossuary | **Kagari's dead** and what lived with them: the risen dead of the niches, skulls that lost their niches and names, the Ghost Lanterns (Kagari's paper lanterns put out on the moonless night, lit again by themselves with a flame that gives no warmth), the Hexer (a reader of the Hushed Archive who stayed between the pages), a skull frozen by the Azure Wyrm's sleep | Skeleton, Flying Skull, Frost Skull, Lost Soul, Watcher, Ghost Lantern, Night Owl, Hexer, Brood Mother, Soul Moth |
+| Act III, the Pyre Temple | **Solhar's temple, its dead and its beasts**: Pyre Acolytes (dead at their pyres, still chanting the rite; the Crimson Tengu found no living priest), giants kept in chains to carry the pyres' wood, lizardmen who guarded the lower steps, beasts of burden horned by the Well's breath, sappers of Solhar's army still besieging a fallen city, offerings' hearts and flames; and one thing of Kagari, a kappa carried down by the river's water | Pyre Acolyte, Cyclops, Flame Spirit, Lizardman, Horned Beast, Drakeling, Kappa, Ink Octopus (Solhar's scribes wrote with its ink), Sapper, Ember Heart |
+| Act IV, the Kingdom of Dust | **Solhar under its stone sky**: its kings' war mounts, the king's own thief, the drummers of its armies, desert beasts, moths that drank its gold, a hunter wearing a priest's mask | Dune Behemoth, Gold Racoon, Crimson Viper, Ash Lizard, Bone Lizard, Stone Mole, Sand Drummer, Gilded Moth, Sand Drake |
+| The Deeps | **the Damned**: what the hunger leaves of the souls it ate long ago (Solhar's people, but their codex never names Solhar: the Deeps can be reached from Act I). They are "chewed", "eaten", "what the hunger leaves"; a seer of "a swallowed kingdom" | Eye of the Deeps, Blood Drinker, Breach Sentinel, Cinder Wraith, Horned Augur, Horned Carcass, Scarlet Fiend, Shade Stalker |
+
+Before Act III nothing names Solhar (an altar, an archive or a people are "older than Kagari",
+"a swallowed kingdom"); before the bottom, the Maw is "the hunger below" / « la faim du fond ».
+
 ## 6. The keepers and the voices you meet
 
 | Character (FR / EN) | Truth | Voice |
@@ -139,7 +154,7 @@ voice once the hero has found it). The Vigil-Keeper blesses the lanterns of thos
 | L'Esprit Ricaneur / Grinning Spirit | a gambler of Solhar who wagered his soul and lost; still plays. | giggling, rhymes, dice. |
 | Autel de Sang / Blood Altar | Solhar's tithe altars. | (the Well's hunger, no voice) |
 | Source des Noyés / Spring of the Drowned | where Hana drowned; a girl's voice sometimes sings in it (the Maw imitating her). | a child's humming, three words at most. |
-| Statue du Gardien / Warden's Statue | statues of Kagari's past keepers; one niche is empty (Tôma's). | silent; inscriptions. |
+| Statue du Gardien / Keeper's Statue (id `warden_statue`) | statues of Kagari's past keepers, a stone lantern in hand; one niche is empty (Tôma's). Kneeling, a keeper lends his strength; or its eyes redden and the Well's dead answer for it. | silent; inscriptions. |
 | The oaths (Colossus, Duelist, Heretic, Vulture) | vows sworn at the bell by keepers of old; each was a keeper's way. | solemn, one line each. |
 
 ### 6b. What the voices hold (the dialogue: `data/story/dialogue/`)
@@ -233,6 +248,18 @@ told at the bottom (their first chapters never name him), their last words as th
 - Whether "take his place" leads to a new game mode (endless as the keeper). Today both
   endings lead to the same victory screen (and endless mode if the player keeps going); the
   choice is kept in the profile (`Profile.ending`) for whatever comes next.
+- **The curved blade's school.** The Katana is "the curved blade of the shrine's keepers", and
+  Vardan's school of Solhar's temple guards fought with the same curved single-edged blade
+  ("one edge, one loyalty"). Who taught whom (the first keeper, a knight Solhar claims?) is not
+  decided: no text says either yet.
+- **Names that echo each other** (kept for now, a choice to confirm): the difficulty Keeper /
+  « Veilleur » and the Vigil-Keeper « la Veilleuse »; « gardien » for both the wardens (bosses)
+  and the shrine's keepers (the Keeper's Statue is « Statue du Gardien »); the relic "Sage's
+  Codex" and the Codex screen; "Warden" in the Guardian Ring / « Anneau du Gardien ».
+- **Small things the canon does not cover yet:** the Phoenix Feather (a phoenix of Kagari, a hô-ô,
+  or Solhar's?), the Blood Moon floor event (the Well feels a red moon it cannot see), the thieves
+  being raccoons rather than Kagari's tanuki, the oaths having no lore line of their own (only
+  their rule; canon: "vows sworn at the bell by keepers of old").
 
 Decided:
 

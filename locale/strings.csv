@@ -797,7 +797,7 @@ Descend. Bring back the stolen souls. Become what the dark demands.,Descend. Bri
 > The chronicle of Kagari,> The chronicle of Kagari,> La chronique de Kagari
 Descend,Descend,Descendre
 Shrine,Shrine,Sanctuaire
-"Under the Well there is more Well. The dark down here has teeth, and it is hungry.","Under the Well there is more Well. The dark down here has teeth, and it is hungry.","Sous le Puits, il y a encore le Puits. Ici, l'obscurité a des dents, et elle a faim."
+"Under the Well there is more Well. Down here the dark has teeth, and what it has chewed still wanders.","Under the Well there is more Well. Down here the dark has teeth, and what it has chewed still wanders.","Sous le Puits, il y a encore le Puits. Ici, l'obscurité a des dents, et ce qu'elle a mâché erre encore."
 Ascendant,Ascendant,Ascendant
 Win a run on Nightmare +3.,Win a run on Nightmare +3.,Gagne une partie en Cauchemar +3.
 The Souls Return,The Souls Return,Le Retour des Âmes
@@ -901,25 +901,25 @@ You start with 15% less max health.,You start with 15% less max health.,Tu comme
 The Well's Heart,The Well's Heart,Le Cœur du Puits
 Monsters have 15% more health and deal 10% more damage.,Monsters have 15% more health and deal 10% more damage.,Les monstres ont 15 % de Vie en plus et infligent 10 % de Dégâts en plus.
 Hushed Archive,Hushed Archive,Les Archives Muettes
-Shelves of forgotten books. Some still hold a spell.,Shelves of forgotten books. Some still hold a spell.,Des rayonnages de livres oubliés. Certains renferment encore un sort.
+"Records older than Kagari, swollen with water and silence. On a table, a candle has dripped, not long ago.","Records older than Kagari, swollen with water and silence. On a table, a candle has dripped, not long ago.","Des registres plus vieux que Kagari, gonflés d'eau et de silence. Sur une table, une chandelle a coulé il y a peu."
 Sandchoked City,Sandchoked City,La Cité Ensablée
 "Streets of sand, stalls nobody keeps. The wind still sells what is left.","Streets of sand, stalls nobody keeps. The wind still sells what is left.","Des rues de sable, des étals sans marchands. Le vent vend encore ce qu'il reste."
 Cinder Ruins,Cinder Ruins,Ruines de Braise
-A city burned here. The embers never quite went out.,A city burned here. The embers never quite went out.,Une cité a brûlé ici. Les braises ne se sont jamais tout à fait éteintes.
+The temple's lower town burned here. Its embers never quite went out.,The temple's lower town burned here. Its embers never quite went out.,Ici brûlait la ville basse du temple. Ses braises ne se sont jamais tout à fait éteintes.
 Catacombs,Catacombs,Catacombes
-Row after row of the dead. They do not sleep well.,Row after row of the dead. They do not sleep well.,"Des rangées de morts, à perte de vue. Leur sommeil n'est pas paisible."
+"Kagari's dead, row after row. They no longer sleep well.","Kagari's dead, row after row. They no longer sleep well.","Les morts de Kagari, rangée après rangée. Leur sommeil n'est plus paisible."
 Drowned Caverns,Drowned Caverns,Cavernes des Noyés
-The Well's water rose here once. It never went back down.,The Well's water rose here once. It never went back down.,"Les eaux du Puits sont montées jusqu'ici, un jour. Elles ne sont jamais redescendues."
+"The spring under Kagari came down this far, and never went back up. Paper boats rot on its banks.","The spring under Kagari came down this far, and never went back up. Paper boats rot on its banks.","La source sous Kagari est descendue jusqu'ici, et n'est jamais remontée. Des bateaux de papier pourrissent sur ses rives."
 Weeping Grotto,Weeping Grotto,Grotte Suintante
 Damp stone and soft moss. Something drips in the dark.,Damp stone and soft moss. Something drips in the dark.,Pierre humide et mousse tendre. Quelque chose goutte dans le noir.
 The Nameless Charnel,The Nameless Charnel,Le Charnier Sans Nom
 "Below the Ossuary, the dead nobody named. The cold does not come from the stone.","Below the Ossuary, the dead nobody named. The cold does not come from the stone.","Sous l'Ossuaire, les morts que nul n'a nommés. Le froid ne vient pas de la pierre."
 Godless Temple,Godless Temple,Temple sans Dieu
-Halls of columns raised for a god nobody remembers.,Halls of columns raised for a god nobody remembers.,Des salles à colonnes élevées pour un dieu que plus personne ne se rappelle.
+Halls of columns raised for a sun no one prays to anymore.,Halls of columns raised for a sun no one prays to anymore.,Des salles à colonnes élevées pour un soleil que plus personne ne prie.
 Tomb of the Dead Sun,Tomb of the Dead Sun,Tombeau du Soleil Mort
-"Gold under every stone, and a curse on every coin.","Gold under every stone, and a curse on every coin.","De l'or sous chaque pierre, et une malédiction sur chaque pièce."
+"Gold under every stone, a face on every coin. At noon, in the dark, something still shines.","Gold under every stone, a face on every coin. At noon, in the dark, something still shines.","De l'or sous chaque pierre, un visage sur chaque pièce. À midi, dans le noir, quelque chose brille encore."
 Pale Garden,Pale Garden,Le Jardin Blême
-Light from cracks above feeds a garden nobody tends anymore.,Light from cracks above feeds a garden nobody tends anymore.,La lumière qui filtre des fissures nourrit un jardin que plus personne n'entretient.
+"The village's roots break through the vault, and the light that seeps in feeds a garden no one tends.","The village's roots break through the vault, and the light that seeps in feeds a garden no one tends.","Les racines du village percent la voûte, et la lumière qui filtre nourrit un jardin que plus personne n'entretient."
 The Well's Bottom,The Well's Bottom,Le Fond du Puits
 "Below the kingdom of dust, the stone ends. What waits here has waited for a long time.","Below the kingdom of dust, the stone ends. What waits here has waited for a long time.","Sous le royaume de poussière, la pierre s'arrête. Ce qui attend ici attend depuis longtemps."
 "Deep below, something burns.
@@ -928,16 +928,16 @@ The Well breathes it up, and the air itself scorches.","Tout au fond, quelque ch
 Le Puits en exhale le souffle, et l'air lui-même se met à brûler."
 Ashen Breath,Ashen Breath,Haleine de Cendre
 "The heat builds up. Cool down by the oases, or burn.","The heat builds up. Cool down by the oases, or burn.","La chaleur monte. Rafraîchis-toi aux oasis, ou brûle."
-"The Well exhales. Its breath is the cold of the grave:
-frost creeps over the stone... and over you.","The Well exhales. Its breath is the cold of the grave:
-frost creeps over the stone... and over you.","Le Puits expire. Son haleine a le froid de la tombe :
+"The Well draws breath, and pulls every warmth down to the bottom:
+frost creeps over the stone... and over you.","The Well draws breath, and pulls every warmth down to the bottom:
+frost creeps over the stone... and over you.","Le Puits inspire, et aspire toute chaleur vers le fond :
 le givre gagne la pierre... et te gagne aussi."
 "The cold gets into your bones. Warm up by the campfires, or freeze.","The cold gets into your bones. Warm up by the campfires, or freeze.","Le froid te pénètre jusqu'aux os. Réchauffe-toi près des feux de camp, ou gèle."
-"The Well swallows the light.
-Only your lantern holds the dark back... barely.","The Well swallows the light.
-Only your lantern holds the dark back... barely.","Le Puits dévore la lumière.
-Seule ta lanterne retient les ténèbres... à peine."
-Lanternless,Lanternless,Nuit sans Lanterne
+"The Well remembers the moonless night, and swallows every light.
+Only your lantern still holds the dark back... barely.","The Well remembers the moonless night, and swallows every light.
+Only your lantern still holds the dark back... barely.","Le Puits se souvient de la nuit sans lune, et avale toute lumière.
+Seule ta lanterne retient encore les ténèbres... à peine."
+Moonless Night,Moonless Night,Nuit sans Lune
 You only see what is right around you. Better loot hides in the dark.,You only see what is right around you. Better loot hides in the dark.,Tu ne vois que ce qui t'entoure de près. Un meilleur butin se cache dans le noir.
 Pilgrim,Pilgrim,Pèlerin
 The Well spares the pilgrim... and pays little for lukewarm souls.,The Well spares the pilgrim... and pays little for lukewarm souls.,Le Puits ménage le pèlerin... et paie peu les âmes tièdes.
@@ -946,16 +946,16 @@ Martyr,Martyr,Martyr
 Nightmare,Nightmare,Cauchemar
 "Darkness, hordes, and barely time to pray.","Darkness, hordes, and barely time to pray.","Ténèbres, hordes, et à peine le temps de prier."
 The vigil as it was meant to be kept.,The vigil as it was meant to be kept.,La veille telle qu'elle doit être tenue.
-"The Well's open maw. Roots like veins, weeping stone, and things that crawl toward your lantern's light.","The Well's open maw. Roots like veins, weeping stone, and things that crawl toward your lantern's light.","La gueule béante du Puits. Des racines comme des veines, la pierre qui suinte, et des choses qui rampent vers la lueur de ta lanterne."
+"The Well's throat. Kagari's roots hang down it like veins, and a warm breath rises from below. Things crawl toward your lantern.","The Well's throat. Kagari's roots hang down it like veins, and a warm breath rises from below. Things crawl toward your lantern.","La gorge du Puits. Les racines de Kagari y pendent comme des veines, et d'en bas monte un souffle tiède. Des choses rampent vers ta lanterne."
 Ossuary of Kagari,Ossuary of Kagari,L'Ossuaire de Kagari
 Act II,Act II,Acte II
-"Where Kagari laid its dead, long ago. Since the Well woke, the bones no longer lie still.","Where Kagari laid its dead, long ago. Since the Well woke, the bones no longer lie still.","Là où Kagari couchait ses morts, jadis. Depuis l'éveil du Puits, les os ne reposent plus."
+"Where Kagari laid its dead. When the Well stirred, the Ossuary sank with the earth, and the bones no longer lie still.","Where Kagari laid its dead. When the Well stirred, the Ossuary sank with the earth, and the bones no longer lie still.","Là où Kagari couchait ses morts. Quand le Puits a remué, l'Ossuaire a sombré avec la terre, et les os ne reposent plus."
 The Pyre Temple,The Pyre Temple,Le Temple-Bûcher
 Act III,Act III,Acte III
-"A temple the Well swallowed whole, and its pyres with it. They still burn. The souls' cries rise from below.","A temple the Well swallowed whole, and its pyres with it. They still burn. The souls' cries rise from below.","Un temple que le Puits a englouti, et ses bûchers avec lui. Ils brûlent encore. Les cris des âmes montent d'en bas."
+"The priests of Solhar, a kingdom older than Kagari, built it to feed their sun. Its pyres still burn: they burn souls.","The priests of Solhar, a kingdom older than Kagari, built it to feed their sun. Its pyres still burn: they burn souls.","Les prêtres de Solhar, un royaume plus vieux que Kagari, l'ont bâti pour nourrir leur soleil. Ses bûchers brûlent encore : ils brûlent des âmes."
 Kingdom of Dust,Kingdom of Dust,Le Royaume de Poussière
 Act IV,Act IV,Acte IV
-"Beneath the pyres, the Well opens onto a desert with no sky: a kingdom the dust swallowed whole. Its king still hoards what he took. Souls, mostly.","Beneath the pyres, the Well opens onto a desert with no sky: a kingdom the dust swallowed whole. Its king still hoards what he took. Souls, mostly.","Sous les bûchers, le Puits s'ouvre sur un désert sans ciel : un royaume que la poussière a englouti tout entier. Son roi y amasse encore ce qu'il a pris. Des âmes, surtout."
+"Beneath the pyres lies Solhar itself, under a sky of stone: a kingdom the dust swallowed whole. Its king still counts what he took. Souls, mostly.","Beneath the pyres lies Solhar itself, under a sky of stone: a kingdom the dust swallowed whole. Its king still counts what he took. Souls, mostly.","Sous les bûchers s'étend Solhar même, sous un ciel de pierre : un royaume que la poussière a englouti. Son roi y compte encore ce qu'il a pris. Des âmes, surtout."
 Ironclad,Ironclad,Cuirassé
 Bursting,Bursting,Fulminant
 Thorned,Thorned,Épineux
@@ -963,7 +963,7 @@ The altar drinks. A relic rises from the stone.,The altar drinks. A relic rises 
 Offer your blood,Offer your blood,Offrir ton sang
 Offer,Offer,Offrir
 Blood Altar,Blood Altar,Autel de Sang
-An altar stained with old blood. It wants a part of you... and it pays well.,An altar stained with old blood. It wants a part of you... and it pays well.,Un autel souillé de sang ancien. Il veut une part de toi... et il paie bien.
+"An altar older than Kagari, black with very old blood. It wants a part of you... and it pays well.","An altar older than Kagari, black with very old blood. It wants a part of you... and it pays well.","Un autel plus vieux que Kagari, noir d'un sang très ancien. Il veut une part de toi... et il paie bien."
 It giggles and drops something shiny.,It giggles and drops something shiny.,Il ricane et laisse tomber quelque chose de brillant.
 """Lucky, lucky!"" Something very shiny falls at your feet.","""Lucky, lucky!"" Something very shiny falls at your feet.","« Veinard, veinard ! » Quelque chose de très brillant tombe à tes pieds."
 "It laughs, and vanishes with your gold.","It laughs, and vanishes with your gold.","Il éclate de rire, et disparaît avec ton or."
@@ -972,25 +972,25 @@ Wager,Wager,Parier
 Wager big,Wager big,Tout miser
 Talk,Talk,Parler
 Grinning Spirit,Grinning Spirit,Esprit Ricaneur
-"A grinning spirit shakes its dice. ""Gold for a gift? Maybe... maybe not!""","A grinning spirit shakes its dice. ""Gold for a gift? Maybe... maybe not!""",Un esprit ricaneur agite ses dés. « De l'or contre un cadeau ? Peut-être... ou peut-être pas ! »
+"A grinning spirit shakes its dice. ""Your gold for a treasure? Maybe... maybe not!""","A grinning spirit shakes its dice. ""Your gold for a treasure? Maybe... maybe not!""",Un esprit ricaneur agite ses dés. « Ton or contre un trésor ? Peut-être... ou peut-être pas ! »
 The water is cool and kind. You feel whole again.,The water is cool and kind. You feel whole again.,L'eau est fraîche et bienveillante. Tu te sens entier à nouveau.
 Strength flows into you: the drowned lend you their fury.,Strength flows into you: the drowned lend you their fury.,La force afflue en toi : les noyés te prêtent leur fureur.
-The water was cursed! It burns your throat.,The water was cursed! It burns your throat.,L'eau était maudite ! Elle te brûle la gorge.
+The water tastes of mud and ash. It burns your throat.,The water tastes of mud and ash. It burns your throat.,L'eau a un goût de vase et de cendre. Elle te brûle la gorge.
 Drink,Drink,Boire
 Spring of the Drowned,Spring of the Drowned,Source des Noyés
-Clear water glows faintly. The souls of the drowned linger here.,Clear water glows faintly. The souls of the drowned linger here.,Une eau claire luit faiblement. Les âmes des noyés s'attardent ici.
-The statue hums. Its strength becomes yours.,The statue hums. Its strength becomes yours.,La statue bourdonne. Sa force devient tienne.
-Its eyes light up red. Its servants answer!,Its eyes light up red. Its servants answer!,Ses yeux s'embrasent de rouge. Ses serviteurs répondent à l'appel !
+Clear water glows under the stone. Sometimes a child's voice hums in it.,Clear water glows under the stone. Sometimes a child's voice hums in it.,"Une eau claire luit sous la pierre. Parfois, une voix d'enfant y fredonne."
+The stone warms under your hand. An old keeper lends you his strength.,The stone warms under your hand. An old keeper lends you his strength.,La pierre tiédit sous ta main. Un ancien gardien te prête sa force.
+Its eyes glow red. The dead of the Well answer in its place.,Its eyes glow red. The dead of the Well answer in its place.,Ses yeux rougeoient. Les morts du Puits répondent à sa place.
 Kneel,Kneel,S'agenouiller
-Warden's Statue,Warden's Statue,Statue du Gardien
-A statue of one of the Well's wardens. Its stone eyes follow you.,A statue of one of the Well's wardens. Its stone eyes follow you.,La statue d'un des gardiens du Puits. Ses yeux de pierre te suivent.
+Keeper's Statue,Keeper's Statue,Statue du Gardien
+"A statue of one of the shrine's old keepers, a stone lantern in hand. Its eyes follow you.","A statue of one of the shrine's old keepers, a stone lantern in hand. Its eyes follow you.","La statue d'un ancien gardien du sanctuaire, une lanterne de pierre à la main. Ses yeux te suivent."
 Blood Moon,Blood Moon,Lune de Sang
 "The monsters are frenzied: they hit harder, and drop twice the gold.","The monsters are frenzied: they hit harder, and drop twice the gold.","Les monstres sont pris de frénésie : ils frappent plus fort, et lâchent deux fois plus d'or."
 Utter Dark,Utter Dark,Nuit Noire
 Your lantern barely lights the way. Rare things hide in the dark.,Your lantern barely lights the way. Rare things hide in the dark.,Ta lanterne éclaire à peine le chemin. Des choses rares se cachent dans le noir.
 The Wandering Dead,The Wandering Dead,Les Morts Errants
 "The dead walk here: elites everywhere, and little light.","The dead walk here: elites everywhere, and little light.","Les morts arpentent ces lieux : des élites partout, et peu de lumière."
-Hushed Halls,Hushed Halls,Salles du Silence
+Silent Halls,Silent Halls,Salles du Silence
 "Few monsters here. Someone has set up shop, and strange things wait in the rooms.","Few monsters here. Someone has set up shop, and strange things wait in the rooms.","Peu de monstres ici. Quelqu'un a installé son étal, et d'étranges choses attendent dans les salles."
 The Swarm,The Swarm,La Nuée
 "They come in hordes, but they are weak.","They come in hordes, but they are weak.","Ils déferlent en hordes, mais ils sont faibles."
@@ -999,7 +999,7 @@ Gold glitters everywhere... and so do the traps.,Gold glitters everywhere... and
 Brann the Smith,Brann the Smith,Brann le Forgeron
 "Runes, eh? Hand me that blade.","Runes, eh? Hand me that blade.","Des runes, hein ? Passe-moi cette lame."
 Steel remembers every rune you give it.,Steel remembers every rune you give it.,L'acier se souvient de chaque rune que tu lui confies.
-"Hot coals, cold hands. What'll it be?","Hot coals, cold hands. What'll it be?","Braises chaudes, mains froides. Qu'est-ce que ce sera ?"
+"Hot coals, cold hands. Speak.","Hot coals, cold hands. Speak.","Braises chaudes, mains froides. Parle."
 Each socket holds one rune. Choose well.,Each socket holds one rune. Choose well.,Chaque emplacement accueille une rune. Choisis bien.
 Changed your mind? I can pry it out. For a price.,Changed your mind? I can pry it out. For a price.,Changé d'avis ? Je peux la déloger. Contre paiement.
 "Things stir in the dark, drawn by the fire...","Things stir in the dark, drawn by the fire...","Des choses s'agitent dans le noir, attirées par le feu..."
@@ -1034,34 +1034,39 @@ Explodes around you. Deals 25 damage.,Explodes around you. Deals 25 damage.,Expl
 Scroll of Fire,Scroll of Fire,Parchemin de Feu
 Launches an exploding fireball at the nearest enemy.,Launches an exploding fireball at the nearest enemy.,Projette une boule de feu explosive sur l'ennemi le plus proche.
 Saint's Heart,Saint's Heart,Cœur de Saint
-Restores 70% of your HP.,Restores 70% of your HP.,Rend 70 % de ta Vie.
+A saint's heart in a jar of wax. Restores 70% of your Health.,A saint's heart in a jar of wax. Restores 70% of your Health.,"Le cœur d'un saint, dans un bocal de cire. Rend 70 % de ta Vie."
 Haste Draught,Haste Draught,Breuvage de Célérité
 Run much faster for 6 seconds.,Run much faster for 6 seconds.,Cours bien plus vite pendant 6 secondes.
 Health Potion,Health Potion,Potion de Vie
-Restores 35% of your HP.,Restores 35% of your HP.,Rend 35 % de ta Vie.
+Restores 35% of your Health.,Restores 35% of your Health.,Rend 35 % de ta Vie.
 Elixir of Rage,Elixir of Rage,Élixir de Rage
 +5 Damage and +15% critical hit chance for 8 seconds.,+5 Damage and +15% critical hit chance for 8 seconds.,+5 Dégâts et +15 % de chance de coup critique pendant 8 secondes.
 Bone Key,Bone Key,Clef d'Ossements
 "Finger bones fused into a key, cold as the grave. It fits no door on this side of the Warden.","Finger bones fused into a key, cold as the grave. It fits no door on this side of the Warden.","Des phalanges soudées en clef, froides comme la tombe. Elle n'ouvre aucune porte de ce côté du Gardien."
 Tome of Fire,Tome of Fire,Grimoire du Feu
-Read it to learn a skill: it becomes your fourth skill.,Read it to learn a skill: it becomes your fourth skill.,Lis-le pour apprendre une compétence : elle devient ta quatrième.
+A book of the pyre priests; its binding is still warm. Read it to learn a skill: it becomes your fourth skill.,A book of the pyre priests; its binding is still warm. Read it to learn a skill: it becomes your fourth skill.,Un livre des prêtres des bûchers ; sa reliure est encore tiède. Lis-le pour apprendre une compétence : elle devient ta quatrième.
 Tome of Frost,Tome of Frost,Grimoire du Givre
+Its pages are rimed with frost; the cold is written in them by a patient hand. Read it to learn a skill: it becomes your fourth skill.,Its pages are rimed with frost; the cold is written in them by a patient hand. Read it to learn a skill: it becomes your fourth skill.,Ses pages sont givrées ; le froid y est écrit d'une main patiente. Lis-le pour apprendre une compétence : elle devient ta quatrième.
 Tome of Holy Light,Tome of Holy Light,Grimoire de la Lumière Sacrée
+"The prayers of Kagari's shrine, copied for those who go down. Read it to learn a skill: it becomes your fourth skill.","The prayers of Kagari's shrine, copied for those who go down. Read it to learn a skill: it becomes your fourth skill.","Les prières du sanctuaire de Kagari, recopiées pour ceux qui descendent. Lis-le pour apprendre une compétence : elle devient ta quatrième."
 Tome of Thunder,Tome of Thunder,Grimoire du Tonnerre
+A book the storm struck twice; it still rumbles. Read it to learn a skill: it becomes your fourth skill.,A book the storm struck twice; it still rumbles. Read it to learn a skill: it becomes your fourth skill.,Un livre que l'orage a frappé deux fois ; il gronde encore. Lis-le pour apprendre une compétence : elle devient ta quatrième.
 Tome of Battle,Tome of Battle,Grimoire de la Bataille
+"A forgotten captain's manual, its margins written in blood. Read it to learn a skill: it becomes your fourth skill.","A forgotten captain's manual, its margins written in blood. Read it to learn a skill: it becomes your fourth skill.","Le manuel d'un capitaine oublié, annoté de sang dans les marges. Lis-le pour apprendre une compétence : elle devient ta quatrième."
 Tome of Wind,Tome of Wind,Grimoire du Vent
+"Its pages never lie still, even at the bottom of the Well. Read it to learn a skill: it becomes your fourth skill.","Its pages never lie still, even at the bottom of the Well. Read it to learn a skill: it becomes your fourth skill.","Ses pages ne tiennent jamais en place, même au fond du Puits. Lis-le pour apprendre une compétence : elle devient ta quatrième."
 Battle Axe,Battle Axe,Hache de Guerre
 "Slow, wide and brutal.","Slow, wide and brutal.","Lente, large et brutale."
 Greatsword,Greatsword,Espadon
 Huge and slow. Everything in front of you goes flying.,Huge and slow. Everything in front of you goes flying.,Immense et lent. Tout ce qui est devant toi s'envole.
 Ember Tome,Ember Tome,Grimoire des Braises
-Spits three embers at once.,Spits three embers at once.,Crache trois braises à la fois.
+A prayer book of the pyres: its pages burn and are never consumed. Spits three embers at once.,A prayer book of the pyres: its pages burn and are never consumed. Spits three embers at once.,Un livre de prières des bûchers : ses pages brûlent sans se consumer. Crache trois braises à la fois.
 Bow,Bow,Arc
 Arrows that go through the first enemy.,Arrows that go through the first enemy.,Des flèches qui transpercent le premier ennemi.
 War Hammer,War Hammer,Marteau de Guerre
 Crushing blows that send enemies flying.,Crushing blows that send enemies flying.,Des coups écrasants qui projettent les ennemis.
 Katana,Katana,Katana
-The keeper's blade. Quick and faithful.,The keeper's blade. Quick and faithful.,La lame du veilleur. Rapide et fidèle.
+"The curved blade of the shrine's keepers, the one your master taught you. Quick and faithful.","The curved blade of the shrine's keepers, the one your master taught you. Quick and faithful.","La lame courbe des gardiens du sanctuaire, celle que ton maître t'a apprise. Rapide et fidèle."
 Lance,Lance,Lance
 "Long reach, narrow thrust.","Long reach, narrow thrust.","Longue allonge, estocade étroite."
 Spark Wand,Spark Wand,Baguette d'Étincelles
@@ -1069,17 +1074,17 @@ Fires quick magic sparks.,Fires quick magic sparks.,Tire de rapides étincelles 
 Ninjaku,Ninjaku,Ninjaku
 "A ninja's straight blade: quick, wide cuts.","A ninja's straight blade: quick, wide cuts.",La lame droite du ninja : des entailles rapides et larges.
 Pickaxe,Pickaxe,Pioche
-A dead miner's tool. Pierces armor.,A dead miner's tool. Pierces armor.,L'outil d'un mineur mort. Perce les armures.
+The tool of a Kagari well-digger who dug too deep. Pierces armor.,The tool of a Kagari well-digger who dug too deep. Pierces armor.,L'outil d'un puisatier de Kagari qui a creusé trop bas. Perce les armures.
 Rapier,Rapier,Rapière
 A fencer's blade: lightning thrusts that find the weak spots.,A fencer's blade: lightning thrusts that find the weak spots.,La lame du bretteur : des estocades éclair qui trouvent les points faibles.
 Sai,Sai,Saï
-Very fast stabs. Easy to crit.,Very fast stabs. Easy to crit.,Des coups d'estoc très rapides. Coups critiques faciles.
+Very fast stabs. Critical hits come easily.,Very fast stabs. Critical hits come easily.,Des coups d'estoc très rapides. Les coups critiques viennent facilement.
 Shuriken,Shuriken,Shuriken
 "Throwing stars, three at a time. The ninja's way.","Throwing stars, three at a time. The ninja's way.","Des étoiles de lancer, trois à la fois. La voie du ninja."
 Frost Staff,Frost Staff,Bâton de Givre
 Ice shards that pierce a first enemy and chill what they hit.,Ice shards that pierce a first enemy and chill what they hit.,Des éclats de glace qui transpercent un premier ennemi et glacent ce qu'ils touchent.
 Templar Sword,Templar Sword,Épée de Templier
-"A paladin's blade, blessed with holy skills.","A paladin's blade, blessed with holy skills.","La lame d'un paladin, bénie de compétences sacrées."
+The blessed blade of a templar whose order is long gone. Its skills are holy.,The blessed blade of a templar whose order is long gone. Its skills are holy.,La lame bénie d'un templier dont l'ordre a disparu. Ses compétences sont sacrées.
 Whip,Whip,Fouet
 "Long reach, thin and stinging. Keep them at a distance.","Long reach, thin and stinging. Keep them at a distance.","Longue allonge, fin et cinglant. Garde-les à distance."
 Acid Spit,Acid Spit,Crachat Acide
@@ -1116,104 +1121,104 @@ Elite,Elite,Élite
 Fell,Fell,Funeste
 Legendary,Legendary,Légendaire
 Ash Lizard,Ash Lizard,Lézard des Cendres
-A masked hunter that charges from across the room.,A masked hunter that charges from across the room.,Un chasseur masqué qui charge d'un bout à l'autre de la salle.
+A dune hunter wearing the mask of a priest of Solhar. Charges from across the room.,A dune hunter wearing the mask of a priest of Solhar. Charges from across the room.,Un chasseur des dunes qui porte le masque d'un prêtre de Solhar. Charge d'un bout à l'autre de la salle.
 Gloom Bat,Gloom Bat,Noctule
-"Fragile, fast and erratic.","Fragile, fast and erratic.","Fragile, rapide et imprévisible."
+"They nested under the shrine's roof; now they nest in the Well's throat. Fragile, fast and erratic.","They nested under the shrine's roof; now they nest in the Well's throat. Fragile, fast and erratic.","Elles nichaient sous le toit du sanctuaire ; elles nichent à présent dans la gorge du Puits. Fragiles, rapides et imprévisibles."
 Horned Beast,Horned Beast,Bête Cornue
-"Huge. Charges, then crushes.","Huge. Charges, then crushes.","Énorme. Charge, puis écrase."
+"A beast of burden of Solhar; the Well's breath grew its horns and took its mind. Huge: charges, then crushes.","A beast of burden of Solhar; the Well's breath grew its horns and took its mind. Huge: charges, then crushes.","Une bête de somme de Solhar ; le souffle du Puits lui a fait pousser des cornes et perdre la raison. Énorme : charge, puis écrase."
 Giant Slime,Giant Slime,Gluant Géant
-Splits into two slimes when it dies.,Splits into two slimes when it dies.,Se divise en deux gluants à sa mort.
-Bomber,Bomber,Bombardier
-"Lobs bombs from afar. Dodge the blast, then close in.","Lobs bombs from afar. Dodge the blast, then close in.","Lance des bombes de loin. Esquive l'explosion, puis rapproche-toi."
+What drips off the Bloated King when it has eaten too much. Splits into two slimes when it dies.,What drips off the Bloated King when it has eaten too much. Splits into two slimes when it dies.,Ce qui coule du Roi Boursouflé quand il a trop mangé. Se divise en deux gluants à sa mort.
+Sapper,Sapper,Sapeur
+"A sapper of Solhar's army, still besieging a city that fell centuries ago. Lobs bombs from afar: dodge the blast, then close in.","A sapper of Solhar's army, still besieging a city that fell centuries ago. Lobs bombs from afar: dodge the blast, then close in.","Un sapeur de l'armée de Solhar, qui assiège encore une ville tombée depuis des siècles. Lance des bombes de loin : esquive l'explosion, puis rapproche-toi."
 Bone Lizard,Bone Lizard,Lézard d'Os
-Wears a skull and spits acid from afar.,Wears a skull and spits acid from afar.,Porte un crâne et crache de l'acide à distance.
+It wears a skull of Solhar as its shell. Spits acid from afar.,It wears a skull of Solhar as its shell. Spits acid from afar.,Il porte un crâne de Solhar en guise de coquille. Crache de l'acide à distance.
 Brood Mother,Brood Mother,Mère de la Couvée
-Stays back and lays spiders. Kill her first.,Stays back and lays spiders. Kill her first.,Reste en retrait et pond des araignées. Abats-la en premier.
+"She laid her eggs in the Ossuary's shrouds, and her brood never ends. Stays back and lays spiders: kill her first.","She laid her eggs in the Ossuary's shrouds, and her brood never ends. Stays back and lays spiders: kill her first.","Elle a pondu dans les linceuls de l'Ossuaire, et sa couvée ne finit jamais. Reste en retrait et pond des araignées : abats-la en premier."
 Cyclops,Cyclops,Cyclope
-"Huge, slow, hits like a battering ram. Watch the wind-up.","Huge, slow, hits like a battering ram. Watch the wind-up.","Énorme, lent, frappe comme un bélier. Surveille son élan."
+"A giant Solhar's priests kept in chains to carry wood to the pyres. Huge, slow, hits like a battering ram: watch the wind-up.","A giant Solhar's priests kept in chains to carry wood to the pyres. Huge, slow, hits like a battering ram: watch the wind-up.","Un géant que les prêtres de Solhar tenaient enchaîné pour porter le bois des bûchers. Énorme, lent, frappe comme un bélier : surveille son élan."
 Drakeling,Drakeling,Dragonnet
-Breathes fire from a distance.,Breathes fire from a distance.,Crache du feu à distance.
+A drake hatched in the warm ash of the pyres. Breathes fire from a distance.,A drake hatched in the warm ash of the pyres. Breathes fire from a distance.,Un dragonnet éclos dans la cendre tiède des bûchers. Crache du feu à distance.
 Dune Behemoth,Dune Behemoth,Béhémoth des Dunes
-"A sand-colored brute. Charges across the room, then crushes.","A sand-colored brute. Charges across the room, then crushes.","Une brute couleur de sable. Charge à travers la salle, puis écrase."
+"A war mount of Solhar's kings, buried in the sand with them. A sand-colored brute: charges across the room, then crushes.","A war mount of Solhar's kings, buried in the sand with them. A sand-colored brute: charges across the room, then crushes.","Une monture de guerre des rois de Solhar, ensevelie avec eux. Une brute couleur de sable : charge à travers la salle, puis écrase."
 Ember Heart,Ember Heart,Cœur de Braise
-A burning heart that mends whoever fights beside it.,A burning heart that mends whoever fights beside it.,Un cœur ardent qui soigne quiconque combat à ses côtés.
+"An offering's heart, still beating in the pyre's embers. It mends whoever fights beside it.","An offering's heart, still beating in the pyre's embers. It mends whoever fights beside it.","Le cœur d'une offrande, qui bat encore dans les braises du bûcher. Il soigne quiconque combat à ses côtés."
 Watcher,Watcher,Guetteur
-Floats at a distance and fires evil bolts.,Floats at a distance and fires evil bolts.,Flotte à distance et tire des traits maléfiques.
+An eye that left its dead to go on watching. Floats at a distance and fires evil bolts.,An eye that left its dead to go on watching. Floats at a distance and fires evil bolts.,Un œil qui a quitté son mort pour continuer de regarder. Flotte à distance et tire des traits maléfiques.
 Flame Spirit,Flame Spirit,Esprit de Flamme
-"Burning touch, and it explodes when it dies.","Burning touch, and it explodes when it dies.","Toucher brûlant, et il explose à sa mort."
+"What is left of an offering thrown to the pyres: a flame that never finishes burning. Burning touch, and it explodes when it dies.","What is left of an offering thrown to the pyres: a flame that never finishes burning. Burning touch, and it explodes when it dies.","Ce qui reste d'une offrande jetée aux bûchers : une flamme qui ne finit jamais de brûler. Toucher brûlant, et il explose à sa mort."
 Frost Skull,Frost Skull,Crâne de Givre
-Bursts into ice when it dies: slows everything around.,Bursts into ice when it dies: slows everything around.,Éclate en glace à sa mort : ralentit tout alentour.
+"A skull that slept too near the Azure Wyrm, under the crypt. Bursts into ice when it dies: slows everything around.","A skull that slept too near the Azure Wyrm, under the crypt. Bursts into ice when it dies: slows everything around.","Un crâne qui a dormi trop près de la Guivre d'Azur, sous la crypte. Éclate en glace à sa mort : ralentit tout alentour."
 Gilded Moth,Gilded Moth,Phalène Dorée
-Wraps its allies in golden wards.,Wraps its allies in golden wards.,Enveloppe ses alliés de protections dorées.
+A moth that drank the kingdom's gold until it turned to gold itself. Wraps its allies in golden wards.,A moth that drank the kingdom's gold until it turned to gold itself. Wraps its allies in golden wards.,Une phalène qui a bu l'or du royaume jusqu'à en devenir. Enveloppe ses alliés de protections dorées.
 Gold Racoon,Gold Racoon,Raton Doré
-"The king's own thief. Takes far more gold than its cousins, and runs faster.","The king's own thief. Takes far more gold than its cousins, and runs faster.","Le voleur attitré du roi. Prend bien plus d'or que ses cousins, et court plus vite."
+"The king of Solhar's own thief, who brought him back every coin that fell. Takes far more gold than its cousins, and runs faster.","The king of Solhar's own thief, who brought him back every coin that fell. Takes far more gold than its cousins, and runs faster.","Le voleur attitré du roi de Solhar, qui lui rapportait chaque pièce tombée. Prend bien plus d'or que ses cousins, et court plus vite."
 Kappa,Kappa,Kappa
-Water jets that slow you down.,Water jets that slow you down.,Des jets d'eau qui te ralentissent.
+"A kappa of Kagari's river, carried down by the water as far as the temple. It never found the way back. Its water jets slow you down.","A kappa of Kagari's river, carried down by the water as far as the temple. It never found the way back. Its water jets slow you down.","Un kappa de la rivière de Kagari, que l'eau a emporté jusqu'au temple. Il n'a jamais retrouvé le chemin. Ses jets d'eau te ralentissent."
 Ghost Lantern,Ghost Lantern,Lanterne Spectrale
-Throws ghost flames and blinks around.,Throws ghost flames and blinks around.,Lance des flammes spectrales et se téléporte.
+"A paper lantern of Kagari, put out on the moonless night. It lit itself again, with a flame that gives no warmth. Throws ghost flames and blinks around.","A paper lantern of Kagari, put out on the moonless night. It lit itself again, with a flame that gives no warmth. Throws ghost flames and blinks around.","Une lanterne de papier de Kagari, éteinte la nuit sans lune. Elle s'est rallumée seule, d'une flamme qui ne réchauffe pas. Lance des flammes spectrales et se téléporte."
 Acid Larva,Acid Larva,Larve Acide
-Spits acid from a distance.,Spits acid from a distance.,Crache de l'acide à distance.
+It grew in the Well's still water and never became anything else. Spits acid from a distance.,It grew in the Well's still water and never became anything else. Spits acid from a distance.,Elle a grandi dans l'eau dormante du Puits sans jamais devenir autre chose. Crache de l'acide à distance.
 Burrower,Burrower,Fouisseur
-Tough. Burrows under you when you keep away.,Tough. Burrows under you when you keep away.,Coriace. Creuse sous toi quand tu restes à distance.
+It dug under Kagari's fields until the Well's breath made it bigger and meaner. Tough; burrows under you when you keep away.,It dug under Kagari's fields until the Well's breath made it bigger and meaner. Tough; burrows under you when you keep away.,"Il creusait sous les champs de Kagari, jusqu'à ce que le souffle du Puits le rende plus gros et plus hargneux. Coriace, il creuse sous toi quand tu restes à distance."
 Moss Heart,Moss Heart,Cœur de Mousse
-A floating heart of moss that mends the monsters around it. Kill it first.,A floating heart of moss that mends the monsters around it. Kill it first.,Un cœur de mousse flottant qui soigne les monstres alentour. Abats-le en premier.
+The Well's moss drank the lanterns' dripping wax and began to beat like a heart. It mends the monsters around it: kill it first.,The Well's moss drank the lanterns' dripping wax and began to beat like a heart. It mends the monsters around it: kill it first.,La mousse du Puits a bu la cire des lanternes et s'est mise à battre comme un cœur. Il soigne les monstres alentour : abats-le en premier.
 Deathcap,Deathcap,Amanite
-Slow. Puffs a cloud of spores that slows and poisons.,Slow. Puffs a cloud of spores that slows and poisons.,Lent. Souffle un nuage de spores qui ralentit et empoisonne.
+"It grows on whatever falls down the Well, and much does. Slow; puffs a cloud of spores that slows and poisons.","It grows on whatever falls down the Well, and much does. Slow; puffs a cloud of spores that slows and poisons.","Elle pousse sur tout ce qui tombe dans le Puits, et il en tombe beaucoup. Lente, elle souffle un nuage de spores qui ralentit et empoisonne."
 Ink Octopus,Ink Octopus,Pieuvre d'Encre
-Fires ink bolts and rings of ink.,Fires ink bolts and rings of ink.,Tire des traits d'encre et des anneaux d'encre.
+"It lived in the temple's cisterns, and Solhar's scribes wrote with its ink. Fires ink bolts and rings of ink.","It lived in the temple's cisterns, and Solhar's scribes wrote with its ink. Fires ink bolts and rings of ink.","Elle vivait dans les citernes du temple, et les scribes de Solhar écrivaient avec son encre. Tire des traits d'encre et des anneaux d'encre."
 Night Owl,Night Owl,Effraie
-Dives at you from afar. Watch the wind-up.,Dives at you from afar. Watch the wind-up.,Fond sur toi de loin. Surveille son élan.
+"It hunted over Kagari's graves, and followed the dead down the Well. Dives at you from afar: watch the wind-up.","It hunted over Kagari's graves, and followed the dead down the Well. Dives at you from afar: watch the wind-up.","Elle chassait au-dessus des tombes de Kagari, et a suivi les morts dans le Puits. Fond sur toi de loin : surveille son élan."
 Gnawer,Gnawer,Rongeur
-Fast and weak. Comes in numbers.,Fast and weak. Comes in numbers.,Rapide et faible. Arrive en nombre.
+"Kagari's rats followed the souls down the Well, and grew fat there. Fast and weak; they come in numbers.","Kagari's rats followed the souls down the Well, and grew fat there. Fast and weak; they come in numbers.","Les rats de Kagari ont suivi les âmes dans le Puits, et ils y ont grossi. Rapides et faibles, ils arrivent en nombre."
 Crimson Viper,Crimson Viper,Vipère Écarlate
-"Hides in the sand. Fast, and its bite burns with poison.","Hides in the sand. Fast, and its bite burns with poison.","Se cache dans le sable. Rapide, et sa morsure brûle de poison."
+"A viper of Solhar's deserts: the sand kept its heat, and so did its venom. Hides in the sand. Fast, and its bite burns with poison.","A viper of Solhar's deserts: the sand kept its heat, and so did its venom. Hides in the sand. Fast, and its bite burns with poison.","Une vipère des déserts de Solhar : le sable a gardé sa chaleur, et son venin aussi. Se cache dans le sable. Rapide, et sa morsure brûle de poison."
 Lizardman,Lizardman,Homme-Lézard
-A warrior that charges across the room.,A warrior that charges across the room.,Un guerrier qui charge à travers la salle.
+"Lizardmen guarded the lower steps of Solhar's temple; they still guard, without knowing what. A warrior that charges across the room.","Lizardmen guarded the lower steps of Solhar's temple; they still guard, without knowing what. A warrior that charges across the room.","Les hommes-lézards gardaient les marches basses du temple de Solhar ; ils gardent encore, sans savoir quoi. Un guerrier qui charge à travers la salle."
 Sand Drake,Sand Drake,Drake des Sables
-"Breathes scouring sand that slows you, and whips up a sandstorm.","Breathes scouring sand that slows you, and whips up a sandstorm.","Crache un sable abrasif qui te ralentit, et soulève une tempête de sable."
+"A drake of Solhar's dunes. Breathes scouring sand that slows you, and whips up a sandstorm.","A drake of Solhar's dunes. Breathes scouring sand that slows you, and whips up a sandstorm.","Un drake des dunes de Solhar. Crache un sable abrasif qui te ralentit, et soulève une tempête de sable."
 Sand Drummer,Sand Drummer,Tambour des Sables
-Beats a war drum: its allies hit harder and run faster.,Beats a war drum: its allies hit harder and run faster.,Bat un tambour de guerre : ses alliés frappent plus fort et courent plus vite.
-Fire Shaman,Fire Shaman,Chaman de Feu
-Casts hexes and heals itself.,Casts hexes and heals itself.,Lance des maléfices et se soigne.
+"He beat the march for Solhar's armies, and still beats it for soldiers of dust. His war drum makes his allies hit harder and run faster.","He beat the march for Solhar's armies, and still beats it for soldiers of dust. His war drum makes his allies hit harder and run faster.","Il battait la marche des armées de Solhar, et la bat encore pour des soldats de poussière. Son tambour de guerre fait frapper ses alliés plus fort et courir plus vite."
+Pyre Acolyte,Pyre Acolyte,Acolyte du Bûcher
+An acolyte of Solhar who died at the foot of his pyre and still chants the rite. Casts hexes and mends itself and its allies.,An acolyte of Solhar who died at the foot of his pyre and still chants the rite. Casts hexes and mends itself and its allies.,"Un acolyte de Solhar, mort au pied de son bûcher, qui psalmodie encore le rite. Lance des maléfices et se soigne, lui et ses alliés."
 Shell Guard,Shell Guard,Garde-Carapace
-Hides behind its shell: blows from the front barely scratch it. Get behind it.,Hides behind its shell: blows from the front barely scratch it. Get behind it.,Se cache derrière sa carapace : les coups de face l'égratignent à peine. Passe derrière lui.
+"A beast of the spring, its shell hardened by centuries of cold water. Blows from the front barely scratch it: get behind it.","A beast of the spring, its shell hardened by centuries of cold water. Blows from the front barely scratch it: get behind it.","Une bête de la source, à la carapace durcie par des siècles d'eau froide. Les coups de face l'égratignent à peine : passe derrière lui."
 Skeleton,Skeleton,Squelette
-Rattling bones with a rusty blade.,Rattling bones with a rusty blade.,Des os qui cliquettent et une lame rouillée.
+"One of the Ossuary's dead, risen from his niche. They laid him down with his blade; it rusted, he did not.","One of the Ossuary's dead, risen from his niche. They laid him down with his blade; it rusted, he did not.","Un mort de l'Ossuaire, relevé de sa niche. On l'avait couché avec sa lame : elle a rouillé, pas lui."
 Flying Skull,Flying Skull,Crâne Volant
-Fast and fragile. Comes in swarms.,Fast and fragile. Comes in swarms.,Rapide et fragile. Arrive en nuées.
+"The Ossuary's skulls lost their niches and their names; they fly about looking for them. Fast and fragile, they come in swarms.","The Ossuary's skulls lost their niches and their names; they fly about looking for them. Fast and fragile, they come in swarms.","Les crânes de l'Ossuaire ont perdu leurs niches et leurs noms ; ils les cherchent en volant. Rapides et fragiles, ils arrivent en nuées."
 Slime,Slime,Gluant
-"Slow, tough, hits all around itself.","Slow, tough, hits all around itself.","Lent, coriace, frappe tout autour de lui."
+"A drop broken off the Bloated King, that learned to crawl on its own. Slow, tough, hits all around itself.","A drop broken off the Bloated King, that learned to crawl on its own. Slow, tough, hits all around itself.","Une goutte détachée du Roi Boursouflé, qui a appris à ramper seule. Lent, coriace, il frappe tout autour de lui."
 Viper,Viper,Vipère
-"Fast, and its bite is poisoned.","Fast, and its bite is poisoned.","Rapide, et sa morsure est empoisonnée."
+"A viper of Kagari's rice fields that came down to the cool and never went back up. Fast, and its bite is poisoned.","A viper of Kagari's rice fields that came down to the cool and never went back up. Fast, and its bite is poisoned.","Une vipère des rizières de Kagari, descendue au frais et jamais remontée. Rapide, et sa morsure est empoisonnée."
 Hexer,Hexer,Envoûteur
-Keeps its distance and throws shadow bolts.,Keeps its distance and throws shadow bolts.,Garde ses distances et lance des traits d'ombre.
+"In the Hushed Archive he read a book that should not be read, and stayed between its pages. Keeps his distance and throws shadow bolts.","In the Hushed Archive he read a book that should not be read, and stayed between its pages. Keeps his distance and throws shadow bolts.","Dans les Archives Muettes, il a lu un livre qu'il ne fallait pas lire, et il est resté entre les pages. Garde ses distances et lance des traits d'ombre."
 Soul Moth,Soul Moth,Phalène des Âmes
-Wraps its allies in wards that soak up your blows.,Wraps its allies in wards that soak up your blows.,Enveloppe ses alliés de protections qui absorbent tes coups.
+It circled the Ossuary's candles; now it circles souls. Wraps its allies in wards that soak up your blows.,It circled the Ossuary's candles; now it circles souls. Wraps its allies in wards that soak up your blows.,"Elle tournait autour des cierges de l'Ossuaire ; à présent, elle tourne autour des âmes. Enveloppe ses alliés de protections qui absorbent tes coups."
 Blood Spider,Blood Spider,Saigneuse
-Skitters in fast. Nasty bite.,Skitters in fast. Nasty bite.,Accourt à toute vitesse. Morsure vicieuse.
+"They spun in the well's beams, back when water was still drawn from it. Skitters in fast; nasty bite.","They spun in the well's beams, back when water was still drawn from it. Skitters in fast; nasty bite.","Elles tissaient dans les poutres du puits, du temps où l'on y puisait encore. Accourt à toute vitesse ; morsure vicieuse."
 Lost Soul,Lost Soul,Âme Errante
-A soul the Well kept. It blinks towards you out of nowhere.,A soul the Well kept. It blinks towards you out of nowhere.,Une âme que le Puits a gardée. Elle surgit de nulle part et fond sur toi.
+"A soul the Well kept too long: it forgot its body, not its anger. It blinks towards you out of nowhere.","A soul the Well kept too long: it forgot its body, not its anger. It blinks towards you out of nowhere.","Une âme que le Puits a gardée trop longtemps : elle a oublié son corps, pas sa colère. Elle surgit de nulle part et fond sur toi."
 Stone Mole,Stone Mole,Taupe de Pierre
-Armored in rock. Burrows under you when you keep away.,Armored in rock. Burrows under you when you keep away.,Cuirassée de roche. Creuse sous toi quand tu restes à distance.
+"It has burrowed under the Sandchoked City since the fall, until the rock armored it. Burrows under you when you keep away.","It has burrowed under the Sandchoked City since the fall, until the rock armored it. Burrows under you when you keep away.","Elle creuse sous la Cité Ensablée depuis la chute, et la roche a fini par la cuirasser. Creuse sous toi quand tu restes à distance."
 Thief Racoon,Thief Racoon,Raton Voleur
-"Snatches your gold and runs. Catch it to get it back, with interest.","Snatches your gold and runs. Catch it to get it back, with interest.","Te dérobe ton or et s'enfuit. Attrape-le pour le récupérer, avec les intérêts."
+"It already stole the shrine's offerings; down the Well it found a taste for gold. Snatches your gold and runs: catch it to get it back, with interest.","It already stole the shrine's offerings; down the Well it found a taste for gold. Snatches your gold and runs: catch it to get it back, with interest.","Il volait déjà les offrandes du sanctuaire ; dans le Puits, il a pris goût à l'or. Te dérobe ton or et s'enfuit : attrape-le pour le récupérer, avec les intérêts."
 Eye of the Deeps,Eye of the Deeps,Œil des Tréfonds
-It opens in the dark and does not blink.,It opens in the dark and does not blink.,Il s'ouvre dans le noir et ne cille jamais.
+Long ago the Well ate a whole people; it kept their eyes. It opens in the dark and does not blink.,Long ago the Well ate a whole people; it kept their eyes. It opens in the dark and does not blink.,"Il y a longtemps, le Puits a mangé tout un peuple ; il en a gardé les yeux. Il s'ouvre dans le noir et ne cille jamais."
 Heals from the wounds it gives.,Heals from the wounds it gives.,Se soigne des blessures qu'il inflige.
 Blood Drinker,Blood Drinker,Buveur de Sang
-"Pale and thirsty: every wound it gives, it drinks.","Pale and thirsty: every wound it gives, it drinks.","Pâle et assoiffé : chaque blessure qu'il ouvre, il la boit."
-Breach Warden,Breach Warden,Gardien de la Brèche
-The Deeps keep one watchman at the way out. It does not let go of what it catches.,The Deeps keep one watchman at the way out. It does not let go of what it catches.,"Les Tréfonds gardent un veilleur à la sortie. Ce qu'il attrape, il ne le lâche pas."
+"An eaten soul with nothing left but thirst. Pale and thirsty: every wound it gives, it drinks.","An eaten soul with nothing left but thirst. Pale and thirsty: every wound it gives, it drinks.","Une âme mangée à qui il ne reste que la soif. Pâle et assoiffé : chaque blessure qu'il ouvre, il la boit."
+Breach Sentinel,Breach Sentinel,Sentinelle de la Brèche
+"The Deeps keep one sentinel at the way out, a soldier the hunger below has chewed. It does not let go of what it catches.","The Deeps keep one sentinel at the way out, a soldier the hunger below has chewed. It does not let go of what it catches.","Les Tréfonds gardent une sentinelle à la sortie, un soldat que la faim du fond a mâché. Ce qu'elle attrape, elle ne le lâche pas."
 Cinder Wraith,Cinder Wraith,Âme de Braise
-A soul burnt down to its embers. It spits them.,A soul burnt down to its embers. It spits them.,Une âme consumée jusqu'aux braises. Elle les crache.
+A soul the hunger burnt down to its embers. It spits them.,A soul the hunger burnt down to its embers. It spits them.,Une âme que la faim a consumée jusqu'aux braises. Elle les crache.
 Horned Augur,Horned Augur,Augure Cornu
-It reads the dark aloud: its words come as shadow bolts.,It reads the dark aloud: its words come as shadow bolts.,Il lit l'obscurité à voix haute : ses mots tombent en traits d'ombre.
+"A seer of a swallowed kingdom, still reading the dark aloud: its words come as shadow bolts.","A seer of a swallowed kingdom, still reading the dark aloud: its words come as shadow bolts.","Un devin d'un royaume englouti, qui lit encore l'obscurité à voix haute : ses mots tombent en traits d'ombre."
 Horned Carcass,Horned Carcass,Carcasse Cornue
-"Bones under a demon's horns, quick as a cut.","Bones under a demon's horns, quick as a cut.","Des os sous des cornes de démon, vifs comme une entaille."
+Bones under a demon's horns: what the hunger leaves of a man. Quick as a cut.,Bones under a demon's horns: what the hunger leaves of a man. Quick as a cut.,Des os sous des cornes de démon : ce que la faim laisse d'un homme. Vifs comme une entaille.
 Scarlet Fiend,Scarlet Fiend,Démon Écarlate
-A horned brute of the Deeps. Its club knocks the breath out of you.,A horned brute of the Deeps. Its club knocks the breath out of you.,Une brute cornue des Tréfonds. Sa massue te coupe le souffle.
+A horned brute of the Deeps; the hunger chewed it and never finished. Its club knocks the breath out of you.,A horned brute of the Deeps; the hunger chewed it and never finished. Its club knocks the breath out of you.,Une brute cornue des Tréfonds ; la faim l'a mâchée sans jamais finir. Sa massue te coupe le souffle.
 Shade Stalker,Shade Stalker,Rôdeur d'Ombre
-A blade in the dark that steps through it.,A blade in the dark that steps through it.,"Une lame dans le noir, qui passe au travers."
+A shade that kept its blade when the hunger took the rest. It steps through the dark.,A shade that kept its blade when the hunger took the rest. It steps through the dark.,Une ombre qui a gardé sa lame quand la faim a pris le reste. Elle passe au travers du noir.
 Thirst,Thirst,Soif
 Shatter the Azure Wyrm with a Hammer,Shatter the Azure Wyrm with a Hammer,Brise la Guivre d'Azur au Marteau
 SPREADS ITS WINGS!,SPREADS ITS WINGS!,DÉPLOIE SES AILES !
@@ -1242,7 +1247,7 @@ Mire Matron,Mire Matron,La Matrone du Bourbier
 Rob the Gilded Hoarder with Shuriken,Rob the Gilded Hoarder with Shuriken,Dépouille l'Accapareur Doré au Shuriken
 SPILLS ITS HOARD!,SPILLS ITS HOARD!,RÉPAND SON TRÉSOR !
 GOLD FEVER!,GOLD FEVER!,FIÈVRE DE L'OR !
-Tyrant of the Well,Tyrant of the Well,Tyran du Puits
+Last King of Solhar,Last King of Solhar,Dernier Roi de Solhar
 Gilded Hoarder,Gilded Hoarder,L'Accapareur Doré
 "The last king of the fallen kingdom, gilded on his mountain of gold and stolen souls. He leaps, throws his coins and calls his thieves.","The last king of the fallen kingdom, gilded on his mountain of gold and stolen souls. He leaps, throws his coins and calls his thieves.","Le dernier roi du royaume déchu, doré sur sa montagne d'or et d'âmes volées. Il bondit, jette ses pièces et appelle ses voleurs."
 Cut down the Jade Wyrm with an Axe,Cut down the Jade Wyrm with an Axe,Abats la Guivre de Jade à la Hache
@@ -1420,7 +1425,7 @@ Under the Ossuary lie the dead nobody named. One of them never lay down.,Under t
 Sealed Draughts,Sealed Draughts,Fioles Scellées
 Old Wanderer,Old Wanderer,Vieil Errant
 I sell what the Well's victims left behind. No refunds.,I sell what the Well's victims left behind. No refunds.,"Je vends ce que les victimes du Puits ont laissé derrière elles. Ni repris, ni échangé."
-Gold is useless down here... but I like it anyway.,Gold is useless down here... but I like it anyway.,L'or ne sert à rien ici-bas... mais je l'aime quand même.
+Gold is useless down here. I keep it for the faces on it.,Gold is useless down here. I keep it for the faces on it.,L'or ne sert à rien ici-bas. Je le garde pour les visages dessus.
 Still alive? Good. Dead people don't buy much.,Still alive? Good. Dead people don't buy much.,Toujours en vie ? Tant mieux. Les morts n'achètent pas grand-chose.
 The wardens never come to this room. I wonder why.,The wardens never come to this room. I wonder why.,Les gardiens ne viennent jamais dans cette salle. Je me demande pourquoi.
 Flesh,Flesh,Chair
@@ -1619,25 +1624,31 @@ The End of the Descent,The End of the Descent,Le Terme de la Descente
 What Is Left,What Is Left,Ce Qui Reste
 "The mask is dust. Your master stands in the dark, free, and looks at the lantern in your hand. Far above, the bell waits.","The mask is dust. Your master stands in the dark, free, and looks at the lantern in your hand. Far above, the bell waits.","Le masque n'est plus que poussière. Ton maître se tient dans le noir, libre, et regarde la lanterne dans ta main. Loin là-haut, la cloche attend."
 "Beneath the village of Kagari sleeps an old well.
-No one draws water from it anymore.
-The elders say it has no bottom: only a mouth.","Beneath the village of Kagari sleeps an old well.
-No one draws water from it anymore.
-The elders say it has no bottom: only a mouth.","Sous le village de Kagari dort un vieux puits.
-Plus personne n'y puise d'eau.
-Les anciens disent qu'il n'a pas de fond : seulement une gueule."
+At the shrine a lantern keeps watch over it: it must never go out.
+The elders say the Well has no bottom: only a mouth.","Beneath the village of Kagari sleeps an old well.
+At the shrine a lantern keeps watch over it: it must never go out.
+The elders say the Well has no bottom: only a mouth.","Sous le village de Kagari dort un vieux puits.
+Au sanctuaire, une lanterne veille sur lui : elle ne doit jamais s'éteindre.
+Les anciens disent que le Puits n'a pas de fond : seulement une gueule."
 "On a moonless night, the Well woke.
-A cold breath passed through every house, and put out every flame...
-At dawn, the villagers slept, and would not wake.","On a moonless night, the Well woke.
-A cold breath passed through every house, and put out every flame...
-At dawn, the villagers slept, and would not wake.","Par une nuit sans lune, le Puits s'est éveillé.
-Un souffle glacé a traversé chaque maison, et éteint chaque flamme...
+A cold breath went through every house, and every flame lay down.
+At dawn the villagers slept, and would not wake.","On a moonless night, the Well woke.
+A cold breath went through every house, and every flame lay down.
+At dawn the villagers slept, and would not wake.","Par une nuit sans lune, le Puits s'est éveillé.
+Un souffle glacé a traversé chaque maison, et chaque flamme s'est couchée.
 À l'aube, les villageois dormaient, et ne se sont plus réveillés."
 "Their souls were gone: drawn down the Well, where the dead things feed.","Their souls were gone: drawn down the Well, where the dead things feed.","Leurs âmes n'étaient plus là : aspirées au fond du Puits, là où les choses mortes se repaissent."
-"Only you were spared: the ninja keeping vigil at the shrine,
-the shrine's lantern still burning in your hand.","Only you were spared: the ninja keeping vigil at the shrine,
-the shrine's lantern still burning in your hand.","Toi seul as été épargné : le ninja qui veillait au sanctuaire,
-la lanterne du sanctuaire encore allumée à la main."
-"Its wardens guard the stolen souls, each one deeper in the dark than the last.","Its wardens guard the stolen souls, each one deeper in the dark than the last.","Ses gardiens veillent sur les âmes volées, chacun plus profond dans les ténèbres que le précédent."
+"Only you were spared, the pupil of the shrine's keeper,
+the lantern still burning in your hand.
+Of your master, there was no trace.","Only you were spared, the pupil of the shrine's keeper,
+the lantern still burning in your hand.
+Of your master, there was no trace.","Toi seul as été épargné, toi, le disciple du gardien du sanctuaire,
+la lanterne encore allumée à la main.
+De ton maître, il ne restait aucune trace."
+"Dead things keep the stolen souls, chained there by a hand no one saw,
+each one deeper in the dark than the last.","Dead things keep the stolen souls, chained there by a hand no one saw,
+each one deeper in the dark than the last.","Des choses mortes gardent les âmes volées, enchaînées là par une main que nul n'a vue,
+chacune plus profond dans les ténèbres que la précédente."
 "Take up the lantern. Descend.
 Every soul you bring back, the shrine turns into strength.
 Steel, sorcery or faith: become what the dark demands.","Take up the lantern. Descend.
@@ -1653,7 +1664,7 @@ But the Well goes deeper still...","Le dernier gardien s'effondre. Son trésor d
 et un fleuve de lumière remonte vers Kagari. La cloche sonne ; le village s'éveille.
 Mais le Puits descend plus profond encore..."
 "Your soul joins the others, deep in the Well.","Your soul joins the others, deep in the Well.","Ton âme rejoint les autres, au fond du Puits."
-The lantern goes out... for now.,The lantern goes out... for now.,La lanterne s'éteint... pour cette nuit.
+The lantern goes out... for now.,The lantern goes out... for now.,La lanterne s'éteint... pour cette fois.
 The Well keeps you tonight. The shrine remembers the souls you brought back.,The Well keeps you tonight. The shrine remembers the souls you brought back.,Le Puits te garde cette nuit. Le sanctuaire se souvient des âmes que tu as ramenées.
 "Darkness. Then the shrine's bell, far above. Again.","Darkness. Then the shrine's bell, far above. Again.","Les ténèbres. Puis la cloche du sanctuaire, loin là-haut. Encore une fois."
 The souls you brought back from the Well lend you their strength.,The souls you brought back from the Well lend you their strength.,Les âmes que tu as ramenées du Puits te prêtent leur force.
@@ -2105,7 +2116,7 @@ He spared you. He left your lantern lit because he could not give you too.,He sp
 "{killer}. That is the name the bell breathed to me, child, on floor {floor}.","{killer}. That is the name the bell breathed to me, child, on floor {floor}.","{killer}. C'est ce nom-là que la cloche m'a soufflé, petit, à l'étage {floor}."
 "{act}, floor {floor}. You held out {time} in the dark, and a warden had the last word.","{act}, floor {floor}. You held out {time} in the dark, and a warden had the last word.","{act}, étage {floor}. Tu as tenu {time} dans le noir, et c'est un gardien qui a eu le dernier mot."
 "{killer}. Souls from our village are in its keeping, child; you will have to take them back.","{killer}. Souls from our village are in its keeping, child; you will have to take them back.","{killer}. Des âmes de chez nous sont sous sa garde, petit ; il faudra les lui reprendre."
-"The cold took you, child. No blade: the cold that climbs from the stones when the Well breathes out.","The cold took you, child. No blade: the cold that climbs from the stones when the Well breathes out.","Le froid t'a pris, petit. Pas une lame : le froid qui monte des pierres quand le Puits expire."
+"The cold took you, child. No blade: the cold that climbs from the stones when the Well draws breath.","The cold took you, child. No blade: the cold that climbs from the stones when the Well draws breath.","Le froid t'a pris, petit. Pas une lame : le froid qui monte des pierres quand le Puits inspire."
 "The heat consumed you, child. Some nights the Well burns like an oven left untended.","The heat consumed you, child. Some nights the Well burns like an oven left untended.","La chaleur t'a consumé, petit. Certaines nuits, le Puits brûle comme un four qu'on aurait oublié."
 "The sand swallowed you, child, without a sound. Even I heard nothing.","The sand swallowed you, child, without a sound. Even I heard nothing.","Le sable t'a avalé, petit, sans un bruit. Même moi, je n'ai rien entendu."
 "You paid the altar with your own life, child. That is how Solhar took its tithes, and it died of it.","You paid the altar with your own life, child. That is how Solhar took its tithes, and it died of it.","Tu as payé l'autel de ta propre vie, petit. Solhar prenait ainsi ses dîmes, et il en est mort."
@@ -2444,7 +2455,7 @@ Something unusual is going on here: the log on the left tells you what.,Somethin
 Heat,Heat,Chaleur
 Stay by an oasis to cool down before the heat hurts you.,Stay by an oasis to cool down before the heat hurts you.,Reste près d'une oasis pour te rafraîchir avant que la chaleur ne te blesse.
 "A second life, if you earn it: slay the spectres before the countdown ends to return where you fell.","A second life, if you earn it: slay the spectres before the countdown ends to return where you fell.","Une seconde vie, si tu la mérites : abats les spectres avant la fin du compte à rebours pour revenir où tu es tombé."
-Fallen into the Deeps: follow the arrow of light to the Dawn Breach. The demons keep coming.,Fallen into the Deeps: follow the arrow of light to the Dawn Breach. The demons keep coming.,Tombé dans les Tréfonds : suis la flèche de lumière jusqu'à la Brèche de l'Aube. Les démons affluent.
+Fallen into the Deeps: follow the arrow of light to the Dawn Breach. The Damned keep coming.,Fallen into the Deeps: follow the arrow of light to the Dawn Breach. The Damned keep coming.,Tombé dans les Tréfonds : suis la flèche de lumière jusqu'à la Brèche de l'Aube. Les Damnés affluent.
 Pact door,Pact door,Porte de pacte
 "A pact door. Walk up to the stele and tap Read the pact: keep it for a relic, break it and lose max Health.","A pact door. Walk up to the stele and tap Read the pact: keep it for a relic, break it and lose max Health.","Porte de pacte. Approche de la stèle, touche Lire le pacte : tiens-le pour une relique, romps-le et perds de la Vie max."
 "A pact door. Walk up to the stele and press {interact}: keep the pact for a relic, break it and lose max Health.","A pact door. Walk up to the stele and press {interact}: keep the pact for a relic, break it and lose max Health.","Porte de pacte. Approche de la stèle, appuie sur {interact} : tiens le pacte pour une relique, romps-le et perds de la Vie max."
@@ -2546,7 +2557,7 @@ Plate Armor and the Shadow Cloak can be found in the dungeon.,Plate Armor and th
 Might,Might,Puissance
 "Every hit you land deals more damage, in every run.","Every hit you land deals more damage, in every run.","Chaque coup porté inflige plus de Dégâts, dans chaque partie."
 "Opens this oath: sworn before a run, it changes how you start it.","Opens this oath: sworn before a run, it changes how you start it.","Ouvre ce serment : prêté avant une partie, il change ton départ."
-Paladin's Oath,Paladin's Oath,Serment du Paladin
+Templar's Vow,Templar's Vow,Vœu du Templier
 The Templar Sword (holy skills) can be found in the dungeon.,The Templar Sword (holy skills) can be found in the dungeon.,L'Épée de Templier (compétences sacrées) peut apparaître dans le donjon.
 Keen Eye,Keen Eye,Œil Acéré
 "More critical hits: +2% critical hit chance per level, in every run.","More critical hits: +2% critical hit chance per level, in every run.","Plus de coups critiques : +2 % de chance de coup critique par niveau, dans chaque partie."
@@ -2610,7 +2621,7 @@ grammar:gender:Ash Lizard,grammar:gender:Ash Lizard,m
 grammar:gender:Gloom Bat,grammar:gender:Gloom Bat,f
 grammar:gender:Horned Beast,grammar:gender:Horned Beast,f
 grammar:gender:Giant Slime,grammar:gender:Giant Slime,m
-grammar:gender:Bomber,grammar:gender:Bomber,m
+grammar:gender:Sapper,grammar:gender:Sapper,m
 grammar:gender:Bone Lizard,grammar:gender:Bone Lizard,m
 grammar:gender:Brood Mother,grammar:gender:Brood Mother,f
 grammar:gender:Cyclops,grammar:gender:Cyclops,m
@@ -2635,7 +2646,7 @@ grammar:gender:Crimson Viper,grammar:gender:Crimson Viper,f
 grammar:gender:Lizardman,grammar:gender:Lizardman,m
 grammar:gender:Sand Drake,grammar:gender:Sand Drake,m
 grammar:gender:Sand Drummer,grammar:gender:Sand Drummer,m
-grammar:gender:Fire Shaman,grammar:gender:Fire Shaman,m
+grammar:gender:Pyre Acolyte,grammar:gender:Pyre Acolyte,m
 grammar:gender:Shell Guard,grammar:gender:Shell Guard,m
 grammar:gender:Skeleton,grammar:gender:Skeleton,m
 grammar:gender:Flying Skull,grammar:gender:Flying Skull,m
@@ -2649,7 +2660,7 @@ grammar:gender:Stone Mole,grammar:gender:Stone Mole,f
 grammar:gender:Thief Racoon,grammar:gender:Thief Racoon,m
 grammar:gender:Eye of the Deeps,grammar:gender:Eye of the Deeps,m
 grammar:gender:Blood Drinker,grammar:gender:Blood Drinker,m
-grammar:gender:Breach Warden,grammar:gender:Breach Warden,m
+grammar:gender:Breach Sentinel,grammar:gender:Breach Sentinel,f
 grammar:gender:Cinder Wraith,grammar:gender:Cinder Wraith,f
 grammar:gender:Horned Augur,grammar:gender:Horned Augur,m
 grammar:gender:Horned Carcass,grammar:gender:Horned Carcass,f
