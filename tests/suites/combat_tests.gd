@@ -1711,6 +1711,12 @@ func _test_threshold_lost(game: Game) -> void:
 		var world := game.world
 		var feather := _perk("phoenix_feather")
 		player.perks.add(feather)
+		# The blow lands at the top of a physics step, and the hero still takes that step before the
+		# floor freezes (Threshold._enter is deferred): a monster bumping him, a trap's knockback or a
+		# leftover push would carry him off the spot he fell on. Alone, at rest, on quiet floor.
+		await _clear_monsters(world)
+		player.global_position = _quiet_point(world, player.global_position, 2, 10)
+		await _stand_still(world, player)
 		var killer := world.spawn_monster(skeleton, _free_points_away(world, player.global_position, 6, 10, 1)[0])
 		killer.dormant = true
 		var fell_at := player.global_position

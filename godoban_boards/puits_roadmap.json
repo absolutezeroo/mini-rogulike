@@ -1097,8 +1097,8 @@
     {
       "id": "task_79",
       "title": "Test instable : « where he fell » (Seuil perdu)",
-      "description": "Vu une fois dans la suite game (CombatTests._test_threshold_lost : le héros ramené du Seuil perdu n'était pas exactement où il était tombé), pas reproduit ensuite (24 essais isolés et une suite game complète sans échec). Le message dit maintenant ce qu'il a vu (comment, position, où il était tombé) : à la prochaine fois, en trouver la cause.",
-      "status": "backlog",
+      "description": "Vu une fois dans la suite game (CombatTests._test_threshold_lost : le héros ramené du Seuil perdu n'était pas exactement où il était tombé), pas reproduit ensuite (24 essais isolés et une suite game complète sans échec). Le message dit maintenant ce qu'il a vu (comment, position, où il était tombé) : à la prochaine fois, en trouver la cause.\n\nFait : cause trouvée. Le coup fatal du test tombe en haut d'un pas de physique, et le héros fait encore ce pas avant que l'étage gèle (Threshold._enter est différé) : s'il avait encore une poussée (la flèche d'un piège, un monstre qui le bouscule, un reste de recul), il glissait de quelques pixels, et le Seuil le ramène là où son corps était au moment de passer (SubWorld.stood_at), pas là où le test l'avait noté. Vérifié avec une sonde : un recul donné juste avant le coup → ramené 5 px plus loin, 3 fois sur 3 ; sans recul, 40 fois sur 40 au bon endroit. Le jeu a raison (on revient où le corps est resté) ; le test prépare maintenant une scène sûre : monstres de l'étage retirés, héros posé sur un coin tranquille (_quiet_point : ni piège, ni feu, ni sable, ni sol fissuré), immobile (_stand_still) avant le coup. La vérification « where he fell » est inchangée (égalité exacte). Lancé 4 fois isolé : 92 vérifications, 0 échec.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -1107,7 +1107,7 @@
         "bug"
       ],
       "created_at": 1792710655,
-      "updated_at": 1792710655
+      "updated_at": 1792711393
     }
   ]
 }
