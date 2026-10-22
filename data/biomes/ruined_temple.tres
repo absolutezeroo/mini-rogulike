@@ -74,5 +74,5 @@ decor = Array[ExtResource("1_gbu62")]([SubResource("Resource_0ny6d"), SubResourc
 light = ExtResource("7_xj62s")
 id = &"ruined_temple"
 display_name = "Godless Temple"
-description = "Halls of columns raised for a god nobody remembers."
+description = "Halls of columns raised for a sun no one prays to anymore."
 color = Color(1, 0.85, 0.5, 1)

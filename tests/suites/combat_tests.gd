@@ -1339,10 +1339,10 @@ func _test_monster_behaviours(game: Game) -> void:
 		if m is Monster and (m.def.id == &"spider" or m == mother):
 			m.queue_free()
 
-	# Bomber: lobbed bombs blow up.
+	# Sapper: lobbed bombs blow up.
 	var bomber: MonsterDef = load("res://data/monsters/bomber.tres")
 	var throw := bomber.skills[0].effects[0] as ProjectileEffect
-	check(throw != null and throw.explosion_radius > 0.0 and bomber.keep_distance > 0.0, "the Bomber keeps away and throws bombs that explode")
+	check(throw != null and throw.explosion_radius > 0.0 and bomber.keep_distance > 0.0, "the Sapper keeps away and throws bombs that explode")
 	await _frames(2)
 
 

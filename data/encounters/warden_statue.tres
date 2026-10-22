@@ -9,14 +9,14 @@
 [sub_resource type="Resource" id="Resource_q3krr"]
 script = ExtResource("2_p8yni")
 weight = 50
-text = "The statue hums. Its strength becomes yours."
+text = "The stone warms under your hand. An old keeper lends you his strength."
 color = Color(1, 0.81960785, 0.4, 1)
 gift = 1
 
 [sub_resource type="Resource" id="Resource_fyttb"]
 script = ExtResource("2_p8yni")
 weight = 50
-text = "Its eyes light up red. Its servants answer!"
+text = "Its eyes glow red. The dead of the Well answer in its place."
 color = Color(1, 0.41960785, 0.41960785, 1)
 monsters = 2
 elite_monsters = true
@@ -31,8 +31,8 @@ script = ExtResource("5_grvuo")
 choices = Array[ExtResource("1_fgadc")]([SubResource("Resource_dux4h")])
 verb = "Kneel"
 id = &"warden_statue"
-display_name = "Warden's Statue"
-description = "A statue of one of the Well's wardens. Its stone eyes follow you."
+display_name = "Keeper's Statue"
+description = "A statue of one of the shrine's old keepers, a stone lantern in hand. Its eyes follow you."
 icon = ExtResource("4_31cle")
 color = Color(0.72156864, 0.76862746, 0.8392157, 1)
 min_depth = 2

@@ -234,6 +234,8 @@ func _test_finale(game: Game) -> void:
 	var shown := game.game_over_panel.shown_text()
 	check(game.game_over_panel.visible and shown.contains(ending.title) and shown.contains(ending.text.get_slice("\n", 0)), "the victory screen tells that ending")
 	check(not game.run.ending_due, "no ending due any more")
+	var souls_shown := (game.game_over_panel.get_node("%SoulsEarned") as Label).text
+	check(game.run.souls_awarded > 0 and souls_shown == "+%d souls" % game.run.souls_awarded, "the victory screen gives the run's souls (%s)" % souls_shown)
 
 	# A run won at the bottom and picked up before the choice: the choice first.
 	game.resume_run(won_save)
@@ -243,6 +245,8 @@ func _test_finale(game: Game) -> void:
 	await _frames(3)
 	check(Profile.ending == finale.endings[0].id and Profile.is_achieved(&"the_last_knell"), "the other ending, its achievement")
 	check(game.game_over_panel.visible, "then the victory screen")
+	var souls_again := (game.game_over_panel.get_node("%SoulsEarned") as Label).text
+	check(souls_again == souls_shown, "with the souls the run gave at its win, not +0 (%s, at the win %s)" % [souls_again, souls_shown])
 	(game.game_over_panel.get_node("%ContinueButton") as Button).pressed.emit()
 	await _frames(3)
 	_close_offers(game)

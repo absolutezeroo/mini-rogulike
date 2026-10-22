@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 64,
+  "next_id": 73,
   "tags": [
     "pc",
     "test",
@@ -127,8 +127,8 @@
     {
       "id": "task_12",
       "title": "Révision du lore partout",
-      "description": "Actes, monstres, objets, marchand, forgeron, malédictions, événements, pactes : tout aligner sur docs/lore.md avec le skill lore.",
-      "status": "todo",
+      "description": "Actes, monstres, objets, marchand, forgeron, malédictions, événements, pactes : tout aligner sur docs/lore.md avec le skill lore. Fait : intro réécrite (la lanterne, le disciple épargné, le maître introuvable, une main qui enchaîne les gardiens), actes et biomes, codex de chaque monstre (ce qu'il était : bêtes de Kagari, morts de l'Ossuaire, Solhar, Damnés), rencontres, malédictions, grimoires, katana. Renommés : Acolyte du Bûcher, Sapeur, Sentinelle de la Brèche, Nuit sans Lune, Statue du Gardien (Keeper's Statue), Vœu du Templier, Dernier Roi de Solhar. À relire en jeu.",
+      "status": "review",
       "priority": "high",
       "epic_id": "epic_1",
       "due_date": null,
@@ -136,7 +136,7 @@
         "lore"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792704041
     },
     {
       "id": "task_13",
@@ -186,7 +186,7 @@
     {
       "id": "task_14",
       "title": "Chasse aux tests instables",
-      "description": "Échecs au hasard vus : « stairs lead to the next depth », coût de la chute (84 → 76), horloge, astuce du marchand, IA qui s'éloigne. Les rendre déterministes.\n\nFait (à relire) : chaque échec reproduit (boucles de tests sur des étages variés), cause trouvée, corrigée sans affaiblir le contrôle. Bugs du jeu : chute interrompue par un nouvel étage (task_51), horloge qui sautait à chaque arrêt sur coup (task_50), lambdas des minuteurs (task_48), vagues des Profondeurs incomplètes (task_53). Tests : esquive à travers un accessoire (couloir dégagé pour la ruée Iaido), corps de monstres tués qui partent pendant le gel (comptes de l'étage), accessoires cassés par le souffle du retour du Seuil, rat posé dans un accessoire mural (IA qui s'éloigne), flèche d'un piège prise pour celle du héros (arc d'orage), statuts venus de l'étage sur le rat (place calme), héros pas immobile avant le coup fatal (« on the very spot »), héros repoussé hors du trou par un coup avant de tomber (Profondeurs, coût de la chute), astuces du tutoriel (marchand hors de vue, monstre qui repère le héros avant le nettoyage). Nouveaux outils dans test_suite.gd, règles dans docs/testing.md. Avant : 5 parties sur 15 de la suite game en échec ; après : voir le commit.",
+      "description": "Échecs au hasard vus : « stairs lead to the next depth », coût de la chute (84 → 76), horloge, astuce du marchand, IA qui s'éloigne. Les rendre déterministes.\n\nFait (à relire) : chaque échec reproduit (boucles de tests sur des étages variés), cause trouvée, corrigée sans affaiblir le contrôle. Bugs du jeu : chute interrompue par un nouvel étage (task_55), horloge qui sautait à chaque arrêt sur coup (task_54), lambdas des minuteurs (task_48), vagues des Profondeurs incomplètes (task_57). Tests : esquive à travers un accessoire (couloir dégagé pour la ruée Iaido), corps de monstres tués qui partent pendant le gel (comptes de l'étage), accessoires cassés par le souffle du retour du Seuil, rat posé dans un accessoire mural (IA qui s'éloigne), flèche d'un piège prise pour celle du héros (arc d'orage), statuts venus de l'étage sur le rat (place calme), héros pas immobile avant le coup fatal (« on the very spot »), héros repoussé hors du trou par un coup avant de tomber (Profondeurs, coût de la chute), astuces du tutoriel (marchand hors de vue, monstre qui repère le héros avant le nettoyage). Nouveaux outils dans test_suite.gd, règles dans docs/testing.md. Avant : 5 parties sur 15 de la suite game en échec ; après : voir le commit.",
       "status": "review",
       "priority": "medium",
       "epic_id": "epic_5",
@@ -195,13 +195,13 @@
         "tests"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792699113
+      "updated_at": 1792704292
     },
     {
       "id": "task_15",
       "title": "Vérification complète du jeu",
-      "description": "Passe d'agents : code, gameplay, équilibrage, UI, textes, son, perfs, docs. Corriger ce qui sort.",
-      "status": "todo",
+      "description": "Passe d'agents : code, gameplay, équilibrage, UI, textes, son, perfs, docs. Corriger ce qui sort.\n\nFait (à relire) : relecture indépendante de tout ce qui est arrivé depuis ac5bc2b (combat final, histoires des boss, courbe Gardien, placements, sceau sauvegardé, support PC, sac à compartiments, tests instables, la Veilleuse et les dialogues, la passe de lore). Corrigé, chacun avec son contrôle : B qui ferme un menu (pause, forge, marchand) lançait aussi la compétence 2 à la reprise ; le marchand débordait de l'écran en français à 1280x720 quand Acheter disait pourquoi il ne peut pas ; une partie gagnée au Fond et reprise avant le choix de la fin affichait « +0 âmes » ; les exports Android et Windows embarquaient la roadmap (godoban_boards/) ; test du tutoriel instable (fissure posée derrière un mur) ; cartes citées par task_14 renumérotées. Cartes ajoutées : task_66 à task_70, task_49 mise à jour. Non vérifié : le ressenti en vrai (manette, souris, téléphone), l'export Windows réel.",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_5",
       "due_date": null,
@@ -209,7 +209,7 @@
         "qualité"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792704949
     },
     {
       "id": "task_16",
@@ -647,8 +647,8 @@
     {
       "id": "task_49",
       "title": "Panneaux en français sur un écran 1280x720 (marchand, forge…)",
-      "description": "Le sac débordait de l'écran en français à 1280x720 (et donc en 1920x1080, même mise en page à x1,5) : colonnes trop larges, boutons « Sûr ? +22 or ». Corrigé pour le sac (test ajouté), mais les tests de mise en page des autres panneaux (marchand, forge, rencontres) ne tournent qu'en anglais. Les vérifier en français.",
-      "status": "backlog",
+      "description": "Le sac débordait de l'écran en français à 1280x720 (et donc en 1920x1080, même mise en page à x1,5) : colonnes trop larges, boutons « Sûr ? +22 or ». Corrigé pour le sac (test ajouté). Vérification complète (task_15) : le marchand débordait aussi de 19 px quand Acheter disait pourquoi il ne peut pas (« Pas assez d'or (il en manque 60) », « Plus de place pour les armes : vends d'abord quelque chose ») : corrigé (texte sur deux lignes), test ajouté dans BagTests. Vérifiés par un script hors tests, en français à 1280x720, 1540x720, 2340x1080 et 2548x1296 : les 4 rencontres, la forge (sans arme sertie), la pause, les fragments, le choix de la fin : rien ne dépasse. Reste : en faire des tests, et la forge avec une rune à retirer au nom long (« Retirer … (40 or) » ne passe pas à la ligne).",
+      "status": "todo",
       "priority": "medium",
       "epic_id": "epic_4",
       "due_date": null,
@@ -658,7 +658,7 @@
         "traduction"
       ],
       "created_at": 1792689231,
-      "updated_at": 1792689231
+      "updated_at": 1792704935
     },
     {
       "id": "task_50",
@@ -868,6 +868,142 @@
       ],
       "created_at": 1792706331,
       "updated_at": 1792706331
+    },
+    {
+      "id": "task_71",
+      "title": "Relire le nouveau lore en jeu (téléphone)",
+      "description": "Les textes du lore ont été vérifiés en captures FR 2548x1296 et 2340x1080, pas en 1540x720 ni en anglais : intro, cartes d'acte, codex des monstres, cartes d'objets, statue, Nuit sans Lune. Lire, dire ce qui sonne faux.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_1",
+      "due_date": null,
+      "tags": [
+        "lore",
+        "playtest",
+        "traduction"
+      ],
+      "created_at": 1792704041,
+      "updated_at": 1792704041
+    },
+    {
+      "id": "task_72",
+      "title": "Trancher les noms ouverts du lore (docs/lore.md §9)",
+      "description": "« Veilleur » (difficulté) et « la Veilleuse » ; « gardien » pour les boss et pour les gardiens du sanctuaire ; la relique « Codex du Sage » et l'écran Codex ; l'école de la lame courbe (sanctuaire ou gardes de Solhar ?) ; la Plume de Phénix, la Lune de Sang, les ratons plutôt que des tanuki.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_1",
+      "due_date": null,
+      "tags": [
+        "lore"
+      ],
+      "created_at": 1792704041,
+      "updated_at": 1792704041
+    },
+    {
+      "id": "task_64",
+      "title": "Une ligne de lore pour chaque serment",
+      "description": "Le canon dit que les serments (Colosse, Duelliste, Hérétique, Vautour) sont des vœux de gardiens d'autrefois, prêtés à la cloche ; aujourd'hui ils n'ont que leur règle. Ajouter un champ lore et l'afficher au sanctuaire.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "lore",
+        "idée",
+        "ui"
+      ],
+      "created_at": 1792704041,
+      "updated_at": 1792704041
+    },
+    {
+      "id": "task_65",
+      "title": "Succès « Arpenteur de l'Abîme » : « l'étage 12, le dernier »",
+      "description": "Depuis le Fond du Puits, l'étage 12 n'est plus le dernier pour qui a gagné une partie. Reformuler la règle (sans changer le succès).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "qualité",
+        "lore"
+      ],
+      "created_at": 1792704041,
+      "updated_at": 1792704041
+    },
+    {
+      "id": "task_66",
+      "title": "Fenêtre PC 2548x1296 : interface à x1,5 au lieu de x1,8",
+      "description": "Correction : 2548x1296 est la fenêtre de jeu sur PC, pas le téléphone (S23 Ultra = 2340x1080, inchangé). Avec l'arrondi de PixelGrid par pas de 0,5, cette fenêtre passe de x1,8 à x1,5 : le HUD y est ~17 % plus petit qu'avant. L'option « Taille de l'interface » permet de l'agrandir. À juger en jouant sur PC.",
+      "status": "todo",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "android",
+        "playtest"
+      ],
+      "created_at": 1792704927,
+      "updated_at": 1792700000
+    },
+    {
+      "id": "task_67",
+      "title": "Glyphe « × » absent de la police",
+      "description": "Deux textes français utilisent « × » (quête « Abats %d × %s en moins de %d secondes », amélioration « commence avec %d × %s en plus ») : la police pixel ne l'a pas, il s'affiche dans la police de secours. L'ajouter à tools/i18n/add_glyphs.py (sur la grille de 9 pixels) ou écrire « x ». Vu par un script qui cherche chaque caractère des textes dans la police ; aucun autre manquant.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "traduction",
+        "bug"
+      ],
+      "created_at": 1792704927,
+      "updated_at": 1792704927
+    },
+    {
+      "id": "task_68",
+      "title": "Trou des Tréfonds rebouché : pas gardé dans la sauvegarde",
+      "description": "Revenu des Tréfonds, le trou se rebouche (World.seal_hole) mais World.spent_data ne le garde pas : une partie reprise sur cet étage retrouve le trou ouvert. Pas une régression (avant, il ne se rebouchait jamais) ; à garder si on veut que la reprise soit fidèle.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "sauvegarde"
+      ],
+      "created_at": 1792704927,
+      "updated_at": 1792704927
+    },
+    {
+      "id": "task_69",
+      "title": "Sac : marques « nouveau » et onglet gardés d'une partie à la suivante",
+      "description": "InventoryPanel garde les objets déjà vus (_seen) et l'onglet ouvert tant que vit la scène Game ; « Recommencer » depuis l'écran de fin relance une partie dans la même scène, donc un objet vu dans la partie précédente n'est plus marqué nouveau, et l'onglet reste. La doc dit « tant que dure la partie ». Remettre à zéro dans Game._begin_run (petit correctif à décider).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "bug"
+      ],
+      "created_at": 1792704927,
+      "updated_at": 1792704927
+    },
+    {
+      "id": "task_70",
+      "title": "Alt+Entrée dans un menu : plein écran ou action ?",
+      "description": "Alt+Entrée bascule le plein écran (Settings._input, correspondance exacte), mais ui_accept (Entrée) correspond aussi sans exactitude : dans le sac, InventoryPanel._input peut prendre Alt+Entrée pour « Équiper / Utiliser » avant Settings. Non vérifié en vrai (l'ordre des _input dépend de l'arbre). F11 marche toujours.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "pc",
+        "bug"
+      ],
+      "created_at": 1792704927,
+      "updated_at": 1792704927
     }
   ]
 }

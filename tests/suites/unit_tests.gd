@@ -35,6 +35,7 @@ func run() -> void:
 	_test_armory_levels()
 	_test_tree_reset_runs()
 	_test_loader()
+	_test_export_presets()
 	_test_pilgrim_costs()
 	_test_bosses()
 	_test_profile()
@@ -334,6 +335,7 @@ func _test_content() -> void:
 				check(skill != null and skill.icon != null and skill.cooldown > 0.0 and not skill.effects.is_empty(), "%s: skill set up" % item.id)
 		if item is SkillTomeDef:
 			check(item.skill != null and item.skill.icon != null, "%s teaches a skill" % item.id)
+			check(item.get_details().begins_with(item.description), "%s: its card opens on the tome's own line" % item.id)
 	check(CONTENT.items.any(func(i: ItemDef) -> bool: return i is SkillTomeDef), "tomes can be found")
 	for item in CONTENT.items + CONTENT.locked_items:
 		check(item.resource_path.begins_with("res://data/items/") and not item.resource_path.contains("::"), "%s is its own file (saves point to it)" % item.id)
@@ -1479,7 +1481,7 @@ func _test_armory_levels() -> void:
 		offered = weapons
 	check(offered.size() >= 9, "the whole Armory offers most of the roster (%d)" % offered.size())
 	var templar: WeaponDef = load("res://data/items/weapons/templar_sword.tres")
-	check(CONTENT.locked_items.has(templar) and armory.armory_weapons.has(templar) and not offered.has(templar), "the Templar Sword waits for its unlock (Paladin's Oath)")
+	check(CONTENT.locked_items.has(templar) and armory.armory_weapons.has(templar) and not offered.has(templar), "the Templar Sword waits for its unlock (Templar's Vow)")
 	var next := UpgradeRow.armory_status(armory, armory.max_level - 1, CONTENT)
 	check(next.contains(templar.display_name + " (locked)"), "the detail marks a weapon still locked (%s)" % next)
 	var unlock := CONTENT.upgrades.filter(func(u: UpgradeDef) -> bool: return u.kind == UpgradeDef.Kind.UNLOCK and u.items.has(templar))
@@ -1603,6 +1605,29 @@ func _test_loader() -> void:
 	check(loader != null and loader.has_method("go") and not loader.busy, "the Loader autoload is there, idle")
 	var tips: LoadingTipsDef = load("res://data/ui/loading_tips.tres")
 	check(tips.tips.size() >= 10 and Array(tips.tips).all(func(t: String) -> bool: return t.length() > 20 and t.length() <= 110), "loading tips: at least 10, each one short line or two")
+
+
+## The builds (export_presets.cfg) leave out what is only for making the game: the tests, the
+## tools, the docs, the roadmap (a .json is a resource: it would ship), and hold no password.
+func _test_export_presets() -> void:
+	var presets := ConfigFile.new()
+	check(presets.load("res://export_presets.cfg") == OK, "the export presets are readable")
+	var names: Array[String] = []
+	for section in presets.get_sections():
+		if section.ends_with(".options") or not section.begins_with("preset."):
+			if section.ends_with(".options"):
+				for key in presets.get_section_keys(section):
+					var value := str(presets.get_value(section, key))
+					check(not ("password" in key and not value.is_empty()), "%s: no password in the presets (%s)" % [section, key])
+			continue
+		var preset_name := str(presets.get_value(section, "name", section))
+		names.append(preset_name)
+		var excluded := str(presets.get_value(section, "exclude_filter", "")).split(",", false)
+		for i in excluded.size():
+			excluded[i] = excluded[i].strip_edges()
+		for folder in ["tests/*", "tools/*", "_tool/*", "docs/*", "data/balance/*", "godoban_boards/*"]:
+			check(excluded.has(folder), "the %s build leaves out %s" % [preset_name, folder])
+	check(names.has("Android") and names.has("Windows Desktop"), "Android and Windows builds (%s)" % [names])
 
 
 func _test_runes() -> void:

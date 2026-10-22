@@ -77,6 +77,9 @@ var _step_timer := 0.0
 var _left_foot := false
 ## Where the hero climbs back out after falling into a hole: the last solid ground stood on.
 var _safe_position := Vector2.ZERO
+## The game just came out of a pause: the press that closed the menu (a gamepad's B closes and
+## is skill 2 too) belongs to the menu, so the first frame after it reads no new press.
+var _presses_muted := false
 
 @onready var camera: GameCamera = $Camera
 ## The charge's gauge at his feet and the glow in his hand.
@@ -86,6 +89,11 @@ var charge_vfx: ChargeVfx
 func _ready() -> void:
 	super._ready()
 	charge_vfx = ChargeVfx.attach(self)
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_UNPAUSED:
+		_presses_muted = true
 
 
 func setup(player_def: PlayerDef) -> void:
@@ -133,27 +141,30 @@ func _think(delta: float) -> void:
 	if _move_direction != Vector2.ZERO and _aim_hold <= 0.0:
 		facing = _move_direction.normalized()
 	_update_footsteps(delta)
-	_update_attack(delta)
+	var fresh := not _presses_muted  # (a press that closed a menu: see _presses_muted)
+	_presses_muted = false
+	_update_attack(delta, fresh)
 
 	for i in mini(skills.skills.size(), SKILL_COUNT):
-		if skills.skills[i] and Input.is_action_just_pressed("skill_%d" % (i + 1)):
+		if fresh and skills.skills[i] and Input.is_action_just_pressed("skill_%d" % (i + 1)):
 			use_skill(i)
 
-	if Input.is_action_just_pressed("quick_item"):
+	if fresh and Input.is_action_just_pressed("quick_item"):
 		use_quick_item()
 	for i in range(1, Belt.SLOTS):
-		if Input.is_action_just_pressed("belt_%d" % (i + 1)):
+		if fresh and Input.is_action_just_pressed("belt_%d" % (i + 1)):
 			use_belt(i)
 
 
 ## The attack button: a tap swings (or shoots) once, aimed at the closest enemy; holding it
 ## no longer repeats the swing, it charges the weapon's charged attack (AttackCharge), unleashed
-## when the button is let go with the charge full (docs/design/interface.md).
-func _update_attack(delta: float) -> void:
+## when the button is let go with the charge full (docs/design/interface.md). `fresh` false:
+## a press seen now closed a menu, it doesn't swing (held on, it charges).
+func _update_attack(delta: float, fresh: bool = true) -> void:
 	var weapon := get_weapon()
 	var charged := weapon.charged if weapon else null
 	_attack_buffer = maxf(_attack_buffer - delta, 0.0)
-	if Input.is_action_just_pressed("attack"):
+	if fresh and Input.is_action_just_pressed("attack"):
 		_attack_buffer = ATTACK_BUFFER
 		charge.press()
 	if is_falling:

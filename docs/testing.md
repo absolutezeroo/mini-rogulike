@@ -138,7 +138,7 @@ In debug builds only (running from the Godot editor, on the phone too, or a debu
 **DBG** button next to pause (or F1) opens the `DebugPanel` (the game pauses):
 - **Floor**: pick a depth and go there, next floor, rebuild the floor, next boss floor, teleport
   next to the stairs, break the stairs' seal, reveal the map. Jumped-to floors are plain unless you choose:
-- **Curse** (Frostbound, Ashen Breath, Lanternless) or **floor event**: rebuilds the floor with it
+- **Curse** (Frostbound, Ashen Breath, Moonless Night) or **floor event**: rebuilds the floor with it
   (`World.forced_curse` / `forced_event`), its card included.
 - **Biome**: goes to its act and builds a floor of it (`World.forced_biome`).
 - **Hero**: god mode (nothing hurts), full heal, +500 gold, level up, an Epic weapon, every

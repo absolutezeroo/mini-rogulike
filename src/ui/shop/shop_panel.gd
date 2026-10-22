@@ -457,11 +457,15 @@ func _build() -> void:
 	_buy = UiParts.button(tr("Buy"), func() -> void: buy_selected(), Vector2(0, 52), Fonts.BODY)
 	_buy.name = "BuyButton"
 	_buy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# Its words say why it can't buy ("Plus de place pour les grimoires et parchemins : vends
+	# d'abord quelque chose"): on two lines, never a merchant wider than the screen.
+	_buy.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_own(_buy)
 	actions.add_child(_buy)
 	_sell = UiParts.button(tr("Sell"), func() -> void: sell_selected(), Vector2(0, 52), Fonts.BODY)
 	_sell.name = "SellButton"
 	_sell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_sell.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_own(_sell)
 	actions.add_child(_sell)
 	_lock = UiParts.button(tr("Lock"), _toggle_lock, Vector2(130, 52), Fonts.BODY)

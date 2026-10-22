@@ -27,7 +27,10 @@ anywhere in it, cards and buttons included, with a bit of momentum (`TouchScroll
 A keyboard's letters are named as the player's keyboard prints them (`Prompts.key_word()`: the key
 in W's place reads Z on a French keyboard); the bindings are the input map's (project.godot), and
 what the player is told about them is `data/ui/input_prompts.tres` (see Devices below). B never
-pauses in a fight (it is a skill): only Escape, Start and the phone's back button do.
+pauses in a fight (it is a skill): only Escape, Start and the phone's back button do. The other
+way round, the press that closes a menu stays the menu's: B closing the pause menu, the forge or
+the bag casts no skill as the fight resumes (the hero reads no new press on the first frame after
+a pause, `Player._presses_muted`).
 
 **Attack: tap or hold.** A tap (or a press) is one basic attack at once, aimed at the closest
 enemy; a press while the weapon is still swinging waits for it (0.3 s), so quick taps are never

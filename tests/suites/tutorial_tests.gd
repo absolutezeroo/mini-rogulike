@@ -282,6 +282,16 @@ func _test_hints(game: Game) -> void:
 	# A cracked wall in sight (a secret room behind it): once, a word about it.
 	for seen in [&"chest", &"merchant", &"forge", &"encounter"]:
 		Profile.mark_hint(seen)  # (only the crack's hint is looked at here)
+	# In sight for sure: the hero stands where nothing (a wall, a prop) stands between him and the
+	# crack 90 px up the screen (seen from where he was, one was there now and then).
+	await _stand_still(game.world, player)
+	var spots: Array[Vector2] = [player.global_position]
+	spots.append_array(_free_points_away(game.world, player.global_position, 1, 8, 30))
+	for spot in spots:
+		if _clear_ray(game.world, spot, spot + Vector2(0, -90)) and _body_fits(game.world, spot, player.radius):
+			player.global_position = spot
+			break
+	await _frames(2)
 	var crack := (load("res://src/entities/prop/cracked_wall.tscn") as PackedScene).instantiate() as CrackedWall
 	crack.world = game.world
 	crack.setup(CONTENT.dungeon.cracked_wall)

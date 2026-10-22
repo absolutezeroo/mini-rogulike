@@ -85,7 +85,7 @@
   - **No camping**: stay too long by a campfire or an oasis (`camp_limit`, 12 s) and the light
     draws monsters in (`CampWatch`): a warning first, then a wave, bigger each time. They give
     nothing.
-  - **Lanternless**: the whole floor in the dark but right around you; monsters and traps hide
+  - **Moonless Night**: the whole floor in the dark but right around you; monsters and traps hide
     in the black. The best loot of the three.
 - **Temperature** (`BodyTemperature`, `dungeon_config.tres` > Temperature): the hero has a body
   temperature from -100 (frozen) to 100 (burning up), shown under the XP bar when it is not
@@ -130,7 +130,7 @@ A hole on a floor is not only a stumble: the hero **falls deeper into the Well**
   wave, +1 per act), half of them on the way ahead to the door (`ahead_share`: outrunning them is
   not a way out), the rest 6-11 cells around him (`AbyssWorld._spawn_point()`: random tries, then
   every cell of that ring, so a wave is whole whenever the maze has room); no more than 6 of the
-  waves' demons up at once (+1 per act). 5% of them are elites. From Act III a **Breach Warden** stands in front of the
+  waves' demons up at once (+1 per act). 5% of them are elites. From Act III a **Breach Sentinel** stands in front of the
   door. No timer: the waves are the pressure. They are real monsters: XP, gold, kills, bestiary.
 - **The way out: the Dawn Breach** (*La Brèche de l'Aube*, `AbyssDoor`): a doorway torn in the
   dark with daylight behind it, standing in the room farthest from where he lands **on foot**,
@@ -283,7 +283,7 @@ elites at least half.
 - **Special floors** (`data/floor_events/`, `FloorEventDef`): 30% of the normal floors after the first
   (`dungeon_config.tres` > Floor events) are announced when you arrive: **The Wandering Dead** (elites, dim),
   **Hoard of the Dead** (chests and gold, more traps), **The Swarm** (hordes of weak monsters),
-  **Utter Dark** (very dark, better loot), **Hushed Halls** (few monsters, the merchant, encounters),
+  **Utter Dark** (very dark, better loot), **Silent Halls** (few monsters, the merchant, encounters),
   **Blood Moon** (monsters hit harder, double gold). They multiply monsters, HP, damage, elites,
   light, chests, hazards, encounters, gold and loot quality.
 - **Two bosses per act** (`ActDef.boss` + `other_bosses`): each run draws one per act (saved with
@@ -318,7 +318,7 @@ its own and nothing (chest, prop, hazard, another encounter) within
 | Spring of the Drowned | Drink | healed (55%), a strong buff for a minute (25%), cursed water hurts (20%) |
 | Blood Altar | Offer your blood (-15% max health) | a choice of relics |
 | Grinning Spirit | Wager 30 / 80 gold (more each floor) | an item, sometimes a great one... or it laughs and runs |
-| Warden's Statue | Kneel | a choice of perks (50%), or two elites (50%) |
+| Keeper's Statue | Kneel | a choice of perks (50%), or two elites (50%) |
 
 ## Pact doors
 
