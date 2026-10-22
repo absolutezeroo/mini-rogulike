@@ -535,6 +535,18 @@ func _test_keys(game: Game) -> void:
 	await _tap_key(KEY_Q)
 	await _frames(1)
 	check(panel.category_index() == scrolls, "Q the previous one")
+	# Alt+Enter and F11 switch fullscreen, and only that: the tome isn't learned.
+	panel.slot_for(items.tome).grab_focus()
+	await _frames(1)
+	var full := Settings.fullscreen
+	check(get_tree().root.get_child(-1) == Settings.window_keys(), "the window's keys come first (the root's last node: %s)" % get_tree().root.get_child(-1).name)
+	_key(KEY_ENTER, true, true)
+	await _frames(1)
+	_key(KEY_ENTER, false, true)
+	await _frames(1)
+	check(Settings.fullscreen != full and player.inventory.count_of(items.tome) == 1 and panel.visible, "Alt+Enter on a tome switches fullscreen and doesn't learn it (fullscreen %s, tomes %d)" % [Settings.fullscreen, player.inventory.count_of(items.tome)])
+	await _tap_key(KEY_F11)
+	check(Settings.fullscreen == full and player.inventory.count_of(items.tome) == 1 and panel.visible, "F11 too")
 	# Enter uses: the tome is learned.
 	panel.slot_for(items.tome).grab_focus()
 	await _frames(1)

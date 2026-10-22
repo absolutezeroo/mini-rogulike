@@ -993,8 +993,8 @@
     {
       "id": "task_70",
       "title": "Alt+Entrée dans un menu : plein écran ou action ?",
-      "description": "Alt+Entrée bascule le plein écran (Settings._input, correspondance exacte), mais ui_accept (Entrée) correspond aussi sans exactitude : dans le sac, InventoryPanel._input peut prendre Alt+Entrée pour « Équiper / Utiliser » avant Settings. Non vérifié en vrai (l'ordre des _input dépend de l'arbre). F11 marche toujours.",
-      "status": "backlog",
+      "description": "Alt+Entrée bascule le plein écran (Settings._input, correspondance exacte), mais ui_accept (Entrée) correspond aussi sans exactitude : dans le sac, InventoryPanel._input peut prendre Alt+Entrée pour « Équiper / Utiliser » avant Settings. Non vérifié en vrai (l'ordre des _input dépend de l'arbre). F11 marche toujours.\n\nFait : vérifié par un test, le bug était réel (Alt+Entrée sur un grimoire dans le sac l'apprenait, sans plein écran ; F11 aussi pris par d'autres panneaux qui se ferment sur n'importe quelle touche). Cause : Godot donne une touche aux _input du dernier nœud de l'arbre vers le haut, et Settings (autoload, en tête de l'arbre) passait après les menus. Corrigé à la source : Settings ajoute un nœud WindowKeys toujours dernier enfant de la racine (replacé quand une scène arrive), qui prend F11 / Alt+Entrée avant tout menu et ne fait que basculer le plein écran. Test (BagTests, clavier) : ce nœud est le dernier de la racine, Alt+Entrée puis F11 sur un grimoire basculent le plein écran sans l'apprendre ; vu en échec avec l'ancien Settings. Doc : design/interface.md, testing.md.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -1003,7 +1003,7 @@
         "bug"
       ],
       "created_at": 1792704927,
-      "updated_at": 1792704927
+      "updated_at": 1792710503
     }
   ]
 }

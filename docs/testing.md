@@ -56,7 +56,8 @@ The suites (`tests/suites/`, each a `TestSuite`):
   tab; the bag on
   touch: tabs tapped, the card's buttons, new marks, the tab remembered, a right click; with a
   gamepad: LB / RB, A, X, Y, B, the confirmation for rare pieces, what is worn never broken; with
-  keys: Q / E, Enter, X, Delete, G, Escape; and the bag inside a 1280x720 screen in French).
+  keys: Q / E, Enter, X, Delete, G, Escape, Alt+Enter and F11 switching fullscreen and nothing
+  else; and the bag inside a 1280x720 screen in French).
 - The dialogue (`dialogue_tests.gd`, `DialogueTests`, on PcTests' helpers): its unit part in the
   unit suite (every speaker's lines: lengths, translations, codes, the reveal; the tale and the
   advice a staged death gets: a warden, its shockwave, a trap, the Deeps, the cold, the Threshold,

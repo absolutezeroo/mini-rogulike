@@ -114,7 +114,9 @@ shows to the device in hand.
 ## Screens: windows, sizes, scale
 
 - **Windows** (computers): resizable; **Fullscreen** in Options (Screen), or F11 / Alt+Enter
-  anywhere (`Settings.fullscreen`, saved).
+  anywhere (`Settings.fullscreen`, saved). The keys do only that, in any menu: `Settings`'
+  WindowKeys node stays the root's last child, so it reads them before any menu's `_input` (Godot
+  goes from the last node up) and the bag never takes Alt+Enter for Enter, nor a card F11 for a skip.
 - **Scale** (`PixelGrid`): the UI is laid out at 1280x720 and the canvas grows with the screen's
   shape (`canvas_items`, expand). Its scale is rounded down to a step of 0.5 (x1 from 720 to 1079
   lines, x1.5 at 1080, x2 at 1440, x3 at 2160), where BODY letters keep whole pixels, and the canvas
