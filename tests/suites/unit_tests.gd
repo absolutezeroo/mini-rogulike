@@ -2111,11 +2111,17 @@ func _test_languages() -> void:
 	var missing := PackedStringArray()
 	var broken := PackedStringArray()
 	var codes := RegEx.create_from_string("%[-+0#]*\\d*(?:\\.\\d+)?[a-zA-Z%]|\\{\\w+\\}")
+	var no_glyph := {}  # a character the pixel font lacks shows in a fallback font
 	while not file.eof_reached():
 		var row := file.get_csv_line()
 		if row.size() < 3 or row[0].is_empty():
 			continue
 		rows += 1
+		for text: String in [row[1], row[2]]:
+			for i in text.length():
+				var code := text.unicode_at(i)
+				if code >= 32 and not Fonts.MAIN.has_char(code):
+					no_glyph[text[i]] = row[0]
 		if row[2].strip_edges().is_empty():
 			missing.append(row[0])
 		elif row[0].begins_with(" ") != row[2].begins_with(" ") or row[0].ends_with(" ") != row[2].ends_with(" "):
@@ -2125,6 +2131,7 @@ func _test_languages() -> void:
 	check(rows > 1000, "languages: the CSV holds the game's texts (%d)" % rows)
 	check(missing.is_empty(), "languages: every text has its French (missing: %s)" % ", ".join(missing.slice(0, 5)))
 	check(broken.is_empty(), "languages: the French keeps the numbers' places (%s)" % ", ".join(broken.slice(0, 5)))
+	check(no_glyph.is_empty(), "languages: the pixel font draws every character of the texts (missing: %s)" % ", ".join(no_glyph.keys().map(func(c: String) -> String: return "%s in \"%s\"" % [c, no_glyph[c]])))
 	check(TranslationServer.get_loaded_locales().has("fr"), "languages: the French translation is loaded")
 
 	TranslationServer.set_locale("fr")
