@@ -76,6 +76,8 @@ static func _fragment(fragment: FragmentDef, boss: BossDef, where: String, read:
 	box.add_child(UiSkin.label("???", Fonts.BODY, LOCKED))
 	if not where.is_empty():
 		box.add_child(UiSkin.label("-  " + where, Fonts.BODY, LOCKED, true))
+	for need in ProgressCondition.describe_unmet(fragment.conditions, boss):
+		box.add_child(UiSkin.label("-  " + need, Fonts.BODY, LOCKED, true))
 	return box
 
 

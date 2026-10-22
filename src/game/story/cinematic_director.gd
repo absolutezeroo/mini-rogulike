@@ -139,6 +139,7 @@ func _write(label: Label, typed: bool) -> void:
 			label.visible_characters = mini(int(shown), count)
 		label.visible_characters = -1
 	else:
+		label.visible_characters = -1
 		label.modulate.a = 0.0
 		var time := 0.0
 		while time < def.fade_time and not hurried and not ended and _playing:

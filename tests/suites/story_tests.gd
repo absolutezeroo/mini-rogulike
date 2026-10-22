@@ -581,7 +581,7 @@ func _test_cinematic(game: Game) -> void:
 	check(game.player.hp == hp and arena.boss.dormant and started[0] == 0, "nothing hurts and nothing fights meanwhile")
 	_tap()
 	await _frames(4)
-	check(meeting.director.hurried and view.lines_text() == slime.chronicle.chapters[0].lines, "the first tap writes every line out")
+	check(meeting.director.hurried and view.written_lines() == slime.chronicle.chapters[0].lines, "the first tap writes every line out")
 	check(meeting.is_playing(), "and the scene waits")
 	var rect := view.text_rect()
 	check(view.bottom_bar_rect().encloses(rect) and view.get_viewport_rect().encloses(rect), "the text fits in the bottom bar, on screen")
@@ -653,7 +653,7 @@ func _test_cinematic(game: Game) -> void:
 	while meeting.is_playing() and frames < 400:
 		await _frames(1)
 		frames += 1
-		lines = maxi(lines, view.lines_text().size())
+		lines = maxi(lines, view.written_lines().size())
 	check(frames <= 240 and lines == 1 and not arena.boss.dormant, "Short: one line, over by itself in a few seconds (%d frames)" % frames)
 	# Off: no scene, the fight at once, its name in a banner.
 	Settings.boss_stories = Settings.STORIES_OFF

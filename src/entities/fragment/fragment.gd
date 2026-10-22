@@ -8,7 +8,7 @@ extends Node2D
 ## The Interact button offers it from this close.
 const READ_DISTANCE := 44.0
 ## Its glow's radius and its motes (world pixels).
-const GLOW_RADIUS := 18.0
+const GLOW_RADIUS := 20.0
 const MOTES := 3
 
 var def: FragmentDef
@@ -68,8 +68,10 @@ func _draw() -> void:
 	PixelDraw.disc(self, Vector2(0, 8), 10.0, Color(0, 0, 0, 0.35), 1.0, 0.45)
 	# A breathing glow in two steps of its ramp, dithered at the rim (docs/vfx.md: no smooth fade).
 	var breath := sin(_time * 2.6) > 0.0
-	PixelDraw.disc(self, Vector2(0, 0), GLOW_RADIUS, Color(_glow_color(0.8), 0.22 if breath else 0.14), 0.55)
-	PixelDraw.disc(self, Vector2(0, 0), GLOW_RADIUS * 0.55, Color(_glow_color(0.4), 0.25 if breath else 0.18), 0.7)
+	PixelDraw.disc(self, Vector2(0, 0), GLOW_RADIUS, Color(_glow_color(0.8), 0.3 if breath else 0.2), 0.55)
+	PixelDraw.disc(self, Vector2(0, 0), GLOW_RADIUS * 0.55, Color(_glow_color(0.4), 0.35 if breath else 0.26), 0.7)
+	# A thin ring on the floor, in its core color: something lies here, seen from afar.
+	PixelDraw.ring(self, Vector2(0, 8), 14.0, _glow_color(0.1), 1, 0.85 if breath else 0.6, 0.45)
 	# Motes rising from it, each on its own slow loop (whole pixels).
 	var element := def.look.element if def.look else null
 	for i in MOTES:

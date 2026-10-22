@@ -144,6 +144,18 @@ func speech_text() -> String:
 	return _speech.text if _speech.visible else ""
 
 
+## The lines (and words) fully written and shown so far (tests).
+func written_lines() -> PackedStringArray:
+	var result := PackedStringArray()
+	var labels: Array[Node] = [_speech]
+	labels.append_array(_lines.get_children())
+	for label: Label in labels:
+		if label.visible and not label.text.is_empty() and label.modulate.a > 0.5 \
+				and (label.visible_characters < 0 or label.visible_characters >= label.get_total_character_count()):
+			result.append(label.text)
+	return result
+
+
 func heading_text() -> String:
 	return _heading.text if _heading_row.visible else ""
 

@@ -62,11 +62,11 @@ src/
   dungeon/             Map data, generator (and its secret rooms: SecretRoomPlan), drawing
   world/               World (owns the current floor), FloorRules (how hard and rewarding it is),
                        NavGrid (pathfinding), FogOfWar (what the hero has seen), WallBuilder,
-                       FloorPopulator, BossArena, AmbushRoom, RoomGates, PitLayer, SecretRoom; PocketWorld
+                       FloorPopulator, FragmentPlacer, BossArena (and its Storyteller), AmbushRoom, RoomGates, PitLayer, SecretRoom; PocketWorld
                        (a World built beside the floor for a while) > ThresholdWorld (the limbo of a second
                        life's trial), AbyssWorld (the Deeps a fall takes the hero to);
                        dressing/ (FloorDresser: a floor in its biome, RoomSpace)
-  entities/            Actor (shared base), Player, Monster, Projectile, ItemPickup, Stairs, Prop, Trap,
+  entities/            Actor (shared base), Player, Monster, Projectile, ItemPickup, Stairs, Prop, Trap, Fragment,
                        hazards/ (Chest, CrumblingFloor, Quicksand, HeatSource, DarkRoom, FloorPatch),
                        ground/ (GroundLayer: a biome's ground, drawn by a shader)
   components/          Inventory, Equipment, SkillSet, PerkSet, StatusSet (burn...)

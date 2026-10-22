@@ -14,6 +14,7 @@ const OPEN_GRACE_FRAMES := 15
 var _dialog: RpgDialog
 var _icon: TextureRect
 var _source: Label
+var _place: Label
 var _lines: VBoxContainer
 var _kept: Label
 var _close: Button
@@ -35,17 +36,16 @@ func open(fragment: FragmentDef, boss: BossDef, first_time: bool = false) -> voi
 	_icon.texture = look.icon if look else null
 	_icon.modulate = look.icon_tint if look else Color.WHITE
 	_icon.visible = _icon.texture != null
-	var source := tr(fragment.author)
-	if not fragment.place.is_empty():
-		source = tr("{author}, {place}").format({ "author": tr(fragment.author), "place": tr(fragment.place) })
-	_source.text = source
+	_source.text = tr(fragment.author)
+	_place.text = tr(fragment.place)
+	_place.visible = not fragment.place.is_empty()
 	UiParts.clear(_lines)
 	for line in fragment.lines:
 		_lines.add_child(UiSkin.label(tr(line), Fonts.BODY, UiSkin.TEXT, true))
 	_kept.visible = boss != null
 	if boss:
 		var name := tr(boss.display_name)
-		_kept.text = tr("A new page in the chronicle of %s.") % name if first_time else tr("From the chronicle of %s.") % name
+		_kept.text = tr("A new page for its chronicle: %s.") % name if first_time else tr("From its chronicle: %s.") % name
 	_opened_at = Engine.get_process_frames()
 	show()
 
@@ -95,14 +95,20 @@ func _build() -> void:
 	top.add_child(_icon)
 	var words := VBoxContainer.new()
 	words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	words.add_theme_constant_override("separation", 8)
+	words.add_theme_constant_override("separation", 4)
 	top.add_child(words)
 	_source = UiSkin.label("", Fonts.BODY, UiSkin.DIM, true)
 	_source.name = "Source"
 	words.add_child(_source)
+	_place = UiSkin.label("", Fonts.BODY, UiSkin.DIM, true)
+	_place.name = "Place"
+	words.add_child(_place)
 	_lines = VBoxContainer.new()
 	_lines.name = "Lines"
 	_lines.add_theme_constant_override("separation", 6)
+	var gap := Control.new()
+	gap.custom_minimum_size.y = 6
+	words.add_child(gap)
 	words.add_child(_lines)
 	_kept = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
 	_kept.name = "Kept"
@@ -113,7 +119,7 @@ func _build() -> void:
 	_close.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_close.pressed.connect(close)
 	_dialog.body.add_child(_close)
-	for node: Node in [_source, _lines, _kept, _close]:
+	for node: Node in [_source, _place, _lines, _kept, _close]:
 		_named.append(node)
 		node.owner = self
 		node.unique_name_in_owner = true

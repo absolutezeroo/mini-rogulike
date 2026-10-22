@@ -387,9 +387,8 @@ Empty,Empty,Vide
 The Forge,The Forge,La Forge
 Sockets,Sockets,Emplacements
 Your runes,Your runes,Tes runes
-"{author}, {place}","{author}, {place}","{author}, {place}"
-A new page in the chronicle of %s.,A new page in the chronicle of %s.,Une nouvelle page dans la chronique de %s.
-From the chronicle of %s.,From the chronicle of %s.,Tiré de la chronique de %s.
+A new page for its chronicle: %s.,A new page for its chronicle: %s.,Une page de plus pour sa chronique : %s.
+From its chronicle: %s.,From its chronicle: %s.,Tiré de sa chronique : %s.
 The Well claims you,The Well claims you,Le Puits te réclame
 You now have %d souls.,You now have %d souls.,Tu as maintenant %d âmes.
 New run,New run,Nouvelle partie
