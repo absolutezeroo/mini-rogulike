@@ -351,20 +351,35 @@ func _fill_runs() -> void:
 		_list.add_child(CodexRows.run_row(entry, _content))
 
 
-## "Fastest wins:  Normal 32:10.45   Nightmare +3 51:02.10" (empty before the first win).
+## "Fastest wins:  Normal 32:10.45   Nightmare +3 51:02.10", then the wins at the bottom of the
+## Well on their own line (a longer run: RunState.record_key()). Empty before the first win.
 func _records_text() -> String:
-	var parts: PackedStringArray = []
+	var first: PackedStringArray = []
+	var bottom: PackedStringArray = []
 	for key: String in Profile.best_times:
-		parts.append("%s %s" % [_record_name(key), TimeText.of(Profile.best_time(key))])
-	return (tr("Fastest wins:   %s") % "     ".join(parts)) if not parts.is_empty() else ""
+		var part := "%s %s" % [_record_name(key), TimeText.of(Profile.best_time(key))]
+		if RunState.is_bottom_record(key):
+			bottom.append(part)
+		else:
+			first.append(part)
+	var lines: PackedStringArray = []
+	if not first.is_empty():
+		lines.append(tr("Fastest wins:   %s") % "     ".join(first))
+	if not bottom.is_empty():
+		lines.append(tr("Fastest to the Well's Bottom:   %s") % "     ".join(bottom))
+	return "\n".join(lines)
 
 
-## A record's difficulty, as the title screen names it ("Nightmare +3").
+## A record's difficulty, as the title screen names it ("Nightmare +3"), from its key
+## ("nightmare/a3", "nightmare/a3/bottom").
 func _record_name(key: String) -> String:
-	var parts := key.split("/a")
+	var parts := key.split("/")
 	var difficulty := _content.get_difficulty(StringName(parts[0])) if _content else null
 	var name := tr(difficulty.display_name) if difficulty else parts[0].capitalize()
-	return name + (" +%s" % parts[1] if parts.size() > 1 else "")
+	for part in parts.slice(1):
+		if part.begins_with("a") and part.substr(1).is_valid_int():
+			name += " +%s" % part.substr(1)
+	return name
 
 
 # --- Voices -----------------------------------------------------------------------
@@ -468,9 +483,10 @@ func _build() -> void:
 	_help.name = "Help"
 	_intro.add_child(_help)
 	_own(_help)
-	_records = UiSkin.label("", Fonts.BODY, UiSkin.GOLD)
+	_records = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
 	_records.name = "Records"
 	_intro.add_child(_records)
+	_own(_records)
 
 	# The list, in a dark inset, scrolled with a finger.
 	_list_box = UiSkin.section()

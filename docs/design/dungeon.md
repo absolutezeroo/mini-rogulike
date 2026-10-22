@@ -9,6 +9,11 @@
 - **Props** (`data/props/`): crates, vases and barrels break under any attack and may drop loot;
   **powder kegs** blink then explode, hurting everyone (you too) and setting off other kegs.
   Explosions you trigger give you the XP of what they kill. Props block movement, sight and shots.
+- **Bodies put down** never start inside a wall's, a prop's or a pond's shape (from inside one a
+  body may never get out): the floor's monsters stand inside the rooms, away from their walls,
+  and those put down near a spot later (summons, a trapped chest's, a split's, an encounter's, a
+  camp's: `World.find_open_point_near()`) only where their body fits (`World.body_fits()`,
+  `BODY_ROOM` 14 px or the monster's own radius), else on the nearest free cell's centre.
 - **Hazards** (`data/hazards/`): each act has its own list (`ActDef.hazards`), and every hazard
   knows how to lay itself out in a room (`HazardDef.place()`). They hurt monsters too: lure them in.
   - **Traps**: rows of **spikes** firing in a wave, **pressure plates** that strike when stepped on,
@@ -140,7 +145,8 @@ A hole on a floor is not only a stumble: the hero **falls deeper into the Well**
   (`AbyssHud`). The top of the screen names it, with the seconds left for the dawn's gift.
 - **Back up.** Stepping into the Breach brings him back to **the last safe spot by the hole**,
   and the hole fills in behind him (`AbyssDef.seal_hole`, `World.seal_hole()`: dust, solid floor)
-  so a step to the side doesn't drop him straight back in;
+  so a step to the side doesn't drop him straight back in; the floor's save keeps it filled
+  (`World.spent_data()` "sealed": a resumed run fills it again, cracked floor included);
   his Health as he left the Deeps (the Deeps were the cost), with 1.5 s of grace (`return_grace`)
   and his torch back. **Out quick** (`quick_time`: 30 s, +5 s each act) earns **the dawn's gift**
   at his feet: gold (12, +8 an act, through the floor's gold rules) and a 60% roll of a potion, a

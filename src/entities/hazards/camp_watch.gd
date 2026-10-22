@@ -40,7 +40,7 @@ func invade() -> void:
 		var kind := world.pick_monster()
 		if kind == null:
 			continue
-		var at := world.find_open_point_near(source.global_position, source.def.reach + 140.0)
+		var at := world.find_open_point_near(source.global_position, source.def.reach + 140.0, World.room_for(kind))
 		var monster := world.spawn_monster(kind, at)
 		monster.summoned = true
 		monster.target = world.player

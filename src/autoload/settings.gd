@@ -85,12 +85,18 @@ var fullscreen := false
 var ui_size := UI_BIG
 
 var _last_vibration := 0
+## Takes F11 and Alt+Enter before anything else (WindowKeys).
+var _window_keys := WindowKeys.new()
 
 
 func _ready() -> void:
-	process_mode = Node.PROCESS_MODE_ALWAYS  # F11 works in a paused menu too
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	load_settings()
 	apply()
+	_window_keys.name = "WindowKeys"
+	var root := get_tree().root
+	root.add_child.call_deferred(_window_keys)
+	root.child_entered_tree.connect(_on_root_child_added)
 
 
 ## Changes one option (by name), applies and saves it.
@@ -127,12 +133,36 @@ func _apply_window() -> void:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 
 
-## F11 or Alt+Enter: fullscreen or back to a window, anywhere in the game (before a menu's
-## button takes Enter).
-func _input(event: InputEvent) -> void:
-	if event.is_action_pressed(&"toggle_fullscreen", false, true):
-		get_viewport().set_input_as_handled()
-		set_option(&"fullscreen", not fullscreen)
+## A scene comes in under the root (the title, the game): the window's keys stay after it.
+func _on_root_child_added(node: Node) -> void:
+	if node != _window_keys:
+		_keep_window_keys_last.call_deferred()
+
+
+func _keep_window_keys_last() -> void:
+	var root := get_tree().root
+	if _window_keys.get_parent() == root and _window_keys.get_index() != root.get_child_count() - 1:
+		root.move_child(_window_keys, -1)
+
+
+## F11 or Alt+Enter: fullscreen or back to a window, anywhere in the game, paused or not, and
+## nothing else. Godot hands a key to the nodes' _input from the last node of the tree up, so this
+## node stays the root's last child: it takes the key before a menu's own _input reads Alt+Enter
+## as Enter (the bag's Use, the dialogue's next line) or any key as a skip (a card, a fragment).
+class WindowKeys extends Node:
+	func _init() -> void:
+		process_mode = Node.PROCESS_MODE_ALWAYS
+
+
+	func _input(event: InputEvent) -> void:
+		if event.is_action_pressed(&"toggle_fullscreen", false, true):
+			get_viewport().set_input_as_handled()
+			Settings.set_option(&"fullscreen", not Settings.fullscreen)
+
+
+## The node that takes F11 and Alt+Enter (tests: it is the root's last child).
+func window_keys() -> Node:
+	return _window_keys
 
 
 ## The device's language if the game speaks it, else English.

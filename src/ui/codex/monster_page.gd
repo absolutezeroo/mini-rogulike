@@ -14,8 +14,9 @@ signal fragment_requested(fragment: FragmentDef, boss: BossDef)
 
 enum Middle { ATTACKS, CHRONICLE }
 
-const LEFT_WIDTH := 300.0
-const RIGHT_WIDTH := 370.0
+## (Wide enough for the longest word of a name at TITLE size: « L'Accapareur ».)
+const LEFT_WIDTH := 340.0
+const RIGHT_WIDTH := 330.0  # (with the left one, as wide as they were: 670)
 const SHINY_COLOR := CodexCard.SHINY_COLOR
 
 var _monster: MonsterDef
@@ -96,7 +97,8 @@ func _fill_identity(column: VBoxContainer, rank: int, rules: BestiaryRules) -> v
 	back.pressed.connect(func() -> void: back_requested.emit())
 	column.add_child(back)
 	column.add_child(_look())
-	var name_label := UiSkin.label(tr(_monster.display_name), Fonts.TITLE, Palette.DANGER if _monster is BossDef else UiSkin.GOLD)
+	# Wrapped: a long name in French ("Sentinelle de la Brèche") is wider than the column at TITLE.
+	var name_label := UiSkin.label(tr(_monster.display_name), Fonts.TITLE, Palette.DANGER if _monster is BossDef else UiSkin.GOLD, true)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(name_label)
 	var boss := _monster as BossDef
@@ -323,7 +325,9 @@ func _attacks() -> Array[Dictionary]:
 		if phase_of.has(skill):
 			text = tr("From phase %d. %s") % [phase_of[skill], text]
 			if names.has(name):
-				name += " " + tr("(phase %d)") % phase_of[skill]  # its fiercer form
+				# Its fiercer form; on a line of its own, so a long French name (« Cercle des
+				# Lamentations (phase 3) ») never makes the column wider than the screen.
+				name += "\n" + tr("(phase %d)") % phase_of[skill]
 		names[tr(skill.display_name)] = true
 		result.append({ "name": name, "attack": skill, "text": text })
 	return result

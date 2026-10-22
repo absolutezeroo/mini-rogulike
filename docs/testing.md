@@ -30,7 +30,8 @@ The suites (`tests/suites/`, each a `TestSuite`):
 - **game**: a bot plays the real game (kills, level ups and perk choices, stairs, death and
   restart, saving and resuming), then on that same game: **combat** (projectiles, perks, skills,
   monsters and their traits, difficulty, weapons), **floor** (props, hazards, chests, ambushes,
-  encounters, pact doors, the merchant, loot, curses, biomes, act cards, the belt), **boss** (a full boss fight
+  encounters, pact doors, the merchant, loot, curses, biomes, act cards, the belt; on 12 more
+  floors, no body put down inside a wall or a prop), **boss** (a full boss fight
   with its phases and relic, then winning the run) and **finale** (the bottom of the Well after a
   win: the gate, saves around it, Tôma, the Maw's jaw, the endings, and with Boss stories on
   their meetings, last words and deeds).
@@ -44,7 +45,9 @@ The suites (`tests/suites/`, each a `TestSuite`):
   device in use from keys, gamepad buttons and sticks with the dead zone, touches and the mouse;
   the prompts per device and gamepad family; the input map; the settings; the canvas's scale at
   every screen size; MenuNav on a little menu), its title part in the title suite (the title's
-  panels with keys: move, accept, Back, tabs; their layouts at every size), its game part in the
+  panels with keys: move, accept, Back, tabs; their layouts at every size; then a game begun in
+  French: every in-run panel with its longest words inside 1280x720, 1540x720, 2340x1080 and
+  2548x1296, `_test_french_panels()`), its game part in the
   game suite (the HUD per device, the mouse in a fight, pausing, every in-run panel with keys and a
   gamepad, the HUD's layout at every size, on touch and on keys). The runner starts every suite on
   touch (`InputDevice.use(TOUCH)`): the other tests play the phone's game.
@@ -56,7 +59,8 @@ The suites (`tests/suites/`, each a `TestSuite`):
   tab; the bag on
   touch: tabs tapped, the card's buttons, new marks, the tab remembered, a right click; with a
   gamepad: LB / RB, A, X, Y, B, the confirmation for rare pieces, what is worn never broken; with
-  keys: Q / E, Enter, X, Delete, G, Escape; and the bag inside a 1280x720 screen in French).
+  keys: Q / E, Enter, X, Delete, G, Escape, Alt+Enter and F11 switching fullscreen and nothing
+  else; and the bag inside a 1280x720 screen in French).
 - The dialogue (`dialogue_tests.gd`, `DialogueTests`, on PcTests' helpers): its unit part in the
   unit suite (every speaker's lines: lengths, translations, codes, the reveal; the tale and the
   advice a staged death gets: a warden, its shockwave, a trap, the Deeps, the cold, the Threshold,

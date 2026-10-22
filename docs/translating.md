@@ -35,7 +35,10 @@ says so).
   around joining words like `" and "`). The unit tests check that every key has its French and
   keeps its codes.
 - **Font**: the pixel font (`assets/fonts/normal_font.ttf`) had all French accents but œ Œ « »
-  Î Ï … – — and the no-break spaces; `tools/i18n/add_glyphs.py` drew them on its grid, in its style.
+  Î Ï … – — × and the no-break spaces; `tools/i18n/add_glyphs.py` drew them on its grid, in its style.
+  A character the font lacks shows in a fallback font that clashes with the pixel art: the unit
+  tests check that the font has every character of `locale/strings.csv`. A new one goes in
+  `add_glyphs.py` (or the text says it otherwise).
   Typography: a plain space before `:`, `;`, `!`, `?` and `%` (`« %s »` for quotes).
 
 **French glossary** (one word per idea, everywhere; the player is "tu"; the names, lore and voice follow

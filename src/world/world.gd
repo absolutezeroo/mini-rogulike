@@ -20,6 +20,9 @@ const TRAP_SCENE := preload("res://src/entities/trap/trap.tscn")
 const FLASH_SCENE := preload("res://src/vfx/light_flash.tscn")
 ## Pixels of a hole's edge you can stand on without falling.
 const PIT_EDGE := 6.0
+## Room a body put down on the floor needs around it (find_open_point_near()): the usual
+## monsters' bodies, an elite's grown one included. A bigger one asks for its own radius.
+const BODY_ROOM := 14.0
 
 ## Goes up with every floor built: delayed effects started on an old floor are dropped.
 var floor_id := 0
@@ -96,6 +99,9 @@ var forge_drought_at_start := 0
 ## seed: these stay taken). Cells of opened chests, items bought from the merchant (saved form).
 var opened_chests: Array[Vector2i] = []
 var bought: Array = []
+## Hole cells filled in on this floor (seal_hole: the hole the hero fell into the Deeps through),
+## saved with the floor so a resumed run doesn't find it open again.
+var sealed_cells: Array[Vector2i] = []
 ## Set before rebuilding a saved floor (restore_spent), used once by build_floor.
 var _to_restore := {}
 ## Where the stairs are (boss floors get theirs when the boss dies).
@@ -159,6 +165,7 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 	depth = new_depth
 	opened_chests.clear()
 	bought.clear()
+	sealed_cells.clear()
 	forge_drought_at_start = floors_without_forge
 	_content = content
 	var hidden := hidden_floor
@@ -556,6 +563,7 @@ func spent_data() -> Dictionary:
 		"pact": pact.save_code() if pact else 0,
 		"fragment": fragment_taken,
 		"seal_kills": seal.kills,
+		"sealed": sealed_cells.map(func(cell: Vector2i) -> Array: return [cell.x, cell.y]),
 	}
 
 
@@ -590,6 +598,16 @@ func _apply_restore() -> void:
 		fragment.take()  # read before quitting: not laid again
 	if pact and int(data.get("pact", 0)) > 0:
 		pact.set_spent()  # sworn before quitting: never offered again
+	_restore_sealed(data.get("sealed", []))  # (older saves have none)
+
+
+## Holes filled in before quitting stay filled: `saved` is spent_data()'s "sealed".
+func _restore_sealed(saved: Array) -> void:
+	var filled: Array[Vector2i] = []
+	for pair: Variant in saved:
+		if pair is Array and (pair as Array).size() == 2:
+			filled.append(Vector2i(int(pair[0]), int(pair[1])))
+	_fill_cells(filled)
 
 
 func spawn_ambush(room: Rect2i) -> AmbushRoom:
@@ -826,7 +844,8 @@ func add_pit(cell: Vector2i, def: PitDef) -> void:
 
 
 ## Fills the hole `cell` belongs to (every hole cell joined to it): solid floor again, walkable,
-## with dust where it closed. Returns the cells filled (none if `cell` is no hole).
+## with dust where it closed. Returns the cells filled (none if `cell` is no hole). Kept in
+## `sealed_cells`, for the floor's save.
 func seal_hole(cell: Vector2i) -> Array[Vector2i]:
 	var sealed: Array[Vector2i] = []
 	if not _pits.has(cell):
@@ -834,17 +853,32 @@ func seal_hole(cell: Vector2i) -> Array[Vector2i]:
 	var todo: Array[Vector2i] = [cell]
 	while not todo.is_empty():
 		var next: Vector2i = todo.pop_back()
-		if not _pits.has(next):
+		if not _pits.has(next) or sealed.has(next):
 			continue
-		_pits.remove(next)
 		sealed.append(next)
-		set_cell_blocked(next, not map.is_floor(next))
 		for step: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
 			todo.append(next + step)
+	_fill_cells(sealed)
 	for filled in sealed:
 		Vfx.puff(self, map.cell_to_world(filled))
-	cells_changed.emit(sealed)
 	return sealed
+
+
+## Makes `cells` solid floor: their holes filled, and their cracked floor too (a hole that was
+## cracked floor before it gave way: rebuilt from the seed, the floor is cracked there again).
+func _fill_cells(cells: Array[Vector2i]) -> void:
+	if cells.is_empty():
+		return
+	for cell in cells:
+		_pits.remove(cell)
+		var crack := _cracks.get(cell) as CrumblingFloor
+		if crack:
+			forget_crack(cell)
+			crack.queue_free()
+		set_cell_blocked(cell, not map.is_floor(cell))
+		if not sealed_cells.has(cell):
+			sealed_cells.append(cell)
+	cells_changed.emit(cells)
 
 
 func has_pit(cell: Vector2i) -> bool:
@@ -1063,14 +1097,34 @@ func find_path(from: Vector2, to: Vector2) -> PackedVector2Array:
 	return nav.find_path(from, to)
 
 
-## A walkable point about `distance` away from `center`, in sight of it (or `center` itself).
-## Never over a hole or cracked floor.
-func find_open_point_near(center: Vector2, distance: float) -> Vector2:
+## A walkable point about `distance` away from `center`, in sight of it, where a body of
+## `room` px fits: never over a hole or cracked floor, never into a wall's, a prop's or a pond's
+## shape (a body put down inside one may never get out). Else `center` if a body fits there, else
+## the nearest free cell's centre.
+func find_open_point_near(center: Vector2, distance: float, room: float = BODY_ROOM) -> Vector2:
 	for attempt in 10:
 		var point := center + Vector2.from_angle(rng.randf() * TAU) * distance
-		if is_solid_ground(point) and has_line_of_sight(center, point):
+		if is_solid_ground(point) and has_line_of_sight(center, point) and body_fits(point, room):
 			return point
-	return center
+	if is_solid_ground(center) and body_fits(center, room):
+		return center
+	return nearest_free_point(center)
+
+
+## Room for the body of a monster of `def`, put down by find_open_point_near().
+static func room_for(def: MonsterDef) -> float:
+	return maxf(BODY_ROOM, def.radius) if def else BODY_ROOM
+
+
+## Nothing that stops a body (walls, props, chests, ponds...) within `radius` of `point`.
+func body_fits(point: Vector2, radius: float = BODY_ROOM) -> bool:
+	var shape := CircleShape2D.new()
+	shape.radius = radius
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = shape
+	query.transform = Transform2D(0.0, point)
+	query.collision_mask = Layers.WORLD | Layers.WATER
+	return get_world_2d().direct_space_state.intersect_shape(query, 1).is_empty()
 
 
 func monster_count() -> int:
