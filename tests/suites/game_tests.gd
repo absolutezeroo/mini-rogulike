@@ -145,10 +145,11 @@ func run() -> void:
 
 	# Inventory screen opens, lists items, uses them, pauses, and closes.
 	var cap: ItemDef = load("res://data/items/armors/leather_cap.tres")
-	while player.inventory.is_full():
+	while not player.inventory.can_add(cap):
 		player.inventory.items.pop_back()  # (loot picked up on the way may have filled it)
 	player.inventory.add(cap)
-	game.inventory_panel.show_category(0)  # weapons and armor
+	var armor := player.inventory.compartment_of(cap)
+	game.inventory_panel.show_category(armor)
 	game.open_inventory()
 	await _frames(2)
 	check(get_tree().paused, "inventory pauses the game")
@@ -157,10 +158,9 @@ func run() -> void:
 	for child in grid.get_children():
 		if (child as ItemSlot).item and (child as ItemSlot).item.id == cap.id:  # (or a cap picked up on the way)
 			cap_slot = child
-	# A stack takes one place: the tab's stacks, then the bag's free places.
-	var bag_tabs: BagCategorySet = load(BagCategorySet.PATH)
-	var stacks := bag_tabs.entries_in(0, player.inventory.grouped()).size()
-	var free := player.inventory.capacity - player.inventory.places_used()
+	# A stack takes one place: the tab's stacks, then its compartment's free places.
+	var stacks := Inventory.CATEGORIES.entries_in(armor, player.inventory.grouped()).size()
+	var free := player.inventory.free_in(armor)
 	check(grid.get_child_count() == stacks + free and cap_slot != null, "inventory shows the tab's stacks and the free places as slots (%d = %d + %d)" % [grid.get_child_count(), stacks, free])
 	cap_slot.pressed.emit()
 	(game.inventory_panel.get_node("%UseButton") as Button).pressed.emit()

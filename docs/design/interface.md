@@ -262,25 +262,29 @@ item's rarity color (a rune's in its family's), how many, and a weapon's rune so
 stones lit in their runes' colors. The selected slot pulses gold.
 
 - **Bag** (`InventoryPanel`, built in code): the hero, the weapon / head / body slots, the belt and
-  the stats on the left; the bag in the middle, its title counting places ("Bag 5 / 16"), and
-  under it **Dismantle the worse (n)**; the picked item's card on the right (name in its rarity,
+  the stats on the left; the bag in the middle, one compartment at a time (its tab), and under it
+  **Dismantle the worse (n)** (the tab's worse gear); the picked item's card on the right (name in its rarity,
   type, every line of its details, its rune sockets, for gear in the bag "Dismantle value: 12
   gold") with its actions' buttons. Dismantle the worse opens a confirmation (`RpgDialog`): how
   many and the gold, their slots, "what you wear, potions, runes, tomes and keys are never
   touched", Dismantle: +n gold / Keep them. Gold won flies as coins to the counter (`GoldBurst`)
   with the coin sound.
-  - **Tabs** (`BagCategorySet`, `data/items/bag_categories.tres`; `BagTab`): **Weapons & Armor**
-    (Armes & Armures), **Runes**, **Tomes & Scrolls** (Grimoires & Parchemins: the tomes and the
-    Scroll of Fire), **Consumables** (Consommables) and **Other** (Divers: keys, and whatever no
-    tab claims; hidden while empty). A row of wooden tabs over the grid, each with its icon, how
-    many items it holds (a stack counts all of its own) and a small gold gem while something new
-    waits in it; under them the open tab's name, between its keys on keys and gamepads ([Q]
-    Weapons & Armor [E], [LB] ... [RB]). Tap a tab, or Q / E, LB / RB (`MenuNav`, "menu_tabs").
-    The tab picked stays picked until the run ends (the bag opens on it). No "All" tab: the
-    places are what fills, and the free ones show in every tab.
+  - **Compartments and their tabs** (`Inventory`, `BagCategorySet`,
+    `data/items/bag_categories.tres`; `BagTab`): the bag is six compartments, each with its own
+    places (loot.md, "Room in the bag"): **Weapons** (Armes), **Armors** (Armures), **Runes**,
+    **Tomes & Scrolls** (Grimoires & Parchemins: the tomes and the Scroll of Fire),
+    **Consumables** (Consommables) and **Other** (Divers: keys, and whatever no compartment
+    claims; its tab hidden while empty). A row of wooden tabs over the grid, each with its icon,
+    how many items it holds (a stack counts all of its own; red when the compartment is full) and
+    a small gold gem while something new waits in it; under them the open tab's name and its own
+    places ("Runes  3 / 16", red when full), between its keys on keys and gamepads ([Q] Weapons
+    16 / 16 [E], [LB] ... [RB]). A compartment holding more than its places (a run saved before,
+    a compartment made smaller) keeps it all and says so under it ("More than it has room for:
+    make room before anything new goes in."). Tap a tab, or Q / E, LB / RB (`MenuNav`,
+    "menu_tabs"). The tab picked stays picked until the run ends (the bag opens on it).
   - **In a tab**: a 4-column grid, one slot per stack with its count ("x3"), the rarest first,
     then weapons, helms, body armors (a rune's family, a consumable's kind), the higher item
-    level, then by name; after them the bag's free places (empty slots). A slot new since the bag
+    level, then by name; after them the compartment's free places (empty slots). A slot new since the bag
     was last closed (or the item last picked) has the gold gem in its corner; what is worn or on
     the belt is never new.
   - **Actions** (`BagAction`, `src/ui/inventory/actions/`): Equip / Unequip / Learn / Use (not

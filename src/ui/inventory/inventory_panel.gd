@@ -6,17 +6,19 @@ extends Control
 ## open. Built in code. "Perks" in the header opens the build (BuildWindow): the families and the
 ## perks taken, in words.
 ##
-## - **Tabs** (BagCategorySet, data/items/bag_categories.tres): the bag is split by what things
-##   are (weapons and armor, runes, tomes and scrolls, consumables, the rest), each tab with its
-##   count and a gold gem while something new waits in it; inside a tab the rarest come first.
-##   The tab shown is kept while the run lasts. Tap a tab, or Q / E, LB / RB (MenuNav).
+## - **Compartments and their tabs** (Inventory, BagCategorySet, data/items/bag_categories.tres):
+##   weapons, armor, runes, tomes and scrolls, consumables, the rest, each with its own places
+##   ("Runes  3 / 16" under the tabs) and a tab with its count (red when full) and a gold gem while
+##   something new waits in it; inside a tab the rarest come first. The tab shown is kept while
+##   the run lasts. Tap a tab, or Q / E, LB / RB (MenuNav).
 ## - **Actions** (BagAction): Equip / Use, To belt, Drop, Dismantle, each a button on the card
 ##   and, on keys and gamepads, a key straight on the focused slot (Enter or A uses, X
 ##   dismantles, G or Y drops), its cap on its button. A rare piece (or one with runes) asks a
 ##   second press before it breaks (DismantleRules.needs_confirm).
 ## - With keys and a gamepad the focus is the pick: moving onto a slot shows its card.
-## Identical items stack (Inventory): one slot, "x2", one place of the bag. "Dismantle the worse"
-## breaks down, after a confirmation, every piece worse than what is worn (Player.worse_gear()).
+## Identical items stack (Inventory): one slot, "x2", one place of its compartment. "Dismantle the
+## worse" breaks down, after a confirmation, every piece of the tab open worse than what is worn
+## (Player.worse_gear()).
 
 signal closed
 
@@ -26,8 +28,8 @@ const BAG_SLOT := 66.0
 const GEAR_SLOT := 74.0
 ## How fast the right stick scrolls the item's details, UI units a second.
 const DETAILS_SCROLL_SPEED := 720.0
-## The bag's tabs and what goes in each.
-const CATEGORIES: BagCategorySet = preload("res://data/items/bag_categories.tres")
+## The bag's compartments (their tabs) and what goes in each.
+const CATEGORIES: BagCategorySet = Inventory.CATEGORIES
 
 ## Every family of perks (for the build window).
 var content: ContentDB
@@ -58,6 +60,8 @@ var _belt_slots: Array[ItemSlot] = []
 var _bag_slots: Array[ItemSlot] = []
 var _tabs: Array[BagTab] = []
 var _category_name: Label
+## "Over its places": a compartment holding more than it has room for (an old save).
+var _over_note: Label
 var _portrait: TextureRect
 var _stats: GridContainer
 var _bag_title: Label
@@ -245,17 +249,15 @@ func _refresh() -> void:
 	_know_worn()
 	if not _tab_shown(_category, grouped):
 		_category = _first_tab(grouped)
-	# Places, not items: a stack takes one.
-	_bag_title.text = tr("Bag  %d / %d") % [inventory.places_used(), inventory.capacity]
 	_update_tabs(grouped)
 	_fill_grid(grouped)
-	var worse := _player.worse_gear()
+	var worse := _player.worse_gear(_category)
 	_worse_button.text = tr("Dismantle the worse (%d)") % worse.size()
 	_worse_button.disabled = worse.is_empty()
 	_show_selection()
 
 
-## The tab's stacks, rarest first, then the bag's free places (shared by every tab).
+## The tab's stacks, rarest first, then its compartment's free places.
 func _fill_grid(grouped: Array[Dictionary]) -> void:
 	UiParts.clear(_item_grid)
 	_bag_slots.clear()
@@ -271,8 +273,8 @@ func _fill_grid(grouped: Array[Dictionary]) -> void:
 		_item_grid.add_child(button)
 		_bag_slots.append(button)
 		_shown[item.stack_key()] = true
-	# The empty places left in the bag: the keys can stand on them (nothing to do there).
-	for i in _player.inventory.capacity - _player.inventory.places_used():
+	# The empty places left in the compartment: the keys can stand on them (nothing to do there).
+	for i in _player.inventory.free_in(_category):
 		var empty := ItemSlot.new(BAG_SLOT)
 		empty.focus_entered.connect(_on_slot_focused.bind(empty))
 		_item_grid.add_child(empty)
@@ -280,16 +282,24 @@ func _fill_grid(grouped: Array[Dictionary]) -> void:
 	MenuNav.set_first(_window, _bag_slots[0] if not _bag_slots.is_empty() else _slot_buttons[EquipmentDef.Slot.WEAPON])
 
 
-## Each tab's count and new mark; the empty ones that hide when empty are put away.
+## Each tab's count (red when its compartment is full) and new mark; the ones that hide when
+## empty are put away. Under them, the tab open and its places ("Runes  3 / 16").
 func _update_tabs(grouped: Array[Dictionary]) -> void:
+	var inventory := _player.inventory
 	for i in _tabs.size():
 		var bag_tab := _tabs[i]
 		bag_tab.count = CATEGORIES.count_in(i, grouped)
+		bag_tab.full = inventory.is_compartment_full(i)
 		bag_tab.visible = _tab_shown(i, grouped)
 		bag_tab.fresh = grouped.any(func(entry: Dictionary) -> bool:
 			return CATEGORIES.index_of(entry.item) == i and not _seen.has((entry.item as ItemDef).stack_key()))
 	_update_tab_buttons()
-	_category_name.text = tr(CATEGORIES.categories[_category].display_name)
+	_category_name.text = tr("{tab}  {used} / {places}").format({
+		"tab": tr(CATEGORIES.categories[_category].display_name),
+		"used": inventory.places_used_in(_category), "places": inventory.capacity_of(_category) })
+	var over := inventory.over_capacity(_category) > 0
+	_category_name.add_theme_color_override("font_color", UiParts.BAD if over or inventory.is_compartment_full(_category) else UiSkin.GOLD)
+	_over_note.visible = over
 
 
 func _update_tab_buttons() -> void:
@@ -599,7 +609,7 @@ func _keep_stack_selected() -> void:
 
 ## "Dismantle the worse": what would go, and the gold, before anything breaks.
 func _on_worse_pressed() -> void:
-	var worse := _player.worse_gear()
+	var worse := _player.worse_gear(_category)
 	if worse.is_empty():
 		return
 	Sfx.play_ui(Sfx.bank.ui_open)
@@ -626,7 +636,7 @@ func _on_worse_pressed() -> void:
 
 func _on_worse_confirmed() -> void:
 	_confirm.hide()
-	_player.dismantle_all(_player.worse_gear())
+	_player.dismantle_all(_player.worse_gear(_category))
 	if _selected_item:
 		_keep_stack_selected()
 	_refresh()
@@ -751,6 +761,12 @@ func _build_bag(columns: HBoxContainer) -> void:
 	_own(_category_name)
 	naming.add_child(_category_name)
 	naming.add_child(PromptGlyph.make(&"menu_next_tab"))
+	_over_note = UiSkin.label(tr("More than it has room for: make room before anything new goes in."), Fonts.BODY, UiParts.BAD, true)
+	_over_note.name = "OverNote"
+	_over_note.custom_minimum_size.x = BAG_COLUMNS * (BAG_SLOT + 6) - 2
+	_over_note.hide()
+	_own(_over_note)
+	bag.column.add_child(_over_note)
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED

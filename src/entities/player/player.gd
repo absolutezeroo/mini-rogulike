@@ -97,7 +97,8 @@ func setup(player_def: PlayerDef) -> void:
 	collision_mask = Layers.WORLD | Layers.MONSTERS | Layers.WATER
 
 	base_stats = def.base_stats.duplicate()
-	inventory = Inventory.new(def.inventory_size)
+	inventory = Inventory.new(Inventory.CATEGORIES.categories[0].capacity, Inventory.CATEGORIES)
+	inventory.extra_places = def.bag_bonus
 	for item in def.starting_equipment:
 		equipment.equip(item)
 	for item in def.starting_items:
@@ -348,7 +349,7 @@ func pick_up(item: ItemDef) -> bool:
 		Events.log_message(tr("Picked up %s") % tr(item.display_name), item.rarity_color() if item is RuneDef else item.color)
 		_pickup_feedback(item, Sfx.bank.pickup)
 		return true
-	Events.log_message(tr("Inventory full!"), Palette.DANGER)
+	Events.log_message(inventory.full_text(item), Palette.DANGER)
 	Events.bag_full.emit(item)
 	return false
 
@@ -374,7 +375,7 @@ func use_item(item: ItemDef) -> void:
 	elif item is EquipmentDef:
 		# One of a stack: it frees no place, and what is worn now needs one.
 		if not inventory.fits_after_taking(item, equipment.get_item((item as EquipmentDef).slot)):
-			Events.log_message(tr("Inventory full!"), Palette.DANGER)
+			Events.log_message(inventory.full_text(equipment.get_item((item as EquipmentDef).slot)), Palette.DANGER)
 			Events.bag_full.emit(equipment.get_item((item as EquipmentDef).slot))
 			return
 		inventory.remove(item)
@@ -389,7 +390,7 @@ func unequip(slot: EquipmentDef.Slot) -> void:
 	if equipment.get_item(slot) == null:
 		return
 	if not inventory.can_add(equipment.get_item(slot)):
-		Events.log_message(tr("Inventory full!"), Palette.DANGER)
+		Events.log_message(inventory.full_text(equipment.get_item(slot)), Palette.DANGER)
 		return
 	inventory.add(equipment.unequip(slot))
 
@@ -432,11 +433,14 @@ func dismantle_all(list: Array[ItemDef]) -> int:
 
 
 ## The gear in the bag worse than what is worn in its slot (ItemCompare.is_worse): what
-## "Dismantle the worse" breaks down. Every item of a stack is listed.
-func worse_gear() -> Array[ItemDef]:
+## "Dismantle the worse" breaks down. Every item of a stack is listed. `compartment` >= 0: only
+## those of that compartment of the bag (the tab open: weapons or armor).
+func worse_gear(compartment: int = -1) -> Array[ItemDef]:
 	var result: Array[ItemDef] = []
 	for item in inventory.items:
 		var gear := item as EquipmentDef
+		if compartment >= 0 and inventory.compartment_of(item) != compartment:
+			continue
 		if gear and DismantleRules.can_dismantle(gear) and ItemCompare.is_worse(gear, equipment.get_item(gear.slot)):
 			result.append(item)
 	return result
@@ -549,10 +553,12 @@ func load_state(data: Dictionary) -> void:
 			equipment.equip(item)
 	inventory.items.clear()
 	gold = int(data.get("gold", 0))
+	# One list, as saves always kept it: each item goes back to its compartment, even past its
+	# places (a save from the single 16-place bag, a compartment made smaller): nothing is lost.
 	for saved_item: Variant in data.get("inventory", []):
 		var item := LootRoller.from_data(saved_item)
 		if item:
-			inventory.add(item)
+			inventory.force_add(item)
 	belt.load_data(data.get("belt", []))
 	perks.load_data(data.get("perks", []))
 	learned_skill = RunSave.load_ref(data.get("learned_skill")) as SkillDef

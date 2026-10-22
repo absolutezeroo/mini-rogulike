@@ -48,15 +48,39 @@
 
 ## Room in the bag
 
-The bag (`Inventory`, 16 places, `PlayerDef.inventory_size`) fills with gear fast; three things
-keep it from getting in the way.
+The bag (`Inventory`) is split into **compartments**, one per kind of thing, each with its own
+places (`BagCategoryDef.capacity` in `data/items/bag_categories.tres`): **Weapons** 16,
+**Armors** 16, **Runes** 16, **Tomes & Scrolls** 16 (the tomes and the Scroll of Fire),
+**Consumables** 16 and **Other** 8 (keys, and anything no other compartment claims). Which one an
+item goes to is its class (a weapon is a `WeaponDef`, an armor an `ArmorDef`...) or, for a few,
+its id. A compartment fills on its own: sixteen weapons never stop a rune from coming in. "Is
+there room?" is always asked of the item's compartment (`Inventory.can_add()`, through
+`Player.can_store()`), wherever an item enters the bag: walking over loot and auto loot, the
+Take button of loot left on the ground, the merchant's Buy, a rune taken out at the forge (and
+a weapon of a stack getting a rune: it needs a place of its own among the weapons), equipping
+one of a stack or unequipping (the worn piece goes back to its compartment), moving a consumable
+from the belt, a shrine upgrade's starting items. Rewards from chests, bosses, secret rooms, the
+Threshold and the Deeps are loot on the ground: the same rule. Runes of a kind stack, so the
+runes' sixteen places hold every kind there is with room to spare.
+
+- **More places**: `PlayerDef.bag_bonus` adds places to every compartment
+  (`Inventory.extra_places`); an upgrade can add to every compartment the same way, or to one by
+  its id (`Inventory.extra_by_category`). None does today: the hero has the compartments' own
+  places.
+- **Saved runs**: the bag is saved as one list, as before, and each item goes back to its
+  compartment; a save from the single 16-place bag fits (it held 16 places in all). A
+  compartment holding more than its places after loading (one made smaller) keeps everything,
+  says so in the bag, and takes nothing new until the player makes room.
+
+Three things keep the compartments from getting in the way.
 
 - **Stacks**: identical items share one place and one slot ("x3"), potions and runes as before,
   and now rolled gear too. Two drops are identical when their `ItemDef.stack_key()` is: the same
   .tres for plain items; for rolled equipment the same base item, rarity, item level, affixes (in
   order: they make the name) and set runes, which is exactly what a saved run keeps of it
-  (`LootRoller.to_data`), so stacks come back after Continue. The bag counter ("Bag 5 / 16") and
-  "bag full" count places, not items: a full bag still takes one more of a stack. Equipping,
+  (`LootRoller.to_data`), so stacks come back after Continue. The tab's counter ("Weapons
+  5 / 16") and "full" count places, not items: a full compartment still takes one more of a
+  stack. Equipping,
   dropping, selling or dismantling takes one from the stack; equipping one of a stack checks
   there is a place for what was worn (it frees none). A weapon with a rune set leaves its stack.
 - **Dismantle** (`DismantleRules`, `data/items/dismantle.tres`): any piece of gear in the bag
@@ -70,7 +94,7 @@ keep it from getting in the way.
   x1.5, +20% a floor), and less deeper: carrying gear to him stays worth it, and dismantling is
   never a way to make gold. Never what is worn, potions, runes, tomes or keys.
 - **Dismantle the worse**: the bag's button breaks down, after a confirmation that shows them and
-  the gold, every piece **worse** than what is worn in its slot (`ItemCompare.is_worse`,
+  the gold, every piece of the tab open (weapons or armors) **worse** than what is worn in its slot (`ItemCompare.is_worse`,
   `Player.worse_gear()`). Worse means: not a higher item level, not rarer, no rune set, no affix
   (or weapon status) doing something the worn one doesn't (Vampiric, Burning...); and then, if it
   is of a lower level or rarity, not better at its main job (damage per second for a weapon;
@@ -84,8 +108,11 @@ keep it from getting in the way.
   on the screen (`LootPrompt`): its slot, name, how it compares, and **Take**. Better only is the
   default because on a phone stopping to tap every drop mid-fight is a chore, while taking
   everything is what filled the bag with worse gear; what it leaves is still one step away.
-- **Bag full**: an item that has no room stays on the ground; a toast says so ("Your bag is full:
-  ... Dismantle or drop something", at most every 4 s) and the board's button opens the bag.
+- **A full compartment**: an item that has no room stays on the ground; a toast names the
+  compartment ("No room left for weapons: ... stays on the ground. Dismantle or drop something in
+  the bag.", at most every 4 s; `BagCategoryDef.full_text`), the loot board says the same, its
+  button opens the bag; the merchant's Buy reads "No room left for runes: sell something first",
+  the forge's "No room left for runes".
 
 ## The belt
 

@@ -45,7 +45,7 @@ data/                Game content as .tres resources (no code)
   items/weapons/       Player weapons (monster/ = monster-only weapons)
   items/armors/        Head and body armor
   items/consumables/   Potions, scrolls, bombs...
-  items/bag_categories.tres  The bag's tabs and which items go in each
+  items/bag_categories.tres  The bag's compartments (tabs): which items go in each, their places
   items/tomes/         Skill tomes (teach a spell)
   skills/              Player, monster and boss skills
   ui/                  Loading tips, input_prompts.tres (the controls as the player is told about them: the

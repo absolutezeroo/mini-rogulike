@@ -126,8 +126,9 @@ func _on_bag_full(item: ItemDef) -> void:
 	if hud == null or now - _last_full_toast < FULL_TOAST_GAP:
 		return
 	_last_full_toast = now
-	hud.toast(tr("Your bag is full: %s stays on the ground. Dismantle or drop something in the bag.") % tr(item.display_name) if item \
-		else tr("Your bag is full. Dismantle or drop something in the bag."))
+	var room := player.inventory.full_text(item) if player else tr("Your bag is full")
+	hud.toast(tr("{room}: {item} stays on the ground. Dismantle or drop something in the bag.").format({ "room": room, "item": tr(item.display_name) }) if item \
+		else tr("{room}. Dismantle or drop something in the bag.").format({ "room": room }))
 
 
 func _on_take() -> void:
@@ -161,7 +162,7 @@ func _show_last() -> void:
 	_type.text = item.get_type_label()
 	var room := player.can_store(item) or _fits_by_equipping(item)
 	_take.text = tr("Take") if room else tr("Open the bag")
-	_compare.text = _compare_line(item) if room else "[color=#%s]%s[/color]" % [UiParts.BAD.to_html(false), tr("Your bag is full.")]
+	_compare.text = _compare_line(item) if room else "[color=#%s]%s[/color]" % [UiParts.BAD.to_html(false), player.inventory.full_text(item)]
 
 
 ## "+3 damage, -1 armor": the first changes against what is worn, green or red.

@@ -72,11 +72,11 @@ static func weapons_of(player: Player) -> Array[EquipmentDef]:
 static func set_rune(player: Player, weapon: EquipmentDef, rune: RuneDef) -> EquipmentDef:
 	if weapon == null or rune == null or weapon.free_sockets() <= 0 or not player.inventory.items.has(rune):
 		return null
-	# One of a stack in the bag leaves it and needs a place of its own (the rune may free one).
+	# One of a stack in the bag leaves it and needs a place of its own, in the weapons'
+	# compartment (the rune leaving frees one in the runes', not there).
 	var bag := player.inventory
-	if bag.items.has(weapon) and bag.count_of(weapon) > 1 \
-			and bag.places_used() - (1 if bag.count_of(rune) == 1 else 0) >= bag.capacity:
-		Events.log_message(TranslationServer.tr("Your bag is full"), Palette.DANGER)
+	if bag.items.has(weapon) and bag.count_of(weapon) > 1 and bag.is_compartment_full(bag.compartment_of(weapon)):
+		Events.log_message(bag.full_text(weapon), Palette.DANGER)
 		return null
 	var worked := weapon if weapon.is_rolled() else LootRoller.make(weapon, weapon.rarity, weapon.affixes.duplicate(), [], weapon.item_level)
 	worked.runes.append(rune)

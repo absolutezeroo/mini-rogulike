@@ -2,50 +2,70 @@
 
 [ext_resource type="Script" path="res://src/definitions/items/bag_category_set.gd" id="1_set"]
 [ext_resource type="Script" path="res://src/definitions/items/bag_category_def.gd" id="2_def"]
-[ext_resource type="Texture2D" path="res://assets/weapons/katana.png" id="3_gear"]
+[ext_resource type="Texture2D" path="res://assets/weapons/katana.png" id="3_weapons"]
+[ext_resource type="Texture2D" path="res://assets/items/armor.png" id="3_armor"]
 [ext_resource type="Texture2D" path="res://assets/items/runes/spark.png" id="4_runes"]
 [ext_resource type="Texture2D" path="res://assets/items/tome_war.png" id="5_tomes"]
 [ext_resource type="Texture2D" path="res://assets/items/lifepot.png" id="6_potions"]
 [ext_resource type="Texture2D" path="res://assets/items/bone_key.png" id="7_other"]
 
-[sub_resource type="Resource" id="Category_gear"]
+[sub_resource type="Resource" id="Category_weapons"]
 script = ExtResource("2_def")
-id = &"gear"
-display_name = "Weapons & Armor"
-icon = ExtResource("3_gear")
-kinds = Array[StringName]([&"EquipmentDef"])
+id = &"weapons"
+display_name = "Weapons"
+full_text = "No room left for weapons"
+icon = ExtResource("3_weapons")
+kinds = Array[StringName]([&"WeaponDef"])
+capacity = 16
+
+[sub_resource type="Resource" id="Category_armor"]
+script = ExtResource("2_def")
+id = &"armor"
+display_name = "Armors"
+full_text = "No room left for armor"
+icon = ExtResource("3_armor")
+kinds = Array[StringName]([&"ArmorDef", &"EquipmentDef"])
+capacity = 16
 
 [sub_resource type="Resource" id="Category_runes"]
 script = ExtResource("2_def")
 id = &"runes"
 display_name = "Runes"
+full_text = "No room left for runes"
 icon = ExtResource("4_runes")
 kinds = Array[StringName]([&"RuneDef"])
+capacity = 16
 
 [sub_resource type="Resource" id="Category_scrolls"]
 script = ExtResource("2_def")
 id = &"scrolls"
 display_name = "Tomes & Scrolls"
+full_text = "No room left for tomes and scrolls"
 icon = ExtResource("5_tomes")
 kinds = Array[StringName]([&"SkillTomeDef"])
 item_ids = Array[StringName]([&"fire_scroll"])
+capacity = 16
 
 [sub_resource type="Resource" id="Category_consumables"]
 script = ExtResource("2_def")
 id = &"consumables"
 display_name = "Consumables"
+full_text = "No room left for consumables"
 icon = ExtResource("6_potions")
 kinds = Array[StringName]([&"ConsumableDef"])
+capacity = 16
 
 [sub_resource type="Resource" id="Category_other"]
 script = ExtResource("2_def")
 id = &"other"
 display_name = "Other"
+full_text = "No room left for other things"
 icon = ExtResource("7_other")
 kinds = Array[StringName]([&"KeyItemDef"])
 catch_all = true
 hidden_when_empty = true
+capacity = 8
 
 [resource]
 script = ExtResource("1_set")
-categories = Array[ExtResource("2_def")]([SubResource("Category_gear"), SubResource("Category_runes"), SubResource("Category_scrolls"), SubResource("Category_consumables"), SubResource("Category_other")])
+categories = Array[ExtResource("2_def")]([SubResource("Category_weapons"), SubResource("Category_armor"), SubResource("Category_runes"), SubResource("Category_scrolls"), SubResource("Category_consumables"), SubResource("Category_other")])
