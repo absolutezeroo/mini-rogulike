@@ -1067,8 +1067,8 @@
     {
       "id": "task_77",
       "title": "Codex au clavier : cadre de focus dessiné sur les onglets",
-      "description": "Vu sur les captures en français (1280x720, clavier) : sur la page d'un monstre, le cadre de focus du bouton « < Tous les monstres » (colonne de gauche, défilée) est dessiné par-dessus les onglets Quêtes / Bestiaire, hors de sa colonne. Probablement aussi en anglais. Vérifier et le garder dans sa colonne (défiler jusqu'au bouton, ou focus ailleurs).",
-      "status": "backlog",
+      "description": "Vu sur les captures en français (1280x720, clavier) : sur la page d'un monstre, le cadre de focus du bouton « < Tous les monstres » (colonne de gauche, défilée) est dessiné par-dessus les onglets Quêtes / Bestiaire, hors de sa colonne. Probablement aussi en anglais. Vérifier et le garder dans sa colonne (défiler jusqu'au bouton, ou focus ailleurs).\n\nFait : cause trouvée. La page d'un monstre donne le focus à son premier bouton (« < Tous les monstres ») avant que ses colonnes soient mises en page ; la colonne de gauche, qui suit le focus (follow_focus), se mesurait vide et défilait de la hauteur du bouton (46) : le bouton restait juste au-dessus de sa colonne, et son cadre de focus (dessiné par MenuNav sur une couche au-dessus de tout, sans découpe) tombait sur les onglets. Deux corrections : (1) la page ouverte remet ses colonnes en haut (MonsterPage.scroll_to_top(), appelé par CodexPanel.open_monster) ; (2) en général, le cadre de focus reste dans les boîtes qui découpent son bouton (une liste qui défile, une colonne), à sa propre épaisseur près : un bouton défilé hors de sa colonne n'a plus de cadre, un bouton à moitié sorti a un cadre coupé au bord (MenuNav.frame_area() pour les tests). Test : PcTests._test_codex_page_focus (suite title, en français 1280x720 au clavier) : colonnes en haut à l'ouverture (échoue sans la correction : [46, 0, 0]), le focus sur le bouton, le cadre autour de lui dans sa colonne, et colonne défilée → aucun cadre hors de la colonne. Captures (avant/après) : codex_before_page_open.png, codex_after_page_open.png, codex_after_page_scrolled.png ; cadres des autres menus inchangés (focus_keys_bag.png, focus_keys_options.png). docs/design/interface.md mis à jour.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_4",
       "due_date": null,
@@ -1078,7 +1078,7 @@
         "bug"
       ],
       "created_at": 1792710637,
-      "updated_at": 1792710637
+      "updated_at": 1792712301
     },
     {
       "id": "task_78",
