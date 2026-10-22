@@ -45,6 +45,7 @@ data/                Game content as .tres resources (no code)
   items/weapons/       Player weapons (monster/ = monster-only weapons)
   items/armors/        Head and body armor
   items/consumables/   Potions, scrolls, bombs...
+  items/bag_categories.tres  The bag's tabs and which items go in each
   items/tomes/         Skill tomes (teach a spell)
   skills/              Player, monster and boss skills
   ui/                  Loading tips, input_prompts.tres (the controls as the player is told about them: the
@@ -80,7 +81,8 @@ src/
   ai/                  StateMachine + monster states (Idle, Chase, Attack, Cast)
   vfx/                 Particles (particles/), sprite-sheet FX, emotes, afterimages, damage numbers; Vfx helpers
   ui/                  Title screen and shrine, story, act cards, HUD and minimap, touch controls, the action
-                       bar and mouse controls, prompts (Prompts, PromptGlyph), inventory, perk choice, pause
+                       bar and mouse controls, prompts (Prompts, PromptGlyph), inventory (its tabs, BagTab, and
+                       actions/: BagAction), perk choice, pause
                        menu, options (and its Controls page), end of run
   game/                Game: main scene, floor flow, pauses; RunState (the run: depth, kills, bosses,
                        difficulty), RunRecords (stats, bestiary, achievements, history), OfferQueue

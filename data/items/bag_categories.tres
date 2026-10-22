@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="BagCategorySet" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/items/bag_category_set.gd" id="1_set"]
+[ext_resource type="Script" path="res://src/definitions/items/bag_category_def.gd" id="2_def"]
+[ext_resource type="Texture2D" path="res://assets/weapons/katana.png" id="3_gear"]
+[ext_resource type="Texture2D" path="res://assets/items/runes/spark.png" id="4_runes"]
+[ext_resource type="Texture2D" path="res://assets/items/tome_war.png" id="5_tomes"]
+[ext_resource type="Texture2D" path="res://assets/items/lifepot.png" id="6_potions"]
+[ext_resource type="Texture2D" path="res://assets/items/bone_key.png" id="7_other"]
+
+[sub_resource type="Resource" id="Category_gear"]
+script = ExtResource("2_def")
+id = &"gear"
+display_name = "Weapons & Armor"
+icon = ExtResource("3_gear")
+kinds = Array[StringName]([&"EquipmentDef"])
+
+[sub_resource type="Resource" id="Category_runes"]
+script = ExtResource("2_def")
+id = &"runes"
+display_name = "Runes"
+icon = ExtResource("4_runes")
+kinds = Array[StringName]([&"RuneDef"])
+
+[sub_resource type="Resource" id="Category_scrolls"]
+script = ExtResource("2_def")
+id = &"scrolls"
+display_name = "Tomes & Scrolls"
+icon = ExtResource("5_tomes")
+kinds = Array[StringName]([&"SkillTomeDef"])
+item_ids = Array[StringName]([&"fire_scroll"])
+
+[sub_resource type="Resource" id="Category_consumables"]
+script = ExtResource("2_def")
+id = &"consumables"
+display_name = "Consumables"
+icon = ExtResource("6_potions")
+kinds = Array[StringName]([&"ConsumableDef"])
+
+[sub_resource type="Resource" id="Category_other"]
+script = ExtResource("2_def")
+id = &"other"
+display_name = "Other"
+icon = ExtResource("7_other")
+kinds = Array[StringName]([&"KeyItemDef"])
+catch_all = true
+hidden_when_empty = true
+
+[resource]
+script = ExtResource("1_set")
+categories = Array[ExtResource("2_def")]([SubResource("Category_gear"), SubResource("Category_runes"), SubResource("Category_scrolls"), SubResource("Category_consumables"), SubResource("Category_other")])

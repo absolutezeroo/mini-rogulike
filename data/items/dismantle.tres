@@ -6,3 +6,4 @@
 script = ExtResource("1")
 gold_share = 0.15
 gold_per_level = 0.2
+confirm_rarity = 2

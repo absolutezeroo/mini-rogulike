@@ -1190,6 +1190,7 @@ func _test_bag_room(game: Game) -> void:
 	check(player.inventory.count_of(worse) == 3, "but a third of a stack still comes in")
 
 	# The bag screen: places counted by stacks, the count on the slot, dismantling.
+	game.inventory_panel.show_category(0)  # weapons and armor
 	game.open_inventory()
 	await _frames(2)
 	var panel: InventoryPanel = game.inventory_panel
@@ -1198,7 +1199,8 @@ func _test_bag_room(game: Game) -> void:
 	for child in grid.get_children():
 		if (child as ItemSlot).item == player.inventory.find_like(worse):
 			stack_slot = child
-	check(stack_slot != null and stack_slot.count == 3 and grid.get_child_count() == player.inventory.capacity, "the stack is one slot with its count (x%d)" % (stack_slot.count if stack_slot else 0))
+	var stacks := InventoryPanel.CATEGORIES.entries_in(panel.category_index(), player.inventory.grouped()).size()
+	check(stack_slot != null and stack_slot.count == 3 and grid.get_child_count() == stacks + player.inventory.capacity - player.inventory.places_used(), "the stack is one slot with its count (x%d), then the free places" % (stack_slot.count if stack_slot else 0))
 	check(panel._bag_title.text == "Bag  %d / %d" % [player.inventory.places_used(), player.inventory.capacity], "the bag counts places: %s" % panel._bag_title.text)
 	stack_slot.pressed.emit()
 	var dismantle: Button = panel.get_node("%DismantleButton")
@@ -1206,10 +1208,15 @@ func _test_bag_room(game: Game) -> void:
 	check(dismantle.visible and (panel.get_node("%DismantleNote") as Label).text.contains("%d gold" % gold), "the card shows what dismantling gives")
 	gold_before = player.gold
 	dismantle.pressed.emit()
-	check(player.gold == gold_before and player.inventory.count_of(worse) == 3 and dismantle.text.contains("+%d" % gold), "a first tap asks again")
-	dismantle.pressed.emit()
-	check(player.gold == gold_before + gold and player.inventory.count_of(worse) == 2, "a second tap breaks one down for its gold")
+	check(player.gold == gold_before + gold and player.inventory.count_of(worse) == 2, "a tap breaks one of a common stack down at once, for its gold")
 	check(panel._selected_item != null and panel._selected_item.stack_key() == worse.stack_key(), "the rest of the stack stays picked")
+	# An epic piece asks first (DismantleRules.confirm_rarity).
+	panel.slot_for(better).pressed.emit()
+	gold_before = player.gold
+	dismantle.pressed.emit()
+	check(player.gold == gold_before and player.inventory.items.has(better) and dismantle.text == "Sure?" and (panel.get_node("%DismantleNote") as Label).text.contains("+%d" % Player.DISMANTLE.gold_for(better)), "on an epic piece a first tap asks again, with the gold")
+	panel.slot_for(worse).pressed.emit()
+	check(dismantle.text == "Dismantle", "picking another item takes the question back")
 	var worse_button: Button = panel.get_node("%DismantleWorseButton")
 	var worse_list := player.worse_gear()
 	var worse_gold := 0

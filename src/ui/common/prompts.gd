@@ -61,7 +61,9 @@ static func glyph(action: StringName, kind: int = -1) -> Dictionary:
 ## all: "Space", "J", the left mouse button).
 static func glyphs(action: StringName, kind: int) -> Array[Dictionary]:
 	var entry := DATA.action(action)
-	var parts: Array[StringName] = entry.actions() if entry else [action]
+	var parts: Array[StringName] = [action]  # an input action no prompt entry names (menu_next_tab)
+	if entry:
+		parts = entry.actions()
 	var result: Array[Dictionary] = []
 	if kind == InputDevice.Kind.KEYBOARD:
 		var preferred := entry.key if entry and parts.size() == 1 else KEY_NONE

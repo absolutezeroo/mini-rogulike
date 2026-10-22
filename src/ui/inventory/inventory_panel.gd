@@ -1,13 +1,22 @@
 class_name InventoryPanel
 extends Control
 ## Bag screen, in the game's skin (RpgWindow, ItemSlot): the hero and what they wear (weapon,
-## head, body) with the belt and their stats on the left, the bag as a grid of slots in the
-## middle, the picked item's card on the right (rarity, stats, rune sockets, what to do with it).
-## Pauses the game while open. Built in code. "Perks" in the header opens the build (BuildWindow):
-## the families and the perks taken, in words.
-## Identical items stack (Inventory): one slot, "x2", one place of the bag. Gear in the bag can be
-## dismantled for gold (two taps), and "Dismantle the worse" breaks down, after a confirmation,
-## every piece worse than what is worn (Player.worse_gear()).
+## head, body) with the belt and their stats on the left, the bag in the middle, the picked item's
+## card on the right (rarity, stats, rune sockets, what to do with it). Pauses the game while
+## open. Built in code. "Perks" in the header opens the build (BuildWindow): the families and the
+## perks taken, in words.
+##
+## - **Tabs** (BagCategorySet, data/items/bag_categories.tres): the bag is split by what things
+##   are (weapons and armor, runes, tomes and scrolls, consumables, the rest), each tab with its
+##   count and a gold gem while something new waits in it; inside a tab the rarest come first.
+##   The tab shown is kept while the run lasts. Tap a tab, or Q / E, LB / RB (MenuNav).
+## - **Actions** (BagAction): Equip / Use, To belt, Drop, Dismantle, each a button on the card
+##   and, on keys and gamepads, a key straight on the focused slot (Enter or A uses, X
+##   dismantles, G or Y drops), its cap on its button. A rare piece (or one with runes) asks a
+##   second press before it breaks (DismantleRules.needs_confirm).
+## - With keys and a gamepad the focus is the pick: moving onto a slot shows its card.
+## Identical items stack (Inventory): one slot, "x2", one place of the bag. "Dismantle the worse"
+## breaks down, after a confirmation, every piece worse than what is worn (Player.worse_gear()).
 
 signal closed
 
@@ -15,6 +24,10 @@ const NO_SLOT := -1
 const BAG_COLUMNS := 4
 const BAG_SLOT := 66.0
 const GEAR_SLOT := 74.0
+## How fast the right stick scrolls the item's details, UI units a second.
+const DETAILS_SCROLL_SPEED := 720.0
+## The bag's tabs and what goes in each.
+const CATEGORIES: BagCategorySet = preload("res://data/items/bag_categories.tres")
 
 ## Every family of perks (for the build window).
 var content: ContentDB
@@ -23,10 +36,28 @@ var _selected_item: ItemDef
 var _selected_slot := NO_SLOT
 ## Belt slot selected (-1 = none).
 var _selected_belt := NO_SLOT
+## The tab shown (an index of CATEGORIES.categories). The panel lives as long as the run's Game,
+## so the tab picked stays picked until the run ends.
+var _category := 0
+## The stacks (ItemDef.stack_key()) the player has looked at: any other one in the bag is new.
+var _seen := {}
+## The stacks shown in the bag since it opened (seen once it closes).
+var _shown := {}
+## What the card's buttons do, in their order.
+var _actions: Array[BagAction] = [BagUseAction.new(), BagBeltAction.new(), BagDropAction.new(), BagDismantleAction.new()]
+## BagAction -> its Button.
+var _action_buttons := {}
+## The action a first press armed (it asks again), and on what (BagSelection.key()).
+var _armed_action: BagAction
+var _armed_on := ""
 
 var _window: RpgWindow
 var _slot_buttons := {}
 var _belt_slots: Array[ItemSlot] = []
+## The bag's slots shown (items first, then the free places), in order.
+var _bag_slots: Array[ItemSlot] = []
+var _tabs: Array[BagTab] = []
+var _category_name: Label
 var _portrait: TextureRect
 var _stats: GridContainer
 var _bag_title: Label
@@ -35,6 +66,9 @@ var _card_slot: ItemSlot
 var _item_name: Label
 var _item_type: Label
 var _item_details: Label
+var _details_scroll: ScrollContainer
+## The right stick's cap by the card, while its details are longer than their box.
+var _scroll_hint: Control
 var _sockets: HBoxContainer
 var _use_button: Button
 var _drop_button: Button
@@ -42,8 +76,6 @@ var _belt_button: Button
 var _dismantle_button: Button
 ## The card's "Dismantle value: 12 gold" line.
 var _dismantle_note: Label
-## The item the Dismantle button was tapped once for (a second tap breaks it).
-var _dismantle_armed: ItemDef
 var _worse_button: Button
 ## "Dismantle the worse": the list, the gold, Dismantle / Keep them.
 var _confirm: RpgDialog
@@ -70,6 +102,7 @@ func open(player: Player) -> void:
 		player.dismantled.connect(_on_dismantled)
 	_player = player
 	_confirm.hide()
+	_shown.clear()
 	_clear_selection()
 	_refresh()
 	show()
@@ -80,6 +113,8 @@ func close() -> void:
 	Sfx.play_ui(Sfx.bank.ui_close)
 	_build_window.hide()
 	_confirm.hide()
+	_seen.merge(_shown, true)  # what was shown is no longer new
+	_shown.clear()
 	hide()
 	closed.emit()
 
@@ -95,6 +130,52 @@ func is_build_open() -> bool:
 	return _build_window.visible
 
 
+## The tab shown (an index of CATEGORIES.categories).
+func category_index() -> int:
+	return _category
+
+
+## Shows tab `index` (a tap on it, Q / E, LB / RB). With keys or a gamepad the focus goes to its
+## first slot.
+func show_category(index: int) -> void:
+	if index < 0 or index >= CATEGORIES.categories.size():
+		return
+	if index == _category:
+		_update_tab_buttons()
+		return
+	_category = index
+	if _player == null or not visible:
+		return  # shown when the bag opens
+	Sfx.play_ui(Sfx.bank.ui_click)
+	_disarm()
+	if _selected_item and CATEGORIES.index_of(_selected_item) != _category:
+		_clear_selection()
+	_refresh()
+	if InputDevice.navigating and InputDevice.uses_buttons() and not _bag_slots.is_empty():
+		_bag_slots[0].grab_focus()
+
+
+## The bag slot showing `item`'s stack in the tab shown (null if it isn't there).
+func slot_for(item: ItemDef) -> ItemSlot:
+	if item == null:
+		return null
+	var key := item.stack_key()
+	for slot in _bag_slots:
+		if slot.item and slot.item.stack_key() == key:
+			return slot
+	return null
+
+
+## The tab of CATEGORIES.categories[index] (tests).
+func tab(index: int) -> BagTab:
+	return _tabs[index]
+
+
+## Is the confirmation of "Dismantle the worse" up? (tests)
+func is_confirm_open() -> bool:
+	return _confirm.visible
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if visible and (event.is_action_pressed("inventory") or event.is_action_pressed("ui_cancel")):
 		get_viewport().set_input_as_handled()
@@ -102,8 +183,46 @@ func _unhandled_input(event: InputEvent) -> void:
 			_confirm.hide()
 		elif _build_window.visible and event.is_action_pressed("ui_cancel"):
 			_build_window.hide()
+		elif _armed_action and event.is_action_pressed("ui_cancel"):
+			_disarm()  # Back first takes back the "Sure?"
+			_refresh_details()
 		else:
 			close()
+
+
+## The quick actions: a key or gamepad button does an action on the item picked (the focused
+## slot), without going to its button. Before the GUI: Enter on a slot uses its item rather than
+## pressing the slot.
+func _input(event: InputEvent) -> void:
+	if not visible or _player == null or _confirm.visible or _build_window.visible:
+		return
+	if not (event is InputEventKey or event is InputEventJoypadButton):
+		return
+	for action in _actions:
+		if action.input == &"" or not event.is_action_pressed(action.input):
+			continue
+		if action.input == &"ui_accept" and not _item_slot_focused():
+			return  # Enter on a button presses the button
+		get_viewport().set_input_as_handled()
+		_do(action)
+		return
+
+
+## The right stick scrolls the card's details (the mouse has its wheel, a finger drags).
+func _process(delta: float) -> void:
+	if not visible or _confirm.visible or _build_window.visible:
+		return
+	var way := Input.get_axis(&"menu_scroll_up", &"menu_scroll_down")
+	if way != 0.0:
+		_details_scroll.scroll_vertical += roundi(way * DETAILS_SCROLL_SPEED * delta)
+	# On a gamepad only (keys and mouse: the wheel).
+	var bar := _details_scroll.get_v_scroll_bar()
+	_scroll_hint.visible = InputDevice.uses_gamepad() and bar.max_value - bar.page > 1.0
+
+
+func _item_slot_focused() -> bool:
+	var focus := get_viewport().gui_get_focus_owner()
+	return focus is ItemSlot and (_bag_slots.has(focus) or _belt_slots.has(focus) or _slot_buttons.values().has(focus))
 
 
 # --- Display -----------------------------------------------------------------
@@ -113,41 +232,92 @@ func _refresh() -> void:
 	for slot: EquipmentDef.Slot in _slot_buttons:
 		var button: ItemSlot = _slot_buttons[slot]
 		button.item = _player.equipment.get_item(slot)
-		button.selected = _selected_slot == slot
 	for i in _belt_slots.size():
 		var button := _belt_slots[i]
 		button.item = _player.belt.item_at(i)
 		button.count = _player.belt.count_at(i)
-		button.selected = _selected_belt == i
 	_gold.text = tr("Gold %d") % _player.gold
 	_portrait.texture = _hero_picture()
 	_fill_stats()
 
 	var inventory := _player.inventory
+	var grouped := inventory.grouped()
+	_know_worn()
+	if not _tab_shown(_category, grouped):
+		_category = _first_tab(grouped)
 	# Places, not items: a stack takes one.
 	_bag_title.text = tr("Bag  %d / %d") % [inventory.places_used(), inventory.capacity]
-	for child in _item_grid.get_children():
-		_item_grid.remove_child(child)
-		child.queue_free()
-	var shown := 0
-	for entry in inventory.grouped():
+	_update_tabs(grouped)
+	_fill_grid(grouped)
+	var worse := _player.worse_gear()
+	_worse_button.text = tr("Dismantle the worse (%d)") % worse.size()
+	_worse_button.disabled = worse.is_empty()
+	_show_selection()
+
+
+## The tab's stacks, rarest first, then the bag's free places (shared by every tab).
+func _fill_grid(grouped: Array[Dictionary]) -> void:
+	UiParts.clear(_item_grid)
+	_bag_slots.clear()
+	for entry in CATEGORIES.entries_in(_category, grouped):
 		var item: ItemDef = entry.item
 		var button := ItemSlot.new(BAG_SLOT)
 		button.item = item
 		button.count = entry.count
-		button.selected = _selected_item == item and _selected_slot == NO_SLOT and _selected_belt == NO_SLOT
+		button.fresh = not _seen.has(item.stack_key())
 		button.pressed.connect(_select_item.bind(item))
+		button.focus_entered.connect(_on_slot_focused.bind(button))
+		button.gui_input.connect(_on_slot_input.bind(button))
 		_item_grid.add_child(button)
-		shown += 1
-	# The empty places left in the bag.
-	for i in range(shown, inventory.capacity):
+		_bag_slots.append(button)
+		_shown[item.stack_key()] = true
+	# The empty places left in the bag: the keys can stand on them (nothing to do there).
+	for i in _player.inventory.capacity - _player.inventory.places_used():
 		var empty := ItemSlot.new(BAG_SLOT)
-		empty.disabled = true
+		empty.focus_entered.connect(_on_slot_focused.bind(empty))
 		_item_grid.add_child(empty)
-	var worse := _player.worse_gear()
-	_worse_button.text = tr("Dismantle the worse (%d)") % worse.size()
-	_worse_button.disabled = worse.is_empty()
-	_refresh_details()
+		_bag_slots.append(empty)
+	MenuNav.set_first(_window, _bag_slots[0] if not _bag_slots.is_empty() else _slot_buttons[EquipmentDef.Slot.WEAPON])
+
+
+## Each tab's count and new mark; the empty ones that hide when empty are put away.
+func _update_tabs(grouped: Array[Dictionary]) -> void:
+	for i in _tabs.size():
+		var bag_tab := _tabs[i]
+		bag_tab.count = CATEGORIES.count_in(i, grouped)
+		bag_tab.visible = _tab_shown(i, grouped)
+		bag_tab.fresh = grouped.any(func(entry: Dictionary) -> bool:
+			return CATEGORIES.index_of(entry.item) == i and not _seen.has((entry.item as ItemDef).stack_key()))
+	_update_tab_buttons()
+	_category_name.text = tr(CATEGORIES.categories[_category].display_name)
+
+
+func _update_tab_buttons() -> void:
+	for i in _tabs.size():
+		_tabs[i].set_pressed_no_signal(i == _category)
+		_tabs[i].queue_redraw()
+
+
+func _tab_shown(index: int, grouped: Array[Dictionary]) -> bool:
+	return not CATEGORIES.categories[index].hidden_when_empty or CATEGORIES.count_in(index, grouped) > 0
+
+
+func _first_tab(grouped: Array[Dictionary]) -> int:
+	for i in CATEGORIES.categories.size():
+		if _tab_shown(i, grouped):
+			return i
+	return 0
+
+
+## What is worn or on the belt is known: back in the bag, it is not new.
+func _know_worn() -> void:
+	for slot: EquipmentDef.Slot in _slot_buttons:
+		var worn := _player.equipment.get_item(slot)
+		if worn:
+			_seen[worn.stack_key()] = true
+	for i in Belt.SLOTS:
+		if _player.belt.item_at(i):
+			_seen[_player.belt.item_at(i).stack_key()] = true
 
 
 func _fill_stats() -> void:
@@ -196,30 +366,51 @@ static func _cropped(texture: Texture2D) -> Texture2D:
 	return ImageTexture.create_from_image(image.get_region(used))
 
 
-func _refresh_details() -> void:
-	var item: ItemDef = _selected_item
+## The pick shown on the slots (the pulsing frame) and on the card.
+func _show_selection() -> void:
+	for slot: EquipmentDef.Slot in _slot_buttons:
+		(_slot_buttons[slot] as ItemSlot).selected = _selected_slot == slot
+	for i in _belt_slots.size():
+		_belt_slots[i].selected = _selected_belt == i
+	var key := _selected_item.stack_key() if _selected_item and _selected_slot == NO_SLOT and _selected_belt == NO_SLOT else ""
+	for slot in _bag_slots:
+		slot.selected = slot.item != null and slot.item.stack_key() == key
+		if slot.selected:
+			slot.fresh = false
+	_refresh_details()
+
+
+func _selection() -> BagSelection:
 	if _selected_slot != NO_SLOT:
-		item = _player.equipment.get_item(_selected_slot)
+		return BagSelection.new(_player, _player.equipment.get_item(_selected_slot), _selected_slot)
 	if _selected_belt != NO_SLOT:
-		item = _player.belt.item_at(_selected_belt)
-	_use_button.visible = item != null and not item is RuneDef and not item is KeyItemDef  # runes go in at a forge; keys wait
-	_drop_button.visible = item != null and _selected_slot == NO_SLOT and _selected_belt == NO_SLOT
-	# Consumables move between the belt and the bag.
-	_belt_button.visible = item is ConsumableDef and (_selected_belt != NO_SLOT or _player.belt.can_add(item))
-	_belt_button.text = tr("To bag") if _selected_belt != NO_SLOT else tr("To belt")
+		return BagSelection.new(_player, _player.belt.item_at(_selected_belt), BagSelection.NONE, _selected_belt)
+	return BagSelection.new(_player, _selected_item)
+
+
+func _refresh_details() -> void:
+	var selection := _selection()
+	var item := selection.item
+	if _armed_action and _armed_on != selection.key():
+		_disarm()
+	for action in _actions:
+		var button: Button = _action_buttons[action]
+		button.visible = action.available(selection)
+		var armed := _armed_action == action
+		button.text = action.confirm_label(selection) if armed else action.label(selection)
+		button.add_theme_color_override("font_color", UiSkin.GOLD if armed else UiSkin.TEXT)
 	# Gear in the bag breaks down for gold (never what is worn).
-	var gold := Player.DISMANTLE.gold_for(item) if _selected_slot == NO_SLOT and _selected_belt == NO_SLOT and DismantleRules.can_dismantle(item) else 0
-	_dismantle_button.visible = gold > 0
+	var gold := (_actions[3] as BagDismantleAction).gold(selection) if selection.in_bag() else 0
 	_dismantle_note.visible = gold > 0
-	if _dismantle_armed != item:
-		_dismantle_armed = null
-	_dismantle_button.text = tr("Sure? +%d gold") % gold if _dismantle_armed else tr("Dismantle")
-	_dismantle_button.add_theme_color_override("font_color", UiSkin.GOLD if _dismantle_armed else UiSkin.TEXT)
 	_dismantle_note.text = tr("Dismantle value: %d gold") % gold
 	if gold > 0 and not (item as EquipmentDef).runes.is_empty():
 		_dismantle_note.text += "\n" + tr("The runes set in it break with it (counted in the gold).")
+	# An armed action says how to go on (on the card's note: its button keeps a short word).
+	if _armed_action:
+		_dismantle_note.visible = true
+		_dismantle_note.text = _armed_action.confirm_note(selection)
 	_card_slot.item = item
-	_card_slot.count = _player.belt.count_at(_selected_belt) if _selected_belt != NO_SLOT else 1
+	_card_slot.count = _player.belt.count_at(_selected_belt) if selection.on_belt() else (_player.inventory.count_of(item) if selection.in_bag() else 1)
 	for child in _sockets.get_children():
 		_sockets.remove_child(child)
 		child.queue_free()
@@ -233,15 +424,8 @@ func _refresh_details() -> void:
 	_item_name.add_theme_color_override("font_color", item.rarity_color())
 	_item_type.text = item.get_type_label()
 	_item_details.text = item.get_details() + _compare_text(item)
+	_details_scroll.scroll_vertical = 0
 	_fill_sockets(item as EquipmentDef)
-	if _selected_slot != NO_SLOT:
-		_use_button.text = tr("Unequip")
-	elif item is EquipmentDef:
-		_use_button.text = tr("Equip")
-	elif item is SkillTomeDef:
-		_use_button.text = tr("Learn")
-	else:
-		_use_button.text = tr("Use")
 
 
 ## Equipment in the bag: what wearing it would change ("Compared with your Katana: +3 item
@@ -268,71 +452,140 @@ func _fill_sockets(equipment: EquipmentDef) -> void:
 		socket.caption = "-"
 		socket.tooltip_text = tr(socket.item.description) if socket.item else tr("An empty socket: a forge sets runes in it.")
 		socket.mouse_filter = Control.MOUSE_FILTER_PASS
+		socket.focus_mode = Control.FOCUS_NONE
 		_sockets.add_child(socket)
 
 
 # --- Selection & actions -----------------------------------------------------
 
-func _select_item(item: ItemDef) -> void:
-	Sfx.play_ui(Sfx.bank.ui_click)
+func _select_item(item: ItemDef, sound := true) -> void:
+	if sound:
+		Sfx.play_ui(Sfx.bank.ui_click)
 	_selected_item = item
 	_selected_slot = NO_SLOT
 	_selected_belt = NO_SLOT
-	_refresh()
+	if item:
+		_seen[item.stack_key()] = true
+	_show_selection()
 
 
-func _select_slot(slot: EquipmentDef.Slot) -> void:
-	Sfx.play_ui(Sfx.bank.ui_click)
+func _select_slot(slot: EquipmentDef.Slot, sound := true) -> void:
+	if sound:
+		Sfx.play_ui(Sfx.bank.ui_click)
 	_selected_item = null
 	_selected_belt = NO_SLOT
 	_selected_slot = slot
-	_refresh()
+	_show_selection()
 
 
-func _select_belt(index: int) -> void:
+func _select_belt(index: int, sound := true) -> void:
 	if _player.belt.item_at(index) == null:
+		if not sound:  # the keys came onto an empty belt slot: nothing picked
+			_clear_selection()
+			_show_selection()
 		return
-	Sfx.play_ui(Sfx.bank.ui_click)
+	if sound:
+		Sfx.play_ui(Sfx.bank.ui_click)
 	_selected_item = null
 	_selected_slot = NO_SLOT
 	_selected_belt = index
-	_refresh()
+	_show_selection()
 
 
 func _clear_selection() -> void:
 	_selected_item = null
 	_selected_slot = NO_SLOT
 	_selected_belt = NO_SLOT
+	_disarm()
 
 
-func _on_use_pressed() -> void:
-	if _selected_belt != NO_SLOT:
-		_player.use_belt(_selected_belt)
-		if _player.belt.item_at(_selected_belt) == null:
+## Keys and gamepads: the slot the focus comes onto is the one picked (its card shows). Not when
+## the mouse or a finger gave it the focus: a click picks it as a press.
+func _on_slot_focused(slot: ItemSlot) -> void:
+	if not visible or _player == null or not InputDevice.navigating:
+		return
+	if _bag_slots.has(slot):
+		if slot.item:
+			_select_item(slot.item, false)
+		else:
 			_clear_selection()
-	elif _selected_slot != NO_SLOT:
-		_player.unequip(_selected_slot)
+			_show_selection()
+		return
+	var belt_index := _belt_slots.find(slot)
+	if belt_index >= 0:
+		_select_belt(belt_index, false)
+		return
+	for worn: EquipmentDef.Slot in _slot_buttons:
+		if _slot_buttons[worn] == slot:
+			_select_slot(worn, false)
+
+
+## A right click on a slot uses its item at once (Equip, Use, Learn, Unequip).
+func _on_slot_input(event: InputEvent, slot: ItemSlot) -> void:
+	var click := event as InputEventMouseButton
+	if click == null or not click.pressed or click.button_index != MOUSE_BUTTON_RIGHT or slot.item == null:
+		return
+	slot.accept_event()
+	if _bag_slots.has(slot):
+		_select_item(slot.item, false)
+	elif _belt_slots.has(slot):
+		_select_belt(_belt_slots.find(slot), false)
+	else:
+		for worn: EquipmentDef.Slot in _slot_buttons:
+			if _slot_buttons[worn] == slot:
+				_select_slot(worn, false)
+	_do(_actions[0])
+
+
+## Does `action` on the pick: at once, or, if it asks first, on the second press (the first one
+## arms it: its button says "Sure? ..."). Then the bag is shown again and, with keys, the focus
+## stays on the stack (or the slot that took its place), so pressing again goes on through it.
+func _do(action: BagAction) -> void:
+	var selection := _selection()
+	if not action.available(selection):
+		return
+	if action.needs_confirm(selection) and not (_armed_action == action and _armed_on == selection.key()):
+		_armed_action = action
+		_armed_on = selection.key()
+		Sfx.play_ui(Sfx.bank.ui_click)
+		_refresh_details()
+		return
+	_disarm()
+	var focus := get_viewport().gui_get_focus_owner()
+	var index := _bag_slots.find(focus)
+	if not action.run(selection):
+		_refresh()
+		return
+	_keep_picked(selection)
+	_refresh()
+	if index >= 0 and InputDevice.navigating and InputDevice.uses_buttons():
+		_focus_after(index)
+
+
+## After an action: what was picked stays picked while it is still there (the rest of a stack, a
+## belt slot not empty yet), else nothing is.
+func _keep_picked(selection: BagSelection) -> void:
+	if selection.in_bag():
+		_keep_stack_selected()
+	elif selection.on_belt() and _player.belt.item_at(selection.belt) == null:
 		_clear_selection()
-	elif _selected_item:
-		_player.use_item(_selected_item)
-		_keep_stack_selected()
-	_refresh()
+	elif selection.is_worn() and _player.equipment.get_item(selection.worn_slot as EquipmentDef.Slot) == null:
+		_clear_selection()
 
 
-func _on_belt_pressed() -> void:
-	if _selected_belt != NO_SLOT:
-		_player.move_to_bag(_selected_belt)
-	elif _selected_item:
-		_player.move_to_belt(_selected_item)
-	_clear_selection()
-	_refresh()
+## The focus after the bag was shown again: on the picked stack, else on the slot that took the
+## place of the one gone (the next item), else the last one.
+func _focus_after(index: int) -> void:
+	var target := slot_for(_selected_item) if _selected_item else null
+	if target == null and not _bag_slots.is_empty():
+		target = _bag_slots[mini(index, _bag_slots.size() - 1)]
+	if target:
+		target.grab_focus()
 
 
-func _on_drop_pressed() -> void:
-	if _selected_item:
-		_player.drop_item(_selected_item)
-		_keep_stack_selected()
-	_refresh()
+func _disarm() -> void:
+	_armed_action = null
+	_armed_on = ""
 
 
 ## After one of a stack is gone, the rest of it stays picked (else nothing is).
@@ -344,27 +597,13 @@ func _keep_stack_selected() -> void:
 		_clear_selection()
 
 
-## First tap: the button asks again (with the gold); second tap: broken down.
-func _on_dismantle_pressed() -> void:
-	if _selected_item == null:
-		return
-	if _dismantle_armed != _selected_item:
-		_dismantle_armed = _selected_item
-		Sfx.play_ui(Sfx.bank.ui_click)
-		_refresh_details()
-		return
-	_dismantle_armed = null
-	_player.dismantle(_selected_item)
-	_keep_stack_selected()
-	_refresh()
-
-
 ## "Dismantle the worse": what would go, and the gold, before anything breaks.
 func _on_worse_pressed() -> void:
 	var worse := _player.worse_gear()
 	if worse.is_empty():
 		return
 	Sfx.play_ui(Sfx.bank.ui_open)
+	_disarm()
 	var gold := 0
 	var shown := Inventory.new(worse.size())
 	for item in worse:
@@ -379,14 +618,10 @@ func _on_worse_pressed() -> void:
 		slot.count = entry.count
 		slot.tooltip_text = tr(entry.item.display_name)
 		slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		slot.focus_mode = Control.FOCUS_NONE
 		_confirm_items.add_child(slot)
 	_confirm_yes.text = tr("Dismantle: +%d gold") % gold
 	_confirm.show()
-
-
-## Is the confirmation of "Dismantle the worse" up? (tests)
-func is_confirm_open() -> bool:
-	return _confirm.visible
 
 
 func _on_worse_confirmed() -> void:
@@ -430,10 +665,20 @@ func _build() -> void:
 		_build_window.hide())
 	var columns := HBoxContainer.new()
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	columns.add_theme_constant_override("separation", 14)
+	columns.add_theme_constant_override("separation", 10)
 	_window.body.add_child(columns)
+	_build_hero(columns)
+	_build_bag(columns)
+	_build_card(columns)
+	_build_confirm()
+	for node in _named:
+		node.owner = self
+		node.unique_name_in_owner = true
+	add_child(_build_window)  # over the bag
 
-	# Left: the hero, what they wear, the belt, their stats.
+
+## Left: the hero, what they wear, the belt, their stats.
+func _build_hero(columns: HBoxContainer) -> void:
 	var hero: Dictionary = RpgWindow.section(tr("Hero"))
 	(hero.box as Control).custom_minimum_size.x = 330
 	columns.add_child(hero.box)
@@ -450,7 +695,9 @@ func _build() -> void:
 		var button := ItemSlot.new(GEAR_SLOT)
 		button.caption = tr(EquipmentDef.SLOT_NAMES[slot])
 		button.name = "%sSlot" % EquipmentDef.SLOT_NAMES[slot]
-		button.pressed.connect(_select_slot.bind(slot))
+		button.pressed.connect(_select_slot.bind(slot, true))
+		button.focus_entered.connect(_on_slot_focused.bind(button))
+		button.gui_input.connect(_on_slot_input.bind(button))
 		_own(button)
 		gear_row.add_child(button)
 		_slot_buttons[slot] = button
@@ -462,21 +709,48 @@ func _build() -> void:
 		var button := ItemSlot.new(62.0)
 		button.caption = str(i + 1)
 		button.name = "BeltSlot%d" % (i + 1)
-		button.pressed.connect(_select_belt.bind(i))
+		button.pressed.connect(_select_belt.bind(i, true))
+		button.focus_entered.connect(_on_slot_focused.bind(button))
+		button.gui_input.connect(_on_slot_input.bind(button))
 		_own(button)
 		belt_row.add_child(button)
 		_belt_slots.append(button)
 	_stats = GridContainer.new()
 	_stats.columns = 2
-	_stats.add_theme_constant_override("h_separation", 16)
+	_stats.add_theme_constant_override("h_separation", 10)
 	_stats.add_theme_constant_override("v_separation", 0)
 	_stats.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	hero.column.add_child(_stats)
 
-	# Middle: the bag.
+
+## Middle: the tabs, the tab's name between its keys, the bag's slots, Dismantle the worse.
+func _build_bag(columns: HBoxContainer) -> void:
 	var bag: Dictionary = RpgWindow.section(tr("Bag"))
 	_bag_title = bag.title
 	columns.add_child(bag.box)
+	var tabs_row := HBoxContainer.new()
+	tabs_row.name = "BagTabs"
+	tabs_row.add_theme_constant_override("separation", 4)
+	tabs_row.custom_minimum_size.x = BAG_COLUMNS * (BAG_SLOT + 6) - 2
+	bag.column.add_child(tabs_row)
+	for i in CATEGORIES.categories.size():
+		var bag_tab := BagTab.new(CATEGORIES.categories[i])
+		bag_tab.pressed.connect(show_category.bind(i))
+		tabs_row.add_child(bag_tab)
+		_tabs.append(bag_tab)
+		_own(bag_tab)
+	var naming := HBoxContainer.new()
+	naming.add_theme_constant_override("separation", 6)
+	bag.column.add_child(naming)
+	naming.add_child(PromptGlyph.make(&"menu_prev_tab"))
+	_category_name = UiSkin.label("", Fonts.BODY, UiSkin.GOLD)
+	_category_name.name = "CategoryName"
+	_category_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_category_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_category_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART  # a long name never widens the bag
+	_own(_category_name)
+	naming.add_child(_category_name)
+	naming.add_child(PromptGlyph.make(&"menu_next_tab"))
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -489,13 +763,16 @@ func _build() -> void:
 	_item_grid.add_theme_constant_override("v_separation", 6)
 	_own(_item_grid)
 	scroll.add_child(_item_grid)
-	_worse_button = _action(tr("Dismantle the worse (%d)") % 0, "DismantleWorseButton", _on_worse_pressed)
+	_worse_button = _button(tr("Dismantle the worse (%d)") % 0, "DismantleWorseButton", _on_worse_pressed)
 	_worse_button.add_theme_font_size_override("font_size", Fonts.BODY)
 	_worse_button.custom_minimum_size = Vector2(0, 50)
 	_worse_button.size_flags_horizontal = Control.SIZE_FILL
+	_worse_button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART  # French is long: two lines, not a wider bag
 	bag.column.add_child(_worse_button)
 
-	# Right: the picked item.
+
+## Right: the picked item, and what to do with it (each action's button, its key on it).
+func _build_card(columns: HBoxContainer) -> void:
 	var card: Dictionary = RpgWindow.section(tr("Item"), true)
 	(card.box as Control).size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	columns.add_child(card.box)
@@ -505,6 +782,7 @@ func _build() -> void:
 	card.column.add_child(top)
 	_card_slot = ItemSlot.new(84.0)
 	_card_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_card_slot.focus_mode = Control.FOCUS_NONE
 	top.add_child(_card_slot)
 	var naming := VBoxContainer.new()
 	naming.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -514,13 +792,27 @@ func _build() -> void:
 	naming.add_child(_item_name)
 	_item_type = UiSkin.label("", Fonts.BODY, UiSkin.DIM, true)
 	naming.add_child(_item_type)
-	var details_scroll := ScrollContainer.new()
-	details_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	details_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	card.column.add_child(details_scroll)
+	# The right stick scrolls a long card: its cap, top right, while there is more to see.
+	_scroll_hint = Control.new()
+	_scroll_hint.name = "ScrollHint"
+	_scroll_hint.custom_minimum_size = Vector2(0, 28)
+	_scroll_hint.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	_scroll_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var scroll_glyph := PromptGlyph.make(&"menu_scroll")
+	_scroll_hint.add_child(scroll_glyph)
+	scroll_glyph.resized.connect(func() -> void: _scroll_hint.custom_minimum_size.x = scroll_glyph.size.x)
+	_own(_scroll_hint)
+	top.add_child(_scroll_hint)
+	_details_scroll = ScrollContainer.new()
+	_details_scroll.name = "DetailsScroll"
+	_details_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_details_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_own(_details_scroll)
+	card.column.add_child(_details_scroll)
 	_item_details = UiSkin.label("", Fonts.BODY, UiSkin.TEXT, true)
 	_item_details.name = "ItemDetails"
-	details_scroll.add_child(_item_details)
+	_item_details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_details_scroll.add_child(_item_details)
 	_sockets = HBoxContainer.new()
 	_sockets.alignment = BoxContainer.ALIGNMENT_BEGIN
 	_sockets.add_theme_constant_override("separation", 6)
@@ -529,23 +821,28 @@ func _build() -> void:
 	_dismantle_note.name = "DismantleNote"
 	_own(_dismantle_note)
 	card.column.add_child(_dismantle_note)
-	var actions := HBoxContainer.new()
-	actions.add_theme_constant_override("separation", 8)
+	# Room over the buttons for their keys' caps (PromptGlyph.badge: over their top edge).
+	var room := Control.new()
+	room.custom_minimum_size.y = 6
+	card.column.add_child(room)
+	# A flow: the buttons share a row, and one that no longer fits (French on a 1280-wide
+	# screen: Use, To belt, Drop) goes to a second row instead of widening the window.
+	var actions := HFlowContainer.new()
+	actions.name = "Actions"
+	actions.add_theme_constant_override("h_separation", 8)
+	actions.add_theme_constant_override("v_separation", 16)
 	card.column.add_child(actions)
-	_use_button = _action(tr("Use"), "UseButton", _on_use_pressed)
-	actions.add_child(_use_button)
-	_belt_button = _action(tr("To belt"), "BeltButton", _on_belt_pressed)
-	actions.add_child(_belt_button)
-	_drop_button = _action(tr("Drop"), "DropButton", _on_drop_pressed)
-	actions.add_child(_drop_button)
-	_dismantle_button = _action(tr("Dismantle"), "DismantleButton", _on_dismantle_pressed)
-	_dismantle_button.add_theme_font_size_override("font_size", Fonts.BODY)
-	actions.add_child(_dismantle_button)
-	_build_confirm()
-	for node in _named:
-		node.owner = self
-		node.unique_name_in_owner = true
-	add_child(_build_window)  # over the bag
+	for action in _actions:
+		var button := _button(action.label(BagSelection.new(null)), action.node_name, _do.bind(action))
+		button.add_theme_font_size_override("font_size", Fonts.BODY)
+		actions.add_child(button)
+		_action_buttons[action] = button
+		if action.input != &"":
+			PromptGlyph.badge(button, action.input, PromptGlyph.Place.TOP)
+	_use_button = _action_buttons[_actions[0]]
+	_belt_button = _action_buttons[_actions[1]]
+	_drop_button = _action_buttons[_actions[2]]
+	_dismantle_button = _action_buttons[_actions[3]]
 
 
 func _build_confirm() -> void:
@@ -582,7 +879,7 @@ func _build_confirm() -> void:
 	buttons.add_child(keep)
 
 
-func _action(text: String, node_name: String, callback: Callable) -> Button:
+func _button(text: String, node_name: String, callback: Callable) -> Button:
 	var button := Button.new()
 	button.text = text
 	button.name = node_name

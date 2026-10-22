@@ -20,6 +20,8 @@ anywhere in it, cards and buttons included, with a bit of momentum (`TouchScroll
 | Pause (or close what is open) | II button / phone back button | Escape | Menu (Start) |
 | In a menu: move / accept / back | Tap | Arrows or WASD / Enter or Space / Escape | D-pad or left stick / A / B |
 | In a menu with tabs: previous / next tab | Tap a tab | Q / E | LB / RB |
+| In the bag: equip or use / dismantle / drop the item | The item card's buttons | Enter or Space (right click) / X or Delete / G | A / X / Y |
+| In the bag: scroll a long item card | Drag it | Mouse wheel | Right stick |
 | Fullscreen or a window | - | F11, Alt+Enter | - |
 
 A keyboard's letters are named as the player's keyboard prints them (`Prompts.key_word()`: the key
@@ -83,7 +85,7 @@ shows to the device in hand.
   was on. Directions (arrows, WASD, D-pad, left stick: one move a push) go to the nearest button
   that way in that menu only, wrapping at its edges; a slider takes left and right; a list follows
   the focus (`ScrollContainer.follow_focus`), and a box with nothing to focus scrolls. Q / E and LB /
-  RB switch tabs (buttons in the group "menu_tabs": the codex, the options). Enter, Space or A press;
+  RB switch tabs (buttons in the group "menu_tabs": the codex, the options, the bag). Enter, Space or A press;
   Escape or B go back (the screens' own Back: `GameMenus.back()`, `TitleScreen.back()`); Escape on
   the bare title quits nothing. The buttons Back stands for show its key: a window's Close beside
   it, a dialog's Resume, Later, Leave and Close inside on the left (`PromptGlyph.badge()`; on touch
@@ -260,15 +262,47 @@ item's rarity color (a rune's in its family's), how many, and a weapon's rune so
 stones lit in their runes' colors. The selected slot pulses gold.
 
 - **Bag** (`InventoryPanel`, built in code): the hero, the weapon / head / body slots, the belt and
-  the stats on the left; the bag as a 4-column grid of slots, one per stack with its count ("x3"),
-  empty places shown, its title counting places ("Bag 5 / 16"), and under it **Dismantle the
-  worse (n)**; the picked item's card on the right (name in its rarity, type, every line of its
-  details, its rune sockets, for gear in the bag "Dismantle value: 12 gold") with Equip / Use /
-  Learn, To belt, Drop and Dismantle (a second tap breaks it: "Sure? +12 gold"). Dismantle the
-  worse opens a confirmation (`RpgDialog`): how many and the gold, their slots, "what you wear,
-  potions, runes, tomes and keys are never touched", Dismantle: +n gold / Keep them. Gold won
-  flies as coins to the counter (`GoldBurst`) with the coin sound. After one of a stack is used,
-  dropped or dismantled, the rest stays picked. Three action buttons fit a 16:9 phone in French.
+  the stats on the left; the bag in the middle, its title counting places ("Bag 5 / 16"), and
+  under it **Dismantle the worse (n)**; the picked item's card on the right (name in its rarity,
+  type, every line of its details, its rune sockets, for gear in the bag "Dismantle value: 12
+  gold") with its actions' buttons. Dismantle the worse opens a confirmation (`RpgDialog`): how
+  many and the gold, their slots, "what you wear, potions, runes, tomes and keys are never
+  touched", Dismantle: +n gold / Keep them. Gold won flies as coins to the counter (`GoldBurst`)
+  with the coin sound.
+  - **Tabs** (`BagCategorySet`, `data/items/bag_categories.tres`; `BagTab`): **Weapons & Armor**
+    (Armes & Armures), **Runes**, **Tomes & Scrolls** (Grimoires & Parchemins: the tomes and the
+    Scroll of Fire), **Consumables** (Consommables) and **Other** (Divers: keys, and whatever no
+    tab claims; hidden while empty). A row of wooden tabs over the grid, each with its icon, how
+    many items it holds (a stack counts all of its own) and a small gold gem while something new
+    waits in it; under them the open tab's name, between its keys on keys and gamepads ([Q]
+    Weapons & Armor [E], [LB] ... [RB]). Tap a tab, or Q / E, LB / RB (`MenuNav`, "menu_tabs").
+    The tab picked stays picked until the run ends (the bag opens on it). No "All" tab: the
+    places are what fills, and the free ones show in every tab.
+  - **In a tab**: a 4-column grid, one slot per stack with its count ("x3"), the rarest first,
+    then weapons, helms, body armors (a rune's family, a consumable's kind), the higher item
+    level, then by name; after them the bag's free places (empty slots). A slot new since the bag
+    was last closed (or the item last picked) has the gold gem in its corner; what is worn or on
+    the belt is never new.
+  - **Actions** (`BagAction`, `src/ui/inventory/actions/`): Equip / Unequip / Learn / Use (not
+    for runes and keys), To belt / To bag (consumables), Drop (the bag's items), Dismantle (gear
+    in the bag, never what is worn). Each is a button on the card (touch, mouse, the focus), and
+    the first, third and fourth also a key on the item itself, no menu in between: Enter or
+    Space / a gamepad's A uses it (only on an item's slot: on a button, Enter presses the
+    button), X or Delete / X dismantles, G / Y drops; each button shows its key or button over
+    its top edge (`PromptGlyph.badge`, nothing on touch). A right click on a slot uses it too. A
+    Rare or Epic piece, or one with a rune set, asks a second press before it breaks
+    (`DismantleRules.needs_confirm`): the button says "Sure?" and the card "Press [X] again to
+    break it: +40 gold" ("Tap again..." on touch); Back (Escape, B) takes the question back
+    first, picking another item does too. Commons and Magic pieces go at once, one of a stack
+    per press. After one of a stack is used, dropped or dismantled, the rest stays picked; with
+    keys, the focus goes on to the slot that took the gone stack's place, so X X X goes through
+    a tab of junk. The buttons flow to a second row when they don't fit (French on a 1280-wide
+    canvas), and the card's details scroll with the right stick (its cap shows while there is
+    more), the mouse wheel or a finger.
+  - **Keys and gamepads**: the focus is the pick (moving onto a slot shows its card; on touch and
+    with the mouse a tap or click picks). The bag opens on the open tab's first slot; switching
+    tabs puts the focus on the new tab's first slot. The empty places can take the focus too
+    (nothing to do there), so the arrows never jump out of the grid.
 - **Forge** (`ForgePanel`): the smith and what he says; the weapons you can work on as slots, the
   picked one big with its sockets; your runes as a grid. Pick a rune, then "Set it in"; pick a
   set rune, then "Take out (gold)".
