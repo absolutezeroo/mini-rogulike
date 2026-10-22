@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 48,
+  "next_id": 50,
   "tags": [
     "pc",
     "test",
@@ -617,8 +617,8 @@
     {
       "id": "task_47",
       "title": "Sac : onglets et actions rapides (manette, clavier)",
-      "description": "Le sac est séparé en onglets (Armes & Armures, Runes, Grimoires & Parchemins, Consommables, Divers ; data/items/bag_categories.tres), chacun avec son compte et une gemme dorée pour le neuf ; LB/RB ou Q/E pour changer, l'onglet reste choisi pendant la partie. Sur l'objet sélectionné : A/Entrée équipe ou utilise, X démantèle, Y/G jette ; un objet rare ou mieux (ou serti de runes) demande un second appui. Clic droit : équiper.",
-      "status": "in_progress",
+      "description": "Fait, à jouer à la manette. Le sac est séparé en onglets (Armes & Armures, Runes, Grimoires & Parchemins, Consommables, Divers qui ne s'affiche que s'il contient quelque chose ; data/items/bag_categories.tres), chacun avec son compte et une gemme dorée pour le neuf, le plus rare en premier ; LB/RB ou Q/E (ou toucher l'onglet) pour changer, l'onglet reste choisi pendant la partie. Sur l'objet sélectionné (la sélection suit le curseur) : A / Entrée équipe ou utilise, X / X ou Suppr démantèle, Y / G jette, clic droit équipe ; le joystick droit fait défiler la fiche. Un objet rare ou épique (ou serti de runes) demande un second appui (« Sûr ? », « Appuie encore sur [X]… », B annule) ; commun et magique partent tout de suite, un par appui dans une pile. Changement aussi sur mobile : un objet commun se démantèle maintenant d'une seule touche. Le sac tient aussi en 1280x720 en français (il débordait).",
+      "status": "review",
       "priority": "high",
       "epic_id": "epic_4",
       "due_date": null,
@@ -627,7 +627,38 @@
         "ui"
       ],
       "created_at": 1792689157,
-      "updated_at": 1792689157
+      "updated_at": 1792689599
+    },
+    {
+      "id": "task_48",
+      "title": "Erreur « Lambda capture … was freed » dans la suite game",
+      "description": "La suite game (et les outils d'équilibrage) affiche une fois « ERROR: Lambda capture at index 0 was freed. Passed \"null\" instead. » entre le bot du premier étage et _test_review_fixes. Présente avant le travail sur le sac (vue dans des journaux plus anciens), absente de la liste des erreurs connues de docs/testing.md. Trouver la lambda (un tween ou un signal qui garde un nœud libéré) et la corriger.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "tests",
+        "bug"
+      ],
+      "created_at": 1792689231,
+      "updated_at": 1792689231
+    },
+    {
+      "id": "task_49",
+      "title": "Panneaux en français sur un écran 1280x720 (marchand, forge…)",
+      "description": "Le sac débordait de l'écran en français à 1280x720 (et donc en 1920x1080, même mise en page à x1,5) : colonnes trop larges, boutons « Sûr ? +22 or ». Corrigé pour le sac (test ajouté), mais les tests de mise en page des autres panneaux (marchand, forge, rencontres) ne tournent qu'en anglais. Les vérifier en français.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_4",
+      "due_date": null,
+      "tags": [
+        "pc",
+        "ui",
+        "traduction"
+      ],
+      "created_at": 1792689231,
+      "updated_at": 1792689231
     }
   ]
 }
