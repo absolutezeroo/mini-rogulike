@@ -60,7 +60,10 @@ keep it from getting in the way.
   dropping, selling or dismantling takes one from the stack; equipping one of a stack checks
   there is a place for what was worn (it frees none). A weapon with a rune set leaves its stack.
 - **Dismantle** (`DismantleRules`, `data/items/dismantle.tres`): any piece of gear in the bag
-  breaks down into gold, anywhere (two taps on the item card: Dismantle, then "Sure? +12 gold").
+  breaks down into gold, anywhere: the item card's Dismantle, or X (keyboard X or Delete, a
+  gamepad's X) on the item in the bag. Common and Magic pieces go at once; Rare and Epic ones
+  (`confirm_rarity`) and any piece with a rune set ask a second press (the button says "Sure?",
+  the card "Press [X] again to break it: +40 gold"). One press breaks one of a stack.
   Gold = value x rarity (`ItemRarity.VALUE`) x `gold_share` (0.15) x (1 + `gold_per_level` (0.2)
   per item level above 1), plus 0.15 of the value of the runes set in it (they break with it).
   That is 40% of what the merchant pays for it on its own floor (`sell_ratio` 0.25 of prices
