@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 62,
+  "next_id": 66,
   "tags": [
     "pc",
     "test",
@@ -127,8 +127,8 @@
     {
       "id": "task_12",
       "title": "Révision du lore partout",
-      "description": "Actes, monstres, objets, marchand, forgeron, malédictions, événements, pactes : tout aligner sur docs/lore.md avec le skill lore.",
-      "status": "todo",
+      "description": "Actes, monstres, objets, marchand, forgeron, malédictions, événements, pactes : tout aligner sur docs/lore.md avec le skill lore. Fait : intro réécrite (la lanterne, le disciple épargné, le maître introuvable, une main qui enchaîne les gardiens), actes et biomes, codex de chaque monstre (ce qu'il était : bêtes de Kagari, morts de l'Ossuaire, Solhar, Damnés), rencontres, malédictions, grimoires, katana. Renommés : Acolyte du Bûcher, Sapeur, Sentinelle de la Brèche, Nuit sans Lune, Statue du Gardien (Keeper's Statue), Vœu du Templier, Dernier Roi de Solhar. À relire en jeu.",
+      "status": "review",
       "priority": "high",
       "epic_id": "epic_1",
       "due_date": null,
@@ -136,7 +136,7 @@
         "lore"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792704041
     },
     {
       "id": "task_13",
@@ -839,6 +839,67 @@
       ],
       "created_at": 1792698522,
       "updated_at": 1792700110
+    },
+    {
+      "id": "task_62",
+      "title": "Relire le nouveau lore en jeu (téléphone)",
+      "description": "Les textes du lore ont été vérifiés en captures FR 2548x1296 et 2340x1080, pas en 1540x720 ni en anglais : intro, cartes d'acte, codex des monstres, cartes d'objets, statue, Nuit sans Lune. Lire, dire ce qui sonne faux.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_1",
+      "due_date": null,
+      "tags": [
+        "lore",
+        "playtest",
+        "traduction"
+      ],
+      "created_at": 1792704041,
+      "updated_at": 1792704041
+    },
+    {
+      "id": "task_63",
+      "title": "Trancher les noms ouverts du lore (docs/lore.md §9)",
+      "description": "« Veilleur » (difficulté) et « la Veilleuse » ; « gardien » pour les boss et pour les gardiens du sanctuaire ; la relique « Codex du Sage » et l'écran Codex ; l'école de la lame courbe (sanctuaire ou gardes de Solhar ?) ; la Plume de Phénix, la Lune de Sang, les ratons plutôt que des tanuki.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_1",
+      "due_date": null,
+      "tags": [
+        "lore"
+      ],
+      "created_at": 1792704041,
+      "updated_at": 1792704041
+    },
+    {
+      "id": "task_64",
+      "title": "Une ligne de lore pour chaque serment",
+      "description": "Le canon dit que les serments (Colosse, Duelliste, Hérétique, Vautour) sont des vœux de gardiens d'autrefois, prêtés à la cloche ; aujourd'hui ils n'ont que leur règle. Ajouter un champ lore et l'afficher au sanctuaire.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "lore",
+        "idée",
+        "ui"
+      ],
+      "created_at": 1792704041,
+      "updated_at": 1792704041
+    },
+    {
+      "id": "task_65",
+      "title": "Succès « Arpenteur de l'Abîme » : « l'étage 12, le dernier »",
+      "description": "Depuis le Fond du Puits, l'étage 12 n'est plus le dernier pour qui a gagné une partie. Reformuler la règle (sans changer le succès).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "qualité",
+        "lore"
+      ],
+      "created_at": 1792704041,
+      "updated_at": 1792704041
     }
   ]
 }

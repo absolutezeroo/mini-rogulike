@@ -75,5 +75,5 @@ scenes = Array[ExtResource("7_n7wyy")]([ExtResource("8_i2so8"), ExtResource("9_r
 decor = Array[ExtResource("1_rhp6m")]([SubResource("Resource_ormdw"), SubResource("Resource_6pr3o")])
 id = &"flooded_caverns"
 display_name = "Drowned Caverns"
-description = "The Well's water rose here once. It never went back down."
+description = "The spring under Kagari came down this far, and never went back up. Paper boats rot on its banks."
 color = Color(0.5, 0.8, 1, 1)

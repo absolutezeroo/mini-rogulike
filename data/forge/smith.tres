@@ -13,6 +13,6 @@ portrait = ExtResource("2_face")
 sprite_sheet = ExtResource("3_sheet")
 anvil = ExtResource("4_anvil")
 dialogue = ExtResource("5_smith")
-greetings = PackedStringArray("Runes, eh? Hand me that blade.", "Steel remembers every rune you give it.", "Hot coals, cold hands. What'll it be?", "Each socket holds one rune. Choose well.", "Changed your mind? I can pry it out. For a price.")
+greetings = PackedStringArray("Runes, eh? Hand me that blade.", "Steel remembers every rune you give it.", "Hot coals, cold hands. Speak.", "Each socket holds one rune. Choose well.", "Changed your mind? I can pry it out. For a price.")
 removal_price = 25
 removal_price_per_depth = 4.0

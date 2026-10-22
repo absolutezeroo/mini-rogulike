@@ -67,5 +67,5 @@ decor = Array[ExtResource("1_2xhpk")]([SubResource("Resource_1j4vd"), SubResourc
 light = ExtResource("6_1j4vd")
 id = &"crypt"
 display_name = "Catacombs"
-description = "Row after row of the dead. They do not sleep well."
+description = "Kagari's dead, row after row. They no longer sleep well."
 color = Color(0.72, 0.76, 0.95, 1)

@@ -157,7 +157,7 @@ causes = Array[StringName]([&"cold"])
 [sub_resource type="Resource" id="l_cold"]
 script = ExtResource("2_line")
 id = &"cold"
-lines = PackedStringArray("The cold took you, child. No blade: the cold that climbs from the stones when the Well breathes out.")
+lines = PackedStringArray("The cold took you, child. No blade: the cold that climbs from the stones when the Well draws breath.")
 conditions = Array[ExtResource("3_condition")]([SubResource("c1"), SubResource("c11")])
 priority = 45
 remembered = false

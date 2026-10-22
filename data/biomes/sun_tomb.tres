@@ -69,5 +69,5 @@ light = ExtResource("8_kofmd")
 props = Array[ExtResource("8_c2h0d")]([ExtResource("9_85e7w"), ExtResource("10_i6fqq"), ExtResource("11_657lm")])
 id = &"sun_tomb"
 display_name = "Tomb of the Dead Sun"
-description = "Gold under every stone, and a curse on every coin."
+description = "Gold under every stone, a face on every coin. At noon, in the dark, something still shines."
 color = Color(1, 0.75, 0.3, 1)
