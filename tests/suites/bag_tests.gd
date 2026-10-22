@@ -217,7 +217,8 @@ func run_bag_game(game: Game) -> void:
 
 ## Worn armor shows what its affixes carry (docs/vfx.md "Rarity and runes"): an affix of Echoes
 ## glitters arcane on a helm's brim, of Thorns turns a hem into steel points; a plain piece shows
-## neither.
+## neither. The bag's portrait is the hero as he is (HeroPortrait), dressed as his body in the
+## world: his weapon on his back with its elements, his armor with its trim and marks.
 func _test_worn_marks(game: Game) -> void:
 	var player := game.player
 	var saved_head := player.equipment.get_item(EquipmentDef.Slot.HEAD)
@@ -228,9 +229,11 @@ func _test_worn_marks(game: Game) -> void:
 	player.equipment.equip(katana)
 	player.equipment.equip(helm)
 	player.equipment.equip(plate)
+	game.open_inventory()
 	await _frames(3)
+	var portrait := game.inventory_panel.get_node("%Portrait") as HeroPortrait
 	var arcane := VfxElementDef.named(&"arcane")
-	for pair: Array in [["his body", player.rig]]:
+	for pair: Array in [["the bag's portrait", portrait.rig() if portrait else null], ["his body", player.rig]]:
 		var rig: ActorRig = pair[1]
 		var name: String = pair[0]
 		check(rig != null and rig.back_weapon() != null and rig.back_weapon().texture == katana.back_sprite and rig.shows_back_weapon(), "worn marks: %s carries his katana" % name)
@@ -243,8 +246,10 @@ func _test_worn_marks(game: Game) -> void:
 	# A plain piece of the same rarity: its trim alone.
 	player.equipment.equip(LootRoller.make(load("res://data/items/armors/plate_armor.tres"), ItemRarity.RARE, [load("res://data/affixes/sturdy.tres")], [], 2))
 	await _frames(2)
-	var plain := player.rig.wear_material(EquipmentDef.Slot.BODY)
-	check(plain != null and not bool(plain.get_shader_parameter(&"teeth")) and float(plain.get_shader_parameter(&"imbue")) == 0.0, "worn marks: a Stalwart plate shows its rarity's trim alone (stats carry nothing)")
+	for plain: ShaderMaterial in [portrait.rig().wear_material(EquipmentDef.Slot.BODY) if portrait else null, player.rig.wear_material(EquipmentDef.Slot.BODY)]:
+		check(plain != null and not bool(plain.get_shader_parameter(&"teeth")) and float(plain.get_shader_parameter(&"imbue")) == 0.0, "worn marks: a Stalwart plate shows its rarity's trim alone (stats carry nothing), on him and on the open bag's portrait")
+	game.inventory_panel.close()
+	await _frames(2)
 	if saved_head:
 		player.equipment.equip(saved_head)
 	else:

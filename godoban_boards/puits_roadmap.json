@@ -342,8 +342,8 @@
     {
       "id": "task_25",
       "title": "Portrait du sac sans équipement",
-      "description": "Le portrait du héros dans le sac ne montre pas l'équipement porté.",
-      "status": "backlog",
+      "description": "Le portrait du héros dans le sac ne montre pas l'équipement porté.\n\nFait : le portrait du sac est un vrai rig du héros (HeroPortrait, dans une SubViewport), habillé comme son corps dans le monde (ActorRig.wear) : l'arme à l'épaule avec ses éléments et leurs motes, le casque et l'armure avec leur liseré de rareté et les marques de leurs affixes ; il respire (idle) et se met à jour quand l'équipement change. 4 pixels écran par pixel d'art (avant : ~4,35, flou), 20x22 pixels d'art (80x88). Essayé l'arme en main (pose de charge) et de profil : moins lisible que l'arme à l'épaule face à nous. À voir : la place sur petits écrans (le cadre est un peu plus haut qu'avant), l'arme ne fait que dépasser de l'épaule.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_3",
       "due_date": null,
@@ -351,7 +351,7 @@
         "ui"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792703842
     },
     {
       "id": "task_26",

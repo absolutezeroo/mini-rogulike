@@ -271,7 +271,9 @@ item's rarity color (a rune's in its family's), how many, and a weapon's rune so
 stones lit in their runes' colors. The selected slot pulses gold.
 
 - **Bag** (`InventoryPanel`, built in code): the hero, the weapon / head / body slots, the belt and
-  the stats on the left; the bag in the middle, one compartment at a time (its tab), and under it
+  the stats on the left (the hero is his own rig, `HeroPortrait`: dressed as his body in the
+  world, his weapon slung on his back with its elements, his armor with its rarity's trim and its
+  affixes' marks, idling at 4 screen pixels per art pixel, 20x22 art pixels); the bag in the middle, one compartment at a time (its tab), and under it
   **Dismantle the worse (n)** (the tab's worse gear); the picked item's card on the right (name in its rarity,
   type, every line of its details, its rune sockets, for gear in the bag "Dismantle value: 12
   gold") with its actions' buttons. Dismantle the worse opens a confirmation (`RpgDialog`): how

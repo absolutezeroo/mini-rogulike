@@ -62,7 +62,7 @@ var _tabs: Array[BagTab] = []
 var _category_name: Label
 ## "Over its places": a compartment holding more than it has room for (an old save).
 var _over_note: Label
-var _portrait: TextureRect
+var _portrait: HeroPortrait
 var _stats: GridContainer
 var _bag_title: Label
 var _item_grid: GridContainer
@@ -241,7 +241,7 @@ func _refresh() -> void:
 		button.item = _player.belt.item_at(i)
 		button.count = _player.belt.count_at(i)
 	_gold.text = tr("Gold %d") % _player.gold
-	_portrait.texture = _hero_picture()
+	_portrait.show_hero(_player)
 	_fill_stats()
 
 	var inventory := _player.inventory
@@ -352,28 +352,6 @@ func _fill_stats() -> void:
 		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_stats.add_child(value)
-
-
-## The hero as they stand (first frame of their idle animation).
-func _hero_picture() -> Texture2D:
-	var frames: SpriteFrames = _player.def.frames if _player.def else null
-	if frames == null:
-		return null
-	for anim: StringName in [&"idle_down", &"idle", &"walk_down"]:
-		if frames.has_animation(anim) and frames.get_frame_count(anim) > 0:
-			return _cropped(frames.get_frame_texture(anim, 0))
-	return null
-
-
-## Just the drawn pixels of a frame (sheets leave room around the body).
-static func _cropped(texture: Texture2D) -> Texture2D:
-	var image := texture.get_image()
-	if image == null:
-		return texture
-	var used := image.get_used_rect()
-	if used.size.x <= 0:
-		return texture
-	return ImageTexture.create_from_image(image.get_region(used))
 
 
 ## The pick shown on the slots (the pulsing frame) and on the card.
@@ -695,11 +673,9 @@ func _build_hero(columns: HBoxContainer) -> void:
 	var gear_row := HBoxContainer.new()
 	gear_row.add_theme_constant_override("separation", 8)
 	hero.column.add_child(gear_row)
-	_portrait = TextureRect.new()
-	_portrait.custom_minimum_size = Vector2(74, 74)
-	_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_portrait = HeroPortrait.new()
+	_portrait.name = "Portrait"
+	_own(_portrait)
 	gear_row.add_child(_portrait)
 	for slot: EquipmentDef.Slot in [EquipmentDef.Slot.WEAPON, EquipmentDef.Slot.HEAD, EquipmentDef.Slot.BODY]:
 		var button := ItemSlot.new(GEAR_SLOT)
