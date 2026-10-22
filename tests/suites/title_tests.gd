@@ -6,6 +6,7 @@ func run() -> void:
 	await _test_title_screen()
 	await _test_touch_scroll()
 	await _test_resume_button()
+	await _test_cards_fit_when_shown_late()
 	# The title's panels with keys and a gamepad, and their layouts (PcTests).
 	var pc := PcTests.new()
 	add_child(pc)
@@ -15,6 +16,38 @@ func run() -> void:
 
 ## A run in progress: the Resume button sits in the column like the others, its floor on a line
 ## of its own (a long one-line label ran past the column on phones).
+## Perk cards filled while their panel was still hidden (a level-up's choice put together before
+## the panel shows) measured their wrapped text with no width, one letter a line: thousands of
+## pixels tall, the family boxes and the Reroll / Banish / Later buttons pushed off the screen
+## (seen on PC). Built hidden, then shown, every card must fit the screen and keep its text.
+func _test_cards_fit_when_shown_late() -> void:
+	var panel := (load("res://src/ui/perk_choice/perk_choice_panel.tscn") as PackedScene).instantiate() as PerkChoicePanel
+	get_tree().root.add_child(panel)
+	panel.hide()
+	var perks: Array[PerkDef] = []
+	for perk in CONTENT.perks:
+		if perk.synergies.size() > 0 and perks.size() < 3:
+			perks.append(perk)
+	panel._owned = PerkSet.new()
+	panel.show_cards(perks, false)
+	for i in 6:
+		await get_tree().process_frame
+	panel.show()
+	for i in 8:
+		await get_tree().process_frame
+	var screen := get_tree().root.get_visible_rect().size
+	var cards := panel.get_node("%Cards").get_children()
+	check(cards.size() == 3, "three cards built while hidden")
+	for card: Control in cards:
+		check(card.size.y < screen.y * 0.8, "a card built while its panel was hidden fits the screen once shown (%d px tall)" % card.size.y)
+		var inside := card.get_node("Margin") as Control
+		check(card.size.y + 1.0 >= inside.get_combined_minimum_size().y, "and its text still fits inside it")
+	var later := panel.get_node("%LaterButton") as Control
+	check(later.get_global_rect().end.y <= screen.y, "the Later button stays on the screen")
+	panel.queue_free()
+	await get_tree().process_frame
+
+
 func _test_resume_button() -> void:
 	var file := FileAccess.open(RunSave.path, FileAccess.WRITE)
 	file.store_string(JSON.stringify({"version": RunSave.VERSION, "depth": 11, "player": {"level": 23}}))

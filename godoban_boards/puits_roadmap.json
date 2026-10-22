@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 46,
+  "next_id": 47,
   "tags": [
     "pc",
     "test",
@@ -23,7 +23,8 @@
     "combat",
     "git",
     "android",
-    "idée"
+    "idée",
+    "bug"
   ],
   "epics": [
     {
@@ -596,6 +597,22 @@
       ],
       "created_at": 1792685400,
       "updated_at": 1792685400
+    },
+    {
+      "id": "task_46",
+      "title": "Choix d'atouts qui déborde",
+      "description": "Corrigé : les cartes mesuraient leur texte pendant que le panneau était encore caché (texte sans largeur, une lettre par ligne) et devenaient hautes de plus de 5 000 px, poussant les familles et les boutons Relancer / Bannir / Plus tard hors de l'écran. Elles ne se mesurent plus que visibles, peuvent rétrécir, et se remesurent quand leur contenu change. Test de non-régression ajouté. À confirmer en jeu : ça ne doit plus jamais arriver.",
+      "status": "review",
+      "priority": "high",
+      "epic_id": "epic_4",
+      "due_date": null,
+      "tags": [
+        "pc",
+        "ui",
+        "bug"
+      ],
+      "created_at": 1792687900,
+      "updated_at": 1792687900
     }
   ]
 }
