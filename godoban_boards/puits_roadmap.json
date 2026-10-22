@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 50,
+  "next_id": 52,
   "tags": [
     "pc",
     "test",
@@ -617,8 +617,8 @@
     {
       "id": "task_47",
       "title": "Sac : onglets et actions rapides (manette, clavier)",
-      "description": "Retour du joueur : chaque catégorie doit être un vrai compartiment. En cours : le sac devient six compartiments (Armes, Armures, Runes, Grimoires & Parchemins, Consommables, Divers), chacun avec ses propres places (16, Divers 8), au lieu d'un sac de 16 filtré par onglets.",
-      "status": "in_progress",
+      "description": "Fait, à jouer à la manette. Le sac est six compartiments, chacun avec ses propres places (data/items/bag_categories.tres) : Armes 16, Armures 16, Runes 16, Grimoires & Parchemins 16, Consommables 16, Divers 8 (caché s'il est vide). Un compartiment plein ne bloque que lui : butin au sol, ramassage auto, marchand, forge, équiper/retirer, ceinture, objets de départ demandent tous la place du compartiment de l'objet ; les messages le nomment (« Plus de place pour les armes : … reste au sol »). Onglets : icône, nombre d'objets (rouge si plein), gemme dorée pour le neuf ; sous les onglets « Armes  16 / 16 » (rouge si plein) entre [LB]/[RB] ou [Q]/[E]. « Démanteler le moins bon » ne touche que l'onglet ouvert. Sur l'objet : A/Entrée équipe ou utilise, X/X ou Suppr démantèle (rare ou mieux : second appui), Y/G jette, clic droit équipe. Les sauvegardes restent une liste : un ancien sac revient dans ses compartiments, rien n'est perdu (au-delà des places : gardé, l'onglet demande de faire de la place). Places en plus : PlayerDef.bag_bonus (tous les compartiments) ; aucune amélioration n'en donne aujourd'hui.",
+      "status": "review",
       "priority": "high",
       "epic_id": "epic_4",
       "due_date": null,
@@ -627,7 +627,7 @@
         "ui"
       ],
       "created_at": 1792689157,
-      "updated_at": 1792690963
+      "updated_at": 1792691163
     },
     {
       "id": "task_48",
@@ -659,6 +659,36 @@
       ],
       "created_at": 1792689231,
       "updated_at": 1792689231
+    },
+    {
+      "id": "task_50",
+      "title": "Runes : 16 places jamais pleines ?",
+      "description": "Les runes d'une même sorte s'empilent et il n'en existe que 10 sortes : le compartiment des runes (16 places) ne peut pas se remplir. À décider : moins de places pour les runes, des runes qui ne s'empilent pas, ou laisser ainsi.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_4",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "idée"
+      ],
+      "created_at": 1792691163,
+      "updated_at": 1792691163
+    },
+    {
+      "id": "task_51",
+      "title": "Bouton Sac : signaler un compartiment plein",
+      "description": "Rien sur le HUD ne dit qu'un compartiment du sac est plein (seul le toast au moment du butin le dit). Idée : un petit point rouge sur le bouton Sac, ou sur l'onglet, quand un compartiment est plein.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_4",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "idée"
+      ],
+      "created_at": 1792691163,
+      "updated_at": 1792691163
     }
   ]
 }
