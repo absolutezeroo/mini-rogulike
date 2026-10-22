@@ -18,6 +18,11 @@ the ones below are those worth spelling out, or where this project chose somethi
   obvious from its name. They show in the editor's help. Plain `#` comments say *why*, not *what*.
   Write in plain English, as the existing code does.
 - **Indentation**: tabs (`.editorconfig`), LF line endings (`.gitattributes`).
+- **Lambdas that run later** (a `SceneTree` timer, a signal of something that outlives them) hold
+  no node: Godot checks a lambda's captured objects before running it and prints "Lambda capture
+  at index 0 was freed" for a freed one, even when the lambda starts with `is_instance_valid()`.
+  Capture a `weakref()` and `get_ref()` it inside (see `Effect.apply_all()`), or connect a method
+  of the node itself (its connections go with it).
 - **Scenes**: one scene per entity, its script next to it. One monster scene serves every monster
   type: the sprite, weapon and sounds come from the data, the rig animates whatever it is given.
 

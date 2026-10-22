@@ -46,6 +46,11 @@ func _leave_element(user: Actor, dir: Vector2) -> void:
 	var chest := Vector2(0, -user.radius)
 	Vfx.pop(world, start + chest, element, 14.0, dir)
 	Vfx.trail(world, start, end, element, duration)
+	# (Weak references: the timer outlives a freed user or world; see Effect.apply_all().)
+	var user_ref: WeakRef = weakref(user)
+	var world_ref: WeakRef = weakref(world)
 	world.get_tree().create_timer(duration, false).timeout.connect(func() -> void:
-		if is_instance_valid(user) and is_instance_valid(world):
-			Vfx.pop(world, user.global_position + chest, element, 14.0, dir))
+		var who := user_ref.get_ref() as Actor
+		var where := world_ref.get_ref() as World
+		if who and where:
+			Vfx.pop(where, who.global_position + chest, element, 14.0, dir))

@@ -69,6 +69,8 @@ var free_on_death := true
 var flies := false
 ## Dropping into a hole (see fall()).
 var is_falling := false
+## The fall's slide and shrink, then _on_fell() (killed by cancel_fall()).
+var _fall_tween: Tween
 ## Who hit this actor last: credited if it falls into a hole.
 var last_attacker: Actor
 ## What killed it, for the run history ("Skeleton", "a fall"...). Empty while alive.
@@ -413,18 +415,30 @@ func fall(pit: PitDef) -> void:
 	_dash_time = 0.0
 	Sfx.play_world(Sfx.bank.fall, global_position)
 	var into := world.map.cell_to_world(world.map.world_to_cell(global_position))
-	var tween := create_tween().set_parallel()
-	tween.tween_property(self, "global_position", global_position.lerp(into, 0.6), FALL_TIME)
+	_fall_tween = create_tween().set_parallel()
+	_fall_tween.tween_property(self, "global_position", global_position.lerp(into, 0.6), FALL_TIME)
 	if rig:
-		tween.tween_property(rig, "scale", Vector2.ZERO, FALL_TIME).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-		tween.tween_property(rig, "rotation", TAU * 0.75, FALL_TIME)
-	tween.chain().tween_callback(_on_fell.bind(pit))
+		_fall_tween.tween_property(rig, "scale", Vector2.ZERO, FALL_TIME).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		_fall_tween.tween_property(rig, "rotation", TAU * 0.75, FALL_TIME)
+	_fall_tween.chain().tween_callback(_on_fell.bind(pit))
 	queue_redraw()
+
+
+## A fall cut short: the actor was taken somewhere else meanwhile (a new floor, the Deeps and
+## back). The hole it was dropping into is no longer under it: no landing (_on_fell()), no
+## slide toward the old hole, on its feet where it was put.
+func cancel_fall() -> void:
+	if _fall_tween:
+		_fall_tween.kill()
+		_fall_tween = null
+	if is_falling:
+		_recover_from_fall()
 
 
 ## Back on solid ground after a fall (the player climbing out).
 func _recover_from_fall() -> void:
 	is_falling = false
+	_fall_tween = null
 	if rig:
 		rig.scale = Vector2.ONE
 		rig.rotation = 0.0

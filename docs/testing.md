@@ -64,11 +64,16 @@ one).
 **Read the output, not only the exit code.** Engine errors printed while a test runs (`ERROR:`,
 `SCRIPT ERROR:`) don't fail the run today. Known ones (2026-10-22): `Parse JSON failed` twice (the
 damaged-save test, on purpose), plus the leak warnings at exit. Any other is a bug, even if
-every check passed.
+every check passed (`Lambda capture at index 0 was freed`, seen in the game suite until then, was
+one: see docs/conventions.md, "Lambdas that run later").
 
 - **balance** (opt-in: only with `--only=balance`): the balance tools' quick runs against the
   targets of `data/balance/targets.tres`. Some of its checks fail on purpose today (the balance
   work to do): they are printed as `FAIL (KNOWN ...)`.
+
+**The same run twice is not the same run:** floors, loot and fights are random, so a check that
+fails once and passes on a rerun is a flaky test, a bug to find (below), never a retry. The game
+and tutorial suites were hunted for them on 2026-10-22 (one game run in three failed before).
 
 ## Writing a check
 
@@ -81,6 +86,39 @@ no tutorial hints, so a test never touches a player's files.
 
 A rule fix comes with the check that would have caught it. Never weaken or skip a check to get a
 green run; a balance target that can't be met yet is listed as known in the balance suite.
+
+### Checks that hold on every floor (no flaky tests)
+
+The game suites play real, random floors: a check passing once proves little. A check that fails
+now and then is a bug, in the test's setup or in the game. Make the setup sure, keep the assertion:
+- **Where:** never a fixed offset from the hero (a wall, a prop or a hole may be there). Ask the
+  helpers: `_open_cell_near()` (open floor all around), `_clear_lane()` (a straight run of solid
+  floor that a dash or a shot crosses: `_clear_ray()` tests the world's physics layer, which props
+  are on, unlike `has_line_of_sight()`), `_free_points_away()`, `_point_without_props()` (where a
+  blast breaks nothing). A body put down by hand must fit there (`_body_fits()`: a wall's or a
+  prop's shape can reach into a free cell, and a body put inside one never gets out).
+- **Who else:** the floor's monsters wander in, shoot, push, spot the hero in the first frames.
+  `_clear_monsters()` (before they move, if what they would cue matters), a dormant target,
+  `invincible` on the hero when a stray hit would spoil the test (not when the hit is it). A
+  blow's push carries the hero a cell in a frame: `_walk_into_hole()` keeps him out of reach until
+  he lands. Traps fire on their own: pick the hero's own shot (`Projectile._shooter`), not the
+  newest one.
+- **Statuses and looks:** a body watched for its statuses stands at a `_quiet_point()`: in view
+  (a monster off screen sleeps), away from fires, ponds, sand and traps.
+- **At rest:** `_stand_still()` before comparing where the hero stands (a step of leftover
+  knockback, or a deferred freeze one physics step later, moves him).
+- **Time:** `_frames(n)` waits n physics steps, one a frame (1/60 s) with `--fixed-fps 60`; a hit
+  stop or a slow motion scales what happens in a step, not how many there are. Wait for something
+  with a generous timeout (`_until_deeps()`, `_until_trial()`, a loop that breaks when it is so)
+  rather than a guess of frames that a slower step would miss.
+- **Counting the floor:** `_floor_things()` and `_things_diff()`, not `get_child_count()`: passing
+  effects (dust, sparks, a column of light) stand among the floor's entities and come and go, and
+  the bodies of monsters slain a moment ago go when their death has played.
+- **Hints (tutorial):** another hint of the floor may have its say first: `_until_hint()`.
+- **Leftovers:** a test puts back what it changed (holes: `_fill_holes()`; perks, XP, statuses).
+  A lambda connected for a test captures nothing that a later test may free (or is disconnected).
+- **Diagnose:** a check's message says what it saw (counts, distances, states), so one failure in
+  a long run is enough to find the cause.
 
 ## Debug tools
 

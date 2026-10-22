@@ -272,6 +272,9 @@ func place_player(new_player: Player) -> void:
 	player.world = self
 	if player.get_parent() == null:
 		_entities.add_child(player)
+	# A fall begun on the last floor ends here: its hole is gone (it would slide him toward it,
+	# then drop him into the Deeps from this floor).
+	player.stand_up()
 	player.global_position = map.cell_to_world(map.start_cell)
 	player.temperature.reset()
 	player.reset_safe_position()

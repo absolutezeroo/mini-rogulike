@@ -227,7 +227,8 @@ leads on to endless mode. Both endings lead to the same game today (docs/lore.md
 ## Run timer (speedruns)
 
 Every run is timed (`RunTimer`, `RunState.time`): in-game time, in real seconds (hit stops and
-slow motion don't slow it), counting in the bag, the shop and the perk choices (deciding is part
+slow motion neither slow it nor make it jump: `HitStop.real_delta()` divides a frame's delta by
+the time scale that frame began with, read before its physics where blows land), counting in the bag, the shop and the perk choices (deciding is part
 of the run) but not in the pause menu, while a floor loads or during its title cards. It keeps
 counting in the trial of the Threshold (a second life is part of the run). It is saved
 with the run, so quitting and coming back doesn't reset it.

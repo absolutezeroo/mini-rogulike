@@ -5,7 +5,9 @@ extends Node
 ##
 ## Hits land during physics, after this frame's delta was already scaled by the time scale in
 ## effect when the frame began: real time is the delta divided by *that* scale (`real_delta`),
-## never by the one just set.
+## never by the one just set. That scale is read when the frame begins (its first physics step,
+## before anything there can change it), so it holds for every node asking during the frame, not
+## only for this one.
 
 const FROZEN_TIME_SCALE := 0.05
 
@@ -13,13 +15,18 @@ var enabled := true
 var _remaining := 0.0
 var _slow_remaining := 0.0
 var _slow_scale := 1.0
-## The time scale this frame's deltas were scaled with (set at the end of each frame).
+## The time scale this frame's deltas were scaled with (the one in effect when it began).
 var _applied_scale := 1.0
+## The time scale seen at this frame's first physics step (-1: no step yet this frame).
+var _scale_at_first_step := -1.0
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	process_priority = -100  # before everyone who asks for real_delta()
+	# (Connected first, autoloads being ready before the game: this runs before any other
+	# listener of the step, or anything a step does, can change the time scale.)
+	get_tree().physics_frame.connect(_on_physics_frame)
 
 
 ## Real seconds behind a `delta` of this frame (whatever the hit stop or slow motion).
@@ -49,10 +56,19 @@ func reset() -> void:
 	_slow_remaining = 0.0
 	_slow_scale = 1.0
 	Engine.time_scale = 1.0
-	_applied_scale = 1.0
+	# (Not _applied_scale: this frame's deltas were scaled already. The next frame starts at 1.)
+
+
+func _on_physics_frame() -> void:
+	if _scale_at_first_step < 0.0:
+		_scale_at_first_step = Engine.time_scale
 
 
 func _process(delta: float) -> void:
+	# The scale this frame began with: seen at its first physics step, or now when it had none
+	# (then nothing ran before this, the first process callback, to change it).
+	_applied_scale = _scale_at_first_step if _scale_at_first_step >= 0.0 else Engine.time_scale
+	_scale_at_first_step = -1.0
 	var real := real_delta(delta)
 	if _remaining > 0.0:
 		_remaining -= real
@@ -65,4 +81,3 @@ func _process(delta: float) -> void:
 			_slow_remaining = 0.0
 			_slow_scale = 1.0
 			Engine.time_scale = 1.0
-	_applied_scale = Engine.time_scale

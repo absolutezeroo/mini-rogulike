@@ -111,7 +111,9 @@ A hole on a floor is not only a stumble: the hero **falls deeper into the Well**
   Not on a boss floor (the old rule there: climb out, lose 15%), not on the hidden floor, not
   from the Threshold or from the Deeps themselves (a hole down there: the old rule). Monsters
   knocked into a hole still die as before. Without a Deeps (the balance tools' bare arena,
-  `DungeonConfig.abyss` empty) a fall is the old rule everywhere.
+  `DungeonConfig.abyss` empty) a fall is the old rule everywhere. A fall cut short by a new
+  floor (the debug panel, a new run) ends there: the hero stands at its start
+  (`Actor.cancel_fall()`), never dropped into the Deeps from a floor he didn't fall on.
 - **The floor waits.** As for the Threshold (a shared `SubWorld`, `src/game/sub_world.gd`): the
   floor's `World` freezes and leaves the scene tree just as it is (its monsters, a pact's fight,
   an ambush, the shots in the air); a dark red veil falls; the hero lands in the Deeps, **hurt by
@@ -126,8 +128,9 @@ A hole on a floor is not only a stumble: the hero **falls deeper into the Well**
   room, asleep until they see him) and **crawl out of the dark in waves**: the first 2 s after the
   veil lifts, then every 8 s (1 s quicker each act, never under 3 s); 2 demons (+1 every second
   wave, +1 per act), half of them on the way ahead to the door (`ahead_share`: outrunning them is
-  not a way out), the rest 6-11 cells around him; no more than 6 of the waves' demons up at once
-  (+1 per act). 5% of them are elites. From Act III a **Breach Warden** stands in front of the
+  not a way out), the rest 6-11 cells around him (`AbyssWorld._spawn_point()`: random tries, then
+  every cell of that ring, so a wave is whole whenever the maze has room); no more than 6 of the
+  waves' demons up at once (+1 per act). 5% of them are elites. From Act III a **Breach Warden** stands in front of the
   door. No timer: the waves are the pressure. They are real monsters: XP, gold, kills, bestiary.
 - **The way out: the Dawn Breach** (*La Brèche de l'Aube*, `AbyssDoor`): a doorway torn in the
   dark with daylight behind it, standing in the room farthest from where he lands **on foot**,

@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 50,
+  "next_id": 54,
   "tags": [
     "pc",
     "test",
@@ -186,8 +186,8 @@
     {
       "id": "task_14",
       "title": "Chasse aux tests instables",
-      "description": "Échecs au hasard vus : « stairs lead to the next depth », coût de la chute (84 → 76), horloge, astuce du marchand, IA qui s'éloigne. Les rendre déterministes.",
-      "status": "todo",
+      "description": "Échecs au hasard vus : « stairs lead to the next depth », coût de la chute (84 → 76), horloge, astuce du marchand, IA qui s'éloigne. Les rendre déterministes.\n\nFait (à relire) : chaque échec reproduit (boucles de tests sur des étages variés), cause trouvée, corrigée sans affaiblir le contrôle. Bugs du jeu : chute interrompue par un nouvel étage (task_51), horloge qui sautait à chaque arrêt sur coup (task_50), lambdas des minuteurs (task_48), vagues des Profondeurs incomplètes (task_53). Tests : esquive à travers un accessoire (couloir dégagé pour la ruée Iaido), corps de monstres tués qui partent pendant le gel (comptes de l'étage), accessoires cassés par le souffle du retour du Seuil, rat posé dans un accessoire mural (IA qui s'éloigne), flèche d'un piège prise pour celle du héros (arc d'orage), statuts venus de l'étage sur le rat (place calme), héros pas immobile avant le coup fatal (« on the very spot »), héros repoussé hors du trou par un coup avant de tomber (Profondeurs, coût de la chute), astuces du tutoriel (marchand hors de vue, monstre qui repère le héros avant le nettoyage). Nouveaux outils dans test_suite.gd, règles dans docs/testing.md. Avant : 5 parties sur 15 de la suite game en échec ; après : voir le commit.",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_5",
       "due_date": null,
@@ -195,7 +195,7 @@
         "tests"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792699113
     },
     {
       "id": "task_15",
@@ -632,8 +632,8 @@
     {
       "id": "task_48",
       "title": "Erreur « Lambda capture … was freed » dans la suite game",
-      "description": "La suite game (et les outils d'équilibrage) affiche une fois « ERROR: Lambda capture at index 0 was freed. Passed \"null\" instead. » entre le bot du premier étage et _test_review_fixes. Présente avant le travail sur le sac (vue dans des journaux plus anciens), absente de la liste des erreurs connues de docs/testing.md. Trouver la lambda (un tween ou un signal qui garde un nœud libéré) et la corriger.",
-      "status": "backlog",
+      "description": "La suite game (et les outils d'équilibrage) affiche une fois « ERROR: Lambda capture at index 0 was freed. Passed \"null\" instead. » entre le bot du premier étage et _test_review_fixes. Présente avant le travail sur le sac (vue dans des journaux plus anciens), absente de la liste des erreurs connues de docs/testing.md. Trouver la lambda (un tween ou un signal qui garde un nœud libéré) et la corriger.\n\nCause : les fonctions statiques qui lancent un minuteur (Effect.apply_all, Combat.shockwave et delayed_blast, Vfx.boss_death et dust_trail, DashEffect) gardaient le monde ou l'acteur dans la lambda ; Godot vérifie les captures avant d'exécuter (le is_instance_valid() dedans arrive trop tard). Corrigé avec weakref() ; règle ajoutée à docs/conventions.md. Plus vue en 6 parties (5 sur 15 avant).",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_5",
       "due_date": null,
@@ -642,7 +642,7 @@
         "bug"
       ],
       "created_at": 1792689231,
-      "updated_at": 1792689231
+      "updated_at": 1792696695
     },
     {
       "id": "task_49",
@@ -659,6 +659,65 @@
       ],
       "created_at": 1792689231,
       "updated_at": 1792689231
+    },
+    {
+      "id": "task_50",
+      "title": "Horloge de partie : +0,25 s à chaque arrêt sur coup",
+      "description": "HitStop mettait à jour l'échelle du temps « appliquée » au début de l'image (son _process passe en premier) : le RunTimer divisait le delta de l'image, compté à 1, par l'échelle du gel (0,05) et ajoutait jusqu'à 0,25 s (MAX_STEP) à chaque coup. Mesuré : 1,20 s pour 1 s avec un gel. Corrigé (échelle lue à la première étape physique de l'image) ; contrôle « a hit stop doesn't change the clock ». Les records de temps faits avant comptaient ces sauts.",
+      "status": "review",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "bug",
+        "records"
+      ],
+      "created_at": 1792696695,
+      "updated_at": 1792696695
+    },
+    {
+      "id": "task_51",
+      "title": "Chute interrompue par un nouvel étage : le héros tombait dans les Profondeurs depuis l'étage suivant",
+      "description": "World.place_player() n'arrêtait pas une chute en cours : l'animation de chute continuait de tirer le héros vers l'ancien trou puis l'envoyait dans les Profondeurs depuis le nouvel étage (panneau de debug, ou le bot des tests). Corrigé (Actor.cancel_fall(), appelé à l'arrivée sur un étage ou dans un monde de poche) ; contrôle dans _test_abyss_death.",
+      "status": "review",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "bug"
+      ],
+      "created_at": 1792696695,
+      "updated_at": 1792696695
+    },
+    {
+      "id": "task_52",
+      "title": "Vérifier : des formes de murs ou d'accessoires muraux débordent sur une case libre",
+      "description": "En traquant le test « walking away », un rat posé sur une case libre (nav) au pied d'un mur se retrouvait dans la forme physique du mur ou d'un accessoire mural (contact 6 px au-dessus de son centre) et ne pouvait plus bouger. Le test évite désormais ces places (_body_fits) ; à vérifier dans le jeu : un monstre qui apparaît sur une telle case (FloorPopulator) reste-t-il coincé ?",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "bug",
+        "combat"
+      ],
+      "created_at": 1792696695,
+      "updated_at": 1792696695
+    },
+    {
+      "id": "task_53",
+      "title": "Vagues des Profondeurs parfois incomplètes",
+      "description": "Un démon d'une vague cherchait sa place par 60 essais au hasard dans l'anneau autour du héros ; dans un dédale serré tous pouvaient rater (mesuré : jusqu'à 23 ratés sur 300 dans certains dédales) et la vague sortait plus petite que la règle. Vu par le test « the first wave is the size the Deeps say ». Corrigé : après les essais, chaque case de l'anneau dans un ordre au hasard (AbyssWorld._spawn_point()) ; 0 raté sur 30 dédales x 300.",
+      "status": "review",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "bug",
+        "combat"
+      ],
+      "created_at": 1792699113,
+      "updated_at": 1792699113
     }
   ]
 }
