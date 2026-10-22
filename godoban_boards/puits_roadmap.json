@@ -918,8 +918,8 @@
     {
       "id": "task_65",
       "title": "Succès « Arpenteur de l'Abîme » : « l'étage 12, le dernier »",
-      "description": "Depuis le Fond du Puits, l'étage 12 n'est plus le dernier pour qui a gagné une partie. Reformuler la règle (sans changer le succès).",
-      "status": "backlog",
+      "description": "Depuis le Fond du Puits, l'étage 12 n'est plus le dernier pour qui a gagné une partie. Reformuler la règle (sans changer le succès).\n\nFait : le texte disait « l'étage 12, le dernier » ; reformulé, français d'abord : « Atteins l'étage 12, où attend le gardien du dernier acte. » / « Reach floor 12, where the last act's warden waits. » Vrai avec ou sans le Fond du Puits et en mode sans fin, et ne nomme pas le Fond avant la première victoire (règle de révélation du lore). La règle reste la même (étage le plus profond ≥ 12) : elle n'est pas fausse, l'étage 12 est celui du gardien du dernier acte. Test unitaire : la cible du succès est l'étage du gardien du dernier acte, et son texte le dit.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -928,7 +928,7 @@
         "lore"
       ],
       "created_at": 1792704041,
-      "updated_at": 1792704041
+      "updated_at": 1792708091
     },
     {
       "id": "task_66",

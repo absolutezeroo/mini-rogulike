@@ -541,6 +541,11 @@ func _test_finale() -> void:
 		check(not ending.choice.is_empty() and not ending.hint.is_empty() and not ending.title.is_empty() and ending.text.split("\n").size() <= 3, "%s: a button, a line, a title, a short text" % ending.id)
 		check(stats.has(ending.stat) and CONTENT.achievements.any(func(a: AchievementDef) -> bool: return a.stat_key() == ending.stat and a.secret), "%s has its secret achievement" % ending.id)
 	check(AchievementDef.Stat.HIDDEN_BOSSES == 17 and AchievementDef.Stat.ENDING_BELL == 18 and AchievementDef.Stat.ENDING_KEEPER == 19, "the endings' stats come after the others (saved achievements keep their numbers)")
+	# Floor 12 is no longer the last for a profile that won: the Abyss Walker says what it is.
+	var walkers := CONTENT.achievements.filter(func(a: AchievementDef) -> bool: return a.id == &"deep_diver")
+	var walker: AchievementDef = walkers[0] if walkers.size() == 1 else null
+	check(walker != null and walker.stat == AchievementDef.Stat.BEST_DEPTH and walker.target == CONTENT.dungeon.total_floors() and CONTENT.dungeon.boss_for_depth(walker.target) == CONTENT.dungeon.acts.back().boss, "the Abyss Walker: the floor of the last act's warden")
+	check(walker != null and walker.description.contains("last act's warden") and not walker.description.contains("the last one"), "...and its text says so, not \"the last one\" (%s)" % (walker.description if walker else "?"))
 	# The gate: a won profile, the last act's floor of the first pass, not won yet.
 	Profile.reset()
 	var rng := RandomNumberGenerator.new()
