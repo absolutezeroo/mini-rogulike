@@ -30,6 +30,9 @@ enum AllyNeed { NONE, HURT_ALLY, ALLY_NEAR }
 @export var cast_time: float = 0.0
 ## Monsters: red circle drawn around the caster while casting (0 = none).
 @export var telegraph_radius: float = 0.0
+## Monsters: the body's animation while casting (a swordsman drawing his blade: "windup"),
+## fitted to the cast time. Without it in the monster's frames: "cast", else the attack pose.
+@export var cast_animation: StringName = &"cast"
 
 
 func activate(user: Actor, aim: Vector2) -> void:

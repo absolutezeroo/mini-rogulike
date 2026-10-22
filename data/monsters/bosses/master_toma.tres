@@ -1,0 +1,96 @@
+[gd_resource type="Resource" script_class="BossDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_death"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/bosses/master_toma.tres" id="2_frames"]
+[ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="3_hurt"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/master_toma/portrait.png" id="4_portrait"]
+[ext_resource type="Script" path="res://src/definitions/boss_phase.gd" id="5_phase"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="6_stats"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_skill"]
+[ext_resource type="Resource" path="res://data/skills/boss/toma_dash.tres" id="8_dash"]
+[ext_resource type="Resource" path="res://data/skills/boss/toma_lantern.tres" id="9_lantern"]
+[ext_resource type="Resource" path="res://data/skills/boss/toma_wide_slash.tres" id="10_slash"]
+[ext_resource type="Resource" path="res://data/skills/boss/toma_dash_fierce.tres" id="11_dash_fierce"]
+[ext_resource type="Resource" path="res://data/skills/boss/toma_lantern_fierce.tres" id="12_lantern_fierce"]
+[ext_resource type="Script" path="res://src/definitions/boss_def.gd" id="13_boss"]
+[ext_resource type="Resource" path="res://data/items/weapons/monster/keeper_katana.tres" id="14_katana"]
+[ext_resource type="Resource" path="res://data/monsters/bosses/the_maw.tres" id="15_maw"]
+[ext_resource type="Resource" path="res://data/story/chronicles/master_toma.tres" id="90_chronicle"]
+[ext_resource type="Resource" path="res://data/materials/flesh.tres" id="99_material"]
+
+[sub_resource type="Resource" id="Resource_guard_stats"]
+script = ExtResource("6_stats")
+attack = 2
+move_speed = 15.0
+
+[sub_resource type="Resource" id="Resource_guard"]
+script = ExtResource("5_phase")
+hp_ratio = 0.66
+message = "HE TAKES THE HIGH GUARD"
+bonuses = SubResource("Resource_guard_stats")
+skills = Array[ExtResource("7_skill")]([ExtResource("10_slash"), ExtResource("8_dash"), ExtResource("9_lantern")])
+windup_multiplier = 0.85
+tint = Color(0.92, 0.88, 1, 1)
+cooldown_multiplier = 0.85
+shockwave_after_hits = 7
+
+[sub_resource type="Resource" id="Resource_violet_stats"]
+script = ExtResource("6_stats")
+attack = 3
+move_speed = 25.0
+
+[sub_resource type="Resource" id="Resource_violet"]
+script = ExtResource("5_phase")
+hp_ratio = 0.33
+message = "THE LANTERN BURNS VIOLET"
+bonuses = SubResource("Resource_violet_stats")
+skills = Array[ExtResource("7_skill")]([ExtResource("10_slash"), ExtResource("11_dash_fierce"), ExtResource("12_lantern_fierce")])
+windup_multiplier = 0.75
+tint = Color(0.85, 0.75, 1, 1)
+cooldown_multiplier = 0.75
+shockwave_after_hits = 5
+
+[sub_resource type="Resource" id="Resource_stats"]
+script = ExtResource("6_stats")
+max_hp = 1300
+attack = 3
+defense = 5
+move_speed = 95.0
+crit_chance = 0.1
+
+[resource]
+script = ExtResource("13_boss")
+chronicle = ExtResource("90_chronicle")
+material = ExtResource("99_material")
+title = "The Oathbreaker"
+portrait = ExtResource("4_portrait")
+phases = Array[ExtResource("5_phase")]([SubResource("Resource_guard"), SubResource("Resource_violet")])
+shockwave_power = 1.0
+relic_choices = 0
+soul_wisps = 8
+waits_intro = true
+arena_anchor = Vector2(0.5, 0.62)
+body_stays = true
+next_boss = ExtResource("15_maw")
+rise_time = 2.6
+stats = SubResource("Resource_stats")
+weapon = ExtResource("14_katana")
+skills = Array[ExtResource("7_skill")]([ExtResource("8_dash"), ExtResource("9_lantern")])
+radius = 18.0
+frames = ExtResource("2_frames")
+frames_offset = Vector2(0, -30)
+head_height = 84.0
+knockback_resistance = 0.95
+detect_radius = 900.0
+attack_windup = 0.55
+attack_recovery = 0.4
+hurt_sound = ExtResource("3_hurt")
+death_sound = ExtResource("1_death")
+xp_reward = 220
+id = &"master_toma"
+display_name = "Master Tôma"
+description = "The keeper of Kagari's shrine, who taught you the blade and the lantern. He put out every flame of the village to buy back his daughter. He fights as he taught you."
+icon = ExtResource("4_portrait")
+glyph = "T"
+color = Color(0.78, 0.66, 1, 1)
+spawn_weight = 0

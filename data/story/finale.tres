@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="FinaleDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/finale_def.gd" id="1_finale"]
+[ext_resource type="Resource" path="res://data/biomes/well_bottom.tres" id="2_biome"]
+[ext_resource type="Resource" path="res://data/arenas/well_bottom.tres" id="3_arena"]
+[ext_resource type="Resource" path="res://data/monsters/bosses/master_toma.tres" id="4_boss"]
+[ext_resource type="Script" path="res://src/definitions/ending_def.gd" id="5_ending"]
+[ext_resource type="Resource" path="res://data/story/endings/ring_the_bell.tres" id="6_bell"]
+[ext_resource type="Resource" path="res://data/story/endings/take_his_place.tres" id="7_keeper"]
+
+[resource]
+script = ExtResource("1_finale")
+id = &"well_bottom"
+title = "The Well's Bottom"
+subtitle = "The End of the Descent"
+lore = "Below the kingdom of dust, the stone ends. Someone kneels in the dark, an unlit lantern in his hand."
+victories_needed = 1
+biome = ExtResource("2_biome")
+arena = ExtResource("3_arena")
+boss = ExtResource("4_boss")
+arena_lights = 0
+endings = Array[ExtResource("5_ending")]([ExtResource("6_bell"), ExtResource("7_keeper")])
+choice_title = "What Is Left"
+choice_lore = "The mask is dust. Your master stands in the dark, free, and looks at the lantern in your hand. Far above, the bell waits."
+color = Color(0.78, 0.66, 1, 1)

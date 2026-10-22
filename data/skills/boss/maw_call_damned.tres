@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_effect"]
+[ext_resource type="Script" path="res://src/definitions/monster_def.gd" id="2_monster"]
+[ext_resource type="Resource" path="res://data/monsters/abyss/horned_carcass.tres" id="3_carcass"]
+[ext_resource type="Resource" path="res://data/monsters/abyss/shade_stalker.tres" id="4_stalker"]
+[ext_resource type="Resource" path="res://data/monsters/abyss/cinder_wraith.tres" id="5_wraith"]
+[ext_resource type="Script" path="res://src/definitions/effects/summon_effect.gd" id="6_summon"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_skill"]
+[ext_resource type="AudioStream" path="res://data/audio/spirit.tres" id="8_sound"]
+[ext_resource type="Resource" path="res://data/vfx/elements/shadow.tres" id="9_shadow"]
+
+[sub_resource type="Resource" id="Resource_summon"]
+script = ExtResource("6_summon")
+monsters = Array[ExtResource("2_monster")]([ExtResource("3_carcass"), ExtResource("4_stalker"), ExtResource("5_wraith")])
+count = 2
+radius = 120.0
+max_alive = 4
+element = ExtResource("9_shadow")
+
+[resource]
+script = ExtResource("7_skill")
+id = &"maw_call_damned"
+display_name = "Call the Damned"
+color = Color(0.82, 0.29, 0.53, 1)
+cooldown = 12.0
+effects = Array[ExtResource("1_effect")]([SubResource("Resource_summon")])
+sound = ExtResource("8_sound")
+ai_max_range = 900.0
+cast_time = 0.8

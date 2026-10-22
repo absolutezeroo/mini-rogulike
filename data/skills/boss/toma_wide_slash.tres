@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_effect"]
+[ext_resource type="Script" path="res://src/definitions/effects/damage_area_effect.gd" id="2_area"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_skill"]
+[ext_resource type="AudioStream" path="res://data/audio/slash_heavy.tres" id="4_sound"]
+[ext_resource type="Resource" path="res://data/vfx/slashes/cleave.tres" id="5_slash"]
+
+[sub_resource type="Resource" id="Resource_area"]
+script = ExtResource("2_area")
+radius = 96.0
+damage_multiplier = 1.4
+flat_damage = 8
+offset = 34.0
+knockback = 400.0
+slash = ExtResource("5_slash")
+
+[resource]
+script = ExtResource("3_skill")
+id = &"toma_wide_slash"
+display_name = "Severing Arc"
+color = Color(0.78, 0.8, 0.86, 1)
+cooldown = 5.0
+effects = Array[ExtResource("1_effect")]([SubResource("Resource_area")])
+sound = ExtResource("4_sound")
+ai_max_range = 150.0
+cast_time = 1.25
+cast_animation = &"windup"

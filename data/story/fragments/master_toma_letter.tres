@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/sealed_letter.tres" id="2_look"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="3_progresscond"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="4_keepernamed"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"master_toma_letter"
+title = "A Letter Never Sent"
+author = "Tôma, to the Vigil-Keeper"
+place = "Found on the stairs of the Well"
+lines = PackedStringArray("Old mother, you will hear the bell fall silent. Do not ring it; let them sleep.", "If my pupil goes down after me, do not bless his lantern. He must not come this far.", "Hana will knock at your door first. Open to her.")
+look = ExtResource("2_look")
+conditions = Array[ExtResource("3_progresscond")]([ExtResource("4_keepernamed")])

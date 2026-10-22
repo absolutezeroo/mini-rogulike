@@ -32,7 +32,8 @@ data/                Game content as .tres resources (no code)
   difficulties/        Pilgrim, Keeper, Martyr, Nightmare
   story/               story.tres: the game's name, the intro, victory and death texts; narrative.tres (how the
                        story is told), chronicles/ (each warden's), fragments/, fragment_looks/, conditions/
-                       (shared reveal gates), cinematics/ (the boss meetings' steps)
+                       (shared reveal gates), cinematics/ (the boss meetings' steps); finale.tres (the bottom
+                       of the Well) and its endings (endings/)
   props/               Breakable props and the lantern
   hazards/             Traps, arrow traps, holes, crumbling floor, quicksand and mud
   chests/              Chests (some trapped) and the big chest of ambushes

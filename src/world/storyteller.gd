@@ -5,7 +5,8 @@ extends Node
 ## starts the fight at once. Kept apart from the Game so the World never depends on it.
 
 
-## The hero met `boss` in its arena. May take a while (a cinematic, the game paused): the arena
-## waits for it. Returns true if the boss already woke on screen (its intro animation played).
-func meet(_boss: Monster) -> bool:
+## The hero met `boss` in its arena (`risen`: a next form, just risen from the fallen one). May
+## take a while (a cinematic, the game paused): the arena waits for it. Returns true if the boss
+## already woke on screen (its intro animation played).
+func meet(_boss: Monster, _risen := false) -> bool:
 	return false

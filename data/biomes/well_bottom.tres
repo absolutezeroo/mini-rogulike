@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="BiomeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/decor_rule_def.gd" id="1_decor"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="2_detail"]
+[ext_resource type="Script" path="res://src/definitions/biomes/ground_layer_def.gd" id="3_ground"]
+[ext_resource type="Texture2D" path="res://assets/tiles/interior_floor.png" id="4_interior"]
+[ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="5_biome"]
+[ext_resource type="Resource" path="res://data/dungeon/themes/well_bottom.tres" id="6_theme"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bones"]
+atlas = ExtResource("2_detail")
+region = Rect2(224, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_skull"]
+atlas = ExtResource("2_detail")
+region = Rect2(208, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_bones"]
+script = ExtResource("1_decor")
+pieces = Array[Texture2D]([SubResource("AtlasTexture_bones"), SubResource("AtlasTexture_skull")])
+where = 1
+density = 0.15
+max_per_room = 3
+
+[sub_resource type="Resource" id="Resource_stone"]
+script = ExtResource("3_ground")
+texture = ExtResource("4_interior")
+tile = Rect2i(192, 208, 16, 16)
+edge_color = Color(0.16, 0.12, 0.2, 1)
+coverage = 0.3
+wall_bias = -0.3
+roughness = 0.25
+
+[resource]
+script = ExtResource("5_biome")
+theme = ExtResource("6_theme")
+grounds = Array[ExtResource("3_ground")]([SubResource("Resource_stone")])
+decor = Array[ExtResource("1_decor")]([SubResource("Resource_bones")])
+id = &"well_bottom"
+display_name = "The Well's Bottom"
+description = "Below the kingdom of dust, the stone ends. What waits here has waited for a long time."
+color = Color(0.78, 0.66, 1, 1)
+spawn_weight = 0

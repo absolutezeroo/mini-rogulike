@@ -31,7 +31,8 @@ func run_unit() -> void:
 	_restore(saved)
 
 
-## The wardens that must have a story: every act's and the hidden floor's.
+## The wardens that must have a story: every act's, the hidden floor's, and the bottom of the
+## Well's forms (Tôma, the Maw).
 func _wardens() -> Array[BossDef]:
 	var result: Array[BossDef] = []
 	for act in CONTENT.dungeon.acts:
@@ -41,12 +42,17 @@ func _wardens() -> Array[BossDef]:
 	var hidden := CONTENT.dungeon.hidden_floor
 	if hidden and hidden.boss and not result.has(hidden.boss):
 		result.append(hidden.boss)
+	var finale := CONTENT.dungeon.finale
+	if finale and finale.boss:
+		for form in finale.boss.forms():
+			if not result.has(form):
+				result.append(form)
 	return result
 
 
 func _test_chronicle_data() -> void:
 	var wardens := _wardens()
-	check(wardens.size() >= 11, "every warden is listed (%d)" % wardens.size())
+	check(wardens.size() >= 13, "every warden is listed, the bottom's two forms too (%d)" % wardens.size())
 	var fr := TranslationServer.get_translation_object("fr")
 	check(fr != null, "the French translation is loaded")
 	var fragment_ids := {}
@@ -75,6 +81,13 @@ func _test_chronicle_data() -> void:
 			ids[line.id] = true
 			_check_line(fr, line.line, "%s/%s" % [name, line.id])
 			check(not line.conditions.is_empty(), "%s/%s: a waking line waits for something" % [name, line.id])
+			if not line.deeds().is_empty():
+				deed_gated += 1
+		for line in chronicle.last_words:
+			check(not ids.has(line.id), "%s: last words ids are unique (%s)" % [name, line.id])
+			ids[line.id] = true
+			_check_line(fr, line.line, "%s/%s" % [name, line.id])
+			check(not line.conditions.is_empty(), "%s/%s: last words wait for something" % [name, line.id])
 			if not line.deeds().is_empty():
 				deed_gated += 1
 		var deeds := chronicle.deeds()
@@ -124,18 +137,19 @@ func _test_reveal_rule() -> void:
 			continue
 		for chapter in boss.chronicle.chapters:
 			gated += _check_gated(narrative, fr, chapter.lines + PackedStringArray([chapter.title]), chapter.conditions, "%s/%s" % [boss.id, chapter.id])
-		for line in boss.chronicle.waking_lines:
+		for line in boss.chronicle.waking_lines + boss.chronicle.last_words:
 			gated += _check_gated(narrative, fr, PackedStringArray([line.line]), line.conditions, "%s/%s" % [boss.id, line.id])
 		for fragment in boss.chronicle.fragments:
 			gated += _check_gated(narrative, fr, fragment.lines + PackedStringArray([fragment.title, fragment.author, fragment.place]), fragment.conditions, String(fragment.id))
 		for deed in boss.chronicle.deeds():
 			for text in [deed.hint, deed.rule]:
 				check(not _names_keeper(narrative, fr, text), "%s: a deed never names the keeper" % boss.id)
-	check(gated >= 11, "the keeper is named, after the reveal, by every warden (%d texts)" % gated)
-	# In play: everything else done (many kills, every fragment, every deed), but not the reveal.
+	check(gated >= 13, "the keeper is named, after the reveal, by every warden (%d texts)" % gated)
+	# In play: everything else done (many kills, every fragment, every deed), but not the reveal
+	# (the Effigy slain, or Tôma met at the bottom of the Well).
 	_reset_story()
 	for boss in _wardens():
-		if boss.id == &"nameless_effigy":
+		if boss.id == &"nameless_effigy" or boss.id == &"master_toma":
 			continue
 		for i in 10:
 			Profile.record_kill(boss.id)
@@ -150,14 +164,19 @@ func _test_reveal_rule() -> void:
 			for line in chapter.lines:
 				if _names_keeper(narrative, fr, line):
 					leaks.append(String(chapter.id))
-		var speech := Narrative.speech(boss)
-		if speech and _names_keeper(narrative, fr, speech.line):
-			leaks.append(String(speech.id))
+		for words: WakingLine in [Narrative.speech(boss), Narrative.last_words(boss)]:
+			if words and _names_keeper(narrative, fr, words.line):
+				leaks.append(String(words.id))
 		for fragment in Narrative.fragments_to_place(boss):
 			if _names_keeper(narrative, fr, " ".join(fragment.lines)):
 				leaks.append(String(fragment.id))
 	check(leaks.is_empty(), "nothing names the keeper before the reveal: %s" % ", ".join(leaks))
 	check(not narrative.keeper_reveal.is_met(), "the reveal waits for the Nameless Effigy and a victory")
+	Profile.boss_meetings["master_toma"] = 1
+	check(narrative.keeper_reveal.is_met(), "or for meeting him at the bottom of the Well: there he is named")
+	var toma := _boss("master_toma")
+	check(Narrative.open_chapters(toma).any(func(c: ChronicleChapter) -> bool: return _names_keeper(narrative, fr, " ".join(c.lines))), "met, Tôma's own story names him")
+	Profile.boss_meetings.erase("master_toma")
 	Profile.record_kill(&"nameless_effigy")
 	check(not narrative.keeper_reveal.is_met(), "the Effigy slain is not enough: a victory too")
 	Profile.wins["easy"] = 1
@@ -231,6 +250,20 @@ func _test_conditions() -> void:
 	check(not met.is_met(_boss("nameless_effigy")), "met: not before the hero found it")
 	Profile.mark_seen(&"nameless_effigy")
 	check(met.is_met(_boss("nameless_effigy")), "met: once seen")
+	var met_by_id := MetCondition.new()
+	met_by_id.monster_id = &"master_toma"
+	met_by_id.text = "Find the one who waits at the bottom"
+	check(not met_by_id.is_met(slime) and met_by_id.describe(slime) == "Find the one who waits at the bottom", "met by id: another monster, its own words")
+	Profile.boss_meetings["master_toma"] = 1
+	check(met_by_id.is_met(slime), "met by id: once its arena was walked into")
+	var either := AnyCondition.new()
+	var ways: Array[ProgressCondition] = [depth, met_by_id]
+	either.conditions = ways
+	check(either.is_met(slime) and either.contains(met_by_id), "any of them: one way is enough")
+	Profile.boss_meetings.erase("master_toma")
+	Profile.deepest = 0
+	Profile.best_depth = 0
+	check(not either.is_met(slime) and either.describe(slime) == "Reach floor 7", "none met: its lock says the first way still open")
 	_reset_story()
 
 
@@ -282,6 +315,13 @@ func _test_deeds() -> void:
 	var ascended := HardshipDeed.new()
 	ascended.min_ascension = 3
 	check(ascended.achieved(_with(kill, "ascension", 3)) and not ascended.achieved(_with(kill, "ascension", 2)), "a hardship deed: from an ascension")
+	var standing := StandingDeed.new()
+	check(standing.achieved(_with(kill, "rolls_in_fight", 0)) and not standing.achieved(_with(kill, "rolls_in_fight", 1)), "a standing deed: not a single roll in the fight")
+	check(not standing.achieved(kill) and not standing.achieved(_with(_with(kill, "rolls_in_fight", 0), "fight_time", -1.0)), "a standing deed: only a fought warden, its rolls counted")
+	var unbitten := MarkDeed.new()
+	unbitten.mark = &"bitten"
+	unbitten.present = false
+	check(unbitten.achieved(kill) and not unbitten.achieved(_with(kill, "marks", { "bitten": true })), "a mark deed: never bitten this run")
 	var unhealed := UnhealedDeed.new()
 	check(unhealed.achieved(kill) and not unhealed.achieved(_with(kill, "healed_in_fight", 5)), "an unhealed deed: no heal in the fight")
 	check(not unhealed.achieved(_with(kill, "fight_time", -1.0)), "an unhealed deed: only a fought warden")

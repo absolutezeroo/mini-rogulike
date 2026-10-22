@@ -10,6 +10,11 @@ signal debug_requested
 signal offers_requested
 
 const BAG_ICON: Texture2D = preload("res://assets/ui/icons/bag.png")
+## Room kept on each side of a banner's text (UI pixels).
+const BANNER_MARGIN := 40.0
+## The widest a banner's text may be at Fonts.HUGE (UI pixels): the space between the stats on
+## the left and the map on the right.
+const BANNER_WIDTH := 1000.0
 
 var _player: Player
 var _world: World
@@ -20,6 +25,8 @@ var _toasts: Array[String] = []
 var _split_tween: Tween
 ## The run time's text on screen (rebuilt only when it changes).
 var _time_text := ""
+## The note on screen (its fade in, wait and fade out), stopped when a banner comes up.
+var _toast_tween: Tween
 var _toast_busy := false
 ## The trial of the Threshold's counters (see bind_threshold()).
 var _threshold_hud: ThresholdHud
@@ -412,7 +419,8 @@ func _on_synergy_awakened(synergy: SynergyDef) -> void:
 	Events.log_message(tr("%s awakens: %s") % [tr(synergy.display_name), tr(synergy.description)], synergy.color)
 
 
-## A short note at the top of the screen (achievements...). Several wait their turn.
+## A short note at the top of the screen (achievements...). Several wait their turn, and none
+## comes up while a banner shows (a boss's name, its words): they never stack in the middle.
 func toast(text: String) -> void:
 	_toasts.append(text)
 	if not _toast_busy:
@@ -424,14 +432,29 @@ func _next_toast() -> void:
 		_toast_busy = false
 		return
 	_toast_busy = true
+	if _depth_banner.modulate.a > 0.05:
+		# A banner is up (a boss' name, its words): the note waits under it, never over it.
+		get_tree().create_timer(0.3, false).timeout.connect(_next_toast)
+		return
 	(%ToastLabel as Label).text = _toasts.pop_front()
 	Sfx.play_ui(Sfx.bank.level_up, -6.0)
 	var toast_panel: Control = %Toast
-	var tween := create_tween()
-	tween.tween_property(toast_panel, "modulate:a", 1.0, 0.25)
-	tween.tween_interval(2.4)
-	tween.tween_property(toast_panel, "modulate:a", 0.0, 0.4)
-	tween.tween_callback(_next_toast)
+	_toast_tween = create_tween()
+	_toast_tween.tween_property(toast_panel, "modulate:a", 1.0, 0.25)
+	_toast_tween.tween_interval(2.4)
+	_toast_tween.tween_property(toast_panel, "modulate:a", 0.0, 0.4)
+	_toast_tween.tween_callback(_next_toast)
+
+
+## A banner comes up while a note shows: the note steps aside and comes back after it.
+func _yield_toast() -> void:
+	var toast_panel: Control = %Toast
+	if toast_panel.modulate.a <= 0.05 or _toast_tween == null or not _toast_tween.is_valid():
+		return
+	_toast_tween.kill()
+	toast_panel.modulate.a = 0.0
+	_toasts.push_front((%ToastLabel as Label).text)
+	get_tree().create_timer(0.3, false).timeout.connect(_next_toast)
 
 
 ## Souls gathered this run (what the shrine will get). `pulse` when a new one arrives.
@@ -447,9 +470,17 @@ func set_souls(count: int, pulse: bool = false) -> void:
 	_souls_tween.tween_property(_souls_label, "scale", Vector2.ONE, 0.2)
 
 
-## Big centered text that fades out (floor names, boss names...).
+## Big centered text that fades out (floor names, boss names, a warden's last words...). A text
+## too wide at Fonts.HUGE (a sentence: wider than BANNER_WIDTH or the screen) comes at TITLE.
 func show_banner(text: String, color: Color = Color(1, 0.82, 0.4)) -> void:
+	_yield_toast()
 	_depth_banner.text = text
+	var room := minf(_depth_banner.get_viewport_rect().size.x - 2.0 * BANNER_MARGIN, BANNER_WIDTH)
+	var font_size := Fonts.HUGE
+	if Fonts.MAIN.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, Fonts.HUGE).x > room:
+		font_size = Fonts.TITLE
+	_depth_banner.add_theme_font_size_override("font_size", font_size)
+	_depth_banner.add_theme_constant_override("outline_size", Fonts.outline_size(font_size))
 	_depth_banner.add_theme_color_override("font_color", color)
 	if _banner_tween:
 		_banner_tween.kill()

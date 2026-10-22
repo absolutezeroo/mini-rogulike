@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_effect"]
+[ext_resource type="Script" path="res://src/definitions/effects/ground_strike_effect.gd" id="2_strike"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_skill"]
+[ext_resource type="AudioStream" path="res://data/audio/magic.tres" id="4_sound"]
+[ext_resource type="Resource" path="res://data/vfx/elements/holy.tres" id="5_holy"]
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_sheet_def.gd" id="6_sheet"]
+[ext_resource type="Texture2D" path="res://assets/fx/holy/holy_column.png" id="7_column"]
+[ext_resource type="AudioStream" path="res://data/audio/knell.tres" id="8_land"]
+
+[sub_resource type="Resource" id="column"]
+script = ExtResource("6_sheet")
+layer = 2
+texture = ExtResource("7_column")
+frames = 7
+fps = 16.0
+anchor = Vector2(0, -38)
+linger = 0.12
+look = 1
+halo = 10.0
+halo_at = Vector2(0, 38)
+
+[sub_resource type="Resource" id="Resource_strike"]
+script = ExtResource("2_strike")
+count = 4
+radius = 50.0
+fuse = 1.1
+stagger = 0.18
+spread = 190.0
+damage_multiplier = 1.0
+flat_damage = 6
+knockback = 240.0
+element = ExtResource("5_holy")
+strike = SubResource("column")
+shake = 0.2
+sound = ExtResource("8_land")
+
+[resource]
+script = ExtResource("3_skill")
+id = &"maw_false_dawn"
+display_name = "False Dawn"
+color = Color(1, 0.88, 0.55, 1)
+cooldown = 5.5
+effects = Array[ExtResource("1_effect")]([SubResource("Resource_strike")])
+sound = ExtResource("4_sound")
+ai_max_range = 900.0
+cast_time = 0.7

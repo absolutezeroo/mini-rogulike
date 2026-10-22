@@ -32,7 +32,46 @@ extends MonsterDef
 @export_range(0.0, 3.0, 0.05) var shockwave_power: float = 0.0
 ## Seconds it can't be hurt while it roars into a new phase.
 @export var phase_roar_time: float = 1.2
+## A boss too big for the screen (the Maw): the view leans this share of the way toward its
+## middle while it fights, so the hero and it both stay on screen (0: the view stays on the hero).
+@export_range(0.0, 1.0, 0.05) var camera_lean: float = 0.0
 ## Relics offered when it dies (0 = none).
 @export_range(0, 5) var relic_choices: int = 3
 ## Souls flying out of it when it dies, back to the hero's lantern (a common monster frees one).
 @export_range(1, 40) var soul_wisps: int = 12
+
+## Neither moves nor strikes while its intro plays (its waking is a moment of its own).
+@export var waits_intro: bool = false
+
+@export_group("Two forms")
+## Where it waits in its arena: (0.5, 0.5) is the middle, (0.5, 0) the top wall's middle.
+@export var arena_anchor: Vector2 = Vector2(0.5, 0.5)
+## Its body stays where it fell (its death animation played to the end, never dissolved): a
+## body the story still needs (the next form takes it, or it is what is left at the end).
+@export var body_stays: bool = false
+## When it falls, this one rises in the same arena (BossArena): no relic, no stairs, the boss
+## bar passes to it. Only the last form's death ends the fight.
+@export var next_boss: BossDef
+## Seconds between its fall and the next form taking the fight (the arena darkens and shakes).
+@export_range(0.5, 6.0, 0.1) var rise_time: float = 2.4
+## With `body_stays`: how far its body moves once its death is played (world units; the Maw's
+## last frame leaves Tôma standing in its empty mouth, then he is set down on the ground).
+@export var settle_offset: Vector2 = Vector2.ZERO
+
+
+## The last form of this boss (itself when it has no next one).
+func last_form() -> BossDef:
+	var form := self
+	var guard := 0
+	while form.next_boss and guard < 8:
+		form = form.next_boss
+		guard += 1
+	return form
+
+
+## This boss and the forms that follow it, in order.
+func forms() -> Array[BossDef]:
+	var result: Array[BossDef] = [self]
+	while result.back().next_boss and result.size() < 8:
+		result.append(result.back().next_boss)
+	return result

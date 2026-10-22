@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="SkillDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/effects/effect.gd" id="1_effect"]
+[ext_resource type="Script" path="res://src/definitions/effects/projectile_effect.gd" id="2_shot"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="3_skill"]
+[ext_resource type="AudioStream" path="res://data/audio/fireball.tres" id="4_sound"]
+[ext_resource type="Script" path="res://src/definitions/vfx/vfx_sheet_def.gd" id="5_sheet"]
+[ext_resource type="Texture2D" path="res://assets/fx/fire/fire_ray.png" id="6_ray"]
+[ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="7_fire"]
+
+[sub_resource type="Resource" id="ray"]
+script = ExtResource("5_sheet")
+texture = ExtResource("6_ray")
+frames = 2
+orient = 1
+directions = 16
+fps = 12.0
+loop = true
+
+[sub_resource type="Resource" id="Resource_shot"]
+script = ExtResource("2_shot")
+damage_multiplier = 0.6
+flat_damage = 6
+radius = 7.0
+count = 7
+spread_degrees = 70.0
+knockback = 140.0
+color = Color(1, 0.75, 0.25, 1)
+sheet = SubResource("ray")
+element = ExtResource("7_fire")
+
+[resource]
+script = ExtResource("3_skill")
+id = &"maw_sun_gaze"
+display_name = "Dead Sun's Gaze"
+color = Color(1, 0.75, 0.25, 1)
+cooldown = 4.5
+effects = Array[ExtResource("1_effect")]([SubResource("Resource_shot")])
+sound = ExtResource("4_sound")
+ai_max_range = 700.0
+cast_time = 0.7

@@ -2,8 +2,8 @@ class_name HuntTracker
 extends Node
 ## Watches the run for the bestiary challenges (HuntChallenge): how each monster was slain
 ## (an elite, pushed into a hole, a crit, with what weapon, untouched...), kill streaks, and
-## each boss fight (how long, potions drunk, HP lost, heals). A challenge met is done for good and
-## paid in souls (Profile). A warden's death is also checked against the deeds of its chronicle
+## each boss fight (how long, potions drunk, HP lost, heals, rolls). A challenge met is done for
+## good and paid in souls (Profile). A warden's death is also checked against the deeds of its chronicle
 ## (DeedCondition, through Narrative), with the same context and the run's (its marks, its
 ## difficulty). Owned by the Game; pauses with it (its clock too).
 
@@ -21,6 +21,8 @@ var _fight_start := -1.0
 var _fight_hp_lost := 0
 var _fight_potions := 0
 var _fight_healed := 0
+## Rolls (the hero's innate skill, slot 0) since the boss fight started.
+var _fight_rolls := 0
 
 const STREAK_MEMORY := 12
 
@@ -31,7 +33,8 @@ func _ready() -> void:
 		_fight_start = _clock
 		_fight_hp_lost = 0
 		_fight_potions = 0
-		_fight_healed = 0)
+		_fight_healed = 0
+		_fight_rolls = 0)
 	Events.depth_changed.connect(func(_depth: int) -> void:
 		_fight_start = -1.0
 		_kill_times.clear())
@@ -51,6 +54,9 @@ func bind(new_player: Player, new_run: RunState = null) -> void:
 	player.healed.connect(func(amount: int, _source: StringName) -> void:
 		if _fight_start >= 0.0 and amount > 0:
 			_fight_healed += amount)
+	player.skill_used.connect(func(index: int) -> void:
+		if _fight_start >= 0.0 and index == 0:
+			_fight_rolls += 1)
 
 
 func _physics_process(delta: float) -> void:
@@ -78,6 +84,7 @@ func kill_context(monster: Monster) -> Dictionary:
 		"potions_in_fight": _fight_potions,
 		"hp_lost_in_fight": float(_fight_hp_lost) / max_hp,
 		"healed_in_fight": _fight_healed,
+		"rolls_in_fight": _fight_rolls,
 		"killing_element": monster.killing_element(),
 		"gold": player.gold if player else 0,
 		"marks": run.marks if run else {},

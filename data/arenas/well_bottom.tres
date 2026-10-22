@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ArenaDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/arena_def.gd" id="1_arena"]
+
+[resource]
+script = ExtResource("1_arena")
+id = &"well_bottom"
+display_name = "The Well's Bottom"
+size = Vector2i(27, 21)
+shape = 1
+pillars = PackedVector2Array()

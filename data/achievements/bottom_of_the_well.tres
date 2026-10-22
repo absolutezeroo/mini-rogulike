@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_3tq7o")
 id = &"bottom_of_the_well"
-display_name = "The Bottom of the Well"
+display_name = "The Souls Return"
 description = "Win a run."
 icon = ExtResource("1_urwc2")
 stat = 5

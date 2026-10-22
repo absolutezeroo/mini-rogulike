@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="DungeonTheme" format=3]
+
+[ext_resource type="Resource" path="res://data/dungeon/ambience/well_bottom.tres" id="1_ambience"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="2_detail"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor.png" id="3_floor"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/crypt.ogg" id="4_music"]
+[ext_resource type="Script" path="res://src/definitions/dungeon_theme.gd" id="5_theme"]
+[ext_resource type="Texture2D" path="res://assets/tiles/dungeon.png" id="6_props"]
+[ext_resource type="Texture2D" path="res://assets/tiles/relief.png" id="7_relief"]
+[ext_resource type="Resource" path="res://data/dungeon/lighting/well_bottom.tres" id="8_lighting"]
+
+[resource]
+script = ExtResource("5_theme")
+tint = Color(0.66, 0.62, 0.8, 1)
+lighting = ExtResource("8_lighting")
+music = ExtResource("4_music")
+ambience = ExtResource("1_ambience")
+floor_atlas = ExtResource("3_floor")
+floor_tiles = PackedInt32Array(429, 430, 431, 432, 433)
+decor_atlas = ExtResource("2_detail")
+decor_tiles = PackedInt32Array(4, 5, 6, 7, 13, 14, 15)
+decor_chance = 0.0
+wall_atlas = ExtResource("7_relief")
+wall_top_color = Color(0.5, 0.44, 0.6, 1)
+wall_top_left = 1
+wall_top = 2
+wall_top_right = 3
+wall_left = 21
+wall_center = 22
+wall_right = 23
+wall_bottom_left = 41
+wall_bottom = 42
+wall_bottom_right = 43
+inner_top_left = 60
+inner_top_right = 61
+inner_bottom_left = 80
+inner_bottom_right = 81
+inner_top = 82
+inner_bottom = 83
+face_left = 44
+face = 45
+face_right = 46
+face_single = 48
+props_atlas = ExtResource("6_props")
+mist_deep = Color(0.03, 0.02, 0.06, 1)
+mist_wisp = Color(0.36, 0.26, 0.5, 1)
+mist_density = 0.95

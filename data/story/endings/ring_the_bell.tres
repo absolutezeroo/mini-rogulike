@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EndingDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/ending_def.gd" id="1_ending"]
+
+[resource]
+script = ExtResource("1_ending")
+id = &"ring_the_bell"
+choice = "Ring the bell"
+hint = "Seal the Maw. Your master finds rest, and Hana with him."
+title = "The Last Knell"
+text = "You ring the bell, and the Well closes.
+Tôma sits against the stone, his hand on your lantern. \"She sleeps now.\" Then he sleeps too.
+Far above, Kagari wakes. The knell carries until dawn."
+stat = "ending_bell"
+color = Color(1, 0.86, 0.45, 1)

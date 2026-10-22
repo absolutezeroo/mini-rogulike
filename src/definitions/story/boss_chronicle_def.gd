@@ -10,6 +10,9 @@ extends Resource
 @export var chapters: Array[ChronicleChapter] = []
 ## What it says as it wakes when the hero carries a memory of it (the last open one).
 @export var waking_lines: Array[WakingLine] = []
+## What it says as it falls (the last open one), on its banner: a warden with a next form or a
+## last breath has words for it (Tôma on his knees). Most have none.
+@export var last_words: Array[WakingLine] = []
 ## Found on the floors of its act before its arena (FragmentPlacer).
 @export var fragments: Array[FragmentDef] = []
 
@@ -22,7 +25,7 @@ func deeds() -> Array[DeedCondition]:
 			for deed in chapter.deeds():
 				if not result.has(deed):
 					result.append(deed)
-	for line in waking_lines:
+	for line in waking_lines + last_words:
 		if line:
 			for deed in line.deeds():
 				if not result.has(deed):
