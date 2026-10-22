@@ -27,7 +27,7 @@ enum Stage { CLOSED, OPENING, OPEN, CLOSING }
 @export_group("Closed")
 ## Floating over it when a blow glances off (translated where shown).
 @export var immune_text: String = "No effect"
-@export var immune_color: Color = Color(0.86, 0.84, 0.78)
+@export var immune_color: Color = Color(0.95, 0.93, 0.86)
 ## The clang (null: the body's material's sound, higher).
 @export var immune_sound: AudioStream
 
@@ -283,7 +283,8 @@ func deflects(monster: Monster, hit: HitInfo) -> bool:
 	elif monster.def.material and monster.def.material.sound:
 		Sfx.play_at(monster.def.material.sound, at, -2.0, 1.35)
 	Sfx.play_at(Sfx.bank.projectile_impact, at, -4.0, 1.4)
-	world.spawn_floating_text(monster.head_position().lerp(monster.global_position, 0.55), tr(immune_text), immune_color)
+	# Over its jaw, where the blows land (its head is far up the screen, under the banners).
+	world.spawn_floating_text(monster.global_position + Vector2(0, -monster.radius), tr(immune_text), immune_color)
 	return true
 
 

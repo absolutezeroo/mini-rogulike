@@ -30,8 +30,9 @@ The suites (`tests/suites/`, each a `TestSuite`):
 - **game**: a bot plays the real game (kills, level ups and perk choices, stairs, death and
   restart, saving and resuming), then on that same game: **combat** (projectiles, perks, skills,
   monsters and their traits, difficulty, weapons), **floor** (props, hazards, chests, ambushes,
-  encounters, pact doors, the merchant, loot, curses, biomes, act cards, the belt) and **boss** (a full boss fight
-  with its phases and relic, then winning the run).
+  encounters, pact doors, the merchant, loot, curses, biomes, act cards, the belt), **boss** (a full boss fight
+  with its phases and relic, then winning the run) and **finale** (the bottom of the Well after a
+  win: the gate, saves around it, Tôma, the Maw's jaw, the endings).
 - **tutorial**: the hints' data, the first steps played with the real controls, the hints that come
   up once, menus, the options and the profile.
 
@@ -74,6 +75,8 @@ In debug builds only (running from the Godot editor, on the phone too, or a debu
 - **Hero**: god mode (nothing hurts), full heal, +500 gold, level up, an Epic weapon, every
   consumable, freezing / burning / normal temperature.
 - **Monsters**: pick any monster or boss and spawn it (or an elite one), kill all, put all asleep.
+- **The Well's bottom** (Floor row): goes to the final fight at once (FinaleDef), as if Act IV's
+  boss had led there.
 - **Pact door**: one button per pact: seals a dead-end room of this floor behind its door, shown
   on the map.
 

@@ -444,8 +444,13 @@ slicer, element exports) serves the others; what each still needs:
   magenta edge flashed as a light: `glow`, on him as he raises it and on the spot), the Maw's
   tar lash is **earth** (the ground bursting), its False Dawn is **holy** (Smite's column falling
   on each spot), its Dead Sun's Gaze the eye beam's **fire** rays, its bite **blood**'s claw.
-  The Maw's tar pool is a pre-drawn oval of art pixels on the GROUND under it
-  (`WeakPointTrait.draw_under`), its glow a `LightSource` (golden, brighter while open).
+  The Maw's tar pool is a pre-drawn ragged puddle of art pixels with drips on the GROUND under it
+  (`WeakPointTrait.draw_under`), its tentacles' cut ends sunk into it in the sheets themselves
+  (each tentacle steps down to tar and dithers away on its own row). The Maw is the false sun:
+  `lit_from_within` draws its body over the floor's light and the wall mist (z
+  `PlateauMist.Z + 1`, under the AIR effects drawn after the actors) with a holy `GlowHalo`
+  behind its mask, and a golden `LightSource` on the floor, brighter while its jaw is open. Its
+  body still takes the cast telegraph's red glow (the rule for every monster).
 
 ## 9. Shaders on bodies
 
