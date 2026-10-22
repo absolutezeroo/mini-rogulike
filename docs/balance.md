@@ -73,11 +73,12 @@ How a run is made fast (`BalanceLab`, `BalanceJobs`):
   again, only what a change touched is measured again. A code change measures everything again.
   `--no-cache` ignores what is kept.
 
-Run time on 2 CPUs (2026-10-20, all six difficulties, measured): model ~2 s; economy ~3 min
-(96 floors); compound ~4 min; pack ~9 min (478 rooms); marginal ~34 min (572 variants, 4 acts);
-arena ~45 min (408 boss fights, then 160 weapon-arena fights). `--mode=all --jobs=2` (the arena in
-a second process) takes about 45-50 min of real time; one process would take about 1 h 30. `--quick` modes
-take 5 s to a minute each; the `balance` test suite about a minute.
+Run time on 2 CPUs (2026-10-22, measured): `--mode=all --jobs=2` (all six difficulties, the
+gauntlet and its curve) about 45 min from scratch (the tools before the simulation and the
+units: 1 h 41 min, without the gauntlet), 30 s again with nothing changed (the cache); after a
+data change only the units that read it. `--mode=all --quick` about 2 min (was 3); model ~5 s;
+the act II-III boss fights of the expected builds on three difficulties ~1 min; the curve on
+three difficulties ~8 min; the `balance` test suite a few minutes.
 
 ### What each mode measures
 

@@ -105,8 +105,8 @@ monsters, rebuilt in place for a fresh measure). Wall time on this machine (2 CP
 | Command | Before | After |
 |---|---|---|
 | `--mode=all --quick --jobs=2` | 183 s | 113 s (with the gauntlet and the curve, which did not exist) |
-| `--mode=all --jobs=2` (six difficulties), first run | 6093 s (1 h 41 min) | 2564 s (43 min; measured before the curve part and the claims were added) |
-| the same again, nothing changed | 6093 s | not measured yet |
+| `--mode=all --jobs=2` (six difficulties), first run | 6093 s (1 h 41 min) | 2729 s (45 min), with the gauntlet and its curve (+250 units the old tools had not) |
+| the same again, nothing changed | 6093 s | 29 s (everything from the cache) |
 | arena, acts II-III, expected builds, 3 difficulties (36 fights) | - | 40-55 s |
 
 Same verdicts within the seed noise: 408 boss fights, 91% the same result (face-tank 96%, kite
@@ -116,6 +116,14 @@ luckier stream in one run: its "too weak" flags 24 -> 47): read them across runs
 Found and fixed on the way: a fall into the Deeps or a second life's Threshold took the World out
 of the tree mid-fight and the bots kept steering it (about 59,000 script errors in a full run,
 old tools included); they now follow the hero there and make for the Dawn Breach.
+Consequence in the final run: a build with a second life (Phoenix Feather, Death Denied) now
+plays its Threshold trial and comes back, so three face-tank fights read as wins ("arena:
+face-tank wins": degenerate_max_health_a4 vs Gilded Hoarder and degenerate_thorns_a4 vs the Dead
+Sun at 0% Health and revived; degenerate_skills_a3 vs Jade Wyrm at 23%, Devotion's heals) and
+the second life's heal counts in "arena: heal share" (14 -> 21 flags, the degenerate and the
+expected act III-IV builds' Leech on Pilgrim and Keeper). The old tools lost those fights by
+accident (the bot stood still in the Threshold). Open: whether the face-tank target should count
+a second life as a loss.
 
 ## 2026-10-22 - The bottom of the Well: Tôma and the Maw (new fight, numbers set by rule)
 
