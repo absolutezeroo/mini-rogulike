@@ -134,7 +134,7 @@ func _build() -> void:
 	_own(_swear)
 	buttons.add_child(_swear)
 	var leave := UiParts.button(tr("Leave"), close, Vector2(200, 60), Fonts.BODY)
-	PromptGlyph.badge(leave, &"ui_cancel")  # Back leaves too
+	PromptGlyph.badge(leave, &"ui_cancel", PromptGlyph.Place.INSIDE)  # Back leaves too
 	leave.name = "LeaveButton"
 	_own(leave)
 	buttons.add_child(leave)

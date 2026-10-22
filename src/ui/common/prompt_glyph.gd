@@ -39,18 +39,41 @@ static func make(for_action: StringName) -> PromptGlyph:
 	return glyph
 
 
-## `action`'s cap on `control`'s top edge, in its middle (`centered`) or over its top left
-## corner, sticking out a little: the key of a button that does the same (the bag, Leave...).
-static func badge(control: Control, for_action: StringName, centered := true) -> PromptGlyph:
+## Where badge() puts a cap on its control.
+enum Place { TOP, CORNER, INSIDE }
+
+
+## `action`'s cap on `control`, the key of a button that does the same: over the middle of its top
+## edge (TOP: the HUD's bag), over its top left corner (CORNER: the map), or inside it on the left,
+## its words still centred (INSIDE: a dialog's Leave, Later, Resume).
+static func badge(control: Control, for_action: StringName, where := Place.TOP) -> PromptGlyph:
 	var glyph := make(for_action)
 	glyph.name = "%sKey" % String(for_action).to_pascal_case()
 	control.add_child(glyph)
 	var place := func() -> void:
-		var x := roundf((control.size.x - glyph.size.x) * 0.5) if centered else -10.0
-		glyph.position = Vector2(x, -12.0)
+		match where:
+			Place.INSIDE:
+				glyph.position = Vector2(10.0, roundf((control.size.y - glyph.size.y) * 0.5))
+			Place.CORNER:
+				glyph.position = Vector2(-10.0, -12.0)
+			_:
+				glyph.position = Vector2(roundf((control.size.x - glyph.size.x) * 0.5), -12.0)
 	glyph.resized.connect(place)
 	control.resized.connect(place)
 	place.call()
+	if where == Place.INSIDE and control is Button:
+		# The button's words move right of the cap while it shows (never on touch: the phone's
+		# layout stays as it was).
+		var make_room := func() -> void:
+			for state in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:
+				control.remove_theme_stylebox_override(state)
+				if glyph.visible:
+					var style := control.get_theme_stylebox(state).duplicate() as StyleBox
+					style.content_margin_left = maxf(style.content_margin_left, 0.0) + glyph.size.x + 12.0
+					control.add_theme_stylebox_override(state, style)
+		glyph.visibility_changed.connect(make_room)
+		glyph.resized.connect(make_room)
+		make_room.call()
 	return glyph
 
 

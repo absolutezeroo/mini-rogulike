@@ -216,7 +216,7 @@ func _build() -> void:
 	_banish.icon = load("res://assets/ui/icons/banish.png")
 	_tools.add_child(_banish)
 	_later = UiParts.button(tr("Later"), Callable(), Vector2(180, 54), Fonts.BODY)
-	PromptGlyph.badge(_later, &"ui_cancel")  # Back puts the choice off too
+	PromptGlyph.badge(_later, &"ui_cancel", PromptGlyph.Place.INSIDE)  # Back puts the choice off too
 	_later.name = "LaterButton"
 	_tools.add_child(_later)
 	_tools_note = UiParts.text(tr("Reroll: 3 new perks to choose from.   Banish: removes a perk from this run's offers (Banish, then the card)."), Fonts.SMALL, UiSkin.DIM, 1100)

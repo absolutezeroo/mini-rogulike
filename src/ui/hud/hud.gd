@@ -191,7 +191,7 @@ func _add_key_badges() -> void:
 	for pair: Array in [[%BagButton, &"inventory"], [%PauseButton, &"pause"], [_minimap, &"map"], [offers_button, &"offers"]]:
 		# Over the middle of the control's top edge (the map: its top left corner); never over a
 		# neighbour.
-		PromptGlyph.badge(pair[0], pair[1], pair[0] != _minimap)
+		PromptGlyph.badge(pair[0], pair[1], PromptGlyph.Place.CORNER if pair[0] == _minimap else PromptGlyph.Place.TOP)
 
 
 ## Touch: the joystick and the round buttons. Keys or a gamepad: the action bar instead.

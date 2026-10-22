@@ -80,7 +80,9 @@ shows to the device in hand.
   the focus (`ScrollContainer.follow_focus`), and a box with nothing to focus scrolls. Q / E and LB /
   RB switch tabs (buttons in the group "menu_tabs": the codex, the options). Enter, Space or A press;
   Escape or B go back (the screens' own Back: `GameMenus.back()`, `TitleScreen.back()`); Escape on
-  the bare title quits nothing. A gold pixel frame (corner brackets, breathing by a pixel) shows
+  the bare title quits nothing. The buttons Back stands for show its key: a window's Close beside
+  it, a dialog's Resume, Later, Leave and Close inside on the left (`PromptGlyph.badge()`; on touch
+  nothing, the phone's layout unchanged). A gold pixel frame (corner brackets, breathing by a pixel) shows
   around the focused button while keys or a gamepad drive (`InputDevice.navigating`), never on
   touch or after the mouse moved; the mouse hovers and clicks as always. Buttons are focusable
   again everywhere but the HUD, where nothing keeps the focus (Space attacks). The debug panel stays

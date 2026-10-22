@@ -118,7 +118,7 @@ func _build() -> void:
 	_close.custom_minimum_size.x = 200
 	_close.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_close.pressed.connect(close)
-	PromptGlyph.badge(_close, &"ui_cancel")
+	PromptGlyph.badge(_close, &"ui_cancel", PromptGlyph.Place.INSIDE)
 	_dialog.body.add_child(_close)
 	for node: Node in [_source, _place, _lines, _kept, _close]:
 		_named.append(node)

@@ -62,7 +62,7 @@ func _build() -> void:
 		Sfx.play_ui(Sfx.bank.ui_close)
 		resume_requested.emit())
 	resume.add_theme_font_size_override("font_size", Fonts.TITLE)
-	PromptGlyph.badge(resume, &"pause")  # Escape or Start resumes too
+	PromptGlyph.badge(resume, &"pause", PromptGlyph.Place.INSIDE)  # Escape or Start resumes too
 	_row(tr("Options"), "OptionsButton", tr("Sound, music, button size, effects."), func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		_options.open())
