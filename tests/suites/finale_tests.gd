@@ -75,6 +75,7 @@ func _test_finale(game: Game) -> void:
 	player.global_position = world.map.cell_to_world(world.map.boss_room.get_center() + Vector2i(0, 6))
 	await _frames(3)
 	check(arena.is_started and not toma.dormant and toma.rig.body.animation == &"intro", "walking in wakes Tôma: he opens his eyes and draws (intro)")
+	check(toma.pick_skill(150.0) < 0 and not toma.can_attack() and toma.casting_index < 0, "he waits his waking out: no blow, no skill meanwhile")
 	check(game.hud.get_node("%BossBar").visible and (game.hud.get_node("%BossName") as Label).text == finale.boss.display_name, "his name on the boss bar")
 	check(toma.skills.skills.any(func(s: SkillDef) -> bool: return s.effects.any(func(e: Effect) -> bool: return e is GroundStrikeEffect)), "he turns the lantern's light on the hero (a strike on the ground)")
 
@@ -99,7 +100,6 @@ func _test_finale(game: Game) -> void:
 	player.hp = player.get_max_hp()
 
 	# Tôma falls: no relic, the arena stays shut, the Maw rises and takes his body.
-	var offers_before := game.pending_offers()
 	var finish := HitInfo.new()
 	finish.amount = 999999
 	finish.source = player
@@ -108,12 +108,12 @@ func _test_finale(game: Game) -> void:
 	check(toma.is_dead and is_instance_valid(toma) and toma.rig.body.animation == &"dead", "Tôma falls to his knees (his body stays)")
 	check(arena.is_rising and not arena.is_defeated and arena.is_closed() and not game.has_won, "his fall doesn't end the fight: the arena stays shut")
 	check(world.get_node("Entities").get_children().all(func(n: Node) -> bool: return not n is Stairs), "no stairs")
-	await get_tree().create_timer((finale.boss.rise_time + 0.6), false).timeout
+	await _wait(game, (finale.boss.rise_time + 0.6))
 	_close_offers(game)
 	var maw := arena.boss
 	check(maw != toma and maw.def == finale.boss.next_boss and not maw.dormant and maw.target == player, "the Maw rises in the same arena and takes the fight")
 	check(not is_instance_valid(toma) or toma.is_queued_for_deletion(), "it takes Tôma's body")
-	check(game.pending_offers() == offers_before and not game.perk_panel.visible, "no relic between the two forms")
+	check(game.offers.to_data(false).all(func(o: Dictionary) -> bool: return int(o.rarity) != PerkDef.Rarity.RARE) and not game.perk_panel.visible, "no relic between the two forms (Tôma's XP may level the hero up)")
 	check((game.hud.get_node("%BossName") as Label).text == finale.boss.next_boss.display_name, "the boss bar passes to the Maw")
 	check(maw.global_position.y < world.map.cell_to_world(world.map.boss_room.get_center()).y - world.map.tile_size * 4, "it rises at the top of the arena")
 
@@ -139,7 +139,7 @@ func _test_finale(game: Game) -> void:
 	maw.casting_index = -1
 	jaw.open_now(maw)
 	check(not jaw.is_open(maw), "opening takes a moment (blows still glance off)")
-	await get_tree().create_timer(jaw.opening_time + 0.1, false).timeout
+	await _wait(game, jaw.opening_time + 0.1)
 	check(jaw.is_open(maw) and maw.rig.body.animation == jaw.open_pose, "then it holds its jaw open, Tôma inside")
 	check(maw.pick_skill(200.0) < 0, "open, it uses no skill")
 	maw.take_hit(poke)
@@ -162,14 +162,14 @@ func _test_finale(game: Game) -> void:
 	player.invincible = true
 	player.hp = player.get_max_hp()
 	player.global_position = mouth + Vector2(0, 260)
-	await get_tree().create_timer(jaw.time_left(maw) + jaw.closing_time + 0.2, false).timeout
+	await _wait(game, jaw.time_left(maw) + jaw.closing_time + 0.2)
 	check(jaw.stage_of(maw) == WeakPointTrait.Stage.CLOSED and maw.rig.body.animation != jaw.open_pose, "after its window the jaw shuts again")
 	check(jaw.time_left(maw) <= jaw.closed_times[0] + 0.01, "for its closed time")
 
 	# The Maw falls: the run is won, then an ending is chosen.
 	var wins_before := Profile.total_wins()
 	jaw.open_now(maw)
-	await get_tree().create_timer(jaw.opening_time + 0.1, false).timeout
+	await _wait(game, jaw.opening_time + 0.1)
 	maw.take_hit(finish)
 	await _frames(3)
 	check(maw.is_dead and game.has_won and game.run.finish_time > 0.0, "the Maw's fall wins the run")
@@ -178,7 +178,7 @@ func _test_finale(game: Game) -> void:
 	game._save_run()
 	var won_save := RunSave.read()
 	check(bool(won_save.get("ending_due", false)), "a save before the choice keeps it due")
-	await get_tree().create_timer(Game.ENDING_DELAY + 0.3, false).timeout
+	await _wait(game, Game.ENDING_DELAY + 0.3)
 	var panel := game.menus.ending
 	check(panel.visible and get_tree().paused and not game.game_over_panel.visible, "the choice of an ending comes up, the game paused")
 	check(panel.buttons().size() == 2 and panel.buttons()[0].text == finale.endings[0].choice and panel.buttons()[1].text == finale.endings[1].choice, "two endings, by touch: %s / %s" % [finale.endings[0].choice, finale.endings[1].choice])
@@ -240,6 +240,13 @@ func _relic_offered(game: Game) -> bool:
 			if relic:
 				return true
 	return false
+
+
+## Waits `seconds` of play, taking any choice that comes up meanwhile (a relic).
+func _wait(game: Game, seconds: float) -> void:
+	for i in ceili(seconds * 60.0):
+		_close_offers(game)
+		await _frames(1)
 
 
 ## Takes whatever choice is on screen (a relic, a level up), so the test goes on.

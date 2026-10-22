@@ -37,6 +37,9 @@ extends MonsterDef
 ## Souls flying out of it when it dies, back to the hero's lantern (a common monster frees one).
 @export_range(1, 40) var soul_wisps: int = 12
 
+## Neither moves nor strikes while its intro plays (its waking is a moment of its own).
+@export var waits_intro: bool = false
+
 @export_group("Words")
 ## Spoken when it wakes (under its name's banner), and when it falls. Empty: silent. Wardens
 ## and keepers speak in docs/lore.md's voice; the Maw never says "I".

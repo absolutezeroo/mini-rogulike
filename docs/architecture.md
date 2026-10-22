@@ -30,7 +30,8 @@ data/                Game content as .tres resources (no code)
   perks/               Level-up perks (common/) and boss relics (relics/)
   upgrades/            Shrine upgrades (bought with souls between runs)
   difficulties/        Pilgrim, Keeper, Martyr, Nightmare
-  story/               story.tres: the game's name, the intro, victory and death texts
+  story/               story.tres: the game's name, the intro, victory and death texts; finale.tres
+                       (the bottom of the Well) and its endings (endings/)
   props/               Breakable props and the lantern
   hazards/             Traps, arrow traps, holes, crumbling floor, quicksand and mud
   chests/              Chests (some trapped) and the big chest of ambushes

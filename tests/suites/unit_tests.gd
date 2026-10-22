@@ -479,7 +479,7 @@ func _test_finale() -> void:
 		check(form.phases[1].windup_multiplier < form.phases[0].windup_multiplier and form.phases[1].cooldown_multiplier < form.phases[0].cooldown_multiplier, "%s: its last phase is faster" % form.id)
 	var toma := forms[0]
 	check(toma.frames.has_animation(&"intro") and toma.frames.has_animation(&"cast") and toma.frames.has_animation(&"windup"), "Tôma wakes (intro), raises his lantern (cast), draws his blade (windup)")
-	check(toma.relic_choices == 0 and toma.arena_anchor.y > 0.5, "Tôma: no relic (the fight goes on), kneeling below the middle")
+	check(toma.relic_choices == 0 and toma.arena_anchor.y > 0.5 and toma.waits_intro, "Tôma: no relic (the fight goes on), kneeling below the middle, his waking a moment of its own")
 	var kinds := {}
 	for skill: SkillDef in toma.skills + toma.phases[0].skills + toma.phases[1].skills:
 		for effect in skill.effects:

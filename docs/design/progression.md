@@ -189,7 +189,7 @@ with a finger (`TouchScroll`); `CodexRows` builds their rows, with a tick box fo
 - **Achievements** (`data/achievements/`, `AchievementDef`): a goal on one of the profile's counters
   (kills, elites, wardens, kinds of creatures, depth, victories on Martyr / Nightmare / ascension,
   monsters pushed into holes, chests, Epic items, encounters, gold or level in one run, secret
-  rooms found, hidden bosses slain, trials of the Threshold won: *Not Yet*), with a progress bar and its reward; the closest to done
+  rooms found, hidden bosses slain, trials of the Threshold won: *Not Yet*, the two endings), with a progress bar and its reward; the closest to done
   first. Reaching it pays souls, with a note at the top of the screen. A **secret** one
   (`AchievementDef.secret`) shows as "???" ("A secret feat. Some doors only open from the other
   side.") until reached: "Laid to Rest at Last" (slay the hidden floor's boss, 50 souls) would
@@ -197,6 +197,25 @@ with a finger (`TouchScroll`); `CodexRows` builds their rows, with a tick box fo
 - **Runs**: the fastest wins, then the last 20 runs: how each ended (victory, or the floor and
   what slew you), when, the difficulty, how far (floor N of 12), how long, level, weapon, kills
   and the souls earned.
+
+## The two endings
+
+The first win ends on the story's victory text (the first ending: the souls come back, the bell
+rings, "the Well goes deeper still"). Afterwards a run is won at the bottom of the Well
+(dungeon.md): when the Maw's mask crumbles, the **ending panel** (`EndingPanel`, the game's
+skin, the game paused; Back doesn't close it) shows "What Is Left" / « Ce Qui Reste », a line,
+and one card per ending (`FinaleDef.endings`, `EndingDef` in `data/story/endings/`):
+
+| Ending (FR / EN) | Its button | What it means | Achievement |
+|---|---|---|---|
+| Le Dernier Glas / The Last Knell | « Sonner la cloche » / "Ring the bell" | seal the Maw: Tôma dies in peace, Hana rests, Kagari wakes | *Le Dernier Glas / The Last Knell* (100 souls, secret) |
+| Le Gardien Sans Nom / The Nameless Keeper | « Prendre sa place » / "Take his place" | the hero stays down there, the nameless keeper of the seal; Tôma climbs back to wake the village | *Celui qui Veille / He Who Keeps Watch* (100 souls, secret) |
+
+The choice is kept in the profile (`Profile.ending`, the last one chosen; "" before any) and
+counted (`ending_bell`, `ending_keeper`: `AchievementDef.Stat.ENDING_BELL` and `ENDING_KEEPER`,
+after the others), not on Pilgrim (like every feat). Then the victory screen takes the ending's
+title and tells it (three short lines), with the run's numbers and souls as usual; Keep going
+leads on to endless mode. Both endings lead to the same game today (docs/lore.md, section 9).
 
 ## Run timer (speedruns)
 
@@ -211,7 +230,10 @@ with the run, so quitting and coming back doesn't reset it.
 - **Splits**: taking the stairs notes the floor's time (`RunState.splits`) and shows it a few
   seconds: "Floor 3  4:12.3  -0:05.2", green when ahead of the record run, red when behind.
   The hidden floor (dungeon.md) has no split of its own: it keeps the depth of the boss before
-  it, and its time goes into the next floor's split.
+  it, and its time goes into the next floor's split. The bottom of the Well has one, after the
+  last act's (13), the win's. A win at the bottom is raced under the same record as a first win
+  (the same difficulty key), so the first win's record, without the bottom, is the hardest to
+  beat.
 - **Records** (`Profile.best_times`, `best_splits`): the fastest win per difficulty and ascension
   level (`RunState.record_key()`: "normal", "nightmare/a3"), with its splits to race against.
   Daily runs keep none (their own race).

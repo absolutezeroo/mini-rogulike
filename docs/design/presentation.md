@@ -241,10 +241,21 @@ The animations live in `SpriteFrames` resources in `data/visuals/`, named `<pose
 | `hit_*` | taking a hit |
 | `dead` | dying |
 | `cast`, `intro` | bosses: telegraphed skill, waking up |
+| `windup` | a monster's own wind-up (Tôma drawing his katana), fitted to the telegraph; a skill may play it instead of `cast` (`SkillDef.cast_animation`) |
+| `open` | a pose held (`ActorRig.hold_pose()`: the Maw's jaw held open, its `attack` played to open it and backwards to close it) |
 
 A missing animation falls back to a simpler one (`attack_left` > `attack`), and creatures with no
-attack pose lunge instead. Monsters freeze in their attack pose and shake during their wind-up,
-so you can see the strike coming.
+attack pose lunge instead. Monsters freeze in their attack pose and shake during their wind-up
+(or play their `windup`), so you can see the strike coming.
+
+**Bosses of several forms** (the bottom of the Well: monsters.md): a form whose body stays
+(`BossDef.body_stays`) plays its `dead` animation to the end in its own colors instead of
+bursting and dissolving; when the next form rises, the screen darkens a moment (the Game's fade at
+55%), the ground shakes, the new form comes up out of the floor fading in, and the fallen body is
+drawn into it. A boss too big for the view (`BossDef.camera_lean`: the Maw, 256 pixels tall)
+makes the camera lean toward its middle (`GameCamera.lean_toward()`, at most 170 pixels, easing
+in and out) so it and the hero both stay on a phone's screen. A boss's words (`waking_line`,
+`dying_line`) come as the big banner and in the log, a moment after its name.
 
 **Weapons**: each `WeaponDef` has `attack_frames` (a SpriteFrames with `attack_down/up/left/right`).
 The sheets in `assets/weapons/attack/` are 64x64 cells, one column per direction, one row per frame,

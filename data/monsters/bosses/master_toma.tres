@@ -66,6 +66,7 @@ phases = Array[ExtResource("5_phase")]([SubResource("Resource_guard"), SubResour
 shockwave_power = 1.0
 relic_choices = 0
 soul_wisps = 8
+waits_intro = true
 waking_line = "You came, my pupil."
 dying_line = "Your guard is true, my pupil."
 arena_anchor = Vector2(0.5, 0.62)

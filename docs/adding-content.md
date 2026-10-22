@@ -52,6 +52,10 @@ you can; by hand, keep the `[ext_resource]` paths right.
 | Furniture | New `PropDef` in `data/props/furniture/` (an atlas region of a tileset in `assets/tiles/`, a footprint), used in scenes |
 | A curse | New `CurseDef` in `data/curses/` (temperature, campfires or springs, darkness, look, lore), add it to `content_db.tres` > Curses |
 | Another boss for an act | New `BossDef`, add it to the act's Other Bosses |
+| A boss of several forms | Its next form in `BossDef.next_boss` (it rises in the same arena; `arena_anchor`, `body_stays`, `rise_time`) |
+| A body that can only be hurt sometimes | A `WeakPointTrait` in the monster's Traits (closed and open times by phase, its pull and bite) |
+| A skill striking marked spots on the ground | A `GroundStrikeEffect` (count, radius, fuse, spread, element, a strike sheet) |
+| The bottom of the Well, its endings | `data/story/finale.tres` (`FinaleDef`: the gate, its floor, its boss, its endings), `data/story/endings/` (`EndingDef`: button, line, title, text, the stat of its achievement) |
 | An encounter | New `EncounterDef` in `data/encounters/` (choices, costs, outcomes, the `verb` on the Interact button by it), add it to `content_db.tres` > Encounters |
 | A pact (a pact door's rule) | New `PactDef` in `data/pacts/` (a rule, waves, elites, relics, max Health cost), add it to `dungeon_config.tres` > Pacts |
 | A new kind of pact rule | New script in `src/definitions/pacts/` extending `PactRule`: `describe()`, `status_text()`, listen in `_on_begin()`, call `_break()` |

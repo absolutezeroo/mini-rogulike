@@ -68,6 +68,9 @@ var _streak_time := 0.0
 var _shockwave_after := 0
 var _shockwave_cooldown := 0.0
 var _roar_time := 0.0
+## Seconds of its intro still playing, while a boss that waits it out (BossDef.waits_intro)
+## neither moves nor strikes.
+var _intro_left := 0.0
 
 
 func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
@@ -192,6 +195,8 @@ func get_knockback_resistance() -> float:
 
 
 func can_attack() -> bool:
+	if _intro_left > 0.0:
+		return false
 	for monster_trait in def.traits:
 		if not monster_trait.can_attack(self):
 			return false
@@ -266,6 +271,8 @@ func wake_up(new_target: Actor) -> void:
 	_noticed(new_target)
 	if rig:
 		rig.play_intro()
+		if def is BossDef and (def as BossDef).waits_intro:
+			_intro_left = rig.intro_length()
 
 
 ## Returns true if the monster has (or just acquired) a target to fight.
@@ -379,6 +386,8 @@ func attack_range(other: Actor) -> float:
 
 ## Index of the first ready skill whose AI conditions match, or -1.
 func pick_skill(distance: float) -> int:
+	if _intro_left > 0.0:
+		return -1
 	for monster_trait in def.traits:
 		if not monster_trait.can_cast(self):
 			return -1
@@ -417,7 +426,7 @@ func get_attack_windup() -> float:
 
 func _get_desired_velocity() -> Vector2:
 	_update_heavy_steps()
-	var direction := move_direction
+	var direction := move_direction if _intro_left <= 0.0 else Vector2.ZERO
 	var delta := get_physics_process_delta_time()
 	for monster_trait in def.traits:
 		monster_trait.update(self, delta)
@@ -570,6 +579,7 @@ func _shockwave(fuse: float) -> void:
 
 func _tick_timers(delta: float) -> void:
 	super._tick_timers(delta)
+	_intro_left = maxf(_intro_left - delta, 0.0)
 	if not is_boss():
 		return
 	_streak_time = maxf(_streak_time - delta, 0.0)

@@ -298,6 +298,12 @@ func play_intro() -> void:
 	_play(&"intro", 1.0, true)
 
 
+## Seconds its intro lasts (0 without one).
+func intro_length() -> float:
+	var animation := _animation_for(&"intro")
+	return _length(body.sprite_frames, animation) if animation != &"" else 0.0
+
+
 ## Hit (by `element`: a storm hit crackles over the body).
 func play_hurt(element: VfxElementDef = null) -> void:
 	look.hit(element)
