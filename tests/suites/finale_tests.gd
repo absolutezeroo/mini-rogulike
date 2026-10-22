@@ -108,7 +108,13 @@ func _test_finale(game: Game) -> void:
 	check(toma.is_dead and is_instance_valid(toma) and toma.rig.body.animation == &"dead", "Tôma falls to his knees (his body stays)")
 	check(arena.is_rising and not arena.is_defeated and arena.is_closed() and not game.has_won, "his fall doesn't end the fight: the arena stays shut")
 	check(world.get_node("Entities").get_children().all(func(n: Node) -> bool: return not n is Stairs), "no stairs")
-	await _wait(game, (finale.boss.rise_time + 0.6))
+	# Polled, not a fixed wait: a level-up or an offer opening on the way pauses the game for a
+	# few frames (the rise was missed now and then on a busy machine).
+	for i in ceili((finale.boss.rise_time + 4.0) * 60.0):
+		_close_offers(game)
+		await _frames(1)
+		if i >= ceili((finale.boss.rise_time + 0.6) * 60.0) and arena.boss != toma and is_instance_valid(arena.boss) and not arena.boss.dormant:
+			break
 	_close_offers(game)
 	var maw := arena.boss
 	check(maw != toma and maw.def == finale.boss.next_boss and not maw.dormant and maw.target == player, "the Maw rises in the same arena and takes the fight")
