@@ -1,0 +1,601 @@
+{
+  "name": "Le Puits des Âmes — Roadmap",
+  "next_id": 46,
+  "tags": [
+    "pc",
+    "test",
+    "build",
+    "équilibrage",
+    "playtest",
+    "boss",
+    "lore",
+    "pnj",
+    "tests",
+    "qualité",
+    "fin",
+    "traduction",
+    "économie",
+    "sauvegarde",
+    "records",
+    "sprites",
+    "vfx",
+    "ui",
+    "combat",
+    "git",
+    "android",
+    "idée"
+  ],
+  "epics": [
+    {
+      "id": "epic_1",
+      "title": "Narration & Lore",
+      "color": "#9b59b6"
+    },
+    {
+      "id": "epic_2",
+      "title": "Combat & Équilibrage",
+      "color": "#e74c3c"
+    },
+    {
+      "id": "epic_3",
+      "title": "Visuels & VFX",
+      "color": "#f39c12"
+    },
+    {
+      "id": "epic_4",
+      "title": "PC & Contrôles",
+      "color": "#3498db"
+    },
+    {
+      "id": "epic_5",
+      "title": "Qualité & Tests",
+      "color": "#2ecc71"
+    },
+    {
+      "id": "epic_6",
+      "title": "Release",
+      "color": "#1abc9c"
+    },
+    {
+      "id": "epic_7",
+      "title": "Idées de contenu",
+      "color": "#95a5a6"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task_8",
+      "title": "Tester la manette en vrai",
+      "description": "Brancher une manette Xbox/PlayStation : symboles, menus, sticks (zone morte), branchement à chaud. Tout n'a été testé qu'en simulation.",
+      "status": "todo",
+      "priority": "high",
+      "epic_id": "epic_4",
+      "due_date": null,
+      "tags": [
+        "pc",
+        "test"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_9",
+      "title": "Tester l'export Windows (.exe)",
+      "description": "Préréglage « Windows Desktop » ajouté. Vérifier l'export, le plein écran (F11, Alt+Entrée) et le redimensionnement de la fenêtre sur ton PC.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_4",
+      "due_date": null,
+      "tags": [
+        "pc",
+        "build"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_10",
+      "title": "Ressenti des étages 3 à 8 (Gardien)",
+      "description": "Après la passe +8 % (acte II) / +10 % (acte III) : est-ce que ça se corse enfin avant l'étage 9 ? Sinon, piste n°1 : le vol de vie qui soigne tous les dégâts des salles.",
+      "status": "todo",
+      "priority": "high",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "équilibrage",
+        "playtest"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_11",
+      "title": "Jouer le combat final",
+      "description": "Gagner une partie, puis battre le boss de l'acte IV → Fond du Puits : Tôma puis la Gueule (point faible bouche ouverte), choix de fin. Ressenti, difficulté, lisibilité.",
+      "status": "todo",
+      "priority": "high",
+      "epic_id": "epic_1",
+      "due_date": null,
+      "tags": [
+        "playtest",
+        "boss"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_12",
+      "title": "Révision du lore partout",
+      "description": "Actes, monstres, objets, marchand, forgeron, malédictions, événements, pactes : tout aligner sur docs/lore.md avec le skill lore.",
+      "status": "todo",
+      "priority": "high",
+      "epic_id": "epic_1",
+      "due_date": null,
+      "tags": [
+        "lore"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_13",
+      "title": "La Veilleuse : récit des morts et conseils",
+      "description": "Aujourd'hui l'écran de mort tire une phrase au hasard (story.tres). La Veilleuse (prêtresse aveugle du sanctuaire, docs/lore.md §6) doit raconter TA mort : qui t'a tué, où, à quel étage, ce que tu portais, et te donner un conseil utile (esquiver tel boss, utiliser telle compétence, potions…), dans la voix du Puits. Répliques selon la progression (premières morts, morts répétées au même endroit, révélations sur Tôma). À bâtir sur les conditions de la Chronique (modulaire, dans les données).",
+      "status": "todo",
+      "priority": "high",
+      "epic_id": "epic_1",
+      "due_date": null,
+      "tags": [
+        "lore",
+        "pnj"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_43",
+      "title": "Dialogues des PNJ",
+      "description": "Système de dialogue réutilisable (conditions de la Chronique) : le Vieil Errant (marchand), Brann (forgeron), l'Esprit Ricaneur, la Veilleuse au sanctuaire. Chacun a sa voix (docs/lore.md §6) et révèle son passé au fil des parties.",
+      "status": "todo",
+      "priority": "high",
+      "epic_id": "epic_1",
+      "due_date": null,
+      "tags": [
+        "lore",
+        "pnj"
+      ],
+      "created_at": 1792685100,
+      "updated_at": 1792685100
+    },
+    {
+      "id": "task_44",
+      "title": "Le sanctuaire vivant",
+      "description": "La Veilleuse visible au sanctuaire (écran titre) ; les lampes éteintes se rallument avec les âmes ramenées ; la niche vide de Tôma parmi les Statues du Gardien.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_1",
+      "due_date": null,
+      "tags": [
+        "lore",
+        "ui"
+      ],
+      "created_at": 1792685100,
+      "updated_at": 1792685100
+    },
+    {
+      "id": "task_14",
+      "title": "Chasse aux tests instables",
+      "description": "Échecs au hasard vus : « stairs lead to the next depth », coût de la chute (84 → 76), horloge, astuce du marchand, IA qui s'éloigne. Les rendre déterministes.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "tests"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_15",
+      "title": "Vérification complète du jeu",
+      "description": "Passe d'agents : code, gameplay, équilibrage, UI, textes, son, perfs, docs. Corriger ce qui sort.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "qualité"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_16",
+      "title": "Prendre sa place : un mode à part ?",
+      "description": "La fin « Le Gardien Sans Nom » mène pour l'instant au même écran que l'autre. Décider si elle ouvre un mode (sans fin en gardien du sceau…). Point ouvert dans docs/lore.md §9.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_1",
+      "due_date": null,
+      "tags": [
+        "lore",
+        "fin"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_17",
+      "title": "Textes anglais du nouveau contenu",
+      "description": "Relire en anglais les chroniques, fragments, fins et textes PC (seules les captures FR ont été vérifiées).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_1",
+      "due_date": null,
+      "tags": [
+        "traduction"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_18",
+      "title": "Guivre d'Azur trop dure en Gardien",
+      "description": "Elle bat le bot « kite » à tous les coups, avant et après la passe. Passe dédiée.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "équilibrage",
+        "boss"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_19",
+      "title": "Le Pèlerin rapporte peu d'âmes",
+      "description": "À mesurer et ajuster (économie des âmes).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "économie"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_20",
+      "title": "Seconde vie et test « face-tank »",
+      "description": "Les bots jouent désormais l'épreuve du Seuil : doit-elle compter comme une défaite dans la cible face-tank ?",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "équilibrage"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_21",
+      "title": "Monstres tués qui restent morts après reprise",
+      "description": "Le compteur du Sceau est sauvegardé, mais les monstres réapparaissent quand on reprend une partie.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "sauvegarde"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_22",
+      "title": "Record du Fond du Puits",
+      "description": "Une victoire au Fond est chronométrée sous le même record qu'une première victoire (plus courte) : séparer les records ?",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "records"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_23",
+      "title": "Armes en main : 8 directions",
+      "description": "Les frames d'arme en main n'existent qu'en 4 directions.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "sprites"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_24",
+      "title": "Nuage de poison grumeleux",
+      "description": "L'effet de nuage de poison manque de netteté.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "vfx"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_25",
+      "title": "Portrait du sac sans équipement",
+      "description": "Le portrait du héros dans le sac ne montre pas l'équipement porté.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "ui"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_26",
+      "title": "Tirs et runes élémentaires",
+      "description": "Les tirs ne prennent pas l'élément d'une rune.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "vfx",
+        "combat"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_27",
+      "title": "Affixes d'armure invisibles",
+      "description": "Les affixes d'armure n'ont aucun rendu visuel.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "vfx"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_28",
+      "title": "Lueur des fragments sur l'herbe claire",
+      "description": "Peu visible sur les sols clairs.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "vfx"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_29",
+      "title": "La Gueule : butin et lueur",
+      "description": "Le butin tombe sur son corps ; elle vire au rouge-brun pendant ses incantations ; le halo derrière le masque se voit peu.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "boss"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_30",
+      "title": "Réaffectation des touches",
+      "description": "Page Commandes en lecture seule pour l'instant. Permettre de changer les touches.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_4",
+      "due_date": null,
+      "tags": [
+        "pc"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_31",
+      "title": "Écrans 4:3 (1024x768)",
+      "description": "L'échelle descend à 0,8 : lettres un peu irrégulières.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_4",
+      "due_date": null,
+      "tags": [
+        "pc",
+        "ui"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_32",
+      "title": "Plugins de l'éditeur dans Git ?",
+      "description": "godot_ai, godoban, gdscript_ast : les commiter ou les mettre dans .gitignore (ils modifient project.godot).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "git"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_33",
+      "title": "Supprimer la branche GitHub final-fight",
+      "description": "Branche temporaire, plus utile (je n'ai pas le droit de la supprimer).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "git"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_34",
+      "title": "APK 0.4.0",
+      "description": "Nouvelle version Android avec le combat final, les histoires, l'équilibrage et le support PC. Garder la clé de signature hors du dépôt.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_6",
+      "due_date": null,
+      "tags": [
+        "build",
+        "android"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_35",
+      "title": "Évolutions d'armes",
+      "description": "Idée proposée : une arme qui évolue selon des conditions.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "idée"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_36",
+      "title": "Reliques qui brisent les règles",
+      "description": "Idée proposée : reliques rares qui changent une règle du jeu.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "idée"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_37",
+      "title": "Pacte à la carte",
+      "description": "Idée proposée : choisir son pacte depuis le Gardien.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "idée"
+      ],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_38",
+      "title": "Combat final : Tôma puis la Gueule",
+      "description": "Fond du Puits après une victoire, point faible, deux vraies fins, chroniques.",
+      "status": "done",
+      "priority": "medium",
+      "epic_id": "epic_1",
+      "due_date": null,
+      "tags": [],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_39",
+      "title": "Histoires des boss",
+      "description": "Cinématiques, chapitres, fragments, exploits, onglet Chronique.",
+      "status": "done",
+      "priority": "medium",
+      "epic_id": "epic_1",
+      "due_date": null,
+      "tags": [],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_40",
+      "title": "Support PC",
+      "description": "Clavier, souris, manette, HUD et menus adaptés, fenêtre responsive, AZERTY.",
+      "status": "done",
+      "priority": "medium",
+      "epic_id": "epic_4",
+      "due_date": null,
+      "tags": [],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_41",
+      "title": "Courbe de difficulté Gardien",
+      "description": "Actes II et III plus exigeants ; outils d'équilibrage 2x plus rapides.",
+      "status": "done",
+      "priority": "medium",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_42",
+      "title": "Corrections de placement",
+      "description": "Rencontres espacées, oasis hors des murs, trou des Tréfonds refermé, Sceau sauvegardé.",
+      "status": "done",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [],
+      "created_at": 1792685000,
+      "updated_at": 1792685000
+    },
+    {
+      "id": "task_45",
+      "title": "Roadmap Godoban tenue à jour",
+      "description": "Le tableau est la liste unique des todos. Règle écrite dans AGENTS.md (« The roadmap ») et CLAUDE.md : chaque tâche met à jour ses cartes dans le même commit.",
+      "status": "done",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "qualité"
+      ],
+      "created_at": 1792685400,
+      "updated_at": 1792685400
+    }
+  ]
+}

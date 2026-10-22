@@ -62,6 +62,30 @@ for a system before changing it.
   that state a changed number. Balance changes get an entry in docs/balance-log.md.
 - Headless tests don't show what the game looks or feels like: say what you could not check.
 - Commit messages: what changed for the game on the first line, why in the body.
+- **The roadmap is updated in the same commit** (see "The roadmap" below): the cards you worked
+  on moved (In Progress, Review, Done), a card added for every new todo, bug or idea found on
+  the way. Never end a task with the roadmap stale.
+
+## The roadmap (Godoban board)
+
+The project's todos live in `godoban_boards/puits_roadmap.json`, a Godoban board (the editor
+plugin's tab; `godoban_boards/boards.json` is its registry). It is the one list of what is
+planned, in progress and done: read it before starting, and keep it true.
+
+- **Before work:** find the card(s) for the task and set `"status"` to `"in_progress"` (no card:
+  add one). Statuses: `backlog`, `todo`, `in_progress`, `review` (done, waiting for the user to
+  play-test or approve), `done`.
+- **After work:** move the cards; add cards for everything left open, found broken, deferred or
+  proposed (bugs, follow-ups, "not verified" items, ideas the user hasn't approved: epic "Idées de
+  contenu", status `backlog`). Remove nothing: done cards stay in `done`.
+- **Card format:** the board is in French (it is for the user). `id` = `"task_<next_id>"`, then
+  increment the board's `next_id`; `epic_id` from the board's `epics` (add an epic the same way
+  with `"epic_<next_id>"` if none fits); `priority` `low`/`medium`/`high`/`critical`; `tags` from
+  the board's `tags` list (add new ones there too); `created_at`/`updated_at` Unix seconds,
+  `updated_at` refreshed on every change; `due_date` null unless the user gives one. Keep the
+  JSON pretty-printed (2 spaces, UTF-8, not ASCII-escaped): it is diffed in git.
+- **The editor holds the board in memory** and saves it on every change: edit the JSON with the
+  Godot editor closed, or tell the user to restart it, or your edit may be overwritten.
 
 ## Where to look
 

@@ -1,0 +1,10 @@
+{
+  "current": "puits_roadmap",
+  "boards": [
+    {
+      "id": "puits_roadmap",
+      "name": "Le Puits des Âmes — Roadmap",
+      "path": "res://godoban_boards/puits_roadmap.json"
+    }
+  ]
+}
