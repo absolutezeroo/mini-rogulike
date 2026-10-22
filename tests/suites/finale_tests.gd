@@ -81,8 +81,7 @@ func _test_finale(game: Game) -> void:
 
 	# His lantern: a warning on the ground where the hero stands, then the strike.
 	var lantern: SkillDef = load("res://data/skills/boss/toma_lantern.tres")
-	player.invincible = false
-	player.hp = player.get_max_hp()
+	var max_hp := _sturdy(player)
 	var hp_before := player.hp
 	var spot := player.global_position
 	lantern.effects[0].apply(toma, Vector2.DOWN)
@@ -96,8 +95,8 @@ func _test_finale(game: Game) -> void:
 		player._invulnerable_time = 0.0
 		await _frames(1)
 	check(player.hp < hp_before, "standing in it hurts")
-	player.invincible = true
-	player.hp = player.get_max_hp()
+	check(not player.is_dead, "(the hero stands: one strike, a crit or not, can't end the test's run)")
+	_steady(player, max_hp)
 
 	# Tôma falls: no relic, the arena stays shut, the Maw rises and takes his body.
 	var finish := HitInfo.new()
@@ -108,10 +107,17 @@ func _test_finale(game: Game) -> void:
 	check(toma.is_dead and is_instance_valid(toma) and toma.rig.body.animation == &"dead", "Tôma falls to his knees (his body stays)")
 	check(arena.is_rising and not arena.is_defeated and arena.is_closed() and not game.has_won, "his fall doesn't end the fight: the arena stays shut")
 	check(world.get_node("Entities").get_children().all(func(n: Node) -> bool: return not n is Stairs), "no stairs")
-	await _wait(game, (finale.boss.rise_time + 0.6))
+	# Polled, not a fixed wait: a level-up or an offer opening on the way pauses the game for a
+	# few frames.
+	for i in ceili((finale.boss.rise_time + 4.0) * 60.0):
+		_close_offers(game)
+		await _frames(1)
+		if i >= ceili((finale.boss.rise_time + 0.6) * 60.0) and arena.boss != toma and is_instance_valid(arena.boss) and not arena.boss.dormant:
+			break
 	_close_offers(game)
 	var maw := arena.boss
-	check(maw != toma and maw.def == finale.boss.next_boss and not maw.dormant and maw.target == player, "the Maw rises in the same arena and takes the fight")
+	var risen := maw != toma and maw.def == finale.boss.next_boss and not maw.dormant and maw.target == player
+	check(risen, "the Maw rises in the same arena and takes the fight (hero dead: %s, boss %s, asleep: %s)" % [player.is_dead, maw.def.id, maw.dormant])
 	check(not is_instance_valid(toma) or toma.is_queued_for_deletion(), "it takes Tôma's body")
 	check(game.offers.to_data(false).all(func(o: Dictionary) -> bool: return int(o.rarity) != PerkDef.Rarity.RARE) and not game.perk_panel.visible, "no relic between the two forms (Tôma's XP may level the hero up)")
 	check((game.hud.get_node("%BossName") as Label).text == finale.boss.next_boss.display_name, "the boss bar passes to the Maw")
@@ -150,8 +156,7 @@ func _test_finale(game: Game) -> void:
 	var far := player.global_position.distance_to(mouth)
 	await _frames(20)
 	check(player.global_position.distance_to(mouth) < far - 5.0, "open, it draws the hero toward its mouth")
-	player.invincible = false
-	player.hp = player.get_max_hp()
+	max_hp = _sturdy(player)
 	hp_before = player.hp
 	player.global_position = mouth + Vector2(0, 40)
 	for i in int((jaw.bite_windup + 0.3) * 60.0):
@@ -160,8 +165,8 @@ func _test_finale(game: Game) -> void:
 		await _frames(1)
 	check(player.hp < hp_before, "too close to the open mouth: it bites")
 	check(game.run.marks.has("bitten"), "the run remembers it was bitten (the Maw's deed asks for a run never bitten)")
-	player.invincible = true
-	player.hp = player.get_max_hp()
+	check(not player.is_dead, "(the hero stands after the bite)")
+	_steady(player, max_hp)
 	player.global_position = mouth + Vector2(0, 260)
 	await _wait(game, jaw.time_left(maw) + jaw.closing_time + 0.2)
 	check(jaw.stage_of(maw) == WeakPointTrait.Stage.CLOSED and maw.rig.body.animation != jaw.open_pose, "after its window the jaw shuts again")
@@ -340,6 +345,28 @@ func _end_scene(meeting: BossMeeting) -> void:
 		if not meeting.is_playing():
 			return
 		await _frames(1)
+
+
+## The hero can be hurt, but no blow can kill him: Tôma's lantern (38 at the bottom, x1.75 on a
+## crit) or the Maw's bite can be more than his Health, all the more with a relic that costs
+## Health. Dead without a second life, the Maw rose with no one to wake against (asleep, its jaw
+## never opening); with one, the floor waited out the Threshold. Either way the rest failed, now
+## and then. Returns his own max Health, for _steady().
+func _sturdy(player: Player) -> int:
+	var own := player.base_stats.max_hp
+	player.base_stats.max_hp = 100000
+	player.invalidate_stats()
+	player.hp = player.get_max_hp()
+	player.invincible = false
+	return own
+
+
+## Back to his own max Health, untouchable again.
+func _steady(player: Player, max_hp: int) -> void:
+	player.invincible = true
+	player.base_stats.max_hp = max_hp
+	player.invalidate_stats()
+	player.hp = player.get_max_hp()
 
 
 ## Puts the hero in the last act's arena (a fresh floor) and slays its boss. True once it fell.
