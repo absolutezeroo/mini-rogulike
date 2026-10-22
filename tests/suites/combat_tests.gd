@@ -366,7 +366,7 @@ func _test_synergies_in_game(game: Game, world: World, player: Player) -> void:
 		if player.skills.try_use(echo_index, player, Vector2.RIGHT):
 			uses += 1
 		await _frames(1)
-	check(uses == 2, "Echo: a 100% echo gives one free cast, not a loop (%d casts)" % uses)
+	check(uses == 2, "Echo: a 100%% echo gives one free cast, not a loop (%d casts)" % uses)
 	player.perks.clear()
 
 	# Healing spells heal in full outside a boss fight, and half during one.

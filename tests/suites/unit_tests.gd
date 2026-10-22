@@ -9,6 +9,7 @@ func run() -> void:
 	_test_combat_rules()
 	_test_content()
 	_test_sprite_frames_whole()
+	_test_attack_preview_fans()
 	_test_biome_content()
 	_test_quests()
 	_test_generation()
@@ -2141,6 +2142,25 @@ static func _reachable(map: DungeonMap, from: Vector2i, to: Vector2i) -> bool:
 ## (the Ember Ronin's 96-wide frames once sliced at 48 showed a half samurai) shows as a long run
 ## of drawn pixels on both sides of a frame's edge. (16x16 packs fill their cells edge to edge
 ## by design, so only frames of 32 pixels and more are looked at.)
+## The codex's attack preview draws a weapon's swing as a fan: every weapon's swing must be a
+## polygon the engine can triangulate, or a full circle for spins (360 or 450 degrees used to
+## log "Invalid polygon data, triangulation failed").
+func _test_attack_preview_fans() -> void:
+	var checked := 0
+	for path in _files_under("res://data/items/weapons", ".tres"):
+		var weapon := load(path)
+		if weapon == null or not "arc_degrees" in weapon:
+			continue
+		checked += 1
+		var half := deg_to_rad(float(weapon.arc_degrees)) * 0.5
+		if AttackPreview.is_full_turn(half):
+			continue
+		var points := AttackPreview.fan_points(Vector2.ZERO, half, 40.0)
+		check(points.is_empty() or not Geometry2D.triangulate_polygon(points).is_empty(), "%s: its swing's fan in the codex triangulates (%s degrees)" % [path.get_file(), weapon.arc_degrees])
+	check(checked >= 20, "weapons' swing fans checked (%d)" % checked)
+	check(AttackPreview.is_full_turn(deg_to_rad(450.0) * 0.5) and AttackPreview.fan_points(Vector2.ZERO, deg_to_rad(360.0) * 0.5, 40.0).is_empty(), "a spin is drawn as a circle, never as a fan")
+
+
 func _test_sprite_frames_whole() -> void:
 	var checked := 0
 	for folder: String in ["res://data/visuals/bosses/", "res://data/visuals/monsters/", "res://data/visuals/"]:

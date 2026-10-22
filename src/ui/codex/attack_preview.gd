@@ -304,12 +304,13 @@ func _draw_overlay() -> void:
 		elif arc.has("line"):
 			var start := _home + Vector2(0, -arc.width * 0.5)
 			_overlay.draw_rect(Rect2(start, Vector2(arc.line, arc.width)), Color(arc.color, 0.45 * fade))
+		elif is_full_turn(arc.half):
+			# A spin: a fan would close on itself and fail to triangulate.
+			_overlay.draw_circle(_sprite.position, arc.radius, Color(arc.color, 0.55 * fade))
 		else:
-			var points := PackedVector2Array([_sprite.position])
-			for i in 13:
-				var angle := lerpf(-arc.half, arc.half, i / 12.0)
-				points.append(_sprite.position + Vector2.from_angle(angle) * arc.radius)
-			_overlay.draw_colored_polygon(points, Color(arc.color, 0.55 * fade))
+			var points := fan_points(_sprite.position, arc.half, arc.radius)
+			if not points.is_empty():
+				_overlay.draw_colored_polygon(points, Color(arc.color, 0.55 * fade))
 	for shot in _shots:
 		if shot.sheet:
 			# Its first frame, cut and turned as in the game (drawn directions, or snapped).
@@ -318,6 +319,22 @@ func _draw_overlay() -> void:
 			_overlay.draw_circle(shot.pos, shot.radius * 2.2, Color(shot.color, 0.3))
 			_overlay.draw_circle(shot.pos, shot.radius, shot.color)
 			_overlay.draw_circle(shot.pos, shot.radius * 0.45, Color.WHITE)
+
+
+## A swing of `half` radians to each side covers the whole turn (spins: 360, 450...).
+static func is_full_turn(half: float) -> bool:
+	return half >= PI - 0.01
+
+
+## The swing's fan as a polygon (centre, then the arc), or nothing when it would be too thin
+## or a full turn to triangulate (see is_full_turn).
+static func fan_points(center: Vector2, half: float, radius: float) -> PackedVector2Array:
+	if is_full_turn(half) or half <= 0.01 or radius <= 0.5:
+		return PackedVector2Array()
+	var points := PackedVector2Array([center])
+	for i in 13:
+		points.append(center + Vector2.from_angle(lerpf(-half, half, i / 12.0)) * radius)
+	return points
 
 
 ## Plays the first of `names` the sprite has.

@@ -129,7 +129,8 @@ func _home() -> String:
 		var act := acts[i]
 		var first := _content.dungeon.first_depth(i)
 		var last := first + act.floors - 1
-		if act.all_bosses().has(_monster):
+		# A typed Array[BossDef] can't be asked about a plain monster (engine error).
+		if _monster is BossDef and act.all_bosses().has(_monster):
 			return tr("%s, floor %d") % [tr(act.subtitle), last]
 		if act.monsters.has(_monster):
 			if act.floors <= 1:

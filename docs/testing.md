@@ -46,11 +46,9 @@ The runner prints `FAIL: <what>` for every failed check, a count per suite, then
 one).
 
 **Read the output, not only the exit code.** Engine errors printed while a test runs (`ERROR:`,
-`SCRIPT ERROR:`) don't fail the run today. Known ones (2026-10-21): `Parse JSON failed` twice (the
-damaged-save test, on purpose), `Attempted to use 'has' an object into a TypedArray` from
-`monster_page.gd` (`_home()` looks for a common monster in a typed boss list) and one `String
-formatting error` (the `100%` in a check message of `combat_tests.gd`), plus the leak warnings at
-exit. Any other is a bug, even if every check passed.
+`SCRIPT ERROR:`) don't fail the run today. Known ones (2026-10-22): `Parse JSON failed` twice (the
+damaged-save test, on purpose), plus the leak warnings at exit. Any other is a bug, even if
+every check passed.
 
 - **balance** (opt-in: only with `--only=balance`): the balance tools' quick runs against the
   targets of `data/balance/targets.tres`. Some of its checks fail on purpose today (the balance
