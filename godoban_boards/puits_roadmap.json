@@ -858,8 +858,8 @@
     {
       "id": "task_63",
       "title": "Poison : traînées et arcs en mottes",
-      "description": "Suite de « Nuage de poison grumeleux » : les novas de poison sont maintenant une nappe de gaz au sol, mais les traînées (ComposedVfx.line) et les arcs (ComposedVfx.arc) de poison utilisent encore la pièce poison_cloud.png (mottes debout). Voir s'il faut une version en nappe allongée (gas_pool.gdshader sur un segment).",
-      "status": "backlog",
+      "description": "Suite de « Nuage de poison grumeleux » : les novas de poison sont maintenant une nappe de gaz au sol, mais les traînées (ComposedVfx.line) et les arcs (ComposedVfx.arc) de poison utilisent encore la pièce poison_cloud.png (mottes debout). Voir s'il faut une version en nappe allongée (gas_pool.gdshader sur un segment).\n\nFait : les traînées (ComposedVfx.line, donc Vfx.trail : une ruée) et les arcs (ComposedVfx.arc, donc Vfx.arc : une zone frappée devant soi) d'un élément « en nappe » (VfxElementDef.pool : le poison) ne posent plus les mottes debout de poison_cloud.png : c'est le même gaz que la nappe des novas (gas_pool.gdshader), couché le long d'un segment (GasPoolVfx.along_line, 9 px de part et d'autre) ou d'un arc (GasPoolVfx.along_arc, l'arc à 72 % du rayon, ±26 % du rayon, ±80° autour de la visée : la bande que couvraient les deux rangées de pièces). Le shader lit la distance à l'« épine » de la forme (centre, segment ou arc) et fait monter le gaz d'un bout à l'autre (sweep) ; bulles réparties le long. Les novas sont inchangées (même code, forme 0). Aucun contenu actuel ne trace de traînée ou d'arc de poison (prêt pour les runes/affixes de poison sur les compétences, et toute ruée en poison). Tests (VfxTests._test_poison_kit) : traînée et arc de poison = GasPoolVfx au sol, segment de bout en bout sur la grille, quad qui le contient, montée progressive ; l'arc reste dans la zone et fait face à la visée ; les autres éléments gardent leurs pièces. Captures avant/après : poison_before_f14_x3.png (mottes), poison_after_f14_x3.png, poison_after_f30_x3.png, et sur sol clair poison_after_ruins_f06_x3.png. docs/vfx.md mis à jour. Non vérifié : le rendu sur téléphone, en mouvement.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_3",
       "due_date": null,
@@ -867,7 +867,7 @@
         "vfx"
       ],
       "created_at": 1792706331,
-      "updated_at": 1792706331
+      "updated_at": 1792712639
     },
     {
       "id": "task_71",
