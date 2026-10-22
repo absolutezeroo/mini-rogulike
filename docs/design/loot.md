@@ -27,7 +27,8 @@
   the forge and the loot board the slot's frame is the rarity's color and Epic icons have a
   sheen sweeping over them. Worn, the hero's armor takes a trim of its rarity's color on its hem
   (a tunic's hem, a helm's brim) and his weapon on its outline, Epic pieces a glint sweeping
-  across. Fewer effects keeps the rims, glints, ring, aura and pillar, and drops the motes, the
+  across; an armor's affix with an effect shows too (of Echoes glitters arcane on the trim, of
+  Thorns turns the hem into steel points), on him and on his portrait in the bag. Fewer effects keeps the rims, glints, ring, aura and pillar, and drops the motes, the
   halo and the moving glints.
 - **What a weapon carries shows** (`ItemLook`): a weapon with an element of its own, a rune or an
   affix that burns, chills, poisons, chains lightning or drinks blood licks with that element

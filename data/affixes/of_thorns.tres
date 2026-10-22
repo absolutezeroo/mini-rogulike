@@ -13,6 +13,7 @@ script = ExtResource("3_c623u")
 is_prefix = false
 slots = 4
 passives = Array[ExtResource("1_me5p7")]([SubResource("Resource_oggvu")])
+worn_teeth = true
 id = &"of_thorns"
 display_name = "of Thorns"
 description = "Enemies that hit you up close take 3 damage."

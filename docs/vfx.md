@@ -434,8 +434,9 @@ slicer, element exports) serves the others; what each still needs:
   motes and pillar of light), in slots (frames, Epic's sheen, rune gems in their element) and
   worn (a trim on the armor's hem and the weapon's outline, Epic's glint); a weapon carrying an
   element licks with it along its rim and throws its motes, in hand and at rest; the hero
-  carries his weapon on his back or at his hip. Left: the bag's portrait of the hero shows no
-  gear; armor affixes (of Thorns, of Echoes on a helm) show nothing worn.
+  carries his weapon on his back or at his hip. Worn armor shows its affixes' marks (an element
+  glittering on its trim, of Thorns' steel points); the bag's portrait is the hero's own rig,
+  dressed alike (`HeroPortrait`).
 
 - **The final fight** (the bottom of the Well, monsters.md): no new element. Marked spots on the
   ground (`GroundStrikeEffect`, `GroundStrike`) are the usual danger telegraph (`TelegraphView`,
@@ -563,6 +564,14 @@ same tools). Its accent is the rarity's color (`ItemRarity.COLORS`, a test keeps
   rim and glint (`ItemLook.rune_element`).
 - **Fewer effects** keeps what tells the rarity (the rim, the glint, the ring, the aura, the
   pillar) and drops the motes, the halo, the pillar's climbing light and the worn glint.
+- **Armor affixes, worn** (`ActorRig.set_wear`, `ItemLook.elements` / `toothed`): an affix
+  carrying an element (of Echoes: arcane) glitters on the piece's trim, a third of its hem
+  pixels a bright step of the element's ramp changing ten times a second (the trim stays its
+  rarity's around them); an affix without one may say how it looks worn
+  (`ItemAffixDef.worn_teeth`: of Thorns turns the hem into steel points, every other hem pixel
+  lit steel with a dark tip hanging a pixel under it: serrated in grey too). Stat affixes
+  (Stalwart, of the Bear) carry nothing, like a weapon's (the rarity's trim says there are some;
+  the item's card lists them). Shown on the hero and in the bag's portrait.
 - Lessons: a dithered disc or a pillar faded by a Bayer pattern reads as a screen door (the
   first try); a band of one step with a checker only on its edge, and a pillar fading by whole
   rows missing, read as light. A trim on the whole rim of a worn armor painted the whole piece
@@ -617,13 +626,13 @@ it isn't in his hand: `WeaponDef.back_sprite`, `back_kind`, `back_offset`.
 ### On the body shader
 
 Worn gear needs uniforms of its own while the body's statuses, flash and death stay one: the
-hero's armor layers (above Common) and his weapon (in hand and at rest share one material: they
+hero's armor layers (above Common, or carrying an affix's mark) and his weapon (in hand and at rest share one material: they
 never show together) wear **copies of the body shader** that follow the body's
 (`BodyLook.follow(material, own_frame)`: every uniform BodyLook or the rig's flash sets is set
 there too, but a weapon's `frame_rect`, which is its own sprite's). Their own uniforms: `trim`
 (0 none, 1 its rim or hem in the rarity's steps, 2 and a weapon's brightest pixels gilded),
 `trim_row`, `trim_hem`, `trim_sweep` (seconds between glints, 24 fps, then a pause), `imbue`,
-`imbue_row`. Bodies keep them at 0: the cheap path tests two more uniforms. The hero draws up to
+`imbue_row` (on an armor: on its hem, a third of the pixels), `teeth`, `teeth_row` (of Thorns). Bodies keep them at 0: the cheap path tests two more uniforms. The hero draws up to
 four materials instead of one (body, armor, helm, weapon): a few draw calls, for one actor.
 
 ## 11. Elemental attacks

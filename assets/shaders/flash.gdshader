@@ -49,14 +49,18 @@ uniform int death_style = 0;
 uniform int death_row = 0;
 // Worn gear, on a layer's own material (the hero's armor layers, his weapon: ActorRig): the
 // rarity's trim (RarityLookDef: 1 the rim in its ramp, 2 and the brightest pixels gilded), a
-// glint sweeping across every `trim_sweep` seconds, and the element the weapon carries licking
-// along its rim (ItemLook). All 0 on bodies: one more test on the cheap path.
+// glint sweeping across every `trim_sweep` seconds, and the element the piece carries licking
+// along a weapon's rim or glittering on an armor's hem (ItemLook: a rune, an affix of Thorns or
+// of Echoes). All 0 on bodies: one more test on the cheap path.
 uniform int trim = 0;
 uniform int trim_row = 0;
 uniform bool trim_hem = false;  // armor: the trim on its hem only
 uniform float trim_sweep = 0.0;
 uniform float imbue = 0.0;
 uniform int imbue_row = 0;
+// An armor of Thorns: its hem's edge a row of steel points hanging a pixel (ItemLook.toothed).
+uniform bool teeth = false;
+uniform int teeth_row = 0;
 
 const float BAYER[16] = float[](0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0);
 
@@ -136,7 +140,7 @@ float cracks(vec2 cell, float size) {
 void fragment() {
 	// Most bodies most of the time: nothing on them but maybe a flash. The cheap path (the
 	// shader as it was before statuses), no texel reads, no noise.
-	if (dissolve <= 0.0 && burn <= 0.0 && chill <= 0.0 && poison <= 0.0 && haunt <= 0.0 && crackle <= 0.0 && outline_color.a <= 0.0 && trim == 0 && imbue <= 0.0) {
+	if (dissolve <= 0.0 && burn <= 0.0 && chill <= 0.0 && poison <= 0.0 && haunt <= 0.0 && crackle <= 0.0 && outline_color.a <= 0.0 && trim == 0 && imbue <= 0.0 && !teeth) {
 		vec4 plain = texture(TEXTURE, UV) * tint;
 		if (hue_shift > 0.0) {
 			plain.rgb = rotate_hue(plain.rgb, hue_shift);
@@ -307,11 +311,12 @@ void fragment() {
 		// --- Worn gear: the rarity's trim, the weapon's element ---
 		if (opaque && (trim > 0 || imbue > 0.0)) {
 			bool rim = min(min(ALPHA_AT(vec2(1.0, 0.0)), ALPHA_AT(vec2(-1.0, 0.0))), min(ALPHA_AT(vec2(0.0, 1.0)), ALPHA_AT(vec2(0.0, -1.0)))) < 0.5;
+			// A worn piece of armor: only its hem (the texel under it is empty: a tunic's hem, a
+			// helm's brim), so the hero keeps his colors. A weapon: its whole outline.
+			bool band = trim_hem ? ALPHA_AT(vec2(0.0, 1.0)) < 0.5 : rim;
 			if (trim > 0) {
-				// A worn piece of armor: only its hem (the texel under it is empty: a tunic's hem, a
-				// helm's brim), so the hero keeps his colors. A weapon: its whole outline.
-				bool band = trim_hem ? ALPHA_AT(vec2(0.0, 1.0)) < 0.5 : rim;
-				if (band && imbue <= 0.0) {
+				// (A weapon's element takes its whole rim; an armor's glitters on its trim.)
+				if (band && (imbue <= 0.0 || trim_hem)) {
 					// The dark outline takes the rarity's darker step, the rest its color.
 					color.rgb = ramp(trim_row, lstep >= 4 ? 3 : 2);
 				} else if (!trim_hem && !rim && trim >= 2 && lstep == 0) {
@@ -329,14 +334,29 @@ void fragment() {
 					}
 				}
 			}
-			if (imbue > 0.0 && rim) {
-				// The element along the rim: half its pixels a step of its ramp, changing ten times
-				// a second (a flicker of flame, a glitter of rime), now and then its core.
+			if (imbue > 0.0 && band) {
+				// The element along the rim (an armor's hem): half its pixels a step of its ramp
+				// (an armor's third: the trim stays its rarity's), changing ten times a second (a
+				// flicker of flame, a glitter of rime, steel studs catching the light), now and then
+				// its core.
 				float lick = floor(TIME * 10.0);
 				float n = hash(cell + vec2(lick * 7.0, lick * 3.0));
-				if (n > 0.5) {
+				if (n > (trim_hem ? 0.66 : 0.5)) {
 					color.rgb = ramp(imbue_row, n > 0.92 ? 0 : (n > 0.78 ? 1 : (n > 0.64 ? 2 : 3)));
 				}
+			}
+		}
+
+		if (teeth && !dying) {
+			// Thorns: every other texel of the hem a point of steel (lit), and under each one its
+			// tip, a pixel hanging out of the piece (dark edge): the hem reads serrated in grey
+			// too, the shape before the color.
+			bool hem = opaque && ALPHA_AT(vec2(0.0, 1.0)) < 0.5;
+			bool tooth = mod(cell.x, 2.0) == 0.0;
+			if (hem && tooth) {
+				color.rgb = ramp(teeth_row, 1);
+			} else if (!opaque && tooth && ALPHA_AT(vec2(0.0, -1.0)) > 0.5) {
+				color = vec4(ramp(teeth_row, 3), 1.0);
 			}
 		}
 

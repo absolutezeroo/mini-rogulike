@@ -371,8 +371,8 @@
     {
       "id": "task_27",
       "title": "Affixes d'armure invisibles",
-      "description": "Les affixes d'armure n'ont aucun rendu visuel.",
-      "status": "backlog",
+      "description": "Les affixes d'armure n'ont aucun rendu visuel.\n\nFait : l'armure portée montre ses affixes à effet, sur le héros (et dans le portrait du sac) : un affixe avec un élément scintille sur le liseré de rareté (des Échos : arcane, un tiers des pixels de l'ourlet) ; « des Ronces » change l'ourlet en pointes d'acier (un pixel clair, sa pointe sombre qui dépasse d'un pixel : lisible en gris aussi), donnée par ItemAffixDef.worn_teeth. Les affixes de stats ne montrent rien (comme sur les armes ; le liseré dit qu'il y en a). La fiche de l'objet les listait déjà (bonus et description) : vérifié. À voir en jeu : la lisibilité sur téléphone, les pointes sur chaque style d'armure.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_3",
       "due_date": null,
@@ -380,7 +380,7 @@
         "vfx"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792703786
     },
     {
       "id": "task_28",

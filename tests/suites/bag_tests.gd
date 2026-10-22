@@ -197,6 +197,7 @@ func run_bag_game(game: Game) -> void:
 	await _test_gamepad(game)
 	await _test_keys(game)
 	await _test_french_fit(game)
+	await _test_worn_marks(game)
 	InputDevice.use(InputDevice.Kind.TOUCH)
 	Settings.auto_loot = saved_loot
 	player.inventory.items.assign(saved_bag)
@@ -212,6 +213,46 @@ func run_bag_game(game: Game) -> void:
 		left.queue_free()
 	get_tree().paused = false
 	await _frames(2)
+
+
+## Worn armor shows what its affixes carry (docs/vfx.md "Rarity and runes"): an affix of Echoes
+## glitters arcane on a helm's brim, of Thorns turns a hem into steel points; a plain piece shows
+## neither.
+func _test_worn_marks(game: Game) -> void:
+	var player := game.player
+	var saved_head := player.equipment.get_item(EquipmentDef.Slot.HEAD)
+	var saved_body := player.equipment.get_item(EquipmentDef.Slot.BODY)
+	var katana := LootRoller.make(load("res://data/items/weapons/katana.tres"), ItemRarity.RARE, [load("res://data/affixes/sharp.tres")], [load("res://data/runes/ember.tres")], 2) as WeaponDef
+	var helm := LootRoller.make(load("res://data/items/armors/iron_helm.tres"), ItemRarity.EPIC, [load("res://data/affixes/of_echoes.tres"), load("res://data/affixes/sturdy.tres")], [], 2) as ArmorDef
+	var plate := LootRoller.make(load("res://data/items/armors/plate_armor.tres"), ItemRarity.RARE, [load("res://data/affixes/of_thorns.tres")], [], 2) as ArmorDef
+	player.equipment.equip(katana)
+	player.equipment.equip(helm)
+	player.equipment.equip(plate)
+	await _frames(3)
+	var arcane := VfxElementDef.named(&"arcane")
+	for pair: Array in [["his body", player.rig]]:
+		var rig: ActorRig = pair[1]
+		var name: String = pair[0]
+		check(rig != null and rig.back_weapon() != null and rig.back_weapon().texture == katana.back_sprite and rig.shows_back_weapon(), "worn marks: %s carries his katana" % name)
+		check(rig != null and rig.weapon_aura() != null and rig.weapon_aura().elements.has(VfxElementDef.named(&"fire")), "worn marks: %s's katana carries the Ember Rune's fire" % name)
+		check(rig != null and rig.helmet.visible and rig.helmet.sprite_frames == helm.wear_frames and rig.body_armor.sprite_frames == plate.wear_frames, "worn marks: %s wears his helm and his plate" % name)
+		var head := rig.wear_material(EquipmentDef.Slot.HEAD) if rig else null
+		var body := rig.wear_material(EquipmentDef.Slot.BODY) if rig else null
+		check(head != null and float(head.get_shader_parameter(&"imbue")) > 0.0 and int(head.get_shader_parameter(&"imbue_row")) == BodyLook.row(arcane) and not bool(head.get_shader_parameter(&"teeth")), "worn marks: on %s, a helm of Echoes glitters arcane on its brim" % name)
+		check(body != null and bool(body.get_shader_parameter(&"teeth")) and float(body.get_shader_parameter(&"imbue")) == 0.0 and int(body.get_shader_parameter(&"trim")) > 0, "worn marks: on %s, a plate of Thorns has steel points on its gold hem" % name)
+	# A plain piece of the same rarity: its trim alone.
+	player.equipment.equip(LootRoller.make(load("res://data/items/armors/plate_armor.tres"), ItemRarity.RARE, [load("res://data/affixes/sturdy.tres")], [], 2))
+	await _frames(2)
+	var plain := player.rig.wear_material(EquipmentDef.Slot.BODY)
+	check(plain != null and not bool(plain.get_shader_parameter(&"teeth")) and float(plain.get_shader_parameter(&"imbue")) == 0.0, "worn marks: a Stalwart plate shows its rarity's trim alone (stats carry nothing)")
+	if saved_head:
+		player.equipment.equip(saved_head)
+	else:
+		player.equipment.unequip(EquipmentDef.Slot.HEAD)
+	if saved_body:
+		player.equipment.equip(saved_body)
+	else:
+		player.equipment.unequip(EquipmentDef.Slot.BODY)
 
 
 ## The floor's loot, auto loot and the merchant ask the item's own compartment: a full weapons'

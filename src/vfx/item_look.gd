@@ -52,6 +52,17 @@ static func passive_elements(item: EquipmentDef) -> Array[VfxElementDef]:
 	return found
 
 
+## Whether worn `item` shows teeth on its hem (an affix of Thorns: ItemAffixDef.worn_teeth).
+static func toothed(item: ItemDef) -> bool:
+	var equipment := item as EquipmentDef
+	if equipment == null:
+		return false
+	for affix in equipment.affixes:
+		if affix and affix.worn_teeth:
+			return true
+	return false
+
+
 ## What `rune` is made of: its passives' element, else its family's color.
 static func rune_element(rune: RuneDef) -> VfxElementDef:
 	if rune == null:

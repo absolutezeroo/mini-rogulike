@@ -132,13 +132,7 @@ func _ready() -> void:
 ## Weapon in hand and worn armor, from the equipment.
 func _refresh_look() -> void:
 	rig.carries_weapon = _shows_gear()
-	rig.set_weapon(get_weapon())
-	for slot: EquipmentDef.Slot in [EquipmentDef.Slot.HEAD, EquipmentDef.Slot.BODY]:
-		var armor := equipment.get_item(slot) as ArmorDef
-		if armor and armor.wear_frames:
-			rig.set_wear(slot, armor.wear_frames, armor.wear_color, armor.rarity)
-		else:
-			rig.set_wear(slot, null, Color.WHITE)
+	rig.wear(equipment)
 
 
 # --- Stats -------------------------------------------------------------------

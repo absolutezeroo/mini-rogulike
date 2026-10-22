@@ -18,6 +18,9 @@ const BODY := 4
 ## What it does while worn (like a perk's: chain lightning, healing on kill...). Say it in
 ## `description` (shown on the item); stats describe themselves.
 @export var passives: Array[Passive] = []
+## Armor: worn, the piece's hem turns into a row of steel points (of Thorns: what hits you up
+## close gets hurt). Its elements show by themselves (ItemLook); this is for an affix without one.
+@export var worn_teeth: bool = false
 
 
 func fits(item: EquipmentDef) -> bool:
