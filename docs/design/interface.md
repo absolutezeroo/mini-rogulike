@@ -129,7 +129,12 @@ shows to the device in hand.
   (`Settings.ui_size`, saved).
 - The layouts are checked at 1280x720, 1366x768, 1920x1080, 2560x1440, 1280x800, 3440x1440,
   1024x768 and the phones' 2340x1080 and 1540x720: nothing out of the screen, no HUD control over
-  another, on touch and on keys (`PcTests`).
+  another, on touch and on keys (`PcTests`). French runs 20-30% longer: in French, at 1280x720,
+  1540x720, 2340x1080 and 2548x1296, every in-run panel is checked with its longest words
+  (`PcTests._test_french_panels()`: the bag, the merchant saying why it can't sell, the forge
+  taking out the longest rune's name or with no room for it, the four encounters, the pause, the
+  options, the codex's tabs and every monster's page, the longest fragment, the ending's choice,
+  the longest perks). Long words wrap; letters never go under `Fonts.SMALL`.
 
 ## Nothing opens by itself
 

@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 73,
+  "next_id": 75,
   "tags": [
     "pc",
     "test",
@@ -647,8 +647,8 @@
     {
       "id": "task_49",
       "title": "Panneaux en français sur un écran 1280x720 (marchand, forge…)",
-      "description": "Le sac débordait de l'écran en français à 1280x720 (et donc en 1920x1080, même mise en page à x1,5) : colonnes trop larges, boutons « Sûr ? +22 or ». Corrigé pour le sac (test ajouté). Vérification complète (task_15) : le marchand débordait aussi de 19 px quand Acheter disait pourquoi il ne peut pas (« Pas assez d'or (il en manque 60) », « Plus de place pour les armes : vends d'abord quelque chose ») : corrigé (texte sur deux lignes), test ajouté dans BagTests. Vérifiés par un script hors tests, en français à 1280x720, 1540x720, 2340x1080 et 2548x1296 : les 4 rencontres, la forge (sans arme sertie), la pause, les fragments, le choix de la fin : rien ne dépasse. Reste : en faire des tests, et la forge avec une rune à retirer au nom long (« Retirer … (40 or) » ne passe pas à la ligne).",
-      "status": "todo",
+      "description": "Le sac débordait de l'écran en français à 1280x720 (et donc en 1920x1080, même mise en page à x1,5) : colonnes trop larges, boutons « Sûr ? +22 or ». Corrigé pour le sac (test ajouté). Vérification complète (task_15) : le marchand débordait aussi de 19 px quand Acheter disait pourquoi il ne peut pas (« Pas assez d'or (il en manque 60) », « Plus de place pour les armes : vends d'abord quelque chose ») : corrigé (texte sur deux lignes), test ajouté dans BagTests. Vérifiés par un script hors tests, en français à 1280x720, 1540x720, 2340x1080 et 2548x1296 : les 4 rencontres, la forge (sans arme sertie), la pause, les fragments, le choix de la fin : rien ne dépasse. Reste : en faire des tests, et la forge avec une rune à retirer au nom long (« Retirer … (40 or) » ne passe pas à la ligne).\n\nFait : les vérifications sont devenues un test (PcTests._test_french_panels(), suite title) : une partie commencée en français, à 1280x720, 1540x720, 2340x1080 et 2548x1296, chaque panneau de partie avec ses mots les plus longs reste dans l'écran : le sac (chaque onglet), le marchand (Acheter qui dit « pas assez d'or » et « plus de place pour les armes »), la forge (retirer la rune au nom le plus long, « Rune de Bourrasque », et sac de runes plein), les 4 rencontres, la pause, les options (2 pages), le codex (chaque onglet, la page de chaque monstre, connu à fond, et la chronique d'un gardien), le fragment le plus long, le choix de la fin, le choix d'atouts (les 3 plus longs). Débordements trouvés et corrigés : choix d'atouts trop haut de 38 px avec de longs atouts (cartes 360 px au lieu de 300 : moins de lignes) ; page du codex trop large pour Cercle des Lamentations (phase 3) (la phase passe à la ligne dans le bouton) ; noms de monstres en TITLE coupés au milieu d'un mot (L'Accapareur) ou trop larges (colonne gauche 340 px, droite 330, nom sur plusieurs lignes ; le test vérifie qu'aucun mot n'est coupé). Le bouton Retirer de la forge passe à la ligne au besoin (comme Acheter). Aucune police réduite. Captures FR : scratchpad small_fixes. Non vérifié : les mêmes panneaux en anglais aux tailles des téléphones (le test anglais ne couvre que le sac et la pause).",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_4",
       "due_date": null,
@@ -658,7 +658,7 @@
         "traduction"
       ],
       "created_at": 1792689231,
-      "updated_at": 1792704935
+      "updated_at": 1792710637
     },
     {
       "id": "task_50",
@@ -1004,6 +1004,36 @@
       ],
       "created_at": 1792704927,
       "updated_at": 1792710503
+    },
+    {
+      "id": "task_73",
+      "title": "Codex au clavier : cadre de focus dessiné sur les onglets",
+      "description": "Vu sur les captures en français (1280x720, clavier) : sur la page d'un monstre, le cadre de focus du bouton « < Tous les monstres » (colonne de gauche, défilée) est dessiné par-dessus les onglets Quêtes / Bestiaire, hors de sa colonne. Probablement aussi en anglais. Vérifier et le garder dans sa colonne (défiler jusqu'au bouton, ou focus ailleurs).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_4",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "pc",
+        "bug"
+      ],
+      "created_at": 1792710637,
+      "updated_at": 1792710637
+    },
+    {
+      "id": "task_74",
+      "title": "Sol fissuré effondré : pas gardé dans la sauvegarde",
+      "description": "Vu en traitant le trou des Tréfonds (task_68) : un sol fissuré qui s'est effondré (hors Tréfonds) redevient un sol fissuré intact quand la partie est reprise sur cet étage (World.spent_data() ne garde que les trous rebouchés). Petit ; à garder si on veut une reprise fidèle.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "sauvegarde"
+      ],
+      "created_at": 1792710637,
+      "updated_at": 1792710637
     }
   ]
 }

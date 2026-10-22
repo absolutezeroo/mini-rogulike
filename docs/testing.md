@@ -45,7 +45,9 @@ The suites (`tests/suites/`, each a `TestSuite`):
   device in use from keys, gamepad buttons and sticks with the dead zone, touches and the mouse;
   the prompts per device and gamepad family; the input map; the settings; the canvas's scale at
   every screen size; MenuNav on a little menu), its title part in the title suite (the title's
-  panels with keys: move, accept, Back, tabs; their layouts at every size), its game part in the
+  panels with keys: move, accept, Back, tabs; their layouts at every size; then a game begun in
+  French: every in-run panel with its longest words inside 1280x720, 1540x720, 2340x1080 and
+  2548x1296, `_test_french_panels()`), its game part in the
   game suite (the HUD per device, the mouse in a fight, pausing, every in-run panel with keys and a
   gamepad, the HUD's layout at every size, on touch and on keys). The runner starts every suite on
   touch (`InputDevice.use(TOUCH)`): the other tests play the phone's game.

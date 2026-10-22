@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://src/ui/perk_choice/perk_card.gd" id="1_card"]
 
 [node name="PerkCard" type="Button"]
-custom_minimum_size = Vector2(300, 320)
+custom_minimum_size = Vector2(360, 320)
 theme_type_variation = &"PerkCard"
 script = ExtResource("1_card")
 

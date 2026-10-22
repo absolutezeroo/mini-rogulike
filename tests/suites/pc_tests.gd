@@ -557,6 +557,7 @@ func run_title() -> void:
 	InputDevice.use(InputDevice.Kind.TOUCH)
 	title.queue_free()
 	await _frames(2)
+	await _test_french_panels()
 
 
 func _test_title_keys(title: TitleScreen) -> void:
@@ -724,6 +725,267 @@ func _test_title_layouts(title: TitleScreen) -> void:
 	Settings.language = "en"
 	Settings.apply()
 	await _restore_window(before)
+
+
+## French runs long: in French, on a computer's smallest screen, a phone's two shapes and a big
+## window, every in-run panel stays inside the screen with its longest words (the merchant
+## saying why it can't sell, the forge taking out the longest rune's name or saying the bag is
+## full, the four encounters, the longest fragment, the longest perks...). A game of its own,
+## begun in French: the words its menus were built with are French too.
+func _test_french_panels() -> void:
+	var before := get_tree().root.size
+	Settings.language = "fr"
+	Settings.apply()
+	var game := GAME_SCENE.instantiate() as Game
+	game.show_act_cards = false
+	add_child(game)
+	await _frames(5)
+	var world := game.world
+	var player := game.player
+	player.invincible = true
+	await _clear_monsters(world)
+	_keys_mode()
+	var none: Array[ItemAffixDef] = []
+	var katana := load("res://data/items/weapons/katana.tres") as EquipmentDef
+	var mail := load("res://data/items/armors/chain_mail.tres") as EquipmentDef
+	# The longest names and texts, in French.
+	var rune: RuneDef = _longest(CONTENT.runes, func(r: RuneDef) -> String: return tr(r.display_name))
+	var fragment: FragmentDef = null
+	var fragment_boss: BossDef = null
+	for act in CONTENT.dungeon.acts:
+		for boss in act.all_bosses():
+			if boss.chronicle:
+				for piece in boss.chronicle.fragments:
+					if fragment == null or _fragment_length(piece) > _fragment_length(fragment):
+						fragment = piece
+						fragment_boss = boss
+	var perks: Array[PerkDef] = []
+	perks.assign(CONTENT.perks.filter(func(perk: PerkDef) -> bool: return perk.rarity == PerkDef.Rarity.COMMON))
+	perks.sort_custom(func(a: PerkDef, b: PerkDef) -> bool: return (tr(a.display_name) + a.describe()).length() > (tr(b.display_name) + b.describe()).length())
+	var long_perks: Array[PerkDef] = []
+	long_perks.assign(perks.slice(0, 3))
+	var named: MonsterDef = _longest(_all_monsters(), func(m: MonsterDef) -> String: return tr(m.display_name))
+	# Every monster known well: its page shows all it has.
+	var kills := Profile.kills_by_monster.duplicate()
+	for monster in _all_monsters():
+		Profile.kills_by_monster[String(monster.id)] = 1000
+	# What the panels show: a socketed weapon with that rune, a bag of everything.
+	var worn := LootRoller.make(katana, ItemRarity.RARE, none, [rune], 3)
+	player.equipment.equip(worn)
+	player.inventory.items.clear()
+	for item: ItemDef in [LootRoller.make(mail, ItemRarity.EPIC, none, [], 2), rune, load("res://data/items/tomes/tome_fire.tres"), load("res://data/items/consumables/fire_scroll.tres"), load("res://data/items/consumables/haste_draught.tres")]:
+		player.inventory.add(item)
+	var bag := player.inventory.items.duplicate()
+	var merchant := world.spawn_merchant(CONTENT.dungeon.merchant, world.map.world_to_cell(world.find_open_point_near(player.global_position + Vector2(-60, 0), 40.0)))
+	var forge := world.spawn_forge(CONTENT.dungeon.forge, world.map.world_to_cell(world.find_open_point_near(player.global_position + Vector2(60, 0), 40.0)))
+	var encounters: Array[Encounter] = []
+	for def in CONTENT.encounters:
+		encounters.append(world.spawn_encounter(def, world.map.world_to_cell(world.find_open_point_near(player.global_position + Vector2(0, 60), 60.0))))
+	await _frames(2)
+	for size: Vector2i in [Vector2i(1280, 720), Vector2i(1540, 720), Vector2i(2340, 1080), Vector2i(2548, 1296)]:
+		await _window(size)
+		var where := "%s in French" % size
+		# The bag, every tab.
+		game.open_inventory()
+		await _frames(2)
+		var outside: Array[String] = []
+		for i in InventoryPanel.CATEGORIES.categories.size():
+			game.inventory_panel.show_category(i)
+			await _frames(2)
+			outside.append_array(_panel_outside(game.inventory_panel))
+		_panel_fits(where, "the bag, every tab", game.inventory_panel, outside)
+		await _panel_checked("bag", size)
+		game.inventory_panel.close()
+		# The merchant, Buy saying why it can't: gold missing, a full compartment.
+		merchant.stock.clear()
+		merchant.stock.append({ "item": LootRoller.make(mail, ItemRarity.RARE, none, [], 5), "price": 99999 })
+		merchant.stock.append({ "item": LootRoller.make(katana, ItemRarity.RARE, none, [], 5), "price": 1 })
+		var weapons := Inventory.CATEGORIES.index_of(worn)
+		for n in player.inventory.free_in(weapons):
+			player.inventory.force_add(LootRoller.make(katana, ItemRarity.COMMON, none, [], 60 + n))
+		game.open_shop(merchant)
+		await _frames(2)
+		for index in 2:
+			game.shop_panel.select_stock(index)
+			await _frames(2)
+			_panel_fits(where, "the merchant, Buy saying \"%s\"" % (game.shop_panel.get_node("%BuyButton") as Button).text, game.shop_panel)
+			await _panel_checked("merchant_%d" % index, size)
+		game.shop_panel.close()
+		player.inventory.items.assign(bag)
+		player.inventory.changed.emit()
+		# The forge: taking out the longest rune's name, then with no room in the bag for it.
+		game.open_forge(forge)
+		await _frames(2)
+		game.menus.forge._select_socket(0)
+		await _frames(2)
+		_panel_fits(where, "the forge, taking out %s" % tr(rune.display_name), game.menus.forge)
+		await _panel_checked("forge", size)
+		# The runes' compartment full of other runes (one place a kind: copies of their own).
+		var runes := Inventory.CATEGORIES.index_of(rune)
+		player.inventory.remove(rune)
+		for n in player.inventory.free_in(runes):
+			var other := CONTENT.runes[n % CONTENT.runes.size()].duplicate() as RuneDef
+			other.id = StringName("test_rune_%d" % n)
+			player.inventory.force_add(other)
+		game.menus.forge.close()
+		game.open_forge(forge)
+		await _frames(2)
+		game.menus.forge._select_socket(0)
+		await _frames(2)
+		check(not (game.menus.forge.find_child("TakeOutButton", true, false) as Button).text.contains(tr(rune.display_name)), "%s: the forge says the bag has no room for the rune (%s)" % [where, (game.menus.forge.find_child("TakeOutButton", true, false) as Button).text])
+		_panel_fits(where, "the forge, no room for the rune", game.menus.forge)
+		await _panel_checked("forge_full", size)
+		player.inventory.items.assign(bag)
+		player.inventory.changed.emit()
+		game.menus.forge.close()
+		# The four encounters.
+		for encounter in encounters:
+			game.open_encounter(encounter)
+			await _frames(2)
+			_panel_fits(where, "the encounter %s" % encounter.def.id, game.encounter_panel)
+			await _panel_checked("encounter_%s" % encounter.def.id, size)
+			game.encounter_panel.close()
+		await _frames(1)
+		# The pause, its options (both pages) and its codex (every tab, a warden's page).
+		game.open_pause_menu()
+		await _frames(2)
+		_panel_fits(where, "the pause", game.pause_menu)
+		await _panel_checked("pause", size)
+		var options := game.pause_menu.get_node("%OptionsPanel") as OptionsPanel
+		options.open()
+		await _frames(2)
+		_panel_fits(where, "the options", options)
+		await _panel_checked("options", size)
+		options.show_page(true)
+		await _frames(2)
+		_panel_fits(where, "the options' controls", options)
+		await _panel_checked("options_controls", size)
+		options.close()
+		var codex := game.pause_menu.get_node("%CodexPanel") as CodexPanel
+		codex.open(CONTENT, CodexPanel.Tab.QUESTS)
+		for tab: int in CodexPanel.Tab.values():
+			codex.show_tab(tab)
+			await _frames(2)
+			_panel_fits(where, "the codex, %s" % CodexPanel.TAB_NAMES[tab], codex)
+			await _panel_checked("codex_%s" % CodexPanel.TAB_NAMES[tab], size)
+		# The monsters' pages, all known (every text shown): each one on the narrowest screen,
+		# the longest name and a warden's chronicle on every screen.
+		var pages: Array = codex.bestiary_entries() if size == Vector2i(1280, 720) else [named, fragment_boss]
+		var wide: Array[String] = []
+		for monster: MonsterDef in pages:
+			codex.open_monster(monster)
+			await _frames(2)
+			for line in _panel_outside(codex):
+				wide.append("%s: %s" % [monster.id, line])
+			# Its name wraps between words, never inside one.
+			var page := codex.get_node("%MonsterPage") as Control
+			for label: Label in page.find_children("*", "Label", true, false):
+				if label.get_theme_font_size(&"font_size") != Fonts.TITLE or not label.is_visible_in_tree():
+					continue
+				for word in label.text.replace("-", "- ").split(" ", false):  # (a hyphen may end a line)
+					if Fonts.MAIN.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, Fonts.TITLE).x > label.size.x:
+						wide.append("%s: the word %s cut in two" % [monster.id, word])
+			codex.back()
+		_panel_fits(where, "the codex, the monsters' pages", codex, wide)
+		codex.open_monster(fragment_boss)
+		await _frames(2)
+		var chronicle := _find_named(codex, "ChronicleTab") as Button
+		if chronicle:
+			chronicle.pressed.emit()
+			await _frames(2)
+		_panel_fits(where, "the codex, %s's chronicle" % tr(fragment_boss.display_name), codex)
+		await _panel_checked("codex_chronicle", size)
+		codex.back()
+		codex.open_monster(named)
+		await _frames(2)
+		await _panel_checked("codex_page", size)
+		codex.back()
+		codex.back()
+		game.pause_menu.hide()
+		get_tree().paused = false
+		# The longest fragment.
+		game.menus.fragment.open(fragment, fragment_boss, true)
+		await _frames(2)
+		_panel_fits(where, "the fragment %s" % fragment.resource_path.get_file(), game.menus.fragment)
+		await _panel_checked("fragment", size)
+		game.menus.fragment.hide()
+		# The ending's choice.
+		game.menus.ending.open(CONTENT.dungeon.finale)
+		await _frames(2)
+		_panel_fits(where, "the ending's choice", game.menus.ending)
+		await _panel_checked("ending", size)
+		game.menus.ending.hide()
+		# The perk choice, its three longest perks.
+		game.perk_panel.open(tr("Level %d!") % 2, tr("Choose an upgrade"), long_perks, player.perks, 1, 1)
+		await get_tree().create_timer(0.6, true).timeout
+		_panel_fits(where, "the perk choice", game.perk_panel)
+		await _panel_checked("perks", size)
+		game.perk_panel.hide()
+		get_tree().paused = false
+		await _frames(2)
+	game.queue_free()
+	await _frames(2)
+	Profile.kills_by_monster = kills
+	Settings.language = "en"
+	Settings.apply()
+	InputDevice.use(InputDevice.Kind.TOUCH)
+	await _restore_window(before)
+
+
+## One panel's check: open, and nothing of it out of the screen (`found`: what was already seen
+## outside).
+func _panel_fits(where: String, what: String, panel: Control, found: Array[String] = []) -> void:
+	var outside := found if not found.is_empty() else _panel_outside(panel)
+	check(panel.is_visible_in_tree() and outside.is_empty(), "%s: %s fits the screen (%s)" % [where, what, ", ".join(outside.slice(0, 3)) if panel.is_visible_in_tree() else "not open"])
+
+
+## After each panel checked in French: nothing here (a probe may take a screenshot).
+func _panel_checked(_name: String, _size: Vector2i) -> void:
+	pass
+
+
+## Every monster of the bestiary (the acts', the Deeps', the hidden floor's and the bottom's).
+func _all_monsters() -> Array[MonsterDef]:
+	var result: Array[MonsterDef] = []
+	for act in CONTENT.dungeon.acts:
+		for monster: MonsterDef in act.monsters + act.all_bosses():
+			if monster and not result.has(monster):
+				result.append(monster)
+	var others: Array[MonsterDef] = CONTENT.abyss_monsters()
+	if CONTENT.dungeon.hidden_floor and CONTENT.dungeon.hidden_floor.boss:
+		others.append(CONTENT.dungeon.hidden_floor.boss)
+	if CONTENT.dungeon.finale and CONTENT.dungeon.finale.boss:
+		for form in CONTENT.dungeon.finale.boss.forms():
+			others.append(form)
+	for monster in others:
+		if not result.has(monster):
+			result.append(monster)
+	return result
+
+
+func _find_named(root: Node, node_name: String) -> Node:
+	if root.name == node_name:
+		return root
+	for child in root.get_children():
+		var found := _find_named(child, node_name)
+		if found:
+			return found
+	return null
+
+
+static func _fragment_length(fragment: FragmentDef) -> int:
+	var length := 0
+	for line in fragment.lines:
+		length += TranslationServer.translate(line).length()
+	return length
+
+
+static func _longest(list: Array, text: Callable) -> Variant:
+	var best: Variant = null
+	for entry: Variant in list:
+		if best == null or (text.call(entry) as String).length() > (text.call(best) as String).length():
+			best = entry
+	return best
 
 
 # --- Game ---------------------------------------------------------------------------------

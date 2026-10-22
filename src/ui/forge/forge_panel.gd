@@ -289,6 +289,10 @@ func _build() -> void:
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	left.column.add_child(spacer)
 	_action = _button("", take_rune)
+	_action.name = "TakeOutButton"
+	# Its words may say why the rune can't come out (« Plus de place pour les runes : ... »):
+	# on two lines, never a forge wider than the screen.
+	_action.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	left.column.add_child(_action)
 
 	# Right: the runes in the bag.
