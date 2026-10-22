@@ -142,10 +142,10 @@ Feat: %s,Feat: %s,Exploit : %s
 Slay it once,Slay it once,Terrasse-le une fois
 Slay it %d times,Slay it %d times,Terrasse-le %d fois
 Read,Read,Lire
-A fragment of the past: %s.,A fragment of the past: %s.,Un fragment du passé : %s.
+A fragment of the past: %s.,A fragment of the past: %s.,Un fragment du passé : %s.
 The Well remembers how %s fell.,The Well remembers how %s fell.,Le Puits se souvient de la chute de %s.
-"""%s""","""%s""",« %s »
-"Find the fragment ""%s""","Find the fragment ""%s""",Trouve le fragment « %s »
+"""%s""","""%s""",« %s »
+"Find the fragment ""%s""","Find the fragment ""%s""",Trouve le fragment « %s »
 Find every fragment about it,Find every fragment about it,Trouve tous ses fragments
 Find a fragment about it,Find a fragment about it,Trouve un de ses fragments
 Find %d fragments about it,Find %d fragments about it,Trouve %d de ses fragments
@@ -387,8 +387,8 @@ Empty,Empty,Vide
 The Forge,The Forge,La Forge
 Sockets,Sockets,Emplacements
 Your runes,Your runes,Tes runes
-A new page for its chronicle: %s.,A new page for its chronicle: %s.,Une page de plus pour sa chronique : %s.
-From its chronicle: %s.,From its chronicle: %s.,Tiré de sa chronique : %s.
+A new page for its chronicle: %s.,A new page for its chronicle: %s.,Une page de plus pour sa chronique : %s.
+From its chronicle: %s.,From its chronicle: %s.,Tiré de sa chronique : %s.
 The Well claims you,The Well claims you,Le Puits te réclame
 You now have %d souls.,You now have %d souls.,Tu as maintenant %d âmes.
 New run,New run,Nouvelle partie
@@ -480,8 +480,8 @@ Keep them,Keep them,Les garder
 Done! Tips are back,Done! Tips are back,C'est fait ! Les conseils sont de retour
 Replay tutorial,Replay tutorial,Rejouer le tutoriel
 "Only its name and a line it remembers, about two seconds.","Only its name and a line it remembers, about two seconds.","Seulement son nom et une phrase dont il se souvient, environ deux secondes."
-No scene: the fight starts at once.,No scene: the fight starts at once.,Aucune scène : le combat commence aussitôt.
-A new chapter of its story when there is one; otherwise two seconds.,A new chapter of its story when there is one; otherwise two seconds.,Un nouveau chapitre de son histoire quand il y en a un ; sinon deux secondes.
+No scene: the fight starts at once.,No scene: the fight starts at once.,Aucune scène : le combat commence aussitôt.
+A new chapter of its story when there is one; otherwise two seconds.,A new chapter of its story when there is one; otherwise two seconds.,Un nouveau chapitre de son histoire quand il y en a un ; sinon deux secondes.
 Walking over an item takes it.,Walking over an item takes it.,Marcher sur un objet le ramasse.
 "Gear stays on the ground: walk over it, then Take.","Gear stays on the ground: walk over it, then Take.","L'équipement reste au sol : marche dessus, puis Prendre."
 Gear only if it beats what you wear; the rest stays on the ground.,Gear only if it beats what you wear; the rest stays on the ground.,L'équipement seulement s'il bat ce que tu portes ; le reste demeure au sol.
@@ -1184,7 +1184,7 @@ CALLS THE DEAD!,CALLS THE DEAD!,APPELLE LES MORTS !
 BERSERK!,BERSERK!,FOLIE FURIEUSE !
 Warden of the Ossuary,Warden of the Ossuary,Gardien de l'Ossuaire
 Gorr the One-Eyed,Gorr the One-Eyed,Gorr le Borgne
-"The Ossuary's gravedigger, risen with horns and one burning eye. His club shakes the ground; the dead answer his call.","The Ossuary's gravedigger, risen with horns and one burning eye. His club shakes the ground; the dead answer his call.","Le fossoyeur de l'Ossuaire, relevé avec des cornes et un œil ardent. Sa massue fait trembler le sol ; les morts répondent à son appel."
+"The Ossuary's gravedigger, risen with horns and one burning eye. His club shakes the ground; the dead answer his call.","The Ossuary's gravedigger, risen with horns and one burning eye. His club shakes the ground; the dead answer his call.","Le fossoyeur de l'Ossuaire, relevé avec des cornes et un œil ardent. Sa massue fait trembler le sol ; les morts répondent à son appel."
 Tame the Mire Matron with a Whip,Tame the Mire Matron with a Whip,Dompte la Matrone du Bourbier au Fouet
 CALLS ITS BROOD!,CALLS ITS BROOD!,APPELLE SA COUVÉE !
 FRENZY!,FRENZY!,FRÉNÉSIE !
@@ -1589,7 +1589,7 @@ The Well keeps you tonight. The shrine remembers the souls you brought back.,The
 "Darkness. Then the shrine's bell, far above. Again.","Darkness. Then the shrine's bell, far above. Again.","Les ténèbres. Puis la cloche du sanctuaire, loin là-haut. Encore une fois."
 The souls you brought back from the Well lend you their strength.,The souls you brought back from the Well lend you their strength.,Les âmes que tu as ramenées du Puits te prêtent leur force.
 Only fire reminds her of the sky she left.,Only fire reminds her of the sky she left.,Seul le feu lui rappelle le ciel qu'elle a quitté.
-Finish her with fire: a burning weapon or a burn.,Finish her with fire: a burning weapon or a burn.,Achève-la par le feu : une arme ardente ou une brûlure.
+Finish her with fire: a burning weapon or a burn.,Finish her with fire: a burning weapon or a burn.,Achève-la par le feu : une arme ardente ou une brûlure.
 The Sleeping Winter,The Sleeping Winter,L'hiver qui dort
 "An ice wyrm, as long as a street. Wherever she passes, the stone grows rime.","An ice wyrm, as long as a street. Wherever she passes, the stone grows rime.","Une guivre de glace, longue comme une rue. Là où elle passe, la pierre se couvre de givre."
 Her eyes are still heavy with sleep.,Her eyes are still heavy with sleep.,Ses yeux sont encore lourds de sommeil.
@@ -1606,13 +1606,13 @@ On the moonless night a cold breath rose from the bottom and passed through ever
 She opened her eyes. Every flame in Kagari was already dead.,She opened her eyes. Every flame in Kagari was already dead.,Elle a ouvert les yeux. Toutes les flammes de Kagari étaient déjà mortes.
 The Foreign Chains,The Foreign Chains,Les chaînes étrangères
 "The keeper found her awake and trembling. He carried chains of a steel frost cannot bite, forged by a foreign hand.","The keeper found her awake and trembling. He carried chains of a steel frost cannot bite, forged by a foreign hand.","Le gardien l'a trouvée éveillée et tremblante. Il portait des chaînes d'un acier que le givre ne mord pas, forgées par une main étrangère."
-"""Sleep if you will. But keep these until I come back.""","""Sleep if you will. But keep these until I come back.""",« Dors si tu veux. Mais garde ceux-ci jusqu'à mon retour. »
+"""Sleep if you will. But keep these until I come back.""","""Sleep if you will. But keep these until I come back.""",« Dors si tu veux. Mais garde ceux-ci jusqu'à mon retour. »
 She keeps the souls he left her. She no longer sleeps.,She keeps the souls he left her. She no longer sleeps.,Elle garde les âmes qu'il lui a laissées. Elle ne dort plus.
 The Drawn Breath,The Drawn Breath,L'inspiration
-She knows that cold breath now: it is the bottom drawing breath. It sucks in everything warm.,She knows that cold breath now: it is the bottom drawing breath. It sucks in everything warm.,"Ce souffle froid, elle le connaît maintenant : c'est le fond qui inspire. Il aspire tout ce qui est tiède."
+She knows that cold breath now: it is the bottom drawing breath. It sucks in everything warm.,She knows that cold breath now: it is the bottom drawing breath. It sucks in everything warm.,"Ce souffle froid, elle le connaît maintenant : c'est le fond qui inspire. Il aspire tout ce qui est tiède."
 "One day it will breathe out. That day there will be no winter, no flame, nothing left to keep.","One day it will breathe out. That day there will be no winter, no flame, nothing left to keep.","Un jour, il expirera. Ce jour-là, il n'y aura plus d'hiver, plus de flamme, plus rien à garder."
 She fights off sleep to be there when it comes.,She fights off sleep to be there when it comes.,Elle lutte contre le sommeil pour être là quand il viendra.
-You read what they wrote about me... It is so cold. Is there still a sky?,You read what they wrote about me... It is so cold. Is there still a sky?,Tu as lu ce qu'ils écrivaient sur moi... Il fait si froid. Y a-t-il encore un ciel ?
+You read what they wrote about me... It is so cold. Is there still a sky?,You read what they wrote about me... It is so cold. Is there still a sky?,Tu as lu ce qu'ils écrivaient sur moi... Il fait si froid. Y a-t-il encore un ciel ?
 "Tôma. His hands shook more than I did, holding the chains.","Tôma. His hands shook more than I did, holding the chains.","Tôma. Ses mains tremblaient plus que moi, sur les chaînes."
 The pyre only accepts what does not heal.,The pyre only accepts what does not heal.,Le bûcher n'accepte que ce qui ne guérit pas.
 Slay him without healing at all during the fight.,Slay him without healing at all during the fight.,Terrasse-le sans te soigner de tout le combat.
@@ -1625,9 +1625,9 @@ One winter he dove into the Well to catch a falling feather. His wings burned in
 "Below, he found a temple whose pyres were still burning.","Below, he found a temple whose pyres were still burning.","En bas, il a trouvé un temple dont les bûchers brûlaient encore."
 The Blade That Does Not Kneel,The Blade That Does Not Kneel,La lame qui ne s'agenouille pas
 A guard in burning armor sometimes passes his pyres. He never kneels.,A guard in burning armor sometimes passes his pyres. He never kneels.,Un garde en armure brûlante passe parfois devant ses bûchers. Il ne s'agenouille jamais.
-The Tengu despises him. He envies him too: that guard once knew how to say no.,The Tengu despises him. He envies him too: that guard once knew how to say no.,"Le Tengu le méprise. Il l'envie aussi : ce garde-là a su dire non, une fois."
+The Tengu despises him. He envies him too: that guard once knew how to say no.,The Tengu despises him. He envies him too: that guard once knew how to say no.,"Le Tengu le méprise. Il l'envie aussi : ce garde-là a su dire non, une fois."
 The Carved Rite,The Carved Rite,Le rite gravé
-"The temple's walls bore a rite, carved by priests long dead: feed the sun.","The temple's walls bore a rite, carved by priests long dead: feed the sun.","Les murs du temple portaient un rite, gravé par des prêtres morts depuis longtemps : nourrir le soleil."
+"The temple's walls bore a rite, carved by priests long dead: feed the sun.","The temple's walls bore a rite, carved by priests long dead: feed the sun.","Les murs du temple portaient un rite, gravé par des prêtres morts depuis longtemps : nourrir le soleil."
 "He read it, learned it, made himself its priest. No one was there to tell him no.","He read it, learned it, made himself its priest. No one was there to tell him no.","Il l'a lu, il l'a appris, il s'en est fait le prêtre. Personne n'était là pour lui dire non."
 Every dawn he throws to the pyres whatever the Well lets fall.,Every dawn he throws to the pyres whatever the Well lets fall.,"Chaque aube, il jette aux bûchers ce que le Puits laisse tomber."
 The Words Given,The Words Given,Les mots donnés
@@ -1636,7 +1636,7 @@ The Words Given,The Words Given,Les mots donnés
 On the moonless night the keeper came back with souls. The Tengu understood too late what he had taught.,On the moonless night the keeper came back with souls. The Tengu understood too late what he had taught.,"La nuit sans lune, le gardien est revenu avec des âmes. Le Tengu a compris trop tard ce qu'il avait enseigné."
 The Sun Has a Mouth,The Sun Has a Mouth,Le soleil a une bouche
 At the heart of the rite is a word the priests scratched out. The Tengu found it again under the soot.,At the heart of the rite is a word the priests scratched out. The Tengu found it again under the soot.,"Au cœur du rite, il y a un mot que les prêtres ont gratté. Le Tengu l'a retrouvé sous la suie."
-"It is not ""sun"". It is ""mouth"".","It is not ""sun"". It is ""mouth"".",Ce n'est pas « soleil ». C'est « bouche ».
+"It is not ""sun"". It is ""mouth"".","It is not ""sun"". It is ""mouth"".",Ce n'est pas « soleil ». C'est « bouche ».
 "He still feeds the pyres. He knows nothing else, and he is ashamed.","He still feeds the pyres. He knows nothing else, and he is ashamed.","Il nourrit encore les bûchers. Il ne sait rien faire d'autre, et il a honte."
 "A worshipper who reads, good. Read what was scratched out, too.","A worshipper who reads, good. Read what was scratched out, too.","Un fidèle qui lit, bien. Lis aussi ce qui a été gratté."
 "Tôma asked me for the words. For once, I should have kept silent.","Tôma asked me for the words. For once, I should have kept silent.","Tôma m'a demandé les mots. Pour une fois, j'aurais dû me taire."
@@ -1644,7 +1644,7 @@ He only bows to a sworn oath.,He only bows to a sworn oath.,Il ne s'incline que 
 Slay him while sworn to an oath of the Tree of Souls.,Slay him while sworn to an oath of the Tree of Souls.,Terrasse-le en ayant prêté un serment de l'Arbre des Âmes.
 The Gravedigger,The Gravedigger,Le fossoyeur
 "A horned giant with a single eye, a club of bone in his hand. He counts something under his breath.","A horned giant with a single eye, a club of bone in his hand. He counts something under his breath.","Un géant cornu à l'œil unique, une massue d'os à la main. Il compte quelque chose à voix basse."
-Listen closely: they are names.,Listen closely: they are names.,Écoute bien : ce sont des noms.
+Listen closely: they are names.,Listen closely: they are names.,Écoute bien : ce sont des noms.
 Gorr of the Ossuary,Gorr of the Ossuary,"Gorr, de l'Ossuaire"
 "His name was Gorr, and he laid Kagari's dead in the Ossuary. Every skull had its niche, every niche its name.","His name was Gorr, and he laid Kagari's dead in the Ossuary. Every skull had its niche, every niche its name.","Il s'appelait Gorr, et il couchait les morts de Kagari dans l'Ossuaire. Chaque crâne avait sa niche, chaque niche son nom."
 A stone fell from the vault and took one of his eyes. He said one eye was enough to count.,A stone fell from the vault and took one of his eyes. He said one eye was enough to count.,Une pierre tombée de la voûte lui a pris un œil. Il a dit qu'un œil suffisait pour compter.
@@ -1658,14 +1658,14 @@ Every keeper of the shrine swears at the bell that the lantern shall not go out.
 Gorr remembers every word. He counts them with the names.,Gorr remembers every word. He counts them with the names.,Gorr se souvient de chaque mot. Il les compte avec les noms.
 The Night of Too Many,The Night of Too Many,La nuit des trop nombreux
 "On the moonless night the lantern went out, and the souls came down by the hundred. Gorr could not name them all.","On the moonless night the lantern went out, and the souls came down by the hundred. Gorr could not name them all.","La nuit sans lune, la lanterne s'est éteinte, et les âmes sont descendues par centaines. Gorr n'a pas pu toutes les nommer."
-"The keeper came down with a cold lantern: ""Keep them among the bones, where no one will look for them.""","The keeper came down with a cold lantern: ""Keep them among the bones, where no one will look for them.""","Le gardien est descendu avec une lanterne froide : « Garde-les parmi les os, là où personne ne les cherchera. »"
+"The keeper came down with a cold lantern: ""Keep them among the bones, where no one will look for them.""","The keeper came down with a cold lantern: ""Keep them among the bones, where no one will look for them.""","Le gardien est descendu avec une lanterne froide : « Garde-les parmi les os, là où personne ne les cherchera. »"
 "Gorr obeyed. A hand that swore cannot lie, he thought.","Gorr obeyed. A hand that swore cannot lie, he thought.","Gorr a obéi. Une main qui a juré ne peut pas mentir, pensait-il."
 What the Bottom Counts,What the Bottom Counts,Ce que compte le fond
 "The dead of the Ossuary no longer rest. Gorr believed it was his fault, that he had miscounted.","The dead of the Ossuary no longer rest. Gorr believed it was his fault, that he had miscounted.","Les morts de l'Ossuaire ne reposent plus. Gorr croyait que c'était sa faute, qu'il avait mal compté."
 "But something further down counts too. Faster than he does, and it never names.","But something further down counts too. Faster than he does, and it never names.","Mais quelque chose, plus bas, compte aussi. Plus vite que lui, et sans jamais nommer."
 He holds the village's souls in the hollow of his hand. He will not close it.,He holds the village's souls in the hollow of his hand. He will not close it.,Il tient les âmes du village au creux de sa main. Il ne la refermera pas.
 "You smell of the niches' stone. Tell me your name, so I can put it away.","You smell of the niches' stone. Tell me your name, so I can put it away.","Tu sens la pierre des niches. Dis-moi ton nom, que je le range."
-Tôma. I held the rope when he swore; that name I bury without a niche.,Tôma. I held the rope when he swore; that name I bury without a niche.,"Tôma. Je tenais la corde quand il a juré ; ce nom-là, je l'enterre sans niche."
+Tôma. I held the rope when he swore; that name I bury without a niche.,Tôma. I held the rope when he swore; that name I bury without a niche.,"Tôma. Je tenais la corde quand il a juré ; ce nom-là, je l'enterre sans niche."
 She only knows those who drank from her spring.,She only knows those who drank from her spring.,Elle ne reconnaît que ceux qui ont bu à sa source.
 "Drink at the Spring of the Drowned, then slay her in the same run.","Drink at the Spring of the Drowned, then slay her in the same run.","Bois à la Source des Noyés, puis terrasse-la dans la même descente."
 Queen of the Mud,Queen of the Mud,La reine de la vase
@@ -1681,21 +1681,21 @@ One is missing. She is still looking for it.,One is missing. She is still lookin
 The Water She Drank,The Water She Drank,L'eau qu'elle a bue
 "One rainy day, a paper boat stayed alone on the water. No one came to take it back.","One rainy day, a paper boat stayed alone on the water. No one came to take it back.","Un jour de pluie, un bateau de papier est resté seul sur l'eau. Personne n'est venu le reprendre."
 That night she drank water that tasted of a last breath.,That night she drank water that tasted of a last breath.,"Cette nuit-là, elle a bu une eau qui avait le goût d'un dernier souffle."
-Since then her song ends on two syllables she does not know: Ha. Na.,Since then her song ends on two syllables she does not know: Ha. Na.,"Depuis, son chant finit par deux syllabes qu'elle ne connaît pas : Ha. Na."
+Since then her song ends on two syllables she does not know: Ha. Na.,Since then her song ends on two syllables she does not know: Ha. Na.,"Depuis, son chant finit par deux syllabes qu'elle ne connaît pas : Ha. Na."
 The Keeper's Little Ones,The Keeper's Little Ones,Les petits du gardien
 "The keeper came to sit by the spring each evening, without a word. She had grown used to him.","The keeper came to sit by the spring each evening, without a word. She had grown used to him.","Le gardien venait s'asseoir au bord de la source chaque soir, sans un mot. Elle s'était habituée à lui."
-"On the moonless night he came with children's souls in his hands. ""You know how to keep little ones.""","On the moonless night he came with children's souls in his hands. ""You know how to keep little ones.""","La nuit sans lune, il est venu avec des âmes d'enfants dans les mains. « Toi, tu sais garder les petits. »"
+"On the moonless night he came with children's souls in his hands. ""You know how to keep little ones.""","On the moonless night he came with children's souls in his hands. ""You know how to keep little ones.""","La nuit sans lune, il est venu avec des âmes d'enfants dans les mains. « Toi, tu sais garder les petits. »"
 She hides them under the mud with her own. She can no longer tell them apart.,She hides them under the mud with her own. She can no longer tell them apart.,"Elle les cache sous la vase, avec les siens. Elle ne les distingue plus."
 The Voice in the Water,The Voice in the Water,La voix dans l'eau
 Sometimes a girl's voice sings in the spring. The Matron answers it with all her heart.,Sometimes a girl's voice sings in the spring. The Matron answers it with all her heart.,"Parfois, une voix de fillette chante dans la source. La Matrone lui répond de tout son cœur."
 But a frog knows what lives in water. That voice has no throat.,But a frog knows what lives in water. That voice has no throat.,Mais une grenouille sait ce qui vit dans l'eau. Cette voix-là n'a pas de gorge.
 "It is hungry, and it waits for someone to come down for it.","It is hungry, and it waits for someone to come down for it.","Elle a faim, et elle attend que quelqu'un descende la chercher."
-Croak... Did you see the boats? One is missing... Ha... na.,Croak... Did you see the boats? One is missing... Ha... na.,Croâ... Tu as vu les bateaux ? Il en manque un... Ha... na.
+Croak... Did you see the boats? One is missing... Ha... na.,Croak... Did you see the boats? One is missing... Ha... na.,Croâ... Tu as vu les bateaux ? Il en manque un... Ha... na.
 "The keeper's name is Tôma. He wept by the water, for the missing boat.","The keeper's name is Tôma. He wept by the water, for the missing boat.","Le gardien s'appelle Tôma. Il pleurait au bord de l'eau, pour le bateau qui manque."
 He speaks only to one who bought nothing with his gold.,He speaks only to one who bought nothing with his gold.,Il ne parle qu'à qui n'a rien acheté avec son or.
 Slay him without buying anything from the merchant this run.,Slay him without buying anything from the merchant this run.,Terrasse-le sans rien avoir acheté au marchand de toute la descente.
 The King on His Heap,The King on His Heap,Le roi sur son tas
-A giant of gold seated on a mountain of coins. Every coin bears the same face: his.,A giant of gold seated on a mountain of coins. Every coin bears the same face: his.,Un géant d'or assis sur une montagne de pièces. Chaque pièce porte le même visage : le sien.
+A giant of gold seated on a mountain of coins. Every coin bears the same face: his.,A giant of gold seated on a mountain of coins. Every coin bears the same face: his.,Un géant d'or assis sur une montagne de pièces. Chaque pièce porte le même visage : le sien.
 "He counts. He stops counting for you, and he does not like it.","He counts. He stops counting for you, and he does not like it.","Il compte. Il s'arrête de compter pour toi, et il n'aime pas ça."
 "Ostarion, Last King","Ostarion, Last King","Ostarion, dernier roi"
 "His name was Ostarion, last king of Solhar, under a sky that was not yet stone.","His name was Ostarion, last king of Solhar, under a sky that was not yet stone.","Il s'appelait Ostarion, dernier roi de Solhar, sous un ciel qui n'était pas encore de pierre."
@@ -1705,18 +1705,18 @@ The Peddler Who Knew Him,The Peddler Who Knew Him,Le colporteur qui le connaissa
 "A peddler of Solhar once sold him spices. He still wanders the Well, and he never haggles with him.","A peddler of Solhar once sold him spices. He still wanders the Well, and he never haggles with him.","Un colporteur de Solhar lui vendait des épices, autrefois. Il rôde encore dans le Puits, et il ne marchande jamais avec lui."
 And the guard of the seventh step no longer comes. Ostarion counts that absence too.,And the guard of the seventh step no longer comes. Ostarion counts that absence too.,Et le garde de la septième marche ne vient plus. Ostarion compte aussi cette absence-là.
 The Whole Tithe,The Whole Tithe,Toute la Dîme
-"One soul for a harvest, ten for a victory. Ostarion wanted everything at once: he gave the whole Tithe in a day.","One soul for a harvest, ten for a victory. Ostarion wanted everything at once: he gave the whole Tithe in a day.","Une âme pour une moisson, dix pour une victoire. Ostarion a tout voulu, tout de suite : il a donné toute la Dîme en un jour."
+"One soul for a harvest, ten for a victory. Ostarion wanted everything at once: he gave the whole Tithe in a day.","One soul for a harvest, ten for a victory. Ostarion wanted everything at once: he gave the whole Tithe in a day.","Une âme pour une moisson, dix pour une victoire. Ostarion a tout voulu, tout de suite : il a donné toute la Dîme en un jour."
 "Then his people, step after step. Then there was no one left to feed.","Then his people, step after step. Then there was no one left to feed.","Puis son peuple, marche après marche. Puis il n'est plus resté personne à nourrir."
 The sun paid in gold. It never paid in bread.,The sun paid in gold. It never paid in bread.,Le soleil a payé en or. Il n'a jamais payé en pain.
 A Bargain,A Bargain,Un marché
 "The shrine's keeper came to bargain, and Ostarion recognised a man who wanted something too much.","The shrine's keeper came to bargain, and Ostarion recognised a man who wanted something too much.","Le gardien du sanctuaire est venu marchander, et Ostarion a reconnu un homme qui voulait quelque chose de trop."
-"""Keep these souls with your gold, and your heap will grow."" The king said yes before the sentence was done.","""Keep these souls with your gold, and your heap will grow."" The king said yes before the sentence was done.","« Garde ces âmes avec ton or, et ton tas grandira. » Le roi a dit oui avant la fin de la phrase."
+"""Keep these souls with your gold, and your heap will grow."" The king said yes before the sentence was done.","""Keep these souls with your gold, and your heap will grow."" The king said yes before the sentence was done.","« Garde ces âmes avec ton or, et ton tas grandira. » Le roi a dit oui avant la fin de la phrase."
 He keeps Kagari's souls the way he kept his people. He counts them.,He keeps Kagari's souls the way he kept his people. He counts them.,Il garde les âmes de Kagari comme il a gardé son peuple. Il les compte.
 What Hunger Gives,What Hunger Gives,Ce que donne la faim
-"He knows what the promise from below is worth: he was promised plenty, and given gold.","He knows what the promise from below is worth: he was promised plenty, and given gold.","Il sait ce que vaut la promesse d'en bas : on lui a promis l'abondance, on lui a donné de l'or."
+"He knows what the promise from below is worth: he was promised plenty, and given gold.","He knows what the promise from below is worth: he was promised plenty, and given gold.","Il sait ce que vaut la promesse d'en bas : on lui a promis l'abondance, on lui a donné de l'or."
 "Gold cannot be eaten. In the last winter, he chewed on coins.","Gold cannot be eaten. In the last winter, he chewed on coins.","L'or ne se mange pas. Le dernier hiver, il mâchait des pièces."
-He could warn the keeper. He will not: he wants to see whether the keeper pays too.,He could warn the keeper. He will not: he wants to see whether the keeper pays too.,"Il pourrait prévenir le gardien. Il ne le fera pas : il veut voir s'il paiera, lui aussi."
-"You read my accounts: one soul, one harvest. It was a fair price, back then.","You read my accounts: one soul, one harvest. It was a fair price, back then.","Tu as lu mes comptes : une âme, une moisson. C'était un juste prix, à l'époque."
+He could warn the keeper. He will not: he wants to see whether the keeper pays too.,He could warn the keeper. He will not: he wants to see whether the keeper pays too.,"Il pourrait prévenir le gardien. Il ne le fera pas : il veut voir s'il paiera, lui aussi."
+"You read my accounts: one soul, one harvest. It was a fair price, back then.","You read my accounts: one soul, one harvest. It was a fair price, back then.","Tu as lu mes comptes : une âme, une moisson. C'était un juste prix, à l'époque."
 "Tôma, a man who wants something too much. I would know him among a thousand.","Tôma, a man who wants something too much. I would know him among a thousand.","Tôma, un homme qui veut quelque chose de trop. Je le reconnaîtrais entre mille."
 She uncoils only for those who come down as martyrs.,She uncoils only for those who come down as martyrs.,Elle ne déroule ses anneaux que pour ceux qui descendent en martyrs.
 Slay her on Martyr or Nightmare.,Slay her on Martyr or Nightmare.,Terrasse-la en Martyr ou en Cauchemar.
@@ -1736,13 +1736,13 @@ She has slept on it for centuries. The breath lulls her at night.,She has slept 
 She believes it loves her.,She believes it loves her.,Elle croit qu'il l'aime.
 Nothing to Bind,Nothing to Bind,Rien à lier
 "The keeper came with his foreign chains, then set them down. She was already bound, and not by him.","The keeper came with his foreign chains, then set them down. She was already bound, and not by him.","Le gardien est venu avec ses chaînes étrangères, puis il les a reposées. Elle était déjà liée, et pas par lui."
-He only gave her a share of the souls to keep. She agreed: the breath wanted them.,He only gave her a share of the souls to keep. She agreed: the breath wanted them.,Il lui a seulement confié une part des âmes. Elle a accepté : le souffle en voulait.
+He only gave her a share of the souls to keep. She agreed: the breath wanted them.,He only gave her a share of the souls to keep. She agreed: the breath wanted them.,Il lui a seulement confié une part des âmes. Elle a accepté : le souffle en voulait.
 "Of all the Well's wardens, she alone serves gladly.","Of all the Well's wardens, she alone serves gladly.","De tous les gardiens du Puits, elle seule sert de bon cœur."
 What the Sun Is,What the Sun Is,Ce qu'est le soleil
-She knows Solhar's sun better than its priests did: she sleeps against its cheek.,She knows Solhar's sun better than its priests did: she sleeps against its cheek.,Elle connaît le soleil de Solhar mieux que ses prêtres : elle dort contre sa joue.
+She knows Solhar's sun better than its priests did: she sleeps against its cheek.,She knows Solhar's sun better than its priests did: she sleeps against its cheek.,Elle connaît le soleil de Solhar mieux que ses prêtres : elle dort contre sa joue.
 "It is no god. It is a mask laid over a hunger, and she has never seen a hunger give anything back.","It is no god. It is a mask laid over a hunger, and she has never seen a hunger give anything back.","Ce n'est pas un dieu. C'est un masque posé sur une faim, et elle n'a jamais vu une faim rendre quoi que ce soit."
 "She knows it, and stays anyway. It is so warm here.","She knows it, and stays anyway. It is so warm here.","Elle le sait, et elle reste quand même. Il fait si chaud, ici."
-"You smell of my sister. Frost, and the dead... Does she still sleep?","You smell of my sister. Frost, and the dead... Does she still sleep?","Tu sens ma sœur. Le givre, les morts... Est-ce qu'elle dort encore ?"
+"You smell of my sister. Frost, and the dead... Does she still sleep?","You smell of my sister. Frost, and the dead... Does she still sleep?","Tu sens ma sœur. Le givre, les morts... Est-ce qu'elle dort encore ?"
 Tôma laid his chains before me and wept. The breath laughed.,Tôma laid his chains before me and wept. The breath laughed.,Tôma a posé ses chaînes devant moi et il a pleuré. Le souffle a ri.
 It only grows on the time you give it.,It only grows on the time you give it.,Il ne grossit que du temps qu'on lui laisse.
 Slay it within 60 seconds of the fight's start.,Slay it within 60 seconds of the fight's start.,Terrasse-le dans les 60 secondes après le début du combat.
@@ -1751,7 +1751,7 @@ What Floats Inside,What Floats Inside,Ce qui flotte en lui
 "On its head, a bronze bowl from the shrine serves as a crown.","On its head, a bronze bowl from the shrine serves as a crown.","Sur sa tête, un bol de bronze du sanctuaire tient lieu de couronne."
 The Lord of the Well-Rim,The Lord of the Well-Rim,Le Nushi de la margelle
 Once it was only a living puddle in the Well's throat. It drank the lanterns' dripping wax and fed on moss.,Once it was only a living puddle in the Well's throat. It drank the lanterns' dripping wax and fed on moss.,"Jadis, ce n'était qu'une flaque vivante dans la gorge du Puits. Elle buvait la cire des lanternes et mangeait la mousse."
-Kagari's children called it the Nushi. They threw it coins for wishes and listened for the plop.,Kagari's children called it the Nushi. They threw it coins for wishes and listened for the plop.,"Les enfants de Kagari l'appelaient le Nushi. Ils lui jetaient des piécettes pour faire un vœu, et guettaient le « plop »."
+Kagari's children called it the Nushi. They threw it coins for wishes and listened for the plop.,Kagari's children called it the Nushi. They threw it coins for wishes and listened for the plop.,"Les enfants de Kagari l'appelaient le Nushi. Ils lui jetaient des piécettes pour faire un vœu, et guettaient le « plop »."
 It kept every coin. It thought they were love.,It kept every coin. It thought they were love.,Il gardait chaque piécette. Il croyait que c'était de l'amour.
 The Coins,The Coins,Les piécettes
 "Among the coins is one with a hole, on a red cord. A little girl threw it, laughing.","Among the coins is one with a hole, on a red cord. A little girl threw it, laughing.","Parmi les piécettes, il y en a une percée, au bout d'un cordon rouge. Une fillette l'a jetée en riant."
@@ -1762,14 +1762,14 @@ The First Mouthful,The First Mouthful,La première bouchée
 It drank it all. The bowl stayed on its head.,It drank it all. The bowl stayed on its head.,Il a tout bu. Le bol lui est resté sur la tête.
 The Keeper Fed It First,The Keeper Fed It First,Le gardien l'a nourri le premier
 "The shrine's keeper fed it first, by his own hand. Then he spoke to it as one speaks to a dog in training.","The shrine's keeper fed it first, by his own hand. Then he spoke to it as one speaks to a dog in training.","Le gardien du sanctuaire l'a nourri le premier, de sa propre main. Puis il lui a parlé comme à un chien qu'on dresse."
-"""Keep them, and do not digest them. I will come back for them.""","""Keep them, and do not digest them. I will come back for them.""","« Garde-les, et ne les digère pas. Je reviendrai les chercher. »"
+"""Keep them, and do not digest them. I will come back for them.""","""Keep them, and do not digest them. I will come back for them.""","« Garde-les, et ne les digère pas. Je reviendrai les chercher. »"
 "He never came back. The souls weigh, and the King swells.","He never came back. The souls weigh, and the King swells.","Il n'est jamais revenu. Les âmes pèsent, et le Roi enfle."
 The Throat,The Throat,La gorge
-"It is no king. It is only the throat: what it swallows slides lower, ever lower.","It is no king. It is only the throat: what it swallows slides lower, ever lower.","Ce n'est pas un roi. Ce n'est que la gorge : ce qu'il avale glisse plus bas, toujours plus bas."
+"It is no king. It is only the throat: what it swallows slides lower, ever lower.","It is no king. It is only the throat: what it swallows slides lower, ever lower.","Ce n'est pas un roi. Ce n'est que la gorge : ce qu'il avale glisse plus bas, toujours plus bas."
 "Beneath it, something pulls. Each night the souls in its belly weigh a little less.","Beneath it, something pulls. Each night the souls in its belly weigh a little less.","Sous lui, quelque chose tire. Chaque nuit, les âmes de son ventre pèsent un peu moins."
 It holds them back with all its bulk. It is the only promise it ever kept.,It holds them back with all its bulk. It is the only promise it ever kept.,Il les retient de toute sa masse. C'est la seule promesse qu'il ait jamais tenue.
-You smell of the well-rim. The children... are they coming back?,You smell of the well-rim. The children... are they coming back?,Tu sens la margelle. Les enfants... ils reviennent ?
-Tôma. The bowl smelled of him; he said he would come back.,Tôma. The bowl smelled of him; he said he would come back.,Tôma. Le bol avait son odeur ; il a dit qu'il reviendrait.
+You smell of the well-rim. The children... are they coming back?,You smell of the well-rim. The children... are they coming back?,Tu sens la margelle. Les enfants... ils reviennent ?
+Tôma. The bowl smelled of him; he said he would come back.,Tôma. The bowl smelled of him; he said he would come back.,Tôma. Le bol avait son odeur ; il a dit qu'il reviendrait.
 He only yields to a blade that does not tremble.,He only yields to a blade that does not tremble.,Il ne s'avoue vaincu que devant une lame qui ne tremble pas.
 Slay him losing less than a quarter of your Health.,Slay him losing less than a quarter of your Health.,Terrasse-le en perdant moins d'un quart de ta Vie.
 The Stone Knight,The Stone Knight,Le chevalier de pierre
@@ -1782,7 +1782,7 @@ The Foreigner's Blades,The Foreigner's Blades,Les lames de l'étranger
 "His two cold blades were forged by a foreign smith, who wept as he tempered them.","His two cold blades were forged by a foreign smith, who wept as he tempered them.","Ses deux lames froides ont été forgées par un forgeron étranger, qui pleurait en les trempant."
 "That smith still lives in the Well. He forges for others now, to be forgiven.","That smith still lives in the Well. He forges for others now, to be forgiven.","Ce forgeron vit encore dans le Puits. Il forge pour d'autres, maintenant, pour se faire pardonner."
 The Price of a Name,The Price of a Name,Le prix d'un nom
-Long ago a knight went down to seal what hungers. Solhar claims him; others say he had no land at all.,Long ago a knight went down to seal what hungers. Solhar claims him; others say he had no land at all.,"Il y a très longtemps, un chevalier est descendu sceller ce qui a faim. Solhar le réclame ; d'autres disent qu'il n'avait pas de pays."
+Long ago a knight went down to seal what hungers. Solhar claims him; others say he had no land at all.,Long ago a knight went down to seal what hungers. Solhar claims him; others say he had no land at all.,"Il y a très longtemps, un chevalier est descendu sceller ce qui a faim. Solhar le réclame ; d'autres disent qu'il n'avait pas de pays."
 "The seal asked a price. He gave his name, and the name became the seal.","The seal asked a price. He gave his name, and the name became the seal.","Le sceau demandait un prix. Il a donné son nom, et le nom est devenu le sceau."
 "Since then he no longer knows what he was called. He tries the names of the dead, one by one.","Since then he no longer knows what he was called. He tries the names of the dead, one by one.","Depuis, il ne sait plus comment on l'appelait. Il essaie les noms des morts, un par un."
 The One Who Cut,The One Who Cut,Celui qui a tranché
@@ -1790,10 +1790,10 @@ The One Who Cut,The One Who Cut,Celui qui a tranché
 "He lost. The keeper cut the seal's last knot, then bound him to guard what he had sworn to prevent.","He lost. The keeper cut the seal's last knot, then bound him to guard what he had sworn to prevent.","Il a perdu. Le gardien a tranché le dernier nœud du sceau, puis l'a lié à garder ce qu'il avait juré d'empêcher."
 The first keeper serves the last. He has no name left to curse it with.,The first keeper serves the last. He has no name left to curse it with.,Le premier gardien sert le dernier. Il ne lui reste même pas de nom pour le maudire.
 What He Sealed,What He Sealed,Ce qu'il a scellé
-"He saw the Maw once, before he sealed it. It was no beast: it was a lack that had taken shape.","He saw the Maw once, before he sealed it. It was no beast: it was a lack that had taken shape.","Il a vu la Gueule, une fois, avant de la sceller. Ce n'était pas une bête : c'était un manque qui avait pris forme."
+"He saw the Maw once, before he sealed it. It was no beast: it was a lack that had taken shape.","He saw the Maw once, before he sealed it. It was no beast: it was a lack that had taken shape.","Il a vu la Gueule, une fois, avant de la sceller. Ce n'était pas une bête : c'était un manque qui avait pris forme."
 "The seal did not kill it. It made it wait, and it knows how to wait.","The seal did not kill it. It made it wait, and it knows how to wait.","Le sceau ne la tuait pas. Il la faisait attendre, et elle sait attendre."
-"Someone could close the door again: by giving him back his name, or by giving their own.","Someone could close the door again: by giving him back his name, or by giving their own.","Quelqu'un pourrait refermer la porte : en lui rendant son nom, ou en donnant le sien."
-You carry the lantern; I carried it too. Tell me... what was I called?,You carry the lantern; I carried it too. Tell me... what was I called?,Tu portes la lanterne ; je la portais aussi. Dis-moi... comment m'appelait-on ?
+"Someone could close the door again: by giving him back his name, or by giving their own.","Someone could close the door again: by giving him back his name, or by giving their own.","Quelqu'un pourrait refermer la porte : en lui rendant son nom, ou en donnant le sien."
+You carry the lantern; I carried it too. Tell me... what was I called?,You carry the lantern; I carried it too. Tell me... what was I called?,Tu portes la lanterne ; je la portais aussi. Dis-moi... comment m'appelait-on ?
 "Tôma, I know his name. Mine he left in the seal, with the cut.","Tôma, I know his name. Mine he left in the seal, with the cut.","Tôma, je sais son nom. Le mien, il l'a laissé dans le sceau, avec la coupure."
 He speaks only to a blade of his own school.,He speaks only to a blade of his own school.,Il ne parle qu'à une lame de son école.
 Slay him with a Katana.,Slay him with a Katana.,Terrasse-le avec un Katana.
@@ -1802,8 +1802,8 @@ A giant warrior in armor reddened by embers. His curved blade draws arcs of fire
 He stands guard before a door no one passes anymore.,He stands guard before a door no one passes anymore.,Il monte la garde devant une porte que plus personne ne franchit.
 The Seventh Step,The Seventh Step,La septième marche
 "His name was Vardan, and he guarded the seventh step of Solhar's temple. He knew every worshipper who climbed it.","His name was Vardan, and he guarded the seventh step of Solhar's temple. He knew every worshipper who climbed it.",Il s'appelait Vardan et gardait la septième marche du temple de Solhar. Il connaissait chaque fidèle qui la montait.
-"His curved blade came from the school of the temple guards: one edge, one loyalty.","His curved blade came from the school of the temple guards: one edge, one loyalty.","Sa lame courbe venait de l'école des gardes du temple : un seul tranchant, une seule loyauté."
-"Much later, the people of Kagari called him rônin: one who has no master left.","Much later, the people of Kagari called him rônin: one who has no master left.","Bien plus tard, les gens de Kagari l'ont appelé rônin : celui qui n'a plus de maître."
+"His curved blade came from the school of the temple guards: one edge, one loyalty.","His curved blade came from the school of the temple guards: one edge, one loyalty.","Sa lame courbe venait de l'école des gardes du temple : un seul tranchant, une seule loyauté."
+"Much later, the people of Kagari called him rônin: one who has no master left.","Much later, the people of Kagari called him rônin: one who has no master left.","Bien plus tard, les gens de Kagari l'ont appelé rônin : celui qui n'a plus de maître."
 His King Below,His King Below,"Son roi, plus bas"
 "Far below, his old king counts his coins. Vardan never goes down to see him.","Far below, his old king counts his coins. Vardan never goes down to see him.","Tout au fond, son ancien roi compte ses pièces. Vardan ne descend jamais le voir."
 "If he saw him again, he would not know whether to kneel or to strike.","If he saw him again, he would not know whether to kneel or to strike.","S'il le revoyait, il ne saurait pas s'il doit s'agenouiller ou frapper."
@@ -1813,7 +1813,7 @@ Vardan obeyed. He pushed up the steps people whose names he knew.,Vardan obeyed.
 "He still guards the seventh step. No one climbs it, and that is better.","He still guards the seventh step. No one climbs it, and that is better.","Il garde encore la septième marche. Personne ne la monte, et c'est mieux ainsi."
 "An Order, at Last","An Order, at Last","Un ordre, enfin"
 "When the kingdom fell, his king became a heap of gold. Vardan refused to guard gold.","When the kingdom fell, his king became a heap of gold. Vardan refused to guard gold.","Quand le royaume est tombé, son roi est devenu un tas d'or. Vardan a refusé de garder de l'or."
-"The shrine's keeper brought him what he lacked, an order: ""Guard these souls, and let no one drive them up.""","The shrine's keeper brought him what he lacked, an order: ""Guard these souls, and let no one drive them up.""","Le gardien du sanctuaire lui a apporté ce qui lui manquait, un ordre : « Garde ces âmes, et que personne ne les fasse monter. »"
+"The shrine's keeper brought him what he lacked, an order: ""Guard these souls, and let no one drive them up.""","The shrine's keeper brought him what he lacked, an order: ""Guard these souls, and let no one drive them up.""","Le gardien du sanctuaire lui a apporté ce qui lui manquait, un ordre : « Garde ces âmes, et que personne ne les fasse monter. »"
 A guard without orders is only armor. He said yes.,A guard without orders is only armor. He said yes.,Un garde sans ordre n'est qu'une armure. Il a dit oui.
 The Face of the Sun,The Face of the Sun,La face du soleil
 "On the day of the Tithe, Vardan stood close enough to the altar to see the sun up close.","On the day of the Tithe, Vardan stood close enough to the altar to see the sun up close.","Le jour de la Dîme, Vardan était assez près de l'autel pour voir le soleil de près."
@@ -1824,11 +1824,11 @@ Tôma gave me an order. Soon I will know whether it was just.,Tôma gave me an o
 Only a blessed blade dares look this sun in the face.,Only a blessed blade dares look this sun in the face.,Seule une lame bénie ose regarder ce soleil en face.
 Slay it with the Templar Sword.,Slay it with the Templar Sword.,Terrasse-le avec l'Épée de Templier.
 A Sun Beneath the Stone,A Sun Beneath the Stone,Un soleil sous la pierre
-"A dead sun floats in the tomb, crowned with embers. Its light shows nothing; it draws in.","A dead sun floats in the tomb, crowned with embers. Its light shows nothing; it draws in.","Un soleil éteint flotte dans le tombeau, couronné de braises. Sa lumière n'éclaire rien : elle aspire."
+"A dead sun floats in the tomb, crowned with embers. Its light shows nothing; it draws in.","A dead sun floats in the tomb, crowned with embers. Its light shows nothing; it draws in.","Un soleil éteint flotte dans le tombeau, couronné de braises. Sa lumière n'éclaire rien : elle aspire."
 It does not look at you. It weighs you.,It does not look at you. It weighs you.,Il ne te regarde pas. Il te pèse.
 The Great Noon,The Great Noon,Le Grand Midi
 Solhar called it the Great Noon. Hymns were sung to it at the hour when shadows vanish.,Solhar called it the Great Noon. Hymns were sung to it at the hour when shadows vanish.,Solhar l'appelait le Grand Midi. On lui chantait des hymnes à l'heure où les ombres disparaissent.
-"It granted. A harvest, a rain, a victory: one had only to give.","It granted. A harvest, a rain, a victory: one had only to give.","Il exauçait. Une moisson, une pluie, une victoire : il suffisait de donner."
+"It granted. A harvest, a rain, a victory: one had only to give.","It granted. A harvest, a rain, a victory: one had only to give.","Il exauçait. Une moisson, une pluie, une victoire : il suffisait de donner."
 No one wondered why a sun needed to be given anything.,No one wondered why a sun needed to be given anything.,Personne ne s'est demandé pourquoi un soleil avait besoin qu'on lui donne quelque chose.
 The Hymns,The Hymns,Les hymnes
 "Solhar's dead still sing its hymns at noon, in the dust. They no longer know why.","Solhar's dead still sing its hymns at noon, in the dust. They no longer know why.","Les morts de Solhar chantent encore ses hymnes à midi, dans la poussière. Ils ne savent plus pourquoi."
@@ -1863,8 +1863,8 @@ The Child Without a Grave,The Child Without a Grave,L'enfant sans tombe
 "No body, no song. It is the one lament they never sang.","No body, no song. It is the one lament they never sang.","Pas de corps, pas de chant. C'est la seule complainte qui leur manque."
 "So they weep for her, in the place of those who could not.","So they weep for her, in the place of those who could not.","Alors elles pleurent pour elle, à la place de ceux qui n'ont pas su."
 The One Who Wept With Them,The One Who Wept With Them,Celui qui pleurait avec elles
-"Only one living man came to weep with them: the shrine's keeper. He gave them no rice, only his tears.","Only one living man came to weep with them: the shrine's keeper. He gave them no rice, only his tears.","Un seul vivant venait pleurer avec elles : le gardien du sanctuaire. Il ne leur donnait pas de riz, seulement ses larmes."
-"On the moonless night he gave them the souls of the grieving: ""You know how to comfort; keep them.""","On the moonless night he gave them the souls of the grieving: ""You know how to comfort; keep them.""","La nuit sans lune, il leur a confié les âmes des endeuillés : « Vous savez consoler ; gardez-les. »"
+"Only one living man came to weep with them: the shrine's keeper. He gave them no rice, only his tears.","Only one living man came to weep with them: the shrine's keeper. He gave them no rice, only his tears.","Un seul vivant venait pleurer avec elles : le gardien du sanctuaire. Il ne leur donnait pas de riz, seulement ses larmes."
+"On the moonless night he gave them the souls of the grieving: ""You know how to comfort; keep them.""","On the moonless night he gave them the souls of the grieving: ""You know how to comfort; keep them.""","La nuit sans lune, il leur a confié les âmes des endeuillés : « Vous savez consoler ; gardez-les. »"
 They have rocked those souls ever since. They never asked him whom he wept for.,They have rocked those souls ever since. They never asked him whom he wept for.,Elles bercent ces âmes depuis. Elles ne lui ont jamais demandé pour qui il pleurait.
 The Song Below,The Song Below,La chanson d'en bas
 "Sometimes they hear the child singing, far beneath the Ossuary. Their veils quiver with hope.","Sometimes they hear the child singing, far beneath the Ossuary. Their veils quiver with hope.","Parfois, elles entendent l'enfant chanter, loin sous l'Ossuaire. Leurs voiles frémissent d'espoir."
@@ -1880,7 +1880,7 @@ Brann's Note on Frost,Brann's Note on Frost,Note de Brann sur le givre
 An anvil beneath the crypt,An anvil beneath the crypt,Une enclume sous la crypte
 Frost does not fear steel. It bites it.,Frost does not fear steel. It bites it.,Le givre ne craint pas l'acier. Il le mord.
 "Heat your blade red, and the beast will remember the sun.","Heat your blade red, and the beast will remember the sun.","Chauffe ta lame au rouge, et la bête se souviendra du soleil."
-"Finish her with fire: she will not fight it, she will listen.","Finish her with fire: she will not fight it, she will listen.","Achève-la par le feu : elle ne luttera pas, elle écoutera."
+"Finish her with fire: she will not fight it, she will listen.","Finish her with fire: she will not fight it, she will listen.","Achève-la par le feu : elle ne luttera pas, elle écoutera."
 "Tôma's Journal, a Frosted Page","Tôma's Journal, a Frosted Page","Journal de Tôma, page givrée"
 "Tôma, keeper of the shrine","Tôma, keeper of the shrine","Tôma, gardien du sanctuaire"
 Beneath the crypt,Beneath the crypt,Sous la crypte
@@ -1897,12 +1897,12 @@ A Written Feather,A Written Feather,Une plume écrite
 The Crimson Tengu,The Crimson Tengu,Le Tengu Écarlate
 "The Pyre Temple, east altar","The Pyre Temple, east altar","Le Temple-Bûcher, autel de l'est"
 "Dawn, swept the ash. Three lost souls to the pyres.","Dawn, swept the ash. Three lost souls to the pyres.","Aube, balayé la cendre. Trois âmes égarées aux bûchers."
-"Dawn, swept the ash. A feather fell from me; it will not grow back.","Dawn, swept the ash. A feather fell from me; it will not grow back.","Aube, balayé la cendre. Une plume m'est tombée ; elle ne repoussera pas."
+"Dawn, swept the ash. A feather fell from me; it will not grow back.","Dawn, swept the ash. A feather fell from me; it will not grow back.","Aube, balayé la cendre. Une plume m'est tombée ; elle ne repoussera pas."
 "Dawn, swept the ash.","Dawn, swept the ash.","Aube, balayé la cendre."
 "Tôma's Journal, a Scorched Page","Tôma's Journal, a Scorched Page","Journal de Tôma, page roussie"
 The Tengu told me the words of the rite without a pause. He was glad someone listened.,The Tengu told me the words of the rite without a pause. He was glad someone listened.,Le Tengu m'a dit les mots du rite sans hésiter. Il était content qu'on l'écoute.
 In the Hushed Archive I had found the promise. Here I found the way.,In the Hushed Archive I had found the promise. Here I found the way.,"Aux Archives Muettes, j'avais trouvé la promesse. Ici, j'ai trouvé la manière."
-"It must be fed, a great deal. Forgive me, Kagari: Hana first.","It must be fed, a great deal. Forgive me, Kagari: Hana first.","Il faut nourrir, beaucoup. Pardonne-moi, Kagari : Hana d'abord."
+"It must be fed, a great deal. Forgive me, Kagari: Hana first.","It must be fed, a great deal. Forgive me, Kagari: Hana first.","Il faut nourrir, beaucoup. Pardonne-moi, Kagari : Hana d'abord."
 Rubric of the Rite,Rubric of the Rite,Rubrique du rite
 A priest of Solhar,A priest of Solhar,Un prêtre de Solhar
 Carved in the Pyre Temple's wall,Carved in the Pyre Temple's wall,Gravée dans le mur du Temple-Bûcher
@@ -1917,14 +1917,14 @@ Hana was afraid of him when she was small. He carved her a doll from an ox bone.
 The Ossuary Register,The Ossuary Register,Registre de l'Ossuaire
 "Gorr, gravedigger","Gorr, gravedigger","Gorr, fossoyeur"
 "Ossuary of Kagari, niche forty","Ossuary of Kagari, niche forty","Ossuaire de Kagari, niche quarante"
-Niche thirty-eight: the old potter. He laughed loudly.,Niche thirty-eight: the old potter. He laughed loudly.,Niche trente-huit : le vieux potier. Il riait fort.
-"Niche thirty-nine: the ferryman's wife, and her comb.","Niche thirty-nine: the ferryman's wife, and her comb.","Niche trente-neuf : la femme du passeur, et son peigne."
-Niche forty: empty. I am keeping it for myself.,Niche forty: empty. I am keeping it for myself.,Niche quarante : vide. Je la garde pour moi.
+Niche thirty-eight: the old potter. He laughed loudly.,Niche thirty-eight: the old potter. He laughed loudly.,Niche trente-huit : le vieux potier. Il riait fort.
+"Niche thirty-nine: the ferryman's wife, and her comb.","Niche thirty-nine: the ferryman's wife, and her comb.","Niche trente-neuf : la femme du passeur, et son peigne."
+Niche forty: empty. I am keeping it for myself.,Niche forty: empty. I am keeping it for myself.,Niche quarante : vide. Je la garde pour moi.
 The Rite of the Oath,The Rite of the Oath,Rite du serment
 A priest of the bell,A priest of the bell,Un prêtre de la cloche
 The shrine of Kagari,The shrine of Kagari,Le sanctuaire de Kagari
 The keeper lays his hand over the flame and swears at the bell.,The keeper lays his hand over the flame and swears at the bell.,Le gardien pose la main sur la flamme et prête serment à la cloche.
-The gravedigger holds the rope: the dead are witnesses.,The gravedigger holds the rope: the dead are witnesses.,Le fossoyeur tient la corde : les morts sont témoins.
+The gravedigger holds the rope: the dead are witnesses.,The gravedigger holds the rope: the dead are witnesses.,Le fossoyeur tient la corde : les morts sont témoins.
 "Come before him bound by an oath, and the gravedigger will bow.","Come before him bound by an oath, and the gravedigger will bow.","Présente-toi lié par un serment, et le fossoyeur s'inclinera."
 "Tôma's Journal, a Wet Page","Tôma's Journal, a Wet Page","Journal de Tôma, page mouillée"
 "The spring, at dusk","The spring, at dusk","La source, au soir"
@@ -1947,18 +1947,18 @@ I did not drink. I am going back up.,I did not drink. I am going back up.,"Moi, 
 The Kingdom of Dust,The Kingdom of Dust,Le Royaume de Poussière
 The king of Solhar smiled when I offered him the souls. He had already done what I am doing.,The king of Solhar smiled when I offered him the souls. He had already done what I am doing.,Le roi de Solhar a souri quand je lui ai offert les âmes. Il avait déjà fait ce que je fais.
 I asked him whether the promise was kept. He showed me his gold.,I asked him whether the promise was kept. He showed me his gold.,Je lui ai demandé si la promesse avait été tenue. Il m'a montré son or.
-It is not the same. Hana is not gold; it is not the same.,It is not the same. Hana is not gold; it is not the same.,Ce n'est pas pareil. Hana n'est pas de l'or ; ce n'est pas pareil.
+It is not the same. Hana is not gold; it is not the same.,It is not the same. Hana is not gold; it is not the same.,Ce n'est pas pareil. Hana n'est pas de l'or ; ce n'est pas pareil.
 "The Tithe Ledger, Last Page","The Tithe Ledger, Last Page","Registre de la Dîme, dernière page"
 A clerk of the Tithe,A clerk of the Tithe,Un greffier de la Dîme
 "Solhar, the year of the last harvest","Solhar, the year of the last harvest","Solhar, l'année de la dernière moisson"
-One soul: the eastern harvest. Ten souls: the victory at the river.,One soul: the eastern harvest. Ten souls: the victory at the river.,Une âme : la moisson de l'est. Dix âmes : la victoire du fleuve.
-"The whole Tithe: plenty forever, by the king's word.","The whole Tithe: plenty forever, by the king's word.","Toute la Dîme : l'abondance pour toujours, au dire du roi."
-Received in exchange: gold. The granary is empty.,Received in exchange: gold. The granary is empty.,Reçu en échange : de l'or. Le grenier est vide.
+One soul: the eastern harvest. Ten souls: the victory at the river.,One soul: the eastern harvest. Ten souls: the victory at the river.,Une âme : la moisson de l'est. Dix âmes : la victoire du fleuve.
+"The whole Tithe: plenty forever, by the king's word.","The whole Tithe: plenty forever, by the king's word.","Toute la Dîme : l'abondance pour toujours, au dire du roi."
+Received in exchange: gold. The granary is empty.,Received in exchange: gold. The granary is empty.,Reçu en échange : de l'or. Le grenier est vide.
 The Peddler's Letter,The Peddler's Letter,Lettre du colporteur
 The Old Wanderer,The Old Wanderer,Le Vieil Errant
 "An inn of Solhar, before the fall","An inn of Solhar, before the fall","Une auberge de Solhar, avant la chute"
 The king buys everything I sell and pays three times the price. He thinks gold makes him loved.,The king buys everything I sell and pays three times the price. He thinks gold makes him loved.,Le roi achète tout ce que je vends et paie trois fois le prix. Il croit que l'or le rend aimé.
-"A word to whoever would face him: buy nothing on the way. One who buys nothing, he wants to know why.","A word to whoever would face him: buy nothing on the way. One who buys nothing, he wants to know why.","Un conseil à qui voudrait l'affronter : n'achète rien en chemin. Celui qui n'achète rien, il veut savoir pourquoi."
+"A word to whoever would face him: buy nothing on the way. One who buys nothing, he wants to know why.","A word to whoever would face him: buy nothing on the way. One who buys nothing, he wants to know why.","Un conseil à qui voudrait l'affronter : n'achète rien en chemin. Celui qui n'achète rien, il veut savoir pourquoi."
 "Me, I sell. It is my trade.","Me, I sell. It is my trade.","Moi, je vends. C'est mon métier."
 "Tôma's Journal, a Green-Stained Page","Tôma's Journal, a Green-Stained Page","Journal de Tôma, page verdie"
 The heart of the temple,The heart of the temple,Le cœur du temple
@@ -1981,7 +1981,7 @@ I gave my fields and my goats. I have nothing left but me.,I gave my fields and 
 The moonless night,The moonless night,La nuit sans lune
 "I poured the first soul into the bronze bowl. It was light, when I had expected it to weigh.","I poured the first soul into the bronze bowl. It was light, when I had expected it to weigh.","J'ai versé la première âme dans le bol de bronze. Elle était légère, et je m'attendais à ce qu'elle pèse."
 The beast drank the way a child drinks.,The beast drank the way a child drinks.,La bête a bu comme boit un enfant.
-"Hana, if you can hear me at the bottom of the water: this is only the beginning.","Hana, if you can hear me at the bottom of the water: this is only the beginning.","Hana, si tu m'entends au fond de l'eau : ce n'est que le début."
+"Hana, if you can hear me at the bottom of the water: this is only the beginning.","Hana, if you can hear me at the bottom of the water: this is only the beginning.","Hana, si tu m'entends au fond de l'eau : ce n'est que le début."
 Register of Offerings,Register of Offerings,Registre des offrandes
 A sexton of the shrine,A sexton of the shrine,Un sacristain du sanctuaire
 "Kagari, the autumn before","Kagari, the autumn before","Kagari, l'automne d'avant"
@@ -2022,7 +2022,7 @@ I lied to him with the words of my oath. They still obey me.,I lied to him with 
 Roll of the Seventh Step,Roll of the Seventh Step,Rôle de la septième marche
 "Vardan, temple guard","Vardan, temple guard","Vardan, garde du temple"
 "Solhar, the day of the Tithe","Solhar, the day of the Tithe","Solhar, le jour de la Dîme"
-"Merel the baker and her two sons; Osk the tanner; old Ilse, who brought me water.","Merel the baker and her two sons; Osk the tanner; old Ilse, who brought me water.","Merel la boulangère et ses deux fils ; Osk le tanneur ; la vieille Ilse, qui m'apportait de l'eau."
+"Merel the baker and her two sons; Osk the tanner; old Ilse, who brought me water.","Merel the baker and her two sons; Osk the tanner; old Ilse, who brought me water.","Merel la boulangère et ses deux fils ; Osk le tanneur ; la vieille Ilse, qui m'apportait de l'eau."
 All went up at dawn. None came down.,All went up at dawn. None came down.,Tous montés à l'aube. Aucun redescendu.
 Order carried out.,Order carried out.,Ordre exécuté.
 The Noon Hymn,The Noon Hymn,Hymne de midi
@@ -2033,13 +2033,13 @@ Sung on the temple steps,Sung on the temple steps,Chanté sur les marches du tem
 "Great Noon, drink again. It is so bright.","Great Noon, drink again. It is so bright.","Grand Midi, bois encore. Il fait si clair."
 "Tôma's Journal, a Page Burnt Through","Tôma's Journal, a Page Burnt Through","Journal de Tôma, page brûlée au cœur"
 The Tomb of the Dead Sun,The Tomb of the Dead Sun,Le Tombeau du Soleil Mort
-"It answered me, and it was not a voice: it was hers. Hana, in the light.","It answered me, and it was not a voice: it was hers. Hana, in the light.","Il m'a répondu, et ce n'était pas une voix : c'était la sienne. Hana, dans la lumière."
-"""Give, and she will come."" I will give.","""Give, and she will come."" I will give.","« Donne, et elle viendra. » Je donnerai."
+"It answered me, and it was not a voice: it was hers. Hana, in the light.","It answered me, and it was not a voice: it was hers. Hana, in the light.","Il m'a répondu, et ce n'était pas une voix : c'était la sienne. Hana, dans la lumière."
+"""Give, and she will come."" I will give.","""Give, and she will come."" I will give.","« Donne, et elle viendra. » Je donnerai."
 I did not look behind the light. I will not look.,I did not look behind the light. I will not look.,Je n'ai pas regardé derrière la lumière. Je ne regarderai pas.
 A Templar's Warning,A Templar's Warning,Avertissement d'un templier
 A templar without an order,A templar without an order,Un templier sans ordre
 Carved on a slab of the tomb,Carved on a slab of the tomb,Gravé sur une dalle du tombeau
-Our prayers fed it; only our blessed steel wounds it.,Our prayers fed it; only our blessed steel wounds it.,Nos prières l'ont nourri ; seul notre acier béni le blesse.
+Our prayers fed it; only our blessed steel wounds it.,Our prayers fed it; only our blessed steel wounds it.,Nos prières l'ont nourri ; seul notre acier béni le blesse.
 "Strike it with the Templar's sword, and the mask cracks.","Strike it with the Templar's sword, and the mask cracks.","Frappe-le avec l'épée du Templier, et le masque se fend."
 "I did not have the time. You, perhaps.","I did not have the time. You, perhaps.","Je n'en ai pas eu le temps. Toi, peut-être."
 An Old Mourner's Advice,An Old Mourner's Advice,Conseil d'une vieille pleureuse
@@ -2057,7 +2057,7 @@ The mourners of Kagari,The mourners of Kagari,Les pleureuses de Kagari
 Sung in the Ossuary,Sung in the Ossuary,Chantée à l'Ossuaire
 "Sleep, sleep, the rice is cooked, the mat is laid.","Sleep, sleep, the rice is cooked, the mat is laid.","Dors, dors, le riz est cuit, la natte est faite."
 "Sleep, the bell has rung for you, the earth is waiting.","Sleep, the bell has rung for you, the earth is waiting.","Dors, la cloche a sonné pour toi, la terre t'attend."
-"Sleep: we weep, so you need not.","Sleep: we weep, so you need not.","Dors : nous pleurons, toi, tu n'as plus à le faire."
+"Sleep: we weep, so you need not.","Sleep: we weep, so you need not.","Dors : nous pleurons, toi, tu n'as plus à le faire."
 "Between the Well and the light, the dead wait their turn. Not yours. Not yet.","Between the Well and the light, the dead wait their turn. Not yours. Not yet.","Entre le Puits et la lumière, les morts attendent leur tour. Pas le tien. Pas encore."
 Move,Move,Bouger
 Drag your thumb on the left side of the screen to walk.,Drag your thumb on the left side of the screen to walk.,Fais glisser ton pouce sur la gauche de l'écran pour marcher.
