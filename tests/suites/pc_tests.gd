@@ -862,9 +862,16 @@ func _test_pause_keys(game: Game) -> void:
 	check(not game.pause_menu.visible and not get_tree().paused, "B in a fight doesn't pause")
 	await _tap_pad(JOY_BUTTON_START)
 	check(game.pause_menu.visible, "Start pauses")
+	# B is skill 2 too: the press that closes the menu stays the menu's.
+	game.player.skills.tick(60.0)
+	var cast: Array[int] = []
+	var on_cast := func(index: int) -> void: cast.append(index)
+	game.player.skill_used.connect(on_cast)
 	await _tap_pad(JOY_BUTTON_B)
 	await _frames(2)
+	game.player.skill_used.disconnect(on_cast)
 	check(not game.pause_menu.visible and not get_tree().paused, "B closes the pause menu")
+	check(cast.is_empty(), "B closing the pause menu casts no skill in the fight (cast: %s)" % [cast])
 	# The map key.
 	await _tap_key(KEY_M)
 	check((game.hud.get_node("%FullMap") as Control).visible, "M: the whole floor's map")
