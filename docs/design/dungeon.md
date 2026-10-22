@@ -77,7 +77,9 @@
     up, with logs and stones scattered around them, never twice the same.
   - **Ashen Breath**: the air scorches, embers drift. **Oases** cool you down: a pond of real
     water tiles (`HeatSourceDef.pond`, nobody walks on it: `Layers.WATER`) of a random size, in
-    a rough patch of grass with plants and flowers around, each one different.
+    a rough patch of grass with plants and flowers around, each one different. One is by where
+    you arrive: in the first room, or, if it is too small, on the nearest free floor
+    (`HazardDef.nearest_free_rect`), never in the rock.
   - **No camping**: stay too long by a campfire or an oasis (`camp_limit`, 12 s) and the light
     draws monsters in (`CampWatch`): a warning first, then a wave, bigger each time. They give
     nothing.
@@ -132,6 +134,8 @@ A hole on a floor is not only a stumble: the hero **falls deeper into the Well**
   (`guide_every`), and an **arrow of light circles the hero toward it** while it is out of sight
   (`AbyssHud`). The top of the screen names it, with the seconds left for the dawn's gift.
 - **Back up.** Stepping into the Breach brings him back to **the last safe spot by the hole**,
+  and the hole fills in behind him (`AbyssDef.seal_hole`, `World.seal_hole()`: dust, solid floor)
+  so a step to the side doesn't drop him straight back in;
   his Health as he left the Deeps (the Deeps were the cost), with 1.5 s of grace (`return_grace`)
   and his torch back. **Out quick** (`quick_time`: 30 s, +5 s each act) earns **the dawn's gift**
   at his feet: gold (12, +8 an act, through the floor's gold rules) and a 60% roll of a potion, a
@@ -212,6 +216,41 @@ Some floors hide a small room behind a **cracked wall** (`SecretRoomPlan`, `Secr
   quitting on it comes back to it; quitting once its boss is dead goes on to Act III. Once a run
   (`RunState.hidden_done`): no more keys afterwards, in endless mode too.
 
+## The bottom of the Well
+
+**Le Fond du Puits / The Well's Bottom** (`data/story/finale.tres`, `FinaleDef`,
+`dungeon_config.tres` > Finale): the run's true last floor, the final fight (monsters.md, "The
+bottom of the Well"; the canon in docs/lore.md, section 7, step 7).
+
+- **The gate** (`FinaleDef.victories_needed`: 1): a profile that never won a run wins it on
+  Act IV's boss, exactly as before (the first ending: the victory screen's story, records,
+  souls, ascension, endless). Once it has won (any difficulty, Pilgrim's too:
+  `Profile.total_wins()`), a new run is marked `RunState.finale_open` (decided when it begins and
+  saved: a run never changes course midway, an older save without it asks the profile).
+- **The way down**: with the bottom open, Act IV's boss is a warden like the others: its relic,
+  no win; its arena opens a single way down (one stairs, its sign naming the bottom:
+  `FinaleDef.route()`, `RunState.leads_to_finale()`). Only on the first pass (not in endless
+  mode, not once won).
+- **The floor**: a start room and an arena (`DungeonGenerator.generate_arena()`) in its own
+  world (`well_bottom` biome and theme: grey stone, a violet grade, ambient light 3 of 15, no
+  lamp in the arena: `FinaleDef.arena_lights` 0, the hero's lantern and the Maw's glow light it),
+  an oval arena of 27x21 with no pillars and no changes (`data/arenas/well_bottom.tres`; a fight
+  of several forms keeps its arena as it is). Its title card ("The End of the Descent"), no
+  curse, no event, its own floor seed.
+- **Depth and the run**: like the hidden floor it keeps the depth of the boss floor before it
+  (`RunState.finale`): the HUD says Depth 12, Tôma and the Maw scale like floor 12. Act IV's
+  floor gets its split going down; the bottom gets its own (`RunState.split_depth()`: 13), the
+  win's time.
+- **The win**: the last form's fall (`RunState.wins_with()`: `FinaleDef.final_boss()`) wins the
+  run, with all its bookkeeping at once (`has_won`, the time and its record, the souls, the
+  ascension, the history), then the choice of an ending (progression.md), then the victory
+  screen and endless mode (the Maw's relic, the arena's stairs to depth 13).
+- **Saves**: after Act IV's boss (the save says `boss_slain`): picked up at the bottom. On the
+  bottom: picked up there (the fight starts over from Tôma, like any boss floor). Won but the app
+  put away before the choice (`RunState.ending_due`): picked up on the endless floor, the choice
+  first.
+- **Debug**: the debug panel's "The Well's bottom" goes there at once.
+
 ## Boss arenas
 
 A boss floor is a start room and an arena picked among `DungeonConfig.arenas` (or the boss' own,
@@ -265,7 +304,9 @@ Each choice has a cost (gold, a part of your max health) and outcomes drawn by w
 (`EncounterChoice`, `EncounterOutcome`: heal, hurt, gold, an item of some quality, a choice of
 perks or relics, monsters or elites, any `Effect`). Each can be used once. The panel shows every
 outcome in words with its odds before you choose; the words come from the outcome's fields
-(`EncounterOutcome.summary()`), so new encounters explain themselves.
+(`EncounterOutcome.summary()`), so new encounters explain themselves. An encounter has a room of
+its own and nothing (chest, prop, hazard, another encounter) within
+`DungeonConfig.encounter_clearance` cells (2) of it.
 
 | Encounter | Choice | What may happen |
 |---|---|---|

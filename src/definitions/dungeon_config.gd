@@ -161,6 +161,11 @@ extends Resource
 ## The hidden floor between two acts, reached with its key (null: none).
 @export var hidden_floor: HiddenFloorDef
 
+@export_group("The bottom")
+## The true last floor, below the last act's boss once the profile has won (null: the last
+## act's boss always ends the run). See FinaleDef.
+@export var finale: FinaleDef
+
 @export_group("The Deeps")
 ## Where a fall into a floor's hole takes the hero (null: he climbs back out, hurt).
 @export var abyss: AbyssDef
@@ -169,6 +174,10 @@ extends Resource
 ## Encounters per floor (springs, altars...), from content_db.tres > Encounters.
 @export_range(0, 6) var encounters_min: int = 0
 @export_range(0, 6) var encounters_max: int = 2
+## Cells kept clear around an encounter: no chest, prop, hazard or other encounter that close
+## (each encounter also gets a room of its own), so a spring or an altar never sits against
+## another object.
+@export_range(1, 4) var encounter_clearance: int = 2
 
 @export_group("Pacts")
 ## Chance for a normal floor (never the first, never a boss floor) to try for a pact door: a

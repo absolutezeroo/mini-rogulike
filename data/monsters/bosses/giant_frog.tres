@@ -26,6 +26,7 @@
 [ext_resource type="Resource" path="res://data/skills/boss/call_tadpoles_fierce.tres" id="20_xpbte"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="22_s5kyj"]
 [ext_resource type="Resource" path="res://data/materials/slime.tres" id="99_material"]
+[ext_resource type="Resource" path="res://data/story/chronicles/giant_frog.tres" id="90_chronicle"]
 
 [sub_resource type="Resource" id="Resource_itnru"]
 script = ExtResource("1_xpbte")
@@ -106,6 +107,7 @@ move_speed = 60.0
 
 [resource]
 script = ExtResource("19_xqtof")
+chronicle = ExtResource("90_chronicle")
 material = ExtResource("99_material")
 title = "Warden of the Fetid Spring"
 shockwave_power = 1.0
@@ -130,7 +132,7 @@ challenges = Array[ExtResource("1_xpbte")]([SubResource("Resource_itnru")])
 loot = SubResource("Resource_xpbte")
 id = &"giant_frog"
 display_name = "Mire Matron"
-description = "A frog the size of a house. It leaps, spits poison and calls its brood."
+description = "The old frog of the spring beneath Kagari, grown huge. It leaps, spits poison and calls its brood."
 icon = ExtResource("5_j02b6")
 glyph = "K"
 color = Color(0.47843137, 0.827451, 1, 1)

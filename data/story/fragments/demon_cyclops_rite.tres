@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/village_scrap.tres" id="2_villagescrap"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"demon_cyclops_rite"
+title = "The Rite of the Oath"
+author = "A priest of the bell"
+place = "The shrine of Kagari"
+lines = PackedStringArray("The keeper lays his hand over the flame and swears at the bell.", "The gravedigger holds the rope: the dead are witnesses.", "Come before him bound by an oath, and the gravedigger will bow.")
+look = ExtResource("2_villagescrap")

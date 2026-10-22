@@ -3,6 +3,42 @@
 Dated entries, newest first: what was measured, what changed and why, before/after numbers, open
 questions. How to measure: [balance.md](balance.md).
 
+## 2026-10-22 - The bottom of the Well: Tôma and the Maw (new fight, numbers set by rule)
+
+**What changed:** after a first win, the run's last fight is the bottom of the Well
+(docs/design/monsters.md, "The bottom of the Well"): Master Tôma, then the Maw, at Act IV's
+depth (12), no relic between them.
+
+**Numbers (set relative to Act IV's bosses, not measured in play):**
+- Health: Tôma 1300 base, Armor 5; the Maw 1300, Armor 3. At floor 12 on Keeper (x2.65 for
+  depth): 3445 + 3445 = 6890, against the Gilded Hoarder's 5101 (x1.35) and the Dead Sun's 4823
+  (x1.43). `UnitTests._test_finale` keeps it within 1.3-1.5x of every Act IV boss.
+- Time is longer than Health says: the Maw only takes damage while its jaw is open, 3.6 s out of
+  about 11 (closed 6.5 + opening 0.75 + open 3.6 + closing 0.4: ~32%), ~37% from 60% (closed 5 s)
+  and ~39% from 30% (closed 3.8 s, open 3.2 s). A hero who hits only in the windows needs about
+  as long on the Maw as on two Act IV bosses; its closed time is spent dodging its lashes and
+  killing the Damned it calls (they give XP and kills: summoned, so no gold, loot nor heal).
+- Damage (power at floor 12, Keeper): Tôma 13 (katana) + 3 + 11 = 27 (+2, +3 by phase), the
+  Gilded Hoarder's 24; his skills: Keeper's Step 6 + x1.0, Severing Arc 8 + x1.4 (1.25 s wind-up,
+  96 radius), the lantern 6 + x1.2 (0.8 s cast + 1 s on the ground), fierce: two steps, three
+  flames. The Maw: 9 + 4 + 11 = 24 (+2, +3); its bite x1.5 (36, 0.55 s warning, thrown back 460,
+  every 1.3 s at most, only within 72 of its mouth while open); Tar Lash 6 + x1.1 per circle
+  (3, fierce 5; 0.95 s each), False Dawn 6 + x1.0 per column (4 columns, 1.1 s), Dead Sun's Gaze
+  7 rays of 6 + x0.6 (the eye beam's), 2-3 Damned at a time (4-5 at most).
+- No shockwave for hitting the Maw (`shockwave_after_hits` 0): its bite punishes standing in its
+  mouth instead, and only while it is open; the phase roars still throw the hero off. Tôma keeps
+  the usual 8 / 7 / 5 hits.
+- Its pull: 55 units a second while open, within 420 of its mouth (the hero runs 170): a ranged
+  hero is drawn into bite range slowly, a melee hero has to step back out between bites.
+- Rewards: Tôma 220 XP, no relic, no loot (his gold and rune drop as any boss'); the Maw 320 XP,
+  3 relic choices (when the hero keeps going), 3 rolls of loot, 30 soul wisps; the win's souls as
+  for any win.
+
+**Not measured:** the balance tools were being reworked by another pass; no arena run was made.
+Open questions: the fight's length and deaths for the balance bots (face-tank, kite) against
+Act IV's bosses; whether 3.6 s windows are enough for slow weapons (War Hammer) once the bite's
+warning pushes them out; the Damned's share of the damage taken in the last phase.
+
 ## 2026-10-22 - Charged attacks: hold the attack button (new mechanic, numbers set by rule)
 
 **What changed:** holding the attack button no longer repeats the basic attack; past 0.22 s it

@@ -61,8 +61,18 @@ func _upgrade(id: String) -> UpgradeDef:
 
 
 ## The floor cell closest to `point` (but not under it) with `margin` cells of open floor all
-## around it: no hole, no cracked floor, nothing blocking.
+## around it: no hole, no cracked floor, nothing blocking. A cramped random floor may have no
+## such spot: then the widest margin it has (down to 1), rather than no cell at all.
 func _open_cell_near(world: World, point: Vector2, margin: int) -> Vector2i:
+	for wanted in range(margin, 0, -1):
+		var cell := _open_cell_with_margin(world, point, wanted)
+		if cell != Vector2i(-1, -1):
+			return cell
+	check(false, "found open floor for a test")
+	return Vector2i(-1, -1)
+
+
+func _open_cell_with_margin(world: World, point: Vector2, margin: int) -> Vector2i:
 	var origin := world.map.world_to_cell(point)
 	var best := Vector2i(-1, -1)
 	var best_distance := INF
@@ -84,7 +94,6 @@ func _open_cell_near(world: World, point: Vector2, margin: int) -> Vector2i:
 			if ok:
 				best = cell
 				best_distance = distance
-	check(best != Vector2i(-1, -1), "found open floor for a test")
 	return best
 
 

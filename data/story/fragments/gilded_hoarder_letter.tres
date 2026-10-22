@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/sealed_letter.tres" id="2_sealedletter"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"gilded_hoarder_letter"
+title = "The Peddler's Letter"
+author = "The Old Wanderer"
+place = "An inn of Solhar, before the fall"
+lines = PackedStringArray("The king buys everything I sell and pays three times the price. He thinks gold makes him loved.", "A word to whoever would face him: buy nothing on the way. One who buys nothing, he wants to know why.", "Me, I sell. It is my trade.")
+look = ExtResource("2_sealedletter")

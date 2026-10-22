@@ -20,8 +20,19 @@ func _ready() -> void:
 	Events.secret_found.connect(func(_room: Node2D) -> void:
 		if run:
 			run.secrets_found += 1
+			run.mark("secret")
 		Profile.add_stat("secrets", 1, _feats())
 		check_achievements())
+	# What a warden's deeds may ask about (MarkDeed).
+	Events.item_bought.connect(func(_item: ItemDef) -> void:
+		if run:
+			run.mark("bought"))
+	Events.encounter_used.connect(func(encounter: Encounter) -> void:
+		if run and encounter.def:
+			run.mark("encounter:%s" % encounter.def.id))
+	Events.run_marked.connect(func(mark: String) -> void:
+		if run:
+			run.mark(mark))
 
 
 ## Follows a new run (and its hero).
@@ -29,6 +40,8 @@ func bind(new_run: RunState, new_player: Player) -> void:
 	run = new_run
 	player = new_player
 	_last_gold = player.gold  # a saved purse is not new gold
+	if run.oath:
+		run.mark("oath")
 	player.gold_changed.connect(_on_gold_changed)
 	player.leveled_up.connect(func(level: int) -> void:
 		Profile.raise_stat("run_level", level, _feats())
@@ -97,6 +110,9 @@ func _on_depth_changed(depth: int) -> void:
 	Profile.raise_stat("run_depth", depth, _feats())
 	if player.world and player.world.curse:
 		Profile.add_stat("cursed_floors", 1, _feats())
+		run.mark("cursed")
+	if run.hidden_floor:
+		run.mark("hidden_floor")
 	check_achievements()
 
 

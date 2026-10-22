@@ -35,6 +35,8 @@ var direction: StringName = &"down"
 var _attacking := false
 var _winding_up := false
 var _dead := false
+## Holding a pose (hold_pose()): idle and walk wait until it is released.
+var _held := false
 var _flash := 0.0
 var _squash := 0.0
 var _hurt := 0.0
@@ -138,7 +140,7 @@ static func direction_name(vector: Vector2) -> StringName:
 ## Called every frame by the actor.
 func update_state(facing: Vector2, speed: float, dashing: bool, delta: float) -> void:
 	_hurt = maxf(_hurt - delta, 0.0)
-	if _dead or _attacking or _winding_up or body.sprite_frames == null:
+	if _dead or _attacking or _winding_up or _held or body.sprite_frames == null:
 		return
 	if facing != Vector2.ZERO:
 		direction = direction_name(facing)
@@ -221,12 +223,19 @@ func show_charge(def: WeaponDef) -> void:
 		_update_back()
 
 
-## Telegraph before a monster attack: hold the attack pose and tremble.
+## Telegraph before a monster attack: its "windup" animation fitted to `duration` if it has one,
+## else hold the attack pose and tremble.
 func play_windup(aim: Vector2, duration: float) -> void:
 	if _dead or body.sprite_frames == null:
 		return
 	direction = direction_name(aim)
 	_winding_up = true
+	var windup := _animation_for(&"windup")
+	if windup != &"":
+		# A wind-up of its own (a swordsman drawing his blade), fitted to the telegraph.
+		body.stop()
+		body.play(windup, maxf(0.1, _length(body.sprite_frames, windup) / maxf(duration, 0.05)))
+		return
 	if _play(&"attack", 1.0, true):
 		body.pause()
 	var tween := create_tween()
@@ -237,11 +246,14 @@ func play_windup(aim: Vector2, duration: float) -> void:
 	tween.tween_callback(func() -> void: _winding_up = false)
 
 
-## Telegraph before a monster skill: the "cast" animation fitted to `duration`, or the wind-up pose.
-func play_cast(aim: Vector2, duration: float) -> void:
+## Telegraph before a monster skill: its `base` animation ("cast" unless the skill says,
+## SkillDef.cast_animation) fitted to `duration`, else "cast", else the wind-up pose.
+func play_cast(aim: Vector2, duration: float, base: StringName = &"cast") -> void:
 	if _dead or body.sprite_frames == null:
 		return
-	var animation := _animation_for(&"cast")
+	var animation := _animation_for(base)
+	if animation == &"" and base != &"cast":
+		animation = _animation_for(&"cast")
 	if animation == &"":
 		play_windup(aim, duration)
 		return
@@ -251,12 +263,55 @@ func play_cast(aim: Vector2, duration: float) -> void:
 	body.play(animation, maxf(0.1, _length(body.sprite_frames, animation) / maxf(duration, 0.05)))
 
 
+## A pose the body keeps until release_pose() (a maw held open): `base` played once from its
+## start (backwards with `backwards`), then held on its last frame; idle, walk and hits wait.
+## False if the frames have no such animation.
+func hold_pose(base: StringName, speed: float = 1.0, backwards: bool = false) -> bool:
+	var animation := _animation_for(base)
+	if _dead or animation == &"":
+		return false
+	_held = true
+	body.stop()
+	if backwards:
+		body.play_backwards(animation)
+		body.speed_scale = speed
+	else:
+		body.play(animation, speed)
+	return true
+
+
+## Back to idle and walk after hold_pose().
+func release_pose() -> void:
+	_held = false
+	body.speed_scale = 1.0
+
+
+func is_holding_pose() -> bool:
+	return _held
+
+
 ## A boss waking up in its arena ("intro" animation, if it has one).
 func play_intro() -> void:
 	if _dead or body.sprite_frames == null or _animation_for(&"intro") == &"":
 		return
 	_winding_up = true
 	_play(&"intro", 1.0, true)
+
+
+## How long animation `base` lasts, in seconds (0: the actor has none). A cinematic waits for it.
+func animation_length(base: StringName) -> float:
+	if body.sprite_frames == null:
+		return 0.0
+	var animation := _animation_for(base)
+	return _length(body.sprite_frames, animation) if animation != &"" else 0.0
+
+
+## Plays a one-shot animation by its name (a cinematic step: a warden's "intro").
+func play_named(base: StringName) -> void:
+	if base == &"intro":
+		play_intro()
+	elif not _dead:
+		_play(base, 1.0, true)
 
 
 ## Hit (by `element`: a storm hit crackles over the body).
@@ -269,6 +324,8 @@ func play_hurt(element: VfxElementDef = null) -> void:
 
 func play_death() -> void:
 	_dead = true
+	_held = false
+	body.speed_scale = 1.0
 	_attacking = false
 	weapon.visible = false
 	_update_back()
@@ -397,10 +454,10 @@ func _end_attack() -> void:
 
 func _on_body_animation_finished() -> void:
 	var animation := String(body.animation)
-	if animation.begins_with("attack"):
+	if animation.begins_with("attack") and _attacking:
 		_end_attack()
-	elif animation.begins_with("cast") or animation.begins_with("intro"):
-		_winding_up = false
+	elif _winding_up:
+		_winding_up = false  # a cast (whichever animation it plays) or an intro is over
 
 
 # --- The hero's gear: the weapon at rest, rarity, elements ------------------------------------

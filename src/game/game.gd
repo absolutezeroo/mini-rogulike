@@ -12,6 +12,11 @@ const TITLE_SCENE := "res://src/ui/title/title_screen.tscn"
 const PERK_CHOICES := 3
 ## Pause between the boss' death and the relic choice, to enjoy the explosions.
 const RELIC_DELAY := 1.6
+## Pause between the last form's death at the bottom of the Well and the choice of an ending
+## (its death plays out: the mask crumbles, its keeper is set down).
+const ENDING_DELAY := 2.8
+## Seconds a warden's last words wait after its fall (its death starts to play).
+const LAST_WORDS_DELAY := 0.4
 ## Seconds of fade to black when taking the stairs.
 const FADE_TIME := 0.3
 
@@ -80,9 +85,15 @@ var hidden := HiddenPassage.new()
 var _into_hidden := false
 ## The Interact button's brain: what the hero stands by, and using it.
 var interactor := Interactor.new()
+## A warden's story told as the hero walks into its arena (the World's storyteller).
+var meeting := BossMeeting.new()
 ## The player opened the perk choices (the HUD's perk button): they follow one another until
 ## none is left or one is put off. Otherwise only those that come up by themselves show (relics).
 var _choosing := false
+## The souls and the record of a win at the bottom of the Well, kept for the victory screen
+## shown once an ending is chosen.
+var _ending_earned := 0
+var _ending_record := false
 
 
 func _ready() -> void:
@@ -100,6 +111,11 @@ func _ready() -> void:
 	_setup_threshold()
 	_setup_abyss()
 	_setup_interactor()
+	meeting.name = "BossMeeting"
+	meeting.game = self
+	meeting.narrative = content.narrative
+	add_child(meeting)
+	world.storyteller = meeting
 	hidden.name = "HiddenPassage"
 	hidden.game = self
 	hidden.def = content.dungeon.hidden_floor
@@ -143,6 +159,7 @@ func _connect_menus() -> void:
 	shop_panel.closed.connect(_on_menu_closed)
 	menus.forge.closed.connect(_on_menu_closed)
 	menus.pact.closed.connect(_on_menu_closed)
+	menus.fragment.closed.connect(_on_menu_closed)
 	encounter_panel.closed.connect(_on_menu_closed)
 	perk_panel.chosen.connect(_on_perk_chosen)
 	perk_panel.reroll_requested.connect(_on_perk_reroll)
@@ -161,12 +178,19 @@ func _connect_events() -> void:
 	Events.forge_requested.connect(open_forge)
 	Events.encounter_requested.connect(open_encounter)
 	Events.pact_requested.connect(open_pact)
+	Events.fragment_requested.connect(open_fragment)
+	Events.deed_done.connect(_on_deed_done)
 	Events.pact_ended.connect(_on_pact_ended)
 	Events.perk_offer_requested.connect(func(rarity: int, title: String, subtitle: String) -> void:
 		_queue_offer(rarity as PerkDef.Rarity, PERK_CHOICES, title, subtitle))
 	Events.soul_gathered.connect(func() -> void: hud.set_souls(run_souls(), true))
 	Events.boss_started.connect(_on_boss_started)
 	Events.boss_defeated.connect(_on_boss_defeated)
+	Events.boss_rising.connect(_on_boss_rising)
+	Events.monster_killed.connect(func(monster: Monster) -> void:
+		if monster.world == world and monster.def is BossDef:
+			_say_last_words(monster.def as BossDef))
+	menus.ending.chosen.connect(_on_ending_chosen)
 	Events.ambush_started.connect(func(_room: AmbushRoom) -> void:
 		hud.show_banner(tr("Ambush!"), Palette.DANGER)
 		Events.log_message(tr("It's a trap! Survive the waves."), Palette.DANGER))
@@ -248,7 +272,7 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	player.crit_damage_bonus = world.boons.crit_damage_bonus
 	_records.bind(run, player)
 	run_timer.run = run
-	_hunt.bind(player)
+	_hunt.bind(player, run)
 	interactor.player = player
 	hud.bind_player(player)
 	tutorial.bind(player, world, hud)
@@ -265,6 +289,9 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	else:
 		_enter_floor(not saved.is_empty())
 	tutorial.cue(&"run_start")
+	if run.ending_due:
+		_offer_ending.call_deferred(0, false)  # won at the bottom, the ending not chosen yet
+		return
 	_show_next_offer.call_deferred()  # choices left open in a saved run
 
 
@@ -393,7 +420,12 @@ func _award_souls(won_now: bool) -> int:
 # --- Menus -------------------------------------------------------------------
 
 func is_menu_open() -> bool:
-	return _transitioning or menus.any_open()
+	return _transitioning or menus.any_open() or meeting.is_playing()
+
+
+## A cinematic (a warden's story) freezes the world while it plays.
+func pause_for_cinematic(on: bool) -> void:
+	_set_paused(on or is_menu_open())
 
 
 func open_encounter(encounter: Encounter) -> void:
@@ -420,6 +452,30 @@ func _on_pact_ended(pact: PactRoom) -> void:
 	await get_tree().create_timer(RELIC_DELAY, false).timeout
 	if player == keeper and not player.is_dead:
 		_show_next_offer()
+
+
+## A fragment lying on the floor is read: kept for good (Narrative), gone from the floor.
+func open_fragment(piece: Fragment) -> void:
+	if piece == null or piece.taken or not _can_open_menu():
+		return
+	var first := Narrative.find(piece.def)
+	if first:
+		Events.fragment_found.emit(piece.def, piece.boss)
+		if content.narrative:
+			Events.log_message(tr(content.narrative.fragment_message) % tr(piece.def.title), UiSkin.GOLD)
+	world.fragment_taken = true
+	piece.take()
+	Sfx.play_ui(Sfx.bank.ui_open)
+	_set_paused(true)
+	menus.fragment.open(piece.def, piece.boss, first)
+
+
+## A warden fell the way one of its deeds asks: the Well remembers.
+func _on_deed_done(boss: BossDef, _deed: DeedCondition) -> void:
+	if content.narrative and not content.narrative.deed_message.is_empty():
+		var line := tr(content.narrative.deed_message) % tr(boss.display_name)
+		Events.log_message(line, UiSkin.GOLD)
+		hud.toast(line)
 
 
 func open_shop(merchant: Merchant) -> void:
@@ -467,6 +523,25 @@ func debug_enter_floor(target: int, curse: CurseDef = null, event: FloorEventDef
 	threshold.abort()
 	abyss.abort()
 	depth = target
+	_transitioning = true
+	_enter_floor(true)
+	await _show_cards()
+	_transitioning = false
+	_set_paused(is_menu_open())
+	_show_next_offer()
+
+
+## Debug: the bottom of the Well right away (FinaleDef), as if the last act's boss had led there.
+func debug_enter_finale() -> void:
+	if content.dungeon.finale == null:
+		return
+	threshold.abort()
+	abyss.abort()
+	run.finale_open = true
+	run.has_won = false
+	run.hidden_floor = false
+	run.finale = true
+	depth = content.dungeon.total_floors()
 	_transitioning = true
 	_enter_floor(true)
 	await _show_cards()
@@ -525,13 +600,21 @@ func _enter_floor(resumed: bool = false) -> void:
 		world.rng.seed = hash("hidden-%d" % world.rng.seed)  # not the boss floor of the same depth
 	world.hidden_floor = content.dungeon.hidden_floor if run.hidden_floor else null
 	world.hidden_floor_done = run.hidden_done
-	world.next_routes = FloorRoute.offer(content, depth + 1, difficulty, run.route_seed(depth + 1))
+	if run.finale:
+		world.rng.seed = hash("finale-%d" % world.rng.seed)  # not the boss floor of the same depth
+	world.finale = content.dungeon.finale if run.finale else null
+	if run.leads_to_finale():
+		world.next_routes = [content.dungeon.finale.route()] as Array[FloorRoute]  # one way: down
+	else:
+		world.next_routes = FloorRoute.offer(content, depth + 1, difficulty, run.route_seed(depth + 1))
 	world.build_floor(depth, content, _route_to(depth))
 	world.place_player(player)
+	player.camera.lean_toward(null, 0.0)
 	play_floor_mood()
 	if not resumed and depth > 1 and difficulty.heal_on_new_floor > 0.0:
 		player.heal(roundi(player.get_max_hp() * difficulty.heal_on_new_floor))
 	_save_run()
+	Profile.reach_depth(depth)
 	if run.difficulty.counts_feats:
 		Profile.best_depth = maxi(Profile.best_depth, depth)
 	_records.check_achievements()
@@ -580,6 +663,9 @@ func _announce_floor() -> void:
 	if world.hidden_floor:
 		hud.show_banner(tr(world.hidden_floor.title), world.hidden_floor.color)
 		Events.log_message(tr(world.hidden_floor.lore), world.hidden_floor.color)
+	if world.finale:
+		hud.show_banner(tr(world.finale.title), world.finale.color)
+		Events.log_message(tr(world.finale.lore), world.finale.color)
 	if world.arena:
 		Events.log_message(tr("Depth %d. Something vast waits in the dark...") % depth, Palette.DANGER)
 	elif world.seal.is_sealed():
@@ -618,11 +704,14 @@ func _descend() -> void:
 	fade_out.tween_property(_fade, "color:a", 1.0, FADE_TIME)
 	await fade_out.finished
 	if run.finish_time < 0.0 and not run.hidden_floor:
-		_split(depth)  # (the hidden floor's time goes to the next floor's split)
-	# The hidden floor keeps the depth of the boss before it (RunState.hidden_floor).
+		_split(run.split_depth())  # (the hidden floor's time goes to the next floor's split)
+	# The hidden floor and the bottom of the Well keep the depth of the boss before them
+	# (RunState.hidden_floor, RunState.finale).
+	var into_finale := run.leads_to_finale() and not _into_hidden
 	run.hidden_floor = _into_hidden
 	_into_hidden = false
-	if not run.hidden_floor:
+	run.finale = into_finale
+	if not run.hidden_floor and not run.finale:
 		depth += 1  # only now: a save during the fade still points at the floor being left
 	_enter_floor()
 	await _show_cards()
@@ -640,6 +729,8 @@ func _show_cards() -> void:
 	var act := content.dungeon.act_for_depth(depth)
 	if world.hidden_floor:
 		await act_card.play(world.hidden_floor.as_act())
+	elif world.finale:
+		await act_card.play(world.finale.as_act())
 	elif act and content.dungeon.floor_in_act(depth) == 1:
 		await act_card.play(act)
 	if world.curse:
@@ -650,16 +741,51 @@ func _show_cards() -> void:
 
 func _on_boss_started(boss: Monster) -> void:
 	var def := boss.def as BossDef
-	hud.show_banner(tr(boss.display_name), Palette.DANGER)
+	if meeting.last_told != boss.get_instance_id():
+		hud.show_banner(tr(boss.display_name), Palette.DANGER)  # (a cinematic already named it)
 	if def and not def.title.is_empty():
 		Events.log_message("%s, %s" % [tr(boss.display_name), tr(def.title)], Palette.DANGER)
+	if def and player:
+		player.camera.lean_toward(boss, def.camera_lean, boss.head_height * 0.45)
 	var music := def.music if def and def.music else Sfx.bank.boss_music
 	if music:
 		Sfx.play_music(music)
 
 
+## A warden's last words (BossMeeting.last_words()), a moment after its fall (a deed just done
+## by that fall counts): in quotes on its banner, and in the log.
+func _say_last_words(def: BossDef) -> void:
+	var speaker := player
+	var floor_id := world.floor_id
+	await get_tree().create_timer(LAST_WORDS_DELAY, false).timeout
+	if player != speaker or world.floor_id != floor_id:
+		return
+	var line := meeting.last_words(def)
+	if line.is_empty():
+		return
+	var color := def.color
+	var words := tr("\"%s\"") % tr(line)
+	hud.show_banner(words, color.lightened(0.25))
+	Events.log_message(words, color.lightened(0.25))
+
+
+## A boss' next form rises (BossDef.next_boss): no relic, no stairs; the screen darkens a moment
+## and the view turns to it.
+func _on_boss_rising(_fallen: Monster, risen: Monster, seconds: float) -> void:
+	var def := risen.def as BossDef
+	if def and player:
+		player.camera.lean_toward(risen, def.camera_lean, risen.head_height * 0.45)
+	var darken := create_tween()
+	darken.tween_property(_fade, "color:a", 0.55, seconds * 0.3)
+	darken.tween_interval(seconds * 0.3)
+	darken.tween_property(_fade, "color:a", 0.0, seconds * 0.35)
+
+
 func _on_boss_defeated(boss: Monster) -> void:
 	run.bosses_slain += 1
+	var fallen := boss.def as BossDef
+	if player and not (fallen and fallen.body_stays):
+		player.camera.lean_toward(null, 0.0)  # (a body that stays is still worth looking at)
 	if content.dungeon.rerolls_per_boss > 0:
 		run.rerolls += content.dungeon.rerolls_per_boss
 		Events.log_message(tr("+%d reroll for the perk choices.") % content.dungeon.rerolls_per_boss, Palette.GOLD)
@@ -673,13 +799,15 @@ func _on_boss_defeated(boss: Monster) -> void:
 	var winner := player
 	# Decided now, not after the pause: the stairs are already there, and a save (app put away)
 	# in between must keep the win or the relic.
-	var won_now := content.dungeon.is_final_floor(depth) and not run.has_won
+	var won_now := run.wins_with(def)
 	var earned := 0
 	var new_record := false
+	var bottom := content.dungeon.finale if run.finale else null
 	if won_now:
 		run.has_won = true
 		run.finish_time = run.time
-		_split(depth)
+		run.ending_due = bottom != null and not bottom.endings.is_empty()
+		_split(run.split_depth())
 		new_record = Profile.record_time(run.record_key(), run.finish_time, run.splits)
 		if new_record:
 			Events.log_message(tr("New record: %s!") % TimeText.of(run.finish_time), Palette.GOLD)
@@ -687,9 +815,12 @@ func _on_boss_defeated(boss: Monster) -> void:
 	else:
 		offers.add_relic(def, boss.rank.extra_relics if boss.rank else 0)
 	_save_run()
-	await get_tree().create_timer(RELIC_DELAY, false).timeout
+	await get_tree().create_timer(ENDING_DELAY if run.ending_due and won_now else RELIC_DELAY, false).timeout
 	if player != winner or player.is_dead:
 		return  # the run ended in the meantime
+	if won_now and run.ending_due:
+		_offer_ending(earned, new_record)
+		return
 	if won_now:
 		# The last boss: the run is won. Keep going offers the relic, then endless floors.
 		_set_paused(true)
@@ -698,6 +829,30 @@ func _on_boss_defeated(boss: Monster) -> void:
 		_show_end(true, earned, new_record)
 		return
 	_show_next_offer()
+
+
+## The last form fell at the bottom of the Well: the hero chooses an ending (EndingPanel), then
+## the victory screen tells it. Also when a run won there is picked up before the choice.
+func _offer_ending(earned: int, new_record: bool) -> void:
+	var bottom := content.dungeon.finale
+	if bottom == null or bottom.endings.is_empty() or player == null:
+		return
+	_ending_earned = earned
+	_ending_record = new_record
+	_set_paused(true)
+	menus.show_on_top(menus.ending)
+	menus.ending.open(bottom)
+
+
+func _on_ending_chosen(ending: EndingDef) -> void:
+	run.ending_due = false
+	var feats := run.difficulty == null or run.difficulty.counts_feats
+	Profile.choose_ending(ending.id, ending.stat, feats)
+	_records.check_achievements()
+	_save_run()
+	Sfx.play_ui(Sfx.bank.stairs)
+	menus.show_on_top(game_over_panel)
+	_show_end(true, _ending_earned, _ending_record, ending)
 
 
 func _on_continue_endless() -> void:
@@ -715,13 +870,16 @@ func _record_text(new_record: bool) -> String:
 	return tr("(record %s)") % TimeText.of(record) if record > 0.0 else ""
 
 
-## The end-of-run screen: how it ended (a line of the story), the run's numbers, the souls.
-func _show_end(victory: bool, earned: int, new_record: bool = false) -> void:
+## The end-of-run screen: how it ended (a line of the story, or the ending chosen at the bottom
+## of the Well), the run's numbers, the souls.
+func _show_end(victory: bool, earned: int, new_record: bool = false, ending: EndingDef = null) -> void:
 	var story := ""
-	if content.story:
+	if ending:
+		story = tr(ending.text)
+	elif content.story:
 		story = tr(content.story.victory_text if victory else content.story.random_death_line())
 	var rows := run.summary_rows(content, player.level, _record_text(new_record) if victory else "")
-	game_over_panel.show_end(victory, story, rows, earned, Profile.souls)
+	game_over_panel.show_end(victory, story, rows, earned, Profile.souls, tr(ending.title) if ending else "")
 
 
 # --- Perks -------------------------------------------------------------------

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/village_scrap.tres" id="2_villagescrap"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"azure_wyrm_prayer"
+title = "Prayer of the Cold Steps"
+author = "An old woman of Kagari"
+place = "Kagari's crypt, the first step"
+lines = PackedStringArray("Sleeper, here is your cold rice. Keep our dead as you keep the winter.", "Do not wake before we do.", "And if you dream of a sky, dream it for us as well.")
+look = ExtResource("2_villagescrap")

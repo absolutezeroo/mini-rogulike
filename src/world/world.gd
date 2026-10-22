@@ -76,8 +76,15 @@ var forced_boss_rank: MonsterRankDef
 var run_bosses: Array[BossDef] = []
 ## The floor's ambush room, if it has one.
 var ambush: AmbushRoom
+## Tells a warden's story when the hero walks into its arena, before it wakes (the Game's
+## BossMeeting; null: the fight starts at once). Not owned by the World.
+var storyteller: Storyteller
 ## The floor's pact door, if it has one.
 var pact: PactRoom
+## The fragment lying on this floor (FragmentPlacer), if any; `fragment_taken`: read already
+## (saved with the floor: a run picked up again doesn't lay another).
+var fragment: Fragment
+var fragment_taken := false
 ## Merchant stock the hero locked and didn't buy: { item, price, locked } entries waiting for the
 ## next merchant (see Merchant). Lives as long as the run.
 var kept_stock: Array[Dictionary] = []
@@ -101,6 +108,9 @@ var secrets: Array[SecretRoom] = []
 var hidden_floor_done := false
 ## Set by the Game before building the hidden floor (its look, monsters and boss); null otherwise.
 var hidden_floor: HiddenFloorDef
+## Set by the Game before building the bottom of the Well (its look, arena and boss); null
+## otherwise.
+var finale: FinaleDef
 ## Where walking monsters can go (pathfinding, blocked cells).
 var nav := NavGrid.new()
 ## What the hero has seen (the minimap).
@@ -152,10 +162,13 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 	forge_drought_at_start = floors_without_forge
 	_content = content
 	var hidden := hidden_floor
+	var bottom := finale
 	var boss := hidden.boss if hidden else content.dungeon.boss_for_depth(depth)
 	var act_index := content.dungeon.act_index(depth)
 	if boss and not hidden and act_index < run_bosses.size() and run_bosses[act_index] != null:
 		boss = run_bosses[act_index]
+	if bottom:
+		boss = bottom.boss
 	floor_event = null
 	curse = null
 	if forced_curse or forced_event or forced_plain:
@@ -176,6 +189,8 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 	arena_plan = null
 	if boss:
 		arena_plan = _pick_arena(boss, content.dungeon)
+		if bottom and bottom.arena:
+			arena_plan = bottom.arena
 		if hidden:
 			map = DungeonGenerator.generate_hidden(content.dungeon, rng, arena_plan, hidden.rooms)
 		else:
@@ -183,6 +198,8 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 	else:
 		map = DungeonGenerator.generate(content.dungeon, rng, difficulty.floor_size if difficulty else 1.0, difficulty.rooms if difficulty else 1.0)
 	biome = hidden.biome if hidden and hidden.biome else _pick_biome(content, boss != null)
+	if bottom and bottom.biome:
+		biome = bottom.biome
 	theme = biome.theme if biome else null
 	rules = FloorRules.make(content.dungeon, difficulty, floor_event, depth, curse)
 	var light_tint := rules.light()
@@ -202,7 +219,9 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 		_entities.add_child(arena)
 		arena.setup(self, boss, arena_plan)
 		for room in map.rooms:
-			FloorPopulator.place_lights(self, content.dungeon, room, {})
+			# The bottom of the Well: its own lamps in the arena (the hero's lantern, mostly).
+			var lamps := bottom.arena_lights if bottom and room == map.boss_room else -1
+			FloorPopulator.place_lights(self, content.dungeon, room, {}, lamps)
 		FloorDresser.dress(self, {}, false)  # the arena keeps clear: grounds and decor only
 		if hidden:
 			hidden.populate(self)
@@ -231,6 +250,8 @@ func clear_floor() -> void:
 	ambush = null
 	secrets.clear()
 	pact = null
+	fragment = null
+	fragment_taken = false
 	awake_monsters.clear()
 	_activity_timer = 0.0
 	_cracks.clear()
@@ -310,6 +331,15 @@ func spawn_encounter(def: EncounterDef, cell: Vector2i) -> Encounter:
 	encounter.setup(def, self)
 	_place_on_cell(encounter, cell)
 	return encounter
+
+
+## A fragment of `boss`'s past lying on `cell` (it doesn't block the way).
+func spawn_fragment(def: FragmentDef, boss: BossDef, cell: Vector2i) -> Fragment:
+	var piece := Fragment.new()
+	piece.setup(def, boss)
+	_place_on_cell(piece, cell, false)
+	fragment = piece
+	return piece
 
 
 func spawn_forge(def: ForgeDef, cell: Vector2i) -> Forge:
@@ -521,6 +551,7 @@ func spent_data() -> Dictionary:
 		"bought": bought.duplicate(),
 		"secrets": SecretRoom.states(secrets),
 		"pact": pact.save_code() if pact else 0,
+		"fragment": fragment_taken,
 	}
 
 
@@ -549,6 +580,9 @@ func _apply_restore() -> void:
 			if merchant.world_of() == self and merchant.forget_sold(saved_item):
 				bought.append(saved_item)
 				break
+	if bool(data.get("fragment", false)) and fragment and is_instance_valid(fragment):
+		fragment_taken = true
+		fragment.take()  # read before quitting: not laid again
 	if pact and int(data.get("pact", 0)) > 0:
 		pact.set_spent()  # sworn before quitting: never offered again
 
@@ -707,7 +741,9 @@ func _on_stairs_blocked() -> void:
 func spawn_exits() -> Array[Stairs]:
 	var result: Array[Stairs] = []
 	var choice := next_routes.size() >= 2 and map.second_stairs_cell != DungeonMap.NO_CELL
-	result.append(spawn_stairs(map.stairs_cell, 0, next_routes[0] if choice else null))
+	# A lone way is named on its sign too (the way down to the bottom of the Well).
+	var lone := next_routes.size() == 1
+	result.append(spawn_stairs(map.stairs_cell, 0, next_routes[0] if choice or lone else null))
 	if choice:
 		result.append(spawn_stairs(map.second_stairs_cell, 1, next_routes[1]))
 	return result
@@ -782,6 +818,28 @@ func add_pit(cell: Vector2i, def: PitDef) -> void:
 	_pits.add(cell, def)
 	set_cell_blocked(cell, true)
 	cells_changed.emit([cell] as Array[Vector2i])
+
+
+## Fills the hole `cell` belongs to (every hole cell joined to it): solid floor again, walkable,
+## with dust where it closed. Returns the cells filled (none if `cell` is no hole).
+func seal_hole(cell: Vector2i) -> Array[Vector2i]:
+	var sealed: Array[Vector2i] = []
+	if not _pits.has(cell):
+		return sealed
+	var todo: Array[Vector2i] = [cell]
+	while not todo.is_empty():
+		var next: Vector2i = todo.pop_back()
+		if not _pits.has(next):
+			continue
+		_pits.remove(next)
+		sealed.append(next)
+		set_cell_blocked(next, not map.is_floor(next))
+		for step: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+			todo.append(next + step)
+	for filled in sealed:
+		Vfx.puff(self, map.cell_to_world(filled))
+	cells_changed.emit(sealed)
+	return sealed
 
 
 func has_pit(cell: Vector2i) -> bool:

@@ -26,6 +26,7 @@
 [ext_resource type="Resource" path="res://data/skills/boss/call_thieves_fierce.tres" id="20_0guwt"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/slime_slam.tres" id="20_aco0h"]
 [ext_resource type="Resource" path="res://data/materials/armor.tres" id="99_material"]
+[ext_resource type="Resource" path="res://data/story/chronicles/gilded_hoarder.tres" id="90_chronicle"]
 
 [sub_resource type="Resource" id="Resource_s53ed"]
 script = ExtResource("1_0guwt")
@@ -107,6 +108,7 @@ move_speed = 65.0
 
 [resource]
 script = ExtResource("18_nlcxe")
+chronicle = ExtResource("90_chronicle")
 material = ExtResource("99_material")
 title = "Tyrant of the Well"
 shockwave_power = 1.0
@@ -130,7 +132,7 @@ challenges = Array[ExtResource("1_0guwt")]([SubResource("Resource_s53ed")])
 loot = SubResource("Resource_5ysyk")
 id = &"gilded_hoarder"
 display_name = "Gilded Hoarder"
-description = "A golden giant on a mountain of stolen gold and stolen souls. It leaps, throws its coins and calls its thieves."
+description = "The last king of the fallen kingdom, gilded on his mountain of gold and stolen souls. He leaps, throws his coins and calls his thieves."
 icon = ExtResource("4_brnay")
 glyph = "K"
 color = Color(1, 0.8, 0.3, 1)

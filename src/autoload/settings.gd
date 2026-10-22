@@ -1,6 +1,7 @@
 extends Node
 ## Player options (autoload "Settings"): volumes, screen shake, vibrations, size of the touch
 ## controls, fixed or floating joystick, battery saver (30 FPS), fewer effects, screen flashes, tutorial hints, run timer,
+## boss stories (full, short, off),
 ## language (English or French: TranslationServer's locale, see locale/strings.csv).
 ## Saved in user://settings.cfg and applied as soon as they change.
 
@@ -20,7 +21,7 @@ const VOLUME_BUSES := {
 const OLD_SOUND_KEY := "sound_volume"
 const SPLIT_SOUND_KEYS: Array[String] = ["ui_volume", "combat_volume", "ambience_volume"]
 const MIN_VIBRATION_GAP_MS := 50
-const KEYS: Array[String] = ["master_volume", "music_volume", "ui_volume", "combat_volume", "ambience_volume", "screen_shake", "vibrations", "controls_scale", "fixed_joystick", "battery_saver", "fewer_effects", "screen_flashes", "tutorial_hints", "run_timer", "language", "auto_loot"]
+const KEYS: Array[String] = ["master_volume", "music_volume", "ui_volume", "combat_volume", "ambience_volume", "screen_shake", "vibrations", "controls_scale", "fixed_joystick", "battery_saver", "fewer_effects", "screen_flashes", "tutorial_hints", "run_timer", "language", "auto_loot", "boss_stories"]
 ## Frames per second: normal (0 = no cap), and with the battery saver.
 const FPS := 0
 const SAVER_FPS := 30
@@ -32,6 +33,11 @@ const LANGUAGE_NAMES := { "en": "English", "fr": "Français" }
 const LOOT_ALL := 0
 const LOOT_BETTER := 1
 const LOOT_OFF := 2
+## Boss stories (Narrative): the full cinematic before a warden's fight when it has something new
+## to tell, only its name and a line it remembers, or nothing (its name in a banner).
+const STORIES_FULL := 0
+const STORIES_SHORT := 1
+const STORIES_OFF := 2
 
 ## Empty = nothing is read or written (tests).
 var path := PATH
@@ -64,6 +70,9 @@ var language := device_language()
 ## LOOT_ALL, LOOT_BETTER or LOOT_OFF. "Better only" by default: on a phone, stopping to tap
 ## every drop mid-fight is a chore, and taking everything fills the bag with worse gear.
 var auto_loot := LOOT_BETTER
+## STORIES_FULL, STORIES_SHORT or STORIES_OFF. Full by default: the story is told a chapter at a
+## time, and only when there is a new one (otherwise two seconds).
+var boss_stories := STORIES_FULL
 
 var _last_vibration := 0
 
@@ -142,6 +151,7 @@ func load_settings() -> void:
 	if not language in LANGUAGES:
 		language = device_language()
 	auto_loot = clampi(int(file.get_value("options", "auto_loot", auto_loot)), LOOT_ALL, LOOT_OFF)
+	boss_stories = clampi(int(file.get_value("options", "boss_stories", boss_stories)), STORIES_FULL, STORIES_OFF)
 
 
 ## The slider's volume on top of the bus's own gain in the mix (headroom, see SoundMixDef).

@@ -30,7 +30,10 @@ data/                Game content as .tres resources (no code)
   perks/               Level-up perks (common/) and boss relics (relics/)
   upgrades/            Shrine upgrades (bought with souls between runs)
   difficulties/        Pilgrim, Keeper, Martyr, Nightmare
-  story/               story.tres: the game's name, the intro, victory and death texts
+  story/               story.tres: the game's name, the intro, victory and death texts; narrative.tres (how the
+                       story is told), chronicles/ (each warden's), fragments/, fragment_looks/, conditions/
+                       (shared reveal gates), cinematics/ (the boss meetings' steps); finale.tres (the bottom
+                       of the Well) and its endings (endings/)
   props/               Breakable props and the lantern
   hazards/             Traps, arrow traps, holes, crumbling floor, quicksand and mud
   chests/              Chests (some trapped) and the big chest of ambushes
@@ -55,14 +58,16 @@ src/
     hazards/             HazardDef > TrapDef > ArrowTrapDef, PitDef, QuicksandDef, HeatSourceDef, DarkRoomDef
     monster_traits/      MonsterTrait > GuardTrait, ThiefTrait, DeathBurstTrait, DeathSpawnTrait, PerkTrait
     biomes/              BiomeDef, GroundLayerDef, DecorRuleDef, SceneDef (hand-made scenes), SceneKey
+    story/               The story: ProgressCondition (conditions/), DeedCondition (deeds/), chronicles,
+                         chapters, waking lines, fragments, NarrativeDef, CinematicDef and CinematicStep (cinematic/)
   dungeon/             Map data, generator (and its secret rooms: SecretRoomPlan), drawing
   world/               World (owns the current floor), FloorRules (how hard and rewarding it is),
                        NavGrid (pathfinding), FogOfWar (what the hero has seen), WallBuilder,
-                       FloorPopulator, BossArena, AmbushRoom, RoomGates, PitLayer, SecretRoom; PocketWorld
+                       FloorPopulator, FragmentPlacer, BossArena (and its Storyteller), AmbushRoom, RoomGates, PitLayer, SecretRoom; PocketWorld
                        (a World built beside the floor for a while) > ThresholdWorld (the limbo of a second
                        life's trial), AbyssWorld (the Deeps a fall takes the hero to);
                        dressing/ (FloorDresser: a floor in its biome, RoomSpace)
-  entities/            Actor (shared base), Player, Monster, Projectile, ItemPickup, Stairs, Prop, Trap,
+  entities/            Actor (shared base), Player, Monster, Projectile, ItemPickup, Stairs, Prop, Trap, Fragment,
                        hazards/ (Chest, CrumblingFloor, Quicksand, HeatSource, DarkRoom, FloorPatch),
                        ground/ (GroundLayer: a biome's ground, drawn by a shader)
   components/          Inventory, Equipment, SkillSet, PerkSet, StatusSet (burn...)
@@ -77,7 +82,9 @@ src/
                        Threshold (a second life's trial: the floor out of the tree, the hero in a limbo),
                        Abyss (the Deeps under a floor's holes), SubWorld (the hero's stay in a pocket world:
                        his world out of the tree as it is, back as it was; stays nest),
-                       HiddenPassage (the way to the hidden floor)
+                       HiddenPassage (the way to the hidden floor); story/: Narrative (the story's progress
+                       and answers), BossMeeting (a warden met: its cinematic), CinematicDirector (plays a
+                       CinematicDef's steps), StoryBeat (what one telling holds)
 tests/               Headless tests: run_tests (the runner), suites/ (unit, title, game, combat, floor, boss,
                      balance: opt-in), support/ (TestSuite: checks, scene helpers, the bot)
 locale/              strings.csv: every player text, English (the key) and French (see Languages)
@@ -122,6 +129,17 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   opens by walking up to it.
 - **UI** listens to signals (`Events`, Player signals) and never drives gameplay directly.
   Touch controls only press input actions, so keyboard, gamepad and touch share one code path.
+
+- **The story** (design/presentation.md "Boss stories"): the content is data (`data/story/`, a
+  `BossChronicleDef` on each `BossDef`), gated by `ProgressCondition`s. `Narrative` (static, like
+  `Bestiary`) is the only code writing the story's part of the Profile and answers what is open,
+  told, found and done, and what a meeting tells (`plan()`). When the hero walks into an arena,
+  `BossArena.start()` asks the World's `Storyteller` (the Game's `BossMeeting`) and waits for it:
+  the Game pauses, a `CinematicDirector` runs the `CinematicDef`'s steps on a `CinematicView`
+  (its own CanvasLayer, 7), then the boss wakes. `FragmentPlacer` lays fragments while a floor is
+  populated; reading one goes through the Interactor and `Events.fragment_requested`. Deeds are
+  checked by the `HuntTracker` at a warden's death; what the run did is `RunState.marks` (set by
+  `RunRecords` from the Events).
 
 ## Autoloads
 

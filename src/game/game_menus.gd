@@ -1,6 +1,6 @@
 class_name GameMenus
 extends CanvasLayer
-## The game's panels (bag, perk choice, shop, encounter, pact, pause, end of run): which one is open,
+## The game's panels (bag, perk choice, shop, encounter, pact, fragment, pause, end of run): which one is open,
 ## what Back closes, and putting the end-of-run screen above the rest. The Game decides when
 ## they open and pauses the game around them.
 
@@ -14,6 +14,10 @@ extends CanvasLayer
 var forge: ForgePanel
 ## A pact door's offer (built in code).
 var pact: PactPanel
+## The choice of an ending at the bottom of the Well (built in code). Back never closes it.
+var ending: EndingPanel
+## A fragment of the past, read (built in code).
+var fragment: FragmentPanel
 ## Dev tools: debug builds only (null otherwise).
 var debug: DebugPanel
 
@@ -27,6 +31,14 @@ func _ready() -> void:
 	pact.name = "PactPanel"
 	add_child(pact)
 	move_child(pact, pause.get_index())
+	ending = EndingPanel.new()
+	ending.name = "EndingPanel"
+	add_child(ending)
+	move_child(ending, pause.get_index())
+	fragment = FragmentPanel.new()
+	fragment.name = "FragmentPanel"
+	add_child(fragment)
+	move_child(fragment, pause.get_index())
 	if DebugPanel.is_available():
 		debug = DebugPanel.new()
 		debug.name = "DebugPanel"
@@ -53,6 +65,8 @@ func back() -> bool:
 		encounter.close()
 	elif pact.visible:
 		pact.close()
+	elif fragment.visible:
+		fragment.close()
 	elif perks.visible:
 		perks.postpone()  # the choice waits behind the HUD's perk button
 	else:
@@ -72,7 +86,7 @@ func show_on_top(panel: Control) -> void:
 
 
 func _panels() -> Array[Control]:
-	var panels: Array[Control] = [inventory, perks, game_over, shop, forge, encounter, pact, pause]
+	var panels: Array[Control] = [inventory, perks, game_over, shop, forge, encounter, pact, ending, fragment, pause]
 	if debug:
 		panels.append(debug)
 	return panels

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/singed_page.tres" id="2_look"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="3_progresscond"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="4_keepernamed"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"master_toma_lessons"
+title = "The Shrine's Fencing Lessons"
+author = "Tôma, keeper of the shrine"
+place = "Pinned inside the dojo's door"
+lines = PackedStringArray("The dash: go in, strike, never stay where the answer will fall.", "The guard: do not step aside. Let it come, and be there when it does.", "The lantern: it never goes out. That rule I will not teach him to break.")
+look = ExtResource("2_look")
+conditions = Array[ExtResource("3_progresscond")]([ExtResource("4_keepernamed")])

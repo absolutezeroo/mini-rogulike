@@ -218,6 +218,8 @@ func _test_abyss(game: Game, world: World, player: Player) -> void:
 	check(await _escape_deeps(game) and home.get("escaped", false), "stepping into the Dawn Breach brings him back up")
 	check(player.world == world and world.is_inside_tree() and world.process_mode == floor_mode, "back on his floor, and it runs again")
 	check(player.global_position.distance_to(safe) < 24.0 and player.get_parent() == world.get_node("Entities"), "at the last safe spot by the hole")
+	var fell_in := world.map.world_to_cell(safe) + Vector2i.RIGHT * 2
+	check(def.seal_hole and not world.has_pit(fell_in) and world.is_solid_ground(world.map.cell_to_world(fell_in)) and not world.nav.is_blocked(fell_in), "the hole he fell through has closed behind him (no falling straight back in)")
 	check(home.get("at", []) == frozen_at and home.get("hp", []) == hp_then, "the floor's monsters as they were (same place, same Health)")
 	check(is_equal_approx(float(home.get("burn", -1.0)), burn_left), "their statuses too (%.2f s of burn left)" % float(home.get("burn", -1.0)))
 	check(counted.call() == floor_children, "nothing else came or went on the floor")
@@ -1299,6 +1301,80 @@ func _test_belt_and_balance(game: Game) -> void:
 	world.make_elite(slime)
 	check(slime.get_knockback_resistance() >= 0.5, "elites resist knockback")
 	slime.queue_free()
+	await _frames(2)
+
+
+## Objects keep their distance: an encounter (a statue to pray at, an altar, a spring) has a room
+## of its own and nothing within DungeonConfig.encounter_clearance of it; an Ashen Breath oasis
+## always lies on floor, never in the rock (it used to, beside a small first room).
+func _test_spacing(game: Game) -> void:
+	var world: World = game.world
+	var config: DungeonConfig = CONTENT.dungeon
+	var saved := [config.encounters_min, config.encounters_max]
+	var difficulty: DifficultyDef = world.difficulty
+	var saved_chance := difficulty.curse_chance
+	var saved_curses := CONTENT.curses.duplicate()
+	var start_depth: int = game.depth
+	config.encounters_min = 4  # crowded floors: where clashes would show
+	config.encounters_max = 4
+	difficulty.curse_chance = 0.0
+	var pairs := 0
+	var too_close: Array[String] = []
+	for depth in [2, 3, 5, 7, 8, 10]:
+		game.depth = depth
+		game._enter_floor()
+		await _frames(2)
+		var map := world.map
+		var cells: Array[Vector2i] = []
+		var rooms := {}
+		for node in get_tree().get_nodes_in_group("encounters"):
+			var cell := map.world_to_cell((node as Node2D).global_position)
+			for i in map.rooms.size():
+				if map.rooms[i].has_point(cell):
+					check(not rooms.has(i), "floor %d: one encounter per room (room %d has two)" % [depth, i])
+					rooms[i] = true
+			cells.append(cell)
+		var others: Array[Vector2i] = []
+		for node in get_tree().get_nodes_in_group("chests"):
+			others.append(map.world_to_cell((node as Node2D).global_position))
+		for i in cells.size():
+			for j in range(i + 1, cells.size()):
+				pairs += 1
+				var gap := maxi(absi(cells[i].x - cells[j].x), absi(cells[i].y - cells[j].y))
+				if gap <= config.encounter_clearance:
+					too_close.append("floor %d: %s / %s" % [depth, cells[i], cells[j]])
+			for other in others:
+				if maxi(absi(cells[i].x - other.x), absi(cells[i].y - other.y)) <= config.encounter_clearance:
+					too_close.append("floor %d: chest %s by %s" % [depth, other, cells[i]])
+	check(pairs >= 6, "encounters compared (%d pairs)" % pairs)
+	check(too_close.is_empty(), "nothing stands against an encounter: %s" % ", ".join(too_close.slice(0, 4)))
+	config.encounters_min = saved[0]
+	config.encounters_max = saved[1]
+
+	var ashen: CurseDef = load("res://data/curses/ashen_breath.tres")
+	CONTENT.curses = [ashen]
+	difficulty.curse_chance = 1.0
+	var oases := 0
+	var in_rock: Array[String] = []
+	for depth in [2, 4, 6, 9, 11]:
+		game.depth = depth
+		game._enter_floor()
+		await _frames(2)
+		for node in get_tree().get_nodes_in_group("heat_sources"):
+			var source := node as HeatSource
+			if source.def != ashen.warm_spot:
+				continue
+			oases += 1
+			for y in range(source.rect.position.y, source.rect.end.y):
+				for x in range(source.rect.position.x, source.rect.end.x):
+					if not world.map.is_floor(Vector2i(x, y)):
+						in_rock.append("floor %d: %s" % [depth, source.rect])
+	check(oases >= 5, "Ashen Breath oases checked (%d)" % oases)
+	check(in_rock.is_empty(), "every oasis lies on floor, never in a wall: %s" % ", ".join(in_rock.slice(0, 4)))
+	CONTENT.curses = saved_curses
+	difficulty.curse_chance = saved_chance
+	game.depth = start_depth
+	game._enter_floor()
 	await _frames(2)
 
 

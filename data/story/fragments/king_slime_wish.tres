@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/village_scrap.tres" id="2_villagescrap"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"king_slime_wish"
+title = "A Child's Wish Slip"
+author = "A child of Kagari"
+place = "Tied to the well-rim"
+lines = PackedStringArray("Nushi, I gave you my finest coin.", "Make spring come back soon, and make Mother well.", "And do not eat the moon. It belongs to everyone.")
+look = ExtResource("2_villagescrap")

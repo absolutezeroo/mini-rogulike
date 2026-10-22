@@ -589,7 +589,7 @@ func _on_fell(pit: PitDef) -> void:
 		_safe_position = world.nearest_free_point(_safe_position)
 	var abyss := Abyss.of(self)
 	if abyss and abyss.can_take(self):
-		abyss.open(self, _safe_position)
+		abyss.open(self, _safe_position, global_position)
 		return
 	global_position = _safe_position
 	_recover_from_fall()

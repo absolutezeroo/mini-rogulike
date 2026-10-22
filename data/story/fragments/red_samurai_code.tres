@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/sealed_letter.tres" id="2_sealedletter"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"red_samurai_code"
+title = "Code of the Temple Guards"
+author = "The school of Solhar's guards"
+place = "Engraved on Vardan's scabbard"
+lines = PackedStringArray("One edge, one loyalty.", "A guard crosses steel only with a curved blade like his own, a katana's. No other deserves an answer.", "Whoever defeats him so becomes his master.")
+look = ExtResource("2_sealedletter")

@@ -25,6 +25,10 @@ Two pages decide everything; read both before writing a line:
      says "I";
    - wardens: one or two sentences at waking and at death, their own obsession (see the table in
      docs/lore.md section 5); lines change with each meeting (first, again, many times);
+   - a warden's chronicle (docs/lore.md 5b): the Well's narrator in chapters of 2-4 lines (what
+     you see, its life, how it fell, the keeper who bound it, its truth), its own waking words in
+     quotes, a deed's riddle that is fair but never the rule (the rule is plain, and a fragment may
+     give it away);
    - keepers (the Old Wanderer, Brann, the Grinning Spirit, the Veilleuse): in quotes « ... », weary, dry, a
      little wry; each has a voice (docs/lore.md section 6);
    - fragments: a real author (Tôma's journal, a Solhar archivist, a tithe ledger, a prayer), a
@@ -57,4 +61,7 @@ Two pages decide everything; read both before writing a line:
 | Bosses' and monsters' descriptions, titles | `data/monsters/**/*.tres` |
 | Merchant, smith, encounters | `data/shop/`, `data/forge/`, `data/encounters/` |
 | Places beyond the floors | `data/threshold/`, `data/abyss/`, `data/secrets/nameless_charnel.tres` |
-| Dialogue, fragments, endings (when built) | their own resources, gated by progress conditions |
+| A warden's story (chapters, waking words, deeds' riddles) | `data/story/chronicles/<boss id>.tres` (`BossChronicleDef`, on the `BossDef`) |
+| Fragments (pages, tablets, letters, Tôma's journal) | `data/story/fragments/<id>.tres` (`FragmentDef`), listed in their warden's chronicle |
+| What gates a reveal | `ProgressCondition`s; shared ones in `data/story/conditions/` (`keeper_named`: any text naming Tôma) |
+| Dialogue, endings (when built) | their own resources, gated by the same progress conditions |

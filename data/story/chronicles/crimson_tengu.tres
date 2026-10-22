@@ -1,0 +1,90 @@
+[gd_resource type="Resource" script_class="BossChronicleDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/boss_chronicle_def.gd" id="1_bosschronicl"]
+[ext_resource type="Resource" path="res://data/story/fragments/crimson_tengu_rubric.tres" id="2_crimsontengu"]
+[ext_resource type="Script" path="res://src/definitions/story/deeds/unhealed_deed.gd" id="3_unhealeddeed"]
+[ext_resource type="Script" path="res://src/definitions/story/chronicle_chapter.gd" id="4_chroniclecha"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/fragments_condition.gd" id="5_fragmentscon"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="6_progresscond"]
+[ext_resource type="Script" path="res://src/definitions/story/waking_line.gd" id="7_wakingline"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="8_keepernamed"]
+[ext_resource type="Resource" path="res://data/story/fragments/crimson_tengu_feather.tres" id="9_crimsontengu"]
+[ext_resource type="Resource" path="res://data/story/fragments/crimson_tengu_journal.tres" id="10_crimsontengu"]
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="11_fragmentdef"]
+
+[sub_resource type="Resource" id="Resource_1"]
+script = ExtResource("3_unhealeddeed")
+id = &"unmended"
+hint = "The pyre only accepts what does not heal."
+rule = "Slay him without healing at all during the fight."
+revealed_by = ExtResource("2_crimsontengu")
+
+[sub_resource type="Resource" id="Resource_2"]
+script = ExtResource("4_chroniclecha")
+id = &"red_prior"
+title = "The Red Prior"
+lines = PackedStringArray("A crow-man in a scarlet mask, his feathers cut into blades. He sweeps the ash before he fights.", "He greets you as one greets a worshipper who came late.")
+slain = 0
+
+[sub_resource type="Resource" id="Resource_3"]
+script = ExtResource("4_chroniclecha")
+id = &"fallen_from_the_peaks"
+title = "Fallen From the Peaks"
+lines = PackedStringArray("He was a tengu of the mountains above Kagari, proud and swift. He flew higher than the bells.", "One winter he dove into the Well to catch a falling feather. His wings burned in the dark.", "Below, he found a temple whose pyres were still burning.")
+slain = 1
+
+[sub_resource type="Resource" id="Resource_4"]
+script = ExtResource("5_fragmentscon")
+count = 2
+
+[sub_resource type="Resource" id="Resource_5"]
+script = ExtResource("4_chroniclecha")
+id = &"blade_that_does_not_kneel"
+title = "The Blade That Does Not Kneel"
+lines = PackedStringArray("A guard in burning armor sometimes passes his pyres. He never kneels.", "The Tengu despises him. He envies him too: that guard once knew how to say no.")
+slain = 1
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_4")])
+
+[sub_resource type="Resource" id="Resource_6"]
+script = ExtResource("4_chroniclecha")
+id = &"carved_rite"
+title = "The Carved Rite"
+lines = PackedStringArray("The temple's walls bore a rite, carved by priests long dead: feed the sun.", "He read it, learned it, made himself its priest. No one was there to tell him no.", "Every dawn he throws to the pyres whatever the Well lets fall.")
+slain = 2
+
+[sub_resource type="Resource" id="Resource_7"]
+script = ExtResource("4_chroniclecha")
+id = &"words_given"
+title = "The Words Given"
+lines = PackedStringArray("One day the shrine's keeper came down, lantern in hand, and asked him for the words of the rite.", "A priest answers whoever asks. He told him all of them, to the last.", "On the moonless night the keeper came back with souls. The Tengu understood too late what he had taught.")
+slain = 4
+
+[sub_resource type="Resource" id="Resource_8"]
+script = ExtResource("4_chroniclecha")
+id = &"sun_has_a_mouth"
+title = "The Sun Has a Mouth"
+lines = PackedStringArray("At the heart of the rite is a word the priests scratched out. The Tengu found it again under the soot.", "It is not \"sun\". It is \"mouth\".", "He still feeds the pyres. He knows nothing else, and he is ashamed.")
+slain = 6
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_1")])
+
+[sub_resource type="Resource" id="Resource_9"]
+script = ExtResource("5_fragmentscon")
+count = 1
+
+[sub_resource type="Resource" id="Resource_10"]
+script = ExtResource("7_wakingline")
+id = &"a_worshipper_who_reads"
+line = "A worshipper who reads, good. Read what was scratched out, too."
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_9")])
+
+[sub_resource type="Resource" id="Resource_11"]
+script = ExtResource("7_wakingline")
+id = &"should_have_kept_silent"
+line = "Tôma asked me for the words. For once, I should have kept silent."
+conditions = Array[ExtResource("6_progresscond")]([ExtResource("8_keepernamed")])
+
+[resource]
+script = ExtResource("1_bosschronicl")
+chapters = Array[ExtResource("4_chroniclecha")]([SubResource("Resource_2"), SubResource("Resource_3"), SubResource("Resource_5"), SubResource("Resource_6"), SubResource("Resource_7"), SubResource("Resource_8")])
+waking_lines = Array[ExtResource("7_wakingline")]([SubResource("Resource_10"), SubResource("Resource_11")])
+fragments = Array[ExtResource("11_fragmentdef")]([ExtResource("9_crimsontengu"), ExtResource("2_crimsontengu"), ExtResource("10_crimsontengu")])

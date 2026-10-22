@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="2_keepernamed"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/keeper_journal.tres" id="3_keeperjourna"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="4_progresscond"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"giant_frog_journal"
+title = "Tôma's Journal, a Wet Page"
+author = "Tôma, keeper of the shrine"
+place = "The spring, at dusk"
+lines = PackedStringArray("She sings my daughter's name. She does not know what she sings.", "I gave her the children's souls to keep. Hana loved that frog.", "If the water gives my daughter back, I will give hers back. I swear it on the lantern.")
+look = ExtResource("3_keeperjourna")
+conditions = Array[ExtResource("4_progresscond")]([ExtResource("2_keepernamed")])

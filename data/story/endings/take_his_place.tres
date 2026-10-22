@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EndingDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/ending_def.gd" id="1_ending"]
+
+[resource]
+script = ExtResource("1_ending")
+id = &"take_his_place"
+choice = "Take his place"
+hint = "Become the keeper of the seal: nameless, down here, for as long as it holds."
+title = "The Nameless Keeper"
+text = "You take his place before the seal, and the Well forgets your face.
+Tôma climbs toward the light, to wake the village and answer to it.
+Below, a lantern keeps watch. No one will know who holds it."
+stat = "ending_keeper"
+color = Color(0.78, 0.66, 1, 1)

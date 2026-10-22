@@ -9,6 +9,9 @@ extends Resource
 @export var sounds: SoundBank
 ## The game's name, its story and the texts that tell it.
 @export var story: StoryDef
+## How the story is told around the fights: the wardens' cinematics, the fragments on the floors,
+## the reveals' gate (the chronicles hang on each BossDef).
+@export var narrative: NarrativeDef
 ## Items that can be found lying on the floor. Loot tables can also reference items not listed here.
 @export var items: Array[ItemDef] = []
 ## Perks offered on level up (common) and after bosses (rare relics).

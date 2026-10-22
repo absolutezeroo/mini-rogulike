@@ -30,8 +30,16 @@ The suites (`tests/suites/`, each a `TestSuite`):
 - **game**: a bot plays the real game (kills, level ups and perk choices, stairs, death and
   restart, saving and resuming), then on that same game: **combat** (projectiles, perks, skills,
   monsters and their traits, difficulty, weapons), **floor** (props, hazards, chests, ambushes,
-  encounters, pact doors, the merchant, loot, curses, biomes, act cards, the belt) and **boss** (a full boss fight
-  with its phases and relic, then winning the run).
+  encounters, pact doors, the merchant, loot, curses, biomes, act cards, the belt), **boss** (a full boss fight
+  with its phases and relic, then winning the run) and **finale** (the bottom of the Well after a
+  win: the gate, saves around it, Tôma, the Maw's jaw, the endings, and with Boss stories on
+  their meetings, last words and deeds).
+- The story (`story_tests.gd`, `StoryTests`): its unit part runs in the unit suite (every
+  warden's chronicle, lengths and translations, the reveal rule, conditions, deeds, what a meeting
+  tells, fragments, the codex's Chronicle, the option), its game part at the end of the game suite
+  (the cinematic in an arena, skipping, no replay on a run picked up again, Short and Off, a deed,
+  fragments on the floors and their panel). The runner turns Boss stories off for every other test
+  (`Settings.boss_stories`), as it does the tutorial hints; the story tests turn them on.
 - **tutorial**: the hints' data, the first steps played with the real controls, the hints that come
   up once, menus, the options and the profile.
 
@@ -40,11 +48,9 @@ The runner prints `FAIL: <what>` for every failed check, a count per suite, then
 one).
 
 **Read the output, not only the exit code.** Engine errors printed while a test runs (`ERROR:`,
-`SCRIPT ERROR:`) don't fail the run today. Known ones (2026-10-21): `Parse JSON failed` twice (the
-damaged-save test, on purpose), `Attempted to use 'has' an object into a TypedArray` from
-`monster_page.gd` (`_home()` looks for a common monster in a typed boss list) and one `String
-formatting error` (the `100%` in a check message of `combat_tests.gd`), plus the leak warnings at
-exit. Any other is a bug, even if every check passed.
+`SCRIPT ERROR:`) don't fail the run today. Known ones (2026-10-22): `Parse JSON failed` twice (the
+damaged-save test, on purpose), plus the leak warnings at exit. Any other is a bug, even if
+every check passed.
 
 - **balance** (opt-in: only with `--only=balance`): the balance tools' quick runs against the
   targets of `data/balance/targets.tres`. Some of its checks fail on purpose today (the balance
@@ -74,6 +80,8 @@ In debug builds only (running from the Godot editor, on the phone too, or a debu
 - **Hero**: god mode (nothing hurts), full heal, +500 gold, level up, an Epic weapon, every
   consumable, freezing / burning / normal temperature.
 - **Monsters**: pick any monster or boss and spawn it (or an elite one), kill all, put all asleep.
+- **The Well's bottom** (Floor row): goes to the final fight at once (FinaleDef), as if Act IV's
+  boss had led there.
 - **Pact door**: one button per pact: seals a dead-end room of this floor behind its door, shown
   on the map.
 

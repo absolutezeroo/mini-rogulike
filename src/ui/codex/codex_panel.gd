@@ -31,6 +31,8 @@ var _list_box: PanelContainer
 var _scroll: ScrollContainer
 var _list: VBoxContainer
 var _page: MonsterPage
+## A warden's fragment, read again from its chronicle.
+var _fragment := FragmentPanel.new()
 var _cards: Array[CodexCard] = []
 var _named: Array[Node] = []
 
@@ -107,7 +109,7 @@ func _fill_quests() -> void:
 # --- Bestiary -------------------------------------------------------------------
 
 ## Every monster and boss, act by act (each act's monsters, then its bosses), then the Deeps'
-## demons, then the hidden floor's boss.
+## demons, then the hidden floor's boss, then the forms waiting at the bottom of the Well.
 func bestiary_entries() -> Array[MonsterDef]:
 	var result: Array[MonsterDef] = []
 	for act in _content.dungeon.acts:
@@ -120,6 +122,11 @@ func bestiary_entries() -> Array[MonsterDef]:
 	var hidden := _content.dungeon.hidden_floor
 	if hidden and hidden.boss and not result.has(hidden.boss):
 		result.append(hidden.boss)
+	var finale := _content.dungeon.finale
+	if finale and finale.boss:
+		for form in finale.boss.forms():
+			if not result.has(form):
+				result.append(form)
 	return result
 
 
@@ -178,6 +185,7 @@ func _fill_bestiary() -> void:
 			_list.add_child(gap)
 	_fill_abyss(rules, placed)
 	_fill_hidden(rules, placed)
+	_fill_finale(rules, placed)
 
 
 ## The Deeps' demons, after the acts: they live under every floor, not in an act.
@@ -217,22 +225,42 @@ func _fill_abyss(rules: BestiaryRules, placed: Dictionary) -> void:
 ## The hidden floor's boss, after the acts: "???" (its floor too) until it was met.
 func _fill_hidden(rules: BestiaryRules, placed: Dictionary) -> void:
 	var hidden := _content.dungeon.hidden_floor
-	if hidden == null or hidden.boss == null or placed.has(hidden.boss):
+	if hidden and hidden.boss:
+		_fill_secret(rules, placed, hidden.subtitle, hidden.title, [hidden.boss] as Array[MonsterDef])
+
+
+## The bottom of the Well's forms, last: "???" until met (its name too), each its own card.
+func _fill_finale(rules: BestiaryRules, placed: Dictionary) -> void:
+	var finale := _content.dungeon.finale
+	if finale and finale.boss:
+		var forms: Array[MonsterDef] = []
+		forms.assign(finale.boss.forms())
+		_fill_secret(rules, placed, finale.subtitle, finale.title, forms)
+
+
+## A heading and the cards of bosses met nowhere else: the heading reads "???" until one of
+## them was met; a card not met shows as unknown (CodexCard).
+func _fill_secret(rules: BestiaryRules, placed: Dictionary, subtitle: String, title: String, bosses: Array[MonsterDef]) -> void:
+	var kinds := bosses.filter(func(m: MonsterDef) -> bool: return m != null and not placed.has(m))
+	if kinds.is_empty():
 		return
-	var met := Profile.has_seen(hidden.boss.id) or Profile.kill_count(hidden.boss.id) > 0
+	var met := kinds.any(func(m: MonsterDef) -> bool: return Profile.has_seen(m.id) or Profile.kill_count(m.id) > 0)
 	var gap := Control.new()
 	gap.custom_minimum_size.y = 6
 	_list.add_child(gap)
-	var heading := "%s  -  %s" % [tr(hidden.subtitle), tr(hidden.title)] if met else "???"
+	var heading := "%s  -  %s" % [tr(subtitle), tr(title)] if met else "???"
 	_list.add_child(UiSkin.label(heading, Fonts.BODY, UiSkin.GOLD))
 	var flow := HFlowContainer.new()
+	flow.add_theme_constant_override("h_separation", 8)
 	_list.add_child(flow)
-	var card := CodexCard.new(hidden.boss, rules)
-	card.pressed.connect(func() -> void:
-		Sfx.play_ui(Sfx.bank.ui_open)
-		open_monster(hidden.boss))
-	flow.add_child(card)
-	_cards.append(card)
+	for monster: MonsterDef in kinds:
+		placed[monster] = true
+		var card := CodexCard.new(monster, rules)
+		card.pressed.connect(func() -> void:
+			Sfx.play_ui(Sfx.bank.ui_open)
+			open_monster(monster))
+		flow.add_child(card)
+		_cards.append(card)
 
 
 ## Its page instead of the list.
@@ -257,6 +285,9 @@ func is_page_open() -> bool:
 
 ## The back button: a monster's page goes back to the list, the list closes the codex.
 func back() -> void:
+	if _fragment.visible:
+		_fragment.close()
+		return
 	Sfx.play_ui(Sfx.bank.ui_close)
 	if _page.visible:
 		_close_page()
@@ -403,6 +434,12 @@ func _build() -> void:
 		_close_page())
 	_window.body.add_child(_page)
 	_own(_page)
+	_fragment.name = "FragmentPanel"
+	add_child(_fragment)
+	_page.fragment_requested.connect(func(fragment: FragmentDef, boss: BossDef) -> void:
+		Sfx.play_ui(Sfx.bank.ui_open)
+		_fragment.open(fragment, boss))
+	_own(_fragment)
 	for node in _named:
 		node.owner = self
 		node.unique_name_in_owner = true

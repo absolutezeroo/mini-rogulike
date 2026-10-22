@@ -1,7 +1,7 @@
 class_name GameTests
 extends TestSuite
 ## The real game, played: sets the game up, a bot plays, then runs the other game suites on it
-## (CombatTests, FloorTests, SecretTests, BossTests).
+## (CombatTests, FloorTests, SecretTests, BossTests, StoryTests, FinaleTests).
 
 
 func run() -> void:
@@ -10,7 +10,8 @@ func run() -> void:
 	var floor := FloorTests.new()
 	var boss := BossTests.new()
 	var secrets := SecretTests.new()
-	for suite: Node in [combat, floor, boss, secrets]:
+	var finale := FinaleTests.new()
+	for suite: Node in [combat, floor, boss, secrets, finale]:
 		add_child(suite)
 	# No merchant, encounter, ambush or special floor popping up in the middle of other tests (they have their own).
 	var merchant_chance := CONTENT.dungeon.merchant_chance
@@ -251,6 +252,7 @@ func run() -> void:
 	await combat._test_monster_behaviours(game)
 	await combat._test_ai_movement(game)
 	await floor._test_climate(game)
+	await floor._test_spacing(game)
 	await combat._test_review_fixes(game)
 	await floor._test_debug_panel(game)
 
@@ -347,6 +349,12 @@ func run() -> void:
 	check(not game.run.is_daily(), "Play starts a normal run")
 	Profile.reset()
 
+	# The bottom of the Well, once a run was won: Tôma, the Maw, an ending.
+	await finale._test_finale(game)
+	await finale._test_finale_story(game)
+	game.start_run()
+	await _frames(3)
+
 	# The run in progress is saved, and picked up again as it was.
 	check(RunSave.exists(), "the run in progress is saved")
 	var hero: Player = game.player
@@ -404,6 +412,10 @@ func run() -> void:
 	print("bot (depth 4, mortal): hp %d/%d, dead=%s" % [game.player.hp, game.player.get_max_hp(), game.player.is_dead])
 	await combat._test_threshold_lost(game)
 	await floor._test_abyss_death(game)
+	# The wardens' stories, on a fresh run (StoryTests).
+	var story := StoryTests.new()
+	add_child(story)
+	await story.run_game(game)
 	var off_grid := _off_grid_texts(game)
 	check(off_grid.is_empty(), "every text of the HUD and the in-run panels is on the font's grid (Fonts.SIZES, a one-pixel outline): %s" % ", ".join(off_grid.slice(0, 6)))
 	game.queue_free()

@@ -47,9 +47,16 @@ The player learns this **in pieces, over many runs**. No single line states it.
 - **How he shows before the end:** never in person. His **journal pages** (fragments), the
   wardens' lines ("the keeper chained me here"), the Veilleuse's silences, the shrine's
   extinguished lamps, a sword cut in the Effigy's seal made with the hero's own school.
-- **The final fight** (to build): phase 1, Tôma fights with the hero's own techniques (dash,
-  charged blow, the lantern's light turned against him); phase 2, **the Maw** (la Gueule) wears
-  him like a mask.
+- **The final fight** (built: docs/design/monsters.md, "The bottom of the Well"): phase 1, Tôma
+  fights with the hero's own techniques (a dash strike, a long-drawn wide cut, the lantern's
+  light turned against him: a violet flame closing on the ground under the hero); phase 2,
+  when he falls to his knees, **the Maw** (la Gueule) rises behind him out of a pool of tar, takes
+  his kneeling body into its mouth and wears him like a mask. It can only be hurt when its jaw
+  opens: then Tôma is seen inside, standing. When the Maw dies its golden mask crumbles and
+  leaves him standing in the dark, freed.
+- **His words at the bottom:** waking, « Tu es venu, mon élève. » / "You came, my pupil."; on
+  his knees, « Ta garde est juste, mon élève. » / "Your guard is true, my pupil." (a teacher's
+  last judgement: he is proud of the cut that beat him).
 - **Voice:** few words, a teacher's calm, never shouts. Calls the hero "mon élève" / "my pupil",
   never by a name (the hero has none).
 
@@ -65,6 +72,7 @@ The player learns this **in pieces, over many runs**. No single line states it.
 | under | Les Tréfonds / The Deeps | The Maw's gut. The Damned are Solhar's people, gnawed. |
 | between | Le Seuil / The Threshold | Where the dead wait to be eaten. The hero is sent back because the lantern still burns above. |
 | exit | La Brèche de l'Aube / The Dawn Breach | The lantern's light reaching down for its bearer. |
+| bottom | Le Fond du Puits / The Well's Bottom | Below the Kingdom of Dust the stone ends: a round floor of grey stone in the dark, a pool of tar under the far wall, bones. No lamp: the hero's lantern is the only light, and the Maw's golden face. Where Tôma kneels, waiting for the Maw to keep its word. |
 
 ## 5. The wardens (bosses)
 
@@ -85,6 +93,41 @@ changing with each meeting).
 | L'Accapareur Doré / Gilded Hoarder | the last king of Solhar | why Solhar fell: he fed it everything. |
 | Le Soleil Mort / Dead Sun | Solhar's god: the Maw's old mask | it speaks as the Maw's echo; never says "I" (the Well never says "I"). |
 | Le Gisant Sans Nom / Nameless Effigy | the first keeper, who sealed the Maw | the seal, the price of a name, the cut in the seal. |
+| Maître Tôma, le Gardien Parjure / Master Tôma, the Oathbreaker | the keeper who fed Kagari to the Maw (section 3) | everything; says almost nothing. |
+| La Gueule, la Faim du Puits / The Maw, the Well's Hunger | the hunger itself; its golden face is Solhar's "sun" (the Dead Sun was its old mask) | speaks only with what it took: Hana's voice from the spring at waking (« Papa... reste. » / "Papa... stay."), the Dead Sun's echo when it dies (« Le soleil se couche. » / "The sun sets."). |
+
+### 5b. Their chronicles (who they were, as if they had lived)
+
+Each warden's story is told a chapter at a time before its fights (`data/story/chronicles/`, the
+`lore` skill; how it is told: docs/design/presentation.md "Boss stories"). These are the facts
+the chronicles, their fragments and their deeds hold; anything new written for a warden goes here.
+The keeper is "le gardien du sanctuaire" / "the shrine's keeper" until the reveal (section 7).
+
+| Warden | Who it was (a name, a place, a habit) | Its regret | Its deed (what earns its truth) | Its fragments |
+|---|---|---|---|---|
+| Bloated King | **the Nushi** of the well-rim: a living puddle in the Well's throat that drank the lanterns' wax and ate moss; Kagari's children threw it coins for wishes. Everything it swallowed floats in it; the shrine's bronze offering bowl, in which the keeper poured the first soul, stuck on its head as a crown. | it thought the coins were love; it keeps a holed coin on a red cord a little girl threw, laughing (Hana: never said). | burst within 60 s ("it only grows on the time you give it"). | a child's wish slip ("do not eat the moon"); the sexton's register of offerings; a journal page. |
+| Mire Matron | the old frog of the spring under Kagari, where the village girls floated **paper boats** with candles on summer evenings; she sang to them with her brood. She drank the water of a drowning: her song ends on "Ha. Na.". The keeper sat by her spring every evening, then gave her the children's souls. | one boat is missing; she still looks for it. She knows the girl's voice in the spring has no throat. | drink at the Spring of the Drowned, then slay her in the same run. | the boat rhyme; a well-digger's note; a journal page. |
+| Gorr the One-Eyed | **Gorr**, Kagari's gravedigger: every skull a niche, every niche a name; a falling stone took one eye. He held the bell's rope at every keeper's lantern-oath and heard the last keeper swear. Horns grew with the Well's breath. | he could not name all the souls of the moonless night; he trusted "a hand that swore". He carved Hana a doll from an ox bone. | slain while sworn to an oath of the Tree of Souls. | the Ossuary register (niche forty kept for himself); the rite of the oath; a journal page. |
+| Azure Wyrm | **the Winter Sleeper**: slept under the crypt longer than Kagari stood, her breath keeping the dead from rot; the old folk left cold rice on the steps. The cold breath of the moonless night was not hers: it came from below, and every flame was already out when she woke. Bound with chains of a steel frost cannot bite. | she never said goodbye to her green sister. | finished by fire. | the prayer of the cold steps; Brann's note on frost; a journal page. |
+| Mother of Tears | Kagari's **mourners**, paid in rice to sing at funerals, their veils knotted together in the Ossuary. They weep for the one child no one buried. The keeper was the only living man who came to weep with them; he gave them the souls of the grieving. | they never asked him whom he wept for. They know the song below lies. | slain without a single wound. | their lament; old Sayo's advice to her niece; a journal page. |
+| Crimson Tengu | a **mountain tengu** of the peaks above Kagari who dove into the Well after a falling feather, burned his wings, found the Pyre Temple still burning and made himself its priest; sweeps the ash every dawn. **He taught the keeper the words of the rite.** Under the soot, the rite's scratched-out word is not "sun" but "mouth". | he answered when he should have kept silent. | slain without healing during the fight (the rite forbids a remedy while the offering burns). | his feather journal; a Solhar priest's rubric of the rite; a journal page. |
+| Ember Ronin | **Vardan**, guard of the seventh step of Solhar's temple, of the guards' school of curved single-edged blades ("one edge, one loyalty"); Kagari later called him rônin. On the day of the great Tithe he obeyed and drove up the steps people whose names he knew; he saw the sun up close: a mouth that thanked the king. He refused to guard his king's gold; the keeper gave him an order instead. | he obeyed. | slain with a Katana (a blade of his school). | the roll of the seventh step; the guards' code on his scabbard; a journal page. |
+| Jade Wyrm | the Azure Wyrm's **sister**, who loved warmth and went down to it; Solhar's priests fed her and called her **the Gentle One**: her venom put the offerings to sleep before the pyres. She coils around a crack where the Maw's warm breath rises. She needed no chains; she serves gladly. | she knows a hunger never gives back, and stays for the warmth. | slain on Martyr or Nightmare ("only those who come down as martyrs"). | a scale charm of an offering; the priests' ordinance (Hushed Archive); a journal page. |
+| Gilded Hoarder | **Ostarion**, last king of Solhar, who knew famine as a child and swore Solhar would never hunger again; he gave the whole Tithe in a day, then his people. The sun paid in gold, never in bread; in the last winter he chewed coins. Every coin bears his face. The Old Wanderer sold him spices. | he could warn the keeper; he wants to see whether he pays too. | slain by a run that bought nothing from the merchant. | the Tithe ledger's last page; the Old Wanderer's letter; a journal page. |
+| Dead Sun | **the Great Noon**, hymned at the hour shadows vanish; it took the whole kingdom when no souls were left, and still shines for its dead at noon. It needed no binding: the keeper knelt to it and it answered with Hana's voice. Speaks only in commands, never "I". | (a mask has none: it is what hungers, trying on a face; the mask is cracking). | slain with the Templar Sword (only blessed steel wounds it). | the noon hymn; a templar's warning; a journal page. |
+| Nameless Effigy | the **first keeper**, a knight Solhar claims (others say he had no land), who gave his name to the seal and tries the names of the dead on himself. The last keeper of Kagari came with his lantern unlit, cut the seal's last knot the way he teaches his pupil, and bound him to guard what he had sworn to prevent. He saw the Maw: "a lack that had taken shape". The door could close again by giving him back his name, or by someone giving their own. | the first keeper serves the last. | slain losing less than a quarter of one's Health ("a blade that does not tremble"). | an effaced epitaph; Brann's note on his blades; Tôma's last journal page. |
+| Master Tôma (at the bottom; named there: meeting him is the reveal) | **Tôma**, keeper of Kagari's shrine. Hana drowned at dusk among the paper boats while he swept the shrine; he searched the water three nights, then took in the orphan sleeping at the door, gave him a broom, then a blade, and taught him the dash, the long cut, the guard and the lantern (his fencing lessons were pinned inside the dojo's door). In Solhar's drowned archives he found the promise; he put out every flame but the pupil's. He wrote the Vigil-Keeper a letter he never sent: not to ring the bell, not to bless the pupil's lantern. | he knows what waits with him is not Hana (the voice in the tar has no throat) and kneels lower so as not to hear it. | slain without a single roll ("he waits to see you stand"). | his journal's first page; the shrine's fencing lessons; a letter never sent. |
+| The Maw | the **hunger** itself: a face of gold crowned with rays (Solhar's sun, cracked), no body behind it. It answered Solhar with harvests and gold, Tôma with his daughter's voice; it never gave anything back, it gives only what it has learned to imitate. It wears Tôma as it wore the sun. It does not die: the first keeper made it wait behind a door; the bell, rung from below, shuts that door, and someone must keep it. What it has tasted, it keeps. | (none: it never says "I"; Hana's voice and the Dead Sun's echo speak for it) | slain by a run it never bit ("it only yields to one it has never tasted"). | the first keeper's rite (a copy from under the bell); Hana's paper boat, found dry in the tar (the boat the Mire Matron looks for); Tôma's journal, a page stuck with tar. |
+
+New facts these hold: **Brann forged the chains with which Tôma bound the wardens** (he gave them
+"without looking at me"), and the Effigy's blades long before, weeping; this is what he atones
+for. **Tôma found the promise in the Hushed Archive and the way (the rite of feeding) from the
+Crimson Tengu.** The Dead Sun answered him with Hana's voice. Each warden carries a page of
+**Tôma's journal** (found only after the reveal), one per warden, from the first soul poured in
+the bronze bowl to the cut in the seal, and its first page (the summer Hana drowned) on the last
+act's floors once the bottom is open. **The missing paper boat** the Mire Matron looks for went
+down to the bottom: the Maw keeps it, dry, in the tar (it says "Papa... the boat." with Hana's
+voice once the hero has found it). The Vigil-Keeper blesses the lanterns of those who go down.
 
 ## 6. The keepers and the voices you meet
 
@@ -112,10 +155,23 @@ fragments found, the Effigy slain, victories). A rough order:
    current ending = **first ending**). The Veilleuse admits the lamps were put out by hand.
 5. **The Nameless Effigy slain:** the seal was cut, by a blade of the hero's own school.
 6. **Enough fragments (journal of Tôma):** Tôma's grief, Hana, the pact. The Veilleuse breaks.
-7. **The bottom (to build):** Tôma, then the Maw. **True ending:** ring the bell (seal the Maw,
-   Tôma dies in peace, Hana rests) or take his place (become the nameless keeper of the seal).
+7. **The bottom** (built, once the profile has won a run): the last act's boss no longer ends
+   the run, a way leads down to **the Bottom of the Well** (« Le Fond du Puits » / "The Well's
+   Bottom"). Tôma, then the Maw. Tôma is named here for the first time. **True ending**, chosen
+   by the player when the Maw's mask crumbles: **ring the bell** (« Sonner la cloche »: the Well
+   closes, Tôma sits against the stone and dies in peace, "She sleeps now", Hana rests, Kagari
+   wakes) or **take his place** (« Prendre sa place »: the hero stays before the seal, the Well
+   forgets his face; Tôma climbs back to wake the village and answer to it).
 
 Rule: a line may **hint** at a later step, never **state** it.
+
+In the data: the steps are `ProgressCondition`s (data/story/conditions/: `act_ii_reached`,
+`act_iii_reached`, `first_victory`, `keeper_named`). **The keeper may be named** (steps 5 and 6 for
+the chronicles: his name in the wardens' mouths, his journal's pages) once the Nameless Effigy is
+slain and a run is won, or once the hero has met him at the bottom of the Well (step 7: there he
+is named; `keeper_named`, an `AnyCondition`, `NarrativeDef.keeper_reveal`); every text holding
+"Tôma" asks for it, which the tests check in both languages. Tôma's and the Maw's chronicles are
+told at the bottom (their first chapters never name him), their last words as they fall.
 
 ## 8. Rules of the canon
 
@@ -137,5 +193,16 @@ Rule: a line may **hint** at a later step, never **state** it.
 ## 9. Still open (decide before writing these)
 
 - The Veilleuse's exact place and art at the shrine (a figure on the title screen?).
-- The final fight's arena and the Maw's look.
-- Whether "take his place" leads to a new game mode (endless as the keeper).
+- Whether "take his place" leads to a new game mode (endless as the keeper). Today both
+  endings lead to the same victory screen (and endless mode if the player keeps going); the
+  choice is kept in the profile (`Profile.ending`) for whatever comes next.
+
+Decided:
+
+- **The Maw's look:** a huge golden skull-mask crowned with spikes like a sun's rays (the "sun"
+  Solhar worshipped), cracked, its jaw full of teeth; black tentacles of tar hang from it into a
+  pool of tar. Its jaw shut, it is a mask; open, Tôma stands inside its mouth. It never walks: it
+  rises out of the tar at the top of the arena and stays there.
+- **The arena:** the Bottom of the Well, a round floor of grey stone (an oval arena, no pillars)
+  in near-total dark (ambient light 3 of 15, no lamps): the hero's lantern and the Maw's own
+  golden glow light it. Tôma kneels below its middle; the Maw rises at its top.

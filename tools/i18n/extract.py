@@ -43,9 +43,12 @@ UNSEEN_NAMES = {os.path.join("data", *parts) for parts in [
 TEXT_FIELDS = {
     "display_name", "description", "lore", "title", "subtitle", "text", "label", "leave_label",
     "used_text", "message", "goal_text", "short_label", "tagline", "shrine_text", "victory_text",
-    "camp_warning", "invasion_message", "verb", "door_name",
+    "camp_warning", "invasion_message", "verb", "door_name", "choice", "choice_title", "choice_lore",
+    "immune_text",
+    # The story (data/story/): chapters, waking lines, fragments, deeds, the narrative's messages.
+    "line", "author", "place", "hint", "rule", "fragment_message", "deed_message",
 }
-LIST_FIELDS = {"intro_pages", "death_lines", "greetings", "branches", "branch_texts", "rank_names", "tips"}
+LIST_FIELDS = {"intro_pages", "death_lines", "greetings", "branches", "branch_texts", "rank_names", "tips", "lines"}
 SCENE_FIELDS = {"text", "tooltip_text", "placeholder_text"}
 
 # A GDScript or Godot resource string literal: "..." with backslash escapes.

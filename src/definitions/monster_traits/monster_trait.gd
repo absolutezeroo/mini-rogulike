@@ -26,6 +26,17 @@ func can_attack(_monster: Monster) -> bool:
 	return true
 
 
+## False to stop the monster from starting a skill for now (the AI picks none).
+func can_cast(_monster: Monster) -> bool:
+	return true
+
+
+## True when the hit glances off before anything happens (no damage, no flash, no status, no
+## streak toward the shockwave): the trait shows how it was turned away itself.
+func deflects(_monster: Monster, _hit: HitInfo) -> bool:
+	return false
+
+
 ## Last say on the damage of a hit, after armor.
 func incoming_damage(_monster: Monster, _hit: HitInfo, damage: int) -> int:
 	return damage
