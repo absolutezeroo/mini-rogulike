@@ -323,7 +323,7 @@ one are in [adding-content.md](../adding-content.md#the-story-chronicles-fragmen
   of two steps of its element's ramp (spirit for Kagari's papers, frost for the bone tablets,
   fire for the singed pages, holy for Solhar's letters, water for the journal), three motes rising,
   a small light. Interact (**Read**) opens it in a panel over the paused game (`FragmentPanel`: its
-  title on the ribbon, who wrote it and where, its lines, "A new page in the chronicle of ..."); a
+  title on the ribbon, who wrote it and where, its lines, "A new page for its chronicle: ..."); a
   tap anywhere closes it. Found for good (Profile), read again in the codex.
 
 ## Pixel art
