@@ -64,6 +64,9 @@ says so).
 | The Well claims you (death) | Le Puits te réclame | Victory Achieved | Victoire Acquise |
 | Souls to offer (shrine badge) | Âmes à offrir | Choose your ordeal (difficulty) | Choisis ton épreuve |
 | The Threshold (a second life's trial) | Le Seuil | spectre (its monsters); the knell | spectre ; le glas |
+| The Deeps; the Damned (its monsters) | Les Tréfonds ; les Damnés | the hunger below (the Maw, unnamed) | la faim du fond |
+| the shrine's keeper (Tôma's title) | le gardien du sanctuaire | Keeper's Statue (an encounter) | Statue du Gardien |
+| the moonless night | la nuit sans lune | Moonless Night (the curse) | Nuit sans Lune |
 
 ## After adding or changing texts
 

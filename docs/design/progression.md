@@ -80,7 +80,7 @@ they buy the nodes of the **Tree of Souls** (`data/shrine/soul_tree.tres`, `Soul
 |---|---|---|
 | Flesh | Vitality; Iron Skin or Communion (heal 5% a level when a floor is won); Provisions; Death Denied (a Phoenix Feather from the start: a second life through the trial of the Threshold, see builds.md) or Blood Pact (+20% max Health, heals 30% weaker) | Oath of the Colossus |
 | Blade | Might; Keen Eye (+crit) or Quick Hands (+attack speed); Armory (pick the starting weapon, 5 levels); Spoils of the Fallen (elites drop Magic gear) | Oath of the Duelist |
-| Arcana | Gift of the Arcane; Pyromancy, Paladin's Oath (new items); Forbidden Library; Satchel of Tomes (start with a tome) or Swift Litany | Oath of the Heretic |
+| Arcana | Gift of the Arcane; Pyromancy, Templar's Vow (new items); Forbidden Library; Satchel of Tomes (start with a tome) or Swift Litany | Oath of the Heretic |
 | Greed | Loaded Dice (rerolls); Swiftness, Exile (banishes); Master Smith, Cartographer (stairs, merchant and forge on the minimap); Haggler (-15% prices) or Laden Stalls (+2 items) | Oath of the Vulture |
 
 A node opens once a node above it is bought; some also need a **feat** (an achievement: "?" on the
@@ -111,7 +111,7 @@ list, `armory_first` 3 at level 1, `armory_per_level` 2 more each level; costs 9
 | 4 | Whip, Shuriken | 9 |
 | 5 | Greatsword, Templar Sword | 11 |
 
-A weapon in `content_db.tres` > Locked Items (the Templar Sword, opened by Paladin's Oath) is
+A weapon in `content_db.tres` > Locked Items (the Templar Sword, opened by Templar's Vow) is
 offered only once unlocked (`ShrineUpgrades.armory_weapons`). The oaths' weapons (War Hammer,
 Rapier, Ember Tome) are not in the list: they come with their oath. Ninjaku and Pickaxe are left
 to the floors. The node's detail says what the next level adds ("Now: 5 starting weapons >

@@ -335,6 +335,7 @@ func _test_content() -> void:
 				check(skill != null and skill.icon != null and skill.cooldown > 0.0 and not skill.effects.is_empty(), "%s: skill set up" % item.id)
 		if item is SkillTomeDef:
 			check(item.skill != null and item.skill.icon != null, "%s teaches a skill" % item.id)
+			check(item.get_details().begins_with(item.description), "%s: its card opens on the tome's own line" % item.id)
 	check(CONTENT.items.any(func(i: ItemDef) -> bool: return i is SkillTomeDef), "tomes can be found")
 	for item in CONTENT.items + CONTENT.locked_items:
 		check(item.resource_path.begins_with("res://data/items/") and not item.resource_path.contains("::"), "%s is its own file (saves point to it)" % item.id)
@@ -1480,7 +1481,7 @@ func _test_armory_levels() -> void:
 		offered = weapons
 	check(offered.size() >= 9, "the whole Armory offers most of the roster (%d)" % offered.size())
 	var templar: WeaponDef = load("res://data/items/weapons/templar_sword.tres")
-	check(CONTENT.locked_items.has(templar) and armory.armory_weapons.has(templar) and not offered.has(templar), "the Templar Sword waits for its unlock (Paladin's Oath)")
+	check(CONTENT.locked_items.has(templar) and armory.armory_weapons.has(templar) and not offered.has(templar), "the Templar Sword waits for its unlock (Templar's Vow)")
 	var next := UpgradeRow.armory_status(armory, armory.max_level - 1, CONTENT)
 	check(next.contains(templar.display_name + " (locked)"), "the detail marks a weapon still locked (%s)" % next)
 	var unlock := CONTENT.upgrades.filter(func(u: UpgradeDef) -> bool: return u.kind == UpgradeDef.Kind.UNLOCK and u.items.has(templar))

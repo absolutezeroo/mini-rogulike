@@ -1529,12 +1529,12 @@ func _test_climate(game: Game) -> void:
 	check(player.temperature.value < BodyTemperature.LIMIT * 0.1, "an oasis cools you down (%.0f)" % player.temperature.value)
 	pool.free()
 
-	# Lanternless: the whole floor in the dark, but around the hero.
+	# Moonless Night: the whole floor in the dark, but around the hero.
 	CONTENT.curses = [lanternless]
 	game._enter_floor()
 	await _frames(3)
 	var darks := get_tree().get_nodes_in_group("dark_rooms")
-	check(world.curse == lanternless and darks.size() == 1 and (darks[0] as DarkRoom).covers(world.map.cell_to_world(world.map.stairs_cell)) and (darks[0] as DarkRoom).covers(player.global_position), "Lanternless: the whole floor is dark")
+	check(world.curse == lanternless and darks.size() == 1 and (darks[0] as DarkRoom).covers(world.map.cell_to_world(world.map.stairs_cell)) and (darks[0] as DarkRoom).covers(player.global_position), "Moonless Night: the whole floor is dark")
 	check((darks[0] as DarkRoom).z_index > 0 and (darks[0] as DarkRoom).material is ShaderMaterial, "the darkness covers the monsters")
 	check(world.rules.loot_quality() > 1.0, "braving a curse pays: better loot")
 

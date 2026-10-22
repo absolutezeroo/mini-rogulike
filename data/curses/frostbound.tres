@@ -7,7 +7,7 @@
 
 [resource]
 script = ExtResource("3_boaed")
-lore = "The Well exhales. Its breath is the cold of the grave:
+lore = "The Well draws breath, and pulls every warmth down to the bottom:
 frost creeps over the stone... and over you."
 temperature = -5.5
 warm_spot = ExtResource("4_5yjvq")

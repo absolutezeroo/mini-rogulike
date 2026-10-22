@@ -322,7 +322,7 @@ func run() -> void:
 	var potion_def: ConsumableDef = load("res://data/items/consumables/health_potion.tres")
 	check(game.player.belt.count_of(potion_def) + game.player.inventory.count_of(potion_def) == CONTENT.player.starting_items.size() + 1, "Provisions add a potion")
 	check(game.player.perks.stacks_of(load("res://data/perks/relics/phoenix_feather.tres")) == 1, "Second Chance gives a Phoenix Feather")
-	check(CONTENT.unlocked_items.has(load("res://data/items/weapons/templar_sword.tres")), "Paladin's Oath unlocks the Templar Sword")
+	check(CONTENT.unlocked_items.has(load("res://data/items/weapons/templar_sword.tres")), "Templar's Vow unlocks the Templar Sword")
 	Profile.reset()
 	check(game.depth == 1, "restart goes back to depth 1")
 

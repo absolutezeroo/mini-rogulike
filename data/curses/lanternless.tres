@@ -5,14 +5,14 @@
 
 [resource]
 script = ExtResource("2_qv6w4")
-lore = "The Well swallows the light.
-Only your lantern holds the dark back... barely."
+lore = "The Well remembers the moonless night, and swallows every light.
+Only your lantern still holds the dark back... barely."
 darkness = ExtResource("1_h6l76")
 tint = Color(0.75, 0.72, 0.85, 1)
 loot_quality = 1.6
 gold = 1.3
 id = &"lanternless"
-display_name = "Lanternless"
+display_name = "Moonless Night"
 description = "You only see what is right around you. Better loot hides in the dark."
 color = Color(0.7019608, 0.6156863, 0.85882354, 1)
 min_depth = 2
