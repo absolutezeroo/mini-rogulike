@@ -36,6 +36,12 @@ gauntlet_keeper_floor_cost_min = 0.2
 gauntlet_keeper_floor_cost_max = 0.6
 ; Keeper: the average player wins at least 3 acts in 4 (boss included): a challenge, not a wall.
 gauntlet_keeper_player_wins_min = 0.75
+; Keeper's curve (gauntlet: each normal floor, player bot, the hero brought into the act, no potions): act I's floors cost at most 25% of max Health (where a player learns), every later act's at least 15% (no rolling through), and the mean cost grows act over act by 0 to 25 points (no flat stretch, no cliff).
+curve_bot = &"kite"
+curve_first_act_cost_max = 0.25
+curve_floor_cost_min = 0.15
+curve_step_min = 0.0
+curve_step_max = 0.25
 ; Each act a little harder than the last (threat x0.9-x1.6 act over act): a steady curve, no wall.
 act_threat_step_min = 0.9
 act_threat_step_max = 1.6

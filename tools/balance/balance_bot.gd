@@ -88,6 +88,12 @@ func step() -> void:
 	if player == null or player.is_dead:
 		release_all()
 		return
+	if is_instance_valid(player.world) and player.world != world:
+		# He crossed into another world (the Deeps, the Threshold): play there.
+		world = player.world
+		_path.clear()
+		_hazards.clear()
+		_hazard_timer = 0
 	# Skill buttons are read as "just pressed": let go every other frame.
 	_released = _pressed.duplicate()
 	for action: StringName in _pressed.keys():
@@ -118,7 +124,7 @@ func _drink() -> void:
 
 
 func _target() -> Monster:
-	if is_instance_valid(focus) and not focus.is_dead:
+	if is_instance_valid(focus) and not focus.is_dead and focus.is_inside_tree():
 		return focus
 	var best: Monster = null
 	var best_distance := INF

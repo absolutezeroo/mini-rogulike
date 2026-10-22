@@ -222,16 +222,6 @@ extends Resource
 @export var sustain: SustainRules
 
 @export_group("Difficulty")
-## The game's own lethality, before any difficulty: multiplies what the monsters deal with their
-## attacks and skills (what a boss calls to its side too). Not bosses (below), not the dungeon's
-## own damage (traps, bursts, the cold). Keeper plays the game as it is (its multipliers are all
-## x1, "the game as it was made"); Pilgrim, Martyr and Nightmare multiply it.
-@export var monster_damage_scale: float = 1.0
-## The same for the monsters' Health.
-@export var monster_hp_scale: float = 1.0
-## The bosses' own (they are tuned one by one, BossDef: these stay x1 unless every boss moves).
-@export var boss_damage_scale: float = 1.0
-@export var boss_hp_scale: float = 1.0
 ## Monster HP grows by this fraction per depth (0.15 = +15% per floor). Not bosses (below).
 @export var monster_hp_scale_per_depth: float = 0.15
 ## Attack added per depth below the first (rounded). Not bosses (below).

@@ -49,6 +49,20 @@ extends Resource
 ## challenge, not a wall.
 @export var gauntlet_keeper_player_wins_min: float = 0.75
 
+@export_group("Curve of the floors")
+## The bot whose curve is checked (a skilled player feels the curve's shape first).
+@export var curve_bot: StringName = &"kite"
+## Keeper, the gauntlet's curve (each normal floor, the player bot, the hero an average player
+## brings into the act): Health a floor of act I costs, mean of its floors, at most this (the
+## first floors are where a player learns)...
+@export var curve_first_act_cost_max: float = 0.25
+## ...a floor of every later act at least this (it needs attention: no rolling through)...
+@export var curve_floor_cost_min: float = 0.15
+## ...and from one act to the next the mean cost grows by at least this (no flat stretch)...
+@export var curve_step_min: float = 0.0
+## ...and at most this (no cliff).
+@export var curve_step_max: float = 0.25
+
 @export_group("Curve")
 ## Threat of a boss for the act's expected build = share of the hero's health a face-tank fight
 ## would cost (boss damage per second x time to kill / max health). From one act to the next it

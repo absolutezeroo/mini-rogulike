@@ -8,10 +8,11 @@ extends RefCounted
 ##   data it depends on: the files its resources load (ResourceLoader dependencies, followed
 ##   through), so a boss fight of act I is measured again when act I's monsters or the build's
 ##   perks change, not when an act III monster does. `--no-cache` measures everything again.
-## - **Workers.** With `--jobs=N` the units are dealt out in turn to N processes (the same
-##   command run as `--worker=k/N`), each measuring its own share into the cache; then the first
-##   process assembles every mode's report from the cache (`measuring` off), measuring itself
-##   anything a worker left undone.
+## - **Workers.** With `--jobs=N`, N processes (the same command run as `--worker=k/N`) walk
+##   the same units in the same order; each takes the next unit no other has claimed (a folder
+##   made in `claims_dir`: making it is atomic, the first one wins), so a long unit never holds
+##   the others back. Then the first process assembles every mode's report from the cache
+##   (`measuring` off), measuring itself anything left undone.
 ##
 ## A mode asks for each unit with `await jobs.unit(id, roots, callable)`: the result (measured,
 ## or read back), or null when the unit belongs to another worker in this pass.
@@ -33,6 +34,8 @@ const VERSION := "2"
 ## This process' share: units whose turn % workers == worker.
 var worker := 0
 var workers := 1
+## Where the processes of one run claim units (empty: units dealt out in turn instead).
+var claims_dir := ""
 ## Phase 1 (true): measure this worker's units that the cache doesn't have. Phase 2 (false): every
 ## unit read back from the cache (measured here if missing).
 var measuring := true
@@ -75,9 +78,11 @@ func unit(id: String, roots: PackedStringArray, measure: Callable, shared: bool 
 		if kept != null:
 			hits += 1
 			return kept
-	if measuring and not shared and turn % workers != worker:
-		skipped += 1
-		return null
+	if measuring and not shared and workers > 1:
+		var taken := DirAccess.make_dir_absolute(claims_dir.path_join(key)) != OK if not claims_dir.is_empty() else turn % workers != worker
+		if taken:
+			skipped += 1
+			return null
 	var started := Time.get_ticks_usec()
 	var result: Variant = await measure.call()
 	measure_seconds += (Time.get_ticks_usec() - started) / 1e6
@@ -248,7 +253,7 @@ static func build_id(build: BalanceBuildDef) -> String:
 	perks.sort()
 	var ups := build.upgrades.keys()
 	ups.sort()
-	var parts := PackedStringArray([build.name, "lv%d" % build.level, "il%d" % build.item_level,
+	var parts := PackedStringArray([build.name, "lv%d" % build.level, "il%d/%d" % [build.item_level, build.weapon_item_level],
 		build.weapon.resource_path if build.weapon else "-", "r%d" % build.weapon_rarity, ",".join(build.weapon_affixes), ",".join(build.runes),
 		",".join(build.armors.map(func(a: ArmorDef) -> String: return a.resource_path if a else "-")), str(build.armor_rarities), "|".join(build.armor_affixes),
 		",".join(perks.map(func(p: String) -> String: return "%s%d" % [p, int(build.perks[p])])),

@@ -16,6 +16,12 @@ extends Resource
 @export_range(1, 10) var floors: int = 3
 ## Monsters met on the act's floors (their spawn_weight decides how often).
 @export var monsters: Array[MonsterDef] = []
+## The act's own threat, on every difficulty (FloorRules): its monsters' Health and what their
+## attacks and skills deal, on top of the depth's scaling. Not its bosses (tuned one by one,
+## BossDef), not the dungeon's own damage (traps, bursts, the cold). Shapes the curve where the
+## hero's power outgrows the depth's steady scaling (docs/balance-log.md, the Keeper curve).
+@export var monster_hp: float = 1.0
+@export var monster_damage: float = 1.0
 @export var boss: BossDef
 ## Other bosses that may guard the act instead (one is drawn for each run).
 @export var other_bosses: Array[BossDef] = []

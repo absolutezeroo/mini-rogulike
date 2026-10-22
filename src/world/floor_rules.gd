@@ -29,19 +29,24 @@ static func make(floor_config: DungeonConfig, run_difficulty: DifficultyDef, flo
 
 # --- Monsters ----------------------------------------------------------------
 
-## Multiplies a monster's HP (after the depth scaling, see scale_monster()): the game's own
-## (DungeonConfig), the difficulty's, the event's.
+## Multiplies a monster's HP (after the depth scaling, see scale_monster()): the act's (not
+## bosses), the difficulty's, the event's.
 func monster_hp(is_boss: bool) -> float:
-	var base := (config.boss_hp_scale if is_boss else config.monster_hp_scale) if config else 1.0
+	var act := _act()
 	var scale := difficulty.boss_hp if is_boss else difficulty.monster_hp
-	return base * scale * (event.monster_hp if event else 1.0)
+	return (act.monster_hp if act and not is_boss else 1.0) * scale * (event.monster_hp if event else 1.0)
 
 
-## Multiplies a monster's attacks and skills: the game's own lethality (DungeonConfig: the
-## monsters', or `is_boss` the bosses'), times the difficulty's and the event's.
+## Multiplies a monster's attacks and skills: the act's (ActDef.monster_damage, not bosses), the
+## difficulty's and the event's.
 func monster_damage(is_boss: bool = false) -> float:
-	var base := (config.boss_damage_scale if is_boss else config.monster_damage_scale) if config else 1.0
-	return base * floor_damage()
+	var act := _act()
+	return (act.monster_damage if act and not is_boss else 1.0) * floor_damage()
+
+
+## The act this floor is in (null outside the acts' floors, or without a config).
+func _act() -> ActDef:
+	return config.act_for_depth(depth) if config else null
 
 
 ## Multiplies everything the floor deals: the difficulty's and the event's (monsters, traps,
@@ -78,7 +83,7 @@ func scale_monster(base: StatBlock, is_boss: bool) -> StatBlock:
 
 ## Damage from the dungeon itself (a trap, quicksand, a blast, the cold): `base`, plus
 ## `per_depth` for each floor, times the floor's damage multiplier (not the monsters' own
-## lethality: DungeonConfig.monster_damage_scale is for their attacks).
+## threat: ActDef.monster_damage is for their attacks).
 func dungeon_damage(base: float, per_depth: float = 1.0) -> int:
 	return maxi(1, roundi((base + depth * per_depth) * floor_damage()))
 

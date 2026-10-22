@@ -222,7 +222,7 @@ static func make_weapon(build: BalanceBuildDef, content: ContentDB) -> WeaponDef
 		var r := rune(content, id)
 		if r and (runes.size() < sockets or build.ignore_sockets):
 			runes.append(r)
-	var level := gear_level(build, content)
+	var level := build.weapon_item_level if build.weapon_item_level > 0 else gear_level(build, content)
 	if build.weapon_rarity <= ItemRarity.COMMON and affixes.is_empty() and runes.is_empty() and level <= 1:
 		return build.weapon
 	return LootRoller.make(build.weapon, clampi(build.weapon_rarity, 0, 3), affixes, runes, level) as WeaponDef

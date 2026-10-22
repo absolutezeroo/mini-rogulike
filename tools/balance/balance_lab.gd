@@ -176,8 +176,10 @@ func renew(s: Dictionary) -> void:
 	var world := game.world
 	world.forced_plain = s.plain
 	world.unpeopled = true
-	world.rng.seed = hash("%d-floor-%d" % [game.run.seed, s.depth])  # as Game._enter_floor()
-	world.build_floor(s.depth, content)
+	# As Game._enter_floor(): the same seed, the same ways down, the same way in.
+	world.rng.seed = hash("%d-floor-%d" % [game.run.seed, s.depth])
+	world.next_routes = FloorRoute.offer(content, s.depth + 1, game.difficulty, game.run.route_seed(s.depth + 1))
+	world.build_floor(s.depth, content, game._route_to(s.depth))
 	world.place_player(game.player)
 	for i in 3:
 		await get_tree().physics_frame
@@ -432,7 +434,8 @@ func dummy_pack(s: Dictionary, build: BalanceBuildDef, defs: Array, hp_share: fl
 
 ## A room: `foes` ([{ def, rank, affixes }]) appear around the hero at 140-200 px and go for it;
 ## `bot_name` plays. Until they (and what they summon) are all dead, the hero dies, or `limit`.
-## Returns { result: clear | died | timeout, clear_time, ttks, ttk_by_kind, taken, hits, healed,
+## Returns { result: clear | died | timeout, clear_time, away_time (in the Deeps or the
+## Threshold), ttks, ttk_by_kind, taken, hits, healed,
 ## heal_sources, min_hp_share, hero_max_hp, kills }.
 ## `carry`: the hero comes as the last room left it (Health, statuses, cooldowns: the gauntlet's
 ## rooms one after the other), only put back at the floor's start; the build is not put on again.
@@ -467,6 +470,7 @@ func pack(s: Dictionary, build: BalanceBuildDef, foes: Array, bot_name: String, 
 		spawned.append(monster)
 	var log := PackLog.new(player, spawned, world)
 	var bot := BalanceBot.create(bot_name, player, world)
+	var away_frames := 0
 	var frames := 0
 	var limit_frames := roundi(limit * FPS)
 	var outcome := "timeout"
@@ -474,6 +478,12 @@ func pack(s: Dictionary, build: BalanceBuildDef, foes: Array, bot_name: String, 
 		await get_tree().physics_frame
 		frames += 1
 		unpause(game)
+		if not world.is_inside_tree():
+			# The hero is in a world of his own for a while (the Deeps after a fall, the
+			# Threshold's trial): the room waits frozen, the bot plays there.
+			away_frames += 1
+			bot.step()
+			continue
 		log.frame()
 		if player.is_dead:
 			outcome = "died"
@@ -491,6 +501,7 @@ func pack(s: Dictionary, build: BalanceBuildDef, foes: Array, bot_name: String, 
 	result["hero_max_hp"] = player.get_max_hp()
 	result["rolls"] = bot.rolls
 	result["drinks"] = bot.drinks
+	result["away_time"] = away_frames / FPS
 	# (The next measure clears the room, or starts a fresh run.)
 	return result
 
@@ -586,6 +597,8 @@ class PackLog:
 			foe_ttks[index] = ttk
 
 	func frame() -> void:
+		if not world.is_inside_tree():
+			return  # the hero fell into the Deeps: this room is gone
 		# Summoned adds join the room.
 		for actor in world.get_hostiles(player.faction):
 			var m := actor as Monster

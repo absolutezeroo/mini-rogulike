@@ -13,6 +13,8 @@ extends Node
 
 ## Rooms fought before the boss (about the rooms on the way to a floor's stairs).
 const ROOMS := 8
+## Rooms of a floor measured for the curve (run_curve()).
+const CURVE_ROOMS := 6
 ## Game seconds a room gets before it counts as a timeout (the gauntlet goes on).
 const ROOM_TIMEOUT := 60.0
 ## Bots run when none is asked for.
@@ -39,6 +41,9 @@ var quick := false
 var verbose := true
 ## Game seconds before the boss fight is a timeout.
 var timeout := 240.0
+## What to run: "acts" (each act's last floor and boss), "curve" (every normal floor's cost),
+## or both ("all").
+var part := "all"
 
 
 func run() -> BalanceReport:
@@ -64,6 +69,8 @@ func run() -> BalanceReport:
 		d_list = d_list.slice(0, 1)
 		bot_list = bot_list.slice(0, 1)
 	var runs: Array = []
+	if part == "curve":
+		act_list = []
 	for act: int in act_list:
 		var build := BalanceBuild.expected(all_builds, act)
 		if build == null or (not builds.is_empty() and not builds.has(build)):
@@ -83,16 +90,216 @@ func run() -> BalanceReport:
 				runs.append(got)
 				if verbose and jobs.measuring:
 					print("  gauntlet: %s" % run_line(got))
+	var floors: Array = []
+	if part != "acts":
+		floors = await run_curve(d_list)
 	lab.restore_chances()
 	arena.queue_free()
 	var seconds := (Time.get_ticks_msec() - started) / 1000.0
 	report.notes.append("Gauntlet: %d runs in %.0f s of real time (seed %d, %d rooms then the boss; %d Health Potions, drunk below %d%% Health)." % [runs.size(), seconds, seed_value, ROOMS if not quick else 2, POTIONS, roundi(DRINK_BELOW * 100.0)])
 	report.timings["gauntlet"] = seconds
 	report.data["gauntlet"] = runs
+	report.data["curve"] = floors
 	_tables(report, runs)
 	_check(report, runs)
-	report.data["headline"] = headline(runs)
+	_curve_tables(report, floors)
+	_check_curve(report, floors)
+	var heads := PackedStringArray()
+	for text in [headline(runs), curve_headline(floors)]:
+		if not text.is_empty():
+			heads.append(text)
+	report.data["headline"] = "\n\n".join(heads)
 	return report
+
+
+# --- The curve: every normal floor ------------------------------------------------------------
+
+## Every normal floor of the acts asked for, on each difficulty: CURVE_ROOMS rooms of its own
+## depth, one after the other, by the `player` bot, Health carried, no potions: what the floor
+## costs (Health lost by its end). Two heroes: the one an average player brings into the act
+## (the previous act's expected build; a fresh hero in act I) and the same with the weapon a run
+## starts with (the baseline's, Common, item level 1).
+func run_curve(d_list: Array[DifficultyDef]) -> Array:
+	var floors: Array = []
+	var act_list: Array = range(1, content.dungeon.acts.size() + 1)
+	if not acts.is_empty():
+		act_list = act_list.filter(func(a: int) -> bool: return acts.has(a))
+	var curve_bots := bots
+	if quick:
+		act_list = act_list.slice(0, 1)
+		d_list = d_list.slice(0, 1)
+		curve_bots = curve_bots.slice(0, 1)
+	for act: int in act_list:
+		var hero := entering_build(act)
+		if hero == null:
+			continue
+		var heroes: Array[BalanceBuildDef] = [hero]
+		var starter := starter_variant(hero)
+		if starter:
+			heroes.append(starter)
+		var first := content.dungeon.first_depth(act - 1)
+		for depth in range(first, BalanceContent.boss_depth(content, act)):
+			for difficulty in d_list:
+				for build in heroes:
+					for bot in curve_bots:
+						var id := "curve|%d|%s|%s|%s|%d|%d" % [depth, BalanceJobs.build_id(build), BalanceContent.key(difficulty), bot, seed_value, CURVE_ROOMS if not quick else 2]
+						var roots := PackedStringArray([content.dungeon.acts[act - 1].resource_path])
+						roots.append_array(BalanceJobs.build_roots(build, content))
+						roots.append_array(BalanceArena.difficulty_roots(difficulty))
+						var got: Variant = await jobs.unit(id, roots, func() -> Dictionary: return await floor_cost(act, depth, build, difficulty, bot))
+						if got == null:
+							continue
+						floors.append(got)
+						if verbose and jobs.measuring:
+							print("  curve: depth %d | %s | %s | %s: lost %d%% (taken %d%%, healed %d%%, lowest %d%%)%s" % [got.depth, got.difficulty, got.bot, got.hero, roundi(100.0 * got.cost),
+								roundi(100.0 * got.taken_share), roundi(100.0 * got.healed_share), roundi(100.0 * got.min_share), ", died in room %d" % got.died_in if got.died_in > 0 else ""])
+	return floors
+
+
+## The build an average player brings into `act`: the previous act's expected build (a fresh
+## hero, `baseline`, in act I).
+func entering_build(act: int) -> BalanceBuildDef:
+	if act <= 1:
+		return BalanceBuild.find(all_builds, "baseline")
+	return BalanceBuild.expected(all_builds, act - 1)
+
+
+## `build` with the weapon a run starts with (the baseline's), Common, item level 1, nothing on
+## it; null when the build already is that hero.
+func starter_variant(build: BalanceBuildDef) -> BalanceBuildDef:
+	var base := BalanceBuild.find(all_builds, "baseline")
+	if base == null or base.weapon == null or build == base:
+		return null
+	var copy := BalanceBuild.variant(build, content, "weapon", String(base.weapon.id), 0, base.weapon)
+	copy.weapon_item_level = 1
+	copy.name = build.name + "+starter_weapon"
+	return copy
+
+
+## One floor: its rooms one after the other. { depth, act, difficulty, hero, starter, cost,
+## taken_share, healed_share, min_share, died_in, rooms, cleared }.
+func floor_cost(act: int, depth: int, build: BalanceBuildDef, difficulty: DifficultyDef, bot: String) -> Dictionary:
+	var room_count := CURVE_ROOMS if not quick else 2
+	var s := lab.session(depth, difficulty)
+	var rules := FloorRules.make(content.dungeon, difficulty, null, depth)
+	var size := lab.room_size(depth, difficulty)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value * 5003 + depth * 131 + BalanceContent.key(difficulty).hash() % 1000
+	var game: Game = await lab.ensure(s)
+	var hero := lab.ready_hero(game, build, difficulty, seed_value * 100 + depth)
+	empty_belt(hero)
+	BalanceBot.drink_below = 0.0
+	var taken := 0
+	var healed := 0
+	var min_share := 1.0
+	var died_in := 0
+	var max_hp := maxi(hero.get_max_hp(), 1)
+	var cleared := 0
+	for i in room_count:
+		var foes := lab.roll_room(act, depth, size, seed_value * 1000 + depth * 10 + i)
+		for foe: Dictionary in foes:
+			var rank := _roll_rank(rules, rng)
+			if rank:
+				foe["rank"] = rank
+		var r := await lab.pack(s, build, foes, bot, ROOM_TIMEOUT, seed_value * 100 + depth * 7 + i, true)
+		max_hp = maxi(int(r.hero_max_hp), 1)
+		taken += int(r.taken)
+		healed += int(r.healed)
+		min_share = minf(min_share, float(r.min_hp_share))
+		if r.result == "clear":
+			cleared += 1
+		if r.result == "died":
+			died_in = i + 1
+			break
+	var left := 0.0 if died_in > 0 or not is_instance_valid(hero) else hero.hp / float(max_hp)
+	await lab.close(s)
+	return { "depth": depth, "act": act, "difficulty": BalanceContent.key(difficulty), "bot": bot, "hero": build.name, "starter": build.name.ends_with("+starter_weapon"),
+		"cost": 1.0 - left, "taken_share": taken / float(max_hp), "healed_share": healed / float(max_hp), "min_share": min_share,
+		"died_in": died_in, "rooms": room_count, "cleared": cleared }
+
+
+func _curve_tables(report: BalanceReport, floors: Array) -> void:
+	if floors.is_empty():
+		return
+	var rows: Array = []
+	for f: Dictionary in floors:
+		rows.append([f.depth, f.act, f.difficulty, f.bot, f.hero, "%d/%d" % [f.cleared, f.rooms], BalanceReport.pct(f.taken_share), BalanceReport.pct(f.healed_share),
+			BalanceReport.pct(f.min_share), BalanceReport.pct(f.cost), "room %d" % f.died_in if f.died_in > 0 else "-"])
+	report.table("curve", "Monsters", "The curve: every normal floor, %d rooms of its depth one after the other (ranks rolled with its chances), each bot, Health carried, no potions (engine). Hero: what an average player brings into the act (the previous act's expected build; a fresh hero in act I), and the same with the starting weapon (Common, item level 1). Cost = Health lost by the floor's end (100%%: died)" % CURVE_ROOMS,
+		PackedStringArray(["Depth", "Act", "Difficulty", "Bot", "Hero", "Rooms cleared", "Taken", "Healed", "Lowest", "Cost", "Died"]), rows)
+
+
+## Keeper's curve: the first floors gentle, then a floor costs more act after act, with no flat
+## stretch and no cliff (targets curve_*), for the hero an average player brings.
+func _check_curve(report: BalanceReport, floors: Array) -> void:
+	var means := act_costs(floors, "normal", false, String(targets.curve_bot))
+	if means.is_empty():
+		return
+	var acts_seen: Array = means.keys()
+	acts_seen.sort()
+	for act: int in acts_seen:
+		var cost: float = means[act]
+		if act == 1 and cost > targets.curve_first_act_cost_max:
+			report.flag(BalanceReport.WARN, "curve: act I", "Keeper, act I floors (%s)" % targets.curve_bot, BalanceReport.pct(cost), "<= %s" % BalanceReport.pct(targets.curve_first_act_cost_max),
+				"the first floors are where a player learns: they must stay gentle")
+		if act > 1 and cost < targets.curve_floor_cost_min:
+			report.flag(BalanceReport.WARN, "curve: stroll", "Keeper, act %d floors (%s)" % [act, targets.curve_bot], BalanceReport.pct(cost), ">= %s" % BalanceReport.pct(targets.curve_floor_cost_min),
+				"a floor of this act costs an average player almost nothing: it rolls")
+		if act > 1 and means.has(act - 1):
+			var step := cost - float(means[act - 1])
+			if step < targets.curve_step_min or step > targets.curve_step_max:
+				report.flag(BalanceReport.WARN, "curve: step", "Keeper, act %d over act %d (%s)" % [act, act - 1, targets.curve_bot], "%+d points" % roundi(step * 100.0),
+					"%+d to %+d points" % [roundi(targets.curve_step_min * 100.0), roundi(targets.curve_step_max * 100.0)],
+					"a flat stretch" if step < targets.curve_step_min else "a cliff")
+
+
+## Mean cost of each act's normal floors on `d_key` (the hero brought in, or with the starting
+## weapon), by `bot`: { act: cost }.
+static func act_costs(floors: Array, d_key: String, starter: bool, bot: String) -> Dictionary:
+	var sums := {}
+	for f: Dictionary in floors:
+		if f.difficulty != d_key or bool(f.starter) != starter or f.get("bot", "") != bot:
+			continue
+		if not sums.has(f.act):
+			sums[f.act] = []
+		(sums[f.act] as Array).append(float(f.cost))
+	var means := {}
+	for act: int in sums:
+		means[act] = BalanceContent.mean(sums[act])
+	return means
+
+
+## The summary's curve table: depth x difficulty, the floor's cost for the hero brought in /
+## with the starting weapon ("+": died).
+func curve_headline(floors: Array) -> String:
+	if floors.is_empty():
+		return ""
+	var keys: Array = []
+	var depths: Array = []
+	for f: Dictionary in floors:
+		var key := "%s %s" % [f.difficulty, f.bot]
+		if not keys.has(key):
+			keys.append(key)
+		if not depths.has(f.depth):
+			depths.append(f.depth)
+	depths.sort()
+	var lines := PackedStringArray()
+	lines.append("Curve (each normal floor, %d rooms, no potions: Health lost, the hero brought into the act / with the starting weapon; + died):" % (CURVE_ROOMS if not quick else 2))
+	lines.append("")
+	lines.append("| Depth | %s |" % " | ".join(PackedStringArray(keys)))
+	lines.append("|%s" % "---|".repeat(keys.size() + 1))
+	for depth: int in depths:
+		var row := PackedStringArray([str(depth)])
+		for d_key: String in keys:
+			var cells := PackedStringArray()
+			for starter: bool in [false, true]:
+				for f: Dictionary in floors:
+					if f.depth == depth and "%s %s" % [f.difficulty, f.bot] == d_key and bool(f.starter) == starter:
+						cells.append("%d%%%s" % [roundi(100.0 * f.cost), "+" if f.died_in > 0 else ""])
+			row.append(" / ".join(cells) if not cells.is_empty() else "-")
+		lines.append("| %s |" % " | ".join(row))
+	return "\n".join(lines)
+
 
 
 ## One act: the rooms, then the boss. Returns { act, difficulty, bot, build, rooms: [...],

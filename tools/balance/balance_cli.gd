@@ -34,6 +34,8 @@ extends Node
 ##   --jobs=N                      worker processes sharing the measures (default 2: this machine's CPUs)
 ##   --cache=<dir>                 where measures are kept between runs (default user://balance_cache)
 ##   --no-cache                    measure everything again (the results are still kept)
+##   --gauntlet=acts|curve|all     gauntlet: each act's last floor and boss, every floor's cost, or both
+##   --no-renew                    a new game for every measure (the floors are not rebuilt in place)
 ##   --classic                     the game as seen (effects, HUD, light) and a new game per measure:
 ##                                 the tools before they simulated (slower; to compare)
 ##   --in=<dir>,<dir>              merge: combine the reports of earlier runs (their state.json) into --out
@@ -62,6 +64,8 @@ func _ready() -> void:
 	var started := Time.get_ticks_msec()
 	if args.classic:
 		BalanceLab.simulate = false
+		BalanceLab.renew_floors = false
+	if args.no_renew:
 		BalanceLab.renew_floors = false
 	BalanceLab.isolate_profile()
 	var content: ContentDB = load("res://data/content_db.tres")
@@ -100,13 +104,14 @@ func _ready() -> void:
 	add_child(lab)
 	_jobs = BalanceJobs.new(_absolute(args.cache))
 	_jobs.read_cache = not args.no_cache
-	_jobs.options = "seed=%d|quick=%s|classic=%s" % [args.seed, str(args.quick), str(args.classic)]
+	_jobs.options = "seed=%d|quick=%s|classic=%s|renew=%s" % [args.seed, str(args.quick), str(args.classic), str(BalanceLab.renew_floors)]
 	var engine_modes := modes.filter(func(m: String) -> bool: return m != "model")
 
 	# A worker: phase 1 only, its share of the units, then out.
 	if not String(args.worker).is_empty():
 		_jobs.worker = int(String(args.worker).get_slice("/", 0))
 		_jobs.workers = maxi(int(String(args.worker).get_slice("/", 1)), 1)
+		_jobs.claims_dir = args.claims
 		for m: String in engine_modes:
 			await _run_mode(m, content, targets, every_build, builds, difficulties, bosses, lab)
 		print("balance worker %s: %s" % [args.worker, _jobs.summary()])
@@ -118,9 +123,16 @@ func _ready() -> void:
 	var workers := maxi(int(args.jobs), 1)
 	var pids: Array[int] = []
 	var phase_started := Time.get_ticks_msec()
+	var claims := ""
 	if not engine_modes.is_empty():
 		_jobs.workers = workers
 		_jobs.worker = 0
+		if workers > 1:
+			# This run's claims (BalanceJobs): a fresh folder, removed at the end.
+			claims = _absolute(args.cache).path_join("claims-%d-%d" % [OS.get_process_id(), Time.get_ticks_usec()])
+			DirAccess.make_dir_recursive_absolute(claims)
+			_jobs.claims_dir = claims
+			_args["claims"] = claims
 		for k in range(1, workers):
 			var pid := OS.create_process(OS.get_executable_path(), _worker_args(k, workers))
 			pids.append(pid)
@@ -131,6 +143,8 @@ func _ready() -> void:
 		for pid in pids:
 			while OS.is_process_running(pid):
 				await get_tree().create_timer(1.0).timeout
+	if not claims.is_empty():
+		_remove_dir(claims)
 	var measure_time := (Time.get_ticks_msec() - phase_started) / 1000.0
 	var measured := _jobs.measured
 	var own_time := _jobs.measure_seconds
@@ -200,12 +214,21 @@ func _worker_args(k: int, n: int) -> PackedStringArray:
 	var result := PackedStringArray(["--headless", "--fixed-fps", "60", "--path", ProjectSettings.globalize_path("res://"),
 		"res://tools/balance/balance.tscn", "--"])
 	for arg in OS.get_cmdline_user_args():
-		if arg.begins_with("--jobs") or arg.begins_with("--worker") or arg.begins_with("--cache"):
+		if arg.begins_with("--jobs") or arg.begins_with("--worker") or arg.begins_with("--cache") or arg.begins_with("--claims"):
 			continue
 		result.append(arg)
 	result.append("--cache=%s" % _absolute(_args.cache))
 	result.append("--worker=%d/%d" % [k, n])
+	if not String(_args.get("claims", "")).is_empty():
+		result.append("--claims=%s" % _args.claims)
 	return result
+
+
+## `dir` and the (empty) folders in it.
+static func _remove_dir(dir: String) -> void:
+	for sub in DirAccess.get_directories_at(dir):
+		DirAccess.remove_absolute(dir.path_join(sub))
+	DirAccess.remove_absolute(dir)
 
 
 static func _absolute(path: String) -> String:
@@ -299,6 +322,7 @@ func _run_mode(m: String, content: ContentDB, targets: BalanceTargets, every_bui
 			if args.bots_given:
 				gauntlet.bots = args.bots
 			gauntlet.timeout = args.timeout
+			gauntlet.part = args.gauntlet
 			gauntlet.seed_value = args.seed
 			gauntlet.quick = args.quick
 			gauntlet.verbose = _jobs.measuring
@@ -426,7 +450,7 @@ static func parse_args(user_args: PackedStringArray) -> Dictionary:
 		"bots": PackedStringArray(["face_tank", "kite"]), "acts": PackedStringArray(), "weapons": PackedStringArray(),
 		"only": PackedStringArray(), "out": DEFAULT_OUT, "seed": 1,
 		"all_pairs": false, "timeout": 240.0, "quick": false, "jobs": 2, "worker": "", "cache": DEFAULT_CACHE, "no_cache": false,
-		"inputs": PackedStringArray(), "plain": false, "no_weapons": false, "classic": false, "bots_given": false,
+		"inputs": PackedStringArray(), "plain": false, "no_weapons": false, "classic": false, "no_renew": false, "bots_given": false, "gauntlet": "all", "claims": "",
 	}
 	for arg in user_args:
 		var key := arg.get_slice("=", 0)
@@ -453,6 +477,9 @@ static func parse_args(user_args: PackedStringArray) -> Dictionary:
 			"--cache": args.cache = value
 			"--no-cache": args.no_cache = true
 			"--classic": args.classic = true
+			"--no-renew": args.no_renew = true
+			"--gauntlet": args.gauntlet = value
+			"--claims": args.claims = value
 			"--in": args.inputs = value.split(",", false)
 	return args
 

@@ -12,6 +12,8 @@ extends Node
 ##   rooms by spawn weight, and rooms with an Elite (each affix) / Epic / Legendary / Shiny.
 ## Every fight starts from the same seeds (`seed_value`): the same command gives the same numbers.
 
+## Frames the hero may spend in a world of his own (the Deeps, the Threshold) mid-fight.
+const AWAY_LIMIT := 60 * 120
 ## Frames allowed to walk from the floor's start into the arena.
 const APPROACH_LIMIT := 60 * 40
 ## Game seconds a room gets before it counts as a timeout.
@@ -178,6 +180,7 @@ func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef
 	var log := FightLog.new(player, boss_actor)
 	var bot := BalanceBot.create(bot_name, player, world, boss_actor)
 	var frames := 0
+	var away_frames := 0
 	var fight_frames := 0
 	var limit := roundi(timeout * BalanceLab.FPS)
 	var outcome := "timeout"
@@ -191,6 +194,16 @@ func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef
 		if boss_actor.is_dead:
 			outcome = "win"
 			break
+		if not world.is_inside_tree():
+			# In a world of his own for a while (the Deeps after a fall, the Threshold's trial):
+			# the boss waits frozen, the bot plays there; lost there for good, the fight is lost.
+			away_frames += 1
+			if away_frames > AWAY_LIMIT:
+				outcome = "loss"
+				result["error"] = "lost in the Deeps or the Threshold"
+				break
+			bot.step()
+			continue
 		if world.arena.is_started:
 			fight_frames += 1
 			log.frame()
@@ -212,6 +225,7 @@ func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef
 	result["rolls"] = bot.rolls
 	result["skills_used"] = bot.skills_used
 	result["drinks"] = bot.drinks
+	result["away_time"] = away_frames / BalanceLab.FPS
 	# Time to kill, measured or (lost, timed out) projected from the damage dealt so far.
 	var dealt_share: float = 1.0 - float(result.boss_hp_left_share)
 	result["ttk_projected"] = float(result.time) / maxf(dealt_share, 0.01) if outcome != "win" else float(result.time)
