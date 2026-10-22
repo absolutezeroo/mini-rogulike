@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/village_scrap.tres" id="2_villagescrap"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"giant_frog_rhyme"
+title = "The Boat Rhyme"
+author = "The little girls of Kagari"
+place = "Sung by the spring"
+lines = PackedStringArray("Little paper boat, carry my candle far.", "If the old frog sings, you have arrived.", "If she falls silent, hurry home.")
+look = ExtResource("2_villagescrap")

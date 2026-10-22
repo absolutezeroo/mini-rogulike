@@ -5,8 +5,14 @@ extends HBoxContainer
 ## how it behaves and its stats, each with what the number means. Right: your hunter rank with
 ## it (what each rank needs and pays) and its challenges (HuntChallenge). A monster
 ## only seen shows its look, ranks and challenges; slay one to learn the rest.
+## A warden's middle column has two tabs: its attacks, and its Chronicle (ChronicleRows: the
+## chapters of its story, its words, its fragments).
 
 signal back_requested
+## A found fragment is to be read again (the codex opens its panel).
+signal fragment_requested(fragment: FragmentDef, boss: BossDef)
+
+enum Middle { ATTACKS, CHRONICLE }
 
 const LEFT_WIDTH := 300.0
 const RIGHT_WIDTH := 370.0
@@ -17,6 +23,11 @@ var _content: ContentDB
 var _preview: AttackPreview
 var _attack_text: Label
 var _attack_buttons: Array[Button] = []
+## A warden's middle column: which tab, its buttons, and the box under them.
+var _middle := Middle.ATTACKS
+var _middle_tabs: Array[Button] = []
+var _middle_body: VBoxContainer
+var _rank := 0
 
 
 func _init() -> void:
@@ -31,8 +42,10 @@ func show_monster(monster: MonsterDef, content: ContentDB) -> void:
 	clear()
 	var rules := content.bestiary
 	var rank := Bestiary.rank_of(monster, rules)
+	_rank = rank
+	_middle = Middle.ATTACKS
 	add_child(_column(LEFT_WIDTH, _fill_identity.bind(rank, rules)))
-	var middle := _column(0.0, _fill_attacks.bind(rank))
+	var middle := _column(0.0, _fill_middle)
 	middle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	add_child(middle)
 	add_child(_column(RIGHT_WIDTH, _fill_hunt.bind(rank, rules)))
@@ -45,6 +58,8 @@ func show_monster(monster: MonsterDef, content: ContentDB) -> void:
 func clear() -> void:
 	_preview = null
 	_attack_buttons.clear()
+	_middle_tabs.clear()
+	_middle_body = null
 	for child in get_children():
 		remove_child(child)
 		child.queue_free()
@@ -176,7 +191,57 @@ func _look() -> Control:
 	return box
 
 
-# --- Middle: how it fights -----------------------------------------------------------
+# --- Middle: how it fights, a warden's chronicle --------------------------------------
+
+## The attacks; for a warden with a chronicle, two tabs above them: Attacks and Chronicle.
+func _fill_middle(column: VBoxContainer) -> void:
+	var boss := _monster as BossDef
+	if boss == null or boss.chronicle == null:
+		_fill_attacks(column, _rank)
+		return
+	var tabs := HBoxContainer.new()
+	tabs.add_theme_constant_override("separation", 8)
+	column.add_child(tabs)
+	for entry: Array in [[Middle.ATTACKS, tr("Attacks"), "AttacksTab"], [Middle.CHRONICLE, tr("Chronicle"), "ChronicleTab"]]:
+		var button := Button.new()
+		button.text = entry[1]
+		button.name = entry[2]
+		button.toggle_mode = true
+		button.focus_mode = Control.FOCUS_NONE
+		button.custom_minimum_size = Vector2(150, 44)
+		button.add_theme_font_size_override("font_size", Fonts.BODY)
+		button.pressed.connect(show_middle.bind(entry[0]))
+		tabs.add_child(button)
+		_middle_tabs.append(button)
+	_middle_body = VBoxContainer.new()
+	_middle_body.add_theme_constant_override("separation", 6)
+	column.add_child(_middle_body)
+	show_middle(_middle)
+
+
+## A warden's page: shows its attacks or its chronicle.
+func show_middle(which: int) -> void:
+	_middle = which as Middle
+	for i in _middle_tabs.size():
+		_middle_tabs[i].set_pressed_no_signal(i == which)
+	if _middle_body == null:
+		return
+	_preview = null
+	_attack_buttons.clear()
+	for child in _middle_body.get_children():
+		_middle_body.remove_child(child)
+		child.queue_free()
+	if _middle == Middle.CHRONICLE:
+		if _rank == Bestiary.UNSEEN:
+			_middle_body.add_child(UiSkin.label(tr("Meet it to begin its chronicle."), Fonts.BODY, UiSkin.DIM, true))
+		else:
+			ChronicleRows.fill(_middle_body, _monster as BossDef, _content, func(fragment: FragmentDef, boss: BossDef) -> void:
+				fragment_requested.emit(fragment, boss))
+	else:
+		_fill_attacks(_middle_body, _rank)
+		var attacks := _attacks()
+		if _rank >= 1 and not attacks.is_empty():
+			_show_attack.call_deferred(attacks[0], 0)
 
 func _fill_attacks(column: VBoxContainer, rank: int) -> void:
 	column.add_child(_heading(tr("Attacks")))

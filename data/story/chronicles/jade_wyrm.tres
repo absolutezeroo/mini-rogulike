@@ -1,0 +1,91 @@
+[gd_resource type="Resource" script_class="BossChronicleDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/boss_chronicle_def.gd" id="1_bosschronicl"]
+[ext_resource type="Resource" path="res://data/story/fragments/jade_wyrm_ordinance.tres" id="2_jadewyrmordi"]
+[ext_resource type="Script" path="res://src/definitions/story/deeds/hardship_deed.gd" id="3_hardshipdeed"]
+[ext_resource type="Script" path="res://src/definitions/story/chronicle_chapter.gd" id="4_chroniclecha"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/fragments_condition.gd" id="5_fragmentscon"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="6_progresscond"]
+[ext_resource type="Script" path="res://src/definitions/story/waking_line.gd" id="7_wakingline"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="8_keepernamed"]
+[ext_resource type="Resource" path="res://data/story/fragments/jade_wyrm_scale.tres" id="9_jadewyrmscal"]
+[ext_resource type="Resource" path="res://data/story/fragments/jade_wyrm_journal.tres" id="10_jadewyrmjour"]
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="11_fragmentdef"]
+
+[sub_resource type="Resource" id="Resource_1"]
+script = ExtResource("3_hardshipdeed")
+id = &"as_a_martyr"
+hint = "She uncoils only for those who come down as martyrs."
+rule = "Slay her on Martyr or Nightmare."
+revealed_by = ExtResource("2_jadewyrmordi")
+difficulties = Array[StringName]([&"hard", &"nightmare"])
+
+[sub_resource type="Resource" id="Resource_2"]
+script = ExtResource("4_chroniclecha")
+id = &"coiled_on_warmth"
+title = "Coiled on the Warmth"
+lines = PackedStringArray("An old wyrm with jade scales, coiled around the temple's heart. Her body burns like an ember.", "She looks at you as one looks at a meal one did not order.")
+slain = 0
+
+[sub_resource type="Resource" id="Resource_3"]
+script = ExtResource("4_chroniclecha")
+id = &"the_gentle_one"
+title = "The Gentle One"
+lines = PackedStringArray("She had a sister of ice, who stayed above with the dead. She loved warmth, and went down toward it.", "Solhar's priests fed her and called her the Gentle One. Her venom put the offerings to sleep before the pyre.", "She thought it a kindness. They did not suffer.")
+slain = 1
+
+[sub_resource type="Resource" id="Resource_4"]
+script = ExtResource("5_fragmentscon")
+count = 2
+
+[sub_resource type="Resource" id="Resource_5"]
+script = ExtResource("4_chroniclecha")
+id = &"sister_left_above"
+title = "The Sister Left Above"
+lines = PackedStringArray("Sometimes she thinks of her ice sister, above. She wonders whether she is still cold.", "She will not climb up to ask. The breath would not let her go.")
+slain = 1
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_4")])
+
+[sub_resource type="Resource" id="Resource_6"]
+script = ExtResource("4_chroniclecha")
+id = &"heart_of_the_temple"
+title = "The Heart of the Temple"
+lines = PackedStringArray("What she coils around is no heart. It is a crack where a warm breath rises, steady.", "She has slept on it for centuries. The breath lulls her at night.", "She believes it loves her.")
+slain = 2
+
+[sub_resource type="Resource" id="Resource_7"]
+script = ExtResource("4_chroniclecha")
+id = &"nothing_to_bind"
+title = "Nothing to Bind"
+lines = PackedStringArray("The keeper came with his foreign chains, then set them down. She was already bound, and not by him.", "He only gave her a share of the souls to keep. She agreed: the breath wanted them.", "Of all the Well's wardens, she alone serves gladly.")
+slain = 4
+
+[sub_resource type="Resource" id="Resource_8"]
+script = ExtResource("4_chroniclecha")
+id = &"what_the_sun_is"
+title = "What the Sun Is"
+lines = PackedStringArray("She knows Solhar's sun better than its priests did: she sleeps against its cheek.", "It is no god. It is a mask laid over a hunger, and she has never seen a hunger give anything back.", "She knows it, and stays anyway. It is so warm here.")
+slain = 6
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_1")])
+
+[sub_resource type="Resource" id="Resource_9"]
+script = ExtResource("5_fragmentscon")
+count = 1
+
+[sub_resource type="Resource" id="Resource_10"]
+script = ExtResource("7_wakingline")
+id = &"does_she_sleep"
+line = "You smell of my sister. Frost, and the dead... Does she still sleep?"
+conditions = Array[ExtResource("6_progresscond")]([SubResource("Resource_9")])
+
+[sub_resource type="Resource" id="Resource_11"]
+script = ExtResource("7_wakingline")
+id = &"the_breath_laughed"
+line = "Tôma laid his chains before me and wept. The breath laughed."
+conditions = Array[ExtResource("6_progresscond")]([ExtResource("8_keepernamed")])
+
+[resource]
+script = ExtResource("1_bosschronicl")
+chapters = Array[ExtResource("4_chroniclecha")]([SubResource("Resource_2"), SubResource("Resource_3"), SubResource("Resource_5"), SubResource("Resource_6"), SubResource("Resource_7"), SubResource("Resource_8")])
+waking_lines = Array[ExtResource("7_wakingline")]([SubResource("Resource_10"), SubResource("Resource_11")])
+fragments = Array[ExtResource("11_fragmentdef")]([ExtResource("9_jadewyrmscal"), ExtResource("2_jadewyrmordi"), ExtResource("10_jadewyrmjour")])

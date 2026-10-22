@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/bone_tablet.tres" id="2_bonetablet"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"giant_frog_well_digger"
+title = "The Well-Digger's Note"
+author = "A well-digger of Kagari"
+place = "Scratched on the spring's rim"
+lines = PackedStringArray("The frog does not bite those who drank her water. She takes them for her own.", "Drink at the spring before you go down, and she will let you by.", "I did not drink. I am going back up.")
+look = ExtResource("2_bonetablet")

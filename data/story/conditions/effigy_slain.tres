@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="SlainCondition" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/conditions/slain_condition.gd" id="1_slainconditi"]
+
+[resource]
+script = ExtResource("1_slainconditi")
+monster_id = &"nameless_effigy"
+count = 1
+text = "Find the one who does not rest, and slay him"

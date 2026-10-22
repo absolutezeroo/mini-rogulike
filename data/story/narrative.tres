@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="NarrativeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/narrative_def.gd" id="1_narrativedef"]
+[ext_resource type="Resource" path="res://data/story/cinematics/boss_full.tres" id="2_bossfull"]
+[ext_resource type="Resource" path="res://data/story/cinematics/boss_short.tres" id="3_bossshort"]
+[ext_resource type="Resource" path="res://data/story/conditions/fragments_open.tres" id="4_fragmentsope"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="5_progresscond"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="6_keepernamed"]
+
+[resource]
+script = ExtResource("1_narrativedef")
+full_cinematic = ExtResource("2_bossfull")
+short_cinematic = ExtResource("3_bossshort")
+fragment_chance = 0.35
+fragments_open = Array[ExtResource("5_progresscond")]([ExtResource("4_fragmentsope")])
+fragment_message = "A fragment of the past: %s."
+deed_message = "The Well remembers how %s fell."
+keeper_reveal = ExtResource("6_keepernamed")
+reveal_words = PackedStringArray("Tôma", "Toma")

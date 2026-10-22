@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="StatCondition" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/conditions/stat_condition.gd" id="1_statconditio"]
+
+[resource]
+script = ExtResource("1_statconditio")
+stat = "runs"
+at_least = 2

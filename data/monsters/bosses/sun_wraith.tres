@@ -25,6 +25,7 @@
 [ext_resource type="Resource" path="res://data/skills/boss/call_embers_fierce.tres" id="19_j25dn"]
 [ext_resource type="Resource" path="res://data/items/weapons/monster/demon_club.tres" id="20_bidgj"]
 [ext_resource type="Resource" path="res://data/materials/spirit.tres" id="99_material"]
+[ext_resource type="Resource" path="res://data/story/chronicles/sun_wraith.tres" id="90_chronicle"]
 
 [sub_resource type="Resource" id="Resource_yx4tt"]
 script = ExtResource("1_xpnjk")
@@ -106,6 +107,7 @@ move_speed = 70.0
 
 [resource]
 script = ExtResource("18_wbh2q")
+chronicle = ExtResource("90_chronicle")
 material = ExtResource("99_material")
 title = "False God of the Well"
 shockwave_power = 1.0

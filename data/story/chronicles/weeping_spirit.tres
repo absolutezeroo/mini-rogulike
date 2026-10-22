@@ -1,0 +1,98 @@
+[gd_resource type="Resource" script_class="BossChronicleDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/boss_chronicle_def.gd" id="1_bosschronicl"]
+[ext_resource type="Resource" path="res://data/story/fragments/weeping_spirit_advice.tres" id="2_weepingspiri"]
+[ext_resource type="Script" path="res://src/definitions/hunt_challenge.gd" id="3_huntchalleng"]
+[ext_resource type="Script" path="res://src/definitions/story/deeds/challenge_deed.gd" id="4_challengedee"]
+[ext_resource type="Script" path="res://src/definitions/story/chronicle_chapter.gd" id="5_chroniclecha"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/fragments_condition.gd" id="6_fragmentscon"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="7_progresscond"]
+[ext_resource type="Script" path="res://src/definitions/story/waking_line.gd" id="8_wakingline"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="9_keepernamed"]
+[ext_resource type="Resource" path="res://data/story/fragments/weeping_spirit_lament.tres" id="10_weepingspiri"]
+[ext_resource type="Resource" path="res://data/story/fragments/weeping_spirit_journal.tres" id="11_weepingspiri"]
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="12_fragmentdef"]
+
+[sub_resource type="Resource" id="Resource_1"]
+script = ExtResource("3_huntchalleng")
+id = &"untouched"
+goal = 3
+souls = 0
+
+[sub_resource type="Resource" id="Resource_2"]
+script = ExtResource("4_challengedee")
+id = &"dry_eyes"
+hint = "She speaks only to one who sheds neither blood nor tears."
+rule = "Slay her without being hurt once."
+revealed_by = ExtResource("2_weepingspiri")
+challenge = SubResource("Resource_1")
+
+[sub_resource type="Resource" id="Resource_3"]
+script = ExtResource("5_chroniclecha")
+id = &"the_mourners"
+title = "The Mourners"
+lines = PackedStringArray("A ghost woven of many veils, and under each veil a weeping face.", "They all weep together, but not for the same person.")
+slain = 0
+
+[sub_resource type="Resource" id="Resource_4"]
+script = ExtResource("5_chroniclecha")
+id = &"paid_in_rice"
+title = "Paid in Rice"
+lines = PackedStringArray("In Kagari, mourners were paid in rice to sing at funerals. They knew every lament.", "When they died they stayed in the Ossuary. Their tears did not know how to stop.", "Over time their veils knotted together.")
+slain = 1
+
+[sub_resource type="Resource" id="Resource_5"]
+script = ExtResource("6_fragmentscon")
+count = 2
+
+[sub_resource type="Resource" id="Resource_6"]
+script = ExtResource("5_chroniclecha")
+id = &"frog_and_name"
+title = "The Frog and the Name"
+lines = PackedStringArray("Above, a frog croaks a name of two syllables. The mourners take it up under their breath.", "It is the only name they never sang. They are learning it.")
+slain = 1
+conditions = Array[ExtResource("7_progresscond")]([SubResource("Resource_5")])
+
+[sub_resource type="Resource" id="Resource_7"]
+script = ExtResource("5_chroniclecha")
+id = &"child_without_grave"
+title = "The Child Without a Grave"
+lines = PackedStringArray("They wept for every death in the village but one. A child the water kept, whom no one buried.", "No body, no song. It is the one lament they never sang.", "So they weep for her, in the place of those who could not.")
+slain = 2
+
+[sub_resource type="Resource" id="Resource_8"]
+script = ExtResource("5_chroniclecha")
+id = &"wept_with_them"
+title = "The One Who Wept With Them"
+lines = PackedStringArray("Only one living man came to weep with them: the shrine's keeper. He gave them no rice, only his tears.", "On the moonless night he gave them the souls of the grieving: \"You know how to comfort; keep them.\"", "They have rocked those souls ever since. They never asked him whom he wept for.")
+slain = 4
+
+[sub_resource type="Resource" id="Resource_9"]
+script = ExtResource("5_chroniclecha")
+id = &"song_in_the_water"
+title = "The Song Below"
+lines = PackedStringArray("Sometimes they hear the child singing, far beneath the Ossuary. Their veils quiver with hope.", "Then they fall silent. A mourner knows the voices of the dead, and this one lies.", "What sings down there learned the song. It never had tears.")
+slain = 6
+conditions = Array[ExtResource("7_progresscond")]([SubResource("Resource_2")])
+
+[sub_resource type="Resource" id="Resource_10"]
+script = ExtResource("6_fragmentscon")
+count = 1
+
+[sub_resource type="Resource" id="Resource_11"]
+script = ExtResource("8_wakingline")
+id = &"weep_with_us"
+line = "You carry a grief too. Weep with us, only for a moment."
+conditions = Array[ExtResource("7_progresscond")]([SubResource("Resource_10")])
+
+[sub_resource type="Resource" id="Resource_12"]
+script = ExtResource("8_wakingline")
+id = &"in_his_stead"
+line = "Tôma wept for Hana. We weep for her in his stead, since he stopped."
+conditions = Array[ExtResource("7_progresscond")]([ExtResource("9_keepernamed")])
+
+[resource]
+script = ExtResource("1_bosschronicl")
+chapters = Array[ExtResource("5_chroniclecha")]([SubResource("Resource_3"), SubResource("Resource_4"), SubResource("Resource_6"), SubResource("Resource_7"), SubResource("Resource_8"), SubResource("Resource_9")])
+waking_lines = Array[ExtResource("8_wakingline")]([SubResource("Resource_11"), SubResource("Resource_12")])
+fragments = Array[ExtResource("12_fragmentdef")]([ExtResource("10_weepingspiri"), ExtResource("2_weepingspiri"), ExtResource("11_weepingspiri")])

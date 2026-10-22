@@ -1,0 +1,100 @@
+[gd_resource type="Resource" script_class="BossChronicleDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/boss_chronicle_def.gd" id="1_bosschronicl"]
+[ext_resource type="Resource" path="res://data/story/fragments/red_samurai_code.tres" id="2_redsamuraico"]
+[ext_resource type="Resource" path="res://data/items/weapons/katana.tres" id="3_katana"]
+[ext_resource type="Script" path="res://src/definitions/hunt_challenge.gd" id="4_huntchalleng"]
+[ext_resource type="Script" path="res://src/definitions/story/deeds/challenge_deed.gd" id="5_challengedee"]
+[ext_resource type="Script" path="res://src/definitions/story/chronicle_chapter.gd" id="6_chroniclecha"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/fragments_condition.gd" id="7_fragmentscon"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="8_progresscond"]
+[ext_resource type="Script" path="res://src/definitions/story/waking_line.gd" id="9_wakingline"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="10_keepernamed"]
+[ext_resource type="Resource" path="res://data/story/fragments/red_samurai_roll.tres" id="11_redsamurairo"]
+[ext_resource type="Resource" path="res://data/story/fragments/red_samurai_journal.tres" id="12_redsamuraijo"]
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="13_fragmentdef"]
+
+[sub_resource type="Resource" id="Resource_1"]
+script = ExtResource("4_huntchalleng")
+id = &"weapon_katana"
+goal = 10
+souls = 0
+weapon = ExtResource("3_katana")
+
+[sub_resource type="Resource" id="Resource_2"]
+script = ExtResource("5_challengedee")
+id = &"weapon_katana"
+hint = "He speaks only to a blade of his own school."
+rule = "Slay him with a Katana."
+revealed_by = ExtResource("2_redsamuraico")
+challenge = SubResource("Resource_1")
+
+[sub_resource type="Resource" id="Resource_3"]
+script = ExtResource("6_chroniclecha")
+id = &"burning_guard"
+title = "The Burning Guard"
+lines = PackedStringArray("A giant warrior in armor reddened by embers. His curved blade draws arcs of fire.", "He stands guard before a door no one passes anymore.")
+slain = 0
+
+[sub_resource type="Resource" id="Resource_4"]
+script = ExtResource("6_chroniclecha")
+id = &"seventh_step"
+title = "The Seventh Step"
+lines = PackedStringArray("His name was Vardan, and he guarded the seventh step of Solhar's temple. He knew every worshipper who climbed it.", "His curved blade came from the school of the temple guards: one edge, one loyalty.", "Much later, the people of Kagari called him rônin: one who has no master left.")
+slain = 1
+
+[sub_resource type="Resource" id="Resource_5"]
+script = ExtResource("7_fragmentscon")
+count = 2
+
+[sub_resource type="Resource" id="Resource_6"]
+script = ExtResource("6_chroniclecha")
+id = &"king_on_his_heap"
+title = "His King Below"
+lines = PackedStringArray("Far below, his old king counts his coins. Vardan never goes down to see him.", "If he saw him again, he would not know whether to kneel or to strike.")
+slain = 1
+conditions = Array[ExtResource("8_progresscond")]([SubResource("Resource_5")])
+
+[sub_resource type="Resource" id="Resource_7"]
+script = ExtResource("6_chroniclecha")
+id = &"the_order"
+title = "The Order"
+lines = PackedStringArray("On the day of the great Tithe, the king ordered the people driven up to the altars. All of the people.", "Vardan obeyed. He pushed up the steps people whose names he knew.", "He still guards the seventh step. No one climbs it, and that is better.")
+slain = 2
+
+[sub_resource type="Resource" id="Resource_8"]
+script = ExtResource("6_chroniclecha")
+id = &"an_order_at_last"
+title = "An Order, at Last"
+lines = PackedStringArray("When the kingdom fell, his king became a heap of gold. Vardan refused to guard gold.", "The shrine's keeper brought him what he lacked, an order: \"Guard these souls, and let no one drive them up.\"", "A guard without orders is only armor. He said yes.")
+slain = 4
+
+[sub_resource type="Resource" id="Resource_9"]
+script = ExtResource("6_chroniclecha")
+id = &"face_of_the_sun"
+title = "The Face of the Sun"
+lines = PackedStringArray("On the day of the Tithe, Vardan stood close enough to the altar to see the sun up close.", "It had no face. It had a mouth, and the mouth thanked the king.", "He guards Kagari's souls against that mouth. It is the only order he ever loved.")
+slain = 6
+conditions = Array[ExtResource("8_progresscond")]([SubResource("Resource_2")])
+
+[sub_resource type="Resource" id="Resource_10"]
+script = ExtResource("7_fragmentscon")
+count = 1
+
+[sub_resource type="Resource" id="Resource_11"]
+script = ExtResource("9_wakingline")
+id = &"the_roll"
+line = "You read the roll of the seventh step, all those names. I pushed them, one by one."
+conditions = Array[ExtResource("8_progresscond")]([SubResource("Resource_10")])
+
+[sub_resource type="Resource" id="Resource_12"]
+script = ExtResource("9_wakingline")
+id = &"was_it_just"
+line = "Tôma gave me an order. Soon I will know whether it was just."
+conditions = Array[ExtResource("8_progresscond")]([ExtResource("10_keepernamed")])
+
+[resource]
+script = ExtResource("1_bosschronicl")
+chapters = Array[ExtResource("6_chroniclecha")]([SubResource("Resource_3"), SubResource("Resource_4"), SubResource("Resource_6"), SubResource("Resource_7"), SubResource("Resource_8"), SubResource("Resource_9")])
+waking_lines = Array[ExtResource("9_wakingline")]([SubResource("Resource_11"), SubResource("Resource_12")])
+fragments = Array[ExtResource("13_fragmentdef")]([ExtResource("11_redsamurairo"), ExtResource("2_redsamuraico"), ExtResource("12_redsamuraijo")])

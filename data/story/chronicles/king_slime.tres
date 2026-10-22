@@ -1,0 +1,99 @@
+[gd_resource type="Resource" script_class="BossChronicleDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/boss_chronicle_def.gd" id="1_bosschronicl"]
+[ext_resource type="Resource" path="res://data/story/fragments/king_slime_register.tres" id="2_kingslimereg"]
+[ext_resource type="Script" path="res://src/definitions/hunt_challenge.gd" id="3_huntchalleng"]
+[ext_resource type="Script" path="res://src/definitions/story/deeds/challenge_deed.gd" id="4_challengedee"]
+[ext_resource type="Script" path="res://src/definitions/story/chronicle_chapter.gd" id="5_chroniclecha"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/fragments_condition.gd" id="6_fragmentscon"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="7_progresscond"]
+[ext_resource type="Script" path="res://src/definitions/story/waking_line.gd" id="8_wakingline"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="9_keepernamed"]
+[ext_resource type="Resource" path="res://data/story/fragments/king_slime_wish.tres" id="10_kingslimewis"]
+[ext_resource type="Resource" path="res://data/story/fragments/king_slime_journal.tres" id="11_kingslimejou"]
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="12_fragmentdef"]
+
+[sub_resource type="Resource" id="Resource_1"]
+script = ExtResource("3_huntchalleng")
+id = &"before_it_swells"
+goal = 7
+souls = 0
+seconds = 60.0
+
+[sub_resource type="Resource" id="Resource_2"]
+script = ExtResource("4_challengedee")
+id = &"before_it_swells"
+hint = "It only grows on the time you give it."
+rule = "Slay it within 60 seconds of the fight's start."
+revealed_by = ExtResource("2_kingslimereg")
+challenge = SubResource("Resource_1")
+
+[sub_resource type="Resource" id="Resource_3"]
+script = ExtResource("5_chroniclecha")
+id = &"what_floats"
+title = "What Floats Inside"
+lines = PackedStringArray("In its clear flesh float a sandal, a comb, a few coins. Everything Kagari ever dropped down the Well.", "On its head, a bronze bowl from the shrine serves as a crown.")
+slain = 0
+
+[sub_resource type="Resource" id="Resource_4"]
+script = ExtResource("5_chroniclecha")
+id = &"the_nushi"
+title = "The Lord of the Well-Rim"
+lines = PackedStringArray("Once it was only a living puddle in the Well's throat. It drank the lanterns' dripping wax and fed on moss.", "Kagari's children called it the Nushi. They threw it coins for wishes and listened for the plop.", "It kept every coin. It thought they were love.")
+slain = 1
+
+[sub_resource type="Resource" id="Resource_5"]
+script = ExtResource("6_fragmentscon")
+count = 2
+
+[sub_resource type="Resource" id="Resource_6"]
+script = ExtResource("5_chroniclecha")
+id = &"the_coins"
+title = "The Coins"
+lines = PackedStringArray("Among the coins is one with a hole, on a red cord. A little girl threw it, laughing.", "It no longer knows her wish. It keeps the coin close to its heart, if it has one.")
+slain = 1
+conditions = Array[ExtResource("7_progresscond")]([SubResource("Resource_5")])
+
+[sub_resource type="Resource" id="Resource_7"]
+script = ExtResource("5_chroniclecha")
+id = &"first_mouthful"
+title = "The First Mouthful"
+lines = PackedStringArray("On a moonless night, a light came down the bucket's rope. Someone held out the shrine's bowl to it, full.", "It was neither wax nor moss. It was warm, and it wept.", "It drank it all. The bowl stayed on its head.")
+slain = 2
+
+[sub_resource type="Resource" id="Resource_8"]
+script = ExtResource("5_chroniclecha")
+id = &"fed_first"
+title = "The Keeper Fed It First"
+lines = PackedStringArray("The shrine's keeper fed it first, by his own hand. Then he spoke to it as one speaks to a dog in training.", "\"Keep them, and do not digest them. I will come back for them.\"", "He never came back. The souls weigh, and the King swells.")
+slain = 4
+
+[sub_resource type="Resource" id="Resource_9"]
+script = ExtResource("5_chroniclecha")
+id = &"the_throat"
+title = "The Throat"
+lines = PackedStringArray("It is no king. It is only the throat: what it swallows slides lower, ever lower.", "Beneath it, something pulls. Each night the souls in its belly weigh a little less.", "It holds them back with all its bulk. It is the only promise it ever kept.")
+slain = 6
+conditions = Array[ExtResource("7_progresscond")]([SubResource("Resource_2")])
+
+[sub_resource type="Resource" id="Resource_10"]
+script = ExtResource("6_fragmentscon")
+count = 1
+
+[sub_resource type="Resource" id="Resource_11"]
+script = ExtResource("8_wakingline")
+id = &"smell_of_the_rim"
+line = "You smell of the well-rim. The children... are they coming back?"
+conditions = Array[ExtResource("7_progresscond")]([SubResource("Resource_10")])
+
+[sub_resource type="Resource" id="Resource_12"]
+script = ExtResource("8_wakingline")
+id = &"his_bowl"
+line = "Tôma. The bowl smelled of him; he said he would come back."
+conditions = Array[ExtResource("7_progresscond")]([ExtResource("9_keepernamed")])
+
+[resource]
+script = ExtResource("1_bosschronicl")
+chapters = Array[ExtResource("5_chroniclecha")]([SubResource("Resource_3"), SubResource("Resource_4"), SubResource("Resource_6"), SubResource("Resource_7"), SubResource("Resource_8"), SubResource("Resource_9")])
+waking_lines = Array[ExtResource("8_wakingline")]([SubResource("Resource_11"), SubResource("Resource_12")])
+fragments = Array[ExtResource("12_fragmentdef")]([ExtResource("10_kingslimewis"), ExtResource("2_kingslimereg"), ExtResource("11_kingslimejou")])

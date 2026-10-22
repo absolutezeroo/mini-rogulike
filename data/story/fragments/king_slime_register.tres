@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/village_scrap.tres" id="2_villagescrap"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"king_slime_register"
+title = "Register of Offerings"
+author = "A sexton of the shrine"
+place = "Kagari, the autumn before"
+lines = PackedStringArray("The Nushi has grown again. It swallows the wax faster than we can pour it.", "Left in peace for a minute, it doubles. Drive it off at once, or not at all.", "The keeper says to let it be. The keeper knows what he does.")
+look = ExtResource("2_villagescrap")

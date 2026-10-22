@@ -27,6 +27,7 @@
 [ext_resource type="Resource" path="res://data/items/weapons/monster/tengu_blade.tres" id="20_5tsuo"]
 [ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="23_872si"]
 [ext_resource type="Resource" path="res://data/materials/flesh.tres" id="99_material"]
+[ext_resource type="Resource" path="res://data/story/chronicles/crimson_tengu.tres" id="90_chronicle"]
 
 [sub_resource type="Resource" id="Resource_ixdwd"]
 script = ExtResource("1_872si")
@@ -112,6 +113,7 @@ crit_chance = 0.1
 
 [resource]
 script = ExtResource("18_mk8wd")
+chronicle = ExtResource("90_chronicle")
 material = ExtResource("99_material")
 title = "Warden of the Pyre Temple"
 shockwave_power = 1.0
@@ -135,7 +137,7 @@ challenges = Array[ExtResource("1_872si")]([SubResource("Resource_ixdwd")])
 loot = SubResource("Resource_cclvl")
 id = &"crimson_tengu"
 display_name = "Crimson Tengu"
-description = "A winged swordsman. Fast, precise, merciless."
+description = "The Pyre Temple's self-made priest, a crow-man with feathers like blades. Fast, precise, merciless."
 icon = SubResource("AtlasTexture_wg1qy")
 glyph = "C"
 color = Color(0.9019608, 0.22352941, 0.27450982, 1)

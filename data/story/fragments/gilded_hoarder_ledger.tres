@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/sealed_letter.tres" id="2_sealedletter"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"gilded_hoarder_ledger"
+title = "The Tithe Ledger, Last Page"
+author = "A clerk of the Tithe"
+place = "Solhar, the year of the last harvest"
+lines = PackedStringArray("One soul: the eastern harvest. Ten souls: the victory at the river.", "The whole Tithe: plenty forever, by the king's word.", "Received in exchange: gold. The granary is empty.")
+look = ExtResource("2_sealedletter")

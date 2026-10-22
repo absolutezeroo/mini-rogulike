@@ -55,6 +55,10 @@ func run() -> void:
 	add_child(gear)
 	gear.run()
 	gear.free()
+	var story := StoryTests.new()
+	add_child(story)
+	await story.run_unit()
+	story.free()
 
 
 ## Text keeps whole pixels (Fonts, docs/design/interface.md "Text"): the font is drawn sharp, on its

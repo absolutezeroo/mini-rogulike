@@ -281,6 +281,51 @@ To tweak an animation, open a file in `data/visuals/` and use the SpriteFrames p
 (add frames, change the speed, toggle loop). The actor scripts never touch animations directly:
 they call `rig.play_attack()`, `rig.play_hurt()`, etc.
 
+## Boss stories
+
+Every warden has a story (`BossDef.chronicle`, `BossChronicleDef`), told a chapter at a time as if
+it had lived: who it was, its life before the Well, how it fell, the keeper who bound it, what it
+knows of the Maw. The canon is docs/lore.md (section 5b for each warden); the data and how to add
+one are in [adding-content.md](../adding-content.md#the-story-chronicles-fragments-conditions-deeds-cinematics).
+
+- **The meeting.** When the hero walks into an arena, the exits close and, before the warden
+  wakes, a short cinematic plays over the frozen world (the game is paused: nothing moves, nothing
+  hurts; `BossMeeting`, `CinematicDirector`): two black bars slide in and the HUD steps aside, the
+  camera eases to the warden, it plays its waking animation if it has one (the Tengu), its name and
+  title appear in the top bar (Fonts.TITLE, then BODY), its own words in quotes if it carries a
+  memory of the hero (pale blue), then the chapter: its title over the lines, typed letter by
+  letter in the bottom bar, which grows to hold them (Fonts.BODY, at most 1000 UI pixels wide); the
+  camera comes back and the fight begins (the boss music, the bar; no banner: its name was said).
+  Steps and timings are data (`data/story/cinematics/boss_full.tres`): about 8 to 15 seconds.
+- **Never annoying.** The first meeting tells the first chapter. A meeting after a chapter opened
+  tells that one (one per meeting, in order), marked **New** beside its title. Otherwise the short
+  version (`boss_short.tres`): its name and one line it remembers (its words, or a line of a chapter
+  already told, another each time), faded in, about two seconds, no camera move. A tap (a key, a
+  gamepad button) writes everything out at once; the next one ends it, the camera back and the bars
+  out in a moment (taps in its first third of a second are ignored: a thumb leaving the joystick).
+  Never twice on the same floor of a run: a run picked up again mid-fight starts the fight at once
+  (`RunState.met_floors`, saved).
+- **Option**: Boss stories, Full / Short / Off (Settings, Story section): Off is the banner as
+  before; the codex keeps every chapter whatever the option.
+- **What opens a chapter** (`ChronicleChapter`): the warden's deaths (0, 1, 2, 4 and 6 in ours, its
+  bestiary count), the story's progress (docs/lore.md section 7: the deepest floor reached, a run
+  won, the Nameless Effigy slain), its **fragments** found, and a **deed**: something precise done
+  as it fell, chosen to mean something for it (the Ember Ronin slain with a Katana, the Gilded
+  Hoarder by a run that bought nothing, the Azure Wyrm finished by fire, the Mother of Tears
+  without a single wound, the Jade Wyrm on Martyr...: `DeedCondition`). The keeper is never named
+  before the Effigy is slain and a run is won (`data/story/conditions/keeper_named.tres`); after,
+  each warden names him as it wakes, and his journal's pages may be found.
+- **Fragments** (`FragmentDef`): pages, bone tablets, sealed letters, the keeper's journal, lying on
+  the floors of an act before its warden (the one drawn for this run; the hidden floor's on Act
+  II's floors once it was met): at most one a floor, a 35% chance, not during the first run, never
+  one already found while that warden has others to find (`FragmentPlacer`, its own random numbers,
+  on free ground). On the floor: its 16x16 picture drawn at 2x, bobbing a pixel, in a breathing glow
+  of two steps of its element's ramp (spirit for Kagari's papers, frost for the bone tablets,
+  fire for the singed pages, holy for Solhar's letters, water for the journal), three motes rising,
+  a small light. Interact (**Read**) opens it in a panel over the paused game (`FragmentPanel`: its
+  title on the ribbon, who wrote it and where, its lines, "A new page for its chronicle: ..."); a
+  tap anywhere closes it. Found for good (Profile), read again in the codex.
+
 ## Pixel art
 
 The art is 16x16 pixel art drawn at 2x in the world, with nearest filtering (Project Settings >

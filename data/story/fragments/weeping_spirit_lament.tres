@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FragmentDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/fragment_def.gd" id="1_fragmentdef"]
+[ext_resource type="Resource" path="res://data/story/fragment_looks/village_scrap.tres" id="2_villagescrap"]
+
+[resource]
+script = ExtResource("1_fragmentdef")
+id = &"weeping_spirit_lament"
+title = "The Mourners' Lament"
+author = "The mourners of Kagari"
+place = "Sung in the Ossuary"
+lines = PackedStringArray("Sleep, sleep, the rice is cooked, the mat is laid.", "Sleep, the bell has rung for you, the earth is waiting.", "Sleep: we weep, so you need not.")
+look = ExtResource("2_villagescrap")
