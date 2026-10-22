@@ -308,6 +308,16 @@ func _test_finale_story(game: Game) -> void:
 	var never: DeedCondition = maw_def.chronicle.deeds()[0]
 	check(not game.run.marks.has("bitten") and Narrative.is_deed_done(maw_def, never), "never bitten: the Maw's deed is done")
 	check(said.has("\"%s\"" % Narrative.last_words(maw_def).line), "its last words: the sun sets")
+	# A sentence on the banner comes smaller, on the screen; a name stays big.
+	var banner := game.hud.get_node("%DepthBanner") as Label
+	var longest := "\"%s\"" % tr(toma_def.chronicle.last_words[1].line)
+	game.hud.show_banner(longest)
+	var width := Fonts.MAIN.get_string_size(banner.text, HORIZONTAL_ALIGNMENT_LEFT, -1, banner.get_theme_font_size(&"font_size")).x
+	var room := minf(banner.get_viewport_rect().size.x - 2.0 * Hud.BANNER_MARGIN, Hud.BANNER_WIDTH)
+	var too_wide := Fonts.MAIN.get_string_size(banner.text, HORIZONTAL_ALIGNMENT_LEFT, -1, Fonts.HUGE).x > room
+	check((banner.get_theme_font_size(&"font_size") == Fonts.TITLE) == too_wide and width < room, "his longest last words fit the screen on the banner (%d of %d UI pixels)" % [roundi(width), roundi(room)])
+	game.hud.show_banner(tr(maw_def.display_name))
+	check(banner.get_theme_font_size(&"font_size") == Fonts.HUGE and _off_grid_texts(game.hud).is_empty(), "a name stays big, on the font's grid")
 	await _wait(game, Game.ENDING_DELAY)
 	check(game.menus.ending.visible, "then the choice of an ending, as without the story")
 	if game.menus.ending.visible:

@@ -10,6 +10,11 @@ signal debug_requested
 signal offers_requested
 
 const BAG_ICON: Texture2D = preload("res://assets/ui/icons/bag.png")
+## Room kept on each side of a banner's text (UI pixels).
+const BANNER_MARGIN := 40.0
+## The widest a banner's text may be at Fonts.HUGE (UI pixels): the space between the stats on
+## the left and the map on the right.
+const BANNER_WIDTH := 1000.0
 
 var _player: Player
 var _world: World
@@ -465,10 +470,17 @@ func set_souls(count: int, pulse: bool = false) -> void:
 	_souls_tween.tween_property(_souls_label, "scale", Vector2.ONE, 0.2)
 
 
-## Big centered text that fades out (floor names, boss names...).
+## Big centered text that fades out (floor names, boss names, a warden's last words...). A text
+## too wide at Fonts.HUGE (a sentence: wider than BANNER_WIDTH or the screen) comes at TITLE.
 func show_banner(text: String, color: Color = Color(1, 0.82, 0.4)) -> void:
 	_yield_toast()
 	_depth_banner.text = text
+	var room := minf(_depth_banner.get_viewport_rect().size.x - 2.0 * BANNER_MARGIN, BANNER_WIDTH)
+	var font_size := Fonts.HUGE
+	if Fonts.MAIN.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, Fonts.HUGE).x > room:
+		font_size = Fonts.TITLE
+	_depth_banner.add_theme_font_size_override("font_size", font_size)
+	_depth_banner.add_theme_constant_override("outline_size", Fonts.outline_size(font_size))
 	_depth_banner.add_theme_color_override("font_color", color)
 	if _banner_tween:
 		_banner_tween.kill()

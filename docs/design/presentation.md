@@ -324,7 +324,8 @@ one are in [adding-content.md](../adding-content.md#the-story-chronicles-fragmen
   one (`BossDef.next_boss`) is met once its rise is over, the same cinematic (the Maw has no waking
   animation: the bars, the camera on it, its name, its words or a chapter), then it fights.
 - **Last words** (`BossChronicleDef.last_words`, `WakingLine`s like its waking words): the last
-  open one is said as the warden falls, in quotes on its banner and in the log, a moment after its
+  open one is said as the warden falls, in quotes on its banner (a sentence too wide at
+  Fonts.HUGE, past the HUD's columns, comes at TITLE: `Hud.show_banner()`) and in the log, a moment after its
   fall (a deed done by that very fall counts: Tôma, slain by a hero who never rolled, "You stood.
   That much, at least, I taught you."). With Boss stories off, nothing (as its waking words).
 - **Option**: Boss stories, Full / Short / Off (Settings, Story section): Off is the banner as
