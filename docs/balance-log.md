@@ -3,6 +3,120 @@
 Dated entries, newest first: what was measured, what changed and why, before/after numbers, open
 questions. How to measure: [balance.md](balance.md).
 
+## 2026-10-22 - Keeper's curve: acts II and III carry their own threat (measured; and faster tools)
+
+**Why (the owner, on Keeper):** first "I still feel I roll over everything", then, playing the
+current main: "the fights are sporty now, much better" and "it gets tough after floor 8 or 9;
+before that you roll, even with a level-1 weapon". So not a harder Keeper: the same level from
+floor 9 on, floors 1-2 a gentle start, and floors 3-8 no longer a stroll.
+
+**Measured on the current data first (seed 1).**
+
+- *The model's commons' curve* (table "monster_ladder", Keeper, each act's last normal floor vs
+  its expected build): a common cost the hero 1.2% / 1.7% / 1.8% / 2.5% of his Health from act I
+  to IV, so act III was x1.07 over act II: the flat stretch the owner felt (floors 4-8). Elites
+  4.7 / 8.3 / 12.0 / 16.9%.
+- *The floors' curve* (new model table "floor_curve": a room of each normal floor, face to face,
+  for the hero an average player has there, `BalanceBuild.hero_at`; Keeper): floor 1 14%, 2 3% |
+  4 17%, 5 11% | 7 43%, 8 24% | 10 48%, 11 42%. With the starting weapon (Common, item level 1):
+  4% | 23%, 18% | 71%, 38% | 75%, 54%. A saw (each act's first floor meets the hero who just left
+  the last act), rising steeply only from act III.
+- *The bosses' curve* (threat for the expected build, Keeper): 178% / 197% / 227% / 219%,
+  Pilgrim x0.37-0.47, Martyr x1.76-1.88: inside its targets, left alone.
+- *The engine* (new `--mode=gauntlet`: each act's last floor, 8 rooms with ranks rolled at the
+  floor's chances, Health and potions carried, then its boss; bots `kite` and `player`, the kite
+  bot answering threats 0.3 s late): every Keeper act won by both bots; the rooms' damage is
+  healed back by the builds' lifesteal from act II on (a floor of 6 rooms: 80-650% of max Health
+  taken, nearly all healed), and the hero reaches each boss with 3-5 potions after starting with
+  2 (they drop on the way). Pilgrim: every act won. Martyr: the player bot loses three acts' bosses
+  of four. Boss fights (expected builds, acts II-III, kite): Keeper 3 of 6 won (Demon Cyclops,
+  Azure Wyrm, Jade Wyrm lost), Martyr 1 of 6, Pilgrim 6 of 6.
+
+**What changed (data, and the rule to carry it):** an act can add its own threat to its
+monsters, on every difficulty (`ActDef.monster_hp`, `monster_damage`, read by `FloorRules` for
+monsters and what bosses call, not for bosses themselves, traps or the cold):
+
+| Act | Monsters' Health | Monsters' damage |
+|---|---|---|
+| I (floors 1-3) | x1 | x1 |
+| II (4-6) | x1.08 | x1.08 |
+| III (7-9) | x1.1 | x1.1 |
+| IV (10-12) | x1 | x1 |
+
+Tried first: act II x1.15-x1.2 alone (the floors' curve then rises smoothly, but act III's
+commons fall below act II's: x0.67, a dip), act III x1.15 with act II x1.1 (act IV only x1.04
+over act III: flat at the top). The kept values are the smallest that make every step rise.
+
+**Before / after (model, Keeper):**
+
+| | Act I | Act II | Act III | Act IV |
+|---|---|---|---|---|
+| A common, Health lost killing it | 1.2% | 1.7% -> **2.1%** | 1.8% -> **2.3%** | 2.5% |
+| Step over the act before | - | x1.42 -> **x1.77** | x1.07 -> **x1.07** | x1.35 -> **x1.09** |
+| An Elite | 4.7% | 8.3% -> **9.7%** | 12.0% -> **14.4%** | 16.9% |
+| A Legendary | - | 29% -> **35%** | 38% -> **47%** | 55% |
+| A room, the hero there (floors) | 14%, 3% | 17%, 11% -> **20%, 13%** | 43%, 24% -> **53%, 29%** | 48%, 42% |
+| A room, starting weapon | 4% | 23%, 18% -> **27%, 22%** | 71%, 38% -> **87%, 46%** | 75%, 54% |
+| Pilgrim, a room | 5%, 1% | 6%, 3% -> **7%, 3%** | 11%, 6% -> **13%, 7%** | 11%, 9% |
+| Martyr, a room | 40%, 8% | 49%, 33% -> **58%, 39%** | 120%, 70% -> **145%, 86%** | 138%, 122% |
+
+Floors 1-2 and act IV are as they were; act III's floors now come up to act IV's, and act II's
+sit between act I and act III. Bosses untouched (the boss curve is the same); the adds bosses
+call in acts II and III hit a little harder.
+
+**Engine, after (same seeds):** Keeper gauntlet: every act still won by both bots (act II's
+lowest Health 30% -> 27% kite, 31% -> 25% player). Boss fights, acts II-III, expected builds,
+kite: Keeper 3 -> 4 of 6 won, Martyr 1 -> 0 of 6, Pilgrim 6 -> 5 of 6: the one loss is the Demon
+Cyclops' shockwave throwing the bot into a pit and the Deeps (seed 1); seeds 2-4: Pilgrim 9 of 9
+act II fights won, Keeper 6 of 9 (Azure Wyrm lost on every seed, before as after). The engine's
+per-floor curve (gauntlet `--gauntlet=curve`) is single-seed and dominated by lifesteal: it moves
+within its noise.
+
+**Targets (data/balance/targets.tres):** the commons' curve steps x1.05-x1.6 (was x0.9-x1.6: a
+step of x0.9 allowed exactly the flat stretch the owner felt), act II over act I up to x2.5 (act I
+is gentle on purpose; its commons meet a hero levelling 1 to 6); act I's floors at most 25% of max
+Health (model: a room for a fresh hero; engine: a floor for the kite bot); new gauntlet targets
+(Pilgrim's average player wins every act; on Keeper he wins 3 acts in 4 and spends 20-60% of his
+Health and potions on a floor before its boss). **Guards:** unit checks (acts I and IV at x1, II
+and III above, every act x1.5 at most; FloorRules leaves bosses out); balance suite: "model:
+floor curve", "model: monster curve" with the new steps, act I's gauntlet (Pilgrim player bot and
+Keeper kite bot win; floors 1-2 gentle). Regular suites (after merging main): unit,title 11134 checks, game
+1708, tutorial 397: 0 failed. Balance suite: 79 checks, the known failures plus two unrelated ones
+already failing before ("model: degenerate DPS" degenerate_skills_a3 2.84x, "content: unlisted":
+nameless_effigy, master_toma, the Maw in no act). The bottom of the Well (Tôma, the Maw) is at
+floor 12, act IV: its fight and its Damned keep x1, its 1.3-1.5x guard unchanged.
+
+**Open:**
+- *Lifesteal makes rooms free.* From act II on the expected builds heal back everything a room
+  deals (`SustainRules`: 4% of max Health a second outside boss fights, 20% at once), and potions
+  pile up for the bosses (the cap is 4 of a kind). The owner likes the current level, so it stays;
+  if Keeper's floors still feel soft, the room rate (`rate_per_second`) is the knob, with the
+  "one source alone cut <= 10%" target to revisit.
+- *Azure Wyrm* beats the kite bot on Keeper on every seed: off the "kite wins on Keeper" target
+  before and after; a candidate for its own pass.
+- *The bots are not the owner*: they lose bosses he finds easy. The curve's shape is what was
+  matched; absolute costs are for a slower player.
+
+**The tools, faster.** Every engine measure is a unit of work: processes take the next unit no
+other has claimed, results are kept in a cache keyed by the code and the data each unit reads, and
+the game runs as a simulation (no effects, light, HUD or bodies' looks; floors without their own
+monsters, rebuilt in place for a fresh measure). Wall time on this machine (2 CPUs), seed 1:
+
+| Command | Before | After |
+|---|---|---|
+| `--mode=all --quick --jobs=2` | 183 s | 113 s (with the gauntlet and the curve, which did not exist) |
+| `--mode=all --jobs=2` (six difficulties), first run | 6093 s (1 h 41 min) | 2564 s (43 min; measured before the curve part and the claims were added) |
+| the same again, nothing changed | 6093 s | not measured yet |
+| arena, acts II-III, expected builds, 3 difficulties (36 fights) | - | 40-55 s |
+
+Same verdicts within the seed noise: 408 boss fights, 91% the same result (face-tank 96%, kite
+86%), hero DPS -0.7% on average (sd 10%). `--classic` gives the old numbers back exactly (marginal
+act II identical). The marginal values move by the seed noise (act I's base measure drew a +16%
+luckier stream in one run: its "too weak" flags 24 -> 47): read them across runs, as before.
+Found and fixed on the way: a fall into the Deeps or a second life's Threshold took the World out
+of the tree mid-fight and the bots kept steering it (about 59,000 script errors in a full run,
+old tools included); they now follow the hero there and make for the Dawn Breach.
+
 ## 2026-10-22 - The bottom of the Well: Tôma and the Maw (new fight, numbers set by rule)
 
 **What changed:** after a first win, the run's last fight is the bottom of the Well
