@@ -334,6 +334,7 @@ func _test_content() -> void:
 				check(skill != null and skill.icon != null and skill.cooldown > 0.0 and not skill.effects.is_empty(), "%s: skill set up" % item.id)
 		if item is SkillTomeDef:
 			check(item.skill != null and item.skill.icon != null, "%s teaches a skill" % item.id)
+			check(item.get_details().begins_with(item.description), "%s: its card opens on the tome's own line" % item.id)
 	check(CONTENT.items.any(func(i: ItemDef) -> bool: return i is SkillTomeDef), "tomes can be found")
 	for item in CONTENT.items + CONTENT.locked_items:
 		check(item.resource_path.begins_with("res://data/items/") and not item.resource_path.contains("::"), "%s is its own file (saves point to it)" % item.id)

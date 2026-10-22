@@ -14,6 +14,9 @@ func get_details() -> String:
 	if skill == null:
 		return tr(description)
 	var text := tr("Teaches %s (cooldown %.1f s).") % [tr(skill.display_name), skill.cooldown]
+	# The tome's own line (what book it is, then how reading works) above what it teaches.
+	if not description.is_empty():
+		text = tr(description) + "\n" + text
 	if not skill.description.is_empty():
 		text += "\n" + tr(skill.description)
 	return text
