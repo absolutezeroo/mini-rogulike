@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 139,
+  "next_id": 146,
   "tags": [
     "pc",
     "test",
@@ -32,7 +32,8 @@
     "release",
     "contenu",
     "debug",
-    "en ligne"
+    "en ligne",
+    "données"
   ],
   "epics": [
     {
@@ -1968,6 +1969,112 @@
     },
     {
       "id": "task_135",
+      "title": "Statistiques de jeu (Talo Events) pour améliorer le jeu",
+      "description": "Validé par Clayton. Un résumé complet à chaque fin de partie (difficulté, profondeur, mort et sa cause/étage, durée, build final : arme+runes, armure, reliques, perks, sorts ; par sort : utilisations et dégâts ; potions bues et quand ; roulades, coups évités, taux d'esquive, coups pris ; dégâts par élément et source ; plus gros coup, critiques, coups chargés ; temps par étage, secrets, pièges, Abysses, Seuil ; or, âmes, démantelés ; appareil de contrôle) + événements de choix (perks proposées/prises/bannies, achats, pactes) et de boss (durée, dégâts, phase, issue). Liste des stats en données (TelemetryDef). Anonyme, par paquets, file hors ligne, jamais en partie debug, seulement avec consentement. Clé Talo : Events write ajouté (vérifié).",
+      "status": "todo",
+      "priority": "high",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "données",
+        "qualité",
+        "équilibrage"
+      ],
+      "created_at": 1792768111,
+      "updated_at": 1792768111
+    },
+    {
+      "id": "task_136",
+      "title": "Consentement, politique de confidentialité et crédits",
+      "description": "Validé par Clayton : « comme tous les bons jeux ». Fenêtre de consentement au premier lancement (Accepter / Refuser à égalité, interrupteur dans Options), politique de confidentialité claire FR+EN (responsable, données, finalités, bases légales, Talo comme sous-traitant, hébergement, conservation, droits, suppression, CNIL), lien dans le jeu et sur la fiche Play, fiche « Sécurité des données » du Play Store, bouton de suppression de ses données si Talo le permet, écran Crédits propre (licences CC0/CC-BY/OFL). Recherche juridique en cours (sources CNIL/RGPD/Google Play).",
+      "status": "todo",
+      "priority": "high",
+      "epic_id": "epic_6",
+      "due_date": null,
+      "tags": [
+        "release",
+        "données"
+      ],
+      "created_at": 1792768111,
+      "updated_at": 1792768111
+    },
+    {
+      "id": "task_137",
+      "title": "Tableau de bord des statistiques",
+      "description": "Lire les données Talo (graphes du tableau de bord Talo, export CSV) et en faire un tableau de bord du jeu : taux de choix et de victoire par arme/armure/sort/perk/relique, meilleures combinaisons, où et contre quoi on meurt, boss bloquants, potions et esquive. Sert aussi aux passes d'équilibrage (avec les bots).",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "données",
+        "équilibrage"
+      ],
+      "created_at": 1792768111,
+      "updated_at": 1792768111
+    },
+    {
+      "id": "task_138",
+      "title": "Compteurs mondiaux (Talo Game Stats)",
+      "description": "Validé. Compteurs partagés par tous les joueurs (démons tués dans le Puits, cloches sonnées, âmes offertes…) affichés au titre ou dans le Codex ; totaux à vie par joueur ; idée : objectifs communs qui débloquent quelque chose pour tous.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "données",
+        "contenu"
+      ],
+      "created_at": 1792768111,
+      "updated_at": 1792768111
+    },
+    {
+      "id": "task_139",
+      "title": "Signaler un bug / donner un avis (Talo Feedback)",
+      "description": "Validé. Un bouton dans le menu pause : le message part dans le tableau de bord Talo avec la version, l'étage, le build et l'appareil. Pratique pour les testeurs.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "qualité",
+        "données"
+      ],
+      "created_at": 1792768111,
+      "updated_at": 1792768111
+    },
+    {
+      "id": "task_140",
+      "title": "Réglages à distance (Talo Game Config)",
+      "description": "Validé. Ajuster des chiffres d'équilibrage, lancer un événement du week-end ou changer le modificateur du Défi du jour sans mise à jour. Valeurs par défaut dans les données du jeu, la config distante ne fait que les remplacer (bornées).",
+      "status": "todo",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "données",
+        "équilibrage"
+      ],
+      "created_at": 1792768111,
+      "updated_at": 1792768111
+    },
+    {
+      "id": "task_141",
+      "title": "Sauvegarde en ligne entre téléphone et PC (Talo Game Saves + comptes)",
+      "description": "Plus tard. Demande un compte (Player Auth : identifiant/email = vraies données personnelles) pour reconnaître le même joueur sur deux appareils. Gros chantier à part.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_80",
+      "due_date": null,
+      "tags": [
+        "sauvegarde",
+        "données"
+      ],
+      "created_at": 1792768111,
+      "updated_at": 1792768111
+    },
+    {
+      "id": "task_142",
       "title": "Nouvelle police : Pixel Operator 8",
       "description": "Toute l'interface passe à Pixel Operator 8 (Jayvee Enaguas, CC0, assets/fonts/PixelOperator8.ttf, licence à côté, crédit dans le README), importée nette (sans lissage, hinting, sous-pixel ni mipmaps). L'ancienne police (normal_font.ttf) est retirée : plus rien ne s'en sert.\n\nGrille : em de 8 pixels, donc tailles multiples de 16 (2, 4, 6 pixels d'interface par pixel de police : nets à x1, x1,5 et x2). BODY 16 (au lieu de 18), TITLE 32 (36), HUGE 48 (54) : un pixel de police garde la même taille à l'écran qu'avant. SMALL reste 12, seule taille hors grille (rien sous 16 n'est net sur téléphone) : 2,25 pixels d'écran par pixel de police sur téléphone (une ligne sur quatre un peu plus épaisse), net à x2 ; 8 aurait doublé une ligne sur deux sur téléphone et serait trop petit. Contours : 6 / 8 / 16 / 24. Les textes dessinés à la main (boutons ronds, emplacements, barres, glyphes des touches, plaque Interagir, « ou » de l'Arbre des âmes) se centrent sur une demi-capitale (Fonts.half_cap(), capitales de 7 pixels).\n\nInterligne : la police n'a aucune marge au-dessus des capitales ; une variation (assets/fonts/pixel_operator.tres) ajoute 4 px au-dessus et 2 dessous, et le thème 2 entre les lignes.\n\nGras : essayé sur le titre et Descendre, non retenu (lettres d'un pixel plus larges, noms qui passent plus vite à la ligne, Â et É empâtés en HUGE).\n\nGlyphes ajoutés à la police (tools/i18n/add_glyphs.py, sur sa grille) : ✕ ○ □ △ ← → ↑ ↓ des invites de touches, espace fine insécable.\n\nRemis en place (lettres plus larges) : sous-titre du titre sur deux lignes ; page Commandes des options (noms qui passent à la ligne) ; page d'un monstre du codex (colonne gauche 376 px pour « L'Accapareur » en TITLE, les âmes d'un objectif sous son texte) ; choix d'atouts (cartes 380 px, marges et espacements resserrés, boutons 48 px) ; bandeau des dernières paroles (en TITLE il prend toute la largeur et passe à la ligne au besoin, test ajouté sur les plus longues paroles) ; barre basse de la cinématique (place pour « Appuie pour passer » sous le texte).\n\nTests : la police du thème est Pixel Operator 8, chaque taille est sur la grille de 16 sauf SMALL (l'exception documentée), interligne en pixels entiers. Toutes les suites passent. Captures FR (titre, options, combat, sac, marchand, atouts, bestiaire et page d'un gardien, cinématique, dialogue, classements, pause) en 2340x1080, 2548x1296 et 1280x720 : scratchpad new_font.\n\nNon vérifié : sur un vrai téléphone (netteté de SMALL à x1,5, lisibilité).",
       "status": "review",
@@ -1983,7 +2090,7 @@
       "updated_at": 1792770950
     },
     {
-      "id": "task_136",
+      "id": "task_143",
       "title": "Nouvelle police : vérifier sur un vrai téléphone",
       "description": "Les captures sont faites à la résolution d'un téléphone mais pas sur un vrai écran : vérifier la netteté de SMALL (12, hors grille : 2,25 pixels d'écran par pixel de police), la lisibilité des petits textes (niveau d'un objet, cartes d'atouts, serments) et des glyphes de touches dessinés (✕ ○ □ △, flèches) sur le téléphone.",
       "status": "backlog",
@@ -1999,7 +2106,7 @@
       "updated_at": 1792770950
     },
     {
-      "id": "task_137",
+      "id": "task_144",
       "title": "Codex : grand gardien coupé en haut de sa page",
       "description": "Sur la page d'un gardien dans le codex, son sprite (échelle x2,2 dans une boîte de 104 px de haut, MonsterPage._look()) est coupé en haut pour les grands gardiens (L'Accapareur Doré : seul le bas du corps se voit). Sans rapport avec la police ; vu pendant ses captures. Adapter la boîte ou l'échelle à la taille du sprite.",
       "status": "backlog",
@@ -2015,7 +2122,7 @@
       "updated_at": 1792770950
     },
     {
-      "id": "task_138",
+      "id": "task_145",
       "title": "Bestiaire : noms tronqués sur les cartes",
       "description": "Avec la nouvelle police (lettres un peu plus larges), plus de noms de monstres finissent en « … » sur les cartes du bestiaire en français (« Gluant Gé… », « Garde-Car… », « Raton Vol… », « Cœur de M… »). Le nom complet est sur la page du monstre ; voir si les cartes peuvent passer le nom sur deux lignes.",
       "status": "backlog",
