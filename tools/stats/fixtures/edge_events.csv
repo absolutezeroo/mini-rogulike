@@ -1,0 +1,7 @@
+id,name,playerAlias.id,playerAlias.service,playerAlias.identifier,playerAlias.player.id,createdAt,updatedAt,props.boss,props.depth,props.diff,props.kills,props.outcome,props.perks,props.potions_boss,props.quit,props.result,props.run,props.skill.fireball.uses,props.skills,props.src_out.weapon,props.time,props.v,props.weapon,props.zeal
+e1,run_end,11,custom,aaaa,p-1,2026-10-01T10:00:00.000Z,2026-10-01T10:00:00.000Z,,4,normal,12,,"strength:2,vitality:1",,1,abandoned,r1,5,12,katana,300.5,0.3.0,katana,
+e2,run_end,11,custom,aaaa,p-1,2026-10-02T09:00:00.000Z,2026-10-02T09:00:00.000Z,,7,normal,40,,"strength:3,vitality:1",,0,death,r1,9,40,katana,800.0,0.3.0,katana,
+e3,boss,11,custom,aaaa,p-1,2026-10-02T08:50:00.000Z,2026-10-02T08:50:00.000Z,king_slime,3,,,next_form,,king_slime,,,r1,,,,61.5,0.3.0,,
+e4,boss,11,custom,aaaa,p-1,2026-10-02T08:50:00.000Z,2026-10-02T08:50:00.000Z,king_slime,3,,,next_form,,king_slime,,,r1,,,,61.5,0.3.0,,
+e5,run_end,12,custom,bbbb,p-2,2026-10-03T12:00:00.000Z,2026-10-03T12:00:00.000Z,,13,hard,90,,vampirism:1,,1,victory,r2,,"dash,fireball",1500,1900.0,0.3.0,bow,
+e6,future_event,12,custom,bbbb,p-2,2026-10-03T12:01:00.000Z,2026-10-03T12:01:00.000Z,,,,,,,,,,r2,,,,,0.3.0,,"say ""hi"", twice"

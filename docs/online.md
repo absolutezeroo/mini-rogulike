@@ -185,6 +185,83 @@ bugs. Built so that the game never depends on it:
 
 Every event also carries `v` (the game's version), `run` (a random id per run) and `depth`.
 
+## Reading the statistics (tools/stats)
+
+Talo's dashboard charts one event at a time; the questions that matter (which weapon wins, which
+boss blocks, do players drink too late) need the runs put together. `tools/stats/` is a dev tool
+(Python 3, standard library only, nothing in the game) that reads a **data export** and makes one
+self-contained HTML page, in French, readable on a phone:
+
+```
+python3 tools/stats/build_dashboard.py ~/Downloads/export-<game>-<date>.zip -o stats.html
+python3 tools/stats/build_dashboard.py exports/ --since 2026-11-01 --json stats.json -o stats.html
+python3 tools/stats/build_dashboard.py prod.zip --include-dev --dev-export with_dev.zip -o stats.html
+python3 -m unittest discover tools/stats      # its tests
+```
+
+- **How the events leave Talo.** Only through the dashboard's export: Talo's admin API (the
+  admin key we used for the world counters) has routes for players, leaderboards, game stats,
+  live config and channels, and **none that reads events or starts an export** (checked in
+  TaloDev/backend: `src/routes/admin/*`, `AdminAPIKeyScope`); the export route
+  (`POST /games/:id/data-exports`) takes a logged-in dashboard user, an admin with a confirmed
+  email, and the ZIP is **mailed** (attached, or a download link). The game's own key can only
+  write events. So the export is a step done by hand (below), and the tool reads its ZIP.
+- **The export's format** (backend `dataExportProcessor.ts`): `events-1.csv` (then `-2`... per
+  100,000 rows) with `id, name, playerAlias.id, playerAlias.service, playerAlias.identifier,
+  playerAlias.player.id, createdAt, updatedAt` and a `props.<key>` column per prop key the game
+  ever sent. **No dev column**: the export holds dev data or not depending on the dashboard's
+  "Dev data" switch when it is made. To look at dev runs, make a second export with dev data on
+  and pass it as `--dev-export` (its events missing from the normal one are the dev ones), or name
+  the dev devices with `--dev-player <device id>` (Options > Privacy shows it).
+- **Talo's export bug.** A cell is filled with the first prop whose key the column name *ends
+  with*, so `props.skills` holds the run's `kills` (the game sends its props sorted, `kills`
+  first), and a `boss` row shows its boss under `props.potions_boss`. The tool keeps only each
+  event's catalog fields (`data/online/telemetry.tres`), drops a cell equal to a shorter key's
+  value, and rebuilds the skills from `skill.<id>.uses`/`.dmg` (the skills used, not those held).
+  Renaming the `skills` prop in the game would avoid it (roadmap card).
+- **What the tool counts**: runs as distinct `run` ids with their latest `run_end` (above),
+  abandoned runs apart (never in a win rate), events sent twice counted once (same name, player,
+  time and props). Every rate shows its sample and a 95% Wilson interval; rows under
+  `--min-sample` finished runs (default 10) are grey and never ranked above the others; build
+  combinations need `--min-combo` runs (5). The build is the one the run *ended* with
+  (survivorship: deep runs gather more perks and relics).
+- **The page**: overview (runs, players, win rate, abandons), difficulty and ascension, depth
+  reached and the death rate of each floor (boss floors marked), deaths by cause, killer and act,
+  the bosses (fights, win rate, time, damage and hits taken, potions, phase reached at death),
+  weapons, their rarity and element, head, body and both, runes, skills (results and use),
+  perks and relics (offered, picked, pick rate, banished, results), awakened families, oaths,
+  pacts, the best combinations (weapon + a skill, + armor, + a relic, + every skill), potions
+  (drunk per run, in boss fights, the Health when drunk, left unused at death), the roll (rolls a
+  minute, dodge rate, win rate by dodge rate, by act), damage by element and source, time per
+  floor, the economy (gold, purchases, souls), devices. Filters (version, difficulty, dev data)
+  are computed beforehand for every combination and embedded; the page needs no network, works
+  light and dark, and holds no player id (it can be shared; the export can't).
+- **`--json`** writes the same numbers for scripts (the `game-balancer`: docs/balance.md).
+- **Tests**: `tools/stats/test_stats.py` on `fixtures/edge_events.csv` (quoting, the export bug,
+  a resumed run, a boss's next form, a batch sent twice) and on a synthetic export made by
+  `fixtures/make_fixture.py` (fixed seed, the catalog's events, written the way Talo writes them:
+  props must come back as sent). `python3 tools/stats/fixtures/make_fixture.py demo.zip` makes
+  one to try the page.
+
+### Sortir les données de Talo (à faire par Clayton)
+
+1. Sur [dashboard.trytalo.com](https://dashboard.trytalo.com), choisir le jeu, puis le menu
+   **Services** > **Export** (« Export your data »; adresse directe `dashboard.trytalo.com/exports`).
+   Il faut être administrateur du jeu, avec une adresse email confirmée.
+2. En haut de la page, l'interrupteur **Dev data** : le laisser **désactivé** (« not enabled »)
+   pour n'avoir que les vrais joueurs.
+3. Sous *Create data export*, cocher **Events** (c'est tout ce que l'outil lit; *Players* et
+   *Player aliases* ne servent pas). Cliquer **Create**.
+4. Talo envoie un email quand l'export est prêt (un ZIP en pièce jointe, ou un lien de
+   téléchargement). Le nombre d'exports par mois dépend de l'offre Talo.
+5. Garder le ZIP **hors du dépôt** (il contient les identifiants des appareils : jamais dans git),
+   puis lancer :
+   `python3 tools/stats/build_dashboard.py chemin/vers/export-....zip -o stats.html`
+   et ouvrir `stats.html` (sur l'ordinateur ou le téléphone). Le ZIP peut être supprimé ensuite.
+6. Pour voir aussi ses propres parties de test : refaire un export avec **Dev data** activé et
+   ajouter `--include-dev --dev-export chemin/vers/export_dev.zip` (la page aura un interrupteur
+   « Données dev »).
+
 ## World counters (the Well's Toll)
 
 Numbers every player adds to, kept by Talo as **global game stats** (`/v1/game-stats`): the
