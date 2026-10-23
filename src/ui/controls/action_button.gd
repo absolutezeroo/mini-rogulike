@@ -76,7 +76,7 @@ func _draw() -> void:
 		draw_texture_rect(icon, Rect2(-icon_size * 0.5 + offset, icon_size), false, icon_tint)
 	elif not label.is_empty():
 		var font_size := Fonts.BODY if radius < 60.0 else Fonts.TITLE
-		Fonts.draw(self, Vector2(0, font_size / 3.0), label, font_size, Color.WHITE, 0.5, Color("2b1d24"))
+		Fonts.draw(self, Vector2(0, Fonts.half_cap(font_size)), label, font_size, Color.WHITE, 0.5, Color("2b1d24"))
 
 	if cooldown_ratio > 0.01:
 		var points := PackedVector2Array([Vector2.ZERO])
@@ -94,7 +94,7 @@ func _draw() -> void:
 		draw_circle(badge, 14.0, Color("2b1d24"))
 		draw_circle(badge, 14.0, Color("e9a85a"), false, 2.0)
 		var count_text := str(counter)
-		Fonts.draw(self, badge + Vector2(0, 6), count_text, Fonts.BODY, Color.WHITE, 0.5, Color.TRANSPARENT)
+		Fonts.draw(self, badge + Vector2(0, Fonts.half_cap(Fonts.BODY)), count_text, Fonts.BODY, Color.WHITE, 0.5, Color.TRANSPARENT)
 
 
 ## The charge gauge on the rim: twelve steps of square pixels (the art's blocks, no smooth arc),

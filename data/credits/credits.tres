@@ -14,11 +14,21 @@ description = "Game design and development."
 script = ExtResource("3_entry")
 work = "Ninja Adventure"
 makers = "Pixel-boy & AAA"
-description = "Characters, monsters, tiles, items, effects, sound effects and the pixel font."
+description = "Characters, monsters, tiles, items, effects and sound effects."
 license = "CC0 1.0"
 url = "https://pixel-boy.itch.io/ninja-adventure-asset-pack"
 license_file = "res://assets/LICENSE_NinjaAdventure.txt"
-changes = "Weapon attack sheets composed from the pack's sprites, some tiles and effects drawn for the game in its palette, French letters added to the font."
+changes = "Weapon attack sheets composed from the pack's sprites, some tiles and effects drawn for the game in its palette."
+
+[sub_resource type="Resource" id="font"]
+script = ExtResource("3_entry")
+work = "Pixel Operator"
+makers = "Jayvee Enaguas"
+description = "The game's font (Pixel Operator 8)."
+license = "CC0 1.0"
+url = "https://notabug.org/HarvettFox96/ttf-pixeloperator"
+license_file = "res://assets/fonts/PixelOperator_LICENSE.txt"
+changes = "The controller button glyphs and arrows added in its style."
 
 [sub_resource type="Resource" id="pixel_ui"]
 script = ExtResource("3_entry")
@@ -89,6 +99,11 @@ script = ExtResource("2_section")
 title = "Music and sound"
 entries = Array[ExtResource("3_entry")]([SubResource("music"), SubResource("impacts")])
 
+[sub_resource type="Resource" id="fonts"]
+script = ExtResource("2_section")
+title = "Font"
+entries = Array[ExtResource("3_entry")]([SubResource("font")])
+
 [sub_resource type="Resource" id="tech"]
 script = ExtResource("2_section")
 title = "Engine and services"
@@ -96,4 +111,4 @@ entries = Array[ExtResource("3_entry")]([SubResource("godot"), SubResource("talo
 
 [resource]
 script = ExtResource("1_credits")
-sections = Array[ExtResource("2_section")]([SubResource("made_by"), SubResource("art"), SubResource("sound"), SubResource("tech")])
+sections = Array[ExtResource("2_section")]([SubResource("made_by"), SubResource("art"), SubResource("sound"), SubResource("fonts"), SubResource("tech")])

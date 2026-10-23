@@ -53,4 +53,4 @@ func _draw() -> void:
 	var plaque := Rect2(Vector2(-text_width * 0.5 - 10.0, radius + 4.0), Vector2(text_width + 20.0, 28.0))
 	draw_rect(plaque, Color(0.1, 0.06, 0.07, 0.85))
 	draw_rect(plaque, Color(color, 0.9), false, 2.0)
-	Fonts.draw(self, Vector2(0, plaque.position.y + 20.0), caption, Fonts.BODY, Color.WHITE, 0.5, Color.BLACK)
+	Fonts.draw(self, Vector2(0, plaque.get_center().y + Fonts.half_cap(Fonts.BODY)), caption, Fonts.BODY, Color.WHITE, 0.5, Color.BLACK)

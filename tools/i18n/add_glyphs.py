@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-"""Adds the French glyphs the pixel font (assets/fonts/normal_font.ttf, Ninja Adventure) lacks:
-œ Œ « » Î Ï … – — × and the no-break spaces (U+00A0, U+202F), plus the controls' prompt glyphs
-(PlayStation's ✕ ○ □ △ and the arrows ← → ↑ ↓), drawn on its 9-pixel grid in its own style.
+"""Adds the glyphs the game needs that the pixel font (assets/fonts/PixelOperator8.ttf, Pixel
+Operator 8 by Jayvee Enaguas, CC0) lacks: the controls' prompt glyphs (PlayStation's ✕ ○ □ △ and
+the arrows ← → ↑ ↓) and the narrow no-break space (U+202F), drawn on its 8-pixel grid (100 units
+a pixel, capitals 7 pixels high, a pixel of space on the left) in its own style. The font already
+has every French letter and sign (œ Œ « » Î Ï … – — × and the no-break space).
 Runs once (it skips glyphs the font already has). Needs fontTools
 (pip install fonttools); not used by the game itself.
 
@@ -15,140 +17,79 @@ from fontTools.pens.ttGlyphPen import TTGlyphPen
 from fontTools.ttLib import TTFont
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
-FONT = os.path.join(ROOT, "assets", "fonts", "normal_font.ttf")
-PIXEL = 2048 / 9  # the font's grid: 9 pixels to the em
+FONT = os.path.join(ROOT, "assets", "fonts", "PixelOperator8.ttf")
+PIXEL = 100  # the font's grid: 8 pixels to the em of 800 units
+LEFT = 1  # the font's letters start a pixel in (their left side bearing)
 
 # Each glyph: (name, advance in pixels, rows from the top; the last row is the baseline row 0).
+# The prompts' glyphs (Prompts, PromptGlyph): PlayStation's face buttons and the arrow keys,
+# capital-high (7 pixels) like the letters on the other caps.
 GLYPHS = {
-    "œ": ("oe", 9, [
-        ".###.##.",
-        "#...#..#",
-        "#...###.",
-        "#...#...",
-        ".###.###",
+    "✕": ("uni2715", 9, [
+        "#.....#",
+        ".#...#.",
+        "..#.#..",
+        "...#...",
+        "..#.#..",
+        ".#...#.",
+        "#.....#",
     ]),
-    "Œ": ("OE", 11, [
-        ".#########",
-        "##..##....",
-        "##..##....",
-        "##..####..",
-        "##..##....",
-        ".#########",
+    "○": ("uni25CB", 9, [
+        "..###..",
+        ".#...#.",
+        "#.....#",
+        "#.....#",
+        "#.....#",
+        ".#...#.",
+        "..###..",
     ]),
-    "«": ("guillemotleft", 6, [
-        ".#..#",
-        "#..#.",
-        ".#..#",
+    "□": ("uni25A1", 9, [
+        "#######",
+        "#.....#",
+        "#.....#",
+        "#.....#",
+        "#.....#",
+        "#.....#",
+        "#######",
+    ]),
+    "△": ("uni25B3", 9, [
+        "...#...",
+        "...#...",
+        "..#.#..",
+        "..#.#..",
+        ".#...#.",
+        ".#...#.",
+        "#######",
+    ]),
+    "←": ("arrowleft", 9, [
+        "",
+        "..#....",
+        ".#.....",
+        "#######",
+        ".#.....",
+        "..#....",
         "",
     ]),
-    "»": ("guillemotright", 6, [
-        "#..#.",
-        ".#..#",
-        "#..#.",
+    "→": ("arrowright", 9, [
+        "",
+        "....#..",
+        ".....#.",
+        "#######",
+        ".....#.",
+        "....#..",
         "",
     ]),
-    "Î": ("Icircumflex", 7, [
-        "..##..",
-        ".#..#.",
-        "",
-        "######",
-        "..##..",
-        "..##..",
-        "..##..",
-        "..##..",
-        "######",
-    ]),
-    "Ï": ("Idieresis", 7, [
-        ".#..#.",
-        "",
-        "######",
-        "..##..",
-        "..##..",
-        "..##..",
-        "..##..",
-        "######",
-    ]),
-    "…": ("ellipsis", 9, [
-        "##.##.##",
-        "##.##.##",
-    ]),
-    "–": ("endash", 7, [
-        "######",
-        "",
-        "",
-    ]),
-    "—": ("emdash", 10, [
-        "#########",
-        "",
-        "",
-    ]),
-    # The multiplication sign ("Abats 5 × Rat"): the plus sign's size and place, its strokes crossed.
-    "×": ("multiply", 6, [
-        "#...#",
-        ".#.#.",
-        "..#..",
-        ".#.#.",
-        "#...#",
-    ]),
-    # The prompts' glyphs (Prompts, PromptGlyph): PlayStation's face buttons and the arrow keys,
-    # capital-high (6 pixels) like the letters on the other caps.
-    "✕": ("uni2715", 7, [
-        "#....#",
-        ".#..#.",
-        "..##..",
-        "..##..",
-        ".#..#.",
-        "#....#",
-    ]),
-    "○": ("uni25CB", 7, [
-        ".####.",
-        "#....#",
-        "#....#",
-        "#....#",
-        "#....#",
-        ".####.",
-    ]),
-    "□": ("uni25A1", 7, [
-        "######",
-        "#....#",
-        "#....#",
-        "#....#",
-        "#....#",
-        "######",
-    ]),
-    "△": ("uni25B3", 7, [
-        "..##..",
-        "..##..",
-        ".#..#.",
-        ".#..#.",
-        "#....#",
-        "######",
-    ]),
-    "←": ("arrowleft", 7, [
-        "..#...",
-        ".#....",
-        "######",
-        ".#....",
-        "..#...",
-        "",
-    ]),
-    "→": ("arrowright", 7, [
-        "...#..",
-        "....#.",
-        "######",
-        "....#.",
-        "...#..",
-        "",
-    ]),
-    "↑": ("arrowup", 6, [
+    "↑": ("arrowup", 7, [
         "..#..",
         ".###.",
         "#.#.#",
         "..#..",
         "..#..",
         "..#..",
+        "..#..",
     ]),
-    "↓": ("arrowdown", 6, [
+    "↓": ("arrowdown", 7, [
+        "..#..",
         "..#..",
         "..#..",
         "..#..",
@@ -158,7 +99,7 @@ GLYPHS = {
     ]),
 }
 # Spaces: the same width as the font's space.
-SPACES = {" ": "nbspace", " ": "narrownbspace"}
+SPACES = {" ": "nbspace", " ": "uni202F"}
 
 
 def draw(rows):
@@ -174,7 +115,7 @@ def draw(rows):
             start = x
             while x < len(row) and row[x] == "#":
                 x += 1
-            x0, x1 = round(start * PIXEL), round(x * PIXEL)
+            x0, x1 = round((start + LEFT) * PIXEL), round((x + LEFT) * PIXEL)
             y0, y1 = round(y * PIXEL), round((y + 1) * PIXEL)
             # Clockwise, like the font's own outlines.
             pen.moveTo((x0, y0))

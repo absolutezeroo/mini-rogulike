@@ -74,6 +74,9 @@ docs/      Everything else (below)
 
 - Art, sound effects and music: **[Ninja Adventure](https://pixel-boy.itch.io/ninja-adventure-asset-pack)**
   by Pixel-boy and AAA, CC0 (`assets/LICENSE_NinjaAdventure.txt`).
+- Font: **Pixel Operator** (Pixel Operator 8) by Jayvee
+  Enaguas, CC0 (`assets/fonts/PixelOperator_LICENSE.txt`); the prompt glyphs (✕ ○ □ △, arrows) added
+  in its style.
 - Impact and footstep sounds: Kenney **Impact Sounds**, CC0 ([kenney.nl](https://kenney.nl)).
 - Bag and forge skin (`assets/ui/rpg/`): Kenney **Pixel UI Pack** and **Fantasy UI Borders**, CC0
   (licenses next to them). The dark insets and slots were redrawn in the same palette.

@@ -63,10 +63,10 @@ func _draw() -> void:
 	draw_circle(badge, 14.0, Color("7a1f2b"))
 	draw_circle(badge, 14.0, GOLD, false, 2.0, true)
 	var text := str(count)
-	Fonts.draw(self, badge + Vector2(0, 6), text, Fonts.BODY, Color.WHITE, 0.5, Color.TRANSPARENT)
+	Fonts.draw(self, badge + Vector2(0, Fonts.half_cap(Fonts.BODY)), text, Fonts.BODY, Color.WHITE, 0.5, Color.TRANSPARENT)
 	# What it is, under it.
 	var caption := tr("Perks")
-	Fonts.draw(self, Vector2(center.x, size.y + 12.0), caption, Fonts.BODY, GOLD, 0.5, Color.BLACK)
+	Fonts.draw(self, Vector2(center.x, size.y + Fonts.cap_height(Fonts.BODY)), caption, Fonts.BODY, GOLD, 0.5, Color.BLACK)
 
 
 ## A four-pointed star rising out of the wood: a perk waits.

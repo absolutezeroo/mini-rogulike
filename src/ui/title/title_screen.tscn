@@ -74,7 +74,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.82, 0.4, 1)
 theme_override_constants/outline_size = 24
-theme_override_font_sizes/font_size = 54
+theme_override_font_sizes/font_size = 48
 text = "The Well of Souls"
 
 [node name="Subtitle" type="Label" parent="Margin/Columns/Left"]
@@ -82,8 +82,9 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(680, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.94, 0.82, 0.8)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "Descend. Bring back the stolen souls. Become what the dark demands."
+autowrap_mode = 3
 
 [node name="StoryButton" type="Button" parent="Margin/Columns/Left"]
 unique_name_in_owner = true
@@ -92,7 +93,7 @@ size_flags_horizontal = 0
 theme_override_colors/font_color = Color(1, 0.82, 0.4, 0.85)
 theme_override_colors/font_hover_color = Color(1, 0.9, 0.6, 1)
 theme_override_colors/font_pressed_color = Color(1, 0.75, 0.3, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "> The chronicle of Kagari"
 flat = true
 
@@ -106,14 +107,14 @@ visible = false
 custom_minimum_size = Vector2(500, 72)
 layout_mode = 2
 size_flags_horizontal = 0
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 
 [node name="PlayButton" type="Button" parent="Margin/Columns/Left"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(500, 80)
 layout_mode = 2
 size_flags_horizontal = 0
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 32
 text = "Descend"
 
 [node name="DailyButton" type="Button" parent="Margin/Columns/Left"]
@@ -121,7 +122,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(500, 82)
 layout_mode = 2
 size_flags_horizontal = 0
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 
 [node name="Buttons" type="GridContainer" parent="Margin/Columns/Left"]
 custom_minimum_size = Vector2(500, 0)
@@ -135,28 +136,28 @@ columns = 2
 unique_name_in_owner = true
 custom_minimum_size = Vector2(243, 56)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "Shrine"
 
 [node name="CodexButton" type="Button" parent="Margin/Columns/Left/Buttons"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(243, 56)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "Codex"
 
 [node name="QuestsButton" type="Button" parent="Margin/Columns/Left/Buttons"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(243, 56)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "Quests"
 
 [node name="OptionsButton" type="Button" parent="Margin/Columns/Left/Buttons"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(243, 56)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "Options"
 
 [node name="Gap" type="Control" parent="Margin/Columns"]

@@ -1020,8 +1020,10 @@ The Collapsed Throne Hall,The Collapsed Throne Hall,La Salle du Trône Effondré
 "Water drips from the stone overhead, as if the Well itself were weeping.","Water drips from the stone overhead, as if the Well itself were weeping.","L'eau goutte de la pierre, là-haut, comme si le Puits lui-même pleurait."
 The Weeping Hollow,The Weeping Hollow,Le Creux qui Pleure
 Game design and development.,Game design and development.,Conception et développement du jeu.
-"Characters, monsters, tiles, items, effects, sound effects and the pixel font.","Characters, monsters, tiles, items, effects, sound effects and the pixel font.","Personnages, monstres, décors, objets, effets, bruitages et la police pixel."
-"Weapon attack sheets composed from the pack's sprites, some tiles and effects drawn for the game in its palette, French letters added to the font.","Weapon attack sheets composed from the pack's sprites, some tiles and effects drawn for the game in its palette, French letters added to the font.","Planches d'attaque des armes composées à partir des sprites du pack, quelques décors et effets dessinés pour le jeu dans sa palette, lettres françaises ajoutées à la police."
+"Characters, monsters, tiles, items, effects and sound effects.","Characters, monsters, tiles, items, effects and sound effects.","Personnages, monstres, décors, objets, effets et bruitages."
+"Weapon attack sheets composed from the pack's sprites, some tiles and effects drawn for the game in its palette.","Weapon attack sheets composed from the pack's sprites, some tiles and effects drawn for the game in its palette.","Planches d'attaque des armes composées à partir des sprites du pack, quelques décors et effets dessinés pour le jeu dans sa palette."
+The game's font (Pixel Operator 8).,The game's font (Pixel Operator 8).,La police du jeu (Pixel Operator 8).
+The controller button glyphs and arrows added in its style.,The controller button glyphs and arrows added in its style.,Les symboles des boutons de manette et les flèches ajoutés dans son style.
 The bag's and the forge's skin.,The bag's and the forge's skin.,L'habillage du sac et de la forge.
 Dark insets and slots redrawn in the same palette.,Dark insets and slots redrawn in the same palette.,Encarts sombres et cases redessinés dans la même palette.
 The ornate borders of the windows.,The ornate borders of the windows.,Les bordures ornées des fenêtres.
@@ -1033,6 +1035,7 @@ The online leaderboards and the gameplay statistics (an online service; none of 
 Made by,Made by,Créé par
 Art,Art,Graphismes
 Music and sound,Music and sound,Musique et son
+Font,Font,Police
 Engine and services,Engine and services,Moteur et services
 "Deep below, something burns.
 The Well breathes it up, and the air itself scorches.","Deep below, something burns.

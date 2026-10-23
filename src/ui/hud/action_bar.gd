@@ -170,7 +170,7 @@ class SlotFace:
 		if icon:
 			draw_texture_rect(icon, ItemSlot.fit(icon, inner), false, icon_tint)
 		elif not label.is_empty():
-			Fonts.draw(self, Vector2(size.x * 0.5, size.y * 0.5 + 6.0), label, Fonts.BODY, Color.WHITE, 0.5)
+			Fonts.draw(self, Vector2(size.x * 0.5, size.y * 0.5 + Fonts.half_cap(Fonts.BODY)), label, Fonts.BODY, Color.WHITE, 0.5)
 		if cooldown > 0.01:
 			# The time left as shade over the slot, falling a row of pixels at a time.
 			var rows := floorf(inner.size.y * cooldown / PromptGlyph.PIXEL) * PromptGlyph.PIXEL

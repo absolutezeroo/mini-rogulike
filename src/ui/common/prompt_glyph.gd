@@ -151,7 +151,7 @@ static func draw_cap(item: CanvasItem, at: Vector2, cap: Dictionary) -> void:
 				_fill(item, area.grow(-PIXEL * 5), radius - 5, FACE)
 	var color := rim if cap.shape == Prompts.Shape.ROUND and rim != RIM else WORDS
 	var lift := PIXEL if cap.shape == Prompts.Shape.KEY else 0.0  # (over the key's lower edge)
-	var baseline := area.position.y + HEIGHT * 0.5 + 6.0 - lift
+	var baseline := area.position.y + HEIGHT * 0.5 + Fonts.half_cap(Fonts.BODY) - lift
 	Fonts.draw(item, Vector2(area.get_center().x, baseline), cap.text, Fonts.BODY, color, 0.5, Color.TRANSPARENT)
 
 

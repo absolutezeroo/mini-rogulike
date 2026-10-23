@@ -79,6 +79,6 @@ func _draw() -> void:
 		if _glow > 0.0:
 			draw_rect(fill, Color(1, 1, 1, 0.45 * _glow / GLOW_TIME))
 	if show_text and not _text.is_empty():
-		# Centred: the baseline under the middle by half a capital (6 of the font's 9 pixels).
-		var baseline := (size.y + font_size * 6.0 / Fonts.GRID) * 0.5
+		# Centred: the baseline under the middle by half a capital.
+		var baseline := size.y * 0.5 + Fonts.half_cap(font_size)
 		Fonts.draw(self, Vector2(size.x * 0.5, baseline), _text, font_size, Color.WHITE, 0.5, Palette.INK)

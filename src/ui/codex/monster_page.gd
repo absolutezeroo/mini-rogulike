@@ -15,8 +15,8 @@ signal fragment_requested(fragment: FragmentDef, boss: BossDef)
 enum Middle { ATTACKS, CHRONICLE }
 
 ## (Wide enough for the longest word of a name at TITLE size: « L'Accapareur ».)
-const LEFT_WIDTH := 340.0
-const RIGHT_WIDTH := 330.0  # (with the left one, as wide as they were: 670)
+const LEFT_WIDTH := 376.0
+const RIGHT_WIDTH := 294.0  # (with the left one, as wide as they were: 670)
 const SHINY_COLOR := CodexCard.SHINY_COLOR
 
 var _monster: MonsterDef
@@ -431,12 +431,12 @@ func _goal_row(done: bool, text: String, reward: String, extra := "") -> Control
 	words.add_theme_constant_override("separation", 0)
 	row.add_child(words)
 	words.add_child(UiSkin.label(text, Fonts.BODY, CodexRows.DONE if done else UiSkin.TEXT, true))
+	# The souls under the goal, not beside it: the column is narrow, and a goal squeezed beside its
+	# souls would break inside its words.
+	if not reward.is_empty():
+		words.add_child(UiSkin.label(reward, Fonts.BODY, CodexRows.SOUL, true))
 	if not extra.is_empty():
 		words.add_child(UiSkin.label(extra, Fonts.BODY, CodexRows.SOUL, true))
-	if not reward.is_empty():
-		var amount := UiSkin.label(reward, Fonts.BODY, CodexRows.SOUL)
-		amount.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		row.add_child(amount)
 	return row
 
 

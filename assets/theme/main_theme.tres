@@ -5,7 +5,7 @@
 [ext_resource type="Texture2D" path="res://assets/ui/wood/button_normal.png" id="3_vdebs"]
 [ext_resource type="Texture2D" path="res://assets/ui/wood/button_pressed.png" id="4_tjmdt"]
 [ext_resource type="Texture2D" path="res://assets/ui/wood/nine_path_panel_2.png" id="5_xamdb"]
-[ext_resource type="FontFile" path="res://assets/fonts/normal_font.ttf" id="6_kvm4y"]
+[ext_resource type="FontVariation" path="res://assets/fonts/pixel_operator.tres" id="6_kvm4y"]
 [ext_resource type="Texture2D" path="res://assets/ui/wood/nine_path_panel.png" id="7_card"]
 [ext_resource type="Texture2D" path="res://assets/ui/scroll/track.png" id="10_track"]
 [ext_resource type="Texture2D" path="res://assets/ui/scroll/grabber.png" id="11_grab"]
@@ -178,7 +178,7 @@ texture_margin_bottom = 4.0
 
 [resource]
 default_font = ExtResource("6_kvm4y")
-default_font_size = 18
+default_font_size = 16
 Button/colors/font_color = Color(0.16862746, 0.11372549, 0.14117648, 1)
 Button/colors/font_disabled_color = Color(0.16862746, 0.11372549, 0.14117648, 0.5)
 Button/colors/font_hover_color = Color(0.16862746, 0.11372549, 0.14117648, 1)
@@ -201,6 +201,7 @@ HSlider/styles/grabber_area = SubResource("Slider_fill")
 HSlider/styles/grabber_area_highlight = SubResource("Slider_fill")
 HSlider/styles/slider = SubResource("Slider_track")
 Label/colors/font_outline_color = Color(0.16862746, 0.11372549, 0.14117648, 1)
+Label/constants/line_spacing = 2
 Label/constants/outline_size = 8
 PanelContainer/styles/panel = SubResource("StyleBoxTexture_xbixd")
 PerkCard/base_type = &"Button"
