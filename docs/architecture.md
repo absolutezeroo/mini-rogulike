@@ -52,14 +52,19 @@ data/                Game content as .tres resources (no code)
   skills/              Player, monster and boss skills
   leaderboards/        The online leaderboards (leaderboards.tres: LeaderboardsConfig) and their boards
                        (boards/: LeaderboardDef), see docs/online.md
+  online/              privacy.tres (PrivacyDef: the contact placeholders, the consent rules, the short
+                       policy), telemetry.tres (TelemetryDef: the statistics' events and fields)
+  credits/             credits.tres (CreditsDef: who made what, licenses and their files)
   ui/                  Loading tips, input_prompts.tres (the controls as the player is told about them: the
                        Controls page, the keys prompts show, the gamepad families' button names)
 src/
   autoload/            Events (signal bus), Sfx (sound player), HitStop (impact freeze), Profile (save), Settings (options),
                        InputDevice (the device in use), MenuNav (menus with keys and gamepads), PixelGrid (the canvas's scale),
-                       Leaderboards (the online leaderboards)
-  online/              The online leaderboards' pieces: RunSummary (a run that ended), PlayerName (the
-                       pseudonym's filter), BoardBackend (offline) > TaloBackend (Talo's REST API)
+                       Leaderboards (the online leaderboards), Privacy (the player's privacy choices),
+                       Telemetry (the gameplay statistics, with consent)
+  online/              The online pieces: RunSummary (a run that ended), PlayerName (the pseudonym's
+                       filter), BoardBackend (offline) > TaloBackend (Talo's REST API), RunTelemetry (what
+                       the statistics learn of a run)
   core/                Small shared helpers (physics layers, weighted random, SafeFile)
   definitions/         Resource classes describing content (the "schema" of data/)
     effects/             Building blocks for skills and consumables

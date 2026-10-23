@@ -72,10 +72,12 @@ shows it.
 ### Online leaderboards
 
 **The Roll of Souls** (`LeaderboardsPanel`, the **Leaderboards** button under the records on the
-title screen, and the end screen of a Dawn Knell): the only online part of the game, on Talo
-(how it is built, set up and protected: [../online.md](../online.md)). Everything else stays
-offline, and the game plays the same without network or without a key in the build (the page then
-says the leaderboards are unavailable).
+title screen, and the end screen of a Dawn Knell): one of the game's two online parts (with the
+gameplay statistics, [interface.md](interface.md#privacy-and-credits)), on Talo (how it is built,
+set up and protected: [../online.md](../online.md)). Everything else stays offline, and the game
+plays the same without network or without a key in the build (the page then says the leaderboards
+are unavailable). **Off until the player chooses to publish**: before that, nothing is sent and
+the boards aren't even read.
 
 - **The Dawn Knell's board** (`data/leaderboards/boards/daily_challenge.tres`): the day's
   official attempt only (never practice, never a debug run), its points, one entry per player and
@@ -86,13 +88,18 @@ says the leaderboards are unavailable).
 - **The page**: the first 50, the player's rank (and the lines around it when past the 50), the
   board's rule, a loading line, "no network" with **Try again**, "no one yet". Phone and PC, touch,
   mouse, keys (Q / E switch boards when there are several) and gamepad (MenuWindow, MenuNav).
-- **The name**: an anonymous player made on the device (a random id, nothing else), shown under a
-  **pseudonym** ("Name your soul", `PseudonymDialog`): asked the first time the page opens or the
-  day's official toll starts, changed in **Options > Leaderboards**. 3 to 16 characters among the
-  font's letters (accents too), digits, spaces and `- _ . '`, at least one letter, no refused word
-  (`LeaderboardsConfig.banned_words`, read without case, accents or digits for letters). Until one
-  is picked: "Soul" and four digits. **Show me in the leaderboards** (on by default; Options and
-  the name's dialog): off, nothing is ever sent and what waited is dropped.
+- **The choice and the name** ("Name your soul", `PseudonymDialog`): asked the first time the page
+  opens or the day's official toll starts. It asks plainly **Publish your scores online?**, says
+  what is published and to whom (the scores, a run summary and the pseudonym, public, on Talo),
+  links the privacy policy, and offers **Don't publish** and **Publish my scores** side by side,
+  the same size; Back is Don't publish. Not published: the page says so and its header button
+  asks again; **Options > Privacy > Publish my scores online** turns it on or off (the first time
+  through the same question). Published, the player is an anonymous player made on the device (a
+  random id, nothing else) shown under a **pseudonym**, changed in Options > Privacy. 3 to 16
+  characters among the font's letters (accents too), digits, spaces and `- _ . '`, at least one
+  letter, no refused word (`LeaderboardsConfig.banned_words`, read without case, accents or digits
+  for letters). The default offered: "Soul" and four digits. Turned off, nothing is ever sent nor
+  read and what waited is dropped.
 - **Prepared, not shown yet** (data only, `submits` and `shown` off): the deepest floor and the
   fastest win on each of Pilgrim, Keeper and Martyr, the highest Nightmare ascension won, and La
   Veille's nights (when that mode exists).

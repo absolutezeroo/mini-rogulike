@@ -1,8 +1,18 @@
-# Online leaderboards (Talo)
+# Online leaderboards and gameplay statistics (Talo)
 
-The game's only online feature: leaderboards on [Talo](https://trytalo.com), an open-source game
-backend. What the player sees is in [design/progression.md](design/progression.md#online-leaderboards);
-this page is how it is built, how to set it up and what it protects against.
+The game's two online features, both on [Talo](https://trytalo.com), an open-source game backend,
+and both off until the player turns them on: the **leaderboards** and the **gameplay statistics**
+(Talo's events). What the player sees is in
+[design/progression.md](design/progression.md#online-leaderboards) and
+[design/interface.md](design/interface.md#privacy-and-credits); the privacy rules, the dashboard's
+retention settings, the Play Console form and deletion requests are in
+[privacy-ops.md](privacy-ops.md); this page is how they are built, how to set them up and what
+they protect against.
+
+**The rule: no Talo call at all before the player's choice.** Until the player answers "Publish my
+scores" (or turns it on in Options) and/or accepts the statistics, the game makes no request, not
+even to read a board, and makes no id. The tests check it (`LeaderboardTests`, `PrivacyTests`:
+the fake server counts its calls).
 
 ## How it is built
 
@@ -32,8 +42,10 @@ this page is how it is built, how to set it up and what it protects against.
   or normal runs), a difficulty and ascension filter, `submits` (scores are sent to it) and `shown`
   (a tab on the page). Adding a board: a file there, its line in `leaderboards.tres`, the same
   board in the dashboard (below).
-- **Its own file**: `user://leaderboards.json` holds the device's random id (never shown), the
-  pseudonym, "Show me in the leaderboards" and the queue. Never the player's save or the Profile.
+- **Its own file**: `user://leaderboards.json` holds the device's random id (shown in Options >
+  Privacy, for a deletion request), the Talo player id it became, the pseudonym, "Publish my
+  scores online" (off until chosen; a file from before, version 1, is asked again) and the queue.
+  Never the player's save or the Profile.
 - **Periods.** Each daily (weekly) entry carries its day (week) as a prop, `day` = the UTC day
   number of `DailyRun.today()` (`week` = `QuestBoard.week_index()`); the page asks Talo for one
   day's entries (`propKey=day&propValue=<day>`, archived ones with `withDeleted=1` for
@@ -70,8 +82,9 @@ What is left: **only the key file**. For reference, the whole setup:
 1. **Game**: on [dashboard.trytalo.com](https://dashboard.trytalo.com), create the game (done).
 2. **Access key**: *API keys* > create a key with only these scopes: **Players: read and write**
    (`read:players` to identify the device's player, `write:players` to set its name),
-   **Leaderboards: read and write** (`read:leaderboards`, `write:leaderboards`). Nothing else
-   (done).
+   **Leaderboards: read and write** (`read:leaderboards`, `write:leaderboards`), **Events: write**
+   (`write:events`, the gameplay statistics). Nothing else is needed (done; the key also has Game
+   Stats, Game Feedback and Game Config scopes for later features).
 3. **Display name** (recommended): *Game settings* > **Display name prop key** = `name`. The
    pseudonym is a player prop called `name`: with this set, a renamed player shows the new name on
    every entry. Without it the game falls back on the name copied into each entry.
@@ -111,19 +124,72 @@ builds see them (`X-Talo-Include-Dev-Data: 1`).
 - **Not more.** The client can be modified and the key extracted: anyone determined can post any
   score. Talo's request signing (`X-Talo-Signature`) would make it harder; it is not used.
 
+## Gameplay statistics (Talo events)
+
+With the player's consent only (`Privacy.analytics_allowed()`: 16 or older, accepted, for the
+current consent version), each run that ends sends what it was, to balance the game and find its
+bugs. Built so that the game never depends on it:
+
+- **`RunTelemetry`** (`src/online/run_telemetry.gd`) follows one run from `Events.run_started`
+  (the Game emits it once the hero is made): it listens to the hero's signals (skills, potions and
+  the heal they gave, charged blows, gold, dismantling, dropping) and the Events bus
+  (`actor_damaged` and `hit_dodged`, emitted by `Actor.take_hit()`; boss fights, perk choices,
+  purchases, pacts, secrets, the Deeps and the Threshold), counts in memory, and at the end makes
+  the `run_end` event's props (`summary()`). Damage is sorted by element (`HitInfo.element`) and
+  source (`HitInfo.via`: the acting skill, perk, rune or item when the hit was made, a shot's when
+  it was fired; else status, trap, fall..., the weapon or a monster).
+- **`Telemetry`** (autoload, `src/autoload/telemetry.gd`) makes a tracker per run; at
+  `Events.run_ended` it queues the run's events (if consented, never for a debug run), keeps only
+  the fields the catalog lists, and sends them in batches through the leaderboards' server
+  (`Leaderboards.identity()`, `BoardBackend.send_events()`: `POST /v1/events` with the
+  `X-Talo-Alias` header; the same device id, so one player on Talo). Queue in
+  `user://telemetry.json` (at most `max_queue` events, the oldest dropped), retried every
+  `retry_seconds` without network, sent at a run's end and when the app goes to the background.
+  Refusing or withdrawing drops what waited. Debug builds' events are dev data
+  (`X-Talo-Dev-Build: 1`), like the leaderboards'.
+- **The catalog is data**: `data/online/telemetry.tres` (`TelemetryDef`, `TelemetryEventDef`): each
+  event, on or off, its purpose and its fields (`skill.*` stands for each skill's). A field not
+  listed is dropped before it is queued; turning one off is data.
+- **Talo's limits**: a prop key at most 128 characters, a value at most 512
+  (`MAX_KEY_LENGTH`/`MAX_VALUE_LENGTH` in the backend's `src/entities/prop.ts`); `sanitize()`
+  keeps every event inside (a long list loses its last items at a comma) and caps the props
+  (`max_props`). Never a `META_` prop: Talo copies those into the player's props, which its API
+  shows to anyone reading a board.
+- **Not followed**: a run abandoned for the title (no end); a resumed run's tracker starts at the
+  resume (`resumed = 1`, the counts miss what came before).
+
+| Event | When | Fields |
+|---|---|---|
+| `run_end` | a death or a win (again at the real end after the endless floors) | version, run id, OS, screen, input device(s), difficulty, ascension, daily/official, oath, depth, result, cause, killer, death floor, time, level, kills, bosses; the build (weapon id, rarity, element, runes, affixes; head, body, armor runes; awakened families, relics, perks with levels, skills); per skill uses and damage; potions drunk (in a boss fight, the average Health ratio when drunk, per potion), consumables left; rolls, hits dodged by rolling, dodge rate, hits taken; damage dealt and taken in total, by element and by source; biggest hit, crits, charged blows; time per floor; secrets, trap hits, falls into the Deeps (escaped), Threshold trials (won); gold earned and spent, souls, items dismantled and dropped |
+| `boss` | a boss fight ends | boss, time, damage taken, hits taken, last phase, outcome (won, died, left, next_form), potions |
+| `perk_offered` / `perk_picked` / `perk_banished` | a choice dealt (or rerolled) / taken / a banish | the perks, the perk (and its level) |
+| `purchase` | bought from the merchant | item, rarity, price |
+| `pact` | a pact ends | pact, outcome (kept, broken) |
+
+Every event also carries `v` (the game's version), `run` (a random id per run) and `depth`.
+
 ## Privacy
 
-Sent: a random id made on the device, the pseudonym, the scores and their run summary. No email,
-no account, no device identifier of the system, no location. The player can turn sending off in
-the options. `docs/privacy.html` says so (the Play Store's data safety form must say it too:
-"App activity: other user-generated content / in-game identifiers", not shared, not required).
+Leaderboards: a random id made on the device, the pseudonym, the scores and their run summary.
+Statistics: the events above, linked to the same id. No email, no account, no hardware device id
+(the id is random, never `OS.get_unique_id()`), no location. Both are off until chosen and can be
+turned off in Options > Privacy, which also shows the id and prepares a deletion request. The
+policy is `docs/privacy.html` (FR and EN) and, short, in the game (`data/online/privacy.tres`);
+what to do in Talo's dashboard and the Play Console: [privacy-ops.md](privacy-ops.md).
 
 ## Tests
 
-`LeaderboardTests` (unit and title suites) run on `FakeBoardBackend`, never the network: the data
+`LeaderboardTests` (unit and title suites) run on `FakeBoardBackend`, never the network: nothing
+is queued, sent or read before the player chose to publish, the data
 is valid, the pseudonym filter, an official daily attempt is queued once with its score and props,
 practice and debug runs and impossible runs are not, the queue and the device id survive a
 restart, the queue empties when the network is back (and a past day's score is dropped), opting
 out sends nothing, no key means offline; the page's unavailable, offline (Retry) and filled
 states. The test runner gives the autoload an offline backend and no file before any suite runs.
-A real call to Talo can only be checked by hand (a probe under `_tool/`, with the key).
+`PrivacyTests` (unit, title, and the game suite's run) check the consent rules (off by default,
+the age, six months after a refusal on a fake clock, a newer consent version), that nothing is
+queued or sent without consent or from a debug run, what a run's end sends and its sizes, the
+queue's bound, deleting one's data, the files, and the questions, Options > Privacy, the policy
+and the credits on screen.
+A real call to Talo can only be checked by hand (a probe under `_tool/`, with the key): done on
+23 October 2026 (an identify and a `run_end` event as dev data).

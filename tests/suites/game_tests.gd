@@ -30,6 +30,10 @@ func run() -> void:
 		difficulty.curse_chance = 0.0
 	CONTENT.dungeon.merchant_chance = 0.0
 	CONTENT.dungeon.encounters_max = 0
+	# The gameplay statistics accepted, on a fake server: the bot's run is followed (PrivacyTests).
+	var privacy := PrivacyTests.new()
+	add_child(privacy)
+	privacy.consent_on_fake()
 	var game := GAME_SCENE.instantiate() as Game
 	game.show_act_cards = false  # tested on their own (see _test_act_card)
 	add_child(game)
@@ -303,6 +307,7 @@ func run() -> void:
 	check(not game.threshold.is_open(), "no second life, no Threshold")
 	await get_tree().create_timer(1.5).timeout
 	check(game.game_over_panel.visible, "game over screen shown")
+	privacy.game_summary(player)  # what the run's end sent (and the tests' usual again)
 	check(not RunSave.exists(), "dying ends the saved run")
 	check(not Profile.history.is_empty() and not str(Profile.history[0].cause).is_empty(), "the run goes to the history, with what ended it")
 	check(Profile.stat_value("kills") > 0 and Profile.stat_value("species") > 0, "kills count in the bestiary")

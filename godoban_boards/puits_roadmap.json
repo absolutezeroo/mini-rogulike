@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 142,
+  "next_id": 146,
   "tags": [
     "pc",
     "test",
@@ -1880,7 +1880,7 @@
     {
       "id": "task_133",
       "title": "Créer le jeu et la clé sur Talo",
-      "description": "Pour Clayton. Déjà fait (23/10) : le jeu sur Talo, la clé d'accès (Players lecture/écriture, Leaderboards lecture/écriture, rien d'autre) et les 9 classements (daily-challenge décroissant rafraîchi chaque jour ; depth-easy/normal/hard décroissants ; fastest-win-easy/normal/hard croissants ; ascension et vigil décroissants ; tous « une entrée par joueur », jamais rafraîchis sauf daily-challenge). Ne jamais renommer ces noms internes.\n\nReste à faire :\n1. Copier online/talo.cfg.example en online/talo.cfg et y coller la clé (access_key=\"...\"). Ce fichier n'est jamais commité (.gitignore) ; les exports l'embarquent.\n2. Dans Game settings du tableau de bord, mettre « Display name prop key » = name (le pseudonyme suit alors les changements de nom).\n3. Si l'option existe, activer le filtre d'injures de Talo sur les props.\n4. Supprimer l'entrée de test « TEST probe » (joueur test-probe, données de dev) du classement daily-challenge.\n5. Avant de publier un build avec la clé : mettre à jour le formulaire « Sécurité des données » de la Play Console (identifiant aléatoire, pseudonyme, scores ; non partagés ; désactivable) et publier docs/privacy.html (déjà mis à jour).\nLe détail : docs/online.md.",
+      "description": "Pour Clayton. Déjà fait (23/10) : le jeu sur Talo, la clé d'accès (Players lecture/écriture, Leaderboards lecture/écriture, rien d'autre) et les 9 classements (daily-challenge décroissant rafraîchi chaque jour ; depth-easy/normal/hard décroissants ; fastest-win-easy/normal/hard croissants ; ascension et vigil décroissants ; tous « une entrée par joueur », jamais rafraîchis sauf daily-challenge). Ne jamais renommer ces noms internes.\n\nReste à faire :\n1. Copier online/talo.cfg.example en online/talo.cfg et y coller la clé (access_key=\"...\"). Ce fichier n'est jamais commité (.gitignore) ; les exports l'embarquent.\n2. Dans Game settings du tableau de bord, mettre « Display name prop key » = name (le pseudonyme suit alors les changements de nom).\n3. Si l'option existe, activer le filtre d'injures de Talo sur les props.\n4. Supprimer l'entrée de test « TEST probe » (joueur test-probe, données de dev) du classement daily-challenge.\n5. Avant de publier un build avec la clé : voir la carte « Confidentialité : ce que Clayton doit faire avant la sortie » (docs/privacy-ops.md).\nLe détail : docs/online.md.",
       "status": "todo",
       "priority": "high",
       "epic_id": "epic_6",
@@ -1890,7 +1890,7 @@
         "release"
       ],
       "created_at": 1792763662,
-      "updated_at": 1792763662
+      "updated_at": 1792771211
     },
     {
       "id": "task_134",
@@ -1970,8 +1970,8 @@
     {
       "id": "task_135",
       "title": "Statistiques de jeu (Talo Events) pour améliorer le jeu",
-      "description": "Validé par Clayton. Un résumé complet à chaque fin de partie (difficulté, profondeur, mort et sa cause/étage, durée, build final : arme+runes, armure, reliques, perks, sorts ; par sort : utilisations et dégâts ; potions bues et quand ; roulades, coups évités, taux d'esquive, coups pris ; dégâts par élément et source ; plus gros coup, critiques, coups chargés ; temps par étage, secrets, pièges, Abysses, Seuil ; or, âmes, démantelés ; appareil de contrôle) + événements de choix (perks proposées/prises/bannies, achats, pactes) et de boss (durée, dégâts, phase, issue). Liste des stats en données (TelemetryDef). Anonyme, par paquets, file hors ligne, jamais en partie debug, seulement avec consentement. Clé Talo : Events write ajouté (vérifié).",
-      "status": "todo",
+      "description": "Fait : statistiques de jeu sur Talo Events, seulement avec consentement (16 ans et plus), jamais en partie de débogage ni dans les tests. Un résumé complet à chaque fin de partie (« run_end » : mode, issue, cause et étage de la mort, durée et temps par étage, build final arme/runes/armure/familles/reliques/atouts/compétences, utilisations et dégâts par compétence, potions bues avec la vie à ce moment et restantes, roulades, coups esquivés, taux d'esquive, coups pris, dégâts par élément et par source, plus gros coup, critiques, coups chargés, secrets, pièges, Tréfonds, Seuil, or, âmes, démantelés/jetés, appareil de contrôle, version, système, écran) + événements boss, atouts proposés/pris/bannis, achats, pactes. Catalogue en données (data/online/telemetry.tres), limites de Talo respectées (clé 128, valeur 512), file hors ligne bornée (user://telemetry.json), envoi par paquets en fin de partie et en arrière-plan. Le jeu n'en dépend pas (signaux Events : run_started, actor_damaged, hit_dodged, perks_offered/chosen/banished).\n\nVérifié : tests (faux serveur, partie du bot dans la suite game) et un vrai envoi sur Talo (joueur « privacy-smoke-test », un run_end en données de dev, réponse OK sans erreur).\n\nÀ vérifier en jeu : une vraie partie sur le téléphone, puis l'événement dans le tableau de bord Talo.",
+      "status": "review",
       "priority": "high",
       "epic_id": "epic_5",
       "due_date": null,
@@ -1981,13 +1981,13 @@
         "équilibrage"
       ],
       "created_at": 1792768111,
-      "updated_at": 1792768111
+      "updated_at": 1792771211
     },
     {
       "id": "task_136",
       "title": "Consentement, politique de confidentialité et crédits",
-      "description": "Validé par Clayton : « comme tous les bons jeux ». Fenêtre de consentement au premier lancement (Accepter / Refuser à égalité, interrupteur dans Options), politique de confidentialité claire FR+EN (responsable, données, finalités, bases légales, Talo comme sous-traitant, hébergement, conservation, droits, suppression, CNIL), lien dans le jeu et sur la fiche Play, fiche « Sécurité des données » du Play Store, bouton de suppression de ses données si Talo le permet, écran Crédits propre (licences CC0/CC-BY/OFL). Recherche juridique en cours (sources CNIL/RGPD/Google Play).",
-      "status": "todo",
+      "description": "Fait : rien ne part vers Talo avant un choix explicite. Classements : « Publier tes scores en ligne ? » (Ne pas publier / Publier mes scores, à égalité) ; sans choix, la page ne lit même pas les classements. Statistiques : au premier lancement sur l'écran titre, question d'âge neutre (moins de 16 / 16 ou plus, seul ce oui/non est gardé) puis consentement en mots simples (Refuser / Accepter de même taille, focus clavier/manette sur la politique), refus = pas de nouvelle question avant 6 mois. Options > Confidentialité : publier mes scores, statistiques, identifiant en ligne, Supprimer mes données en ligne (e-mail prérempli avec l'identifiant Talo, puis tout est coupé et l'identifiant oublié), politique, crédits. Politique de confidentialité réécrite FR+EN (docs/privacy.html) et version courte traduite dans le jeu. Écran Crédits (titre et Options) en données avec les licences (celle de Godot lue dans le moteur). docs/privacy-ops.md : réglages Talo, formulaire Play, demandes de suppression, e-mail à Talo.\n\nÀ remplir par Clayton : voir la carte « Confidentialité : ce que Clayton doit faire avant la sortie ».",
+      "status": "review",
       "priority": "high",
       "epic_id": "epic_6",
       "due_date": null,
@@ -1996,7 +1996,7 @@
         "données"
       ],
       "created_at": 1792768111,
-      "updated_at": 1792768111
+      "updated_at": 1792771211
     },
     {
       "id": "task_137",
@@ -2072,6 +2072,68 @@
       ],
       "created_at": 1792768111,
       "updated_at": 1792768111
+    },
+    {
+      "id": "task_142",
+      "title": "Confidentialité : ce que Clayton doit faire avant la sortie",
+      "description": "1. Remplir [CONTROLLER_NAME] (nom légal), [CONTACT_EMAIL] (adresse confidentialité) et [POLICY_URL] : python3 tools/privacy/fill_policy.py --name ... --email ... --url ... (data/online/privacy.tres et docs/privacy.html d'un coup).\n2. Publier docs/privacy.html à cette adresse (GitHub Pages) et la mettre dans la Play Console, sur itch.io et Steam.\n3. Tableau de bord Talo : rétention des événements 395 jours (13 mois) pour chaque événement ; purge des joueurs inactifs à 730 jours (menus exacts non vérifiés).\n4. Play Console : formulaire « Sécurité des données » et public cible 13 ans et plus (réponses dans docs/privacy-ops.md).\n5. Envoyer à data@trytalo.com l'e-mail sur Sentry (États-Unis), brouillon dans docs/privacy-ops.md ; mettre à jour la section 7 de la politique avec la réponse.\n6. Supprimer le joueur de test « privacy-smoke-test » (données de dev) dans Talo.\n7. Tenir un petit registre des traitements (docs/privacy-ops.md, Records).",
+      "status": "todo",
+      "priority": "high",
+      "epic_id": "epic_6",
+      "due_date": null,
+      "tags": [
+        "release",
+        "données",
+        "en ligne"
+      ],
+      "created_at": 1792771211,
+      "updated_at": 1792771211
+    },
+    {
+      "id": "task_143",
+      "title": "Statistiques : parties abandonnées et reprises",
+      "description": "Une partie quittée pour le titre n'envoie rien (pas de fin) ; une partie reprise après fermeture ne compte qu'à partir de la reprise (resumed = 1). Si utile pour l'équilibrage : garder le suivi dans un fichier à part ou envoyer un événement « abandon ».",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "données",
+        "idée"
+      ],
+      "created_at": 1792771211,
+      "updated_at": 1792771211
+    },
+    {
+      "id": "task_144",
+      "title": "À vérifier en jeu : consentement et suppression sur téléphone",
+      "description": "Sur le téléphone : les questions d'âge et de consentement au premier lancement (lisibilité, boutons), Options > Confidentialité, « Supprimer mes données en ligne » qui ouvre bien l'application e-mail (une fois l'adresse remplie), la politique et les crédits qui défilent au doigt. Avec une manette : le focus démarre sur la politique.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "playtest",
+        "ui",
+        "données"
+      ],
+      "created_at": 1792771211,
+      "updated_at": 1792771211
+    },
+    {
+      "id": "task_145",
+      "title": "Test instable : « No AI » (debug_tests)",
+      "description": "Vu une fois sur trois passages de la suite game (23/10), avec l'échec connu des salles signatures : « No AI: a monster and a boss beside the hero stand still... » et « ...throws no shockwave » (la Vie du héros a bougé pendant les deux secondes : piège ou danger près de lui ?). Repassé sans échec. À stabiliser (placer le héros loin des dangers, comme _quiet_point).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "tests",
+        "bug"
+      ],
+      "created_at": 1792771708,
+      "updated_at": 1792771708
     }
   ]
 }

@@ -6,7 +6,8 @@ extends Control
 ## the board on the left, the player's place and those around it on the right with the board's
 ## rule, and the states between: loading, nothing yet, no network (Retry), no leaderboards in
 ## this build. It only asks Leaderboards (load_board()); it never sends anything itself. The first
-## time, it asks for a pseudonym (PseudonymDialog).
+## time, it asks whether to publish one's scores, and under which pseudonym (PseudonymDialog);
+## not published, the boards aren't even read (the header's button asks again).
 ## Reachable as %BoardTabs, %TodayTab, %YesterdayTab, %TopList, %Status, %RetryButton, %MinePanel,
 ## %MineText, %AroundList, %NameText, %ChangeNameButton, %CloseButton, %NameDialog.
 
@@ -89,7 +90,7 @@ func back() -> bool:
 	if not visible:
 		return false
 	if name_dialog.visible:
-		name_dialog.cancel()
+		name_dialog.cancel()  # (its policy page first)
 	else:
 		close()
 	return true
@@ -100,6 +101,11 @@ func refresh() -> void:
 	_show_online(Leaderboards.is_available())
 	if _board == null or not Leaderboards.is_available():
 		_show_state(tr("Online leaderboards are not available in this version of the game."), false)
+		_show_mine(null)
+		return
+	if not Leaderboards.shown:
+		# Not chosen to publish: the server isn't contacted at all, not even to read.
+		_show_state(tr("You chose not to publish your scores, so the online leaderboards are not loaded either. Publish them to see the boards."), false)
 		_show_mine(null)
 		return
 	_load_id += 1
@@ -150,7 +156,7 @@ func _show_mine(view: Leaderboards.View, loading := false) -> void:
 	UiParts.clear(_around)
 	_rules.text = tr(_board.rule) if _board else ""
 	if not Leaderboards.shown:
-		_mine_text.text = tr("You chose not to appear in the leaderboards (Options).")
+		_mine_text.text = tr("Your scores are not published (Options > Privacy).")
 		return
 	if loading or view == null:
 		_mine_text.text = ""
@@ -187,6 +193,7 @@ func _show_online(on: bool) -> void:
 func _show_name() -> void:
 	if _name_text:
 		_name_text.text = tr("You appear as %s") % Leaderboards.display_name() if Leaderboards.shown else tr("You don't appear in the leaderboards")
+		_change_name.text = tr("Change name") if Leaderboards.shown else tr("Publish my scores")
 
 
 ## The tabs: one per shown board, and the board's two periods (none for an all-time board).

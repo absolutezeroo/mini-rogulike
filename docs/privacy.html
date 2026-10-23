@@ -3,45 +3,204 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Le Puits des Âmes — Confidentialité / Privacy</title>
+<title>Le Puits des Âmes — Politique de confidentialité / Privacy Policy</title>
+<meta name="description" content="Politique de confidentialité du jeu Le Puits des Âmes (The Well of Souls) / Privacy policy of the game.">
+<!-- Placeholders to fill before publishing: [CONTROLLER_NAME], [CONTACT_EMAIL]. They are also in
+     data/online/privacy.tres; python3 tools/privacy/fill_policy.py fills this page from it
+     (docs/privacy-ops.md). -->
 <style>
-  :root { color-scheme: dark; }
-  body { margin: 0; background: #120c1e; color: #f2ead8; font: 16px/1.6 system-ui, sans-serif; }
-  main { max-width: 720px; margin: 0 auto; padding: 32px 16px 64px; }
-  h1 { color: #ffd66e; font-size: 1.6rem; margin-bottom: 0.2rem; }
-  h2 { color: #ffd66e; font-size: 1.2rem; margin-top: 2.4rem; border-top: 1px solid #3a2c52; padding-top: 1.6rem; }
-  .date { color: #b8a9cc; font-size: 0.9rem; }
-  a { color: #8fd8ff; }
+  :root {
+    --bg: #fbf8f2; --text: #231b2e; --muted: #5f566b; --accent: #8a4b00; --line: #e3dccd;
+    --card: #ffffff; --link: #0b5cad;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #120c1e; --text: #f2ead8; --muted: #b8a9cc; --accent: #ffd66e; --line: #3a2c52; --card: #1b132b; --link: #8fd8ff; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+  header { border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+  h1 { color: var(--accent); font-size: 1.55rem; line-height: 1.25; margin: 0 0 4px; }
+  h2 { color: var(--accent); font-size: 1.3rem; margin: 40px 0 8px; }
+  h3 { font-size: 1.05rem; margin: 26px 0 6px; }
+  p, li { overflow-wrap: anywhere; }
+  .meta { color: var(--muted); font-size: 0.92rem; margin: 0; }
+  nav { margin: 14px 0 0; display: flex; gap: 10px; flex-wrap: wrap; }
+  nav a { display: inline-block; padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; text-decoration: none; color: var(--text); background: var(--card); }
+  .summary { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+  th, td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: var(--card); }
+  .table { overflow-x: auto; }
+  a { color: var(--link); }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 48px 0 0; }
 </style>
 </head>
 <body>
 <main>
-<h1>Le Puits des Âmes</h1>
-<p class="date">Politique de confidentialité — dernière mise à jour : 23 octobre 2026</p>
+<header>
+  <h1>Le Puits des Âmes / The Well of Souls</h1>
+  <p class="meta">Politique de confidentialité / Privacy Policy — version 1.0, 23 octobre 2026 / 23 October 2026</p>
+  <nav><a href="#fr" lang="fr">Français</a><a href="#en" lang="en">English</a></nav>
+</header>
 
-<h2>Français</h2>
-<p><strong>Le Puits des Âmes ne collecte aucune donnée personnelle. Seuls les classements en ligne, que vous pouvez désactiver, envoient quelque chose.</strong></p>
-<ul>
-  <li>Le jeu fonctionne hors ligne. Il ne contient ni publicité, ni outil d'analyse, ni traceur, ni compte utilisateur.</li>
-  <li><strong>Classements en ligne</strong> (le Glas de l'Aube) : pour y figurer, le jeu envoie au service <a href="https://trytalo.com">Talo</a> un identifiant aléatoire créé sur l'appareil (il ne permet pas de vous identifier), le pseudonyme que vous choisissez, et vos scores avec un résumé de la partie (version du jeu, jour, temps, étages, monstres tués, arme, difficulté). Ni e-mail, ni nom réel, ni identifiant de l'appareil, ni position. Ces données servent uniquement à afficher les classements et ne sont ni vendues ni partagées. L'option « M'afficher dans les classements » (Options) coupe tout envoi.</li>
-  <li>Votre progression (partie en cours, améliorations, succès, bestiaire, réglages) est enregistrée uniquement sur votre appareil, dans le stockage privé de l'application. Elle n'est jamais envoyée sur Internet.</li>
-  <li>Les autorisations demandées sont le <em>vibreur</em>, pour les retours haptiques en combat, et l'<em>accès à Internet</em>, pour les classements. Aucune ne donne accès à vos données.</li>
-  <li>Désinstaller le jeu, ou effacer ses données dans les réglages d'Android, supprime définitivement votre progression.</li>
-</ul>
-<p>Pour faire retirer votre pseudonyme et vos scores des classements, écrivez à l'adresse ci-dessous en indiquant votre pseudonyme. Si une future version ajoute une autre fonction en ligne, cette page sera mise à jour avant sa sortie.</p>
-<p>Contact : l'adresse e-mail indiquée sur la fiche du jeu dans le Google Play Store.</p>
+<section id="fr" lang="fr">
+<h2>Politique de confidentialité (français)</h2>
 
-<h2>English</h2>
-<p><strong>Le Puits des Âmes (The Well of Souls) collects no personal data. Only the online leaderboards, which you can turn off, send anything.</strong></p>
+<div class="summary">
+<p><strong>En bref.</strong> Pas de compte, pas d'e-mail, pas de publicité, pas d'achat, pas de localisation, pas d'identifiant publicitaire. Le jeu se joue entièrement hors ligne. Rien ne quitte votre appareil, sauf si vous activez l'une des deux fonctions en ligne ci-dessous ; chacune se désactive à tout moment dans <em>Options › Confidentialité</em>.</p>
+</div>
+
+<h3>1. Responsable du traitement et contact</h3>
+<p>Le jeu « Le Puits des Âmes » (The Well of Souls) est publié par <strong>[CONTROLLER_NAME]</strong>, responsable du traitement de vos données. Pour toute question ou demande sur vos données : <strong>[CONTACT_EMAIL]</strong>.</p>
+
+<h3>2. Ce qui est collecté, et ce qui ne l'est pas</h3>
 <ul>
-  <li>The game runs offline. It has no ads, no analytics, no trackers and no user accounts.</li>
-  <li><strong>Online leaderboards</strong> (the Dawn Knell): to list you, the game sends to the <a href="https://trytalo.com">Talo</a> service a random id made on the device (it does not identify you), the pseudonym you choose, and your scores with a summary of the run (game version, day, time, floors, monsters slain, weapon, difficulty). No email, no real name, no device identifier, no location. This data only serves to show the leaderboards and is neither sold nor shared. The option "Show me in the leaderboards" (Options) stops all sending.</li>
-  <li>Your progress (current run, upgrades, achievements, bestiary, settings) is stored only on your device, in the app's private storage. It is never sent over the Internet.</li>
-  <li>The permissions requested are <em>vibration</em>, for haptic feedback in combat, and <em>Internet access</em>, for the leaderboards. Neither gives access to your data.</li>
-  <li>Uninstalling the game, or clearing its data in Android settings, permanently deletes your progress.</li>
+  <li>Sans activer de fonction en ligne : <strong>rien</strong>. Le jeu ne contacte aucun serveur.</li>
+  <li>Jamais : nom réel, e-mail, compte, contacts, localisation, identifiant publicitaire, identifiant matériel de l'appareil, données de paiement.</li>
 </ul>
-<p>To have your pseudonym and scores removed from the leaderboards, write to the address below with your pseudonym. If a future version adds another online feature, this page will be updated before that release.</p>
-<p>Contact: the email address shown on the game's Google Play Store page.</p>
+
+<h3>3. Classements en ligne (si vous publiez vos scores)</h3>
+<ul>
+  <li><strong>Quand :</strong> seulement si vous répondez « Publier mes scores » à la question posée par le jeu (ou activez l'option). Avant ce choix, le jeu ne contacte pas le serveur, même pour lire les classements.</li>
+  <li><strong>Données :</strong> un identifiant aléatoire créé sur l'appareil (il ne vient pas du matériel), le pseudonyme que vous choisissez, vos scores du Glas de l'Aube et un résumé de chaque partie (version du jeu, jour, graine, difficulté, étages, monstres tués, boss, or, durée, arme, relique).</li>
+  <li><strong>Public :</strong> le pseudonyme, les scores et leur résumé sont visibles par tous les joueurs. L'identifiant technique peut être lu par quiconque interroge le classement : ne mettez pas votre vrai nom en pseudonyme.</li>
+  <li><strong>Finalité :</strong> afficher les classements que vous avez demandés.</li>
+  <li><strong>Base légale :</strong> l'exécution du service que vous demandez (art. 6(1)(b) RGPD) ; le stockage de l'identifiant sur l'appareil est strictement nécessaire à ce service demandé expressément (art. 82 de la loi Informatique et Libertés).</li>
+  <li><strong>Durée :</strong> jusqu'à votre demande de suppression, ou 24 mois après votre dernière partie en ligne.</li>
+</ul>
+
+<h3>4. Statistiques de jeu (seulement si vous acceptez)</h3>
+<ul>
+  <li><strong>Quand :</strong> seulement si vous acceptez la question « Statistiques de jeu (optionnel) ». Elle n'est proposée qu'aux joueurs de 16 ans ou plus (une question neutre sur l'âge vient avant ; seule la réponse « moins de 16 ans / 16 ans ou plus » est gardée, sur l'appareil, jamais votre âge). Refuser ne change rien au jeu.</li>
+  <li><strong>Données :</strong> à la fin de chaque partie, un résumé : difficulté, mode, profondeur, issue, cause et étage de la mort, durée et temps par étage ; équipement final (arme, rang, élément, runes, armure, familles, reliques, atouts, compétences) ; utilisations et dégâts de chaque compétence ; potions bues (avec le niveau de vie à ce moment) et restantes ; roulades, coups esquivés, coups reçus ; dégâts par élément et par source ; plus gros coup, critiques, coups chargés ; secrets, pièges, Tréfonds, Seuil ; or gagné et dépensé, âmes, objets démantelés ou jetés ; atouts proposés, choisis et bannis ; achats chez le marchand ; pactes ; combats de boss (durée, dégâts reçus, phase, issue) ; type de contrôle (tactile, clavier, manette) ; version du jeu, système (Android, Windows…) et taille de l'écran. Ces données sont liées à l'identifiant aléatoire de l'appareil, jamais à votre nom.</li>
+  <li><strong>Finalité :</strong> équilibrer le jeu et corriger ses bugs.</li>
+  <li><strong>Base légale :</strong> votre consentement (art. 6(1)(a) RGPD et art. 82 de la loi Informatique et Libertés), que vous pouvez retirer à tout moment dans <em>Options › Confidentialité</em>, sans effet sur les envois antérieurs. Après un refus, la question ne revient pas avant 6 mois.</li>
+  <li><strong>Durée :</strong> 13 mois, puis suppression. Des statistiques agrégées et anonymes (par exemple « taux de victoire par arme ») peuvent être gardées.</li>
+</ul>
+
+<h3>5. Sur votre appareil</h3>
+<p>Votre progression, vos réglages, vos choix de confidentialité (avec leur date) et l'identifiant aléatoire restent sur l'appareil, dans le stockage privé du jeu. Ils n'en sortent que comme décrit aux points 3 et 4. Désinstaller le jeu les supprime.</p>
+
+<h3>6. Destinataires et sous-traitants</h3>
+<ul>
+  <li><strong>Talo</strong> (Talo Platform Ltd, Royaume-Uni, <a href="https://trytalo.com">trytalo.com</a>) héberge les classements et les statistiques pour notre compte, comme sous-traitant, selon son accord de traitement des données (<a href="https://trytalo.com/dpa">trytalo.com/dpa</a>). Hébergement : Hetzner Online GmbH, <strong>Allemagne</strong>.</li>
+  <li>Sous-traitants de Talo : Cloudflare (stockage d'objets, Europe de l'Ouest) ; Sentry / Functional Software Inc. (rapports d'erreurs, États-Unis) ; Zoho (e-mails du tableau de bord de Talo, États-Unis : ne concerne pas les joueurs).</li>
+  <li>Rien n'est vendu, rien ne sert à la publicité. Les boutiques (Google Play, itch.io, Steam) ne reçoivent aucune donnée de jeu de notre part.</li>
+</ul>
+
+<h3>7. Transferts hors de l'Union européenne</h3>
+<p>Talo est une société britannique : le Royaume-Uni bénéficie d'une décision d'adéquation de la Commission européenne (valable jusqu'au 27 décembre 2031). Les données sont hébergées dans l'UE (Allemagne). Un traitement aux États-Unis est possible par Sentry pour les rapports d'erreurs ; nous avons demandé à Talo le mécanisme de transfert utilisé (clauses contractuelles types ou Data Privacy Framework) et cette page sera mise à jour avec sa réponse.</p>
+
+<h3>8. Durées de conservation</h3>
+<div class="table"><table>
+  <tr><th>Données</th><th>Durée</th></tr>
+  <tr><td>Statistiques de jeu (événements)</td><td>13 mois</td></tr>
+  <tr><td>Statistiques agrégées et anonymes</td><td>Sans limite (plus des données personnelles)</td></tr>
+  <tr><td>Joueur du classement (identifiant, pseudonyme, scores)</td><td>Jusqu'à suppression, ou 24 mois (730 jours) après la dernière activité</td></tr>
+  <tr><td>Classement du jour</td><td>Remis à zéro chaque jour ; les entrées archivées suivent la règle du joueur</td></tr>
+  <tr><td>E-mails de demandes</td><td>1 an après la clôture de la demande</td></tr>
+  <tr><td>Vos choix sur l'appareil</td><td>Jusqu'à modification ou désinstallation</td></tr>
+</table></div>
+
+<h3>9. Vos droits</h3>
+<p>Vous pouvez demander l'accès à vos données, leur rectification, leur effacement, la limitation ou l'opposition à leur traitement, leur portabilité, et retirer votre consentement à tout moment. En France, vous pouvez aussi définir des directives sur le sort de vos données après votre décès. Le plus simple : <em>Options › Confidentialité › Supprimer mes données en ligne</em>, qui prépare l'e-mail avec votre identifiant en ligne. Sinon, écrivez à <strong>[CONTACT_EMAIL]</strong> en indiquant cet identifiant (affiché dans <em>Options › Confidentialité</em>) : sans compte ni e-mail, c'est le seul moyen de retrouver vos données. Réponse sous un mois.</p>
+
+<h3>10. Réclamation</h3>
+<p>Vous pouvez saisir la CNIL : 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07, <a href="https://www.cnil.fr/fr/plaintes">cnil.fr/fr/plaintes</a>, ou l'autorité de protection des données de votre pays.</p>
+
+<h3>11. Mineurs</h3>
+<p>Le jeu n'est pas conçu pour les enfants de moins de 13 ans. Les statistiques de jeu ne sont jamais proposées aux joueurs de moins de 16 ans. Un parent peut demander la suppression des données de son enfant à <strong>[CONTACT_EMAIL]</strong>.</p>
+
+<h3>12. Sécurité</h3>
+<p>Toutes les communications sont chiffrées (HTTPS/TLS). Le jeu ne collecte que le minimum décrit ici.</p>
+
+<h3>13. Joueurs hors de l'UE</h3>
+<p>Les mêmes droits sont offerts à tous les joueurs, où qu'ils vivent.</p>
+
+<h3>14. Modifications</h3>
+<p>Si ce que le jeu collecte change, cette page est mise à jour avant la nouvelle version, avec une nouvelle date et un nouveau numéro, et le jeu vous redemande votre accord avant d'envoyer quoi que ce soit de nouveau.</p>
+</section>
+
+<hr>
+
+<section id="en" lang="en">
+<h2>Privacy Policy (English)</h2>
+
+<div class="summary">
+<p><strong>In short.</strong> No account, no email, no ads, no purchases, no location, no advertising ID. The game plays fully offline. Nothing leaves your device unless you turn on one of the two online features below; each one can be turned off at any time in <em>Options › Privacy</em>.</p>
+</div>
+
+<h3>1. Controller and contact</h3>
+<p>The game "Le Puits des Âmes" (The Well of Souls) is published by <strong>[CONTROLLER_NAME]</strong>, the controller of your data. For any question or request about your data: <strong>[CONTACT_EMAIL]</strong>.</p>
+
+<h3>2. What is collected, and what is not</h3>
+<ul>
+  <li>Without an online feature turned on: <strong>nothing</strong>. The game contacts no server.</li>
+  <li>Never: real name, email, account, contacts, location, advertising ID, hardware device ID, payment data.</li>
+</ul>
+
+<h3>3. Online leaderboards (if you publish your scores)</h3>
+<ul>
+  <li><strong>When:</strong> only if you answer "Publish my scores" to the game's question (or turn the option on). Before that choice the game does not contact the server, not even to read the leaderboards.</li>
+  <li><strong>Data:</strong> a random ID made on the device (not derived from the hardware), the pseudonym you choose, your Dawn Knell scores and a summary of each run (game version, day, seed, difficulty, floors, monsters slain, bosses, gold, time, weapon, relic).</li>
+  <li><strong>Public:</strong> the pseudonym, the scores and their summary are visible to every player. The technical ID can be read by anyone querying the leaderboard: don't use your real name as a pseudonym.</li>
+  <li><strong>Purpose:</strong> to show the leaderboards you asked for.</li>
+  <li><strong>Legal basis:</strong> performing the service you request (GDPR art. 6(1)(b)); storing the ID on the device is strictly necessary for that expressly requested service (French Data Protection Act, art. 82).</li>
+  <li><strong>Retention:</strong> until you ask for deletion, or 24 months after you last played online.</li>
+</ul>
+
+<h3>4. Gameplay statistics (only if you accept)</h3>
+<ul>
+  <li><strong>When:</strong> only if you accept the "Gameplay statistics (optional)" question. It is only offered to players aged 16 or older (a neutral age question comes first; only the answer "under 16 / 16 or older" is kept, on the device, never your age). Refusing changes nothing in the game.</li>
+  <li><strong>Data:</strong> at the end of each run, a summary: difficulty, mode, depth, outcome, cause and floor of death, time and time per floor; final build (weapon, rank, element, runes, armor, families, relics, perks, skills); uses and damage of each skill; potions drunk (with your Health at the time) and left; rolls, hits dodged, hits taken; damage by element and by source; biggest hit, critical hits, charged blows; secrets, traps, the Deeps, the Threshold; gold earned and spent, souls, items dismantled or dropped; perks offered, picked and banished; purchases from the merchant; pacts; boss fights (duration, damage taken, phase, outcome); control type (touch, keyboard, gamepad); game version, system (Android, Windows…) and screen size. This data is linked to the device's random ID, never to your name.</li>
+  <li><strong>Purpose:</strong> to balance the game and fix its bugs.</li>
+  <li><strong>Legal basis:</strong> your consent (GDPR art. 6(1)(a) and French Data Protection Act art. 82), which you can withdraw at any time in <em>Options › Privacy</em>, without affecting what was sent before. After a refusal the question doesn't come back for 6 months.</li>
+  <li><strong>Retention:</strong> 13 months, then deleted. Aggregated, anonymous statistics (for example "win rate by weapon") may be kept.</li>
+</ul>
+
+<h3>5. On your device</h3>
+<p>Your progress, your settings, your privacy choices (with their date) and the random ID stay on the device, in the game's private storage. They only leave it as described in sections 3 and 4. Uninstalling the game deletes them.</p>
+
+<h3>6. Recipients and processors</h3>
+<ul>
+  <li><strong>Talo</strong> (Talo Platform Ltd, United Kingdom, <a href="https://trytalo.com">trytalo.com</a>) hosts the leaderboards and the statistics on our behalf, as a processor, under its data processing addendum (<a href="https://trytalo.com/dpa">trytalo.com/dpa</a>). Hosting: Hetzner Online GmbH, <strong>Germany</strong>.</li>
+  <li>Talo's sub-processors: Cloudflare (object storage, Western Europe); Sentry / Functional Software Inc. (error reporting, United States); Zoho (Talo dashboard emails, United States: does not concern players).</li>
+  <li>Nothing is sold, nothing is used for advertising. The stores (Google Play, itch.io, Steam) receive no gameplay data from us.</li>
+</ul>
+
+<h3>7. Transfers outside the European Union</h3>
+<p>Talo is a UK company: the United Kingdom is covered by a European Commission adequacy decision (valid until 27 December 2031). The data is hosted in the EU (Germany). Processing in the United States is possible by Sentry for error reports; we have asked Talo which transfer mechanism it uses (standard contractual clauses or the Data Privacy Framework) and this page will be updated with its answer.</p>
+
+<h3>8. Retention periods</h3>
+<div class="table"><table>
+  <tr><th>Data</th><th>Retention</th></tr>
+  <tr><td>Gameplay statistics (events)</td><td>13 months</td></tr>
+  <tr><td>Aggregated, anonymous statistics</td><td>No limit (no longer personal data)</td></tr>
+  <tr><td>Leaderboard player (ID, pseudonym, scores)</td><td>Until deleted, or 24 months (730 days) after last activity</td></tr>
+  <tr><td>Daily leaderboard</td><td>Reset every day; archived entries follow the player rule</td></tr>
+  <tr><td>Request emails</td><td>1 year after the request is closed</td></tr>
+  <tr><td>Your choices on the device</td><td>Until changed or the game is uninstalled</td></tr>
+</table></div>
+
+<h3>9. Your rights</h3>
+<p>You can ask for access to your data, its correction, its deletion, restriction of or objection to its processing, its portability, and withdraw your consent at any time. In France you can also leave instructions about your data after your death. The simplest way: <em>Options › Privacy › Delete my online data</em>, which prepares the email with your online ID. Otherwise write to <strong>[CONTACT_EMAIL]</strong> with that ID (shown in <em>Options › Privacy</em>): with no account and no email, it is the only way to find your data. Answer within one month.</p>
+
+<h3>10. Complaints</h3>
+<p>You can complain to the French data protection authority, the CNIL: 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07, France, <a href="https://www.cnil.fr/fr/plaintes">cnil.fr/fr/plaintes</a>, or to the authority of your own country.</p>
+
+<h3>11. Children</h3>
+<p>The game is not designed for children under 13. Gameplay statistics are never offered to players under 16. A parent can ask for their child's data to be deleted by writing to <strong>[CONTACT_EMAIL]</strong>.</p>
+
+<h3>12. Security</h3>
+<p>All communication is encrypted (HTTPS/TLS). The game collects only the minimum described here.</p>
+
+<h3>13. Players outside the EU</h3>
+<p>The same rights are offered to every player, wherever they live.</p>
+
+<h3>14. Changes</h3>
+<p>If what the game collects changes, this page is updated before the new version, with a new date and version number, and the game asks for your agreement again before sending anything new.</p>
+</section>
 </main>
 </body>
 </html>

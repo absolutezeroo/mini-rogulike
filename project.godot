@@ -45,6 +45,8 @@ Loader="*res://src/autoload/scene_loader.gd"
 PixelGrid="*res://src/autoload/pixel_grid.gd"
 MenuNav="*res://src/autoload/menu_nav.gd"
 Leaderboards="*res://src/autoload/leaderboards.gd"
+Privacy="*res://src/autoload/privacy.gd"
+Telemetry="*res://src/autoload/telemetry.gd"
 
 [display]
 

@@ -1,0 +1,99 @@
+[gd_resource type="Resource" script_class="CreditsDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/credits/credits_def.gd" id="1_credits"]
+[ext_resource type="Script" path="res://src/definitions/credits/credit_section_def.gd" id="2_section"]
+[ext_resource type="Script" path="res://src/definitions/credits/credit_entry_def.gd" id="3_entry"]
+
+[sub_resource type="Resource" id="game"]
+script = ExtResource("3_entry")
+work = "Le Puits des Âmes"
+makers = "Clayton"
+description = "Game design and development."
+
+[sub_resource type="Resource" id="ninja"]
+script = ExtResource("3_entry")
+work = "Ninja Adventure"
+makers = "Pixel-boy & AAA"
+description = "Characters, monsters, tiles, items, effects, sound effects and the pixel font."
+license = "CC0 1.0"
+url = "https://pixel-boy.itch.io/ninja-adventure-asset-pack"
+license_file = "res://assets/LICENSE_NinjaAdventure.txt"
+changes = "Weapon attack sheets composed from the pack's sprites, some tiles and effects drawn for the game in its palette, French letters added to the font."
+
+[sub_resource type="Resource" id="pixel_ui"]
+script = ExtResource("3_entry")
+work = "UI Pack - Pixel Adventure"
+makers = "Kenney"
+description = "The bag's and the forge's skin."
+license = "CC0 1.0"
+url = "https://kenney.nl"
+license_file = "res://assets/ui/rpg/LICENSE_Kenney_PixelUI.txt"
+changes = "Dark insets and slots redrawn in the same palette."
+
+[sub_resource type="Resource" id="borders"]
+script = ExtResource("3_entry")
+work = "Fantasy UI Borders"
+makers = "Kenney"
+description = "The ornate borders of the windows."
+license = "CC0 1.0"
+url = "https://kenney.nl"
+license_file = "res://assets/ui/rpg/LICENSE_Kenney_FantasyBorders.txt"
+
+[sub_resource type="Resource" id="music"]
+script = ExtResource("3_entry")
+work = "Ninja Adventure"
+makers = "Pixel-boy & AAA"
+description = "The music and the ambience loops."
+license = "CC0 1.0"
+url = "https://pixel-boy.itch.io/ninja-adventure-asset-pack"
+license_file = "res://assets/audio/music/CREDITS.txt"
+changes = "Levels matched, ambience filtered and looped."
+
+[sub_resource type="Resource" id="impacts"]
+script = ExtResource("3_entry")
+work = "Impact Sounds"
+makers = "Kenney"
+description = "Footsteps, hits on each material, the anvil."
+license = "CC0 1.0"
+url = "https://kenney.nl"
+license_file = "res://assets/audio/sfx/materials/CREDITS.txt"
+
+[sub_resource type="Resource" id="godot"]
+script = ExtResource("3_entry")
+work = "Godot Engine"
+makers = "Godot Engine contributors"
+description = "The game engine."
+license = "MIT"
+url = "https://godotengine.org/license"
+engine_notice = true
+
+[sub_resource type="Resource" id="talo"]
+script = ExtResource("3_entry")
+work = "Talo"
+makers = "Talo Platform Ltd"
+description = "The online leaderboards and the gameplay statistics (an online service; none of its code is in the game)."
+url = "https://trytalo.com"
+
+[sub_resource type="Resource" id="made_by"]
+script = ExtResource("2_section")
+title = "Made by"
+entries = Array[ExtResource("3_entry")]([SubResource("game")])
+
+[sub_resource type="Resource" id="art"]
+script = ExtResource("2_section")
+title = "Art"
+entries = Array[ExtResource("3_entry")]([SubResource("ninja"), SubResource("pixel_ui"), SubResource("borders")])
+
+[sub_resource type="Resource" id="sound"]
+script = ExtResource("2_section")
+title = "Music and sound"
+entries = Array[ExtResource("3_entry")]([SubResource("music"), SubResource("impacts")])
+
+[sub_resource type="Resource" id="tech"]
+script = ExtResource("2_section")
+title = "Engine and services"
+entries = Array[ExtResource("3_entry")]([SubResource("godot"), SubResource("talo")])
+
+[resource]
+script = ExtResource("1_credits")
+sections = Array[ExtResource("2_section")]([SubResource("made_by"), SubResource("art"), SubResource("sound"), SubResource("tech")])

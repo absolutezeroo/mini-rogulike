@@ -8,12 +8,17 @@ extends Control
 ## badge when an upgrade can be bought. The Vigil-Keeper stands by the Well (ShrineKeeper): a
 ## tap on her (or the focus and accept) opens her words (DialogueScreen); the shrine's lamps burn
 ## again with the souls offered to the Tree (TitleBackdrop.lamps_lit). Under the records, the
-## Leaderboards button opens the online leaderboards (LeaderboardsPanel).
+## Leaderboards button opens the online leaderboards (LeaderboardsPanel), and Credits the credits
+## (CreditsPanel). The first time it shows (and when a refusal's six months are over), it asks the
+## gameplay statistics' questions (ConsentDialog, Privacy.should_ask()), over the title, never
+## over a run.
 
 const GAME_SCENE := "res://src/game/game.tscn"
 const STORY_SCENE := "res://src/ui/story/story_screen.tscn"
 ## Seconds before the shrine's bell tolls (the music first).
 const TITLE_BELL_DELAY := 1.4
+## Seconds after the title shows before the privacy questions come (the screen seen first).
+const PRIVACY_DELAY := 0.8
 ## The dark text of the theme's orange buttons.
 const BUTTON_TEXT := Color(0.16862746, 0.11372549, 0.14117648)
 
@@ -30,6 +35,10 @@ var oath_panel: OathPanel
 var daily_dialog: DailyDialog
 ## The online leaderboards (LeaderboardsPanel), from the button under the records.
 var leaderboards: LeaderboardsPanel
+## The credits (CreditsPanel), from the button under Leaderboards.
+var credits: CreditsPanel
+## The gameplay statistics' questions (age, then consent).
+var consent: ConsentDialog
 ## The tutorial's title-screen hints (the Tree of Souls, the oaths), over everything.
 var hint_box: HintBox
 ## Who keeps vigil at the shrine (NarrativeDef.shrine_speaker), and her words when she speaks.
@@ -112,6 +121,8 @@ func _ready() -> void:
 		Game.daily_requested = true
 		play())
 	_build_leaderboards()
+	_build_credits()
+	_build_consent()
 	%DailyButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		daily_dialog.open(content, DailyRun.today()))
@@ -284,6 +295,43 @@ func _build_leaderboards() -> void:
 		leaderboards.open())
 
 
+## "Credits" under Leaderboards, and its page over the screen.
+func _build_credits() -> void:
+	credits = CreditsPanel.new()
+	credits.name = "CreditsPanel"
+	add_child(credits)
+	var button := MenuWindow.button(tr("Credits"), Fonts.BODY, 44)
+	button.size_flags_horizontal = Control.SIZE_FILL
+	(%RecordsPlaque as Control).get_parent().add_child(button)
+	MenuWindow.expose(button, "CreditsButton", self)
+	button.pressed.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_open)
+		credits.open())
+	credits.closed.connect(func() -> void:
+		if InputDevice.uses_buttons():
+			button.grab_focus())
+
+
+## The gameplay statistics' questions, asked once the title has shown (Privacy.should_ask()).
+func _build_consent() -> void:
+	consent = ConsentDialog.new()
+	consent.name = "ConsentDialog"
+	add_child(consent)
+	consent.finished.connect(func() -> void:
+		if InputDevice.uses_buttons():
+			(%PlayButton as Button).grab_focus())
+	if Privacy.ask_on_title and Privacy.should_ask():
+		get_tree().create_timer(PRIVACY_DELAY).timeout.connect(ask_privacy)
+
+
+## Asks the statistics' questions now, unless a panel is already open over the title.
+func ask_privacy() -> void:
+	if not is_inside_tree() or consent.visible or not Privacy.should_ask():
+		return
+	consent.ask()
+	consent.move_to_front()
+
+
 ## A small plaque on the Shrine button's corner when an upgrade can be bought.
 func _build_shrine_badge() -> void:
 	var button: Button = %ShrineButton
@@ -376,7 +424,11 @@ func back() -> bool:
 		talk.close()
 		return true
 	var options: OptionsPanel = %OptionsPanel
-	if leaderboards and leaderboards.visible:
+	if consent and consent.visible:
+		consent.back()
+	elif credits and credits.visible:
+		credits.back()
+	elif leaderboards and leaderboards.visible:
 		leaderboards.back()
 	elif options.visible:
 		options.close()

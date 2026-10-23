@@ -171,6 +171,35 @@ player decides when the fight stops.
   choices wait on a red badge; it swells when one more comes. Hidden while none waits.
 - Both are put away during the trial of the Threshold.
 
+## Privacy and credits
+
+The rules and their reasons: [../privacy-ops.md](../privacy-ops.md). On screen:
+
+- **The statistics' questions** (`ConsentDialog`, over the title screen the first time it shows,
+  and from the Options' switch): first **Before you go down**, "How old are you?" with **Under 16**
+  and **16 or older** (only that answer is kept); under 16 it closes and is never asked again by
+  itself. Then **Echoes of the Well** (the title in the Well's voice), "Gameplay statistics
+  (optional)" and what is sent, to whom, for how long, in plain words; a **Privacy policy**
+  button; **Decline** and **Accept** side by side, the same size and look. Keys and gamepads start
+  on the policy's button, never on Accept; Back (or closing) declines. Declined, it comes back
+  after six months; accepted, never (until what is collected changes).
+- **Options > Privacy** (the right column): with a server in the build, the name (**Change**),
+  **Publish my scores online**, **Gameplay statistics** (turning it on asks the questions; off at
+  once), **Your online ID** (the random id, "none yet" before anything is on) and **Delete my
+  online data** (`DeleteDataDialog`: what it does, Cancel / Delete; then an email to the privacy
+  address with the id, everything online off, the id forgotten, and the address and id shown in
+  case no email opened). Always: **Privacy policy** and **Credits**.
+- **The privacy policy** (`PrivacyPolicyPanel`, an `InfoPanel`): the short policy's sections from
+  `data/online/privacy.tres`, translated, the contact filled in, and **Read the full policy
+  online** once its address is set. A page that scrolls with touch, the wheel, keys or a gamepad.
+- **Credits** (`CreditsPanel`, from a **Credits** button under Leaderboards on the title screen,
+  and from the Options): `data/credits/credits.tres` by section (made by, art, music and sound,
+  engine and services), each with its makers, what it is in the game, its license and source,
+  what was changed, and a **License** button showing the license file shipped with the game; for
+  Godot, the engine's own license and third-party notices, read from the engine. The license
+  files are packed into every build (the export presets' `include_filter`).
+- Back closes the page or dialog on top first (the title's and the Options' `back()`/`close()`).
+
 ## On a phone
 
 - **The run is saved** (`RunSave`, `user://run.json`) when a floor begins and whenever the app goes

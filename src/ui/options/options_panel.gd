@@ -10,10 +10,11 @@ extends Control
 ## %FewerEffectsCheck, %FlashesCheck, %RunTimerCheck, %TutorialCheck, %ReplayTutorialButton, %AutoLootAll, %AutoLootBetter,
 ## %AutoLootOff, %StoriesFull, %StoriesShort, %StoriesOff, %FullscreenCheck (computers),
 ## %UiSizeBig, %UiSizeMedium, %UiSizeSmall, %SettingsTab, %ControlsTab, %ControlsPage,
-## %CloseButton; with online leaderboards in the build: %BoardsNameText, %BoardsNameButton,
-## %BoardsShowCheck, %NameDialog).
-## The leaderboards' pseudonym and "Show me in the leaderboards" live in the Leaderboards autoload
-## (its own file), not in Settings.
+## %CloseButton; Privacy: %PolicyButton, %CreditsButton, %PolicyPanel, %CreditsPanel, and with
+## a server in the build: %BoardsNameText, %BoardsNameButton, %BoardsShowCheck, %NameDialog,
+## %AnalyticsCheck, %ConsentDialog, %OnlineIdText, %DeleteDataButton, %DeleteDialog).
+## The leaderboards' pseudonym and "Publish my scores online" live in the Leaderboards autoload,
+## the statistics' consent in Privacy (their own files), not in Settings.
 ## Picking a language rebuilds the window in it at once; the title screen behind is rebuilt when
 ## the window closes (other screens pick it up the next time they open).
 
@@ -55,6 +56,14 @@ var _language_changed := false
 var _boards_name: Label
 var _boards_show: CheckButton
 var _name_dialog: PseudonymDialog
+## Privacy: the statistics' switch and questions, the online ID, the policy, the credits, the
+## deletion request (null when not built).
+var _analytics: CheckButton
+var _consent: ConsentDialog
+var _online_id: Label
+var _policy: PrivacyPolicyPanel
+var _credits: CreditsPanel
+var _delete: DeleteDataDialog
 
 
 func _ready() -> void:
@@ -121,11 +130,15 @@ func open() -> void:
 	show()
 
 
-## The leaderboards' name and switch as Leaderboards has them.
+## The online choices as Leaderboards and Privacy have them.
 func _show_boards() -> void:
 	if _boards_name:
 		_boards_name.text = Leaderboards.display_name()
 		_boards_show.set_pressed_no_signal(Leaderboards.shown)
+	if _analytics:
+		_analytics.set_pressed_no_signal(Privacy.analytics_allowed())
+	if _online_id:
+		_online_id.text = Leaderboards.device_id if not Leaderboards.device_id.is_empty() else tr("None yet (nothing was sent)")
 
 
 ## The settings (`controls` false) or what does what on the device in use (true).
@@ -142,6 +155,15 @@ func close() -> void:
 	if _name_dialog and _name_dialog.visible:
 		_name_dialog.cancel()
 		return
+	if _consent and _consent.visible:
+		_consent.back()
+		return
+	if _delete and _delete.visible:
+		_delete.back()
+		return
+	for page: InfoPanel in [_policy, _credits]:
+		if page and page.back():
+			return
 	Sfx.play_ui(Sfx.bank.ui_close)
 	hide()
 	closed.emit()
@@ -172,6 +194,12 @@ func _pick_language(code: String) -> void:
 	_boards_name = null
 	_boards_show = null
 	_name_dialog = null
+	_analytics = null
+	_consent = null
+	_online_id = null
+	_policy = null
+	_credits = null
+	_delete = null
 	_build()
 	_wire()
 	open()
@@ -323,12 +351,95 @@ func _build() -> void:
 	_replay.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	replay_row.add_child(_replay)
 	MenuWindow.expose(_replay, "ReplayTutorialButton", self)
+	_build_privacy(_section(right, tr("Privacy")))
+
+
+## Privacy: with a server in the build, the leaderboards (the name, "Publish my scores online"),
+## the gameplay statistics' switch, the device's online ID and "Delete my online data"; always,
+## the privacy policy and the credits.
+func _build_privacy(section: VBoxContainer) -> void:
 	if Leaderboards.is_available():
-		_build_boards(_section(right, tr("Leaderboards")))
+		_build_boards(section)
+		_build_analytics(section)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	section.add_child(row)
+	var policy := MenuWindow.button(tr("Privacy policy"), Fonts.BODY, 44)
+	policy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(policy)
+	MenuWindow.expose(policy, "PolicyButton", self)
+	var credits := MenuWindow.button(tr("Credits"), Fonts.BODY, 44)
+	credits.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(credits)
+	MenuWindow.expose(credits, "CreditsButton", self)
+	_policy = PrivacyPolicyPanel.new()
+	add_child(_policy)
+	MenuWindow.expose(_policy, "PolicyPanel", self)
+	_credits = CreditsPanel.new()
+	add_child(_credits)
+	MenuWindow.expose(_credits, "CreditsPanel", self)
+	policy.pressed.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_open)
+		_policy.open())
+	credits.pressed.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_open)
+		_credits.open())
+	_policy.closed.connect(func() -> void: _refocus(policy))
+	_credits.closed.connect(func() -> void: _refocus(credits))
+
+
+## The gameplay statistics' switch (on: the age and consent questions, ConsentDialog; off: at
+## once), the device's online ID, and the deletion request.
+func _build_analytics(section: VBoxContainer) -> void:
+	_analytics = _check(section, tr("Gameplay statistics"), tr("A summary of each run sent to help balance the game (asked first). Off: nothing is sent."), "AnalyticsCheck")
+	_consent = ConsentDialog.new()
+	add_child(_consent)
+	MenuWindow.expose(_consent, "ConsentDialog", self)
+	_consent.finished.connect(func() -> void:
+		_show_boards()
+		_refocus(_analytics))
+	_analytics.toggled.connect(func(on: bool) -> void:
+		Sfx.play_ui(Sfx.bank.ui_click)
+		if on:
+			_analytics.set_pressed_no_signal(false)  # (on only once accepted)
+			_consent.ask()
+		else:
+			Privacy.refuse()
+		_show_boards())
+	var id_row := _words(tr("Your online ID"), "")
+	_online_id = id_row.get_child(1) as Label
+	_online_id.add_theme_color_override("font_color", UiSkin.GOLD)
+	_online_id.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED  # (an ID)
+	section.add_child(id_row)
+	MenuWindow.expose(_online_id, "OnlineIdText", self)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	section.add_child(row)
+	row.add_child(_words(tr("Delete my online data"), tr("Asks by email for what was sent to be deleted, then turns everything online off.")))
+	var delete := MenuWindow.button(tr("Delete"), Fonts.BODY, 44)
+	delete.custom_minimum_size.x = 150
+	delete.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(delete)
+	MenuWindow.expose(delete, "DeleteDataButton", self)
+	_delete = DeleteDataDialog.new()
+	add_child(_delete)
+	MenuWindow.expose(_delete, "DeleteDialog", self)
+	_delete.finished.connect(func() -> void:
+		_show_boards()
+		_refocus(delete))
+	delete.pressed.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_open)
+		_delete.open())
+
+
+## Keys or a gamepad: the focus back on `control` once what it opened closed.
+func _refocus(control: Control) -> void:
+	if is_instance_valid(control) and control.is_visible_in_tree() and InputDevice.uses_buttons():
+		control.grab_focus()
 
 
 ## The online leaderboards: the name shown (Change opens PseudonymDialog), and the switch that
-## keeps every score home.
+## publishes the scores or keeps every score home.
 func _build_boards(section: VBoxContainer) -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
@@ -344,10 +455,16 @@ func _build_boards(section: VBoxContainer) -> void:
 	change.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(change)
 	MenuWindow.expose(change, "BoardsNameButton", self)
-	_boards_show = _check(section, tr("Show me in the leaderboards"), tr("Your Dawn Knell scores are sent under this name. Off: nothing is sent."), "BoardsShowCheck")
+	_boards_show = _check(section, tr("Publish my scores online"), tr("Your Dawn Knell scores and this name, public on the leaderboards. Off: nothing is sent nor read."), "BoardsShowCheck")
 	_boards_show.toggled.connect(func(on: bool) -> void:
+		Sfx.play_ui(Sfx.bank.ui_click)
+		if on and not Leaderboards.name_chosen:
+			# Never chosen: the question with what it means first.
+			_boards_show.set_pressed_no_signal(false)
+			_name_dialog.open()
+			return
 		Leaderboards.set_shown(on)
-		Sfx.play_ui(Sfx.bank.ui_click))
+		_show_boards())
 	_name_dialog = PseudonymDialog.new()
 	add_child(_name_dialog)
 	MenuWindow.expose(_name_dialog, "NameDialog", self)

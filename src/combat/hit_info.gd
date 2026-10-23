@@ -34,3 +34,7 @@ var rolled := {}
 ## What the blow was, when it was not a monster's own (RunFacts.CAUSES: "trap", "burn", "cold",
 ## "shockwave"...): how the Vigil-Keeper tells a death. Empty: a monster's blow, or unknown.
 var cause: StringName = &""
+## What dealt it on the attacker's side ("skill:fireball", "perk:thorns", "rune:ember_rune",
+## "item:bomb"; empty: the weapon's own blow, or a monster's): the acting source (Actor.heal_source)
+## when the hit was made, a shot's when it was fired. Read by the gameplay statistics only.
+var via: StringName = Actor.heal_source

@@ -16,6 +16,10 @@ var boards := {}
 var names := {}
 ## Seconds each answer takes (the page's loading state in a screenshot).
 var delay := 0.0
+## Every call made to the server (none may be made before the player chose: Privacy's rule).
+var calls := 0
+## Every gameplay statistics event received: {name, props, timestamp}.
+var events: Array[Dictionary] = []
 
 var _alias := 0
 
@@ -26,6 +30,23 @@ func is_configured() -> bool:
 
 func alias_id() -> int:
 	return _alias
+
+
+func player_id() -> String:
+	return "player-%d" % _alias if _alias > 0 else ""
+
+
+func forget() -> void:
+	_alias = 0
+
+
+func send_events(list: Array[Dictionary]) -> Status:
+	if not await _answers():
+		return Status.OFFLINE
+	if _alias == 0:
+		return Status.REJECTED
+	events.append_array(list)
+	return Status.OK
 
 
 func identify(device_id: String) -> Status:
@@ -102,6 +123,7 @@ func fill(board: LeaderboardDef, period_key: String, count: int, best: float, st
 
 
 func _answers() -> bool:
+	calls += 1
 	if delay > 0.0:
 		await get_tree().create_timer(delay, true, false, true).timeout
 	return online

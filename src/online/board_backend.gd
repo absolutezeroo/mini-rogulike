@@ -1,6 +1,7 @@
 class_name BoardBackend
 extends Node
-## Where the online leaderboards live, as the Leaderboards autoload sees it. This base is the
+## Where the online leaderboards (and the gameplay statistics: Telemetry) live, as the
+## Leaderboards autoload sees it. This base is the
 ## offline one: no server, every call answers UNAVAILABLE at once. The game uses it when no
 ## access key was built in (docs/online.md) and the tests always do (or a fake one,
 ## tests/support/fake_board_backend.gd); TaloBackend talks to Talo.
@@ -64,6 +65,23 @@ func identify(_device_id: String) -> Status:
 ## The player's alias id once identified (0 before).
 func alias_id() -> int:
 	return 0
+
+
+## The server's id for the player once identified ("" before): a deletion request names it.
+func player_id() -> String:
+	return ""
+
+
+## Forgets the player identified ("delete my online data"): the next call must identify() again.
+func forget() -> void:
+	pass
+
+
+## Sends gameplay statistics events for the identified player: each {name, props (String ->
+## String), timestamp (Unix milliseconds)}. OK: the server took them (or refused some for good:
+## never resent). See Telemetry.
+func send_events(_events: Array[Dictionary]) -> Status:
+	return Status.UNAVAILABLE
 
 
 ## Shows the player under `pseudonym` on every board.

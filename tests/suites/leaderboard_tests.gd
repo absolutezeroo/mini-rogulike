@@ -31,10 +31,13 @@ func _restore() -> void:
 		_fake = null
 
 
-## A fresh fake server, and the service on it with no file.
-func _use_fake() -> FakeBoardBackend:
+## A fresh fake server, and the service on it with no file; `opted_in`: the player chose to
+## publish their scores (nothing is sent or read before).
+func _use_fake(opted_in := true) -> FakeBoardBackend:
 	_fake = FakeBoardBackend.new()
 	Leaderboards.use_for_tests(_fake)
+	if opted_in:
+		Leaderboards.set_shown(true)
 	return _fake
 
 
@@ -131,6 +134,13 @@ func _test_summary_checks() -> void:
 
 
 func _test_queue() -> void:
+	# Before the player chose to publish: nothing is queued, sent or even read.
+	var undecided := _use_fake(false)
+	check(not Leaderboards.shown and Leaderboards.needs_name(), "publishing is off until the player chooses (and the choice is asked)")
+	check(Leaderboards.record(_summary()) == 0 and Leaderboards.queue.is_empty(), "undecided: an official Dawn Knell is not queued")
+	await Leaderboards.flush()
+	var unread: Leaderboards.View = await Leaderboards.load_board(_daily())
+	check(undecided.calls == 0 and unread.status == BoardBackend.Status.UNAVAILABLE and Leaderboards.device_id.is_empty(), "undecided: the server is never called, not even to read a board, and no id is made (%d calls)" % undecided.calls)
 	var fake := _use_fake()
 	fake.online = false
 	var board := _daily()
@@ -284,7 +294,7 @@ func _test_page_unavailable() -> void:
 
 
 func _test_page_with_server() -> void:
-	var fake := _use_fake()
+	var fake := _use_fake(false)
 	var board := _daily()
 	fake.fill(board, board.period_key(), 55, 2400.0, 30.0, PackedStringArray(["Akane", "Basho", "Chiyo", "Daigo"]))
 	var title: TitleScreen = load("res://src/ui/title/title_screen.tscn").instantiate()
@@ -293,7 +303,10 @@ func _test_page_with_server() -> void:
 	var page := title.leaderboards
 	(title.get_node("%LeaderboardsButton") as Button).pressed.emit()
 	await _frames(3)
-	check(page.name_dialog.visible, "the first time, the page asks for a name")
+	check(page.name_dialog.visible, "the first time, the page asks whether to publish, and the name")
+	check(fake.calls == 0, "nothing is asked of the server before the choice (%d calls)" % fake.calls)
+	var choice := page.name_dialog
+	check((choice.get_node("%DeclineButton") as Control).size.is_equal_approx((choice.get_node("%ConfirmButton") as Control).size), "Don't publish and Publish are the same size")
 	var edit := page.name_dialog.get_node("%NameEdit") as LineEdit
 	edit.text = "shit"
 	(page.name_dialog.get_node("%ConfirmButton") as Button).pressed.emit()

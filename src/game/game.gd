@@ -279,6 +279,7 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	player.healing_scale = world.boons.healing_scale
 	player.crit_damage_bonus = world.boons.crit_damage_bonus
 	_records.bind(run, player)
+	Events.run_started.emit(run, player)  # (whatever follows a whole run: the gameplay statistics)
 	run_timer.run = run
 	_hunt.bind(player, run)
 	interactor.player = player
@@ -1029,6 +1030,7 @@ func _show_next_offer() -> void:
 		offers.shown = offer
 		_set_paused(true)
 		perk_panel.open(offer.title, offer.subtitle, perks, player.perks, run.rerolls, run.banishes)
+		Events.perks_offered.emit(perks)
 		return
 
 
@@ -1064,6 +1066,7 @@ func _on_perk_reroll() -> void:
 	run.rerolls -= 1
 	perk_panel.set_charges(run.rerolls, run.banishes)
 	perk_panel.show_cards(fresh)
+	Events.perks_offered.emit(fresh)
 	Sfx.play_ui(Sfx.bank.ui_open)
 
 
@@ -1077,6 +1080,7 @@ func _on_perk_banish(index: int) -> void:
 	run.banishes -= 1
 	run.banished.append(gone)
 	Events.log_message(tr("%s is banished for this run.") % tr(gone.display_name), Palette.DANGER)
+	Events.perk_banished.emit(gone)
 	var cards: Array[PerkDef] = current.duplicate()
 	var replacement := _pick_offer(1, shown.rarity, current)
 	if replacement.is_empty():
@@ -1106,6 +1110,7 @@ func _on_perk_postponed() -> void:
 func _on_perk_chosen(perk: PerkDef) -> void:
 	offers.shown = null
 	player.perks.add(perk)
+	Events.perk_chosen.emit(perk)
 	Events.log_message(tr("%s (level %d)") % [tr(perk.display_name), player.perks.stacks_of(perk)], perk.color)
 	Vfx.sparkles(world, player.global_position, perk.color)
 	tutorial.cue(&"perk_chosen")

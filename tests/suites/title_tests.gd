@@ -17,6 +17,11 @@ func run() -> void:
 	add_child(boards)
 	await boards.run_title()
 	boards.free()
+	# The privacy questions, Options > Privacy, the policy and the credits (PrivacyTests).
+	var privacy := PrivacyTests.new()
+	add_child(privacy)
+	await privacy.run_title()
+	privacy.free()
 	# The Vigil-Keeper at the shrine (DialogueTests).
 	var dialogue := DialogueTests.new()
 	add_child(dialogue)

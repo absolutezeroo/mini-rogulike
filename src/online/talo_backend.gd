@@ -1,8 +1,10 @@
 class_name TaloBackend
 extends BoardBackend
-## The online leaderboards on Talo (https://trytalo.com), through its REST API with HTTPRequest
-## (docs/online.md says why not its Godot plugin). Four endpoints: identify a player, set its
-## name (a player prop, the game's "display name prop key"), add an entry, list entries.
+## The online leaderboards and the gameplay statistics on Talo (https://trytalo.com), through its
+## REST API with HTTPRequest (docs/online.md says why not its Godot plugin). Five endpoints:
+## identify a player, set its name (a player prop, the game's "display name prop key"), add an
+## entry, list entries, send events. Nothing private ever goes in a player prop: Talo's API
+## shows them to anyone reading a board.
 ##
 ## The access key is never in git: it is read from the environment (TALO_ACCESS_KEY) or from
 ## res://online/talo.cfg, a file git ignores, packed into the builds by the presets'
@@ -17,6 +19,9 @@ const SERVICE := "device"
 const NAME_PROP := "name"
 ## Seconds a request may take.
 const TIMEOUT := 15.0
+
+## The server's answer to the last send_events(): a list of errors per event (empty lists: all taken).
+var last_event_errors: Array = []
 
 var _key := ""
 var _url := DEFAULT_URL
@@ -53,6 +58,34 @@ func is_configured() -> bool:
 
 func alias_id() -> int:
 	return _alias_id
+
+
+func player_id() -> String:
+	return _player_id
+
+
+func forget() -> void:
+	_alias_id = 0
+	_player_id = ""
+
+
+## POST /v1/events (the X-Talo-Alias header names the player). The server answers 200 with an
+## error list per event: an event it refused (a prop too long...) is never resent.
+func send_events(events: Array[Dictionary]) -> Status:
+	if _alias_id == 0:
+		return Status.OFFLINE
+	var list: Array = []
+	for event in events:
+		var props: Array = []
+		var event_props: Dictionary = event.get("props", {})
+		for key: String in event_props:
+			props.append({ "key": key, "value": str(event_props[key]) })
+		list.append({ "name": str(event.get("name", "")), "props": props, "timestamp": int(event.get("timestamp", 0)) })
+	var answer := await _request(HTTPClient.METHOD_POST, "/v1/events", { "events": list })
+	last_event_errors = []
+	if answer.status == Status.OK and answer.body is Dictionary and (answer.body as Dictionary).get("errors") is Array:
+		last_event_errors = (answer.body as Dictionary).errors
+	return answer.status
 
 
 func identify(device_id: String) -> Status:

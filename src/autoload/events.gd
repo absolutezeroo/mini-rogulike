@@ -76,6 +76,20 @@ signal encounter_used(encounter: Encounter)
 ## Something a warden's deed may ask about happened, told by whatever saw it (a monster's trait:
 ## "bitten", the Maw's jaw closed on the hero): kept in RunState.marks (MarkDeed).
 signal run_marked(mark: String)
+## A run began (new or resumed) with its hero: what follows a whole run binds to them (the
+## gameplay statistics: Telemetry).
+signal run_started(run: RunState, player: Player)
+## An actor lost Health to a hit (after armor and wards: `damage`, maybe 0). Who dealt it and with
+## what are on the hit (HitInfo.source, via, element, cause). The gameplay statistics count it.
+signal actor_damaged(actor: Actor, hit: HitInfo, damage: int)
+## A hit went through an actor rolling (a dash's invulnerability): dodged.
+signal hit_dodged(actor: Actor, hit: HitInfo)
+## Perk (or relic) cards dealt to the player: a choice opened, or rerolled.
+signal perks_offered(perks: Array)
+## The player took `perk` from a choice.
+signal perk_chosen(perk: PerkDef)
+## The player banished `perk` for the run.
+signal perk_banished(perk: PerkDef)
 ## A run ended, souls given: a death, or a win (a win then a death in endless mode tells it twice,
 ## the second time with more). What the online leaderboards need (RunSummary; Leaderboards).
 signal run_ended(summary: RunSummary)

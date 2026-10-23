@@ -19,6 +19,8 @@ signal attacked
 signal skill_used(index: int)
 ## Gear from the bag was broken down (gold already added): the bag shows the gold flying.
 signal dismantled(items: Array[ItemDef], gold: int)
+## An item was dropped from the bag on the floor (the gameplay statistics count it).
+signal item_dropped(item: ItemDef)
 ## Holding the attack button: the charge started filling, then it is full (ChargeVfx, the HUD).
 signal charge_started
 signal charge_full
@@ -418,6 +420,7 @@ func drop_item(item: ItemDef) -> void:
 	if inventory.remove(item):
 		world.spawn_item(item, global_position, false)
 		Sfx.play_world(Sfx.bank.drop, global_position)
+		item_dropped.emit(item)
 
 
 ## Breaks `item` (one of its stack in the bag) down for gold (DismantleRules). The gold it gave,

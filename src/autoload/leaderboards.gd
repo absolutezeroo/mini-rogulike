@@ -6,10 +6,12 @@ extends Node
 ## boards for the Leaderboards page. UI asks it, never the other way round.
 ##
 ## Its own file, user://leaderboards.json (never the player's save, never the Profile): the
-## device's anonymous id, the pseudonym, "show me in the leaderboards" and the scores waiting to
-## be sent. Nothing is sent for a debug run, a practice attempt, a run that fails
-## RunSummary.check(), when the player opted out, or in the tests (they give it an offline
-## backend and no file).
+## device's anonymous id (and the Talo player it became), the pseudonym, "publish my scores
+## online" and the scores waiting to be sent. Nothing is sent for a debug run, a practice
+## attempt, a run that fails RunSummary.check(), in the tests (they give it an offline backend
+## and no file), and **nothing at all, not even a read of a board, until the player chose to
+## publish their scores** (PseudonymDialog: the choice is the consent the law asks for, docs/
+## privacy-ops.md). The gameplay statistics (Telemetry) use the same device id and server.
 ##
 ## Without an access key (TaloBackend.read_key()) the backend is BoardBackend's offline one:
 ## nothing is sent, nothing fails, the page says the leaderboards are unavailable.
@@ -19,7 +21,8 @@ signal changed
 
 const PATH := "user://leaderboards.json"
 const CONFIG := "res://data/leaderboards/leaderboards.tres"
-const VERSION := 1
+## 2: the choice to publish became explicit (off until chosen); a version-1 file is asked again.
+const VERSION := 2
 ## Seconds after the game starts before what waits is sent (the start isn't slowed).
 const START_DELAY := 3.0
 
@@ -27,15 +30,19 @@ const START_DELAY := 3.0
 var path := PATH
 var config: LeaderboardsConfig
 var backend: BoardBackend
-## Made on the device the first time it is needed, never shown: the player on the server.
+## Made on the device the first time it is needed (a feature turned on), random, never derived
+## from the device: the player on the server. Shown in Options > Privacy (for a deletion request).
 var device_id := ""
+## The server's id for that player once identified ("" before): goes in a deletion request.
+var player_id := ""
 ## The pseudonym on the boards; `name_chosen`: the player picked it (or kept the default) once.
 var pseudonym := ""
 var name_chosen := false
 ## The name the server has for this player ("" none yet).
 var synced_name := ""
-## "Show me in the leaderboards": off, nothing is ever sent (and what waited is dropped).
-var shown := true
+## "Publish my scores online": off (the default until the player says yes), nothing is ever sent
+## or read (and what waited is dropped).
+var shown := false
 ## Scores waiting to be sent, oldest first: {board, period, score, props, at}.
 var queue: Array[Dictionary] = []
 ## Why the last run ended wasn't queued (RunSummary.check()), for the tests.
@@ -45,6 +52,8 @@ var last_ranks := {}
 
 var _flushing := false
 var _identified := false
+## Seeds the default name before the device has an id (never saved).
+var _session_seed := str(randi())
 var _retry: Timer
 
 
@@ -97,10 +106,11 @@ func use_for_tests(fake: BoardBackend = null) -> void:
 ## Everything forgotten (not the file: save_state() does).
 func reset() -> void:
 	device_id = ""
+	player_id = ""
 	pseudonym = ""
 	name_chosen = false
 	synced_name = ""
-	shown = true
+	shown = false
 	queue.clear()
 	last_rejection = ""
 	last_ranks.clear()
@@ -112,14 +122,17 @@ func is_available() -> bool:
 	return backend != null and backend.is_configured()
 
 
-## The player hasn't picked a name yet and could appear on a board (ask before showing them).
+## The player hasn't chosen yet whether to publish their scores (ask before anything is sent).
 func needs_name() -> bool:
-	return is_available() and shown and not name_chosen
+	return is_available() and not name_chosen
 
 
-## The name on the boards: the one picked, or the device's default ("Soul 4821").
+## The name on the boards: the one picked, or a default ("Soul 4821": from the device's id once
+## there is one; before, from a number of this session, so asking makes no id).
 func display_name() -> String:
-	return pseudonym if not pseudonym.is_empty() else PlayerName.default_for(_device(), config)
+	if not pseudonym.is_empty():
+		return pseudonym
+	return PlayerName.default_for(device_id if not device_id.is_empty() else _session_seed, config)
 
 
 ## Sets the pseudonym (tidied) if it passes PlayerName.problem(); returns the problem otherwise.
@@ -135,19 +148,44 @@ func set_pseudonym(text: String) -> PlayerName.Problem:
 	return problem
 
 
-## The default name kept: not asked again.
+## The default name kept as the pseudonym: not asked again.
 func keep_default_name() -> void:
+	if pseudonym.is_empty():
+		pseudonym = display_name()
 	name_chosen = true
 	save_state()
 	changed.emit()
 
 
-## "Show me in the leaderboards". Off drops what waits and never sends again until it is on.
+## "Publish my scores online", the player's own choice (the dialog, the Options). Off drops what
+## waits and never sends nor reads again until it is on. Either way it is an answer: not asked
+## again.
 func set_shown(on: bool) -> void:
 	shown = on
-	if not on:
+	if on:
+		_device()  # (the default name then comes from this device's id, and stays)
+	else:
 		queue.clear()
-	name_chosen = name_chosen or not on  # (opting out is an answer: not asked again)
+	name_chosen = true
+	save_state()
+	changed.emit()
+
+
+## "Delete my online data" (Privacy.forget_online()): off, and the device's id, its server player,
+## the pseudonym and the queue forgotten. A new random id is made if the player turns a feature on
+## again, so this device is no longer linked to the old record.
+func forget() -> void:
+	device_id = ""
+	player_id = ""
+	pseudonym = ""
+	synced_name = ""
+	shown = false
+	name_chosen = true
+	queue.clear()
+	last_ranks.clear()
+	_identified = false
+	if backend:
+		backend.forget()
 	save_state()
 	changed.emit()
 
@@ -238,14 +276,13 @@ func flush() -> void:
 ## player's line and those around it. What waits is sent first.
 func load_board(board: LeaderboardDef, back: int = 0) -> View:
 	var view := View.new()
-	if not is_available():
-		return view
+	if not is_available() or not shown:
+		return view  # (not chosen to publish: the server isn't even read)
 	await flush()
 	var key := board.period_key(back)
 	var past := back > 0
 	view.waiting = waiting_score(board, key)
-	# Opted out: the boards are read without making a player on the server.
-	var identity := await _ensure_identity() if shown else BoardBackend.Status.UNAVAILABLE
+	var identity := await _ensure_identity()
 	var top := await backend.fetch(board, key, past, 0)
 	view.status = top.status
 	if top.status != BoardBackend.Status.OK:
@@ -303,11 +340,20 @@ func _fill_around(view: View, entries: Array[BoardBackend.Entry]) -> void:
 	view.around.assign(entries.slice(maxi(index - config.around, 0), index + config.around + 1))
 
 
+## The device's player on the server, made the first time (the gameplay statistics use it too:
+## Telemetry). Only called once the player turned a feature on.
+func identity() -> BoardBackend.Status:
+	return await _ensure_identity()
+
+
 func _ensure_identity() -> BoardBackend.Status:
 	if _identified:
 		return BoardBackend.Status.OK
 	var status := await backend.identify(_device())
 	_identified = status == BoardBackend.Status.OK
+	if _identified and backend.player_id() != player_id:
+		player_id = backend.player_id()
+		save_state()
 	return status
 
 
@@ -348,6 +394,7 @@ func save_state() -> void:
 	SafeFile.write_json(path, {
 		"version": VERSION,
 		"device_id": device_id,
+		"player_id": player_id,
 		"name": pseudonym,
 		"name_chosen": name_chosen,
 		"synced_name": synced_name,
@@ -364,11 +411,14 @@ func load_state() -> void:
 	if not data is Dictionary:
 		return
 	device_id = str(data.get("device_id", ""))
+	player_id = str(data.get("player_id", ""))
 	pseudonym = str(data.get("name", ""))
-	name_chosen = bool(data.get("name_chosen", false))
 	synced_name = str(data.get("synced_name", ""))
-	shown = bool(data.get("shown", true))
-	var saved: Variant = data.get("queue", [])
+	# Before version 2, "shown" was on unless turned off: the player is asked again.
+	if int(data.get("version", 1)) >= 2:
+		name_chosen = bool(data.get("name_chosen", false))
+		shown = bool(data.get("shown", false))
+	var saved: Variant = data.get("queue", []) if shown else []
 	if saved is Array:
 		for item: Variant in saved:
 			if item is Dictionary and (item as Dictionary).has_all(["board", "period", "score", "props"]):

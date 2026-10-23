@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="TelemetryDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/online/telemetry_def.gd" id="1_telemetry"]
+[ext_resource type="Script" path="res://src/definitions/online/telemetry_event_def.gd" id="2_event"]
+
+[sub_resource type="Resource" id="run_end"]
+script = ExtResource("2_event")
+name = &"run_end"
+purpose = "The run in full as it ends (death or win): the mode, how it ended, the build, each skill's uses and damage, potions, dodges, damage by element and source, time per floor, gold and souls."
+fields = PackedStringArray("v", "run", "os", "screen", "input", "inputs", "resumed", "diff", "asc", "daily", "official", "oath", "depth", "result", "cause", "killer", "death_floor", "time", "level", "kills", "bosses", "weapon", "weapon_rarity", "weapon_element", "weapon_runes", "weapon_affixes", "head", "body", "armor_runes", "sets", "relics", "perks", "skills", "skill.*", "potions", "potions_boss", "potion_health", "potion.*", "left.*", "rolls", "dodged", "dodge_rate", "hits_taken", "dmg_out", "dmg_in", "dmg_out.*", "dmg_in.*", "src_out.*", "src_in.*", "biggest_hit", "crits", "charged", "floor_times", "secrets", "trap_hits", "deeps", "deeps_escaped", "threshold", "threshold_won", "gold_earned", "gold_spent", "souls", "dismantled", "dropped")
+
+[sub_resource type="Resource" id="boss"]
+script = ExtResource("2_event")
+name = &"boss"
+purpose = "A boss fight: which boss, how long, the damage taken, the last phase reached, how it ended (won, died, left)."
+fields = PackedStringArray("v", "run", "depth", "boss", "time", "dmg_in", "hits_taken", "phase", "outcome", "potions")
+
+[sub_resource type="Resource" id="perk_offered"]
+script = ExtResource("2_event")
+name = &"perk_offered"
+purpose = "The perks (or relics) dealt in a choice, a reroll's too."
+fields = PackedStringArray("v", "run", "depth", "perks")
+
+[sub_resource type="Resource" id="perk_picked"]
+script = ExtResource("2_event")
+name = &"perk_picked"
+purpose = "The perk taken, and its level now."
+fields = PackedStringArray("v", "run", "depth", "perk", "stacks")
+
+[sub_resource type="Resource" id="perk_banished"]
+script = ExtResource("2_event")
+name = &"perk_banished"
+purpose = "A perk banished for the run."
+fields = PackedStringArray("v", "run", "depth", "perk")
+
+[sub_resource type="Resource" id="purchase"]
+script = ExtResource("2_event")
+name = &"purchase"
+purpose = "Something bought from the merchant, and its price."
+fields = PackedStringArray("v", "run", "depth", "item", "rarity", "price")
+
+[sub_resource type="Resource" id="pact"]
+script = ExtResource("2_event")
+name = &"pact"
+purpose = "A pact sworn, and whether it was kept or broken."
+fields = PackedStringArray("v", "run", "depth", "pact", "outcome")
+
+[resource]
+script = ExtResource("1_telemetry")
+events = Array[ExtResource("2_event")]([SubResource("run_end"), SubResource("boss"), SubResource("perk_offered"), SubResource("perk_picked"), SubResource("perk_banished"), SubResource("purchase"), SubResource("pact")])

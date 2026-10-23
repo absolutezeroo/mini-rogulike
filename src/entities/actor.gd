@@ -14,9 +14,10 @@ signal died(actor: Actor)
 ## nothing.
 signal healed(amount: int, source: StringName)
 
-## What is healing right now ("perk:vampirism", "rune:leech_rune", "skill:smite", "item:health_potion"...),
+## What is acting right now ("perk:vampirism", "rune:leech_rune", "skill:smite", "item:health_potion"...),
 ## set for the length of a call by PerkSet, SkillSet and ConsumableDef; empty otherwise. Read only by
-## heal() to fill the `healed` signal (balance tools). Never affects gameplay.
+## heal() to fill the `healed` signal (balance tools) and stamped on the hits made meanwhile
+## (HitInfo.via: the gameplay statistics). Never affects gameplay.
 static var heal_source: StringName = &""
 
 enum Faction { PLAYER, MONSTER }
@@ -273,6 +274,8 @@ func get_move_direction() -> Vector2:
 
 func take_hit(hit: HitInfo) -> void:
 	if is_dead or invincible or (_invulnerable_time > 0.0 and not hit.unavoidable):
+		if not is_dead and not invincible and is_dashing():
+			Events.hit_dodged.emit(self, hit)  # (the gameplay statistics: rolls that saved a hit)
 		return
 	# Perks of the attacker can change the hit (direct hits only, see HitInfo.is_secondary).
 	var attacker := hit.source if is_instance_valid(hit.source) and not hit.is_secondary else null
@@ -301,6 +304,7 @@ func take_hit(hit: HitInfo) -> void:
 			Sfx.play_at(impact.sound, global_position, impact.volume_db)
 	world.spawn_floating_text(head_position(), str(damage) + ("!" if hit.is_crit else ""), _hit_text_color(hit))
 	health_changed.emit(hp, get_max_hp())
+	Events.actor_damaged.emit(self, hit, damage)
 	if is_instance_valid(hit.source) and hit.source != self:
 		last_attacker = hit.source
 	if hit.status:

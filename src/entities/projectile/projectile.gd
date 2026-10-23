@@ -10,6 +10,9 @@ var _faction: Actor.Faction
 var _hits_everyone := false
 var _crit_chance := 0.0
 var _spec: ProjectileSpec
+## What fired it (Actor.heal_source when it was fired: "skill:fireball"...), stamped on its hits
+## (HitInfo.via: the gameplay statistics).
+var _via: StringName = &""
 var _direction := Vector2.RIGHT
 var _travelled := 0.0
 var _pierce_left := 0
@@ -41,6 +44,7 @@ var _behind_left := 0.0
 
 
 func setup(shooter: Actor, direction: Vector2, spec: ProjectileSpec) -> void:
+	_via = Actor.heal_source
 	_world = shooter.world
 	_shooter = shooter
 	_faction = shooter.faction
@@ -156,6 +160,7 @@ func _on_body_entered(body: Node2D) -> void:
 	hit.status = _spec.status
 	hit.element = _spec.element if _spec.element else _spec.hit_element
 	hit.is_secondary = _spec.secondary
+	hit.via = _via
 	target.take_hit(hit)
 	if _pierce_left > 0:
 		_pierce_left -= 1
@@ -202,6 +207,7 @@ func _explode() -> void:
 			hit.status = _spec.status
 			hit.element = _spec.element if _spec.element else _spec.hit_element
 			hit.is_secondary = _spec.secondary
+			hit.via = _via
 			target.take_hit(hit)
 
 

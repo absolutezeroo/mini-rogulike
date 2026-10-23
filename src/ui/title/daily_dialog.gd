@@ -29,7 +29,10 @@ func _ready() -> void:
 ## Back: the name's question first, then the card.
 func back() -> void:
 	if name_dialog and name_dialog.visible:
-		name_dialog.hide()
+		if name_dialog.policy and name_dialog.policy.visible:
+			name_dialog.policy.close()
+		else:
+			name_dialog.hide()
 		return
 	hide()
 

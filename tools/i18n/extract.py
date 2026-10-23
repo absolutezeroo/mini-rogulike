@@ -49,6 +49,8 @@ TEXT_FIELDS = {
     "line", "author", "place", "hint", "rule", "fragment_message", "deed_message",
     # The controls (data/ui/input_prompts.tres, DeviceText, HintDef): what to do on each device.
     "touch_text", "button_text", "brand",
+    # The credits (data/credits/): what changed in a pack (CreditEntryDef.changes).
+    "changes",
 }
 LIST_FIELDS = {"intro_pages", "death_lines", "greetings", "branches", "branch_texts", "rank_names", "tips", "lines",
                "key_words", "mouse_glyphs"}

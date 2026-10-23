@@ -71,6 +71,11 @@ func run() -> void:
 	add_child(boards)
 	await boards.run_unit()
 	boards.free()
+	# The privacy choices, the gameplay statistics and the credits (PrivacyTests).
+	var privacy := PrivacyTests.new()
+	add_child(privacy)
+	await privacy.run_unit()
+	privacy.free()
 	var gear := GearLookTests.new()
 	add_child(gear)
 	gear.run()
