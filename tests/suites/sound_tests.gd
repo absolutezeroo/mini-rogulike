@@ -245,6 +245,11 @@ func _test_music_player() -> void:
 	Sfx.stop_music(0.1)
 	check(Sfx.current_music() == null, "music: silence")
 	check(Sfx.play_music(second), "music: after silence the same track starts again")
+	# A track waiting out its sting gap, then silence asked: it never starts.
+	Sfx.stop_all()
+	Sfx.play_music(first, 30.0)
+	Sfx.stop_music()
+	check(Sfx.current_music() == null and not Sfx._music.playing and not Sfx._tweens.has(Sfx._music), "music: a delayed track silenced before it starts never starts")
 	Sfx.stop_all()
 	Sfx.enabled = false
 

@@ -286,9 +286,9 @@ func play_music(stream: AudioStream, delay: float = 0.0) -> bool:
 func stop_music(fade: float = -1.0) -> void:
 	_music_stream = null
 	for player: AudioStreamPlayer in [_music_main, _music_other]:
+		_kill_tween(player)  # (a track still waiting out its delay never starts)
 		if not player.playing:
 			continue
-		_kill_tween(player)
 		var out := player.create_tween()
 		out.tween_property(player, "volume_db", SILENT_DB, mix.music_fade_out if fade < 0.0 else fade)
 		out.tween_callback(player.stop)
