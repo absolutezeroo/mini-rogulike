@@ -35,12 +35,13 @@ func _ready() -> void:
 	Events.screen_shake.connect(shake)
 	Events.camera_kick.connect(kick)
 	_base_zoom = zoom
-	PixelGrid.scale_changed.connect(_fit_zoom)
-	_fit_zoom()
+	PixelGrid.scale_changed.connect(fit_zoom)
+	fit_zoom()
 
 
-func _fit_zoom() -> void:
-	zoom = _base_zoom * PixelGrid.world_zoom()
+## Also when the debug panel's zoom step changes (DebugCheats.zoom()).
+func fit_zoom() -> void:
+	zoom = _base_zoom * PixelGrid.world_zoom() * DebugCheats.zoom()
 
 
 ## Pushes the view `pixels` along `direction`; it springs back.

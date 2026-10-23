@@ -19,8 +19,10 @@ func _ready() -> void:
 		current.enter()
 
 
+## Thinks nothing while the debug panel's No AI is on (Monster.ai_frozen()): the state waits as it
+## was, and goes on once it is off.
 func _physics_process(delta: float) -> void:
-	if current and not current.actor.is_dead and not current.actor.is_falling:
+	if current and not current.actor.is_dead and not current.actor.is_falling and not current.actor.ai_frozen():
 		current.physics_update(delta)
 
 

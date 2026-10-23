@@ -99,8 +99,8 @@ shows to the device in hand.
   button scrolled out of its column has none (`MenuNav.frame_area()`). A codex page opened with
   keys starts at the top of its columns (`MonsterPage.scroll_to_top()`: its first button was
   focused before the columns were laid out, and the column used to scroll it just out of sight). Buttons are focusable
-  again everywhere but the HUD, where nothing keeps the focus (Space attacks). The debug panel stays
-  mouse-only.
+  again everywhere but the HUD, where nothing keeps the focus (Space attacks). The debug panel too
+  (an `RpgWindow`, its tabs on Q / E and LB / RB).
 - **Someone speaking** (`DialogueBox`, `src/ui/dialogue/`; presentation.md, "The Vigil-Keeper
   and the keepers"): a face, a name, words typed letter by letter. A tap or a click on it, Enter,
   Space or a gamepad's A write the page out, then go on; a touch and the click the screen makes of

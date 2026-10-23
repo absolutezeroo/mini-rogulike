@@ -277,6 +277,7 @@ func take_hit(hit: HitInfo) -> void:
 		attacker.perks.modify_outgoing_hit(attacker, self, hit)
 	last_hit = hit
 	var damage := _incoming_damage(hit, Combat.mitigate(hit.amount, get_stats().defense))
+	damage = DebugCheats.scale_damage(hit, self, damage)  # the debug panel's damage and armor steps
 	if ward > 0 and damage > 0:
 		var soaked := mini(ward, damage)
 		ward -= soaked

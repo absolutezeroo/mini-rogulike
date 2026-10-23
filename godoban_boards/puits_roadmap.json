@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 112,
+  "next_id": 118,
   "tags": [
     "pc",
     "test",
@@ -30,7 +30,8 @@
     "visuel",
     "perf",
     "release",
-    "contenu"
+    "contenu",
+    "debug"
   ],
   "epics": [
     {
@@ -1606,6 +1607,97 @@
       ],
       "created_at": 1792720836,
       "updated_at": 1792720836
+    },
+    {
+      "id": "task_112",
+      "title": "Menu de débug refait : onglets, triches, mode sans IA, galerie des biomes et des monstres",
+      "description": "Le panneau DBG / F1 (versions de débug seulement) est rangé en cinq onglets (Monde, Héros, Monstres, Galerie, Outils), changés au toucher, à la souris, avec Q / E ou LB / RB, et parcourus aux touches et à la manette. Héros : mode dieu, invisible (les monstres ne le remarquent plus), dégâts x1 à x10 ou un coup, dégâts subis x1 à x0,1, vitesse x1 à x3, sans temps de recharge, donner n'importe quel objet, rune, tome, don ou relique, tuer le héros. Monstres : sans IA (tous figés, boss et nouveaux venus compris), apparition de n'importe quel monstre du jeu. Monde : aller au seuil de la salle du boss, cartes révélées sur chaque étage, poser une rencontre ou un fragment au choix, faire raconter son histoire au gardien. Galerie : un étage de n'importe quel biome (forme de salle, salle signature, plafond au choix), et la galerie des monstres (tous ceux d'un acte, des Profondeurs, du fond du Puits ou du jeu entier, en rangées, nommés, sans IA, héros invisible, pleine lumière). Outils : vitesse du jeu x0,25 à x2, zoom arrière, pleine lumière, corps / portées / rayons de détection, images par seconde et compteurs, sauvegarder et recharger. Les triches durent toute la partie et s'arrêtent avec elle ; une partie où l'on a triché n'est ni sauvegardée ni comptée (profil relu à la fin). Vérifié par les tests (DebugTests) et des captures en 2548x1296 et 2340x1080 ; à essayer en vrai, surtout à la manette et au téléphone.",
+      "status": "review",
+      "priority": "high",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "debug",
+        "ui",
+        "tests",
+        "qualité"
+      ],
+      "created_at": 1792730214,
+      "updated_at": 1792730214
+    },
+    {
+      "id": "task_113",
+      "title": "Débug : sauvegarder et recharger aussi une partie où l'on a triché",
+      "description": "« Sauvegarder et recharger » refuse une partie de débug (elle n'est jamais sauvegardée, pour ne pas écraser la vraie sauvegarde). Proposer une sauvegarde de débug à part pour tester le rechargement après avoir donné des objets ou sauté des étages.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "debug",
+        "sauvegarde"
+      ],
+      "created_at": 1792730214,
+      "updated_at": 1792730214
+    },
+    {
+      "id": "task_114",
+      "title": "Débug : ouvrir l'épreuve du Seuil et les Profondeurs à la demande, sans mourir ni tomber",
+      "description": "Aujourd'hui on atteint le Seuil en tuant le héros (avec une seconde vie) et les Profondeurs comme par un trou. Un bouton qui ouvre l'épreuve du Seuil directement, et un qui mène au bout des Profondeurs (la Brèche de l'Aube), ferait gagner du temps pour les tester.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "debug"
+      ],
+      "created_at": 1792730214,
+      "updated_at": 1792730214
+    },
+    {
+      "id": "task_115",
+      "title": "Débug : montrer aussi les pièges, les zones des boss et les projectiles dans la vue « Corps et portées »",
+      "description": "La vue de débug dessine les corps, la portée de l'arme du héros, la portée d'attaque et le rayon de détection des monstres. Il y manque les zones des pièges et des dangers, les aires d'effet des sorts des boss et les formes des projectiles.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "debug",
+        "combat"
+      ],
+      "created_at": 1792730214,
+      "updated_at": 1792730214
+    },
+    {
+      "id": "task_116",
+      "title": "Débug : galerie des monstres, jouer l'attaque de chacun à la demande",
+      "description": "Dans la galerie, les monstres sont figés (sans IA). Un bouton pour faire jouer à l'un d'eux son attaque, son sort ou son télégraphe (sans viser le héros) aiderait à revoir animations et effets un par un.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "debug",
+        "vfx",
+        "idée"
+      ],
+      "created_at": 1792730214,
+      "updated_at": 1792730214
+    },
+    {
+      "id": "task_117",
+      "title": "Débug : appliquer un événement d'étage ou une malédiction à l'étage en cours, sans le reconstruire",
+      "description": "Choisir un événement ou une malédiction reconstruit l'étage. Pouvoir l'appliquer à l'étage où l'on est (au moins ceux qui ne changent que la lumière ou les monstres) éviterait de perdre la salle qu'on teste.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "debug"
+      ],
+      "created_at": 1792730214,
+      "updated_at": 1792730214
     }
   ]
 }

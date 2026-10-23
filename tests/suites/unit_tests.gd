@@ -60,6 +60,11 @@ func run() -> void:
 	add_child(levels)
 	levels.run_unit()
 	levels.free()
+	# The debug panel's cheats and gallery (DebugTests).
+	var debug_tools := DebugTests.new()
+	add_child(debug_tools)
+	debug_tools.run_unit()
+	debug_tools.free()
 	var gear := GearLookTests.new()
 	add_child(gear)
 	gear.run()

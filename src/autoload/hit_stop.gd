@@ -2,6 +2,8 @@ extends Node
 ## Hit stop (autoload "HitStop"): freezes the game for a few frames on impacts,
 ## which makes hits feel much heavier. Calls overlap: the longest freeze wins.
 ## Also slow motion (`slow`): a strong kill slows the world for a moment. A freeze wins over it.
+## Between them the world runs at the debug panel's game speed (DebugCheats.time_scale(), 1 but
+## in debug builds).
 ##
 ## Hits land during physics, after this frame's delta was already scaled by the time scale in
 ## effect when the frame began: real time is the delta divided by *that* scale (`real_delta`),
@@ -55,7 +57,7 @@ func reset() -> void:
 	_remaining = 0.0
 	_slow_remaining = 0.0
 	_slow_scale = 1.0
-	Engine.time_scale = 1.0
+	Engine.time_scale = DebugCheats.time_scale()
 	# (Not _applied_scale: this frame's deltas were scaled already. The next frame starts at 1.)
 
 
@@ -74,10 +76,10 @@ func _process(delta: float) -> void:
 		_remaining -= real
 		if _remaining <= 0.0:
 			_remaining = 0.0
-			Engine.time_scale = _slow_scale if _slow_remaining > 0.0 else 1.0
+			Engine.time_scale = _slow_scale if _slow_remaining > 0.0 else DebugCheats.time_scale()
 	elif _slow_remaining > 0.0:
 		_slow_remaining -= real
 		if _slow_remaining <= 0.0:
 			_slow_remaining = 0.0
 			_slow_scale = 1.0
-			Engine.time_scale = 1.0
+			Engine.time_scale = DebugCheats.time_scale()

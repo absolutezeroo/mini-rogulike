@@ -75,6 +75,11 @@ var boons := RunBoons.new()
 
 ## Debug: the next floor built is this biome. Used once.
 var forced_biome: BiomeDef
+## Debug (the debug panel's monster gallery, DebugGallery): the next floor that has no boss is
+## this map instead of a generated one. Used once.
+var forced_map: DungeonMap
+## The floor's light color and brightness (its difficulty, curse and event): relight().
+var _light_tint := Color.WHITE
 ## Debug: the next boss comes at this rank. Used once.
 var forced_boss_rank: MonsterRankDef
 ## The boss of each act for this run (an act may have several; the game draws one per run).
@@ -222,15 +227,18 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 			map = DungeonGenerator.generate_hidden(content.dungeon, rng, arena_plan, hidden.rooms)
 		else:
 			map = DungeonGenerator.generate_arena(content.dungeon, rng, arena_plan)
+	elif forced_map:
+		map = forced_map
 	else:
 		map = DungeonGenerator.generate(content.dungeon, rng, difficulty.floor_size if difficulty else 1.0, difficulty.rooms if difficulty else 1.0, biome, depth)
+	forced_map = null
 	theme = biome.theme if biome else null
 	rules = FloorRules.make(content.dungeon, difficulty, floor_event, depth, curse)
-	var light_tint := rules.light()
+	_light_tint = rules.light()
 	if floor_event:
-		light_tint *= floor_event.ambient_tint
+		_light_tint *= floor_event.ambient_tint
 	_view.show_map(map, theme)
-	lights.setup(map, theme.lighting if theme else null, light_tint)
+	relight()
 	_view.mist.bind_light(lights)
 	_pits.setup(map.tile_size)
 	fog.reset(map)
@@ -1050,6 +1058,17 @@ func is_solid_ground(point: Vector2) -> bool:
 
 func is_explored(cell: Vector2i) -> bool:
 	return fog.is_explored(cell)
+
+
+## Lights the floor: its biome's lighting under its tint, or, with the debug panel's Full light
+## (DebugCheats.full_light), all of it at its brightest. Again when that toggle changes.
+func relight() -> void:
+	if map == null:
+		return
+	if DebugCheats.full_light:
+		lights.setup(map, null)
+	else:
+		lights.setup(map, theme.lighting if theme else null, _light_tint)
 
 
 ## The whole floor on the map (debug).

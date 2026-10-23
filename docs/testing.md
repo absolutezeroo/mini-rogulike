@@ -147,18 +147,56 @@ now and then is a bug, in the test's setup or in the game. Make the setup sure, 
 ## Debug tools
 
 In debug builds only (running from the Godot editor, on the phone too, or a debug export), a
-**DBG** button next to pause (or F1) opens the `DebugPanel` (the game pauses):
-- **Floor**: pick a depth and go there, next floor, rebuild the floor, next boss floor, teleport
-  next to the stairs, break the stairs' seal, reveal the map. Jumped-to floors are plain unless you choose:
-- **Curse** (Frostbound, Ashen Breath, Moonless Night) or **floor event**: rebuilds the floor with it
-  (`World.forced_curse` / `forced_event`), its card included.
-- **Biome**: goes to its act and builds a floor of it (`World.forced_biome`).
-- **Hero**: god mode (nothing hurts), full heal, +500 gold, level up, an Epic weapon, every
-  consumable, freezing / burning / normal temperature.
-- **Monsters**: pick any monster or boss and spawn it (or an elite one), kill all, put all asleep.
-- **The Well's bottom** (Floor row): goes to the final fight at once (FinaleDef), as if Act IV's
-  boss had led there.
-- **Pact door**: one button per pact: seals a dead-end room of this floor behind its door, shown
-  on the map.
+**DBG** button next to pause (or F1) opens the `DebugPanel` (the game pauses). It has five tabs,
+switched by a tap or a click, or with Q / E and a gamepad's LB / RB like the bag's; keys and a
+gamepad move between its buttons (MenuNav). A toggle says its state ("Invisible: ON") and a
+step its value ("Damage x5"), and both stay pressed while on.
 
-Release exports have no button and no panel (`DebugPanel.is_available()`).
+- **World**: pick a depth and go there, next floor, rebuild the floor (plain unless you choose a
+  **Curse** or a **floor Event** row: the floor is rebuilt with it, its card included,
+  `World.forced_curse` / `forced_event`). **Places**: the next boss floor, the hidden floor, the
+  Deeps (as if the hero fell into a hole), the bottom of the Well (the final fight, FinaleDef).
+  **Move**: to the stairs, to the boss room's doorway, to the next room, break the stairs' seal,
+  **Reveal maps** (this floor's map and every next one's, seen as they begin). **Encounter**:
+  pick any encounter and place it beside the hero; **Boss story** has the floor's warden tell its
+  story again (its cinematic, `Game.debug_boss_story()`; nothing with Boss stories off).
+  **Fragment**: pick any fragment of the past (with its warden) and place it beside the hero.
+  **Pact door**: one button per pact: seals a dead-end room of this floor behind its door.
+- **Hero**: the cheats, kept across floors until the run ends (`DebugCheats`): god mode (nothing
+  hurts), **Invisible** (monsters never notice him, and forget him if they had), **No
+  cooldowns** (skills and the roll ready again at once), and three steps: **Damage** dealt
+  x1 / x2 / x5 / x10 / one-shot, damage **Taken** x1 / x0.5 / x0.25 / x0.1 (at least 1 a blow),
+  move **Speed** x1 / x1.5 / x2 / x3. Then full heal, +500 gold, level up, **Kill hero** (a blow
+  nothing turns away: the end of the run, or the Threshold with a second life), freezing /
+  burning / normal temperature, an Epic weapon, every consumable, every rune, the smith here, and
+  **Give**: any weapon, armor, consumable, tome, rune, key, perk or relic, picked from its list.
+- **Monsters**: **No AI** (every monster, bosses and new ones too, stands still: no step, no
+  blow, no spell, no shockwave; a knockback still moves it), kill all, put all asleep, spawn any
+  monster or boss of the game (plain, elite, or at a rare rank), make the next boss of a rank.
+- **Gallery** (`DebugGallery`): pick a **Biome** (the nine of the acts, the bosses', the Deeps', the
+  hidden floor's, the bottom of the Well's), its **Rooms** (as usual, every room but the first in
+  one of its room shapes, or its signature room, marked with a star, for sure) and a **Ceiling**
+  (its own, none, or any biome's), then **Build this floor**: a plain floor of its act, its map
+  revealed. **Monsters of** an act (with its bosses), the hidden floor, the Deeps, the bottom of
+  the Well or everything, then **Monster gallery**: a hall in the chosen biome's look, every one
+  of them standing in rows, its name under its feet (none with the camera zoomed far out),
+  bosses last; it turns No AI, Invisible and Full light on, to walk among them.
+- **Tools**: the game's **speed** (x1 / x0.25 / x0.5 / x2, under the hit stops: `HitStop`), the
+  camera's **zoom** (x1 / x0.75 / x0.5 / x0.35), **Full light** (every floor at its brightest,
+  `World.relight()`), **Bodies & reach** (`DebugShapes`: each body's circle, the hero's weapon
+  reach, each monster's attack range in red and how far it notices the hero, a line to its
+  target), **Frame rate** (`DebugOverlay`: frames per second, monsters awake / on the floor,
+  shots in the air, nodes, draw calls), **Save & reload** (saves the run and picks it up again,
+  as the title's Continue would; not in a debug run).
+
+A line at the top of the screen names the cheats on, and says when the run is a **debug run**:
+anything the panel does to the run (all but the Tools tab's views and the game's speed) makes it
+one, and nothing of a debug run is kept: the run is never saved (the save stays as it was
+before the first cheat), and the profile is saved once, then held (`Profile.held`) and read back
+from its file when the run ends, dropping the souls, kills, records and achievements it gave.
+Every cheat ends with the run (`Game._begin_run()`, leaving the game). Checks: `DebugTests`
+(tests/suites/debug_tests.gd), from the unit and game suites.
+
+Release exports have no button and no panel (`DebugPanel.is_available()`), and every
+`DebugCheats` setter refuses outside a debug build: the hooks in `Actor`, `Monster`, `Player`,
+`SkillSet`, `HitStop`, `GameCamera` and `World` stay inert.

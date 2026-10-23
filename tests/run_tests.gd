@@ -78,7 +78,7 @@ func _only() -> PackedStringArray:
 ## The suites the game suite borrows from compile too (a parse error in one would otherwise
 ## only show as a script error, with 0 failed).
 func _helpers_compile() -> bool:
-	for path in ["res://tests/suites/floor_tests.gd", "res://tests/suites/combat_tests.gd", "res://tests/suites/boss_tests.gd", "res://tests/suites/secret_tests.gd", "res://tests/suites/story_tests.gd", "res://tests/suites/finale_tests.gd", "res://tests/suites/pc_tests.gd", "res://tests/suites/bag_tests.gd", "res://tests/suites/dialogue_tests.gd", "res://tests/suites/level_tests.gd"]:
+	for path in ["res://tests/suites/floor_tests.gd", "res://tests/suites/combat_tests.gd", "res://tests/suites/boss_tests.gd", "res://tests/suites/secret_tests.gd", "res://tests/suites/story_tests.gd", "res://tests/suites/finale_tests.gd", "res://tests/suites/pc_tests.gd", "res://tests/suites/bag_tests.gd", "res://tests/suites/dialogue_tests.gd", "res://tests/suites/level_tests.gd", "res://tests/suites/debug_tests.gd"]:
 		var helper := load(path) as GDScript
 		if helper == null or not helper.can_instantiate():
 			printerr("FAIL: %s doesn't compile" % path)

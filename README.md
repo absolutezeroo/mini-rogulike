@@ -25,8 +25,8 @@ Version 0.2.0 (`export_presets.cfg`), in testing on Android.
 
 1. Install [Godot 4.7](https://godotengine.org/download) (the standard build, not .NET).
 2. Open `project.godot` in it, then press Play (F5). The game starts on the title screen.
-3. In a debug build, the **DBG** button (or F1) opens the debug panel: jump to any floor, spawn
-   monsters, god mode ([docs/testing.md](docs/testing.md#debug-tools)).
+3. In a debug build, the **DBG** button (or F1) opens the debug panel: jump to any floor, cheats
+   (god mode, invisible, damage, no AI), a gallery of every biome and monster ([docs/testing.md](docs/testing.md#debug-tools)).
 
 Tests run headless from the project root:
 

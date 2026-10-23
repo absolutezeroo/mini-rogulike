@@ -261,6 +261,9 @@ func run() -> void:
 	await floor._test_spacing(game)
 	await combat._test_review_fixes(game)
 	await floor._test_debug_panel(game)
+	var debug_tools := DebugTests.new()
+	add_child(debug_tools)
+	await debug_tools.run_game(game)
 
 	await secrets._test_secret_rooms(game)
 	await secrets._test_hidden_floor(game)
@@ -344,8 +347,10 @@ func run() -> void:
 	Profile.ascension_unlocked = 0
 	Profile.ascension = 0
 	Profile.difficulty = &"normal"
+	debug_tools.arm_for_new_run()  # (the debug panel's cheats end with the run)
 	game.start_run()
 	await _frames(3)
+	debug_tools.check_new_run()
 	check(game.player != player and not game.player.is_dead, "restart creates a fresh player")
 	check(game.player.get_max_hp() == CONTENT.player.base_stats.max_hp + 2 * _upgrade("vitality").bonuses.max_hp, "Vitality raises max HP")
 	var potion_def: ConsumableDef = load("res://data/items/consumables/health_potion.tres")

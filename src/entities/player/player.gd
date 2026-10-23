@@ -232,9 +232,10 @@ func start_dash(dash_velocity: Vector2, duration: float, invulnerable: bool, ele
 	super.start_dash(dash_velocity, duration, invulnerable, element)
 
 
-## Slower while charging (the charged attack's `move_speed_scale`).
+## Slower while charging (the charged attack's `move_speed_scale`). Faster with the debug panel's
+## speed step.
 func get_move_speed() -> float:
-	var speed := super.get_move_speed()
+	var speed := super.get_move_speed() * DebugCheats.speed_factor()
 	var weapon := get_weapon()
 	if charge.is_charging() and weapon and weapon.charged:
 		speed = maxf(speed * weapon.charged.move_speed_scale, 20.0)

@@ -86,6 +86,9 @@ const HISTORY_SIZE := 20
 const RESET_EARNED := 1000
 ## Empty = nothing is read or written (tests).
 var save_path := SAVE_PATH
+## Nothing is written while a debug run goes on (DebugCheats.mark_run()): what it changes here is
+## dropped when it ends (read back from the file).
+var held := false
 
 
 func _ready() -> void:
@@ -520,7 +523,7 @@ func reach_depth(depth: int) -> void:
 
 
 func save_profile() -> void:
-	if save_path.is_empty():
+	if save_path.is_empty() or held:
 		return
 	SafeFile.write_json(save_path, {
 		"souls": souls, "levels": levels, "runs": runs, "victories": victories, "best_depth": best_depth,

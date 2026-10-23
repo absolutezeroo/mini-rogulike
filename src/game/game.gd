@@ -219,6 +219,7 @@ func resume_run(saved: Dictionary) -> void:
 func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	if run and run.has_won:
 		_records.record_history()  # leaving a won run for a new one
+	DebugCheats.reset()  # a new run plays the real rules (a debug run's profile is read back)
 	threshold.abort()
 	abyss.abort()  # (after the Threshold: it may have opened from the Deeps)
 	end_facts = null
@@ -524,13 +525,16 @@ func open_debug() -> void:
 		menus.debug.open(self)
 
 
-## Debug: builds floor `target` right away, with that curse or event (or a plain floor).
+## Debug: builds floor `target` right away, with that curse or event (or a plain floor). A floor
+## of the dungeon, even from the hidden floor or the bottom of the Well.
 func debug_enter_floor(target: int, curse: CurseDef = null, event: FloorEventDef = null, plain: bool = false) -> void:
 	world.forced_curse = curse
 	world.forced_event = event
 	world.forced_plain = plain or (curse == null and event == null)
 	threshold.abort()
 	abyss.abort()
+	run.hidden_floor = false
+	run.finale = false
 	depth = target
 	_transitioning = true
 	_enter_floor(true)
@@ -557,6 +561,58 @@ func debug_enter_finale() -> void:
 	_transitioning = false
 	_set_paused(is_menu_open())
 	_show_next_offer()
+
+
+## Debug: the hidden floor right away (HiddenFloorDef), as if its key had opened the way after the
+## boss of its first key act.
+func debug_enter_hidden() -> void:
+	var hidden_def := content.dungeon.hidden_floor
+	if hidden_def == null:
+		return
+	threshold.abort()
+	abyss.abort()
+	run.finale = false
+	run.hidden_floor = true
+	var act := clampi(hidden_def.key_acts[0] if not hidden_def.key_acts.is_empty() else 0, 0, content.dungeon.acts.size() - 1)
+	depth = content.dungeon.first_depth(act) + content.dungeon.acts[act].floors - 1
+	_transitioning = true
+	_enter_floor(true)
+	await _show_cards()
+	_transitioning = false
+	_set_paused(is_menu_open())
+	_show_next_offer()
+
+
+## Debug: is there a warden standing on this floor whose story can be told (debug_boss_story())?
+func debug_boss_story_ready() -> bool:
+	var arena := world.arena
+	return arena != null and is_instance_valid(arena.boss) and not arena.boss.is_dead and not meeting.is_playing()
+
+
+## Debug: the warden of this floor tells its story now (its cinematic, as when the hero walks into
+## its arena), even if it was told on this floor already; the fight starts as usual, when the hero
+## walks in. A debug run (the meeting counts in the profile). False if no warden stands here.
+func debug_boss_story() -> bool:
+	if not debug_boss_story_ready():
+		return false
+	DebugCheats.mark_run()
+	run.met_floors.erase(run.floor_key())
+	meeting.meet(world.arena.boss)
+	return true
+
+
+## Debug: saves the run and picks it up again at once, as the title's Continue would (a fresh
+## floor at the same depth, the hero as saved). False when nothing could be saved (a debug run,
+## the Threshold, the Deeps).
+func debug_reload() -> bool:
+	if DebugCheats.debug_run or threshold.is_open() or abyss.is_open():
+		return false
+	_save_run()
+	var saved := RunSave.read()
+	if saved.is_empty():
+		return false
+	resume_run(saved)
+	return true
 
 
 func _can_open_menu() -> bool:
@@ -626,6 +682,8 @@ func _enter_floor(resumed: bool = false) -> void:
 		world.next_routes = FloorRoute.offer(content, depth + 1, difficulty, run.route_seed(depth + 1))
 	world.build_floor(depth, content, _route_to(depth))
 	world.place_player(player)
+	if DebugCheats.reveal_maps:
+		world.reveal_all()  # the debug panel's Reveal maps
 	player.camera.lean_toward(null, 0.0)
 	play_floor_mood()
 	if not resumed and depth > 1 and difficulty.heal_on_new_floor > 0.0:
@@ -1074,9 +1132,11 @@ func _on_player_died(_actor: Actor) -> void:
 
 ## Saves the run (see RunSave). Called when a floor begins and when the app is put away.
 ## Never during the trial of the Threshold nor in the Deeps: picked up again, the run is as it
-## was before the killing blow or the fall.
+## was before the killing blow or the fall. Never a debug run (DebugCheats.debug_run): the save
+## stays as it was before its first cheat.
 func _save_run() -> void:
-	if player == null or player.is_dead or run == null or threshold.is_open() or abyss.is_open():
+	if player == null or player.is_dead or run == null or threshold.is_open() or abyss.is_open() \
+			or DebugCheats.debug_run:
 		return
 	var data := run.to_data()
 	data.boss_slain = world.arena != null and world.arena.is_defeated
@@ -1089,6 +1149,15 @@ func _save_run() -> void:
 	data.kept_stock = world.locked_stock().map(func(entry: Dictionary) -> Dictionary:
 		return { "item": LootRoller.to_data(entry.item), "price": entry.price })
 	RunSave.write(data)
+
+
+## Leaving the game (to the title): the debug panel's cheats end with it, and a debug run's
+## profile is read back (DebugCheats).
+func _exit_tree() -> void:
+	var slowed := DebugCheats.time_step > 0
+	DebugCheats.reset()
+	if slowed:
+		HitStop.reset()  # the next scene runs at the real speed
 
 
 func _notification(what: int) -> void:

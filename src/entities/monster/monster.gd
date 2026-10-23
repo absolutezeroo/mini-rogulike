@@ -286,15 +286,17 @@ func wake_up(new_target: Actor, intro := true) -> void:
 			_intro_left = rig.animation_length(&"intro")
 
 
-## Returns true if the monster has (or just acquired) a target to fight.
+## Returns true if the monster has (or just acquired) a target to fight. Every way a monster
+## comes after the hero (sight, a hit, an ambush, a boss waking) goes through here each frame: an
+## invisible hero (DebugCheats) is forgotten at once.
 func notice_target() -> bool:
 	if dormant:
 		return false
-	if target != null and is_instance_valid(target) and not target.is_dead:
+	if target != null and is_instance_valid(target) and not target.is_dead and DebugCheats.can_be_noticed(target):
 		return true
 	target = null
 	var player := world.player
-	if player and not player.is_dead and can_see(player, detect_radius()):
+	if player and not player.is_dead and DebugCheats.can_be_noticed(player) and can_see(player, detect_radius()):
 		target = player
 		_noticed(player)
 		return true
@@ -435,7 +437,17 @@ func get_attack_windup() -> float:
 	return def.attack_windup * _windup_multiplier
 
 
+## The debug panel's No AI: it stands where it is (its StateMachine thinks no more, its traits
+## steer nothing, no shockwave answers the hero's blows). Knockback still moves it.
+func ai_frozen() -> bool:
+	return DebugCheats.ai_frozen()
+
+
 func _get_desired_velocity() -> Vector2:
+	if ai_frozen():
+		move_direction = Vector2.ZERO
+		telegraph = 0.0
+		return Vector2.ZERO
 	_update_heavy_steps()
 	var direction := move_direction if _intro_left <= 0.0 else Vector2.ZERO
 	var delta := get_physics_process_delta_time()
@@ -582,6 +594,8 @@ func _count_hit() -> void:
 
 ## A warning ring, then a blast all around that pushes its enemies far away.
 func _shockwave(fuse: float) -> void:
+	if ai_frozen():
+		return
 	var boss := def as BossDef
 	_shockwave_cooldown = 3.0
 	var damage := world.rules.dungeon_damage(4.0, 0.6) if world.rules else 6
