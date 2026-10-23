@@ -40,16 +40,18 @@ func step_on() -> void:
 	Vfx.dust(world, global_position, 0.8)
 
 
-## Gives way now: the cell becomes a hole (whoever stands on it falls).
-func collapse() -> void:
+## Gives way now: the cell becomes a hole (whoever stands on it falls). `quiet`: no sound or
+## dust (a resumed floor where it gave way before quitting, World.spent_data()).
+func collapse(quiet: bool = false) -> void:
 	if not is_inside_tree():
 		return
-	world.forget_crack(cell)
-	world.add_pit(cell, def)
+	world.crack_collapsed(cell, def)
+	queue_free()
+	if quiet:
+		return
 	Sfx.play_world(def.crumble_sound, global_position)
 	Vfx.burst(world, Vfx.DEATH_CHUNKS, global_position, def.debris_color)
 	Vfx.dust(world, global_position, 1.5)
-	queue_free()
 
 
 func _draw() -> void:

@@ -26,6 +26,8 @@
     loses 15% of his max Health (`PitDef.fall_damage`). Rolling carries you over; flying monsters
     (bats, ghosts...) don't care. Walking monsters steer around holes, so knock them in.
   - **Crumbling floor**: cracked tiles that hold until someone stands on them, then give way.
+    A crack that gave way is saved with the floor (`World.spent_data()` "collapsed"): a resumed
+    run finds the hole there, not the crack again.
   - **Quicksand** (ruins) and **mud** (caves): very slow to cross, and they hurt if you stay.
   - Hazards are never placed where they could cut the stairs off.
 - **Sealed stairs** (`StairsSeal`, `DungeonConfig` > Stairs seal): a normal floor's stairs stay
@@ -36,7 +38,10 @@
   the stairs light up, the minimap shows them even unexplored and a golden light (`GuideWisp`)
   runs ahead of you along the way. The kills made on a floor are saved with the run
   (`World.spent_data()` "seal_kills"): resumed, the counter picks up where it was, and a broken
-  seal stays broken. No more running past everything: a floor takes a couple of
+  seal stays broken. The floor's own monsters slain stay slain too (`"slain"`): the floor puts
+  them down in an order its seed decides (`Monster.floor_index`), so the rebuilt floor leaves
+  those numbers out (a number that comes out as another kind of monster stays, rather than the
+  wrong one going); what came later (ambush waves, summons, encounters) isn't saved. No more running past everything: a floor takes a couple of
   minutes, a run about half an hour. Floors are 72x72 cells with up to 15 rooms on Pilgrim, and
   bigger the harder the run (see Difficulty); boss floors keep that size.
 - **Biomes** (`data/biomes/`, `BiomeDef`): every floor is one world from end to end, picked among
@@ -325,6 +330,12 @@ its own and nothing (chest, prop, hazard, another encounter) within
 | Blood Altar | Offer your blood (-15% max health) | a choice of relics |
 | Grinning Spirit | Wager 30 / 80 gold (more each floor) | an item, sometimes a great one... or it laughs and runs |
 | Keeper's Statue | Kneel | a choice of perks (50%), or two elites (50%) |
+
+The Keeper's Statue stands beside **an empty niche** (`EncounterDef.niche`, `EncounterNiche`):
+drawn next to it on the floor, its inscription told under the statue's text in the panel. Before
+the keeper may be named (`keeper_named`, docs/lore.md section 7) it is an empty niche, a name
+scratched away and one line left; after, the hero reads the name (`revealed_text`). Nothing to
+choose: it changes no rule.
 
 ## Pact doors
 

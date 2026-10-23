@@ -15,3 +15,6 @@ extends ContentDef
 ## What it says as it is opened, in quotes in place of its description (Dialogues; null or
 ## nothing open: the description). The Grinning Spirit's past, told over the runs.
 @export var dialogue: DialogueDef
+## An empty niche standing beside it, drawn on the floor and told under its description (the
+## Keeper's Statue: the niche cut for the last keeper; its inscription waits for the reveal).
+@export var niche: EncounterNiche
