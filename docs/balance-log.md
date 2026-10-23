@@ -142,7 +142,7 @@ the Azure Wyrm (kite >= 2 of 4), Gorr and the Jade Wyrm (kite >= 3 of 4) on Keep
 face-tank loses, no bot walks into a hole in those fights; degenerate_skills_a3 face-tanking the
 Jade Wyrm loses on four seeds.
 
-**Tests:** unit,title 13926 checks, game 1969, tutorial 397: 0 failed. Balance suite 102 checks,
+**Tests (after merging main):** unit,title 13947 checks, game 1983, tutorial 397: 0 failed. Balance suite 102 checks,
 10 failed: the 8 known, "model: degenerate DPS" (degenerate_skills_a3, 2.84x -> 2.52x) and
 "content: unlisted" (Tôma, the Maw, the Nameless Effigy), both failing before this pass; every
 new guard passes (the Azure Wyrm 4/4, Gorr 4/4, the Jade Wyrm 4/4 kite wins; no walked fall).
