@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 135,
+  "next_id": 142,
   "tags": [
     "pc",
     "test",
@@ -32,7 +32,8 @@
     "release",
     "contenu",
     "debug",
-    "en ligne"
+    "en ligne",
+    "données"
   ],
   "epics": [
     {
@@ -1965,6 +1966,112 @@
       ],
       "created_at": 1792763662,
       "updated_at": 1792763662
+    },
+    {
+      "id": "task_135",
+      "title": "Statistiques de jeu (Talo Events) pour améliorer le jeu",
+      "description": "Validé par Clayton. Un résumé complet à chaque fin de partie (difficulté, profondeur, mort et sa cause/étage, durée, build final : arme+runes, armure, reliques, perks, sorts ; par sort : utilisations et dégâts ; potions bues et quand ; roulades, coups évités, taux d'esquive, coups pris ; dégâts par élément et source ; plus gros coup, critiques, coups chargés ; temps par étage, secrets, pièges, Abysses, Seuil ; or, âmes, démantelés ; appareil de contrôle) + événements de choix (perks proposées/prises/bannies, achats, pactes) et de boss (durée, dégâts, phase, issue). Liste des stats en données (TelemetryDef). Anonyme, par paquets, file hors ligne, jamais en partie debug, seulement avec consentement. Clé Talo : Events write ajouté (vérifié).",
+      "status": "todo",
+      "priority": "high",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "données",
+        "qualité",
+        "équilibrage"
+      ],
+      "created_at": 1792768111,
+      "updated_at": 1792768111
+    },
+    {
+      "id": "task_136",
+      "title": "Consentement, politique de confidentialité et crédits",
+      "description": "Validé par Clayton : « comme tous les bons jeux ». Fenêtre de consentement au premier lancement (Accepter / Refuser à égalité, interrupteur dans Options), politique de confidentialité claire FR+EN (responsable, données, finalités, bases légales, Talo comme sous-traitant, hébergement, conservation, droits, suppression, CNIL), lien dans le jeu et sur la fiche Play, fiche « Sécurité des données » du Play Store, bouton de suppression de ses données si Talo le permet, écran Crédits propre (licences CC0/CC-BY/OFL). Recherche juridique en cours (sources CNIL/RGPD/Google Play).",
+      "status": "todo",
+      "priority": "high",
+      "epic_id": "epic_6",
+      "due_date": null,
+      "tags": [
+        "release",
+        "données"
+      ],
+      "created_at": 1792768111,
+      "updated_at": 1792768111
+    },
+    {
+      "id": "task_137",
+      "title": "Tableau de bord des statistiques",
+      "description": "Lire les données Talo (graphes du tableau de bord Talo, export CSV) et en faire un tableau de bord du jeu : taux de choix et de victoire par arme/armure/sort/perk/relique, meilleures combinaisons, où et contre quoi on meurt, boss bloquants, potions et esquive. Sert aussi aux passes d'équilibrage (avec les bots).",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "données",
+        "équilibrage"
+      ],
+      "created_at": 1792768111,
+      "updated_at": 1792768111
+    },
+    {
+      "id": "task_138",
+      "title": "Compteurs mondiaux (Talo Game Stats)",
+      "description": "Validé. Compteurs partagés par tous les joueurs (démons tués dans le Puits, cloches sonnées, âmes offertes…) affichés au titre ou dans le Codex ; totaux à vie par joueur ; idée : objectifs communs qui débloquent quelque chose pour tous.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "données",
+        "contenu"
+      ],
+      "created_at": 1792768111,
+      "updated_at": 1792768111
+    },
+    {
+      "id": "task_139",
+      "title": "Signaler un bug / donner un avis (Talo Feedback)",
+      "description": "Validé. Un bouton dans le menu pause : le message part dans le tableau de bord Talo avec la version, l'étage, le build et l'appareil. Pratique pour les testeurs.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "qualité",
+        "données"
+      ],
+      "created_at": 1792768111,
+      "updated_at": 1792768111
+    },
+    {
+      "id": "task_140",
+      "title": "Réglages à distance (Talo Game Config)",
+      "description": "Validé. Ajuster des chiffres d'équilibrage, lancer un événement du week-end ou changer le modificateur du Défi du jour sans mise à jour. Valeurs par défaut dans les données du jeu, la config distante ne fait que les remplacer (bornées).",
+      "status": "todo",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "données",
+        "équilibrage"
+      ],
+      "created_at": 1792768111,
+      "updated_at": 1792768111
+    },
+    {
+      "id": "task_141",
+      "title": "Sauvegarde en ligne entre téléphone et PC (Talo Game Saves + comptes)",
+      "description": "Plus tard. Demande un compte (Player Auth : identifiant/email = vraies données personnelles) pour reconnaître le même joueur sur deux appareils. Gros chantier à part.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_80",
+      "due_date": null,
+      "tags": [
+        "sauvegarde",
+        "données"
+      ],
+      "created_at": 1792768111,
+      "updated_at": 1792768111
     }
   ]
 }
