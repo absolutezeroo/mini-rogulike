@@ -8,7 +8,8 @@ extends Storyteller
 ## doesn't replay it), never with Boss stories off (Settings), never for a boss without a
 ## chronicle. A form rising from a fallen one (BossDef.next_boss: the Maw out of the tar) is met
 ## too, once its rise is over, under its own key. When a warden falls it may say its last words
-## (Narrative.last_words(), on its banner).
+## (Narrative.last_words(), on its banner). Under a story the music is lowered, or a quiet bed of
+## its own plays (CinematicDef music); the fight's music begins as it ends.
 
 var game: Game
 var narrative: NarrativeDef
@@ -60,10 +61,19 @@ func meet(boss: Monster, risen := false) -> bool:
 	director.camera = player.get_node_or_null("Camera") as Camera2D
 	director.hero = player
 	game.pause_for_cinematic(true)
+	_music_under(cinematic)
 	await director.play(cinematic, boss, beat)
+	Sfx.duck_music(0.0)  # (the fight's music follows at full level)
 	if is_instance_valid(game):
 		game.pause_for_cinematic(false)
 	return director.played_animation
+
+
+## The music under a story: its own quiet bed (CinematicDef.music), or the music playing lowered.
+func _music_under(cinematic: CinematicDef) -> void:
+	Sfx.duck_music(cinematic.duck_db)  # (first: the bed comes in at the lowered level)
+	if cinematic.music:
+		Sfx.play_music(cinematic.music)
 
 
 ## What `def` says as it falls (an English key, "" for nothing): its chronicle's last open last

@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 100,
+  "next_id": 105,
   "tags": [
     "pc",
     "test",
@@ -798,7 +798,7 @@
     {
       "id": "task_58",
       "title": "Voix des PNJ : écouter et choisir",
-      "description": "Les sons de voix (assets/audio/sfx/voice/, Ninja Adventure « Voice ») ont été choisis sans être écoutés (hauteur estimée) : Voice3 pour la Veilleuse, Voice2 l'Errant, Voice1 Brann, Voice6 l'Esprit. À écouter et ajuster (volume voice_db, autre son).",
+      "description": "Les sons de voix (assets/audio/sfx/voice/, Ninja Adventure « Voice ») ont été choisis sans être écoutés (hauteur estimée) : Voice3 pour la Veilleuse, Voice2 l'Errant, Voice1 Brann, Voice6 l'Esprit. À écouter et ajuster (volume voice_db, autre son).\n\nNiveaux égalisés (SpeakerDef.voice_db : Brann 0, l'Errant -2, l'Esprit -6, la Veilleuse -8) : Brann et l'Errant étaient 9 à 12 dB sous la Veilleuse. Reste à écouter.",
       "status": "todo",
       "priority": "low",
       "epic_id": "epic_1",
@@ -808,7 +808,7 @@
         "playtest"
       ],
       "created_at": 1792698522,
-      "updated_at": 1792698522
+      "updated_at": 1792716554
     },
     {
       "id": "task_59",
@@ -1233,8 +1233,8 @@
     {
       "id": "task_95",
       "title": "Identité sonore : une musique par lieu",
-      "description": "Seulement 4 morceaux pour 9 biomes, 4 actes, les Tréfonds, le Seuil, le sanctuaire et le combat final. Donner un thème à chaque acte/biome, aux Tréfonds, au Seuil, au sanctuaire ; un vrai thème final qui bascule quand la Gueule se lève ; nappes d'ambiance par biome ; audit des bruitages récents (dialogues, sac, atouts). Pack Ninja Adventure (40 musiques CC0).",
-      "status": "in_progress",
+      "description": "Seulement 4 morceaux pour 9 biomes, 4 actes, les Tréfonds, le Seuil, le sanctuaire et le combat final.\n\nFait : 26 morceaux du pack Ninja Adventure (CC0), un par lieu (table lieu → morceau → pourquoi : docs/design/presentation.md « Music »). Sanctuaire/titre : Lost Village + la cloche (une fois à l'ouverture). Acte I : The Cave / Dark Forest / Aquatic, gardiens sur Fight. Acte II : Crypt / Mystical, gardiens sur Dark Castle, la Mère des Larmes sur Lament. Acte III : Temple / Dungeon, gardiens sur End Theme. Acte IV : Ruins / Manor, gardiens sur Final Area, le Soleil Mort sur Revelation. Charnier : Melancholia, le Gisant sur Curse. Tréfonds : Tension. Seuil : Dream. Fond du Puits : Lost Village ; Tôma sur End Theme 2, silence quand il tombe, puis la Gueule sur Fight (2025). Fins : Credit Theme (sonner la cloche), Lost Village (prendre sa place) ; victoire : Ascension ; défaite : Sad Theme après le jingle ; histoires des gardiens : Story en fond (-4 dB).\nTout en données (DungeonTheme, BossDef, ActDef.boss_music, AbyssDef, ThresholdDef, EndingDef, CinematicDef, SoundBank > Music), lu par Soundtrack. Vrai fondu enchaîné (deux lecteurs), même morceau jamais relancé d'un étage à l'autre, jingle seul puis la musique revient. Volumes égalisés (-19 LUFS), Vorbis q1 (11 Mo pour 26 morceaux), boucles loop=true. Nappes d'ambiance : vent chaud (Jardin Blême), rivière (Cavernes des Noyés), vent du désert (Cité Ensablée), ressac lointain (Fond du Puits). Bruitages : lâcher, démonter (enclume + pièces), retirer, fragment trouvé (jingle), morsure de la Gueule, nappe de gaz ; voix des PNJ égalisées.\nÀ écouter : choisis sans pouvoir les entendre (mesures : volume, brillance, densité, tonalité). Voir les cartes « Écouter la bande-son ».",
+      "status": "review",
       "priority": "high",
       "epic_id": "epic_81",
       "due_date": null,
@@ -1242,7 +1242,7 @@
         "son"
       ],
       "created_at": 1792720000,
-      "updated_at": 1792720000
+      "updated_at": 1792716554
     },
     {
       "id": "task_96",
@@ -1421,6 +1421,81 @@
       ],
       "created_at": 1792715222,
       "updated_at": 1792715222
+    },
+    {
+      "id": "task_100",
+      "title": "Écouter la bande-son : un morceau par lieu",
+      "description": "Les 26 morceaux ont été choisis sans être entendus (docs/design/presentation.md « Music »). À écouter en jeu et changer dans les .tres si besoin. Les plus incertains : End Theme pour les gardiens de l'Acte III (rythme dense, mais c'est peut-être un thème de fin joyeux), Credit Theme pour « sonner la cloche » (peut-être trop gai), Manor pour le Tombeau du Soleil, Revelation pour le Soleil Mort (en majeur), Ruins (s'éteint au fil de la boucle), Story sous les histoires des gardiens, la cloche de l'écran titre (-14 dB, 1,4 s après l'ouverture). Vérifier aussi que les boucles ne claquent pas (Dark Castle et Lost Village finissent en fondu).",
+      "status": "todo",
+      "priority": "high",
+      "epic_id": "epic_81",
+      "due_date": null,
+      "tags": [
+        "son",
+        "playtest"
+      ],
+      "created_at": 1792716554,
+      "updated_at": 1792716554
+    },
+    {
+      "id": "task_101",
+      "title": "Écouter les nouveaux bruitages",
+      "description": "Choisis sans être entendus : lâcher un objet (Bounce2), démonter (enclume de la forge, -9 dB), fragment trouvé (jingle Secret1), morsure de la Gueule (os grave + coup lourd), nappe de gaz (Bubble). Les nappes d'ambiance neuves aussi (vent chaud du Jardin Blême, rivière des Cavernes des Noyés, vent de la Cité Ensablée, ressac du Fond du Puits) : niveau sous la musique, raccord de boucle.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_81",
+      "due_date": null,
+      "tags": [
+        "son",
+        "playtest"
+      ],
+      "created_at": 1792716554,
+      "updated_at": 1792716554
+    },
+    {
+      "id": "task_102",
+      "title": "Nappes d'ambiance propres au Temple, au Tombeau et aux Archives",
+      "description": "Le Temple-Bûcher, les Ruines de Braise, le Tombeau du Soleil partagent encore la nappe des ruines (feu) ; les Catacombes, les Archives Muettes et le Charnier celle de la crypte. Le pack n'a que pluie, rivière, orage, vagues et vent : il faudrait d'autres sources (CC0) pour un chant lointain, des pages, des braises d'autel.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_81",
+      "due_date": null,
+      "tags": [
+        "son"
+      ],
+      "created_at": 1792716554,
+      "updated_at": 1792716554
+    },
+    {
+      "id": "task_103",
+      "title": "Idée : une musique au marchand, à la forge, aux rencontres",
+      "description": "Aujourd'hui les salles du marchand, de la forge et des PNJ gardent la musique de l'étage (ce sont des salles de l'étage). Une variante plus calme en y entrant (ou la musique baissée) ? À décider à l'écoute.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "son",
+        "idée"
+      ],
+      "created_at": 1792716554,
+      "updated_at": 1792716554
+    },
+    {
+      "id": "task_104",
+      "title": "Taille de la musique (11 Mo)",
+      "description": "26 morceaux en Vorbis qualité 1 (~60 kb/s) : 11 Mo (contre 5 Mo pour les 4 d'avant). Si l'APK est trop lourd, qualité 0 gagne ~20 % ; Dark Forest (2,5 min, 1,1 Mo) et Manor (0,8 Mo) sont les plus gros.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_6",
+      "due_date": null,
+      "tags": [
+        "son",
+        "android",
+        "perf"
+      ],
+      "created_at": 1792716554,
+      "updated_at": 1792716554
     }
   ]
 }

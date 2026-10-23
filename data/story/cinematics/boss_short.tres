@@ -42,3 +42,4 @@ line_hold = 0.4
 hold_per_char = 0.008
 tap_grace = 0.2
 tap_completes_first = false
+duck_db = -6.0

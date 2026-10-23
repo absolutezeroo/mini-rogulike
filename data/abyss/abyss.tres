@@ -4,7 +4,6 @@
 [ext_resource type="Resource" path="res://data/abyss/abyss_theme.tres" id="2_theme"]
 [ext_resource type="Resource" path="res://data/abyss/abyss_lighting.tres" id="3_lighting"]
 [ext_resource type="Resource" path="res://data/abyss/abyss_ambience.tres" id="4_ambience"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/crypt.ogg" id="5_music"]
 [ext_resource type="Resource" path="res://data/biomes/burning_ruins.tres" id="6_dressing"]
 [ext_resource type="Script" path="res://src/definitions/hazards/hazard_def.gd" id="7_hazard"]
 [ext_resource type="Resource" path="res://data/hazards/pit.tres" id="8_pit"]
@@ -22,6 +21,7 @@
 [ext_resource type="Resource" path="res://data/items/consumables/health_potion.tres" id="20_potion"]
 [ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="21_greater"]
 [ext_resource type="Resource" path="res://data/items/consumables/bomb.tres" id="22_bomb"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/tension.ogg" id="snd_tension"]
 
 [sub_resource type="Resource" id="Resource_potion"]
 script = ExtResource("18_entry")
@@ -66,7 +66,7 @@ lighting = ExtResource("3_lighting")
 dressing = ExtResource("6_dressing")
 torch_level = 9
 ambience = ExtResource("4_ambience")
-music = ExtResource("5_music")
+music = ExtResource("snd_tension")
 monsters = Array[ExtResource("9_monster")]([ExtResource("10_fiend"), ExtResource("11_carcass"), ExtResource("12_drinker"), ExtResource("13_stalker"), ExtResource("14_augur"), ExtResource("15_eye"), ExtResource("16_wraith")])
 first_wave = 2.0
 wave_every = 8.0

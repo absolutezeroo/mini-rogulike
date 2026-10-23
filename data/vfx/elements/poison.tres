@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" path="res://assets/fx/poison/poison_fang.png" id="6"]
 [ext_resource type="Resource" path="res://data/vfx/deaths/melt.tres" id="death"]
 [ext_resource type="Texture2D" path="res://assets/fx/poison/poison_bubble.png" id="7"]
+[ext_resource type="AudioStream" path="res://data/audio/gas.tres" id="snd_gas"]
 
 [sub_resource type="Resource" id="shot"]
 script = ExtResource("2")
@@ -66,3 +67,4 @@ piece = SubResource("piece")
 pool = true
 pool_bubble = SubResource("bubble")
 claw = SubResource("claw")
+pool_sound = ExtResource("snd_gas")

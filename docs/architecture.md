@@ -16,7 +16,7 @@ assets/              Art, audio, fonts and the UI theme (Ninja Adventure pack)
   tiles/               Dungeon floors, cliffs and walls
   ui/                  Wood UI, round buttons (sphere/), icons, skill icons (skills/), perk icons (perks/), emotes
   fonts/               Pixel font
-  audio/               Sound effects (sfx/), music (one track per floor theme) and jingles
+  audio/               Sound effects (sfx/), music (a track per place: docs/design/presentation.md "Music"), ambience beds and jingles
   shaders/             Rig (hit flash + death dissolve), screen look, damage vignette
   theme/               main_theme.tres: pixel UI theme used by every Control
 data/                Game content as .tres resources (no code)
@@ -175,7 +175,7 @@ Few, each with one job (`project.godot` > Autoload):
 | Autoload | Script | Job |
 |---|---|---|
 | `Events` | `src/autoload/events.gd` | Signal bus for notifications (screen shake, camera kick, boss fight...). Emit and listen; never use it to give orders |
-| `Sfx` | `src/autoload/sfx.gd` | Plays combat, world (positional) and UI sounds from `data/audio/sound_bank.tres`, each on its bus, mixed by `data/audio/sound_mix.tres` |
+| `Sfx` | `src/autoload/sfx.gd` | Plays combat, world (positional) and UI sounds from `data/audio/sound_bank.tres`, each on its bus, mixed by `data/audio/sound_mix.tres`; the music, crossfaded (which track plays where: `Soundtrack`) |
 | `HitStop` | `src/autoload/hit_stop.gd` | Impact freeze and slow motion |
 | `Profile` | `src/autoload/profile.gd` | What lasts between runs: souls, Tree of Souls, records, bestiary, quests (`user://profile.json`) |
 | `Settings` | `src/autoload/settings.gd` | Options and language (`user://settings.cfg`) |

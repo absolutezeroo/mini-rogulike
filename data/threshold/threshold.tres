@@ -5,8 +5,8 @@
 [ext_resource type="Resource" path="res://data/threshold/limbo_theme.tres" id="3_theme"]
 [ext_resource type="Resource" path="res://data/threshold/limbo_lighting.tres" id="4_lighting"]
 [ext_resource type="Resource" path="res://data/threshold/limbo_ambience.tres" id="5_ambience"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/boss.ogg" id="6_music"]
 [ext_resource type="AudioStream" path="res://data/audio/knell.tres" id="7_knell"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/dream.ogg" id="snd_dream"]
 
 [resource]
 script = ExtResource("1_def")
@@ -29,7 +29,7 @@ arena = ExtResource("2_arena")
 theme = ExtResource("3_theme")
 lighting = ExtResource("4_lighting")
 ambience = ExtResource("5_ambience")
-music = ExtResource("6_music")
+music = ExtResource("snd_dream")
 knell = ExtResource("7_knell")
 margin = 10
 color = Color(0.72, 0.86, 1, 1)

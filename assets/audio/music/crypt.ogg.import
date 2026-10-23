@@ -12,7 +12,7 @@ dest_files=["res://.godot/imported/crypt.ogg-3248266f570de5e4a824c254fb801730.og
 
 [params]
 
-loop=false
+loop=true
 loop_offset=0
 bpm=0
 beat_count=0

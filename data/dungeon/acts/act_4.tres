@@ -25,6 +25,7 @@
 [ext_resource type="Resource" path="res://data/monsters/gilded_moth.tres" id="21_lsqkw"]
 [ext_resource type="Script" path="res://src/definitions/act_def.gd" id="21_uckqf"]
 [ext_resource type="Resource" path="res://data/monsters/sand_drake.tres" id="22_lsqkw"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/final_area.ogg" id="snd_final_area"]
 
 [resource]
 script = ExtResource("21_uckqf")
@@ -37,3 +38,4 @@ monsters = Array[ExtResource("12_samg8")]([ExtResource("13_atrv2"), ExtResource(
 boss = ExtResource("4_2q6do")
 other_bosses = Array[ExtResource("20_x1lcl")]([ExtResource("21_egqa3")])
 hazards = Array[ExtResource("5_lsqkw")]([ExtResource("6_vihfx"), ExtResource("7_y2mrk"), ExtResource("8_r2qx8"), ExtResource("9_1kldq"), ExtResource("10_iwiwi"), ExtResource("11_v46ux")])
+boss_music = ExtResource("snd_final_area")

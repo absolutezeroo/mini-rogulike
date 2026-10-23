@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="EndingDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/ending_def.gd" id="1_ending"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/lost_village.ogg" id="snd_lost_village"]
 
 [resource]
 script = ExtResource("1_ending")
@@ -13,3 +14,4 @@ Tôma climbs toward the light, to wake the village and answer to it.
 Below, a lantern keeps watch. No one will know who holds it."
 stat = "ending_keeper"
 color = Color(0.78, 0.66, 1, 1)
+music = ExtResource("snd_lost_village")

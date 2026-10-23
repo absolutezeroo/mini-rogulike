@@ -30,6 +30,8 @@ enum Stage { CLOSED, OPENING, OPEN, CLOSING }
 @export var immune_color: Color = Color(0.95, 0.93, 0.86)
 ## The clang (null: the body's material's sound, higher).
 @export var immune_sound: AudioStream
+## The jaw snapping shut on the bite (null: the monster's hurt sound).
+@export var bite_sound: AudioStream
 
 @export_group("Open")
 ## The ground in front of its mouth, from its feet (world units): pulled toward, bitten there.
@@ -296,7 +298,7 @@ func _try_bite(monster: Monster) -> void:
 	var damage := maxi(1, roundi(monster.get_power() * bite_power))
 	var bite := GroundStrike.create(monster.world, monster, mouth, bite_radius, bite_windup * monster.get_telegraph_scale(), damage, bite_knockback, bite_element)
 	bite.shake = 0.5
-	bite.sound = monster.def.hurt_sound
+	bite.sound = bite_sound if bite_sound else monster.def.hurt_sound
 	bite.landed.connect(func() -> void:
 		if is_instance_valid(hero) and hero.last_hurt_frame == Engine.get_physics_frames() and not bite_mark.is_empty():
 			Events.run_marked.emit(bite_mark)  # (hurt by the bite this very frame)

@@ -1,0 +1,11 @@
+[gd_resource type="AudioStreamRandomizer" format=3]
+
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/forge/anvil_0.ogg" id="1_s"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/forge/anvil_1.ogg" id="2_s"]
+
+[resource]
+random_pitch = 1.08
+random_volume_offset_db = 1.0
+streams_count = 2
+stream_0/stream = ExtResource("1_s")
+stream_1/stream = ExtResource("2_s")

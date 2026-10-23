@@ -27,6 +27,7 @@
 [ext_resource type="Resource" path="res://data/monsters/bosses/weeping_spirit.tres" id="19_wciqp"]
 [ext_resource type="Resource" path="res://data/monsters/soul_moth.tres" id="23_au71w"]
 [ext_resource type="Resource" path="res://data/monsters/bosses/azure_wyrm.tres" id="26_rhuyj"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/dark_castle.ogg" id="snd_dark_castle"]
 
 [resource]
 script = ExtResource("12_1aok4")
@@ -41,3 +42,4 @@ monster_damage = 1.08
 boss = ExtResource("1_0h4yv")
 other_bosses = Array[ExtResource("18_gxe60")]([ExtResource("19_wciqp"), ExtResource("26_rhuyj")])
 hazards = Array[ExtResource("2_rvqiy")]([ExtResource("3_4wi7y"), ExtResource("4_gxe60"), ExtResource("5_wciqp"), ExtResource("6_lmuqr"), ExtResource("7_1aok4")])
+boss_music = ExtResource("snd_dark_castle")
