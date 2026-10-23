@@ -1734,7 +1734,7 @@
     {
       "id": "task_120",
       "title": "Prendre sa place : ton ancien héros devient le boss final",
-      "description": "Choisi par Clayton (priorité de la fin « Prendre sa place »).\n\nQuand une partie se termine par « Prendre sa place », le héros devient le Gardien Sans Nom. À la partie SUIVANTE, au fond du Puits, ce n'est plus Tôma qui attend : c'est lui, avec l'arme, les compétences et les reliques de cette partie gagnante. « Prendre sa place » devient littéral : chaque victoire de ce type crée le boss final de la suivante. Pour se libérer, il faut se battre soi-même, puis choisir à nouveau : sonner la cloche ou prendre sa place.\n\nÀ prévoir :\n- Profil : garder un « instantané » du héros gagnant (arme et rang, compétences, reliques/perks, niveau, élément) au moment du choix.\n- Un BossDef data-driven « le Gardien Sans Nom » construit depuis l'instantané (stats mises à l'échelle de la difficulté, IA qui utilise ses vraies compétences et son arme, phases).\n- Le combat final remplace Tôma (le Maw après ? à décider) tant qu'un Gardien Sans Nom attend ; une seule partie à la fois, le suivant remplace le précédent.\n- Visuel : le sprite du héros assombri, sans visage, la lanterne ; son nom effacé.\n- Cinématique et lignes (skill lore) : il ne dit presque rien, il « attend de te voir debout » comme Tôma.\n- Bestiaire / chroniques : une entrée qui garde la trace de chaque gardien vaincu (arme, nombre de nuits ?).\n- Tests : l'instantané survit à la sauvegarde ; le boss reprend l'arme et les compétences ; sonner la cloche le libère.",
+      "description": "Choisi par Clayton (priorité de la fin « Prendre sa place »).\n\nQuand une partie se termine par « Prendre sa place », le héros devient le Gardien Sans Nom. À la partie SUIVANTE, au fond du Puits, ce n'est plus Tôma qui attend : c'est lui, avec l'arme, les compétences et les reliques de cette partie gagnante. « Prendre sa place » devient littéral : chaque victoire de ce type crée le boss final de la suivante. Pour se libérer, il faut se battre soi-même, puis choisir à nouveau : sonner la cloche ou prendre sa place.\n\nÀ prévoir :\n- Profil : garder un « instantané » du héros gagnant (arme et rang, compétences, reliques/perks, niveau, élément) au moment du choix.\n- Un BossDef data-driven « le Gardien Sans Nom » construit depuis l'instantané (stats mises à l'échelle de la difficulté, IA qui utilise ses vraies compétences et son arme, phases).\n- Le combat final remplace Tôma ET la Gueule tant qu'un Gardien Sans Nom attend : on se bat contre son ancien héros, et c'est le dernier combat (décidé par Clayton : pas de Gueule après). Un seul à la fois : le suivant remplace le précédent.\n- Visuel : le sprite du héros assombri, sans visage, la lanterne ; son nom effacé.\n- Cinématique et lignes (skill lore) : il ne dit presque rien, il « attend de te voir debout » comme Tôma.\n- Bestiaire / chroniques : une entrée qui garde la trace de chaque gardien vaincu (arme, nombre de nuits ?).\n- Tests : l'instantané survit à la sauvegarde ; le boss reprend l'arme et les compétences ; sonner la cloche le libère.",
       "status": "todo",
       "priority": "high",
       "epic_id": "epic_1",
@@ -1746,7 +1746,7 @@
         "idée"
       ],
       "created_at": 1792758694,
-      "updated_at": 1792758694
+      "updated_at": 1792758974
     },
     {
       "id": "task_121",

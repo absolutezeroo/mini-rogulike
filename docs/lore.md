@@ -247,7 +247,7 @@ told at the bottom (their first chapters never name him), their last words as th
 
 - What "take his place" leads to in detail. Decided (not built yet, roadmap): the hero who takes
   the place becomes **the Nameless Keeper**, and the next run's last fight is against him (that
-  run's weapon, skills and relics) instead of Tôma; beating yourself frees you and the choice
+  run's weapon, skills and relics) instead of Tôma and the Maw: that fight is the last one; beating yourself frees you and the choice
   comes again. Later, a mode of its own, **the Vigil** (« La Veille »): the Nameless Keeper holds
   the seal night after night against the Maw's waves, scored in nights held. Today both endings
   still lead to the same victory screen (and endless mode); the choice is kept in the profile
