@@ -94,7 +94,11 @@ shows to the device in hand.
   it, a dialog's Resume, Later, Leave and Close inside on the left (`PromptGlyph.badge()`; on touch
   nothing, the phone's layout unchanged). A gold pixel frame (corner brackets, breathing by a pixel) shows
   around the focused button while keys or a gamepad drive (`InputDevice.navigating`), never on
-  touch or after the mouse moved; the mouse hovers and clicks as always. Buttons are focusable
+  touch or after the mouse moved; the mouse hovers and clicks as always. The frame stays inside
+  the boxes that clip its button (a list's scroll, a column), give or take its own width: a
+  button scrolled out of its column has none (`MenuNav.frame_area()`). A codex page opened with
+  keys starts at the top of its columns (`MonsterPage.scroll_to_top()`: its first button was
+  focused before the columns were laid out, and the column used to scroll it just out of sight). Buttons are focusable
   again everywhere but the HUD, where nothing keeps the focus (Space attacks). The debug panel stays
   mouse-only.
 - **Someone speaking** (`DialogueBox`, `src/ui/dialogue/`; presentation.md, "The Vigil-Keeper

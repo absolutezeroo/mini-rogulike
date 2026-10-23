@@ -14,6 +14,8 @@ extends Node2D
 ## themselves one after the other); its element bends the space over it (DistortionStamp: heat
 ## above a ring of fire, a cold shimmer through a Frost Nova); a few frost crystals catch a glint
 ## of light (GlowHalo) while they stand.
+## An element whose matter lies as a pool (VfxElementDef.pool: poison's gas) has no pieces laid
+## along a trail or an arc: those are one GasPoolVfx too (its novas are, through Vfx.nova).
 
 ## Seconds for the wave to reach its outer pieces (the main action, in the first quarter).
 const SPREAD_TIME := 0.12
@@ -81,6 +83,8 @@ static func ring(at: Vector2, radius: float, of_element: VfxElementDef, inner: b
 static func arc(at: Vector2, radius: float, facing: Vector2, of_element: VfxElementDef, sweep: float = 0.12) -> Node2D:
 	if of_element == null or of_element.piece == null:
 		return ring(at, radius, of_element)
+	if of_element.pool:
+		return GasPoolVfx.along_arc(at, radius, facing, of_element, sweep)  # poison: gas, not lumps
 	var vfx := ComposedVfx.new()
 	vfx.element = of_element
 	vfx.position = PixelDraw.snap(at)
@@ -103,6 +107,8 @@ static func arc(at: Vector2, radius: float, facing: Vector2, of_element: VfxElem
 static func line(from: Vector2, to: Vector2, of_element: VfxElementDef, duration: float = 0.15) -> Node2D:
 	if of_element == null or of_element.piece == null:
 		return null
+	if of_element.pool:
+		return GasPoolVfx.along_line(from, to, of_element, duration)  # poison: gas, not lumps
 	var vfx := ComposedVfx.new()
 	vfx.element = of_element
 	vfx.position = PixelDraw.snap(from)

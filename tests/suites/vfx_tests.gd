@@ -390,6 +390,31 @@ func _test_poison_kit() -> void:
 	check(ramp.size() == 5 and Color(ramp[1]) == poison.ramp[1] and Color(gas_look.get_shader_parameter(&"residue")) == poison.residue, "poison: the pool is drawn in poison's ramp and its murk")
 	pool.free()
 	check(not VfxElementDef.named(&"frost").pool, "poison: other elements keep their ring of pieces (a Frost Nova's crystals)")
+	# Its trails and arcs are the same gas lying along a line or a sweep (not standing lumps).
+	var from := Vector2(-61, 20)
+	var to := Vector2(83, -14)
+	var trail := ComposedVfx.line(from, to, poison) as GasPoolVfx
+	check(trail != null, "poison: a trail through poison is gas lying along it (GasPoolVfx), not a row of lumps")
+	if trail:
+		var trail_look := trail.material as ShaderMaterial
+		check(VfxLayer.of(trail) == VfxLayer.Layer.GROUND and trail_look.shader == GasPoolVfx.SHADER and int(trail_look.get_shader_parameter(&"shape")) == 1, "poison: the trail lies on the ground, drawn by gas_pool.gdshader along a segment")
+		var axis: Vector2 = trail_look.get_shader_parameter(&"axis")
+		check(trail.position.distance_to((from + to) * 0.5) <= 2.0 and (trail.position - axis).distance_to(from) <= 3.0 and (trail.position + axis).distance_to(to) <= 3.0, "poison: the trail runs from where it starts to where it ends, on the grid (%s, %s)" % [trail.position, axis])
+		check(trail._extent.grow(-trail.radius).has_point(axis) and trail._extent.grow(-trail.radius).has_point(-axis), "poison: the trail's quad holds all of it")
+		check(float(trail_look.get_shader_parameter(&"sweep")) > 0.0, "poison: the trail wells out from its start to its end")
+		trail.free()
+	var sweep := ComposedVfx.arc(Vector2(5, 9), 70.0, Vector2.UP, poison) as GasPoolVfx
+	check(sweep != null, "poison: an arc of poison is gas swept across the front, not a row of lumps")
+	if sweep:
+		var sweep_look := sweep.material as ShaderMaterial
+		var spine := float(sweep_look.get_shader_parameter(&"arc_radius"))
+		check(int(sweep_look.get_shader_parameter(&"shape")) == 2 and VfxLayer.of(sweep) == VfxLayer.Layer.GROUND, "poison: the arc lies on the ground along an arc")
+		check(spine + sweep.radius <= 70.0 + 0.5 and spine - sweep.radius >= 70.0 * 0.4, "poison: the arc's gas stays inside the area it hit (%.0f +- %.0f of 70)" % [spine, sweep.radius])
+		check(is_equal_approx(float(sweep_look.get_shader_parameter(&"arc_from")) + float(sweep_look.get_shader_parameter(&"arc_span")) * 0.5, Vector2.UP.angle()), "poison: the arc faces where the blow went")
+		sweep.free()
+	var frost_trail := ComposedVfx.line(from, to, VfxElementDef.named(&"frost"))
+	check(frost_trail is ComposedVfx, "poison: other elements keep their trail of pieces (a dash leaving ice)")
+	frost_trail.free()
 
 
 ## Blood: claws rake in blood, a wound spurts and stains, Battle Cry bursts jets of blood, and

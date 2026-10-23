@@ -1220,6 +1220,38 @@ func _test_rune_shots(game: Game, place: Callable) -> void:
 	await _frames(1)
 	check(fireball.effects_for(player) == fireball.effects and volley.effects_for(player) != volley.effects, "rune shots: a spell not of the weapon isn't dressed in it")
 	clear.call()
+	# The skills that are no shot wear the rune too (only the look: their hits as written).
+	var frost := VfxElementDef.named(&"frost")
+	var spawned := func() -> Array:
+		return world.get_node("Effects").get_children() + world.get_node("Entities").get_children()
+	var area_cases := [
+		["axe", "cleave", null, "an Ember axe's Cleave is a blade's arc in fire"],
+		["bow", "arrow_rain", null, "an Ember bow's Arrow Rain falls in fire"],
+		["stick", "frost_nova", frost, "an Ember Frost Staff's Frost Nova stays frost, flames riding it"],
+		["katana", "dash_strike", null, "an Ember katana's Dash Strike cuts in fire"],
+	]
+	for c: Array in area_cases:
+		var weapon := _imbued(load("res://data/items/weapons/%s.tres" % c[0]), ember, [])
+		player.equipment.equip(weapon)
+		place.call()
+		await _frames(2)
+		var skill := load("res://data/skills/player/%s.tres" % c[1]) as SkillDef
+		var dressed := skill.effects_for(player)
+		var as_written: Array = skill.effects.map(func(e: Effect) -> Variant: return e.get("element"))
+		var kept: Array = dressed.map(func(e: Effect) -> Variant: return e.get("element"))
+		check(dressed.all(func(e: Effect) -> bool: return e.get("look_element") == fire) and kept == as_written, "rune skills: %s (look %s, its own element kept: %s)" % [c[3], dressed.map(func(e: Effect) -> Variant: return e.get("look_element")), kept])
+		check(skill.effects.all(func(e: Effect) -> bool: return e.get("look_element") == null), "rune skills: %s's data stays as written" % c[1])
+		var before: Array = spawned.call()
+		player.skills.reset_cooldown(skill)
+		player.skills.try_use(player.skills.skills.find(skill), player, Vector2.LEFT)
+		await _frames(int(dressed.map(func(e: Effect) -> float: return e.delay).max() * 60.0) + 3)
+		var drawn: Array = (spawned.call() as Array).filter(func(n: Node) -> bool: return not before.has(n) and is_instance_valid(n) and n.get("element") == fire)
+		check(not drawn.is_empty(), "rune skills: %s, seen (%s)" % [c[3], drawn.map(func(n: Node) -> String: return n.get_class() if n.get_script() == null else (n.get_script() as Script).get_global_name())])
+		if c[2] != null:
+			var own_drawn: Array = (spawned.call() as Array).filter(func(n: Node) -> bool: return not before.has(n) and is_instance_valid(n) and n.get("element") == c[2])
+			check(not own_drawn.is_empty(), "rune skills: %s, its own element still drawn" % c[1])
+		await _frames(30)
+	clear.call()
 	player.equipment.equip(load("res://data/items/weapons/katana.tres"))
 	await _frames(2)
 func _imbued(base: WeaponDef, runes: Array, affixes: Array) -> WeaponDef:
@@ -1711,6 +1743,12 @@ func _test_threshold_lost(game: Game) -> void:
 		var world := game.world
 		var feather := _perk("phoenix_feather")
 		player.perks.add(feather)
+		# The blow lands at the top of a physics step, and the hero still takes that step before the
+		# floor freezes (Threshold._enter is deferred): a monster bumping him, a trap's knockback or a
+		# leftover push would carry him off the spot he fell on. Alone, at rest, on quiet floor.
+		await _clear_monsters(world)
+		player.global_position = _quiet_point(world, player.global_position, 2, 10)
+		await _stand_still(world, player)
 		var killer := world.spawn_monster(skeleton, _free_points_away(world, player.global_position, 6, 10, 1)[0])
 		killer.dormant = true
 		var fell_at := player.global_position

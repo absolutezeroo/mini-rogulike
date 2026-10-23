@@ -154,7 +154,7 @@ Before Act III nothing names Solhar (an altar, an archive or a people are "older
 | L'Esprit Ricaneur / Grinning Spirit | a gambler of Solhar who wagered his soul and lost; still plays. | giggling, rhymes, dice. |
 | Autel de Sang / Blood Altar | Solhar's tithe altars. | (the Well's hunger, no voice) |
 | Source des Noyés / Spring of the Drowned | where Hana drowned; a girl's voice sometimes sings in it (the Maw imitating her). | a child's humming, three words at most. |
-| Statue du Gardien / Keeper's Statue (id `warden_statue`) | statues of Kagari's past keepers, a stone lantern in hand; one niche is empty (Tôma's). Kneeling, a keeper lends his strength; or its eyes redden and the Well's dead answer for it. | silent; inscriptions. |
+| Statue du Gardien / Keeper's Statue (id `warden_statue`) | statues of Kagari's past keepers, a stone lantern in hand; one niche is empty (Tôma's). Kneeling, a keeper lends his strength; or its eyes redden and the Well's dead answer for it. **The empty niche** stands beside every Keeper's Statue (`EncounterDef.niche`): a keeper's niche is cut while he lives, his name and one line on its base; the last keeper's name has been scratched away (by whom, the canon does not say), the line is left: « Il garde la dernière flamme » / "He keeps the last flame". Before the reveal it is only an empty niche and a line no one explains; once the keeper may be named (`keeper_named`), the hero reads the name under the scratches, and the line means the lantern left burning in his hand. | silent; inscriptions. |
 | The oaths (Colossus, Duelist, Heretic, Vulture) | vows sworn at the bell by keepers of old; each was a keeper's way. | solemn, one line each. |
 
 ### 6b. What the voices hold (the dialogue: `data/story/dialogue/`)

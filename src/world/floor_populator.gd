@@ -148,6 +148,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 		var keep := float(config.max_monsters_per_floor) / total
 		for i: int in counts:
 			counts[i] = maxi(floori(counts[i] * keep), mini(counts[i], 1))
+	var floor_index := 0
 	for i: int in counts:
 		var room := map.rooms[i]
 		for n in counts[i]:
@@ -155,6 +156,8 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 			if def:
 				var monster := world.spawn_monster(def, _free_point_in(world, room, rng, taken))
 				world.roll_elite(monster)
+				monster.floor_index = floor_index  # (the seed's order: a resumed run's same monster)
+				floor_index += 1
 
 	# Items lie around, not in the merchant's or the smith's room.
 	var item_rooms: Array[int] = []

@@ -38,29 +38,57 @@ extends Effect
 ## A second element its blow sheds a few bits of (not saved, never in data: a charged attack
 ## dressed in what the hero's weapon carries sets it, ChargedAttackDef).
 var second_element: VfxElementDef
+## Not saved, never in data: a weapon's skill dressed in what its runes and affixes carry
+## (SkillDef.effects_for, docs/vfx.md "Elemental attacks") is drawn in this element, its hits
+## staying in `element` (the rune's own rules decide when a hit lands in it). A blade's blow or a
+## plain area is drawn in it; one of its own element keeps it, and this one rides it.
+var look_element: VfxElementDef
+
+
+## A copy dressed in the elements the hero's weapon carries (`carried`, the strongest first): a
+## plain one (Cleave's arc, Arrow Rain's area) is drawn in the first and the second adds its bits;
+## one of its own element (Frost Nova, Ground Slam) stays itself and the first other rides it (a
+## few of its pieces inside). Only the look: the data stays as written, the hits as they were.
+func dressed_in(carried: Array[VfxElementDef]) -> DamageAreaEffect:
+	var copy := duplicate() as DamageAreaEffect
+	var others: Array[VfxElementDef] = []
+	for other in carried:
+		if other and other != element:
+			others.append(other)
+	if others.is_empty():
+		return copy
+	copy.look_element = others[0]
+	copy.second_element = others[1] if element == null and others.size() > 1 else null
+	return copy
 
 
 func apply(user: Actor, aim: Vector2) -> void:
 	var center := user.global_position + aim * offset
 	var base := flat_damage + roundi(user.get_skill_power() * damage_multiplier)
 	Combat.damage_area(user.world, user, center, radius, base, knockback, false, status, element)
+	# What it is drawn in, and what rides it (look_element: the weapon's runes and affixes).
+	var drawn := element if element else look_element
+	var riding := look_element if element else null
 	if explosive:
-		Vfx.explosion(user.world, center, radius, element)
+		Vfx.explosion(user.world, center, radius, drawn)
 	elif slash:
 		var reach := offset + radius if slash.shape != SlashDef.Shape.SPIN else radius
-		SwingVfx.slash(user.world, slash, user.global_position + Vector2(0, -6), aim, reach, element, user.faction != Actor.Faction.PLAYER, second_element)
+		SwingVfx.slash(user.world, slash, user.global_position + Vector2(0, -6), aim, reach, drawn, user.faction != Actor.Faction.PLAYER, riding if riding else second_element)
+		riding = null  # (its bits are shed by the blade's arc)
 	elif fx:
 		# The sheet at the nearest whole size of the art's pixel (SheetVfx snaps it), not
 		# stretched to the radius: a 32-pixel sheet over a 110 radius is drawn 6x, never 6.9x.
 		var frame := VfxSheetDef.cell_size(fx, fx_frames)
 		var size := radius * 2.0 / maxi(frame.x, frame.y)
 		var sheet := SheetVfx.create(fx, center, aim.angle() if fx_follow_aim else 0.0, size, SheetVfx.DEFAULT_FPS, frame.x)
-		user.world.spawn_vfx(sheet.with_color(fx_tint).in_element(element))
-	elif element and fx_follow_aim:
-		Vfx.arc(user.world, center, radius, aim, element)
-	elif element:
-		Vfx.nova(user.world, center, radius, element)
+		user.world.spawn_vfx(sheet.with_color(fx_tint).in_element(drawn))
+	elif drawn and fx_follow_aim:
+		Vfx.arc(user.world, center, radius, aim, drawn)
+	elif drawn:
+		Vfx.nova(user.world, center, radius, drawn)
 	else:
 		user.world.spawn_vfx(RingVfx.create(center, radius, color))
 	if strike:
-		user.world.spawn_vfx(SheetVfx.play(strike, center, aim, element))
+		user.world.spawn_vfx(SheetVfx.play(strike, center, aim, drawn))
+	if riding:
+		Vfx.riding(user.world, center, radius, riding)

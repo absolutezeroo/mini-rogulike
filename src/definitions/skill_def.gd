@@ -47,7 +47,8 @@ func activate(user: Actor, aim: Vector2) -> void:
 ## Its effects as `user` casts it. A skill of the hero's weapon (Volley on a bow, Ice Shards on a
 ## staff) shoots in the elements of the runes and affixes set in it, as his basic shots do
 ## (docs/vfx.md "Elemental attacks"): Volley's arrows ride an Ember Rune's flames, a frost shard
-## carries them on its back. Only the elements that act on a skill's hits (`ItemLook.
+## carries them on its back; what is no shot too (Cleave's arc burns, Arrow Rain's area falls in
+## flames, a Frost Nova has licks of fire among its crystals). Only the elements that act on a skill's hits (`ItemLook.
 ## passive_elements`: runes and affixes work like perks; the weapon's `on_hit` doesn't reach
 ## skills), and only the look: each hit lands in an element when its own rules say so.
 ## Copies, made once per list of elements (the data stays as written).
@@ -61,6 +62,13 @@ func effects_for(user: Actor) -> Array[Effect]:
 	if not _dressed.has(carried):
 		var copies: Array[Effect] = []
 		for effect in effects:
-			copies.append((effect as ProjectileEffect).dressed_in(carried, false) if effect is ProjectileEffect else effect)
+			if effect is ProjectileEffect:
+				copies.append((effect as ProjectileEffect).dressed_in(carried, false))
+			elif effect is DamageAreaEffect:
+				copies.append((effect as DamageAreaEffect).dressed_in(carried))  # Cleave's arc, a nova
+			elif effect is DashStrikeEffect:
+				copies.append((effect as DashStrikeEffect).dressed_in(carried))  # Dash Strike's cut
+			else:
+				copies.append(effect)
 		_dressed[carried] = copies
 	return _dressed[carried]
