@@ -27,6 +27,7 @@
 [ext_resource type="Resource" path="res://data/biomes/shapes/grid_hall.tres" id="x_shape_grid_hall"]
 [ext_resource type="Resource" path="res://data/biomes/shapes/octagon_hall.tres" id="x_shape_octagon_hall"]
 [ext_resource type="Resource" path="res://data/props/furniture/stone_pillar.tres" id="x_pillar_stone_pillar"]
+[ext_resource type="Resource" path="res://data/biomes/ceilings/archive.tres" id="x_ceiling"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_tqw4p"]
 atlas = ExtResource("2_tqw4p")
@@ -58,6 +59,7 @@ roughness = 0.25
 
 [resource]
 script = ExtResource("15_74xcq")
+ceiling = ExtResource("x_ceiling")
 pillars = Array[ExtResource("7_e0dof")]([ExtResource("x_pillar_stone_pillar")])
 plain_weight = 40
 room_shapes = Array[ExtResource("x_room_shape_def")]([ExtResource("x_shape_pillared_hall"), ExtResource("x_shape_gallery"), ExtResource("x_shape_l_room"), ExtResource("x_shape_cross_room"), ExtResource("x_shape_grid_hall"), ExtResource("x_shape_octagon_hall")])

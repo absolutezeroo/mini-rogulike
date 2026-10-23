@@ -1,0 +1,6 @@
+banner_a 0 0 16 29
+banner_b 18 0 16 35
+censer_a 36 0 12 49
+censer_b 50 0 12 39
+swag_a 64 0 32 12
+cobweb 98 0 16 16

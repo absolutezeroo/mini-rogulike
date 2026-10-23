@@ -15,6 +15,7 @@
 [ext_resource type="Resource" path="res://data/biomes/scenes/candle_altar.tres" id="12_8lwn6"]
 [ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="13_ycf1q"]
 [ext_resource type="Resource" path="res://data/dungeon/themes/charnel.tres" id="14_tvvkn"]
+[ext_resource type="Resource" path="res://data/biomes/ceilings/ossuary.tres" id="x_ceiling"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_lecpv"]
 atlas = ExtResource("2_yv3ey")
@@ -60,6 +61,7 @@ roughness = 0.2
 
 [resource]
 script = ExtResource("13_ycf1q")
+ceiling = ExtResource("x_ceiling")
 theme = ExtResource("14_tvvkn")
 grounds = Array[ExtResource("3_lecpv")]([SubResource("Resource_17ugi")])
 scenes = Array[ExtResource("7_pu0ae")]([ExtResource("8_ldwwl"), ExtResource("9_17ugi"), ExtResource("10_iikri"), ExtResource("11_d80g7"), ExtResource("12_8lwn6")])

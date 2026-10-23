@@ -126,6 +126,8 @@ var hidden_floor: HiddenFloorDef
 var finale: FinaleDef
 ## Where walking monsters can go (pathfinding, blocked cells).
 var nav := NavGrid.new()
+## What hangs over the rooms (null: nothing, a boss arena, a simulation).
+var ceiling: CeilingLayer
 ## What the hero has seen (the minimap).
 var fog := FogOfWar.new()
 
@@ -255,7 +257,19 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 		_apply_restore()
 		if boons.cartographer:
 			reveal_landmarks()
+	lay_ceiling()
 	map_reset.emit()
+
+
+## What hangs over this floor's rooms (BiomeDef.ceiling, CeilingLayer), never over a boss arena
+## (the fight stays clear). Nothing in a simulation (Vfx.shown off: the balance tools).
+func lay_ceiling() -> void:
+	ceiling = null
+	if biome == null or biome.ceiling == null or not Vfx.shown:
+		return
+	ceiling = CeilingLayer.new()
+	_effects.add_child(ceiling)
+	ceiling.build(self, biome.ceiling, map.boss_room)
 
 
 ## Removes everything from the floor except the player.
@@ -268,6 +282,7 @@ func clear_floor() -> void:
 	ambush = null
 	secrets.clear()
 	pact = null
+	ceiling = null
 	fragment = null
 	fragment_taken = false
 	awake_monsters.clear()

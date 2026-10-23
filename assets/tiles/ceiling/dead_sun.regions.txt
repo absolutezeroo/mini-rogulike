@@ -1,0 +1,6 @@
+arch 0 0 48 16
+chain_disc 50 0 16 53
+chain_disc_b 68 0 16 41
+swag_a 86 0 32 12
+sand_lip 120 0 8 4
+cobweb 130 0 16 16

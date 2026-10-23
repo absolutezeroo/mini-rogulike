@@ -163,7 +163,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 				var monster := world.spawn_monster(def, _free_point_in(world, room, rng, taken, World.room_for(def)))
 				world.roll_elite(monster)
 				# An elite grew: its bigger body must fit where it stands too.
-				if monster.radius > World.room_for(def) and not world.body_fits(monster.global_position, monster.radius):
+				if monster.radius > World.room_for(def) and not _fits(world, monster.global_position, monster.radius):
 					monster.global_position = _free_point_in(world, room, rng, taken, monster.radius)
 				monster.floor_index = floor_index  # (the seed's order: a resumed run's same monster)
 				floor_index += 1
@@ -343,9 +343,9 @@ static func _free_point_in(world: World, room: Rect2i, rng: RandomNumberGenerato
 		if not taken.has(cell) and world.is_free_cell(cell):  # pillars of a themed room are walls
 			var center := map.cell_to_world(cell)
 			var at := center + Vector2(rng.randf_range(-8.0, 8.0), rng.randf_range(-8.0, 8.0))
-			if radius <= 0.0 or world.body_fits(at, radius):
+			if radius <= 0.0 or _fits(world, at, radius):
 				return at
-			if world.body_fits(center, radius):
+			if _fits(world, center, radius):
 				return center
 		cell = map.random_cell_in(room, rng)
 	if radius > 0.0:
@@ -357,6 +357,28 @@ static func _free_point_in(world: World, room: Rect2i, rng: RandomNumberGenerato
 				if not taken.has(spot) and world.is_free_cell(spot):
 					cells.append(spot)
 		for spot in _shuffled(cells, rng):
-			if world.body_fits(map.cell_to_world(spot), radius):
+			if _fits(world, map.cell_to_world(spot), radius):
 				return map.cell_to_world(spot)
 	return world.nearest_free_point(map.cell_to_world(cell))
+
+
+## A body of `radius` fits at `point`: no wall, prop, pillar, pond or pool within it, by the
+## physics (what is there already) and by the grid (what was put up this very frame: a blocked
+## cell counts whole).
+static func _fits(world: World, point: Vector2, radius: float) -> bool:
+	if not world.body_fits(point, radius):
+		return false
+	var map := world.map
+	var ts := float(map.tile_size)
+	var reach := ceili(radius / ts) + 1
+	var at := map.world_to_cell(point)
+	for dy in range(-reach, reach + 1):
+		for dx in range(-reach, reach + 1):
+			var cell := at + Vector2i(dx, dy)
+			if map.is_floor(cell) and not world.nav.is_blocked(cell):
+				continue
+			var box := Rect2(Vector2(cell) * ts, Vector2(ts, ts))
+			var nearest := Vector2(clampf(point.x, box.position.x, box.end.x), clampf(point.y, box.position.y, box.end.y))
+			if nearest.distance_to(point) < radius:
+				return false
+	return true

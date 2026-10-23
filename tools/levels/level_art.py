@@ -312,11 +312,16 @@ def hanging_chain(rng, length, end=None, ramp=STEEL, w=12):
         for (i, j) in ((0, -r - 2), (0, r + 2), (-r - 2, 0), (r + 2, 0)):
             c.put(mid + i, y + r + 1 + j, GOLD[1])
     elif end == "bones":
-        bone = crop("floor_detail.png", 224, 0, 16, 16)
-        for k in range(2):
-            for (bx, by), color in bone.px.items():
-                if 3 <= bx < 13 and 5 <= by < 11:
-                    c.put(mid - 5 + bx - 3 + k * 2, y + k * 5 + by - 5, color)
+        # A bundle of long bones tied under the chain: three hanging side by side.
+        for k, (dx, ln) in enumerate(((-3, 9), (0, 11), (3, 8))):
+            x = mid + dx
+            for j in range(ln):
+                c.put(x, y + 1 + j, BONE[0] if j < ln // 2 else BONE[1])
+                c.put(x + 1, y + 1 + j, BONE[1] if j < ln // 2 else BONE[2])
+            for (kx, ky) in ((-1, 0), (2, 0), (-1, ln - 1), (2, ln - 1)):  # the knobs
+                c.put(x + kx, y + 1 + ky, BONE[1])
+        for i in range(-4, 6):  # the cord round them
+            c.put(mid + i, y + 3, BARK[1])
     c.outline(OUT)
     return trim_bottom(c)
 

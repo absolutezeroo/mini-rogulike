@@ -1,0 +1,8 @@
+chain_hook 0 0 12 46
+chain_skull 14 0 16 46
+chain_cage 32 0 12 43
+chain_bones 46 0 16 51
+swag_a 64 0 32 12
+swag_b 98 0 24 12
+cobweb 124 0 16 16
+roots_a 142 0 16 24

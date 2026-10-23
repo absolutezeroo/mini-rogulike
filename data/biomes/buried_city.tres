@@ -31,6 +31,7 @@
 [ext_resource type="Resource" path="res://data/biomes/shapes/gallery.tres" id="x_shape_gallery"]
 [ext_resource type="Resource" path="res://data/props/furniture/sandstone_pillar.tres" id="x_pillar_sandstone_pillar"]
 [ext_resource type="Resource" path="res://data/biomes/pools/oasis_water.tres" id="x_pool"]
+[ext_resource type="Resource" path="res://data/biomes/ceilings/dust_city.tres" id="x_ceiling"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_d8iow"]
 atlas = ExtResource("2_rfqor")
@@ -72,6 +73,7 @@ roughness = 0.4
 
 [resource]
 script = ExtResource("18_aladr")
+ceiling = ExtResource("x_ceiling")
 pool = ExtResource("x_pool")
 pillars = Array[ExtResource("7_wske4")]([ExtResource("x_pillar_sandstone_pillar")])
 plain_weight = 35

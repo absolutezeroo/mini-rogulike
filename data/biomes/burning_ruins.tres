@@ -25,6 +25,7 @@
 [ext_resource type="Resource" path="res://data/biomes/shapes/round_hall.tres" id="x_shape_round_hall"]
 [ext_resource type="Resource" path="res://data/props/furniture/broken_column.tres" id="x_pillar_broken_column"]
 [ext_resource type="Resource" path="res://data/props/furniture/stone_pillar.tres" id="x_pillar_stone_pillar"]
+[ext_resource type="Resource" path="res://data/biomes/ceilings/cinders.tres" id="x_ceiling"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wg6do"]
 atlas = ExtResource("2_uldkb")
@@ -70,6 +71,7 @@ wall_bias = 0.2
 
 [resource]
 script = ExtResource("14_mpyfs")
+ceiling = ExtResource("x_ceiling")
 pillars = Array[ExtResource("8_uldkb")]([ExtResource("x_pillar_broken_column"), ExtResource("x_pillar_stone_pillar")])
 plain_weight = 35
 room_shapes = Array[ExtResource("x_room_shape_def")]([ExtResource("x_shape_chasm_room"), ExtResource("x_shape_l_room"), ExtResource("x_shape_cross_room"), ExtResource("x_shape_pillared_hall"), ExtResource("x_shape_ring_room"), ExtResource("x_shape_round_hall")])

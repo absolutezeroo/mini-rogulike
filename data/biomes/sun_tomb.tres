@@ -29,6 +29,7 @@
 [ext_resource type="Resource" path="res://data/biomes/shapes/gallery.tres" id="x_shape_gallery"]
 [ext_resource type="Resource" path="res://data/biomes/shapes/shrine.tres" id="x_shape_shrine"]
 [ext_resource type="Resource" path="res://data/props/furniture/sandstone_pillar.tres" id="x_pillar_sandstone_pillar"]
+[ext_resource type="Resource" path="res://data/biomes/ceilings/dead_sun.tres" id="x_ceiling"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_lecpv"]
 atlas = ExtResource("4_85e7w")
@@ -69,6 +70,7 @@ roughness = 0.4
 
 [resource]
 script = ExtResource("17_gjr08")
+ceiling = ExtResource("x_ceiling")
 pillars = Array[ExtResource("8_c2h0d")]([ExtResource("x_pillar_sandstone_pillar")])
 plain_weight = 35
 room_shapes = Array[ExtResource("x_room_shape_def")]([ExtResource("x_shape_pillared_hall"), ExtResource("x_shape_grid_hall"), ExtResource("x_shape_octagon_hall"), ExtResource("x_shape_chasm_room"), ExtResource("x_shape_gallery"), ExtResource("x_shape_shrine")])

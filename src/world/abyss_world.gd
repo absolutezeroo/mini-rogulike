@@ -44,6 +44,7 @@ func build_depths(fell_depth: int, content: ContentDB, abyss: AbyssDef, seed_val
 			for x in range(-2, 3):
 				taken[spot + Vector2i(x, y)] = true
 	FloorDresser.dress(self, taken, false)
+	lay_ceiling()
 	_place_holes(taken)
 	door = AbyssDoor.new()
 	door.name = "DawnBreach"

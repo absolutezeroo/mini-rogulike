@@ -168,8 +168,86 @@ func run_game(game: Game) -> void:
 	check(problems.is_empty(), "shaped rooms as built: nothing in the rock, a chasm or a pool, every chasm a hole, every pool water, every pillar standing, every open cell reachable (%d: %s)" % [problems.size(), ", ".join(problems.slice(0, 5))])
 	check(seen_features.has(DungeonMap.Feature.CHASM) and seen_features.has(DungeonMap.Feature.POOL) and seen_pillars > 0, "chasms, pools and pillars on the floors built (%s, %d pillars)" % [str(seen_features.keys()), seen_pillars])
 	check(minimap_checked, "the minimap draws a round room round, its pool blue and its chasm black")
+	await _test_ceilings(game)
 	await _clear_monsters(game.world)
 	game.depth = depth_before
+
+
+## The ceiling (CeilingDef, CeilingLayer): every biome's floors get theirs, on the art's grid,
+## over the actors but under the light; it fades away over the hero and over a monster, and
+## comes back away from them; never over a boss arena.
+func _test_ceilings(game: Game) -> void:
+	var dungeon := CONTENT.dungeon
+	var bare: Array[String] = []
+	var off_grid: Array[String] = []
+	var kinds := {}
+	for a in dungeon.acts.size():
+		for biome in dungeon.acts[a].biomes:
+			check(biome.ceiling != null and biome.ceiling.atlas != null and not biome.ceiling.pieces.is_empty(), "%s: something hangs over its rooms" % biome.id)
+			var pieces := 0
+			for attempt in 2:
+				game.world.forced_biome = biome
+				await game.debug_enter_floor(dungeon.first_depth(a) + 1 + attempt)
+				var layer := game.world.ceiling
+				if layer == null:
+					continue
+				pieces += layer.laid.size()
+				for one in layer.laid:
+					kinds[one.def.where] = true
+					for target in one.targets:
+						if fmod(target.position.x, 2.0) != 0.0 or fmod(target.position.y, 2.0) != 0.0 or fmod(absf(target.size.x), 2.0) != 0.0:
+							off_grid.append("%s %s" % [biome.id, target])
+			if pieces < 6:
+				bare.append("%s (%d)" % [biome.id, pieces])
+	check(bare.is_empty(), "every biome's floors have a ceiling, a good few pieces on two floors (too few: %s)" % ", ".join(bare))
+	check(off_grid.is_empty(), "every ceiling piece lies on the art's grid, drawn at 2x (%s)" % ", ".join(off_grid.slice(0, 3)))
+	check(kinds.size() == CeilingPieceDef.Where.size(), "pieces hang from top walls, side walls, corners, over the rooms and across them (%d kinds)" % kinds.size())
+	# Its layers: over the bodies, under the floor's light and the mist; shadows under the bodies.
+	game.world.forced_biome = load("res://data/biomes/crypt.tres")
+	await game.debug_enter_floor(dungeon.first_depth(1) + 1)
+	var world := game.world
+	var layer := world.ceiling
+	check(layer != null and not layer.laid.is_empty(), "the crypt's floor has its chains and webs")
+	if layer == null or layer.laid.is_empty():
+		return
+	var chunks := layer.get_children().filter(func(n: Node) -> bool: return n is CeilingLayer.Chunk)
+	var drawn := chunks.filter(func(c: CeilingLayer.Chunk) -> bool: return not c.shadows)
+	var shades := chunks.filter(func(c: CeilingLayer.Chunk) -> bool: return c.shadows)
+	check(not drawn.is_empty() and drawn.all(func(c: CeilingLayer.Chunk) -> bool: return c.z_index > 0 and c.z_index < LightField.Z and c.material != null),
+		"the ceiling draws over the bodies (z %d), under the floor's light (z %d), through its fading shader" % [CeilingLayer.Z, LightField.Z])
+	check(shades.all(func(c: CeilingLayer.Chunk) -> bool: return c.z_index < 0), "its shadows lie on the floor, under the bodies")
+	check(chunks.size() < 2 * ceili(float(world.map.width) / CeilingLayer.CHUNK) * ceili(float(world.map.height) / CeilingLayer.CHUNK) + 1, "batched in chunks (%d canvas items for %d pieces)" % [chunks.size(), layer.laid.size()])
+	# Over the hero: gone around him, there again away from him.
+	var piece: CeilingLayer.Laid = layer.laid[0]
+	for one in layer.laid:
+		if one.def.where == CeilingPieceDef.Where.OVER_ROOM:
+			piece = one
+	var player := game.player
+	var spot := piece.targets[0].get_center()
+	player.global_position = Vector2(spot.x, piece.targets[0].end.y + 20.0)
+	await _frames(2)
+	check(layer.bodies.size() >= 1 and Vector2(layer.bodies[0].x, layer.bodies[0].y).distance_to(player.global_position) < 0.1, "the shader knows where the hero is, first of all")
+	check(layer.shown_at(player.head_position()) == 0.0 and layer.shown_at(piece.targets[0].end - Vector2(piece.targets[0].size.x * 0.5, 4.0)) == 0.0, "the piece over the hero is gone around him")
+	check(layer.shown_at(player.global_position + Vector2(0, -160)) == 1.0 and layer.shown_at(player.global_position + Vector2(200, 0)) == 1.0, "...and whole a little way off")
+	# Over a monster too.
+	await _clear_monsters(world)
+	player.global_position = spot + Vector2(200, 60)
+	player.camera.reset_smoothing()
+	var rat := world.spawn_monster(load("res://data/monsters/rat.tres"), Vector2(spot.x, piece.targets[0].end.y + 20.0))
+	rat.dormant = true
+	await _frames(3)
+	check(layer.shown_at(rat.head_position()) == 0.0, "a monster under it is not hidden either")
+	rat.queue_free()
+	# Never over a boss arena.
+	var boss_depth := 0
+	for depth in range(2, 20):
+		if dungeon.boss_for_depth(depth) != null:
+			boss_depth = depth
+			break
+	await game.debug_enter_floor(boss_depth)
+	world = game.world
+	var over_arena := world.ceiling.laid.filter(func(one: CeilingLayer.Laid) -> bool: return world.map.boss_room.has_point(world.map.world_to_cell(one.under))) if world.ceiling else []
+	check(over_arena.is_empty(), "nothing hangs over a boss arena")
 
 
 ## What is wrong on the floor `world` holds (empty: nothing).

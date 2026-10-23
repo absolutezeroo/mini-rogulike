@@ -1,0 +1,85 @@
+[gd_resource type="Resource" script_class="CeilingDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/ceiling_def.gd" id="1_ceiling"]
+[ext_resource type="Script" path="res://src/definitions/biomes/ceiling_piece_def.gd" id="2_piece"]
+[ext_resource type="Texture2D" path="res://assets/tiles/ceiling/grotto.png" id="3_atlas"]
+
+[sub_resource type="Resource" id="Piece_stalactites_a"]
+script = ExtResource("2_piece")
+region = Rect2i(0, 0, 16, 20)
+density = 0.3
+max_per_room = 2
+spacing = 3
+in_corridors = true
+
+[sub_resource type="Resource" id="Piece_stalactites_b"]
+script = ExtResource("2_piece")
+region = Rect2i(18, 0, 16, 29)
+density = 0.3
+max_per_room = 2
+spacing = 3
+in_corridors = true
+
+[sub_resource type="Resource" id="Piece_stalactites_c"]
+script = ExtResource("2_piece")
+region = Rect2i(36, 0, 16, 30)
+density = 0.25
+max_per_room = 1
+spacing = 3
+
+[sub_resource type="Resource" id="Piece_roots_a"]
+script = ExtResource("2_piece")
+region = Rect2i(54, 0, 16, 27)
+density = 0.18
+max_per_room = 1
+spacing = 3
+in_corridors = true
+
+[sub_resource type="Resource" id="Piece_roots_b"]
+script = ExtResource("2_piece")
+region = Rect2i(72, 0, 16, 26)
+density = 0.18
+max_per_room = 1
+spacing = 3
+
+[sub_resource type="Resource" id="Piece_roots_c"]
+script = ExtResource("2_piece")
+region = Rect2i(90, 0, 16, 38)
+density = 0.15
+max_per_room = 1
+spacing = 3
+
+[sub_resource type="Resource" id="Piece_moss_a"]
+script = ExtResource("2_piece")
+region = Rect2i(108, 0, 32, 13)
+density = 0.15
+max_per_room = 1
+spacing = 3
+
+[sub_resource type="Resource" id="Piece_moss_b"]
+script = ExtResource("2_piece")
+region = Rect2i(142, 0, 32, 14)
+density = 0.15
+max_per_room = 1
+spacing = 3
+
+[sub_resource type="Resource" id="Piece_side_roots_a"]
+script = ExtResource("2_piece")
+region = Rect2i(176, 0, 10, 29)
+where = 1
+density = 0.1
+max_per_room = 1
+spacing = 3
+
+[sub_resource type="Resource" id="Piece_side_roots_b"]
+script = ExtResource("2_piece")
+region = Rect2i(188, 0, 10, 18)
+where = 1
+density = 0.1
+max_per_room = 1
+spacing = 3
+
+[resource]
+script = ExtResource("1_ceiling")
+atlas = ExtResource("3_atlas")
+pieces = Array[ExtResource("2_piece")]([SubResource("Piece_stalactites_a"), SubResource("Piece_stalactites_b"), SubResource("Piece_stalactites_c"), SubResource("Piece_roots_a"), SubResource("Piece_roots_b"), SubResource("Piece_roots_c"), SubResource("Piece_moss_a"), SubResource("Piece_moss_b"), SubResource("Piece_side_roots_a"), SubResource("Piece_side_roots_b")])

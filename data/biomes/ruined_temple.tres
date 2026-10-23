@@ -24,6 +24,7 @@
 [ext_resource type="Resource" path="res://data/biomes/shapes/chasm_room.tres" id="x_shape_chasm_room"]
 [ext_resource type="Resource" path="res://data/biomes/shapes/gallery.tres" id="x_shape_gallery"]
 [ext_resource type="Resource" path="res://data/props/furniture/white_pillar.tres" id="x_pillar_white_pillar"]
+[ext_resource type="Resource" path="res://data/biomes/ceilings/temple.tres" id="x_ceiling"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_6i532"]
 atlas = ExtResource("3_0ny6d")
@@ -75,6 +76,7 @@ roughness = 0.15
 
 [resource]
 script = ExtResource("14_kdxxt")
+ceiling = ExtResource("x_ceiling")
 pillars = Array[ExtResource("8_a003p")]([ExtResource("x_pillar_white_pillar")])
 plain_weight = 35
 room_shapes = Array[ExtResource("x_room_shape_def")]([ExtResource("x_shape_pillared_hall"), ExtResource("x_shape_pillared_round"), ExtResource("x_shape_octagon_hall"), ExtResource("x_shape_cross_room"), ExtResource("x_shape_chasm_room"), ExtResource("x_shape_gallery")])

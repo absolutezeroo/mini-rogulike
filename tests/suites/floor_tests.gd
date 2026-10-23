@@ -790,7 +790,11 @@ func _test_hazards(game: Game, world: World, player: Player) -> void:
 	await _frames(2)
 	check(not chest.is_open, "a chest stays shut until the hero comes")
 	var loot_before := get_tree().get_nodes_in_group("pickups").size()
+	# (Whatever the hero carries already: a potion over the carry cap would come as gold.)
+	var carry_cap := CONTENT.dungeon.consumable_carry_cap
+	CONTENT.dungeon.consumable_carry_cap = 99
 	chest.open()
+	CONTENT.dungeon.consumable_carry_cap = carry_cap
 	await _frames(2)
 	check(get_tree().get_nodes_in_group("pickups").size() > loot_before, "a chest gives items")
 	var trap_cell := _open_cell_near(world, player.global_position, 2)

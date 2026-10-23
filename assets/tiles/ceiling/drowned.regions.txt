@@ -1,0 +1,9 @@
+stalactites_a 0 0 16 24
+stalactites_b 18 0 16 25
+stalactites_c 36 0 16 27
+moss_a 54 0 32 14
+moss_b 88 0 32 14
+moss_c 122 0 24 13
+roots_a 148 0 16 25
+roots_b 166 0 16 15
+side_moss_a 184 0 10 28

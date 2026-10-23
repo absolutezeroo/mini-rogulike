@@ -1,0 +1,6 @@
+arch 0 0 48 16
+arch_b 50 0 48 16
+awning_a 100 0 32 13
+awning_b 134 0 32 13
+fronds 168 0 32 20
+sand_lip 202 0 8 4
