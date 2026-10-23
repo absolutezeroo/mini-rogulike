@@ -245,9 +245,13 @@ told at the bottom (their first chapters never name him), their last words as th
 
 ## 9. Still open (decide before writing these)
 
-- Whether "take his place" leads to a new game mode (endless as the keeper). Today both
-  endings lead to the same victory screen (and endless mode if the player keeps going); the
-  choice is kept in the profile (`Profile.ending`) for whatever comes next.
+- What "take his place" leads to in detail. Decided (not built yet, roadmap): the hero who takes
+  the place becomes **the Nameless Keeper**, and the next run's last fight is against him (that
+  run's weapon, skills and relics) instead of Tôma; beating yourself frees you and the choice
+  comes again. Later, a mode of its own, **the Vigil** (« La Veille »): the Nameless Keeper holds
+  the seal night after night against the Maw's waves, scored in nights held. Today both endings
+  still lead to the same victory screen (and endless mode); the choice is kept in the profile
+  (`Profile.ending`).
 - **The curved blade's school.** The Katana is "the curved blade of the shrine's keepers", and
   Vardan's school of Solhar's temple guards fought with the same curved single-edged blade
   ("one edge, one loyalty"). Who taught whom (the first keeper, a knight Solhar claims?) is not
