@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="RoomShapeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="1_shape"]
+
+[resource]
+script = ExtResource("1_shape")
+size_min = Vector2i(15, 13)
+size_max = Vector2i(17, 15)
+pillars = 3
+pillar_spacing = 3
+max_per_floor = 1
+id = &"grid_hall"
+display_name = "Hall of Columns"
+spawn_weight = 4

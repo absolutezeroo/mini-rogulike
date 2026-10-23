@@ -21,6 +21,16 @@
 [ext_resource type="Resource" path="res://data/biomes/scenes/ossuary_tomb.tres" id="16_w8jrq"]
 [ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="17_gjr08"]
 [ext_resource type="Resource" path="res://data/dungeon/themes/sun_tomb.tres" id="18_qf6n7"]
+[ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="x_room_shape_def"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/pillared_hall.tres" id="x_shape_pillared_hall"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/grid_hall.tres" id="x_shape_grid_hall"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/octagon_hall.tres" id="x_shape_octagon_hall"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/chasm_room.tres" id="x_shape_chasm_room"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/gallery.tres" id="x_shape_gallery"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/shrine.tres" id="x_shape_shrine"]
+[ext_resource type="Resource" path="res://data/props/furniture/sandstone_pillar.tres" id="x_pillar_sandstone_pillar"]
+[ext_resource type="Resource" path="res://data/biomes/ceilings/dead_sun.tres" id="x_ceiling"]
+[ext_resource type="Resource" path="res://data/biomes/set_pieces/dead_sun_pit.tres" id="x_set_dead_sun_pit"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_lecpv"]
 atlas = ExtResource("4_85e7w")
@@ -61,6 +71,11 @@ roughness = 0.4
 
 [resource]
 script = ExtResource("17_gjr08")
+set_pieces = Array[ExtResource("x_room_shape_def")]([ExtResource("x_set_dead_sun_pit")])
+ceiling = ExtResource("x_ceiling")
+pillars = Array[ExtResource("8_c2h0d")]([ExtResource("x_pillar_sandstone_pillar")])
+plain_weight = 35
+room_shapes = Array[ExtResource("x_room_shape_def")]([ExtResource("x_shape_pillared_hall"), ExtResource("x_shape_grid_hall"), ExtResource("x_shape_octagon_hall"), ExtResource("x_shape_chasm_room"), ExtResource("x_shape_gallery"), ExtResource("x_shape_shrine")])
 theme = ExtResource("18_qf6n7")
 grounds = Array[ExtResource("5_i6fqq")]([SubResource("Resource_qw5g7")])
 scenes = Array[ExtResource("9_8gody")]([ExtResource("10_p8x4s"), ExtResource("11_nijve"), ExtResource("12_isrdg"), ExtResource("13_tyh2p"), ExtResource("14_ln3u6"), ExtResource("15_bkkfm"), ExtResource("16_w8jrq")])

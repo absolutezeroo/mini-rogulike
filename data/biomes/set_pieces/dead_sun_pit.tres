@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="RoomShapeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="1_shape"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/gold_rim.tres" id="2_scene"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="3_scenedef"]
+
+[resource]
+script = ExtResource("1_shape")
+outline = 1
+size_min = Vector2i(17, 17)
+size_max = Vector2i(17, 17)
+square = true
+core = 2
+core_outline = 1
+core_margin = 4
+bridges = 4
+bridge_width = 2
+set_piece = true
+scenes = Array[ExtResource("3_scenedef")]([ExtResource("2_scene"), ExtResource("2_scene"), ExtResource("2_scene")])
+ceiling_scale = 3.0
+description = "Gold heaped at the edge of the hole where a sun was buried."
+color = Color(1.0, 0.85, 0.4, 1)
+max_per_floor = 1
+quiet_room = false
+id = &"dead_sun_pit"
+display_name = "The Pit of the Dead Sun"
+spawn_weight = 10

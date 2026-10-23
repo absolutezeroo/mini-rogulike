@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_key"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_prop"]
+[ext_resource type="Resource" path="res://data/props/furniture/gold_basket.tres" id="3_basket"]
+[ext_resource type="Texture2D" path="res://assets/tiles/furniture.png" id="4_furniture"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="5_scene"]
+
+[sub_resource type="Resource" id="Resource_basket"]
+script = ExtResource("1_key")
+symbol = "b"
+props = Array[ExtResource("2_prop")]([ExtResource("3_basket")])
+chance = 0.7
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_coins"]
+atlas = ExtResource("4_furniture")
+region = Rect2(112, 160, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cup"]
+atlas = ExtResource("4_furniture")
+region = Rect2(128, 48, 16, 16)
+
+[sub_resource type="Resource" id="Resource_gold"]
+script = ExtResource("1_key")
+symbol = "g"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_coins"), SubResource("AtlasTexture_coins"), SubResource("AtlasTexture_cup")])
+chance = 0.7
+
+[resource]
+script = ExtResource("5_scene")
+rows = PackedStringArray("g.g.g", ".gbg.")
+keys = Array[ExtResource("1_key")]([SubResource("Resource_basket"), SubResource("Resource_gold")])
+id = &"gold_rim"
+display_name = "Gold at the Edge"
+spawn_weight = 0

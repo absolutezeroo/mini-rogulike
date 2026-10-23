@@ -16,6 +16,16 @@
 [ext_resource type="Resource" path="res://data/biomes/scenes/orb_niche.tres" id="13_5gqxp"]
 [ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="14_kdxxt"]
 [ext_resource type="Resource" path="res://data/dungeon/themes/temple.tres" id="15_dsjyk"]
+[ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="x_room_shape_def"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/pillared_hall.tres" id="x_shape_pillared_hall"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/pillared_round.tres" id="x_shape_pillared_round"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/octagon_hall.tres" id="x_shape_octagon_hall"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/cross_room.tres" id="x_shape_cross_room"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/chasm_room.tres" id="x_shape_chasm_room"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/gallery.tres" id="x_shape_gallery"]
+[ext_resource type="Resource" path="res://data/props/furniture/white_pillar.tres" id="x_pillar_white_pillar"]
+[ext_resource type="Resource" path="res://data/biomes/ceilings/temple.tres" id="x_ceiling"]
+[ext_resource type="Resource" path="res://data/biomes/set_pieces/pyre_circle.tres" id="x_set_pyre_circle"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_6i532"]
 atlas = ExtResource("3_0ny6d")
@@ -67,6 +77,11 @@ roughness = 0.15
 
 [resource]
 script = ExtResource("14_kdxxt")
+set_pieces = Array[ExtResource("x_room_shape_def")]([ExtResource("x_set_pyre_circle")])
+ceiling = ExtResource("x_ceiling")
+pillars = Array[ExtResource("8_a003p")]([ExtResource("x_pillar_white_pillar")])
+plain_weight = 35
+room_shapes = Array[ExtResource("x_room_shape_def")]([ExtResource("x_shape_pillared_hall"), ExtResource("x_shape_pillared_round"), ExtResource("x_shape_octagon_hall"), ExtResource("x_shape_cross_room"), ExtResource("x_shape_chasm_room"), ExtResource("x_shape_gallery")])
 theme = ExtResource("15_dsjyk")
 grounds = Array[ExtResource("4_xu4j5")]([SubResource("Resource_v8frx")])
 scenes = Array[ExtResource("8_a48jq")]([ExtResource("9_33tul"), ExtResource("10_v8frx"), ExtResource("11_c6024"), ExtResource("12_76v5e"), ExtResource("13_5gqxp")])

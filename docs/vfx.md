@@ -86,6 +86,21 @@ floor must never draw over the hero's feet, and a crystal must hide a monster st
 - A status on a body (`StatusFx`) is on the body (its crust, flames, bubbles sort with it); its
   mist at the feet is GROUND. The body itself is painted by its own shader (section 9).
 
+### The ceiling: over the bodies, never hiding them
+
+What hangs over the rooms (`CeilingLayer`, design/dungeon.md "Ceilings": roots, chains, banners,
+arches) is decor, not an effect, but it is the one thing drawn **over the actors** that is not
+in flight: z 2, over the Entities (z 0), under the floor's light (`LightField.Z` 3, so a dark room
+darkens it like the rest) and the wall mist (4); its flat shadows lie on the floor at z -6, under
+the bodies. Its rule: **no body is ever under it on screen**. `ceiling.gdshader` takes the hero
+and the 15 nearest bodies in view each frame (feet, radius, height: a body is a segment from its
+feet to its head) and drops every art pixel of the ceiling within `CeilingDef.clear_radius` of a
+body's outline, then brings them back over `fade_band` by the 4x4 Bayer threshold of the art
+pixel on the world's grid: a dithered edge, never a smooth alpha. Telegraphs and shots are not
+under it (GROUND effects are under the bodies anyway; AIR ones at z 5-6 draw over it). Its art
+is the pack's: one art pixel per texel at 2x, a 1-pixel dark outline, the pack's palette, on
+positions snapped to 2 units (the tests check every piece).
+
 ### The hero's own effects never cover him
 
 The hero is the most readable thing on screen (section 2), and the effects he makes himself are

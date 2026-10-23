@@ -37,9 +37,14 @@ func place(world: World, room: Rect2i, taken: Dictionary) -> void:
 	if rect.size == Vector2i.ZERO:
 		return
 	var cells: Array[Vector2i] = []
+	var blocked := {}
 	for y in range(rect.position.y, rect.end.y):
 		for x in range(rect.position.x, rect.end.x):
 			cells.append(Vector2i(x, y))
+			blocked[Vector2i(x, y)] = true
+	# Never cut the room in two (a ring round a rock, a ledge round a chasm: RoomShapeDef).
+	if not RoomSpace.stays_open(world, room, blocked):
+		return
 	# Never cut the stairs off (even once cracked floor has given way).
 	for cell in cells:
 		world.set_cell_blocked(cell, true)

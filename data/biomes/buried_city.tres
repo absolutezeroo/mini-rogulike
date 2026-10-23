@@ -22,6 +22,17 @@
 [ext_resource type="Resource" path="res://data/biomes/scenes/thicket.tres" id="17_mi7a8"]
 [ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="18_aladr"]
 [ext_resource type="Resource" path="res://data/dungeon/themes/desert.tres" id="19_7my64"]
+[ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="x_room_shape_def"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/l_room.tres" id="x_shape_l_room"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/cross_room.tres" id="x_shape_cross_room"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/pillared_hall.tres" id="x_shape_pillared_hall"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/oval_hall.tres" id="x_shape_oval_hall"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/pool_room.tres" id="x_shape_pool_room"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/gallery.tres" id="x_shape_gallery"]
+[ext_resource type="Resource" path="res://data/props/furniture/sandstone_pillar.tres" id="x_pillar_sandstone_pillar"]
+[ext_resource type="Resource" path="res://data/biomes/pools/oasis_water.tres" id="x_pool"]
+[ext_resource type="Resource" path="res://data/biomes/ceilings/dust_city.tres" id="x_ceiling"]
+[ext_resource type="Resource" path="res://data/biomes/set_pieces/throne_hall.tres" id="x_set_throne_hall"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_d8iow"]
 atlas = ExtResource("2_rfqor")
@@ -63,6 +74,12 @@ roughness = 0.4
 
 [resource]
 script = ExtResource("18_aladr")
+set_pieces = Array[ExtResource("x_room_shape_def")]([ExtResource("x_set_throne_hall")])
+ceiling = ExtResource("x_ceiling")
+pool = ExtResource("x_pool")
+pillars = Array[ExtResource("7_wske4")]([ExtResource("x_pillar_sandstone_pillar")])
+plain_weight = 35
+room_shapes = Array[ExtResource("x_room_shape_def")]([ExtResource("x_shape_l_room"), ExtResource("x_shape_cross_room"), ExtResource("x_shape_pillared_hall"), ExtResource("x_shape_oval_hall"), ExtResource("x_shape_pool_room"), ExtResource("x_shape_gallery")])
 theme = ExtResource("19_7my64")
 grounds = Array[ExtResource("4_gmate")]([SubResource("Resource_w26h2")])
 scenes = Array[ExtResource("8_h4vkj")]([ExtResource("9_iy4kh"), ExtResource("10_qgl3x"), ExtResource("11_qn6ac"), ExtResource("12_3s31w"), ExtResource("13_qst68"), ExtResource("14_faqe8"), ExtResource("15_fekjx"), ExtResource("17_mi7a8")])

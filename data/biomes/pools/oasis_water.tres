@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="GroundLayerDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/ground_layer_def.gd" id="1_ground"]
+[ext_resource type="Texture2D" path="res://assets/tiles/oasis_pond.png" id="2_water"]
+
+[resource]
+script = ExtResource("1_ground")
+texture = ExtResource("2_water")
+tile = Rect2i(16, 16, 16, 16)
+edge_color = Color(0.66, 0.63, 0.16, 1)
+coverage = 1.0
+roughness = 0.35
+shimmer = 1.0

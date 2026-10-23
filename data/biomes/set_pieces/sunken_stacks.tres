@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="RoomShapeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="1_shape"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/study.tres" id="2_scene"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/reading_corner.tres" id="3_scene"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="4_scenedef"]
+[ext_resource type="Resource" path="res://data/props/furniture/bookshelf.tres" id="5_pillar"]
+
+[resource]
+script = ExtResource("1_shape")
+outline = 4
+size_min = Vector2i(15, 15)
+size_max = Vector2i(15, 15)
+square = true
+arm = 0.5
+pillars = 2
+pillar_spacing = 3
+pillar = ExtResource("5_pillar")
+set_piece = true
+scenes = Array[ExtResource("4_scenedef")]([ExtResource("2_scene"), ExtResource("3_scene")])
+ceiling_scale = 2.5
+description = "Shelves in a ring round a reading desk. The ink has outlived the tongue it was written in."
+color = Color(0.9, 0.8, 0.6, 1)
+max_per_floor = 1
+id = &"sunken_stacks"
+display_name = "The Sunken Stacks"
+spawn_weight = 10

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="RoomShapeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="1_shape"]
+
+[resource]
+script = ExtResource("1_shape")
+outline = 4
+size_min = Vector2i(11, 11)
+size_max = Vector2i(13, 13)
+square = true
+arm = 0.45
+max_per_floor = 2
+id = &"octagon_hall"
+display_name = "Eight-Sided Hall"
+spawn_weight = 8

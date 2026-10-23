@@ -16,6 +16,11 @@ extends Resource
 @export var room_min_size: int = 7
 @export var room_max_size: int = 13
 @export_range(1, 5) var corridor_width: int = 3
+## The chasms and pools of shaped rooms (RoomShapeDef) in a biome without its own
+## (BiomeDef.chasm, BiomeDef.pool), and the pillars of a shape without one.
+@export var chasm: PitDef
+@export var pool: GroundLayerDef
+@export var pillar: PropDef
 
 @export_group("Stairs seal")
 ## The stairs of a normal floor open once the hero has slain this share of the floor's

@@ -1,0 +1,69 @@
+[gd_resource type="Resource" script_class="CeilingDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/ceiling_def.gd" id="1_ceiling"]
+[ext_resource type="Script" path="res://src/definitions/biomes/ceiling_piece_def.gd" id="2_piece"]
+[ext_resource type="Texture2D" path="res://assets/tiles/ceiling/dead_sun.png" id="3_atlas"]
+[ext_resource type="PackedScene" path="res://src/vfx/ambient/sand_trickle.tscn" id="4_emitter"]
+
+[sub_resource type="Resource" id="Piece_arch"]
+script = ExtResource("2_piece")
+region = Rect2i(0, 0, 48, 16)
+where = 4
+density = 0.35
+max_per_room = 1
+spacing = 3
+height = 56.0
+broken = 0.35
+
+[sub_resource type="Resource" id="Piece_chain_disc"]
+script = ExtResource("2_piece")
+region = Rect2i(50, 0, 16, 53)
+where = 3
+density = 0.04
+max_per_room = 1
+spacing = 5
+height = 64.0
+
+[sub_resource type="Resource" id="Piece_chain_disc_b"]
+script = ExtResource("2_piece")
+region = Rect2i(68, 0, 16, 41)
+where = 3
+density = 0.04
+max_per_room = 1
+spacing = 5
+height = 76.0
+
+[sub_resource type="Resource" id="Piece_swag_a"]
+script = ExtResource("2_piece")
+region = Rect2i(86, 0, 32, 12)
+density = 0.2
+max_per_room = 2
+spacing = 3
+in_corridors = true
+mirror = false
+
+[sub_resource type="Resource" id="Piece_sand_lip"]
+script = ExtResource("2_piece")
+region = Rect2i(120, 0, 8, 4)
+where = 3
+density = 0.05
+max_per_room = 1
+spacing = 5
+mirror = false
+height = 110.0
+emitter = ExtResource("4_emitter")
+emitter_offset = Vector2(0, 56)
+
+[sub_resource type="Resource" id="Piece_cobweb"]
+script = ExtResource("2_piece")
+region = Rect2i(130, 0, 16, 16)
+where = 2
+density = 0.3
+max_per_room = 1
+spacing = 2
+mirror = false
+
+[resource]
+script = ExtResource("1_ceiling")
+atlas = ExtResource("3_atlas")
+pieces = Array[ExtResource("2_piece")]([SubResource("Piece_arch"), SubResource("Piece_chain_disc"), SubResource("Piece_chain_disc_b"), SubResource("Piece_swag_a"), SubResource("Piece_sand_lip"), SubResource("Piece_cobweb")])

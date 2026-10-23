@@ -50,6 +50,11 @@ you can; by hand, keep the `[ext_resource]` paths right.
 | A biome | New `BiomeDef` in `data/biomes/` (a theme, grounds, scenes, decor, lights), add it to an act's Biomes |
 | A scene | New `SceneDef` in `data/biomes/scenes/`: write its plan (rows of symbols), its keys (what each symbol is), its anchor; add it to a biome's Scenes |
 | Furniture | New `PropDef` in `data/props/furniture/` (an atlas region of a tileset in `assets/tiles/`, a footprint), used in scenes |
+| A room shape | New `RoomShapeDef` in `data/biomes/shapes/` (an `outline`: RECT, OVAL, CROSS, L_SHAPE, OCTAGON; sizes, `square`, `arm`; a `core`: ROCK, CHASM, POOL with `core_margin` and `bridges`; `pillars`: ROWS, RING, GRID; `max_per_floor`, `quiet_room`, `spawn_weight`, `min_depth`), add it to the Room Shapes of the biomes it suits (`plain_weight` there weighs the plain rectangle). The generator keeps every floor one piece whatever the shape; LevelTests checks every biome's floors. See below |
+| Pillars, a chasm's or a pool's look for a biome | `BiomeDef` > Rooms: `pillars` (1x1 props), `chasm` (a `PitDef`'s holes), `pool` (a `GroundLayerDef` of deep water, `data/biomes/pools/`) |
+| A signature room | New `RoomShapeDef` in `data/biomes/set_pieces/` with `set_piece` on, a `display_name` and a `description` (the banner and the log line, in the Well's voice: translate both), its `scenes` (put first, the only ones in it; CENTER or ANYWHERE anchors fit round rooms best), its `pillar`, `ceiling_scale`, `color`; add it to the biome's Set Pieces (`set_piece_chance` there) |
+| What hangs over a biome's rooms | A `CeilingDef` in `data/biomes/ceilings/` (its `atlas`, `pieces`, `shadow_color`, the fade's `clear_radius` and `fade_band`, `density_scale`), set as the biome's Ceiling. See below |
+| A ceiling piece | Draw it into the ceiling's atlas (`tools/levels/level_art.py`: a function drawing on a `Canvas` in the pack's palette, added to the ceiling's `pack(...)` list; run it, it prints the regions in `assets/tiles/ceiling/<name>.regions.txt`; then `godot --headless --import`), and add a `CeilingPieceDef` sub-resource to the `CeilingDef` (its `region`, `where`, `density`, `max_per_room`, `spacing`, `height`, `broken`, an `emitter` scene) |
 | A curse | New `CurseDef` in `data/curses/` (temperature, campfires or springs, darkness, look, lore), add it to `content_db.tres` > Curses |
 | Another boss for an act | New `BossDef`, add it to the act's Other Bosses |
 | A boss of several forms | Its next form in `BossDef.next_boss` (it rises in the same arena; `arena_anchor`, `body_stays`, `rise_time`) |
@@ -104,6 +109,34 @@ elites happen, is in `dungeon_config.tres`.
 
 `min_depth` and `spawn_weight` control where and how often something appears.
 A `spawn_weight` of 0 means it never spawns on its own (starting gear, loot-only items, monster weapons).
+
+## Rooms, ceilings and signature rooms
+
+What they are for the player: [design/dungeon.md](design/dungeon.md#room-shapes) ("Room shapes",
+"Ceilings", "Signature rooms").
+
+- **A room shape.** Copy a file of `data/biomes/shapes/` and change it. Keep a ROCK core 4 cells or
+  more each way (thinner rock is opened up as a too thin wall) and a rim (`core_margin`) of 2 or
+  more round a chasm or a pool; give a big shape a `max_per_floor`. A chasm drops the hero into
+  the Deeps: `quiet_room` off and a `min_depth` of 2 keep it off the first floor and away from the
+  merchant. Add it to biomes' Room Shapes, run the unit suite (LevelTests makes 20 floors a biome
+  at every difficulty's size and checks each is one piece with solid walls, every shape listed
+  comes out), then look at it: `tools/levels/level_shots.tscn` (`biome:shape` forces a floor of it,
+  `biome:shape:set` a signature room, `biome:map` the big map; usage at the top of its script).
+- **A signature room.** A shape with `set_piece` in `data/biomes/set_pieces/`. Its scenes are the
+  only ones in it: give it two or three that say what the place is (new ones go in
+  `data/biomes/scenes/` with `spawn_weight` 0 when no biome should draw them by itself). Its name
+  and line are seen: `python3 tools/i18n/extract.py`, the French (the `lore` and `translate`
+  skills: the place's truth in docs/lore.md section 4; never a name the reveal schedule keeps for
+  later). The game suite forces each one on a floor and checks it as built.
+- **A ceiling.** One atlas a ceiling (one draw call a chunk): draw its pieces with
+  `tools/levels/level_art.py` (`roots`, `vines`, `stalactites`, `hanging_chain` with its ends,
+  `chain_swag`, `cobweb`, `banner`, `beam`, `arch`, `awning`... or a new function: one art pixel per
+  texel, a 1-pixel `OUT` outline, 3-5 colors of the pack, lit from the top left), list them in
+  its `pack(...)`, run the script, import, and write the `CeilingDef` with one `CeilingPieceDef`
+  per piece (the regions from `<name>.regions.txt`). Keep pieces mostly along the walls and a few
+  over the rooms: the fade keeps the bodies clear, not the telegraphs on the floor. Look at it in
+  a few rooms with the hero under a piece (`biome:ceiling`).
 
 ## The story: chronicles, fragments, conditions, deeds, cinematics
 

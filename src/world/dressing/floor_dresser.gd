@@ -83,7 +83,8 @@ static func _noise(rng: RandomNumberGenerator, scale: float) -> FastNoiseLite:
 
 static func _lay_ground(world: World, layer: GroundLayerDef, walls: Dictionary) -> void:
 	var noise := _noise(world.rng, layer.noise_scale)
-	var floor_cells: Array = walls.keys()
+	# Never over a chasm or a pool (a shaped room's core).
+	var floor_cells: Array = walls.keys().filter(func(cell: Vector2i) -> bool: return not world.map.features.has(cell))
 	if floor_cells.is_empty():
 		return
 	var scores := PackedFloat32Array()
@@ -103,7 +104,7 @@ static func _lay_ground(world: World, layer: GroundLayerDef, walls: Dictionary) 
 	# Smooth it out: no lone cells, no pinholes.
 	for pass_index in 2:
 		var smoothed := {}
-		for cell: Vector2i in walls:
+		for cell: Vector2i in floor_cells:
 			var around := 0
 			for dir: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
 				if cells.has(cell + dir):
@@ -133,6 +134,16 @@ static func _place_scenes(world: World, biome: BiomeDef, taken: Dictionary, stan
 		var big := room.get_area() >= biome.big_room_area
 		var wanted := rng.randi_range(biome.scenes_big_room.x, biome.scenes_big_room.y) if big \
 			else rng.randi_range(biome.scenes_small_room.x, biome.scenes_small_room.y)
+		# A shape's own scenes first (RoomShapeDef.scenes), in their order; a signature room has
+		# only its own (it is that place, nothing else).
+		var shape := map.plan(i).shape
+		if shape:
+			for scene in shape.scenes:
+				if scene and scene.try_place(world, room, taken, rng, standing):
+					placed[scene] = placed.get(scene, 0) + 1
+					wanted -= 1
+			if shape.set_piece:
+				wanted = 0
 		var tries := wanted * 4
 		while wanted > 0 and tries > 0:
 			tries -= 1

@@ -13,6 +13,12 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 	var spread := maxf(float(map.rooms.size()) / maxf(config.max_rooms, 1.0), 1.0)
 	var taken := {}  # cells used by props and hazards
 	_reserve_around(taken, map.start_cell, 2)
+	# The shaped rooms' chasms and pools, a step around them (nothing knocked in at once, the
+	# rim kept clear), and their pillars (RoomFeatures put them up already).
+	for cell: Vector2i in map.features:
+		_reserve_around(taken, cell, 1)
+	for cell: Vector2i in map.pillars:
+		taken[cell] = true
 	for cell in map.exit_cells():
 		_reserve_around(taken, cell, 1)
 	# Nothing in front of a cracked wall (SecretRoomPlan): the way to it stays clear.
@@ -30,7 +36,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 	if config.merchant and (rng.randf() < config.merchant_chance or (event and event.merchant)):
 		merchant_index = _pick_quiet_room(map, rng, -1)
 		if merchant_index >= 0:
-			var cell := map.rooms[merchant_index].get_center()
+			var cell := map.heart(merchant_index)
 			world.spawn_merchant(config.merchant, cell)
 			_reserve_around(taken, cell, 1)
 
@@ -43,7 +49,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 	if config.forge and rng.randf() < config.forge_chance + config.forge_chance_growth * world.floors_without_forge:
 		forge_index = _pick_quiet_room(map, rng, merchant_index)
 		if forge_index >= 0:
-			var cell := map.rooms[forge_index].get_center()
+			var cell := map.heart(forge_index)
 			world.spawn_forge(config.forge, cell)
 			_reserve_around(taken, cell, 2)
 			place_lights(world, config, map.rooms[forge_index], taken)
@@ -89,7 +95,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 			if index in encounter_rooms or index == merchant_index or index == forge_index \
 					or index == ambush_index or index == pact_index:
 				continue
-			var cell := _free_near_middle(world, map.rooms[index], taken)
+			var cell := _free_near_middle(world, index, taken)
 			if cell != Vector2i(-1, -1):
 				world.spawn_encounter(encounter, cell)
 				_reserve_around(taken, cell, config.encounter_clearance)
@@ -154,8 +160,11 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 		for n in counts[i]:
 			var def := content.pick_monster(depth, rng)
 			if def:
-				var monster := world.spawn_monster(def, _free_point_in(world, room, rng, taken))
+				var monster := world.spawn_monster(def, _free_point_in(world, room, rng, taken, World.room_for(def)))
 				world.roll_elite(monster)
+				# An elite grew: its bigger body must fit where it stands too.
+				if monster.radius > World.room_for(def) and not _fits(world, monster.global_position, monster.radius):
+					monster.global_position = _free_point_in(world, room, rng, taken, monster.radius)
 				monster.floor_index = floor_index  # (the seed's order: a resumed run's same monster)
 				floor_index += 1
 
@@ -205,9 +214,10 @@ static func place_curse(world: World, curse: CurseDef, taken: Dictionary) -> voi
 			wanted -= 1
 
 
-## The free cell closest to the middle of `room` (at most 2 cells away), or (-1, -1).
-static func _free_near_middle(world: World, room: Rect2i, taken: Dictionary) -> Vector2i:
-	var middle := room.get_center()
+## The free cell closest to the heart of room `index` (at most 2 cells away), or (-1, -1).
+static func _free_near_middle(world: World, index: int, taken: Dictionary) -> Vector2i:
+	var room := world.map.rooms[index]
+	var middle := world.map.heart(index)
 	for radius in 3:
 		for dy in range(-radius, radius + 1):
 			for dx in range(-radius, radius + 1):
@@ -218,12 +228,13 @@ static func _free_near_middle(world: World, room: Rect2i, taken: Dictionary) -> 
 	return Vector2i(-1, -1)
 
 
-## A big enough room, not the first one, without the stairs and not `except` (-1 if none).
+## A big enough room, not the first one, without the stairs and not `except` (-1 if none); not
+## a chasm room nor a biome's signature room (RoomPlan.is_quiet()).
 static func _pick_quiet_room(map: DungeonMap, rng: RandomNumberGenerator, except: int) -> int:
 	var candidates: Array[int] = []
 	for i in range(1, map.rooms.size()):
 		var room := map.rooms[i]
-		if i != except and room.size.x >= 7 and room.size.y >= 7 and not map.exit_cells().any(func(c: Vector2i) -> bool: return room.grow(1).has_point(c)):
+		if i != except and map.plan(i).is_quiet() and room.size.x >= 7 and room.size.y >= 7 and not map.exit_cells().any(func(c: Vector2i) -> bool: return room.grow(1).has_point(c)):
 			candidates.append(i)
 	return candidates[rng.randi_range(0, candidates.size() - 1)] if not candidates.is_empty() else -1
 
@@ -323,16 +334,51 @@ static func _shuffled(cells: Array[Vector2i], rng: RandomNumberGenerator) -> Arr
 
 
 ## A random point in the room, on free ground (not on a prop, a trap, a chest, a pond, a hole).
-static func _free_point_in(world: World, room: Rect2i, rng: RandomNumberGenerator, taken: Dictionary) -> Vector2:
+## `radius`: a body that must fit there (a monster: nothing that stops it within it, a pillar, a
+## wall's corner, the water's edge); 0 for an item lying on the floor.
+static func _free_point_in(world: World, room: Rect2i, rng: RandomNumberGenerator, taken: Dictionary, radius: float = 0.0) -> Vector2:
 	var map := world.map
 	var cell := map.random_cell_in(room, rng)
-	var found := false
 	for attempt in 12:
 		if not taken.has(cell) and world.is_free_cell(cell):  # pillars of a themed room are walls
-			found = true
-			break
+			var center := map.cell_to_world(cell)
+			var at := center + Vector2(rng.randf_range(-8.0, 8.0), rng.randf_range(-8.0, 8.0))
+			if radius <= 0.0 or _fits(world, at, radius):
+				return at
+			if _fits(world, center, radius):
+				return center
 		cell = map.random_cell_in(room, rng)
-	if not found:
-		return world.nearest_free_point(map.cell_to_world(cell))
-	var jitter := Vector2(rng.randf_range(-8.0, 8.0), rng.randf_range(-8.0, 8.0))
-	return map.cell_to_world(cell) + jitter
+	if radius > 0.0:
+		# A big body in a round room, a crowded one: every free cell of the room, the first it fits in.
+		var cells: Array[Vector2i] = []
+		for y in range(room.position.y, room.end.y):
+			for x in range(room.position.x, room.end.x):
+				var spot := Vector2i(x, y)
+				if not taken.has(spot) and world.is_free_cell(spot):
+					cells.append(spot)
+		for spot in _shuffled(cells, rng):
+			if _fits(world, map.cell_to_world(spot), radius):
+				return map.cell_to_world(spot)
+	return world.nearest_free_point(map.cell_to_world(cell))
+
+
+## A body of `radius` fits at `point`: no wall, prop, pillar, pond or pool within it, by the
+## physics (what is there already) and by the grid (what was put up this very frame: a blocked
+## cell counts whole).
+static func _fits(world: World, point: Vector2, radius: float) -> bool:
+	if not world.body_fits(point, radius):
+		return false
+	var map := world.map
+	var ts := float(map.tile_size)
+	var reach := ceili(radius / ts) + 1
+	var at := map.world_to_cell(point)
+	for dy in range(-reach, reach + 1):
+		for dx in range(-reach, reach + 1):
+			var cell := at + Vector2i(dx, dy)
+			if map.is_floor(cell) and not world.nav.is_blocked(cell):
+				continue
+			var box := Rect2(Vector2(cell) * ts, Vector2(ts, ts))
+			var nearest := Vector2(clampf(point.x, box.position.x, box.end.x), clampf(point.y, box.position.y, box.end.y))
+			if nearest.distance_to(point) < radius:
+				return false
+	return true

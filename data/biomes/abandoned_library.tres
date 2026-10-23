@@ -19,6 +19,16 @@
 [ext_resource type="Resource" path="res://data/biomes/scenes/study.tres" id="14_qn1pa"]
 [ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="15_74xcq"]
 [ext_resource type="Resource" path="res://data/dungeon/themes/library.tres" id="16_vkg7y"]
+[ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="x_room_shape_def"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/pillared_hall.tres" id="x_shape_pillared_hall"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/gallery.tres" id="x_shape_gallery"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/l_room.tres" id="x_shape_l_room"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/cross_room.tres" id="x_shape_cross_room"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/grid_hall.tres" id="x_shape_grid_hall"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/octagon_hall.tres" id="x_shape_octagon_hall"]
+[ext_resource type="Resource" path="res://data/props/furniture/stone_pillar.tres" id="x_pillar_stone_pillar"]
+[ext_resource type="Resource" path="res://data/biomes/ceilings/archive.tres" id="x_ceiling"]
+[ext_resource type="Resource" path="res://data/biomes/set_pieces/sunken_stacks.tres" id="x_set_sunken_stacks"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_tqw4p"]
 atlas = ExtResource("2_tqw4p")
@@ -50,6 +60,11 @@ roughness = 0.25
 
 [resource]
 script = ExtResource("15_74xcq")
+set_pieces = Array[ExtResource("x_room_shape_def")]([ExtResource("x_set_sunken_stacks")])
+ceiling = ExtResource("x_ceiling")
+pillars = Array[ExtResource("7_e0dof")]([ExtResource("x_pillar_stone_pillar")])
+plain_weight = 40
+room_shapes = Array[ExtResource("x_room_shape_def")]([ExtResource("x_shape_pillared_hall"), ExtResource("x_shape_gallery"), ExtResource("x_shape_l_room"), ExtResource("x_shape_cross_room"), ExtResource("x_shape_grid_hall"), ExtResource("x_shape_octagon_hall")])
 theme = ExtResource("16_vkg7y")
 grounds = Array[ExtResource("4_6hrak")]([SubResource("Resource_4yqwd")])
 scenes = Array[ExtResource("8_n2px7")]([ExtResource("9_4yqwd"), ExtResource("10_lqu13"), ExtResource("11_ghhny"), ExtResource("12_457sd"), ExtResource("13_2gum3"), ExtResource("14_qn1pa")])

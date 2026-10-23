@@ -1,0 +1,66 @@
+[gd_resource type="Resource" script_class="CeilingDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/ceiling_def.gd" id="1_ceiling"]
+[ext_resource type="Script" path="res://src/definitions/biomes/ceiling_piece_def.gd" id="2_piece"]
+[ext_resource type="Texture2D" path="res://assets/tiles/ceiling/temple.png" id="3_atlas"]
+[ext_resource type="PackedScene" path="res://src/vfx/ambient/censer_smoke.tscn" id="4_emitter"]
+
+[sub_resource type="Resource" id="Piece_banner_a"]
+script = ExtResource("2_piece")
+region = Rect2i(0, 0, 16, 29)
+density = 0.3
+max_per_room = 2
+spacing = 3
+mirror = false
+
+[sub_resource type="Resource" id="Piece_banner_b"]
+script = ExtResource("2_piece")
+region = Rect2i(18, 0, 16, 35)
+density = 0.25
+max_per_room = 2
+spacing = 3
+mirror = false
+
+[sub_resource type="Resource" id="Piece_censer_a"]
+script = ExtResource("2_piece")
+region = Rect2i(36, 0, 12, 49)
+where = 3
+density = 0.04
+max_per_room = 1
+spacing = 5
+height = 72.0
+emitter = ExtResource("4_emitter")
+emitter_offset = Vector2(0, -26)
+
+[sub_resource type="Resource" id="Piece_censer_b"]
+script = ExtResource("2_piece")
+region = Rect2i(50, 0, 12, 39)
+where = 3
+density = 0.04
+max_per_room = 1
+spacing = 5
+height = 84.0
+emitter = ExtResource("4_emitter")
+emitter_offset = Vector2(0, -26)
+
+[sub_resource type="Resource" id="Piece_swag_a"]
+script = ExtResource("2_piece")
+region = Rect2i(64, 0, 32, 12)
+density = 0.15
+max_per_room = 1
+spacing = 3
+mirror = false
+
+[sub_resource type="Resource" id="Piece_cobweb"]
+script = ExtResource("2_piece")
+region = Rect2i(98, 0, 16, 16)
+where = 2
+density = 0.3
+max_per_room = 1
+spacing = 2
+mirror = false
+
+[resource]
+script = ExtResource("1_ceiling")
+atlas = ExtResource("3_atlas")
+pieces = Array[ExtResource("2_piece")]([SubResource("Piece_banner_a"), SubResource("Piece_banner_b"), SubResource("Piece_censer_a"), SubResource("Piece_censer_b"), SubResource("Piece_swag_a"), SubResource("Piece_cobweb")])

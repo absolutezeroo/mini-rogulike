@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="RoomShapeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="1_shape"]
+
+[resource]
+script = ExtResource("1_shape")
+outline = 3
+size_min = Vector2i(10, 10)
+size_max = Vector2i(14, 14)
+arm = 0.55
+max_per_floor = 2
+id = &"l_room"
+display_name = "Bent Hall"
+spawn_weight = 8

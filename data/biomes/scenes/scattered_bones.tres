@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_key"]
+[ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="2_detail"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="3_scene"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_skull"]
+atlas = ExtResource("2_detail")
+region = Rect2(208, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bone"]
+atlas = ExtResource("2_detail")
+region = Rect2(224, 0, 16, 16)
+
+[sub_resource type="Resource" id="Resource_bones"]
+script = ExtResource("1_key")
+symbol = "b"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_skull"), SubResource("AtlasTexture_bone"), SubResource("AtlasTexture_bone")])
+chance = 0.7
+
+[resource]
+script = ExtResource("3_scene")
+rows = PackedStringArray("b.b", ".b.", "b..")
+keys = Array[ExtResource("1_key")]([SubResource("Resource_bones")])
+id = &"scattered_bones"
+display_name = "Scattered Bones"
+spawn_weight = 0

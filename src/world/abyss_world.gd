@@ -36,6 +36,7 @@ func build_depths(fell_depth: int, content: ContentDB, abyss: AbyssDef, seed_val
 	rng.seed = seed_value
 	show_place(make_map(def, content.dungeon, rng), def.theme, def.lighting, def.light_tint, content)
 	biome = def.dressing
+	RoomFeatures.lay(self)  # its rooms' shapes: pillars, pools, chasms (a fall: the old rule)
 	# Nothing where the hero lands nor around the door.
 	var taken := {}
 	for spot in [map.start_cell, map.stairs_cell]:
@@ -43,6 +44,7 @@ func build_depths(fell_depth: int, content: ContentDB, abyss: AbyssDef, seed_val
 			for x in range(-2, 3):
 				taken[spot + Vector2i(x, y)] = true
 	FloorDresser.dress(self, taken, false)
+	lay_ceiling()
 	_place_holes(taken)
 	door = AbyssDoor.new()
 	door.name = "DawnBreach"
@@ -61,7 +63,7 @@ func build_depths(fell_depth: int, content: ContentDB, abyss: AbyssDef, seed_val
 
 ## The maze for `abyss` (its size, rooms and corridors); the door stands at its `stairs_cell`.
 static func make_map(abyss: AbyssDef, config: DungeonConfig, random: RandomNumberGenerator) -> DungeonMap:
-	return DungeonGenerator.generate_small(abyss.size, abyss.rooms, abyss.room_size, abyss.corridor_width, config.tile_size, random)
+	return DungeonGenerator.generate_small(abyss.size, abyss.rooms, abyss.room_size, abyss.corridor_width, config.tile_size, random, abyss.dressing)
 
 
 ## The way from where the hero lands to the door (cell centres; empty: none).

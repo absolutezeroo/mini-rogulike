@@ -55,6 +55,11 @@ func run() -> void:
 	var vfx := VfxTests.new()
 	vfx.run()
 	vfx.free()
+	# The floors' identity: room shapes, ceilings, signature rooms (LevelTests).
+	var levels := LevelTests.new()
+	add_child(levels)
+	levels.run_unit()
+	levels.free()
 	var gear := GearLookTests.new()
 	add_child(gear)
 	gear.run()

@@ -11,7 +11,8 @@ func run() -> void:
 	var boss := BossTests.new()
 	var secrets := SecretTests.new()
 	var finale := FinaleTests.new()
-	for suite: Node in [combat, floor, boss, secrets, finale]:
+	var levels := LevelTests.new()
+	for suite: Node in [combat, floor, boss, secrets, finale, levels]:
 		add_child(suite)
 	# No merchant, encounter, ambush or special floor popping up in the middle of other tests (they have their own).
 	var merchant_chance := CONTENT.dungeon.merchant_chance
@@ -251,6 +252,7 @@ func run() -> void:
 	await floor._test_soul_tree_run(game)
 	await floor._test_status_looks(game)
 	await floor._test_biomes(game)
+	await levels.run_game(game)
 	await floor._test_details(game)
 	await floor._test_belt_and_balance(game)
 	await combat._test_monster_behaviours(game)

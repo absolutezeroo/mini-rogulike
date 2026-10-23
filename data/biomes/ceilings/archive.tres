@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="CeilingDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/ceiling_def.gd" id="1_ceiling"]
+[ext_resource type="Script" path="res://src/definitions/biomes/ceiling_piece_def.gd" id="2_piece"]
+[ext_resource type="Texture2D" path="res://assets/tiles/ceiling/archive.png" id="3_atlas"]
+
+[sub_resource type="Resource" id="Piece_banner_a"]
+script = ExtResource("2_piece")
+region = Rect2i(0, 0, 16, 29)
+density = 0.25
+max_per_room = 2
+spacing = 3
+
+[sub_resource type="Resource" id="Piece_banner_b"]
+script = ExtResource("2_piece")
+region = Rect2i(18, 0, 16, 22)
+density = 0.2
+max_per_room = 1
+spacing = 3
+
+[sub_resource type="Resource" id="Piece_cobweb"]
+script = ExtResource("2_piece")
+region = Rect2i(36, 0, 16, 16)
+where = 2
+density = 0.6
+max_per_room = 2
+spacing = 2
+in_corridors = true
+mirror = false
+
+[sub_resource type="Resource" id="Piece_chain_hook"]
+script = ExtResource("2_piece")
+region = Rect2i(54, 0, 12, 44)
+where = 3
+density = 0.04
+max_per_room = 1
+spacing = 4
+height = 70.0
+
+[sub_resource type="Resource" id="Piece_swag_a"]
+script = ExtResource("2_piece")
+region = Rect2i(68, 0, 32, 12)
+density = 0.15
+max_per_room = 1
+spacing = 3
+mirror = false
+
+[sub_resource type="Resource" id="Piece_roots_a"]
+script = ExtResource("2_piece")
+region = Rect2i(102, 0, 16, 22)
+density = 0.1
+max_per_room = 1
+spacing = 3
+
+[resource]
+script = ExtResource("1_ceiling")
+atlas = ExtResource("3_atlas")
+pieces = Array[ExtResource("2_piece")]([SubResource("Piece_banner_a"), SubResource("Piece_banner_b"), SubResource("Piece_cobweb"), SubResource("Piece_chain_hook"), SubResource("Piece_swag_a"), SubResource("Piece_roots_a")])

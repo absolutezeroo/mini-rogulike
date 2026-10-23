@@ -1,0 +1,59 @@
+[gd_resource type="Resource" script_class="CeilingDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/ceiling_def.gd" id="1_ceiling"]
+[ext_resource type="Script" path="res://src/definitions/biomes/ceiling_piece_def.gd" id="2_piece"]
+[ext_resource type="Texture2D" path="res://assets/tiles/ceiling/cinders.png" id="3_atlas"]
+[ext_resource type="PackedScene" path="res://src/vfx/ambient/censer_smoke.tscn" id="4_emitter"]
+
+[sub_resource type="Resource" id="Piece_beam"]
+script = ExtResource("2_piece")
+region = Rect2i(0, 0, 48, 10)
+where = 4
+density = 0.35
+max_per_room = 1
+spacing = 3
+height = 48.0
+broken = 0.3
+
+[sub_resource type="Resource" id="Piece_beam_b"]
+script = ExtResource("2_piece")
+region = Rect2i(50, 0, 48, 10)
+where = 4
+density = 0.25
+max_per_room = 1
+spacing = 3
+height = 60.0
+broken = 0.45
+
+[sub_resource type="Resource" id="Piece_censer_a"]
+script = ExtResource("2_piece")
+region = Rect2i(100, 0, 12, 44)
+where = 3
+density = 0.03
+max_per_room = 1
+spacing = 5
+height = 72.0
+emitter = ExtResource("4_emitter")
+emitter_offset = Vector2(0, -26)
+
+[sub_resource type="Resource" id="Piece_chain_hook"]
+script = ExtResource("2_piece")
+region = Rect2i(114, 0, 12, 36)
+where = 3
+density = 0.04
+max_per_room = 1
+spacing = 4
+height = 70.0
+
+[sub_resource type="Resource" id="Piece_roots_a"]
+script = ExtResource("2_piece")
+region = Rect2i(128, 0, 16, 21)
+density = 0.15
+max_per_room = 1
+spacing = 3
+in_corridors = true
+
+[resource]
+script = ExtResource("1_ceiling")
+atlas = ExtResource("3_atlas")
+pieces = Array[ExtResource("2_piece")]([SubResource("Piece_beam"), SubResource("Piece_beam_b"), SubResource("Piece_censer_a"), SubResource("Piece_chain_hook"), SubResource("Piece_roots_a")])

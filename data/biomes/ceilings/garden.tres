@@ -1,0 +1,77 @@
+[gd_resource type="Resource" script_class="CeilingDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/ceiling_def.gd" id="1_ceiling"]
+[ext_resource type="Script" path="res://src/definitions/biomes/ceiling_piece_def.gd" id="2_piece"]
+[ext_resource type="Texture2D" path="res://assets/tiles/ceiling/garden.png" id="3_atlas"]
+
+[sub_resource type="Resource" id="Piece_roots_a"]
+script = ExtResource("2_piece")
+region = Rect2i(0, 0, 16, 28)
+density = 0.22
+max_per_room = 2
+spacing = 3
+in_corridors = true
+
+[sub_resource type="Resource" id="Piece_roots_b"]
+script = ExtResource("2_piece")
+region = Rect2i(18, 0, 16, 28)
+density = 0.2
+max_per_room = 1
+spacing = 3
+
+[sub_resource type="Resource" id="Piece_roots_c"]
+script = ExtResource("2_piece")
+region = Rect2i(36, 0, 16, 40)
+density = 0.18
+max_per_room = 1
+spacing = 3
+
+[sub_resource type="Resource" id="Piece_vines_a"]
+script = ExtResource("2_piece")
+region = Rect2i(54, 0, 16, 34)
+density = 0.22
+max_per_room = 2
+spacing = 3
+in_corridors = true
+
+[sub_resource type="Resource" id="Piece_vines_b"]
+script = ExtResource("2_piece")
+region = Rect2i(72, 0, 16, 26)
+density = 0.2
+max_per_room = 1
+spacing = 3
+
+[sub_resource type="Resource" id="Piece_vines_c"]
+script = ExtResource("2_piece")
+region = Rect2i(90, 0, 16, 42)
+density = 0.15
+max_per_room = 1
+spacing = 3
+
+[sub_resource type="Resource" id="Piece_side_vines_a"]
+script = ExtResource("2_piece")
+region = Rect2i(108, 0, 10, 30)
+where = 1
+density = 0.15
+max_per_room = 2
+spacing = 3
+
+[sub_resource type="Resource" id="Piece_side_vines_b"]
+script = ExtResource("2_piece")
+region = Rect2i(120, 0, 10, 22)
+where = 1
+density = 0.15
+max_per_room = 1
+spacing = 3
+
+[sub_resource type="Resource" id="Piece_moss_a"]
+script = ExtResource("2_piece")
+region = Rect2i(132, 0, 32, 14)
+density = 0.1
+max_per_room = 1
+spacing = 3
+
+[resource]
+script = ExtResource("1_ceiling")
+atlas = ExtResource("3_atlas")
+pieces = Array[ExtResource("2_piece")]([SubResource("Piece_roots_a"), SubResource("Piece_roots_b"), SubResource("Piece_roots_c"), SubResource("Piece_vines_a"), SubResource("Piece_vines_b"), SubResource("Piece_vines_c"), SubResource("Piece_side_vines_a"), SubResource("Piece_side_vines_b"), SubResource("Piece_moss_a")])

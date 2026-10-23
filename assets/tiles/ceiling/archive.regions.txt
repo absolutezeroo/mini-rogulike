@@ -1,0 +1,6 @@
+banner_a 0 0 16 29
+banner_b 18 0 16 22
+cobweb 36 0 16 16
+chain_hook 54 0 12 44
+swag_a 68 0 32 12
+roots_a 102 0 16 22

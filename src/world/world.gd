@@ -9,6 +9,9 @@ signal stairs_reached(route: int)
 signal map_reset
 ## Cells the hero discovered, or whose look changed (a floor that gave way...). For the minimap.
 signal cells_changed(cells: Array[Vector2i])
+## The hero walked into one of the floor's signature rooms for the first time (RoomShapeDef with
+## `set_piece`): the Game names it.
+signal set_piece_entered(shape: RoomShapeDef)
 
 const MONSTER_SCENE := preload("res://src/entities/monster/monster.tscn")
 const PICKUP_SCENE := preload("res://src/entities/pickup/item_pickup.tscn")
@@ -126,6 +129,10 @@ var hidden_floor: HiddenFloorDef
 var finale: FinaleDef
 ## Where walking monsters can go (pathfinding, blocked cells).
 var nav := NavGrid.new()
+## What hangs over the rooms (null: nothing, a boss arena, a simulation).
+var ceiling: CeilingLayer
+## The floor's signature rooms (room index -> named already).
+var _set_pieces := {}
 ## What the hero has seen (the minimap).
 var fog := FogOfWar.new()
 
@@ -203,6 +210,10 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 		if curse == null and rng.randf() < content.dungeon.floor_event_chance:
 			floor_event = ContentDB.pick_from(content.floor_events, depth, rng) as FloorEventDef
 	arena_plan = null
+	# The world first: its rooms take its shapes (BiomeDef.room_shapes).
+	biome = hidden.biome if hidden and hidden.biome else _pick_biome(content, boss != null)
+	if bottom and bottom.biome:
+		biome = bottom.biome
 	if boss:
 		arena_plan = _pick_arena(boss, content.dungeon)
 		if bottom and bottom.arena:
@@ -212,10 +223,7 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 		else:
 			map = DungeonGenerator.generate_arena(content.dungeon, rng, arena_plan)
 	else:
-		map = DungeonGenerator.generate(content.dungeon, rng, difficulty.floor_size if difficulty else 1.0, difficulty.rooms if difficulty else 1.0)
-	biome = hidden.biome if hidden and hidden.biome else _pick_biome(content, boss != null)
-	if bottom and bottom.biome:
-		biome = bottom.biome
+		map = DungeonGenerator.generate(content.dungeon, rng, difficulty.floor_size if difficulty else 1.0, difficulty.rooms if difficulty else 1.0, biome, depth)
 	theme = biome.theme if biome else null
 	rules = FloorRules.make(content.dungeon, difficulty, floor_event, depth, curse)
 	var light_tint := rules.light()
@@ -229,6 +237,7 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 	stairs_cells.clear()
 	WallBuilder.build(map, _walls)
 	nav.build(map)
+	RoomFeatures.lay(self)  # the shaped rooms' chasms, pools and pillars
 	if boss:
 		# No stairs until the boss is dead: the arena spawns them.
 		arena = ARENA_SCENE.instantiate() as BossArena
@@ -253,7 +262,23 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 		_apply_restore()
 		if boons.cartographer:
 			reveal_landmarks()
+	lay_ceiling()
+	_set_pieces.clear()
+	for i in map.rooms.size():
+		if map.plan(i).is_set_piece():
+			_set_pieces[i] = false
 	map_reset.emit()
+
+
+## What hangs over this floor's rooms (BiomeDef.ceiling, CeilingLayer), never over a boss arena
+## (the fight stays clear). Nothing in a simulation (Vfx.shown off: the balance tools).
+func lay_ceiling() -> void:
+	ceiling = null
+	if biome == null or biome.ceiling == null or not Vfx.shown:
+		return
+	ceiling = CeilingLayer.new()
+	_effects.add_child(ceiling)
+	ceiling.build(self, biome.ceiling, map.boss_room)
 
 
 ## Removes everything from the floor except the player.
@@ -266,6 +291,7 @@ func clear_floor() -> void:
 	ambush = null
 	secrets.clear()
 	pact = null
+	ceiling = null
 	fragment = null
 	fragment_taken = false
 	awake_monsters.clear()
@@ -901,6 +927,22 @@ func add_pit(cell: Vector2i, def: PitDef) -> void:
 	cells_changed.emit([cell] as Array[Vector2i])
 
 
+## Makes every one of `cells` a hole of `def` at once (a shaped room's chasm): one redraw of the map.
+func add_pits(cells: Array[Vector2i], def: PitDef) -> void:
+	for cell in cells:
+		_pits.add(cell, def)
+		set_cell_blocked(cell, true)
+	cells_changed.emit(cells)
+
+
+## Deep water over `cells` (a shaped room's pool, RoomFeatures): drawn in `look`, nobody walks in it.
+func spawn_pool(cells: Dictionary, look: GroundLayerDef, bounds: Rect2i) -> WaterPool:
+	var pool := WaterPool.new()
+	_effects.add_child(pool)
+	pool.setup(self, cells, look, bounds)
+	return pool
+
+
 ## Fills the hole `cell` belongs to (every hole cell joined to it): solid floor again, walkable,
 ## with dust where it closed. Returns the cells filled (none if `cell` is no hole). Kept in
 ## `sealed_cells`, for the floor's save.
@@ -937,6 +979,11 @@ func _fill_cells(cells: Array[Vector2i]) -> void:
 		if not sealed_cells.has(cell):
 			sealed_cells.append(cell)
 	cells_changed.emit(cells)
+
+
+## Deep water of a shaped room's pool on `cell` (RoomFeatures): nobody walks there.
+func is_pool(cell: Vector2i) -> bool:
+	return map.feature_at(cell) == DungeonMap.Feature.POOL
 
 
 func has_pit(cell: Vector2i) -> bool:
@@ -1034,6 +1081,8 @@ func reveal_around(point: Vector2) -> void:
 func _physics_process(delta: float) -> void:
 	if player and map and not player.is_dead:
 		reveal_around(player.global_position)
+		if not _set_pieces.is_empty():
+			_name_set_piece(player.global_position)
 	_step_on_cracks()
 	_activity_timer -= delta
 	if _activity_timer <= 0.0:
@@ -1057,6 +1106,16 @@ func _update_activity() -> void:
 		monster.set_awake(awake)
 		if awake:
 			awake_monsters.append(monster)
+
+
+## The hero at `point`: a signature room he walks into for the first time is named.
+func _name_set_piece(point: Vector2) -> void:
+	var cell := map.world_to_cell(point)
+	var room := map.room_at(cell)
+	if _set_pieces.get(room, true) or not map.plan(room).has_cell(cell):
+		return
+	_set_pieces[room] = true
+	set_piece_entered.emit(map.plan(room).shape)
 
 
 # --- Queries -----------------------------------------------------------------

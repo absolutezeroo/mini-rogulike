@@ -1,0 +1,9 @@
+roots_a 0 0 16 28
+roots_b 18 0 16 28
+roots_c 36 0 16 40
+vines_a 54 0 16 34
+vines_b 72 0 16 26
+vines_c 90 0 16 42
+side_vines_a 108 0 10 30
+side_vines_b 120 0 10 22
+moss_a 132 0 32 14

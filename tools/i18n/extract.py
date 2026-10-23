@@ -37,7 +37,7 @@ SKIP_DATA = {os.path.join("data", "balance")}
 # Data whose names and descriptions the player never reads (only their other texts count:
 # an arena's or a hazard's messages): scenes, props, materials, arenas, chests, hazards.
 UNSEEN_NAMES = {os.path.join("data", *parts) for parts in [
-    ("biomes", "scenes"), ("props",), ("materials",), ("arenas",), ("chests",), ("hazards",)]}
+    ("biomes", "scenes"), ("biomes", "shapes"), ("props",), ("materials",), ("arenas",), ("chests",), ("hazards",)]}
 
 # Resource fields the player reads (data/*.tres and @export defaults).
 TEXT_FIELDS = {

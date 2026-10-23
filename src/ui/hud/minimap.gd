@@ -12,6 +12,8 @@ signal tapped
 
 const FLOOR_COLOR := Color(0.85, 0.79, 0.68, 0.75)
 const HOLE_COLOR := Color(0.08, 0.06, 0.09, 0.9)
+## Deep water (a shaped room's pool).
+const WATER_COLOR := Color(0.32, 0.55, 0.72, 0.85)
 const BACKGROUND := Color(0.06, 0.04, 0.08, 0.6)
 const BIG_MAP_BACKGROUND := Color(0.06, 0.04, 0.08, 0.92)
 const BORDER := Color(1, 0.82, 0.4, 0.5)
@@ -66,7 +68,7 @@ func _update_cells(cells: Array[Vector2i]) -> void:
 func _paint(cell: Vector2i) -> void:
 	var color := Color.TRANSPARENT
 	if _world.is_explored(cell) and _world.map.is_floor(cell):
-		color = HOLE_COLOR if _world.has_pit(cell) else FLOOR_COLOR
+		color = HOLE_COLOR if _world.has_pit(cell) else (WATER_COLOR if _world.is_pool(cell) else FLOOR_COLOR)
 	_image.set_pixelv(cell, color)
 
 

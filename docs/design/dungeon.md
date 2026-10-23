@@ -111,6 +111,109 @@
   (heals when hitting), **Bursting** (blows up when it dies), **Ironclad**, **Venomous**
   (poisons), **Thorned** (hurts who hits it).
 
+## Room shapes
+
+A room is not always a rectangle (`RoomShapeDef`, `data/biomes/shapes/`). Each biome lists the
+shapes its rooms may take (`BiomeDef.room_shapes`, each by its `spawn_weight` from its
+`min_depth`, `max_per_floor` at most) and the weight of a plain rectangle (`plain_weight`, 35-40
+against 45-55 for its shapes: some 40% of the rooms take a shape, the big ones reaching their cap
+first). The room where the hero arrives is always plain.
+
+| Shape | What | Biomes |
+|---|---|---|
+| Round Hall | a circle, 11-15 cells | grotto, garden, drowned, cinders |
+| Oval Hall | an ellipse, 14-18 x 9-11 | grotto, drowned, city |
+| Pillared Hall | two rows of pillars along the long sides | catacombs, archive, cinders, temple, city, tomb |
+| Ring of Pillars | a round hall, a ring of pillars inside | grotto, garden, drowned, temple |
+| Hall of Columns | a grid of columns, 3-4 cells apart, 15-17 x 13-15 | catacombs, archive, tomb |
+| Crossing | two halls crossing (a plus) | garden, catacombs, archive, cinders, temple, city |
+| Bent Hall | an L, one corner (at random) left out | grotto, drowned, archive, cinders, city |
+| Eight-Sided Hall | the corners cut off | garden, catacombs, archive, temple, tomb |
+| Alcove | a small eight-sided room, 5-7 cells | grotto, garden, catacombs, tomb |
+| Gallery | long and narrow, 16-20 x 5-6 | catacombs, archive, temple, city, tomb |
+| Ring Around the Rock | a round hall round a block of rock (cliffs, mist on it) | grotto, drowned, cinders |
+| Pool Hall | a round hall round deep water (`WaterPool`: nobody walks in it, shots go over) | grotto, garden, drowned, city (an oasis) |
+| Bridges Over the Dark | a chasm crossed by two walkways, a ledge all round (from floor 2) | catacombs, cinders, temple, tomb |
+
+- **How**: the generator (`DungeonGenerator`, `RoomShaper`) asks the shape for a size, carves
+  its outline, lets the corridors cut through it as through any room, then once every corridor
+  is dug lays the core (`core`: ROCK, CHASM, POOL, inside a rim of `core_margin` cells, with
+  `bridges`) and the pillars (`pillars`: ROWS, RING, GRID, never on the lanes through the
+  middle where corridors come in). Anything that would cut a piece of floor off is taken back
+  (`_finish`): every floor is one piece, its walls as solid as ever.
+- **The plan**: `DungeonMap.rooms` keeps the rooms' rectangles; `DungeonMap.plans` (`RoomPlan`)
+  holds each one's shape and **heart**, the walkable cell nearest its middle (its middle may be
+  rock, a chasm or a pool): the start, the stairs, the merchant, the forge and encounters stand
+  there. `DungeonMap.features` marks the chasm and pool cells, `pillars` the pillars;
+  `is_ground()` is floor with none of them.
+- **On the floor** (`RoomFeatures`): a chasm is holes in the biome's look (`BiomeDef.chasm`, else
+  `DungeonConfig.chasm`): **a fall sends the hero into the Deeps**, as any hole, and monsters
+  knocked in are gone. A pool is deep water (`BiomeDef.pool`: the oasis' in the city, else
+  `DungeonConfig.pool`) drawn as a ground with a shore. Pillars are props: the shape's own
+  (`pillar`), else one of the biome's (`BiomeDef.pillars`), the same in a whole hall.
+- **What changes around them**: nothing is laid in a chasm, a pool or right beside them (props,
+  traps, chests, monsters, decor); holes never cut a room in two (`PitDef.place`, a ring round a
+  rock or a ledge round a chasm); monsters are put down only where their body fits (an elite's
+  grown one too), by the physics and by the grid. Chasm rooms and signature rooms are never the
+  merchant's, the forge's, a pact's or an ambush's (`RoomShapeDef.quiet_room`). The minimap draws
+  the rooms as they are: round, the water blue, the chasms black. The Deeps' maze takes the
+  shapes of its dressing biome (the Cinder Ruins'), without a signature room.
+- **Boss arenas** keep their own shapes (`ArenaDef`: rect, oval, cross, pillars), and the hidden
+  floor's rooms stay plain.
+
+## Ceilings
+
+What hangs over the rooms (`CeilingDef`, `data/biomes/ceilings/`, `BiomeDef.ceiling`), drawn over
+the actors and **dithered away around anyone under it**, so the fight always reads:
+
+| Biome | Overhead |
+|---|---|
+| Weeping Grotto | stalactites dripping, roots, moss fringes, roots down the side walls |
+| Pale Garden | pale roots (Kagari's trees reaching down), vines with white flowers |
+| Drowned Caverns | stalactites, wet moss, roots |
+| Catacombs, Nameless Charnel | chains with hooks, a skull, a cage, bundles of bones; chains hung along the walls; cobwebs in the corners |
+| Hushed Archive | torn old banners, cobwebs, hooks on chains |
+| Godless Temple | red banners with the sun's sign, censers on chains with smoke rising off them, gilded chains |
+| Cinder Ruins (and the Deeps) | charred beams across the rooms, some broken, censers, burnt roots |
+| Sandchoked City | broken sandstone arches across the rooms, striped awnings, palm fronds, sand trickling from cracks |
+| Tomb of the Dead Sun | broken arches, sun discs on gold chains, gilded chains, sand trickling |
+
+- **Pieces** (`CeilingPieceDef`): a picture in the ceiling's one atlas (`assets/tiles/ceiling/`,
+  drawn by `tools/levels/level_art.py` in the Ninja Adventure palette), where it hangs
+  (`where`: TOP_WALL from the cliff above a room's top edge, SIDE_WALL, CORNER, OVER_ROOM from the
+  unseen ceiling two cells or more from any wall, ACROSS from wall to wall), how many (`density`,
+  `max_per_room`, `spacing`, `in_corridors`), how high (`height`: its flat shadow falls that far
+  below it), `broken` (ACROSS: middles missing) and an `emitter` (`PixelMotes`: smoke, sand).
+  A signature room's ceiling is thicker (`RoomShapeDef.ceiling_scale`). Never over a boss arena.
+- **Drawing** (`CeilingLayer`, `src/world/ceiling/`): over the bodies (z 2), under the floor's
+  light (z 3, so the room lights it) and the wall mist; shadows on the floor (z -6). Laid once
+  per floor from its own stream of the seed, in chunks of 12 cells over the one atlas: a
+  Nightmare floor (104 x 104, 27 rooms, 56-127 pieces) draws 1-3 more draw calls. Its shader
+  (`ceiling.gdshader`) gets the hero and the 15 nearest bodies on screen every frame (feet,
+  radius, height) and drops the ceiling's art pixels within `clear_radius` of a body's outline,
+  then brings them back over `fade_band` by ordered dithering (docs/vfx.md: no smooth alpha).
+  Nothing of it in a simulation (`Vfx.shown` off).
+
+## Signature rooms
+
+Each biome has a place of its own (`BiomeDef.set_pieces`, `RoomShapeDef` with `set_piece`,
+`data/biomes/set_pieces/`): on `set_piece_chance` (40%) of its floors, one at most, dressed only
+with its own scenes (`RoomShapeDef.scenes`), with a thicker ceiling. The first time the hero
+walks in, its name shows on a banner and its line in the log (`World.set_piece_entered`, the
+Game shows it).
+
+| Biome | Room (FR / EN) | What |
+|---|---|---|
+| Weeping Grotto | Le Creux qui Pleure / The Weeping Hollow | a round cave round a pool, stalactites thick overhead, wet rocks, crystals |
+| Pale Garden | Le Chœur des Racines / The Root Choir | a ring of old stumps under hanging roots, a flower bed |
+| Drowned Caverns | La Salle des Noyés / The Drowned Hall | black water crossed by a causeway, paper boats on the bank |
+| Catacombs | La Nef des Ossements / The Ossuary Nave | carved skulls in rows, coffins along the wall, bones in the corners and in chains |
+| Hushed Archive | Les Rayonnages Engloutis / The Sunken Stacks | a ring of shelves round a reading desk |
+| Cinder Ruins | Le Gouffre de Braise / The Ember Chasm | a burnt pit crossed by bridges, rubble, charred beams |
+| Godless Temple | Le Cercle des Bûchers / The Pyre Circle | braziers in a ring round the shrine, censers smoking |
+| Sandchoked City | La Salle du Trône Effondrée / The Collapsed Throne Hall | broken columns, a throne in the sand, broken arches |
+| Tomb of the Dead Sun | La Fosse du Soleil Mort / The Pit of the Dead Sun | a round chasm crossed by four bridges, gold at its edge, sun discs on chains |
+
 ## The Deeps (Les Tréfonds)
 
 A hole on a floor is not only a stumble: the hero **falls deeper into the Well**, into the Deeps

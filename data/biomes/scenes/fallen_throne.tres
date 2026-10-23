@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_key"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_prop"]
+[ext_resource type="Resource" path="res://data/props/furniture/seated_statue.tres" id="3_throne"]
+[ext_resource type="Resource" path="res://data/props/furniture/rubble.tres" id="4_rubble"]
+[ext_resource type="Resource" path="res://data/props/furniture/gold_basket.tres" id="5_basket"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="6_scene"]
+
+[sub_resource type="Resource" id="Resource_throne"]
+script = ExtResource("1_key")
+symbol = "S"
+props = Array[ExtResource("2_prop")]([ExtResource("3_throne")])
+
+[sub_resource type="Resource" id="Resource_rubble"]
+script = ExtResource("1_key")
+symbol = "r"
+props = Array[ExtResource("2_prop")]([ExtResource("4_rubble")])
+chance = 0.8
+
+[sub_resource type="Resource" id="Resource_basket"]
+script = ExtResource("1_key")
+symbol = "b"
+props = Array[ExtResource("2_prop")]([ExtResource("5_basket")])
+chance = 0.6
+
+[resource]
+script = ExtResource("6_scene")
+rows = PackedStringArray("r.SS.r", "b....b")
+keys = Array[ExtResource("1_key")]([SubResource("Resource_throne"), SubResource("Resource_rubble"), SubResource("Resource_basket")])
+anchor = 1
+id = &"fallen_throne"
+display_name = "The Throne"
+spawn_weight = 0
