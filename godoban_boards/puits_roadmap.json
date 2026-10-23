@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 150,
+  "next_id": 153,
   "tags": [
     "pc",
     "test",
@@ -2016,17 +2016,19 @@
     {
       "id": "task_138",
       "title": "Compteurs mondiaux (Talo Game Stats)",
-      "description": "Validé. Compteurs partagés par tous les joueurs (démons tués dans le Puits, cloches sonnées, âmes offertes…) affichés au titre ou dans le Codex ; totaux à vie par joueur ; idée : objectifs communs qui débloquent quelque chose pour tous.",
-      "status": "todo",
+      "description": "Fait : « Le Tribut du Puits », 9 compteurs mondiaux sur Talo (Game Stats globaux) : démons abattus dans le Puits, gardiens rendus au repos, âmes réclamées par le Puits (morts), étages descendus, potions bues, Derniers Glas sonnés (fin « Sonner la cloche »), Gardiens Sans Nom (fin « Prendre sa place »), Glas de l'Aube entendus, âmes offertes à l'Arbre. Créés dans Talo (ids 5220 à 5228, globaux, min 0, sans max, sans délai entre mises à jour). En données (data/online/world_stats.tres). Une mise à jour par compteur à la fin de chaque partie (jamais une par monstre), plafonnée, en file hors ligne (user://world_stats.json) et renvoyée ; seulement avec le consentement aux statistiques de jeu (choix le plus sûr : ce sont des totaux par joueur liés à son identifiant), jamais en partie de débogage, ni depuis un build de débogage (Talo ajouterait ses changements aux totaux mondiaux), ni dans les tests. Version du consentement passée à 2 et politique 1.1 (le jeu redemande). Affichage : une ligne discrète qui tourne en bas de l'écran titre (« 1 284 302 démons abattus dans le Puits ») et un onglet « Le Tribut du Puits » dans les Classements (total du monde et ta part). Rien d'affiché ni d'appelé avant un choix, hors ligne ou sans clé.\n\nVérifié : tests sur faux serveur (unit + title), captures FR téléphone et PC, essai réel sur Talo (joueur de test « world-stats-smoke-test » en données de dev, une mise à jour de 0, relecture des 9 compteurs et des totaux du joueur, refus d'un compteur inconnu et d'un changement trop grand).\n\nÀ vérifier en jeu : une vraie partie dans un build de sortie (les builds de débogage n'envoient rien), puis les nombres dans le tableau de bord Talo et sur l'écran titre.",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_7",
       "due_date": null,
       "tags": [
+        "contenu",
         "données",
-        "contenu"
+        "en ligne",
+        "ui"
       ],
       "created_at": 1792768111,
-      "updated_at": 1792768111
+      "updated_at": 1792777398
     },
     {
       "id": "task_139",
@@ -2197,6 +2199,53 @@
       ],
       "created_at": 1792770950,
       "updated_at": 1792770950
+    },
+    {
+      "id": "task_150",
+      "title": "Objectifs communs du Tribut du Puits",
+      "description": "Idée (non validée) : quand un compteur mondial atteint un palier (ex. 1 000 000 de démons abattus, 10 000 Derniers Glas), quelque chose s'ouvre pour tous : une ligne de la Veilleuse, une relique cosmétique, un écho dans le Codex. Les paliers en données à côté des compteurs (data/online/world_stats.tres), lus avec les totaux déjà en cache.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "idée",
+        "en ligne",
+        "contenu"
+      ],
+      "created_at": 1792777398,
+      "updated_at": 1792777398
+    },
+    {
+      "id": "task_151",
+      "title": "Tribut du Puits : parties abandonnées",
+      "description": "Quand le suivi des parties abandonnées (télémétrie) passera par Events.run_ended (ou un signal de fin équivalent), vérifier que WorldStats envoie aussi leur part. Aujourd'hui, les comptes d'une partie non terminée restent dans user://world_stats.json et partent à la fin de la partie suivante.",
+      "status": "todo",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "données"
+      ],
+      "created_at": 1792777398,
+      "updated_at": 1792777398
+    },
+    {
+      "id": "task_152",
+      "title": "Tribut du Puits : part du joueur sur l'écran de fin",
+      "description": "Idée : sur l'écran de fin de partie, une ligne « Tu as ajouté 37 démons au Tribut du Puits » (seulement avec le consentement aux statistiques).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "idée",
+        "en ligne",
+        "ui"
+      ],
+      "created_at": 1792777398,
+      "updated_at": 1792777398
     }
   ]
 }

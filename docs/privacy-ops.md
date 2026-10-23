@@ -11,7 +11,7 @@ legal advice.** Where the report was unsure, the safer choice was taken and is m
 
 | | Online leaderboards | Gameplay statistics |
 |---|---|---|
-| What | random device id, pseudonym, Dawn Knell scores and a short run summary (public) | a summary of each run, boss fights, perk choices, purchases, pacts (`data/online/telemetry.tres`) |
+| What | random device id, pseudonym, Dawn Knell scores and a short run summary (public) | a summary of each run, boss fights, perk choices, purchases, pacts (`data/online/telemetry.tres`); the player's shares of the world counters (`data/online/world_stats.tres`) |
 | When | only after the player answers **Publish my scores** (`PseudonymDialog`) or turns it on in Options | only after the age question (16 or older) and **Accept** (`ConsentDialog`) |
 | Legal basis | the service the player asks for (GDPR 6(1)(b); LIL art. 82 exemption: a feature expressly requested) | consent (GDPR 6(1)(a) and LIL art. 82) |
 | Default | off: **no Talo call at all**, not even reading a board, until chosen | off |
@@ -39,6 +39,16 @@ legal advice.** Where the report was unsure, the safer choice was taken and is m
   never sends `META_` props (Talo copies those into the player's props), and puts the run summary
   only in events.
 - **Debug runs, tests** send nothing.
+- **The world counters** (the Well's Toll, [online.md](online.md#world-counters-the-wells-toll)):
+  each run's share is sent with the player's alias, and Talo keeps the player's own total per
+  counter and a snapshot of each update. That is per-player gameplay data like the statistics, not
+  something the player asked for by publishing scores, so it is sent **only with the statistics'
+  consent** (16 or older, accepted) **(safer choice)**: the leaderboards' basis (the service
+  requested) doesn't stretch to it, and the CNIL's exemption for audience measurement needs data
+  that is anonymous from the start. Reading the world's sums (no player data sent) needs either
+  feature turned on, so a player who chose neither makes no call. It was added under consent
+  version **2** (policy 1.1): players who accepted version 1 are asked again. The player's totals
+  go with the player (deletion, the 730-day purge); the world's sums are anonymous and stay.
 
 ## The placeholders to fill (before publishing a build with a key)
 
@@ -60,8 +70,10 @@ my online data" shows the address placeholder instead of opening an email. Then 
 ## Talo dashboard settings
 
 The game's key needs these scopes (already set): Players read/write, Leaderboards read/write,
-**Events write** (the statistics). Then, on [dashboard.trytalo.com](https://dashboard.trytalo.com):
+**Events write** (the statistics), **Game Stats read/write** (the world counters). Then, on [dashboard.trytalo.com](https://dashboard.trytalo.com):
 
+0. **Stats**: the nine world counters exist (online.md lists them). Nothing to set: a player's
+   own totals go when the player is deleted or purged.
 1. **Event retention: 13 months.** Per event name (`run_end`, `boss`, `perk_offered`,
    `perk_picked`, `perk_banished`, `purchase`, `pact`), set the retention to **395 days**. In
    Talo's code this is the "event retention" setting (1 to 36,500 days per event name, purged by

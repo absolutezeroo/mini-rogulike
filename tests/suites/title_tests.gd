@@ -22,6 +22,11 @@ func run() -> void:
 	add_child(privacy)
 	await privacy.run_title()
 	privacy.free()
+	# The world counters' line on the title and the Well's Toll page (WorldStatsTests).
+	var world_stats := WorldStatsTests.new()
+	add_child(world_stats)
+	await world_stats.run_title()
+	world_stats.free()
 	# The Vigil-Keeper at the shrine (DialogueTests).
 	var dialogue := DialogueTests.new()
 	add_child(dialogue)

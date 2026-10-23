@@ -88,6 +88,14 @@ the boards aren't even read.
 - **The page**: the first 50, the player's rank (and the lines around it when past the 50), the
   board's rule, a loading line, "no network" with **Try again**, "no one yet". Phone and PC, touch,
   mouse, keys (Q / E switch boards when there are several) and gamepad (MenuWindow, MenuNav).
+- **The Well's Toll** (the page's last tab, *Le Tribut du Puits*): the world counters every
+  player adds to (demons slain in the Well, wardens laid to rest, souls claimed, floors descended,
+  potions drunk, Last Knells rung, Nameless Keepers, Dawn Knells answered, souls offered to the
+  Tree), the world's number and the player's own share (numbers grouped per language). The title
+  screen turns through them on a discreet line at the bottom. A run adds its share when it ends,
+  only with the gameplay statistics' consent; the numbers are read once the player published their
+  scores or accepted the statistics; offline or without a key, nothing shows. How it is built:
+  [../online.md](../online.md#world-counters-the-wells-toll).
 - **The choice and the name** ("Name your soul", `PseudonymDialog`): asked the first time the page
   opens or the day's official toll starts. It asks plainly **Publish your scores online?**, says
   what is published and to whom (the scores, a run summary and the pseudonym, public, on Talo),

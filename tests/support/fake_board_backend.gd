@@ -2,7 +2,9 @@ class_name FakeBoardBackend
 extends BoardBackend
 ## A leaderboard server in memory for the tests and the page's screenshots: no network. It acts
 ## like the Talo boards the game uses (one entry per player and period, kept only if better,
-## ranks counted in the period asked for) and can be switched off (`online`) to test the queue.
+## ranks counted in the period asked for), keeps game stats like Talo's global ones (`world`,
+## `player_stats`, `max_change`: the world counters) and can be switched off (`online`) to test
+## the queues.
 
 ## Answers at all (false: every call is OFFLINE, like a phone without network).
 var online := true
@@ -21,7 +23,50 @@ var calls := 0
 ## Every gameplay statistics event received: {name, props, timestamp}.
 var events: Array[Dictionary] = []
 
+## The world counters: internal name -> the world's value (global stats; a name missing is a stat
+## the server doesn't have: refused).
+var world := {}
+## Every counter update received: {stat, change, alias}.
+var stat_updates: Array[Dictionary] = []
+## Each player's own totals: alias id -> {internal name -> value}.
+var player_stats := {}
+## A counter's max change (Talo's maxChange): internal name -> int; past it, refused.
+var max_change := {}
+
 var _alias := 0
+
+
+func add_to_stat(internal_name: String, change: int) -> Status:
+	if not await _answers():
+		return Status.OFFLINE
+	if _alias == 0 or not world.has(internal_name) or absi(change) > int(max_change.get(internal_name, 1 << 40)):
+		return Status.REJECTED
+	stat_updates.append({ "stat": internal_name, "change": change, "alias": _alias })
+	world[internal_name] = float(world[internal_name]) + change
+	var mine: Dictionary = player_stats.get(_alias, {})
+	mine[internal_name] = float(mine.get(internal_name, 0.0)) + change
+	player_stats[_alias] = mine
+	return Status.OK
+
+
+func fetch_world_stats() -> BoardBackend.StatValues:
+	var result := BoardBackend.StatValues.new()
+	if not await _answers():
+		result.status = Status.OFFLINE
+		return result
+	result.status = Status.OK
+	result.values = world.duplicate()
+	return result
+
+
+func fetch_my_stats() -> BoardBackend.StatValues:
+	var result := BoardBackend.StatValues.new()
+	if not await _answers():
+		result.status = Status.OFFLINE
+		return result
+	result.status = Status.OK if _alias > 0 else Status.REJECTED
+	result.values = (player_stats.get(_alias, {}) as Dictionary).duplicate()
+	return result
 
 
 func is_configured() -> bool:

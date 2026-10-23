@@ -39,6 +39,8 @@ func _ready() -> void:
 	# screen, nothing queued (PrivacyTests turns them on with a fake server).
 	Privacy.use_for_tests()
 	Telemetry.use_for_tests()
+	# The world counters: no file, nothing counted, read or sent (WorldStatsTests uses a fake).
+	WorldStats.use_for_tests()
 	# The suites play the phone's game (touch controls, "Tap" texts) unless a test picks a
 	# keyboard or a gamepad (the pc tests); a test that sends a key puts touch back after it.
 	InputDevice.use(InputDevice.Kind.TOUCH)
@@ -84,7 +86,7 @@ func _only() -> PackedStringArray:
 ## The suites the game suite borrows from compile too (a parse error in one would otherwise
 ## only show as a script error, with 0 failed).
 func _helpers_compile() -> bool:
-	for path in ["res://tests/suites/floor_tests.gd", "res://tests/suites/combat_tests.gd", "res://tests/suites/boss_tests.gd", "res://tests/suites/secret_tests.gd", "res://tests/suites/story_tests.gd", "res://tests/suites/finale_tests.gd", "res://tests/suites/pc_tests.gd", "res://tests/suites/bag_tests.gd", "res://tests/suites/dialogue_tests.gd", "res://tests/suites/level_tests.gd", "res://tests/suites/debug_tests.gd", "res://tests/suites/leaderboard_tests.gd", "res://tests/suites/privacy_tests.gd"]:
+	for path in ["res://tests/suites/floor_tests.gd", "res://tests/suites/combat_tests.gd", "res://tests/suites/boss_tests.gd", "res://tests/suites/secret_tests.gd", "res://tests/suites/story_tests.gd", "res://tests/suites/finale_tests.gd", "res://tests/suites/pc_tests.gd", "res://tests/suites/bag_tests.gd", "res://tests/suites/dialogue_tests.gd", "res://tests/suites/level_tests.gd", "res://tests/suites/debug_tests.gd", "res://tests/suites/leaderboard_tests.gd", "res://tests/suites/privacy_tests.gd", "res://tests/suites/world_stats_tests.gd"]:
 		var helper := load(path) as GDScript
 		if helper == null or not helper.can_instantiate():
 			printerr("FAIL: %s doesn't compile" % path)

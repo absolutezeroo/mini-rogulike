@@ -17,8 +17,8 @@ the fake server counts its calls).
 ## How it is built
 
 - **REST, not the Talo plugin.** The game talks to Talo's HTTP API with `HTTPRequest`
-  (`TaloBackend`, `src/online/talo_backend.gd`): four endpoints (identify a player, set its name,
-  add an entry, list entries). The official Godot addon (MIT, `TaloDev/godot`) was read and left
+  (`TaloBackend`, `src/online/talo_backend.gd`): a few endpoints (identify a player, set its name,
+  add an entry, list entries, send events, add to a game stat and read them). The official Godot addon (MIT, `TaloDev/godot`) was read and left
   out: about 7,700 lines for 14 services we don't use, an autoload that takes over quitting
   (`set_auto_accept_quit(false)`), opens a websocket at start, writes a `settings.cfg` into
   `res://` on first run (read-only in an export), prints `push_error`s on every failed request
@@ -168,10 +168,78 @@ bugs. Built so that the game never depends on it:
 
 Every event also carries `v` (the game's version), `run` (a random id per run) and `depth`.
 
+## World counters (the Well's Toll)
+
+Numbers every player adds to, kept by Talo as **global game stats** (`/v1/game-stats`): the
+world's total, and each player's own share. Shown on the title screen (a line at the bottom that
+turns every `title_line_seconds`, from `title_min_count`) and on the Leaderboards page's last tab,
+**The Well's Toll** / *Le Tribut du Puits* (every counter, the world's number, the player's share).
+
+- **`WorldStats`** (autoload, `src/autoload/world_stats.gd`) listens to the Events bus during a
+  run and counts in `pending`: `monster_killed` (not a summoned one), `boss_defeated`,
+  `depth_changed` (deeper than the run's deepest so far: a resumed floor isn't counted again), the
+  hero's `consumable_used` (a healing potion), a death at `run_ended`, a new Dawn Knell at
+  `run_started` (not a resumed one), `ending_chosen` (emitted by the Game when the ending is picked,
+  after `run_ended`) and `souls_offered` (`Profile.buy()`, at the shrine). At `run_ended` (and
+  `ending_chosen`, `souls_offered`) the counts join the queue, each **capped to its counter's max
+  change**, and go. A run left unfinished keeps its counts in the file and they go with the next
+  run's end (an abandoned run's end, once it is told on the same `run_ended` path, is the same).
+- **One update per counter**, never one call per kill: `PUT /v1/game-stats/{internalName}`
+  `{change}` with the `X-Talo-Alias` header (the leaderboards' player). A share past the max
+  change goes in parts. Queue in `user://world_stats.json` (`pending`, `queue`, `mine`: the
+  player's share), tried again every `retry_seconds` without network, at a run's end and when the
+  app comes back. A counter the server refuses (unknown, past its max change) is dropped.
+- **Reading**: `GET /v1/game-stats` (every stat with its `globalValue`, no player needed) at most
+  every `refresh_seconds` (300), kept in memory only (offline, nothing shows); with the statistics'
+  consent also `GET /v1/game-stats/player-stats` (the player's own totals; the server caches it 30
+  s, so the larger of it and what was sent is shown). Numbers by language: `NumberText.of()`
+  ("1,284,302", "1 284 302" with a narrow no-break space, which the font has).
+- **Consent** (privacy-ops.md): sending needs the **gameplay statistics' consent**
+  (`Privacy.analytics_allowed()`); reading the world's numbers needs either online feature turned
+  on (published scores or the statistics). Before any choice: no call at all.
+- **Never from a debug build.** Talo's PUT adds the change to the stat's global value whatever
+  `X-Talo-Dev-Build` says (`stat.incrementGlobalValue()` in `src/routes/api/game-stat/put.ts`; only
+  the dashboard's view recalculates without dev players): an editor run would show in every
+  player's numbers. `WorldStats.debug_builds_send` is off (the tests turn it on for their fake
+  server). Never from a debug run (`DebugCheats.debug_run`, `RunSummary.debug`), nor the tests.
+- **The counters are data**: `data/online/world_stats.tres` (`WorldStatsDef`, `WorldStatDef`):
+  Talo's internal name, the name on the page and the title line (`{count}`), what feeds it
+  (`Feed`), the ending for an ENDING feed, `max_change`, on or off.
+
+### The counters in Clayton's Talo game
+
+Created on 23 October 2026 with the admin API (`POST /admin/v1/game-stats`, scope `write:stats`):
+all **global**, default 0, **min value 0**, no max value, **no time between updates** (0).
+
+| Internal name | Talo id | Max change | Fed by | Shown as (EN / FR) |
+|---|---|---|---|---|
+| `demons-slain` | 5220 | 5000 | KILLS | Demons slain in the Well / Démons abattus dans le Puits |
+| `wardens-laid-to-rest` | 5221 | 200 | BOSSES | Wardens laid to rest / Gardiens rendus au repos |
+| `souls-claimed` | 5222 | 50 | DEATHS | Souls claimed by the Well / Âmes réclamées par le Puits |
+| `floors-descended` | 5223 | 2000 | FLOORS | Floors descended / Étages descendus |
+| `potions-drunk` | 5224 | 1000 | POTIONS | Potions drunk in the deep / Potions bues dans les profondeurs |
+| `last-knells-rung` | 5225 | 50 | ENDING `ring_the_bell` | Last Knells rung / Derniers Glas sonnés |
+| `nameless-keepers` | 5226 | 50 | ENDING `take_his_place` | Nameless Keepers before the seal / Gardiens Sans Nom devant le sceau |
+| `dawn-knells-answered` | 5227 | 50 | DAILY_RUNS | Dawn Knells answered / Glas de l'Aube entendus |
+| `souls-offered` | 5228 | 1000000 | SOULS_OFFERED | Souls offered to the Tree / Âmes offertes à l'Arbre |
+
+**Adding a counter**: a `WorldStatDef` in `world_stats.tres` (its texts translated: `extract.py`
+reads `display_name` and `title_line`), then the same stat in the dashboard (*Stats* > create, or
+the admin API): the same internal name, **Global** on, default 0, min value 0, max change at
+least the def's `max_change`, time between updates 0. A new kind of event to count is a new
+`Feed` and its listener in `WorldStats`. Never rename an internal name. The game's key needs
+**Game Stats: read and write** (`read:gameStats`, `write:gameStats`; already on it).
+
+Smoke test (23 October 2026, `_tool/world_stats_smoke.gd`, dev data): a test player
+`world-stats-smoke-test`, a PUT of change 0 on `demons-slain` (0: a dev build's change would count
+in the world's value), the list read back (every counter at 0), the player's own totals read, an
+unknown stat and a change past the max refused (400).
+
 ## Privacy
 
 Leaderboards: a random id made on the device, the pseudonym, the scores and their run summary.
-Statistics: the events above, linked to the same id. No email, no account, no hardware device id
+Statistics: the events above, linked to the same id; with them, the player's shares of the world
+counters (their totals per counter, and Talo's snapshot of each update). No email, no account, no hardware device id
 (the id is random, never `OS.get_unique_id()`), no location. Both are off until chosen and can be
 turned off in Options > Privacy, which also shows the id and prepares a deletion request. The
 policy is `docs/privacy.html` (FR and EN) and, short, in the game (`data/online/privacy.tres`);
@@ -191,5 +259,12 @@ the age, six months after a refusal on a fake clock, a newer consent version), t
 queued or sent without consent or from a debug run, what a run's end sends and its sizes, the
 queue's bound, deleting one's data, the files, and the questions, Options > Privacy, the policy
 and the credits on screen.
+`WorldStatsTests` (unit and title suites, `FakeBoardBackend`'s game stats): the data (unique
+internal names, translated names and lines, the endings), numbers per language, nothing counted,
+sent or read without a choice or in a debug run or build, published scores read the world without
+counting the player, one update per counter at a run's end and the cap, the queue offline (and in
+the file) sent once when the network is back, endings and offerings, withdrawing and deleting,
+reads cached and hidden offline; the title's line (French, grouped, turning, hidden before a
+choice) and the Toll page (filled, offline with Try again, no choice).
 A real call to Talo can only be checked by hand (a probe under `_tool/`, with the key): done on
 23 October 2026 (an identify and a `run_end` event as dev data).

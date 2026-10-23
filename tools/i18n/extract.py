@@ -51,6 +51,8 @@ TEXT_FIELDS = {
     "touch_text", "button_text", "brand",
     # The credits (data/credits/): what changed in a pack (CreditEntryDef.changes).
     "changes",
+    # The world counters (data/online/world_stats.tres): the title screen's line.
+    "title_line",
 }
 LIST_FIELDS = {"intro_pages", "death_lines", "greetings", "branches", "branch_texts", "rank_names", "tips", "lines",
                "key_words", "mouse_glyphs"}

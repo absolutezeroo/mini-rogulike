@@ -941,6 +941,7 @@ func _on_ending_chosen(ending: EndingDef) -> void:
 	run.ending_due = false
 	var feats := run.difficulty == null or run.difficulty.counts_feats
 	Profile.choose_ending(ending.id, ending.stat, feats)
+	Events.ending_chosen.emit(ending)  # (the world counters: WorldStats)
 	_records.check_achievements()
 	_save_run()
 	Sfx.play_ui(Sfx.bank.stairs)
