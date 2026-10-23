@@ -220,6 +220,10 @@ func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef
 	BalanceBot.release_all()
 	log.frame()
 	result.merge(log.summary(fight_frames / BalanceLab.FPS))
+	if FightLog.log_hits:
+		result["hit_log"] = log.hit_log
+		var plan: ArenaDef = world.arena._plan if is_instance_valid(world) and world.arena else null
+		print("    hits (%s, %s, %s, arena %s):\n      %s" % [boss.id, build.name, bot_name, plan.id if plan else "-", "\n      ".join(PackedStringArray(log.hit_log))])
 	result["result"] = outcome
 	result["hero_max_hp"] = player.get_max_hp()
 	result["boss_max_hp"] = boss_actor.get_max_hp()
@@ -266,7 +270,8 @@ static func fight_line(r: Dictionary) -> String:
 		str(r.get("result", "?")).to_upper(), r.get("time", 0.0), r.get("phases", 0),
 		roundi(100.0 * r.get("boss_hp_left_share", 0.0)), roundi(r.get("min_hp_share", 0.0) * 100.0),
 		r.get("damage_taken", 0), r.get("hits_taken", 0), BalanceLab.sources_text(r.get("taken_by", {})), r.get("healed", 0), BalanceLab.sources_text(r.get("heal_sources", {})),
-		r.get("dps", 0.0), r.get("rolls", 0)] + (", second life used %d" % r.lives_used if int(r.get("lives_used", 0)) > 0 else "")
+		r.get("dps", 0.0), r.get("rolls", 0)] + (", second life used %d" % r.lives_used if int(r.get("lives_used", 0)) > 0 else "") \
+		+ (", falls %d thrown / %d walked" % [r.falls_pushed, r.falls_walked] if int(r.get("falls_pushed", 0)) + int(r.get("falls_walked", 0)) > 0 else "")
 
 
 func _boss_report(report: BalanceReport, fights: Array) -> void:
@@ -568,6 +573,10 @@ static func foes_id(foes: Array) -> String:
 class FightLog:
 	## Health that came back without a heal() (a second life), in `heal_sources`.
 	const REVIVE := "other (revive)"
+	## A fall starting this many frames after a blow is the blow's doing (a push lasts ~0.3 s).
+	const FALL_AFTER_BLOW := 45
+	## Describe every hit taken (`--hits`): the fights' `hit_log`, printed after each fight.
+	static var log_hits := false
 	var player: Player
 	var boss: Monster
 	var dealt := 0
@@ -578,6 +587,10 @@ class FightLog:
 	var phases := 0
 	var min_hp := 0
 	var summons_killed := 0
+	## Falls into a hole: thrown in (a blow landed within FALL_AFTER_BLOW frames, or its push was
+	## still carrying him) or walked in (the bots should never: a player sees the holes).
+	var falls_pushed := 0
+	var falls_walked := 0
 	## Damage taken by kind (ticks, shockwave, melee, shots, skill, adds, blasts): where a bot
 	## gets hurt.
 	var taken_by := {}
@@ -585,8 +598,24 @@ class FightLog:
 	## not the boss fight's (the trial's spectres, its own rules). The Deeps after a fall are:
 	## the fight threw him there.
 	var away := false
+	## Every hit taken, described (`--hits`): what it was, how hard it pushed, where the hero
+	## stood (near a hole?), and the falls with the blow that caused them.
+	var hit_log: Array = []
 	var _expected_hp := 0
 	var _boss_hp := 0
+	var _frames := 0
+	## The skill the boss is casting, the last one it let go and the frame it did (what a hit
+	## that lands after the cast came from).
+	var _casting := ""
+	var _last_cast := ""
+	var _last_cast_frame := -1000
+	var _falling := false
+	var _fall_pushed := false
+	var _fall_text := ""
+	## The hero's push, roll and speed on the frame before (what a fall started from).
+	var _before: Array = [0.0, false, 0.0]
+	var _last_hit_text := ""
+	var _last_hit_frame := -1000
 
 	func _init(hero: Player, boss_actor: Monster) -> void:
 		player = hero
@@ -623,6 +652,44 @@ class FightLog:
 			hits_taken += 1
 		var kind := _kind(hit)
 		taken_by[kind] = int(taken_by.get(kind, 0)) + amount
+		if kind == "falls":
+			# Thrown in (a blow or its push still carrying him as he went over), or walked in.
+			if _fall_pushed:
+				falls_pushed += 1
+			else:
+				falls_walked += 1
+		if log_hits and not (hit and hit.is_tick):
+			_log_hit(hit, kind, amount)
+		if kind != "falls" and not (hit and hit.is_tick):
+			_last_hit_frame = _frames
+
+	## One line of `hit_log`: "t 41.2 p3 skill quake_fierce +0.50s 26 (12%) push 380 slowed - dist 140 edge".
+	func _log_hit(hit: HitInfo, kind: String, amount: int) -> void:
+		var what := kind
+		if kind == "falls" or (hit and hit.cause == &"fall"):
+			what = "FALL (%s) after [%s]" % [_fall_text, _last_hit_text] if _frames - _last_hit_frame <= 90 else "FALL (%s)" % _fall_text
+		elif (kind == "skill" or kind == "shots") and not _casting.is_empty() and boss.casting_skill() == null:
+			what = "%s %s +0.00s" % [kind, _casting]  # let go this very frame
+		elif kind == "skill" or kind == "shots":
+			what = "%s %s +%.2fs" % [kind, _last_cast, (_frames - _last_cast_frame) / BalanceLab.FPS]
+		elif kind == "melee":
+			what = "melee (weapon)"
+		var push := hit.knockback.length() if hit else 0.0
+		var here := player.global_position
+		var edge := false
+		if is_instance_valid(player.world) and player.world.map:
+			for i in 8:
+				if not player.world.is_solid_ground(here + Vector2.from_angle(i * TAU / 8.0) * 48.0):
+					edge = true
+		var slowed := player.statuses.speed_multiplier() < 0.99
+		var machine := boss.get_node_or_null("StateMachine") as StateMachine if is_instance_valid(boss) else null
+		var state := String(machine.current.name) if machine and machine.current else "?"
+		var text := "t %.1f p%d %s %d (%d%%) push %.0f%s dist %.0f%s [boss %s]" % [_frames / BalanceLab.FPS, phases + 1, what, amount,
+			roundi(100.0 * amount / maxf(player.get_max_hp(), 1.0)), push, " slowed" if slowed else "",
+			here.distance_to(boss.global_position) if is_instance_valid(boss) else -1.0, " EDGE" if edge else "", state]
+		hit_log.append(text)
+		if not what.begins_with("FALL"):
+			_last_hit_text = text
 
 	func _kind(hit: HitInfo) -> String:
 		if hit == null:
@@ -661,6 +728,22 @@ class FightLog:
 	func frame() -> void:
 		if not is_instance_valid(player):
 			return
+		_frames += 1
+		if player.is_falling and not _falling:
+			_fall_pushed = _before[0] > 1.0 or _frames - _last_hit_frame <= FALL_AFTER_BLOW
+			# What took him over the edge: a push still carrying him, a roll, his own steps.
+			_fall_text = "falls: the frame before, push %.0f, %s, speed %.0f; last blow %.1f s ago" % [_before[0],
+				"rolling" if _before[1] else "walking", _before[2], (_frames - _last_hit_frame) / BalanceLab.FPS]
+		_falling = player.is_falling
+		_before = [player._knockback.length(), player.is_dashing(), player.velocity.length()]
+		if is_instance_valid(boss):
+			var skill := boss.casting_skill()
+			if skill:
+				_casting = String(skill.id)
+			elif not _casting.is_empty():
+				_last_cast = _casting
+				_last_cast_frame = _frames
+				_casting = ""
 		if player.hp > maxi(_expected_hp, 0):
 			healed_by[REVIVE] = int(healed_by.get(REVIVE, 0)) + player.hp - maxi(_expected_hp, 0)
 		_expected_hp = player.hp
@@ -680,4 +763,5 @@ class FightLog:
 			"heal_share_sustain": (healed - revived) / maxf(taken, 1.0),
 			"min_hp": min_hp, "min_hp_share": min_hp / float(maxi(player.get_max_hp(), 1)),
 			"summons_killed": summons_killed, "taken_by": taken_by.duplicate(),
+			"falls_pushed": falls_pushed, "falls_walked": falls_walked,
 		}
