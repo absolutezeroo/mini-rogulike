@@ -247,6 +247,7 @@ func flush() -> void:
 	var status := await _ensure_identity()
 	if status == BoardBackend.Status.OK and synced_name != display_name() and (name_chosen or not queue.is_empty()):
 		var named := display_name()
+		@warning_ignore("redundant_await")  # a coroutine in TaloBackend; the offline BoardBackend answers at once
 		status = await backend.set_pseudonym(named)
 		if status == BoardBackend.Status.OK:
 			synced_name = named
@@ -257,6 +258,7 @@ func flush() -> void:
 		if def == null or not def.submits or not def.is_open(str(item.period)):
 			queue.pop_front()
 			continue
+		@warning_ignore("redundant_await")  # a coroutine in TaloBackend; the offline BoardBackend answers at once
 		var sent := await backend.submit(def, float(item.score), str(item.period), item.props)
 		status = sent.status
 		if status == BoardBackend.Status.OFFLINE:
@@ -282,14 +284,15 @@ func load_board(board: LeaderboardDef, back: int = 0) -> View:
 	var key := board.period_key(back)
 	var past := back > 0
 	view.waiting = waiting_score(board, key)
-	var identity := await _ensure_identity()
+	var identity_status := await _ensure_identity()
+	@warning_ignore("redundant_await")  # a coroutine in TaloBackend; the offline BoardBackend answers at once
 	var top := await backend.fetch(board, key, past, 0)
 	view.status = top.status
 	if top.status != BoardBackend.Status.OK:
 		return view
 	view.total = top.total
 	view.top.assign(top.entries.slice(0, config.top_count))
-	if identity != BoardBackend.Status.OK or backend.alias_id() == 0:
+	if identity_status != BoardBackend.Status.OK or backend.alias_id() == 0:
 		return view
 	var me := backend.alias_id()
 	for entry in top.entries:
@@ -300,6 +303,7 @@ func load_board(board: LeaderboardDef, back: int = 0) -> View:
 	# Past the top: the player's entry, then the page around it.
 	var page_size := BoardBackend.PAGE_SIZE
 	if view.mine == null:
+		@warning_ignore("redundant_await")  # a coroutine in TaloBackend; the offline BoardBackend answers at once
 		var mine := await backend.fetch_mine(board, key, past)
 		if mine.status != BoardBackend.Status.OK or mine.entries.is_empty():
 			return view
@@ -309,6 +313,7 @@ func load_board(board: LeaderboardDef, back: int = 0) -> View:
 			for page_index in range(1, config.rank_scan_pages):
 				if top.last_page:
 					break
+				@warning_ignore("redundant_await")  # a coroutine in TaloBackend; the offline BoardBackend answers at once
 				var page := await backend.fetch(board, key, past, page_index)
 				if page.status != BoardBackend.Status.OK:
 					break
@@ -322,6 +327,7 @@ func load_board(board: LeaderboardDef, back: int = 0) -> View:
 	var around := top
 	var wanted := floori(float(view.mine.rank - 1) / page_size)
 	if wanted != 0:
+		@warning_ignore("redundant_await")  # a coroutine in TaloBackend; the offline BoardBackend answers at once
 		around = await backend.fetch(board, key, past, wanted)
 	if around.status == BoardBackend.Status.OK:
 		_fill_around(view, around.entries)
@@ -349,6 +355,7 @@ func identity() -> BoardBackend.Status:
 func _ensure_identity() -> BoardBackend.Status:
 	if _identified:
 		return BoardBackend.Status.OK
+	@warning_ignore("redundant_await")  # a coroutine in TaloBackend; the offline BoardBackend answers at once
 	var status := await backend.identify(_device())
 	_identified = status == BoardBackend.Status.OK
 	if _identified and backend.player_id() != player_id:

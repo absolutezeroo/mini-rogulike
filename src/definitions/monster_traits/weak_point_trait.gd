@@ -358,7 +358,7 @@ func deflects(monster: Monster, hit: HitInfo) -> bool:
 
 ## The pool it rises from (ground layer, under every body): a flat, ragged puddle of art pixels
 ## (its edge wavers, tar drips out of it), its far rim catching the light.
-func draw_under(monster: Monster, canvas: CanvasItem) -> void:
+func draw_under(_monster: Monster, canvas: CanvasItem) -> void:
 	if pool_color.a <= 0.0:
 		return
 	var texture := _pool_texture()

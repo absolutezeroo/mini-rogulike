@@ -68,7 +68,7 @@ func kick(strength: float = 1.0) -> void:
 
 ## The whole picture lit for one frame (a bolt of lightning), at most three times a second, and
 ## never when the player turned flashes off.
-func flash(color: Color, strength: float = 0.5) -> bool:
+func flash(tint: Color, strength: float = 0.5) -> bool:
 	if not Settings.screen_flashes:
 		return false
 	var now := Time.get_ticks_msec()
@@ -76,7 +76,7 @@ func flash(color: Color, strength: float = 0.5) -> bool:
 		return false
 	_last_flash_ms = now
 	_flash_frame = Engine.get_process_frames()
-	(material as ShaderMaterial).set_shader_parameter("flash", Color(color, strength))
+	(material as ShaderMaterial).set_shader_parameter("flash", Color(tint, strength))
 	return true
 
 
@@ -95,9 +95,9 @@ func _process(delta: float) -> void:
 		return  # a simulation: nothing to see (Vfx.shown)
 	var shader := material as ShaderMaterial
 	var view := get_viewport().get_canvas_transform().affine_inverse()
-	var size := get_viewport_rect().size
+	var screen_size := get_viewport_rect().size
 	var origin := view * Vector2.ZERO
-	var world_size := view.basis_xform(size)
+	var world_size := view.basis_xform(screen_size)
 	shader.set_shader_parameter("view_origin", origin)
 	shader.set_shader_parameter("view_size", world_size)
 	shader.set_shader_parameter("art_pixel", Vector2.ONE * ART_PIXEL / world_size)

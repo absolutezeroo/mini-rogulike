@@ -8,6 +8,8 @@ extends RpgDialog
 ## step shows the address and the ID, for a player whose device opened no email.
 ## Reachable as %Explain, %ConfirmButton, %CancelButton, %DoneText, %CloseButton.
 
+const MenuNavScript := preload("res://src/autoload/menu_nav.gd")  # its static helpers are called on the script, not the autoload
+
 signal finished
 
 const WIDTH := 720.0
@@ -42,7 +44,7 @@ func open() -> void:
 	confirm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(confirm)
 	_own(confirm, "ConfirmButton")
-	MenuNav.set_first(self, cancel)
+	MenuNavScript.set_first(self, cancel)
 	show()
 
 

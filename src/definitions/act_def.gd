@@ -43,9 +43,9 @@ func all_bosses() -> Array[BossDef]:
 	return result
 
 
-## The biome of a floor of this act (its boss arena's if `boss`).
-func pick_biome(depth: int, boss: bool, rng: RandomNumberGenerator) -> BiomeDef:
-	if boss and boss_biome:
+## The biome of a floor of this act (its boss arena's if `boss_floor`).
+func pick_biome(depth: int, boss_floor: bool, rng: RandomNumberGenerator) -> BiomeDef:
+	if boss_floor and boss_biome:
 		return boss_biome
 	var picked := ContentDB.pick_from(biomes, depth, rng) as BiomeDef
 	return picked if picked else main_biome()

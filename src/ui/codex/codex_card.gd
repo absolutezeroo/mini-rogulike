@@ -86,16 +86,16 @@ func _draw() -> void:
 		draw_style_box(_frame, area.grow(-3))
 
 
-func _centered(text: String, font_size: int, color: Color) -> Label:
-	var label := UiSkin.label(text, font_size, color)
+func _centered(words: String, font_size: int, color: Color) -> Label:
+	var label := UiSkin.label(words, font_size, color)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return label
 
 
 ## A word in a top corner ("Boss", "Shiny").
-func _badge(text: String, color: Color, right: bool) -> Label:
-	var badge := UiSkin.label(text, Fonts.BODY, color)
+func _badge(words: String, color: Color, right: bool) -> Label:
+	var badge := UiSkin.label(words, Fonts.BODY, color)
 	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	badge.position = Vector2(SIZE.x - 14 - badge.get_minimum_size().x if right else 14, 11)
+	badge.position = Vector2(SIZE.x - 14 - badge.get_minimum_size().x if right else 14.0, 11)
 	return badge

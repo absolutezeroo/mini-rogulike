@@ -11,6 +11,8 @@ extends BoardBackend
 ## res://online/talo.cfg, a file git ignores, packed into the builds by the presets'
 ## include_filter (online/talo.cfg.example shows its form). Without one the game is offline.
 
+const LeaderboardsScript := preload("res://src/autoload/leaderboards.gd")  # its static helpers are called on the script, not the autoload
+
 const KEY_FILE := "res://online/talo.cfg"
 const KEY_ENV := "TALO_ACCESS_KEY"
 const DEFAULT_URL := "https://api.trytalo.com"
@@ -158,7 +160,7 @@ func set_pseudonym(pseudonym: String) -> Status:
 	return answer.status
 
 
-func submit(board: LeaderboardDef, score: float, period_key: String, props: Dictionary) -> BoardBackend.Sent:
+func submit(board: LeaderboardDef, score: float, _period_key: String, props: Dictionary) -> BoardBackend.Sent:
 	var sent := BoardBackend.Sent.new()
 	if _alias_id == 0:
 		sent.status = Status.OFFLINE
@@ -196,7 +198,7 @@ func _list(board: LeaderboardDef, period_key: String, past: bool, query: String)
 	if past:
 		path += "&withDeleted=1"
 	if not period_key.is_empty():
-		path += "&propKey=%s&propValue=%s" % [Leaderboards.period_prop(board), period_key.uri_encode()]
+		path += "&propKey=%s&propValue=%s" % [LeaderboardsScript.period_prop(board), period_key.uri_encode()]
 	var answer := await _request(HTTPClient.METHOD_GET, path)
 	var page := BoardBackend.Page.new()
 	page.status = answer.status

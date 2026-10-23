@@ -153,11 +153,11 @@ func tick(owner: Actor, delta: float) -> void:
 		if dot.next_tick <= 0.0:
 			dot.next_tick += dot.interval
 			var source: Actor = dot.source if is_instance_valid(dot.source) else null
-			var tick := Combat.make_tick(source, dot.damage)
-			tick.text_color = dot.color  # its number in the status's color
-			tick.element = dot.element  # burnt to death: ash (DeathLookDef)
-			tick.cause = dot.id  # "burn", "poison": how the Vigil-Keeper tells it (RunFacts)
-			owner.take_hit(tick)
+			var dot_tick := Combat.make_tick(source, dot.damage)
+			dot_tick.text_color = dot.color  # its number in the status's color
+			dot_tick.element = dot.element  # burnt to death: ash (DeathLookDef)
+			dot_tick.cause = dot.id  # "burn", "poison": how the Vigil-Keeper tells it (RunFacts)
+			owner.take_hit(dot_tick)
 			if owner.is_dead:
 				_dots.clear()
 				return

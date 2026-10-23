@@ -71,45 +71,45 @@ static func plan_all(map: DungeonMap, config: DungeonConfig, rng: RandomNumberGe
 static func _find(map: DungeonMap, config: DungeonConfig, rng: RandomNumberGenerator, others: Array[SecretRoomPlan]) -> SecretRoomPlan:
 	var hosts: Array[int] = []
 	for i in range(1, map.rooms.size()):
-		var room := map.rooms[i]
-		if map.exit_cells().any(func(cell: Vector2i) -> bool: return room.grow(1).has_point(cell)):
+		var host_room := map.rooms[i]
+		if map.exit_cells().any(func(cell: Vector2i) -> bool: return host_room.grow(1).has_point(cell)):
 			continue
 		if others.any(func(other: SecretRoomPlan) -> bool: return other.host == i):
 			continue
 		hosts.append(i)
 	RandomUtils.shuffle(hosts, rng)
-	for direction in DIRECTIONS:
+	for outward in DIRECTIONS:
 		for i in hosts:
-			var plan := _try_side(map, config, rng, i, direction, others)
+			var plan := _try_side(map, config, rng, i, outward, others)
 			if plan:
 				return plan
 	return null
 
 
-## Along the side of room `host` facing `direction`: every spot for a passage, shuffled.
-static func _try_side(map: DungeonMap, config: DungeonConfig, rng: RandomNumberGenerator, host: int, direction: Vector2i, others: Array[SecretRoomPlan]) -> SecretRoomPlan:
-	var room := map.rooms[host]
-	var along := Vector2i(absi(direction.y), absi(direction.x))  # across the passage
+## Along the side of room `host_index` facing `outward`: every spot for a passage, shuffled.
+static func _try_side(map: DungeonMap, config: DungeonConfig, rng: RandomNumberGenerator, host_index: int, outward: Vector2i, others: Array[SecretRoomPlan]) -> SecretRoomPlan:
+	var host_room := map.rooms[host_index]
+	var along := Vector2i(absi(outward.y), absi(outward.x))  # across the passage
 	var width := config.secret_passage_width
 	# The first wall cell past the room's side, at its first corner.
 	var corner := Vector2i(
-		room.position.x - 1 if direction.x < 0 else (room.end.x if direction.x > 0 else room.position.x),
-		room.position.y - 1 if direction.y < 0 else (room.end.y if direction.y > 0 else room.position.y))
-	var side := room.size.x if along.x != 0 else room.size.y
+		host_room.position.x - 1 if outward.x < 0 else (host_room.end.x if outward.x > 0 else host_room.position.x),
+		host_room.position.y - 1 if outward.y < 0 else (host_room.end.y if outward.y > 0 else host_room.position.y))
+	var side := host_room.size.x if along.x != 0 else host_room.size.y
 	var spots: Array[int] = []
 	for k in range(2, side - 1 - width):
 		spots.append(k)
 	RandomUtils.shuffle(spots, rng)
 	for k in spots:
-		var plan := _try(map, config, rng, host, corner + along * k, direction, others)
+		var plan := _try(map, config, rng, host_index, corner + along * k, outward, others)
 		if plan:
 			return plan
 	return null
 
 
-## A secret room past wall cell `mouth` of room `host`, its passage going `direction`.
-static func _try(map: DungeonMap, config: DungeonConfig, rng: RandomNumberGenerator, host: int, mouth: Vector2i, direction: Vector2i, others: Array[SecretRoomPlan]) -> SecretRoomPlan:
-	var along := Vector2i(absi(direction.y), absi(direction.x))
+## A secret room past wall cell `mouth` of room `host_index`, its passage going `outward`.
+static func _try(map: DungeonMap, config: DungeonConfig, rng: RandomNumberGenerator, host_index: int, mouth: Vector2i, outward: Vector2i, others: Array[SecretRoomPlan]) -> SecretRoomPlan:
+	var along := Vector2i(absi(outward.y), absi(outward.x))
 	var width := config.secret_passage_width
 	var length := maxi(config.secret_passage_length, DungeonGenerator.MIN_WALL_THICKNESS)
 	# The crack sits on a plain stretch of wall: ground on the room's side of it and one cell
@@ -117,32 +117,32 @@ static func _try(map: DungeonMap, config: DungeonConfig, rng: RandomNumberGenera
 	# to it.
 	for k in range(-1, width + 1):
 		var cell := mouth + along * k
-		if not map.is_ground(cell - direction) or map.is_floor(cell):
+		if not map.is_ground(cell - outward) or map.is_floor(cell):
 			return null
 	# The passage, then the room past it: `size.x` across the passage, `size.y` deep.
 	var across := config.secret_room_size.x
 	var deep := config.secret_room_size.y
 	var room_size := Vector2i(across, deep) if along.x != 0 else Vector2i(deep, across)
-	var shift := rng.randi_range(-(across - width) / 2, (across - width) / 2)
-	var start := mouth + along * (width / 2 - across / 2 + shift)  # the room's first cell across
-	var near := mouth + direction * length  # the room's first cell along the passage
+	var shift := rng.randi_range(int(-(across - width) / 2.0), int((across - width) / 2.0))
+	var start := mouth + along * (int(width / 2.0) - int(across / 2.0) + shift)  # the room's first cell across
+	var near := mouth + outward * length  # the room's first cell along the passage
 	var corner := Vector2i(
-		start.x if along.x != 0 else (near.x if direction.x > 0 else near.x - deep + 1),
-		start.y if along.y != 0 else (near.y if direction.y > 0 else near.y - deep + 1))
+		start.x if along.x != 0 else (near.x if outward.x > 0 else near.x - deep + 1),
+		start.y if along.y != 0 else (near.y if outward.y > 0 else near.y - deep + 1))
 	var hidden := Rect2i(corner, room_size)
-	var passage: Array[Vector2i] = []
-	var crack: Array[Vector2i] = []
+	var passage_cells: Array[Vector2i] = []
+	var crack_cells: Array[Vector2i] = []
 	for j in length:
 		for k in width:
-			var cell := mouth + along * k + direction * j
-			passage.append(cell)
+			var cell := mouth + along * k + outward * j
+			passage_cells.append(cell)
 			if j == 0:
-				crack.append(cell)
+				crack_cells.append(cell)
 			if hidden.has_point(cell):
 				return null
 	# The passage must come out under the room, not under its walls.
 	for k in width:
-		if not hidden.has_point(mouth + along * k + direction * length):
+		if not hidden.has_point(mouth + along * k + outward * length):
 			return null
 	# Rock all around, thick enough that opening it never thins a wall nor joins another floor.
 	var margin := DungeonGenerator.MIN_WALL_THICKNESS
@@ -155,17 +155,17 @@ static func _try(map: DungeonMap, config: DungeonConfig, rng: RandomNumberGenera
 	if not _all_rock(map, area):
 		return null
 	# And on both sides of the passage, back to the host room's wall.
-	var tunnel := Rect2i(passage[0], Vector2i.ONE)
-	for cell in passage:
+	var tunnel := Rect2i(passage_cells[0], Vector2i.ONE)
+	for cell in passage_cells:
 		tunnel = tunnel.expand(cell).expand(cell + Vector2i.ONE)
 	if not _all_rock(map, tunnel.grow_individual(margin * along.x, margin * along.y, margin * along.x, margin * along.y)):
 		return null
 	var plan := SecretRoomPlan.new()
 	plan.room = hidden
-	plan.host = host
-	plan.direction = direction
-	plan.passage = passage
-	plan.crack = crack
+	plan.host = host_index
+	plan.direction = outward
+	plan.passage = passage_cells
+	plan.crack = crack_cells
 	return plan
 
 

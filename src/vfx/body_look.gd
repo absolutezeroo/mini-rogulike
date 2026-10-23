@@ -101,12 +101,12 @@ static func _paint_row(element: VfxElementDef) -> void:
 static func warm_up(parent: Node2D) -> void:
 	var sprite := Sprite2D.new()
 	sprite.texture = ramps()
-	var material := ShaderMaterial.new()
-	material.shader = SHADER
-	material.set_shader_parameter(&"ramps", ramps())
+	var look_material := ShaderMaterial.new()
+	look_material.shader = SHADER
+	look_material.set_shader_parameter(&"ramps", ramps())
 	for name: StringName in [&"burn", &"chill", &"poison", &"dissolve"]:
-		material.set_shader_parameter(name, 0.5)
-	sprite.material = material
+		look_material.set_shader_parameter(name, 0.5)
+	sprite.material = look_material
 	sprite.z_as_relative = false
 	sprite.z_index = RenderingServer.CANVAS_ITEM_Z_MIN
 	parent.add_child(sprite)

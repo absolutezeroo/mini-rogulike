@@ -50,14 +50,14 @@ func _draw() -> void:
 	if node.oath:
 		color = node.oath.color
 	var tint := Color.WHITE if owned or open else Color(0.45, 0.42, 0.4)
-	var icon: Texture2D = node.oath.icon if node.oath and node.oath.icon else (node.upgrade.icon if node.upgrade else null)
-	if icon:
+	var picture: Texture2D = node.oath.icon if node.oath and node.oath.icon else (node.upgrade.icon if node.upgrade else null)
+	if picture:
 		var inner := area.grow(-12)
-		var scale := floorf(minf(inner.size.x / icon.get_width(), inner.size.y / icon.get_height()))
-		if scale < 1.0:
-			scale = minf(inner.size.x / icon.get_width(), inner.size.y / icon.get_height())
-		var drawn := icon.get_size() * scale
-		draw_texture_rect(icon, Rect2((inner.position + (inner.size - drawn) * 0.5).round(), drawn), false, tint)
+		var factor := floorf(minf(inner.size.x / picture.get_width(), inner.size.y / picture.get_height()))
+		if factor < 1.0:
+			factor = minf(inner.size.x / picture.get_width(), inner.size.y / picture.get_height())
+		var drawn := picture.get_size() * factor
+		draw_texture_rect(picture, Rect2((inner.position + (inner.size - drawn) * 0.5).round(), drawn), false, tint)
 	if owned:
 		draw_rect(area.grow(-3), Color(UiSkin.GOLD, 0.95), false, 3.0)
 	elif Profile.can_buy_node(node):
@@ -91,5 +91,5 @@ func _draw() -> void:
 		draw_rect(area.grow(3), Color(1.0, 0.85, 0.35, pulse), false, 3.0)
 
 
-func _text(text: String, at: Vector2, font_size: int, color: Color) -> void:
-	Fonts.draw(self, at, text, font_size, color, 0.5)
+func _text(words: String, at: Vector2, font_size: int, color: Color) -> void:
+	Fonts.draw(self, at, words, font_size, color, 0.5)

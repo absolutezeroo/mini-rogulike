@@ -693,7 +693,10 @@ func _monster_tables() -> void:
 							plain.foe.average_hit, plain.foe.dps, plain.ttk, plain.hits_to_kill]
 						for rank in BalanceContent.ranks(content):
 							var list: Array = rank_ttk.get(String(rank.id), [])
-							cells.append(BalanceContent.mean(list) if not list.is_empty() else "-")
+							if list.is_empty():
+								cells.append("-")
+							else:
+								cells.append(BalanceContent.mean(list))
 						md_rows.append(cells)
 						if monster.spawn_weight > 0:
 							_check_monster(build, monster, depth, plain, rank_ttk)
@@ -924,7 +927,7 @@ func _boss_tables() -> void:
 	boss_ranks.append_array(BalanceContent.boss_ranks(content))
 	for boss in bosses:
 		var act := act_of(boss)
-		var reference := expected_build(act)
+		var ref_build := expected_build(act)
 		for difficulty in difficulties:
 			var d_key := BalanceContent.key(difficulty)
 			for build in builds:
@@ -932,7 +935,7 @@ func _boss_tables() -> void:
 					continue
 				var player := player_for(build)
 				for rank: Variant in boss_ranks:
-					if rank != null and (build != reference or (quick and d_key != "normal")):
+					if rank != null and (build != ref_build or (quick and d_key != "normal")):
 						continue  # ranks: the expected build only
 					var profile := boss_profile(boss, difficulty, player, rank)
 					var ttk := boss_ttk(player, profile)
@@ -962,7 +965,7 @@ func _boss_tables() -> void:
 							"WINS (%.0f%% left)" % (100.0 * tank.hp_left / player.get_max_hp()) if tank.win else "dies at %.0f s" % tank.death_time,
 							BalanceReport.pct(tank.heal_share), BalanceReport.pct(fight_threat)])
 						_check_boss(entry, build, boss, difficulty)
-						if build == reference:
+						if build == ref_build:
 							threat["%s|%s" % [boss.id, d_key]] = fight_threat
 					else:
 						rank_rows.append([String(boss.id), d_key, rank_id, "x%.2f" % (rank as MonsterRankDef).boss_hp_multiplier, profile.hp, ttk,
@@ -970,8 +973,8 @@ func _boss_tables() -> void:
 						if d_key == "normal" and ttk > targets.ranked_boss_ttk_max:
 							report.flag(BalanceReport.WARN, "model: ranked boss TTK", "%s vs %s %s (normal)" % [build.name, rank_id, boss.id], BalanceReport.secs(ttk),
 								"<= %.0f s" % targets.ranked_boss_ttk_max, "boss HP x%.2f" % (rank as MonsterRankDef).boss_hp_multiplier)
-		if reference:
-			var hero := player_for(reference)
+		if ref_build:
+			var hero := player_for(ref_build)
 			var profile := boss_profile(boss, normal(), hero)
 			for p: Dictionary in profile.phases:
 				var foe: Dictionary = p.foe
@@ -1102,15 +1105,15 @@ func _weapon_tables() -> void:
 	var entries: Array = []
 	var weapons := BalanceContent.weapons()
 	for act in range(1, content.dungeon.acts.size() + 1):
-		var reference := expected_build(act)
-		if reference == null:
+		var ref_build := expected_build(act)
+		if ref_build == null:
 			continue
 		var boss := content.dungeon.acts[act - 1].boss
 		var boss_defense := FloorRules.make(content.dungeon, normal(), null, boss_depth(act)).scale_monster(boss.stats, true).defense
 		var by_rarity := {}
 		for rarity in 4:
 			for weapon in weapons:
-				var build := reference.duplicate() as BalanceBuildDef
+				var build := ref_build.duplicate() as BalanceBuildDef
 				build.weapon = weapon
 				build.weapon_rarity = rarity
 				build.weapon_affixes = PackedStringArray()
@@ -1203,20 +1206,20 @@ func fight_power(player: Player, act: int) -> Dictionary:
 
 
 func _perk_table() -> void:
-	var reference := BalanceBuild.find(all_builds, targets.perk_reference_build)
-	if reference == null:
+	var ref_build := BalanceBuild.find(all_builds, targets.perk_reference_build)
+	if ref_build == null:
 		report.flag(BalanceReport.ERROR, "targets", "perk_reference_build", targets.perk_reference_build, "an existing build", "no such build: perk values skipped")
 		return
-	var base_player := BalanceBuild.make_player(reference, content)
-	var base := fight_power(base_player, reference.act)
+	var base_player := BalanceBuild.make_player(ref_build, content)
+	var base := fight_power(base_player, ref_build.act)
 	base_player.free()
 	var entries: Array = []
 	for perk in BalanceContent.perks():
-		var build := reference.duplicate() as BalanceBuildDef
-		build.perks = reference.perks.duplicate()
+		var build := ref_build.duplicate() as BalanceBuildDef
+		build.perks = ref_build.perks.duplicate()
 		build.perks[String(perk.id)] = perk.max_stacks
 		var player := BalanceBuild.make_player(build, content)
-		var power := fight_power(player, reference.act)
+		var power := fight_power(player, ref_build.act)
 		player.free()
 		var boss_value: float = (base.boss_ttk / maxf(power.boss_ttk, 0.01)) * (power.boss_ttd / maxf(base.boss_ttd, 0.01)) - 1.0
 		var room_value: float = (base.room_clear / maxf(power.room_clear, 0.01)) * (power.room_ttd / maxf(base.room_ttd, 0.01)) - 1.0
@@ -1230,8 +1233,8 @@ func _perk_table() -> void:
 		for e: Dictionary in group:
 			rows.append([e.perk, e.rarity, e.stacks, BalanceReport.delta(e.boss_value), BalanceReport.delta(e.room_value),
 				e.boss_ttk, e.boss_ttd, e.room_clear, e.room_ttd])
-	report.data["perks_model"] = { "reference": reference.name, "base": base, "values": entries }
-	report.table("perks_model", "Marginal values", "Perk values at max level on %s, static estimate (fight power = faster kill x longer life, vs the act's main boss on Normal and vs a room of %d monsters; TTD capped at %d s). The lab measures them (tables above)" % [reference.name, ROOM_PACK, TTD_CAP],
+	report.data["perks_model"] = { "reference": ref_build.name, "base": base, "values": entries }
+	report.table("perks_model", "Marginal values", "Perk values at max level on %s, static estimate (fight power = faster kill x longer life, vs the act's main boss on Normal and vs a room of %d monsters; TTD capped at %d s). The lab measures them (tables above)" % [ref_build.name, ROOM_PACK, TTD_CAP],
 		PackedStringArray(["Perk", "Rarity", "Stacks", "Boss value", "Room value", "Boss TTK s", "Boss TTD s", "Room clear s", "Room TTD s"]), rows)
 
 

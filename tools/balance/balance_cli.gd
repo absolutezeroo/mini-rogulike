@@ -409,9 +409,6 @@ static func _combine(reports: Array[BalanceReport]) -> BalanceReport:
 		var key := report.title.trim_prefix("Balance ").to_lower().replace(" ", "_")
 		combined.notes.append("%s: %d errors, %d warnings, %.0f s" % [report.title, report.error_count(), report.warn_count(), _total(report.timings)])
 		combined.merge(report, key)
-	var total := 0.0
-	for key: String in combined.timings:
-		total += float(combined.timings[key])
 	combined.notes.append("Real time per part: %s" % ", ".join(combined.timings.keys().map(func(k: String) -> String: return "%s %.0f s" % [k, combined.timings[k]])))
 	return combined
 

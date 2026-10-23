@@ -185,8 +185,8 @@ func _draw_sockets(area: Rect2) -> void:
 		draw_rect(Rect2(rect.end - Vector2(third, third), Vector2(third, third)), element.edge())
 
 
-func _text(text: String, at: Vector2, align: HorizontalAlignment, font_size: int, color: Color) -> void:
-	Fonts.draw(self, at, text, font_size, color, 1.0 if align == HORIZONTAL_ALIGNMENT_RIGHT else (0.5 if align == HORIZONTAL_ALIGNMENT_CENTER else 0.0))
+func _text(words: String, at: Vector2, align: HorizontalAlignment, font_size: int, color: Color) -> void:
+	Fonts.draw(self, at, words, font_size, color, 1.0 if align == HORIZONTAL_ALIGNMENT_RIGHT else (0.5 if align == HORIZONTAL_ALIGNMENT_CENTER else 0.0))
 
 
 ## The biggest whole-pixel scale of `texture` that fits in `box`, centred.
@@ -197,10 +197,10 @@ static func fit(texture: Texture2D, box: Rect2) -> Rect2:
 
 static func _fit(texture: Texture2D, box: Rect2) -> Rect2:
 	var source := texture.get_size()
-	var scale := floorf(minf(box.size.x / source.x, box.size.y / source.y))
-	if scale < 1.0:
-		scale = minf(box.size.x / source.x, box.size.y / source.y)
-	var drawn := source * scale
+	var factor := floorf(minf(box.size.x / source.x, box.size.y / source.y))
+	if factor < 1.0:
+		factor = minf(box.size.x / source.x, box.size.y / source.y)
+	var drawn := source * factor
 	return Rect2((box.position + (box.size - drawn) * 0.5).round(), drawn)
 
 
@@ -240,10 +240,10 @@ static func _frame_box(color: Color) -> StyleBoxTexture:
 	return _frames[key]
 
 
-## `icon` drawn whole pixels big, centred in `box`, its larger side `share` of the box's smaller
+## `picture` drawn whole pixels big, centred in `box`, its larger side `share` of the box's smaller
 ## side (so pictograms of any size sit in the middle at one size).
-static func centered_icon(icon: Texture2D, box: Rect2, share: float) -> Rect2:
-	var art := icon.get_size()
-	var scale := maxf(1.0, floorf(minf(box.size.x, box.size.y) * share / maxf(art.x, art.y)))
-	var drawn := art * scale
+static func centered_icon(picture: Texture2D, box: Rect2, share: float) -> Rect2:
+	var art := picture.get_size()
+	var factor := maxf(1.0, floorf(minf(box.size.x, box.size.y) * share / maxf(art.x, art.y)))
+	var drawn := art * factor
 	return Rect2((box.position + (box.size - drawn) * 0.5).round(), drawn)

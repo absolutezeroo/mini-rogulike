@@ -145,9 +145,9 @@ func _home() -> String:
 			if act.floors <= 1:
 				return tr("%s, floor %d") % [tr(act.subtitle), first]
 			return tr("%s, floors %d to %d") % [tr(act.subtitle), first, last]
-	var hidden := _content.dungeon.hidden_floor
-	if hidden and hidden.boss == _monster:
-		return tr(hidden.title)
+	var hidden_def := _content.dungeon.hidden_floor
+	if hidden_def and hidden_def.boss == _monster:
+		return tr(hidden_def.title)
 	var finale := _content.dungeon.finale
 	if finale and finale.boss and finale.boss.forms().any(func(form: BossDef) -> bool: return form == _monster):
 		return tr(finale.title)
@@ -329,15 +329,15 @@ func _attacks() -> Array[Dictionary]:
 	for skill in skills:
 		var text := tr(skill.description) if not skill.description.is_empty() else ""
 		text += (" " if not text.is_empty() else "") + tr("Used every %.0f seconds.") % skill.cooldown
-		var name := tr(skill.display_name)
+		var skill_name := tr(skill.display_name)
 		if phase_of.has(skill):
 			text = tr("From phase %d. %s") % [phase_of[skill], text]
-			if names.has(name):
+			if names.has(skill_name):
 				# Its fiercer form; on a line of its own, so a long French name (« Cercle des
 				# Lamentations (phase 3) ») never makes the column wider than the screen.
-				name += "\n" + tr("(phase %d)") % phase_of[skill]
+				skill_name += "\n" + tr("(phase %d)") % phase_of[skill]
 		names[tr(skill.display_name)] = true
-		result.append({ "name": name, "attack": skill, "text": text })
+		result.append({ "name": skill_name, "attack": skill, "text": text })
 	return result
 
 

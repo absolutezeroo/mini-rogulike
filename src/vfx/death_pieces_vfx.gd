@@ -134,11 +134,11 @@ func _break(frame: Texture2D, corner: Vector2, fewer: bool) -> void:
 	if opaque == 0:
 		return
 	var seeds: Array[Vector2] = []
-	for i in clampi(opaque / (SHARD_AREA * (2 if fewer else 1)), 3, 24):
+	for i in clampi(int(opaque / float(SHARD_AREA * (2 if fewer else 1))), 3, 24):
 		seeds.append(Vector2(randf() * size.x, randf() * size.y))
 	# Which piece each art pixel falls in (stretched a little: ice breaks in slabs).
-	var owner := PackedInt32Array()
-	owner.resize(size.x * size.y)
+	var owners := PackedInt32Array()
+	owners.resize(size.x * size.y)
 	var boxes: Array[Rect2i] = []
 	boxes.resize(seeds.size())
 	var used := PackedByteArray()
@@ -146,7 +146,7 @@ func _break(frame: Texture2D, corner: Vector2, fewer: bool) -> void:
 	for y in size.y:
 		for x in size.x:
 			var i := y * size.x + x
-			owner[i] = -1
+			owners[i] = -1
 			if image.get_pixel(x, y).a < 0.5:
 				continue
 			var best := 0
@@ -156,7 +156,7 @@ func _break(frame: Texture2D, corner: Vector2, fewer: bool) -> void:
 				if d.length_squared() < best_d:
 					best_d = d.length_squared()
 					best = s
-			owner[i] = best
+			owners[i] = best
 			var cell := Rect2i(x, y, 1, 1)
 			boxes[best] = cell if used[best] == 0 else boxes[best].merge(cell)
 			used[best] = 1
@@ -174,9 +174,9 @@ func _break(frame: Texture2D, corner: Vector2, fewer: bool) -> void:
 		var box := boxes[s]
 		for y in range(box.position.y, box.end.y):
 			for x in range(box.position.x, box.end.x):
-				if owner[y * size.x + x] != s:
+				if owners[y * size.x + x] != s:
 					continue
-				atlas.set_pixel(x0 + x - box.position.x, y, _ice(image, owner, size, x, y, s))
+				atlas.set_pixel(x0 + x - box.position.x, y, _ice(image, owners, size, x, y, s))
 		var piece := Piece.new()
 		piece.region = Rect2(x0, box.position.y, box.size.x, box.size.y)
 		piece.position = (corner + Vector2(box.position)) * _texel
@@ -193,7 +193,7 @@ func _break(frame: Texture2D, corner: Vector2, fewer: bool) -> void:
 
 ## The ice color of art pixel (x, y) of piece `s`: the frozen body's step for its brightness
 ## (as flash.gdshader's freeze), lit on the piece's top left edge, dark on its bottom right.
-func _ice(image: Image, owner: PackedInt32Array, size: Vector2i, x: int, y: int, s: int) -> Color:
+func _ice(image: Image, owners: PackedInt32Array, size: Vector2i, x: int, y: int, s: int) -> Color:
 	var source := image.get_pixel(x, y)
 	var luma := source.r * 0.299 + source.g * 0.587 + source.b * 0.114
 	var step := 0 if luma > 0.72 else (1 if luma > 0.5 else (2 if luma > 0.32 else (3 if luma > 0.17 else 4)))
@@ -201,7 +201,7 @@ func _ice(image: Image, owner: PackedInt32Array, size: Vector2i, x: int, y: int,
 	var inside := func(dx: int, dy: int) -> bool:
 		var nx := x + dx
 		var ny := y + dy
-		return nx >= 0 and ny >= 0 and nx < size.x and ny < size.y and owner[ny * size.x + nx] == s
+		return nx >= 0 and ny >= 0 and nx < size.x and ny < size.y and owners[ny * size.x + nx] == s
 	if not inside.call(0, -1) or not inside.call(-1, 0):
 		step = 0
 	elif not inside.call(0, 1) or not inside.call(1, 0):

@@ -659,9 +659,9 @@ func _giveables() -> Array[Array]:
 	for item in content.locked_items + content.runes:
 		if item and not items.has(item):
 			items.append(item)
-	var hidden := content.dungeon.hidden_floor
-	if hidden and hidden.key and not items.has(hidden.key):
-		items.append(hidden.key)
+	var hidden_def := content.dungeon.hidden_floor
+	if hidden_def and hidden_def.key and not items.has(hidden_def.key):
+		items.append(hidden_def.key)
 	var kinds := [
 		["Weapon", func(thing: Resource) -> bool: return thing is WeaponDef],
 		["Armor", func(thing: Resource) -> bool: return thing is EquipmentDef and not thing is WeaponDef],

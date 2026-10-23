@@ -396,10 +396,10 @@ func _give_daily_start() -> void:
 
 
 ## The oath chosen for the next run (Profile.oath), if its node was bought; null otherwise.
-static func sworn_oath(content: ContentDB) -> OathDef:
-	if Profile.oath == &"" or content.soul_tree == null:
+static func sworn_oath(content_db: ContentDB) -> OathDef:
+	if Profile.oath == &"" or content_db.soul_tree == null:
 		return null
-	for oath in content.soul_tree.open_oaths():
+	for oath in content_db.soul_tree.open_oaths():
 		if oath.id == Profile.oath:
 			return oath
 	return null
@@ -407,10 +407,10 @@ static func sworn_oath(content: ContentDB) -> OathDef:
 
 ## The weapon picked to start with (the Armory node), or null: none picked, or one its level
 ## doesn't offer (an older save, a reset tree), and the run starts with the usual one.
-static func picked_weapon(content: ContentDB) -> WeaponDef:
+static func picked_weapon(content_db: ContentDB) -> WeaponDef:
 	if Profile.starting_weapon == &"":
 		return null
-	for weapon in ShrineUpgrades.armory_weapons(content):
+	for weapon in ShrineUpgrades.armory_weapons(content_db):
 		if weapon.id == Profile.starting_weapon:
 			return weapon
 	return null
@@ -671,7 +671,7 @@ func _enter_floor(resumed: bool = false) -> void:
 	if run.is_daily():
 		world.rng.seed = DailyRun.floor_seed(run.daily_day, depth)  # the same floors all day
 	else:
-		world.rng.seed = hash("%d-floor-%d" % [run.seed, depth])  # quitting can't reroll a floor
+		world.rng.seed = hash("%d-floor-%d" % [run.run_seed, depth])  # quitting can't reroll a floor
 	if run.hidden_floor:
 		world.rng.seed = hash("hidden-%d" % world.rng.seed)  # not the boss floor of the same depth
 	world.hidden_floor = content.dungeon.hidden_floor if run.hidden_floor else null

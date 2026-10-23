@@ -51,9 +51,9 @@ static func problem(text: String, config: LeaderboardsConfig) -> Problem:
 	return Problem.NONE
 
 
-## What the player is told about `problem`, a plain sentence.
-static func explain(problem: Problem, config: LeaderboardsConfig) -> String:
-	match problem:
+## What the player is told about `issue`, a plain sentence.
+static func explain(issue: Problem, config: LeaderboardsConfig) -> String:
+	match issue:
 		Problem.TOO_SHORT:
 			return TranslationServer.tr("At least %d characters.") % config.name_min
 		Problem.TOO_LONG:

@@ -152,6 +152,7 @@ func start() -> void:
 		_gates.close()
 	var woke_on_screen := false
 	if _world.storyteller:
+		@warning_ignore("redundant_await")  # a coroutine in BossMeeting (the base Storyteller answers at once)
 		woke_on_screen = await _world.storyteller.meet(boss)
 		if not is_instance_valid(boss) or boss.is_dead or not is_instance_valid(_world) or _world.player == null:
 			return
@@ -225,6 +226,7 @@ func _rise(fallen: Monster, def: BossDef) -> void:
 	# Risen, it is met: the storyteller may tell its story now (a cinematic: its name, a line).
 	var woke_on_screen := false
 	if _world.storyteller and _world.player and not _world.player.is_dead:
+		@warning_ignore("redundant_await")  # a coroutine in BossMeeting (the base Storyteller answers at once)
 		woke_on_screen = await _world.storyteller.meet(risen, true)
 		if not is_instance_valid(risen) or risen.is_dead or not is_instance_valid(_world) or _world.player == null:
 			return

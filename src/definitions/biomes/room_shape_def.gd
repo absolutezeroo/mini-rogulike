@@ -156,8 +156,8 @@ func core_rect(size: Vector2i) -> Rect2i:
 func on_bridge(local: Vector2i, size: Vector2i) -> bool:
 	if bridges <= 0:
 		return false
-	var mid := size / 2
-	var low := -bridge_width / 2
+	var mid := Vector2i(Vector2(size) / 2.0)
+	var low := int(-bridge_width / 2.0)
 	var high := low + bridge_width
 	var along_x := local.y - mid.y >= low and local.y - mid.y < high  # a walkway from left to right
 	var along_y := local.x - mid.x >= low and local.x - mid.x < high  # from top to bottom
@@ -172,7 +172,7 @@ func pillar_cells(size: Vector2i, flip: Vector2i = Vector2i.ONE) -> Array[Vector
 	var cells: Array[Vector2i] = []
 	if pillars == Pillars.NONE:
 		return cells
-	var mid := size / 2
+	var mid := Vector2i(Vector2(size) / 2.0)
 	var step := maxi(pillar_spacing, 2)
 	match pillars:
 		Pillars.ROWS:
@@ -215,7 +215,7 @@ func pillar_cells(size: Vector2i, flip: Vector2i = Vector2i.ONE) -> Array[Vector
 ## leaving the lane through it (where corridors come in) open, two cells off the walls.
 static func _around_middle(span: int, step: int) -> Array[int]:
 	var places: Array[int] = []
-	var mid := span / 2
+	var mid := int(span / 2.0)
 	var offset := 2
 	while true:
 		var low := mid - offset

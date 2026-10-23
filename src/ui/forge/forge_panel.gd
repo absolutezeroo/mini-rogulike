@@ -78,8 +78,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 # --- Actions ----------------------------------------------------------------------
 
-func _select_weapon(weapon: EquipmentDef) -> void:
-	_weapon = weapon
+func _select_weapon(picked: EquipmentDef) -> void:
+	_weapon = picked
 	_socket = -1
 	Sfx.play_ui(Sfx.bank.ui_click)
 	_refresh()
@@ -132,12 +132,12 @@ func _refresh() -> void:
 	if not weapons.has(_weapon):
 		_weapon = weapons[0] if not weapons.is_empty() else null
 	var worn := _player.equipment.get_item(EquipmentDef.Slot.WEAPON)
-	for weapon in weapons:
+	for each in weapons:
 		var slot := ItemSlot.new(WEAPON_SLOT)
-		slot.item = weapon
-		slot.selected = weapon == _weapon
-		slot.tooltip_text = tr("Worn: %s") % tr(weapon.display_name) if weapon == worn else tr(weapon.display_name)
-		slot.pressed.connect(_select_weapon.bind(weapon))
+		slot.item = each
+		slot.selected = each == _weapon
+		slot.tooltip_text = tr("Worn: %s") % tr(each.display_name) if each == worn else tr(each.display_name)
+		slot.pressed.connect(_select_weapon.bind(each))
 		_weapons.add_child(slot)
 	_weapon_slot.item = _weapon
 	if _weapon == null:

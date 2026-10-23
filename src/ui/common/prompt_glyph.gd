@@ -107,27 +107,27 @@ func _draw() -> void:
 		draw_cap(self, Vector2.ZERO, _cap)
 
 
-## How big `cap` draws (UI units).
-static func cap_size(cap: Dictionary) -> Vector2:
-	if cap.is_empty():
+## How big `glyph` draws (UI units).
+static func cap_size(glyph: Dictionary) -> Vector2:
+	if glyph.is_empty():
 		return Vector2.ZERO
-	if cap.shape == Prompts.Shape.MOUSE:
+	if glyph.shape == Prompts.Shape.MOUSE:
 		return Vector2(20, HEIGHT)
-	var words := Fonts.width(cap.text, Fonts.BODY)
-	var round_shape: bool = cap.shape == Prompts.Shape.ROUND or cap.shape == Prompts.Shape.STICK
+	var words := Fonts.width(glyph.text, Fonts.BODY)
+	var round_shape: bool = glyph.shape == Prompts.Shape.ROUND or glyph.shape == Prompts.Shape.STICK
 	var width := maxf(HEIGHT, _snap(words + (12.0 if round_shape else 14.0)))
 	return Vector2(width, HEIGHT)
 
 
-## Draws `cap` on `item` with its top left at `at` (in the item's _draw()).
-static func draw_cap(item: CanvasItem, at: Vector2, cap: Dictionary) -> void:
+## Draws `glyph` on `item` with its top left at `at` (in the item's _draw()).
+static func draw_cap(item: CanvasItem, at: Vector2, glyph: Dictionary) -> void:
 	at = at.round()
-	var area := Rect2(at, cap_size(cap))
-	var rim: Color = cap.color
+	var area := Rect2(at, cap_size(glyph))
+	var rim: Color = glyph.color
 	var radius := int(area.size.y / PIXEL / 2.0)  # a disc's, in pixels
-	match cap.shape:
+	match glyph.shape:
 		Prompts.Shape.MOUSE:
-			_draw_mouse(item, area, int(cap.button))
+			_draw_mouse(item, area, int(glyph.button))
 			return
 		Prompts.Shape.KEY:
 			# A key: its face over a darker lower edge, corners cut by a pixel.
@@ -146,13 +146,13 @@ static func draw_cap(item: CanvasItem, at: Vector2, cap: Dictionary) -> void:
 			_fill(item, area, radius, Fonts.OUTLINE)
 			_fill(item, area.grow(-PIXEL), radius - 1, rim)
 			_fill(item, area.grow(-PIXEL * 2), radius - 2, FACE)
-			if cap.shape == Prompts.Shape.STICK:
+			if glyph.shape == Prompts.Shape.STICK:
 				_fill(item, area.grow(-PIXEL * 4), radius - 4, Color(rim, 0.3))
 				_fill(item, area.grow(-PIXEL * 5), radius - 5, FACE)
-	var color := rim if cap.shape == Prompts.Shape.ROUND and rim != RIM else WORDS
-	var lift := PIXEL if cap.shape == Prompts.Shape.KEY else 0.0  # (over the key's lower edge)
+	var color := rim if glyph.shape == Prompts.Shape.ROUND and rim != RIM else WORDS
+	var lift := PIXEL if glyph.shape == Prompts.Shape.KEY else 0.0  # (over the key's lower edge)
 	var baseline := area.position.y + HEIGHT * 0.5 + Fonts.half_cap(Fonts.BODY) - lift
-	Fonts.draw(item, Vector2(area.get_center().x, baseline), cap.text, Fonts.BODY, color, 0.5, Color.TRANSPARENT)
+	Fonts.draw(item, Vector2(area.get_center().x, baseline), glyph.text, Fonts.BODY, color, 0.5, Color.TRANSPARENT)
 
 
 ## A little mouse, `button` (1 left, 2 right, 3 middle) lit in gold.

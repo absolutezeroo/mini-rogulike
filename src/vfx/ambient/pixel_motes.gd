@@ -31,7 +31,7 @@ func _ready() -> void:
 
 ## The motes, already falling when the floor shows (once the ambience has put us on the view).
 func _seed() -> void:
-	var count := amount / 2 if Settings.fewer_effects else amount
+	var count := int(amount / 2.0) if Settings.fewer_effects else amount
 	for i in count:
 		var mote := _spawn()
 		mote.age = randf() * mote.life  # already falling when the floor shows
@@ -79,12 +79,12 @@ func _draw_motes() -> void:
 		var cell := PixelDraw.cell_of(mote.at)
 		if not PixelDraw.dither(cell, fade):
 			continue
-		var color := element.shade(mote.shade)
+		var shade := element.shade(mote.shade)
 		var at: Vector2 = PixelDraw.snap(mote.at) - global_position
 		match int(mote.age * 4.0 + mote.seed) % 4:
 			0:
-				_canvas.draw_rect(Rect2(at, Vector2(PixelDraw.PX * 2.0, PixelDraw.PX)), color)
+				_canvas.draw_rect(Rect2(at, Vector2(PixelDraw.PX * 2.0, PixelDraw.PX)), shade)
 			2:
-				_canvas.draw_rect(Rect2(at, Vector2(PixelDraw.PX, PixelDraw.PX * 2.0)), color)
+				_canvas.draw_rect(Rect2(at, Vector2(PixelDraw.PX, PixelDraw.PX * 2.0)), shade)
 			_:
-				_canvas.draw_rect(Rect2(at, Vector2.ONE * PixelDraw.PX), color)
+				_canvas.draw_rect(Rect2(at, Vector2.ONE * PixelDraw.PX), shade)

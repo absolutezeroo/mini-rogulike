@@ -10,6 +10,8 @@ extends Control
 ## show_cards() with what replaces them. Later (or Back) puts the choice off: it waits behind the
 ## perk button with the same cards.
 
+const MenuNavScript := preload("res://src/autoload/menu_nav.gd")  # its static helpers are called on the script, not the autoload
+
 signal chosen(perk: PerkDef)
 signal reroll_requested
 signal banish_requested(index: int)
@@ -72,7 +74,7 @@ func open(title: String, subtitle: String, perks: Array[PerkDef], owned: PerkSet
 	# Keys and gamepads start on the first card (MenuNav; never on touch, where it would look
 	# like a picked card).
 	if _cards.get_child_count() > 0:
-		MenuNav.set_first(_dialog, _cards.get_child(0) as Control)
+		MenuNavScript.set_first(_dialog, _cards.get_child(0) as Control)
 	show()
 	_enter()
 	Sfx.play_ui(Sfx.bank.ui_open)

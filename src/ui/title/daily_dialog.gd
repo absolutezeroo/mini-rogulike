@@ -95,8 +95,8 @@ func open(content: ContentDB, day: int) -> void:
 	go.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	go.name = "AnswerButton"
 	buttons.add_child(go)
-	var back := UiParts.button(tr("Back"), func() -> void:
+	var back_button := UiParts.button(tr("Back"), func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_close)
 		hide(), Vector2(160, 56), Fonts.BODY)
-	buttons.add_child(back)
+	buttons.add_child(back_button)
 	show()

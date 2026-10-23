@@ -11,7 +11,7 @@ var version := ""
 var daily_day := -1
 var daily_official := false
 ## The run's seed (a daily run's floors come from its day).
-var seed := 0
+var run_seed := 0
 ## Difficulty id (easy, normal, hard, nightmare) and ascension level.
 var difficulty: StringName = &""
 var ascension := 0
@@ -40,7 +40,7 @@ static func of(run: RunState, player: Player, content: ContentDB) -> RunSummary:
 	summary.version = str(ProjectSettings.get_setting("application/config/version", ""))
 	summary.daily_day = run.daily_day
 	summary.daily_official = run.daily_official
-	summary.seed = run.seed
+	summary.run_seed = run.run_seed
 	summary.difficulty = run.difficulty.id if run.difficulty else &""
 	summary.ascension = run.difficulty.ascension if run.difficulty else 0
 	summary.depth = run.depth
@@ -85,7 +85,7 @@ func check(config: LeaderboardsConfig) -> String:
 func expected_daily_score() -> int:
 	return kills * DailyRun.POINTS_PER_KILL + (depth - 1) * DailyRun.POINTS_PER_FLOOR \
 		+ bosses * DailyRun.POINTS_PER_BOSS + (DailyRun.POINTS_FOR_VICTORY if won else 0) \
-		+ gold / DailyRun.GOLD_PER_POINT
+		+ int(gold / float(DailyRun.GOLD_PER_POINT))
 
 
 ## The entry's props (strings, as Talo keeps them): the run in short, read in the dashboard.
@@ -102,7 +102,7 @@ func props() -> Dictionary:
 		"won": "1" if won else "0",
 		"time": "%.1f" % time,
 		"weapon": String(weapon),
-		"seed": str(seed),
+		"seed": str(run_seed),
 	}
 	if daily_day >= 0:
 		result["relic"] = String(relic)

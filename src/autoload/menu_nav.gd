@@ -387,7 +387,7 @@ func _scroll(menu: Control, from: Control, direction: Vector2) -> bool:
 			if (found as ScrollContainer).is_visible_in_tree():
 				boxes.append(found)
 	for box in boxes:
-		var bar: ScrollBar = box.get_v_scroll_bar() if direction.y != 0.0 else box.get_h_scroll_bar()
+		var bar: ScrollBar = (box.get_v_scroll_bar() as ScrollBar) if direction.y != 0.0 else (box.get_h_scroll_bar() as ScrollBar)
 		if bar == null or bar.max_value - bar.page <= 0.0:
 			continue
 		var before := bar.value
@@ -502,7 +502,7 @@ class FocusFrame:
 		_clip = _clip_rect()
 		if not _inside(_clip):
 			return  # scrolled out of its box: no frame floating over what is next to it
-		var beat := 1.0 if int(Time.get_ticks_msec() / 400) % 2 == 0 else 0.0
+		var beat := 1.0 if int(Time.get_ticks_msec() / 400.0) % 2 == 0 else 0.0
 		var rect := _frame_rect(beat)
 		# A thin gold line all round, dark outside it, and bright corners.
 		_outline(rect.grow(PIXEL), DARK)

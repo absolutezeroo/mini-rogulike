@@ -8,6 +8,8 @@ extends Control
 ## kept: DialogueLineDef.remembered, Narrative.told_lines()). Each tab opens with a line saying
 ## what it is for. Built in code.
 
+const MenuNavScript := preload("res://src/autoload/menu_nav.gd")  # its static helpers are called on the script, not the autoload
+
 enum Tab { QUESTS, BESTIARY, ACHIEVEMENTS, RUNS, VOICES }
 
 const TAB_NAMES := ["Quests", "Bestiary", "Achievements", "Runs", "Voices"]  # i18n
@@ -58,7 +60,7 @@ func open(content: ContentDB, tab: int = -1) -> void:
 func show_tab(tab: int) -> void:
 	_tab = tab as Tab
 	Sfx.play_ui(Sfx.bank.ui_click)
-	MenuNav.set_first(_window, _tab_buttons[tab])  # keys and pads start on the tab shown
+	MenuNavScript.set_first(_window, _tab_buttons[tab])  # keys and pads start on the tab shown
 	_close_page()
 	for i in _tab_buttons.size():
 		_tab_buttons[i].set_pressed_no_signal(i == tab)
@@ -127,9 +129,9 @@ func bestiary_entries() -> Array[MonsterDef]:
 	for monster in _content.abyss_monsters():
 		if not result.has(monster):
 			result.append(monster)
-	var hidden := _content.dungeon.hidden_floor
-	if hidden and hidden.boss and not result.has(hidden.boss):
-		result.append(hidden.boss)
+	var hidden_def := _content.dungeon.hidden_floor
+	if hidden_def and hidden_def.boss and not result.has(hidden_def.boss):
+		result.append(hidden_def.boss)
 	var finale := _content.dungeon.finale
 	if finale and finale.boss:
 		for form in finale.boss.forms():
@@ -232,9 +234,9 @@ func _fill_abyss(rules: BestiaryRules, placed: Dictionary) -> void:
 
 ## The hidden floor's boss, after the acts: "???" (its floor too) until it was met.
 func _fill_hidden(rules: BestiaryRules, placed: Dictionary) -> void:
-	var hidden := _content.dungeon.hidden_floor
-	if hidden and hidden.boss:
-		_fill_secret(rules, placed, hidden.subtitle, hidden.title, [hidden.boss] as Array[MonsterDef])
+	var hidden_def := _content.dungeon.hidden_floor
+	if hidden_def and hidden_def.boss:
+		_fill_secret(rules, placed, hidden_def.subtitle, hidden_def.title, [hidden_def.boss] as Array[MonsterDef])
 
 
 ## The bottom of the Well's forms, last: "???" until met (its name too), each its own card.
@@ -376,11 +378,11 @@ func _records_text() -> String:
 func _record_name(key: String) -> String:
 	var parts := key.split("/")
 	var difficulty := _content.get_difficulty(StringName(parts[0])) if _content else null
-	var name := tr(difficulty.display_name) if difficulty else parts[0].capitalize()
+	var label_name := tr(difficulty.display_name) if difficulty else parts[0].capitalize()
 	for part in parts.slice(1):
 		if part.begins_with("a") and part.substr(1).is_valid_int():
-			name += " +%s" % part.substr(1)
-	return name
+			label_name += " +%s" % part.substr(1)
+	return label_name
 
 
 # --- Voices -----------------------------------------------------------------------

@@ -468,7 +468,7 @@ func pack(s: Dictionary, build: BalanceBuildDef, foes: Array, bot_name: String, 
 				monster.make_ranked(foe.rank, affixes)
 		monster.target = player
 		spawned.append(monster)
-	var log := PackLog.new(player, spawned, world)
+	var pack_log := PackLog.new(player, spawned, world)
 	var bot := BalanceBot.create(bot_name, player, world)
 	var away_frames := 0
 	var frames := 0
@@ -484,7 +484,7 @@ func pack(s: Dictionary, build: BalanceBuildDef, foes: Array, bot_name: String, 
 			away_frames += 1
 			bot.step()
 			continue
-		log.frame()
+		pack_log.frame()
 		if player.is_dead:
 			outcome = "died"
 			break
@@ -493,9 +493,9 @@ func pack(s: Dictionary, build: BalanceBuildDef, foes: Array, bot_name: String, 
 			break
 		bot.step()
 	BalanceBot.release_all()
-	log.frame()
-	log.close()
-	var result := log.summary()
+	pack_log.frame()
+	pack_log.close()
+	var result := pack_log.summary()
 	result["result"] = outcome
 	result["clear_time"] = frames / FPS
 	result["hero_max_hp"] = player.get_max_hp()

@@ -121,14 +121,14 @@ func set_wear(slot: EquipmentDef.Slot, frames: SpriteFrames, color: Color, rarit
 		_wear_materials[slot] = _own_material(layer, false)
 		(_wear_materials[slot] as ShaderMaterial).set_shader_parameter(&"trim_hem", true)
 	if _wear_materials.has(slot):
-		var material := _wear_materials[slot] as ShaderMaterial
-		_set_trim(material, _wear_rarity[slot])
-		material.set_shader_parameter(&"imbue", 1.0 if carried else 0.0)
+		var slot_material := _wear_materials[slot] as ShaderMaterial
+		_set_trim(slot_material, _wear_rarity[slot])
+		slot_material.set_shader_parameter(&"imbue", 1.0 if carried else 0.0)
 		if carried:
-			material.set_shader_parameter(&"imbue_row", BodyLook.row(carried))
-		material.set_shader_parameter(&"teeth", teeth)
+			slot_material.set_shader_parameter(&"imbue_row", BodyLook.row(carried))
+		slot_material.set_shader_parameter(&"teeth", teeth)
 		if teeth:
-			material.set_shader_parameter(&"teeth_row", BodyLook.row(VfxElementDef.named(&"physical")))
+			slot_material.set_shader_parameter(&"teeth_row", BodyLook.row(VfxElementDef.named(&"physical")))
 	_sync_layers()
 
 
@@ -519,23 +519,23 @@ func wear_material(slot: EquipmentDef.Slot) -> ShaderMaterial:
 
 ## A copy of the body shader for `layer` (its own uniforms: the trim), following the body's.
 func _own_material(layer: CanvasItem, own_frame: bool) -> ShaderMaterial:
-	var material := ShaderMaterial.new()
-	material.shader = (visual.material as ShaderMaterial).shader
+	var trim_material := ShaderMaterial.new()
+	trim_material.shader = (visual.material as ShaderMaterial).shader
 	layer.use_parent_material = false
-	layer.material = material
-	look.follow(material, own_frame)
-	return material
+	layer.material = trim_material
+	look.follow(trim_material, own_frame)
+	return trim_material
 
 
-## `rarity`'s trim on `material` (nothing for Common); fewer effects cuts the glint.
-func _set_trim(material: ShaderMaterial, rarity: int) -> void:
+## `rarity`'s trim on `trim_material` (nothing for Common); fewer effects cuts the glint.
+func _set_trim(trim_material: ShaderMaterial, rarity: int) -> void:
 	var rarity_look := ItemRarity.look(rarity) if rarity > ItemRarity.COMMON else null
 	var trim := rarity_look.trim if rarity_look else 0
-	material.set_shader_parameter(&"trim", trim)
+	trim_material.set_shader_parameter(&"trim", trim)
 	if trim > 0:
-		material.set_shader_parameter(&"trim_row", BodyLook.row(rarity_look.element))
+		trim_material.set_shader_parameter(&"trim_row", BodyLook.row(rarity_look.element))
 	var sweep := rarity_look.sweep_every if rarity_look and not Settings.fewer_effects else 0.0
-	material.set_shader_parameter(&"trim_sweep", sweep if trim > 0 else 0.0)
+	trim_material.set_shader_parameter(&"trim_sweep", sweep if trim > 0 else 0.0)
 
 
 ## The weapon's look for the hero: its sprite at rest, its rarity's trim and its elements, on the

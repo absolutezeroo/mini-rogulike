@@ -2,6 +2,8 @@ extends Node
 ## Global signal bus (autoload "Events").
 ## Gameplay code emits, UI listens: neither side needs a reference to the other.
 
+# The bus's signals are emitted and connected by other classes, never here.
+@warning_ignore_start("unused_signal")
 signal message_logged(text: String, color: Color)
 signal depth_changed(depth: int)
 signal monster_killed(monster: Monster)
@@ -105,6 +107,7 @@ signal run_ended(summary: RunSummary)
 signal ending_chosen(ending: EndingDef)
 ## Souls were offered to the Tree of Souls at the shrine (an upgrade bought): the world counters.
 signal souls_offered(amount: int)
+@warning_ignore_restore("unused_signal")
 
 
 func log_message(text: String, color: Color = Color.WHITE) -> void:

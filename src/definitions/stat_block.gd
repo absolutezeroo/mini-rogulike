@@ -75,7 +75,10 @@ static func from_dict(data: Dictionary) -> StatBlock:
 	for key: String in data:
 		if key in block:
 			var value: Variant = data[key]
-			block.set(key, int(value) if typeof(block.get(key)) == TYPE_INT else float(value))
+			if typeof(block.get(key)) == TYPE_INT:
+				block.set(key, int(value))
+			else:
+				block.set(key, float(value))
 	return block
 
 

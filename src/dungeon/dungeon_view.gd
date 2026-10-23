@@ -44,7 +44,7 @@ func show_map(map: DungeonMap, theme: DungeonTheme) -> void:
 			var chunk := Chunk.new()
 			chunk.view = self
 			chunk.cells = Rect2i(x, y, mini(CHUNK, map.width - x), mini(CHUNK, map.height - y))
-			chunk.name = "Chunk_%d_%d" % [x / CHUNK, y / CHUNK]
+			chunk.name = "Chunk_%d_%d" % [int(x / float(CHUNK)), int(y / float(CHUNK))]
 			add_child(chunk)
 			_chunks.append(chunk)
 	if mist.get_parent() == null:

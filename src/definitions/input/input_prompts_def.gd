@@ -33,10 +33,10 @@ func action(id: StringName) -> ActionPromptDef:
 ## The family whose `name_hints` match a pad's name (lowercase pieces); the last one otherwise.
 func family_for(joy_name: String) -> PadGlyphsDef:
 	var lower := joy_name.to_lower()
-	for pad in pads:
-		for hint in pad.name_hints:
+	for family in pads:
+		for hint in family.name_hints:
 			if not hint.is_empty() and lower.contains(hint):
-				return pad
+				return family
 	return pads.back() if not pads.is_empty() else null
 
 

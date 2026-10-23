@@ -321,7 +321,7 @@ static func generate_arena(config: DungeonConfig, rng: RandomNumberGenerator, pl
 	var arena_size := plan.size if plan else config.arena_size
 	arena_size = Vector2i(mini(arena_size.x, config.width - 22), mini(arena_size.y, config.height - 8))
 	var arena := Rect2i(
-		Vector2i(config.width - arena_size.x - rng.randi_range(4, 8), (config.height - arena_size.y) / 2 + rng.randi_range(-4, 4)),
+		Vector2i(config.width - arena_size.x - rng.randi_range(4, 8), int((config.height - arena_size.y) / 2.0) + rng.randi_range(-4, 4)),
 		arena_size)
 	var start := Rect2i(Vector2i(rng.randi_range(4, 8), arena.get_center().y - 3 + rng.randi_range(-8, 8)), Vector2i(7, 7))
 	_carve_rect(map, start)
@@ -351,12 +351,12 @@ static func generate_arena(config: DungeonConfig, rng: RandomNumberGenerator, pl
 static func generate_hidden(config: DungeonConfig, rng: RandomNumberGenerator, plan: ArenaDef, room_count: int) -> DungeonMap:
 	var map := DungeonMap.new(config.width, config.height, config.tile_size)
 	var arena_size := plan.size if plan else config.arena_size
-	arena_size = Vector2i(mini(arena_size.x, config.width / 2 - 4), mini(arena_size.y, config.height - 12))
+	arena_size = Vector2i(mini(arena_size.x, int(config.width / 2.0) - 4), mini(arena_size.y, config.height - 12))
 	var arena := Rect2i(
-		Vector2i(config.width - arena_size.x - 4, (config.height - arena_size.y) / 2 + rng.randi_range(-6, 6)),
+		Vector2i(config.width - arena_size.x - 4, int((config.height - arena_size.y) / 2.0) + rng.randi_range(-6, 6)),
 		arena_size)
 	var right := arena.position.x - 6  # the rooms keep to the left of this
-	var rooms: Array[Rect2i] = [Rect2i(Vector2i(4, config.height / 2 - 3 + rng.randi_range(-12, 12)), Vector2i(7, 7))]
+	var rooms: Array[Rect2i] = [Rect2i(Vector2i(4, int(config.height / 2.0) - 3 + rng.randi_range(-12, 12)), Vector2i(7, 7))]
 	for attempt in room_count * 40:
 		if rooms.size() > room_count:
 			break
@@ -429,7 +429,7 @@ static func smooth(map: DungeonMap) -> void:
 		if tiles[i] == floor_tile:
 			continue
 		var x := i % w
-		var y := i / w
+		var y := int(i / float(w))
 		if not (_thin(tiles, w, h, x, y, 1, 0) or _thin(tiles, w, h, x, y, 0, 1) or _pinched(tiles, w, h, x, y)):
 			continue
 		tiles[i] = floor_tile
@@ -458,9 +458,9 @@ static func _floor_in_reach(tiles: PackedByteArray, w: int, h: int, x: int, y: i
 ## is_thin_wall() on the raw tiles (smooth() calls it thousands of times).
 static func _thin(tiles: PackedByteArray, w: int, h: int, x: int, y: int, ax: int, ay: int) -> bool:
 	var run := 1
-	for sign in [1, -1]:
-		var nx: int = x + ax * sign
-		var ny: int = y + ay * sign
+	for side_sign in [1, -1]:
+		var nx: int = x + ax * side_sign
+		var ny: int = y + ay * side_sign
 		while true:
 			if nx < 0 or ny < 0 or nx >= w or ny >= h:
 				return false  # the border
@@ -469,8 +469,8 @@ static func _thin(tiles: PackedByteArray, w: int, h: int, x: int, y: int, ax: in
 			if run >= MIN_WALL_THICKNESS:
 				return false  # thick enough
 			run += 1
-			nx += ax * sign
-			ny += ay * sign
+			nx += ax * side_sign
+			ny += ay * side_sign
 	return run < MIN_WALL_THICKNESS
 
 

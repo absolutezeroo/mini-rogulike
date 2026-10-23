@@ -62,8 +62,8 @@ func build_depths(fell_depth: int, content: ContentDB, abyss: AbyssDef, seed_val
 
 
 ## The maze for `abyss` (its size, rooms and corridors); the door stands at its `stairs_cell`.
-static func make_map(abyss: AbyssDef, config: DungeonConfig, random: RandomNumberGenerator) -> DungeonMap:
-	return DungeonGenerator.generate_small(abyss.size, abyss.rooms, abyss.room_size, abyss.corridor_width, config.tile_size, random, abyss.dressing)
+static func make_map(abyss: AbyssDef, dungeon_config: DungeonConfig, random: RandomNumberGenerator) -> DungeonMap:
+	return DungeonGenerator.generate_small(abyss.size, abyss.rooms, abyss.room_size, abyss.corridor_width, dungeon_config.tile_size, random, abyss.dressing)
 
 
 ## The way from where the hero lands to the door (cell centres; empty: none).

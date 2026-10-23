@@ -21,7 +21,7 @@ func run_unit() -> void:
 	_test_rules()
 	await _test_no_consent_sends_nothing()
 	await _test_consented_run()
-	await _test_left_and_resumed()
+	_test_left_and_resumed()
 	await _test_left_without_consent()
 	_test_draft()
 	await _test_delete()

@@ -249,6 +249,7 @@ func flush() -> void:
 			continue
 		while int(queue.get(internal_name, 0)) > 0:
 			var part := mini(int(queue[internal_name]), def.max_change)
+			@warning_ignore("redundant_await")  # a coroutine in TaloBackend; the offline BoardBackend answers at once
 			status = await Leaderboards.backend.add_to_stat(internal_name, part)
 			if status == BoardBackend.Status.OFFLINE or status == BoardBackend.Status.UNAVAILABLE or not queue.has(internal_name):
 				break
@@ -279,6 +280,7 @@ func refresh(force: bool = false) -> void:
 		return
 	_reading = true
 	await flush()
+	@warning_ignore("redundant_await")  # a coroutine in TaloBackend; the offline BoardBackend answers at once
 	var read := await Leaderboards.backend.fetch_world_stats()
 	if not may_read():
 		_reading = false
@@ -291,6 +293,7 @@ func refresh(force: bool = false) -> void:
 				world[def.internal_name] = float(read.values[def.internal_name])
 		read_at = now
 		if may_send() and await Leaderboards.identity() == BoardBackend.Status.OK:
+			@warning_ignore("redundant_await")  # a coroutine in TaloBackend; the offline BoardBackend answers at once
 			var own := await Leaderboards.backend.fetch_my_stats()
 			if own.status == BoardBackend.Status.OK:
 				for internal_name: String in own.values:
@@ -333,7 +336,10 @@ func load_state() -> void:
 		for internal_name: Variant in saved:
 			var value: Variant = (saved as Dictionary)[internal_name]
 			if (value is int or value is float) and float(value) > 0.0:
-				into[str(internal_name)] = float(value) if key == "mine" else int(value)
+				if key == "mine":
+					into[str(internal_name)] = float(value)
+				else:
+					into[str(internal_name)] = int(value)
 	if not may_send():
 		pending.clear()  # (the consent was withdrawn meanwhile: nothing goes)
 		queue.clear()

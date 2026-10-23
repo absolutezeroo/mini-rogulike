@@ -60,13 +60,13 @@ func count() -> int:
 	return splats_made
 
 
-## Chips of `material` flung around `at` (`size` 1 = a monster of normal size), mostly along
+## Chips of `matter` flung around `at` (`size` 1 = a monster of normal size), mostly along
 ## `direction` if given (the killing blow). `ground(point) -> bool`: where a chip may land (not
 ## on a wall, not over a hole).
-func add_debris(at: Vector2, material: ImpactMaterialDef, size: float, direction: Vector2, rng: RandomNumberGenerator, ground := Callable()) -> void:
-	if material.debris_colors.is_empty():
+func add_debris(at: Vector2, matter: ImpactMaterialDef, size: float, direction: Vector2, rng: RandomNumberGenerator, ground := Callable()) -> void:
+	if matter.debris_colors.is_empty():
 		return
-	for i in roundi(material.debris_count * size):
+	for i in roundi(matter.debris_count * size):
 		var angle := direction.angle() + rng.randf_range(-1.1, 1.1) if direction != Vector2.ZERO and rng.randf() < 0.7 else rng.randf() * TAU
 		var distance := rng.randf_range(6.0, 22.0) * sqrt(size)
 		var to := (at + Vector2.from_angle(angle) * Vector2(1.0, 0.6) * distance).snapped(Vector2(PIXEL, PIXEL))
@@ -77,7 +77,7 @@ func add_debris(at: Vector2, material: ImpactMaterialDef, size: float, direction
 			from = at + Vector2(0, -6),
 			to = to,
 			size = Vector2(PIXEL * (2 if big else 1), PIXEL * (2 if big and rng.randf() < 0.5 else 1)),
-			color = material.debris_colors[rng.randi() % material.debris_colors.size()],
+			color = matter.debris_colors[rng.randi() % matter.debris_colors.size()],
 			height = rng.randf_range(6.0, 14.0),
 			born = _time,
 		})

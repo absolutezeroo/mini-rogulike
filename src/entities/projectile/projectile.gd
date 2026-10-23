@@ -140,9 +140,9 @@ func _on_body_entered(body: Node2D) -> void:
 	if not body is Actor:
 		# A wall or a prop
 		if body is Prop:
-			var hit := HitInfo.new()
-			hit.source = _shooter if is_instance_valid(_shooter) else null
-			(body as Prop).take_hit(hit)
+			var prop_hit := HitInfo.new()
+			prop_hit.source = _shooter if is_instance_valid(_shooter) else null
+			(body as Prop).take_hit(prop_hit)
 		Vfx.hit(_world, global_position, -_direction, _element.color(), false, _spec.element)
 		Sfx.play_at(Sfx.bank.projectile_impact, global_position, -4.0)
 		_burst()
@@ -226,7 +226,7 @@ func _draw() -> void:
 			var size := 2 if t > 0.6 and _spec.radius >= 6.0 else 1
 			# Another element the weapon carries: every other bit of a magic shot's trail is the
 			# one riding it (a frost shard trailing embers), a few of a second one's.
-			var other: VfxElementDef = _rides if _rides and _spec.element and (i / 2) % 2 == 0 else (_second if _second and i % 3 == 0 else null)
+			var other: VfxElementDef = _rides if _rides and _spec.element and int(i / 2.0) % 2 == 0 else (_second if _second and i % 3 == 0 else null)
 			if other:
 				PixelDraw.bit(self, other.bit, local + _drift(other, t, i), size, other.shade(1.0 - t * 0.75), Vector2.UP if other.motion == VfxElementDef.Motion.RISE else -_direction)
 				continue
@@ -255,7 +255,7 @@ func _draw_riding() -> void:
 	var step := int(_age * 12.0)  # bits come and go at 12 fps
 	for i in range(_trail.size() - 1, -1, -2):
 		var t := float(i + 1) / (_trail.size() + 1)  # 1 = newest
-		var element := _second if _second and (i / 2 + step) % 3 == 0 else _rides
+		var element := _second if _second and (int(i / 2.0) + step) % 3 == 0 else _rides
 		var local := _trail[i] - global_position
 		var at := local + _drift(element, t, i)
 		if not PixelDraw.dither(PixelDraw.cell_of(at), t):
@@ -300,7 +300,7 @@ func _draw_riding_front() -> void:
 					var curl := PixelDraw.PX * (1.0 if flicker % 2 == 0 else -1.0) if y == tall - 1 else 0.0
 					var color := _rides.shade(t * 0.95)
 					PixelDraw.pixel(self, foot + Vector2(curl, -PixelDraw.PX * y), color)
-					if y < tall / 2:
+					if y < int(tall / 2.0):
 						PixelDraw.pixel(self, foot + Vector2(PixelDraw.PX, -PixelDraw.PX * y), _rides.shade(minf(t * 0.95 + 0.25, 1.0)))  # a wider foot
 			VfxElementDef.Motion.FALL, VfxElementDef.Motion.SINK:
 				if _rides.bit == VfxElementDef.Bit.DIAMOND:

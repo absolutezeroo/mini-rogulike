@@ -116,11 +116,11 @@ func _under_ceiling(world: World, fallback: Vector2) -> Vector2:
 	return best
 
 
-func _shot(name: String) -> void:
+func _shot(shot_name: String) -> void:
 	await RenderingServer.frame_post_draw
 	var image := get_viewport().get_texture().get_image()
-	image.save_png("%s/%s_%s.png" % [out, tag, name])
-	print("shot ", name)
+	image.save_png("%s/%s_%s.png" % [out, tag, shot_name])
+	print("shot ", shot_name)
 
 
 func _frames(count: int) -> void:

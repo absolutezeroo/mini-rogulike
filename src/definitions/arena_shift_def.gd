@@ -53,7 +53,7 @@ func pick_cells(arena_cells: Array[Vector2i], room: Rect2i, keep: Array[Vector2i
 						take = take or not lookup.has(cell + direction * step)
 			Pattern.CROSS:
 				var off := cell - center
-				take = (absi(off.x) <= width / 2 or absi(off.y) <= width / 2) and maxi(absi(off.x), absi(off.y)) > 2
+				take = (absi(off.x) <= int(width / 2.0) or absi(off.y) <= int(width / 2.0)) and maxi(absi(off.x), absi(off.y)) > 2
 			Pattern.CORNERS:
 				var from_left := cell.x - room.position.x
 				var from_top := cell.y - room.position.y

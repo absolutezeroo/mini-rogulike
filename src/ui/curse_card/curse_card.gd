@@ -86,10 +86,10 @@ func _draw() -> void:
 		draw_circle(center, radius, Color(0.35, 0.12, 0.45, 0.07 * (6 - i) / 6.0))
 	# Souls drawn into the sigil.
 	for i in SOULS:
-		var seed := float(i) * 12.9898
-		var phase := fposmod(_time * 0.45 + fposmod(sin(seed) * 437.5, 1.0), 1.0)
+		var offset := float(i) * 12.9898
+		var phase := fposmod(_time * 0.45 + fposmod(sin(offset) * 437.5, 1.0), 1.0)
 		var distance := (1.0 - phase) * size.y * 0.45 + 30.0
-		var angle := seed + phase * 5.0 + _time * 0.6
+		var angle := offset + phase * 5.0 + _time * 0.6
 		var at := (center + Vector2.from_angle(angle) * distance).snapped(Vector2(3, 3))
 		var alpha := sin(phase * PI) * 0.8
 		draw_rect(Rect2(at, Vector2(4, 4)), Color(_color.lightened(0.4), alpha))

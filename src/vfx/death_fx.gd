@@ -24,7 +24,7 @@ static func play(actor: Actor, element: VfxElementDef, finished: Callable) -> vo
 	if look.piece and element.piece:
 		world.spawn_vfx(SheetVfx.play(element.piece, feet, Vector2.RIGHT, element))
 	if look.motes > 0:
-		var count := look.motes / 2 if fewer else look.motes
+		var count := int(look.motes / 2.0) if fewer else look.motes
 		world.spawn_vfx(DeathPiecesVfx.motes(rig, element, look, count))
 	if look.burst_at >= 0.0:
 		_later(rig, look.delay + look.duration * look.burst_at, func() -> void:
@@ -39,8 +39,8 @@ static func play(actor: Actor, element: VfxElementDef, finished: Callable) -> vo
 				world.add_splat(feet, element.mark, look.mark * clampf(actor.radius / 11.0, 0.8, 2.2)))
 
 
-## `call` in `delay` seconds while `rig` lives (it goes when the death is over).
-static func _later(rig: Node, delay: float, call: Callable) -> void:
+## `then` in `delay` seconds while `rig` lives (it goes when the death is over).
+static func _later(rig: Node, delay: float, then: Callable) -> void:
 	var tween := rig.create_tween()
 	tween.tween_interval(delay)
-	tween.tween_callback(call)
+	tween.tween_callback(then)

@@ -22,10 +22,10 @@ var aim: Vector2 = Vector2.RIGHT
 
 
 ## A blow from `origin` aimed along `aim`, drawn in the body's four directions when `follows`.
-static func at(from: Vector2, toward: Vector2, follows: bool = true) -> Blow:
+static func at(from: Vector2, direction: Vector2, follows: bool = true) -> Blow:
 	var blow := Blow.new()
 	blow.origin = from
-	blow.aim = toward.normalized() if toward != Vector2.ZERO else Vector2.RIGHT
+	blow.aim = direction.normalized() if direction != Vector2.ZERO else Vector2.RIGHT
 	blow.facing = Blow.cardinal(blow.aim) if follows else blow.aim
 	return blow
 
@@ -33,8 +33,8 @@ static func at(from: Vector2, toward: Vector2, follows: bool = true) -> Blow:
 ## The blow of `weapon`'s basic attack: a melee weapon follows the body's four directions, a
 ## blow all around (a body slam: `arc_degrees` 360) stays as it is, and a shot is no blow (its
 ## projectiles fly at the exact aim).
-static func of_weapon(from: Vector2, toward: Vector2, weapon: WeaponDef) -> Blow:
-	return Blow.at(from, toward, weapon != null and weapon.kind == WeaponDef.Kind.MELEE and weapon.arc_degrees < 359.0)
+static func of_weapon(from: Vector2, direction: Vector2, weapon: WeaponDef) -> Blow:
+	return Blow.at(from, direction, weapon != null and weapon.kind == WeaponDef.Kind.MELEE and weapon.arc_degrees < 359.0)
 
 
 ## The nearest of the four directions (ties go sideways, like ActorRig.direction_name, which

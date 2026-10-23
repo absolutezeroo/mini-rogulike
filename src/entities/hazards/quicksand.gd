@@ -58,7 +58,7 @@ func _draw() -> void:
 		PixelDraw.disc(self, Vector2.ZERO, radius, Color("c8a165"))
 		return
 	var frame_size := def.sheet.get_height()
-	var frames := maxi(def.sheet.get_width() / frame_size, 1)
+	var frames := maxi(int(def.sheet.get_width() / float(frame_size)), 1)
 	var frame := int(_anim_time * def.fps) % frames
 	var size := Vector2.ONE * frame_size * 2.0
 	draw_texture_rect_region(def.sheet, Rect2(-size * 0.5, size), Rect2(frame * frame_size, 0, frame_size, frame_size), def.icon_tint)

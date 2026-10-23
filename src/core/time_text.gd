@@ -7,10 +7,10 @@ static func of(seconds: float, decimals: int = 2) -> String:
 	var steps := int(pow(10, clampi(decimals, 0, 2)))
 	var total := int(floor(maxf(seconds, 0.0) * steps + 0.0001))  # cut, never round up
 	var fraction := total % steps
-	var whole := total / steps
-	var text := "%d:%02d" % [whole / 60, whole % 60]
+	var whole := int(total / float(steps))
+	var text := "%d:%02d" % [int(whole / 60.0), whole % 60]
 	if whole >= 3600:
-		text = "%d:%02d:%02d" % [whole / 3600, (whole / 60) % 60, whole % 60]
+		text = "%d:%02d:%02d" % [int(whole / 3600.0), int(whole / 60.0) % 60, whole % 60]
 	if decimals > 0:
 		text += "." + str(fraction).pad_zeros(clampi(decimals, 0, 2))
 	return text

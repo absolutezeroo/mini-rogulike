@@ -67,7 +67,7 @@ static func ring(at: Vector2, radius: float, of_element: VfxElementDef, inner: b
 		rings.append(radius * 0.5)
 	for r in rings:
 		var density := (1.0 if inner else 0.6) if r == rings[0] else 0.55
-		var count := clampi(roundi(TAU * r / spacing * density), 5, MAX_PIECES / rings.size())
+		var count := clampi(roundi(TAU * r / spacing * density), 5, int(MAX_PIECES / float(rings.size())))
 		var turn := randf() * TAU
 		for i in count:
 			var angle := turn + TAU * i / count + randf_range(-0.12, 0.12)
@@ -93,7 +93,7 @@ static func arc(at: Vector2, radius: float, facing: Vector2, of_element: VfxElem
 	var start := facing.angle() - half
 	for row: float in [0.9, 0.55]:
 		var r := radius * row
-		var count := clampi(roundi(2.0 * half * r / spacing * (1.0 if row > 0.8 else 0.6)), 3, MAX_PIECES / 2)
+		var count := clampi(roundi(2.0 * half * r / spacing * (1.0 if row > 0.8 else 0.6)), 3, int(MAX_PIECES / 2.0))
 		for i in count:
 			var t := (i + 0.5) / count
 			var angle := start + 2.0 * half * t + randf_range(-0.06, 0.06)

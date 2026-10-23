@@ -102,7 +102,7 @@ func _test_boss_fight(game: Game) -> void:
 	var level := PerkSet.Entry.new()
 	level.stacks = 3
 	var bloodlust := BloodlustPassive.new()
-	var wounded := maxi(1, player.get_max_hp() / 4)
+	var wounded := maxi(1, int(player.get_max_hp() / 4.0))
 	player.hp = wounded
 	player.sustain = SustainMeter.new()
 	for monster in world.get_hostiles(player.faction):

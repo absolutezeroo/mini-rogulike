@@ -307,9 +307,9 @@ func _toll_row(what: String, world: String, mine: String, color: Color) -> HBoxC
 	return row
 
 
-func _pick_period(back: int) -> void:
+func _pick_period(periods_back: int) -> void:
 	Sfx.play_ui(Sfx.bank.ui_click)
-	_back = back
+	_back = periods_back
 	_show_tabs()
 	refresh()
 
@@ -353,10 +353,10 @@ func _build() -> void:
 	var gap := Control.new()
 	gap.custom_minimum_size.x = 18
 	_tabs.add_child(gap)
-	for back in 2:
-		var period := _tab(tr("Today"), "TodayTab" if back == 0 else "YesterdayTab")
+	for periods_back in 2:
+		var period := _tab(tr("Today"), "TodayTab" if periods_back == 0 else "YesterdayTab")
 		period.custom_minimum_size.x = 150
-		period.pressed.connect(_pick_period.bind(back))
+		period.pressed.connect(_pick_period.bind(periods_back))
 		_period_tabs.append(period)
 	_tabs.add_child(PromptGlyph.make(&"menu_tabs"))
 

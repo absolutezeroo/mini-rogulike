@@ -92,15 +92,15 @@ func _test_gallery_data() -> void:
 	var bad: Array[String] = []
 	for scope in scopes:
 		var hall := DebugGallery.hall(dungeon, scope.monsters)
-		var map: DungeonMap = hall.map
+		var hall_map: DungeonMap = hall.map
 		var spots: Array[Vector2] = hall.spots
-		if spots.size() != scope.monsters.size() or not map.is_floor(map.start_cell) or not map.is_floor(map.stairs_cell):
+		if spots.size() != scope.monsters.size() or not hall_map.is_floor(hall_map.start_cell) or not hall_map.is_floor(hall_map.stairs_cell):
 			bad.append("%s: %d spots" % [scope.name, spots.size()])
 			continue
 		for i in spots.size():
 			var radius := scope.monsters[i].radius
 			for corner in [Vector2(-radius, -radius), Vector2(radius, radius)]:
-				if not map.is_floor(map.world_to_cell(spots[i] + corner)):
+				if not hall_map.is_floor(hall_map.world_to_cell(spots[i] + corner)):
 					bad.append("%s: %s off the floor" % [scope.name, scope.monsters[i].id])
 			for j in range(i + 1, spots.size()):
 				if spots[i].distance_to(spots[j]) < radius + scope.monsters[j].radius + 8.0:
@@ -147,7 +147,7 @@ func run_game(game: Game) -> void:
 	await _test_no_ai(game)
 	await _test_invisible(game)
 	await _test_hero_cheats(game)
-	await _test_debug_run(game)
+	_test_debug_run(game)
 	await _test_world_tools(game, debug)
 	await _test_gallery(game, debug)
 	if debug.visible:

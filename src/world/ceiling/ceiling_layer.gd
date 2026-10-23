@@ -93,19 +93,19 @@ func build(world: World, ceiling: CeilingDef, skip: Rect2i = Rect2i()) -> void:
 func _room_left(piece: CeilingPieceDef, room: int) -> int:
 	if room < 0:
 		return 1000 if piece.in_corridors else 0
-	var scale := def.density_scale
+	var density := def.density_scale
 	var shape := _world.map.plan(room).shape
 	if shape:
-		scale *= shape.ceiling_scale
-	var most := roundi(piece.max_per_room * scale)
+		density *= shape.ceiling_scale
+	var most := roundi(piece.max_per_room * density)
 	return most - int(_per_room.get("%d:%d" % [room, piece.get_instance_id()], 0))
 
 
 func _chance(piece: CeilingPieceDef, room: int) -> float:
-	var scale := def.density_scale
+	var density := def.density_scale
 	if room >= 0 and _world.map.plan(room).shape:
-		scale *= _world.map.plan(room).shape.ceiling_scale
-	return piece.density * scale
+		density *= _world.map.plan(room).shape.ceiling_scale
+	return piece.density * density
 
 
 func _free(cell: Vector2i) -> bool:
@@ -177,7 +177,6 @@ func _lay_by_walls(piece: CeilingPieceDef, skip: Rect2i) -> void:
 ## Pieces hanging from the unseen ceiling over the rooms, two cells or more from any wall.
 func _lay_over_rooms(piece: CeilingPieceDef, walls: Dictionary, skip: Rect2i) -> void:
 	var map := _world.map
-	var ts := float(map.tile_size)
 	var size := Vector2(piece.region.size) * 2.0
 	for room in map.rooms.size():
 		if map.rooms[room].intersects(skip) and skip.has_area():
@@ -218,7 +217,7 @@ func _lay_across(piece: CeilingPieceDef, skip: Rect2i) -> void:
 		if _room_left(piece, room) <= 0 or _rng.randf() >= _chance(piece, room):
 			continue
 		# Across the middle of the room (near its top it would read as part of the wall).
-		var rows := range(rect.position.y + rect.size.y / 3 + 1, rect.end.y - 2)
+		var rows := range(rect.position.y + int(rect.size.y / 3.0) + 1, rect.end.y - 2)
 		RandomUtils.shuffle(rows, _rng)
 		for y: int in rows:
 			var middle := Vector2i(map.heart(room).x, y)

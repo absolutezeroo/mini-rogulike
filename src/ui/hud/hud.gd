@@ -447,7 +447,7 @@ func _refresh_temperature() -> void:
 	var is_cold := temperature.value < 0.0
 	var label := (tr("Freezing!") if is_cold else tr("Burning up!")) if temperature.is_extreme() else (tr("Cold") if is_cold else tr("Hot"))
 	_temp_bar.fill_color = BodyTemperature.COLD_COLOR if is_cold else BodyTemperature.HOT_COLOR
-	if temperature.is_extreme() and int(Time.get_ticks_msec() / 250) % 2 == 0:
+	if temperature.is_extreme() and int(Time.get_ticks_msec() / 250.0) % 2 == 0:
 		_temp_bar.fill_color = _temp_bar.fill_color.lightened(0.4)
 	_temp_bar.set_values(absf(temperature.value), BodyTemperature.LIMIT, label)
 

@@ -123,7 +123,7 @@ func run_bosses() -> BalanceReport:
 
 ## A fight's unit id (BalanceJobs): everything that makes it this fight.
 func fight_id(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef, bot_name: String, rank: MonsterRankDef = null) -> String:
-	return "boss|%s|%s|%s|%s|%s|%.0f" % [boss.id, BalanceJobs.build_id(build), BalanceContent.key(difficulty), bot_name, rank.id if rank else "plain", timeout]
+	return "boss|%s|%s|%s|%s|%s|%.0f" % [boss.id, BalanceJobs.build_id(build), BalanceContent.key(difficulty), bot_name, String(rank.id) if rank else "plain", timeout]
 
 
 ## What a boss fight depends on: the boss, its act (its monsters, its places), the arenas, the
@@ -178,7 +178,7 @@ func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef
 	var boss_actor := world.arena.boss
 	result["affixes"] = boss_actor.affix_names()
 	var lives_before := lives_used(player)
-	var log := FightLog.new(player, boss_actor)
+	var fight_log := FightLog.new(player, boss_actor)
 	var bot := BalanceBot.create(bot_name, player, world, boss_actor)
 	var frames := 0
 	var away_frames := 0
@@ -199,17 +199,17 @@ func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef
 			# In a world of his own for a while (the Deeps after a fall, the Threshold's trial):
 			# the boss waits frozen, the bot plays there; lost there for good, the fight is lost.
 			away_frames += 1
-			log.away = is_instance_valid(player.world) and player.world is ThresholdWorld
+			fight_log.away = is_instance_valid(player.world) and player.world is ThresholdWorld
 			if away_frames > AWAY_LIMIT:
 				outcome = "loss"
 				result["error"] = "lost in the Deeps or the Threshold"
 				break
 			bot.step()
 			continue
-		log.away = false
+		fight_log.away = false
 		if world.arena.is_started:
 			fight_frames += 1
-			log.frame()
+			fight_log.frame()
 			if fight_frames >= limit:
 				break
 		elif frames > APPROACH_LIMIT:
@@ -218,12 +218,12 @@ func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef
 			break
 		bot.step()
 	BalanceBot.release_all()
-	log.frame()
-	result.merge(log.summary(fight_frames / BalanceLab.FPS))
+	fight_log.frame()
+	result.merge(fight_log.summary(fight_frames / BalanceLab.FPS))
 	if FightLog.log_hits:
-		result["hit_log"] = log.hit_log
+		result["hit_log"] = fight_log.hit_log
 		var plan: ArenaDef = world.arena._plan if is_instance_valid(world) and world.arena else null
-		print("    hits (%s, %s, %s, arena %s):\n      %s" % [boss.id, build.name, bot_name, plan.id if plan else "-", "\n      ".join(PackedStringArray(log.hit_log))])
+		print("    hits (%s, %s, %s, arena %s):\n      %s" % [boss.id, build.name, bot_name, String(plan.id) if plan else "-", "\n      ".join(PackedStringArray(fight_log.hit_log))])
 	result["result"] = outcome
 	result["hero_max_hp"] = player.get_max_hp()
 	result["boss_max_hp"] = boss_actor.get_max_hp()
@@ -252,10 +252,10 @@ static func lives_used(player: Player) -> int:
 
 ## The face-tank test's verdict (targets.facetank_second_life_is_loss): a win only counts when
 ## the hero never died; a win on a second life is the boss killing him once, a loss.
-static func facetank_won(r: Dictionary, targets: BalanceTargets) -> bool:
+static func facetank_won(r: Dictionary, goals: BalanceTargets) -> bool:
 	if r.get("result") != "win":
 		return false
-	return int(r.get("lives_used", 0)) == 0 or not targets.facetank_second_life_is_loss
+	return int(r.get("lives_used", 0)) == 0 or not goals.facetank_second_life_is_loss
 
 
 ## Healing in the fight as a share of the damage taken, for the heal share targets: a second

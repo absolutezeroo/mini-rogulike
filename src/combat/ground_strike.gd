@@ -56,9 +56,9 @@ func _process(delta: float) -> void:
 	_time += delta
 	if _time < delay:
 		return
-	var progress := clampf((_time - delay) / fuse, 0.0, 1.0)
-	_view.show_shape(TelegraphView.Shape.CIRCLE, radius, 0.0, progress)
-	if progress >= 1.0:
+	var fraction := clampf((_time - delay) / fuse, 0.0, 1.0)
+	_view.show_shape(TelegraphView.Shape.CIRCLE, radius, 0.0, fraction)
+	if fraction >= 1.0:
 		_land()
 
 

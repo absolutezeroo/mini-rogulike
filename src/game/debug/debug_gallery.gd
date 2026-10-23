@@ -199,7 +199,7 @@ static func hall(config: DungeonConfig, monsters: Array[MonsterDef]) -> Dictiona
 	var cells := Vector2i(ceili(widest / tile) + HALL_MARGIN * 2, ceili(height / tile) + HALL_MARGIN * 2 + 4)
 	cells = Vector2i(clampi(cells.x, 16, config.width - 6), clampi(cells.y, 14, config.height - 6))
 	var map := DungeonMap.new(config.width, config.height, tile)
-	var room := Rect2i(Vector2i((config.width - cells.x) / 2, (config.height - cells.y) / 2), cells)
+	var room := Rect2i(Vector2i(int((config.width - cells.x) / 2.0), int((config.height - cells.y) / 2.0)), cells)
 	for y in room.size.y:
 		for x in room.size.x:
 			map.set_floor(room.position + Vector2i(x, y))

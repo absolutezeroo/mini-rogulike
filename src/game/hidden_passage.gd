@@ -46,9 +46,9 @@ func open_way() -> HiddenWay:
 		return null
 	way = WAY_SCENE.instantiate() as HiddenWay
 	way.glow = def.color
-	var sign := FloorRoute.new()
-	sign.biome = def.biome
-	way.route = sign
+	var route := FloorRoute.new()
+	route.biome = def.biome
+	way.route = route
 	way.position = world.map.cell_to_world(cell)
 	way.z_index = -1
 	world.add_entity(way)

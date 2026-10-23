@@ -236,14 +236,14 @@ func _test_worn_marks(game: Game) -> void:
 	var arcane := VfxElementDef.named(&"arcane")
 	for pair: Array in [["the bag's portrait", portrait.rig() if portrait else null], ["his body", player.rig]]:
 		var rig: ActorRig = pair[1]
-		var name: String = pair[0]
-		check(rig != null and rig.back_weapon() != null and rig.back_weapon().texture == katana.back_sprite and rig.shows_back_weapon(), "worn marks: %s carries his katana" % name)
-		check(rig != null and rig.weapon_aura() != null and rig.weapon_aura().elements.has(VfxElementDef.named(&"fire")), "worn marks: %s's katana carries the Ember Rune's fire" % name)
-		check(rig != null and rig.helmet.visible and rig.helmet.sprite_frames == helm.wear_frames and rig.body_armor.sprite_frames == plate.wear_frames, "worn marks: %s wears his helm and his plate" % name)
+		var pair_name: String = pair[0]
+		check(rig != null and rig.back_weapon() != null and rig.back_weapon().texture == katana.back_sprite and rig.shows_back_weapon(), "worn marks: %s carries his katana" % pair_name)
+		check(rig != null and rig.weapon_aura() != null and rig.weapon_aura().elements.has(VfxElementDef.named(&"fire")), "worn marks: %s's katana carries the Ember Rune's fire" % pair_name)
+		check(rig != null and rig.helmet.visible and rig.helmet.sprite_frames == helm.wear_frames and rig.body_armor.sprite_frames == plate.wear_frames, "worn marks: %s wears his helm and his plate" % pair_name)
 		var head := rig.wear_material(EquipmentDef.Slot.HEAD) if rig else null
 		var body := rig.wear_material(EquipmentDef.Slot.BODY) if rig else null
-		check(head != null and float(head.get_shader_parameter(&"imbue")) > 0.0 and int(head.get_shader_parameter(&"imbue_row")) == BodyLook.row(arcane) and not bool(head.get_shader_parameter(&"teeth")), "worn marks: on %s, a helm of Echoes glitters arcane on its brim" % name)
-		check(body != null and bool(body.get_shader_parameter(&"teeth")) and float(body.get_shader_parameter(&"imbue")) == 0.0 and int(body.get_shader_parameter(&"trim")) > 0, "worn marks: on %s, a plate of Thorns has steel points on its gold hem" % name)
+		check(head != null and float(head.get_shader_parameter(&"imbue")) > 0.0 and int(head.get_shader_parameter(&"imbue_row")) == BodyLook.row(arcane) and not bool(head.get_shader_parameter(&"teeth")), "worn marks: on %s, a helm of Echoes glitters arcane on its brim" % pair_name)
+		check(body != null and bool(body.get_shader_parameter(&"teeth")) and float(body.get_shader_parameter(&"imbue")) == 0.0 and int(body.get_shader_parameter(&"trim")) > 0, "worn marks: on %s, a plate of Thorns has steel points on its gold hem" % pair_name)
 	# A plain piece of the same rarity: its trim alone.
 	player.equipment.equip(LootRoller.make(load("res://data/items/armors/plate_armor.tres"), ItemRarity.RARE, [load("res://data/affixes/sturdy.tres")], [], 2))
 	await _frames(2)
@@ -284,7 +284,7 @@ func _test_compartment_room(game: Game) -> void:
 	check(is_instance_valid(sword) and not sword.is_taken(), "auto loot (All): a new weapon stays on the ground")
 	if is_instance_valid(sword):
 		sword.queue_free()
-	var rune := world.spawn_item(_item("res://data/runes/gale.tres"), spot)
+	world.spawn_item(_item("res://data/runes/gale.tres"), spot)
 	var helm := world.spawn_item(_mail(ItemRarity.MAGIC, 3), spot)
 	await _frames(6)
 	check(bag.count_of(_item("res://data/runes/gale.tres")) == 1, "...while a rune comes in (its own compartment)")

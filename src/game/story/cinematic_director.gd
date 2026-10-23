@@ -66,6 +66,7 @@ func play(cinematic: CinematicDef, about: Node2D, beat: StoryBeat) -> void:
 	for step in def.steps:
 		if step == null or (ended and not step.always_run):
 			continue
+		@warning_ignore("redundant_await")  # a coroutine in the steps that wait (the base CinematicStep.play answers at once)
 		await step.play(self)
 	_restore()
 	view.tapped.disconnect(tap)

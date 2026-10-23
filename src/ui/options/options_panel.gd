@@ -36,6 +36,8 @@ signal language_changed
 enum Tab { GAMEPLAY, GRAPHICS, AUDIO, CONTROLS, PRIVACY }
 
 ## Each tab's name (translated where shown), also its nodes' names: %<name>Tab, %<name>Page.
+## The Settings autoload's script, for its static functions.
+const SettingsScript := preload("res://src/autoload/settings.gd")
 const TAB_NAMES := {
 	Tab.GAMEPLAY: "Gameplay",  # i18n
 	Tab.GRAPHICS: "Graphics",  # i18n
@@ -122,9 +124,9 @@ func _wire() -> void:
 		(_loot_modes[mode] as Button).pressed.connect(_pick_loot_mode.bind(mode))
 	for mode: int in _story_modes:
 		(_story_modes[mode] as Button).pressed.connect(_pick_story_mode.bind(mode))
-	for size: int in _ui_sizes:
-		(_ui_sizes[size] as Button).pressed.connect(func() -> void:
-			Settings.set_option(&"ui_size", size)
+	for ui_size: int in _ui_sizes:
+		(_ui_sizes[ui_size] as Button).pressed.connect(func() -> void:
+			Settings.set_option(&"ui_size", ui_size)
 			Sfx.play_ui(Sfx.bank.ui_click)
 			_show_ui_size())
 	for tab: int in _tab_buttons.size():
@@ -201,8 +203,8 @@ func close() -> void:
 	if _delete and _delete.visible:
 		_delete.back()
 		return
-	for page: InfoPanel in [_policy, _credits]:
-		if page and page.back():
+	for info: InfoPanel in [_policy, _credits]:
+		if info and info.back():
 			return
 	Sfx.play_ui(Sfx.bank.ui_close)
 	hide()
@@ -262,8 +264,8 @@ func _show_loot_mode() -> void:
 
 
 func _show_ui_size() -> void:
-	for size: int in _ui_sizes:
-		(_ui_sizes[size] as Button).set_pressed_no_signal(size == Settings.ui_size)
+	for ui_size: int in _ui_sizes:
+		(_ui_sizes[ui_size] as Button).set_pressed_no_signal(ui_size == Settings.ui_size)
 
 
 func _pick_story_mode(mode: int) -> void:
@@ -421,7 +423,7 @@ func _build_graphics(body: VBoxContainer) -> Control:
 	var left := _column(page_node)
 	var right := _column(page_node)
 	var screen := _section(left, tr("Screen"))
-	if Settings.has_window_modes():
+	if SettingsScript.has_window_modes():
 		_checks[_check(screen, tr("Fullscreen"), tr("The whole screen, or a window you can resize (F11, Alt+Enter)."), "FullscreenCheck")] = &"fullscreen"
 	_build_ui_size(screen)
 	var controls := _section(left, tr("Touch controls"))

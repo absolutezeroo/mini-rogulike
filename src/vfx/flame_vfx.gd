@@ -38,10 +38,10 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
-	var cell := Vector2(FLICKER.get_width() / FRAMES, FLICKER.get_height())
+	var cell := Vector2(int(FLICKER.get_width() / float(FRAMES)), FLICKER.get_height())
 	var size := cell * PixelDraw.PX
 	for i in copies:
 		var frame := (_frame + i * 5) % FRAMES
 		var x := (i - (copies - 1) * 0.5) * 8.0
-		var at := PixelDraw.snap(Vector2(x - size.x * 0.5, -size.y + (2.0 if i != (copies - 1) / 2 else 0.0)))
+		var at := PixelDraw.snap(Vector2(x - size.x * 0.5, -size.y + (2.0 if i != int((copies - 1) / 2.0) else 0.0)))
 		draw_texture_rect_region(FLICKER, Rect2(at, size), Rect2(Vector2(frame * cell.x, 0), cell))

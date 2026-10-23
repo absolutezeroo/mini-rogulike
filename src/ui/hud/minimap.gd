@@ -91,9 +91,9 @@ func _gui_input(event: InputEvent) -> void:
 func _layout() -> Array:
 	var map := _world.map
 	if whole_floor:
-		var scale := minf(size.x / map.width, size.y / map.height)
-		var origin := (size - Vector2(map.width, map.height) * scale) * 0.5
-		return [origin, scale]
+		var factor := minf(size.x / map.width, size.y / map.height)
+		var origin := (size - Vector2(map.width, map.height) * factor) * 0.5
+		return [origin, factor]
 	var hero := _world.player.global_position / map.tile_size if _world.player else Vector2(map.start_cell)
 	return [size * 0.5 - hero * cell_pixels, cell_pixels]
 
@@ -103,45 +103,45 @@ func _draw() -> void:
 	if _world and _texture and _world.map:
 		var layout := _layout()
 		var origin: Vector2 = layout[0]
-		var scale: float = layout[1]
+		var factor: float = layout[1]
 		var map := _world.map
 		# Only what fits in the control (no drawing outside it).
-		var view := Rect2(-origin / scale, size / scale).intersection(Rect2(0, 0, map.width, map.height))
+		var view := Rect2(-origin / factor, size / factor).intersection(Rect2(0, 0, map.width, map.height))
 		if view.has_area():
-			draw_texture_rect_region(_texture, Rect2(origin + view.position * scale, view.size * scale), view)
-		_draw_markers(origin, scale)
+			draw_texture_rect_region(_texture, Rect2(origin + view.position * factor, view.size * factor), view)
+		_draw_markers(origin, factor)
 	draw_rect(Rect2(Vector2.ZERO, size), BORDER, false, 2.0)
 
 
-func _draw_markers(origin: Vector2, scale: float) -> void:
+func _draw_markers(origin: Vector2, factor: float) -> void:
 	var map := _world.map
-	var dot := maxf(scale * 0.9, 3.0)
+	var dot := maxf(factor * 0.9, 3.0)
 	var sealed := _world.seal.is_sealed()
 	for cell in _world.stairs_cells:
 		if _world.is_explored(cell) or not sealed:
-			_marker(origin + (Vector2(cell) + Vector2(0.5, 0.5)) * scale, dot * 1.4, Palette.SEAL if sealed else STAIRS_COLOR)
+			_marker(origin + (Vector2(cell) + Vector2(0.5, 0.5)) * factor, dot * 1.4, Palette.SEAL if sealed else STAIRS_COLOR)
 	if _world.seal.reveals_monsters():
 		for monster in _world.get_hostiles(Actor.Faction.PLAYER):
-			_marker(origin + monster.global_position / map.tile_size * scale, dot * 0.8, DANGER_COLOR)
+			_marker(origin + monster.global_position / map.tile_size * factor, dot * 0.8, DANGER_COLOR)
 	for node in get_tree().get_nodes_in_group("chests"):
 		var chest := node as Chest
 		var cell := map.world_to_cell(chest.global_position)
 		if not chest.is_open and _world.is_explored(cell):
-			_marker(origin + chest.global_position / map.tile_size * scale, dot, CHEST_COLOR)
+			_marker(origin + chest.global_position / map.tile_size * factor, dot, CHEST_COLOR)
 	if _world.ambush and _world.ambush.state == AmbushRoom.State.FIGHTING:
 		var room := _world.ambush.room
-		_draw_clipped_outline(Rect2(origin + Vector2(room.position) * scale, Vector2(room.size) * scale), DANGER_COLOR)
+		_draw_clipped_outline(Rect2(origin + Vector2(room.position) * factor, Vector2(room.size) * factor), DANGER_COLOR)
 	var pact := _world.pact
 	if pact and is_instance_valid(pact):
 		if pact.state == AmbushRoom.State.FIGHTING:
-			_draw_clipped_outline(Rect2(origin + Vector2(pact.room.position) * scale, Vector2(pact.room.size) * scale), PACT_COLOR)
+			_draw_clipped_outline(Rect2(origin + Vector2(pact.room.position) * factor, Vector2(pact.room.size) * factor), PACT_COLOR)
 		elif pact.seen:
-			var door := origin + (Vector2(pact.door_cell) + Vector2(0.5, 0.5)) * scale
+			var door := origin + (Vector2(pact.door_cell) + Vector2(0.5, 0.5)) * factor
 			_marker(door, dot * 1.6, PACT_COLOR if pact.is_open_offer() else SPENT_COLOR)
 	if _world.arena and _world.arena.boss and not _world.arena.boss.is_dead and _world.arena.is_started:
-		_marker(origin + _world.arena.boss.global_position / map.tile_size * scale, dot * 1.6, DANGER_COLOR)
+		_marker(origin + _world.arena.boss.global_position / map.tile_size * factor, dot * 1.6, DANGER_COLOR)
 	if _world.player:
-		_marker(origin + _world.player.global_position / map.tile_size * scale, dot * 1.2, HERO_COLOR)
+		_marker(origin + _world.player.global_position / map.tile_size * factor, dot * 1.2, HERO_COLOR)
 
 
 func _marker(at: Vector2, size_px: float, color: Color) -> void:

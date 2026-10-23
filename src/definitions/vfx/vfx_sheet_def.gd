@@ -114,35 +114,35 @@ func angle_for(direction: Vector2) -> float:
 	return VfxSheetDef.direction_index(direction, directions) * TAU / directions
 
 
-## Frames in a row of `texture`: `frames` when given, else square frames (`rows` rows).
-## A sheet whose width isn't a whole number of square frames needs `frames` (an 18x10 shard
+## Frames in a row of `art`: `frame_total` when given, else square frames (`row_total` rows).
+## A sheet whose width isn't a whole number of square frames needs `frame_total` (an 18x10 shard
 ## strip would otherwise be one frame of the whole strip).
-static func columns(texture: Texture2D, frames: int, rows: int = 1) -> int:
-	if texture == null:
+static func columns(art: Texture2D, frame_total: int, row_total: int = 1) -> int:
+	if art == null:
 		return 1
-	if frames > 0:
-		return frames
-	var height := texture.get_height() / maxi(rows, 1)
-	if height <= 0 or texture.get_width() % height != 0:
+	if frame_total > 0:
+		return frame_total
+	var height := int(art.get_height() / float(maxi(row_total, 1)))
+	if height <= 0 or art.get_width() % height != 0:
 		return 1
-	return maxi(texture.get_width() / height, 1)
+	return maxi(int(art.get_width() / float(height)), 1)
 
 
-## Size of one frame of `texture` cut in `frames` columns (0 = square) and `rows` rows.
-static func cell_size(texture: Texture2D, frames: int, rows: int = 1) -> Vector2i:
-	if texture == null:
+## Size of one frame of `art` cut in `frame_total` columns (0 = square) and `row_total` rows.
+static func cell_size(art: Texture2D, frame_total: int, row_total: int = 1) -> Vector2i:
+	if art == null:
 		return Vector2i.ONE
-	var count := VfxSheetDef.columns(texture, frames, rows)
-	return Vector2i(texture.get_width() / count, texture.get_height() / maxi(rows, 1))
+	var count := VfxSheetDef.columns(art, frame_total, row_total)
+	return Vector2i(int(art.get_width() / float(count)), int(art.get_height() / float(maxi(row_total, 1))))
 
 
-## Whether a strip of `frames` (0 = square) cuts `texture` into whole frames.
-static func slices_evenly(texture: Texture2D, frames: int) -> bool:
-	if texture == null:
+## Whether a strip of `frame_total` (0 = square) cuts `art` into whole frames.
+static func slices_evenly(art: Texture2D, frame_total: int) -> bool:
+	if art == null:
 		return true
-	if frames > 0:
-		return texture.get_width() % frames == 0
-	return texture.get_width() % texture.get_height() == 0
+	if frame_total > 0:
+		return art.get_width() % frame_total == 0
+	return art.get_width() % art.get_height() == 0
 
 
 ## Index of the nearest of `count` directions to `direction` (0 = right, then clockwise on
@@ -153,17 +153,17 @@ static func direction_index(direction: Vector2, count: int) -> int:
 	return posmod(roundi(direction.angle() / (TAU / count)), count)
 
 
-## A plain texture as a sheet: frames in a row (`frames`, 0 = square), drawn as it is when its
+## A plain texture as a sheet: frames in a row (`frame_total`, 0 = square), drawn as it is when its
 ## frames are about square (orbs, stars, coins), turned to the nearest of 16 directions when
 ## they are long (arrows, kunai, shards drawn pointing right).
-static func from_texture(texture: Texture2D, frames: int = 0, fps: float = 12.0) -> VfxSheetDef:
+static func from_texture(art: Texture2D, frame_total: int = 0, speed: float = 12.0) -> VfxSheetDef:
 	var sheet := VfxSheetDef.new()
-	sheet.texture = texture
-	sheet.frames = frames
-	sheet.fps = fps
+	sheet.texture = art
+	sheet.frames = frame_total
+	sheet.fps = speed
 	sheet.loop = true
 	var size := sheet.frame_size()
-	if size.x >= size.y * 3 / 2:
+	if size.x >= int(size.y * 3 / 2.0):
 		sheet.orient = Orient.SNAPPED
 		sheet.directions = 16
 	return sheet

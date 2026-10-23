@@ -107,9 +107,9 @@ func _test_ground_loot() -> void:
 	var by_rarity: Array[Dictionary] = []
 	for rarity in ItemRarity.NAMES.size():
 		var item: ItemDef = base if rarity == ItemRarity.COMMON else LootRoller.make(base, rarity, [])
-		var pickup := _pickup(item)
-		by_rarity.append(_parts(pickup))
-		pickup.free()
+		var dropped := _pickup(item)
+		by_rarity.append(_parts(dropped))
+		dropped.free()
 	check(by_rarity[ItemRarity.COMMON].is_empty(), "ground: a Common item lies plain (no shine, no light)")
 	check(by_rarity[ItemRarity.MAGIC].is_empty(), "ground: a Magic item only glints (drawn on its icon)")
 	check(by_rarity[ItemRarity.RARE].has(LootShine.Part.PULSE) and by_rarity[ItemRarity.RARE].has(&"light") and not by_rarity[ItemRarity.RARE].has(LootShine.Part.BEAM), "ground: a Rare item pulses gold with a small light, no pillar")
@@ -159,8 +159,8 @@ func _rig(hero: bool) -> ActorRig:
 func _test_rig_gear() -> void:
 	var shader: Shader = load("res://assets/shaders/flash.gdshader")
 	var uniforms := shader.get_shader_uniform_list().map(func(u: Dictionary) -> String: return u.name)
-	for name: String in ["trim", "trim_row", "trim_hem", "trim_sweep", "imbue", "imbue_row"]:
-		check(uniforms.has(name), "rig: the body shader has its %s uniform (worn gear)" % name)
+	for param_name: String in ["trim", "trim_row", "trim_hem", "trim_sweep", "imbue", "imbue_row"]:
+		check(uniforms.has(param_name), "rig: the body shader has its %s uniform (worn gear)" % param_name)
 	var rig := _rig(true)
 	var katana := LootRoller.make(_weapon("katana"), ItemRarity.EPIC, [_affix("burning")], [_rune("ember")]) as WeaponDef
 	rig.set_weapon(katana)

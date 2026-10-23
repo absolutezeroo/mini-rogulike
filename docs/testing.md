@@ -107,6 +107,26 @@ one: see docs/conventions.md, "Lambdas that run later").
 fails once and passes on a rerun is a flaky test, a bug to find (below), never a retry. The game
 and tutorial suites were hunted for them on 2026-10-22 (one game run in three failed before).
 
+### No GDScript warnings
+
+The editor's warnings (a local shadowing a property, an integer division, a static function
+called on an instance, an unused signal, a needless `await`...) never show in a headless test.
+The project is kept at zero; check it before calling a change done:
+
+```
+python3 tools/lint/gd_warnings.py      # prints them, exit 1 if there is any (about 1 min)
+```
+
+It starts a headless editor with its GDScript language server (`--lsp-port`), opens every script
+of `src/`, `tests/` and `tools/` in it, prints what the server reports for each (warnings and
+parse errors, with the project's own warning settings) and stops the editor. Godot is found as
+`--godot PATH`, `$GODOT`, `godot` on the PATH, or a downloaded `Godot_v4.7-stable_linux.x86_64`
+(the root, `_tool/`, `/tmp`); the project must have been imported once. The editor re-saves
+`default_bus_layout.tres` when it starts: the tool puts it (and the project settings and the
+roadmap) back as they were. Android's build template (`android/build/`, which carries its own
+`.gdignore`, so the editor never scans it) is not ours and is left out. How to fix each kind:
+docs/conventions.md, "No GDScript warnings".
+
 ## Writing a check
 
 Each suite extends `TestSuite` (`tests/support/test_suite.gd`); its `run()` calls `_test_*`

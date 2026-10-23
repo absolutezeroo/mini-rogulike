@@ -107,7 +107,7 @@ func _draw_pulse() -> void:
 ## its outer rim (a flat stepped glow, never a screen door), breathing by an art pixel.
 func _draw_aura() -> void:
 	var center := Vector2(0, 6)
-	var radius := 20.0 + (2.0 if (_frame / 5) % 2 == 0 else 0.0)
+	var radius := 20.0 + (2.0 if int(_frame / 5.0) % 2 == 0 else 0.0)
 	PixelDraw.ring(self, center, radius, element.shade(0.75), 3, 1.0, 0.5)
 	PixelDraw.ring(self, center, radius, element.shade(0.5), 1, 1.0, 0.5)
 	PixelDraw.ring(self, center, radius + 2.0, element.shade(0.75), 1, 0.5, 0.5)
