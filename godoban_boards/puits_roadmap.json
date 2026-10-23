@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 91,
+  "next_id": 95,
   "tags": [
     "pc",
     "test",
@@ -1257,6 +1257,65 @@
       ],
       "created_at": 1792720000,
       "updated_at": 1792720000
+    },
+    {
+      "id": "task_91",
+      "title": "Niche vide du Gardien : un vrai sprite",
+      "description": "Suite de « La niche vide de Tôma » : la niche à côté de chaque Statue du Gardien est dessinée en code (Encounter._draw_niche : bloc de pierre, creux en arc, rebord nu, nom gratté). Si elle se lit mal ou détonne à côté de la statue (warden_statue.png), la redessiner à la main comme un sprite de la même pierre (et décider si elle reste à côté de chaque statue ou seulement dans le Sanctuaire oublié).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "vfx",
+        "sprites"
+      ],
+      "created_at": 1792715222,
+      "updated_at": 1792715222
+    },
+    {
+      "id": "task_92",
+      "title": "Reprise : monstres blessés et monstres venus après",
+      "description": "Suite de « Monstres tués qui restent morts après reprise » : à la reprise, les monstres propres à l'étage encore debout reviennent avec toute leur Vie (une bête blessée à 10 % repart pleine), et ceux qui sont venus après (embuscade, invocations, vagues du feu de camp, monstres d'une rencontre ou d'un coffre piégé) ne sont pas gardés du tout. Décider si la reprise doit aussi garder la Vie des blessés (World.spent_data, par floor_index).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "sauvegarde",
+        "idée"
+      ],
+      "created_at": 1792715222,
+      "updated_at": 1792715222
+    },
+    {
+      "id": "task_93",
+      "title": "Focus avant mise en page : vérifier les autres pages",
+      "description": "Vu en traitant « Codex au clavier » : une page qui donne le focus à son premier bouton avant que ses colonnes soient mises en page fait défiler sa liste (follow_focus) de la hauteur du bouton. Corrigé pour la page d'un monstre (MonsterPage.scroll_to_top), et le cadre de focus ne sort plus de sa boîte (MenuNav) ; d'autres pages construites puis focalisées dans la même image (sac, boutique, forge, chronique) peuvent avoir le même décalage : les ouvrir au clavier en 1280x720 et vérifier.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_4",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "pc"
+      ],
+      "created_at": 1792715222,
+      "updated_at": 1792715222
+    },
+    {
+      "id": "task_94",
+      "title": "Poison : la pièce poison_cloud.png n'est plus dessinée",
+      "description": "Suite de « Poison : traînées et arcs en mottes » : les novas, traînées et arcs de poison sont tous la nappe de gaz (GasPoolVfx) ; poison_cloud.png (mottes debout, la `piece` du kit) ne sert plus qu'à remplir le kit (les tests la demandent). La garder pour un futur usage ou la retirer avec le test du kit.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "vfx"
+      ],
+      "created_at": 1792715222,
+      "updated_at": 1792715222
     }
   ]
 }
