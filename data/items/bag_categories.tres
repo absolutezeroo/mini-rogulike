@@ -2,12 +2,12 @@
 
 [ext_resource type="Script" path="res://src/definitions/items/bag_category_set.gd" id="1_set"]
 [ext_resource type="Script" path="res://src/definitions/items/bag_category_def.gd" id="2_def"]
-[ext_resource type="Texture2D" path="res://assets/weapons/katana.png" id="3_weapons"]
-[ext_resource type="Texture2D" path="res://assets/items/armor.png" id="3_armor"]
-[ext_resource type="Texture2D" path="res://assets/items/runes/spark.png" id="4_runes"]
-[ext_resource type="Texture2D" path="res://assets/items/tome_war.png" id="5_tomes"]
-[ext_resource type="Texture2D" path="res://assets/items/lifepot.png" id="6_potions"]
-[ext_resource type="Texture2D" path="res://assets/items/bone_key.png" id="7_other"]
+[ext_resource type="Texture2D" path="res://assets/ui/placeholders/weapon.png" id="3_weapons"]
+[ext_resource type="Texture2D" path="res://assets/ui/placeholders/body.png" id="3_armor"]
+[ext_resource type="Texture2D" path="res://assets/ui/placeholders/rune.png" id="4_runes"]
+[ext_resource type="Texture2D" path="res://assets/ui/placeholders/tome.png" id="5_tomes"]
+[ext_resource type="Texture2D" path="res://assets/ui/placeholders/potion.png" id="6_potions"]
+[ext_resource type="Texture2D" path="res://assets/ui/placeholders/other.png" id="7_other"]
 
 [sub_resource type="Resource" id="Category_weapons"]
 script = ExtResource("2_def")

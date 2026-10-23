@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 153,
+  "next_id": 154,
   "tags": [
     "pc",
     "test",
@@ -2028,7 +2028,7 @@
         "ui"
       ],
       "created_at": 1792768111,
-      "updated_at": 1792777398
+      "updated_at": 1792778210
     },
     {
       "id": "task_139",
@@ -2202,6 +2202,21 @@
     },
     {
       "id": "task_150",
+      "title": "Sac : pictogrammes centrés, emplacements vides en silhouette, erreur find",
+      "description": "Signalé par Clayton : les icônes des onglets du sac n'étaient pas centrées, le « 0 » mordait dessus, et elles montraient de vraies armes du jeu. Maintenant : des pictogrammes neutres (épée, casque, armure, rune, grimoire, fiole, bourse — assets/ui/placeholders/, générés par tools/ui/make_placeholders.py) centrés, deux fois plus grands, le nombre seulement s'il y a quelque chose ; les emplacements d'équipement vides montrent la même silhouette en pâle au lieu du mot. Corrigé aussi l'erreur « Attempted to find an object into a TypedArray » (inventory_panel.gd:551) quand un bouton avait le focus.",
+      "status": "review",
+      "priority": "medium",
+      "epic_id": "epic_4",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "bug"
+      ],
+      "created_at": 1792777924,
+      "updated_at": 1792777924
+    },
+    {
+      "id": "task_151",
       "title": "Objectifs communs du Tribut du Puits",
       "description": "Idée (non validée) : quand un compteur mondial atteint un palier (ex. 1 000 000 de démons abattus, 10 000 Derniers Glas), quelque chose s'ouvre pour tous : une ligne de la Veilleuse, une relique cosmétique, un écho dans le Codex. Les paliers en données à côté des compteurs (data/online/world_stats.tres), lus avec les totaux déjà en cache.",
       "status": "backlog",
@@ -2213,11 +2228,11 @@
         "en ligne",
         "contenu"
       ],
-      "created_at": 1792777398,
-      "updated_at": 1792777398
+      "created_at": 1792778210,
+      "updated_at": 1792778210
     },
     {
-      "id": "task_151",
+      "id": "task_152",
       "title": "Tribut du Puits : parties abandonnées",
       "description": "Quand le suivi des parties abandonnées (télémétrie) passera par Events.run_ended (ou un signal de fin équivalent), vérifier que WorldStats envoie aussi leur part. Aujourd'hui, les comptes d'une partie non terminée restent dans user://world_stats.json et partent à la fin de la partie suivante.",
       "status": "todo",
@@ -2228,11 +2243,11 @@
         "en ligne",
         "données"
       ],
-      "created_at": 1792777398,
-      "updated_at": 1792777398
+      "created_at": 1792778210,
+      "updated_at": 1792778210
     },
     {
-      "id": "task_152",
+      "id": "task_153",
       "title": "Tribut du Puits : part du joueur sur l'écran de fin",
       "description": "Idée : sur l'écran de fin de partie, une ligne « Tu as ajouté 37 démons au Tribut du Puits » (seulement avec le consentement aux statistiques).",
       "status": "backlog",
@@ -2244,8 +2259,8 @@
         "en ligne",
         "ui"
       ],
-      "created_at": 1792777398,
-      "updated_at": 1792777398
+      "created_at": 1792778210,
+      "updated_at": 1792778210
     }
   ]
 }

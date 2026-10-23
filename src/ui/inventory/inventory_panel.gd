@@ -26,6 +26,12 @@ const NO_SLOT := -1
 const BAG_COLUMNS := 4
 const BAG_SLOT := 66.0
 const GEAR_SLOT := 74.0
+## The pictogram an empty equipment slot shows.
+const GEAR_PLACEHOLDERS := {
+	EquipmentDef.Slot.WEAPON: "res://assets/ui/placeholders/weapon.png",
+	EquipmentDef.Slot.HEAD: "res://assets/ui/placeholders/head.png",
+	EquipmentDef.Slot.BODY: "res://assets/ui/placeholders/body.png",
+}
 ## How fast the right stick scrolls the item's details, UI units a second.
 const DETAILS_SCROLL_SPEED := 720.0
 ## The bag's compartments (their tabs) and what goes in each.
@@ -548,7 +554,7 @@ func _do(action: BagAction) -> void:
 		return
 	_disarm()
 	var focus := get_viewport().gui_get_focus_owner()
-	var index := _bag_slots.find(focus)
+	var index := _bag_slots.find(focus) if focus is ItemSlot else -1  # (a button may hold the focus)
 	if not action.run(selection):
 		_refresh()
 		return
@@ -688,6 +694,7 @@ func _build_hero(columns: HBoxContainer) -> void:
 	for slot: EquipmentDef.Slot in [EquipmentDef.Slot.WEAPON, EquipmentDef.Slot.HEAD, EquipmentDef.Slot.BODY]:
 		var button := ItemSlot.new(GEAR_SLOT)
 		button.caption = tr(EquipmentDef.SLOT_NAMES[slot])
+		button.placeholder = load(GEAR_PLACEHOLDERS[slot])
 		button.name = "%sSlot" % EquipmentDef.SLOT_NAMES[slot]
 		button.pressed.connect(_select_slot.bind(slot, true))
 		button.focus_entered.connect(_on_slot_focused.bind(button))
