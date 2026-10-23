@@ -13,7 +13,9 @@ extends MonsterDef
 @export var chronicle: BossChronicleDef
 ## Face shown next to the boss health bar.
 @export var portrait: Texture2D
-## Played during the fight. Empty = SoundBank.boss_music.
+## Played during the fight (Soundtrack.boss_music()). Empty: its act's ActDef.boss_music, then
+## SoundBank.boss_music. A next form (next_boss) with its own takes over when it rises: the
+## music falls silent while it rises, then its track begins.
 @export var music: AudioStream
 ## Arenas it fights in (one picked per fight; empty: the dungeon's, DungeonConfig.arenas).
 @export var arenas: Array[ArenaDef] = []

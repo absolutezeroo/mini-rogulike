@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://src/definitions/story/cinematic/steps/wait_step.gd" id="7_waitstep"]
 [ext_resource type="Script" path="res://src/definitions/story/cinematic/steps/clear_text_step.gd" id="8_cleartextste"]
 [ext_resource type="Script" path="res://src/definitions/story/cinematic/cinematic_step.gd" id="9_cinematicste"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/story.ogg" id="snd_story"]
 
 [sub_resource type="Resource" id="Resource_1"]
 script = ExtResource("2_letterboxste")
@@ -65,3 +66,5 @@ line_hold = 0.7
 hold_per_char = 0.035
 tap_grace = 0.35
 tap_completes_first = true
+music = ExtResource("snd_story")
+duck_db = -4.0

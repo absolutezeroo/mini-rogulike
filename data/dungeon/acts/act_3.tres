@@ -28,6 +28,7 @@
 [ext_resource type="Resource" path="res://data/monsters/shell_guard.tres" id="20_1k2vl"]
 [ext_resource type="Resource" path="res://data/monsters/ember_heart.tres" id="24_4g6yy"]
 [ext_resource type="Resource" path="res://data/monsters/bosses/jade_wyrm.tres" id="27_5f32u"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/end_theme.ogg" id="snd_end_theme"]
 
 [resource]
 script = ExtResource("12_4gi1q")
@@ -42,3 +43,4 @@ monster_damage = 1.1
 boss = ExtResource("1_jy0od")
 other_bosses = Array[ExtResource("18_k1810")]([ExtResource("19_pa3y5"), ExtResource("27_5f32u")])
 hazards = Array[ExtResource("2_7pb75")]([ExtResource("3_pcd8x"), ExtResource("4_k1810"), ExtResource("5_pa3y5"), ExtResource("6_0hwi7"), ExtResource("7_4gi1q")])
+boss_music = ExtResource("snd_end_theme")

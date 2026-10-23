@@ -408,11 +408,13 @@ func unequip(slot: EquipmentDef.Slot) -> void:
 		Events.log_message(inventory.full_text(equipment.get_item(slot)), Palette.DANGER)
 		return
 	inventory.add(equipment.unequip(slot))
+	Sfx.play_ui(Sfx.bank.equip)
 
 
 func drop_item(item: ItemDef) -> void:
 	if inventory.remove(item):
 		world.spawn_item(item, global_position, false)
+		Sfx.play_world(Sfx.bank.drop, global_position)
 
 
 ## Breaks `item` (one of its stack in the bag) down for gold (DismantleRules). The gold it gave,
@@ -438,6 +440,7 @@ func dismantle_all(list: Array[ItemDef]) -> int:
 	if broken.is_empty():
 		return 0
 	add_gold(gold_gained)
+	Sfx.play_ui(Sfx.bank.dismantle)
 	Sfx.play_ui(Sfx.bank.coin)
 	if broken.size() == 1:
 		Events.log_message(tr("Dismantled %s: +%d gold") % [tr(broken[0].display_name), gold_gained], Palette.GOLD)

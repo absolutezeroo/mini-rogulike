@@ -24,6 +24,8 @@ const AMBIENCE := &"Ambience"
 const ROOM := &"SFX"
 ## Every sound is played on one of these (tests check it).
 const BUSES: Array[StringName] = [COMBAT, WORLD, UI, MUSIC, AMBIENCE]
+## Where a fading track ends (dB).
+const SILENT_DB := -40.0
 
 ## Generic sounds, set by the Game from the ContentDB.
 var bank := SoundBank.new()
@@ -31,7 +33,14 @@ var bank := SoundBank.new()
 var enabled := true
 var mix: SoundMixDef = MIX
 
+## Two music players take turns, so the old track fades out while the new one fades in.
+var _music_main: AudioStreamPlayer
+var _music_other: AudioStreamPlayer
+## The one playing (or about to) the current track; the other one fades out or rests.
 var _music: AudioStreamPlayer
+var _music_stream: AudioStream
+var _duck_db := 0.0
+var _tweens := {}  # music player -> its fade
 var _combat: Array[AudioStreamPlayer2D] = []
 var _world: Array[AudioStreamPlayer2D] = []
 var _ui: Array[AudioStreamPlayer] = []
@@ -46,10 +55,9 @@ func _ready() -> void:
 		_combat.append(_make_2d(COMBAT, mix.combat_attenuation))
 	for i in mix.world_voices:
 		_world.append(_make_2d(WORLD, mix.world_attenuation))
-	_music = AudioStreamPlayer.new()
-	_music.bus = MUSIC
-	_music.volume_db = -8.0
-	add_child(_music)
+	_music_main = _make_music_player("Music")
+	_music_other = _make_music_player("MusicCrossfade")
+	_music = _music_main
 	for i in mix.ui_voices:
 		var player := AudioStreamPlayer.new()
 		player.bus = UI
@@ -191,6 +199,15 @@ func listener_position() -> Vector2:
 	return viewport.get_canvas_transform().affine_inverse() * viewport.get_visible_rect().get_center()
 
 
+func _make_music_player(node_name: String) -> AudioStreamPlayer:
+	var player := AudioStreamPlayer.new()
+	player.name = node_name
+	player.bus = MUSIC
+	player.volume_db = SILENT_DB
+	add_child(player)
+	return player
+
+
 func _make_2d(bus: StringName, attenuation: float) -> AudioStreamPlayer2D:
 	var player := AudioStreamPlayer2D.new()
 	player.bus = bus
@@ -227,26 +244,101 @@ func _pick_variation(stream: AudioStream) -> Array:
 	return [picked, pitch, volume]
 
 
-## Starts a looping music track, fading from the current one. Same track = keeps playing.
-func play_music(stream: AudioStream, volume_db: float = -8.0) -> void:
-	if not enabled or stream == null or (_music.stream == stream and _music.playing):
-		return
+## Starts a looping track, crossfading from the one playing (both overlap: the old one fades out
+## over mix.music_fade_out while the new one comes in over mix.music_fade_in). The same track asked
+## again keeps playing where it is, never restarted (two floors of a biome, a floor's music after
+## its warden's). `delay`: seconds of silence first (after a sting). Returns true if the music
+## changes.
+func play_music(stream: AudioStream, delay: float = 0.0) -> bool:
+	if not enabled or stream == null:
+		return false
+	if stream == _music_stream:
+		_fade_music_to(_music_level(), mix.duck_time)  # (back up if it was being silenced)
+		return false
+	_music_stream = stream
 	if stream is AudioStreamOggVorbis:
-		(stream as AudioStreamOggVorbis).loop = true
-	var tween := create_tween()
-	if _music.playing:
-		tween.tween_property(_music, "volume_db", -40.0, 0.6)
-	tween.tween_callback(func() -> void:
-		_music.stream = stream
-		_music.volume_db = -40.0
-		_music.play())
-	tween.tween_property(_music, "volume_db", volume_db, 1.0)
+		(stream as AudioStreamOggVorbis).loop = true  # (the .import says so too; tests check it)
+	var old := _music
+	_music = _music_other if _music == _music_main else _music_main
+	_music_other = old
+	_kill_tween(old)
+	if old.playing:
+		var out := old.create_tween()
+		out.tween_property(old, "volume_db", SILENT_DB, mix.music_fade_out)
+		out.tween_callback(old.stop)
+		_tweens[old] = out
+	var player := _music
+	_kill_tween(player)
+	player.stop()
+	player.stream = stream
+	player.volume_db = SILENT_DB
+	var fade := player.create_tween()
+	if delay > 0.0:
+		fade.tween_interval(delay)
+	fade.tween_callback(player.play)
+	fade.tween_property(player, "volume_db", _music_level(), mix.music_fade_in)
+	_tweens[player] = fade
+	return true
+
+
+## Fades the music out to silence (`fade` seconds; negative: mix.music_fade_out). The next
+## play_music() starts its track afresh, even the same one.
+func stop_music(fade: float = -1.0) -> void:
+	_music_stream = null
+	for player: AudioStreamPlayer in [_music_main, _music_other]:
+		if not player.playing:
+			continue
+		_kill_tween(player)
+		var out := player.create_tween()
+		out.tween_property(player, "volume_db", SILENT_DB, mix.music_fade_out if fade < 0.0 else fade)
+		out.tween_callback(player.stop)
+		_tweens[player] = out
+
+
+## Lowers the music by `db` under a scene (a boss's story); 0 brings it back.
+func duck_music(db: float) -> void:
+	_duck_db = minf(db, 0.0)
+	if _music_stream != null:
+		_fade_music_to(_music_level(), mix.duck_time)
+
+
+## The track playing or coming in (null: silence, or fading out to it).
+func current_music() -> AudioStream:
+	return _music_stream
+
+
+func _music_level() -> float:
+	return mix.music_volume_db + _duck_db
+
+
+func _fade_music_to(volume_db: float, seconds: float) -> void:
+	var player := _music
+	if not player.playing and player.stream != _music_stream:
+		return
+	var running: Tween = _tweens.get(player)
+	if running and running.is_valid() and running.is_running() and not player.playing:
+		return  # still waiting out its delay: it comes in at the right level by itself
+	_kill_tween(player)
+	var fade := player.create_tween()
+	fade.tween_property(player, "volume_db", volume_db, seconds)
+	_tweens[player] = fade
+
+
+func _kill_tween(player: AudioStreamPlayer) -> void:
+	var running: Tween = _tweens.get(player)
+	if running and running.is_valid():
+		running.kill()
+	_tweens.erase(player)
 
 
 ## Stops everything (used before quitting or when restarting).
 func stop_all() -> void:
-	_music.stop()
-	_music.stream = null
+	for player: AudioStreamPlayer in [_music_main, _music_other]:
+		_kill_tween(player)
+		player.stop()
+		player.stream = null
+	_music_stream = null
+	_duck_db = 0.0
 	for player in _combat + _world:
 		player.stop()
 		player.stream = null

@@ -3,17 +3,17 @@
 [ext_resource type="Resource" path="res://data/dungeon/ambience/garden.tres" id="1_xmpg2"]
 [ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="2_w8t0k"]
 [ext_resource type="Texture2D" path="res://assets/tiles/floor.png" id="3_rkl6f"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/cave.ogg" id="4_jcmjs"]
 [ext_resource type="Texture2D" path="res://assets/tiles/dungeon.png" id="5_6q3s4"]
 [ext_resource type="Script" path="res://src/definitions/dungeon_theme.gd" id="6_sjaq3"]
 [ext_resource type="Texture2D" path="res://assets/tiles/relief.png" id="7_uve6h"]
 [ext_resource type="Resource" path="res://data/dungeon/lighting/garden.tres" id="9_lighting"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/dark_forest.ogg" id="snd_dark_forest"]
 
 [resource]
 script = ExtResource("6_sjaq3")
 tint = Color(0.95, 1, 0.9, 1)
 lighting = ExtResource("9_lighting")
-music = ExtResource("4_jcmjs")
+music = ExtResource("snd_dark_forest")
 ambience = ExtResource("1_xmpg2")
 floor_atlas = ExtResource("3_rkl6f")
 floor_tiles = PackedInt32Array(264, 264, 264, 265, 266, 267)

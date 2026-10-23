@@ -27,6 +27,7 @@
 [ext_resource type="Resource" path="res://data/monsters/thief_racoon.tres" id="19_f35h4"]
 [ext_resource type="Resource" path="res://data/monsters/bosses/giant_frog.tres" id="19_l6n4l"]
 [ext_resource type="Resource" path="res://data/monsters/moss_heart.tres" id="24_vhkbm"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/boss.ogg" id="snd_boss"]
 
 [resource]
 script = ExtResource("12_f35h4")
@@ -39,3 +40,4 @@ monsters = Array[ExtResource("2_chj32")]([ExtResource("3_twde1"), ExtResource("4
 boss = ExtResource("1_y3bjj")
 other_bosses = Array[ExtResource("18_35t5y")]([ExtResource("19_l6n4l")])
 hazards = Array[ExtResource("2_3q6dd")]([ExtResource("3_57csl"), ExtResource("4_35t5y"), ExtResource("5_l6n4l"), ExtResource("6_d01a4"), ExtResource("7_f35h4")])
+boss_music = ExtResource("snd_boss")

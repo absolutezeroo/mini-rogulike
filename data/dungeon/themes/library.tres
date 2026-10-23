@@ -3,17 +3,17 @@
 [ext_resource type="Resource" path="res://data/dungeon/ambience/library.tres" id="1_txvwm"]
 [ext_resource type="Texture2D" path="res://assets/tiles/floor_detail.png" id="2_u14od"]
 [ext_resource type="Texture2D" path="res://assets/tiles/interior_floor.png" id="3_jmd6v"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/crypt.ogg" id="4_icqkf"]
 [ext_resource type="Texture2D" path="res://assets/tiles/dungeon.png" id="5_chvqj"]
 [ext_resource type="Script" path="res://src/definitions/dungeon_theme.gd" id="6_aoauo"]
 [ext_resource type="Texture2D" path="res://assets/tiles/relief.png" id="7_vbva4"]
 [ext_resource type="Resource" path="res://data/dungeon/lighting/library.tres" id="9_lighting"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/mystical.ogg" id="snd_mystical"]
 
 [resource]
 script = ExtResource("6_aoauo")
 tint = Color(1, 0.93, 0.85, 1)
 lighting = ExtResource("9_lighting")
-music = ExtResource("4_icqkf")
+music = ExtResource("snd_mystical")
 ambience = ExtResource("1_txvwm")
 floor_atlas = ExtResource("3_jmd6v")
 floor_tiles = PackedInt32Array(23)

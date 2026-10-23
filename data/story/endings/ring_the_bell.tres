@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="EndingDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/ending_def.gd" id="1_ending"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/credit_theme.ogg" id="snd_credit_theme"]
 
 [resource]
 script = ExtResource("1_ending")
@@ -13,3 +14,4 @@ Tôma sits against the stone, his hand on your lantern. \"She sleeps now.\" Then
 Far above, Kagari wakes. The knell carries until dawn."
 stat = "ending_bell"
 color = Color(1, 0.86, 0.45, 1)
+music = ExtResource("snd_credit_theme")

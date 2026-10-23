@@ -16,3 +16,5 @@ extends Resource
 ## The profile counter it adds one to (AchievementDef.STAT_KEYS: its achievement reads it).
 @export var stat: String
 @export var color: Color = Color(1, 0.86, 0.45)
+## Under its victory screen (null: SoundBank.victory_music).
+@export var music: AudioStream

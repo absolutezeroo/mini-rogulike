@@ -74,6 +74,8 @@ enum Distortion {
 ## Its novas lie on the ground as one pool of its matter (GasPoolVfx: poison's gas, its rim
 ## where the area ends) instead of a ring of pieces; `piece` still makes its trails and arcs.
 @export var pool: bool = false
+## The sound of its pool welling up (poison's gas bubbling), played with it. Optional.
+@export var pool_sound: AudioStream
 ## What wells up in its pool and pops (poison's bubbles), on the ground with it. Optional.
 @export var pool_bubble: VfxSheetDef
 ## A creature's blow (claws, fangs) in this element.

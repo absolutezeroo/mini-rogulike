@@ -14,3 +14,4 @@ figure = ExtResource("2_portrait")
 color = Color(0.8, 0.66, 1, 1)
 voice = ExtResource("4_voice")
 letters_per_second = 60.0
+voice_db = -6.0

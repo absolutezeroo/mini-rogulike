@@ -1,6 +1,5 @@
 [gd_resource type="Resource" script_class="AmbienceDef" format=3]
 
-[ext_resource type="AudioStream" path="res://assets/audio/ambience/ruins/bed.ogg" id="1_re2om"]
 [ext_resource type="Texture2D" path="res://assets/fx/fog.png" id="2_u6ouw"]
 [ext_resource type="AudioStream" path="res://assets/audio/ambience/ruins/step_0.ogg" id="3_amp6j"]
 [ext_resource type="AudioStream" path="res://assets/audio/ambience/ruins/step_1.ogg" id="4_tn1we"]
@@ -13,6 +12,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/ambience/ruins/roar.ogg" id="11_gxook"]
 [ext_resource type="PackedScene" path="res://src/vfx/ambient/sand.tscn" id="12_3oq38"]
 [ext_resource type="Script" path="res://src/definitions/ambience_def.gd" id="13_6k7xg"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambience/wind/bed.ogg" id="snd_bed"]
 
 [sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_ssjq0"]
 random_pitch = 1.12
@@ -28,8 +28,8 @@ stream_4/stream = ExtResource("7_focl1")
 script = ExtResource("13_6k7xg")
 footstep = SubResource("AudioStreamRandomizer_ssjq0")
 footprint_color = Color(0.1, 0.08, 0.08, 0.3)
-bed = ExtResource("1_re2om")
-bed_volume_db = -14.0
+bed = ExtResource("snd_bed")
+bed_volume_db = -13.0
 one_shots = Array[AudioStream]([ExtResource("8_8fyyx"), ExtResource("9_44eyj"), ExtResource("10_2b5no"), ExtResource("11_gxook")])
 one_shot_every = Vector2(3, 8)
 reverb_room_size = 0.45

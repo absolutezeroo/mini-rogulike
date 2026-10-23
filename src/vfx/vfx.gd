@@ -135,6 +135,8 @@ static func pop(world: World, at: Vector2, element: VfxElementDef, radius: float
 static func nova(world: World, at: Vector2, radius: float, element: VfxElementDef) -> void:
 	if element and element.pool:
 		world.spawn_vfx(GasPoolVfx.create(at, radius, element))  # poison: one pool of gas
+		if element.pool_sound:
+			Sfx.play_at(element.pool_sound, at, -4.0)
 	else:
 		world.spawn_vfx(ComposedVfx.ring(at, radius, element))
 	if element and element.emissive:
