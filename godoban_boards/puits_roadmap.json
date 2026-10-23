@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 80,
+  "next_id": 91,
   "tags": [
     "pc",
     "test",
@@ -24,7 +24,13 @@
     "git",
     "android",
     "idée",
-    "bug"
+    "bug",
+    "son",
+    "niveaux",
+    "visuel",
+    "perf",
+    "release",
+    "contenu"
   ],
   "epics": [
     {
@@ -61,6 +67,16 @@
       "id": "epic_7",
       "title": "Idées de contenu",
       "color": "#95a5a6"
+    },
+    {
+      "id": "epic_80",
+      "title": "Futures mises à jour",
+      "color": "#c0392b"
+    },
+    {
+      "id": "epic_81",
+      "title": "Son & Ambiance",
+      "color": "#8e44ad"
     }
   ],
   "tasks": [
@@ -1108,6 +1124,139 @@
       ],
       "created_at": 1792710655,
       "updated_at": 1792710655
+    },
+    {
+      "id": "task_82",
+      "title": "Identité sonore : une musique par lieu",
+      "description": "Seulement 4 morceaux pour 9 biomes, 4 actes, les Tréfonds, le Seuil, le sanctuaire et le combat final. Donner un thème à chaque acte/biome, aux Tréfonds, au Seuil, au sanctuaire ; un vrai thème final qui bascule quand la Gueule se lève ; nappes d'ambiance par biome ; audit des bruitages récents (dialogues, sac, atouts). Pack Ninja Adventure (40 musiques CC0).",
+      "status": "in_progress",
+      "priority": "high",
+      "epic_id": "epic_81",
+      "due_date": null,
+      "tags": [
+        "son"
+      ],
+      "created_at": 1792720000,
+      "updated_at": 1792720000
+    },
+    {
+      "id": "task_83",
+      "title": "Identité des niveaux : formes de salles et décor au plafond",
+      "description": "Des parties qui ne se ressemblent pas : grandes salles rondes, salles à piliers, ponts sur le vide, couloirs en croix, salles d'arène… ; une couche « plafond » (racines, chaînes, stalactites, bannières) dessinée au-dessus du héros et qui s'efface quand il passe dessous ; décors propres à chaque biome. Modulaire, dans les données.",
+      "status": "in_progress",
+      "priority": "high",
+      "epic_id": "epic_81",
+      "due_date": null,
+      "tags": [
+        "niveaux",
+        "visuel"
+      ],
+      "created_at": 1792720000,
+      "updated_at": 1792720000
+    },
+    {
+      "id": "task_84",
+      "title": "Mettre la clé de signature Android en sécurité",
+      "description": "La clé (puits-release.keystore + mot de passe) n'existe que dans l'espace de travail de Claude, qui peut être effacé. Sans elle, plus aucune mise à jour possible sur le Play Store. À copier chez toi, hors du dépôt.",
+      "status": "todo",
+      "priority": "critical",
+      "epic_id": "epic_6",
+      "due_date": null,
+      "tags": [
+        "build",
+        "android"
+      ],
+      "created_at": 1792720000,
+      "updated_at": 1792720000
+    },
+    {
+      "id": "task_85",
+      "title": "Mesurer les performances sur le S23",
+      "description": "Tous les nouveaux effets, shaders et dialogues n'ont jamais été mesurés sur le téléphone (images/s, mémoire, chauffe).",
+      "status": "backlog",
+      "priority": "high",
+      "epic_id": "epic_6",
+      "due_date": null,
+      "tags": [
+        "build",
+        "perf"
+      ],
+      "created_at": 1792720000,
+      "updated_at": 1792720000
+    },
+    {
+      "id": "task_86",
+      "title": "Fiche Play Store",
+      "description": "Description FR/EN, captures, icône, page de confidentialité (docs/android.md), classification.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_6",
+      "due_date": null,
+      "tags": [
+        "release"
+      ],
+      "created_at": 1792720000,
+      "updated_at": 1792720000
+    },
+    {
+      "id": "task_87",
+      "title": "Classes de héros",
+      "description": "Plusieurs héros avec leur kit de départ, leurs compétences et leur histoire (lore : disciples du sanctuaire ?). Un des grands moteurs de rejouabilité du genre.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_80",
+      "due_date": null,
+      "tags": [
+        "idée",
+        "contenu"
+      ],
+      "created_at": 1792720000,
+      "updated_at": 1792720000
+    },
+    {
+      "id": "task_88",
+      "title": "Mode du Gardien Sans Nom",
+      "description": "Après la fin « Prendre sa place » : un mode où tu gardes le sceau (sans fin, vagues, défis).",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_80",
+      "due_date": null,
+      "tags": [
+        "idée",
+        "contenu"
+      ],
+      "created_at": 1792720000,
+      "updated_at": 1792720000
+    },
+    {
+      "id": "task_89",
+      "title": "Nouveaux biomes et un acte bonus",
+      "description": "Étendre le Puits : biomes supplémentaires par acte, un acte caché.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_80",
+      "due_date": null,
+      "tags": [
+        "idée",
+        "contenu"
+      ],
+      "created_at": 1792720000,
+      "updated_at": 1792720000
+    },
+    {
+      "id": "task_90",
+      "title": "Accessibilité",
+      "description": "Désactiver les secousses d'écran, mode daltonien, taille du texte, réaffectation des touches (déjà en carte).",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_80",
+      "due_date": null,
+      "tags": [
+        "pc",
+        "ui"
+      ],
+      "created_at": 1792720000,
+      "updated_at": 1792720000
     }
   ]
 }
