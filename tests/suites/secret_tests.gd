@@ -17,7 +17,7 @@ func _floor_with_secret(game: Game, depth: int) -> SecretRoom:
 		if not game.world.secrets.is_empty():
 			found = game.world.secrets[0]
 			break
-		game.run.seed += 1
+		game.run.run_seed += 1
 	return found
 
 
