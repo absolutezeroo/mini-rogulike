@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="LeaderboardDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/online/leaderboard_def.gd" id="1_board"]
+
+[resource]
+script = ExtResource("1_board")
+id = &"daily_challenge"
+display_name = "The Dawn Knell"
+rule = "The day's first toll only, one entry per player. The board starts anew at midnight (UTC)."
+talo_name = "daily-challenge"
+score = 0
+higher_first = true
+period = 0
+runs = 0
+submits = true
+shown = true

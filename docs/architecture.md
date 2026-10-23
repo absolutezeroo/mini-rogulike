@@ -50,11 +50,16 @@ data/                Game content as .tres resources (no code)
   items/bag_categories.tres  The bag's compartments (tabs): which items go in each, their places
   items/tomes/         Skill tomes (teach a spell)
   skills/              Player, monster and boss skills
+  leaderboards/        The online leaderboards (leaderboards.tres: LeaderboardsConfig) and their boards
+                       (boards/: LeaderboardDef), see docs/online.md
   ui/                  Loading tips, input_prompts.tres (the controls as the player is told about them: the
                        Controls page, the keys prompts show, the gamepad families' button names)
 src/
   autoload/            Events (signal bus), Sfx (sound player), HitStop (impact freeze), Profile (save), Settings (options),
-                       InputDevice (the device in use), MenuNav (menus with keys and gamepads), PixelGrid (the canvas's scale)
+                       InputDevice (the device in use), MenuNav (menus with keys and gamepads), PixelGrid (the canvas's scale),
+                       Leaderboards (the online leaderboards)
+  online/              The online leaderboards' pieces: RunSummary (a run that ended), PlayerName (the
+                       pseudonym's filter), BoardBackend (offline) > TaloBackend (Talo's REST API)
   core/                Small shared helpers (physics layers, weighted random, SafeFile)
   definitions/         Resource classes describing content (the "schema" of data/)
     effects/             Building blocks for skills and consumables
@@ -100,7 +105,10 @@ src/
                        CinematicDef's steps), StoryBeat (what one telling holds), Dialogues (what a speaker
                        says now), RunFacts (what is known of a run as it ends)
 tests/               Headless tests: run_tests (the runner), suites/ (unit, title, game, combat, floor, boss,
-                     balance: opt-in), support/ (TestSuite: checks, scene helpers, the bot)
+                     balance: opt-in), support/ (TestSuite: checks, scene helpers, the bot; FakeBoardBackend:
+                     a leaderboard server in memory)
+online/              talo.cfg.example: the form of talo.cfg, the leaderboards' access key (never committed:
+                     docs/online.md)
 locale/              strings.csv: every player text, English (the key) and French (see Languages)
 tools/i18n/          extract.py (keeps the CSV up to date), add_glyphs.py (French glyphs for the font)
 tools/levels/        level_art.py (the deep water, paper boats and the ceilings' atlases, drawn in the pack's
@@ -187,9 +195,11 @@ Few, each with one job (`project.godot` > Autoload):
 | `Loader` | `src/autoload/scene_loader.gd` | Loading screen between the title and the game |
 | `PixelGrid` | `src/autoload/pixel_grid.gd` | Picks the canvas's scale (whole steps of 0.5, the interface size option; the camera keeps the framing: `world_zoom()`) and shifts the screen a quarter of a pixel so text and pixel art at half-pixel spots draw whole (design/interface.md, Text and Screens) |
 | `InputDevice` | `src/autoload/input_device.gd` | The device in use (touch, keyboard and mouse, gamepad and its family) from the last real input; `changed` for the HUD, prompts and menus |
+| `Leaderboards` | `src/autoload/leaderboards.gd` | The online leaderboards (docs/online.md): queues the scores of runs that end (`Events.run_ended`), sends them through its backend (Talo, or offline without a key), reads the boards for the page. Its own file, `user://leaderboards.json` |
 | `MenuNav` | `src/autoload/menu_nav.gd` | Menus with keys and gamepads: the menu on top (group "menu") holds the focus, directions with wrap, tabs, the focus frame |
 
-Tests empty `Profile.save_path` and `Settings.path`, so they never touch a player's files.
+Tests empty `Profile.save_path` and `Settings.path`, so they never touch a player's files, and give
+`Leaderboards` an offline backend and no file (`use_for_tests()`): never the network.
 
 ## Rendering
 

@@ -10,7 +10,10 @@ extends Control
 ## %FewerEffectsCheck, %FlashesCheck, %RunTimerCheck, %TutorialCheck, %ReplayTutorialButton, %AutoLootAll, %AutoLootBetter,
 ## %AutoLootOff, %StoriesFull, %StoriesShort, %StoriesOff, %FullscreenCheck (computers),
 ## %UiSizeBig, %UiSizeMedium, %UiSizeSmall, %SettingsTab, %ControlsTab, %ControlsPage,
-## %CloseButton).
+## %CloseButton; with online leaderboards in the build: %BoardsNameText, %BoardsNameButton,
+## %BoardsShowCheck, %NameDialog).
+## The leaderboards' pseudonym and "Show me in the leaderboards" live in the Leaderboards autoload
+## (its own file), not in Settings.
 ## Picking a language rebuilds the window in it at once; the title screen behind is rebuilt when
 ## the window closes (other screens pick it up the next time they open).
 
@@ -48,6 +51,10 @@ var _settings_page: Control
 var _controls_page: ControlsPage
 ## The language changed while the window was open.
 var _language_changed := false
+## The online leaderboards' name and switch (null in a build without them), and its dialog.
+var _boards_name: Label
+var _boards_show: CheckButton
+var _name_dialog: PseudonymDialog
 
 
 func _ready() -> void:
@@ -109,8 +116,16 @@ func open() -> void:
 	_show_loot_mode()
 	_show_story_mode()
 	_show_ui_size()
+	_show_boards()
 	show_page(false)
 	show()
+
+
+## The leaderboards' name and switch as Leaderboards has them.
+func _show_boards() -> void:
+	if _boards_name:
+		_boards_name.text = Leaderboards.display_name()
+		_boards_show.set_pressed_no_signal(Leaderboards.shown)
 
 
 ## The settings (`controls` false) or what does what on the device in use (true).
@@ -124,6 +139,9 @@ func show_page(controls: bool) -> void:
 
 
 func close() -> void:
+	if _name_dialog and _name_dialog.visible:
+		_name_dialog.cancel()
+		return
 	Sfx.play_ui(Sfx.bank.ui_close)
 	hide()
 	closed.emit()
@@ -151,6 +169,9 @@ func _pick_language(code: String) -> void:
 	_loot_modes.clear()
 	_story_modes.clear()
 	_ui_sizes.clear()
+	_boards_name = null
+	_boards_show = null
+	_name_dialog = null
 	_build()
 	_wire()
 	open()
@@ -302,6 +323,38 @@ func _build() -> void:
 	_replay.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	replay_row.add_child(_replay)
 	MenuWindow.expose(_replay, "ReplayTutorialButton", self)
+	if Leaderboards.is_available():
+		_build_boards(_section(right, tr("Leaderboards")))
+
+
+## The online leaderboards: the name shown (Change opens PseudonymDialog), and the switch that
+## keeps every score home.
+func _build_boards(section: VBoxContainer) -> void:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	section.add_child(row)
+	var words := _words(tr("Your name"), "")
+	_boards_name = words.get_child(1) as Label
+	_boards_name.add_theme_color_override("font_color", UiSkin.GOLD)
+	_boards_name.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED  # (a player's name)
+	row.add_child(words)
+	MenuWindow.expose(_boards_name, "BoardsNameText", self)
+	var change := MenuWindow.button(tr("Change"), Fonts.BODY, 44)
+	change.custom_minimum_size.x = 150
+	change.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(change)
+	MenuWindow.expose(change, "BoardsNameButton", self)
+	_boards_show = _check(section, tr("Show me in the leaderboards"), tr("Your Dawn Knell scores are sent under this name. Off: nothing is sent."), "BoardsShowCheck")
+	_boards_show.toggled.connect(func(on: bool) -> void:
+		Leaderboards.set_shown(on)
+		Sfx.play_ui(Sfx.bank.ui_click))
+	_name_dialog = PseudonymDialog.new()
+	add_child(_name_dialog)
+	MenuWindow.expose(_name_dialog, "NameDialog", self)
+	_name_dialog.finished.connect(_show_boards)
+	change.pressed.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_open)
+		_name_dialog.open())
 
 
 ## Auto loot: its name, three buttons (one stays pressed), what the picked one does. Gold always

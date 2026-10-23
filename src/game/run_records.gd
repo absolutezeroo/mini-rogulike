@@ -68,6 +68,14 @@ func check_achievements() -> void:
 		Events.quest_completed.emit(quest)
 
 
+## The run ended (a death, a win; souls given): tells it to whoever keeps scores
+## (Events.run_ended: the online leaderboards).
+func report_end() -> void:
+	if run == null or player == null:
+		return
+	Events.run_ended.emit(RunSummary.of(run, player, content))
+
+
 ## Adds the run to the history (once).
 func record_history() -> void:
 	if run == null or run.history_recorded or player == null:

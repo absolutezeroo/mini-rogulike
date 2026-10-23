@@ -2,8 +2,9 @@
 
 Everything is ready in `export_presets.cfg` (preset **Android**): the app takes the game's name
 (`config/name_localized`: "The Well of Souls", "Le Puits des Âmes" on a French phone), package
-`com.absolutezeroo.puitsdesames`, version 0.3.0 (code 3), arm64-v8a, landscape, immersive, the
-Vibrate permission, no Gradle build needed. Tests, tools, docs and the roadmap
+`com.absolutezeroo.puitsdesames`, version 0.3.0 (code 3, also `application/config/version` in
+project.godot: the leaderboards send it), arm64-v8a, landscape, immersive, the Vibrate and
+Internet permissions (Internet: the online leaderboards, docs/online.md), no Gradle build needed. Tests, tools, docs and the roadmap
 (`godoban_boards/`) are left out (`exclude_filter`, checked by the unit tests). The
 icon is adaptive (`assets/icon/`: the hero over the well's glow and its souls, plus a monochrome
 version for themed icons); the splash shows it on the night color.
@@ -26,8 +27,12 @@ change it, or players lose their saves.
   the Android build template once (Project > Install Android Build Template; the `android/` folder
   it makes is not in git), then `godot --headless --export-release "Android Play Store"
   build/le-puits-des-ames.aab`. Raise `version/code` (and `version/name`) for each upload.
-- **Privacy policy**: `docs/privacy.html` (the game sends nothing anywhere; saves stay on the
-  phone). With GitHub Pages on (Settings > Pages > branch `main`, folder `/docs`) it is at
+- **Online leaderboards**: the builds pack `online/talo.cfg`, the Talo access key (presets'
+  `include_filter`). It is never committed: put it there before exporting ([online.md](online.md)),
+  or the build is offline (no leaderboards, nothing else changes).
+- **Privacy policy**: `docs/privacy.html` (saves stay on the phone; only the leaderboards send
+  anything: a random id, the pseudonym, the Dawn Knell's scores, and the player can turn it off).
+  Update the Play Console's data safety form to match before publishing a build with a key. With GitHub Pages on (Settings > Pages > branch `main`, folder `/docs`) it is at
   `https://absolutezeroo.github.io/the-well-of-souls/privacy.html`, the link the Play Console asks for.
 
 ## Windows build

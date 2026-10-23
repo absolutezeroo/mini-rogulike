@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="LeaderboardsConfig" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/online/leaderboards_config.gd" id="1_config"]
+[ext_resource type="Script" path="res://src/definitions/online/leaderboard_def.gd" id="1_def"]
+[ext_resource type="Resource" path="res://data/leaderboards/boards/daily_challenge.tres" id="2_daily_challenge"]
+[ext_resource type="Resource" path="res://data/leaderboards/boards/depth_easy.tres" id="3_depth_easy"]
+[ext_resource type="Resource" path="res://data/leaderboards/boards/fastest_win_easy.tres" id="4_fastest_win_easy"]
+[ext_resource type="Resource" path="res://data/leaderboards/boards/depth_normal.tres" id="5_depth_normal"]
+[ext_resource type="Resource" path="res://data/leaderboards/boards/fastest_win_normal.tres" id="6_fastest_win_normal"]
+[ext_resource type="Resource" path="res://data/leaderboards/boards/depth_hard.tres" id="7_depth_hard"]
+[ext_resource type="Resource" path="res://data/leaderboards/boards/fastest_win_hard.tres" id="8_fastest_win_hard"]
+[ext_resource type="Resource" path="res://data/leaderboards/boards/ascension.tres" id="9_ascension"]
+[ext_resource type="Resource" path="res://data/leaderboards/boards/vigil.tres" id="10_vigil"]
+
+[resource]
+script = ExtResource("1_config")
+boards = Array[ExtResource("1_def")]([ExtResource("2_daily_challenge"), ExtResource("3_depth_easy"), ExtResource("4_fastest_win_easy"), ExtResource("5_depth_normal"), ExtResource("6_fastest_win_normal"), ExtResource("7_depth_hard"), ExtResource("8_fastest_win_hard"), ExtResource("9_ascension"), ExtResource("10_vigil")])
+banned_words = PackedStringArray("fuck", "shit", "cunt", "nigger", "nigga", "faggot", "fag", "bitch", "whore", "slut", "rape", "rapist", "nazi", "hitler", "porn", "dick", "pussy", "penis", "vagina", "anal", "sex", "kkk", "merde", "putain", "pute", "salope", "connard", "connasse", "encule", "batard", "bite", "couille", "nique", "negre", "tapette", "gouine", "pd", "fdp", "ntm")

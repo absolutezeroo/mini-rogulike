@@ -69,6 +69,8 @@ func back() -> bool:
 		fragment.close()
 	elif perks.visible:
 		perks.postpone()  # the choice waits behind the HUD's perk button
+	elif game_over.visible and game_over.back():
+		pass  # (its leaderboards' page closed)
 	else:
 		return false
 	return true

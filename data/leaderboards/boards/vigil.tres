@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="LeaderboardDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/online/leaderboard_def.gd" id="1_board"]
+
+[resource]
+script = ExtResource("1_board")
+id = &"vigil"
+display_name = "The Vigil"
+rule = "The most nights the seal was held, one entry per player, kept for good."
+talo_name = "vigil"
+score = 3
+higher_first = true
+period = 2
+runs = 1
+submits = false
+shown = false

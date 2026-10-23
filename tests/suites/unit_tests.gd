@@ -65,6 +65,11 @@ func run() -> void:
 	add_child(debug_tools)
 	debug_tools.run_unit()
 	debug_tools.free()
+	# The online leaderboards, on a fake server (LeaderboardTests).
+	var boards := LeaderboardTests.new()
+	add_child(boards)
+	await boards.run_unit()
+	boards.free()
 	var gear := GearLookTests.new()
 	add_child(gear)
 	gear.run()

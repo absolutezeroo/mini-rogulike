@@ -25,8 +25,11 @@ godot --headless --fixed-fps 60 res://tests/run_tests.tscn -- --only=unit,title 
 
 The suites (`tests/suites/`, each a `TestSuite`):
 - **unit**: the rules, the content database, 100 generated maps (and their walls), 40 boss arenas,
-  inventory, equipment, perks, bosses, the profile. No game running: fast.
-- **title**: the title screen and its panels.
+  inventory, equipment, perks, bosses, the profile, the online leaderboards' queue and filter
+  (`LeaderboardTests`, on `FakeBoardBackend`: a server in memory). No game running: fast.
+- **title**: the title screen and its panels (the Leaderboards page with and without a server).
+  No suite ever reaches the network: the runner gives `Leaderboards` an offline backend first
+  (docs/online.md, Tests).
 - **game**: a bot plays the real game (kills, level ups and perk choices, stairs, death and
   restart, saving and resuming), then on that same game: **combat** (projectiles, perks, skills,
   monsters and their traits, difficulty, weapons), **floor** (props, hazards, chests, ambushes,

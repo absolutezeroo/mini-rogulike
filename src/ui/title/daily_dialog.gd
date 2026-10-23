@@ -2,15 +2,36 @@ class_name DailyDialog
 extends RpgDialog
 ## "The Dawn Knell", the daily run (DailyRun) explained before it starts: a line of lore, the
 ## day's weapon and relic, the rules (same floors for everyone, first try counts, how the score
-## is made), your scores, and Toll the knell / Back.
+## is made), your scores, and Toll the knell / Back. Before the day's official toll, the first
+## time, it asks the name the online leaderboards will show (PseudonymDialog,
+## Leaderboards.needs_name()).
 
 signal accepted
 
 const WIDTH := 640.0
 
+var name_dialog: PseudonymDialog
+
 
 func _init() -> void:
 	super._init(TranslationServer.tr("The Dawn Knell"), WIDTH, 0.8)
+
+
+func _ready() -> void:
+	name_dialog = PseudonymDialog.new()
+	name_dialog.name = "NameDialog"
+	add_child(name_dialog)
+	name_dialog.finished.connect(func() -> void:
+		hide()
+		accepted.emit())
+
+
+## Back: the name's question first, then the card.
+func back() -> void:
+	if name_dialog and name_dialog.visible:
+		name_dialog.hide()
+		return
+	hide()
 
 
 ## Fills it for `day` and shows it.
@@ -63,6 +84,9 @@ func open(content: ContentDB, day: int) -> void:
 	buttons.add_theme_constant_override("separation", 14)
 	body.add_child(buttons)
 	var go := UiParts.button(tr("Toll again") if played else tr("Toll the knell"), func() -> void:
+		if not played and Leaderboards.needs_name():
+			name_dialog.open()  # (then the run: finished)
+			return
 		hide()
 		accepted.emit(), Vector2(0, 56), Fonts.BODY)
 	go.size_flags_horizontal = Control.SIZE_EXPAND_FILL

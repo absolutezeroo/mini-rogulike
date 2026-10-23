@@ -15,6 +15,8 @@ extends CanvasLayer
 ## - A pixel focus frame in gold shows around the focused button while keys or a gamepad drive
 ##   (InputDevice.navigating), never on touch.
 ## Accept is the buttons' own (ui_accept); Back (ui_cancel) stays each screen's (Game.back()...).
+## - A text field (the leaderboards' pseudonym) keeps every key while it has the focus, but the
+##   up and down arrows.
 
 ## Panels that hold the focus.
 const GROUP := &"menu"
@@ -129,6 +131,8 @@ func _input(event: InputEvent) -> void:
 	var top := top_menu()
 	if top == null:
 		return
+	if event is InputEventKey and _typing(event as InputEventKey):
+		return  # the keys write in the field (Q, E, WASD, left and right are letters and the caret)
 	if _pressed(event, &"menu_next_tab") or _pressed(event, &"menu_prev_tab"):
 		if switch_tab(top, 1 if event.is_action(&"menu_next_tab") else -1):
 			get_viewport().set_input_as_handled()
@@ -156,6 +160,16 @@ func _input(event: InputEvent) -> void:
 		var wrapped := wrap_target(top, focus, direction)
 		if wrapped:
 			wrapped.grab_focus()
+
+
+## A text field has the focus and `event` is for it: every key but the up and down arrows (which
+## still leave it for the buttons around).
+func _typing(event: InputEventKey) -> bool:
+	var focus := get_viewport().gui_get_focus_owner()
+	if not (focus is LineEdit or focus is TextEdit):
+		return false
+	return event.physical_keycode != KEY_UP and event.physical_keycode != KEY_DOWN \
+		and event.keycode != KEY_UP and event.keycode != KEY_DOWN
 
 
 ## The next control from `from` going `direction` in `menu` (its own focus neighbour if it names

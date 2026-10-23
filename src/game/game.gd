@@ -424,6 +424,7 @@ func _award_souls(won_now: bool) -> int:
 	if run.daily_official:
 		Profile.finish_daily(run.daily_day, DailyRun.score(run))
 	_records.check_achievements()
+	_records.report_end()  # (the online leaderboards: Leaderboards)
 	return earned
 
 
@@ -976,6 +977,7 @@ func _show_end(victory: bool, earned: int, new_record: bool = false, ending: End
 	elif content.story and (victory or spoken.is_empty()):
 		story = tr(content.story.victory_text if victory else content.story.random_death_line())
 	var rows := run.summary_rows(content, player.level, _record_text(new_record) if victory else "")
+	game_over_panel.show_leaderboards = run.is_daily()  # (the Dawn Knell's board)
 	if victory:
 		Sfx.play_music(ending.music if ending and ending.music else Sfx.bank.victory_music)
 	else:

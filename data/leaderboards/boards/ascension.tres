@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="LeaderboardDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/online/leaderboard_def.gd" id="1_board"]
+
+[resource]
+script = ExtResource("1_board")
+id = &"ascension"
+display_name = "The Ascended"
+rule = "The highest Nightmare ascension won, one entry per player, kept for good."
+talo_name = "ascension"
+score = 4
+higher_first = true
+period = 2
+runs = 1
+difficulty = &"nightmare"
+submits = false
+shown = false

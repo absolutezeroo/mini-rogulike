@@ -1,0 +1,87 @@
+class_name BoardBackend
+extends Node
+## Where the online leaderboards live, as the Leaderboards autoload sees it. This base is the
+## offline one: no server, every call answers UNAVAILABLE at once. The game uses it when no
+## access key was built in (docs/online.md) and the tests always do (or a fake one,
+## tests/support/fake_board_backend.gd); TaloBackend talks to Talo.
+##
+## Every call may wait for the network: always `await` it. One player at a time: identify()
+## first, then the other calls act for that player.
+
+## OK: done. OFFLINE: no answer (no network, server down, too many requests): try again later.
+## REJECTED: the server refused it for good (unknown board, bad key, refused props): never retry.
+## UNAVAILABLE: no server at all.
+enum Status { OK, OFFLINE, REJECTED, UNAVAILABLE }
+
+## Entries in a page of a board (Talo's, fixed on its side).
+const PAGE_SIZE := 50
+
+
+## One line of a board.
+class Entry:
+	extends RefCounted
+	## 1 for the first.
+	var rank := 0
+	var name := ""
+	var score := 0.0
+	## The server's id for the player's alias (the page finds the player's own line by it).
+	var alias_id := 0
+	var props := {}
+
+
+## A page of a board, or the player's own entry (`entries` empty: none).
+class Page:
+	extends RefCounted
+	var status: BoardBackend.Status = BoardBackend.Status.UNAVAILABLE
+	var entries: Array[Entry] = []
+	## Entries on the whole board (that period's).
+	var total := 0
+	var last_page := true
+	## The entries' ranks are their place on this period's board (false: the server counted other
+	## periods' entries too, and the rank must be found by reading the pages).
+	var ranks_reliable := true
+
+
+## What a sent score became.
+class Sent:
+	extends RefCounted
+	var status: BoardBackend.Status = BoardBackend.Status.UNAVAILABLE
+	## Its place on the board now (0: unknown).
+	var rank := 0
+
+
+## There is a server to talk to (an access key).
+func is_configured() -> bool:
+	return false
+
+
+## The player behind this device (`device_id`, made once and kept on it): created on the
+## server the first time. Must be OK before the other calls.
+func identify(_device_id: String) -> Status:
+	return Status.UNAVAILABLE
+
+
+## The player's alias id once identified (0 before).
+func alias_id() -> int:
+	return 0
+
+
+## Shows the player under `pseudonym` on every board.
+func set_pseudonym(_pseudonym: String) -> Status:
+	return Status.UNAVAILABLE
+
+
+## Sends a score to `board` for the period `period_key` ("" for all time), with the run's props.
+func submit(_board: LeaderboardDef, _score: float, _period_key: String, _props: Dictionary) -> Sent:
+	return Sent.new()
+
+
+## The page `page` (0 first, 50 a page) of `board` for the period `period_key`. `past`: a period
+## that is over (the server keeps its entries archived).
+func fetch(_board: LeaderboardDef, _period_key: String, _past: bool, _page: int) -> Page:
+	return Page.new()
+
+
+## The player's own entry on `board` for that period (a Page of one entry, or none).
+func fetch_mine(_board: LeaderboardDef, _period_key: String, _past: bool) -> Page:
+	return Page.new()

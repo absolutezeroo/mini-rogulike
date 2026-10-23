@@ -7,7 +7,8 @@ extends Control
 ## relic, your score); the records sit on a plaque under the buttons; the Shrine button shows a
 ## badge when an upgrade can be bought. The Vigil-Keeper stands by the Well (ShrineKeeper): a
 ## tap on her (or the focus and accept) opens her words (DialogueScreen); the shrine's lamps burn
-## again with the souls offered to the Tree (TitleBackdrop.lamps_lit).
+## again with the souls offered to the Tree (TitleBackdrop.lamps_lit). Under the records, the
+## Leaderboards button opens the online leaderboards (LeaderboardsPanel).
 
 const GAME_SCENE := "res://src/game/game.tscn"
 const STORY_SCENE := "res://src/ui/story/story_screen.tscn"
@@ -27,6 +28,8 @@ var _daily_text: Label
 var _shrine_badge: Control
 var oath_panel: OathPanel
 var daily_dialog: DailyDialog
+## The online leaderboards (LeaderboardsPanel), from the button under the records.
+var leaderboards: LeaderboardsPanel
 ## The tutorial's title-screen hints (the Tree of Souls, the oaths), over everything.
 var hint_box: HintBox
 ## Who keeps vigil at the shrine (NarrativeDef.shrine_speaker), and her words when she speaks.
@@ -108,6 +111,7 @@ func _ready() -> void:
 	daily_dialog.accepted.connect(func() -> void:
 		Game.daily_requested = true
 		play())
+	_build_leaderboards()
 	%DailyButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		daily_dialog.open(content, DailyRun.today()))
@@ -262,6 +266,24 @@ func _button_label(font_size: int) -> Label:
 	return label
 
 
+## "Leaderboards" under the records (the button column has no room left on a phone), and its
+## page over the screen.
+func _build_leaderboards() -> void:
+	leaderboards = LeaderboardsPanel.new()
+	leaderboards.name = "LeaderboardsPanel"
+	add_child(leaderboards)
+	leaderboards.closed.connect(func() -> void:
+		if InputDevice.uses_buttons():
+			(%LeaderboardsButton as Button).grab_focus())
+	var button := MenuWindow.button(tr("Leaderboards"), Fonts.BODY, 56)
+	button.size_flags_horizontal = Control.SIZE_FILL
+	(%RecordsPlaque as Control).get_parent().add_child(button)
+	MenuWindow.expose(button, "LeaderboardsButton", self)
+	button.pressed.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_open)
+		leaderboards.open())
+
+
 ## A small plaque on the Shrine button's corner when an upgrade can be bought.
 func _build_shrine_badge() -> void:
 	var button: Button = %ShrineButton
@@ -354,14 +376,16 @@ func back() -> bool:
 		talk.close()
 		return true
 	var options: OptionsPanel = %OptionsPanel
-	if options.visible:
+	if leaderboards and leaderboards.visible:
+		leaderboards.back()
+	elif options.visible:
 		options.close()
 	elif _shrine.visible:
 		_shrine.close()
 	elif oath_panel and oath_panel.visible:
 		oath_panel.hide()
 	elif daily_dialog and daily_dialog.visible:
-		daily_dialog.hide()
+		daily_dialog.back()
 	elif (%CodexPanel as Control).visible:
 		(%CodexPanel as CodexPanel).back()
 	elif (%DifficultyPanel as Control).visible:

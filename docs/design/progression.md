@@ -69,6 +69,34 @@ the days in a row (`Profile.daily_*`); later attempts that day are practice. Sco
 30 per floor, 150 per boss, 1000 for a victory, 1 per 5 gold picked up. The game over screen
 shows it.
 
+### Online leaderboards
+
+**The Roll of Souls** (`LeaderboardsPanel`, the **Leaderboards** button under the records on the
+title screen, and the end screen of a Dawn Knell): the only online part of the game, on Talo
+(how it is built, set up and protected: [../online.md](../online.md)). Everything else stays
+offline, and the game plays the same without network or without a key in the build (the page then
+says the leaderboards are unavailable).
+
+- **The Dawn Knell's board** (`data/leaderboards/boards/daily_challenge.tres`): the day's
+  official attempt only (never practice, never a debug run), its points, one entry per player and
+  day, highest first. Tabs **Today** and **Yesterday**. The score is sent when the run ends (a
+  death, or a win; a win then the endless floors sends the better one), queued while there is no
+  network (`user://leaderboards.json`, not the save) and tried again every minute; a score not
+  sent before its day ends (UTC midnight) is dropped.
+- **The page**: the first 50, the player's rank (and the lines around it when past the 50), the
+  board's rule, a loading line, "no network" with **Try again**, "no one yet". Phone and PC, touch,
+  mouse, keys (Q / E switch boards when there are several) and gamepad (MenuWindow, MenuNav).
+- **The name**: an anonymous player made on the device (a random id, nothing else), shown under a
+  **pseudonym** ("Name your soul", `PseudonymDialog`): asked the first time the page opens or the
+  day's official toll starts, changed in **Options > Leaderboards**. 3 to 16 characters among the
+  font's letters (accents too), digits, spaces and `- _ . '`, at least one letter, no refused word
+  (`LeaderboardsConfig.banned_words`, read without case, accents or digits for letters). Until one
+  is picked: "Soul" and four digits. **Show me in the leaderboards** (on by default; Options and
+  the name's dialog): off, nothing is ever sent and what waited is dropped.
+- **Prepared, not shown yet** (data only, `submits` and `shown` off): the deepest floor and the
+  fastest win on each of Pilgrim, Keeper and Martyr, the highest Nightmare ascension won, and La
+  Veille's nights (when that mode exists).
+
 Every run ends (death or victory) with **souls** (`DungeonConfig` > Souls, `souls_for_run()`):
 a tenth of a soul per kill (the tenths add up over the run, rounded once at the end), 4 per floor
 gone down, 10 per boss, 40 for a victory, times the difficulty. Going deeper pays, farming

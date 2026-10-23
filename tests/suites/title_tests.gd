@@ -12,6 +12,11 @@ func run() -> void:
 	add_child(pc)
 	await pc.run_title()
 	pc.free()
+	# The Leaderboards page, with and without a server (LeaderboardTests).
+	var boards := LeaderboardTests.new()
+	add_child(boards)
+	await boards.run_title()
+	boards.free()
 	# The Vigil-Keeper at the shrine (DialogueTests).
 	var dialogue := DialogueTests.new()
 	add_child(dialogue)

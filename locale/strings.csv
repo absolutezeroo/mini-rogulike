@@ -116,6 +116,10 @@ Steals gold and runs. Slay it to get it back.,Steals gold and runs. Slay it to g
 Only its open mouth can be hurt.,Only its open mouth can be hurt.,Seule sa gueule ouverte peut être blessée.
 No effect,No effect,Sans effet
 Its long body burns at a touch: only the head can be hurt,Its long body burns at a touch: only the head can be hurt,Son long corps brûle au contact : seule la tête peut être blessée
+Floor %d,Floor %d,Étage %d
+%d nights,%d nights,%d nuits
+Ascension %d,Ascension %d,Ascension %d
+%d points,%d points,%d points
 Take no damage until the last foe falls.,Take no damage until the last foe falls.,Ne subis aucun dégât avant que le dernier ennemi ne tombe.
 Lose no more than %d Health in all until the last foe falls.,Lose no more than %d Health in all until the last foe falls.,Ne perds pas plus de %d de Vie en tout avant que le dernier ennemi ne tombe.
 Untouched,Untouched,Intouché
@@ -231,6 +235,11 @@ Daily score %d,Daily score %d,Score du jour %d
 The knell falls silent. The Well lets you go.,The knell falls silent. The Well lets you go.,Le glas se tait. Le Puits te laisse partir.
 The knell has tolled. The Threshold keeps you.,The knell has tolled. The Threshold keeps you.,Le glas a sonné. Le Seuil te garde.
 The dark,The dark,L'obscurité
+At least %d characters.,At least %d characters.,Au moins %d caractères.
+At most %d characters.,At most %d characters.,Au plus %d caractères.
+"Only letters, digits, spaces and - _ . '","Only letters, digits, spaces and - _ . '","Seulement des lettres, des chiffres, des espaces et - _ . '"
+At least one letter.,At least one letter.,Au moins une lettre.
+This name is not allowed. Choose another.,This name is not allowed. Choose another.,Ce nom n'est pas permis. Choisis-en un autre.
 New,New,Nouveau
 Tap to skip,Tap to skip,Touche pour passer
 Press {ui_accept} to skip,Press {ui_accept} to skip,Appuie sur {ui_accept} pour passer
@@ -404,6 +413,7 @@ You now have %d souls.,You now have %d souls.,Tu as maintenant %d âmes.
 New run,New run,Nouvelle partie
 Try again,Try again,Réessayer
 This run,This run,Cette partie
+Leaderboards,Leaderboards,Classements
 Souls,Souls,Âmes
 Souls are kept between runs. Spend them at the Shrine (title screen) on upgrades that make every next run stronger.,Souls are kept between runs. Spend them at the Shrine (title screen) on upgrades that make every next run stronger.,Les âmes sont conservées d'une partie à l'autre. Dépense-les au Sanctuaire (écran titre) en améliorations qui renforcent chaque partie suivante.
 Kept between runs: spend them at the Shrine.,Kept between runs: spend them at the Shrine.,Gardées d'une partie à l'autre : dépense-les au Sanctuaire.
@@ -490,6 +500,40 @@ Unequip,Unequip,Retirer
 Equip,Equip,Équiper
 Learn,Learn,Apprendre
 Use,Use,Utiliser
+Online leaderboards are not available in this version of the game.,Online leaderboards are not available in this version of the game.,Les classements en ligne ne sont pas disponibles dans cette version du jeu.
+Loading...,Loading...,Chargement...
+"The leaderboards can't be reached right now. Check your connection, then try again.","The leaderboards can't be reached right now. Check your connection, then try again.","Les classements sont injoignables pour le moment. Vérifie ta connexion, puis réessaie."
+The first %d,The first %d,Les %d premiers
+No one is on this board yet.,No one is on this board yet.,Personne n'est encore dans ce classement.
+No one was on this board.,No one was on this board.,Personne n'était dans ce classement.
+You chose not to appear in the leaderboards (Options).,You chose not to appear in the leaderboards (Options).,Tu as choisi de ne pas apparaître dans les classements (Options).
+Rank %d - %s,Rank %d - %s,Rang %d - %s
+Your score: %s (past the first %d),Your score: %s (past the first %d),Ton score : %s (au-delà des %d premiers)
+Your score of %s waits to be sent: it goes as soon as the network is back.,Your score of %s waits to be sent: it goes as soon as the network is back.,Ton score de %s attend d'être envoyé : il partira dès que le réseau reviendra.
+You have no score on this board yet.,You have no score on this board yet.,Tu n'as pas encore de score dans ce classement.
+You had no score on this board.,You had no score on this board.,Tu n'avais pas de score dans ce classement.
+A better score waits to be sent.,A better score waits to be sent.,Un meilleur score attend d'être envoyé.
+You appear as %s,You appear as %s,Tu apparais sous le nom %s
+You don't appear in the leaderboards,You don't appear in the leaderboards,Tu n'apparais pas dans les classements
+This week,This week,Cette semaine
+Today,Today,Aujourd'hui
+Last week,Last week,Semaine dernière
+Yesterday,Yesterday,Hier
+The Roll of Souls,The Roll of Souls,Le Registre des âmes
+Change name,Change name,Changer de nom
+Your place,Your place,Ta place
+Rules,Rules,Règles
+Scores no hero could make are removed.,Scores no hero could make are removed.,Les scores qu'aucun héros ne peut faire sont effacés.
+Rank,Rank,Rang
+Name,Name,Nom
+Score,Score,Score
+Name your soul,Name your soul,Nomme ton âme
+The Well keeps the names of those who go down. Under which will yours be read?,The Well keeps the names of those who go down. Under which will yours be read?,Le Puits garde le nom de ceux qui descendent. Sous lequel le tien sera-t-il lu ?
+"Shown to every player on the leaderboards: %d to %d letters, digits, spaces and - _ . ' No email, nothing else about you is sent.","Shown to every player on the leaderboards: %d to %d letters, digits, spaces and - _ . ' No email, nothing else about you is sent.","Visible de tous les joueurs dans les classements : %d à %d lettres, chiffres, espaces et - _ . ' Pas d'e-mail, rien d'autre sur toi n'est envoyé."
+Show me in the leaderboards,Show me in the leaderboards,M'afficher dans les classements
+Off: none of your scores is ever sent.,Off: none of your scores is ever sent.,Désactivé : aucun de tes scores n'est jamais envoyé.
+Confirm,Confirm,Valider
+Back,Back,Retour
 Gamepad: %s,Gamepad: %s,Manette : %s
 Gamepad,Gamepad,Manette
 Keyboard and mouse,Keyboard and mouse,Clavier et souris
@@ -543,6 +587,9 @@ Tutorial,Tutorial,Tutoriel
 Tutorial hints,Tutorial hints,Conseils du tutoriel
 Short tips during your first runs.,Short tips during your first runs.,De courts conseils pendant tes premières parties.
 "Every tip again, from the first steps.","Every tip again, from the first steps.","Tous les conseils à nouveau, depuis les premiers pas."
+Your name,Your name,Ton nom
+Change,Change,Changer
+Your Dawn Knell scores are sent under this name. Off: nothing is sent.,Your Dawn Knell scores are sent under this name. Off: nothing is sent.,Tes scores du Glas de l'Aube sont envoyés sous ce nom. Désactivé : rien n'est envoyé.
 Auto loot,Auto loot,Ramassage auto
 "Gold, potions, runes and keys: always.","Gold, potions, runes and keys: always.","Or, potions, runes et clefs : toujours."
 All,All,Tout
@@ -646,7 +693,6 @@ Best %d,Best %d,Meilleur %d
 %d dawns in a row,%d dawns in a row,%d aubes d'affilée
 Toll again,Toll again,Sonner encore
 Toll the knell,Toll the knell,Sonner le glas
-Back,Back,Retour
 Your last choice,Your last choice,Ton dernier choix
 Locked,Locked,Verrouillé
 Souls earned x%s,Souls earned x%s,Âmes gagnées x%s
@@ -1138,6 +1184,23 @@ Soul Flame,Soul Flame,Flamme des Âmes
 Cold Touch,Cold Touch,Toucher Glacé
 Tengu Blade,Tengu Blade,Lame du Tengu
 Water Jet,Water Jet,Jet d'Eau
+The Ascended,The Ascended,Les Élevés
+"The highest Nightmare ascension won, one entry per player, kept for good.","The highest Nightmare ascension won, one entry per player, kept for good.","La plus haute ascension de Cauchemar remportée, une entrée par joueur, gardée pour toujours."
+"The day's first toll only, one entry per player. The board starts anew at midnight (UTC).","The day's first toll only, one entry per player. The board starts anew at midnight (UTC).","Seul le premier glas du jour, une entrée par joueur. Le classement repart de zéro à minuit (UTC)."
+The Deepest: Pilgrim,The Deepest: Pilgrim,Les Plus Profonds : Pèlerin
+"The deepest floor reached on Pilgrim, one entry per player, kept for good.","The deepest floor reached on Pilgrim, one entry per player, kept for good.","L'étage le plus profond atteint en Pèlerin, une entrée par joueur, gardée pour toujours."
+The Deepest: Martyr,The Deepest: Martyr,Les Plus Profonds : Martyr
+"The deepest floor reached on Martyr, one entry per player, kept for good.","The deepest floor reached on Martyr, one entry per player, kept for good.","L'étage le plus profond atteint en Martyr, une entrée par joueur, gardée pour toujours."
+The Deepest: Keeper,The Deepest: Keeper,Les Plus Profonds : Veilleur
+"The deepest floor reached on Keeper, one entry per player, kept for good.","The deepest floor reached on Keeper, one entry per player, kept for good.","L'étage le plus profond atteint en Veilleur, une entrée par joueur, gardée pour toujours."
+The Swiftest: Pilgrim,The Swiftest: Pilgrim,Les Plus Prompts : Pèlerin
+"The fastest victory on Pilgrim, in-game time, one entry per player, kept for good.","The fastest victory on Pilgrim, in-game time, one entry per player, kept for good.","La victoire la plus rapide en Pèlerin, en temps de jeu, une entrée par joueur, gardée pour toujours."
+The Swiftest: Martyr,The Swiftest: Martyr,Les Plus Prompts : Martyr
+"The fastest victory on Martyr, in-game time, one entry per player, kept for good.","The fastest victory on Martyr, in-game time, one entry per player, kept for good.","La victoire la plus rapide en Martyr, en temps de jeu, une entrée par joueur, gardée pour toujours."
+The Swiftest: Keeper,The Swiftest: Keeper,Les Plus Prompts : Veilleur
+"The fastest victory on Keeper, in-game time, one entry per player, kept for good.","The fastest victory on Keeper, in-game time, one entry per player, kept for good.","La victoire la plus rapide en Veilleur, en temps de jeu, une entrée par joueur, gardée pour toujours."
+The Vigil,The Vigil,La Veille
+"The most nights the seal was held, one entry per player, kept for good.","The most nights the seal was held, one entry per player, kept for good.","Le plus de nuits à tenir le sceau, une entrée par joueur, gardée pour toujours."
 Elite,Elite,Élite
 Fell,Fell,Funeste
 Legendary,Legendary,Légendaire

@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 125,
+  "next_id": 132,
   "tags": [
     "pc",
     "test",
@@ -31,7 +31,8 @@
     "perf",
     "release",
     "contenu",
-    "debug"
+    "debug",
+    "en ligne"
   ],
   "epics": [
     {
@@ -1811,6 +1812,112 @@
       ],
       "created_at": 1792759099,
       "updated_at": 1792759267
+    },
+    {
+      "id": "task_125",
+      "title": "Classements en ligne (Talo) : Défi du jour",
+      "description": "Fait : classement en ligne du Glas de l'Aube sur Talo (API REST, pas le plugin : docs/online.md dit pourquoi). Seule la tentative officielle du jour est envoyée (jamais l'entraînement, une partie de débogage, une partie impossible, ni les tests), une entrée par joueur et par jour, mise en file et renvoyée toutes les minutes sans réseau (user://leaderboards.json, pas la sauvegarde). Page « Le Registre des âmes » (bouton Classements sous les records, et fin d'un Glas de l'Aube) : les 50 premiers, ton rang et ceux autour, Aujourd'hui / Hier, chargement, hors ligne (Réessayer), indisponible sans clé. Pseudonyme (« Nomme ton âme ») demandé à la première ouverture ou au premier glas officiel, modifiable dans Options > Classements, avec « M'afficher dans les classements ». Les autres classements (profondeur, victoire la plus rapide, ascension, La Veille) sont prêts en données, pas encore envoyés ni affichés.\n\nVérifié : tests hors ligne avec un faux serveur, captures FR/EN téléphone et PC, et un vrai essai sur Talo (identification, lecture des 9 classements, un score de test « TEST probe » de 1 point en données de dev sur daily-challenge : à supprimer dans le tableau de bord).\n\nÀ vérifier en jeu : sur le téléphone, le clavier qui s'ouvre pour le pseudonyme, le réseau coupé puis revenu, une vraie partie du jour envoyée.",
+      "status": "review",
+      "priority": "high",
+      "epic_id": "epic_80",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "records",
+        "ui"
+      ],
+      "created_at": 1792763662,
+      "updated_at": 1792763662
+    },
+    {
+      "id": "task_126",
+      "title": "Créer le jeu et la clé sur Talo",
+      "description": "Pour Clayton. Déjà fait (23/10) : le jeu sur Talo, la clé d'accès (Players lecture/écriture, Leaderboards lecture/écriture, rien d'autre) et les 9 classements (daily-challenge décroissant rafraîchi chaque jour ; depth-easy/normal/hard décroissants ; fastest-win-easy/normal/hard croissants ; ascension et vigil décroissants ; tous « une entrée par joueur », jamais rafraîchis sauf daily-challenge). Ne jamais renommer ces noms internes.\n\nReste à faire :\n1. Copier online/talo.cfg.example en online/talo.cfg et y coller la clé (access_key=\"...\"). Ce fichier n'est jamais commité (.gitignore) ; les exports l'embarquent.\n2. Dans Game settings du tableau de bord, mettre « Display name prop key » = name (le pseudonyme suit alors les changements de nom).\n3. Si l'option existe, activer le filtre d'injures de Talo sur les props.\n4. Supprimer l'entrée de test « TEST probe » (joueur test-probe, données de dev) du classement daily-challenge.\n5. Avant de publier un build avec la clé : mettre à jour le formulaire « Sécurité des données » de la Play Console (identifiant aléatoire, pseudonyme, scores ; non partagés ; désactivable) et publier docs/privacy.html (déjà mis à jour).\nLe détail : docs/online.md.",
+      "status": "todo",
+      "priority": "high",
+      "epic_id": "epic_6",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "release"
+      ],
+      "created_at": 1792763662,
+      "updated_at": 1792763662
+    },
+    {
+      "id": "task_127",
+      "title": "Classements : profondeur et victoire la plus rapide par difficulté, ascension",
+      "description": "Prêts en données (data/leaderboards/boards/) et créés sur Talo : depth-easy/normal/hard, fastest-win-easy/normal/hard, ascension. Pour les ouvrir : submits = true dans le fichier, puis shown = true quand il y a des entrées. À décider : le classement de vitesse compte-t-il les victoires au fond du Puits à part (comme les records) ? Une partie avec un serment compte-t-elle ?",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_80",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "records"
+      ],
+      "created_at": 1792763662,
+      "updated_at": 1792763662
+    },
+    {
+      "id": "task_128",
+      "title": "Classement de La Veille (nuits tenues)",
+      "description": "Le classement « vigil » existe en données et sur Talo (score NIGHTS), sans rien envoyer : à brancher quand le mode La Veille (task_121) existera (RunSummary.nights, puis submits/shown).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_80",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "records"
+      ],
+      "created_at": 1792763662,
+      "updated_at": 1792763662
+    },
+    {
+      "id": "task_129",
+      "title": "Idée : classements hebdomadaires",
+      "description": "Une course de la semaine (graine fixe du lundi, comme le Glas de l'Aube) avec son classement : LeaderboardDef sait déjà gérer une période WEEKLY (prop « week », onglets Cette semaine / Semaine dernière). Il faudrait la partie elle-même et un classement « rafraîchi chaque semaine » sur Talo.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "idée"
+      ],
+      "created_at": 1792763662,
+      "updated_at": 1792763662
+    },
+    {
+      "id": "task_130",
+      "title": "Plus tard : Google Play Games et Steam",
+      "description": "Comptes et classements des plateformes (connexion Google Play Games sur Android, Steam sur PC) : un nouveau BoardBackend par service, ou l'intégration de Talo (identify_google_play_games, Steamworks) pour garder un seul classement. Seulement si le jeu sort sur ces boutiques.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_80",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "release"
+      ],
+      "created_at": 1792763662,
+      "updated_at": 1792763662
+    },
+    {
+      "id": "task_131",
+      "title": "Classements : vérifier le minuit de Talo",
+      "description": "Talo vide le classement du jour à son minuit à lui (tâche planifiée à 00:00 dans le fuseau du serveur). Le jeu compte en jours UTC et filtre par la prop « day », donc l'affichage est juste ; mais si Talo n'est pas en UTC, entre les deux minuits un score du nouveau jour pourrait remplacer l'entrée de la veille. À vérifier un soir de jeu (ou demander à Talo) ; sinon, revoir comment les jours sont séparés (docs/online.md, Midnight).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "bug"
+      ],
+      "created_at": 1792763662,
+      "updated_at": 1792763662
     }
   ]
 }

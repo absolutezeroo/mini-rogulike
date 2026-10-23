@@ -4,6 +4,8 @@ extends Control
 ## may keep going: endless mode). How it ended (the Vigil-Keeper telling it and giving advice, in
 ## a DialogueBox typing beside everything else; else a line of the story), the run's numbers
 ## (time, depth, kills...), the souls it earned and what souls are for, then what to do next.
+## After a Dawn Knell, a Leaderboards button by the run's numbers opens the online page
+## (LeaderboardsPanel) over it.
 
 signal restart_requested
 signal continue_requested
@@ -28,7 +30,13 @@ var _souls_short: Label
 var _continue_note: Label
 var _continue_button: Button
 var _restart_button: Button
+var _boards_button: Button
 var _named: Array[Node] = []
+## The online leaderboards' page, opened from the end of a Dawn Knell.
+var leaderboards: LeaderboardsPanel
+
+## The next end shows the Leaderboards button (the Game sets it for a daily run).
+var show_leaderboards := false
 
 
 func _ready() -> void:
@@ -59,6 +67,7 @@ func show_end(victory: bool, story: String, rows: Array, souls_earned: int, soul
 		_stats.add_child(value)
 	_souls_earned.text = tr("+%d souls") % souls_earned
 	_souls_total.text = tr("You now have %d souls.") % souls_total
+	_boards_button.visible = show_leaderboards
 	_columns.show()
 
 
@@ -131,6 +140,20 @@ func _build() -> void:
 	var run: Dictionary = RpgWindow.section(tr("This run"))
 	(run.box as Control).size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_columns.add_child(run.box)
+	# The heading and, after a Dawn Knell, the Leaderboards button on its line.
+	var heading := HBoxContainer.new()
+	(run.column as VBoxContainer).add_child(heading)
+	(run.column as VBoxContainer).move_child(heading, 0)
+	(run.title as Label).reparent(heading)
+	(run.title as Label).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	(run.title as Label).size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_boards_button = UiParts.button(tr("Leaderboards"), func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_open)
+		leaderboards.open(), Vector2(180, 40), Fonts.BODY)
+	_boards_button.name = "LeaderboardsButton"
+	_boards_button.hide()
+	_own(_boards_button)
+	heading.add_child(_boards_button)
 	_stats = GridContainer.new()
 	_stats.columns = 2
 	_stats.add_theme_constant_override("h_separation", 20)
@@ -183,6 +206,17 @@ func _build() -> void:
 	for node in _named:
 		node.owner = self
 		node.unique_name_in_owner = true
+	leaderboards = LeaderboardsPanel.new()
+	leaderboards.name = "LeaderboardsPanel"
+	add_child(leaderboards)
+	leaderboards.closed.connect(func() -> void:
+		if InputDevice.uses_buttons():
+			_boards_button.grab_focus())
+
+
+## Back over the end screen: closes the leaderboards' page if it is open (true), else nothing.
+func back() -> bool:
+	return leaderboards != null and leaderboards.back()
 
 
 ## Reachable as %Name from the panel (tests, other scripts), once built.

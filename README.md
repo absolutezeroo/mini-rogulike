@@ -16,7 +16,8 @@ renderer). It plays with touch controls, keyboard or gamepad, in English and Fre
   item levels and rune sockets.
 - **Monsters** telegraph their attacks and come as Elites, Fell, Legendaries or rare Celestials.
 - **Between runs**, souls buy the Tree of Souls, then come oaths, Nightmare and ten ascension
-  levels. There are also a daily run, daily and weekly quests, a bestiary with challenges,
+  levels. There are also a daily run with its online leaderboard (Talo, under a pseudonym; the
+  rest of the game is offline), daily and weekly quests, a bestiary with challenges,
   achievements and a speedrun timer.
 
 Version 0.2.0 (`export_presets.cfg`), in testing on Android.

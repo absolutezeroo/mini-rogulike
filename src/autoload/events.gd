@@ -76,6 +76,9 @@ signal encounter_used(encounter: Encounter)
 ## Something a warden's deed may ask about happened, told by whatever saw it (a monster's trait:
 ## "bitten", the Maw's jaw closed on the hero): kept in RunState.marks (MarkDeed).
 signal run_marked(mark: String)
+## A run ended, souls given: a death, or a win (a win then a death in endless mode tells it twice,
+## the second time with more). What the online leaderboards need (RunSummary; Leaderboards).
+signal run_ended(summary: RunSummary)
 
 
 func log_message(text: String, color: Color = Color.WHITE) -> void:

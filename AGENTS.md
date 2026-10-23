@@ -101,4 +101,5 @@ planned, in progress and done: read it before starting, and keep it true.
 | Visual effects: the pixel grid, elements and their kits, reviewing an effect | docs/vfx.md |
 | Balance tools / past passes | docs/balance.md / docs/balance-log.md |
 | Android and Windows builds | docs/android.md |
+| Online leaderboards (Talo): the access key, the dashboard, the anti-cheat | docs/online.md |
 | What each system does | docs/design/ (dungeon, monsters, builds, loot, progression, interface, presentation) |

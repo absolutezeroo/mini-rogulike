@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="LeaderboardDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/online/leaderboard_def.gd" id="1_board"]
+
+[resource]
+script = ExtResource("1_board")
+id = &"fastest_win_hard"
+display_name = "The Swiftest: Martyr"
+rule = "The fastest victory on Martyr, in-game time, one entry per player, kept for good."
+talo_name = "fastest-win-hard"
+score = 2
+higher_first = false
+period = 2
+runs = 1
+difficulty = &"hard"
+submits = false
+shown = false

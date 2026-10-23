@@ -41,6 +41,10 @@ they beat. Letting go full unleashes it; a roll cancels it.
 
 ## Devices: touch, keyboard and mouse, gamepad
 
+(A text field, the leaderboards' pseudonym, keeps every key while it has the focus but the up and
+down arrows: MenuNav doesn't take Q, E, WASD or left and right from it. On a phone the system's
+keyboard opens; with a gamepad alone the name can only be kept.)
+
 The game plays the same with a finger, a keyboard and mouse or a gamepad, and changes what it
 shows to the device in hand.
 

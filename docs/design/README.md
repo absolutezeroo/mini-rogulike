@@ -22,7 +22,7 @@ are in [../architecture.md](../architecture.md); how to add content is in
 | [monsters.md](monsters.md) | Acts and their monsters, supports, traits, ranks (Elite, Fell, Legendary, Celestial), bosses, dragons |
 | [builds.md](builds.md) | Skills and weapons, perks and relics, passives, sustain, families, reroll and banish |
 | [loot.md](loot.md) | Item level, rarity and affixes, gold, the merchant, the belt, runes and the forge |
-| [progression.md](progression.md) | Difficulty and ascension, the title screen, the daily run, the Tree of Souls and oaths, quests, codex, achievements, run timer |
+| [progression.md](progression.md) | Difficulty and ascension, the title screen, the daily run and its online leaderboard, the Tree of Souls and oaths, quests, codex, achievements, run timer |
 | [interface.md](interface.md) | Controls, phone features (saves, options, minimap), the tutorial, the in-run screens |
 | [presentation.md](presentation.md) | Game feel, VFX, shaders, atmosphere, sound, lights, animations and the paper doll |
 

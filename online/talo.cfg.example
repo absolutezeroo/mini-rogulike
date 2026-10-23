@@ -1,0 +1,11 @@
+; The online leaderboards' access key (docs/online.md). Copy this file to online/talo.cfg (git
+; ignores it: never commit a key) and paste the Game API key from the Talo dashboard
+; (API keys page; scopes: Players read and write, Leaderboards read and write).
+; The builds pack online/talo.cfg (export_presets.cfg > include_filter). Without it, or with an
+; empty key, the game is offline: no leaderboards, no error. The environment variable
+; TALO_ACCESS_KEY, when set, is used instead (a CI writes this file from it before exporting).
+
+[talo]
+access_key=""
+; Only for a self-hosted Talo:
+; api_url="https://api.trytalo.com"
