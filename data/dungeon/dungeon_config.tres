@@ -45,6 +45,7 @@
 script = ExtResource("1_qfnhp")
 forge = ExtResource("90_forge")
 sustain = ExtResource("91_sustain")
+skill_echo_max_chance = 0.45
 acts = Array[ExtResource("1_oi5f6")]([ExtResource("2_pngbb"), ExtResource("3_bf2ay"), ExtResource("4_0biys"), ExtResource("5_cvo8j")])
 width = 72
 height = 72

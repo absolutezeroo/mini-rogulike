@@ -56,6 +56,12 @@ func _ready() -> void:
 	get_viewport().gui_focus_changed.connect(_on_focus_changed)
 
 
+## Where the focus frame is drawn now, on screen (empty: no frame, or its control is scrolled
+## out of its box). For the tests.
+func frame_area() -> Rect2:
+	return _frame.area()
+
+
 ## `menu`'s first focus when it opens (a panel's main button).
 static func set_first(menu: Control, control: Control) -> void:
 	menu.set_meta(FIRST, control)
@@ -401,7 +407,9 @@ func _sideways_gap(a: Rect2, b: Rect2, direction: Vector2) -> float:
 
 
 ## The gold frame around the focused control (pixel corners on the 2-unit grid, breathing by a
-## pixel), drawn over every layer.
+## pixel), drawn over every layer. Kept inside the boxes that clip its control (a list's
+## ScrollContainer, an inset), give or take the frame's own width: a button scrolled out of its
+## column has no frame over the tabs above it, one half out a frame cut at the box's edge.
 class FocusFrame:
 	extends Control
 
@@ -410,6 +418,12 @@ class FocusFrame:
 	const DARK := Color(0.12, 0.07, 0.05)
 	const PIXEL := 2.0
 	const ARM := 10.0
+	## How far the frame reaches outside its control (the breath included, and the dark edge):
+	## a clipping box lets it out that far, so a control at its edge keeps its whole frame.
+	const REACH := PIXEL * 4.0
+
+	## Where it is drawn (set by _draw()): what a clipping box leaves of the frame.
+	var _clip := Rect2()
 
 	## The focused control to frame (null: none). A freed one counts as none.
 	var target: Control
@@ -426,13 +440,51 @@ class FocusFrame:
 			queue_redraw()  # it follows its control and breathes
 		_shown = showing
 
+	## The frame's rect on screen as it is drawn now, clipped (empty: none).
+	func area() -> Rect2:
+		if not is_instance_valid(target) or not target.is_visible_in_tree():
+			return Rect2()
+		var clip := _clip_rect()
+		if not _inside(clip):
+			return Rect2()
+		return _frame_rect(1.0).intersection(clip)
+
+	## Some of the control shows inside `clip` (less the frame's reach): else it is scrolled out.
+	func _inside(clip: Rect2) -> bool:
+		var target_rect := target.get_global_transform_with_canvas() * Rect2(Vector2.ZERO, target.size)
+		return clip.has_area() and clip.grow(-REACH).intersects(target_rect)
+
+	## The control's rect grown by the frame (`beat`: the breath, 0 or 1 pixel), on the grid.
+	func _frame_rect(beat: float) -> Rect2:
+		var rect := target.get_global_transform_with_canvas() * Rect2(Vector2.ZERO, target.size)
+		rect = rect.grow(PIXEL * (2.0 + beat))
+		return Rect2((rect.position / PIXEL).floor() * PIXEL, (rect.size / PIXEL).ceil() * PIXEL)
+
+	## What the boxes around the control leave visible (each grown by REACH), on screen: the
+	## whole screen when nothing clips it; empty when one of them hides it all.
+	func _clip_rect() -> Rect2:
+		var clip := Rect2(-Vector2.ONE * 1e6, Vector2.ONE * 2e6)
+		var node := target.get_parent()
+		while node:
+			var box := node as Control
+			if box and box.clip_contents or node is ScrollContainer:
+				var rect := box.get_global_transform_with_canvas() * Rect2(Vector2.ZERO, box.size)
+				clip = clip.intersection(rect.grow(REACH))
+				if not clip.has_area():
+					return Rect2()
+			if node is Window or node is CanvasLayer:
+				break
+			node = node.get_parent()
+		return clip
+
 	func _draw() -> void:
 		if not is_instance_valid(target) or not target.is_visible_in_tree():
 			return
-		var rect := target.get_global_transform_with_canvas() * Rect2(Vector2.ZERO, target.size)
+		_clip = _clip_rect()
+		if not _inside(_clip):
+			return  # scrolled out of its box: no frame floating over what is next to it
 		var beat := 1.0 if int(Time.get_ticks_msec() / 400) % 2 == 0 else 0.0
-		rect = rect.grow(PIXEL * (2.0 + beat))
-		rect = Rect2((rect.position / PIXEL).floor() * PIXEL, (rect.size / PIXEL).ceil() * PIXEL)
+		var rect := _frame_rect(beat)
 		# A thin gold line all round, dark outside it, and bright corners.
 		_outline(rect.grow(PIXEL), DARK)
 		_outline(rect, GOLD)
@@ -442,11 +494,17 @@ class FocusFrame:
 			var sy := 1.0 if corner.y <= rect.get_center().y else -1.0
 			var x0: float = corner.x if sx > 0.0 else corner.x - PIXEL * 2
 			var y0: float = corner.y if sy > 0.0 else corner.y - PIXEL * 2
-			draw_rect(Rect2(x0 if sx > 0.0 else corner.x - arm, y0, arm, PIXEL * 2), LIGHT)
-			draw_rect(Rect2(x0, y0 if sy > 0.0 else corner.y - arm, PIXEL * 2, arm), LIGHT)
+			_piece(Rect2(x0 if sx > 0.0 else corner.x - arm, y0, arm, PIXEL * 2), LIGHT)
+			_piece(Rect2(x0, y0 if sy > 0.0 else corner.y - arm, PIXEL * 2, arm), LIGHT)
 
 	func _outline(rect: Rect2, color: Color) -> void:
-		draw_rect(Rect2(rect.position, Vector2(rect.size.x, PIXEL)), color)
-		draw_rect(Rect2(rect.position.x, rect.end.y - PIXEL, rect.size.x, PIXEL), color)
-		draw_rect(Rect2(rect.position, Vector2(PIXEL, rect.size.y)), color)
-		draw_rect(Rect2(rect.end.x - PIXEL, rect.position.y, PIXEL, rect.size.y), color)
+		_piece(Rect2(rect.position, Vector2(rect.size.x, PIXEL)), color)
+		_piece(Rect2(rect.position.x, rect.end.y - PIXEL, rect.size.x, PIXEL), color)
+		_piece(Rect2(rect.position, Vector2(PIXEL, rect.size.y)), color)
+		_piece(Rect2(rect.end.x - PIXEL, rect.position.y, PIXEL, rect.size.y), color)
+
+	## A piece of the frame, cut to what the boxes around the control leave visible.
+	func _piece(rect: Rect2, color: Color) -> void:
+		var shown := rect.intersection(_clip)
+		if shown.has_area():
+			draw_rect(shown, color)

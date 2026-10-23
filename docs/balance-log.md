@@ -3,6 +3,163 @@
 Dated entries, newest first: what was measured, what changed and why, before/after numbers, open
 questions. How to measure: [balance.md](balance.md).
 
+## 2026-10-23 - Gorr hard but readable, readable dives on every boss, echoes capped, the bots and the holes (measured)
+
+Keeper's level stays as the owner likes it ("sporty, much better"): no boss Health, damage,
+cooldown or difficulty number moved. What changed are warnings that lied, bands wider than the
+body, a stack that skipped the cooldown cap, a climb-out bug, and the bots' reading of the fights.
+
+**How (new in the tools):** `--hits` (arena) prints every hit the hero takes (what it was, the
+skill and how long after its cast, its push, the distance to the boss, a hole within 48 px) and
+every fall with what started it (a push, a roll, walking); each fight now counts its falls
+(`falls_pushed` thrown in by a blow, `falls_walked` walked in). All numbers below: arena, Keeper,
+each act's expected build, plain bosses, the same seeds before and after.
+
+### Gorr the One-Eyed (act II): the bots, then one lying warning
+
+**Measured (seeds 1-8, the bots as the last pass left them):** kite 1 of 8 (losses at 2-19%),
+player 0 of 8 (1-31%), face-tank 0 of 8 (31-42%). The hit log showed three things:
+
+- **The "falls from his quake" were the bot walking into holes.** Of the 7 falls in those 16
+  kite and player fights, 5 started with the hero walking at full speed (170) into a hole no blow
+  had pushed him toward (the bot probed the ground 56 px ahead in one step: a one-cell hole lies
+  between), 1 was the Iaido Dash carrying him over the boss into one, 1 a club blow.
+- **The bot could not read a fan.** Gorr's eye beam (a fan of 5, fierce 2 x 7) was 31% of all
+  the kite bot took (his last phase's fierce fan): the bot only sidestepped shots in flight, and the shots on
+  either side of it pushed it both ways at once.
+- **The fierce Quake's second ring hit outside its warning.** The warning drew 130 px; 0.5 s
+  after the first ring, a second one reached 169 px with nothing drawn: a hero who left the
+  circle as shown, standing still, was hit (18 hits in 8 kite fights, 10 of them while Gorr was
+  already warning his next eye beam: the dodge out of the circle led into the fan).
+
+**Changed:** the fierce Quake's warning draws its whole reach (`telegraph_radius` 130 -> 169,
+`data/skills/boss/quake_fierce.tres`): leaving the circle shown is safe from both rings. The
+rule is now a unit check on every boss: a circle's later blows land inside the circle it drew.
+The bots (tools): they never walk into a hole, cracked floor or a warned cell they can see (probes
+every 6 px, 30 px ahead) and step off one under their feet; a skill that carries them (Iaido Dash)
+is used only when it lands on solid ground; a roll may cross a hole (it does in the game) but
+must land on solid ground; they step out of a fan's cone while it is warned, and keep out of a
+cast's later blows (a second ring, volley or leg) until they have landed.
+
+**Tried and not kept (no measurable effect on the player bot):** Health 1150 -> 1050 (player 0
+of 8, boss 1-21% left; kite fights no shorter), the fierce beam's warning 0.32 -> 0.45 s (0 of 8),
+the beam only from 140 px instead of 100 (0 of 8).
+
+**After (seeds 1-8):**
+
+| | Kite | Player (0.3 s reaction) | Face-tank |
+|---|---|---|---|
+| Gorr, before (old bot) | 1 of 8 (2-19% left) | 0 of 8 (1-31%) | 0 of 8 (31-42%) |
+| Gorr, new bot, data before | 8 of 8 (94-142 s) | 0 of 8 (5-31%) | 0 of 8 (31-45%) |
+| Gorr, after | **8 of 8** (94-142 s) | **0 of 8** (5-31%) | **0 of 8** (31-45%) |
+| The Mother of Tears (unchanged, new bot) | 8 of 8 (70-103 s) | 4 of 8 | 0 of 8 |
+| The Azure Wyrm (unchanged, new bot) | 8 of 8 (86-131 s) | 1 of 8 (1-21%) | 0 of 8 |
+
+The Quake fix changes nothing for the bots (they already read 169 px from the skill's data): it
+is for a person, who reads the circle. Verdict: Gorr is hard, not unfair. What still makes him
+the act's hardest for the player bot is his first phase: it loses 44 Health there (the Mother 12,
+the Azure Wyrm 17), mostly to the plain eye beam (0.6 s warning) as it walks back into reach
+after a club blow or a Quake threw it out; a person sees the lanes drawn and steps aside. His
+fights are also the act's longest for the kite bot (94-142 s, the target is 40-100 s): his
+Quake (every 3.6 s in his last phase) keeps a melee hero out of reach. Both open (roadmap): to
+play-test before touching numbers.
+
+### Readable dives on every boss (the Jade Wyrm and the others)
+
+The Azure Wyrm's rule, checked on her alone, is now checked on every boss's dives from the data
+(`UnitTests._test_boss_warnings`; numbers in `data/balance/targets.tres`: `dive_warning_min`
+0.45 s in the boss' last phase on Keeper, `dive_band_margin` 8 px over the body each side; a
+dive never slows). It found:
+
+| Dive | Before | After |
+|---|---|---|
+| Jade Wyrm, Coil Rush (both) | band 44 px each side (her body: 24) | 30 px |
+| Jade Wyrm, fierce Coil Rush | 0.30 s warning in phase 3 | 0.45 s (cast 0.5 -> 0.76) |
+| Mire Matron (`giant_frog`, act I), fierce Frog Leap | 0.37 s | 0.45 s (cast 0.63 -> 0.76) |
+| Gilded Hoarder (act IV), fierce Crushing Leap | 0.37 s | 0.45 s (cast 0.63 -> 0.76) |
+| Master Tôma, fierce Keeper's Step (bottom) | 0.32 s | 0.45 s (cast 0.5 -> 0.71) |
+
+And the circles' rule found the Ember Ronin's (`red_samurai`, act III) fierce Flame Arc: its second blow reached 117 px
+around a drawn arc of 90. Now both blows are 90 (a second burst in the same arc: it catches a
+hero who rolled through the first or stepped back in).
+
+| (new bot) | Kite before -> after | Player | Face-tank |
+|---|---|---|---|
+| Jade Wyrm, seeds 1-8 | 6 -> **7 of 8** | 4 -> 3 of 8 | 0 -> 0 of 8 (6-32% left) |
+| Mire Matron, seeds 1-8 | 3 -> 4 of 8 | 0 -> 0 of 8 | 0 -> 0 of 4 |
+| Gilded Hoarder, seeds 1-4 | 4 -> 4 of 4 | 4 -> 4 of 4 | 0 -> 0 of 4 |
+| Ember Ronin, seeds 1-4 | 1 -> 1 of 4 | 0 -> 0 of 4 | 0 -> 0 of 4 |
+
+Within the seeds' noise: readable, not easier. Not measured: Master Tôma (the arena doesn't run
+the bottom of the Well). Found on the way (open): the Mire Matron (act I) and the Ember Ronin
+(act III) beat the kite bot on Keeper on most seeds.
+
+### degenerate_skills_a3 face-tanking the Jade Wyrm: the build, not Devotion
+
+It won standing still on 1-2 seeds of 4. Devotion healed 18-46 a fight (9-28% of the damage
+taken, under the 50% for a degenerate build): not what won. Its damage did: the face-tank dealt
+258-394 a second against the expected build's 134-159, and killed her in 13-17 s. The model put
+it at 2.84x the expected build (target 2.5x), and taking each piece out showed the echoes as
+the biggest (without them 1.85x; without the Sage's Codex 2.05x; without Arcane Power 2.22x):
+the Echo perk (45%), three Echo runes and of Echoes (12% each) echoed **69%** of its casts, a
+second cast for free on top of a cooldown already at the 50% cap.
+
+**Changed (a rule, pillar 3):** every echo source counts together and stops at **45%**
+(`DungeonConfig.skill_echo_max_chance`, `SkillEchoPassive.total_chance`): the Echo perk at its
+third level reaches it alone, more sources only make it surer to get there. The texts say so
+("all echoes together: 45% at most"). The model counts the cap.
+
+| | Before | After |
+|---|---|---|
+| Model: degenerate_skills_a3 / expected_a3 | 2.84x | **2.52x** (target 2.5x: still flagged, by a hair) |
+| Face-tank vs the Jade Wyrm (seeds 1-4) | 1 of 4 won (2 of 4 with the bot before) | **0 of 4** (boss 18-33% left) |
+| Face-tank vs the Crimson Tengu / the Ember Ronin | 0 / 0 of 4 | 0 / 0 of 4 |
+| Kite / player vs the act III bosses | 12 / 11 of 12 | 12 / 12 of 12 (19-54 s) |
+
+Devotion is left as it is.
+
+### The bots and the holes
+
+**Measured:** the falls the card blamed on blows were mostly the bots' own steps (Gorr above).
+With the bots taught (never walk into a hole they can see, roll over one only to land on solid
+ground, dash only to land on it), the after set (180 fights, three acts) had 5 falls thrown by a
+blow and 6 walked (the ground giving way under a bot standing still, a dash sliding along a
+boss). One fight showed a game bug: the hero climbed out of a hole under the boss' body (where he
+last stood) and its body pushed him back in: four falls in 1.5 s. **Fixed (game):** he climbs
+out on the nearest free floor clear of a body (`Player._on_fell`,
+`World.nearest_free_point(..., clear_of)`); a floor test holds it.
+
+**Verdict on knockback near holes (for players): fair.** The blows that push are warned (a
+swing, a circle), they push away from the boss (predictable), the holes are drawn, a roll crosses
+them, and a fall in a boss arena costs 15% of max Health (13% after armor) and puts the hero back
+on solid ground with a second of grace (no Deeps from a boss floor): about one hit. Thrown falls
+were 1 in 36 fights for the bots. No design change proposed.
+
+**Guards:** unit `_test_boss_warnings` (every boss: dives warn >= 0.45 s on Keeper in every
+phase, bands <= body + 8 px, no slow; a circle's later blows inside it), the echo cap (combat
+tests: the perk and three runes echo 45%, not 62%), the climb-out (floor tests). Balance suite:
+the Azure Wyrm (kite >= 2 of 4), Gorr and the Jade Wyrm (kite >= 3 of 4) on Keeper, their
+face-tank loses, no bot walks into a hole in those fights; degenerate_skills_a3 face-tanking the
+Jade Wyrm loses on four seeds.
+
+**Tests (after merging main):** unit,title 13947 checks, game 1983, tutorial 397: 0 failed. Balance suite 102 checks,
+10 failed: the 8 known, "model: degenerate DPS" (degenerate_skills_a3, 2.84x -> 2.52x) and
+"content: unlisted" (Tôma, the Maw, the Nameless Effigy), both failing before this pass; every
+new guard passes (the Azure Wyrm 4/4, Gorr 4/4, the Jade Wyrm 4/4 kite wins; no walked fall).
+
+**Open:**
+- Gorr: 0 of 8 for the player bot (the act's hardest first phase, the longest fights); hard,
+  readable: to play-test before any number moves.
+- The Mire Matron (act I) kite 4 of 8, player 0 of 8; the Ember Ronin (act III) kite 1 of 4,
+  player 0 of 4: both off "the kite bot wins on Keeper".
+- A warning disappears when its cast lets go: the fierce Quake's second ring, a second volley
+  or leg come with nothing drawn (now always inside what was drawn). Keeping the drawing until
+  the last blow is a visual change (VFX).
+- Fans warned 0.30-0.32 s in a last phase (Gorr's eye beam, the wyrms' breath and spit, the
+  Mire Matron's Poison Spit): under a person's reaction at close range. A rule like the dives' is a
+  proposal, not applied.
+- Model: degenerate_skills_a3 still 2.52x (target 2.5x).
+
 ## 2026-10-23 - The Azure Wyrm hard but fair; Pilgrim's souls; a second life in the face-tank test (measured)
 
 Keeper's level stays as the last pass left it (the owner: "sporty, much better"): no curve,

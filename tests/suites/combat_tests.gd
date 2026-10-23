@@ -353,7 +353,29 @@ func _test_synergies_in_game(game: Game, world: World, player: Player) -> void:
 	check(others[0].hp < others_hp[0] or others[1].hp < others_hp[1], "Thunderclap: the shockwave hurts the enemies around")
 	player.perks.clear()
 
-	# Echo: an echo can't echo (a skill is used at most twice per cooldown, whatever the sources).
+	# Echo: every source counts together and stops at the dungeon's cap (balance-log 2026-10-23:
+	# three Echo runes, of Echoes and the Echo perk skipped 69% of cooldowns on top of the
+	# cooldown cap).
+	var config := world.rules.config
+	var cap := config.skill_echo_max_chance
+	check(cap > 0.0 and cap <= 0.5, "skill echoes are capped (%.2f)" % cap)
+	var echo_perk := _perk("echo")
+	var stacked: Array[PerkDef] = [echo_perk]
+	for i in 3:
+		var rune := PerkDef.new()
+		rune.id = StringName("echo_rune_%d" % i)
+		rune.passives = (load("res://data/runes/echo.tres") as RuneDef).passives
+		stacked.append(rune)
+	for perk in stacked:
+		player.perks.add(perk)
+	for i in 2:
+		player.perks.add(echo_perk)  # the Echo perk at 3 levels: 45% on its own
+	var uncapped := SkillEchoPassive.total_chance(player, 1.0)
+	check(uncapped > cap and is_equal_approx(SkillEchoPassive.total_chance(player), cap),
+		"Echo: the perk and three runes (%d%% together) echo %d%% of the time, the cap" % [roundi(uncapped * 100.0), roundi(SkillEchoPassive.total_chance(player) * 100.0)])
+	player.perks.clear()
+	# An echo can't echo (a skill is used at most twice per cooldown, whatever the sources).
+	config.skill_echo_max_chance = 1.0
 	var sure_echo: PerkDef = _perk("echo").duplicate()
 	var always := SkillEchoPassive.new()
 	always.chance_per_stack = 1.0
@@ -367,6 +389,7 @@ func _test_synergies_in_game(game: Game, world: World, player: Player) -> void:
 			uses += 1
 		await _frames(1)
 	check(uses == 2, "Echo: a 100%% echo gives one free cast, not a loop (%d casts)" % uses)
+	config.skill_echo_max_chance = cap
 	player.perks.clear()
 
 	# Healing spells heal in full outside a boss fight, and half during one.
@@ -1220,6 +1243,38 @@ func _test_rune_shots(game: Game, place: Callable) -> void:
 	await _frames(1)
 	check(fireball.effects_for(player) == fireball.effects and volley.effects_for(player) != volley.effects, "rune shots: a spell not of the weapon isn't dressed in it")
 	clear.call()
+	# The skills that are no shot wear the rune too (only the look: their hits as written).
+	var frost := VfxElementDef.named(&"frost")
+	var spawned := func() -> Array:
+		return world.get_node("Effects").get_children() + world.get_node("Entities").get_children()
+	var area_cases := [
+		["axe", "cleave", null, "an Ember axe's Cleave is a blade's arc in fire"],
+		["bow", "arrow_rain", null, "an Ember bow's Arrow Rain falls in fire"],
+		["stick", "frost_nova", frost, "an Ember Frost Staff's Frost Nova stays frost, flames riding it"],
+		["katana", "dash_strike", null, "an Ember katana's Dash Strike cuts in fire"],
+	]
+	for c: Array in area_cases:
+		var weapon := _imbued(load("res://data/items/weapons/%s.tres" % c[0]), ember, [])
+		player.equipment.equip(weapon)
+		place.call()
+		await _frames(2)
+		var skill := load("res://data/skills/player/%s.tres" % c[1]) as SkillDef
+		var dressed := skill.effects_for(player)
+		var as_written: Array = skill.effects.map(func(e: Effect) -> Variant: return e.get("element"))
+		var kept: Array = dressed.map(func(e: Effect) -> Variant: return e.get("element"))
+		check(dressed.all(func(e: Effect) -> bool: return e.get("look_element") == fire) and kept == as_written, "rune skills: %s (look %s, its own element kept: %s)" % [c[3], dressed.map(func(e: Effect) -> Variant: return e.get("look_element")), kept])
+		check(skill.effects.all(func(e: Effect) -> bool: return e.get("look_element") == null), "rune skills: %s's data stays as written" % c[1])
+		var before: Array = spawned.call()
+		player.skills.reset_cooldown(skill)
+		player.skills.try_use(player.skills.skills.find(skill), player, Vector2.LEFT)
+		await _frames(int(dressed.map(func(e: Effect) -> float: return e.delay).max() * 60.0) + 3)
+		var drawn: Array = (spawned.call() as Array).filter(func(n: Node) -> bool: return not before.has(n) and is_instance_valid(n) and n.get("element") == fire)
+		check(not drawn.is_empty(), "rune skills: %s, seen (%s)" % [c[3], drawn.map(func(n: Node) -> String: return n.get_class() if n.get_script() == null else (n.get_script() as Script).get_global_name())])
+		if c[2] != null:
+			var own_drawn: Array = (spawned.call() as Array).filter(func(n: Node) -> bool: return not before.has(n) and is_instance_valid(n) and n.get("element") == c[2])
+			check(not own_drawn.is_empty(), "rune skills: %s, its own element still drawn" % c[1])
+		await _frames(30)
+	clear.call()
 	player.equipment.equip(load("res://data/items/weapons/katana.tres"))
 	await _frames(2)
 func _imbued(base: WeaponDef, runes: Array, affixes: Array) -> WeaponDef:
@@ -1711,6 +1766,12 @@ func _test_threshold_lost(game: Game) -> void:
 		var world := game.world
 		var feather := _perk("phoenix_feather")
 		player.perks.add(feather)
+		# The blow lands at the top of a physics step, and the hero still takes that step before the
+		# floor freezes (Threshold._enter is deferred): a monster bumping him, a trap's knockback or a
+		# leftover push would carry him off the spot he fell on. Alone, at rest, on quiet floor.
+		await _clear_monsters(world)
+		player.global_position = _quiet_point(world, player.global_position, 2, 10)
+		await _stand_still(world, player)
 		var killer := world.spawn_monster(skeleton, _free_points_away(world, player.global_position, 6, 10, 1)[0])
 		killer.dormant = true
 		var fell_at := player.global_position

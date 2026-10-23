@@ -76,5 +76,33 @@ func _draw() -> void:
 	if def.icon:
 		var tint := def.icon_tint if not used else def.icon_tint.darkened(0.45)
 		draw_texture_rect(def.icon, Rect2(-16, -20, 32, 32), false, tint)
+	if def.niche:
+		_draw_niche(def.niche)
 	if not used:
 		Fonts.draw(self, Vector2(0, -26), "?", Fonts.BODY, def.color.lightened(0.3), 0.5, Color.BLACK)
+
+
+## The empty niche beside it (EncounterNiche), in art pixels at the statue's size: a block of the
+## statue's stone, an arched hollow with nothing on its ledge, a base whose name was scratched.
+func _draw_niche(niche: EncounterNiche) -> void:
+	var lit := niche.stone
+	var mid := niche.stone.darkened(0.28)
+	var dark := niche.stone.darkened(0.62)
+	var hollow := Color(0.07, 0.06, 0.09)
+	var corner := PixelDraw.snap(niche.offset + Vector2(-12, -20))
+	PixelDraw.disc(self, niche.offset + Vector2(0, 12), 11.0, Color(0, 0, 0, 0.35), 1.0, 0.4)
+	for y in 16:
+		for x in 12:
+			var color := lit if x < 6 else mid  # lit from the left, as the statue is
+			if x == 0 or x == 11 or y == 0 or y == 15:
+				color = dark
+			elif y >= 12:
+				color = mid if x < 6 else dark.lightened(0.15)  # the base, in shadow
+			var arch := (y == 2 and x >= 4 and x <= 7) or (y == 3 and x >= 3 and x <= 8) or (y >= 4 and y <= 10 and x >= 2 and x <= 9)
+			if arch:
+				color = hollow
+			if y == 11 and x >= 2 and x <= 9:
+				color = lit.lightened(0.15) if x < 6 else lit  # the bare ledge: nothing stands on it
+			if y == 13 and x >= 3 and x <= 8 and (x * 7 + 3) % 3 != 0:
+				color = dark  # the name, scratched away
+			PixelDraw.cell(self, Vector2i(corner / PixelDraw.PX) + Vector2i(x, y), color)

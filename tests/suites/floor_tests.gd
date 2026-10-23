@@ -283,6 +283,7 @@ func _test_abyss(game: Game, world: World, player: Player) -> void:
 		watcher.die(null)
 	_fill_holes()
 	await _test_sealed_hole_restored(world, player)
+	await _test_collapsed_crack_restored(world, player)
 	player.perks.clear()
 	player.hp = player.get_max_hp()
 	player.xp = xp_saved
@@ -312,6 +313,33 @@ func _test_sealed_hole_restored(world: World, player: Player) -> void:
 	check(world.sealed_cells.has(hole) and world.sealed_cells.has(cracked), "kept for the next save too (%s)" % [world.sealed_cells])
 	world._restore_sealed([[1.5], "x"])  # a damaged entry is skipped
 	check(world.sealed_cells.size() == 2, "a damaged entry fills nothing")
+
+
+## Cracked floor that gave way (and that nobody fell through: no Deeps, no filling) is a hole
+## again on the resumed floor, not the crack its seed lays again.
+func _test_collapsed_crack_restored(world: World, player: Player) -> void:
+	var crumbling: PitDef = load("res://data/hazards/crumbling_floor.tres")
+	var others: Array[Vector2] = []
+	var gave_way := _open_cell_near(world, player.global_position, 3, others, world.map.tile_size * 3.0)
+	others.append(world.map.cell_to_world(gave_way))
+	var again := _open_cell_near(world, player.global_position, 3, others, world.map.tile_size * 3.0)
+	var first := world.spawn_crumbling_floor(crumbling, gave_way)
+	world.collapsed_cells.clear()
+	first.collapse()
+	_dug.append([world, gave_way])
+	var saved_cells: Array = world.spent_data().get("collapsed", [])
+	check(saved_cells.has([gave_way.x, gave_way.y]), "the floor's save keeps the cracked floor that gave way (%s)" % [saved_cells])
+	# As build_floor does on a saved floor (restore_spent): the crack is laid again from the seed,
+	# then what the save says gave way gives way.
+	var crack := world.spawn_crumbling_floor(crumbling, again)
+	var saved: Array = JSON.parse_string(JSON.stringify([[again.x, again.y], [1.5], "x"]))  # (as a save file reads them; damaged entries)
+	world._restore_collapsed(saved)
+	_dug.append([world, again])
+	await _frames(1)
+	check(world.has_pit(again) and world.nav.is_blocked(again) and not world.is_solid_ground(world.map.cell_to_world(again)), "cracked floor that gave way before quitting is a hole on the resumed floor")
+	check(not is_instance_valid(crack) and world._cracks.get(again) == null, "and its crack is gone")
+	check(world.collapsed_cells.has(again), "kept for the next save too (%s)" % [world.collapsed_cells])
+	_fill_holes()
 
 
 ## A body put down on the floor never starts inside a wall's or a prop's shape (from inside one
@@ -554,6 +582,19 @@ func _test_feel(_game: Game, world: World, player: Player) -> void:
 	var wall_point := world.map.cell_to_world(Vector2i.ZERO)
 	check(world.is_free_cell(world.map.world_to_cell(world.nearest_free_point(player.global_position))), "after a fall the hero climbs out on free floor")
 	check(world.nearest_free_point(wall_point) != wall_point or not world.map.is_floor(Vector2i.ZERO), "...even when the ground gave way")
+	# ...and clear of a body standing where he stood (a boss at the hole's edge would push him
+	# back in: he fell again and again).
+	var stander := world.get_hostiles(player.faction)
+	var spot := world.nearest_free_point(player.global_position)
+	if not stander.is_empty():
+		var body: Actor = stander[0]
+		var kept_at := body.global_position
+		body.global_position = spot
+		var on_spot: Array[Actor] = [body]
+		var out := world.nearest_free_point(spot, 12, on_spot, player.radius + 2.0)
+		check(out.distance_to(body.global_position) >= body.radius + player.radius + 2.0 and world.is_free_cell(world.map.world_to_cell(out)),
+			"after a fall the hero climbs out clear of a body standing on his spot (%.0f px away)" % out.distance_to(body.global_position))
+		body.global_position = kept_at
 	HitStop.slow(0.2, 0.5)
 	check(is_equal_approx(Engine.time_scale, 0.5), "a strong kill slows the world")
 	HitStop.reset()
@@ -981,6 +1022,60 @@ func _test_stairs_seal(game: Game) -> void:
 	check(label.text == "Stairs open", "the HUD says the stairs are open")
 	check(world.get_node("Effects").get_children().any(func(n: Node) -> bool: return n is GuideWisp), "a guiding light runs to the stairs")
 	Events.message_logged.disconnect(on_log)
+
+
+## A run picked up again rebuilds its floor from the seed: the floor's own monsters slain before
+## quitting stay slain (World.spent_data() "slain"), the others come back, and what came later
+## (a summons, a wave) isn't saved at all. Ends with a fresh run on floor 1 (resume_run makes a
+## new hero: callers fetch game.player again).
+func _test_slain_stay_dead(game: Game) -> void:
+	game.start_run()
+	await _frames(5)
+	var world: World = game.world
+	var player: Player = game.player
+	player.invincible = true
+	player.xp = -1000000  # no level up (and its pause) from these kills
+	var own := world.get_hostiles(Actor.Faction.PLAYER).filter(func(m: Actor) -> bool: return m is Monster and (m as Monster).floor_index >= 0)
+	var all_before := world.monster_count()
+	check(own.size() == all_before and own.size() >= 4, "every monster a new floor puts down has its number (%d of %d)" % [own.size(), all_before])
+	var indexes := own.map(func(m: Actor) -> int: return (m as Monster).floor_index)
+	indexes.sort()
+	check(indexes == range(own.size()), "numbered in order, once each (%s)" % [indexes])
+	var slain: Array[int] = []
+	var slain_ids: Array[String] = []
+	for monster: Monster in [own[0], own[own.size() / 2], own[own.size() - 1]]:
+		slain.append(monster.floor_index)
+		slain_ids.append(String(monster.def.id))
+		monster.take_hit(Combat.make_secondary_hit(player, 99999))
+	var rat: MonsterDef = load("res://data/monsters/rat.tres")
+	var later := world.spawn_monster(rat, world.find_open_point_near(player.global_position + Vector2(200, 0), 80.0))
+	later.take_hit(Combat.make_secondary_hit(player, 99999))
+	await _frames(2)
+	var kills := world.seal.kills
+	var saved: Array = world.spent_data().get("slain", [])
+	check(saved.size() == 3 and slain.all(func(i: int) -> bool: return saved.any(func(pair: Array) -> bool: return pair[0] == i)), "the floor's save keeps the floor's monsters slain, not the one that came later (%s)" % [saved])
+	game._save_run()
+	game.resume_run(RunSave.read())
+	await _frames(3)
+	world = game.world
+	var back: Array[int] = []
+	var kinds := {}
+	for node in world.get_node("Entities").get_children():
+		var monster := node as Monster
+		if monster and monster.floor_index >= 0 and not monster.is_queued_for_deletion():
+			back.append(monster.floor_index)
+			kinds[monster.floor_index] = String(monster.def.id)
+	check(not slain.any(func(i: int) -> bool: return back.has(i)), "resumed, the slain don't stand up again (%s among %s)" % [slain, back])
+	check(back.size() == all_before - 3 and world.monster_count() == all_before - 3, "and the others are all back (%d of %d, %d monsters)" % [back.size(), all_before - 3, world.monster_count()])
+	check(world.seal.kills == kills and world.seal.needed == ceili(all_before * CONTENT.dungeon.seal_share), "the seal counts the kills as before, of the whole floor (%d / %d)" % [world.seal.kills, world.seal.needed])
+	check(world.slain_spawns.size() == 3, "the slain kept for the next save too (%s)" % [world.slain_spawns])
+	# A number that came out as another kind of monster (a floor not rebuilt quite the same):
+	# that one stays rather than the wrong one going. Damaged entries are skipped.
+	var standing: int = back[0]
+	var other_kind := "rat" if kinds[standing] != "rat" else "skeleton"
+	world._restore_slain(JSON.parse_string(JSON.stringify([[standing, other_kind], [1.5], "x", ["a", "rat"]])))
+	check(world.monster_count() == all_before - 3, "a saved number of another kind takes no monster away (%d)" % world.monster_count())
+	game.player.invincible = false
 
 
 ## Two ways down: each stairs leads to a different world of the next floor (FloorRoute), its sign
@@ -1822,6 +1917,22 @@ func _test_encounters(game: Game) -> void:
 	await _frames(3)
 	check(not interact.visible and not await _tap_interact(game) and not panel.visible, "a spent encounter asks nothing (no button)")
 	player.global_position = spring.global_position + Vector2(0, 160)
+
+	# The Keeper's Statue: the empty niche beside it, its inscription under the text (the keeper
+	# unnamed: the test profile has not seen the reveal).
+	var keeper_statue := world.spawn_encounter(load("res://data/encounters/warden_statue.tres"), _open_cell_near(world, player.global_position, 2))
+	game.open_encounter(keeper_statue)
+	await _frames(1)
+	var niche_label := panel.get_node("%Niche") as Label
+	check(niche_label.visible and niche_label.text == tr(keeper_statue.def.niche.text) and not niche_label.text.contains("T\u00f4ma"), "the Keeper's Statue tells of the empty niche beside it, the name scratched away (%s)" % niche_label.text)
+	panel.close()
+	await _frames(1)
+	keeper_statue.queue_free()
+	game.open_encounter(spring)
+	await _frames(1)
+	check(not (panel.get_node("%Niche") as Label).visible, "an encounter without a niche tells of none")
+	panel.close()
+	await _frames(2)
 
 	# The blood altar: max HP for a relic.
 	var max_hp := player.base_stats.max_hp

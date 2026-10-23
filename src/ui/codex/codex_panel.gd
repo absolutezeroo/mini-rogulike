@@ -278,6 +278,7 @@ func open_monster(monster: MonsterDef) -> void:
 	_intro.hide()
 	_page.show()
 	MenuNav.focus_in(_page)
+	_page.scroll_to_top()
 
 
 func _close_page() -> void:

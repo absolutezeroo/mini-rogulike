@@ -56,6 +56,14 @@ func show_monster(monster: MonsterDef, content: ContentDB) -> void:
 			_show_attack.call_deferred(attacks[0], 0)
 
 
+## Every column back at its top. A page's first button is focused before its columns are laid
+## out (they are new), and a list following the focus then scrolls by the button's height out of
+## a box it measures as empty: the button ends up just above its column.
+func scroll_to_top() -> void:
+	for scroll: ScrollContainer in find_children("*", "ScrollContainer", true, false):
+		scroll.scroll_vertical = 0
+
+
 func clear() -> void:
 	_preview = null
 	_attack_buttons.clear()
