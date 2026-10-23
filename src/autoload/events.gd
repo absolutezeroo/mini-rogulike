@@ -100,6 +100,11 @@ signal run_left(summary: RunSummary, for_good: bool)
 ## A run ended, souls given: a death, or a win (a win then a death in endless mode tells it twice,
 ## the second time with more). What the online leaderboards need (RunSummary; Leaderboards).
 signal run_ended(summary: RunSummary)
+## The hero chose `ending` at the bottom of the Well (after run_ended: the win was told first).
+## The world counters count it (WorldStats).
+signal ending_chosen(ending: EndingDef)
+## Souls were offered to the Tree of Souls at the shrine (an upgrade bought): the world counters.
+signal souls_offered(amount: int)
 
 
 func log_message(text: String, color: Color = Color.WHITE) -> void:

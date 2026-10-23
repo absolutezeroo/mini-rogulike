@@ -11,7 +11,8 @@ extends Control
 ## Leaderboards button opens the online leaderboards (LeaderboardsPanel), and Credits the credits
 ## (CreditsPanel). The first time it shows (and when a refusal's six months are over), it asks the
 ## gameplay statistics' questions (ConsentDialog, Privacy.should_ask()), over the title, never
-## over a run.
+## over a run. At the bottom, a discreet line turns through the world counters (WorldStats, "The
+## Well's Toll": the demons slain in the Well by every player...), only once they were read.
 
 const GAME_SCENE := "res://src/game/game.tscn"
 const STORY_SCENE := "res://src/ui/story/story_screen.tscn"
@@ -21,6 +22,8 @@ const TITLE_BELL_DELAY := 1.4
 const PRIVACY_DELAY := 0.8
 ## The dark text of the theme's orange buttons.
 const BUTTON_TEXT := Color(0.16862746, 0.11372549, 0.14117648)
+## The world counters' line: UI pixels between its baseline and the screen's bottom.
+const WORLD_LINE_BOTTOM := 14.0
 
 @export var content: ContentDB
 
@@ -44,6 +47,9 @@ var hint_box: HintBox
 ## Who keeps vigil at the shrine (NarrativeDef.shrine_speaker), and her words when she speaks.
 var keeper: ShrineKeeper
 var talk: DialogueScreen
+## The world counters' line at the bottom (hidden while none is known), and which one it shows.
+var world_line: Label
+var _world_index := 0
 
 
 ## The shrine's music (SoundBank.title_music: Kagari asleep above the Well), and its bell tolled
@@ -123,6 +129,7 @@ func _ready() -> void:
 	_build_leaderboards()
 	_build_credits()
 	_build_consent()
+	_build_world_line()
 	%DailyButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		daily_dialog.open(content, DailyRun.today()))
@@ -330,6 +337,51 @@ func ask_privacy() -> void:
 		return
 	consent.ask()
 	consent.move_to_front()
+
+
+## The world counters' line, centered at the bottom over the Well, turning every
+## title_line_seconds; the numbers are read (at most every few minutes: WorldStats.refresh()).
+func _build_world_line() -> void:
+	world_line = UiSkin.label("", Fonts.BODY, UiSkin.DIM)
+	world_line.name = "WorldLine"
+	world_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	world_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	world_line.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM, Control.PRESET_MODE_KEEP_SIZE)
+	world_line.anchor_left = 0.0
+	world_line.anchor_right = 1.0
+	world_line.offset_left = 0.0
+	world_line.offset_right = 0.0
+	world_line.offset_top = -WORLD_LINE_BOTTOM - Fonts.BODY * 2
+	world_line.offset_bottom = -WORLD_LINE_BOTTOM
+	world_line.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	world_line.hide()
+	add_child(world_line)
+	move_child(world_line, ($Margin as Control).get_index())  # (under the panels)
+	world_line.owner = self
+	world_line.unique_name_in_owner = true
+	var turn := Timer.new()
+	turn.wait_time = WorldStats.config.title_line_seconds
+	turn.timeout.connect(func() -> void:
+		_world_index += 1
+		show_world_line(true))
+	add_child(turn)
+	turn.start()
+	WorldStats.changed.connect(show_world_line)
+	show_world_line()
+	WorldStats.refresh()
+
+
+## The line for the counter shown now (hidden when none is known: offline, no choice, no key).
+## `fade`: the next counter comes in from the dark.
+func show_world_line(fade: bool = false) -> void:
+	var lines := WorldStats.title_lines()
+	world_line.visible = not lines.is_empty()
+	if lines.is_empty():
+		return
+	world_line.text = lines[_world_index % lines.size()]
+	if fade and lines.size() > 1:
+		world_line.modulate.a = 0.0
+		create_tween().tween_property(world_line, "modulate:a", 1.0, 0.8)
 
 
 ## A small plaque on the Shrine button's corner when an upgrade can be bought.

@@ -47,6 +47,7 @@ MenuNav="*res://src/autoload/menu_nav.gd"
 Leaderboards="*res://src/autoload/leaderboards.gd"
 Privacy="*res://src/autoload/privacy.gd"
 Telemetry="*res://src/autoload/telemetry.gd"
+WorldStats="*res://src/autoload/world_stats.gd"
 
 [display]
 
