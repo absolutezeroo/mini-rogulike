@@ -105,4 +105,4 @@ func _draw() -> void:
 		if node and node.partner() and node.cell.x < node.partner().cell.x:
 			var mid := (center_of(node) + center_of(node.partner())) * 0.5
 			var word := tr("or")
-			Fonts.draw(self, mid + Vector2(0, 6), word, Fonts.BODY, UiSkin.GOLD, 0.5)
+			Fonts.draw(self, mid + Vector2(0, Fonts.half_cap(Fonts.BODY)), word, Fonts.BODY, UiSkin.GOLD, 0.5)

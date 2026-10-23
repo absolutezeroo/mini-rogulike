@@ -2,28 +2,40 @@ class_name Fonts
 ## The game's font, its sizes, and drawing text by hand (damage numbers, labels in the world,
 ## buttons drawn in code) with whole font pixels.
 ##
-## normal_font.ttf is pixel art on a 9-pixel em: each of its pixels is 1/9 of the font size. Drawn
-## without smoothing, a letter stays whole only when one font pixel covers a whole number of
-## screen pixels; otherwise rows and columns of it double or vanish ("cut" letters). The UI is
-## laid out for 720 lines and stretched x1 (720 lines), x1.5 (1080, most phones), x2 (1440): the
-## sizes that are whole at all of them are the multiples of 18 (2, 4, 6 UI pixels a font pixel).
-## See docs/design/interface.md, Text.
+## Pixel Operator 8 (Jayvee Enaguas, CC0) is pixel art on an 8-pixel em: each of its pixels is 1/8
+## of the font size, capitals 7 pixels high, a descender 1 pixel. Drawn without smoothing, a letter
+## stays whole only when one font pixel covers a whole number of screen pixels; otherwise rows and
+## columns of it double or vanish ("cut" letters). The UI is laid out for 720 lines and stretched
+## x1 (720 lines), x1.5 (1080, most phones), x2 (1440) (PixelGrid): the sizes that are whole at all
+## of them are the multiples of 16 (2, 4, 6 UI pixels a font pixel). SMALL alone is off that grid
+## (nothing smaller than 16 is whole on a phone). Only the Regular: the pack's Bold is a pixel wider
+## a letter and closes its accented capitals at HUGE. See docs/design/interface.md, Text.
 
-const MAIN: Font = preload("res://assets/fonts/normal_font.ttf")
+## The font as the game uses it (assets/fonts/pixel_operator.tres): Pixel Operator 8 with room
+## over and under its lines. Its em holds the capitals with no room above them (ascent 7 = a
+## capital), so labels stacked without it touch; 4 UI pixels over a line and 2 under it give back
+## the air the old font had (a whole font pixel at BODY each, the baseline unmoved).
+const MAIN: Font = preload("res://assets/fonts/pixel_operator.tres")
 
 ## Font pixels in an em (the font's grid).
-const GRID := 9
-## Little counters inside a slot or a button (a level, a stack, a badge) where BODY doesn't fit:
-## whole on phones (x1.5: 2 screen pixels a font pixel), a little uneven on a 720-line screen.
+const GRID := 8
+## Font pixels a capital stands (an accented one too: its accent is drawn inside them).
+const CAPS := 7
+## Little counters inside a slot or a button (a level, a stack, a badge) and fine print where BODY
+## doesn't fit: 1.5 UI pixels a font pixel. No size under 16 is whole on a phone; this one is the
+## least uneven there (2.25 screen pixels: one row or column in four a pixel thicker, where 8
+## would make every other one double) and whole at x2, a little uneven on a 720-line screen.
 const SMALL := 12
 ## Everything read: sentences, notes, buttons, names, headings in a panel.
-const BODY := 18
+const BODY := 16
 ## Titles, big numbers.
-const TITLE := 36
+const TITLE := 32
 ## The game's name, act and curse cards.
-const HUGE := 54
+const HUGE := 48
 ## Every size the game uses (a check in the unit tests holds every scene and theme to it).
 const SIZES: Array[int] = [SMALL, BODY, TITLE, HUGE]
+## The sizes on the grid (whole font pixels at x1, x1.5 and x2): all but SMALL.
+const WHOLE_SIZES: Array[int] = [BODY, TITLE, HUGE]
 
 ## The dark edge around text on wood and over the game.
 const OUTLINE := Color(0.12, 0.07, 0.05)
@@ -34,6 +46,17 @@ const OUTLINE := Color(0.12, 0.07, 0.05)
 ## unevenly.
 static func outline_size(font_size: int) -> int:
 	return roundi(font_size * 4.0 / GRID)
+
+
+## How tall a capital stands at `font_size` (UI units).
+static func cap_height(font_size: int) -> float:
+	return font_size * float(CAPS) / GRID
+
+
+## How far under a line's middle its baseline goes for its capitals to sit centred on it (half a
+## capital): text drawn by hand in a disc, a slot, a bar.
+static func half_cap(font_size: int) -> float:
+	return cap_height(font_size) * 0.5
 
 
 ## Draws `text` on `item` (in its _draw()), its baseline at `at` (the item's own coordinates),

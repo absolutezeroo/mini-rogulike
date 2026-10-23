@@ -192,7 +192,9 @@ func _clear_now() -> void:
 func _process(delta: float) -> void:
 	if not visible:
 		return
-	var wanted := maxf(_bar_height, _text_box.get_combined_minimum_size().y + TEXT_MARGIN.y * 2.0) if _shown > 0.0 else 0.0
+	# Under the text, room for the skip hint in the corner too: a long last line runs under it.
+	var under := maxf(TEXT_MARGIN.y, _skip.size.y + 6.0)
+	var wanted := maxf(_bar_height, _text_box.get_combined_minimum_size().y + TEXT_MARGIN.y + under) if _shown > 0.0 else 0.0
 	_bottom_height = move_toward(_bottom_height, wanted, GROW_SPEED * delta) if _bottom_height > 0.0 else wanted
 	_layout()
 

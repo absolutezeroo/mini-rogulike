@@ -89,7 +89,7 @@ func _draw() -> void:
 		if count > 1:
 			_text("x%d" % count, Vector2(size.x - 6, size.y - 6), HORIZONTAL_ALIGNMENT_RIGHT, Fonts.BODY, Color.WHITE)
 	elif not caption.is_empty():
-		_text(caption, Vector2(size.x * 0.5, size.y * 0.5 + 4), HORIZONTAL_ALIGNMENT_CENTER, Fonts.SMALL, EMPTY_TEXT)
+		_text(caption, Vector2(size.x * 0.5, size.y * 0.5 + Fonts.half_cap(Fonts.SMALL)), HORIZONTAL_ALIGNMENT_CENTER, Fonts.SMALL, EMPTY_TEXT)
 	if fresh and item:
 		draw_fresh(self, Vector2(size.x - 5, 5))
 	if selected:

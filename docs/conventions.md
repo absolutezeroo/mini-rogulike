@@ -57,8 +57,8 @@ the ones below are those worth spelling out, or where this project chose somethi
   list is in [balance.md](balance.md).
 - After adding texts: `python3 tools/i18n/extract.py`, then fill the French. Details in
   [translating.md](translating.md).
-- **Font sizes come from `Fonts`**: `Fonts.BODY` (18) for anything read, `Fonts.TITLE` (36),
-  `Fonts.HUGE` (54), `Fonts.SMALL` (12) only for fine print that cannot fit; never a literal size.
+- **Font sizes come from `Fonts`**: `Fonts.BODY` (16) for anything read, `Fonts.TITLE` (32),
+  `Fonts.HUGE` (48), `Fonts.SMALL` (12) only for fine print that cannot fit; never a literal size.
   Labels get their one-font-pixel outline from `UiSkin.label()` / `UiSkin.set_text_style()`; text
   drawn in `_draw()` goes through `Fonts.draw()`. Any other size cuts the pixel font's letters on
   phones ([design/interface.md](design/interface.md#text)); the tests check it.

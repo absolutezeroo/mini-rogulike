@@ -88,7 +88,7 @@ layout_mode = 2
 autowrap_mode = 3
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 8
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "Depth 1"
 
 [node name="Purse" type="HBoxContainer" parent="TopLeft"]
@@ -102,7 +102,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.95, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 8
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "Souls 0"
 
 [node name="GoldLabel" type="Label" parent="TopLeft/Purse"]
@@ -111,7 +111,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.82, 0.4, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 8
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "Gold 0"
 
 [node name="PerkTray" type="HFlowContainer" parent="TopLeft"]
@@ -140,7 +140,7 @@ offset_right = -16.0
 offset_bottom = 80.0
 grow_horizontal = 0
 focus_mode = 0
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "Bag"
 expand_icon = true
 
@@ -155,7 +155,7 @@ offset_right = -172.0
 offset_bottom = 80.0
 grow_horizontal = 0
 focus_mode = 0
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 32
 text = "II"
 
 [node name="Minimap" type="Control" parent="."]
@@ -184,7 +184,7 @@ mouse_filter = 2
 theme_override_colors/font_color = Color(0.705882, 0.54902, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 8
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "Seal 0 / 0"
 horizontal_alignment = 2
 
@@ -202,7 +202,7 @@ mouse_filter = 2
 theme_override_colors/font_color = Color(1, 1, 1, 0.85)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 8
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "0:00.0"
 horizontal_alignment = 2
 
@@ -220,7 +220,7 @@ grow_horizontal = 0
 mouse_filter = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 8
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 horizontal_alignment = 2
 
 [node name="FullMap" type="Control" parent="."]
@@ -272,7 +272,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.82, 0.4, 1)
 theme_override_constants/outline_size = 8
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "Boss"
 
 [node name="BossHp" type="Control" parent="BossBar/Column"]
@@ -301,7 +301,7 @@ mouse_filter = 2
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.82, 0.4, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
@@ -320,7 +320,7 @@ mouse_filter = 2
 theme_override_colors/font_color = Color(1, 0.82, 0.4, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 24
-theme_override_font_sizes/font_size = 54
+theme_override_font_sizes/font_size = 48
 text = "Depth 1"
 horizontal_alignment = 1
 

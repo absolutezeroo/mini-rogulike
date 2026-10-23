@@ -6,6 +6,8 @@ extends VBoxContainer
 ## is done by touch. Picking up another device turns the page to it.
 
 const ROW_HEIGHT := 32.0
+## The narrowest a control's name gets before it wraps (UI units).
+const NAME_WIDTH := 200.0
 
 var _heading: Label
 var _note: Label
@@ -91,8 +93,9 @@ func rows_text() -> Array[PackedStringArray]:
 
 
 func _add_row(grid: GridContainer, entry: ActionPromptDef, caps: Array[Dictionary]) -> void:
-	var name_label := UiSkin.label(tr(entry.display_name), Fonts.BODY)
-	name_label.custom_minimum_size.y = ROW_HEIGHT
+	# Wrapped: a long French name takes two lines rather than pushing the page off a 720-line screen.
+	var name_label := UiSkin.label(tr(entry.display_name), Fonts.BODY, UiSkin.TEXT, true)
+	name_label.custom_minimum_size = Vector2(NAME_WIDTH, ROW_HEIGHT)
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.add_child(name_label)

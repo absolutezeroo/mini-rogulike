@@ -366,9 +366,22 @@ func _test_finale_story(game: Game) -> void:
 	var longest := "\"%s\"" % tr(toma_def.chronicle.last_words[1].line)
 	game.hud.show_banner(longest)
 	var width := Fonts.MAIN.get_string_size(banner.text, HORIZONTAL_ALIGNMENT_LEFT, -1, banner.get_theme_font_size(&"font_size")).x
-	var room := minf(banner.get_viewport_rect().size.x - 2.0 * Hud.BANNER_MARGIN, Hud.BANNER_WIDTH)
-	var too_wide := Fonts.MAIN.get_string_size(banner.text, HORIZONTAL_ALIGNMENT_LEFT, -1, Fonts.HUGE).x > room
+	var room := game.hud.banner_room(Fonts.TITLE)
+	check(is_equal_approx(game.hud.banner_room(Fonts.HUGE), minf(banner.get_viewport_rect().size.x - 2.0 * Hud.BANNER_MARGIN, Hud.BANNER_WIDTH)), "a name at HUGE keeps between the stats and the map")
+	var too_wide := Fonts.MAIN.get_string_size(banner.text, HORIZONTAL_ALIGNMENT_LEFT, -1, Fonts.HUGE).x > game.hud.banner_room(Fonts.HUGE)
 	check((banner.get_theme_font_size(&"font_size") == Fonts.TITLE) == too_wide and width < room, "his longest last words fit the screen on the banner (%d of %d UI pixels)" % [roundi(width), roundi(room)])
+	# The longest last words of all: wrapped on the screen, never past its edges.
+	var longest_of_all := ""
+	for file in DirAccess.get_files_at("res://data/story/chronicles"):
+		var chronicle: Resource = load("res://data/story/chronicles".path_join(file.trim_suffix(".remap")))
+		if chronicle == null or chronicle.get("last_words") == null:
+			continue
+		for words in chronicle.last_words:
+			if tr(words.line).length() > longest_of_all.length():
+				longest_of_all = tr(words.line)
+	game.hud.show_banner("\"%s\"" % longest_of_all)
+	await _frames(2)
+	check(not longest_of_all.is_empty() and banner.get_viewport_rect().encloses(banner.get_global_rect()) and banner.get_line_count() <= 2, "the longest last words of all fit the screen on the banner, in two lines at most (%s)" % banner.get_global_rect())
 	game.hud.show_banner(tr(maw_def.display_name))
 	check(banner.get_theme_font_size(&"font_size") == Fonts.HUGE and _off_grid_texts(game.hud).is_empty(), "a name stays big, on the font's grid")
 	await _wait(game, Game.ENDING_DELAY)

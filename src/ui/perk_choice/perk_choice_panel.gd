@@ -188,6 +188,8 @@ func choose(index: int) -> void:
 func _build() -> void:
 	_dialog = RpgDialog.new(tr("Level up!"))
 	add_child(_dialog)
+	# Tighter than a dialog's 10: three cards of long French text, two families each, fit 720 lines.
+	_dialog.body.add_theme_constant_override("separation", 6)
 	_title = _dialog.title_label
 	_title.name = "Title"
 	_subtitle = UiSkin.label(tr("Choose an upgrade"), Fonts.BODY, UiSkin.TEXT)
@@ -200,22 +202,22 @@ func _build() -> void:
 	_cards = HBoxContainer.new()
 	_cards.name = "Cards"
 	_cards.alignment = BoxContainer.ALIGNMENT_CENTER
-	_cards.add_theme_constant_override("separation", 24)
+	_cards.add_theme_constant_override("separation", 16)
 	_dialog.body.add_child(_cards)
 	_tools = HBoxContainer.new()
 	_tools.name = "Tools"
 	_tools.alignment = BoxContainer.ALIGNMENT_CENTER
 	_tools.add_theme_constant_override("separation", 24)
 	_dialog.body.add_child(_tools)
-	_reroll = UiParts.button(tr("Reroll (%d)") % 1, Callable(), Vector2(220, 54), Fonts.BODY)
+	_reroll = UiParts.button(tr("Reroll (%d)") % 1, Callable(), Vector2(220, 48), Fonts.BODY)
 	_reroll.name = "RerollButton"
 	_reroll.icon = load("res://assets/ui/icons/reroll.png")
 	_tools.add_child(_reroll)
-	_banish = UiParts.button(tr("Banish (%d)") % 1, Callable(), Vector2(220, 54), Fonts.BODY)
+	_banish = UiParts.button(tr("Banish (%d)") % 1, Callable(), Vector2(220, 48), Fonts.BODY)
 	_banish.name = "BanishButton"
 	_banish.icon = load("res://assets/ui/icons/banish.png")
 	_tools.add_child(_banish)
-	_later = UiParts.button(tr("Later"), Callable(), Vector2(180, 54), Fonts.BODY)
+	_later = UiParts.button(tr("Later"), Callable(), Vector2(180, 48), Fonts.BODY)
 	PromptGlyph.badge(_later, &"ui_cancel", PromptGlyph.Place.INSIDE)  # Back puts the choice off too
 	_later.name = "LaterButton"
 	_tools.add_child(_later)

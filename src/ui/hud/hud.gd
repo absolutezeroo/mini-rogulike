@@ -538,14 +538,18 @@ func set_souls(count: int, pulse: bool = false) -> void:
 
 
 ## Big centered text that fades out (floor names, boss names, a warden's last words...). A text
-## too wide at Fonts.HUGE (a sentence: wider than BANNER_WIDTH or the screen) comes at TITLE.
+## too wide at Fonts.HUGE (a sentence: wider than BANNER_WIDTH or the screen) comes at TITLE,
+## across the screen (banner_room()), and wraps to a second line if it is wider still.
 func show_banner(text: String, color: Color = Color(1, 0.82, 0.4)) -> void:
 	_yield_toast()
 	_depth_banner.text = text
-	var room := minf(_depth_banner.get_viewport_rect().size.x - 2.0 * BANNER_MARGIN, BANNER_WIDTH)
 	var font_size := Fonts.HUGE
-	if Fonts.MAIN.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, Fonts.HUGE).x > room:
+	if Fonts.MAIN.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, Fonts.HUGE).x > banner_room(Fonts.HUGE):
 		font_size = Fonts.TITLE
+	var room := banner_room(font_size)
+	_depth_banner.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if font_size == Fonts.TITLE else TextServer.AUTOWRAP_OFF
+	_depth_banner.offset_left = -room * 0.5
+	_depth_banner.offset_right = room * 0.5
 	_depth_banner.add_theme_font_size_override("font_size", font_size)
 	_depth_banner.add_theme_constant_override("outline_size", Fonts.outline_size(font_size))
 	_depth_banner.add_theme_color_override("font_color", color)
@@ -555,6 +559,13 @@ func show_banner(text: String, color: Color = Color(1, 0.82, 0.4)) -> void:
 	_depth_banner.modulate.a = 1.0
 	_banner_tween.tween_interval(1.4)
 	_banner_tween.tween_property(_depth_banner, "modulate:a", 0.0, 0.6)
+
+
+## How wide a banner's text may be at `font_size` (UI pixels): a name at HUGE between the stats
+## and the map (BANNER_WIDTH), a sentence at TITLE across the screen (it shows a moment, over all).
+func banner_room(font_size: int) -> float:
+	var screen := _depth_banner.get_viewport_rect().size.x - 2.0 * BANNER_MARGIN
+	return minf(screen, BANNER_WIDTH) if font_size == Fonts.HUGE else screen
 
 
 ## The run's time under the map (Settings.run_timer). Gold once the run is won (that time stays).

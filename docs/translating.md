@@ -34,8 +34,9 @@ says so).
   column (any spreadsheet or text editor; keep the `%d`, `%s`, `{name}` codes and the spaces
   around joining words like `" and "`). The unit tests check that every key has its French and
   keeps its codes.
-- **Font**: the pixel font (`assets/fonts/normal_font.ttf`) had all French accents but œ Œ « »
-  Î Ï … – — × and the no-break spaces; `tools/i18n/add_glyphs.py` drew them on its grid, in its style.
+- **Font**: the pixel font (Pixel Operator 8, `assets/fonts/PixelOperator8.ttf`) has every French
+  letter and sign (œ Œ « » Î Ï … – — × and the no-break space); `tools/i18n/add_glyphs.py` drew
+  the controls' prompt glyphs (✕ ○ □ △ ← → ↑ ↓) and the narrow no-break space on its grid, in its style.
   A character the font lacks shows in a fallback font that clashes with the pixel art: the unit
   tests check that the font has every character of `locale/strings.csv`. A new one goes in
   `add_glyphs.py` (or the text says it otherwise).

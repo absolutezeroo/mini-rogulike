@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 135,
+  "next_id": 139,
   "tags": [
     "pc",
     "test",
@@ -1965,6 +1965,69 @@
       ],
       "created_at": 1792763662,
       "updated_at": 1792763662
+    },
+    {
+      "id": "task_135",
+      "title": "Nouvelle police : Pixel Operator 8",
+      "description": "Toute l'interface passe à Pixel Operator 8 (Jayvee Enaguas, CC0, assets/fonts/PixelOperator8.ttf, licence à côté, crédit dans le README), importée nette (sans lissage, hinting, sous-pixel ni mipmaps). L'ancienne police (normal_font.ttf) est retirée : plus rien ne s'en sert.\n\nGrille : em de 8 pixels, donc tailles multiples de 16 (2, 4, 6 pixels d'interface par pixel de police : nets à x1, x1,5 et x2). BODY 16 (au lieu de 18), TITLE 32 (36), HUGE 48 (54) : un pixel de police garde la même taille à l'écran qu'avant. SMALL reste 12, seule taille hors grille (rien sous 16 n'est net sur téléphone) : 2,25 pixels d'écran par pixel de police sur téléphone (une ligne sur quatre un peu plus épaisse), net à x2 ; 8 aurait doublé une ligne sur deux sur téléphone et serait trop petit. Contours : 6 / 8 / 16 / 24. Les textes dessinés à la main (boutons ronds, emplacements, barres, glyphes des touches, plaque Interagir, « ou » de l'Arbre des âmes) se centrent sur une demi-capitale (Fonts.half_cap(), capitales de 7 pixels).\n\nInterligne : la police n'a aucune marge au-dessus des capitales ; une variation (assets/fonts/pixel_operator.tres) ajoute 4 px au-dessus et 2 dessous, et le thème 2 entre les lignes.\n\nGras : essayé sur le titre et Descendre, non retenu (lettres d'un pixel plus larges, noms qui passent plus vite à la ligne, Â et É empâtés en HUGE).\n\nGlyphes ajoutés à la police (tools/i18n/add_glyphs.py, sur sa grille) : ✕ ○ □ △ ← → ↑ ↓ des invites de touches, espace fine insécable.\n\nRemis en place (lettres plus larges) : sous-titre du titre sur deux lignes ; page Commandes des options (noms qui passent à la ligne) ; page d'un monstre du codex (colonne gauche 376 px pour « L'Accapareur » en TITLE, les âmes d'un objectif sous son texte) ; choix d'atouts (cartes 380 px, marges et espacements resserrés, boutons 48 px) ; bandeau des dernières paroles (en TITLE il prend toute la largeur et passe à la ligne au besoin, test ajouté sur les plus longues paroles) ; barre basse de la cinématique (place pour « Appuie pour passer » sous le texte).\n\nTests : la police du thème est Pixel Operator 8, chaque taille est sur la grille de 16 sauf SMALL (l'exception documentée), interligne en pixels entiers. Toutes les suites passent. Captures FR (titre, options, combat, sac, marchand, atouts, bestiaire et page d'un gardien, cinématique, dialogue, classements, pause) en 2340x1080, 2548x1296 et 1280x720 : scratchpad new_font.\n\nNon vérifié : sur un vrai téléphone (netteté de SMALL à x1,5, lisibilité).",
+      "status": "review",
+      "priority": "medium",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "visuel",
+        "traduction"
+      ],
+      "created_at": 1792770950,
+      "updated_at": 1792770950
+    },
+    {
+      "id": "task_136",
+      "title": "Nouvelle police : vérifier sur un vrai téléphone",
+      "description": "Les captures sont faites à la résolution d'un téléphone mais pas sur un vrai écran : vérifier la netteté de SMALL (12, hors grille : 2,25 pixels d'écran par pixel de police), la lisibilité des petits textes (niveau d'un objet, cartes d'atouts, serments) et des glyphes de touches dessinés (✕ ○ □ △, flèches) sur le téléphone.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "android",
+        "playtest",
+        "ui"
+      ],
+      "created_at": 1792770950,
+      "updated_at": 1792770950
+    },
+    {
+      "id": "task_137",
+      "title": "Codex : grand gardien coupé en haut de sa page",
+      "description": "Sur la page d'un gardien dans le codex, son sprite (échelle x2,2 dans une boîte de 104 px de haut, MonsterPage._look()) est coupé en haut pour les grands gardiens (L'Accapareur Doré : seul le bas du corps se voit). Sans rapport avec la police ; vu pendant ses captures. Adapter la boîte ou l'échelle à la taille du sprite.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "bug",
+        "ui",
+        "sprites"
+      ],
+      "created_at": 1792770950,
+      "updated_at": 1792770950
+    },
+    {
+      "id": "task_138",
+      "title": "Bestiaire : noms tronqués sur les cartes",
+      "description": "Avec la nouvelle police (lettres un peu plus larges), plus de noms de monstres finissent en « … » sur les cartes du bestiaire en français (« Gluant Gé… », « Garde-Car… », « Raton Vol… », « Cœur de M… »). Le nom complet est sur la page du monstre ; voir si les cartes peuvent passer le nom sur deux lignes.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "traduction"
+      ],
+      "created_at": 1792770950,
+      "updated_at": 1792770950
     }
   ]
 }

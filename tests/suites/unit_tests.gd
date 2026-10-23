@@ -96,21 +96,34 @@ func run() -> void:
 	dialogue.free()
 
 
-## Text keeps whole pixels (Fonts, docs/design/interface.md "Text"): the font is drawn sharp, on its
-## 9-pixel grid, at sizes whose font pixel is a whole number of screen pixels at the UI's x1 and
-## x1.5 (a phone's 1080 lines); scenes and the theme use only those sizes, and outlines of one
-## font pixel.
+## Text keeps whole pixels (Fonts, docs/design/interface.md "Text"): the font (Pixel Operator 8) is
+## drawn sharp, on its 8-pixel grid, at sizes whose font pixel is a whole number of screen pixels
+## at the UI's x1, x1.5 (a phone's 1080 lines) and x2: multiples of 16, SMALL the one documented
+## exception; scenes and the theme use only those sizes, and outlines of one font pixel.
 func _test_text_grid() -> void:
-	var font := Fonts.MAIN as FontFile
-	check(font != null and font.antialiasing == TextServer.FONT_ANTIALIASING_NONE and font.hinting == TextServer.HINTING_NONE and font.subpixel_positioning == TextServer.SUBPIXEL_POSITIONING_DISABLED, "the pixel font is drawn sharp: no smoothing, no hinting, whole-pixel positions")
+	var variation := Fonts.MAIN as FontVariation
+	var font := variation.base_font as FontFile if variation else null
+	check(font != null and font.resource_path == "res://assets/fonts/PixelOperator8.ttf", "the game's font is Pixel Operator 8")
+	check(variation != null and variation.spacing_top % 2 == 0 and variation.spacing_bottom % 2 == 0 and variation.spacing_glyph == 0 and variation.spacing_space == 0, "the room over and under its lines is whole font pixels at BODY, its letters as drawn")
+	check(font != null and font.antialiasing == TextServer.FONT_ANTIALIASING_NONE and font.hinting == TextServer.HINTING_NONE and font.subpixel_positioning == TextServer.SUBPIXEL_POSITIONING_DISABLED and not font.generate_mipmaps, "the pixel font is drawn sharp: no smoothing, no hinting, whole-pixel positions, no mipmaps")
+	check(Fonts.GRID == 8 and is_equal_approx(font.get_ascent(Fonts.GRID * 10) + font.get_descent(Fonts.GRID * 10), Fonts.GRID * 10.0), "the font's em is %d pixels (ascent and descent fill it)" % Fonts.GRID)
 	for font_size in Fonts.SIZES:
-		var phone := font_size * 1.5 / Fonts.GRID
-		check(is_equal_approx(phone, roundf(phone)), "size %d: whole font pixels on a phone (x1.5)" % font_size)
-		if font_size != Fonts.SMALL:
-			check(font_size % Fonts.GRID == 0, "size %d: whole font pixels at x1 too" % font_size)
-	check(Fonts.outline_size(Fonts.BODY) == 8 and Fonts.outline_size(Fonts.TITLE) == 16, "outlines are one font pixel (a quarter of a pixel per unit)")
+		if Fonts.WHOLE_SIZES.has(font_size):
+			for stretch in [1.0, 1.5, 2.0]:
+				var pixel: float = font_size * stretch / Fonts.GRID
+				check(is_equal_approx(pixel, roundf(pixel)), "size %d: whole font pixels at x%s" % [font_size, stretch])
+			check(font_size % (Fonts.GRID * 2) == 0, "size %d is on the 16-grid" % font_size)
+		else:
+			# The one exception (Fonts.SMALL): smaller than BODY, whole at x2 at least.
+			check(font_size == Fonts.SMALL and font_size < Fonts.BODY and font_size * 2 % Fonts.GRID == 0, "size %d off the 16-grid is only the documented SMALL" % font_size)
+	check(Fonts.WHOLE_SIZES.size() == Fonts.SIZES.size() - 1 and not Fonts.WHOLE_SIZES.has(Fonts.SMALL), "only SMALL is off the 16-grid")
+	check(Fonts.outline_size(Fonts.BODY) == 8 and Fonts.outline_size(Fonts.TITLE) == 16 and Fonts.outline_size(Fonts.HUGE) == 24, "outlines are one font pixel (a quarter of a pixel per unit)")
+	check(is_equal_approx(Fonts.cap_height(Fonts.BODY), 14.0) and is_equal_approx(Fonts.half_cap(Fonts.TITLE), 14.0), "a capital stands %d font pixels" % Fonts.CAPS)
 	var theme: Theme = load("res://assets/theme/main_theme.tres")
-	check(Fonts.SIZES.has(theme.default_font_size) and theme.get_constant(&"outline_size", &"Label") == Fonts.outline_size(theme.default_font_size), "the theme's text is on the grid (%d, outline %d)" % [theme.default_font_size, theme.get_constant(&"outline_size", &"Label")])
+	check(theme.default_font == Fonts.MAIN, "the theme's default font is the game's font (Pixel Operator 8)")
+	check(Fonts.WHOLE_SIZES.has(theme.default_font_size) and theme.get_constant(&"outline_size", &"Label") == Fonts.outline_size(theme.default_font_size), "the theme's text is on the grid (%d, outline %d)" % [theme.default_font_size, theme.get_constant(&"outline_size", &"Label")])
+	var spacing := theme.get_constant(&"line_spacing", &"Label")
+	check(spacing % 2 == 0, "a Label's lines stay whole font pixels apart at BODY (line spacing %d)" % spacing)
 	var off: Array[String] = []
 	for path in _files_under("res://src", ".tscn"):
 		var scene := (load(path) as PackedScene).instantiate()

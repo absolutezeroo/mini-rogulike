@@ -246,32 +246,52 @@ in the device's words ("Tap the big button" / "Press [Space]", `HintDef.button_t
 
 ## Text
 
-The font (`assets/fonts/normal_font.ttf`) is pixel art on a 9-pixel em (2048 units, 227.5 a
-pixel): capitals 6 pixels high, strokes 1 pixel wide. It is drawn sharp (no antialiasing, hinting
-or subpixel positioning), so a letter stays whole only when one of its pixels covers a whole
-number of screen pixels; otherwise some rows and columns double and others vanish, and letters
-look cut. The UI is laid out at 1280x720 and stretched (`canvas_items`): x1 on a 720-line window,
-x1.5 on most phones (1080 lines), x2 on 1440.
+The font is **Pixel Operator 8** by Jayvee Enaguas (CC0, `assets/fonts/PixelOperator8.ttf`, used
+through `assets/fonts/pixel_operator.tres`): pixel art on an 8-pixel em (800 units, 100 a pixel),
+capitals 7 pixels high (an accented capital too: its accent is drawn inside them), a descender of
+1, strokes 1 pixel wide. It is drawn sharp (no antialiasing, hinting, subpixel positioning or
+mipmaps), so a letter stays whole only when one of its pixels covers a whole number of screen
+pixels; otherwise some rows and columns double and others vanish, and letters look cut. The UI is
+laid out at 1280x720 and stretched (`canvas_items`, `PixelGrid`): x1 on a 720-line window, x1.5 on
+most phones (1080 lines), x2 on 1440.
 
-- **Sizes** (`Fonts`, `src/core/fonts.gd`), multiples of 18 (2, 4, 6 UI pixels a font pixel: whole
-  at x1, x1.5 and x2): **`Fonts.BODY` 18** for everything read (sentences, notes, buttons, names,
-  headings in a panel), **`Fonts.TITLE` 36** (the story, a difficulty's or a monster's name, big
-  numbers, the Descend and Resume buttons), **`Fonts.HUGE` 54** (the game's name, act and curse
-  cards, the Threshold's countdown).
-  **`Fonts.SMALL` 12** only for fine print BODY cannot fit (a slot's item level and empty-slot
-  words, the difficulty cards' lists, the oath cards, a perk card's level and family bonus and
-  the perk choice's two rules under and over the cards, the Daily button's second line, the Tree
-  of Souls' branch lines): whole on phones (2 screen pixels a font
-  pixel), a little uneven on a 720-line screen. No size in between: hierarchy comes from color
-  (gold headings, dim notes), ribbons and boards. The unit, title and game suites hold every
-  scene, the theme and the panels built in code to `Fonts.SIZES`.
-- **Outline**: one font pixel (`Fonts.outline_size()`: 8 at BODY, 16 at TITLE, 24 at HUGE), set by
+- **Sizes** (`Fonts`, `src/core/fonts.gd`), multiples of 16 (2, 4, 6 UI pixels a font pixel: whole
+  at x1, x1.5 and x2): **`Fonts.BODY` 16** for everything read (sentences, notes, buttons, names,
+  headings in a panel), **`Fonts.TITLE` 32** (the story, a difficulty's or a monster's name, big
+  numbers, the Descend and Resume buttons), **`Fonts.HUGE` 48** (the game's name, act and curse
+  cards, the Threshold's countdown). A font pixel is as many UI pixels as the old font's was at
+  18, 36 and 54, so text keeps its size on screen (capitals a pixel taller, letters a little
+  wider).
+  **`Fonts.SMALL` 12**, the one size off the grid, only for fine print BODY cannot fit (a slot's
+  item level and empty-slot words, the difficulty cards' lists, the oath cards, a perk card's
+  level and family bonus and the perk choice's two rules under and over the cards, the Daily
+  button's second line, the Tree of Souls' branch lines): nothing under 16 is whole on a phone.
+  12 is 1.5 UI pixels a font pixel: 2.25 screen pixels on a phone (one row or column in four a
+  pixel thicker), whole at x2, uneven on a 720-line screen (1 and 2 by turns). 8 (one UI pixel)
+  would be whole at x1 and x2 but double every other row on a phone, where most players are, and
+  is too small to read there. No size in between: hierarchy comes from color (gold headings, dim
+  notes), ribbons and boards. The unit, title and game suites hold every scene, the theme and the
+  panels built in code to `Fonts.SIZES`; the unit suite checks the theme's font is Pixel Operator
+  8 and every size but SMALL is on the 16-grid.
+- **Lines**: the font's em holds its capitals with no room above them, so labels stacked one under
+  the other would touch. `pixel_operator.tres` adds 4 UI pixels over each line and 2 under it, and
+  the theme's Label 2 between wrapped lines: even numbers, so at BODY every line starts on a whole
+  font pixel (the baseline doesn't move: text drawn by hand is unchanged).
+- **The Regular only.** The pack's Bold was tried on the game's name and the Descend button: it
+  stays on the grid, but it is a font pixel wider a letter (titles a seventh wider: a monster's
+  name in the codex, the banners wrap sooner) and its accented capitals (Â, É) close into blobs
+  at HUGE; the Regular with its one-pixel outline already reads heavy enough.
+- **Glyphs the font lacks**: the controls' prompt glyphs (PlayStation's ✕ ○ □ △, the arrows) and
+  the narrow no-break space were drawn on its grid in its style by `tools/i18n/add_glyphs.py`
+  (docs/translating.md).
+- **Outline**: one font pixel (`Fonts.outline_size()`: 6 at SMALL, 8 at BODY, 16 at TITLE, 24 at HUGE), set by
   `UiSkin.label()`, `UiSkin.set_text_style()` and the theme's Label. It is drawn under the letters
   and never eats a stroke. Dark words on the orange buttons have none.
 - **Drawn by hand** (`Fonts.draw()`: damage numbers, signs and names over the world, the HUD's
   round buttons, slots, the Tree of Souls): the size is counted in UI units whatever the camera's
   zoom, and the text is put on a whole screen pixel, with the same outline. Damage numbers pop in
-  at TITLE for an instant, then settle at BODY (no in-between scale).
+  at TITLE for an instant, then settle at BODY (no in-between scale). Text centred in a disc, a
+  slot or a bar puts its baseline half a capital under the middle (`Fonts.half_cap()`).
 - **Half pixels**: at x1.5 an odd UI position falls between two screen pixels, where every pixel
   samples a letter's texture right on an edge and picks a side by rounding luck. `PixelGrid`
   (autoload) shifts the whole screen a quarter of a pixel, which takes whole and half positions
