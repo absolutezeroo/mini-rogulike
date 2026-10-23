@@ -47,8 +47,9 @@ const TAB_NAMES := {
 const SLIDER_WIDTH := 180.0
 ## A slider's height: the strip a finger grabs (UI units).
 const SLIDER_HEIGHT := 48.0
-## A drag moves a slider by this fraction of its range at most (smooth under the finger).
-const FINE_STEPS := 100.0
+## The smallest move of a slider under a finger or the mouse (smooth; every range and key step
+## is a multiple of it, so a value set in code stays exact).
+const FINE_STEP := 0.01
 
 ## Volume sliders: Settings key -> slider (general, music, interface, combat, ambience).
 var _volumes := {}
@@ -689,7 +690,7 @@ func _words(title: String, helper: String) -> VBoxContainer:
 
 
 ## A slider: its name and what it does, the slider, its value. `step`: what a key or a gamepad
-## moves it by; a finger or the mouse moves it smoothly (by FINE_STEPS of its range) and a tap on
+## moves it by; a finger or the mouse moves it smoothly (by FINE_STEP) and a tap on
 ## its track jumps there. A finger-sized strip (SLIDER_HEIGHT) that keeps its drags from the
 ## column's touch scrolling (TouchScroll). `wide`: the slider takes as much room as the words (a
 ## page of one column, where a short one would sit far from its name).
@@ -701,7 +702,7 @@ func _slider(section: VBoxContainer, title: String, helper: String, low: float, 
 	var slider := HSlider.new()
 	slider.min_value = low
 	slider.max_value = high
-	slider.step = (high - low) / FINE_STEPS
+	slider.step = FINE_STEP
 	slider.set_meta(MenuNav.KEY_STEP, step)
 	slider.scrollable = false  # (the wheel scrolls the column, never changes a value by surprise)
 	slider.custom_minimum_size = Vector2(SLIDER_WIDTH, SLIDER_HEIGHT)

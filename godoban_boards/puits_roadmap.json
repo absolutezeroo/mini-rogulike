@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 154,
+  "next_id": 155,
   "tags": [
     "pc",
     "test",
@@ -2258,6 +2258,22 @@
       ],
       "created_at": 1792777551,
       "updated_at": 1792777551
+    },
+    {
+      "id": "task_154",
+      "title": "Test instable : passage de la suite game en cascade (« room » sur Nil)",
+      "description": "Vu une fois sur quatre passages (23/10, branche options en onglets, sans lien avec elle) : « SCRIPT ERROR: Invalid access to property or key 'room' on a base object of type 'Nil' » puis 13 échecs de level_tests (bougies d'un autre biome, cases murées, salles façonnées/signatures coupées) et de monstres (corps brûlant, voleur). Le passage suivant : 0 échec. Peut-être lié à task_119 (salles signatures). À reproduire (graine) et corriger.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "tests",
+        "bug",
+        "niveaux"
+      ],
+      "created_at": 1792779390,
+      "updated_at": 1792779390
     }
   ]
 }

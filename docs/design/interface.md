@@ -217,7 +217,7 @@ The rules and their reasons: [../privacy-ops.md](../privacy-ops.md). On screen:
 - **Options** (`Settings` autoload, `user://settings.cfg`), on the title screen and in the pause menu:
   five volumes (**General**, **Music**, **Interface**, **Combat**, **Ambience**: which sounds
   each one sets is in presentation.md, SFX; a slider follows the finger or the mouse smoothly (a
-  hundredth of its range), applies while dragged (the volume heard at once, the file written when
+  step of 0.01), applies while dragged (the volume heard at once, the file written when
   it is let go), jumps where its track is tapped, and moves by 5% (shake 10%) a key or a gamepad
   press (`MenuNav.KEY_STEP`); it is 48 units tall, for a finger; letting go plays a sound of what
   it sets: a click, a hit, coins; settings files from before, with one sound volume, give it to Interface,
