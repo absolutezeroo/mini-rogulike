@@ -711,7 +711,7 @@ func _slider(section: VBoxContainer, title: String, helper: String, low: float, 
 		slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(slider)
 	var value := UiSkin.label("", Fonts.BODY, UiSkin.GOLD)
-	value.custom_minimum_size.x = 58
+	value.custom_minimum_size.x = 76  # ("100 %": every slider of a page the same length)
 	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	value.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(value)
