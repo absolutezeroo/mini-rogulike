@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="SceneDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_key.gd" id="1_key"]
+[ext_resource type="Script" path="res://src/definitions/prop_def.gd" id="2_prop"]
+[ext_resource type="Resource" path="res://data/props/furniture/rubble.tres" id="3_rubble"]
+[ext_resource type="Texture2D" path="res://assets/tiles/relief_detail.png" id="4_relief"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="5_scene"]
+
+[sub_resource type="Resource" id="Resource_rubble"]
+script = ExtResource("1_key")
+symbol = "u"
+props = Array[ExtResource("2_prop")]([ExtResource("3_rubble")])
+chance = 0.85
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pebble"]
+atlas = ExtResource("4_relief")
+region = Rect2(0, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_stones"]
+atlas = ExtResource("4_relief")
+region = Rect2(0, 48, 16, 16)
+
+[sub_resource type="Resource" id="Resource_pebbles"]
+script = ExtResource("1_key")
+symbol = "r"
+kind = 1
+pieces = Array[Texture2D]([SubResource("AtlasTexture_pebble"), SubResource("AtlasTexture_stones")])
+chance = 0.6
+
+[resource]
+script = ExtResource("5_scene")
+rows = PackedStringArray("u.r", ".r.")
+keys = Array[ExtResource("1_key")]([SubResource("Resource_rubble"), SubResource("Resource_pebbles")])
+id = &"loose_rubble"
+display_name = "Loose Rubble"
+spawn_weight = 0

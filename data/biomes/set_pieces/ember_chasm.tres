@@ -1,8 +1,9 @@
 [gd_resource type="Resource" script_class="RoomShapeDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="1_shape"]
-[ext_resource type="Resource" path="res://data/biomes/scenes/rubble_heap.tres" id="2_scene"]
-[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="3_scenedef"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/loose_rubble.tres" id="2_scene"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/rubble_heap.tres" id="3_scene"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="4_scenedef"]
 
 [resource]
 script = ExtResource("1_shape")
@@ -14,7 +15,7 @@ core_margin = 2
 bridges = 4
 bridge_width = 2
 set_piece = true
-scenes = Array[ExtResource("3_scenedef")]([ExtResource("2_scene"), ExtResource("2_scene")])
+scenes = Array[ExtResource("4_scenedef")]([ExtResource("2_scene"), ExtResource("3_scene"), ExtResource("2_scene")])
 ceiling_scale = 3.0
 description = "The lower town fell into its own fire. The bridges hold, for now."
 color = Color(1.0, 0.55, 0.3, 1)

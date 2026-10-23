@@ -125,7 +125,7 @@ first). The room where the hero arrives is always plain.
 | Oval Hall | an ellipse, 14-18 x 9-11 | grotto, drowned, city |
 | Pillared Hall | two rows of pillars along the long sides | catacombs, archive, cinders, temple, city, tomb |
 | Ring of Pillars | a round hall, a ring of pillars inside | grotto, garden, drowned, temple |
-| Hall of Columns | a grid of columns, 4 cells apart | catacombs, archive, tomb |
+| Hall of Columns | a grid of columns, 3-4 cells apart, 15-17 x 13-15 | catacombs, archive, tomb |
 | Crossing | two halls crossing (a plus) | garden, catacombs, archive, cinders, temple, city |
 | Bent Hall | an L, one corner (at random) left out | grotto, drowned, archive, cinders, city |
 | Eight-Sided Hall | the corners cut off | garden, catacombs, archive, temple, tomb |

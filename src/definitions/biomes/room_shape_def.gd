@@ -180,13 +180,12 @@ func pillar_cells(size: Vector2i, flip: Vector2i = Vector2i.ONE) -> Array[Vector
 			var span := size.x if long_x else size.y
 			var across := size.y if long_x else size.x
 			var inset := 2 if across >= 7 else 1
-			var start := 2 + ((span - 4) % step) / 2  # centred along the side
-			for k in range(start, span - 2, step):
+			for k in _around_middle(span, step):
 				for side in [inset, across - 1 - inset]:
 					cells.append(Vector2i(k, side) if long_x else Vector2i(side, k))
 		Pillars.GRID:
-			for y in range(2, size.y - 2, step):
-				for x in range(2, size.x - 2, step):
+			for y in _around_middle(size.y, step):
+				for x in _around_middle(size.x, step):
 					cells.append(Vector2i(x, y))
 		Pillars.RING:
 			var radius := Vector2(size) * 0.5 - Vector2(2.5, 2.5)
@@ -210,3 +209,22 @@ func pillar_cells(size: Vector2i, flip: Vector2i = Vector2i.ONE) -> Array[Vector
 			continue
 		result.append(cell)
 	return result
+
+
+## Places along a side of `span` cells, `step` apart, in pairs mirrored round the middle and
+## leaving the lane through it (where corridors come in) open, two cells off the walls.
+static func _around_middle(span: int, step: int) -> Array[int]:
+	var places: Array[int] = []
+	var mid := span / 2
+	var offset := 2
+	while true:
+		var low := mid - offset
+		var high := mid + offset
+		if low < 2 and high > span - 3:
+			break
+		if low >= 2:
+			places.append(low)
+		if high <= span - 3:
+			places.append(high)
+		offset += step
+	return places

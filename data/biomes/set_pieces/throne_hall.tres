@@ -2,9 +2,10 @@
 
 [ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="1_shape"]
 [ext_resource type="Resource" path="res://data/biomes/scenes/fallen_throne.tres" id="2_scene"]
-[ext_resource type="Resource" path="res://data/biomes/scenes/rubble_heap.tres" id="3_scene"]
-[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="4_scenedef"]
-[ext_resource type="Resource" path="res://data/props/furniture/broken_column.tres" id="5_pillar"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/loose_rubble.tres" id="3_scene"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/rubble_heap.tres" id="4_scene"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="5_scenedef"]
+[ext_resource type="Resource" path="res://data/props/furniture/broken_column.tres" id="6_pillar"]
 
 [resource]
 script = ExtResource("1_shape")
@@ -12,9 +13,9 @@ size_min = Vector2i(17, 11)
 size_max = Vector2i(19, 13)
 pillars = 1
 pillar_spacing = 3
-pillar = ExtResource("5_pillar")
+pillar = ExtResource("6_pillar")
 set_piece = true
-scenes = Array[ExtResource("4_scenedef")]([ExtResource("2_scene"), ExtResource("3_scene"), ExtResource("3_scene")])
+scenes = Array[ExtResource("5_scenedef")]([ExtResource("2_scene"), ExtResource("3_scene"), ExtResource("4_scene")])
 ceiling_scale = 3.0
 description = "Solhar's king held court here, before the sand filled his hall."
 color = Color(0.95, 0.8, 0.5, 1)

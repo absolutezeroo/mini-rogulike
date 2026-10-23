@@ -1,9 +1,10 @@
 extends Node
 ## Screenshots of the floors' identity (a tool: not exported).
 ## xvfb-run -a godot --rendering-driver opengl3 --resolution WxH --fixed-fps 60 res://tools/levels/level_shots.tscn -- <outdir> <tag> <plan>
-## <plan>: comma-separated biome:shape[:set] (shape = a file of data/biomes/shapes/ or, with
-## :set, of data/biomes/set_pieces/), or biome:map (the whole floor on the big map), or
-## biome:ceiling (the hero under the ceiling).
+## <plan>: comma-separated biome:shape[:set][:map] (shape = a file of data/biomes/shapes/ or,
+## with :set, of data/biomes/set_pieces/; :map adds the whole floor on the big map), or
+## biome:map (the big map of a floor of the biome), or biome:ceiling (the hero under the ceiling,
+## then a little way off).
 
 var out := ""
 var tag := ""
@@ -35,11 +36,12 @@ func _ready() -> void:
 	game.player.invincible = true
 	for item in args[2].split(","):
 		var parts := item.split(":")
-		await _shoot(parts[0], parts[1], parts.size() > 2 and parts[2] == "set")
+		await _shoot(parts[0], parts[1], parts.has("set"), parts.size() > 2 and parts.has("map"))
 	get_tree().quit()
 
 
-func _shoot(biome_id: String, what: String, set_piece: bool) -> void:
+## `with_map`: the whole floor on the big map too, after the room.
+func _shoot(biome_id: String, what: String, set_piece: bool, with_map: bool = false) -> void:
 	var biome: BiomeDef = load("res://data/biomes/%s.tres" % biome_id)
 	var act := 0
 	for a in game.content.dungeon.acts.size():
@@ -84,6 +86,12 @@ func _shoot(biome_id: String, what: String, set_piece: bool) -> void:
 		await _frames(30)
 		await _shot("%s_%s_away" % [biome_id, what])
 	if what == "map":
+		game.hud.get_node("%FullMap").visible = false
+	if with_map:
+		world.reveal_all()
+		game.hud.get_node("%FullMap").visible = true
+		await _frames(10)
+		await _shot("%s_%s_map" % [biome_id, what])
 		game.hud.get_node("%FullMap").visible = false
 
 

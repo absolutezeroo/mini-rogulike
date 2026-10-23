@@ -1,9 +1,10 @@
 [gd_resource type="Resource" script_class="RoomShapeDef" format=3]
 
 [ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="1_shape"]
-[ext_resource type="Resource" path="res://data/biomes/scenes/wet_rocks.tres" id="2_scene"]
-[ext_resource type="Resource" path="res://data/biomes/scenes/crystal_cluster.tres" id="3_scene"]
-[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="4_scenedef"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/shore_crystals.tres" id="2_scene"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/wet_rocks.tres" id="3_scene"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/crystal_cluster.tres" id="4_scene"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="5_scenedef"]
 
 [resource]
 script = ExtResource("1_shape")
@@ -15,7 +16,7 @@ core = 3
 core_outline = 1
 core_margin = 4
 set_piece = true
-scenes = Array[ExtResource("4_scenedef")]([ExtResource("2_scene"), ExtResource("3_scene"), ExtResource("2_scene")])
+scenes = Array[ExtResource("5_scenedef")]([ExtResource("2_scene"), ExtResource("3_scene"), ExtResource("2_scene"), ExtResource("4_scene")])
 ceiling_scale = 3.0
 description = "Water drips from the stone overhead, as if the Well itself were weeping."
 color = Color(0.55, 0.8, 0.85, 1)
