@@ -24,6 +24,9 @@ const GROUP := &"menu"
 const TABS := &"menu_tabs"
 ## Meta on a menu: the control to focus first when it opens.
 const FIRST := &"nav_first"
+## Meta on a slider: what a key or a gamepad moves it by, when its own step is finer (for a
+## finger: the options' sliders).
+const KEY_STEP := &"nav_key_step"
 ## Meta on a control: neither it nor what it holds is focused first (a window's header, with
 ## its Close; the language buttons).
 const NOT_FIRST := &"nav_not_first"
@@ -147,9 +150,11 @@ func _input(event: InputEvent) -> void:
 		return
 	if focus is Range and direction.x != 0.0:
 		# A slider: left and right change its value (the arrows and the D-pad do it themselves).
-		if not (event.is_action(&"ui_left") or event.is_action(&"ui_right")):
+		# (A fine slider, KEY_STEP: the arrows too, else they would move it by its tiny step.)
+		if focus.has_meta(KEY_STEP) or not (event.is_action(&"ui_left") or event.is_action(&"ui_right")):
 			var slider := focus as Range
-			slider.value += slider.step * signf(direction.x) if slider.step > 0.0 else (slider.max_value - slider.min_value) * 0.05 * signf(direction.x)
+			var stride := float(focus.get_meta(KEY_STEP, slider.step))
+			slider.value += stride * signf(direction.x) if stride > 0.0 else (slider.max_value - slider.min_value) * 0.05 * signf(direction.x)
 			get_viewport().set_input_as_handled()
 		return
 	get_viewport().set_input_as_handled()

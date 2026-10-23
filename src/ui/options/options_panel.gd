@@ -45,6 +45,10 @@ const TAB_NAMES := {
 }
 
 const SLIDER_WIDTH := 180.0
+## A slider's height: the strip a finger grabs (UI units).
+const SLIDER_HEIGHT := 48.0
+## A drag moves a slider by this fraction of its range at most (smooth under the finger).
+const FINE_STEPS := 100.0
 
 ## Volume sliders: Settings key -> slider (general, music, interface, combat, ambience).
 var _volumes := {}
@@ -292,13 +296,22 @@ static func _loot_help_text(mode: int) -> String:
 	return TranslationServer.tr("Gear only if it beats what you wear; the rest stays on the ground.")
 
 
+## While a finger or the mouse drags it, the value follows and applies at once (the volume heard)
+## without writing the file at every step; letting go saves it and plays a sound of what it sets.
+## A key or a gamepad's step saves at once.
 func _bind_slider(slider: HSlider, option: StringName) -> void:
 	slider.set_meta(&"option", option)
+	slider.drag_started.connect(func() -> void: slider.set_meta(&"dragging", true))
 	slider.value_changed.connect(func(value: float) -> void:
-		Settings.set_option(option, value)
+		if slider.has_meta(&"dragging"):
+			Settings.preview_option(option, value)
+		else:
+			Settings.set_option(option, value)
 		_show_value(slider))
-	# Letting go plays a sound of what it sets, to hear the new volume.
-	slider.drag_ended.connect(func(_changed: bool) -> void: _preview(option))
+	slider.drag_ended.connect(func(_changed: bool) -> void:
+		slider.remove_meta(&"dragging")
+		Settings.set_option(option, slider.value)
+		_preview(option))
 
 
 ## A short sound of what a slider sets: a click for the interface, a hit for combat, coins for
@@ -429,6 +442,7 @@ func _build_audio(body: VBoxContainer) -> Control:
 	_volumes[&"ui_volume"] = _slider(sound, tr("Interface"), tr("Menus, buttons, level up."), 0.0, 1.0, 0.05, "InterfaceSlider", true)
 	_volumes[&"combat_volume"] = _slider(sound, tr("Combat"), tr("Weapons, hits, cries, spells."), 0.0, 1.0, 0.05, "CombatSlider", true)
 	_volumes[&"ambience_volume"] = _slider(sound, tr("Ambience"), tr("Footsteps, wind, doors, chests."), 0.0, 1.0, 0.05, "AmbienceSlider", true)
+	# (0.05: a key's or a gamepad's step; a finger moves them by the hundredth: _slider())
 	return page_node
 
 
@@ -674,8 +688,11 @@ func _words(title: String, helper: String) -> VBoxContainer:
 	return words
 
 
-## A slider: its name and what it does, the slider, its value. `wide`: the slider takes as much
-## room as the words (a page of one column, where a short one would sit far from its name).
+## A slider: its name and what it does, the slider, its value. `step`: what a key or a gamepad
+## moves it by; a finger or the mouse moves it smoothly (by FINE_STEPS of its range) and a tap on
+## its track jumps there. A finger-sized strip (SLIDER_HEIGHT) that keeps its drags from the
+## column's touch scrolling (TouchScroll). `wide`: the slider takes as much room as the words (a
+## page of one column, where a short one would sit far from its name).
 func _slider(section: VBoxContainer, title: String, helper: String, low: float, high: float, step: float, node_name: String, wide := false) -> HSlider:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
@@ -684,8 +701,10 @@ func _slider(section: VBoxContainer, title: String, helper: String, low: float, 
 	var slider := HSlider.new()
 	slider.min_value = low
 	slider.max_value = high
-	slider.step = step
-	slider.custom_minimum_size = Vector2(SLIDER_WIDTH, 44)
+	slider.step = (high - low) / FINE_STEPS
+	slider.set_meta(MenuNav.KEY_STEP, step)
+	slider.scrollable = false  # (the wheel scrolls the column, never changes a value by surprise)
+	slider.custom_minimum_size = Vector2(SLIDER_WIDTH, SLIDER_HEIGHT)
 	slider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	if wide:
 		slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL

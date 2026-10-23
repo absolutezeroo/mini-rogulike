@@ -5,6 +5,9 @@
 Every scrolling list (codex, shrine, bag, shop) scrolls by dragging a finger over it, from
 anywhere in it, cards and buttons included, with a bit of momentum (`TouchScroll`, added to each
 `ScrollContainer` by the `TouchScrolling` autoload); a drag never presses a button, a tap does.
+A drag that starts on a slider or a scroll bar stays the slider's, however far the finger wanders
+up or down (a control can ask the same with the group `TouchScroll.KEEPS_DRAG`), and a list behind
+the menu on top (the title's, under the Options) takes no drag.
 
 
 | Action | Touch | Keyboard and mouse | Gamepad (Xbox names) |
@@ -213,8 +216,11 @@ The rules and their reasons: [../privacy-ops.md](../privacy-ops.md). On screen:
   give up the run (two taps). Coming back to the app, the game waits paused.
 - **Options** (`Settings` autoload, `user://settings.cfg`), on the title screen and in the pause menu:
   five volumes (**General**, **Music**, **Interface**, **Combat**, **Ambience**: which sounds
-  each one sets is in presentation.md, SFX; letting go of a slider plays a sound of what it sets: a
-  click, a hit, coins; settings files from before, with one sound volume, give it to Interface,
+  each one sets is in presentation.md, SFX; a slider follows the finger or the mouse smoothly (a
+  hundredth of its range), applies while dragged (the volume heard at once, the file written when
+  it is let go), jumps where its track is tapped, and moves by 5% (shake 10%) a key or a gamepad
+  press (`MenuNav.KEY_STEP`); it is 48 units tall, for a finger; letting go plays a sound of what
+  it sets: a click, a hit, coins; settings files from before, with one sound volume, give it to Interface,
   Combat and Ambience), screen shake, size of the touch controls, **vibrations** (big shakes,
   hits you land, crits; `Settings.vibrate()`; exported Android builds need the Vibrate permission),
   **fixed joystick** (it stays in its corner and starts only when touched there, instead of

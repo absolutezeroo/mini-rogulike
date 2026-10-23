@@ -2202,7 +2202,7 @@
     {
       "id": "task_150",
       "title": "Options en onglets (Jouabilité, Graphiques, Audio…)",
-      "description": "Les options en cinq onglets (Q / E, LB / RB, toucher, souris) : Jouabilité (langue, ramassage auto, histoires des gardiens, chronomètre, tremblement de l'écran, vibrations, tutoriel), Graphiques (plein écran, taille de l'interface, taille des boutons, joystick fixe, moins d'effets, éclairs, économie de batterie), Audio (les cinq volumes), Commandes (la page des touches), Confidentialité (classements, tes données, politique et crédits). Mêmes clés de réglages. Tests : chaque onglet, chaque réglage dans un seul onglet, onglets à la manette, tout tient à l'écran en français. À regarder en jeu : sur 1280x720 en français, les colonnes de gauche de Jouabilité et Graphiques défilent un peu.",
+      "description": "Les options en cinq onglets (Q / E, LB / RB, toucher, souris) : Jouabilité (langue, ramassage auto, histoires des gardiens, chronomètre, tremblement de l'écran, vibrations, tutoriel), Graphiques (plein écran, taille de l'interface, taille des boutons, joystick fixe, moins d'effets, éclairs, économie de batterie), Audio (les cinq volumes), Commandes (la page des touches), Confidentialité (classements, tes données, politique et crédits). Mêmes clés de réglages. Tests : chaque onglet, chaque réglage dans un seul onglet, onglets à la manette, tout tient à l'écran en français. À regarder en jeu : sur 1280x720 en français, les colonnes de gauche de Jouabilité et Graphiques défilent un peu. Sliders corrigés (« pas réactifs, ne suivent pas quand je monte ou descends ») : le défilement tactile des listes volait le glissé dès 12 pixels (et la liste du titre, derrière les Options, aussi) ; maintenant un glissé commencé sur un slider reste au slider, la valeur suit le doigt au centième, s'applique pendant le glissé (le volume s'entend) et s'enregistre au lâcher ; un toucher sur la piste y saute ; touches et manette : 5 % (tremblement 10 %) ; slider de 48 de haut. À vérifier au doigt sur le téléphone.",
       "status": "review",
       "priority": "medium",
       "epic_id": "epic_4",
@@ -2213,7 +2213,7 @@
         "android"
       ],
       "created_at": 1792777551,
-      "updated_at": 1792777551
+      "updated_at": 1792778400
     },
     {
       "id": "task_151",

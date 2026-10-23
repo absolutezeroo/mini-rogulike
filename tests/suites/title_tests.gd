@@ -5,6 +5,7 @@ extends TestSuite
 func run() -> void:
 	await _test_title_screen()
 	await _test_touch_scroll()
+	await _test_slider_drag()
 	await _test_resume_button()
 	await _test_cards_fit_when_shown_late()
 	# The title's panels with keys and a gamepad, and their layouts (PcTests).
@@ -115,6 +116,73 @@ func _test_touch_scroll() -> void:
 	check(pressed[0] == 0, "a drag doesn't press the button under the finger")
 	await _frames(2)
 	check(list.get_children().all(func(b: Node) -> bool: return (b as Button).get_draw_mode() != BaseButton.DRAW_PRESSED), "...nor leaves it looking pressed")
+	layer.queue_free()
+
+
+## A slider in a list that scrolls, dragged by a finger that wanders up and down: the value
+## follows the finger all the way (before it lets go), the list never scrolls; a tap on the track
+## jumps there; keys still step.
+func _test_slider_drag() -> void:
+	var scroll := ScrollContainer.new()
+	scroll.position = Vector2(100, 100)
+	scroll.size = Vector2(300, 200)
+	var list := VBoxContainer.new()
+	scroll.add_child(list)
+	var slider := HSlider.new()
+	slider.max_value = 1.0
+	slider.step = 0.01
+	slider.custom_minimum_size = Vector2(280, 48)
+	list.add_child(slider)
+	for i in 30:
+		var button := Button.new()
+		button.custom_minimum_size = Vector2(280, 40)
+		list.add_child(button)
+	var layer := CanvasLayer.new()
+	add_child(layer)
+	layer.add_child(scroll)
+	await _frames(3)
+	var rect := slider.get_global_rect()
+	var at := Vector2(rect.position.x + 4.0, rect.get_center().y)
+	_mouse(at, true)
+	await _frames(1)
+	var values: Array[float] = [slider.value]
+	var wander := [-18.0, -40.0, 10.0, -55.0, -30.0, -70.0, -45.0, -80.0, -60.0, -90.0]
+	for i in wander.size():
+		at = Vector2(rect.position.x + 4.0 + (rect.size.x - 8.0) * (i + 1) / wander.size(), rect.get_center().y + wander[i])
+		var motion := InputEventMouseMotion.new()
+		motion.position = at
+		motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+		get_viewport().push_input(motion, true)
+		await _frames(1)
+		values.append(slider.value)
+	var mid := values[5]
+	_mouse(at, false)
+	await _frames(2)
+	var rising := true
+	for i in range(1, values.size()):
+		rising = rising and values[i] > values[i - 1]
+	check(rising and mid > 0.4 and mid < 0.7, "a slider dragged sideways follows the finger at every move, before it lets go (%s)" % [values])
+	check(slider.value > 0.9, "...to the end of its track (%.2f)" % slider.value)
+	check(scroll.scroll_vertical == 0, "...and the list under it never scrolls, however far the finger wanders up or down (%d)" % scroll.scroll_vertical)
+	# A tap on the track jumps there.
+	var tap := Vector2(rect.position.x + rect.size.x * 0.25, rect.get_center().y)
+	_mouse(tap, true)
+	_mouse(tap, false)
+	await _frames(2)
+	check(absf(slider.value - 0.25) < 0.08, "a tap on a slider's track jumps there (%.2f)" % slider.value)
+	# A drag on a button of the same list still scrolls it.
+	at = Vector2(200, 290)
+	_mouse(at, true)
+	for i in 4:
+		at.y -= 15.0
+		var motion := InputEventMouseMotion.new()
+		motion.position = at
+		motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+		get_viewport().push_input(motion, true)
+		await _frames(1)
+	_mouse(at, false)
+	await _frames(2)
+	check(scroll.scroll_vertical > 0 and absf(slider.value - 0.25) < 0.08, "a drag started beside the slider still scrolls the list (%d)" % scroll.scroll_vertical)
 	layer.queue_free()
 
 
@@ -436,6 +504,36 @@ func _test_options_tabs(options: OptionsPanel) -> void:
 	check(outside.is_empty(), "options: no setting outside the tabs (%s)" % [outside.map(func(n: Node) -> String: return n.name)])
 
 
+## The options' volume dragged with a finger: the volume applies while dragging (heard at once),
+## finely (not by fifths of ten), and stays when let go; its keys' step is still 5%.
+func _test_options_slider(options: OptionsPanel) -> void:
+	options.show_tab(OptionsPanel.Tab.AUDIO)
+	await _frames(2)
+	var slider := options.get_node("%MusicSlider") as HSlider
+	var before := Settings.music_volume
+	check(slider.size.y >= 44.0 and is_equal_approx(float(slider.get_meta(MenuNav.KEY_STEP, 0.0)), 0.05) and slider.step <= 0.01 and not slider.scrollable, "options: a slider is finger-sized, fine under the finger, 5% a key")
+	var rect := slider.get_global_rect()
+	var at := Vector2(rect.position.x + 2.0, rect.get_center().y)
+	_mouse(at, true)
+	await _frames(1)
+	var seen: Array[float] = []
+	for i in 5:
+		at = Vector2(rect.position.x + rect.size.x * (0.1 + 0.08 * i), rect.get_center().y + 12.0 * (i % 2))
+		var motion := InputEventMouseMotion.new()
+		motion.position = at
+		motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+		get_viewport().push_input(motion, true)
+		await _frames(1)
+		seen.append(Settings.music_volume)
+	check(seen.size() == 5 and seen[4] > seen[0] and absf(Settings.music_volume - slider.value) < 0.001, "options: the music follows the slider while it is dragged (%s)" % [seen])
+	check(seen.any(func(v: float) -> bool: return absf(v * 20.0 - roundf(v * 20.0)) > 0.01), "...finer than 5%% steps (%s)" % [seen])
+	_mouse(at, false)
+	await _frames(2)
+	check(absf(Settings.music_volume - slider.value) < 0.001 and not slider.has_meta(&"dragging"), "options: let go, the volume stays where it was let go")
+	slider.value = before
+	options.show_tab(OptionsPanel.Tab.GAMEPLAY)
+
+
 ## `node` belongs to one of the options' dialogs or pages over it (consent, name, policy...).
 func _in_dialog(options: OptionsPanel, node: Node) -> bool:
 	for dialog_name in ["ConsentDialog", "NameDialog", "DeleteDialog", "PolicyPanel", "CreditsPanel"]:
@@ -454,6 +552,7 @@ func _test_options_screen(title: TitleScreen) -> void:
 	for name in ["MasterSlider", "MusicSlider", "InterfaceSlider", "CombatSlider", "AmbienceSlider", "ShakeSlider", "ControlsSlider", "VibrationsCheck", "FixedStickCheck", "BatteryCheck", "FewerEffectsCheck", "FlashesCheck", "RunTimerCheck", "TutorialCheck", "ReplayTutorialButton", "CloseButton"]:
 		check(options.get_node_or_null("%" + name) != null, "options: %s" % name)
 	_test_options_tabs(options)
+	await _test_options_slider(options)
 	options.show_tab(OptionsPanel.Tab.GRAPHICS)
 	await _frames(2)
 	var battery: CheckButton = options.get_node("%BatteryCheck")

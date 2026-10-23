@@ -107,6 +107,14 @@ func set_option(key: StringName, value: Variant) -> void:
 	changed.emit()
 
 
+## Sets and applies `key` without writing the file: a slider being dragged (heard, seen at once;
+## set_option() saves when it is let go).
+func preview_option(key: StringName, value: Variant) -> void:
+	set(key, value)
+	apply()
+	changed.emit()
+
+
 func apply() -> void:
 	for key: StringName in VOLUME_BUSES:
 		for bus: StringName in VOLUME_BUSES[key]:

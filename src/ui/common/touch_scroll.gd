@@ -2,11 +2,16 @@ class_name TouchScroll
 extends Node
 ## Drag-to-scroll that works on phones whatever is inside the list (cards, buttons...): a drag
 ## that starts over the ScrollContainer scrolls it (with a little momentum when let go), and a
-## drag never presses the button it started on. A tap still works as usual.
+## drag never presses the button it started on. A tap still works as usual. A drag that starts on
+## a slider (a volume...), a scroll bar or a control in the group KEEPS_DRAG stays that
+## control's, however far the finger wanders up or down: the list never takes it. A list behind
+## the menu on top (MenuNav) takes no drag at all.
 ## Add it with TouchScroll.attach(scroll).
 
 const DRAG_START := 12.0  ## pixels before a touch becomes a drag
 const FRICTION := 5.0
+## Controls that keep a drag started on them for themselves (besides sliders and scroll bars).
+const KEEPS_DRAG := &"keeps_drag"
 
 var scroll: ScrollContainer
 
@@ -32,7 +37,8 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT:
 		var button := event as InputEventMouseButton
 		if button.pressed:
-			_tracking = scroll.get_global_rect().has_point(button.position)
+			_tracking = scroll.get_global_rect().has_point(button.position) and _on_top() \
+					and not _keeps_drag_at(scroll, button.position)
 			_dragging = false
 			_start = button.position
 			_last = button.position
@@ -65,6 +71,29 @@ func _input(event: InputEvent) -> void:
 			_move(delta)
 			_velocity = _velocity.lerp(delta / maxf(get_process_delta_time(), 0.001), 0.5)
 			get_viewport().set_input_as_handled()
+
+
+## The list is in the menu on top, or no menu is open (MenuNav): a list behind a window (the
+## title's, under the Options) never takes a drag meant for the window.
+func _on_top() -> bool:
+	var top := MenuNav.top_menu()
+	return top == null or top.is_ancestor_of(scroll)
+
+
+## A visible control under `point` in `node` that keeps its drags (a slider, a scroll bar, or in
+## KEEPS_DRAG; not a progress bar, which a list scrolls over).
+static func _keeps_drag_at(node: Node, point: Vector2) -> bool:
+	for child in node.get_children(true):
+		var control := child as Control
+		if control == null:
+			continue
+		if not control.is_visible_in_tree():
+			continue
+		if (control is Slider or control is ScrollBar or control.is_in_group(KEEPS_DRAG)) and control.get_global_rect().has_point(point):
+			return true
+		if _keeps_drag_at(control, point):
+			return true
+	return false
 
 
 func _process(delta: float) -> void:
