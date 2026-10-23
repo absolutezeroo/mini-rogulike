@@ -26,7 +26,7 @@ work = "Pixel Operator"
 makers = "Jayvee Enaguas"
 description = "The game's font (Pixel Operator 8)."
 license = "CC0 1.0"
-url = "https://notabug.org/HarvettFox96/ttf-pixeloperator"
+url = "https://www.dafont.com/pixel-operator.font"
 license_file = "res://assets/fonts/PixelOperator_LICENSE.txt"
 changes = "The controller button glyphs and arrows added in its style."
 
