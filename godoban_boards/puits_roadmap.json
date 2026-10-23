@@ -843,8 +843,8 @@
     {
       "id": "task_62",
       "title": "Compétences sans tir et runes",
-      "description": "Suite de « Tirs et runes élémentaires » : les compétences d'arme qui ne tirent pas (l'arc de Taillade, la Nova de Givre, la zone de Pluie de Flèches) gardent leur propre rendu quand une rune élémentaire est sertie dans l'arme. Décider s'il faut les habiller aussi (ex. quelques éclats de l'élément de la rune, sans changer l'élément de leurs coups).",
-      "status": "backlog",
+      "description": "Suite de « Tirs et runes élémentaires » : les compétences d'arme qui ne tirent pas (l'arc de Taillade, la Nova de Givre, la zone de Pluie de Flèches) gardent leur propre rendu quand une rune élémentaire est sertie dans l'arme. Décider s'il faut les habiller aussi (ex. quelques éclats de l'élément de la rune, sans changer l'élément de leurs coups).\n\nFait (décidé : oui, on les habille, rendu seulement) : les compétences d'arme qui ne tirent pas portent maintenant les éléments des runes et affixes de l'arme (ItemLook.passive_elements), comme les tirs : SkillDef.effects_for habille aussi les DamageAreaEffect et DashStrikeEffect (copies avec un look_element, jamais sauvé ; les données et les coups restent tels qu'écrits : un coup ne tombe dans l'élément que si la règle de la rune agit). Une compétence « nue » est dessinée dans le premier élément, le second ajoute ses éclats : l'arc de Taillade et du Tourbillon brûle comme le coup de base, la Pluie de Flèches tombe en nova de flammes, la coupe de la Ruée Iaido et l'Estocade Perçante sont en feu. Une compétence qui a son propre élément le garde et l'autre la « chevauche » (Vfx.riding) : un anneau clairsemé de ses pièces dans la zone (une petite nappe pour le gaz du poison) — la Nova de Givre d'un bâton à Rune de Braise = cristaux avec des langues de feu parmi eux ; la Frappe Sismique (terre) a son anneau de flammes. Sorts appris et attaques de monstres inchangés. Test : CombatTests._test_rune_shots (Taillade, Pluie de Flèches, Nova de Givre, Ruée Iaido avec une Rune de Braise : copies habillées, élément propre gardé, données intactes, et l'effet vu en feu dans le monde, la Nova toujours en givre) ; 105 vérifications de _test_elemental_attacks, 0 échec. Captures avant/après (Rune de Braise) : runeskill_before_/runeskill_after_ cleave, whirlwind, frost_nova, arrow_rain, dash_strike, ground_slam .png. docs/vfx.md « Elemental attacks » mis à jour. Non vérifié : le ressenti en mouvement sur téléphone, les autres runes (Givre, Étincelle, Rafale) en capture.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_3",
       "due_date": null,
@@ -853,7 +853,7 @@
         "combat"
       ],
       "created_at": 1792701997,
-      "updated_at": 1792702009
+      "updated_at": 1792715046
     },
     {
       "id": "task_63",

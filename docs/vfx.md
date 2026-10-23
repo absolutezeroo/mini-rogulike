@@ -703,8 +703,15 @@ the basic shots (`ProjectileEffect.dressed_in`): Volley's arrows ride an Ember R
 Rime Rune crusts the stars of Shuriken Storm, Ice Shards carry flames. The weapon's own element
 and its `on_hit` don't (a Burning bow's affix burns its basic arrows only, so Volley stays plain),
 and only the look changes: a skill's hit lands in the element when the rune's rule acts on it
-(the Ember Rune's roll), never always. A learned spell or a monster's cast stays as written. Not
-yet: skills that are no shot (Cleave's arc, Frost Nova, Arrow Rain's area) keep their own look.
+(the Ember Rune's roll), never always. A learned spell or a monster's cast stays as written.
+The skills that are no shot wear them too (`DamageAreaEffect.dressed_in`,
+`DashStrikeEffect.dressed_in`: a `look_element` drawn, the hits as written): a plain one is drawn
+in the first element, the second shedding its bits (Cleave's and Whirlwind's arcs burn like the
+basic swing, Arrow Rain's area falls as a nova of flames, Dash Strike's cut is fire); one of its
+own element stays itself and the first other **rides** it (`Vfx.riding`: a sparse ring of that
+element's pieces inside the area, a small pool for poison's gas; a blade's arc of its own element
+sheds the other's bits): a Frost Nova from an Ember staff is crystals with licks of fire among
+them, Ground Slam's earth gets a ring of flames.
 
 **Charged attacks** (`ChargedAttackDef.dressed`): the weapon's element replaces the effect's
 (a fire katana's Moonless Cut burns, a frost bow's Soulpiercer flies in rime, a storm hammer's
@@ -727,4 +734,5 @@ that hit, so what the player sees on the target is what happens to it:
 
 Checked for each element (fire, frost, storm, poison) on a katana, an axe, a lance, the War
 Hammer and the Bow, plus plain steel (`CombatTests._test_elemental_attacks`); shots and the
-weapon's skills with a rune in `_test_rune_shots`.
+weapon's skills with a rune in `_test_rune_shots` (shots, and the non-shot skills: Cleave, Arrow
+Rain, Frost Nova, Dash Strike).
