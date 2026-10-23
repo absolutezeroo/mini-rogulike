@@ -42,10 +42,16 @@ static func create(at: Vector2, aim: Vector2, reach: float, arc_degrees: float, 
 
 ## The blow `look` (SlashDef) at `at` toward `aim`, its edge at `reach` (times its
 ## `reach_scale`), spawned into `world`: one node per stroke, plus its finisher. `second`: a
-## second element the weapon carries (a few bits of it).
-static func slash(world: World, look: SlashDef, at: Vector2, aim: Vector2, reach: float, element: VfxElementDef = null, danger: bool = false, second: VfxElementDef = null) -> void:
+## second element the weapon carries (a few bits of it). `steady`: the blow is struck in the
+## body's four directions (Blow), so a thrust's jitter moves it sideways instead of turning it
+## off the cardinal (a flurry's stabs stay straight, never twice in the same place).
+static func slash(world: World, look: SlashDef, at: Vector2, aim: Vector2, reach: float, element: VfxElementDef = null, danger: bool = false, second: VfxElementDef = null, steady: bool = false) -> void:
 	if look.jitter_degrees > 0.0:
-		aim = aim.rotated(deg_to_rad(randf_range(-look.jitter_degrees, look.jitter_degrees)))
+		var turn := deg_to_rad(randf_range(-look.jitter_degrees, look.jitter_degrees))
+		if steady and look.shape == SlashDef.Shape.THRUST:
+			at += aim.normalized().orthogonal() * sin(turn) * reach * look.reach_scale * 0.5
+		else:
+			aim = aim.rotated(turn)
 	for stroke in look.strokes:
 		world.spawn_vfx(SwingVfx._make(look, at, aim, reach, element, danger, stroke, second if stroke == 0 else null))
 	if look.finisher:

@@ -24,6 +24,43 @@ The weapon in the hero's hand is animated frame by frame with the attack. For we
 hand-drawn sheet, the sheet is baked from the item sprite rotated around its handle (a swing,
 a heavy swing, a thrust, a lash or an aim; 4 directions x 4 frames, `assets/weapons/attack/`).
 
+### Blows in four directions
+
+The hero walks in every direction, but his body, his armor and the weapon in his hand are drawn
+facing down, up, left or right only; so are his **melee blows**, for the charm of it and so that
+what is drawn over him follows his pose (`Blow`, `src/combat/blow.gd`). A blow aimed at the
+closest enemy is struck toward the nearest of the four directions (`Blow.cardinal`, the rig's own
+`direction_name`): the pose, the arc or the thrust's streak, the hammer's smash, the sheet or
+claw a weapon plays and every effect of a charged blow are drawn that way, for the whole blow.
+
+- **Diagonals stay hittable.** The blow's zone is its shape **swept from the cardinal to the
+  exact aim** (never more than 45 degrees): it hits what it draws, plus everything the same blow
+  aimed straight at the target would have hit. An arc of `arc_degrees` aimed 30 degrees off the
+  right covers from its right edge to the far edge of the aimed arc; a circle `offset` ahead (a
+  charged crescent, the hammer's slam) is slid from the cardinal to the aim; a thrust from where
+  he stands (the lance's charged thrust) is turned likewise. So the narrowest blows (the whip's
+  22 degrees, the rapier's 30) still run through the enemy they were aimed at on a diagonal, and
+  no weapon misses what it hit before. A blow pressed against the body still hits whatever the
+  angle.
+- **What follows:** every melee weapon's basic blow (`Blow.of_weapon`), and the effects flagged
+  `follows_facing` (`DamageAreaEffect`, `DashStrikeEffect` when it does not move): the
+  blade blows of weapon skills (Cleave, Flurry's stabs, Sundering Blow) and of charged attacks
+  (Moonless Cut, Crossed Shadows, Viper's Litany, Impaling Reach, Grave Sweep's sweep, Anvil
+  Fall, Rockbreaker, Flaying Arc, Judgement). A unit check makes every hero's blade blow follow.
+  A thrust's random jitter (Flurry's stabs) moves it sideways instead of turning it; Crossed
+  Shadows' second cut is still turned up to 40 degrees (its cross).
+- **What stays at the exact aim:** shots (arrows, bolts, stars, spells, thrown kunai and spears:
+  they leave his hand toward the enemy, their trails follow their flight), spells placed far off
+  (Thunder, Arrow Rain, Fissure, Rock Spike, Smite), blows all around (spins: Whirlwind, Lash,
+  the axe's wheel, a body slam's 360 degrees), and rushes that move him (Iaido Dash, Piercing
+  Thrust, Heartseeker, Grave Sweep's lunge): he dashes where he aims, moving being free, and the
+  cut is drawn along his path. The charge's glow sits on the blade held in his pose for a melee
+  weapon, where the shot will leave his hand for a ranged one.
+- **Monsters** strike the same way with their melee weapons (their bodies are drawn in four
+  directions too): the swing, claw or bite is drawn the way the body faces, and the red warning
+  cone shows the swept zone (`Blow.cone`). Their skills' slashes (Tôma's wide slash and dashes)
+  are still drawn at the exact aim.
+
 ### Charged attacks
 
 Every hero's weapon has a **charged attack** (`WeaponDef.charged`, a `ChargedAttackDef` in

@@ -45,7 +45,8 @@
   dancing on the floor of the flooded caverns.
 - **Attack effects** (shaders, all on the art's pixel grid, quantized in world space so a
   diagonal blow has the same pixels as a straight one): a melee swing draws a crescent at the
-  weapon's reach and arc (`SwingVfx`, `swing.gdshader`) in steel (the `physical` ramp: a
+  weapon's reach and arc (`SwingVfx`, `swing.gdshader`), the way the body faces (melee blows are
+  struck in four directions like the sprites: builds.md, "Blows in four directions"), in steel (the `physical` ramp: a
   near-white cutting edge, greys behind, thinning out in dithered pixels) or in the weapon's
   element; a monster's carries a red warning rim. A thrust draws a streak. Slash skills and heavy
   monster blows are `SlashDef`s (`data/vfx/slashes/`): Cleave's double crescent, Whirlwind's and

@@ -956,10 +956,138 @@ func _test_charged_attacks(game: Game) -> void:
 	await _frames(5)
 
 
+## Melee blows in the body's four directions (Blow, docs/design/builds.md "Blows in four
+## directions"), in the game: every melee weapon's blow at an enemy off the cardinals (30 degrees
+## up from the right, the diagonals) is struck the way the body faces (the pose, the arc drawn)
+## and still hits it; every charged blow too; a thrust's charged streak is drawn on the cardinal; a
+## spin keeps the exact aim; a bow's arrow still flies at the exact angle; a skeleton's blow at a
+## hero on a diagonal is drawn its body's way and still lands.
+func _test_four_directions(game: Game) -> void:
+	var player: Player = game.player
+	var world: World = game.world
+	player.xp = -1000000
+	var weapon_before := player.get_weapon()
+	var perks_before := player.perks.to_data()
+	player.perks.clear()
+	await _clear_monsters(world)
+	var spot := world.map.cell_to_world(_open_cell_near(world, player.global_position, 4))
+	var target := world.spawn_monster(load("res://data/monsters/slime.tres"), spot + Vector2(40, 0))
+	target.dormant = true
+	target.flies = true
+	target.base_stats.max_hp = 100000
+	target.invalidate_stats()
+	target.hp = 100000
+	var place := func(degrees: float, distance: float) -> Vector2:
+		target._knockback = Vector2.ZERO
+		target.velocity = Vector2.ZERO
+		player._knockback = Vector2.ZERO
+		player.global_position = spot
+		target.global_position = spot + Vector2.from_angle(deg_to_rad(degrees)) * distance
+		return spot.direction_to(target.global_position)
+	var newest_swing := func() -> SwingVfx:
+		var found: SwingVfx = null
+		for layer: String in ["Entities", "Effects"]:
+			for node in world.get_node(layer).get_children():
+				if node is SwingVfx and not node.is_queued_for_deletion():
+					found = node
+		return found
+	var clear_swings := func() -> void:
+		for layer: String in ["Entities", "Effects"]:
+			for node in world.get_node(layer).get_children():
+				if node is SwingVfx or node is SwingMatter:
+					node.queue_free()
+	for file in DirAccess.get_files_at("res://data/items/weapons"):
+		if not file.ends_with(".tres"):
+			continue
+		var weapon: WeaponDef = load("res://data/items/weapons/" + file)
+		if weapon.kind != WeaponDef.Kind.MELEE:
+			continue
+		player.equipment.equip(weapon)
+		await _frames(3)
+		# Basic blows, at an enemy 30 degrees up from the right and on the diagonals.
+		for degrees: float in [-30.0, 44.0, 136.0, -125.0]:
+			var aim: Vector2 = place.call(degrees, player.radius + weapon.reach * 0.7)
+			await _frames(1)
+			clear_swings.call()
+			player._attack_cooldown = 0.0
+			var hp_before := target.hp
+			player.attack(aim)
+			var way := Blow.cardinal(aim)
+			var name := "%s at %.0f degrees" % [weapon.id, degrees]
+			check(player.rig.direction == ActorRig.direction_name(way), "four directions: %s: the body strikes %s" % [name, ActorRig.direction_name(way)])
+			if weapon.shows_arc():
+				var swing: SwingVfx = newest_swing.call()
+				check(swing != null and absf(angle_difference(float(swing.material.get_shader_parameter("aim")), way.angle())) < 0.001, "four directions: %s: its arc is drawn %s, the way the body faces (%s)" % [name, ActorRig.direction_name(way), rad_to_deg(float(swing.material.get_shader_parameter("aim"))) if swing else "none"])
+			await _frames(2)
+			check(target.hp < hp_before, "four directions: %s: the enemy off the cardinal is still hit" % name)
+			await _frames(int(player.get_attack_cooldown(weapon) * 60.0) + 2)
+		# The charged blow, at an enemy 35 degrees down from the right (dashes come back first).
+		var charged_aim: Vector2 = place.call(35.0, 40.0)
+		await _frames(1)
+		clear_swings.call()
+		var hp_charged := target.hp
+		player._unleash(weapon, weapon.charged)
+		await _frames(2)
+		var swing: SwingVfx = newest_swing.call()
+		var blade := false
+		for effect in weapon.charged.effects:
+			blade = blade or (effect is DamageAreaEffect and (effect as DamageAreaEffect).follows_facing and (effect as DamageAreaEffect).slash != null and effect.delay <= 0.0) or (effect is DashStrikeEffect and not (effect as DashStrikeEffect).moves)
+		if blade:
+			check(swing != null and absf(angle_difference(float(swing.material.get_shader_parameter("aim")), Blow.cardinal(charged_aim).angle())) < 0.001, "four directions: %s: its charged blow is drawn the way the body faces" % weapon.id)
+		await _frames(50)
+		check(target.hp < hp_charged, "four directions: %s: its charged blow still hits an enemy 35 degrees off the cardinal" % weapon.id)
+		await _frames(int(player.get_attack_cooldown(weapon) * 60.0) + 2)
+	# A spin keeps the exact aim (the axe's wheel), drawn as before.
+	player.equipment.equip(load("res://data/items/weapons/axe.tres"))
+	await _frames(3)
+	var spin_aim: Vector2 = place.call(-30.0, 40.0)
+	clear_swings.call()
+	player._unleash(player.get_weapon(), player.get_weapon().charged)
+	await _frames(1)
+	var spin: SwingVfx = newest_swing.call()
+	check(spin != null and absf(angle_difference(float(spin.material.get_shader_parameter("aim")), spin_aim.angle())) < 0.001, "four directions: a spin keeps the exact aim")
+	await _frames(40)
+	# A shot flies at the exact angle.
+	player.equipment.equip(load("res://data/items/weapons/bow.tres"))
+	await _frames(3)
+	var shot_aim: Vector2 = place.call(-30.0, 120.0)
+	player._attack_cooldown = 0.0
+	var projectiles := world.get_node("Projectiles")
+	player.attack(shot_aim)
+	await _frames(1)
+	var arrow := projectiles.get_child(projectiles.get_child_count() - 1) as Projectile if projectiles.get_child_count() > 0 else null
+	check(arrow != null and absf(arrow._direction.angle_to(shot_aim)) < 0.01, "four directions: an arrow still flies at the exact angle (%s)" % (rad_to_deg(arrow._direction.angle()) if arrow else "none"))
+	await _frames(40)
+	target.queue_free()
+	# A monster's blow: a skeleton at a hero on a diagonal strikes its body's way, and lands.
+	player.equipment.equip(weapon_before)
+	player.global_position = spot
+	var skeleton := world.spawn_monster(load("res://data/monsters/skeleton.tres"), spot + Vector2.from_angle(deg_to_rad(-140.0)) * 30.0)
+	skeleton.dormant = true
+	await _frames(3)
+	player.global_position = spot
+	skeleton.global_position = spot + Vector2.from_angle(deg_to_rad(-140.0)) * 30.0
+	clear_swings.call()
+	var hero_hp := player.hp
+	player._invulnerable_time = 0.0
+	var monster_aim := skeleton.global_position.direction_to(player.global_position)
+	skeleton._attack_cooldown = 0.0
+	skeleton.attack(monster_aim)
+	var claw: SwingVfx = newest_swing.call()
+	check(claw != null and absf(angle_difference(float(claw.material.get_shader_parameter("aim")), Blow.cardinal(monster_aim).angle())) < 0.001, "four directions: a skeleton's blow at the hero on a diagonal is drawn its body's way")
+	await _frames(2)
+	check(player.hp < hero_hp, "four directions: and still lands")
+	player.hp = player.get_max_hp()
+	skeleton.queue_free()
+	player.perks.load_data(perks_before)
+	player.xp = 0
+	await _frames(5)
+
+
 ## The hero's own effects never hide him (docs/vfx.md 2b), in each of 8 directions: his shots
 ## leave his hand and start behind him going north, in front going south; his arcs and thrusts
-## north sort behind him, the others are over him; a staff's shot plays no claw over him; his
-## weapon's glow while charging goes behind him when he faces north; the level up's rings lie on
+## struck north (the pose's direction: Blow) sort behind him, the others are over him; a staff's shot plays no claw over him; his
+## weapon's glow while charging goes behind him when his pose faces north; the level up's rings lie on
 ## the floor, its column stands behind him, only glints rise at his sides in front; Holy Shield's
 ## halo rises behind him.
 func _test_own_effects(game: Game) -> void:
@@ -1003,7 +1131,8 @@ func _test_own_effects(game: Game) -> void:
 			var swings: Array = world.get_node("Entities").get_children().filter(func(n: Node) -> bool: return n is SwingVfx and not n.is_queued_for_deletion())
 			swings.append_array(world.get_node("Effects").get_children().filter(func(n: Node) -> bool: return n is SwingVfx and not n.is_queued_for_deletion()))
 			var swing: SwingVfx = swings[-1] if not swings.is_empty() else null
-			var north := VfxLayer.goes_behind(direction)
+			# A blow is struck the way the body faces (Blow): north only when the pose is.
+			var north := VfxLayer.goes_behind(Blow.cardinal(direction))
 			var name := "%s toward (%.1f, %.1f)" % [id, direction.x, direction.y]
 			if north:
 				check(swing != null and VfxLayer.of(swing) == VfxLayer.Layer.STANDING and swing.global_position.y < player.global_position.y, "own effects: %s: the blow sorts behind him" % name)
@@ -1021,7 +1150,9 @@ func _test_own_effects(game: Game) -> void:
 	for direction in directions:
 		player.facing = direction
 		await _frames(2)
-		check(VfxLayer.is_behind_body(player.charge_vfx) == VfxLayer.goes_behind(direction), "own effects: the glow in his hand toward (%.1f, %.1f) is %s him" % [direction.x, direction.y, "behind" if VfxLayer.goes_behind(direction) else "in front of"])
+		# On the blade held in the body's pose (Blow): behind him when the pose faces north.
+		var held := VfxLayer.goes_behind(Blow.cardinal(direction))
+		check(VfxLayer.is_behind_body(player.charge_vfx) == held, "own effects: the glow in his hand toward (%.1f, %.1f) is %s him" % [direction.x, direction.y, "behind" if held else "in front of"])
 	player.skills._cooldowns[0] = 0.0
 	player.use_skill(0)  # a roll: the charge is lost
 	_set_action(&"attack", false)

@@ -225,11 +225,14 @@ func attack(direction: Vector2) -> bool:
 		facing = direction.normalized()
 	_attack_cooldown = get_attack_cooldown(weapon)
 	Sfx.play_at(weapon.attack_sound, global_position)
+	# A melee blow is struck in the body's four directions, its arc and sheet drawn that way and
+	# its zone swept to the exact aim (Blow); a shot flies at the exact aim.
+	var blow := Blow.of_weapon(global_position, facing, weapon)
 	if rig:
-		rig.play_attack(weapon, facing, _attack_cooldown)
-	Vfx.swing(self, facing, weapon, minf(_attack_cooldown * 0.45, 0.15))
+		rig.play_attack(weapon, blow.facing, _attack_cooldown)
+	Vfx.swing(self, blow.facing, weapon, minf(_attack_cooldown * 0.45, 0.15))
 	if weapon.kind == WeaponDef.Kind.MELEE:
-		Combat.melee_strike(self, facing, weapon)
+		Combat.melee_strike(self, blow, weapon)
 	else:
 		world.fire_projectiles(self, facing, Combat.spec_from_weapon(self, weapon), shot_origin(facing))
 	_on_attacked(weapon)

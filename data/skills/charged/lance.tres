@@ -8,6 +8,7 @@
 
 [sub_resource type="Resource" id="thrust"]
 script = ExtResource("2_dash_strike_effect")
+follows_facing = true
 distance = 150.0
 width = 22.0
 damage_multiplier = 2.6

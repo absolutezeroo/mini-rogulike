@@ -76,9 +76,17 @@ func _process(delta: float) -> void:
 	else:
 		return
 	# The glow is on the weapon: behind his body when he faces north, in front otherwise.
-	VfxLayer.set_behind(self, VfxLayer.goes_behind(player.facing))
+	VfxLayer.set_behind(self, VfxLayer.goes_behind(_hand_aim()))
 	queue_redraw()
 	_ring.queue_redraw()
+
+
+## Where the glow sits: on a blade held in the body's pose (the nearest of the four directions,
+## like the blow it will unleash: Blow), where the shot will leave the hand for a ranged weapon
+## (shots fly at the exact aim).
+func _hand_aim() -> Vector2:
+	var aim := player.facing if player.facing != Vector2.ZERO else Vector2.DOWN
+	return Blow.of_weapon(player.global_position, aim, player.get_weapon()).facing
 
 
 ## Whether the gauge is on screen (the tests read it).
@@ -131,7 +139,7 @@ func _draw_gauge() -> void:
 func _draw() -> void:
 	if _element == null:
 		return
-	var aim := player.facing if player.facing != Vector2.ZERO else Vector2.DOWN
+	var aim := _hand_aim()
 	var hand := player.hand_point(aim) - player.global_position + aim * GLOW_REACH
 	# Motes of the element drawn into the weapon, closer and brighter as they come.
 	for i in MOTES:

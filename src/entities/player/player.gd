@@ -208,7 +208,9 @@ func _unleash(weapon: WeaponDef, charged: ChargedAttackDef) -> void:
 	_aim_hold = AIM_HOLD_TIME
 	_attack_cooldown = get_attack_cooldown(weapon)
 	if rig:
-		rig.play_attack(weapon, aim, maxf(_attack_cooldown, 0.3))
+		# The pose (and a sheet the weapon plays) the way a melee blow is struck (Blow); the
+		# charged attack's own effects turn to it themselves (`follows_facing`).
+		rig.play_attack(weapon, Blow.of_weapon(global_position, aim, weapon).facing, maxf(_attack_cooldown, 0.3))
 	charged.release(self, weapon, aim)
 	_on_attacked(weapon)
 	camera.shake(0.3)

@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 125,
+  "next_id": 128,
   "tags": [
     "pc",
     "test",
@@ -1799,8 +1799,8 @@
     {
       "id": "task_124",
       "title": "Attaques et effets en 4 directions",
-      "description": "Demandé par Clayton : le héros est dessiné en 4 directions (corps, armure, arme en main), mais les effets par-dessus (traînées de coup, arcs, cônes, éclats, kunai…) sont tournés vers l'angle exact, sur 16 directions (SheetVfx.DIRECTIONS, WeaponDef). Résultat : l'effet ne suit pas la pose du héros, c'est dommage. Les déplacements restent libres dans toutes les directions ; les attaques et leurs effets doivent suivre les 4 directions.\n\nDécidé (23/10) : corps à corps en 4 directions, tirs libres. Le coup, sa zone et ses effets suivent la pose du héros (haut, bas, gauche, droite) ; flèches, sorts et kunai partent toujours droit sur l'ennemi.",
-      "status": "in_progress",
+      "description": "Demandé par Clayton : le héros est dessiné en 4 directions (corps, armure, arme en main), mais les effets par-dessus (traînées de coup, arcs, cônes, éclats, kunai…) sont tournés vers l'angle exact, sur 16 directions (SheetVfx.DIRECTIONS, WeaponDef). Résultat : l'effet ne suit pas la pose du héros, c'est dommage. Les déplacements restent libres dans toutes les directions ; les attaques et leurs effets doivent suivre les 4 directions.\n\nDécidé (23/10) : corps à corps en 4 directions, tirs libres. Le coup, sa zone et ses effets suivent la pose du héros (haut, bas, gauche, droite) ; flèches, sorts et kunai partent toujours droit sur l'ennemi.\n\nFait (23/10, à tester en jeu) : chaque coup de corps à corps (héros et monstres) est frappé vers la direction cardinale la plus proche de la visée, celle de la pose (Blow, src/combat/blow.gd) : arc, estoc, coup de marteau, griffe/morsure, éclats de matière, lueur de charge sur la lame, et les coups chargés et techniques à lame (Taille sans Lune, Ombres Croisées, Litanie de la Vipère, Fauche Funèbre, Chute de l'Enclume, Taillade, Rafale…, drapeau follows_facing dans les données). La zone touchée = la forme du coup balayée de la direction cardinale jusqu'à la visée exacte : un ennemi en diagonale est toujours touché, rien de ce qui était touché avant n'est raté (même la rapière et le fouet, arcs étroits). Le cône d'alerte rouge des monstres montre cette zone. Rafale : le décalage aléatoire des estocs les déplace de côté au lieu de les tourner.\nRestent à l'angle exact : tirs (flèches, éclairs, étoiles, kunai, sorts, leur traînée, leur départ de la main), sorts posés au loin (Tonnerre, Pluie de Flèches, Fissure, Pic de Roche, Châtiment), tournoiements (360°), ruées qui déplacent le héros (traînée le long du trajet).\nÉquilibrage : mesuré (pack, Veilleur) avant/après, aucun écart (médiane 1,00) ; noté dans docs/balance-log.md. Tests : unitaires (règle + données) et en jeu (chaque arme à 30° et en diagonale, chaque coup chargé, tir à l'angle exact, tournoiement inchangé, squelette). Captures avant/après en scratchpad. Non vérifié : la sensation sur téléphone en mouvement.",
+      "status": "review",
       "priority": "high",
       "epic_id": "epic_3",
       "due_date": null,
@@ -1810,7 +1810,54 @@
         "combat"
       ],
       "created_at": 1792759099,
-      "updated_at": 1792759267
+      "updated_at": 1792761355
+    },
+    {
+      "id": "task_125",
+      "title": "Ruées en diagonale : traînée hors des 4 directions",
+      "description": "Suite de task_124. Les ruées qui déplacent le héros (Ruée Iaido, Estocade Perçante, Cherche-Cœur, l'élan de Fauche Funèbre) vont droit sur l'ennemi (déplacement libre) et leur traînée suit le trajet, donc en diagonale, alors que la pose du héros est en 4 directions. À décider avec Clayton : les garder libres, ou les faire partir en 4 directions (risque de rater l'ennemi visé en diagonale : il faudrait une règle comme le balayage de Blow).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "vfx",
+        "combat",
+        "playtest"
+      ],
+      "created_at": 1792761355,
+      "updated_at": 1792761355
+    },
+    {
+      "id": "task_126",
+      "title": "Techniques des monstres en 4 directions (Arc Tranchant, Pas du Gardien, Arc de Flammes)",
+      "description": "Suite de task_124. Les coups de base des monstres suivent les 4 directions, mais leurs techniques (DamageAreaEffect / DashStrikeEffect des boss : l'Arc Tranchant et le Pas du Gardien de Tôma, l'Arc de Flammes) sont encore dessinées à l'angle exact. Pour les passer : follows_facing dans leurs données ET l'alerte TelegraphView.show_skill qui montre la zone balayée (Blow.cone), sinon l'alerte mentirait. Vérifier que leurs sprites ont bien 4 directions.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "vfx",
+        "boss",
+        "combat"
+      ],
+      "created_at": 1792761355,
+      "updated_at": 1792761355
+    },
+    {
+      "id": "task_127",
+      "title": "Ombres Croisées : second coup incliné jusqu'à 40°",
+      "description": "Suite de task_124. Le second coup du coup chargé du ninjaku (Ombres Croisées) garde sa rotation aléatoire de ±40° autour de la direction cardinale (c'est sa croix). À regarder en jeu : si ça casse l'effet 4 directions, le redessiner (par ex. un revers balayé dans l'autre sens, un drapeau sur SlashDef et swing.gdshader).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "vfx",
+        "playtest"
+      ],
+      "created_at": 1792761355,
+      "updated_at": 1792761355
     }
   ]
 }

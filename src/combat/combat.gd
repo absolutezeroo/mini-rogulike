@@ -58,8 +58,9 @@ static func hit_for(damage: int, defense: int) -> int:
 	return amount
 
 
-## Hits every enemy of the attacker inside an arc in front of them.
-static func melee_strike(attacker: Actor, direction: Vector2, weapon: WeaponDef) -> void:
+## Hits every enemy of the attacker inside the arc of `blow` (drawn toward its facing, swept to
+## its exact aim: Blow).
+static func melee_strike(attacker: Actor, blow: Blow, weapon: WeaponDef) -> void:
 	var world := attacker.world
 	var reach := attacker.radius + weapon.reach
 	var half_arc := deg_to_rad(weapon.arc_degrees) * 0.5
@@ -71,7 +72,7 @@ static func melee_strike(attacker: Actor, direction: Vector2, weapon: WeaponDef)
 			continue
 		# Targets pressed against the attacker are always hit, whatever the angle.
 		var touching := distance <= attacker.radius + target.radius + 4.0
-		if not touching and absf(direction.angle_to(to_target)) > half_arc:
+		if not touching and not blow.in_arc(target.global_position, half_arc):
 			continue
 		if not world.has_line_of_sight(attacker.global_position, target.global_position):
 			continue
@@ -88,7 +89,7 @@ static func melee_strike(attacker: Actor, direction: Vector2, weapon: WeaponDef)
 	# Crates, pots, barrels in the arc break too.
 	for prop in world.get_breakable_props():
 		var to_prop := prop.global_position - attacker.global_position
-		if to_prop.length() <= reach + Prop.SIZE * 0.4 and absf(direction.angle_to(to_prop)) <= half_arc + 0.3:
+		if to_prop.length() <= reach + Prop.SIZE * 0.4 and blow.in_arc(prop.global_position, half_arc + 0.3):
 			prop.take_hit(make_hit_from(attacker, attacker.get_power()))
 
 
@@ -96,17 +97,35 @@ static func melee_strike(attacker: Actor, direction: Vector2, weapon: WeaponDef)
 ## `element`: what the blow is made of (its hits flash in its language).
 static func damage_area(world: World, attacker: Actor, center: Vector2, radius: float, base_amount: int, knockback: float, secondary: bool = false, status: OnHitStatus = null, element: VfxElementDef = null) -> void:
 	for target in world.get_hostiles(attacker.faction):
-		var offset := target.global_position - center
-		if offset.length() > radius + target.radius:
-			continue
-		var hit := make_hit_from(attacker, base_amount)
-		hit.knockback = offset.normalized() * knockback
-		hit.origin = attacker.global_position if is_instance_valid(attacker) else center
-		hit.is_secondary = secondary
-		hit.status = status
-		hit.element = element
-		target.take_hit(hit)
+		_hit_in_circle(attacker, target, center, radius, base_amount, knockback, secondary, status, element)
 	hit_props(world, attacker, center, radius)
+
+
+## A circle `offset` out along `blow` (a charged crescent, a hammer's slam ahead): drawn toward
+## its facing, it hits whatever the circle covers swept from there to the exact aim (Blow).
+static func damage_blow_area(world: World, attacker: Actor, blow: Blow, offset: float, radius: float, base_amount: int, knockback: float, status: OnHitStatus = null, element: VfxElementDef = null) -> void:
+	for target in world.get_hostiles(attacker.faction):
+		var center := blow.origin + blow.toward(target.global_position) * offset
+		_hit_in_circle(attacker, target, center, radius, base_amount, knockback, false, status, element)
+	for prop in world.get_breakable_props():
+		var center := blow.origin + blow.toward(prop.global_position) * offset
+		if prop.global_position.distance_to(center) <= radius + Prop.SIZE * 0.4:
+			var hit := HitInfo.new()
+			hit.source = attacker
+			prop.take_hit(hit)
+
+
+static func _hit_in_circle(attacker: Actor, target: Actor, center: Vector2, radius: float, base_amount: int, knockback: float, secondary: bool, status: OnHitStatus, element: VfxElementDef) -> void:
+	var offset := target.global_position - center
+	if offset.length() > radius + target.radius:
+		return
+	var hit := make_hit_from(attacker, base_amount)
+	hit.knockback = offset.normalized() * knockback
+	hit.origin = attacker.global_position if is_instance_valid(attacker) else center
+	hit.is_secondary = secondary
+	hit.status = status
+	hit.element = element
+	target.take_hit(hit)
 
 
 ## Hits every enemy of the attacker close to the segment from `from` to `to` (dash strikes).
@@ -128,6 +147,40 @@ static func damage_segment(world: World, attacker: Actor, from: Vector2, to: Vec
 			var hit := HitInfo.new()
 			hit.source = attacker
 			prop.take_hit(hit)
+
+
+## A thrust `distance` long along `blow` without moving (the lance's long thrust), stopping short
+## of walls: drawn toward its facing, it cuts whatever the segment covers swept from there to the
+## exact aim (Blow).
+static func damage_blow_segment(world: World, attacker: Actor, blow: Blow, distance: float, width: float, base_amount: int, knockback: float, status: OnHitStatus = null, element: VfxElementDef = null) -> void:
+	for target in world.get_hostiles(attacker.faction):
+		var direction := blow.toward(target.global_position)
+		var to := blow.origin + direction * clear_length(world, blow.origin, direction, distance, attacker.radius)
+		var closest := Geometry2D.get_closest_point_to_segment(target.global_position, blow.origin, to)
+		if closest.distance_to(target.global_position) > width + target.radius:
+			continue
+		var hit := make_hit_from(attacker, base_amount)
+		hit.knockback = direction.orthogonal() * signf(direction.cross(target.global_position - blow.origin)) * knockback
+		hit.origin = blow.origin
+		hit.status = status
+		hit.element = element
+		target.take_hit(hit)
+	for prop in world.get_breakable_props():
+		var direction := blow.toward(prop.global_position)
+		var to := blow.origin + direction * clear_length(world, blow.origin, direction, distance, attacker.radius)
+		if Geometry2D.get_closest_point_to_segment(prop.global_position, blow.origin, to).distance_to(prop.global_position) <= width + Prop.SIZE * 0.4:
+			var hit := HitInfo.new()
+			hit.source = attacker
+			prop.take_hit(hit)
+
+
+## How far from `from` along `direction` (up to `distance`) before a wall, keeping `margin` off it.
+static func clear_length(world: World, from: Vector2, direction: Vector2, distance: float, margin: float) -> float:
+	var query := PhysicsRayQueryParameters2D.create(from, from + direction * distance, Layers.WORLD)
+	var wall := world.get_world_2d().direct_space_state.intersect_ray(query)
+	if wall.is_empty():
+		return distance
+	return maxf(from.distance_to(wall.position) - margin - 2.0, 0.0)
 
 
 ## Breaks the props inside a circle.
