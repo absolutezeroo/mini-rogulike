@@ -46,6 +46,7 @@ func run_bag_unit() -> void:
 	check(weapons >= 0 and armor >= 0 and runes >= 0 and scrolls >= 0 and consumables >= 0 and other >= 0, "the bag has its six compartments (bag_categories.tres)")
 	for category in CATEGORIES.categories:
 		check(not category.display_name.is_empty() and category.icon != null and not category.full_text.is_empty(), "the compartment %s has a name, an icon and its words when full" % category.id)
+		check(category.icon != null and category.icon.resource_path.begins_with("res://assets/ui/placeholders/"), "the compartment %s shows a pictogram, not an item of the game" % category.id)
 	for id: StringName in [&"weapons", &"armor", &"runes", &"scrolls"]:
 		check(CATEGORIES.categories[_tab_of(id)].capacity == 16, "%s: 16 places of its own" % id)
 	var wrong: Array[String] = []

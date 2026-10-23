@@ -374,8 +374,10 @@ stones lit in their runes' colors. The selected slot pulses gold.
     places (loot.md, "Room in the bag"): **Weapons** (Armes), **Armors** (Armures), **Runes**,
     **Tomes & Scrolls** (Grimoires & Parchemins: the tomes and the Scroll of Fire),
     **Consumables** (Consommables) and **Other** (Divers: keys, and whatever no compartment
-    claims; its tab hidden while empty). A row of wooden tabs over the grid, each with its icon,
-    how many items it holds (a stack counts all of its own; red when the compartment is full) and
+    claims; its tab hidden while empty). A row of wooden tabs over the grid, each with its
+    pictogram in the middle (`assets/ui/placeholders/`, drawn by `tools/ui/make_placeholders.py`:
+    a plain sign, never an item of the game; the empty equipment slots show the same signs, faint),
+    how many items it holds when any (a stack counts all of its own; red when the compartment is full) and
     a small gold gem while something new waits in it; under them the open tab's name and its own
     places ("Runes  3 / 16", red when full), between its keys on keys and gamepads ([Q] Weapons
     16 / 16 [E], [LB] ... [RB]). A compartment holding more than its places (a run saved before,

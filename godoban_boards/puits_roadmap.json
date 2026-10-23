@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 153,
+  "next_id": 154,
   "tags": [
     "pc",
     "test",
@@ -2201,6 +2201,21 @@
     },
     {
       "id": "task_150",
+      "title": "Sac : pictogrammes centrés, emplacements vides en silhouette, erreur find",
+      "description": "Signalé par Clayton : les icônes des onglets du sac n'étaient pas centrées, le « 0 » mordait dessus, et elles montraient de vraies armes du jeu. Maintenant : des pictogrammes neutres (épée, casque, armure, rune, grimoire, fiole, bourse — assets/ui/placeholders/, générés par tools/ui/make_placeholders.py) centrés, deux fois plus grands, le nombre seulement s'il y a quelque chose ; les emplacements d'équipement vides montrent la même silhouette en pâle au lieu du mot. Corrigé aussi l'erreur « Attempted to find an object into a TypedArray » (inventory_panel.gd:551) quand un bouton avait le focus.",
+      "status": "review",
+      "priority": "medium",
+      "epic_id": "epic_4",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "bug"
+      ],
+      "created_at": 1792777924,
+      "updated_at": 1792777924
+    },
+    {
+      "id": "task_151",
       "title": "Options en onglets (Jouabilité, Graphiques, Audio…)",
       "description": "Les options en cinq onglets (Q / E, LB / RB, toucher, souris) : Jouabilité (langue, ramassage auto, histoires des gardiens, chronomètre, tremblement de l'écran, vibrations, tutoriel), Graphiques (plein écran, taille de l'interface, taille des boutons, joystick fixe, moins d'effets, éclairs, économie de batterie), Audio (les cinq volumes), Commandes (la page des touches), Confidentialité (classements, tes données, politique et crédits). Mêmes clés de réglages. Tests : chaque onglet, chaque réglage dans un seul onglet, onglets à la manette, tout tient à l'écran en français. À regarder en jeu : sur 1280x720 en français, les colonnes de gauche de Jouabilité et Graphiques défilent un peu. Sliders corrigés (« pas réactifs, ne suivent pas quand je monte ou descends ») : le défilement tactile des listes volait le glissé dès 12 pixels (et la liste du titre, derrière les Options, aussi) ; maintenant un glissé commencé sur un slider reste au slider, la valeur suit le doigt au centième, s'applique pendant le glissé (le volume s'entend) et s'enregistre au lâcher ; un toucher sur la piste y saute ; touches et manette : 5 % (tremblement 10 %) ; slider de 48 de haut. À vérifier au doigt sur le téléphone.",
       "status": "review",
@@ -2216,7 +2231,7 @@
       "updated_at": 1792778400
     },
     {
-      "id": "task_151",
+      "id": "task_152",
       "title": "Politique de confidentialité : dire « à la fin ou à l'abandon de chaque partie »",
       "description": "Les statistiques envoient maintenant aussi un résumé quand une partie est quittée pour le titre (même contenu). Le texte du consentement, de la politique (privacy.tres, privacy.html) dit « à la fin de chaque partie ». À préciser si tu le juges utile (changer le texte du consentement peut demander une nouvelle version de consentement : à décider).",
       "status": "backlog",
@@ -2231,7 +2246,7 @@
       "updated_at": 1792777551
     },
     {
-      "id": "task_152",
+      "id": "task_153",
       "title": "Options : moins de défilement à 720 lignes",
       "description": "En français à 1280x720 (et sur un téléphone 720 lignes), la colonne de gauche de Jouabilité (Langue, Butin, Histoire) et celle de Graphiques défilent un peu. Idées : textes d'aide plus courts, ou une troisième colonne sur les écrans larges.",
       "status": "backlog",
