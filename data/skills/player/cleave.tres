@@ -9,6 +9,7 @@
 
 [sub_resource type="Resource" id="Resource_53hrc"]
 script = ExtResource("3_c3o1x")
+follows_facing = true
 radius = 75.0
 damage_multiplier = 2.0
 offset = 45.0

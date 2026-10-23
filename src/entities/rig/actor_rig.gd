@@ -158,10 +158,13 @@ func set_weapon(def: WeaponDef) -> void:
 		_dress_weapon()
 
 
+## The pose for `vector`: the nearest of the four directions (Blow.cardinal, so a melee blow is
+## always drawn the way the body strikes).
 static func direction_name(vector: Vector2) -> StringName:
-	if absf(vector.x) >= absf(vector.y):
-		return &"right" if vector.x > 0.0 else &"left"
-	return &"down" if vector.y > 0.0 else &"up"
+	var way := Blow.cardinal(vector)
+	if way.x != 0.0:
+		return &"right" if way.x > 0.0 else &"left"
+	return &"down" if way.y > 0.0 else &"up"
 
 
 ## Called every frame by the actor.
@@ -182,7 +185,8 @@ func update_state(facing: Vector2, speed: float, dashing: bool, delta: float) ->
 		_play(&"walk", 0.4)
 
 
-## Attack toward `aim`, fitted into `duration` seconds.
+## Attack toward `aim`, fitted into `duration` seconds. A melee blow comes here already turned to
+## the pose's direction (Blow), so its sheet or claw is drawn the way the body strikes.
 func play_attack(def: WeaponDef, aim: Vector2, duration: float) -> void:
 	if _dead or body.sprite_frames == null:
 		return

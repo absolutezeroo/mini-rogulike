@@ -21,6 +21,12 @@ extends Effect
 ## A sheet of its own played on the area's middle at the art's size, never stretched to the
 ## radius (Thunder's bolt from the sky, Smite's column of light), over the element's nova.
 @export var strike: VfxSheetDef
+## A blow struck in the body's four directions, like a weapon's (Blow: a charged crescent, a
+## flurry's stabs, a hammer's slam ahead): drawn toward the nearest of them, the way the body
+## faces, its circle swept from there to the exact aim so a foe on a diagonal is still hit. Off:
+## at the exact aim (a spell placed far off: Thunder, Arrow Rain, Fissure). Nothing changes for
+## an area around the user (`offset` 0) but the way its blade is drawn.
+@export var follows_facing: bool = false
 
 @export_group("Effect sheet")
 ## Drawn as a blade's blow (Cleave's crescent, Whirlwind's spin: data/vfx/slashes/) from the
@@ -63,9 +69,16 @@ func dressed_in(carried: Array[VfxElementDef]) -> DamageAreaEffect:
 
 
 func apply(user: Actor, aim: Vector2) -> void:
-	var center := user.global_position + aim * offset
+	var blow := Blow.at(user.global_position, aim, follows_facing)
+	# Everything below is drawn toward the blow's facing: the aim itself unless it follows the
+	# body's pose.
+	aim = blow.facing
+	var center := blow.drawn_center(offset)
 	var base := flat_damage + roundi(user.get_skill_power() * damage_multiplier)
-	Combat.damage_area(user.world, user, center, radius, base, knockback, false, status, element)
+	if blow.facing != blow.aim and offset > 0.0:
+		Combat.damage_blow_area(user.world, user, blow, offset, radius, base, knockback, status, element)
+	else:
+		Combat.damage_area(user.world, user, center, radius, base, knockback, false, status, element)
 	# What it is drawn in, and what rides it (look_element: the weapon's runes and affixes).
 	var drawn := element if element else look_element
 	var riding := look_element if element else null
@@ -73,7 +86,7 @@ func apply(user: Actor, aim: Vector2) -> void:
 		Vfx.explosion(user.world, center, radius, drawn)
 	elif slash:
 		var reach := offset + radius if slash.shape != SlashDef.Shape.SPIN else radius
-		SwingVfx.slash(user.world, slash, user.global_position + Vector2(0, -6), aim, reach, drawn, user.faction != Actor.Faction.PLAYER, riding if riding else second_element)
+		SwingVfx.slash(user.world, slash, user.global_position + Vector2(0, -6), aim, reach, drawn, user.faction != Actor.Faction.PLAYER, riding if riding else second_element, follows_facing)
 		riding = null  # (its bits are shed by the blade's arc)
 	elif fx:
 		# The sheet at the nearest whole size of the art's pixel (SheetVfx snaps it), not

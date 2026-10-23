@@ -27,6 +27,7 @@ trail = 0.8
 
 [sub_resource type="Resource" id="sweep"]
 script = ExtResource("4_damage_area_effect")
+follows_facing = true
 delay = 0.14
 radius = 62.0
 damage_multiplier = 1.1

@@ -85,7 +85,9 @@ func _update_telegraph() -> void:
 		if weapon.arc_degrees >= 359.0:
 			_telegraph.show_shape(TelegraphView.Shape.CIRCLE, reach, 0.0, telegraph)
 		else:
-			_telegraph.show_shape(TelegraphView.Shape.CONE, reach, angle, telegraph, deg_to_rad(weapon.arc_degrees) * 0.5)
+			# The blow's real zone: toward the pose's direction, swept to the locked aim (Blow).
+			var cone := Blow.of_weapon(monster.global_position, monster.facing, weapon).cone(deg_to_rad(weapon.arc_degrees) * 0.5)
+			_telegraph.show_shape(TelegraphView.Shape.CONE, reach, cone.x, telegraph, cone.y)
 	else:
 		var length := (weapon.reach if weapon else 200.0) * 0.6
 		_telegraph.show_shape(TelegraphView.Shape.LINE, length, angle, telegraph, 0.0, 8.0)

@@ -8,6 +8,7 @@
 
 [sub_resource type="Resource" id="stab_1"]
 script = ExtResource("2_damage_area_effect")
+follows_facing = true
 radius = 40.0
 damage_multiplier = 0.8
 offset = 34.0
@@ -16,6 +17,7 @@ slash = ExtResource("1_stab")
 
 [sub_resource type="Resource" id="stab_2"]
 script = ExtResource("2_damage_area_effect")
+follows_facing = true
 delay = 0.08
 radius = 40.0
 damage_multiplier = 0.8
@@ -25,6 +27,7 @@ slash = ExtResource("1_stab")
 
 [sub_resource type="Resource" id="stab_3"]
 script = ExtResource("2_damage_area_effect")
+follows_facing = true
 delay = 0.16
 radius = 44.0
 damage_multiplier = 1.0

@@ -3,6 +3,24 @@
 Dated entries, newest first: what was measured, what changed and why, before/after numbers, open
 questions. How to measure: [balance.md](balance.md).
 
+## 2026-10-23 - Melee blows in four directions: zones swept to the aim (measured, no shift)
+
+**Changed (a rule, no number):** melee blows are drawn in the body's four directions
+(design/builds.md, "Blows in four directions"), and their zone is the blow's shape swept from
+that cardinal to the exact aim, so nothing hit before is missed. It can only widen a zone: an arc
+by the angle between the cardinal and the aim (0 to 45 degrees, about 22 on average: a katana's
+120 covers 120-165, the rapier's 30 covers 30-75), a circle ahead by the slide between the two.
+It only matters with several enemies in front at once; the enemy aimed at was always hit.
+
+**Measured** (pack, Keeper, every act's builds and both bots, seed 1, the old rule restored by a
+temporary switch for the "before"): clear time new/old median 1.000, mean 1.03 over 40 room sets;
+monster kinds and ranked rooms 1.000. Damage taken +0.15 points. The only moves past 15% were
+kite-bot rooms where one of three rooms timed out or the bot wandered (act III expected and
+inferno builds); seeds 2 and 3 of those: face-tank within 1%, kite 8.36 -> 8.06 s and
+29.0 -> 34.2 s (one kite room timing out; the old rule's runs time out in kite rooms too, the
+lifesteal build at seed 1): bot noise, not the rule. No balance pass needed; no data number
+changed.
+
 ## 2026-10-23 - Gorr hard but readable, readable dives on every boss, echoes capped, the bots and the holes (measured)
 
 Keeper's level stays as the owner likes it ("sporty, much better"): no boss Health, damage,

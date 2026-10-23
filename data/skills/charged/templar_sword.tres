@@ -17,6 +17,7 @@ trail = 0.8
 
 [sub_resource type="Resource" id="judgement"]
 script = ExtResource("3_damage_area_effect")
+follows_facing = true
 radius = 64.0
 damage_multiplier = 2.5
 offset = 32.0

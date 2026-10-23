@@ -49,6 +49,7 @@ func run() -> void:
 	_test_abyss()
 	_test_text_grid()
 	_test_charged_attacks()
+	_test_blows_in_four_directions()
 	var sound := SoundTests.new()
 	sound.run()
 	sound.free()
@@ -133,6 +134,68 @@ func _files_under(dir: String, extension: String) -> Array[String]:
 ## basic hit for the price of the charge; monsters' weapons have none. The charge's rules
 ## (AttackCharge): a tap never charges, a full charge fires on release, a cancel waits for the
 ## button to be let go.
+## Melee blows in the body's four directions (Blow, docs/design/builds.md "Blows in four
+## directions"): drawn toward the cardinal of the pose, their zone swept to the exact aim; shots,
+## spins and spells placed far off stay at the exact aim; every blade blow of the hero's weapons
+## (their skills and charged attacks) follows the facing.
+func _test_blows_in_four_directions() -> void:
+	for i in 32:
+		var aim := Vector2.from_angle(TAU * i / 32.0)
+		var way := Blow.cardinal(aim)
+		var named := {&"right": Vector2.RIGHT, &"left": Vector2.LEFT, &"down": Vector2.DOWN, &"up": Vector2.UP}
+		check(named[ActorRig.direction_name(aim)] == way, "four directions: the blow toward %.0f degrees is drawn the way the body faces (%s, %s)" % [rad_to_deg(aim.angle()), way, ActorRig.direction_name(aim)])
+	var up_right := Vector2.from_angle(deg_to_rad(-30.0))
+	var blow := Blow.at(Vector2.ZERO, up_right)
+	check(blow.facing == Vector2.RIGHT and blow.aim.is_equal_approx(up_right), "four directions: a blow at an enemy 30 degrees up from the right is struck to the right")
+	var rapier := deg_to_rad(30.0) * 0.5
+	check(blow.in_arc(up_right * 40.0, rapier), "four directions: a narrow thrust still reaches the enemy it was aimed at")
+	check(blow.in_arc(Vector2.RIGHT * 40.0, rapier) and blow.in_arc(Vector2.from_angle(deg_to_rad(12.0)) * 40.0, rapier), "four directions: and hits what it draws, to the right")
+	check(blow.in_arc(Vector2.from_angle(deg_to_rad(-42.0)) * 40.0, rapier), "four directions: and what the same blow aimed straight would have hit")
+	check(not blow.in_arc(Vector2.from_angle(deg_to_rad(-50.0)) * 40.0, rapier) and not blow.in_arc(Vector2.from_angle(deg_to_rad(20.0)) * 40.0, rapier), "four directions: but nothing outside its sweep")
+	for degrees: float in [45.0, -45.0, 135.0, -135.0, 40.0, -100.0]:
+		var aim := Vector2.from_angle(deg_to_rad(degrees))
+		var diagonal := Blow.at(Vector2(10, 20), aim)
+		check(diagonal.in_arc(Vector2(10, 20) + aim * 50.0, deg_to_rad(11.0)), "four directions: an enemy on a diagonal (%.0f degrees) is still hit by the narrowest blow (the whip's 22)" % degrees)
+		var cone := diagonal.cone(deg_to_rad(60.0))
+		for edge: float in [-60.0, 60.0]:
+			for from: Vector2 in [diagonal.facing, diagonal.aim]:
+				var point := Vector2(10, 20) + from.rotated(deg_to_rad(edge) * 0.999) * 30.0
+				check(absf(angle_difference(cone.x, (point - Vector2(10, 20)).angle())) <= cone.y + 0.001, "four directions: an enemy's warning cone covers the whole swept zone (%.0f degrees)" % degrees)
+	var shot := Blow.of_weapon(Vector2.ZERO, up_right, load("res://data/items/weapons/bow.tres") as WeaponDef)
+	check(shot.facing.is_equal_approx(up_right), "four directions: a shot is no blow, it flies at the exact aim")
+	var slam := Blow.of_weapon(Vector2.ZERO, up_right, load("res://data/items/weapons/monster/slam.tres") as WeaponDef)
+	check(slam.facing.is_equal_approx(up_right) and slam.in_arc(Vector2.LEFT * 10.0, PI), "four directions: a blow all around stays as it is")
+	var katana_blow := Blow.of_weapon(Vector2.ZERO, up_right, load("res://data/items/weapons/katana.tres") as WeaponDef)
+	check(katana_blow.facing == Vector2.RIGHT, "four directions: a katana's blow follows the body's pose")
+	# The data: every blade blow of a hero's weapon follows the facing; spins and spells don't need to.
+	var blades := 0
+	for file in DirAccess.get_files_at("res://data/items/weapons"):
+		if not file.ends_with(".tres"):
+			continue
+		var weapon := load("res://data/items/weapons/" + file) as WeaponDef
+		if weapon.kind != WeaponDef.Kind.MELEE:
+			continue
+		var effects: Array[Effect] = []
+		if weapon.charged:
+			effects.append_array(weapon.charged.effects)
+		for skill in weapon.skills:
+			effects.append_array(skill.effects)
+		for effect in effects:
+			var area := effect as DamageAreaEffect
+			if area and area.slash and area.slash.shape != SlashDef.Shape.SPIN:
+				blades += 1
+				check(area.follows_facing, "four directions: %s: its blade blow (%s) follows the body's four directions" % [weapon.id, area.slash.resource_path.get_file() if area.slash.resource_path else "a crescent"])
+			var strike := effect as DashStrikeEffect
+			if strike and not strike.moves:
+				blades += 1
+				check(strike.follows_facing, "four directions: %s: its thrust from where he stands follows the body's four directions" % weapon.id)
+	check(blades >= 12, "four directions: the hero's blade blows checked (%d)" % blades)
+	for path in ["res://data/skills/player/thunder.tres", "res://data/skills/player/arrow_rain.tres", "res://data/skills/player/fissure.tres"]:
+		for effect in (load(path) as SkillDef).effects:
+			if effect is DamageAreaEffect:
+				check(not (effect as DamageAreaEffect).follows_facing, "four directions: %s is a spell placed far off, at the exact aim" % path.get_file())
+
+
 func _test_charged_attacks() -> void:
 	var player_def := load("res://data/player/player_def.tres") as PlayerDef
 	check(player_def.charge_delay >= 0.18 and player_def.charge_delay <= 0.25, "charged: a tap never charges (the delay is %.2f s)" % player_def.charge_delay)

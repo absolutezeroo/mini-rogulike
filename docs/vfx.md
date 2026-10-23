@@ -26,6 +26,16 @@ The art is 16x16 pixel art drawn at 2x (`ActorRig`'s Visual node, scale 2): **1 
   as it is. A long thing that points somewhere (a shard, an arrow) is **drawn in 16 directions**
   (`VfxSheetDef.Orient.ROWS`: the frost shard), or at worst turned to the nearest of 16 angles
   (`SNAPPED`: old arrows and slashes). Never `rotation = direction.angle()`.
+- **A melee blow is drawn in the body's four directions.** Bodies, armor and the weapon in hand
+  exist facing down, up, left and right only, so everything drawn for a melee blow (its arc or
+  streak, a smash, a claw or bite sheet, the crescents and slams of charged blows and blade
+  skills, the bits they shed, the charge's glow on a blade) is turned to the nearest of the four
+  (`Blow.facing`, the same as the pose: `ActorRig.direction_name`), never to the exact aim. Its
+  hit zone is swept from there to the exact aim (docs/design/builds.md, "Blows in four
+  directions"). An effect that must stay at the exact aim says so in its data: an area or a
+  thrust follows the facing only with `follows_facing` on (`DamageAreaEffect`,
+  `DashStrikeEffect`). Shots, their trails and their launch from the hand, spells placed far off,
+  spins and rushes keep the exact aim (16 directions for long things, as above).
 - **No smooth shapes, no alpha gradients.** No `draw_circle`, `draw_arc`, alpha fades or
   `color.lerp` in an effect. Use stepped rings and discs of whole pixels
   (`PixelDraw.ring/disc/line/bit`) and fade by **ordered dithering** (a 4x4 Bayer matrix: each
@@ -111,7 +121,7 @@ a direction whose y is below -0.2 of its length).
 | Effect | Where it starts | North (back to us) | South, east, west |
 |---|---|---|---|
 | A shot (staff, wand, tome, bow, stars; skills' shots) | his hand (`Player.hand_point`: 6 above his center, 8 out along the aim), then 6 further | GROUND z for its first 30 units (his body's length: under every body), then over the bodies like any shot | over him (z 0, after the Entities) |
-| A blade's arc, a thrust, a slash of a skill or a charged attack (`SwingVfx`) | his chest; a thrust's streak from 12 out (`THRUST_START`) | STANDING, sorted by its origin just above his feet: behind him, over whoever stands further north | AIR |
+| A blade's arc, a thrust, a slash of a skill or a charged attack (`SwingVfx`), toward his pose's direction (section 1) | his chest; a thrust's streak from 12 out (`THRUST_START`) | STANDING, sorted by its origin just above his feet: behind him, over whoever stands further north | AIR |
 | A hammer's smash, its matter (`Vfx.smash`) | where the head lands | STANDING (sorted by where it lands) | AIR |
 | His glow while charging (`ChargeVfx`) | in his hand | behind his sprites (`VfxLayer.set_behind`) | in front of them |
 | The charge's gauge, the level up's rings | at his feet | GROUND (under every body) | GROUND |
@@ -219,6 +229,7 @@ bits on the rim).
 | `PixelDraw` | `src/vfx/pixel_draw.gd` | `snap`, `snap_length`, `sheet_scale`, `dither`, `pixel`, `ring`, `disc`, `arc`, `line`, `polyline`, `polygon`, `bit` (an element's particle shape), `sheet` (draw a frame of a VfxSheetDef on the grid) |
 | `GlowHalo`, `DistortionStamp`, `FxLook`, `ScreenEffects`, `ShaderWarmup` | `src/vfx/` | halos (`attach`, one light per glow), stamps of the one screen pass (`attach`, `of_element`), a sheet's shader (`for_sheet`, `for_piece`, `flame`, `rune`, `sprite`), the screen pass (`flash`, `of(tree)`), the warm-up (section 5b) |
 | `VfxLayer` | `src/vfx/vfx_layer.gd` | `Layer.GROUND / STANDING / AIR` (section 2b), `apply(node, layer)`, `of(node)`, `light_up(node, element, reach)`; `VfxSheetDef.layer` |
+| `Blow` | `src/combat/blow.gd` | a melee blow in the body's four directions: `Blow.of_weapon(origin, aim, weapon)` / `Blow.at(origin, aim, follows)`; `facing` (where everything is drawn), `aim`, `toward(point)` and `in_arc` (the zone swept to the aim), `cone` (a monster's warning) |
 | `SlashDef`, `SwingVfx`, `SwingMatter` | `src/definitions/vfx/slash_def.gd`, `data/vfx/slashes/`, `src/vfx/swing_vfx.gd`, `src/vfx/swing_matter.gd` | a blade's blow drawn by `swing.gdshader`: CRESCENT / SPIN / THRUST, arc, thickness, strokes, reach_scale, jitter, `finisher` sheet; on `WeaponDef.slash`, `DamageAreaEffect.slash`, `DashStrikeEffect.slash`. `SwingVfx.slash(world, look, at, aim, reach, element, danger, second)`; an element's blow breaks into its matter (`SwingVfx.matter_of`) and sheds its bits (`SwingMatter`, section 11) |
 | `ChargeVfx`, `LevelUpVfx` | `src/vfx/charge_vfx.gd`, `src/vfx/level_up_vfx.gd` | the charged attack's gauge at the feet (GROUND) and glow in hand (on the body, behind facing north); the level up's rings (GROUND), column (behind his sprites) and side glints (AIR) |
 | Things in flight | `data/vfx/sheets/` (`arrow`, `kunai`, `spear`, `feather`), `tools/vfx/physical.py` | 16-row sheets: `ProjectileEffect.sheet`, `WeaponDef.projectile_sheet` (the `texture` stays the item's picture) |
@@ -356,7 +367,8 @@ Screenshot it in the game at 1540x720 (the debug panel, or a probe scene in `_to
 - [ ] Only its ramp's colors (+ residue): `check.py` on its sheets; no alpha gradient on screen.
 - [ ] Its silhouette reads in one frame, and **reads as its element without color** (squint, or
       look at it in grey: is frost still faceted, storm still forked?).
-- [ ] Nothing rotated off the 16 directions; round things not rotated at all.
+- [ ] Nothing rotated off the 16 directions; round things not rotated at all; a melee blow's
+      effects on the body's four directions, the way its pose faces (section 1).
 - [ ] On its layer (section 2b): nothing flat draws over the hero's feet; an upright thing hides
       who stands behind it and is hidden by who stands in front.
 - [ ] The main action is in the first quarter; the flash lasts 2-3 frames; it dissipates
@@ -428,7 +440,8 @@ slicer, element exports) serves the others; what each still needs:
   every boss's stomp (`Combat.shockwave`) and a trapped chest are dust and rubble (the powder
   keg stays fire), Sand Breath throws clods, the Sand Drummer a clod that slows, Sandstorm
   whirls. Left: no earth claw yet; `sandball.png` is unused.
-- **Physical** (done): blades swing steel (or their element's) arcs on the grid; Cleave, Lash,
+- **Physical** (done): blades swing steel (or their element's) arcs on the grid, in the body's
+  four directions (section 1); Cleave, Lash,
   Whirlwind, Flurry (its last stab the `cutx` cross), Iaido Dash, Piercing Thrust and the
   monsters' club, demon club and tengu blade are `SlashDef`s; arrows, kunai, the thrown spear
   and the Crimson Tengu's feathers are drawn in 16 rows; hits throw their material's bits.

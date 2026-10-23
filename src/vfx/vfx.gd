@@ -87,7 +87,7 @@ static func swing(attacker: Actor, aim: Vector2, weapon: WeaponDef, duration: fl
 	var at := attacker.global_position + Vector2(0, -6)
 	var danger := attacker.faction != Actor.Faction.PLAYER
 	if weapon.slash:
-		SwingVfx.slash(attacker.world, weapon.slash, at, aim, reach, element, danger, second)
+		SwingVfx.slash(attacker.world, weapon.slash, at, aim, reach, element, danger, second, weapon.arc_degrees < 359.0)
 		return
 	var thrust := weapon.attack_animation == WeaponDef.AttackAnimation.THRUST
 	attacker.world.spawn_vfx(SwingVfx.create(at, aim, reach, weapon.arc_degrees, thrust, element, duration, danger, second))

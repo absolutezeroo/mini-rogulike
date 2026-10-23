@@ -7,6 +7,7 @@
 
 [sub_resource type="Resource" id="slam"]
 script = ExtResource("2_damage_area_effect")
+follows_facing = true
 radius = 85.0
 damage_multiplier = 2.7
 offset = 44.0

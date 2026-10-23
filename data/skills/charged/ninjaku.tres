@@ -8,6 +8,7 @@
 
 [sub_resource type="Resource" id="cut_1"]
 script = ExtResource("2_damage_area_effect")
+follows_facing = true
 radius = 54.0
 damage_multiplier = 1.25
 offset = 22.0
@@ -25,6 +26,7 @@ jitter_degrees = 40.0
 
 [sub_resource type="Resource" id="cut_2"]
 script = ExtResource("2_damage_area_effect")
+follows_facing = true
 delay = 0.1
 radius = 54.0
 damage_multiplier = 1.25

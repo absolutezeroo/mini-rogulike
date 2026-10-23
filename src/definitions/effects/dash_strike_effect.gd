@@ -22,6 +22,11 @@ extends Effect
 @export var element: VfxElementDef
 ## The user dashes along the cut (off: a thrust that reaches out, the user standing still).
 @export var moves: bool = true
+## A thrust from where the user stands (`moves` off) struck in the body's four directions, like
+## a weapon's blow (Blow): drawn toward the nearest of them, its cut swept from there to the
+## exact aim. Ignored when the user dashes: a rush goes where it is aimed (moving is free in
+## every direction) and its cut is drawn along the path it takes. Off: at the exact aim.
+@export var follows_facing: bool = false
 
 ## A second element its blow sheds a few bits of (not saved, never in data: a charged attack
 ## dressed in what the hero's weapon carries sets it, ChargedAttackDef).
@@ -52,15 +57,17 @@ func dressed_in(carried: Array[VfxElementDef]) -> DashStrikeEffect:
 func apply(user: Actor, aim: Vector2) -> void:
 	var world := user.world
 	var start := user.global_position
-	var length := distance
+	var blow := Blow.at(start, aim, follows_facing and not moves)
+	# Drawn (and dashed) toward the blow's facing: the aim itself unless it follows the body's pose.
+	aim = blow.facing
 	# Stop short of walls.
-	var query := PhysicsRayQueryParameters2D.create(start, start + aim * distance, Layers.WORLD)
-	var wall := world.get_world_2d().direct_space_state.intersect_ray(query)
-	if not wall.is_empty():
-		length = maxf(start.distance_to(wall.position) - user.radius - 2.0, 0.0)
+	var length := Combat.clear_length(world, start, aim, distance, user.radius)
 	var end := start + aim * length
 	var amount := flat_damage + roundi(user.get_skill_power() * damage_multiplier)
-	Combat.damage_segment(world, user, start, end, width, amount, knockback, status, element)
+	if blow.facing != blow.aim:
+		Combat.damage_blow_segment(world, user, blow, distance, width, amount, knockback, status, element)
+	else:
+		Combat.damage_segment(world, user, start, end, width, amount, knockback, status, element)
 	if moves and length > 1.0:
 		user.start_dash(aim * length / duration, duration, true, element)
 	if element:
@@ -70,7 +77,7 @@ func apply(user: Actor, aim: Vector2) -> void:
 	# What the cut is drawn in (look_element: the weapon's runes and affixes on a plain cut).
 	var drawn := element if element else look_element
 	if slash:
-		SwingVfx.slash(world, slash, start + Vector2(0, -6), aim, maxf(length, 40.0), drawn, user.faction != Actor.Faction.PLAYER, second_element)
+		SwingVfx.slash(world, slash, start + Vector2(0, -6), aim, maxf(length, 40.0), drawn, user.faction != Actor.Faction.PLAYER, second_element, follows_facing and not moves)
 	elif fx:
 		# At the nearest whole size of the art's pixel along the path (SheetVfx snaps it).
 		var size := maxf(length, 40.0) / fx.get_height()

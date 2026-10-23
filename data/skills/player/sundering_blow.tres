@@ -9,6 +9,7 @@
 
 [sub_resource type="Resource" id="Resource_bsh7n"]
 script = ExtResource("2_gaddb")
+follows_facing = true
 radius = 70.0
 damage_multiplier = 3.0
 offset = 60.0
