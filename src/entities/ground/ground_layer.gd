@@ -10,14 +10,19 @@ const SMOOTHING := 8
 
 var def: GroundLayerDef
 
-var _size := Vector2.ZERO
+## The part of the world drawn (the whole map by default; a pool only its room).
+var _area := Rect2()
 
 
-func setup(layer: GroundLayerDef, map: DungeonMap, cells: Dictionary) -> void:
+## `bounds`: the cells the patches can be in (a pool's room), so the shader runs only there;
+## empty: the whole map.
+func setup(layer: GroundLayerDef, map: DungeonMap, cells: Dictionary, bounds: Rect2i = Rect2i()) -> void:
 	def = layer
 	z_index = -10  # with the floor tiles, drawn after them
 	var ts := float(map.tile_size)
-	_size = Vector2(map.width, map.height) * ts
+	_area = Rect2(Vector2.ZERO, Vector2(map.width, map.height) * ts)
+	if bounds.has_area():
+		_area = Rect2(Vector2(bounds.grow(1).position) * ts, Vector2(bounds.grow(1).size) * ts).intersection(_area)
 	# One pixel per cell: where the ground is (it also covers the walls right next to it, so
 	# that its rim never runs along a wall), then scaled up smoothly: rounded patches.
 	# And where the floor is (walls are cut out).
@@ -51,4 +56,4 @@ func setup(layer: GroundLayerDef, map: DungeonMap, cells: Dictionary) -> void:
 
 
 func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, _size), Color.WHITE)
+	draw_rect(_area, Color.WHITE)

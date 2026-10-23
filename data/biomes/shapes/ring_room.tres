@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="RoomShapeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="1_shape"]
+
+[resource]
+script = ExtResource("1_shape")
+outline = 1
+size_min = Vector2i(13, 13)
+size_max = Vector2i(15, 15)
+square = true
+core = 1
+core_outline = 1
+core_margin = 3
+max_per_floor = 1
+id = &"ring_room"
+display_name = "Ring Around the Rock"
+spawn_weight = 6

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="RoomShapeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="1_shape"]
+
+[resource]
+script = ExtResource("1_shape")
+size_min = Vector2i(15, 13)
+size_max = Vector2i(17, 15)
+core = 2
+core_outline = 0
+core_margin = 2
+bridges = 4
+bridge_width = 2
+max_per_floor = 1
+quiet_room = false
+id = &"chasm_room"
+display_name = "Bridges Over the Dark"
+min_depth = 2
+spawn_weight = 5

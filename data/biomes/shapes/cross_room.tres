@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="RoomShapeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="1_shape"]
+
+[resource]
+script = ExtResource("1_shape")
+outline = 2
+size_min = Vector2i(11, 11)
+size_max = Vector2i(15, 15)
+arm = 0.5
+max_per_floor = 2
+id = &"cross_room"
+display_name = "Crossing"
+spawn_weight = 8

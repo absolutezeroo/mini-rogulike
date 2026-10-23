@@ -17,6 +17,15 @@
 [ext_resource type="Resource" path="res://data/biomes/scenes/hedge_row.tres" id="11_d67u6"]
 [ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="12_37jbf"]
 [ext_resource type="Resource" path="res://data/dungeon/themes/garden.tres" id="13_35fak"]
+[ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="x_room_shape_def"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/round_hall.tres" id="x_shape_round_hall"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/octagon_hall.tres" id="x_shape_octagon_hall"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/pillared_round.tres" id="x_shape_pillared_round"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/cross_room.tres" id="x_shape_cross_room"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/pool_room.tres" id="x_shape_pool_room"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/shrine.tres" id="x_shape_shrine"]
+[ext_resource type="Resource" path="res://data/props/furniture/mossy_column.tres" id="x_pillar_mossy_column"]
+[ext_resource type="Resource" path="res://data/props/furniture/white_pillar.tres" id="x_pillar_white_pillar"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1b48x"]
 atlas = ExtResource("2_74m5r")
@@ -91,6 +100,9 @@ wall_bias = -0.4
 
 [resource]
 script = ExtResource("12_37jbf")
+pillars = Array[ExtResource("6_74m5r")]([ExtResource("x_pillar_mossy_column"), ExtResource("x_pillar_white_pillar")])
+plain_weight = 35
+room_shapes = Array[ExtResource("x_room_shape_def")]([ExtResource("x_shape_round_hall"), ExtResource("x_shape_octagon_hall"), ExtResource("x_shape_pillared_round"), ExtResource("x_shape_cross_room"), ExtResource("x_shape_pool_room"), ExtResource("x_shape_shrine")])
 theme = ExtResource("13_35fak")
 grounds = Array[ExtResource("3_1b48x")]([SubResource("Resource_1lcuy")])
 scenes = Array[ExtResource("6_jc1ov")]([ExtResource("7_r2mqf"), ExtResource("8_178ba"), ExtResource("9_iwis7"), ExtResource("10_3x1fs"), ExtResource("11_d67u6")])

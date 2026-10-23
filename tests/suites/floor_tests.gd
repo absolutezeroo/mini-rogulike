@@ -2024,9 +2024,13 @@ func _test_pacts(game: Game) -> void:
 		config.pact_chance = chance
 		return
 	game.depth = with_pact
+	# The same floor every time below: the smith's forge, which may take a room first, comes back
+	# just as often (its chance grows with the floors without it, as a save keeps it).
+	var drought := game.world.floors_without_forge
 	game._enter_floor()
 	var room := game.world.pact.room
 	var def := game.world.pact.def
+	game.world.floors_without_forge = drought
 	game._enter_floor()
 	check(game.world.pact != null and game.world.pact.room == room and game.world.pact.def == def, "the same floor, the same pact door (seeded)")
 
@@ -2076,6 +2080,7 @@ func _test_pacts(game: Game) -> void:
 	await _frames(2)
 
 	# Broken: the cost at once, the fight goes on, no relic.
+	game.world.floors_without_forge = drought
 	game._enter_floor()
 	world = game.world
 	pact = world.pact
@@ -2115,6 +2120,7 @@ func _test_pacts(game: Game) -> void:
 
 	# Resumed: a sworn pact is never offered again; an unsworn one is.
 	world.restore_spent(saved.floor)
+	world.floors_without_forge = drought
 	game._enter_floor(true)
 	await _frames(2)
 	world = game.world
@@ -2124,6 +2130,7 @@ func _test_pacts(game: Game) -> void:
 	await _frames(3)
 	check(not panel.visible and (game.interactor.focus == null or game.interactor.focus.get_parent() != world.pact), "and never offers it again (no Interact for it)")
 	world.restore_spent({ "pact": 0 })
+	world.floors_without_forge = drought
 	game._enter_floor(true)
 	await _frames(2)
 	check(game.world.pact != null and game.world.pact.is_open_offer(), "a pact not sworn before quitting waits again")
@@ -2335,7 +2342,17 @@ func _test_biomes(game: Game) -> void:
 				allowed[prop] = true
 			if biome.light:
 				allowed[biome.light] = true
-			for scene in biome.scenes:
+			var scene_list: Array[SceneDef] = biome.scenes.duplicate()
+			# Its shaped rooms' pillars and its signature rooms' scenes are its own too.
+			for prop in biome.pillars:
+				allowed[prop] = true
+			if biome.pillars.is_empty() and dungeon.pillar:
+				allowed[dungeon.pillar] = true
+			for shape in biome.room_shapes + biome.set_pieces:
+				if shape.pillar:
+					allowed[shape.pillar] = true
+				scene_list.append_array(shape.scenes)
+			for scene in scene_list:
 				for k in scene.keys:
 					for prop in k.props:
 						allowed[prop] = true

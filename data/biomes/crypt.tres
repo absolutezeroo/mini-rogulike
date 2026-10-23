@@ -15,6 +15,15 @@
 [ext_resource type="Resource" path="res://data/biomes/scenes/candle_altar.tres" id="12_8lwn6"]
 [ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="13_ycf1q"]
 [ext_resource type="Resource" path="res://data/dungeon/themes/crypt.tres" id="14_tvvkn"]
+[ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="x_room_shape_def"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/pillared_hall.tres" id="x_shape_pillared_hall"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/grid_hall.tres" id="x_shape_grid_hall"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/cross_room.tres" id="x_shape_cross_room"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/gallery.tres" id="x_shape_gallery"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/shrine.tres" id="x_shape_shrine"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/octagon_hall.tres" id="x_shape_octagon_hall"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/chasm_room.tres" id="x_shape_chasm_room"]
+[ext_resource type="Resource" path="res://data/props/furniture/stone_pillar.tres" id="x_pillar_stone_pillar"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_lecpv"]
 atlas = ExtResource("2_yv3ey")
@@ -60,6 +69,9 @@ roughness = 0.2
 
 [resource]
 script = ExtResource("13_ycf1q")
+pillars = Array[ExtResource("7_yv3ey")]([ExtResource("x_pillar_stone_pillar")])
+plain_weight = 35
+room_shapes = Array[ExtResource("x_room_shape_def")]([ExtResource("x_shape_pillared_hall"), ExtResource("x_shape_grid_hall"), ExtResource("x_shape_cross_room"), ExtResource("x_shape_gallery"), ExtResource("x_shape_shrine"), ExtResource("x_shape_octagon_hall"), ExtResource("x_shape_chasm_room")])
 theme = ExtResource("14_tvvkn")
 grounds = Array[ExtResource("3_lecpv")]([SubResource("Resource_17ugi")])
 scenes = Array[ExtResource("7_pu0ae")]([ExtResource("8_ldwwl"), ExtResource("9_17ugi"), ExtResource("10_iikri"), ExtResource("11_d80g7"), ExtResource("12_8lwn6")])

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="RoomShapeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="1_shape"]
+
+[resource]
+script = ExtResource("1_shape")
+size_min = Vector2i(12, 9)
+size_max = Vector2i(16, 11)
+pillars = 1
+pillar_spacing = 3
+max_per_floor = 2
+id = &"pillared_hall"
+display_name = "Pillared Hall"
+spawn_weight = 8

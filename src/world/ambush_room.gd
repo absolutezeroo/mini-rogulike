@@ -142,6 +142,9 @@ func _spawn_point() -> Vector2:
 				and not _world.nav.is_blocked(_world.map.world_to_cell(point)):  # furniture, water
 			break
 		point = _world.map.cell_to_world(_world.map.random_cell_in(room, _world.rng))
+	# Ten misses (a round room's corners are rock): the nearest free cell, never inside the rock.
+	if not _world.is_free_cell(_world.map.world_to_cell(point)):
+		point = _world.nearest_free_point(point)
 	return point
 
 

@@ -16,6 +16,15 @@
 [ext_resource type="Resource" path="res://data/biomes/scenes/ore_vein.tres" id="13_oy2j0"]
 [ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="14_6i532"]
 [ext_resource type="Resource" path="res://data/dungeon/themes/cave.tres" id="15_1qjpf"]
+[ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="x_room_shape_def"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/round_hall.tres" id="x_shape_round_hall"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/oval_hall.tres" id="x_shape_oval_hall"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/ring_room.tres" id="x_shape_ring_room"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/pool_room.tres" id="x_shape_pool_room"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/l_room.tres" id="x_shape_l_room"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/shrine.tres" id="x_shape_shrine"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/pillared_round.tres" id="x_shape_pillared_round"]
+[ext_resource type="Resource" path="res://data/props/furniture/mossy_column.tres" id="x_pillar_mossy_column"]
 
 [sub_resource type="Resource" id="Resource_tbdxu"]
 script = ExtResource("2_uv4ov")
@@ -105,6 +114,9 @@ sway = true
 
 [resource]
 script = ExtResource("14_6i532")
+pillars = Array[ExtResource("7_uv4ov")]([ExtResource("x_pillar_mossy_column")])
+plain_weight = 35
+room_shapes = Array[ExtResource("x_room_shape_def")]([ExtResource("x_shape_round_hall"), ExtResource("x_shape_oval_hall"), ExtResource("x_shape_ring_room"), ExtResource("x_shape_pool_room"), ExtResource("x_shape_l_room"), ExtResource("x_shape_shrine"), ExtResource("x_shape_pillared_round")])
 theme = ExtResource("15_1qjpf")
 grounds = Array[ExtResource("2_uv4ov")]([SubResource("Resource_tbdxu")])
 scenes = Array[ExtResource("7_3v1q8")]([ExtResource("8_gvx1m"), ExtResource("9_wg6do"), ExtResource("10_emtqk"), ExtResource("11_ygtgs"), ExtResource("12_2rjg3"), ExtResource("13_oy2j0")])

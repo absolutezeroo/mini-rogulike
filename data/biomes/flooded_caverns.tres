@@ -16,6 +16,14 @@
 [ext_resource type="Resource" path="res://data/biomes/scenes/wet_rocks.tres" id="12_rsuwl"]
 [ext_resource type="Script" path="res://src/definitions/biomes/biome_def.gd" id="13_3x0m4"]
 [ext_resource type="Resource" path="res://data/dungeon/themes/flooded.tres" id="14_yk0bu"]
+[ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="x_room_shape_def"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/pool_room.tres" id="x_shape_pool_room"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/round_hall.tres" id="x_shape_round_hall"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/oval_hall.tres" id="x_shape_oval_hall"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/ring_room.tres" id="x_shape_ring_room"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/l_room.tres" id="x_shape_l_room"]
+[ext_resource type="Resource" path="res://data/biomes/shapes/pillared_round.tres" id="x_shape_pillared_round"]
+[ext_resource type="Resource" path="res://data/props/furniture/mossy_column.tres" id="x_pillar_mossy_column"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wg6do"]
 atlas = ExtResource("2_0gldx")
@@ -69,6 +77,9 @@ shimmer = 1.0
 
 [resource]
 script = ExtResource("13_3x0m4")
+pillars = Array[ExtResource("8_xmwuw")]([ExtResource("x_pillar_mossy_column")])
+plain_weight = 35
+room_shapes = Array[ExtResource("x_room_shape_def")]([ExtResource("x_shape_pool_room"), ExtResource("x_shape_round_hall"), ExtResource("x_shape_oval_hall"), ExtResource("x_shape_ring_room"), ExtResource("x_shape_l_room"), ExtResource("x_shape_pillared_round")])
 theme = ExtResource("14_yk0bu")
 grounds = Array[ExtResource("4_ormdw")]([SubResource("Resource_y7mcp"), SubResource("Resource_lhfok")])
 scenes = Array[ExtResource("7_n7wyy")]([ExtResource("8_i2so8"), ExtResource("9_r3nfj"), ExtResource("10_y7mcp"), ExtResource("11_lhfok"), ExtResource("12_rsuwl")])

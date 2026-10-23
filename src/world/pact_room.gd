@@ -87,7 +87,7 @@ static func find_room(map: DungeonMap, rng: RandomNumberGenerator, excluded: Arr
 	var reachable := -1
 	for i: int in order:
 		var room := map.rooms[i]
-		if excluded.has(i) or room.grow(1).has_point(map.start_cell) \
+		if excluded.has(i) or not map.plan(i).is_quiet() or room.grow(1).has_point(map.start_cell) \
 				or map.exit_cells().any(func(c: Vector2i) -> bool: return room.grow(1).has_point(c)):
 			continue
 		var door := door_of(map, room)

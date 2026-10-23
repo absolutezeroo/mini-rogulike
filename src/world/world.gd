@@ -203,6 +203,10 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 		if curse == null and rng.randf() < content.dungeon.floor_event_chance:
 			floor_event = ContentDB.pick_from(content.floor_events, depth, rng) as FloorEventDef
 	arena_plan = null
+	# The world first: its rooms take its shapes (BiomeDef.room_shapes).
+	biome = hidden.biome if hidden and hidden.biome else _pick_biome(content, boss != null)
+	if bottom and bottom.biome:
+		biome = bottom.biome
 	if boss:
 		arena_plan = _pick_arena(boss, content.dungeon)
 		if bottom and bottom.arena:
@@ -212,10 +216,7 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 		else:
 			map = DungeonGenerator.generate_arena(content.dungeon, rng, arena_plan)
 	else:
-		map = DungeonGenerator.generate(content.dungeon, rng, difficulty.floor_size if difficulty else 1.0, difficulty.rooms if difficulty else 1.0)
-	biome = hidden.biome if hidden and hidden.biome else _pick_biome(content, boss != null)
-	if bottom and bottom.biome:
-		biome = bottom.biome
+		map = DungeonGenerator.generate(content.dungeon, rng, difficulty.floor_size if difficulty else 1.0, difficulty.rooms if difficulty else 1.0, biome, depth)
 	theme = biome.theme if biome else null
 	rules = FloorRules.make(content.dungeon, difficulty, floor_event, depth, curse)
 	var light_tint := rules.light()
@@ -229,6 +230,7 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 	stairs_cells.clear()
 	WallBuilder.build(map, _walls)
 	nav.build(map)
+	RoomFeatures.lay(self)  # the shaped rooms' chasms, pools and pillars
 	if boss:
 		# No stairs until the boss is dead: the arena spawns them.
 		arena = ARENA_SCENE.instantiate() as BossArena
@@ -901,6 +903,22 @@ func add_pit(cell: Vector2i, def: PitDef) -> void:
 	cells_changed.emit([cell] as Array[Vector2i])
 
 
+## Makes every one of `cells` a hole of `def` at once (a shaped room's chasm): one redraw of the map.
+func add_pits(cells: Array[Vector2i], def: PitDef) -> void:
+	for cell in cells:
+		_pits.add(cell, def)
+		set_cell_blocked(cell, true)
+	cells_changed.emit(cells)
+
+
+## Deep water over `cells` (a shaped room's pool, RoomFeatures): drawn in `look`, nobody walks in it.
+func spawn_pool(cells: Dictionary, look: GroundLayerDef, bounds: Rect2i) -> WaterPool:
+	var pool := WaterPool.new()
+	_effects.add_child(pool)
+	pool.setup(self, cells, look, bounds)
+	return pool
+
+
 ## Fills the hole `cell` belongs to (every hole cell joined to it): solid floor again, walkable,
 ## with dust where it closed. Returns the cells filled (none if `cell` is no hole). Kept in
 ## `sealed_cells`, for the floor's save.
@@ -937,6 +955,11 @@ func _fill_cells(cells: Array[Vector2i]) -> void:
 		if not sealed_cells.has(cell):
 			sealed_cells.append(cell)
 	cells_changed.emit(cells)
+
+
+## Deep water of a shaped room's pool on `cell` (RoomFeatures): nobody walks there.
+func is_pool(cell: Vector2i) -> bool:
+	return map.feature_at(cell) == DungeonMap.Feature.POOL
 
 
 func has_pit(cell: Vector2i) -> bool:
