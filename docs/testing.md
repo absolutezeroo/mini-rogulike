@@ -70,6 +70,14 @@ The suites (`tests/suites/`, each a `TestSuite`):
   lamps, her box at every size in French), its game part in the game suite (a real death told on
   the end screen, a trap's, the fallback line, the merchant's and the spirit's lines, the end
   screen in French at 1280x720 and the phones' sizes).
+- The floors' identity (`level_tests.gd`, `LevelTests`): its unit part in the unit suite (the
+  room shapes' geometry; 20 floors a biome at every difficulty's size: one piece, solid walls,
+  start, stairs, hearts and cracks on open ground, every listed shape used, a signature room now
+  and then and never two; the Deeps' maze), its game part in the game suite after the biomes
+  (built floors: nothing in rock, a chasm or a pool, chasms are holes, pools water, pillars
+  standing, every open cell reachable, the minimap's round rooms; every biome's ceiling on the
+  grid, its layers, its fade over the hero and a monster, none over an arena; every signature
+  room forced on a floor, dressed, named once on a banner).
 - **tutorial**: the hints' data, the first steps played with the real controls, the hints that come
   up once, menus, the options and the profile.
 

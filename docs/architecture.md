@@ -23,7 +23,8 @@ data/                Game content as .tres resources (no code)
   content_db.tres      Index of everything that can spawn
   player/              Starting stats, kit, skills, leveling
   dungeon/             The run (acts/), floor size, difficulty curve, floor looks (themes/)
-  biomes/              The worlds a floor can be (one per file) and their hand-made scenes (scenes/)
+  biomes/              The worlds a floor can be (one per file) and their hand-made scenes (scenes/), room
+                       shapes (shapes/), signature rooms (set_pieces/), ceilings (ceilings/), pools (pools/)
   visuals/             SpriteFrames: hero.tres, monsters/, weapons/ (the animations themselves)
   audio/               Sounds as AudioStreamRandomizer (variations + pitch), sound_bank.tres, sound_mix.tres
   monsters/            One file per monster type, bosses in bosses/
@@ -69,13 +70,14 @@ src/
                          conditions/run/, RunCondition), DeedCondition (deeds/), chronicles, chapters, waking
                          lines, fragments, NarrativeDef, CinematicDef and CinematicStep (cinematic/)
     dialogue/            SpeakerDef, DialogueDef, DialogueLineDef (who speaks, what may be said, when)
-  dungeon/             Map data, generator (and its secret rooms: SecretRoomPlan), drawing
+  dungeon/             Map data, generator (its rooms' shapes: RoomPlan; its secret rooms: SecretRoomPlan), drawing
   world/               World (owns the current floor), FloorRules (how hard and rewarding it is),
                        NavGrid (pathfinding), FogOfWar (what the hero has seen), WallBuilder,
                        FloorPopulator, FragmentPlacer, BossArena (and its Storyteller), AmbushRoom, RoomGates, PitLayer, SecretRoom; PocketWorld
                        (a World built beside the floor for a while) > ThresholdWorld (the limbo of a second
                        life's trial), AbyssWorld (the Deeps a fall takes the hero to);
-                       dressing/ (FloorDresser: a floor in its biome, RoomSpace)
+                       dressing/ (FloorDresser: a floor in its biome, RoomSpace); RoomFeatures (the shaped
+                       rooms' chasms, pools and pillars); ceiling/ (CeilingLayer: what hangs over the rooms)
   entities/            Actor (shared base), Player, Monster, Projectile, ItemPickup, Stairs, Prop, Trap, Fragment,
                        hazards/ (Chest, CrumblingFloor, Quicksand, HeatSource, DarkRoom, FloorPatch),
                        ground/ (GroundLayer: a biome's ground, drawn by a shader)
@@ -101,6 +103,8 @@ tests/               Headless tests: run_tests (the runner), suites/ (unit, titl
                      balance: opt-in), support/ (TestSuite: checks, scene helpers, the bot)
 locale/              strings.csv: every player text, English (the key) and French (see Languages)
 tools/i18n/          extract.py (keeps the CSV up to date), add_glyphs.py (French glyphs for the font)
+tools/levels/        level_art.py (the deep water, paper boats and the ceilings' atlases, drawn in the pack's
+                     palette), level_shots (screenshots of shapes, signature rooms, ceilings, the big map)
 tools/balance/       Balance tools (not exported): model, arena, packs, marginal values, economy, compound
                      checks; builds and targets in data/balance/ (see docs/balance.md)
 ```
@@ -192,6 +196,10 @@ Tests empty `Profile.save_path` and `Settings.path`, so they never touch a playe
 - **Drawing the floor**: `DungeonView` draws the map in 8x8-cell chunks, each its own canvas item,
   so the renderer skips the ones off screen; inside a chunk, tiles go texture by texture to batch.
   About 90 draw calls whatever the floor's size (it was ~1500 on a big floor).
+- **The ceiling** (`CeilingLayer`, design/dungeon.md "Ceilings") is drawn the same way: chunks of
+  12 cells, each one canvas item over its biome's one atlas, plus its shadows' chunks; per frame
+  only the bodies' places go to its shader. Measured on Nightmare floors (104 x 104, 56-127
+  pieces): 1-3 more draw calls, render time within llvmpipe's noise.
 - **Mist over the walls** (`PlateauMist`, `plateau_mist.gdshader`): a volumetric mist over the
   plateau above the cliffs (and all around the map). Every frame a ray goes down through its
   height in 6 slices (3 with Fewer effects) for each pixel of a small viewport over the view,

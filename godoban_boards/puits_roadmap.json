@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 105,
+  "next_id": 112,
   "tags": [
     "pc",
     "test",
@@ -1247,8 +1247,8 @@
     {
       "id": "task_96",
       "title": "Identité des niveaux : formes de salles et décor au plafond",
-      "description": "Des parties qui ne se ressemblent pas : grandes salles rondes, salles à piliers, ponts sur le vide, couloirs en croix, salles d'arène… ; une couche « plafond » (racines, chaînes, stalactites, bannières) dessinée au-dessus du héros et qui s'efface quand il passe dessous ; décors propres à chaque biome. Modulaire, dans les données.",
-      "status": "in_progress",
+      "description": "Fait : 13 formes de salles (rondes, ovales, à piliers en rangées, en cercle ou en grille, croix, L, octogones, alcôves, galeries, anneau autour d'un rocher, bassin d'eau profonde, gouffre traversé de passerelles) choisies par biome dans les données ; un plafond par biome (racines, stalactites, chaînes, cages, bannières, encensoirs fumants, poutres calcinées, arches brisées, auvents, sable qui coule) dessiné au-dessus des personnages et qui s'efface en tramé autour du héros et des monstres ; une salle signature par biome (Creux qui Pleure, Chœur des Racines, Salle des Noyés, Nef des Ossements, Rayonnages Engloutis, Gouffre de Braise, Cercle des Bûchers, Salle du Trône Effondrée, Fosse du Soleil Mort), nommée sur une bannière à l'entrée. À vérifier en jouant : lisibilité sur téléphone, densité du plafond, chutes dans les gouffres (vers les Tréfonds).",
+      "status": "review",
       "priority": "high",
       "epic_id": "epic_81",
       "due_date": null,
@@ -1257,7 +1257,7 @@
         "visuel"
       ],
       "created_at": 1792720000,
-      "updated_at": 1792720000
+      "updated_at": 1792720836
     },
     {
       "id": "task_97",
@@ -1496,6 +1496,116 @@
       ],
       "created_at": 1792716554,
       "updated_at": 1792716554
+    },
+    {
+      "id": "task_105",
+      "title": "Niveaux : vérifier sur téléphone salles, plafond et gouffres",
+      "description": "Jouer quelques étages de chaque acte sur téléphone : le plafond ne cache-t-il rien (télégraphes au sol, objets) ? Sa densité (CeilingDef.density_scale) ; les passerelles des gouffres assez larges (2 cases) ; tomber dans un gouffre envoie aux Tréfonds : trop punitif en Pèlerin ? Perf mesurée seulement sous llvmpipe (+1 à 3 appels de dessin).",
+      "status": "todo",
+      "priority": "high",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "playtest",
+        "niveaux",
+        "perf"
+      ],
+      "created_at": 1792720836,
+      "updated_at": 1792720836
+    },
+    {
+      "id": "task_106",
+      "title": "Plafond vivant : chaînes et racines qui se balancent",
+      "description": "Un léger balancement (pixel par pixel, 4-6 images/s) des chaînes, racines et bannières, une goutte qui tombe des stalactites, une parallaxe discrète des pièces suspendues au-dessus des salles (option écartée pour l'instant : décalage avec les murs).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_80",
+      "due_date": null,
+      "tags": [
+        "visuel",
+        "niveaux",
+        "idée"
+      ],
+      "created_at": 1792720836,
+      "updated_at": 1792720836
+    },
+    {
+      "id": "task_107",
+      "title": "Plus de salles signatures",
+      "description": "Une deuxième salle signature par biome, et pour les Tréfonds et le Charnier sans Nom (une crypte du sceau, une gueule de pierre), chacune avec ses scènes, son plafond et son nom.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_80",
+      "due_date": null,
+      "tags": [
+        "niveaux",
+        "contenu",
+        "idée"
+      ],
+      "created_at": 1792720836,
+      "updated_at": 1792720836
+    },
+    {
+      "id": "task_108",
+      "title": "Formes de salles : pièges propres aux formes",
+      "description": "Des passerelles qui s'effritent au-dessus des gouffres (sol craquelé), des piliers qui s'écroulent sous une explosion et bloquent un passage, un bassin qui déborde (eau peu profonde qui ralentit), des ponts-levis dans les salles signatures.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_80",
+      "due_date": null,
+      "tags": [
+        "niveaux",
+        "combat",
+        "idée"
+      ],
+      "created_at": 1792720836,
+      "updated_at": 1792720836
+    },
+    {
+      "id": "task_109",
+      "title": "Styles d'étage : des parties qui ne se ressemblent pas",
+      "description": "Au-delà des formes de salles : un style d'agencement par étage (cavernes organiques sans couloirs droits, enfilade de salles symétriques d'un temple, labyrinthe de galeries d'archives), tiré par biome ou par route, pour que deux étages du même acte ne se lisent pas pareil.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_80",
+      "due_date": null,
+      "tags": [
+        "niveaux",
+        "idée"
+      ],
+      "created_at": 1792720836,
+      "updated_at": 1792720836
+    },
+    {
+      "id": "task_110",
+      "title": "Arènes de boss et Charnier : formes de salles unifiées",
+      "description": "Les arènes (ArenaDef) ont leurs propres formes (rect, ovale, croix) : les décrire avec RoomShapeDef pour partager le code, et donner des formes aux salles du Charnier sans Nom (aujourd'hui rectangulaires).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "niveaux",
+        "qualité"
+      ],
+      "created_at": 1792720836,
+      "updated_at": 1792720836
+    },
+    {
+      "id": "task_111",
+      "title": "Ambiance sonore des salles signatures",
+      "description": "Une couche d'ambiance propre à chaque salle signature (gouttes du Creux qui Pleure, crépitement du Cercle des Bûchers, vent de sable de la Salle du Trône) qui se mêle à celle du biome quand le héros y entre.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_81",
+      "due_date": null,
+      "tags": [
+        "son",
+        "niveaux",
+        "idée"
+      ],
+      "created_at": 1792720836,
+      "updated_at": 1792720836
     }
   ]
 }
