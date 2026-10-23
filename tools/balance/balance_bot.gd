@@ -8,11 +8,13 @@ extends RefCounted
 ## - KITE: keeps its target at the weapon's range (melee: the edge of its reach) and attacks
 ##   whenever in reach (attacks don't root the hero), even while stepping aside. It reads each
 ##   threat as a player would: steps out of a swing's reach or a skill's circle, off a leap's
-##   line, sideways from shots heading its way, off blinking arena cells, live traps and a
-##   wyrm's burning coils; it rolls only when the blow lands within the roll's invulnerability
-##   (late, not early), and only where the whole roll is solid ground (no pit, crack or wall).
-##   It holds the hit that would set off a boss' shockwave when its roll isn't ready. A decent
-##   player, not a perfect one.
+##   line, sideways out of a fan's cone, sideways from shots heading its way, off blinking arena
+##   cells, live traps and a wyrm's burning coils, and stays out of a cast's later blows (a
+##   wider second ring, a second volley) until they have landed; it rolls only when the blow
+##   lands within the roll's invulnerability (late, not early), over holes if need be but only
+##   to land on solid ground with nothing in the way. It never walks into a hole or cracked
+##   floor it can see, nor dashes (a skill that carries it) into one. It holds the hit that
+##   would set off a boss' shockwave when its roll isn't ready. A decent player, not a perfect one.
 ## - PLAYER ("player"): the kite bot with a human's reaction time (REACTION): a threat (a wind-up,
 ##   a shot, a shockwave's ring) is only answered once it has been there that long, so short
 ##   wind-ups and fast shots land. An average player, for the gauntlet.
@@ -37,6 +39,18 @@ const ROLL_AT_TELEGRAPH := 0.55
 const REPATH_FRAMES := 15
 ## The kite bot keeps this much room (px) between itself and a wyrm's coils.
 const COIL_MARGIN := 14.0
+## Steps (px) at which the way ahead is probed for holes, and how far ahead (a few frames'
+## walk at the hero's speed, 170 a second): a player walks around a hole he sees.
+const HOLE_STEP := 6.0
+const HOLE_LOOKAHEAD := 30.0
+## Points (px) along a roll checked for what would stop it; from ROLL_LANDING on, the ground
+## must hold (the Roll goes 150 px; its end, give or take a step).
+const ROLL_PROBES: Array[float] = [40.0, 80.0, 120.0, 135.0, 150.0, 165.0]
+const ROLL_LANDING := 135.0
+## A dashing skill is used only when the ground holds this far around where it ends.
+const DASH_LANDING_MARGIN := 32.0
+## Seconds after a cast's last delayed blow is due that the bot still keeps out of its way.
+const FOLLOW_UP_MARGIN := 0.15
 
 var style: Style = Style.FACE_TANK
 var player: Player
@@ -62,8 +76,14 @@ var reaction := 0.0
 ## Threat key -> the physics frame it was first seen (reaction).
 var _seen := {}
 
+## Monster id -> { skill, aim } of the cast it is making (seen by the bot).
+var _casting := {}
+## Monster id -> { skill, aim, until (physics frame) }: a cast let go whose later blows are due.
+var _follow_ups := {}
+
 var _hazards: Array[Vector2i] = []
-var _hazard_timer := 0
+## Physics frame the hazard cells were last read (every few frames: walking the tree is slow).
+var _hazard_frame := -100
 var _path := PackedVector2Array()
 var _path_timer := 0
 var _pressed := {}
@@ -98,7 +118,7 @@ func step() -> void:
 		world = player.world
 		_path.clear()
 		_hazards.clear()
-		_hazard_timer = 0
+		_hazard_frame = -100
 	# Skill buttons are read as "just pressed": let go every other frame.
 	_released = _pressed.duplicate()
 	for action: StringName in _pressed.keys():
@@ -181,7 +201,7 @@ func _kite(target: Monster) -> void:
 		if threat.urgent and player.skills.is_ready(0):
 			var roll := _roll_direction(threat.away)
 			if roll != Vector2.ZERO:
-				_move(roll)  # the roll goes where the hero moves
+				_steer(roll)  # the roll goes where the hero moves (over holes: it lands on solid ground)
 				if _press(&"skill_1"):
 					rolls += 1
 		# Attacks don't root the hero: keep hitting while stepping aside if in reach.
@@ -237,10 +257,20 @@ func _threat() -> Dictionary:
 			continue
 		if reaction > 0.0 and monster.is_boss():
 			_seen.erase("ring%d" % monster.get_instance_id())  # the next ring is seen afresh
+		var id := monster.get_instance_id()
 		if monster.telegraph <= 0.0:
-			_seen.erase(monster.get_instance_id())
+			_seen.erase(id)
+			# A cast just let go: its later blows (a wider ring, a second volley, a second leg)
+			# come where its warning showed, until its longest delay has passed: keep out, even
+			# while it warns of its next move.
+			_note_follow_up(monster)
+		var later: Dictionary = _follow_ups.get(id, {})
+		if not later.is_empty() and Engine.get_physics_frames() < int(later.until):
+			var pending: Array = _skill_threat(later.skill, later.aim, 0.0, offset, distance, direction)
+			away += pending[0]
+		if monster.telegraph <= 0.0:
 			continue
-		if not _noticed(monster.get_instance_id()):
+		if not _noticed(id):
 			continue
 		var skill := monster.casting_skill()
 		if skill == null:
@@ -250,24 +280,10 @@ func _threat() -> Dictionary:
 				away += direction * (1.0 + monster.telegraph)
 				urgent = urgent or (monster.telegraph >= 0.75 and distance < reach + 10.0)
 			continue
-		match _skill_kind(skill):
-			"area":
-				var radius := _area_reach(skill) + player.radius + 20.0
-				if distance < radius:
-					away += direction * (1.0 + monster.telegraph)
-					urgent = urgent or (monster.telegraph >= 0.75 and distance < radius - 15.0)
-			"dash":
-				# Aimed at where the hero stood when the cast began: step off that line.
-				var side := monster.facing.orthogonal()
-				if side.dot(offset) < 0.0:
-					side = -side
-				if distance < 420.0:
-					away += side * 1.5
-					urgent = urgent or (monster.telegraph >= 0.85 and absf(offset.dot(monster.facing.orthogonal())) < 70.0)
-			"shots":
-				# A ring or a fan leaves the caster: close, roll through it as it is let go.
-				if distance < 170.0:
-					urgent = urgent or monster.telegraph >= 0.85
+		_casting[id] = { "skill": skill, "aim": monster.facing }
+		var threat := _skill_threat(skill, monster.facing, monster.telegraph, offset, distance, direction)
+		away += threat[0]
+		urgent = urgent or threat[1]
 	for node in world.get_node("Projectiles").get_children():
 		var shot := node as Projectile
 		if shot == null or shot._done or (shot._faction == Actor.Faction.PLAYER and not shot._hits_everyone):
@@ -292,7 +308,72 @@ func _threat() -> Dictionary:
 		var offset := here - world.map.cell_to_world(cell)
 		if offset.length() < world.map.tile_size * 1.2:
 			away += offset.normalized() if offset.length() > 0.1 else Vector2.DOWN
+	# Cracked floor (or a warned cell) under the hero's feet: off it before it gives way.
+	if player.is_grounded() and not _firm(here):
+		var firm := world.nearest_free_point(here)
+		if firm.distance_to(here) > 1.0:
+			away += here.direction_to(firm) * 3.0
 	return { "danger": away != Vector2.ZERO, "urgent": urgent, "away": away.normalized() }
+
+
+## [away, urgent] for a skill cast toward `aim` from `offset` (hero - caster), `progress` of its
+## warning (0..1; 0 for a follow-up blow after the cast).
+func _skill_threat(skill: SkillDef, aim: Vector2, progress: float, offset: Vector2, distance: float, direction: Vector2) -> Array:
+	var away := Vector2.ZERO
+	var urgent := false
+	match _skill_kind(skill):
+		"area":
+			var radius := _area_reach(skill) + player.radius + 20.0
+			if distance < radius:
+				away += direction * (1.0 + progress)
+				urgent = progress >= 0.75 and distance < radius - 15.0
+		"dash":
+			# Aimed at where the hero stood when the cast began: step off that line.
+			var side := aim.orthogonal()
+			if side.dot(offset) < 0.0:
+				side = -side
+			if distance < 420.0:
+				away += side * 1.5
+				urgent = progress >= 0.85 and absf(offset.dot(aim.orthogonal())) < 70.0
+		"shots":
+			# A fan: step out of its cone sideways while it is warned (its lanes are drawn), as
+			# a player does; the shots' own sides cancel out once they fly around the hero.
+			var fan := _fan(skill)
+			if fan and distance < fan.max_distance + 40.0:
+				var half := deg_to_rad(fan.spread_degrees * 0.5) + atan2(player.radius + fan.radius + 8.0, maxf(distance, 1.0))
+				if absf(aim.angle_to(offset)) < half:
+					var side := aim.orthogonal()
+					if side.dot(offset) < 0.0:
+						side = -side
+					away += side * 1.5
+			# A ring or a fan leaves the caster: close, roll through it as it is let go.
+			urgent = distance < 170.0 and progress >= 0.85
+	return [away, urgent]
+
+
+## The first fan of shots a skill throws (spread under a full ring), or null.
+static func _fan(skill: SkillDef) -> ProjectileEffect:
+	for effect in skill.effects:
+		var shots := effect as ProjectileEffect
+		if shots and shots.count > 1 and shots.spread_degrees > 0.0 and shots.spread_degrees < 360.0:
+			return shots
+	return null
+
+
+## When the cast a monster was seen making has let go, remembers its later blows (effects with a
+## delay) until the last one lands.
+func _note_follow_up(monster: Monster) -> void:
+	var id := monster.get_instance_id()
+	if not _casting.has(id):
+		return
+	var cast: Dictionary = _casting[id]
+	_casting.erase(id)
+	var last := 0.0
+	for effect in (cast.skill as SkillDef).effects:
+		last = maxf(last, effect.delay)
+	if last > 0.0:
+		_follow_ups[id] = { "skill": cast.skill, "aim": cast.aim,
+			"until": Engine.get_physics_frames() + roundi((last + FOLLOW_UP_MARGIN) * Engine.physics_ticks_per_second) }
 
 
 ## A monster's wyrm body (its burning coils), if it has one.
@@ -344,10 +425,10 @@ static func _area_reach(skill: SkillDef) -> float:
 ## Cells to keep off: the arena's blinking warnings, traps that are warning or striking.
 ## (Read every few frames: walking the tree each frame is slow.)
 func _hazard_cells() -> Array[Vector2i]:
-	_hazard_timer -= 1
-	if _hazard_timer > 0:
+	var now := Engine.get_physics_frames()
+	if now - _hazard_frame < 6:
 		return _hazards
-	_hazard_timer = 6
+	_hazard_frame = now
 	_hazards.clear()
 	for node in world.get_node("Effects").get_children():
 		if node is CellWarning:
@@ -358,8 +439,9 @@ func _hazard_cells() -> Array[Vector2i]:
 	return _hazards
 
 
-## The way to roll: close to `wanted`, and the whole roll on solid ground (no pit, crack, wall).
-## ZERO when there is no safe roll.
+## The way to roll: close to `wanted`, nothing in the way (a wall or a prop would stop the roll
+## short), and landing on solid ground. A roll carries the hero over holes (PitDef), as a player
+## knows: only where it ends matters. ZERO when there is no safe roll.
 func _roll_direction(wanted: Vector2) -> Vector2:
 	var here := player.global_position
 	var best := Vector2.ZERO
@@ -367,9 +449,10 @@ func _roll_direction(wanted: Vector2) -> Vector2:
 	for i in 16:
 		var direction := Vector2.from_angle(i * TAU / 16.0)
 		var safe := true
-		for step: float in [40.0, 80.0, 120.0, 160.0]:
+		for step: float in ROLL_PROBES:
 			var probe := here + direction * step
-			if not world.is_solid_ground(probe) or world.nav.is_blocked(world.map.world_to_cell(probe)) or not world.has_line_of_sight(here, probe):
+			if world.nav.is_blocked(world.map.world_to_cell(probe)) or not world.has_line_of_sight(here, probe) \
+					or (step >= ROLL_LANDING and not world.is_solid_ground(probe)):
 				safe = false
 				break
 		if not safe:
@@ -417,9 +500,34 @@ func _use_skills(distance: float, target: Actor) -> void:
 	if distance > reach:
 		return
 	for i in range(1, player.skills.skills.size()):
-		if player.skills.skills[i] and player.skills.is_ready(i) and _press(StringName("skill_%d" % (i + 1))):
+		if player.skills.skills[i] and player.skills.is_ready(i) and _lands_safe(player.skills.skills[i]) and _press(StringName("skill_%d" % (i + 1))):
 			skills_used += 1  # presses (a press on cooldown or out of reach does nothing)
 			return  # one a frame, like thumbs
+
+
+## A skill that carries the hero (Iaido Dash, a charge) is used only when it lands him on solid
+## ground: a player sees the hole behind the boss before dashing through it.
+func _lands_safe(skill: SkillDef) -> bool:
+	var aim := player.get_aim_direction(Player.SKILL_AIM_RANGE)
+	var here := player.global_position
+	for effect in skill.effects:
+		var length := 0.0
+		if effect is DashStrikeEffect and (effect as DashStrikeEffect).moves:
+			length = (effect as DashStrikeEffect).distance
+		elif effect is DashEffect:
+			length = (effect as DashEffect).distance
+		if length <= 0.0:
+			continue
+		var end := here + aim * length
+		var wall := world.get_world_2d().direct_space_state.intersect_ray(PhysicsRayQueryParameters2D.create(here, end, Layers.WORLD))
+		if not wall.is_empty():
+			end = here + aim * maxf(here.distance_to(wall.position) - player.radius - 2.0, 0.0)
+		# Around the end too: a dash that meets the boss' body slides along it.
+		var side := aim.orthogonal() * DASH_LANDING_MARGIN
+		for point: Vector2 in [end, end + side, end - side, end + aim * DASH_LANDING_MARGIN, end - aim * DASH_LANDING_MARGIN]:
+			if not _firm(point):
+				return false
+	return true
 
 
 # --- Moving -----------------------------------------------------------------------------
@@ -458,7 +566,7 @@ func _safe_direction(wanted: Vector2) -> Vector2:
 		var direction := Vector2.from_angle(i * TAU / 16.0)
 		var score := direction.dot(wanted)
 		var probe := here + direction * 56.0
-		if not world.is_solid_ground(probe) or not world.has_line_of_sight(here, probe) or world.nav.is_blocked(world.map.world_to_cell(probe)):
+		if not _walkable(direction, 56.0) or not world.has_line_of_sight(here, probe) or world.nav.is_blocked(world.map.world_to_cell(probe)):
 			score -= 3.0
 		if score > best_score:
 			best_score = score
@@ -466,7 +574,36 @@ func _safe_direction(wanted: Vector2) -> Vector2:
 	return best
 
 
+## Whether walking `distance` along `direction` keeps the hero's feet on solid ground, step by
+## step (a hole of one cell lies between two probes 56 px apart: a player sees it and walks
+## around it).
+func _walkable(direction: Vector2, distance: float) -> bool:
+	var here := player.global_position
+	var at := HOLE_STEP
+	while at <= distance:
+		if not _firm(here + direction * at):
+			return false
+		at += HOLE_STEP
+	return true
+
+
+## Ground that holds and stays: no hole, no cracked floor, not a cell the arena warns about
+## (it is about to give way or grow spikes).
+func _firm(point: Vector2) -> bool:
+	return world.is_solid_ground(point) and not _hazard_cells().has(world.map.world_to_cell(point))
+
+
+## Moves (the stick): never straight into a hole or cracked floor the hero can see a few steps
+## ahead; around it when there is a way, else it stops. A blow can still throw him in.
 func _move(direction: Vector2) -> void:
+	if direction != Vector2.ZERO and player.is_grounded() and _firm(player.global_position) \
+			and not _walkable(direction.normalized(), HOLE_LOOKAHEAD):
+		var around := _safe_direction(direction)
+		direction = around if _walkable(around, HOLE_LOOKAHEAD) else Vector2.ZERO
+	_steer(direction)
+
+
+func _steer(direction: Vector2) -> void:
 	_strength(&"move_left", maxf(-direction.x, 0.0))
 	_strength(&"move_right", maxf(direction.x, 0.0))
 	_strength(&"move_up", maxf(-direction.y, 0.0))

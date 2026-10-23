@@ -133,6 +133,12 @@ func _refresh_synergies(announce: bool) -> void:
 	_rebuild_all()
 
 
+## Collected perks, awakened families and worn gear's affixes and runes: every entry whose
+## passives act (what the events go through).
+func all_entries() -> Array[Entry]:
+	return _all
+
+
 func _rebuild_all() -> void:
 	_all = entries.duplicate()
 	_all.append_array(_awake)

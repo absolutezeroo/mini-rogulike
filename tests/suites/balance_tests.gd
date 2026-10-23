@@ -7,8 +7,9 @@ extends TestSuite
 ## - the model (Normal and Hard): one check per kind of target (all its flags are target breaks);
 ## - three real duels against the act I boss on Normal: the degenerate lifesteal build and the
 ##   expected build face-tanking (both must lose, with little healing), the expected build kiting
-##   (should win); the expected builds of acts II-IV face-tanking their boss; the Azure Wyrm on
-##   Keeper (kite wins, face-tank loses). A face-tank win after dying once (a second life) is a
+##   (should win); the expected builds of acts II-IV face-tanking their boss; the Azure Wyrm, Gorr
+##   and the Jade Wyrm on Keeper (kite wins, face-tank loses, no bot walks into a hole); the act
+##   III caster stack face-tanking the Jade Wyrm loses. A face-tank win after dying once (a second life) is a
 ##   loss, and a second life's heal is not counted as healing (targets.facetank_second_life_is_loss);
 ## - the lab's quick marginal values (act II, a few picks) and economy (two Normal floors) run.
 ## Some of these FAIL today, on purpose: they are the balance work to do. Those are listed in
@@ -190,33 +191,66 @@ func _boss_guards(arena: BalanceArena, builds: Array[BalanceBuildDef], targets: 
 			"healed %d%% of the damage taken (target <= %d%%): %s" % [roundi(BalanceArena.sustain_share(r) * 100.0), roundi(targets.heal_share_max_expected * 100.0),
 			BalanceLab.sources_text(r.get("heal_sources", {}))])
 
-	# The Azure Wyrm's pass (2026-10-23): she beat the kite bot on Keeper on every seed (her
-	# slows chained into short-warned dives); now hard but fair: playing her wins most fights,
-	# standing in front of her still loses. Four seeds (one fight may be lost to a pit: the
-	# command line measured 6 kite wins of 8, 1 of 8 before).
-	var wyrm: BossDef = null
-	for candidate: BossDef in BalanceContent.bosses(CONTENT):
-		if candidate.id == &"azure_wyrm":
-			wyrm = candidate
-	var expected_ii := BalanceBuild.expected(builds, 2)
-	check(wyrm != null and expected_ii != null, "the Azure Wyrm and the act II expected build exist")
-	if wyrm and expected_ii:
+	# Hard but fair bosses on Keeper, over four seeds: playing them wins most fights, standing in
+	# front of them still loses. The Azure Wyrm's pass (2026-10-23: her slows chained into
+	# short-warned dives; the command line measured 6 kite wins of 8, 1 before) and Gorr's and the
+	# Jade Wyrm's (2026-10-23: most of the bots' losses were their own reading: walking into
+	# holes, a fan's cone, a Quake's later ring). And the bots never walk into a hole they can see:
+	# a fall is a blow's doing (BalanceArena.FightLog.falls_walked).
+	var fair_bosses := { &"azure_wyrm": 2, &"demon_cyclops": 3, &"jade_wyrm": 3 }
+	var walked := 0
+	var walked_lines := PackedStringArray()
+	for boss_id: StringName in fair_bosses:
+		var fair: BossDef = null
+		for candidate: BossDef in BalanceContent.bosses(CONTENT):
+			if candidate.id == boss_id:
+				fair = candidate
+		var act := BalanceContent.act_of_boss(CONTENT, fair) if fair else 0
+		var expected := BalanceBuild.expected(builds, act)
+		check(fair != null and expected != null, "%s and its act's expected build exist" % boss_id)
+		if fair == null or expected == null:
+			continue
 		var kept_seed := arena.lab.seed_value
 		var kite_wins := 0
 		var lines := PackedStringArray()
 		for s in range(1, 5):
 			arena.lab.seed_value = s
 			for bot in ["kite", "face_tank"]:
-				var r := await arena.fight_boss(wyrm, expected_ii, normal, bot)
+				var r := await arena.fight_boss(fair, expected, normal, bot)
 				var line := BalanceArena.fight_line(r)
 				print("  duel (seed %d): %s" % [s, line])
+				if int(r.get("falls_walked", 0)) > 0:
+					walked += int(r.falls_walked)
+					walked_lines.append("seed %d: %s" % [s, line])
 				if bot == "kite":
 					kite_wins += 1 if r.result == "win" else 0
 					lines.append(line)
 				else:
-					_target(r.result == "loss" or (r.result == "win" and not BalanceArena.facetank_won(r, targets)), "duel: Azure Wyrm face-tank loses on Keeper", "seed %d: %s" % [s, line])
+					_target(r.result == "loss" or (r.result == "win" and not BalanceArena.facetank_won(r, targets)), "duel: %s face-tank loses on Keeper" % fair.display_name, "seed %d: %s" % [s, line])
 		arena.lab.seed_value = kept_seed
-		_target(kite_wins >= 2, "duel: Azure Wyrm kite wins on Keeper", "%d of 4 seeds won (target >= 2): %s" % [kite_wins, " / ".join(lines)])
+		_target(kite_wins >= int(fair_bosses[boss_id]), "duel: %s kite wins on Keeper" % fair.display_name, "%d of 4 seeds won (target >= %d): %s" % [kite_wins, fair_bosses[boss_id], " / ".join(lines)])
+	_target(walked == 0, "duel: the bots never walk into a hole", "%d falls walked into: %s" % [walked, " / ".join(walked_lines)])
+
+	# The act III caster stack (degenerate_skills_a3) won face-tanking the Jade Wyrm on two seeds
+	# of four (its echoes skipped 69% of its cooldowns on top of the cooldown cap): with echoes
+	# capped (DungeonConfig.skill_echo_max_chance) it must lose standing still.
+	var jade: BossDef = null
+	for candidate: BossDef in BalanceContent.bosses(CONTENT):
+		if candidate.id == &"jade_wyrm":
+			jade = candidate
+	var caster: BalanceBuildDef = null
+	for build in builds:
+		if build.name == "degenerate_skills_a3":
+			caster = build
+	if jade and caster:
+		var kept := arena.lab.seed_value
+		for s in range(1, 5):
+			arena.lab.seed_value = s
+			var r := await arena.fight_boss(jade, caster, normal, "face_tank")
+			var line := BalanceArena.fight_line(r)
+			print("  duel (seed %d): %s" % [s, line])
+			_target(not BalanceArena.facetank_won(r, targets), "duel: degenerate_skills_a3 face-tank loses to the Jade Wyrm", "seed %d: %s" % [s, line])
+		arena.lab.seed_value = kept
 
 ## One _target per category: passes when the report has no flag of it.
 func _targets_of(report: BalanceReport, categories: Array) -> void:

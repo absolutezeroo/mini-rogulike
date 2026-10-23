@@ -353,7 +353,29 @@ func _test_synergies_in_game(game: Game, world: World, player: Player) -> void:
 	check(others[0].hp < others_hp[0] or others[1].hp < others_hp[1], "Thunderclap: the shockwave hurts the enemies around")
 	player.perks.clear()
 
-	# Echo: an echo can't echo (a skill is used at most twice per cooldown, whatever the sources).
+	# Echo: every source counts together and stops at the dungeon's cap (balance-log 2026-10-23:
+	# three Echo runes, of Echoes and the Echo perk skipped 69% of cooldowns on top of the
+	# cooldown cap).
+	var config := world.rules.config
+	var cap := config.skill_echo_max_chance
+	check(cap > 0.0 and cap <= 0.5, "skill echoes are capped (%.2f)" % cap)
+	var echo_perk := _perk("echo")
+	var stacked: Array[PerkDef] = [echo_perk]
+	for i in 3:
+		var rune := PerkDef.new()
+		rune.id = StringName("echo_rune_%d" % i)
+		rune.passives = (load("res://data/runes/echo.tres") as RuneDef).passives
+		stacked.append(rune)
+	for perk in stacked:
+		player.perks.add(perk)
+	for i in 2:
+		player.perks.add(echo_perk)  # the Echo perk at 3 levels: 45% on its own
+	var uncapped := SkillEchoPassive.total_chance(player, 1.0)
+	check(uncapped > cap and is_equal_approx(SkillEchoPassive.total_chance(player), cap),
+		"Echo: the perk and three runes (%d%% together) echo %d%% of the time, the cap" % [roundi(uncapped * 100.0), roundi(SkillEchoPassive.total_chance(player) * 100.0)])
+	player.perks.clear()
+	# An echo can't echo (a skill is used at most twice per cooldown, whatever the sources).
+	config.skill_echo_max_chance = 1.0
 	var sure_echo: PerkDef = _perk("echo").duplicate()
 	var always := SkillEchoPassive.new()
 	always.chance_per_stack = 1.0
@@ -367,6 +389,7 @@ func _test_synergies_in_game(game: Game, world: World, player: Player) -> void:
 			uses += 1
 		await _frames(1)
 	check(uses == 2, "Echo: a 100%% echo gives one free cast, not a loop (%d casts)" % uses)
+	config.skill_echo_max_chance = cap
 	player.perks.clear()
 
 	# Healing spells heal in full outside a boss fight, and half during one.

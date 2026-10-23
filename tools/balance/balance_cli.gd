@@ -31,6 +31,8 @@ extends Node
 ##   --timeout=240                 arena: game seconds before a fight is called a timeout
 ##   --plain                       arena: plain bosses only (no Epic/Legendary/Shiny fights)
 ##   --no-weapons                  arena: skip the weapon arena (boss fights only)
+##   --hits                        arena: print every hit the hero takes in each fight measured (what,
+##                                 how hard it pushed, near a hole?), and the falls with their cause
 ##   --jobs=N                      worker processes sharing the measures (default 2: this machine's CPUs)
 ##   --cache=<dir>                 where measures are kept between runs (default user://balance_cache)
 ##   --no-cache                    measure everything again (the results are still kept)
@@ -353,6 +355,7 @@ func _arena(content: ContentDB, targets: BalanceTargets, every_build: Array[Bala
 	arena.timeout = _args.timeout
 	arena.quick = _args.quick
 	arena.plain_only = _args.plain
+	BalanceArena.FightLog.log_hits = _args.hits
 	arena.verbose = _jobs.measuring
 	arena.weapon_ids = _args.weapons
 	for a: String in _args.acts:
@@ -450,7 +453,7 @@ static func parse_args(user_args: PackedStringArray) -> Dictionary:
 		"bots": PackedStringArray(["face_tank", "kite"]), "acts": PackedStringArray(), "weapons": PackedStringArray(),
 		"only": PackedStringArray(), "out": DEFAULT_OUT, "seed": 1,
 		"all_pairs": false, "timeout": 240.0, "quick": false, "jobs": 2, "worker": "", "cache": DEFAULT_CACHE, "no_cache": false,
-		"inputs": PackedStringArray(), "plain": false, "no_weapons": false, "classic": false, "no_renew": false, "bots_given": false, "gauntlet": "all", "claims": "",
+		"inputs": PackedStringArray(), "plain": false, "no_weapons": false, "classic": false, "no_renew": false, "hits": false, "bots_given": false, "gauntlet": "all", "claims": "",
 	}
 	for arg in user_args:
 		var key := arg.get_slice("=", 0)
@@ -472,6 +475,7 @@ static func parse_args(user_args: PackedStringArray) -> Dictionary:
 			"--quick": args.quick = true
 			"--plain": args.plain = true
 			"--no-weapons": args.no_weapons = true
+			"--hits": args.hits = true
 			"--jobs": args.jobs = maxi(1, int(value))
 			"--worker": args.worker = value
 			"--cache": args.cache = value

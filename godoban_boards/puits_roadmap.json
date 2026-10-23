@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 95,
+  "next_id": 100,
   "tags": [
     "pc",
     "test",
@@ -1024,8 +1024,8 @@
     {
       "id": "task_73",
       "title": "Gorr le Borgne : le boss le plus dur de l'acte II en Gardien",
-      "description": "Après la passe de la Guivre d'Azur, Gorr est le plus dur de l'acte II en Gardien : kite 1/8, bot « joueur » 0/8 (graines 1-8), souvent projeté dans les fosses par son séisme (chutes 54-162). C'est le boss principal (celui du parcours « gauntlet »). Mesurer sur plusieurs graines, puis passe dédiée si ça se confirme.",
-      "status": "backlog",
+      "description": "Après la passe de la Guivre d'Azur, Gorr est le plus dur de l'acte II en Gardien : kite 1/8, bot « joueur » 0/8 (graines 1-8), souvent projeté dans les fosses par son séisme (chutes 54-162). C'est le boss principal (celui du parcours « gauntlet »). Mesurer sur plusieurs graines, puis passe dédiée si ça se confirme.\n\nRésultat (passe du 23/10, docs/balance-log.md) : graines 1-8, Gardien. Avant : kite 1/8, joueur 0/8, face-tank 0/8. Les « chutes dues au séisme » étaient surtout le bot qui marchait dans les trous (5 chutes sur 7). Injuste trouvé : le second anneau du Séisme furieux (169 px) frappait hors du cercle annoncé (130) → l'avertissement montre toute la portée. Bots corrigés (trous, éventails, coups retardés). Après : kite 8/8, joueur 0/8 (boss à 5-31 %), face-tank 0/8. Dur mais lisible ; essais non gardés : PV 1050, rayon prévenu 0,45 s, portée min. 140. À tester en jeu (carte de suivi).",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_2",
       "due_date": null,
@@ -1034,13 +1034,13 @@
         "boss"
       ],
       "created_at": 1792710765,
-      "updated_at": 1792710765
+      "updated_at": 1792715509
     },
     {
       "id": "task_74",
       "title": "Guivre de Jade : même plongeon que l'ancienne Guivre d'Azur",
-      "description": "Sa Ruée annelée furieuse prévient 0,30 s en phase 3 (Gardien), frappe une bande de 44 px de chaque côté et enchaîne un second élan 0,55 s après. Avec le bot qui évite les anneaux, kite 3/4 en Gardien. À revoir lors d'une passe sur l'acte III (mêmes corrections que la Guivre d'Azur si besoin).",
-      "status": "backlog",
+      "description": "Sa Ruée annelée furieuse prévient 0,30 s en phase 3 (Gardien), frappe une bande de 44 px de chaque côté et enchaîne un second élan 0,55 s après. Avec le bot qui évite les anneaux, kite 3/4 en Gardien. À revoir lors d'une passe sur l'acte III (mêmes corrections que la Guivre d'Azur si besoin).\n\nRésultat : règle des plongeons étendue à tous les boss, pilotée par les données (targets.tres : 0,45 s en dernière phase en Gardien, bande ≤ corps + 8 px, pas de ralentissement ; UnitTests._test_boss_warnings). Guivre de Jade : bande 44 → 30 px, Ruée Ondulante furieuse 0,30 → 0,45 s. Aussi : sauts furieux de la Matrone du Bourbier et du Accapareur Doré 0,37 → 0,45 s, Pas du Gardien furieux de Tôma 0,32 → 0,45 s ; Arc de Flammes furieux du Rônin : second coup dans l'arc annoncé. Jade (graines 1-8) : kite 6 → 7/8, joueur 4 → 3/8, face-tank 0/8.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_2",
       "due_date": null,
@@ -1049,13 +1049,13 @@
         "boss"
       ],
       "created_at": 1792710765,
-      "updated_at": 1792710765
+      "updated_at": 1792715509
     },
     {
       "id": "task_75",
       "title": "degenerate_skills_a3 gagne en face-tank contre la Guivre de Jade",
-      "description": "Gagne à 23 % de vie sans mourir (soins de Dévotion) : vraie entorse au pilier « le face-tank perd ». Aussi : part de soin 68-100 % de ce build contre le Tengu et la Jade. À traiter dans une passe soins/compétences.",
-      "status": "backlog",
+      "description": "Gagne à 23 % de vie sans mourir (soins de Dévotion) : vraie entorse au pilier « le face-tank perd ». Aussi : part de soin 68-100 % de ce build contre le Tengu et la Jade. À traiter dans une passe soins/compétences.\n\nRésultat : ce n'était pas Dévotion (18-46 PV soignés, 9-28 % des dégâts, sous le plafond de 50 %) mais les dégâts : 2,84x le build attendu (modèle), les échos cumulés renvoyaient 69 % des sorts en plus du plafond de recharge. Règle : tous les échos ensemble plafonnés à 45 % (DungeonConfig.skill_echo_max_chance, textes mis à jour). Face-tank contre la Jade : 1-2/4 → 0/4 ; modèle 2,84x → 2,52x (cible 2,5x, encore signalé de peu).",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_2",
       "due_date": null,
@@ -1063,13 +1063,13 @@
         "équilibrage"
       ],
       "created_at": 1792710765,
-      "updated_at": 1792710765
+      "updated_at": 1792715509
     },
     {
       "id": "task_76",
       "title": "Bots d'équilibrage : chutes dans les fosses",
-      "description": "Les bots perdent des combats en tombant dans les fosses après un coup qui repousse (ex. Guivre d'Azur graines 2 et 8, Gorr). Un joueur évite mieux les bords : apprendre aux bots à se tenir loin des trous pendant un combat de boss, pour des mesures plus justes.",
-      "status": "backlog",
+      "description": "Les bots perdent des combats en tombant dans les fosses après un coup qui repousse (ex. Guivre d'Azur graines 2 et 8, Gorr). Un joueur évite mieux les bords : apprendre aux bots à se tenir loin des trous pendant un combat de boss, pour des mesures plus justes.\n\nRésultat : les bots ne marchent plus dans un trou / sol fissuré / case annoncée visibles, ne roulent par-dessus qu'en atterrissant sur du solide, n'utilisent un sort qui les déplace que s'il atterrit sur du solide. Après (180 combats) : 5 chutes projetées, 6 marchées (sol qui cède sous un bot immobile, glissade le long du boss). Bug de jeu corrigé : le héros remontait sous le corps du boss et retombait (4 chutes en 1,5 s). Verdict : le recul près des trous est juste (coups annoncés, recul prévisible, trous visibles, chute = ~1 coup, 15 % des PV) ; pas de changement de design proposé.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_2",
       "due_date": null,
@@ -1078,7 +1078,7 @@
         "test"
       ],
       "created_at": 1792710765,
-      "updated_at": 1792710765
+      "updated_at": 1792715509
     },
     {
       "id": "task_77",
@@ -1126,7 +1126,112 @@
       "updated_at": 1792711393
     },
     {
+      "id": "task_80",
+      "title": "Gorr le Borgne : tester en jeu après la passe de lisibilité",
+      "description": "Après la passe du 23/10 : kite 8/8, bot « joueur » 0/8 (boss à 5-31 %), face-tank 0/8 en Gardien. Sa 1re phase coûte 44 PV au bot joueur (la Mère des Larmes 12, la Guivre d'Azur 17), surtout le Rayon Oculaire quand on revient au contact après un coup de massue ou un Séisme ; ses combats sont les plus longs de l'acte (94-142 s pour le kite, cible 40-100 s). Dur mais lisible : à jouer avant de toucher un chiffre.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "équilibrage",
+        "boss",
+        "playtest"
+      ],
+      "created_at": 1792715509,
+      "updated_at": 1792715509
+    },
+    {
+      "id": "task_81",
+      "title": "La Matrone du Bourbier bat souvent le bot kite en Gardien",
+      "description": "Boss alternatif de l'acte I : kite 4/8, joueur 0/8, face-tank 0/4 (graines 1-8, passe du 23/10). Hors de la cible « le kite gagne en Gardien ». À mesurer (journal des coups, --hits) et corriger ce qui est injuste.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "équilibrage",
+        "boss"
+      ],
+      "created_at": 1792715509,
+      "updated_at": 1792715509
+    },
+    {
       "id": "task_82",
+      "title": "Le Rônin des Braises bat le bot kite en Gardien",
+      "description": "Acte III : kite 1/4, joueur 0/4 (boss à 24-33 %), face-tank 0/4 (graines 1-4, passe du 23/10). Hors de la cible « le kite gagne en Gardien ». À mesurer (journal des coups) avant de corriger.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "équilibrage",
+        "boss"
+      ],
+      "created_at": 1792715509,
+      "updated_at": 1792715509
+    },
+    {
+      "id": "task_83",
+      "title": "Avertissement visible jusqu'au dernier coup d'un sort",
+      "description": "Le dessin d'un avertissement disparaît quand le sort part ; le second anneau du Séisme furieux, une seconde volée ou un second élan arrivent 0,4-0,7 s plus tard sans rien de dessiné (désormais toujours à l'intérieur de ce qui a été dessiné). Garder le dessin (atténué) jusqu'au dernier coup retardé. Travail VFX/télégraphe.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "vfx",
+        "combat"
+      ],
+      "created_at": 1792715509,
+      "updated_at": 1792715509
+    },
+    {
+      "id": "task_84",
+      "title": "Idée : règle de lisibilité pour les éventails en dernière phase",
+      "description": "Le Rayon Oculaire furieux de Gorr (0,32 s), le Souffle de Givre et le Crachat de Venin des guivres (0,30 s), le Crachat de Poison de la Matrone (0,32 s) préviennent moins qu'un temps de réaction humain à courte portée. Proposition : comme les plongeons, au moins 0,45 s en dernière phase en Gardien. Non appliqué (changerait plusieurs boss) : à décider.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "équilibrage",
+        "idée"
+      ],
+      "created_at": 1792715509,
+      "updated_at": 1792715509
+    },
+    {
+      "id": "task_85",
+      "title": "degenerate_skills_a3 encore à 2,52x (cible 2,5x)",
+      "description": "Après le plafond des échos (45 %), le modèle donne 2,52x le build attendu de l'acte III (était 2,84x). Sans le Codex du Sage : 2,05x ; sans Puissance Arcanique : 2,22x. Le face-tank perd désormais. À revoir si le signal compte (Codex : puissance + recharge).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "équilibrage"
+      ],
+      "created_at": 1792715509,
+      "updated_at": 1792715509
+    },
+    {
+      "id": "task_86",
+      "title": "Bots d'équilibrage : chutes restantes",
+      "description": "Après la passe du 23/10 : 6 chutes « marchées » en 180 combats — le sol qui cède sous un bot immobile (case fissurée, anneau qui se referme) et une Ruée Iaido qui glisse le long du boss. Mesures peu touchées ; à affiner si besoin (journal --hits).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "équilibrage",
+        "test"
+      ],
+      "created_at": 1792715509,
+      "updated_at": 1792715509
+    },
+    {
+      "id": "task_95",
       "title": "Identité sonore : une musique par lieu",
       "description": "Seulement 4 morceaux pour 9 biomes, 4 actes, les Tréfonds, le Seuil, le sanctuaire et le combat final. Donner un thème à chaque acte/biome, aux Tréfonds, au Seuil, au sanctuaire ; un vrai thème final qui bascule quand la Gueule se lève ; nappes d'ambiance par biome ; audit des bruitages récents (dialogues, sac, atouts). Pack Ninja Adventure (40 musiques CC0).",
       "status": "in_progress",
@@ -1140,7 +1245,7 @@
       "updated_at": 1792720000
     },
     {
-      "id": "task_83",
+      "id": "task_96",
       "title": "Identité des niveaux : formes de salles et décor au plafond",
       "description": "Des parties qui ne se ressemblent pas : grandes salles rondes, salles à piliers, ponts sur le vide, couloirs en croix, salles d'arène… ; une couche « plafond » (racines, chaînes, stalactites, bannières) dessinée au-dessus du héros et qui s'efface quand il passe dessous ; décors propres à chaque biome. Modulaire, dans les données.",
       "status": "in_progress",
@@ -1155,7 +1260,7 @@
       "updated_at": 1792720000
     },
     {
-      "id": "task_84",
+      "id": "task_97",
       "title": "Mettre la clé de signature Android en sécurité",
       "description": "La clé (puits-release.keystore + mot de passe) n'existe que dans l'espace de travail de Claude, qui peut être effacé. Sans elle, plus aucune mise à jour possible sur le Play Store. À copier chez toi, hors du dépôt.",
       "status": "todo",
@@ -1170,7 +1275,7 @@
       "updated_at": 1792720000
     },
     {
-      "id": "task_85",
+      "id": "task_98",
       "title": "Mesurer les performances sur le S23",
       "description": "Tous les nouveaux effets, shaders et dialogues n'ont jamais été mesurés sur le téléphone (images/s, mémoire, chauffe).",
       "status": "backlog",
@@ -1185,7 +1290,7 @@
       "updated_at": 1792720000
     },
     {
-      "id": "task_86",
+      "id": "task_99",
       "title": "Fiche Play Store",
       "description": "Description FR/EN, captures, icône, page de confidentialité (docs/android.md), classification.",
       "status": "backlog",
