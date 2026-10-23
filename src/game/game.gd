@@ -191,6 +191,8 @@ func _connect_events() -> void:
 	Events.boss_rising.connect(_on_boss_rising)
 	Events.monster_killed.connect(func(monster: Monster) -> void:
 		if monster.world == world and monster.def is BossDef:
+			if (monster.def as BossDef).next_boss:
+				Sfx.stop_music(0.6)  # its music dies with it: silence while the next form rises
 			_say_last_words(monster.def as BossDef))
 	menus.ending.chosen.connect(_on_ending_chosen)
 	Events.ambush_started.connect(func(_room: AmbushRoom) -> void:
@@ -471,7 +473,7 @@ func open_fragment(piece: Fragment) -> void:
 			Events.log_message(tr(content.narrative.fragment_message) % tr(piece.def.title), UiSkin.GOLD)
 	world.fragment_taken = true
 	piece.take()
-	Sfx.play_ui(Sfx.bank.ui_open)
+	Sfx.play_ui(Sfx.bank.fragment_found if first and Sfx.bank.fragment_found else Sfx.bank.ui_open)
 	_set_paused(true)
 	menus.fragment.open(piece.def, piece.boss, first)
 
@@ -655,9 +657,17 @@ func play_floor_mood() -> void:
 	ambience.play(mood, world, player, world.floor_event.atmosphere if world.floor_event else null)
 	var boss_def := world.arena.boss.def as BossDef if world.is_boss_fight() else null
 	if boss_def:
-		Sfx.play_music(boss_def.music if boss_def.music else Sfx.bank.boss_music)
-	elif world.theme:
-		Sfx.play_music(world.theme.music)
+		Sfx.play_music(Soundtrack.boss_music(boss_def, _fight_act(), Sfx.bank))
+	else:
+		Sfx.play_music(Soundtrack.floor_music(world.theme))
+
+
+## The act whose warden is fought on this floor (its boss music); null on the hidden floor and at
+## the bottom of the Well (their bosses bring their own).
+func _fight_act() -> ActDef:
+	if world == null or world.hidden_floor or world.finale:
+		return null
+	return content.dungeon.act_for_depth(depth)
 
 
 ## The log (and banners when the cards are off): the act, the floor's event or curse, the goal.
@@ -761,9 +771,7 @@ func _on_boss_started(boss: Monster) -> void:
 		Events.log_message("%s, %s" % [tr(boss.display_name), tr(def.title)], Palette.DANGER)
 	if def and player:
 		player.camera.lean_toward(boss, def.camera_lean, boss.head_height * 0.45)
-	var music := def.music if def and def.music else Sfx.bank.boss_music
-	if music:
-		Sfx.play_music(music)
+	Sfx.play_music(Soundtrack.boss_music(def, _fight_act(), Sfx.bank))
 
 
 ## A warden's last words (BossMeeting.last_words()), a moment after its fall (a deed just done
@@ -787,6 +795,7 @@ func _say_last_words(def: BossDef) -> void:
 ## and the view turns to it.
 func _on_boss_rising(_fallen: Monster, risen: Monster, seconds: float) -> void:
 	var def := risen.def as BossDef
+	# (Silent since the first form fell: its own music begins once it fights, _on_boss_started.)
 	if def and player:
 		player.camera.lean_toward(risen, def.camera_lean, risen.head_height * 0.45)
 	var darken := create_tween()
@@ -806,8 +815,9 @@ func _on_boss_defeated(boss: Monster) -> void:
 	hud.show_banner(tr("Victory Achieved"))
 	Sfx.play_ui(Sfx.bank.boss_defeated)
 	Events.log_message(tr("%s falls. The way down lies open.") % tr(boss.display_name), Palette.GOLD)
-	if world.theme:
-		Sfx.play_music(world.theme.music)
+	# The fight's music gives way to the sting, then the floor's comes back.
+	Sfx.stop_music(0.4)
+	Sfx.play_music(Soundtrack.floor_music(world.theme), Sfx.mix.sting_gap)
 	var def := boss.def as BossDef
 	run.last_boss = def
 	var winner := player
@@ -873,6 +883,7 @@ func _on_continue_endless() -> void:
 	_set_paused(false)
 	Events.log_message(tr("Endless mode: the dungeon goes on, harder and harder."), Palette.DANGER)
 	offers.add_relic(run.last_boss)
+	Sfx.play_music(Soundtrack.floor_music(world.theme))
 	_show_next_offer()
 
 
@@ -898,6 +909,10 @@ func _show_end(victory: bool, earned: int, new_record: bool = false, ending: End
 	elif content.story and (victory or spoken.is_empty()):
 		story = tr(content.story.victory_text if victory else content.story.random_death_line())
 	var rows := run.summary_rows(content, player.level, _record_text(new_record) if victory else "")
+	if victory:
+		Sfx.play_music(ending.music if ending and ending.music else Sfx.bank.victory_music)
+	else:
+		Sfx.play_music(Sfx.bank.defeat_music, Sfx.mix.sting_gap)  # after the game_over sting
 	game_over_panel.show_end(victory, story, rows, earned, Profile.souls, tr(ending.title) if ending else "", spoken)
 
 
@@ -1039,6 +1054,7 @@ func _on_player_died(_actor: Actor) -> void:
 	var earned := _award_souls(false)
 	_records.record_history()
 	Profile.save_profile()
+	Sfx.stop_music(1.0)  # the floor falls silent; the sting, then the end screen's music
 	await get_tree().create_timer(1.2).timeout
 	Sfx.play_ui(Sfx.bank.game_over)
 	menus.show_on_top(game_over_panel)

@@ -61,6 +61,20 @@ extends Resource
 @export var combat_attenuation: float = 2.0
 @export var world_attenuation: float = 1.5
 
+@export_group("Music")
+## The music player's level (dB) under the Music bus: every track is loudness-matched to about
+## -19 LUFS when it is added (docs/design/presentation.md, "Music"), so one level fits all.
+@export var music_volume_db: float = -8.0
+## A new track fades in over this long while the old one fades out over `music_fade_out`: the
+## two overlap (a crossfade, never a gap).
+@export var music_fade_in: float = 1.2
+@export var music_fade_out: float = 0.9
+## After a sting (a warden slain, the end of a run), the next music waits this long so the
+## sting is heard alone.
+@export var sting_gap: float = 2.2
+## How fast the music dips under a scene (a boss's story) and comes back (seconds).
+@export var duck_time: float = 0.5
+
 @export_group("Trims")
 ## Per-sound gain (dB) added wherever it plays: evens out sounds recorded too hot or too bright.
 @export var trims: Dictionary[AudioStream, float] = {}

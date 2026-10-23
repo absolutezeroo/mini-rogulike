@@ -7,6 +7,13 @@ extends Resource
 
 @export var steps: Array[CinematicStep] = []
 
+@export_group("Music")
+## A quiet bed under the scene (a boss's story), crossfaded in as it begins; the fight's music
+## follows it. Null: the music playing goes on, lowered by `duck_db`.
+@export var music: AudioStream
+## The music under the scene is lowered this much (dB; 0: not at all), and comes back after.
+@export_range(-30.0, 0.0, 0.5) var duck_db: float = -6.0
+
 @export_group("Letterbox")
 ## Each black bar's height, as a share of the screen's (the bottom one grows to hold the text).
 @export_range(0.0, 0.3, 0.01) var letterbox_height: float = 0.12

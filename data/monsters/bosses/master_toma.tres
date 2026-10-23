@@ -17,6 +17,7 @@
 [ext_resource type="Resource" path="res://data/monsters/bosses/the_maw.tres" id="15_maw"]
 [ext_resource type="Resource" path="res://data/story/chronicles/master_toma.tres" id="90_chronicle"]
 [ext_resource type="Resource" path="res://data/materials/flesh.tres" id="99_material"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/end_theme_2.ogg" id="snd_end_theme_2"]
 
 [sub_resource type="Resource" id="Resource_guard_stats"]
 script = ExtResource("6_stats")
@@ -94,3 +95,4 @@ icon = ExtResource("4_portrait")
 glyph = "T"
 color = Color(0.78, 0.66, 1, 1)
 spawn_weight = 0
+music = ExtResource("snd_end_theme_2")

@@ -19,6 +19,10 @@
 [ext_resource type="AudioStream" path="res://data/audio/forge_set.tres" id="17_forge_set"]
 [ext_resource type="AudioStream" path="res://data/audio/forge_take.tres" id="18_forge_take"]
 [ext_resource type="AudioStream" path="res://data/audio/knell.tres" id="19_knell"]
+[ext_resource type="AudioStream" path="res://data/audio/drop.tres" id="20_drop"]
+[ext_resource type="AudioStream" path="res://data/audio/dismantle.tres" id="21_dismantle"]
+[ext_resource type="AudioStream" path="res://data/audio/fragment_found.tres" id="22_fragment"]
+[ext_resource type="AudioStream" path="res://data/audio/maw_bite.tres" id="23_maw_bite"]
 
 [resource]
 script = ExtResource("1_mix")
@@ -70,5 +74,9 @@ ExtResource("15_gate"): -3.0,
 ExtResource("16_sink"): -2.0,
 ExtResource("17_forge_set"): -3.0,
 ExtResource("18_forge_take"): -4.0,
-ExtResource("19_knell"): -3.0
+ExtResource("19_knell"): -3.0,
+ExtResource("20_drop"): -6.0,
+ExtResource("21_dismantle"): -9.0,
+ExtResource("22_fragment"): -3.0,
+ExtResource("23_maw_bite"): 2.0
 })

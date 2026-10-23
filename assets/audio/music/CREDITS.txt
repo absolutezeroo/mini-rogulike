@@ -1,0 +1,31 @@
+Music: Ninja Adventure asset pack by Pixel-boy and AAA (CC0 1.0, assets/LICENSE_NinjaAdventure.txt,
+https://pixel-boy.itch.io/ninja-adventure-asset-pack), Audio/Musics. Loudness-matched (a plain gain
+toward -19 LUFS, true peak under -1.5 dB) and re-encoded as Vorbis quality 1 for the game.
+Where each one plays and why: docs/design/presentation.md, "Music".
+
+aquatic.ogg       = 18 - Aquatic
+ascension.ogg     = 19 - Ascension
+boss.ogg          = 17 - Fight
+cave.ogg          = 2 - The Cave
+credit_theme.ogg  = 15 - Credit Theme
+crypt.ogg         = 40 - Crypt
+curse.ogg         = 14 - Curse
+dark_castle.ogg   = 10 - Dark Castle
+dark_forest.ogg   = 37 - Dark Forest
+dream.ogg         = 22 - Dream
+dungeon.ogg       = 21 - Dungeon
+end_theme.ogg     = 8 - End Theme
+end_theme_2.ogg   = 25 - End Theme 2
+fight_ii.ogg      = 34 - Fight
+final_area.ogg    = 24 - Final Area
+lament.ogg        = 29 - Lament
+lost_village.ogg  = 26 - Lost Village
+manor.ogg         = 32 - Manor
+melancholia.ogg   = 16 - Melancholia
+mystical.ogg      = 13 - Mystical
+revelation.ogg    = 3 - Revelation
+ruins.ogg         = 30 - Ruins
+sad_theme.ogg     = 7 - Sad Theme
+story.ogg         = 6 - Story (Short)
+temple.ogg        = 12 - Temple
+tension.ogg       = 28 - Tension

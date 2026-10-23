@@ -11,6 +11,8 @@ extends Control
 
 const GAME_SCENE := "res://src/game/game.tscn"
 const STORY_SCENE := "res://src/ui/story/story_screen.tscn"
+## Seconds before the shrine's bell tolls (the music first).
+const TITLE_BELL_DELAY := 1.4
 ## The dark text of the theme's orange buttons.
 const BUTTON_TEXT := Color(0.16862746, 0.11372549, 0.14117648)
 
@@ -32,15 +34,27 @@ var keeper: ShrineKeeper
 var talk: DialogueScreen
 
 
+## The shrine's music (SoundBank.title_music: Kagari asleep above the Well), and its bell tolled
+## once as the screen opens (title_bell); the first act's music if the bank has none.
+func _play_music() -> void:
+	var bank := Sfx.bank
+	var music := bank.title_music
+	if music == null and not content.dungeon.acts.is_empty():
+		var biome := content.dungeon.acts[0].main_biome()
+		music = Soundtrack.floor_music(biome.theme) if biome else null
+	Sfx.play_music(music)
+	if bank.title_bell:
+		get_tree().create_timer(TITLE_BELL_DELAY).timeout.connect(func() -> void:
+			if is_inside_tree() and visible:
+				Sfx.play_ui(bank.title_bell, bank.title_bell_db))
+
+
 func _ready() -> void:
 	get_tree().paused = false
 	add_to_group(MenuNav.GROUP)  # its buttons, for keys and gamepads
 	if content.sounds:
 		Sfx.bank = content.sounds
-	var first_act := content.dungeon.acts[0] if not content.dungeon.acts.is_empty() else null
-	var biome := first_act.main_biome() if first_act else null
-	if biome and biome.theme:
-		Sfx.play_music(biome.theme.music)
+	_play_music()
 	if content.story:
 		(%Title as Label).text = tr(content.story.title)
 		(%Subtitle as Label).text = tr(content.story.tagline)

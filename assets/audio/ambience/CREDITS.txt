@@ -1,0 +1,5 @@
+Background loops (AmbienceDef.bed) from the Ninja Adventure asset pack by Pixel-boy and AAA
+(CC0 1.0, assets/LICENSE_NinjaAdventure.txt), Audio/Sounds/Ambient, made mono, filtered, matched
+in level and made seamless (the last 2 s crossfaded into the start):
+breath/bed.ogg = Wind2 (low-passed at 1.2 kHz), water/bed.ogg = River (low-passed at 3 kHz),
+wind/bed.ogg = Wind, tar/bed.ogg = WaveFar (low-passed at 900 Hz).

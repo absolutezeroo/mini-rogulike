@@ -7,6 +7,8 @@ extends TestSuite
 func run() -> void:
 	_test_sound_buses()
 	_test_sound_mix()
+	_test_music_map()
+	_test_music_player()
 
 
 ## Every sound on the bus of its slider: the bus layout, the Sfx players, the scenes' players,
@@ -65,7 +67,8 @@ func _test_sound_buses() -> void:
 	var allowed := {
 		"ui_click": ["play_ui"], "ui_open": ["play_ui"], "ui_close": ["play_ui"], "level_up": ["play_ui"],
 		"perk_chosen": ["play_ui"], "stairs": ["play_ui"], "game_over": ["play_ui"], "boss_defeated": ["play_ui"],
-		"equip": ["play_ui"],
+		"equip": ["play_ui"], "dismantle": ["play_ui"], "fragment_found": ["play_ui"],
+		"drop": ["play_world"],
 		"player_hurt": ["play_at"], "player_death": ["play_at"], "monster_hurt": ["play_at"], "monster_death": ["play_at"],
 		"monster_alert": ["play_at"], "projectile_impact": ["play_at"], "explosion": ["play_at"],
 		"footstep": ["play_world"], "pickup": ["play_world"], "gate": ["play_world"], "fall": ["play_world"],
@@ -165,6 +168,95 @@ func _test_sound_mix() -> void:
 	for key: StringName in Settings.VOLUME_BUSES:
 		Settings.set(key, 0.8 if key == &"music_volume" else 1.0)
 	Settings.apply()
+
+
+## Every place has its music (docs/design/presentation.md, "Music"): no place silent by mistake,
+## each act's wardens fight to their own, the final fight changes track when the Maw rises, every
+## track is a file of the game that loops, and no music file lies unused.
+func _test_music_map() -> void:
+	var places := Soundtrack.places(CONTENT)
+	var silent := PackedStringArray()
+	for place: String in places:
+		if places[place] == null:
+			silent.append(place)
+	check(places.size() >= 30 and silent.is_empty(), "music: every place resolves to a track (%d places; silent: %s)" % [places.size(), ", ".join(silent)])
+	var bank := CONTENT.sounds
+	var config := CONTENT.dungeon
+	# Each act fights to its own: no act's warden music is another act's.
+	var by_act := {}
+	for act in config.acts:
+		var tracks := {}
+		for boss in act.all_bosses():
+			tracks[Soundtrack.boss_music(boss, act, bank)] = true
+		check(act.boss_music != null, "music: %s has its wardens' music" % act.subtitle)
+		for other: ActDef in by_act:
+			for track: AudioStream in tracks:
+				check(not by_act[other].has(track), "music: %s's wardens don't fight to %s's track (%s)" % [act.subtitle, other.subtitle, track.resource_path.get_file()])
+		by_act[act] = tracks
+	var finale := config.finale
+	var forms := finale.boss.forms()
+	check(forms.size() >= 2, "music: the final fight has two forms")
+	var form_tracks := forms.map(func(form: BossDef) -> AudioStream: return Soundtrack.boss_music(form, null, bank))
+	check(form_tracks[0] != form_tracks[1], "music: Tôma and the Maw fight to different tracks")
+	check(form_tracks[0] != bank.boss_music and form_tracks[1] != bank.boss_music, "music: neither is the generic boss theme")
+	var hidden_boss := config.hidden_floor.boss
+	check(hidden_boss.music != null, "music: the hidden floor's warden has its own")
+	for ending in finale.endings:
+		check(ending.music != null, "music: the ending %s has its music" % ending.id)
+	check(CONTENT.narrative.full_cinematic.music != null and CONTENT.narrative.short_cinematic.duck_db < 0.0, "music: a quiet bed under a warden's full story, the music lowered under the short one")
+	check(bank.title_music != null and bank.title_bell != null, "music: the shrine has its music and its bell")
+	# Every track a file of the game, looped in its import; every music file used.
+	var used := {}
+	for place: String in places:
+		var track: AudioStream = places[place]
+		if track:
+			used[track.resource_path] = true
+	used[CONTENT.narrative.full_cinematic.music.resource_path] = true
+	for path: String in used:
+		check(FileAccess.file_exists(path), "music: %s exists" % path)
+		check(_import_loops(path), "music: %s loops (loop=true in its .import)" % path.get_file())
+	for file in DirAccess.get_files_at("res://assets/audio/music"):
+		if file.ends_with(".ogg"):
+			check(used.has("res://assets/audio/music/" + file), "music: %s is played somewhere" % file)
+	# The places' background loops loop too.
+	for file in DirAccess.get_files_at("res://data/dungeon/ambience"):
+		var mood := load("res://data/dungeon/ambience/" + file.trim_suffix(".remap")) as AmbienceDef
+		if mood and mood.bed:
+			check(_import_loops(mood.bed.resource_path), "ambience: %s's bed loops" % file)
+	# Two floors of a biome share their track (the same resource: the music goes on).
+	var act_one := config.acts[0]
+	var biome := act_one.biomes[0]
+	check(Soundtrack.floor_music(biome.theme) == Soundtrack.floor_music((load(biome.resource_path) as BiomeDef).theme), "music: a biome's floors play the very same track")
+
+
+## The music player: a crossfade between tracks, the same track never restarted (two floors of
+## a biome, a floor's music back after its warden's), silence, then the same track again.
+func _test_music_player() -> void:
+	var bank := CONTENT.sounds
+	var first := Soundtrack.floor_music(CONTENT.dungeon.acts[0].biomes[0].theme)
+	var second := bank.title_music
+	Sfx.stop_all()
+	Sfx.enabled = true
+	check(Sfx.play_music(first) and Sfx.current_music() == first, "music: a track starts")
+	check(not Sfx.play_music(first) and Sfx.current_music() == first, "music: the same track asked again goes on, not restarted")
+	check(Sfx.play_music(second) and Sfx.current_music() == second, "music: another track crossfades in")
+	var players := Sfx.get_children().filter(func(n: Node) -> bool: return n is AudioStreamPlayer and (n as AudioStreamPlayer).bus == &"Music")
+	check(players.size() == 2, "music: two players on the Music bus take turns (a real crossfade)")
+	Sfx.stop_music(0.1)
+	check(Sfx.current_music() == null, "music: silence")
+	check(Sfx.play_music(second), "music: after silence the same track starts again")
+	# A track waiting out its sting gap, then silence asked: it never starts.
+	Sfx.stop_all()
+	Sfx.play_music(first, 30.0)
+	Sfx.stop_music()
+	check(Sfx.current_music() == null and not Sfx._music.playing and not Sfx._tweens.has(Sfx._music), "music: a delayed track silenced before it starts never starts")
+	Sfx.stop_all()
+	Sfx.enabled = false
+
+
+## Whether the .import of `path` sets loop=true.
+func _import_loops(path: String) -> bool:
+	return FileAccess.file_exists(path + ".import") and FileAccess.get_file_as_string(path + ".import").contains("\nloop=true")
 
 
 func _bus_effect(bus_name: StringName, type: String) -> AudioEffect:

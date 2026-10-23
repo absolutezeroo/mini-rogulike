@@ -98,12 +98,18 @@ func _test_finale(game: Game) -> void:
 	check(not player.is_dead, "(the hero stands: one strike, a crit or not, can't end the test's run)")
 	_steady(player, max_hp)
 
-	# Tôma falls: no relic, the arena stays shut, the Maw rises and takes his body.
+	# Tôma falls: no relic, the arena stays shut, the Maw rises and takes his body. The music
+	# (heard for this part only: the tests run silent) is his, then silence, then the Maw's.
+	Sfx.enabled = true
+	game.play_floor_mood()
+	var toma_music := Soundtrack.boss_music(toma.def as BossDef, null, Sfx.bank)
+	check(toma_music != null and Sfx.current_music() == toma_music, "music: Tôma fights to his own theme")
 	var finish := HitInfo.new()
 	finish.amount = 999999
 	finish.source = player
 	toma.take_hit(finish)
 	await _frames(3)
+	check(Sfx.current_music() == null, "music: it falls silent as he falls (the rise)")
 	check(toma.is_dead and is_instance_valid(toma) and toma.rig.body.animation == &"dead", "Tôma falls to his knees (his body stays)")
 	check(arena.is_rising and not arena.is_defeated and arena.is_closed() and not game.has_won, "his fall doesn't end the fight: the arena stays shut")
 	check(world.get_node("Entities").get_children().all(func(n: Node) -> bool: return not n is Stairs), "no stairs")
@@ -119,6 +125,10 @@ func _test_finale(game: Game) -> void:
 	var risen := maw != toma and maw.def == finale.boss.next_boss and not maw.dormant and maw.target == player
 	check(risen, "the Maw rises in the same arena and takes the fight (hero dead: %s, boss %s, asleep: %s)" % [player.is_dead, maw.def.id, maw.dormant])
 	check(not is_instance_valid(toma) or toma.is_queued_for_deletion(), "it takes Tôma's body")
+	var maw_music := Soundtrack.boss_music(maw.def as BossDef, null, Sfx.bank)
+	check(maw_music != null and maw_music != toma_music and Sfx.current_music() == maw_music, "music: risen, the Maw's own theme takes over")
+	Sfx.stop_all()
+	Sfx.enabled = false
 	check(game.offers.to_data(false).all(func(o: Dictionary) -> bool: return int(o.rarity) != PerkDef.Rarity.RARE) and not game.perk_panel.visible, "no relic between the two forms (Tôma's XP may level the hero up)")
 	check((game.hud.get_node("%BossName") as Label).text == finale.boss.next_boss.display_name, "the boss bar passes to the Maw")
 	check(maw.global_position.y < world.map.cell_to_world(world.map.boss_room.get_center()).y - world.map.tile_size * 4, "it rises at the top of the arena")

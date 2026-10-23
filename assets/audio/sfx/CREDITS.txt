@@ -1,0 +1,8 @@
+Sounds added with the music pass (each folder may hold its own CREDITS.txt for the rest), from
+the Ninja Adventure asset pack by Pixel-boy and AAA (CC0 1.0, assets/LICENSE_NinjaAdventure.txt),
+made mono and peak-normalized:
+items/drop.ogg       = Sounds/Jump & Bounce/Bounce2 (an item dropped from the bag)
+magic/gas.ogg        = Sounds/Elemental/Bubble, pitched down 15% (a pool of poison gas)
+../jingles/fragment.ogg = Jingles/Secret1 (a fragment of the past found)
+creatures/maw_bite.ogg = made for the game from materials/bone_1.ogg (Kenney "Impact Sounds", CC0)
+  pitched down 28%, under combat/hit_heavy_1.ogg pitched down 15% (the Maw's jaw snapping shut)

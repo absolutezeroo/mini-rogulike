@@ -25,6 +25,9 @@ extends Resource
 @export var boss: BossDef
 ## Other bosses that may guard the act instead (one is drawn for each run).
 @export var other_bosses: Array[BossDef] = []
+## Its wardens' fight music, unless a warden has its own (BossDef.music); empty: SoundBank's
+## boss_music. Each act fights to its own (Soundtrack.boss_music()).
+@export var boss_music: AudioStream
 ## Traps, holes, quicksand... laid out in the act's rooms (min_depth and spawn_weight decide).
 @export var hazards: Array[HazardDef] = []
 

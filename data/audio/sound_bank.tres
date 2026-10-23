@@ -26,6 +26,13 @@
 [ext_resource type="AudioStream" path="res://data/audio/ui_close.tres" id="16_sei3t"]
 [ext_resource type="AudioStream" path="res://data/audio/ui_open.tres" id="17_da57c"]
 [ext_resource type="AudioStream" path="res://data/audio/soul.tres" id="21_7ru6g"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/lost_village.ogg" id="snd_lost_village"]
+[ext_resource type="AudioStream" path="res://data/audio/knell.tres" id="snd_knell"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/sad_theme.ogg" id="snd_sad_theme"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/ascension.ogg" id="snd_ascension"]
+[ext_resource type="AudioStream" path="res://data/audio/drop.tres" id="snd_drop"]
+[ext_resource type="AudioStream" path="res://data/audio/dismantle.tres" id="snd_dismantle"]
+[ext_resource type="AudioStream" path="res://data/audio/fragment_found.tres" id="snd_fragment_found"]
 
 [resource]
 script = ExtResource("13_j8m74")
@@ -54,3 +61,11 @@ boss_music = ExtResource("2_lqsaf")
 ui_click = ExtResource("15_n46y7")
 ui_open = ExtResource("17_da57c")
 ui_close = ExtResource("16_sei3t")
+title_music = ExtResource("snd_lost_village")
+title_bell = ExtResource("snd_knell")
+title_bell_db = -14.0
+defeat_music = ExtResource("snd_sad_theme")
+victory_music = ExtResource("snd_ascension")
+drop = ExtResource("snd_drop")
+dismantle = ExtResource("snd_dismantle")
+fragment_found = ExtResource("snd_fragment_found")
