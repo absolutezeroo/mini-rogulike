@@ -903,7 +903,8 @@ func is_free_cell(cell: Vector2i) -> bool:
 
 
 ## The centre of the free cell nearest to `point` (itself if free; `point` if none is found).
-func nearest_free_point(point: Vector2, max_radius: int = 12) -> Vector2:
+## `clear_of`: bodies the cell must also be clear of (by their radius + `clearance`).
+func nearest_free_point(point: Vector2, max_radius: int = 12, clear_of: Array[Actor] = [], clearance: float = 0.0) -> Vector2:
 	var origin := map.world_to_cell(point)
 	for radius in max_radius + 1:
 		var best := Vector2i(-1, -1)
@@ -914,12 +915,20 @@ func nearest_free_point(point: Vector2, max_radius: int = 12) -> Vector2:
 					continue  # only the ring at this radius
 				var cell := Vector2i(x, y)
 				var distance := map.cell_to_world(cell).distance_squared_to(point)
-				if distance < best_distance and is_free_cell(cell):
+				if distance < best_distance and is_free_cell(cell) and not is_under_body(map.cell_to_world(cell), clear_of, clearance):
 					best = cell
 					best_distance = distance
 		if best != Vector2i(-1, -1):
 			return map.cell_to_world(best)
 	return point
+
+
+## Whether `point` lies within one of `bodies` (its radius + `clearance`).
+static func is_under_body(point: Vector2, bodies: Array[Actor], clearance: float) -> bool:
+	for body in bodies:
+		if is_instance_valid(body) and not body.is_dead and point.distance_to(body.global_position) < body.radius + clearance:
+			return true
+	return false
 
 
 func is_solid_ground(point: Vector2) -> bool:

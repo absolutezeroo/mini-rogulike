@@ -554,6 +554,19 @@ func _test_feel(_game: Game, world: World, player: Player) -> void:
 	var wall_point := world.map.cell_to_world(Vector2i.ZERO)
 	check(world.is_free_cell(world.map.world_to_cell(world.nearest_free_point(player.global_position))), "after a fall the hero climbs out on free floor")
 	check(world.nearest_free_point(wall_point) != wall_point or not world.map.is_floor(Vector2i.ZERO), "...even when the ground gave way")
+	# ...and clear of a body standing where he stood (a boss at the hole's edge would push him
+	# back in: he fell again and again).
+	var stander := world.get_hostiles(player.faction)
+	var spot := world.nearest_free_point(player.global_position)
+	if not stander.is_empty():
+		var body: Actor = stander[0]
+		var kept_at := body.global_position
+		body.global_position = spot
+		var on_spot: Array[Actor] = [body]
+		var out := world.nearest_free_point(spot, 12, on_spot, player.radius + 2.0)
+		check(out.distance_to(body.global_position) >= body.radius + player.radius + 2.0 and world.is_free_cell(world.map.world_to_cell(out)),
+			"after a fall the hero climbs out clear of a body standing on his spot (%.0f px away)" % out.distance_to(body.global_position))
+		body.global_position = kept_at
 	HitStop.slow(0.2, 0.5)
 	check(is_equal_approx(Engine.time_scale, 0.5), "a strong kill slows the world")
 	HitStop.reset()
