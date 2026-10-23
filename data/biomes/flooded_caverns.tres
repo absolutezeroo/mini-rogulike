@@ -25,6 +25,7 @@
 [ext_resource type="Resource" path="res://data/biomes/shapes/pillared_round.tres" id="x_shape_pillared_round"]
 [ext_resource type="Resource" path="res://data/props/furniture/mossy_column.tres" id="x_pillar_mossy_column"]
 [ext_resource type="Resource" path="res://data/biomes/ceilings/drowned.tres" id="x_ceiling"]
+[ext_resource type="Resource" path="res://data/biomes/set_pieces/drowned_hall.tres" id="x_set_drowned_hall"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wg6do"]
 atlas = ExtResource("2_0gldx")
@@ -78,6 +79,7 @@ shimmer = 1.0
 
 [resource]
 script = ExtResource("13_3x0m4")
+set_pieces = Array[ExtResource("x_room_shape_def")]([ExtResource("x_set_drowned_hall")])
 ceiling = ExtResource("x_ceiling")
 pillars = Array[ExtResource("8_xmwuw")]([ExtResource("x_pillar_mossy_column")])
 plain_weight = 35

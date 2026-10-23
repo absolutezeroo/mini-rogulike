@@ -566,9 +566,31 @@ def ceilings():
     return out
 
 
+def paper_boats():
+    """Two paper boats rotting on a bank (the Drowned Hall): one afloat, one sagging."""
+    im = Image.new("RGBA", (32, 16), (0, 0, 0, 0))
+    for n, sag in enumerate((0, 2)):
+        c = Canvas(16, 16)
+        # The hull: a trapezoid, the sail: a triangle, folded paper lit from the left.
+        for y in range(9, 12):
+            inset = y - 9
+            for x in range(2 + inset, 14 - inset):
+                c.put(x, y + (sag if x > 8 else 0) // 2, STEEL[1] if x < 8 else STEEL[2])
+        for y in range(4 + sag, 9):
+            half = (y - 4 - sag) // 2 + 1
+            for x in range(8 - half, 8 + half):
+                c.put(x, y, STEEL[0] if x < 8 else STEEL[1])
+        c.put(5, 10, hexc("bd7959"))  # damp stains
+        c.put(11, 9 + sag // 2, hexc("8c8c8c"))
+        c.outline(OUT)
+        im.alpha_composite(c.image(), (n * 16, 0))
+    im.save(os.path.join(TILES, "paper_boats.png"))
+
+
 def main():
     deep_water()
-    print("deep_water.png")
+    paper_boats()
+    print("deep_water.png, paper_boats.png")
     for name, regions in ceilings().items():
         print(name, len(regions), "pieces")
 

@@ -26,6 +26,7 @@
 [ext_resource type="Resource" path="res://data/props/furniture/broken_column.tres" id="x_pillar_broken_column"]
 [ext_resource type="Resource" path="res://data/props/furniture/stone_pillar.tres" id="x_pillar_stone_pillar"]
 [ext_resource type="Resource" path="res://data/biomes/ceilings/cinders.tres" id="x_ceiling"]
+[ext_resource type="Resource" path="res://data/biomes/set_pieces/ember_chasm.tres" id="x_set_ember_chasm"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wg6do"]
 atlas = ExtResource("2_uldkb")
@@ -71,6 +72,7 @@ wall_bias = 0.2
 
 [resource]
 script = ExtResource("14_mpyfs")
+set_pieces = Array[ExtResource("x_room_shape_def")]([ExtResource("x_set_ember_chasm")])
 ceiling = ExtResource("x_ceiling")
 pillars = Array[ExtResource("8_uldkb")]([ExtResource("x_pillar_broken_column"), ExtResource("x_pillar_stone_pillar")])
 plain_weight = 35

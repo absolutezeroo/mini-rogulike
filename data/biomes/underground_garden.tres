@@ -27,6 +27,7 @@
 [ext_resource type="Resource" path="res://data/props/furniture/mossy_column.tres" id="x_pillar_mossy_column"]
 [ext_resource type="Resource" path="res://data/props/furniture/white_pillar.tres" id="x_pillar_white_pillar"]
 [ext_resource type="Resource" path="res://data/biomes/ceilings/garden.tres" id="x_ceiling"]
+[ext_resource type="Resource" path="res://data/biomes/set_pieces/root_choir.tres" id="x_set_root_choir"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1b48x"]
 atlas = ExtResource("2_74m5r")
@@ -101,6 +102,7 @@ wall_bias = -0.4
 
 [resource]
 script = ExtResource("12_37jbf")
+set_pieces = Array[ExtResource("x_room_shape_def")]([ExtResource("x_set_root_choir")])
 ceiling = ExtResource("x_ceiling")
 pillars = Array[ExtResource("6_74m5r")]([ExtResource("x_pillar_mossy_column"), ExtResource("x_pillar_white_pillar")])
 plain_weight = 35

@@ -134,13 +134,16 @@ static func _place_scenes(world: World, biome: BiomeDef, taken: Dictionary, stan
 		var big := room.get_area() >= biome.big_room_area
 		var wanted := rng.randi_range(biome.scenes_big_room.x, biome.scenes_big_room.y) if big \
 			else rng.randi_range(biome.scenes_small_room.x, biome.scenes_small_room.y)
-		# A signature room's own scenes first (RoomShapeDef.scenes), in their order.
+		# A shape's own scenes first (RoomShapeDef.scenes), in their order; a signature room has
+		# only its own (it is that place, nothing else).
 		var shape := map.plan(i).shape
 		if shape:
 			for scene in shape.scenes:
 				if scene and scene.try_place(world, room, taken, rng, standing):
 					placed[scene] = placed.get(scene, 0) + 1
 					wanted -= 1
+			if shape.set_piece:
+				wanted = 0
 		var tries := wanted * 4
 		while wanted > 0 and tries > 0:
 			tries -= 1

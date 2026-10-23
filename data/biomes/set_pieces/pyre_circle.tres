@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="RoomShapeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="1_shape"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/temple_shrine.tres" id="2_scene"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="3_scenedef"]
+[ext_resource type="Resource" path="res://data/props/furniture/brazier.tres" id="4_pillar"]
+
+[resource]
+script = ExtResource("1_shape")
+outline = 1
+size_min = Vector2i(15, 15)
+size_max = Vector2i(17, 17)
+square = true
+pillars = 2
+pillar_spacing = 4
+pillar = ExtResource("4_pillar")
+set_piece = true
+scenes = Array[ExtResource("3_scenedef")]([ExtResource("2_scene")])
+ceiling_scale = 2.5
+description = "Braziers in a ring round an altar of ash. Here the priests fed the sun."
+color = Color(1.0, 0.6, 0.3, 1)
+max_per_floor = 1
+id = &"pyre_circle"
+display_name = "The Pyre Circle"
+spawn_weight = 10

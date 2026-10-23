@@ -123,6 +123,7 @@ func _ready() -> void:
 	hidden.def = content.dungeon.hidden_floor
 	add_child(hidden)  # (before the Game's own boss handler: its hoard is in the save)
 	world.stairs_reached.connect(_on_stairs_reached)
+	world.set_piece_entered.connect(_on_set_piece_entered)
 	hud.bind_world(world)
 	hud.inventory_requested.connect(open_inventory)
 	hud.pause_requested.connect(open_pause_menu)
@@ -705,6 +706,14 @@ func _route_to(floor_depth: int) -> FloorRoute:
 	var offered := FloorRoute.offer(content, floor_depth, difficulty, run.route_seed(floor_depth))
 	var index: int = run.routes[floor_depth]
 	return offered[index] if index >= 0 and index < offered.size() else null
+
+
+## A signature room of the floor (RoomShapeDef.set_piece), the first time: its name on a banner,
+## its line in the log.
+func _on_set_piece_entered(shape: RoomShapeDef) -> void:
+	hud.show_banner(tr(shape.display_name), shape.color)
+	if not shape.description.is_empty():
+		Events.log_message(tr(shape.description), shape.color)
 
 
 func _on_stairs_reached(route: int = 0) -> void:

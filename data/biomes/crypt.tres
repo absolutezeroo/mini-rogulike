@@ -25,6 +25,7 @@
 [ext_resource type="Resource" path="res://data/biomes/shapes/chasm_room.tres" id="x_shape_chasm_room"]
 [ext_resource type="Resource" path="res://data/props/furniture/stone_pillar.tres" id="x_pillar_stone_pillar"]
 [ext_resource type="Resource" path="res://data/biomes/ceilings/ossuary.tres" id="x_ceiling"]
+[ext_resource type="Resource" path="res://data/biomes/set_pieces/ossuary_nave.tres" id="x_set_ossuary_nave"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_lecpv"]
 atlas = ExtResource("2_yv3ey")
@@ -70,6 +71,7 @@ roughness = 0.2
 
 [resource]
 script = ExtResource("13_ycf1q")
+set_pieces = Array[ExtResource("x_room_shape_def")]([ExtResource("x_set_ossuary_nave")])
 ceiling = ExtResource("x_ceiling")
 pillars = Array[ExtResource("7_yv3ey")]([ExtResource("x_pillar_stone_pillar")])
 plain_weight = 35

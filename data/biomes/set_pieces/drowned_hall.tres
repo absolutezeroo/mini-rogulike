@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="RoomShapeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="1_shape"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/paper_boats.tres" id="2_scene"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/puddle.tres" id="3_scene"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="4_scenedef"]
+
+[resource]
+script = ExtResource("1_shape")
+outline = 1
+size_min = Vector2i(17, 13)
+size_max = Vector2i(19, 15)
+core = 3
+core_outline = 1
+core_margin = 3
+bridges = 2
+bridge_width = 2
+set_piece = true
+scenes = Array[ExtResource("4_scenedef")]([ExtResource("2_scene"), ExtResource("2_scene"), ExtResource("3_scene")])
+ceiling_scale = 2.5
+description = "Paper boats rot along the black water. Someone still folds them."
+color = Color(0.5, 0.8, 1.0, 1)
+max_per_floor = 1
+id = &"drowned_hall"
+display_name = "The Drowned Hall"
+spawn_weight = 10

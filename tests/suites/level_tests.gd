@@ -64,6 +64,8 @@ func _test_shaped_floors() -> void:
 	var off_ground: Array[String] = []
 	var plain_first := true
 	var shaped := 0
+	var signature := {}  # biome -> floors with its signature room
+	var two_signatures: Array[String] = []
 	var rooms := 0
 	for biome in biomes:
 		check(not biome.room_shapes.is_empty(), "%s: its rooms take shapes" % biome.id)
@@ -94,6 +96,11 @@ func _test_shaped_floors() -> void:
 						off_ground.append("%s %s" % [name, spot])
 				plain_first = plain_first and map.plan(0).shape == null
 				rooms += map.rooms.size()
+				var pieces := map.plans.filter(func(p: RoomPlan) -> bool: return p.is_set_piece())
+				if pieces.size() > 1:
+					two_signatures.append(name)
+				if pieces.size() == 1 and biome.set_pieces.has(pieces[0].shape):
+					signature[biome] = signature.get(biome, 0) + 1
 				for plan in map.plans:
 					if plan.shape:
 						shaped += 1
@@ -103,6 +110,11 @@ func _test_shaped_floors() -> void:
 	check(bad_walls.is_empty(), "shaped floors keep solid walls: none thin or pinched (%s)" % ", ".join(bad_walls.slice(0, 4)))
 	check(off_ground.is_empty(), "the start, the stairs, the rooms' hearts and the cracks' fronts are on open ground, never a chasm, a pool or a pillar (%s)" % ", ".join(off_ground.slice(0, 4)))
 	check(plain_first, "the room where the hero arrives is always a plain one")
+	check(two_signatures.is_empty(), "one signature room on a floor at most (%s)" % ", ".join(two_signatures.slice(0, 3)))
+	for biome in biomes:
+		check(not biome.set_pieces.is_empty() and biome.set_pieces.all(func(p: RoomShapeDef) -> bool: return p.set_piece and not p.display_name.is_empty() and not p.description.is_empty()),
+			"%s: a signature room of its own, named, with its line" % biome.id)
+		check(signature.get(biome, 0) >= 3, "%s: its signature room comes up now and then (%d floors of 20)" % [biome.id, signature.get(biome, 0)])
 	check(shaped * 4 >= rooms, "a good share of the rooms take a shape (%d of %d)" % [shaped, rooms])
 	var unused: Array[String] = []
 	for shape: RoomShapeDef in listed:
@@ -169,8 +181,60 @@ func run_game(game: Game) -> void:
 	check(seen_features.has(DungeonMap.Feature.CHASM) and seen_features.has(DungeonMap.Feature.POOL) and seen_pillars > 0, "chasms, pools and pillars on the floors built (%s, %d pillars)" % [str(seen_features.keys()), seen_pillars])
 	check(minimap_checked, "the minimap draws a round room round, its pool blue and its chasm black")
 	await _test_ceilings(game)
+	await _test_set_pieces(game)
 	await _clear_monsters(game.world)
 	game.depth = depth_before
+
+
+## Every biome's signature rooms, each forced on a floor: there, dressed with its own scenes,
+## nothing wrong in it, not the merchant's nor a pact's, named on a banner when the hero walks in.
+func _test_set_pieces(game: Game) -> void:
+	var dungeon := CONTENT.dungeon
+	var problems: Array[String] = []
+	var missing: Array[String] = []
+	var undressed: Array[String] = []
+	var unnamed: Array[String] = []
+	var named: Array[RoomShapeDef] = []
+	var on_named := func(shape: RoomShapeDef) -> void: named.append(shape)
+	for a in dungeon.acts.size():
+		for biome in dungeon.acts[a].biomes:
+			for piece in biome.set_pieces:
+				var forced: BiomeDef = biome.duplicate()
+				forced.set_pieces = [piece] as Array[RoomShapeDef]
+				forced.set_piece_chance = 1.0
+				game.world.forced_biome = forced
+				await game.debug_enter_floor(dungeon.first_depth(a) + 1)
+				var world := game.world
+				await _frames(2)
+				var index := -1
+				for i in world.map.rooms.size():
+					if world.map.plan(i).shape == piece:
+						index = i
+				if index < 0:
+					missing.append(String(piece.id))
+					continue
+				problems.append_array(_floor_problems(world, String(piece.id)))
+				if not piece.scenes.any(func(scene: SceneDef) -> bool: return FloorDresser.last_scenes.has(scene)):
+					undressed.append(String(piece.id))
+				for group in ["merchants", "forges"]:
+					for node in get_tree().get_nodes_in_group(group):
+						if world.is_ancestor_of(node) and world.map.rooms[index].has_point(world.map.world_to_cell((node as Node2D).global_position)):
+							problems.append("%s: the %s in it" % [piece.id, group])
+				if world.pact and world.pact.room == world.map.rooms[index]:
+					problems.append("%s: a pact door on it" % piece.id)
+				world.set_piece_entered.connect(on_named)
+				await _clear_monsters(world)
+				game.player.global_position = world.map.cell_to_world(world.map.heart(index))
+				await _frames(3)
+				game.player.global_position += Vector2(16, 0)
+				await _frames(3)
+				world.set_piece_entered.disconnect(on_named)
+				if named.count(piece) != 1 or game.hud._depth_banner.text != piece.display_name:
+					unnamed.append(String(piece.id))
+	check(missing.is_empty(), "every signature room comes out when its floor wants it (%s missing)" % ", ".join(missing))
+	check(problems.is_empty(), "signature rooms as built: nothing in the rock, a chasm or a pool, nothing cut off, no merchant, forge nor pact in them (%s)" % ", ".join(problems.slice(0, 4)))
+	check(undressed.is_empty(), "each is dressed with its own scenes (%s bare)" % ", ".join(undressed))
+	check(unnamed.is_empty(), "walking in names it once, on a banner (%s not)" % ", ".join(unnamed))
 
 
 ## The ceiling (CeilingDef, CeilingLayer): every biome's floors get theirs, on the art's grid,
@@ -217,7 +281,8 @@ func _test_ceilings(game: Game) -> void:
 		"the ceiling draws over the bodies (z %d), under the floor's light (z %d), through its fading shader" % [CeilingLayer.Z, LightField.Z])
 	check(shades.all(func(c: CeilingLayer.Chunk) -> bool: return c.z_index < 0), "its shadows lie on the floor, under the bodies")
 	check(chunks.size() < 2 * ceili(float(world.map.width) / CeilingLayer.CHUNK) * ceili(float(world.map.height) / CeilingLayer.CHUNK) + 1, "batched in chunks (%d canvas items for %d pieces)" % [chunks.size(), layer.laid.size()])
-	# Over the hero: gone around him, there again away from him.
+	# Over the hero: gone around him, there again away from him (nobody else about).
+	await _clear_monsters(world)
 	var piece: CeilingLayer.Laid = layer.laid[0]
 	for one in layer.laid:
 		if one.def.where == CeilingPieceDef.Where.OVER_ROOM:
@@ -286,7 +351,9 @@ func _floor_problems(world: World, name: String) -> Array[String]:
 					problems.append("%s: a %s at %s" % [name, group, cell])
 	for monster in world.get_hostiles(Actor.Faction.PLAYER):
 		var on_ground := world.is_solid_ground(monster.global_position) and not world.is_pool(map.world_to_cell(monster.global_position))
-		var fits := world.body_fits(monster.global_position, monster.radius)
+		# (Its collision shape is a pixel smaller than its radius: one that walked up to a wall
+		# since the floor was made touches it, it is not inside it.)
+		var fits := world.body_fits(monster.global_position, monster.radius - 1.5)
 		if (monster.is_grounded() and not on_ground) or not fits:
 			problems.append("%s: %s (radius %.0f) stuck at %s (ground %s, fits %s)" % [name, monster.def.id, monster.radius, monster.global_position, on_ground, fits])
 	for cell in world.stairs_cells:

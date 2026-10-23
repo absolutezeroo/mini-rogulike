@@ -9,6 +9,9 @@ signal stairs_reached(route: int)
 signal map_reset
 ## Cells the hero discovered, or whose look changed (a floor that gave way...). For the minimap.
 signal cells_changed(cells: Array[Vector2i])
+## The hero walked into one of the floor's signature rooms for the first time (RoomShapeDef with
+## `set_piece`): the Game names it.
+signal set_piece_entered(shape: RoomShapeDef)
 
 const MONSTER_SCENE := preload("res://src/entities/monster/monster.tscn")
 const PICKUP_SCENE := preload("res://src/entities/pickup/item_pickup.tscn")
@@ -128,6 +131,8 @@ var finale: FinaleDef
 var nav := NavGrid.new()
 ## What hangs over the rooms (null: nothing, a boss arena, a simulation).
 var ceiling: CeilingLayer
+## The floor's signature rooms (room index -> named already).
+var _set_pieces := {}
 ## What the hero has seen (the minimap).
 var fog := FogOfWar.new()
 
@@ -258,6 +263,10 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 		if boons.cartographer:
 			reveal_landmarks()
 	lay_ceiling()
+	_set_pieces.clear()
+	for i in map.rooms.size():
+		if map.plan(i).is_set_piece():
+			_set_pieces[i] = false
 	map_reset.emit()
 
 
@@ -1072,6 +1081,8 @@ func reveal_around(point: Vector2) -> void:
 func _physics_process(delta: float) -> void:
 	if player and map and not player.is_dead:
 		reveal_around(player.global_position)
+		if not _set_pieces.is_empty():
+			_name_set_piece(player.global_position)
 	_step_on_cracks()
 	_activity_timer -= delta
 	if _activity_timer <= 0.0:
@@ -1095,6 +1106,16 @@ func _update_activity() -> void:
 		monster.set_awake(awake)
 		if awake:
 			awake_monsters.append(monster)
+
+
+## The hero at `point`: a signature room he walks into for the first time is named.
+func _name_set_piece(point: Vector2) -> void:
+	var cell := map.world_to_cell(point)
+	var room := map.room_at(cell)
+	if _set_pieces.get(room, true) or not map.plan(room).has_cell(cell):
+		return
+	_set_pieces[room] = true
+	set_piece_entered.emit(map.plan(room).shape)
 
 
 # --- Queries -----------------------------------------------------------------

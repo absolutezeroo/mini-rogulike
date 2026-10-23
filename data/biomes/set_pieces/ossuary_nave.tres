@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="RoomShapeDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/biomes/room_shape_def.gd" id="1_shape"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/coffin_wall.tres" id="2_scene"]
+[ext_resource type="Resource" path="res://data/biomes/scenes/ossuary.tres" id="3_scene"]
+[ext_resource type="Script" path="res://src/definitions/biomes/scene_def.gd" id="4_scenedef"]
+[ext_resource type="Resource" path="res://data/props/furniture/carved_skull.tres" id="5_pillar"]
+
+[resource]
+script = ExtResource("1_shape")
+size_min = Vector2i(17, 9)
+size_max = Vector2i(19, 11)
+pillars = 1
+pillar_spacing = 3
+pillar = ExtResource("5_pillar")
+set_piece = true
+scenes = Array[ExtResource("4_scenedef")]([ExtResource("2_scene"), ExtResource("3_scene"), ExtResource("3_scene")])
+ceiling_scale = 3.0
+description = "Kagari's dead, stacked to the vault. They sank with the earth and kept their rows."
+color = Color(0.8, 0.82, 0.95, 1)
+max_per_floor = 1
+id = &"ossuary_nave"
+display_name = "The Ossuary Nave"
+spawn_weight = 10
