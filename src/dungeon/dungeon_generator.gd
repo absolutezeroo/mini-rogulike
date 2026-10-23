@@ -1,35 +1,47 @@
 class_name DungeonGenerator
 ## Builds a DungeonMap: random non-overlapping rooms chained by wide corridors.
-## Each room connects to the previous one, so every room is reachable.
+## Each room connects to the previous one, so every room is reachable. A room may take one of
+## its biome's shapes (RoomShapeDef: round, pillared, a ring, a chasm crossed by walkways...):
+## its outline is carved first, the corridors cut through it, then its core and pillars are laid
+## and anything that would cut floor off is taken back (_finish).
 
 
-## `size_scale`, `room_scale`: the difficulty's (DifficultyDef.floor_size, rooms).
-static func generate(config: DungeonConfig, rng: RandomNumberGenerator, size_scale: float = 1.0, room_scale: float = 1.0) -> DungeonMap:
+## `size_scale`, `room_scale`: the difficulty's (DifficultyDef.floor_size, rooms). `biome`: the
+## floor's world, whose rooms take its shapes (BiomeDef.room_shapes) and now and then its
+## signature room (BiomeDef.set_pieces); null: plain rectangles. `depth`: for the shapes' min_depth.
+static func generate(config: DungeonConfig, rng: RandomNumberGenerator, size_scale: float = 1.0, room_scale: float = 1.0, biome: BiomeDef = null, depth: int = 1) -> DungeonMap:
 	var width := roundi(config.width * size_scale)
 	var height := roundi(config.height * size_scale)
 	var max_rooms := maxi(roundi(config.max_rooms * room_scale), 2)
 	var map := DungeonMap.new(width, height, config.tile_size)
+	var shaper := RoomShaper.new(biome, depth, rng)
+	var limit := Vector2i(width - 6, height - 6)
 
 	for attempt in max_rooms * 12:
 		if map.rooms.size() >= max_rooms:
 			break
-		var size := Vector2i(
+		var shape := shaper.pick(map.rooms.size())
+		var size := shape.pick_size(rng, limit) if shape else Vector2i(
 			rng.randi_range(config.room_min_size, config.room_max_size),
 			rng.randi_range(config.room_min_size, config.room_max_size))
 		var room := Rect2i(
 			Vector2i(rng.randi_range(2, width - size.x - 2), rng.randi_range(2, height - size.y - 2)),
 			size)
 		if _overlaps_any(room, map.rooms):
+			shaper.missed(shape)
 			continue
 
-		_carve_rect(map, room)
+		var room_plan := shaper.plan(room, shape)
+		_carve_room(map, room_plan)
 		if not map.rooms.is_empty():
 			_carve_corridor(map, map.rooms.back().get_center(), room.get_center(), config.corridor_width, rng)
 		map.rooms.append(room)
+		map.plans.append(room_plan)
+		shaper.placed(shape)
 
-	smooth(map)
-	map.start_cell = map.rooms[0].get_center()
-	map.stairs_cell = _farthest_room(map).get_center()
+	_finish(map)
+	map.start_cell = map.heart(0)
+	map.stairs_cell = map.heart(_farthest_room(map))
 	map.second_stairs_cell = _second_exit(map)
 	map.secrets = SecretRoomPlan.plan_all(map, config, secret_rng(rng))
 	return map
@@ -38,12 +50,16 @@ static func generate(config: DungeonConfig, rng: RandomNumberGenerator, size_sca
 ## A small closed maze (the Deeps, AbyssDef): up to `room_count` rooms between `room_size.x` and
 ## `room_size.y` cells wide, chained by corridors in a `size` map; the start in the first room,
 ## the way out (`stairs_cell`) in the room farthest from it. No secrets, no second way.
-static func generate_small(size: Vector2i, room_count: int, room_size: Vector2i, corridor_width: int, tile_size: int, rng: RandomNumberGenerator) -> DungeonMap:
+## `biome`: the shapes its rooms may take (no signature room down there).
+static func generate_small(size: Vector2i, room_count: int, room_size: Vector2i, corridor_width: int, tile_size: int, rng: RandomNumberGenerator, biome: BiomeDef = null) -> DungeonMap:
 	var map := DungeonMap.new(size.x, size.y, tile_size)
+	var shaper := RoomShaper.new(biome, 1, rng, false)
+	var limit := Vector2i(mini(size.x - 6, room_size.y + 4), mini(size.y - 6, room_size.y + 4))
 	for attempt in room_count * 30:
 		if map.rooms.size() >= room_count:
 			break
-		var room_cells := Vector2i(rng.randi_range(room_size.x, room_size.y), rng.randi_range(room_size.x, room_size.y))
+		var shape := shaper.pick(map.rooms.size())
+		var room_cells := shape.pick_size(rng, limit) if shape else Vector2i(rng.randi_range(room_size.x, room_size.y), rng.randi_range(room_size.x, room_size.y))
 		if room_cells.x + 4 > size.x or room_cells.y + 4 > size.y:
 			continue
 		var room := Rect2i(
@@ -51,14 +67,218 @@ static func generate_small(size: Vector2i, room_count: int, room_size: Vector2i,
 			room_cells)
 		if _overlaps_any(room, map.rooms):
 			continue
-		_carve_rect(map, room)
+		var room_plan := shaper.plan(room, shape)
+		_carve_room(map, room_plan)
 		if not map.rooms.is_empty():
 			_carve_corridor(map, map.rooms.back().get_center(), room.get_center(), corridor_width, rng)
 		map.rooms.append(room)
-	smooth(map)
-	map.start_cell = map.rooms[0].get_center()
+		map.plans.append(room_plan)
+		shaper.placed(shape)
+	_finish(map)
+	map.start_cell = map.heart(0)
 	map.stairs_cell = _farthest_walk(map)
 	return map
+
+
+## Picks the rooms' shapes for one floor: the first room (where the hero arrives) a plain
+## rectangle; then the biome's signature room first if the floor gets one; then any of its
+## shapes, or a plain rectangle, by weight, each no more often than its `max_per_floor`.
+class RoomShaper:
+	var biome: BiomeDef
+	var depth: int
+	var rng: RandomNumberGenerator
+	## The signature room still to place (null: none on this floor, or placed already).
+	var set_piece: RoomShapeDef
+	var set_piece_tries := 0
+	var counts := {}  # RoomShapeDef -> rooms of it so far
+
+	func _init(world_biome: BiomeDef, floor_depth: int, random: RandomNumberGenerator, with_set_piece: bool = true) -> void:
+		biome = world_biome
+		depth = floor_depth
+		rng = random
+		if biome and with_set_piece and not biome.set_pieces.is_empty() and rng.randf() < biome.set_piece_chance:
+			set_piece = ContentDB.pick_from(biome.set_pieces, depth, rng) as RoomShapeDef
+
+	## The shape of the next room (`index`: how many rooms there are already); null: a rectangle.
+	func pick(index: int) -> RoomShapeDef:
+		if biome == null or index == 0:
+			return null
+		if set_piece and set_piece_tries < 40:
+			return set_piece
+		var candidates: Array = [null]
+		var weights := PackedInt32Array([biome.plain_weight])
+		for shape in biome.room_shapes:
+			if shape == null or shape.min_depth > depth or shape.spawn_weight <= 0:
+				continue
+			if shape.max_per_floor > 0 and counts.get(shape, 0) >= shape.max_per_floor:
+				continue
+			candidates.append(shape)
+			weights.append(shape.spawn_weight)
+		var total := 0
+		for weight in weights:
+			total += maxi(weight, 0)
+		if total <= 0:
+			return null
+		var roll := rng.randi_range(1, total)
+		for i in candidates.size():
+			roll -= maxi(weights[i], 0)
+			if roll <= 0:
+				return candidates[i]
+		return null
+
+	## A room of `shape` didn't fit where it was tried.
+	func missed(shape: RoomShapeDef) -> void:
+		if shape and shape == set_piece:
+			set_piece_tries += 1
+
+	func placed(shape: RoomShapeDef) -> void:
+		if shape == null:
+			return
+		counts[shape] = counts.get(shape, 0) + 1
+		if shape == set_piece:
+			set_piece = null
+
+	## The plan of a room of `shape` at `room`: an L leaves out a random corner.
+	func plan(room: Rect2i, shape: RoomShapeDef) -> RoomPlan:
+		var flip := Vector2i.ONE
+		if shape and shape.outline == RoomShapeDef.Outline.L_SHAPE:
+			flip = Vector2i(1 if rng.randf() < 0.5 else -1, 1 if rng.randf() < 0.5 else -1)
+		return RoomPlan.new(room, shape, flip)
+
+
+## Carves a room's outline (corridors cut through whatever they cross afterwards).
+static func _carve_room(map: DungeonMap, room_plan: RoomPlan) -> void:
+	if room_plan.shape == null:
+		_carve_rect(map, room_plan.rect)
+		return
+	var rect := room_plan.rect
+	for y in range(rect.position.y, rect.end.y):
+		for x in range(rect.position.x, rect.end.x):
+			if room_plan.has_cell(Vector2i(x, y)):
+				map.set_floor(Vector2i(x, y))
+
+
+## Once every corridor is dug: the rooms' cores and pillars, the walls smoothed, the hearts found,
+## and any core or pillars that cut a piece of floor off taken back.
+static func _finish(map: DungeonMap) -> void:
+	var rock := {}  # room index -> the cells its core turned to rock
+	for i in map.plans.size():
+		rock[i] = _lay_core(map, i)
+	smooth(map)
+	for attempt in map.rooms.size() + 1:
+		_find_hearts(map)
+		var cut_off := _cut_off(map)
+		if cut_off.is_empty():
+			return
+		# Undo the shaped rooms the floor that can't be reached lies in (or right by).
+		var undone := false
+		for i in map.plans.size():
+			var shape := map.plans[i].shape
+			if shape == null or (shape.core == RoomShapeDef.Core.NONE and shape.pillars == RoomShapeDef.Pillars.NONE):
+				continue
+			var bounds := map.rooms[i].grow(2)
+			if not cut_off.any(func(cell: Vector2i) -> bool: return bounds.has_point(cell)):
+				continue
+			if _undo_core(map, i, rock.get(i, [])):
+				undone = true
+		if not undone:
+			_find_hearts(map)
+			return  # (not a shape's doing: the plain generator never cuts anything off)
+
+
+## Lays room `index`'s core and pillars; returns the cells turned to rock.
+static func _lay_core(map: DungeonMap, index: int) -> Array[Vector2i]:
+	var rocks: Array[Vector2i] = []
+	var room_plan := map.plans[index]
+	var shape := room_plan.shape
+	if shape == null:
+		return rocks
+	var rect := room_plan.rect
+	if shape.core != RoomShapeDef.Core.NONE:
+		for y in range(rect.position.y, rect.end.y):
+			for x in range(rect.position.x, rect.end.x):
+				var cell := Vector2i(x, y)
+				if not map.is_floor(cell):
+					continue
+				match shape.core_at(cell - rect.position, rect.size):
+					RoomShapeDef.Core.ROCK:
+						map.tiles[y * map.width + x] = DungeonMap.Tile.WALL
+						rocks.append(cell)
+					RoomShapeDef.Core.CHASM:
+						map.features[cell] = DungeonMap.Feature.CHASM
+					RoomShapeDef.Core.POOL:
+						map.features[cell] = DungeonMap.Feature.POOL
+	for local in shape.pillar_cells(rect.size, room_plan.flip):
+		var cell := rect.position + local
+		if map.is_floor(cell) and not map.features.has(cell):
+			map.pillars[cell] = index
+	return rocks
+
+
+## Takes back room `index`'s core and pillars: plain floor again. False if it had none left.
+static func _undo_core(map: DungeonMap, index: int, rocks: Array) -> bool:
+	var changed := not rocks.is_empty()
+	for cell: Vector2i in rocks:
+		map.set_floor(cell)
+	rocks.clear()
+	var rect := map.rooms[index]
+	for cell: Vector2i in map.features.keys():
+		if rect.has_point(cell):
+			map.features.erase(cell)
+			changed = true
+	for cell: Vector2i in map.pillars.keys():
+		if map.pillars[cell] == index:
+			map.pillars.erase(cell)
+			changed = true
+	return changed
+
+
+## Every room's heart: the ground cell nearest its middle, with ground all around it if it can.
+static func _find_hearts(map: DungeonMap) -> void:
+	for i in map.rooms.size():
+		var room_plan := map.plan(i)
+		var rect := room_plan.rect
+		var middle := Vector2(rect.position) + Vector2(rect.size) * 0.5 - Vector2(0.5, 0.5)
+		var best := rect.get_center()
+		var best_score := INF
+		for y in range(rect.position.y, rect.end.y):
+			for x in range(rect.position.x, rect.end.x):
+				var cell := Vector2i(x, y)
+				if not map.is_ground(cell):
+					continue
+				var score := Vector2(cell).distance_squared_to(middle)
+				for dy in range(-1, 2):
+					for dx in range(-1, 2):
+						if not map.is_ground(cell + Vector2i(dx, dy)):
+							score += 1000.0  # cramped: only if nothing roomier
+				if score < best_score:
+					best_score = score
+					best = cell
+		room_plan.heart = best
+
+
+## Ground that can't be walked to from the first room's heart (a chasm, a pool or pillars in the
+## way): empty when the whole floor is one piece.
+static func _cut_off(map: DungeonMap) -> Array[Vector2i]:
+	var w := map.width
+	var seen := PackedByteArray()
+	seen.resize(w * map.height)
+	var start := map.heart(0)
+	var queue: Array[Vector2i] = [start]
+	seen[start.y * w + start.x] = 1
+	while not queue.is_empty():
+		var cell: Vector2i = queue.pop_back()
+		for step: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+			var next := cell + step
+			if map.is_ground(next) and seen[next.y * w + next.x] == 0:
+				seen[next.y * w + next.x] = 1
+				queue.append(next)
+	var cut: Array[Vector2i] = []
+	for y in map.height:
+		for x in w:
+			if seen[y * w + x] == 0 and map.is_ground(Vector2i(x, y)):
+				cut.append(Vector2i(x, y))
+	return cut
 
 
 ## The middle of the room farthest from the start on foot (not as the crow flies: the way out of
@@ -72,13 +292,13 @@ static func _farthest_walk(map: DungeonMap) -> Vector2i:
 		at += 1
 		for step: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
 			var next := cell + step
-			if not steps.has(next) and map.is_floor(next):
+			if not steps.has(next) and map.is_ground(next):
 				steps[next] = steps[cell] + 1
 				open.append(next)
-	var best := _farthest_room(map).get_center()
+	var best := map.heart(_farthest_room(map))
 	var best_steps := -1
-	for room in map.rooms:
-		var center := room.get_center()
+	for i in map.rooms.size():
+		var center := map.heart(i)
 		if steps.get(center, -1) > best_steps:
 			best_steps = steps[center]
 			best = center
@@ -337,8 +557,8 @@ static func _second_exit(map: DungeonMap) -> Vector2i:
 	var best := DungeonMap.NO_CELL
 	var best_distance := 12.0  # cells, at least, from the start and from the first stairs
 	for i in range(1, map.rooms.size()):
-		var center := map.rooms[i].get_center()
-		if map.rooms[i].has_point(map.stairs_cell) or not map.is_floor(center):
+		var center := map.heart(i)
+		if map.rooms[i].has_point(map.stairs_cell) or not map.is_ground(center):
 			continue
 		var distance := minf(Vector2(center).distance_to(Vector2(map.start_cell)), Vector2(center).distance_to(Vector2(map.stairs_cell)))
 		if distance > best_distance:
@@ -347,12 +567,13 @@ static func _second_exit(map: DungeonMap) -> Vector2i:
 	return best
 
 
-static func _farthest_room(map: DungeonMap) -> Rect2i:
-	var best := map.rooms[0]
+## The index of the room whose heart is farthest from the start.
+static func _farthest_room(map: DungeonMap) -> int:
+	var best := 0
 	var best_distance := -1.0
-	for room in map.rooms:
-		var distance := Vector2(room.get_center()).distance_to(Vector2(map.start_cell))
+	for i in map.rooms.size():
+		var distance := Vector2(map.heart(i)).distance_to(Vector2(map.start_cell))
 		if distance > best_distance:
 			best_distance = distance
-			best = room
+			best = i
 	return best

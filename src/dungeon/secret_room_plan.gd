@@ -112,11 +112,12 @@ static func _try(map: DungeonMap, config: DungeonConfig, rng: RandomNumberGenera
 	var along := Vector2i(absi(direction.y), absi(direction.x))
 	var width := config.secret_passage_width
 	var length := maxi(config.secret_passage_length, DungeonGenerator.MIN_WALL_THICKNESS)
-	# The crack sits on a plain stretch of wall: floor on the room's side of it and one cell beyond
-	# each end, rock behind, no corridor coming in next to it.
+	# The crack sits on a plain stretch of wall: ground on the room's side of it and one cell
+	# beyond each end (not a chasm, a pool or a pillar), rock behind, no corridor coming in next
+	# to it.
 	for k in range(-1, width + 1):
 		var cell := mouth + along * k
-		if not map.is_floor(cell - direction) or map.is_floor(cell):
+		if not map.is_ground(cell - direction) or map.is_floor(cell):
 			return null
 	# The passage, then the room past it: `size.x` across the passage, `size.y` deep.
 	var across := config.secret_room_size.x

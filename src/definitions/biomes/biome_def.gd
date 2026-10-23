@@ -25,6 +25,28 @@ extends ContentDef
 ## Its traps and hazards; empty: the act's.
 @export var hazards: Array[HazardDef] = []
 
+@export_group("Rooms")
+## The shapes its rooms may take (round halls, pillared halls, rings, chasms...), each by its
+## `spawn_weight` from its `min_depth`; a plain rectangle weighs `plain_weight`. The first room
+## (where the hero arrives) is always a plain one. See RoomShapeDef, DungeonGenerator.
+@export var room_shapes: Array[RoomShapeDef] = []
+@export_range(0, 1000) var plain_weight: int = 40
+## Its signature rooms (RoomShapeDef with `set_piece`: a drowned hall, a pyre circle...): one of
+## them on `set_piece_chance` of its floors.
+@export var set_pieces: Array[RoomShapeDef] = []
+@export_range(0.0, 1.0) var set_piece_chance: float = 0.4
+## What stands in its pillared halls (one kind per hall); empty: the shape's own pillar.
+@export var pillars: Array[PropDef] = []
+## The look of its chasms (a hole, PitDef) and pools (deep water, GroundLayerDef); null: the
+## dungeon's (DungeonConfig.chasm, DungeonConfig.pool).
+@export var chasm: PitDef
+@export var pool: GroundLayerDef
+
+@export_group("Ceiling")
+## What hangs over its rooms, drawn over the actors and fading around them (CeilingDef): roots,
+## chains, banners, broken arches... null: nothing overhead.
+@export var ceiling: CeilingDef
+
 
 func pick_prop(content: ContentDB, depth: int, rng: RandomNumberGenerator) -> PropDef:
 	if props.is_empty():

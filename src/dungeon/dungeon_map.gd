@@ -4,6 +4,9 @@ extends RefCounted
 ## No nodes here, so it can be generated and tested on its own.
 
 enum Tile { WALL, FLOOR }
+## What lies on a floor cell of a shaped room's core (RoomShapeDef): a chasm (a hole, PitDef) or
+## deep water (a pool). The cell stays FLOOR in `tiles`; the World lays the hole or the water.
+enum Feature { NONE, CHASM, POOL }
 
 const NO_CELL := Vector2i(-1, -1)
 
@@ -20,6 +23,13 @@ var second_stairs_cell := NO_CELL
 var boss_room := Rect2i()
 ## Rooms hidden behind a cracked wall (SecretRoomPlan). Their cells stay wall until one opens.
 var secrets: Array[SecretRoomPlan] = []
+## Each room's plan (shape, heart), in the order of `rooms`. A map made without plans (tests,
+## the Threshold) gets plain ones on demand (plan()).
+var plans: Array[RoomPlan] = []
+## Floor cells under a chasm or a pool (Feature), from the rooms' cores.
+var features := {}
+## Floor cells where a room's pillars stand (cell -> room index): a prop the World puts up.
+var pillars := {}
 
 
 func _init(map_width: int, map_height: int, cell_size: int) -> void:
@@ -49,6 +59,37 @@ func is_floor(cell: Vector2i) -> bool:
 func set_floor(cell: Vector2i) -> void:
 	if in_bounds(cell):
 		tiles[cell.y * width + cell.x] = Tile.FLOOR
+
+
+## Floor nobody stands on from the start: no chasm, no pool, no pillar. (Holes and props laid
+## later by hazards are the World's: World.is_free_cell().)
+func is_ground(cell: Vector2i) -> bool:
+	return is_floor(cell) and not features.has(cell) and not pillars.has(cell)
+
+
+func feature_at(cell: Vector2i) -> Feature:
+	return features.get(cell, Feature.NONE)
+
+
+## The plan of room `index` (a plain one for a map made without plans).
+func plan(index: int) -> RoomPlan:
+	while plans.size() < rooms.size():
+		plans.append(RoomPlan.new(rooms[plans.size()]))
+	return plans[index]
+
+
+## The walkable cell nearest the middle of room `index` (its middle may be rock, a chasm, a
+## pool): where its stairs, its merchant, its encounter go.
+func heart(index: int) -> Vector2i:
+	return plan(index).heart
+
+
+## The room `cell` is in (its rectangle), or -1.
+func room_at(cell: Vector2i) -> int:
+	for i in rooms.size():
+		if rooms[i].has_point(cell):
+			return i
+	return -1
 
 
 ## A wall cell that touches at least one floor cell (the only walls we draw and collide with).
