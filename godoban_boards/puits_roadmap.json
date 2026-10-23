@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 124,
+  "next_id": 125,
   "tags": [
     "pc",
     "test",
@@ -331,8 +331,8 @@
     {
       "id": "task_23",
       "title": "Armes en main : 8 directions",
-      "description": "Les frames d'arme en main n'existent qu'en 4 directions.\n\nÉvaluation (non construit) : les frames d'arme en main viennent du pack (assets/weapons/attack/<arme>.png, 16 armes, cases 64x64, 4 directions x 4 images : levée, traînée blanche en croissant, bras tendu x2 ; data/visuals/weapons/<arme>.tres). Le corps du héros (idle, walk, attack, roll, hit) et les couches d'armure portées n'existent qu'en 4 directions aussi (pack 16x16) : 8 vraies directions demanderaient de redessiner le héros et chaque style d'armure, hors de portée. Faisable à moindre coût : garder le corps de côté pour les diagonales et ne dessiner que l'arme en 8 directions. Il faudrait : (1) un outil (comme tools/vfx/back_weapons.py : profil de l'arme sur la diagonale, contour par 4-voisins) qui dessine les 4 diagonales x 3 images utiles pour les 16 armes (la traînée du pack est inutile : SwingVfx dessine l'arc), soit ~190 petites images à revoir à l'œil ; (2) ActorRig : direction_name en 8 pour l'arme seule, ancrage de la main par image et par diagonale, devant/derrière le corps pour les diagonales vers le haut, la pose de charge ; (3) générer les SpriteFrames ; (4) tests en 8 directions (CombatTests._test_own_effects couvre déjà les effets). Estimation : 2 à 3 jours avec la revue visuelle. Gain : l'arme pointe dans l'axe du coup en diagonale (aujourd'hui elle prend la direction cardinale la plus proche alors que l'arc, lui, suit la visée). Pas bon marché : à décider.",
-      "status": "backlog",
+      "description": "Les frames d'arme en main n'existent qu'en 4 directions.\n\nÉvaluation (non construit) : les frames d'arme en main viennent du pack (assets/weapons/attack/<arme>.png, 16 armes, cases 64x64, 4 directions x 4 images : levée, traînée blanche en croissant, bras tendu x2 ; data/visuals/weapons/<arme>.tres). Le corps du héros (idle, walk, attack, roll, hit) et les couches d'armure portées n'existent qu'en 4 directions aussi (pack 16x16) : 8 vraies directions demanderaient de redessiner le héros et chaque style d'armure, hors de portée. Faisable à moindre coût : garder le corps de côté pour les diagonales et ne dessiner que l'arme en 8 directions. Il faudrait : (1) un outil (comme tools/vfx/back_weapons.py : profil de l'arme sur la diagonale, contour par 4-voisins) qui dessine les 4 diagonales x 3 images utiles pour les 16 armes (la traînée du pack est inutile : SwingVfx dessine l'arc), soit ~190 petites images à revoir à l'œil ; (2) ActorRig : direction_name en 8 pour l'arme seule, ancrage de la main par image et par diagonale, devant/derrière le corps pour les diagonales vers le haut, la pose de charge ; (3) générer les SpriteFrames ; (4) tests en 8 directions (CombatTests._test_own_effects couvre déjà les effets). Estimation : 2 à 3 jours avec la revue visuelle. Gain : l'arme pointe dans l'axe du coup en diagonale (aujourd'hui elle prend la direction cardinale la plus proche alors que l'arc, lui, suit la visée). Pas bon marché : à décider.\n\nDécidé (23/10, Clayton) : NON, on garde les 4 directions (ça donne son charme). Les déplacements restent libres dans toutes les directions ; ce sont les attaques et les effets qui doivent suivre les 4 directions du héros (voir la carte « Attaques et effets en 4 directions »).",
+      "status": "done",
       "priority": "low",
       "epic_id": "epic_3",
       "due_date": null,
@@ -340,7 +340,7 @@
         "sprites"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792706319
+      "updated_at": 1792759099
     },
     {
       "id": "task_24",
@@ -1795,6 +1795,22 @@
       ],
       "created_at": 1792758694,
       "updated_at": 1792758694
+    },
+    {
+      "id": "task_124",
+      "title": "Attaques et effets en 4 directions",
+      "description": "Demandé par Clayton : le héros est dessiné en 4 directions (corps, armure, arme en main), mais les effets par-dessus (traînées de coup, arcs, cônes, éclats, kunai…) sont tournés vers l'angle exact, sur 16 directions (SheetVfx.DIRECTIONS, WeaponDef). Résultat : l'effet ne suit pas la pose du héros, c'est dommage. Les déplacements restent libres dans toutes les directions ; les attaques et leurs effets doivent suivre les 4 directions.\n\nDécidé (23/10) : corps à corps en 4 directions, tirs libres. Le coup, sa zone et ses effets suivent la pose du héros (haut, bas, gauche, droite) ; flèches, sorts et kunai partent toujours droit sur l'ennemi.",
+      "status": "in_progress",
+      "priority": "high",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "vfx",
+        "visuel",
+        "combat"
+      ],
+      "created_at": 1792759099,
+      "updated_at": 1792759267
     }
   ]
 }
