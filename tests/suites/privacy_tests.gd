@@ -21,6 +21,9 @@ func run_unit() -> void:
 	_test_rules()
 	await _test_no_consent_sends_nothing()
 	await _test_consented_run()
+	await _test_left_and_resumed()
+	await _test_left_without_consent()
+	_test_draft()
 	await _test_delete()
 	_test_file()
 	_restore()
@@ -280,11 +283,111 @@ func _test_file() -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(old))
 
 
-## A run on a hero out of the world, followed from Events.run_started: two rolls, a hit dodged in
-## one, a hit taken, a potion drunk, a perk taken, death on floor 3. `ends`: Events.run_ended.
-func _play_run(ends: bool) -> Dictionary:
+## A run left for the title, then resumed from its save and ended: the quit sends one run_end
+## "abandoned" (quit 1) with what was counted; the save keeps the counts, the resumed run's end
+## covers both parts under the same run id (resumed 1), and nothing is sent twice.
+func _test_left_and_resumed() -> void:
+	var fake := consent_on_fake()
+	fake.online = false
+	var played := _play_run(false, false)
+	var run_id := Telemetry.tracker.run_id
+	# Save and quit (Game: _save_run(), then report_left(true)).
+	Events.run_saving.emit(played.run)
+	var saved := JSON.parse_string(JSON.stringify((played.run as RunState).to_data())) as Dictionary
+	(played.records as RunRecords).report_left(true)
+	var ends := _queued("run_end")
+	check(ends.size() == 1, "quitting to the title queues one run_end (%d)" % ends.size())
+	var left: Dictionary = ends[0].props if not ends.is_empty() else {}
+	check(left.get("result") == "abandoned" and left.get("quit") == "1" and left.get("run") == run_id, "...result abandoned, quit 1, the run's id (%s)" % [left])
+	check(left.get("rolls") == "2" and left.get("hits_taken") == "1" and left.has("potion.health_potion") and left.has("weapon") and left.has("floor_times") and left.get("depth") == "3", "...with the run's stats and build so far")
+	check(_queued("perk_picked").size() == 1, "...and the events of the run so far")
+	check(Telemetry.tracker == null, "the run left is no longer followed")
+	_end_run(played)
+	# Resumed from the save: the counts come back, the run goes on, then ends.
+	var resumed := _start_run(saved)
+	check(Telemetry.tracker.run_id == run_id and Telemetry.tracker.resumes == 1 and not Telemetry.tracker.partial, "a resumed run keeps its id and its counts")
+	var player := resumed.player as Player
+	player.skill_used.emit(RunTelemetry.ROLL_SLOT)
+	var taken := HitInfo.new()
+	taken.amount = 4
+	Events.actor_damaged.emit(player, taken, 4)
+	(resumed.run as RunState).time = 300.0
+	player.is_dead = true
+	player.death_cause = &"monster"
+	(resumed.records as RunRecords).report_end()
+	ends = _queued("run_end")
+	check(ends.size() == 2, "the resumed run's end is a second run_end (%d)" % ends.size())
+	var end: Dictionary = ends[-1].props if ends.size() == 2 else {}
+	check(end.get("run") == run_id and end.get("result") == "death" and end.get("quit") == "0" and end.get("resumed") == "1" and end.get("partial") == "0", "...same run id, a death, resumed once (%s)" % [end])
+	check(end.get("rolls") == "3" and end.get("hits_taken") == "2" and end.get("dmg_in") == "11" and end.has("potion.health_potion"), "...its counts cover the whole run: 2 + 1 rolls, 1 + 1 hits, 7 + 4 damage taken")
+	check(_queued("perk_picked").size() == 1, "...and the events before the quit are not sent again")
+	check(end.get("floor_times") == "60.0,70.0,170.0", "...the time per floor of the whole run (%s)" % end.get("floor_times"))
+	_end_run(resumed)
+	# A save from before the counts were kept: resumed, partial.
+	saved.erase("telemetry")
+	var old := _start_run(saved)
+	check(Telemetry.tracker.resumes == 1 and Telemetry.tracker.partial and Telemetry.tracker.run_id != run_id, "an older save without counts: resumed, partial, a new id")
+	_end_run(old)
+	_restore()
+
+
+## Without consent, or a debug run: quitting queues nothing either.
+func _test_left_without_consent() -> void:
+	var fake := _use_fake()
+	var played := _play_run(false, false)
+	(played.records as RunRecords).report_left(true)
+	await _frames(1)
+	check(Telemetry.queue.is_empty() and Telemetry.draft.is_empty() and fake.calls == 0, "no consent: a quit queues nothing")
+	_end_run(played)
+	consent_on_fake()
+	played = _play_run(false, false)
+	DebugCheats.debug_run = true
+	(played.records as RunRecords).report_left(false)
+	(played.records as RunRecords).report_left(true)
+	DebugCheats.debug_run = false
+	check(Telemetry.queue.is_empty() and Telemetry.draft.is_empty(), "a debug run's quit queues nothing, even with consent")
+	_end_run(played)
+	_restore()
+
+
+## The app put in the background mid-run: the run's end waits as a draft (nothing queued),
+## dropped when the app comes back; killed there, it is queued at the next launch (the file).
+func _test_draft() -> void:
+	var fake := consent_on_fake()
+	fake.online = false
+	var played := _play_run(false, false)
+	(played.records as RunRecords).report_left(false)
+	var drafted := Telemetry.draft.filter(func(e: Dictionary) -> bool: return e.name == "run_end")
+	check(Telemetry.queue.is_empty() and drafted.size() == 1 and drafted[0].props.get("result") == "abandoned", "put in the background: an abandoned end drafted, nothing queued")
+	check(Telemetry.tracker != null and Telemetry.tracker.pending.size() > 0, "...the run still followed, its events still waiting for its end")
+	Telemetry._notification(Node.NOTIFICATION_APPLICATION_RESUMED)
+	check(Telemetry.draft.is_empty() and Telemetry.queue.is_empty(), "back in the app: the draft dropped")
+	var file := "user://test_telemetry_%d.json" % OS.get_process_id()
+	Telemetry.path = file
+	(played.records as RunRecords).report_left(false)
+	Telemetry.load_state()  # (the next launch: the app was killed in the background)
+	check(Telemetry.draft.is_empty() and Telemetry.queue.filter(func(e: Dictionary) -> bool: return e.name == "run_end" and e.props.get("quit") == "1").size() == 1, "killed in the background: the abandoned end is queued at the next launch")
+	check(file != RunSave.path and file != Privacy.path, "...from the statistics' own file")
+	Telemetry.path = ""
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(file))
+	_end_run(played)
+	_restore()
+
+
+## The queued events named `event_name`.
+func _queued(event_name: String) -> Array[Dictionary]:
+	var found: Array[Dictionary] = []
+	for event: Dictionary in Telemetry.queue:
+		if event.name == event_name:
+			found.append(event)
+	return found
+
+
+## A run from `saved` (empty: a new one) on a hero out of the world, as the Game begins it: its
+## records bound, Events.run_started.
+func _start_run(saved: Dictionary) -> Dictionary:
 	var rng := RandomNumberGenerator.new()
-	var run := RunState.create(CONTENT, {}, rng)
+	var run := RunState.create(CONTENT, saved, rng)
 	run.difficulty = CONTENT.get_difficulty(&"normal")
 	var player := (load("res://src/entities/player/player.tscn") as PackedScene).instantiate() as Player
 	player.process_mode = Node.PROCESS_MODE_DISABLED  # (no floor under it)
@@ -295,6 +398,17 @@ func _play_run(ends: bool) -> Dictionary:
 	add_child(records)
 	records.bind(run, player)
 	Events.run_started.emit(run, player)
+	return { "run": run, "player": player, "records": records }
+
+
+## A run on a hero out of the world, followed from Events.run_started: two rolls, a hit dodged in
+## one, a hit taken, a potion drunk, a perk taken, on floor 3 at 200 s; death there (`dies`).
+## `ends`: Events.run_ended.
+func _play_run(ends: bool, dies := true) -> Dictionary:
+	var started := _start_run({})
+	var run := started.run as RunState
+	var player := started.player as Player
+	var records := started.records as RunRecords
 	player.skill_used.emit(RunTelemetry.ROLL_SLOT)
 	player.skill_used.emit(RunTelemetry.ROLL_SLOT)
 	var dodged := HitInfo.new()
@@ -314,8 +428,8 @@ func _play_run(ends: bool) -> Dictionary:
 	run.depth = 3
 	run.time = 200.0
 	run.splits.assign([60.0, 130.0])
-	player.is_dead = true
-	player.death_cause = &"monster"
+	player.is_dead = dies
+	player.death_cause = &"monster" if dies else &""
 	if ends:
 		records.report_end()
 	return { "run": run, "player": player, "records": records }

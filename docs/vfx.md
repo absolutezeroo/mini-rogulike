@@ -319,7 +319,7 @@ effect later (a monster in front of a crystal) writes 1 again. The screen pass k
 biome's grading, saturation and moon tint off those pixels (`emissive_keep`): frost stays cyan in
 the warm ruins, fire keeps its yellows in the blue crypt. `ScreenEffects.flash(color)` lifts the
 whole picture for one frame (Thunder's bolt, `flash_frames`), at most 3 a second, never when
-Options > Screen flashes is off.
+Options > Graphics > Screen flashes is off.
 
 **Fewer effects** drops what costs the most: no HEAT, COLD or PULL stamps (shockwaves stay), no
 bloom (4 more reads of the screen per pixel), the halos' inner band only. **Warm-up:**

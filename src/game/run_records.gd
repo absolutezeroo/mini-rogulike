@@ -76,6 +76,15 @@ func report_end() -> void:
 	Events.run_ended.emit(RunSummary.of(run, player, content))
 
 
+## The player leaves the run, saved, without it ending (Events.run_left; `for_good`: quit to the
+## title or the app closed, else put in the background). Nothing for a hero already dead (that
+## run ended: report_end()).
+func report_left(for_good: bool) -> void:
+	if run == null or not is_instance_valid(player) or player.is_dead:
+		return
+	Events.run_left.emit(RunSummary.of(run, player, content), for_good)
+
+
 ## Adds the run to the history (once).
 func record_history() -> void:
 	if run == null or run.history_recorded or player == null:

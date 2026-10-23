@@ -1,18 +1,28 @@
 class_name OptionsPanel
 extends Control
-## Options window (title screen and pause menu), in the game's skin (MenuWindow). Two tabs: the
-## settings, grouped (language, sound, controls, screen, tutorial), each option with its name and
-## a short line saying what it does; and Controls, what does what on the device in use (its keys,
-## buttons or touch, ControlsPage). Every change goes straight to Settings (applied and saved).
+## Options window (title screen and pause menu), in the game's skin (MenuWindow). Five tabs (TABS,
+## switched by a tap, a click, Q / E or LB / RB: MenuNav), each a page of grouped options with
+## their name and a short line saying what it does:
+## - Gameplay: the language, auto loot, boss stories, in a run (run timer, screen shake,
+##   vibrations), the tutorial (hints, Replay tutorial);
+## - Graphics: the screen (fullscreen on a computer, interface size), the touch controls (buttons
+##   size, fixed joystick), effects and battery (fewer effects, screen flashes, battery saver);
+## - Audio: the five volumes;
+## - Controls: what does what on the device in use (its keys, buttons or touch, ControlsPage);
+## - Privacy: online (with a server in the build: the leaderboards' name and switch, the gameplay
+##   statistics, the online ID, the deletion), the privacy policy and the credits.
+## Every change goes straight to Settings (applied and saved).
 ## Built in code; every control is reachable as %Name from the panel (%EnglishButton,
 ## %FrenchButton, %MasterSlider, %MusicSlider, %InterfaceSlider, %CombatSlider, %AmbienceSlider,
 ## %ShakeSlider, %ControlsSlider, %VibrationsCheck, %FixedStickCheck, %BatteryCheck,
 ## %FewerEffectsCheck, %FlashesCheck, %RunTimerCheck, %TutorialCheck, %ReplayTutorialButton, %AutoLootAll, %AutoLootBetter,
 ## %AutoLootOff, %StoriesFull, %StoriesShort, %StoriesOff, %FullscreenCheck (computers),
-## %UiSizeBig, %UiSizeMedium, %UiSizeSmall, %SettingsTab, %ControlsTab, %ControlsPage,
-## %CloseButton; Privacy: %PolicyButton, %CreditsButton, %PolicyPanel, %CreditsPanel, and with
-## a server in the build: %BoardsNameText, %BoardsNameButton, %BoardsShowCheck, %NameDialog,
-## %AnalyticsCheck, %ConsentDialog, %OnlineIdText, %DeleteDataButton, %DeleteDialog).
+## %UiSizeBig, %UiSizeMedium, %UiSizeSmall, the tabs %GameplayTab, %GraphicsTab, %AudioTab,
+## %ControlsTab, %PrivacyTab and their pages %GameplayPage, %GraphicsPage, %AudioPage,
+## %ControlsPage, %PrivacyPage, %CloseButton; Privacy: %PolicyButton, %CreditsButton,
+## %PolicyPanel, %CreditsPanel, and with a server in the build: %BoardsNameText,
+## %BoardsNameButton, %BoardsShowCheck, %NameDialog, %AnalyticsCheck, %ConsentDialog,
+## %OnlineIdText, %DeleteDataButton, %DeleteDialog).
 ## The leaderboards' pseudonym and "Publish my scores online" live in the Leaderboards autoload,
 ## the statistics' consent in Privacy (their own files), not in Settings.
 ## Picking a language rebuilds the window in it at once; the title screen behind is rebuilt when
@@ -21,6 +31,18 @@ extends Control
 signal closed
 ## The player picked another language (Settings.language is already set).
 signal language_changed
+
+## The window's tabs, in their order on screen.
+enum Tab { GAMEPLAY, GRAPHICS, AUDIO, CONTROLS, PRIVACY }
+
+## Each tab's name (translated where shown), also its nodes' names: %<name>Tab, %<name>Page.
+const TAB_NAMES := {
+	Tab.GAMEPLAY: "Gameplay",  # i18n
+	Tab.GRAPHICS: "Graphics",  # i18n
+	Tab.AUDIO: "Audio",  # i18n
+	Tab.CONTROLS: "Controls",  # i18n
+	Tab.PRIVACY: "Privacy",  # i18n
+}
 
 const SLIDER_WIDTH := 180.0
 
@@ -45,11 +67,11 @@ var _story_modes := {}
 var _story_help: Label
 ## Interface size: Settings.UI_* -> its button.
 var _ui_sizes := {}
-## The two tabs and what they show.
-var _settings_tab: Button
-var _controls_tab: Button
-var _settings_page: Control
+## The tab buttons and their pages, by Tab; the tab shown.
+var _tab_buttons: Array[Button] = []
+var _pages: Array[Control] = []
 var _controls_page: ControlsPage
+var _current := Tab.GAMEPLAY
 ## The language changed while the window was open.
 var _language_changed := false
 ## The online leaderboards' name and switch (null in a build without them), and its dialog.
@@ -100,8 +122,11 @@ func _wire() -> void:
 			Settings.set_option(&"ui_size", size)
 			Sfx.play_ui(Sfx.bank.ui_click)
 			_show_ui_size())
-	_settings_tab.pressed.connect(show_page.bind(false))
-	_controls_tab.pressed.connect(show_page.bind(true))
+	for tab: int in _tab_buttons.size():
+		_tab_buttons[tab].pressed.connect(func() -> void:
+			if tab != _current:
+				Sfx.play_ui(Sfx.bank.ui_click)
+			show_tab(tab as Tab))
 	# Every hint shows again, from the first steps (and the hints come back on).
 	_replay.pressed.connect(func() -> void:
 		Profile.reset_hints()
@@ -126,7 +151,7 @@ func open() -> void:
 	_show_story_mode()
 	_show_ui_size()
 	_show_boards()
-	show_page(false)
+	show_tab(Tab.GAMEPLAY)
 	show()
 
 
@@ -141,14 +166,24 @@ func _show_boards() -> void:
 		_online_id.text = Leaderboards.device_id if not Leaderboards.device_id.is_empty() else tr("None yet (nothing was sent)")
 
 
-## The settings (`controls` false) or what does what on the device in use (true).
-func show_page(controls: bool) -> void:
-	_settings_tab.set_pressed_no_signal(not controls)
-	_controls_tab.set_pressed_no_signal(controls)
-	_settings_page.visible = not controls
-	_controls_page.visible = controls
-	if controls:
+## Shows the page of `tab` (its button stays pressed, the others not).
+func show_tab(tab: Tab) -> void:
+	_current = tab
+	for i in _pages.size():
+		_tab_buttons[i].set_pressed_no_signal(i == tab)
+		_pages[i].visible = i == tab
+	if tab == Tab.CONTROLS:
 		_controls_page.refresh()
+
+
+## The tab shown.
+func current_tab() -> Tab:
+	return _current
+
+
+## The page of `tab` (tests).
+func page(tab: Tab) -> Control:
+	return _pages[tab]
 
 
 func close() -> void:
@@ -191,6 +226,8 @@ func _pick_language(code: String) -> void:
 	_loot_modes.clear()
 	_story_modes.clear()
 	_ui_sizes.clear()
+	_tab_buttons.clear()
+	_pages.clear()
 	_boards_name = null
 	_boards_show = null
 	_name_dialog = null
@@ -298,47 +335,56 @@ func _build() -> void:
 	saved.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	saved.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	window.header_left.add_child(saved)
-	_build_languages(window.header_left)
 	_build_tabs(window.body)
-	var columns := HBoxContainer.new()
-	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	columns.add_theme_constant_override("separation", 14)
-	window.body.add_child(columns)
-	_settings_page = columns
-	_controls_page = ControlsPage.new()
-	_controls_page.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	window.body.add_child(_controls_page)
-	MenuWindow.expose(_controls_page, "ControlsPage", self)
-	var left := _column(columns)
-	var right := _column(columns)
 
-	var sound := _section(left, tr("Sound"))
-	_volumes[&"master_volume"] = _slider(sound, tr("General"), tr("Every sound at once."), 0.0, 1.0, 0.05, "MasterSlider")
-	_volumes[&"music_volume"] = _slider(sound, tr("Music"), tr("Background music."), 0.0, 1.0, 0.05, "MusicSlider")
-	_volumes[&"ui_volume"] = _slider(sound, tr("Interface"), tr("Menus, buttons, level up."), 0.0, 1.0, 0.05, "InterfaceSlider")
-	_volumes[&"combat_volume"] = _slider(sound, tr("Combat"), tr("Weapons, hits, cries, spells."), 0.0, 1.0, 0.05, "CombatSlider")
-	_volumes[&"ambience_volume"] = _slider(sound, tr("Ambience"), tr("Footsteps, wind, doors, chests."), 0.0, 1.0, 0.05, "AmbienceSlider")
 
-	var controls := _section(right, tr("Touch controls"))
-	_controls = _slider(controls, tr("Buttons size"), tr("Joystick and buttons."), 0.7, 1.3, 0.05, "ControlsSlider")
-	_checks[_check(controls, tr("Fixed joystick"), tr("Stays in its corner instead of following your thumb."), "FixedStickCheck")] = &"fixed_joystick"
-	_vibrations = _check(controls, tr("Vibrations"), tr("The phone buzzes on big hits and critical hits."), "VibrationsCheck")
+## The tabs over the window's body (switched with the tab keys too: MenuNav; not in the header:
+## five French names and the header's Close don't fit a 1280-wide screen on one line), and under
+## them each tab's page, built into the body by its own function (which returns it); one page
+## shows at a time.
+func _build_tabs(body: VBoxContainer) -> void:
+	var builders := {
+		Tab.GAMEPLAY: _build_gameplay,
+		Tab.GRAPHICS: _build_graphics,
+		Tab.AUDIO: _build_audio,
+		Tab.CONTROLS: _build_controls,
+		Tab.PRIVACY: _build_privacy,
+	}
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	body.add_child(row)
+	var keys := PromptGlyph.make(&"menu_tabs")
+	keys.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(keys)
+	for tab: int in Tab.values():
+		var tab_name: String = TAB_NAMES[tab]
+		var button := MenuWindow.button(tr(tab_name), Fonts.BODY, 44)
+		button.toggle_mode = true
+		button.custom_minimum_size.x = 150
+		button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		button.add_to_group(MenuNav.TABS)
+		row.add_child(button)
+		MenuWindow.expose(button, tab_name + "Tab", self)
+		_tab_buttons.append(button)
+		var page_node := (builders[tab] as Callable).call(body) as Control
+		page_node.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		MenuWindow.expose(page_node, tab_name + "Page", self)
+		_pages.append(page_node)
 
-	var screen := _section(right, tr("Screen and battery"))
-	_shake = _slider(screen, tr("Screen shake"), tr("On big hits."), 0.0, 1.5, 0.1, "ShakeSlider")
-	_checks[_check(screen, tr("Fewer effects"), tr("Half the particles, no heat haze nor glow: smoother on older phones."), "FewerEffectsCheck")] = &"fewer_effects"
-	_checks[_check(screen, tr("Screen flashes"), tr("Lightning lights up the whole screen for an instant."), "FlashesCheck")] = &"screen_flashes"
-	_checks[_check(screen, tr("Battery saver"), tr("30 FPS: the phone stays cooler."), "BatteryCheck")] = &"battery_saver"
-	_checks[_check(screen, tr("Run timer"), tr("The run's time, under the map."), "RunTimerCheck")] = &"run_timer"
-	if Settings.has_window_modes():
-		_checks[_check(screen, tr("Fullscreen"), tr("The whole screen, or a window you can resize (F11, Alt+Enter)."), "FullscreenCheck")] = &"fullscreen"
-	_build_ui_size(screen)
 
-	# Loot under Sound, where it shows without scrolling; the tutorial (set once) closes the right
-	# column, scrolled to on a small screen.
+## Gameplay: the language (first: a player who can't read the one in use finds it at once), auto
+## loot and boss stories; what shows or shakes in a run, and the tutorial.
+func _build_gameplay(body: VBoxContainer) -> Control:
+	var page_node := _page(body)
+	var left := _column(page_node)
+	var right := _column(page_node)
+	_build_languages(_section(left, tr("Language")))
 	_build_loot(_section(left, tr("Loot")))
 	_build_stories(_section(left, tr("Story")))
-
+	var in_run := _section(right, tr("In a run"))
+	_checks[_check(in_run, tr("Run timer"), tr("The run's time, under the map."), "RunTimerCheck")] = &"run_timer"
+	_shake = _slider(in_run, tr("Screen shake"), tr("On big hits."), 0.0, 1.5, 0.1, "ShakeSlider")
+	_vibrations = _check(in_run, tr("Vibrations"), tr("The phone buzzes on big hits and critical hits."), "VibrationsCheck")
 	var tutorial := _section(right, tr("Tutorial"))
 	_tutorial = _check(tutorial, tr("Tutorial hints"), tr("Short tips during your first runs."), "TutorialCheck")
 	_checks[_tutorial] = &"tutorial_hints"
@@ -351,19 +397,70 @@ func _build() -> void:
 	_replay.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	replay_row.add_child(_replay)
 	MenuWindow.expose(_replay, "ReplayTutorialButton", self)
-	_build_privacy(_section(right, tr("Privacy")))
+	return page_node
 
 
-## Privacy: with a server in the build, the leaderboards (the name, "Publish my scores online"),
-## the gameplay statistics' switch, the device's online ID and "Delete my online data"; always,
-## the privacy policy and the credits.
-func _build_privacy(section: VBoxContainer) -> void:
+## Graphics: the screen (fullscreen, interface size), the touch controls' look, the effects and
+## the battery.
+func _build_graphics(body: VBoxContainer) -> Control:
+	var page_node := _page(body)
+	var left := _column(page_node)
+	var right := _column(page_node)
+	var screen := _section(left, tr("Screen"))
+	if Settings.has_window_modes():
+		_checks[_check(screen, tr("Fullscreen"), tr("The whole screen, or a window you can resize (F11, Alt+Enter)."), "FullscreenCheck")] = &"fullscreen"
+	_build_ui_size(screen)
+	var controls := _section(left, tr("Touch controls"))
+	_controls = _slider(controls, tr("Buttons size"), tr("Joystick and buttons."), 0.7, 1.3, 0.05, "ControlsSlider")
+	_checks[_check(controls, tr("Fixed joystick"), tr("Stays in its corner instead of following your thumb."), "FixedStickCheck")] = &"fixed_joystick"
+	var effects := _section(right, tr("Effects and battery"))
+	_checks[_check(effects, tr("Fewer effects"), tr("Half the particles, no heat haze nor glow: smoother on older phones."), "FewerEffectsCheck")] = &"fewer_effects"
+	_checks[_check(effects, tr("Screen flashes"), tr("Lightning lights up the whole screen for an instant."), "FlashesCheck")] = &"screen_flashes"
+	_checks[_check(effects, tr("Battery saver"), tr("30 FPS: the phone stays cooler."), "BatteryCheck")] = &"battery_saver"
+	return page_node
+
+
+## Audio: the five volumes, one under the other, the sliders long (a single column).
+func _build_audio(body: VBoxContainer) -> Control:
+	var page_node := _page(body)
+	var sound := _section(_column(page_node), tr("Sound"))
+	_volumes[&"master_volume"] = _slider(sound, tr("General"), tr("Every sound at once."), 0.0, 1.0, 0.05, "MasterSlider", true)
+	_volumes[&"music_volume"] = _slider(sound, tr("Music"), tr("Background music."), 0.0, 1.0, 0.05, "MusicSlider", true)
+	_volumes[&"ui_volume"] = _slider(sound, tr("Interface"), tr("Menus, buttons, level up."), 0.0, 1.0, 0.05, "InterfaceSlider", true)
+	_volumes[&"combat_volume"] = _slider(sound, tr("Combat"), tr("Weapons, hits, cries, spells."), 0.0, 1.0, 0.05, "CombatSlider", true)
+	_volumes[&"ambience_volume"] = _slider(sound, tr("Ambience"), tr("Footsteps, wind, doors, chests."), 0.0, 1.0, 0.05, "AmbienceSlider", true)
+	return page_node
+
+
+## Controls: what does what on the device in use (ControlsPage, filled when shown).
+func _build_controls(body: VBoxContainer) -> Control:
+	_controls_page = ControlsPage.new()
+	body.add_child(_controls_page)
+	return _controls_page
+
+
+## A page of settings in `body`: columns side by side (each scrolls on its own).
+func _page(body: VBoxContainer) -> HBoxContainer:
+	var columns := HBoxContainer.new()
+	columns.add_theme_constant_override("separation", 14)
+	body.add_child(columns)
+	return columns
+
+
+## Privacy: with a server in the build, the leaderboards (the name, "Publish my scores online")
+## on the left and the player's data on the right (the gameplay statistics' switch, the device's
+## online ID, "Delete my online data"); always, the privacy policy and the credits.
+func _build_privacy(body: VBoxContainer) -> Control:
+	var page_node := _page(body)
+	var left := _column(page_node)
 	if Leaderboards.is_available():
-		_build_boards(section)
-		_build_analytics(section)
+		_build_boards(_section(left, tr("Leaderboards")))
+		_build_analytics(_section(_column(page_node), tr("Your data")))
+	var about := _section(left, tr("Policy and credits"))
+	about.add_child(UiSkin.label(tr("What is sent, to whom and why; who made the game and its licenses."), Fonts.BODY, UiSkin.DIM, true))
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
-	section.add_child(row)
+	about.add_child(row)
 	var policy := MenuWindow.button(tr("Privacy policy"), Fonts.BODY, 44)
 	policy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(policy)
@@ -386,6 +483,7 @@ func _build_privacy(section: VBoxContainer) -> void:
 		_credits.open())
 	_policy.closed.connect(func() -> void: _refocus(policy))
 	_credits.closed.connect(func() -> void: _refocus(credits))
+	return page_node
 
 
 ## The gameplay statistics' switch (on: the age and consent questions, ConsentDialog; off: at
@@ -477,23 +575,11 @@ func _build_boards(section: VBoxContainer) -> void:
 ## Auto loot: its name, three buttons (one stays pressed), what the picked one does. Gold always
 ## flies to you.
 func _build_loot(section: VBoxContainer) -> void:
-	# One row: its name on the left, the three modes on the right (the window has no room to spare).
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
-	section.add_child(row)
-	row.add_child(_words(tr("Auto loot"), tr("Gold, potions, runes and keys: always.")))
-	var modes := [
+	_loot_modes = _choice(section, tr("Auto loot"), tr("Gold, potions, runes and keys: always."), [
 		[Settings.LOOT_ALL, tr("All"), "AutoLootAll"],
 		[Settings.LOOT_BETTER, tr("Better only"), "AutoLootBetter"],
 		[Settings.LOOT_OFF, tr("By hand"), "AutoLootOff"],
-	]
-	for entry: Array in modes:
-		var button := MenuWindow.button(entry[1], Fonts.BODY, 44)
-		button.toggle_mode = true
-		button.custom_minimum_size.x = 118
-		row.add_child(button)
-		_loot_modes[entry[0]] = button
-		MenuWindow.expose(button, entry[2], self)
+	])
 	_loot_help = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
 	section.add_child(_loot_help)
 
@@ -501,89 +587,61 @@ func _build_loot(section: VBoxContainer) -> void:
 ## Boss stories: its name, three buttons (one stays pressed), what the picked one does. A tap
 ## skips a story anyway.
 func _build_stories(section: VBoxContainer) -> void:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
-	section.add_child(row)
-	row.add_child(_words(tr("Boss stories"), Prompts.pick("Before a warden's fight. A tap skips it.", "Before a warden's fight. {ui_accept} skips it.")))  # i18n
-	var modes := [
+	_story_modes = _choice(section, tr("Boss stories"), Prompts.pick("Before a warden's fight. A tap skips it.", "Before a warden's fight. {ui_accept} skips it."), [  # i18n
 		[Settings.STORIES_FULL, tr("Full"), "StoriesFull"],
 		[Settings.STORIES_SHORT, tr("Short"), "StoriesShort"],
 		[Settings.STORIES_OFF, tr("Off"), "StoriesOff"],
-	]
-	for entry: Array in modes:
-		var button := MenuWindow.button(entry[1], Fonts.BODY, 44)
-		button.toggle_mode = true
-		button.custom_minimum_size.x = 118
-		row.add_child(button)
-		_story_modes[entry[0]] = button
-		MenuWindow.expose(button, entry[2], self)
+	])
 	_story_help = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
 	section.add_child(_story_help)
 
 
-## The two tabs over the window's body: the settings, and what does what (switched with the tab
-## keys too: MenuNav).
-func _build_tabs(body: VBoxContainer) -> void:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
-	body.add_child(row)
-	_settings_tab = _tab(row, tr("Settings"), "SettingsTab")
-	_controls_tab = _tab(row, tr("Controls"), "ControlsTab")
-	var keys := PromptGlyph.make(&"menu_tabs")
-	row.add_child(keys)
-
-
-func _tab(row: HBoxContainer, text: String, node_name: String) -> Button:
-	var button := MenuWindow.button(text, Fonts.BODY, 44)
-	button.toggle_mode = true
-	button.custom_minimum_size.x = 160
-	button.add_to_group(MenuNav.TABS)
-	row.add_child(button)
-	MenuWindow.expose(button, node_name, self)
-	return button
-
-
 ## Interface size: its name, three buttons (one stays pressed).
 func _build_ui_size(section: VBoxContainer) -> void:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
-	section.add_child(row)
-	row.add_child(_words(tr("Interface size"), tr("Smaller leaves more room on a big screen.")))
-	var sizes := [
+	_ui_sizes = _choice(section, tr("Interface size"), tr("Smaller leaves more room on a big screen."), [
 		[Settings.UI_BIG, tr("Big"), "UiSizeBig"],
 		[Settings.UI_MEDIUM, tr("Medium"), "UiSizeMedium"],
 		[Settings.UI_SMALL, tr("Small"), "UiSizeSmall"],
-	]
-	for entry: Array in sizes:
-		var button := MenuWindow.button(entry[1], Fonts.BODY, 44)
-		button.toggle_mode = true
-		button.custom_minimum_size.x = 96
-		button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		row.add_child(button)
-		_ui_sizes[entry[0]] = button
-		MenuWindow.expose(button, entry[2], self)
+	])
 
 
-## In the header, always in sight: "Language" and two big buttons, each language's name in
-## itself; the one in use stays pressed.
-func _build_languages(row: HBoxContainer) -> void:
-	var title := UiSkin.label(tr("Language"), Fonts.BODY, UiSkin.GOLD)
-	title.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	row.add_child(title)
+## The language: two big buttons, each language's name in itself; the one in use stays pressed.
+## First on the first page: a player who can't read the one in use finds it at once.
+func _build_languages(section: VBoxContainer) -> void:
+	var entries := []
 	for code: String in Settings.LANGUAGES:
-		var button := MenuWindow.button(Settings.LANGUAGE_NAMES[code], Fonts.BODY, 48)
-		button.toggle_mode = true
-		button.custom_minimum_size.x = 160
-		button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		entries.append([code, Settings.LANGUAGE_NAMES[code], "FrenchButton" if code == "fr" else "EnglishButton"])
+	_languages = _choice(section, "", tr("The game's words, at once."), entries)
+	for button: Button in _languages.values():
 		# A language's own name is never translated.
 		button.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+		# Never focused first: an accept pressed at once must not switch the language.
 		button.set_meta(MenuNav.NOT_FIRST, true)
+
+
+## A choice of a few: its name and what it does (`title` empty: only that line), then a row of
+## toggle buttons sharing the column's width, one per [value, text, node name] of `entries`.
+## Returns value -> button (the caller keeps the one in use pressed).
+func _choice(section: VBoxContainer, title: String, helper: String, entries: Array) -> Dictionary:
+	if title.is_empty():
+		section.add_child(UiSkin.label(helper, Fonts.BODY, UiSkin.DIM, true))
+	else:
+		section.add_child(_words(title, helper))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	section.add_child(row)
+	var buttons := {}
+	for entry: Array in entries:
+		var button := MenuWindow.button(entry[1], Fonts.BODY, 44)
+		button.toggle_mode = true
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(button)
-		_languages[code] = button
-		MenuWindow.expose(button, "FrenchButton" if code == "fr" else "EnglishButton", self)
+		buttons[entry[0]] = button
+		MenuWindow.expose(button, entry[2], self)
+	return buttons
 
 
-## One of the two columns, scrolling if the screen is short.
+## A column of a page, scrolling if the screen is short.
 func _column(parent: Control) -> VBoxContainer:
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -616,7 +674,9 @@ func _words(title: String, helper: String) -> VBoxContainer:
 	return words
 
 
-func _slider(section: VBoxContainer, title: String, helper: String, low: float, high: float, step: float, node_name: String) -> HSlider:
+## A slider: its name and what it does, the slider, its value. `wide`: the slider takes as much
+## room as the words (a page of one column, where a short one would sit far from its name).
+func _slider(section: VBoxContainer, title: String, helper: String, low: float, high: float, step: float, node_name: String, wide := false) -> HSlider:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
 	section.add_child(row)
@@ -627,6 +687,8 @@ func _slider(section: VBoxContainer, title: String, helper: String, low: float, 
 	slider.step = step
 	slider.custom_minimum_size = Vector2(SLIDER_WIDTH, 44)
 	slider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	if wide:
+		slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(slider)
 	var value := UiSkin.label("", Fonts.BODY, UiSkin.GOLD)
 	value.custom_minimum_size.x = 58

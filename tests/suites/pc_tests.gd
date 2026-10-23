@@ -587,15 +587,43 @@ func _test_title_keys(title: TitleScreen) -> void:
 	check(not title.daily_dialog.visible, "Escape closes it")
 
 
+## `tab` is the options' tab shown: its button pressed, its page the only one visible.
+func _shows_tab(options: OptionsPanel, tab: OptionsPanel.Tab) -> bool:
+	if options.current_tab() != tab:
+		return false
+	for other: int in OptionsPanel.Tab.values():
+		var button := options.get_node("%" + OptionsPanel.TAB_NAMES[other] + "Tab") as Button
+		if button.button_pressed != (other == tab) or options.page(other as OptionsPanel.Tab).visible != (other == tab):
+			return false
+	return true
+
+
 func _test_options_keys(title: TitleScreen) -> void:
 	var options := title.get_node("%OptionsPanel") as OptionsPanel
 	(title.get_node("%OptionsButton") as Button).pressed.emit()
 	await _frames(2)
 	await _check_keys_reach(options, "the options")
 	var page := options.get_node("%ControlsPage") as ControlsPage
-	check(not page.visible, "the options open on the settings")
+	check(not page.visible and _shows_tab(options, OptionsPanel.Tab.GAMEPLAY), "the options open on Gameplay")
+	# E and a gamepad's RB walk the five tabs in order and wrap around; Q and LB walk back.
+	var order: Array[OptionsPanel.Tab] = [OptionsPanel.Tab.GRAPHICS, OptionsPanel.Tab.AUDIO, OptionsPanel.Tab.CONTROLS, OptionsPanel.Tab.PRIVACY, OptionsPanel.Tab.GAMEPLAY]
+	for tab in order:
+		await _tap_key(KEY_E)
+		check(_shows_tab(options, tab), "E: the %s tab, alone" % OptionsPanel.TAB_NAMES[tab])
+	await _tap_key(KEY_Q)
+	check(_shows_tab(options, OptionsPanel.Tab.PRIVACY), "Q: back to the last tab (wraps around)")
 	await _tap_key(KEY_E)
-	check(page.visible and (options.get_node("%ControlsTab") as Button).button_pressed, "E: the Controls tab")
+	InputDevice.use(InputDevice.Kind.GAMEPAD, &"xbox")
+	InputDevice.navigating = true
+	for tab in order:
+		await _tap_pad(JOY_BUTTON_RIGHT_SHOULDER)
+		check(_shows_tab(options, tab), "RB: the %s tab, alone" % OptionsPanel.TAB_NAMES[tab])
+	await _tap_pad(JOY_BUTTON_LEFT_SHOULDER)
+	check(_shows_tab(options, OptionsPanel.Tab.PRIVACY), "LB: the tab before")
+	await _tap_pad(JOY_BUTTON_LEFT_SHOULDER)
+	check(page.visible and _shows_tab(options, OptionsPanel.Tab.CONTROLS) and (options.get_node("%ControlsTab") as Button).button_pressed, "LB again: the Controls tab")
+	_keys_mode()
+	await _frames(1)
 	var rows := page.rows_text()
 	check(rows.any(func(row: PackedStringArray) -> bool: return row[0] == "Attack (hold to charge)" and row[1].contains("Space")), "the Controls page lists the keys: %s" % [rows.slice(0, 3)])
 	InputDevice.use(InputDevice.Kind.GAMEPAD, &"playstation")
@@ -608,7 +636,7 @@ func _test_options_keys(title: TitleScreen) -> void:
 	check(rows.any(func(row: PackedStringArray) -> bool: return row[0] == "Bag" and row[1] == "The Bag button"), "touch: how it is done by touch")
 	_keys_mode()
 	await _tap_key(KEY_Q)
-	check(not page.visible, "Q: back to the settings")
+	check(not page.visible and _shows_tab(options, OptionsPanel.Tab.AUDIO), "Q: back to the Audio tab")
 	# Down to a slider, and change it with the arrows.
 	var master := options.get_node("%MasterSlider") as HSlider
 	master.grab_focus()
@@ -617,6 +645,8 @@ func _test_options_keys(title: TitleScreen) -> void:
 	check(Settings.master_volume < volume, "left on a volume turns it down (%s)" % Settings.master_volume)
 	await _tap_key(KEY_RIGHT)
 	check(is_equal_approx(Settings.master_volume, volume), "right turns it back up")
+	options.show_tab(OptionsPanel.Tab.GAMEPLAY)
+	await _frames(1)
 	var check_button := options.get_node("%RunTimerCheck") as CheckButton
 	check_button.grab_focus()
 	var timer := Settings.run_timer
@@ -740,14 +770,11 @@ func _test_title_layouts(title: TitleScreen) -> void:
 		var outside := _panel_outside(title.get_node("Margin") as Control)
 		check(outside.is_empty(), "%s: the title's buttons and records fit (%s)" % [size, ", ".join(outside.slice(0, 3))])
 		options.open()
-		options.show_page(true)
-		await _frames(2)
-		outside = _panel_outside(options)
-		check(outside.is_empty(), "%s: the options' Controls page fits (%s)" % [size, ", ".join(outside.slice(0, 3))])
-		options.show_page(false)
-		await _frames(1)
-		outside = _panel_outside(options)
-		check(outside.is_empty(), "%s: the options fit (%s)" % [size, ", ".join(outside.slice(0, 3))])
+		for tab: int in OptionsPanel.Tab.values():
+			options.show_tab(tab as OptionsPanel.Tab)
+			await _frames(2)
+			outside = _panel_outside(options)
+			check(outside.is_empty(), "%s: the options' %s tab fits (%s)" % [size, OptionsPanel.TAB_NAMES[tab], ", ".join(outside.slice(0, 3))])
 		options.hide()
 		codex.open(CONTENT, CodexPanel.Tab.BESTIARY)
 		await _frames(2)
@@ -767,13 +794,11 @@ func _test_title_layouts(title: TitleScreen) -> void:
 	for size in [Vector2i(1280, 720), Vector2i(1024, 768), Vector2i(1366, 768)]:
 		await _window(size)
 		french.open()
-		await _frames(2)
-		var outside := _panel_outside(french)
-		check(outside.is_empty(), "%s in French: the options fit (%s)" % [size, ", ".join(outside.slice(0, 3))])
-		french.show_page(true)
-		await _frames(2)
-		outside = _panel_outside(french)
-		check(outside.is_empty(), "%s in French: the Controls page fits (%s)" % [size, ", ".join(outside.slice(0, 3))])
+		for tab: int in OptionsPanel.Tab.values():
+			french.show_tab(tab as OptionsPanel.Tab)
+			await _frames(2)
+			var outside := _panel_outside(french)
+			check(outside.is_empty(), "%s in French: the options' %s tab fits (%s)" % [size, OptionsPanel.TAB_NAMES[tab], ", ".join(outside.slice(0, 3))])
 		french.hide()
 	french.queue_free()
 	Settings.language = "en"
@@ -907,13 +932,11 @@ func _test_french_panels() -> void:
 		await _panel_checked("pause", size)
 		var options := game.pause_menu.get_node("%OptionsPanel") as OptionsPanel
 		options.open()
-		await _frames(2)
-		_panel_fits(where, "the options", options)
-		await _panel_checked("options", size)
-		options.show_page(true)
-		await _frames(2)
-		_panel_fits(where, "the options' controls", options)
-		await _panel_checked("options_controls", size)
+		for tab: int in OptionsPanel.Tab.values():
+			options.show_tab(tab as OptionsPanel.Tab)
+			await _frames(2)
+			_panel_fits(where, "the options' %s tab" % OptionsPanel.TAB_NAMES[tab], options)
+			await _panel_checked("options_%s" % String(OptionsPanel.TAB_NAMES[tab]).to_lower(), size)
 		options.close()
 		var codex := game.pause_menu.get_node("%CodexPanel") as CodexPanel
 		codex.open(CONTENT, CodexPanel.Tab.QUESTS)

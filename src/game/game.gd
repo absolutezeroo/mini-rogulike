@@ -152,6 +152,7 @@ func _connect_menus() -> void:
 		_on_menu_closed())
 	pause_menu.quit_requested.connect(func() -> void:
 		_save_run()
+		_records.report_left(true)
 		_set_paused(false)
 		Loader.go(TITLE_SCENE))
 	pause_menu.abandon_requested.connect(func() -> void:
@@ -1145,6 +1146,7 @@ func _save_run() -> void:
 	if player == null or player.is_dead or run == null or threshold.is_open() or abyss.is_open() \
 			or DebugCheats.debug_run:
 		return
+	Events.run_saving.emit(run)  # (the gameplay statistics' counts, into run.telemetry)
 	var data := run.to_data()
 	data.boss_slain = world.arena != null and world.arena.is_defeated
 	data.player = player.save_state()
@@ -1172,6 +1174,8 @@ func _notification(what: int) -> void:
 		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_CLOSE_REQUEST:
 			_save_run()
 			Profile.save_profile()  # kills and stats since the last save
+			# Closed for good, or maybe killed in the background: the run's "abandoned" end.
+			_records.report_left(what == NOTIFICATION_WM_CLOSE_REQUEST)
 			# Coming back to the phone (or from the notification shade, a call), the game waits on
 			# the pause menu.
 			# (On a computer, clicking another window must not stop the game.)

@@ -5,17 +5,23 @@ extends RefCounted
 ## run ends makes the "run_end" event's props (summary()). Boss fights, perk choices, purchases
 ## and pacts become events of their own as they happen (`pending`, sent with the run's end). It
 ## never changes the game and the game never asks it anything: without consent nothing it counts
-## leaves memory (Telemetry decides). Plain data and signal handlers, no node.
+## leaves the device (Telemetry decides). Its counts go into the run's save (to_data(), kept in
+## RunState.telemetry) and come back with it (bind()), so a resumed run's end covers the whole
+## run, under the same run id. Plain data and signal handlers, no node.
 
 ## The hero's skill slot of the roll (Player: slot 0).
 const ROLL_SLOT := 0
 
 var run: RunState
 var player: Player
-## A random id grouping this run's events (not the device's: a new one each run).
+## A random id grouping this run's events (not the device's: a new one each run, kept through
+## its resumes).
 var run_id := ""
-## Started on a run already going (a resumed save): the counts miss what came before.
-var resumed := false
+## How many times the run was picked up again from its save.
+var resumes := 0
+## Resumed from a save without the counts (made before they were saved): they miss what came
+## before.
+var partial := false
 ## Events made during the run, waiting for its end: {name, props, timestamp}.
 var pending: Array[Dictionary] = []
 
@@ -39,7 +45,10 @@ func bind(new_run: RunState, new_player: Player) -> void:
 	run = new_run
 	player = new_player
 	run_id = Crypto.new().generate_random_bytes(6).hex_encode()
-	resumed = run.time > 0.0
+	if run.time > 0.0:
+		# A run picked up again: its counts so far, from the save.
+		partial = not from_data(run.telemetry)
+		resumes += 1
 	_last_gold = player.gold
 	_inputs[_device_name()] = true
 	_connect(player.skill_used, _on_skill_used)
@@ -84,6 +93,45 @@ func unbind() -> void:
 func _connect(sig: Signal, callable: Callable) -> void:
 	sig.connect(callable)
 	_connections.append([sig, callable])
+
+
+## What the run's save keeps of the counts (RunState.telemetry; JSON).
+func to_data() -> Dictionary:
+	return {
+		"run": run_id,
+		"resumes": resumes,
+		"partial": partial,
+		"counts": _counts.duplicate(),
+		"inputs": _inputs.keys(),
+		"potion_ratios": _potion_ratios.duplicate(),
+	}
+
+
+## Takes back the counts of to_data() (a resumed run); false if `data` holds none (an older
+## save, a damaged one): the counts start from zero.
+func from_data(data: Dictionary) -> bool:
+	var counts: Variant = data.get("counts")
+	var id: Variant = data.get("run")
+	if not counts is Dictionary or not id is String or (id as String).is_empty():
+		return false
+	run_id = id
+	resumes = int(data.get("resumes", 0))
+	partial = bool(data.get("partial", false))
+	_counts.clear()
+	for key: Variant in counts:
+		var value: Variant = (counts as Dictionary)[key]
+		if (value is float or value is int) and key is String:
+			_counts[key] = float(value)
+	var inputs: Variant = data.get("inputs", [])
+	if inputs is Array:
+		for device: Variant in inputs:
+			_inputs[str(device)] = true
+	var ratios: Variant = data.get("potion_ratios", [])
+	if ratios is Array:
+		for ratio: Variant in ratios:
+			if ratio is float or ratio is int:
+				_potion_ratios.append(float(ratio))
+	return true
 
 
 ## Adds `amount` to the count `key`.
@@ -229,11 +277,23 @@ func _event(event_name: StringName, props: Dictionary) -> void:
 # --- The run's end ----------------------------------------------------------------
 
 ## The "run_end" event's props (before TelemetryDef.sanitize()), from `summary` (the run as the
-## leaderboards see it) and what was counted.
-func summary(ended: RunSummary) -> Dictionary:
+## leaderboards see it) and what was counted. `left`: the player left the run, saved, without it
+## ending (quit to the title, the app closed): result "abandoned" (or "victory" after a win),
+## quit 1; the run may be resumed and end later under the same run id, with every count since
+## its start (the dashboard keeps each run id's latest run_end). `final` false: a draft that
+## changes nothing here (the app put away, which may come back): a boss fight going on stays open.
+func summary(ended: RunSummary, left := false, final := true) -> Dictionary:
+	var dead := is_instance_valid(player) and player.is_dead
+	var result := "death"
+	if ended.won and not dead:
+		result = "victory"
+	elif left:
+		result = "abandoned"
 	var props := {
 		"run": run_id,
-		"resumed": 1 if resumed else 0,
+		"resumed": resumes,
+		"partial": 1 if partial else 0,
+		"quit": 1 if left else 0,
 		"os": OS.get_name(),
 		"screen": "%dx%d" % [DisplayServer.screen_get_size().x, DisplayServer.screen_get_size().y] if DisplayServer.get_name() != "headless" else "0x0",
 		"input": _device_name(),
@@ -244,7 +304,7 @@ func summary(ended: RunSummary) -> Dictionary:
 		"official": 1 if ended.daily_official else 0,
 		"oath": String(run.oath.id) if run and run.oath else "",
 		"depth": ended.depth,
-		"result": "victory" if ended.won and not (is_instance_valid(player) and player.is_dead) else "death",
+		"result": result,
 		"time": "%.1f" % (run.run_time() if run else ended.time),
 		"kills": ended.kills,
 		"bosses": ended.bosses,
@@ -258,8 +318,8 @@ func summary(ended: RunSummary) -> Dictionary:
 			props["death_floor"] = ended.depth
 		_build(props)
 		_left_over(props)
-	if not _boss.is_empty():
-		_end_boss(null, "died" if is_instance_valid(player) and player.is_dead else "left")
+	if not _boss.is_empty() and final:
+		_end_boss(null, "died" if dead else "left")
 	for key: String in _counts:
 		props[key] = roundi(_counts[key])
 	var taken := count("hits_taken")

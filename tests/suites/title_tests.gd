@@ -393,6 +393,58 @@ func _test_difficulty_words() -> void:
 	check(DifficultyPanel.ascension_lines(CONTENT.ascensions, 2, 2)[2].begins_with("Win Nightmare +2"), "ascension: how to open the next level")
 
 
+## The options' tabs: each tab and its page there, the window opening on Gameplay, and every
+## setting in exactly one tab, where a player would look for it; nothing outside the tabs.
+func _test_options_tabs(options: OptionsPanel) -> void:
+	var where := {
+		OptionsPanel.Tab.GAMEPLAY: ["EnglishButton", "FrenchButton", "AutoLootAll", "AutoLootBetter", "AutoLootOff", "StoriesFull", "StoriesShort", "StoriesOff", "RunTimerCheck", "ShakeSlider", "VibrationsCheck", "TutorialCheck", "ReplayTutorialButton"],
+		OptionsPanel.Tab.GRAPHICS: ["UiSizeBig", "UiSizeMedium", "UiSizeSmall", "ControlsSlider", "FixedStickCheck", "FewerEffectsCheck", "FlashesCheck", "BatteryCheck"],
+		OptionsPanel.Tab.AUDIO: ["MasterSlider", "MusicSlider", "InterfaceSlider", "CombatSlider", "AmbienceSlider"],
+		OptionsPanel.Tab.CONTROLS: [],
+		OptionsPanel.Tab.PRIVACY: ["PolicyButton", "CreditsButton"],
+	}
+	if Settings.has_window_modes():
+		(where[OptionsPanel.Tab.GRAPHICS] as Array).append("FullscreenCheck")
+	if Leaderboards.is_available():
+		(where[OptionsPanel.Tab.PRIVACY] as Array).append_array(["BoardsNameButton", "BoardsShowCheck", "AnalyticsCheck", "DeleteDataButton"])
+	check(OptionsPanel.Tab.size() == 5 and options.current_tab() == OptionsPanel.Tab.GAMEPLAY, "options: five tabs, opening on Gameplay")
+	var pages: Array[Control] = []
+	for tab: int in OptionsPanel.Tab.values():
+		var name: String = OptionsPanel.TAB_NAMES[tab]
+		var button := options.get_node_or_null("%" + name + "Tab") as Button
+		var page := options.get_node_or_null("%" + name + "Page") as Control
+		check(button != null and button.is_in_group(MenuNav.TABS) and page == options.page(tab as OptionsPanel.Tab), "options: the %s tab and its page" % name)
+		pages.append(page)
+	check(options.page(OptionsPanel.Tab.CONTROLS) is ControlsPage, "options: the Controls tab is the controls page")
+	var listed := []
+	for tab: int in where:
+		for node_name: String in where[tab]:
+			listed.append(node_name)
+			var control := options.get_node_or_null("%" + node_name) as Control
+			var inside := pages.filter(func(page: Control) -> bool: return page != null and control != null and page.is_ancestor_of(control))
+			check(inside.size() == 1 and inside[0] == pages[tab], "options: %s is in the %s tab only" % [node_name, OptionsPanel.TAB_NAMES[tab]])
+	# Every setting the window holds (switches, sliders, toggles) is one of those, in a tab.
+	var settings := _find_all(options, func(n: Node) -> bool:
+		return (n is Range or n is CheckButton or (n is Button and (n as Button).toggle_mode)) and not n.is_in_group(MenuNav.TABS) \
+			and pages.any(func(page: Control) -> bool: return page.is_ancestor_of(n)))
+	var stray := settings.filter(func(n: Node) -> bool: return not listed.has(String(n.name)) and not n is ScrollBar)
+	check(stray.is_empty(), "options: no setting outside the list (%s)" % [stray.map(func(n: Node) -> String: return n.name)])
+	var outside := _find_all(options, func(n: Node) -> bool:
+		return (n is Slider or n is CheckButton or (n is Button and (n as Button).toggle_mode and not n.is_in_group(MenuNav.TABS))) \
+			and not pages.any(func(page: Control) -> bool: return page.is_ancestor_of(n)) and options.is_ancestor_of(n) \
+			and not _in_dialog(options, n))
+	check(outside.is_empty(), "options: no setting outside the tabs (%s)" % [outside.map(func(n: Node) -> String: return n.name)])
+
+
+## `node` belongs to one of the options' dialogs or pages over it (consent, name, policy...).
+func _in_dialog(options: OptionsPanel, node: Node) -> bool:
+	for dialog_name in ["ConsentDialog", "NameDialog", "DeleteDialog", "PolicyPanel", "CreditsPanel"]:
+		var dialog := options.get_node_or_null("%" + dialog_name)
+		if dialog and dialog.is_ancestor_of(node):
+			return true
+	return false
+
+
 ## The options: every control there, grouped, and tapping an option's name flips it.
 func _test_options_screen(title: TitleScreen) -> void:
 	var options: OptionsPanel = title.get_node("%OptionsPanel")
@@ -401,6 +453,9 @@ func _test_options_screen(title: TitleScreen) -> void:
 	check(options.visible, "the options open from the title")
 	for name in ["MasterSlider", "MusicSlider", "InterfaceSlider", "CombatSlider", "AmbienceSlider", "ShakeSlider", "ControlsSlider", "VibrationsCheck", "FixedStickCheck", "BatteryCheck", "FewerEffectsCheck", "FlashesCheck", "RunTimerCheck", "TutorialCheck", "ReplayTutorialButton", "CloseButton"]:
 		check(options.get_node_or_null("%" + name) != null, "options: %s" % name)
+	_test_options_tabs(options)
+	options.show_tab(OptionsPanel.Tab.GRAPHICS)
+	await _frames(2)
 	var battery: CheckButton = options.get_node("%BatteryCheck")
 	var before := Settings.battery_saver
 	var tap := InputEventMouseButton.new()
@@ -419,6 +474,8 @@ func _test_options_screen(title: TitleScreen) -> void:
 		check(Settings.language == "fr" and TranslationServer.get_locale() == "fr", "options: Français switches the game to French")
 		var english: Button = options.get_node("%EnglishButton")
 		check(english != null and options.visible and _texts(options).has("Langue") and _texts(options).has("Son"), "options: the window is rebuilt in French")
+		check(options.current_tab() == OptionsPanel.Tab.GAMEPLAY and english.is_visible_in_tree(), "options: rebuilt on Gameplay, where the language is")
+		check((options.get_node("%GameplayTab") as Button).text == "Jouabilité" and (options.get_node("%GraphicsTab") as Button).text == "Graphiques" and (options.get_node("%PrivacyTab") as Button).text == "Confidentialité", "options: the tabs' names in French")
 		check((options.get_node("%FrenchButton") as Button).button_pressed and not english.button_pressed, "options: the language in use stays pressed")
 		english.pressed.emit()
 		await _frames(2)

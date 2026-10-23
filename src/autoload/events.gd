@@ -90,6 +90,13 @@ signal perks_offered(perks: Array)
 signal perk_chosen(perk: PerkDef)
 ## The player banished `perk` for the run.
 signal perk_banished(perk: PerkDef)
+## The run is about to be saved (RunSave: a floor begins, quitting, the app put away): what
+## follows a whole run may keep its own in it (the gameplay statistics: RunState.telemetry).
+signal run_saving(run: RunState)
+## The player left a run that goes on, saved (RunSave). `for_good`: quit to the title, or the app
+## closed; false: the app put in the background (it may come back, or be killed there). The
+## gameplay statistics tell it as an "abandoned" end (Telemetry).
+signal run_left(summary: RunSummary, for_good: bool)
 ## A run ended, souls given: a death, or a win (a win then a death in endless mode tells it twice,
 ## the second time with more). What the online leaderboards need (RunSummary; Leaderboards).
 signal run_ended(summary: RunSummary)

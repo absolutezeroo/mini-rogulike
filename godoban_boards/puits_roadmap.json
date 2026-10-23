@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 150,
+  "next_id": 153,
   "tags": [
     "pc",
     "test",
@@ -2092,17 +2092,18 @@
     {
       "id": "task_147",
       "title": "Statistiques : parties abandonnées et reprises",
-      "description": "Une partie quittée pour le titre n'envoie rien (pas de fin) ; une partie reprise après fermeture ne compte qu'à partir de la reprise (resumed = 1). Si utile pour l'équilibrage : garder le suivi dans un fichier à part ou envoyer un événement « abandon ».",
-      "status": "backlog",
-      "priority": "low",
+      "description": "Fait : une partie quittée pour le titre (Sauvegarder et quitter, ou la fenêtre fermée) envoie son run_end tout de suite, résultat « abandoned » et quit 1, avec le build et toutes les stats. Mise en arrière-plan (Android) : la même fin en brouillon dans telemetry.json, oubliée au retour, envoyée au lancement suivant si l'appli a été tuée. Les compteurs de la partie sont gardés dans la sauvegarde (RunState.telemetry) et repris à la reprise : la fin couvre toute la partie, même id de partie, « resumed » = nombre de reprises, « partial » = reprise d'une sauvegarde d'avant (compteurs incomplets). Tableau de bord : compter les id de partie distincts et garder le DERNIER run_end de chaque id (jamais additionner). docs/online.md. À vérifier en jeu : une vraie fermeture sur Android (NOTIFICATION_APPLICATION_PAUSED puis appli tuée) et sur Windows (croix de la fenêtre).",
+      "status": "review",
+      "priority": "medium",
       "epic_id": "epic_5",
       "due_date": null,
       "tags": [
         "données",
-        "idée"
+        "idée",
+        "sauvegarde"
       ],
       "created_at": 1792771211,
-      "updated_at": 1792771211
+      "updated_at": 1792777551
     },
     {
       "id": "task_148",
@@ -2197,6 +2198,51 @@
       ],
       "created_at": 1792770950,
       "updated_at": 1792770950
+    },
+    {
+      "id": "task_150",
+      "title": "Options en onglets (Jouabilité, Graphiques, Audio…)",
+      "description": "Les options en cinq onglets (Q / E, LB / RB, toucher, souris) : Jouabilité (langue, ramassage auto, histoires des gardiens, chronomètre, tremblement de l'écran, vibrations, tutoriel), Graphiques (plein écran, taille de l'interface, taille des boutons, joystick fixe, moins d'effets, éclairs, économie de batterie), Audio (les cinq volumes), Commandes (la page des touches), Confidentialité (classements, tes données, politique et crédits). Mêmes clés de réglages. Tests : chaque onglet, chaque réglage dans un seul onglet, onglets à la manette, tout tient à l'écran en français. À regarder en jeu : sur 1280x720 en français, les colonnes de gauche de Jouabilité et Graphiques défilent un peu.",
+      "status": "review",
+      "priority": "medium",
+      "epic_id": "epic_4",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "pc",
+        "android"
+      ],
+      "created_at": 1792777551,
+      "updated_at": 1792777551
+    },
+    {
+      "id": "task_151",
+      "title": "Politique de confidentialité : dire « à la fin ou à l'abandon de chaque partie »",
+      "description": "Les statistiques envoient maintenant aussi un résumé quand une partie est quittée pour le titre (même contenu). Le texte du consentement, de la politique (privacy.tres, privacy.html) dit « à la fin de chaque partie ». À préciser si tu le juges utile (changer le texte du consentement peut demander une nouvelle version de consentement : à décider).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_6",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "données"
+      ],
+      "created_at": 1792777551,
+      "updated_at": 1792777551
+    },
+    {
+      "id": "task_152",
+      "title": "Options : moins de défilement à 720 lignes",
+      "description": "En français à 1280x720 (et sur un téléphone 720 lignes), la colonne de gauche de Jouabilité (Langue, Butin, Histoire) et celle de Graphiques défilent un peu. Idées : textes d'aide plus courts, ou une troisième colonne sur les écrans larges.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_4",
+      "due_date": null,
+      "tags": [
+        "ui"
+      ],
+      "created_at": 1792777551,
+      "updated_at": 1792777551
     }
   ]
 }

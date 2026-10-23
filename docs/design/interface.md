@@ -121,7 +121,7 @@ shows to the device in hand.
 
 ## Screens: windows, sizes, scale
 
-- **Windows** (computers): resizable; **Fullscreen** in Options (Screen), or F11 / Alt+Enter
+- **Windows** (computers): resizable; **Fullscreen** in Options > Graphics, or F11 / Alt+Enter
   anywhere (`Settings.fullscreen`, saved). The keys do only that, in any menu: `Settings`'
   WindowKeys node stays the root's last child, so it reads them before any menu's `_input` (Godot
   goes from the last node up) and the bag never takes Alt+Enter for Enter, nor a card F11 for a skip.
@@ -132,7 +132,7 @@ shows to the device in hand.
   small for x1 (1024x768) keeps its own scale (x0.8: letters a little uneven). The camera zooms in
   by what the rounding took off, so a floor is framed as before on every screen
   (`PixelGrid.world_zoom()`, `GameCamera`).
-- **Interface size** (Options > Screen): Big (the largest step that fits), Medium, Small: one or two
+- **Interface size** (Options > Graphics): Big (the largest step that fits), Medium, Small: one or two
   steps smaller, never under x1, for more room on a big monitor; the floor's framing stays
   (`Settings.ui_size`, saved).
 - The layouts are checked at 1280x720, 1366x768, 1920x1080, 2560x1440, 1280x800, 3440x1440,
@@ -183,12 +183,13 @@ The rules and their reasons: [../privacy-ops.md](../privacy-ops.md). On screen:
   button; **Decline** and **Accept** side by side, the same size and look. Keys and gamepads start
   on the policy's button, never on Accept; Back (or closing) declines. Declined, it comes back
   after six months; accepted, never (until what is collected changes).
-- **Options > Privacy** (the right column): with a server in the build, the name (**Change**),
-  **Publish my scores online**, **Gameplay statistics** (turning it on asks the questions; off at
-  once), **Your online ID** (the random id, "none yet" before anything is on) and **Delete my
-  online data** (`DeleteDataDialog`: what it does, Cancel / Delete; then an email to the privacy
+- **Options > Privacy** (its own tab): with a server in the build, **Leaderboards** on the left
+  (the name, **Change**; **Publish my scores online**) and **Your data** on the right
+  (**Gameplay statistics**: turning it on asks the questions, off at once; **Your online ID**: the
+  random id, "none yet" before anything is on; **Delete my online data** (`DeleteDataDialog`: what it does, Cancel / Delete; then an email to the privacy
   address with the id, everything online off, the id forgotten, and the address and id shown in
-  case no email opened). Always: **Privacy policy** and **Credits**.
+  case no email opened). Always, under the leaderboards: **Policy and credits**, with **Privacy
+  policy** and **Credits**.
 - **The privacy policy** (`PrivacyPolicyPanel`, an `InfoPanel`): the short policy's sections from
   `data/online/privacy.tres`, translated, the contact filled in, and **Read the full policy
   online** once its address is set. A page that scrolls with touch, the wheel, keys or a gamepad.
@@ -226,10 +227,25 @@ The rules and their reasons: [../privacy-ops.md](../privacy-ops.md). On screen:
   warden's fight, presentation.md "Boss stories"),
   **tutorial hints** (on/off) and **Replay tutorial**, on a computer **fullscreen**, the
 **interface size** (Big / Medium / Small), and the **language** (English / Français,
-  see Languages). The window (`OptionsPanel`, built in code on `MenuWindow`) groups them
-  (Sound, Touch controls, Screen and battery, Loot, Story, Tutorial), each with a one-line "what it does",
-on a Settings tab beside a Controls tab (the keys and buttons of the device in use, above);
-  on/off options are big switches, and tapping an option's name flips it too.
+  see Languages). The window (`OptionsPanel`, built in code on `MenuWindow`) has five tabs, each
+  option with a one-line "what it does"; on/off options are big switches, and tapping an
+  option's name flips it too; a choice of a few (language, auto loot, boss stories, interface
+  size) is a row of buttons under its name, the one in use pressed:
+  - **Gameplay** (opens first): Language (first, for a player who can't read the one in use),
+    Loot (auto loot), Story (boss stories); In a run (run timer, screen shake, vibrations),
+    Tutorial (hints, Replay tutorial).
+  - **Graphics**: Screen (fullscreen on a computer, interface size), Touch controls (buttons
+    size, fixed joystick); Effects and battery (fewer effects, screen flashes, battery saver).
+  - **Audio**: the five volumes, long sliders in one column.
+  - **Controls**: the keys and buttons of the device in use (the Controls page, above).
+  - **Privacy**: leaderboards, the player's data, the policy and the credits (Privacy and
+    credits, above).
+
+  The tabs are a row under the header (a tap, a click, Q / E, LB / RB: `MenuNav`, group
+  `menu_tabs`, wrapping around); their list is `OptionsPanel.Tab` / `TAB_NAMES`, each page built by
+  its own `_build_<tab>()`. Each page has one or two columns that scroll on their own: at 720
+  lines in French, Gameplay's and Graphics' left columns scroll a little. Saved keys
+  are unchanged (`Settings`, the Leaderboards and Privacy files).
 - **Loot left on the ground** (auto loot, or no room in the bag): while the hero stands on it, a
   small board low in the middle of the screen, above the belt and skill buttons (`LootPrompt`,
   built by the HUD from `Events.loot_offered` / `loot_left`), shows its slot, its name in its

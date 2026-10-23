@@ -155,12 +155,29 @@ bugs. Built so that the game never depends on it:
   keeps every event inside (a long list loses its last items at a comma) and caps the props
   (`max_props`). Never a `META_` prop: Talo copies those into the player's props, which its API
   shows to anyone reading a board.
-- **Not followed**: a run abandoned for the title (no end); a resumed run's tracker starts at the
-  resume (`resumed = 1`, the counts miss what came before).
+- **A run left for the title** (pause > Save and quit, or the window closed: `Events.run_left`,
+  for good) sends its `run_end` at once, `result` "abandoned" (or "victory" after a win, in the
+  endless floors) and `quit` 1, with the build and every count so far, and the events waiting for
+  it (boss fights, perks...). **The app put in the background** (Android's pause, a lost focus)
+  writes the same end as a draft in `user://telemetry.json`: dropped when the app comes back,
+  queued at the next launch if the app was killed there (`Telemetry.draft`).
+- **A resumed run counts from its start**: the tracker's counts go into the run's save
+  (`Events.run_saving` -> `RunState.telemetry` -> `run.json`, local only) each time it is saved,
+  and come back with it (`RunTelemetry.from_data()`), with the same `run` id; `resumed` counts the
+  resumes; `partial` 1 marks a run resumed from a save made before the counts were kept (they
+  start at the resume). Nothing leaves the device without consent: the save is local.
+- **Reading it in the dashboard (no double count)**: a run left then resumed sends a `run_end` at
+  each quit and one at its end, all with the same `run` id, each covering everything since the
+  run's start. Count runs as distinct `run` ids and keep each id's **latest** `run_end` (highest
+  timestamp): its numbers are the whole run's. `quit` 1 on that latest one means the run was
+  never finished (or not yet). Never sum `run_end` events of one id. The other events (`boss`,
+  `perk_*`, `purchase`, `pact`) are sent once each, with whichever `run_end` follows them.
+  Sending at every quit, rather than only when the save is thrown away, keeps the runs of players
+  who never come back (or uninstall), and needs nothing kept on the device after the run.
 
 | Event | When | Fields |
 |---|---|---|
-| `run_end` | a death or a win (again at the real end after the endless floors) | version, run id, OS, screen, input device(s), difficulty, ascension, daily/official, oath, depth, result, cause, killer, death floor, time, level, kills, bosses; the build (weapon id, rarity, element, runes, affixes; head, body, armor runes; awakened families, relics, perks with levels, skills); per skill uses and damage; potions drunk (in a boss fight, the average Health ratio when drunk, per potion), consumables left; rolls, hits dodged by rolling, dodge rate, hits taken; damage dealt and taken in total, by element and by source; biggest hit, crits, charged blows; time per floor; secrets, trap hits, falls into the Deeps (escaped), Threshold trials (won); gold earned and spent, souls, items dismantled and dropped |
+| `run_end` | a death or a win (again at the real end after the endless floors); a run left for the title or the app closed (`result` abandoned, `quit` 1; again at its real end if resumed) | version, run id, resumes (`resumed`), counts missing before a resume (`partial`), left without ending (`quit`), OS, screen, input device(s), difficulty, ascension, daily/official, oath, depth, result, cause, killer, death floor, time, level, kills, bosses; the build (weapon id, rarity, element, runes, affixes; head, body, armor runes; awakened families, relics, perks with levels, skills); per skill uses and damage; potions drunk (in a boss fight, the average Health ratio when drunk, per potion), consumables left; rolls, hits dodged by rolling, dodge rate, hits taken; damage dealt and taken in total, by element and by source; biggest hit, crits, charged blows; time per floor; secrets, trap hits, falls into the Deeps (escaped), Threshold trials (won); gold earned and spent, souls, items dismantled and dropped |
 | `boss` | a boss fight ends | boss, time, damage taken, hits taken, last phase, outcome (won, died, left, next_form), potions |
 | `perk_offered` / `perk_picked` / `perk_banished` | a choice dealt (or rerolled) / taken / a banish | the perks, the perk (and its level) |
 | `purchase` | bought from the merchant | item, rarity, price |
@@ -188,8 +205,10 @@ out sends nothing, no key means offline; the page's unavailable, offline (Retry)
 states. The test runner gives the autoload an offline backend and no file before any suite runs.
 `PrivacyTests` (unit, title, and the game suite's run) check the consent rules (off by default,
 the age, six months after a refusal on a fake clock, a newer consent version), that nothing is
-queued or sent without consent or from a debug run, what a run's end sends and its sizes, the
-queue's bound, deleting one's data, the files, and the questions, Options > Privacy, the policy
+queued or sent without consent or from a debug run, what a run's end sends and its sizes, a run
+quit to the title (one `run_end` abandoned with its stats) then resumed (its end covers both
+parts, same id, nothing sent twice), the background draft (dropped on return, queued at the next
+launch), the queue's bound, deleting one's data, the files, and the questions, Options > Privacy, the policy
 and the credits on screen.
 A real call to Talo can only be checked by hand (a probe under `_tool/`, with the key): done on
 23 October 2026 (an identify and a `run_end` event as dev data).
