@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 118,
+  "next_id": 120,
   "tags": [
     "pc",
     "test",
@@ -1698,6 +1698,38 @@
       ],
       "created_at": 1792730214,
       "updated_at": 1792730214
+    },
+    {
+      "id": "task_118",
+      "title": "Décorations qui dépassent dans les murs",
+      "description": "Signalé en jeu : des petites décorations (cailloux, herbes, lanternes, os…) dépassaient sur les murs.\n\nCause : le décor posé au pied des murs et dans les scènes était centré sur sa case avec un petit décalage au hasard, sans tenir compte de sa taille ; une pièce plus large qu'une demi-case mordait sur le mur.\n\nCorrigé : chaque pièce est décalée hors du mur (jusqu'à une demi-case, d'après ses pixels visibles) ou retirée si elle ne tient pas (FloorDresser.fit_on_floor). Mesuré sur 22 étages (11 biomes) : 33 pièces sur les murs avant, 0 après. Test : aucun décor dessiné sur un mur, dans chaque biome.\n\nÀ vérifier en jeu. Les racines/chaînes du plafond qui pendent le long des murs sont voulues (couche plafond) : si c'est elles qui gênent, le dire.",
+      "status": "review",
+      "priority": "medium",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "bug",
+        "visuel",
+        "niveaux"
+      ],
+      "created_at": 1792757838,
+      "updated_at": 1792757838
+    },
+    {
+      "id": "task_119",
+      "title": "Test « salles signature » instable : monstres sur une dalle fissurée / dans un mur sans collision",
+      "description": "Le test level_tests « signature rooms as built » a échoué une fois (pyre_circle : shaman « stuck », ground false). Sonde sur 40 étages forcés avec le Cercle du Bûcher : 2 cas, toujours après 2 images (jamais au moment de l'apparition) :\n- un shaman qui a marché sur une case de sol qui s'effrite (fissure pas encore effondrée) : le test le compte comme « coincé » alors que c'est normal → le test devrait ignorer les fissures (seulement les vrais trous).\n- un dragon dont le centre est dans une case de MUR (couloir, room=-1) sans collision (body_fits vrai) : possible vrai bug (mur sans collision, fissure de salle secrète ou porte ?) à examiner.\nPas lié au correctif du décor (le décor n'a pas de collision).",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "bug",
+        "tests",
+        "niveaux"
+      ],
+      "created_at": 1792758222,
+      "updated_at": 1792758222
     }
   ]
 }

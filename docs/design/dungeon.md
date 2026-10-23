@@ -65,7 +65,10 @@
     at the foot of the walls (pebbles, ferns, dry scrub), right around a scene's furniture (books
     by the shelves, bones by the graves, gold by the sarcophagi) or on its ground (grass on moss).
     A few per room at most (`max_per_room`); the middle of the rooms and the corridors stay
-    clear, so the fight stays readable. The floor tiles carry no decor of their own;
+    clear, so the fight stays readable. No piece is ever drawn over a wall: one that would
+    overlap a wall is nudged off it (up to half a tile, `FloorDresser.fit_on_floor`, by its
+    visible pixels), or left out if it can't fit (scenes' decor too). The floor tiles carry no
+    decor of their own;
   - its **pots and crates** (`props`: baskets in the desert, mossy jars in the garden...).
   This is how Dead Cells, Enter the Gungeon or Brogue keep generated levels coherent: hand-made
   pieces per biome, laid out by the generator (`FloorDresser`).

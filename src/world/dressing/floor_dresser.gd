@@ -12,6 +12,10 @@ class_name FloorDresser
 
 ## The scenes put on the last floor dressed (SceneDef -> how many): for tests and the debug panel.
 static var last_scenes := {}
+## Texture -> the part of it that shows (Rect2, drawn at 2x, around the piece's centre).
+static var _drawn_cache := {}
+## The nudges tried to get a piece off the walls, nearest first (built once).
+static var _nudges: Array[Vector2] = []
 
 
 ## `taken`: cells already used (see HazardDef). `with_scenes`: false in a boss arena.
@@ -199,7 +203,10 @@ static func _scatter(world: World, rule: DecorRuleDef, walls: Dictionary, standi
 			used[cell] = true
 			count += 1
 			var at := map.cell_to_world(cell) + Vector2(rng.randf_range(-8.0, 8.0), rng.randf_range(-8.0, 8.0))
-			layer.pieces.append([rule.pieces[rng.randi() % rule.pieces.size()], at.snapped(Vector2(2, 2))])
+			var piece := rule.pieces[rng.randi() % rule.pieces.size()]
+			at = fit_on_floor(map, at.snapped(Vector2(2, 2)), piece)
+			if at != Vector2.INF:
+				layer.pieces.append([piece, at])
 	if not layer.pieces.is_empty():
 		world.spawn_vfx(layer)
 	else:
@@ -220,3 +227,52 @@ static func _fits_rule(rule: DecorRuleDef, cell: Vector2i, walls: Dictionary, st
 		DecorRuleDef.Where.ON_GROUND:
 			return on.has(cell)
 	return false
+
+
+## Where a piece of decor drawn around `at` (its centre; DecorLayer draws it at 2x) lies wholly
+## on the floor, nothing of it over a wall: `at` itself, or nudged off the walls it would cover,
+## an art pixel at a time, up to half a tile. Vector2.INF if it fits nowhere near: left out.
+static func fit_on_floor(map: DungeonMap, at: Vector2, texture: Texture2D) -> Vector2:
+	if texture == null:
+		return Vector2.INF
+	var drawn := drawn_rect(texture)
+	if _nudges.is_empty():
+		var reach := 16
+		for y in range(-reach, reach + 1, 2):
+			for x in range(-reach, reach + 1, 2):
+				_nudges.append(Vector2(x, y))
+		_nudges.sort_custom(func(a: Vector2, b: Vector2) -> bool: return a.length_squared() < b.length_squared())
+	for nudge in _nudges:
+		if nudge.length() > map.tile_size * 0.5:
+			break
+		if on_floor(map, Rect2(drawn.position + at + nudge, drawn.size)):
+			return at + nudge
+	return Vector2.INF
+
+
+## Whether `rect` (world space) lies on floor cells only (an art pixel of slack at its edges).
+static func on_floor(map: DungeonMap, rect: Rect2) -> bool:
+	var inner := rect.grow(-2.0)
+	var first := map.world_to_cell(inner.position)
+	var last := map.world_to_cell(inner.end)
+	for y in range(first.y, last.y + 1):
+		for x in range(first.x, last.x + 1):
+			if not map.is_floor(Vector2i(x, y)):
+				return false
+	return true
+
+
+## The part of `texture` that shows, drawn at 2x around the piece's centre: its opaque pixels
+## when the image can be read (not in a headless run: then the whole picture, a safe bound).
+static func drawn_rect(texture: Texture2D) -> Rect2:
+	if _drawn_cache.has(texture):
+		return _drawn_cache[texture]
+	var size := texture.get_size() * 2.0
+	var rect := Rect2(-size * 0.5, size)
+	var image := texture.get_image() if DisplayServer.get_name() != "headless" else null
+	if image and not image.is_empty():
+		var used := image.get_used_rect()
+		if used.has_area():
+			rect = Rect2(Vector2(used.position) * 2.0 - size * 0.5, Vector2(used.size) * 2.0)
+	_drawn_cache[texture] = rect
+	return rect

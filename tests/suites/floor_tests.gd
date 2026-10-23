@@ -2374,6 +2374,8 @@ func _test_biomes(game: Game) -> void:
 				var cut := _walled_off_cells(world)
 				check(cut.is_empty(), "%s: nothing walled off %s" % [biome.id, str(cut.slice(0, 4))])
 				check(world.grounds.size() == biome.grounds.size(), "%s: its grounds laid" % biome.id)
+				var over_walls := _decor_over_walls(world)
+				check(over_walls.is_empty(), "%s: no decor drawn over a wall %s" % [biome.id, str(over_walls.slice(0, 4))])
 			check(scenes >= 6, "%s: scenes in its rooms (%d on 2 floors)" % [biome.id, scenes])
 	check(world.forced_biome == null, "a forced biome is used once")
 	await _clear_monsters(world)
@@ -2507,6 +2509,22 @@ func _test_details(game: Game) -> void:
 	check(biomes_with_air >= 9, "every biome has its atmosphere (%d)" % biomes_with_air)
 	await _clear_monsters(world)
 	game.depth = depth_before
+
+
+## The decor pieces of the floor (grounds' and scenes' little things) whose drawn picture covers
+## a wall cell: where they lie, in cells.
+func _decor_over_walls(world: World) -> Array[Vector2i]:
+	var found: Array[Vector2i] = []
+	for node in world.get_node("Effects").get_children():
+		var layer := node as DecorLayer
+		if layer == null:
+			continue
+		for piece: Array in layer.pieces:
+			var drawn := FloorDresser.drawn_rect(piece[0])
+			var at := layer.to_global(piece[1])
+			if not FloorDresser.on_floor(world.map, Rect2(drawn.position + at, drawn.size)):
+				found.append(world.map.world_to_cell(at))
+	return found
 
 
 ## Free floor cells (not under furniture, water...) the hero can't get to from the start

@@ -185,7 +185,10 @@ func _build(world: World, taken: Dictionary, origin: Vector2i, cells: Dictionary
 			SceneKey.Kind.DECOR:
 				if not k.pieces.is_empty() and rng.randf() < k.chance:
 					var at := world.map.cell_to_world(cell) + Vector2(rng.randf_range(-6.0, 6.0), rng.randf_range(-6.0, 6.0))
-					(plants if k.sway else decor).pieces.append([k.pieces[rng.randi() % k.pieces.size()], at.snapped(Vector2(2, 2))])
+					var piece := k.pieces[rng.randi() % k.pieces.size()]
+					at = FloorDresser.fit_on_floor(world.map, at.snapped(Vector2(2, 2)), piece)  # never over a wall
+					if at != Vector2.INF:
+						(plants if k.sway else decor).pieces.append([piece, at])
 			_:
 				var span: Rect2i = spans.get(k.symbol, Rect2i(cell, Vector2i.ONE))
 				spans[k.symbol] = span.merge(Rect2i(cell, Vector2i.ONE))
