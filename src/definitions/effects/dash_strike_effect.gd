@@ -26,6 +26,27 @@ extends Effect
 ## A second element its blow sheds a few bits of (not saved, never in data: a charged attack
 ## dressed in what the hero's weapon carries sets it, ChargedAttackDef).
 var second_element: VfxElementDef
+## Not saved, never in data: a weapon's skill dressed in what its runes and affixes carry
+## (SkillDef.effects_for, docs/vfx.md "Elemental attacks") is drawn in this element, its hits
+## staying in `element` (the rune's own rules decide when a hit lands in it). A blade's blow or a
+## plain area is drawn in it; one of its own element keeps it, and this one rides it.
+var look_element: VfxElementDef
+
+
+## A copy dressed in the elements the hero's weapon carries (`carried`, the strongest first): a
+## plain cut (Dash Strike, Piercing Thrust) is drawn in the first, the second adding its bits;
+## one of its own element stays itself, the first other shedding its bits. Only the look.
+func dressed_in(carried: Array[VfxElementDef]) -> DashStrikeEffect:
+	var copy := duplicate() as DashStrikeEffect
+	var others: Array[VfxElementDef] = []
+	for other in carried:
+		if other and other != element:
+			others.append(other)
+	if others.is_empty():
+		return copy
+	copy.look_element = others[0]
+	copy.second_element = (others[1] if others.size() > 1 else null) if element == null else others[0]
+	return copy
 
 
 func apply(user: Actor, aim: Vector2) -> void:
@@ -46,9 +67,11 @@ func apply(user: Actor, aim: Vector2) -> void:
 		Vfx.trail(world, start, end, element, duration)
 	elif slash == null and fx == null and moves:
 		Vfx.dust_trail(world, start, end, duration)  # a plain rush kicks up dust on its way
+	# What the cut is drawn in (look_element: the weapon's runes and affixes on a plain cut).
+	var drawn := element if element else look_element
 	if slash:
-		SwingVfx.slash(world, slash, start + Vector2(0, -6), aim, maxf(length, 40.0), element, user.faction != Actor.Faction.PLAYER, second_element)
+		SwingVfx.slash(world, slash, start + Vector2(0, -6), aim, maxf(length, 40.0), drawn, user.faction != Actor.Faction.PLAYER, second_element)
 	elif fx:
 		# At the nearest whole size of the art's pixel along the path (SheetVfx snaps it).
 		var size := maxf(length, 40.0) / fx.get_height()
-		world.spawn_vfx(SheetVfx.create(fx, (start + end) * 0.5, aim.angle(), size, 20.0).with_color(fx_tint).in_element(element))
+		world.spawn_vfx(SheetVfx.create(fx, (start + end) * 0.5, aim.angle(), size, 20.0).with_color(fx_tint).in_element(drawn))

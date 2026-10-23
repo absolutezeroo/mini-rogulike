@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 96,
+  "next_id": 105,
   "tags": [
     "pc",
     "test",
@@ -302,8 +302,8 @@
     {
       "id": "task_21",
       "title": "Monstres tués qui restent morts après reprise",
-      "description": "Le compteur du Sceau est sauvegardé, mais les monstres réapparaissent quand on reprend une partie.",
-      "status": "backlog",
+      "description": "Le compteur du Sceau est sauvegardé, mais les monstres réapparaissent quand on reprend une partie.\n\nFait : les monstres propres à l'étage (ceux que FloorPopulator pose, dans l'ordre que décide la graine de l'étage) reçoivent un numéro (Monster.floor_index) ; un monstre numéroté tué est noté [numéro, id] (World.slain_spawns) et gardé dans la sauvegarde de l'étage (World.spent_data() « slain »). À la reprise, l'étage reconstruit depuis sa graine retire ces numéros tout de suite (rien ne tombe, aucune mise à mort comptée : le Sceau garde son propre compte, calculé sur l'étage entier comme avant). L'id sert de garde-fou : si un numéro ressort sur une autre espèce (un étage pas reconstruit tout à fait pareil), le monstre reste (mieux un de trop qu'un mauvais en moins). Embuscades, invocations, vagues du feu de camp, rencontres, coffres piégés : non numérotés, comme avant. Anciennes sauvegardes : pas de liste, rien ne change.\nDéterminisme vérifié par une sonde : 20 étages (profondeurs 1-14 hors boss) sauvegardés puis repris → même liste de monstres (espèce, rang, ordre) 20 fois sur 20.\nTest : FloorTests._test_slain_stay_dead (dans la suite game, avant le Seuil perdu) : chaque monstre d'un nouvel étage a son numéro, une fois chacun ; 3 tués + un venu après → la sauvegarde en garde 3 ; repris, les 3 ne reviennent pas, tous les autres sont là, le Sceau compte pareil sur l'étage entier, la liste est gardée pour la prochaine sauvegarde ; un numéro d'une autre espèce ne retire rien, entrées abîmées ignorées. docs/design/dungeon.md mis à jour.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_2",
       "due_date": null,
@@ -311,7 +311,7 @@
         "sauvegarde"
       ],
       "created_at": 1792685000,
-      "updated_at": 1792685000
+      "updated_at": 1792711716
     },
     {
       "id": "task_22",
@@ -768,8 +768,8 @@
     {
       "id": "task_52",
       "title": "La niche vide de Tôma parmi les Statues du Gardien",
-      "description": "Reste de « Le sanctuaire vivant » : parmi les Statues du Gardien (rencontre), une niche vide, celle du dernier gardien ; une inscription effacée, à révéler après keeper_named.",
-      "status": "backlog",
+      "description": "Reste de « Le sanctuaire vivant » : parmi les Statues du Gardien (rencontre), une niche vide, celle du dernier gardien ; une inscription effacée, à révéler après keeper_named.\n\nFait : chaque Statue du Gardien a maintenant, à côté d'elle, la niche vide du dernier gardien (EncounterDef.niche → nouvelle ressource EncounterNiche : texte, texte révélé, condition de révélation, position, pierre). Où elle se montre : dessinée sur le sol à droite de la statue (un bloc de la même pierre, un creux en arc, un rebord nu, un nom gratté sur le socle), et racontée sous le texte de la statue dans son panneau (en gris, sous la description), donc partout où la statue apparaît (étages dès la profondeur 2, Sanctuaire oublié). Avant la révélation (keeper_named) : « À côté, une niche taillée pour un gardien de plus attend, vide. Sur son socle, un nom a été gratté ; il reste une ligne : « Il garde la dernière flamme. » » — aucun nom, une ligne inexpliquée (un indice : la lanterne laissée au disciple). Après : « La niche du dernier gardien, toujours vide. Sous les rayures, tu lis le nom à présent : Tôma. « Il garde la dernière flamme. » Il l'a laissée entre tes mains. » Fait ajouté au canon (docs/lore.md, la Statue du Gardien : la niche d'un gardien est taillée de son vivant, son nom et une ligne sur le socle ; qui a gratté le nom, le canon ne le dit pas). Français d'abord, anglais à égalité ; extract.py lit maintenant aussi « revealed_text ». Tests : StoryTests (la niche est gardée par keeper_reveal, ne nomme personne avant, nomme le gardien après, dans les deux langues, traduite) ; FloorTests._test_encounters (le panneau de la statue montre la niche, sans nom ; un autre encontre n'en montre pas). Captures (FR, 1540x720) : niche_floor.png (x3), niche_panel.png, niche_panel_revealed.png. docs/design/dungeon.md mis à jour. À juger : l'emplacement (à côté de la statue) et le dessin de la niche, faits en code (pas de sprite dessiné à la main).",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_1",
       "due_date": null,
@@ -777,7 +777,7 @@
         "lore"
       ],
       "created_at": 1792698522,
-      "updated_at": 1792698522
+      "updated_at": 1792715169
     },
     {
       "id": "task_53",
@@ -859,8 +859,8 @@
     {
       "id": "task_62",
       "title": "Compétences sans tir et runes",
-      "description": "Suite de « Tirs et runes élémentaires » : les compétences d'arme qui ne tirent pas (l'arc de Taillade, la Nova de Givre, la zone de Pluie de Flèches) gardent leur propre rendu quand une rune élémentaire est sertie dans l'arme. Décider s'il faut les habiller aussi (ex. quelques éclats de l'élément de la rune, sans changer l'élément de leurs coups).",
-      "status": "backlog",
+      "description": "Suite de « Tirs et runes élémentaires » : les compétences d'arme qui ne tirent pas (l'arc de Taillade, la Nova de Givre, la zone de Pluie de Flèches) gardent leur propre rendu quand une rune élémentaire est sertie dans l'arme. Décider s'il faut les habiller aussi (ex. quelques éclats de l'élément de la rune, sans changer l'élément de leurs coups).\n\nFait (décidé : oui, on les habille, rendu seulement) : les compétences d'arme qui ne tirent pas portent maintenant les éléments des runes et affixes de l'arme (ItemLook.passive_elements), comme les tirs : SkillDef.effects_for habille aussi les DamageAreaEffect et DashStrikeEffect (copies avec un look_element, jamais sauvé ; les données et les coups restent tels qu'écrits : un coup ne tombe dans l'élément que si la règle de la rune agit). Une compétence « nue » est dessinée dans le premier élément, le second ajoute ses éclats : l'arc de Taillade et du Tourbillon brûle comme le coup de base, la Pluie de Flèches tombe en nova de flammes, la coupe de la Ruée Iaido et l'Estocade Perçante sont en feu. Une compétence qui a son propre élément le garde et l'autre la « chevauche » (Vfx.riding) : un anneau clairsemé de ses pièces dans la zone (une petite nappe pour le gaz du poison) — la Nova de Givre d'un bâton à Rune de Braise = cristaux avec des langues de feu parmi eux ; la Frappe Sismique (terre) a son anneau de flammes. Sorts appris et attaques de monstres inchangés. Test : CombatTests._test_rune_shots (Taillade, Pluie de Flèches, Nova de Givre, Ruée Iaido avec une Rune de Braise : copies habillées, élément propre gardé, données intactes, et l'effet vu en feu dans le monde, la Nova toujours en givre) ; 105 vérifications de _test_elemental_attacks, 0 échec. Captures avant/après (Rune de Braise) : runeskill_before_/runeskill_after_ cleave, whirlwind, frost_nova, arrow_rain, dash_strike, ground_slam .png. docs/vfx.md « Elemental attacks » mis à jour. Non vérifié : le ressenti en mouvement sur téléphone, les autres runes (Givre, Étincelle, Rafale) en capture.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_3",
       "due_date": null,
@@ -869,13 +869,13 @@
         "combat"
       ],
       "created_at": 1792701997,
-      "updated_at": 1792702009
+      "updated_at": 1792715046
     },
     {
       "id": "task_63",
       "title": "Poison : traînées et arcs en mottes",
-      "description": "Suite de « Nuage de poison grumeleux » : les novas de poison sont maintenant une nappe de gaz au sol, mais les traînées (ComposedVfx.line) et les arcs (ComposedVfx.arc) de poison utilisent encore la pièce poison_cloud.png (mottes debout). Voir s'il faut une version en nappe allongée (gas_pool.gdshader sur un segment).",
-      "status": "backlog",
+      "description": "Suite de « Nuage de poison grumeleux » : les novas de poison sont maintenant une nappe de gaz au sol, mais les traînées (ComposedVfx.line) et les arcs (ComposedVfx.arc) de poison utilisent encore la pièce poison_cloud.png (mottes debout). Voir s'il faut une version en nappe allongée (gas_pool.gdshader sur un segment).\n\nFait : les traînées (ComposedVfx.line, donc Vfx.trail : une ruée) et les arcs (ComposedVfx.arc, donc Vfx.arc : une zone frappée devant soi) d'un élément « en nappe » (VfxElementDef.pool : le poison) ne posent plus les mottes debout de poison_cloud.png : c'est le même gaz que la nappe des novas (gas_pool.gdshader), couché le long d'un segment (GasPoolVfx.along_line, 9 px de part et d'autre) ou d'un arc (GasPoolVfx.along_arc, l'arc à 72 % du rayon, ±26 % du rayon, ±80° autour de la visée : la bande que couvraient les deux rangées de pièces). Le shader lit la distance à l'« épine » de la forme (centre, segment ou arc) et fait monter le gaz d'un bout à l'autre (sweep) ; bulles réparties le long. Les novas sont inchangées (même code, forme 0). Aucun contenu actuel ne trace de traînée ou d'arc de poison (prêt pour les runes/affixes de poison sur les compétences, et toute ruée en poison). Tests (VfxTests._test_poison_kit) : traînée et arc de poison = GasPoolVfx au sol, segment de bout en bout sur la grille, quad qui le contient, montée progressive ; l'arc reste dans la zone et fait face à la visée ; les autres éléments gardent leurs pièces. Captures avant/après : poison_before_f14_x3.png (mottes), poison_after_f14_x3.png, poison_after_f30_x3.png, et sur sol clair poison_after_ruins_f06_x3.png. docs/vfx.md mis à jour. Non vérifié : le rendu sur téléphone, en mouvement.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_3",
       "due_date": null,
@@ -883,7 +883,7 @@
         "vfx"
       ],
       "created_at": 1792706331,
-      "updated_at": 1792706331
+      "updated_at": 1792712639
     },
     {
       "id": "task_71",
@@ -1024,8 +1024,8 @@
     {
       "id": "task_73",
       "title": "Gorr le Borgne : le boss le plus dur de l'acte II en Gardien",
-      "description": "Après la passe de la Guivre d'Azur, Gorr est le plus dur de l'acte II en Gardien : kite 1/8, bot « joueur » 0/8 (graines 1-8), souvent projeté dans les fosses par son séisme (chutes 54-162). C'est le boss principal (celui du parcours « gauntlet »). Mesurer sur plusieurs graines, puis passe dédiée si ça se confirme.",
-      "status": "backlog",
+      "description": "Après la passe de la Guivre d'Azur, Gorr est le plus dur de l'acte II en Gardien : kite 1/8, bot « joueur » 0/8 (graines 1-8), souvent projeté dans les fosses par son séisme (chutes 54-162). C'est le boss principal (celui du parcours « gauntlet »). Mesurer sur plusieurs graines, puis passe dédiée si ça se confirme.\n\nRésultat (passe du 23/10, docs/balance-log.md) : graines 1-8, Gardien. Avant : kite 1/8, joueur 0/8, face-tank 0/8. Les « chutes dues au séisme » étaient surtout le bot qui marchait dans les trous (5 chutes sur 7). Injuste trouvé : le second anneau du Séisme furieux (169 px) frappait hors du cercle annoncé (130) → l'avertissement montre toute la portée. Bots corrigés (trous, éventails, coups retardés). Après : kite 8/8, joueur 0/8 (boss à 5-31 %), face-tank 0/8. Dur mais lisible ; essais non gardés : PV 1050, rayon prévenu 0,45 s, portée min. 140. À tester en jeu (carte de suivi).",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_2",
       "due_date": null,
@@ -1034,13 +1034,13 @@
         "boss"
       ],
       "created_at": 1792710765,
-      "updated_at": 1792710765
+      "updated_at": 1792715509
     },
     {
       "id": "task_74",
       "title": "Guivre de Jade : même plongeon que l'ancienne Guivre d'Azur",
-      "description": "Sa Ruée annelée furieuse prévient 0,30 s en phase 3 (Gardien), frappe une bande de 44 px de chaque côté et enchaîne un second élan 0,55 s après. Avec le bot qui évite les anneaux, kite 3/4 en Gardien. À revoir lors d'une passe sur l'acte III (mêmes corrections que la Guivre d'Azur si besoin).",
-      "status": "backlog",
+      "description": "Sa Ruée annelée furieuse prévient 0,30 s en phase 3 (Gardien), frappe une bande de 44 px de chaque côté et enchaîne un second élan 0,55 s après. Avec le bot qui évite les anneaux, kite 3/4 en Gardien. À revoir lors d'une passe sur l'acte III (mêmes corrections que la Guivre d'Azur si besoin).\n\nRésultat : règle des plongeons étendue à tous les boss, pilotée par les données (targets.tres : 0,45 s en dernière phase en Gardien, bande ≤ corps + 8 px, pas de ralentissement ; UnitTests._test_boss_warnings). Guivre de Jade : bande 44 → 30 px, Ruée Ondulante furieuse 0,30 → 0,45 s. Aussi : sauts furieux de la Matrone du Bourbier et du Accapareur Doré 0,37 → 0,45 s, Pas du Gardien furieux de Tôma 0,32 → 0,45 s ; Arc de Flammes furieux du Rônin : second coup dans l'arc annoncé. Jade (graines 1-8) : kite 6 → 7/8, joueur 4 → 3/8, face-tank 0/8.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_2",
       "due_date": null,
@@ -1049,13 +1049,13 @@
         "boss"
       ],
       "created_at": 1792710765,
-      "updated_at": 1792710765
+      "updated_at": 1792715509
     },
     {
       "id": "task_75",
       "title": "degenerate_skills_a3 gagne en face-tank contre la Guivre de Jade",
-      "description": "Gagne à 23 % de vie sans mourir (soins de Dévotion) : vraie entorse au pilier « le face-tank perd ». Aussi : part de soin 68-100 % de ce build contre le Tengu et la Jade. À traiter dans une passe soins/compétences.",
-      "status": "backlog",
+      "description": "Gagne à 23 % de vie sans mourir (soins de Dévotion) : vraie entorse au pilier « le face-tank perd ». Aussi : part de soin 68-100 % de ce build contre le Tengu et la Jade. À traiter dans une passe soins/compétences.\n\nRésultat : ce n'était pas Dévotion (18-46 PV soignés, 9-28 % des dégâts, sous le plafond de 50 %) mais les dégâts : 2,84x le build attendu (modèle), les échos cumulés renvoyaient 69 % des sorts en plus du plafond de recharge. Règle : tous les échos ensemble plafonnés à 45 % (DungeonConfig.skill_echo_max_chance, textes mis à jour). Face-tank contre la Jade : 1-2/4 → 0/4 ; modèle 2,84x → 2,52x (cible 2,5x, encore signalé de peu).",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_2",
       "due_date": null,
@@ -1063,13 +1063,13 @@
         "équilibrage"
       ],
       "created_at": 1792710765,
-      "updated_at": 1792710765
+      "updated_at": 1792715509
     },
     {
       "id": "task_76",
       "title": "Bots d'équilibrage : chutes dans les fosses",
-      "description": "Les bots perdent des combats en tombant dans les fosses après un coup qui repousse (ex. Guivre d'Azur graines 2 et 8, Gorr). Un joueur évite mieux les bords : apprendre aux bots à se tenir loin des trous pendant un combat de boss, pour des mesures plus justes.",
-      "status": "backlog",
+      "description": "Les bots perdent des combats en tombant dans les fosses après un coup qui repousse (ex. Guivre d'Azur graines 2 et 8, Gorr). Un joueur évite mieux les bords : apprendre aux bots à se tenir loin des trous pendant un combat de boss, pour des mesures plus justes.\n\nRésultat : les bots ne marchent plus dans un trou / sol fissuré / case annoncée visibles, ne roulent par-dessus qu'en atterrissant sur du solide, n'utilisent un sort qui les déplace que s'il atterrit sur du solide. Après (180 combats) : 5 chutes projetées, 6 marchées (sol qui cède sous un bot immobile, glissade le long du boss). Bug de jeu corrigé : le héros remontait sous le corps du boss et retombait (4 chutes en 1,5 s). Verdict : le recul près des trous est juste (coups annoncés, recul prévisible, trous visibles, chute = ~1 coup, 15 % des PV) ; pas de changement de design proposé.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_2",
       "due_date": null,
@@ -1078,13 +1078,13 @@
         "test"
       ],
       "created_at": 1792710765,
-      "updated_at": 1792710765
+      "updated_at": 1792715509
     },
     {
       "id": "task_77",
       "title": "Codex au clavier : cadre de focus dessiné sur les onglets",
-      "description": "Vu sur les captures en français (1280x720, clavier) : sur la page d'un monstre, le cadre de focus du bouton « < Tous les monstres » (colonne de gauche, défilée) est dessiné par-dessus les onglets Quêtes / Bestiaire, hors de sa colonne. Probablement aussi en anglais. Vérifier et le garder dans sa colonne (défiler jusqu'au bouton, ou focus ailleurs).",
-      "status": "backlog",
+      "description": "Vu sur les captures en français (1280x720, clavier) : sur la page d'un monstre, le cadre de focus du bouton « < Tous les monstres » (colonne de gauche, défilée) est dessiné par-dessus les onglets Quêtes / Bestiaire, hors de sa colonne. Probablement aussi en anglais. Vérifier et le garder dans sa colonne (défiler jusqu'au bouton, ou focus ailleurs).\n\nFait : cause trouvée. La page d'un monstre donne le focus à son premier bouton (« < Tous les monstres ») avant que ses colonnes soient mises en page ; la colonne de gauche, qui suit le focus (follow_focus), se mesurait vide et défilait de la hauteur du bouton (46) : le bouton restait juste au-dessus de sa colonne, et son cadre de focus (dessiné par MenuNav sur une couche au-dessus de tout, sans découpe) tombait sur les onglets. Deux corrections : (1) la page ouverte remet ses colonnes en haut (MonsterPage.scroll_to_top(), appelé par CodexPanel.open_monster) ; (2) en général, le cadre de focus reste dans les boîtes qui découpent son bouton (une liste qui défile, une colonne), à sa propre épaisseur près : un bouton défilé hors de sa colonne n'a plus de cadre, un bouton à moitié sorti a un cadre coupé au bord (MenuNav.frame_area() pour les tests). Test : PcTests._test_codex_page_focus (suite title, en français 1280x720 au clavier) : colonnes en haut à l'ouverture (échoue sans la correction : [46, 0, 0]), le focus sur le bouton, le cadre autour de lui dans sa colonne, et colonne défilée → aucun cadre hors de la colonne. Captures (avant/après) : codex_before_page_open.png, codex_after_page_open.png, codex_after_page_scrolled.png ; cadres des autres menus inchangés (focus_keys_bag.png, focus_keys_options.png). docs/design/interface.md mis à jour.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_4",
       "due_date": null,
@@ -1094,13 +1094,13 @@
         "bug"
       ],
       "created_at": 1792710637,
-      "updated_at": 1792710637
+      "updated_at": 1792712301
     },
     {
       "id": "task_78",
       "title": "Sol fissuré effondré : pas gardé dans la sauvegarde",
-      "description": "Vu en traitant le trou des Tréfonds (task_68) : un sol fissuré qui s'est effondré (hors Tréfonds) redevient un sol fissuré intact quand la partie est reprise sur cet étage (World.spent_data() ne garde que les trous rebouchés). Petit ; à garder si on veut une reprise fidèle.",
-      "status": "backlog",
+      "description": "Vu en traitant le trou des Tréfonds (task_68) : un sol fissuré qui s'est effondré (hors Tréfonds) redevient un sol fissuré intact quand la partie est reprise sur cet étage (World.spent_data() ne garde que les trous rebouchés). Petit ; à garder si on veut une reprise fidèle.\n\nFait : un sol fissuré qui s'effondre est noté (World.crack_collapsed → collapsed_cells) et gardé dans la sauvegarde de l'étage (World.spent_data() « collapsed ») ; à la reprise, l'étage reconstruit depuis sa graine repose la fissure, puis _restore_collapsed la fait céder sans bruit ni poussière (CrumblingFloor.collapse(quiet)), avant que les trous rebouchés (« sealed ») soient rebouchés : une fissure par où le héros est tombé dans les Tréfonds reste un sol plein. Les anciennes sauvegardes n'ont pas la liste (rien ne change pour elles). Test : FloorTests._test_collapsed_crack_restored (la sauvegarde garde la case, à la reprise un trou bloqué pour la navigation et plus de fissure, gardée pour la sauvegarde suivante, entrées abîmées ignorées). Vérifié aussi par une sonde sur le vrai chemin (fissure naturelle effondrée, _save_run, resume_run : trou à la reprise). docs/design/dungeon.md mis à jour.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -1108,13 +1108,13 @@
         "sauvegarde"
       ],
       "created_at": 1792710637,
-      "updated_at": 1792710637
+      "updated_at": 1792711519
     },
     {
       "id": "task_79",
       "title": "Test instable : « where he fell » (Seuil perdu)",
-      "description": "Vu une fois dans la suite game (CombatTests._test_threshold_lost : le héros ramené du Seuil perdu n'était pas exactement où il était tombé), pas reproduit ensuite (24 essais isolés et une suite game complète sans échec). Le message dit maintenant ce qu'il a vu (comment, position, où il était tombé) : à la prochaine fois, en trouver la cause.",
-      "status": "backlog",
+      "description": "Vu une fois dans la suite game (CombatTests._test_threshold_lost : le héros ramené du Seuil perdu n'était pas exactement où il était tombé), pas reproduit ensuite (24 essais isolés et une suite game complète sans échec). Le message dit maintenant ce qu'il a vu (comment, position, où il était tombé) : à la prochaine fois, en trouver la cause.\n\nFait : cause trouvée. Le coup fatal du test tombe en haut d'un pas de physique, et le héros fait encore ce pas avant que l'étage gèle (Threshold._enter est différé) : s'il avait encore une poussée (la flèche d'un piège, un monstre qui le bouscule, un reste de recul), il glissait de quelques pixels, et le Seuil le ramène là où son corps était au moment de passer (SubWorld.stood_at), pas là où le test l'avait noté. Vérifié avec une sonde : un recul donné juste avant le coup → ramené 5 px plus loin, 3 fois sur 3 ; sans recul, 40 fois sur 40 au bon endroit. Le jeu a raison (on revient où le corps est resté) ; le test prépare maintenant une scène sûre : monstres de l'étage retirés, héros posé sur un coin tranquille (_quiet_point : ni piège, ni feu, ni sable, ni sol fissuré), immobile (_stand_still) avant le coup. La vérification « where he fell » est inchangée (égalité exacte). Lancé 4 fois isolé : 92 vérifications, 0 échec.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -1123,10 +1123,115 @@
         "bug"
       ],
       "created_at": 1792710655,
-      "updated_at": 1792710655
+      "updated_at": 1792711393
+    },
+    {
+      "id": "task_80",
+      "title": "Gorr le Borgne : tester en jeu après la passe de lisibilité",
+      "description": "Après la passe du 23/10 : kite 8/8, bot « joueur » 0/8 (boss à 5-31 %), face-tank 0/8 en Gardien. Sa 1re phase coûte 44 PV au bot joueur (la Mère des Larmes 12, la Guivre d'Azur 17), surtout le Rayon Oculaire quand on revient au contact après un coup de massue ou un Séisme ; ses combats sont les plus longs de l'acte (94-142 s pour le kite, cible 40-100 s). Dur mais lisible : à jouer avant de toucher un chiffre.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "équilibrage",
+        "boss",
+        "playtest"
+      ],
+      "created_at": 1792715509,
+      "updated_at": 1792715509
+    },
+    {
+      "id": "task_81",
+      "title": "La Matrone du Bourbier bat souvent le bot kite en Gardien",
+      "description": "Boss alternatif de l'acte I : kite 4/8, joueur 0/8, face-tank 0/4 (graines 1-8, passe du 23/10). Hors de la cible « le kite gagne en Gardien ». À mesurer (journal des coups, --hits) et corriger ce qui est injuste.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "équilibrage",
+        "boss"
+      ],
+      "created_at": 1792715509,
+      "updated_at": 1792715509
     },
     {
       "id": "task_82",
+      "title": "Le Rônin des Braises bat le bot kite en Gardien",
+      "description": "Acte III : kite 1/4, joueur 0/4 (boss à 24-33 %), face-tank 0/4 (graines 1-4, passe du 23/10). Hors de la cible « le kite gagne en Gardien ». À mesurer (journal des coups) avant de corriger.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "équilibrage",
+        "boss"
+      ],
+      "created_at": 1792715509,
+      "updated_at": 1792715509
+    },
+    {
+      "id": "task_83",
+      "title": "Avertissement visible jusqu'au dernier coup d'un sort",
+      "description": "Le dessin d'un avertissement disparaît quand le sort part ; le second anneau du Séisme furieux, une seconde volée ou un second élan arrivent 0,4-0,7 s plus tard sans rien de dessiné (désormais toujours à l'intérieur de ce qui a été dessiné). Garder le dessin (atténué) jusqu'au dernier coup retardé. Travail VFX/télégraphe.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "vfx",
+        "combat"
+      ],
+      "created_at": 1792715509,
+      "updated_at": 1792715509
+    },
+    {
+      "id": "task_84",
+      "title": "Idée : règle de lisibilité pour les éventails en dernière phase",
+      "description": "Le Rayon Oculaire furieux de Gorr (0,32 s), le Souffle de Givre et le Crachat de Venin des guivres (0,30 s), le Crachat de Poison de la Matrone (0,32 s) préviennent moins qu'un temps de réaction humain à courte portée. Proposition : comme les plongeons, au moins 0,45 s en dernière phase en Gardien. Non appliqué (changerait plusieurs boss) : à décider.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "équilibrage",
+        "idée"
+      ],
+      "created_at": 1792715509,
+      "updated_at": 1792715509
+    },
+    {
+      "id": "task_85",
+      "title": "degenerate_skills_a3 encore à 2,52x (cible 2,5x)",
+      "description": "Après le plafond des échos (45 %), le modèle donne 2,52x le build attendu de l'acte III (était 2,84x). Sans le Codex du Sage : 2,05x ; sans Puissance Arcanique : 2,22x. Le face-tank perd désormais. À revoir si le signal compte (Codex : puissance + recharge).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "équilibrage"
+      ],
+      "created_at": 1792715509,
+      "updated_at": 1792715509
+    },
+    {
+      "id": "task_86",
+      "title": "Bots d'équilibrage : chutes restantes",
+      "description": "Après la passe du 23/10 : 6 chutes « marchées » en 180 combats — le sol qui cède sous un bot immobile (case fissurée, anneau qui se referme) et une Ruée Iaido qui glisse le long du boss. Mesures peu touchées ; à affiner si besoin (journal --hits).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "équilibrage",
+        "test"
+      ],
+      "created_at": 1792715509,
+      "updated_at": 1792715509
+    },
+    {
+      "id": "task_95",
       "title": "Identité sonore : une musique par lieu",
       "description": "Seulement 4 morceaux pour 9 biomes, 4 actes, les Tréfonds, le Seuil, le sanctuaire et le combat final.\n\nFait : 26 morceaux du pack Ninja Adventure (CC0), un par lieu (table lieu → morceau → pourquoi : docs/design/presentation.md « Music »). Sanctuaire/titre : Lost Village + la cloche (une fois à l'ouverture). Acte I : The Cave / Dark Forest / Aquatic, gardiens sur Fight. Acte II : Crypt / Mystical, gardiens sur Dark Castle, la Mère des Larmes sur Lament. Acte III : Temple / Dungeon, gardiens sur End Theme. Acte IV : Ruins / Manor, gardiens sur Final Area, le Soleil Mort sur Revelation. Charnier : Melancholia, le Gisant sur Curse. Tréfonds : Tension. Seuil : Dream. Fond du Puits : Lost Village ; Tôma sur End Theme 2, silence quand il tombe, puis la Gueule sur Fight (2025). Fins : Credit Theme (sonner la cloche), Lost Village (prendre sa place) ; victoire : Ascension ; défaite : Sad Theme après le jingle ; histoires des gardiens : Story en fond (-4 dB).\nTout en données (DungeonTheme, BossDef, ActDef.boss_music, AbyssDef, ThresholdDef, EndingDef, CinematicDef, SoundBank > Music), lu par Soundtrack. Vrai fondu enchaîné (deux lecteurs), même morceau jamais relancé d'un étage à l'autre, jingle seul puis la musique revient. Volumes égalisés (-19 LUFS), Vorbis q1 (11 Mo pour 26 morceaux), boucles loop=true. Nappes d'ambiance : vent chaud (Jardin Blême), rivière (Cavernes des Noyés), vent du désert (Cité Ensablée), ressac lointain (Fond du Puits). Bruitages : lâcher, démonter (enclume + pièces), retirer, fragment trouvé (jingle), morsure de la Gueule, nappe de gaz ; voix des PNJ égalisées.\nÀ écouter : choisis sans pouvoir les entendre (mesures : volume, brillance, densité, tonalité). Voir les cartes « Écouter la bande-son ».",
       "status": "review",
@@ -1140,7 +1245,7 @@
       "updated_at": 1792716554
     },
     {
-      "id": "task_83",
+      "id": "task_96",
       "title": "Identité des niveaux : formes de salles et décor au plafond",
       "description": "Des parties qui ne se ressemblent pas : grandes salles rondes, salles à piliers, ponts sur le vide, couloirs en croix, salles d'arène… ; une couche « plafond » (racines, chaînes, stalactites, bannières) dessinée au-dessus du héros et qui s'efface quand il passe dessous ; décors propres à chaque biome. Modulaire, dans les données.",
       "status": "in_progress",
@@ -1155,7 +1260,7 @@
       "updated_at": 1792720000
     },
     {
-      "id": "task_84",
+      "id": "task_97",
       "title": "Mettre la clé de signature Android en sécurité",
       "description": "La clé (puits-release.keystore + mot de passe) n'existe que dans l'espace de travail de Claude, qui peut être effacé. Sans elle, plus aucune mise à jour possible sur le Play Store. À copier chez toi, hors du dépôt.",
       "status": "todo",
@@ -1170,7 +1275,7 @@
       "updated_at": 1792720000
     },
     {
-      "id": "task_85",
+      "id": "task_98",
       "title": "Mesurer les performances sur le S23",
       "description": "Tous les nouveaux effets, shaders et dialogues n'ont jamais été mesurés sur le téléphone (images/s, mémoire, chauffe).",
       "status": "backlog",
@@ -1185,7 +1290,7 @@
       "updated_at": 1792720000
     },
     {
-      "id": "task_86",
+      "id": "task_99",
       "title": "Fiche Play Store",
       "description": "Description FR/EN, captures, icône, page de confidentialité (docs/android.md), classification.",
       "status": "backlog",
@@ -1260,6 +1365,65 @@
     },
     {
       "id": "task_91",
+      "title": "Niche vide du Gardien : un vrai sprite",
+      "description": "Suite de « La niche vide de Tôma » : la niche à côté de chaque Statue du Gardien est dessinée en code (Encounter._draw_niche : bloc de pierre, creux en arc, rebord nu, nom gratté). Si elle se lit mal ou détonne à côté de la statue (warden_statue.png), la redessiner à la main comme un sprite de la même pierre (et décider si elle reste à côté de chaque statue ou seulement dans le Sanctuaire oublié).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "vfx",
+        "sprites"
+      ],
+      "created_at": 1792715222,
+      "updated_at": 1792715222
+    },
+    {
+      "id": "task_92",
+      "title": "Reprise : monstres blessés et monstres venus après",
+      "description": "Suite de « Monstres tués qui restent morts après reprise » : à la reprise, les monstres propres à l'étage encore debout reviennent avec toute leur Vie (une bête blessée à 10 % repart pleine), et ceux qui sont venus après (embuscade, invocations, vagues du feu de camp, monstres d'une rencontre ou d'un coffre piégé) ne sont pas gardés du tout. Décider si la reprise doit aussi garder la Vie des blessés (World.spent_data, par floor_index).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "sauvegarde",
+        "idée"
+      ],
+      "created_at": 1792715222,
+      "updated_at": 1792715222
+    },
+    {
+      "id": "task_93",
+      "title": "Focus avant mise en page : vérifier les autres pages",
+      "description": "Vu en traitant « Codex au clavier » : une page qui donne le focus à son premier bouton avant que ses colonnes soient mises en page fait défiler sa liste (follow_focus) de la hauteur du bouton. Corrigé pour la page d'un monstre (MonsterPage.scroll_to_top), et le cadre de focus ne sort plus de sa boîte (MenuNav) ; d'autres pages construites puis focalisées dans la même image (sac, boutique, forge, chronique) peuvent avoir le même décalage : les ouvrir au clavier en 1280x720 et vérifier.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_4",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "pc"
+      ],
+      "created_at": 1792715222,
+      "updated_at": 1792715222
+    },
+    {
+      "id": "task_94",
+      "title": "Poison : la pièce poison_cloud.png n'est plus dessinée",
+      "description": "Suite de « Poison : traînées et arcs en mottes » : les novas, traînées et arcs de poison sont tous la nappe de gaz (GasPoolVfx) ; poison_cloud.png (mottes debout, la `piece` du kit) ne sert plus qu'à remplir le kit (les tests la demandent). La garder pour un futur usage ou la retirer avec le test du kit.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "vfx"
+      ],
+      "created_at": 1792715222,
+      "updated_at": 1792715222
+    },
+    {
+      "id": "task_100",
       "title": "Écouter la bande-son : un morceau par lieu",
       "description": "Les 26 morceaux ont été choisis sans être entendus (docs/design/presentation.md « Music »). À écouter en jeu et changer dans les .tres si besoin. Les plus incertains : End Theme pour les gardiens de l'Acte III (rythme dense, mais c'est peut-être un thème de fin joyeux), Credit Theme pour « sonner la cloche » (peut-être trop gai), Manor pour le Tombeau du Soleil, Revelation pour le Soleil Mort (en majeur), Ruins (s'éteint au fil de la boucle), Story sous les histoires des gardiens, la cloche de l'écran titre (-14 dB, 1,4 s après l'ouverture). Vérifier aussi que les boucles ne claquent pas (Dark Castle et Lost Village finissent en fondu).",
       "status": "todo",
@@ -1274,7 +1438,7 @@
       "updated_at": 1792716554
     },
     {
-      "id": "task_92",
+      "id": "task_101",
       "title": "Écouter les nouveaux bruitages",
       "description": "Choisis sans être entendus : lâcher un objet (Bounce2), démonter (enclume de la forge, -9 dB), fragment trouvé (jingle Secret1), morsure de la Gueule (os grave + coup lourd), nappe de gaz (Bubble). Les nappes d'ambiance neuves aussi (vent chaud du Jardin Blême, rivière des Cavernes des Noyés, vent de la Cité Ensablée, ressac du Fond du Puits) : niveau sous la musique, raccord de boucle.",
       "status": "todo",
@@ -1289,7 +1453,7 @@
       "updated_at": 1792716554
     },
     {
-      "id": "task_93",
+      "id": "task_102",
       "title": "Nappes d'ambiance propres au Temple, au Tombeau et aux Archives",
       "description": "Le Temple-Bûcher, les Ruines de Braise, le Tombeau du Soleil partagent encore la nappe des ruines (feu) ; les Catacombes, les Archives Muettes et le Charnier celle de la crypte. Le pack n'a que pluie, rivière, orage, vagues et vent : il faudrait d'autres sources (CC0) pour un chant lointain, des pages, des braises d'autel.",
       "status": "backlog",
@@ -1303,7 +1467,7 @@
       "updated_at": 1792716554
     },
     {
-      "id": "task_94",
+      "id": "task_103",
       "title": "Idée : une musique au marchand, à la forge, aux rencontres",
       "description": "Aujourd'hui les salles du marchand, de la forge et des PNJ gardent la musique de l'étage (ce sont des salles de l'étage). Une variante plus calme en y entrant (ou la musique baissée) ? À décider à l'écoute.",
       "status": "backlog",
@@ -1318,7 +1482,7 @@
       "updated_at": 1792716554
     },
     {
-      "id": "task_95",
+      "id": "task_104",
       "title": "Taille de la musique (11 Mo)",
       "description": "26 morceaux en Vorbis qualité 1 (~60 kb/s) : 11 Mo (contre 5 Mo pour les 4 d'avant). Si l'APK est trop lourd, qualité 0 gagne ~20 % ; Dark Forest (2,5 min, 1,1 Mo) et Manor (0,8 Mo) sont les plus gros.",
       "status": "backlog",

@@ -37,5 +37,5 @@ effects = Array[ExtResource("1_effect")]([SubResource("Resource_strike"), SubRes
 sound = ExtResource("4_sound")
 ai_min_range = 90.0
 ai_max_range = 330.0
-cast_time = 0.5
+cast_time = 0.71
 cast_animation = &"windup"

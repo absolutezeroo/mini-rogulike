@@ -183,6 +183,16 @@ func _test_reveal_rule() -> void:
 	check(narrative.keeper_reveal.is_met(), "the Effigy slain and a run won (any difficulty): the keeper may be named")
 	var slime := _boss("king_slime")
 	check(Narrative.speech(slime) != null and _names_keeper(narrative, fr, Narrative.speech(slime).line), "after the reveal, a warden names him as it wakes")
+	# The empty niche beside the Keeper's Statue: an inscription no one explains, read after the
+	# reveal (then it names him).
+	var niche := (load("res://data/encounters/warden_statue.tres") as EncounterDef).niche
+	check(niche != null and niche.reveal == narrative.keeper_reveal, "the Keeper's Statue has its empty niche, read at the reveal")
+	if niche:
+		check(not _names_keeper(narrative, fr, niche.text) and _names_keeper(narrative, fr, niche.revealed_text), "the niche's inscription names no one before the reveal, the keeper after it")
+		check(niche.shown_text() == niche.revealed_text, "after the reveal, the niche is read")
+		_reset_story()
+		check(niche.shown_text() == niche.text, "before it, only an empty niche and a line")
+		check(_translated(fr, niche.text) and _translated(fr, niche.revealed_text), "the niche reads in French too")
 	_reset_story()
 
 

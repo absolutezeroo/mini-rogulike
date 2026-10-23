@@ -8,7 +8,7 @@
 [sub_resource type="Resource" id="Resource_sgjx1"]
 script = ExtResource("2_tii3x")
 distance = 240.0
-width = 44.0
+width = 30.0
 damage_multiplier = 1.2
 knockback = 260.0
 

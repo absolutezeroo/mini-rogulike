@@ -607,10 +607,13 @@ func _check_ground() -> void:
 func _on_fell(pit: PitDef) -> void:
 	if is_dead:
 		return  # killed during the fall: the body stays down there
-	# Where the hero stood may have given way since (a boss arena opening up): the nearest free
-	# floor then, or they would fall again and again.
-	if not world.is_solid_ground(_safe_position):
-		_safe_position = world.nearest_free_point(_safe_position)
+	# Where the hero stood may have given way since (a boss arena opening up), or a body may stand
+	# there now (a boss at the edge of the hole): the nearest free floor clear of them then, or
+	# he would fall again and again (pushed back into the hole by the body he climbed out under:
+	# four falls in 1.5 s in a balance fight, 2026-10-23).
+	var bodies := world.get_hostiles(faction)
+	if not world.is_solid_ground(_safe_position) or World.is_under_body(_safe_position, bodies, radius + 2.0):
+		_safe_position = world.nearest_free_point(_safe_position, 12, bodies, radius + 2.0)
 	var abyss := Abyss.of(self)
 	if abyss and abyss.can_take(self):
 		abyss.open(self, _safe_position, global_position)

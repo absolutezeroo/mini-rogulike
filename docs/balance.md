@@ -41,6 +41,7 @@ Bosses, monsters, perks and affixes are named the same way: the `id` in the `.tr
 | `--all-pairs` | arena: every build against every boss, not only its act's |
 | `--timeout=240` | arena and gauntlet: game seconds before a boss fight is a timeout |
 | `--plain`, `--no-weapons` | arena: plain bosses only (no ranked fights); skip the weapon arena (targeted runs) |
+| `--hits` | arena: print every hit the hero takes in each fight measured (time, phase, what it was: the weapon, the skill and how long after its cast, a shockwave, adds; its push, the distance to the boss, a hole within 48 px, the boss' state) and every fall with what started it (a push, a roll, walking); with `--no-cache` to see them all |
 | `--jobs=N` | worker processes sharing the measures (default 2, this machine's CPUs; `--jobs=1`: one process) |
 | `--cache=<dir>`, `--no-cache` | where measures are kept between runs (default `user://balance_cache`); measure everything again (results still kept) |
 | `--classic` | the game as seen (effects, HUD, light, a new game for every measure): the tools as they were before they simulated, slower, to compare |
@@ -104,9 +105,14 @@ three difficulties ~8 min; the `balance` test suite a few minutes.
 - **arena** (engine): real fights in the Game scene with a bot at the controls (`BalanceBot`):
   `face_tank` stands in reach and hits, uses skills when ready, never rolls or drinks; `kite`
   keeps its weapon's range and hits whenever in reach, steps out of swings, skill circles, leap
-  lines, shots, blinking arena cells, live traps and a wyrm's burning coils, rolls only as a blow lands (within the
-  roll's invulnerability) and only where the whole roll is solid ground, and holds the hit that
-  would set off a boss' shockwave when its roll isn't ready.
+  lines, the cone of a fan of shots (while it is warned: the shots' own sides cancel out once
+  they fly around the hero), shots, blinking arena cells, live traps and a wyrm's burning coils,
+  keeps out of a cast's later blows (a fierce Quake's wider ring, a second volley or leg) until
+  they have landed, rolls only as a blow lands (within the roll's invulnerability), over holes if
+  need be but only to land on solid ground with nothing in the way, never walks into a hole,
+  cracked floor or a warned cell it can see (it steps off one under its feet) nor uses a skill
+  that would carry it into one, and holds the hit that would set off a boss' shockwave when its
+  roll isn't ready.
   Every boss x the builds of its act (expected on every difficulty; degenerate, family and baseline
   builds on Keeper and Martyr) x both bots; every boss rank (Fell, Legendary, Celestial, with the affixes
   the game rolls) with the expected build on Keeper and Martyr. Result, time, phase reached, boss
@@ -199,6 +205,7 @@ lab before changing data.
 | Boss time to kill, expected build, Keeper | 40-100 s (rare-rank boss <= 150 s) | under it the boss is not a fight; over it the fight drags on a phone |
 | Face-tank (never dodges) with expected and degenerate builds | must lose to every boss from Keeper; a win after dying once (a second life, the Threshold played) counts as a loss (`facetank_second_life_is_loss`) | skill beats stats: standing and trading blows must never win (pillar 1); the boss killed him, and bosses are not tuned to kill twice around the rarest relic |
 | Kite (keeps range, rolls) with the expected build | wins on Pilgrim and Keeper (boss fights and the gauntlet) | the fight must be beatable by playing it |
+| A boss' dive (a rush or leap along a line), every boss (unit tests) | warns >= 0.45 s in the boss' last phase on Keeper (`dive_warning_min`); hits a band at most 8 px wider than its body each side (`dive_band_margin`); never slows | a person sees the line and steps off it; the Azure and Jade Wyrms' fierce dives warned 0.30 s on bands twice their body (2026-10-23) |
 | Gauntlet, `player` bot (an average player) | wins every act on Pilgrim | Pilgrim stays accessible |
 | Gauntlet on Keeper, `player` bot: floor cost (share of Health and potion healing spent on an act's last floor before the boss), mean over the acts | 20-60% | the rooms are a fight, not a stroll that hands out potions; the boss is still reached with a chance |
 | Gauntlet on Keeper, `player` bot: acts won | >= 75% | Keeper is a real challenge for an average player, not a wall |
@@ -257,7 +264,9 @@ add it to the table above. To change a target, say why in the [balance log](bala
   there too); a fight that ends with the boss at 2% may flip from one run of the tools to another
   (the arena runs each fight once). Read flags across several bosses or acts, not one fight.
 - **The bots are decent, not good.** `kite` doesn't use the terrain, doesn't drink, and rolls
-  only on what it sees coming (it still eats some shockwaves and falls when thrown off); a lost kite fight means "hard for a careful player", not
+  only on what it sees coming (it still eats some shockwaves and falls when thrown off; each fight
+  counts its falls, `falls_pushed` thrown in by a blow and `falls_walked` walked in, which should
+  stay near 0); a lost kite fight means "hard for a careful player", not
   "impossible". `face_tank` is the pillar-1 test as written: it never dodges. `player` is `kite`
   answering every threat 0.3 s late, one fixed reaction for everything: a person is quicker on
   some patterns and slower or careless on others, and learns a boss. Read its numbers as "an

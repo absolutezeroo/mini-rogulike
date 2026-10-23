@@ -143,6 +143,20 @@ static func nova(world: World, at: Vector2, radius: float, element: VfxElementDe
 		world.flash_light(at, element.color(), radius * 2.0)
 
 
+## `element` riding an area drawn in another (a Frost Nova from a staff carrying an Ember Rune:
+## SkillDef.effects_for): a sparse ring of its pieces inside the area's edge, or a small pool of
+## its gas (poison), never a second whole nova over the first.
+static func riding(world: World, at: Vector2, radius: float, element: VfxElementDef) -> void:
+	if element == null:
+		return
+	if element.pool:
+		world.spawn_vfx(GasPoolVfx.create(at, radius * 0.45, element))
+	elif element.piece:
+		world.spawn_vfx(ComposedVfx.ring(at, radius * 0.6, element, false))
+	else:
+		pop(world, at, element, radius * 0.4, Vector2.UP)
+
+
 ## A sweep of `element` across the front half of a circle (`radius` around `at`, facing
 ## `facing`): Flame Arc's wall of fire licks, one side to the other. A ring when it has no piece.
 static func arc(world: World, at: Vector2, radius: float, facing: Vector2, element: VfxElementDef) -> void:

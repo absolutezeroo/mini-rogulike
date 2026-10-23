@@ -853,7 +853,7 @@ Ironbound,Ironbound,Cerclé de Fer
 Frozen,Frozen,Givré
 Light,Light,Léger
 of Echoes,of Echoes,des Échos
-Skills have a 12% chance to be ready again at once (an echo can't echo).,Skills have a 12% chance to be ready again at once (an echo can't echo).,Les compétences ont 12 % de chances d'être aussitôt prêtes à nouveau (un écho ne fait pas d'écho).
+Skills have a 12% chance to be ready again at once (an echo can't echo; all echoes together: 45% at most).,Skills have a 12% chance to be ready again at once (an echo can't echo; all echoes together: 45% at most).,Les compétences ont 12 % de chances d'être aussitôt prêtes à nouveau (un écho ne fait pas d'écho ; tous les échos ensemble : 45 % au plus).
 of Embers,of Embers,des Braises
 Enemies that die burning explode.,Enemies that die burning explode.,Les ennemis qui meurent en brûlant explosent.
 of Fury,of Fury,de la Furie
@@ -983,6 +983,8 @@ Clear water glows under the stone. Sometimes a child's voice hums in it.,Clear w
 The stone warms under your hand. An old keeper lends you his strength.,The stone warms under your hand. An old keeper lends you his strength.,La pierre tiédit sous ta main. Un ancien gardien te prête sa force.
 Its eyes glow red. The dead of the Well answer in its place.,Its eyes glow red. The dead of the Well answer in its place.,Ses yeux rougeoient. Les morts du Puits répondent à sa place.
 Kneel,Kneel,S'agenouiller
+"Beside it, a niche cut for one more keeper stands empty. On its base a name has been scratched away; one line is left: ""He keeps the last flame.""","Beside it, a niche cut for one more keeper stands empty. On its base a name has been scratched away; one line is left: ""He keeps the last flame.""","À côté, une niche taillée pour un gardien de plus attend, vide. Sur son socle, un nom a été gratté ; il reste une ligne : « Il garde la dernière flamme. »"
+"The niche of the last keeper, still empty. Under the scratches you can read the name now: Tôma. ""He keeps the last flame."" He left it in your hands.","The niche of the last keeper, still empty. Under the scratches you can read the name now: Tôma. ""He keeps the last flame."" He left it in your hands.","La niche du dernier gardien, toujours vide. Sous les rayures, tu lis le nom à présent : Tôma. « Il garde la dernière flamme. » Il l'a laissée entre tes mains."
 Keeper's Statue,Keeper's Statue,Statue du Gardien
 "A statue of one of the shrine's old keepers, a stone lantern in hand. Its eyes follow you.","A statue of one of the shrine's old keepers, a stone lantern in hand. Its eyes follow you.","La statue d'un ancien gardien du sanctuaire, une lanterne de pierre à la main. Ses yeux te suivent."
 Blood Moon,Blood Moon,Lune de Sang
@@ -1322,7 +1324,7 @@ Rolling releases a wave of cold that hurts and slows enemies around by 50%.,Roll
 Devotion,Devotion,Dévotion
 Using a skill (not the roll) heals 3 Health per level.,Using a skill (not the roll) heals 3 Health per level.,Utiliser une compétence (pas la roulade) rend 3 de Vie par niveau.
 Echo,Echo,Écho
-Using a skill has a 15% chance per level to leave it ready again at once (an echo can't echo).,Using a skill has a 15% chance per level to leave it ready again at once (an echo can't echo).,Utiliser une compétence a 15 % de chances par niveau de la rendre aussitôt prête à nouveau (un écho ne fait pas d'écho).
+Using a skill has a 15% chance per level to leave it ready again at once (an echo can't echo; all echoes together: 45% at most).,Using a skill has a 15% chance per level to leave it ready again at once (an echo can't echo; all echoes together: 45% at most).,Utiliser une compétence a 15 % de chances par niveau de la rendre aussitôt prête à nouveau (un écho ne fait pas d'écho ; tous les échos ensemble : 45 % au plus).
 Fortune,Fortune,Fortune
 Slain monsters have a 12% chance per level to drop extra loot.,Slain monsters have a 12% chance per level to drop extra loot.,Les monstres abattus ont 12 % de chances par niveau de lâcher du butin en plus.
 Frenzy,Frenzy,Frénésie

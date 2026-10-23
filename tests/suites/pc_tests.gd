@@ -646,6 +646,60 @@ func _test_codex_keys(title: TitleScreen) -> void:
 		Profile.mark_seen(monster.id)
 	await _test_codex_cards(codex)
 	Profile.seen_monsters = seen_before
+	await _test_codex_page_focus(codex)
+
+
+## A monster's page opened with keys: focused before its columns were laid out, its first button
+## ("< All monsters") used to sit scrolled just out of its column, its focus frame drawn over the
+## codex's tabs (a page long enough to scroll: a monster slain often, in French, 1280x720).
+func _test_codex_page_focus(codex: CodexPanel) -> void:
+	var monster: MonsterDef = CONTENT.dungeon.acts[0].monsters[0]
+	var kills_before: Variant = Profile.kills_by_monster.get(String(monster.id))
+	var seen_before := Profile.seen_monsters.duplicate()
+	var size_before := get_tree().root.size
+	var device_before := InputDevice.kind
+	var family_before := InputDevice.family
+	var navigating_before := InputDevice.navigating
+	Profile.mark_seen(monster.id)
+	Profile.kills_by_monster[String(monster.id)] = 12
+	await _window(Vector2i(1280, 720))
+	Settings.language = "fr"
+	Settings.apply()
+	_keys_mode()
+	codex.open(CONTENT, CodexPanel.Tab.BESTIARY)
+	await _frames(2)
+	codex.open_monster(monster)
+	# (Right away: the list following the focus scrolled then, out of a column not laid out yet.)
+	var scrolled: Array = codex.get_node("%MonsterPage").find_children("*", "ScrollContainer", true, false).map(func(box: ScrollContainer) -> int: return box.scroll_vertical)
+	check(scrolled.all(func(at: int) -> bool: return at == 0), "a page opened with keys starts at the top of its columns (%s)" % [scrolled])
+	await _frames(3)
+	var back := codex.find_child("BackButton", true, false) as Control
+	var column := back.get_parent()
+	while column and not column is ScrollContainer:
+		column = column.get_parent()
+	var scroll := column as ScrollContainer
+	var box := scroll.get_global_rect()
+	check(_focus() == back, "the keys start on its first button (%s)" % _focus())
+	check(scroll.get_v_scroll_bar().max_value > scroll.size.y, "a page long enough to scroll (%d in %d)" % [scroll.get_v_scroll_bar().max_value, scroll.size.y])
+	check(scroll.scroll_vertical == 0 and box.encloses(back.get_global_rect()), "the page opens at the top of its columns, its first button in sight (scrolled %d)" % scroll.scroll_vertical)
+	check(box.grow(MenuNav.FocusFrame.REACH).encloses(MenuNav.frame_area()) and MenuNav.frame_area().has_area(), "its focus frame around it, in its column (%s, column %s)" % [MenuNav.frame_area(), box])
+	scroll.scroll_vertical = 400  # a finger or the wheel scrolls the column, the focus stays
+	await _frames(2)
+	var frame := MenuNav.frame_area()
+	check(frame.size == Vector2.ZERO or box.grow(MenuNav.FocusFrame.REACH).encloses(frame), "a focus frame never leaves its column, its button scrolled out (%s, column %s)" % [frame, box])
+	codex.back()
+	codex.hide()
+	await _frames(1)
+	Settings.language = "en"
+	Settings.apply()
+	await _restore_window(size_before)
+	Profile.seen_monsters = seen_before
+	if kills_before == null:
+		Profile.kills_by_monster.erase(String(monster.id))
+	else:
+		Profile.kills_by_monster[String(monster.id)] = kills_before
+	InputDevice.use(device_before, family_before)
+	InputDevice.navigating = navigating_before
 
 
 func _test_codex_cards(codex: CodexPanel) -> void:
