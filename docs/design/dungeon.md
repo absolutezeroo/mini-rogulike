@@ -331,6 +331,12 @@ its own and nothing (chest, prop, hazard, another encounter) within
 | Grinning Spirit | Wager 30 / 80 gold (more each floor) | an item, sometimes a great one... or it laughs and runs |
 | Keeper's Statue | Kneel | a choice of perks (50%), or two elites (50%) |
 
+The Keeper's Statue stands beside **an empty niche** (`EncounterDef.niche`, `EncounterNiche`):
+drawn next to it on the floor, its inscription told under the statue's text in the panel. Before
+the keeper may be named (`keeper_named`, docs/lore.md section 7) it is an empty niche, a name
+scratched away and one line left; after, the hero reads the name (`revealed_text`). Nothing to
+choose: it changes no rule.
+
 ## Pact doors
 
 Some floors hold a sealed side room behind a marked door (`PactRoom`, `data/pacts/`, `PactDef`):

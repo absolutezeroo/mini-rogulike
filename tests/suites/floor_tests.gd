@@ -1905,6 +1905,22 @@ func _test_encounters(game: Game) -> void:
 	check(not interact.visible and not await _tap_interact(game) and not panel.visible, "a spent encounter asks nothing (no button)")
 	player.global_position = spring.global_position + Vector2(0, 160)
 
+	# The Keeper's Statue: the empty niche beside it, its inscription under the text (the keeper
+	# unnamed: the test profile has not seen the reveal).
+	var keeper_statue := world.spawn_encounter(load("res://data/encounters/warden_statue.tres"), _open_cell_near(world, player.global_position, 2))
+	game.open_encounter(keeper_statue)
+	await _frames(1)
+	var niche_label := panel.get_node("%Niche") as Label
+	check(niche_label.visible and niche_label.text == tr(keeper_statue.def.niche.text) and not niche_label.text.contains("T\u00f4ma"), "the Keeper's Statue tells of the empty niche beside it, the name scratched away (%s)" % niche_label.text)
+	panel.close()
+	await _frames(1)
+	keeper_statue.queue_free()
+	game.open_encounter(spring)
+	await _frames(1)
+	check(not (panel.get_node("%Niche") as Label).visible, "an encounter without a niche tells of none")
+	panel.close()
+	await _frames(2)
+
 	# The blood altar: max HP for a relic.
 	var max_hp := player.base_stats.max_hp
 	var altar := world.spawn_encounter(load("res://data/encounters/blood_altar.tres"), _open_cell_near(world, player.global_position, 2))

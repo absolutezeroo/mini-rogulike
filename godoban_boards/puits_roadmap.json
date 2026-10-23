@@ -752,8 +752,8 @@
     {
       "id": "task_52",
       "title": "La niche vide de Tôma parmi les Statues du Gardien",
-      "description": "Reste de « Le sanctuaire vivant » : parmi les Statues du Gardien (rencontre), une niche vide, celle du dernier gardien ; une inscription effacée, à révéler après keeper_named.",
-      "status": "backlog",
+      "description": "Reste de « Le sanctuaire vivant » : parmi les Statues du Gardien (rencontre), une niche vide, celle du dernier gardien ; une inscription effacée, à révéler après keeper_named.\n\nFait : chaque Statue du Gardien a maintenant, à côté d'elle, la niche vide du dernier gardien (EncounterDef.niche → nouvelle ressource EncounterNiche : texte, texte révélé, condition de révélation, position, pierre). Où elle se montre : dessinée sur le sol à droite de la statue (un bloc de la même pierre, un creux en arc, un rebord nu, un nom gratté sur le socle), et racontée sous le texte de la statue dans son panneau (en gris, sous la description), donc partout où la statue apparaît (étages dès la profondeur 2, Sanctuaire oublié). Avant la révélation (keeper_named) : « À côté, une niche taillée pour un gardien de plus attend, vide. Sur son socle, un nom a été gratté ; il reste une ligne : « Il garde la dernière flamme. » » — aucun nom, une ligne inexpliquée (un indice : la lanterne laissée au disciple). Après : « La niche du dernier gardien, toujours vide. Sous les rayures, tu lis le nom à présent : Tôma. « Il garde la dernière flamme. » Il l'a laissée entre tes mains. » Fait ajouté au canon (docs/lore.md, la Statue du Gardien : la niche d'un gardien est taillée de son vivant, son nom et une ligne sur le socle ; qui a gratté le nom, le canon ne le dit pas). Français d'abord, anglais à égalité ; extract.py lit maintenant aussi « revealed_text ». Tests : StoryTests (la niche est gardée par keeper_reveal, ne nomme personne avant, nomme le gardien après, dans les deux langues, traduite) ; FloorTests._test_encounters (le panneau de la statue montre la niche, sans nom ; un autre encontre n'en montre pas). Captures (FR, 1540x720) : niche_floor.png (x3), niche_panel.png, niche_panel_revealed.png. docs/design/dungeon.md mis à jour. À juger : l'emplacement (à côté de la statue) et le dessin de la niche, faits en code (pas de sprite dessiné à la main).",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_1",
       "due_date": null,
@@ -761,7 +761,7 @@
         "lore"
       ],
       "created_at": 1792698522,
-      "updated_at": 1792698522
+      "updated_at": 1792715169
     },
     {
       "id": "task_53",

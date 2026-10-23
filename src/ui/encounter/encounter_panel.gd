@@ -22,6 +22,8 @@ var _text: Label
 ## What it says as it opens (its dialogue's line, in its speaker's color), in place of its
 ## description; hidden if nothing.
 var _speech: Label
+## The empty niche beside it and its inscription (EncounterDef.niche), under its text.
+var _niche: Label
 var _result: Label
 var _choices: HBoxContainer
 var _leave_row: HBoxContainer
@@ -50,6 +52,9 @@ func open(encounter: Encounter, player: Player) -> void:
 	_speech.visible = spoken != null
 	# Its line says more than its description's (and a 720-line screen has room for one of them).
 	_text.visible = spoken == null
+	var niche := encounter.def.niche
+	_niche.text = tr(niche.shown_text()) if niche else ""
+	_niche.visible = niche != null
 	if spoken and spoken.speaker():
 		_speech.add_theme_color_override("font_color", spoken.speaker().color)
 	_result.hide()
@@ -80,6 +85,7 @@ func _choose(index: int) -> void:
 		return
 	Sfx.play_ui(Sfx.bank.perk_chosen)
 	_speech.hide()
+	_niche.hide()
 	_text.show()
 	_text.text = tr(outcome.text)
 	_text.add_theme_color_override("font_color", outcome.color)
@@ -163,6 +169,11 @@ func _build() -> void:
 	_speech.hide()
 	_own(_speech)
 	words.add_child(_speech)
+	_niche = UiParts.text("", Fonts.BODY, UiSkin.DIM, WIDTH - 160)
+	_niche.name = "Niche"
+	_niche.hide()
+	_own(_niche)
+	words.add_child(_niche)
 	_result = UiParts.text("", Fonts.BODY, UiParts.GOOD, WIDTH - 160)
 	_result.name = "Result"
 	_own(_result)
