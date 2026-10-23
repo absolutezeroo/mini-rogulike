@@ -15,6 +15,6 @@ slots = 6
 passives = Array[ExtResource("1_2qiaa")]([SubResource("Resource_lpfub")])
 id = &"of_echoes"
 display_name = "of Echoes"
-description = "Skills have a 12% chance to be ready again at once (an echo can't echo)."
+description = "Skills have a 12% chance to be ready again at once (an echo can't echo; all echoes together: 45% at most)."
 min_depth = 3
 spawn_weight = 5

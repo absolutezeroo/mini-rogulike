@@ -293,8 +293,10 @@ func hero_output(player: Player, defense: int, is_boss: bool, low_hp: bool = fal
 		var skill := player.skills.skills[i]
 		if skill == null:
 			continue
-		# An echo resets the cooldown, and an echo can't echo: uses per cooldown = 1 + chance one fires.
-		var cooldown := skill.cooldown * (1.0 - cdr) / (2.0 - echo_fail)
+		# An echo resets the cooldown, and an echo can't echo: uses per cooldown = 1 + chance one
+		# fires (every source together, capped: DungeonConfig.skill_echo_max_chance).
+		var echo := minf(1.0 - echo_fail, content.dungeon.skill_echo_max_chance)
+		var cooldown := skill.cooldown * (1.0 - cdr) / (1.0 + echo)
 		if cooldown <= 0.0:
 			continue
 		var per_use := effects_damage(skill.effects, skill_power * mult, crit, defense, is_boss)

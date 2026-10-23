@@ -229,6 +229,11 @@ extends Resource
 ## How much the hero heals from hits, kills and skills (Leech, Vampirism, the Blood family...):
 ## one budget for all of them, per second of max health (see SustainRules). Null: no limit.
 @export var sustain: SustainRules
+## A skill's chance to be ready again at once (SkillEchoPassive: the Echo perk, Echo runes, of
+## Echoes) counts every source together and stops at this: stacking echoes reaches a cap like
+## cooldown reduction does (SkillSet.MAX_COOLDOWN_REDUCTION), instead of skipping one cooldown in
+## three on top of it. 1 = no cap.
+@export_range(0.0, 1.0, 0.01) var skill_echo_max_chance: float = 1.0
 
 @export_group("Difficulty")
 ## Monster HP grows by this fraction per depth (0.15 = +15% per floor). Not bosses (below).
