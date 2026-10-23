@@ -1989,25 +1989,51 @@ func _test_boss_slows() -> void:
 							sources.append(String(skill.id))
 						check(status.slow_duration <= 2.0, "%s: %s slows 2 s at most" % [boss.id, skill.id])
 			check(sources.size() <= 2, "%s, phase %d: two things at most slow the hero (%s)" % [boss.id, i + 1, ", ".join(sources)])
-	# The Azure Wyrm herself: her breath and fang slow, briefly; her dive is read in time and hits
-	# what her body crosses.
-	var wyrm: BossDef = null
+	_test_boss_warnings(bosses)
+
+
+## Readable boss attacks (balance-log 2026-10-23, the Azure Wyrm, Gorr and the Jade Wyrm), on every
+## boss, with the numbers of data/balance/targets.tres: a dive (a rush or leap along a line) warns
+## long enough in the boss' last phase on Keeper, hits a band its body could cross and doesn't
+## slow (a slowed hero could not clear its second leg); the later blows of a circle's warning (a
+## fierce Quake's wider ring) land inside the circle it drew.
+func _test_boss_warnings(bosses: Array[BossDef]) -> void:
+	var targets: BalanceTargets = load("res://data/balance/targets.tres")
+	var keeper := CONTENT.get_difficulty(&"normal").telegraph_time
+	var dives := 0
+	var ids := bosses.map(func(b: BossDef) -> StringName: return b.id)
+	check(ids.has(&"azure_wyrm") and ids.has(&"jade_wyrm") and ids.has(&"demon_cyclops"), "the wyrms and Gorr are among the bosses checked")
 	for boss in bosses:
-		if boss.id == &"azure_wyrm":
-			wyrm = boss
-	check(wyrm != null, "the Azure Wyrm guards act II")
-	if wyrm == null:
-		return
-	var scale := CONTENT.get_difficulty(&"normal").telegraph_time
-	for phase in wyrm.phases:
-		scale *= phase.windup_multiplier
-	for skill: SkillDef in wyrm.phases[-1].skills:
-		for effect in skill.effects:
-			var dive := effect as DashStrikeEffect
-			if dive:
-				check(skill.cast_time * scale >= 0.45, "Azure Wyrm: %s warns %.2f s in her last phase on Keeper (0.45 s at least)" % [skill.id, skill.cast_time * scale])
-				check(dive.width <= wyrm.radius + 8.0, "Azure Wyrm: %s hits a band her body could cross (%.0f vs radius %.0f)" % [skill.id, dive.width, wyrm.radius])
-				check(dive.status == null or dive.status.slow <= 0.0, "Azure Wyrm: %s does not slow (a slowed hero could not clear the second dive)" % skill.id)
+		# Each phase: the skills it uses (a phase without its own keeps the last ones) and its
+		# warnings' scale on Keeper (the phases' wind-up multipliers compound).
+		var skills: Array[SkillDef] = boss.skills
+		var scale := keeper
+		for p in boss.phases.size() + 1:
+			if p > 0:
+				scale *= boss.phases[p - 1].windup_multiplier
+				if not boss.phases[p - 1].skills.is_empty():
+					skills = boss.phases[p - 1].skills
+			for skill in skills:
+				var first: Effect = skill.effects[0] if not skill.effects.is_empty() else null
+				for effect in skill.effects:
+					var dive := effect as DashStrikeEffect
+					if dive:
+						dives += 1
+						check(skill.cast_time * scale >= targets.dive_warning_min - 0.005, "%s: %s warns %.2f s on Keeper in phase %d (%.2f s at least)" % [boss.id, skill.id, skill.cast_time * scale, p + 1, targets.dive_warning_min])
+						check(dive.width <= boss.radius + targets.dive_band_margin, "%s: %s hits a band its body could cross (%.0f vs radius %.0f + %.0f)" % [boss.id, skill.id, dive.width, boss.radius, targets.dive_band_margin])
+						check(dive.status == null or dive.status.slow <= 0.0, "%s: %s does not slow" % [boss.id, skill.id])
+					var area := effect as DamageAreaEffect
+					if area == null or effect == first:
+						continue
+					# The circle the warning draws (TelegraphView.show_skill): the skill's own
+					# radius around the caster, else its first circle. A leap's landing slam
+					# (after a dive's line) is where the line ends: not a circle's warning.
+					if skill.telegraph_radius > 0.0:
+						check(area.offset + area.radius <= skill.telegraph_radius + 0.5, "%s: %s's blow %.2f s in (reach %.0f) lands inside the circle its warning drew (%.0f)" % [boss.id, skill.id, area.delay, area.offset + area.radius, skill.telegraph_radius])
+					elif first is DamageAreaEffect:
+						var drawn := first as DamageAreaEffect
+						check(absf(area.offset - drawn.offset) + area.radius <= drawn.radius + 0.5, "%s: %s's blow %.2f s in (radius %.0f) lands inside the circle its warning drew (%.0f)" % [boss.id, skill.id, area.delay, area.radius, drawn.radius])
+	check(dives >= 8, "the dives of every boss are checked (%d)" % dives)
 
 func _test_profile() -> void:
 	check(CONTENT.upgrades.size() >= 8, "the shrine sells upgrades")

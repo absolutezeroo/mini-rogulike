@@ -42,4 +42,4 @@ effects = Array[ExtResource("1_seal7")]([SubResource("Resource_i28dl"), SubResou
 sound = ExtResource("5_ppcys")
 ai_min_range = 120.0
 ai_max_range = 360.0
-cast_time = 0.63
+cast_time = 0.76

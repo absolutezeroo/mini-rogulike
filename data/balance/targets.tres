@@ -31,6 +31,9 @@ boss_hits_to_kill_min = 6.0
 boss_hits_to_kill_max = 12.0
 ; Keeping range and rolling away from telegraphs should beat the act's boss with the expected build on Easy and Normal.
 kite_should_win_on = PackedStringArray("easy", "normal")
+; Readable dives (every boss, unit tests): a dive or leap warns at least 0.45 s in the boss' last phase on Keeper (a person sees the line and steps off it; the Azure Wyrm's at 0.30 s and the Jade Wyrm's were not), and hits a band at most 8 px wider than the boss' body each side of its line (2026-10-23).
+dive_warning_min = 0.45
+dive_band_margin = 8.0
 ; The average player (gauntlet's player bot: kite with a 0.3 s reaction) plays every act through (last floor, then the boss, Health carried) on Pilgrim: it stays accessible.
 gauntlet_player_wins_on = PackedStringArray("easy")
 ; Keeper: the average player spends 20-60% of his resources (Health and what his potions heal) on an act's last floor before the boss, mean over the acts: the rooms are a fight, not a stroll that hands out potions; he still reaches the boss with a chance.

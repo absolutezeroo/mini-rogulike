@@ -108,6 +108,11 @@ with its portrait). A `BossDef` is a `MonsterDef` plus:
   phases) and it answers with the same shockwave (`Combat.shockwave`), which hits as hard as its
   blows (`shockwave_power`, a share of its power): roll through the red ring or stop hitting;
 - **cast skills**: rings of projectiles, ground quakes (red circle), summons (`SummonEffect`), dashes;
+  every warning tells the truth (unit-checked on every boss, numbers in
+  `data/balance/targets.tres`): a dive or leap warns at least 0.45 s in the boss' last phase on
+  Keeper and hits a band its body could cross (at most 8 px wider each side), never slowing; a
+  circle's later blows (the fierce Quake's wider second ring, the fierce Flame Arc's second
+  burst) land inside the circle it drew;
 - **relic_choices**: when it dies the spikes go down, the stairs appear and you pick a relic.
 
 | Floor | Boss | Style |

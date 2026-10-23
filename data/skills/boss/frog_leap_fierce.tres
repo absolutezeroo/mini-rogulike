@@ -42,4 +42,4 @@ effects = Array[ExtResource("1_58hhr")]([SubResource("Resource_pwxtw"), SubResou
 sound = ExtResource("5_jsw14")
 ai_min_range = 120.0
 ai_max_range = 360.0
-cast_time = 0.63
+cast_time = 0.76

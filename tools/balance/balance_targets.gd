@@ -41,6 +41,14 @@ extends Resource
 ## The kite bot (keeps its range, rolls away from telegraphs) with the expected build should win
 ## on these difficulties: the fight must be beatable by playing it.
 @export var kite_should_win_on: PackedStringArray = ["easy", "normal"]
+## A boss' dive (a DashStrikeEffect: a rush or a leap along a line) warns at least this long in
+## the boss' last phase on Keeper (cast time x Keeper's telegraph time x its phases' wind-up
+## multipliers): time to see the line and step off it. Read by the unit tests on every boss
+## (UnitTests._test_boss_warnings). The Azure Wyrm's fierce dive at 0.30 s was unreadable.
+@export var dive_warning_min: float = 0.45
+## A dive hits a band at most this much wider, each side of its line, than the boss' body: what
+## the body crosses (the dive's warning draws that line), not twice it.
+@export var dive_band_margin: float = 8.0
 
 @export_group("Gauntlet")
 ## The average player (the gauntlet's `player` bot: the kite bot with a human's reaction time)
