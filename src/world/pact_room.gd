@@ -86,43 +86,43 @@ static func find_room(map: DungeonMap, rng: RandomNumberGenerator, excluded: Arr
 	RandomUtils.shuffle(order, rng)
 	var reachable := -1
 	for i: int in order:
-		var room := map.rooms[i]
-		if excluded.has(i) or not map.plan(i).is_quiet() or room.grow(1).has_point(map.start_cell) \
-				or map.exit_cells().any(func(c: Vector2i) -> bool: return room.grow(1).has_point(c)):
+		var room_rect := map.rooms[i]
+		if excluded.has(i) or not map.plan(i).is_quiet() or room_rect.grow(1).has_point(map.start_cell) \
+				or map.exit_cells().any(func(c: Vector2i) -> bool: return room_rect.grow(1).has_point(c)):
 			continue
-		var door := door_of(map, room)
-		if door.is_empty() or door.size() > widest or not _one_side(room, door):
+		var door := door_of(map, room_rect)
+		if door.is_empty() or door.size() > widest or not _one_side(room_rect, door):
 			continue
 		if reachable < 0:
 			reachable = _flood(map, Rect2i(), []).size()
 		var blocked := 0
-		for y in range(room.position.y, room.end.y):
-			for x in range(room.position.x, room.end.x):
+		for y in range(room_rect.position.y, room_rect.end.y):
+			for x in range(room_rect.position.x, room_rect.end.x):
 				if map.is_floor(Vector2i(x, y)):
 					blocked += 1
 		# Sealed (the room and its opening), the rest of the floor must stay one piece.
-		if _flood(map, room, door).size() == reachable - blocked - door.size():
+		if _flood(map, room_rect, door).size() == reachable - blocked - door.size():
 			return i
 	return -1
 
 
-## The floor cells just outside `room`: its openings.
-static func door_of(map: DungeonMap, room: Rect2i) -> Array[Vector2i]:
+## The floor cells just outside `room_rect`: its openings.
+static func door_of(map: DungeonMap, room_rect: Rect2i) -> Array[Vector2i]:
 	var cells: Array[Vector2i] = []
-	var ring := room.grow(1)
+	var ring := room_rect.grow(1)
 	for y in range(ring.position.y, ring.end.y):
 		for x in range(ring.position.x, ring.end.x):
 			var cell := Vector2i(x, y)
-			if not room.has_point(cell) and map.is_floor(cell):
+			if not room_rect.has_point(cell) and map.is_floor(cell):
 				cells.append(cell)
 	return cells
 
 
 ## All the cells on one side of the room, in one unbroken row (a single door).
-static func _one_side(room: Rect2i, door: Array[Vector2i]) -> bool:
+static func _one_side(room_rect: Rect2i, door: Array[Vector2i]) -> bool:
 	var first := door[0]
-	var vertical := first.x == room.position.x - 1 or first.x == room.end.x
-	var horizontal := first.y == room.position.y - 1 or first.y == room.end.y
+	var vertical := first.x == room_rect.position.x - 1 or first.x == room_rect.end.x
+	var horizontal := first.y == room_rect.position.y - 1 or first.y == room_rect.end.y
 	if vertical == horizontal:
 		return false  # a corner
 	var along: Array[int] = []
@@ -134,8 +134,8 @@ static func _one_side(room: Rect2i, door: Array[Vector2i]) -> bool:
 	return along[-1] - along[0] == along.size() - 1
 
 
-## The floor cells reachable from the start without entering `room` or `door`.
-static func _flood(map: DungeonMap, room: Rect2i, door: Array[Vector2i]) -> Dictionary:
+## The floor cells reachable from the start without entering `room_rect` or `door`.
+static func _flood(map: DungeonMap, room_rect: Rect2i, door: Array[Vector2i]) -> Dictionary:
 	var seen_cells := {}
 	var queue: Array[Vector2i] = [map.start_cell]
 	seen_cells[map.start_cell] = true
@@ -143,7 +143,7 @@ static func _flood(map: DungeonMap, room: Rect2i, door: Array[Vector2i]) -> Dict
 		var cell: Vector2i = queue.pop_back()
 		for step: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
 			var next := cell + step
-			if seen_cells.has(next) or not map.is_floor(next) or room.has_point(next) or door.has(next):
+			if seen_cells.has(next) or not map.is_floor(next) or room_rect.has_point(next) or door.has(next):
 				continue
 			seen_cells[next] = true
 			queue.append(next)
@@ -160,7 +160,7 @@ func setup_pact(world: World, pact_room: Rect2i, pact: PactDef, light: PropDef, 
 	door_cells = _gates.get_cells()
 	if door_cells.is_empty():
 		door_cells = [room.get_center()]
-	door_cell = door_cells[door_cells.size() / 2]
+	door_cell = door_cells[int(door_cells.size() / 2.0)]
 	var first := door_cells[0]
 	if first.y == room.position.y - 1:
 		outward = Vector2i.UP

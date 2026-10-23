@@ -77,12 +77,12 @@ func _test_shaped_floors() -> void:
 				var depth := 2 + i * 2
 				var map := DungeonGenerator.generate(config, rng, difficulty.floor_size, difficulty.rooms, biome, depth)
 				floors += 1
-				var name := "%s/%s/%d" % [biome.id, difficulty.id, i]
+				var case_name := "%s/%s/%d" % [biome.id, difficulty.id, i]
 				var lost := _unreached_ground(map)
 				if lost > 0:
-					cut.append("%s: %d cells" % [name, lost])
+					cut.append("%s: %d cells" % [case_name, lost])
 				if not _bad_walls(map).is_empty():
-					bad_walls.append(name)
+					bad_walls.append(case_name)
 				var spots: Array[Vector2i] = [map.start_cell, map.stairs_cell]
 				if map.second_stairs_cell != DungeonMap.NO_CELL:
 					spots.append(map.second_stairs_cell)
@@ -93,12 +93,12 @@ func _test_shaped_floors() -> void:
 						spots.append(cell - secret.direction)
 				for spot in spots:
 					if not map.is_ground(spot):
-						off_ground.append("%s %s" % [name, spot])
+						off_ground.append("%s %s" % [case_name, spot])
 				plain_first = plain_first and map.plan(0).shape == null
 				rooms += map.rooms.size()
 				var pieces := map.plans.filter(func(p: RoomPlan) -> bool: return p.is_set_piece())
 				if pieces.size() > 1:
-					two_signatures.append(name)
+					two_signatures.append(case_name)
 				if pieces.size() == 1 and biome.set_pieces.has(pieces[0].shape):
 					signature[biome] = signature.get(biome, 0) + 1
 				for plan in map.plans:
@@ -151,9 +151,9 @@ func run_game(game: Game) -> void:
 				game.world.forced_biome = biome
 				await game.debug_enter_floor(dungeon.first_depth(a) + 1 + attempt)
 				var world := game.world
-				var name := "%s#%d" % [biome.id, attempt]
+				var case_name := "%s#%d" % [biome.id, attempt]
 				await _frames(2)
-				problems.append_array(_floor_problems(world, name))
+				problems.append_array(_floor_problems(world, case_name))
 				for cell: Vector2i in world.map.features:
 					seen_features[world.map.features[cell]] = true
 				seen_pillars += world.map.pillars.size()
@@ -252,11 +252,11 @@ func _test_ceilings(game: Game) -> void:
 			for attempt in 2:
 				game.world.forced_biome = biome
 				await game.debug_enter_floor(dungeon.first_depth(a) + 1 + attempt)
-				var layer := game.world.ceiling
-				if layer == null:
+				var ceiling := game.world.ceiling
+				if ceiling == null:
 					continue
-				pieces += layer.laid.size()
-				for one in layer.laid:
+				pieces += ceiling.laid.size()
+				for one in ceiling.laid:
 					kinds[one.def.where] = true
 					for target in one.targets:
 						if fmod(target.position.x, 2.0) != 0.0 or fmod(target.position.y, 2.0) != 0.0 or fmod(absf(target.size.x), 2.0) != 0.0:
@@ -316,19 +316,19 @@ func _test_ceilings(game: Game) -> void:
 
 
 ## What is wrong on the floor `world` holds (empty: nothing).
-func _floor_problems(world: World, name: String) -> Array[String]:
+func _floor_problems(world: World, floor_name: String) -> Array[String]:
 	var map := world.map
 	var problems: Array[String] = []
 	for cell: Vector2i in map.features:
 		var kind: int = map.features[cell]
 		if kind == DungeonMap.Feature.CHASM and not world.has_pit(cell):
-			problems.append("%s: chasm %s not a hole" % [name, cell])
+			problems.append("%s: chasm %s not a hole" % [floor_name, cell])
 		if kind == DungeonMap.Feature.POOL and not (world.is_pool(cell) and world.nav.is_blocked(cell)):
-			problems.append("%s: pool %s walkable" % [name, cell])
+			problems.append("%s: pool %s walkable" % [floor_name, cell])
 		# Deep inside the water a body never fits.
 		if kind == DungeonMap.Feature.POOL and [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN].all(func(d: Vector2i) -> bool: return map.features.get(cell + d, 0) == DungeonMap.Feature.POOL) \
 				and world.body_fits(map.cell_to_world(cell), 8.0):
-			problems.append("%s: a body fits in the pool at %s" % [name, cell])
+			problems.append("%s: a body fits in the pool at %s" % [floor_name, cell])
 	var standing := {}
 	for node in get_tree().get_nodes_in_group("props"):
 		var prop := node as Prop
@@ -337,28 +337,28 @@ func _floor_problems(world: World, name: String) -> Array[String]:
 		for cell in prop.cells():
 			standing[cell] = prop
 			if not map.is_floor(cell) and prop.def != CONTENT.dungeon.cracked_wall:
-				problems.append("%s: %s in the rock at %s" % [name, prop.def.id, cell])
+				problems.append("%s: %s in the rock at %s" % [floor_name, prop.def.id, cell])
 			elif map.features.has(cell):
-				problems.append("%s: %s in a chasm or pool at %s" % [name, prop.def.id, cell])
+				problems.append("%s: %s in a chasm or pool at %s" % [floor_name, prop.def.id, cell])
 	for cell: Vector2i in map.pillars:
 		if not standing.has(cell):
-			problems.append("%s: no pillar at %s" % [name, cell])
+			problems.append("%s: no pillar at %s" % [floor_name, cell])
 	for group in ["chests", "traps", "encounters"]:
 		for node in get_tree().get_nodes_in_group(group):
 			if node is Node2D and world.is_ancestor_of(node):
 				var cell := map.world_to_cell((node as Node2D).global_position)
 				if not map.is_floor(cell) or map.features.has(cell):
-					problems.append("%s: a %s at %s" % [name, group, cell])
+					problems.append("%s: a %s at %s" % [floor_name, group, cell])
 	for monster in world.get_hostiles(Actor.Faction.PLAYER):
 		var on_ground := world.is_solid_ground(monster.global_position) and not world.is_pool(map.world_to_cell(monster.global_position))
 		# (Its collision shape is a pixel smaller than its radius: one that walked up to a wall
 		# since the floor was made touches it, it is not inside it.)
 		var fits := world.body_fits(monster.global_position, monster.radius - 1.5)
 		if (monster.is_grounded() and not on_ground) or not fits:
-			problems.append("%s: %s (radius %.0f) stuck at %s (ground %s, fits %s)" % [name, monster.def.id, monster.radius, monster.global_position, on_ground, fits])
+			problems.append("%s: %s (radius %.0f) stuck at %s (ground %s, fits %s)" % [floor_name, monster.def.id, monster.radius, monster.global_position, on_ground, fits])
 	for cell in world.stairs_cells:
 		if not world.is_solid_ground(map.cell_to_world(cell)) or map.features.has(cell):
-			problems.append("%s: stairs off the ground at %s" % [name, cell])
+			problems.append("%s: stairs off the ground at %s" % [floor_name, cell])
 	# Every open cell reachable from the start (breakable things count as open).
 	var breakable := {}
 	for cell: Vector2i in standing:
@@ -381,7 +381,7 @@ func _floor_problems(world: World, name: String) -> Array[String]:
 			if open.call(Vector2i(x, y)) and not seen.has(Vector2i(x, y)):
 				lost += 1
 	if lost > 0:
-		problems.append("%s: %d open cells cut off" % [name, lost])
+		problems.append("%s: %d open cells cut off" % [floor_name, lost])
 	return problems
 
 
@@ -390,20 +390,20 @@ func _floor_problems(world: World, name: String) -> Array[String]:
 ## has no round room to look at.
 func _check_minimap(world: World) -> bool:
 	var map := world.map
-	var round := -1
+	var round_index := -1
 	for i in map.rooms.size():
 		var shape := map.plan(i).shape
 		if shape and shape.outline == RoomShapeDef.Outline.OVAL and not map.is_floor(map.rooms[i].position):
-			round = i
-	if round < 0:
+			round_index = i
+	if round_index < 0:
 		return false
 	var minimap := Minimap.new()
 	add_child(minimap)
 	minimap.bind_world(world)
 	world.reveal_all()
 	var image: Image = minimap._image
-	var rect := map.rooms[round]
-	var ok := image.get_pixelv(rect.position).a == 0.0 and _same_color(image.get_pixelv(map.heart(round)), Minimap.FLOOR_COLOR)
+	var rect := map.rooms[round_index]
+	var ok := image.get_pixelv(rect.position).a == 0.0 and _same_color(image.get_pixelv(map.heart(round_index)), Minimap.FLOOR_COLOR)
 	for cell: Vector2i in map.features:
 		var want := Minimap.WATER_COLOR if map.features[cell] == DungeonMap.Feature.POOL else Minimap.HOLE_COLOR
 		ok = ok and _same_color(image.get_pixelv(cell), want)

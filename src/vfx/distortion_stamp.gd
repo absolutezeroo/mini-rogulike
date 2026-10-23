@@ -35,7 +35,7 @@ var ring := 0.0
 var ring_width := 10.0
 ## 0..1: how much of it is left (the shader weakens it by whole pixels).
 var left := 1.0
-var seed := 0.0
+var noise_seed := 0.0
 
 var _age := 0.0
 
@@ -53,7 +53,7 @@ static func attach(parent: Node, of_kind: Kind, size: float, power: float, secon
 	stamp.life = seconds
 	stamp.position = offset
 	stamp.height = size * 2.5
-	stamp.seed = randf() * 20.0
+	stamp.noise_seed = randf() * 20.0
 	parent.add_child(stamp)
 	return stamp
 
@@ -103,5 +103,5 @@ func packed() -> Array[Vector4]:
 		Kind.SHOCK:
 			return [Vector4(at.x, at.y, ring + ring_width, strength), Vector4(kind, ring, ring_width, left)]
 		Kind.HEAT:
-			return [Vector4(at.x, at.y, radius, strength), Vector4(kind, height, seed, left)]
-	return [Vector4(at.x, at.y, radius, strength), Vector4(kind, 0.0, seed, left)]
+			return [Vector4(at.x, at.y, radius, strength), Vector4(kind, height, noise_seed, left)]
+	return [Vector4(at.x, at.y, radius, strength), Vector4(kind, 0.0, noise_seed, left)]

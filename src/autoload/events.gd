@@ -2,6 +2,8 @@ extends Node
 ## Global signal bus (autoload "Events").
 ## Gameplay code emits, UI listens: neither side needs a reference to the other.
 
+# The bus's signals are emitted and connected by other classes, never here.
+@warning_ignore_start("unused_signal")
 signal message_logged(text: String, color: Color)
 signal depth_changed(depth: int)
 signal monster_killed(monster: Monster)
@@ -93,6 +95,7 @@ signal perk_banished(perk: PerkDef)
 ## A run ended, souls given: a death, or a win (a win then a death in endless mode tells it twice,
 ## the second time with more). What the online leaderboards need (RunSummary; Leaderboards).
 signal run_ended(summary: RunSummary)
+@warning_ignore_restore("unused_signal")
 
 
 func log_message(text: String, color: Color = Color.WHITE) -> void:

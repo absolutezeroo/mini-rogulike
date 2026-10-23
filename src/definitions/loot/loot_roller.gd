@@ -41,10 +41,10 @@ static func pick_rarity(depth: int, quality: float, config: DungeonConfig, rng: 
 	var total := 0.0
 	for weight: float in weights:
 		total += weight
-	var roll := rng.randf() * total
+	var pick := rng.randf() * total
 	for rarity in weights.size():
-		roll -= weights[rarity]
-		if roll < 0.0:
+		pick -= weights[rarity]
+		if pick < 0.0:
 			return rarity
 	return ItemRarity.COMMON
 
@@ -125,13 +125,13 @@ static func from_data(data: Variant) -> ItemDef:
 		if base == null:
 			return null
 		var affixes: Array[ItemAffixDef] = []
-		for reference: Variant in data.get("affixes", []):
-			var affix := RunSave.load_ref(reference) as ItemAffixDef
+		for ref: Variant in data.get("affixes", []):
+			var affix := RunSave.load_ref(ref) as ItemAffixDef
 			if affix:
 				affixes.append(affix)
 		var runes: Array[RuneDef] = []
-		for reference: Variant in data.get("runes", []):
-			var rune := RunSave.load_ref(reference) as RuneDef
+		for ref: Variant in data.get("runes", []):
+			var rune := RunSave.load_ref(ref) as RuneDef
 			if rune:
 				runes.append(rune)
 		return make(base, clampi(int(data.get("rarity", 1)), ItemRarity.COMMON, ItemRarity.EPIC), affixes, runes, maxi(int(data.get("level", 1)), 1))

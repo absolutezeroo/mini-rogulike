@@ -127,7 +127,7 @@ static func mask_image(map: DungeonMap, margin: int) -> Image:
 		if next_depth >= THICKNESS.size() - 1:
 			continue
 		var x := i % w
-		var y := i / w
+		var y := int(i / float(w))
 		for dy in range(-1, 2):
 			for dx in range(-1, 2):
 				var nx := x + dx

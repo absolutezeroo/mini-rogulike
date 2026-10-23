@@ -83,11 +83,11 @@ func _test_sound_buses() -> void:
 	}
 	var scripts: Array[String] = []
 	_collect_files("res://src", ".gd", scripts)
-	var call := RegEx.create_from_string("Sfx\\.(play_at|play_world|play_ui)\\(Sfx\\.bank\\.(\\w+)")
+	var call_pattern := RegEx.create_from_string("Sfx\\.(play_at|play_world|play_ui)\\(Sfx\\.bank\\.(\\w+)")
 	var calls := 0
 	var wrong := PackedStringArray()
 	for path in scripts:
-		for found in call.search_all(FileAccess.get_file_as_string(path)):
+		for found in call_pattern.search_all(FileAccess.get_file_as_string(path)):
 			calls += 1
 			var kinds: Array = allowed.get(found.get_string(2), [])
 			if not found.get_string(1) in kinds:

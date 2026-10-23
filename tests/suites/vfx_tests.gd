@@ -807,13 +807,13 @@ func _test_body_shader() -> void:
 	check(DeathLookDef.of(VfxElementDef.named(&"poison")).mark > 0.0, "body shader: poison melts into a puddle")
 	check(VfxElementDef.named(&"storm").crackles and not VfxElementDef.named(&"fire").crackles, "body shader: storm crackles over the bodies it hits")
 	for id: StringName in [&"burn", &"slow", &"poison", &"haunt"]:
-		var look := StatusFx.LOOKS.look(id)
-		check(look != null and look.body != StatusLookDef.Body.NONE, "body shader: %s paints the body" % id)
+		var status_look := StatusFx.LOOKS.look(id)
+		check(status_look != null and status_look.body != StatusLookDef.Body.NONE, "body shader: %s paints the body" % id)
 	# The shader parses, with the uniforms BodyLook drives (a parse error leaves none).
 	var shader: Shader = load("res://assets/shaders/flash.gdshader")
 	var uniforms := shader.get_shader_uniform_list().map(func(u: Dictionary) -> String: return u.name)
-	for name: String in ["flash_amount", "dissolve", "ramps", "frame_rect", "burn", "chill", "frozen", "poison", "poison_wave", "haunt", "crackle", "outline_color", "death_style", "death_row"]:
-		check(uniforms.has(name), "body shader: the rig shader has its %s uniform" % name)
+	for param_name: String in ["flash_amount", "dissolve", "ramps", "frame_rect", "burn", "chill", "frozen", "poison", "poison_wave", "haunt", "crackle", "outline_color", "death_style", "death_row"]:
+		check(uniforms.has(param_name), "body shader: the rig shader has its %s uniform" % param_name)
 	# The ramps: a row per element, each step an exact color of its ramp.
 	var ramps := BodyLook.ramps().get_image()
 	var exact := true
@@ -846,8 +846,8 @@ func _test_body_shader() -> void:
 	statuses.clear()
 	look.show_statuses(statuses, 0.1, true)
 	var off := true
-	for name: String in ["burn", "chill", "frozen", "poison", "haunt", "crackle"]:
-		off = off and float(material.get_shader_parameter(name)) == 0.0
+	for param_name: String in ["burn", "chill", "frozen", "poison", "haunt", "crackle"]:
+		off = off and float(material.get_shader_parameter(param_name)) == 0.0
 	check(off, "body shader: statuses gone, the body is itself again")
 	statuses.apply_slow(0.3, 3.0, &"hit", VfxElementDef.named(&"spirit"))
 	look.show_statuses(statuses, 0.1, true)

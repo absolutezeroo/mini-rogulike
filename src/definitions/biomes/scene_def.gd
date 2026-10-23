@@ -86,7 +86,7 @@ func _origins(room: Rect2i, mirrored: bool, rng: RandomNumberGenerator) -> Array
 		Anchor.CORNER:
 			origins.append(Vector2i(last.x if mirrored else room.position.x, room.position.y))
 		Anchor.CENTER:
-			var middle := room.position + (room.size - span) / 2
+			var middle := room.position + Vector2i(Vector2(room.size - span) / 2.0)
 			for offset: Vector2i in [Vector2i.ZERO, Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
 				origins.append(middle + offset)
 			return origins  # the very middle first

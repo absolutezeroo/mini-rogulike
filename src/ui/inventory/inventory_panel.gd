@@ -20,6 +20,8 @@ extends Control
 ## worse" breaks down, after a confirmation, every piece of the tab open worse than what is worn
 ## (Player.worse_gear()).
 
+const MenuNavScript := preload("res://src/autoload/menu_nav.gd")  # its static helpers are called on the script, not the autoload
+
 signal closed
 
 const NO_SLOT := -1
@@ -293,7 +295,7 @@ func _fill_grid(grouped: Array[Dictionary]) -> void:
 		empty.focus_entered.connect(_on_slot_focused.bind(empty))
 		_item_grid.add_child(empty)
 		_bag_slots.append(empty)
-	MenuNav.set_first(_window, _bag_slots[0] if not _bag_slots.is_empty() else _slot_buttons[EquipmentDef.Slot.WEAPON])
+	MenuNavScript.set_first(_window, _bag_slots[0] if not _bag_slots.is_empty() else _slot_buttons[EquipmentDef.Slot.WEAPON])
 
 
 ## Each tab's count (red when its compartment is full) and new mark; the ones that hide when

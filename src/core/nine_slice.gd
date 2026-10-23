@@ -5,7 +5,7 @@ class_name NineSlice
 ## `region`: the 3x3 block in `texture` (48x48 for 16 px tiles). `area`: where, in the canvas'
 ## space, `cells` cells of `cell_size` pixels.
 static func draw(canvas: CanvasItem, texture: Texture2D, region: Rect2i, area: Rect2, cells: Vector2i, cell_size: float) -> void:
-	var tile := region.size / 3
+	var tile := Vector2i(Vector2(region.size) / 3.0)
 	for y in cells.y:
 		for x in cells.x:
 			var column := 0 if x == 0 else (2 if x == cells.x - 1 else 1)

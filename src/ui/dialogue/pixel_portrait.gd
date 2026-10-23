@@ -30,10 +30,10 @@ func pixel_scale() -> int:
 
 
 func _draw() -> void:
-	var scale := pixel_scale()
-	if texture == null or scale <= 0:
+	var factor := pixel_scale()
+	if texture == null or factor <= 0:
 		return
-	var drawn := _source_size() * scale
+	var drawn := _source_size() * factor
 	var at := ((size - drawn) * 0.5).floor()
 	if region.has_area():
 		draw_texture_rect_region(texture, Rect2(at, drawn), region)

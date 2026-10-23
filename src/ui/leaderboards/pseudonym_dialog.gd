@@ -10,6 +10,8 @@ extends RpgDialog
 ## Reachable as %NameEdit, %NameError, %ConfirmButton (publish), %DeclineButton, %PolicyButton,
 ## %PolicyPanel.
 
+const MenuNavScript := preload("res://src/autoload/menu_nav.gd")  # its static helpers are called on the script, not the autoload
+
 ## Closed, whatever was chosen (published under a name, or not).
 signal finished
 
@@ -81,7 +83,7 @@ func _build() -> void:
 	confirm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	buttons.add_child(confirm)
 	_own(confirm, "ConfirmButton")
-	MenuNav.set_first(self, link)
+	MenuNavScript.set_first(self, link)
 
 
 ## Publish: the name set (a refused one says why and the dialog stays), sending turned on.

@@ -449,10 +449,10 @@ func _roll_direction(wanted: Vector2) -> Vector2:
 	for i in 16:
 		var direction := Vector2.from_angle(i * TAU / 16.0)
 		var safe := true
-		for step: float in ROLL_PROBES:
-			var probe := here + direction * step
+		for probe_step: float in ROLL_PROBES:
+			var probe := here + direction * probe_step
 			if world.nav.is_blocked(world.map.world_to_cell(probe)) or not world.has_line_of_sight(here, probe) \
-					or (step >= ROLL_LANDING and not world.is_solid_ground(probe)):
+					or (probe_step >= ROLL_LANDING and not world.is_solid_ground(probe)):
 				safe = false
 				break
 		if not safe:

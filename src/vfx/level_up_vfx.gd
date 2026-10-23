@@ -84,7 +84,7 @@ func _draw() -> void:
 	for i in SHAFTS.size():
 		var shaft := SHAFTS[i]
 		var tall := roundi(shaft.y * rise)
-		var solid := tall / 3
+		var solid := int(tall / 3.0)
 		var bright := absi(shaft.x) <= 1
 		# Dying, it lifts off the floor: its foot climbs up the shaft.
 		var row := roundi(tall * dying)
@@ -113,7 +113,7 @@ func _draw_glints() -> void:
 		if glint_t <= 0.0 or glint_t >= 1.0:
 			continue
 		var side := -1.0 if i % 2 == 0 else 1.0
-		var at := Vector2(side * (GLINT_SIDE + (i / 2) * 4.0), -6.0 - 52.0 * glint_t)
+		var at := Vector2(side * (GLINT_SIDE + int(i / 2.0) * 4.0), -6.0 - 52.0 * glint_t)
 		var size := 2 if glint_t < 0.5 else 1
 		PixelDraw.bit(_glints, VfxElementDef.Bit.GLINT, at, size, holy.shade(0.25 + glint_t * 0.5), Vector2.UP, holy.core() if glint_t < 0.4 else Color.TRANSPARENT)
 

@@ -34,7 +34,7 @@ func run() -> void:
 		monster.process_mode = Node.PROCESS_MODE_DISABLED
 		monster.queue_free()
 	await _frames(5)
-	await _test_targets(game)
+	_test_targets(game)
 	await _test_first_steps(game)
 	await _test_hints(game)
 	await _test_menus_and_off(game)
@@ -116,10 +116,10 @@ func _test_targets(game: Game) -> void:
 		if hint.target == &"" or String(hint.cue).begins_with("menu_"):
 			continue  # (title-screen hints point at the title's controls: see the title tests)
 		check(game.hud.get_node_or_null("%" + String(hint.target)) != null, "%s points at a HUD control (%s)" % [hint.id, hint.target])
-	for name in [&"Joystick", &"AttackButton", &"Skill1Button", &"BagButton", &"Minimap", &"SealLabel", &"SoulsLabel"]:
-		var rect := game.hud.hint_target(name)
+	for node_name in [&"Joystick", &"AttackButton", &"Skill1Button", &"BagButton", &"Minimap", &"SealLabel", &"SoulsLabel"]:
+		var rect := game.hud.hint_target(node_name)
 		var screen := Rect2(Vector2.ZERO, game.hud.get_viewport().get_visible_rect().size)
-		check(rect.has_area() and screen.encloses(rect.grow(-2)), "%s is found on screen (%s)" % [name, rect])
+		check(rect.has_area() and screen.encloses(rect.grow(-2)), "%s is found on screen (%s)" % [node_name, rect])
 	check(not game.hud.hint_target(&"Skill4Button").has_area(), "a hidden button can't be pointed at")
 	check(not game.hud.hint_target(&"Nothing").has_area(), "nor a missing one")
 
@@ -150,7 +150,7 @@ func _test_first_steps(game: Game) -> void:
 	check(tutorial.current == null and not game.hint_box.visible, "and its hint goes")
 	await _frames(int(CONTENT.tutorial.gap * 60) + 10)
 	if game.world.seal.is_sealed():
-		check(tutorial.current != null and tutorial.current.id == &"seal", "then the sealed stairs (got %s; %s)" % [tutorial.current.id if tutorial.current else "none", _floor_stir(game)])
+		check(tutorial.current != null and tutorial.current.id == &"seal", "then the sealed stairs (got %s; %s)" % [String(tutorial.current.id) if tutorial.current else "none", _floor_stir(game)])
 		check(game.hint_box.target.has_area(), "pointing at the seal's count")
 		game.hint_box.dismissed.emit()  # tapped
 		check(Profile.has_seen_hint(&"seal") and tutorial.current == null, "a tap closes a hint for good")
@@ -160,7 +160,7 @@ func _test_first_steps(game: Game) -> void:
 	rat.set_physics_process(false)
 	Events.monster_noticed.emit(rat)
 	await _frames(int(CONTENT.tutorial.gap * 60) + 10)
-	check(tutorial.current != null and tutorial.current.id == &"attack", "a monster in sight: the attack step (got %s)" % (tutorial.current.id if tutorial.current else "none"))
+	check(tutorial.current != null and tutorial.current.id == &"attack", "a monster in sight: the attack step (got %s)" % (String(tutorial.current.id) if tutorial.current else "none"))
 	_set_action(&"attack", true)
 	await _frames(10)
 	_set_action(&"attack", false)
@@ -174,7 +174,7 @@ func _test_first_steps(game: Game) -> void:
 	await _press(&"skill_2")
 	check(Profile.has_seen_hint(&"weapon_skills"), "using one ends it")
 	await _frames(int(CONTENT.tutorial.gap * 60) + 30)
-	check(tutorial.current != null and tutorial.current.id == &"charge", "then the charged attack (got %s)" % (tutorial.current.id if tutorial.current else "none"))
+	check(tutorial.current != null and tutorial.current.id == &"charge", "then the charged attack (got %s)" % (String(tutorial.current.id) if tutorial.current else "none"))
 	check(game.hint_box.target.has_area(), "pointing at the attack button")
 	_set_action(&"attack", true)
 	await _frames(int((game.player.def.charge_delay + game.player.get_weapon().charged.charge_time) * 60.0) + 10)

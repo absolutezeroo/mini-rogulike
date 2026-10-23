@@ -66,7 +66,7 @@ static func wall_distance(map: DungeonMap) -> Dictionary:
 	var distance := {}
 	for i in w * h:
 		if steps[i] > 0:
-			distance[Vector2i(i % w, i / w)] = steps[i]
+			distance[Vector2i(i % w, int(i / float(w)))] = steps[i]
 	return distance
 
 

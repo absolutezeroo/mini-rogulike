@@ -53,8 +53,8 @@ static func ref(resource: Resource) -> String:
 
 
 ## Loads a saved reference; null if it is empty or the file is gone.
-static func load_ref(reference: Variant) -> Resource:
-	var resource_path := str(reference) if reference != null else ""
+static func load_ref(saved_ref: Variant) -> Resource:
+	var resource_path := str(saved_ref) if saved_ref != null else ""
 	if resource_path.is_empty() or not ResourceLoader.exists(resource_path):
 		return null
 	return load(resource_path)

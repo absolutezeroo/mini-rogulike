@@ -83,14 +83,14 @@ func _build_card() -> void:
 	_card.modulate.a = 0.0
 
 
-func _label(size: int) -> Label:
+func _label(font_size: int) -> Label:
 	var label := Label.new()
 	label.mouse_filter = MOUSE_FILTER_IGNORE
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", size)
+	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_outline_color", Color(0.01, 0.02, 0.06))
-	label.add_theme_constant_override("outline_size", Fonts.outline_size(size))
+	label.add_theme_constant_override("outline_size", Fonts.outline_size(font_size))
 	return label
 
 

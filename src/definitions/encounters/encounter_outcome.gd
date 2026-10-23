@@ -101,8 +101,8 @@ func summary(player: Player, paid: bool = false) -> String:
 			parts.append(tr("for %d seconds: %s") % [roundi(buff.duration), buff.bonuses.describe()])
 	if parts.is_empty():
 		return tr("Nothing: what you paid is lost") if paid else tr("Nothing happens")
-	var text := ", ".join(parts)
-	return text.left(1).to_upper() + text.substr(1)
+	var listed := ", ".join(parts)
+	return listed.left(1).to_upper() + listed.substr(1)
 
 
 ## "a piece of equipment (25% chance it is Rare or Epic)", with this floor's real odds.

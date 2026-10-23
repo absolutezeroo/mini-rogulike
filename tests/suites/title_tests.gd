@@ -269,13 +269,13 @@ func _test_title_screen() -> void:
 	var hidden_at := entries.size() - forms.size() - 1
 	var list_texts := _texts(list)
 	check(entries[hidden_at] == hidden_boss and monster_cards[hidden_at].disabled and _texts(monster_cards[hidden_at]).has("???"), "the hidden boss is last but the bottom's forms in the bestiary, a ??? card until met")
-	check(not list_texts.any(func(text: String) -> bool: return text.contains(CONTENT.dungeon.hidden_floor.title) or text.contains(hidden_boss.display_name)), "nothing in the bestiary names the hidden floor or its boss before they are met")
+	check(not list_texts.any(func(line: String) -> bool: return line.contains(CONTENT.dungeon.hidden_floor.title) or line.contains(hidden_boss.display_name)), "nothing in the bestiary names the hidden floor or its boss before they are met")
 	# The bottom of the Well's forms: last, in order, ??? cards under a ??? heading until met.
 	check(entries.slice(entries.size() - forms.size()) == forms and forms.size() == 2, "the bottom of the Well's two forms close the bestiary, in order")
 	for i in forms.size():
 		var card := monster_cards[entries.size() - forms.size() + i]
 		check(card.disabled and _texts(card).has("???"), "%s: a ??? card until met" % forms[i].id)
-	check(not list_texts.any(func(text: String) -> bool: return text.contains(CONTENT.dungeon.finale.title) or forms.any(func(form: BossDef) -> bool: return text.contains(form.display_name))), "nothing in the bestiary names the bottom of the Well or its forms before they are met")
+	check(not list_texts.any(func(line: String) -> bool: return line.contains(CONTENT.dungeon.finale.title) or forms.any(func(form: BossDef) -> bool: return line.contains(form.display_name))), "nothing in the bestiary names the bottom of the Well or its forms before they are met")
 	check(Profile.bestiary_rank(&"slime") == 1, "the first kill pays the first rank")
 	check((codex.get_node("%Help") as Label).text.contains("rank"), "the bestiary explains the hunter ranks")
 	slime_card.pressed.emit()
@@ -399,8 +399,8 @@ func _test_options_screen(title: TitleScreen) -> void:
 	(title.get_node("%OptionsButton") as Button).pressed.emit()
 	await _frames(2)
 	check(options.visible, "the options open from the title")
-	for name in ["MasterSlider", "MusicSlider", "InterfaceSlider", "CombatSlider", "AmbienceSlider", "ShakeSlider", "ControlsSlider", "VibrationsCheck", "FixedStickCheck", "BatteryCheck", "FewerEffectsCheck", "FlashesCheck", "RunTimerCheck", "TutorialCheck", "ReplayTutorialButton", "CloseButton"]:
-		check(options.get_node_or_null("%" + name) != null, "options: %s" % name)
+	for node_name in ["MasterSlider", "MusicSlider", "InterfaceSlider", "CombatSlider", "AmbienceSlider", "ShakeSlider", "ControlsSlider", "VibrationsCheck", "FixedStickCheck", "BatteryCheck", "FewerEffectsCheck", "FlashesCheck", "RunTimerCheck", "TutorialCheck", "ReplayTutorialButton", "CloseButton"]:
+		check(options.get_node_or_null("%" + node_name) != null, "options: %s" % node_name)
 	var battery: CheckButton = options.get_node("%BatteryCheck")
 	var before := Settings.battery_saver
 	var tap := InputEventMouseButton.new()

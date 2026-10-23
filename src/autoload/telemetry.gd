@@ -132,6 +132,7 @@ func flush() -> void:
 	while status == BoardBackend.Status.OK and not queue.is_empty() and is_active():
 		var batch: Array[Dictionary] = []
 		batch.assign(queue.slice(0, config.batch_size))
+		@warning_ignore("redundant_await")  # a coroutine in TaloBackend; the offline BoardBackend answers at once
 		status = await Leaderboards.backend.send_events(batch)
 		if status == BoardBackend.Status.OFFLINE or status == BoardBackend.Status.UNAVAILABLE:
 			break

@@ -36,8 +36,8 @@ class Offer:
 		offer.subtitle = str(data.get("subtitle", ""))
 		# Saves from before choices waited: whatever was pending waits for the player.
 		offer.on_demand = bool(data.get("on_demand", true))
-		for reference: Variant in data.get("cards", []):
-			var perk := RunSave.load_ref(reference) as PerkDef
+		for ref: Variant in data.get("cards", []):
+			var perk := RunSave.load_ref(ref) as PerkDef
 			if perk:
 				offer.cards.append(perk)
 		return offer

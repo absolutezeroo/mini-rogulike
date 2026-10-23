@@ -29,15 +29,15 @@ var matter: SwingMatter
 
 
 ## At `at`, toward `aim`. `reach` in world units from the center, `arc_degrees` of the swing
-## (thrust: a streak instead), in `element`'s ramp (steel when null); `danger` for an enemy's.
-static func create(at: Vector2, aim: Vector2, reach: float, arc_degrees: float, thrust: bool, element: VfxElementDef, duration: float, danger: bool = false, second: VfxElementDef = null) -> SwingVfx:
+## (thrust: a streak instead), in `look_element`'s ramp (steel when null); `danger` for an enemy's.
+static func create(at: Vector2, aim: Vector2, reach: float, arc_degrees: float, thrust: bool, look_element: VfxElementDef, duration: float, danger: bool = false, second: VfxElementDef = null) -> SwingVfx:
 	var look := SlashDef.new()
 	look.shape = SlashDef.Shape.THRUST if thrust else SlashDef.Shape.CRESCENT
 	look.arc_degrees = clampf(arc_degrees, 60.0, 340.0)
 	look.thickness = clampf(reach * (0.35 if thrust else 0.5), 8.0, 26.0)
 	look.trail = 0.9 if thrust else 0.75
 	look.duration = clampf(duration, 0.07, 0.2)
-	return SwingVfx._make(look, at, aim, reach, element, danger, 0, second)
+	return SwingVfx._make(look, at, aim, reach, look_element, danger, 0, second)
 
 
 ## The blow `look` (SlashDef) at `at` toward `aim`, its edge at `reach` (times its
@@ -45,7 +45,7 @@ static func create(at: Vector2, aim: Vector2, reach: float, arc_degrees: float, 
 ## second element the weapon carries (a few bits of it). `steady`: the blow is struck in the
 ## body's four directions (Blow), so a thrust's jitter moves it sideways instead of turning it
 ## off the cardinal (a flurry's stabs stay straight, never twice in the same place).
-static func slash(world: World, look: SlashDef, at: Vector2, aim: Vector2, reach: float, element: VfxElementDef = null, danger: bool = false, second: VfxElementDef = null, steady: bool = false) -> void:
+static func slash(world: World, look: SlashDef, at: Vector2, aim: Vector2, reach: float, look_element: VfxElementDef = null, danger: bool = false, second: VfxElementDef = null, steady: bool = false) -> void:
 	if look.jitter_degrees > 0.0:
 		var turn := deg_to_rad(randf_range(-look.jitter_degrees, look.jitter_degrees))
 		if steady and look.shape == SlashDef.Shape.THRUST:
@@ -53,13 +53,13 @@ static func slash(world: World, look: SlashDef, at: Vector2, aim: Vector2, reach
 		else:
 			aim = aim.rotated(turn)
 	for stroke in look.strokes:
-		world.spawn_vfx(SwingVfx._make(look, at, aim, reach, element, danger, stroke, second if stroke == 0 else null))
+		world.spawn_vfx(SwingVfx._make(look, at, aim, reach, look_element, danger, stroke, second if stroke == 0 else null))
 	if look.finisher:
 		var end := at + aim.normalized() * reach * look.reach_scale * (1.0 if look.shape == SlashDef.Shape.THRUST else 0.7)
-		world.spawn_vfx(SheetVfx.play(look.finisher, end, aim, SwingVfx._element_or_steel(element)))
+		world.spawn_vfx(SheetVfx.play(look.finisher, end, aim, SwingVfx._element_or_steel(look_element)))
 
 
-static func _make(look: SlashDef, at: Vector2, aim: Vector2, reach: float, element: VfxElementDef, danger: bool, stroke: int, second: VfxElementDef = null) -> SwingVfx:
+static func _make(look: SlashDef, at: Vector2, aim: Vector2, reach: float, look_element: VfxElementDef, danger: bool, stroke: int, second: VfxElementDef = null) -> SwingVfx:
 	var vfx := SwingVfx.new()
 	vfx.position = PixelDraw.snap(at)
 	# A blade's arc, at the blow's height, over the bodies. The hero's toward the north (we see
@@ -85,21 +85,21 @@ static func _make(look: SlashDef, at: Vector2, aim: Vector2, reach: float, eleme
 	if look.shape == SlashDef.Shape.SPIN:
 		arc = maxf(arc, 360.0)
 	shader_look.set_shader_parameter("arc", deg_to_rad(arc))
-	var ramp := SwingVfx._element_or_steel(element)
+	var ramp := SwingVfx._element_or_steel(look_element)
 	shader_look.set_shader_parameter("core", ramp.shade(0.0))
 	shader_look.set_shader_parameter("light", ramp.shade(0.34))
 	shader_look.set_shader_parameter("body", ramp.shade(0.67))
 	shader_look.set_shader_parameter("edge", ramp.shade(1.0))
 	shader_look.set_shader_parameter("danger", DANGER if danger else Color.TRANSPARENT)
 	shader_look.set_shader_parameter("progress", 0.0)
-	shader_look.set_shader_parameter("matter", SwingVfx.matter_of(element))
+	shader_look.set_shader_parameter("matter", SwingVfx.matter_of(look_element))
 	shader_look.set_shader_parameter("seed", randf() * 64.0)
 	shader_look.set_shader_parameter("emissive", ramp.emissive)
 	vfx.element = ramp
 	if behind and stroke == 0:
 		# Behind him it is under the floor's light: a shining element lights itself (fire keeps
 		# its yellows, frost its cyan), steel takes the room's light like his body.
-		VfxLayer.light_up(vfx, element, edge)
+		VfxLayer.light_up(vfx, look_element, edge)
 	vfx._look = shader_look
 	vfx.material = shader_look
 	vfx.visible = vfx._delay <= 0.0
@@ -107,7 +107,7 @@ static func _make(look: SlashDef, at: Vector2, aim: Vector2, reach: float, eleme
 	if stroke == 0:
 		var thrust := look.shape == SlashDef.Shape.THRUST
 		var inner := minf(THRUST_START, edge * 0.4) if thrust else 0.0
-		vfx.matter = SwingMatter.create(vfx.position, aim, edge, thickness, deg_to_rad(arc), thrust, inner, vfx._duration, vfx._delay, element, second)
+		vfx.matter = SwingMatter.create(vfx.position, aim, edge, thickness, deg_to_rad(arc), thrust, inner, vfx._duration, vfx._delay, look_element, second)
 		if vfx.matter:
 			VfxLayer.apply(vfx.matter, VfxLayer.of(vfx))
 	return vfx
@@ -115,10 +115,10 @@ static func _make(look: SlashDef, at: Vector2, aim: Vector2, reach: float, eleme
 
 ## The matter the shader breaks an element's edge into (swing.gdshader `matter`), from the
 ## shape of its bits, so a new element looks like itself for free: 0 steel (and no element).
-static func matter_of(element: VfxElementDef) -> int:
-	if element == null or element.id == &"physical":
+static func matter_of(look_element: VfxElementDef) -> int:
+	if look_element == null or look_element.id == &"physical":
 		return 0
-	match element.bit:
+	match look_element.bit:
 		VfxElementDef.Bit.TEARDROP:
 			return 1  # fire: flame tongues
 		VfxElementDef.Bit.DIAMOND, VfxElementDef.Bit.SHARD:
@@ -138,9 +138,9 @@ static func matter_of(element: VfxElementDef) -> int:
 	return 9  # earth (and other matter): crumbling blocks
 
 
-## `element`, or steel for a plain blade.
-static func _element_or_steel(element: VfxElementDef) -> VfxElementDef:
-	return element if element else VfxElementDef.named(&"physical")
+## `look_element`, or steel for a plain blade.
+static func _element_or_steel(look_element: VfxElementDef) -> VfxElementDef:
+	return look_element if look_element else VfxElementDef.named(&"physical")
 
 
 func _ready() -> void:

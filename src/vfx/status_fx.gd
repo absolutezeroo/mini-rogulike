@@ -274,7 +274,7 @@ func _draw_burst(element: VfxElementDef, at: Vector2, t: float) -> void:
 func _draw_frame(sheet: Texture2D, frames: int, t: float, at: Vector2, texel: int, tint: Color, frame: int = -1, flip: bool = false) -> void:
 	if sheet == null:
 		return
-	var width := sheet.get_width() / maxi(frames, 1)
+	var width := int(sheet.get_width() / float(maxi(frames, 1)))
 	if frame < 0:
 		frame = mini(int(t * frames), frames - 1)
 	var source := Rect2(frame * width, 0, width, sheet.get_height())

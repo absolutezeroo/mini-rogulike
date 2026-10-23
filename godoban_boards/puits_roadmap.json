@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 151,
+  "next_id": 152,
   "tags": [
     "pc",
     "test",
@@ -2212,6 +2212,21 @@
       ],
       "created_at": 1792777924,
       "updated_at": 1792777924
+    },
+    {
+      "id": "task_151",
+      "title": "Zéro avertissement GDScript",
+      "description": "Signalé par Clayton : ~272 avertissements dans l'éditeur. Avant : 380 dans src/, tests/ et tools/ (274 / 89 / 17 ; 88 divisions entières, 84 + 66 + 11 noms qui en masquent d'autres, 43 signaux « inutilisés », 27 await redondants, 17 ternaires incompatibles, 17 fonctions statiques appelées sur une instance, 16 déclarations confondables, 11 variables ou paramètres inutilisés). Après : 0, sans changer le comportement (noms renommés, code mort retiré). Convention pour la division entière : int(a / 2.0), int(a / float(b)), Vector2i(Vector2(v) / 2.0) — même troncature vers zéro que le / entier, négatifs compris (docs/conventions.md). Les fonctions statiques des autoloads s'appellent sur leur script (const MenuNavScript := preload(...)). Gardés avec une raison : les signaux d'Events (émis et écoutés ailleurs, aucun n'était mort) et les await sur des méthodes coroutines seulement dans une sous-classe (TaloBackend, BossMeeting, les étapes de cinématique, le crochet _panel_checked des tests). Garde-fou : python3 tools/lint/gd_warnings.py (éditeur headless + serveur de langage, sort en erreur s'il reste un avertissement ; docs/testing.md, AGENTS.md « Done means »). android/build a déjà son .gdignore (l'éditeur ne le lit pas).",
+      "status": "review",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "qualité",
+        "tests"
+      ],
+      "created_at": 1792779300,
+      "updated_at": 1792779300
     }
   ]
 }

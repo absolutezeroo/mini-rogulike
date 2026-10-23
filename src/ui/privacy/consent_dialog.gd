@@ -10,6 +10,8 @@ extends RpgDialog
 ## Reachable as %AgeUnder, %AgeOver, %Question, %DeclineButton, %AcceptButton, %PolicyButton,
 ## %PolicyPanel.
 
+const MenuNavScript := preload("res://src/autoload/menu_nav.gd")  # its static helpers are called on the script, not the autoload
+
 ## Closed, whatever was answered.
 signal finished
 
@@ -74,7 +76,7 @@ func _show_age() -> void:
 		Sfx.play_ui(Sfx.bank.ui_click)
 		_show_consent())
 	_row([under, over])
-	MenuNav.set_first(self, under)
+	MenuNavScript.set_first(self, under)
 
 
 func _show_consent() -> void:
@@ -101,7 +103,7 @@ func _show_consent() -> void:
 		_close())
 	_row([decline, accept])
 	# Neither answer is focused first (the same weight): the policy's button is.
-	MenuNav.set_first(self, link)
+	MenuNavScript.set_first(self, link)
 
 
 ## A button of a pair: both the same size and look.

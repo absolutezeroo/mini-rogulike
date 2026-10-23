@@ -157,7 +157,6 @@ func campaign(report: BalanceReport, per_depth: Array, difficulty_key := "normal
 	var quest_rate := _quests_per_run()
 	var elite_share := _elite_share(acts)
 	var kinds := _bestiary_kinds(content)
-	var hidden := content.dungeon.hidden_floor
 	# The career's state: expected kills of each kind, lifetime stats, what was paid.
 	var kills_of := {}
 	var paid_ranks := {}

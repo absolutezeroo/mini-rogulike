@@ -18,6 +18,8 @@ extends Control
 ## Picking a language rebuilds the window in it at once; the title screen behind is rebuilt when
 ## the window closes (other screens pick it up the next time they open).
 
+const SettingsScript := preload("res://src/autoload/settings.gd")  # its static helpers are called on the script, not the autoload
+
 signal closed
 ## The player picked another language (Settings.language is already set).
 signal language_changed
@@ -95,9 +97,9 @@ func _wire() -> void:
 		(_loot_modes[mode] as Button).pressed.connect(_pick_loot_mode.bind(mode))
 	for mode: int in _story_modes:
 		(_story_modes[mode] as Button).pressed.connect(_pick_story_mode.bind(mode))
-	for size: int in _ui_sizes:
-		(_ui_sizes[size] as Button).pressed.connect(func() -> void:
-			Settings.set_option(&"ui_size", size)
+	for ui_size: int in _ui_sizes:
+		(_ui_sizes[ui_size] as Button).pressed.connect(func() -> void:
+			Settings.set_option(&"ui_size", ui_size)
 			Sfx.play_ui(Sfx.bank.ui_click)
 			_show_ui_size())
 	_settings_tab.pressed.connect(show_page.bind(false))
@@ -220,8 +222,8 @@ func _show_loot_mode() -> void:
 
 
 func _show_ui_size() -> void:
-	for size: int in _ui_sizes:
-		(_ui_sizes[size] as Button).set_pressed_no_signal(size == Settings.ui_size)
+	for ui_size: int in _ui_sizes:
+		(_ui_sizes[ui_size] as Button).set_pressed_no_signal(ui_size == Settings.ui_size)
 
 
 func _pick_story_mode(mode: int) -> void:
@@ -330,7 +332,7 @@ func _build() -> void:
 	_checks[_check(screen, tr("Screen flashes"), tr("Lightning lights up the whole screen for an instant."), "FlashesCheck")] = &"screen_flashes"
 	_checks[_check(screen, tr("Battery saver"), tr("30 FPS: the phone stays cooler."), "BatteryCheck")] = &"battery_saver"
 	_checks[_check(screen, tr("Run timer"), tr("The run's time, under the map."), "RunTimerCheck")] = &"run_timer"
-	if Settings.has_window_modes():
+	if SettingsScript.has_window_modes():
 		_checks[_check(screen, tr("Fullscreen"), tr("The whole screen, or a window you can resize (F11, Alt+Enter)."), "FullscreenCheck")] = &"fullscreen"
 	_build_ui_size(screen)
 

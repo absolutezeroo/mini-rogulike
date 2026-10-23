@@ -35,12 +35,12 @@ static func create(at: Vector2, aim: Vector2, radius: float, thickness: float, a
 	var edge_length := (radius - inner) if thrust else arc * radius
 	var count := clampi(roundi(edge_length / 60.0 * PER_60), 3, MOST)
 	if Settings.fewer_effects:
-		count = maxi(2, count / 2)
+		count = maxi(2, int(count / 2.0))
 	if sheds(element):
 		for i in count:
 			matter._add(element, aim, radius, thickness, arc, thrust, inner, duration, delay, i, count)
 	if sheds(second):
-		var extra := maxi(1, count / PER_SECOND)
+		var extra := maxi(1, int(count / float(PER_SECOND)))
 		for i in extra:
 			matter._add(second, aim, radius, thickness, arc, thrust, inner, duration, delay, i, extra)
 	var emissive := (element != null and element.emissive) or (second != null and second.emissive)

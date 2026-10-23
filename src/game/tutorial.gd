@@ -108,11 +108,11 @@ func bind(new_player: Player, new_world: World, new_hud: Hud) -> void:
 
 
 ## Something happened: the hints it brings up get in line (once ever each).
-func cue(name: StringName) -> void:
+func cue(cue_name: StringName) -> void:
 	if not is_enabled():
 		return
 	for hint in def.hints:
-		if hint.cue == name and _wants(hint):
+		if hint.cue == cue_name and _wants(hint):
 			if hint.after == &"" or Profile.has_seen_hint(hint.after):
 				_add(hint)
 			elif not _waiting.has(hint):
@@ -120,8 +120,8 @@ func cue(name: StringName) -> void:
 
 
 ## The player did something: the hint waiting for it is done.
-func action(name: StringName) -> void:
-	if current and current.done_when == name:
+func action(action_name: StringName) -> void:
+	if current and current.done_when == action_name:
 		_close(true)
 
 

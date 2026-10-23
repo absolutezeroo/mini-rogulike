@@ -189,11 +189,11 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 	slain_spawns.clear()
 	forge_drought_at_start = floors_without_forge
 	_content = content
-	var hidden := hidden_floor
+	var hidden_def := hidden_floor
 	var bottom := finale
-	var boss := hidden.boss if hidden else content.dungeon.boss_for_depth(depth)
+	var boss := hidden_def.boss if hidden_def else content.dungeon.boss_for_depth(depth)
 	var act_index := content.dungeon.act_index(depth)
-	if boss and not hidden and act_index < run_bosses.size() and run_bosses[act_index] != null:
+	if boss and not hidden_def and act_index < run_bosses.size() and run_bosses[act_index] != null:
 		boss = run_bosses[act_index]
 	if bottom:
 		boss = bottom.boss
@@ -216,15 +216,15 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 			floor_event = ContentDB.pick_from(content.floor_events, depth, rng) as FloorEventDef
 	arena_plan = null
 	# The world first: its rooms take its shapes (BiomeDef.room_shapes).
-	biome = hidden.biome if hidden and hidden.biome else _pick_biome(content, boss != null)
+	biome = hidden_def.biome if hidden_def and hidden_def.biome else _pick_biome(content, boss != null)
 	if bottom and bottom.biome:
 		biome = bottom.biome
 	if boss:
 		arena_plan = _pick_arena(boss, content.dungeon)
 		if bottom and bottom.arena:
 			arena_plan = bottom.arena
-		if hidden:
-			map = DungeonGenerator.generate_hidden(content.dungeon, rng, arena_plan, hidden.rooms)
+		if hidden_def:
+			map = DungeonGenerator.generate_hidden(content.dungeon, rng, arena_plan, hidden_def.rooms)
 		else:
 			map = DungeonGenerator.generate_arena(content.dungeon, rng, arena_plan)
 	elif forced_map:
@@ -256,8 +256,8 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 			var lamps := bottom.arena_lights if bottom and room == map.boss_room else -1
 			FloorPopulator.place_lights(self, content.dungeon, room, {}, lamps)
 		FloorDresser.dress(self, {}, false)  # the arena keeps clear: grounds and decor only
-		if hidden:
-			hidden.populate(self)
+		if hidden_def:
+			hidden_def.populate(self)
 		seal.clear()
 	else:
 		var exits := spawn_exits()
@@ -496,12 +496,12 @@ func fire_projectiles(shooter: Actor, direction: Vector2, spec: ProjectileSpec, 
 
 
 ## The boss' own arenas, else the dungeon's; null for a plain room.
-func _pick_arena(boss: BossDef, config: DungeonConfig) -> ArenaDef:
+func _pick_arena(boss: BossDef, dungeon_config: DungeonConfig) -> ArenaDef:
 	var forced := forced_arena
 	forced_arena = null
 	if forced:
 		return forced
-	var pool: Array[ArenaDef] = boss.arenas if not boss.arenas.is_empty() else config.arenas
+	var pool: Array[ArenaDef] = boss.arenas if not boss.arenas.is_empty() else dungeon_config.arenas
 	return pool[rng.randi_range(0, pool.size() - 1)] if not pool.is_empty() else null
 
 
@@ -898,10 +898,10 @@ func add_splat(at: Vector2, color: Color, size: float = 1.0, direction: Vector2 
 
 
 ## Chips of what a monster was made of, left where it died for the whole floor.
-func add_debris(at: Vector2, material: ImpactMaterialDef, size: float = 1.0, direction: Vector2 = Vector2.ZERO) -> void:
+func add_debris(at: Vector2, matter: ImpactMaterialDef, size: float = 1.0, direction: Vector2 = Vector2.ZERO) -> void:
 	if not Vfx.shown or not is_solid_ground(at):
 		return
-	_splat_layer().add_debris(at, material, size, direction, rng, is_solid_ground)
+	_splat_layer().add_debris(at, matter, size, direction, rng, is_solid_ground)
 
 
 func _splat_layer() -> SplatLayer:

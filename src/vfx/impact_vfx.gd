@@ -37,7 +37,7 @@ static func create(at: Vector2, direction: Vector2, color: Color, big: bool = fa
 
 ## The bits a blow knocks out of what it hits (ImpactMaterialDef.sparks_element: blood drops,
 ## bone chips, slime, sparks off armor...), without a flash: the blow's own ImpactVfx has it.
-static func sparks(at: Vector2, direction: Vector2, material: VfxElementDef, big: bool = false) -> ImpactVfx:
+static func sparks(at: Vector2, direction: Vector2, matter: VfxElementDef, big: bool = false) -> ImpactVfx:
 	var vfx := ImpactVfx.new()
 	vfx.position = PixelDraw.snap(at)
 	vfx.z_index = 6
@@ -45,7 +45,7 @@ static func sparks(at: Vector2, direction: Vector2, material: VfxElementDef, big
 	vfx._direction = direction.normalized() if direction != Vector2.ZERO else Vector2.UP
 	vfx._big = big
 	vfx._bits_only = true
-	vfx.element = material
+	vfx.element = matter
 	vfx._spawn(Color.WHITE)
 	return vfx
 

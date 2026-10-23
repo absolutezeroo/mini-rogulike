@@ -32,14 +32,14 @@ static func sheet_scale(wanted: float) -> float:
 	return maxf(roundf(wanted / PX), 1.0) * PX
 
 
-## Whether the art pixel at `cell` is drawn for a fade at `amount` (1 = all of them, 0 = none),
-## by ordered dithering. `cell` is in art pixels (see `cell_of`).
-static func dither(cell: Vector2i, amount: float) -> bool:
+## Whether the art pixel at `at_cell` is drawn for a fade at `amount` (1 = all of them, 0 = none),
+## by ordered dithering. `at_cell` is in art pixels (see `cell_of`).
+static func dither(at_cell: Vector2i, amount: float) -> bool:
 	if amount >= 1.0:
 		return true
 	if amount <= 0.0:
 		return false
-	var threshold := (BAYER[(cell.y & 3) * 4 + (cell.x & 3)] + 0.5) / 16.0
+	var threshold := (BAYER[(at_cell.y & 3) * 4 + (at_cell.x & 3)] + 0.5) / 16.0
 	return amount > threshold
 
 
@@ -117,7 +117,7 @@ static func line(canvas: CanvasItem, from: Vector2, to: Vector2, color: Color, t
 	var sy := 1 if a.y < b.y else -1
 	var err := dx + dy
 	var at := a
-	var half := (thickness_px - 1) / 2
+	var half := int((thickness_px - 1) / 2.0)
 	while true:
 		if dither(at, fade):
 			canvas.draw_rect(Rect2(Vector2(at - Vector2i(half, half)) * PX, Vector2.ONE * PX * thickness_px), color)

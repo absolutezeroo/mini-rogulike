@@ -37,11 +37,11 @@ func let_go(hero: Player) -> void:
 
 ## One arena (the trial's plan) in the middle of `margin` cells of mist; the hero starts in its
 ## middle.
-static func make_map(threshold: ThresholdDef, config: DungeonConfig) -> DungeonMap:
+static func make_map(threshold: ThresholdDef, dungeon_config: DungeonConfig) -> DungeonMap:
 	var plan := threshold.arena
 	var size := plan.size if plan else Vector2i(19, 13)
 	var margin := threshold.margin
-	var result := DungeonMap.new(size.x + margin * 2, size.y + margin * 2, config.tile_size)
+	var result := DungeonMap.new(size.x + margin * 2, size.y + margin * 2, dungeon_config.tile_size)
 	var room := Rect2i(Vector2i(margin, margin), size)
 	if plan:
 		for cell in plan.cells(room.position):

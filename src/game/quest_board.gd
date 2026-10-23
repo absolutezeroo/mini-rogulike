@@ -84,5 +84,5 @@ static func claim_finished(quests: Array[QuestDef]) -> Array[Dictionary]:
 ## "5h 12m", "2d 4h".
 static func time_text(seconds: int) -> String:
 	if seconds >= DAY:
-		return TranslationServer.tr("%dd %dh") % [seconds / DAY, (seconds % DAY) / 3600]
-	return TranslationServer.tr("%dh %02dm") % [seconds / 3600, (seconds % 3600) / 60]
+		return TranslationServer.tr("%dd %dh") % [int(seconds / float(DAY)), int((seconds % DAY) / 3600.0)]
+	return TranslationServer.tr("%dh %02dm") % [int(seconds / 3600.0), int((seconds % 3600) / 60.0)]

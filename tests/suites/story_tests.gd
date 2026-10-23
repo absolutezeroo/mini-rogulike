@@ -7,6 +7,8 @@ extends TestSuite
 ## a floor (a run picked up again), the short version and none, the deeds in a fight, the
 ## fragments on the floors and their reading panel.
 
+const ProfileScript := preload("res://src/autoload/profile.gd")  # its static helpers are called on the script, not the autoload
+
 ## A line of the story at most this long (a phone's box at Fonts.BODY: two rows of the bar).
 const MAX_LINE := 150
 ## Sentence ends (an ellipsis trails off, it doesn't end one).
@@ -57,47 +59,47 @@ func _test_chronicle_data() -> void:
 	check(fr != null, "the French translation is loaded")
 	var fragment_ids := {}
 	for boss in wardens:
-		var name := String(boss.id)
+		var boss_name := String(boss.id)
 		var chronicle := boss.chronicle
-		check(chronicle != null, "%s has a chronicle" % name)
+		check(chronicle != null, "%s has a chronicle" % boss_name)
 		if chronicle == null:
 			continue
-		check(chronicle.chapters.size() >= 4, "%s: at least 4 chapters (%d)" % [name, chronicle.chapters.size()])
+		check(chronicle.chapters.size() >= 4, "%s: at least 4 chapters (%d)" % [boss_name, chronicle.chapters.size()])
 		var first := chronicle.chapters[0]
-		check(first.slain == 0 and first.conditions.is_empty(), "%s: the first chapter is told at the first meeting" % name)
+		check(first.slain == 0 and first.conditions.is_empty(), "%s: the first chapter is told at the first meeting" % boss_name)
 		var ids := {}
 		var deed_gated := 0
 		for chapter in chronicle.chapters:
-			check(not ids.has(chapter.id) and chapter.id != &"", "%s: chapter ids are unique (%s)" % [name, chapter.id])
+			check(not ids.has(chapter.id) and chapter.id != &"", "%s: chapter ids are unique (%s)" % [boss_name, chapter.id])
 			ids[chapter.id] = true
-			check(not chapter.title.is_empty() and _translated(fr, chapter.title), "%s/%s: a title, translated" % [name, chapter.id])
-			check(chapter.lines.size() >= 2 and chapter.lines.size() <= 4, "%s/%s: 2 to 4 lines (%d)" % [name, chapter.id, chapter.lines.size()])
+			check(not chapter.title.is_empty() and _translated(fr, chapter.title), "%s/%s: a title, translated" % [boss_name, chapter.id])
+			check(chapter.lines.size() >= 2 and chapter.lines.size() <= 4, "%s/%s: 2 to 4 lines (%d)" % [boss_name, chapter.id, chapter.lines.size()])
 			for line in chapter.lines:
-				_check_line(fr, line, "%s/%s" % [name, chapter.id])
+				_check_line(fr, line, "%s/%s" % [boss_name, chapter.id])
 			if not chapter.deeds().is_empty():
 				deed_gated += 1
 		for line in chronicle.waking_lines:
-			check(not ids.has(line.id), "%s: waking line ids are unique (%s)" % [name, line.id])
+			check(not ids.has(line.id), "%s: waking line ids are unique (%s)" % [boss_name, line.id])
 			ids[line.id] = true
-			_check_line(fr, line.line, "%s/%s" % [name, line.id])
-			check(not line.conditions.is_empty(), "%s/%s: a waking line waits for something" % [name, line.id])
+			_check_line(fr, line.line, "%s/%s" % [boss_name, line.id])
+			check(not line.conditions.is_empty(), "%s/%s: a waking line waits for something" % [boss_name, line.id])
 			if not line.deeds().is_empty():
 				deed_gated += 1
 		for line in chronicle.last_words:
-			check(not ids.has(line.id), "%s: last words ids are unique (%s)" % [name, line.id])
+			check(not ids.has(line.id), "%s: last words ids are unique (%s)" % [boss_name, line.id])
 			ids[line.id] = true
-			_check_line(fr, line.line, "%s/%s" % [name, line.id])
-			check(not line.conditions.is_empty(), "%s/%s: last words wait for something" % [name, line.id])
+			_check_line(fr, line.line, "%s/%s" % [boss_name, line.id])
+			check(not line.conditions.is_empty(), "%s/%s: last words wait for something" % [boss_name, line.id])
 			if not line.deeds().is_empty():
 				deed_gated += 1
 		var deeds := chronicle.deeds()
-		check(deeds.size() >= 1 and deed_gated >= 1 and deed_gated <= 2, "%s: one or two chapters or lines are earned by a deed (%d)" % [name, deed_gated])
+		check(deeds.size() >= 1 and deed_gated >= 1 and deed_gated <= 2, "%s: one or two chapters or lines are earned by a deed (%d)" % [boss_name, deed_gated])
 		for deed in deeds:
-			check(deed.id != &"" and not deed.hint.is_empty() and not deed.rule.is_empty(), "%s: its deed has an id, a riddle and a rule" % name)
-			check(_translated(fr, deed.hint) and _translated(fr, deed.rule), "%s: its deed's riddle and rule are translated" % name)
-			check(deed.hint != deed.rule, "%s: the riddle is not the rule" % name)
-			check(deed.revealed_by == null or chronicle.fragments.has(deed.revealed_by), "%s: the fragment giving its deed away is one of its own" % name)
-		check(chronicle.fragments.size() >= 2, "%s: fragments to find (%d)" % [name, chronicle.fragments.size()])
+			check(deed.id != &"" and not deed.hint.is_empty() and not deed.rule.is_empty(), "%s: its deed has an id, a riddle and a rule" % boss_name)
+			check(_translated(fr, deed.hint) and _translated(fr, deed.rule), "%s: its deed's riddle and rule are translated" % boss_name)
+			check(deed.hint != deed.rule, "%s: the riddle is not the rule" % boss_name)
+			check(deed.revealed_by == null or chronicle.fragments.has(deed.revealed_by), "%s: the fragment giving its deed away is one of its own" % boss_name)
+		check(chronicle.fragments.size() >= 2, "%s: fragments to find (%d)" % [boss_name, chronicle.fragments.size()])
 		for fragment in chronicle.fragments:
 			check(not fragment_ids.has(fragment.id), "fragment ids are unique (%s)" % fragment.id)
 			fragment_ids[fragment.id] = true
@@ -302,7 +304,7 @@ func _test_deeds() -> void:
 	check(school.achieved(_with(kill, "weapon_base", katana)) and not school.achieved(kill), "a weapon deed: with that weapon only")
 	var ronin := _boss("red_samurai")
 	check(not school.is_met(ronin), "not done yet")
-	Profile.challenges_done[Profile.challenge_key(&"red_samurai", &"weapon_katana")] = 1
+	Profile.challenges_done[ProfileScript.challenge_key(&"red_samurai", &"weapon_katana")] = 1
 	check(school.is_met(ronin), "a bestiary challenge already done counts as the same deed (older saves)")
 	var fire := ElementDeed.new()
 	fire.element = load("res://data/vfx/elements/fire.tres")
@@ -607,7 +609,7 @@ func _test_cinematic(game: Game) -> void:
 	var view := meeting.view
 	Settings.boss_stories = Settings.STORIES_FULL
 	var started := [0]
-	var count_start := func(_boss: Monster) -> void: started[0] += 1
+	var count_start := func(_started_boss: Monster) -> void: started[0] += 1
 	Events.boss_started.connect(count_start)
 	var arena := await _boss_floor(game, slime, 3)
 	check(arena != null and arena.boss.def == slime, "the Bloated King's arena")
@@ -728,31 +730,30 @@ func _test_fragments_in_game(game: Game) -> void:
 	await _frames(3)
 	check(game.world.fragment == null, "no fragment during the first run (the tutorial)")
 	Profile.runs = 5
-	var act_boss := CONTENT.dungeon.acts[0].boss
 	var found_any := false
 	for depth in [1, 2, 3, 4]:
 		game.depth = depth
 		game._enter_floor()
 		await _frames(2)
-		var piece := game.world.fragment
+		var on_floor := game.world.fragment
 		if CONTENT.dungeon.boss_for_depth(depth) != null:
-			check(piece == null, "no fragment in a warden's arena (floor %d)" % depth)
+			check(on_floor == null, "no fragment in a warden's arena (floor %d)" % depth)
 			continue
-		check(piece != null, "a fragment on floor %d (chance 1)" % depth)
-		if piece == null:
+		check(on_floor != null, "a fragment on floor %d (chance 1)" % depth)
+		if on_floor == null:
 			continue
 		var boss := CONTENT.dungeon.acts[CONTENT.dungeon.act_index(depth)].boss
-		check(piece.boss == boss and Narrative.fragments(boss).has(piece.def), "floor %d: a fragment of the warden waiting at the act's end" % depth)
-		var cell := game.world.map.world_to_cell(piece.global_position)
+		check(on_floor.boss == boss and Narrative.fragments(boss).has(on_floor.def), "floor %d: a fragment of the warden waiting at the act's end" % depth)
+		var cell := game.world.map.world_to_cell(on_floor.global_position)
 		check(game.world.is_free_cell(cell) and cell != game.world.map.start_cell, "floor %d: on free ground, not where the hero starts" % depth)
-		check(not game.world.find_path(game.player.global_position, piece.global_position).is_empty(), "floor %d: it can be reached" % depth)
+		check(not game.world.find_path(game.player.global_position, on_floor.global_position).is_empty(), "floor %d: it can be reached" % depth)
 		if not found_any:
 			# It reads on every floor: a rim of its element's light round its picture (on dark
 			# stone), a ring on the floor under every actor outlined by the element's dark edge
 			# (on light grass and sand).
-			var ring := piece.get_node_or_null(^"Ring") as Node2D
-			var element := piece.glow_element()
-			check(not piece.rim().is_empty() and element.shade(0.3).get_luminance() > 0.55, "a fragment: a rim of its element's light round its picture")
+			var ring := on_floor.get_node_or_null(^"Ring") as Node2D
+			var element := on_floor.glow_element()
+			check(not on_floor.rim().is_empty() and element.shade(0.3).get_luminance() > 0.55, "a fragment: a rim of its element's light round its picture")
 			check(ring != null and VfxLayer.of(ring) == VfxLayer.Layer.GROUND and ring.z_index < 0 and element.edge().get_luminance() < 0.3, "a fragment: a ring on the floor under the actors, outlined dark for light floors")
 		found_any = true
 	check(found_any, "fragments were laid")

@@ -324,7 +324,10 @@ func _levels_table(report: BalanceReport, per_depth: Array) -> void:
 			complete = complete and measured >= content.dungeon.acts[act - 1].floors - 1
 			var level := _level_for(xp)
 			var build := BalanceBuild.expected(all_builds, act)
-			rows.append([d_key, act, roundi(xp), level, build.level if build else "-", BalanceReport.pct(KILL_SHARE[act - 1])])
+			var build_level: Variant = "-"
+			if build:
+				build_level = build.level
+			rows.append([d_key, act, roundi(xp), level, build_level, BalanceReport.pct(KILL_SHARE[act - 1])])
 			if build and complete and d_key == "normal" and absi(level - build.level) >= 2:
 				report.flag(BalanceReport.WARN, "economy: build level", "%s (act %d)" % [build.name, act], "level %d in the build" % build.level,
 					"level %d measured" % level, "XP before the act's boss on Normal (%d, %s of the monsters): update the expected build" % [roundi(xp), BalanceReport.pct(KILL_SHARE[act - 1])])

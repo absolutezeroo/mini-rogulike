@@ -238,10 +238,10 @@ func get_trait(kind: Script) -> MonsterTrait:
 
 
 ## Per-monster values of a trait (a trait resource is shared by every monster of its kind).
-func trait_state(owner: MonsterTrait) -> Dictionary:
-	if not _trait_state.has(owner):
-		_trait_state[owner] = {}
-	return _trait_state[owner]
+func trait_state(source_trait: MonsterTrait) -> Dictionary:
+	if not _trait_state.has(source_trait):
+		_trait_state[source_trait] = {}
+	return _trait_state[source_trait]
 
 
 ## Went down a hole (rather than being slain).

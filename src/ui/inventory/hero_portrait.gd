@@ -23,7 +23,7 @@ var _player: Player
 
 func _init() -> void:
 	stretch = true
-	stretch_shrink = ZOOM / 2
+	stretch_shrink = int(ZOOM / 2.0)
 	custom_minimum_size = Vector2(ART * ZOOM)
 	size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	size_flags_vertical = Control.SIZE_SHRINK_CENTER

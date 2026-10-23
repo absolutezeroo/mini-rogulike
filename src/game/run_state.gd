@@ -32,7 +32,7 @@ var banished: Array[PerkDef] = []
 var daily_day := -1
 var daily_official := false
 ## Every floor of the run is built from this (and its depth): a resumed run finds the same floor.
-var seed := 0
+var run_seed := 0
 ## In-game time, seconds (RunTimer): counts while playing, menus included, but not in the pause
 ## menu nor while a floor loads.
 var time := 0.0
@@ -80,19 +80,19 @@ var reset_min_depth := 1
 
 
 ## A new run, or the saved one (`saved` from RunSave; empty for a new run).
-## `daily_day`: a new daily run of that day (DailyRun), on Normal.
-static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGenerator, daily_day: int = -1) -> RunState:
+## `day`: a new daily run of that day (DailyRun), on Normal.
+static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGenerator, day: int = -1) -> RunState:
 	var run := RunState.new()
 	run.config = content.dungeon
 	if content.soul_tree:
 		run.reset_min_depth = content.soul_tree.reset_min_depth
-	run.daily_day = int(saved.get("daily_day", daily_day))
+	run.daily_day = int(saved.get("daily_day", day))
 	run.daily_official = bool(saved.get("daily_official", false))
 	if run.daily_day >= 0 and saved.is_empty():
 		run.difficulty = content.default_difficulty
 	else:
 		run.difficulty = _pick_difficulty(content, saved)
-	run.seed = int(saved["seed"]) if saved.has("seed") else rng.randi()
+	run.run_seed = int(saved["seed"]) if saved.has("seed") else rng.randi()
 	run.depth = int(saved.get("depth", 1))
 	run.hidden_floor = bool(saved.get("hidden_floor", false))
 	run.hidden_done = bool(saved.get("hidden_done", false))
@@ -104,8 +104,8 @@ static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGener
 	run.bonus_souls = int(saved.get("bonus_souls", 0))
 	var saved_marks: Variant = saved.get("marks", {})
 	if saved_marks is Dictionary:
-		for mark: Variant in saved_marks:
-			run.marks[str(mark)] = true
+		for mark_name: Variant in saved_marks:
+			run.marks[str(mark_name)] = true
 	var saved_met: Variant = saved.get("met_floors", [])
 	if saved_met is Array:
 		for key: Variant in saved_met:
@@ -132,21 +132,21 @@ static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGener
 	var taken: Dictionary = saved.get("routes", {})
 	for key: Variant in taken:
 		run.routes[int(key)] = int(taken[key])
-	for split: Variant in saved.get("splits", []):
-		run.splits.append(float(split))
+	for split_time: Variant in saved.get("splits", []):
+		run.splits.append(float(split_time))
 	if saved.has("rerolls"):
 		run.rerolls = int(saved.rerolls)
 		run.banishes = int(saved.get("banishes", 0))
-		for reference: Variant in saved.get("banished", []):
-			var perk := RunSave.load_ref(reference) as PerkDef
+		for ref: Variant in saved.get("banished", []):
+			var perk := RunSave.load_ref(ref) as PerkDef
 			if perk:
 				run.banished.append(perk)
 	else:
 		run.rerolls = content.dungeon.base_rerolls + ShrineUpgrades.extra_charges(content, UpgradeDef.Kind.REROLLS)
 		run.banishes = content.dungeon.base_banishes + ShrineUpgrades.extra_charges(content, UpgradeDef.Kind.BANISHES)
 	if saved.has("bosses"):
-		for reference: Variant in saved.bosses:
-			run.bosses.append(RunSave.load_ref(reference) as BossDef)
+		for ref: Variant in saved.bosses:
+			run.bosses.append(RunSave.load_ref(ref) as BossDef)
 	else:
 		for act in content.dungeon.acts:
 			var choices := act.all_bosses()
@@ -156,13 +156,13 @@ static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGener
 
 ## The profile's difficulty (or the saved run's), with its ascension; Normal if locked.
 static func _pick_difficulty(content: ContentDB, saved: Dictionary) -> DifficultyDef:
-	var difficulty := content.get_difficulty(StringName(saved.get("difficulty", Profile.difficulty)))
-	if difficulty == null or not Profile.is_unlocked(difficulty):
-		difficulty = content.default_difficulty
+	var picked := content.get_difficulty(StringName(saved.get("difficulty", Profile.difficulty)))
+	if picked == null or not Profile.is_unlocked(picked):
+		picked = content.default_difficulty
 	var ascension := int(saved.get("ascension", Profile.ascension if saved.is_empty() else 0))
-	if difficulty.has_ascensions and ascension > 0:
-		difficulty = AscensionDef.apply_levels(difficulty, content.ascensions, mini(ascension, Profile.ascension_unlocked))
-	return difficulty
+	if picked.has_ascensions and ascension > 0:
+		picked = AscensionDef.apply_levels(picked, content.ascensions, mini(ascension, Profile.ascension_unlocked))
+	return picked
 
 
 ## Souls this run is worth so far (what the shrine gets when it ends).
@@ -200,7 +200,7 @@ func to_data() -> Dictionary:
 		"banished": RunSave.refs(banished),
 		"daily_day": daily_day,
 		"daily_official": daily_official,
-		"seed": seed,
+		"seed": run_seed,
 		"time": time,
 		"splits": splits,
 		"finish_time": finish_time,
@@ -268,7 +268,7 @@ func _meeting_key(form: StringName) -> String:
 
 ## The seed of the ways down offered toward floor `floor_depth` (the same all day in a daily run).
 func route_seed(floor_depth: int) -> int:
-	return FloorRoute.seed_for(DailyRun.seed_of(daily_day) if is_daily() else seed, floor_depth)
+	return FloorRoute.seed_for(DailyRun.seed_of(daily_day) if is_daily() else run_seed, floor_depth)
 
 
 func is_daily() -> bool:

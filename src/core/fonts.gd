@@ -68,9 +68,9 @@ static func draw(item: CanvasItem, at: Vector2, text: String, font_size: int, co
 	var to_canvas := item.get_global_transform_with_canvas()
 	var stretch := item.get_viewport().get_final_transform()
 	var to_screen := stretch * to_canvas
-	var width := MAIN.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	var text_width := MAIN.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 	var spot := to_screen * at
-	spot.x -= width * align * stretch.get_scale().x
+	spot.x -= text_width * align * stretch.get_scale().x
 	var origin := to_screen.affine_inverse() * spot.round()
 	var zoom := to_canvas.get_scale()
 	item.draw_set_transform(origin, 0.0, Vector2(1.0 / zoom.x, 1.0 / zoom.y))

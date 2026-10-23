@@ -23,6 +23,25 @@ the ones below are those worth spelling out, or where this project chose somethi
   at index 0 was freed" for a freed one, even when the lambda starts with `is_instance_valid()`.
   Capture a `weakref()` and `get_ref()` it inside (see `Effect.apply_all()`), or connect a method
   of the node itself (its connections go with it).
+- **No GDScript warnings.** The editor's warnings stay at zero (`tools/lint/gd_warnings.py`, see
+  [testing.md](testing.md)). Fix a warning rather than silence it; the project's warning settings
+  are left as Godot ships them.
+  - A local or parameter never takes the name of a member, a method, a base class property
+    (`name`, `size`, `scale`, `text`, `icon`, `material`, `owner`...) or a built-in function
+    (`seed`, `sign`, `log`, `floor`, `round`, `wrap`): `factor`, `label_name`, `words`, `picture`...
+  - **Integer division** is written as a float division cut back to an int: `int(a / 2.0)`,
+    `int(a / float(b))`; for a `Vector2i`, `Vector2i(Vector2(v) / 2.0)`. `int()` truncates toward
+    zero exactly as the int `/` does (`-3 / 2` and `int(-3 / 2.0)` are both -1), so the result never
+    changes, negative numbers included (exact below 2^53, 2^24 for a vector's components: cells,
+    pixels, counts and milliseconds are far below). `@warning_ignore("integer_division")` only for
+    numbers that could be larger (hashes).
+  - An autoload's `static func` is called on its script, not on the autoload's instance:
+    `const MenuNavScript := preload("res://src/autoload/menu_nav.gd")`, then
+    `MenuNavScript.set_first(...)`.
+  - An `@warning_ignore` says why beside it. The kept ones: `Events`' signals (emitted and
+    connected by other classes), and `await`s on a method that is a coroutine only in a subclass
+    (`BoardBackend` / `TaloBackend`, `Storyteller` / `BossMeeting`, `CinematicStep`, the
+    `_panel_checked` probe hook in `PcTests`).
 - **Scenes**: one scene per entity, its script next to it. One monster scene serves every monster
   type: the sprite, weapon and sounds come from the data, the rig animates whatever it is given.
 

@@ -66,8 +66,8 @@ extends Resource
 
 
 static func region(atlas: Texture2D, index: int) -> Rect2:
-	var columns := int(atlas.get_width()) / 16
-	return Rect2((index % columns) * 16, (index / columns) * 16, 16, 16)
+	var columns := int(atlas.get_width() / 16.0)
+	return Rect2((index % columns) * 16, int(index / float(columns)) * 16, 16, 16)
 
 
 func stairs_texture() -> AtlasTexture:

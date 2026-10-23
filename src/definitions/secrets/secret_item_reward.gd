@@ -13,7 +13,9 @@ extends SecretRewardDef
 
 func place(world: World, cell: Vector2i, rng: RandomNumberGenerator) -> Array[Node]:
 	var result: Array[Node] = []
-	var pool: Array = world.content_db().runes if runes else items
+	var pool: Array = items
+	if runes:
+		pool = world.content_db().runes
 	for i in count:
 		var item := ContentDB.pick_from(pool, world.depth, rng) as ItemDef
 		if item == null:

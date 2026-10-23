@@ -60,15 +60,15 @@ func apply(user: Actor, _aim: Vector2) -> void:
 			world.spawn_floating_text(user.head_position(), bonuses.describe(), element.color() if element else color)
 
 
-## Alive actors of `user`'s side within `radius` of it.
-static func allies_of(user: Actor, radius: float, include_self: bool) -> Array[Actor]:
+## Alive actors of `user`'s side within `reach` of it.
+static func allies_of(user: Actor, reach: float, with_self: bool) -> Array[Actor]:
 	var result: Array[Actor] = []
 	var enemy_side := Actor.Faction.MONSTER if user.faction == Actor.Faction.PLAYER else Actor.Faction.PLAYER
 	for actor in user.world.get_hostiles(enemy_side):
-		if actor.is_dead or (actor == user and not include_self):
+		if actor.is_dead or (actor == user and not with_self):
 			continue
-		if actor.global_position.distance_to(user.global_position) <= radius:
+		if actor.global_position.distance_to(user.global_position) <= reach:
 			result.append(actor)
-	if include_self and not result.has(user) and not user.is_dead:
+	if with_self and not result.has(user) and not user.is_dead:
 		result.append(user)
 	return result

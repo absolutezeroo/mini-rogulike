@@ -44,8 +44,8 @@ func open(fragment: FragmentDef, boss: BossDef, first_time: bool = false) -> voi
 		_lines.add_child(UiSkin.label(tr(line), Fonts.BODY, UiSkin.TEXT, true))
 	_kept.visible = boss != null
 	if boss:
-		var name := tr(boss.display_name)
-		_kept.text = tr("A new page for its chronicle: %s.") % name if first_time else tr("From its chronicle: %s.") % name
+		var boss_name := tr(boss.display_name)
+		_kept.text = tr("A new page for its chronicle: %s.") % boss_name if first_time else tr("From its chronicle: %s.") % boss_name
 	_opened_at = Engine.get_process_frames()
 	show()
 

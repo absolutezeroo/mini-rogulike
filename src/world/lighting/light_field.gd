@@ -134,7 +134,7 @@ func _read_walls() -> void:
 	_walls.resize(_size.x * _size.y)
 	for y in _size.y:
 		for x in _size.x:
-			var tile := Vector2i(x / CELLS, y / CELLS)
+			var tile := Vector2i(int(x / float(CELLS)), int(y / float(CELLS)))
 			_walls[y * _size.x + x] = OPEN if _map.is_floor(tile) else (FACE if _is_face(_map, tile) else SOLID)
 	_material.set_shader_parameter("walls", ImageTexture.create_from_image(Image.create_from_data(_size.x, _size.y, false, Image.FORMAT_R8, _scaled(_walls, 127))))
 
@@ -251,11 +251,11 @@ func _spread(buckets: Array[Array]) -> void:
 		for index: int in buckets[value]:
 			if _value[index] != value:
 				continue  # reached brighter since
-			var level := value / STEP
+			var level := int(value / float(STEP))
 			_levels[index] = level
 			_tints[index * 4 + 3] = level * 17
 			var x := index % width
-			var y := index / width
+			var y := int(index / float(width))
 			var kind := _walls[index]
 			var in_wall := kind != OPEN and _starts[index] == 0
 			for step in NEIGHBOURS:
@@ -285,9 +285,9 @@ func _spread(buckets: Array[Array]) -> void:
 				if next_value < lit_min:
 					continue
 				# In a wall: only on through its own tile, or up the cliff face it belongs to.
-				if in_wall and nx / CELLS != x / CELLS:
+				if in_wall and int(nx / float(CELLS)) != int(x / float(CELLS)):
 					continue
-				if in_wall and ny / CELLS != y / CELLS and (step.x != 0 or next_kind != FACE):
+				if in_wall and int(ny / float(CELLS)) != int(y / float(CELLS)) and (step.x != 0 or next_kind != FACE):
 					continue
 				if step.z == DIAGONAL and (_walls[y * width + nx] != OPEN or _walls[ny * width + x] != OPEN):
 					continue
@@ -358,8 +358,8 @@ static func _is_face(map: DungeonMap, tile: Vector2i) -> bool:
 ## True if wall cell `p` is part of the cliff face `target` is on (its tile, or the tile below):
 ## light reaching `target` there may cross it.
 static func _same_face(p: Vector2i, target: Vector2i) -> bool:
-	var a := p / CELLS
-	var b := target / CELLS
+	var a := Vector2i(Vector2(p) / CELLS)
+	var b := Vector2i(Vector2(target) / CELLS)
 	return a.x == b.x and (a.y == b.y or a.y == b.y + 1)
 
 

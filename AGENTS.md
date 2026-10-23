@@ -56,6 +56,8 @@ for a system before changing it.
 ## Done means
 
 - Tests pass and the output has no new engine errors; `extract.py --check` passes.
+- No GDScript warnings: run `python3 tools/lint/gd_warnings.py` (exit 0; fixes: docs/conventions.md,
+  "No GDScript warnings").
 - A rule fix or new mechanic has a check (`check(condition, "the rule")`) in tests/suites/.
   Never weaken or skip a check.
 - The docs/design/ page about the change is updated in the same commit, along with the data texts

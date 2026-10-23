@@ -122,7 +122,7 @@ func _test_perks_in_game(game: Game, world: World, player: Player) -> void:
 	_killing_blow(player)
 	check(not player.is_dead and game.threshold.is_open(), "Phoenix Feather survives a killing blow (off to the Threshold)")
 	check(player.perks.get_entry(phoenix).memory.get(&"used", 0) == 1, "the feather is used up")
-	check(await _win_trial(game) and not player.is_dead and player.hp >= player.get_max_hp() / 3, "won, the hero is back on his feet")
+	check(await _win_trial(game) and not player.is_dead and player.hp >= int(player.get_max_hp() / 3.0), "won, the hero is back on his feet")
 	# Where there is no Threshold (the balance tools' bare arena), a second life heals in place.
 	var in_place := (phoenix.passives[0] as CheatDeathPassive).duplicate() as CheatDeathPassive
 	in_place.trial = null
@@ -756,7 +756,7 @@ func _test_bestiary(world: World, player: Player) -> void:
 
 
 ## Difficulty multipliers reach monsters; the run uses the difficulty picked on the title screen.
-func _test_difficulty_in_game(game: Game, world: World, player: Player) -> void:
+func _test_difficulty_in_game(_game: Game, world: World, player: Player) -> void:
 	var skeleton: MonsterDef = load("res://data/monsters/skeleton.tres")
 	var spot := world.find_open_point_near(player.global_position, 150.0)
 	check(world.difficulty == CONTENT.default_difficulty, "a run without choice is Normal")
@@ -1013,13 +1013,13 @@ func _test_four_directions(game: Game) -> void:
 			var hp_before := target.hp
 			player.attack(aim)
 			var way := Blow.cardinal(aim)
-			var name := "%s at %.0f degrees" % [weapon.id, degrees]
-			check(player.rig.direction == ActorRig.direction_name(way), "four directions: %s: the body strikes %s" % [name, ActorRig.direction_name(way)])
+			var case_name := "%s at %.0f degrees" % [weapon.id, degrees]
+			check(player.rig.direction == ActorRig.direction_name(way), "four directions: %s: the body strikes %s" % [case_name, ActorRig.direction_name(way)])
 			if weapon.shows_arc():
-				var swing: SwingVfx = newest_swing.call()
-				check(swing != null and absf(angle_difference(float(swing.material.get_shader_parameter("aim")), way.angle())) < 0.001, "four directions: %s: its arc is drawn %s, the way the body faces (%s)" % [name, ActorRig.direction_name(way), rad_to_deg(float(swing.material.get_shader_parameter("aim"))) if swing else "none"])
+				var drawn_swing: SwingVfx = newest_swing.call()
+				check(drawn_swing != null and absf(angle_difference(float(drawn_swing.material.get_shader_parameter("aim")), way.angle())) < 0.001, "four directions: %s: its arc is drawn %s, the way the body faces (%s)" % [case_name, ActorRig.direction_name(way), str(rad_to_deg(float(drawn_swing.material.get_shader_parameter("aim")))) if drawn_swing else "none"])
 			await _frames(2)
-			check(target.hp < hp_before, "four directions: %s: the enemy off the cardinal is still hit" % name)
+			check(target.hp < hp_before, "four directions: %s: the enemy off the cardinal is still hit" % case_name)
 			await _frames(int(player.get_attack_cooldown(weapon) * 60.0) + 2)
 		# The charged blow, at an enemy 35 degrees down from the right (dashes come back first).
 		var charged_aim: Vector2 = place.call(35.0, 40.0)
@@ -1056,7 +1056,7 @@ func _test_four_directions(game: Game) -> void:
 	player.attack(shot_aim)
 	await _frames(1)
 	var arrow := projectiles.get_child(projectiles.get_child_count() - 1) as Projectile if projectiles.get_child_count() > 0 else null
-	check(arrow != null and absf(arrow._direction.angle_to(shot_aim)) < 0.01, "four directions: an arrow still flies at the exact angle (%s)" % (rad_to_deg(arrow._direction.angle()) if arrow else "none"))
+	check(arrow != null and absf(arrow._direction.angle_to(shot_aim)) < 0.01, "four directions: an arrow still flies at the exact angle (%s)" % (str(rad_to_deg(arrow._direction.angle())) if arrow else "none"))
 	await _frames(40)
 	target.queue_free()
 	# A monster's blow: a skeleton at a hero on a diagonal strikes its body's way, and lands.
@@ -1112,13 +1112,13 @@ func _test_own_effects(game: Game) -> void:
 			await _frames(1)
 			var shot := projectiles.get_child(projectiles.get_child_count() - 1) as Projectile if projectiles.get_child_count() > 0 else null
 			var north := VfxLayer.goes_behind(shot._direction if shot else direction)  # a fan's star may turn north
-			var name := "%s toward (%.1f, %.1f)" % [id, direction.x, direction.y]
-			check(shot != null and shot.z_index == (VfxLayer.GROUND_Z if north else 0), "own effects: %s: the shot starts %s him" % [name, "behind" if north else "in front of"])
+			var case_name := "%s toward (%.1f, %.1f)" % [id, direction.x, direction.y]
+			check(shot != null and shot.z_index == (VfxLayer.GROUND_Z if north else 0), "own effects: %s: the shot starts %s him" % [case_name, "behind" if north else "in front of"])
 			var start: Vector2 = Vector2.INF
 			if shot != null:
 				start = shot._trail[0] if not shot._trail.is_empty() else shot.global_position
-			check(start.distance_to(player.hand_point(direction) + direction * 6.0) < 12.0, "own effects: %s: it leaves his hand (%s, the hand %s)" % [name, start - player.global_position, player.hand_point(direction) - player.global_position])
-			check(player.rig.get_children().filter(func(n: Node) -> bool: return n is SheetVfx).size() == claws, "own effects: %s: no claw or burst over him" % name)
+			check(start.distance_to(player.hand_point(direction) + direction * 6.0) < 12.0, "own effects: %s: it leaves his hand (%s, the hand %s)" % [case_name, start - player.global_position, player.hand_point(direction) - player.global_position])
+			check(player.rig.get_children().filter(func(n: Node) -> bool: return n is SheetVfx).size() == claws, "own effects: %s: no claw or burst over him" % case_name)
 			for child in projectiles.get_children():
 				child.queue_free()
 	for id: String in ["katana", "axe", "lance", "rapier"]:
@@ -1133,11 +1133,11 @@ func _test_own_effects(game: Game) -> void:
 			var swing: SwingVfx = swings[-1] if not swings.is_empty() else null
 			# A blow is struck the way the body faces (Blow): north only when the pose is.
 			var north := VfxLayer.goes_behind(Blow.cardinal(direction))
-			var name := "%s toward (%.1f, %.1f)" % [id, direction.x, direction.y]
+			var case_name := "%s toward (%.1f, %.1f)" % [id, direction.x, direction.y]
 			if north:
-				check(swing != null and VfxLayer.of(swing) == VfxLayer.Layer.STANDING and swing.global_position.y < player.global_position.y, "own effects: %s: the blow sorts behind him" % name)
+				check(swing != null and VfxLayer.of(swing) == VfxLayer.Layer.STANDING and swing.global_position.y < player.global_position.y, "own effects: %s: the blow sorts behind him" % case_name)
 			else:
-				check(swing != null and VfxLayer.of(swing) == VfxLayer.Layer.AIR, "own effects: %s: the blow is in front of him" % name)
+				check(swing != null and VfxLayer.of(swing) == VfxLayer.Layer.AIR, "own effects: %s: the blow is in front of him" % case_name)
 			for node in swings:
 				(node as Node).queue_free()
 			await _frames(1)
@@ -1220,8 +1220,8 @@ func _test_elemental_attacks(game: Game) -> void:
 			place.call()
 			await _frames(2)
 			var element := VfxElementDef.named(element_id)
-			var name := "%s %s" % [element_id, id]
-			check(ItemLook.swing_element(weapon, true) == (null if element_id == &"physical" else element), "elemental: a %s swings in its element" % name)
+			var case_name := "%s %s" % [element_id, id]
+			check(ItemLook.swing_element(weapon, true) == (null if element_id == &"physical" else element), "elemental: a %s swings in its element" % case_name)
 			player._attack_cooldown = 0.0
 			player.attack(Vector2.RIGHT)
 			await _frames(2)
@@ -1234,7 +1234,7 @@ func _test_elemental_attacks(game: Game) -> void:
 				if element_id == &"physical":
 					check(shot != null and shot._rides == null, "elemental: a plain bow's arrow is a plain arrow")
 				else:
-					check(shot != null and shot._rides == element, "elemental: a %s's arrow flies in it (%d of %d shots his, riding %s, target %d px away)" % [name, own.size(), shots.size(), shot._rides.id if shot and shot._rides else &"nothing", roundi(target.global_position.distance_to(player.global_position))])
+					check(shot != null and shot._rides == element, "elemental: a %s's arrow flies in it (%d of %d shots his, riding %s, target %d px away)" % [case_name, own.size(), shots.size(), shot._rides.id if shot and shot._rides else &"nothing", roundi(target.global_position.distance_to(player.global_position))])
 				for child in shots:
 					child.queue_free()
 			elif base.shows_arc():
@@ -1248,16 +1248,16 @@ func _test_elemental_attacks(game: Game) -> void:
 				if element_id == &"physical":
 					check(swing != null and swing.element == physical and int(swing.material.get_shader_parameter("matter")) == 0 and matter == null, "elemental: a plain %s swings steel, nothing shed" % id)
 				else:
-					check(swing != null and swing.element == element, "elemental: a %s's arc is in its ramp (not steel)" % name)
-					check(swing != null and Color(swing.material.get_shader_parameter("core")) == element.shade(0.0) and int(swing.material.get_shader_parameter("matter")) == SwingVfx.matter_of(element) and SwingVfx.matter_of(element) != 0, "elemental: a %s's arc breaks into its matter" % name)
-					check(matter != null and matter.bit_count(element) > 0, "elemental: a %s's blow sheds its bits" % name)
+					check(swing != null and swing.element == element, "elemental: a %s's arc is in its ramp (not steel)" % case_name)
+					check(swing != null and Color(swing.material.get_shader_parameter("core")) == element.shade(0.0) and int(swing.material.get_shader_parameter("matter")) == SwingVfx.matter_of(element) and SwingVfx.matter_of(element) != 0, "elemental: a %s's arc breaks into its matter" % case_name)
+					check(matter != null and matter.bit_count(element) > 0, "elemental: a %s's blow sheds its bits" % case_name)
 			else:
 				# The War Hammer's smash on the floor: dust and steel sparks, or its element.
-				var shed := made.any(func(n: Node) -> bool: return n is SwingMatter and not n.is_queued_for_deletion())
+				var smashed := made.any(func(n: Node) -> bool: return n is SwingMatter and not n.is_queued_for_deletion())
 				if element_id == &"physical":
-					check(not shed, "elemental: a plain hammer's smash sheds no element")
+					check(not smashed, "elemental: a plain hammer's smash sheds no element")
 				else:
-					check(shed, "elemental: a %s's smash bursts in it" % name)
+					check(smashed, "elemental: a %s's smash bursts in it" % case_name)
 			for node in made:
 				if node is SwingVfx or node is SwingMatter:
 					(node as Node).queue_free()
@@ -1400,7 +1400,7 @@ func _test_rune_shots(game: Game, place: Callable) -> void:
 		player.skills.try_use(player.skills.skills.find(skill), player, Vector2.LEFT)
 		await _frames(int(dressed.map(func(e: Effect) -> float: return e.delay).max() * 60.0) + 3)
 		var drawn: Array = (spawned.call() as Array).filter(func(n: Node) -> bool: return not before.has(n) and is_instance_valid(n) and n.get("element") == fire)
-		check(not drawn.is_empty(), "rune skills: %s, seen (%s)" % [c[3], drawn.map(func(n: Node) -> String: return n.get_class() if n.get_script() == null else (n.get_script() as Script).get_global_name())])
+		check(not drawn.is_empty(), "rune skills: %s, seen (%s)" % [c[3], drawn.map(func(n: Node) -> String: return n.get_class() if n.get_script() == null else String((n.get_script() as Script).get_global_name()))])
 		if c[2] != null:
 			var own_drawn: Array = (spawned.call() as Array).filter(func(n: Node) -> bool: return not before.has(n) and is_instance_valid(n) and n.get("element") == c[2])
 			check(not own_drawn.is_empty(), "rune skills: %s, its own element still drawn" % c[1])

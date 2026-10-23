@@ -116,10 +116,10 @@ func fetch_mine(board: LeaderboardDef, period_key: String, _past: bool) -> Board
 func fill(board: LeaderboardDef, period_key: String, count: int, best: float, step: float, names_from: PackedStringArray) -> void:
 	var list := _list(board, period_key)
 	for i in count:
-		var name := names_from[i % names_from.size()]
+		var alias_name := names_from[i % names_from.size()]
 		if i >= names_from.size():
-			name += " %d" % (i / names_from.size() + 1)
-		list.append({ "alias": 900000 + i, "name": name, "score": best - i * step, "props": {} })
+			alias_name += " %d" % (int(i / float(names_from.size())) + 1)
+		list.append({ "alias": 900000 + i, "name": alias_name, "score": best - i * step, "props": {} })
 
 
 func _answers() -> bool:

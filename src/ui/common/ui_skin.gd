@@ -66,12 +66,12 @@ static func plaque() -> StyleBoxTexture:
 ## A label in the skin's text style, with a dark outline (readable on wood and in any color).
 ## `font_size`: one of the Fonts sizes (Fonts.BODY for anything read, Fonts.TITLE...), so its
 ## letters keep whole pixels (Fonts); the outline is one font pixel.
-static func label(text: String, font_size: int = Fonts.BODY, color: Color = TEXT, wrap := false) -> Label:
+static func label(text: String, font_size: int = Fonts.BODY, color: Color = TEXT, wraps := false) -> Label:
 	var result := Label.new()
 	result.text = text
 	set_text_style(result, font_size)
 	result.add_theme_color_override("font_color", color)
-	if wrap:
+	if wraps:
 		result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		result.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	return result

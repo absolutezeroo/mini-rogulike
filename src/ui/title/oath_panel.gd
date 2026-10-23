@@ -97,15 +97,15 @@ func _fill_cards() -> void:
 	UiParts.clear(_cards)
 	_cards.add_child(_card(null, true))
 	for oath in _content.soul_tree.oaths():
-		var open := _content.soul_tree.open_oaths().has(oath)
-		_cards.add_child(_card(oath, open))
+		var is_open := _content.soul_tree.open_oaths().has(oath)
+		_cards.add_child(_card(oath, is_open))
 
 
-func _card(oath: OathDef, open: bool) -> Control:
+func _card(oath: OathDef, is_open: bool) -> Control:
 	var chosen := (oath == null and Profile.oath == &"") or (oath != null and Profile.oath == oath.id)
 	var card := Button.new()
 	card.custom_minimum_size = CARD_SIZE
-	card.disabled = not open
+	card.disabled = not is_open
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(1.0, 0.8, 0.35, 0.16) if chosen else Color(0, 0, 0, 0.22)
 	style.border_color = UiSkin.GOLD if chosen else Color(0, 0, 0, 0.4)
@@ -131,12 +131,12 @@ func _card(oath: OathDef, open: bool) -> Control:
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	icon.texture = oath.icon if oath else _content.player.starting_equipment[0].icon if not _content.player.starting_equipment.is_empty() else null
-	icon.modulate = Color.WHITE if open else Color(0.4, 0.38, 0.36)
+	icon.modulate = Color.WHITE if is_open else Color(0.4, 0.38, 0.36)
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(icon)
-	var name := UiSkin.label(tr(oath.display_name) if oath else tr("Unsworn"), Fonts.BODY, (oath.color.lerp(Color.WHITE, 0.3) if oath else UiSkin.TEXT) if open else UiSkin.DIM)
-	name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	column.add_child(name)
+	var label_name := UiSkin.label(tr(oath.display_name) if oath else tr("Unsworn"), Fonts.BODY, (oath.color.lerp(Color.WHITE, 0.3) if oath else UiSkin.TEXT) if is_open else UiSkin.DIM)
+	label_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	column.add_child(label_name)
 	# What it changes: gains in green, costs in red (faded while it is locked).
 	var lines: Array = oath.effects() if oath else [[tr("The usual start: the Katana, no rule changed."), 0]]
 	for line: Array in lines:
@@ -145,10 +145,10 @@ func _card(oath: OathDef, open: bool) -> Control:
 			color = MenuWindow.GOOD
 		elif line[1] < 0:
 			color = MenuWindow.BAD
-		var words := UiSkin.label(line[0], Fonts.SMALL, color if open else Color(color, 0.55), true)  # fine print: five cards abreast
+		var words := UiSkin.label(line[0], Fonts.SMALL, color if is_open else Color(color, 0.55), true)  # fine print: five cards abreast
 		words.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		column.add_child(words)
-	if not open:
+	if not is_open:
 		var branch := ""
 		for node in _content.soul_tree.nodes:
 			if node.oath == oath and node.branch < _content.soul_tree.branches.size():

@@ -14,9 +14,9 @@ var monster: Monster
 var _telegraph: TelegraphView
 
 
-static func create(owner: Monster, overlay_layer: Layer) -> MonsterOverlay:
+static func create(host: Monster, overlay_layer: Layer) -> MonsterOverlay:
 	var overlay := MonsterOverlay.new()
-	overlay.monster = owner
+	overlay.monster = host
 	overlay.layer = overlay_layer
 	overlay.name = "Under" if overlay_layer == Layer.UNDER else "Over"
 	overlay.show_behind_parent = overlay_layer == Layer.UNDER

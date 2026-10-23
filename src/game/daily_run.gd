@@ -51,7 +51,7 @@ static func _pick(choices: Array, day: int, salt: int) -> Variant:
 static func score(run: RunState) -> int:
 	return run.kills * POINTS_PER_KILL + (run.depth - 1) * POINTS_PER_FLOOR \
 		+ run.bosses_slain * POINTS_PER_BOSS + (POINTS_FOR_VICTORY if run.has_won else 0) \
-		+ run.run_gold / GOLD_PER_POINT
+		+ int(run.run_gold / float(GOLD_PER_POINT))
 
 
 ## "Katana + Phoenix Feather": what the day gives.

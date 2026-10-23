@@ -7,12 +7,12 @@ extends TestSuite
 func run() -> void:
 	# The other game suites play on the same game, one after the other.
 	var combat := CombatTests.new()
-	var floor := FloorTests.new()
+	var floor_suite := FloorTests.new()
 	var boss := BossTests.new()
 	var secrets := SecretTests.new()
 	var finale := FinaleTests.new()
 	var levels := LevelTests.new()
-	for suite: Node in [combat, floor, boss, secrets, finale, levels]:
+	for suite: Node in [combat, floor_suite, boss, secrets, finale, levels]:
 		add_child(suite)
 	# No merchant, encounter, ambush or special floor popping up in the middle of other tests (they have their own).
 	var merchant_chance := CONTENT.dungeon.merchant_chance
@@ -49,13 +49,13 @@ func run() -> void:
 	await combat._test_threshold(game, world, player)
 	await combat._test_synergies_in_game(game, world, player)
 	await combat._test_sustain_in_game(world, player)
-	await floor._test_world_objects(game, world, player)
-	await floor._test_hazards(game, world, player)
-	await floor._test_abyss(game, world, player)
-	await floor._test_abyss_rules(game, world, player)
-	await floor._test_forge(game, world, player)
-	await floor._test_feel(game, world, player)
-	await floor._test_screen_pass(game, world, player)
+	await floor_suite._test_world_objects(game, world, player)
+	await floor_suite._test_hazards(game, world, player)
+	await floor_suite._test_abyss(game, world, player)
+	await floor_suite._test_abyss_rules(game, world, player)
+	await floor_suite._test_forge(game, world, player)
+	await floor_suite._test_feel(game, world, player)
+	await floor_suite._test_screen_pass(game, world, player)
 	await combat._test_skills(game, world, player)
 	await combat._test_bestiary(world, player)
 	await combat._test_difficulty_in_game(game, world, player)
@@ -122,10 +122,10 @@ func run() -> void:
 
 	# Armor is drawn on the hero (paper doll), frame by frame with the body.
 	for armor_id in ["leather_cap", "iron_helm", "leather_armor", "chain_mail", "plate_armor", "shadow_cloak"]:
-		var armor: ArmorDef = load("res://data/items/armors/%s.tres" % armor_id)
-		check(armor.wear_frames != null, "%s has a worn look" % armor_id)
+		var worn: ArmorDef = load("res://data/items/armors/%s.tres" % armor_id)
+		check(worn.wear_frames != null, "%s has a worn look" % armor_id)
 		for animation in rig.body.sprite_frames.get_animation_names():
-			check(armor.wear_frames.has_animation(animation), "%s covers %s" % [armor_id, animation])
+			check(worn.wear_frames.has_animation(animation), "%s covers %s" % [armor_id, animation])
 	var helm: ArmorDef = load("res://data/items/armors/iron_helm.tres")
 	var mail: ArmorDef = load("res://data/items/armors/chain_mail.tres")
 	player.equipment.equip(helm)
@@ -225,7 +225,7 @@ func run() -> void:
 	check(player.level > 1, "player gained levels")
 
 	# Sealed stairs first; then, open, they take you deeper.
-	await floor._test_stairs_seal(game)
+	await floor_suite._test_stairs_seal(game)
 	world = game.world
 	var depth_before: int = game.depth
 	player.global_position = world.map.cell_to_world(world.map.stairs_cell)
@@ -238,34 +238,34 @@ func run() -> void:
 	check(depth_changes[0] >= 1, "depth_changed emitted")
 	check(world.monster_count() > 0, "new floor populated")
 	check(not get_tree().paused and game._fade.color.a < 0.05, "the fade clears on the new floor")
-	await floor._test_ambience(game)
-	await floor._test_act_card(game)
-	await floor._test_souls(game)
-	await floor._test_comfort(game)
-	await floor._test_loot_and_gold(game)
-	await floor._test_bag_room(game)
+	await floor_suite._test_ambience(game)
+	await floor_suite._test_act_card(game)
+	await floor_suite._test_souls(game)
+	await floor_suite._test_comfort(game)
+	await floor_suite._test_loot_and_gold(game)
+	await floor_suite._test_bag_room(game)
 	await combat._test_weapon_kits(game)
 	await combat._test_charged_attacks(game)
 	await combat._test_four_directions(game)
 	await combat._test_own_effects(game)
 	await combat._test_elemental_attacks(game)
-	await floor._test_encounters(game)
-	await floor._test_pacts(game)
-	await floor._test_variety(game)
-	await floor._test_floor_size(game)
-	await floor._test_routes(game)
-	await floor._test_soul_tree_run(game)
-	await floor._test_status_looks(game)
-	await floor._test_biomes(game)
+	await floor_suite._test_encounters(game)
+	await floor_suite._test_pacts(game)
+	await floor_suite._test_variety(game)
+	await floor_suite._test_floor_size(game)
+	await floor_suite._test_routes(game)
+	await floor_suite._test_soul_tree_run(game)
+	await floor_suite._test_status_looks(game)
+	await floor_suite._test_biomes(game)
 	await levels.run_game(game)
-	await floor._test_details(game)
-	await floor._test_belt_and_balance(game)
+	await floor_suite._test_details(game)
+	await floor_suite._test_belt_and_balance(game)
 	await combat._test_monster_behaviours(game)
 	await combat._test_ai_movement(game)
-	await floor._test_climate(game)
-	await floor._test_spacing(game)
+	await floor_suite._test_climate(game)
+	await floor_suite._test_spacing(game)
 	await combat._test_review_fixes(game)
-	await floor._test_debug_panel(game)
+	await floor_suite._test_debug_panel(game)
 	var debug_tools := DebugTests.new()
 	add_child(debug_tools)
 	await debug_tools.run_game(game)
@@ -274,7 +274,7 @@ func run() -> void:
 	await secrets._test_hidden_floor(game)
 	await boss._test_boss_fight(game)
 
-	await floor._test_bodies_fit(game)  # (it builds other floors: the run ends right after)
+	await floor_suite._test_bodies_fit(game)  # (it builds other floors: the run ends right after)
 
 	# The bag's new marks and its tab belong to the run: seen now, a rune is new in the next one.
 	var rune: RuneDef = load("res://data/runes/ember.tres")
@@ -469,9 +469,9 @@ func run() -> void:
 	game._enter_floor()
 	await _bot_play(game, 60 * 20)
 	print("bot (depth 4, mortal): hp %d/%d, dead=%s" % [game.player.hp, game.player.get_max_hp(), game.player.is_dead])
-	await floor._test_slain_stay_dead(game)
+	await floor_suite._test_slain_stay_dead(game)
 	await combat._test_threshold_lost(game)
-	await floor._test_abyss_death(game)
+	await floor_suite._test_abyss_death(game)
 	# Keyboards, mice and gamepads: the HUD, the panels, the layouts (PcTests).
 	var pc := PcTests.new()
 	add_child(pc)
@@ -503,39 +503,39 @@ func run() -> void:
 
 ## The run's clock: counts in play and in the bag, not in the pause menu; on the HUD.
 func _test_run_timer(game: Game) -> void:
-	var run := game.run
-	var start := run.time
+	var game_run := game.run
+	var start := game_run.time
 	await _frames(60)
-	check(run.time - start > 0.9 and run.time - start < 1.2, "the clock counts real seconds (%.2f)" % (run.time - start))
+	check(game_run.time - start > 0.9 and game_run.time - start < 1.2, "the clock counts real seconds (%.2f)" % (game_run.time - start))
 	game.open_pause_menu()
-	var paused := run.time
+	var paused := game_run.time
 	await _frames(60)
-	check(is_equal_approx(run.time, paused), "it stops in the pause menu")
+	check(is_equal_approx(game_run.time, paused), "it stops in the pause menu")
 	game.pause_menu.resume_requested.emit()
 	await _frames(2)
 	game.open_inventory()
-	var in_bag := run.time
+	var in_bag := game_run.time
 	await _frames(30)
-	check(run.time > in_bag + 0.4, "it runs in the bag (deciding is part of the run)")
+	check(game_run.time > in_bag + 0.4, "it runs in the bag (deciding is part of the run)")
 	game.inventory_panel.close()
 	HitStop.slow(1.0, 0.25)
-	var slow := run.time
+	var slow := game_run.time
 	await _frames(30)
-	check(run.time - slow > 0.4 and run.time - slow < 0.6, "slow motion doesn't slow the clock (%.2f)" % (run.time - slow))
+	check(game_run.time - slow > 0.4 and game_run.time - slow < 0.6, "slow motion doesn't slow the clock (%.2f)" % (game_run.time - slow))
 	HitStop.reset()
 	# A blow lands during physics and freezes the world: the clock neither jumps nor stalls. (It
 	# used to add up to a quarter of a second at each hit stop: that frame's delta, scaled at 1,
 	# divided by the freeze's scale. Each frame is 1/60 s here, frozen or not.)
 	await _frames(2)
-	var before_freeze := run.time
+	var before_freeze := game_run.time
 	await get_tree().physics_frame
 	HitStop.freeze(0.1)
 	await _frames(30)
-	check(absf(run.time - before_freeze - 0.5) < 0.04, "a hit stop doesn't change the clock (%.2f s in 30 frames)" % (run.time - before_freeze))
+	check(absf(game_run.time - before_freeze - 0.5) < 0.04, "a hit stop doesn't change the clock (%.2f s in 30 frames)" % (game_run.time - before_freeze))
 	HitStop.reset()
 	var label := game.hud.get_node("%TimerLabel") as Label
 	await _frames(1)
-	check(label.visible and label.text == TimeText.of(run.time, 1), "the time is under the map: %s" % label.text)
+	check(label.visible and label.text == TimeText.of(game_run.time, 1), "the time is under the map: %s" % label.text)
 	Settings.set_option(&"run_timer", false)
 	await _frames(1)
 	check(not label.visible, "the run timer can be hidden")

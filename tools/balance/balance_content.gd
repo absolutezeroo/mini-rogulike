@@ -293,4 +293,5 @@ static func median(values: Array) -> float:
 	var sorted := values.duplicate()
 	sorted.sort()
 	var n := sorted.size()
-	return sorted[n / 2] if n % 2 == 1 else (float(sorted[n / 2 - 1]) + float(sorted[n / 2])) * 0.5
+	var mid := int(n / 2.0)
+	return sorted[mid] if n % 2 == 1 else (float(sorted[mid - 1]) + float(sorted[mid])) * 0.5

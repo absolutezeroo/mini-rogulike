@@ -230,8 +230,8 @@ static func _weapon_names(weapons: Array[WeaponDef], content: ContentDB) -> Stri
 		unlocked = ShrineUpgrades.unlocked_items(content)
 	var names := PackedStringArray()
 	for weapon in weapons:
-		var name := TranslationServer.tr(weapon.display_name)
+		var weapon_name := TranslationServer.tr(weapon.display_name)
 		if content and content.locked_items.has(weapon) and not unlocked.has(weapon):
-			name = TranslationServer.tr("%s (locked)") % name
-		names.append(name)
+			weapon_name = TranslationServer.tr("%s (locked)") % weapon_name
+		names.append(weapon_name)
 	return ", ".join(names)

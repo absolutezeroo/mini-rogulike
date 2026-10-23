@@ -8,6 +8,8 @@ extends TestSuite
 ## (game suite): the HUD per device, the mouse in a fight, pausing, every in-run panel with keys
 ## and a gamepad, and the HUD's layout at every screen size.
 
+const PixelGridScript := preload("res://src/autoload/pixel_grid.gd")  # its static helpers are called on the script, not the autoload
+
 ## Screens the layouts must hold at: computers (16:9, 16:10, 21:9, 4:3) and phones.
 const SIZES: Array[Vector2i] = [
 	Vector2i(1280, 720), Vector2i(1366, 768), Vector2i(1920, 1080), Vector2i(2560, 1440),
@@ -157,7 +159,7 @@ func _check_keys_reach(panel: Control, what: String, move: bool = true) -> void:
 	if top == null:
 		return
 	var focus := _focus()
-	check(focus != null and top.is_ancestor_of(focus), "%s: the keys start on one of its buttons (%s)" % [what, focus.name if focus else "none"])
+	check(focus != null and top.is_ancestor_of(focus), "%s: the keys start on one of its buttons (%s)" % [what, String(focus.name) if focus else "none"])
 	if not move:
 		return
 	var count := MenuNav.focusables(top).size()
@@ -418,9 +420,9 @@ func _test_settings() -> void:
 ## The canvas's scale goes by whole steps of 0.5 (whole font pixels), the canvas fills the rest of
 ## the screen at least as big as the layouts' 1280x720, and the camera keeps the floor's framing.
 func _test_canvas_scale() -> void:
-	check(PixelGrid.canvas_scale(1.0667, Settings.UI_BIG) == 1.0 and PixelGrid.canvas_scale(1.5, Settings.UI_BIG) == 1.5, "1366x768 at x1, 1080 lines at x1.5")
-	check(PixelGrid.canvas_scale(2.6875, Settings.UI_BIG) == 2.5 and PixelGrid.canvas_scale(2.0, Settings.UI_MEDIUM) == 1.5, "x2.5 for a big screen; Medium a step smaller")
-	check(PixelGrid.canvas_scale(1.5, Settings.UI_SMALL) == 1.0 and PixelGrid.canvas_scale(0.8, Settings.UI_SMALL) == 0.8, "never under x1; a small screen keeps its own scale")
+	check(PixelGridScript.canvas_scale(1.0667, Settings.UI_BIG) == 1.0 and PixelGridScript.canvas_scale(1.5, Settings.UI_BIG) == 1.5, "1366x768 at x1, 1080 lines at x1.5")
+	check(PixelGridScript.canvas_scale(2.6875, Settings.UI_BIG) == 2.5 and PixelGridScript.canvas_scale(2.0, Settings.UI_MEDIUM) == 1.5, "x2.5 for a big screen; Medium a step smaller")
+	check(PixelGridScript.canvas_scale(1.5, Settings.UI_SMALL) == 1.0 and PixelGridScript.canvas_scale(0.8, Settings.UI_SMALL) == 0.8, "never under x1; a small screen keeps its own scale")
 	var before := get_tree().root.size
 	for size in SIZES:
 		await _window(size)
@@ -670,7 +672,7 @@ func _test_codex_page_focus(codex: CodexPanel) -> void:
 	await _frames(2)
 	codex.open_monster(monster)
 	# (Right away: the list following the focus scrolled then, out of a column not laid out yet.)
-	var scrolled: Array = codex.get_node("%MonsterPage").find_children("*", "ScrollContainer", true, false).map(func(box: ScrollContainer) -> int: return box.scroll_vertical)
+	var scrolled: Array = codex.get_node("%MonsterPage").find_children("*", "ScrollContainer", true, false).map(func(scroller: ScrollContainer) -> int: return scroller.scroll_vertical)
 	check(scrolled.all(func(at: int) -> bool: return at == 0), "a page opened with keys starts at the top of its columns (%s)" % [scrolled])
 	await _frames(3)
 	var back := codex.find_child("BackButton", true, false) as Control
@@ -836,6 +838,8 @@ func _test_french_panels() -> void:
 	for def in CONTENT.encounters:
 		encounters.append(world.spawn_encounter(def, world.map.world_to_cell(world.find_open_point_near(player.global_position + Vector2(0, 60), 60.0))))
 	await _frames(2)
+	# _panel_checked is a hook a probe may turn into a coroutine (a screenshot per panel): awaited.
+	@warning_ignore_start("redundant_await")
 	for size: Vector2i in [Vector2i(1280, 720), Vector2i(1540, 720), Vector2i(2340, 1080), Vector2i(2548, 1296)]:
 		await _window(size)
 		var where := "%s in French" % size
@@ -977,6 +981,7 @@ func _test_french_panels() -> void:
 		game.perk_panel.hide()
 		get_tree().paused = false
 		await _frames(2)
+	@warning_ignore_restore("redundant_await")
 	game.queue_free()
 	await _frames(2)
 	Profile.kills_by_monster = kills

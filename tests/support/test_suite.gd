@@ -259,7 +259,7 @@ func _floor_things(world: World, loot: bool = true) -> Dictionary:
 		if not loot and (node is GoldPickup or node is ItemPickup):
 			continue
 		var script := node.get_script() as Script
-		found[node.get_instance_id()] = "%s (%s)" % [node.name, script.get_global_name() if script and script.get_global_name() != &"" else node.get_class()]
+		found[node.get_instance_id()] = "%s (%s)" % [node.name, String(script.get_global_name()) if script and script.get_global_name() != &"" else node.get_class()]
 	return found
 
 
@@ -326,8 +326,8 @@ func _bot_play(game: Game, frames: int) -> void:
 		_set_move(direction)
 		# Taps (holding would charge the weapon's charged attack): a frame down, a frame up.
 		_set_action(&"attack", target != null and frame % 2 == 0)
-		_set_action(&"skill_%d" % (frame / 30 % 3 + 1), frame % 30 == 0)
-		_set_action(&"quick_item", player.hp < player.get_max_hp() / 3 and frame % 20 == 0)
+		_set_action(&"skill_%d" % (int(frame / 30.0) % 3 + 1), frame % 30 == 0)
+		_set_action(&"quick_item", player.hp < int(player.get_max_hp() / 3.0) and frame % 20 == 0)
 		await get_tree().physics_frame
 	_set_move(Vector2.ZERO)
 	for action: StringName in [&"attack", &"skill_1", &"skill_2", &"skill_3", &"quick_item"]:

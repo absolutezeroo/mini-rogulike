@@ -5,7 +5,7 @@ extends TestSuite
 
 
 ## Lights, props, explosive barrels, traps and the death dissolve.
-func _test_world_objects(game: Game, world: World, player: Player) -> void:
+func _test_world_objects(_game: Game, world: World, player: Player) -> void:
 	var torch := player.get_node("Torch") as LightSource
 	check(torch.is_lit() and world.lights.level_at(player.global_position) >= torch.level, "the hero carries a torch")
 	check(world.lights.ambient_level == world.theme.lighting.ambient_level, "the floor is as dark as its theme")
@@ -15,7 +15,7 @@ func _test_world_objects(game: Game, world: World, player: Player) -> void:
 	var lantern := lanterns[0] as Prop
 	check(world.lights.level_at(lantern.global_position) >= lantern.def.light_level, "a lantern lights its tile at its level")
 	var flash_at := world.map.cell_to_world(_open_cell_near(world, player.global_position + Vector2(160, 0), 1))
-	var before := world.lights.level_at(flash_at)
+	world.lights.level_at(flash_at)  # the light baked as it was before the flash
 	world.flash_light(flash_at, Color.WHITE, 400.0)  # 10 levels above the floor's own light
 	await _frames(1)
 	check(world.lights.level_at(flash_at) >= mini(LightField.MAX_LEVEL, world.lights.ambient_level + 9), "a flash lights up the place")
@@ -180,7 +180,7 @@ func _test_abyss(game: Game, world: World, player: Player) -> void:
 	check(RunSave.read() == saved, "nothing is saved in the Deeps")
 	# The first wave crawls out of the dark.
 	var waves := []
-	depths.wave_risen.connect(func(index: int, risen: Array[Monster]) -> void: waves.append(risen.duplicate()))
+	depths.wave_risen.connect(func(_index: int, risen: Array[Monster]) -> void: waves.append(risen.duplicate()))
 	for i in int((def.first_wave + 1.0) * 60.0):
 		if not waves.is_empty():
 			break
@@ -1047,7 +1047,7 @@ func _test_slain_stay_dead(game: Game) -> void:
 	check(indexes == range(own.size()), "numbered in order, once each (%s)" % [indexes])
 	var slain: Array[int] = []
 	var slain_ids: Array[String] = []
-	for monster: Monster in [own[0], own[own.size() / 2], own[own.size() - 1]]:
+	for monster: Monster in [own[0], own[int(own.size() / 2.0)], own[own.size() - 1]]:
 		slain.append(monster.floor_index)
 		slain_ids.append(String(monster.def.id))
 		monster.take_hit(Combat.make_secondary_hit(player, 99999))
@@ -1173,7 +1173,7 @@ func _test_status_looks(game: Game) -> void:
 	rat.statuses.clear()  # (the floor may have slowed it: quicksand, the cold)
 	await _frames(2)
 	var statuses_of := func() -> String:
-		return "dots %s, slows %s" % [rat.statuses._dots.map(func(d: StatusSet.Dot) -> String: return "%s from %s" % [d.id, d.source.name if is_instance_valid(d.source) else "?"]), rat.statuses._slows.keys()]
+		return "dots %s, slows %s" % [rat.statuses._dots.map(func(d: StatusSet.Dot) -> String: return "%s from %s" % [d.id, String(d.source.name) if is_instance_valid(d.source) else "?"]), rat.statuses._slows.keys()]
 	check(rat.status_fx != null and not rat.status_fx.visible, "a body with no status shows nothing over it (%s)" % statuses_of.call())
 	rat.statuses.apply_slow(0.5, 1.0, StatusSet.GROUND_SLOW)
 	check(not rat.statuses.active_ids().has(&"slow"), "sinking in quicksand is no frost to show (%s)" % statuses_of.call())
@@ -1310,7 +1310,7 @@ func _test_comfort(game: Game) -> void:
 	Vfx.burst(world, Vfx.SPARKLES, game.player.global_position)
 	var effects := world.get_node("Effects")
 	var burst := effects.get_child(effects.get_child_count() - 1) as CPUParticles2D
-	check(Settings.fewer_effects and burst.amount == maxi(1, (Vfx.SPARKLES.instantiate() as CPUParticles2D).amount / 2), "fewer effects: half the particles")
+	check(Settings.fewer_effects and burst.amount == maxi(1, int((Vfx.SPARKLES.instantiate() as CPUParticles2D).amount / 2.0)), "fewer effects: half the particles")
 	(options.get_node("%FewerEffectsCheck") as CheckButton).button_pressed = false
 	Settings.vibrate(1.0)  # must not fail on a computer
 	game._back()
@@ -2002,25 +2002,25 @@ func _test_pacts(game: Game) -> void:
 		game.depth = depth
 		game._enter_floor()
 		await _frames(1)
-		var world: World = game.world
-		var doors := world.get_node("Entities").get_children().filter(func(n: Node) -> bool: return n is PactRoom and not n.is_queued_for_deletion())
+		var floor_world: World = game.world
+		var doors := floor_world.get_node("Entities").get_children().filter(func(n: Node) -> bool: return n is PactRoom and not n.is_queued_for_deletion())
 		check(doors.size() <= 1, "floor %d: one pact door at most (%d)" % [depth, doors.size()])
 		if depth == 1 or config.boss_for_depth(depth) != null:
-			check(doors.is_empty() and world.pact == null, "floor %d: no pact door on the first floor nor a boss floor" % depth)
+			check(doors.is_empty() and floor_world.pact == null, "floor %d: no pact door on the first floor nor a boss floor" % depth)
 			continue
 		if doors.is_empty():
 			continue
 		placed += 1
-		var pact := doors[0] as PactRoom
-		check(world.pact == pact and pact.is_closed() and pact.is_open_offer(), "floor %d: the pact door is sealed, its pact on offer" % depth)
-		check(not world.map.secrets.any(func(plan: SecretRoomPlan) -> bool: return world.map.rooms[plan.host] == pact.room), "floor %d: no secret room opens off a pact room (it could stay walled in)" % depth)
-		var start := world.map.cell_to_world(world.map.start_cell)
-		for cell in world.stairs_cells:
-			check(not world.find_path(start, world.map.cell_to_world(cell)).is_empty(), "floor %d: the sealed door never cuts the stairs off" % depth)
-		var inside := func(node: Node) -> bool: return pact.room.grow(1).has_point(world.map.world_to_cell((node as Node2D).global_position))
-		check(not world.get_hostiles(Actor.Faction.PLAYER).any(inside), "floor %d: nobody waits behind the pact door" % depth)
+		var pact_door := doors[0] as PactRoom
+		check(floor_world.pact == pact_door and pact_door.is_closed() and pact_door.is_open_offer(), "floor %d: the pact door is sealed, its pact on offer" % depth)
+		check(not floor_world.map.secrets.any(func(plan: SecretRoomPlan) -> bool: return floor_world.map.rooms[plan.host] == pact_door.room), "floor %d: no secret room opens off a pact room (it could stay walled in)" % depth)
+		var start := floor_world.map.cell_to_world(floor_world.map.start_cell)
+		for cell in floor_world.stairs_cells:
+			check(not floor_world.find_path(start, floor_world.map.cell_to_world(cell)).is_empty(), "floor %d: the sealed door never cuts the stairs off" % depth)
+		var inside := func(node: Node) -> bool: return pact_door.room.grow(1).has_point(floor_world.map.world_to_cell((node as Node2D).global_position))
+		check(not floor_world.get_hostiles(Actor.Faction.PLAYER).any(inside), "floor %d: nobody waits behind the pact door" % depth)
 		check(not get_tree().get_nodes_in_group("chests").any(inside) and not get_tree().get_nodes_in_group("encounters").any(inside), "floor %d: no chest nor encounter behind it" % depth)
-		check(world.ambush == null or world.ambush.room != pact.room, "floor %d: not an ambush room too" % depth)
+		check(floor_world.ambush == null or floor_world.ambush.room != pact_door.room, "floor %d: not an ambush room too" % depth)
 		if with_pact < 0:
 			with_pact = depth
 	check(placed >= 1, "pact doors come up on normal floors (%d)" % placed)

@@ -36,7 +36,7 @@ static func is_cosmetic(node: Node) -> bool:
 static func burst(world: World, scene: PackedScene, at: Vector2, color: Color = Color.WHITE, direction: Vector2 = Vector2.ZERO, size: float = 1.0) -> void:
 	var particles := scene.instantiate() as CPUParticles2D
 	if Settings.fewer_effects:
-		particles.amount = maxi(1, particles.amount / 2)
+		particles.amount = maxi(1, int(particles.amount / 2.0))
 	particles.position = at
 	if scene == DUST:
 		VfxLayer.apply(particles, VfxLayer.Layer.STANDING)

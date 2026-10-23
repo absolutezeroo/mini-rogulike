@@ -2,6 +2,8 @@ class_name UnitTests
 extends TestSuite
 ## Rules and data, no game running: stats, combat, content, generation, items, perks, bosses, profile.
 
+const SettingsScript := preload("res://src/autoload/settings.gd")  # its static helpers are called on the script, not the autoload
+
 const PLAYER: PackedScene = preload("res://src/entities/player/player.tscn")
 
 func run() -> void:
@@ -289,23 +291,23 @@ func _test_run_time() -> void:
 	check(TimeText.delta(-5.25) == "-0:05.2" and TimeText.delta(12.0) == "+0:12.0", "ahead or behind: got %s / %s" % [TimeText.delta(-5.25), TimeText.delta(12.0)])
 
 	var rng := RandomNumberGenerator.new()
-	var run := RunState.create(CONTENT, {}, rng)
-	check(run.time == 0.0 and run.splits.is_empty() and run.finish_time < 0.0, "a new run starts at zero")
-	run.time = 30.0
-	run.split(1)
-	run.time = 75.0
-	run.split(3)  # (a floor skipped: the debug panel)
-	check(run.splits.size() == 3 and run.splits[0] == 30.0 and run.splits[1] == 75.0 and run.splits[2] == 75.0, "splits: the time at the end of each floor (%s)" % [run.splits])
-	run.time = 80.0
-	check(run.run_time() == 80.0, "the time so far")
-	run.finish_time = 78.5
-	check(run.run_time() == 78.5, "won: the win's time")
-	var again := RunState.create(CONTENT, run.to_data(), rng)
-	check(again.time == 80.0 and again.finish_time == 78.5 and again.splits == run.splits, "the time and splits are saved with the run")
-	check(run.record_key() == String(run.difficulty.id), "records by difficulty (%s)" % run.record_key())
+	var state := RunState.create(CONTENT, {}, rng)
+	check(state.time == 0.0 and state.splits.is_empty() and state.finish_time < 0.0, "a new run starts at zero")
+	state.time = 30.0
+	state.split(1)
+	state.time = 75.0
+	state.split(3)  # (a floor skipped: the debug panel)
+	check(state.splits.size() == 3 and state.splits[0] == 30.0 and state.splits[1] == 75.0 and state.splits[2] == 75.0, "splits: the time at the end of each floor (%s)" % [state.splits])
+	state.time = 80.0
+	check(state.run_time() == 80.0, "the time so far")
+	state.finish_time = 78.5
+	check(state.run_time() == 78.5, "won: the win's time")
+	var again := RunState.create(CONTENT, state.to_data(), rng)
+	check(again.time == 80.0 and again.finish_time == 78.5 and again.splits == state.splits, "the time and splits are saved with the run")
+	check(state.record_key() == String(state.difficulty.id), "records by difficulty (%s)" % state.record_key())
 	var daily := RunState.create(CONTENT, {}, rng, 20000)
 	check(daily.record_key() == "", "a daily run keeps no record")
-	check(run.summary(CONTENT, 3).contains("Time 1:18.50"), "the summary gives the time: %s" % run.summary(CONTENT, 3))
+	check(state.summary(CONTENT, 3).contains("Time 1:18.50"), "the summary gives the time: %s" % state.summary(CONTENT, 3))
 
 	var splits: Array[float] = [30.0, 60.0, 95.0]
 	check(Profile.record_time("normal", 95.0, splits), "a first win is a record")
@@ -328,7 +330,7 @@ func _test_run_time() -> void:
 	# A run won at the bottom of the Well is a longer race: its own record, the first win's kept.
 	var deep := RunState.create(CONTENT, {}, rng)
 	deep.finale_open = true
-	check(deep.goes_to_bottom() and deep.record_key() == String(deep.difficulty.id) + "/bottom" and RunState.is_bottom_record(deep.record_key()) and not RunState.is_bottom_record(run.record_key()), "a run to the bottom is raced under its own record (%s)" % deep.record_key())
+	check(deep.goes_to_bottom() and deep.record_key() == String(deep.difficulty.id) + "/bottom" and RunState.is_bottom_record(deep.record_key()) and not RunState.is_bottom_record(state.record_key()), "a run to the bottom is raced under its own record (%s)" % deep.record_key())
 	var deep_again := RunState.create(CONTENT, deep.to_data(), rng)
 	check(deep_again.record_key() == deep.record_key(), "...still when the run is picked up again")
 	check(Profile.record_time(deep.record_key(), 200.0, splits) and Profile.best_time("normal") == 0.0 and is_equal_approx(Profile.best_time("normal/bottom"), 200.0), "a win at the bottom doesn't take the first win's record, nor the other way")
@@ -656,19 +658,19 @@ func _test_finale() -> void:
 	# The gate: a won profile, the last act's floor of the first pass, not won yet.
 	Profile.reset()
 	var rng := RandomNumberGenerator.new()
-	var run := RunState.create(CONTENT, {}, rng)
-	check(not run.finale_open, "no win yet: the bottom is closed")
-	run.depth = config.total_floors()
-	check(not run.leads_to_finale() and run.wins_with(config.acts.back().boss), "closed: the last act's boss wins the run (the first ending)")
+	var state := RunState.create(CONTENT, {}, rng)
+	check(not state.finale_open, "no win yet: the bottom is closed")
+	state.depth = config.total_floors()
+	check(not state.leads_to_finale() and state.wins_with(config.acts.back().boss), "closed: the last act's boss wins the run (the first ending)")
 	Profile.wins = { "easy": 1 }
 	check(finale.is_open(), "a win (even on Pilgrim) opens it")
-	run = RunState.create(CONTENT, {}, rng)
-	run.depth = config.total_floors()
-	check(run.finale_open and run.leads_to_finale() and not run.wins_with(config.acts.back().boss), "open: the last act's boss leads down instead of winning")
-	run.depth = config.total_floors() - 1
-	check(not run.leads_to_finale(), "only from the last act's floor")
-	run.depth = config.total_floors()
-	var data := run.to_data()
+	state = RunState.create(CONTENT, {}, rng)
+	state.depth = config.total_floors()
+	check(state.finale_open and state.leads_to_finale() and not state.wins_with(config.acts.back().boss), "open: the last act's boss leads down instead of winning")
+	state.depth = config.total_floors() - 1
+	check(not state.leads_to_finale(), "only from the last act's floor")
+	state.depth = config.total_floors()
+	var data := state.to_data()
 	data.boss_slain = true
 	var resumed := RunState.create(CONTENT, data, rng)
 	check(resumed.finale and resumed.depth == config.total_floors(), "saved once the last act's boss fell: picked up at the bottom, same depth")
@@ -683,7 +685,7 @@ func _test_finale() -> void:
 	data.ending_due = true
 	resumed = RunState.create(CONTENT, data, rng)
 	check(not resumed.finale and resumed.depth == config.total_floors() + 1 and resumed.ending_due, "won at the bottom: on to the endless floors, the ending still due")
-	var old := run.to_data()
+	var old := state.to_data()
 	old.erase("finale_open")
 	old.erase("finale")
 	old.erase("ending_due")
@@ -713,7 +715,7 @@ func _test_hidden_floor() -> void:
 	check(hidden.key.value == 0 and hidden.key.resource_path.begins_with("res://data/items/") and hidden.key.icon != null, "its key is its own file, can't be sold and has an icon")
 	check(not hidden.key_acts.is_empty() and hidden.key_acts.all(func(i: int) -> bool: return i >= 0 and i < config.acts.size() - 1), "its key belongs to acts before the last")
 	check(hidden.opens_after(config, config.first_depth(hidden.key_acts[0]) + config.acts[hidden.key_acts[0]].floors - 1) and not hidden.opens_after(config, config.first_depth(hidden.key_acts[0])), "the way opens after its act's boss only")
-	check(not config.acts.any(func(act: ActDef) -> bool: return act.biomes.has(hidden.biome)), "its world is its own")
+	check(not config.acts.any(func(each_act: ActDef) -> bool: return each_act.biomes.has(hidden.biome)), "its world is its own")
 	check(hidden.monsters.size() >= 4 and hidden.monsters.all(func(m: MonsterDef) -> bool: return m != null and m.spawn_weight > 0), "its own mix of monsters")
 	var boss := hidden.boss
 	check(boss.portrait != null and boss.frames != null and boss.frames.has_animation(&"idle") and boss.frames.has_animation(&"walk"), "its boss has a portrait and animations")
@@ -875,19 +877,19 @@ func _test_biome_content() -> void:
 
 
 func _check_scene(biome: BiomeDef, scene: SceneDef) -> void:
-	var name := "%s/%s" % [biome.id, scene.id]
-	check(not scene.rows.is_empty() and scene.size().x > 0, "%s has a plan" % name)
+	var case_name := "%s/%s" % [biome.id, scene.id]
+	check(not scene.rows.is_empty() and scene.size().x > 0, "%s has a plan" % case_name)
 	for row in scene.rows:
 		for symbol in row:
 			if symbol != " " and symbol != ".":
-				check(scene.key(symbol) != null, "%s: '%s' means something" % [name, symbol])
+				check(scene.key(symbol) != null, "%s: '%s' means something" % [case_name, symbol])
 	for k in scene.keys:
 		match k.kind:
 			SceneKey.Kind.PROP:
-				check(not k.props.is_empty(), "%s: '%s' has props" % [name, k.symbol])
+				check(not k.props.is_empty(), "%s: '%s' has props" % [case_name, k.symbol])
 				var foot := k.props[0].footprint if not k.props.is_empty() else Vector2i.ONE
 				for prop in k.props:
-					check(prop.icon != null and prop.footprint == foot, "%s: %s drawn, same footprint as its kin" % [name, prop.id])
+					check(prop.icon != null and prop.footprint == foot, "%s: %s drawn, same footprint as its kin" % [case_name, prop.id])
 				# A footprint bigger than a cell: the symbol covers it whole, every time (read
 				# row by row, as the scene is built).
 				var cells := scene.plan(false)
@@ -900,13 +902,13 @@ func _check_scene(biome: BiomeDef, scene: SceneDef) -> void:
 					for y in foot.y:
 						for x in foot.x:
 							used[offset + Vector2i(x, y)] = true
-							check(cells.get(offset + Vector2i(x, y), "") == k.symbol, "%s: '%s' covers its %s footprint" % [name, k.symbol, foot])
+							check(cells.get(offset + Vector2i(x, y), "") == k.symbol, "%s: '%s' covers its %s footprint" % [case_name, k.symbol, foot])
 			SceneKey.Kind.DECOR:
-				check(not k.pieces.is_empty(), "%s: '%s' has pieces" % [name, k.symbol])
+				check(not k.pieces.is_empty(), "%s: '%s' has pieces" % [case_name, k.symbol])
 			SceneKey.Kind.CARPET:
-				check(k.carpet != null, "%s: '%s' has a carpet" % [name, k.symbol])
+				check(k.carpet != null, "%s: '%s' has a carpet" % [case_name, k.symbol])
 			SceneKey.Kind.POND:
-				check(k.pond != null and k.pond.pond != null and k.pond.heat == 0.0, "%s: '%s' is plain water" % [name, k.symbol])
+				check(k.pond != null and k.pond.pond != null and k.pond.heat == 0.0, "%s: '%s' is plain water" % [case_name, k.symbol])
 				# Water fills the rectangle around its cells: the plan shows it whole.
 				var cells := scene.plan(false)
 				var rect := SceneDef._span_of(cells, k.symbol)
@@ -914,7 +916,7 @@ func _check_scene(biome: BiomeDef, scene: SceneDef) -> void:
 				for y in range(rect.position.y, rect.end.y):
 					for x in range(rect.position.x, rect.end.x):
 						whole = whole and cells.get(Vector2i(x, y), "") == k.symbol
-				check(whole, "%s: its water is a rectangle in the plan" % name)
+				check(whole, "%s: its water is a rectangle in the plan" % case_name)
 
 
 ## Daily and weekly quests: the same for everyone on a given day, counted, paid once.
@@ -941,8 +943,8 @@ func _test_quests() -> void:
 		and QuestBoard.period_key(QuestDef.Period.WEEKLY, monday - 10) != QuestBoard.period_key(QuestDef.Period.WEEKLY, monday + 10), "weeks start on Monday")
 	check(QuestBoard.seconds_left(QuestDef.Period.DAILY, monday + 3600) == QuestBoard.DAY - 3600, "time left until the next daily quests")
 	for q in daily:
-		var def: QuestDef = q.def
-		check(q.target >= def.target.x - def.step and q.target <= def.target.y + def.step and q.reward >= def.reward.x and q.reward <= def.reward.y, "%s: goal and reward in range" % def.id)
+		var quest_def: QuestDef = q.def
+		check(q.target >= quest_def.target.x - quest_def.step and q.target <= quest_def.target.y + quest_def.step and q.reward >= quest_def.reward.x and q.reward <= quest_def.reward.y, "%s: goal and reward in range" % quest_def.id)
 	# Counting and paying, on today's quests.
 	var today := QuestBoard.current(quests, QuestDef.Period.DAILY)
 	var quest: Dictionary = today[0]
@@ -1489,7 +1491,7 @@ func _test_soul_tree() -> void:
 	for node in tree.nodes:
 		check(not cells.has(node.cell), "%s: its own spot" % node.id())
 		cells[node.cell] = true
-		check(node.cell.x / 3 == node.branch, "%s: in its branch's columns" % node.id())
+		check(int(node.cell.x / 3.0) == node.branch, "%s: in its branch's columns" % node.id())
 		check(node.requires.all(func(p: SoulNodeDef) -> bool: return p.cell.y < node.cell.y and p.branch == node.branch), "%s: its parents sit above it, in its branch" % node.id())
 		if node.partner():
 			check(node.partner().partner() == node and node.partner().cell.y == node.cell.y, "%s: a fork both ways, side by side" % node.id())
@@ -1891,23 +1893,23 @@ func _test_synergies() -> void:
 		check(synergy.icon != null and not synergy.description.is_empty() and not synergy.passives.is_empty(), "%s: icon, text and a bonus that does something" % synergy.id)
 		check(members.get(synergy, 0) >= synergy.pieces + 1, "%s: enough perks to choose from (%d)" % [synergy.id, members.get(synergy, 0)])
 	var inferno: SynergyDef = _perk("ignite").synergies[0]
-	var set := PerkSet.new()
+	var perk_set := PerkSet.new()
 	var woke: Array[SynergyDef] = []
-	set.synergy_awakened.connect(func(synergy: SynergyDef) -> void: woke.append(synergy))
-	set.add(_perk("ignite"))
-	set.add(_perk("ignite"))
-	set.add(_perk("blazing_roll"))
-	check(set.pieces_of(inferno) == 2 and not set.is_awake(inferno), "two stacks of one perk count once")
-	check(set.would_complete(_perk("kindling"), inferno) and not set.would_complete(_perk("ignite"), inferno), "a third different perk would wake the family")
-	set.add(_perk("kindling"))
-	check(set.is_awake(inferno) and woke == [inferno], "three different perks wake it, once")
-	check(set.awakened() == [inferno] and set.families().has(inferno), "awake families are listed")
+	perk_set.synergy_awakened.connect(func(synergy: SynergyDef) -> void: woke.append(synergy))
+	perk_set.add(_perk("ignite"))
+	perk_set.add(_perk("ignite"))
+	perk_set.add(_perk("blazing_roll"))
+	check(perk_set.pieces_of(inferno) == 2 and not perk_set.is_awake(inferno), "two stacks of one perk count once")
+	check(perk_set.would_complete(_perk("kindling"), inferno) and not perk_set.would_complete(_perk("ignite"), inferno), "a third different perk would wake the family")
+	perk_set.add(_perk("kindling"))
+	check(perk_set.is_awake(inferno) and woke == [inferno], "three different perks wake it, once")
+	check(perk_set.awakened() == [inferno] and perk_set.families().has(inferno), "awake families are listed")
 	var copy := PerkSet.new()
 	copy.synergy_awakened.connect(func(synergy: SynergyDef) -> void: woke.append(synergy))
-	copy.load_data(set.to_data())
+	copy.load_data(perk_set.to_data())
 	check(copy.is_awake(inferno) and woke.size() == 1, "a loaded run keeps it awake (without announcing it again)")
-	set.clear()
-	check(not set.is_awake(inferno), "a new run starts asleep")
+	perk_set.clear()
+	check(not perk_set.is_awake(inferno), "a new run starts asleep")
 	var skills := SkillSet.new()
 	var skill := SkillDef.new()
 	skill.cooldown = 5.0
@@ -1962,11 +1964,11 @@ func _test_synergies() -> void:
 	var daily_again := RunState.create(CONTENT, daily.to_data(), rng)
 	check(daily_again.daily_day == 20000 and daily_again.daily_official, "a saved daily run stays one")
 
-	var run := RunState.create(CONTENT, {}, rng)
-	check(run.rerolls >= CONTENT.dungeon.base_rerolls and run.banishes >= CONTENT.dungeon.base_banishes, "a new run starts with its rerolls and banishes")
-	run.rerolls = 2
-	run.banished.append(_perk("strength"))
-	var again := RunState.create(CONTENT, run.to_data(), rng)
+	var state := RunState.create(CONTENT, {}, rng)
+	check(state.rerolls >= CONTENT.dungeon.base_rerolls and state.banishes >= CONTENT.dungeon.base_banishes, "a new run starts with its rerolls and banishes")
+	state.rerolls = 2
+	state.banished.append(_perk("strength"))
+	var again := RunState.create(CONTENT, state.to_data(), rng)
 	check(again.rerolls == 2 and again.banished == banished, "a saved run keeps its rerolls and banished perks")
 
 
@@ -2043,7 +2045,7 @@ func _test_soul_economy() -> void:
 	var died := config.souls_for_run(KEEPER_KILLS_BEFORE_BOSS[acts - 1], BalanceContent.boss_depth(CONTENT, acts), acts - 1, false)
 	var won := config.souls_for_run(KEEPER_KILLS_BEFORE_BOSS[acts - 1] + 1, config.total_floors(), acts, true)
 	var late_runs := full_tree / ((died + won) * 0.5)
-	check(late_runs >= 40.0 and late_runs <= 80.0, "late Keeper runs alone fill the tree in 40-80 runs (%.0f: %d souls a run, tree %d)" % [late_runs, (died + won) / 2, full_tree])
+	check(late_runs >= 40.0 and late_runs <= 80.0, "late Keeper runs alone fill the tree in 40-80 runs (%.0f: %d souls a run, tree %d)" % [late_runs, int((died + won) / 2.0), full_tree])
 	# The one-time pools (hunter ranks, challenges, achievements) are a bonus, not the tree.
 	var pools := BalanceSouls.one_time_pools(CONTENT)
 	var one_time: int = pools.ranks + pools.challenges + pools.achievements
@@ -2353,7 +2355,7 @@ func _test_languages() -> void:
 	Settings.path = ""
 	Settings.set_option(&"language", "en")
 	check(TranslationServer.get_locale() == "en" and Settings.language == "en", "languages: back to English for the other tests")
-	check(Settings.device_language() in Settings.LANGUAGES, "languages: the first launch follows the phone's language")
+	check(SettingsScript.device_language() in Settings.LANGUAGES, "languages: the first launch follows the phone's language")
 
 
 func _codes(pattern: RegEx, text: String) -> Array:
@@ -2529,11 +2531,11 @@ func _test_sprite_frames_whole() -> void:
 					for edge_x: int in [region.position.x, region.end.x]:
 						if edge_x <= 0 or edge_x >= image.get_width():
 							continue
-						var run := 0
+						var streak := 0
 						for y in range(region.position.y, region.end.y):
 							var both := image.get_pixel(edge_x - 1, y).a > 0.0 and image.get_pixel(edge_x, y).a > 0.0
-							run = run + 1 if both else 0
-							cut_rows = maxi(cut_rows, run)
+							streak = streak + 1 if both else 0
+							cut_rows = maxi(cut_rows, streak)
 					check(cut_rows < 10, "%s %s frame %d: not cut through the drawing (%d rows drawn across its edge)" % [file, anim, i, cut_rows])
 	check(checked >= 20, "big character frames checked (%d)" % checked)
 

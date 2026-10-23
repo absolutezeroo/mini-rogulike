@@ -23,7 +23,7 @@ static func play(parent: Control, from: Vector2, to: Vector2, gold: int) -> Gold
 	parent.add_child(burst)
 	burst._from = from - burst.global_position
 	burst._to = to - burst.global_position
-	for i in clampi(5 + gold / 4, 5, MAX_COINS):
+	for i in clampi(5 + int(gold / 4.0), 5, MAX_COINS):
 		burst._coins.append({
 			"out": Vector2.from_angle(randf() * TAU) * randf_range(30.0, 80.0),
 			"delay": randf() * 0.15,
