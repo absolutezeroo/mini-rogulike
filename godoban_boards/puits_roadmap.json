@@ -1262,8 +1262,8 @@
     {
       "id": "task_97",
       "title": "Mettre la clé de signature Android en sécurité",
-      "description": "La clé (puits-release.keystore + mot de passe) n'existe que dans l'espace de travail de Claude, qui peut être effacé. Sans elle, plus aucune mise à jour possible sur le Play Store. À copier chez toi, hors du dépôt.",
-      "status": "todo",
+      "description": "La clé (puits-release.keystore + mot de passe) n'existe que dans l'espace de travail de Claude, qui peut être effacé. Sans elle, plus aucune mise à jour possible sur le Play Store. À copier chez toi, hors du dépôt. — Envoyée à l'utilisateur le 23/10/2026 (keystore + pass.txt). À passer en Done une fois rangée chez toi avec une sauvegarde.",
+      "status": "review",
       "priority": "critical",
       "epic_id": "epic_6",
       "due_date": null,
@@ -1272,7 +1272,7 @@
         "android"
       ],
       "created_at": 1792720000,
-      "updated_at": 1792720000
+      "updated_at": 1792727500
     },
     {
       "id": "task_98",
