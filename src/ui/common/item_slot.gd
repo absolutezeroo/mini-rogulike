@@ -2,7 +2,8 @@ class_name ItemSlot
 extends Button
 ## A square item slot (bag, equipment, belt, rune sockets): a wooden slot, the item's icon,
 ## a frame in its rarity (or its rune family's) color, how many there are, the rune sockets of
-## a weapon. Empty, it shows what goes there (`caption`, faint). Tap it like a button.
+## a weapon. Empty, it shows what goes there, faint: a pictogram (`placeholder`, not an item of
+## the game) or else a word (`caption`). Tap it like a button.
 
 const EMPTY_TEXT := Color(1, 0.92, 0.8, 0.45)
 
@@ -18,6 +19,13 @@ var count := 1:
 var caption := "":
 	set(value):
 		caption = value
+		queue_redraw()
+## Drawn faint in the middle of an empty slot (assets/ui/placeholders/: a sword, a helmet...);
+## the caption then only names it (tooltip).
+var placeholder: Texture2D:
+	set(value):
+		placeholder = value
+		tooltip_text = caption if value else ""
 		queue_redraw()
 ## Equipment shows its item level in the corner ("Lv 7"); off where it means nothing (a pick of
 ## plain weapons).
@@ -88,6 +96,8 @@ func _draw() -> void:
 		_draw_level()
 		if count > 1:
 			_text("x%d" % count, Vector2(size.x - 6, size.y - 6), HORIZONTAL_ALIGNMENT_RIGHT, Fonts.BODY, Color.WHITE)
+	elif placeholder:
+		draw_texture_rect(placeholder, centered_icon(placeholder, area.grow(-9), 0.6), false, Color(EMPTY_TEXT, 0.3))
 	elif not caption.is_empty():
 		_text(caption, Vector2(size.x * 0.5, size.y * 0.5 + Fonts.half_cap(Fonts.SMALL)), HORIZONTAL_ALIGNMENT_CENTER, Fonts.SMALL, EMPTY_TEXT)
 	if fresh and item:
@@ -228,3 +238,12 @@ static func _frame_box(color: Color) -> StyleBoxTexture:
 			box.set_texture_margin(side, 9)
 		_frames[key] = box
 	return _frames[key]
+
+
+## `icon` drawn whole pixels big, centred in `box`, its larger side `share` of the box's smaller
+## side (so pictograms of any size sit in the middle at one size).
+static func centered_icon(icon: Texture2D, box: Rect2, share: float) -> Rect2:
+	var art := icon.get_size()
+	var scale := maxf(1.0, floorf(minf(box.size.x, box.size.y) * share / maxf(art.x, art.y)))
+	var drawn := art * scale
+	return Rect2((box.position + (box.size - drawn) * 0.5).round(), drawn)

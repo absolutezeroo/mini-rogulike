@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 150,
+  "next_id": 151,
   "tags": [
     "pc",
     "test",
@@ -2197,6 +2197,21 @@
       ],
       "created_at": 1792770950,
       "updated_at": 1792770950
+    },
+    {
+      "id": "task_150",
+      "title": "Sac : pictogrammes centrés, emplacements vides en silhouette, erreur find",
+      "description": "Signalé par Clayton : les icônes des onglets du sac n'étaient pas centrées, le « 0 » mordait dessus, et elles montraient de vraies armes du jeu. Maintenant : des pictogrammes neutres (épée, casque, armure, rune, grimoire, fiole, bourse — assets/ui/placeholders/, générés par tools/ui/make_placeholders.py) centrés, deux fois plus grands, le nombre seulement s'il y a quelque chose ; les emplacements d'équipement vides montrent la même silhouette en pâle au lieu du mot. Corrigé aussi l'erreur « Attempted to find an object into a TypedArray » (inventory_panel.gd:551) quand un bouton avait le focus.",
+      "status": "review",
+      "priority": "medium",
+      "epic_id": "epic_4",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "bug"
+      ],
+      "created_at": 1792777924,
+      "updated_at": 1792777924
     }
   ]
 }
