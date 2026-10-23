@@ -145,10 +145,12 @@ func reset_tree(tree: SoulTreeDef) -> bool:
 func buy(upgrade: UpgradeDef) -> bool:
 	if not can_buy(upgrade):
 		return false
-	souls -= upgrade.cost_for_level(level_of(upgrade))
+	var cost := upgrade.cost_for_level(level_of(upgrade))
+	souls -= cost
 	levels[String(upgrade.id)] = level_of(upgrade) + 1
 	save_profile()
 	changed.emit()
+	Events.souls_offered.emit(cost)  # (the world counters: WorldStats)
 	return true
 
 

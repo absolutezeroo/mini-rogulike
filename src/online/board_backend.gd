@@ -51,6 +51,14 @@ class Sent:
 	var rank := 0
 
 
+## Counters as the server has them (the world counters: WorldStats).
+class StatValues:
+	extends RefCounted
+	var status: BoardBackend.Status = BoardBackend.Status.UNAVAILABLE
+	## Talo's internal name -> its value (the world's, or the player's own).
+	var values := {}
+
+
 ## There is a server to talk to (an access key).
 func is_configured() -> bool:
 	return false
@@ -82,6 +90,22 @@ func forget() -> void:
 ## never resent). See Telemetry.
 func send_events(_events: Array[Dictionary]) -> Status:
 	return Status.UNAVAILABLE
+
+
+## Adds `change` to the world counter `internal_name` for the identified player (their own total
+## and the world's). One call per counter: the server takes at most the stat's max change at once.
+func add_to_stat(_internal_name: String, _change: int) -> Status:
+	return Status.UNAVAILABLE
+
+
+## Every world counter's value, the whole world's (no player needed).
+func fetch_world_stats() -> StatValues:
+	return StatValues.new()
+
+
+## The identified player's own totals of the world counters.
+func fetch_my_stats() -> StatValues:
+	return StatValues.new()
 
 
 ## Shows the player under `pseudonym` on every board.

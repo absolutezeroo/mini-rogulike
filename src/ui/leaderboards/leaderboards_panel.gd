@@ -8,8 +8,11 @@ extends Control
 ## this build. It only asks Leaderboards (load_board()); it never sends anything itself. The first
 ## time, it asks whether to publish one's scores, and under which pseudonym (PseudonymDialog);
 ## not published, the boards aren't even read (the header's button asks again).
+## The last tab, "The Well's Toll", shows the world counters (WorldStats): every counter, the
+## world's number and the player's own share; read once the player turned an online feature on.
 ## Reachable as %BoardTabs, %TodayTab, %YesterdayTab, %TopList, %Status, %RetryButton, %MinePanel,
-## %MineText, %AroundList, %NameText, %ChangeNameButton, %CloseButton, %NameDialog.
+## %MineText, %AroundList, %NameText, %ChangeNameButton, %CloseButton, %NameDialog, %TollTab,
+## %TollPanel, %TollList, %TollStatus, %TollNote, %TollRetryButton.
 
 signal closed
 
@@ -22,6 +25,11 @@ const SCORE_WIDTH := 150.0
 const PODIUM: Array[Color] = [Color(1.0, 0.82, 0.4), Color(0.82, 0.86, 0.92), Color(0.86, 0.58, 0.36)]
 ## The player's own line.
 const MINE_COLOR := Color(0.65, 0.95, 1.0)
+## open()'s id for the Well's Toll tab.
+const TOLL := &"toll"
+## The Toll's number columns (the world's, the player's).
+const TOLL_WORLD_WIDTH := 230.0
+const TOLL_MINE_WIDTH := 170.0
 
 var name_dialog: PseudonymDialog
 
@@ -46,6 +54,15 @@ var _rules: Label
 var _name_text: Label
 var _change_name: Button
 var _mine_panel: Control
+var _columns: Control
+## The Well's Toll is shown instead of a board.
+var _toll_shown := false
+var _toll_tab: Button
+var _toll_panel: Control
+var _toll_list: VBoxContainer
+var _toll_status: Label
+var _toll_note: Label
+var _toll_retry: Button
 
 
 func _ready() -> void:
@@ -62,12 +79,16 @@ func _ready() -> void:
 	Leaderboards.changed.connect(func() -> void:
 		if visible:
 			_show_name())
+	WorldStats.changed.connect(func() -> void:
+		if visible and _toll_shown:
+			show_toll())
 
 
 ## Shows the page on `board_id` (empty: the first shown board), today's.
 func open(board_id: StringName = &"") -> void:
 	var boards := Leaderboards.config.shown_boards()
-	_board = Leaderboards.config.board(board_id) if board_id != &"" else null
+	_toll_shown = board_id == TOLL
+	_board = Leaderboards.config.board(board_id) if board_id != &"" and not _toll_shown else null
 	if _board == null and not boards.is_empty():
 		_board = boards[0]
 	_back = 0
@@ -96,8 +117,15 @@ func back() -> bool:
 	return true
 
 
-## Loads the board again (and sends what waits first).
+## Loads the board again (and sends what waits first); the Toll's numbers if it is shown.
 func refresh() -> void:
+	_columns.visible = not _toll_shown
+	_toll_panel.visible = _toll_shown
+	if _toll_shown:
+		_show_online(Leaderboards.is_available())
+		show_toll()
+		WorldStats.refresh()
+		return
 	_show_online(Leaderboards.is_available())
 	if _board == null or not Leaderboards.is_available():
 		_show_state(tr("Online leaderboards are not available in this version of the game."), false)
@@ -187,7 +215,7 @@ func _show_online(on: bool) -> void:
 	_change_name.visible = on
 	_mine_panel.visible = on
 	for tab in _period_tabs:
-		tab.visible = on and _board != null and _board.period != LeaderboardDef.Period.ALL_TIME
+		tab.visible = on and not _toll_shown and _board != null and _board.period != LeaderboardDef.Period.ALL_TIME
 
 
 func _show_name() -> void:
@@ -199,8 +227,9 @@ func _show_name() -> void:
 ## The tabs: one per shown board, and the board's two periods (none for an all-time board).
 func _show_tabs() -> void:
 	for board_id: StringName in _board_tabs:
-		(_board_tabs[board_id] as Button).set_pressed_no_signal(_board != null and _board.id == board_id)
-	var has_periods := _board != null and _board.period != LeaderboardDef.Period.ALL_TIME
+		(_board_tabs[board_id] as Button).set_pressed_no_signal(not _toll_shown and _board != null and _board.id == board_id)
+	_toll_tab.set_pressed_no_signal(_toll_shown)
+	var has_periods := not _toll_shown and _board != null and _board.period != LeaderboardDef.Period.ALL_TIME
 	var weekly := _board != null and _board.period == LeaderboardDef.Period.WEEKLY
 	_period_tabs[0].text = tr("This week") if weekly else tr("Today")
 	_period_tabs[1].text = tr("Last week") if weekly else tr("Yesterday")
@@ -211,10 +240,71 @@ func _show_tabs() -> void:
 
 func _pick_board(board: LeaderboardDef) -> void:
 	Sfx.play_ui(Sfx.bank.ui_click)
+	_toll_shown = false
 	_board = board
 	_back = 0
 	_show_tabs()
 	refresh()
+
+
+func _pick_toll() -> void:
+	Sfx.play_ui(Sfx.bank.ui_click)
+	_toll_shown = true
+	_show_tabs()
+	refresh()
+
+
+## The Well's Toll as WorldStats knows it now: every counter with the world's number and the
+## player's share, or why there are none (no key, no choice yet, loading, offline).
+func show_toll() -> void:
+	UiParts.clear(_toll_list)
+	_toll_retry.hide()
+	var stats := WorldStats.config.enabled_stats()
+	var known := stats.any(func(def: WorldStatDef) -> bool: return WorldStats.world_value(def) >= 0.0)
+	var why := ""
+	if not Leaderboards.is_available():
+		why = tr("Online leaderboards are not available in this version of the game.")
+	elif not WorldStats.may_read():
+		why = tr("The Well's Toll is read from the game's online service. Publish your scores or accept the gameplay statistics (Options > Privacy) to see it.")
+	elif not known and (WorldStats.read_status == BoardBackend.Status.OFFLINE or WorldStats.read_status == BoardBackend.Status.REJECTED):
+		why = tr("The Well's Toll can't be read right now. Check your connection, then try again.")
+		_toll_retry.show()
+	elif not known and WorldStats.read_status != BoardBackend.Status.OK:
+		why = tr("Loading...")
+	_toll_status.text = why
+	_toll_status.visible = not why.is_empty()
+	_toll_note.text = tr("Every soul's runs add to these numbers when they end. Your share counts from the next run's end.") if WorldStats.may_send() \
+		else tr("Your runs are not counted: the Well's Toll counts the runs of players who accept the gameplay statistics (Options > Privacy).")
+	_toll_note.visible = WorldStats.may_read()
+	if not why.is_empty():
+		return
+	_toll_list.add_child(_toll_row(tr("The toll"), tr("All souls"), tr("Yours"), UiSkin.GOLD))
+	for def in stats:
+		var world := WorldStats.world_value(def)
+		var mine := WorldStats.my_value(def)
+		var row := _toll_row(tr(def.display_name), NumberText.of(int(world)) if world >= 0.0 else "-", NumberText.of(int(mine)) if mine >= 0.0 else "-", UiSkin.TEXT)
+		row.name = "Toll_%s" % def.internal_name
+		_toll_list.add_child(row)
+
+
+## A line of the Toll: the counter's name, the world's number, the player's.
+func _toll_row(what: String, world: String, mine: String, color: Color) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	var name_label := UiSkin.label(what, Fonts.BODY, color)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_label.clip_text = true
+	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	row.add_child(name_label)
+	var world_label := UiSkin.label(world, Fonts.BODY, color if color == UiSkin.GOLD else UiSkin.TEXT)
+	world_label.custom_minimum_size.x = TOLL_WORLD_WIDTH
+	world_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	row.add_child(world_label)
+	var mine_label := UiSkin.label(mine, Fonts.BODY, color if color == UiSkin.GOLD else MINE_COLOR)
+	mine_label.custom_minimum_size.x = TOLL_MINE_WIDTH
+	mine_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	row.add_child(mine_label)
+	return row
 
 
 func _pick_period(periods_back: int) -> void:
@@ -256,6 +346,10 @@ func _build() -> void:
 		tab.add_to_group(MenuNav.TABS)
 		tab.pressed.connect(_pick_board.bind(board))
 		_board_tabs[board.id] = tab
+	_toll_tab = _tab(tr("The Well's Toll"), "TollTab")
+	_toll_tab.custom_minimum_size.x = 200
+	_toll_tab.add_to_group(MenuNav.TABS)
+	_toll_tab.pressed.connect(_pick_toll)
 	var gap := Control.new()
 	gap.custom_minimum_size.x = 18
 	_tabs.add_child(gap)
@@ -270,6 +364,8 @@ func _build() -> void:
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	columns.add_theme_constant_override("separation", 14)
 	_window.body.add_child(columns)
+	_columns = columns
+	_build_toll()
 
 	var top: Dictionary = RpgWindow.section(tr("The first %d") % Leaderboards.config.top_count)
 	(top.box as Control).size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -326,6 +422,44 @@ func _build() -> void:
 	_rules = UiSkin.label("", Fonts.BODY, UiSkin.DIM, true)
 	(rules.column as VBoxContainer).add_child(_rules)
 	(rules.column as VBoxContainer).add_child(UiSkin.label(tr("Scores no hero could make are removed."), Fonts.BODY, UiSkin.DIM, true))
+
+
+## The Well's Toll, in place of the board's columns when its tab is picked.
+func _build_toll() -> void:
+	var toll: Dictionary = RpgWindow.section(tr("The Well's Toll"))
+	_toll_panel = toll.box
+	_toll_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_toll_panel.hide()
+	_window.body.add_child(_toll_panel)
+	MenuWindow.expose(_toll_panel, "TollPanel", self)
+	var column: VBoxContainer = toll.column
+	column.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_toll_note = UiSkin.label("", Fonts.BODY, UiSkin.DIM, true)
+	column.add_child(_toll_note)
+	MenuWindow.expose(_toll_note, "TollNote", self)
+	var scroll := UiParts.scroll()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	column.add_child(scroll)
+	_toll_list = VBoxContainer.new()
+	_toll_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_toll_list.add_theme_constant_override("separation", 6)
+	scroll.add_child(_toll_list)
+	MenuWindow.expose(_toll_list, "TollList", self)
+	_toll_status = UiSkin.label("", Fonts.BODY, UiSkin.TEXT, true)
+	_toll_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_toll_status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_toll_status.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	column.add_child(_toll_status)
+	MenuWindow.expose(_toll_status, "TollStatus", self)
+	_toll_retry = MenuWindow.button(tr("Try again"), Fonts.BODY, 52)
+	_toll_retry.custom_minimum_size.x = 220
+	_toll_retry.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_toll_retry.pressed.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_click)
+		WorldStats.refresh(true))
+	_toll_retry.hide()
+	column.add_child(_toll_retry)
+	MenuWindow.expose(_toll_retry, "TollRetryButton", self)
 
 
 func _tab(text: String, node_name: String) -> Button:

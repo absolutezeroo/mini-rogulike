@@ -78,6 +78,11 @@ func run() -> void:
 	add_child(privacy)
 	await privacy.run_unit()
 	privacy.free()
+	# The world counters, the Well's Toll (WorldStatsTests).
+	var world_stats := WorldStatsTests.new()
+	add_child(world_stats)
+	await world_stats.run_unit()
+	world_stats.free()
 	var gear := GearLookTests.new()
 	add_child(gear)
 	gear.run()

@@ -1,0 +1,82 @@
+[gd_resource type="Resource" script_class="WorldStatsDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/online/world_stats_def.gd" id="1_world"]
+[ext_resource type="Script" path="res://src/definitions/online/world_stat_def.gd" id="2_stat"]
+
+[sub_resource type="Resource" id="demons"]
+script = ExtResource("2_stat")
+internal_name = "demons-slain"
+display_name = "Demons slain in the Well"
+title_line = "{count} demons slain in the Well"
+feed = 0
+max_change = 5000
+
+[sub_resource type="Resource" id="wardens"]
+script = ExtResource("2_stat")
+internal_name = "wardens-laid-to-rest"
+display_name = "Wardens laid to rest"
+title_line = "{count} wardens laid to rest"
+feed = 1
+max_change = 200
+
+[sub_resource type="Resource" id="claimed"]
+script = ExtResource("2_stat")
+internal_name = "souls-claimed"
+display_name = "Souls claimed by the Well"
+title_line = "{count} souls claimed by the Well"
+feed = 2
+max_change = 50
+
+[sub_resource type="Resource" id="floors"]
+script = ExtResource("2_stat")
+internal_name = "floors-descended"
+display_name = "Floors descended"
+title_line = "{count} floors descended into the dark"
+feed = 3
+max_change = 2000
+
+[sub_resource type="Resource" id="potions"]
+script = ExtResource("2_stat")
+internal_name = "potions-drunk"
+display_name = "Potions drunk in the deep"
+title_line = "{count} potions drunk in the deep"
+feed = 4
+max_change = 1000
+
+[sub_resource type="Resource" id="bells"]
+script = ExtResource("2_stat")
+internal_name = "last-knells-rung"
+display_name = "Last Knells rung"
+title_line = "The Last Knell has rung {count} times"
+feed = 5
+ending = &"ring_the_bell"
+max_change = 50
+
+[sub_resource type="Resource" id="keepers"]
+script = ExtResource("2_stat")
+internal_name = "nameless-keepers"
+display_name = "Nameless Keepers before the seal"
+title_line = "{count} nameless keepers have held the seal"
+feed = 5
+ending = &"take_his_place"
+max_change = 50
+
+[sub_resource type="Resource" id="dawn"]
+script = ExtResource("2_stat")
+internal_name = "dawn-knells-answered"
+display_name = "Dawn Knells answered"
+title_line = "{count} souls have answered the Dawn Knell"
+feed = 6
+max_change = 50
+
+[sub_resource type="Resource" id="offered"]
+script = ExtResource("2_stat")
+internal_name = "souls-offered"
+display_name = "Souls offered to the Tree"
+title_line = "{count} souls offered to the Tree"
+feed = 7
+max_change = 1000000
+
+[resource]
+script = ExtResource("1_world")
+stats = Array[ExtResource("2_stat")]([SubResource("demons"), SubResource("wardens"), SubResource("claimed"), SubResource("floors"), SubResource("potions"), SubResource("bells"), SubResource("keepers"), SubResource("dawn"), SubResource("offered")])

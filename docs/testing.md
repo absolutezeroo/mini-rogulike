@@ -27,11 +27,13 @@ The suites (`tests/suites/`, each a `TestSuite`):
 - **unit**: the rules, the content database, 100 generated maps (and their walls), 40 boss arenas,
   inventory, equipment, perks, bosses, the profile, the online leaderboards' queue and filter
   (`LeaderboardTests`, on `FakeBoardBackend`: a server in memory), the privacy rules, the gameplay
-  statistics and the credits' data (`PrivacyTests`). No game running: fast.
+  statistics and the credits' data (`PrivacyTests`), the world counters (`WorldStatsTests`). No
+  game running: fast.
 - **title**: the title screen and its panels (the Leaderboards page with and without a server, the
-  statistics' questions, Options > Privacy, the policy and the credits).
+  statistics' questions, Options > Privacy, the policy and the credits, the world counters' line
+  and the Well's Toll page).
   No suite ever reaches the network: the runner gives `Leaderboards` an offline backend first,
-  and `Privacy` and `Telemetry` no file (docs/online.md, Tests). The game suite plays its run with
+  and `Privacy`, `Telemetry` and `WorldStats` no file (docs/online.md, Tests). The game suite plays its run with
   the statistics accepted on a fake server and checks what its end sends.
 - **game**: a bot plays the real game (kills, level ups and perk choices, stairs, death and
   restart, saving and resuming), then on that same game: **combat** (projectiles, perks, skills,

@@ -1,9 +1,10 @@
 class_name TaloBackend
 extends BoardBackend
 ## The online leaderboards and the gameplay statistics on Talo (https://trytalo.com), through its
-## REST API with HTTPRequest (docs/online.md says why not its Godot plugin). Five endpoints:
+## REST API with HTTPRequest (docs/online.md says why not its Godot plugin). Its endpoints:
 ## identify a player, set its name (a player prop, the game's "display name prop key"), add an
-## entry, list entries, send events. Nothing private ever goes in a player prop: Talo's API
+## entry, list entries, send events, and the world counters (add to a game stat, read them all,
+## read the player's own). Nothing private ever goes in a player prop: Talo's API
 ## shows them to anyone reading a board.
 ##
 ## The access key is never in git: it is read from the environment (TALO_ACCESS_KEY) or from
@@ -88,6 +89,54 @@ func send_events(events: Array[Dictionary]) -> Status:
 	if answer.status == Status.OK and answer.body is Dictionary and (answer.body as Dictionary).get("errors") is Array:
 		last_event_errors = (answer.body as Dictionary).errors
 	return answer.status
+
+
+## PUT /v1/game-stats/{internalName} {change} with the X-Talo-Alias header. The server answers
+## 400 for a change past the stat's maxChange or too soon after the last (minTimeBetweenUpdates):
+## REJECTED, never resent as it is.
+func add_to_stat(internal_name: String, change: int) -> Status:
+	if _alias_id == 0:
+		return Status.OFFLINE
+	var answer := await _request(HTTPClient.METHOD_PUT, "/v1/game-stats/%s" % internal_name.uri_encode(), { "change": change })
+	return answer.status
+
+
+## GET /v1/game-stats: every stat of the game, with its globalValue (a global one's world total).
+func fetch_world_stats() -> BoardBackend.StatValues:
+	var answer := await _request(HTTPClient.METHOD_GET, "/v1/game-stats")
+	return _stat_values(answer, "stats", func(item: Dictionary) -> Array:
+		return [str(item.get("internalName", "")), item.get("globalValue", 0.0)] if bool(item.get("global", false)) else [])
+
+
+## GET /v1/game-stats/player-stats: the player's own value of each stat they added to.
+func fetch_my_stats() -> BoardBackend.StatValues:
+	if _alias_id == 0:
+		var none := BoardBackend.StatValues.new()
+		none.status = Status.OFFLINE
+		return none
+	var answer := await _request(HTTPClient.METHOD_GET, "/v1/game-stats/player-stats")
+	return _stat_values(answer, "playerStats", func(item: Dictionary) -> Array:
+		var stat: Variant = item.get("stat")
+		return [str((stat as Dictionary).get("internalName", "")), item.get("value", 0.0)] if stat is Dictionary else [])
+
+
+## The answer's list `key` read by `pick` (an item -> [internal name, value], or [] to skip it).
+static func _stat_values(answer: Dictionary, key: String, pick: Callable) -> BoardBackend.StatValues:
+	var result := BoardBackend.StatValues.new()
+	result.status = answer.status
+	if answer.status != Status.OK:
+		return result
+	var list: Variant = (answer.body as Dictionary).get(key) if answer.body is Dictionary else null
+	if not list is Array:
+		result.status = Status.REJECTED
+		return result
+	for item: Variant in list:
+		if not item is Dictionary:
+			continue
+		var pair: Array = pick.call(item)
+		if pair.size() == 2 and not str(pair[0]).is_empty():
+			result.values[str(pair[0])] = float(pair[1]) if (pair[1] is float or pair[1] is int) else 0.0
+	return result
 
 
 func identify(device_id: String) -> Status:

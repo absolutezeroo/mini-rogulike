@@ -179,7 +179,8 @@ The rules and their reasons: [../privacy-ops.md](../privacy-ops.md). On screen:
   and from the Options' switch): first **Before you go down**, "How old are you?" with **Under 16**
   and **16 or older** (only that answer is kept); under 16 it closes and is never asked again by
   itself. Then **Echoes of the Well** (the title in the Well's voice), "Gameplay statistics
-  (optional)" and what is sent, to whom, for how long, in plain words; a **Privacy policy**
+  (optional)" and what is sent, to whom, for how long, in plain words (and that the runs also add
+  to the Well's Toll, the world counters: only all players' sums are shown); a **Privacy policy**
   button; **Decline** and **Accept** side by side, the same size and look. Keys and gamepads start
   on the policy's button, never on Accept; Back (or closing) declines. Declined, it comes back
   after six months; accepted, never (until what is collected changes).
