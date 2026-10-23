@@ -77,6 +77,28 @@ Each piece of content has an **icon** (any `Texture2D`) and an **icon tint** to 
 Monsters and the player also have `frames` (their SpriteFrames in `data/visuals/`): a new monster
 can reuse an existing one, or you can make a new SpriteFrames from a sheet in `assets/characters/`.
 Floor looks (tiles, decor, tint, darkness, music) are `DungeonTheme` files in `data/dungeon/themes/`, one per biome.
+
+### Music for a new place or boss
+
+Every place has its own track (the table and the rules: [design/presentation.md](design/presentation.md#music)).
+
+1. **The file**: an `.ogg` in `assets/audio/music/`, cut to loop whole. Match its loudness to the
+   others (about -19 LUFS, true peak under -1.5 dB: `ffmpeg -i in.ogg -af ebur128=peak=true -f null -`
+   measures it; then `ffmpeg -i in.ogg -af volume=XdB -c:a libvorbis -q:a 1 out.ogg`). Import it,
+   set `loop=true` in its `.ogg.import` (the tests check it) and import again. Credit it in
+   `assets/audio/music/CREDITS.txt`.
+2. **Where it plays**:
+   - a biome: its `DungeonTheme` > Music (two floors of the same theme keep the track going);
+   - a warden: its `BossDef` > Music; left empty it fights to its act's `ActDef` > Boss Music
+     (each act has one), then `SoundBank` > Boss Music. A new act sets its Boss Music; a boss
+     with a next form (`next_boss`) and that form each set their own (silence between them);
+   - the Deeps, the Threshold: `AbyssDef` > Music, `ThresholdDef` > Music;
+   - a true ending: `EndingDef` > Music (empty: `SoundBank` > Victory Music);
+   - a scene: `CinematicDef` > Music (a quiet bed) or Duck Db (the music lowered);
+   - the title, its bell, a run won or lost: `SoundBank` > Music.
+3. **Check**: the unit suite lists every place (`Soundtrack.places()`) and fails on one without
+   music, a file that doesn't loop, a music file nothing plays, or two acts' wardens sharing a
+   track. Add the new place to the table in presentation.md.
 How many lanterns, prop clusters, hazard groups and chests a floor gets, how often ambushes and
 elites happen, is in `dungeon_config.tres`.
 

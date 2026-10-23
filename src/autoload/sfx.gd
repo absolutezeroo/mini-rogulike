@@ -6,7 +6,7 @@ extends Node
 ##   coins and pickups, crates breaking, crumbling floors, fires, the forge) on the World bus,
 ##   positional, under the Ambience slider;
 ## - play_ui(): menus, buttons and jingles (level up, stairs, a boss slain, the knell) on the UI bus.
-## Music on the Music bus; the floor's background loop and the heartbeat are played by Ambience
+## Music on the Music bus (play_music: a crossfade between two players; which track where: Soundtrack); the floor's background loop and the heartbeat are played by Ambience
 ## on the Ambience bus. Combat and World send to the SFX bus (the room's reverb), then Master
 ## (a limiter).
 ## Busy fights used to stack dozens of sounds and clip: voices are capped (per sound, per pool),

@@ -191,6 +191,8 @@ func _connect_events() -> void:
 	Events.boss_rising.connect(_on_boss_rising)
 	Events.monster_killed.connect(func(monster: Monster) -> void:
 		if monster.world == world and monster.def is BossDef:
+			if (monster.def as BossDef).next_boss:
+				Sfx.stop_music(0.6)  # its music dies with it: silence while the next form rises
 			_say_last_words(monster.def as BossDef))
 	menus.ending.chosen.connect(_on_ending_chosen)
 	Events.ambush_started.connect(func(_room: AmbushRoom) -> void:
@@ -793,8 +795,7 @@ func _say_last_words(def: BossDef) -> void:
 ## and the view turns to it.
 func _on_boss_rising(_fallen: Monster, risen: Monster, seconds: float) -> void:
 	var def := risen.def as BossDef
-	# Silence while it rises (the first form's music dies with it); its own begins once it fights.
-	Sfx.stop_music(0.6)
+	# (Silent since the first form fell: its own music begins once it fights, _on_boss_started.)
 	if def and player:
 		player.camera.lean_toward(risen, def.camera_lean, risen.head_height * 0.45)
 	var darken := create_tween()

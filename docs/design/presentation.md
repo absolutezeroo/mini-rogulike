@@ -133,7 +133,7 @@
 - **SFX**: the `Sfx` autoload plays every sound. Weapons have attack and hit sounds, monsters hurt
   and death sounds, skills and consumables a use sound; everything else comes from
   `data/audio/sound_bank.tres`. Each sound is an `AudioStreamRandomizer` listing its variations.
-  Each floor theme has its own music.
+  Every place has its own music: see [Music](#music).
   - **Buses** (`default_bus_layout.tres`), one per slider in Options:
 
     | Slider | Bus | What plays there | Call |
@@ -168,7 +168,7 @@
   then a night-blue veil falls. Under it the limbo: an oval of pale stone in thick mist (its own
   `DungeonTheme`, light ramp from night blue to pale blue, `LightingDef` ambient 10), ghost wisps,
   drifting fog and low mist, a strong cold grading with little saturation and a slow pulsing
-  vignette (`limbo_ambience.tres`), whispers and spirit sighs in a long reverb, the boss music.
+  vignette (`limbo_ambience.tres`), whispers and spirit sighs in a long reverb, its own music (Dream).
   Spectres rise out of a hollow ring of pale flames (the spirit element): the act's monsters blended 60% toward pale blue
   (`ActorRig.pallor`, under the hit flash) and a little see-through. Won, the bell again and a
   pale veil, and the hero is back with the feather's golden burst; lost, the bell and a dark veil.
@@ -188,6 +188,88 @@
   footsteps and distant sounds on the World bus (both under the Ambience slider).
   Big monsters and bosses shake the ground when they walk. Under 30% HP a heartbeat plays and the
   music gets muffled (a low-pass filter on the Music bus). The screen fades to black on the stairs.
+
+## Music
+
+The sound used to be the big gap: four tracks for every place, one boss theme for every warden.
+Now each place has its own (all from Ninja Adventure, CC0, `assets/audio/music/CREDITS.txt`), and
+the music says where the hero is: Kagari's sleep on the shrine, the throat's roots and water, the
+Ossuary's graves, the Pyre Temple's rite, Solhar's dust, and a fight of its own for each act.
+
+- **Where it lives** (data, never code): a floor's track in its biome's `DungeonTheme.music`; a
+  warden's in its `BossDef.music`, else its act's `ActDef.boss_music` (each act fights to its
+  own), else `SoundBank.boss_music`; the Deeps' in `AbyssDef.music`, the Threshold's in
+  `ThresholdDef.music`; a true ending's in `EndingDef.music`; the bed under a warden's story in
+  its `CinematicDef.music` (or the music lowered by `duck_db`); the screens' (the shrine, its
+  bell, a run won, a run lost) in `SoundBank` > Music. `Soundtrack` reads them all
+  (`Soundtrack.places()`: every place and its track, which the tests check: none silent, each
+  act's wardens on their own, the final fight's two forms different, every file looped and used).
+- **How it plays** (`Sfx.play_music`, numbers in `SoundMixDef` > Music): two players take turns,
+  so a new track fades in (1.2 s) while the old one fades out (0.9 s): a crossfade, never a gap.
+  The same track asked again goes on where it is: two floors of a biome, or a floor's music
+  coming back after its warden's, never restart it. A warden slain: its music fades, the
+  victory sting plays alone, the floor's music comes back 2.2 s later (`sting_gap`). A run lost:
+  the floor falls silent, the game-over sting, then the end screen's music. Under a warden's
+  full story a quiet bed (Story, 4 dB down); under the short one the floor's music 6 dB down;
+  the fight's music starts as the scene ends.
+- **The final fight**: Tôma fights to his own theme; when he falls the music dies (silence while
+  the Maw rises out of the tar, only its roar), then the Maw's theme begins once it fights. When
+  its mask crumbles the bottom's own music (Kagari's, the title's) comes back under the choice.
+- **Levels**: every track was loudness-matched when added (a plain gain toward -19 LUFS, never
+  past a -1.5 dB true peak: the pack's tracks ranged from -12 to -26 LUFS, a 14 dB jump between
+  floors) and re-encoded as Vorbis quality 1 (about 60 kbps, 11 MB for the 26 tracks); the
+  player sits at -8 dB (`music_volume_db`) on the Music bus (-4). Every track loops whole (the
+  pack cuts them on the bar; `loop=true` in its `.import`).
+
+Chosen without hearing them: the pack's names, then each track measured (loudness, brightness,
+how busy and percussive, its key, its shape over time). To listen to and swap freely: change the
+`.tres`, nothing else.
+
+| Place | Track (`assets/audio/music/`) | Why |
+|---|---|---|
+| Title screen, the shrine | Lost Village (`lost_village`), then the bell (`knell`, -14 dB, 1.4 s in) | Kagari asleep: the pack's sparsest piece (no beat, long decays, B minor); the shrine's bell tolls once for the souls coming home |
+| Act I, Weeping Grotto | The Cave (`cave`) | the throat's dark rock: bass-heavy B minor (kept) |
+| Act I, Pale Garden | Dark Forest (`dark_forest`) | Kagari's roots hanging in the dark; the longest loop (2.5 min) for the act's most common floors |
+| Act I, Drowned Caverns | Aquatic (`aquatic`) | the spring's water come down: sparse, watery A minor |
+| Act I wardens (Bloated King, Mire Matron) | Fight (`boss`) | the old boss theme, the lightest fight of the pack, for the first wardens |
+| Act II, Catacombs | Crypt (`crypt`) | Kagari's dead (kept) |
+| Act II, Hushed Archive | Mystical (`mystical`) | a dark, slowly swelling piece (the darkest timbre after Curse): the first ruin of an older kingdom |
+| Act II wardens (Gorr, Azure Wyrm) | Dark Castle (`dark_castle`) | steady gothic drive for the Ossuary's guardians |
+| Mother of Tears | Lament (`lament`) | the mourners' own song: she fights to a lament |
+| Nameless Charnel (hidden) | Melancholia (`melancholia`) | quiet plucked grief: a knight who gave his name |
+| Nameless Effigy | Curse (`curse`) | opens on tolls every two seconds, then sinks into the darkest pad of the pack: the seal |
+| Act III, Godless Temple | Temple (`temple`) | Solhar's temple, F# minor |
+| Act III, Cinder Ruins | Dungeon (`dungeon`) | the burnt lower town: heavy, low D minor (kept) |
+| Act III wardens (Tengu, Ember Ronin, Jade Wyrm) | End Theme (`end_theme`) | the densest, most regular pulse of the dark tracks: the pyres' rite |
+| Act IV, Buried City | Ruins (`ruins`) | Solhar's ruins; it ebbs over its loop (-20 to -32 dB): a city dying out |
+| Act IV, Sun Tomb | Manor (`manor`) | regal, very low and heavy: the dead king's halls |
+| Act IV wardens (Gilded Hoarder) | Final Area (`final_area`) | hammering stabs in F minor: the last act |
+| Dead Sun | Revelation (`revelation`) | the brightest and loudest piece, in G major: the false sun's hymn, and what the sun really is |
+| The Deeps | Tension (`tension`) | a dense, unrelenting pulse: the Maw's gut |
+| The Threshold | Dream (`dream`) | the dead waiting: a sparse, dreamlike D minor |
+| Bottom of the Well (the floor) | Lost Village (`lost_village`) | the title's: Kagari, what Tôma lost, waiting under everything; it comes back when the mask crumbles |
+| Master Tôma | End Theme 2 (`end_theme_2`) | steady, solemn and low, never shouting: a teacher's calm |
+| The Maw | Fight (2025) (`fight_ii`) | the fastest, densest track of the pack, kept for the very last fight |
+| Ending: ring the bell | Credit Theme (`credit_theme`) | the only up-tempo major piece kept: Kagari wakes |
+| Ending: take his place | Lost Village (`lost_village`) | the music doesn't move: he stays, and loses the village |
+| A run won (first ending) | Ascension (`ascension`) | gentle and rising: the souls going home |
+| A run lost | Sad Theme (`sad_theme`) | quiet, after the game-over sting |
+| A warden's full story | Story (Short) (`story`) | a storytelling bed, 4 dB down |
+| The merchant, the forge, the keepers | the floor's | no change: they are rooms of the floor |
+
+- **Ambience beds** (`AmbienceDef.bed`, on the Ambience bus under the music): the cave's, the
+  crypt's and the ruins' as before, and four new loops from the pack's Ambient sounds, made
+  seamless (the end crossfades into the start) and matched to the old ones: the Pale Garden a
+  low warm wind (`breath`: the Maw's breath rising through the roots), the Drowned Caverns a
+  river (`water`), the Buried City the desert wind (`wind`), the bottom of the Well a slow far
+  surf filtered dark (`tar`: the pool heaving).
+- **Feedback for the recent actions**: dropping from the bag (a thud at the hero's feet,
+  `drop`), breaking gear down (an anvil's clank before the coins, `dismantle`), taking gear off
+  (the equip sound), a fragment found for the first time (a short discovery jingle,
+  `fragment_found`, instead of the panel's opening), the Maw's bite (a low bone crunch,
+  `WeakPointTrait.bite_sound`), a pool of gas welling up (bubbling, `VfxElementDef.pool_sound`
+  on poison). The speakers' voices were evened out (`SpeakerDef.voice_db`: Brann's and the
+  Wanderer's were 9 to 12 dB quieter than the Vigil-Keeper's).
 
 ## Lights
 
