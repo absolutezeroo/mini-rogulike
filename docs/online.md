@@ -10,15 +10,16 @@ retention settings, the Play Console form and deletion requests are in
 they protect against.
 
 **The rule: no Talo call at all before the player's choice.** Until the player answers "Publish my
-scores" (or turns it on in Options) and/or accepts the statistics, the game makes no request, not
-even to read a board, and makes no id. The tests check it (`LeaderboardTests`, `PrivacyTests`:
+scores" (or turns it on in Options) and/or accepts the statistics, or sends a message from **Send
+feedback** (below), the game makes no request, not even to read a board, and makes no id. The tests check it (`LeaderboardTests`, `PrivacyTests`:
 the fake server counts its calls).
 
 ## How it is built
 
 - **REST, not the Talo plugin.** The game talks to Talo's HTTP API with `HTTPRequest`
   (`TaloBackend`, `src/online/talo_backend.gd`): a few endpoints (identify a player, set its name,
-  add an entry, list entries, send events, add to a game stat and read them). The official Godot addon (MIT, `TaloDev/godot`) was read and left
+  add an entry, list entries, send events, add to a game stat and read them, send a feedback
+  message). The official Godot addon (MIT, `TaloDev/godot`) was read and left
   out: about 7,700 lines for 14 services we don't use, an autoload that takes over quitting
   (`set_auto_accept_quit(false)`), opens a websocket at start, writes a `settings.cfg` into
   `res://` on first run (read-only in an export), prints `push_error`s on every failed request
@@ -252,11 +253,78 @@ Smoke test (23 October 2026, `_tool/world_stats_smoke.gd`, dev data): a test pla
 in the world's value), the list read back (every counter at 0), the player's own totals read, an
 unknown stat and a change past the max refused (400).
 
+## Player feedback
+
+**Send feedback** (the pause menu's button, and **Feedback** beside Credits on the title screen;
+what the player sees: [design/interface.md](design/interface.md#privacy-and-credits)) sends a bug
+report, an idea or anything else to Talo's **game feedback**, where Clayton reads it in the
+dashboard.
+
+- **`Feedback`** (autoload, `src/autoload/feedback.gd`): `submit()` checks the message (at least
+  `min_length`, at most `max_length` characters, trimmed), the delay since the last one
+  (`min_seconds_between`, kept in the file so a restart doesn't reset it) and that the build has a
+  key; then queues it and sends it: `POST /v1/game-feedback/categories/{internalName}`
+  `{comment, props}` with the `X-Talo-Alias` header (`BoardBackend.send_feedback()`), as the
+  device's player (`Leaderboards.identity()`: the leaderboards' random id, made then if there was
+  none, which publishes nothing). Queue in `user://feedback.json` (at most `max_queue`, the oldest
+  dropped), tried again every `retry_seconds` without network, when the app comes back and at the
+  next launch. A message the server refuses for good (400: a prop) is dropped; a **404** (its
+  category not made yet in the dashboard) is kept waiting like no network, so messages sent
+  before the categories exist are not lost. Debug builds' messages are **dev data**
+  (`X-Talo-Dev-Build: 1`, shown apart in the dashboard). The tests never reach the network.
+- **What goes**: the words, and Talo's category. Only if **Include game info** stays ticked (on by
+  default; `FeedbackDialog` adds `FeedbackInfo`): `v` the version, `build` (debug or release),
+  `os`, `os_version`, `device` (the model name; "GenericDevice" on a computer), `screen`, `window`,
+  `input` (touch, keyboard, gamepad) and `pad` (the gamepad's family), `lang`; in a run `depth`,
+  `act`, `place` (the act's English name), `biome`, `diff`, `asc`, `daily`, `oath`, `time` (s),
+  `level` and the build as the statistics write it (`weapon`, `weapon_rarity`, `weapon_element`,
+  `weapon_runes`, `weapon_affixes`, `head`, `body`, `armor_runes`, `sets`, `relics`, `perks`,
+  `skills`: `RunTelemetry.build_of()`); `log.01`... `log.20`, the last lines of Godot's log file
+  where the platform keeps one (desktop builds; Android doesn't by default), each cut at 300
+  characters, with the player's home folder and the game's data folder replaced by `~`
+  (`FeedbackInfo.scrub()`). Only if **Sign with my pseudonym** is ticked (off; offered only when
+  the player has one): `name`. Every value inside Talo's 512 characters.
+- **The data**: `data/online/feedback.tres` (`FeedbackDef`): the categories (`FeedbackCategoryDef`:
+  id, Talo internal name, button, the field's hint), `min_length` 5, `max_length` 1000 (Talo takes
+  5000), `min_seconds_between` 60, `max_queue` 10, `retry_seconds` 120, `log_lines` 20.
+
+### The categories in Clayton's Talo game (to create)
+
+Talo's admin API has no route for feedback categories (its admin routes are game channels, game
+config, game stats, leaderboards and players: `src/config/admin-api-routes.ts`), so they are made
+by hand in the dashboard, **Feedback > Categories > Create**:
+
+| Internal name | Name | Description | Anonymised |
+|---|---|---|---|
+| `bug` | Bug | Something broken or wrong in the game | **on** |
+| `idea` | Idea | A suggestion | **on** |
+| `other` | Other | Anything else | **on** |
+
+**Anonymised on**: the dashboard (and its API) then never shows which player sent a message
+(`GameFeedback.toJSON()` hides the alias of an anonymised category); a signed message carries the
+pseudonym in its `name` prop. Talo still links the message to the player internally, so deleting
+the player (a deletion request, the 730-day purge) deletes its messages too. Never rename an
+internal name. The key already has **Game Feedback: write** (`write:gameFeedback`); reading the
+categories from the game would need `read:gameFeedback` (not needed).
+
+**Reading it**: dashboard > **Feedback**: every message with its category, comment, date and props
+(the game info, the log lines), filtered by category, searched by words in the comment or a prop,
+or by one prop exactly (`prop:v=0.3.0`, `prop:os=Android`). Dev builds' messages only show with
+the dashboard's dev data turned on. Archive a message once dealt with (it disappears from the list; it is
+a soft delete: it goes for good with its player).
+
+Smoke test (24 October 2026, `_tool/feedback_smoke.gd`, dev data): a test player
+`feedback-smoke-test` identified (alias 661019), then `POST /v1/game-feedback/categories/bug`
+answered **404 "Feedback category not found"**: the key, its scope and the alias are accepted, the
+categories don't exist yet. Once they are made, run it again (or send one from an editor build) to
+see a message arrive; that player can then be deleted.
+
 ## Privacy
 
 Leaderboards: a random id made on the device, the pseudonym, the scores and their run summary.
 Statistics: the events above, linked to the same id; with them, the player's shares of the world
-counters (their totals per counter, and Talo's snapshot of each update). No email, no account, no hardware device id
+counters (their totals per counter, and Talo's snapshot of each update). Feedback: only the
+messages the player sends, with what they left ticked, linked to the same id. No email, no account, no hardware device id
 (the id is random, never `OS.get_unique_id()`), no location. Both are off until chosen and can be
 turned off in Options > Privacy, which also shows the id and prepares a deletion request. The
 policy is `docs/privacy.html` (FR and EN) and, short, in the game (`data/online/privacy.tres`);
@@ -285,5 +353,13 @@ counting the player, one update per counter at a run's end and the cap, the queu
 the file) sent once when the network is back, endings and offerings, withdrawing and deleting,
 reads cached and hidden offline; the title's line (French, grouped, turning, hidden before a
 choice) and the Toll page (filled, offline with Try again, no choice).
+`FeedbackTests` (unit and title suites, `FakeBoardBackend`'s feedback): the data, nothing taken
+without an online service (Send off, the form says why), the queue kept offline and in its file
+and sent once when the network is back, a refused message dropped, the game info only when ticked
+(the run's when given), the pseudonym only when ticked, the delay, the length limits (the form stops
+typing at the limit), the device's id made without publishing anything, deleting one's data, the
+log's folders hidden; the title's button, the form in French at 2340x1080, 2548x1296 and 1280x720,
+the thank-you note (French, fading by itself), and the pause menu's button reached with a
+gamepad's D-pad, A to open, B to close. The pc tests check the form fits every screen in French.
 A real call to Talo can only be checked by hand (a probe under `_tool/`, with the key): done on
 23 October 2026 (an identify and a `run_end` event as dev data).

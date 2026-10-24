@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 159,
+  "next_id": 163,
   "tags": [
     "pc",
     "test",
@@ -2033,8 +2033,8 @@
     {
       "id": "task_139",
       "title": "Signaler un bug / donner un avis (Talo Feedback)",
-      "description": "Validé. Un bouton dans le menu pause : le message part dans le tableau de bord Talo avec la version, l'étage, le build et l'appareil. Pratique pour les testeurs.",
-      "status": "todo",
+      "description": "Validé. Fait (à tester) : bouton « Donner ton avis » dans le menu pause et « Avis » à côté de Crédits sur l'écran titre. Formulaire : type (Bug / Idée / Divers), texte (clavier du téléphone, 5 à 1000 caractères, compteur), « Joindre les infos du jeu » coché par défaut (version, système, modèle de l'appareil, écran, contrôles, langue, la partie en cours avec étage/acte/biome/difficulté/équipement/temps, et les 20 dernières lignes du journal, dossiers perso masqués), « Signer de mon pseudonyme » décoché (seulement si tu as un pseudonyme). Un message par minute. Hors ligne : gardé dans user://feedback.json et envoyé plus tard. Envoi : Talo Game Feedback (POST /v1/game-feedback/categories/{nom}) avec l'identifiant aléatoire de l'appareil ; builds debug = données de dev. Note de remerciement en haut de l'écran dans la voix du Puits. Confidentialité : pas de question de consentement (geste explicite du joueur, art. 6(1)(b) + exemption art. 82), politique 1.2 avec une section « Avis » (jeu + docs/privacy.html), consent_version reste 2. À faire par Clayton : créer les catégories bug / idea / other (Anonymised) dans le tableau de bord (l'API admin ne le permet pas), voir docs/online.md « Player feedback ».",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_5",
       "due_date": null,
@@ -2043,7 +2043,7 @@
         "données"
       ],
       "created_at": 1792768111,
-      "updated_at": 1792768111
+      "updated_at": 1792802215
     },
     {
       "id": "task_140",
@@ -2338,6 +2338,69 @@
       ],
       "created_at": 1792779300,
       "updated_at": 1792779446
+    },
+    {
+      "id": "task_159",
+      "title": "Créer les catégories d'avis dans Talo (bug, idea, other)",
+      "description": "Tableau de bord Talo > Feedback > Categories : créer bug (Bug), idea (Idea), other (Other), toutes avec « Anonymised » activé. L'API admin de Talo n'a pas de route pour ça. Tant qu'elles n'existent pas, les messages attendent sur les appareils (Talo répond 404). Ensuite relancer le smoke test (_tool/feedback_smoke.gd) ou envoyer un avis depuis l'éditeur, vérifier qu'il apparaît (données de dev), puis supprimer le joueur de test « feedback-smoke-test ».",
+      "status": "todo",
+      "priority": "high",
+      "epic_id": "epic_6",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "release"
+      ],
+      "created_at": 1792802215,
+      "updated_at": 1792802215
+    },
+    {
+      "id": "task_160",
+      "title": "Avis : tester le formulaire sur téléphone (clavier virtuel)",
+      "description": "Non vérifié : sur Android, le clavier virtuel peut couvrir une partie du formulaire « Donner ton avis » (le champ est en haut, ça devrait passer). Vérifier aussi la saisie, le compteur, et la note de remerciement en jeu.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "android",
+        "playtest",
+        "ui"
+      ],
+      "created_at": 1792802215,
+      "updated_at": 1792802215
+    },
+    {
+      "id": "task_161",
+      "title": "Avis à la manette seule : pas de saisie possible",
+      "description": "Idée : à la manette sans clavier (PC), on ne peut pas écrire le message (pareil pour le pseudonyme). Un petit clavier à l'écran navigable à la manette, ou le clavier de Steam (Big Picture, Steam Deck).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "idée",
+        "pc",
+        "ui"
+      ],
+      "created_at": 1792802215,
+      "updated_at": 1792802215
+    },
+    {
+      "id": "task_162",
+      "title": "Avis : journal du jeu sur Android",
+      "description": "Godot n'écrit pas de fichier journal sur Android par défaut : les avis envoyés depuis un téléphone n'ont pas les dernières lignes du journal. Idée : activer debug/file_logging sur Android (taille limitée), ou garder les dernières erreurs en mémoire.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "idée",
+        "android",
+        "debug"
+      ],
+      "created_at": 1792802215,
+      "updated_at": 1792802215
     }
   ]
 }

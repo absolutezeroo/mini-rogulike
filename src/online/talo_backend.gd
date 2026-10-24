@@ -91,6 +91,20 @@ func send_events(events: Array[Dictionary]) -> Status:
 	return answer.status
 
 
+## POST /v1/game-feedback/categories/{internalName} {comment, props} with the X-Talo-Alias
+## header. 400 (a prop refused): REJECTED, never resent. 404 (the category isn't in the dashboard
+## yet): OFFLINE, the message waits until it is made rather than being lost. An "anonymised"
+## category (set in the dashboard) hides the player in what the dashboard shows.
+func send_feedback(internal_name: String, comment: String, props: Dictionary) -> Status:
+	if _alias_id == 0:
+		return Status.OFFLINE
+	var list: Array = []
+	for key: String in props:
+		list.append({ "key": key, "value": str(props[key]) })
+	var answer := await _request(HTTPClient.METHOD_POST, "/v1/game-feedback/categories/%s" % internal_name.uri_encode(), { "comment": comment, "props": list })
+	return Status.OFFLINE if int(answer.code) == 404 else answer.status
+
+
 ## PUT /v1/game-stats/{internalName} {change} with the X-Talo-Alias header. The server answers
 ## 400 for a change past the stat's maxChange or too soon after the last (minTimeBetweenUpdates):
 ## REJECTED, never resent as it is.

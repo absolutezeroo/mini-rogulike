@@ -146,6 +146,7 @@ func _ready() -> void:
 
 func _connect_menus() -> void:
 	pause_menu.content = content
+	pause_menu.run_info = func() -> Dictionary: return FeedbackInfo.run(run, player, content, world.biome if world else null)
 	inventory_panel.content = content
 	pause_menu.resume_requested.connect(func() -> void:
 		pause_menu.hide()

@@ -127,3 +127,11 @@ func fetch(_board: LeaderboardDef, _period_key: String, _past: bool, _page: int)
 ## The player's own entry on `board` for that period (a Page of one entry, or none).
 func fetch_mine(_board: LeaderboardDef, _period_key: String, _past: bool) -> Page:
 	return Page.new()
+
+
+## Sends the player's message `comment` to the feedback category `internal_name` (Talo's game
+## feedback), with `props` (String -> String: the game's details, the pseudonym, only what the
+## player ticked). OK: taken. REJECTED: refused for good (a prop too long): never resent.
+## OFFLINE: try again later. See Feedback.
+func send_feedback(_internal_name: String, _comment: String, _props: Dictionary) -> Status:
+	return Status.UNAVAILABLE

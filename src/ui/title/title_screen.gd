@@ -8,8 +8,8 @@ extends Control
 ## badge when an upgrade can be bought. The Vigil-Keeper stands by the Well (ShrineKeeper): a
 ## tap on her (or the focus and accept) opens her words (DialogueScreen); the shrine's lamps burn
 ## again with the souls offered to the Tree (TitleBackdrop.lamps_lit). Under the records, the
-## Leaderboards button opens the online leaderboards (LeaderboardsPanel), and Credits the credits
-## (CreditsPanel). The first time it shows (and when a refusal's six months are over), it asks the
+## Leaderboards button opens the online leaderboards (LeaderboardsPanel), Credits the credits
+## (CreditsPanel) and Feedback, beside it, the feedback form (FeedbackDialog). The first time it shows (and when a refusal's six months are over), it asks the
 ## gameplay statistics' questions (ConsentDialog, Privacy.should_ask()), over the title, never
 ## over a run. At the bottom, a discreet line turns through the world counters (WorldStats, "The
 ## Well's Toll": the demons slain in the Well by every player...), only once they were read.
@@ -40,6 +40,8 @@ var daily_dialog: DailyDialog
 var leaderboards: LeaderboardsPanel
 ## The credits (CreditsPanel), from the button under Leaderboards.
 var credits: CreditsPanel
+## "Send feedback" (FeedbackDialog), from the button beside Credits.
+var feedback: FeedbackDialog
 ## The gameplay statistics' questions (age, then consent).
 var consent: ConsentDialog
 ## The tutorial's title-screen hints (the Tree of Souls, the oaths), over everything.
@@ -302,15 +304,32 @@ func _build_leaderboards() -> void:
 		leaderboards.open())
 
 
-## "Credits" under Leaderboards, and its page over the screen.
+## "Credits" and "Feedback" side by side under Leaderboards, and their page and form over the
+## screen.
 func _build_credits() -> void:
 	credits = CreditsPanel.new()
 	credits.name = "CreditsPanel"
 	add_child(credits)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	(%RecordsPlaque as Control).get_parent().add_child(row)
 	var button := MenuWindow.button(tr("Credits"), Fonts.BODY, 44)
-	button.size_flags_horizontal = Control.SIZE_FILL
-	(%RecordsPlaque as Control).get_parent().add_child(button)
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(button)
 	MenuWindow.expose(button, "CreditsButton", self)
+	feedback = FeedbackDialog.new()
+	feedback.name = "FeedbackDialog"
+	add_child(feedback)
+	var send := MenuWindow.button(tr("Feedback"), Fonts.BODY, 44)
+	send.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(send)
+	MenuWindow.expose(send, "FeedbackButton", self)
+	send.pressed.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_open)
+		feedback.open())
+	feedback.finished.connect(func() -> void:
+		if InputDevice.uses_buttons():
+			send.grab_focus())
 	button.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		credits.open())
@@ -478,6 +497,8 @@ func back() -> bool:
 	var options: OptionsPanel = %OptionsPanel
 	if consent and consent.visible:
 		consent.back()
+	elif feedback and feedback.visible:
+		feedback.back()
 	elif credits and credits.visible:
 		credits.back()
 	elif leaderboards and leaderboards.visible:

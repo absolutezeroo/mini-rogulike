@@ -11,7 +11,7 @@ text = "Le Puits des Âmes (The Well of Souls) is made by {controller}, who deci
 [sub_resource type="Resource" id="short"]
 script = ExtResource("2_section")
 title = "In short"
-text = "No account, no email, no ads, no purchases, no location, no advertising ID. The game plays fully offline. Nothing leaves your device unless you turn on one of the two online features below, and each one can be turned off at any time in Options > Privacy."
+text = "No account, no email, no ads, no purchases, no location, no advertising ID. The game plays fully offline. Nothing leaves your device unless you turn on one of the two online features below (each one can be turned off at any time in Options > Privacy), or send a message from Send feedback."
 
 [sub_resource type="Resource" id="boards"]
 script = ExtResource("2_section")
@@ -22,6 +22,11 @@ text = "When you choose to publish your scores, the game sends: a random ID made
 script = ExtResource("2_section")
 title = "Gameplay statistics (only if you accept)"
 text = "If you accept, at the end of each run the game sends a summary of it: your build (weapons, armor, skills and their damage), potions, dodges, the cause and floor of your death, perks offered and picked, in-game purchases, boss fights, the kind of controls you use, plus the game version, the system and the screen size. It is linked to the random ID of this device, never to your name. Your runs also add to the world counters every player sees (the Well's Toll: monsters slain, wardens defeated, deaths, floors, potions, endings, Dawn Knells, souls offered): your own totals are kept with the same random ID, and only the sums of all players are shown. Why: to balance the game, fix its bugs and show the world counters. Basis: your consent, which you can withdraw at any time in Options > Privacy; refusing changes nothing in the game. Kept {months} months. Only offered to players aged {age} or older."
+
+[sub_resource type="Resource" id="feedback"]
+script = ExtResource("2_section")
+title = "Feedback (only when you send a message)"
+text = "When you send a message from Send feedback (in the pause menu, or Feedback on the title screen), the game sends your words and their kind (bug, idea, other). Only if you leave them ticked: the game's details (version, system, device model, screen, controls, language, the run in progress and the last lines of the game's log, with your folders hidden) and your pseudonym. It is linked to the random ID of this device. Why: to read your message and fix what it reports. Basis: your own request, message by message: nothing is sent before you press Send. Kept until you ask for deletion, or {purge_months} months after you last played online."
 
 [sub_resource type="Resource" id="device"]
 script = ExtResource("2_section")
@@ -46,13 +51,14 @@ text = "The game is not made for children under 13. Gameplay statistics are neve
 [sub_resource type="Resource" id="changes"]
 script = ExtResource("2_section")
 title = "Changes"
-text = "Version {version} of {date}. If what the game collects changes, it asks you again before sending anything new. The full policy: {url}"
+text = "Version {version} of {date}. If what the game collects changes, this policy says so first, and for what needs your consent the game asks you again before sending anything new. The full policy: {url}"
 
 [resource]
 script = ExtResource("1_privacy")
 controller_name = "[CONTROLLER_NAME]"
 contact_email = "[CONTACT_EMAIL]"
 policy_url = "[POLICY_URL]"
-policy_version = "1.1"
+policy_version = "1.2"
+policy_date = "2026-10-24"
 consent_version = 2
-sections = Array[ExtResource("2_section")]([SubResource("who"), SubResource("short"), SubResource("boards"), SubResource("stats"), SubResource("device"), SubResource("who_receives"), SubResource("rights"), SubResource("children"), SubResource("changes")])
+sections = Array[ExtResource("2_section")]([SubResource("who"), SubResource("short"), SubResource("boards"), SubResource("stats"), SubResource("feedback"), SubResource("device"), SubResource("who_receives"), SubResource("rights"), SubResource("children"), SubResource("changes")])

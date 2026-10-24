@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="FeedbackDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/online/feedback_def.gd" id="1_feedback"]
+[ext_resource type="Script" path="res://src/definitions/online/feedback_category_def.gd" id="2_category"]
+
+[sub_resource type="Resource" id="bug"]
+script = ExtResource("2_category")
+id = &"bug"
+internal_name = "bug"
+display_name = "Bug"
+hint = "What happened, what were you doing, what did you expect?"
+
+[sub_resource type="Resource" id="idea"]
+script = ExtResource("2_category")
+id = &"idea"
+internal_name = "idea"
+display_name = "Idea"
+hint = "What would you change or add?"
+
+[sub_resource type="Resource" id="other"]
+script = ExtResource("2_category")
+id = &"other"
+internal_name = "other"
+display_name = "Other"
+hint = "Your words."
+
+[resource]
+script = ExtResource("1_feedback")
+categories = Array[ExtResource("2_category")]([SubResource("bug"), SubResource("idea"), SubResource("other")])
+min_length = 5
+max_length = 1000
+min_seconds_between = 60
+max_queue = 10
+retry_seconds = 120.0
+log_lines = 20

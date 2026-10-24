@@ -83,6 +83,11 @@ func run() -> void:
 	add_child(world_stats)
 	await world_stats.run_unit()
 	world_stats.free()
+	# Player feedback (FeedbackTests).
+	var feedback := FeedbackTests.new()
+	add_child(feedback)
+	await feedback.run_unit()
+	feedback.free()
 	var gear := GearLookTests.new()
 	add_child(gear)
 	gear.run()
