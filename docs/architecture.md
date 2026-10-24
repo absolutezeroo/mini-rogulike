@@ -56,21 +56,24 @@ data/                Game content as .tres resources (no code)
                        policy), telemetry.tres (TelemetryDef: the statistics' events and fields),
                        world_stats.tres (WorldStatsDef: the world counters, the Well's Toll),
                        remote_config.tres (RemoteConfigDef: the remote settings' allow-list, RemoteKeyDef)
-                       feedback.tres (FeedbackDef: the feedback form's categories and limits)
+                       feedback.tres (FeedbackDef: the feedback form's categories and limits),
+                       online_session.tres (OnlineSessionDef: the refused identity's wait, the retries' backoff)
   credits/             credits.tres (CreditsDef: who made what, licenses and their files)
   ui/                  Loading tips, input_prompts.tres (the controls as the player is told about them: the
                        Controls page, the keys prompts show, the gamepad families' button names)
 src/
   autoload/            Events (signal bus), Sfx (sound player), HitStop (impact freeze), Profile (save), Settings (options),
                        InputDevice (the device in use), MenuNav (menus with keys and gamepads), PixelGrid (the canvas's scale), SoftKeyboard (typing on a phone),
-                       Leaderboards (the online leaderboards), Privacy (the player's privacy choices),
+                       OnlineSession (what the online services share: the server, the device's player,
+                       the consent gates, the clock), Leaderboards (the online leaderboards), Privacy (the player's privacy choices),
                        Telemetry (the gameplay statistics, with consent), WorldStats (the world counters),
                        RemoteConfig (the remote settings: Talo's game config, checked against the allow-list),
                        Feedback (the player's feedback messages and their queue)
   online/              The online pieces: RunSummary (a run that ended), PlayerName (the pseudonym's
                        filter), BoardBackend (offline) > TaloBackend (Talo's REST API), RunTelemetry (what
                        the statistics learn of a run), RemoteTuning (what the remote settings change in a run, saved with it),
-                       FeedbackInfo (the game's details a feedback message can carry)
+                       FeedbackInfo (the game's details a feedback message can carry), PersistedQueue (a
+                       service's versioned file, bounded queue, flush latch and retry with backoff)
   core/                Small shared helpers (physics layers, weighted random, SafeFile, NumberText)
   definitions/         Resource classes describing content (the "schema" of data/)
     effects/             Building blocks for skills and consumables
@@ -115,9 +118,10 @@ src/
                        and answers), BossMeeting (a warden met: its cinematic), CinematicDirector (plays a
                        CinematicDef's steps), StoryBeat (what one telling holds), Dialogues (what a speaker
                        says now), RunFacts (what is known of a run as it ends)
-tests/               Headless tests: run_tests (the runner), suites/ (unit, title, game, combat, floor, boss,
-                     balance: opt-in), support/ (TestSuite: checks, scene helpers, the bot; FakeBoardBackend:
-                     a leaderboard server in memory)
+tests/               Headless tests: run_tests (the runner; suites unit, title, game, tutorial, and balance:
+                     opt-in), suites/ (the suites and the helpers they borrow: combat, floor, boss, the
+                     online services...), support/ (TestSuite: checks, scene helpers, the bot;
+                     FakeBoardBackend: a Talo server in memory)
 online/              talo.cfg.example: the form of talo.cfg, the leaderboards' access key (never committed:
                      docs/online.md)
 locale/              strings.csv: every player text, English (the key) and French (see Languages)
@@ -193,7 +197,9 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 
 ## Autoloads
 
-Few, each with one job (`project.godot` > Autoload):
+Each with one job, in `project.godot`'s order (> Autoload). The eleven game ones depend on each
+other in one direction only; the seven online ones share `OnlineSession` (docs/online.md "The
+shared session"):
 
 | Autoload | Script | Job |
 |---|---|---|
@@ -202,16 +208,29 @@ Few, each with one job (`project.godot` > Autoload):
 | `HitStop` | `src/autoload/hit_stop.gd` | Impact freeze and slow motion |
 | `Profile` | `src/autoload/profile.gd` | What lasts between runs: souls, Tree of Souls, records, bestiary, quests (`user://profile.json`) |
 | `Settings` | `src/autoload/settings.gd` | Options and language (`user://settings.cfg`) |
+| `InputDevice` | `src/autoload/input_device.gd` | The device in use (touch, keyboard and mouse, gamepad and its family) from the last real input; `changed` for the HUD, prompts and menus |
 | `TouchScrolling` | `src/autoload/touch_scrolling.gd` | Adds finger scrolling to every `ScrollContainer` |
 | `Loader` | `src/autoload/scene_loader.gd` | Loading screen between the title and the game |
 | `SoftKeyboard` | `src/autoload/soft_keyboard.gd` | While a phone's keyboard is up over a text field, shows the field in a readable bar in the strip the keyboard leaves; tells `PixelGrid` a keyboard's resize so the UI keeps its scale (design/interface.md, Screens) |
 | `PixelGrid` | `src/autoload/pixel_grid.gd` | Picks the canvas's scale (whole steps of 0.5, the interface size option; the camera keeps the framing: `world_zoom()`) and shifts the screen a quarter of a pixel so text and pixel art at half-pixel spots draw whole (design/interface.md, Text and Screens) |
-| `InputDevice` | `src/autoload/input_device.gd` | The device in use (touch, keyboard and mouse, gamepad and its family) from the last real input; `changed` for the HUD, prompts and menus |
-| `Leaderboards` | `src/autoload/leaderboards.gd` | The online leaderboards (docs/online.md): queues the scores of runs that end (`Events.run_ended`), sends them through its backend (Talo, or offline without a key), reads the boards for the page. Its own file, `user://leaderboards.json` |
 | `MenuNav` | `src/autoload/menu_nav.gd` | Menus with keys and gamepads: the menu on top (group "menu") holds the focus, directions with wrap, tabs, the focus frame |
+| `OnlineSession` | `src/autoload/online_session.gd` | What every online service shares: the backend (Talo, or offline without a key), the device's random id and its Talo player (one identify at a time for all), the consent gates, the clock, `release_mode`. Its own file, `user://online.json` |
+| `Leaderboards` | `src/autoload/leaderboards.gd` | The online leaderboards (docs/online.md): queues the scores of runs that end (`Events.run_ended`), sends them through the session, reads the boards for the page. Its own file, `user://leaderboards.json` |
+| `Privacy` | `src/autoload/privacy.gd` | The player's privacy choices: the age question, the statistics' consent and when it is asked again, "delete my online data" (docs/privacy-ops.md). `user://privacy.json` |
+| `Telemetry` | `src/autoload/telemetry.gd` | The gameplay statistics, with consent: a `RunTelemetry` per run, its events queued and sent in batches. `user://telemetry.json` |
+| `WorldStats` | `src/autoload/world_stats.gd` | The world counters (the Well's Toll): the player's share of each, sent with consent from release builds, and the world's numbers read for the title and the page. `user://world_stats.json` |
+| `RemoteConfig` | `src/autoload/remote_config.gd` | The remote settings: Talo's game config checked against the allow-list, applied at safe points, the kill switches. `user://remote_config.json` |
+| `Feedback` | `src/autoload/feedback.gd` | The player's feedback messages, queued and sent to Talo's game feedback. `user://feedback.json` |
 
-Tests empty `Profile.save_path` and `Settings.path`, so they never touch a player's files, and give
-`Leaderboards` an offline backend and no file (`use_for_tests()`): never the network.
+**Start-up order.** Godot makes every autoload (`_init()`) before any `_ready()`. The online ones
+read their data and file in `_init()` and ask no other service there, so from `_ready()` on any
+may call any other whatever the list's order (`OnlineSessionTests` starts them in 14 orders).
+
+The test runner empties `Profile.save_path`, `Settings.path` and `RunSave.path` (one per test
+process), turns the tutorial hints and boss stories off, forces English and touch input, and resets
+the whole online layer with `OnlineSession.use_all_for_tests()`: no file, an offline backend, no
+timer, nothing queued, never the network. In a test launch the online files start with no path, so
+the player's real ones are not even read while the autoloads start.
 
 ## Rendering
 

@@ -170,7 +170,7 @@ func _show_boards() -> void:
 	if _analytics:
 		_analytics.set_pressed_no_signal(Privacy.analytics_allowed())
 	if _online_id:
-		_online_id.text = Leaderboards.device_id if not Leaderboards.device_id.is_empty() else tr("None yet (nothing was sent)")
+		_online_id.text = OnlineSession.device_id if not OnlineSession.device_id.is_empty() else tr("None yet (nothing was sent)")
 
 
 ## Shows the page of `tab` (its button stays pressed, the others not).

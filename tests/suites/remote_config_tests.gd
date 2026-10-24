@@ -8,7 +8,8 @@ extends TestSuite
 ## limited-time event, the file. run_title(): the title screen's event plaque and message of the day
 ## (French), hidden when there are none, and gone once the event ends while the title stays open.
 
-const FILE := "user://test_remote_config.json"
+## Per test process (worktrees and parallel runs share one user:// folder).
+var _file := "user://test_remote_config_%d.json" % OS.get_process_id()
 const RemoteConfigScript := preload("res://src/autoload/remote_config.gd")  # its static helpers are called on the script, not the autoload
 
 var _fake: FakeBoardBackend
@@ -372,9 +373,9 @@ func _test_event() -> void:
 			if FloorRoute.pick_event(CONTENT, 10, rng, tuning if boosted == 1 else null) == _event("blood_moon"):
 				counts[boosted] += 1
 	check(counts[1] > counts[0] * 2, "the boosted floor event comes far more often (%d against %d in 300)" % [counts[1], counts[0]])
-	RemoteConfig.fake_now = int(Time.get_unix_time_from_system()) + 3 * 86400
+	OnlineSession.fake_now = int(Time.get_unix_time_from_system()) + 3 * 86400
 	check(RemoteConfig.event_info().is_empty() and RemoteConfig.tuning(&"normal").is_neutral(), "past its end: nothing of it applies")
-	RemoteConfig.fake_now = -1
+	OnlineSession.fake_now = -1
 	await _read({ "event_ends": _date(1), "event_souls": "2" })
 	check(RemoteConfig.event_info().is_empty() and is_equal_approx(RemoteConfig.tuning(&"normal").souls, 1.0), "no name: no event")
 	await _read({ "event_name_en": "Night of Souls", "event_souls": "2" })
@@ -383,7 +384,7 @@ func _test_event() -> void:
 
 func _test_cache() -> void:
 	_use_fake({ "motd_en": "The Well stirs.", "made_up_key": "x" })
-	RemoteConfig.path = FILE
+	RemoteConfig.path = _file
 	await RemoteConfig.fetch(true)
 	RemoteConfig.fetched.clear()
 	RemoteConfig.active.clear()
@@ -393,7 +394,7 @@ func _test_cache() -> void:
 	_fake.online = false
 	await RemoteConfig.fetch(true)
 	check(RemoteConfig.message() == "The Well stirs.", "a failed read keeps the values kept")
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(FILE))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(_file))
 	RemoteConfig.path = ""
 
 
@@ -443,10 +444,10 @@ func _test_title_event_ends() -> void:
 	check(title.daily_dialog.find_child("EventLine", true, false) != null, "the Dawn Knell's card says the event stays out of it")
 	title.daily_dialog.hide()
 	var end_at := int((RemoteConfigScript.parse_date(_date(1)) as Dictionary).at) + 86400
-	RemoteConfig.fake_now = end_at - 30 * 60
+	OnlineSession.fake_now = end_at - 30 * 60
 	timer.timeout.emit()
 	check(title.event_plaque.visible and title.event_details.text.contains(tr("Ends within the hour")), "half an hour before its end: still there, ending within the hour")
-	RemoteConfig.fake_now = end_at
+	OnlineSession.fake_now = end_at
 	timer.timeout.emit()
 	check(not title.event_plaque.visible, "its end passed: the plaque is gone without leaving the title")
 	title.queue_free()
@@ -458,4 +459,4 @@ func _test_title_event_ends() -> void:
 	check(not title.event_plaque.visible, "a title shown after the event's end has no plaque")
 	title.queue_free()
 	await _frames(1)
-	RemoteConfig.fake_now = -1
+	OnlineSession.fake_now = -1
