@@ -120,7 +120,7 @@ shows to the device in hand.
   reach her; Enter or A on her opens her words).
 - **"Tap or press to continue"** (`TapGate`, `src/ui/common/tap_gate.gd`): the one way every
   screen that waits for a press reads it: the act and curse cards, a fragment of the past, a
-  cinematic, the story and someone speaking. A press is a touch, a mouse click (never the wheel:
+  cinematic, the story, someone speaking and a tutorial hint's board (its keys are its OK button's). A press is a touch, a mouse click (never the wheel:
   scrolling over a card skips nothing), a key (not its repeat) or a gamepad button (the story and
   someone speaking take only accept: Enter, Space, A; the story attack too). One finger is one
   press: the phone sends the touch and a click made of it (the project emulates both ways), the

@@ -20,6 +20,7 @@ func run_title() -> void:
 	await _test_cinematic()
 	await _test_story()
 	await _test_dialogue()
+	await _test_hint_box()
 	_layer.queue_free()
 	await _frames(1)
 
@@ -192,6 +193,33 @@ func _test_dialogue() -> void:
 	await _frames(3)
 	check(not box.is_typing() and box.page_index() == 0, "someone speaking: one touch writes the page out, and only that")
 	holder.queue_free()
+	await _frames(1)
+
+
+## A tutorial hint: a tap on its board dismisses it once (the next hint, shown at once in its
+## place, stays up under the same finger); the wheel dismisses nothing.
+func _test_hint_box() -> void:
+	check(CONTENT.tutorial != null and not CONTENT.tutorial.hints.is_empty(), "the tutorial has hints to show")
+	if CONTENT.tutorial == null or CONTENT.tutorial.hints.is_empty():
+		return
+	var hint := CONTENT.tutorial.hints[0]
+	var box := HintBox.new()
+	_layer.add_child(box)
+	var dismissed := [0]
+	box.dismissed.connect(func() -> void:
+		dismissed[0] += 1
+		box.show_hint(hint, Rect2()))  # as the tutorial does: the next one up at once
+	box.show_hint(hint, Rect2())
+	await _frames(20)
+	var board := box.get_child(0) as Control
+	var on_board := board.get_global_rect().get_center()
+	_wheel(on_board)
+	await _frames(3)
+	check(dismissed[0] == 0 and box.visible, "a hint: the mouse wheel doesn't dismiss it")
+	await _finger(on_board)
+	await _frames(3)
+	check(dismissed[0] == 1 and box.visible, "a hint: one touch dismisses it once, not the next one too (%d)" % dismissed[0])
+	box.queue_free()
 	await _frames(1)
 
 

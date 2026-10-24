@@ -26,6 +26,8 @@ var _text: Label
 var _time := 0.0
 var _tween: Tween
 var _hint: HintDef
+## Reads the taps on the board (its keys are the OK button's: Keys.NONE).
+var _tap := TapGate.new(TapGate.Keys.NONE)
 
 
 func _init() -> void:
@@ -121,9 +123,15 @@ func _process(delta: float) -> void:
 		queue_redraw()
 
 
+## A tap on the board dismisses the hint, read through the TapGate (keys are the OK button's):
+## never the wheel, and the touch and the click a phone makes of it are one tap, not two (the
+## second would dismiss the next hint, shown at once in its place).
 func _on_board_input(event: InputEvent) -> void:
-	if (event is InputEventMouseButton or event is InputEventScreenTouch) and event.is_pressed():
-		accept_event()
+	var read := _tap.read(event, visible)
+	if read == TapGate.IGNORE:
+		return
+	accept_event()
+	if read == TapGate.TAKE:
 		dismissed.emit()
 
 
