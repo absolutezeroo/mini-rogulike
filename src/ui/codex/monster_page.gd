@@ -18,6 +18,19 @@ enum Middle { ATTACKS, CHRONICLE }
 const LEFT_WIDTH := 376.0
 const RIGHT_WIDTH := 294.0  # (with the left one, as wide as they were: 670)
 const SHINY_COLOR := CodexCard.SHINY_COLOR
+## The look at the top of the left column: a monster's art drawn this many times (a warden's
+## smaller: it is bigger art), in a box at least LOOK_MIN_HEIGHT tall; art that would not fit
+## LOOK_MAX_HEIGHT (or the column) at that scale is drawn smaller (MonsterPage._look()).
+const MONSTER_LOOK_SCALE := 3.5
+const BOSS_LOOK_SCALE := 2.2
+const LOOK_MIN_HEIGHT := 104.0
+const LOOK_MAX_HEIGHT := 220.0
+const LOOK_PADDING := 6.0
+## Art no taller than this (art pixels) is drawn at MONSTER_LOOK_SCALE, a warden's too.
+const SMALL_ART := 24.0
+
+## Painted rects of the frames' animations (art_rect()), read once.
+static var _art_rects := {}
 
 var _monster: MonsterDef
 var _content: ContentDB
@@ -186,22 +199,76 @@ func _stats() -> Array[Array]:
 	]
 
 
-## The monster, big and moving (unknown ones as a shadow).
+## The monster, big and moving (unknown ones as a shadow), dressed as it is in a fight (the
+## Nameless Keeper a dark shade: MonsterTrait.dress_look()). Its box is as tall as its art drawn
+## at its scale (LOOK_MIN_HEIGHT at least); art too big for LOOK_MAX_HEIGHT or the column's width
+## is drawn smaller (the Maw, the Gilded Hoarder), so every monster shows whole.
 func _look() -> Control:
+	var width := LEFT_WIDTH - 44
 	var box := Control.new()
-	box.custom_minimum_size = Vector2(LEFT_WIDTH - 44, 104)
+	box.name = "LookBox"
 	box.clip_contents = true
 	var sprite := AnimatedSprite2D.new()
+	sprite.name = "Look"
 	sprite.sprite_frames = _monster.frames
 	sprite.offset = _monster.frames_offset
 	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	sprite.position = Vector2((LEFT_WIDTH - 44) * 0.5, 74)
-	sprite.scale = Vector2.ONE * (2.2 if _monster is BossDef else 3.5)
 	AttackPreview._play_anim(sprite, [&"walk_down", &"idle_down", &"walk", &"idle"])
+	var art := art_rect(sprite.sprite_frames, sprite.animation, sprite.offset)
+	var room := Vector2(width, LOOK_MAX_HEIGHT) - Vector2.ONE * LOOK_PADDING * 2.0
+	# (A warden on a common body's art, the Nameless Keeper on the hero's, is drawn as big as one.)
+	var big := _monster is BossDef and art.size.y > SMALL_ART
+	var look_scale := minf(BOSS_LOOK_SCALE if big else MONSTER_LOOK_SCALE, minf(room.x / art.size.x, room.y / art.size.y))
+	var height := maxf(LOOK_MIN_HEIGHT, ceilf(art.size.y * look_scale + LOOK_PADDING * 2.0))
+	box.custom_minimum_size = Vector2(width, height)
+	sprite.scale = Vector2.ONE * look_scale
+	# The art's middle in the box's middle (on a whole UI pixel).
+	sprite.position = (Vector2(width, height) * 0.5 - art.get_center() * look_scale).round()
+	for monster_trait in _monster.traits:
+		if monster_trait:
+			monster_trait.dress_look(sprite)
 	if Bestiary.rank_of(_monster, _content.bestiary) == Bestiary.UNSEEN:
 		sprite.modulate = Color(0, 0, 0, 0.8)
 	box.add_child(sprite)
 	return box
+
+
+## Where the look's art is drawn on screen (its frames' painted pixels, in the viewport's
+## coordinates), and the box it is drawn in: the art must stay inside (a check in the title
+## suite). Empty rects before a page is shown.
+func look_rects() -> Array[Rect2]:
+	var box := find_child("LookBox", true, false) as Control
+	var sprite := box.get_node_or_null("Look") as AnimatedSprite2D if box else null
+	if sprite == null:
+		return [Rect2(), Rect2()]
+	var art := art_rect(sprite.sprite_frames, sprite.animation, sprite.offset)
+	return [sprite.get_global_transform() * art, box.get_global_rect()]
+
+
+## The pixels painted in any frame of `animation` (a bob, a breath: all of them), in the
+## sprite's own coordinates (centered, moved by `offset`); a 16x16 square without frames.
+## Read from the frames' images once per animation.
+static func art_rect(frames: SpriteFrames, animation: StringName, offset: Vector2) -> Rect2:
+	if frames == null or not frames.has_animation(animation) or frames.get_frame_count(animation) == 0:
+		return Rect2(offset - Vector2(8, 8), Vector2(16, 16))
+	var key := "%d/%s" % [frames.get_instance_id(), animation]
+	if not _art_rects.has(key):
+		var used := Rect2()
+		var frame_size := Vector2.ZERO
+		for i in frames.get_frame_count(animation):
+			var texture := frames.get_frame_texture(animation, i)
+			if texture == null:
+				continue
+			frame_size = texture.get_size()
+			var image := texture.get_image()
+			var painted := Rect2(image.get_used_rect()) if image else Rect2(Vector2.ZERO, frame_size)
+			if painted.has_area():
+				used = painted if not used.has_area() else used.merge(painted)
+		if not used.has_area():
+			used = Rect2(Vector2.ZERO, frame_size if frame_size != Vector2.ZERO else Vector2(16, 16))
+		_art_rects[key] = Rect2(used.position - frame_size * 0.5, used.size)
+	var rect: Rect2 = _art_rects[key]
+	return Rect2(rect.position + offset, rect.size)
 
 
 # --- Middle: how it fights, a warden's chronicle --------------------------------------
@@ -377,8 +444,12 @@ func _ways() -> PackedStringArray:
 
 # --- Right: your hunt ------------------------------------------------------------------
 
-## The Shiny: a rare glowing one of this kind, found (slain) or not yet.
+## The Shiny: a rare glowing one of this kind, found (slain) or not yet. Nothing for a kind that
+## can never come Celestial (Bestiary.can_be_celestial(): Tôma, the Maw, the Nameless Keeper,
+## the Deeps' demons), unless one was found anyway (an older game's).
 func _add_shiny(column: VBoxContainer) -> void:
+	if not Bestiary.can_be_celestial(_monster, _content) and not Profile.has_shiny(_monster.id):
+		return
 	column.add_child(_heading(tr("Celestial")))
 	var found := Profile.has_shiny(_monster.id)
 	column.add_child(_goal_row(found, tr("Found!") if found else tr("Not found yet"), ""))

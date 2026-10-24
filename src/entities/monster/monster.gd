@@ -26,8 +26,9 @@ var affixes: Array[EliteAffixDef] = []
 var elite: EliteAffixDef
 ## Its place among the floor's own monsters (FloorPopulator puts them down in an order the
 ## floor's seed decides): the same number is the same monster on the floor rebuilt for a resumed
-## run, so a slain one stays slain (World.spent_data() "slain"). -1: came later (summons,
-## ambush and Deeps waves, encounters, the debug panel).
+## run, so a slain one stays slain and a hurt one hurt (World.spent_data() "slain", "wounded"; the
+## hidden floor numbers its own too). -1: came later (summons, ambush and Deeps waves, encounters,
+## the debug panel; World.spent_data() "later" keeps those still standing).
 var floor_index := -1
 
 ## Big monsters shake the floor when they walk.

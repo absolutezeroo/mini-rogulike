@@ -20,6 +20,16 @@ extends MonsterTrait
 @export var glow_size: float = 6.0
 @export_range(0, 15) var light_level: int = 4
 
+@export_group("Casting")
+## While it casts (a skill's warning: Monster.casting_index), the lantern is held up here
+## (art pixels from its feet, over its head) and its glow swells to `cast_glow_size` in
+## `cast_glow_steps` whole steps as the warning fills, the last step bright (GlowHalo.bright):
+## a cast reads apart from a blow (its weapon's wind-up), on a body with no cast animation of
+## its own (the hero's frames: NamelessKeeperDef.cast_pose holds it still meanwhile).
+@export var cast_lantern_offset: Vector2 = Vector2(5, -20)
+@export var cast_glow_size: float = 10.0
+@export_range(1, 6) var cast_glow_steps: int = 3
+
 
 func on_spawn(monster: Monster) -> void:
 	if monster.rig:
@@ -53,14 +63,61 @@ func _shade(monster: Monster) -> void:
 		GlowHalo.light(monster, color.lightened(0.6), light_level)
 
 
-## The lantern stays in the hand on its side: mirrored when it faces left.
+## The lantern stays in the hand on its side (mirrored when it faces left); raised and
+## swelling while it casts.
 func update(monster: Monster, _delta: float) -> void:
 	var state := monster.trait_state(self)
 	var held: Sprite2D = state.get("lantern")
 	if held == null or not is_instance_valid(held):
 		return
+	var step := cast_step(monster.casting_index >= 0, monster.telegraph)
 	var side := -1.0 if monster.facing.x < -0.3 else 1.0
-	held.position = Vector2(lantern_offset.x * side, lantern_offset.y)
+	var at := cast_lantern_offset if step > 0 else lantern_offset
+	held.position = Vector2(at.x * side, at.y)
 	var halo: GlowHalo = state.get("halo")
 	if halo and is_instance_valid(halo):
 		halo.position = monster.rig.position + held.position * Actor.SPRITE_SCALE
+		halo.size = glow_size_at(step)
+		halo.bright = step >= cast_glow_steps
+
+
+## The glow's step while casting: 0 not casting, then 1 to `cast_glow_steps` as the warning
+## (`progress`, 0..1) fills.
+func cast_step(casting: bool, progress: float) -> int:
+	if not casting:
+		return 0
+	return clampi(ceili(clampf(progress, 0.0, 1.0) * cast_glow_steps), 1, cast_glow_steps)
+
+
+## The glow's core size at `step` (cast_step()), on the art's grid.
+func glow_size_at(step: int) -> float:
+	if step <= 0:
+		return glow_size
+	return PixelDraw.snap_length(lerpf(glow_size, cast_glow_size, float(step) / cast_glow_steps))
+
+
+## In the bestiary: the same shade (the body shader's pallor and rim, as ActorRig paints it) and
+## its lantern in hand.
+func dress_look(sprite: AnimatedSprite2D) -> void:
+	var look := ShaderMaterial.new()
+	look.shader = BodyLook.SHADER
+	look.set_shader_parameter(&"ramps", BodyLook.ramps())
+	look.set_shader_parameter(&"flash_amount", pallor)
+	look.set_shader_parameter(&"flash_color", color)
+	var frame := Vector2(16, 16)
+	if sprite.sprite_frames and sprite.sprite_frames.has_animation(sprite.animation) and sprite.sprite_frames.get_frame_count(sprite.animation) > 0:
+		frame = sprite.sprite_frames.get_frame_texture(sprite.animation, 0).get_size()
+	var corner := sprite.offset - frame * 0.5
+	look.set_shader_parameter(&"frame_rect", Vector4(corner.x, corner.y, frame.x, frame.y))
+	if rim.a > 0.0:
+		look.set_shader_parameter(&"outline_color", rim)
+		look.set_shader_parameter(&"outline_beat", false)
+	sprite.material = look
+	if lantern:
+		var held := Sprite2D.new()
+		held.name = "Lantern"
+		held.texture = lantern
+		held.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		held.position = lantern_offset
+		held.use_parent_material = false
+		sprite.add_child(held)

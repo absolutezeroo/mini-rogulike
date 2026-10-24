@@ -295,3 +295,56 @@ static func median(values: Array) -> float:
 	var n := sorted.size()
 	var mid := int(n / 2.0)
 	return sorted[mid] if n % 2 == 1 else (float(sorted[mid - 1]) + float(sorted[mid])) * 0.5
+
+
+## The Nameless Keeper's sample heroes (`--keeper=<weapon ids>`, BalanceArena.run_bottom()): for
+## a weapon, the tome a hero of it would carry and the relics the Keeper keeps from such a run
+## (NamelessKeeperDef.kept_perks), as the first measure of him (balance-log 2026-10-24). Any
+## other weapon: its own skills only.
+const KEEPER_KITS := {
+	"katana": { "tome": "tome_fire", "perks": { "ignite": 1 } },
+	"hammer": { "tome": "tome_war", "perks": { "bloodrage": 1, "thorns": 1 } },
+	"magic_wand": { "tome": "tome_thunder", "perks": {} },
+	"bow": { "tome": "tome_frost", "perks": { "multishot": 1 } },
+}
+## The sample hero's level and gear (a late run's: KeeperTests' hero, the 2026-10-24 measure).
+const KEEPER_LEVEL := 15
+const KEEPER_ITEM_LEVEL := 12
+const KEEPER_AFFIXES: Array[String] = ["brutal", "of_the_fox"]
+
+
+## A KeeperSnapshot's data of a hero who took the keeper's place carrying `weapon_id`: level
+## KEEPER_LEVEL, the weapon Rare with KEEPER_AFFIXES, a Magic iron helm and a chain mail, the
+## weapon's skills and its kit's tome, its kit's relics. {} for a weapon the game doesn't have.
+static func keeper_snapshot(content: ContentDB, weapon_id: String) -> Dictionary:
+	var weapon: WeaponDef = null
+	var carried: Array = []
+	carried.append_array(content.player.starting_equipment)
+	carried.append_array(content.items)
+	for item: ItemDef in carried:
+		if item is WeaponDef and String(item.id) == weapon_id:
+			weapon = item as WeaponDef
+			break
+	if weapon == null:
+		return {}
+	var kit: Dictionary = KEEPER_KITS.get(weapon_id, {})
+	var skills: Array = weapon.skills.filter(func(s: SkillDef) -> bool: return s != null).map(func(s: SkillDef) -> String: return String(s.id))
+	var tome_path := "res://data/items/tomes/%s.tres" % str(kit.get("tome", ""))
+	if kit.has("tome") and ResourceLoader.exists(tome_path):
+		var tome := load(tome_path) as SkillTomeDef
+		if tome and tome.skill and not skills.has(String(tome.skill.id)):
+			skills.append(String(tome.skill.id))
+	var relics: Array = []
+	var wanted: Dictionary = kit.get("perks", {})
+	for id: String in wanted:
+		relics.append({ "id": id, "stacks": int(wanted[id]) })
+	return {
+		"version": KeeperSnapshot.VERSION, "date": 0, "difficulty": "normal", "ascension": 0,
+		"level": KEEPER_LEVEL, "pseudonym": "",
+		"gear": [
+			{ "id": weapon_id, "rarity": ItemRarity.RARE, "affixes": KEEPER_AFFIXES.duplicate(), "runes": [], "level": KEEPER_ITEM_LEVEL },
+			{ "id": "iron_helm", "rarity": ItemRarity.MAGIC, "affixes": [], "runes": [], "level": KEEPER_ITEM_LEVEL },
+			{ "id": "chain_mail", "rarity": ItemRarity.COMMON, "affixes": [], "runes": [], "level": KEEPER_ITEM_LEVEL },
+		],
+		"skills": skills, "perks": relics,
+	}

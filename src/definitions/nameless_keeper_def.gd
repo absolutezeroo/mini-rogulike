@@ -24,6 +24,16 @@ extends BossDef
 @export_range(0, 10) var power_per_rarity: int = 1
 ## With a ranged weapon he keeps this far from the hero (MonsterDef.keep_distance).
 @export var ranged_keep_distance: float = 170.0
+## With a ranged weapon his shots fly at most this fast, and come this many seconds apart at
+## least (before his attack speed): a hero's bow or wand fires 600-520 a second, two or three
+## shots a second, made for a hero; from a boss no one could step out of them (an average
+## player lost to every bow and wand Keeper at half his Health: balance-log 2026-10-24, "A
+## ranged Keeper"). The monsters' own bolts fly 220-320, 1.3-2 s apart.
+@export var ranged_shot_speed: float = 320.0
+@export var ranged_cooldown_min: float = 1.2
+## With a ranged weapon his shot is drawn this long (MonsterDef.attack_windup, before the phases'
+## wind-ups): a shot reaches from afar, so it is warned longer than a swing one steps out of.
+@export var ranged_attack_windup: float = 0.75
 
 @export_group("His skills")
 ## The hero's skills he uses (his weapon's first, then the tome's), at most.
@@ -41,9 +51,16 @@ extends BossDef
 ## else (a buff, a blink) from `other_max_range` in.
 @export var dive_min_range: float = 50.0
 @export var dive_range_margin: float = 30.0
+## Shots from `shot_min_range` out (a bolt let go in the hero's face can't be stepped out of,
+## however long it was warned: balance-log 2026-10-24, "A ranged Keeper").
+@export var shot_min_range: float = 90.0
 @export var shot_max_range: float = 360.0
 @export var area_range_margin: float = 20.0
 @export var other_max_range: float = 260.0
+## The pose he holds while he casts (the hero's frames have no cast animation: his attack pose,
+## trembling, read as a blow coming): a looping one is held still for the warning
+## (ActorRig.play_cast), his lantern raised and swelling meanwhile (ShadeTrait, "Casting").
+@export var cast_pose: StringName = &"idle"
 ## His cooldowns are the hero's times this (a boss doesn't cast as often as a hero).
 @export_range(1.0, 4.0, 0.05) var cooldown_scale: float = 1.6
 ## A dive's band at most this wide (readable: docs/design/monsters.md, Bosses).
@@ -78,6 +95,12 @@ func build(snapshot: KeeperSnapshot, content: ContentDB) -> NamelessKeeperDef:
 		keeper.weapon = held
 	if keeper.weapon and keeper.weapon.kind == WeaponDef.Kind.RANGED:
 		keeper.keep_distance = ranged_keep_distance
+		# His copy shoots as a boss does (the hero's weapon and the snapshot untouched).
+		var shooting := keeper.weapon.duplicate() as WeaponDef
+		shooting.projectile_speed = minf(shooting.projectile_speed, ranged_shot_speed)
+		shooting.cooldown = maxf(shooting.cooldown, ranged_cooldown_min)
+		keeper.weapon = shooting
+		keeper.attack_windup = maxf(keeper.attack_windup, ranged_attack_windup)
 	var rarity := (keeper.weapon as EquipmentDef).rarity if keeper.weapon else ItemRarity.COMMON
 	var damage := keeper.weapon.damage if keeper.weapon else 0
 	keeper.stats.attack = maxi(blow_power + power_per_rarity * maxi(rarity - ItemRarity.COMMON, 0) - damage, 0)
@@ -100,11 +123,11 @@ func build(snapshot: KeeperSnapshot, content: ContentDB) -> NamelessKeeperDef:
 			if slows(made):
 				slowing += 1
 	var opening: Array[SkillDef] = own.slice(0, mini(own.size(), 2))
-	keeper.skills = opening + skills
+	keeper.skills = opening + _posed(skills)
 	var his_phases: Array[BossPhase] = []
 	for phase in phases:
 		var copy := phase.duplicate() as BossPhase
-		copy.skills = own + phase.skills
+		copy.skills = own + _posed(phase.skills)
 		his_phases.append(copy)
 	keeper.phases = his_phases
 	# His gear and relics, worn as the hero wore them (traits of his own: there is one of him).
@@ -151,7 +174,7 @@ func boss_skill(skill: SkillDef, carried: Array[VfxElementDef] = [], may_slow: b
 		made.ai_max_range = dive.distance + dive_range_margin
 	elif first is ProjectileEffect:
 		made.cast_time = shot_cast_time
-		made.ai_min_range = 0.0
+		made.ai_min_range = shot_min_range
 		made.ai_max_range = minf((first as ProjectileEffect).max_distance, shot_max_range)
 	elif first is DamageAreaEffect:
 		var area := first as DamageAreaEffect
@@ -168,8 +191,20 @@ func boss_skill(skill: SkillDef, carried: Array[VfxElementDef] = [], may_slow: b
 		made.cast_time = other_cast_time
 		made.ai_min_range = 0.0
 		made.ai_max_range = other_max_range
-	made.cast_animation = &"cast"
+	made.cast_animation = cast_pose
 	return made
+
+
+## Skills of his own (the lantern's, Tôma's), cast in his pose: copies, the skill files untouched.
+func _posed(list: Array[SkillDef]) -> Array[SkillDef]:
+	var result: Array[SkillDef] = []
+	for skill in list:
+		if skill == null:
+			continue
+		var copy := skill.duplicate() as SkillDef
+		copy.cast_animation = cast_pose
+		result.append(copy)
+	return result
 
 
 ## One effect of a hero's skill as his: a dive narrowed to a band his body could cross and

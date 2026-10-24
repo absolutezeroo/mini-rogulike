@@ -15,6 +15,9 @@ extends RefCounted
 ##   to land on solid ground with nothing in the way. It never walks into a hole or cracked
 ##   floor it can see, nor dashes (a skill that carries it) into one. It holds the hit that
 ##   would set off a boss' shockwave when its roll isn't ready. A decent player, not a perfect one.
+##   When only shots threaten it (a bow or a wand drawn, shots flying), out of reach it keeps
+##   closing in across their line (CLOSE_IN), so an archer that keeps his distance is still met;
+##   a warned skill (a fan's cone too) it steps out of first.
 ## - PLAYER ("player"): the kite bot with a human's reaction time (REACTION): a threat (a wind-up,
 ##   a shot, a shockwave's ring) is only answered once it has been there that long, so short
 ##   wind-ups and fast shots land. An average player, for the gauntlet.
@@ -51,6 +54,11 @@ const ROLL_LANDING := 135.0
 const DASH_LANDING_MARGIN := 32.0
 ## Seconds after a cast's last delayed blow is due that the bot still keeps out of its way.
 const FOLLOW_UP_MARGIN := 0.15
+## Out of reach of a foe that shoots, the kite bot steps across the shots' line while closing in:
+## this much of its way leads toward the foe (1: at 45 degrees, faster forward than a boss backing
+## off at 100). A ranged boss is reached between his volleys, not waited out of his range (a
+## standoff: balance-log 2026-10-24, the Nameless Keeper with a bow or a wand).
+const CLOSE_IN := 1.0
 
 var style: Style = Style.FACE_TANK
 var player: Player
@@ -197,7 +205,11 @@ func _kite(target: Monster) -> void:
 	var in_reach := distance <= _attack_reach(target) and not hold_fire
 	var threat := _threat()
 	if threat.danger:
-		_move(_safe_direction(threat.away))
+		var way: Vector2 = threat.away
+		if threat.sideways and not threat.urgent and distance > _wanted_distance(target):
+			# Shots come along a line: across it, and on toward the shooter.
+			way = (way + to_target.normalized() * CLOSE_IN).normalized()
+		_move(_safe_direction(way))
 		if threat.urgent and player.skills.is_ready(0):
 			var roll := _roll_direction(threat.away)
 			if roll != Vector2.ZERO:
@@ -226,11 +238,14 @@ func _kite(target: Monster) -> void:
 
 # --- Reading the fight -------------------------------------------------------------------
 
-## { danger, urgent, away }: something about to hit the hero, and which way is out. `urgent`:
-## it lands within the roll's invulnerability (a decent player rolls through it, not before).
+## { danger, urgent, away, sideways }: something about to hit the hero, and which way is out.
+## `urgent`: it lands within the roll's invulnerability (a decent player rolls through it, not
+## before). `sideways`: only shots in flight and a drawn bow or wand (coming along a line:
+## stepped across, not backed off from); a warned skill, a fan's cone too, is left at full speed.
 func _threat() -> Dictionary:
 	var away := Vector2.ZERO
 	var urgent := false
+	var sideways := true
 	var here := player.global_position
 	for actor in world.get_hostiles(player.faction):
 		var monster := actor as Monster
@@ -247,6 +262,7 @@ func _threat() -> Dictionary:
 				var off := here - point
 				if off.length() < near:
 					away += (off.normalized() if off.length() > 0.1 else direction) * 1.5
+					sideways = false
 		# A boss' shockwave ring (it answers too many hits in a row, and roars into a phase):
 		# the cooldown is set to 3 s when the ring appears, the blast follows 0.35-0.45 s later.
 		if monster.is_boss() and monster._shockwave_cooldown > 2.5:
@@ -254,6 +270,7 @@ func _threat() -> Dictionary:
 			if distance < ring and _noticed("ring%d" % monster.get_instance_id()):
 				away += direction * 2.0
 				urgent = urgent or monster._shockwave_cooldown <= 2.75
+				sideways = false
 			continue
 		if reaction > 0.0 and monster.is_boss():
 			_seen.erase("ring%d" % monster.get_instance_id())  # the next ring is seen afresh
@@ -268,13 +285,27 @@ func _threat() -> Dictionary:
 		if not later.is_empty() and Engine.get_physics_frames() < int(later.until):
 			var pending: Array = _skill_threat(later.skill, later.aim, 0.0, offset, distance, direction)
 			away += pending[0]
+			if (pending[0] as Vector2) != Vector2.ZERO:
+				sideways = false
 		if monster.telegraph <= 0.0:
 			continue
 		if not _noticed(id):
 			continue
 		var skill := monster.casting_skill()
+		var shooter := monster.get_weapon()
+		if skill == null and shooter and shooter.kind == WeaponDef.Kind.RANGED:
+			# A bow or a wand drawn: its shot comes along the line between them. Step across that
+			# line (backing off a ranged blow only keeps the hero in its range); the shot itself
+			# is dodged in flight below.
+			if distance < monster.attack_range(player) + 30.0:
+				var across := direction.orthogonal()
+				if across.dot(player.velocity) < 0.0:
+					across = -across
+				away += across * (1.0 + monster.telegraph)
+			continue
 		if skill == null:
 			# A swing: step out of reach; roll through it if still in reach as it lands.
+			sideways = false
 			var reach := monster.attack_range(player)
 			if distance < reach + 30.0:
 				away += direction * (1.0 + monster.telegraph)
@@ -284,6 +315,8 @@ func _threat() -> Dictionary:
 		var threat := _skill_threat(skill, monster.facing, monster.telegraph, offset, distance, direction)
 		away += threat[0]
 		urgent = urgent or threat[1]
+		if (threat[0] as Vector2) != Vector2.ZERO:
+			sideways = false  # (a warned skill, a fan's cone too: out of it first, at full speed)
 	for node in world.get_node("Projectiles").get_children():
 		var shot := node as Projectile
 		if shot == null or shot._done or (shot._faction == Actor.Faction.PLAYER and not shot._hits_everyone):
@@ -308,12 +341,14 @@ func _threat() -> Dictionary:
 		var offset := here - world.map.cell_to_world(cell)
 		if offset.length() < world.map.tile_size * 1.2:
 			away += offset.normalized() if offset.length() > 0.1 else Vector2.DOWN
+			sideways = false
 	# Cracked floor (or a warned cell) under the hero's feet: off it before it gives way.
 	if player.is_grounded() and not _firm(here):
 		var firm := world.nearest_free_point(here)
 		if firm.distance_to(here) > 1.0:
 			away += here.direction_to(firm) * 3.0
-	return { "danger": away != Vector2.ZERO, "urgent": urgent, "away": away.normalized() }
+			sideways = false
+	return { "danger": away != Vector2.ZERO, "urgent": urgent, "away": away.normalized(), "sideways": sideways }
 
 
 ## [away, urgent] for a skill cast toward `aim` from `offset` (hero - caster), `progress` of its

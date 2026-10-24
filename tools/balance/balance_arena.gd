@@ -10,6 +10,9 @@ extends Node
 ##   boss, kite bot, Normal.
 ## - run_packs(): rooms of each act's monsters on its last normal floor: three of each kind, mixed
 ##   rooms by spawn weight, and rooms with an Elite (each affix) / Epic / Legendary / Shiny.
+## - run_bottom() (`--keeper=<weapon ids>`): the bottom of the Well, the Nameless Keeper built from
+##   a sample hero of each weapon (BalanceContent.keeper_snapshot()), and Tôma alone for scale,
+##   against the last act's expected build, each difficulty and bot.
 ## Every fight starts from the same seeds (`seed_value`): the same command gives the same numbers.
 
 ## Frames the hero may spend in a world of his own (the Deeps, the Threshold) mid-fight.
@@ -47,6 +50,8 @@ var plain_only := false
 ## Units of work (BalanceJobs): each fight and room is one, kept in the cache and shared
 ## between worker processes. A plain one (no cache, one process) when none is given.
 var jobs := BalanceJobs.new()
+## The Nameless Keeper's sample heroes' weapons (run_bottom(); empty: no bottom fights).
+var keeper_weapons: PackedStringArray = []
 ## Weapon arena: only these weapons (ids; empty: all).
 var weapon_ids: PackedStringArray = []
 ## Packs: only these acts (empty: all).
@@ -121,6 +126,63 @@ func run_bosses() -> BalanceReport:
 	return report
 
 
+# --- The bottom of the Well ---------------------------------------------------------------
+
+## The bottom's fights: Tôma alone (weapon "") then a Keeper per weapon of `keeper_weapons`, x the
+## difficulties x the bots, with the last act's expected build: [{ weapon, keeper, build,
+## difficulty, bot }].
+func bottom_matrix() -> Array:
+	var result: Array = []
+	var build := BalanceBuild.expected(all_builds, content.dungeon.acts.size())
+	if build == null:
+		return result
+	var weapons := PackedStringArray([""])
+	weapons.append_array(keeper_weapons)
+	for weapon in weapons:
+		var snapshot := BalanceContent.keeper_snapshot(content, weapon) if not weapon.is_empty() else {}
+		if not weapon.is_empty() and snapshot.is_empty():
+			push_warning("balance arena: no weapon '%s' for a Nameless Keeper" % weapon)
+			continue
+		for difficulty in difficulties:
+			for bot in bots:
+				result.append({ "weapon": weapon, "keeper": snapshot, "build": build, "difficulty": difficulty, "bot": bot })
+	return result
+
+
+func run_bottom() -> BalanceReport:
+	var report := BalanceReport.new()
+	report.title = "Balance arena: the bottom of the Well"
+	var started := Time.get_ticks_msec()
+	var matrix := bottom_matrix()
+	lab.override_chances()
+	var fights: Array = []
+	print("balance arena: %d fights at the bottom of the Well" % matrix.size())
+	var index := 0
+	var finale := content.dungeon.finale
+	for f: Dictionary in matrix:
+		index += 1
+		var boss: BossDef = finale.keeper if not str(f.weapon).is_empty() else finale.boss
+		var label := "keeper:%s" % f.weapon if not str(f.weapon).is_empty() else "toma"
+		var unit := "bottom|%s|%s|%s|%s|%.0f" % [label, BalanceJobs.build_id(f.build), BalanceContent.key(f.difficulty), f.bot, timeout]
+		var roots := PackedStringArray([finale.resource_path, boss.resource_path, "res://data/arenas/", content.dungeon.acts[content.dungeon.acts.size() - 1].resource_path])
+		roots.append_array(BalanceJobs.build_roots(f.build, content))
+		roots.append_array(difficulty_roots(f.difficulty))
+		var result: Variant = await jobs.unit(unit, roots,
+			func() -> Dictionary: return await fight_boss(boss, f.build, f.difficulty, f.bot, null, 0, [] as Array[ItemDef], false, { "keeper": f.keeper, "label": label }))
+		if result == null:
+			continue  # another worker's
+		fights.append(result)
+		if verbose and jobs.measuring:
+			print("  [%d/%d] %s" % [index, matrix.size(), fight_line(result)])
+	lab.restore_chances()
+	var seconds := (Time.get_ticks_msec() - started) / 1000.0
+	report.notes.append("Bottom of the Well: %d fights in %.0f s of real time (seed %d, timeout %.0f game s; the Keepers' sample heroes: BalanceContent.keeper_snapshot)." % [fights.size(), seconds, seed_value, timeout])
+	report.timings["bottom"] = seconds
+	report.data["fights"] = fights
+	_boss_report(report, fights)
+	return report
+
+
 ## A fight's unit id (BalanceJobs): everything that makes it this fight.
 func fight_id(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef, bot_name: String, rank: MonsterRankDef = null) -> String:
 	return "boss|%s|%s|%s|%s|%s|%.0f" % [boss.id, BalanceJobs.build_id(build), BalanceContent.key(difficulty), bot_name, String(rank.id) if rank else "plain", timeout]
@@ -150,12 +212,17 @@ static func difficulty_roots(difficulty: DifficultyDef) -> PackedStringArray:
 ## One fight. Returns what happened (see the keys at the end). `start_hp`: the hero's Health
 ## when the fight starts (the gauntlet: what the floor left him; 0: full). `belt`: what he
 ## carries on his belt when `set_belt` (the gauntlet: the potions left; else as the build has it).
+## `bottom` (run_bottom()): the bottom of the Well instead, { keeper: a snapshot ({}: Tôma),
+## label }: the run saved there with that Keeper waiting (or none).
 func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef, bot_name: String, rank: MonsterRankDef = null, start_hp: int = 0,
-		belt: Array[ItemDef] = [], set_belt: bool = false) -> Dictionary:
+		belt: Array[ItemDef] = [], set_belt: bool = false, bottom: Dictionary = {}) -> Dictionary:
 	var act := BalanceContent.act_of_boss(content, boss)
-	var depth := BalanceContent.boss_depth(content, act)
-	var game := await lab.start_game(depth, difficulty, boss, true, rank)
-	var result := { "boss": String(boss.id), "act": act, "build": build.name, "tags": build.tags,
+	var depth := BalanceContent.boss_depth(content, act) if bottom.is_empty() else content.dungeon.total_floors()
+	if not bottom.is_empty():
+		act = content.dungeon.acts.size()
+	var at_bottom := { "finale_open": true, "finale": true, "keeper": bottom.get("keeper", {}) }
+	var game := await lab.start_game(depth, difficulty, boss if bottom.is_empty() else null, true, rank, -1, false, {} if bottom.is_empty() else at_bottom)
+	var result := { "boss": String(boss.id) if bottom.is_empty() else str(bottom.get("label", boss.id)), "act": act, "build": build.name, "tags": build.tags,
 		"build_act": build.act, "difficulty": BalanceContent.key(difficulty), "bot": bot_name, "depth": depth,
 		"rank": String(rank.id) if rank else "plain", "weapon": String(build.weapon.id) if build.weapon else "" }
 	var world := game.world

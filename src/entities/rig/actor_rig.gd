@@ -37,6 +37,8 @@ var _winding_up := false
 var _dead := false
 ## Holding a pose (hold_pose()): idle and walk wait until it is released.
 var _held := false
+## Casts held in a looping pose so far (play_cast()): only the last one's timer ends it.
+var _cast_holds := 0
 var _flash := 0.0
 var _squash := 0.0
 var _hurt := 0.0
@@ -278,19 +280,31 @@ func play_windup(aim: Vector2, duration: float) -> void:
 
 
 ## Telegraph before a monster skill: its `base` animation ("cast" unless the skill says,
-## SkillDef.cast_animation) fitted to `duration`, else "cast", else the wind-up pose.
+## SkillDef.cast_animation) fitted to `duration`, else "cast", else the wind-up pose. A looping
+## `base` (a pose: the Nameless Keeper's idle, NamelessKeeperDef.cast_pose) plays at its own
+## pace and is held for `duration` (it would never finish), facing the aim.
 func play_cast(aim: Vector2, duration: float, base: StringName = &"cast") -> void:
 	if _dead or body.sprite_frames == null:
 		return
+	direction = direction_name(aim)
 	var animation := _animation_for(base)
 	if animation == &"" and base != &"cast":
 		animation = _animation_for(&"cast")
 	if animation == &"":
 		play_windup(aim, duration)
 		return
-	direction = direction_name(aim)
 	_winding_up = true
 	body.stop()
+	if body.sprite_frames.get_animation_loop(animation):
+		body.play(animation)
+		_cast_holds += 1
+		var held := _cast_holds
+		var hold := create_tween()
+		hold.tween_interval(maxf(duration, 0.05))
+		hold.tween_callback(func() -> void:
+			if held == _cast_holds:
+				_winding_up = false)  # (not a later cast's)
+		return
 	body.play(animation, maxf(0.1, _length(body.sprite_frames, animation) / maxf(duration, 0.05)))
 
 

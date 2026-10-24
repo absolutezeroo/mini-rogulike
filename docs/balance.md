@@ -63,6 +63,7 @@ Bosses, monsters, perks and affixes are named the same way: the `id` in the `.tr
 | `--all-pairs` | arena: every build against every boss, not only its act's |
 | `--timeout=240` | arena and gauntlet: game seconds before a boss fight is a timeout |
 | `--plain`, `--no-weapons` | arena: plain bosses only (no ranked fights); skip the weapon arena (targeted runs) |
+| `--keeper=bow,magic_wand,katana,hammer` | arena: the bottom of the Well instead: Tôma alone (for scale), then a Nameless Keeper per weapon, built from a sample hero who took the keeper's place with it (`BalanceContent.keeper_snapshot`: level 15, the weapon Rare with Brutal and of the Fox, a Magic iron helm and a chain mail, the weapon's skills and a tome that suits it, the relics he keeps), against the last act's expected build, each difficulty and bot |
 | `--hits` | arena: print every hit the hero takes in each fight measured (time, phase, what it was: the weapon, the skill and how long after its cast, a shockwave, adds; its push, the distance to the boss, a hole within 48 px, the boss' state) and every fall with what started it (a push, a roll, walking); with `--no-cache` to see them all |
 | `--jobs=N` | worker processes sharing the measures (default 2, this machine's CPUs; `--jobs=1`: one process) |
 | `--cache=<dir>`, `--no-cache` | where measures are kept between runs (default `user://balance_cache`); measure everything again (results still kept) |
@@ -130,7 +131,10 @@ three difficulties ~8 min; the `balance` test suite a few minutes.
   lines, the cone of a fan of shots (while it is warned: the shots' own sides cancel out once
   they fly around the hero), shots, blinking arena cells, live traps and a wyrm's burning coils,
   keeps out of a cast's later blows (a fierce Quake's wider ring, a second volley or leg) until
-  they have landed, rolls only as a blow lands (within the roll's invulnerability), over holes if
+  they have landed, steps across a drawn bow's or wand's line instead of backing off from it and,
+  when only shots threaten it and its foe is out of reach, keeps closing in across their line
+  (`BalanceBot.CLOSE_IN`: a boss that keeps his distance and shoots is reached between his
+  volleys, not waited out of range), rolls only as a blow lands (within the roll's invulnerability), over holes if
   need be but only to land on solid ground with nothing in the way, never walks into a hole,
   cracked floor or a warned cell it can see (it steps off one under its feet) nor uses a skill
   that would carry it into one, and holds the hit that would set off a boss' shockwave when its

@@ -915,6 +915,27 @@ func _test_hazards(game: Game, world: World, player: Player) -> void:
 		check(elites_seen[0] >= 1, "the last wave is led by an elite")
 		var reward := get_tree().get_nodes_in_group("chests").filter(func(c: Node) -> bool: return (c as Chest).def == CONTENT.dungeon.ambush_chest and room.has_point(world.map.world_to_cell(c.global_position)))
 		check(reward.size() == 1 and (reward[0] as Chest).def == CONTENT.dungeon.ambush_chest, "a big chest rewards the survivor (%d there, %d chests)" % [reward.size(), get_tree().get_nodes_in_group("chests").size()])
+		# Saved cleared: a resumed floor's ambush (the seed lays it again) stays cleared, its chest
+		# there again unless it was opened; an ambush quit mid-fight starts over.
+		var saved_ambush := ambush.save_state()
+		var reward_at := world.map.world_to_cell((reward[0] as Chest).global_position) if reward.size() == 1 else Vector2i(-9, -9)
+		check(bool(saved_ambush.get("cleared", false)) and Vector2i(int(saved_ambush.reward[0]), int(saved_ambush.reward[1])) == reward_at, "the floor's save keeps the ambush cleared and where its chest is (%s)" % [saved_ambush])
+		for laid: Node in reward:
+			laid.free()
+		var again := world.spawn_ambush(room)
+		again.restore_state(JSON.parse_string(JSON.stringify(saved_ambush)), [] as Array[Vector2i])
+		var chests_again := get_tree().get_nodes_in_group("chests").filter(func(c: Node) -> bool: return (c as Chest).def == CONTENT.dungeon.ambush_chest and world.map.world_to_cell(c.global_position) == reward_at)
+		check(again.state == AmbushRoom.State.CLEARED and not again.is_closed() and chests_again.size() == 1, "resumed, a cleared ambush stays cleared, its chest unopened there again")
+		await _frames(3)
+		check(again.state == AmbushRoom.State.CLEARED and started[0] == 1, "...and walking in sets off no second fight (no second reward)")
+		for laid: Node in chests_again:
+			laid.free()
+		var opened_one := world.spawn_ambush(room)
+		opened_one.restore_state(saved_ambush, [reward_at] as Array[Vector2i])
+		check(opened_one.state == AmbushRoom.State.CLEARED and get_tree().get_nodes_in_group("chests").filter(func(c: Node) -> bool: return (c as Chest).def == CONTENT.dungeon.ambush_chest and world.map.world_to_cell(c.global_position) == reward_at).is_empty(), "its chest opened before quitting is not there again")
+		var waiting := AmbushRoom.new()
+		check(waiting.save_state().is_empty(), "an ambush not cleared is saved as waiting (quit mid-fight: it starts over)")
+		waiting.free()
 		Events.ambush_started.disconnect(on_start)
 		Events.monster_killed.disconnect(on_kill)
 
@@ -1029,9 +1050,11 @@ func _test_stairs_seal(game: Game) -> void:
 
 
 ## A run picked up again rebuilds its floor from the seed: the floor's own monsters slain before
-## quitting stay slain (World.spent_data() "slain"), the others come back, and what came later
-## (a summons, a wave) isn't saved at all. Ends with a fresh run on floor 1 (resume_run makes a
-## new hero: callers fetch game.player again).
+## quitting stay slain (World.spent_data() "slain"), the others come back, the hurt ones with the
+## share of their Health they had ("wounded"); what came later and still stands (a summons, a
+## trapped chest's, a split) comes back where it stood, its rank, affixes and Health kept
+## ("later"). Ends with a fresh run on floor 1 (resume_run makes a new hero: callers fetch
+## game.player again).
 func _test_slain_stay_dead(game: Game) -> void:
 	game.start_run()
 	await _frames(5)
@@ -1054,9 +1077,29 @@ func _test_slain_stay_dead(game: Game) -> void:
 	var rat: MonsterDef = load("res://data/monsters/rat.tres")
 	var later := world.spawn_monster(rat, world.find_open_point_near(player.global_position + Vector2(200, 0), 80.0))
 	later.take_hit(Combat.make_secondary_hit(player, 99999))
+	# One of the floor's own hurt (40% left), one that came later still standing: an elite, hurt.
+	var hurt: Monster = own[1]
+	for other: Monster in own:
+		other.dormant = true  # (nobody moves off or fights until the save: the numbers stay put)
+	hurt.hp = roundi(hurt.get_max_hp() * 0.4)
+	var hurt_index := hurt.floor_index
+	var stayer := world.spawn_monster(rat, world.find_open_point_near(player.global_position + Vector2(-220, 0), 60.0))
+	stayer.dormant = true
+	world.make_elite(stayer)
+	stayer.summoned = true
+	stayer.hp = roundi(stayer.get_max_hp() * 0.5)
+	var stayer_at := stayer.global_position
+	var stayer_affixes: Array = stayer.affixes.map(func(a: EliteAffixDef) -> StringName: return a.id)
 	await _frames(2)
+	var hurt_share := float(hurt.hp) / hurt.get_max_hp()
+	var stayer_share := float(stayer.hp) / stayer.get_max_hp()
 	var kills := world.seal.kills
-	var saved: Array = world.spent_data().get("slain", [])
+	var before_save := world.spent_data()
+	var saved: Array = before_save.get("slain", [])
+	# (Summons the floor's own made meanwhile came later too: they come back as well.)
+	var later_count := (before_save.get("later", []) as Array).size()
+	var wounded_saved: Array = (before_save.get("wounded", []) as Array).filter(func(entry: Array) -> bool: return int(entry[0]) == hurt_index)
+	check(later_count >= 1 and wounded_saved.size() == 1 and absf(float(wounded_saved[0][2]) - hurt_share) < 0.01, "the floor's save keeps the hurt one's share of Health and those that came later (%s, %d later)" % [wounded_saved, later_count])
 	check(saved.size() == 3 and slain.all(func(i: int) -> bool: return saved.any(func(pair: Array) -> bool: return pair[0] == i)), "the floor's save keeps the floor's monsters slain, not the one that came later (%s)" % [saved])
 	game._save_run()
 	game.resume_run(RunSave.read())
@@ -1070,7 +1113,23 @@ func _test_slain_stay_dead(game: Game) -> void:
 			back.append(monster.floor_index)
 			kinds[monster.floor_index] = String(monster.def.id)
 	check(not slain.any(func(i: int) -> bool: return back.has(i)), "resumed, the slain don't stand up again (%s among %s)" % [slain, back])
-	check(back.size() == all_before - 3 and world.monster_count() == all_before - 3, "and the others are all back (%d of %d, %d monsters)" % [back.size(), all_before - 3, world.monster_count()])
+	check(back.size() == all_before - 3 and world.monster_count() == all_before - 3 + later_count, "and the others are all back, with those that came later (%d of %d, %d monsters, %d later)" % [back.size(), all_before - 3, world.monster_count(), later_count])
+	var saved_share: float = float(wounded_saved[0][2]) if wounded_saved.size() == 1 else -1.0
+	var hurt_back: Array = world.get_node("Entities").get_children().filter(func(n: Node) -> bool: return n is Monster and (n as Monster).floor_index == hurt_index)
+	check(hurt_back.size() == 1 and (hurt_back[0] as Monster).hp == clampi(ceili((hurt_back[0] as Monster).get_max_hp() * saved_share), 1, (hurt_back[0] as Monster).get_max_hp()), "a monster hurt before quitting is hurt again (%.0f%% of its Health; %s)" % [100.0 * saved_share, hurt_back.map(func(m: Monster) -> String: return "%s %d/%d" % [m.def.id, m.hp, m.get_max_hp()])])
+	var came_back: Array = world.get_node("Entities").get_children().filter(func(n: Node) -> bool: return n is Monster and (n as Monster).floor_index < 0 and (n as Monster).def == rat and (n as Monster).global_position.distance_to(stayer_at) < 40.0)
+	var stayer_back: Monster = came_back[0] if came_back.size() == 1 else null
+	check(stayer_back != null and stayer_back.global_position.distance_to(stayer_at) < 40.0, "one that came later and still stood is back where it stood (%d found)" % came_back.size())
+	if stayer_back:
+		check(stayer_back.is_elite() and stayer_back.affixes.map(func(a: EliteAffixDef) -> StringName: return a.id) == stayer_affixes and stayer_back.summoned, "with its rank, its affixes, and called in (it gives nothing)")
+		check(absf(float(stayer_back.hp) / stayer_back.get_max_hp() - stayer_share) < 0.02, "and its Health (%.0f%%)" % (100.0 * stayer_share))
+	var spent := world.spent_data()
+	check((spent.get("later", []) as Array).size() == later_count and (spent.get("wounded", []) as Array).any(func(entry: Array) -> bool: return int(entry[0]) == hurt_index), "kept for the next save too")
+	# Damaged or unknown entries are skipped.
+	var count_now := world.monster_count()
+	world._restore_wounded(JSON.parse_string(JSON.stringify([[hurt_index], "x", [1.5, "rat", "a"]])))
+	world._restore_later(JSON.parse_string(JSON.stringify([{ "def": "res://data/monsters/nothing.tres", "id": "nothing", "at": [0, 0] }, { "def": rat.resource_path, "id": "skeleton", "at": [0, 0] }, { "def": "user://x.tres", "id": "rat", "at": [0, 0] }, "x", { "def": rat.resource_path, "id": "rat" }])))
+	check(world.monster_count() == count_now, "a saved monster the game no longer has, of another kind, or damaged, doesn't come back")
 	check(world.seal.kills == kills and world.seal.needed == ceili(all_before * CONTENT.dungeon.seal_share), "the seal counts the kills as before, of the whole floor (%d / %d)" % [world.seal.kills, world.seal.needed])
 	check(world.slain_spawns.size() == 3, "the slain kept for the next save too (%s)" % [world.slain_spawns])
 	# A number that came out as another kind of monster (a floor not rebuilt quite the same):
@@ -1078,7 +1137,7 @@ func _test_slain_stay_dead(game: Game) -> void:
 	var standing: int = back[0]
 	var other_kind := "rat" if kinds[standing] != "rat" else "skeleton"
 	world._restore_slain(JSON.parse_string(JSON.stringify([[standing, other_kind], [1.5], "x", ["a", "rat"]])))
-	check(world.monster_count() == all_before - 3, "a saved number of another kind takes no monster away (%d)" % world.monster_count())
+	check(world.monster_count() == all_before - 3 + later_count, "a saved number of another kind takes no monster away (%d)" % world.monster_count())
 	game.player.invincible = false
 
 

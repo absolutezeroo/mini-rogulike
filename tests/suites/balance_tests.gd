@@ -231,6 +231,29 @@ func _boss_guards(arena: BalanceArena, builds: Array[BalanceBuildDef], targets: 
 		_target(kite_wins >= int(fair_bosses[boss_id]), "duel: %s kite wins on Keeper" % fair.display_name, "%d of 4 seeds won (target >= %d): %s" % [kite_wins, fair_bosses[boss_id], " / ".join(lines)])
 	_target(walked == 0, "duel: the bots never walk into a hole", "%d falls walked into: %s" % [walked, " / ".join(walked_lines)])
 
+	# The bottom of the Well: a Nameless Keeper with a bow or a wand (2026-10-24) keeps his
+	# distance and shoots. The kite bot closes in across his shots (BalanceBot.CLOSE_IN) and wins,
+	# instead of a standoff out of his range; standing in front of him still loses.
+	var finale := CONTENT.dungeon.finale
+	if finale and finale.keeper and expected_iv:
+		var kept_seed := arena.lab.seed_value
+		for weapon: String in ["bow", "magic_wand"]:
+			var snapshot := BalanceContent.keeper_snapshot(CONTENT, weapon)
+			check(KeeperSnapshot.is_valid(snapshot) and finale.keeper.build(KeeperSnapshot.new(snapshot), CONTENT).weapon.id == StringName(weapon), "the tools make a Nameless Keeper with a %s" % weapon)
+			var bottom := { "keeper": snapshot, "label": "keeper:%s" % weapon }
+			for s in range(1, 3):
+				arena.lab.seed_value = s
+				for bot in ["kite", "face_tank"]:
+					var r := await arena.fight_boss(finale.keeper, expected_iv, normal, bot, null, 0, [] as Array[ItemDef], false, bottom)
+					var line := BalanceArena.fight_line(r)
+					print("  duel (seed %d): %s" % [s, line])
+					check(r.result != "error" and r.boss == bottom.label, "the bottom of the Well with a %s Keeper ran (%s)" % [weapon, r.get("error", "")])
+					if bot == "kite":
+						_target(r.result == "win", "duel: a %s Keeper is fought and beaten by the kite bot on Keeper" % weapon, "seed %d: %s" % [s, line])
+					else:
+						_target(not BalanceArena.facetank_won(r, targets), "duel: a %s Keeper beats a face-tank on Keeper" % weapon, "seed %d: %s" % [s, line])
+		arena.lab.seed_value = kept_seed
+
 	# The act III caster stack (degenerate_skills_a3) won face-tanking the Jade Wyrm on two seeds
 	# of four (its echoes skipped 69% of its cooldowns on top of the cooldown cap): with echoes
 	# capped (DungeonConfig.skill_echo_max_chance) it must lose standing still.

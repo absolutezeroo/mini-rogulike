@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 186,
+  "next_id": 192,
   "tags": [
     "pc",
     "test",
@@ -1384,8 +1384,8 @@
     {
       "id": "task_92",
       "title": "Reprise : monstres blessés et monstres venus après",
-      "description": "Suite de « Monstres tués qui restent morts après reprise » : à la reprise, les monstres propres à l'étage encore debout reviennent avec toute leur Vie (une bête blessée à 10 % repart pleine), et ceux qui sont venus après (embuscade, invocations, vagues du feu de camp, monstres d'une rencontre ou d'un coffre piégé) ne sont pas gardés du tout. Décider si la reprise doit aussi garder la Vie des blessés (World.spent_data, par floor_index).",
-      "status": "backlog",
+      "description": "Suite de « Monstres tués qui restent morts après reprise » : à la reprise, les monstres propres à l'étage encore debout reviennent avec toute leur Vie (une bête blessée à 10 % repart pleine), et ceux qui sont venus après (embuscade, invocations, vagues du feu de camp, monstres d'une rencontre ou d'un coffre piégé) ne sont pas gardés du tout. Décider si la reprise doit aussi garder la Vie des blessés (World.spent_data, par floor_index).\n\nFait (24/10) : une partie reprise garde maintenant (World.spent_data()) :\n- les monstres de l'étage blessés : ils reviennent avec la même part de leur Vie (« wounded », au moins 1) ;\n- les monstres venus après et encore debout (invocations, monstres d'une rencontre ou d'un coffre piégé, vagues du feu de camp, ce en quoi un monstre tué s'est divisé) : remis où ils étaient, avec leur rang, leurs affixes, leur part de Vie et « appelé » (sans récompense) (« later », par fichier et id : une espèce disparue est ignorée) ;\n- une embuscade nettoyée reste nettoyée (plus de second combat ni de seconde récompense : c'était un vrai bug), son coffre revient s'il n'a pas été ouvert ; une embuscade quittée en plein combat recommence ;\n- l'étage caché numérote aussi ses monstres (tués : restent morts ; blessés : restent blessés).\nPas gardé (documenté dans dungeon.md) : les vagues d'une embuscade en cours, ce qui est dans l'arène d'un gardien vivant (le combat recommence, gardien plein), les statuts (secondes), les positions où les monstres de l'étage s'étaient déplacés.\nTests (floor_tests) : sauvegarde → reprise : blessé à la même Vie, venu après remis à sa place avec rang/affixes/Vie, embuscade nettoyée (coffre, pas de second combat, coffre ouvert absent), entrées abîmées ignorées.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -1394,7 +1394,7 @@
         "idée"
       ],
       "created_at": 1792715222,
-      "updated_at": 1792715222
+      "updated_at": 1792816004
     },
     {
       "id": "task_93",
@@ -2173,8 +2173,8 @@
     {
       "id": "task_144",
       "title": "Codex : grand gardien coupé en haut de sa page",
-      "description": "Sur la page d'un gardien dans le codex, son sprite (échelle x2,2 dans une boîte de 104 px de haut, MonsterPage._look()) est coupé en haut pour les grands gardiens (L'Accapareur Doré : seul le bas du corps se voit). Sans rapport avec la police ; vu pendant ses captures. Adapter la boîte ou l'échelle à la taille du sprite.",
-      "status": "backlog",
+      "description": "Sur la page d'un gardien dans le codex, son sprite (échelle x2,2 dans une boîte de 104 px de haut, MonsterPage._look()) est coupé en haut pour les grands gardiens (L'Accapareur Doré : seul le bas du corps se voit). Sans rapport avec la police ; vu pendant ses captures. Adapter la boîte ou l'échelle à la taille du sprite.\n\nFait (24/10) : la boîte du portrait sur la page d'un monstre prend la taille de son dessin (les pixels peints de toutes les images de son animation) : un grand gardien est dessiné plus petit s'il dépasserait 220 px de haut ou la largeur de la colonne (L'Accapareur Doré, la Gueule entiers), un petit dessin de gardien (le Gardien Sans Nom, sur le dessin du héros) aussi gros qu'un monstre. L'aperçu des attaques fait pareil (la Gueule et l'Accapareur n'y sont plus coupés en haut). Test (suite title) : chaque page de monstre et de gardien, en français et en anglais, en 2340x1080, 2548x1296 et 1280x720 : le dessin est dans sa boîte, la boîte dans la page et à l'écran. Captures FR faites (Accapareur, Gueule, Gardien Sans Nom, Tôma).",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_3",
       "due_date": null,
@@ -2184,13 +2184,13 @@
         "sprites"
       ],
       "created_at": 1792770950,
-      "updated_at": 1792770950
+      "updated_at": 1792816004
     },
     {
       "id": "task_145",
       "title": "Bestiaire : noms tronqués sur les cartes",
-      "description": "Avec la nouvelle police (lettres un peu plus larges), plus de noms de monstres finissent en « … » sur les cartes du bestiaire en français (« Gluant Gé… », « Garde-Car… », « Raton Vol… », « Cœur de M… »). Le nom complet est sur la page du monstre ; voir si les cartes peuvent passer le nom sur deux lignes.",
-      "status": "backlog",
+      "description": "Avec la nouvelle police (lettres un peu plus larges), plus de noms de monstres finissent en « … » sur les cartes du bestiaire en français (« Gluant Gé… », « Garde-Car… », « Raton Vol… », « Cœur de M… »). Le nom complet est sur la page du monstre ; voir si les cartes peuvent passer le nom sur deux lignes.\n\nFait (24/10) : le nom passe sur deux lignes sur la carte (jamais coupé, plus de « … »), la place de deux lignes toujours gardée (images et rangs alignés), en BODY (la règle des tailles : pas de taille plus petite hors de la grille). Les cartes passent de 164x188 à 192x206 pour que le plus long mot (« L'Accapareur ») et le début de « The Nameless … » tiennent. Test (suite title) : chaque carte du bestiaire, FR et EN, trois tailles d'écran : nom entier, deux lignes au plus, aucun mot coupé (sauf après un trait d'union : « Garde- / Carapace »). Captures FR faites.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_3",
       "due_date": null,
@@ -2199,7 +2199,7 @@
         "traduction"
       ],
       "created_at": 1792770950,
-      "updated_at": 1792770950
+      "updated_at": 1792816004
     },
     {
       "id": "task_150",
@@ -2529,8 +2529,8 @@
     {
       "id": "task_171",
       "title": "Gardien Sans Nom : mesurer un Gardien à distance (arc, baguette)",
-      "description": "Le bot « kite » des outils d'équilibrage (build attendu acte IV, Espadon) reste hors de portée des tirs d'un Gardien à arc ou à baguette et ne s'approche jamais : impasse, pas un combat (timeouts dans _tool/keeper_probe). Il faut soit un comportement de bot qui ferme la distance contre un boss qui tire, soit un build à distance, puis mesurer ces Gardiens et ajuster ranged_keep_distance / shot_cast_time.",
-      "status": "backlog",
+      "description": "Le bot « kite » des outils d'équilibrage (build attendu acte IV, Espadon) reste hors de portée des tirs d'un Gardien à arc ou à baguette et ne s'approche jamais : impasse, pas un combat (timeouts dans _tool/keeper_probe). Il faut soit un comportement de bot qui ferme la distance contre un boss qui tire, soit un build à distance, puis mesurer ces Gardiens et ajuster ranged_keep_distance / shot_cast_time.\n\nFait (24/10) : l'outil : le bot kite (et player) ne recule plus devant un arc ou une baguette bandés (il passe de côté) et, quand seuls des tirs le menacent et que le boss est hors de portée, il continue d'approcher en travers de leur ligne (BalanceBot.CLOSE_IN) ; un sort annoncé (cône d'éventail compris) se quitte d'abord à pleine vitesse (sinon Gorr tombait à 2 victoires sur 4). Nouvelle option --keeper=bow,magic_wand,katana,hammer (fond du Puits : Tôma seul pour l'échelle puis un Gardien par arme, héros type BalanceContent.keeper_snapshot). Les autres boss : mêmes résultats (bruit des graines). Corrigé au passage : BalanceLab.renew lisait run.seed (renommé run_seed) : erreur de script à chaque mesure « renew ».\nMesuré (Veilleur, build attendu acte IV) : avant, le bot player perdait TOUS les Gardiens à arc/baguette à 41-58 % de Vie du boss (19-24 tirs de base encaissés : il tirait l'arc du héros, flèches à 600 px/s toutes les 0,42 s). Changé (données) : tirs à 320 px/s max (ranged_shot_speed), 1,2 s d'écart min (ranged_cooldown_min), tir bandé 0,75 s (ranged_attack_windup), sorts de tir à partir de 90 px (shot_min_range). Après (6 graines) : arc kite 6/6, player 3/6, face_tank perd ; baguette kite 6/6, player 0/6 mais à 6-29 % (comme le Gardien katana : 0/6 à 2-13 %) ; Tôma seul player 3/6. Détails : balance-log 2026-10-24 « A ranged Nameless Keeper ». Garde ajoutée dans la suite balance (arc et baguette : kite gagne, face_tank perd).",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_2",
       "due_date": null,
@@ -2540,12 +2540,12 @@
         "test"
       ],
       "created_at": 1792803743,
-      "updated_at": 1792803743
+      "updated_at": 1792816004
     },
     {
       "id": "task_172",
       "title": "Gardien Sans Nom : à tester en jeu (lisibilité, sensation)",
-      "description": "Non vérifié en headless : la silhouette sombre + liseré pâle se lit-elle bien sur le sol du Fond (captures FR faites), la lanterne en main dans les 4 directions, les télégraphes des compétences de héros devenues compétences de boss (pas d'animation « cast » sur le sprite du héros : il tremble en pose d'attaque), le katana-kite qui ne prend que 3-4 coups (peut-être trop facile ?).",
+      "description": "Non vérifié en headless : la silhouette sombre + liseré pâle se lit-elle bien sur le sol du Fond (captures FR faites), la lanterne en main dans les 4 directions, les télégraphes des compétences de héros devenues compétences de boss (pas d'animation « cast » sur le sprite du héros : il tremble en pose d'attaque), le katana-kite qui ne prend que 3-4 coups (peut-être trop facile ?).\n\nMis à jour (24/10) : il ne tremble plus en pose d'attaque quand il lance un sort : pose « idle » tenue, lanterne levée au-dessus de la tête et lueur qui grossit (voir la carte des restes du Gardien). Reste à juger en jeu : la lisibilité de cette pose de lancer, le reste ci-dessus.",
       "status": "backlog",
       "priority": "high",
       "epic_id": "epic_2",
@@ -2556,7 +2556,7 @@
         "équilibrage"
       ],
       "created_at": 1792803743,
-      "updated_at": 1792803743
+      "updated_at": 1792816004
     },
     {
       "id": "task_173",
@@ -2758,6 +2758,98 @@
       ],
       "created_at": 1792809057,
       "updated_at": 1792809057
+    },
+    {
+      "id": "task_186",
+      "title": "Gardien Sans Nom : restes (codex assombri, pas de Céleste, pose de lancer)",
+      "description": "Demandé par Clayton (restes de task_120). Fait (24/10) :\n- Codex : son portrait sur sa page et dans l'aperçu des attaques est l'ombre du combat (même shader du corps : pallor 0,7, liseré pâle, lanterne en main ; MonsterTrait.dress_look()), plus le héros normal.\n- Bestiaire : plus de section Céleste pour une espèce qui ne peut jamais l'être (Bestiary.can_be_celestial(), tiré des règles qui tirent les rangs rares : BossDef.rolls_rank() dans BossArena) : ni le Gardien (as_written), ni Tôma ni la Gueule (combat à deux formes), ni les démons des Profondeurs (élites simples au plus). Gardée si un Céleste a quand même été trouvé (vieille partie).\n- Pose de lancer : il ne tremble plus en pose d'attaque (le héros n'a pas d'animation « cast ») : NamelessKeeperDef.cast_pose « idle » tenue le temps de l'annonce (ActorRig.play_cast : une pose en boucle tenue pour la durée), lanterne levée au-dessus de la tête et sa lueur qui grossit en trois pas, la dernière vive (ShadeTrait « Casting » : cast_lantern_offset 5,-20, cast_glow_size 10). Le coup de son arme garde l'élan de son arme.\nTests : unit (Céleste possible ou non, rolls_rank, pose de chaque sort, lueur par pas, dessin du codex), game (en combat : pose tenue + lanterne levée, jamais la pose d'attaque en lançant). Captures FR de sa page faites. À juger en jeu : la pose de lancer se lit-elle bien sur le téléphone ?",
+      "status": "review",
+      "priority": "medium",
+      "epic_id": "epic_1",
+      "due_date": null,
+      "tags": [
+        "boss",
+        "ui",
+        "vfx"
+      ],
+      "created_at": 1792816004,
+      "updated_at": 1792816004
+    },
+    {
+      "id": "task_187",
+      "title": "Gardien Sans Nom à l'arc : combats longs pour le bot kite",
+      "description": "Mesure du 24/10 (task_171) : contre un Gardien à l'arc, le bot kite (Espadon) gagne en 95-115 s, au-dessus de la cible de 100 s : il recule à 100 de vitesse pour garder 170 px et le bot au corps à corps le poursuit. Levier : ranged_keep_distance (170). À voir avec un vrai joueur avant de toucher.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "équilibrage",
+        "boss"
+      ],
+      "created_at": 1792816004,
+      "updated_at": 1792816004
+    },
+    {
+      "id": "task_188",
+      "title": "Outils d'équilibrage : drapeaux « heal share » sur des combats presque sans dégâts",
+      "description": "Vu le 24/10 : au fond du Puits, le build attendu de l'acte IV déclenche « heal share > 25 % » quand le bot kite ne prend presque rien (la rune Sangsue soigne 30-100 points sur 30-200 encaissés), contre Tôma aussi. La cible devrait sans doute ignorer les combats où les dégâts encaissés sont faibles (ex. < 30 % de la Vie).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "équilibrage",
+        "test"
+      ],
+      "created_at": 1792816004,
+      "updated_at": 1792816004
+    },
+    {
+      "id": "task_189",
+      "title": "Codex : l'attaque de base du Gardien Sans Nom affiche le katana du modèle",
+      "description": "Vu sur les captures du 24/10 : sur sa page, son attaque de base est « Katana : 5 Dégâts » (l'arme et les chiffres du modèle nameless_keeper.tres), alors qu'en combat il porte l'arme du héros qu'il a été (son coup pèse 16 avant l'étage). Afficher l'arme du Gardien qui attend (Profile.keeper) ou un texte qui dit « l'arme que tu portais ».",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "bug",
+        "ui",
+        "boss"
+      ],
+      "created_at": 1792816004,
+      "updated_at": 1792816004
+    },
+    {
+      "id": "task_190",
+      "title": "Suite balance : échecs non marqués « KNOWN » (contenu hors acte, degenerate_skills_a3)",
+      "description": "Vus le 24/10 dans --only=balance, déjà là avant : « content: unlisted » (master_toma, nameless_effigy, nameless_keeper : dans aucun acte, alors qu'ils sont dans le fond du Puits / l'étage caché) et « degenerate DPS 2,52x (cible 2,5x) » pour degenerate_skills_a3. Le premier est un faux positif de l'outil (BalanceContent.unlisted ne connaît pas FinaleDef/HiddenFloorDef) ; le second est à mesurer.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "équilibrage",
+        "test"
+      ],
+      "created_at": 1792816004,
+      "updated_at": 1792816004
+    },
+    {
+      "id": "task_191",
+      "title": "Économie étage 1 : relance et forge chères (suite balance)",
+      "description": "Vu le 24/10 dans --only=balance, une fois BalanceLab.renew réparé (il plantait sur run.seed, les mesures « renew » ne tiraient plus leur étage) : « economy: reroll » 45 % de l'or de l'étage 1 en Veilleur (cible <= 35 %) et « economy: forge » 113 % (cible <= 60 %). Sans doute l'état réel caché par l'erreur de l'outil : à mesurer (--mode=economy) et trancher (prix ou cible).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "équilibrage",
+        "économie"
+      ],
+      "created_at": 1792817377,
+      "updated_at": 1792817377
     }
   ]
 }

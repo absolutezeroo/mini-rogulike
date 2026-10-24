@@ -1860,6 +1860,15 @@ func _test_bestiary() -> void:
 		Profile.record_kill(slime.id)
 	Bestiary.claim(slime, rules)
 	check(Bestiary.is_mastered(slime, rules) and is_equal_approx(Bestiary.damage_multiplier(slime, rules), 1.0 + rules.mastery_damage), "mastered: more damage to it")
+	# The Celestial on a page only for a kind that can come at that rank (the rare ranks' rules).
+	var finale := CONTENT.dungeon.finale
+	check(Bestiary.can_be_celestial(slime, CONTENT) and Bestiary.can_be_celestial(frog, CONTENT), "a floor's own monster and an act's warden can come Celestial")
+	check(not Bestiary.can_be_celestial(finale.boss, CONTENT) and not Bestiary.can_be_celestial(finale.boss.next_boss, CONTENT) and not Bestiary.can_be_celestial(finale.keeper, CONTENT), "never Tôma, the Maw (a fight of two forms) nor the Nameless Keeper (as written): their pages list no Celestial")
+	check(not finale.keeper.rolls_rank() and not finale.boss.rolls_rank() and frog.rolls_rank(), "a boss rolls a rare rank only fought alone and not as written (BossArena)")
+	var deeps := CONTENT.abyss_monsters().filter(func(m: MonsterDef) -> bool: return not CONTENT.all_monsters().has(m))
+	check(not deeps.is_empty() and deeps.all(func(m: MonsterDef) -> bool: return not Bestiary.can_be_celestial(m, CONTENT)), "never the Deeps' demons (plain elites at most)")
+	if CONTENT.dungeon.hidden_floor:
+		check(Bestiary.can_be_celestial(CONTENT.dungeon.hidden_floor.boss, CONTENT), "the hidden floor's warden can (its arena rolls it)")
 	# Challenges: the common ones that apply, and a boss' own.
 	var ids := rules.challenges_for(slime).map(func(c: HuntChallenge) -> StringName: return c.id)
 	check(ids.has(&"elite") and ids.has(&"pit") and not ids.has(&"fast"), "a monster gets the monster challenges")

@@ -395,6 +395,7 @@ func _test_title_screen() -> void:
 		check(buttons.size() >= 1 or monster.weapon == null, "%s: its attacks are listed (%d)" % [monster.id, buttons.size()])
 	var previews := _find_all(codex, func(n: Node) -> bool: return n is AttackPreview)
 	check(previews.size() == 1, "one preview on the page")
+	await _test_codex_fits(codex, entries)
 	codex.back()
 	check(not codex.is_page_open() and codex.visible, "back: from the page to the list")
 	codex.back()
@@ -620,6 +621,56 @@ func _test_options_screen(title: TitleScreen) -> void:
 
 
 ## The texts of every label under `root`.
+## Every monster and boss shows whole on its page (its art inside its look's box, the box on
+## the page and on screen), every card's name reads whole (on its two lines at most, no word cut,
+## nothing left out), in English and French, on a phone (2340x1080, 2548x1296) and a 720-line
+## window. Every kind slain already (the pages show all they hold).
+func _test_codex_fits(codex: CodexPanel, entries: Array) -> void:
+	var before := get_tree().root.size
+	var page := codex.get_node("%MonsterPage") as MonsterPage
+	for language: String in ["en", "fr"]:
+		Settings.language = language
+		Settings.apply()
+		for screen: Vector2i in [Vector2i(2340, 1080), Vector2i(2548, 1296), Vector2i(1280, 720)]:
+			get_tree().root.size = screen
+			codex.open(CONTENT, CodexPanel.Tab.BESTIARY)
+			await _frames(2)
+			var cut := []
+			for card: CodexCard in codex.bestiary_cards():
+				var name_label := card.find_child("Name", true, false) as Label
+				var inside := name_label.get_parent() as Control if name_label else null
+				var whole := name_label != null and name_label.text == tr(card.monster.display_name) \
+						and name_label.get_line_count() <= CodexCard.NAME_LINES \
+						and name_label.get_visible_line_count() >= name_label.get_line_count() \
+						and name_label.text_overrun_behavior == TextServer.OVERRUN_NO_TRIMMING \
+						and inside.get_combined_minimum_size().y <= inside.size.y + 0.5
+				# (A line may break after a hyphen: « Garde- / Carapace ».)
+				for word in (name_label.text.replace("-", "- ").split(" ") if name_label else PackedStringArray()):
+					if Fonts.width(word, Fonts.BODY) > name_label.size.x:
+						whole = false
+				if not whole:
+					cut.append("%s [%s] lines %d/%d w %.0f min %.0f/%.0f" % [card.monster.id, name_label.text if name_label else "", name_label.get_line_count() if name_label else -1, name_label.get_visible_line_count() if name_label else -1, name_label.size.x if name_label else 0.0, inside.get_combined_minimum_size().y if inside else 0.0, inside.size.y if inside else 0.0])
+			check(cut.is_empty(), "the bestiary: every card's name reads whole (two lines at most, no word cut) in %s at %s: %s" % [language, screen, cut])
+			var outside := []
+			var view := Rect2(Vector2.ZERO, get_viewport().get_visible_rect().size).grow(1.0)
+			for monster: MonsterDef in entries:
+				codex.open_monster(monster)
+				await _frames(2)
+				var rects := page.look_rects()
+				var art: Rect2 = rects[0]
+				var box: Rect2 = rects[1]
+				if not (art.has_area() and box.grow(0.5).encloses(art) and page.get_global_rect().grow(0.5).encloses(box) and view.encloses(box)):
+					outside.append("%s %s in %s" % [monster.id, art, box])
+			check(outside.is_empty(), "the bestiary: every monster and boss shows whole on its page in %s at %s: %s" % [language, screen, outside.slice(0, 4)])
+			codex.back()
+	Settings.language = "en"
+	Settings.apply()
+	get_tree().root.size = before
+	codex.open(CONTENT, CodexPanel.Tab.BESTIARY)
+	codex.open_monster(entries[entries.size() - 1])
+	await _frames(2)
+
+
 func _texts(root: Node) -> Array:
 	return _find_all(root, func(n: Node) -> bool: return n is Label).map(func(l: Label) -> String: return l.text)
 

@@ -66,6 +66,12 @@ extends MonsterDef
 @export var settle_offset: Vector2 = Vector2.ZERO
 
 
+## Whether its fight may roll a rare rank for it (World.roll_boss_rank(), from BossArena): only
+## a boss fought alone (a fight of several forms stays as written) and not `as_written`.
+func rolls_rank() -> bool:
+	return next_boss == null and not as_written
+
+
 ## The last form of this boss (itself when it has no next one).
 func last_form() -> BossDef:
 	var form := self

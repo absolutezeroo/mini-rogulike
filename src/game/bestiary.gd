@@ -53,3 +53,38 @@ static func claim(monster: MonsterDef, rules: BestiaryRules) -> Array[Dictionary
 		result.append({ "rank": rank, "souls": reward })
 		Profile.pay_bestiary_rank(monster.id, rank, reward)
 	return result
+
+
+## Whether a `monster` of this kind can ever come at the Celestial rank (the rare rank with
+## `shimmer`), by the rules that roll the rare ranks: a floor's own monsters (an act's or the
+## hidden floor's, with a spawn weight: World.roll_elite()) and a warden that starts its fight
+## alone and as it varies (BossDef.rolls_rank(): World.roll_boss_rank()), with a chance above
+## zero. Never the Deeps' demons and their warden (plain elites at most), a fight's later form
+## (the Maw, risen from Tôma), a fight of several forms (Tôma) nor one as written (the Nameless
+## Keeper). The bestiary lists no Celestial for those.
+static func can_be_celestial(monster: MonsterDef, content: ContentDB) -> bool:
+	if monster == null or content == null or content.dungeon == null:
+		return false
+	var celestial: MonsterRankDef = null
+	for rank in content.dungeon.rare_ranks:
+		if rank and rank.shimmer:
+			celestial = rank
+			break
+	if celestial == null:
+		return false
+	var dungeon := content.dungeon
+	var hidden_def := dungeon.hidden_floor
+	var boss := monster as BossDef
+	if boss:
+		if celestial.boss_chance <= 0.0 or not boss.rolls_rank():
+			return false
+		for act in dungeon.acts:
+			if act and act.all_bosses().has(boss):
+				return true
+		return (hidden_def != null and hidden_def.boss == boss) or (dungeon.finale != null and dungeon.finale.boss == boss)
+	if (celestial.chance <= 0.0 and celestial.chance_per_depth <= 0.0) or monster.spawn_weight <= 0:
+		return false
+	for act in dungeon.acts:
+		if act and act.monsters.has(monster):
+			return true
+	return hidden_def != null and hidden_def.monsters.has(monster)

@@ -244,9 +244,15 @@ with a finger (`TouchScroll`); `CodexRows` builds their rows, with a tick box fo
   its reward in souls ("Received" once paid) and the time until new ones.
 - **Bestiary**: act by act (floors, how many kinds slain), then the hidden floor's boss under a
   "???" heading until it was met (its floor's name after), a card per monster and boss
-  (`CodexCard`: picture, rank, kills, a bar toward the next rank, gold frame once Mastered,
-  Boss and Celestial badges; unknown ones are dark shapes until met). Its page has three columns:
-  look, where it lives and its Celestial form; attacks with the preview, how it behaves and its stats
+  (`CodexCard`: picture, its name on two lines when it must, never cut, rank, kills, a bar toward
+  the next rank, gold frame once Mastered, Boss and Celestial badges; unknown ones are dark
+  shapes until met; 192x206 so the longest names fit, « L'Accapareur Doré », « Sentinelle de la
+  Brèche », in BODY: the title suite checks every card in French and English). Its page has three
+  columns: look (drawn whole: a big warden's art is drawn smaller to fit its box, the Maw's too;
+  dressed as in a fight, the Nameless Keeper a dark shade with his lantern), where it lives and
+  its Celestial form (only for a kind that can come Celestial: `Bestiary.can_be_celestial()`,
+  from the rules that roll the rare ranks; never Tôma, the Maw, the Nameless Keeper or the Deeps'
+  demons); attacks with the preview, how it behaves and its stats
   (Health, Damage, Armor, Move speed, each with what the number means); hunter ranks (slay N,
   +X souls, done or not) and challenges. A warden's page has two tabs in its middle column,
   **Attacks** and **Chronicle** (`ChronicleRows`, asking `Narrative`): "Chapters 3 of 6, Fragments 1

@@ -620,6 +620,9 @@ func spent_data() -> Dictionary:
 		"sealed": sealed_cells.map(func(cell: Vector2i) -> Array: return [cell.x, cell.y]),
 		"collapsed": collapsed_cells.map(func(cell: Vector2i) -> Array: return [cell.x, cell.y]),
 		"slain": slain_spawns.duplicate(true),
+		"wounded": _wounded_spawns(),
+		"later": _later_monsters(),
+		"ambush": ambush.save_state() if ambush and is_instance_valid(ambush) else {},
 	}
 
 
@@ -636,6 +639,8 @@ func _apply_restore() -> void:
 	SecretRoom.restore(secrets, data.get("secrets", []))  # (its chest, if opened, is in "chests")
 	seal.restore(int(data.get("seal_kills", 0)))  # the kills already made on this floor
 	_restore_slain(data.get("slain", []))  # (after the seal took its count from the whole floor)
+	_restore_wounded(data.get("wounded", []))  # (older saves have none: all at full Health)
+	_restore_later(data.get("later", []))
 	var cells: Array[Vector2i] = []
 	for pair: Array in data.get("chests", []):
 		if pair.size() == 2:
@@ -645,6 +650,8 @@ func _apply_restore() -> void:
 		if chest and cells.has(map.world_to_cell(chest.global_position)):
 			chest.set_spent()
 			opened_chests.append(map.world_to_cell(chest.global_position))
+	if ambush and is_instance_valid(ambush) and data.get("ambush") is Dictionary:
+		ambush.restore_state(data["ambush"], opened_chests)  # (after the chests: its reward's)
 	for saved_item: Variant in data.get("bought", []):
 		for merchant: Merchant in get_tree().get_nodes_in_group("merchants"):
 			if merchant.world_of() == self and merchant.forget_sold(saved_item):
@@ -692,6 +699,103 @@ func _restore_slain(saved: Array) -> void:
 		slain_spawns.append([monster.floor_index, String(monster.def.id)])
 		_entities.remove_child(monster)
 		monster.queue_free()
+
+
+## The floor's own monsters still standing but hurt, each saved as [floor_index, id, the share of
+## its Health it has left]: a resumed run rebuilds them at full Health from the seed (where the
+## seed put them, as it was rolled: rank and all), then gives each its share back.
+func _wounded_spawns() -> Array:
+	var result: Array = []
+	for node in _entities.get_children():
+		var monster := node as Monster
+		if monster and monster.floor_index >= 0 and not monster.is_dead and monster.hp < monster.get_max_hp():
+			result.append([monster.floor_index, String(monster.def.id), snappedf(float(monster.hp) / monster.get_max_hp(), 0.001)])
+	return result
+
+
+## Hurt before quitting, hurt again: `saved` is spent_data()'s "wounded" (the same number and
+## kind, as for the slain); a damaged entry is skipped.
+func _restore_wounded(saved: Array) -> void:
+	var shares := {}
+	for entry: Variant in saved:
+		if entry is Array and (entry as Array).size() == 3 and (entry[0] is float or entry[0] is int) and (entry[2] is float or entry[2] is int):
+			shares[int(entry[0])] = [str(entry[1]), clampf(float(entry[2]), 0.0, 1.0)]
+	if shares.is_empty():
+		return
+	for node in _entities.get_children():
+		var monster := node as Monster
+		if monster and monster.floor_index >= 0 and shares.has(monster.floor_index) and String(monster.def.id) == shares[monster.floor_index][0]:
+			_set_health_share(monster, shares[monster.floor_index][1])
+
+
+## Monsters that came after the floor was built and still stand (a summons, an encounter's, a
+## trapped chest's, a campfire's waves, what a slain one split into): { def (its file), id, at,
+## health (share left), rank, affixes, summoned }, put back where they stood on a resumed run.
+## Not a boss, not the wave of an ambush under way nor anything in a warden's arena while he
+## stands (both fights start over on a resumed run), not one falling.
+func _later_monsters() -> Array:
+	var result: Array = []
+	for node in _entities.get_children():
+		var monster := node as Monster
+		if monster == null or monster.floor_index >= 0 or monster.is_dead or monster.is_falling or monster.def is BossDef \
+				or monster.def.resource_path.is_empty():
+			continue
+		if ambush and is_instance_valid(ambush) and ambush.holds(monster):
+			continue
+		if arena and not arena.is_defeated and map.boss_room.has_point(map.world_to_cell(monster.global_position)):
+			continue
+		result.append({
+			"def": monster.def.resource_path, "id": String(monster.def.id),
+			"at": [roundi(monster.global_position.x), roundi(monster.global_position.y)],
+			"health": snappedf(float(monster.hp) / monster.get_max_hp(), 0.001),
+			"rank": String(monster.rank.id) if monster.rank else "",
+			"affixes": monster.affixes.map(func(affix: EliteAffixDef) -> String: return String(affix.id)),
+			"summoned": monster.summoned,
+		})
+	return result
+
+
+## Those that came later stand where they stood again: `saved` is spent_data()'s "later". A kind,
+## rank or affix the game no longer has, or a damaged entry, is skipped (it doesn't come back).
+func _restore_later(saved: Array) -> void:
+	var ranks: Array[MonsterRankDef] = [config().elite_rank]
+	ranks.append_array(config().rare_ranks)
+	for entry: Variant in saved:
+		if not entry is Dictionary:
+			continue
+		var data := entry as Dictionary
+		var path := str(data.get("def", ""))
+		var at: Variant = data.get("at")
+		if not path.begins_with("res://data/") or not ResourceLoader.exists(path) or not (at is Array and (at as Array).size() == 2):
+			continue
+		var def := load(path) as MonsterDef
+		if def == null or def is BossDef or String(def.id) != str(data.get("id", "")):
+			continue
+		var point := Vector2(float(at[0]), float(at[1]))
+		if not (is_solid_ground(point) and body_fits(point, room_for(def))):
+			point = nearest_free_point(point, 12, get_actors(), room_for(def), room_for(def))
+		var monster := spawn_monster(def, point)
+		monster.summoned = bool(data.get("summoned", false))
+		var rank_id := str(data.get("rank", ""))
+		var rank: MonsterRankDef = null
+		for candidate in ranks:
+			if candidate and String(candidate.id) == rank_id:
+				rank = candidate
+		if rank:
+			var affixes: Array[EliteAffixDef] = []
+			for affix_id: Variant in data.get("affixes", []):
+				for affix in _content.elite_affixes:
+					if affix and String(affix.id) == str(affix_id):
+						affixes.append(affix)
+			monster.make_ranked(rank, affixes)
+		var share: Variant = data.get("health", 1.0)
+		_set_health_share(monster, float(share) if (share is float or share is int) else 1.0)
+
+
+## `monster` at `share` of its Health (one at least), its bar told.
+static func _set_health_share(monster: Monster, share: float) -> void:
+	monster.hp = clampi(ceili(monster.get_max_hp() * clampf(share, 0.0, 1.0)), 1, monster.get_max_hp())
+	monster.health_changed.emit(monster.hp, monster.get_max_hp())
 
 
 ## Cells saved as [x, y] pairs (numbers as a save file reads them); a damaged entry is skipped.

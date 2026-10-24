@@ -541,12 +541,21 @@ func _test_nameless_keeper(game: Game) -> void:
 		last[0] = current
 	player.health_changed.connect(on_health)
 	var cast := false
+	var posed := false
+	var trembled := false
+	var shade := finale.keeper.traits[0] as ShadeTrait
 	for i in 60 * 10:
 		_close_offers(game)
 		if player.global_position.distance_to(keeper.global_position) > 140.0:
 			player.global_position = keeper.global_position + Vector2(0, 90)
-		cast = cast or keeper.casting_index >= 0
+		if keeper.casting_index >= 0:
+			var animation := String(keeper.rig.body.animation)
+			var lantern := keeper.rig.visual.get_node_or_null("Lantern") as Sprite2D
+			posed = posed or (cast and animation.begins_with(String(finale.keeper.cast_pose)) and lantern != null and is_equal_approx(lantern.position.y, shade.cast_lantern_offset.y))
+			trembled = trembled or (cast and animation.begins_with("attack"))
+			cast = true
 		await _frames(1)
+	check(posed and not trembled, "casting, he holds his pose with his lantern raised, never his blow's trembling attack pose")
 	player.health_changed.disconnect(on_health)
 	var biggest: int = hits.max() if not hits.is_empty() else 0
 	check(not hits.is_empty() and cast, "he fights: his bow and his skills hurt the hero (%d hits)" % hits.size())

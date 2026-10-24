@@ -67,7 +67,9 @@ func fresh_profile() -> void:
 ## its act. `plain`: no floor event or curse. `rank`: the boss comes at this rank.
 ## `unpeopled`: the floor without its monsters and loose items (World.unpeopled: the lab's
 ## sessions spawn their own fights and would only clear them away).
-func start_game(depth: int, difficulty: DifficultyDef, boss: BossDef = null, plain: bool = true, rank: MonsterRankDef = null, run_seed: int = -1, unpeopled: bool = false) -> Game:
+## `extra`: more of the run's save (the bottom of the Well: finale, keeper; RunState.to_data()).
+func start_game(depth: int, difficulty: DifficultyDef, boss: BossDef = null, plain: bool = true, rank: MonsterRankDef = null, run_seed: int = -1, unpeopled: bool = false,
+		extra: Dictionary = {}) -> Game:
 	fresh_profile()
 	HitStop.enabled = false
 	HitStop.reset()
@@ -78,11 +80,13 @@ func start_game(depth: int, difficulty: DifficultyDef, boss: BossDef = null, pla
 	for act in content.dungeon.acts:
 		run_bosses.append(boss if boss and act.all_bosses().has(boss) else act.boss)
 	var base := content.player.base_stats
-	RunSave.write({
+	var save := {
 		"seed": s, "depth": depth, "difficulty": String(difficulty.id), "ascension": difficulty.ascension,
 		"bosses": RunSave.refs(run_bosses), "rerolls": 0, "banishes": 0, "time": 0.0,
 		"player": { "level": 1, "hp": base.max_hp, "base_stats": base.to_dict() },
-	})
+	}
+	save.merge(extra, true)
+	RunSave.write(save)
 	Game.resume_requested = true
 	var game := (load(GAME_SCENE) as PackedScene).instantiate() as Game
 	game.show_act_cards = false
@@ -180,7 +184,7 @@ func renew(s: Dictionary) -> void:
 	world.forced_plain = s.plain
 	world.unpeopled = true
 	# As Game._enter_floor(): the same seed, the same ways down, the same way in.
-	world.rng.seed = hash("%d-floor-%d" % [game.run.seed, s.depth])
+	world.rng.seed = hash("%d-floor-%d" % [game.run.run_seed, s.depth])
 	world.next_routes = FloorRoute.offer(content, s.depth + 1, game.difficulty, game.run.route_seed(s.depth + 1))
 	world.build_floor(s.depth, content, game._route_to(s.depth))
 	world.place_player(game.player)

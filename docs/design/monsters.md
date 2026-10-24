@@ -226,7 +226,11 @@ there instead; ringing the bell frees him (Tôma and the Maw wait again).
 - **The boss** (`NamelessKeeperDef.build()`, a copy of the template per snapshot):
   - his **weapon** (its rarity, affixes, runes: they work as on the hero, `WornGearTrait`), his
     **armor** worn and shown (`MonsterDef.shows_gear`: his weapon at rest on his back, the
-    trims), a ranged weapon kept at range (`ranged_keep_distance` 170);
+    trims), a ranged weapon kept at range (`ranged_keep_distance` 170) and shot as a boss shoots,
+    not as the hero did: its shots fly 320 at most (`ranged_shot_speed`; a hero's arrow flies
+    600), 1.2 s apart at least (`ranged_cooldown_min`; a hero's bow fires 0.42 s apart), drawn
+    0.75 s (`ranged_attack_windup`; a blade's swing 0.5) (balance-log 2026-10-24, "A ranged
+    Keeper");
   - his **blow** weighs `blow_power` 16 before the floor's rules, whatever the weapon (its
     damage plus his attack; +1 per rarity step above Common): Tôma's katana and attack;
   - his **skills**: the hero's (up to 3, the weapon's first) made a boss': a cast with a warning
@@ -234,8 +238,9 @@ there instead; ringing the bell frees him (Tôma and the Maw wait again).
     wind-ups), at 60% of their power (`skill_power` -0.4), the cooldowns x1.6, a dive's band 20 at most and never slowing, a slow 2 s at
     most and two things that slow at most (his weapon counts), heals left out (a boss never
     heals itself); dressed in his weapon's elements; his AI uses each from a range by kind, in
-    his data too (`dive_min_range` 50 out to the dive's distance +30, shots up to their reach but
-    360 at most, a circle out to its offset and radius +20, anything else from 260 in);
+    his data too (`dive_min_range` 50 out to the dive's distance +30, shots from 90 out
+    (`shot_min_range`: never a bolt in the hero's face) up to their reach but 360 at most, a
+    circle out to its offset and radius +20, anything else from 260 in);
   - his **relics**: of his perks, only those that make sense on him (`kept_perks`: Ignite,
     Burning Thorns, Bloodrage, Echo, Kindling, Hydra's Quiver), 1 level each (`PerkTrait`);
     plain stats (Strength, Vitality) and the hero's own tricks stay with the hero;
@@ -251,7 +256,15 @@ there instead; ringing the bell frees him (Tôma and the Maw wait again).
   left; a pale rim of one art pixel round it, so the dark body reads on the dark floor), a small lantern in his hand (5x7 art pixels, `assets/characters/bosses/
   nameless_keeper/lantern.png`) with a spirit glow and a light of 4. He stands above the arena's
   middle, where the seal is (`arena_anchor` 0.5, 0.42). Portrait: the hero facing down, faceless,
-  his lantern lit.
+  his lantern lit. In the codex (his page's look, the attack preview) he is drawn the same way
+  (`MonsterTrait.dress_look()`: the body shader's pallor and rim, his lantern), not as the hero.
+- **His casts** read apart from his blows: the hero's frames have no cast animation (a skill
+  would play his attack pose, trembling, like a blow coming), so he holds still in his idle pose
+  facing the hero (`NamelessKeeperDef.cast_pose`, a looping pose held for the warning:
+  `ActorRig.play_cast`), his lantern raised over his head and its spirit glow swelling in three
+  whole steps, the last one bright (`ShadeTrait` "Casting": `cast_lantern_offset` 5,-20,
+  `cast_glow_size` 10), with the skill's own warning on the ground. A blow is still his weapon's
+  wind-up.
 - **Name**: "The Nameless Keeper" / « Le Gardien Sans Nom » on the boss bar, followed by who he
   was (`BossDef.title_on_bar`): the pseudonym, else "Who You Were" / « Celui que tu étais ».
   He fights to the Maw's track (Fight, `fight_ii`: the very last fight).
@@ -264,7 +277,8 @@ there instead; ringing the bell frees him (Tôma and the Maw wait again).
   `keeper_text`).
 - **Rewards**: as the Maw's (320 XP, 3 relic choices when the hero keeps going, 3 rolls of loot,
   30 soul wisps). Never at a rare rank (`BossDef.as_written`: he is the hero as he was, not a
-  Legendary kind). The codex lists him after the Maw. The gameplay statistics' boss event names him
+  Legendary kind), so his page has no Celestial (neither have Tôma and the Maw: a fight of two
+  forms is never ranked; `Bestiary.can_be_celestial()`). The codex lists him after the Maw. The gameplay statistics' boss event names him
   `nameless_keeper` (the usual boss event, Events.boss_started).
 
 ## Dragons

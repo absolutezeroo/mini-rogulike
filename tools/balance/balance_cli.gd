@@ -252,6 +252,11 @@ func _run_mode(m: String, content: ContentDB, targets: BalanceTargets, every_bui
 			return model.run()
 		"arena":
 			var arena := _arena(content, targets, every_build, builds, difficulties, bosses, lab)
+			if not args.keeper.is_empty():
+				# The bottom of the Well only (the Nameless Keepers and Tôma).
+				var bottom := await arena.run_bottom()
+				arena.queue_free()
+				return bottom
 			var report := await arena.run_bosses()
 			if not args.no_weapons:
 				var weapons := await arena.run_weapons()
@@ -358,6 +363,7 @@ func _arena(content: ContentDB, targets: BalanceTargets, every_build: Array[Bala
 	BalanceArena.FightLog.log_hits = _args.hits
 	arena.verbose = _jobs.measuring
 	arena.weapon_ids = _args.weapons
+	arena.keeper_weapons = _args.keeper
 	for a: String in _args.acts:
 		arena.acts.append(int(a))
 	add_child(arena)
@@ -450,7 +456,7 @@ static func parse_args(user_args: PackedStringArray) -> Dictionary:
 		"bots": PackedStringArray(["face_tank", "kite"]), "acts": PackedStringArray(), "weapons": PackedStringArray(),
 		"only": PackedStringArray(), "out": DEFAULT_OUT, "seed": 1,
 		"all_pairs": false, "timeout": 240.0, "quick": false, "jobs": 2, "worker": "", "cache": DEFAULT_CACHE, "no_cache": false,
-		"inputs": PackedStringArray(), "plain": false, "no_weapons": false, "classic": false, "no_renew": false, "hits": false, "bots_given": false, "gauntlet": "all", "claims": "",
+		"inputs": PackedStringArray(), "keeper": PackedStringArray(), "plain": false, "no_weapons": false, "classic": false, "no_renew": false, "hits": false, "bots_given": false, "gauntlet": "all", "claims": "",
 	}
 	for arg in user_args:
 		var key := arg.get_slice("=", 0)
@@ -480,6 +486,7 @@ static func parse_args(user_args: PackedStringArray) -> Dictionary:
 			"--classic": args.classic = true
 			"--no-renew": args.no_renew = true
 			"--gauntlet": args.gauntlet = value
+			"--keeper", "--keepers": args.keeper = value.split(",", false)
 			"--claims": args.claims = value
 			"--in": args.inputs = value.split(",", false)
 	return args
@@ -489,7 +496,7 @@ static func _command(args: Dictionary) -> String:
 	var parts := PackedStringArray(["--mode=%s" % args.mode])
 	if args.quick:
 		parts.append("--quick")
-	for key: String in ["only", "bosses", "builds", "difficulties", "bots", "acts"]:
+	for key: String in ["only", "bosses", "builds", "difficulties", "bots", "acts", "keeper"]:
 		if not (args[key] as PackedStringArray).is_empty():
 			parts.append("--%s=%s" % [key, ",".join(args[key])])
 	parts.append("--seed=%d" % args.seed)

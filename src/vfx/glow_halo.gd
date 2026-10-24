@@ -23,7 +23,15 @@ static var _materials := {}
 
 var element: VfxElementDef
 ## The core's radius, world units: the inner band reaches about 1.1x it, the outer one 1.7x.
-var size := 6.0
+## Changed while it shines (a lantern raised to cast: ShadeTrait), it takes its new bands at once.
+var size := 6.0:
+	set(value):
+		if size == value:
+			return
+		size = value
+		if is_inside_tree():
+			_refresh()
+			queue_redraw()
 var pulse := Pulse.BREATHE
 ## Under 1: an oval on the floor.
 var squash := 1.0

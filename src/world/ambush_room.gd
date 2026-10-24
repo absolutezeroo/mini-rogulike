@@ -26,6 +26,8 @@ var _wave: Array[Monster] = []
 var _spawn_timer := 0.0
 var _pause_timer := 0.0
 var _elite_in_wave := false
+## Where its reward chest went once cleared (-1, -1: not yet). Saved with the floor (save_state).
+var reward_cell := Vector2i(-1, -1)
 
 
 func setup(world: World, ambush_room: Rect2i) -> void:
@@ -169,6 +171,36 @@ func _finish() -> void:
 	var chest_def := _world.config().ambush_chest
 	if chest_def:
 		var cell := _reward_cell()
+		reward_cell = cell
 		Vfx.magic(_world, _world.map.cell_to_world(cell), Palette.GOLD)
 		_world.spawn_chest(chest_def, cell, false)
 	Events.ambush_cleared.emit(self)
+
+
+## `monster` is one of the waves it is sending (an ambush under way).
+func holds(monster: Monster) -> bool:
+	return state == State.FIGHTING and _wave.has(monster)
+
+
+## For the floor's save (World.spent_data()): cleared or not, and where its reward chest went.
+## An ambush quit in the middle of its fight is saved as waiting: it starts over.
+func save_state() -> Dictionary:
+	if state != State.CLEARED:
+		return {}
+	return { "cleared": true, "reward": [reward_cell.x, reward_cell.y] }
+
+
+## A resumed floor: an ambush cleared before quitting stays cleared (no waves, the exits open)
+## and its reward chest is there again unless it was opened (`opened`: the floor's opened chests).
+func restore_state(saved: Dictionary, opened: Array[Vector2i]) -> void:
+	if not bool(saved.get("cleared", false)):
+		return
+	state = State.CLEARED
+	waves_left = 0
+	var cell: Variant = saved.get("reward")
+	if not (cell is Array and (cell as Array).size() == 2):
+		return
+	reward_cell = Vector2i(int(cell[0]), int(cell[1]))
+	var chest_def := _world.config().ambush_chest
+	if chest_def and not opened.has(reward_cell):
+		_world.spawn_chest(chest_def, reward_cell, false)

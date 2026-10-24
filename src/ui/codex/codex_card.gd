@@ -1,10 +1,17 @@
 class_name CodexCard
 extends Button
 ## A monster's card in the bestiary: its picture, its name, your hunter rank with it and how
-## many you slew, a little bar toward the next rank. Never met: a dark shape and "???".
+## many you slew, a little bar toward the next rank (the name on two lines if it must). Never met: a dark shape and "???".
 ## Gold frame once Mastered; badges for bosses and Shiny ones found. Tap it for its page.
 
-const SIZE := Vector2(164, 188)
+## (Wide enough for a name's longest word or first words at BODY, with the room a wrapped line
+## keeps after them: « L'Accapareur », « The Nameless »; tall enough for a name on two lines.)
+const SIZE := Vector2(192, 206)
+## Lines a name may take (a check in the title suite: every name fits them, in French and English,
+## no word cut).
+const NAME_LINES := 2
+## UI pixels between its lines (the theme's Label: an even number, docs/design/interface.md "Text").
+const NAME_LINE_GAP := 2
 const UNKNOWN_COLOR := Color(0.08, 0.06, 0.1)
 const SHINY_COLOR := Color(1.0, 0.6, 0.95)
 
@@ -35,8 +42,8 @@ func _init(def: MonsterDef, rules: BestiaryRules) -> void:
 	disabled = rank == Bestiary.UNSEEN
 	var inside := VBoxContainer.new()
 	inside.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	inside.offset_left = 10
-	inside.offset_right = -10
+	inside.offset_left = 8
+	inside.offset_right = -8
 	inside.offset_top = 14
 	inside.offset_bottom = -20
 	inside.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -47,8 +54,15 @@ func _init(def: MonsterDef, rules: BestiaryRules) -> void:
 	picture.modulate = Color.WHITE if rank >= Bestiary.SEEN else UNKNOWN_COLOR
 	inside.add_child(picture)
 	var is_boss := def is BossDef
+	# On two lines when it must, never cut (« Gluant Géant », « Sentinelle de la Brèche »): the
+	# room for two is always kept, so every card's picture and rank sit at the same height.
 	var name_label := _centered(tr(def.display_name) if rank >= Bestiary.SEEN else "???", Fonts.BODY, Palette.DANGER if is_boss else UiSkin.TEXT)
-	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	name_label.name = "Name"
+	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	name_label.max_lines_visible = NAME_LINES
+	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	name_label.add_theme_constant_override(&"line_spacing", NAME_LINE_GAP)
+	name_label.custom_minimum_size.y = Fonts.MAIN.get_height(Fonts.BODY) * NAME_LINES + NAME_LINE_GAP * (NAME_LINES - 1)
 	inside.add_child(name_label)
 	if rank == Bestiary.UNSEEN:
 		var unmet := _centered(tr("Not met yet"), Fonts.BODY, UiSkin.DIM)

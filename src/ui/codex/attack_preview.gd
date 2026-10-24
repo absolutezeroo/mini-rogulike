@@ -11,6 +11,8 @@ const MAX_SCALE := 1.0
 ## World pixels between the monster and the stand-in hero.
 const GAP := 330.0
 const LOOP := 3.0
+## At most this share of the stage's height for the monster's art.
+const STAGE_ART_SHARE := 0.8
 const START := 0.35
 const MIN_WARNING := 0.5
 const FLOOR_COLOR := Color(0.12, 0.1, 0.14)
@@ -58,6 +60,14 @@ func play(monster: MonsterDef, attack: Resource, hero_frames: SpriteFrames) -> v
 	_attack = attack
 	_sprite.sprite_frames = monster.frames
 	_sprite.offset = monster.frames_offset
+	# Dressed as in a fight (the Nameless Keeper's shade and lantern: MonsterTrait.dress_look).
+	_sprite.material = null
+	for child in _sprite.get_children():
+		_sprite.remove_child(child)
+		child.queue_free()
+	for monster_trait in monster.traits:
+		if monster_trait:
+			monster_trait.dress_look(_sprite)
 	_hero.sprite_frames = hero_frames
 	_play_anim(_hero, [&"idle_left", &"idle_down", &"idle"])
 	_hero.modulate = Color(1, 1, 1, 0.75)
@@ -74,6 +84,17 @@ func _layout() -> void:
 	_home = Vector2(world_size.x * 0.5 - GAP * 0.5, world_size.y * 0.58)
 	_target = _home + Vector2(GAP, 0)
 	var body := 3.0 if not _monster is BossDef else 2.2
+	# A warden too tall for the stage at that scale (the Maw) is drawn smaller: whole.
+	var art := MonsterPage.art_rect(_sprite.sprite_frames, &"idle_right" if _sprite.sprite_frames and _sprite.sprite_frames.has_animation(&"idle_right") else &"idle", _sprite.offset)
+	if art.size.y <= MonsterPage.SMALL_ART:
+		body = 3.0  # (a warden on a common body's art: as big as one)
+	if world_size.y > 0.0:
+		body = minf(body, world_size.y * STAGE_ART_SHARE / maxf(art.size.y, 1.0))
+		# Its feet low enough that its head stays on the stage (a big warden stands taller).
+		var margin := world_size.y * (1.0 - STAGE_ART_SHARE) * 0.5
+		var lowest := world_size.y - margin - art.end.y * body
+		_home.y = minf(maxf(_home.y, margin - art.position.y * body), maxf(lowest, _home.y))
+		_target = _home + Vector2(GAP, 0)
 	_sprite.scale = Vector2.ONE * body
 	_hero.scale = Vector2.ONE * 3.0
 	_hero.position = _target

@@ -58,6 +58,13 @@ func draw_under(_monster: Monster, _canvas: CanvasItem) -> void:
 	pass
 
 
+## Its look drawn outside a fight (the bestiary's page and its attack preview): what on_spawn()
+## does to the body that a picture of it needs too (a shade's darkness, its lantern). `sprite`
+## shows the monster's frames, one unit an art pixel, its origin at the feet.
+func dress_look(_sprite: AnimatedSprite2D) -> void:
+	pass
+
+
 ## A line for the bestiary.
 func describe() -> String:
 	return ""

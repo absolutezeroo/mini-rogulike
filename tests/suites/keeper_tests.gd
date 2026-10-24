@@ -219,6 +219,11 @@ func _test_built_boss() -> void:
 	var keeper := template.build(snapshot, CONTENT)
 	check(keeper != template and keeper.weapon.id == &"bow" and keeper.weapon.kind == WeaponDef.Kind.RANGED and (keeper.weapon as EquipmentDef).rarity == ItemRarity.RARE, "built: he carries the hero's weapon, its rarity")
 	check(keeper.keep_distance == template.ranged_keep_distance and template.keep_distance == 0.0, "a ranged weapon: he keeps his distance (the template untouched)")
+	var hero_bow := player.get_weapon()
+	check(keeper.weapon.projectile_speed <= template.ranged_shot_speed and keeper.weapon.cooldown >= template.ranged_cooldown_min and keeper.attack_windup >= template.ranged_attack_windup, "his bow shoots as a boss: shots no faster than %.0f, %.1f s apart at least, drawn %.2f s (a hero's bow from a boss can't be dodged)" % [template.ranged_shot_speed, template.ranged_cooldown_min, template.ranged_attack_windup])
+	check(hero_bow.projectile_speed > template.ranged_shot_speed and hero_bow.cooldown < template.ranged_cooldown_min and template.attack_windup < template.ranged_attack_windup, "the hero's bow and the template untouched")
+	var with_blade := template.build(KeeperSnapshot.new(_through_json(KeeperSnapshot.take(hero(), _run()))), CONTENT)
+	check(is_equal_approx(with_blade.attack_windup, template.attack_windup) and with_blade.weapon.cooldown < template.ranged_cooldown_min, "a blade keeps its own pace (the ranged rules are for shots)")
 	check(keeper.title == "Ash" and template.title == "Who You Were", "the pseudonym he played under as his title")
 	var hero_skills := player.skills.skills.filter(func(s: SkillDef) -> bool: return s != null and not CONTENT.player.innate_skills.has(s))
 	var all_skills: Array[SkillDef] = keeper.phases[0].skills
@@ -228,6 +233,23 @@ func _test_built_boss() -> void:
 		var own: SkillDef = hero_skills[i]
 		check(made != own and made.id == own.id and made.cast_time > 0.0 and is_equal_approx(made.cooldown, own.cooldown * template.cooldown_scale), "%s: his copy is warned (%.2f s) and slower to come back" % [own.id, made.cast_time])
 	check(keeper.skills.size() >= 1 and keeper.skills.size() <= 2 + template.skills.size(), "he opens with his weapon's skills")
+	var every: Array[SkillDef] = keeper.skills.duplicate()
+	for phase in keeper.phases:
+		every.append_array(phase.skills)
+	check(every.all(func(s: SkillDef) -> bool: return s.cast_animation == template.cast_pose) and not template.cast_pose.is_empty(), "every skill of his is cast in his pose (%s: the hero's frames have no cast animation), not his blow's" % template.cast_pose)
+	check(template.phases[1].skills.all(func(s: SkillDef) -> bool: return s.cast_animation == &"cast"), "the lantern's skill file untouched (Tôma casts it in his own way)")
+	check(CONTENT.player.frames.has_animation(StringName(String(template.cast_pose) + "_down")) and CONTENT.player.frames.get_animation_loop(StringName(String(template.cast_pose) + "_down")), "his cast pose is one the hero's frames have, looping (held for the warning)")
+	var shade := template.traits[0] as ShadeTrait
+	check(shade.cast_step(false, 0.5) == 0 and shade.cast_step(true, 0.0) == 1 and shade.cast_step(true, 1.0) == shade.cast_glow_steps and shade.glow_size_at(0) == shade.glow_size and shade.glow_size_at(shade.cast_glow_steps) == PixelDraw.snap_length(shade.cast_glow_size), "casting, his lantern's glow swells in whole steps, on the grid")
+	check(shade.cast_lantern_offset.y < shade.lantern_offset.y - 8.0, "casting, his lantern is raised over his head")
+	var picture := AnimatedSprite2D.new()
+	picture.sprite_frames = template.frames
+	picture.offset = template.frames_offset
+	picture.animation = &"walk_down"
+	shade.dress_look(picture)
+	var look := picture.material as ShaderMaterial
+	check(look != null and look.shader == BodyLook.SHADER and is_equal_approx(float(look.get_shader_parameter(&"flash_amount")), shade.pallor) and Color(look.get_shader_parameter(&"flash_color")) == shade.color and picture.get_node_or_null("Lantern") is Sprite2D, "in the codex he is the same shade as in his fight (pallor, rim, lantern), not the hero")
+	picture.free()
 	check(keeper.phases[1].skills.any(func(s: SkillDef) -> bool: return s.effects.any(func(e: Effect) -> bool: return e is GroundStrikeEffect)), "in the last phase the lantern burns too")
 	var gear := keeper.traits.filter(func(t: MonsterTrait) -> bool: return t is WornGearTrait)
 	check(gear.size() == 1 and (gear[0] as WornGearTrait).pieces.size() == 2, "he wears the hero's helm and mail")
@@ -251,6 +273,7 @@ func _test_built_boss() -> void:
 ## for the rest): every hero skill, made his, keeps those ranges.
 func _test_skill_ranges() -> void:
 	var template := CONTENT.dungeon.finale.keeper
+	check(is_equal_approx(template.shot_min_range, 90.0), "his shots from 90 out, in his data (balance-log 2026-10-24: a bolt let go in the hero's face can't be stepped out of)")
 	check(is_equal_approx(template.dive_min_range, 50.0) and is_equal_approx(template.dive_range_margin, 30.0) and is_equal_approx(template.shot_max_range, 360.0) and is_equal_approx(template.area_range_margin, 20.0) and is_equal_approx(template.other_max_range, 260.0), "his AI's ranges are in his data, as they were (50, +30, 360, +20, 260)")
 	var hero_skills: Array[SkillDef] = []
 	for item in CONTENT.items + CONTENT.player.starting_equipment:
@@ -272,7 +295,8 @@ func _test_skill_ranges() -> void:
 			expected = Vector2(50.0, (first as DashStrikeEffect).distance + 30.0)
 			kind = "dive"
 		elif first is ProjectileEffect:
-			expected = Vector2(0.0, minf((first as ProjectileEffect).max_distance, 360.0))
+			# (From 90 out since the ranged Keepers' measure: no bolt in the hero's face.)
+			expected = Vector2(90.0, minf((first as ProjectileEffect).max_distance, 360.0))
 			kind = "shot"
 		elif first is DamageAreaEffect:
 			expected = Vector2(0.0, (first as DamageAreaEffect).offset + (first as DamageAreaEffect).radius + 20.0)

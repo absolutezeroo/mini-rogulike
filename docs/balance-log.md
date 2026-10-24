@@ -3,6 +3,79 @@
 Dated entries, newest first: what was measured, what changed and why, before/after numbers, open
 questions. How to measure: [balance.md](balance.md).
 
+## 2026-10-24 - A ranged Nameless Keeper: measured, and his shots made a boss' (bow, wand)
+
+**The tool first.** A Keeper with a bow or a wand (`ranged_keep_distance` 170) was a standoff:
+the kite bot backed off every drawn bow as if it were a swing it could step out of, and dodged
+every shot sideways without ever closing in, so neither side hurt the other (timeouts, the last
+entry). Two changes to `BalanceBot` (kite and player): a drawn bow or wand is stepped across, not
+backed off from; and when only shots threaten it (shots in flight, a drawn bow) and its foe is
+out of reach, it keeps closing in across their line (`CLOSE_IN` 1: 45 degrees, faster forward
+than a boss backing off at 100). A warned skill, a fan's cone included, is still left at full
+speed first (with the fans counted as "only shots", Gorr's kite wins fell from 4 of 4 to 2 of 4).
+The arena measures the bottom of the Well itself now: `--keeper=bow,magic_wand,katana,hammer`
+(Tôma alone for scale, then a Keeper per weapon from a sample hero, `BalanceContent.
+keeper_snapshot`: level 15, Rare weapon with Brutal and of the Fox, Magic helm and mail, the
+weapon's skills and a tome: katana + Fire and Ignite, hammer + War with Bloodrage and Thorns,
+wand + Thunder, bow + Frost and Hydra's Quiver).
+
+Every other boss, kite, Keeper, act's expected build, seeds 1-2, old bot / new bot: the same
+results but one (Azure Wyrm seed 2, a win at 30% / a loss at 3% left); 16 / 15 wins of 20, times
+and Health left within the seeds' noise. The balance suite's guards hold (Gorr 4 of 4).
+
+**Measured, as he was** (act IV's expected build, Keeper, seeds 1-4, the bot closing in; face-tank
+seeds 1-2):
+
+| Keeper | kite | player (0.3 s reaction) | face_tank |
+|---|---|---|---|
+| Tôma alone (scale) | 4 of 4, 53-59 s | 2 of 4 (losses at 0-2% left) | loss, 33-35% left |
+| katana + Fire | 4 of 4, 81-95 s | 1 of 4 (losses at 1-16%) | loss, 80-81% |
+| hammer + War | 4 of 4, 89-90 s | 3 of 4 (a loss at 22%) | loss, 78-79% |
+| **bow** + Frost | 4 of 4, 84-98 s | **0 of 4, losses at 41-54% left** | loss, 60-70% |
+| **magic wand** + Thunder | 4 of 4, 82-87 s | **0 of 4, losses at 44-58% left** | loss, 66-71% |
+
+**Reading:** the kite bot beats every Keeper and standing in front of him loses (pillar 1), but
+an average player loses to a bow or a wand Keeper at half his Health, where he beats Tôma and the
+hammer Keeper and nearly the katana one. The hit logs say why: 19-24 hits of his *basic* shot a
+fight, from 48 to 235 px. He shoots the hero's own weapon as the hero does: a bow's arrow at 600
+a second (a wand's bolt 520), 0.42 s apart; the monsters' bolts fly 220-320, 1.3-2 s apart. Drawn
+0.5 s and arriving in 0.2-0.4 s, no one reacting in 0.3 s steps out of it; and his skills' bolts
+(the wand's Arcane Bolt) were let go in the hero's face (49 px), warned or not.
+
+**Changed** (`data/monsters/bosses/nameless_keeper.tres`, design/monsters.md):
+- `ranged_shot_speed` **320**: with a ranged weapon his shots fly 320 at most (the monsters'
+  fastest bolts);
+- `ranged_cooldown_min` **1.2 s**: they come 1.2 s apart at least (before his attack speed);
+- `ranged_attack_windup` **0.75 s** (0.5): he draws longer than he swings (a shot reaches from
+  afar; a swing is stepped out of);
+- `shot_min_range` **90**: his shot skills from 90 px out (0), never a bolt in the hero's face.
+
+Tried and dropped: his skills' shots at 320 too (a slow fan lingers: the bow Keeper went from 4
+player wins of 4 to 1), shots warned 0.8 s (0.65; no better, within the noise).
+
+**After** (seeds 1-6, Keeper, the final bot):
+
+| Keeper | kite | player | face_tank |
+|---|---|---|---|
+| Tôma alone (scale) | 6 of 6, 53-59 s | 3 of 6 (losses at 0-13% left) | loss, 23-43% left |
+| katana + Fire | 6 of 6, 88-101 s | 0 of 6 (losses at 2-13%) | loss, 74-82% |
+| hammer + War | 6 of 6, 89-92 s | 3 of 6 (losses at 6-32%) | loss, 70-79% |
+| **bow** + Frost | 6 of 6, 95-115 s, Health left 50-78% | **3 of 6 (losses at 8-29%)** | loss, 63-66% |
+| **magic wand** + Thunder | 6 of 6, 78-86 s | **0 of 6, losses at 6-29%** (was 44-58) | loss, 58-67% |
+
+On Martyr (seeds 1-2): the player bot loses every fight, Tôma's at 46% left and the Keepers' at
+37-52%; kite beats the bow and katana Keepers, the wand one once in two (a loss at 2%), Tôma once
+in two.
+
+He stays a fight a little harder than Tôma alone for an average player, as one fight in place of
+Tôma's and the Maw's should be; the wand is the hardest of them (its Arcane Bolt, a hero's 2.2x
+nuke at 60%). Open: the bow Keeper's kite fights run 95-115 s, over the 100 s target (he backs
+off at 100 and the melee bot chases: `ranged_keep_distance` 170 is the knob); the heal-share flags
+of these fights are the expected build's Leech rune against the little damage a kite takes (Tôma's
+too), not a Keeper's doing. Fixed on the way: `BalanceLab.renew` read `run.seed` (renamed
+`run_seed`): a script error on every renewed measure (marginal, compound, packs), whose floor then
+kept the last seed instead of its own.
+
 ## 2026-10-24 - The Nameless Keeper (new last fight, measured against Tôma)
 
 **What changed:** after "take his place", the next runs' bottom of the Well is the Nameless
