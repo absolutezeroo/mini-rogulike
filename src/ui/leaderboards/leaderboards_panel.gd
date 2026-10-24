@@ -39,7 +39,9 @@ var _board: LeaderboardDef
 var _back := 0
 ## Each load's number: an answer for an older one is dropped.
 var _load_id := 0
-var _tabs: HBoxContainer
+## The boards' tabs (one per shown board, then the Toll's), and the board's two periods.
+var _tabs: TabRow
+var _periods: TabRow
 var _period_tabs: Array[Button] = []
 var _board_tabs := {}
 var _top_title: Label
@@ -214,8 +216,7 @@ func _show_online(on: bool) -> void:
 	_name_text.visible = on
 	_change_name.visible = on
 	_mine_panel.visible = on
-	for tab in _period_tabs:
-		tab.visible = on and not _toll_shown and _board != null and _board.period != LeaderboardDef.Period.ALL_TIME
+	_periods.visible = on and not _toll_shown and _board != null and _board.period != LeaderboardDef.Period.ALL_TIME
 
 
 func _show_name() -> void:
@@ -226,16 +227,14 @@ func _show_name() -> void:
 
 ## The tabs: one per shown board, and the board's two periods (none for an all-time board).
 func _show_tabs() -> void:
-	for board_id: StringName in _board_tabs:
-		(_board_tabs[board_id] as Button).set_pressed_no_signal(not _toll_shown and _board != null and _board.id == board_id)
-	_toll_tab.set_pressed_no_signal(_toll_shown)
+	var shown := _tabs.buttons.find(_toll_tab) if _toll_shown else (_tabs.buttons.find(_board_tabs[_board.id]) if _board != null and _board_tabs.has(_board.id) else -1)
+	_tabs.select(shown)
 	var has_periods := not _toll_shown and _board != null and _board.period != LeaderboardDef.Period.ALL_TIME
 	var weekly := _board != null and _board.period == LeaderboardDef.Period.WEEKLY
 	_period_tabs[0].text = tr("This week") if weekly else tr("Today")
 	_period_tabs[1].text = tr("Last week") if weekly else tr("Yesterday")
-	for i in _period_tabs.size():
-		_period_tabs[i].visible = has_periods
-		_period_tabs[i].set_pressed_no_signal(i == _back)
+	_periods.visible = has_periods
+	_periods.select(_back)
 
 
 func _pick_board(board: LeaderboardDef) -> void:
@@ -337,28 +336,27 @@ func _build() -> void:
 	_window.header_left.add_child(change)
 	MenuWindow.expose(change, "ChangeNameButton", self)
 
-	_tabs = HBoxContainer.new()
-	_tabs.add_theme_constant_override("separation", 8)
-	_window.body.add_child(_tabs)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 18)
+	_window.body.add_child(row)
+	_tabs = TabRow.new()
+	_tabs.sound = false  # (the picks click)
+	row.add_child(_tabs)
 	MenuWindow.expose(_tabs, "BoardTabs", self)
 	for board in Leaderboards.config.shown_boards():
-		var tab := _tab(tr(board.display_name), "Board_%s" % board.id)
-		tab.add_to_group(MenuNav.TABS)
+		var tab := _tabs.add_tab(tr(board.display_name), "Board_%s" % board.id, self)
 		tab.pressed.connect(_pick_board.bind(board))
 		_board_tabs[board.id] = tab
-	_toll_tab = _tab(tr("The Well's Toll"), "TollTab")
-	_toll_tab.custom_minimum_size.x = 200
-	_toll_tab.add_to_group(MenuNav.TABS)
+	_toll_tab = _tabs.add_tab(tr("The Well's Toll"), "TollTab", self)
 	_toll_tab.pressed.connect(_pick_toll)
-	var gap := Control.new()
-	gap.custom_minimum_size.x = 18
-	_tabs.add_child(gap)
+	# The board's periods: a row of their own, not tabs of the window (Q / E switch boards).
+	_periods = TabRow.new(false, false)
+	_periods.sound = false
+	row.add_child(_periods)
 	for periods_back in 2:
-		var period := _tab(tr("Today"), "TodayTab" if periods_back == 0 else "YesterdayTab")
-		period.custom_minimum_size.x = 150
+		var period := _periods.add_tab(tr("Today"), "TodayTab" if periods_back == 0 else "YesterdayTab", self)
 		period.pressed.connect(_pick_period.bind(periods_back))
 		_period_tabs.append(period)
-	_tabs.add_child(PromptGlyph.make(&"menu_tabs"))
 
 	var columns := HBoxContainer.new()
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -460,15 +458,6 @@ func _build_toll() -> void:
 	_toll_retry.hide()
 	column.add_child(_toll_retry)
 	MenuWindow.expose(_toll_retry, "TollRetryButton", self)
-
-
-func _tab(text: String, node_name: String) -> Button:
-	var button := MenuWindow.button(text, Fonts.BODY, 44)
-	button.toggle_mode = true
-	button.custom_minimum_size.x = 160
-	_tabs.add_child(button)
-	MenuWindow.expose(button, node_name, self)
-	return button
 
 
 ## Rank, Name, Score over the list.

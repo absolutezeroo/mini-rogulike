@@ -32,18 +32,18 @@ func open() -> void:
 		lines.append(tr("Nothing was sent from this device yet, as far as it knows."))
 	var explain := UiSkin.label("\n\n".join(lines), Fonts.BODY, UiSkin.TEXT, true)
 	body.add_child(explain)
-	_own(explain, "Explain")
+	MenuWindow.expose(explain, "Explain", self)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 14)
 	body.add_child(row)
 	var cancel := UiParts.button(tr("Cancel"), close, Vector2(0, 56), Fonts.BODY)
 	cancel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(cancel)
-	_own(cancel, "CancelButton")
+	MenuWindow.expose(cancel, "CancelButton", self)
 	var confirm := UiParts.button(tr("Delete my online data"), _confirm, Vector2(0, 56), Fonts.BODY)
 	confirm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(confirm)
-	_own(confirm, "ConfirmButton")
+	MenuWindow.expose(confirm, "ConfirmButton", self)
 	MenuNavScript.set_first(self, cancel)
 	show()
 
@@ -70,16 +70,11 @@ func _confirm() -> void:
 	var who := str(request.id) if not str(request.id).is_empty() else "-"
 	var done := UiSkin.label(tr("Done: nothing is sent any more and this device forgot its online ID. If no email opened, write to {email} with this ID: {id}").format({ "email": request.email, "id": who }), Fonts.BODY, UiSkin.TEXT, true)
 	body.add_child(done)
-	_own(done, "DoneText")
+	MenuWindow.expose(done, "DoneText", self)
 	var ok := UiParts.button(tr("Close"), close, Vector2(220, 56), Fonts.BODY)
 	ok.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	body.add_child(ok)
-	_own(ok, "CloseButton")
+	MenuWindow.expose(ok, "CloseButton", self)
 	if InputDevice.uses_buttons():
 		ok.grab_focus.call_deferred()
 
-
-func _own(node: Node, node_name: String) -> void:
-	node.name = node_name
-	node.owner = self
-	node.unique_name_in_owner = true

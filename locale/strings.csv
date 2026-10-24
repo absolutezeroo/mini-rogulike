@@ -191,7 +191,6 @@ The light takes you back up.,The light takes you back up.,La lumière te ramène
 Out before the dark closed in: the dawn leaves you a gift.,Out before the dark closed in: the dawn leaves you a gift.,Sorti avant que l'ombre ne se referme : l'aube te laisse un présent.
 Seen,Seen,Vu
 Unknown,Unknown,Inconnu
-Ambush!,Ambush!,Embuscade !
 It's a trap! Survive the waves.,It's a trap! Survive the waves.,C'est un piège ! Survis aux vagues.
 The room falls silent. A chest appears...,The room falls silent. A chest appears...,Le silence retombe sur la salle. Un coffre apparaît...
 Level %d!,Level %d!,Niveau %d !
@@ -379,6 +378,7 @@ Slay more of this kind to rank up. Each rank pays its souls once.,Slay more of t
 Mastered!,Mastered!,Maîtrisé !
 Challenges,Challenges,Défis
 Slay it in a special way. Each one pays its souls once.,Slay it in a special way. Each one pays its souls once.,Abats-le d'une façon particulière. Chaque défi rapporte ses âmes une seule fois.
+the same stats,the same stats,les mêmes statistiques
 Compared with your %s:,Compared with your %s:,Comparé à l'objet porté (%s) :
 You hold no weapon yet. It adds:,You hold no weapon yet. It adds:,Tu n'as pas encore d'arme. Cet objet ajoute :
 Nothing on your head yet. It adds:,Nothing on your head yet. It adds:,Rien sur ta tête pour l'instant. Cet objet ajoute :
@@ -457,6 +457,7 @@ Achievement: %s  (+%d souls),Achievement: %s  (+%d souls),Succès : %s  (+%d âm
 Challenge done: %s  (+%d souls),Challenge done: %s  (+%d souls),Défi relevé : %s  (+%d âmes)
 Daily quest done: %s  (+%d souls),Daily quest done: %s  (+%d souls),Quête du jour accomplie : %s  (+%d âmes)
 Weekly quest done: %s  (+%d souls),Weekly quest done: %s  (+%d souls),Quête de la semaine accomplie : %s  (+%d âmes)
+Ambush!,Ambush!,Embuscade !
 You come back from the Threshold.,You come back from the Threshold.,Tu reviens du Seuil.
 You climb back into the light.,You climb back into the light.,Tu remontes vers la lumière.
 Seal  %d / %d,Seal  %d / %d,Sceau  %d / %d
@@ -494,6 +495,13 @@ Perks taken this run,Perks taken this run,Atouts pris dans cette partie
 No perk yet: you pick one at every level up.,No perk yet: you pick one at every level up.,Aucun atout pour l'instant : tu en choisis un à chaque niveau.
 %s   Level %d / %d,%s   Level %d / %d,%s   Niveau %d / %d
 Family: %s,Family: %s,Famille : %s
+Dismantle the worse,Dismantle the worse,Démanteler le moins bon
+"What you wear, potions, runes, tomes and keys are never touched.","What you wear, potions, runes, tomes and keys are never touched.","Ce que tu portes, les potions, les runes, les grimoires et les clefs ne sont jamais touchés."
+Dismantle,Dismantle,Démanteler
+Keep them,Keep them,Les garder
+"Dismantle 1 piece of gear worse than what you wear, for %d gold?","Dismantle 1 piece of gear worse than what you wear, for %d gold?","Démanteler 1 pièce d'équipement moins bonne que ce que tu portes, pour %d or ?"
+"Dismantle %d pieces of gear worse than what you wear, for %d gold?","Dismantle %d pieces of gear worse than what you wear, for %d gold?","Démanteler %d pièces d'équipement moins bonnes que ce que tu portes, pour %d or ?"
+Dismantle: +%d gold,Dismantle: +%d gold,Démanteler : +%d or
 Perks (%d),Perks (%d),Atouts (%d)
 Dismantle the worse (%d),Dismantle the worse (%d),Démanteler le moins bon (%d)
 {tab}  {used} / {places},{tab}  {used} / {places},{tab}  {used} / {places}
@@ -507,21 +515,12 @@ Dismantle value: %d gold,Dismantle value: %d gold,Démantèlement : %d or
 The runes set in it break with it (counted in the gold).,The runes set in it break with it (counted in the gold).,Les runes serties se brisent avec (comptées dans l'or).
 Pick an item,Pick an item,Choisis un objet
 Choose a slot to see what it does.,Choose a slot to see what it does.,Choisis un emplacement pour voir ce qu'il fait.
-{heading} {changes},{heading} {changes},{heading} {changes}
-the same stats,the same stats,les mêmes statistiques
 Runes,Runes,Runes
 An empty socket: a forge sets runes in it.,An empty socket: a forge sets runes in it.,Un emplacement vide : une forge peut y sertir une rune.
-"Dismantle 1 piece of gear worse than what you wear, for %d gold?","Dismantle 1 piece of gear worse than what you wear, for %d gold?","Démanteler 1 pièce d'équipement moins bonne que ce que tu portes, pour %d or ?"
-"Dismantle %d pieces of gear worse than what you wear, for %d gold?","Dismantle %d pieces of gear worse than what you wear, for %d gold?","Démanteler %d pièces d'équipement moins bonnes que ce que tu portes, pour %d or ?"
-Dismantle: +%d gold,Dismantle: +%d gold,Démanteler : +%d or
 Inventory,Inventory,Inventaire
 Belt,Belt,Ceinture
 Bag,Bag,Sac
 More than it has room for: make room before anything new goes in.,More than it has room for: make room before anything new goes in.,Trop plein : rien de nouveau n'y entre tant que tu ne fais pas de place.
-Dismantle the worse,Dismantle the worse,Démanteler le moins bon
-"What you wear, potions, runes, tomes and keys are never touched.","What you wear, potions, runes, tomes and keys are never touched.","Ce que tu portes, les potions, les runes, les grimoires et les clefs ne sont jamais touchés."
-Dismantle,Dismantle,Démanteler
-Keep them,Keep them,Les garder
 To bag,To bag,Vers le sac
 To belt,To belt,Vers la ceinture
 Sure?,Sure?,Sûr ?
@@ -582,7 +581,6 @@ Touch,Touch,Tactile
 "The controls of the device in hand. Pick up another (a key, a gamepad, a touch) and this page follows.","The controls of the device in hand. Pick up another (a key, a gamepad, a touch) and this page follows.","Les commandes de l'appareil en main. Prends-en un autre (une touche, une manette, l'écran) et cette page suit."
 Done! Tips are back,Done! Tips are back,C'est fait ! Les conseils sont de retour
 Replay tutorial,Replay tutorial,Rejouer le tutoriel
-None yet (nothing was sent),None yet (nothing was sent),Aucun pour l'instant (rien n'a été envoyé)
 "Only its name and a line it remembers, about two seconds.","Only its name and a line it remembers, about two seconds.","Seulement son nom et une phrase dont il se souvient, environ deux secondes."
 No scene: the fight starts at once.,No scene: the fight starts at once.,Aucune scène : le combat commence aussitôt.
 A new chapter of its story when there is one; otherwise two seconds.,A new chapter of its story when there is one; otherwise two seconds.,Un nouveau chapitre de son histoire quand il y en a un ; sinon deux secondes.
@@ -632,20 +630,6 @@ Combat,Combat,Combat
 "Weapons, hits, cries, spells.","Weapons, hits, cries, spells.","Armes, coups, cris, sorts."
 Ambience,Ambience,Ambiance
 "Footsteps, wind, doors, chests.","Footsteps, wind, doors, chests.","Pas, vent, portes, coffres."
-Your data,Your data,Tes données
-Policy and credits,Policy and credits,Confidentialité et crédits
-"What is sent, to whom and why; who made the game and its licenses.","What is sent, to whom and why; who made the game and its licenses.","Ce qui est envoyé, à qui et pourquoi ; qui a fait le jeu et ses licences."
-Credits,Credits,Crédits
-Gameplay statistics,Gameplay statistics,Statistiques de jeu
-A summary of each run sent to help balance the game (asked first). Off: nothing is sent.,A summary of each run sent to help balance the game (asked first). Off: nothing is sent.,Un résumé de chaque partie envoyé pour aider à équilibrer le jeu (on te le demande d'abord). Désactivé : rien n'est envoyé.
-Your online ID,Your online ID,Ton identifiant en ligne
-Delete my online data,Delete my online data,Supprimer mes données en ligne
-"Asks by email for what was sent to be deleted, then turns everything online off.","Asks by email for what was sent to be deleted, then turns everything online off.","Demande par e-mail la suppression de ce qui a été envoyé, puis coupe tout ce qui est en ligne."
-Delete,Delete,Supprimer
-Your name,Your name,Ton nom
-Change,Change,Changer
-Publish my scores online,Publish my scores online,Publier mes scores en ligne
-"Your Dawn Knell scores and this name, public on the leaderboards. Off: nothing is sent nor read.","Your Dawn Knell scores and this name, public on the leaderboards. Off: nothing is sent nor read.","Tes scores du Glas de l'Aube et ce nom, publics dans les classements. Désactivé : rien n'est envoyé ni lu."
 Auto loot,Auto loot,Ramassage auto
 "Gold, potions, runes and keys: always.","Gold, potions, runes and keys: always.","Or, potions, runes et clefs : toujours."
 All,All,Tout
@@ -668,6 +652,21 @@ Controls,Controls,Commandes
 Privacy,Privacy,Confidentialité
 Before a warden's fight. A tap skips it.,Before a warden's fight. A tap skips it.,Avant le combat d'un gardien. Une touche la passe.
 Before a warden's fight. {ui_accept} skips it.,Before a warden's fight. {ui_accept} skips it.,Avant le combat d'un gardien. {ui_accept} la passe.
+Your data,Your data,Tes données
+Policy and credits,Policy and credits,Confidentialité et crédits
+"What is sent, to whom and why; who made the game and its licenses.","What is sent, to whom and why; who made the game and its licenses.","Ce qui est envoyé, à qui et pourquoi ; qui a fait le jeu et ses licences."
+Credits,Credits,Crédits
+None yet (nothing was sent),None yet (nothing was sent),Aucun pour l'instant (rien n'a été envoyé)
+Gameplay statistics,Gameplay statistics,Statistiques de jeu
+A summary of each run sent to help balance the game (asked first). Off: nothing is sent.,A summary of each run sent to help balance the game (asked first). Off: nothing is sent.,Un résumé de chaque partie envoyé pour aider à équilibrer le jeu (on te le demande d'abord). Désactivé : rien n'est envoyé.
+Your online ID,Your online ID,Ton identifiant en ligne
+Delete my online data,Delete my online data,Supprimer mes données en ligne
+"Asks by email for what was sent to be deleted, then turns everything online off.","Asks by email for what was sent to be deleted, then turns everything online off.","Demande par e-mail la suppression de ce qui a été envoyé, puis coupe tout ce qui est en ligne."
+Delete,Delete,Supprimer
+Your name,Your name,Ton nom
+Change,Change,Changer
+Publish my scores online,Publish my scores online,Publier mes scores en ligne
+"Your Dawn Knell scores and this name, public on the leaderboards. Off: nothing is sent nor read.","Your Dawn Knell scores and this name, public on the leaderboards. Off: nothing is sent nor read.","Tes scores du Glas de l'Aube et ce nom, publics dans les classements. Désactivé : rien n'est envoyé ni lu."
 The door seals behind you until every foe is slain: %d waves.,The door seals behind you until every foe is slain: %d waves.,La porte se scelle derrière toi jusqu'à ce que tous les ennemis soient abattus : %d vagues.
 The door seals behind you until every foe is slain.,The door seals behind you until every foe is slain.,La porte se scelle derrière toi jusqu'à ce que tous les ennemis soient abattus.
 Every foe is an elite.,Every foe is an elite.,Tous les ennemis sont des élites.

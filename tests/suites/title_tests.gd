@@ -8,6 +8,7 @@ const SettingsScript := preload("res://src/autoload/settings.gd")
 func run() -> void:
 	await _test_title_screen()
 	await _test_quests_paid_by_gameplay()
+	await _test_stat_bar_color()
 	await _test_touch_scroll()
 	await _test_slider_drag()
 	await _test_resume_button()
@@ -109,6 +110,24 @@ func _test_resume_button() -> void:
 	title.queue_free()
 	RunSave.erase()
 	await get_tree().process_frame
+
+
+## A bar's color set alone (the HUD's temperature blinking) shows at once, without a new value.
+func _test_stat_bar_color() -> void:
+	var bar := StatBar.new()
+	bar.size = Vector2(120, 20)
+	add_child(bar)
+	bar.set_values(5, 10)
+	await _frames(2)
+	var draws := [0]
+	bar.draw.connect(func() -> void: draws[0] += 1)
+	bar.set_values(5, 10)
+	await _frames(2)
+	var still: int = draws[0]
+	bar.fill_color = Color(0.2, 0.6, 1.0)
+	await _frames(2)
+	check(still == 0 and draws[0] == 1, "a stat bar redraws when only its color changes (%d, %d)" % [still, draws[0]])
+	bar.queue_free()
 
 
 ## A quest finished in a run that ended before it was paid (a crash, an old save) is paid by
@@ -467,6 +486,7 @@ func _test_title_screen() -> void:
 	check((codex.get_node("%QuestsTab") as Button).button_pressed and quest_text.contains("Daily quests") and quest_text.contains("Weekly quests") and quest_text.contains("souls"), "the quests tab: daily and weekly quests and their souls")
 	check(_find_all(list, func(n: Node) -> bool: return n is StatBar).size() == QuestBoard.DAILY_COUNT + QuestBoard.WEEKLY_COUNT, "a progress bar per quest")
 	check((codex.get_node("%Help") as Label).text.contains("Shrine"), "the quests tab says what souls are for")
+	check(codex.get_node("%QuestsTab").get_parent() is TabRow and title.leaderboards.get_node("%TollTab").get_parent() is TabRow, "the codex's and the leaderboards' tabs are TabRows, like every window's")
 	codex.show_tab(CodexPanel.Tab.ACHIEVEMENTS)
 	await _frames(1)
 	check(list.get_child_count() == CONTENT.achievements.size() and not (codex.get_node("%QuestsTab") as Button).button_pressed, "the achievements are listed")
@@ -572,6 +592,7 @@ func _test_options_tabs(options: OptionsPanel) -> void:
 	if Leaderboards.is_available():
 		(where[OptionsPanel.Tab.PRIVACY] as Array).append_array(["BoardsNameButton", "BoardsShowCheck", "AnalyticsCheck", "DeleteDataButton"])
 	check(OptionsPanel.Tab.size() == 5 and options.current_tab() == OptionsPanel.Tab.GAMEPLAY, "options: five tabs, opening on Gameplay")
+	check(options.get_node("%GameplayTab").get_parent() is TabRow, "options: the tabs are a TabRow, like every window's")
 	# Boss stories' line names a control: it follows the device in hand.
 	var story_note := options.get_node("%StoriesNote") as Label
 	check(story_note.text.contains("A tap skips it"), "options: on touch, a tap skips a story (%s)" % story_note.text)

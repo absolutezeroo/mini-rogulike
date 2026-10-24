@@ -8,7 +8,13 @@ const TRAIL_DELAY := 0.4
 const TRAIL_COLOR := Color(1.0, 0.93, 0.75)
 const GLOW_TIME := 0.35
 
-@export var fill_color := Palette.BLOOD
+## Changing it redraws at once (the temperature's blink changes it with no new value).
+@export var fill_color := Palette.BLOOD:
+	set(color):
+		if color == fill_color:
+			return
+		fill_color = color
+		queue_redraw()
 @export var show_text := true
 @export var font_size := Fonts.BODY
 

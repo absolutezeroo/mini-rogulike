@@ -1,9 +1,11 @@
 class_name RpgWindow
 extends Control
 ## A big panel in the game's skin (UiSkin): the world dimmed behind, a wooden board with a gold
-## ornate border, its title on a red ribbon over the top edge, a Close button. Put what it shows
-## in `body`. Runs while the game is paused. A menu for keys and gamepads (MenuNav): Close shows
-## the Back key or button beside it.
+## ornate border (OrnateBoard, as RpgDialog's), its title on a red ribbon over the top edge, a
+## Close button. Put what it shows in `body`. Runs while the game is paused. A menu for keys and
+## gamepads (MenuNav): Close shows the Back key or button beside it.
+## The header row is [header_left][spacer][header_right][Back's glyph][close_button]: windows
+## add to header_left and header_right, never reach into the row by index.
 
 signal close_requested
 
@@ -13,9 +15,17 @@ const MARGIN := Vector2(54, 40)
 var body: VBoxContainer
 ## Right of the title (gold, counters...), before Close.
 var header_right: HBoxContainer
+## Left of the header (tabs, a portrait, a line of text...).
+var header_left: HBoxContainer
+## The header's row itself.
+var header: HBoxContainer
+## The header's Close button (to rename or relabel).
+var close_button: Button
 
 var _title: PanelContainer
-var _board: PanelContainer
+var _board: OrnateBoard
+## Between header_left and header_right: takes the room left (MenuWindow gives it to header_left).
+var _spacer: Control
 
 
 func _init(title_text: String = "") -> void:
@@ -27,30 +37,13 @@ func _init(title_text: String = "") -> void:
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(dim)
 
-	_board = PanelContainer.new()
+	_board = OrnateBoard.new()
 	_board.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_board.offset_left = MARGIN.x
 	_board.offset_right = -MARGIN.x
 	_board.offset_top = MARGIN.y + 10
 	_board.offset_bottom = -MARGIN.y + 6
-	_board.add_theme_stylebox_override("panel", UiSkin.panel())
 	add_child(_board)
-	var ornate := NinePatchRect.new()
-	ornate.texture = UiSkin.ORNATE
-	ornate.self_modulate = UiSkin.ORNATE_TINT
-	ornate.draw_center = false
-	ornate.patch_margin_left = 42
-	ornate.patch_margin_right = 42
-	ornate.patch_margin_top = 42
-	ornate.patch_margin_bottom = 42
-	ornate.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	ornate.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	ornate.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	ornate.offset_left = MARGIN.x + 9
-	ornate.offset_right = -MARGIN.x - 9
-	ornate.offset_top = MARGIN.y + 19
-	ornate.offset_bottom = -MARGIN.y - 3
-	add_child(ornate)
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 22)
@@ -61,22 +54,28 @@ func _init(title_text: String = "") -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 10)
 	margin.add_child(column)
-	var header := HBoxContainer.new()
+	header = HBoxContainer.new()
 	header.set_meta(MenuNav.NOT_FIRST, true)  # the keys start in the body, not on Close
 	header.add_theme_constant_override("separation", 12)
 	column.add_child(header)
-	var spacer := Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_child(spacer)
+	header_left = HBoxContainer.new()
+	header_left.add_theme_constant_override("separation", 12)
+	header.add_child(header_left)
+	# Empty, it takes no place in the row (no gap of its own): shown with its first child.
+	header_left.hide()
+	header_left.child_entered_tree.connect(_show_header_left)
+	_spacer = Control.new()
+	_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(_spacer)
 	header_right = HBoxContainer.new()
 	header_right.add_theme_constant_override("separation", 12)
 	header.add_child(header_right)
-	var close := Button.new()
-	close.text = tr("Close")
-	close.custom_minimum_size = Vector2(120, 48)
-	close.pressed.connect(func() -> void: close_requested.emit())
+	close_button = Button.new()
+	close_button.text = tr("Close")
+	close_button.custom_minimum_size = Vector2(120, 48)
+	close_button.pressed.connect(func() -> void: close_requested.emit())
 	header.add_child(PromptGlyph.make(&"ui_cancel"))
-	header.add_child(close)
+	header.add_child(close_button)
 	body = VBoxContainer.new()
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", 10)
@@ -90,8 +89,12 @@ func _init(title_text: String = "") -> void:
 	resized.connect(_place_title)
 
 
+func _show_header_left(_child: Node) -> void:
+	header_left.show()
+
+
 func set_title(text: String) -> void:
-	(_title.get_child(0) as Label).text = text
+	(_title.get_node(^"Words") as Label).text = text
 	_place_title.call_deferred()
 
 
@@ -100,8 +103,8 @@ func _place_title() -> void:
 
 
 ## A column of the board: a dark inset with a gold heading, its contents below.
-static func section(heading: String, stone := false) -> Dictionary:
-	var box := UiSkin.section(stone)
+static func section(heading: String) -> Dictionary:
+	var box := UiSkin.section()
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 8)
 	box.add_child(column)

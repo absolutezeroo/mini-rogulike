@@ -28,7 +28,8 @@ var feedback: FeedbackDialog
 
 var _dialog: RpgDialog
 var _abandon_note: Label
-var _named: Array[Node] = []
+## Built nodes reachable as %Name once the panel is built.
+var _named := ExposedNodes.new()
 
 @onready var _options: OptionsPanel = %OptionsPanel
 @onready var _codex: CodexPanel = %CodexPanel
@@ -99,9 +100,7 @@ func _build() -> void:
 	money.column.add_child(UiParts.text(tr("Gold: only for this run. Spend it at the merchant and the forge; it is lost when the run ends."), Fonts.BODY, UiSkin.TEXT, BUTTON_SIZE.x + NOTE_WIDTH))
 	money.column.add_child(UiParts.text(tr("Souls: kept between runs. Spend them at the Shrine (title screen) on upgrades for every run."), Fonts.BODY, UiSkin.TEXT, BUTTON_SIZE.x + NOTE_WIDTH))
 	_dialog.body.add_child(money.box)
-	for node in _named:
-		node.owner = self
-		node.unique_name_in_owner = true
+	_named.expose_to(self)
 	feedback = FeedbackDialog.new()
 	feedback.name = "FeedbackDialog"
 	add_child(feedback)
@@ -140,10 +139,10 @@ func _row(text: String, node_name: String, note: String, action: Callable) -> Bu
 	var button := UiParts.button(text, action, BUTTON_SIZE, Fonts.BODY)
 	button.name = node_name
 	row.add_child(button)
-	_named.append(button)
+	_named.add(button)
 	var words := UiParts.text(note, Fonts.BODY, UiSkin.DIM, NOTE_WIDTH)
 	words.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	words.name = node_name + "Note"
 	row.add_child(words)
-	_named.append(words)
+	_named.add(words)
 	return button

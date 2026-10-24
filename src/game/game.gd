@@ -199,7 +199,6 @@ func _connect_events() -> void:
 			_say_last_words(monster.def as BossDef))
 	menus.ending.chosen.connect(_on_ending_chosen)
 	Events.ambush_started.connect(func(_room: AmbushRoom) -> void:
-		hud.show_banner(tr("Ambush!"), Palette.DANGER)
 		Events.log_message(tr("It's a trap! Survive the waves."), Palette.DANGER))
 	Events.ambush_cleared.connect(func(_room: AmbushRoom) -> void:
 		Sfx.play_ui(Sfx.bank.boss_defeated)

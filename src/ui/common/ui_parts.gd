@@ -4,15 +4,26 @@ class_name UiParts
 ## emptying a container.
 
 
-## A plain button (the game's default look); keys and gamepads reach it (MenuNav).
+## A plain button (the game's default look: MenuWindow.button, the one factory) doing `action`;
+## keys and gamepads reach it (MenuNav).
 static func button(words: String, action: Callable, min_size := Vector2(0, 52), font_size := Fonts.BODY) -> Button:
-	var result := Button.new()
-	result.text = words
+	var result := MenuWindow.button(words, font_size, min_size.y)
 	result.custom_minimum_size = min_size
-	result.add_theme_font_size_override("font_size", font_size)
 	if action.is_valid():
 		result.pressed.connect(action)
 	return result
+
+
+## Fills a two-column GridContainer with stat lines: [name, value] or [name, value, color]
+## (the name dim on the left, the value right-aligned). What was in it goes.
+static func stat_rows(grid: GridContainer, rows: Array) -> void:
+	clear(grid)
+	for row: Array in rows:
+		grid.add_child(UiSkin.label(str(row[0]), Fonts.BODY, UiSkin.DIM))
+		var value := UiSkin.label(str(row[1]), Fonts.BODY, row[2] if row.size() > 2 else UiSkin.TEXT)
+		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		grid.add_child(value)
 
 
 ## A list that scrolls one way, with drag-to-scroll for phones (TouchScroll).

@@ -60,10 +60,6 @@ func close() -> void:
 	hide()
 
 
-func tree_view() -> SoulTreeView:
-	return _view
-
-
 func picked() -> SoulNodeDef:
 	return _picked
 

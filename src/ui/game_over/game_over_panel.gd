@@ -31,7 +31,8 @@ var _continue_note: Label
 var _continue_button: Button
 var _restart_button: Button
 var _boards_button: Button
-var _named: Array[Node] = []
+## Built nodes reachable as %Name once the panel is built.
+var _named := ExposedNodes.new()
 ## The online leaderboards' page, opened from the end of a Dawn Knell.
 var leaderboards: LeaderboardsPanel
 
@@ -58,29 +59,19 @@ func show_end(victory: bool, story: String, rows: Array, souls_earned: int, soul
 	_souls_short.visible = not spoken.is_empty()
 	if not spoken.is_empty():
 		_voice.say(spoken)
-	UiParts.clear(_stats)
+	var lines: Array = []
 	for row: Array in rows:
-		_stats.add_child(UiSkin.label(str(row[0]), Fonts.BODY, UiSkin.DIM))
-		var value := UiSkin.label(str(row[1]), Fonts.BODY, UiSkin.GOLD if str(row[1]).contains(tr("New record!")) else UiSkin.TEXT)
-		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		_stats.add_child(value)
+		lines.append([str(row[0]), str(row[1]), UiSkin.GOLD if str(row[1]).contains(tr("New record!")) else UiSkin.TEXT])
+	UiParts.stat_rows(_stats, lines)
 	_souls_earned.text = tr("+%d souls") % souls_earned
 	_souls_total.text = tr("You now have %d souls.") % souls_total
 	_boards_button.visible = show_leaderboards
 	_columns.show()
 
 
-## Just a text (older callers): death.
+## Just a text, a death (tests: the panel without a run behind it).
 func show_result(summary: String) -> void:
 	_show(tr("The Well claims you"), DEATH_COLOR, summary, false)
-	_voice.hide()
-	_columns.hide()
-
-
-## Just a text (older callers): victory.
-func show_victory(summary: String) -> void:
-	_show(tr("Victory Achieved"), VICTORY_COLOR, summary, true)
 	_voice.hide()
 	_columns.hide()
 
@@ -122,16 +113,16 @@ func _build() -> void:
 	_dialog = RpgDialog.new(tr("The Well claims you"), WIDTH, 0.82)
 	add_child(_dialog)
 	_dialog.title_label.name = "Title"
-	_own(_dialog.title_label)
+	_named.add(_dialog.title_label)
 	_summary = UiParts.text("", Fonts.BODY, UiSkin.TEXT, WIDTH - 60)
 	_summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_summary.name = "Summary"
-	_own(_summary)
+	_named.add(_summary)
 	_dialog.body.add_child(_summary)
 	_voice = DialogueBox.new(DialogueBox.Mode.STACKED, WIDTH - 60)
 	_voice.name = "Voice"
 	_voice.hide()
-	_own(_voice)
+	_named.add(_voice)
 	_dialog.body.add_child(_voice)
 
 	_columns = HBoxContainer.new()
@@ -152,21 +143,21 @@ func _build() -> void:
 		leaderboards.open(), Vector2(180, 40), Fonts.BODY)
 	_boards_button.name = "LeaderboardsButton"
 	_boards_button.hide()
-	_own(_boards_button)
+	_named.add(_boards_button)
 	heading.add_child(_boards_button)
 	_stats = GridContainer.new()
 	_stats.columns = 2
 	_stats.add_theme_constant_override("h_separation", 20)
 	_stats.add_theme_constant_override("v_separation", 2)
 	_stats.name = "Stats"
-	_own(_stats)
+	_named.add(_stats)
 	run.column.add_child(_stats)
 	var souls: Dictionary = RpgWindow.section(tr("Souls"))
 	(souls.box as Control).custom_minimum_size.x = 400
 	_columns.add_child(souls.box)
 	_souls_earned = UiSkin.label("", Fonts.TITLE, UiSkin.GOLD)
 	_souls_earned.name = "SoulsEarned"
-	_own(_souls_earned)
+	_named.add(_souls_earned)
 	souls.column.add_child(_souls_earned)
 	_souls_total = UiSkin.label("", Fonts.BODY, UiSkin.TEXT)
 	souls.column.add_child(_souls_total)
@@ -186,26 +177,24 @@ func _build() -> void:
 		hide()
 		continue_requested.emit(), Vector2(260, 58), Fonts.BODY)
 	_continue_button.name = "ContinueButton"
-	_own(_continue_button)
+	_named.add(_continue_button)
 	buttons.add_child(_continue_button)
 	_restart_button = UiParts.button(tr("Try again"), func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_click)
 		restart_requested.emit(), Vector2(240, 58), Fonts.BODY)
 	_restart_button.name = "RestartButton"
-	_own(_restart_button)
+	_named.add(_restart_button)
 	buttons.add_child(_restart_button)
 	var title_button := UiParts.button(tr("Title screen"), func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_click)
 		title_requested.emit(), Vector2(240, 58), Fonts.BODY)
 	title_button.name = "TitleButton"
-	_own(title_button)
+	_named.add(title_button)
 	buttons.add_child(title_button)
 	_continue_note = UiParts.text(tr("Keep going: endless floors, harder and harder. Your win is already counted."), Fonts.BODY, UiSkin.DIM, WIDTH - 60)
 	_continue_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_dialog.body.add_child(_continue_note)
-	for node in _named:
-		node.owner = self
-		node.unique_name_in_owner = true
+	_named.expose_to(self)
 	leaderboards = LeaderboardsPanel.new()
 	leaderboards.name = "LeaderboardsPanel"
 	add_child(leaderboards)
@@ -218,7 +207,3 @@ func _build() -> void:
 func back() -> bool:
 	return leaderboards != null and leaderboards.back()
 
-
-## Reachable as %Name from the panel (tests, other scripts), once built.
-func _own(node: Node) -> void:
-	_named.append(node)

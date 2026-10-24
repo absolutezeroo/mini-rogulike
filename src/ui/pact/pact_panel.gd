@@ -24,7 +24,8 @@ var _elites: Label
 var _reward: Label
 var _cost: Label
 var _swear: Button
-var _named: Array[Node] = []
+## Built nodes reachable as %Name once the panel is built.
+var _named := ExposedNodes.new()
 
 
 func _ready() -> void:
@@ -76,7 +77,7 @@ func _build() -> void:
 	_dialog = RpgDialog.new("", WIDTH, 0.8)
 	add_child(_dialog)
 	_dialog.title_label.name = "Title"
-	_own(_dialog.title_label)
+	_named.add(_dialog.title_label)
 	var top := HBoxContainer.new()
 	top.add_theme_constant_override("separation", 16)
 	_dialog.body.add_child(top)
@@ -86,42 +87,42 @@ func _build() -> void:
 	_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_icon.name = "Icon"
-	_own(_icon)
+	_named.add(_icon)
 	top.add_child(_icon)
 	_lore = UiParts.text("", Fonts.BODY, UiSkin.TEXT, WIDTH - 160)
 	_lore.name = "Lore"
 	_lore.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_own(_lore)
+	_named.add(_lore)
 	top.add_child(_lore)
 
 	var cards := HBoxContainer.new()
 	cards.name = "Cards"
 	cards.alignment = BoxContainer.ALIGNMENT_CENTER
 	cards.add_theme_constant_override("separation", 14)
-	_own(cards)
+	_named.add(cards)
 	_dialog.body.add_child(cards)
 	var rule_card := _card(cards, tr("The rule"))
 	_rule = UiSkin.label("", Fonts.BODY, UiSkin.TEXT, true)
 	_rule.name = "Rule"
-	_own(_rule)
+	_named.add(_rule)
 	rule_card.add_child(_rule)
 	_elites = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
 	_elites.name = "Elites"
-	_own(_elites)
+	_named.add(_elites)
 	rule_card.add_child(_elites)
 	_seal_note = UiSkin.label("", Fonts.BODY, UiSkin.DIM, true)
 	_seal_note.name = "SealNote"
-	_own(_seal_note)
+	_named.add(_seal_note)
 	rule_card.add_child(_seal_note)
 	var kept_card := _card(cards, tr("Kept"))
 	_reward = UiSkin.label("", Fonts.BODY, UiSkin.GOOD, true)
 	_reward.name = "Reward"
-	_own(_reward)
+	_named.add(_reward)
 	kept_card.add_child(_reward)
 	var broken_card := _card(cards, tr("Broken"))
 	_cost = UiSkin.label("", Fonts.BODY, UiSkin.BAD, true)
 	_cost.name = "Cost"
-	_own(_cost)
+	_named.add(_cost)
 	broken_card.add_child(_cost)
 	broken_card.add_child(UiSkin.label(tr("The fight goes on: the door opens once the waves are slain."), Fonts.BODY, UiSkin.DIM, true))
 
@@ -131,19 +132,17 @@ func _build() -> void:
 	_dialog.body.add_child(buttons)
 	_swear = UiParts.button(tr("Swear the pact"), swear, Vector2(320, 60), Fonts.BODY)
 	_swear.name = "SwearButton"
-	_own(_swear)
+	_named.add(_swear)
 	buttons.add_child(_swear)
 	var leave := UiParts.button(tr("Leave"), close, Vector2(200, 60), Fonts.BODY)
 	PromptGlyph.badge(leave, &"ui_cancel", PromptGlyph.Place.INSIDE)  # Back leaves too
 	leave.name = "LeaveButton"
-	_own(leave)
+	_named.add(leave)
 	buttons.add_child(leave)
 	var note := UiSkin.label(tr("Nothing happens. You can come back later."), Fonts.BODY, UiSkin.DIM)
 	note.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	buttons.add_child(note)
-	for node in _named:
-		node.owner = self
-		node.unique_name_in_owner = true
+	_named.expose_to(self)
 
 
 ## A card of the offer: a dark inset with its gold heading; returns the column to fill.
@@ -156,7 +155,3 @@ func _card(row: HBoxContainer, heading: String) -> VBoxContainer:
 	(card.title as Label).add_theme_font_size_override("font_size", Fonts.BODY)
 	return card.column as VBoxContainer
 
-
-## Reachable as %Name from the panel (tests, other scripts), once built.
-func _own(node: Node) -> void:
-	_named.append(node)

@@ -1,16 +1,14 @@
-[gd_resource type="AudioBusLayout" load_steps=7 format=3]
+[gd_resource type="AudioBusLayout" format=3 uid="uid://b2huufv51gt1y"]
 
 [sub_resource type="AudioEffectHardLimiter" id="AudioEffectHardLimiter_master"]
 resource_name = "HardLimiter"
 ceiling_db = -1.0
-release = 0.1
 
 [sub_resource type="AudioEffectReverb" id="AudioEffectReverb_sfx"]
 resource_name = "Reverb"
 room_size = 0.4
 damping = 0.6
 spread = 0.6
-dry = 1.0
 wet = 0.12
 
 [sub_resource type="AudioEffectHighShelfFilter" id="AudioEffectHighShelfFilter_combat"]
@@ -35,12 +33,6 @@ resource_name = "LowPassFilter"
 cutoff_hz = 700.0
 
 [resource]
-bus/0/name = &"Master"
-bus/0/solo = false
-bus/0/mute = false
-bus/0/bypass_fx = false
-bus/0/volume_db = 0.0
-bus/0/send = &""
 bus/0/effect/0/effect = SubResource("AudioEffectHardLimiter_master")
 bus/0/effect/0/enabled = true
 bus/1/name = &"SFX"

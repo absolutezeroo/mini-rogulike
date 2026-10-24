@@ -164,7 +164,8 @@ func run_game(game: Game) -> void:
 func _test_panel(game: Game, debug: DebugPanel) -> void:
 	game.open_debug()
 	await _frames(2)
-	check(debug.visible and debug._tabs.size() == 6 and debug.tab_index() == 0, "the panel opens on its first tab, of six")
+	check(debug.visible and debug.tab_count() == 6 and debug.tab_index() == 0, "the panel opens on its first tab, of six")
+	check(debug.find_child("WorldTab", true, false).get_parent() is TabRow, "its tabs are a TabRow, like every window's")
 	var too_big: Array[String] = []
 	for i in debug._pages.size():
 		debug.show_tab(i)

@@ -28,7 +28,7 @@ var _content: ContentDB
 var _tab := Tab.BESTIARY
 
 var _window: RpgWindow
-var _tab_buttons: Array[Button] = []
+var _tabs: TabRow
 var _souls: Label
 var _intro: VBoxContainer
 var _summary: Label
@@ -41,7 +41,8 @@ var _page: MonsterPage
 ## A warden's fragment, read again from its chronicle.
 var _fragment := FragmentPanel.new()
 var _cards: Array[CodexCard] = []
-var _named: Array[Node] = []
+## Built nodes reachable as %Name once the panel is built.
+var _named := ExposedNodes.new()
 
 
 func _ready() -> void:
@@ -60,10 +61,9 @@ func open(content: ContentDB, tab: int = -1) -> void:
 func show_tab(tab: int) -> void:
 	_tab = tab as Tab
 	Sfx.play_ui(Sfx.bank.ui_click)
-	MenuNavScript.set_first(_window, _tab_buttons[tab])  # keys and pads start on the tab shown
+	MenuNavScript.set_first(_window, _tabs.buttons[tab])  # keys and pads start on the tab shown
 	_close_page()
-	for i in _tab_buttons.size():
-		_tab_buttons[i].set_pressed_no_signal(i == tab)
+	_tabs.select(tab)
 	for child in _list.get_children():
 		_list.remove_child(child)
 		child.queue_free()
@@ -448,27 +448,14 @@ func _build() -> void:
 		hide())
 	add_child(_window)
 	# The tabs, left of the header (the window's own row: Close stays on the right).
-	var tabs := HBoxContainer.new()
-	tabs.add_theme_constant_override("separation", 8)
-	var header := _window.header_right.get_parent()
-	header.add_child(tabs)
-	header.move_child(tabs, 0)
+	_tabs = TabRow.new(false)
+	_tabs.sound = false  # show_tab() clicks
+	_window.header_left.add_child(_tabs)
 	for i in TAB_NAMES.size():
-		var button := Button.new()
-		button.text = tr(TAB_NAMES[i])
-		button.name = "%sTab" % TAB_NAMES[i]
-		button.toggle_mode = true
-		button.add_to_group(MenuNav.TABS)
-		button.custom_minimum_size = Vector2(136, 48)
-		button.add_theme_font_size_override("font_size", Fonts.BODY)
-		button.pressed.connect(func() -> void:
-			if _tab != i or _page.visible:
-				show_tab(i)
-			else:
-				button.set_pressed_no_signal(true))
-		tabs.add_child(button)
-		_tab_buttons.append(button)
-		_own(button)
+		_own(_tabs.add_tab(tr(TAB_NAMES[i]), "%sTab" % TAB_NAMES[i]))
+	_tabs.picked.connect(func(i: int) -> void:
+		if _tab != i or _page.visible:
+			show_tab(i))
 	_souls = UiSkin.label("", Fonts.BODY, CodexRows.SOUL)
 	_souls.name = "Souls"
 	_souls.tooltip_text = tr("Souls are kept between runs. Spend them at the Shrine.")
@@ -522,11 +509,9 @@ func _build() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		_fragment.open(fragment, boss))
 	_own(_fragment)
-	for node in _named:
-		node.owner = self
-		node.unique_name_in_owner = true
+	_named.expose_to(self)
 
 
 ## Reachable as %Name from the panel (tests, other scripts), once built.
 func _own(node: Node) -> void:
-	_named.append(node)
+	_named.add(node)

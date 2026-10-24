@@ -67,35 +67,28 @@ var _belt_slots: Array[ItemSlot] = []
 ## The bag's slots shown (items first, then the free places), in order.
 var _bag_slots: Array[ItemSlot] = []
 var _tabs: Array[BagTab] = []
+var _tab_row: TabRow
 var _category_name: Label
 ## "Over its places": a compartment holding more than it has room for (an old save).
 var _over_note: Label
 var _portrait: HeroPortrait
 var _stats: GridContainer
-var _bag_title: Label
 var _item_grid: GridContainer
-var _card_slot: ItemSlot
-var _item_name: Label
-var _item_type: Label
-var _item_details: Label
+## The picked item (ItemCard, as the merchant's).
+var _card: ItemCard
 var _details_scroll: ScrollContainer
 ## The right stick's cap by the card, while its details are longer than their box.
 var _scroll_hint: Control
 var _sockets: HBoxContainer
-var _use_button: Button
-var _drop_button: Button
-var _belt_button: Button
 var _dismantle_button: Button
 ## The card's "Dismantle value: 12 gold" line.
 var _dismantle_note: Label
 var _worse_button: Button
 ## "Dismantle the worse": the list, the gold, Dismantle / Keep them.
-var _confirm: RpgDialog
-var _confirm_text: Label
-var _confirm_items: HFlowContainer
-var _confirm_yes: Button
+var _confirm: DismantleWorseDialog
 var _gold: Label
-var _named: Array[Node] = []
+## Built nodes reachable as %Name once the panel is built.
+var _named := ExposedNodes.new()
 var _build_window: BuildWindow
 var _perks_button: Button
 
@@ -319,9 +312,9 @@ func _update_tabs(grouped: Array[Dictionary]) -> void:
 
 
 func _update_tab_buttons() -> void:
-	for i in _tabs.size():
-		_tabs[i].set_pressed_no_signal(i == _category)
-		_tabs[i].queue_redraw()
+	_tab_row.select(_category)
+	for bag_tab in _tabs:
+		bag_tab.queue_redraw()
 
 
 func _tab_shown(index: int, grouped: Array[Dictionary]) -> bool:
@@ -347,9 +340,6 @@ func _know_worn() -> void:
 
 
 func _fill_stats() -> void:
-	for child in _stats.get_children():
-		_stats.remove_child(child)
-		child.queue_free()
 	var stats := _player.get_stats()
 	var lines := [
 		[tr("Level"), str(_player.level)],
@@ -362,12 +352,7 @@ func _fill_stats() -> void:
 		[tr("Skill damage"), tr("%+d%%") % roundi(stats.skill_power * 100.0)],
 		[tr("Skill recharge"), tr("%+d%%") % roundi(minf(stats.cooldown_reduction, SkillSet.MAX_COOLDOWN_REDUCTION) * 100.0)],
 	]
-	for line: Array in lines:
-		_stats.add_child(UiSkin.label(line[0], Fonts.BODY, UiSkin.DIM))
-		var value := UiSkin.label(line[1], Fonts.BODY, UiSkin.TEXT)
-		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		_stats.add_child(value)
+	UiParts.stat_rows(_stats, lines)
 
 
 ## The pick shown on the slots (the pulsing frame) and on the card.
@@ -413,37 +398,22 @@ func _refresh_details() -> void:
 	if _armed_action:
 		_dismantle_note.visible = true
 		_dismantle_note.text = _armed_action.confirm_note(selection)
-	_card_slot.item = item
-	_card_slot.count = _player.belt.count_at(_selected_belt) if selection.on_belt() else (_player.inventory.count_of(item) if selection.in_bag() else 1)
-	for child in _sockets.get_children():
-		_sockets.remove_child(child)
-		child.queue_free()
+	UiParts.clear(_sockets)
 	if item == null:
-		_item_name.text = tr("Pick an item")
-		_item_name.add_theme_color_override("font_color", UiSkin.GOLD)
-		_item_type.text = tr("Choose a slot to see what it does.")
-		_item_details.text = ""
+		_card.show_empty(tr("Pick an item"), tr("Choose a slot to see what it does."))
 		return
-	_item_name.text = tr(item.display_name)
-	_item_name.add_theme_color_override("font_color", item.rarity_color())
-	_item_type.text = item.get_type_label()
-	_item_details.text = item.get_details() + _compare_text(item)
-	_details_scroll.scroll_vertical = 0
-	_fill_sockets(item as EquipmentDef)
-
-
-## Equipment in the bag: what wearing it would change ("Compared with your Katana: +3 item
-## levels, +5 damage..."). Empty for what is worn and for anything else.
-func _compare_text(item: ItemDef) -> String:
+	_card.show_item(item, _player.belt.count_at(_selected_belt) if selection.on_belt() else (_player.inventory.count_of(item) if selection.in_bag() else 1))
+	# Gear in the bag: what wearing it would change (green better, red worse; nothing for what
+	# is worn).
 	var equipment := item as EquipmentDef
-	if equipment == null or _selected_slot != NO_SLOT:
-		return ""
-	var worn := _player.equipment.get_item(equipment.slot)
-	if worn == equipment:
-		return ""
-	var changes := ItemCompare.lines(equipment, worn).map(func(change: Dictionary) -> String: return change.text)
-	var compared := tr("{heading} {changes}").format({ "heading": ItemCompare.heading(equipment, worn), "changes": ", ".join(changes) if not changes.is_empty() else tr("the same stats") })
-	return "\n\n" + compared  # (a blank line: layout, not words)
+	if equipment and _selected_slot == NO_SLOT:
+		_card.show_compare(equipment, _player.equipment.get_item(equipment.slot))
+	_fill_sockets(equipment)
+
+
+## The card's words: details and comparison (tests).
+func card_text() -> String:
+	return _card.text()
 
 
 ## A weapon's rune sockets, as slots (set at a forge).
@@ -609,28 +579,10 @@ func _on_worse_pressed() -> void:
 		return
 	Sfx.play_ui(Sfx.bank.ui_open)
 	_disarm()
-	var gold := 0
-	var shown := Inventory.new(worse.size())
-	for item in worse:
-		gold += Player.DISMANTLE.gold_for(item)
-		shown.add(item)
-	_confirm_text.text = (tr("Dismantle 1 piece of gear worse than what you wear, for %d gold?") % gold) if worse.size() == 1 \
-		else tr("Dismantle %d pieces of gear worse than what you wear, for %d gold?") % [worse.size(), gold]
-	UiParts.clear(_confirm_items)
-	for entry in shown.grouped():
-		var slot := ItemSlot.new(58.0)
-		slot.item = entry.item
-		slot.count = entry.count
-		slot.tooltip_text = tr(entry.item.display_name)
-		slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		slot.focus_mode = Control.FOCUS_NONE
-		_confirm_items.add_child(slot)
-	_confirm_yes.text = tr("Dismantle: +%d gold") % gold
-	_confirm.show()
+	_confirm.ask(worse)
 
 
 func _on_worse_confirmed() -> void:
-	_confirm.hide()
 	_player.dismantle_all(_player.worse_gear(_category))
 	if _selected_item:
 		_keep_stack_selected()
@@ -676,9 +628,7 @@ func _build() -> void:
 	_build_bag(columns)
 	_build_card(columns)
 	_build_confirm()
-	for node in _named:
-		node.owner = self
-		node.unique_name_in_owner = true
+	_named.expose_to(self)
 	add_child(_build_window)  # over the bag
 
 
@@ -692,7 +642,7 @@ func _build_hero(columns: HBoxContainer) -> void:
 	hero.column.add_child(gear_row)
 	_portrait = HeroPortrait.new()
 	_portrait.name = "Portrait"
-	_own(_portrait)
+	_named.add(_portrait)
 	gear_row.add_child(_portrait)
 	for slot: EquipmentDef.Slot in [EquipmentDef.Slot.WEAPON, EquipmentDef.Slot.HEAD, EquipmentDef.Slot.BODY]:
 		var button := ItemSlot.new(GEAR_SLOT)
@@ -702,7 +652,7 @@ func _build_hero(columns: HBoxContainer) -> void:
 		button.pressed.connect(_select_slot.bind(slot, true))
 		button.focus_entered.connect(_on_slot_focused.bind(button))
 		button.gui_input.connect(_on_slot_input.bind(button))
-		_own(button)
+		_named.add(button)
 		gear_row.add_child(button)
 		_slot_buttons[slot] = button
 	hero.column.add_child(UiSkin.label(tr("Belt"), Fonts.BODY, UiSkin.GOLD))
@@ -716,7 +666,7 @@ func _build_hero(columns: HBoxContainer) -> void:
 		button.pressed.connect(_select_belt.bind(i, true))
 		button.focus_entered.connect(_on_slot_focused.bind(button))
 		button.gui_input.connect(_on_slot_input.bind(button))
-		_own(button)
+		_named.add(button)
 		belt_row.add_child(button)
 		_belt_slots.append(button)
 	_stats = GridContainer.new()
@@ -730,19 +680,20 @@ func _build_hero(columns: HBoxContainer) -> void:
 ## Middle: the tabs, the tab's name between its keys, the bag's slots, Dismantle the worse.
 func _build_bag(columns: HBoxContainer) -> void:
 	var bag: Dictionary = RpgWindow.section(tr("Bag"))
-	_bag_title = bag.title
 	columns.add_child(bag.box)
-	var tabs_row := HBoxContainer.new()
-	tabs_row.name = "BagTabs"
-	tabs_row.add_theme_constant_override("separation", 4)
-	tabs_row.custom_minimum_size.x = BAG_COLUMNS * (BAG_SLOT + 6) - 2
-	bag.column.add_child(tabs_row)
+	# The compartments: a TabRow of BagTabs (their keys' caps stand around the name below).
+	_tab_row = TabRow.new(false)
+	_tab_row.name = "BagTabs"
+	_tab_row.sound = false  # show_category() clicks
+	_tab_row.add_theme_constant_override("separation", 4)
+	_tab_row.custom_minimum_size.x = BAG_COLUMNS * (BAG_SLOT + 6) - 2
+	bag.column.add_child(_tab_row)
 	for i in CATEGORIES.categories.size():
 		var bag_tab := BagTab.new(CATEGORIES.categories[i])
-		bag_tab.pressed.connect(show_category.bind(i))
-		tabs_row.add_child(bag_tab)
+		_tab_row.add_button(bag_tab)
 		_tabs.append(bag_tab)
-		_own(bag_tab)
+		_named.add(bag_tab)
+	_tab_row.picked.connect(show_category)
 	var naming := HBoxContainer.new()
 	naming.add_theme_constant_override("separation", 6)
 	bag.column.add_child(naming)
@@ -752,14 +703,14 @@ func _build_bag(columns: HBoxContainer) -> void:
 	_category_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_category_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_category_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART  # a long name never widens the bag
-	_own(_category_name)
+	_named.add(_category_name)
 	naming.add_child(_category_name)
 	naming.add_child(PromptGlyph.make(&"menu_next_tab"))
 	_over_note = UiSkin.label(tr("More than it has room for: make room before anything new goes in."), Fonts.BODY, UiSkin.BAD, true)
 	_over_note.name = "OverNote"
 	_over_note.custom_minimum_size.x = BAG_COLUMNS * (BAG_SLOT + 6) - 2
 	_over_note.hide()
-	_own(_over_note)
+	_named.add(_over_note)
 	bag.column.add_child(_over_note)
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -771,7 +722,7 @@ func _build_bag(columns: HBoxContainer) -> void:
 	_item_grid.name = "ItemGrid"
 	_item_grid.add_theme_constant_override("h_separation", 6)
 	_item_grid.add_theme_constant_override("v_separation", 6)
-	_own(_item_grid)
+	_named.add(_item_grid)
 	scroll.add_child(_item_grid)
 	_worse_button = _button(tr("Dismantle the worse (%d)") % 0, "DismantleWorseButton", _on_worse_pressed)
 	_worse_button.add_theme_font_size_override("font_size", Fonts.BODY)
@@ -783,25 +734,15 @@ func _build_bag(columns: HBoxContainer) -> void:
 
 ## Right: the picked item, and what to do with it (each action's button, its key on it).
 func _build_card(columns: HBoxContainer) -> void:
-	var card: Dictionary = RpgWindow.section(tr("Item"), true)
+	var card: Dictionary = RpgWindow.section(tr("Item"))
 	(card.box as Control).size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	columns.add_child(card.box)
 	(card.title as Label).hide()
-	var top := HBoxContainer.new()
-	top.add_theme_constant_override("separation", 12)
-	card.column.add_child(top)
-	_card_slot = ItemSlot.new(84.0)
-	_card_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_card_slot.focus_mode = Control.FOCUS_NONE
-	top.add_child(_card_slot)
-	var naming := VBoxContainer.new()
-	naming.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	naming.alignment = BoxContainer.ALIGNMENT_CENTER
-	top.add_child(naming)
-	_item_name = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
-	naming.add_child(_item_name)
-	_item_type = UiSkin.label("", Fonts.BODY, UiSkin.DIM, true)
-	naming.add_child(_item_type)
+	_card = ItemCard.build(card.column, 84.0)
+	_details_scroll = _card.details_scroll
+	_details_scroll.name = "DetailsScroll"
+	_named.add(_details_scroll)
+	_card.details.name = "ItemDetails"
 	# The right stick scrolls a long card: its cap, top right, while there is more to see.
 	_scroll_hint = Control.new()
 	_scroll_hint.name = "ScrollHint"
@@ -811,25 +752,15 @@ func _build_card(columns: HBoxContainer) -> void:
 	var scroll_glyph := PromptGlyph.make(&"menu_scroll")
 	_scroll_hint.add_child(scroll_glyph)
 	scroll_glyph.resized.connect(func() -> void: _scroll_hint.custom_minimum_size.x = scroll_glyph.size.x)
-	_own(_scroll_hint)
-	top.add_child(_scroll_hint)
-	_details_scroll = ScrollContainer.new()
-	_details_scroll.name = "DetailsScroll"
-	_details_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_details_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_own(_details_scroll)
-	card.column.add_child(_details_scroll)
-	_item_details = UiSkin.label("", Fonts.BODY, UiSkin.TEXT, true)
-	_item_details.name = "ItemDetails"
-	_item_details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_details_scroll.add_child(_item_details)
+	_named.add(_scroll_hint)
+	_card.top.add_child(_scroll_hint)
 	_sockets = HBoxContainer.new()
 	_sockets.alignment = BoxContainer.ALIGNMENT_BEGIN
 	_sockets.add_theme_constant_override("separation", 6)
 	card.column.add_child(_sockets)
 	_dismantle_note = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
 	_dismantle_note.name = "DismantleNote"
-	_own(_dismantle_note)
+	_named.add(_dismantle_note)
 	card.column.add_child(_dismantle_note)
 	# Room over the buttons for their keys' caps (PromptGlyph.badge: over their top edge).
 	var room := Control.new()
@@ -849,57 +780,22 @@ func _build_card(columns: HBoxContainer) -> void:
 		_action_buttons[action] = button
 		if action.input != &"":
 			PromptGlyph.badge(button, action.input, PromptGlyph.Place.TOP)
-	_use_button = _action_buttons[_actions[0]]
-	_belt_button = _action_buttons[_actions[1]]
-	_drop_button = _action_buttons[_actions[2]]
 	_dismantle_button = _action_buttons[_actions[3]]
 
 
 func _build_confirm() -> void:
-	_confirm = RpgDialog.new(tr("Dismantle the worse"), 640.0)
-	_confirm.name = "DismantleConfirm"
-	_confirm.hide()
+	_confirm = DismantleWorseDialog.new()
+	_confirm.confirmed.connect(_on_worse_confirmed)
 	add_child(_confirm)  # over the window (the build window comes over both)
-	_confirm_text = UiParts.text("", Fonts.BODY, UiSkin.TEXT, 580.0)
-	_confirm_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_confirm.body.add_child(_confirm_text)
-	_confirm_items = HFlowContainer.new()
-	_confirm_items.alignment = FlowContainer.ALIGNMENT_CENTER
-	_confirm_items.custom_minimum_size.x = 580.0
-	_confirm_items.add_theme_constant_override("h_separation", 6)
-	_confirm_items.add_theme_constant_override("v_separation", 6)
-	_confirm.body.add_child(_confirm_items)
-	var note := UiParts.text(tr("What you wear, potions, runes, tomes and keys are never touched."), Fonts.BODY, UiSkin.DIM, 580.0)
-	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_confirm.body.add_child(note)
-	var buttons := HBoxContainer.new()
-	buttons.add_theme_constant_override("separation", 12)
-	_confirm.body.add_child(buttons)
-	_confirm_yes = UiParts.button(tr("Dismantle"), _on_worse_confirmed, Vector2(0, 56), Fonts.BODY)
-	_confirm_yes.name = "ConfirmDismantleButton"
-	_confirm_yes.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_own(_confirm_yes)
-	buttons.add_child(_confirm_yes)
-	var keep := UiParts.button(tr("Keep them"), func() -> void:
-		Sfx.play_ui(Sfx.bank.ui_close)
-		_confirm.hide(), Vector2(0, 56), Fonts.BODY)
-	keep.name = "KeepButton"
-	keep.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_own(keep)
-	buttons.add_child(keep)
+	_named.add(_confirm.yes_button)
+	_named.add(_confirm.keep_button)
 
 
+## A card's button (three in a row on a 16:9 phone: Equip, Drop, Dismantle).
 func _button(text: String, node_name: String, callback: Callable) -> Button:
-	var button := Button.new()
-	button.text = text
+	var button := UiParts.button(text, callback, Vector2(96, 52))
 	button.name = node_name
-	button.custom_minimum_size = Vector2(96, 52)  # three in a row on a 16:9 phone (Equip, Drop, Dismantle)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.pressed.connect(callback)
-	_own(button)
+	_named.add(button)
 	return button
 
-
-## Reachable as %Name from the panel (tests, other scripts), once built.
-func _own(node: Node) -> void:
-	_named.append(node)

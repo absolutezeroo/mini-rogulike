@@ -399,6 +399,31 @@ most phones (1080 lines), x2 on 1440.
 - A wrapped line never splits a stat from its number (the HUD's info line uses unbreakable
   spaces).
 
+## Shared pieces (one way to build each)
+
+Every window is built from the same pieces in `src/ui/common/`, so they look and behave alike:
+
+- **The board**: `OrnateBoard`, the wood with its gold ornate border, under both `RpgWindow`
+  (full screen) and `RpgDialog` (centred). `RpgWindow`'s header is `header_left`, a spacer,
+  `header_right`, Back's key and `close_button`: windows add to its parts, never reach into the
+  row by index (`MenuWindow` gives `header_left` the room for a line of text).
+- **Tabs**: `TabRow`, for the options, the codex, the bag (its `BagTab`s), the debug panel and
+  the leaderboards (the boards and the Toll; the periods are a second row, not menu tabs): toggle
+  buttons of one size (136x44 at least), the one shown pressed, a click when another is picked,
+  the tab keys' cap before them, the group `menu_tabs` (Q / E, LB / RB).
+- **The item card**: `ItemCard`, the bag's and the merchant's: slot, name in its rarity, type,
+  details, the comparison with what is worn in green and red lines.
+- **Small helpers**: `UiParts.button()` (built on `MenuWindow.button()`, the one button
+  factory), `UiParts.stat_rows()` (the bag's stats, the end of a run), `UiParts.bullet()` (a
+  dash, then a wrapped line: never "- " glued to a sentence), `ExposedNodes` (a panel's built
+  nodes reachable as %Name once it is built), `OptionRows` (the options' rows; `PrivacyPage` and
+  `ControlsPage` are pages of their own), `HudEventCard` (the Threshold's and the Deeps' name and
+  rule across the screen and their banner).
+- **Colors**: `UiSkin` names the interface's colors once: `TEXT`, `GOLD` (= `Palette.GOLD`),
+  `DIM`, `GOOD`, `BAD` and the dim `backdrop()` behind windows; no panel keeps its own copy (a
+  unit check). Scenes (`.tscn`) still write the gold as its value.
+- **"Tap or press to continue"**: `TapGate` (Devices, above).
+
 ## Bag, forge and the other in-run screens
 
 The bag, the forge, the shop, encounters, perk choices, the pause menu and the end of a run are drawn in the game's RPG skin (`UiSkin`, `src/ui/common/`): a wooden
@@ -413,8 +438,10 @@ stones lit in their runes' colors. The selected slot pulses gold.
   world, his weapon slung on his back with its elements, his armor with its rarity's trim and its
   affixes' marks, idling at 4 screen pixels per art pixel, 20x22 art pixels); the bag in the middle, one compartment at a time (its tab), and under it
   **Dismantle the worse (n)** (the tab's worse gear); the picked item's card on the right (name in its rarity,
-  type, every line of its details, its rune sockets, for gear in the bag "Dismantle value: 12
-  gold") with its actions' buttons. Dismantle the worse opens a confirmation (`RpgDialog`): how
+  type, every line of its details, for gear in the bag how it compares with what is worn, as at
+  the merchant: a gold heading, each change in green or red (`ItemCard`, shared with the shop),
+  its rune sockets, for gear in the bag "Dismantle value: 12
+  gold") with its actions' buttons. Dismantle the worse opens a confirmation (`DismantleWorseDialog`, an `RpgDialog`): how
   many and the gold, their slots, "what you wear, potions, runes, tomes and keys are never
   touched", Dismantle: +n gold / Keep them. Gold won flies as coins to the counter (`GoldBurst`)
   with the coin sound.

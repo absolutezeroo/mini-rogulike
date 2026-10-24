@@ -77,7 +77,7 @@ func _has_sheen() -> bool:
 
 func _draw() -> void:
 	var area := Rect2(Vector2.ZERO, size)
-	draw_style_box(_slot_box(), area)
+	draw_style_box(slot_box(), area)
 	if is_hovered() and not disabled:
 		draw_rect(area.grow(-9), Color(1, 0.9, 0.6, 0.08))
 	if item:
@@ -86,12 +86,12 @@ func _draw() -> void:
 			draw_rect(area.grow(-9), Color(frame_color, 0.16))  # a glow of its rarity inside
 		var inner := area.grow(-9)
 		if item.icon:
-			var icon_rect := _fit(item.icon, inner)
+			var icon_rect := fit(item.icon, inner)
 			draw_texture_rect(item.icon, icon_rect, false, item.icon_tint if not disabled else Color(item.icon_tint, 0.4))
 			if _has_sheen():
 				_draw_sheen(icon_rect)
 		if frame_color.a > 0.0:
-			draw_style_box(_frame_box(frame_color), area.grow(-3))
+			draw_style_box(frame_box(frame_color), area.grow(-3))
 		_draw_sockets(area)
 		_draw_level()
 		if count > 1:
@@ -104,7 +104,7 @@ func _draw() -> void:
 		draw_fresh(self, Vector2(size.x - 5, 5))
 	if selected:
 		var pulse := 0.75 + 0.25 * sin(_time * 5.0)
-		draw_style_box(_frame_box(Color(1.0, 0.85, 0.35, pulse)), area.grow(2))
+		draw_style_box(frame_box(Color(1.0, 0.85, 0.35, pulse)), area.grow(2))
 
 
 ## The "new" mark: a small gold gem, its top right corner at `corner` (on the 2-unit grid of the
@@ -189,13 +189,8 @@ func _text(words: String, at: Vector2, align: HorizontalAlignment, font_size: in
 	Fonts.draw(self, at, words, font_size, color, 1.0 if align == HORIZONTAL_ALIGNMENT_RIGHT else (0.5 if align == HORIZONTAL_ALIGNMENT_CENTER else 0.0))
 
 
-## The biggest whole-pixel scale of `texture` that fits in `box`, centred.
 ## `texture`'s rect in `box`: centred, at the biggest whole scale that fits (pixels stay square).
 static func fit(texture: Texture2D, box: Rect2) -> Rect2:
-	return _fit(texture, box)
-
-
-static func _fit(texture: Texture2D, box: Rect2) -> Rect2:
 	var source := texture.get_size()
 	var factor := floorf(minf(box.size.x / source.x, box.size.y / source.y))
 	if factor < 1.0:
@@ -210,10 +205,6 @@ static var _frames := {}
 
 ## The wooden slot's style (the HUD's action bar draws its slots with it).
 static func slot_box() -> StyleBoxTexture:
-	return _slot_box()
-
-
-static func _slot_box() -> StyleBoxTexture:
 	if _slot == null:
 		_slot = StyleBoxTexture.new()
 		_slot.texture = UiSkin.SLOT
@@ -224,10 +215,6 @@ static func _slot_box() -> StyleBoxTexture:
 
 ## The rarity frame's style, in `color` (the bag's tabs frame the one shown with it).
 static func frame_box(color: Color) -> StyleBoxTexture:
-	return _frame_box(color)
-
-
-static func _frame_box(color: Color) -> StyleBoxTexture:
 	var key := color.to_html()
 	if not _frames.has(key):
 		var box := StyleBoxTexture.new()

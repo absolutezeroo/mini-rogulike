@@ -100,6 +100,8 @@ func _ready() -> void:
 	Events.quest_completed.connect(func(quest: Dictionary) -> void:
 		var done := tr("Daily quest done: %s  (+%d souls)") if (quest.def as QuestDef).period == QuestDef.Period.DAILY else tr("Weekly quest done: %s  (+%d souls)")
 		toast(done % [QuestBoard.text(quest), quest.reward]))
+	# An ambush springs: its banner (the HUD listens itself: gameplay only tells, Events).
+	Events.ambush_started.connect(func(_room: AmbushRoom) -> void: show_banner(tr("Ambush!"), Palette.DANGER))
 	# A cinematic (a warden's story) takes the screen: the HUD steps aside until it is over.
 	Events.cinematic_started.connect(func() -> void: visible = false)
 	Events.cinematic_finished.connect(func() -> void: visible = true)

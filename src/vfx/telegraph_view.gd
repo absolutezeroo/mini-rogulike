@@ -12,6 +12,10 @@ const SHADER := preload("res://assets/shaders/telegraph.gdshader")
 const LANE_LENGTH := 150.0
 ## Width of a lane (a shot's path, a little wider than the shot).
 const LANE_WIDTH := 8.0
+## The danger colors every threat on the floor shares (telegraph.gdshader's `color` and its
+## edge's light; CellWarning): the red, and the pale red its rim turns as the hit comes.
+const DANGER := Color(1.0, 0.22, 0.2)
+const DANGER_EDGE := Color(1.0, 0.85, 0.8)
 
 var _extent := 60.0
 var _look: ShaderMaterial
@@ -22,6 +26,7 @@ var _light: LightSource
 func _init() -> void:
 	_look = ShaderMaterial.new()
 	_look.shader = SHADER
+	_look.set_shader_parameter("color", DANGER)
 	material = _look
 	visible = false
 	# On the floor, under whoever stands in it (docs/vfx.md, "Layers").

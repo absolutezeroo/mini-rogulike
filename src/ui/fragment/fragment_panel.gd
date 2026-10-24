@@ -18,7 +18,8 @@ var _place: Label
 var _lines: VBoxContainer
 var _kept: Label
 var _close: Button
-var _named: Array[Node] = []
+## Built nodes reachable as %Name once the panel is built.
+var _named := ExposedNodes.new()
 var _gate := TapGate.new(TapGate.Keys.ANY, OPEN_GRACE_FRAMES)
 
 
@@ -122,6 +123,5 @@ func _build() -> void:
 	PromptGlyph.badge(_close, &"ui_cancel", PromptGlyph.Place.INSIDE)
 	_dialog.body.add_child(_close)
 	for node: Node in [_source, _place, _lines, _kept, _close]:
-		_named.append(node)
-		node.owner = self
-		node.unique_name_in_owner = true
+		_named.add(node)
+	_named.expose_to(self)

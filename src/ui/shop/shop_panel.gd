@@ -37,18 +37,15 @@ var _bag: GridContainer
 var _bag_note: Label
 var _reroll: Button
 var _reroll_note: Label
-var _card_slot: ItemSlot
-var _item_name: Label
-var _item_type: Label
+## The picked item (ItemCard, as the bag's), its price under its name.
+var _card: ItemCard
 var _price: Label
-var _details: Label
-var _compare_title: Label
-var _compare: VBoxContainer
 var _lock_note: Label
 var _buy: Button
 var _sell: Button
 var _lock: Button
-var _named: Array[Node] = []
+## Built nodes reachable as %Name once the panel is built.
+var _named := ExposedNodes.new()
 
 
 func _ready() -> void:
@@ -238,20 +235,12 @@ func _refresh_card() -> void:
 	_lock.visible = _buy.visible
 	_sell.visible = _pick == Pick.OWN and item != null
 	_lock_note.visible = _buy.visible
-	_card_slot.item = item
-	UiParts.clear(_compare)
-	_compare_title.hide()
 	if item == null:
-		_item_name.text = tr("Pick an item")
-		_item_name.add_theme_color_override("font_color", UiSkin.GOLD)
-		_item_type.text = tr("Choose something for sale to see what it does, or one of your things to sell it.")
+		_card.show_empty(tr("Pick an item"), tr("Choose something for sale to see what it does, or one of your things to sell it."),
+			tr("Gold is only for this run: spend it here and at the forge."))
 		_price.text = ""
-		_details.text = tr("Gold is only for this run: spend it here and at the forge.")
 		return
-	_item_name.text = tr(item.display_name)
-	_item_name.add_theme_color_override("font_color", item.rarity_color())
-	_item_type.text = item.get_type_label()
-	_details.text = item.get_details()
+	_card.show_item(item)
 	_fill_compare(item)
 	if _pick == Pick.STOCK:
 		_refresh_buy(_merchant.stock[_pick_index])
@@ -286,21 +275,11 @@ func _refresh_buy(entry: Dictionary) -> void:
 func _fill_compare(item: ItemDef) -> void:
 	var equipment := item as EquipmentDef
 	if equipment:
-		var worn := _player.equipment.get_item(equipment.slot)
-		if worn == equipment:
-			return
-		_compare_title.text = ItemCompare.heading(equipment, worn)
-		_compare_title.show()
-		var changes := ItemCompare.lines(equipment, worn)
-		if changes.is_empty():
-			_compare.add_child(UiSkin.label(tr("the same stats"), Fonts.BODY, UiSkin.DIM))
-		for change in changes:
-			_compare.add_child(UiSkin.label(change.text, Fonts.BODY, UiSkin.GOOD if change.good else UiSkin.BAD))
+		_card.show_compare(equipment, _player.equipment.get_item(equipment.slot))
 	elif item is ConsumableDef and _pick == Pick.STOCK:
 		var carried := _player.carried_count(item)
-		_compare_title.text = tr("You carry %d. It goes on your belt if there is room.") % carried if carried > 0 \
-			else tr("You carry none. It goes on your belt if there is room.")
-		_compare_title.show()
+		_card.show_note(tr("You carry %d. It goes on your belt if there is room.") % carried if carried > 0 \
+			else tr("You carry none. It goes on your belt if there is room."))
 
 
 func _picked_item() -> ItemDef:
@@ -322,20 +301,16 @@ func _build() -> void:
 	_window.close_requested.connect(close)
 	add_child(_window)
 	# The merchant, at the left of the header row (the window's title is on its ribbon).
-	var header := _window.header_right.get_parent() as HBoxContainer
-	var who := HBoxContainer.new()
-	who.add_theme_constant_override("separation", 12)
+	var who := _window.header_left
 	who.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	who.size_flags_stretch_ratio = 20.0
-	header.add_child(who)
-	header.move_child(who, 0)
 	_portrait = TextureRect.new()
 	_portrait.custom_minimum_size = Vector2(56, 56)
 	_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_portrait.name = "Portrait"
-	_own(_portrait)
+	_named.add(_portrait)
 	who.add_child(_portrait)
 	var words := VBoxContainer.new()
 	words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -344,20 +319,20 @@ func _build() -> void:
 	who.add_child(words)
 	_name = UiSkin.label(tr("Merchant"), Fonts.BODY, Color(1, 0.7, 0.35))
 	_name.name = "MerchantName"
-	_own(_name)
+	_named.add(_name)
 	words.add_child(_name)
 	_greeting = UiSkin.label("", Fonts.BODY, UiSkin.TEXT, true)
 	_greeting.name = "Greeting"
-	_own(_greeting)
+	_named.add(_greeting)
 	words.add_child(_greeting)
 	_gold = UiSkin.label("", Fonts.BODY, UiSkin.GOLD)
 	_gold.name = "Gold"
-	_own(_gold)
+	_named.add(_gold)
 	_window.header_right.add_child(_gold)
-	var close_button := header.get_child(header.get_child_count() - 1) as Button
+	var close_button := _window.close_button
 	close_button.text = tr("Leave")
 	close_button.name = "CloseButton"
-	_own(close_button)
+	_named.add(close_button)
 
 	var columns := HBoxContainer.new()
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -376,13 +351,13 @@ func _build() -> void:
 	_for_sale.name = "ForSale"
 	_for_sale.add_theme_constant_override("h_separation", 8)
 	_for_sale.add_theme_constant_override("v_separation", 6)
-	_own(_for_sale)
+	_named.add(_for_sale)
 	sale_scroll.add_child(_for_sale)
 	_reroll = UiParts.button(tr("Reroll"), _reroll_stock, Vector2(0, 50), Fonts.BODY)
 	_reroll.name = "RerollButton"
 	_reroll.icon = load("res://assets/ui/icons/reroll.png")
 	_reroll.expand_icon = false
-	_own(_reroll)
+	_named.add(_reroll)
 	sale.column.add_child(_reroll)
 	_reroll_note = UiParts.text("", Fonts.BODY, UiSkin.DIM, STOCK_COLUMNS * (STOCK_SLOT + 8))
 	sale.column.add_child(_reroll_note)
@@ -401,54 +376,23 @@ func _build() -> void:
 	_bag.name = "Bag"
 	_bag.add_theme_constant_override("h_separation", 6)
 	_bag.add_theme_constant_override("v_separation", 6)
-	_own(_bag)
+	_named.add(_bag)
 	bag_column.add_child(_bag)
 	_bag_note = UiParts.text(tr("Your bag and belt are empty."), Fonts.BODY, UiSkin.DIM, BAG_COLUMNS * (BAG_SLOT + 6))
 	bag_column.add_child(_bag_note)
 	mine.column.add_child(UiParts.text(tr("Choose one to see what the merchant pays."), Fonts.BODY, UiSkin.DIM, BAG_COLUMNS * (BAG_SLOT + 6)))
 
 	# Right: the picked item.
-	var card: Dictionary = RpgWindow.section(tr("Item"), true)
+	var card: Dictionary = RpgWindow.section(tr("Item"))
 	(card.box as Control).size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	(card.title as Label).hide()
 	columns.add_child(card.box)
-	var top := HBoxContainer.new()
-	top.add_theme_constant_override("separation", 12)
-	card.column.add_child(top)
-	_card_slot = ItemSlot.new(CARD_SLOT)
-	_card_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	top.add_child(_card_slot)
-	var naming := VBoxContainer.new()
-	naming.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	naming.alignment = BoxContainer.ALIGNMENT_CENTER
-	naming.add_theme_constant_override("separation", 0)
-	top.add_child(naming)
-	_item_name = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
-	naming.add_child(_item_name)
-	_item_type = UiSkin.label("", Fonts.BODY, UiSkin.DIM, true)
-	naming.add_child(_item_type)
+	_card = ItemCard.build(card.column, CARD_SLOT)
 	_price = UiSkin.label("", Fonts.BODY, UiSkin.GOLD)
-	_price.name = "Price"
-	_own(_price)
-	naming.add_child(_price)
-	var details_scroll := UiParts.scroll()
-	details_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	card.column.add_child(details_scroll)
-	var details_column := VBoxContainer.new()
-	details_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	details_column.add_theme_constant_override("separation", 4)
-	details_scroll.add_child(details_column)
-	_details = UiSkin.label("", Fonts.BODY, UiSkin.TEXT, true)
-	_details.name = "Details"
-	_own(_details)
-	details_column.add_child(_details)
-	_compare_title = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
-	details_column.add_child(_compare_title)
-	_compare = VBoxContainer.new()
-	_compare.name = "Compare"
-	_compare.add_theme_constant_override("separation", 0)
-	_own(_compare)
-	details_column.add_child(_compare)
+	_named.add(_price, "Price")
+	_card.naming.add_child(_price)
+	_named.add(_card.details, "Details")
+	_named.add(_card.compare, "Compare")
 	_lock_note = UiSkin.label("", Fonts.BODY, UiSkin.DIM, true)
 	card.column.add_child(_lock_note)
 	var actions := HBoxContainer.new()
@@ -460,26 +404,20 @@ func _build() -> void:
 	# Its words say why it can't buy ("Plus de place pour les grimoires et parchemins : vends
 	# d'abord quelque chose"): on two lines, never a merchant wider than the screen.
 	_buy.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_own(_buy)
+	_named.add(_buy)
 	actions.add_child(_buy)
 	_sell = UiParts.button(tr("Sell"), func() -> void: sell_selected(), Vector2(0, 52), Fonts.BODY)
 	_sell.name = "SellButton"
 	_sell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_sell.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_own(_sell)
+	_named.add(_sell)
 	actions.add_child(_sell)
 	_lock = UiParts.button(tr("Lock"), _toggle_lock, Vector2(130, 52), Fonts.BODY)
 	_lock.name = "LockButton"
-	_own(_lock)
+	_named.add(_lock)
 	actions.add_child(_lock)
-	for node in _named:
-		node.owner = self
-		node.unique_name_in_owner = true
+	_named.expose_to(self)
 
-
-## Reachable as %Name from the panel (tests, other scripts), once built.
-func _own(node: Node) -> void:
-	_named.append(node)
 
 
 ## A slot of the stock: a padlock in its corner when the entry is locked.

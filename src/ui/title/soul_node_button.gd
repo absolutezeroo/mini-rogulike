@@ -38,11 +38,7 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	var area := Rect2(Vector2.ZERO, size)
-	var slot := StyleBoxTexture.new()
-	slot.texture = UiSkin.SLOT
-	for side in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
-		slot.set_texture_margin(side, 15)
-	draw_style_box(slot, area)
+	draw_style_box(ItemSlot.slot_box(), area)  # the bag's wooden slot (one shared box)
 	var owned := node.is_owned()
 	var shut := node.is_shut()
 	var open := node.is_open()

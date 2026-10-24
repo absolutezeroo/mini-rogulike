@@ -6,7 +6,6 @@ class_name UiSkin
 const DIR := "res://assets/ui/rpg/"
 const PANEL: Texture2D = preload("res://assets/ui/rpg/panel.png")
 const INSET: Texture2D = preload("res://assets/ui/rpg/inset.png")
-const INSET_STONE: Texture2D = preload("res://assets/ui/rpg/inset_stone.png")
 const SLOT: Texture2D = preload("res://assets/ui/rpg/slot.png")
 const FRAME: Texture2D = preload("res://assets/ui/rpg/frame.png")
 const RIBBON: Texture2D = preload("res://assets/ui/rpg/ribbon.png")
@@ -40,10 +39,6 @@ static func panel() -> StyleBoxTexture:
 ## A dark recess in the wood (lists, details).
 static func inset() -> StyleBoxTexture:
 	return _box(INSET, 15, 16)
-
-
-static func inset_stone() -> StyleBoxTexture:
-	return _box(INSET, 15, 16)  # (the stone one tiles badly: the same dark wood)
 
 
 ## The red ribbon under a title.
@@ -103,15 +98,16 @@ static func title(text: String) -> PanelContainer:
 	box.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var words := label(text, Fonts.BODY, TEXT)
+	words.name = "Words"  # (RpgWindow.set_title, RpgDialog.title_label)
 	words.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(words)
 	return box
 
 
 ## A PanelContainer drawn as a dark inset.
-static func section(stone := false) -> PanelContainer:
+static func section() -> PanelContainer:
 	var box := PanelContainer.new()
-	box.add_theme_stylebox_override("panel", inset_stone() if stone else inset())
+	box.add_theme_stylebox_override("panel", inset())
 	return box
 
 

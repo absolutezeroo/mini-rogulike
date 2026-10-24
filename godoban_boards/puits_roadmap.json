@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 187,
+  "next_id": 194,
   "tags": [
     "pc",
     "test",
@@ -2762,8 +2762,8 @@
     {
       "id": "task_186",
       "title": "Audit : règles de l'interface",
-      "description": "Audit indépendant de src/ui et src/vfx (24/10). En cours : l'interface ne pilote plus le jeu (quêtes payées par le jeu, serment jamais effacé à l'ouverture), un seul « toucher / appuyer pour continuer » (TapGate), un seul TouchScroll par liste, textes en phrases entières, couleurs d'une seule source, composants partagés, règles de la grille des VFX, code mort.",
-      "status": "in_progress",
+      "description": "Audit indépendant de src/ui et src/vfx (24/10), corrigé :\n- L'interface ne pilote plus le jeu : les quêtes finies sont payées par le jeu (QuestBoard.pay_finished, avec Events.quest_completed : pendant la partie et à l'arrivée sur l'écran titre), le Codex ne fait qu'afficher ; le serment et l'arme de départ passent par Profile.select_oath / select_start_weapon, et ouvrir « Au bord du Puits » ne change plus rien (un serment que l'arbre n'ouvre plus reste enregistré, lu comme « Sans serment »).\n- Un seul « toucher / appuyer pour continuer » (TapGate) pour les cartes d'acte et de malédiction, le fragment, la cinématique, l'histoire et les dialogues : la molette ne passe plus rien, un toucher et le clic qu'il émule comptent une fois, et le toucher qui ferme un panneau n'atteint plus le bouton d'attaque dessous.\n- Un seul TouchScroll par liste (TouchScroll.attach, seul chemin).\n- Textes en phrases entières (HUD, barre de boss, forge, codex, Glas de l'Aube, journal, routes), FR rempli ; la ligne « Histoires des boss » et la confirmation « Abandonner » suivent l'appareil ; couleurs or/bon/mauvais/voile d'une seule source (UiSkin, or = Palette.GOLD).\n- Composants partagés : TabRow (options, codex, sac, debug, classements), HudEventCard (Seuil / Profondeurs), OrnateBoard (RpgWindow et RpgDialog), en-tête de RpgWindow sans recherche par index, ExposedNodes, ItemCard (sac et marchand : comparaison en vert / rouge dans le sac aussi), UiParts.stat_rows / bullet, OptionRows et PrivacyPage, DismantleWorseDialog.\n- VFX sur la grille : empreintes en cellules 4 directions tramées, émote x2 / x4 tramée, nombres de dégâts sur la grille en 3 paliers, avertissement de cases au rouge des télégraphes (clignotement net), taches tramées, rayon simple dans sa rampe.\n- Code mort retiré, pause sans lecture du texte, StatBar.fill_color redessine.\nCaptures avant / après (FR 2340x1080) dans le scratchpad de la session (audit_ui_fix). À vérifier en jeu sur téléphone : le toucher qui ferme un fragment, le rendu des nouveaux VFX en mouvement.",
+      "status": "review",
       "priority": "high",
       "epic_id": "epic_5",
       "due_date": null,
@@ -2773,7 +2773,114 @@
         "vfx"
       ],
       "created_at": 1792814956,
-      "updated_at": 1792814956
+      "updated_at": 1792818511
+    },
+    {
+      "id": "task_187",
+      "title": "Audit UI : Game présentateur → annonces écoutées par le HUD",
+      "description": "Suite de l'audit (world.md 2.2, reporté) : Game appelle encore le HUD ~90 fois (bannières d'acte, d'événement, de malédiction, de salle signature, de boss ; toast de l'exploit d'un gardien). Seule l'embuscade est passée à un écouteur du HUD. À faire : un RunAnnouncer ou des signaux Events écoutés par le HUD, un GameDebug pour les points d'entrée de debug, une seule fonction _transition() pour le bloc copié 5 fois. Reporté pour ne pas croiser le chantier sauvegarde / reprise sur game.gd.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "qualité"
+      ],
+      "created_at": 1792818511,
+      "updated_at": 1792818511
+    },
+    {
+      "id": "task_188",
+      "title": "Audit UI : performances de l'interface et des VFX sur téléphone",
+      "description": "Points perf de l'audit src/ui+vfx laissés pour plus tard : flèche des Profondeurs (961 cellules x 5 tests par image : masques précalculés), ItemSlot._process sur les panneaux cachés (set_process selon sélection / reflet), SplatLayer redessinée entière tant qu'un éclat vole (éclats sur un nœud à part), HUD qui interroge tout à chaque image (ceinture, arme, température, pact_line add_theme_color_override), allocations dans _draw (SoulNodeButton, PixelDraw.bit, StatusFx), queue_redraw inutiles (SwingVfx, BlastVfx, fond du titre à 60 fps), TouchScroll._process sur toutes les listes.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "perf",
+        "ui",
+        "vfx"
+      ],
+      "created_at": 1792818511,
+      "updated_at": 1792818511
+    },
+    {
+      "id": "task_189",
+      "title": "Audit UI : formes lisses restantes dans l'interface",
+      "description": "action_button.gd (cercle et camembert de recharge lisses en 32 pas) et curse_card.gd (sceau en draw_circle / draw_arc / draw_line) dessinent hors de la grille de pixels, contrairement à la barre d'action. Les passer en PixelDraw (anneaux et disques en pas, recharge par rangée de pixels).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "visuel"
+      ],
+      "created_at": 1792818511,
+      "updated_at": 1792818511
+    },
+    {
+      "id": "task_190",
+      "title": "Audit UI : couleurs littérales restantes et or écrit dans les scènes",
+      "description": "Les doublons nommés (or, bon, mauvais, voile) sont réglés (UiSkin, test unitaire). Restent ~90 Color(...) en ligne dans src/ui et src/vfx (item_slot, soul_node_button, action_button, menu_window, codex_rows...) et l'or écrit en valeur dans hud.tscn, title_screen.tscn, act_card.tscn, curse_card.tscn, perk_card.tscn. À nommer dans UiSkin (INK, couleurs des boutons ronds) quand on y touche.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "qualité"
+      ],
+      "created_at": 1792818511,
+      "updated_at": 1792818511
+    },
+    {
+      "id": "task_191",
+      "title": "Audit UI : découpes restantes (forge, butin, debug, titre, HUD)",
+      "description": "La carte d'objet (ItemCard) sert au sac et au marchand ; la forge et l'invite de butin la refont encore. À faire si utile : ItemCard dans la forge et LootPrompt, debug_panel.gd (968 lignes) en pages par onglet, title_screen._ready (88 lignes) découpé, la file des toasts / bannières du HUD en HudMessages, les onglets du Codex en pages (reconstruction par onglet). Choisir aussi une règle unique RpgDialog : hériter ou composer (5 dialogues héritent, 10 composent).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "qualité"
+      ],
+      "created_at": 1792818511,
+      "updated_at": 1792818511
+    },
+    {
+      "id": "task_192",
+      "title": "Audit UI : petits risques restants (minimap, classements, textes hors UI)",
+      "description": "Minimap.bind_world ne se déconnecte jamais de l'ancien monde (sûr tant qu'un seul World vit par Game) ; LeaderboardsPanel : await load_board() qui reprend après la libération du panneau ; AscensionDef colle « %s +%d » dans un display_name ; RunState.place_name_key() renvoie un texte déjà traduit (traduit deux fois). Hors du périmètre UI de l'audit, à reprendre avec le chantier concerné.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "bug",
+        "qualité"
+      ],
+      "created_at": 1792818511,
+      "updated_at": 1792818511
+    },
+    {
+      "id": "task_193",
+      "title": "Vérifier sur téléphone : un toucher = une action (TapGate)",
+      "description": "Les tests poussent le toucher et le clic émulé à la main ; à vérifier sur un vrai téléphone Android : fermer un fragment, passer une carte d'acte ou une cinématique, avancer un dialogue ne déclenche jamais le bouton d'attaque ni une deuxième page, et la molette d'une souris sur PC ne passe plus les cartes.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "playtest",
+        "android",
+        "ui"
+      ],
+      "created_at": 1792818511,
+      "updated_at": 1792818511
     }
   ]
 }

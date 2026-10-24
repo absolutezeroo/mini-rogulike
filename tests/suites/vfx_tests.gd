@@ -28,6 +28,8 @@ func run() -> void:
 	_test_physical_kit()
 	_test_particles()
 	_test_smooth_shapes()
+	_test_grid_rule_breaks()
+	_test_one_ui_palette()
 	_test_telegraphs()
 	_test_layers()
 	_test_own_effects()
@@ -648,6 +650,64 @@ func _test_smooth_shapes() -> void:
 		var source := FileAccess.get_file_as_string(path)
 		var smooth := source.contains("draw_circle(") or source.contains("draw_arc(") or source.contains("draw_polyline(") or source.contains("draw_colored_polygon(")
 		check(not smooth, "smooth shapes: %s draws on the art's grid (PixelDraw)" % path.get_file())
+
+
+## The small effects the audit found off the grid (docs/vfx.md section 1): footprints, emotes,
+## damage numbers, an arena's cell warning, splats and the plain beam now keep whole art
+## pixels, never turn off the grid, fade by dithering (or, for text, in a few cuts) and take
+## their colors from a ramp or the danger red.
+func _test_grid_rule_breaks() -> void:
+	var foot := FootprintVfx.create(Vector2(10.6, 7.3), Vector2(1, 1), Color(0, 0, 0, 0.2))
+	check(foot.rotation == 0.0 and foot.position == PixelDraw.snap(foot.position), "grid: a footprint is never turned and stands on a whole art pixel (%s)" % foot.position)
+	check(FootprintVfx.turned(Vector2.DOWN).has(Vector2i(0, 1)) and FootprintVfx.turned(Vector2.LEFT).has(Vector2i(-1, 0)), "grid: a footprint's sole is turned by whole cells, toward the step")
+	foot.free()
+	for i in 6:
+		var number := FloatingText.create(Vector2(13.3, 9.9), "12", Color.WHITE)
+		check(number.position == PixelDraw.snap(number.position), "grid: a damage number starts on a whole art pixel (%s)" % number.position)
+		number.free()
+	var beam := BeamVfx.create(Vector2(3.3, 5.1), Vector2(40.7, 9.2), Color(0.6, 1.0, 0.7))
+	check(beam.position == PixelDraw.snap(beam.position), "grid: a plain beam starts on the grid")
+	beam.free()
+	var emote := EmoteVfx.create(load("res://icon.svg"), Vector2(5.5, 3.3))
+	check(emote.position == PixelDraw.snap(emote.position), "grid: an emote stands on the grid")
+	emote.free()
+	for path: String in ["res://src/vfx/footprint_vfx.gd", "res://src/vfx/emote_vfx.gd", "res://src/vfx/cell_warning.gd", "res://src/vfx/splat_layer.gd", "res://src/vfx/beam_vfx.gd", "res://src/vfx/floating_text.gd"]:
+		var source := FileAccess.get_file_as_string(path)
+		var breaks := source.contains("rotation =") or source.contains(".a *=") or source.contains("lerpf(") or source.contains("draw_circle(") \
+			or source.contains("Color(_color,") or source.contains("sin(_age")
+		check(not breaks, "grid: %s turns, blends or fades in alpha nowhere" % path.get_file())
+	check(FileAccess.get_file_as_string("res://src/vfx/cell_warning.gd").contains("TelegraphView.DANGER") and not FileAccess.get_file_as_string("res://src/vfx/cell_warning.gd").contains("Color(1"),
+		"grid: an arena's cell warning is in the telegraphs' danger red, no color of its own")
+	var warning := CellWarning.create([Vector2i(1, 1)] as Array[Vector2i], 32, 1.0)
+	var states := {}
+	for frame in 60:
+		warning._age = frame / 60.0
+		states[warning.is_lit()] = true
+	check(states.size() == 2, "grid: the cell warning blinks on and off (no smooth pulse)")
+	warning.free()
+
+
+## One source for the interface's colors (UiSkin; gold is Palette.GOLD): no panel keeps its own
+## gold, good or bad, nor the windows' dim backdrop.
+func _test_one_ui_palette() -> void:
+	check(UiSkin.GOLD == Palette.GOLD, "ui colors: UiSkin's gold is the Palette's")
+	var copies: Array[String] = []
+	for path in _scripts_under("res://src/ui"):
+		var source := FileAccess.get_file_as_string(path)
+		for copy in ["0.82, 0.4", "const GOOD", "const BAD", "Color(0.03, 0.02, 0.05"]:
+			if source.contains(copy) and not path.ends_with("ui_skin.gd"):
+				copies.append("%s (%s)" % [path.get_file(), copy])
+	check(copies.is_empty(), "ui colors: gold, good, bad and the backdrop come from UiSkin only: %s" % ", ".join(copies))
+
+
+func _scripts_under(folder: String) -> Array[String]:
+	var found: Array[String] = []
+	for file in DirAccess.get_files_at(folder):
+		if file.ends_with(".gd"):
+			found.append(folder.path_join(file))
+	for sub in DirAccess.get_directories_at(folder):
+		found.append_array(_scripts_under(folder.path_join(sub)))
+	return found
 
 
 ## The balance tools simulate fights with nothing to see (Vfx.shown off): only what is seen is
