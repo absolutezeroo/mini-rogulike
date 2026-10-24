@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 178,
+  "next_id": 184,
   "tags": [
     "pc",
     "test",
@@ -2637,6 +2637,96 @@
       ],
       "created_at": 1792806077,
       "updated_at": 1792806077
+    },
+    {
+      "id": "task_178",
+      "title": "Réglages à distance : le Glas de l'Aube n'est plus la même course pour tous",
+      "description": "Relecture (24/10) : les multiplicateurs à distance (enemy_health_*, enemy_damage_*, souls_multiplier) et le bonus d'un événement (event_souls, event_floor_event + event_floor_weight) s'appliquent aussi aux parties du Glas de l'Aube (RemoteConfig.tuning() avec daily_day >= 0, RunState.create()). Si une valeur change en cours de journée (correctif, début d'un événement à 18 h), deux joueurs du même Glas n'ont plus les mêmes monstres ni les mêmes étages (le poids d'un événement change les tirages des étages), alors que le classement du jour les compare. À décider : figer pour le Glas les valeurs lues à minuit UTC (ou à la première partie du jour), ou n'appliquer au Glas que le présage (daily_omen). Pas corrigé : c'est un choix de règle.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "équilibrage"
+      ],
+      "created_at": 1792806960,
+      "updated_at": 1792806960
+    },
+    {
+      "id": "task_179",
+      "title": "Test instable : « visible again: it notices him » (debug_tests)",
+      "description": "Vu une fois sur deux passages de la suite game (24/10, après les fusions du Gardien Sans Nom, des réglages à distance et des avis) : FAIL « visible again: it notices him » (tests/suites/debug_tests.gd:246, _test_invisible). Le squelette est posé par World.find_open_point_near(), qui depuis task_149 évite les autres corps et peut retomber sur la case libre la plus proche, plus loin : peut-être hors de vue ou de portée de détection du héros. À reproduire (graine) ; si c'est ça, poser le monstre à une place vérifiée (en vue, à portée) dans le test.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "tests",
+        "bug"
+      ],
+      "created_at": 1792806960,
+      "updated_at": 1792806960
+    },
+    {
+      "id": "task_180",
+      "title": "Gardien Sans Nom : portées de l'IA de ses compétences dans les données",
+      "description": "Relecture (24/10) : NamelessKeeperDef.boss_skill() écrit en dur les portées de l'IA des compétences du héros devenues les siennes (ai_min_range 50 pour un plongeon, +30 après sa distance, tirs plafonnés à 360, +20 autour d'un cercle, 260 pour le reste). La règle du projet veut ces nombres dans les données : les passer en @export du Def (groupe « His skills ») et les mettre dans nameless_keeper.tres. Sans effet sur le jeu tant qu'on n'y touche pas.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "qualité",
+        "boss"
+      ],
+      "created_at": 1792806960,
+      "updated_at": 1792806960
+    },
+    {
+      "id": "task_181",
+      "title": "Écran titre : la plaque d'événement reste après la fin de l'événement",
+      "description": "Relecture (24/10) : la plaque d'événement (title_screen.show_remote_notes()) n'est remplie qu'au retour sur le titre et quand une lecture des réglages s'applique. Si l'événement se termine pendant que le joueur reste sur le titre, elle reste affichée (« Se termine dans l'heure ») alors qu'une partie lancée n'a plus le bonus (RemoteConfig.event_info() regarde l'heure au départ). Un petit minuteur (une fois par minute) qui la rafraîchit, ou la cacher à event.ends.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_4",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "en ligne"
+      ],
+      "created_at": 1792806960,
+      "updated_at": 1792806960
+    },
+    {
+      "id": "task_182",
+      "title": "Politique de confidentialité : détailler ce qu'ajoute « Joindre les infos du jeu »",
+      "description": "Relecture (24/10) : la politique (privacy.html section 5, privacy.tres « feedback ») dit « la partie en cours (étage, acte, biome, difficulté, serment, durée, niveau, équipement) ». FeedbackInfo envoie en plus le build complet de RunTelemetry.build_of() (dons et leurs niveaux, reliques, compétences, familles éveillées, runes et affixes), le type de version (debug/release), la famille de manette et le lieu (place). Rien de sensible, mais à écrire tel quel (« équipement, dons, reliques et compétences ») à la prochaine version de la politique, avec task_155 (« à la fin ou à l'abandon de chaque partie », vrai aussi maintenant pour les compteurs du Tribut).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_6",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "données"
+      ],
+      "created_at": 1792806960,
+      "updated_at": 1792806960
+    },
+    {
+      "id": "task_183",
+      "title": "Relecture des cinq chantiers du 24/10 et de la saisie sur téléphone",
+      "description": "Fait : relecture indépendante du Gardien Sans Nom, du tableau de statistiques, du bouton d'avis, des réglages à distance, des correctifs (Tribut des parties abandonnées, skill_ids, tests instables) et de la barre de saisie sur téléphone. Sonde _tool/keeper_probe (192 Gardiens de toutes armes, raretés, compétences, dons, affixes et runes au hasard, plus des instantanés abîmés : construits sans erreur, avertissements et ralentissements dans les règles ; 16 combats en jeu : il frappe, il lance ses compétences, sa chute gagne la partie, la cloche le libère) et _tool/remote_probe (valeurs bizarres : nan, inf, 1e400, textes de contrôle, dates impossibles, ids inconnus : rien ne plante ni ne sort des bornes). Corrigé : une date impossible des réglages (2026-02-31) est refusée (elle affichait une erreur du moteur) ; le tableau compte comme gagnée une partie gagnée puis perdue dans les étages sans fin ; plus d'erreur « GDScript::attach » au défilement tactile. Cartes ajoutées pour le reste.",
+      "status": "review",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "qualité",
+        "tests"
+      ],
+      "created_at": 1792806960,
+      "updated_at": 1792806960
     }
   ]
 }
