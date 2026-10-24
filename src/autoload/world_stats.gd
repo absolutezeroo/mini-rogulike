@@ -121,9 +121,10 @@ func reset() -> void:
 
 
 ## The player's shares may be counted and sent now: the statistics accepted, a server, a release
-## build (or the tests').
+## build (or the tests'), not stopped by the remote kill switch (RemoteConfig.statistics_off()).
 func may_send() -> bool:
-	return Privacy.analytics_allowed() and Leaderboards.is_available() and (debug_builds_send or not OS.is_debug_build())
+	return Privacy.analytics_allowed() and Leaderboards.is_available() and (debug_builds_send or not OS.is_debug_build()) \
+		and not RemoteConfig.statistics_off()
 
 
 ## The world's numbers may be read: a server, and the player turned an online feature on.

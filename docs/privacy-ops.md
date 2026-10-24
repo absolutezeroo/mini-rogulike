@@ -50,6 +50,41 @@ legal advice.** Where the report was unsure, the safer choice was taken and is m
   version **2** (policy 1.1): players who accepted version 1 are asked again. The player's totals
   go with the player (deletion, the 730-day purge); the world's sums are anonymous and stay.
 
+- **The remote settings** ([online.md](online.md#remote-settings-talo-game-config)): reading Talo's
+  game config is a request like any other, so Talo sees the device's IP address. Decision (24
+  October 2026): the game reads it **only once the player turned an online feature on** (published
+  scores or accepted statistics), like the world counters' read, so a player who chose neither
+  still makes no call at all; the read carries **no player id** (no alias header: Talo's
+  `GET /v1/game-config` needs none), stores nothing on Talo's side, and only allow-listed values
+  are kept on the device (`user://remote_config.json`, nothing personal). Basis: legitimate
+  interest (GDPR 6(1)(f): keeping the game fair and working without an update); no device
+  storage is read for it, so LIL art. 82 doesn't apply. Not consent-based, so **no new consent
+  version**; the policy says it (version **1.2**, in-game section "Game settings from the server",
+  docs/privacy.html section 2). If the read ever had to carry the player's alias (per-player
+  config), that would need its own basis: ask again.
+- **Player feedback** ([online.md](online.md#player-feedback)): a message the player writes and
+  sends from **Send feedback**, with the game's details unless unticked and the pseudonym only if
+  ticked, linked to the device's random id (made then if there was none). **No consent question
+  and no consent version raised** (decided 24 October 2026, from the report's reasoning on the
+  leaderboards): each message is the player's own explicit act, for that message only, nothing is
+  sent before **Send**, and the form says in plain words what goes, where, and links the policy.
+  That is the service the player asks for (GDPR 6(1)(b)), and storing/reading the random id for
+  it is strictly necessary to a feature expressly requested (LIL art. 82 exemption, the CNIL's
+  "fonctionnalité demandée expressément"), like publishing scores. `consent_version` stays **2**:
+  it guards what is collected *on consent* (the statistics), and nothing new is collected on that
+  basis. The policy says it (version **1.3**, 24 October 2026: a "Feedback" section in the game's
+  short policy and section 5 of `docs/privacy.html`, both languages; "Changes" now says the game
+  asks again for what needs consent). Not age-gated (not consent-based; the game is 13+). Talo
+  keeps the messages until the player is deleted (a request, or the 730-day purge: they cascade);
+  archiving one in the dashboard only hides it. The feedback categories are **anonymised**
+  (online.md): the dashboard never shows who sent a message unless it is signed. **(safer
+  choice)**: the details are on by default but plainly listed and one tap to untick; if you would
+  rather have them off by default, it is `_info.set_pressed_no_signal(true)` in `FeedbackDialog.open()`.
+- **The rule for a new purpose**, made explicit: a new purpose that runs **on consent** (or by
+  itself in the background) raises `consent_version`; a new feature that only sends when the
+  player explicitly asks for it, each time, and says what it sends, only changes the policy
+  (`policy_version`, its date, the sections, `docs/privacy.html`).
+
 ## The placeholders to fill (before publishing a build with a key)
 
 They live in **one data file**, `data/online/privacy.tres`, and the same ones in
@@ -70,8 +105,12 @@ my online data" shows the address placeholder instead of opening an email. Then 
 ## Talo dashboard settings
 
 The game's key needs these scopes (already set): Players read/write, Leaderboards read/write,
-**Events write** (the statistics), **Game Stats read/write** (the world counters). Then, on [dashboard.trytalo.com](https://dashboard.trytalo.com):
+**Events write** (the statistics), **Game Stats read/write** (the world counters), **Game Feedback
+write** (player feedback). Then, on [dashboard.trytalo.com](https://dashboard.trytalo.com):
 
+0. **Feedback > Categories**: create `bug`, `idea` and `other`, **Anonymised** on (online.md,
+   "The categories"). Until they exist, messages wait on the players' devices (Talo answers 404).
+   Archive a message once handled; it is deleted with its player.
 0. **Stats**: the nine world counters exist (online.md lists them). Nothing to set: a player's
    own totals go when the player is deleted or purged.
 1. **Event retention: 13 months.** Per event name (`run_end`, `boss`, `perk_offered`,
@@ -111,7 +150,9 @@ Answers from the report (check them again against the build you publish):
 | **Device or other IDs** (the random install id) | Yes | App functionality, Analytics | Optional | No |
 | App activity > **Other actions** (gameplay: scores, run summaries, builds, deaths, perks...) | Yes | App functionality, Analytics | Optional | No |
 | App activity > **App interactions** (the input device type) | Yes | Analytics | Optional | No |
-| App info and performance > **Other app performance data** (game version, OS name, screen size) | Yes | Analytics | Optional | No |
+| App info and performance > **Other app performance data** (game version, OS name, screen size; with feedback also the OS version and device model) | Yes | Analytics, App functionality | Optional | No |
+| App activity > **Other user-generated content** (a feedback message's words) | Yes | App functionality | Optional | No |
+| App info and performance > **Diagnostics** (the last lines of the game's log, sent with feedback if ticked; Android keeps no log file by default, so in practice desktop only) | Yes | App functionality | Optional | No |
 
 Also: **Target audience** 13-15, 16-17 and 18+ (never under 13: keeps the game out of the
 Families policy; keep the store art from looking aimed at small children), **Ads: No**,

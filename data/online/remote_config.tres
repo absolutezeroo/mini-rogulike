@@ -1,0 +1,223 @@
+[gd_resource type="Resource" script_class="RemoteConfigDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/online/remote_config_def.gd" id="1_config"]
+[ext_resource type="Script" path="res://src/definitions/online/remote_key_def.gd" id="2_key"]
+
+[sub_resource type="Resource" id="enemy_health_easy"]
+script = ExtResource("2_key")
+key = "enemy_health_easy"
+kind = 0
+hook = 0
+difficulty = &"easy"
+default_number = 1.0
+min_number = 0.5
+max_number = 2.0
+purpose = "Multiplies every monster's and boss's Health in Pilgrim runs (DifficultyDef monster_hp and boss_hp, through FloorRules). 1 = the data's. A hotfix: real changes go into data/difficulties/easy.tres."
+
+[sub_resource type="Resource" id="enemy_health_normal"]
+script = ExtResource("2_key")
+key = "enemy_health_normal"
+kind = 0
+hook = 0
+difficulty = &"normal"
+default_number = 1.0
+min_number = 0.5
+max_number = 2.0
+purpose = "Multiplies every monster's and boss's Health in Keeper runs (DifficultyDef monster_hp and boss_hp, through FloorRules). 1 = the data's. A hotfix: real changes go into data/difficulties/normal.tres."
+
+[sub_resource type="Resource" id="enemy_health_hard"]
+script = ExtResource("2_key")
+key = "enemy_health_hard"
+kind = 0
+hook = 0
+difficulty = &"hard"
+default_number = 1.0
+min_number = 0.5
+max_number = 2.0
+purpose = "Multiplies every monster's and boss's Health in Martyr runs (DifficultyDef monster_hp and boss_hp, through FloorRules). 1 = the data's. A hotfix: real changes go into data/difficulties/hard.tres."
+
+[sub_resource type="Resource" id="enemy_health_nightmare"]
+script = ExtResource("2_key")
+key = "enemy_health_nightmare"
+kind = 0
+hook = 0
+difficulty = &"nightmare"
+default_number = 1.0
+min_number = 0.5
+max_number = 2.0
+purpose = "Multiplies every monster's and boss's Health in Nightmare runs (DifficultyDef monster_hp and boss_hp, through FloorRules). 1 = the data's. A hotfix: real changes go into data/difficulties/nightmare.tres."
+
+[sub_resource type="Resource" id="enemy_damage_easy"]
+script = ExtResource("2_key")
+key = "enemy_damage_easy"
+kind = 0
+hook = 1
+difficulty = &"easy"
+default_number = 1.0
+min_number = 0.5
+max_number = 2.0
+purpose = "Multiplies everything that hurts the hero in Pilgrim runs (DifficultyDef monster_damage, through FloorRules). 1 = the data's."
+
+[sub_resource type="Resource" id="enemy_damage_normal"]
+script = ExtResource("2_key")
+key = "enemy_damage_normal"
+kind = 0
+hook = 1
+difficulty = &"normal"
+default_number = 1.0
+min_number = 0.5
+max_number = 2.0
+purpose = "Multiplies everything that hurts the hero in Keeper runs (DifficultyDef monster_damage, through FloorRules). 1 = the data's."
+
+[sub_resource type="Resource" id="enemy_damage_hard"]
+script = ExtResource("2_key")
+key = "enemy_damage_hard"
+kind = 0
+hook = 1
+difficulty = &"hard"
+default_number = 1.0
+min_number = 0.5
+max_number = 2.0
+purpose = "Multiplies everything that hurts the hero in Martyr runs (DifficultyDef monster_damage, through FloorRules). 1 = the data's."
+
+[sub_resource type="Resource" id="enemy_damage_nightmare"]
+script = ExtResource("2_key")
+key = "enemy_damage_nightmare"
+kind = 0
+hook = 1
+difficulty = &"nightmare"
+default_number = 1.0
+min_number = 0.5
+max_number = 2.0
+purpose = "Multiplies everything that hurts the hero in Nightmare runs (DifficultyDef monster_damage, through FloorRules). 1 = the data's."
+
+[sub_resource type="Resource" id="souls_multiplier"]
+script = ExtResource("2_key")
+key = "souls_multiplier"
+kind = 0
+hook = 2
+default_number = 1.0
+min_number = 0.5
+max_number = 3.0
+purpose = "Multiplies the souls every run gives at its end (DifficultyDef souls). 1 = the data's."
+
+[sub_resource type="Resource" id="daily_omen"]
+script = ExtResource("2_key")
+key = "daily_omen"
+kind = 3
+hook = 3
+purpose = "A curse or floor event id (frostbound, blood_moon...) put on every normal floor of the Dawn Knell of the day daily_omen_date names. Empty: the day rolls its own."
+
+[sub_resource type="Resource" id="daily_omen_date"]
+script = ExtResource("2_key")
+key = "daily_omen_date"
+kind = 4
+hook = 4
+purpose = "The UTC day daily_omen is for (2026-10-31). Any other day is untouched."
+
+[sub_resource type="Resource" id="event_name_en"]
+script = ExtResource("2_key")
+key = "event_name_en"
+kind = 2
+hook = 5
+language = "en"
+max_length = 40
+purpose = "The limited-time event's name on the title screen (English, and the fallback). Empty: no event."
+
+[sub_resource type="Resource" id="event_name_fr"]
+script = ExtResource("2_key")
+key = "event_name_fr"
+kind = 2
+hook = 5
+language = "fr"
+max_length = 40
+purpose = "The event's name in French."
+
+[sub_resource type="Resource" id="event_ends"]
+script = ExtResource("2_key")
+key = "event_ends"
+kind = 4
+hook = 6
+purpose = "When the event ends (2026-10-26: the end of that UTC day, or 2026-10-26T22:00:00Z). Past it, nothing of the event applies."
+
+[sub_resource type="Resource" id="event_souls"]
+script = ExtResource("2_key")
+key = "event_souls"
+kind = 0
+hook = 7
+default_number = 1.0
+min_number = 1.0
+max_number = 3.0
+purpose = "The event's souls bonus: multiplies the souls of runs started during it (on top of souls_multiplier)."
+
+[sub_resource type="Resource" id="event_floor_event"]
+script = ExtResource("2_key")
+key = "event_floor_event"
+kind = 3
+hook = 8
+pool = 1
+purpose = "A floor event id (blood_moon, treasure_vault...) made more likely during the event."
+
+[sub_resource type="Resource" id="event_floor_weight"]
+script = ExtResource("2_key")
+key = "event_floor_weight"
+kind = 0
+hook = 9
+default_number = 1.0
+min_number = 1.0
+max_number = 10.0
+purpose = "How much more likely event_floor_event is among the floor events (multiplies its spawn weight)."
+
+[sub_resource type="Resource" id="motd_en"]
+script = ExtResource("2_key")
+key = "motd_en"
+kind = 2
+hook = 10
+language = "en"
+max_length = 120
+purpose = "A message of the day on the title screen (English, and the fallback). Empty: none."
+
+[sub_resource type="Resource" id="motd_fr"]
+script = ExtResource("2_key")
+key = "motd_fr"
+kind = 2
+hook = 10
+language = "fr"
+max_length = 120
+purpose = "The message of the day in French."
+
+[sub_resource type="Resource" id="scores_off"]
+script = ExtResource("2_key")
+key = "scores_off"
+kind = 1
+hook = 11
+default_number = 0.0
+purpose = "Kill switch: true stops queuing and sending leaderboard scores (applies at once)."
+
+[sub_resource type="Resource" id="statistics_off"]
+script = ExtResource("2_key")
+key = "statistics_off"
+kind = 1
+hook = 12
+default_number = 0.0
+purpose = "Kill switch: true stops queuing and sending gameplay statistics and world counters (applies at once)."
+
+[sub_resource type="Resource" id="min_version"]
+script = ExtResource("2_key")
+key = "min_version"
+kind = 5
+hook = 13
+purpose = "The oldest game version this config is for (0.3.0). An older game ignores every key."
+
+[sub_resource type="Resource" id="max_version"]
+script = ExtResource("2_key")
+key = "max_version"
+kind = 5
+hook = 14
+purpose = "The newest game version this config is for. A newer game ignores every key."
+
+[resource]
+script = ExtResource("1_config")
+keys = Array[ExtResource("2_key")]([SubResource("enemy_health_easy"), SubResource("enemy_health_normal"), SubResource("enemy_health_hard"), SubResource("enemy_health_nightmare"), SubResource("enemy_damage_easy"), SubResource("enemy_damage_normal"), SubResource("enemy_damage_hard"), SubResource("enemy_damage_nightmare"), SubResource("souls_multiplier"), SubResource("daily_omen"), SubResource("daily_omen_date"), SubResource("event_name_en"), SubResource("event_name_fr"), SubResource("event_ends"), SubResource("event_souls"), SubResource("event_floor_event"), SubResource("event_floor_weight"), SubResource("motd_en"), SubResource("motd_fr"), SubResource("scores_off"), SubResource("statistics_off"), SubResource("min_version"), SubResource("max_version")])
+refresh_seconds = 900.0
+start_delay = 2.0

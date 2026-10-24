@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 165,
+  "next_id": 172,
   "tags": [
     "pc",
     "test",
@@ -1731,7 +1731,7 @@
         "niveaux"
       ],
       "created_at": 1792758222,
-      "updated_at": 1792804107
+      "updated_at": 1792804164
     },
     {
       "id": "task_120",
@@ -2033,8 +2033,8 @@
     {
       "id": "task_139",
       "title": "Signaler un bug / donner un avis (Talo Feedback)",
-      "description": "Validé. Un bouton dans le menu pause : le message part dans le tableau de bord Talo avec la version, l'étage, le build et l'appareil. Pratique pour les testeurs.",
-      "status": "todo",
+      "description": "Validé. Fait (à tester) : bouton « Donner ton avis » dans le menu pause et « Avis » à côté de Crédits sur l'écran titre. Formulaire : type (Bug / Idée / Divers), texte (clavier du téléphone, 5 à 1000 caractères, compteur), « Joindre les infos du jeu » coché par défaut (version, système, modèle de l'appareil, écran, contrôles, langue, la partie en cours avec étage/acte/biome/difficulté/équipement/temps, et les 20 dernières lignes du journal, dossiers perso masqués), « Signer de mon pseudonyme » décoché (seulement si tu as un pseudonyme). Un message par minute. Hors ligne : gardé dans user://feedback.json et envoyé plus tard. Envoi : Talo Game Feedback (POST /v1/game-feedback/categories/{nom}) avec l'identifiant aléatoire de l'appareil ; builds debug = données de dev. Note de remerciement en haut de l'écran dans la voix du Puits. Confidentialité : pas de question de consentement (geste explicite du joueur, art. 6(1)(b) + exemption art. 82), politique 1.2 avec une section « Avis » (jeu + docs/privacy.html), consent_version reste 2. À faire par Clayton : créer les catégories bug / idea / other (Anonymised) dans le tableau de bord (l'API admin ne le permet pas), voir docs/online.md « Player feedback ».",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_5",
       "due_date": null,
@@ -2043,13 +2043,13 @@
         "données"
       ],
       "created_at": 1792768111,
-      "updated_at": 1792768111
+      "updated_at": 1792802331
     },
     {
       "id": "task_140",
       "title": "Réglages à distance (Talo Game Config)",
-      "description": "Validé. Ajuster des chiffres d'équilibrage, lancer un événement du week-end ou changer le modificateur du Défi du jour sans mise à jour. Valeurs par défaut dans les données du jeu, la config distante ne fait que les remplacer (bornées).",
-      "status": "todo",
+      "description": "Fait (à valider). Réglages lus dans la « Game config » de Talo (GET /v1/game-config, sans identifiant de joueur, seulement après un choix en ligne), vérifiés contre une liste blanche en données (data/online/remote_config.tres) : clé inconnue, valeur hors bornes ou id inconnu ignorés. Appliqués seulement à l'écran titre et au début d'une partie (une partie garde ses valeurs, sauvegardées avec elle), avec une porte de versions (min_version / max_version). Clés : multiplicateurs de Vie et de dégâts des ennemis par difficulté (via FloorRules), multiplicateur d'âmes, présage du Glas de l'Aube pour une date (malédiction ou événement d'étage), événement limité (nom FR/EN, fin, bonus d'âmes, événement d'étage favorisé), message du jour FR/EN sur l'écran titre, interrupteurs d'urgence classements / statistiques. Les 23 clés sont créées dans Talo avec des valeurs neutres. Onglet « Remote » du panneau debug pour simuler une valeur. Politique 1.2 (lecture des réglages : IP vue par Talo). Docs : online.md, balance.md, privacy-ops.md.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -2058,7 +2058,7 @@
         "équilibrage"
       ],
       "created_at": 1792768111,
-      "updated_at": 1792768111
+      "updated_at": 1792800929
     },
     {
       "id": "task_141",
@@ -2136,7 +2136,7 @@
         "bug"
       ],
       "created_at": 1792771708,
-      "updated_at": 1792804107
+      "updated_at": 1792804164
     },
     {
       "id": "task_142",
@@ -2245,7 +2245,7 @@
         "données"
       ],
       "created_at": 1792778210,
-      "updated_at": 1792804107
+      "updated_at": 1792804164
     },
     {
       "id": "task_153",
@@ -2311,7 +2311,7 @@
     {
       "id": "task_157",
       "title": "Test instable : passage de la suite game en cascade (« room » sur Nil)",
-      "description": "Vu une fois sur quatre passages (23/10, branche options en onglets, sans lien avec elle) : « SCRIPT ERROR: Invalid access to property or key 'room' on a base object of type 'Nil' » puis 13 échecs de level_tests (bougies d'un autre biome, cases murées, salles façonnées/signatures coupées) et de monstres (corps brûlant, voleur). Le passage suivant : 0 échec. Peut-être lié à task_119 (salles signatures). À reproduire (graine) et corriger. Vus aussi, une fois chacun, après la fusion du Tribut du Puits : « the shader knows where the hero is, first of all » (level_tests) et « nor through walls » (combat_tests, has_clear_walk), avec « shaped rooms as built » (task_119) au passage d'avant ; le passage suivant : 0 échec.\n\nFait en partie (à valider). La cascade s'explique : l'erreur « room sur Nil » est celle de floor_tests _test_pacts (game.world.pact.room quand l'étage refait n'a plus de porte de pacte). Le test s'arrêtait là sans rien remettre : pact_chance resté à 1.0, héros invincible, xp à -1000000. Les tests suivants voyaient alors une porte de pacte à chaque étage : les bougies du pacte « d'un autre biome », sa salle scellée « murée », les salles façonnées et signatures « coupées », etc. Correctif du test : l'étage est refait avec la disette de forge qu'il avait au départ (floors_without_forge, pas celle du dernier étage de la boucle : la forge peut prendre la seule salle possible du pacte), un contrôle dit clairement si la porte manque, et le test remet tout en place avant de sortir. Le déclencheur exact n'est pas reproduit : la sonde _tool/probe_pact (101 graines, partie neuve) n'a jamais perdu la porte, même avec l'ancienne disette. Les autres échecs isolés (« the shader knows where the hero is », « nor through walls ») peuvent venir des monstres apparus l'un dans l'autre ou contre le héros (corrigé, task_119 / task_149) : pas revus sur les passages de la suite game depuis.",
+      "description": "Vu une fois sur quatre passages (23/10, branche options en onglets, sans lien avec elle) : « SCRIPT ERROR: Invalid access to property or key 'room' on a base object of type 'Nil' » puis 13 échecs de level_tests (bougies d'un autre biome, cases murées, salles façonnées/signatures coupées) et de monstres (corps brûlant, voleur). Le passage suivant : 0 échec. Peut-être lié à task_119 (salles signatures). À reproduire (graine) et corriger. Vus aussi, une fois chacun, après la fusion du Tribut du Puits : « the shader knows where the hero is, first of all » (level_tests) et « nor through walls » (combat_tests, has_clear_walk), avec « shaped rooms as built » (task_119) au passage d'avant ; le passage suivant : 0 échec.\n\nFait en partie (à valider). La cascade s'explique : l'erreur « room sur Nil » est celle de floor_tests _test_pacts (game.world.pact.room quand l'étage refait n'a plus de porte de pacte). Le test s'arrêtait là sans rien remettre : pact_chance resté à 1.0, héros invincible, xp à -1000000. Les tests suivants voyaient alors une porte de pacte à chaque étage : les bougies du pacte « d'un autre biome », sa salle scellée « murée », les salles façonnées et signatures « coupées », etc. Correctif du test : l'étage est refait avec la disette de forge qu'il avait au départ (floors_without_forge, pas celle du dernier étage de la boucle : la forge peut prendre la seule salle possible du pacte), un contrôle dit clairement si la porte manque, et le test remet tout en place avant de sortir. Sonde _tool/probe_pact (120 graines, partie neuve) : avec l'ancienne disette, 1 étage refait sur 120 n'avait plus la même porte (une autre salle) ; avec la bonne, 0. La porte absente du tout (l'erreur) est la forme rare du même écart : pas reproduite telle quelle. Les autres échecs isolés (« the shader knows where the hero is », « nor through walls ») peuvent venir des monstres apparus l'un dans l'autre ou contre le héros (corrigé, task_119 / task_149) : pas revus sur les passages de la suite game depuis.",
       "status": "review",
       "priority": "medium",
       "epic_id": "epic_5",
@@ -2322,7 +2322,7 @@
         "niveaux"
       ],
       "created_at": 1792779390,
-      "updated_at": 1792804107
+      "updated_at": 1792804164
     },
     {
       "id": "task_158",
@@ -2368,7 +2368,7 @@
         "en ligne"
       ],
       "created_at": 1792799748,
-      "updated_at": 1792804107
+      "updated_at": 1792804164
     },
     {
       "id": "task_161",
@@ -2420,6 +2420,114 @@
     },
     {
       "id": "task_164",
+      "title": "Réglages à distance : vérifier sur téléphone et dans le tableau de bord",
+      "description": "Non vérifié : la plaque d'événement et le message du jour sur un vrai téléphone (lisibilité, coupures de lignes FR), le libellé exact de la page « Game config » du tableau de bord Talo, le délai réel (cache Talo 10 min) entre un changement et le jeu, et une vraie partie sous présage (malédiction sur tous les étages du Glas : trop dur ?).",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "playtest"
+      ],
+      "created_at": 1792800929,
+      "updated_at": 1792800929
+    },
+    {
+      "id": "task_165",
+      "title": "Réglages à distance : tester un événement planifié",
+      "description": "Talo peut planifier un changement de config (scheduled changes). Essayer un vrai week-end : nom posé à l'heure dite, fin automatique, message du jour, puis tout remis à neutre.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "test"
+      ],
+      "created_at": 1792800929,
+      "updated_at": 1792800929
+    },
+    {
+      "id": "task_166",
+      "title": "Présage du jour : l'annoncer sur le bouton du Glas et dans le classement",
+      "description": "Idée : quand un présage est posé, le montrer aussi sur le bouton du Glas de l'Aube (écran titre) et en tête du classement du jour, pour que les joueurs comparent leurs scores sous le même présage.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "idée",
+        "en ligne"
+      ],
+      "created_at": 1792800929,
+      "updated_at": 1792800929
+    },
+    {
+      "id": "task_167",
+      "title": "Créer les catégories d'avis dans Talo (bug, idea, other)",
+      "description": "Tableau de bord Talo > Feedback > Categories : créer bug (Bug), idea (Idea), other (Other), toutes avec « Anonymised » activé. L'API admin de Talo n'a pas de route pour ça. Tant qu'elles n'existent pas, les messages attendent sur les appareils (Talo répond 404). Ensuite relancer le smoke test (_tool/feedback_smoke.gd) ou envoyer un avis depuis l'éditeur, vérifier qu'il apparaît (données de dev), puis supprimer le joueur de test « feedback-smoke-test ».",
+      "status": "todo",
+      "priority": "high",
+      "epic_id": "epic_6",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "release"
+      ],
+      "created_at": 1792802331,
+      "updated_at": 1792802331
+    },
+    {
+      "id": "task_168",
+      "title": "Avis : tester le formulaire sur téléphone (clavier virtuel)",
+      "description": "Non vérifié : sur Android, le clavier virtuel peut couvrir une partie du formulaire « Donner ton avis » (le champ est en haut, ça devrait passer). Vérifier aussi la saisie, le compteur, et la note de remerciement en jeu.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "android",
+        "playtest",
+        "ui"
+      ],
+      "created_at": 1792802331,
+      "updated_at": 1792802331
+    },
+    {
+      "id": "task_169",
+      "title": "Avis à la manette seule : pas de saisie possible",
+      "description": "Idée : à la manette sans clavier (PC), on ne peut pas écrire le message (pareil pour le pseudonyme). Un petit clavier à l'écran navigable à la manette, ou le clavier de Steam (Big Picture, Steam Deck).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "idée",
+        "pc",
+        "ui"
+      ],
+      "created_at": 1792802331,
+      "updated_at": 1792802331
+    },
+    {
+      "id": "task_170",
+      "title": "Avis : journal du jeu sur Android",
+      "description": "Godot n'écrit pas de fichier journal sur Android par défaut : les avis envoyés depuis un téléphone n'ont pas les dernières lignes du journal. Idée : activer debug/file_logging sur Android (taille limitée), ou garder les dernières erreurs en mémoire.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "idée",
+        "android",
+        "debug"
+      ],
+      "created_at": 1792802331,
+      "updated_at": 1792802331
+    },
+    {
+      "id": "task_171",
       "title": "Vérifier en jeu : apparitions sans chevauchement",
       "description": "Les monstres d'une salle et ceux posés par find_open_point_near (invocations, scissions, coffres piégés, rencontres, camps) ne naissent plus dans un autre corps (task_119, task_149). À regarder en jeu : une invocation au milieu d'un groupe serré, un scindé dans un couloir étroit, un coffre piégé au contact du héros : chacun apparaît un peu plus loin au lieu d'être projeté. Non vérifiable en tests headless (le ressenti).",
       "status": "backlog",
@@ -2430,8 +2538,8 @@
         "tests",
         "niveaux"
       ],
-      "created_at": 1792804107,
-      "updated_at": 1792804107
+      "created_at": 1792804164,
+      "updated_at": 1792804164
     }
   ]
 }

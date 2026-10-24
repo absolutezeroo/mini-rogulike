@@ -59,6 +59,14 @@ class StatValues:
 	var values := {}
 
 
+## The game's live config as the server has it (the remote settings: RemoteConfig).
+class ConfigValues:
+	extends RefCounted
+	var status: BoardBackend.Status = BoardBackend.Status.UNAVAILABLE
+	## Key -> value, both texts as the server keeps them (validated by RemoteConfig, never here).
+	var values := {}
+
+
 ## There is a server to talk to (an access key).
 func is_configured() -> bool:
 	return false
@@ -108,6 +116,11 @@ func fetch_my_stats() -> StatValues:
 	return StatValues.new()
 
 
+## The game's live config (the remote settings), read **without any player**: no id goes with it.
+func fetch_config() -> ConfigValues:
+	return ConfigValues.new()
+
+
 ## Shows the player under `pseudonym` on every board.
 func set_pseudonym(_pseudonym: String) -> Status:
 	return Status.UNAVAILABLE
@@ -127,3 +140,11 @@ func fetch(_board: LeaderboardDef, _period_key: String, _past: bool, _page: int)
 ## The player's own entry on `board` for that period (a Page of one entry, or none).
 func fetch_mine(_board: LeaderboardDef, _period_key: String, _past: bool) -> Page:
 	return Page.new()
+
+
+## Sends the player's message `comment` to the feedback category `internal_name` (Talo's game
+## feedback), with `props` (String -> String: the game's details, the pseudonym, only what the
+## player ticked). OK: taken. REJECTED: refused for good (a prop too long): never resent.
+## OFFLINE: try again later. See Feedback.
+func send_feedback(_internal_name: String, _comment: String, _props: Dictionary) -> Status:
+	return Status.UNAVAILABLE

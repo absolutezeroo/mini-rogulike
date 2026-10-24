@@ -54,7 +54,9 @@ data/                Game content as .tres resources (no code)
                        (boards/: LeaderboardDef), see docs/online.md
   online/              privacy.tres (PrivacyDef: the contact placeholders, the consent rules, the short
                        policy), telemetry.tres (TelemetryDef: the statistics' events and fields),
-                       world_stats.tres (WorldStatsDef: the world counters, the Well's Toll)
+                       world_stats.tres (WorldStatsDef: the world counters, the Well's Toll),
+                       remote_config.tres (RemoteConfigDef: the remote settings' allow-list, RemoteKeyDef)
+                       feedback.tres (FeedbackDef: the feedback form's categories and limits)
   credits/             credits.tres (CreditsDef: who made what, licenses and their files)
   ui/                  Loading tips, input_prompts.tres (the controls as the player is told about them: the
                        Controls page, the keys prompts show, the gamepad families' button names)
@@ -62,10 +64,13 @@ src/
   autoload/            Events (signal bus), Sfx (sound player), HitStop (impact freeze), Profile (save), Settings (options),
                        InputDevice (the device in use), MenuNav (menus with keys and gamepads), PixelGrid (the canvas's scale),
                        Leaderboards (the online leaderboards), Privacy (the player's privacy choices),
-                       Telemetry (the gameplay statistics, with consent), WorldStats (the world counters)
+                       Telemetry (the gameplay statistics, with consent), WorldStats (the world counters),
+                       RemoteConfig (the remote settings: Talo's game config, checked against the allow-list),
+                       Feedback (the player's feedback messages and their queue)
   online/              The online pieces: RunSummary (a run that ended), PlayerName (the pseudonym's
                        filter), BoardBackend (offline) > TaloBackend (Talo's REST API), RunTelemetry (what
-                       the statistics learn of a run)
+                       the statistics learn of a run), RemoteTuning (what the remote settings change in a run, saved with it),
+                       FeedbackInfo (the game's details a feedback message can carry)
   core/                Small shared helpers (physics layers, weighted random, SafeFile, NumberText)
   definitions/         Resource classes describing content (the "schema" of data/)
     effects/             Building blocks for skills and consumables

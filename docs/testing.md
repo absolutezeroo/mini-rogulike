@@ -27,13 +27,14 @@ The suites (`tests/suites/`, each a `TestSuite`):
 - **unit**: the rules, the content database, 100 generated maps (and their walls), 40 boss arenas,
   inventory, equipment, perks, bosses, the profile, the online leaderboards' queue and filter
   (`LeaderboardTests`, on `FakeBoardBackend`: a server in memory), the privacy rules, the gameplay
-  statistics and the credits' data (`PrivacyTests`), the world counters (`WorldStatsTests`). No
+  statistics and the credits' data (`PrivacyTests`), the world counters (`WorldStatsTests`), the remote settings (`RemoteConfigTests`), player feedback (`FeedbackTests`). No
   game running: fast.
 - **title**: the title screen and its panels (the Leaderboards page with and without a server, the
   statistics' questions, Options > Privacy, the policy and the credits, the world counters' line
-  and the Well's Toll page).
+  and the Well's Toll page, the remote settings' event plaque and message of the day; the feedback
+  form on the title, in French on three screens, and from the pause menu with a gamepad).
   No suite ever reaches the network: the runner gives `Leaderboards` an offline backend first,
-  and `Privacy`, `Telemetry` and `WorldStats` no file (docs/online.md, Tests). The game suite plays its run with
+  and `Privacy`, `Telemetry`, `WorldStats`, `RemoteConfig` and `Feedback` no file (docs/online.md, Tests). The game suite plays its run with
   the statistics accepted on a fake server and checks what its end sends.
 - **game**: a bot plays the real game (kills, level ups and perk choices, stairs, death and
   restart, saving and resuming), then on that same game: **combat** (projectiles, perks, skills,
@@ -175,7 +176,7 @@ now and then is a bug, in the test's setup or in the game. Make the setup sure, 
 ## Debug tools
 
 In debug builds only (running from the Godot editor, on the phone too, or a debug export), a
-**DBG** button next to pause (or F1) opens the `DebugPanel` (the game pauses). It has five tabs,
+**DBG** button next to pause (or F1) opens the `DebugPanel` (the game pauses). It has six tabs,
 switched by a tap or a click, or with Q / E and a gamepad's LB / RB like the bag's; keys and a
 gamepad move between its buttons (MenuNav). A toggle says its state ("Invisible: ON") and a
 step its value ("Damage x5"), and both stay pressed while on.
@@ -216,6 +217,12 @@ step its value ("Damage x5"), and both stay pressed while on.
   target), **Frame rate** (`DebugOverlay`: frames per second, monsters awake / on the floor,
   shots in the air, nodes, draw calls), **Save & reload** (saves the run and picks it up again,
   as the title's Continue would; not in a debug run).
+- **Remote**: the remote settings (`RemoteConfig`, docs/online.md "Remote settings"): every key of
+  the allow-list with its value in use, last read and simulated, what was ignored and why, the
+  kill switches; **Read now**, **Apply now**, and **Simulate**: any key set to a sample value (in
+  bounds, out of bounds, an unknown id, a date) as if the server had it, checked the same way and
+  applied at the next safe point (Apply now, the title, a new run; the run going on keeps its own
+  values). Debug builds only; it doesn't make a debug run.
 
 A line at the top of the screen names the cheats on, and says when the run is a **debug run**:
 anything the panel does to the run (all but the Tools tab's views and the game's speed) makes it

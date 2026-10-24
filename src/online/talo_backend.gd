@@ -91,6 +91,20 @@ func send_events(events: Array[Dictionary]) -> Status:
 	return answer.status
 
 
+## POST /v1/game-feedback/categories/{internalName} {comment, props} with the X-Talo-Alias
+## header. 400 (a prop refused): REJECTED, never resent. 404 (the category isn't in the dashboard
+## yet): OFFLINE, the message waits until it is made rather than being lost. An "anonymised"
+## category (set in the dashboard) hides the player in what the dashboard shows.
+func send_feedback(internal_name: String, comment: String, props: Dictionary) -> Status:
+	if _alias_id == 0:
+		return Status.OFFLINE
+	var list: Array = []
+	for key: String in props:
+		list.append({ "key": key, "value": str(props[key]) })
+	var answer := await _request(HTTPClient.METHOD_POST, "/v1/game-feedback/categories/%s" % internal_name.uri_encode(), { "comment": comment, "props": list })
+	return Status.OFFLINE if int(answer.code) == 404 else answer.status
+
+
 ## PUT /v1/game-stats/{internalName} {change} with the X-Talo-Alias header. The server answers
 ## 400 for a change past the stat's maxChange or too soon after the last (minTimeBetweenUpdates):
 ## REJECTED, never resent as it is.
@@ -136,6 +150,25 @@ static func _stat_values(answer: Dictionary, key: String, pick: Callable) -> Boa
 		var pair: Array = pick.call(item)
 		if pair.size() == 2 and not str(pair[0]).is_empty():
 			result.values[str(pair[0])] = float(pair[1]) if (pair[1] is float or pair[1] is int) else 0.0
+	return result
+
+
+## GET /v1/game-config (the key's read:gameConfig scope): the game's live config, {config: [{key,
+## value}]}. Sent without the player's headers: reading the settings identifies no one.
+func fetch_config() -> BoardBackend.ConfigValues:
+	var answer := await _request(HTTPClient.METHOD_GET, "/v1/game-config", null, true)
+	var result := BoardBackend.ConfigValues.new()
+	result.status = answer.status
+	if answer.status != Status.OK:
+		return result
+	var list: Variant = (answer.body as Dictionary).get("config") if answer.body is Dictionary else null
+	if not list is Array:
+		result.status = Status.REJECTED
+		return result
+	for item: Variant in list:
+		if item is Dictionary and (item as Dictionary).get("key") is String:
+			var value: Variant = (item as Dictionary).get("value")
+			result.values[str((item as Dictionary).key)] = str(value) if value != null else ""
 	return result
 
 
@@ -239,8 +272,9 @@ static func _entry(data: Dictionary) -> BoardBackend.Entry:
 	return entry
 
 
-## One request: {status, code, body (parsed JSON or null)}.
-func _request(method: HTTPClient.Method, path: String, body: Variant = null) -> Dictionary:
+## One request: {status, code, body (parsed JSON or null)}. `anonymous`: without the identified
+## player's headers (the remote settings' read).
+func _request(method: HTTPClient.Method, path: String, body: Variant = null, anonymous: bool = false) -> Dictionary:
 	var http := HTTPRequest.new()
 	http.timeout = TIMEOUT
 	http.accept_gzip = true
@@ -254,7 +288,7 @@ func _request(method: HTTPClient.Method, path: String, body: Variant = null) -> 
 		"X-Talo-Dev-Build: %s" % ("1" if OS.is_debug_build() else "0"),
 		"X-Talo-Include-Dev-Data: %s" % ("1" if OS.is_debug_build() else "0"),
 	])
-	if _alias_id > 0:
+	if _alias_id > 0 and not anonymous:
 		headers.append("X-Talo-Alias: %d" % _alias_id)
 		headers.append("X-Talo-Player: %s" % _player_id)
 	var error := http.request(_url + path, headers, method, JSON.stringify(body) if body != null else "")

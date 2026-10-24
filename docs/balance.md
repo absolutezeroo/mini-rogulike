@@ -1,5 +1,27 @@
 # Balance
 
+## Remote multipliers vs balance passes
+
+The remote settings (docs/online.md "Remote settings") can multiply, per difficulty, every
+monster's and boss's Health (`enemy_health_<difficulty>`, 0.5 to 2) and everything that hurts the
+hero (`enemy_damage_<difficulty>`), and every run's souls (`souls_multiplier`, 0.5 to 3), from
+Talo's dashboard, without an update. They land on the run's own copy of its `DifficultyDef`, so
+`FloorRules` scales the floors with them like any difficulty number; a run keeps the values it
+started with.
+
+- **They are for hotfixes**: a released difficulty is broken (a wall on Martyr after a content
+  update, a souls exploit) and the next build is days away. Set the multiplier, then make the real
+  change.
+- **Real changes go into the data** (`data/difficulties/*.tres`, the content), measured with the
+  tools below and recorded in docs/balance-log.md, like any balance pass. When the build with the
+  fix is out, put the multiplier back to `1` (or gate the old value to the old versions with
+  `max_version`). A multiplier left on hides the data's true numbers from the balance tools,
+  which never read the remote settings: they measure the data.
+- They are coarse on purpose (a whole difficulty's monsters at once, no single monster, perk or
+  item): anything finer is a balance pass, not a remote value.
+- The events' souls bonus (`event_souls`) and floor event boost are content (a weekend's), not
+  balance: they end by themselves.
+
 ## Tools
 
 `tools/balance/` measures the game's balance on the real content and the real engine, so the
