@@ -4,7 +4,7 @@ extends RefCounted
 
 signal changed
 
-var _slots := {}
+var _slots: Dictionary[EquipmentDef.Slot, EquipmentDef] = {}
 
 
 func get_item(slot: EquipmentDef.Slot) -> EquipmentDef:

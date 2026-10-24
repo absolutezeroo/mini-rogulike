@@ -9,7 +9,15 @@ the ones below are those worth spelling out, or where this project chose somethi
 - **Godot 4 only.** `await`, `@export`, `@onready`, typed arrays, `signal.emit()`. No Godot 3 idioms
   (`yield`, `export var`, `connect("signal", obj, "method")`).
 - **Static typing everywhere**: every variable, parameter and return type, `:=` when the type is
-  obvious from the right side. Typed arrays and dictionaries (`Array[PerkDef]`).
+  obvious from the right side. Typed arrays and dictionaries (`Array[PerkDef]`,
+  `Dictionary[EquipmentDef.Slot, EquipmentDef]`).
+- **A record is a class, not a dictionary.** Values that go together (a slow's amount, time and
+  element; a belt slot's item and count; a trait's per-monster values) are a small class with
+  typed fields: an inner class (`StatusSet.Slow`, `Belt.Slot`, `ThiefTrait.ThiefState`) or a
+  `RefCounted` of its own; never `{ "item": ..., "count": ... }` read back with `get("item")`, nor
+  `[amount, seconds, element]` read as `[0]`, where a mistyped key fails silently. A dictionary is
+  right for a real map (by id, by cell, by slot: typed), and for data on disk (saves, JSON), which
+  keeps its format. An inner class never takes a global class's name (`State` is the AI's).
 - **`class_name`** for every reusable type; a script used once by its scene can do without.
 - **Names**: `snake_case` files, folders, functions and variables; `PascalCase` classes and nodes;
   `CONSTANT_CASE` constants; `_private` members and methods, which nothing outside the script
@@ -43,7 +51,8 @@ the ones below are those worth spelling out, or where this project chose somethi
     `const MenuNavScript := preload("res://src/autoload/menu_nav.gd")`, then
     `MenuNavScript.set_first(...)`.
   - An `@warning_ignore` says why beside it. The kept ones: `Events`' signals (emitted and
-    connected by other classes), and `await`s on a method that is a coroutine only in a subclass
+    connected by other classes), the `Player`'s signals emitted by his parts (PlayerControls,
+    PlayerPack), and `await`s on a method that is a coroutine only in a subclass
     (`BoardBackend` / `TaloBackend`, `Storyteller` / `BossMeeting`, `CinematicStep`, the
     `_panel_checked` probe hook in `PcTests`).
 - **Scenes**: one scene per entity, its script next to it. One monster scene serves every monster
@@ -64,7 +73,10 @@ the ones below are those worth spelling out, or where this project chose somethi
   `LootRoller.rarity_weights()` (what is told is what is rolled).
 - **Ask the kind, don't test it.** No `if x is SomeEffect / elif ...` chain: add a virtual to the
   base (`Effect.dressed_for_skill()`, `ItemDef.use_from_bag()`, `Actor._draws_ward_on_body()`)
-  and override it, so a new kind brings its own answer. Never `get("property")` by name either.
+  and override it, so a new kind brings its own answer (`Effect.show_warning()` and
+  `play_preview()` for the warning and the bestiary's preview, `Passive.look_element()`, a role
+  like `Actor.strikes_in_carried_elements()` rather than `attacker is Player`). Never
+  `get("property")` by name either.
 - **Small pieces.** Prefer a new `Effect`, `Passive`, `MonsterTrait` or `HazardDef` subclass to a new
   branch in `Actor`, `Monster` or `World`. Those three are already the biggest scripts. A new
   kind of floor is a new `FloorKind` subclass (picked in `FloorKind.choose()`), never another

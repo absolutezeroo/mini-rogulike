@@ -60,7 +60,7 @@ places (`BagCategoryDef.capacity` in `data/items/bag_categories.tres`): **Weapon
 item goes to is its class (a weapon is a `WeaponDef`, an armor an `ArmorDef`...) or, for a few,
 its id. A compartment fills on its own: sixteen weapons never stop a rune from coming in. "Is
 there room?" is always asked of the item's compartment (`Inventory.can_add()`, through
-`Player.can_store()`), wherever an item enters the bag: walking over loot and auto loot, the
+`PlayerPack.can_store()`), wherever an item enters the bag: walking over loot and auto loot, the
 Take button of loot left on the ground, the merchant's Buy, a rune taken out at the forge (and
 a weapon of a stack getting a rune: it needs a place of its own among the weapons), equipping
 one of a stack or unequipping (the worn piece goes back to its compartment), moving a consumable
@@ -100,12 +100,12 @@ Three things keep the compartments from getting in the way.
   never a way to make gold. Never what is worn, potions, runes, tomes or keys.
 - **Dismantle the worse**: the bag's button breaks down, after a confirmation that shows them and
   the gold, every piece of the tab open (weapons or armors) **worse** than what is worn in its slot (`ItemCompare.is_worse`,
-  `Player.worse_gear()`). Worse means: not a higher item level, not rarer, no rune set, no affix
+  `PlayerPack.worse_gear()`). Worse means: not a higher item level, not rarer, no rune set, no affix
   (or weapon status) doing something the worn one doesn't (Vampiric, Burning...); and then, if it
   is of a lower level or rarity, not better at its main job (damage per second for a weapon;
   Health, Armor or Damage for an armor), quicker or lighter does not save it; of the same level
   and rarity, not one stat in its favour. Nothing is worse than an empty slot.
-- **Auto loot** (Options, `Settings.auto_loot`, `Player.wants()`): what walking over an item does.
+- **Auto loot** (Options, `Settings.auto_loot`, `PlayerPack.wants()`): what walking over an item does.
   **All** takes everything (the old way). **Better only** (the default) takes gear only when it is
   not worse than what is worn (the same rule as above), and every potion, rune, tome and key.
   **By hand** takes no gear. Gold always flies to the hero, and the hidden floor's Bone Key is

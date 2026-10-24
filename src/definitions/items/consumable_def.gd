@@ -10,10 +10,10 @@ func get_type_label() -> String:
 	return tr("Consumable")
 
 
-## Taken from the bag and used (Player.consume()).
+## Taken from the bag and used (PlayerPack.consume()).
 func use_from_bag(player: Player) -> void:
 	player.inventory.remove(self)
-	player.consume(self)
+	player.pack.consume(self)
 
 
 func use(user: Actor, aim: Vector2) -> void:

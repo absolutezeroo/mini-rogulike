@@ -15,17 +15,38 @@ extends MonsterTrait
 @export var color: Color = Color(0.85, 0.85, 0.9, 0.75)
 
 
+## One guard's values (Monster.trait_state()).
+class GuardState:
+	extends RefCounted
+	## Where the shield points; until set (on_spawn()), the way the monster faces.
+	var direction := Vector2.ZERO
+	var has_direction := false
+
+
+func make_state() -> RefCounted:
+	return GuardState.new()
+
+
+func _state(monster: Monster) -> GuardState:
+	return monster.trait_state(self) as GuardState
+
+
 func on_spawn(monster: Monster) -> void:
-	monster.trait_state(self).direction = monster.facing
+	var state := _state(monster)
+	state.direction = monster.facing
+	state.has_direction = true
 
 
 ## Where the shield points.
 func direction_of(monster: Monster) -> Vector2:
-	return monster.trait_state(self).get("direction", monster.facing)
+	var state := _state(monster)
+	return state.direction if state.has_direction else monster.facing
 
 
 func set_direction(monster: Monster, direction: Vector2) -> void:
-	monster.trait_state(self).direction = direction.normalized()
+	var state := _state(monster)
+	state.direction = direction.normalized()
+	state.has_direction = true
 
 
 func update(monster: Monster, delta: float) -> void:

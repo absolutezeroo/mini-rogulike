@@ -1,9 +1,12 @@
 class_name Actor
 extends CharacterBody2D
 ## Base class for everything that moves and fights: the player and monsters.
-## Handles stats, health, attacking, knockback, dashing, perks, statuses and hit feedback.
+## Handles stats, health, attacking, knockback, dashing, perks, statuses and falls.
 ## Subclasses decide where to go (_get_desired_velocity) and what to do (_think).
 ## How it looks is the job of the ActorRig child ("Rig"): this script only tells it what happens.
+## Composed of components that each keep one thing: Equipment, SkillSet, PerkSet, StatusSet,
+## SustainMeter, TimedBonuses (src/components/); what a blow taken shows is HitFeedback's, its
+## ward's look WardVfx's and a body drawn without a sprite BodySketch's (src/vfx/).
 
 signal health_changed(current: int, maximum: int)
 signal stats_changed
@@ -34,20 +37,11 @@ enum Faction { PLAYER, MONSTER }
 
 const KNOCKBACK_FRICTION := 1400.0
 const FLASH_TIME := 0.1
-const HIT_TEXT_COLOR := Color("ffffff")
-const CRIT_TEXT_COLOR := Palette.GOLD
-const SECONDARY_TEXT_COLOR := Color("ffb26b")
 ## Pixel art is 16x16 and drawn at 2x.
 const SPRITE_SCALE := 2.0
 const AFTERIMAGE_INTERVAL := 0.03
 ## Seconds of falling into a hole before it counts.
 const FALL_TIME := 0.5
-
-
-## A stat bonus for a while (elixirs, war cries...).
-class TimedBonus:
-	var stats: StatBlock
-	var time_left := 0.0
 
 var faction: Faction = Faction.MONSTER
 ## Debug god mode (DebugPanel): nothing hurts.
@@ -99,12 +93,13 @@ var statuses := StatusSet.new()
 var status_fx: StatusFx
 ## Healing from "per hit" and "per kill" perks (see sustain_heal()).
 var sustain := SustainMeter.new()
+## Stat bonuses for a while (elixirs, war cries...: add_timed_bonus()).
+var timed_bonuses := TimedBonuses.new()
 var hp := 1
 var facing := Vector2.RIGHT
 var is_dead := false
 
 var _stats_cache: StatBlock
-var _timed_bonuses: Array[TimedBonus] = []
 var _attack_cooldown := 0.0
 var _invulnerable_time := 0.0
 var _knockback := Vector2.ZERO
@@ -153,10 +148,7 @@ func _refresh_look() -> void:
 
 func get_stats() -> StatBlock:
 	if _stats_cache == null:
-		var total := base_stats.plus(equipment.total_bonuses()).plus(perks.total_bonuses())
-		for bonus in _timed_bonuses:
-			total = total.plus(bonus.stats)
-		_stats_cache = total
+		_stats_cache = timed_bonuses.add_to(base_stats.plus(equipment.total_bonuses()).plus(perks.total_bonuses()))
 	return _stats_cache
 
 
@@ -203,15 +195,8 @@ func get_power() -> int:
 
 ## The same bonus again (a second elixir, a war cry recast) refreshes it instead of stacking.
 func add_timed_bonus(bonus: StatBlock, duration: float) -> void:
-	for active in _timed_bonuses:
-		if active.stats == bonus:
-			active.time_left = maxf(active.time_left, duration)
-			return
-	var timed := TimedBonus.new()
-	timed.stats = bonus
-	timed.time_left = duration
-	_timed_bonuses.append(timed)
-	invalidate_stats()
+	if timed_bonuses.add(bonus, duration):
+		invalidate_stats()
 
 
 func set_body_radius(value: float) -> void:
@@ -308,14 +293,7 @@ func take_hit(hit: HitInfo) -> void:
 	_flash_time = FLASH_TIME
 	if rig:
 		rig.play_hurt(hit.element)
-	if not hit.is_secondary:
-		var spark_direction := hit.knockback.normalized() if hit.knockback != Vector2.ZERO else Vector2.UP
-		Vfx.hit(world, global_position + Vector2(0, -radius * 0.5), spark_direction, _hit_spark_color(hit), hit.is_crit, hit.element, _impact_material())
-		Sfx.play_at(_hurt_sound(hit), global_position)
-		var impact := _impact_material()
-		if impact and impact.sound:
-			Sfx.play_at(impact.sound, global_position, impact.volume_db)
-	world.spawn_floating_text(head_position(), str(damage) + ("!" if hit.is_crit else ""), _hit_text_color(hit))
+	HitFeedback.play(self, hit, damage, _hit_spark_color(hit), _hurt_sound(hit) if not hit.is_secondary else null, _impact_material())
 	health_changed.emit(hp, get_max_hp())
 	Events.actor_damaged.emit(self, hit, damage)
 	if is_instance_valid(hit.source) and hit.source != self:
@@ -533,19 +511,9 @@ func _death_sound() -> AudioStream:
 	return null
 
 
+## Its sparks when hit (HitFeedback.spark_color(): gold on a crit, else its material's).
 func _hit_spark_color(hit: HitInfo) -> Color:
-	if hit.is_crit:
-		return CRIT_TEXT_COLOR
-	var impact := _impact_material()
-	return impact.spark_color if impact else Color.WHITE
-
-
-func _hit_text_color(hit: HitInfo) -> Color:
-	if hit.text_color.a > 0.0:
-		return hit.text_color
-	if hit.is_secondary:
-		return SECONDARY_TEXT_COLOR
-	return CRIT_TEXT_COLOR if hit.is_crit else HIT_TEXT_COLOR
+	return HitFeedback.spark_color(hit, _impact_material())
 
 
 # --- Frame update ------------------------------------------------------------
@@ -604,15 +572,8 @@ func _tick_timers(delta: float) -> void:
 		statuses.tick(self, delta)
 		if status_fx:
 			status_fx.wake()
-
-	if not _timed_bonuses.is_empty():
-		var expired := false
-		for bonus in _timed_bonuses:
-			bonus.time_left -= delta
-			expired = expired or bonus.time_left <= 0.0
-		if expired:
-			_timed_bonuses = _timed_bonuses.filter(func(b: TimedBonus) -> bool: return b.time_left > 0.0)
-			invalidate_stats()
+	if timed_bonuses.tick(delta):
+		invalidate_stats()
 
 
 # --- Drawing -----------------------------------------------------------------
@@ -649,6 +610,13 @@ func _shader_shows_statuses() -> bool:
 	return rig != null and rig.visible and not Settings.fewer_effects
 
 
+## Its hits land in the elements its weapon carries (its runes and affixes: ItemLook), and its
+## shots wear them: the hero's, whose gear is loot. A monster's weapon strikes as written
+## (Combat.melee_strike(), Combat.spec_from_weapon()).
+func strikes_in_carried_elements() -> bool:
+	return false
+
+
 ## The rig shows the weapon at rest and the gear's rarity and elements (ActorRig.carries_weapon):
 ## the hero's, whose gear is loot; monsters' weapons are their claws and fists.
 func _shows_gear() -> bool:
@@ -660,11 +628,10 @@ func _draw() -> void:
 	_drawn_radius = radius
 	if is_falling:
 		return
-	# Shadow under the feet: a flat oval of art pixels.
-	PixelDraw.disc(self, Vector2(0, _feet_y() - 1.0), radius, Color(0, 0, 0, 0.35), 1.0, 0.4)
+	BodySketch.shadow(self, _feet_y(), radius)
 	if frames == null:
 		var color := Color.WHITE if _flash_time > 0.0 else body_color * _body_modulate()
-		_draw_fallback_body(color)
+		BodySketch.draw(self, radius, color, facing, glyph)
 	if _ward_on_body():
 		_drawn_ward = true
 		draw_ward(self)
@@ -676,42 +643,7 @@ func _draws_ward_on_body() -> bool:
 	return true
 
 
-## A shimmering bubble around a warded actor, drawn on `canvas` (centered on the actor; monsters
-## draw it over their body, see MonsterOverlay).
-## In the spirit element's language, on the art's grid: a hollow shell (a sparse dithered inside,
-## a rim that flickers by whole pixels, gaps running around it), a glint circling, and small pale
-## flames licking up off its top (docs/vfx.md: no smooth circle, no translucent fill).
+## The shimmering bubble of its ward, drawn on `canvas` (centred on the actor; monsters draw it
+## over their body, see MonsterOverlay): WardVfx.
 func draw_ward(canvas: CanvasItem) -> void:
-	var t := Time.get_ticks_msec() * 0.001
-	var spirit := VfxElementDef.named(&"spirit")
-	var center := Vector2(0, -radius * 0.7)
-	var size := PixelDraw.snap_length(radius + 9.0)
-	PixelDraw.disc(canvas, center, size - PixelDraw.PX, spirit.shade(0.75), 0.12)
-	# The rim, its gaps turning: a hollow ring, not a solid bubble.
-	var cells := int(TAU * size / PixelDraw.PX)
-	var turn := int(t * 10.0)
-	for i in cells:
-		if (i + turn) % 9 < 2:
-			continue
-		var at := center + Vector2.from_angle(TAU * i / cells) * size
-		PixelDraw.pixel(canvas, at - Vector2.ONE, spirit.shade(0.5) if (i + turn) % 9 != 2 else spirit.shade(0.25))
-	for i in 3:
-		PixelDraw.pixel(canvas, center + Vector2.from_angle(t * 2.5 + i * 0.18) * size - Vector2.ONE, spirit.core())
-	# Pale flames licking up off its top, rising and going down the ramp.
-	for i in 3:
-		var life := fmod(t * 1.6 + i * 0.37, 1.0)
-		var x := (i - 1) * size * 0.45 + sin(t * 5.0 + i * 2.0) * PixelDraw.PX
-		var top := center + Vector2(x, -sqrt(maxf(size * size - x * x, 0.0)) - life * 10.0)
-		PixelDraw.pixel(canvas, top, spirit.shade(0.25 + life * 0.75))
-		if life < 0.5:
-			PixelDraw.pixel(canvas, top + Vector2(0, PixelDraw.PX), spirit.shade(0.5))
-
-
-func _draw_fallback_body(color: Color) -> void:
-	draw_circle(Vector2.ZERO, radius, color)
-	draw_circle(Vector2.ZERO, radius, color.darkened(0.4), false, 2.0)
-	var tip := facing * (radius + 6.0)
-	var side := facing.orthogonal() * 4.0
-	draw_colored_polygon(PackedVector2Array([tip, facing * radius + side, facing * radius - side]), color.lightened(0.3))
-	if not glyph.is_empty():
-		Fonts.draw(self, Vector2(0, 4), glyph, Fonts.BODY, color.darkened(0.7), 0.5, Color.TRANSPARENT)
+	WardVfx.draw(canvas, radius)

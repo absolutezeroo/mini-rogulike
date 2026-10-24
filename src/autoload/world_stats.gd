@@ -321,7 +321,7 @@ func _on_depth_changed(depth: int) -> void:
 
 
 func _on_consumable_used(item: ItemDef) -> void:
-	if item is ConsumableDef and Player.heals(item as ConsumableDef):
+	if item is ConsumableDef and PlayerPack.heals(item as ConsumableDef):
 		count(WorldStatDef.Feed.POTIONS)
 
 

@@ -1,7 +1,7 @@
 class_name MonsterBuckets
 extends RefCounted
 ## The awake monsters (ActivityManager.awake) sorted into a coarse grid once per physics frame, so
-## a monster keeping its distance from the others (Monster._keep_spacing) looks only at those in
+## a monster keeping its distance from the others (MonsterSteering.keep_spacing) looks only at those in
 ## the cells around it instead of the whole list: with 40 awake, 1,600 checks a frame became a few
 ## dozen (docs/performance.md).
 ##

@@ -67,7 +67,8 @@ func show_lanes(radius: float, angle: float, progress: float, lanes: int, spread
 
 
 ## The warning of `skill` cast toward `angle` by a body of `body_radius`: its own radius when it
-## has one, the lanes of its shots, the line of its dash, the circle of its area. Returns false
+## has one, else what its first effect shows (Effect.show_warning(): the lanes of its shots, the
+## line of its dash, the circle of its area). Returns false
 ## (and hides) for a skill with nothing to warn about (a summon, a heal). `position` is moved to
 ## an area pushed forward along the aim.
 func show_skill(skill: SkillDef, angle: float, progress: float, body_radius: float = 0.0) -> bool:
@@ -76,23 +77,7 @@ func show_skill(skill: SkillDef, angle: float, progress: float, body_radius: flo
 		show_shape(Shape.CIRCLE, skill.telegraph_radius, angle, progress)
 		return true
 	var first: Effect = skill.effects[0] if not skill.effects.is_empty() else null
-	if first is ProjectileEffect:
-		var shot := first as ProjectileEffect
-		var length := minf(shot.max_distance, LANE_LENGTH)
-		var aim := angle + deg_to_rad(shot.angle_offset)
-		if shot.count <= 1 or shot.spread_degrees <= 0.0:
-			show_shape(Shape.LINE, length, aim, progress, 0.0, LANE_WIDTH)
-		else:
-			show_lanes(length, aim, progress, shot.count, shot.spread_degrees, body_radius)
-		return true
-	if first is DashStrikeEffect:
-		var dash := first as DashStrikeEffect
-		show_shape(Shape.LINE, dash.distance, angle, progress, 0.0, maxf(dash.width, LANE_WIDTH))
-		return true
-	if first is DamageAreaEffect:
-		var area := first as DamageAreaEffect
-		position = Vector2.from_angle(angle) * area.offset
-		show_shape(Shape.CIRCLE, area.radius, angle, progress)
+	if first and first.show_warning(self, angle, progress, body_radius):
 		return true
 	visible = false
 	return false

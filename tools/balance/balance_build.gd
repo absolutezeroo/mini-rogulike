@@ -302,7 +302,7 @@ static func apply(build: BalanceBuildDef, player: Player, content: ContentDB, di
 			UpgradeDef.Kind.STARTING_ITEMS:
 				for k in level:
 					for item in u.items:
-						player.store(item)
+						player.pack.store(item)
 	if difficulty and difficulty.hero_max_hp != 1.0:
 		player.base_stats.max_hp = roundi(player.base_stats.max_hp * difficulty.hero_max_hp)
 	for i in maxi(build.level - 1, 0):
@@ -341,14 +341,14 @@ static func apply(build: BalanceBuildDef, player: Player, content: ContentDB, di
 				entry.granted = synergy.passives
 				player.perks._awake.append(entry)
 		player.perks._rebuild_all()
-	player._timed_bonuses.clear()
+	player.timed_bonuses.clear()
 	for buff: Array in build.buffs:
 		player.add_timed_bonus(buff[0], buff[1])
 	player.learned_skill = build.learned_skill
 	# Skills ready, as after a long walk to the boss (an equip puts new skills on a short cooldown).
 	var none: Array[SkillDef] = []
 	player.skills.set_skills(none)
-	player._rebuild_skills(0.0)
+	player.rebuild_skills(0.0)
 	player.invalidate_stats()
 	player.hp = player.get_max_hp()
 	player.health_changed.emit(player.hp, player.get_max_hp())

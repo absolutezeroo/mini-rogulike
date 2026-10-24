@@ -77,8 +77,33 @@ enum Stage { CLOSED, OPENING, OPEN, CLOSING }
 static var _pools := {}
 
 
+## One weak point's values (Monster.trait_state()).
+class WeakPointState:
+	extends RefCounted
+	var stage := Stage.CLOSED
+	## Seconds left in the stage it is in.
+	var timer := 0.0
+	var bite_cooldown := 0.0
+	## The bite under way (its warning on the ground), null or freed when none.
+	var bite: GroundStrike
+	## When the last blow glanced off (s, Time): a volley of shots clangs once.
+	var clang_at := -10.0
+	## Its own light (glow_level), null without.
+	var light: LightSource
+	## The hero is drawn over it (he stands in front of its lower body).
+	var hero_over := false
+
+
+func make_state() -> RefCounted:
+	return WeakPointState.new()
+
+
+func _state(monster: Monster) -> WeakPointState:
+	return monster.trait_state(self) as WeakPointState
+
+
 func on_spawn(monster: Monster) -> void:
-	var state := monster.trait_state(self)
+	var state := _state(monster)
 	state.stage = Stage.CLOSED
 	state.timer = _by_phase(closed_times, 0)
 	state.bite_cooldown = 0.0
@@ -121,10 +146,10 @@ func _keep_hero_in_front(monster: Monster) -> void:
 	var hero := monster.world.player if monster.world else null
 	if hero == null or monster.rig == null:
 		return
-	var state := monster.trait_state(self)
+	var state := _state(monster)
 	var away := hero.global_position - monster.global_position
 	var front := not monster.is_dead and away.y > -PixelDraw.PX * 4.0 and away.y < pool_offset.y + pool_size.y and absf(away.x) < pool_size.x * 0.5 + 16.0
-	if front == bool(state.get("hero_over", false)):
+	if front == state.hero_over:
 		return
 	state.hero_over = front
 	if front:
@@ -154,7 +179,7 @@ func on_died(monster: Monster, _killer: Actor, _fell: bool, _rewards: bool) -> v
 
 ## The hero drawn among the actors again (he left its front, it died or left the world).
 func _release_hero(monster: Monster) -> void:
-	monster.trait_state(self).hero_over = false
+	_state(monster).hero_over = false
 	var hero := monster.world.player if monster.world else null
 	if hero and is_instance_valid(hero):
 		hero.z_as_relative = true
@@ -163,7 +188,7 @@ func _release_hero(monster: Monster) -> void:
 
 ## Which stage it is in (CLOSED, OPENING, OPEN, CLOSING).
 func stage_of(monster: Monster) -> Stage:
-	return monster.trait_state(self).get("stage", Stage.CLOSED)
+	return _state(monster).stage
 
 
 ## Open: hits land.
@@ -173,7 +198,7 @@ func is_open(monster: Monster) -> bool:
 
 ## Seconds left in the stage it is in.
 func time_left(monster: Monster) -> float:
-	return monster.trait_state(self).get("timer", 0.0)
+	return _state(monster).timer
 
 
 ## Opens now (tests, a scripted moment).
@@ -182,16 +207,16 @@ func open_now(monster: Monster) -> void:
 
 
 func update(monster: Monster, delta: float) -> void:
-	var state := monster.trait_state(self)
+	var state := _state(monster)
 	if lit_from_within:
 		_keep_hero_in_front(monster)
 	if monster.dormant:
 		return
-	state.bite_cooldown = maxf(float(state.bite_cooldown) - delta, 0.0)
-	var stage: Stage = state.stage
+	state.bite_cooldown = maxf(state.bite_cooldown - delta, 0.0)
+	var stage := state.stage
 	# A roar into a new phase (untouchable a moment) doesn't eat the open window.
 	if not (stage == Stage.OPEN and monster.invincible):
-		state.timer = float(state.timer) - delta
+		state.timer = state.timer - delta
 	match stage:
 		Stage.CLOSED:
 			# Never in the middle of a cast: the skill goes off first.
@@ -211,7 +236,7 @@ func update(monster: Monster, delta: float) -> void:
 
 
 func _set_stage(monster: Monster, stage: Stage) -> void:
-	var state := monster.trait_state(self)
+	var state := _state(monster)
 	state.stage = stage
 	var rig := monster.rig
 	var phase := monster.phase_index()
@@ -244,7 +269,7 @@ func _set_stage(monster: Monster, stage: Stage) -> void:
 
 
 func _glow(monster: Monster, level: int) -> void:
-	var light: LightSource = monster.trait_state(self).get("light")
+	var light := _state(monster).light
 	if light and is_instance_valid(light):
 		light.level = clampi(level, 0, LightField.MAX_LEVEL)
 
@@ -275,14 +300,14 @@ func _pull(monster: Monster, delta: float) -> void:
 
 
 func _biting(monster: Monster) -> bool:
-	var bite: Variant = monster.trait_state(self).get("bite")
+	var bite: Variant = _state(monster).bite  # (a Variant: it may have been freed)
 	return bite != null and is_instance_valid(bite)
 
 
 ## The hero too close to the open mouth: a warning on the ground, then the bite.
 func _try_bite(monster: Monster) -> void:
-	var state := monster.trait_state(self)
-	if _biting(monster) or float(state.bite_cooldown) > 0.0 or monster.invincible:
+	var state := _state(monster)
+	if _biting(monster) or state.bite_cooldown > 0.0 or monster.invincible:
 		return
 	var hero := monster.world.player
 	if hero == null or hero.is_dead:
@@ -325,8 +350,8 @@ func can_attack(_monster: Monster) -> bool:
 
 ## Skills only while closed (and not on its way to opening).
 func can_cast(monster: Monster) -> bool:
-	var state := monster.trait_state(self)
-	return state.get("stage", Stage.CLOSED) == Stage.CLOSED and float(state.get("timer", 1.0)) > 0.5
+	var state := _state(monster)
+	return state.stage == Stage.CLOSED and state.timer > 0.5
 
 
 ## Closed (or opening, or closing): the blow glances off whole.
@@ -335,9 +360,9 @@ func deflects(monster: Monster, hit: HitInfo) -> bool:
 		return false
 	if hit.is_tick:
 		return true  # a burn or poison ticking: nothing to show
-	var state := monster.trait_state(self)
+	var state := _state(monster)
 	var now := Time.get_ticks_msec() * 0.001
-	if now - float(state.get("clang_at", -10.0)) < 0.18:
+	if now - state.clang_at < 0.18:
 		return true  # a volley of shots: one clang
 	state.clang_at = now
 	var world := monster.world

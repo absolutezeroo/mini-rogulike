@@ -28,3 +28,8 @@ func on_hit_dealt(owner: Actor, target: Actor, hit: HitInfo, _damage: int, perk:
 	if target.is_dead or not catches:
 		return
 	target.statuses.apply_dot(status_id, damage_per_stack * perk.stacks, interval, duration, owner, element.color() if element else color)
+
+
+## Shows as the element it strikes with (ItemLook).
+func look_element() -> VfxElementDef:
+	return element

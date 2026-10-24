@@ -26,3 +26,7 @@ func apply(user: Actor, _aim: Vector2) -> void:
 	if healed > 0:
 		user.world.spawn_floating_text(user.head_position(), "+%d" % healed, Palette.HEAL)
 	Vfx.magic(user.world, user.global_position, Palette.HEAL, element)
+
+
+func play_preview(preview: EffectPreview) -> void:
+	preview.ring(0.0, preview.caster_radius() + 22.0, Palette.HEAL, false)

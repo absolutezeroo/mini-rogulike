@@ -1,7 +1,9 @@
 class_name Player
 extends Actor
-## The hero. Reads input (keyboard, gamepad or the on-screen controls, which all
-## go through the same Input actions), auto-aims, and owns inventory and XP.
+## The hero: his gear, bag and belt, XP, gold and the falls he climbs out of. Composed of
+## focused parts: `controls` (PlayerControls: the input, the aim, the attack button and its
+## charge), `pack` (PlayerPack: what he does with the bag, the belt and his gear), and
+## PlayerSave (his part of a saved run).
 
 signal xp_changed(xp: int, xp_needed: int, level: int)
 ## Emitted once per level gained (the game then offers a perk).
@@ -11,6 +13,8 @@ signal damaged(amount: int)
 ## The skill buttons changed (new weapon, new spell learned).
 signal skills_changed
 signal gold_changed(gold: int)
+# Emitted by his parts (PlayerControls, PlayerPack: the buttons and the bag), not by this script.
+@warning_ignore_start("unused_signal")
 ## A potion (or another consumable) was used, from the bag or the belt.
 signal consumable_used(item: ItemDef)
 ## A swing or a shot of the weapon (the tutorial listens).
@@ -24,10 +28,10 @@ signal item_dropped(item: ItemDef)
 ## Holding the attack button: the charge started filling, then it is full (ChargeVfx, the HUD).
 signal charge_started
 signal charge_full
+@warning_ignore_restore("unused_signal")
 ## The weapon's charged attack was unleashed (the tutorial listens).
 signal charged_attack(attack: ChargedAttackDef)
 
-const AIM_HOLD_TIME := 0.35         ## Keep facing the aim direction this long after attacking.
 ## Where the weapon is in the hero's hand: this far above his center (his chest, on the rig's
 ## 2x art) and this far out toward the aim. His shots leave from there (docs/vfx.md 2b).
 const HAND_LIFT := 6.0
@@ -36,12 +40,7 @@ const HAND_REACH := 8.0
 ## Slots without a skill stay empty (null), so a skill never jumps to another button.
 const WEAPON_SKILL_SLOTS := 2
 const SKILL_COUNT := 4
-## The skill and belt buttons' input actions, by slot (read every frame: no name formatted).
-const SKILL_ACTIONS: Array[StringName] = [&"skill_1", &"skill_2", &"skill_3", &"skill_4"]
-const BELT_ACTIONS: Array[StringName] = [&"belt_1", &"belt_2", &"belt_3"]
 const STEP_INTERVAL := 0.3
-## Gold for breaking gear down from the bag.
-const DISMANTLE: DismantleRules = preload("res://data/items/dismantle.tres")
 
 ## PlayerDef's own defaults, for a hero not set up yet (tuning()).
 static var _defaults := PlayerDef.new()
@@ -66,18 +65,15 @@ var killer_was_elite := false
 var temperature := BodyTemperature.new()
 ## Holding the attack button: the weapon's charged attack (AttackCharge, ChargedAttackDef).
 var charge := AttackCharge.new()
+## The input, the aim and the attack button (PlayerControls).
+var controls := PlayerControls.new(self)
+## The bag, the belt and the gear in his hands (PlayerPack).
+var pack := PlayerPack.new(self)
 
-var _move_direction := Vector2.ZERO
-var _aim_hold := 0.0
-## A press of the attack button not yet turned into a swing (PlayerDef.attack_buffer).
-var _attack_buffer := 0.0
 var _step_timer := 0.0
 var _left_foot := false
 ## Where the hero climbs back out after falling into a hole: the last solid ground stood on.
 var _safe_position := Vector2.ZERO
-## The game just came out of a pause: the press that closed the menu (a gamepad's B closes and
-## is skill 2 too) belongs to the menu, so the first frame after it reads no new press.
-var _presses_muted := false
 
 @onready var camera: GameCamera = $Camera
 ## The charge's gauge at his feet and the glow in his hand.
@@ -91,7 +87,7 @@ func _ready() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_UNPAUSED:
-		_presses_muted = true
+		controls.mute_presses()
 
 
 ## Its def's feel numbers (i-frames, aim ranges...); the defaults of PlayerDef before setup().
@@ -117,9 +113,9 @@ func setup(player_def: PlayerDef) -> void:
 	for item in def.starting_equipment:
 		equipment.equip(item)
 	for item in def.starting_items:
-		store(item)
-	_rebuild_skills(0.0)
-	equipment.changed.connect(_rebuild_skills.bind(def.swap_cooldown))
+		pack.store(item)
+	rebuild_skills(0.0)
+	equipment.changed.connect(rebuild_skills.bind(def.swap_cooldown))
 	equipment.changed.connect(charge.cancel)  # a weapon swap loses the charge
 	equipment.changed.connect(func() -> void: perks.set_gear(equipment.affixes(), equipment.runes()))
 	perks.set_gear(equipment.affixes(), equipment.runes())
@@ -136,79 +132,22 @@ func xp_to_next_level() -> int:
 	return def.xp_to_next_level(level)
 
 
-# --- Input -------------------------------------------------------------------
+# --- Input (PlayerControls) ----------------------------------------------------
 
 func _think(delta: float) -> void:
-	_aim_hold = maxf(_aim_hold - delta, 0.0)
-	_move_direction = Input.get_vector("move_left", "move_right", "move_up", "move_down")
-	if _move_direction != Vector2.ZERO and _aim_hold <= 0.0:
-		facing = _move_direction.normalized()
+	controls.read_move(delta)
 	_update_footsteps(delta)
-	var fresh := not _presses_muted  # (a press that closed a menu: see _presses_muted)
-	_presses_muted = false
-	_update_attack(delta, fresh)
-
-	for i in mini(skills.skills.size(), SKILL_COUNT):
-		if fresh and skills.skills[i] and Input.is_action_just_pressed(SKILL_ACTIONS[i]):
-			use_skill(i)
-
-	if fresh and Input.is_action_just_pressed("quick_item"):
-		use_quick_item()
-	for i in range(1, Belt.SLOTS):
-		if fresh and Input.is_action_just_pressed(BELT_ACTIONS[i]):
-			use_belt(i)
-
-
-## The attack button: a tap swings (or shoots) once, aimed at the closest enemy; holding it
-## no longer repeats the swing, it charges the weapon's charged attack (AttackCharge), unleashed
-## when the button is let go with the charge full (docs/design/interface.md). `fresh` false:
-## a press seen now closed a menu, it doesn't swing (held on, it charges).
-func _update_attack(delta: float, fresh: bool = true) -> void:
-	var weapon := get_weapon()
-	var charged := weapon.charged if weapon else null
-	_attack_buffer = maxf(_attack_buffer - delta, 0.0)
-	if fresh and Input.is_action_just_pressed("attack"):
-		_attack_buffer = tuning().attack_buffer
-		charge.press()
-	if is_falling:
-		charge.cancel()  # a fall loses the charge (a roll or a dash: start_dash)
-	if Input.is_action_pressed("attack"):
-		if charged:
-			match charge.hold(delta, def.charge_delay, charged.charge_time):
-				AttackCharge.State.CHARGING:
-					charge_started.emit()
-				AttackCharge.State.FULL:
-					Sfx.play_at(def.charge_full_sound, global_position)
-					charge_full.emit()
-	elif charge.state != AttackCharge.State.IDLE:
-		if charge.release() and charged and weapon:
-			_unleash(weapon, charged)
-	if charge.is_charging():
-		_attack_buffer = 0.0
-		# Winding up toward the closest enemy; with none in sight, the way he walks.
-		var target := get_aim_target(tuning().skill_aim_range)
-		if target:
-			facing = global_position.direction_to(target.global_position)
-		elif _move_direction != Vector2.ZERO:
-			facing = _move_direction.normalized()
-		_aim_hold = AIM_HOLD_TIME
-	if rig:
-		rig.show_charge(weapon if charge.is_charging() else null)
-	if _attack_buffer > 0.0 and can_attack():
-		_attack_buffer = 0.0
-		if attack(get_aim_direction(_auto_aim_range())):
-			attacked.emit()
-		_aim_hold = AIM_HOLD_TIME
+	controls.act(delta)
 
 
 ## The charge was full and the button let go: the weapon's charged attack toward the closest
 ## enemy (or straight ahead). The weapon swings again after its usual cooldown.
-func _unleash(weapon: WeaponDef, charged: ChargedAttackDef) -> void:
+func unleash(weapon: WeaponDef, charged: ChargedAttackDef) -> void:
 	if is_dead or is_falling:
 		return
 	var aim := get_aim_direction(tuning().skill_aim_range)
 	facing = aim
-	_aim_hold = AIM_HOLD_TIME
+	controls.hold_aim()
 	_attack_cooldown = get_attack_cooldown(weapon)
 	if rig:
 		# The pose (and a sheet the weapon plays) the way a melee blow is struck (Blow); the
@@ -248,7 +187,8 @@ func get_move_speed() -> float:
 
 
 func _update_footsteps(delta: float) -> void:
-	if _move_direction.length() < 0.3 or is_dashing():
+	var walking := controls.move_direction
+	if walking.length() < 0.3 or is_dashing():
 		_step_timer = 0.0
 		return
 	_step_timer -= delta
@@ -262,59 +202,32 @@ func _update_footsteps(delta: float) -> void:
 		if ambience and ambience.footprint_color.a > 0.0:
 			# Left, right, left... on each side of the path.
 			_left_foot = not _left_foot
-			var side := _move_direction.orthogonal().normalized() * (3.0 if _left_foot else -3.0)
-			world.spawn_vfx(FootprintVfx.create(feet + side, _move_direction, ambience.footprint_color))
+			var side := walking.orthogonal().normalized() * (3.0 if _left_foot else -3.0)
+			world.spawn_vfx(FootprintVfx.create(feet + side, walking, ambience.footprint_color))
 
 
 func _get_desired_velocity() -> Vector2:
-	return _move_direction * get_move_speed()
+	return controls.move_direction * get_move_speed()
 
 
 func get_move_direction() -> Vector2:
-	return _move_direction
+	return controls.move_direction
 
 
-## Direction to the closest visible enemy in range, or the current facing.
+## Direction to the closest visible enemy in range, or the current facing (PlayerControls).
 func get_aim_direction(max_range: float) -> Vector2:
-	var target := get_aim_target(max_range)
-	if target:
-		return global_position.direction_to(target.global_position)
-	return facing
+	return controls.aim_direction(max_range)
 
 
-func get_aim_target(max_range: float) -> Actor:
-	var best: Actor = null
-	var best_distance := max_range
-	for enemy in world.get_hostiles(faction):
-		var distance := global_position.distance_to(enemy.global_position) - enemy.radius
-		if distance < best_distance and world.has_line_of_sight(global_position, enemy.global_position):
-			best = enemy
-			best_distance = distance
-	return best
-
-
-func _auto_aim_range() -> float:
-	var weapon := get_weapon()
-	if weapon == null:
-		return 0.0
-	if weapon.kind == WeaponDef.Kind.MELEE:
-		return radius + weapon.reach + tuning().melee_aim_assist
-	return weapon.reach
-
-
+## Skill button `index` (0: the roll), as if pressed (PlayerControls.use_skill()).
 func use_skill(index: int) -> void:
-	var aim := get_aim_direction(tuning().skill_aim_range)
-	if skills.try_use(index, self, aim):
-		charge.cancel()  # a skill (the roll first) loses the charge
-		facing = aim
-		_aim_hold = AIM_HOLD_TIME
-		skill_used.emit(index)
+	controls.use_skill(index)
 
 
 # --- Skills ------------------------------------------------------------------
 
 ## Innate skills + the weapon's skills + the learned spell, each in its own slot.
-func _rebuild_skills(new_skill_cooldown: float) -> void:
+func rebuild_skills(new_skill_cooldown: float) -> void:
 	var list: Array[SkillDef] = []
 	list.append_array(def.innate_skills)
 	var weapon := get_weapon()
@@ -329,181 +242,10 @@ func _rebuild_skills(new_skill_cooldown: float) -> void:
 ## Puts a skill in the learned slot (replacing the previous one).
 func learn_skill(skill: SkillDef) -> void:
 	learned_skill = skill
-	_rebuild_skills(0.0)
+	rebuild_skills(0.0)
 	Events.log_message(tr("Learned %s!") % tr(skill.display_name), skill.color)
 	Vfx.magic(world, global_position, skill.color)
 	Sfx.play_ui(Sfx.bank.level_up)
-
-
-# --- Items -------------------------------------------------------------------
-
-## Puts an item away: consumables on the belt if there is room, everything else (and the
-## overflow) in the bag. False if neither has room.
-func store(item: ItemDef) -> bool:
-	return belt.add(item) or inventory.add(item)
-
-
-func can_store(item: ItemDef) -> bool:
-	return belt.can_add(item) or inventory.can_add(item)
-
-
-## Auto loot (Settings.auto_loot, `mode`): does walking over `item` take it? Potions, runes,
-## tomes and keys always (gold flies to the hero on its own). "Better only" leaves the gear that
-## is worse than what is worn (ItemCompare.is_worse), "By hand" all gear: it waits on the ground,
-## and walking over it shows it with a Take button (LootPrompt).
-func wants(item: ItemDef, mode: int) -> bool:
-	if mode == Settings.LOOT_ALL or not item is EquipmentDef:
-		return true
-	if mode == Settings.LOOT_OFF:
-		return false
-	return not ItemCompare.is_worse(item as EquipmentDef, equipment.get_item((item as EquipmentDef).slot))
-
-
-## Called when walking over an item. Returns false if it could not be taken.
-func pick_up(item: ItemDef) -> bool:
-	if item is EquipmentDef and equipment.get_item(item.slot) == null:
-		equipment.equip(item)
-		Events.log_message(tr("Equipped %s") % tr(item.display_name), item.color)
-		_pickup_feedback(item, Sfx.bank.equip)
-		return true
-	if store(item):
-		Events.log_message(tr("Picked up %s") % tr(item.display_name), item.rarity_color() if item is RuneDef else item.color)
-		_pickup_feedback(item, Sfx.bank.pickup)
-		return true
-	Events.log_message(inventory.full_text(item), Palette.DANGER)
-	Events.bag_full.emit(item)
-	return false
-
-
-func _pickup_feedback(item: ItemDef, sound: AudioStream) -> void:
-	if item is EquipmentDef and (item as EquipmentDef).rarity == ItemRarity.EPIC:
-		Events.stat_counted.emit("epics", 1)
-	Sfx.play_world(sound, global_position)
-	Vfx.sparkles(world, global_position, item.color)
-
-
-## Uses `item` from the bag: what that means is the item's own (ItemDef.use_from_bag(): a potion
-## is drunk, a tome read, gear worn).
-func use_item(item: ItemDef) -> void:
-	if is_dead or not inventory.items.has(item):
-		return
-	item.use_from_bag(self)
-
-
-## Drinks, throws or reads `item` (a consumable taken from the bag or the belt), toward the
-## closest enemy.
-func consume(item: ConsumableDef) -> void:
-	item.use(self, get_aim_direction(tuning().skill_aim_range))
-	Events.log_message(tr("Used %s") % tr(item.display_name), item.color)
-	consumable_used.emit(item)
-
-
-## Wears `item`, from the bag, what was worn in its slot going back to the bag (EquipmentDef).
-func wear_from_bag(item: EquipmentDef) -> void:
-	# One of a stack: it frees no place, and what is worn now needs one.
-	var worn := equipment.get_item(item.slot)
-	if not inventory.fits_after_taking(item, worn):
-		Events.log_message(inventory.full_text(worn), Palette.DANGER)
-		Events.bag_full.emit(worn)
-		return
-	inventory.remove(item)
-	var previous := equipment.equip(item)
-	if previous:
-		inventory.add(previous)
-	Sfx.play_ui(Sfx.bank.equip)
-	Events.log_message(tr("Equipped %s") % tr(item.display_name), item.color)
-
-
-func unequip(slot: EquipmentDef.Slot) -> void:
-	if equipment.get_item(slot) == null:
-		return
-	if not inventory.can_add(equipment.get_item(slot)):
-		Events.log_message(inventory.full_text(equipment.get_item(slot)), Palette.DANGER)
-		return
-	inventory.add(equipment.unequip(slot))
-	Sfx.play_ui(Sfx.bank.equip)
-
-
-func drop_item(item: ItemDef) -> void:
-	if inventory.remove(item):
-		world.spawn_item(item, global_position, false)
-		Sfx.play_world(Sfx.bank.drop, global_position)
-		item_dropped.emit(item)
-
-
-## Breaks `item` (one of its stack in the bag) down for gold (DismantleRules). The gold it gave,
-## 0 if it can't be (not equipment, not in the bag).
-func dismantle(item: ItemDef) -> int:
-	var one: Array[ItemDef] = [item]
-	return dismantle_all(one)
-
-
-## Breaks these down at once (each entry is one item of the bag). Only gear in the bag: what is
-## worn, potions, runes, tomes and keys are never touched. The gold it gave.
-func dismantle_all(list: Array[ItemDef]) -> int:
-	var gold_gained := 0
-	var broken: Array[ItemDef] = []
-	for item in list:
-		if not DismantleRules.can_dismantle(item):
-			continue
-		var taken := inventory.take(item)
-		if taken == null:
-			continue
-		gold_gained += DISMANTLE.gold_for(taken)
-		broken.append(taken)
-	if broken.is_empty():
-		return 0
-	add_gold(gold_gained)
-	Sfx.play_ui(Sfx.bank.dismantle)
-	Sfx.play_ui(Sfx.bank.coin)
-	if broken.size() == 1:
-		Events.log_message(tr("Dismantled %s: +%d gold") % [tr(broken[0].display_name), gold_gained], Palette.GOLD)
-	else:
-		Events.log_message(tr("Dismantled %d pieces of gear: +%d gold") % [broken.size(), gold_gained], Palette.GOLD)
-	dismantled.emit(broken, gold_gained)
-	return gold_gained
-
-
-## The gear in the bag worse than what is worn in its slot (ItemCompare.is_worse): what
-## "Dismantle the worse" breaks down. Every item of a stack is listed. `compartment` >= 0: only
-## those of that compartment of the bag (the tab open: weapons or armor).
-func worse_gear(compartment: int = -1) -> Array[ItemDef]:
-	var result: Array[ItemDef] = []
-	for item in inventory.items:
-		var gear := item as EquipmentDef
-		if compartment >= 0 and inventory.compartment_of(item) != compartment:
-			continue
-		if gear and DismantleRules.can_dismantle(gear) and ItemCompare.is_worse(gear, equipment.get_item(gear.slot)):
-			result.append(item)
-	return result
-
-
-## Uses the item in belt slot `index` (the buttons next to the skills).
-func use_belt(index: int) -> void:
-	if is_dead or belt.item_at(index) == null:
-		return
-	var item := belt.take(index)
-	consume(item)
-
-
-## Belt slot 1 (the quick item key).
-func use_quick_item() -> void:
-	use_belt(0)
-
-
-## Moves a consumable from the bag to the belt (or back). False if there is no room.
-func move_to_belt(item: ItemDef) -> bool:
-	if not belt.can_add(item) or not inventory.remove(item):
-		return false
-	belt.add(item)
-	return true
-
-
-func move_to_bag(index: int) -> bool:
-	if belt.item_at(index) == null or not inventory.can_add(belt.item_at(index)):
-		return false
-	inventory.add(belt.take(index))
-	return true
 
 
 # --- Progression -------------------------------------------------------------
@@ -548,57 +290,14 @@ func spend_gold(amount: int) -> bool:
 
 # --- Saving -----------------------------------------------------------------
 
-## Everything about the hero a saved run needs (see RunSave).
+## Everything about the hero a saved run needs (see RunSave, PlayerSave).
 func save_state() -> Dictionary:
-	var gear := {}
-	for slot: EquipmentDef.Slot in EquipmentDef.Slot.values():
-		var item := equipment.get_item(slot)
-		if item:
-			gear[str(slot)] = LootRoller.to_data(item)
-	return {
-		"level": level,
-		"xp": xp,
-		"hp": hp,
-		"base_stats": base_stats.to_dict(),
-		"equipment": gear,
-		"inventory": inventory.items.map(LootRoller.to_data),
-		"belt": belt.to_data(),
-		"gold": gold,
-		"perks": perks.to_data(),
-		"learned_skill": RunSave.ref(learned_skill),
-	}
+	return PlayerSave.to_data(self)
 
 
 ## Puts the hero back as saved (after setup()).
 func load_state(data: Dictionary) -> void:
-	level = int(data.get("level", 1))
-	xp = int(data.get("xp", 0))
-	base_stats = StatBlock.from_dict(data.get("base_stats", {}))
-	for slot: EquipmentDef.Slot in EquipmentDef.Slot.values():
-		equipment.unequip(slot)
-	var gear: Dictionary = data.get("equipment", {})
-	for key: String in gear:
-		var item := LootRoller.from_data(gear[key]) as EquipmentDef
-		if item:
-			equipment.equip(item)
-	inventory.items.clear()
-	gold = int(data.get("gold", 0))
-	# One list, as saves always kept it: each item goes back to its compartment, even past its
-	# places (a save from the single 16-place bag, a compartment made smaller): nothing is lost.
-	for saved_item: Variant in data.get("inventory", []):
-		var item := LootRoller.from_data(saved_item)
-		if item:
-			inventory.force_add(item)
-	belt.load_data(data.get("belt", []))
-	perks.load_data(data.get("perks", []))
-	learned_skill = RunSave.load_ref(data.get("learned_skill")) as SkillDef
-	charge.reset()  # a charge is never saved: back from a save, the button starts afresh
-	_rebuild_skills(0.0)
-	invalidate_stats()
-	hp = clampi(int(data.get("hp", get_max_hp())), 1, get_max_hp())
-	health_changed.emit(hp, get_max_hp())
-	xp_changed.emit(xp, xp_to_next_level(), level)
-	gold_changed.emit(gold)
+	PlayerSave.restore(self, data)
 
 
 # --- Holes ------------------------------------------------------------------
@@ -728,30 +427,12 @@ func _tick_timers(delta: float) -> void:
 	temperature.update(self, delta)
 
 
-## Healing potions carried, belt and bag (a consumable that heals: HealEffect).
-func healing_carried() -> int:
-	var total := 0
-	for slot in belt.slots:
-		var item := slot.get("item") as ConsumableDef
-		if item and Player.heals(item):
-			total += int(slot.get("count", 0))
-	for item in inventory.items:
-		if item is ConsumableDef and Player.heals(item as ConsumableDef):
-			total += 1
-	return total
-
-
-## `item` mends the one who drinks it (a potion, not a bomb or a scroll).
-static func heals(item: ConsumableDef) -> bool:
-	return item != null and item.effects.any(func(effect: Effect) -> bool: return effect is HealEffect)
-
-
-## How many of `item` the hero carries (belt and bag).
-func carried_count(item: ItemDef) -> int:
-	return belt.count_of(item) + inventory.count_of(item)
-
-
 func _shows_gear() -> bool:
+	return true
+
+
+## His hits and shots wear what his weapon carries (Actor.strikes_in_carried_elements()).
+func strikes_in_carried_elements() -> bool:
 	return true
 
 

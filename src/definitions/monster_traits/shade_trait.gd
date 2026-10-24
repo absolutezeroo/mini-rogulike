@@ -31,6 +31,21 @@ extends MonsterTrait
 @export_range(1, 6) var cast_glow_steps: int = 3
 
 
+## One shade's values (Monster.trait_state()): the lantern in its hand and its glow.
+class ShadeState:
+	extends RefCounted
+	var lantern: Sprite2D
+	var halo: GlowHalo
+
+
+func make_state() -> RefCounted:
+	return ShadeState.new()
+
+
+func _state(monster: Monster) -> ShadeState:
+	return monster.trait_state(self) as ShadeState
+
+
 func on_spawn(monster: Monster) -> void:
 	if monster.rig:
 		_shade(monster)
@@ -55,10 +70,10 @@ func _shade(monster: Monster) -> void:
 	held.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	held.position = lantern_offset
 	monster.rig.visual.add_child(held)  # (the art's scale: its pixels on the body's grid)
-	monster.trait_state(self).lantern = held
+	_state(monster).lantern = held
 	var glow_at := monster.rig.position + lantern_offset * Actor.SPRITE_SCALE
 	var halo := GlowHalo.attach(monster, glow_element, glow_size, glow_at, GlowHalo.Pulse.FLICKER, light_level)
-	monster.trait_state(self).halo = halo
+	_state(monster).halo = halo
 	if halo == null and light_level > 0:
 		GlowHalo.light(monster, color.lightened(0.6), light_level)
 
@@ -66,15 +81,15 @@ func _shade(monster: Monster) -> void:
 ## The lantern stays in the hand on its side (mirrored when it faces left); raised and
 ## swelling while it casts.
 func update(monster: Monster, _delta: float) -> void:
-	var state := monster.trait_state(self)
-	var held: Sprite2D = state.get("lantern")
+	var state := _state(monster)
+	var held := state.lantern
 	if held == null or not is_instance_valid(held):
 		return
 	var step := cast_step(monster.casting_index >= 0, monster.telegraph)
 	var side := -1.0 if monster.facing.x < -0.3 else 1.0
 	var at := cast_lantern_offset if step > 0 else lantern_offset
 	held.position = Vector2(at.x * side, at.y)
-	var halo: GlowHalo = state.get("halo")
+	var halo := state.halo
 	if halo and is_instance_valid(halo):
 		halo.position = monster.rig.position + held.position * Actor.SPRITE_SCALE
 		halo.size = glow_size_at(step)

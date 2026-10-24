@@ -17,14 +17,27 @@ class Dot:
 	var element: VfxElementDef
 
 
+## A slow from one source: how much, the seconds left, and what it is made of (frost when a
+## hit or the cold slows; null for the ground's own slow): the element says how the body shows
+## it (frost: rime and cold mist; sand or ink: nothing, VfxElementDef.slow_look).
+class Slow:
+	var amount := 0.0
+	var time_left := 0.0
+	var element: VfxElementDef
+
+	func _init(slow_amount: float, seconds: float, made_of: VfxElementDef) -> void:
+		amount = slow_amount
+		time_left = seconds
+		element = made_of
+
+
 ## The slow source of the ground itself (quicksand): it slows but is no status to show.
 const GROUND_SLOW := &"ground"
 
 var _dots: Array[Dot] = []
-## Slows by source (a frost hit, the cold, quicksand...): source -> [amount, seconds left,
-## element]. The strongest active one counts; each runs out on its own. The element says how
-## the body shows it (frost: rime and cold mist; sand or ink: nothing, VfxElementDef.slow_look).
-var _slows := {}
+## Slows by source (a frost hit, the cold, quicksand...). The strongest active one counts; each
+## runs out on its own.
+var _slows: Dictionary[StringName, Slow] = {}
 
 
 ## Deals `damage` every `interval` seconds for `duration` seconds.
@@ -55,20 +68,28 @@ func apply_slow(amount: float, duration: float, source: StringName = &"hit", ele
 	amount = clampf(amount, 0.0, 0.9)
 	if element == null and source != GROUND_SLOW:
 		element = VfxElementDef.named(&"frost")
-	var current: Array = _slows.get(source, [0.0, 0.0, null])
+	# (kept and changed in place: the cold and quicksand slow again every frame)
+	var slow: Slow = _slows.get(source)
+	if slow == null:
+		slow = Slow.new(0.0, 0.0, null)
+		_slows[source] = slow
 	if source == &"hit":
 		# Hits: the strongest one, the longest one; a frost hit's look wins over a plain one.
-		var kept: VfxElementDef = current[2] if current[2] != null and current[1] > 0.0 and (element == null or element.slow_look == &"") else element
-		_slows[source] = [maxf(current[0], amount), maxf(current[1], duration), kept]
+		var kept: VfxElementDef = slow.element if slow.element != null and slow.time_left > 0.0 and (element == null or element.slow_look == &"") else element
+		slow.amount = maxf(slow.amount, amount)
+		slow.time_left = maxf(slow.time_left, duration)
+		slow.element = kept
 	else:
-		_slows[source] = [amount, duration, element]
+		slow.amount = amount
+		slow.time_left = duration
+		slow.element = element
 
 
 ## Multiplier for the move speed (1 = not slowed).
 func speed_multiplier() -> float:
 	var slow := 0.0
 	for source in _slows:
-		slow = maxf(slow, _slows[source][0])
+		slow = maxf(slow, _slows[source].amount)
 	return 1.0 - slow
 
 
@@ -80,10 +101,10 @@ func is_slowed() -> bool:
 ## none: a strong one freezes the body over (BodyLook).
 func slow_of(look: StringName) -> float:
 	var strongest := 0.0
-	for source: StringName in _slows:
-		var element: VfxElementDef = _slows[source][2]
+	for source in _slows:
+		var element := _slows[source].element
 		if element and element.slow_look == look:
-			strongest = maxf(strongest, _slows[source][0])
+			strongest = maxf(strongest, _slows[source].amount)
 	return strongest
 
 
@@ -115,8 +136,8 @@ func active_ids() -> Array[StringName]:
 ## The elements slowing the body now (not the ground's own slow).
 func slow_elements() -> Array[VfxElementDef]:
 	var elements: Array[VfxElementDef] = []
-	for source: StringName in _slows:
-		var element: VfxElementDef = _slows[source][2]
+	for source in _slows:
+		var element := _slows[source].element
 		if element and not elements.has(element):
 			elements.append(element)
 	return elements
@@ -143,9 +164,10 @@ func clear() -> void:
 
 
 func tick(owner: Actor, delta: float) -> void:
-	for source in _slows.keys():
-		_slows[source][1] -= delta
-		if _slows[source][1] <= 0.0:
+	for source: StringName in _slows.keys():
+		var slow := _slows[source]
+		slow.time_left -= delta
+		if slow.time_left <= 0.0:
 			_slows.erase(source)
 	for dot in _dots.duplicate():
 		dot.time_left -= delta

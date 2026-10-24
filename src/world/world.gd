@@ -290,7 +290,7 @@ func spawn_monster(def: MonsterDef, at: Vector2) -> Monster:
 func spawn_loot(item: ItemDef, at: Vector2, quality: float = 1.0) -> ItemPickup:
 	# (Never while the floor is laid: what the seed lays must not hang on the hero's bag, or a
 	# resumed floor would come out otherwise.)
-	if item is ConsumableDef and player and not ledger.numbering and player.carried_count(item) >= config().consumable_carry_cap:
+	if item is ConsumableDef and player and not ledger.numbering and player.pack.carried_count(item) >= config().consumable_carry_cap:
 		spawn_gold(at, maxi(config().consumable_gold_min, roundi(item.value * config().consumable_gold_share)))
 		return null
 	return spawn_item(roll_item(item, rules.drop_quality(quality)), at)

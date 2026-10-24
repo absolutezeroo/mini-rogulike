@@ -48,3 +48,8 @@ func _nearest(world: World, owner: Actor, from: Vector2, skip: Array[Actor]) -> 
 			best = actor
 			best_distance = distance
 	return best
+
+
+## Shows as the element it strikes with (ItemLook).
+func look_element() -> VfxElementDef:
+	return element

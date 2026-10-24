@@ -22,5 +22,5 @@ func run(selection: BagSelection) -> bool:
 	if not available(selection):
 		return false
 	if selection.on_belt():
-		return selection.player.move_to_bag(selection.belt)
-	return selection.player.move_to_belt(selection.item)
+		return selection.player.pack.move_to_bag(selection.belt)
+	return selection.player.pack.move_to_belt(selection.item)

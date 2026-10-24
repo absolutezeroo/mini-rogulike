@@ -132,9 +132,9 @@ func sell_to(player: Player, index: int) -> bool:
 	if index < 0 or index >= stock.size():
 		return false
 	var entry: Dictionary = stock[index]
-	if not player.can_store(entry.item) or not player.spend_gold(entry.price):
+	if not player.pack.can_store(entry.item) or not player.spend_gold(entry.price):
 		return false
-	player.store(entry.item)
+	player.pack.store(entry.item)
 	stock.remove_at(index)
 	_world.floor_save.bought.append(LootRoller.to_data(entry.item))
 	Events.item_bought.emit(entry.item)

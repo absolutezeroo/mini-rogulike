@@ -48,7 +48,7 @@ func bind(new_run: RunState, new_player: Player) -> void:
 		check_achievements())
 	# What the Vigil-Keeper reads in a death (RunMarkCondition): a potion drunk, a roll.
 	player.consumable_used.connect(func(item: ItemDef) -> void:
-		if run and item is ConsumableDef and Player.heals(item as ConsumableDef):
+		if run and item is ConsumableDef and PlayerPack.heals(item as ConsumableDef):
 			run.mark("drank"))
 	player.skill_used.connect(func(index: int) -> void:
 		if run and index == 0:

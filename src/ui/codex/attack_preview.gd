@@ -19,6 +19,33 @@ const FLOOR_COLOR := Color(0.12, 0.1, 0.14)
 const GRID_COLOR := Color(1, 1, 1, 0.04)
 const SHOT_COLOR := Color(1.0, 0.75, 0.35)
 
+## The stage as an effect sees it (Effect.play_preview()): its strokes drawn here.
+class Strokes:
+	extends EffectPreview
+	var _preview: AttackPreview
+
+	func _init(preview: AttackPreview) -> void:
+		_preview = preview
+
+	func caster_radius() -> float:
+		return _preview._monster.radius
+
+	func shots(count: int, spread: float, speed: float, distance: float, radius: float, color: Color, blast: float, sheet: VfxSheetDef, element: VfxElementDef, aim: float) -> void:
+		_preview._fire(count, spread, speed, distance, radius, color, blast, sheet, element, aim)
+
+	func ring(forward: float, radius: float, color: Color, filled: bool) -> void:
+		_preview._ring(_preview._sprite.position + Vector2.RIGHT * forward, radius, color, filled)
+
+	func lunge(distance: float, duration: float) -> void:
+		_preview._lunge(distance, duration)
+
+	func line(distance: float, width: float, color: Color) -> void:
+		_preview._arcs.append({ "line": distance, "width": width, "color": color, "age": 0.0 })
+
+	func summon(summon_effect: SummonEffect) -> void:
+		_preview._summon(summon_effect)
+
+
 var _monster: MonsterDef
 var _attack: Resource
 var _time := 0.0
@@ -31,6 +58,8 @@ var _extras: Array[Node] = []
 var _stage := Node2D.new()
 var _overlay := Node2D.new()
 var _telegraph := TelegraphView.new()
+## What the effects play on (Strokes).
+var _strokes := Strokes.new(self)
 var _sprite := AnimatedSprite2D.new()
 var _hero := AnimatedSprite2D.new()
 var _home := Vector2.ZERO
@@ -160,9 +189,9 @@ func _show_warning(progress: float) -> void:
 		# The game's own warning (TelegraphView.show_skill), around the preview's monster.
 		_telegraph.position = Vector2.ZERO
 		var first: Effect = skill.effects[0] if not skill.effects.is_empty() else null
-		if first is DashEffect:
-			_telegraph.show_shape(TelegraphView.Shape.LINE, (first as DashEffect).get("distance"), aim, progress, 0.0, 14.0)
-		elif not _telegraph.show_skill(skill, aim, progress, _monster.radius):
+		# (a kind may draw one here the game doesn't: Effect.show_preview_warning())
+		var own := first != null and first.show_preview_warning(_telegraph, aim, progress)
+		if not own and not _telegraph.show_skill(skill, aim, progress, _monster.radius):
 			_telegraph.show_shape(TelegraphView.Shape.CIRCLE, _monster.radius + 30.0, aim, progress)
 		_telegraph.position += _home
 		return
@@ -195,43 +224,12 @@ func _release() -> void:
 			_arcs.append({ "radius": _monster.radius + weapon.reach, "half": deg_to_rad(weapon.arc_degrees) * 0.5, "color": weapon.trail_color, "age": 0.0 })
 			_lunge(14.0, 0.1)
 		else:
-			_fire(weapon.projectile_count, weapon.spread_degrees, weapon.projectile_speed, maxf(weapon.reach, GAP + 40.0), weapon.projectile_radius, weapon.element.color() if weapon.element else SHOT_COLOR, 0.0, weapon.projectile_sheet if weapon.projectile_sheet else _shot_sheet(weapon.projectile_texture, weapon.projectile_frames, weapon.element), weapon.element)
+			_fire(weapon.projectile_count, weapon.spread_degrees, weapon.projectile_speed, maxf(weapon.reach, GAP + 40.0), weapon.projectile_radius, weapon.element.color() if weapon.element else SHOT_COLOR, 0.0, weapon.projectile_sheet if weapon.projectile_sheet else EffectPreview.shot_sheet(weapon.projectile_texture, weapon.projectile_frames, weapon.element), weapon.element)
 
 
+## What `effect` does, as it says (Effect.play_preview()) on this stage.
 func _apply(effect: Effect) -> void:
-	if effect is ProjectileEffect:
-		var shot := effect as ProjectileEffect
-		var aim := deg_to_rad(shot.angle_offset)
-		_fire(shot.count, shot.spread_degrees, shot.speed, shot.max_distance, shot.radius, shot.element.color() if shot.element else shot.color, shot.explosion_radius, shot.sheet if shot.sheet else _shot_sheet(shot.texture, shot.texture_frames, shot.element), shot.element, aim)
-	elif effect is DamageAreaEffect:
-		var area := effect as DamageAreaEffect
-		_ring(_sprite.position + Vector2.RIGHT * area.offset, area.radius, area.color, true)
-	elif effect is DashStrikeEffect:
-		var strike := effect as DashStrikeEffect
-		_lunge(strike.distance, strike.duration)
-		_arcs.append({ "line": strike.distance, "width": strike.width, "color": strike.fx_tint if strike.fx else Color(1, 0.9, 0.7), "age": 0.0 })
-	elif effect is DashEffect:
-		var dash := effect as DashEffect
-		var way := -1.0 if dash.direction == DashEffect.Direction.AWAY else 1.0
-		_lunge(dash.distance * way, dash.duration)
-	elif effect is SummonEffect:
-		_summon(effect as SummonEffect)
-	elif effect is HealEffect:
-		_ring(_sprite.position, _monster.radius + 22.0, Palette.HEAL, false)
-	elif effect is AllyEffect:
-		var ally := effect as AllyEffect
-		_ring(_sprite.position, minf(ally.radius, 160.0), ally.color, false)
-	elif effect is BuffEffect:
-		_ring(_sprite.position, _monster.radius + 26.0, (effect as BuffEffect).color, false)
-	else:
-		_ring(_sprite.position, _monster.radius + 26.0, Color(1, 1, 1, 0.7), false)
-
-
-## How a shot looks in flight, as in the game (Projectile): its sprite, else its element's shot.
-static func _shot_sheet(texture: Texture2D, frames: int, element: VfxElementDef) -> VfxSheetDef:
-	if texture:
-		return VfxSheetDef.from_texture(texture, frames)
-	return element.projectile if element else null
+	effect.play_preview(_strokes)
 
 
 func _fire(count: int, spread: float, speed: float, distance: float, radius: float, color: Color, blast: float, sheet: VfxSheetDef, element: VfxElementDef, aim: float = 0.0) -> void:

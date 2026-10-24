@@ -238,7 +238,7 @@ func fight_boss(boss: BossDef, build: BalanceBuildDef, difficulty: DifficultyDef
 	if set_belt:
 		BalanceGauntlet.empty_belt(player)
 		for item in belt:
-			player.store(item)
+			player.pack.store(item)
 	if start_hp > 0:
 		player.hp = clampi(start_hp, 1, player.get_max_hp())
 		player.health_changed.emit(player.hp, player.get_max_hp())

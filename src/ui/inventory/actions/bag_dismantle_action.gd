@@ -1,6 +1,6 @@
 class_name BagDismantleAction
 extends BagAction
-## Breaks one of the picked stack down for gold (Player.dismantle, DismantleRules): gear in the
+## Breaks one of the picked stack down for gold (PlayerPack.dismantle, DismantleRules): gear in the
 ## bag only, never what is worn. A rare or better piece, or one with runes set, asks a second
 ## press (its button says "Sure?", the card "Press [X] again to break it: +40 gold";
 ## DismantleRules.needs_confirm); plainer ones go at once. One press, one item: a stack of three
@@ -22,7 +22,7 @@ func label(_selection: BagSelection) -> String:
 
 
 func needs_confirm(selection: BagSelection) -> bool:
-	return Player.DISMANTLE.needs_confirm(selection.item)
+	return PlayerPack.DISMANTLE.needs_confirm(selection.item)
 
 
 func confirm_label(_selection: BagSelection) -> String:
@@ -37,10 +37,10 @@ func confirm_note(selection: BagSelection) -> String:
 func gold(selection: BagSelection) -> int:
 	if selection.item == null or not DismantleRules.can_dismantle(selection.item):
 		return 0
-	return Player.DISMANTLE.gold_for(selection.item)
+	return PlayerPack.DISMANTLE.gold_for(selection.item)
 
 
 func run(selection: BagSelection) -> bool:
 	if not available(selection):
 		return false
-	return selection.player.dismantle(selection.item) > 0
+	return selection.player.pack.dismantle(selection.item) > 0

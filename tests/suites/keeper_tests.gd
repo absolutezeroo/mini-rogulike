@@ -34,7 +34,7 @@ func hero(weapon_path: String = "res://data/items/weapons/katana.tres", tome: St
 	player.equipment.equip(load("res://data/items/armors/chain_mail.tres") as EquipmentDef)
 	if not tome.is_empty():
 		player.learned_skill = (load(tome) as SkillTomeDef).skill
-		player._rebuild_skills(0.0)  # (learn_skill() shows it in a world this hero isn't in)
+		player.rebuild_skills(0.0)  # (learn_skill() shows it in a world this hero isn't in)
 	for id: String in ["ignite", "ignite", "ignite", "strength", "vitality", "multishot"]:
 		player.perks.add(_perk(id))
 	player.level = 18

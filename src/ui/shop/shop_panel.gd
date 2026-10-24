@@ -255,7 +255,7 @@ func _refresh_card() -> void:
 func _refresh_buy(entry: Dictionary) -> void:
 	var price: int = entry.price
 	_price.text = tr("Price: %d gold") % price
-	var fits := _player.can_store(entry.item)
+	var fits := _player.pack.can_store(entry.item)
 	_buy.disabled = _player.gold < price or not fits
 	_price.add_theme_color_override("font_color", UiSkin.GOLD if _player.gold >= price else UiSkin.BAD)
 	if not fits:
@@ -277,7 +277,7 @@ func _fill_compare(item: ItemDef) -> void:
 	if equipment:
 		_card.show_compare(equipment, _player.equipment.get_item(equipment.slot))
 	elif item is ConsumableDef and _pick == Pick.STOCK:
-		var carried := _player.carried_count(item)
+		var carried := _player.pack.carried_count(item)
 		_card.show_note(tr("You carry %d. It goes on your belt if there is room.") % carried if carried > 0 \
 			else tr("You carry none. It goes on your belt if there is room."))
 

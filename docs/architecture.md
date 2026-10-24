@@ -103,10 +103,12 @@ src/
                        life's trial), AbyssWorld (the Deeps a fall takes the hero to);
                        dressing/ (FloorDresser: a floor in its biome, RoomSpace); RoomFeatures (the shaped
                        rooms' chasms, pools and pillars); ceiling/ (CeilingLayer: what hangs over the rooms)
-  entities/            Actor (shared base), Player, Monster, Projectile, ItemPickup, Stairs, Prop, Trap, Fragment,
+  entities/            Actor (shared base), Player (PlayerControls, PlayerPack, PlayerSave), Monster
+                       (MonsterSteering, MonsterDrops, BossBrain), rig/ (ActorRig, GearLook, RigAnimations,
+                       BodyTops), Projectile, ItemPickup, Stairs, Prop, Trap, Fragment,
                        hazards/ (Chest, CrumblingFloor, Quicksand, HeatSource, DarkRoom, FloorPatch),
                        ground/ (GroundLayer: a biome's ground, drawn by a shader)
-  components/          Inventory, Equipment, SkillSet, PerkSet, StatusSet (burn...)
+  components/          Inventory, Equipment, SkillSet, PerkSet, StatusSet (burn...), Belt, TimedBonuses
   combat/              Damage rules, hits, projectile specs
   ai/                  StateMachine + monster states (Idle, Chase, Attack, Cast)
   vfx/                 Particles (particles/), sprite-sheet FX, emotes, afterimages, damage numbers; Vfx helpers
@@ -181,8 +183,27 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
   multiply by hand), the walls (`WallBuilder`)
   and pathfinding (`NavGrid`), then lets `FloorPopulator` spawn monsters and items picked from
   `ContentDB` by depth. Anything can shake the screen with `Events.screen_shake`.
-- **Actor** (base of Player and Monster) handles stats, HP, attacks, knockback, dashes and hit feedback.
-  Final stats = base stats + equipment bonuses + timed buffs.
+- **Actor** (base of Player and Monster) handles stats, HP, attacks, knockback, dashes and falls.
+  Final stats = base stats + equipment bonuses + perks + timed buffs (`TimedBonuses`).
+- **Entities are composed, not grown** (the three biggest scripts stay focused): a new job for an
+  actor goes in a part it owns, the node keeping a one-line method only where many callers ask it.
+  - **Actor** owns its components (`Equipment`, `SkillSet`, `PerkSet`, `StatusSet`,
+    `SustainMeter`, `TimedBonuses`); what a blow taken shows is `HitFeedback`'s, its ward's look
+    `WardVfx`'s, a body without a sprite `BodySketch`'s (src/vfx/). Who it is is asked, never
+    tested: `strikes_in_carried_elements()` (the hero's hits wear his runes' elements: Combat),
+    `_draws_ward_on_body()`, `_shows_gear()`.
+  - **Player**: `controls` (`PlayerControls`: the input actions, the aim, the attack button, its
+    charge and the skill and belt buttons; the Player acts: `attack()`, `unleash()`), `pack`
+    (`PlayerPack`: picking up, the bag and the belt, wearing, drinking, dropping, dismantling;
+    the UI's bag actions call it), `PlayerSave` (his part of the save, its format unchanged).
+    The signals the HUD listens to stay on the Player.
+  - **Monster**: `steering` (`MonsterSteering`: clear walks, sight, being stuck, spacing, holes;
+    the AI asks the Monster's `has_clear_walk()`, `can_see()`, `is_stuck()`), `drops`
+    (`MonsterDrops`: XP, loot, a rank's extras, runes, gold), `brain` (`BossBrain`, bosses only),
+    and each trait's per-monster values (`trait_state()`, the trait's own typed state class).
+  - **ActorRig** picks what the body plays (`RigAnimations`) and keeps the armor layers on its
+    frame; the gear's looks (trims, elements, teeth, the weapon at rest and its aura) are laid
+    out by its `GearLook` (`rig.gear`), bobbing with the body's art (`BodyTops`).
 - **Combat** (`src/combat/`): every hit is made by `Combat.make_hit()`, its numbers (crit, variance,
   armor weight, the cooldown cap) in `data/combat/combat_rules.tres` (`CombatRulesDef`, read as
   `Combat.RULES`), its rolls on the floor's combat dice (`World.combat_rng`, seeded from the

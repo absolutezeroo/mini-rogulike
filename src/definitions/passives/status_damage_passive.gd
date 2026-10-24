@@ -42,3 +42,8 @@ func on_hit_dealt(owner: Actor, target: Actor, hit: HitInfo, _damage: int, _perk
 		return
 	target.statuses.apply_slow(crit_slow, crit_slow_duration, &"freeze", crit_element)
 	Vfx.nova(owner.world, target.global_position, target.radius + 14.0, VfxElementDef.or_color(crit_element, crit_color))
+
+
+## Shows as its element, else its crits' (ItemLook).
+func look_element() -> VfxElementDef:
+	return element if element else crit_element

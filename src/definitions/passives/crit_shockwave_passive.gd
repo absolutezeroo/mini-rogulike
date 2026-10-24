@@ -45,3 +45,8 @@ func on_hit_dealt(owner: Actor, target: Actor, hit: HitInfo, _damage: int, perk:
 			other.take_hit(wave)
 		Combat.hit_props(owner.world, owner, center, size)
 	Vfx.nova(owner.world, center, size, VfxElementDef.or_color(element, color))
+
+
+## Shows as the element it strikes with (ItemLook).
+func look_element() -> VfxElementDef:
+	return element

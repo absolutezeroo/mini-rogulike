@@ -4,7 +4,8 @@ extends TestSuite
 ## kept their values, every floor number asked of FloorRules is what the hand-made products
 ## gave, one roller for a floor's twist, the loot odds told are the odds rolled, effects dressed
 ## by their own kind, delayed effects credited to their source, combat dice per floor, an arrow
-## trap's volley on its own clock. Unit checks run in the unit suite, the rest on a game.
+## trap's volley on its own clock; the entities' parts asked by kind and holding typed records
+## (task_193). Unit checks run in the unit suite, the rest on a game.
 
 
 func run_unit() -> void:
@@ -14,6 +15,7 @@ func run_unit() -> void:
 	_test_loot_odds()
 	_test_effect_kinds()
 	_test_combat_dice()
+	_test_composed_parts()
 
 
 func run_game(game: Game) -> void:
@@ -264,6 +266,78 @@ func _test_effect_kinds() -> void:
 	keeper_dive.width = 400.0
 	var as_his := keeper_dive.as_boss_skill(carried, keeper.dive_width_max) as DashStrikeEffect
 	check(as_his != keeper_dive and as_his.width == keeper.dive_width_max and as_his.look_element == fire and keeper_dive.width == 400.0, "his dive is narrowed and dressed, a copy")
+
+
+## The entities' parts answer by kind what was tested by type or read by name (task_193): a
+## passive's look is the element its old lookup by property name found, the hero's hits wear his
+## gear's elements and a monster's don't, a plain dash warns only in the preview, and the records
+## that were dictionaries keep the save's format.
+func _test_composed_parts() -> void:
+	var fire := VfxElementDef.named(&"fire")
+	var frost := VfxElementDef.named(&"frost")
+	var names: Array[StringName] = [&"element", &"blast_element", &"shard_element", &"crit_element"]
+	var dir := "res://src/definitions/passives/"
+	var tried := 0
+	for file in DirAccess.get_files_at(dir):
+		if not file.ends_with(".gd"):
+			continue
+		var script := load(dir + file) as GDScript
+		var probe := script.new() as Passive
+		if probe == null:
+			continue
+		var has: Array[StringName] = []
+		for property in names:
+			if property in probe:
+				has.append(property)
+		if has.is_empty():
+			continue
+		# Every mix of none, fire and frost on its element properties.
+		for mix in int(pow(3, has.size())):
+			var left := mix
+			for property in has:
+				probe.set(property, [null, fire, frost][left % 3])
+				left = int(left / 3.0)
+			var old: VfxElementDef = null
+			for property in names:
+				if property in probe and probe.get(property) is VfxElementDef:
+					old = probe.get(property)
+					break
+			check(probe.look_element() == old, "%s shows as the element its old lookup by name found (%s)" % [file, old.id if old else &"none"])
+			tried += 1
+	check(tried > 20, "the passives striking in an element were all tried (%d mixes)" % tried)
+	var hero := Player.new()
+	var monster := Monster.new()
+	check(hero.strikes_in_carried_elements() and not monster.strikes_in_carried_elements(), "the hero's hits wear his gear's elements, a monster's weapon strikes as written")
+	hero.free()
+	monster.free()
+	var view := TelegraphView.new()
+	var dash_skill := SkillDef.new()
+	var dash_effects: Array[Effect] = [DashEffect.new()]
+	dash_skill.effects = dash_effects
+	check(not view.show_skill(dash_skill, 0.0, 0.5) and DashEffect.new().show_preview_warning(view, 0.0, 0.5) and not ProjectileEffect.new().show_preview_warning(view, 0.0, 0.5),
+		"a plain dash warns of nothing in a fight, its line only in the bestiary's preview")
+	var shot_skill := SkillDef.new()
+	var shot_effects: Array[Effect] = [ProjectileEffect.new()]
+	shot_skill.effects = shot_effects
+	check(view.show_skill(shot_skill, 0.0, 0.5), "a shot warns of its lane")
+	view.free()
+	var belt := Belt.new()
+	var potion := load("res://data/items/consumables/health_potion.tres") as ConsumableDef
+	belt.add(potion)
+	belt.add(potion)
+	var saved := belt.to_data()
+	check(saved.size() == Belt.SLOTS and (saved[0] as Dictionary).get("count") == 2 and (saved[1] as Dictionary).is_empty(), "a belt saves as it did: { item, count } per slot, {} for an empty one")
+	var again := Belt.new()
+	again.load_data(saved)
+	check(again.item_at(0) == potion and again.count_at(0) == 2 and again.item_at(1) == null and again.count_of(potion) == 2, "and comes back the same")
+	check(ThiefTrait.new().make_state() is ThiefTrait.ThiefState and WeakPointTrait.new().make_state() is WeakPointTrait.WeakPointState, "a trait's per-monster values are its own typed state")
+	var statuses := StatusSet.new()
+	statuses.apply_slow(0.3, 2.0)
+	statuses.apply_slow(0.5, 1.0)
+	statuses.apply_slow(0.2, 3.0, &"cold")
+	check(is_equal_approx(statuses.speed_multiplier(), 0.5) and statuses.slow_of(&"slow") == 0.5, "slows by source: hits keep the strongest, the strongest of all counts")
+	statuses.tick(null, 2.5)
+	check(is_equal_approx(statuses.speed_multiplier(), 0.8), "each runs out on its own (the hits' after 2 s, the cold's after 3)")
 
 
 ## Hits roll on the dice they are given: the same seed, the same hits.

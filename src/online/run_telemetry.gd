@@ -161,7 +161,7 @@ func _on_healed(amount: int, source: StringName) -> void:
 func _on_consumable_used(item: ItemDef) -> void:
 	var id := String(item.id)
 	add("potion.%s" % id)
-	if item is ConsumableDef and Player.heals(item as ConsumableDef):
+	if item is ConsumableDef and PlayerPack.heals(item as ConsumableDef):
 		add("potions")
 		var before := player.hp - int(_item_heals.get(id, 0))
 		_potion_ratios.append(clampf(float(before) / player.get_max_hp(), 0.0, 1.0))

@@ -138,3 +138,19 @@ func with_hit_status(new_status: OnHitStatus) -> Effect:
 	var copy := copied() as ProjectileEffect
 	copy.status = new_status
 	return copy
+
+
+## The lane of its shot (a line), or the lanes of a fan or a ring of them, reaching no further
+## than TelegraphView.LANE_LENGTH.
+func show_warning(view: TelegraphView, angle: float, progress: float, body_radius: float) -> bool:
+	var length := minf(max_distance, TelegraphView.LANE_LENGTH)
+	var aim := angle + deg_to_rad(angle_offset)
+	if count <= 1 or spread_degrees <= 0.0:
+		view.show_shape(TelegraphView.Shape.LINE, length, aim, progress, 0.0, TelegraphView.LANE_WIDTH)
+	else:
+		view.show_lanes(length, aim, progress, count, spread_degrees, body_radius)
+	return true
+
+
+func play_preview(preview: EffectPreview) -> void:
+	preview.shots(count, spread_degrees, speed, max_distance, radius, element.color() if element else color, explosion_radius, sheet if sheet else EffectPreview.shot_sheet(texture, texture_frames, element), element, deg_to_rad(angle_offset))

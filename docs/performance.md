@@ -11,14 +11,14 @@ pickup and every slot. These rules keep it down; the probe below measures it.
 pickup, light...) builds no array, dictionary, string or physics object:
 
 - A literal array in a loop (`for dir in [Vector2i.LEFT, ...]`, `for angle in [0.0, 0.6]`) is a
-  new array each time: use a `const` (`GridDirs.FOUR`, `Monster.HOLE_TURNS`).
+  new array each time: use a `const` (`GridDirs.FOUR`, `MonsterSteering.HOLE_TURNS`).
 - An array or dictionary built only to compare it with the last one (`[enabled, outline] ==
   _key`) allocates: keep the fields and compare them one by one (`BodyLook._told_*`).
 - Names made at run time (`"skill_%d" % i`, `StringName(base + "_" + direction)`) intern a
-  string every frame: `const` arrays of `StringName` (`Player.SKILL_ACTIONS`), or a cache made
-  once (`ActorRig._directed`).
+  string every frame: `const` arrays of `StringName` (`PlayerControls.SKILL_ACTIONS`), or a cache made
+  once (`RigAnimations._directed`).
 - Physics queries keep their `PhysicsShapeQueryParameters2D` and shape and change only the
-  transform and radius (`WorldSpace.body_fits`, `Monster._walk_is_clear`).
+  transform and radius (`WorldSpace.body_fits`, `MonsterSteering._walk_is_clear`).
 - A group scan (`get_tree().get_nodes_in_group()`) builds an array: things asked about every
   frame keep a registry (`Interactable.in_tree`, `LightSource.in_tree`), and the World hands out
   its lists once per frame (`actors_this_frame()`, one per physics step and one per drawn frame).
@@ -44,14 +44,14 @@ Call it only when what `_draw()` shows changed:
   `NOTIFICATION_VISIBILITY_CHANGED`); a HUD widget sets its parts only when the state they show
   changed (`Hud` belt, weapon and temperature; `PactLine` colour).
 
-**Quadratic loops get a grid.** Every monster looking at every other one (`_keep_spacing`) asks
+**Quadratic loops get a grid.** Every monster looking at every other one (`MonsterSteering.keep_spacing`) asks
 `World.activity.buckets` (`MonsterBuckets`) for those in the cells around it: the same ones, in the
 same order, so the same sums and the same seeded fights. A line of sight asked every frame is
-cast again only after 0.1 s or 4 px of movement (`Monster.can_see`).
+cast again only after 0.1 s or 4 px of movement (`MonsterSteering.can_see`).
 
 **No GPU readback during play.** `Texture2D.get_image()` reads the texture back from the GPU on
 the Compatibility renderer, a stall on a phone. What needs pixels reads each sheet once while the
-floor loads and measures its frames on that copy (`ActorRig.warm_tops`, `_sheets`).
+floor loads and measures its frames on that copy (`BodyTops.warm`, `_sheets`).
 
 **Same results.** A shortcut must give the answer the plain way gave: the same floors from the
 same seed (the probe prints a digest per floor) and the same fights. `tests/suites/perf_tests.gd`
@@ -95,12 +95,22 @@ time), two runs of each, before (main) and after:
 | Fight, process part average | 0.54 / 0.63 ms | 0.61 / 0.67 ms |
 
 The floors laid were the same (same digests) before and after. The fight goes otherwise after
-(34 kills instead of 24): a monster sees the hero up to 0.1 s later (`Monster.can_see`), and the
+(34 kills instead of 24): a monster sees the hero up to 0.1 s later (`MonsterSteering.can_see`), and the
 fight's course drifts from there. With that one cache off, the fight is the same to the last
 Health point (same digest) and costs 4.12 ms a frame. Headless, the fight's cost is mostly the
 engine's physics and the monsters' AI; what the rules above save most (redraws, uniforms, a
 GPU readback) is the renderer's and the phone's work, which a headless run doesn't measure: the
 S23 has the last word (task_98).
+
+**The entities split into parts (task_193).** Player, Monster, Actor and ActorRig handing their
+jobs to PlayerControls, PlayerPack, MonsterSteering, MonsterDrops, GearLook... changed no result:
+on the same machine, with the sight cache off (`MonsterSteering.SIGHT_RECHECK` 0), the 32 floors
+printed the same digests and the fight the same digest (3286736254) before and after, two runs
+each. Frame cost (physics + process, average): 4.40 / 4.04 ms before, 4.59 / 4.29 ms after on a
+busier machine (its floor generation, untouched, went from 260 / 272 to 284 / 319 ms); runs
+alternated before / after with `--floors=1`: 6.49, 5.01, 4.65 ms before and 5.43, 5.91, 4.92 ms
+after, the same within the machine's noise. With `--floors=1` the fight's digest itself varies
+from one run to the next on either side (the same code; task card in the roadmap).
 
 What is left (the roadmap has the cards): floor generation's hot spots are the dressing's
 grounds (`FloorDresser._lay_ground`, dictionaries per cell), the ceiling's chunks and their mote

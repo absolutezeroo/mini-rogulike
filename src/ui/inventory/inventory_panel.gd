@@ -18,7 +18,7 @@ extends Control
 ## - With keys and a gamepad the focus is the pick: moving onto a slot shows its card.
 ## Identical items stack (Inventory): one slot, "x2", one place of its compartment. "Dismantle the
 ## worse" breaks down, after a confirmation, every piece of the tab open worse than what is worn
-## (Player.worse_gear()).
+## (PlayerPack.worse_gear()).
 
 const MenuNavScript := preload("res://src/autoload/menu_nav.gd")  # its static helpers are called on the script, not the autoload
 
@@ -260,7 +260,7 @@ func _refresh() -> void:
 		_category = _first_tab(grouped)
 	_update_tabs(grouped)
 	_fill_grid(grouped)
-	var worse := _player.worse_gear(_category)
+	var worse := _player.pack.worse_gear(_category)
 	_worse_button.text = tr("Dismantle the worse (%d)") % worse.size()
 	_worse_button.disabled = worse.is_empty()
 	_show_selection()
@@ -574,7 +574,7 @@ func _keep_stack_selected() -> void:
 
 ## "Dismantle the worse": what would go, and the gold, before anything breaks.
 func _on_worse_pressed() -> void:
-	var worse := _player.worse_gear(_category)
+	var worse := _player.pack.worse_gear(_category)
 	if worse.is_empty():
 		return
 	Sfx.play_ui(Sfx.bank.ui_open)
@@ -583,7 +583,7 @@ func _on_worse_pressed() -> void:
 
 
 func _on_worse_confirmed() -> void:
-	_player.dismantle_all(_player.worse_gear(_category))
+	_player.pack.dismantle_all(_player.pack.worse_gear(_category))
 	if _selected_item:
 		_keep_stack_selected()
 	_refresh()

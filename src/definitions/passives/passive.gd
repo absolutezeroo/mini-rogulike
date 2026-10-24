@@ -58,12 +58,8 @@ func prevent_death(_owner: Actor, _perk: PerkSet.Entry) -> bool:
 
 
 ## The element it shows as on a weapon that carries it (an affix, a rune: ItemLook): the
-## element it strikes with (`element`, `blast_element`, `shard_element`, `crit_element`), null
-## when it is none (a plain bonus). Passives that are an element without saying so (drinking
-## blood, arcane echoes) override it.
+## element it strikes with, null when it is none (a plain bonus). Each kind that strikes in an
+## element answers with its own (a burn's `element`, a burst's `blast_element`...), and so do
+## those that are an element without saying so (drinking blood, arcane echoes).
 func look_element() -> VfxElementDef:
-	for property: StringName in [&"element", &"blast_element", &"shard_element", &"crit_element"]:
-		var value: Variant = get(property)
-		if value is VfxElementDef:
-			return value
 	return null

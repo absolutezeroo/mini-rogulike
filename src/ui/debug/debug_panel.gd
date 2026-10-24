@@ -271,7 +271,7 @@ func _build_hero(page: VBoxContainer) -> void:
 	bag.add_child(_button("All consumables", func() -> void: _act(func() -> void:
 		for item in _game_content().items:
 			if item is ConsumableDef:
-				_game.player.store(item), "Consumables added")))
+				_game.player.pack.store(item), "Consumables added")))
 	bag.add_child(_button("Every rune", func() -> void: _act(func() -> void:
 		for rune in _game_content().runes:
 			_game.player.inventory.add(rune), "Runes in the bag")))
@@ -811,7 +811,7 @@ func _give() -> void:
 		_status.text = "%s taken" % tr(perk.display_name)
 		return
 	var item := thing as ItemDef
-	if not player.pick_up(item):
+	if not player.pack.pick_up(item):
 		_game.world.spawn_item(item, _game.world.find_open_point_near(player.global_position, 40.0))
 	_status.text = "%s given" % tr(item.display_name)
 

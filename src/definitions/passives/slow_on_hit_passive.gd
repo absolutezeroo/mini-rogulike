@@ -18,3 +18,8 @@ func modify_outgoing_hit(_owner: Actor, _target: Actor, hit: HitInfo, _perk: Per
 func on_hit_dealt(_owner: Actor, target: Actor, _hit: HitInfo, _damage: int, perk: PerkSet.Entry) -> void:
 	if not target.is_dead:
 		target.statuses.apply_slow(minf(slow_per_stack * perk.stacks, max_slow), duration, &"hit", element)
+
+
+## Shows as the element it strikes with (ItemLook).
+func look_element() -> VfxElementDef:
+	return element

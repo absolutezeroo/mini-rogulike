@@ -30,3 +30,7 @@ func apply(user: Actor, _aim: Vector2) -> void:
 		Vfx.shockwave(user.world, user.global_position, element_radius * 2.0, 5.0)
 	else:
 		Vfx.magic(user.world, user.global_position, color)
+
+
+func play_preview(preview: EffectPreview) -> void:
+	preview.ring(0.0, preview.caster_radius() + 26.0, color, false)

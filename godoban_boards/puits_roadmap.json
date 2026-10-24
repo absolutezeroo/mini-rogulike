@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 226,
+  "next_id": 228,
   "tags": [
     "pc",
     "test",
@@ -2870,8 +2870,8 @@
     {
       "id": "task_193",
       "title": "Scinder davantage Player / Monster / Actor (suite de l'audit du cœur)",
-      "description": "Reporté de l'audit du cœur (24/10) : player.gd (~770 lignes) → PlayerControls (saisie, attaque, charge, visée), PlayerPack (actions du sac, ceinture, worse_gear), PlayerSave ; monster.gd → MonsterDrops (_on_died : butin, runes, or, loot_origin) et MonsterSteering (has_clear_walk, _walk_is_clear, _keep_spacing, _avoid_holes, blocage) ; actor.gd → draw_ward en WardVfx (src/vfx) ; actor_rig.gd → GearLook (arme au repos, aura). BossBrain est déjà sorti.",
-      "status": "backlog",
+      "description": "Fait (refactor pur, comportement identique) : player.gd 766 → ~445 lignes, avec PlayerControls (saisie, visée, bouton d'attaque et sa charge, boutons de compétences et de ceinture), PlayerPack (ramasser, sac, ceinture, porter, boire, jeter, démanteler ; les actions du sac l'appellent : player.pack.*) et PlayerSave (sa part de la sauvegarde, format inchangé) ; monster.gd 739 → ~590 avec MonsterSteering (marche dégagée, vue en cache, blocage, écart entre corps, trous) et MonsterDrops (XP, butin, extras de rang, runes, or, dans le même ordre de dés) ; actor.gd 717 → ~650 avec TimedBonuses (src/components), HitFeedback, WardVfx et BodySketch (src/vfx) ; actor_rig.gd 700 → ~500 avec GearLook (pièces portées, arme au repos, aura), RigAnimations (noms tournés, durées) et BodyTops (hauts des cadres). Docs : architecture.md (composition des entités). Preuve : toutes les suites passent, FloorDeterminismTests inchangés, sonde perf : mêmes empreintes d'étages et même empreinte de combat (cache de vue coupé), temps de trame comparables. Non vérifié à l'œil : le jeu tourné en vrai (rien ne devrait changer).",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -2879,7 +2879,7 @@
         "qualité"
       ],
       "created_at": 1792817035,
-      "updated_at": 1792817035
+      "updated_at": 1792825837
     },
     {
       "id": "task_194",
@@ -2899,8 +2899,8 @@
     {
       "id": "task_195",
       "title": "Audit du cœur : points restants (dictionnaires-structs, get() par nom, perfs)",
-      "description": "Reste de core.md (24/10) : M7 trait_state / StatusSet._slows / Belt.slots / _walk_checks en classes typées ; M8 Passive.look_element et PerkSet (get(\"passives\"), get(\"id\")) par nom ; L2 Combat.spec_from_weapon et melee_strike testent `attacker is Player`, StatusSet source &\"hit\" ; L3 Monster._noticed écrit Profile.mark_seen ; L4 Player appelle Monster.on_hit_player ; PerkSet garde ses 4 sauvegardes de heal_source à la main (boucle chaude, sans lambda) ; perk_offer_requested porte des textes d'interface depuis une Def ; src/vfx/telegraph_view.gd et src/ui/codex/attack_preview.gd testent encore le type d'Effect (passer par Effect.telegraph_kind()) ; (perfs P1-P6 faites : task_203 ; reste StatusSet.tick, voir task_219) ; encounter_outcome colle des propositions traduites ; weak_point_trait mesure le temps en Time.get_ticks_msec().",
-      "status": "backlog",
+      "description": "Fait : M7 trait_state en classes d'état typées par trait (ThiefState, GuardState, ShadeState, WeakPointState ; MonsterTrait.make_state()), StatusSet.Slow, Belt.Slot, cache des marches (MonsterSteering.WalkCheck), SkillSet.replace sans tableaux-structs, Equipment et GearLook en dictionnaires typés, BACK_PLACES en GearLook.BackPlace ; M8 Passive.look_element() surchargé par chaque passif élémentaire (plus de get() par nom), PerkSet.set_gear lit affixes et runes typés ; L2 Combat demande Actor.strikes_in_carried_elements() au lieu de `attacker is Player` ; les 4 sauvegardes de heal_source de PerkSet → un seul _credited() (sans lambda ; l'étiquette de source faite une fois) ; telegraph_view.gd et attack_preview.gd demandent Effect.show_warning() / show_preview_warning() / play_preview() (EffectPreview) au lieu de tester le type. Règle « un enregistrement est une classe » dans conventions.md. Tests : CoreTests._test_composed_parts. Reste : task_226.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -2909,7 +2909,7 @@
         "perf"
       ],
       "created_at": 1792817035,
-      "updated_at": 1792823411
+      "updated_at": 1792825837
     },
     {
       "id": "task_196",
@@ -3368,6 +3368,35 @@
       ],
       "created_at": 1792825538,
       "updated_at": 1792825538
+    },
+    {
+      "id": "task_226",
+      "title": "Audit du cœur : derniers restes (après task_193/195)",
+      "description": "Laissés par task_193/195 : L3 Monster._noticed écrit Profile.mark_seen (RunRecords pourrait le faire depuis Events.monster_noticed) ; L4 Player._on_damaged appelle Monster.on_hit_player (un crochet sur l'attaquant) ; StatusSet donne des règles à la source magique &\"hit\" ; perk_offer_requested porte des textes d'interface depuis une Def ; encounter_outcome colle des propositions traduites ; weak_point_trait mesure le temps en Time.get_ticks_msec() ; les fiches de mise à mort (HuntTracker → deeds : kill.get(\"fight_time\")...) restent des dictionnaires (une KillRecord typée) ; PlayerPack.heals() teste `effect is HealEffect` (un Effect.heals() virtuel) ; Actor garde la chute et la ruée (TestSuite touche actor._dash_time).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "qualité"
+      ],
+      "created_at": 1792825837,
+      "updated_at": 1792825837
+    },
+    {
+      "id": "task_227",
+      "title": "Sonde perf : le combat ne donne pas toujours la même empreinte avec --floors=1",
+      "description": "Vu pendant task_193 : avec --floors=1, la même version du code (avant comme après la scission, cache de vue coupé) donne d'une exécution à l'autre des empreintes de combat différentes (1879961368, 918133787, 669870441 ; 42 à 55 tués), alors qu'avec les 4 graines par défaut elle est stable (3286736254). Quelque chose dépend de l'horloge ou de l'ordre des objets (Time.get_ticks_msec dans weak_point_trait, randf() global des Vfx, l'état laissé par la génération des étages ?). À trouver pour que la comparaison avant/après d'un combat soit sûre quelle que soit l'option.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "perf",
+        "tests"
+      ],
+      "created_at": 1792826291,
+      "updated_at": 1792826291
     }
   ]
 }

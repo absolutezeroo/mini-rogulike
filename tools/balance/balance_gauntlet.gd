@@ -292,7 +292,7 @@ func gauntlet(arena: BalanceArena, act: int, build: BalanceBuildDef, boss: BossD
 	var hero := lab.ready_hero(game, build, difficulty, seed_value * 100)
 	empty_belt(hero)
 	for k in POTIONS:
-		hero.store(POTION)
+		hero.pack.store(POTION)
 	BalanceBot.drink_below = DRINK_BELOW
 	for i in room_count:
 		var foes := lab.roll_room(act, depth, size, seed_value * 1000 + act * 10 + i)

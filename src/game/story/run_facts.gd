@@ -122,7 +122,7 @@ static func _of_run(run: RunState, player: Player, content: ContentDB, floor_wor
 			facts.event_id = floor_world.floor_event.id
 	if player:
 		facts.level = player.level
-		facts.potions_left = player.healing_carried()
+		facts.potions_left = player.pack.healing_carried()
 		for slot in [EquipmentDef.Slot.HEAD, EquipmentDef.Slot.BODY]:
 			if player.equipment.get_item(slot):
 				facts.armor_worn += 1

@@ -22,7 +22,10 @@ extends Node2D
 ## carrying an element wear their own copies of the body shader (`trim`, `imbue`) that follow the
 ## body's (BodyLook.follow): docs/vfx.md, "Rarity and runes" and "The weapon at rest".
 ## Slash effects are separate sprite sheets played in front of the actor.
-## The Actor only says what happens; the rig decides how it looks.
+## The Actor only says what happens; the rig decides how it looks: it picks what the body plays
+## (RigAnimations: the turned names, their lengths) and keeps the layers on its frame, while the
+## gear's own looks and the weapon at rest are composed by its GearLook (`gear`), bobbing with
+## the body's art (BodyTops).
 
 const DIRECTIONS: Array[StringName] = [&"down", &"up", &"left", &"right"]
 const SQUASH_TIME := 0.12
@@ -54,40 +57,9 @@ var carries_weapon := false:
 	set(value):
 		carries_weapon = value
 		if value and is_node_ready():
-			warm_tops(body.sprite_frames)
-
-## Where a weapon at rest sits per kind and facing: the middle of its sprite (art pixels from
-## the feet), whether it is mirrored (a slung sprite's top end is at its top right: over his
-## right shoulder seen from the front, so on the left seen from the back) and whether it is in
-## front of the body. Tuned on screenshots of the 15-pixel hero (docs/vfx.md).
-const BACK_PLACES := {
-	WeaponDef.BackKind.SLUNG: {
-		&"down": [Vector2(6, -14), false, false],
-		&"up": [Vector2(-4, -12), true, true],
-		&"left": [Vector2(6, -13), false, false],
-		&"right": [Vector2(-6, -13), true, false],
-	},
-	WeaponDef.BackKind.HIP: {
-		&"down": [Vector2(7, -4), false, true],
-		&"up": [Vector2(-7, -4), true, true],
-		&"left": [Vector2(2, -4), false, false],
-		&"right": [Vector2(-2, -4), true, true],
-	},
-}
-
-var _back: Sprite2D
-var _aura: WeaponAura
-var _weapon_material: ShaderMaterial
-var _wear_materials := {}  # Slot -> ShaderMaterial
-var _wear_rarity := {}  # Slot -> rarity
-var _fewer := false
-var _back_key := []
-static var _tops := {}  # a body frame -> the top row of its art (for the bob)
-## A sheet's pixels, read back from the GPU once (the first frame of it measured): every frame
-## cut from it is measured on this copy (_top_of()), never by reading the texture back again.
-static var _sheets := {}  # Texture2D -> Image
-## Directed animation names (`walk` + `left` -> `walk_left`), made once (_animation_for()).
-static var _directed := {}  # StringName -> {StringName: StringName}
+			BodyTops.warm(body.sprite_frames)
+## The worn pieces' looks and the weapon at rest (GearLook).
+var gear := GearLook.new(self)
 
 ## Holding the weapon ready while the hero charges (show_charge): not on his back meanwhile.
 var _charging := false
@@ -117,7 +89,7 @@ func setup(frames: SpriteFrames, offset: Vector2) -> void:
 	_play(&"idle")
 	_fit_frame()
 	if carries_weapon:
-		warm_tops(frames)
+		BodyTops.warm(frames)
 
 
 ## Shows (or hides, with null frames) the armor worn on `slot` (HEAD or BODY); above Common the
@@ -129,21 +101,8 @@ func set_wear(slot: EquipmentDef.Slot, frames: SpriteFrames, color: Color, rarit
 	layer.sprite_frames = frames
 	layer.self_modulate = color
 	layer.visible = frames != null
-	_wear_rarity[slot] = rarity if frames else ItemRarity.COMMON
 	var carried: VfxElementDef = elements[0] if frames and not elements.is_empty() else null
-	teeth = teeth and frames != null
-	if (rarity > ItemRarity.COMMON or carried or teeth) and not _wear_materials.has(slot):
-		_wear_materials[slot] = _own_material(layer, false)
-		(_wear_materials[slot] as ShaderMaterial).set_shader_parameter(&"trim_hem", true)
-	if _wear_materials.has(slot):
-		var slot_material := _wear_materials[slot] as ShaderMaterial
-		_set_trim(slot_material, _wear_rarity[slot])
-		slot_material.set_shader_parameter(&"imbue", 1.0 if carried else 0.0)
-		if carried:
-			slot_material.set_shader_parameter(&"imbue_row", BodyLook.row(carried))
-		slot_material.set_shader_parameter(&"teeth", teeth)
-		if teeth:
-			slot_material.set_shader_parameter(&"teeth_row", BodyLook.row(VfxElementDef.named(&"physical")))
+	gear.dress_wear(slot, layer, frames != null, rarity, carried, teeth and frames != null)
 	_sync_layers()
 
 
@@ -418,11 +377,9 @@ func _process(delta: float) -> void:
 		look.set_shared(&"flash_color", Color.WHITE if _flash > 0.0 else pallor_color)
 	_sync_layers()
 	if carries_weapon:
-		if _fewer != Settings.fewer_effects:
-			_fewer = Settings.fewer_effects
+		if gear.fewer_changed():
 			_dress_weapon()
-			for slot: EquipmentDef.Slot in _wear_materials:
-				_set_trim(_wear_materials[slot], _wear_rarity.get(slot, ItemRarity.COMMON))
+			gear.retrim_wear()
 		_update_back()
 
 
@@ -458,24 +415,9 @@ func _fit_frame() -> void:
 
 # --- Helpers -----------------------------------------------------------------
 
-## "walk" -> "walk_left" if it exists, else "walk", else "".
+## "walk" -> "walk_left" if it exists, else "walk", else "" (RigAnimations.pick()).
 func _animation_for(base: StringName) -> StringName:
-	var frames := body.sprite_frames
-	if frames == null:
-		return &""
-	var by_direction: Variant = _directed.get(base)
-	if by_direction == null:
-		by_direction = {}
-		_directed[base] = by_direction
-	var directed: StringName = (by_direction as Dictionary).get(direction, &"")
-	if directed == &"":
-		directed = StringName(String(base) + "_" + String(direction))
-		(by_direction as Dictionary)[direction] = directed
-	if frames.has_animation(directed):
-		return directed
-	if frames.has_animation(base):
-		return base
-	return &""
+	return RigAnimations.pick(body.sprite_frames, base, direction)
 
 
 func _play(base: StringName, speed: float = 1.0, restart: bool = false) -> bool:
@@ -488,10 +430,7 @@ func _play(base: StringName, speed: float = 1.0, restart: bool = false) -> bool:
 
 
 static func _length(frames: SpriteFrames, animation: StringName) -> float:
-	var total := 0.0
-	for i in frames.get_frame_count(animation):
-		total += frames.get_frame_duration(animation, i)
-	return total / maxf(frames.get_animation_speed(animation), 0.001)
+	return RigAnimations.length(frames, animation)
 
 
 func _lunge(aim: Vector2) -> void:
@@ -521,180 +460,42 @@ func _on_body_animation_finished() -> void:
 		_winding_up = false  # a cast (whichever animation it plays) or an intro is over
 
 
-# --- The hero's gear: the weapon at rest, rarity, elements ------------------------------------
+# --- The hero's gear: the weapon at rest, rarity, elements (GearLook) ---------------------------
 
 ## Whether the weapon at rest shows now (not while it is in hand, nor once dead).
 func shows_back_weapon() -> bool:
-	return _back != null and _back.visible
+	return gear.shows_back_weapon()
 
 
 ## The weapon at rest (null for a rig that carries none), and the motes of its elements.
 func back_weapon() -> Sprite2D:
-	return _back
+	return gear.back_weapon()
 
 
 func weapon_aura() -> WeaponAura:
-	return _aura
+	return gear.weapon_aura()
 
 
 ## The material the weapon wears (in hand and at rest), null before the hero carries one.
 func weapon_material() -> ShaderMaterial:
-	return _weapon_material
+	return gear.weapon_material()
 
 
 ## The material of a worn piece's layer (HEAD or BODY), null while it shares the body's.
 func wear_material(slot: EquipmentDef.Slot) -> ShaderMaterial:
-	return _wear_materials.get(slot)
+	return gear.wear_material(slot)
 
 
-## A copy of the body shader for `layer` (its own uniforms: the trim), following the body's.
-func _own_material(layer: CanvasItem, own_frame: bool) -> ShaderMaterial:
-	var trim_material := ShaderMaterial.new()
-	trim_material.shader = (visual.material as ShaderMaterial).shader
-	layer.use_parent_material = false
-	layer.material = trim_material
-	look.follow(trim_material, own_frame)
-	return trim_material
-
-
-## `rarity`'s trim on `trim_material` (nothing for Common); fewer effects cuts the glint.
-func _set_trim(trim_material: ShaderMaterial, rarity: int) -> void:
-	var rarity_look := ItemRarity.look(rarity) if rarity > ItemRarity.COMMON else null
-	var trim := rarity_look.trim if rarity_look else 0
-	trim_material.set_shader_parameter(&"trim", trim)
-	if trim > 0:
-		trim_material.set_shader_parameter(&"trim_row", BodyLook.row(rarity_look.element))
-	var sweep := rarity_look.sweep_every if rarity_look and not Settings.fewer_effects else 0.0
-	trim_material.set_shader_parameter(&"trim_sweep", sweep if trim > 0 else 0.0)
-
-
-## The weapon's look for the hero: its sprite at rest, its rarity's trim and its elements, on the
-## in-hand frames and at rest alike (one material: the two never show together).
 func _dress_weapon() -> void:
-	if _back == null:
-		_back = Sprite2D.new()
-		_back.name = "WeaponBack"
-		_back.centered = false
-		_back.visible = false
-		squash_node.add_child(_back)
-		_aura = WeaponAura.new()
-		squash_node.add_child(_aura)
-		_weapon_material = _own_material(weapon, true)
-		_back.use_parent_material = false
-		_back.material = _weapon_material
-	var def := _weapon_def
-	_back.texture = def.back_sprite if def else null
-	_set_trim(_weapon_material, ItemRarity.of(def) if def else ItemRarity.COMMON)
-	var carried := ItemLook.elements(def) if def else ([] as Array[VfxElementDef])
-	_weapon_material.set_shader_parameter(&"imbue", 0.0 if carried.is_empty() else 1.0)
-	if not carried.is_empty():
-		_weapon_material.set_shader_parameter(&"imbue_row", BodyLook.row(carried[0]))
-	if carried.size() > ItemLook.MOST:
-		carried.resize(ItemLook.MOST)
-	_aura.set_elements(carried)
-	_back_key = []
+	gear.dress_weapon(_weapon_def)
 	_update_back()
 
 
-## Places the weapon at rest for the facing and the body's frame (it bobs with the body), or
-## hides it while the weapon is in hand, while winding up and once dead.
+## The weapon at rest placed for the facing and the body's frame, or hidden while the weapon is in
+## hand, while winding up or charging, and once dead.
 func _update_back() -> void:
-	if _back == null:
-		return
-	var shown := carries_weapon and _back.texture != null and not _attacking and not _winding_up and not _charging and not _dead and body.visible
-	_back.visible = shown
-	if not shown:
-		_back_key = []
-		_aura.visible = weapon.visible  # in hand: placed by _fit_weapon_frame
-		return
-	var def := _weapon_def
-	var places: Dictionary = BACK_PLACES[def.back_kind]
-	var place: Array = places.get(direction, places[&"down"])
-	var flip: bool = place[1]
-	var front: bool = place[2]
-	var offset := def.back_offset * Vector2(-1.0 if flip else 1.0, 1.0)
-	var size := _back.texture.get_size()
-	var corner := ((place[0] as Vector2) + offset - size * 0.5).floor() + Vector2(0.0, _bob())
-	var key := [corner, flip, front, _back.texture]
-	if key == _back_key:
-		return
-	_back_key = key
-	_back.position = corner
-	_back.flip_h = flip
-	squash_node.move_child(_back, squash_node.get_child_count() - 1 if front else 0)
-	_weapon_material.set_shader_parameter(&"frame_rect", Vector4(corner.x, corner.y, size.x, size.y))
-	_follow_with_aura(_back)
+	gear.update_back(carries_weapon and not _attacking and not _winding_up and not _charging and not _dead and body.visible)
 
 
-## The aura is drawn right after the weapon shown (behind the body with it), born on its pixels.
-func _follow_with_aura(shown: CanvasItem) -> void:
-	_aura.visible = true
-	squash_node.move_child(_aura, shown.get_index() + (1 if _aura.get_index() > shown.get_index() else 0))
-	if shown == _back:
-		_aura.set_source(_back.texture, _back.position, _back.flip_h)
-		return
-	var texture := weapon.sprite_frames.get_frame_texture(weapon.animation, weapon.frame) if weapon.sprite_frames else null
-	if texture:
-		_aura.set_source(texture, weapon.offset - texture.get_size() * 0.5, false)
-
-
-## The in-hand weapon's frame for its shader (its quad in local art pixels), and the aura's.
 func _fit_weapon_frame() -> void:
-	if _weapon_material == null or not weapon.visible or weapon.sprite_frames == null:
-		return
-	var texture := weapon.sprite_frames.get_frame_texture(weapon.animation, weapon.frame)
-	if texture == null:
-		return
-	var size := texture.get_size()
-	var corner := weapon.offset - size * 0.5
-	_weapon_material.set_shader_parameter(&"frame_rect", Vector4(corner.x, corner.y, size.x, size.y))
-	_follow_with_aura(weapon)
-
-
-## How far the body's art is lowered on this frame from its animation's first (art pixels): the
-## weapon at rest moves with it, so it never floats while he breathes or walks.
-func _bob() -> float:
-	var frames := body.sprite_frames
-	if frames == null or not frames.has_animation(body.animation) or frames.get_frame_count(body.animation) == 0:
-		return 0.0
-	return float(_top_of(frames.get_frame_texture(body.animation, body.frame)) - _top_of(frames.get_frame_texture(body.animation, 0)))
-
-
-static func _top_of(texture: Texture2D) -> int:
-	if texture == null:
-		return 0
-	if not _tops.has(texture):
-		_tops[texture] = _measure_top(texture)
-	return _tops[texture]
-
-
-## Every frame of `frames` measured now (when the rig gets its body, while the floor loads),
-## so no frame shown for the first time mid-fight reads a texture back from the GPU (a hitch on
-## a phone: docs/performance.md).
-static func warm_tops(frames: SpriteFrames) -> void:
-	if frames == null or not Vfx.shown:
-		return
-	for animation in frames.get_animation_names():
-		for i in frames.get_frame_count(animation):
-			_top_of(frames.get_frame_texture(animation, i))
-
-
-## The top row of the art on `texture` (AtlasTexture.get_image(): its sheet's pixels in its
-## region), measured on its sheet's copy (_sheets).
-static func _measure_top(texture: Texture2D) -> int:
-	var atlas := texture as AtlasTexture
-	var source: Texture2D = atlas.atlas if atlas and atlas.atlas else texture
-	var image: Image = _sheets.get(source)
-	if image == null:
-		image = source.get_image()
-		if image == null:
-			return 0
-		if image.is_compressed():
-			image.decompress()
-		_sheets[source] = image
-	if atlas == null or source == texture:
-		return image.get_used_rect().position.y
-	var region := Rect2i(atlas.region).intersection(Rect2i(Vector2i.ZERO, image.get_size()))
-	if region.has_area():
-		return image.get_region(region).get_used_rect().position.y
-	return 0
+	gear.fit_weapon_frame()

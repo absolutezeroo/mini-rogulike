@@ -73,7 +73,7 @@ winding up toward the closest enemy (or the way he walks). Full, it flashes and 
 closest enemy; let go earlier, it is wasted. A roll (or any skill), a weapon swap or a fall cancels
 the charge until the button is let go; being hit does not (holding the blow is the risk). A
 charge is never saved. Keyboard (J / Space) and gamepad (X) hold the same way (`AttackCharge`,
-`Player._update_attack`).
+`PlayerControls.update_attack`).
 
 It is no skill: no cooldown of its own (the weapon swings again after its usual cooldown), no
 "on skill" perk (Echo, Devotion, the Arcane ring). Its damage goes through its effects like a

@@ -216,11 +216,11 @@ func _test_animations(game: Game) -> void:
 	rat.queue_free()
 	var spear: WeaponDef = load("res://data/items/weapons/lance.tres")
 	player.inventory.add(spear)
-	player.use_item(spear)
+	player.pack.use_item(spear)
 	player._attack_cooldown = 0.0
 	player.attack(Vector2.RIGHT)
 	check(rig.weapon.visible and rig.weapon.animation == &"attack_right", "the lance has baked attack frames")
-	player.use_item(load("res://data/items/weapons/katana.tres"))
+	player.pack.use_item(load("res://data/items/weapons/katana.tres"))
 	await _frames(30)
 
 
@@ -346,22 +346,22 @@ func _test_run(game: Game) -> void:
 	for item in CONTENT.items:
 		if item is ConsumableDef:
 			player.inventory.add(item)
-			player.use_item(item)
+			player.pack.use_item(item)
 	check(player.hp > 10, "potions heal")
 	await _frames(30)
 
 	# Equip / unequip / drop round trip.
 	var bow: WeaponDef = load("res://data/items/weapons/magic_wand.tres")
-	check(player.pick_up(bow), "pick up a bow")
-	player.use_item(bow)
+	check(player.pack.pick_up(bow), "pick up a bow")
+	player.pack.use_item(bow)
 	check(player.get_weapon() == bow, "bow equipped")
 	check(player.inventory.items.size() > 0, "old weapon went to the bag")
-	player.unequip(EquipmentDef.Slot.WEAPON)
+	player.pack.unequip(EquipmentDef.Slot.WEAPON)
 	check(player.get_weapon() == null, "weapon unequipped")
-	player.use_item(load("res://data/items/weapons/katana.tres"))
+	player.pack.use_item(load("res://data/items/weapons/katana.tres"))
 	check(player.get_weapon() != null, "re-equipped a weapon")
 	var count := player.inventory.items.size()
-	player.drop_item(bow)
+	player.pack.drop_item(bow)
 	check(player.inventory.items.size() == count - 1, "dropped item left the bag")
 	await _frames(5)
 

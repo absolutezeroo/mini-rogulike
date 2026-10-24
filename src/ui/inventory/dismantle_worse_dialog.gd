@@ -57,7 +57,7 @@ func ask(worse: Array[ItemDef]) -> void:
 	var gold := 0
 	var shown := Inventory.new(worse.size())
 	for item in worse:
-		gold += Player.DISMANTLE.gold_for(item)
+		gold += PlayerPack.DISMANTLE.gold_for(item)
 		shown.add(item)
 	_text.text = (tr("Dismantle 1 piece of gear worse than what you wear, for %d gold?") % gold) if worse.size() == 1 \
 		else tr("Dismantle %d pieces of gear worse than what you wear, for %d gold?") % [worse.size(), gold]

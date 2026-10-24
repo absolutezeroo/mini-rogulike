@@ -54,3 +54,14 @@ func _leave_element(user: Actor, dir: Vector2) -> void:
 		var where := world_ref.get_ref() as World
 		if who and where:
 			Vfx.pop(where, who.global_position + chest, element, 14.0, dir))
+
+
+## In the preview, the line it dashes along (the game warns of none).
+func show_preview_warning(view: TelegraphView, angle: float, progress: float) -> bool:
+	view.show_shape(TelegraphView.Shape.LINE, distance, angle, progress, 0.0, 14.0)
+	return true
+
+
+func play_preview(preview: EffectPreview) -> void:
+	var way := -1.0 if direction == Direction.AWAY else 1.0
+	preview.lunge(distance * way, duration)

@@ -71,3 +71,8 @@ func _matches(victim: Actor) -> bool:
 		Condition.SLOWED:
 			return victim.statuses.is_slowed()
 	return true
+
+
+## Shows as its blast's element, else its shards' (ItemLook).
+func look_element() -> VfxElementDef:
+	return blast_element if blast_element else shard_element

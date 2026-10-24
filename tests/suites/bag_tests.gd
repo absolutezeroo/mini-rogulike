@@ -88,7 +88,7 @@ func run_bag_unit() -> void:
 	check(order == [rare, katana], "the weapons' tab: the rare one first")
 	check(CATEGORIES.count_in(weapons, bag.grouped()) == 3 and CATEGORIES.count_in(runes, bag.grouped()) == 2, "a tab counts items, a stack all of its own")
 	# Which dismantles ask first (DismantleRules.needs_confirm).
-	var rules := Player.DISMANTLE
+	var rules := PlayerPack.DISMANTLE
 	var magic := _katana(ItemRarity.MAGIC, 1)
 	var socketed := LootRoller.make(katana, ItemRarity.COMMON, [] as Array[ItemAffixDef], [_item("res://data/runes/ember.tres") as RuneDef], 1)
 	check(rules.confirm_rarity == ItemRarity.RARE, "rare and better ask before they break (dismantle.tres)")
@@ -176,7 +176,7 @@ func _test_old_save(weapons: int, runes: int) -> void:
 	check(bag.items.size() == 24, "an old save's bag comes back whole (%d of 24 items)" % bag.items.size())
 	check(bag.places_used_in(weapons) == 20 and bag.over_capacity(weapons) == 4, "20 weapons in a 16-place compartment: kept, 4 over")
 	check(bag.places_used_in(runes) == 2 and bag.count_of(load("res://data/runes/ember.tres")) == 2, "the runes in theirs, stacked")
-	check(not hero.can_store(_katana(ItemRarity.COMMON, 40)) and hero.can_store(load("res://data/runes/spark.tres")), "no new weapon until there is room; runes still come")
+	check(not hero.pack.can_store(_katana(ItemRarity.COMMON, 40)) and hero.pack.can_store(load("res://data/runes/spark.tres")), "no new weapon until there is room; runes still come")
 	var again: Dictionary = JSON.parse_string(JSON.stringify(hero.save_state()))
 	check((again.inventory as Array).size() == 24, "saved again: still one list, nothing lost")
 	hero.free()
@@ -209,7 +209,7 @@ func run_bag_game(game: Game) -> void:
 	player.belt.load_data(saved_belt)
 	if player.learned_skill != saved_spell:
 		player.learned_skill = saved_spell
-		player._rebuild_skills(0.0)
+		player.rebuild_skills(0.0)
 	for left in get_tree().get_nodes_in_group("pickups"):
 		left.queue_free()
 	get_tree().paused = false
@@ -328,8 +328,8 @@ func _test_compartment_room(game: Game) -> void:
 	bag.add(junk)
 	panel.show_category(weapons)
 	await _frames(1)
-	var worse_weapons := player.worse_gear(weapons)
-	check(worse_weapons.all(func(item: ItemDef) -> bool: return item is WeaponDef) and not player.worse_gear().is_empty(), "the worse gear of a tab is its own (weapons only here)")
+	var worse_weapons := player.pack.worse_gear(weapons)
+	check(worse_weapons.all(func(item: ItemDef) -> bool: return item is WeaponDef) and not player.pack.worse_gear().is_empty(), "the worse gear of a tab is its own (weapons only here)")
 	(panel.get_node("%DismantleWorseButton") as Button).pressed.emit()
 	if panel.is_confirm_open():
 		(panel.get_node("%ConfirmDismantleButton") as Button).pressed.emit()
@@ -411,7 +411,7 @@ func _test_touch(game: Game) -> void:
 	var dismantle: Button = panel.get_node("%DismantleButton")
 	panel.slot_for(items.common).pressed.emit()
 	var gold := player.gold
-	var gain := Player.DISMANTLE.gold_for(items.common)
+	var gain := PlayerPack.DISMANTLE.gold_for(items.common)
 	dismantle.pressed.emit()
 	check(player.gold == gold + gain and player.inventory.count_of(items.common) == 1, "tapping Dismantle on a common breaks one of its stack at once (+%d gold)" % gain)
 	check(panel._selected_item != null and panel._selected_item.stack_key() == items.common.stack_key(), "the rest of the stack stays picked")
@@ -420,7 +420,7 @@ func _test_touch(game: Game) -> void:
 	dismantle.pressed.emit()
 	var note := panel.get_node("%DismantleNote") as Label
 	check(player.gold == gold and player.inventory.count_of(items.rare) == 1 and dismantle.text == "Sure?", "on a rare piece a first tap asks again (%s)" % dismantle.text)
-	check(note.text == "Tap again to break it: +%d gold" % Player.DISMANTLE.gold_for(items.rare), "the card says what a second tap does, in touch words: %s" % note.text)
+	check(note.text == "Tap again to break it: +%d gold" % PlayerPack.DISMANTLE.gold_for(items.rare), "the card says what a second tap does, in touch words: %s" % note.text)
 	panel.slot_for(items.common).pressed.emit()
 	check(dismantle.text == "Dismantle", "picking another item takes the question back")
 	panel.slot_for(items.rare).pressed.emit()
@@ -483,12 +483,12 @@ func _test_gamepad(game: Game) -> void:
 	check(panel.visible and (panel.get_node("%DismantleButton") as Button).text == "Dismantle", "B takes the question back (the bag stays open)")
 	await _tap_pad(JOY_BUTTON_X)
 	await _tap_pad(JOY_BUTTON_X)
-	check(player.gold == gold + Player.DISMANTLE.gold_for(items.rare) and player.inventory.count_of(items.rare) == 0, "X twice breaks the rare piece")
+	check(player.gold == gold + PlayerPack.DISMANTLE.gold_for(items.rare) and player.inventory.count_of(items.rare) == 0, "X twice breaks the rare piece")
 	check(_focus() is ItemSlot and (_focus() as ItemSlot).item == items.common and panel._selected_item == items.common, "the focus goes on to the next item")
 	# X on a common: at once, one of the stack.
 	gold = player.gold
 	await _tap_pad(JOY_BUTTON_X)
-	check(player.gold == gold + Player.DISMANTLE.gold_for(items.common) and player.inventory.count_of(items.common) == 1, "X breaks a common at once, one of its stack")
+	check(player.gold == gold + PlayerPack.DISMANTLE.gold_for(items.common) and player.inventory.count_of(items.common) == 1, "X breaks a common at once, one of its stack")
 	check(_focus() == panel.slot_for(items.common), "the focus stays on the rest of the stack")
 	# Y drops.
 	await _tap_pad(JOY_BUTTON_Y)

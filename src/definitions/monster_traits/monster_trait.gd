@@ -3,7 +3,14 @@ extends Resource
 ## A special way a kind of monster fights: a shield, stealing gold, bursting when it dies,
 ## splitting into smaller ones... Listed in MonsterDef.traits, the monster calls these hooks.
 ## One trait resource is shared by every monster of that kind: keep per-monster values in
-## `monster.trait_state(self)`, never in the trait itself.
+## `monster.trait_state(self)`, never in the trait itself: a trait with such values declares an
+## inner state class (`ThiefState`...: typed fields, no dictionary keys to mistype) and makes it in make_state().
+
+
+## A new monster's values of this trait (an instance of its inner state class), made the first
+## time Monster.trait_state() asks for them. The base has none to keep.
+func make_state() -> RefCounted:
+	return RefCounted.new()
 
 
 ## Once, when the monster is set up.

@@ -7,26 +7,26 @@ extends TestSuite
 ## No game running (from UnitTests).
 func run_unit() -> void:
 	# Input names by slot, as constants: one per slot, each a real action.
-	check(Player.SKILL_ACTIONS.size() == Player.SKILL_COUNT, "one skill action per skill slot")
-	check(Player.BELT_ACTIONS.size() == Belt.SLOTS, "one belt action per belt slot")
+	check(PlayerControls.SKILL_ACTIONS.size() == Player.SKILL_COUNT, "one skill action per skill slot")
+	check(PlayerControls.BELT_ACTIONS.size() == Belt.SLOTS, "one belt action per belt slot")
 	var missing: Array[String] = []
-	for i in Player.SKILL_ACTIONS.size():
-		if Player.SKILL_ACTIONS[i] != StringName("skill_%d" % (i + 1)) or not InputMap.has_action(Player.SKILL_ACTIONS[i]):
-			missing.append(String(Player.SKILL_ACTIONS[i]))
-	for i in range(1, Player.BELT_ACTIONS.size()):  # (slot 1 is the quick item's own action)
-		if Player.BELT_ACTIONS[i] != StringName("belt_%d" % (i + 1)) or not InputMap.has_action(Player.BELT_ACTIONS[i]):
-			missing.append(String(Player.BELT_ACTIONS[i]))
+	for i in PlayerControls.SKILL_ACTIONS.size():
+		if PlayerControls.SKILL_ACTIONS[i] != StringName("skill_%d" % (i + 1)) or not InputMap.has_action(PlayerControls.SKILL_ACTIONS[i]):
+			missing.append(String(PlayerControls.SKILL_ACTIONS[i]))
+	for i in range(1, PlayerControls.BELT_ACTIONS.size()):  # (slot 1 is the quick item's own action)
+		if PlayerControls.BELT_ACTIONS[i] != StringName("belt_%d" % (i + 1)) or not InputMap.has_action(PlayerControls.BELT_ACTIONS[i]):
+			missing.append(String(PlayerControls.BELT_ACTIONS[i]))
 	check(missing.is_empty(), "the skill and belt actions are the project's (wrong: %s)" % ", ".join(missing))
 	var four: Array[Vector2i] = [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]
 	check(GridDirs.FOUR == four, "the grid's four steps keep their order (it decides ties: the same seed, the same floor)")
 	_test_body_tops()
 
 
-## The weapon at rest bobs with the body's art (ActorRig._bob): every frame of the hero measured
+## The weapon at rest bobs with the body's art (BodyTops.bob): every frame of the hero measured
 ## on its sheet's copy, read back once, gives the top row a readback of the frame itself gives.
 func _test_body_tops() -> void:
 	var frames: SpriteFrames = load("res://data/visuals/hero.tres")
-	ActorRig.warm_tops(frames)
+	BodyTops.warm(frames)
 	var wrong: Array[String] = []
 	var measured := 0
 	for animation in frames.get_animation_names():
@@ -38,7 +38,7 @@ func _test_body_tops() -> void:
 			if image.is_compressed():
 				image.decompress()
 			measured += 1
-			if ActorRig._top_of(texture) != image.get_used_rect().position.y:
+			if BodyTops.top_of(texture) != image.get_used_rect().position.y:
 				wrong.append("%s %d" % [animation, i])
 	check(measured > 0, "the hero's frames can be measured here (%d)" % measured)
 	check(wrong.is_empty(), "each body frame's top measured on its sheet's copy is its own (wrong: %s)" % ", ".join(wrong.slice(0, 5)))
@@ -61,7 +61,7 @@ func run_in_game(world: World, player: Player) -> void:
 	await _frames(2)
 
 
-## Every monster close enough to push another (Monster._keep_spacing) is among those its grid
+## Every monster close enough to push another (MonsterSteering.keep_spacing) is among those its grid
 ## cells hand it, in the awake list's order: the push sums the same floats as over the whole list.
 func _check_buckets(world: World) -> void:
 	var awake := world.activity.awake
@@ -72,7 +72,7 @@ func _check_buckets(world: World) -> void:
 		if not is_instance_valid(entry):
 			continue
 		var monster := entry as Monster
-		var near := world.activity.buckets.near(awake, monster.global_position, monster.radius + Monster.SPACING)
+		var near := world.activity.buckets.near(awake, monster.global_position, monster.radius + MonsterSteering.SPACING)
 		for i in range(1, near.size()):
 			if near[i] <= near[i - 1]:
 				unsorted += 1
@@ -80,7 +80,7 @@ func _check_buckets(world: World) -> void:
 			var other: Variant = awake[j]
 			if not is_instance_valid(other) or other == monster:
 				continue
-			var limit := monster.radius + (other as Monster).radius + Monster.SPACING
+			var limit := monster.radius + (other as Monster).radius + MonsterSteering.SPACING
 			if monster.global_position.distance_to((other as Monster).global_position) < limit and not near.has(j):
 				missed += 1
 	check(missed == 0, "the spacing grid hands every monster all those close enough to push it (%d missed)" % missed)

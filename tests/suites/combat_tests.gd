@@ -632,7 +632,7 @@ func _test_skills(game: Game, world: World, player: Player) -> void:
 
 	var tome: SkillTomeDef = load("res://data/items/tomes/tome_frost.tres")
 	player.inventory.add(tome)
-	player.use_item(tome)
+	player.pack.use_item(tome)
 	await _frames(1)
 	check(player.learned_skill == tome.skill and player.skills.skills[3] == tome.skill, "a tome teaches a spell (last slot)")
 	check(game.hud.get_node("%Skill4Button").visible, "the spell button appears")
@@ -1026,7 +1026,7 @@ func _test_four_directions(game: Game) -> void:
 		await _frames(1)
 		clear_swings.call()
 		var hp_charged := target.hp
-		player._unleash(weapon, weapon.charged)
+		player.unleash(weapon, weapon.charged)
 		await _frames(2)
 		var swing: SwingVfx = newest_swing.call()
 		var blade := false
@@ -1042,7 +1042,7 @@ func _test_four_directions(game: Game) -> void:
 	await _frames(3)
 	var spin_aim: Vector2 = place.call(-30.0, 40.0)
 	clear_swings.call()
-	player._unleash(player.get_weapon(), player.get_weapon().charged)
+	player.unleash(player.get_weapon(), player.get_weapon().charged)
 	await _frames(1)
 	var spin: SwingVfx = newest_swing.call()
 	check(spin != null and absf(angle_difference(float(spin.material.get_shader_parameter("aim")), spin_aim.angle())) < 0.001, "four directions: a spin keeps the exact aim")
@@ -1691,10 +1691,10 @@ func _test_ai_movement(game: Game) -> void:
 	var ahead := world.map.cell_to_world(cell + Vector2i(3, 0))
 	check(walker.has_clear_walk(ahead), "a clear walk on open floor")
 	world.set_cell_blocked(cell + Vector2i(2, 0), true)
-	walker._walk_checks.clear()
+	walker.steering.forget_walks()
 	check(not walker.has_clear_walk(ahead), "not across a blocked cell, even in sight")
 	world.set_cell_blocked(cell + Vector2i(2, 0), false)
-	walker._walk_checks.clear()
+	walker.steering.forget_walks()
 	var other_side := world.map.cell_to_world(cell) + Vector2(0, -2000)
 	check(not walker.has_clear_walk(other_side), "nor through walls (from %s at cell %s to %s, map %dx%d, its cell a floor %s)" % [walker.global_position, world.map.world_to_cell(walker.global_position), other_side, world.map.width, world.map.height, world.map.is_floor(world.map.world_to_cell(walker.global_position))])
 

@@ -31,3 +31,7 @@ func apply(user: Actor, _aim: Vector2) -> void:
 			Vfx.nova(world, at, 16.0, element)
 		else:
 			Vfx.puff(world, at)
+
+
+func play_preview(preview: EffectPreview) -> void:
+	preview.summon(self)

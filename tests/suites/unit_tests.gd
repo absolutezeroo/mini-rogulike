@@ -1034,7 +1034,7 @@ func _test_bag_stacks_and_dismantle() -> void:
 	check(bag.fits_after_taking(katana, cap), "the last of a stack frees its place")
 
 	# Dismantle gold: from data, below what the merchant pays.
-	var rules: DismantleRules = Player.DISMANTLE
+	var rules: DismantleRules = PlayerPack.DISMANTLE
 	check(rules.gold_share > 0.0 and rules.gold_for(katana) == roundi(katana.value * rules.gold_share), "a plain katana gives its value x %.2f (%d gold)" % [rules.gold_share, rules.gold_for(katana)])
 	check(rules.gold_for(one) > rules.gold_for(katana) and rules.gold_for(LootRoller.make(katana, ItemRarity.EPIC, none, no_runes, 4)) > rules.gold_for(LootRoller.make(katana, ItemRarity.MAGIC, none, no_runes, 4)), "rarer and deeper gear gives more")
 	check(rules.gold_for(potion) == 0 and rules.gold_for(key) == 0 and rules.gold_for(rune) == 0 and rules.gold_for(tome) == 0, "potions, keys, runes and tomes don't break down")
@@ -1079,25 +1079,25 @@ func _test_bag_stacks_and_dismantle() -> void:
 	var old_cap := LootRoller.make(cap, ItemRarity.COMMON, none, no_runes, 1)
 	for item: ItemDef in [junk, junk2, keeper, old_cap, potion, key, tome, rune]:
 		hero.inventory.add(item)
-	var worse := hero.worse_gear()
+	var worse := hero.pack.worse_gear()
 	check(worse.size() == 3 and worse.has(junk) and worse.has(junk2) and worse.has(old_cap), "the worse gear: both plain katanas and the old cap (%d)" % worse.size())
 	hero.gold = 0
 	var expected := rules.gold_for(junk) * 2 + rules.gold_for(old_cap)
-	var got := hero.dismantle_all(hero.worse_gear())
+	var got := hero.pack.dismantle_all(hero.pack.worse_gear())
 	check(got == expected and hero.gold == expected, "dismantling the worse gives their gold (%d)" % got)
 	check(hero.inventory.items.has(keeper) and hero.inventory.items.has(potion) and hero.inventory.items.has(key) and hero.inventory.items.has(tome) and hero.inventory.items.has(rune), "and keeps the better gear, potions, keys, tomes, runes")
 	check(hero.equipment.get_item(EquipmentDef.Slot.WEAPON) == worn and hero.equipment.get_item(EquipmentDef.Slot.HEAD) != null, "and never touches what is worn")
 	var count_before := hero.inventory.items.size()
-	check(hero.dismantle(key) == 0 and hero.dismantle(potion) == 0 and hero.dismantle(rune) == 0 and hero.dismantle(tome) == 0 and hero.dismantle(worn) == 0, "keys, potions, runes, tomes and worn gear can't be dismantled")
+	check(hero.pack.dismantle(key) == 0 and hero.pack.dismantle(potion) == 0 and hero.pack.dismantle(rune) == 0 and hero.pack.dismantle(tome) == 0 and hero.pack.dismantle(worn) == 0, "keys, potions, runes, tomes and worn gear can't be dismantled")
 	check(hero.inventory.items.size() == count_before and hero.gold == expected and hero.equipment.get_item(EquipmentDef.Slot.WEAPON) == worn, "(nothing taken, no gold)")
-	check(hero.dismantle(keeper) == rules.gold_for(keeper) and not hero.inventory.items.has(keeper), "one piece dismantled: its gold")
-	check(hero.wants(junk, Settings.LOOT_ALL), "auto loot All: everything")
-	check(not hero.wants(junk, Settings.LOOT_BETTER) and hero.wants(keeper, Settings.LOOT_BETTER), "Better only: worse gear stays, better comes")
+	check(hero.pack.dismantle(keeper) == rules.gold_for(keeper) and not hero.inventory.items.has(keeper), "one piece dismantled: its gold")
+	check(hero.pack.wants(junk, Settings.LOOT_ALL), "auto loot All: everything")
+	check(not hero.pack.wants(junk, Settings.LOOT_BETTER) and hero.pack.wants(keeper, Settings.LOOT_BETTER), "Better only: worse gear stays, better comes")
 	var plain_axe := LootRoller.make(axe, ItemRarity.COMMON, none, no_runes, 1)
-	check(hero.wants(plain_axe, Settings.LOOT_BETTER) == not ItemCompare.is_worse(plain_axe, worn), "Better only and Dismantle the worse agree")
-	check(not hero.wants(keeper, Settings.LOOT_OFF), "By hand: no gear")
+	check(hero.pack.wants(plain_axe, Settings.LOOT_BETTER) == not ItemCompare.is_worse(plain_axe, worn), "Better only and Dismantle the worse agree")
+	check(not hero.pack.wants(keeper, Settings.LOOT_OFF), "By hand: no gear")
 	for always: ItemDef in [potion, key, rune, tome]:
-		check(hero.wants(always, Settings.LOOT_OFF) and hero.wants(always, Settings.LOOT_BETTER), "%s is always taken" % always.display_name)
+		check(hero.pack.wants(always, Settings.LOOT_OFF) and hero.pack.wants(always, Settings.LOOT_BETTER), "%s is always taken" % always.display_name)
 	var defaults: Node = (load("res://src/autoload/settings.gd") as GDScript).new()
 	check(defaults.get(&"auto_loot") == Settings.LOOT_BETTER, "Better only by default")
 	defaults.free()

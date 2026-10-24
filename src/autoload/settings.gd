@@ -30,7 +30,7 @@ const SAVER_FPS := 30
 const LANGUAGES: Array[String] = ["en", "fr"]
 const LANGUAGE_NAMES := { "en": "English", "fr": "Français" }
 ## Auto loot: walking over an item takes it (all), only gear better than what is worn (and every
-## potion, rune, tome, key), or no gear at all (it waits, shown with a Take button). See Player.wants().
+## potion, rune, tome, key), or no gear at all (it waits, shown with a Take button). See PlayerPack.wants().
 const LOOT_ALL := 0
 const LOOT_BETTER := 1
 const LOOT_OFF := 2

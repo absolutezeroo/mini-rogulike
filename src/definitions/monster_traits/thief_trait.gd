@@ -13,18 +13,35 @@ extends MonsterTrait
 @export var bonus: int = 5
 
 
+## One thief's values (Monster.trait_state()).
+class ThiefState:
+	extends RefCounted
+	## Gold it carries.
+	var stolen := 0
+	## Seconds left running away.
+	var flee := 0.0
+
+
+func make_state() -> RefCounted:
+	return ThiefState.new()
+
+
+func _state(monster: Monster) -> ThiefState:
+	return monster.trait_state(self) as ThiefState
+
+
 ## Gold the monster carries.
 func stolen(monster: Monster) -> int:
-	return monster.trait_state(self).get("stolen", 0)
+	return _state(monster).stolen
 
 
 func is_fleeing(monster: Monster) -> bool:
-	return monster.trait_state(self).get("flee", 0.0) > 0.0
+	return _state(monster).flee > 0.0
 
 
 func update(monster: Monster, delta: float) -> void:
-	var state := monster.trait_state(self)
-	state.flee = maxf(state.get("flee", 0.0) - delta, 0.0)
+	var state := _state(monster)
+	state.flee = maxf(state.flee - delta, 0.0)
 
 
 func steer(monster: Monster, direction: Vector2) -> Vector2:
@@ -42,7 +59,7 @@ func on_hit_player(monster: Monster, player: Player) -> void:
 		return
 	var amount := mini(steal + roundi(monster.world.depth * steal_per_depth), player.gold)
 	player.spend_gold(amount)
-	var state := monster.trait_state(self)
+	var state := _state(monster)
 	state.stolen = stolen(monster) + amount
 	state.flee = flee_time
 	monster.world.spawn_floating_text(player.head_position(), tr("-%d gold") % amount, Palette.GOLD)
@@ -60,7 +77,7 @@ func on_died(monster: Monster, _killer: Actor, fell: bool, rewards: bool) -> voi
 			world.spawn_floating_text(world.player.head_position(), tr("+%d gold") % amount, Palette.GOLD)
 	else:
 		world.spawn_gold(monster.global_position, roundi(amount * interest) + bonus)
-	monster.trait_state(self).stolen = 0
+	_state(monster).stolen = 0
 
 
 func describe() -> String:

@@ -126,3 +126,14 @@ func apply(user: Actor, aim: Vector2) -> void:
 		# At the nearest whole size of the art's pixel along the path (SheetVfx snaps it).
 		var size := maxf(length, 40.0) / fx.get_height()
 		world.spawn_vfx(SheetVfx.create(fx, (start + end) * 0.5, aim.angle(), size, 20.0).with_color(fx_tint).in_element(drawn))
+
+
+## The line it dives along, as wide as its cut (a shot's lane at least).
+func show_warning(view: TelegraphView, angle: float, progress: float, _body_radius: float) -> bool:
+	view.show_shape(TelegraphView.Shape.LINE, distance, angle, progress, 0.0, maxf(width, TelegraphView.LANE_WIDTH))
+	return true
+
+
+func play_preview(preview: EffectPreview) -> void:
+	preview.lunge(distance, duration)
+	preview.line(distance, width, fx_tint if fx else Color(1, 0.9, 0.7))

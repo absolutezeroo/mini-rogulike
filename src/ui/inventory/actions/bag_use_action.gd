@@ -28,9 +28,9 @@ func run(selection: BagSelection) -> bool:
 	if not available(selection):
 		return false
 	if selection.on_belt():
-		selection.player.use_belt(selection.belt)
+		selection.player.pack.use_belt(selection.belt)
 	elif selection.is_worn():
-		selection.player.unequip(selection.worn_slot as EquipmentDef.Slot)
+		selection.player.pack.unequip(selection.worn_slot as EquipmentDef.Slot)
 	else:
-		selection.player.use_item(selection.item)
+		selection.player.pack.use_item(selection.item)
 	return true

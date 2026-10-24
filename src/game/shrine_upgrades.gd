@@ -49,7 +49,7 @@ static func apply_to(player: Player, content: ContentDB, difficulty: DifficultyD
 			UpgradeDef.Kind.STARTING_ITEMS:
 				for i in level:
 					for item in upgrade.items:
-						player.store(item)
+						player.pack.store(item)
 			UpgradeDef.Kind.STARTING_PERK:
 				if upgrade.perk:
 					player.perks.add(upgrade.perk)
@@ -58,7 +58,7 @@ static func apply_to(player: Player, content: ContentDB, difficulty: DifficultyD
 			UpgradeDef.Kind.RANDOM_STARTING_ITEM:
 				var choices := upgrade.items.filter(func(item: ItemDef) -> bool: return item != null and content.is_available(item))
 				if not choices.is_empty():
-					player.store(choices[randi() % choices.size()])
+					player.pack.store(choices[randi() % choices.size()])
 	var weapon: WeaponDef = null
 	if picked_weapon and armory_weapons(content).has(picked_weapon):
 		weapon = picked_weapon

@@ -16,16 +16,19 @@ func set_skills(list: Array[SkillDef]) -> void:
 ## Swaps the skill list (new weapon, new spell). Skills kept from the old list keep their
 ## cooldown; new ones start with `new_skill_cooldown` (so swapping weapons can't skip cooldowns).
 func replace(list: Array[SkillDef], new_skill_cooldown: float) -> void:
-	var old := {}
-	for i in skills.size():
-		old[skills[i]] = [_cooldowns[i], _durations[i]]
+	var old_skills := skills
+	var old_cooldowns := _cooldowns
+	var old_durations := _durations
 	skills = list.duplicate()
+	_cooldowns = PackedFloat32Array()
+	_durations = PackedFloat32Array()
 	_cooldowns.resize(skills.size())
 	_durations.resize(skills.size())
 	for i in skills.size():
-		var kept: Array = old.get(skills[i], [new_skill_cooldown, new_skill_cooldown])
-		_cooldowns[i] = kept[0]
-		_durations[i] = kept[1]
+		# (the last slot that held it: two empty slots are one "skill", the later one counts)
+		var was := old_skills.rfind(skills[i])
+		_cooldowns[i] = old_cooldowns[was] if was >= 0 else new_skill_cooldown
+		_durations[i] = old_durations[was] if was >= 0 else new_skill_cooldown
 
 
 func tick(delta: float) -> void:

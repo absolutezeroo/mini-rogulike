@@ -33,19 +33,6 @@ var floor_index := -1
 
 ## Big monsters shake the floor when they walk.
 const HEAVY_RADIUS := 14.0
-## Stuck: walking but getting nowhere for this long (see is_stuck()).
-const STUCK_AFTER := 0.3
-## Moving slower than this share of its speed counts as not getting anywhere.
-const STUCK_PROGRESS := 0.3
-## Monsters keep this many pixels between their bodies when they walk (no crowding into a pile).
-const SPACING := 4.0
-## A straight walk to a point is checked again after this long (see has_clear_walk()).
-const WALK_CHECK_INTERVAL := 0.2
-## A line of sight is cast again after this long (s), or once either end moved SIGHT_MOVE px.
-const SIGHT_RECHECK := 0.1
-const SIGHT_MOVE := 4.0
-## The turns (radians) a walker tries, in order, to keep off a hole ahead (_avoid_holes).
-const HOLE_TURNS: Array[float] = [0.0, 0.6, -0.6, 1.3, -1.3]
 const HEAVY_STEP_INTERVAL := 0.45
 ## The rim a body that warns by its rim wears while it winds up (TelegraphView's red).
 const WARNING_RIM := Color(1.0, 0.22, 0.2)
@@ -55,15 +42,13 @@ var _windup_multiplier := 1.0
 var _damage_multiplier := 1.0
 ## The depth it was set up for (rank health grows with it: MonsterRankDef.hp_multiplier_at()).
 var _depth := 1
-var _xp_multiplier := 1
 ## Called in by another monster (SummonEffect): gives no XP, loot or gold.
 var summoned := false
-var _bonus_drops := 0
 ## A rim warning on (MonsterDef.CastWarning.RIM), and the rim it had before.
 var _warning_rim := false
 var _rim_before := Color.TRANSPARENT
 ## Per-monster values of the def's traits (see trait_state()).
-var _trait_state := {}
+var _trait_state: Dictionary[MonsterTrait, RefCounted] = {}
 var _under: MonsterOverlay
 var _over: MonsterOverlay
 ## Fell into a hole: no loot, no burst, nothing comes out.
@@ -74,16 +59,10 @@ var is_awake := true
 ## A boss's phases, shockwave and intro (BossBrain); null for every other monster.
 var brain: BossBrain
 var _detect_multiplier := 1.0
-var _stuck_time := 0.0
-var _last_position := Vector2.INF
-var _walk_checks := {}  # cell -> [physics frame, clear]
-## The last line of sight cast (can_see()): to whom, when, from where to where, and its answer.
-var _sight_of := 0  # (an instance id: the one seen may be freed meanwhile)
-var _sight_frame := -1000
-var _sight_from := Vector2.ZERO
-var _sight_to := Vector2.ZERO
-var _sight_clear := false
-var _walk_query: PhysicsShapeQueryParameters2D
+## Its body's way about the floor: clear walks, sight, being stuck, spacing (MonsterSteering).
+var steering := MonsterSteering.new(self)
+## What it pays when slain (MonsterDrops).
+var drops := MonsterDrops.new(self)
 
 
 func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
@@ -169,8 +148,8 @@ func make_ranked(new_rank: MonsterRankDef, new_affixes: Array[EliteAffixDef]) ->
 		if rig:
 			rig.position = Vector2(0, _feet_y())
 			rig.scale = Vector2.ONE * rank.scale
-		_xp_multiplier = rank.xp_multiplier
-	_bonus_drops = rank.bonus_drops
+		drops.xp_multiplier = rank.xp_multiplier
+	drops.bonus_drops = rank.bonus_drops
 	if rig and (rank.hue_shift > 0.0 or rank.shimmer):
 		var look := rig.visual.material as ShaderMaterial
 		look.set_shader_parameter("hue_shift", rank.hue_shift)
@@ -240,11 +219,14 @@ func get_trait(kind: Script) -> MonsterTrait:
 	return null
 
 
-## Per-monster values of a trait (a trait resource is shared by every monster of its kind).
-func trait_state(source_trait: MonsterTrait) -> Dictionary:
-	if not _trait_state.has(source_trait):
-		_trait_state[source_trait] = {}
-	return _trait_state[source_trait]
+## Per-monster values of a trait (a trait resource is shared by every monster of its kind): the
+## trait's own State, made the first time it is asked (MonsterTrait.make_state()).
+func trait_state(source_trait: MonsterTrait) -> RefCounted:
+	var state: RefCounted = _trait_state.get(source_trait)
+	if state == null:
+		state = source_trait.make_state()
+		_trait_state[source_trait] = state
+	return state
 
 
 ## Went down a hole (rather than being slain).
@@ -346,8 +328,7 @@ func set_awake(awake: bool) -> void:
 		return
 	is_awake = awake
 	process_mode = Node.PROCESS_MODE_INHERIT if awake else Node.PROCESS_MODE_DISABLED
-	_stuck_time = 0.0
-	_last_position = Vector2.INF
+	steering.reset_progress()
 
 
 ## Hit while asleep (a stray shot, a fire): it wakes up to answer.
@@ -362,66 +343,17 @@ func take_hit(hit: HitInfo) -> void:
 
 ## Walking but getting nowhere (a corner, a crowd, a pond's edge): the AI goes around.
 func is_stuck() -> bool:
-	return _stuck_time >= STUCK_AFTER
+	return steering.is_stuck()
 
 
-## Can its body walk straight to `point`: no wall or corner in the way of its width, and, for
-## walkers, no water, hole or obstacle on the line. Cached a moment per target cell.
+## Can its body walk straight to `point` (MonsterSteering.has_clear_walk()).
 func has_clear_walk(point: Vector2) -> bool:
-	var cell := world.map.world_to_cell(point)
-	var frame := Engine.get_physics_frames()
-	var cached: Array = _walk_checks.get(cell, [])
-	if not cached.is_empty() and frame - int(cached[0]) < roundi(WALK_CHECK_INTERVAL * Engine.physics_ticks_per_second):
-		return cached[1]
-	var clear := _walk_is_clear(point)
-	if _walk_checks.size() > 16:
-		_walk_checks.clear()
-	_walk_checks[cell] = [frame, clear]
-	return clear
+	return steering.has_clear_walk(point)
 
 
-func _walk_is_clear(point: Vector2) -> bool:
-	var motion := point - global_position
-	if motion.length() < 1.0:
-		return true
-	if not flies:
-		# Holes, ponds, props: the cells along the way (but the ends, where bodies stand).
-		var steps := ceili(motion.length() / (world.map.tile_size * 0.5))
-		var from_cell := world.map.world_to_cell(global_position)
-		var to_cell := world.map.world_to_cell(point)
-		for i in range(1, steps):
-			var cell := world.map.world_to_cell(global_position + motion * (float(i) / steps))
-			if cell != from_cell and cell != to_cell and (world.nav.is_blocked(cell) or world.has_pit(cell)):
-				return false
-	if _walk_query == null:  # (one query kept: a crowd asks often)
-		_walk_query = PhysicsShapeQueryParameters2D.new()
-		_walk_query.shape = CircleShape2D.new()
-		_walk_query.exclude = [get_rid()]
-	var query := _walk_query
-	(query.shape as CircleShape2D).radius = maxf(radius - 1.0, 2.0)
-	query.transform = Transform2D(0.0, global_position)
-	query.motion = motion
-	query.collision_mask = Layers.WORLD | (0 if flies else Layers.WATER)
-	var result := get_world_2d().direct_space_state.cast_motion(query)
-	return result.is_empty() or result[0] >= 0.999
-
-
-## Within `max_distance` and nothing on the world's layer between them. The ray is cast again
-## only after SIGHT_RECHECK seconds or once either moved SIGHT_MOVE px (a chasing pack asks
-## every frame: one ray each per frame was the costliest of its physics; docs/performance.md).
+## Within `max_distance` and in sight (MonsterSteering.can_see(): a cached ray).
 func can_see(other: Actor, max_distance: float) -> bool:
-	if global_position.distance_to(other.global_position) > max_distance:
-		return false
-	var frame := Engine.get_physics_frames()
-	if other.get_instance_id() != _sight_of or frame - _sight_frame >= roundi(SIGHT_RECHECK * Engine.physics_ticks_per_second) \
-			or global_position.distance_squared_to(_sight_from) > SIGHT_MOVE * SIGHT_MOVE \
-			or other.global_position.distance_squared_to(_sight_to) > SIGHT_MOVE * SIGHT_MOVE:
-		_sight_of = other.get_instance_id()
-		_sight_frame = frame
-		_sight_from = global_position
-		_sight_to = other.global_position
-		_sight_clear = world.has_line_of_sight(global_position, other.global_position)
-	return _sight_clear
+	return steering.can_see(other, max_distance)
 
 
 ## Distance from which the weapon can hit the target.
@@ -492,9 +424,9 @@ func _get_desired_velocity() -> Vector2:
 		monster_trait.update(self, delta)
 		direction = monster_trait.steer(self, direction)
 	if direction != Vector2.ZERO and not is_boss():
-		direction = _keep_spacing(direction)
+		direction = steering.keep_spacing(direction)
 	if direction != Vector2.ZERO and not flies:
-		direction = _avoid_holes(direction)
+		direction = steering.avoid_holes(direction)
 	return direction * get_move_speed()
 
 
@@ -502,55 +434,7 @@ func _physics_process(delta: float) -> void:
 	if rig and def.cast_warning == MonsterDef.CastWarning.RIM:
 		_show_cast_rim()  # before the body's look is drawn this frame (Actor)
 	super._physics_process(delta)
-	_track_progress(delta)
-
-
-## Wants to walk, barely moves: counts toward being stuck. Knockback and dashes don't count.
-func _track_progress(delta: float) -> void:
-	var speed := move_direction.length() * get_move_speed()
-	if _last_position != Vector2.INF and speed > 10.0 and not is_dashing() and delta > 0.0:
-		var moved := global_position.distance_to(_last_position) / delta
-		if moved < speed * STUCK_PROGRESS:
-			_stuck_time += delta
-		else:
-			_stuck_time = maxf(_stuck_time - delta * 2.0, 0.0)
-	else:
-		_stuck_time = maxf(_stuck_time - delta, 0.0)
-	_last_position = global_position
-
-
-## Steps aside from the monsters it bumps into, so a pack spreads around the hero instead of
-## pushing in a line through a door.
-func _keep_spacing(direction: Vector2) -> Vector2:
-	var push := Vector2.ZERO
-	var awake := world.activity.awake
-	# Only those in the cells around (the same sum, in the same order, as over the whole list).
-	for index in world.activity.buckets.near(awake, global_position, radius + SPACING):
-		var entry: Variant = awake[index]
-		if not is_instance_valid(entry) or entry == self:
-			continue
-		var other := entry as Monster
-		if other.is_dead:
-			continue
-		var away := global_position - other.global_position
-		var limit := radius + other.radius + SPACING
-		var distance := away.length()
-		if distance < limit and distance > 0.01:
-			push += away / distance * (1.0 - distance / limit)
-	if push == Vector2.ZERO:
-		return direction
-	return (direction + push * 0.8).limit_length(direction.length())
-
-
-## Walking monsters don't step into holes on their own (being knocked in is another story):
-## they veer off, or stop.
-func _avoid_holes(direction: Vector2) -> Vector2:
-	var look_ahead := radius + 12.0
-	for angle in HOLE_TURNS:
-		var turned := direction.rotated(angle)
-		if not world.has_pit(world.map.world_to_cell(global_position + turned.normalized() * look_ahead)):
-			return turned
-	return Vector2.ZERO
+	steering.track_progress(delta)
 
 
 func _update_heavy_steps() -> void:
@@ -623,8 +507,8 @@ func _on_died(killer: Actor) -> void:
 	for monster_trait in def.traits:
 		monster_trait.on_died(self, killer, fell, not summoned)
 	if fell:
-		if killer is Player and not summoned:  # summons pay nothing, even pushed into a hole
-			(killer as Player).gain_xp(def.xp_reward * _xp_multiplier)
+		if not summoned:  # summons pay nothing, even pushed into a hole
+			drops.pay_xp(killer)
 		world.spawn_floating_text(global_position, tr("Fell!"), Palette.GOLD)
 		return
 	if is_boss() and free_on_death:
@@ -643,29 +527,7 @@ func _on_died(killer: Actor) -> void:
 		world.add_debris(global_position, def.material, clampf(radius / 11.0, 0.8, 2.5), away)
 	if summoned:
 		return  # called in by another monster: no rewards, or a summoner could be farmed forever
-	if killer is Player:
-		(killer as Player).gain_xp(def.xp_reward * _xp_multiplier)
-	var config := world.config()
-	var quality := brain.loot_quality(config) if brain else (rank.loot_quality if rank else 1.0)
-	var drop_at := loot_origin()
-	if def.loot:
-		for item in def.loot.roll(world.rng, world.rules.loot_chance()):
-			var offset := Vector2.from_angle(world.rng.randf() * TAU) * world.rng.randf_range(4.0, 14.0)
-			world.spawn_loot(item, drop_at + offset, quality)
-	for i in _bonus_drops:
-		var item := world.pick_random_item()
-		if item:
-			world.spawn_loot(item, drop_at + Vector2.from_angle(world.rng.randf() * TAU) * world.rng.randf_range(6.0, 16.0), quality)
-	if rank and not is_boss() and killer is Player and world.boons.elite_magic_drop:
-		world.drop_trophy(drop_at + Vector2.from_angle(world.rng.randf() * TAU) * 12.0)
-	# Runes: always from a boss, often from elites and up, rarely from the others.
-	var rune_at := drop_at + Vector2.from_angle(world.rng.randf() * TAU) * world.rng.randf_range(8.0, 18.0)
-	if is_boss():
-		for i in config.boss_runes:
-			world.drop_rune(rune_at + Vector2(i * 14.0, 0))
-	else:
-		world.drop_rune(rune_at, config.ranked_rune_chance if rank else config.rune_chance)
-	_drop_gold()
+	drops.pay_all(killer)
 
 
 ## Killing blow: a heavier stop; the strong ones (elites and up) slow the world a moment.
@@ -678,22 +540,9 @@ func _kill_punch() -> void:
 		HitStop.freeze(0.05)
 
 
-func _drop_gold() -> void:
-	var config := world.config()
-	var multiplier := config.boss_gold_multiplier if is_boss() else 1.0
-	if rank:
-		multiplier *= rank.gold_multiplier
-	if multiplier > 1.0 or world.rng.randf() < config.gold_drop_chance:
-		world.spawn_gold(loot_origin(), config.gold_for_kill(world.depth, multiplier, world.rng))
-
-
-## Where what it drops lands: its feet, or in front of a huge body (MonsterDef.loot_offset), on
-## open ground the hero can reach.
+## Where what it drops lands (MonsterDrops.origin()).
 func loot_origin() -> Vector2:
-	if def.loot_offset == Vector2.ZERO:
-		return global_position
-	var at := global_position + def.loot_offset
-	return at if world.is_solid_ground(at) else world.find_open_point_near(at, 32.0)
+	return drops.origin()
 
 
 ## The souls it fed on fly back to the hero's lantern (bosses hold many).

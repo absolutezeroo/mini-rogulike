@@ -74,6 +74,26 @@ func warning_reach() -> float:
 	return 0.0
 
 
+## Shows how it is coming on `view` (a monster's cast: TelegraphView.show_skill()), cast toward
+## `angle` by a body of `body_radius`, `progress` 0 when the warning starts and 1 when it lands:
+## a shot's lane, a dive's line, an area's circle. False when it has nothing to warn of (a summon,
+## a heal): the view is left as it was.
+func show_warning(_view: TelegraphView, _angle: float, _progress: float, _body_radius: float) -> bool:
+	return false
+
+
+## Its warning in the bestiary's preview when it draws one there that the game doesn't (a plain
+## dash: its line); false: the game's own (show_warning()).
+func show_preview_warning(_view: TelegraphView, _angle: float, _progress: float) -> bool:
+	return false
+
+
+## What it does, played in the bestiary's preview (EffectPreview): a pale ring round the caster
+## for a kind with no picture of its own.
+func play_preview(preview: EffectPreview) -> void:
+	preview.ring(0.0, preview.caster_radius() + 26.0, Color(1, 1, 1, 0.7), false)
+
+
 ## The statuses its hits leave (burn, slow...); null: none, or it hits nothing.
 func hit_status() -> OnHitStatus:
 	return null

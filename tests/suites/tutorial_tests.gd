@@ -235,7 +235,7 @@ func _test_hints(game: Game) -> void:
 	await _frames(gap)
 	check(tutorial.current != null and tutorial.current.id == &"potion", "low health: the potion hint")
 	check(game.hint_box.target.has_area(), "pointing at the belt")
-	player.use_belt(0)
+	player.pack.use_belt(0)
 	check(Profile.has_seen_hint(&"potion"), "drinking ends it")
 	player.hp = player.get_max_hp()
 	player.hp = 1

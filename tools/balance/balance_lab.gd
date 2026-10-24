@@ -274,7 +274,7 @@ func ready_hero(game: Game, build: BalanceBuildDef, difficulty: DifficultyDef, m
 	player._knockback = Vector2.ZERO
 	player._dash_time = 0.0
 	player._dash_velocity = Vector2.ZERO
-	player._aim_hold = 0.0
+	player.controls.aim_hold = 0.0
 	player.facing = Vector2.RIGHT
 	player.last_hit = null
 	player.ward = 0

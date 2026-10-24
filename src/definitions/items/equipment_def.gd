@@ -24,9 +24,9 @@ const SLOT_NAMES := {
 @export_storage var item_level: int = 1
 
 
-## Worn from the bag (what was worn goes back to it: Player.wear_from_bag()).
+## Worn from the bag (what was worn goes back to it: PlayerPack.wear_from_bag()).
 func use_from_bag(player: Player) -> void:
-	player.wear_from_bag(self)
+	player.pack.wear_from_bag(self)
 
 
 func is_rolled() -> bool:

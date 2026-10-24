@@ -22,7 +22,7 @@ func rarity_color() -> Color:
 	return ItemRarity.COLORS[ItemRarity.COMMON]
 
 
-## Used from the bag by `player` (Player.use_item()): each kind says what that does (a potion is
+## Used from the bag by `player` (PlayerPack.use_item()): each kind says what that does (a potion is
 ## drunk, a tome read, gear worn). Nothing for the others (runes, keys: their own panels use them).
 func use_from_bag(_player: Player) -> void:
 	pass

@@ -284,7 +284,7 @@ func _on_charged(_attack: ChargedAttackDef) -> void:
 	action(&"charged")
 
 
-## Slot 0 is the roll; 1 and 2 the weapon's skills (Player._rebuild_skills).
+## Slot 0 is the roll; 1 and 2 the weapon's skills (Player.rebuild_skills).
 func _on_skill_used(index: int) -> void:
 	if index == 0:
 		action(&"rolled")

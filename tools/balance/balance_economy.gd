@@ -103,7 +103,7 @@ func harvest(depth: int, difficulty: DifficultyDef, floor_seed: int) -> Dictiona
 			if monster == null or monster.is_dead:
 				continue
 			if not monster.summoned:
-				xp += monster.def.xp_reward * monster._xp_multiplier
+				xp += monster.def.xp_reward * monster.drops.xp_multiplier
 				kills += 1
 				by_kind[String(monster.def.id)] = int(by_kind.get(String(monster.def.id), 0)) + 1
 				if monster.rank:

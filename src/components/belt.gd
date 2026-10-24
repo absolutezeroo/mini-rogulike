@@ -8,28 +8,37 @@ signal changed
 const SLOTS := 3
 const MAX_STACK := 9
 
-## One entry per slot: { "item": ConsumableDef, "count": int }, or {} when empty.
-var slots: Array[Dictionary] = []
+## A slot's stack: one kind of consumable and how many (none: an empty slot).
+class Slot:
+	var item: ConsumableDef
+	var count := 0
+
+	func is_empty() -> bool:
+		return item == null
+
+
+## One entry per slot, an empty one holding no item.
+var slots: Array[Slot] = []
 
 
 func _init() -> void:
 	for i in SLOTS:
-		slots.append({})
+		slots.append(Slot.new())
 
 
 func item_at(index: int) -> ConsumableDef:
-	return slots[index].get("item") if index >= 0 and index < SLOTS else null
+	return slots[index].item if index >= 0 and index < SLOTS else null
 
 
 func count_at(index: int) -> int:
-	return int(slots[index].get("count", 0)) if index >= 0 and index < SLOTS else 0
+	return slots[index].count if index >= 0 and index < SLOTS else 0
 
 
 func count_of(item: ItemDef) -> int:
 	var total := 0
 	for slot in slots:
-		if slot.get("item") == item:
-			total += int(slot.count)
+		if slot.item == item and not slot.is_empty():
+			total += slot.count
 	return total
 
 
@@ -43,10 +52,12 @@ func add(item: ItemDef) -> bool:
 	var index := _slot_for(item)
 	if index < 0:
 		return false
-	if slots[index].is_empty():
-		slots[index] = { "item": item, "count": 1 }
+	var slot := slots[index]
+	if slot.is_empty():
+		slot.item = item as ConsumableDef
+		slot.count = 1
 	else:
-		slots[index].count += 1
+		slot.count += 1
 	changed.emit()
 	return true
 
@@ -56,9 +67,10 @@ func take(index: int) -> ConsumableDef:
 	var item := item_at(index)
 	if item == null:
 		return null
-	slots[index].count -= 1
-	if slots[index].count <= 0:
-		slots[index] = {}
+	var slot := slots[index]
+	slot.count -= 1
+	if slot.count <= 0:
+		_empty(slot)
 	changed.emit()
 	return item
 
@@ -73,7 +85,7 @@ func remove(item: ItemDef) -> bool:
 
 
 func is_empty() -> bool:
-	return slots.all(func(slot: Dictionary) -> bool: return slot.is_empty())
+	return slots.all(func(slot: Slot) -> bool: return slot.is_empty())
 
 
 func _slot_for(item: ItemDef) -> int:
@@ -88,19 +100,28 @@ func _slot_for(item: ItemDef) -> int:
 	return -1
 
 
+static func _empty(slot: Slot) -> void:
+	slot.item = null
+	slot.count = 0
+
+
 # --- Saving -------------------------------------------------------------------
 
+## For save files: one entry per slot, { item, count } or {} for an empty one (the format
+## saves always had).
 func to_data() -> Array:
-	return slots.map(func(slot: Dictionary) -> Dictionary:
+	return slots.map(func(slot: Slot) -> Dictionary:
 		return {} if slot.is_empty() else { "item": RunSave.ref(slot.item), "count": slot.count })
 
 
 func load_data(data: Array) -> void:
 	for i in SLOTS:
-		slots[i] = {}
+		var slot := slots[i]
+		_empty(slot)
 		if i >= data.size() or not data[i] is Dictionary or (data[i] as Dictionary).is_empty():
 			continue
 		var item := RunSave.load_ref(data[i].get("item")) as ConsumableDef
 		if item:
-			slots[i] = { "item": item, "count": clampi(int(data[i].get("count", 1)), 1, MAX_STACK) }
+			slot.item = item
+			slot.count = clampi(int(data[i].get("count", 1)), 1, MAX_STACK)
 	changed.emit()

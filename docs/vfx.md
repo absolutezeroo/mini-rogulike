@@ -658,7 +658,7 @@ it isn't in his hand: `WeaponDef.back_sprite`, `back_kind`, `back_offset`.
   (a profile along its length: core pixel, width, pixels across for a guard or a head, outlined
   by 4-neighbours), the end that rides over the shoulder (a hilt, an axe's or hammer's head, a
   lance's point, a staff's head) at the top right; hip things drawn as they are.
-- **Where** (`ActorRig.BACK_PLACES`, art pixels from the feet): `SLUNG` across the back, behind
+- **Where** (`GearLook._places()`, art pixels from the feet): `SLUNG` across the back, behind
   the body facing down, left and right (the top end peeking over the shoulder beside the big
   head), in front facing up (his back is to us), mirrored for up and right; `HIP` at the belt
   (the Ember Tome, shurikens, the coiled whip), in front except on the far side. Bows and staffs

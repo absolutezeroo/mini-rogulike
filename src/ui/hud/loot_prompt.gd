@@ -134,7 +134,7 @@ func _on_bag_full(item: ItemDef) -> void:
 func _on_take() -> void:
 	if not is_instance_valid(_shown) or player == null:
 		return
-	if not player.can_store(_shown.item) and not _fits_by_equipping(_shown.item):
+	if not player.pack.can_store(_shown.item) and not _fits_by_equipping(_shown.item):
 		if hud:
 			hud.inventory_requested.emit()
 		return
@@ -160,7 +160,7 @@ func _show_last() -> void:
 	_name.text = tr(item.display_name)
 	_name.add_theme_color_override("font_color", item.rarity_color())
 	_type.text = item.get_type_label()
-	var room := player.can_store(item) or _fits_by_equipping(item)
+	var room := player.pack.can_store(item) or _fits_by_equipping(item)
 	_take.text = tr("Take") if room else tr("Open the bag")
 	_compare.text = _compare_line(item) if room else "[color=#%s]%s[/color]" % [UiSkin.BAD.to_html(false), player.inventory.full_text(item)]
 

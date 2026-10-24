@@ -20,5 +20,5 @@ func label(_selection: BagSelection) -> String:
 func run(selection: BagSelection) -> bool:
 	if not available(selection):
 		return false
-	selection.player.drop_item(selection.item)
+	selection.player.pack.drop_item(selection.item)
 	return true

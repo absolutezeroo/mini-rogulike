@@ -96,7 +96,7 @@ static func melee_strike(attacker: Actor, blow: Blow, weapon: WeaponDef) -> void
 		hit.status = weapon.on_hit
 		# The hero's hits land in what the weapon carries for sure (docs/vfx.md, "Elemental
 		# attacks"); a rune that works by chance says so itself (BurnOnHitPassive).
-		hit.element = ItemLook.hit_element(weapon) if attacker is Player else weapon.element
+		hit.element = ItemLook.hit_element(weapon) if attacker.strikes_in_carried_elements() else weapon.element
 		target.take_hit(hit)
 
 	# Crates, pots, barrels in the arc break too.
@@ -288,13 +288,14 @@ static func spec_from_weapon(attacker: Actor, weapon: WeaponDef) -> ProjectileSp
 	spec.sheet = weapon.projectile_sheet
 	spec.element = weapon.element
 	spec.status = weapon.on_hit
-	if attacker is Player and weapon.element == null:
+	var carried := attacker.strikes_in_carried_elements()
+	if carried and weapon.element == null:
 		# A plain thing (an arrow, a star) from a weapon carrying an element flies in it (flames
 		# riding an arrow, an ember trail) and lands in it when the hit is elemental for sure.
 		spec.look_element = ItemLook.swing_element(weapon, true)
 		spec.second_element = ItemLook.second_element(weapon, true)
 		spec.hit_element = ItemLook.hit_element(weapon)
-	elif attacker is Player:
+	elif carried:
 		# A magic shot (the Spark Wand's) stays itself; another element the weapon carries (an
 		# Ember Rune) rides its back. Its hits land in its own element.
 		spec.look_element = ItemLook.second_element(weapon, true)

@@ -142,3 +142,14 @@ func apply(user: Actor, aim: Vector2) -> void:
 		user.world.spawn_vfx(SheetVfx.play(strike, center, aim, drawn))
 	if riding:
 		Vfx.riding(user.world, center, radius, riding)
+
+
+## The circle it strikes, pushed forward along the aim by `offset` (the view moved there).
+func show_warning(view: TelegraphView, angle: float, progress: float, _body_radius: float) -> bool:
+	view.position = Vector2.from_angle(angle) * offset
+	view.show_shape(TelegraphView.Shape.CIRCLE, radius, angle, progress)
+	return true
+
+
+func play_preview(preview: EffectPreview) -> void:
+	preview.ring(offset, radius, color, true)

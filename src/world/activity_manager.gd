@@ -16,7 +16,7 @@ const REACH_MARGIN := 64.0
 ## The monsters thinking this moment, refreshed every INTERVAL (a new one is awake until the next
 ## look). Untyped: one may be freed before the next refresh.
 var awake: Array = []
-## The awake monsters by grid cell, for their spacing (MonsterBuckets, Monster._keep_spacing).
+## The awake monsters by grid cell, for their spacing (MonsterBuckets, MonsterSteering.keep_spacing).
 var buckets := MonsterBuckets.new()
 
 var _world: World

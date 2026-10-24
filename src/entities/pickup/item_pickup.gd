@@ -1,7 +1,7 @@
 class_name ItemPickup
 extends Area2D
 ## An item lying on the floor. Walking over it picks it up, if auto loot wants it
-## (Settings.auto_loot, Player.wants()); else, or when the bag has no room, it stays and the HUD
+## (Settings.auto_loot, PlayerPack.wants()); else, or when the bag has no room, it stays and the HUD
 ## shows it with a Take button while the hero stands on it (Events.loot_offered, LootPrompt).
 ## Its rarity shows on the floor (LootShine; a rim and a glint on the icon), a rune its element.
 
@@ -53,7 +53,7 @@ func _on_body_entered(body: Node2D) -> void:
 	var player := body as Player
 	if player.is_dead:
 		return
-	if player.wants(item, Settings.auto_loot) and take(player):
+	if player.pack.wants(item, Settings.auto_loot) and take(player):
 		return
 	_offered = true
 	Events.loot_offered.emit(self)
@@ -67,7 +67,7 @@ func _on_body_exited(body: Node2D) -> void:
 
 ## Picks it up (walked over, or the Take button). False if the hero has no room for it.
 func take(player: Player) -> bool:
-	if _taken or player == null or player.is_dead or not player.pick_up(item):
+	if _taken or player == null or player.is_dead or not player.pack.pick_up(item):
 		return false
 	_taken = true
 	_left()

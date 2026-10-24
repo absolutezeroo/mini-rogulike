@@ -71,3 +71,7 @@ static func allies_of(user: Actor, reach: float, with_self: bool) -> Array[Actor
 	if with_self and not result.has(user) and not user.is_dead:
 		result.append(user)
 	return result
+
+
+func play_preview(preview: EffectPreview) -> void:
+	preview.ring(0.0, minf(radius, 160.0), color, false)

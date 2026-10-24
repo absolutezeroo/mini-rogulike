@@ -673,7 +673,7 @@ func _test_hazards(game: Game, world: World, player: Player) -> void:
 	var slime := world.spawn_monster(slime_def, world.map.cell_to_world(hole + Vector2i.LEFT))
 	slime.dormant = true
 	slime.move_direction = Vector2.RIGHT
-	check(slime._avoid_holes(Vector2.RIGHT) != Vector2.RIGHT, "walking monsters don't step into holes")
+	check(slime.steering.avoid_holes(Vector2.RIGHT) != Vector2.RIGHT, "walking monsters don't step into holes")
 	slime.move_direction = Vector2.ZERO
 	var xp_before := player.xp
 	var push := Combat.make_hit(1, 0.0, player)
@@ -866,7 +866,7 @@ func _test_hazards(game: Game, world: World, player: Player) -> void:
 	neighbour.dormant = true
 	var neighbour_hp := neighbour.hp
 	var items_before := get_tree().get_nodes_in_group("pickups").size()
-	var guaranteed_drops: int = explosive._bonus_drops
+	var guaranteed_drops: int = explosive.drops.bonus_drops
 	explosive.take_hit(Combat.make_secondary_hit(player, 99999))
 	await _frames(90)  # its fuse, and the slow motion of a strong kill
 	check(not is_instance_valid(neighbour) or neighbour.hp < neighbour_hp, "explosive elites blow up when they die")
@@ -1506,7 +1506,7 @@ func _test_bag_room(game: Game) -> void:
 	check(places_text == "Weapons  %d / %d" % [player.inventory.places_used_in(weapons), player.inventory.capacity_of(weapons)], "the tab counts its compartment's places: %s" % places_text)
 	stack_slot.pressed.emit()
 	var dismantle: Button = panel.get_node("%DismantleButton")
-	var gold := Player.DISMANTLE.gold_for(worse)
+	var gold := PlayerPack.DISMANTLE.gold_for(worse)
 	check(dismantle.visible and (panel.get_node("%DismantleNote") as Label).text.contains("%d gold" % gold), "the card shows what dismantling gives")
 	gold_before = player.gold
 	dismantle.pressed.emit()
@@ -1516,20 +1516,20 @@ func _test_bag_room(game: Game) -> void:
 	panel.slot_for(better).pressed.emit()
 	gold_before = player.gold
 	dismantle.pressed.emit()
-	check(player.gold == gold_before and player.inventory.items.has(better) and dismantle.text == "Sure?" and (panel.get_node("%DismantleNote") as Label).text.contains("+%d" % Player.DISMANTLE.gold_for(better)), "on an epic piece a first tap asks again, with the gold")
+	check(player.gold == gold_before and player.inventory.items.has(better) and dismantle.text == "Sure?" and (panel.get_node("%DismantleNote") as Label).text.contains("+%d" % PlayerPack.DISMANTLE.gold_for(better)), "on an epic piece a first tap asks again, with the gold")
 	panel.slot_for(worse).pressed.emit()
 	check(dismantle.text == "Dismantle", "picking another item takes the question back")
 	var worse_button: Button = panel.get_node("%DismantleWorseButton")
-	var worse_list := player.worse_gear()
+	var worse_list := player.pack.worse_gear()
 	var worse_gold := 0
 	for item in worse_list:
-		worse_gold += Player.DISMANTLE.gold_for(item)
+		worse_gold += PlayerPack.DISMANTLE.gold_for(item)
 	check(not worse_button.disabled and worse_button.text.contains("(%d)" % worse_list.size()), "Dismantle the worse counts them: %s" % worse_button.text)
 	worse_button.pressed.emit()
 	check(panel.is_confirm_open() and (panel.get_node("%ConfirmDismantleButton") as Button).text.contains("+%d" % worse_gold), "it asks first, with the gold")
 	gold_before = player.gold
 	(panel.get_node("%ConfirmDismantleButton") as Button).pressed.emit()
-	check(player.gold == gold_before + worse_gold and player.worse_gear().is_empty() and not panel.is_confirm_open(), "confirmed: the worse gear is gold")
+	check(player.gold == gold_before + worse_gold and player.pack.worse_gear().is_empty() and not panel.is_confirm_open(), "confirmed: the worse gear is gold")
 	check(player.inventory.items.has(better) and player.equipment.get_item(EquipmentDef.Slot.WEAPON) == worn, "the better gear and what is worn stay")
 	panel.close()
 	await _frames(2)
@@ -1555,23 +1555,23 @@ func _test_belt_and_balance(game: Game) -> void:
 	player.belt.load_data([])
 	player.inventory.items.clear()
 	for i in Belt.MAX_STACK + 1:
-		player.pick_up(potion)
+		player.pack.pick_up(potion)
 	check(player.belt.count_at(0) == Belt.MAX_STACK and player.belt.count_at(1) == 1, "potions stack on the belt (%d a slot)" % Belt.MAX_STACK)
 	check(player.inventory.items.is_empty(), "they take no room in the bag")
-	player.pick_up(bomb)
-	player.pick_up(haste)
+	player.pack.pick_up(bomb)
+	player.pack.pick_up(haste)
 	check(player.belt.item_at(2) == bomb and player.inventory.items.size() == 1 and player.inventory.items[0] == haste, "a full belt sends the rest to the bag")
 	await _frames(2)
 	var buttons: Array = [game.hud.get_node("%QuickItemButton"), game.hud.get_node("%Belt2Button"), game.hud.get_node("%Belt3Button")]
 	check(buttons.all(func(b: ActionButton) -> bool: return b.visible) and (buttons[0] as ActionButton).counter == Belt.MAX_STACK, "one button per belt slot, with its count")
 	player.hp = 1
-	player.use_belt(0)
+	player.pack.use_belt(0)
 	check(player.hp > 1 and player.belt.count_at(0) == Belt.MAX_STACK - 1, "a belt button uses its potion")
 	var bombs_before := player.belt.count_of(bomb)
-	player.use_belt(2)
+	player.pack.use_belt(2)
 	check(player.belt.item_at(2) == null and bombs_before == 1, "the last one empties the slot")
-	check(player.move_to_belt(haste) and player.belt.item_at(2) == haste and player.inventory.items.is_empty(), "a consumable moves from the bag to the belt")
-	check(player.move_to_bag(2) and player.inventory.items.has(haste), "and back")
+	check(player.pack.move_to_belt(haste) and player.belt.item_at(2) == haste and player.inventory.items.is_empty(), "a consumable moves from the bag to the belt")
+	check(player.pack.move_to_bag(2) and player.inventory.items.has(haste), "and back")
 	var data := player.save_state()
 	var copy := player.belt.to_data()
 	player.belt.load_data([])
@@ -1584,7 +1584,7 @@ func _test_belt_and_balance(game: Game) -> void:
 	check((panel.get_node("%BeltSlot1") as ItemSlot).count == player.belt.count_at(0) and panel.get_node("%BeltButton").visible, "the bag screen shows the belt")
 	panel.close()
 	await _frames(1)
-	player.pick_up(rage)
+	player.pack.pick_up(rage)
 	player.belt.load_data(saved_belt)
 	player.inventory.items = saved_bag
 
@@ -1865,7 +1865,7 @@ func _test_climate(game: Game) -> void:
 	player.inventory.items.clear()
 	check(world.spawn_loot(potion, player.global_position + Vector2(40, 0)) != null, "potions drop while you carry few")
 	for i in CONTENT.dungeon.consumable_carry_cap:
-		player.pick_up(potion)
+		player.pack.pick_up(potion)
 	var coins_before := get_tree().get_nodes_in_group("gold").size()
 	var gold_before := _gold_on_floor(world)
 	check(world.spawn_loot(potion, player.global_position + Vector2(40, 0)) == null, "with %d potions on you, more turn into gold" % CONTENT.dungeon.consumable_carry_cap)
@@ -2535,7 +2535,7 @@ func _test_details(game: Game) -> void:
 	# Attack effects: a swing draws its arc, a hit its flash, a blast ripples the picture.
 	var effects := world.get_node("Effects")
 	var count_of := func(kind: Script) -> int: return effects.get_children().filter(func(n: Node) -> bool: return n.get_script() == kind).size()
-	player.use_item(load("res://data/items/weapons/katana.tres"))
+	player.pack.use_item(load("res://data/items/weapons/katana.tres"))
 	player._attack_cooldown = 0.0
 	player.attack(Vector2.RIGHT)
 	check(count_of.call(SwingVfx) >= 1, "a sword swing draws its arc")
