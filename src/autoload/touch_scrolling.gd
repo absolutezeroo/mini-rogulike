@@ -9,4 +9,12 @@ func _ready() -> void:
 		if node is ScrollContainer and not node.has_meta(&"touch_scroll"):
 			node.set_meta(&"touch_scroll", true)
 			(node as ScrollContainer).follow_focus = true
-			TouchScroll.attach.call_deferred(node))
+			# (a weak reference: a list freed before the deferred call, built and dropped in the
+			# same frame, would make the call fail with an engine error)
+			_attach.call_deferred(weakref(node)))
+
+
+func _attach(list: WeakRef) -> void:
+	var container := list.get_ref() as ScrollContainer
+	if container:
+		TouchScroll.attach(container)

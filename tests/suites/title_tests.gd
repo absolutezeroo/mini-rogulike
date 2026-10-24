@@ -119,6 +119,14 @@ func _test_touch_scroll() -> void:
 	layer.add_child(scroll)
 	await _frames(3)
 	check(scroll.get_children().any(func(n: Node) -> bool: return n is TouchScroll), "lists get drag-to-scroll by themselves")
+	# A list built and freed in the same frame: its drag-to-scroll, deferred, finds nothing to
+	# attach to (an engine error before: "Cannot convert argument 1 from Object to Object").
+	var gone := ScrollContainer.new()
+	layer.add_child(gone)
+	var gone_ref: WeakRef = weakref(gone)
+	gone.free()
+	await _frames(2)
+	check(gone_ref.get_ref() == null and layer.get_child_count() == 1, "a list freed at once is let go quietly")
 	var at := Vector2(200, 250)
 	_mouse(at, true)
 	for i in 6:
