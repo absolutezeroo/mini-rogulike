@@ -245,13 +245,8 @@ told at the bottom (their first chapters never name him), their last words as th
 
 ## 9. Still open (decide before writing these)
 
-- What "take his place" leads to in detail. Decided (not built yet, roadmap): the hero who takes
-  the place becomes **the Nameless Keeper**, and the next run's last fight is against him (that
-  run's weapon, skills and relics) instead of Tôma and the Maw: that fight is the last one; beating yourself frees you and the choice
-  comes again. Later, a mode of its own, **the Vigil** (« La Veille »): the Nameless Keeper holds
-  the seal night after night against the Maw's waves, scored in nights held. Today both endings
-  still lead to the same victory screen (and endless mode); the choice is kept in the profile
-  (`Profile.ending`).
+- Later, a mode of its own, **the Vigil** (« La Veille »): the Nameless Keeper holds the seal
+  night after night against the Maw's waves, scored in nights held. Not built.
 - **The curved blade's school.** The Katana is "the curved blade of the shrine's keepers", and
   Vardan's school of Solhar's temple guards fought with the same curved single-edged blade
   ("one edge, one loyalty"). Who taught whom (the first keeper, a knight Solhar claims?) is not
@@ -267,6 +262,16 @@ told at the bottom (their first chapters never name him), their last words as th
 
 Decided:
 
+- **What "take his place" leads to** (built: docs/design/monsters.md, "The Nameless Keeper").
+  The hero who takes the place becomes **the Nameless Keeper** (« le Gardien Sans Nom »): the
+  Well keeps his guard and lets his name go, and the next run's last fight is against him (that
+  run's weapon, armor, skills and relics, worn to a faceless shade carrying the lantern) instead
+  of Tôma and the Maw: Tôma climbed to the village, and the hero below kept the seal. That fight
+  is the last one; beating yourself frees you, and the choice comes again. One Keeper waits at a
+  time (a new one takes the place of the last). **Ringing the bell frees him**: the next runs find
+  Tôma kneeling before the Maw again (the Well's time is wrong, section 8: what it remembers as
+  one night comes round again). He says almost nothing: « Debout. » / "Stand." (the master's
+  lesson: Tôma waited to see the hero stand), and as he falls « Enfin. » / "At last."
 - **The Vigil-Keeper's place and art**: she stands on the title screen, right of the Well, the
   hero sitting left of it; Ninja Adventure's old woman (CC0) recolored: silver hair, eyes closed
   (blind), the shrine's white robe over a bell-rope red (`assets/characters/npc/vigil_keeper*.png`).

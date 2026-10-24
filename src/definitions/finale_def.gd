@@ -24,6 +24,9 @@ extends Resource
 @export var arena: ArenaDef
 ## Waits in the arena; its next forms rise there when it falls.
 @export var boss: BossDef
+## Waits instead of `boss` and its forms while a Nameless Keeper waits (a hero who took the
+## keeper's place: Profile.keeper, built for the run, RunState.keeper_boss). His fall is the last.
+@export var keeper: NamelessKeeperDef
 ## Lamps along the arena's walls (the dungeon's room light); 0: the hero's lantern alone.
 @export_range(0, 6) var arena_lights: int = 0
 
@@ -33,6 +36,8 @@ extends Resource
 ## Over the choice: what is left when the last form falls.
 @export var choice_title: String
 @export_multiline var choice_lore: String
+## The line over the choice when the Nameless Keeper fell (empty: `choice_lore`).
+@export_multiline var keeper_choice_lore: String
 @export var color: Color = Color(0.78, 0.66, 1.0)
 
 
@@ -44,6 +49,22 @@ func is_open() -> bool:
 ## The boss whose fall wins the run.
 func final_boss() -> BossDef:
 	return boss.last_form() if boss else null
+
+
+## Everything that may wait at the bottom: the boss and its forms, then the Nameless Keeper (his
+## template). The bestiary, the soundtrack and the debug lists show them all.
+func all_bosses() -> Array[BossDef]:
+	var result: Array[BossDef] = []
+	if boss:
+		result = boss.forms()
+	if keeper and not result.has(keeper):
+		result.append(keeper)
+	return result
+
+
+## The line over the choice (after the Nameless Keeper: his own, if there is one).
+func choice_lore_for(keeper_fell: bool) -> String:
+	return keeper_choice_lore if keeper_fell and not keeper_choice_lore.is_empty() else choice_lore
 
 
 func get_ending(ending_id: StringName) -> EndingDef:

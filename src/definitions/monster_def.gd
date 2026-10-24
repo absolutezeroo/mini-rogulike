@@ -25,6 +25,9 @@ extends ContentDef
 ## How much of the knockback it ignores: 0 = pushed around freely, 1 = never moves.
 ## Bosses stand their ground, so no weapon can keep them away from you.
 @export_range(0.0, 1.0, 0.05) var knockback_resistance: float = 0.0
+## Shows its gear as the hero does (ActorRig.carries_weapon): its weapon at rest on its back, the
+## trims of its rarities, the elements it carries (the Nameless Keeper, in the hero's own gear).
+@export var shows_gear: bool = false
 
 ## Special ways it fights: a shield, stealing gold, bursting or splitting when it dies...
 ## (see src/definitions/monster_traits/).

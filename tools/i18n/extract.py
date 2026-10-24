@@ -53,6 +53,8 @@ TEXT_FIELDS = {
     "changes",
     # The world counters (data/online/world_stats.tres): the title screen's line.
     "title_line",
+    # The Nameless Keeper (NamelessKeeperDef, EndingDef, FinaleDef): after his fall, his records.
+    "keeper_hint", "keeper_text", "keeper_choice_lore", "records_title", "record_line",
 }
 LIST_FIELDS = {"intro_pages", "death_lines", "greetings", "branches", "branch_texts", "rank_names", "tips", "lines",
                "key_words", "mouse_glyphs"}

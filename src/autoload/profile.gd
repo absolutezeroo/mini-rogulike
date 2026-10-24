@@ -62,6 +62,13 @@ var starting_weapon: StringName = &""
 var runs_since_reset := 0
 ## The ending chosen at the bottom of the Well the last time (EndingDef id; "" = none yet).
 var ending: StringName = &""
+## The Nameless Keeper waiting at the bottom of the Well (KeeperSnapshot data: the hero of the
+## last run that ended in "take his place"; {} = none, Tôma and the Maw wait there). One at a
+## time: a new one replaces him, ringing the bell frees him (EndingDef.keeper_change).
+var keeper := {}
+## The Nameless Keepers beaten, newest first (their weapon, level, pseudonym; `date`: when they
+## were freed), for his page in the codex. At most KEEPERS_KEPT.
+var keepers_freed: Array = []
 ## The story (written through Narrative only): chapters and waking words of the wardens'
 ## chronicles already told ("boss_id/chapter_id" -> 1), fragments found (id -> 1), deeds done
 ## ("boss_id/deed_id" -> 1), and how many times each warden was met (id -> count).
@@ -81,6 +88,8 @@ var deaths_by := {}
 var deepest := 0
 
 const HISTORY_SIZE := 20
+## The Nameless Keepers freed that the codex remembers.
+const KEEPERS_KEPT := 20
 ## What an older save (no count yet) starts with: enough runs for any reset, so nobody who
 ## bought nodes before the rule is stuck with them.
 const RESET_EARNED := 1000
@@ -213,6 +222,41 @@ func choose_ending(ending_id: StringName, stat: String, feats: bool = true) -> v
 		add_stat(stat, 1, feats)
 	save_profile()
 	changed.emit()
+
+
+## The hero just took the keeper's place: `snapshot` (KeeperSnapshot.take()) waits at the bottom
+## of the next runs, instead of the one waiting before (if any).
+func take_keeper(snapshot: Dictionary) -> void:
+	keeper = snapshot.duplicate(true)
+	save_profile()
+	changed.emit()
+
+
+## The bell was rung: no Nameless Keeper waits any more.
+func free_keeper() -> void:
+	keeper = {}
+	save_profile()
+	changed.emit()
+
+
+## A Nameless Keeper (`snapshot`) was beaten: the codex keeps his weapon, his level, the name he
+## played under and the day he was freed.
+func record_keeper_freed(snapshot: Dictionary) -> void:
+	var gear: Array = []
+	var worn: Variant = snapshot.get("gear", [])
+	if worn is Array and not (worn as Array).is_empty():
+		gear.append((worn as Array)[0])  # (his weapon: taken first, KeeperSnapshot.take())
+	keepers_freed.push_front({
+		"version": int(snapshot.get("version", KeeperSnapshot.VERSION)),
+		"gear": gear,
+		"level": int(snapshot.get("level", 1)),
+		"pseudonym": str(snapshot.get("pseudonym", "")),
+		"taken": int(snapshot.get("date", 0)),
+		"date": int(Time.get_unix_time_from_system()),
+	})
+	if keepers_freed.size() > KEEPERS_KEPT:
+		keepers_freed.resize(KEEPERS_KEPT)
+	save_profile()
 
 
 # --- Records ------------------------------------------------------------------
@@ -508,6 +552,8 @@ func reset() -> void:
 	starting_weapon = &""
 	runs_since_reset = 0
 	ending = &""
+	keeper = {}
+	keepers_freed = []
 	chronicle_told = {}
 	fragments_found = {}
 	deeds_done = {}
@@ -540,6 +586,7 @@ func save_profile() -> void:
 		"oath": String(oath), "starting_weapon": String(starting_weapon),
 		"runs_since_reset": runs_since_reset,
 		"ending": String(ending),
+		"keeper": keeper, "keepers_freed": keepers_freed,
 		"chronicle_told": chronicle_told, "fragments_found": fragments_found, "deeds_done": deeds_done,
 		"boss_meetings": boss_meetings, "deepest": deepest,
 		"lines_told": lines_told, "lines_order": lines_order, "deaths_by": deaths_by,
@@ -582,6 +629,11 @@ func load_profile() -> void:
 	starting_weapon = StringName(data.get("starting_weapon", ""))
 	runs_since_reset = int(data.get("runs_since_reset", RESET_EARNED))
 	ending = StringName(data.get("ending", ""))
+	# A snapshot of a version this game can't read (or a damaged one) waits no more.
+	var saved_keeper: Variant = data.get("keeper", {})
+	keeper = (saved_keeper as Dictionary) if KeeperSnapshot.is_valid(saved_keeper) else {}
+	var saved_freed: Variant = data.get("keepers_freed", [])
+	keepers_freed = saved_freed.filter(func(entry: Variant) -> bool: return entry is Dictionary) if saved_freed is Array else []
 	chronicle_told = _ints(data.get("chronicle_told", {}))
 	fragments_found = _ints(data.get("fragments_found", {}))
 	deeds_done = _ints(data.get("deeds_done", {}))

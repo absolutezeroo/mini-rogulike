@@ -42,7 +42,11 @@ The suites (`tests/suites/`, each a `TestSuite`):
   floors, no body put down inside a wall or a prop), **boss** (a full boss fight
   with its phases and relic, then winning the run) and **finale** (the bottom of the Well after a
   win: the gate, saves around it, Tôma, the Maw's jaw, the endings, and with Boss stories on
-  their meetings, last words and deeds).
+  their meetings, last words and deeds; then the Nameless Keeper waiting instead of them: his
+  gear, look and skills, a fight on a sturdy hero, his fall the last, the choice again, the
+  debug panel's way down). The Keeper's rules and data (`keeper_tests.gd`, `KeeperTests`: the
+  snapshot, the profile and the run keeping it, the boss built from it, his numbers) run in the
+  unit suite.
 - The story (`story_tests.gd`, `StoryTests`): its unit part runs in the unit suite (every
   warden's chronicle, lengths and translations, the reveal rule, conditions, deeds, what a meeting
   tells, fragments, the codex's Chronicle, the option), its game part at the end of the game suite
@@ -183,7 +187,8 @@ step its value ("Damage x5"), and both stay pressed while on.
 - **World**: pick a depth and go there, next floor, rebuild the floor (plain unless you choose a
   **Curse** or a **floor Event** row: the floor is rebuilt with it, its card included,
   `World.forced_curse` / `forced_event`). **Places**: the next boss floor, the hidden floor, the
-  Deeps (as if the hero fell into a hole), the bottom of the Well (the final fight, FinaleDef).
+  Deeps (as if the hero fell into a hole), the bottom of the Well (the final fight, FinaleDef),
+  the Nameless Keeper (the bottom with the Keeper made from the hero as he is now).
   **Move**: to the stairs, to the boss room's doorway, to the next room, break the stairs' seal,
   **Reveal maps** (this floor's map and every next one's, seen as they begin). **Encounter**:
   pick any encounter and place it beside the hero; **Boss story** has the floor's warden tell its

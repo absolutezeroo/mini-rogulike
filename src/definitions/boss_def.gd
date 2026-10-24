@@ -44,6 +44,11 @@ extends MonsterDef
 
 ## Neither moves nor strikes while its intro plays (its waking is a moment of its own).
 @export var waits_intro: bool = false
+## Its title follows its name on the boss bar, "Name  (Title)" (the Nameless Keeper: who he was).
+@export var title_on_bar: bool = false
+## Never comes at a rare rank (Fell, Legendary...: World.roll_boss_rank()): a boss that is someone
+## as he was (the Nameless Keeper, the hero's own gear and relics), not a kind that varies.
+@export var as_written: bool = false
 
 @export_group("Two forms")
 ## Where it waits in its arena: (0.5, 0.5) is the middle, (0.5, 0) the top wall's middle.
@@ -69,6 +74,17 @@ func last_form() -> BossDef:
 		form = form.next_boss
 		guard += 1
 	return form
+
+
+## Lines its chronicle's page keeps under records_heading() (the Nameless Keeper: the Keepers
+## freed, NamelessKeeperDef); none for most.
+func records(_content: ContentDB) -> PackedStringArray:
+	return PackedStringArray()
+
+
+## The heading over records() (an English key; "" for none).
+func records_heading() -> String:
+	return ""
 
 
 ## This boss and the forms that follow it, in order.

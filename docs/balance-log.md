@@ -3,6 +3,38 @@
 Dated entries, newest first: what was measured, what changed and why, before/after numbers, open
 questions. How to measure: [balance.md](balance.md).
 
+## 2026-10-24 - The Nameless Keeper (new last fight, measured against Tôma)
+
+**What changed:** after "take his place", the next runs' bottom of the Well is the Nameless
+Keeper alone (docs/design/monsters.md, "The Nameless Keeper"), built from the hero's snapshot.
+Numbers (`data/monsters/bosses/nameless_keeper.tres`): 2200 base Health (x0.8-1.3 by the hero's
+level, 2% a level from 15), Armor 5, speed 100; his blow 16 before the floor (weapon damage +
+attack, +1 per rarity step), Tôma's; his skills at 60% power (`skill_power` -0.4: a hero's skills
+are nukes sized for a hero), cooldowns x1.6, warned 0.5-0.8 s; relics 1 level at most (Thorns
+at 2 cost a hammer hero 55 small hits); the same phases as Tôma's (x0.85, x0.75, +2/+3 attack).
+At floor 12 on Keeper: **10237 Health**, against Tôma's 6019 and Tôma + the Maw's 12038 (the
+Maw only hurt a third of the time): one fight in place of two, a little shorter.
+
+**Measured** (`_tool/keeper_probe.gd`: the arena's bots and FightLog, Act IV's expected build,
+Keeper, seeds 1-2, the run resumed at the bottom with the snapshot; snapshots of a level 15 hero,
+Rare weapon with Brutal/of the Fox, Magic helm and mail, his weapon's skills and a tome's):
+
+| Fight | kite | face_tank |
+|---|---|---|
+| Tôma alone (for scale) | win 59 / 53 s, 11-12 hits, 298-371 taken | loss at 53-55% left, 20 s |
+| Keeper, katana + Fire tome, Ignite | win 87 / 93 s, 3-4 hits, 71-124 taken | loss at 74-77%, 14-15 s |
+| Keeper, War Hammer + War tome, Bloodrage, Thorns | win 90 / 96 s, 57-58 hits (Thorns, burns), 286-298 taken | loss at 79-80%, 13-15 s |
+| Keeper, Magic Wand + Thunder tome | timeout at 61% / loss at 47% (233 s) | loss at 69-75%, 16-18 s |
+| Keeper, bow + Frost tome, Hydra's Quiver | timeout, nothing dealt either way | loss at 71-72%, 20 s |
+
+Before the skill and relic caps (skill power x1, relics 2 levels): the wand's casts hit for ~58 a
+time (9 hits, 524 taken), the hammer's lost at 2-10% left.
+
+**Reading:** standing and hitting loses against every snapshot (pillar 1); a kiting melee build
+beats a melee Keeper in ~1.5x Tôma's time, losing a third of its Health or less. A ranged Keeper
+(bow, wand) keeps 170 away and shoots: the kite bot, a Greatsword build, holds out of his shots
+and never closes in (a standoff, not a fight): **not measured for a ranged Keeper**, open card.
+
 ## 2026-10-23 - Melee blows in four directions: zones swept to the aim (measured, no shift)
 
 **Changed (a rule, no number):** melee blows are drawn in the body's four directions

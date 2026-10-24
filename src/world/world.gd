@@ -132,6 +132,9 @@ var hidden_floor: HiddenFloorDef
 ## Set by the Game before building the bottom of the Well (its look, arena and boss); null
 ## otherwise.
 var finale: FinaleDef
+## Who waits there this run (RunState.bottom_boss(): the Nameless Keeper when one waits); null:
+## the finale's own boss. Set by the Game with `finale`.
+var finale_boss: BossDef
 ## Where walking monsters can go (pathfinding, blocked cells).
 var nav := NavGrid.new()
 ## What hangs over the rooms (null: nothing, a boss arena, a simulation).
@@ -196,7 +199,7 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 	if boss and not hidden_def and act_index < run_bosses.size() and run_bosses[act_index] != null:
 		boss = run_bosses[act_index]
 	if bottom:
-		boss = bottom.boss
+		boss = finale_boss if finale_boss else bottom.boss
 	floor_event = null
 	curse = null
 	if forced_curse or forced_event or forced_plain:

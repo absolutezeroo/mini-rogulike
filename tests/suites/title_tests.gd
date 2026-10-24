@@ -341,13 +341,14 @@ func _test_title_screen() -> void:
 	# The hidden floor's boss: after the acts and the Deeps (only the bottom of the Well's forms
 	# follow it), its card and its floor's heading kept secret until met.
 	var hidden_boss := CONTENT.dungeon.hidden_floor.boss
-	var forms := CONTENT.dungeon.finale.boss.forms()
+	var forms := CONTENT.dungeon.finale.all_bosses()
 	var hidden_at := entries.size() - forms.size() - 1
 	var list_texts := _texts(list)
 	check(entries[hidden_at] == hidden_boss and monster_cards[hidden_at].disabled and _texts(monster_cards[hidden_at]).has("???"), "the hidden boss is last but the bottom's forms in the bestiary, a ??? card until met")
 	check(not list_texts.any(func(line: String) -> bool: return line.contains(CONTENT.dungeon.hidden_floor.title) or line.contains(hidden_boss.display_name)), "nothing in the bestiary names the hidden floor or its boss before they are met")
-	# The bottom of the Well's forms: last, in order, ??? cards under a ??? heading until met.
-	check(entries.slice(entries.size() - forms.size()) == forms and forms.size() == 2, "the bottom of the Well's two forms close the bestiary, in order")
+	# The bottom of the Well's forms (Tôma, the Maw, then the Nameless Keeper): last, in order, ???
+	# cards under a ??? heading until met.
+	check(entries.slice(entries.size() - forms.size()) == forms and forms.size() == 3 and forms[2] == CONTENT.dungeon.finale.keeper, "the bottom of the Well's two forms and the Nameless Keeper close the bestiary, in order")
 	for i in forms.size():
 		var card := monster_cards[entries.size() - forms.size() + i]
 		check(card.disabled and _texts(card).has("???"), "%s: a ??? card until met" % forms[i].id)

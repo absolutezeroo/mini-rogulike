@@ -32,6 +32,8 @@ func show_boss(boss: Monster) -> void:
 			_name.text += "  (%s)" % monster.affix_names()
 	else:
 		_name.remove_theme_color_override("font_color")
+	if def and def.title_on_bar and not def.title.is_empty():
+		_name.text = tr("{name}  ({title})").format({ "name": _name.text, "title": tr(def.title) })
 	_portrait.texture = def.portrait if def else boss.def.icon
 	_on_health_changed(boss.hp, boss.get_max_hp())
 	modulate.a = 0.0

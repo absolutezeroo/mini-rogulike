@@ -67,8 +67,8 @@ func _monster(id: String) -> MonsterDef:
 			if boss and boss.id == StringName(id):
 				return boss
 	var finale := CONTENT.dungeon.finale
-	if finale and finale.boss:
-		for form in finale.boss.forms():
+	if finale:
+		for form in finale.all_bosses():
 			if form.id == StringName(id):
 				return form
 	var hidden := CONTENT.dungeon.hidden_floor

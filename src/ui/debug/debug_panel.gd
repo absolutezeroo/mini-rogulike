@@ -198,6 +198,11 @@ func _build_world(page: VBoxContainer) -> void:
 			DebugCheats.mark_run()
 			close()
 			_game.debug_enter_finale()))
+		if _game_content().dungeon.finale.keeper:
+			places.add_child(_button("Nameless Keeper", func() -> void:
+				DebugCheats.mark_run()
+				close()
+				_game.debug_enter_finale(true)))
 
 	var move := _row(page, "Move")
 	move.add_child(_button("Stairs", func() -> void: _act(func() -> void:

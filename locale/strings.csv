@@ -24,6 +24,8 @@ Slay %s within %d seconds of the fight's start,Slay %s within %d seconds of the 
 Slay %s without drinking a potion during the fight,Slay %s without drinking a potion during the fight,%s : à abattre sans boire de potion pendant le combat
 Slay %s losing less than %d%% of your Health,Slay %s losing less than %d%% of your Health,%s : à abattre en perdant moins de %d %% de ta Vie
 Slay %s with the %s,Slay %s with the %s,%s : à abattre avec l'arme %s
+Keepers freed,Keepers freed,Gardiens libérés
+"{weapon}, level {level}  -  {date}","{weapon}, level {level}  -  {date}","{weapon}, niveau {level}  -  {date}"
 Hero,Hero,Héros
 Slay %d monsters,Slay %d monsters,Abats %d monstres
 Merchant,Merchant,Marchand
@@ -423,6 +425,7 @@ Title screen,Title screen,Écran titre
 "Keep going: endless floors, harder and harder. Your win is already counted.","Keep going: endless floors, harder and harder. Your win is already counted.","Continuer : des étages sans fin, de plus en plus durs. Ta victoire est déjà comptée."
 Find the Dawn Breach. The demons will not wait.,Find the Dawn Breach. The demons will not wait.,Trouve la Brèche de l'Aube. Les démons n'attendront pas.
 Dawn's gift: %d s,Dawn's gift: %d s,Présent de l'aube : %d s
+{name}  ({title}),{name}  ({title}),{name}  ({title})
 Achievement: %s  (+%d souls),Achievement: %s  (+%d souls),Succès : %s  (+%d âmes)
 "Bestiary: %s, %s  (+%d souls)","Bestiary: %s, %s  (+%d souls)","Bestiaire : %s, %s  (+%d âmes)"
 Challenge done: %s  (+%d souls),Challenge done: %s  (+%d souls),Défi relevé : %s  (+%d âmes)
@@ -1422,6 +1425,11 @@ IT WILL NOT REST!,IT WILL NOT REST!,IL NE REPOSERA PAS !
 He Who Does Not Rest,He Who Does Not Rest,Celui qui ne repose pas
 The Nameless Effigy,The Nameless Effigy,Le Gisant Sans Nom
 "The stone knight from a nameless tomb, risen. Its blades are cold, and the dead come when it calls.","The stone knight from a nameless tomb, risen. Its blades are cold, and the dead come when it calls.","Le chevalier de pierre d'un tombeau sans nom, relevé. Ses lames sont froides, et les morts viennent quand il appelle."
+HE KNOWS YOUR STEPS,HE KNOWS YOUR STEPS,IL CONNAÎT TES PAS
+THE LANTERN GUTTERS,THE LANTERN GUTTERS,LA LANTERNE VACILLE
+Who You Were,Who You Were,Celui que tu étais
+The Nameless Keeper,The Nameless Keeper,Le Gardien Sans Nom
+"The hero who took the keeper's place, worn to a shade by the Well. He fights with what you carried down: your blade, your arts, your relics. Beat him to free him.","The hero who took the keeper's place, worn to a shade by the Well. He fights with what you carried down: your blade, your arts, your relics. Beat him to free him.","Le héros qui prit la place du gardien, usé jusqu'à l'ombre par le Puits. Il se bat avec ce que tu as porté jusqu'en bas : ta lame, tes arts, tes reliques. Vaincs-le pour le libérer."
 Beat the Ember Ronin at his own game: a Katana,Beat the Ember Ronin at his own game: a Katana,Bats le Rônin des Braises à son propre jeu : au Katana
 BLAZES!,BLAZES!,S'EMBRASE !
 INFERNO!,INFERNO!,BRASIER !
@@ -1810,6 +1818,7 @@ The End of the Descent,The End of the Descent,Le Terme de la Descente
 "Below the kingdom of dust, the stone ends. Someone kneels in the dark, an unlit lantern in his hand.","Below the kingdom of dust, the stone ends. Someone kneels in the dark, an unlit lantern in his hand.","Sous le royaume de poussière, la pierre s'arrête. Quelqu'un est agenouillé dans le noir, une lanterne éteinte à la main."
 What Is Left,What Is Left,Ce Qui Reste
 "The mask is dust. Your master stands in the dark, free, and looks at the lantern in your hand. Far above, the bell waits.","The mask is dust. Your master stands in the dark, free, and looks at the lantern in your hand. Far above, the bell waits.","Le masque n'est plus que poussière. Ton maître se tient dans le noir, libre, et regarde la lanterne dans ta main. Loin là-haut, la cloche attend."
+"His lantern rolls on the stone. The one who held it stands in the dark, free, and looks at you. Far above, the bell waits.","His lantern rolls on the stone. The one who held it stands in the dark, free, and looks at you. Far above, the bell waits.","Sa lanterne roule sur la pierre. Celui qui la tenait se tient dans le noir, libre, et te regarde. Loin là-haut, la cloche attend."
 "Beneath the village of Kagari sleeps an old well.
 The shrine's lantern keeps watch over it, night and day.
 The elders say it has no bottom: only a mouth.","Beneath the village of Kagari sleeps an old well.
@@ -2087,6 +2096,18 @@ What He Sealed,What He Sealed,Ce qu'il a scellé
 "Someone could close the door again: by giving him back his name, or by giving their own.","Someone could close the door again: by giving him back his name, or by giving their own.","Quelqu'un pourrait refermer la porte : en lui rendant son nom, ou en donnant le sien."
 You carry the lantern; I carried it too. Tell me... what was I called?,You carry the lantern; I carried it too. Tell me... what was I called?,Tu portes la lanterne ; je la portais aussi. Dis-moi... comment m'appelait-on ?
 "Tôma, I know his name. Mine he left in the seal, with the cut.","Tôma, I know his name. Mine he left in the seal, with the cut.","Tôma, je sais son nom. Le mien, il l'a laissé dans le sceau, avec la coupure."
+The One Who Waits,The One Who Waits,Celui Qui Attend
+At the bottom of the Well a lantern burns before the seal. The one who holds it has no face.,At the bottom of the Well a lantern burns before the seal. The one who holds it has no face.,"Au fond du Puits, une lanterne brûle devant le sceau. Celui qui la tient n'a plus de visage."
+He rises the way you rise. He holds the blade the way you hold it.,He rises the way you rise. He holds the blade the way you hold it.,Il se lève comme tu te lèves. Il tient la lame comme tu la tiens.
+The Place Taken,The Place Taken,La Place Prise
+"One night you knelt where Tôma knelt, and he climbed toward the light. The Well kept your guard and let your name go.","One night you knelt where Tôma knelt, and he climbed toward the light. The Well kept your guard and let your name go.","Une nuit, tu t'es agenouillé là où Tôma s'agenouillait, et il est remonté vers la lumière. Le Puits a gardé ta garde et laissé partir ton nom."
+"Below, no one came to take the lantern from your hand.","Below, no one came to take the lantern from your hand.","En bas, personne n'est venu te prendre la lanterne des mains."
+The Seal Holds,The Seal Holds,Le Sceau Tient
+"Night after night the Maw leans on the seal, and night after night he holds.","Night after night the Maw leans on the seal, and night after night he holds.","Nuit après nuit, la Gueule pèse sur le sceau, et nuit après nuit il tient."
+"He does not wait to win. He waits for someone to stand in his place, so that he may rest.","He does not wait to win. He waits for someone to stand in his place, so that he may rest.","Il n'attend pas de vaincre. Il attend que quelqu'un se tienne à sa place, pour enfin se reposer."
+Stand.,Stand.,Debout.
+Again.,Again.,Encore.
+At last.,At last.,Enfin.
 He speaks only to a blade of his own school.,He speaks only to a blade of his own school.,Il ne parle qu'à une lame de son école.
 Slay him with a Katana.,Slay him with a Katana.,Terrasse-le avec un Katana.
 The Burning Guard,The Burning Guard,La garde qui brûle
@@ -2358,9 +2379,16 @@ Tôma sits against the stone, his hand on your lantern. ""She sleeps now."" Then
 Far above, Kagari wakes. The knell carries until dawn.","Tu sonnes la cloche, et le Puits se referme.
 Tôma s'assied contre la pierre, la main sur ta lanterne. « Elle dort, maintenant. » Puis il s'endort aussi.
 Loin là-haut, Kagari s'éveille. Le glas porte jusqu'à l'aube."
+Seal the Maw. The one you were finds rest.,Seal the Maw. The one you were finds rest.,Sceller la Gueule. Celui que tu étais trouve le repos.
+"You ring the bell, and the Well closes.
+The shade sets down its lantern and is gone, like breath on cold stone.
+Far above, Kagari wakes. The knell carries until dawn.","You ring the bell, and the Well closes.
+The shade sets down its lantern and is gone, like breath on cold stone.
+Far above, Kagari wakes. The knell carries until dawn.","Tu sonnes la cloche, et le Puits se referme.
+L'ombre pose sa lanterne et s'efface, comme un souffle sur la pierre froide.
+Loin là-haut, Kagari s'éveille. Le glas porte jusqu'à l'aube."
 Take his place,Take his place,Prendre sa place
 "Become the keeper of the seal: nameless, down here, for as long as it holds.","Become the keeper of the seal: nameless, down here, for as long as it holds.","Deviens le gardien du sceau : sans nom, ici-bas, aussi longtemps qu'il tiendra."
-The Nameless Keeper,The Nameless Keeper,Le Gardien Sans Nom
 "You take his place before the seal, and the Well forgets your face.
 Tôma climbs toward the light, to wake the village and answer to it.
 Below, a lantern keeps watch. No one will know who holds it.","You take his place before the seal, and the Well forgets your face.
@@ -2368,6 +2396,14 @@ Tôma climbs toward the light, to wake the village and answer to it.
 Below, a lantern keeps watch. No one will know who holds it.","Tu prends sa place devant le sceau, et le Puits oublie ton visage.
 Tôma remonte vers la lumière, réveiller le village et lui répondre.
 En bas, une lanterne veille. Personne ne saura qui la tient."
+"Take the lantern from him: nameless, down here, in your turn.","Take the lantern from him: nameless, down here, in your turn.","Lui prendre la lanterne : sans nom, ici-bas, à ton tour."
+"You take the lantern from the hand that was yours, and the Well forgets your face.
+The one you were climbs toward the light, and does not look back.
+Below, a lantern keeps watch. No one will know who holds it.","You take the lantern from the hand that was yours, and the Well forgets your face.
+The one you were climbs toward the light, and does not look back.
+Below, a lantern keeps watch. No one will know who holds it.","Tu prends la lanterne de la main qui fut la tienne, et le Puits oublie ton visage.
+Celui que tu étais remonte vers la lumière, sans se retourner.
+En bas, une lanterne veille. Nul ne saura qui la tient."
 Brann's Note on Frost,Brann's Note on Frost,Note de Brann sur le givre
 An anvil beneath the crypt,An anvil beneath the crypt,Une enclume sous la crypte
 Frost does not fear steel. It bites it.,Frost does not fear steel. It bites it.,Le givre ne craint pas l'acier. Il le mord.
@@ -2866,6 +2902,7 @@ grammar:gender:Jade Wyrm,grammar:gender:Jade Wyrm,f
 grammar:gender:Bloated King,grammar:gender:Bloated King,m
 grammar:gender:Master Tôma,grammar:gender:Master Tôma,m
 grammar:gender:The Nameless Effigy,grammar:gender:The Nameless Effigy,m
+grammar:gender:The Nameless Keeper,grammar:gender:The Nameless Keeper,m
 grammar:gender:Ember Ronin,grammar:gender:Ember Ronin,m
 grammar:gender:Dead Sun,grammar:gender:Dead Sun,m
 grammar:gender:The Maw,grammar:gender:The Maw,f

@@ -41,6 +41,7 @@ func run() -> void:
 	_test_pilgrim_costs()
 	_test_bosses()
 	_test_boss_slows()
+	_test_nameless_keeper()
 	_test_profile()
 	_test_soul_economy()
 	_test_run_time()
@@ -2068,12 +2069,24 @@ func _test_soul_economy() -> void:
 ## Slows from a boss must not chain into a lock (balance-log 2026-10-23, the Azure Wyrm: her fang,
 ## breath, dive and hail all slowed 40% for 2 s, so the hero was slowed nearly the whole last
 ## phase and could neither outrun her nor clear her short-warned dives).
+## The Nameless Keeper's rules and data (KeeperTests).
+func _test_nameless_keeper() -> void:
+	var keeper := KeeperTests.new()
+	add_child(keeper)
+	keeper.run_unit()
+	keeper.queue_free()
+
+
 func _test_boss_slows() -> void:
 	var bosses: Array[BossDef] = []
 	for act in CONTENT.dungeon.acts:
 		bosses.append_array(act.all_bosses())
 	if CONTENT.dungeon.finale and CONTENT.dungeon.finale.boss:
 		bosses.append_array(CONTENT.dungeon.finale.boss.forms())
+	# The Nameless Keeper, built from the hero's every weapon and its skills (a tome's too).
+	var keepers := KeeperTests.sample_keepers(CONTENT)
+	check(keepers.size() >= 10, "the Nameless Keeper is checked with every weapon (%d)" % keepers.size())
+	bosses.append_array(keepers)
 	for boss in bosses:
 		var phases: Array = [boss.skills]
 		for phase in boss.phases:

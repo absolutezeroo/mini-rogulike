@@ -548,11 +548,15 @@ func debug_enter_floor(target: int, curse: CurseDef = null, event: FloorEventDef
 
 
 ## Debug: the bottom of the Well right away (FinaleDef), as if the last act's boss had led there.
-func debug_enter_finale() -> void:
+## `keeper`: the Nameless Keeper waits there, made from the hero as he is now (a snapshot of this
+## run, never the profile's); otherwise Tôma and the Maw.
+func debug_enter_finale(keeper: bool = false) -> void:
 	if content.dungeon.finale == null:
 		return
 	threshold.abort()
 	abyss.abort()
+	run.keeper = KeeperSnapshot.take(player, run) if keeper else {}
+	run.build_keeper(content)
 	run.finale_open = true
 	run.has_won = false
 	run.hidden_floor = false
@@ -679,6 +683,7 @@ func _enter_floor(resumed: bool = false) -> void:
 	if run.finale:
 		world.rng.seed = hash("finale-%d" % world.rng.seed)  # not the boss floor of the same depth
 	world.finale = content.dungeon.finale if run.finale else null
+	world.finale_boss = run.bottom_boss() if run.finale else null
 	if run.leads_to_finale():
 		world.next_routes = [content.dungeon.finale.route()] as Array[FloorRoute]  # one way: down
 	else:
@@ -901,6 +906,8 @@ func _on_boss_defeated(boss: Monster) -> void:
 		run.has_won = true
 		run.finish_time = run.time
 		run.ending_due = bottom != null and not bottom.endings.is_empty()
+		if bottom and run.meets_keeper():
+			Profile.record_keeper_freed(run.keeper)  # (the codex's list of the Keepers freed)
 		_split(run.split_depth())
 		new_record = Profile.record_time(run.record_key(), run.finish_time, run.splits)
 		if new_record:
@@ -935,13 +942,20 @@ func _offer_ending(earned: int, new_record: bool) -> void:
 	_ending_record = new_record
 	_set_paused(true)
 	menus.show_on_top(menus.ending)
-	menus.ending.open(bottom)
+	menus.ending.open(bottom, run.meets_keeper())
 
 
 func _on_ending_chosen(ending: EndingDef) -> void:
 	run.ending_due = false
 	var feats := run.difficulty == null or run.difficulty.counts_feats
 	Profile.choose_ending(ending.id, ending.stat, feats)
+	# The Nameless Keeper: the hero becomes him (he waits at the bottom of the next runs, instead
+	# of whoever waited), or the bell frees the one waiting.
+	match ending.keeper_change:
+		EndingDef.KeeperChange.TAKE:
+			Profile.take_keeper(KeeperSnapshot.take(player, run, Leaderboards.pseudonym if Leaderboards.name_chosen else ""))
+		EndingDef.KeeperChange.FREE:
+			Profile.free_keeper()
 	Events.ending_chosen.emit(ending)  # (the world counters: WorldStats)
 	_records.check_achievements()
 	_save_run()
@@ -976,7 +990,7 @@ func _show_end(victory: bool, earned: int, new_record: bool = false, ending: End
 	var spoken: Array[Dialogues.Spoken] = content.narrative.tell_end(facts) if content.narrative else []
 	var story := ""
 	if ending:
-		story = tr(ending.text)
+		story = tr(ending.text_for(run.meets_keeper()))
 	elif content.story and (victory or spoken.is_empty()):
 		story = tr(content.story.victory_text if victory else content.story.random_death_line())
 	var rows := run.summary_rows(content, player.level, _record_text(new_record) if victory else "")

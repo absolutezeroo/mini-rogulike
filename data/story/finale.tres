@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://src/definitions/ending_def.gd" id="5_ending"]
 [ext_resource type="Resource" path="res://data/story/endings/ring_the_bell.tres" id="6_bell"]
 [ext_resource type="Resource" path="res://data/story/endings/take_his_place.tres" id="7_keeper"]
+[ext_resource type="Resource" path="res://data/monsters/bosses/nameless_keeper.tres" id="8_nameless"]
 
 [resource]
 script = ExtResource("1_finale")
@@ -18,8 +19,10 @@ victories_needed = 1
 biome = ExtResource("2_biome")
 arena = ExtResource("3_arena")
 boss = ExtResource("4_boss")
+keeper = ExtResource("8_nameless")
 arena_lights = 0
 endings = Array[ExtResource("5_ending")]([ExtResource("6_bell"), ExtResource("7_keeper")])
 choice_title = "What Is Left"
 choice_lore = "The mask is dust. Your master stands in the dark, free, and looks at the lantern in your hand. Far above, the bell waits."
+keeper_choice_lore = "His lantern rolls on the stone. The one who held it stands in the dark, free, and looks at you. Far above, the bell waits."
 color = Color(0.78, 0.66, 1, 1)
