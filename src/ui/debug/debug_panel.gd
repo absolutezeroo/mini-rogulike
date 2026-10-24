@@ -187,19 +187,19 @@ func _build_world(page: VBoxContainer) -> void:
 		places.add_child(_button("Hidden floor", func() -> void:
 			DebugCheats.mark_run()
 			close()
-			_game.debug_enter_hidden()))
+			_game.debug.enter_hidden()))
 	if _game_content().dungeon.abyss:
 		places.add_child(_button("The Deeps", _enter_deeps))
 	if _game_content().dungeon.finale:
 		places.add_child(_button("The Well's bottom", func() -> void:
 			DebugCheats.mark_run()
 			close()
-			_game.debug_enter_finale()))
+			_game.debug.enter_finale()))
 		if _game_content().dungeon.finale.keeper:
 			places.add_child(_button("Nameless Keeper", func() -> void:
 				DebugCheats.mark_run()
 				close()
-				_game.debug_enter_finale(true)))
+				_game.debug.enter_finale(true)))
 
 	var move := _row(page, "Move")
 	move.add_child(_button("Stairs", func() -> void: _act(func() -> void:
@@ -320,7 +320,7 @@ func _build_monsters(page: VBoxContainer) -> void:
 		ranks.add_child(_button(rank.display_name, func() -> void: _act(func() -> void: _spawn_ranked(rank), "%s spawned" % rank.display_name)))
 	var bosses := _row(page, "Next boss")
 	for rank in _game_content().dungeon.rare_ranks:
-		bosses.add_child(_button(rank.display_name, func() -> void: _act(func() -> void: _game.world.forced_boss_rank = rank, "The next boss: %s" % rank.display_name)))
+		bosses.add_child(_button(rank.display_name, func() -> void: _act(func() -> void: _game.world.overrides.boss_rank = rank, "The next boss: %s" % rank.display_name)))
 
 
 # --- Gallery -------------------------------------------------------------------------------
@@ -376,8 +376,8 @@ func build_biome_floor() -> void:
 	var ceiling := _ceilings[_ceiling_index] if _ceiling_index >= 0 else null
 	DebugCheats.mark_run()
 	close()
-	_game.world.forced_biome = DebugGallery.variant(biome, _shape, ceiling, _ceiling_index == -1)
-	await _game.debug_enter_floor(DebugGallery.depth_for(_game_content(), biome), null, null, true)
+	_game.world.overrides.biome = DebugGallery.variant(biome, _shape, ceiling, _ceiling_index == -1)
+	await _game.debug.enter_floor(DebugGallery.depth_for(_game_content(), biome), null, null, true)
 	_game.world.reveal_all()
 
 
@@ -393,9 +393,9 @@ func build_monster_gallery() -> void:
 	DebugCheats.set_invisible(true)
 	DebugCheats.set_full_light(true)
 	close()
-	_game.world.forced_map = hall.map
-	_game.world.forced_biome = DebugGallery.variant(biome, null, ceiling, _ceiling_index == -1)
-	await _game.debug_enter_floor(scope.depth, null, null, true)
+	_game.world.overrides.map = hall.map
+	_game.world.overrides.biome = DebugGallery.variant(biome, null, ceiling, _ceiling_index == -1)
+	await _game.debug.enter_floor(scope.depth, null, null, true)
 	_game.world.reveal_all()
 	var spots: Array[Vector2] = hall.spots
 	DebugGallery.fill(_game.world, scope.monsters, spots)
@@ -419,7 +419,7 @@ func _build_tools(page: VBoxContainer) -> void:
 		_overlay.refresh())
 	var run := _row(page, "Run")
 	run.add_child(_button("Save & reload", func() -> void:
-		if _game.debug_reload():
+		if _game.debug.reload():
 			_status.text = "Saved and picked up again"
 		else:
 			_status.text = "Not saved: a debug run, the Deeps or the Threshold"))
@@ -531,7 +531,7 @@ func _remote_samples() -> PackedStringArray:
 func _go(depth: int, curse: CurseDef = null, event: FloorEventDef = null, plain: bool = false) -> void:
 	DebugCheats.mark_run()
 	close()
-	_game.debug_enter_floor(maxi(depth, 1), curse, event, plain)
+	_game.debug.enter_floor(maxi(depth, 1), curse, event, plain)
 
 
 ## Runs `action` and says it happened (the panel stays open). Whatever the panel does to the run
@@ -657,13 +657,13 @@ func _place_fragment() -> void:
 	_status.text = "Fragment placed: walk up to it"
 
 
-## The warden of this floor tells its story again (Game.debug_boss_story()).
+## The warden of this floor tells its story again (GameDebug.boss_story()).
 func _boss_story() -> void:
-	if not _game.debug_boss_story_ready():
+	if not _game.debug.boss_story_ready():
 		_status.text = "No warden standing on this floor: try Next boss"
 		return
 	close()
-	_game.debug_boss_story()
+	_game.debug.boss_story()
 
 
 ## Every fragment of the past, each with its warden (the acts' bosses, the hidden floor's, the

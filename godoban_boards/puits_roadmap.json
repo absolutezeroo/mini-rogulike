@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 215,
+  "next_id": 218,
   "tags": [
     "pc",
     "test",
@@ -3006,8 +3006,8 @@
     {
       "id": "task_202",
       "title": "Audit UI : Game présentateur → annonces écoutées par le HUD",
-      "description": "Suite de l'audit (world.md 2.2, reporté) : Game appelle encore le HUD ~90 fois (bannières d'acte, d'événement, de malédiction, de salle signature, de boss ; toast de l'exploit d'un gardien). Seule l'embuscade est passée à un écouteur du HUD. À faire : un RunAnnouncer ou des signaux Events écoutés par le HUD, un GameDebug pour les points d'entrée de debug, une seule fonction _transition() pour le bloc copié 5 fois. Reporté pour ne pas croiser le chantier sauvegarde / reprise sur game.gd.",
-      "status": "todo",
+      "description": "Suite de l'audit (world.md 2.2, reporté) : Game appelle encore le HUD ~90 fois (bannières d'acte, d'événement, de malédiction, de salle signature, de boss ; toast de l'exploit d'un gardien). Seule l'embuscade est passée à un écouteur du HUD. À faire : un RunAnnouncer ou des signaux Events écoutés par le HUD, un GameDebug pour les points d'entrée de debug, une seule fonction _transition() pour le bloc copié 5 fois. Reporté pour ne pas croiser le chantier sauvegarde / reprise sur game.gd.\n\nFait (24/10, avec « Audit : découper World et Game ») : un RunAnnouncer (src/game/run_announcer.gd) écoute Events et pilote le HUD : bannières d'acte, d'événement, de malédiction, d'étage caché et du fond du Puits, salle signature, nom du gardien, sa chute et ses dernières paroles, embuscade, exploit (toast), âmes, chrono et temps intermédiaires. Nouveaux signaux Events : floor_entered, floor_laid_anew, split_timed, run_souls_changed ; RunTimer émet ticked, HiddenPassage n'appelle plus le HUD. GameDebug (src/game/debug/game_debug.gd) porte les points d'entrée de debug (game.debug.enter_floor()...), et une seule Game.transition_to_floor() remplace le bloc copié 5 fois. Comportement inchangé (toutes les suites passent). À voir en jeu : les bannières et le journal arrivent comme avant.",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_5",
       "due_date": null,
@@ -3016,7 +3016,7 @@
         "qualité"
       ],
       "created_at": 1792818511,
-      "updated_at": 1792818511
+      "updated_at": 1792821527
     },
     {
       "id": "task_203",
@@ -3201,6 +3201,50 @@
       ],
       "created_at": 1792817377,
       "updated_at": 1792817377
+    },
+    {
+      "id": "task_215",
+      "title": "Audit : découper World et Game (world.md 2.1 et 2.2)",
+      "description": "Refactor pur, demandé (audit world.md points 2 et 3). Fait (24/10) :\n- World (1498 → ~980 lignes) : build_floor() ne branche plus sur les sortes d'étage ; une classe par sorte (src/world/floor_kinds/ : FloorKind.choose() puis NormalFloorKind, RouteFloorKind, BossFloorKind, HiddenFloorKind, FinaleFloorKind, ForcedFloorKind pour le tirage forcé du debug), chacune avec ses étapes (boss, tirage, monde, arène, carte, ce qui est posé). Sortis du World : FloorSave (la part de l'étage dans la sauvegarde, format inchangé, avec FloorLedger), HoleField (trous, sol fissuré, comblés et effondrés), ActivityManager (le sommeil des monstres), WorldSpace (cases libres, place d'un corps, ligne de vue, caches par image), FloorOverrides (les forced_* du debug, un seul objet : world.overrides). Le World garde ses méthodes d'une ligne que tout le monde appelle.\n- Game (1223 → ~1050 lignes) : RunAnnouncer, GameDebug, transition_to_floor() (voir task_202).\n- Preuve : FloorDeterminismTests (suite unit) : empreinte d'étages de chaque sorte et d'un étage repris après usage, sur graines fixes, valeurs enregistrées sur main avant le découpage : identiques. Toutes les suites passent.\nDocs : architecture.md (la structure et pourquoi), conventions.md (nouvelle sorte d'étage = sous-classe ; le Game émet, le présentateur montre), testing.md.",
+      "status": "review",
+      "priority": "high",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "qualité",
+        "tests"
+      ],
+      "created_at": 1792821527,
+      "updated_at": 1792821527
+    },
+    {
+      "id": "task_216",
+      "title": "Audit : restes du découpage de Game (offres de perks, fin de partie)",
+      "description": "Suite de « Audit : découper World et Game ». Game fait encore ~1050 lignes : le flux des offres de perks (_show_next_offer, _cards_for, _pick_offer, relance, bannissement, report : ~130 lignes) pourrait être un OfferFlow à côté d'OfferQueue, et la fin de partie (_on_player_died, _show_end, les fins) un EndOfRun. La caméra qui se tourne vers le boss et sa musique restent dans Game (présentation hors HUD) : à passer au RunAnnouncer ou à un BossStage.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "qualité"
+      ],
+      "created_at": 1792821527,
+      "updated_at": 1792821527
+    },
+    {
+      "id": "task_217",
+      "title": "Audit : restes du découpage de World (fabriques, butin)",
+      "description": "Suite de « Audit : découper World et Game ». World fait encore ~980 lignes, surtout ses ~25 fabriques spawn_* et l'économie du butin (spawn_loot, spawn_gold, drop_trophy, roll_elite, make_ranked) : à regrouper (un FloorSpawner, un LootDropper) si ça grossit encore. Le passage caché émet toujours world.stairs_reached avec ROUTE = -1 (world.md, couplage) : une take_route() du World serait plus propre. FloorDeterminismTests est à ré-enregistrer quand le contenu ou la génération change exprès (l'échec affiche les nouvelles valeurs).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "qualité",
+        "tests"
+      ],
+      "created_at": 1792821527,
+      "updated_at": 1792821527
     }
   ]
 }

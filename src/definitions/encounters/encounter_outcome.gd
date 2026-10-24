@@ -64,7 +64,7 @@ func _spawn_monsters(world_ref: WeakRef, player_ref: WeakRef, at: Vector2) -> vo
 		var def := world.pick_monster()
 		if def == null:
 			return
-		var monster := world.spawn_monster(def, world.find_open_point_near(at, 60.0, World.room_for(def)))
+		var monster := world.spawn_monster(def, world.find_open_point_near(at, 60.0, WorldSpace.room_for(def)))
 		if elite_monsters:
 			world.make_elite(monster)
 		monster.target = player

@@ -97,7 +97,7 @@ func _release_monsters() -> void:
 		var monster_def := world.pick_monster()
 		if monster_def == null:
 			return
-		var monster := world.spawn_monster(monster_def, world.find_open_point_near(global_position, 40.0, World.room_for(monster_def)))
+		var monster := world.spawn_monster(monster_def, world.find_open_point_near(global_position, 40.0, WorldSpace.room_for(monster_def)))
 		monster.target = world.player
 		Vfx.puff(world, monster.global_position)
 

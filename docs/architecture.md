@@ -92,6 +92,10 @@ src/
     dialogue/            SpeakerDef, DialogueDef, DialogueLineDef (who speaks, what may be said, when)
   dungeon/             Map data, generator (its rooms' shapes: RoomPlan; its secret rooms: SecretRoomPlan), drawing
   world/               World (owns the current floor), FloorRules (how hard and rewarding it is),
+                       floor_kinds/ (FloorKind: what kind of floor is built and its own steps),
+                       FloorSave (the floor's part of the save), HoleField (holes and cracked floor),
+                       ActivityManager (who sleeps), WorldSpace (free cells, bodies, line of sight),
+                       FloorOverrides (the debug panel's next floor),
                        NavGrid (pathfinding), FogOfWar (what the hero has seen), WallBuilder,
                        FloorPopulator, FloorLedger (what the hero used up of what the seed laid, for the
                        save), FragmentPlacer, BossArena (and its Storyteller), AmbushRoom, RoomGates, PitLayer, SecretRoom; PocketWorld
@@ -114,7 +118,9 @@ src/
                        ItemCard, TapGate, UiParts, UiSkin's colors: design/interface.md "Shared
                        pieces"). UI listens to Events and never drives gameplay: a quest is paid by
                        QuestBoard.pay_finished(), an oath sworn through Profile.select_oath()
-  game/                Game: main scene, floor flow, pauses; RunState (the run: depth, kills, bosses,
+  game/                Game: main scene, floor flow, pauses; RunAnnouncer (the presenter: Events ->
+                       the HUD and the log); debug/ (GameDebug: the debug entry points, DebugCheats,
+                       DebugGallery); RunState (the run: depth, kills, bosses,
                        difficulty), RunRecords (stats, bestiary, achievements, history), OfferQueue
                        (perk choices waiting), GameMenus (the panels), ShrineUpgrades, RunSave (on disk),
                        Threshold (a second life's trial: the floor out of the tree, the hero in a limbo),
@@ -144,6 +150,27 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 ## How things fit together
 
 - **Game** creates the Player, asks **World** to build each floor and handles pause and game over.
+  Every floor is reached the same way, `Game.transition_to_floor()` (the stairs, a run's first
+  floor, the debug panel's). The Game keeps to the flow; what the run shows and says (a new act,
+  a floor's twist and goal, a warden's name, fall and last words, the souls, the clock and its
+  splits, ambushes, deeds) is the `RunAnnouncer`'s: it listens to `Events`
+  (`floor_entered`, `split_timed`, `run_souls_changed`, the boss signals...), the World's
+  `set_piece_entered` and the `RunTimer`'s `ticked`, and drives the HUD. Nothing in gameplay
+  calls the HUD to announce (HiddenPassage and RunTimer emit). The debug panel's ways to a floor
+  are `Game.debug` (`GameDebug`).
+- **World** is the floor and the gateway to it (spawning, queries), made of focused parts so
+  it doesn't grow back into one script: `build_floor()` does what every floor shares, always in
+  the same order, and asks its `FloorKind` (`floor_kinds/`, chosen by `FloorKind.choose()` from
+  the run's state: `NormalFloorKind`, `RouteFloorKind` for a way chosen, `BossFloorKind`,
+  `HiddenFloorKind`, `FinaleFloorKind`, and `ForcedFloorKind` wrapping any of them for a debug
+  twist) for its boss, twist, world, arena, map and what lies on it, so a new kind of floor is a
+  new subclass. The save's part of the floor is `FloorSave` (`spent_data()` / `restore_spent()`,
+  its format unchanged, with `FloorLedger`), the holes and cracked floor `HoleField`
+  (`World.holes`), the sleep `ActivityManager` (`World.activity`), the spatial questions
+  `WorldSpace` (`World.space`; the World keeps their one-line methods, `find_open_point_near()`,
+  `is_solid_ground()`... since everything asks them), the debug panel's next floor
+  `FloorOverrides` (`World.overrides`). Same seed, same floor: `FloorDeterminismTests` (unit)
+  fingerprints a floor of every kind, and one picked up again, against recorded values.
 - **World** generates a `DungeonMap`, rolls the floor's curse or event (`FloorRoute.roll_twist()`,
   the one roller, also the ways down's), builds its `FloorRules` (difficulty x event x curse x
   depth, and the run's boons for drops and gold: `drop_quality()`, `floor_gold()`; ask it, never
@@ -182,7 +209,7 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
     are a `BossBrain` (`Monster.brain`, made for a `BossDef` only; its numbers on the `BossDef`).
   - **Sleep**: what isn't seen isn't run. A few times a second the World lets monsters off screen
     (beyond a 256 px margin) and out of reach of the hero sleep: no AI, no movement, no animation
-    (`Monster.set_awake()`, `World.awake_monsters`). Hunting monsters and bosses stay awake; a hit
+    (`Monster.set_awake()`, `ActivityManager`, `World.activity.awake`). Hunting monsters and bosses stay awake; a hit
     wakes a sleeper. On a crowded Nightmare floor, monsters cost about a quarter of what they did.
 - **Game** offers the perk choices (pausing the game; a level up's only when the player taps the
   perk button, `open_offers()`) and reacts to boss fights through `Events`. Its `Interactor` gives

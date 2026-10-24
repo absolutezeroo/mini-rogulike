@@ -148,8 +148,8 @@ func run_game(game: Game) -> void:
 	for a in dungeon.acts.size():
 		for biome in dungeon.acts[a].biomes:
 			for attempt in 2:
-				game.world.forced_biome = biome
-				await game.debug_enter_floor(dungeon.first_depth(a) + 1 + attempt)
+				game.world.overrides.biome = biome
+				await game.debug.enter_floor(dungeon.first_depth(a) + 1 + attempt)
 				var world := game.world
 				var case_name := "%s#%d" % [biome.id, attempt]
 				problems.append_array(_spawned_into_each_other(world, case_name))
@@ -168,8 +168,8 @@ func run_game(game: Game) -> void:
 	mixed.room_shapes = every
 	mixed.plain_weight = 5
 	for attempt in 3:
-		game.world.forced_biome = mixed
-		await game.debug_enter_floor(2 + attempt * 3)
+		game.world.overrides.biome = mixed
+		await game.debug.enter_floor(2 + attempt * 3)
 		var world := game.world
 		problems.append_array(_spawned_into_each_other(world, "all shapes#%d" % attempt))
 		await _frames(2)
@@ -204,8 +204,8 @@ func _test_set_pieces(game: Game) -> void:
 				var forced: BiomeDef = biome.duplicate()
 				forced.set_pieces = [piece] as Array[RoomShapeDef]
 				forced.set_piece_chance = 1.0
-				game.world.forced_biome = forced
-				await game.debug_enter_floor(dungeon.first_depth(a) + 1)
+				game.world.overrides.biome = forced
+				await game.debug.enter_floor(dungeon.first_depth(a) + 1)
 				var world := game.world
 				problems.append_array(_spawned_into_each_other(world, String(piece.id)))
 				await _frames(2)
@@ -253,8 +253,8 @@ func _test_ceilings(game: Game) -> void:
 			check(biome.ceiling != null and biome.ceiling.atlas != null and not biome.ceiling.pieces.is_empty(), "%s: something hangs over its rooms" % biome.id)
 			var pieces := 0
 			for attempt in 2:
-				game.world.forced_biome = biome
-				await game.debug_enter_floor(dungeon.first_depth(a) + 1 + attempt)
+				game.world.overrides.biome = biome
+				await game.debug.enter_floor(dungeon.first_depth(a) + 1 + attempt)
 				var ceiling := game.world.ceiling
 				if ceiling == null:
 					continue
@@ -270,8 +270,8 @@ func _test_ceilings(game: Game) -> void:
 	check(off_grid.is_empty(), "every ceiling piece lies on the art's grid, drawn at 2x (%s)" % ", ".join(off_grid.slice(0, 3)))
 	check(kinds.size() == CeilingPieceDef.Where.size(), "pieces hang from top walls, side walls, corners, over the rooms and across them (%d kinds)" % kinds.size())
 	# Its layers: over the bodies, under the floor's light and the mist; shadows under the bodies.
-	game.world.forced_biome = load("res://data/biomes/crypt.tres")
-	await game.debug_enter_floor(dungeon.first_depth(1) + 1)
+	game.world.overrides.biome = load("res://data/biomes/crypt.tres")
+	await game.debug.enter_floor(dungeon.first_depth(1) + 1)
 	var world := game.world
 	var layer := world.ceiling
 	check(layer != null and not layer.laid.is_empty(), "the crypt's floor has its chains and webs")
@@ -312,7 +312,7 @@ func _test_ceilings(game: Game) -> void:
 		if dungeon.boss_for_depth(depth) != null:
 			boss_depth = depth
 			break
-	await game.debug_enter_floor(boss_depth)
+	await game.debug.enter_floor(boss_depth)
 	world = game.world
 	var over_arena := world.ceiling.laid.filter(func(one: CeilingLayer.Laid) -> bool: return world.map.boss_room.has_point(world.map.world_to_cell(one.under))) if world.ceiling else []
 	check(over_arena.is_empty(), "nothing hangs over a boss arena")

@@ -6,6 +6,9 @@ extends Node
 ## wait in an OfferQueue (a level up's until the player opens them: open_offers()); the panels
 ## live in GameMenus; the merchant, the forge, encounters and pacts open through the Interactor
 ## (the HUD's Interact button), never by walking up to them.
+## What the run says and shows (banners, toasts, the souls, the clock, the log's lines) is the
+## RunAnnouncer's, listening to Events: the Game emits and keeps to the flow. Its debug entry
+## points are GameDebug's (`debug`). Every floor is reached through transition_to_floor().
 
 const PLAYER_SCENE := preload("res://src/entities/player/player.tscn")
 const TITLE_SCENE := "res://src/ui/title/title_screen.tscn"
@@ -15,8 +18,6 @@ const RELIC_DELAY := 1.6
 ## Pause between the last form's death at the bottom of the Well and the choice of an ending
 ## (its death plays out: the mask crumbles, its keeper is set down).
 const ENDING_DELAY := 2.8
-## Seconds a warden's last words wait after its fall (its death starts to play).
-const LAST_WORDS_DELAY := 0.4
 ## Seconds of fade to black when taking the stairs.
 const FADE_TIME := 0.3
 
@@ -89,6 +90,10 @@ var _into_hidden := false
 var interactor := Interactor.new()
 ## A warden's story told as the hero walks into its arena (the World's storyteller).
 var meeting := BossMeeting.new()
+## Shows and says what the run does (Events -> the HUD and the log).
+var announcer := RunAnnouncer.new()
+## The debug entry points (the debug panel, the tests, the tools).
+var debug := GameDebug.new(self)
 ## The player opened the perk choices (the HUD's perk button): they follow one another until
 ## none is left or one is put off. Otherwise only those that come up by themselves show (relics).
 var _choosing := false
@@ -107,7 +112,6 @@ func _ready() -> void:
 	add_child(_hunt)
 	_setup_tutorial()
 	run_timer.name = "RunTimer"
-	run_timer.hud = hud
 	run_timer.is_counting = _is_clock_running
 	add_child(run_timer)
 	_setup_threshold()
@@ -122,8 +126,11 @@ func _ready() -> void:
 	hidden.game = self
 	hidden.def = content.dungeon.hidden_floor
 	add_child(hidden)  # (before the Game's own boss handler: its hoard is in the save)
+	announcer.name = "RunAnnouncer"
+	announcer.game = self
+	announcer.hud = hud
+	add_child(announcer)  # (before the Game's own Events: its lines come first, as they did)
 	world.stairs_reached.connect(_on_stairs_reached)
-	world.set_piece_entered.connect(_on_set_piece_entered)
 	hud.bind_world(world)
 	hud.inventory_requested.connect(open_inventory)
 	hud.pause_requested.connect(open_pause_menu)
@@ -184,25 +191,16 @@ func _connect_events() -> void:
 	Events.encounter_requested.connect(open_encounter)
 	Events.pact_requested.connect(open_pact)
 	Events.fragment_requested.connect(open_fragment)
-	Events.deed_done.connect(_on_deed_done)
 	Events.pact_ended.connect(_on_pact_ended)
 	Events.perk_offer_requested.connect(func(rarity: int, title: String, subtitle: String) -> void:
 		_queue_offer(rarity as PerkDef.Rarity, PERK_CHOICES, title, subtitle))
-	Events.soul_gathered.connect(func() -> void: hud.set_souls(run_souls(), true))
 	Events.boss_started.connect(_on_boss_started)
 	Events.boss_defeated.connect(_on_boss_defeated)
 	Events.boss_rising.connect(_on_boss_rising)
 	Events.monster_killed.connect(func(monster: Monster) -> void:
-		if monster.world == world and monster.def is BossDef:
-			if (monster.def as BossDef).next_boss:
-				Sfx.stop_music(0.6)  # its music dies with it: silence while the next form rises
-			_say_last_words(monster.def as BossDef))
+		if monster.world == world and monster.def is BossDef and (monster.def as BossDef).next_boss:
+			Sfx.stop_music(0.6))  # its music dies with it: silence while the next form rises
 	menus.ending.chosen.connect(_on_ending_chosen)
-	Events.ambush_started.connect(func(_room: AmbushRoom) -> void:
-		Events.log_message(tr("It's a trap! Survive the waves."), Palette.DANGER))
-	Events.ambush_cleared.connect(func(_room: AmbushRoom) -> void:
-		Sfx.play_ui(Sfx.bank.boss_defeated)
-		Events.log_message(tr("The room falls silent. A chest appears..."), Palette.GOLD))
 
 
 # --- Runs --------------------------------------------------------------------
@@ -294,21 +292,16 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	interactor.player = player
 	hud.bind_player(player)
 	tutorial.bind(player, world, hud)
-	_announce_remote(saved.is_empty())
 	if show_act_cards:
 		# Start on black: the first act's card, then the floor fades in.
 		_fade.color.a = 1.0
 		_set_paused(true)
-		_transitioning = true
-		_enter_floor(not saved.is_empty())
-		await _show_cards()
-		_transitioning = false
-		_set_paused(is_menu_open())
+		await transition_to_floor(not saved.is_empty(), false)  # (the offers left open: below)
 		create_tween().tween_property(_fade, "color:a", 0.0, FADE_TIME * 1.5)
 	else:
 		_enter_floor(not saved.is_empty())
 	if RunSave.floor_outdated(saved):
-		hud.toast(tr("The Well has shifted since you left: this floor is laid anew."))
+		Events.floor_laid_anew.emit()
 	tutorial.cue(&"run_start")
 	if run.ending_due:
 		# Won at the bottom, the ending not chosen yet: the souls were given at the win, and the
@@ -325,11 +318,9 @@ func _is_clock_running() -> bool:
 		and not game_over_panel.visible and not act_card.visible and not curse_card.visible
 
 
-## The floor `floor_depth` is done: its split, against the record run's.
+## The floor `floor_depth` is done: its split kept (RunState.split()), and shown.
 func _split(floor_depth: int) -> void:
-	var time := run.split(floor_depth)
-	var record := Profile.best_split(run.record_key(), floor_depth)
-	hud.show_split(floor_depth, time, time - record if record > 0.0 else NAN)
+	Events.split_timed.emit(floor_depth, run.split(floor_depth))
 
 
 func _setup_tutorial() -> void:
@@ -392,18 +383,6 @@ func _setup_interactor() -> void:
 ## False if nothing is in reach.
 func interact() -> bool:
 	return interactor.interact()
-
-
-## A new run says in the log what the remote settings put on it (RemoteConfig): a running event,
-## the Dawn Knell's omen.
-func _announce_remote(new_run: bool) -> void:
-	if not new_run:
-		return
-	if not run.tuning.event_name.is_empty():
-		Events.log_message(tr("The Well's event: %s") % run.tuning.event_name, Palette.GOLD)
-	var omen := DailyRun.twist(content, run.tuning.omen)
-	if omen:
-		Events.log_message(tr("Today's omen: %s") % tr(omen.display_name), omen.color)
 
 
 ## The daily run's weapon and relic (the same for everyone that day).
@@ -506,14 +485,6 @@ func open_fragment(piece: Fragment) -> void:
 	menus.fragment.open(piece.def, piece.boss, first)
 
 
-## A warden fell the way one of its deeds asks: the Well remembers.
-func _on_deed_done(boss: BossDef, _deed: DeedCondition) -> void:
-	if content.narrative and not content.narrative.deed_message.is_empty():
-		var line := tr(content.narrative.deed_message) % tr(boss.display_name)
-		Events.log_message(line, UiSkin.GOLD)
-		hud.toast(line)
-
-
 func open_shop(merchant: Merchant) -> void:
 	if _can_open_menu():
 		Sfx.play_ui(Sfx.bank.ui_open)
@@ -549,100 +520,6 @@ func open_debug() -> void:
 	if menus.debug and _can_open_menu():
 		_set_paused(true)
 		menus.debug.open(self)
-
-
-## Debug: builds floor `target` right away, with that curse or event (or a plain floor). A floor
-## of the dungeon, even from the hidden floor or the bottom of the Well.
-func debug_enter_floor(target: int, curse: CurseDef = null, event: FloorEventDef = null, plain: bool = false) -> void:
-	world.forced_curse = curse
-	world.forced_event = event
-	world.forced_plain = plain or (curse == null and event == null)
-	threshold.abort()
-	abyss.abort()
-	run.hidden_floor = false
-	run.finale = false
-	depth = target
-	_transitioning = true
-	_enter_floor(true)
-	await _show_cards()
-	_transitioning = false
-	_set_paused(is_menu_open())
-	_show_next_offer()
-
-
-## Debug: the bottom of the Well right away (FinaleDef), as if the last act's boss had led there.
-## `keeper`: the Nameless Keeper waits there, made from the hero as he is now (a snapshot of this
-## run, never the profile's); otherwise Tôma and the Maw.
-func debug_enter_finale(keeper: bool = false) -> void:
-	if content.dungeon.finale == null:
-		return
-	threshold.abort()
-	abyss.abort()
-	run.keeper = KeeperSnapshot.take(player, run) if keeper else {}
-	run.build_keeper(content)
-	run.finale_open = true
-	run.has_won = false
-	run.hidden_floor = false
-	run.finale = true
-	depth = content.dungeon.total_floors()
-	_transitioning = true
-	_enter_floor(true)
-	await _show_cards()
-	_transitioning = false
-	_set_paused(is_menu_open())
-	_show_next_offer()
-
-
-## Debug: the hidden floor right away (HiddenFloorDef), as if its key had opened the way after the
-## boss of its first key act.
-func debug_enter_hidden() -> void:
-	var hidden_def := content.dungeon.hidden_floor
-	if hidden_def == null:
-		return
-	threshold.abort()
-	abyss.abort()
-	run.finale = false
-	run.hidden_floor = true
-	var act := clampi(hidden_def.key_acts[0] if not hidden_def.key_acts.is_empty() else 0, 0, content.dungeon.acts.size() - 1)
-	depth = content.dungeon.first_depth(act) + content.dungeon.acts[act].floors - 1
-	_transitioning = true
-	_enter_floor(true)
-	await _show_cards()
-	_transitioning = false
-	_set_paused(is_menu_open())
-	_show_next_offer()
-
-
-## Debug: is there a warden standing on this floor whose story can be told (debug_boss_story())?
-func debug_boss_story_ready() -> bool:
-	var arena := world.arena
-	return arena != null and is_instance_valid(arena.boss) and not arena.boss.is_dead and not meeting.is_playing()
-
-
-## Debug: the warden of this floor tells its story now (its cinematic, as when the hero walks into
-## its arena), even if it was told on this floor already; the fight starts as usual, when the hero
-## walks in. A debug run (the meeting counts in the profile). False if no warden stands here.
-func debug_boss_story() -> bool:
-	if not debug_boss_story_ready():
-		return false
-	DebugCheats.mark_run()
-	run.met_floors.erase(run.floor_key())
-	meeting.meet(world.arena.boss)
-	return true
-
-
-## Debug: saves the run and picks it up again at once, as the title's Continue would (a fresh
-## floor at the same depth, the hero as saved). False when nothing could be saved (a debug run,
-## the Threshold, the Deeps).
-func debug_reload() -> bool:
-	if DebugCheats.debug_run or threshold.is_open() or abyss.is_open():
-		return false
-	_save_run()
-	var saved := RunSave.read()
-	if saved.is_empty():
-		return false
-	resume_run(saved)
-	return true
 
 
 func _can_open_menu() -> bool:
@@ -725,8 +602,7 @@ func _enter_floor(resumed: bool = false) -> void:
 		Profile.best_depth = maxi(Profile.best_depth, depth)
 	_records.check_achievements()
 	Events.depth_changed.emit(depth)
-	hud.set_souls(run_souls())
-	_announce_floor()
+	Events.floor_entered.emit(world)  # (the RunAnnouncer: the souls, the act, the twist, the goal)
 	tutorial.cue(&"floor_start")
 	if world.curse:
 		tutorial.cue(&"cursed_floor")
@@ -760,34 +636,6 @@ func _fight_act() -> ActDef:
 	return content.dungeon.act_for_depth(depth)
 
 
-## The log (and banners when the cards are off): the act, the floor's event or curse, the goal.
-func _announce_floor() -> void:
-	var act := content.dungeon.act_for_depth(depth)
-	if act and content.dungeon.floor_in_act(depth) == 1:
-		if not show_act_cards:
-			hud.show_banner(tr(act.title))
-		Events.log_message(tr("%s: %s") % [tr(act.subtitle), tr(act.title)], Palette.GOLD)
-	if world.floor_event:
-		hud.show_banner(tr(world.floor_event.display_name), world.floor_event.color)
-		Events.log_message(tr(world.floor_event.description), world.floor_event.color)
-	if world.curse:
-		if not show_act_cards:
-			hud.show_banner(tr(world.curse.display_name), world.curse.color)
-		Events.log_message(tr("Cursed: %s. %s") % [tr(world.curse.display_name), tr(world.curse.description)], world.curse.color)
-	if world.hidden_floor:
-		hud.show_banner(tr(world.hidden_floor.title), world.hidden_floor.color)
-		Events.log_message(tr(world.hidden_floor.lore), world.hidden_floor.color)
-	if world.finale:
-		hud.show_banner(tr(world.finale.title), world.finale.color)
-		Events.log_message(tr(world.finale.lore), world.finale.color)
-	if world.arena:
-		Events.log_message(tr("Depth %d. Something vast waits in the dark...") % depth, Palette.DANGER)
-	elif world.seal.is_sealed():
-		Events.log_message(tr("Depth %d. The stairs are sealed: slay %d monsters to open them.") % [depth, world.seal.needed], Palette.SEAL)
-	else:
-		Events.log_message(tr("Depth %d. Find the stairs!") % depth, Palette.GOLD)
-
-
 ## The way the hero took to floor `floor_depth`, or null (no choice there).
 func _route_to(floor_depth: int) -> FloorRoute:
 	if not run.routes.has(floor_depth):
@@ -795,14 +643,6 @@ func _route_to(floor_depth: int) -> FloorRoute:
 	var offered := FloorRoute.offer(content, floor_depth, difficulty, run.route_seed(floor_depth), run.tuning)
 	var index: int = run.routes[floor_depth]
 	return offered[index] if index >= 0 and index < offered.size() else null
-
-
-## A signature room of the floor (RoomShapeDef.set_piece), the first time: its name on a banner,
-## its line in the log.
-func _on_set_piece_entered(shape: RoomShapeDef) -> void:
-	hud.show_banner(tr(shape.display_name), shape.color)
-	if not shape.description.is_empty():
-		Events.log_message(tr(shape.description), shape.color)
 
 
 func _on_stairs_reached(route: int = 0) -> void:
@@ -835,12 +675,23 @@ func _descend() -> void:
 	run.finale = into_finale
 	if not run.hidden_floor and not run.finale:
 		depth += 1  # only now: a save during the fade still points at the floor being left
-	_enter_floor()
+	await transition_to_floor()
+	create_tween().tween_property(_fade, "color:a", 0.0, FADE_TIME * 1.5)
+
+
+## The one way onto a floor (the stairs, a run's first floor under its cards, the debug panel's):
+## held like a menu while it builds (no menus, no saves, no second descent), the floor built
+## (_enter_floor(); `resumed`: a saved run picked up, or the debug panel), its cards over black,
+## then the game goes on: unpaused unless a menu is open, and the perk choice that is due shown
+## (`show_offers` false: the caller shows them itself).
+func transition_to_floor(resumed: bool = false, show_offers: bool = true) -> void:
+	_transitioning = true
+	_enter_floor(resumed)
 	await _show_cards()
 	_transitioning = false
 	_set_paused(is_menu_open())
-	_show_next_offer()
-	create_tween().tween_property(_fade, "color:a", 0.0, FADE_TIME * 1.5)
+	if show_offers:
+		_show_next_offer()
 
 
 ## Over black, with cards on: the act's title card on its first floor, then the curse's card
@@ -861,32 +712,12 @@ func _show_cards() -> void:
 
 # --- Bosses ------------------------------------------------------------------
 
+## The view leans toward the warden, its music plays (its name: the RunAnnouncer).
 func _on_boss_started(boss: Monster) -> void:
 	var def := boss.def as BossDef
-	if meeting.last_told != boss.get_instance_id():
-		hud.show_banner(tr(boss.display_name), Palette.DANGER)  # (a cinematic already named it)
-	if def and not def.title.is_empty():
-		Events.log_message(tr("{name}, {title}").format({ "name": tr(boss.display_name), "title": tr(def.title) }), Palette.DANGER)
 	if def and player:
 		player.camera.lean_toward(boss, def.camera_lean, boss.head_height * 0.45)
 	Sfx.play_music(Soundtrack.boss_music(def, _fight_act(), Sfx.bank))
-
-
-## A warden's last words (BossMeeting.last_words()), a moment after its fall (a deed just done
-## by that fall counts): in quotes on its banner, and in the log.
-func _say_last_words(def: BossDef) -> void:
-	var speaker := player
-	var floor_id := world.floor_id
-	await get_tree().create_timer(LAST_WORDS_DELAY, false).timeout
-	if player != speaker or world.floor_id != floor_id:
-		return
-	var line := meeting.last_words(def)
-	if line.is_empty():
-		return
-	var color := def.color
-	var words := tr("\"%s\"") % tr(line)
-	hud.show_banner(words, color.lightened(0.25))
-	Events.log_message(words, color.lightened(0.25))
 
 
 ## A boss' next form rises (BossDef.next_boss): no relic, no stairs; the screen darkens a moment
@@ -908,11 +739,7 @@ func _on_boss_defeated(boss: Monster) -> void:
 	if player and not (fallen and fallen.body_stays):
 		player.camera.lean_toward(null, 0.0)  # (a body that stays is still worth looking at)
 	if content.dungeon.rerolls_per_boss > 0:
-		run.rerolls += content.dungeon.rerolls_per_boss
-		Events.log_message(tr("+%d reroll for the perk choices.") % content.dungeon.rerolls_per_boss, Palette.GOLD)
-	hud.show_banner(tr("Victory Achieved"))
-	Sfx.play_ui(Sfx.bank.boss_defeated)
-	Events.log_message(tr("%s falls. The way down lies open.") % tr(boss.display_name), Palette.GOLD)
+		run.rerolls += content.dungeon.rerolls_per_boss  # (said by the RunAnnouncer, with the banner)
 	# The fight's music gives way to the sting, then the floor's comes back.
 	Sfx.stop_music(0.4)
 	Sfx.play_music(Soundtrack.floor_music(world.theme), Sfx.mix.sting_gap)

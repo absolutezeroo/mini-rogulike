@@ -50,7 +50,7 @@ func refresh() -> void:
 func stats_line() -> String:
 	var world := game.player.world if game and game.player and is_instance_valid(game.player.world) else null
 	var monsters := get_tree().get_nodes_in_group("monsters").size()
-	var awake := world.awake_monsters.size() if world else 0
+	var awake := world.activity.awake.size() if world else 0
 	var shots := world.get_node("Projectiles").get_child_count() if world else 0
 	return "%d fps | monsters %d awake / %d | shots %d | nodes %d | draw calls %d" % [
 		Engine.get_frames_per_second(), awake, monsters, shots,

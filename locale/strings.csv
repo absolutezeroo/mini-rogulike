@@ -191,21 +191,8 @@ The light takes you back up.,The light takes you back up.,La lumière te ramène
 Out before the dark closed in: the dawn leaves you a gift.,Out before the dark closed in: the dawn leaves you a gift.,Sorti avant que l'ombre ne se referme : l'aube te laisse un présent.
 Seen,Seen,Vu
 Unknown,Unknown,Inconnu
-It's a trap! Survive the waves.,It's a trap! Survive the waves.,C'est un piège ! Survis aux vagues.
-The room falls silent. A chest appears...,The room falls silent. A chest appears...,Le silence retombe sur la salle. Un coffre apparaît...
 Level %d!,Level %d!,Niveau %d !
-The Well has shifted since you left: this floor is laid anew.,The Well has shifted since you left: this floor is laid anew.,Le Puits a remué depuis ton départ : cet étage se dessine à nouveau.
-The Well's event: %s,The Well's event: %s,Événement du Puits : %s
-Today's omen: %s,Today's omen: %s,Présage du jour : %s
 The pact is kept. Choose a relic.,The pact is kept. Choose a relic.,Le pacte est tenu. Choisis une relique.
-Cursed: %s. %s,Cursed: %s. %s,Maudit : %s. %s
-Depth %d. Something vast waits in the dark...,Depth %d. Something vast waits in the dark...,Étage %d. Quelque chose d'immense t'attend dans le noir...
-Depth %d. The stairs are sealed: slay %d monsters to open them.,Depth %d. The stairs are sealed: slay %d monsters to open them.,Étage %d. Les escaliers sont scellés : abats %d monstres pour les ouvrir.
-Depth %d. Find the stairs!,Depth %d. Find the stairs!,Étage %d. Trouve les escaliers !
-"{name}, {title}","{name}, {title}","{name}, {title}"
-+%d reroll for the perk choices.,+%d reroll for the perk choices.,+%d relance pour les choix d'atouts.
-Victory Achieved,Victory Achieved,Victoire Acquise
-%s falls. The way down lies open.,%s falls. The way down lies open.,%s s'effondre. La voie des profondeurs s'ouvre.
 New record: %s!,New record: %s!,Nouveau record : %s !
 "Endless mode: the dungeon goes on, harder and harder.","Endless mode: the dungeon goes on, harder and harder.","Mode sans fin : le donjon continue, de plus en plus dur."
 New record!,New record!,Nouveau record !
@@ -218,6 +205,19 @@ The hidden floor gives up its hoard: +%d souls.,The hidden floor gives up its ho
 A relic lies in the warden's remains. Choose one.,A relic lies in the warden's remains. Choose one.,Une relique gît dans les restes du gardien. Choisis-en une.
 %dd %dh,%dd %dh,%d j %d h
 %dh %02dm,%dh %02dm,%d h %02d min
+The Well has shifted since you left: this floor is laid anew.,The Well has shifted since you left: this floor is laid anew.,Le Puits a remué depuis ton départ : cet étage se dessine à nouveau.
+It's a trap! Survive the waves.,It's a trap! Survive the waves.,C'est un piège ! Survis aux vagues.
+The room falls silent. A chest appears...,The room falls silent. A chest appears...,Le silence retombe sur la salle. Un coffre apparaît...
+The Well's event: %s,The Well's event: %s,Événement du Puits : %s
+Today's omen: %s,Today's omen: %s,Présage du jour : %s
+Cursed: %s. %s,Cursed: %s. %s,Maudit : %s. %s
+Depth %d. Something vast waits in the dark...,Depth %d. Something vast waits in the dark...,Étage %d. Quelque chose d'immense t'attend dans le noir...
+Depth %d. The stairs are sealed: slay %d monsters to open them.,Depth %d. The stairs are sealed: slay %d monsters to open them.,Étage %d. Les escaliers sont scellés : abats %d monstres pour les ouvrir.
+Depth %d. Find the stairs!,Depth %d. Find the stairs!,Étage %d. Trouve les escaliers !
+"{name}, {title}","{name}, {title}","{name}, {title}"
++%d reroll for the perk choices.,+%d reroll for the perk choices.,+%d relance pour les choix d'atouts.
+Victory Achieved,Victory Achieved,Victoire Acquise
+%s falls. The way down lies open.,%s falls. The way down lies open.,%s s'effondre. La voie des profondeurs s'ouvre.
 A Celestial %s! It joins the bestiary's collection.,A Celestial %s! It joins the bestiary's collection.,Nouvelle prise pour le bestiaire : %s Céleste !
 Difficulty,Difficulty,Difficulté
 Reached,Reached,Atteint

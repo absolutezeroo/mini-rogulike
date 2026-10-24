@@ -17,15 +17,11 @@ const MONSTER_SCENE := preload("res://src/entities/monster/monster.tscn")
 const PICKUP_SCENE := preload("res://src/entities/pickup/item_pickup.tscn")
 const PROJECTILE_SCENE := preload("res://src/entities/projectile/projectile.tscn")
 const STAIRS_SCENE := preload("res://src/entities/stairs/stairs.tscn")
-const ARENA_SCENE := preload("res://src/world/boss_arena.tscn")
 const PROP_SCENE := preload("res://src/entities/prop/prop.tscn")
 const TRAP_SCENE := preload("res://src/entities/trap/trap.tscn")
 const FLASH_SCENE := preload("res://src/vfx/light_flash.tscn")
-## Pixels of a hole's edge you can stand on without falling.
-const PIT_EDGE := 6.0
-## Room a body put down on the floor needs around it (find_open_point_near()): the usual
-## monsters' bodies, an elite's grown one included. A bigger one asks for its own radius.
-const BODY_ROOM := 14.0
+## Room a body put down on the floor needs around it (find_open_point_near(), WorldSpace).
+const BODY_ROOM := WorldSpace.BODY_ROOM
 
 ## Goes up with every floor built: delayed effects started on an old floor are dropped.
 var floor_id := 0
@@ -47,8 +43,6 @@ var difficulty: DifficultyDef:
 ## Boss floors only: the arena and its boss (null on normal floors), and its plan (ArenaDef).
 var arena: BossArena
 var arena_plan: ArenaDef
-## Debug: the next arena is this one. Used once.
-var forced_arena: ArenaDef
 ## The run's remote settings (RunState.tuning, set by the Game at the run's start): a running
 ## event's boosted floor event and the Dawn Knell's omen. Null: none.
 var tuning: RemoteTuning
@@ -63,11 +57,9 @@ var biome: BiomeDef
 var grounds := {}
 ## Difficulty, event and depth combined: ask it how hard and rewarding this floor is.
 var rules: FloorRules
-## Debug (DebugPanel): the next floor built gets this curse or event instead of rolling one
-## (and neither if `forced_plain`). Used once.
-var forced_curse: CurseDef
-var forced_event: FloorEventDef
-var forced_plain := false
+## Debug: what the next floor gets instead of rolling it (its twist, biome, map, arena, boss
+## rank), each used once.
+var overrides := FloorOverrides.new()
 ## The floors built from now on leave out their monsters and loose items, the last things a
 ## floor places (FloorPopulator): everything else lands where it would. For the balance tools,
 ## which spawn their own fights on a floor's ground and would only clear these away.
@@ -84,15 +76,8 @@ var boons := RunBoons.new():
 		if rules:
 			rules.boons = value  # the floor's drops and gold ask its rules (FloorRules.boons)
 
-## Debug: the next floor built is this biome. Used once.
-var forced_biome: BiomeDef
-## Debug (the debug panel's monster gallery, DebugGallery): the next floor that has no boss is
-## this map instead of a generated one. Used once.
-var forced_map: DungeonMap
 ## The floor's light color and brightness (its difficulty, curse and event): relight().
 var _light_tint := Color.WHITE
-## Debug: the next boss comes at this rank. Used once.
-var forced_boss_rank: MonsterRankDef
 ## The boss of each act for this run (an act may have several; the game draws one per run).
 ## Empty or null entries: the act's main boss.
 var run_bosses: Array[BossDef] = []
@@ -114,25 +99,9 @@ var kept_stock: Array[Dictionary] = []
 var floors_without_forge := 0
 ## The same, when this floor began (what a save keeps: a resumed run makes the floor again).
 var forge_drought_at_start := 0
-## What the hero already took from this floor (a resumed run rebuilds the same floor from its
-## seed: these stay taken). Cells of opened chests, items bought from the merchant (saved form).
-var opened_chests: Array[Vector2i] = []
-var bought: Array = []
-## Hole cells filled in on this floor (seal_hole: the hole the hero fell into the Deeps through),
-## saved with the floor so a resumed run doesn't find it open again.
-var sealed_cells: Array[Vector2i] = []
-## Cracked floor cells that gave way on this floor (CrumblingFloor), saved with the floor so a
-## resumed run finds a hole there, not the crack its seed lays again.
-var collapsed_cells: Array[Vector2i] = []
-## The floor's own monsters slain on it (Monster.floor_index), each saved as [floor_index, id]: a
-## resumed run rebuilds the floor from its seed and leaves these out. The id is a guard: a
-## monster whose number came out as another kind (a floor not rebuilt quite the same) stays.
-var slain_spawns: Array = []
 ## What the hero used up of the things the floor's seed laid (items lying around, gold, props,
 ## encounters), kept for the save the same way (FloorLedger).
 var ledger := FloorLedger.new()
-## Set before rebuilding a saved floor (restore_spent), used once by build_floor.
-var _to_restore := {}
 ## Where the stairs are (boss floors get theirs when the boss dies).
 var stairs_cells: Array[Vector2i] = []
 ## Normal floors: the stairs open once enough of the floor's monsters are slain.
@@ -159,30 +128,29 @@ var _set_pieces := {}
 var fog := FogOfWar.new()
 
 var _content: ContentDB
-## What lies on the floor's cells, by cell or by kind (asked every frame: no group scans).
-var _cracks := {}
+## What lies on the floor, by kind (asked every frame: no group scans).
 var _heat_sources: Array[HeatSource] = []
 var _splats: SplatLayer
 var _dark_rooms: Array[DarkRoom] = []
 ## When the hero was last told the stairs are sealed (seconds).
 var _blocked_note_at := -10.0
-## The monsters thinking this moment (the others sleep: off screen and far from the hero).
-## Refreshed a few times a second (see _update_activity()).
-var awake_monsters: Array = []  # (untyped: one may be freed before the next refresh)
-var _activity_timer := 0.0
-## Seconds between two looks at who sleeps and who wakes.
-const ACTIVITY_INTERVAL := 0.2
-## Monsters this far past the screen's edge still think (they may walk in any moment).
-const WAKE_MARGIN := 256.0
+## Who thinks this moment and who sleeps (off screen and far from the hero).
+var activity := ActivityManager.new(self)
+## Questions about the floor's space: free cells, where a body fits, line of sight (asked
+## through the World's methods of the same names).
+var space := WorldSpace.new(self)
 
 @onready var _view: DungeonView = $DungeonView
-@onready var _pits: PitLayer = $Pits
 @onready var _walls: StaticBody2D = $Walls
 @onready var _entities: Node2D = $Entities
 @onready var _projectiles: Node2D = $Projectiles
 @onready var _effects: Node2D = $Effects
 ## The floor's light, in steps (lamps, torch, glowing shots, flashes).
 @onready var lights: LightField = $Lights
+## The floor's holes and cracked floor, and those filled or given way (for the save).
+@onready var holes := HoleField.new(self, $Pits as PitLayer)
+## The floor's part of the run's save: what the hero changed on it, laid back on a rebuilt floor.
+@onready var floor_save := FloorSave.new(self, _entities)
 
 
 # --- Floor lifecycle ---------------------------------------------------------
@@ -194,68 +162,31 @@ func _ready() -> void:
 	BodyLook.warm_up(self)  # the body shader compiled while loading, not at the first burn
 
 
-## `taken`: the way down the hero chose to get here (its world, curse or event), or null.
+## Builds floor `new_depth` on the floor's dice (`rng`, seeded by the Game): what every floor
+## shares here, always in this order; what its kind does (its boss, twist, world, arena, map, what
+## lies on it) by its FloorKind, chosen from the run's state. `taken`: the way down the hero chose
+## to get here (its world, curse or event), or null.
 func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -> void:
 	clear_floor()
 	route = taken
 	floor_id += 1
 	depth = new_depth
 	combat_rng.seed = hash("%d-combat" % rng.seed)
-	opened_chests.clear()
-	bought.clear()
-	sealed_cells.clear()
-	collapsed_cells.clear()
-	slain_spawns.clear()
+	floor_save.reset()
+	holes.forget()
 	ledger.reset()
 	ledger.numbering = true  # (until the floor is laid: what comes later is never laid again)
 	forge_drought_at_start = floors_without_forge
 	_content = content
-	var hidden_def := hidden_floor
-	var bottom := finale
-	var boss := hidden_def.boss if hidden_def else content.dungeon.boss_for_depth(depth)
-	var act_index := content.dungeon.act_index(depth)
-	if boss and not hidden_def and act_index < run_bosses.size() and run_bosses[act_index] != null:
-		boss = run_bosses[act_index]
-	if bottom:
-		boss = finale_boss if finale_boss else bottom.boss
-	floor_event = null
-	curse = null
-	if forced_curse or forced_event or forced_plain:
-		curse = forced_curse
-		floor_event = forced_event
-		forced_curse = null
-		forced_event = null
-		forced_plain = false
-	elif taken != null and boss == null:
-		curse = taken.curse
-		floor_event = taken.floor_event
-	elif boss == null and depth > 1:
-		var rolled := FloorRoute.roll_twist(content, depth, rng, difficulty, tuning)
-		curse = rolled.curse
-		floor_event = rolled.floor_event
-		# The Dawn Knell's omen (remote settings) on every normal floor, after the usual rolls.
-		var omen := FloorRoute.omen_of(content, tuning)
-		if omen and not hidden_def and not bottom:
-			curse = omen as CurseDef
-			floor_event = omen as FloorEventDef
-	arena_plan = null
+	var kind := FloorKind.choose(self, content, taken)
+	var twist := kind.twist(self, content)
+	curse = twist.curse if twist else null
+	floor_event = twist.floor_event if twist else null
 	# The world first: its rooms take its shapes (BiomeDef.room_shapes).
-	biome = hidden_def.biome if hidden_def and hidden_def.biome else _pick_biome(content, boss != null)
-	if bottom and bottom.biome:
-		biome = bottom.biome
-	if boss:
-		arena_plan = _pick_arena(boss, content.dungeon)
-		if bottom and bottom.arena:
-			arena_plan = bottom.arena
-		if hidden_def:
-			map = DungeonGenerator.generate_hidden(content.dungeon, rng, arena_plan, hidden_def.rooms)
-		else:
-			map = DungeonGenerator.generate_arena(content.dungeon, rng, arena_plan)
-	elif forced_map:
-		map = forced_map
-	else:
-		map = DungeonGenerator.generate(content.dungeon, rng, difficulty.floor_size if difficulty else 1.0, difficulty.rooms if difficulty else 1.0, biome, depth)
-	forced_map = null
+	biome = kind.pick_biome(self, content)
+	arena_plan = kind.pick_arena(self, content)
+	map = kind.generate(self, content)
+	overrides.map = null
 	theme = biome.theme if biome else null
 	rules = FloorRules.make(content.dungeon, difficulty, floor_event, depth, curse)
 	rules.boons = boons
@@ -263,37 +194,17 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 	_view.show_map(map, theme)
 	relight()
 	_view.mist.bind_light(lights)
-	_pits.setup(map.tile_size)
+	holes.setup(map.tile_size)
 	fog.reset(map)
 	stairs_cells.clear()
 	WallBuilder.build(map, _walls)
 	nav.build(map)
 	RoomFeatures.lay(self)  # the shaped rooms' chasms, pools and pillars
-	if boss:
-		# No stairs until the boss is dead: the arena spawns them.
-		arena = ARENA_SCENE.instantiate() as BossArena
-		_entities.add_child(arena)
-		arena.setup(self, boss, arena_plan)
-		for room in map.rooms:
-			# The bottom of the Well: its own lamps in the arena (the hero's lantern, mostly).
-			var lamps := bottom.arena_lights if bottom and room == map.boss_room else -1
-			FloorPopulator.place_lights(self, content.dungeon, room, {}, lamps)
-		FloorDresser.dress(self, {}, false)  # the arena keeps clear: grounds and decor only
-		if hidden_def:
-			hidden_def.populate(self)
-		seal.clear()
-	else:
-		var exits := spawn_exits()
-		FloorPopulator.populate(self, content, depth)
-		secrets = SecretRoom.spawn_all(self)
-		seal.reset(monster_count(), content.dungeon.seal_share, content.dungeon.seal_reveal_left, content.dungeon.seal_max)
-		for stairs in exits:
-			stairs.bind_seal(seal)
-			stairs.blocked.connect(_on_stairs_blocked)
+	kind.lay(self, content)
 	ledger.numbering = false
 	# Every kind of floor: the hidden floor's rooms are laid from the seed too.
-	_apply_restore()
-	if not boss and boons.cartographer:
+	floor_save.apply()
+	if not kind.has_boss() and boons.cartographer:
 		reveal_landmarks()
 	lay_ceiling()
 	_set_pieces.clear()
@@ -327,14 +238,12 @@ func clear_floor() -> void:
 	ceiling = null
 	fragment = null
 	fragment_taken = false
-	awake_monsters.clear()
-	_activity_timer = 0.0
-	_cracks.clear()
+	activity.clear()
 	grounds.clear()
 	_heat_sources.clear()
 	_dark_rooms.clear()
-	if _pits:
-		_pits.clear()
+	if holes:
+		holes.clear()
 	for layer: Node in [_entities, _projectiles, _effects, _walls]:
 		for child in layer.get_children():
 			if child != player:
@@ -364,7 +273,7 @@ func bestiary_rules() -> BestiaryRules:
 	return _content.bestiary if _content else null
 
 
-## (Awake until the next look at who sleeps: see _update_activity().)
+## (Awake until the next look at who sleeps: see ActivityManager.)
 func spawn_monster(def: MonsterDef, at: Vector2) -> Monster:
 	var monster := MONSTER_SCENE.instantiate() as Monster
 	monster.world = self
@@ -527,28 +436,6 @@ func fire_projectiles(shooter: Actor, direction: Vector2, spec: ProjectileSpec, 
 		_projectiles.add_child.call_deferred(projectile)
 
 
-## The boss' own arenas, else the dungeon's; null for a plain room.
-func _pick_arena(boss: BossDef, dungeon_config: DungeonConfig) -> ArenaDef:
-	var forced := forced_arena
-	forced_arena = null
-	if forced:
-		return forced
-	var pool: Array[ArenaDef] = boss.arenas if not boss.arenas.is_empty() else dungeon_config.arenas
-	return pool[rng.randi_range(0, pool.size() - 1)] if not pool.is_empty() else null
-
-
-## This floor's biome: one of its act's (the debug one if forced).
-func _pick_biome(content: ContentDB, boss: bool) -> BiomeDef:
-	var forced := forced_biome
-	forced_biome = null
-	if forced:
-		return forced
-	if route and route.biome and not boss:
-		return route.biome
-	var act := content.dungeon.act_for_depth(depth)
-	return act.pick_biome(depth, boss, rng) if act else null
-
-
 ## Props stand on a cell (the top-left one of a bigger footprint) and block it until they break.
 func spawn_prop(def: PropDef, cell: Vector2i) -> Prop:
 	var prop := PROP_SCENE.instantiate() as Prop
@@ -593,11 +480,10 @@ func roll_elite(monster: Monster) -> void:
 		make_elite(monster)
 
 
-## A boss may come at a rare rank too (a Legendary Vampiric King Slime...). `forced_boss_rank`
-## (debug) wins once.
+## A boss may come at a rare rank too (a Legendary Vampiric King Slime...). The debug panel's
+## (FloorOverrides.boss_rank) wins once.
 func roll_boss_rank(boss: Monster) -> void:
-	var forced := forced_boss_rank
-	forced_boss_rank = null
+	var forced := overrides.take_boss_rank()
 	if forced:
 		make_ranked(boss, forced)
 		return
@@ -627,37 +513,19 @@ func spawn_chest(def: ChestDef, cell: Vector2i, trapped: bool) -> Chest:
 	var chest := Chest.new()
 	chest.setup(def, self, trapped)
 	_place_on_cell(chest, cell)
-	chest.opened.connect(func(_chest: Chest) -> void: opened_chests.append(cell))
+	chest.opened.connect(func(_chest: Chest) -> void: floor_save.opened_chests.append(cell))
 	return chest
 
 
-## What was taken from this floor, for a save file. `stamp`: the build that laid it
-## (RunSave.floor_stamp(): another build may lay the same seed otherwise).
+## What was taken from this floor, for a save file (FloorSave.to_data()).
 func spent_data() -> Dictionary:
-	var merchant := floor_merchant()
-	return {
-		"stamp": RunSave.floor_stamp(),
-		"chests": opened_chests.map(func(cell: Vector2i) -> Array: return [cell.x, cell.y]),
-		"bought": bought.duplicate(),
-		"merchant": merchant.save_data() if merchant else {},
-		"secrets": SecretRoom.states(secrets),
-		"pact": pact.save_code() if pact else 0,
-		"fragment": fragment_taken,
-		"seal_kills": seal.kills,
-		"sealed": sealed_cells.map(func(cell: Vector2i) -> Array: return [cell.x, cell.y]),
-		"collapsed": collapsed_cells.map(func(cell: Vector2i) -> Array: return [cell.x, cell.y]),
-		"slain": slain_spawns.duplicate(true),
-		"spent": ledger.to_data(),
-		"ambush": _ambush_data(),
-		"wounded": _wounded_spawns(),
-		"later": _later_monsters(),
-	}
+	return floor_save.to_data()
 
 
 ## The next floor built is the saved one again: what was taken from it stays taken. `data`:
 ## spent_data() as a save file reads it (RunSave.floor_of(); anything else restores nothing).
 func restore_spent(data: Variant) -> void:
-	_to_restore = data if data is Dictionary else {}
+	floor_save.restore(data)
 
 
 ## This floor's merchant, if one waits here.
@@ -666,243 +534,6 @@ func floor_merchant() -> Merchant:
 		if merchant.world_of() == self:
 			return merchant
 	return null
-
-
-## Every field read as a save file may hold it (a damaged one is skipped, never a script error).
-func _apply_restore() -> void:
-	if _to_restore.is_empty():
-		return
-	var data := _to_restore
-	_to_restore = {}
-	SecretRoom.restore(secrets, _array(data, "secrets"))  # (its chest, if opened, is in "chests")
-	seal.restore(_number(data, "seal_kills"))  # the kills already made on this floor
-	_restore_slain(_array(data, "slain"))  # (after the seal took its count from the whole floor)
-	_restore_wounded(_array(data, "wounded"))  # (older saves have none: all at full Health)
-	_restore_later(_array(data, "later"))
-	ledger.restore(data.get("spent", {}), _take_back)
-	_restore_ambush(data.get("ambush", {}))  # (before the chests: its chest may be opened)
-	var cells := _saved_cells(_array(data, "chests"))
-	for node in _entities.get_children():
-		var chest := node as Chest
-		if chest and cells.has(map.world_to_cell(chest.global_position)):
-			chest.set_spent()
-			opened_chests.append(map.world_to_cell(chest.global_position))
-	var merchant := floor_merchant()
-	var restocked := merchant != null and merchant.load_data(data.get("merchant", {}))
-	for saved_item: Variant in _array(data, "bought"):
-		if restocked:
-			bought.append(saved_item)  # (the stock came back as it was: nothing to take out)
-		elif merchant and merchant.forget_sold(saved_item):
-			bought.append(saved_item)  # (older saves: the seed's stock, less what was bought)
-	if data.get("fragment", false) == true and fragment and is_instance_valid(fragment):
-		fragment_taken = true
-		fragment.take()  # read before quitting: not laid again
-	if pact and _number(data, "pact") > 0:
-		pact.set_spent()  # sworn before quitting: never offered again
-	_restore_collapsed(_array(data, "collapsed"))  # (older saves have none)
-	_restore_sealed(_array(data, "sealed"))  # after: a crack the hero fell through was filled
-
-
-## A thing the seed laid, used up before quitting (FloorLedger.restore()): gone again, quietly.
-func _take_back(kind: String, node: Object) -> void:
-	match kind:
-		FloorLedger.PROP:
-			(node as Prop).take_away()  # (nothing dropped: it was, before quitting)
-		FloorLedger.ENCOUNTER:
-			(node as Encounter).used = true
-			(node as Encounter).queue_redraw()
-		_:
-			_discard(node as Node)
-
-
-## Takes `node` off the floor at once, even one still waiting to be added (spawn_item() adds
-## its pickups deferred): it never shows nor is picked up.
-static func _discard(node: Node) -> void:
-	node.process_mode = Node.PROCESS_MODE_DISABLED
-	if node is CanvasItem:
-		(node as CanvasItem).visible = false
-	if node.is_inside_tree():
-		node.queue_free()
-	else:
-		node.tree_entered.connect(node.queue_free, CONNECT_ONE_SHOT)
-
-
-## What the save keeps of the floor's ambush: its room (a guard), cleared or not, its chest's cell.
-func _ambush_data() -> Dictionary:
-	if ambush == null or not is_instance_valid(ambush):
-		return {}
-	return {
-		"room": [ambush.room.position.x, ambush.room.position.y, ambush.room.size.x, ambush.room.size.y],
-		"cleared": ambush.state == AmbushRoom.State.CLEARED,
-		"chest": [ambush.reward_cell.x, ambush.reward_cell.y],
-	}
-
-
-## An ambush cleared before quitting stays cleared (its waves don't come back), its chest where it
-## was put down. A saved room that isn't this floor's ambush restores nothing.
-func _restore_ambush(saved: Variant) -> void:
-	if not saved is Dictionary or ambush == null or (saved as Dictionary).get("cleared", false) != true:
-		return
-	var room: Variant = (saved as Dictionary).get("room", [])
-	if not room is Array or (room as Array).size() != 4 \
-			or not (room as Array).all(func(n: Variant) -> bool: return n is float or n is int) \
-			or Rect2i(int(room[0]), int(room[1]), int(room[2]), int(room[3])) != ambush.room:
-		return
-	var chest := _saved_cells([(saved as Dictionary).get("chest")])
-	ambush.restore_cleared(chest[0] if not chest.is_empty() else DungeonMap.NO_CELL)
-
-
-## `key` of `data` if it is an array, else empty (a damaged save).
-static func _array(data: Dictionary, key: String) -> Array:
-	var value: Variant = data.get(key, [])
-	return value if value is Array else []
-
-
-## `key` of `data` if it is a number, else 0 (a damaged save).
-static func _number(data: Dictionary, key: String) -> int:
-	var value: Variant = data.get(key, 0)
-	return int(value) if value is float or value is int else 0
-
-
-## Holes filled in before quitting stay filled: `saved` is spent_data()'s "sealed".
-func _restore_sealed(saved: Array) -> void:
-	_fill_cells(_saved_cells(saved))
-
-
-## Cracked floor that gave way before quitting is a hole again, without a sound: `saved` is
-## spent_data()'s "collapsed".
-func _restore_collapsed(saved: Array) -> void:
-	for cell in _saved_cells(saved):
-		var crack := _cracks.get(cell) as CrumblingFloor
-		if crack and is_instance_valid(crack):
-			crack.collapse(true)
-
-
-## The floor's own monsters slain before quitting stay slain: `saved` is spent_data()'s "slain"
-## ([floor_index, id] pairs). They are taken off the rebuilt floor at once, with nothing dropped
-## and no kill counted (the seal's count is saved on its own).
-func _restore_slain(saved: Array) -> void:
-	var slain := {}
-	for pair: Variant in saved:
-		if pair is Array and (pair as Array).size() == 2 and (pair[0] is float or pair[0] is int):
-			slain[int(pair[0])] = str(pair[1])
-	if slain.is_empty():
-		return
-	for node in _entities.get_children():
-		var monster := node as Monster
-		if monster == null or monster.floor_index < 0 or not slain.has(monster.floor_index):
-			continue
-		if String(monster.def.id) != slain[monster.floor_index]:
-			continue  # not the same monster: better one too many than one missing
-		slain_spawns.append([monster.floor_index, String(monster.def.id)])
-		_entities.remove_child(monster)
-		monster.queue_free()
-
-
-## The floor's own monsters still standing but hurt, each saved as [floor_index, id, the share of
-## its Health it has left]: a resumed run rebuilds them at full Health from the seed (where the
-## seed put them, as it was rolled: rank and all), then gives each its share back.
-func _wounded_spawns() -> Array:
-	var result: Array = []
-	for node in _entities.get_children():
-		var monster := node as Monster
-		if monster and monster.floor_index >= 0 and not monster.is_dead and monster.hp < monster.get_max_hp():
-			result.append([monster.floor_index, String(monster.def.id), snappedf(float(monster.hp) / monster.get_max_hp(), 0.001)])
-	return result
-
-
-## Hurt before quitting, hurt again: `saved` is spent_data()'s "wounded" (the same number and
-## kind, as for the slain); a damaged entry is skipped.
-func _restore_wounded(saved: Array) -> void:
-	var shares := {}
-	for entry: Variant in saved:
-		if entry is Array and (entry as Array).size() == 3 and (entry[0] is float or entry[0] is int) and (entry[2] is float or entry[2] is int):
-			shares[int(entry[0])] = [str(entry[1]), clampf(float(entry[2]), 0.0, 1.0)]
-	if shares.is_empty():
-		return
-	for node in _entities.get_children():
-		var monster := node as Monster
-		if monster and monster.floor_index >= 0 and shares.has(monster.floor_index) and String(monster.def.id) == shares[monster.floor_index][0]:
-			_set_health_share(monster, shares[monster.floor_index][1])
-
-
-## Monsters that came after the floor was built and still stand (a summons, an encounter's, a
-## trapped chest's, a campfire's waves, what a slain one split into): { def (its file), id, at,
-## health (share left), rank, affixes, summoned }, put back where they stood on a resumed run.
-## Not a boss, not the wave of an ambush under way nor anything in a warden's arena while he
-## stands (both fights start over on a resumed run), not one falling.
-func _later_monsters() -> Array:
-	var result: Array = []
-	for node in _entities.get_children():
-		var monster := node as Monster
-		if monster == null or monster.floor_index >= 0 or monster.is_dead or monster.is_falling or monster.def is BossDef \
-				or monster.def.resource_path.is_empty():
-			continue
-		if ambush and is_instance_valid(ambush) and ambush.holds(monster):
-			continue
-		if arena and not arena.is_defeated and map.boss_room.has_point(map.world_to_cell(monster.global_position)):
-			continue
-		result.append({
-			"def": monster.def.resource_path, "id": String(monster.def.id),
-			"at": [roundi(monster.global_position.x), roundi(monster.global_position.y)],
-			"health": snappedf(float(monster.hp) / monster.get_max_hp(), 0.001),
-			"rank": String(monster.rank.id) if monster.rank else "",
-			"affixes": monster.affixes.map(func(affix: EliteAffixDef) -> String: return String(affix.id)),
-			"summoned": monster.summoned,
-		})
-	return result
-
-
-## Those that came later stand where they stood again: `saved` is spent_data()'s "later". A kind,
-## rank or affix the game no longer has, or a damaged entry, is skipped (it doesn't come back).
-func _restore_later(saved: Array) -> void:
-	var ranks: Array[MonsterRankDef] = [config().elite_rank]
-	ranks.append_array(config().rare_ranks)
-	for entry: Variant in saved:
-		if not entry is Dictionary:
-			continue
-		var data := entry as Dictionary
-		var path := str(data.get("def", ""))
-		var at: Variant = data.get("at")
-		if not path.begins_with("res://data/") or not ResourceLoader.exists(path) or not (at is Array and (at as Array).size() == 2):
-			continue
-		var def := load(path) as MonsterDef
-		if def == null or def is BossDef or String(def.id) != str(data.get("id", "")):
-			continue
-		var point := Vector2(float(at[0]), float(at[1]))
-		if not (is_solid_ground(point) and body_fits(point, room_for(def))):
-			point = nearest_free_point(point, 12, get_actors(), room_for(def), room_for(def))
-		var monster := spawn_monster(def, point)
-		monster.summoned = bool(data.get("summoned", false))
-		var rank_id := str(data.get("rank", ""))
-		var rank: MonsterRankDef = null
-		for candidate in ranks:
-			if candidate and String(candidate.id) == rank_id:
-				rank = candidate
-		if rank:
-			var affixes: Array[EliteAffixDef] = []
-			for affix_id: Variant in data.get("affixes", []):
-				for affix in _content.elite_affixes:
-					if affix and String(affix.id) == str(affix_id):
-						affixes.append(affix)
-			monster.make_ranked(rank, affixes)
-		var share: Variant = data.get("health", 1.0)
-		_set_health_share(monster, float(share) if (share is float or share is int) else 1.0)
-
-
-## `monster` at `share` of its Health (one at least), its bar told.
-static func _set_health_share(monster: Monster, share: float) -> void:
-	monster.hp = clampi(ceili(monster.get_max_hp() * clampf(share, 0.0, 1.0)), 1, monster.get_max_hp())
-	monster.health_changed.emit(monster.hp, monster.get_max_hp())
-
-
-## Cells saved as [x, y] pairs (numbers as a save file reads them); a damaged entry is skipped.
-static func _saved_cells(saved: Array) -> Array[Vector2i]:
-	var cells: Array[Vector2i] = []
-	for pair: Variant in saved:
-		if pair is Array and (pair as Array).size() == 2 and (pair as Array).all(func(n: Variant) -> bool: return n is float or n is int):
-			cells.append(Vector2i(int(pair[0]), int(pair[1])))
-	return cells
 
 
 func spawn_ambush(room: Rect2i) -> AmbushRoom:
@@ -924,31 +555,17 @@ func spawn_crumbling_floor(def: PitDef, cell: Vector2i) -> CrumblingFloor:
 	var tile := CrumblingFloor.new()
 	tile.setup(def, self, cell)
 	_effects.add_child(tile)
-	_cracks[cell] = tile
+	holes.add_crack(cell, tile)
 	return tile
 
 
-## Cracked floor gives way under whoever walks on it: one lookup per actor, not one scan per crack.
-func _step_on_cracks() -> void:
-	if _cracks.is_empty():
-		return
-	for actor in get_actors():
-		if actor.is_grounded():
-			var crack: CrumblingFloor = _cracks.get(map.world_to_cell(actor.global_position))
-			if crack and is_instance_valid(crack):
-				crack.step_on()
-
-
 func forget_crack(cell: Vector2i) -> void:
-	_cracks.erase(cell)
+	holes.forget_crack(cell)
 
 
 ## Cracked floor at `cell` gave way (CrumblingFloor.collapse()): a hole now, kept for the save.
 func crack_collapsed(cell: Vector2i, def: PitDef) -> void:
-	forget_crack(cell)
-	add_pit(cell, def)
-	if not collapsed_cells.has(cell):
-		collapsed_cells.append(cell)
+	holes.crack_collapsed(cell, def)
 
 
 func spawn_heat_source(def: HeatSourceDef, rect: Rect2i) -> HeatSource:
@@ -1014,8 +631,7 @@ func flash_light(at: Vector2, color: Color, size: float) -> void:
 func _on_monster_killed(monster: Monster) -> void:
 	if monster.world == self:
 		seal.add_kill()
-		if monster.floor_index >= 0:
-			slain_spawns.append([monster.floor_index, String(monster.def.id)])
+		floor_save.count_slain(monster)
 
 
 ## The way down opens, and a guiding light shows it.
@@ -1052,6 +668,13 @@ func drop_trophy(at: Vector2) -> void:
 		if item:
 			spawn_item(LootRoller.roll(item, depth, rules.drop_quality(), config(), _content.item_affixes, rng, ItemRarity.MAGIC), at)
 			return
+
+
+## The floor's stairs open with its seal; stepped on sealed, they say what is missing.
+func seal_exits(exits: Array[Stairs]) -> void:
+	for stairs in exits:
+		stairs.bind_seal(seal)
+		stairs.blocked.connect(_on_stairs_blocked)
 
 
 ## The hero stepped on sealed stairs: say what is missing (not every frame).
@@ -1141,19 +764,14 @@ func spawn_floating_text(at: Vector2, text: String, color: Color) -> void:
 
 # --- Holes ------------------------------------------------------------------
 
-## Makes `cell` a hole: anyone standing on it falls, monsters path around it.
+## Makes `cell` a hole: anyone standing on it falls, monsters path around it (HoleField).
 func add_pit(cell: Vector2i, def: PitDef) -> void:
-	_pits.add(cell, def)
-	set_cell_blocked(cell, true)
-	cells_changed.emit([cell] as Array[Vector2i])
+	holes.add_pit(cell, def)
 
 
 ## Makes every one of `cells` a hole of `def` at once (a shaped room's chasm): one redraw of the map.
 func add_pits(cells: Array[Vector2i], def: PitDef) -> void:
-	for cell in cells:
-		_pits.add(cell, def)
-		set_cell_blocked(cell, true)
-	cells_changed.emit(cells)
+	holes.add_pits(cells, def)
 
 
 ## Deep water over `cells` (a shaped room's pool, RoomFeatures): drawn in `look`, nobody walks in it.
@@ -1164,42 +782,10 @@ func spawn_pool(cells: Dictionary, look: GroundLayerDef, bounds: Rect2i) -> Wate
 	return pool
 
 
-## Fills the hole `cell` belongs to (every hole cell joined to it): solid floor again, walkable,
-## with dust where it closed. Returns the cells filled (none if `cell` is no hole). Kept in
-## `sealed_cells`, for the floor's save.
+## Fills the hole `cell` belongs to (every hole cell joined to it): solid floor again, kept for
+## the floor's save. Returns the cells filled (none if `cell` is no hole).
 func seal_hole(cell: Vector2i) -> Array[Vector2i]:
-	var sealed: Array[Vector2i] = []
-	if not _pits.has(cell):
-		return sealed
-	var todo: Array[Vector2i] = [cell]
-	while not todo.is_empty():
-		var next: Vector2i = todo.pop_back()
-		if not _pits.has(next) or sealed.has(next):
-			continue
-		sealed.append(next)
-		for step: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
-			todo.append(next + step)
-	_fill_cells(sealed)
-	for filled in sealed:
-		Vfx.puff(self, map.cell_to_world(filled))
-	return sealed
-
-
-## Makes `cells` solid floor: their holes filled, and their cracked floor too (a hole that was
-## cracked floor before it gave way: rebuilt from the seed, the floor is cracked there again).
-func _fill_cells(cells: Array[Vector2i]) -> void:
-	if cells.is_empty():
-		return
-	for cell in cells:
-		_pits.remove(cell)
-		var crack := _cracks.get(cell) as CrumblingFloor
-		if crack:
-			forget_crack(cell)
-			crack.queue_free()
-		set_cell_blocked(cell, not map.is_floor(cell))
-		if not sealed_cells.has(cell):
-			sealed_cells.append(cell)
-	cells_changed.emit(cells)
+	return holes.seal_hole(cell)
 
 
 ## Deep water of a shaped room's pool on `cell` (RoomFeatures): nobody walks there.
@@ -1208,65 +794,28 @@ func is_pool(cell: Vector2i) -> bool:
 
 
 func has_pit(cell: Vector2i) -> bool:
-	return _pits.has(cell)
+	return holes.has_pit(cell)
 
 
 ## The hole under `point`, if it is well inside one (a few pixels of edge are forgiven).
 func pit_under(point: Vector2) -> PitDef:
-	var def := _pits.get_def(map.world_to_cell(point))
-	if def == null:
-		return null
-	for offset: Vector2 in [Vector2(PIT_EDGE, 0), Vector2(-PIT_EDGE, 0), Vector2(0, PIT_EDGE), Vector2(0, -PIT_EDGE)]:
-		if not _pits.has(map.world_to_cell(point + offset)):
-			return null
-	return def
+	return holes.pit_under(point)
 
 
-## Floor that can't give way: no hole, no cracked floor (where the hero climbs out after a fall).
+## Floor that can't give way: no wall, no hole, no cracked floor (where the hero climbs out
+## after a fall).
+func is_solid_ground(point: Vector2) -> bool:
+	return space.is_solid_ground(point)
+
+
 ## Solid ground nothing stands on (no wall, hole, crack, chest, encounter, prop...).
 func is_free_cell(cell: Vector2i) -> bool:
-	return is_solid_ground(map.cell_to_world(cell)) and not nav.is_blocked(cell)
+	return space.is_free_cell(cell)
 
 
-## The centre of the free cell nearest to `point` (itself if free; `point` if none is found).
-## `clear_of`: bodies the cell must also be clear of (by their radius + `clearance`). `room`: a
-## body of that radius must fit at the centre (body_fits(); 0: any free cell).
+## The centre of the free cell nearest to `point` (WorldSpace.nearest_free_point()).
 func nearest_free_point(point: Vector2, max_radius: int = 12, clear_of: Array[Actor] = [], clearance: float = 0.0, room: float = 0.0) -> Vector2:
-	var origin := map.world_to_cell(point)
-	for radius in max_radius + 1:
-		var best := Vector2i(-1, -1)
-		var best_distance := INF
-		for y in range(origin.y - radius, origin.y + radius + 1):
-			for x in range(origin.x - radius, origin.x + radius + 1):
-				if maxi(absi(x - origin.x), absi(y - origin.y)) != radius:
-					continue  # only the ring at this radius
-				var cell := Vector2i(x, y)
-				var distance := map.cell_to_world(cell).distance_squared_to(point)
-				if distance < best_distance and is_free_cell(cell) and not is_under_body(map.cell_to_world(cell), clear_of, clearance) \
-						and (room <= 0.0 or body_fits(map.cell_to_world(cell), room)):
-					best = cell
-					best_distance = distance
-		if best != Vector2i(-1, -1):
-			return map.cell_to_world(best)
-	return point
-
-
-## Whether `point` lies within one of `bodies` (its radius + `clearance`).
-static func is_under_body(point: Vector2, bodies: Array[Actor], clearance: float) -> bool:
-	for body in bodies:
-		if is_instance_valid(body) and not body.is_dead and point.distance_to(body.global_position) < body.radius + clearance:
-			return true
-	return false
-
-
-func is_solid_ground(point: Vector2) -> bool:
-	var cell := map.world_to_cell(point)
-	if not map.is_floor(cell) or _pits.has(cell):
-		return false
-	var crack: CrumblingFloor = _cracks.get(cell)
-	if crack and is_instance_valid(crack) and not crack.is_queued_for_deletion():
-		return false
-	return true
+	return space.nearest_free_point(point, max_radius, clear_of, clearance, room)
 
 
 # --- Exploration -------------------------------------------------------------
@@ -1317,29 +866,8 @@ func _physics_process(delta: float) -> void:
 		reveal_around(player.global_position)
 		if not _set_pieces.is_empty():
 			_name_set_piece(player.global_position)
-	_step_on_cracks()
-	_activity_timer -= delta
-	if _activity_timer <= 0.0:
-		_activity_timer = ACTIVITY_INTERVAL
-		_update_activity()
-
-
-## What isn't seen isn't run: monsters off screen (with a margin) and out of reach of the hero
-## sleep, unless they are after someone or are a boss. Their bodies stay (shots still hit them).
-func _update_activity() -> void:
-	awake_monsters.clear()
-	var view := view_rect(WAKE_MARGIN)
-	var hero := player.global_position if player and is_instance_valid(player) else Vector2.INF
-	for node in get_tree().get_nodes_in_group("monsters"):
-		var monster := node as Monster
-		if monster == null or monster.is_dead or monster.is_queued_for_deletion():
-			continue
-		var awake := monster.target != null or monster.is_boss() or monster.is_falling \
-			or view.has_point(monster.global_position) \
-			or (hero != Vector2.INF and monster.global_position.distance_to(hero) <= monster.chase_detect_radius() + 64.0)
-		monster.set_awake(awake)
-		if awake:
-			awake_monsters.append(monster)
+	holes.step_on_cracks()
+	activity.tick(delta)
 
 
 ## The hero at `point`: a signature room he walks into for the first time is named.
@@ -1400,35 +928,16 @@ func get_actors() -> Array[Actor]:
 	return result
 
 
-var _actors_frame := -1
-var _actors_cache: Array[Actor] = []
-var _view_frame := -1
-var _view_cache := Rect2()
-
-
 ## get_actors(), worked out once per frame for everyone who asks (plants, quicksand...).
 ## Read only: the same array is handed to everyone.
 func actors_this_frame() -> Array[Actor]:
-	var frame := Engine.get_process_frames()
-	if frame != _actors_frame:
-		_actors_frame = frame
-		_actors_cache = get_actors()
-	return _actors_cache
+	return space.actors_this_frame()
 
 
 ## The part of the world on screen (with a margin), once per frame: what lies outside needn't
 ## be redrawn.
 func view_rect(margin: float = 96.0) -> Rect2:
-	var frame := Engine.get_process_frames()
-	if frame != _view_frame:
-		_view_frame = frame
-		var camera := get_viewport().get_camera_2d() if is_inside_tree() else null
-		if camera:
-			var half := get_viewport().get_visible_rect().size / camera.zoom * 0.5
-			_view_cache = Rect2(camera.get_screen_center_position() - half, half * 2.0)
-		else:
-			_view_cache = Rect2(-1e6, -1e6, 2e6, 2e6)
-	return _view_cache.grow(margin)
+	return space.view_rect(margin)
 
 
 ## Props that can still be broken.
@@ -1448,8 +957,7 @@ func set_cell_blocked(cell: Vector2i, blocked: bool) -> void:
 
 ## `exclude`: bodies the ray goes through (the thing looked at, solid itself: the merchant...).
 func has_line_of_sight(from: Vector2, to: Vector2, exclude: Array[RID] = []) -> bool:
-	var query := PhysicsRayQueryParameters2D.create(from, to, Layers.WORLD, exclude)
-	return get_world_2d().direct_space_state.intersect_ray(query).is_empty()
+	return space.has_line_of_sight(from, to, exclude)
 
 
 ## Path between two world positions, as a list of cell centres (empty if unreachable).
@@ -1457,41 +965,15 @@ func find_path(from: Vector2, to: Vector2) -> PackedVector2Array:
 	return nav.find_path(from, to)
 
 
-## A walkable point about `distance` away from `center`, in sight of it, where a body of
-## `room` px fits: never over a hole or cracked floor, never into a wall's, a prop's or a pond's
-## shape (a body put down inside one may never get out), nor into another living body (the
-## physics would shove the two apart on the first frame, maybe into a wall). Else `center` if a
-## body fits there, else the nearest free cell's centre where it fits clear of the others (then
-## where it fits, then any free cell).
+## A walkable point about `distance` away from `center` where a body of `room` px fits
+## (WorldSpace.find_open_point_near()). Rolls on the floor's dice.
 func find_open_point_near(center: Vector2, distance: float, room: float = BODY_ROOM) -> Vector2:
-	var bodies := get_actors()
-	for attempt in 10:
-		var point := center + Vector2.from_angle(rng.randf() * TAU) * distance
-		if is_solid_ground(point) and has_line_of_sight(center, point) and body_fits(point, room) and not is_under_body(point, bodies, room):
-			return point
-	if is_solid_ground(center) and body_fits(center, room) and not is_under_body(center, bodies, room):
-		return center
-	for clear_of: Array[Actor] in [bodies, [] as Array[Actor]]:
-		var fitting := nearest_free_point(center, 12, clear_of, room, room)
-		if fitting != center or (is_free_cell(map.world_to_cell(center)) and body_fits(center, room)):
-			return fitting
-	return nearest_free_point(center)
-
-
-## Room for the body of a monster of `def`, put down by find_open_point_near().
-static func room_for(def: MonsterDef) -> float:
-	return maxf(BODY_ROOM, def.radius) if def else BODY_ROOM
+	return space.find_open_point_near(center, distance, room)
 
 
 ## Nothing that stops a body (walls, props, chests, ponds...) within `radius` of `point`.
 func body_fits(point: Vector2, radius: float = BODY_ROOM) -> bool:
-	var shape := CircleShape2D.new()
-	shape.radius = radius
-	var query := PhysicsShapeQueryParameters2D.new()
-	query.shape = shape
-	query.transform = Transform2D(0.0, point)
-	query.collision_mask = Layers.WORLD | Layers.WATER
-	return get_world_2d().direct_space_state.intersect_shape(query, 1).is_empty()
+	return space.body_fits(point, radius)
 
 
 func monster_count() -> int:

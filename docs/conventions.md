@@ -66,7 +66,15 @@ the ones below are those worth spelling out, or where this project chose somethi
   base (`Effect.dressed_for_skill()`, `ItemDef.use_from_bag()`, `Actor._draws_ward_on_body()`)
   and override it, so a new kind brings its own answer. Never `get("property")` by name either.
 - **Small pieces.** Prefer a new `Effect`, `Passive`, `MonsterTrait` or `HazardDef` subclass to a new
-  branch in `Actor`, `Monster` or `World`. Those three are already the biggest scripts.
+  branch in `Actor`, `Monster` or `World`. Those three are already the biggest scripts. A new
+  kind of floor is a new `FloorKind` subclass (picked in `FloorKind.choose()`), never another
+  branch in `World.build_floor()`; a new job for the World goes in a component it composes
+  (`FloorSave`, `HoleField`, `ActivityManager`, `WorldSpace`), the World keeping a one-line
+  method only where many callers ask it.
+- **The Game emits, the presenter shows.** Gameplay (the Game's flow included) never calls the
+  HUD to announce something: it emits on `Events` (or its own signal) and the `RunAnnouncer`
+  shows it (banners, toasts, souls, the clock) and logs it. The Game keeps to the flow (floors,
+  pauses, menus, the end of the run); its debug entry points are `GameDebug`'s.
 
 ## Texts
 

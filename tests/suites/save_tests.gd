@@ -180,7 +180,7 @@ func _test_hidden_floor_kept(game: Game) -> void:
 	await _frames(3)
 	if CONTENT.dungeon.hidden_floor == null:
 		return
-	await game.debug_enter_hidden()
+	await game.debug.enter_hidden()
 	await _frames(3)
 	var world: World = game.world
 	var player: Player = game.player
@@ -239,7 +239,7 @@ func _test_other_build(game: Game) -> void:
 	check((game.hud.get_node("%ToastLabel") as Label).text == note or game.hud._toasts.has(note), "a note says the floor is laid anew")
 	check(game.depth == 2 and game.player.gold == 321 and game.player.level == 4, "the run and the hero come back whole")
 	check(world.monster_count() == monsters_before and _of(world, &"pickups").size() == pickups_before and world.seal.kills == 0, "the floor is laid fresh: its monsters, its items, its seal (%d/%d monsters, %d/%d items)" % [world.monster_count(), monsters_before, _of(world, &"pickups").size(), pickups_before])
-	check(world.ledger.spent_count(FloorLedger.ITEM) == 0 and world.slain_spawns.is_empty(), "nothing of the old floor kept for the next save")
+	check(world.ledger.spent_count(FloorLedger.ITEM) == 0 and world.floor_save.slain.is_empty(), "nothing of the old floor kept for the next save")
 	game.player.invincible = false
 
 

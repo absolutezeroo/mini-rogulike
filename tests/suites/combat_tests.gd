@@ -1656,7 +1656,7 @@ func _test_ai_movement(game: Game) -> void:
 	await _frames(20)
 	check(far_distance > 1200.0, "a room far off screen (%d px)" % far_distance)
 	check(not sleeper.is_awake and sleeper.process_mode == Node.PROCESS_MODE_DISABLED, "a monster far off screen sleeps")
-	check(near.is_awake and world.awake_monsters.has(near) and not world.awake_monsters.has(sleeper), "one in view thinks")
+	check(near.is_awake and world.activity.awake.has(near) and not world.activity.awake.has(sleeper), "one in view thinks")
 	var spot := sleeper.global_position
 	await _frames(30)
 	check(sleeper.global_position == spot, "a sleeping monster doesn't move")
@@ -1745,7 +1745,7 @@ func _test_ai_movement(game: Game) -> void:
 			break
 	var blocker := walker.move_and_collide(-wall_dir * 8.0, true)  # (test only: what it bumps into)
 	var blocked_by := "nothing" if blocker == null else "%s (%s) at %s" % [blocker.get_collider(), (blocker.get_collider() as Node).get_parent() if blocker.get_collider() is Node else null, blocker.get_position()]
-	check(not walker.is_stuck(), "walking away: not stuck any more (moved %d px, %d free cells behind, awake %s, hero %d px off its way, blocked by %s, wall %s)" % [walker.global_position.distance_to(stuck_at), best_room, world.awake_monsters.has(walker), roundi(off_lane.call(player.global_position)), blocked_by, wall_dir])
+	check(not walker.is_stuck(), "walking away: not stuck any more (moved %d px, %d free cells behind, awake %s, hero %d px off its way, blocked by %s, wall %s)" % [walker.global_position.distance_to(stuck_at), best_room, world.activity.awake.has(walker), roundi(off_lane.call(player.global_position)), blocked_by, wall_dir])
 	await _clear_monsters(world)
 
 	# From another room, out of sight, around the walls: it finds the hero.

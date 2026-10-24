@@ -497,7 +497,7 @@ func _track_progress(delta: float) -> void:
 ## pushing in a line through a door.
 func _keep_spacing(direction: Vector2) -> Vector2:
 	var push := Vector2.ZERO
-	for entry: Variant in world.awake_monsters:
+	for entry: Variant in world.activity.awake:
 		if not is_instance_valid(entry) or entry == self:
 			continue
 		var other := entry as Monster

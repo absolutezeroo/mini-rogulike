@@ -97,6 +97,14 @@ The suites (`tests/suites/`, each a `TestSuite`):
   delayed blast credited to what set them off; the floor's combat dice, apart from its own
   rolls; an encounter's gold and odds with the run's boons; an arrow trap's volley stopping out
   of the tree).
+- Same seed, same floor (`floor_determinism_tests.gd`, `FloorDeterminismTests`, in the unit
+  suite): floors of every kind (plain, cursed or plain by the debug panel, reached by a chosen
+  way, with two ways down, a warden's, the hidden floor, the bottom of the Well) and one picked
+  up again after things were used up on it, built on a World alone from fixed seeds, each
+  fingerprinted (map, rooms, twist, world, every monster, item, prop and chest, the save's
+  floor, the dice's state) against values recorded before the World was split. A refactor
+  leaves them as they are; a change that moves them on purpose (content, generation) records
+  the new values, which the failure prints.
 - The floors' identity (`level_tests.gd`, `LevelTests`): its unit part in the unit suite (the
   room shapes' geometry; 20 floors a biome at every difficulty's size: one piece, solid walls,
   start, stairs, hearts and cracks on open ground, every listed shape used, a signature room now
@@ -202,13 +210,13 @@ step its value ("Damage x5"), and both stay pressed while on.
 
 - **World**: pick a depth and go there, next floor, rebuild the floor (plain unless you choose a
   **Curse** or a **floor Event** row: the floor is rebuilt with it, its card included,
-  `World.forced_curse` / `forced_event`). **Places**: the next boss floor, the hidden floor, the
+  `World.overrides`, FloorOverrides). **Places**: the next boss floor, the hidden floor, the
   Deeps (as if the hero fell into a hole), the bottom of the Well (the final fight, FinaleDef),
   the Nameless Keeper (the bottom with the Keeper made from the hero as he is now).
   **Move**: to the stairs, to the boss room's doorway, to the next room, break the stairs' seal,
   **Reveal maps** (this floor's map and every next one's, seen as they begin). **Encounter**:
   pick any encounter and place it beside the hero; **Boss story** has the floor's warden tell its
-  story again (its cinematic, `Game.debug_boss_story()`; nothing with Boss stories off).
+  story again (its cinematic, `GameDebug.boss_story()`; nothing with Boss stories off).
   **Fragment**: pick any fragment of the past (with its warden) and place it beside the hero.
   **Pact door**: one button per pact: seals a dead-end room of this floor behind its door.
 - **Hero**: the cheats, kept across floors until the run ends (`DebugCheats`): god mode (nothing

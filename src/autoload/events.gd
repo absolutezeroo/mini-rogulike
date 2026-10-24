@@ -36,6 +36,9 @@ signal shop_requested(merchant: Merchant)
 signal forge_requested(forge: Forge)
 ## A soul set free by a kill reached the hero's lantern (see SoulWisp).
 signal soul_gathered
+## The souls the run is worth went up another way than a wisp (the hidden floor's hoard): the
+## HUD counts them up (RunAnnouncer).
+signal run_souls_changed
 ## Something big happened near the hero: the camera shakes (0..1, see GameCamera.shake()).
 signal screen_shake(amount: float)
 ## A short push of the camera (pixels, along `direction`): the weight of a blow, a shot's recoil.
@@ -81,6 +84,13 @@ signal run_marked(mark: String)
 ## A run began (new or resumed) with its hero: what follows a whole run binds to them (the
 ## gameplay statistics: Telemetry).
 signal run_started(run: RunState, player: Player)
+## The Game built a floor and put the hero on it (after depth_changed, a resumed run's too): the
+## RunAnnouncer names it (the act, its twist, its goal).
+signal floor_entered(world: World)
+## A run picked up again found its floor laid anew (another build saved it: RunSave.floor_of()).
+signal floor_laid_anew
+## A floor is done in `time` of the run's clock (RunState.split()): its split, on the HUD.
+signal split_timed(floor_depth: int, time: float)
 ## An actor lost Health to a hit (after armor and wards: `damage`, maybe 0). Who dealt it and with
 ## what are on the hit (HitInfo.source, via, element, cause). The gameplay statistics count it.
 signal actor_damaged(actor: Actor, hit: HitInfo, damage: int)

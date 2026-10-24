@@ -97,6 +97,8 @@ var tuning := RemoteTuning.new()
 var config: DungeonConfig
 ## The floor a run must reach to count toward the next reset of the tree (SoulTreeDef).
 var reset_min_depth := 1
+## Picked up from a save (create() was given one), not begun now. Not saved.
+var resumed := false
 
 
 ## A new run, or the saved one (`saved` from RunSave; empty for a new run).
@@ -104,6 +106,7 @@ var reset_min_depth := 1
 static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGenerator, day: int = -1) -> RunState:
 	var run := RunState.new()
 	run.config = content.dungeon
+	run.resumed = not saved.is_empty()
 	if content.soul_tree:
 		run.reset_min_depth = content.soul_tree.reset_min_depth
 	run.daily_day = int(saved.get("daily_day", day))

@@ -164,11 +164,11 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 		for n in counts[i]:
 			var def := content.pick_monster(depth, rng)
 			if def:
-				var monster := world.spawn_monster(def, _free_point_in(world, room, rng, taken, World.room_for(def), placed))
+				var monster := world.spawn_monster(def, _free_point_in(world, room, rng, taken, WorldSpace.room_for(def), placed))
 				world.roll_elite(monster)
 				# An elite grew: its bigger body must fit where it stands too.
-				if monster.radius > World.room_for(def) and (not _fits(world, monster.global_position, monster.radius) \
-						or World.is_under_body(monster.global_position, placed, monster.radius)):
+				if monster.radius > WorldSpace.room_for(def) and (not _fits(world, monster.global_position, monster.radius) \
+						or WorldSpace.is_under_body(monster.global_position, placed, monster.radius)):
 					monster.global_position = _free_point_in(world, room, rng, taken, monster.radius, placed)
 				placed.append(monster)
 				monster.floor_index = floor_index  # (the seed's order: a resumed run's same monster)
@@ -350,9 +350,9 @@ static func _free_point_in(world: World, room: Rect2i, rng: RandomNumberGenerato
 		if not taken.has(cell) and world.is_free_cell(cell):  # pillars of a themed room are walls
 			var center := map.cell_to_world(cell)
 			var at := center + Vector2(rng.randf_range(-8.0, 8.0), rng.randf_range(-8.0, 8.0))
-			if radius <= 0.0 or (_fits(world, at, radius) and not World.is_under_body(at, bodies, radius)):
+			if radius <= 0.0 or (_fits(world, at, radius) and not WorldSpace.is_under_body(at, bodies, radius)):
 				return at
-			if _fits(world, center, radius) and not World.is_under_body(center, bodies, radius):
+			if _fits(world, center, radius) and not WorldSpace.is_under_body(center, bodies, radius):
 				return center
 		cell = map.random_cell_in(room, rng)
 	if radius > 0.0:
@@ -364,7 +364,7 @@ static func _free_point_in(world: World, room: Rect2i, rng: RandomNumberGenerato
 				if not taken.has(spot) and world.is_free_cell(spot):
 					cells.append(spot)
 		for spot in _shuffled(cells, rng):
-			if _fits(world, map.cell_to_world(spot), radius) and not World.is_under_body(map.cell_to_world(spot), bodies, radius):
+			if _fits(world, map.cell_to_world(spot), radius) and not WorldSpace.is_under_body(map.cell_to_world(spot), bodies, radius):
 				return map.cell_to_world(spot)
 	return world.nearest_free_point(map.cell_to_world(cell), 12, bodies, radius)
 

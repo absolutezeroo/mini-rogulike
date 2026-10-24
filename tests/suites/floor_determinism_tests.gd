@@ -100,10 +100,10 @@ func _cases() -> Array[Dictionary]:
 func _prepare(world: World, case: Dictionary) -> void:
 	world.next_routes = []
 	if case.has("curse"):
-		world.forced_curse = case.curse
-		world.forced_plain = case.curse == null
+		world.overrides.curse = case.curse
+		world.overrides.plain = case.curse == null
 	if case.get("plain", false):
-		world.forced_plain = true
+		world.overrides.plain = true
 	if case.has("taken_seed"):
 		var ways := FloorRoute.offer(CONTENT, int(case.depth), world.difficulty, int(case.taken_seed))
 		case["taken"] = ways[ways.size() - 1] if not ways.is_empty() else null
@@ -126,7 +126,7 @@ func _use_some(world: World) -> void:
 			monsters.append(monster)
 	if monsters.size() >= 2:
 		world._on_monster_killed(monsters[0])
-		monsters[1].hp = maxi(1, monsters[1].get_max_hp() / 2)
+		monsters[1].hp = maxi(1, floori(monsters[1].get_max_hp() / 2.0))
 	var used := [false, false]
 	for node in world.find_children("*", "", true, false):
 		if node is ItemPickup and not used[0]:

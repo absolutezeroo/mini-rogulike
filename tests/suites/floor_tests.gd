@@ -302,17 +302,17 @@ func _test_sealed_hole_restored(world: World, player: Player) -> void:
 	world.add_pit(hole, pit)
 	_dug.append([world, hole])
 	var crack := world.spawn_crumbling_floor(pit, cracked)
-	world.sealed_cells.clear()
+	world.holes.sealed_cells.clear()
 	# As build_floor does on a saved floor (restore_spent): the holes and cracks are there again,
 	# then what the save says is filled.
 	var saved: Array = JSON.parse_string(JSON.stringify([[hole.x, hole.y], [cracked.x, cracked.y]]))  # (numbers as a save file reads them)
-	world._restore_sealed(saved)
+	world.floor_save.restore_sealed(saved)
 	await _frames(1)
 	check(not world.has_pit(hole) and not world.nav.is_blocked(hole) and world.is_solid_ground(world.map.cell_to_world(hole)), "a hole filled before quitting is filled again on the resumed floor")
-	check(not is_instance_valid(crack) and world._cracks.get(cracked) == null, "and the cracked floor it was before it gave way is solid floor")
-	check(world.sealed_cells.has(hole) and world.sealed_cells.has(cracked), "kept for the next save too (%s)" % [world.sealed_cells])
-	world._restore_sealed([[1.5], "x"])  # a damaged entry is skipped
-	check(world.sealed_cells.size() == 2, "a damaged entry fills nothing")
+	check(not is_instance_valid(crack) and world.holes.cracks.get(cracked) == null, "and the cracked floor it was before it gave way is solid floor")
+	check(world.holes.sealed_cells.has(hole) and world.holes.sealed_cells.has(cracked), "kept for the next save too (%s)" % [world.holes.sealed_cells])
+	world.floor_save.restore_sealed([[1.5], "x"])  # a damaged entry is skipped
+	check(world.holes.sealed_cells.size() == 2, "a damaged entry fills nothing")
 
 
 ## Cracked floor that gave way (and that nobody fell through: no Deeps, no filling) is a hole
@@ -324,7 +324,7 @@ func _test_collapsed_crack_restored(world: World, player: Player) -> void:
 	others.append(world.map.cell_to_world(gave_way))
 	var again := _open_cell_near(world, player.global_position, 3, others, world.map.tile_size * 3.0)
 	var first := world.spawn_crumbling_floor(crumbling, gave_way)
-	world.collapsed_cells.clear()
+	world.holes.collapsed_cells.clear()
 	first.collapse()
 	_dug.append([world, gave_way])
 	var saved_cells: Array = world.spent_data().get("collapsed", [])
@@ -333,12 +333,12 @@ func _test_collapsed_crack_restored(world: World, player: Player) -> void:
 	# then what the save says gave way gives way.
 	var crack := world.spawn_crumbling_floor(crumbling, again)
 	var saved: Array = JSON.parse_string(JSON.stringify([[again.x, again.y], [1.5], "x"]))  # (as a save file reads them; damaged entries)
-	world._restore_collapsed(saved)
+	world.floor_save.restore_collapsed(saved)
 	_dug.append([world, again])
 	await _frames(1)
 	check(world.has_pit(again) and world.nav.is_blocked(again) and not world.is_solid_ground(world.map.cell_to_world(again)), "cracked floor that gave way before quitting is a hole on the resumed floor")
-	check(not is_instance_valid(crack) and world._cracks.get(again) == null, "and its crack is gone")
-	check(world.collapsed_cells.has(again), "kept for the next save too (%s)" % [world.collapsed_cells])
+	check(not is_instance_valid(crack) and world.holes.cracks.get(again) == null, "and its crack is gone")
+	check(world.holes.collapsed_cells.has(again), "kept for the next save too (%s)" % [world.holes.collapsed_cells])
 	_fill_holes()
 
 
@@ -381,7 +381,7 @@ func _test_bodies_fit(game: Game) -> void:
 				break
 			var spot := world.map.cell_to_world(by_wall[rng.randi_range(0, by_wall.size() - 1)])
 			for kind: MonsterDef in [rat, dune_rex]:
-				var at := world.find_open_point_near(spot, [24.0, 40.0, 60.0][k % 3], World.room_for(kind))
+				var at := world.find_open_point_near(spot, [24.0, 40.0, 60.0][k % 3], WorldSpace.room_for(kind))
 				points += 1
 				if not world.is_solid_ground(at) or not world.body_fits(at, kind.radius):
 					bad_points.append("%s near %s: %s" % [kind.id, spot, at])
@@ -398,7 +398,7 @@ func _test_bodies_fit(game: Game) -> void:
 		if cells.is_empty():
 			break
 		var spot := world.map.cell_to_world(cells[(k * 7919) % cells.size()])
-		var rat_body := world.spawn_monster(rat, world.find_open_point_near(spot, 24.0, World.room_for(rat)))
+		var rat_body := world.spawn_monster(rat, world.find_open_point_near(spot, 24.0, WorldSpace.room_for(rat)))
 		rat_body.dormant = true
 		await get_tree().physics_frame
 		var start := rat_body.global_position
@@ -437,7 +437,7 @@ func _test_abyss_rules(game: Game, world: World, player: Player) -> void:
 	for seed_value in 40:
 		var depth := 1 + seed_value % CONTENT.dungeon.total_floors()
 		depths.build_depths(depth, CONTENT, CONTENT.dungeon.abyss, seed_value * 7919 + 13)
-		holes += 1 if depths._pits.cells().size() > 0 else 0
+		holes += 1 if depths.holes.pits.cells().size() > 0 else 0
 		wardens += 1 if depths.warden != null else 0
 		if depths.way_to_door().is_empty() or depths.map.start_cell == depths.map.stairs_cell:
 			blocked.append(seed_value)
@@ -461,7 +461,7 @@ func _test_abyss_death(game: Game) -> void:
 	await _frames(3)
 	check(player.is_falling, "the hero is falling into a hole")
 	player.invincible = true  # (no knockback from a monster by the start while we wait)
-	await game.debug_enter_floor(game.depth)
+	await game.debug.enter_floor(game.depth)
 	_dug.clear()  # (that floor is gone: the hole with it)
 	var start := world.map.cell_to_world(world.map.start_cell)
 	await _frames(int(Actor.FALL_TIME * 60.0) + 10)
@@ -917,13 +917,13 @@ func _test_hazards(game: Game, world: World, player: Player) -> void:
 		check(reward.size() == 1 and (reward[0] as Chest).def == CONTENT.dungeon.ambush_chest, "a big chest rewards the survivor (%d there, %d chests)" % [reward.size(), get_tree().get_nodes_in_group("chests").size()])
 		# Saved cleared (World._ambush_data): a resumed floor's ambush, laid again by the seed, stays
 		# cleared, its chest back where it was; walking in sets off no second fight.
-		var saved_ambush: Dictionary = JSON.parse_string(JSON.stringify(world._ambush_data()))
+		var saved_ambush: Dictionary = JSON.parse_string(JSON.stringify(world.floor_save.ambush_data()))
 		var reward_at := world.map.world_to_cell((reward[0] as Chest).global_position) if reward.size() == 1 else Vector2i(-9, -9)
 		check(saved_ambush.get("cleared", false) == true, "the floor's save keeps the ambush cleared (%s)" % [saved_ambush])
 		for laid: Node in reward:
 			laid.free()
 		world.spawn_ambush(room)
-		world._restore_ambush(saved_ambush)
+		world.floor_save.restore_ambush(saved_ambush)
 		var again := world.ambush
 		var chests_again := get_tree().get_nodes_in_group("chests").filter(func(c: Node) -> bool: return (c as Chest).def == CONTENT.dungeon.ambush_chest and world.map.world_to_cell(c.global_position) == reward_at)
 		check(again.state == AmbushRoom.State.CLEARED and not again.is_closed() and chests_again.size() == 1, "resumed, a cleared ambush stays cleared, its chest there again")
@@ -946,7 +946,7 @@ func _test_hazards(game: Game, world: World, player: Player) -> void:
 		var start := world.map.cell_to_world(world.map.start_cell)
 		check(not world.find_path(start, world.map.cell_to_world(world.map.stairs_cell)).is_empty(), "depth %d: the stairs can be reached" % depth)
 		var count := get_tree().get_nodes_in_group("traps").size() + get_tree().get_nodes_in_group("crumbling_floors").size() \
-			+ get_tree().get_nodes_in_group("quicksand").size() + world._pits.cells().size()
+			+ get_tree().get_nodes_in_group("quicksand").size() + world.holes.pits.cells().size()
 		hazard_total += count
 	check(hazard_total >= 12, "floors have hazards (%d on 6 floors)" % hazard_total)
 	check(merchants >= 4 and encounters >= 6, "floors get merchants and encounters (%d, %d)" % [merchants, encounters])
@@ -1006,7 +1006,7 @@ func _test_souls(game: Game) -> void:
 ## A floor's stairs stay sealed until enough of its monsters are slain; then a light runs to
 ## them and the minimap shows them.
 func _test_stairs_seal(game: Game) -> void:
-	await game.debug_enter_floor(2)
+	await game.debug.enter_floor(2)
 	await _frames(3)
 	var world: World = game.world
 	var player: Player = game.player
@@ -1120,16 +1120,16 @@ func _test_slain_stay_dead(game: Game) -> void:
 	check((spent.get("later", []) as Array).size() == later_count and (spent.get("wounded", []) as Array).any(func(entry: Array) -> bool: return int(entry[0]) == hurt_index), "kept for the next save too")
 	# Damaged or unknown entries are skipped.
 	var count_now := world.monster_count()
-	world._restore_wounded(JSON.parse_string(JSON.stringify([[hurt_index], "x", [1.5, "rat", "a"]])))
-	world._restore_later(JSON.parse_string(JSON.stringify([{ "def": "res://data/monsters/nothing.tres", "id": "nothing", "at": [0, 0] }, { "def": rat.resource_path, "id": "skeleton", "at": [0, 0] }, { "def": "user://x.tres", "id": "rat", "at": [0, 0] }, "x", { "def": rat.resource_path, "id": "rat" }])))
+	world.floor_save.restore_wounded(JSON.parse_string(JSON.stringify([[hurt_index], "x", [1.5, "rat", "a"]])))
+	world.floor_save.restore_later(JSON.parse_string(JSON.stringify([{ "def": "res://data/monsters/nothing.tres", "id": "nothing", "at": [0, 0] }, { "def": rat.resource_path, "id": "skeleton", "at": [0, 0] }, { "def": "user://x.tres", "id": "rat", "at": [0, 0] }, "x", { "def": rat.resource_path, "id": "rat" }])))
 	check(world.monster_count() == count_now, "a saved monster the game no longer has, of another kind, or damaged, doesn't come back")
 	check(world.seal.kills == kills and world.seal.needed == ceili(all_before * CONTENT.dungeon.seal_share), "the seal counts the kills as before, of the whole floor (%d / %d)" % [world.seal.kills, world.seal.needed])
-	check(world.slain_spawns.size() == 3, "the slain kept for the next save too (%s)" % [world.slain_spawns])
+	check(world.floor_save.slain.size() == 3, "the slain kept for the next save too (%s)" % [world.floor_save.slain])
 	# A number that came out as another kind of monster (a floor not rebuilt quite the same):
 	# that one stays rather than the wrong one going. Damaged entries are skipped.
 	var standing: int = back[0]
 	var other_kind := "rat" if kinds[standing] != "rat" else "skeleton"
-	world._restore_slain(JSON.parse_string(JSON.stringify([[standing, other_kind], [1.5], "x", ["a", "rat"]])))
+	world.floor_save.restore_slain(JSON.parse_string(JSON.stringify([[standing, other_kind], [1.5], "x", ["a", "rat"]])))
 	check(world.monster_count() == all_before - 3 + later_count, "a saved number of another kind takes no monster away (%d)" % world.monster_count())
 	game.player.invincible = false
 
@@ -1138,7 +1138,7 @@ func _test_slain_stay_dead(game: Game) -> void:
 ## says which; the way taken builds the next floor and is kept in the save.
 func _test_routes(game: Game) -> void:
 	game.run.routes.clear()
-	await game.debug_enter_floor(1)
+	await game.debug.enter_floor(1)
 	await _frames(3)
 	var world: World = game.world
 	var player: Player = game.player
@@ -1178,7 +1178,7 @@ func _test_soul_tree_run(game: Game) -> void:
 	Profile.levels = { "regeneration": 2, "cartographer": 1, "trophy_hunter": 1, "haggler": 1, "full_stalls": 1 }
 	var boons := RunBoons.build(CONTENT)
 	game.world.boons = boons
-	await game.debug_enter_floor(2)
+	await game.debug.enter_floor(2)
 	await _frames(3)
 	var world: World = game.world
 	var player: Player = game.player
@@ -1805,23 +1805,23 @@ func _test_climate(game: Game) -> void:
 
 	# The Blood Moon: its own look (red grade, the moon's glow, beating edges) over the biome.
 	var moon: FloorEventDef = load("res://data/floor_events/blood_moon.tres")
-	await game.debug_enter_floor(maxi(start_depth, 4), null, moon)
+	await game.debug.enter_floor(maxi(start_depth, 4), null, moon)
 	await _frames(3)
 	var screen := get_tree().get_first_node_in_group(&"screen_effects") as ScreenEffects
 	var screen_look := screen.material as ShaderMaterial
 	check(world.floor_event == moon and (screen_look.get_shader_parameter("moon_color") as Color).a > 0.0 and float(screen_look.get_shader_parameter("vignette_pulse")) > 0.0, "the Blood Moon hangs over the floor")
 	var dim := world.lights.ambient_level
 	check(world.lights.colors[dim].g < world.theme.lighting.color_of(dim).g * 0.9, "its light is red")
-	await game.debug_enter_floor(maxi(start_depth, 4))
+	await game.debug.enter_floor(maxi(start_depth, 4))
 	await _frames(3)
 	check((screen_look.get_shader_parameter("moon_color") as Color).a == 0.0, "gone on the next floor")
 
 	# A boss at a rare rank: its name, its affixes on the boss bar.
 	var legendary: MonsterRankDef = CONTENT.dungeon.rare_ranks.filter(func(r: MonsterRankDef) -> bool: return r.id == &"legendary")[0]
-	world.forced_boss_rank = legendary
+	world.overrides.boss_rank = legendary
 	var hall: ArenaDef = load("res://data/arenas/great_hall.tres")
-	world.forced_arena = hall
-	await game.debug_enter_floor(CONTENT.dungeon.acts[0].floors)
+	world.overrides.arena = hall
+	await game.debug.enter_floor(CONTENT.dungeon.acts[0].floors)
 	await _frames(3)
 	var rare_boss := world.arena.boss
 	check(rare_boss.rank == legendary and rare_boss.affixes.size() == legendary.affixes and rare_boss.display_name.begins_with("Legendary"), "a boss can come Legendary (%s)" % rare_boss.display_name)
@@ -1833,7 +1833,7 @@ func _test_climate(game: Game) -> void:
 	check(world.arena_plan == hall and world.map.boss_room.size == hall.size, "the boss fights in its arena (%s)" % hall.display_name)
 	var columns := get_tree().get_nodes_in_group("props").filter(func(p: Node) -> bool: return (p as Prop).def == hall.pillar)
 	check(columns.size() == hall.pillars.size(), "pillars stand in it (%d)" % columns.size())
-	var cracks_before := world._cracks.size()
+	var cracks_before := world.holes.cracks.size()
 	rare_boss.skills.set_skills([] as Array[SkillDef])
 	rare_boss.invincible = false
 	var to_phase := HitInfo.new()
@@ -1842,7 +1842,7 @@ func _test_climate(game: Game) -> void:
 	await _frames(5)
 	check(get_tree().get_nodes_in_group("vfx").size() >= 0 and world.arena.shifts_done == 1, "the next phase changes the arena")
 	await _frames(int(hall.shifts[0].warning_time * 60.0) + 10)
-	check(world._cracks.size() > cracks_before, "after the warning, its edge cracks (%d)" % (world._cracks.size() - cracks_before))
+	check(world.holes.cracks.size() > cracks_before, "after the warning, its edge cracks (%d)" % (world.holes.cracks.size() - cracks_before))
 
 	# Back to a normal floor for the next tests.
 	CONTENT.curses = saved_curses
@@ -2349,7 +2349,7 @@ func _test_loot_and_gold(game: Game) -> void:
 	check((RunSave.read().get("kept_stock", []) as Array).size() == 1, "a saved run keeps the locked entry")
 
 	# The locked entry waits at the next merchant, same price.
-	await game.debug_enter_floor(game.depth)
+	await game.debug.enter_floor(game.depth)
 	world = game.world
 	check(world.kept_stock.size() == 1 and world.kept_stock[0].item == kept, "leaving the floor carries the locked entry")
 	var next := world.spawn_merchant(CONTENT.dungeon.merchant, _open_cell_near(world, game.player.global_position, 2))
@@ -2428,8 +2428,8 @@ func _test_biomes(game: Game) -> void:
 						allowed[prop] = true
 			var scenes := 0
 			for attempt in 2:
-				world.forced_biome = biome
-				await game.debug_enter_floor(dungeon.first_depth(a) + 1)
+				world.overrides.biome = biome
+				await game.debug.enter_floor(dungeon.first_depth(a) + 1)
 				world = game.world
 				check(world.biome == biome and world.theme == biome.theme, "%s: the whole floor is it" % biome.id)
 				for count: int in FloorDresser.last_scenes.values():
@@ -2443,7 +2443,7 @@ func _test_biomes(game: Game) -> void:
 				var over_walls := _decor_over_walls(world)
 				check(over_walls.is_empty(), "%s: no decor drawn over a wall %s" % [biome.id, str(over_walls.slice(0, 4))])
 			check(scenes >= 6, "%s: scenes in its rooms (%d on 2 floors)" % [biome.id, scenes])
-	check(world.forced_biome == null, "a forced biome is used once")
+	check(world.overrides.biome == null, "a forced biome is used once")
 	await _clear_monsters(world)
 	for pickup in get_tree().get_nodes_in_group("pickups"):
 		pickup.queue_free()  # nothing for the next tests to pick up by chance
@@ -2454,8 +2454,8 @@ func _test_biomes(game: Game) -> void:
 ## The small things: splats on the floor, plants that bend, the HP bar's trail, flames, the air.
 func _test_details(game: Game) -> void:
 	var depth_before := game.depth
-	game.world.forced_biome = load("res://data/biomes/underground_garden.tres")
-	await game.debug_enter_floor(2)
+	game.world.overrides.biome = load("res://data/biomes/underground_garden.tres")
+	await game.debug.enter_floor(2)
 	var world := game.world
 	var player := game.player
 	await _clear_monsters(world)

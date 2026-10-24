@@ -18,7 +18,7 @@ func on_died(monster: Monster, _killer: Actor, fell: bool, _rewards: bool) -> vo
 	(func() -> void:
 		for i in amount:
 			var kind: MonsterDef = kinds.pick_random()
-			var minion := world.spawn_monster(kind, world.find_open_point_near(at, 24.0, World.room_for(kind)))
+			var minion := world.spawn_monster(kind, world.find_open_point_near(at, 24.0, WorldSpace.room_for(kind)))
 			minion.target = hunted if is_instance_valid(hunted) else null
 			Vfx.puff(world, minion.global_position)
 	).call_deferred()

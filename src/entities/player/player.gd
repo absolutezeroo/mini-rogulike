@@ -621,7 +621,7 @@ func _on_fell(pit: PitDef) -> void:
 	# he would fall again and again (pushed back into the hole by the body he climbed out under:
 	# four falls in 1.5 s in a balance fight, 2026-10-23).
 	var bodies := world.get_hostiles(faction)
-	if not world.is_solid_ground(_safe_position) or World.is_under_body(_safe_position, bodies, radius + 2.0):
+	if not world.is_solid_ground(_safe_position) or WorldSpace.is_under_body(_safe_position, bodies, radius + 2.0):
 		_safe_position = world.nearest_free_point(_safe_position, 12, bodies, radius + 2.0)
 	var abyss := Abyss.of(self)
 	if abyss and abyss.can_take(self):

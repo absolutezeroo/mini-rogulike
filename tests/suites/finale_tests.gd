@@ -367,7 +367,7 @@ func _test_finale_story(game: Game) -> void:
 	await _wait(game, jaw.opening_time + 0.1)
 	said.clear()
 	maw.take_hit(finish)
-	await _wait(game, Game.LAST_WORDS_DELAY + 0.3)
+	await _wait(game, RunAnnouncer.LAST_WORDS_DELAY + 0.3)
 	var never: DeedCondition = maw_def.chronicle.deeds()[0]
 	check(not game.run.marks.has("bitten") and Narrative.is_deed_done(maw_def, never), "never bitten: the Maw's deed is done")
 	check(said.has("\"%s\"" % Narrative.last_words(maw_def).line), "its last words: the sun sets")
@@ -605,7 +605,7 @@ func _test_nameless_keeper(game: Game) -> void:
 			var made := game.world.arena.boss if game.world.arena else null
 			check(made != null and made.def is NamelessKeeperDef and made.get_weapon().id == game.player.get_weapon().id, "it takes the hero down to himself as the Keeper")
 			check(Profile.keeper == waiting, "without touching the one waiting in the profile")
-		await game.debug_enter_finale()
+		await game.debug.enter_finale()
 		check(game.world.arena.boss.def == finale.boss, "the Well's bottom, as before: Tôma")
 		DebugCheats.reset()
 	fixtures.queue_free()

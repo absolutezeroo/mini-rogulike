@@ -21,7 +21,7 @@ func apply(user: Actor, _aim: Vector2) -> void:
 		if world.monster_count() >= max_alive:
 			return
 		var kind: MonsterDef = monsters.pick_random()
-		var at := world.find_open_point_near(user.global_position, radius, World.room_for(kind))
+		var at := world.find_open_point_near(user.global_position, radius, WorldSpace.room_for(kind))
 		var minion := world.spawn_monster(kind, at)
 		minion.summoned = true
 		if user is Monster:

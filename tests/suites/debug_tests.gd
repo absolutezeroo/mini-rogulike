@@ -155,7 +155,7 @@ func run_game(game: Game) -> void:
 	DebugCheats.reset()
 	HitStop.reset()
 	game.player.camera.fit_zoom()
-	await game.debug_enter_floor(depth_before)
+	await game.debug.enter_floor(depth_before)
 	await _clear_monsters(game.world)
 	game.player.invincible = false
 
@@ -331,7 +331,7 @@ func _test_debug_run(game: Game) -> void:
 	game.player.add_gold(123)
 	game._save_run()
 	check(not saved.is_empty() and RunSave.read() == saved and Profile.held, "a debug run is never saved, the profile held")
-	check(not game.debug_reload(), "nor saved and picked up again")
+	check(not game.debug.reload(), "nor saved and picked up again")
 	DebugCheats.reset()
 	game._save_run()
 	check(RunSave.read() != saved and not Profile.held, "a real run again: saved")
@@ -366,11 +366,11 @@ func _test_world_tools(game: Game, debug: DebugPanel) -> void:
 	debug.close()
 	await _frames(1)
 	DebugCheats.set_no_ai(true)
-	await game.debug_enter_floor(debug._next_boss_depth())
+	await game.debug.enter_floor(debug._next_boss_depth())
 	await _frames(2)
 	var world := game.world
 	check(world.is_explored(world.map.start_cell) and world.is_explored(world.map.boss_room.get_center()), "Reveal maps: the next floor's map is seen as it begins")
-	check(world.arena != null and game.debug_boss_story_ready(), "the next boss floor, its warden standing")
+	check(world.arena != null and game.debug.boss_story_ready(), "the next boss floor, its warden standing")
 	if world.arena == null:
 		return
 	debug._to_boss_room()
@@ -381,7 +381,7 @@ func _test_world_tools(game: Game, debug: DebugPanel) -> void:
 	# (Met on this floor already or not: an earlier test may have fought at this depth.)
 	var boss_def := world.arena.boss.def as BossDef
 	var meetings := Narrative.meetings(boss_def)
-	check(game.debug_boss_story() and game.run.has_met_here() and Narrative.meetings(boss_def) == meetings + 1,
+	check(game.debug.boss_story() and game.run.has_met_here() and Narrative.meetings(boss_def) == meetings + 1,
 		"Boss story: the warden is met again on demand (%d meetings, then %d)" % [meetings, Narrative.meetings(boss_def)])
 	await _frames(2)
 	DebugCheats.reset()

@@ -58,8 +58,8 @@ func _shoot(biome_id: String, what: String, set_piece: bool, with_map: bool = fa
 		else:
 			forced.room_shapes = [shape] as Array[RoomShapeDef]
 			forced.plain_weight = 0
-	game.world.forced_biome = forced
-	await game.debug_enter_floor(depth)
+	game.world.overrides.biome = forced
+	await game.debug.enter_floor(depth)
 	var world := game.world
 	await _frames(5)
 	for monster in world.get_hostiles(Actor.Faction.PLAYER):

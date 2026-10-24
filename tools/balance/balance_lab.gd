@@ -91,8 +91,8 @@ func start_game(depth: int, difficulty: DifficultyDef, boss: BossDef = null, pla
 	var game := (load(GAME_SCENE) as PackedScene).instantiate() as Game
 	game.show_act_cards = false
 	var world := game.get_node("World") as World
-	world.forced_plain = plain
-	world.forced_boss_rank = rank
+	world.overrides.plain = plain
+	world.overrides.boss_rank = rank
 	world.unpeopled = unpeopled
 	if not Vfx.shown:
 		# Nobody watches: the HUD and the screen's layers stay asleep (they only show the game).
@@ -181,7 +181,7 @@ func renew(s: Dictionary) -> void:
 	game.process_mode = Node.PROCESS_MODE_INHERIT
 	fresh_profile()
 	var world := game.world
-	world.forced_plain = s.plain
+	world.overrides.plain = s.plain
 	world.unpeopled = true
 	# As Game._enter_floor(): the same seed, the same ways down, the same way in.
 	world.rng.seed = hash("%d-floor-%d" % [game.run.run_seed, s.depth])

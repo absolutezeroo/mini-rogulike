@@ -561,7 +561,7 @@ func _fill_holes(world: World = null, more: Array[Vector2i] = []) -> void:
 		if where.map == null:
 			continue
 		var cell: Vector2i = dug[1]
-		where._pits._pits.erase(cell)
-		where._pits.queue_redraw()
+		where.holes.pits._pits.erase(cell)
+		where.holes.pits.queue_redraw()
 		where.set_cell_blocked(cell, false)
 	_dug.clear()

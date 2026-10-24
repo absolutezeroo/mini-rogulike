@@ -14,8 +14,8 @@ func show_place(new_map: DungeonMap, new_theme: DungeonTheme, lighting: Lighting
 	route = null
 	arena_plan = null
 	next_routes.clear()
-	opened_chests.clear()
-	bought.clear()
+	floor_save.opened_chests.clear()
+	floor_save.bought.clear()
 	_content = content
 	theme = new_theme
 	map = new_map
@@ -23,7 +23,7 @@ func show_place(new_map: DungeonMap, new_theme: DungeonTheme, lighting: Lighting
 	_view.show_map(map, theme)
 	lights.setup(map, lighting if lighting else (theme.lighting if theme else null), tint)
 	_view.mist.bind_light(lights)
-	_pits.setup(map.tile_size)
+	holes.setup(map.tile_size)
 	fog.reset(map)
 	stairs_cells.clear()
 	WallBuilder.build(map, _walls)

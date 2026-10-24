@@ -9,7 +9,7 @@ extends RefCounted
 ##   another biome's ceiling (or none). This works on a copy of the BiomeDef (`variant()`): the
 ##   generator and the dresser read it as they read any biome, nothing in them knows the gallery.
 ## - **A monster gallery**: a hall (one big room, `hall()`) handed to the World as its next map
-##   (World.forced_map), in the chosen biome's look, every monster of a scope (an act with its
+##   (World.overrides.map), in the chosen biome's look, every monster of a scope (an act with its
 ##   bosses, the hidden floor, the Deeps, the bottom of the Well, or all of them) standing in rows,
 ##   its name under its feet. No AI and the hero invisible are turned on with it.
 ##
@@ -241,7 +241,7 @@ static func fill(world: World, monsters: Array[MonsterDef], spots: Array[Vector2
 
 ## Width a body takes in a row.
 static func _footprint(def: MonsterDef) -> float:
-	return maxf(World.room_for(def) * 2.0, def.radius * 2.0) + GAP + 40.0
+	return maxf(WorldSpace.room_for(def) * 2.0, def.radius * 2.0) + GAP + 40.0
 
 
 ## Height a body takes in a row (its sprite over its feet, its name under them). A boss gets more
