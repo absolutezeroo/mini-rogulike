@@ -208,6 +208,17 @@ class RunTests(unittest.TestCase):
 		self.assertTrue(runs["won_then_left"]["won"], "a win left in the endless floors is still a win")
 		self.assertTrue(runs["won_then_left"]["finished"])
 
+	def test_win_then_death_in_endless_floors_is_a_win(self):
+		runs = stats.build_runs([
+			run_end("w", 100, result="victory", depth=13),
+			run_end("w", 200, quit=1, result="victory", depth=15),
+			run_end("w", 300, depth=17, resumed=1),
+		])
+		self.assertEqual(len(runs), 1)
+		self.assertTrue(runs[0]["won"], "the win stays a win when he later dies in the endless floors")
+		self.assertEqual(runs[0]["status"], "victory")
+		self.assertEqual(runs[0]["depth"], 17, "the latest end's numbers")
+
 	def test_win_rate_ignores_abandoned(self):
 		events = [run_end(f"w{i}", i, result="victory") for i in range(3)]
 		events += [run_end(f"d{i}", 10 + i) for i in range(3)]

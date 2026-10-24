@@ -3,7 +3,7 @@
 Runs: one per distinct `run` id, its **latest** `run_end` (highest timestamp) holding the whole
 run's numbers (a run left then resumed sends one at each quit, each covering everything since its
 start: never sum them). `result` victory = a win (even if the hero later left the endless floors,
-`quit` 1); `quit` 1 otherwise = abandoned (never finished, or not yet), neither a win nor a loss.
+`quit` 1, or later died there: any of its run_ends saying victory); `quit` 1 otherwise = abandoned (never finished, or not yet), neither a win nor a loss.
 Win rates are over finished runs (wins / (wins + deaths)).
 
 Every rate comes with its sample size and a 95% Wilson interval; a row with fewer than
@@ -67,26 +67,30 @@ def ratio(a: float, b: float) -> float | None:
 
 def build_runs(events: list[dict]) -> list[dict]:
 	"""One run per run id: its latest run_end, plus how many run_ends it sent. A run_end without a
-	run id is a run of its own."""
+	run id is a run of its own. A run is won if any of its run_ends says so: a hero who won, went
+	on into the endless floors and died there sends `result` death at that real end."""
 	latest: dict[str, dict] = {}
 	sent: Counter = Counter()
+	won: set[str] = set()
 	for event in events:
 		if event["name"] != "run_end":
 			continue
 		run_id = event["props"].get("run") or "event:" + event["id"]
 		sent[run_id] += 1
+		if event["props"].get("result") == "victory":
+			won.add(run_id)
 		current = latest.get(run_id)
 		if current is None or (event["time"], event["id"]) >= (current["time"], current["id"]):
 			latest[run_id] = event
-	return [make_run(run_id, event, sent[run_id]) for run_id, event in latest.items()]
+	return [make_run(run_id, event, sent[run_id], run_id in won) for run_id, event in latest.items()]
 
 
-def make_run(run_id: str, event: dict, ends_sent: int = 1) -> dict:
-	"""A run's numbers, from its latest run_end."""
+def make_run(run_id: str, event: dict, ends_sent: int = 1, won_before: bool = False) -> dict:
+	"""A run's numbers, from its latest run_end (`won_before`: an earlier end of it was a win)."""
 	p = event["props"]
 	result = p.get("result", "death")
 	quit_ = num(p, "quit") >= 1
-	won = result == "victory"
+	won = result == "victory" or won_before
 	if won:
 		status = "victory"
 	elif quit_ or result == "abandoned":

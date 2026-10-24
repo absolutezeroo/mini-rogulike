@@ -173,7 +173,8 @@ bugs. Built so that the game never depends on it:
   each quit and one at its end, all with the same `run` id, each covering everything since the
   run's start. Count runs as distinct `run` ids and keep each id's **latest** `run_end` (highest
   timestamp): its numbers are the whole run's. `quit` 1 on that latest one means the run was
-  never finished (or not yet). Never sum `run_end` events of one id. The other events (`boss`,
+  never finished (or not yet). A run is won if **any** of its `run_end`s says `victory`: a hero
+  who won and then died in the endless floors ends on `result` death. Never sum `run_end` events of one id. The other events (`boss`,
   `perk_*`, `purchase`, `pact`) are sent once each, with whichever `run_end` follows them.
   Sending at every quit, rather than only when the save is thrown away, keeps the runs of players
   who never come back (or uninstall), and needs nothing kept on the device after the run.
