@@ -72,7 +72,7 @@ static func ring(canvas: CanvasItem, center: Vector2, radius: float, color: Colo
 		var outer_x := floori(sqrt(r * r - dy * dy) + 0.5)
 		var inner_x := floori(sqrt(maxf(inner * inner - dy * dy, 0.0)) + 0.5) if absf(dy) < inner else -1
 		# Each side of the row: from inner_x + 1 to outer_x (the whole row where the ring is thin).
-		for side in [-1, 1]:
+		for side in GridDirs.SIGNS:
 			var from := inner_x + 1
 			if fade >= 1.0:
 				var length := outer_x - from + 1

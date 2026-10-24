@@ -476,8 +476,8 @@ static func _thin(tiles: PackedByteArray, w: int, h: int, x: int, y: int, ax: in
 
 ## _is_pinch() on the raw tiles (outside the map counts as wall).
 static func _pinched(tiles: PackedByteArray, w: int, h: int, x: int, y: int) -> bool:
-	for dx in [-1, 1]:
-		for dy in [-1, 1]:
+	for dx in GridDirs.SIGNS:
+		for dy in GridDirs.SIGNS:
 			var cx: int = x + dx
 			var cy: int = y + dy
 			var diagonal_wall := cx < 0 or cy < 0 or cx >= w or cy >= h or tiles[cy * w + cx] != DungeonMap.Tile.FLOOR
@@ -506,8 +506,8 @@ static func is_thin_wall(map: DungeonMap, cell: Vector2i, axis: Vector2i) -> boo
 
 ## Wall cell whose diagonal neighbour is a wall while both cells between them are floor.
 static func _is_pinch(map: DungeonMap, cell: Vector2i) -> bool:
-	for dx in [-1, 1]:
-		for dy in [-1, 1]:
+	for dx in GridDirs.SIGNS:
+		for dy in GridDirs.SIGNS:
 			var diagonal := cell + Vector2i(dx, dy)
 			if not map.is_floor(diagonal) and map.is_floor(cell + Vector2i(dx, 0)) and map.is_floor(cell + Vector2i(0, dy)):
 				return true

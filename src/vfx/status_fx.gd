@@ -11,6 +11,8 @@ extends Node2D
 const LOOKS: StatusLookSet = preload("res://data/vfx/status_looks.tres")
 ## Particles at most per body (a pack on fire stays cheap).
 const MAX_PARTICLES := 24
+## Where a bubble's pixels fly when it pops (a const: drawn every frame, no array built).
+const BUBBLE_POP: Array[Vector2] = [Vector2(-4, -4), Vector2(4, -4), Vector2(-4, 4), Vector2(4, 4)]
 
 enum Kind { SHEET, MOTE, BURST, MIST, CRUST }
 
@@ -250,7 +252,7 @@ func _draw_mote(bit: Bit, t: float) -> void:
 			if t < 0.85:
 				PixelDraw.bit(self, VfxElementDef.Bit.RING, bit.position, 1, color, Vector2.UP, look.mote_shade(0.0))
 			else:
-				for offset in [Vector2(-4, -4), Vector2(4, -4), Vector2(-4, 4), Vector2(4, 4)]:
+				for offset in BUBBLE_POP:
 					PixelDraw.pixel(self, bit.position + offset, color)
 		_:
 			# A chip or an ember: the element's bit, going down its ramp, the last third dithered.

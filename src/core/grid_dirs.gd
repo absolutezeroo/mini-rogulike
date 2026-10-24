@@ -7,5 +7,7 @@ extends RefCounted
 
 ## Left, right, up, down.
 const FOUR: Array[Vector2i] = [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]
+## Both ways along an axis (a row's two sides, a cell's diagonals: `for dx in SIGNS`).
+const SIGNS: Array[int] = [-1, 1]
 ## Here, then left, right, up, down.
 const HERE_AND_FOUR: Array[Vector2i] = [Vector2i.ZERO, Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]
