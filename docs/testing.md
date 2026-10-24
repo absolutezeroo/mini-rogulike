@@ -32,7 +32,8 @@ The suites (`tests/suites/`, each a `TestSuite`):
 - **title**: the title screen and its panels (the Leaderboards page with and without a server, the
   statistics' questions, Options > Privacy, the policy and the credits, the world counters' line
   and the Well's Toll page, the remote settings' event plaque and message of the day; the feedback
-  form on the title, in French on three screens, and from the pause menu with a gamepad).
+  form on the title, in French on three screens, and from the pause menu with a gamepad; typing on
+  a phone with a fake keyboard, `SoftKeyboardTests`: the scale kept, the typing bar in the strip).
   No suite ever reaches the network: the runner gives `Leaderboards` an offline backend first,
   and `Privacy`, `Telemetry`, `WorldStats`, `RemoteConfig` and `Feedback` no file (docs/online.md, Tests). The game suite plays its run with
   the statistics accepted on a fake server and checks what its end sends.

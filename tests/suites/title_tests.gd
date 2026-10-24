@@ -41,6 +41,11 @@ func run() -> void:
 	add_child(feedback)
 	await feedback.run_title()
 	feedback.free()
+	# Typing on a phone: the bar over the keyboard, the scale kept (SoftKeyboardTests).
+	var keyboard := SoftKeyboardTests.new()
+	add_child(keyboard)
+	await keyboard.run_title()
+	keyboard.free()
 	# The Vigil-Keeper at the shrine (DialogueTests).
 	var dialogue := DialogueTests.new()
 	add_child(dialogue)

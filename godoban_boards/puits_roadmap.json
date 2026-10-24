@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 176,
+  "next_id": 178,
   "tags": [
     "pc",
     "test",
@@ -2605,6 +2605,38 @@
       ],
       "created_at": 1792804954,
       "updated_at": 1792804954
+    },
+    {
+      "id": "task_176",
+      "title": "Saisie de texte sur téléphone : le jeu rétrécit sous le clavier",
+      "description": "Bug vu par Clayton (éditeur Android, paysage) : en touchant un champ de texte (« Donner ton avis », « Nomme ton âme »), le clavier du téléphone rétrécit la fenêtre du jeu à la bande au-dessus de lui (Godot déclare adjustResize dans son activité Android ; aucune option d'export pour changer ça). PixelGrid recalculait l'échelle pour une fenêtre de ~480 lignes (x0,67 au lieu de x1,5) : le dialogue devenait minuscule et le texte tapé illisible. Corrigé : un redimensionnement dû au clavier (même largeur, au moins 8 % plus court, un champ a le focus, appareil à clavier virtuel) garde l'échelle d'avant (PixelGrid.settled_size()), et un nouvel autoload SoftKeyboard affiche une barre de saisie dans la bande visible, pour tous les LineEdit/TextEdit : nom du champ (titre du dialogue), aide (règles du pseudonyme, question du type d'avis), compteur, texte tapé avec le curseur en taille BODY (les dernières lignes d'un long message), bouton OK qui range le clavier. Le reste du jeu est masqué derrière ; tout revient comme avant quand le clavier se ferme. Si le clavier est dessiné par-dessus le jeu sans redimensionner, la barre se place au-dessus de sa hauteur. Rien ne change sur PC. Tests : SoftKeyboardTests (faux clavier). Captures avant/après en FR (2340x1080 puis 2340x480).",
+      "status": "review",
+      "priority": "high",
+      "epic_id": "epic_4",
+      "due_date": null,
+      "tags": [
+        "bug",
+        "android",
+        "ui"
+      ],
+      "created_at": 1792806077,
+      "updated_at": 1792806077
+    },
+    {
+      "id": "task_177",
+      "title": "Saisie sur téléphone : tester la barre de saisie sur le vrai téléphone",
+      "description": "À vérifier sur le S23 Ultra (éditeur Android et APK exporté) : (1) en touchant le champ d'avis puis le pseudonyme, la barre de saisie apparaît au-dessus du clavier, lisible, et l'interface ne rétrécit plus ; (2) le texte tapé s'affiche bien (suggestions, accents, correcteur, effacement) ; (3) OK range le clavier et redonne le dialogue, le bouton retour du téléphone aussi ; (4) Entrée sur le pseudonyme publie comme avant ; (5) si la barre clignote ou ne s'affiche pas, noter la hauteur donnée par DisplayServer.virtual_keyboard_get_height() et la taille de la fenêtre (seuil : 8 % plus court à largeur égale). Non vérifiable sans le téléphone : l'ordre réel des événements Android (focus, redimensionnement, hauteur du clavier), un clavier flottant ou scindé.",
+      "status": "todo",
+      "priority": "high",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "playtest",
+        "android",
+        "ui"
+      ],
+      "created_at": 1792806077,
+      "updated_at": 1792806077
     }
   ]
 }

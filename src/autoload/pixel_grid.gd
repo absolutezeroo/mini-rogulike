@@ -17,6 +17,11 @@ extends Node
 ## texture exactly on the edge between two of its pixels and picks one or the other by rounding
 ## luck: letters get a column or a row doubled, or lost. A quarter-pixel shift takes both whole
 ## and half positions off those edges (docs/design/interface.md, Text).
+##
+## The phone's keyboard. On Android it shrinks the window to the strip above it (2340x1080 to
+## about 2340x480): read as a new screen, that would scale the UI down to x0.67 while typing. Such
+## a resize (SoftKeyboard.is_keyboard_resize()) keeps the scale of the window before it, and
+## SoftKeyboard shows the field in the strip; the window's size back, all is as before.
 
 ## The canvas's scale changed (a new window size, the interface size option).
 signal scale_changed
@@ -29,6 +34,8 @@ const STEP := 0.5
 ## Godot's own scale for this window (expand), and the one used.
 var _fit := 1.0
 var _scale := 1.0
+## The window's size the last time no keyboard had shrunk it.
+var _settled := Vector2i.ZERO
 
 
 func _ready() -> void:
@@ -57,22 +64,37 @@ func ui_scale() -> float:
 	return _scale
 
 
+## The window's size without the phone's keyboard (its size now when the keyboard is not up).
+func settled_size() -> Vector2i:
+	return _settled
+
+
 func _apply() -> void:
 	var root := get_tree().root
 	var base := Vector2(root.content_scale_size)
 	if base.x <= 0.0 or base.y <= 0.0 or root.size.x <= 0 or root.size.y <= 0:
 		return
 	var fit := minf(root.size.x / base.x, root.size.y / base.y)
+	if SoftKeyboard.is_keyboard_resize(root.size, _settled):
+		# The keyboard's strip: the same scale as before it (Godot's own fit is the strip's).
+		_set_factor(root, _scale / fit)
+		return
+	_settled = root.size
 	var target := canvas_scale(fit, Settings.ui_size)
 	var factor := target / fit
 	var changed := not is_equal_approx(_fit, fit) or not is_equal_approx(_scale, target)
 	_fit = fit
 	_scale = target
+	_set_factor(root, factor)
+	if changed:
+		scale_changed.emit()
+
+
+## Godot's scale times `factor` is the canvas's; the quarter-pixel shift follows it.
+func _set_factor(root: Window, factor: float) -> void:
 	if not is_equal_approx(root.content_scale_factor, factor):
 		root.content_scale_factor = factor
 	if DisplayServer.get_name() != "headless":
 		var stretch := root.get_stretch_transform().get_scale().x
 		if stretch > 0.0:
 			root.global_canvas_transform = Transform2D(0.0, Vector2.ONE * SHIFT / stretch)
-	if changed:
-		scale_changed.emit()

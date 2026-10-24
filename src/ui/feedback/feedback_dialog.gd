@@ -210,6 +210,7 @@ func _build() -> void:
 	_text.add_theme_font_size_override("font_size", Fonts.BODY)
 	_text.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
 	_text.virtual_keyboard_enabled = true
+	_text.set_meta(SoftKeyboard.MAX_META, Feedback.config.max_length)  # (over the phone's keyboard: SoftKeyboard)
 	_text.text_changed.connect(_on_text_changed)
 	body.add_child(_text)
 	_own(_text, "Text")
