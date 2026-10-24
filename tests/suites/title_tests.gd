@@ -31,6 +31,16 @@ func run() -> void:
 	add_child(world_stats)
 	await world_stats.run_title()
 	world_stats.free()
+	# The remote settings' event plaque and message of the day (RemoteConfigTests).
+	var remote := RemoteConfigTests.new()
+	add_child(remote)
+	await remote.run_title()
+	remote.free()
+	# The feedback form on the title and in the pause menu (FeedbackTests).
+	var feedback := FeedbackTests.new()
+	add_child(feedback)
+	await feedback.run_title()
+	feedback.free()
 	# The Vigil-Keeper at the shrine (DialogueTests).
 	var dialogue := DialogueTests.new()
 	add_child(dialogue)

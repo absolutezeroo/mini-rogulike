@@ -197,12 +197,30 @@ The rules and their reasons: [../privacy-ops.md](../privacy-ops.md). On screen:
 - **The privacy policy** (`PrivacyPolicyPanel`, an `InfoPanel`): the short policy's sections from
   `data/online/privacy.tres`, translated, the contact filled in, and **Read the full policy
   online** once its address is set. A page that scrolls with touch, the wheel, keys or a gamepad.
+- **The remote settings on the title** (`RemoteConfig`, docs/online.md "Remote settings"): a
+  running event's plaque under Credits (its name in gold, then in small type the souls bonus,
+  the floor event made more likely, the time left: "Encore 2 jours"), and the message of the day
+  in gold in the tagline's place (at most two lines: the left column has no room for more on a
+  phone once Resume shows). Both hidden when there are none, and before any online choice.
 - **Credits** (`CreditsPanel`, from a **Credits** button under Leaderboards on the title screen,
   and from the Options): `data/credits/credits.tres` by section (made by, art, music and sound,
   engine and services), each with its makers, what it is in the game, its license and source,
   what was changed, and a **License** button showing the license file shipped with the game; for
   Godot, the engine's own license and third-party notices, read from the engine. The license
   files are packed into every build (the export presets' `include_filter`).
+- **Send feedback** (`FeedbackDialog`, from the pause menu and from **Feedback** beside Credits on
+  the title screen; how it is sent: [../online.md](../online.md#player-feedback)): a line in the
+  Well's voice; the kind (**Bug**, **Idea**, **Other**: toggle buttons, Bug first) and how many
+  characters are written; a text field (a phone opens its keyboard; the field's hint follows the
+  kind); a refusal line (too short, too long, wait N seconds, no online service: Send is then
+  off); **Include game info** (on; the line under it says what it adds, the run too in a run, or
+  that only the words go); **Sign with my pseudonym: <name>** (off; only when the player has one);
+  a plain line saying where it goes and that it is linked to the device's random ID; **Privacy
+  policy**, **Cancel**, **Send**. Sent, the form closes and a note at the top thanks the player in
+  the Well's voice ("Thank you. Your words rise out of the Well to those who watch over it."),
+  over everything for about 4 s, taking no taps. Keys and gamepads start on the first kind; Back
+  closes it, the focus goes back to its button. It fits 1280x720 in French (the pause menu's
+  buttons are 320x54 and its notes 460 wide so that six rows and the gold and souls box fit too).
 - Back closes the page or dialog on top first (the title's and the Options' `back()`/`close()`).
 
 ## On a phone
@@ -213,8 +231,8 @@ The rules and their reasons: [../privacy-ops.md](../privacy-ops.md). On screen:
   perk choices still waiting, the one on screen with its cards). Dying erases it. "Save and quit" in the pause menu does the same on purpose.
   Never during the trial of the Threshold: quit in there, and the run picks up as it was before
   the killing blow.
-- **Pause menu** (the II button, Escape, a gamepad's Start, or the phone's back button): resume, options, save and quit,
-  give up the run (two taps). Coming back to the app, the game waits paused.
+- **Pause menu** (the II button, Escape, a gamepad's Start, or the phone's back button): resume, options, bestiary,
+  **Send feedback**, save and quit, give up the run (two taps). Coming back to the app, the game waits paused.
 - **Options** (`Settings` autoload, `user://settings.cfg`), on the title screen and in the pause menu:
   five volumes (**General**, **Music**, **Interface**, **Combat**, **Ambience**: which sounds
   each one sets is in presentation.md, SFX; a slider follows the finger or the mouse smoothly (a

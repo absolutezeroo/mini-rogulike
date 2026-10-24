@@ -45,6 +45,9 @@ var arena: BossArena
 var arena_plan: ArenaDef
 ## Debug: the next arena is this one. Used once.
 var forced_arena: ArenaDef
+## The run's remote settings (RunState.tuning, set by the Game at the run's start): a running
+## event's boosted floor event and the Dawn Knell's omen. Null: none.
+var tuning: RemoteTuning
 ## What makes this floor special (null on most floors).
 var floor_event: FloorEventDef
 ## The Well's curse on this whole floor (null on most floors).
@@ -216,7 +219,12 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 		if rng.randf() < curse_chance:
 			curse = ContentDB.pick_from(content.curses, depth, rng) as CurseDef
 		if curse == null and rng.randf() < content.dungeon.floor_event_chance:
-			floor_event = ContentDB.pick_from(content.floor_events, depth, rng) as FloorEventDef
+			floor_event = FloorRoute.pick_event(content, depth, rng, tuning)
+		# The Dawn Knell's omen (remote settings) on every normal floor, after the usual rolls.
+		var omen := DailyRun.twist(content, tuning.omen) if tuning else null
+		if omen and not hidden_def and not bottom:
+			curse = omen as CurseDef
+			floor_event = omen as FloorEventDef
 	arena_plan = null
 	# The world first: its rooms take its shapes (BiomeDef.room_shapes).
 	biome = hidden_def.biome if hidden_def and hidden_def.biome else _pick_biome(content, boss != null)

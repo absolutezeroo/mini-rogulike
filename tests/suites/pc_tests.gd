@@ -934,6 +934,15 @@ func _test_french_panels() -> void:
 		await _frames(2)
 		_panel_fits(where, "the pause", game.pause_menu)
 		await _panel_checked("pause", size)
+		# The feedback form over it, at its tallest (signing offered, the no-service line shown).
+		Leaderboards.pseudonym = "Wwwwwwwwwwwwwwww"
+		game.pause_menu.feedback.run_info = game.pause_menu.run_info
+		game.pause_menu.feedback.open()
+		await _frames(2)
+		_panel_fits(where, "the feedback form", game.pause_menu.feedback)
+		await _panel_checked("feedback", size)
+		game.pause_menu.feedback.hide()
+		Leaderboards.pseudonym = ""
 		var options := game.pause_menu.get_node("%OptionsPanel") as OptionsPanel
 		options.open()
 		for tab: int in OptionsPanel.Tab.values():

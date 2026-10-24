@@ -1,9 +1,10 @@
 class_name PauseMenu
 extends Control
 ## Pause, in the game's skin (RpgDialog): resume, options, the bestiary (attacks and challenges
-## of the monsters met), save and quit (Continue on the title screen), or give up the run; each
-## button says what it does. Below, what gold and souls are for. The options and the bestiary
-## open over it (instanced in the scene).
+## of the monsters met), send feedback (a bug, an idea: FeedbackDialog, with this run's details),
+## save and quit (Continue on the title screen), or give up the run; each button says what it
+## does. Below, what gold and souls are for. The options and the bestiary open over it
+## (instanced in the scene), the feedback form too (made here).
 
 signal resume_requested
 signal quit_requested
@@ -15,11 +16,15 @@ const CONFIRM_TEXT_BUTTONS := "Really? Press again"  # i18n
 const ABANDON_NOTE := "Ends this run now. You keep the souls earned so far."  # i18n
 const CONFIRM_NOTE := "Tap again to end the run. Anything else to cancel."  # i18n
 const CONFIRM_NOTE_BUTTONS := "Press again to end the run. Anything else to cancel."  # i18n
-const BUTTON_SIZE := Vector2(300, 58)
-const NOTE_WIDTH := 380.0
+const BUTTON_SIZE := Vector2(320, 54)
+const NOTE_WIDTH := 460.0
 
 ## Set by the game (the bestiary needs it).
 var content: ContentDB
+## Set by the game: the run's details for the feedback form (FeedbackInfo.run()).
+var run_info: Callable
+## The feedback form, over the menu.
+var feedback: FeedbackDialog
 
 var _dialog: RpgDialog
 var _abandon_note: Label
@@ -41,6 +46,7 @@ func open() -> void:
 	_abandon_note.text = tr(ABANDON_NOTE)
 	_options.hide()
 	_codex.hide()
+	feedback.hide()
 	show()
 
 
@@ -50,6 +56,8 @@ func back() -> void:
 		_options.close()
 	elif _codex.visible:
 		_codex.back()
+	elif feedback.visible:
+		feedback.back()
 	else:
 		resume_requested.emit()
 
@@ -70,6 +78,10 @@ func _build() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		if content:
 			_codex.open(content, CodexPanel.Tab.BESTIARY))
+	_row(tr("Send feedback"), "FeedbackButton", tr("A bug, an idea? Tell the game's maker."), func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_open)
+		feedback.run_info = run_info
+		feedback.open())
 	_row(tr("Save and quit"), "QuitButton", tr("Your run is saved: pick Continue on the title screen."), func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_click)
 		quit_requested.emit())
@@ -87,6 +99,12 @@ func _build() -> void:
 	for node in _named:
 		node.owner = self
 		node.unique_name_in_owner = true
+	feedback = FeedbackDialog.new()
+	feedback.name = "FeedbackDialog"
+	add_child(feedback)
+	feedback.finished.connect(func() -> void:
+		if InputDevice.uses_buttons():
+			(get_node("%FeedbackButton") as Button).grab_focus())
 
 
 func _on_abandon() -> void:

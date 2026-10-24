@@ -74,9 +74,10 @@ func now_ms() -> int:
 	return Privacy.now() * 1000 if Privacy.fake_now >= 0 else int(Time.get_unix_time_from_system() * 1000.0)
 
 
-## The statistics may be collected and sent now (consent, a server).
+## The statistics may be collected and sent now (consent, a server, not stopped by the remote
+## kill switch: RemoteConfig.statistics_off()).
 func is_active() -> bool:
-	return Privacy.analytics_allowed() and Leaderboards.is_available()
+	return Privacy.analytics_allowed() and Leaderboards.is_available() and not RemoteConfig.statistics_off()
 
 
 func _on_run_started(run: RunState, player: Player) -> void:

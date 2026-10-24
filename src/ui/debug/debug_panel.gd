@@ -3,7 +3,7 @@ extends RpgWindow
 ## Dev tools, only in debug builds (running from the editor, debug exports). Opened from the HUD's
 ## DBG button (or F1); the game pauses. Built in code: nothing to maintain in a scene.
 ##
-## Five tabs (tapped, clicked, or switched with Q / E and LB / RB like the bag's: MenuNav), each a
+## Six tabs (tapped, clicked, or switched with Q / E and LB / RB like the bag's: MenuNav), each a
 ## column of rows, a row's name on its left and its buttons after it:
 ## - **World**: jump to any floor (with a curse or an event), the special places (the next boss,
 ##   the hidden floor, the Deeps, the bottom of the Well), to the stairs, the boss room, the next
@@ -16,6 +16,8 @@ extends RpgWindow
 ##   monster gallery (DebugGallery).
 ## - **Tools**: the game's speed, the camera's zoom, full light, the bodies and reaches drawn
 ##   (DebugShapes), the frame rate and counts (DebugOverlay), saving and picking the run up again.
+## - **Remote**: the remote settings (RemoteConfig) in use, last read and simulated; any key set to
+##   a sample value as if the server sent it; read now, apply now.
 ## A toggle says its state ("Invisible: ON"), a step its value ("Damage x5"); both stay pressed
 ## while on. The panel only calls the Game, the World and DebugCheats: the rules stay theirs.
 ## Whatever it does to the run makes it a debug run (DebugCheats.mark_run(): nothing kept); the
@@ -68,6 +70,10 @@ var _encounter_index := 0
 var _fragment_index := 0
 ## Every fragment of the past, with its warden: [FragmentDef, BossDef].
 var _fragment_list: Array[Array] = []
+
+# The Remote tab's picks: a key of the allow-list, one of its sample values.
+var _remote_index := 0
+var _remote_value := 0
 
 var _overlay: DebugOverlay
 var _shapes: DebugShapes
@@ -128,7 +134,7 @@ func _build_tabs() -> void:
 	body.add_child(_status)
 	var builders: Array[Array] = [
 		["World", _build_world], ["Hero", _build_hero], ["Monsters", _build_monsters],
-		["Gallery", _build_gallery], ["Tools", _build_tools],
+		["Gallery", _build_gallery], ["Tools", _build_tools], ["Remote", _build_remote],
 	]
 	for entry: Array in builders:
 		var index := _tabs.size()
@@ -428,6 +434,104 @@ func _build_tools(page: VBoxContainer) -> void:
 			_status.text = "Not saved: a debug run, the Deeps or the Threshold"))
 	var note := _label("Game speed takes effect when the panel closes. Speed, zoom and the views last the run; they don't make a debug run.")
 	page.add_child(_note(note))
+
+
+# --- Remote --------------------------------------------------------------------------------
+
+## The remote settings (RemoteConfig): every key with its value in use, the one last read and a
+## simulated one; any key set to a sample value as if the server had it (checked the same way,
+## applied at the next safe point); read again, apply now.
+func _build_remote(page: VBoxContainer) -> void:
+	var read := _row(page, "Server")
+	read.add_child(_button("Read now", func() -> void:
+		_status.text = "Reading..."
+		await RemoteConfig.fetch(true)
+		_status.text = "Read: %s" % BoardBackend.Status.keys()[RemoteConfig.status] if RemoteConfig.may_fetch() else "Not read: no key, or no online choice made"
+		_refresh(), Vector2(150, 44)))
+	read.add_child(_button("Apply now", func() -> void:
+		RemoteConfig.apply()
+		_status.text = "Applied: the next run (or the title) uses them; this run keeps its own"
+		_refresh(), Vector2(150, 44)))
+	read.add_child(_button("Clear simulated", func() -> void:
+		RemoteConfig.clear_simulations()
+		_status.text = "Simulated values cleared"
+		_refresh(), Vector2(190, 44)))
+	var keys := RemoteConfig.config.keys
+	var pick := _row(page, "Key")
+	_picker(pick, func() -> int: return keys.size(), func() -> int: return _remote_index, func(i: int) -> void:
+		_remote_index = i
+		_remote_value = 0, func() -> String: return keys[_remote_index].key if not keys.is_empty() else "-")
+	var simulate := _row(page, "Simulate")
+	_picker(simulate, func() -> int: return _remote_samples().size(), func() -> int: return _remote_value,
+		func(i: int) -> void: _remote_value = i, _remote_sample_text, 420.0)
+	simulate.add_child(_action_button("Simulate", func() -> void:
+		var def := keys[_remote_index]
+		var sample: String = _remote_samples()[_remote_value]
+		RemoteConfig.simulate(def.key, sample)
+		_status.text = "%s simulated: applies at the next safe point (Apply now, the title, a new run)" % def.key
+		_refresh()))
+	var list := _label("")
+	list.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	list.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	UiSkin.set_text_style(list, Fonts.SMALL)
+	page.add_child(list)
+	_refreshers.append(func() -> void:
+		var lines := PackedStringArray()
+		lines.append("Status %s, read %s, %s" % [BoardBackend.Status.keys()[RemoteConfig.status],
+			Time.get_datetime_string_from_unix_time(RemoteConfig.fetched_at) + " UTC" if RemoteConfig.fetched_at > 0 else "never",
+			"GATED (another game version)" if RemoteConfig.gated else "for this version"])
+		lines.append("key: in use / last read / simulated")
+		for def in keys:
+			var simulated := str(RemoteConfig.simulated.get(def.key, ""))
+			lines.append("%s: %s / %s%s" % [def.key, RemoteConfig.shown_value(def, RemoteConfig.active), RemoteConfig.shown_value(def, RemoteConfig.latest),
+				" / \"%s\"" % simulated if not simulated.is_empty() else ""])
+		for line in RemoteConfig.ignored:
+			lines.append("ignored %s" % line)
+		lines.append("Kill switches: scores %s, statistics %s" % ["OFF" if RemoteConfig.scores_off() else "on", "OFF" if RemoteConfig.statistics_off() else "on"])
+		list.text = "\n".join(lines))
+	page.add_child(_note(_label("A run keeps the values it started with (saved with it). Simulated values are checked like the server's: an out-of-bounds one shows under \"ignored\".")))
+
+
+## The sample picked, as the Simulate row shows it.
+func _remote_sample_text() -> String:
+	var samples := _remote_samples()
+	var sample := samples[mini(_remote_value, samples.size() - 1)]
+	return "\"%s\"" % sample.left(40) if not sample.is_empty() else "(unset: the game's own)"
+
+
+## Sample values for the key picked in the Remote tab (as the server would send them; "" unsets).
+func _remote_samples() -> PackedStringArray:
+	var keys := RemoteConfig.config.keys
+	if keys.is_empty():
+		return PackedStringArray([""])
+	var def := keys[_remote_index]
+	var samples := PackedStringArray([""])
+	match def.kind:
+		RemoteKeyDef.Kind.NUMBER:
+			for number in [def.min_number, def.default_number, (def.min_number + def.max_number) / 2.0, def.max_number, def.max_number * 2.0]:
+				samples.append(str(snappedf(number, 0.01)))
+		RemoteKeyDef.Kind.FLAG:
+			samples.append_array(["true", "false"])
+		RemoteKeyDef.Kind.TEXT:
+			if def.hook == RemoteKeyDef.Hook.EVENT_NAME:
+				samples.append("Nuit des Âmes" if def.language == "fr" else "Night of Souls")
+			else:
+				samples.append("Le Puits s'agite : la nuit des âmes commence ce soir." if def.language == "fr" else "The Well stirs: the night of souls begins tonight.")
+			samples.append("x".repeat(def.max_length + 1))
+		RemoteKeyDef.Kind.CONTENT_ID:
+			for event in _game_content().floor_events:
+				samples.append(String(event.id))
+			if def.pool == RemoteKeyDef.Pool.CURSES_AND_EVENTS:
+				for curse in _game_content().curses:
+					samples.append(String(curse.id))
+			samples.append("no_such_thing")
+		RemoteKeyDef.Kind.DATE:
+			var now := int(Time.get_unix_time_from_system())
+			for days in [0, 2, -1]:
+				samples.append(Time.get_date_string_from_unix_time(now + days * 86400))
+		RemoteKeyDef.Kind.VERSION:
+			samples.append_array([str(ProjectSettings.get_setting("application/config/version", "0")), "0.0.1", "99.0.0"])
+	return samples
 
 
 # --- Actions -------------------------------------------------------------------------------

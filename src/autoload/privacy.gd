@@ -156,6 +156,7 @@ func forget_online() -> void:
 	Leaderboards.forget()
 	Telemetry.drop_queue()
 	WorldStats.forget()
+	Feedback.forget()
 	if analytics == Answer.GRANTED:
 		_answer(Answer.REFUSED, "deleted")
 	changed.emit()

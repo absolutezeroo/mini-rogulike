@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Statistiques du Puits</title>
+<style>
+:root {
+	color-scheme: light;
+	--page: #f6f5f1;
+	--surface: #fcfcfb;
+	--surface-2: #f0efea;
+	--ink: #17161a;
+	--ink-2: #4f4d4a;
+	--muted: #807d77;
+	--line: #e1e0d9;
+	--axis: #c3c2b7;
+	--accent: #7a4f1d;
+	--bar: #2a78d6;
+	--bar-soft: #b7d3f6;
+	--good: #0a7d0a;
+	--good-fill: #0ca30c;
+	--bad: #b52f2f;
+	--bad-fill: #d03b3b;
+	--warn-fill: #fab219;
+	--gray-fill: #b9b7b0;
+	--shadow: 0 1px 2px rgba(0, 0, 0, .06);
+}
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) {
+		color-scheme: dark;
+		--page: #0f0e10;
+		--surface: #1a1a19;
+		--surface-2: #242422;
+		--ink: #f0efec;
+		--ink-2: #c3c2b7;
+		--muted: #94918a;
+		--line: #2c2c2a;
+		--axis: #46453f;
+		--accent: #e2b26b;
+		--bar: #3987e5;
+		--bar-soft: #1c5cab;
+		--good: #4cc44c;
+		--good-fill: #0ca30c;
+		--bad: #ef7a7a;
+		--bad-fill: #d03b3b;
+		--gray-fill: #5d5b56;
+		--shadow: none;
+	}
+}
+:root[data-theme="dark"] {
+	color-scheme: dark;
+	--page: #0f0e10;
+	--surface: #1a1a19;
+	--surface-2: #242422;
+	--ink: #f0efec;
+	--ink-2: #c3c2b7;
+	--muted: #94918a;
+	--line: #2c2c2a;
+	--axis: #46453f;
+	--accent: #e2b26b;
+	--bar: #3987e5;
+	--bar-soft: #1c5cab;
+	--good: #4cc44c;
+	--good-fill: #0ca30c;
+	--bad: #ef7a7a;
+	--bad-fill: #d03b3b;
+	--gray-fill: #5d5b56;
+	--shadow: none;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+	margin: 0; background: var(--page); color: var(--ink);
+	font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+header.top { padding: 20px 16px 8px; max-width: 1180px; margin: 0 auto; }
+header.top h1 { margin: 0; font-size: 1.45rem; letter-spacing: -.01em; }
+header.top h1 span { color: var(--accent); }
+header.top p { margin: 4px 0 0; color: var(--ink-2); font-size: .9rem; }
+.bar-filters {
+	position: sticky; top: 0; z-index: 5; background: var(--page);
+	border-bottom: 1px solid var(--line);
+}
+.bar-filters .in { max-width: 1180px; margin: 0 auto; padding: 8px 16px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.bar-filters label { font-size: .85rem; color: var(--ink-2); display: flex; align-items: center; gap: 6px; }
+select, button.theme {
+	font: inherit; font-size: .9rem; color: var(--ink); background: var(--surface);
+	border: 1px solid var(--axis); border-radius: 6px; padding: 5px 8px; min-height: 34px;
+}
+button.theme { cursor: pointer; margin-left: auto; }
+nav.toc { max-width: 1180px; margin: 0 auto; padding: 10px 16px 0; display: flex; flex-wrap: wrap; gap: 6px; }
+nav.toc a {
+	font-size: .8rem; color: var(--ink-2); text-decoration: none; padding: 3px 9px;
+	border: 1px solid var(--line); border-radius: 999px; background: var(--surface);
+}
+main { max-width: 1180px; margin: 0 auto; padding: 8px 16px 40px; }
+section.card {
+	background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+	padding: 16px; margin: 14px 0; box-shadow: var(--shadow); min-width: 0;
+}
+section.card > h2 { margin: 0 0 4px; font-size: 1.15rem; }
+section.card > p.lead { margin: 0 0 12px; color: var(--ink-2); font-size: .88rem; max-width: 70ch; }
+h3 { font-size: .95rem; margin: 18px 0 6px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 8px 24px; }
+.grid2 > * { min-width: 0; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.tile { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; }
+.tile .v { font-size: 1.45rem; font-weight: 650; line-height: 1.15; }
+.tile .l { font-size: .78rem; color: var(--ink-2); }
+.tile .s { font-size: .74rem; color: var(--muted); }
+.scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -4px; padding: 0 4px; }
+table { border-collapse: collapse; width: 100%; font-size: .84rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; position: sticky; left: 0; background: var(--surface); z-index: 1; white-space: normal; min-width: 120px; max-width: 220px; }
+th { font-weight: 600; color: var(--ink-2); font-size: .76rem; cursor: pointer; user-select: none; vertical-align: bottom; }
+th.sorted::after { content: " ▾"; }
+th.sorted.asc::after { content: " ▴"; }
+tr.low td { color: var(--muted); }
+tr.low td:first-child::after { content: " · faible"; font-size: .7rem; }
+td .id { display: block; font-size: .7rem; color: var(--muted); }
+.rate { display: inline-flex; align-items: center; gap: 6px; }
+.rate svg { flex: none; }
+.pos { color: var(--good); }
+.neg { color: var(--bad); }
+.pill { display: inline-block; font-size: .7rem; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--axis); color: var(--ink-2); }
+.pill.good { border-color: var(--good); color: var(--good); }
+.pill.low { color: var(--muted); }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+.tabs button {
+	font: inherit; font-size: .82rem; padding: 5px 11px; border-radius: 999px; cursor: pointer;
+	border: 1px solid var(--axis); background: transparent; color: var(--ink-2); min-height: 32px;
+}
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.bars { display: grid; grid-template-columns: minmax(90px, 38%) 1fr auto; gap: 5px 8px; align-items: center; font-size: .84rem; }
+.bars .lab { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bars .track { height: 12px; background: var(--surface-2); border-radius: 0 4px 4px 0; overflow: hidden; }
+.bars .fill { height: 100%; background: var(--bar); border-radius: 0 4px 4px 0; min-width: 2px; }
+.bars .num { font-variant-numeric: tabular-nums; color: var(--ink-2); text-align: right; }
+.chart { width: 100%; max-width: 720px; overflow: hidden; }
+details { margin-top: 10px; }
+details > summary { cursor: pointer; font-size: .85rem; color: var(--ink-2); padding: 4px 0; }
+.chart svg { display: block; width: 100%; height: auto; }
+.chart text { fill: var(--muted); font-size: 11px; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: .78rem; color: var(--ink-2); margin: 6px 0; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.note { font-size: .8rem; color: var(--ink-2); background: var(--surface-2); border-radius: 8px; padding: 10px 12px; margin-top: 12px; }
+.empty { color: var(--muted); font-size: .85rem; font-style: italic; }
+#tip {
+	position: fixed; pointer-events: none; z-index: 20; background: var(--ink); color: var(--surface);
+	font-size: .78rem; padding: 5px 8px; border-radius: 6px; opacity: 0; transition: opacity .1s; max-width: 260px;
+}
+footer { max-width: 1180px; margin: 0 auto; padding: 0 16px 30px; color: var(--muted); font-size: .78rem; }
+@media (max-width: 560px) {
+	body { font-size: 14px; }
+	section.card { padding: 12px; border-radius: 8px; }
+	.tile .v { font-size: 1.25rem; }
+	.bar-filters label span.long { display: none; }
+	nav.toc { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
+	nav.toc a { flex: none; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+	<h1>Le Puits des Âmes <span>· statistiques de jeu</span></h1>
+	<p id="meta"></p>
+</header>
+<div class="bar-filters"><div class="in">
+	<label>Version <select id="f-version"></select></label>
+	<label>Difficulté <select id="f-diff"></select></label>
+	<label id="dev-wrap"><input type="checkbox" id="f-dev"> <span>Données dev<span class="long"> (builds de l'éditeur)</span></span></label>
+	<button class="theme" id="theme" type="button" aria-label="Passer en clair ou en sombre">Clair / sombre</button>
+</div></div>
+<nav class="toc" id="toc"></nav>
+<main id="main"></main>
+<footer id="foot"></footer>
+<div id="tip" role="tooltip"></div>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+"use strict";
+const DATA = JSON.parse(document.getElementById("data").textContent);
+const NAMES = DATA.names || {};
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+// --- Formatting -----------------------------------------------------------------
+const nf = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 });
+const n0 = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 });
+const num = (v, d = 1) => v === null || v === undefined ? "–" : (d === 0 ? n0 : nf).format(v);
+const pct = (v, d = 0) => v === null || v === undefined ? "–" : (v * 100).toFixed(d).replace(".", ",") + " %";
+const signed = (v) => v === null || v === undefined ? "–" : (v > 0 ? "+" : v < 0 ? "−" : "±") + Math.abs(v * 100).toFixed(0) + " pt";
+const minutes = (s) => s === null || s === undefined ? "–" : `${Math.floor(s / 60)} min ${String(Math.round(s % 60)).padStart(2, "0")}`;
+
+function nm(kind, id) {
+	if (id === "" || id === null || id === undefined) return "–";
+	const table = NAMES[kind] || {};
+	return table[id] || (NAMES.word || {})[id] || id;
+}
+// A label with its id below (when they differ), for tables.
+function label(kind, id) {
+	const name = nm(kind, id);
+	return name === id ? esc(name) : `${esc(name)}<span class="id">${esc(id)}</span>`;
+}
+const KINDS = { weapon: "weapon", weapon_rarity: "rarity", element: "element", head: "armor", body: "armor", armor: "armorpair", skill: "skill", perk: "perk", relic: "perk", set: "set", rune: "rune" };
+function labelOf(kind, key) {
+	if (kind === "rarity") return esc(["Commune", "Magique", "Rare", "Épique"][+key] || key);
+	if (kind === "armorpair") return key.split("+").map((p) => esc(nm("armor", p))).join(" + ") + `<span class="id">${esc(key)}</span>`;
+	if (kind === "asc") { const [d, a] = key.split("+"); return esc(nm("difficulty", d)) + (a !== "0" ? ` +${esc(a)}` : ""); }
+	if (kind === "combo") {
+		const [w, rest] = key.split(" | ");
+		const parts = rest.split(/ \+ |\+/).map((p) => nm("skill", p) !== p ? nm("skill", p) : nm("armor", p) !== p ? nm("armor", p) : nm("perk", p));
+		return `${esc(nm("weapon", w))} · ${parts.map(esc).join(" + ")}`;
+	}
+	return label(kind, key);
+}
+
+// --- Small charts -------------------------------------------------------------------
+// A win rate as a dot on a 0..100 % track with its 95 % interval as a line.
+function rateCell(row, baseline) {
+	if (row.win_rate === null || row.win_rate === undefined) return "–";
+	const w = 64, x = (v) => 2 + v * (w - 4);
+	const base = baseline !== null && baseline !== undefined ? `<line x1="${x(baseline)}" x2="${x(baseline)}" y1="1" y2="13" stroke="var(--axis)" stroke-width="1"/>` : "";
+	const svg = `<svg width="${w}" height="14" aria-hidden="true"><rect x="0" y="6" width="${w}" height="2" rx="1" fill="var(--line)"/>${base}` +
+		`<line x1="${x(row.lo)}" x2="${x(row.hi)}" y1="7" y2="7" stroke="var(--bar-soft)" stroke-width="4" stroke-linecap="round"/>` +
+		`<circle cx="${x(row.win_rate)}" cy="7" r="3.5" fill="var(--bar)"/></svg>`;
+	return `<span class="rate" data-tip="Intervalle à 95 % : ${pct(row.lo)} – ${pct(row.hi)} (${row.finished} parties terminées)">${svg}${pct(row.win_rate)}</span>`;
+}
+
+function bars(rows, opts) {
+	if (!rows || !rows.length) return `<p class="empty">Aucune donnée.</p>`;
+	const value = opts.value, max = Math.max(...rows.map(value), 1e-9);
+	return `<div class="bars">` + rows.map((r) => {
+		const v = value(r);
+		return `<div class="lab" title="${esc(opts.title ? opts.title(r) : "")}">${opts.label(r)}</div>` +
+			`<div class="track" data-tip="${esc(opts.tip ? opts.tip(r) : "")}"><div class="fill" style="width:${Math.max(0, v / max * 100)}%;${opts.color ? "background:" + opts.color(r) : ""}"></div></div>` +
+			`<div class="num">${opts.text(r)}</div>`;
+	}).join("") + `</div>`;
+}
+
+// The axis' top: the next 1, 2, 2.5, 4, 5 or 10 x 10^k above `v` (ticks at quarters stay round).
+function niceMax(v) {
+	const p = Math.pow(10, Math.floor(Math.log10(v)));
+	for (const m of [1, 2, 2.5, 4, 5, 10]) if (m * p >= v - 1e-12) return m * p;
+	return 10 * p;
+}
+// Columns (one value per x), the bars rounded at their data end, a hover tip per column.
+// Drawn once the page is laid out, at the width it gets (so its text keeps its size on a phone).
+const CHARTS = [];
+function columns(points, opts) {
+	if (!points.length) return `<p class="empty">Aucune donnée.</p>`;
+	CHARTS.push([points, opts]);
+	return `<div class="chart" data-chart="${CHARTS.length - 1}" style="height:${opts.height || 190}px"></div>`;
+}
+function drawCharts() {
+	document.querySelectorAll("[data-chart]").forEach((el) => {
+		const [points, opts] = CHARTS[+el.dataset.chart];
+		el.innerHTML = columnsSvg(points, opts, Math.max(240, el.clientWidth));
+	});
+}
+let resizeTimer = 0;
+addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(drawCharts, 150); });
+function columnsSvg(points, opts, W) {
+	const H = opts.height || 190, left = 44, bottom = 22, top = 10;
+	const max = opts.max || niceMax(Math.max(...points.map((p) => p.v), 1e-9));
+	const step = (W - left - 6) / points.length, bw = Math.max(3, Math.min(34, step - 3));
+	const y = (v) => top + (H - top - bottom) * (1 - v / max);
+	let grid = "";
+	for (let i = 0; i <= 4; i++) {
+		const v = max * i / 4, yy = y(v);
+		grid += `<line x1="${left}" x2="${W - 4}" y1="${yy}" y2="${yy}" stroke="var(--line)" stroke-width="1"/>` +
+			`<text x="${left - 5}" y="${yy + 3.5}" text-anchor="end">${esc(opts.axis(v))}</text>`;
+	}
+	let marks = "";
+	points.forEach((p, i) => {
+		const x = left + step * i + (step - bw) / 2, yy = y(p.v), h = Math.max(0, H - bottom - yy);
+		const r = Math.min(4, bw / 2, h);
+		const path = h > 0 ? `M${x},${H - bottom} V${yy + r} Q${x},${yy} ${x + r},${yy} H${x + bw - r} Q${x + bw},${yy} ${x + bw},${yy + r} V${H - bottom} Z` : "";
+		marks += `<g data-tip="${esc(p.tip)}"><rect x="${left + step * i}" y="${top}" width="${step}" height="${H - top - bottom}" fill="transparent"/>` +
+			`<path d="${path}" fill="${p.color || "var(--bar)"}"/></g>`;
+		if (step >= 18 || i % Math.ceil(18 / step) === 0) marks +=`<text x="${x + bw / 2}" y="${H - 6}" text-anchor="middle">${esc(p.x)}</text>`;
+	});
+	return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria || "")}">` +
+		`${grid}<line x1="${left}" x2="${W - 4}" y1="${H - bottom}" y2="${H - bottom}" stroke="var(--axis)"/>${marks}</svg>`;
+}
+
+// --- Tables -------------------------------------------------------------------------
+let tableId = 0;
+const TABLES = {};
+// cols: [{h, v: row => value for sorting, f: row => html, tip}]
+function table(rows, cols, opts = {}) {
+	if (!rows || !rows.length) return `<p class="empty">${opts.empty || "Aucune donnée."}</p>`;
+	const id = "t" + (++tableId);
+	TABLES[id] = { rows, cols, opts, sort: null, asc: false };
+	return `<div class="scroll" id="${id}">${tableHtml(id)}</div>`;
+}
+function tableHtml(id) {
+	const t = TABLES[id];
+	let rows = t.rows.slice();
+	if (t.sort !== null) {
+		const v = t.cols[t.sort].v || (() => 0);
+		rows.sort((a, b) => {
+			const x = v(a), y = v(b);
+			const c = (x === null || x === undefined) - (y === null || y === undefined) || (x < y ? -1 : x > y ? 1 : 0);
+			return t.asc ? c : -c;
+		});
+	}
+	const head = t.cols.map((c, i) => `<th data-i="${i}" title="${esc(c.tip || "")}" class="${t.sort === i ? "sorted" + (t.asc ? " asc" : "") : ""}">${c.h}</th>`).join("");
+	const body = rows.slice(0, t.opts.limit || 500).map((r) => `<tr class="${r.conf === "low" ? "low" : ""}">${t.cols.map((c) => `<td>${c.f(r)}</td>`).join("")}</tr>`).join("");
+	return `<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+}
+document.addEventListener("click", (e) => {
+	const th = e.target.closest("th[data-i]");
+	if (!th) return;
+	const box = th.closest(".scroll"), t = TABLES[box.id], i = +th.dataset.i;
+	if (t.sort === i) t.asc = !t.asc; else { t.sort = i; t.asc = false; }
+	box.innerHTML = tableHtml(box.id);
+});
+
+function confPill(row) {
+	const label = { good: "bonne", medium: "moyenne", low: "faible" }[row.conf] || "";
+	return `<span class="pill ${row.conf}" data-tip="Confiance : ${row.finished ?? row.n ?? ""} parties terminées (minimum ${VIEW.overview.min_sample})">${label}</span>`;
+}
+const CONF_ORDER = { good: 2, medium: 1, low: 0 };
+// The usual columns of a group of runs (an item, a build...).
+function rateCols(kind, baseline, extra = []) {
+	return [
+		{ h: "Nom", v: (r) => nm(KINDS[kind] || kind, r.key), f: (r) => labelOf(KINDS[kind] || kind, r.key) },
+		{ h: "Parties", v: (r) => r.runs, f: (r) => num(r.runs, 0), tip: "Parties qui finissent avec (abandons compris)" },
+		{ h: "Part", v: (r) => r.share, f: (r) => pct(r.share), tip: "Part des parties de la vue" },
+		...extra,
+		{ h: "Victoire", v: (r) => r.lo, f: (r) => rateCell(r, baseline), tip: "Taux de victoire des parties terminées; le trait = intervalle à 95 %, la barre grise = la moyenne. Trié par le bas de l'intervalle." },
+		{ h: "Écart", v: (r) => r.delta, f: (r) => `<span class="${r.delta > 0.005 ? "pos" : r.delta < -0.005 ? "neg" : ""}">${signed(r.delta)}</span>`, tip: "Écart à la moyenne de la vue, en points" },
+		{ h: "Prof. moy.", v: (r) => r.avg_depth, f: (r) => num(r.avg_depth), tip: "Profondeur moyenne atteinte" },
+		{ h: "Confiance", v: (r) => CONF_ORDER[r.conf] * 1e6 + r.finished, f: confPill },
+	];
+}
+
+function tabs(id, entries) {
+	// entries: [[label, html]]
+	const buttons = entries.map(([l], i) => `<button type="button" role="tab" aria-selected="${i === 0}" data-tabs="${id}" data-i="${i}">${esc(l)}</button>`).join("");
+	const panes = entries.map(([, h], i) => `<div data-pane="${id}" data-i="${i}" ${i ? "hidden" : ""}>${h}</div>`).join("");
+	return `<div class="tabs" role="tablist">${buttons}</div>${panes}`;
+}
+document.addEventListener("click", (e) => {
+	const b = e.target.closest("button[data-tabs]");
+	if (!b) return;
+	const id = b.dataset.tabs;
+	document.querySelectorAll(`button[data-tabs="${id}"]`).forEach((x) => x.setAttribute("aria-selected", x === b));
+	document.querySelectorAll(`[data-pane="${id}"]`).forEach((p) => { p.hidden = p.dataset.i !== b.dataset.i; });
+});
+
+function tiles(list) {
+	return `<div class="tiles">` + list.map(([l, v, s]) => `<div class="tile"><div class="v">${v}</div><div class="l">${l}</div>${s ? `<div class="s">${s}</div>` : ""}</div>`).join("") + `</div>`;
+}
+function section(id, title, lead, body) {
+	return `<section class="card" id="${id}"><h2>${title}</h2>${lead ? `<p class="lead">${lead}</p>` : ""}${body}</section>`;
+}
+
+// --- The page -------------------------------------------------------------------------
+let VIEW = null;
+const SECTIONS = [
+	["s-overview", "Vue d'ensemble"], ["s-diff", "Difficultés"], ["s-depth", "Profondeur"], ["s-deaths", "Morts"],
+	["s-bosses", "Boss"], ["s-gear", "Équipement"], ["s-skills", "Compétences"], ["s-perks", "Dons et reliques"],
+	["s-combos", "Combinaisons"], ["s-potions", "Potions"], ["s-defence", "Défense"], ["s-damage", "Dégâts"],
+	["s-pace", "Rythme"], ["s-economy", "Économie"], ["s-devices", "Appareils"],
+];
+
+function render() {
+	const key = `${$("#f-version").value}|${$("#f-diff").value}|${$("#f-dev").checked ? 1 : 0}`;
+	VIEW = DATA.views[key];
+	tableId = 0;
+	for (const k in TABLES) delete TABLES[k];
+	CHARTS.length = 0;
+	if (!VIEW) {
+		$("#main").innerHTML = section("s-overview", "Aucune partie", "Aucune partie ne correspond à ces filtres.", "");
+		return;
+	}
+	const o = VIEW.overview, base = o.win_rate;
+	let html = "";
+
+	html += section("s-overview", "Vue d'ensemble",
+		`Une partie = un identifiant de partie, comptée une fois avec sa dernière fin envoyée. Le taux de victoire est calculé sur les parties terminées (les abandons n'y comptent pas).`,
+		tiles([
+			["Parties", num(o.runs, 0), `${num(o.finished, 0)} terminées`],
+			["Joueurs", num(o.players, 0), `${num(o.runs_per_player)} parties chacun`],
+			["Victoires", pct(o.win_rate, 1), `IC 95 % : ${pct(o.lo)} – ${pct(o.hi)}`],
+			["Morts", num(o.deaths, 0), pct(o.finished ? o.deaths / o.finished : null) + " des terminées"],
+			["Abandons", num(o.abandoned, 0), "jamais finies (ou pas encore)"],
+			["Profondeur moyenne", num(o.avg_depth), `médiane ${num(o.median_depth, 0)}`],
+			["Durée moyenne", o.avg_minutes === null ? "–" : `${num(o.avg_minutes, 0)} min`, "parties terminées"],
+			["Parties reprises", num(o.resumed_runs, 0), o.partial_runs ? `${o.partial_runs} incomplètes (sauvegarde ancienne)` : "après un retour au titre"],
+			["Glas de l'Aube", num(o.daily_runs, 0), "parties du jour"],
+			["Niveau moyen", num(VIEW.extras.level), `${num(VIEW.extras.kills, 0)} ennemis tués`],
+		]));
+
+	html += section("s-diff", "Difficultés et ascensions", "", `<h3>Par difficulté</h3>${table(VIEW.by_difficulty, rateCols("difficulty", base))}` +
+		`<details><summary>Par ascension (${VIEW.by_ascension.length})</summary>${table(VIEW.by_ascension, rateCols("asc", base).filter((c) => c.h !== "Part"))}</details>`);
+
+	const depth = VIEW.depth;
+	html += section("s-depth", "Profondeur atteinte",
+		`Pour chaque étage : la part des parties terminées qui l'atteignent et y meurent (le « mur »). Les étages de boss sont en orange.`,
+		`<div class="legend"><span><i style="background:var(--bar)"></i>étage</span><span><i style="background:var(--warn-fill)"></i>étage de boss</span></div>` +
+		columns(depth.map((d) => ({ x: d.depth, v: d.death_rate || 0, color: d.boss ? "var(--warn-fill)" : "var(--bar)",
+			tip: `Étage ${d.depth} (${nm("act", String(d.act))}) : ${pct(d.death_rate, 1)} y meurent · ${d.reached} l'atteignent · ${d.deaths} morts, ${d.wins} victoires, ${d.abandoned} abandons` })),
+			{ axis: (v) => pct(v), aria: "Taux de mort par étage" }) +
+		`<h3>Où les parties s'arrêtent</h3>` +
+		columns(depth.map((d) => ({ x: d.depth, v: d.ended, color: d.boss ? "var(--warn-fill)" : "var(--bar)", tip: `Étage ${d.depth} : ${d.ended} parties finissent ici (${d.deaths} morts, ${d.wins} victoires, ${d.abandoned} abandons)` })),
+			{ axis: (v) => num(v, 0), aria: "Parties finies par étage", height: 150 }) +
+		`<details><summary>Le tableau par étage</summary>` + table(depth, [
+			{ h: "Étage", v: (r) => r.depth, f: (r) => `${r.depth}${r.boss ? " · boss" : ""}<span class="id">${esc(nm("act", String(r.act)))}</span>` },
+			{ h: "Atteint", v: (r) => r.reached, f: (r) => num(r.reached, 0) },
+			{ h: "Finies ici", v: (r) => r.ended, f: (r) => num(r.ended, 0) },
+			{ h: "Morts", v: (r) => r.deaths, f: (r) => num(r.deaths, 0) },
+			{ h: "Victoires", v: (r) => r.wins, f: (r) => num(r.wins, 0) },
+			{ h: "Abandons", v: (r) => r.abandoned, f: (r) => num(r.abandoned, 0) },
+			{ h: "Taux de mort", v: (r) => r.death_rate, f: (r) => pct(r.death_rate, 1) },
+		]) + `</details>`);
+
+	html += section("s-deaths", "Morts : où et contre quoi", "",
+		`<div class="grid2"><div><h3>Cause</h3>${bars(VIEW.causes, { value: (r) => r.n, label: (r) => esc(nm("word", r.key)), text: (r) => `${r.n} · ${pct(r.share)}` })}</div>` +
+		`<div><h3>Tueurs</h3>${bars(VIEW.killers.slice(0, 15), { value: (r) => r.n, label: (r) => esc(nm("monster", r.key)), title: (r) => r.key, text: (r) => `${r.n} · ${pct(r.share)}` })}</div></div>` +
+		`<h3>Par acte</h3>` + table(VIEW.acts, [
+			{ h: "Acte", v: (r) => r.act, f: (r) => esc(r.act > Object.keys(NAMES.act || {}).length ? "Étages sans fin" : `${r.act}. ${nm("act", String(r.act))}`) },
+			{ h: "Atteint", v: (r) => r.reached, f: (r) => num(r.reached, 0), tip: "Parties terminées qui entrent dans l'acte" },
+			{ h: "Morts", v: (r) => r.deaths, f: (r) => num(r.deaths, 0) },
+			{ h: "Taux de mort", v: (r) => r.death_rate, f: (r) => pct(r.death_rate, 1) },
+			{ h: "Premiers tueurs", v: (r) => 0, f: (r) => r.killers.map((k) => `${esc(nm("monster", k.key))} (${k.n})`).join(", ") || "–" },
+		]));
+
+	html += section("s-bosses", "Boss",
+		`Chaque combat de boss, envoyé à sa fin. En tête : les boss qui bloquent (le haut de leur intervalle de victoire est le plus bas). « Forme suivante » = forme vaincue, le boss se relève (compté comme gagné).`,
+		table(VIEW.bosses, [
+			{ h: "Boss", v: (r) => nm("monster", r.key), f: (r) => label("monster", r.key) },
+			{ h: "Combats", v: (r) => r.fights, f: (r) => num(r.fights, 0) },
+			{ h: "Victoire", v: (r) => r.win_rate, f: (r) => rateCell({ ...r, finished: r.won + r.died }, null), tip: "Gagnés / (gagnés + morts); les combats quittés n'y comptent pas" },
+			{ h: "Morts", v: (r) => r.died, f: (r) => num(r.died, 0) },
+			{ h: "Quittés", v: (r) => r.left, f: (r) => num(r.left, 0) },
+			{ h: "Durée (gagnés)", v: (r) => r.avg_time_won, f: (r) => minutes(r.avg_time_won) },
+			{ h: "Dégâts subis", v: (r) => r.avg_dmg_in, f: (r) => num(r.avg_dmg_in, 0) },
+			{ h: "Coups reçus", v: (r) => r.avg_hits, f: (r) => num(r.avg_hits) },
+			{ h: "Potions", v: (r) => r.avg_potions, f: (r) => num(r.avg_potions) },
+			{ h: "Phase à la mort", v: (r) => r.avg_phase_died, f: (r) => r.died ? `${num(r.avg_phase_died)}<span class="id">${Object.entries(r.phases_died).map(([p, n]) => `p${p}: ${n}`).join(" · ")}</span>` : "–", tip: "Phase moyenne atteinte quand le héros meurt (0 = la première)" },
+			{ h: "Confiance", v: (r) => CONF_ORDER[r.conf], f: (r) => confPill({ ...r, finished: r.won + r.died }) },
+		]));
+
+	const E = VIEW.entities;
+	html += section("s-gear", "Équipement",
+		`L'équipement porté à la fin de la partie. Trié par le bas de l'intervalle de victoire : un taux haut sur 4 parties ne passe pas devant un taux un peu moins haut sur 200. Les lignes grises ont moins de ${o.min_sample} parties terminées.`,
+		tabs("gear", [
+			["Armes", table(E.weapon, rateCols("weapon", base))],
+			["Rareté de l'arme", table(E.weapon_rarity, rateCols("weapon_rarity", base))],
+			["Élément de l'arme", table(E.element, rateCols("element", base))],
+			["Tête", table(E.head, rateCols("head", base))],
+			["Corps", table(E.body, rateCols("body", base))],
+			["Tête + corps", table(E.armor, rateCols("armor", base))],
+			["Runes", table(E.rune, rateCols("rune", base))],
+		]));
+
+	html += section("s-skills", "Compétences",
+		`Compétences équipées à la fin (la roulade, toujours là, est à part dans Défense).`,
+		tabs("skills", [["Résultats", table(E.skill, rateCols("skill", base))], ["Utilisation", table(VIEW.skills_use, [
+			{ h: "Compétence", v: (r) => nm("skill", r.key), f: (r) => label("skill", r.key) },
+			{ h: "Parties", v: (r) => r.runs, f: (r) => num(r.runs, 0) },
+			{ h: "Utilisations", v: (r) => r.avg_uses, f: (r) => num(r.avg_uses), tip: "Par partie qui l'a" },
+			{ h: "Par minute", v: (r) => r.uses_per_min, f: (r) => num(r.uses_per_min) },
+			{ h: "Dégâts", v: (r) => r.avg_dmg, f: (r) => num(r.avg_dmg, 0), tip: "Par partie qui l'a" },
+			{ h: "Dégâts / utilisation", v: (r) => r.dmg_per_use, f: (r) => num(r.dmg_per_use, 0) },
+			{ h: "Part des dégâts", v: (r) => r.dmg_share, f: (r) => pct(r.dmg_share), tip: "Part moyenne des dégâts infligés de la partie" },
+		])]]));
+
+	const pickCols = [
+		{ h: "Proposé", v: (r) => r.offered, f: (r) => num(r.offered, 0), tip: "Fois où il figurait dans un choix (relances comprises)" },
+		{ h: "Pris", v: (r) => r.picked, f: (r) => num(r.picked, 0) },
+		{ h: "Taux de choix", v: (r) => r.pick_rate, f: (r) => pct(r.pick_rate), tip: "Pris / proposé : au-dessus d'1/3 sur un choix de trois, il est préféré" },
+		{ h: "Banni", v: (r) => r.banished, f: (r) => num(r.banished, 0) },
+	];
+	html += section("s-perks", "Dons, reliques et familles",
+		`Taux de choix (pris / proposé) et résultat des parties qui finissent avec. Attention : une partie qui va loin accumule plus de dons, les dons « gagnent » donc un peu plus qu'ils ne le méritent; comparer les lignes entre elles.`,
+		tabs("perks", [
+			["Dons", table(E.perk, rateCols("perk", base, [...pickCols, { h: "Niveau moy.", v: (r) => r.avg_level, f: (r) => num(r.avg_level) }]))],
+			["Reliques", table(E.relic, rateCols("relic", base, pickCols))],
+			["Familles éveillées", table(E.set, rateCols("set", base))],
+			["Serments", table(VIEW.oaths, rateCols("oath", base))],
+			["Pactes", table(VIEW.pacts, [
+				{ h: "Pacte", v: (r) => nm("pact", r.key), f: (r) => label("pact", r.key) },
+				{ h: "Pactes", v: (r) => r.n, f: (r) => num(r.n, 0) },
+				{ h: "Tenus", v: (r) => r.kept_rate, f: (r) => rateCell({ win_rate: r.kept_rate, lo: r.lo, hi: r.hi, finished: r.n }, null) },
+				{ h: "Confiance", v: (r) => CONF_ORDER[r.conf], f: (r) => confPill({ ...r, finished: r.n }) },
+			])],
+		]));
+
+	const C = VIEW.combos;
+	const comboCols = rateCols("combo", base).filter((c) => c.h !== "Confiance");
+	html += section("s-combos", "Meilleures combinaisons",
+		`Seulement les combinaisons vues dans au moins ${o.min_combo} parties terminées, triées par le bas de l'intervalle de victoire.`,
+		tabs("combos", [
+			["Arme + compétence", table(C.weapon_skill, comboCols, { empty: "Pas assez de parties par combinaison." })],
+			["Arme + armure", table(C.weapon_armor, comboCols, { empty: "Pas assez de parties par combinaison." })],
+			["Arme + relique", table(C.weapon_relic, comboCols, { empty: "Pas assez de parties par combinaison." })],
+			["Arme + toutes ses compétences", table(C.weapon_skills, comboCols, { empty: "Pas assez de parties par combinaison." })],
+		]));
+
+	const P = VIEW.potions;
+	html += section("s-potions", "Potions",
+		`Potions de soin bues, la santé au moment de boire, et ce qui restait dans le sac et la ceinture à la mort.`,
+		tiles([
+			["Bues par partie", num(P.avg_drunk), `${num(P.avg_drunk_per_floor, 2)} par étage`],
+			["En combat de boss", num(P.avg_boss), "par partie"],
+			["Santé en buvant", pct(P.avg_health_when_drunk), "moyenne des parties"],
+			["Morts avec du soin", pct(P.deaths_with_heal_left), `${num(P.avg_heal_left_at_death)} potions de soin en moyenne`],
+			["Jamais bu", pct(P.never_drank), "des parties"],
+			["Bues : victoires / morts", `${num(P.drunk_by_result.victory)} / ${num(P.drunk_by_result.death)}`, "par partie"],
+		]) +
+		`<div class="grid2"><div><h3>Santé au moment de boire</h3>` +
+		columns(P.health_hist.map((n, i) => ({ x: `${i * 10}`, v: n, tip: `${i * 10}–${i * 10 + 10} % de santé : ${n} parties` })), { axis: (v) => num(v, 0), aria: "Santé au moment de boire", height: 160 }) +
+		`<p class="note">En % de la santé max., moyenne de chaque partie. Beaucoup de parties à droite = on boit trop tôt; tout à gauche = on attend trop.</p></div></div>` +
+		`<h3>Par objet</h3>${table(P.by_item, [
+			{ h: "Objet", v: (r) => nm("item", r.key), f: (r) => label("item", r.key) },
+			{ h: "Utilisés / partie", v: (r) => r.per_run, f: (r) => num(r.per_run, 2) },
+			{ h: "Parties qui l'utilisent", v: (r) => r.runs_using, f: (r) => pct(r.runs_using) },
+			{ h: "Restants à la mort", v: (r) => r.left_at_death, f: (r) => num(r.left_at_death, 2) },
+			{ h: "Morts avec", v: (r) => r.deaths_with_left, f: (r) => pct(r.deaths_with_left) },
+		])}`);
+
+	const D = VIEW.defence;
+	html += section("s-defence", "Défense : roulade et esquive",
+		`Taux d'esquive = coups esquivés en roulant / (esquivés + reçus).`,
+		table([{ k: "Toutes", ...D.all }, { k: "Victoires", ...D.victory }, { k: "Morts", ...D.death }], [
+			{ h: "Parties", v: (r) => 0, f: (r) => `${esc(r.k)}<span class="id">${num(r.runs, 0)} parties</span>` },
+			{ h: "Roulades", v: (r) => r.avg_rolls, f: (r) => num(r.avg_rolls, 0) },
+			{ h: "Roulades / min", v: (r) => r.rolls_per_min, f: (r) => num(r.rolls_per_min) },
+			{ h: "Esquive", v: (r) => r.dodge_rate, f: (r) => pct(r.dodge_rate) },
+			{ h: "Coups reçus / min", v: (r) => r.hits_per_min, f: (r) => num(r.hits_per_min) },
+			{ h: "Pièges", v: (r) => r.trap_hits, f: (r) => num(r.trap_hits) },
+		]) +
+		`<div class="grid2"><div><h3>Victoire selon le taux d'esquive</h3>` +
+		columns(D.dodge_buckets.map((b) => ({ x: `${Math.round(+b.key * 100)}`, v: b.win_rate || 0, color: b.conf === "low" ? "var(--gray-fill)" : "var(--bar)",
+			tip: `Esquive ${Math.round(+b.key * 100)}–${Math.round(+b.key * 100) + 10} % : ${pct(b.win_rate)} de victoires sur ${b.finished} parties (IC ${pct(b.lo)} – ${pct(b.hi)})` })),
+			{ axis: (v) => pct(v), aria: "Victoire selon l'esquive", height: 160, max: 1 }) +
+		`<p class="note">Axe : taux d'esquive de la partie (%). Gris : moins de ${o.min_sample} parties.</p></div>` +
+		`<div><h3>Selon l'acte atteint</h3>${table(D.by_act_reached, [
+			{ h: "Acte atteint", v: (r) => r.act, f: (r) => esc(r.act > Object.keys(NAMES.act || {}).length ? "Étages sans fin" : `${r.act}. ${nm("act", String(r.act))}`) },
+			{ h: "Parties", v: (r) => r.runs, f: (r) => num(r.runs, 0) },
+			{ h: "Roulades / min", v: (r) => r.rolls_per_min, f: (r) => num(r.rolls_per_min) },
+			{ h: "Esquive", v: (r) => r.dodge_rate, f: (r) => pct(r.dodge_rate) },
+			{ h: "Coups / min", v: (r) => r.hits_per_min, f: (r) => num(r.hits_per_min) },
+		])}</div></div>`);
+
+	const G = VIEW.damage;
+	const shareBars = (rows, kind) => bars(rows.slice(0, 10), { value: (r) => r.total, label: (r) => esc(nm(kind, r.key)), title: (r) => r.key, text: (r) => pct(r.share) });
+	html += section("s-damage", "Dégâts",
+		`Répartition de tous les dégâts des parties de la vue.`,
+		tiles([
+			["Infligés / partie", num(G.avg_dmg_out, 0), ""], ["Subis / partie", num(G.avg_dmg_in, 0), ""],
+			["Plus gros coup", num(G.avg_biggest_hit, 0), "moyenne des parties"], ["Critiques", num(G.avg_crits, 0), "par partie"],
+			["Coups chargés", num(G.avg_charged, 0), "par partie"],
+		]) +
+		`<div class="grid2"><div><h3>Infligés par élément</h3>${shareBars(G.out_element, "element")}</div><div><h3>Infligés par source</h3>${shareBars(G.out_source, "word")}</div>` +
+		`<div><h3>Subis par élément</h3>${shareBars(G.in_element, "element")}</div><div><h3>Subis par source</h3>${shareBars(G.in_source, "word")}</div></div>`);
+
+	html += section("s-pace", "Rythme",
+		`Temps passé sur chaque étage (dans l'ordre de la partie).`,
+		columns(VIEW.floor_times.map((f) => ({ x: f.floor, v: f.median, tip: `Étage ${f.floor} : médiane ${minutes(f.median)}, moyenne ${minutes(f.avg)} (${f.n} parties)` })),
+			{ axis: (v) => minutes(v).replace(" min ", ":"), aria: "Temps médian par étage", height: 160 }) +
+		`<div class="grid2"><div>` + tiles([
+			["Secrets", num(VIEW.extras.secrets), "trouvés par partie"],
+			["Profondeurs", pct(VIEW.extras.deeps_runs), `des parties y tombent · ${pct(VIEW.extras.deeps_escaped)} en sortent`],
+			["Seuil", pct(VIEW.extras.threshold_runs), `des parties l'affrontent · ${pct(VIEW.extras.threshold_won)} gagnés`],
+			["Pièges", num(VIEW.extras.trap_hits), "coups par partie"],
+		]) + `</div></div>`);
+
+	const M = VIEW.economy;
+	html += section("s-economy", "Économie",
+		``,
+		tiles([
+			["Or gagné", num(M.avg_gold_earned, 0), `${num(M.gold_per_floor, 0)} par étage`],
+			["Or dépensé", num(M.avg_gold_spent, 0), `${pct(M.spent_share)} de l'or gagné`],
+			["Achats", num(M.purchases_per_run, 2), "par partie"],
+			["Âmes", `${num(M.avg_souls.victory, 0)} / ${num(M.avg_souls.death, 0)}`, "victoire / mort"],
+			["Démantelés", num(M.avg_dismantled), "objets par partie"],
+			["Jetés", num(M.avg_dropped), "objets par partie"],
+		]) +
+		`<h3>Achats chez le marchand</h3>` + table(M.purchases, [
+			{ h: "Objet", v: (r) => nm("item", r.key), f: (r) => label("item", r.key) },
+			{ h: "Achats", v: (r) => r.n, f: (r) => num(r.n, 0) },
+			{ h: "Prix moyen", v: (r) => r.avg_price, f: (r) => num(r.avg_price, 0) },
+			{ h: "Raretés", v: (r) => 0, f: (r) => Object.entries(r.rarities).map(([k, n]) => `${["Commune", "Magique", "Rare", "Épique"][+k] || k} ${n}`).join(" · ") },
+		]));
+
+	const V = VIEW.devices;
+	const share = (kind) => (rows) => bars(rows, { value: (r) => r.n, label: (r) => esc(kind ? nm(kind, r.key) : r.key.split("+").map((k) => nm("word", k)).join(" + ")), text: (r) => `${r.n} · ${pct(r.share)}` });
+	html += section("s-devices", "Appareils",
+		`Le dernier appareil utilisé dans la partie, et tous ceux utilisés.`,
+		`<div class="grid2"><div><h3>Appareil</h3>${share("word")(V.input)}<h3>Combinaisons</h3>${share(null)(V.inputs)}</div>` +
+		`<div><h3>Système</h3>${share("word")(V.os)}<h3>Écrans</h3>${share("word")(V.screen)}</div></div>` +
+		`<h3>Victoire par appareil</h3>` + table(V.input_rate, rateCols("word", base)));
+
+	html += `<div class="note"><b>Lire ces chiffres.</b> Chaque taux a son nombre de parties et un intervalle à 95 % (Wilson) : deux taux dont les intervalles se chevauchent largement ne sont pas vraiment différents. Les lignes grises (« faible ») ont moins de ${o.min_sample} parties terminées et ne sont jamais classées devant les autres. Le build est celui de la fin de partie : ce qui va loin a plus de dons et de reliques (biais de survie). Pour équilibrer, croiser avec les mesures des bots (docs/balance.md).</div>`;
+
+	$("#main").innerHTML = html;
+	drawCharts();
+}
+
+// --- Filters, theme, tooltip --------------------------------------------------------
+function options(select, values, labelFn) {
+	select.innerHTML = values.map((v) => `<option value="${esc(v)}">${esc(labelFn(v))}</option>`).join("");
+}
+function setup() {
+	options($("#f-version"), ["all", ...DATA.versions], (v) => v === "all" ? "Toutes" : v);
+	options($("#f-diff"), ["all", ...DATA.difficulties], (v) => v === "all" ? "Toutes" : nm("difficulty", v));
+	const dev = $("#f-dev");
+	if (!DATA.include_dev) { dev.disabled = true; $("#dev-wrap").title = "Page faite sans --include-dev"; }
+	$("#toc").innerHTML = SECTIONS.map(([id, t]) => `<a href="#${id}">${esc(t)}</a>`).join("");
+	const m = DATA.meta;
+	$("#meta").textContent = `${m.events} événements · ${m.period} · page faite le ${m.generated}` + (DATA.include_dev ? ` · ${DATA.dev_runs} parties dev` : "");
+	$("#foot").textContent = `Source : ${m.sources}. Fait par tools/stats/build_dashboard.py (docs/online.md, « Lire les statistiques »).`;
+	try {
+		const saved = JSON.parse(localStorage.getItem("puits-stats") || "{}");
+		if (saved.theme) document.documentElement.dataset.theme = saved.theme;
+		for (const [id, v] of [["f-version", saved.version], ["f-diff", saved.diff]]) {
+			if (v && [...$("#" + id).options].some((o) => o.value === v)) $("#" + id).value = v;
+		}
+		if (saved.dev && !dev.disabled) dev.checked = true;
+	} catch (e) { /* no storage: defaults */ }
+	const remember = () => {
+		try { localStorage.setItem("puits-stats", JSON.stringify({ version: $("#f-version").value, diff: $("#f-diff").value, dev: dev.checked, theme: document.documentElement.dataset.theme || "" })); } catch (e) { /* ignore */ }
+	};
+	for (const el of [$("#f-version"), $("#f-diff"), dev]) el.addEventListener("change", () => { render(); remember(); });
+	$("#theme").addEventListener("click", () => {
+		const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+		const now = document.documentElement.dataset.theme || (dark ? "dark" : "light");
+		document.documentElement.dataset.theme = now === "dark" ? "light" : "dark";
+		remember();
+	});
+	const tip = $("#tip");
+	const show = (e) => {
+		const el = e.target.closest && e.target.closest("[data-tip]");
+		if (!el || !el.dataset.tip) { tip.style.opacity = 0; return; }
+		tip.textContent = el.dataset.tip;
+		const x = (e.touches ? e.touches[0].clientX : e.clientX), y = (e.touches ? e.touches[0].clientY : e.clientY);
+		tip.style.opacity = 1;
+		const w = tip.offsetWidth;
+		tip.style.left = Math.max(6, Math.min(innerWidth - w - 6, x - w / 2)) + "px";
+		tip.style.top = Math.max(6, y - tip.offsetHeight - 12) + "px";
+	};
+	document.addEventListener("mousemove", show);
+	document.addEventListener("touchstart", show, { passive: true });
+	document.addEventListener("scroll", () => { tip.style.opacity = 0; }, { passive: true });
+	render();
+}
+setup();
+</script>
+</body>
+</html>

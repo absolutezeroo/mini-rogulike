@@ -377,6 +377,18 @@ func _build(props: Dictionary) -> void:
 	props["skills"] = ",".join(skills)
 
 
+## The build of `hero` as _build() writes it (weapon, armor, sets, relics, perks, skills): the
+## feedback form's run details (FeedbackInfo) use it too.
+static func build_of(hero: Player) -> Dictionary:
+	var props := {}
+	if hero == null or not is_instance_valid(hero):
+		return props
+	var reader := RunTelemetry.new()
+	reader.player = hero
+	reader._build(props)
+	return props
+
+
 ## The consumables still carried (bag and belt): "left.<id>" = how many.
 func _left_over(props: Dictionary) -> void:
 	var left := {}

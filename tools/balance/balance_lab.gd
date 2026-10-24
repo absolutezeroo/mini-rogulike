@@ -37,7 +37,8 @@ var _saved_chances := {}
 static var simulate := true
 
 
-## Sound off, the profile, settings and run save in memory only (like tests/run_tests.gd).
+## Sound off, the profile, settings and run save in memory only, the remote settings off (like
+## tests/run_tests.gd).
 static func isolate_profile() -> void:
 	Vfx.shown = not simulate
 	Sfx.enabled = false
@@ -47,6 +48,8 @@ static func isolate_profile() -> void:
 	Settings.tutorial_hints = false
 	RunSave.path = "user://balance_run_%d.json" % OS.get_process_id()
 	RunSave.erase()
+	# The data's numbers, never the remote settings' multipliers (docs/balance.md).
+	RemoteConfig.use_for_tests()
 
 
 ## A clean profile for one measure: no bestiary mastery (+10% damage) carried over from the

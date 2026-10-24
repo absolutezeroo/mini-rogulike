@@ -33,7 +33,23 @@ var player_stats := {}
 ## A counter's max change (Talo's maxChange): internal name -> int; past it, refused.
 var max_change := {}
 
+## The game's live config (Talo's game config): key -> value text (the remote settings).
+var config := {}
+## Reads of the config (each also counts in `calls`).
+var config_reads := 0
+
 var _alias := 0
+
+
+func fetch_config() -> BoardBackend.ConfigValues:
+	var result := BoardBackend.ConfigValues.new()
+	config_reads += 1
+	if not await _answers():
+		result.status = Status.OFFLINE
+		return result
+	result.status = Status.OK
+	result.values = config.duplicate()
+	return result
 
 
 func add_to_stat(internal_name: String, change: int) -> Status:
@@ -165,6 +181,21 @@ func fill(board: LeaderboardDef, period_key: String, count: int, best: float, st
 		if i >= names_from.size():
 			alias_name += " %d" % (int(i / float(names_from.size())) + 1)
 		list.append({ "alias": 900000 + i, "name": alias_name, "score": best - i * step, "props": {} })
+
+
+## Every feedback message received: {category, comment, props, alias}.
+var feedback: Array[Dictionary] = []
+## The feedback categories the server has (Talo's internal names; another one is refused).
+var feedback_categories := PackedStringArray(["bug", "idea", "other"])
+
+
+func send_feedback(internal_name: String, comment: String, props: Dictionary) -> Status:
+	if not await _answers():
+		return Status.OFFLINE
+	if _alias == 0 or not feedback_categories.has(internal_name):
+		return Status.REJECTED
+	feedback.append({ "category": internal_name, "comment": comment, "props": props.duplicate(), "alias": _alias })
+	return Status.OK
 
 
 func _answers() -> bool:

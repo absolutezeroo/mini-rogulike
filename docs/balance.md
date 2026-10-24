@@ -1,5 +1,27 @@
 # Balance
 
+## Remote multipliers vs balance passes
+
+The remote settings (docs/online.md "Remote settings") can multiply, per difficulty, every
+monster's and boss's Health (`enemy_health_<difficulty>`, 0.5 to 2) and everything that hurts the
+hero (`enemy_damage_<difficulty>`), and every run's souls (`souls_multiplier`, 0.5 to 3), from
+Talo's dashboard, without an update. They land on the run's own copy of its `DifficultyDef`, so
+`FloorRules` scales the floors with them like any difficulty number; a run keeps the values it
+started with.
+
+- **They are for hotfixes**: a released difficulty is broken (a wall on Martyr after a content
+  update, a souls exploit) and the next build is days away. Set the multiplier, then make the real
+  change.
+- **Real changes go into the data** (`data/difficulties/*.tres`, the content), measured with the
+  tools below and recorded in docs/balance-log.md, like any balance pass. When the build with the
+  fix is out, put the multiplier back to `1` (or gate the old value to the old versions with
+  `max_version`). A multiplier left on hides the data's true numbers from the balance tools,
+  which never read the remote settings: they measure the data.
+- They are coarse on purpose (a whole difficulty's monsters at once, no single monster, perk or
+  item): anything finer is a balance pass, not a remote value.
+- The events' souls bonus (`event_souls`) and floor event boost are content (a weekend's), not
+  balance: they end by themselves.
+
 ## Tools
 
 `tools/balance/` measures the game's balance on the real content and the real engine, so the
@@ -282,6 +304,38 @@ add it to the table above. To change a target, say why in the [balance log](bala
   damage can read +0%, and two levels can read the same.
 - **The model is arithmetic.** It ignores movement, positioning and most procs; it is for
   coverage (every rank, depth, difficulty) and trends. The engine modes are the measures.
+
+### Players' statistics (what real runs say)
+
+The bots measure what the content *can* do; the gameplay statistics (players who consented, Talo
+events) say what players *do*. `tools/stats/build_dashboard.py <export.zip> --json stats.json`
+(docs/online.md "Reading the statistics": how to get the export) writes the same numbers as the
+statistics page: `overall` (every version and difficulty, no dev data) and `views` keyed
+`"<version>|<difficulty>|<dev 0/1>"` (`"all"` for every one; e.g. `"0.3.0|normal|0"`), each with
+`overview`, `by_difficulty`, `by_ascension`, `depth` (per floor: reached, deaths, death rate),
+`acts`, `causes`, `killers`, `bosses`, `entities` (`weapon`, `weapon_rarity`, `element`, `head`,
+`body`, `armor`, `skill`, `perk`, `relic`, `set`, `rune`), `combos`, `potions`, `defence`,
+`damage`, `skills_use`, `floor_times`, `economy`, `pacts`, `oaths`, `devices`. A row of a group
+has `runs`, `finished`, `wins`, `win_rate`, its 95% interval `lo`..`hi`, `delta` (vs the view's
+win rate), `avg_depth` and `conf` (`low` under `--min-sample` finished runs: don't act on it);
+perks and relics add `offered`, `picked`, `pick_rate`, `banished`.
+
+How the game-balancer uses it alongside the bots:
+
+- **Find, then measure.** A boss whose players' win rate is low (`bosses`, sorted with the
+  blocking ones first) or a floor with a high `death_rate` is a lead; the arena and the gauntlet
+  on that act say whether it is the numbers (a fight the `player` bot also loses) or the reading
+  (the bot wins, players don't: a telegraph, a pattern; not a stat change).
+- **Picks.** A perk or relic with a high `pick_rate` and a positive `delta` on a good sample, or a
+  weapon far above the others, is a candidate the marginal values should confirm; one nobody
+  picks (`pick_rate` far under 1/3 on a choice of three) with no marginal-value problem is a
+  description or a fun problem, not a number.
+- **Potions and the roll.** `potions.avg_health_when_drunk`, `deaths_with_heal_left` and
+  `defence` (dodge rate of winners vs losers) tell whether the gauntlet's assumptions (a bot
+  drinks below 35% Health; the `player` bot's 0.3 s reaction) match players.
+- **Read the limits**: the build is the one held at the end (survivorship), players pick
+  difficulties, versions mix balance changes (filter by version), and a few hundred runs leave
+  wide intervals. Quote the sample and the interval in the balance log when a change rests on it.
 
 ### Hooks in the game code (behaviour-neutral)
 

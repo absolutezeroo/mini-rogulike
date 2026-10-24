@@ -67,7 +67,15 @@ weapon and relic (shown on the button), on Keeper. The day's first attempt is th
 (counted when it starts: quitting doesn't give another); its score is kept with the best ever and
 the days in a row (`Profile.daily_*`); later attempts that day are practice. Score: 1 per kill,
 30 per floor, 150 per boss, 1000 for a victory, 1 per 5 gold picked up. The game over screen
-shows it.
+shows it. **The day's omen** (from afar: the remote settings' `daily_omen` for that date,
+`DailyRun.omen()`, docs/online.md "Remote settings"): on some days a curse or a floor event lies
+on every normal floor of that day's Dawn Knell (not the first floor, not the wardens'; both ways
+down), told on the Dawn Knell's card and in the log at the start. Most days have none.
+
+**Events** (the remote settings again): for a while (a weekend) the Well can hold an event, its
+plaque on the title screen under Credits: its name, a souls bonus for runs started during it, a
+floor event made more likely, the time left. A run started during it keeps it to its end. A
+**message of the day** can take the tagline's place on the title.
 
 ### Online leaderboards
 

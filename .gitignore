@@ -21,5 +21,10 @@
 /locale/*.translation
 __pycache__/
 
+# Talo data exports (players' ids) and the statistics pages made from them (docs/online.md)
+export-*.zip
+/stats_dashboard.html
+/stats_dashboard.json
+
 # The online leaderboards access key (docs/online.md): never in git
 /online/talo.cfg

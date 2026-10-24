@@ -82,6 +82,10 @@ var met_floors: Array[String] = []
 ## The gameplay statistics' counts so far (RunTelemetry.to_data(), put here as the run is saved:
 ## Events.run_saving), so a resumed run's end covers the whole run. Opaque to the game; saved.
 var telemetry := {}
+## What the remote settings change in this run (RemoteConfig), fixed at its start and saved: its
+## multipliers are already in `difficulty`; the Dawn Knell's omen and an event's floor event
+## boost are read by the floors (Game, World, FloorRoute). Neutral without remote values.
+var tuning := RemoteTuning.new()
 ## The dungeon's rules (what a run's souls are worth). Set by create(); not saved.
 var config: DungeonConfig
 ## The floor a run must reach to count toward the next reset of the tree (SoulTreeDef).
@@ -101,6 +105,11 @@ static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGener
 		run.difficulty = content.default_difficulty
 	else:
 		run.difficulty = _pick_difficulty(content, saved)
+	# The remote settings at the run's start (a resumed run keeps its own), on its difficulty.
+	var saved_tuning: Variant = saved.get("remote")
+	run.tuning = RemoteTuning.from_data(saved_tuning) if saved_tuning is Dictionary \
+		else RemoteTuning.for_run(run.difficulty.id, run.daily_day)
+	run.difficulty = run.tuning.apply_to(run.difficulty)
 	run.run_seed = int(saved["seed"]) if saved.has("seed") else rng.randi()
 	run.depth = int(saved.get("depth", 1))
 	run.hidden_floor = bool(saved.get("hidden_floor", false))
@@ -237,6 +246,7 @@ func to_data() -> Dictionary:
 		"met_floors": met_floors,
 		"difficulty": String(difficulty.id),
 		"ascension": difficulty.ascension,
+		"remote": tuning.to_data(),
 	}
 
 
