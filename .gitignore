@@ -14,7 +14,6 @@
 
 # Local agent worktrees and tools
 /.claude/worktrees/
-/.claude/.gdignore
 /_tool/
 
 # Compiled translations (made from locale/strings.csv on import)
