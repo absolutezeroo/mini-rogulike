@@ -296,7 +296,9 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 		offers.load_data(saved.get("offers", []))
 		# Chests opened, stock bought, items taken... before quitting; nothing if another build
 		# saved it (the same seed may lay another floor: it is laid fresh, said below).
-		world.restore_spent(RunSave.floor_of(saved))
+		# (Saved after the bottom of the Well's fall, the run goes on past that floor: its block
+		# is not this one's.)
+		world.restore_spent({} if saved.get("boss_slain", false) else RunSave.floor_of(saved))
 	# The tree's run rules and the oath's (gold, loot, the merchant, heals, crits, the minimap).
 	world.boons = RunBoons.build(content, run.oath) if not run.is_daily() else RunBoons.new()
 	player.healing_scale = world.boons.healing_scale
@@ -606,6 +608,8 @@ func _enter_floor(resumed: bool = false) -> void:
 		world.next_routes = FloorRoute.offer(content, depth + 1, difficulty, run.route_seed(depth + 1), run.tuning)
 	world.build_floor(depth, content, _route_to(depth))
 	world.place_player(player)
+	if resumed and world.arena and world.arena.is_defeated:
+		hidden.resume_cleared()  # (the way torn open again, or the hoard waiting again)
 	if DebugCheats.reveal_maps:
 		world.reveal_all()  # the debug panel's Reveal maps
 	player.camera.lean_toward(null, 0.0)
@@ -1029,7 +1033,9 @@ func _save_run() -> void:
 		return
 	Events.run_saving.emit(run)  # (the gameplay statistics' counts, into run.telemetry)
 	var data := run.to_data()
-	data.boss_slain = world.arena != null and world.arena.is_defeated
+	# A warden's arena cleared is picked up as it is (FloorSave "arena_cleared"); only the bottom
+	# of the Well's fall goes on at once (to its ending).
+	data.boss_slain = world.arena != null and world.arena.is_defeated and not world.floor_save.arena_cleared()
 	data.player = player.save_state()
 	if perk_panel.visible and offers.shown:
 		offers.shown.cards = perk_panel.get_offered().duplicate()  # quitting can't reroll them

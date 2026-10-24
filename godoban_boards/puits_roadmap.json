@@ -2931,8 +2931,8 @@
     {
       "id": "task_197",
       "title": "Reprise après la chute d'un boss : le passage caché ouvert et le butin au sol sont perdus",
-      "description": "Trouvé pendant l'audit sauvegarde (24/10). Une sauvegarde faite après la mort d'un boss reprend à l'étage suivant (boss_slain) : le passage vers l'étage caché ouvert dans l'arène (clé en poche) ne revient pas, la clé reste dans le sac ; le coffre du trésor de l'étage caché et le butin du boss non ramassés sont perdus. Pas de duplication, mais une perte. À décider : reprendre dans l'arène vidée (sans boss) ou mettre ce butin dans le sac.",
-      "status": "backlog",
+      "description": "Trouvé pendant l'audit sauvegarde (24/10). Une sauvegarde faite après la mort d'un boss reprend à l'étage suivant (boss_slain) : le passage vers l'étage caché ouvert dans l'arène (clé en poche) ne revient pas, la clé reste dans le sac ; le coffre du trésor de l'étage caché et le butin du boss non ramassés sont perdus. Pas de duplication, mais une perte. À décider : reprendre dans l'arène vidée (sans boss) ou mettre ce butin dans le sac.\n\nCorrigé (24/10) : une partie sauvée après la mort d'un boss reprend dans son arène vidée (plus à l'étage suivant) : le boss n'est plus là, l'escalier est là, rien n'est redonné (relique, soin, âmes). Ce qu'il a lâché au sol (objets, or) y est encore ; le passage caché se rouvre si la clé est toujours dans le sac ; à l'étage caché, le coffre du trésor revient (ouvert s'il l'était). Seule la chute au fond du Puits enchaîne toujours sur la fin. Testé (game.saves, game.hidden_floor, game.finale).",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_5",
       "due_date": null,
@@ -2941,7 +2941,7 @@
         "bug"
       ],
       "created_at": 1792815301,
-      "updated_at": 1792815301
+      "updated_at": 1792853980
     },
     {
       "id": "task_198",
@@ -3083,8 +3083,8 @@
     {
       "id": "task_207",
       "title": "Audit UI : petits risques restants (minimap, classements, textes hors UI)",
-      "description": "Minimap.bind_world ne se déconnecte jamais de l'ancien monde (sûr tant qu'un seul World vit par Game) ; LeaderboardsPanel : await load_board() qui reprend après la libération du panneau ; AscensionDef colle « %s +%d » dans un display_name ; RunState.place_name_key() renvoie un texte déjà traduit (traduit deux fois). Hors du périmètre UI de l'audit, à reprendre avec le chantier concerné.\nRevue 2 : RunState.place_name_key() renvoie bien une clé maintenant (corrigé par task_196) : ce point est fait.",
-      "status": "backlog",
+      "description": "Minimap.bind_world ne se déconnecte jamais de l'ancien monde (sûr tant qu'un seul World vit par Game) ; LeaderboardsPanel : await load_board() qui reprend après la libération du panneau ; AscensionDef colle « %s +%d » dans un display_name ; RunState.place_name_key() renvoie un texte déjà traduit (traduit deux fois). Hors du périmètre UI de l'audit, à reprendre avec le chantier concerné.\nRevue 2 : RunState.place_name_key() renvoie bien une clé maintenant (corrigé par task_196) : ce point est fait.\n\nCorrigé (24/10) : la minicarte se déconnecte de l'ancien monde ; la page des classements reçoit le tableau par un signal (Leaderboards.request_board / board_loaded) au lieu d'un await qui reprenait après sa libération ; « Cauchemar +3 » est une phrase traduite (DifficultyDef.shown_name), plus un nom collé en anglais (l'historique garde l'ascension à part). Testé.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -3093,7 +3093,7 @@
         "qualité"
       ],
       "created_at": 1792818511,
-      "updated_at": 1792828483
+      "updated_at": 1792853980
     },
     {
       "id": "task_208",
@@ -3160,8 +3160,8 @@
     {
       "id": "task_212",
       "title": "Codex : l'attaque de base du Gardien Sans Nom affiche le katana du modèle",
-      "description": "Vu sur les captures du 24/10 : sur sa page, son attaque de base est « Katana : 5 Dégâts » (l'arme et les chiffres du modèle nameless_keeper.tres), alors qu'en combat il porte l'arme du héros qu'il a été (son coup pèse 16 avant l'étage). Afficher l'arme du Gardien qui attend (Profile.keeper) ou un texte qui dit « l'arme que tu portais ».",
-      "status": "backlog",
+      "description": "Vu sur les captures du 24/10 : sur sa page, son attaque de base est « Katana : 5 Dégâts » (l'arme et les chiffres du modèle nameless_keeper.tres), alors qu'en combat il porte l'arme du héros qu'il a été (son coup pèse 16 avant l'étage). Afficher l'arme du Gardien qui attend (Profile.keeper) ou un texte qui dit « l'arme que tu portais ».\n\nCorrigé (24/10) : sa page affiche l'arme du Gardien qui attend (son coup : Dégâts avant les règles de l'étage), ou « Ton arme » quand aucun n'attend ; plus jamais le katana du modèle. Testé (unit.nameless_keeper).",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_3",
       "due_date": null,
@@ -3171,7 +3171,7 @@
         "boss"
       ],
       "created_at": 1792816004,
-      "updated_at": 1792816004
+      "updated_at": 1792853980
     },
     {
       "id": "task_213",
@@ -3342,8 +3342,8 @@
     {
       "id": "task_224",
       "title": "Tests : héros posé dans un mur puis replacé qui ne bouge pas (pacte)",
-      "description": "Vu en découpant les tests (24/10, graine 684213, game.pacts) : le héros posé à 200 px tout droit devant la porte du pacte (dans un mur ou un accessoire) puis replacé devant la porte par global_position restait à 199 px de la porte trois images plus tard. Corrigé côté test (un point libre, _stand_still), mais à comprendre côté jeu : quelque chose (le décoinçage, la caméra, le SubWorld ?) remet le héros où il était. Rejouer : --test=game.pacts --seed=684213 avec l'ancien placement.",
-      "status": "backlog",
+      "description": "Vu en découpant les tests (24/10, graine 684213, game.pacts) : le héros posé à 200 px tout droit devant la porte du pacte (dans un mur ou un accessoire) puis replacé devant la porte par global_position restait à 199 px de la porte trois images plus tard. Corrigé côté test (un point libre, _stand_still), mais à comprendre côté jeu : quelque chose (le décoinçage, la caméra, le SubWorld ?) remet le héros où il était. Rejouer : --test=game.pacts --seed=684213 avec l'ancien placement.\n\nCompris (24/10) : pas un bug du jeu. Le point à 200 px tombait au-dessus d'un gouffre : le héros commençait à tomber, et pendant la chute sa position est tenue par l'animation de chute ; le replacer ne l'en sortait pas. Le test pose maintenant le héros sur un point libre, c'est le bon placement.",
+      "status": "done",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -3352,7 +3352,7 @@
         "bug"
       ],
       "created_at": 1792825538,
-      "updated_at": 1792825538
+      "updated_at": 1792853980
     },
     {
       "id": "task_225",
@@ -3459,8 +3459,8 @@
     {
       "id": "task_232",
       "title": "Reprise d'une sauvegarde sans stock : un objet identique à celui réservé disparaît du marchand",
-      "description": "Revue 2 : pour les sauvegardes d'avant le stock sauvé (et un étage refait), Merchant._roll_stock retire du stock tiré par la graine tout objet de même clé qu'un objet réservé gardé, pour ne pas l'avoir deux fois. Si la graine tire en plus une copie ordinaire identique (une potion, une arme commune sans affixe), elle part aussi : le marchand a un article de moins. Retirer une seule copie par objet réservé.",
-      "status": "backlog",
+      "description": "Revue 2 : pour les sauvegardes d'avant le stock sauvé (et un étage refait), Merchant._roll_stock retire du stock tiré par la graine tout objet de même clé qu'un objet réservé gardé, pour ne pas l'avoir deux fois. Si la graine tire en plus une copie ordinaire identique (une potion, une arme commune sans affixe), elle part aussi : le marchand a un article de moins. Retirer une seule copie par objet réservé.\n\nCorrigé (24/10) : un objet réservé retire une seule copie tirée par la graine (Merchant.drop_rolled_twins), une potion identique ordinaire reste en vente. Testé.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -3469,7 +3469,7 @@
         "bug"
       ],
       "created_at": 1792828483,
-      "updated_at": 1792828483
+      "updated_at": 1792853980
     },
     {
       "id": "task_233",

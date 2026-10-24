@@ -44,6 +44,19 @@ func setup(world: World, boss_def: BossDef, plan: ArenaDef = null) -> void:
 	_place_pillars()
 
 
+## A run saved after the warden fell picks up here (FloorSave "arena_cleared"): the warden the
+## seed laid again is taken away unseen, and the arena stands open with its stairs. Nothing is
+## given again (no relic, no heal, no souls, no feat: they were, before quitting).
+func clear_quietly() -> void:
+	if is_instance_valid(boss):
+		boss.queue_free()
+	boss = null
+	is_started = true
+	is_defeated = true
+	_gates.open(true)
+	_world.spawn_exits()
+
+
 ## A form of the boss, asleep where it waits in the arena.
 func _spawn_form(def: BossDef) -> Monster:
 	var cell := _room.position + Vector2i(roundi(def.arena_anchor.x * (_room.size.x - 1)), roundi(def.arena_anchor.y * (_room.size.y - 1)))

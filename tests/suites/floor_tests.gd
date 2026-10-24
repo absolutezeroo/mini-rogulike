@@ -2358,6 +2358,11 @@ func _test_loot_and_gold(game: Game) -> void:
 	var next := world.spawn_merchant(CONTENT.dungeon.merchant, _open_cell_near(world, game.player.global_position, 2))
 	check(next.stock[0].item == kept and next.stock[0].price == kept_price and next.stock[0].locked, "the next merchant sells it at the same price")
 	check(world.kept_stock.is_empty(), "handed over once")
+	# A floor rolled again: one rolled copy of the kept entry goes, an ordinary twin stays.
+	var twin_potion: ItemDef = CONTENT.items.filter(func(item: ItemDef) -> bool: return item is ConsumableDef)[0]
+	var rolled := [{ "item": twin_potion, "price": 9, "locked": true }, { "item": twin_potion, "price": 9, "locked": false }, { "item": twin_potion, "price": 9, "locked": false }, { "item": kept, "price": 9, "locked": false }]
+	Merchant.drop_rolled_twins(rolled, 1)
+	check(rolled.size() == 3 and rolled.filter(func(entry: Dictionary) -> bool: return entry.item == twin_potion).size() == 2, "a kept potion drops one rolled potion, not every potion (%d left)" % rolled.size())
 	next.queue_free()
 	player.inventory.items.resize(bag_before)
 	player.xp = 0

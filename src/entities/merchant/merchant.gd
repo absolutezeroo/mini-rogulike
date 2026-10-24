@@ -53,12 +53,23 @@ func _roll_stock() -> void:
 	_world.kept_stock.clear()
 	var held := stock.size()
 	_roll_new()
-	# A floor rebuilt from its seed rolls the same stock: the entry locked here before quitting
-	# would be in it twice (once kept, once rolled again). The kept one stays.
-	var kept_keys := stock.slice(0, held).map(func(entry: Dictionary) -> String: return _key(LootRoller.to_data(entry.item)))
-	for i in range(stock.size() - 1, held - 1, -1):
-		if kept_keys.has(_key(LootRoller.to_data(stock[i].item))):
-			stock.remove_at(i)
+	drop_rolled_twins(stock, held)
+
+
+## A floor rebuilt from its seed rolls the same stock: an entry locked here before quitting would
+## be in it twice (once kept, the first `held` entries, once rolled again). The kept one stays; one
+## rolled copy goes per kept entry, so an ordinary twin the seed also rolls (a second potion) stays
+## on sale.
+static func drop_rolled_twins(entries: Array, held: int) -> void:
+	var kept_keys := entries.slice(0, held).map(func(entry: Dictionary) -> String: return _key(LootRoller.to_data(entry.item)))
+	var i := held
+	while i < entries.size():
+		var at := kept_keys.find(_key(LootRoller.to_data(entries[i].item)))
+		if at >= 0:
+			kept_keys.remove_at(at)
+			entries.remove_at(i)
+		else:
+			i += 1
 
 
 ## Fresh stock next to what is locked.

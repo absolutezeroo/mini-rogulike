@@ -2193,7 +2193,7 @@ func _test_profile() -> void:
 	# Ascension: Nightmare +1, +2... each level stacks its twist.
 	check(CONTENT.ascensions.size() >= 10 and nightmare.has_ascensions, "Nightmare has ascension levels")
 	var climbed := AscensionDef.apply_levels(nightmare, CONTENT.ascensions, 3)
-	check(climbed.display_name == "Nightmare +3" and climbed.id == nightmare.id and climbed.ascension == 3, "Nightmare +3 is still Nightmare")
+	check(climbed.shown_name() == "Nightmare +3" and climbed.display_name == nightmare.display_name and climbed.id == nightmare.id and climbed.ascension == 3, "Nightmare +3 is still Nightmare")
 	check(climbed.monster_hp > nightmare.monster_hp and climbed.elite_chance > nightmare.elite_chance and climbed.souls > nightmare.souls, "each level makes it harder (and pays more souls)")
 	check(nightmare.ascension == 0 and nightmare.display_name == "Nightmare", "the Nightmare file is untouched")
 	var top := AscensionDef.apply_levels(nightmare, CONTENT.ascensions, 99)

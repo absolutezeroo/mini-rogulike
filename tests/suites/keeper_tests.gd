@@ -95,6 +95,7 @@ func run_unit() -> void:
 	_test_skill_ranges()
 	_test_balance_numbers()
 	_test_chronicle()
+	_test_codex_page()
 	Profile.reset()
 	Profile.keeper = saved_profile
 
@@ -266,6 +267,24 @@ func _test_built_boss() -> void:
 		var with_it := template.build(KeeperSnapshot.new({ "version": 1, "level": 15, "gear": [{ "id": String((load(path) as WeaponDef).id) }] }), CONTENT)
 		check(with_it.weapon.damage + with_it.stats.attack == template.blow_power, "%s: his blow comes to %d before the floor's rules" % [path.get_file(), template.blow_power])
 	player.queue_free()
+
+
+## His codex page shows the weapon of the hero waiting and his blow, not the template's stand-in.
+func _test_codex_page() -> void:
+	var template := CONTENT.dungeon.finale.keeper
+	var page := MonsterPage.new()
+	add_child(page)
+	var hammer := load("res://data/items/weapons/hammer.tres") as WeaponDef
+	Profile.keeper = { "version": 1, "level": 15, "gear": [{ "id": String(hammer.id) }] }
+	page.show_monster(template, CONTENT)
+	var attacks := page._attacks()
+	var damage: String = page._stats()[1][1]
+	check(attacks[0].name == hammer.display_name and (attacks[0].attack as WeaponDef).id == hammer.id and damage == str(template.blow_power), "his codex page: the hero's %s and his blow (%s), not the template's %s" % [hammer.display_name, damage, template.weapon.display_name])
+	Profile.keeper = {}
+	page.show_monster(template, CONTENT)
+	attacks = page._attacks()
+	check(attacks[0].name == "Your weapon" and attacks.all(func(a: Dictionary) -> bool: return a.name != template.weapon.display_name), "none waiting: his basic attack is the weapon you carried, never the template's %s" % template.weapon.display_name)
+	page.free()
 
 
 ## Where his AI uses the hero's skills is data (the "His skills" group), and the same as when it

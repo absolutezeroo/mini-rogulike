@@ -73,6 +73,7 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	hide()
 	_build()
+	Leaderboards.board_loaded.connect(_on_board_loaded)
 	name_dialog = PseudonymDialog.new()
 	name_dialog.finished.connect(func() -> void:
 		_show_name()
@@ -122,6 +123,7 @@ func back() -> bool:
 
 ## Loads the board again (and sends what waits first); the Toll's numbers if it is shown.
 func refresh() -> void:
+	_load_id = 0  # (a board still on its way is not this page's any more)
 	_columns.visible = not _toll_shown
 	_toll_panel.visible = _toll_shown
 	if _toll_shown:
@@ -139,12 +141,14 @@ func refresh() -> void:
 		_show_state(tr("You chose not to publish your scores, so the online leaderboards are not loaded either. Publish them to see the boards."), false)
 		_show_mine(null)
 		return
-	_load_id += 1
-	var my_load := _load_id
 	_show_state(tr("Loading..."), false)
 	_show_mine(null, true)
-	var view := await Leaderboards.load_board(_board, _back)
-	if my_load != _load_id or not is_inside_tree():
+	_load_id = Leaderboards.request_board(_board, _back)
+
+
+## A board came back: shown if it is the last one asked (an older answer is dropped).
+func _on_board_loaded(view: Leaderboards.View, request: int) -> void:
+	if request != _load_id or not is_inside_tree():
 		return
 	show_view(view)
 

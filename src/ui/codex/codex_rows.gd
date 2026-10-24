@@ -207,7 +207,7 @@ static func run_row(entry: Dictionary, content: ContentDB) -> Control:
 	row.add_child(facts)
 	var bosses := int(entry.get("bosses", 0))
 	var cells := [
-		stacked_fact(TranslationServer.tr("Difficulty"), TranslationServer.tr(str(entry.get("difficulty", "?")))),
+		stacked_fact(TranslationServer.tr("Difficulty"), DifficultyDef.named(str(entry.get("difficulty", "?")), int(entry.get("ascension", 0)))),
 		stacked_fact(TranslationServer.tr("Reached"), depth_text(depth, content)),
 		stacked_fact(TranslationServer.tr("Time"), TimeText.of(int(entry.duration) / 1000.0, 0) if entry.has("duration") else "-"),
 		stacked_fact(TranslationServer.tr("When"), date_text(int(entry.get("time", 0)))),

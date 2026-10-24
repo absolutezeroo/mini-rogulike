@@ -21,6 +21,7 @@ func run_game(game: Game) -> void:
 	for key: String in kept:
 		config.set(key, kept[key])
 	await _test_hidden_floor_kept(game)
+	await _test_cleared_arena(game)
 	await _test_other_build(game)
 	await _test_old_and_damaged_saves(game)
 
@@ -206,6 +207,96 @@ func _test_hidden_floor_kept(game: Game) -> void:
 	check(not slain.any(func(i: int) -> bool: return back.has(i)) and back.size() == own.size() - 2, "its monsters slain stay slain, the others are back (%s, slain %s)" % [back, slain])
 	check(world.arena != null and is_instance_valid(world.arena.boss), "its warden waits as before")
 	game.player.invincible = false
+
+
+## A run saved after a warden fell picks up in his cleared arena (not on the next floor): the
+## warden gone, the stairs there, the hidden way open again with the key still in the bag, what
+## he dropped still lying there, nothing given twice. Below, the hidden floor's hoard waits again,
+## open if it was opened.
+func _test_cleared_arena(game: Game) -> void:
+	var hidden_def := CONTENT.dungeon.hidden_floor
+	game.start_run()
+	await _frames(3)
+	var dungeon := CONTENT.dungeon
+	var act := clampi(hidden_def.key_acts[0] if hidden_def and not hidden_def.key_acts.is_empty() else 0, 0, dungeon.acts.size() - 1)
+	var depth := dungeon.first_depth(act) + dungeon.acts[act].floors - 1
+	await game.debug.enter_floor(depth)
+	await _frames(3)
+	var world: World = game.world
+	var player: Player = game.player
+	player.invincible = true
+	if hidden_def and hidden_def.key:
+		player.inventory.add(hidden_def.key)
+	# (In a corner: off the spots the hidden way may open on, or he would step in at once.)
+	player.global_position = world.nearest_free_point(world.map.cell_to_world(world.map.boss_room.position + Vector2i(2, 2)))
+	await _frames(3)
+	var hit := HitInfo.new()
+	hit.amount = 999999
+	world.arena.boss.take_hit(hit)
+	await _frames(6)
+	_take_offers(game)
+	check(world.arena.is_defeated, "the warden of floor %d falls" % depth)
+	var loot := world.spawn_item(load("res://data/items/weapons/hammer.tres") as ItemDef, world.map.cell_to_world(world.map.boss_room.get_center() + Vector2i(5, -3)))
+	world.spawn_gold(world.map.cell_to_world(world.map.boss_room.get_center() + Vector2i(-5, -3)), 30)
+	await _frames(2)
+	var gold_left := 0
+	for coins: Node in _of(world, &"gold"):
+		gold_left += (coins as GoldPickup).amount
+	var way_open := game.hidden.way != null and is_instance_valid(game.hidden.way)
+	var loot_id := loot.item.id
+	var lying := _lying(world, loot_id)
+	var bosses := game.run.bosses_slain
+	var bag := player.inventory.items.size()
+	game._save_run()
+	var saved := RunSave.read()
+	check(not bool(saved.get("boss_slain", true)) and bool(saved.floor.get("arena_cleared", false)), "the save keeps the cleared arena")
+	game.resume_run(saved)
+	await _frames(6)
+	_take_offers(game)
+	world = game.world
+	player = game.player
+	check(game.depth == depth and not game.run.hidden_floor and world.arena != null and world.arena.is_defeated and world.arena.boss == null, "picked up in the cleared arena of floor %d, the warden gone" % depth)
+	check(world.monster_count() == 0 and not world.is_boss_fight(), "no warden to fight again")
+	check(world.get_node("Entities").get_children().any(func(n: Node) -> bool: return n is Stairs), "its stairs are there")
+	check(game.run.bosses_slain == bosses and player.inventory.items.size() == bag, "nothing counted or given twice (%d bosses, %d in the bag)" % [game.run.bosses_slain, player.inventory.items.size()])
+	if hidden_def and hidden_def.key:
+		check(way_open and game.hidden.way != null and is_instance_valid(game.hidden.way) and hidden_def.carries_key(player), "the hidden way is open again, the key still in the bag")
+	var gold_back := 0
+	for coins: Node in _of(world, &"gold"):
+		gold_back += (coins as GoldPickup).amount
+	check(_lying(world, loot_id) == lying and lying.y >= 1 and gold_back == gold_left and gold_left > 0, "what he dropped still lies there (%s items and hammers of %s, %d of %d gold)" % [_lying(world, loot_id), lying, gold_back, gold_left])
+	# Below: the hidden boss fell, its hoard opened, then saved: the hoard waits, open.
+	if hidden_def and hidden_def.chest:
+		await game.debug.enter_hidden()
+		await _frames(3)
+		world = game.world
+		world.arena.boss.take_hit(hit)
+		await _frames(6)
+		_take_offers(game)
+		var hoards := world.get_node("Entities").get_children().filter(func(n: Node) -> bool: return n is Chest and (n as Chest).def == hidden_def.chest)
+		check(hoards.size() == 1, "the hidden boss leaves its hoard")
+		(hoards[0] as Chest).open()
+		await _frames(2)
+		game._save_run()
+		game.resume_run(RunSave.read())
+		await _frames(6)
+		_take_offers(game)
+		world = game.world
+		hoards = world.get_node("Entities").get_children().filter(func(n: Node) -> bool: return n is Chest and (n as Chest).def == hidden_def.chest)
+		check(game.run.hidden_floor and world.arena.is_defeated and hoards.size() == 1 and (hoards[0] as Chest).is_open, "picked up below, the hoard stands there again, open as it was left")
+	game.player.invincible = false
+
+
+## How many items lie on `world`'s floor, and how many of them are `id`.
+func _lying(world: World, id: StringName) -> Vector2i:
+	var items := world.get_node("Entities").get_children().filter(func(n: Node) -> bool: return n is ItemPickup and (n as ItemPickup).item != null and not (n as ItemPickup).is_taken())
+	return Vector2i(items.size(), items.filter(func(n: Node) -> bool: return (n as ItemPickup).item.id == id).size())
+
+
+func _take_offers(game: Game) -> void:
+	for i in 4:
+		if game.perk_panel.visible:
+			game.perk_panel.choose(0)
 
 
 ## A floor saved by another build (a game update in between) may come out otherwise from the

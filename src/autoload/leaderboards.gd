@@ -19,6 +19,8 @@ extends Node
 
 ## Something the page shows changed: the name, the opt-out, a score sent or waiting.
 signal changed
+## A board asked with request_board() came back (`request`: the number it handed out).
+signal board_loaded(view: View, request: int)
 
 const PATH := "user://leaderboards.json"
 const CONFIG := "res://data/leaderboards/leaderboards.tres"
@@ -28,6 +30,8 @@ const VERSION := 3
 ## Seconds after the game starts before what waits is sent (the start isn't slowed).
 const START_DELAY := 3.0
 
+## The last request_board() number handed out.
+var _requests := 0
 var config: LeaderboardsConfig
 ## Its file, the scores waiting (`queue`), the flush latch and the retry timer.
 var store := PersistedQueue.new(PATH, VERSION)
@@ -284,6 +288,21 @@ func flush() -> void:
 		store.retry_later(config.retry_seconds, OnlineSession.max_backoff())
 	elif status == BoardBackend.Status.OK:
 		store.succeeded()
+
+
+## Asks for a board (load_board()) and answers with board_loaded: a page listening to the signal
+## is never resumed after it is freed, as one awaiting load_board() would be. Returns the request's
+## number, to tell its answer from an older one's.
+func request_board(board: LeaderboardDef, back: int = 0) -> int:
+	_requests += 1
+	var request := _requests
+	_answer_board.call_deferred(board, back, request)  # (after the caller kept the number: an answer may come at once)
+	return request
+
+
+func _answer_board(board: LeaderboardDef, back: int, request: int) -> void:
+	var view := await load_board(board, back)
+	board_loaded.emit(view, request)
 
 
 ## The board for the period `back` periods ago (0: today), as the page shows it: the top, the

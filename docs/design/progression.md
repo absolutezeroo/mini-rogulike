@@ -253,7 +253,14 @@ away and coming back never hands anything out again.
   his rerolls paid. An entry locked there and not bought also waits for the next merchant, and
   is never in his stock twice.
 - What came later and is no monster (a monster's drop, a chest's loot) isn't saved: it is never
-  laid again either. A boss floor saved after its boss fell resumes on the next floor.
+  laid again either. Except in a warden's cleared arena: a boss floor saved after its boss fell
+  resumes there (`floor.arena_cleared`, `BossArena.clear_quietly()`), the warden gone, the stairs
+  there, nothing given again (relic, heal, souls); what lies on its floor and wasn't laid by the
+  seed (his loot, his gold: `floor.left`) lies there again; the hidden way opens again if the key
+  is still in the bag; on the hidden floor, its hoard stands there again (open if it was). Only
+  the bottom of the Well's fall still goes on at once (`boss_slain`, to its ending).
+- The merchant, again from its seed: an entry locked there drops one rolled copy of itself, never
+  an ordinary twin (`Merchant.drop_rolled_twins()`).
 - Every kind of floor is restored this way, boss floors and the hidden floor too. A seal broken
   before quitting comes back open quietly (no sound, no guiding light, no Regeneration heal again).
 
@@ -342,7 +349,8 @@ with a finger (`TouchScroll`); `CodexRows` builds their rows, with a tick box fo
   side.") until reached: "Laid to Rest at Last" (slay the hidden floor's boss, 50 souls) would
   give the hidden floor away. "What the Walls Keep": find 5 secret rooms (25 souls).
 - **Runs**: the fastest wins, then the last 20 runs: how each ended (victory, or the floor and
-  what slew you), when, the difficulty, how far (floor N of 12), how long, level, weapon, kills
+  what slew you), when, the difficulty (with its ascension: "Nightmare +3", one translated
+  sentence), how far (floor N of 12), how long, level, weapon, kills
   and the souls earned, each fact its name over its value (a value wraps between words, never
   inside one).
 

@@ -346,6 +346,9 @@ Choose an attack to watch it. Red marks on the ground show where it will land: s
 How it behaves,How it behaves,Son comportement
 Stats,Stats,Statistiques
 "On the floors where it first shows up: deeper down, it grows stronger.","On the floors where it first shows up: deeper down, it grows stronger.","Aux étages où il apparaît pour la première fois : plus bas, il devient plus fort."
+"Basic attack: the weapon he carried as a hero, %d damage.","Basic attack: the weapon he carried as a hero, %d damage.","Attaque de base : l'arme qu'il portait quand il était héros, %d Dégâts."
+Your weapon,Your weapon,Ton arme
+"Basic attack: the weapon you carried as a hero, %d damage.","Basic attack: the weapon you carried as a hero, %d damage.","Attaque de base : l'arme que tu portais quand tu étais héros, %d Dégâts."
 Up close,Up close,Au corps à corps
 "Shoots %d at once, from afar","Shoots %d at once, from afar","Tire %d projectiles à la fois, de loin"
 Shoots from afar,Shoots from afar,Tire de loin

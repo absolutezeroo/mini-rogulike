@@ -531,7 +531,7 @@ func _refresh() -> void:
 	_record(tr("Runs"), str(Profile.runs))
 	_record(tr("Victories"), str(Profile.victories))
 	_record(tr("Deepest floor"), str(Profile.best_depth))
-	_record(tr("Difficulty"), tr(difficulty.display_name) if difficulty else tr("Keeper"),
+	_record(tr("Difficulty"), difficulty.shown_name() if difficulty else tr("Keeper"),
 		difficulty.color if difficulty else UiSkin.TEXT)
 
 

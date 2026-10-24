@@ -38,14 +38,24 @@ func _test_finale(game: Game) -> void:
 	check(stairs.size() == 1 and (stairs[0] as Stairs).route != null and (stairs[0] as Stairs).route.biome == finale.biome, "its stairs are signed with the bottom's name")
 	check(await _relic_offered(game), "the last act's boss still offers its relic")
 
-	# Saved between the last act's boss and the bottom: picked up at the bottom.
+	# Saved between the last act's boss and the bottom: picked up in his cleared arena, its one
+	# way down to the bottom.
 	game._save_run()
 	var saved := RunSave.read()
-	check(bool(saved.get("boss_slain", false)) and bool(saved.get("finale_open", false)) and not bool(saved.get("finale", true)), "the save knows the boss fell and the bottom waits")
+	check(bool(saved.get("floor", {}).get("arena_cleared", false)) and not bool(saved.get("boss_slain", false)) and bool(saved.get("finale_open", false)) and not bool(saved.get("finale", true)), "the save knows the boss fell and the bottom waits")
 	game.resume_run(saved)
 	await _frames(5)
 	_close_offers(game)
-	check(game.run.finale and game.depth == total and game.world.finale == finale, "a run saved there picks up at the bottom of the Well, at the same depth")
+	check(not game.run.finale and game.depth == total and game.world.arena.is_defeated and game.world.arena.boss == null, "a run saved there picks up in the cleared arena, its warden gone")
+	var down := game.world.get_node("Entities").get_children().filter(func(n: Node) -> bool: return n is Stairs)
+	check(down.size() == 1 and (down[0] as Stairs).route != null and (down[0] as Stairs).route.biome == finale.biome, "its stairs still lead to the bottom")
+	game.world.stairs_reached.emit(0)
+	for i in 120:
+		await _frames(1)
+		if game.world.finale:
+			break
+	_close_offers(game)
+	check(game.run.finale and game.depth == total and game.world.finale == finale, "down them: the bottom of the Well, at the same depth")
 	check(game.world.arena != null and game.world.arena.boss.def == finale.boss and game.world.arena.boss.dormant, "Tôma kneels in its arena, asleep")
 	check(game.run.place_name(CONTENT) == finale.title, "the run says where it is")
 

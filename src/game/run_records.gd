@@ -92,6 +92,7 @@ func record_history() -> void:
 	var weapon := player.get_weapon()
 	Profile.add_history({
 		"difficulty": run.difficulty.display_name,
+		"ascension": run.difficulty.ascension,
 		"depth": run.depth,
 		"level": player.level,
 		"kills": run.kills,

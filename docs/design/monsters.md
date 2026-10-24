@@ -282,7 +282,9 @@ there instead; ringing the bell frees him (Tôma and the Maw wait again).
   he wakes ("Again." once slain), "At last." as he falls; three chapters told before his fights
   (the second names Tôma, so it waits for the keeper's reveal). No fragments and no deed: his past
   is the hero's own run. His page in the codex keeps the **Keepers freed** (`Profile.
-  keepers_freed`, the last 20: his weapon, level, the day), under his chronicle. After his fall
+  keepers_freed`, the last 20: his weapon, level, the day), under his chronicle. Its basic
+  attack and Damage are the Keeper waiting's (his weapon, his blow before the floor's rules), or
+  "Your weapon" when none waits, never the template's stand-in katana. After his fall
   the choice speaks of him (`FinaleDef.keeper_choice_lore`, `EndingDef.keeper_hint` /
   `keeper_text`).
 - **Rewards**: as the Maw's (320 XP, 3 relic choices when the hero keeps going, 3 rolls of loot,

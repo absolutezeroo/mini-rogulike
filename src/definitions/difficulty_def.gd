@@ -58,3 +58,17 @@ extends Resource
 
 ## Ascension level of a run (set on the copy made by AscensionDef.apply_levels()).
 var ascension := 0
+
+
+## Its name as shown, in the player's language: "Nightmare", or "Nightmare +3" with ascension
+## levels (one sentence with its codes, never the name and the level glued: AGENTS.md).
+func shown_name() -> String:
+	return named(display_name, ascension)
+
+
+## `difficulty_name` (a display_name, English) with `level` ascensions, translated.
+static func named(difficulty_name: String, level: int) -> String:
+	var translated := TranslationServer.tr(difficulty_name)
+	if level <= 0:
+		return translated
+	return TranslationServer.tr("{difficulty} +{level}").format({ "difficulty": translated, "level": level })

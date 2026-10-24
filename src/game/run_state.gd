@@ -422,7 +422,7 @@ func summary_rows(content: ContentDB, level: int, time_note: String = "") -> Arr
 	elif record > 0.0 and finish_time < 0.0:
 		time_text += "  " + tr("(record %s)") % TimeText.of(record)
 	var rows: Array = [
-		[tr("Difficulty"), tr(difficulty.display_name)],
+		[tr("Difficulty"), difficulty.shown_name()],
 		[tr("Reached"), tr("%s, depth %d") % [place_name(content), depth]],
 		[tr("Hero level"), str(level)],
 		[tr("Monsters slain"), str(kills)],

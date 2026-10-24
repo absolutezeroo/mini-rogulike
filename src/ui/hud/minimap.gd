@@ -38,6 +38,12 @@ var _redraw_timer := 0.0
 func bind_world(world: World) -> void:
 	if _world == world:
 		return
+	# (One World lives per Game today; another bound later must not leave this one calling in.)
+	if is_instance_valid(_world):
+		if _world.map_reset.is_connected(_rebuild):
+			_world.map_reset.disconnect(_rebuild)
+		if _world.cells_changed.is_connected(_update_cells):
+			_world.cells_changed.disconnect(_update_cells)
 	_world = world
 	world.map_reset.connect(_rebuild)
 	world.cells_changed.connect(_update_cells)

@@ -372,7 +372,8 @@ bottom of the Well"; the canon in docs/lore.md, section 7, step 7).
   run, with all its bookkeeping at once (`has_won`, the time and its record, the souls, the
   ascension, the history), then the choice of an ending (progression.md), then the victory
   screen and endless mode (the Maw's relic, the arena's stairs to depth 13).
-- **Saves**: after Act IV's boss (the save says `boss_slain`): picked up at the bottom. On the
+- **Saves**: after Act IV's boss: picked up in his cleared arena, its stairs down to the bottom
+  (progression.md, "a warden's cleared arena"). On the
   bottom: picked up there (the fight starts over from Tôma, like any boss floor). Won but the app
   put away before the choice (`RunState.ending_due`): picked up on the endless floor, the choice
   first.

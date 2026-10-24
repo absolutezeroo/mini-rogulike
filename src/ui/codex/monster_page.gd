@@ -34,6 +34,9 @@ static var _art_rects := {}
 
 var _monster: MonsterDef
 var _content: ContentDB
+## The Nameless Keeper waiting now (his template built from Profile.keeper), whose weapon and blow
+## the page shows instead of the template's stand-in; null for any other monster, or none waiting.
+var _waiting_keeper: NamelessKeeperDef
 var _preview: AttackPreview
 var _attack_text: Label
 var _attack_buttons: Array[Button] = []
@@ -53,6 +56,10 @@ func _init() -> void:
 func show_monster(monster: MonsterDef, content: ContentDB) -> void:
 	_monster = monster
 	_content = content
+	_waiting_keeper = null
+	var keeper := monster as NamelessKeeperDef
+	if keeper and KeeperSnapshot.is_valid(Profile.keeper):
+		_waiting_keeper = keeper.build(KeeperSnapshot.new(Profile.keeper), content)
 	clear()
 	var rules := content.bestiary
 	var rank := Bestiary.rank_of(monster, rules)
@@ -176,6 +183,8 @@ func _stats() -> Array[Array]:
 	var hero := _content.player.base_stats if _content.player else null
 	var health := stats.max_hp if stats else 0
 	var damage := weapon.damage if weapon else 0
+	if _monster is NamelessKeeperDef:
+		damage = _keeper_blow()
 	var armor := stats.defense if stats else 0
 	var speed := roundi(stats.move_speed) if stats else 0
 	var health_note := tr("How much damage it takes to slay it.")
@@ -369,10 +378,27 @@ func _fill_attacks(column: VBoxContainer, rank: int) -> void:
 		grid.add_child(cell)
 
 
+## The Nameless Keeper's blow before the floor's rules: his weapon's damage and his attack
+## together (NamelessKeeperDef.blow_power, more for a finer weapon); none waiting, the template's.
+func _keeper_blow() -> int:
+	if _waiting_keeper:
+		var weapon_damage := _waiting_keeper.weapon.damage if _waiting_keeper.weapon else 0
+		return weapon_damage + _waiting_keeper.stats.attack
+	return (_monster as NamelessKeeperDef).blow_power
+
+
 ## Its basic attack, its skills, and a boss' phase skills: [{ name, attack, text }].
 func _attacks() -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	var weapon := _monster.weapon
+	if _monster is NamelessKeeperDef:
+		# Not the template's stand-in: the weapon of the hero he was (none waiting: said so).
+		if _waiting_keeper and _waiting_keeper.weapon:
+			var his := _waiting_keeper.weapon
+			result.append({ "name": tr(his.display_name), "attack": his, "text": tr("Basic attack: the weapon he carried as a hero, %d damage.") % _keeper_blow() })
+		elif weapon:
+			result.append({ "name": tr("Your weapon"), "attack": weapon, "text": tr("Basic attack: the weapon you carried as a hero, %d damage.") % _keeper_blow() })
+		weapon = null
 	if weapon:
 		var how := tr("Up close")
 		if weapon.kind == WeaponDef.Kind.RANGED:

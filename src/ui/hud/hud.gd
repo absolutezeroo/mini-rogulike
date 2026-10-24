@@ -499,7 +499,7 @@ func _refresh_info() -> void:
 	var difficulty := _player.world.difficulty if _player.world else null
 	# One sentence each, with or without the difficulty in front (never glued pieces).
 	var facts := {
-		"difficulty": tr(difficulty.display_name) if difficulty else "",
+		"difficulty": difficulty.shown_name() if difficulty else "",
 		"depth": _player.world.depth if _player.world else 1,
 		"damage": _player.get_power(),
 		"armor": stats.defense,

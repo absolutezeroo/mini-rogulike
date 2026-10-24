@@ -25,6 +25,9 @@ var _world: World
 var _entities: Node
 ## Set before rebuilding a saved floor (World.restore_spent()), used once by apply().
 var _to_restore := {}
+## Cells of the chests opened before quitting, as the save gave them (apply()): a chest that
+## comes later on the rebuilt floor (the hidden floor's hoard) is opened already if its cell is in.
+var restored_chest_cells: Array[Vector2i] = []
 
 
 func _init(world: World, entities: Node) -> void:
@@ -37,6 +40,7 @@ func reset() -> void:
 	opened_chests.clear()
 	bought.clear()
 	slain.clear()
+	restored_chest_cells.clear()
 
 
 ## One of the floor's own monsters fell (Monster.floor_index): kept slain for the save.
@@ -50,7 +54,7 @@ func count_slain(monster: Monster) -> void:
 func to_data() -> Dictionary:
 	var world := _world
 	var merchant := world.floor_merchant()
-	return {
+	var data := {
 		"stamp": RunSave.floor_stamp(),
 		"chests": opened_chests.map(func(cell: Vector2i) -> Array: return [cell.x, cell.y]),
 		"bought": bought.duplicate(),
@@ -67,6 +71,55 @@ func to_data() -> Dictionary:
 		"wounded": wounded_spawns(),
 		"later": later_monsters(),
 	}
+	if arena_cleared():
+		data["arena_cleared"] = true
+		data["left"] = left_behind()
+	return data
+
+
+## The warden of this floor fell before quitting (not the bottom of the Well's: its ending
+## follows at once): the run picks up in his cleared arena, the hidden way open again if the key
+## is still in the bag, what he dropped still lying there (left_behind()).
+func arena_cleared() -> bool:
+	var world := _world
+	return world.arena != null and is_instance_valid(world.arena) and world.arena.is_defeated and world.finale == null
+
+
+## What came later and still lies on the floor (a warden's loot, gold he dropped): [kind, data,
+## x, y] with kind "item" (data: LootRoller.to_data()) or "gold" (data: the coins). What the seed
+## laid is the ledger's: laid again on the rebuilt floor, not kept twice.
+func left_behind() -> Array:
+	var world := _world
+	var result: Array = []
+	for node in _entities.get_children():
+		var pickup := node as ItemPickup
+		if pickup and pickup.item and not pickup.is_taken() and not world.ledger.is_laid(FloorLedger.ITEM, pickup):
+			result.append(["item", LootRoller.to_data(pickup.item), roundi(pickup.global_position.x), roundi(pickup.global_position.y)])
+		var coins := node as GoldPickup
+		if coins and coins.amount > 0 and not coins.is_queued_for_deletion() and not world.ledger.is_laid(FloorLedger.GOLD, coins):
+			result.append(["gold", coins.amount, roundi(coins.global_position.x), roundi(coins.global_position.y)])
+	return result
+
+
+## What lay there lies there again (`saved`: to_data()'s "left"); a damaged entry, or an item the
+## game no longer has, is skipped.
+func restore_left(saved: Array) -> void:
+	var world := _world
+	for entry: Variant in saved:
+		if not (entry is Array and (entry as Array).size() == 4):
+			continue
+		var at := Vector2(float(entry[2]), float(entry[3]))
+		if not world.is_solid_ground(at):
+			at = world.nearest_free_point(at)
+		match str(entry[0]):
+			"item":
+				var item := LootRoller.from_data(entry[1])
+				if item:
+					world.spawn_item(item, at)
+			"gold":
+				var coins := int(entry[1]) if (entry[1] is float or entry[1] is int) else 0
+				if coins > 0:
+					_entities.add_child(GoldPickup.create(at, coins, world))
 
 
 ## The next floor built is the saved one again: what was taken from it stays taken. `data`:
@@ -90,6 +143,10 @@ func apply() -> void:
 	world.ledger.restore(data.get("spent", {}), _take_back)
 	restore_ambush(data.get("ambush", {}))  # (before the chests: its chest may be opened)
 	var cells := saved_cells(_array(data, "chests"))
+	restored_chest_cells = cells
+	if data.get("arena_cleared", false) == true and world.arena:
+		world.arena.clear_quietly()
+		restore_left(_array(data, "left"))
 	for node in _entities.get_children():
 		var chest := node as Chest
 		if chest and cells.has(world.map.world_to_cell(chest.global_position)):

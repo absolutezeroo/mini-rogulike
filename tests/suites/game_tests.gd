@@ -450,7 +450,7 @@ func _test_run(game: Game) -> void:
 	Profile.ascension = 9
 	game.start_run()
 	await _frames(3)
-	check(game.difficulty.ascension == 9 and game.world.difficulty.display_name == "Nightmare +9", "a run on Nightmare +9")
+	check(game.difficulty.ascension == 9 and game.world.difficulty.shown_name() == "Nightmare +9", "a run on Nightmare +9")
 	check(game.player.get_max_hp() < base_hp, "Frail: less max HP")
 	var merchant: Merchant = game.world.spawn_merchant(CONTENT.dungeon.merchant, game.world.map.start_cell + Vector2i(3, 0))
 	var potion_price: int = CONTENT.dungeon.merchant.buy_price(load("res://data/items/consumables/health_potion.tres"), game.depth)

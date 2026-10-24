@@ -211,7 +211,8 @@ func _hidden_floor_in_game(game: Game) -> void:
 		return
 	game._save_run()
 	var after := RunState.create(CONTENT, RunSave.read(), RandomNumberGenerator.new())
-	check(after.depth == boss_depth + 1 and not after.hidden_floor and after.hidden_done, "saved after its boss: on to the next act")
+	var saved_after := RunSave.read()
+	check(after.depth == boss_depth and after.hidden_floor and after.hidden_done and bool(saved_after.floor.get("arena_cleared", false)), "saved after its boss: picked up in its cleared arena, its hoard paid once")
 	world.player.global_position = world.map.cell_to_world(world.stairs_cells[0])
 	for i in 600:
 		await _frames(1)

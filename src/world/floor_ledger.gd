@@ -42,6 +42,11 @@ func lay(kind: String, node: Object, id: String) -> int:
 	return laid.size() - 1
 
 
+## `node` was laid by the floor's seed (the rebuilt floor lays it again).
+func is_laid(kind: String, node: Object) -> bool:
+	return _index_of(kind, node) >= 0
+
+
 ## `node` was used up (taken, broken, used): kept for the save, once. Nothing if it was not laid.
 func spend(kind: String, node: Object) -> void:
 	var index := _index_of(kind, node)

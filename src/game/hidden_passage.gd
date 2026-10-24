@@ -38,8 +38,22 @@ func can_open() -> bool:
 		and not game.content.dungeon.is_final_floor(run.depth) and def.carries_key(game.player)
 
 
-## Tears the way open in the arena, away from the stairs.
-func open_way() -> HiddenWay:
+## A run saved in a cleared arena picks up there (FloorSave "arena_cleared"): above, the way
+## opens again if the key is still in the bag; below, the hoard waits again (open if it was).
+func resume_cleared() -> void:
+	way = null
+	if def == null or game == null or game.run == null:
+		return
+	if game.run.hidden_floor:
+		if game.run.hidden_done:
+			_hoard(true)
+	elif can_open():
+		open_way(true)
+
+
+## Tears the way open in the arena, away from the stairs. `quiet`: a resumed run's, opened before
+## quitting (no shake, no sound, no line).
+func open_way(quiet: bool = false) -> HiddenWay:
 	var world := game.world
 	var cell := _spot(world)
 	if cell == DungeonMap.NO_CELL:
@@ -53,6 +67,8 @@ func open_way() -> HiddenWay:
 	way.z_index = -1
 	world.add_entity(way)
 	way.reached.connect(func() -> void: world.stairs_reached.emit(ROUTE))
+	if quiet:
+		return way
 	Events.screen_shake.emit(0.6)
 	Sfx.play_world(Sfx.bank.gate, way.position)
 	Vfx.magic(world, way.position, def.color)
@@ -87,9 +103,19 @@ func _reward() -> void:
 	run.hidden_done = true
 	run.bonus_souls += def.bonus_souls
 	Events.stat_counted.emit("hidden_bosses", 1)
-	var world := game.world
-	if def.chest:
-		var cell := world.map.world_to_cell(world.nearest_free_point(world.map.cell_to_world(world.map.boss_room.get_center() + Vector2i(0, -3))))
-		world.spawn_chest(def.chest, cell, false)
+	_hoard(false)
 	Events.log_message(tr("The hidden floor gives up its hoard: +%d souls.") % run.bonus_souls_worth(def.bonus_souls), def.color)
 	Events.run_souls_changed.emit()
+
+
+## The hidden floor's chest, by the middle of the arena. `resumed`: a run picked up after the
+## hidden boss fell: opened before quitting, it stands open (FloorSave.restored_chest_cells).
+func _hoard(resumed: bool) -> void:
+	var world := game.world
+	if def.chest == null:
+		return
+	var cell := world.map.world_to_cell(world.nearest_free_point(world.map.cell_to_world(world.map.boss_room.get_center() + Vector2i(0, -3))))
+	var chest := world.spawn_chest(def.chest, cell, false)
+	if resumed and world.floor_save.restored_chest_cells.has(cell):
+		chest.set_spent()
+		world.floor_save.opened_chests.append(cell)

@@ -99,6 +99,10 @@ const SHAPE := {
 		# (World.spent_data()); optional: a save without them restores them whole / not at all.
 		"wounded": ["array"],
 		"later": [{ "def": "string", "id": "string", "at": "array", "health": "number", "rank": "string", "affixes": "array", "summoned": "bool" }],
+		# The warden fell before quitting: the run picks up in his cleared arena, with what lay
+		# there ([kind, data, x, y]; FloorSave.left_behind()).
+		"arena_cleared": "bool",
+		"left": ["array"],
 	},
 }
 

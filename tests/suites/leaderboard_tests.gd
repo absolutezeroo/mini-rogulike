@@ -302,6 +302,21 @@ func _test_load_board() -> void:
 	fake.online = false
 	var offline: Leaderboards.View = await Leaderboards.load_board(board)
 	check(offline.status == BoardBackend.Status.OFFLINE, "no network: the page is told so")
+	# A page asks by request_board() and listens to board_loaded (freed meanwhile, it is simply
+	# not called: no coroutine of it resumed).
+	fake.online = true
+	var answers: Array = []
+	var listen := func(answer: Leaderboards.View, request: int) -> void: answers.append([answer, request])
+	Leaderboards.board_loaded.connect(listen)
+	var first := Leaderboards.request_board(board)
+	var second := Leaderboards.request_board(board, 1)
+	for i in 120:
+		if answers.size() >= 2:
+			break
+		await _frames(1)
+	Leaderboards.board_loaded.disconnect(listen)
+	var numbers := answers.map(func(pair: Array) -> int: return pair[1])
+	check(second == first + 1 and numbers.has(first) and numbers.has(second) and answers.all(func(pair: Array) -> bool: return (pair[0] as Leaderboards.View).status == BoardBackend.Status.OK), "each board asked answers with its own number (%s, asked %d and %d)" % [numbers, first, second])
 
 
 ## The tags on the boards: the same name on two devices, two tags; one device keeps its tag

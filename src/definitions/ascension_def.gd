@@ -22,7 +22,7 @@ extends Resource
 
 
 ## `base` (Nightmare) with the first `level` ascensions of `levels` applied: a new DifficultyDef
-## named "Nightmare +N" (same id, so its wins still count as Nightmare wins).
+## shown as "Nightmare +N" (same id and name, so its wins still count as Nightmare wins).
 static func apply_levels(base: DifficultyDef, levels: Array[AscensionDef], level: int) -> DifficultyDef:
 	var result := base.duplicate() as DifficultyDef
 	result.ascension = mini(level, levels.size())
@@ -39,6 +39,4 @@ static func apply_levels(base: DifficultyDef, levels: Array[AscensionDef], level
 		result.hero_max_hp *= a.hero_max_hp
 		result.souls *= a.souls
 		result.extra_monsters += a.extra_monsters
-	if result.ascension > 0:
-		result.display_name = "%s +%d" % [base.display_name, result.ascension]
-	return result
+	return result  # (named "Nightmare +N" where shown: DifficultyDef.shown_name())
