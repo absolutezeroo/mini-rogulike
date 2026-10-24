@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 184,
+  "next_id": 185,
   "tags": [
     "pc",
     "test",
@@ -2727,6 +2727,22 @@
       ],
       "created_at": 1792806960,
       "updated_at": 1792806960
+    },
+    {
+      "id": "task_184",
+      "title": "Compagnon cosmétique : un petit qui nous suit",
+      "description": "Idée de Clayton (plus tard). Un petit compagnon qui suit le héros, purement cosmétique (aucun effet sur le jeu). Pistes : choisi au sanctuaire (CompanionDef en données : sprite, animations, façon de suivre — trotte, vole, flotte), débloqué par des hauts faits / le Tribut du Puits / les succès ; il réagit sans gêner (s'assoit à l'arrêt, sursaute aux coups, se cache pendant les boss, pleure à la mort, fête la victoire) ; dans le lore : une âme perdue du Puits, un tanuki de Kagari, une luciole-lanterne, un bateau de papier qui flotte… Contraintes : jamais devant le héros ni les télégraphes, rien dans la sauvegarde de partie hormis le choix, caché par l'option « effets réduits » si besoin.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "idée",
+        "contenu",
+        "visuel"
+      ],
+      "created_at": 1792807733,
+      "updated_at": 1792807733
     }
   ]
 }
