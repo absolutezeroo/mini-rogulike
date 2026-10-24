@@ -157,14 +157,20 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 	var floor_index := 0
 	for i: int in counts:
 		var room := map.rooms[i]
+		# Each body clear of the ones already standing in the room: two spawned into each other
+		# are shoved apart by the physics on the first frame, hard enough to end in a wall or a
+		# crate (level_tests "as built").
+		var placed: Array[Actor] = []
 		for n in counts[i]:
 			var def := content.pick_monster(depth, rng)
 			if def:
-				var monster := world.spawn_monster(def, _free_point_in(world, room, rng, taken, World.room_for(def)))
+				var monster := world.spawn_monster(def, _free_point_in(world, room, rng, taken, World.room_for(def), placed))
 				world.roll_elite(monster)
 				# An elite grew: its bigger body must fit where it stands too.
-				if monster.radius > World.room_for(def) and not _fits(world, monster.global_position, monster.radius):
-					monster.global_position = _free_point_in(world, room, rng, taken, monster.radius)
+				if monster.radius > World.room_for(def) and (not _fits(world, monster.global_position, monster.radius) \
+						or World.is_under_body(monster.global_position, placed, monster.radius)):
+					monster.global_position = _free_point_in(world, room, rng, taken, monster.radius, placed)
+				placed.append(monster)
 				monster.floor_index = floor_index  # (the seed's order: a resumed run's same monster)
 				floor_index += 1
 
@@ -335,17 +341,18 @@ static func _shuffled(cells: Array[Vector2i], rng: RandomNumberGenerator) -> Arr
 
 ## A random point in the room, on free ground (not on a prop, a trap, a chest, a pond, a hole).
 ## `radius`: a body that must fit there (a monster: nothing that stops it within it, a pillar, a
-## wall's corner, the water's edge); 0 for an item lying on the floor.
-static func _free_point_in(world: World, room: Rect2i, rng: RandomNumberGenerator, taken: Dictionary, radius: float = 0.0) -> Vector2:
+## wall's corner, the water's edge); 0 for an item lying on the floor. `bodies`: monsters the
+## body must not overlap (each by its radius + `radius`).
+static func _free_point_in(world: World, room: Rect2i, rng: RandomNumberGenerator, taken: Dictionary, radius: float = 0.0, bodies: Array[Actor] = []) -> Vector2:
 	var map := world.map
 	var cell := map.random_cell_in(room, rng)
 	for attempt in 12:
 		if not taken.has(cell) and world.is_free_cell(cell):  # pillars of a themed room are walls
 			var center := map.cell_to_world(cell)
 			var at := center + Vector2(rng.randf_range(-8.0, 8.0), rng.randf_range(-8.0, 8.0))
-			if radius <= 0.0 or _fits(world, at, radius):
+			if radius <= 0.0 or (_fits(world, at, radius) and not World.is_under_body(at, bodies, radius)):
 				return at
-			if _fits(world, center, radius):
+			if _fits(world, center, radius) and not World.is_under_body(center, bodies, radius):
 				return center
 		cell = map.random_cell_in(room, rng)
 	if radius > 0.0:
@@ -357,9 +364,9 @@ static func _free_point_in(world: World, room: Rect2i, rng: RandomNumberGenerato
 				if not taken.has(spot) and world.is_free_cell(spot):
 					cells.append(spot)
 		for spot in _shuffled(cells, rng):
-			if _fits(world, map.cell_to_world(spot), radius):
+			if _fits(world, map.cell_to_world(spot), radius) and not World.is_under_body(map.cell_to_world(spot), bodies, radius):
 				return map.cell_to_world(spot)
-	return world.nearest_free_point(map.cell_to_world(cell))
+	return world.nearest_free_point(map.cell_to_world(cell), 12, bodies, radius)
 
 
 ## A body of `radius` fits at `point`: no wall, prop, pillar, pond or pool within it, by the

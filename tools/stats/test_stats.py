@@ -43,6 +43,20 @@ class CatalogTests(unittest.TestCase):
 			"DEFAULT_CATALOG follows data/online/telemetry.tres (update it with the catalog)")
 		self.assertEqual(catalog["run_end"], talo_export.DEFAULT_CATALOG["run_end"])
 
+	def test_no_field_ends_another(self):
+		# Talo's export fills props.<key> with the first prop whose key ends the column's name.
+		for name, fields in talo_export.load_catalog().items():
+			plain = [f for f in fields if not f.endswith("*")]
+			for field in plain:
+				for other in plain:
+					self.assertFalse(other != field and other.endswith(field),
+						f"{name}: {other} ends with {field} (Talo's export would mix them)")
+
+	def test_old_skills_field_still_read(self):
+		self.assertIn("skill_ids", talo_export.DEFAULT_CATALOG["run_end"])
+		self.assertNotIn("skills", talo_export.DEFAULT_CATALOG["run_end"])
+		self.assertIn("skills", talo_export.LEGACY_FIELDS["run_end"], "older exports' skills are read")
+
 	def test_wildcards(self):
 		fields = ["run", "skill.*"]
 		self.assertTrue(talo_export.allows(fields, "skill.fireball.uses"))
@@ -80,6 +94,12 @@ class ParsingTests(unittest.TestCase):
 		self.assertEqual(props["weapon"], "katana")
 		self.assertEqual(self.by_id["e5"]["props"]["skills"], "dash,fireball", "a real skills cell is kept")
 		self.assertEqual(self.by_id["e5"]["props"]["src_out.weapon"], "1500")
+
+	def test_skill_ids(self):
+		run = stats.make_run("r", run_end("r", 1.0, kills=12, skill_ids="dash,fireball,frost_nova"))
+		self.assertEqual(run["skills"], ["fireball", "frost_nova"], "skill_ids: the skills held (without the roll)")
+		run = stats.make_run("r", run_end("r", 1.0, kills=12, skills="dash,ice_wall"))
+		self.assertEqual(run["skills"], ["ice_wall"], "an older run's skills still read")
 
 	def test_skills_rebuilt_from_skill_props(self):
 		run = stats.make_run("r1", self.by_id["e1"])

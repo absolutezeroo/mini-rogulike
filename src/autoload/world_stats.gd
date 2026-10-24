@@ -7,7 +7,16 @@ extends Node
 ## Counting: it listens to the Events bus during a run (kills, bosses, floors, potions, a death, a
 ## new Dawn Knell) and at the shrine (souls offered); a run's counts wait in `pending` and join the
 ## queue when the run ends (Events.run_ended, then Events.ending_chosen for the ending), capped to
-## each counter's max change. The queue is sent with **one update per counter** (Talo's PUT, its
+## each counter's max change.
+##
+## A run left without ending (Events.run_left, as the gameplay statistics: quit to the title, the
+## app closed) sends what it counted so far too. It may be resumed: each run has a key, and its
+## counts so far go into its save (Events.run_saving: RunState.world_stats); what of it was queued
+## is kept per key in the file (`sent`). A resumed run takes its counts back from the save and
+## only queues what goes past what was sent (a save older than what was sent counts nothing twice);
+## counts the save had but that never went (the app killed) go at its end. The app put in the
+## background (maybe killed there) leaves the unsent part as a draft in the file: dropped when the
+## app comes back, queued at the next launch otherwise. The queue is sent with **one update per counter** (Talo's PUT, its
 ## maxChange and rate limits respected: never one call per kill), through the leaderboards' server
 ## and player (Leaderboards: same device id). Without network it waits in its own file,
 ## user://world_stats.json, and is tried again every retry_seconds, at the next run's end and when
@@ -31,6 +40,8 @@ signal changed
 const PATH := "user://world_stats.json"
 const DEFS := "res://data/online/world_stats.tres"
 const VERSION := 1
+## How many runs' sent shares the file remembers (a run left then resumed; older keys are dropped).
+const KEPT_RUNS := 8
 
 ## Empty = nothing is read or written (tests).
 var path := PATH
@@ -39,6 +50,14 @@ var config: WorldStatsDef
 var pending := {}
 ## Waiting to be sent: internal name -> amount (runs played offline add up).
 var queue := {}
+## The key of the run being played ("" between runs), and all it counted (its save keeps them).
+var run_key := ""
+var run_counts := {}
+## What of each recent run was queued: run key -> {internal name -> amount}. Saved in the file.
+var sent := {}
+## The app is in the background mid-run: what would go if it never came back {run, counts,
+## run_counts} (queued at the next launch; dropped when the app comes back). Empty otherwise.
+var draft := {}
 ## The world's numbers last read (internal name -> value), in memory only: hidden until read.
 var world := {}
 ## The player's own lifetime share (the server's when read, plus what was sent since).
@@ -64,6 +83,8 @@ func _ready() -> void:
 	load_state()
 	Events.run_started.connect(_on_run_started)
 	Events.run_ended.connect(_on_run_ended)
+	Events.run_saving.connect(_on_run_saving)
+	Events.run_left.connect(_on_run_left)
 	Events.monster_killed.connect(_on_monster_killed)
 	Events.boss_defeated.connect(func(_boss: Monster) -> void: count(WorldStatDef.Feed.BOSSES))
 	Events.depth_changed.connect(_on_depth_changed)
@@ -87,6 +108,10 @@ func use_for_tests() -> void:
 func reset() -> void:
 	pending.clear()
 	queue.clear()
+	run_key = ""
+	run_counts.clear()
+	sent.clear()
+	draft.clear()
 	world.clear()
 	mine.clear()
 	read_at = 0
@@ -142,7 +167,26 @@ func count(feed: WorldStatDef.Feed, amount: int = 1, ending: StringName = &"") -
 		return
 	for def in config.enabled_stats():
 		if def.feed == feed and (feed != WorldStatDef.Feed.ENDING or def.ending == ending):
-			pending[def.internal_name] = int(pending.get(def.internal_name, 0)) + amount
+			_add(def.internal_name, amount)
+
+
+## Counts `amount` for `internal_name`. In a run: into its counts, and into `pending` only what
+## goes past what the run already sent (a resumed run replaying a part already sent).
+func _add(internal_name: String, amount: int) -> void:
+	if run_key.is_empty():
+		pending[internal_name] = int(pending.get(internal_name, 0)) + amount
+		return
+	var before := _unsent(internal_name)
+	run_counts[internal_name] = int(run_counts.get(internal_name, 0)) + amount
+	var more := _unsent(internal_name) - before
+	if more > 0:
+		pending[internal_name] = int(pending.get(internal_name, 0)) + more
+
+
+## What the run counted for `internal_name` past what it sent.
+func _unsent(internal_name: String) -> int:
+	var done: Dictionary = sent.get(run_key, {})
+	return maxi(0, int(run_counts.get(internal_name, 0)) - int(done.get(internal_name, 0)))
 
 
 ## The run's counts join the queue (each capped to its counter's max change: no real run adds
@@ -155,16 +199,85 @@ func commit() -> void:
 			continue
 		queue[internal_name] = int(queue.get(internal_name, 0)) + mini(amount, def.max_change)
 	pending.clear()
+	if not run_key.is_empty():
+		_mark_sent(run_key, run_counts)
 	save_state()
 	changed.emit()
 	flush()
 
 
+## `counts` (a run's whole counts) are queued for run `key`: what was sent is at least that.
+func _mark_sent(key: String, counts: Dictionary) -> void:
+	var done: Dictionary = sent.get(key, {})
+	sent.erase(key)  # (back at the end: the most recent run is kept longest)
+	for internal_name: String in counts:
+		done[internal_name] = maxi(int(done.get(internal_name, 0)), int(counts[internal_name]))
+	sent[key] = done
+	while sent.size() > KEPT_RUNS:
+		sent.erase(sent.keys()[0])
+
+
 func _on_run_started(run: RunState, player: Player) -> void:
 	_bind(player)
 	_depth = run.depth
+	draft.clear()
+	run_counts.clear()
+	run_key = ""
+	var saved_key: Variant = run.world_stats.get("run")
+	var saved_counts: Variant = run.world_stats.get("counts")
+	if run.time > 0.0 and saved_key is String and not (saved_key as String).is_empty() and saved_counts is Dictionary:
+		# A run picked up again: its counts so far; what of them never went (the app killed
+		# before it could tell them) is still to send.
+		run_key = saved_key
+		_read_amounts(saved_counts, run_counts)
+		if may_send() and not DebugCheats.debug_run:
+			for internal_name: String in run_counts:
+				if _unsent(internal_name) > 0:
+					pending[internal_name] = int(pending.get(internal_name, 0)) + _unsent(internal_name)
+	else:
+		run_key = Crypto.new().generate_random_bytes(6).hex_encode()
 	if run.is_daily() and run.time <= 0.0:
 		count(WorldStatDef.Feed.DAILY_RUNS)  # (a new Dawn Knell, not one resumed)
+
+
+## The run is being saved: its counts so far go with it.
+func _on_run_saving(run: RunState) -> void:
+	if not run_key.is_empty():
+		run.world_stats = { "run": run_key, "counts": run_counts.duplicate() }
+
+
+## The player left the run without it ending (Events.run_left). For good (the title, the app
+## closed): what it counted so far goes now, and the run is no longer followed (resumed, it is
+## followed again from its save). Put in the background: the same share as a draft only (the
+## app may come back to the run).
+func _on_run_left(summary: RunSummary, for_good: bool) -> void:
+	draft.clear()
+	if summary.debug or DebugCheats.debug_run:
+		pending.clear()  # (a debug run's counts never go anywhere)
+		save_state()
+		return
+	if for_good:
+		commit()
+		_unbind_run()
+		return
+	if not pending.is_empty() and may_send():
+		draft = { "run": run_key, "counts": pending.duplicate(), "run_counts": run_counts.duplicate() }
+	save_state()
+
+
+## No run followed any more: later counts (the shrine) are nobody's run.
+func _unbind_run() -> void:
+	run_key = ""
+	run_counts.clear()
+	_bind(null)
+
+
+## The app came back to the run: the draft is not needed.
+func _drop_draft() -> void:
+	if draft.is_empty():
+		return
+	draft.clear()
+	save_state()
 
 
 func _bind(player: Player) -> void:
@@ -196,9 +309,12 @@ func _on_run_ended(summary: RunSummary) -> void:
 		pending.clear()  # (a debug run's counts never go anywhere)
 		save_state()
 		return
-	if _player and is_instance_valid(_player) and _player.is_dead:
+	var dead := _player != null and is_instance_valid(_player) and _player.is_dead
+	if dead:
 		count(WorldStatDef.Feed.DEATHS)
 	commit()
+	if dead:
+		_unbind_run()  # (a won run goes on: the endless floors, then the ending)
 
 
 func _on_ending_chosen(ending: EndingDef) -> void:
@@ -214,9 +330,10 @@ func _on_souls_offered(amount: int) -> void:
 
 ## Consent withdrawn (or the scores unpublished): nothing waits any more, nothing is shown.
 func _on_choices_changed() -> void:
-	if not may_send() and (not pending.is_empty() or not queue.is_empty()):
+	if not may_send() and (not pending.is_empty() or not queue.is_empty() or not draft.is_empty()):
 		pending.clear()
 		queue.clear()
+		draft.clear()
 		save_state()
 	if not may_read() and not world.is_empty():
 		world.clear()
@@ -308,8 +425,9 @@ func refresh(force: bool = false) -> void:
 func _notification(what: int) -> void:
 	match what:
 		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_CLOSE_REQUEST:
-			save_state()  # (a run's counts so far, if the app is closed in the middle of it)
-		NOTIFICATION_APPLICATION_RESUMED:
+			save_state()  # (the queue, and a run's draft if the app is killed in the background)
+		NOTIFICATION_APPLICATION_RESUMED, NOTIFICATION_APPLICATION_FOCUS_IN:
+			_drop_draft()
 			if not queue.is_empty() and _retry and _retry.is_stopped():
 				flush()
 
@@ -319,9 +437,11 @@ func _notification(what: int) -> void:
 func save_state() -> void:
 	if path.is_empty():
 		return
-	SafeFile.write_json(path, { "version": VERSION, "pending": pending, "queue": queue, "mine": mine })
+	SafeFile.write_json(path, { "version": VERSION, "queue": queue, "mine": mine, "sent": sent, "draft": draft })
 
 
+## Reads the file. A draft left there (the app killed in the background mid-run) joins the queue
+## and counts as sent for its run; an older file's `pending` (a run left unfinished) joins it too.
 func load_state() -> void:
 	reset()
 	if path.is_empty():
@@ -329,18 +449,45 @@ func load_state() -> void:
 	var data: Variant = SafeFile.read_json(path)
 	if not data is Dictionary:
 		return
-	for key in ["pending", "queue", "mine"]:
-		var saved: Variant = (data as Dictionary).get(key, {})
-		if not saved is Dictionary:
-			continue
-		var into: Dictionary = get(key)
-		for internal_name: Variant in saved:
-			var value: Variant = (saved as Dictionary)[internal_name]
-			if (value is int or value is float) and float(value) > 0.0:
-				if key == "mine":
-					into[str(internal_name)] = float(value)
-				else:
-					into[str(internal_name)] = int(value)
+	var saved: Dictionary = data
+	_read_amounts(saved.get("queue"), queue)
+	_read_amounts(saved.get("mine"), mine, true)
+	var saved_sent: Variant = saved.get("sent")
+	if saved_sent is Dictionary:
+		for key: Variant in saved_sent:
+			var done := {}
+			_read_amounts((saved_sent as Dictionary)[key], done)
+			sent[str(key)] = done
+	var left_over := {}
+	_read_amounts(saved.get("pending"), left_over)  # (an older file's)
+	var saved_draft: Variant = saved.get("draft")
+	if saved_draft is Dictionary and not (saved_draft as Dictionary).is_empty():
+		var parts: Dictionary = saved_draft
+		_read_amounts(parts.get("counts"), left_over)
+		var counts := {}
+		_read_amounts(parts.get("run_counts"), counts)
+		var key: Variant = parts.get("run")
+		if key is String and not (key as String).is_empty():
+			_mark_sent(key, counts)
 	if not may_send():
-		pending.clear()  # (the consent was withdrawn meanwhile: nothing goes)
-		queue.clear()
+		queue.clear()  # (the consent was withdrawn meanwhile: nothing goes)
+		return
+	for internal_name: String in left_over:
+		var def := config.stat(internal_name) if config else null
+		if def and def.enabled:
+			queue[internal_name] = int(queue.get(internal_name, 0)) + mini(int(left_over[internal_name]), def.max_change)
+	if not left_over.is_empty():
+		save_state()  # (sent with the next flush: a run's end, the app coming back)
+
+
+## Copies the positive amounts of `saved` (read from a file) into `into` (floats if `as_float`).
+static func _read_amounts(saved: Variant, into: Dictionary, as_float := false) -> void:
+	if not saved is Dictionary:
+		return
+	for internal_name: Variant in saved:
+		var value: Variant = (saved as Dictionary)[internal_name]
+		if (value is int or value is float) and float(value) > 0.0:
+			if as_float:
+				into[str(internal_name)] = float(value)
+			else:
+				into[str(internal_name)] = int(value)

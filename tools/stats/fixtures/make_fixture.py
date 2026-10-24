@@ -78,7 +78,7 @@ class Gen:
 	def event(self, name: str, props: dict, when: datetime, player: dict, version: str) -> dict:
 		props = dict(props, v=version)
 		# Sorted, as TelemetryDef.sanitize() sends them (Talo's export fills a cell from the first
-		# prop that matches, so the order matters: `kills` comes before `skills`).
+		# prop that matches, so the order matters: `kills` came before the old `skills`).
 		props = {k: str(props[k]) for k in sorted(props)}
 		item = {"name": name, "props": props, "time": when, "player": player}
 		self.events.append(item)
@@ -251,7 +251,7 @@ class Gen:
 			"armor_runes": ",".join(rng.sample(RUNES, rng.randint(0, 1))),
 			"sets": ",".join(s for s in SETS if rng.random() < 0.04 * len(perks) / 3),
 			"relics": ",".join(relics), "perks": ",".join(f"{p}:{n}" for p, n in perks.items()),
-			"skills": ",".join(["dash"] + skills),
+			"skill_ids": ",".join(["dash"] + skills),
 		}
 		if dead:
 			props.update({"cause": cause, "killer": killer, "death_floor": depth})

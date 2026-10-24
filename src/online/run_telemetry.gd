@@ -374,7 +374,9 @@ func _build(props: Dictionary) -> void:
 	for skill in player.skills.skills:
 		if skill:
 			skills.append(String(skill.id))
-	props["skills"] = ",".join(skills)
+	# (not "skills": Talo's data export fills a column with the first prop whose key ends its
+	# name, and "kills" sorts first; no key may end another one, privacy_tests)
+	props["skill_ids"] = ",".join(skills)
 
 
 ## The build of `hero` as _build() writes it (weapon, armor, sets, relics, perks, skills): the

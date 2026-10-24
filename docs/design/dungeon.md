@@ -13,7 +13,10 @@
   body may never get out): the floor's monsters stand inside the rooms, away from their walls,
   and those put down near a spot later (summons, a trapped chest's, a split's, an encounter's, a
   camp's: `World.find_open_point_near()`) only where their body fits (`World.body_fits()`,
-  `BODY_ROOM` 14 px or the monster's own radius), else on the nearest free cell's centre.
+  `BODY_ROOM` 14 px or the monster's own radius), else on the nearest free cell's centre where it
+  fits. Nor inside another living body: the physics would shove the two apart on the first
+  frame, hard enough to push one into a wall or a crate. A room's monsters keep clear of each
+  other (`FloorPopulator`), and `find_open_point_near()` keeps clear of every actor standing.
 - **Hazards** (`data/hazards/`): each act has its own list (`ActDef.hazards`), and every hazard
   knows how to lay itself out in a room (`HazardDef.place()`). They hurt monsters too: lure them in.
   - **Traps**: rows of **spikes** firing in a wave, **pressure plates** that strike when stepped on,

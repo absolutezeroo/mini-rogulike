@@ -4,7 +4,9 @@ extends TestSuite
 ## the network. run_unit(): the data (unique internal names, translated names and lines, the
 ## endings they count), numbers per language, nothing counted, sent or read without consent, in a
 ## debug run or a debug build, a run's counts batched into one update per counter and capped, the
-## queue kept offline and sent when the network is back, withdrawing and deleting, the reads.
+## queue kept offline and sent when the network is back, a run left then resumed (its share sent
+## once: quit, background, killed in the background, an older save), withdrawing and deleting,
+## the reads.
 ## run_title(): the title screen's line and the Toll on the Leaderboards page, shown and hidden.
 
 const FILE := "user://test_world_stats.json"
@@ -20,6 +22,7 @@ func run_unit() -> void:
 	await _test_batched_run()
 	await _test_offline_queue()
 	await _test_endings_and_shrine()
+	await _test_left_runs()
 	await _test_withdraw_and_delete()
 	await _test_reads()
 	_restore()
@@ -190,11 +193,12 @@ func _test_offline_queue() -> void:
 	WorldStats.count(WorldStatDef.Feed.POTIONS, 2)
 	await _end_run()
 	check(int(WorldStats.queue.get("demons-slain", 0)) == 15 and int(WorldStats.queue.get("potions-drunk", 0)) == 2 and _fake.stat_updates.is_empty(), "offline: the runs' shares wait, added up")
-	# The file keeps them (the app closed); a share counted mid-run too.
+	# The file keeps them (the app closed).
 	WorldStats.count(WorldStatDef.Feed.FLOORS, 2)
 	WorldStats.save_state()
 	WorldStats.load_state()
-	check(int(WorldStats.queue.get("demons-slain", 0)) == 15 and int(WorldStats.pending.get("floors-descended", 0)) == 2, "the queue and the run's counts survive a restart (user://world_stats.json)")
+	check(int(WorldStats.queue.get("demons-slain", 0)) == 15 and int(WorldStats.queue.get("potions-drunk", 0)) == 2, "the queue survives a restart (user://world_stats.json)")
+	WorldStats.count(WorldStatDef.Feed.FLOORS, 2)
 	_fake.online = true
 	await WorldStats.flush()
 	check(_updates("demons-slain") == [15] and _updates("potions-drunk") == [2] and WorldStats.queue.is_empty(), "the network back: one update per counter for everything that waited")
@@ -227,6 +231,117 @@ func _test_endings_and_shrine() -> void:
 	await _frames(1)
 	check(_updates("souls-offered").size() == before + 1, "buying at the shrine offers souls (Events.souls_offered)")
 	Profile.reset()
+
+
+## A run started on WorldStats alone (the bus would also start the statistics' tracker, which
+## needs a hero): a new one, or `saved` taken back from its save (RunState.create(), as resumed).
+func _start_run(saved: RunState = null) -> RunState:
+	var run := RunState.create(CONTENT, saved.to_data() if saved else {}, RandomNumberGenerator.new())
+	if saved:
+		run.time = maxf(run.time, 30.0)
+	WorldStats._on_run_started(run, null)
+	return run
+
+
+## The run is saved then left (Events.run_saving, Events.run_left); `for_good`: the title or
+## the app closed, else the app put in the background.
+func _leave_run(run: RunState, for_good: bool, debug := false) -> void:
+	Events.run_saving.emit(run)
+	var summary := RunSummary.new()
+	summary.debug = debug
+	Events.run_left.emit(summary, for_good)
+	await _frames(1)
+
+
+func _test_left_runs() -> void:
+	_use_fake(true)
+	# Quit to the title: what the run counted goes now, once.
+	var run := _start_run()
+	WorldStats.count(WorldStatDef.Feed.KILLS, 10)
+	Events.depth_changed.emit(3)
+	await _leave_run(run, true)
+	check(_updates("demons-slain") == [10] and _updates("floors-descended") == [2], "a run quit to the title sends what it counted so far (%s)" % [_updates("demons-slain")])
+	check(WorldStats.pending.is_empty() and WorldStats.run_key.is_empty(), "...and is no longer followed")
+	check(String(run.world_stats.get("run", "")) != "" and int((run.world_stats.counts as Dictionary).get("demons-slain", 0)) == 10, "its counts and key go into its save (RunState.world_stats)")
+	await _leave_run(run, true)
+	check(_updates("demons-slain") == [10], "told twice, sent once")
+	# Resumed then ended: only what is new.
+	run = _start_run(run)
+	check(WorldStats.pending.is_empty(), "resumed: nothing of what was sent waits again")
+	WorldStats.count(WorldStatDef.Feed.KILLS, 4)
+	await _end_run()
+	check(_updates("demons-slain") == [10, 4] and _updates("floors-descended") == [2], "resumed then ended: only the new part goes (%s)" % [_updates("demons-slain")])
+	# A save older than what was sent (saved at 6 kills, left at 10): resumed, kills count
+	# again only past 10.
+	run = _start_run()
+	WorldStats.count(WorldStatDef.Feed.KILLS, 6)
+	Events.run_saving.emit(run)
+	var older := RunState.create(CONTENT, run.to_data(), RandomNumberGenerator.new())
+	WorldStats.count(WorldStatDef.Feed.KILLS, 4)
+	var summary := RunSummary.new()
+	Events.run_left.emit(summary, true)
+	await _frames(1)
+	check(_updates("demons-slain") == [10, 4, 10], "left at 10 kills: 10 sent (%s)" % [_updates("demons-slain")])
+	_start_run(older)
+	WorldStats.count(WorldStatDef.Feed.KILLS, 3)
+	check(WorldStats.pending.is_empty(), "resumed from an older save: the kills already sent don't count twice")
+	WorldStats.count(WorldStatDef.Feed.KILLS, 3)
+	check(int(WorldStats.pending.get("demons-slain", 0)) == 2, "...only what goes past them (%s)" % [WorldStats.pending])
+	await _end_run()
+	check(_updates("demons-slain") == [10, 4, 10, 2], "...and that goes at the end")
+	# Put in the background: a draft, not sent; dropped when the app comes back.
+	WorldStats.path = FILE
+	run = _start_run()
+	WorldStats.count(WorldStatDef.Feed.KILLS, 5)
+	await _leave_run(run, false)
+	check(_updates("demons-slain").size() == 4 and WorldStats.queue.is_empty() and int((WorldStats.draft.get("counts", {}) as Dictionary).get("demons-slain", 0)) == 5, "put in the background: the share is a draft, not sent")
+	WorldStats._notification(NOTIFICATION_APPLICATION_RESUMED)
+	check(WorldStats.draft.is_empty() and int(WorldStats.pending.get("demons-slain", 0)) == 5, "the app back: the draft dropped, the run's counts kept for its end")
+	# Killed in the background: the draft goes at the next launch, then the run resumed sends
+	# only what it adds.
+	await _leave_run(run, false)
+	_fake.online = false  # (the launch: nothing goes before a flush)
+	WorldStats.load_state()
+	check(int(WorldStats.queue.get("demons-slain", 0)) == 5 and WorldStats.draft.is_empty() and WorldStats.pending.is_empty(), "killed in the background: the draft joins the queue at the next launch")
+	_fake.online = true
+	await WorldStats.flush()
+	check(_updates("demons-slain") == [10, 4, 10, 2, 5], "...and is sent (%s)" % [_updates("demons-slain")])
+	_start_run(run)
+	check(WorldStats.pending.is_empty(), "the run resumed: the draft sent isn't counted again")
+	WorldStats.count(WorldStatDef.Feed.KILLS, 1)
+	await _end_run()
+	check(_updates("demons-slain") == [10, 4, 10, 2, 5, 1], "...only the new part goes at its end")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(FILE))
+	WorldStats.path = ""
+	# Saved, then the app gone without a word (a crash): the saved counts go at the resumed end.
+	run = _start_run()
+	WorldStats.count(WorldStatDef.Feed.KILLS, 7)
+	Events.run_saving.emit(run)
+	WorldStats.reset()
+	_start_run(run)
+	await _end_run()
+	check(_updates("demons-slain").back() == 7, "counts saved with the run but never sent go at its end (%s)" % [_updates("demons-slain")])
+	# A debug run left: nothing goes.
+	run = _start_run()
+	WorldStats.count(WorldStatDef.Feed.KILLS, 3)
+	var before := _fake.stat_updates.size()
+	await _leave_run(run, true, true)
+	check(_fake.stat_updates.size() == before and WorldStats.pending.is_empty() and WorldStats.queue.is_empty(), "a debug run left sends nothing")
+	# Without consent: nothing counted, no draft, no call.
+	_use_fake(false)
+	run = _start_run()
+	WorldStats.count(WorldStatDef.Feed.KILLS, 3)
+	await _leave_run(run, false)
+	check(WorldStats.draft.is_empty(), "without consent: no draft")
+	await _leave_run(run, true)
+	check(_fake.calls == 0 and WorldStats.queue.is_empty(), "without consent: a run left sends nothing")
+	# A debug build: nothing either.
+	_use_fake(true)
+	WorldStats.debug_builds_send = false
+	run = _start_run()
+	WorldStats.count(WorldStatDef.Feed.KILLS, 3)
+	await _leave_run(run, true)
+	check(_fake.stat_updates.is_empty() and WorldStats.queue.is_empty(), "a debug build: a run left sends nothing")
 
 
 func _test_withdraw_and_delete() -> void:
