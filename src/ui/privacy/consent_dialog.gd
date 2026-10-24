@@ -87,7 +87,7 @@ func _show_consent() -> void:
 	_question.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	body.add_child(_question)
 	_own(_question, "Question")
-	body.add_child(UiSkin.label(Privacy.def.fill(tr("Help me balance the game! If you accept, at the end of each run the game sends a summary of it to my provider Talo (servers in Germany): your build (weapons, armor, skills and their damage), potions, dodges, the cause and floor of your death, perks offered and picked, in-game purchases, boss fights, the kind of controls you use, plus the game version, the system and the screen size. It is linked to a random ID for this device, never to your name. Kept {months} months.")), Fonts.BODY, UiSkin.TEXT, true))
+	body.add_child(UiSkin.label(Privacy.def.fill(tr("Help me balance the game! If you accept, at the end of each run, or when it is left or the app is closed, the game sends a summary of it to my provider Talo (servers in Germany): your build (weapons, armor, skills and their damage), potions, dodges, the cause and floor of your death, perks offered and picked, in-game purchases, boss fights, the kind of controls you use, plus the game version, the system and the screen size. It is linked to a random ID for this device, never to your name. Kept {months} months.")), Fonts.BODY, UiSkin.TEXT, true))
 	body.add_child(UiSkin.label(tr("Your runs also add to the Well's Toll, the world counters every player sees (monsters slain, deaths, floors, endings...): only the sums of all players are shown."), Fonts.BODY, UiSkin.TEXT, true))
 	body.add_child(UiSkin.label(tr("You can change your mind at any time in Options > Privacy. Refusing changes nothing in the game."), Fonts.BODY, UiSkin.DIM, true))
 	var link := UiParts.button(tr("Privacy policy"), func() -> void:

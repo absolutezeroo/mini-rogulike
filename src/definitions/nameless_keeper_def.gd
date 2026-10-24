@@ -34,6 +34,16 @@ extends BossDef
 @export var area_cast_time: float = 0.8
 @export var shot_cast_time: float = 0.65
 @export var other_cast_time: float = 0.5
+## Where his AI uses each kind of skill (MonsterDef's ai_min_range / ai_max_range, in pixels from
+## the hero): a dive from `dive_min_range` out to its own distance plus `dive_range_margin` (it
+## lands on him); shots up to their reach, at most `shot_max_range` (from within the screen); a
+## circle out to its offset and radius plus `area_range_margin` (the hero at its edge); anything
+## else (a buff, a blink) from `other_max_range` in.
+@export var dive_min_range: float = 50.0
+@export var dive_range_margin: float = 30.0
+@export var shot_max_range: float = 360.0
+@export var area_range_margin: float = 20.0
+@export var other_max_range: float = 260.0
 ## His cooldowns are the hero's times this (a boss doesn't cast as often as a hero).
 @export_range(1.0, 4.0, 0.05) var cooldown_scale: float = 1.6
 ## A dive's band at most this wide (readable: docs/design/monsters.md, Bosses).
@@ -137,17 +147,17 @@ func boss_skill(skill: SkillDef, carried: Array[VfxElementDef] = [], may_slow: b
 	if first is DashStrikeEffect:
 		var dive := first as DashStrikeEffect
 		made.cast_time = dive_cast_time
-		made.ai_min_range = 50.0
-		made.ai_max_range = dive.distance + 30.0
+		made.ai_min_range = dive_min_range
+		made.ai_max_range = dive.distance + dive_range_margin
 	elif first is ProjectileEffect:
 		made.cast_time = shot_cast_time
 		made.ai_min_range = 0.0
-		made.ai_max_range = minf((first as ProjectileEffect).max_distance, 360.0)
+		made.ai_max_range = minf((first as ProjectileEffect).max_distance, shot_max_range)
 	elif first is DamageAreaEffect:
 		var area := first as DamageAreaEffect
 		made.cast_time = area_cast_time
 		made.ai_min_range = 0.0
-		made.ai_max_range = area.offset + area.radius + 20.0
+		made.ai_max_range = area.offset + area.radius + area_range_margin
 		if areas.size() > 1:
 			# Several blows: the warning is one circle around him that holds them all.
 			var reach := 0.0
@@ -157,7 +167,7 @@ func boss_skill(skill: SkillDef, carried: Array[VfxElementDef] = [], may_slow: b
 	else:
 		made.cast_time = other_cast_time
 		made.ai_min_range = 0.0
-		made.ai_max_range = 260.0
+		made.ai_max_range = other_max_range
 	made.cast_animation = &"cast"
 	return made
 

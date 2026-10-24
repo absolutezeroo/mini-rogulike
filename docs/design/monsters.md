@@ -233,7 +233,9 @@ there instead; ringing the bell frees him (Tôma and the Maw wait again).
     by kind (a dive 0.75 s, a circle 0.8 s, shots 0.65 s, anything else 0.5 s, before the phases'
     wind-ups), at 60% of their power (`skill_power` -0.4), the cooldowns x1.6, a dive's band 20 at most and never slowing, a slow 2 s at
     most and two things that slow at most (his weapon counts), heals left out (a boss never
-    heals itself); dressed in his weapon's elements;
+    heals itself); dressed in his weapon's elements; his AI uses each from a range by kind, in
+    his data too (`dive_min_range` 50 out to the dive's distance +30, shots up to their reach but
+    360 at most, a circle out to its offset and radius +20, anything else from 260 in);
   - his **relics**: of his perks, only those that make sense on him (`kept_perks`: Ignite,
     Burning Thorns, Bloodrage, Echo, Kindling, Hydra's Quiver), 1 level each (`PerkTrait`);
     plain stats (Strength, Vitality) and the hero's own tricks stay with the hero;

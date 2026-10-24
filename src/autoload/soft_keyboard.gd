@@ -90,12 +90,19 @@ func typing_field() -> Control:
 
 ## The window went from `settled` (its size without a keyboard) to `size` because the phone's
 ## keyboard opened: same width, shorter, while a field is typed in. PixelGrid keeps its scale then.
+## Also when the phone turned with the keyboard up: the settled size turned a quarter (its height
+## now the width) and shorter than that. The game is held sideways (sensor landscape), so a turn is
+## usually a half one (the same size, the first case); this one covers a device or a build that
+## lets it stand upright, which would otherwise be read as a new, small screen until the keyboard
+## goes. A change of width any other way (a foldable unfolding) is a real new window.
 func is_keyboard_resize(size: Vector2i, settled: Vector2i) -> bool:
 	if not has_virtual_keyboard() or typing_field() == null:
 		return false
 	if settled.x <= 0 or settled.y <= 0:
 		return false
-	return size.x == settled.x and size.y < settled.y * SHRUNK
+	if size.x == settled.x and size.y < settled.y * SHRUNK:
+		return true
+	return settled.x != settled.y and size.x == settled.y and size.y < settled.x * SHRUNK
 
 
 ## The bar is showing.

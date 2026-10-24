@@ -150,15 +150,20 @@ func apply() -> void:
 # --- What the game asks -------------------------------------------------------------------
 
 ## The run's remote changes, fixed at its start: the difficulty `difficulty_id`'s multipliers,
-## the souls (with a running event's bonus), the Dawn Knell's omen for `daily_day` (-1: not a daily
-## run) and a running event's floor event boost.
+## the souls (with a running event's bonus) and a running event's floor event boost.
+##
+## A Dawn Knell (`daily_day` >= 0; -1: not a daily run) gets its day's omen and nothing else: it is
+## one race for everyone that UTC day, compared on one board, so a value that changes during the
+## day (a hotfix, an event starting at 18:00 somewhere) must not make two players' runs differ.
+## The omen is keyed by the UTC day itself (omen_for()), the same for all.
 func tuning(difficulty_id: StringName, daily_day: int = -1) -> RemoteTuning:
 	var result := RemoteTuning.new()
+	if daily_day >= 0:
+		result.omen = omen_for(daily_day)
+		return result
 	result.enemy_health = _number(RemoteKeyDef.Hook.ENEMY_HEALTH, difficulty_id)
 	result.enemy_damage = _number(RemoteKeyDef.Hook.ENEMY_DAMAGE, difficulty_id)
 	result.souls = _number(RemoteKeyDef.Hook.SOULS)
-	if daily_day >= 0:
-		result.omen = omen_for(daily_day)
 	var event := event_info()
 	if not event.is_empty():
 		result.souls *= float(event.souls)
@@ -168,8 +173,9 @@ func tuning(difficulty_id: StringName, daily_day: int = -1) -> RemoteTuning:
 	return result
 
 
-## The curse or floor event id the config puts on the Dawn Knell of day `day` (&"": none; only
-## the day its date names).
+## The curse or floor event id the config puts on the Dawn Knell of day `day` (a UTC day number,
+## DailyRun.today()) (&"": none; only the UTC day its date names, whatever the device's time zone:
+## parse_date() reads dates as UTC).
 func omen_for(day: int) -> StringName:
 	var id: Variant = _value(RemoteKeyDef.Hook.DAILY_OMEN)
 	var date: Variant = _value(RemoteKeyDef.Hook.DAILY_OMEN_DATE)

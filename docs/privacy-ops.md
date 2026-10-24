@@ -80,6 +80,20 @@ legal advice.** Where the report was unsure, the safer choice was taken and is m
   (online.md): the dashboard never shows who sent a message unless it is signed. **(safer
   choice)**: the details are on by default but plainly listed and one tap to untick; if you would
   rather have them off by default, it is `_info.set_pressed_no_signal(true)` in `FeedbackDialog.open()`.
+- **Policy 1.4 (24 October 2026): clarifications only, `consent_version` stays 2.** Two wordings
+  made exact, with nothing new collected and no new use: (1) the statistics' run summary and the
+  world counters' share are sent "at the end of each run, **or when it is left or the app is
+  closed**" (they were already: a run left for the title or a closed app sends its summary,
+  marked `quit`, and again at its real end if resumed), in the policy (both languages), its
+  in-game section and the consent question itself; (2) the feedback's "Include game info" is
+  listed field by field as `FeedbackInfo` sends it (version and build type, OS and its version,
+  device, screen and window, input device and gamepad family, language; in a run depth, act,
+  place, biome, difficulty, ascension, daily, oath, time, level and the build: weapon, armor,
+  families, relics, perks, skills; on desktop the log's last lines). Decision: the same data, for
+  the same purposes, to the same processor, on the same basis, so by the rule below it is a
+  **policy version** change (1.3 to 1.4), not a consent version: players who accepted under 1.3
+  are not asked again (their answer is logged with policy 1.3; new answers with 1.4). Had any of
+  it been a new kind of data or a new use on consent, `consent_version` would go to 3.
 - **The rule for a new purpose**, made explicit: a new purpose that runs **on consent** (or by
   itself in the background) raises `consent_version`; a new feature that only sends when the
   player explicitly asks for it, each time, and says what it sends, only changes the policy

@@ -8,6 +8,10 @@ extends Resource
 ## Seconds the config read is trusted before it is read again (the title screen asks again after
 ## that; Talo itself caches it 10 minutes).
 @export_range(60, 86400) var refresh_seconds := 900.0
+## Seconds between two checks of the title screen's event plaque while the title stays open: an
+## event that ended meanwhile is hidden (its bonus no longer applies to a run started then), and
+## the time left is told again.
+@export_range(1, 3600) var title_refresh_seconds := 30.0
 ## Seconds after the game starts before the first read (the start isn't slowed).
 @export_range(0, 60) var start_delay := 2.0
 

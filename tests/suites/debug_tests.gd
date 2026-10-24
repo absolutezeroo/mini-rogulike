@@ -230,10 +230,18 @@ func _test_no_ai(game: Game) -> void:
 func _test_invisible(game: Game) -> void:
 	var world := game.world
 	var player := game.player
+	# The monster in his sight for sure: a clear lane from a quiet spot (a point 60 px off picked
+	# blindly can be behind a wall or a pillar from where he stands, and then it never sees him).
+	var lane := _clear_lane(world, _quiet_point(world, player.global_position), 120.0)
+	if lane.is_empty():
+		return
+	player.global_position = lane[0]
 	await _stand_still(world, player)
 	var skeleton: MonsterDef = load("res://data/monsters/skeleton.tres")
 	DebugCheats.set_invisible(true)
-	var monster := world.spawn_monster(skeleton, world.find_open_point_near(player.global_position + Vector2(60, 0), 20.0))
+	var monster := world.spawn_monster(skeleton, player.global_position + (lane[1] as Vector2) * 60.0)
+	check(world.has_line_of_sight(monster.global_position, player.global_position) and monster.global_position.distance_to(player.global_position) < monster.detect_radius(),
+		"set up: the monster stands in the hero's sight, within its reach")
 	var hp := player.hp
 	await _frames(90)
 	check(monster.target == null and player.hp == hp, "invisible: a monster in sight never notices the hero")

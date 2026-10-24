@@ -53,6 +53,15 @@ static func run_starting() -> void:
 		run_starting_hook.call()
 
 
+## What a Dawn Knell keeps of these values: its omen only (RemoteConfig.tuning(); a daily is the
+## same race for everyone, so no multiplier or event boost reaches it, not even from an older
+## save made before that rule).
+func daily_only() -> RemoteTuning:
+	var result := RemoteTuning.new()
+	result.omen = omen
+	return result
+
+
 func is_neutral() -> bool:
 	return is_equal_approx(enemy_health, 1.0) and is_equal_approx(enemy_damage, 1.0) and is_equal_approx(souls, 1.0) \
 		and omen == &"" and event_boost.is_empty()

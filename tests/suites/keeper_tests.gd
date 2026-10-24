@@ -92,6 +92,7 @@ func run_unit() -> void:
 	_test_profile_keeps_him()
 	_test_run_keeps_him()
 	_test_built_boss()
+	_test_skill_ranges()
 	_test_balance_numbers()
 	_test_chronicle()
 	Profile.reset()
@@ -243,6 +244,42 @@ func _test_built_boss() -> void:
 		var with_it := template.build(KeeperSnapshot.new({ "version": 1, "level": 15, "gear": [{ "id": String((load(path) as WeaponDef).id) }] }), CONTENT)
 		check(with_it.weapon.damage + with_it.stats.attack == template.blow_power, "%s: his blow comes to %d before the floor's rules" % [path.get_file(), template.blow_power])
 	player.queue_free()
+
+
+## Where his AI uses the hero's skills is data (the "His skills" group), and the same as when it
+## was written in the script (50 and +30 for a dive, shots to 360 at most, +20 around a circle, 260
+## for the rest): every hero skill, made his, keeps those ranges.
+func _test_skill_ranges() -> void:
+	var template := CONTENT.dungeon.finale.keeper
+	check(is_equal_approx(template.dive_min_range, 50.0) and is_equal_approx(template.dive_range_margin, 30.0) and is_equal_approx(template.shot_max_range, 360.0) and is_equal_approx(template.area_range_margin, 20.0) and is_equal_approx(template.other_max_range, 260.0), "his AI's ranges are in his data, as they were (50, +30, 360, +20, 260)")
+	var hero_skills: Array[SkillDef] = []
+	for item in CONTENT.items + CONTENT.player.starting_equipment:
+		if item is WeaponDef:
+			for skill in (item as WeaponDef).skills:
+				if skill and not hero_skills.has(skill):
+					hero_skills.append(skill)
+		elif item is SkillTomeDef and (item as SkillTomeDef).skill and not hero_skills.has((item as SkillTomeDef).skill):
+			hero_skills.append((item as SkillTomeDef).skill)
+	var kinds := {}
+	for skill in hero_skills:
+		var made := template.build(KeeperSnapshot.new({ "version": 1, "level": 15, "gear": [] }), CONTENT).boss_skill(skill)
+		if made == null:
+			continue
+		var first := made.effects[0]
+		var expected := Vector2(0.0, 260.0)
+		var kind := "other"
+		if first is DashStrikeEffect:
+			expected = Vector2(50.0, (first as DashStrikeEffect).distance + 30.0)
+			kind = "dive"
+		elif first is ProjectileEffect:
+			expected = Vector2(0.0, minf((first as ProjectileEffect).max_distance, 360.0))
+			kind = "shot"
+		elif first is DamageAreaEffect:
+			expected = Vector2(0.0, (first as DamageAreaEffect).offset + (first as DamageAreaEffect).radius + 20.0)
+			kind = "area"
+		kinds[kind] = true
+		check(is_equal_approx(made.ai_min_range, expected.x) and is_equal_approx(made.ai_max_range, expected.y), "%s (%s): his AI uses it from %.0f to %.0f, as before (%.0f to %.0f)" % [skill.id, kind, made.ai_min_range, made.ai_max_range, expected.x, expected.y])
+	check(kinds.size() >= 3, "the hero's skills cover the kinds of range (%s)" % ", ".join(kinds.keys()))
 
 
 ## Beatable, not a pushover: his health against Tôma's and the Maw's together, his blows against

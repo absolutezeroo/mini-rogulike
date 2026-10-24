@@ -112,6 +112,8 @@ static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGener
 	var saved_tuning: Variant = saved.get("remote")
 	run.tuning = RemoteTuning.from_data(saved_tuning) if saved_tuning is Dictionary \
 		else RemoteTuning.for_run(run.difficulty.id, run.daily_day)
+	if run.daily_day >= 0:
+		run.tuning = run.tuning.daily_only()  # (a Dawn Knell is the same race for all: its omen only)
 	run.difficulty = run.tuning.apply_to(run.difficulty)
 	run.run_seed = int(saved["seed"]) if saved.has("seed") else rng.randi()
 	run.depth = int(saved.get("depth", 1))

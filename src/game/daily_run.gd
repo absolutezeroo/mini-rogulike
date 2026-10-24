@@ -13,9 +13,12 @@ const POINTS_FOR_VICTORY := 1000
 const GOLD_PER_POINT := 5
 
 
-## Today's day number (UTC), as the daily quests count them.
-static func today() -> int:
-	return QuestBoard.day_index()
+## Today's day number (UTC), as the daily quests count them: days since 1970-01-01 00:00 UTC
+## from the system's Unix time, which no time zone changes. Everything of a Dawn Knell (its seeds,
+## weapon, relic, omen and board key) comes from this number, so a player in Tokyo and one in Paris
+## play the same run at the same instant. `now`: Unix seconds (-1: the system clock).
+static func today(now: int = -1) -> int:
+	return QuestBoard.day_index(now)
 
 
 static func seed_of(day: int) -> int:

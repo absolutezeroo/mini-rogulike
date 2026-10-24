@@ -3,9 +3,10 @@ extends TestSuite
 ## The remote settings (RemoteConfig, RemoteTuning) on a fake server (FakeBoardBackend's game
 ## config): never the network. run_unit(): the allow-list's data, the game's own values offline or
 ## before a choice, bounds and unknown keys ignored, values applied only at safe points (and kept
-## by a run, saved with it), the version gate, the kill switches, the Dawn Knell's omen for its day
-## only, a limited-time event, the file. run_title(): the title screen's event plaque and message of
-## the day (French), hidden when there are none.
+## by a run, saved with it), the version gate, the kill switches, the Dawn Knell's omen for its UTC
+## day only and nothing else remote in a Dawn Knell (the same race in every time zone), a
+## limited-time event, the file. run_title(): the title screen's event plaque and message of the day
+## (French), hidden when there are none, and gone once the event ends while the title stays open.
 
 const FILE := "user://test_remote_config.json"
 const RemoteConfigScript := preload("res://src/autoload/remote_config.gd")  # its static helpers are called on the script, not the autoload
@@ -22,6 +23,8 @@ func run_unit() -> void:
 	await _test_version_gate()
 	await _test_kill_switches()
 	await _test_daily_omen()
+	await _test_daily_untuned()
+	_test_daily_time_zones()
 	await _test_event()
 	await _test_cache()
 	_restore()
@@ -29,6 +32,7 @@ func run_unit() -> void:
 
 func run_title() -> void:
 	await _test_title_notes()
+	await _test_title_event_ends()
 	_restore()
 
 
@@ -300,6 +304,60 @@ func _test_daily_omen() -> void:
 	check(DailyRun.omen(CONTENT, today) == null, "no date, no omen")
 
 
+## A Dawn Knell is the same race for everyone: no multiplier, souls bonus or event boost reaches it,
+## only its day's omen, and a resumed one keeps exactly what it started with.
+func _test_daily_untuned() -> void:
+	var today := DailyRun.today()
+	var everything := { "enemy_health_normal": "1.5", "enemy_damage_normal": "0.8", "souls_multiplier": "2",
+		"event_name_en": "Night of Souls", "event_ends": _date(1), "event_souls": "1.5", "event_floor_event": "blood_moon", "event_floor_weight": "10",
+		"daily_omen": "frostbound", "daily_omen_date": _date(0) }
+	await _read(everything)
+	var tuning := RemoteConfig.tuning(&"normal", today)
+	check(is_equal_approx(tuning.enemy_health, 1.0) and is_equal_approx(tuning.enemy_damage, 1.0) and is_equal_approx(tuning.souls, 1.0), "a Dawn Knell gets no remote multiplier, even when set")
+	check(tuning.event_boost.is_empty() and tuning.event_name.is_empty() and tuning.omen == &"frostbound", "...nor the event's souls or floors: its omen only")
+	var base := _difficulty("normal")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 5
+	var daily := RunState.create(CONTENT, {}, rng, today)
+	check(daily.difficulty == base and daily.tuning.omen == &"frostbound" and daily.tuning.event_boost.is_empty() and is_equal_approx(daily.tuning.souls, 1.0), "a new Dawn Knell plays on the game's own Keeper, under its omen")
+	var saved_profile := Profile.difficulty
+	Profile.difficulty = &"normal"
+	var normal := RunState.create(CONTENT, {}, rng)
+	Profile.difficulty = saved_profile
+	check(normal.difficulty.id == &"normal" and is_equal_approx(normal.difficulty.monster_hp, base.monster_hp * 1.5) and is_equal_approx(normal.tuning.souls, 2.0 * 1.5) and is_equal_approx(normal.tuning.boost_of(&"blood_moon"), 10.0), "a normal run still gets the remote values and the event")
+	# Resumed after the config changed: exactly its start values.
+	var data := daily.to_data()
+	await _read({ "enemy_health_normal": "2", "daily_omen": "blood_moon", "daily_omen_date": _date(0) })
+	var resumed := RunState.create(CONTENT, data, rng)
+	check(resumed.is_daily() and resumed.difficulty == base and resumed.tuning.omen == &"frostbound" and is_equal_approx(resumed.tuning.enemy_health, 1.0) and resumed.tuning.event_boost.is_empty(), "a resumed Dawn Knell keeps its start values (its omen, nothing else)")
+	# A daily saved before this rule with remote values in it: only its omen is kept.
+	data["remote"] = { "enemy_health": 2.0, "enemy_damage": 1.5, "souls": 3.0, "omen": "frostbound", "event_boost": { "blood_moon": 10.0 }, "event_name": "Night of Souls" }
+	var old := RunState.create(CONTENT, data, rng)
+	check(old.difficulty == base and old.tuning.event_boost.is_empty() and old.tuning.event_name.is_empty() and old.tuning.omen == &"frostbound", "an older daily save with remote values: only its omen is kept")
+	# The omen belongs to its UTC day, the run's own (not the device's date).
+	await _read({ "daily_omen": "frostbound", "daily_omen_date": "2026-11-03" })
+	var day := floori(float((RemoteConfigScript.parse_date("2026-11-03") as Dictionary).at) / 86400.0)
+	check(RemoteConfig.tuning(&"normal", day).omen == &"frostbound" and RemoteConfig.tuning(&"normal", day - 1).omen == &"" and RemoteConfig.tuning(&"normal", day + 1).omen == &"", "the omen applies to the Dawn Knell of its UTC day only")
+	await _read({ "daily_omen": "frostbound", "daily_omen_date": "2026-11-03T23:30:00Z" })
+	check(RemoteConfig.tuning(&"normal", day).omen == &"frostbound" and RemoteConfig.tuning(&"normal", day + 1).omen == &"", "a moment's date names its UTC day (23:30 UTC is still that day)")
+
+
+## Two players at the same instant, one in Tokyo (UTC+9), one in Paris (UTC+2): the same Dawn
+## Knell (day, floors, weapon, relic, board key), since everything comes from the Unix time.
+func _test_daily_time_zones() -> void:
+	# 2026-10-25 08:00 in Tokyo and 2026-10-25 01:00 in Paris are both 2026-10-24 23:00 UTC.
+	var tokyo := Time.get_unix_time_from_datetime_string("2026-10-25T08:00:00") - 9 * 3600
+	var paris := Time.get_unix_time_from_datetime_string("2026-10-25T01:00:00") - 2 * 3600
+	var day_tokyo := DailyRun.today(tokyo)
+	var day_paris := DailyRun.today(paris)
+	var utc_day := floori(float((RemoteConfigScript.parse_date("2026-10-24") as Dictionary).at) / 86400.0)
+	check(tokyo == paris and day_tokyo == day_paris and day_tokyo == utc_day, "the same instant is the same Dawn Knell day in every time zone (the UTC day, %d)" % day_tokyo)
+	check(DailyRun.seed_of(day_tokyo) == DailyRun.seed_of(day_paris) and DailyRun.floor_seed(day_tokyo, 3) == DailyRun.floor_seed(day_paris, 3), "...the same floors")
+	check(DailyRun.weapon(CONTENT, day_tokyo) == DailyRun.weapon(CONTENT, day_paris) and DailyRun.relic(CONTENT, day_tokyo) == DailyRun.relic(CONTENT, day_paris), "...the same weapon and relic")
+	var board := Leaderboards.config.board(&"daily_challenge")
+	check(board != null and board.period_key(0, tokyo) == board.period_key(0, paris) and board.period_key(0, tokyo) == str(utc_day), "...and the same day's board")
+
+
 func _test_event() -> void:
 	await _read({ "event_name_en": "Night of Souls", "event_name_fr": "Nuit des Âmes", "event_ends": _date(1), "event_souls": "1.5", "event_floor_event": "blood_moon", "event_floor_weight": "10" })
 	var event := RemoteConfig.event_info()
@@ -371,3 +429,33 @@ func _test_title_notes() -> void:
 	check((title.get_node("%Subtitle") as Control).visible, "the tagline stays")
 	title.queue_free()
 	await _frames(1)
+
+
+## The event ends while the title stays open: the plaque goes at the next check (a fake clock).
+func _test_title_event_ends() -> void:
+	_use_fake({ "event_name_en": "Night of Souls", "event_ends": _date(1), "event_souls": "1.5" })
+	var title: TitleScreen = load("res://src/ui/title/title_screen.tscn").instantiate()
+	add_child(title)
+	await _frames(3)
+	var timer := title.get_node("RemoteNotesTimer") as Timer
+	check(title.event_plaque.visible and timer != null and not timer.is_stopped() and is_equal_approx(timer.wait_time, RemoteConfig.config.title_refresh_seconds), "the event shows, and the title checks it again on a timer")
+	title.daily_dialog.open(title.content, DailyRun.today())
+	check(title.daily_dialog.find_child("EventLine", true, false) != null, "the Dawn Knell's card says the event stays out of it")
+	title.daily_dialog.hide()
+	var end_at := int((RemoteConfigScript.parse_date(_date(1)) as Dictionary).at) + 86400
+	RemoteConfig.fake_now = end_at - 30 * 60
+	timer.timeout.emit()
+	check(title.event_plaque.visible and title.event_details.text.contains(tr("Ends within the hour")), "half an hour before its end: still there, ending within the hour")
+	RemoteConfig.fake_now = end_at
+	timer.timeout.emit()
+	check(not title.event_plaque.visible, "its end passed: the plaque is gone without leaving the title")
+	title.queue_free()
+	await _frames(1)
+	# A title shown after the end never shows it.
+	title = load("res://src/ui/title/title_screen.tscn").instantiate()
+	add_child(title)
+	await _frames(3)
+	check(not title.event_plaque.visible, "a title shown after the event's end has no plaque")
+	title.queue_free()
+	await _frames(1)
+	RemoteConfig.fake_now = -1

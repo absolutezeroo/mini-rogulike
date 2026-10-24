@@ -140,7 +140,8 @@ shows to the device in hand.
   game's window to the strip above it (2340x1080 to about 2340x480 held sideways). Read as a new
   screen, that scaled the UI down to x0.67 and squeezed the dialog into the strip: the words typed
   were a few pixels tall. Now a resize while a field has the focus on a device with a virtual
-  keyboard (same width, at least 8% shorter than the window without the keyboard:
+  keyboard (same width, at least 8% shorter than the window without the keyboard; or, the phone
+  turned upright with the keyboard up, that window turned a quarter and 8% shorter:
   `SoftKeyboard.is_keyboard_resize()`) keeps the scale of before (`PixelGrid.settled_size()`), and a
   **typing bar** fills the strip over everything (layer 126, the rest of the game dimmed almost
   black): the field's name (`TITLE_META`, else the dialog's title), its hint (`HINT_META`, else

@@ -32,6 +32,7 @@ func run_title() -> void:
 	await _test_feedback(feedback)
 	await _test_pseudonym(pseudonym)
 	await _test_drawn_over(pseudonym)
+	await _test_turned(pseudonym)
 	SoftKeyboard.fake_height = -1
 	get_viewport().gui_release_focus()
 	layer.queue_free()
@@ -181,6 +182,39 @@ func _test_drawn_over(pseudonym: PseudonymDialog) -> void:
 	await _frames(2)
 	check(not SoftKeyboard.is_up(), "keyboard: that keyboard gone, the bar goes")
 	get_viewport().gui_release_focus()
+	pseudonym.hide()
+
+
+## The phone turned upright with the keyboard up (the settled size turned, shorter): still the
+## keyboard's doing, the scale kept; once it goes, the upright window is a screen of its own. A
+## computer's window of that size scales as always.
+func _test_turned(pseudonym: PseudonymDialog) -> void:
+	var upright_strip := Vector2i(PHONE.y, 1300)
+	var upright := Vector2i(PHONE.y, PHONE.x)
+	SoftKeyboard.fake_height = 0
+	await _window(PHONE)
+	var scale := PixelGrid.ui_scale()
+	pseudonym.open()
+	await _frames(2)
+	(pseudonym.get_node("%NameEdit") as LineEdit).grab_focus()
+	SoftKeyboard.fake_height = 560
+	await _window(STRIP)
+	await _window(upright_strip)
+	check(SoftKeyboard.is_up() and is_equal_approx(PixelGrid.ui_scale(), scale), "keyboard: turned with the keyboard up, the bar stays and the scale is kept (x%s)" % PixelGrid.ui_scale())
+	check(_canvas().encloses(_board_rect()), "keyboard: turned, the bar is inside the strip")
+	SoftKeyboard.fake_height = 0
+	get_viewport().gui_release_focus()
+	await _window(upright)
+	check(not SoftKeyboard.is_up() and PixelGrid.settled_size() == upright, "keyboard: gone, the upright window is the screen now")
+	await _window(PHONE)
+	check(is_equal_approx(PixelGrid.ui_scale(), scale), "keyboard: turned back, the scale is as before (x%s)" % PixelGrid.ui_scale())
+	# A computer (no virtual keyboard): the same sizes are only windows.
+	SoftKeyboard.fake_height = -1
+	(pseudonym.get_node("%NameEdit") as LineEdit).grab_focus()
+	await _window(upright_strip)
+	check(PixelGrid.settled_size() == upright_strip, "keyboard: without a virtual keyboard, a turned short window is a new screen")
+	get_viewport().gui_release_focus()
+	await _window(PHONE)
 	pseudonym.hide()
 
 

@@ -220,4 +220,5 @@ purpose = "The newest game version this config is for. A newer game ignores ever
 script = ExtResource("1_config")
 keys = Array[ExtResource("2_key")]([SubResource("enemy_health_easy"), SubResource("enemy_health_normal"), SubResource("enemy_health_hard"), SubResource("enemy_health_nightmare"), SubResource("enemy_damage_easy"), SubResource("enemy_damage_normal"), SubResource("enemy_damage_hard"), SubResource("enemy_damage_nightmare"), SubResource("souls_multiplier"), SubResource("daily_omen"), SubResource("daily_omen_date"), SubResource("event_name_en"), SubResource("event_name_fr"), SubResource("event_ends"), SubResource("event_souls"), SubResource("event_floor_event"), SubResource("event_floor_weight"), SubResource("motd_en"), SubResource("motd_fr"), SubResource("scores_off"), SubResource("statistics_off"), SubResource("min_version"), SubResource("max_version")])
 refresh_seconds = 900.0
+title_refresh_seconds = 30.0
 start_delay = 2.0

@@ -447,11 +447,21 @@ func _build_remote_notes() -> void:
 	subtitle.get_parent().add_child(message_line)
 	subtitle.get_parent().move_child(message_line, subtitle.get_index() + 1)
 	RemoteConfig.applied.connect(show_remote_notes)
+	# Checked again while the title stays open: an event that ends meanwhile leaves (a run started
+	# after its end gets nothing of it: RemoteConfig.event_info() reads the clock at the start).
+	var refresh := Timer.new()
+	refresh.name = "RemoteNotesTimer"
+	refresh.wait_time = RemoteConfig.config.title_refresh_seconds
+	refresh.timeout.connect(show_remote_notes)
+	add_child(refresh)
+	refresh.start()
 	show_remote_notes()
 	RemoteConfig.at_title()
 
 
-## Fills the notes from the remote settings in use (RemoteConfig.active).
+## Fills the notes from the remote settings in use (RemoteConfig.active), at the title's show,
+## when a read applies and every RemoteConfigDef.title_refresh_seconds: the plaque hides once the
+## event's end (event_ends) has passed.
 func show_remote_notes() -> void:
 	if event_plaque == null or not is_inside_tree():
 		return

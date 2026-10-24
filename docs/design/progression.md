@@ -70,11 +70,16 @@ the days in a row (`Profile.daily_*`); later attempts that day are practice. Sco
 shows it. **The day's omen** (from afar: the remote settings' `daily_omen` for that date,
 `DailyRun.omen()`, docs/online.md "Remote settings"): on some days a curse or a floor event lies
 on every normal floor of that day's Dawn Knell (not the first floor, not the wardens'; both ways
-down), told on the Dawn Knell's card and in the log at the start. Most days have none.
+down), told on the Dawn Knell's card and in the log at the start. Most days have none. **The
+same race for all:** the omen is the only remote value a Dawn Knell takes (no balance multiplier,
+no event bonus), and its day, floors, weapon, relic, omen and board all come from the UTC day, so
+a player in Tokyo and one in Paris play the same run at the same instant, and a resumed one keeps
+its start values.
 
 **Events** (the remote settings again): for a while (a weekend) the Well can hold an event, its
 plaque on the title screen under Credits: its name, a souls bonus for runs started during it, a
-floor event made more likely, the time left. A run started during it keeps it to its end. A
+floor event made more likely, the time left (the plaque leaves when it ends, even while the title
+stays open). A run started during it keeps it to its end; the Dawn Knell never gets it. A
 **message of the day** can take the tagline's place on the title.
 
 ### Online leaderboards

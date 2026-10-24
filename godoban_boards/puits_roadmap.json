@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 185,
+  "next_id": 186,
   "tags": [
     "pc",
     "test",
@@ -2282,8 +2282,8 @@
     {
       "id": "task_155",
       "title": "Politique de confidentialité : dire « à la fin ou à l'abandon de chaque partie »",
-      "description": "Les statistiques envoient maintenant aussi un résumé quand une partie est quittée pour le titre (même contenu). Le texte du consentement, de la politique (privacy.tres, privacy.html) dit « à la fin de chaque partie ». À préciser si tu le juges utile (changer le texte du consentement peut demander une nouvelle version de consentement : à décider).",
-      "status": "backlog",
+      "description": "Les statistiques envoient maintenant aussi un résumé quand une partie est quittée pour le titre (même contenu). Le texte du consentement, de la politique (privacy.tres, privacy.html) dit « à la fin de chaque partie ». À préciser si tu le juges utile (changer le texte du consentement peut demander une nouvelle version de consentement : à décider).\n\nFait (24/10, politique 1.4, avec task_182) : statistiques et compteurs du Tribut envoyés « à la fin de chaque partie, ou quand elle est quittée ou l'application fermée », dans la politique (privacy.tres, privacy.html FR/EN) et dans la question de consentement elle-même. Même données, même usage, même prestataire : version de politique relevée (1.4), consent_version reste 2 (personne n'est redemandé ; décision écrite dans docs/privacy-ops.md).",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_6",
       "due_date": null,
@@ -2292,7 +2292,7 @@
         "données"
       ],
       "created_at": 1792777551,
-      "updated_at": 1792777551
+      "updated_at": 1792809057
     },
     {
       "id": "task_156",
@@ -2625,7 +2625,7 @@
     {
       "id": "task_177",
       "title": "Saisie sur téléphone : tester la barre de saisie sur le vrai téléphone",
-      "description": "À vérifier sur le S23 Ultra (éditeur Android et APK exporté) : (1) en touchant le champ d'avis puis le pseudonyme, la barre de saisie apparaît au-dessus du clavier, lisible, et l'interface ne rétrécit plus ; (2) le texte tapé s'affiche bien (suggestions, accents, correcteur, effacement) ; (3) OK range le clavier et redonne le dialogue, le bouton retour du téléphone aussi ; (4) Entrée sur le pseudonyme publie comme avant ; (5) si la barre clignote ou ne s'affiche pas, noter la hauteur donnée par DisplayServer.virtual_keyboard_get_height() et la taille de la fenêtre (seuil : 8 % plus court à largeur égale). Non vérifiable sans le téléphone : l'ordre réel des événements Android (focus, redimensionnement, hauteur du clavier), un clavier flottant ou scindé.",
+      "description": "À vérifier sur le S23 Ultra (éditeur Android et APK exporté) : (1) en touchant le champ d'avis puis le pseudonyme, la barre de saisie apparaît au-dessus du clavier, lisible, et l'interface ne rétrécit plus ; (2) le texte tapé s'affiche bien (suggestions, accents, correcteur, effacement) ; (3) OK range le clavier et redonne le dialogue, le bouton retour du téléphone aussi ; (4) Entrée sur le pseudonyme publie comme avant ; (5) si la barre clignote ou ne s'affiche pas, noter la hauteur donnée par DisplayServer.virtual_keyboard_get_height() et la taille de la fenêtre (seuil : 8 % plus court à largeur égale). Non vérifiable sans le téléphone : l'ordre réel des événements Android (focus, redimensionnement, hauteur du clavier), un clavier flottant ou scindé.\n\nAjout (24/10) : rotation avec le clavier ouvert. Le jeu est bloqué en paysage (orientation capteur paysage) : un demi-tour garde la même taille, déjà géré. SoftKeyboard.is_keyboard_resize() accepte maintenant aussi la taille d'avant le clavier tournée d'un quart et plus courte (téléphone debout, si un appareil le permet) : l'échelle est gardée jusqu'à la fermeture du clavier ; sans clavier virtuel (ordinateur), rien ne change. À vérifier sur le S23 : (6) tourner le téléphone de 180° pendant la saisie : la barre reste, l'interface ne rétrécit pas. Non couvert : un pliable qui se déplie pendant la saisie (largeur vraiment nouvelle, traitée comme une nouvelle fenêtre).",
       "status": "todo",
       "priority": "high",
       "epic_id": "epic_5",
@@ -2636,13 +2636,13 @@
         "ui"
       ],
       "created_at": 1792806077,
-      "updated_at": 1792806077
+      "updated_at": 1792809057
     },
     {
       "id": "task_178",
       "title": "Réglages à distance : le Glas de l'Aube n'est plus la même course pour tous",
-      "description": "Relecture (24/10) : les multiplicateurs à distance (enemy_health_*, enemy_damage_*, souls_multiplier) et le bonus d'un événement (event_souls, event_floor_event + event_floor_weight) s'appliquent aussi aux parties du Glas de l'Aube (RemoteConfig.tuning() avec daily_day >= 0, RunState.create()). Si une valeur change en cours de journée (correctif, début d'un événement à 18 h), deux joueurs du même Glas n'ont plus les mêmes monstres ni les mêmes étages (le poids d'un événement change les tirages des étages), alors que le classement du jour les compare. À décider : figer pour le Glas les valeurs lues à minuit UTC (ou à la première partie du jour), ou n'appliquer au Glas que le présage (daily_omen). Pas corrigé : c'est un choix de règle.",
-      "status": "todo",
+      "description": "Relecture (24/10) : les multiplicateurs à distance (enemy_health_*, enemy_damage_*, souls_multiplier) et le bonus d'un événement (event_souls, event_floor_event + event_floor_weight) s'appliquent aussi aux parties du Glas de l'Aube (RemoteConfig.tuning() avec daily_day >= 0, RunState.create()). Si une valeur change en cours de journée (correctif, début d'un événement à 18 h), deux joueurs du même Glas n'ont plus les mêmes monstres ni les mêmes étages (le poids d'un événement change les tirages des étages), alors que le classement du jour les compare. À décider : figer pour le Glas les valeurs lues à minuit UTC (ou à la première partie du jour), ou n'appliquer au Glas que le présage (daily_omen). Pas corrigé : c'est un choix de règle.\n\nFait (24/10, règle choisie : le présage seul). Dans un Glas de l'Aube, aucun réglage à distance ne s'applique (multiplicateurs de santé et de dégâts, souls_multiplier, bonus d'âmes et étages favorisés d'un événement) : RemoteConfig.tuning() ne rend que le présage pour un Glas, et RunState.create() ne garde que le présage du réglage d'un Glas (RemoteTuning.daily_only(), même pour une partie reprise ou une ancienne sauvegarde). Le présage n'est appliqué qu'au Glas de son jour UTC (celui de la partie, pas la date locale de l'appareil). Vérifié : tout le Glas (jour, graines, arme, relique, présage, clé du classement) vient de DailyRun.today(), le jour UTC du temps Unix, jamais du fuseau. La carte du Glas dit « L'événement du Puits (…) ne touche pas le Glas de l'Aube » pendant un événement. Tests : Glas sans multiplicateurs ni événement même réglés, partie normale toujours réglée, Glas repris identique, présage seulement le jour UTC, Tokyo (UTC+9) et Paris (UTC+2) au même instant = même Glas. Docs : online.md, progression.md. À voir sur le téléphone : la ligne de l'événement sur la carte du Glas (place).",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_5",
       "due_date": null,
@@ -2651,13 +2651,13 @@
         "équilibrage"
       ],
       "created_at": 1792806960,
-      "updated_at": 1792806960
+      "updated_at": 1792809057
     },
     {
       "id": "task_179",
       "title": "Test instable : « visible again: it notices him » (debug_tests)",
-      "description": "Vu une fois sur deux passages de la suite game (24/10, après les fusions du Gardien Sans Nom, des réglages à distance et des avis) : FAIL « visible again: it notices him » (tests/suites/debug_tests.gd:246, _test_invisible). Le squelette est posé par World.find_open_point_near(), qui depuis task_149 évite les autres corps et peut retomber sur la case libre la plus proche, plus loin : peut-être hors de vue ou de portée de détection du héros. À reproduire (graine) ; si c'est ça, poser le monstre à une place vérifiée (en vue, à portée) dans le test.",
-      "status": "todo",
+      "description": "Vu une fois sur deux passages de la suite game (24/10, après les fusions du Gardien Sans Nom, des réglages à distance et des avis) : FAIL « visible again: it notices him » (tests/suites/debug_tests.gd:246, _test_invisible). Le squelette est posé par World.find_open_point_near(), qui depuis task_149 évite les autres corps et peut retomber sur la case libre la plus proche, plus loin : peut-être hors de vue ou de portée de détection du héros. À reproduire (graine) ; si c'est ça, poser le monstre à une place vérifiée (en vue, à portée) dans le test.\n\nCause trouvée (24/10) : ce n'était pas l'écart de find_open_point_near() mais le placement à l'aveugle : le squelette était posé 60 px à droite du héros, là où le test précédent l'avait laissé ; find_open_point_near() vérifie la vue depuis ce point, pas depuis le héros, donc contre un mur ou un pilier le monstre tombait derrière, hors de vue, et ne pouvait jamais le remarquer (sonde _tool/probe_invisible : 6 échecs sur 120, tous « pas de ligne de vue » dès la pose). Corrigé dans le test : héros sur un coin calme, monstre au bout d'un couloir dégagé de 120 px (_clear_lane), et un contrôle de mise en place (en vue, à portée). Le contrôle « visible again: it notices him » est inchangé. Preuve : 240 passages de la sonde sans échec, deux suites game propres.",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_5",
       "due_date": null,
@@ -2666,13 +2666,13 @@
         "bug"
       ],
       "created_at": 1792806960,
-      "updated_at": 1792806960
+      "updated_at": 1792809057
     },
     {
       "id": "task_180",
       "title": "Gardien Sans Nom : portées de l'IA de ses compétences dans les données",
-      "description": "Relecture (24/10) : NamelessKeeperDef.boss_skill() écrit en dur les portées de l'IA des compétences du héros devenues les siennes (ai_min_range 50 pour un plongeon, +30 après sa distance, tirs plafonnés à 360, +20 autour d'un cercle, 260 pour le reste). La règle du projet veut ces nombres dans les données : les passer en @export du Def (groupe « His skills ») et les mettre dans nameless_keeper.tres. Sans effet sur le jeu tant qu'on n'y touche pas.",
-      "status": "backlog",
+      "description": "Relecture (24/10) : NamelessKeeperDef.boss_skill() écrit en dur les portées de l'IA des compétences du héros devenues les siennes (ai_min_range 50 pour un plongeon, +30 après sa distance, tirs plafonnés à 360, +20 autour d'un cercle, 260 pour le reste). La règle du projet veut ces nombres dans les données : les passer en @export du Def (groupe « His skills ») et les mettre dans nameless_keeper.tres. Sans effet sur le jeu tant qu'on n'y touche pas.\n\nFait (24/10) : les portées de l'IA des compétences du Gardien Sans Nom sont dans ses données (groupe « His skills » : dive_min_range 50, dive_range_margin 30, shot_max_range 360, area_range_margin 20, other_max_range 260, dans nameless_keeper.tres). Même comportement : un test vérifie que chaque compétence du héros, devenue la sienne, garde les mêmes portées qu'avant (plongeon, tirs, cercle, reste). Doc : monsters.md.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -2681,13 +2681,13 @@
         "boss"
       ],
       "created_at": 1792806960,
-      "updated_at": 1792806960
+      "updated_at": 1792809057
     },
     {
       "id": "task_181",
       "title": "Écran titre : la plaque d'événement reste après la fin de l'événement",
-      "description": "Relecture (24/10) : la plaque d'événement (title_screen.show_remote_notes()) n'est remplie qu'au retour sur le titre et quand une lecture des réglages s'applique. Si l'événement se termine pendant que le joueur reste sur le titre, elle reste affichée (« Se termine dans l'heure ») alors qu'une partie lancée n'a plus le bonus (RemoteConfig.event_info() regarde l'heure au départ). Un petit minuteur (une fois par minute) qui la rafraîchit, ou la cacher à event.ends.",
-      "status": "backlog",
+      "description": "Relecture (24/10) : la plaque d'événement (title_screen.show_remote_notes()) n'est remplie qu'au retour sur le titre et quand une lecture des réglages s'applique. Si l'événement se termine pendant que le joueur reste sur le titre, elle reste affichée (« Se termine dans l'heure ») alors qu'une partie lancée n'a plus le bonus (RemoteConfig.event_info() regarde l'heure au départ). Un petit minuteur (une fois par minute) qui la rafraîchit, ou la cacher à event.ends.\n\nFait (24/10) : l'écran titre revérifie la plaque d'événement toutes les 30 s (RemoteConfigDef.title_refresh_seconds) tant qu'il reste ouvert ; elle disparaît dès que event_ends est passé (et le temps restant est mis à jour). Test avec une horloge factice : présente une demi-heure avant la fin (« Se termine dans l'heure »), partie à la fin sans quitter le titre, absente d'un titre ouvert après.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_4",
       "due_date": null,
@@ -2696,13 +2696,13 @@
         "en ligne"
       ],
       "created_at": 1792806960,
-      "updated_at": 1792806960
+      "updated_at": 1792809057
     },
     {
       "id": "task_182",
       "title": "Politique de confidentialité : détailler ce qu'ajoute « Joindre les infos du jeu »",
-      "description": "Relecture (24/10) : la politique (privacy.html section 5, privacy.tres « feedback ») dit « la partie en cours (étage, acte, biome, difficulté, serment, durée, niveau, équipement) ». FeedbackInfo envoie en plus le build complet de RunTelemetry.build_of() (dons et leurs niveaux, reliques, compétences, familles éveillées, runes et affixes), le type de version (debug/release), la famille de manette et le lieu (place). Rien de sensible, mais à écrire tel quel (« équipement, dons, reliques et compétences ») à la prochaine version de la politique, avec task_155 (« à la fin ou à l'abandon de chaque partie », vrai aussi maintenant pour les compteurs du Tribut).",
-      "status": "backlog",
+      "description": "Relecture (24/10) : la politique (privacy.html section 5, privacy.tres « feedback ») dit « la partie en cours (étage, acte, biome, difficulté, serment, durée, niveau, équipement) ». FeedbackInfo envoie en plus le build complet de RunTelemetry.build_of() (dons et leurs niveaux, reliques, compétences, familles éveillées, runes et affixes), le type de version (debug/release), la famille de manette et le lieu (place). Rien de sensible, mais à écrire tel quel (« équipement, dons, reliques et compétences ») à la prochaine version de la politique, avec task_155 (« à la fin ou à l'abandon de chaque partie », vrai aussi maintenant pour les compteurs du Tribut).\n\nFait (24/10, politique 1.4) : la politique (privacy.tres « Feedback », privacy.html section 5, FR et EN) liste maintenant exactement les infos du jeu jointes à un avis : version et type de build, système et sa version, appareil, écran et fenêtre, contrôles et famille de manette, langue ; en partie : étage, acte, lieu, biome, difficulté, ascension, Glas ou non, serment, durée, niveau, et l'équipement (arme, armure, familles, reliques, atouts, compétences) ; sur ordinateur seulement, les dernières lignes du journal. Décision (docs/privacy-ops.md) : simple précision de données déjà envoyées pour le même usage, donc nouvelle version de la politique (1.3 → 1.4), pas de nouvelle version de consentement.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_6",
       "due_date": null,
@@ -2711,7 +2711,7 @@
         "données"
       ],
       "created_at": 1792806960,
-      "updated_at": 1792806960
+      "updated_at": 1792809057
     },
     {
       "id": "task_183",
@@ -2743,6 +2743,21 @@
       ],
       "created_at": 1792807733,
       "updated_at": 1792807733
+    },
+    {
+      "id": "task_185",
+      "title": "Glas de l'Aube : un présage posé en cours de journée ne touche que les parties suivantes",
+      "description": "Trouvé en faisant task_178 (24/10) : le présage (daily_omen + daily_omen_date) est le même pour tous le jour UTC qu'il nomme, mais un Glas commencé avant que le jeu ait lu le présage n'en a pas (ses valeurs sont figées au départ), et la lecture ne se fait qu'au titre ou au départ d'une partie, avec le cache de Talo (10 min). Règle écrite dans docs/online.md : poser le présage avant 00:00 UTC de son jour (les changements programmés de Talo le permettent). À décider si utile : refuser un présage dont le jour a déjà commencé à la première lecture, ou le figer par jour sur l'appareil.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "équilibrage"
+      ],
+      "created_at": 1792809057,
+      "updated_at": 1792809057
     }
   ]
 }

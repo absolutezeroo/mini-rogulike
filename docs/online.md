@@ -377,6 +377,18 @@ online choice, no value or a bad one, and the game is exactly as its data makes 
   event are read by `FloorRoute.offer()` and `World.build_floor()` from the run's tuning.
   (The game's classes ask through `RemoteTuning`'s static hooks, which the autoload fills: naming
   the autoload from `World` or `RunState` makes a load cycle that breaks the World's subclasses.)
+- **The Dawn Knell takes the omen and nothing else.** A daily run is one race for everyone that
+  UTC day, compared on one board: a player in Tokyo and one in Paris must meet the same monsters
+  and floors whatever the hour they play. So in a Dawn Knell **no remote value applies** (no
+  `enemy_*` multiplier, no `souls_multiplier`, no event's souls bonus or boosted floor event):
+  only its day's omen (`daily_omen` + `daily_omen_date`), which is keyed by the UTC day itself
+  and thus the same for all. `RemoteConfig.tuning()` returns the omen alone for a daily, and
+  `RunState.create()` keeps only the omen of a daily's tuning (`RemoteTuning.daily_only()`), a
+  resumed one and an older save too. The daily's day, seeds, weapon, relic, omen and board key all
+  come from `DailyRun.today()`, the UTC day of the Unix time: no time zone enters. The Dawn
+  Knell's card says so while an event runs. **Set an omen before its day starts** (00:00 UTC):
+  a Dawn Knell begun before the game read it has none, and keeps none (its values are fixed at
+  its start).
 - **The version gate**: `min_version` / `max_version` make the whole config apply to those game
   versions only (`application/config/version`, compared part by part: 0.10.0 after 0.9.2). Outside
   them, every key is ignored, the kill switches too. Empty: every version.
@@ -387,15 +399,15 @@ online choice, no value or a bad one, and the game is exactly as its data makes 
 
 | Key | Kind, bounds | What it does (default: the game unchanged) |
 |---|---|---|
-| `enemy_health_easy`, `_normal`, `_hard`, `_nightmare` | number 0.5 to 2 (1) | multiplies every monster's and boss's Health in runs of that difficulty |
-| `enemy_damage_easy`, `_normal`, `_hard`, `_nightmare` | number 0.5 to 2 (1) | multiplies everything that hurts the hero (monsters, traps, the cold) in runs of that difficulty |
-| `souls_multiplier` | number 0.5 to 3 (1) | multiplies the souls every run gives |
+| `enemy_health_easy`, `_normal`, `_hard`, `_nightmare` | number 0.5 to 2 (1) | multiplies every monster's and boss's Health in runs of that difficulty (not the Dawn Knell) |
+| `enemy_damage_easy`, `_normal`, `_hard`, `_nightmare` | number 0.5 to 2 (1) | multiplies everything that hurts the hero (monsters, traps, the cold) in runs of that difficulty (not the Dawn Knell) |
+| `souls_multiplier` | number 0.5 to 3 (1) | multiplies the souls every run gives (not the Dawn Knell, like the multipliers above) |
 | `daily_omen` | a curse or floor event id (`frostbound`, `ashen_breath`, `lanternless`, `blood_moon`, `darkness`, `haunted`, `market_day`, `swarm`, `treasure_vault`) | the Dawn Knell of the day `daily_omen_date` names puts it on **every normal floor** (not the first, not the wardens'; both ways down). Told in the Dawn Knell's card and in the log |
 | `daily_omen_date` | date, `2026-10-31` (UTC) | the day the omen is for; any other day is untouched (no date: no omen) |
 | `event_name_en`, `event_name_fr` | text, 40 characters | the event's name on the title screen (English is the fallback); no name: no event |
 | `event_ends` | date (`2026-10-26`: the end of that UTC day) or moment (`2026-10-26T22:00:00Z`) | when the event ends; no end: no event |
-| `event_souls` | number 1 to 3 (1) | the event's souls bonus (runs started during it; on top of `souls_multiplier`) |
-| `event_floor_event` | a floor event id | made more likely among the floor events during the event |
+| `event_souls` | number 1 to 3 (1) | the event's souls bonus (runs started during it, not the Dawn Knell; on top of `souls_multiplier`) |
+| `event_floor_event` | a floor event id | made more likely among the floor events during the event (not in the Dawn Knell) |
 | `event_floor_weight` | number 1 to 10 (1) | how much more likely (multiplies its spawn weight) |
 | `motd_en`, `motd_fr` | text, 120 characters | a message of the day on the title screen, in the tagline's place (English is the fallback) |
 | `scores_off` | true / false | **kill switch**: no score queued or sent (applies at once, mid-run too) |
@@ -422,7 +434,9 @@ back, put the neutral value back (`1`, `false`, empty).
    and if you want `event_floor_event` (`blood_moon`) with `event_floor_weight` (`4`).
 2. Optionally `motd_en` / `motd_fr` to say it on the title.
 3. The title shows the event's plaque under Credits (its name, the bonus, the floor event, the
-   time left); every run **started** before the end gets it (a run keeps it to its end).
+   time left, told again every `title_refresh_seconds`, 30, while the title stays open; it
+   leaves once the end has passed); every run **started** before the end gets it (a run keeps it
+   to its end), except the Dawn Knell, which no event touches.
 4. Nothing to undo: past `event_ends` it stops by itself. Empty the name afterwards to tidy up.
 
 To start it at a set time, Talo can **schedule** a config change (the dashboard's scheduled changes,
