@@ -127,7 +127,8 @@ func _test_floor_kept(game: Game) -> void:
 		return
 	merchant = world.floor_merchant()
 	check(merchant != null and _stock_keys(merchant) == stock_before and merchant.rerolls_done == 1, "the merchant's stock as it was: rerolled, less what was bought, the rerolls paid")
-	check(merchant.stock.filter(func(e: Dictionary) -> bool: return Merchant._key(LootRoller.to_data(e.item)) == locked_key).size() == 1, "the entry locked there is in it once")
+	# (Locked ones: the reroll may well roll the same plain item again, unlocked, beside it.)
+	check(merchant.stock.filter(func(e: Dictionary) -> bool: return e.get("locked", false) == true and Merchant._key(LootRoller.to_data(e.item)) == locked_key).size() == 1, "the entry locked there is in it once")
 	check(world.kept_stock.is_empty(), "and not waiting for the next merchant too")
 	check(world.ledger.spent_count(FloorLedger.ITEM) == 1 and world.ledger.spent_count(FloorLedger.PROP) >= 1 and world.ledger.spent_count(FloorLedger.ENCOUNTER) == 1, "kept for the next save too")
 
@@ -139,7 +140,7 @@ func _test_floor_kept(game: Game) -> void:
 	await _frames(5)
 	world = game.world
 	merchant = world.floor_merchant()
-	check(merchant != null and merchant.stock.filter(func(e: Dictionary) -> bool: return Merchant._key(LootRoller.to_data(e.item)) == locked_key).size() == 1, "an older save: the entry locked there is in the merchant's stock once")
+	check(merchant != null and merchant.stock.filter(func(e: Dictionary) -> bool: return e.get("locked", false) == true and Merchant._key(LootRoller.to_data(e.item)) == locked_key).size() == 1, "an older save: the entry locked there is in the merchant's stock once")
 	chests = _chests_at(world, chest_cell)
 	if chests.is_empty():
 		return
