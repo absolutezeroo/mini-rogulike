@@ -62,7 +62,7 @@ data/                Game content as .tres resources (no code)
                        Controls page, the keys prompts show, the gamepad families' button names)
 src/
   autoload/            Events (signal bus), Sfx (sound player), HitStop (impact freeze), Profile (save), Settings (options),
-                       InputDevice (the device in use), MenuNav (menus with keys and gamepads), PixelGrid (the canvas's scale),
+                       InputDevice (the device in use), MenuNav (menus with keys and gamepads), PixelGrid (the canvas's scale), SoftKeyboard (typing on a phone),
                        Leaderboards (the online leaderboards), Privacy (the player's privacy choices),
                        Telemetry (the gameplay statistics, with consent), WorldStats (the world counters),
                        RemoteConfig (the remote settings: Talo's game config, checked against the allow-list),
@@ -204,6 +204,7 @@ Few, each with one job (`project.godot` > Autoload):
 | `Settings` | `src/autoload/settings.gd` | Options and language (`user://settings.cfg`) |
 | `TouchScrolling` | `src/autoload/touch_scrolling.gd` | Adds finger scrolling to every `ScrollContainer` |
 | `Loader` | `src/autoload/scene_loader.gd` | Loading screen between the title and the game |
+| `SoftKeyboard` | `src/autoload/soft_keyboard.gd` | While a phone's keyboard is up over a text field, shows the field in a readable bar in the strip the keyboard leaves; tells `PixelGrid` a keyboard's resize so the UI keeps its scale (design/interface.md, Screens) |
 | `PixelGrid` | `src/autoload/pixel_grid.gd` | Picks the canvas's scale (whole steps of 0.5, the interface size option; the camera keeps the framing: `world_zoom()`) and shifts the screen a quarter of a pixel so text and pixel art at half-pixel spots draw whole (design/interface.md, Text and Screens) |
 | `InputDevice` | `src/autoload/input_device.gd` | The device in use (touch, keyboard and mouse, gamepad and its family) from the last real input; `changed` for the HUD, prompts and menus |
 | `Leaderboards` | `src/autoload/leaderboards.gd` | The online leaderboards (docs/online.md): queues the scores of runs that end (`Events.run_ended`), sends them through its backend (Talo, or offline without a key), reads the boards for the page. Its own file, `user://leaderboards.json` |

@@ -11,6 +11,12 @@ version for themed icons); the splash shows it on the night color.
 Saves stay in the user folder named "Mini Roguelike" (`config/custom_user_dir_name`), the project's first name: don't
 change it, or players lose their saves.
 
+The phone's keyboard: Godot's Android template declares `android:windowSoftInputMode="adjustResize"`
+(the keyboard shrinks the game's window) and the presets have no option to change it; the game
+handles it itself, the same in an exported app and in the Android editor's game runner
+(`SoftKeyboard`, design/interface.md "Typing on a phone"). Changing it in a Gradle build's manifest
+would not reach the Android editor's game runner (its own activity), so it is left as it is.
+
 - **From the phone** (Godot's Android editor): Project > Export > Android > Export Project. The
   editor signs debug builds with its own key. Debug builds show the DBG button; a release build
   hides it.

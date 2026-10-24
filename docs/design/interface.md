@@ -135,6 +135,24 @@ shows to the device in hand.
   small for x1 (1024x768) keeps its own scale (x0.8: letters a little uneven). The camera zooms in
   by what the rounding took off, so a floor is framed as before on every screen
   (`PixelGrid.world_zoom()`, `GameCamera`).
+- **Typing on a phone** (`SoftKeyboard`, every `LineEdit` / `TextEdit`: the feedback form, the
+  pseudonym): Godot's Android activity is `adjustResize`, so the phone's keyboard shrinks the
+  game's window to the strip above it (2340x1080 to about 2340x480 held sideways). Read as a new
+  screen, that scaled the UI down to x0.67 and squeezed the dialog into the strip: the words typed
+  were a few pixels tall. Now a resize while a field has the focus on a device with a virtual
+  keyboard (same width, at least 8% shorter than the window without the keyboard:
+  `SoftKeyboard.is_keyboard_resize()`) keeps the scale of before (`PixelGrid.settled_size()`), and a
+  **typing bar** fills the strip over everything (layer 126, the rest of the game dimmed almost
+  black): the field's name (`TITLE_META`, else the dialog's title), its hint (`HINT_META`, else
+  its placeholder: the pseudonym's rules, the feedback kind's question), its length and limit
+  (`MAX_META`, else a LineEdit's `max_length`), the words as typed with the caret at BODY size (a
+  long message shows its last lines), and **OK**, which puts the keyboard away. The field keeps
+  the focus all along (the keyboard types into it, the bar mirrors it) and the bar's backdrop
+  takes the taps, so nothing under it closes the keyboard. The keyboard closed by the phone (its
+  back button), the bar goes and the dialog is back as it was. A keyboard drawn over the game
+  (no resize) gets the bar above its height (`DisplayServer.virtual_keyboard_get_height()`). A
+  computer has no virtual keyboard: nothing changes there. Checked with a fake keyboard
+  (`SoftKeyboard.fake_height`, `SoftKeyboardTests`).
 - **Interface size** (Options > Graphics): Big (the largest step that fits), Medium, Small: one or two
   steps smaller, never under x1, for more room on a big monitor; the floor's framing stays
   (`Settings.ui_size`, saved).

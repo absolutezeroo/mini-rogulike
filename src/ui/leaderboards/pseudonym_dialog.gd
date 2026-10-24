@@ -54,8 +54,10 @@ func _build() -> void:
 	body.add_child(question)
 	var config := Leaderboards.config
 	body.add_child(UiSkin.label(tr("If you publish, your Dawn Knell scores, a summary of each run and this pseudonym are sent to the game's online service (Talo) and shown to every player. Nothing is sent before you choose. You can stop at any time in Options > Privacy."), Fonts.BODY, UiSkin.TEXT, true))
-	body.add_child(UiSkin.label(tr("Pseudonym: %d to %d letters, digits, spaces and - _ . ' Never your real name.") % [config.name_min, config.name_max], Fonts.BODY, UiSkin.DIM, true))
+	var rules := tr("Pseudonym: %d to %d letters, digits, spaces and - _ . ' Never your real name.") % [config.name_min, config.name_max]
+	body.add_child(UiSkin.label(rules, Fonts.BODY, UiSkin.DIM, true))
 	_edit = LineEdit.new()
+	_edit.set_meta(SoftKeyboard.HINT_META, rules)  # (over the phone's keyboard: SoftKeyboard)
 	_edit.custom_minimum_size = Vector2(0, 52)
 	_edit.add_theme_font_size_override("font_size", Fonts.BODY)
 	_edit.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_DEFAULT
