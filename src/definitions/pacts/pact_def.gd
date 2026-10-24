@@ -13,8 +13,11 @@ extends ContentDef
 @export_group("The fight")
 ## Waves of foes, one after the other.
 @export_range(1, 6) var waves: int = 2
-## Foes per wave, plus one every 3 floors (as in ambushes).
+## Foes per wave, plus one every `depths_per_extra_foe` floors (as in ambushes).
 @export_range(1, 12) var wave_size: int = 3
+## One more foe per wave every this many floors (DungeonConfig.ambush_depths_per_extra for
+## ambushes).
+@export_range(1.0, 12.0, 0.5) var depths_per_extra_foe: float = 3.0
 ## Share of the foes that come as elites (1: all of them). With 0, the last wave is still
 ## led by one elite.
 @export_range(0.0, 1.0, 0.05) var elite_share: float = 0.0
@@ -33,7 +36,7 @@ func max_hp_lost(player: Player) -> int:
 
 ## Foes in each wave at `depth`.
 func foes_per_wave(depth: int) -> int:
-	return wave_size + floori(depth / 3.0)
+	return wave_size + floori(depth / depths_per_extra_foe)
 
 
 ## The rule in plain words.

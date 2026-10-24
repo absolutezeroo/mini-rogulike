@@ -10,7 +10,7 @@ extends SecretRewardDef
 
 func place(world: World, cell: Vector2i, rng: RandomNumberGenerator) -> Array[Node]:
 	var result: Array[Node] = []
-	var amount := roundi(world.rules.gold(rng.randi_range(gold.x, gold.y) + gold_per_depth * world.depth) * world.boons.gold_scale)
+	var amount := world.rules.floor_gold(rng.randi_range(gold.x, gold.y) + gold_per_depth * world.depth)
 	var center := world.map.cell_to_world(cell)
 	for i in piles:
 		var share := floori(float(amount) / piles) + (1 if i < amount % piles else 0)

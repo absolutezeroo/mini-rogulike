@@ -50,6 +50,9 @@ func _test_numbers_in_data() -> void:
 		"the ambushes' rhythm in data is the code's (one more per 3 floors, 0.25 s, 1 s pause, 90 px)")
 	check(config.consumable_gold_share == 0.3 and config.consumable_gold_min == 2 and config.gold_per_pile == 4.0 and config.gold_max_piles == 6 and config.boss_rank_loot_per_affix == 0.25,
 		"the drops' numbers in data are the code's (30% of a potion over the cap as gold, 2 at least; piles of 4, 6 at most; a ranked boss +25% quality per affix)")
+	check(not config.pacts.is_empty() and config.pacts.all(func(pact: PactDef) -> bool:
+			return pact.depths_per_extra_foe == 3.0 and pact.foes_per_wave(7) == pact.wave_size + 2),
+		"a pact's waves grow as the code had it: one more foe every 3 floors")
 	var trap: ArrowTrapDef = load("res://data/hazards/arrow_trap.tres")
 	check(trap.arrow_radius == 5.0 and trap.arrow_color == Color("d9d3c7"), "an arrow trap's arrows keep their body and color")
 
@@ -438,6 +441,19 @@ func _test_encounter_odds(game: Game) -> void:
 	var plain_odds := roundi(LootRoller.rare_or_better_chance(world.depth, 2.0 * world.rules.loot_quality(), world.config()) * 100.0)
 	check(text.contains("%d%% chance" % odds) and odds != plain_odds, "the encounter's odds are the roll's, the boons' better loot in them (%s)" % text)
 	check(text.contains("%d gold" % world.rules.floor_gold(30)) and world.rules.floor_gold(30) == roundi(world.rules.gold(30) * 1.5), "the encounter's gold is what drops, the boons' share in it (%s)" % text)
+	# A secret room's hoard asks the same rules (FloorRules.floor_gold), never multiplies them itself.
+	var hoard := SecretGoldReward.new()
+	var dice := RandomNumberGenerator.new()
+	dice.seed = 7
+	var same := RandomNumberGenerator.new()
+	same.seed = 7
+	var coins := hoard.place(world, world.map.start_cell, dice)
+	var told := world.rules.floor_gold(same.randi_range(hoard.gold.x, hoard.gold.y) + hoard.gold_per_depth * world.depth)
+	var laid := 0
+	for coin in coins:
+		laid += (coin as GoldPickup).amount
+		coin.queue_free()
+	check(laid == told and told > 0, "a secret hoard holds the floor's gold, the boons' share in it (%d of %d)" % [laid, told])
 	world.boons = boons_before
 
 
