@@ -4,6 +4,9 @@ extends Effect
 ## hurt ones, gives stats for a while, or wraps them in a ward that soaks up damage. A beam of
 ## light goes from the user to each ally helped. What monster supports cast (menders, moths,
 ## drummers): kill them first.
+## Its `element` (Effect.element): what it is made of (data/vfx/elements/): each ally helped flares
+## in its element's impact, the beams take its color and the caster stands in a small ring of its
+## pieces (Soul Ward: pale flames, a hollow ring). Empty: sparkles and a magic circle in `color`.
 
 enum Kind { HEAL, BUFF, WARD }
 
@@ -11,10 +14,6 @@ enum Kind { HEAL, BUFF, WARD }
 @export var radius: float = 220.0
 @export var include_self: bool = true
 @export var color: Color = Color(0.45, 1.0, 0.55)
-## What it is made of (data/vfx/elements/): each ally helped flares in its element's impact, the
-## beams take its color and the caster stands in a small ring of its pieces (Soul Ward: pale
-## flames, a hollow ring). Empty: sparkles and a magic circle in `color`.
-@export var element: VfxElementDef
 @export_group("Heal")
 ## Part of each ally's max HP restored (plus `amount`).
 @export_range(0.0, 1.0) var heal_ratio: float = 0.25

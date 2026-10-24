@@ -1,6 +1,9 @@
 class_name SummonEffect
 extends Effect
 ## Calls monsters next to the user. They join the user's fight right away.
+## Its `element` (Effect.element): what they rise out of (data/vfx/elements/): its impact and a
+## small ring of its pieces where each appears (spirits: a hollow ring and pale flames). Empty: a
+## puff of smoke.
 
 @export var monsters: Array[MonsterDef] = []
 @export var count: int = 2
@@ -8,9 +11,6 @@ extends Effect
 @export var radius: float = 70.0
 ## Nothing is summoned once the floor holds this many monsters.
 @export var max_alive: int = 8
-## What they rise out of (data/vfx/elements/): its impact and a small ring of its pieces where
-## each appears (spirits: a hollow ring and pale flames). Empty: a puff of smoke.
-@export var element: VfxElementDef
 
 
 func apply(user: Actor, _aim: Vector2) -> void:

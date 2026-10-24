@@ -128,6 +128,11 @@ func run() -> void:
 	add_child(dialogue)
 	await dialogue.run_unit()
 	dialogue.free()
+	# The gameplay's core after its audit: numbers in data, FloorRules, one twist roller (CoreTests).
+	var core := CoreTests.new()
+	add_child(core)
+	core.run_unit()
+	core.free()
 
 
 ## Text keeps whole pixels (Fonts, docs/design/interface.md "Text"): the font (Pixel Operator 8) is

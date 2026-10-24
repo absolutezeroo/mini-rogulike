@@ -62,13 +62,6 @@ func effects_for(user: Actor) -> Array[Effect]:
 	if not _dressed.has(carried):
 		var copies: Array[Effect] = []
 		for effect in effects:
-			if effect is ProjectileEffect:
-				copies.append((effect as ProjectileEffect).dressed_in(carried, false))
-			elif effect is DamageAreaEffect:
-				copies.append((effect as DamageAreaEffect).dressed_in(carried))  # Cleave's arc, a nova
-			elif effect is DashStrikeEffect:
-				copies.append((effect as DashStrikeEffect).dressed_in(carried))  # Dash Strike's cut
-			else:
-				copies.append(effect)
+			copies.append(effect.dressed_for_skill(carried) if effect else effect)
 		_dressed[carried] = copies
 	return _dressed[carried]

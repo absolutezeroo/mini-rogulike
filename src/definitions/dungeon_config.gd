@@ -74,8 +74,14 @@ extends Resource
 ## monsters pour in, wave after wave. A big chest waits for whoever survives.
 @export_range(0.0, 1.0) var ambush_chance: float = 0.6
 @export_range(1, 5) var ambush_waves: int = 2
-## Monsters per wave, plus one every 3 floors.
+## Monsters per wave, plus one every `ambush_depths_per_extra` floors (FloorRules.ambush_wave_size).
 @export_range(1, 12) var ambush_wave_size: int = 3
+@export_range(1.0, 10.0, 0.5) var ambush_depths_per_extra: float = 3.0
+## Seconds between two monsters of a wave coming in, and between two waves.
+@export_range(0.05, 2.0, 0.05) var ambush_spawn_interval: float = 0.25
+@export_range(0.0, 5.0, 0.1) var ambush_wave_pause: float = 1.0
+## Monsters of a wave come in at least this far from the hero.
+@export var ambush_min_spawn_distance: float = 90.0
 ## Reward for clearing an ambush.
 @export var ambush_chest: ChestDef
 
@@ -91,13 +97,23 @@ extends Resource
 @export var epic_weight_per_depth: float = 0.4
 ## Quality of what bosses drop (1 = a common monster; elites: MonsterRankDef.loot_quality).
 @export var boss_loot_quality: float = 5.0
+## A boss at a rare rank (Fell, Legendary...) drops better still: its quality times 1 + this per
+## affix (one at least).
+@export_range(0.0, 2.0, 0.05) var boss_rank_loot_per_affix: float = 0.25
 ## Consumables found while the hero already carries this many of the same one (belt and bag)
-## drop as gold instead: no bag full of potions.
+## drop as gold instead: no bag full of potions. The gold: this share of the item's value, this
+## many coins at least.
 @export_range(1, 20) var consumable_carry_cap: int = 4
+@export_range(0.0, 1.0, 0.05) var consumable_gold_share: float = 0.3
+@export_range(0, 50) var consumable_gold_min: int = 2
 
 @export_group("Gold")
 ## Chance for a monster to drop gold (elites and bosses always do).
 @export_range(0.0, 1.0) var gold_drop_chance: float = 0.45
+## Coins on the floor come in piles of about this much (at most `gold_max_piles`), each flying
+## to the hero on its own.
+@export_range(1.0, 50.0, 1.0) var gold_per_pile: float = 4.0
+@export_range(1, 20) var gold_max_piles: int = 6
 @export var gold_per_kill: Vector2i = Vector2i(1, 4)
 ## Extra gold per floor below the first.
 @export var gold_per_depth: float = 0.6
@@ -236,7 +252,7 @@ extends Resource
 @export var sustain: SustainRules
 ## A skill's chance to be ready again at once (SkillEchoPassive: the Echo perk, Echo runes, of
 ## Echoes) counts every source together and stops at this: stacking echoes reaches a cap like
-## cooldown reduction does (SkillSet.MAX_COOLDOWN_REDUCTION), instead of skipping one cooldown in
+## cooldown reduction does (CombatRulesDef.max_cooldown_reduction), instead of skipping one cooldown in
 ## three on top of it. 1 = no cap.
 @export_range(0.0, 1.0, 0.01) var skill_echo_max_chance: float = 1.0
 

@@ -25,7 +25,7 @@ extends RefCounted
 ## - a monster attacks every wind-up x telegraph + max(recovery, weapon cooldown / attack speed)
 ##   seconds and uses each skill it can at its fighting distance off cooldown;
 ## - face-tank: the boss melees on that cycle unless casting, every damaging effect hits; the hero
-##   can't be hit more often than its 0.6 s of invulnerability allows; the boss' anti face-tank
+##   can't be hit more often than its i-frames (PlayerDef.hit_invulnerability) allows; the boss' anti face-tank
 ##   shockwave costs SHOCKWAVE_DOWNTIME seconds of hitting each time.
 
 ## Share of the extra projectiles of a fan or ring that hit a boss (big body, close range).
@@ -136,9 +136,9 @@ static func hit_mean(base: float, crit: float, defense: int) -> float:
 	var total := 0.0
 	crit = clampf(crit, 0.0, 1.0)
 	for i in samples:
-		var u := 1.0 - Combat.DAMAGE_VARIANCE + 2.0 * Combat.DAMAGE_VARIANCE * (i + 0.5) / samples
+		var u := 1.0 - Combat.RULES.damage_variance + 2.0 * Combat.RULES.damage_variance * (i + 0.5) / samples
 		var normal_hit := Combat.mitigate(maxi(1, roundi(base * u)), defense)
-		var critical := Combat.mitigate(maxi(1, roundi(base * u * Combat.CRIT_MULTIPLIER)), defense)
+		var critical := Combat.mitigate(maxi(1, roundi(base * u * Combat.RULES.crit_multiplier)), defense)
 		total += (1.0 - crit) * normal_hit + crit * critical
 	return total / samples
 
@@ -283,7 +283,7 @@ func hero_output(player: Player, defense: int, is_boss: bool, low_hp: bool = fal
 
 	# Skills (the weapon's two and the learned spell; not the roll).
 	var skill_power := player.get_skill_power()
-	var cdr := clampf(stats.cooldown_reduction, 0.0, SkillSet.MAX_COOLDOWN_REDUCTION)
+	var cdr := clampf(stats.cooldown_reduction, 0.0, Combat.RULES.max_cooldown_reduction)
 	var skill_dps := 0.0
 	var skill_heal_hps := 0.0
 	var sustain_skill_hps := 0.0
@@ -431,8 +431,8 @@ func foe_numbers(def: MonsterDef, rules: FloorRules, rank: MonsterRankDef, affix
 				support = true
 			var one := effects_damage([effect] as Array[Effect], skill_power, stats.crit_chance, hero_defense, true)
 			if one > 0.0:
-				# Hits within the hero's 0.6 s of invulnerability count once.
-				var slot := floori(effect.delay / Player.HIT_INVULNERABILITY)
+				# Hits within the hero's i-frames (PlayerDef.hit_invulnerability) count once.
+				var slot := floori(effect.delay / content.player.hit_invulnerability)
 				if not delays.has(slot):
 					delays[slot] = one
 					hits += 1
@@ -456,7 +456,7 @@ func foe_numbers(def: MonsterDef, rules: FloorRules, rank: MonsterRankDef, affix
 	var dps := melee_rate * melee + skill_dps
 	if venom > 0.0:
 		dps += venom * 0.8  # poison ticks (after armor), kept up most of the time by its hits
-	var cap := 1.0 / Player.HIT_INVULNERABILITY
+	var cap := 1.0 / content.player.hit_invulnerability
 	if hits_per_s > cap:
 		dps *= cap / hits_per_s
 		hits_per_s = cap
@@ -846,9 +846,9 @@ func boss_profile(boss: BossDef, difficulty: DifficultyDef, hero: Player, rank: 
 			hp = foe.hp
 		phases.append({ "from": ratios[i], "to": ratios[i + 1], "defense": foe.defense, "foe": foe,
 			"roar": boss.phase_roar_time if i > 0 else 0.0 })
-	var shock := rules.dungeon_damage(4.0, 0.6)
+	var shock := rules.dungeon_damage(boss.shockwave_base_damage, boss.shockwave_damage_per_depth)
 	return { "id": String(boss.id), "depth": depth, "hp": hp, "phases": phases, "shockwave": shock,
-		"shockwave_after": boss.shockwave_after_hits, "rules": rules }
+		"shockwave_after": boss.shockwave_after_hits, "shockwave_cooldown": boss.shockwave_cooldown, "rules": rules }
 
 
 ## Seconds to kill the boss with pure damage (no downtime): the model's TTK.
@@ -881,7 +881,7 @@ func face_tank(player: Player, profile: Dictionary) -> Dictionary:
 		var foe: Dictionary = phase.foe
 		var shock_rate := 0.0
 		if int(profile.shockwave_after) > 0:
-			shock_rate = minf(hero_hits_per_s / float(profile.shockwave_after), 1.0 / 3.0)
+			shock_rate = minf(hero_hits_per_s / float(profile.shockwave_after), 1.0 / float(profile.shockwave_cooldown))
 		var uptime_share := 1.0 / (1.0 + shock_rate * SHOCKWAVE_DOWNTIME)
 		var in_dps: float = float(foe.dps) + shock_rate * float(profile.shockwave) + float(foe.thorns) * 0.0
 		var capped: float = minf((out.lifesteal_hps + out.sustain_skill_hps) * uptime_share, cap)
@@ -1195,8 +1195,8 @@ func fight_power(player: Player, act: int) -> Dictionary:
 	ttk /= maxf(weight, 1.0)
 	room_dps = room_dps / maxf(weight, 1.0) * ROOM_PACK
 	room_hits = room_hits / maxf(weight, 1.0) * ROOM_PACK
-	if room_hits > 1.0 / Player.HIT_INVULNERABILITY:
-		room_dps *= (1.0 / Player.HIT_INVULNERABILITY) / room_hits
+	if room_hits > 1.0 / content.player.hit_invulnerability:
+		room_dps *= (1.0 / content.player.hit_invulnerability) / room_hits
 	var room_out := hero_output(player, 1, false)
 	var room_clear: float = ttk * ROOM_PACK / (1.0 + room_out.chain_dps / maxf(room_out.dps, 0.01))
 	var room_heal: float = minf(room_out.lifesteal_hps + room_out.sustain_skill_hps + room_out.kill_heal / maxf(ttk, 0.1), sustain_rate(player.get_max_hp(), false)) + room_out.skill_heal_hps

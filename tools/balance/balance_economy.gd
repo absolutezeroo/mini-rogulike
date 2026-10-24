@@ -355,13 +355,14 @@ func _loot_table(report: BalanceReport) -> void:
 	for depth in range(1, config.total_floors() + 1):
 		for source: Array in sources:
 			var q: float = source[1]
-			var levels := depth - 1
-			var weights := [config.common_weight, (config.magic_weight + config.magic_weight_per_depth * levels) * q,
-				(config.rare_weight + config.rare_weight_per_depth * levels) * q, (config.epic_weight + config.epic_weight_per_depth * levels) * q]
+			var weights := LootRoller.rarity_weights(depth, q, config)  # the roll's own weights
 			var total := 0.0
-			for w: float in weights:
+			for w in weights:
 				total += w
-			rows.append([depth, source[0], "%.1f" % q] + weights.map(func(w: float) -> String: return BalanceReport.pct(w / total)))
+			var shares: Array = []
+			for w in weights:
+				shares.append(BalanceReport.pct(w / total))
+			rows.append([depth, source[0], "%.1f" % q] + shares)
 	report.table("economy_loot", "Economy", "Rarity of found equipment per depth and source (LootRoller.pick_rarity; DungeonConfig > Loot)",
 		PackedStringArray(["Depth", "Source", "Quality", "Common", "Magic", "Rare", "Epic"]), rows, 30)
 

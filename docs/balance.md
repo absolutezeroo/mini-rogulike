@@ -92,7 +92,7 @@ How a run is made fast (`BalanceLab`, `BalanceJobs`):
 - **A cache.** A unit's result is kept (`--cache`) under its id, the seed and options, the code
   (every script of `src/` and `tools/balance/`) and the data it depends on (its act with its
   monsters, bosses and biomes, the build's perks, runes, affixes and gear, the difficulty, and
-  what every measure uses: the hero, ranks, elite affixes, families, props, arenas, hazards): run
+  what every measure uses: the hero, the combat rules, ranks, elite affixes, families, props, arenas, hazards): run
   again, only what a change touched is measured again. A code change measures everything again.
   `--no-cache` ignores what is kept.
 

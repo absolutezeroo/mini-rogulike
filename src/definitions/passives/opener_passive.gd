@@ -7,4 +7,4 @@ func modify_outgoing_hit(_owner: Actor, target: Actor, hit: HitInfo, _perk: Perk
 	if hit.is_crit or target.hp < target.get_max_hp():
 		return
 	hit.is_crit = true
-	hit.amount = maxi(1, roundi(hit.amount * Combat.CRIT_MULTIPLIER))
+	hit.amount = maxi(1, roundi(hit.amount * Combat.RULES.crit_multiplier))

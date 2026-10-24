@@ -20,6 +20,16 @@ signal healed(amount: int, source: StringName)
 ## (HitInfo.via: the gameplay statistics). Never affects gameplay.
 static var heal_source: StringName = &""
 
+
+## Runs `action` with heal_source set to `tag`, then puts back what was there (a skill inside a
+## perk's call...). Effects that come later (Effect.delay, a fuse) carry the tag they were set
+## off under through here, so their hits and heals are credited to the right source.
+static func with_source(tag: StringName, action: Callable) -> void:
+	var outer := heal_source
+	heal_source = tag
+	action.call()
+	heal_source = outer
+
 enum Faction { PLAYER, MONSTER }
 
 const KNOCKBACK_FRICTION := 1400.0
@@ -323,13 +333,13 @@ func take_hit(hit: HitInfo) -> void:
 			die(hit.source)
 
 
-## Returns how much was actually healed.
 ## A ward soaking up `amount` damage for `duration` seconds (a new one replaces a weaker one).
 func add_ward(amount: int, duration: float) -> void:
 	ward = maxi(ward, amount)
 	_ward_time = maxf(_ward_time, duration)
 
 
+## Returns how much was actually healed.
 func heal(amount: int) -> int:
 	if is_dead:
 		return 0
@@ -638,8 +648,14 @@ func _draw() -> void:
 	if frames == null:
 		var color := Color.WHITE if _flash_time > 0.0 else body_color * _body_modulate()
 		_draw_fallback_body(color)
-	if ward > 0 and not self is Monster:
+	if ward > 0 and _draws_ward_on_body():
 		draw_ward(self)
+
+
+## Its ward is drawn with its body (`_draw`); false for one that draws it elsewhere (a monster's
+## overlay draws it over the body: MonsterOverlay).
+func _draws_ward_on_body() -> bool:
+	return true
 
 
 ## A shimmering bubble around a warded actor, drawn on `canvas` (centered on the actor; monsters

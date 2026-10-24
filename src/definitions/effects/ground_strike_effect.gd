@@ -5,6 +5,8 @@ extends Effect
 ## sunlight, a lantern's flame closing in on the hero. The first lands where the target stands
 ## when the skill goes off; the others are scattered within `spread` of it, never on top of each
 ## other. Only the user's enemies are hurt. Without a target (the hero using it): along the aim.
+## Its `element` (Effect.element): what it is made of (data/vfx/elements/): its nova where it
+## strikes, its hits' flash.
 
 ## How many spots.
 @export_range(1, 12) var count: int = 1
@@ -19,8 +21,6 @@ extends Effect
 @export var damage_multiplier: float = 1.0
 @export var flat_damage: int = 0
 @export var knockback: float = 220.0
-## What it is made of (data/vfx/elements/): its nova where it strikes, its hits' flash.
-@export var element: VfxElementDef
 ## A sheet played on each spot as it strikes (a column of light falling), at the art's size.
 @export var strike: VfxSheetDef
 @export var status: OnHitStatus
@@ -65,3 +65,13 @@ func _first_spot(user: Actor, aim: Vector2) -> Vector2:
 	if monster and is_instance_valid(monster.target) and not monster.target.is_dead:
 		return monster.target.global_position
 	return user.global_position + aim * maxf(spread, radius * 2.0)
+
+
+func hit_status() -> OnHitStatus:
+	return status
+
+
+func with_hit_status(new_status: OnHitStatus) -> Effect:
+	var copy := copied() as GroundStrikeEffect
+	copy.status = new_status
+	return copy

@@ -218,7 +218,7 @@ func _test_no_ai(game: Game) -> void:
 		boss.take_hit(Combat.make_secondary_hit(player, 1))
 		player._invulnerable_time = 0.0
 	await _frames(30)
-	check(player.hp == hp and boss._shockwave_cooldown == 0.0, "No AI: a boss hit again and again throws no shockwave")
+	check(player.hp == hp and boss.brain.shockwave_cooldown == 0.0, "No AI: a boss hit again and again throws no shockwave")
 	DebugCheats.set_no_ai(false)
 	await _frames(120)
 	check(near.global_position.distance_to(at[0]) > 2.0 or player.hp < hp or near.telegraph > 0.0 or near._attack_cooldown > 0.0, "No AI off: the monster comes again")

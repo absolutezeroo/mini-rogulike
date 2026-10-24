@@ -168,7 +168,7 @@ func _test_finale(game: Game) -> void:
 	poke.amount = 60
 	poke.source = player
 	maw.take_hit(poke)
-	check(maw.hp == maw_hp and maw._hit_streak == 0, "closed, a blow glances off whole (no damage, no streak toward a shockwave)")
+	check(maw.hp == maw_hp and maw.brain.hit_streak == 0, "closed, a blow glances off whole (no damage, no streak toward a shockwave)")
 	check(world.get_node("Effects").get_children().any(func(n: Node) -> bool: return n is FloatingText), "and says so over it")
 	var burn := OnHitStatus.new()
 	burn.burn_damage = 5

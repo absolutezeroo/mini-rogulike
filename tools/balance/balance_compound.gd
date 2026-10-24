@@ -165,7 +165,7 @@ func _armor(report: BalanceReport) -> void:
 					var stats := rules.scale_monster(monster.stats, false)
 					var raw := maxi(1, roundi(((monster.weapon.damage if monster.weapon else 1) + stats.attack) * rules.monster_damage()))
 					total += 1
-					if Combat.mitigate(roundi(raw * (1.0 + Combat.DAMAGE_VARIANCE)), armor) <= 1:
+					if Combat.mitigate(roundi(raw * (1.0 + Combat.RULES.damage_variance)), armor) <= 1:
 						floor_hits += 1
 			player.free()
 			var share := floor_hits / maxf(total, 1.0)

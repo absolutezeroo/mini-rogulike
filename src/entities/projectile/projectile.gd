@@ -140,7 +140,7 @@ func _on_body_entered(body: Node2D) -> void:
 	if not body is Actor:
 		# A wall or a prop
 		if body is Prop:
-			var prop_hit := HitInfo.new()
+			var prop_hit := HitInfo.new()  # a prop counts blows, not damage (Combat.break_props)
 			prop_hit.source = _shooter if is_instance_valid(_shooter) else null
 			(body as Prop).take_hit(prop_hit)
 		Vfx.hit(_world, global_position, -_direction, _element.color(), false, _spec.element)
@@ -155,13 +155,7 @@ func _on_body_entered(body: Node2D) -> void:
 	if _spec.explosion_radius > 0.0:
 		_finish()
 		return
-	var hit := Combat.make_hit(_spec.damage, _crit_chance, _shooter if is_instance_valid(_shooter) else null)
-	hit.knockback = _direction * _spec.knockback
-	hit.status = _spec.status
-	hit.element = _spec.element if _spec.element else _spec.hit_element
-	hit.is_secondary = _spec.secondary
-	hit.via = _via
-	target.take_hit(hit)
+	target.take_hit(_make_hit(_shooter if is_instance_valid(_shooter) else null, _direction * _spec.knockback))
 	if _pierce_left > 0:
 		_pierce_left -= 1
 	else:
@@ -202,13 +196,19 @@ func _explode() -> void:
 	for target in _world.get_actors() if _hits_everyone else _world.get_hostiles(_faction):
 		var offset := target.global_position - global_position
 		if offset.length() <= _spec.explosion_radius + target.radius:
-			var hit := Combat.make_hit(_spec.damage, _crit_chance, source)
-			hit.knockback = offset.normalized() * _spec.knockback
-			hit.status = _spec.status
-			hit.element = _spec.element if _spec.element else _spec.hit_element
-			hit.is_secondary = _spec.secondary
-			hit.via = _via
-			target.take_hit(hit)
+			target.take_hit(_make_hit(source, offset.normalized() * _spec.knockback))
+
+
+## One of its hits (on contact or in its blast), pushing `knockback`. Its rolls come from its
+## floor's combat dice (World.combat_rng), the shooter gone or not.
+func _make_hit(source: Actor, knockback: Vector2) -> HitInfo:
+	var hit := Combat.make_hit(_spec.damage, _crit_chance, source, _world.combat_rng)
+	hit.knockback = knockback
+	hit.status = _spec.status
+	hit.element = _spec.element if _spec.element else _spec.hit_element
+	hit.is_secondary = _spec.secondary
+	hit.via = _via
+	return hit
 
 
 func _draw() -> void:

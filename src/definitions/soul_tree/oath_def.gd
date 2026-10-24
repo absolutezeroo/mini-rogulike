@@ -18,7 +18,7 @@ extends Resource
 ## Multiplies the hero's starting max Health and move speed.
 @export var max_hp_scale: float = 1.0
 @export var move_speed_scale: float = 1.0
-## Added to the critical hit multiplier (Combat.CRIT_MULTIPLIER x1.75 + this).
+## Added to the critical hit multiplier (CombatRulesDef.crit_multiplier, x1.75 + this).
 @export var crit_damage_bonus: float = 0.0
 
 @export_group("The run")
@@ -49,8 +49,8 @@ func effects() -> Array:
 		if bonuses.defense != 0:
 			lines.append([tr("%+d Armor") % bonuses.defense, signi(bonuses.defense)])
 	if crit_damage_bonus != 0.0:
-		var multiplier := Combat.CRIT_MULTIPLIER + crit_damage_bonus
-		lines.append([tr("Critical hits deal x%s (instead of x%s)") % [_number(multiplier), _number(Combat.CRIT_MULTIPLIER)], signi(roundi(crit_damage_bonus * 100.0))])
+		var multiplier := Combat.RULES.crit_multiplier + crit_damage_bonus
+		lines.append([tr("Critical hits deal x%s (instead of x%s)") % [_number(multiplier), _number(Combat.RULES.crit_multiplier)], signi(roundi(crit_damage_bonus * 100.0))])
 	_percent(lines, gold_scale, tr("%+d%% gold"), 1)
 	_percent(lines, loot_quality_scale, tr("%+d%% chance of better gear"), 1)
 	_percent(lines, shop_price_scale, tr("Merchant prices %+d%%"), -1)
