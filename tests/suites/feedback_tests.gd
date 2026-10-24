@@ -9,7 +9,8 @@ extends TestSuite
 ## the form in French on a phone, a large PC screen and 1280x720, the thank-you note, and the pause
 ## menu's button reached and pressed with a gamepad.
 
-const FILE := "user://test_feedback.json"
+## Per test process (worktrees and parallel runs share one user:// folder).
+var _file := "user://test_feedback_%d.json" % OS.get_process_id()
 const FeedbackScript := preload("res://src/autoload/feedback.gd")
 
 var _fake: FakeBoardBackend
@@ -40,7 +41,7 @@ func _use_fake() -> FakeBoardBackend:
 	Leaderboards.use_for_tests(_fake)
 	Privacy.use_for_tests()
 	Feedback.use_for_tests()
-	Privacy.fake_now = 100000
+	OnlineSession.fake_now = 100000
 	return _fake
 
 
@@ -89,12 +90,12 @@ func _test_unavailable() -> void:
 func _test_offline_queue() -> void:
 	var fake := _use_fake()
 	fake.online = false
-	Feedback.path = FILE
+	Feedback.path = _file
 	var result := Feedback.submit(&"bug", "  The lantern went out on floor 3.  ", {}, false)
 	await _frames(2)
 	check(result == FeedbackScript.Result.QUEUED, "feedback: a message is taken offline")
 	check(Feedback.queue.size() == 1 and fake.feedback.is_empty(), "feedback: offline, it waits")
-	check(Feedback._retry != null and not Feedback._retry.is_stopped(), "feedback: offline, another try is planned")
+	check(Feedback.store.is_retrying(), "feedback: offline, another try is planned")
 	Feedback.load_state()
 	check(Feedback.queue.size() == 1 and str(Feedback.queue[0].comment) == "The lantern went out on floor 3.", "feedback: what waits is kept in its file, trimmed")
 	check(Feedback.last_at == 100000, "feedback: the time of the last message is kept in the file too")
@@ -104,7 +105,7 @@ func _test_offline_queue() -> void:
 	check(Feedback.queue.is_empty(), "feedback: ... and no longer waits")
 	await Feedback.flush()
 	check(fake.feedback.size() == 1, "feedback: never sent twice")
-	DirAccess.remove_absolute(FILE)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(_file))
 	Feedback.path = ""
 
 
@@ -125,7 +126,7 @@ func _test_details() -> void:
 	await _frames(3)
 	check(fake.feedback.size() == 1 and (fake.feedback[0].props as Dictionary).is_empty(), "feedback: unticked, no game info goes (%s)" % [fake.feedback[0].props if not fake.feedback.is_empty() else {}])
 	check(not dialog.visible, "feedback: sent, the form closes")
-	Privacy.fake_now += Feedback.config.min_seconds_between
+	OnlineSession.fake_now += Feedback.config.min_seconds_between
 	dialog.run_info = func() -> Dictionary: return { "depth": "7", "weapon": "katana" }
 	dialog.open()
 	check((dialog.get_node("%InfoSwitch") as CheckButton).button_pressed, "feedback: the game info is ticked by default")
@@ -154,7 +155,7 @@ func _test_signed() -> void:
 	dialog.send()
 	await _frames(3)
 	check(fake.feedback.size() == 1 and not (fake.feedback[0].props as Dictionary).has(TaloBackend.NAME_PROP), "feedback: unsigned, no pseudonym goes")
-	Privacy.fake_now += Feedback.config.min_seconds_between
+	OnlineSession.fake_now += Feedback.config.min_seconds_between
 	dialog.open()
 	dialog.set_text("Signed this time.")
 	(dialog.get_node("%SignSwitch") as CheckButton).button_pressed = true
@@ -164,7 +165,7 @@ func _test_signed() -> void:
 	Leaderboards.pseudonym = ""
 	dialog.open()
 	check(not (dialog.get_node("%SignSwitch") as CheckButton).visible, "feedback: without a pseudonym, no signing")
-	Privacy.fake_now += Feedback.config.min_seconds_between
+	OnlineSession.fake_now += Feedback.config.min_seconds_between
 	Feedback.submit(&"other", "No name to sign with.", { TaloBackend.NAME_PROP: "Smuggled" }, true)
 	await _frames(3)
 	check(fake.feedback.size() == 3 and not (fake.feedback[2].props as Dictionary).has(TaloBackend.NAME_PROP), "feedback: no name goes without a pseudonym, nor one slipped into the details")
@@ -181,7 +182,7 @@ func _test_rate_limit() -> void:
 	check(dialog.send() == FeedbackScript.Result.TOO_SOON and dialog.visible, "feedback: the form stays open when it is too soon")
 	check((dialog.get_node("%Problem") as Label).text.contains(str(Feedback.config.min_seconds_between)), "feedback: ... and says how long")
 	dialog.free()
-	Privacy.fake_now += Feedback.config.min_seconds_between
+	OnlineSession.fake_now += Feedback.config.min_seconds_between
 	check(Feedback.submit(&"idea", "Even more bells.", {}, false) == FeedbackScript.Result.QUEUED, "feedback: after the delay, another goes")
 	await _frames(3)
 	check(fake.feedback.size() == 2, "feedback: both were sent")
@@ -206,13 +207,13 @@ func _test_lengths() -> void:
 
 func _test_identity_and_forget() -> void:
 	var fake := _use_fake()
-	check(Leaderboards.device_id.is_empty(), "feedback: (no online id before)")
+	check(OnlineSession.device_id.is_empty(), "feedback: (no online id before)")
 	Feedback.submit(&"other", "Hello from the deep.", {}, false)
 	await _frames(3)
-	check(not Leaderboards.device_id.is_empty() and fake.feedback.size() == 1 and int(fake.feedback[0].alias) > 0, "feedback: sent as the device's random player (made then)")
+	check(not OnlineSession.device_id.is_empty() and fake.feedback.size() == 1 and int(fake.feedback[0].alias) > 0, "feedback: sent as the device's random player (made then)")
 	check(not Leaderboards.shown and fake.sent.is_empty() and fake.names.is_empty(), "feedback: sending one publishes nothing on the leaderboards")
 	fake.online = false
-	Privacy.fake_now += Feedback.config.min_seconds_between
+	OnlineSession.fake_now += Feedback.config.min_seconds_between
 	Feedback.submit(&"other", "Waiting for the network.", {}, false)
 	await _frames(2)
 	Privacy.forget_online()

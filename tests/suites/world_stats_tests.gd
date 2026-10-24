@@ -9,7 +9,8 @@ extends TestSuite
 ## the reads.
 ## run_title(): the title screen's line and the Toll on the Leaderboards page, shown and hidden.
 
-const FILE := "user://test_world_stats.json"
+## Per test process (worktrees and parallel runs share one user:// folder).
+var _file := "user://test_world_stats_%d.json" % OS.get_process_id()
 
 var _fake: FakeBoardBackend
 
@@ -185,7 +186,7 @@ func _test_batched_run() -> void:
 
 func _test_offline_queue() -> void:
 	_use_fake(true)
-	WorldStats.path = FILE
+	WorldStats.path = _file
 	_fake.online = false
 	WorldStats.count(WorldStatDef.Feed.KILLS, 10)
 	await _end_run()
@@ -203,7 +204,7 @@ func _test_offline_queue() -> void:
 	await WorldStats.flush()
 	check(_updates("demons-slain") == [15] and _updates("potions-drunk") == [2] and WorldStats.queue.is_empty(), "the network back: one update per counter for everything that waited")
 	check(int(WorldStats.pending.get("floors-descended", 0)) == 2, "a run still going keeps its counts for its end")
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(FILE))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(_file))
 	WorldStats.path = ""
 	# A counter the server refuses is dropped, not tried forever.
 	_fake.world.erase("potions-drunk")
@@ -290,7 +291,7 @@ func _test_left_runs() -> void:
 	await _end_run()
 	check(_updates("demons-slain") == [10, 4, 10, 2], "...and that goes at the end")
 	# Put in the background: a draft, not sent; dropped when the app comes back.
-	WorldStats.path = FILE
+	WorldStats.path = _file
 	run = _start_run()
 	WorldStats.count(WorldStatDef.Feed.KILLS, 5)
 	await _leave_run(run, false)
@@ -311,7 +312,7 @@ func _test_left_runs() -> void:
 	WorldStats.count(WorldStatDef.Feed.KILLS, 1)
 	await _end_run()
 	check(_updates("demons-slain") == [10, 4, 10, 2, 5, 1], "...only the new part goes at its end")
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(FILE))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(_file))
 	WorldStats.path = ""
 	# Saved, then the app gone without a word (a crash): the saved counts go at the resumed end.
 	run = _start_run()

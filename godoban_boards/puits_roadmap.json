@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 191,
+  "next_id": 197,
   "tags": [
     "pc",
     "test",
@@ -2761,6 +2761,98 @@
     },
     {
       "id": "task_186",
+      "title": "Audit : services en ligne (ordre de démarrage, code partagé)",
+      "description": "Audit infra du 24/10, points 1, 2, 4, 6, 7, 8, 9, 11, 12, 14 (services en ligne). Fait :\n- Bug de démarrage (version release) : WorldStats lisait le coupe-circuit de RemoteConfig avant que RemoteConfig ait lu ses données (erreur de script à chaque lancement d'un joueur ayant accepté les statistiques, et la part d'une partie tuée en arrière-plan perdue). Chaque service lit maintenant ses données et son fichier dans _init() sans appeler les autres ; ce qui dépend d'un autre service se fait dans settle() depuis _ready(). L'ordre de project.godot ne compte plus.\n- Nouvel autoload OnlineSession (le premier des services en ligne) : le serveur, l'id de l'appareil et son joueur Talo (fichier user://online.json, repris une fois de leaderboards.json v2), un seul identify à la fois pour tous les services, un identify refusé retenu 60 s puis retenté par tous pareil, toutes les règles de consentement au même endroit, une seule horloge (fake_now) et release_mode (les chemins « build release » testables).\n- Nouvel outil PersistedQueue (src/online/) utilisé par les 7 services : fichier versionné écrit atomiquement (version lue : un fichier plus récent n'est pas cru, un plus ancien est migré ; une écriture identique est sautée, un alt-tab n'écrit plus rien), file bornée, un envoi à la fois avec un jeton qu'un reset rend périmé, nouvel essai avec attente doublée jusqu'à 8 fois retry_seconds (data/online/online_session.tres). En lancement de tests, aucun fichier réel n'est lu.\n- TaloBackend : réponses non JSON (portail captif) lues sans erreur moteur, transport remplaçable pour les tests.\n- RemoteConfig : un présage gardé dans le fichier ne charge plus tout ContentDB au démarrage (vérifié au premier point sûr).\n- Tests : OnlineSessionTests (démarrage des 7 autoloads en build release dans 14 ordres x 8 états, identify unique, refus, reset complet, migration, ids paresseux) et TaloContractTests (statuts, JSON, identify, règle 404 du feedback, stats, config, noms, en-têtes, clé) ; noms de fichiers de test uniques par processus ; reset complet des verrous et minuteurs.\n- Docs : online.md (« The shared session », taille du backend, portées de la clé), architecture.md (les 18 autoloads, l'ordre de démarrage, les tests), testing.md, progression.md (nouvel essai).\nÀ vérifier par Clayton : un build release sur téléphone démarre sans erreur avec les statistiques acceptées, garde son id en ligne (migration), et envoie après un retour du réseau.",
+      "status": "review",
+      "priority": "high",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "bug",
+        "qualité",
+        "tests"
+      ],
+      "created_at": 1792815800,
+      "updated_at": 1792815800
+    },
+    {
+      "id": "task_187",
+      "title": "Services en ligne : derniers réglages en dur vers les données",
+      "description": "Reporté de l'audit infra (24/10, point 1.4) : Leaderboards.START_DELAY (3 s), Feedback.START_DELAY (5 s), WorldStats.KEPT_RUNS (8) et TaloBackend.TIMEOUT (15 s) sont encore des constantes. Les passer dans OnlineSessionDef ou les défs de chaque service (RemoteConfig a déjà start_delay en données).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "données"
+      ],
+      "created_at": 1792815800,
+      "updated_at": 1792815800
+    },
+    {
+      "id": "task_188",
+      "title": "Statistiques : ne suivre la partie (RunTelemetry) qu'avec le consentement",
+      "description": "Reporté de l'audit infra (24/10, point 1.4) : un RunTelemetry est créé et branché sur ~20 signaux à chaque partie, même sans consentement ni clé ; ses comptes vont dans run.json pour rien. Le créer seulement si Telemetry.is_active() (ou quand le consentement arrive en cours de partie). Un peu de CPU en moins par coup sur téléphone.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "perf"
+      ],
+      "created_at": 1792815800,
+      "updated_at": 1792815800
+    },
+    {
+      "id": "task_189",
+      "title": "Statistiques : la file pleine jette d'abord les événements autres que run_end",
+      "description": "Reporté de l'audit infra (24/10, point 2.3) : Telemetry.max_queue (120) jette le plus ancien ; après quelques parties hors ligne, les run_end les plus anciens partent sans bruit. Jeter d'abord les événements de détail (boss, perk, achat, pacte).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "données"
+      ],
+      "created_at": 1792815800,
+      "updated_at": 1792815800
+    },
+    {
+      "id": "task_190",
+      "title": "Sonde Talo réelle versionnée (tools/online/talo_smoke.gd)",
+      "description": "Reporté de l'audit infra (24/10, point 3.5) : online.md cite des sondes _tool/world_stats_smoke.gd et _tool/feedback_smoke.gd qui ne sont pas dans le dépôt (_tool/ est ignoré). Versionner une sonde qui lit la clé depuis l'environnement, n'écrit que des données de dev, et appelle chaque point d'accès (identify, entrée, events, stats, config, feedback). TaloContractTests couvre déjà la lecture des réponses avec des réponses en mémoire.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "tests"
+      ],
+      "created_at": 1792815800,
+      "updated_at": 1792815800
+    },
+    {
+      "id": "task_191",
+      "title": "SafeFile.read_json : lire sans erreur moteur un fichier abîmé",
+      "description": "Vu en faisant l'audit des services en ligne (24/10) : SafeFile.read_json() utilise JSON.parse_string(), qui écrit « Parse JSON failed » dans le journal pour un fichier abîmé (les deux erreurs connues du test de sauvegarde abîmée). TaloBackend.parse_body() montre la façon silencieuse (JSON.new().parse()). Hors du périmètre de cette tâche (SafeFile sert aussi la sauvegarde de partie).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "sauvegarde",
+        "qualité"
+      ],
+      "created_at": 1792815800,
+      "updated_at": 1792815800
+    },
+    {
+      "id": "task_192",
       "title": "Audit : sauvegarde et reprise (duplication d'objets, versions, fichiers abîmés)",
       "description": "Audit du 24/10 (world.md 1.1 à 1.6, 5, 12-14, 16-17). Fait : un registre de l'étage (FloorLedger) numérote, pendant la pose de l'étage, chaque objet au sol, tas d'or, accessoire et rencontre dans l'ordre de la graine ; ce qui est pris, cassé ou utilisé est sauvé [numéro, id] et retiré sans bruit à la reprise (fini la duplication en mettant l'appli en arrière-plan). L'embuscade nettoyée reste calme, son coffre revient sur sa case (sauvée, plus liée à la position du héros). Le marchand garde tout son stock (relancé, vendu, verrouillé, moins les achats) et ses relances payées ; l'objet verrouillé n'apparaît plus deux fois (vérifié : _roll_new ne dédoublonnait pas). La restauration se fait sur tous les étages, boss et étage caché compris (les monstres de l'étage caché sont numérotés). Sauvegarde : VERSION 2 avec migration depuis la 1 (partie et héros gardés), une version plus récente refusée, un tampon de build sur l'étage (version du jeu + RunSave.FLOOR_FORMAT) : autre build = étage refait à neuf avec un toast, héros et partie intacts ; chaque champ lu est vérifié (RunSave.SHAPE) : un champ abîmé est ignoré et journalisé, jamais d'erreur de script. Petits bugs : last_boss sauvé (relique en mode sans fin après une victoire reprise), sceau restauré en silence (plus de fanfare, de feux follets ni de soin), World.player vidé au début d'une partie, NavGrid.nearest_open prend la case libre la plus proche, place_name_key reste une clé, RunState.summary() supprimé ; le bonus de soins sans niveau est voulu (comme max_hp_scale, Blood Pact a un niveau : documenté et vérifié par un test). Tests : unit (_test_save_rules) et SaveTests dans la suite game. Non vérifié à la main : le ressenti d'une reprise sur téléphone.",
       "status": "review",
@@ -2777,7 +2869,7 @@
       "updated_at": 1792815301
     },
     {
-      "id": "task_187",
+      "id": "task_193",
       "title": "Reprise après la chute d'un boss : le passage caché ouvert et le butin au sol sont perdus",
       "description": "Trouvé pendant l'audit sauvegarde (24/10). Une sauvegarde faite après la mort d'un boss reprend à l'étage suivant (boss_slain) : le passage vers l'étage caché ouvert dans l'arène (clé en poche) ne revient pas, la clé reste dans le sac ; le coffre du trésor de l'étage caché et le butin du boss non ramassés sont perdus. Pas de duplication, mais une perte. À décider : reprendre dans l'arène vidée (sans boss) ou mettre ce butin dans le sac.",
       "status": "backlog",
@@ -2792,7 +2884,7 @@
       "updated_at": 1792815301
     },
     {
-      "id": "task_188",
+      "id": "task_194",
       "title": "Reprise en pleine embuscade : les vagues recommencent",
       "description": "Trouvé pendant l'audit sauvegarde (24/10). Mise en arrière-plan pendant les vagues : à la reprise l'embuscade attend de nouveau et ses vagues reviennent (les monstres déjà tués ont donné leur XP et leur or) ; on peut donc farmer un peu en recommençant. À voir si ça vaut la peine (compter l'embuscade comme nettoyée, ou garder la vague en cours).",
       "status": "backlog",
@@ -2807,7 +2899,7 @@
       "updated_at": 1792815301
     },
     {
-      "id": "task_189",
+      "id": "task_195",
       "title": "Reprise : le butin tombé (monstres, coffres, caisses) et pas ramassé est perdu",
       "description": "Trouvé pendant l'audit sauvegarde (24/10). Ce qui tombe pendant la partie n'a pas de numéro (FloorLedger) et n'est pas sauvé : à la reprise il a disparu. Pas de duplication possible, mais une perte si l'appli est tuée juste après un coffre. Idée : sauver les objets au sol sans numéro (objet + position) avec l'étage.",
       "status": "backlog",
@@ -2821,7 +2913,7 @@
       "updated_at": 1792815301
     },
     {
-      "id": "task_190",
+      "id": "task_196",
       "title": "Sauvegarde de partie : références par id au lieu des chemins de fichiers",
       "description": "Audit 24/10 (world.md 1.3) : RunSave garde le contenu par chemin res:// (renommer un .tres casse les parties en cours), alors que KeeperSnapshot garde des ids. Passer par ContentDB pour les objets, atouts, boss, avec une migration (VERSION 3).",
       "status": "backlog",

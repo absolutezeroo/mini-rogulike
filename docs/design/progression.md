@@ -96,7 +96,8 @@ the boards aren't even read.
   official attempt only (never practice, never a debug run), its points, one entry per player and
   day, highest first. Tabs **Today** and **Yesterday**. The score is sent when the run ends (a
   death, or a win; a win then the endless floors sends the better one), queued while there is no
-  network (`user://leaderboards.json`, not the save) and tried again every minute; a score not
+  network (`user://leaderboards.json`, not the save) and tried again after a minute, then less
+  often (twice as long each time, at most 8 minutes, and when the app comes back); a score not
   sent before its day ends (UTC midnight) is dropped.
 - **The page**: the first 50, the player's rank (and the lines around it when past the 50), the
   board's rule, a loading line, "no network" with **Try again**, "no one yet". Phone and PC, touch,

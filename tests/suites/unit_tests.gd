@@ -95,6 +95,16 @@ func run() -> void:
 	add_child(feedback)
 	await feedback.run_unit()
 	feedback.free()
+	# What the online services share: the session, the file and queue helper, the start-up in
+	# any order (OnlineSessionTests); Talo's answers as TaloBackend reads them (TaloContractTests).
+	var session := OnlineSessionTests.new()
+	add_child(session)
+	await session.run_unit()
+	session.free()
+	var talo := TaloContractTests.new()
+	add_child(talo)
+	await talo.run_unit()
+	talo.free()
 	var gear := GearLookTests.new()
 	add_child(gear)
 	gear.run()

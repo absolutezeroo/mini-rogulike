@@ -20,7 +20,7 @@ const MAX_LOG_LINE := 300
 static func game() -> Dictionary:
 	var props := {
 		"v": str(ProjectSettings.get_setting("application/config/version", "")),
-		"build": "debug" if OS.is_debug_build() else "release",
+		"build": "release" if OnlineSession.release_mode else "debug",
 		"os": OS.get_name(),
 		"os_version": OS.get_version(),
 		"device": OS.get_model_name(),
