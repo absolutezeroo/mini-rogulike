@@ -110,7 +110,9 @@ each. Frame cost (physics + process, average): 4.40 / 4.04 ms before, 4.59 / 4.2
 busier machine (its floor generation, untouched, went from 260 / 272 to 284 / 319 ms); runs
 alternated before / after with `--floors=1`: 6.49, 5.01, 4.65 ms before and 5.43, 5.91, 4.92 ms
 after, the same within the machine's noise. With `--floors=1` the fight's digest itself varies
-from one run to the next on either side (the same code; task card in the roadmap).
+from one run to the next on either side (the same code; task card in the roadmap). It follows
+the memory layout, not the game's clock: with address randomization off
+(`setarch x86_64 -R godot ...`) the runs mostly agree, so compare fights that way or over a few runs.
 
 What is left (the roadmap has the cards): floor generation's hot spots are the dressing's
 grounds (`FloorDresser._lay_ground`, dictionaries per cell), the ceiling's chunks and their mote
