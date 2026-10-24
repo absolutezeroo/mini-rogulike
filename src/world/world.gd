@@ -1016,8 +1016,9 @@ func is_free_cell(cell: Vector2i) -> bool:
 
 
 ## The centre of the free cell nearest to `point` (itself if free; `point` if none is found).
-## `clear_of`: bodies the cell must also be clear of (by their radius + `clearance`).
-func nearest_free_point(point: Vector2, max_radius: int = 12, clear_of: Array[Actor] = [], clearance: float = 0.0) -> Vector2:
+## `clear_of`: bodies the cell must also be clear of (by their radius + `clearance`). `room`: a
+## body of that radius must fit at the centre (body_fits(); 0: any free cell).
+func nearest_free_point(point: Vector2, max_radius: int = 12, clear_of: Array[Actor] = [], clearance: float = 0.0, room: float = 0.0) -> Vector2:
 	var origin := map.world_to_cell(point)
 	for radius in max_radius + 1:
 		var best := Vector2i(-1, -1)
@@ -1028,7 +1029,8 @@ func nearest_free_point(point: Vector2, max_radius: int = 12, clear_of: Array[Ac
 					continue  # only the ring at this radius
 				var cell := Vector2i(x, y)
 				var distance := map.cell_to_world(cell).distance_squared_to(point)
-				if distance < best_distance and is_free_cell(cell) and not is_under_body(map.cell_to_world(cell), clear_of, clearance):
+				if distance < best_distance and is_free_cell(cell) and not is_under_body(map.cell_to_world(cell), clear_of, clearance) \
+						and (room <= 0.0 or body_fits(map.cell_to_world(cell), room)):
 					best = cell
 					best_distance = distance
 		if best != Vector2i(-1, -1):
@@ -1244,15 +1246,22 @@ func find_path(from: Vector2, to: Vector2) -> PackedVector2Array:
 
 ## A walkable point about `distance` away from `center`, in sight of it, where a body of
 ## `room` px fits: never over a hole or cracked floor, never into a wall's, a prop's or a pond's
-## shape (a body put down inside one may never get out). Else `center` if a body fits there, else
-## the nearest free cell's centre.
+## shape (a body put down inside one may never get out), nor into another living body (the
+## physics would shove the two apart on the first frame, maybe into a wall). Else `center` if a
+## body fits there, else the nearest free cell's centre where it fits clear of the others (then
+## where it fits, then any free cell).
 func find_open_point_near(center: Vector2, distance: float, room: float = BODY_ROOM) -> Vector2:
+	var bodies := get_actors()
 	for attempt in 10:
 		var point := center + Vector2.from_angle(rng.randf() * TAU) * distance
-		if is_solid_ground(point) and has_line_of_sight(center, point) and body_fits(point, room):
+		if is_solid_ground(point) and has_line_of_sight(center, point) and body_fits(point, room) and not is_under_body(point, bodies, room):
 			return point
-	if is_solid_ground(center) and body_fits(center, room):
+	if is_solid_ground(center) and body_fits(center, room) and not is_under_body(center, bodies, room):
 		return center
+	for clear_of: Array[Actor] in [bodies, [] as Array[Actor]]:
+		var fitting := nearest_free_point(center, 12, clear_of, room, room)
+		if fitting != center or (is_free_cell(map.world_to_cell(center)) and body_fits(center, room)):
+			return fitting
 	return nearest_free_point(center)
 
 

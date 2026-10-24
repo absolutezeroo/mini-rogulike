@@ -16,7 +16,8 @@ dev data or not depending on the dashboard's "Dev data" toggle when it was made.
 A Talo quirk to know: a cell is filled with the first of the event's props whose key the column
 name *ends with* (`column.endsWith(prop.key)`), so a column can carry a shorter key's value (a
 `purchase` row shows its `rarity` under `props.weapon_rarity`, a `boss` row its `boss` under
-`props.potions_boss`), and worse, a run_end's `props.skills` shows its `kills` (sorted first).
+`props.potions_boss`), and worse, a run_end's `props.skills` showed its `kills` (sorted first;
+the game sends `skill_ids` since, and checks that no key of an event ends another one).
 Each event is therefore read through the telemetry catalog (data/online/telemetry.tres): only the
 fields its own event lists are kept, which drops the ghosts from other events; and a cell equal to
 a shorter key's value of the same event is dropped (_drop_ghosts()), the skills being rebuilt from
@@ -45,7 +46,7 @@ DEFAULT_CATALOG = {
 		"v", "run", "os", "screen", "input", "inputs", "resumed", "partial", "quit", "diff", "asc",
 		"daily", "official", "oath", "depth", "result", "cause", "killer", "death_floor", "time",
 		"level", "kills", "bosses", "weapon", "weapon_rarity", "weapon_element", "weapon_runes",
-		"weapon_affixes", "head", "body", "armor_runes", "sets", "relics", "perks", "skills",
+		"weapon_affixes", "head", "body", "armor_runes", "sets", "relics", "perks", "skill_ids",
 		"skill.*", "potions", "potions_boss", "potion_health", "potion.*", "left.*", "rolls",
 		"dodged", "dodge_rate", "hits_taken", "dmg_out", "dmg_in", "dmg_out.*", "dmg_in.*",
 		"src_out.*", "src_in.*", "biggest_hit", "crits", "charged", "floor_times", "secrets",
@@ -58,6 +59,12 @@ DEFAULT_CATALOG = {
 	"perk_banished": ["v", "run", "depth", "perk"],
 	"purchase": ["v", "run", "depth", "item", "rarity", "price"],
 	"pact": ["v", "run", "depth", "pact", "outcome"],
+}
+
+## Fields older versions of the game sent, still read from older exports: run_end's `skills`
+## (renamed `skill_ids`: Talo's suffix match filled `props.skills` with `kills`).
+LEGACY_FIELDS = {
+	"run_end": ["skills"],
 }
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -159,6 +166,8 @@ def read_events(path: str, catalog: dict[str, list[str]] | None = None) -> list[
 					return row[i] if i is not None and i < len(row) else ""
 				name = cell("name")
 				fields = catalog.get(name)
+				if fields is not None:
+					fields = fields + LEGACY_FIELDS.get(name, [])
 				props: dict[str, str] = {}
 				for i, key in prop_columns:
 					if i >= len(row) or row[i] == "":

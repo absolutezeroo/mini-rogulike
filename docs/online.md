@@ -214,11 +214,14 @@ python3 -m unittest discover tools/stats      # its tests
   and pass it as `--dev-export` (its events missing from the normal one are the dev ones), or name
   the dev devices with `--dev-player <device id>` (Options > Privacy shows it).
 - **Talo's export bug.** A cell is filled with the first prop whose key the column name *ends
-  with*, so `props.skills` holds the run's `kills` (the game sends its props sorted, `kills`
-  first), and a `boss` row shows its boss under `props.potions_boss`. The tool keeps only each
-  event's catalog fields (`data/online/telemetry.tres`), drops a cell equal to a shorter key's
-  value, and rebuilds the skills from `skill.<id>.uses`/`.dmg` (the skills used, not those held).
-  Renaming the `skills` prop in the game would avoid it (roadmap card).
+  with*, so `props.skills` held the run's `kills` (the game sends its props sorted, `kills`
+  first), and a `boss` row shows its boss under `props.potions_boss`. The game now sends the
+  skills held as **`skill_ids`**, and a check (privacy_tests) keeps it so: no field of an event
+  ends another one, and a real key ending another (`src_out.weapon`, `weapon`) must sort before
+  it. The tool keeps only each event's catalog fields (`data/online/telemetry.tres`, plus the
+  old `skills` of older exports: `talo_export.LEGACY_FIELDS`), drops a cell equal to a shorter
+  key's value, and, for an old run whose `skills` was lost, rebuilds them from
+  `skill.<id>.uses`/`.dmg` (the skills used, not those held).
 - **What the tool counts**: runs as distinct `run` ids with their latest `run_end` (above),
   abandoned runs apart (never in a win rate), events sent twice counted once (same name, player,
   time and props). Every rate shows its sample and a 95% Wilson interval; rows under
@@ -276,13 +279,21 @@ turns every `title_line_seconds`, from `title_min_count`) and on the Leaderboard
   `run_started` (not a resumed one), `ending_chosen` (emitted by the Game when the ending is picked,
   after `run_ended`) and `souls_offered` (`Profile.buy()`, at the shrine). At `run_ended` (and
   `ending_chosen`, `souls_offered`) the counts join the queue, each **capped to its counter's max
-  change**, and go. A run left unfinished keeps its counts in the file and they go with the next
-  run's end (an abandoned run's end, once it is told on the same `run_ended` path, is the same).
+  change**, and go.
+- **A run left without ending** (`Events.run_left`, the gameplay statistics' rules): quit to the
+  title or the app closed, what it counted so far goes at once; put in the background, it waits
+  as a `draft` in the file, dropped when the app comes back, queued at the next launch if the app
+  was killed there. Each run has a key; its counts so far go into its save
+  (`Events.run_saving`: `RunState.world_stats`) and what of it was queued stays in the file per key
+  (`sent`, the last `KEPT_RUNS`). A resumed run takes its counts back and only queues what goes
+  past what was sent (resumed from a save older than what was sent, it counts nothing twice);
+  counts its save had that never went (the app gone without a word) go at its end.
 - **One update per counter**, never one call per kill: `PUT /v1/game-stats/{internalName}`
   `{change}` with the `X-Talo-Alias` header (the leaderboards' player). A share past the max
-  change goes in parts. Queue in `user://world_stats.json` (`pending`, `queue`, `mine`: the
-  player's share), tried again every `retry_seconds` without network, at a run's end and when the
-  app comes back. A counter the server refuses (unknown, past its max change) is dropped.
+  change goes in parts. Queue in `user://world_stats.json` (`queue`, `mine`: the player's
+  share, `sent`, `draft`), tried again every `retry_seconds` without network, at a run's end
+  and when the app comes back. A counter the server refuses (unknown, past its max change) is
+  dropped.
 - **Reading**: `GET /v1/game-stats` (every stat with its `globalValue`, no player needed) at most
   every `refresh_seconds` (300), kept in memory only (offline, nothing shows); with the statistics'
   consent also `GET /v1/game-stats/player-stats` (the player's own totals; the server caches it 30

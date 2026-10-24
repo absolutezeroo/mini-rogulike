@@ -76,6 +76,9 @@ var met_floors: Array[String] = []
 ## The gameplay statistics' counts so far (RunTelemetry.to_data(), put here as the run is saved:
 ## Events.run_saving), so a resumed run's end covers the whole run. Opaque to the game; saved.
 var telemetry := {}
+## The world counters' counts of this run so far, with its key (WorldStats, put here as the run is
+## saved: Events.run_saving), so a resumed run only sends what it adds. Opaque to the game; saved.
+var world_stats := {}
 ## The dungeon's rules (what a run's souls are worth). Set by create(); not saved.
 var config: DungeonConfig
 ## The floor a run must reach to count toward the next reset of the tree (SoulTreeDef).
@@ -132,6 +135,9 @@ static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGener
 	var saved_telemetry: Variant = saved.get("telemetry", {})
 	if saved_telemetry is Dictionary:
 		run.telemetry = saved_telemetry
+	var saved_world_stats: Variant = saved.get("world_stats", {})
+	if saved_world_stats is Dictionary:
+		run.world_stats = saved_world_stats
 	run.finish_time = float(saved.get("finish_time", -1.0))
 	if saved.has("oath"):
 		run.oath = RunSave.load_ref(saved["oath"]) as OathDef
@@ -220,6 +226,7 @@ func to_data() -> Dictionary:
 		"secrets_found": secrets_found,
 		"bonus_souls": bonus_souls,
 		"telemetry": telemetry,
+		"world_stats": world_stats,
 		"marks": marks,
 		"met_floors": met_floors,
 		"difficulty": String(difficulty.id),

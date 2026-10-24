@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 164,
+  "next_id": 165,
   "tags": [
     "pc",
     "test",
@@ -1720,8 +1720,8 @@
     {
       "id": "task_119",
       "title": "Test « salles signature » instable : monstres sur une dalle fissurée / dans un mur sans collision",
-      "description": "Le test level_tests « signature rooms as built » a échoué une fois (pyre_circle : shaman « stuck », ground false). Sonde sur 40 étages forcés avec le Cercle du Bûcher : 2 cas, toujours après 2 images (jamais au moment de l'apparition) :\n- un shaman qui a marché sur une case de sol qui s'effrite (fissure pas encore effondrée) : le test le compte comme « coincé » alors que c'est normal → le test devrait ignorer les fissures (seulement les vrais trous).\n- un dragon dont le centre est dans une case de MUR (couloir, room=-1) sans collision (body_fits vrai) : possible vrai bug (mur sans collision, fissure de salle secrète ou porte ?) à examiner.\nPas lié au correctif du décor (le décor n'a pas de collision).",
-      "status": "todo",
+      "description": "Le test level_tests « signature rooms as built » a échoué une fois (pyre_circle : shaman « stuck », ground false). Sonde sur 40 étages forcés avec le Cercle du Bûcher : 2 cas, toujours après 2 images (jamais au moment de l'apparition) :\n- un shaman qui a marché sur une case de sol qui s'effrite (fissure pas encore effondrée) : le test le compte comme « coincé » alors que c'est normal → le test devrait ignorer les fissures (seulement les vrais trous).\n- un dragon dont le centre est dans une case de MUR (couloir, room=-1) sans collision (body_fits vrai) : possible vrai bug (mur sans collision, fissure de salle secrète ou porte ?) à examiner.\nPas lié au correctif du décor (le décor n'a pas de collision).\n\nFait (à valider). Cause : des monstres apparaissaient l'un dans l'autre (FloorPopulator ne gardait pas les corps d'une salle à distance : vus à 2 px l'un de l'autre). Le moteur physique les écarte violemment à la première image (jusqu'à 20 px en une image), assez pour en pousser un dans une caisse ou contre/dans un mur : le « monstre coincé » du test. Correctif du jeu : chaque monstre d'une salle est placé à l'écart des corps déjà posés (et un élite grandi aussi). Le test compte maintenant une dalle fissurée comme du sol tant qu'elle ne s'est pas effondrée (règle de CrumblingFloor), et un nouveau contrôle vérifie qu'aucun monstre n'apparaît dans un autre. Sonde (_tool/probe_rooms) : avant 3 cas sur 342 étages, après 0 sur 228.",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_5",
       "due_date": null,
@@ -1731,7 +1731,7 @@
         "niveaux"
       ],
       "created_at": 1792758222,
-      "updated_at": 1792758222
+      "updated_at": 1792804107
     },
     {
       "id": "task_120",
@@ -2126,8 +2126,8 @@
     {
       "id": "task_149",
       "title": "Test instable : « No AI » (debug_tests)",
-      "description": "Vu une fois sur trois passages de la suite game (23/10), avec l'échec connu des salles signatures : « No AI: a monster and a boss beside the hero stand still... » et « ...throws no shockwave » (la Vie du héros a bougé pendant les deux secondes : piège ou danger près de lui ?). Repassé sans échec. À stabiliser (placer le héros loin des dangers, comme _quiet_point).",
-      "status": "backlog",
+      "description": "Vu une fois sur trois passages de la suite game (23/10), avec l'échec connu des salles signatures : « No AI: a monster and a boss beside the hero stand still... » et « ...throws no shockwave » (la Vie du héros a bougé pendant les deux secondes : piège ou danger près de lui ?). Repassé sans échec. À stabiliser (placer le héros loin des dangers, comme _quiet_point).\n\nFait (à valider). Causes, trouvées par une sonde (_tool/probe_noai, 100 étages et places) : 1) un vrai bug : World.find_open_point_near() mettait un corps (le boss, rayon 26) sur la case libre la plus proche sans vérifier qu'il y tenait ni qu'il n'était pas dans un autre corps (le héros) ; la physique le poussait au départ (« il a bougé »). Corrigé : le repli cherche une case où le corps tient, à l'écart des corps vivants, et les essais au hasard évitent aussi les corps. 2) le test se plaçait n'importe où : un piège ou des sables mouvants près du héros le blessaient ou poussaient le squelette. Le test se met maintenant sur un point calme (_quiet_point). Sonde : avant 9 échecs sur 60, après 0 sur 100.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -2136,7 +2136,7 @@
         "bug"
       ],
       "created_at": 1792771708,
-      "updated_at": 1792771708
+      "updated_at": 1792804107
     },
     {
       "id": "task_142",
@@ -2235,8 +2235,8 @@
     {
       "id": "task_152",
       "title": "Tribut du Puits : parties abandonnées",
-      "description": "Quand le suivi des parties abandonnées (télémétrie) passera par Events.run_ended (ou un signal de fin équivalent), vérifier que WorldStats envoie aussi leur part. Aujourd'hui, les comptes d'une partie non terminée restent dans user://world_stats.json et partent à la fin de la partie suivante. Note (task_147, fait) : la télémétrie n'utilise PAS Events.run_ended pour une partie quittée, mais Events.run_left(summary, for_good) (Sauvegarder et quitter, fenêtre fermée ; for_good faux = mise en arrière-plan). Une partie quittée peut être reprise : si WorldStats l'écoute, n'envoyer que la part non encore envoyée.",
-      "status": "todo",
+      "description": "Quand le suivi des parties abandonnées (télémétrie) passera par Events.run_ended (ou un signal de fin équivalent), vérifier que WorldStats envoie aussi leur part. Aujourd'hui, les comptes d'une partie non terminée restent dans user://world_stats.json et partent à la fin de la partie suivante. Note (task_147, fait) : la télémétrie n'utilise PAS Events.run_ended pour une partie quittée, mais Events.run_left(summary, for_good) (Sauvegarder et quitter, fenêtre fermée ; for_good faux = mise en arrière-plan). Une partie quittée peut être reprise : si WorldStats l'écoute, n'envoyer que la part non encore envoyée.\n\nFait (à valider) : WorldStats écoute Events.run_left comme la télémétrie. Quitter vers le titre ou fermer l'application envoie tout de suite la part de la partie pas encore envoyée ; mise en arrière-plan : un brouillon dans user://world_stats.json, supprimé au retour de l'application, mis en file au lancement suivant si l'application a été tuée. Chaque partie a une clé ; ses comptes vont dans sa sauvegarde (RunState.world_stats, par Events.run_saving) et ce qui en a été envoyé reste dans le fichier par clé (« sent », les 8 dernières). Reprise : seuls les comptes au-delà de ce qui a été envoyé partent (une sauvegarde plus ancienne ne compte rien deux fois) ; des comptes sauvegardés jamais envoyés (plantage) partent à la fin. Tests (faux serveur) : quitter, reprendre, arrière-plan, tué en arrière-plan, sauvegarde plus ancienne, plantage, sans consentement, partie de debug, build de debug. Non vérifié sur un vrai serveur Talo ni sur téléphone.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -2245,7 +2245,7 @@
         "données"
       ],
       "created_at": 1792778210,
-      "updated_at": 1792779600
+      "updated_at": 1792804107
     },
     {
       "id": "task_153",
@@ -2311,8 +2311,8 @@
     {
       "id": "task_157",
       "title": "Test instable : passage de la suite game en cascade (« room » sur Nil)",
-      "description": "Vu une fois sur quatre passages (23/10, branche options en onglets, sans lien avec elle) : « SCRIPT ERROR: Invalid access to property or key 'room' on a base object of type 'Nil' » puis 13 échecs de level_tests (bougies d'un autre biome, cases murées, salles façonnées/signatures coupées) et de monstres (corps brûlant, voleur). Le passage suivant : 0 échec. Peut-être lié à task_119 (salles signatures). À reproduire (graine) et corriger. Vus aussi, une fois chacun, après la fusion du Tribut du Puits : « the shader knows where the hero is, first of all » (level_tests) et « nor through walls » (combat_tests, has_clear_walk), avec « shaped rooms as built » (task_119) au passage d'avant ; le passage suivant : 0 échec.",
-      "status": "backlog",
+      "description": "Vu une fois sur quatre passages (23/10, branche options en onglets, sans lien avec elle) : « SCRIPT ERROR: Invalid access to property or key 'room' on a base object of type 'Nil' » puis 13 échecs de level_tests (bougies d'un autre biome, cases murées, salles façonnées/signatures coupées) et de monstres (corps brûlant, voleur). Le passage suivant : 0 échec. Peut-être lié à task_119 (salles signatures). À reproduire (graine) et corriger. Vus aussi, une fois chacun, après la fusion du Tribut du Puits : « the shader knows where the hero is, first of all » (level_tests) et « nor through walls » (combat_tests, has_clear_walk), avec « shaped rooms as built » (task_119) au passage d'avant ; le passage suivant : 0 échec.\n\nFait en partie (à valider). La cascade s'explique : l'erreur « room sur Nil » est celle de floor_tests _test_pacts (game.world.pact.room quand l'étage refait n'a plus de porte de pacte). Le test s'arrêtait là sans rien remettre : pact_chance resté à 1.0, héros invincible, xp à -1000000. Les tests suivants voyaient alors une porte de pacte à chaque étage : les bougies du pacte « d'un autre biome », sa salle scellée « murée », les salles façonnées et signatures « coupées », etc. Correctif du test : l'étage est refait avec la disette de forge qu'il avait au départ (floors_without_forge, pas celle du dernier étage de la boucle : la forge peut prendre la seule salle possible du pacte), un contrôle dit clairement si la porte manque, et le test remet tout en place avant de sortir. Le déclencheur exact n'est pas reproduit : la sonde _tool/probe_pact (101 graines, partie neuve) n'a jamais perdu la porte, même avec l'ancienne disette. Les autres échecs isolés (« the shader knows where the hero is », « nor through walls ») peuvent venir des monstres apparus l'un dans l'autre ou contre le héros (corrigé, task_119 / task_149) : pas revus sur les passages de la suite game depuis.",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_5",
       "due_date": null,
@@ -2322,7 +2322,7 @@
         "niveaux"
       ],
       "created_at": 1792779390,
-      "updated_at": 1792782000
+      "updated_at": 1792804107
     },
     {
       "id": "task_158",
@@ -2358,8 +2358,8 @@
     {
       "id": "task_160",
       "title": "Renommer la prop « skills » du run_end",
-      "description": "L'export de données de Talo remplit chaque colonne avec la première prop dont la clé TERMINE le nom de colonne (dataExportProcessor.transformColumn, column.endsWith(prop.key)) : props.skills reçoit la valeur de kills (les props sont envoyées triées, kills avant skills). L'outil tools/stats reconstruit les compétences depuis skill.<id>.uses/.dmg (les compétences utilisées, pas celles tenues à la fin). Renommer la prop (par ex. « loadout ») dans RunTelemetry et telemetry.tres, et l'accepter dans tools/stats (talo_export.DEFAULT_CATALOG). Aucune autre clé ne termine une autre aujourd'hui (src_out.weapon et weapon : sauvé par l'ordre trié); garder la règle pour les nouvelles props.",
-      "status": "backlog",
+      "description": "L'export de données de Talo remplit chaque colonne avec la première prop dont la clé TERMINE le nom de colonne (dataExportProcessor.transformColumn, column.endsWith(prop.key)) : props.skills reçoit la valeur de kills (les props sont envoyées triées, kills avant skills). L'outil tools/stats reconstruit les compétences depuis skill.<id>.uses/.dmg (les compétences utilisées, pas celles tenues à la fin). Renommer la prop (par ex. « loadout ») dans RunTelemetry et telemetry.tres, et l'accepter dans tools/stats (talo_export.DEFAULT_CATALOG). Aucune autre clé ne termine une autre aujourd'hui (src_out.weapon et weapon : sauvé par l'ordre trié); garder la règle pour les nouvelles props.\n\nFait (à valider) : la prop s'appelle maintenant « skill_ids » (RunTelemetry, telemetry.tres). tools/stats lit les deux : talo_export.LEGACY_FIELDS garde l'ancienne colonne « skills » des anciens exports, stats.make_run prend skill_ids sinon skills (sinon reconstruit depuis skill.*). Nouveaux contrôles : aucun champ d'un événement du catalogue ne termine un autre (privacy_tests et test_stats.py), et dans un vrai run_end une clé qui en termine une autre (src_out.weapon / weapon) doit être triée avant elle (sinon l'export de Talo lirait la mauvaise valeur).",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -2368,7 +2368,7 @@
         "en ligne"
       ],
       "created_at": 1792799748,
-      "updated_at": 1792799748
+      "updated_at": 1792804107
     },
     {
       "id": "task_161",
@@ -2417,6 +2417,21 @@
       ],
       "created_at": 1792799748,
       "updated_at": 1792799748
+    },
+    {
+      "id": "task_164",
+      "title": "Vérifier en jeu : apparitions sans chevauchement",
+      "description": "Les monstres d'une salle et ceux posés par find_open_point_near (invocations, scissions, coffres piégés, rencontres, camps) ne naissent plus dans un autre corps (task_119, task_149). À regarder en jeu : une invocation au milieu d'un groupe serré, un scindé dans un couloir étroit, un coffre piégé au contact du héros : chacun apparaît un peu plus loin au lieu d'être projeté. Non vérifiable en tests headless (le ressenti).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "tests",
+        "niveaux"
+      ],
+      "created_at": 1792804107,
+      "updated_at": 1792804107
     }
   ]
 }

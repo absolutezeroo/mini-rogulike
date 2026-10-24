@@ -1995,6 +1995,7 @@ func _test_pacts(game: Game) -> void:
 	player.invincible = true
 	# Where: never the first floor nor a boss floor, one at most, nothing else cut off.
 	var with_pact := -1
+	var with_pact_drought := 0
 	var placed := 0
 	for depth in range(1, 40):
 		if depth >= 15 and with_pact > 0:
@@ -2023,15 +2024,24 @@ func _test_pacts(game: Game) -> void:
 		check(floor_world.ambush == null or floor_world.ambush.room != pact_door.room, "floor %d: not an ambush room too" % depth)
 		if with_pact < 0:
 			with_pact = depth
+			with_pact_drought = floor_world.forge_drought_at_start
 	check(placed >= 1, "pact doors come up on normal floors (%d)" % placed)
 	if with_pact < 0:
 		config.pact_chance = chance
 		return
 	game.depth = with_pact
 	# The same floor every time below: the smith's forge, which may take a room first, comes back
-	# just as often (its chance grows with the floors without it, as a save keeps it).
-	var drought := game.world.floors_without_forge
+	# just as often (its chance grows with the floors without it, as a save keeps it): the drought
+	# the floor was first made with, not the one the last floor of the loop left.
+	var drought := with_pact_drought
+	game.world.floors_without_forge = drought
 	game._enter_floor()
+	check(game.world.pact != null, "floor %d made again (same seed, same forge drought): its pact door again" % with_pact)
+	if game.world.pact == null:
+		config.pact_chance = chance  # (and the rest of the game suite goes on unharmed)
+		player.invincible = was_invincible
+		player.xp = 0
+		return
 	var room := game.world.pact.room
 	var def := game.world.pact.def
 	game.world.floors_without_forge = drought

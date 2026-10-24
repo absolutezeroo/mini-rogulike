@@ -92,6 +92,14 @@ func _test_data() -> void:
 		names[event.name] = true
 		for field in event.fields:
 			check(field.length() <= TelemetryDef.MAX_KEY_LENGTH and not field.begins_with("META_"), "%s.%s is a key Talo takes (and never a META_ prop: Talo copies those into the public player props)" % [event.name, field])
+		# Talo's data export fills the column props.<key> with the first of a row's props whose
+		# key ends the column's name: a key ending another one (kills, skills) shows the wrong value.
+		var mixed: Array[String] = []
+		for field in event.fields:
+			for other in event.fields:
+				if other != field and not field.ends_with("*") and not other.ends_with("*") and other.ends_with(field):
+					mixed.append("%s ends with %s" % [other, field])
+		check(mixed.is_empty(), "%s: no field ends another one (Talo's export would mix them: %s)" % [event.name, ", ".join(mixed)])
 	for event_name in [&"perk_offered", &"perk_picked", &"perk_banished", &"purchase", &"pact"]:
 		check(config.event(event_name) != null, "the choices are counted: %s" % event_name)
 
@@ -197,7 +205,7 @@ func _test_consented_run() -> void:
 	await _frames(2)
 	var summary := Telemetry.last_summary
 	check(not Telemetry.queue.is_empty() and fake.events.is_empty(), "consent, no network: the run's events wait (%d)" % Telemetry.queue.size())
-	for key in ["v", "run", "diff", "asc", "daily", "depth", "result", "time", "kills", "skills", "weapon", "rolls", "dodged", "dodge_rate", "hits_taken", "dmg_out", "dmg_in", "potions", "floor_times", "gold_earned", "gold_spent", "souls", "input", "os"]:
+	for key in ["v", "run", "diff", "asc", "daily", "depth", "result", "time", "kills", "skill_ids", "weapon", "rolls", "dodged", "dodge_rate", "hits_taken", "dmg_out", "dmg_in", "potions", "floor_times", "gold_earned", "gold_spent", "souls", "input", "os"]:
 		check(summary.has(key), "the run's end says %s" % key)
 	check(summary.get("diff") == "normal" and summary.get("depth") == "3" and summary.get("result") == "death", "...its difficulty, depth and how it ended (%s)" % [summary])
 	check(summary.get("rolls") == "2" and summary.get("dodged") == "1" and summary.get("hits_taken") == "1" and summary.get("dodge_rate") == "0.50", "...the rolls, the hit dodged by one, the hit taken, the dodge rate")
@@ -205,8 +213,17 @@ func _test_consented_run() -> void:
 	check(summary.has("potion.health_potion") and summary.has("potion_health"), "...the potions drunk, and the Health they were drunk at")
 	check(Telemetry.queue.any(func(e: Dictionary) -> bool: return e.name == "perk_picked" and e.props.get("perk") == "vampirism"), "a perk taken during the run is an event of its own")
 	check(not Leaderboards.shown and Leaderboards.queue.is_empty(), "the statistics don't publish any score")
+	check(not summary.has("skills"), "the skills go as skill_ids (props.skills was filled with kills in Talo's export)")
 	# Every event within Talo's limits.
 	for event: Dictionary in Telemetry.queue:
+		# A key ending another (src_out.weapon, weapon) is read right in Talo's export only if it
+		# comes first: the props go sorted, the longer one must sort before.
+		var shadowed: Array[String] = []
+		for key: String in event.props:
+			for other: String in event.props:
+				if other != key and other.ends_with(key) and other > key:
+					shadowed.append("%s ends with %s but sorts after it" % [other, key])
+		check(shadowed.is_empty(), "%s: a key ending another sorts before it (Talo's export reads it right: %s)" % [event.name, ", ".join(shadowed)])
 		for key: String in event.props:
 			check(key.length() <= TelemetryDef.MAX_KEY_LENGTH and str(event.props[key]).length() <= TelemetryDef.MAX_VALUE_LENGTH, "%s.%s fits Talo's limits" % [event.name, key])
 		check((event.props as Dictionary).size() <= Telemetry.config.max_props, "%s has at most %d props" % [event.name, Telemetry.config.max_props])

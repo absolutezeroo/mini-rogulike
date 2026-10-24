@@ -198,6 +198,8 @@ func _test_no_ai(game: Game) -> void:
 	var world := game.world
 	var player := game.player
 	await _clear_monsters(world)
+	# Away from traps, quicksand and fires: only the monsters could move them or hurt the hero.
+	player.global_position = _quiet_point(world, player.global_position)
 	await _stand_still(world, player)
 	var skeleton: MonsterDef = load("res://data/monsters/skeleton.tres")
 	var boss_def: BossDef = CONTENT.dungeon.acts[0].boss

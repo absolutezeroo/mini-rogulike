@@ -152,6 +152,7 @@ func run_game(game: Game) -> void:
 				await game.debug_enter_floor(dungeon.first_depth(a) + 1 + attempt)
 				var world := game.world
 				var case_name := "%s#%d" % [biome.id, attempt]
+				problems.append_array(_spawned_into_each_other(world, case_name))
 				await _frames(2)
 				problems.append_array(_floor_problems(world, case_name))
 				for cell: Vector2i in world.map.features:
@@ -170,6 +171,7 @@ func run_game(game: Game) -> void:
 		game.world.forced_biome = mixed
 		await game.debug_enter_floor(2 + attempt * 3)
 		var world := game.world
+		problems.append_array(_spawned_into_each_other(world, "all shapes#%d" % attempt))
 		await _frames(2)
 		problems.append_array(_floor_problems(world, "all shapes#%d" % attempt))
 		for cell: Vector2i in world.map.features:
@@ -205,6 +207,7 @@ func _test_set_pieces(game: Game) -> void:
 				game.world.forced_biome = forced
 				await game.debug_enter_floor(dungeon.first_depth(a) + 1)
 				var world := game.world
+				problems.append_array(_spawned_into_each_other(world, String(piece.id)))
 				await _frames(2)
 				var index := -1
 				for i in world.map.rooms.size():
@@ -315,6 +318,20 @@ func _test_ceilings(game: Game) -> void:
 	check(over_arena.is_empty(), "nothing hangs over a boss arena")
 
 
+## The floor's monsters as they were placed (before the physics moved them): none inside
+## another (the physics would shove them apart, hard enough to end in a wall or a crate).
+func _spawned_into_each_other(world: World, floor_name: String) -> Array[String]:
+	var problems: Array[String] = []
+	var monsters := world.get_hostiles(Actor.Faction.PLAYER)
+	for i in monsters.size():
+		for j in range(i + 1, monsters.size()):
+			var a := monsters[i]
+			var b := monsters[j]
+			if a.global_position.distance_to(b.global_position) < a.radius + b.radius - 1.0:
+				problems.append("%s: %s and %s spawned into each other at %s" % [floor_name, a.name, b.name, a.global_position])
+	return problems
+
+
 ## What is wrong on the floor `world` holds (empty: nothing).
 func _floor_problems(world: World, floor_name: String) -> Array[String]:
 	var map := world.map
@@ -350,7 +367,10 @@ func _floor_problems(world: World, floor_name: String) -> Array[String]:
 				if not map.is_floor(cell) or map.features.has(cell):
 					problems.append("%s: a %s at %s" % [floor_name, group, cell])
 	for monster in world.get_hostiles(Actor.Faction.PLAYER):
-		var on_ground := world.is_solid_ground(monster.global_position) and not world.is_pool(map.world_to_cell(monster.global_position))
+		# Ground under its feet: floor, not a hole nor the water. A cracked floor holds until it
+		# gives way (a monster may walk onto one: CrumblingFloor), then it is a hole.
+		var under := map.world_to_cell(monster.global_position)
+		var on_ground := map.is_floor(under) and not world.has_pit(under) and not world.is_pool(under)
 		# (Its collision shape is a pixel smaller than its radius: one that walked up to a wall
 		# since the floor was made touches it, it is not inside it.)
 		var fits := world.body_fits(monster.global_position, monster.radius - 1.5)

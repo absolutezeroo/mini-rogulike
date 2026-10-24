@@ -93,10 +93,11 @@ def make_run(run_id: str, event: dict, ends_sent: int = 1) -> dict:
 		status = "abandoned"
 	else:
 		status = "death"
-	skills = ids(p, "skills")
+	key = "skill_ids" if "skill_ids" in p else "skills"  # (`skills`: older games, often a ghost)
+	skills = ids(p, key)
 	if skills and skills[0] == ROLL_SKILL:
 		skills = skills[1:]
-	if "skills" not in p or any(part.isdigit() for part in skills):
+	if key not in p or any(part.isdigit() for part in skills):
 		# Lost in Talo's export (talo_export._drop_ghosts()): the skills the run used instead.
 		skills = sorted({k.split(".")[1] for k in p if k.startswith("skill.") and k.count(".") == 2} - {ROLL_SKILL})
 	perks = {}
