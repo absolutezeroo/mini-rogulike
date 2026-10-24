@@ -9,15 +9,16 @@ extends Node2D
 
 enum State { WAITING, FIGHTING, CLEARED }
 
-## Seconds between two monsters showing up, and before the next wave.
-const SPAWN_INTERVAL := 0.25
-const WAVE_PAUSE := 1.0
-## Monsters appear at least this far from the hero.
-const MIN_SPAWN_DISTANCE := 90.0
+# Its rhythm (seconds between two monsters showing up, before the next wave, how far from the
+# hero they appear) is the dungeon's: DungeonConfig > Ambushes.
 
 var state := State.WAITING
 var room: Rect2i
 var waves_left := 0
+## Where its reward chest was put down when it was cleared (DungeonMap.NO_CELL: not yet, or
+## none): saved with the floor, so a resumed floor puts the chest back there, wherever the hero
+## stands (World.spent_data() "ambush").
+var reward_cell := DungeonMap.NO_CELL
 
 var _world: World
 var _gates: RoomGates
@@ -66,7 +67,7 @@ func _wave_count() -> int:
 
 
 func _wave_size() -> int:
-	return _world.config().ambush_wave_size + floori(_world.depth / 3.0)
+	return _world.rules.ambush_wave_size()
 
 
 ## Whether the monster about to come is an elite (the last wave is led by one).
@@ -93,7 +94,7 @@ func _physics_process(delta: float) -> void:
 			if not _to_spawn.is_empty():
 				_spawn_timer -= delta
 				if _spawn_timer <= 0.0:
-					_spawn_timer = SPAWN_INTERVAL
+					_spawn_timer = _world.config().ambush_spawn_interval
 					_spawn_one(_to_spawn.pop_back())
 			elif _is_wave_dead():
 				if waves_left <= 0:
@@ -103,7 +104,7 @@ func _physics_process(delta: float) -> void:
 				if _pause_timer <= 0.0:
 					_queue_wave()
 			else:
-				_pause_timer = WAVE_PAUSE
+				_pause_timer = _world.config().ambush_wave_pause
 
 
 ## Every monster of the wave is dead (most are already freed: they dissolve when they die).
@@ -138,7 +139,7 @@ func _spawn_point() -> Vector2:
 	var player_position := _world.player.global_position
 	var point := _world.map.cell_to_world(_world.map.random_cell_in(room, _world.rng))
 	for attempt in 10:
-		if point.distance_to(player_position) >= MIN_SPAWN_DISTANCE and _world.is_solid_ground(point) \
+		if point.distance_to(player_position) >= _world.config().ambush_min_spawn_distance and _world.is_solid_ground(point) \
 				and not _world.nav.is_blocked(_world.map.world_to_cell(point)):  # furniture, water
 			break
 		point = _world.map.cell_to_world(_world.map.random_cell_in(room, _world.rng))
@@ -169,6 +170,19 @@ func _finish() -> void:
 	var chest_def := _world.config().ambush_chest
 	if chest_def:
 		var cell := _reward_cell()
+		reward_cell = cell
 		Vfx.magic(_world, _world.map.cell_to_world(cell), Palette.GOLD)
 		_world.spawn_chest(chest_def, cell, false)
 	Events.ambush_cleared.emit(self)
+
+
+## A resumed floor: it was cleared before quitting. It stays quiet, its chest back where it was
+## put down (`cell`; NO_CELL: none). Whether the chest was opened is the floor's chests' business.
+func restore_cleared(cell: Vector2i) -> void:
+	if state != State.WAITING:
+		return
+	state = State.CLEARED
+	var chest_def := _world.config().ambush_chest
+	if chest_def and cell != DungeonMap.NO_CELL and _world.map.is_floor(cell):
+		reward_cell = cell
+		_world.spawn_chest(chest_def, cell, false)

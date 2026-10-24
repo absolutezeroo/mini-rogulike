@@ -168,7 +168,7 @@ func _test_finale(game: Game) -> void:
 	poke.amount = 60
 	poke.source = player
 	maw.take_hit(poke)
-	check(maw.hp == maw_hp and maw._hit_streak == 0, "closed, a blow glances off whole (no damage, no streak toward a shockwave)")
+	check(maw.hp == maw_hp and maw.brain.hit_streak == 0, "closed, a blow glances off whole (no damage, no streak toward a shockwave)")
 	check(world.get_node("Effects").get_children().any(func(n: Node) -> bool: return n is FloatingText), "and says so over it")
 	var burn := OnHitStatus.new()
 	burn.burn_damage = 5
@@ -226,6 +226,7 @@ func _test_finale(game: Game) -> void:
 	check(not Narrative.is_deed_done(maw.def as BossDef, (maw.def as BossDef).chronicle.deeds()[0]), "bitten this run: not its deed")
 	check(Profile.total_wins() == wins_before + 1 and game.run.splits.size() == total + 1, "the win counts at once, the bottom with its own split")
 	check(game.run.ending_due, "an ending is due")
+	var maw_def := maw.def as BossDef  # (the body goes with its floor)
 	game._save_run()
 	var won_save := RunSave.read()
 	check(bool(won_save.get("ending_due", false)), "a save before the choice keeps it due")
@@ -255,6 +256,7 @@ func _test_finale(game: Game) -> void:
 	game.resume_run(won_save)
 	await _frames(5)
 	check(game.run.has_won and game.menus.ending.visible, "a run won at the bottom and quit before the choice asks for it again")
+	check(game.run.last_boss == maw_def, "the last boss slain comes back with the run (%s)" % [game.run.last_boss])
 	game.menus.ending.choose(0)
 	await _frames(3)
 	check(Profile.ending == finale.endings[0].id and Profile.is_achieved(&"the_last_knell"), "the other ending, its achievement")
@@ -262,8 +264,11 @@ func _test_finale(game: Game) -> void:
 	check(game.game_over_panel.visible, "then the victory screen")
 	var souls_again := (game.game_over_panel.get_node("%SoulsEarned") as Label).text
 	check(souls_again == souls_shown, "with the souls the run gave at its win, not +0 (%s, at the win %s)" % [souls_again, souls_shown])
+	var offers_before := game.pending_offers() + (1 if game.perk_panel.visible else 0)
 	(game.game_over_panel.get_node("%ContinueButton") as Button).pressed.emit()
 	await _frames(3)
+	var relic_offered := maw_def.relic_choices <= 0 or game.pending_offers() + (1 if game.perk_panel.visible else 0) > offers_before
+	check(relic_offered, "keep going after a resumed win: the last boss's relic is offered")
 	_close_offers(game)
 	check(not get_tree().paused and not game.run.finale and game.depth == total + 1, "keep going: endless mode, past the bottom")
 	Profile.reset()

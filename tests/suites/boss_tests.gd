@@ -127,18 +127,18 @@ func _test_boss_fight(game: Game) -> void:
 	player.global_position = boss.global_position + open_side * (boss.radius + 30.0)
 	player._invulnerable_time = 0.0
 	var close := player.global_position.distance_to(boss.global_position)
-	boss._shockwave_cooldown = 0.0  # the roar's own shockwave a moment ago
+	boss.brain.shockwave_cooldown = 0.0  # the roar's own shockwave a moment ago
 	# Nothing else may touch the hero meanwhile (its hit frames would make the blast miss).
 	var boss_skills := boss.skills.skills.duplicate()
 	var no_skills: Array[SkillDef] = []
 	boss.skills.set_skills(no_skills)
 	boss._attack_cooldown = 1.0
-	for i in boss._shockwave_after:
+	for i in boss.brain.shockwave_after:
 		var poke := HitInfo.new()
 		poke.amount = 1
 		poke.source = player
 		boss.take_hit(poke)
-	check(boss._shockwave_cooldown > 0.0, "too many hits in a row: it answers with a shockwave")
+	check(boss.brain.shockwave_cooldown > 0.0, "too many hits in a row: it answers with a shockwave")
 	var stood := player.global_position
 	var boss_at := boss.global_position
 	for frame in 50:

@@ -6,6 +6,12 @@ extends ItemDef
 @export var skill: SkillDef
 
 
+## Read from the bag: it is gone, its skill learned (the last skill button).
+func use_from_bag(player: Player) -> void:
+	player.inventory.remove(self)
+	player.learn_skill(skill)
+
+
 func get_type_label() -> String:
 	return tr("Skill tome")
 

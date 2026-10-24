@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CombatRulesDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/combat_rules_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+crit_multiplier = 1.75
+damage_variance = 0.15
+armor_weight = 1.0
+max_cooldown_reduction = 0.5
+delayed_blast_knockback = 260.0

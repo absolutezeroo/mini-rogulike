@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="OnlineSessionDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/online/online_session_def.gd" id="1_session"]
+
+[resource]
+script = ExtResource("1_session")
+refused_identity_seconds = 60.0
+max_backoff = 8.0

@@ -96,7 +96,8 @@ the boards aren't even read.
   official attempt only (never practice, never a debug run), its points, one entry per player and
   day, highest first. Tabs **Today** and **Yesterday**. The score is sent when the run ends (a
   death, or a win; a win then the endless floors sends the better one), queued while there is no
-  network (`user://leaderboards.json`, not the save) and tried again every minute; a score not
+  network (`user://leaderboards.json`, not the save) and tried again after a minute, then less
+  often (twice as long each time, at most 8 minutes, and when the app comes back); a score not
   sent before its day ends (UTC midnight) is dropped.
 - **The page**: the first 50, the player's rank (and the lines around it when past the 50), the
   board's rule, a loading line, "no network" with **Try again**, "no one yet". Phone and PC, touch,
@@ -206,6 +207,52 @@ there, its runs reaching the end sooner: table "economy_campaign_easy") fills th
 
 Locked items (`content_db.tres` > Locked Items) never appear on the floor until unlocked.
 The `Profile` autoload keeps souls, upgrades and records in `user://profile.json` (works on phones).
+
+## Saving and resuming
+
+The run in progress is saved (`RunSave`, `user://run.json`) when a floor begins and whenever the
+app goes to the background (a phone call, switching apps, the window closed), never in the trial
+of the Threshold, the Deeps or a debug run, and erased when the hero dies. **Resume the descent**
+builds the floor again from its seed (`RunState.run_seed` and the depth: the same rooms, the same
+things in them), puts the hero back exactly as saved (gear, bag, belt, perks, level, gold, Health),
+and the run as it was (depth, souls, time and splits, the ways taken, the choices waiting, the
+oath, the Nameless Keeper waiting, the last boss slain: its relic when the run goes on endless
+after a win).
+
+**What was used up stays used up** (`World.spent_data()`, the save's `floor`): putting the app
+away and coming back never hands anything out again.
+- By cell: chests opened, holes filled, cracks that gave way; secret rooms (their state, in the
+  map's order), the pact sworn, the fragment read, the seal's kills.
+- By number (`FloorLedger`): while a floor is laid, each item lying around, gold pile, prop and
+  encounter gets the next number of its kind, in the order the seed lays them; what the hero took,
+  broke or used is saved as [number, id] and taken off the rebuilt floor quietly (nothing
+  dropped, no sound). The floor's own monsters keep their numbers the same way
+  (`Monster.floor_index`, "slain"), the hidden floor's included. The id is a guard: a number that
+  comes out as something else is left alone, better one too many than the wrong one gone.
+  Nothing laid while the floor is built depends on the hero (a potion over the carry cap lies
+  there as a potion, never turned to gold), so the same seed lays the same things.
+- The ambush: cleared, it stays quiet, its chest back on the cell where it was put down.
+- The merchant: his whole stock as it was (rerolled, sold to, locked, less what was bought) and
+  his rerolls paid. An entry locked there and not bought also waits for the next merchant, and
+  is never in his stock twice.
+- What came later (a monster's drop, a chest's loot, ambush waves) isn't saved: it is never laid
+  again either. A boss floor saved after its boss fell resumes on the next floor.
+- Every kind of floor is restored this way, boss floors and the hidden floor too. A seal broken
+  before quitting comes back open quietly (no sound, no guiding light, no Regeneration heal again).
+
+**A game update in between**: the floor's block carries a stamp (`RunSave.floor_stamp()`: the
+game's version and `RunSave.FLOOR_FORMAT`, bumped by hand when a change lays a seed otherwise
+without a new version). Another build's floor may come out otherwise from the same seed, so its
+cell and number data would land on the wrong things: the floor is laid fresh instead, a note says
+so ("The Well has shifted since you left: this floor is laid anew."), and the hero and the run
+come back whole.
+
+**Versions and damaged files**: `RunSave.VERSION` (2) is written in every save. An older one is
+migrated (`RunSave._migrate()`, one step per version; version 1 saves keep their run and hero,
+their floor is laid fresh, having no stamp), a newer one (a game rolled back) is not read. Every
+field the game reads is checked against `RunSave.SHAPE` first: a field of the wrong kind (a
+hand-edited or damaged file) is dropped and logged (`WARNING: Run save: ...`), and its default is
+used, so a damaged save never stops the game; only a damaged hero makes the run unreadable.
 
 ## Quests
 

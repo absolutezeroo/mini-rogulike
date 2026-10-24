@@ -21,7 +21,8 @@ assets/              Art, audio, fonts and the UI theme (Ninja Adventure pack)
   theme/               main_theme.tres: pixel UI theme used by every Control
 data/                Game content as .tres resources (no code)
   content_db.tres      Index of everything that can spawn
-  player/              Starting stats, kit, skills, leveling
+  player/              Starting stats, kit, skills, leveling, the hero's feel (i-frames, aim ranges, swap cooldown)
+  combat/              combat_rules.tres: the core combat numbers (crit, variance, armor weight, cooldown cap)
   dungeon/             The run (acts/), floor size, difficulty curve, floor looks (themes/)
   biomes/              The worlds a floor can be (one per file) and their hand-made scenes (scenes/), room
                        shapes (shapes/), signature rooms (set_pieces/), ceilings (ceilings/), pools (pools/)
@@ -56,21 +57,24 @@ data/                Game content as .tres resources (no code)
                        policy), telemetry.tres (TelemetryDef: the statistics' events and fields),
                        world_stats.tres (WorldStatsDef: the world counters, the Well's Toll),
                        remote_config.tres (RemoteConfigDef: the remote settings' allow-list, RemoteKeyDef)
-                       feedback.tres (FeedbackDef: the feedback form's categories and limits)
+                       feedback.tres (FeedbackDef: the feedback form's categories and limits),
+                       online_session.tres (OnlineSessionDef: the refused identity's wait, the retries' backoff)
   credits/             credits.tres (CreditsDef: who made what, licenses and their files)
   ui/                  Loading tips, input_prompts.tres (the controls as the player is told about them: the
                        Controls page, the keys prompts show, the gamepad families' button names)
 src/
   autoload/            Events (signal bus), Sfx (sound player), HitStop (impact freeze), Profile (save), Settings (options),
                        InputDevice (the device in use), MenuNav (menus with keys and gamepads), PixelGrid (the canvas's scale), SoftKeyboard (typing on a phone),
-                       Leaderboards (the online leaderboards), Privacy (the player's privacy choices),
+                       OnlineSession (what the online services share: the server, the device's player,
+                       the consent gates, the clock), Leaderboards (the online leaderboards), Privacy (the player's privacy choices),
                        Telemetry (the gameplay statistics, with consent), WorldStats (the world counters),
                        RemoteConfig (the remote settings: Talo's game config, checked against the allow-list),
                        Feedback (the player's feedback messages and their queue)
   online/              The online pieces: RunSummary (a run that ended), PlayerName (the pseudonym's
                        filter), BoardBackend (offline) > TaloBackend (Talo's REST API), RunTelemetry (what
                        the statistics learn of a run), RemoteTuning (what the remote settings change in a run, saved with it),
-                       FeedbackInfo (the game's details a feedback message can carry)
+                       FeedbackInfo (the game's details a feedback message can carry), PersistedQueue (a
+                       service's versioned file, bounded queue, flush latch and retry with backoff)
   core/                Small shared helpers (physics layers, weighted random, SafeFile, NumberText)
   definitions/         Resource classes describing content (the "schema" of data/)
     effects/             Building blocks for skills and consumables
@@ -89,7 +93,8 @@ src/
   dungeon/             Map data, generator (its rooms' shapes: RoomPlan; its secret rooms: SecretRoomPlan), drawing
   world/               World (owns the current floor), FloorRules (how hard and rewarding it is),
                        NavGrid (pathfinding), FogOfWar (what the hero has seen), WallBuilder,
-                       FloorPopulator, FragmentPlacer, BossArena (and its Storyteller), AmbushRoom, RoomGates, PitLayer, SecretRoom; PocketWorld
+                       FloorPopulator, FloorLedger (what the hero used up of what the seed laid, for the
+                       save), FragmentPlacer, BossArena (and its Storyteller), AmbushRoom, RoomGates, PitLayer, SecretRoom; PocketWorld
                        (a World built beside the floor for a while) > ThresholdWorld (the limbo of a second
                        life's trial), AbyssWorld (the Deeps a fall takes the hero to);
                        dressing/ (FloorDresser: a floor in its biome, RoomSpace); RoomFeatures (the shaped
@@ -119,9 +124,10 @@ src/
                        and answers), BossMeeting (a warden met: its cinematic), CinematicDirector (plays a
                        CinematicDef's steps), StoryBeat (what one telling holds), Dialogues (what a speaker
                        says now), RunFacts (what is known of a run as it ends)
-tests/               Headless tests: run_tests (the runner), suites/ (unit, title, game, combat, floor, boss,
-                     balance: opt-in), support/ (TestSuite: checks, scene helpers, the bot; FakeBoardBackend:
-                     a leaderboard server in memory)
+tests/               Headless tests: run_tests (the runner; suites unit, title, game, tutorial, and balance:
+                     opt-in), suites/ (the suites and the helpers they borrow: combat, floor, boss, the
+                     online services...), support/ (TestSuite: checks, scene helpers, the bot;
+                     FakeBoardBackend: a Talo server in memory)
 online/              talo.cfg.example: the form of talo.cfg, the leaderboards' access key (never committed:
                      docs/online.md)
 locale/              strings.csv: every player text, English (the key) and French (see Languages)
@@ -138,15 +144,28 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 ## How things fit together
 
 - **Game** creates the Player, asks **World** to build each floor and handles pause and game over.
-- **World** generates a `DungeonMap`, rolls the floor's curse or event, builds its `FloorRules`
-  (difficulty x event x curse x depth: ask it, never multiply by hand), the walls (`WallBuilder`)
+- **World** generates a `DungeonMap`, rolls the floor's curse or event (`FloorRoute.roll_twist()`,
+  the one roller, also the ways down's), builds its `FloorRules` (difficulty x event x curse x
+  depth, and the run's boons for drops and gold: `drop_quality()`, `floor_gold()`; ask it, never
+  multiply by hand), the walls (`WallBuilder`)
   and pathfinding (`NavGrid`), then lets `FloorPopulator` spawn monsters and items picked from
   `ContentDB` by depth. Anything can shake the screen with `Events.screen_shake`.
 - **Actor** (base of Player and Monster) handles stats, HP, attacks, knockback, dashes and hit feedback.
   Final stats = base stats + equipment bonuses + timed buffs.
+- **Combat** (`src/combat/`): every hit is made by `Combat.make_hit()`, its numbers (crit, variance,
+  armor weight, the cooldown cap) in `data/combat/combat_rules.tres` (`CombatRulesDef`, read as
+  `Combat.RULES`), its rolls on the floor's combat dice (`World.combat_rng`, seeded from the
+  floor's seed apart from `World.rng`: the same seed and the same blows give the same fight, a
+  daily run's floors stay the same for everyone, and a hit never shifts what the floor rolls next).
+  A prop counts blows, not damage (`Combat.break_props()`).
 - **Weapons** are shared: a monster attacks with a `WeaponDef` exactly like the player.
 - **Skills and consumables** are both lists of `Effect` resources
-  (damage area, projectile, heal, dash, buff). New effect = new class extending `Effect`.
+  (damage area, projectile, heal, dash, buff). New effect = new class extending `Effect`. What a
+  kind does when dressed in a weapon's elements (a skill, a charged attack), warned of by a boss
+  or tamed is asked of it (`Effect`'s virtuals: `dressed_for_skill()`, `dressed_for_charge()`,
+  `as_boss_skill()`, `telegraph_kind()`, `ai_reach()`, `hit_status()`...), never tested by type.
+  A delayed effect (`Effect.delay`) is credited to what set it off (`Actor.with_source()`).
+  Items work the same way: using one from the bag is the item's own `use_from_bag()`.
 - **Monsters** are driven by a `StateMachine`: Idle (wander) > Chase (path or straight line, use skills)
   > Attack (telegraphed wind-up, strike, recovery). Skills with a `cast_time` go through Cast
   (glow, red circle, cast animation) so the player can dodge them.
@@ -157,7 +176,10 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
     keep a little space between them (no pile-up in doorways); wandering ones never pick a way
     into a wall.
   - **Sight**: `detect_radius()` is the kind's reach times the difficulty's `detect_range`
-    (Pilgrim x0.85, Keeper x1, Martyr x1.2, Nightmare x1.4); chasing, they see 1.6x further.
+    (Pilgrim x0.85, Keeper x1, Martyr x1.2, Nightmare x1.4); chasing, they see 1.6x further
+    (`MonsterDef.chase_sight_multiplier`) and give up after 4 s unseen (`chase_give_up_after`).
+  - **Bosses**: their phases, the shockwave answering a streak of hits and the intro they wait out
+    are a `BossBrain` (`Monster.brain`, made for a `BossDef` only; its numbers on the `BossDef`).
   - **Sleep**: what isn't seen isn't run. A few times a second the World lets monsters off screen
     (beyond a 256 px margin) and out of reach of the hero sleep: no AI, no movement, no animation
     (`Monster.set_awake()`, `World.awake_monsters`). Hunting monsters and bosses stay awake; a hit
@@ -197,25 +219,40 @@ the rest of `src/` says *how it behaves*. Balancing never requires touching code
 
 ## Autoloads
 
-Few, each with one job (`project.godot` > Autoload):
+Each with one job, in `project.godot`'s order (> Autoload). The eleven game ones depend on each
+other in one direction only; the seven online ones share `OnlineSession` (docs/online.md "The
+shared session"):
 
 | Autoload | Script | Job |
 |---|---|---|
-| `Events` | `src/autoload/events.gd` | Signal bus for notifications (screen shake, camera kick, boss fight...). Emit and listen; never use it to give orders |
+| `Events` | `src/autoload/events.gd` | Signal bus for notifications (screen shake, camera kick, boss fight...). Emit and listen; never use it to give orders. One documented exception, the `*_requested` signals (`shop_`, `forge_`, `encounter_`, `pact_`, `fragment_`, `perk_offer_requested`): gameplay (an `Interactable` used, an encounter's gift) asking the **Game** to open its panel. Only the Game connects them, never a UI node; the panel opened drives nothing but the choice it shows |
 | `Sfx` | `src/autoload/sfx.gd` | Plays combat, world (positional) and UI sounds from `data/audio/sound_bank.tres`, each on its bus, mixed by `data/audio/sound_mix.tres`; the music, crossfaded (which track plays where: `Soundtrack`) |
 | `HitStop` | `src/autoload/hit_stop.gd` | Impact freeze and slow motion |
 | `Profile` | `src/autoload/profile.gd` | What lasts between runs: souls, Tree of Souls, records, bestiary, quests (`user://profile.json`) |
 | `Settings` | `src/autoload/settings.gd` | Options and language (`user://settings.cfg`) |
+| `InputDevice` | `src/autoload/input_device.gd` | The device in use (touch, keyboard and mouse, gamepad and its family) from the last real input; `changed` for the HUD, prompts and menus |
 | `TouchScrolling` | `src/autoload/touch_scrolling.gd` | Adds finger scrolling to every `ScrollContainer` |
 | `Loader` | `src/autoload/scene_loader.gd` | Loading screen between the title and the game |
 | `SoftKeyboard` | `src/autoload/soft_keyboard.gd` | While a phone's keyboard is up over a text field, shows the field in a readable bar in the strip the keyboard leaves; tells `PixelGrid` a keyboard's resize so the UI keeps its scale (design/interface.md, Screens) |
 | `PixelGrid` | `src/autoload/pixel_grid.gd` | Picks the canvas's scale (whole steps of 0.5, the interface size option; the camera keeps the framing: `world_zoom()`) and shifts the screen a quarter of a pixel so text and pixel art at half-pixel spots draw whole (design/interface.md, Text and Screens) |
-| `InputDevice` | `src/autoload/input_device.gd` | The device in use (touch, keyboard and mouse, gamepad and its family) from the last real input; `changed` for the HUD, prompts and menus |
-| `Leaderboards` | `src/autoload/leaderboards.gd` | The online leaderboards (docs/online.md): queues the scores of runs that end (`Events.run_ended`), sends them through its backend (Talo, or offline without a key), reads the boards for the page. Its own file, `user://leaderboards.json` |
 | `MenuNav` | `src/autoload/menu_nav.gd` | Menus with keys and gamepads: the menu on top (group "menu") holds the focus, directions with wrap, tabs, the focus frame |
+| `OnlineSession` | `src/autoload/online_session.gd` | What every online service shares: the backend (Talo, or offline without a key), the device's random id and its Talo player (one identify at a time for all), the consent gates, the clock, `release_mode`. Its own file, `user://online.json` |
+| `Leaderboards` | `src/autoload/leaderboards.gd` | The online leaderboards (docs/online.md): queues the scores of runs that end (`Events.run_ended`), sends them through the session, reads the boards for the page. Its own file, `user://leaderboards.json` |
+| `Privacy` | `src/autoload/privacy.gd` | The player's privacy choices: the age question, the statistics' consent and when it is asked again, "delete my online data" (docs/privacy-ops.md). `user://privacy.json` |
+| `Telemetry` | `src/autoload/telemetry.gd` | The gameplay statistics, with consent: a `RunTelemetry` per run, its events queued and sent in batches. `user://telemetry.json` |
+| `WorldStats` | `src/autoload/world_stats.gd` | The world counters (the Well's Toll): the player's share of each, sent with consent from release builds, and the world's numbers read for the title and the page. `user://world_stats.json` |
+| `RemoteConfig` | `src/autoload/remote_config.gd` | The remote settings: Talo's game config checked against the allow-list, applied at safe points, the kill switches. `user://remote_config.json` |
+| `Feedback` | `src/autoload/feedback.gd` | The player's feedback messages, queued and sent to Talo's game feedback. `user://feedback.json` |
 
-Tests empty `Profile.save_path` and `Settings.path`, so they never touch a player's files, and give
-`Leaderboards` an offline backend and no file (`use_for_tests()`): never the network.
+**Start-up order.** Godot makes every autoload (`_init()`) before any `_ready()`. The online ones
+read their data and file in `_init()` and ask no other service there, so from `_ready()` on any
+may call any other whatever the list's order (`OnlineSessionTests` starts them in 14 orders).
+
+The test runner empties `Profile.save_path`, `Settings.path` and `RunSave.path` (one per test
+process), turns the tutorial hints and boss stories off, forces English and touch input, and resets
+the whole online layer with `OnlineSession.use_all_for_tests()`: no file, an offline backend, no
+timer, nothing queued, never the network. In a test launch the online files start with no path, so
+the player's real ones are not even read while the autoloads start.
 
 ## Rendering
 

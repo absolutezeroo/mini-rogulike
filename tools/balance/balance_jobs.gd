@@ -24,8 +24,8 @@ extends RefCounted
 const SHALLOW := ["res://data/content_db.tres", "res://data/dungeon/dungeon_config.tres"]
 const SHALLOW_DIRS: Array[String] = []
 ## Data every engine measure depends on (the hero, the rules of the floor, ranks and affixes,
-## what stands on a floor: props, chests, arenas, hazards).
-const COMMON_ROOTS := ["res://data/content_db.tres", "res://data/dungeon/dungeon_config.tres", "res://data/player/",
+## what stands on a floor: props, chests, arenas, hazards; the core combat numbers).
+const COMMON_ROOTS := ["res://data/content_db.tres", "res://data/dungeon/dungeon_config.tres", "res://data/player/", "res://data/combat/",
 	"res://data/monster_ranks/", "res://data/elites/", "res://data/perks/synergies/", "res://data/items/item_levels.tres",
 	"res://data/dungeon/sustain.tres", "res://data/props/", "res://data/chests/", "res://data/arenas/", "res://data/hazards/"]
 const CODE_DIRS := ["res://src/", "res://tools/balance/"]

@@ -45,12 +45,10 @@ const HEAVY_STEP_INTERVAL := 0.45
 const WARNING_RIM := Color(1.0, 0.22, 0.2)
 
 var _step_timer := 0.0
-var _phases_done := 0
 var _windup_multiplier := 1.0
 var _damage_multiplier := 1.0
 ## The depth it was set up for (rank health grows with it: MonsterRankDef.hp_multiplier_at()).
 var _depth := 1
-var _phase_tint := Color.WHITE
 var _xp_multiplier := 1
 ## Called in by another monster (SummonEffect): gives no XP, loot or gold.
 var summoned := false
@@ -65,22 +63,14 @@ var _over: MonsterOverlay
 ## Fell into a hole: no loot, no burst, nothing comes out.
 var _fell := false
 
-## Bosses: hits taken in a row, and the shockwave that answers them (see BossDef).
 ## Off screen and far from the hero, a monster sleeps: no AI, no animation (see World).
 var is_awake := true
+## A boss's phases, shockwave and intro (BossBrain); null for every other monster.
+var brain: BossBrain
 var _detect_multiplier := 1.0
 var _stuck_time := 0.0
 var _last_position := Vector2.INF
 var _walk_checks := {}  # cell -> [physics frame, clear]
-
-var _hit_streak := 0
-var _streak_time := 0.0
-var _shockwave_after := 0
-var _shockwave_cooldown := 0.0
-var _roar_time := 0.0
-## Seconds of its intro still playing, while a boss that waits it out (BossDef.waits_intro)
-## neither moves nor strikes.
-var _intro_left := 0.0
 
 
 func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
@@ -107,7 +97,7 @@ func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
 	_windup_multiplier = rules.telegraph_time()
 	_detect_multiplier = rules.detect_range()
 	if def is BossDef:
-		_shockwave_after = (def as BossDef).shockwave_after_hits
+		brain = BossBrain.new(self, def as BossDef)
 		free_on_death = not (def as BossDef).body_stays
 	if def.weapon:
 		equipment.equip(def.weapon)
@@ -205,7 +195,7 @@ func get_knockback_resistance() -> float:
 
 
 func can_attack() -> bool:
-	if _intro_left > 0.0:
+	if _in_intro():
 		return false
 	for monster_trait in def.traits:
 		if not monster_trait.can_attack(self):
@@ -259,13 +249,28 @@ func get_telegraph_scale() -> float:
 	return _windup_multiplier
 
 
+## Its wind-ups and casts last `factor` times as long from now on (a boss phase: BossBrain).
+func scale_telegraph(factor: float) -> void:
+	_windup_multiplier *= factor
+
+
+## A boss entered its phase `index` (BossBrain): its arena may change (phase_entered).
+func announce_phase(index: int) -> void:
+	phase_entered.emit(index)
+
+
+## A boss still playing an intro it waits out (BossBrain.in_intro()): it neither moves nor strikes.
+func _in_intro() -> bool:
+	return brain != null and brain.in_intro()
+
+
 func is_boss() -> bool:
 	return def is BossDef
 
 
 ## The boss phases it went through (0: still in its first). See BossDef.phases.
 func phase_index() -> int:
-	return _phases_done
+	return brain.phases_done if brain else 0
 
 
 ## Summons and a boss's adds feed no "on kill" heals: a boss calling its brood must not become
@@ -282,8 +287,8 @@ func wake_up(new_target: Actor, intro := true) -> void:
 	_noticed(new_target)
 	if rig and intro:
 		rig.play_intro()
-		if def is BossDef and (def as BossDef).waits_intro:
-			_intro_left = rig.animation_length(&"intro")
+		if brain:
+			brain.on_intro(rig.animation_length(&"intro"))
 
 
 ## Returns true if the monster has (or just acquired) a target to fight. Every way a monster
@@ -314,6 +319,11 @@ func _noticed(other: Actor) -> void:
 ## How far it spots the hero: its kind's reach, times the difficulty's.
 func detect_radius() -> float:
 	return def.detect_radius * _detect_multiplier
+
+
+## How far it sees while it chases (MonsterDef.chase_sight_multiplier times detect_radius()).
+func chase_detect_radius() -> float:
+	return detect_radius() * def.chase_sight_multiplier
 
 
 ## Sleeps (off screen, far from the hero) or wakes up. A sleeping monster keeps its body (shots
@@ -399,7 +409,7 @@ func attack_range(other: Actor) -> float:
 
 ## Index of the first ready skill whose AI conditions match, or -1.
 func pick_skill(distance: float) -> int:
-	if _intro_left > 0.0:
+	if _in_intro():
 		return -1
 	for monster_trait in def.traits:
 		if not monster_trait.can_cast(self):
@@ -449,7 +459,7 @@ func _get_desired_velocity() -> Vector2:
 		telegraph = 0.0
 		return Vector2.ZERO
 	_update_heavy_steps()
-	var direction := move_direction if _intro_left <= 0.0 else Vector2.ZERO
+	var direction := move_direction if not _in_intro() else Vector2.ZERO
 	var delta := get_physics_process_delta_time()
 	for monster_trait in def.traits:
 		monster_trait.update(self, delta)
@@ -542,79 +552,18 @@ func _on_damaged(hit: HitInfo, _damage: int) -> void:
 		Events.camera_kick.emit(push, 6.0 if hit.is_crit else 3.5)
 	if dormant and hit.source:
 		wake_up(hit.source)
-	_update_boss_phase()
+	if brain:
+		brain.update_phase()
 	if _damage > 0 and not hit.is_tick and world.rng.randf() < 0.45:
 		world.add_splat(global_position + Vector2(world.rng.randf_range(-6, 6), world.rng.randf_range(-3, 5)), def.splat_color, 0.35, hit.knockback.normalized())
-	if is_boss() and not hit.is_tick and hit.source and is_hostile_to(hit.source):
-		_count_hit()
-
-
-## Bosses get stronger as they lose HP (see BossDef.phases).
-func _update_boss_phase() -> void:
-	var boss := def as BossDef
-	if boss == null or is_dead or hp <= 0:
-		return
-	while _phases_done < boss.phases.size() and float(hp) / get_max_hp() <= boss.phases[_phases_done].hp_ratio:
-		_enter_phase(boss.phases[_phases_done])
-		_phases_done += 1
-		phase_entered.emit(_phases_done)
-
-
-func _enter_phase(phase: BossPhase) -> void:
-	if phase.bonuses:
-		base_stats = base_stats.plus(phase.bonuses)
-		invalidate_stats()
-	if not phase.skills.is_empty():
-		skills.set_skills(phase.skills)
-		casting_index = -1
-	_windup_multiplier *= phase.windup_multiplier
-	cooldown_speed /= phase.cooldown_multiplier
-	if phase.shockwave_after_hits > 0:
-		_shockwave_after = phase.shockwave_after_hits
-	_phase_tint = phase.tint
-	# A roar: untouchable for a moment, and whoever stands close is thrown off.
-	invincible = true
-	_roar_time = (def as BossDef).phase_roar_time
-	_shockwave(0.35)
-	if not phase.message.is_empty():
-		world.spawn_floating_text(head_position() + Vector2(0, -12), tr(phase.message), Palette.DANGER)
-		Events.log_message(tr("%s: %s") % [display_name, tr(phase.message)], Palette.DANGER)
-	Vfx.magic(world, global_position, Palette.DANGER)
-	Sfx.play_at(Sfx.bank.boss_roar, global_position)
-	Events.screen_shake.emit(0.6)
-
-## Hit again soon after the last hit: the streak grows; too long, and it throws the hero off.
-func _count_hit() -> void:
-	_hit_streak = _hit_streak + 1 if _streak_time > 0.0 else 1
-	_streak_time = (def as BossDef).streak_gap
-	if _shockwave_after > 0 and _hit_streak >= _shockwave_after and _shockwave_cooldown <= 0.0:
-		_hit_streak = 0
-		_shockwave(0.45)
-
-
-## A warning ring, then a blast all around that pushes its enemies far away.
-func _shockwave(fuse: float) -> void:
-	if ai_frozen():
-		return
-	var boss := def as BossDef
-	_shockwave_cooldown = 3.0
-	var damage := world.rules.dungeon_damage(4.0, 0.6) if world.rules else 6
-	if boss.shockwave_power > 0.0:
-		damage = maxi(damage, roundi(get_power() * boss.shockwave_power))
-	Combat.shockwave(world, self, boss.shockwave_radius + radius, damage, boss.shockwave_knockback, fuse)
+	if brain and not hit.is_tick and hit.source and is_hostile_to(hit.source):
+		brain.count_hit()
 
 
 func _tick_timers(delta: float) -> void:
 	super._tick_timers(delta)
-	_intro_left = maxf(_intro_left - delta, 0.0)
-	if not is_boss():
-		return
-	_streak_time = maxf(_streak_time - delta, 0.0)
-	_shockwave_cooldown = maxf(_shockwave_cooldown - delta, 0.0)
-	if _roar_time > 0.0:
-		_roar_time -= delta
-		if _roar_time <= 0.0:
-			invincible = false
+	if brain:
+		brain.tick(delta)
 
 
 func _impact_material() -> ImpactMaterialDef:
@@ -667,9 +616,7 @@ func _on_died(killer: Actor) -> void:
 	if killer is Player:
 		(killer as Player).gain_xp(def.xp_reward * _xp_multiplier)
 	var config := world.config()
-	var quality := config.boss_loot_quality if is_boss() else (rank.loot_quality if rank else 1.0)
-	if is_boss() and rank:
-		quality *= 1.0 + 0.25 * maxi(affixes.size(), 1)
+	var quality := brain.loot_quality(config) if brain else (rank.loot_quality if rank else 1.0)
 	var drop_at := loot_origin()
 	if def.loot:
 		for item in def.loot.roll(world.rng, world.rules.loot_chance()):
@@ -727,6 +674,11 @@ func _free_souls() -> void:
 		world.spawn_vfx(SoulWisp.create(global_position + Vector2(randf_range(-8.0, 8.0), -radius), world.player))
 
 
+## Its ward is drawn over its body by its overlay (MonsterOverlay), not with the body.
+func _draws_ward_on_body() -> bool:
+	return false
+
+
 ## Its gear shows as the hero's does (MonsterDef.shows_gear: the Nameless Keeper).
 func _shows_gear() -> bool:
 	return def != null and def.shows_gear
@@ -736,7 +688,7 @@ func _shows_gear() -> bool:
 func _body_modulate() -> Color:
 	if is_dead and not free_on_death:
 		return Color.WHITE  # a body the story keeps (BossDef.body_stays): its own colors
-	var color := super._body_modulate() * _phase_tint
+	var color := super._body_modulate() * (brain.tint if brain else Color.WHITE)
 	if telegraph > 0.0 and _flash_time <= 0.0 and def.cast_warning == MonsterDef.CastWarning.TINT:
 		color = color.lerp(Color(2.0, 0.7, 0.7), telegraph)
 	return color

@@ -194,6 +194,7 @@ Unknown,Unknown,Inconnu
 It's a trap! Survive the waves.,It's a trap! Survive the waves.,C'est un piège ! Survis aux vagues.
 The room falls silent. A chest appears...,The room falls silent. A chest appears...,Le silence retombe sur la salle. Un coffre apparaît...
 Level %d!,Level %d!,Niveau %d !
+The Well has shifted since you left: this floor is laid anew.,The Well has shifted since you left: this floor is laid anew.,Le Puits a remué depuis ton départ : cet étage se dessine à nouveau.
 The Well's event: %s,The Well's event: %s,Événement du Puits : %s
 Today's omen: %s,Today's omen: %s,Présage du jour : %s
 The pact is kept. Choose a relic.,The pact is kept. Choose a relic.,Le pacte est tenu. Choisis une relique.
@@ -218,7 +219,6 @@ A relic lies in the warden's remains. Choose one.,A relic lies in the warden's r
 %dd %dh,%dd %dh,%d j %d h
 %dh %02dm,%dh %02dm,%d h %02d min
 A Celestial %s! It joins the bestiary's collection.,A Celestial %s! It joins the bestiary's collection.,Nouvelle prise pour le bestiaire : %s Céleste !
-Dungeon,Dungeon,Donjon
 Difficulty,Difficulty,Difficulté
 Reached,Reached,Atteint
 "%s, depth %d","%s, depth %d","%s, étage %d"
@@ -230,12 +230,7 @@ Secret rooms found,Secret rooms found,Salles secrètes trouvées
 (best %d),(best %d),(meilleur %d)
 (practice),(practice),(entraînement)
 Daily score,Daily score,Score du jour
-"%s - %s, depth %d, level %d
-%d monsters slain, %d bosses","%s - %s, depth %d, level %d
-%d monsters slain, %d bosses","%s - %s, étage %d, niveau %d
-%d monstres abattus, %d boss"
-Time %s,Time %s,Temps %s
-Daily score %d,Daily score %d,Score du jour %d
+Dungeon,Dungeon,Donjon
 %s: slay %d spectres in %d seconds to come back where you fell.,%s: slay %d spectres in %d seconds to come back where you fell.,%s : abats %d spectres en %d secondes pour revenir là où tu es tombé.
 The knell falls silent. The Well lets you go.,The knell falls silent. The Well lets you go.,Le glas se tait. Le Puits te laisse partir.
 The knell has tolled. The Threshold keeps you.,The knell has tolled. The Threshold keeps you.,Le glas a sonné. Le Seuil te garde.

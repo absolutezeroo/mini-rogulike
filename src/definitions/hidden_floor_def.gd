@@ -79,10 +79,13 @@ func as_act() -> ActDef:
 	return act
 
 
-## Fills the rooms before the arena with its monsters (not the start room, not the arena).
+## Fills the rooms before the arena with its monsters (not the start room, not the arena). Each
+## gets its number in the seed's order (Monster.floor_index), as a normal floor's: slain before
+## quitting, they stay slain when the run is picked up again.
 func populate(world: World) -> void:
 	var map := world.map
 	var rng := world.rng
+	var floor_index := 0
 	for i in range(1, map.rooms.size() - 1):
 		var room := map.rooms[i]
 		for n in rng.randi_range(monsters_per_room.x, monsters_per_room.y):
@@ -91,7 +94,10 @@ func populate(world: World) -> void:
 				return
 			var cell := map.random_cell_in(room, rng)
 			var at := world.nearest_free_point(map.cell_to_world(cell))
-			world.roll_elite(world.spawn_monster(def, at))
+			var monster := world.spawn_monster(def, at)
+			world.roll_elite(monster)
+			monster.floor_index = floor_index
+			floor_index += 1
 
 
 ## One of its monsters, by spawn weight.

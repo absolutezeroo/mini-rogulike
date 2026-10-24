@@ -140,7 +140,7 @@ static func populate(world: World, content: ContentDB, depth: int) -> void:
 	if world.unpeopled:
 		return  # the monsters and the items lying around come last: the rest is as it would be
 	var extra := world.rules.extra_monsters()
-	var max_per_room := config.max_monsters_per_room + world.rules.difficulty.extra_monsters
+	var max_per_room := world.rules.max_monsters_per_room()
 	var counts := {}  # room index -> monsters
 	var total := 0
 	for i in range(1, map.rooms.size()):

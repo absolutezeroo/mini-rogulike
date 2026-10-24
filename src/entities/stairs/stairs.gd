@@ -43,9 +43,21 @@ func _ready() -> void:
 func bind_seal(seal: StairsSeal) -> void:
 	_seal = seal
 	seal.broken.connect(_on_seal_broken)
+	seal.changed.connect(_on_seal_changed)  # (a resumed floor opens it quietly: StairsSeal.restore())
+	_on_seal_changed()
+
+
+func _on_seal_changed() -> void:
 	if _motes:
 		_motes.visible = not is_sealed()
 	queue_redraw()
+
+
+## Taken off with its floor: the seal lives on with the World.
+func _exit_tree() -> void:
+	if _seal and _seal.broken.is_connected(_on_seal_broken):
+		_seal.broken.disconnect(_on_seal_broken)
+		_seal.changed.disconnect(_on_seal_changed)
 
 
 func is_sealed() -> bool:

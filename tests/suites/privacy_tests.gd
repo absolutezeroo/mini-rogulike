@@ -141,22 +141,22 @@ func _test_rules() -> void:
 	Leaderboards.use_for_tests()
 	check(not Privacy.should_ask(), "without a server, nothing is asked")
 	_use_fake()
-	Privacy.fake_now = T0
+	OnlineSession.fake_now = T0
 	# Too young: off, never offered, a grant does nothing.
 	Privacy.answer_age(false)
 	Privacy.grant()
 	check(not Privacy.analytics_allowed() and not Privacy.should_ask(), "under 16: the statistics stay off and are never offered")
-	Privacy.fake_now = T0 + 400 * DAY
+	OnlineSession.fake_now = T0 + 400 * DAY
 	check(not Privacy.should_ask(), "...even a year later")
 	# Old enough, refused: kept six months.
 	Privacy.use_for_tests()
-	Privacy.fake_now = T0
+	OnlineSession.fake_now = T0
 	Privacy.answer_age(true)
 	Privacy.refuse()
 	check(not Privacy.analytics_allowed() and not Privacy.should_ask(), "a refusal is kept")
-	Privacy.fake_now = T0 + (Privacy.def.reask_days - 1) * DAY
+	OnlineSession.fake_now = T0 + (Privacy.def.reask_days - 1) * DAY
 	check(not Privacy.should_ask(), "...and not asked again before six months")
-	Privacy.fake_now = T0 + (Privacy.def.reask_days + 1) * DAY
+	OnlineSession.fake_now = T0 + (Privacy.def.reask_days + 1) * DAY
 	check(Privacy.should_ask() and not Privacy.needs_age(), "...asked again after six months (the age is known)")
 	Privacy.grant()
 	check(Privacy.analytics_allowed() and not Privacy.should_ask(), "accepted: on, not asked again")
@@ -168,7 +168,7 @@ func _test_rules() -> void:
 	Privacy.def.consent_version = version
 	Privacy.answer_age(false)
 	check(not Privacy.analytics_allowed(), "a later 'under 16' turns them off")
-	Privacy.fake_now = -1
+	OnlineSession.fake_now = -1
 
 
 ## A run that ends without consent, refused, or as a debug run: nothing queued, nothing sent,
@@ -242,7 +242,7 @@ func _test_consented_run() -> void:
 	fake.online = true
 	await Telemetry.flush()
 	check(Telemetry.queue.is_empty() and fake.events.size() == 2 and fake.events[0].name == "run_end", "back online, the events are sent once (%d)" % fake.events.size())
-	check(not Leaderboards.device_id.is_empty() and fake.alias_id() > 0, "...under this device's random id")
+	check(not OnlineSession.device_id.is_empty() and fake.alias_id() > 0, "...under this device's random id")
 	await Telemetry.flush()
 	check(fake.events.size() == 2, "nothing is sent twice")
 	# Withdrawn: what waits is dropped, nothing more goes.
@@ -258,15 +258,15 @@ func _test_delete() -> void:
 	var fake := consent_on_fake()
 	Leaderboards.set_shown(true)
 	Leaderboards.set_pseudonym("Kagari")
-	await Leaderboards.identity()
-	var id := Leaderboards.device_id
-	check(not id.is_empty() and not Leaderboards.player_id.is_empty(), "identified: a device id and its server player")
+	await OnlineSession.identity()
+	var id := OnlineSession.device_id
+	check(not id.is_empty() and not OnlineSession.player_id.is_empty(), "identified: a device id and its server player")
 	Telemetry._enqueue({ "name": &"boss", "props": { "boss": "golem" }, "timestamp": 3 })
 	var request := Privacy.deletion_request()
-	check(request.id == id and request.player == Leaderboards.player_id and request.name == "Kagari" and str(request.body).contains(id), "the deletion request names the online id, the server's player and the pseudonym")
+	check(request.id == id and request.player == OnlineSession.player_id and request.name == "Kagari" and str(request.body).contains(id), "the deletion request names the online id, the server's player and the pseudonym")
 	check(str(request.mailto).is_empty() == PrivacyDef.is_placeholder(Privacy.def.contact_email), "no email can be sent to a placeholder address")
 	Privacy.forget_online()
-	check(Leaderboards.device_id.is_empty() and Leaderboards.player_id.is_empty() and Leaderboards.pseudonym.is_empty() and not Leaderboards.shown, "deleted: the id, the player and the name forgotten, the leaderboards off")
+	check(OnlineSession.device_id.is_empty() and OnlineSession.player_id.is_empty() and Leaderboards.pseudonym.is_empty() and not Leaderboards.shown, "deleted: the id, the player and the name forgotten, the leaderboards off")
 	check(Telemetry.queue.is_empty() and not Privacy.analytics_allowed(), "...the statistics off and nothing waiting")
 	check(not Leaderboards.needs_name(), "...and not asked again at once (the player's answer)")
 	var calls := fake.calls
@@ -544,19 +544,19 @@ func _test_options() -> void:
 	check(Leaderboards.shown and boards.button_pressed, "published from the Options")
 	boards.button_pressed = false
 	check(not Leaderboards.shown, "the switch turns publishing off")
-	await Leaderboards.identity()
+	await OnlineSession.identity()
 	options.open()
-	check((options.get_node("%OnlineIdText") as Label).text == Leaderboards.device_id, "the online id is shown (for a deletion request)")
+	check((options.get_node("%OnlineIdText") as Label).text == OnlineSession.device_id, "the online id is shown (for a deletion request)")
 	# Delete my online data.
 	DeleteDataDialog.opens_email = false
 	(options.get_node("%DeleteDataButton") as Button).pressed.emit()
 	await _frames(2)
 	var delete := options.get_node("%DeleteDialog") as DeleteDataDialog
 	check(delete.visible, "Delete my online data asks first")
-	var id := Leaderboards.device_id
+	var id := OnlineSession.device_id
 	(delete.get_node("%ConfirmButton") as Button).pressed.emit()
 	await _frames(2)
-	check(Leaderboards.device_id.is_empty() and (delete.get_node("%DoneText") as Label).text.contains(id), "deleted: the id forgotten, and shown to write with")
+	check(OnlineSession.device_id.is_empty() and (delete.get_node("%DoneText") as Label).text.contains(id), "deleted: the id forgotten, and shown to write with")
 	options.close()
 	check(not delete.visible and options.visible, "Back closes the dialog first")
 	check(not analytics.button_pressed and not boards.button_pressed, "...and everything online is off")

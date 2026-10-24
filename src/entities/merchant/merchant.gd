@@ -51,7 +51,14 @@ func _roll_stock() -> void:
 	for kept in _world.kept_stock:
 		stock.append(kept.duplicate())
 	_world.kept_stock.clear()
+	var held := stock.size()
 	_roll_new()
+	# A floor rebuilt from its seed rolls the same stock: the entry locked here before quitting
+	# would be in it twice (once kept, once rolled again). The kept one stays.
+	var kept_keys := stock.slice(0, held).map(func(entry: Dictionary) -> String: return _key(LootRoller.to_data(entry.item)))
+	for i in range(stock.size() - 1, held - 1, -1):
+		if kept_keys.has(_key(LootRoller.to_data(stock[i].item))):
+			stock.remove_at(i)
 
 
 ## Fresh stock next to what is locked.
@@ -133,6 +140,34 @@ func sell_to(player: Player, index: int) -> bool:
 	Events.item_bought.emit(entry.item)
 	Sfx.play_ui(Sfx.bank.coin)
 	Events.log_message(tr("Bought %s") % tr(entry.item.display_name), entry.item.rarity_color())
+	return true
+
+
+## What a save keeps of this merchant: its whole stock as it is now (rerolled, sold to, locked)
+## and the rerolls paid (World.spent_data() "merchant").
+func save_data() -> Dictionary:
+	return {
+		"stock": stock.map(func(entry: Dictionary) -> Dictionary:
+			return { "item": LootRoller.to_data(entry.item), "price": entry.price, "locked": entry.get("locked", false) }),
+		"rerolls": rerolls_done,
+	}
+
+
+## A resumed floor: the stock comes back as it was saved (save_data()), not as the seed rolls it.
+## False (nothing changed) when `data` holds no stock.
+func load_data(data: Variant) -> bool:
+	if not data is Dictionary or not (data as Dictionary).get("stock") is Array:
+		return false
+	stock.clear()
+	for entry: Variant in data.stock:
+		if not entry is Dictionary:
+			continue
+		var item := LootRoller.from_data((entry as Dictionary).get("item"))
+		var price: Variant = (entry as Dictionary).get("price", 0)
+		if item and (price is float or price is int) and int(price) > 0:
+			stock.append({ "item": item, "price": int(price), "locked": entry.get("locked", false) == true })
+	var rerolls: Variant = (data as Dictionary).get("rerolls", 0)
+	rerolls_done = maxi(int(rerolls), 0) if rerolls is float or rerolls is int else 0
 	return true
 
 

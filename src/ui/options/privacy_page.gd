@@ -65,7 +65,7 @@ func refresh() -> void:
 	if _analytics:
 		_analytics.set_pressed_no_signal(Privacy.analytics_allowed())
 	if _online_id:
-		_online_id.text = Leaderboards.device_id if not Leaderboards.device_id.is_empty() else tr("None yet (nothing was sent)")
+		_online_id.text = OnlineSession.device_id if not OnlineSession.device_id.is_empty() else tr("None yet (nothing was sent)")
 
 
 ## Back: closes the dialog or page open over the window. False when none was open.

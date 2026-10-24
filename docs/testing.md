@@ -27,8 +27,12 @@ The suites (`tests/suites/`, each a `TestSuite`):
 - **unit**: the rules, the content database, 100 generated maps (and their walls), 40 boss arenas,
   inventory, equipment, perks, bosses, the profile, the online leaderboards' queue and filter
   (`LeaderboardTests`, on `FakeBoardBackend`: a server in memory), the privacy rules, the gameplay
-  statistics and the credits' data (`PrivacyTests`), the world counters (`WorldStatsTests`), the remote settings (`RemoteConfigTests`), player feedback (`FeedbackTests`). No
-  game running: fast.
+  statistics and the credits' data (`PrivacyTests`), the world counters (`WorldStatsTests`), the remote settings (`RemoteConfigTests`), player feedback (`FeedbackTests`), what the online
+  services share and their start-up in a release build in many orders (`OnlineSessionTests`),
+  Talo's answers as `TaloBackend` reads them (`TaloContractTests`, a transport in memory). No
+  game running: fast. A test that needs the release-only paths sets `OnlineSession.release_mode`;
+  one that needs its own `user://` file names it per process (`OS.get_process_id()`): every
+  worktree and parallel run shares one user folder.
 - **title**: the title screen and its panels (the Leaderboards page with and without a server, the
   statistics' questions, Options > Privacy, the policy and the credits, the world counters' line
   and the Well's Toll page, the remote settings' event plaque and message of the day; the feedback
@@ -84,6 +88,15 @@ The suites (`tests/suites/`, each a `TestSuite`):
   lamps, her box at every size in French), its game part in the game suite (a real death told on
   the end screen, a trap's, the fallback line, the merchant's and the spirit's lines, the end
   screen in French at 1280x720 and the phones' sizes).
+- The gameplay's core (`core_tests.gd`, `CoreTests`): its unit part in the unit suite (the numbers
+  moved from code to data kept their values: combat rules, the hero's feel, the bosses' shockwave,
+  chase and wander, ambushes, drops; FloorRules' answers equal the old hand-made products over
+  every depth, difficulty, event and curse; the one twist roller and the ways down roll as before
+  on the same numbers; the loot odds told are the odds rolled; each effect kind dresses itself;
+  the same dice give the same hits), its game part in the game suite (a delayed heal and a
+  delayed blast credited to what set them off; the floor's combat dice, apart from its own
+  rolls; an encounter's gold and odds with the run's boons; an arrow trap's volley stopping out
+  of the tree).
 - The floors' identity (`level_tests.gd`, `LevelTests`): its unit part in the unit suite (the
   room shapes' geometry; 20 floors a biome at every difficulty's size: one piece, solid walls,
   start, stairs, hearts and cracks on open ground, every listed shape used, a signature room now
@@ -101,7 +114,8 @@ one).
 
 **Read the output, not only the exit code.** Engine errors printed while a test runs (`ERROR:`,
 `SCRIPT ERROR:`) don't fail the run today. Known ones (2026-10-22): `Parse JSON failed` twice (the
-damaged-save test, on purpose), plus the leak warnings at exit. Any other is a bug, even if
+damaged-save test, on purpose), `WARNING: Run save: ...` lines (the unit and game suites' damaged and
+too-new run saves, on purpose: SaveTests, `_test_save_rules`), plus the leak warnings at exit. Any other is a bug, even if
 every check passed (`Lambda capture at index 0 was freed`, seen in the game suite until then, was
 one: see docs/conventions.md, "Lambdas that run later").
 

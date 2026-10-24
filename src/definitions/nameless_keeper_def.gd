@@ -141,33 +141,33 @@ func boss_skill(skill: SkillDef, carried: Array[VfxElementDef] = [], may_slow: b
 		return null
 	made.effects = effects
 	made.cooldown = skill.cooldown * cooldown_scale
+	# Warned and cast by the kind of its first effect (Effect.telegraph_kind()).
 	var first := effects[0]
-	var areas := effects.filter(func(e: Effect) -> bool: return e is DamageAreaEffect)
 	made.telegraph_radius = 0.0
-	if first is DashStrikeEffect:
-		var dive := first as DashStrikeEffect
-		made.cast_time = dive_cast_time
-		made.ai_min_range = dive_min_range
-		made.ai_max_range = dive.distance + dive_range_margin
-	elif first is ProjectileEffect:
-		made.cast_time = shot_cast_time
-		made.ai_min_range = 0.0
-		made.ai_max_range = minf((first as ProjectileEffect).max_distance, shot_max_range)
-	elif first is DamageAreaEffect:
-		var area := first as DamageAreaEffect
-		made.cast_time = area_cast_time
-		made.ai_min_range = 0.0
-		made.ai_max_range = area.offset + area.radius + area_range_margin
-		if areas.size() > 1:
-			# Several blows: the warning is one circle around him that holds them all.
-			var reach := 0.0
-			for blow: DamageAreaEffect in areas:
-				reach = maxf(reach, absf(blow.offset) + blow.radius)
-			made.telegraph_radius = reach
-	else:
-		made.cast_time = other_cast_time
-		made.ai_min_range = 0.0
-		made.ai_max_range = other_max_range
+	match first.telegraph_kind():
+		Effect.Telegraph.DIVE:
+			made.cast_time = dive_cast_time
+			made.ai_min_range = dive_min_range
+			made.ai_max_range = first.ai_reach() + dive_range_margin
+		Effect.Telegraph.SHOT:
+			made.cast_time = shot_cast_time
+			made.ai_min_range = 0.0
+			made.ai_max_range = minf(first.ai_reach(), shot_max_range)
+		Effect.Telegraph.AREA:
+			made.cast_time = area_cast_time
+			made.ai_min_range = 0.0
+			made.ai_max_range = first.ai_reach() + area_range_margin
+			var areas := effects.filter(func(e: Effect) -> bool: return e.telegraph_kind() == Effect.Telegraph.AREA)
+			if areas.size() > 1:
+				# Several blows: the warning is one circle around him that holds them all.
+				var reach := 0.0
+				for blow: Effect in areas:
+					reach = maxf(reach, blow.warning_reach())
+				made.telegraph_radius = reach
+		_:
+			made.cast_time = other_cast_time
+			made.ai_min_range = 0.0
+			made.ai_max_range = other_max_range
 	made.cast_animation = &"cast"
 	return made
 
@@ -175,24 +175,13 @@ func boss_skill(skill: SkillDef, carried: Array[VfxElementDef] = [], may_slow: b
 ## One effect of a hero's skill as his: a dive narrowed to a band his body could cross and
 ## never slowing; dressed in the elements he carries.
 func _boss_effect(effect: Effect, carried: Array[VfxElementDef]) -> Effect:
-	if effect is DashStrikeEffect:
-		var dive := ((effect as DashStrikeEffect).dressed_in(carried) if not carried.is_empty() else effect.duplicate()) as DashStrikeEffect
-		dive.width = minf(dive.width, dive_width_max)
-		if dive.status and dive.status.slow > 0.0:
-			dive.status = null
-		return dive
-	if not carried.is_empty():
-		if effect is ProjectileEffect:
-			return (effect as ProjectileEffect).dressed_in(carried, false)
-		if effect is DamageAreaEffect:
-			return (effect as DamageAreaEffect).dressed_in(carried)
-	return effect
+	return effect.as_boss_skill(carried, dive_width_max)
 
 
 ## `effect` with its slow kept within the rules: `max_slow_seconds` at most, none without
 ## `may_slow` (a copy when it changes; the hero's skill stays as it is).
 func _tame_slow(effect: Effect, may_slow: bool) -> Effect:
-	var status := effect.get("status") as OnHitStatus
+	var status := effect.hit_status()
 	if status == null or status.slow <= 0.0:
 		return effect
 	if may_slow and status.slow_duration <= max_slow_seconds:
@@ -202,15 +191,13 @@ func _tame_slow(effect: Effect, may_slow: bool) -> Effect:
 		tamed.slow_duration = max_slow_seconds
 	else:
 		tamed.slow = 0.0
-	var copy := effect.duplicate() as Effect
-	copy.set("status", tamed)
-	return copy
+	return effect.with_hit_status(tamed)  # (a copy keeping its dressing)
 
 
 ## Something in `skill` slows the hero.
 static func slows(skill: SkillDef) -> bool:
 	return skill.effects.any(func(effect: Effect) -> bool:
-		var status := effect.get("status") as OnHitStatus
+		var status := effect.hit_status() if effect else null
 		return status != null and status.slow > 0.0)
 
 

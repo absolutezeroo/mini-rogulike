@@ -44,6 +44,11 @@ func on_fire(_trap: Trap) -> void:
 	pass
 
 
+## One more shot of a volley it started (Trap.start_volley()), on the trap's own clock.
+func volley_shot(_trap: Trap) -> void:
+	pass
+
+
 ## Every physics frame of the active phase: hurts whoever stands on it.
 func while_active(trap: Trap) -> void:
 	trap.hurt_overlapping()

@@ -19,6 +19,7 @@ func run() -> void:
 	_test_hidden_floor()
 	_test_finale()
 	_test_stairs_seal()
+	_test_save_rules()
 	_test_inventory_and_equipment()
 	_test_bag_stacks_and_dismantle()
 	_test_perks()
@@ -94,6 +95,16 @@ func run() -> void:
 	add_child(feedback)
 	await feedback.run_unit()
 	feedback.free()
+	# What the online services share: the session, the file and queue helper, the start-up in
+	# any order (OnlineSessionTests); Talo's answers as TaloBackend reads them (TaloContractTests).
+	var session := OnlineSessionTests.new()
+	add_child(session)
+	await session.run_unit()
+	session.free()
+	var talo := TaloContractTests.new()
+	add_child(talo)
+	await talo.run_unit()
+	talo.free()
 	var gear := GearLookTests.new()
 	add_child(gear)
 	gear.run()
@@ -117,6 +128,11 @@ func run() -> void:
 	add_child(dialogue)
 	await dialogue.run_unit()
 	dialogue.free()
+	# The gameplay's core after its audit: numbers in data, FloorRules, one twist roller (CoreTests).
+	var core := CoreTests.new()
+	add_child(core)
+	core.run_unit()
+	core.free()
 
 
 ## Text keeps whole pixels (Fonts, docs/design/interface.md "Text"): the font (Pixel Operator 8) is
@@ -323,7 +339,8 @@ func _test_run_time() -> void:
 	check(state.record_key() == String(state.difficulty.id), "records by difficulty (%s)" % state.record_key())
 	var daily := RunState.create(CONTENT, {}, rng, 20000)
 	check(daily.record_key() == "", "a daily run keeps no record")
-	check(state.summary(CONTENT, 3).contains("Time 1:18.50"), "the summary gives the time: %s" % state.summary(CONTENT, 3))
+	var rows := state.summary_rows(CONTENT, 3)
+	check(rows.any(func(row: Array) -> bool: return row[0] == "Time" and str(row[1]).begins_with("1:18.50")), "the end-of-run numbers give the time: %s" % [rows])
 
 	var splits: Array[float] = [30.0, 60.0, 95.0]
 	check(Profile.record_time("normal", 95.0, splits), "a first win is a record")
@@ -2567,3 +2584,104 @@ func _test_sprite_frames_whole() -> void:
 					check(cut_rows < 10, "%s %s frame %d: not cut through the drawing (%d rows drawn across its edge)" % [file, anim, i, cut_rows])
 	check(checked >= 20, "big character frames checked (%d)" % checked)
 
+
+## The run's save (RunSave): older versions migrated, a newer one refused, damaged fields dropped
+## (never a script error), the floor's stamp. The floor's ledger (FloorLedger); the stairs' seal
+## restored quietly; NavGrid's nearest open cell; the flat heal boons; place_name_key() stays a
+## key; the last boss saved.
+func _test_save_rules() -> void:
+	check(RunSave.parse({ "version": RunSave.VERSION + 1, "depth": 3 }).is_empty(), "a save from a newer game is not read")
+	check(RunSave.parse({ "version": RunSave.OLDEST_VERSION - 1, "depth": 3 }).is_empty() and RunSave.parse({ "version": "2" }).is_empty(), "nor one older than every migration, nor one without a version")
+	check(RunSave.parse("x").is_empty() and RunSave.parse([1]).is_empty() and RunSave.parse(null).is_empty(), "nor something that isn't a run")
+	var old := RunSave.parse(JSON.parse_string(JSON.stringify({ "version": 1, "depth": 4, "kills": 9, "player": { "level": 3 }, "floor": { "chests": [[3, 4]] } })))
+	check(int(old.get("version", 0)) == RunSave.VERSION and int(old.get("depth", 0)) == 4 and int(old.get("kills", 0)) == 9 and int((old.get("player", {}) as Dictionary).get("level", 0)) == 3, "a version 1 save is migrated: the run and the hero kept (%s)" % [old])
+	check(RunSave.floor_outdated(old) and RunSave.floor_of(old).is_empty(), "...and its floor, saved without a stamp, is laid fresh")
+	var current := { "floor": { "stamp": RunSave.floor_stamp(), "chests": [[3, 4]] } }
+	check(not RunSave.floor_outdated(current) and RunSave.floor_of(current).has("chests"), "a floor this build saved is restored")
+	var other_build := { "floor": { "stamp": RunSave.floor_stamp() + "-older", "chests": [[3, 4]] } }
+	check(RunSave.floor_outdated(other_build) and RunSave.floor_of(other_build).is_empty(), "one another build saved is laid fresh")
+	check(not RunSave.floor_outdated({}) and not RunSave.floor_outdated({ "floor": {} }), "nothing saved on the floor: nothing to say")
+	check(RunSave.floor_stamp().begins_with(str(ProjectSettings.get_setting("application/config/version"))), "the stamp names the game's version (%s)" % RunSave.floor_stamp())
+	# A damaged file: what doesn't fit is dropped, the rest kept; making the run raises no error.
+	var damaged := RunSave.parse(JSON.parse_string(JSON.stringify({
+		"version": RunSave.VERSION, "depth": [1], "kills": 7, "routes": { "2": "x", "3": 1 }, "splits": [1.5, "a", [2]],
+		"difficulty": 5, "has_won": "yes", "kept_stock": [3, { "price": "a" }, { "price": 4 }], "offers": [2, { "rarity": "a" }],
+		"player": { "level": "high", "xp": 4, "perks": [7, { "stacks": [1] }, { "stacks": 2 }], "base_stats": { "max_hp": "a", "damage": 3 } },
+		"floor": { "chests": 4, "seal_kills": "x", "slain": [[1, "rat"]] }, "last_boss": [1], "seed": { "a": 1 },
+	})))
+	check(not damaged.has("depth") and not damaged.has("difficulty") and not damaged.has("has_won") and not damaged.has("last_boss") and not damaged.has("seed") and int(damaged.get("kills", 0)) == 7, "damaged fields are dropped, the others kept")
+	check(damaged.get("routes") == { "3": 1.0 } and damaged.get("splits") == [1.5] and damaged.get("kept_stock") == [{}, { "price": 4.0 }] and damaged.get("offers") == [{}], "damaged entries of a list or a table too, and damaged fields of an entry (%s)" % [damaged])
+	var hero: Dictionary = damaged.get("player", {})
+	check(not hero.has("level") and int(hero.get("xp", 0)) == 4 and hero.get("perks") == [{}, { "stacks": 2.0 }] and hero.get("base_stats") == { "damage": 3.0 }, "and inside the hero's (%s)" % [hero])
+	var floor_data: Dictionary = damaged.get("floor", {})
+	check(not floor_data.has("chests") and not floor_data.has("seal_kills") and floor_data.has("slain"), "and the floor's")
+	var from_damaged := RunState.create(CONTENT, damaged, RandomNumberGenerator.new())
+	check(from_damaged.depth == 1 and from_damaged.kills == 7 and from_damaged.routes == { 3: 1 } and from_damaged.splits.size() == 1 and from_damaged.splits[0] == 1.5, "a damaged save still makes a run, with what it kept")
+	check(RunSave.parse({ "version": RunSave.VERSION, "player": [1] }).is_empty(), "a damaged hero: the run can't come back")
+
+	# The last boss comes back with the run (Continue in endless mode after a resumed win); the
+	# Nameless Keeper is saved by a mark (made again from the run's snapshot).
+	var state := RunState.create(CONTENT, {}, RandomNumberGenerator.new())
+	var boss := CONTENT.dungeon.acts[0].boss
+	state.last_boss = boss
+	check(RunState.create(CONTENT, JSON.parse_string(JSON.stringify(state.to_data())), RandomNumberGenerator.new()).last_boss == boss, "the last boss slain is saved with the run")
+	state.keeper_boss = NamelessKeeperDef.new()
+	state.last_boss = state.keeper_boss
+	check(state.to_data().get("last_boss") == RunState.KEEPER_BOSS, "the Nameless Keeper is saved as himself, not as a file")
+	# place_name_key() is an English key, translated where it is shown.
+	var bare := ContentDB.new()
+	bare.dungeon = DungeonConfig.new()
+	TranslationServer.set_locale("fr")
+	check(state.place_name_key(bare) == "Dungeon" and state.place_name(bare) == tr("Dungeon"), "with no act, the place's key is \"Dungeon\" whatever the language (%s)" % state.place_name_key(bare))
+	TranslationServer.set_locale(Settings.language)
+
+	# The floor's ledger: numbers in the seed's order per kind, spent once, an id as a guard.
+	var ledger := FloorLedger.new()
+	var nodes: Array[Node] = [Node.new(), Node.new(), Node.new(), Node.new()]
+	check(ledger.lay(FloorLedger.ITEM, nodes[0], "potion") == -1, "nothing is numbered outside the floor's laying")
+	ledger.numbering = true
+	check(ledger.lay(FloorLedger.ITEM, nodes[0], "potion") == 0 and ledger.lay(FloorLedger.ITEM, nodes[1], "katana") == 1 and ledger.lay(FloorLedger.PROP, nodes[2], "crate") == 0, "numbered in order, each kind on its own")
+	ledger.spend(FloorLedger.ITEM, nodes[1])
+	ledger.spend(FloorLedger.ITEM, nodes[1])
+	ledger.spend(FloorLedger.ITEM, nodes[3])  # never laid
+	check(ledger.to_data() == { "items": [[1, "katana"]] }, "spent once, with its id (%s)" % [ledger.to_data()])
+	var saved: Variant = JSON.parse_string(JSON.stringify({ "items": [[1, "katana"], [0, "sword"], "x", [9, "potion"], [1.5]], "props": [[0, "crate"]], "gold": 3 }))
+	var rebuilt := FloorLedger.new()
+	rebuilt.numbering = true
+	rebuilt.lay(FloorLedger.ITEM, nodes[0], "potion")
+	rebuilt.lay(FloorLedger.ITEM, nodes[1], "katana")
+	rebuilt.lay(FloorLedger.PROP, nodes[2], "crate")
+	rebuilt.numbering = false
+	var taken_back: Array[Node] = []
+	rebuilt.restore(saved, func(_kind: String, node: Object) -> void: taken_back.append(node as Node))
+	check(taken_back.size() == 2 and taken_back[0] == nodes[1] and taken_back[1] == nodes[2],"resumed, the things spent go again; another kind under a number, or a damaged entry, takes nothing (%d taken)" % taken_back.size())
+	check(rebuilt.spent_count(FloorLedger.ITEM) == 1 and rebuilt.spent_count(FloorLedger.PROP) == 1, "and they are spent again for the next save")
+	for node in nodes:
+		node.free()
+
+	# The stairs' seal restored from a save: open again, without its fanfare (no `broken`).
+	var seal := StairsSeal.new()
+	var broken := [0]
+	var changed := [0]
+	seal.broken.connect(func() -> void: broken[0] += 1)
+	seal.reset(10, 0.7, 4)
+	seal.changed.connect(func() -> void: changed[0] += 1)
+	seal.restore(9)
+	check(not seal.is_sealed() and broken[0] == 0 and changed[0] == 1, "a seal broken before quitting comes back open, quietly")
+
+	# NavGrid: a blocked end of a path goes to the nearest open cell, not the first in reading order.
+	var map := DungeonMap.new(9, 9, 32)
+	for y in range(1, 8):
+		for x in range(1, 8):
+			map.set_floor(Vector2i(x, y))
+	var nav := NavGrid.new()
+	nav.build(map)
+	for cell: Vector2i in [Vector2i(4, 4), Vector2i(4, 3), Vector2i(3, 4), Vector2i(4, 5)]:
+		nav.set_blocked(cell, true)
+	check(nav.nearest_open(Vector2i(4, 4)) == Vector2i(5, 4), "the nearest open cell: the one beside, not a corner (%s)" % nav.nearest_open(Vector2i(4, 4)))
+	check(nav.nearest_open(Vector2i(2, 2)) == Vector2i(2, 2), "an open cell is its own")
+
+	# The tree's heal and max Health scales are flat: an upgrade that sets one has one level.
+	for upgrade in CONTENT.upgrades:
+		if upgrade.kind == UpgradeDef.Kind.RULES and (upgrade.healing_scale != 1.0 or upgrade.max_hp_scale != 1.0):
+			check(upgrade.max_level == 1, "%s scales heals or max Health once: one level (%d)" % [upgrade.id, upgrade.max_level])

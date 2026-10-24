@@ -350,7 +350,7 @@ func _fill_stats() -> void:
 		[tr("Critical hits"), tr("%d%%") % roundi(stats.crit_chance * 100.0)],
 		[tr("Attack speed"), tr("%+d%%") % roundi(stats.attack_speed * 100.0)],
 		[tr("Skill damage"), tr("%+d%%") % roundi(stats.skill_power * 100.0)],
-		[tr("Skill recharge"), tr("%+d%%") % roundi(minf(stats.cooldown_reduction, SkillSet.MAX_COOLDOWN_REDUCTION) * 100.0)],
+		[tr("Skill recharge"), tr("%+d%%") % roundi(minf(stats.cooldown_reduction, Combat.RULES.max_cooldown_reduction) * 100.0)],
 	]
 	UiParts.stat_rows(_stats, lines)
 

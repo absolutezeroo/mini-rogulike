@@ -25,6 +25,9 @@ const TIMEOUT := 15.0
 
 ## The server's answer to the last send_events(): a list of errors per event (empty lists: all taken).
 var last_event_errors: Array = []
+## A debug build's data: Talo keeps it apart in the dashboard as dev data (X-Talo-Dev-Build), and
+## shows its own entries back. Set by OnlineSession from its release_mode.
+var dev_build := OS.is_debug_build()
 
 var _key := ""
 var _url := DEFAULT_URL
@@ -275,33 +278,56 @@ static func _entry(data: Dictionary) -> BoardBackend.Entry:
 ## One request: {status, code, body (parsed JSON or null)}. `anonymous`: without the identified
 ## player's headers (the remote settings' read).
 func _request(method: HTTPClient.Method, path: String, body: Variant = null, anonymous: bool = false) -> Dictionary:
-	var http := HTTPRequest.new()
-	http.timeout = TIMEOUT
-	http.accept_gzip = true
-	add_child(http)
 	var headers := PackedStringArray([
 		"Authorization: Bearer %s" % _key,
 		"Content-Type: application/json",
 		"Accept: application/json",
 		# A build from the editor (debug) is development data: kept apart in the dashboard, and
 		# it sees its own entries.
-		"X-Talo-Dev-Build: %s" % ("1" if OS.is_debug_build() else "0"),
-		"X-Talo-Include-Dev-Data: %s" % ("1" if OS.is_debug_build() else "0"),
+		"X-Talo-Dev-Build: %s" % ("1" if dev_build else "0"),
+		"X-Talo-Include-Dev-Data: %s" % ("1" if dev_build else "0"),
 	])
 	if _alias_id > 0 and not anonymous:
 		headers.append("X-Talo-Alias: %d" % _alias_id)
 		headers.append("X-Talo-Player: %s" % _player_id)
-	var error := http.request(_url + path, headers, method, JSON.stringify(body) if body != null else "")
+	var result: Array = await _send(method, _url + path, headers, JSON.stringify(body) if body != null else "")
+	return answer_of(int(result[0]), int(result[1]), result[2] as PackedByteArray)
+
+
+## The HTTP exchange itself: [HTTPRequest.Result, response code, body bytes]. The tests replace
+## it (a subclass answering canned Talo bodies: TaloContractTests), so everything else here runs
+## as it does against the real server.
+func _send(method: HTTPClient.Method, url: String, headers: PackedStringArray, body: String) -> Array:
+	var http := HTTPRequest.new()
+	http.timeout = TIMEOUT
+	http.accept_gzip = true
+	add_child(http)
+	var error := http.request(url, headers, method, body)
 	if error != OK:
 		http.queue_free()
-		return { "status": Status.OFFLINE, "code": 0, "body": null }
+		return [HTTPRequest.RESULT_CANT_CONNECT, 0, PackedByteArray()]
 	var result: Array = await http.request_completed
 	http.queue_free()
-	var code: int = result[1]
-	var parsed: Variant = JSON.parse_string((result[3] as PackedByteArray).get_string_from_utf8()) if (result[3] as PackedByteArray).size() > 0 else null
+	return [result[0], result[1], result[3]]
+
+
+## What an answer means: {status, code, body}. No answer, a 429 (too many requests) or a 5xx:
+## OFFLINE (try again later); another 4xx: REJECTED (never resent as it is). The body is parsed
+## without a word in the log when it isn't JSON (a captive portal's or a proxy's page): null.
+static func answer_of(result: int, code: int, bytes: PackedByteArray) -> Dictionary:
 	var status := Status.OK
-	if result[0] != HTTPRequest.RESULT_SUCCESS or code == 0 or code == 429 or code >= 500:
+	if result != HTTPRequest.RESULT_SUCCESS or code == 0 or code == 429 or code >= 500:
 		status = Status.OFFLINE
 	elif code >= 400:
 		status = Status.REJECTED
-	return { "status": status, "code": code, "body": parsed }
+	return { "status": status, "code": code, "body": parse_body(bytes) }
+
+
+## `bytes` as JSON, or null (empty, or not JSON: JSON.parse_string() would print an engine error).
+static func parse_body(bytes: PackedByteArray) -> Variant:
+	if bytes.is_empty():
+		return null
+	var json := JSON.new()
+	if json.parse(bytes.get_string_from_utf8()) != OK:
+		return null
+	return json.data

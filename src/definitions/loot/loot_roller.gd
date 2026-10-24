@@ -31,22 +31,40 @@ static func roll(item: ItemDef, depth: int, quality: float, config: DungeonConfi
 
 
 static func pick_rarity(depth: int, quality: float, config: DungeonConfig, rng: RandomNumberGenerator) -> int:
-	var levels := depth - 1
-	var weights := [
-		config.common_weight,
-		(config.magic_weight + config.magic_weight_per_depth * levels) * quality,
-		(config.rare_weight + config.rare_weight_per_depth * levels) * quality,
-		(config.epic_weight + config.epic_weight_per_depth * levels) * quality,
-	]
-	var total := 0.0
-	for weight: float in weights:
-		total += weight
-	var pick := rng.randf() * total
+	var weights := rarity_weights(depth, quality, config)
+	var pick := rng.randf() * _total(weights)
 	for rarity in weights.size():
 		pick -= weights[rarity]
 		if pick < 0.0:
 			return rarity
 	return ItemRarity.COMMON
+
+
+## The weight of each rarity (ItemRarity order: Common, Magic, Rare, Epic) for equipment found at
+## `depth` from a source of `quality` (DungeonConfig > Loot): what pick_rarity() rolls on, and
+## what anything telling the odds (an encounter, the balance tools) reads, so they never disagree.
+static func rarity_weights(depth: int, quality: float, config: DungeonConfig) -> PackedFloat64Array:
+	var levels := depth - 1
+	return PackedFloat64Array([
+		config.common_weight,
+		(config.magic_weight + config.magic_weight_per_depth * levels) * quality,
+		(config.rare_weight + config.rare_weight_per_depth * levels) * quality,
+		(config.epic_weight + config.epic_weight_per_depth * levels) * quality,
+	])
+
+
+## The chance that equipment found at `depth` from a source of `quality` is Rare or better
+## (pick_rarity()'s own odds).
+static func rare_or_better_chance(depth: int, quality: float, config: DungeonConfig) -> float:
+	var weights := rarity_weights(depth, quality, config)
+	return (weights[ItemRarity.RARE] + weights[ItemRarity.EPIC]) / _total(weights)
+
+
+static func _total(weights: PackedFloat64Array) -> float:
+	var total := 0.0
+	for weight in weights:
+		total += weight
+	return total
 
 
 ## A copy of `base` with that rarity, those affixes and runes, at item `level` (also how saved

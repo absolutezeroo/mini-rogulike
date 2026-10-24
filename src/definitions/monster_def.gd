@@ -36,6 +36,12 @@ extends ContentDef
 @export_group("Behaviour")
 ## Distance at which the monster notices the player (needs line of sight).
 @export var detect_radius: float = 260.0
+## Chasing, it sees this many times further (Monster.chase_detect_radius()), and gives up after
+## this many seconds without seeing its target (back to wandering).
+@export_range(1.0, 4.0, 0.05) var chase_sight_multiplier: float = 1.6
+@export_range(0.5, 20.0, 0.5) var chase_give_up_after: float = 4.0
+## Share of its move speed it wanders at, before it notices anyone.
+@export_range(0.0, 1.0, 0.05) var wander_speed: float = 0.35
 ## Telegraph time before each attack: the player's window to dodge.
 @export var attack_windup: float = 0.35
 ## Pause after attacking.

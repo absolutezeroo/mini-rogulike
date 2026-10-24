@@ -11,6 +11,9 @@ extends TrapDef
 ## Seconds between two arrows of a volley.
 @export var arrow_interval: float = 0.14
 @export var arrow_speed: float = 430.0
+## An arrow's body (what it hits with) and the color of its dot where it has no picture.
+@export var arrow_radius: float = 5.0
+@export var arrow_color: Color = Color("d9d3c7")
 ## The slit is at most this many cells away from the plate.
 @export_range(2, 20) var max_range: int = 9
 
@@ -18,26 +21,33 @@ extends TrapDef
 const DIRECTIONS: Array[Vector2i] = [Vector2i.UP, Vector2i.LEFT, Vector2i.RIGHT]
 
 
+## The first arrow now, the others of the volley one every `arrow_interval` on the trap's own
+## clock (Trap.start_volley()): a floor out of the tree (the Threshold) holds them, a freed one
+## drops them. (Never an await on this shared resource: it would outlive the trap's floor.)
 func on_fire(trap: Trap) -> void:
+	volley_shot(trap)
+	trap.start_volley(arrows - 1, arrow_interval)
+
+
+func volley_shot(trap: Trap) -> void:
 	var world := trap.world
+	var from := trap.get_launcher_position()
+	Sfx.play_at(sound, from, -2.0)
+	world.fire_trap_projectile(from, trap.launcher_direction, _arrow_spec(world))
+
+
+func _arrow_spec(world: World) -> ProjectileSpec:
 	var spec := ProjectileSpec.new()
 	spec.damage = damage_on(world)
 	spec.speed = arrow_speed
-	spec.radius = 5.0
+	spec.radius = arrow_radius
 	spec.max_distance = (max_range + 4) * world.map.tile_size
 	spec.knockback = knockback
 	spec.texture = arrow_texture
 	spec.texture_frames = 1  # one arrow, not a strip
-	spec.color = Color("d9d3c7")
+	spec.color = arrow_color
 	spec.glow = 0.0
-	var from := trap.get_launcher_position()
-	for i in arrows:
-		if i > 0:
-			await world.get_tree().create_timer(arrow_interval, false).timeout
-			if not is_instance_valid(trap):
-				return
-		Sfx.play_at(sound, from, -2.0)
-		world.fire_trap_projectile(from, trap.launcher_direction, spec)
+	return spec
 
 
 ## Nothing happens on the plate itself: the danger comes from the wall.

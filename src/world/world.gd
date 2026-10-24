@@ -34,6 +34,10 @@ var theme: DungeonTheme
 var player: Player
 var depth := 1
 var rng := RandomNumberGenerator.new()
+## The floor's combat dice: damage variance and crits (Combat.make_hit). Seeded from the floor's
+## own seed when it is built, apart from `rng`, so the fights are the same for the same seed and
+## inputs (a daily run, a balance measure) and a hit never shifts what the floor rolls next.
+var combat_rng := RandomNumberGenerator.new()
 ## Difficulty of the run (set by the game before building floors).
 var difficulty: DifficultyDef:
 	set(value):
@@ -74,7 +78,11 @@ var next_routes: Array[FloorRoute] = []
 ## The way the hero took to this floor (null: none to choose, or the first floor).
 var route: FloorRoute
 ## The run's rules from the Tree of Souls and its oath (RunBoons), set by the Game.
-var boons := RunBoons.new()
+var boons := RunBoons.new():
+	set(value):
+		boons = value
+		if rules:
+			rules.boons = value  # the floor's drops and gold ask its rules (FloorRules.boons)
 
 ## Debug: the next floor built is this biome. Used once.
 var forced_biome: BiomeDef
@@ -120,6 +128,9 @@ var collapsed_cells: Array[Vector2i] = []
 ## resumed run rebuilds the floor from its seed and leaves these out. The id is a guard: a
 ## monster whose number came out as another kind (a floor not rebuilt quite the same) stays.
 var slain_spawns: Array = []
+## What the hero used up of the things the floor's seed laid (items lying around, gold, props,
+## encounters), kept for the save the same way (FloorLedger).
+var ledger := FloorLedger.new()
 ## Set before rebuilding a saved floor (restore_spent), used once by build_floor.
 var _to_restore := {}
 ## Where the stairs are (boss floors get theirs when the boss dies).
@@ -178,6 +189,7 @@ const WAKE_MARGIN := 256.0
 
 func _ready() -> void:
 	Events.monster_killed.connect(_on_monster_killed)
+	Events.encounter_used.connect(func(encounter: Encounter) -> void: ledger.spend(FloorLedger.ENCOUNTER, encounter))
 	seal.broken.connect(_on_seal_broken)
 	BodyLook.warm_up(self)  # the body shader compiled while loading, not at the first burn
 
@@ -188,11 +200,14 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 	route = taken
 	floor_id += 1
 	depth = new_depth
+	combat_rng.seed = hash("%d-combat" % rng.seed)
 	opened_chests.clear()
 	bought.clear()
 	sealed_cells.clear()
 	collapsed_cells.clear()
 	slain_spawns.clear()
+	ledger.reset()
+	ledger.numbering = true  # (until the floor is laid: what comes later is never laid again)
 	forge_drought_at_start = floors_without_forge
 	_content = content
 	var hidden_def := hidden_floor
@@ -215,13 +230,11 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 		curse = taken.curse
 		floor_event = taken.floor_event
 	elif boss == null and depth > 1:
-		var curse_chance := difficulty.curse_chance if difficulty else 0.0
-		if rng.randf() < curse_chance:
-			curse = ContentDB.pick_from(content.curses, depth, rng) as CurseDef
-		if curse == null and rng.randf() < content.dungeon.floor_event_chance:
-			floor_event = FloorRoute.pick_event(content, depth, rng, tuning)
+		var rolled := FloorRoute.roll_twist(content, depth, rng, difficulty, tuning)
+		curse = rolled.curse
+		floor_event = rolled.floor_event
 		# The Dawn Knell's omen (remote settings) on every normal floor, after the usual rolls.
-		var omen := DailyRun.twist(content, tuning.omen) if tuning else null
+		var omen := FloorRoute.omen_of(content, tuning)
 		if omen and not hidden_def and not bottom:
 			curse = omen as CurseDef
 			floor_event = omen as FloorEventDef
@@ -245,9 +258,8 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 	forced_map = null
 	theme = biome.theme if biome else null
 	rules = FloorRules.make(content.dungeon, difficulty, floor_event, depth, curse)
-	_light_tint = rules.light()
-	if floor_event:
-		_light_tint *= floor_event.ambient_tint
+	rules.boons = boons
+	_light_tint = rules.ambient_light()
 	_view.show_map(map, theme)
 	relight()
 	_view.mist.bind_light(lights)
@@ -278,9 +290,11 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 		for stairs in exits:
 			stairs.bind_seal(seal)
 			stairs.blocked.connect(_on_stairs_blocked)
-		_apply_restore()
-		if boons.cartographer:
-			reveal_landmarks()
+	ledger.numbering = false
+	# Every kind of floor: the hidden floor's rooms are laid from the seed too.
+	_apply_restore()
+	if not boss and boons.cartographer:
+		reveal_landmarks()
 	lay_ceiling()
 	_set_pieces.clear()
 	for i in map.rooms.size():
@@ -365,10 +379,12 @@ func spawn_monster(def: MonsterDef, at: Vector2) -> Monster:
 ## A consumable the hero already carries plenty of comes as gold instead
 ## (DungeonConfig.consumable_carry_cap): then this returns null.
 func spawn_loot(item: ItemDef, at: Vector2, quality: float = 1.0) -> ItemPickup:
-	if item is ConsumableDef and player and player.carried_count(item) >= config().consumable_carry_cap:
-		spawn_gold(at, maxi(2, roundi(item.value * 0.3)))
+	# (Never while the floor is laid: what the seed lays must not hang on the hero's bag, or a
+	# resumed floor would come out otherwise.)
+	if item is ConsumableDef and player and not ledger.numbering and player.carried_count(item) >= config().consumable_carry_cap:
+		spawn_gold(at, maxi(config().consumable_gold_min, roundi(item.value * config().consumable_gold_share)))
 		return null
-	return spawn_item(roll_item(item, quality * rules.loot_quality() * boons.loot_quality_scale), at)
+	return spawn_item(roll_item(item, rules.drop_quality(quality)), at)
 
 
 ## `item`, or a better rolled copy of it if it is equipment.
@@ -378,15 +394,17 @@ func roll_item(item: ItemDef, quality: float = 1.0) -> ItemDef:
 
 ## Coins on the floor, split in a few piles that fly to the hero when close.
 func spawn_gold(at: Vector2, amount: int) -> void:
-	amount = roundi(rules.gold(amount) * boons.gold_scale)
+	amount = rules.floor_gold(amount)
 	if amount <= 0:
 		return
-	var piles := clampi(ceili(amount / 4.0), 1, 6)
+	var piles := clampi(ceili(amount / config().gold_per_pile), 1, config().gold_max_piles)
 	for i in piles:
 		var share := floori(float(amount) / piles) + (1 if i < amount % piles else 0)
 		if share <= 0:
 			continue
 		var coin := GoldPickup.create(at, share, self)
+		if ledger.lay(FloorLedger.GOLD, coin, str(share)) >= 0:
+			coin.collected.connect(func(pile: GoldPickup) -> void: ledger.spend(FloorLedger.GOLD, pile))
 		_entities.add_child.call_deferred(coin)
 
 
@@ -394,6 +412,7 @@ func spawn_encounter(def: EncounterDef, cell: Vector2i) -> Encounter:
 	var encounter := Encounter.new()
 	encounter.setup(def, self)
 	_place_on_cell(encounter, cell)
+	ledger.lay(FloorLedger.ENCOUNTER, encounter, String(def.id))
 	return encounter
 
 
@@ -480,6 +499,8 @@ func spawn_item(item: ItemDef, at: Vector2, armed: bool = true) -> ItemPickup:
 	var pickup := PICKUP_SCENE.instantiate() as ItemPickup
 	pickup.setup(item, armed)
 	pickup.position = at
+	if ledger.lay(FloorLedger.ITEM, pickup, String(item.id)) >= 0:
+		pickup.taken.connect(func(gone: ItemPickup) -> void: ledger.spend(FloorLedger.ITEM, gone))
 	_entities.add_child.call_deferred(pickup)  # may be called from physics callbacks
 	return pickup
 
@@ -534,6 +555,8 @@ func spawn_prop(def: PropDef, cell: Vector2i) -> Prop:
 	prop.world = self
 	prop.setup(def)
 	_place_on_cell(prop, cell)
+	if ledger.lay(FloorLedger.PROP, prop, String(def.id)) >= 0:
+		prop.broken.connect(func(gone: Prop) -> void: ledger.spend(FloorLedger.PROP, gone))
 	if def.footprint != Vector2i.ONE:
 		prop.position += (Vector2(def.footprint) - Vector2.ONE) * map.tile_size * 0.5
 		for y in def.footprint.y:
@@ -579,7 +602,7 @@ func roll_boss_rank(boss: Monster) -> void:
 		make_ranked(boss, forced)
 		return
 	for rank in config().rare_ranks:
-		if rank and rng.randf() < rank.boss_chance * rules.difficulty.elite_chance:
+		if rank and rng.randf() < rules.boss_rank_chance(rank):
 			make_ranked(boss, rank)
 			return
 
@@ -608,11 +631,15 @@ func spawn_chest(def: ChestDef, cell: Vector2i, trapped: bool) -> Chest:
 	return chest
 
 
-## What was taken from this floor, for a save file.
+## What was taken from this floor, for a save file. `stamp`: the build that laid it
+## (RunSave.floor_stamp(): another build may lay the same seed otherwise).
 func spent_data() -> Dictionary:
+	var merchant := floor_merchant()
 	return {
+		"stamp": RunSave.floor_stamp(),
 		"chests": opened_chests.map(func(cell: Vector2i) -> Array: return [cell.x, cell.y]),
 		"bought": bought.duplicate(),
+		"merchant": merchant.save_data() if merchant else {},
 		"secrets": SecretRoom.states(secrets),
 		"pact": pact.save_code() if pact else 0,
 		"fragment": fragment_taken,
@@ -620,43 +647,117 @@ func spent_data() -> Dictionary:
 		"sealed": sealed_cells.map(func(cell: Vector2i) -> Array: return [cell.x, cell.y]),
 		"collapsed": collapsed_cells.map(func(cell: Vector2i) -> Array: return [cell.x, cell.y]),
 		"slain": slain_spawns.duplicate(true),
+		"spent": ledger.to_data(),
+		"ambush": _ambush_data(),
 	}
 
 
-## The next floor built is the saved one again: what was taken from it stays taken.
-func restore_spent(data: Dictionary) -> void:
-	_to_restore = data
+## The next floor built is the saved one again: what was taken from it stays taken. `data`:
+## spent_data() as a save file reads it (RunSave.floor_of(); anything else restores nothing).
+func restore_spent(data: Variant) -> void:
+	_to_restore = data if data is Dictionary else {}
 
 
+## This floor's merchant, if one waits here.
+func floor_merchant() -> Merchant:
+	for merchant: Merchant in get_tree().get_nodes_in_group("merchants"):
+		if merchant.world_of() == self:
+			return merchant
+	return null
+
+
+## Every field read as a save file may hold it (a damaged one is skipped, never a script error).
 func _apply_restore() -> void:
 	if _to_restore.is_empty():
 		return
 	var data := _to_restore
 	_to_restore = {}
-	SecretRoom.restore(secrets, data.get("secrets", []))  # (its chest, if opened, is in "chests")
-	seal.restore(int(data.get("seal_kills", 0)))  # the kills already made on this floor
-	_restore_slain(data.get("slain", []))  # (after the seal took its count from the whole floor)
-	var cells: Array[Vector2i] = []
-	for pair: Array in data.get("chests", []):
-		if pair.size() == 2:
-			cells.append(Vector2i(int(pair[0]), int(pair[1])))
+	SecretRoom.restore(secrets, _array(data, "secrets"))  # (its chest, if opened, is in "chests")
+	seal.restore(_number(data, "seal_kills"))  # the kills already made on this floor
+	_restore_slain(_array(data, "slain"))  # (after the seal took its count from the whole floor)
+	ledger.restore(data.get("spent", {}), _take_back)
+	_restore_ambush(data.get("ambush", {}))  # (before the chests: its chest may be opened)
+	var cells := _saved_cells(_array(data, "chests"))
 	for node in _entities.get_children():
 		var chest := node as Chest
 		if chest and cells.has(map.world_to_cell(chest.global_position)):
 			chest.set_spent()
 			opened_chests.append(map.world_to_cell(chest.global_position))
-	for saved_item: Variant in data.get("bought", []):
-		for merchant: Merchant in get_tree().get_nodes_in_group("merchants"):
-			if merchant.world_of() == self and merchant.forget_sold(saved_item):
-				bought.append(saved_item)
-				break
-	if bool(data.get("fragment", false)) and fragment and is_instance_valid(fragment):
+	var merchant := floor_merchant()
+	var restocked := merchant != null and merchant.load_data(data.get("merchant", {}))
+	for saved_item: Variant in _array(data, "bought"):
+		if restocked:
+			bought.append(saved_item)  # (the stock came back as it was: nothing to take out)
+		elif merchant and merchant.forget_sold(saved_item):
+			bought.append(saved_item)  # (older saves: the seed's stock, less what was bought)
+	if data.get("fragment", false) == true and fragment and is_instance_valid(fragment):
 		fragment_taken = true
 		fragment.take()  # read before quitting: not laid again
-	if pact and int(data.get("pact", 0)) > 0:
+	if pact and _number(data, "pact") > 0:
 		pact.set_spent()  # sworn before quitting: never offered again
-	_restore_collapsed(data.get("collapsed", []))  # (older saves have none)
-	_restore_sealed(data.get("sealed", []))  # after: a crack the hero fell through was filled
+	_restore_collapsed(_array(data, "collapsed"))  # (older saves have none)
+	_restore_sealed(_array(data, "sealed"))  # after: a crack the hero fell through was filled
+
+
+## A thing the seed laid, used up before quitting (FloorLedger.restore()): gone again, quietly.
+func _take_back(kind: String, node: Object) -> void:
+	match kind:
+		FloorLedger.PROP:
+			(node as Prop).take_away()  # (nothing dropped: it was, before quitting)
+		FloorLedger.ENCOUNTER:
+			(node as Encounter).used = true
+			(node as Encounter).queue_redraw()
+		_:
+			_discard(node as Node)
+
+
+## Takes `node` off the floor at once, even one still waiting to be added (spawn_item() adds
+## its pickups deferred): it never shows nor is picked up.
+static func _discard(node: Node) -> void:
+	node.process_mode = Node.PROCESS_MODE_DISABLED
+	if node is CanvasItem:
+		(node as CanvasItem).visible = false
+	if node.is_inside_tree():
+		node.queue_free()
+	else:
+		node.tree_entered.connect(node.queue_free, CONNECT_ONE_SHOT)
+
+
+## What the save keeps of the floor's ambush: its room (a guard), cleared or not, its chest's cell.
+func _ambush_data() -> Dictionary:
+	if ambush == null or not is_instance_valid(ambush):
+		return {}
+	return {
+		"room": [ambush.room.position.x, ambush.room.position.y, ambush.room.size.x, ambush.room.size.y],
+		"cleared": ambush.state == AmbushRoom.State.CLEARED,
+		"chest": [ambush.reward_cell.x, ambush.reward_cell.y],
+	}
+
+
+## An ambush cleared before quitting stays cleared (its waves don't come back), its chest where it
+## was put down. A saved room that isn't this floor's ambush restores nothing.
+func _restore_ambush(saved: Variant) -> void:
+	if not saved is Dictionary or ambush == null or (saved as Dictionary).get("cleared", false) != true:
+		return
+	var room: Variant = (saved as Dictionary).get("room", [])
+	if not room is Array or (room as Array).size() != 4 \
+			or not (room as Array).all(func(n: Variant) -> bool: return n is float or n is int) \
+			or Rect2i(int(room[0]), int(room[1]), int(room[2]), int(room[3])) != ambush.room:
+		return
+	var chest := _saved_cells([(saved as Dictionary).get("chest")])
+	ambush.restore_cleared(chest[0] if not chest.is_empty() else DungeonMap.NO_CELL)
+
+
+## `key` of `data` if it is an array, else empty (a damaged save).
+static func _array(data: Dictionary, key: String) -> Array:
+	var value: Variant = data.get(key, [])
+	return value if value is Array else []
+
+
+## `key` of `data` if it is a number, else 0 (a damaged save).
+static func _number(data: Dictionary, key: String) -> int:
+	var value: Variant = data.get(key, 0)
+	return int(value) if value is float or value is int else 0
 
 
 ## Holes filled in before quitting stay filled: `saved` is spent_data()'s "sealed".
@@ -698,7 +799,7 @@ func _restore_slain(saved: Array) -> void:
 static func _saved_cells(saved: Array) -> Array[Vector2i]:
 	var cells: Array[Vector2i] = []
 	for pair: Variant in saved:
-		if pair is Array and (pair as Array).size() == 2:
+		if pair is Array and (pair as Array).size() == 2 and (pair as Array).all(func(n: Variant) -> bool: return n is float or n is int):
 			cells.append(Vector2i(int(pair[0]), int(pair[1])))
 	return cells
 
@@ -848,7 +949,7 @@ func drop_trophy(at: Vector2) -> void:
 	for i in 20:
 		var item := pick_random_item() as EquipmentDef
 		if item:
-			spawn_item(LootRoller.roll(item, depth, rules.loot_quality() * boons.loot_quality_scale, config(), _content.item_affixes, rng, ItemRarity.MAGIC), at)
+			spawn_item(LootRoller.roll(item, depth, rules.drop_quality(), config(), _content.item_affixes, rng, ItemRarity.MAGIC), at)
 			return
 
 
@@ -1134,7 +1235,7 @@ func _update_activity() -> void:
 			continue
 		var awake := monster.target != null or monster.is_boss() or monster.is_falling \
 			or view.has_point(monster.global_position) \
-			or (hero != Vector2.INF and monster.global_position.distance_to(hero) <= monster.detect_radius() * 1.6 + 64.0)
+			or (hero != Vector2.INF and monster.global_position.distance_to(hero) <= monster.chase_detect_radius() + 64.0)
 		monster.set_awake(awake)
 		if awake:
 			awake_monsters.append(monster)

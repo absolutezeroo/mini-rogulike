@@ -44,7 +44,8 @@
   seal stays broken. The floor's own monsters slain stay slain too (`"slain"`): the floor puts
   them down in an order its seed decides (`Monster.floor_index`), so the rebuilt floor leaves
   those numbers out (a number that comes out as another kind of monster stays, rather than the
-  wrong one going); what came later (ambush waves, summons, encounters) isn't saved. No more running past everything: a floor takes a couple of
+  wrong one going); what came later (ambush waves, summons, encounters) isn't saved. The rest of
+  what the seed lays is kept the same way (see progression.md, "Saving and resuming"). No more running past everything: a floor takes a couple of
   minutes, a run about half an hour. Floors are 72x72 cells with up to 15 rooms on Pilgrim, and
   bigger the harder the run (see Difficulty); boss floors keep that size.
 - **Biomes** (`data/biomes/`, `BiomeDef`): every floor is one world from end to end, picked among

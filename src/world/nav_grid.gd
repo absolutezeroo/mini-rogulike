@@ -35,21 +35,30 @@ func is_blocked(cell: Vector2i) -> bool:
 ## Path between two world positions, as a list of cell centres (empty if unreachable).
 func find_path(from: Vector2, to: Vector2) -> PackedVector2Array:
 	# An end on a blocked cell (the hero on a hole's edge, a bat over a pond): its open neighbour.
-	var start := _open_near(_map.world_to_cell(from))
-	var goal := _open_near(_map.world_to_cell(to))
+	var start := nearest_open(_map.world_to_cell(from))
+	var goal := nearest_open(_map.world_to_cell(to))
 	if start == Vector2i(-1, -1) or goal == Vector2i(-1, -1):
 		return PackedVector2Array()
 	return _astar.get_point_path(start, goal)
 
 
-## `cell` if it is open, else its nearest open neighbour; (-1, -1) if none.
-func _open_near(cell: Vector2i) -> Vector2i:
+## `cell` if it is open, else the nearest open cell at most 2 steps away (by distance between the
+## cells' centres, the first found on a tie); (-1, -1) if none.
+func nearest_open(cell: Vector2i) -> Vector2i:
 	if _map.is_floor(cell) and not is_blocked(cell):
 		return cell
 	for radius in range(1, 3):
+		var best := Vector2i(-1, -1)
+		var best_distance := 1 << 30
 		for dy in range(-radius, radius + 1):
 			for dx in range(-radius, radius + 1):
+				if maxi(absi(dx), absi(dy)) != radius:
+					continue  # only the ring at this radius (the inner ones were looked at)
 				var near := cell + Vector2i(dx, dy)
-				if _map.is_floor(near) and not is_blocked(near):
-					return near
+				var distance := dx * dx + dy * dy
+				if distance < best_distance and _map.is_floor(near) and not is_blocked(near):
+					best = near
+					best_distance = distance
+		if best != Vector2i(-1, -1):
+			return best
 	return Vector2i(-1, -1)
