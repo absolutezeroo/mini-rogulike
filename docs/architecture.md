@@ -75,7 +75,8 @@ src/
                        the statistics learn of a run), RemoteTuning (what the remote settings change in a run, saved with it),
                        FeedbackInfo (the game's details a feedback message can carry), PersistedQueue (a
                        service's versioned file, bounded queue, flush latch and retry with backoff)
-  core/                Small shared helpers (physics layers, weighted random, SafeFile, NumberText)
+  core/                Small shared helpers (physics layers, weighted random, SafeFile, NumberText,
+                       GridDirs: the grid's directions as consts, for loops that run often)
   definitions/         Resource classes describing content (the "schema" of data/)
     effects/             Building blocks for skills and consumables
     passives/            Building blocks for perks (on hit, on kill, on dash...)
@@ -94,7 +95,7 @@ src/
   world/               World (owns the current floor), FloorRules (how hard and rewarding it is),
                        floor_kinds/ (FloorKind: what kind of floor is built and its own steps),
                        FloorSave (the floor's part of the save), HoleField (holes and cracked floor),
-                       ActivityManager (who sleeps), WorldSpace (free cells, bodies, line of sight),
+                       ActivityManager (who sleeps; MonsterBuckets: the awake ones by cell), WorldSpace (free cells, bodies, line of sight),
                        FloorOverrides (the debug panel's next floor),
                        NavGrid (pathfinding), FogOfWar (what the hero has seen), WallBuilder,
                        FloorPopulator, FloorLedger (what the hero used up of what the seed laid, for the
