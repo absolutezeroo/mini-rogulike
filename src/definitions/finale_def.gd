@@ -67,13 +67,6 @@ func choice_lore_for(keeper_fell: bool) -> String:
 	return keeper_choice_lore if keeper_fell and not keeper_choice_lore.is_empty() else choice_lore
 
 
-func get_ending(ending_id: StringName) -> EndingDef:
-	for ending in endings:
-		if ending and ending.id == ending_id:
-			return ending
-	return null
-
-
 ## Its title card, as an act's (ActCard shows acts).
 func as_act() -> ActDef:
 	var act := ActDef.new()

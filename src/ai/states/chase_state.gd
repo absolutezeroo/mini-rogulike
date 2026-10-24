@@ -6,8 +6,6 @@ extends State
 ## finds another way.
 
 const REPATH_INTERVAL := 0.4
-const GIVE_UP_AFTER := 4.0       ## Seconds without seeing the target before going back to Idle.
-const SIGHT_MULTIPLIER := 1.6    ## Chasing monsters see further than idle ones.
 const WAYPOINT_REACHED := 8.0
 ## Stuck: follow the path (not the straight line) this long.
 const PATH_AFTER_STUCK := 1.2
@@ -42,10 +40,11 @@ func physics_update(delta: float) -> void:
 	var to_target := target.global_position - actor.global_position
 	var distance := to_target.length()
 	var aim := to_target.normalized()
-	var sees := actor.can_see(target, actor.detect_radius() * SIGHT_MULTIPLIER)
+	# Chasing, it sees further than idle (MonsterDef.chase_sight_multiplier).
+	var sees := actor.can_see(target, actor.chase_detect_radius())
 
 	_unseen_time = 0.0 if sees else _unseen_time + delta
-	if _unseen_time > GIVE_UP_AFTER:
+	if _unseen_time > actor.def.chase_give_up_after:
 		actor.target = null
 		machine.transition_to(&"Idle")
 		return

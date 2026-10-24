@@ -27,28 +27,21 @@ signal charge_full
 ## The weapon's charged attack was unleashed (the tutorial listens).
 signal charged_attack(attack: ChargedAttackDef)
 
-const HIT_INVULNERABILITY := 0.6
 const AIM_HOLD_TIME := 0.35         ## Keep facing the aim direction this long after attacking.
-## A press of the attack button while the weapon is still swinging waits this long for it (taps
-## in a hurry are not lost; holding never chains attacks: it charges).
-const ATTACK_BUFFER := 0.3
 ## Where the weapon is in the hero's hand: this far above his center (his chest, on the rig's
 ## 2x art) and this far out toward the aim. His shots leave from there (docs/vfx.md 2b).
 const HAND_LIFT := 6.0
 const HAND_REACH := 8.0
-const MELEE_AIM_ASSIST := 70.0      ## Extra auto-aim distance beyond melee reach.
-const SKILL_AIM_RANGE := 520.0
 ## Skill buttons: innate skills (the roll), then the weapon's skills, then the learned spell.
 ## Slots without a skill stay empty (null), so a skill never jumps to another button.
 const WEAPON_SKILL_SLOTS := 2
 const SKILL_COUNT := 4
-## New skills start on this cooldown when the weapon is swapped (no free casts by swapping).
-const SWAP_COOLDOWN := 1.5
 const STEP_INTERVAL := 0.3
-## Invulnerable this long after climbing out of a hole.
-const FALL_INVULNERABILITY := 1.0
 ## Gold for breaking gear down from the bag.
 const DISMANTLE: DismantleRules = preload("res://data/items/dismantle.tres")
+
+## PlayerDef's own defaults, for a hero not set up yet (tuning()).
+static var _defaults := PlayerDef.new()
 
 ## Physics frame of the last damage taken (-1: none). For the bestiary challenges.
 var last_hurt_frame := -1
@@ -73,7 +66,7 @@ var charge := AttackCharge.new()
 
 var _move_direction := Vector2.ZERO
 var _aim_hold := 0.0
-## A press of the attack button not yet turned into a swing (ATTACK_BUFFER).
+## A press of the attack button not yet turned into a swing (PlayerDef.attack_buffer).
 var _attack_buffer := 0.0
 var _step_timer := 0.0
 var _left_foot := false
@@ -98,6 +91,11 @@ func _notification(what: int) -> void:
 		_presses_muted = true
 
 
+## Its def's feel numbers (i-frames, aim ranges...); the defaults of PlayerDef before setup().
+func tuning() -> PlayerDef:
+	return def if def else _defaults
+
+
 func setup(player_def: PlayerDef) -> void:
 	def = player_def
 	faction = Faction.PLAYER
@@ -118,7 +116,7 @@ func setup(player_def: PlayerDef) -> void:
 	for item in def.starting_items:
 		store(item)
 	_rebuild_skills(0.0)
-	equipment.changed.connect(_rebuild_skills.bind(SWAP_COOLDOWN))
+	equipment.changed.connect(_rebuild_skills.bind(def.swap_cooldown))
 	equipment.changed.connect(charge.cancel)  # a weapon swap loses the charge
 	equipment.changed.connect(func() -> void: perks.set_gear(equipment.affixes(), equipment.runes()))
 	perks.set_gear(equipment.affixes(), equipment.runes())
@@ -167,7 +165,7 @@ func _update_attack(delta: float, fresh: bool = true) -> void:
 	var charged := weapon.charged if weapon else null
 	_attack_buffer = maxf(_attack_buffer - delta, 0.0)
 	if fresh and Input.is_action_just_pressed("attack"):
-		_attack_buffer = ATTACK_BUFFER
+		_attack_buffer = tuning().attack_buffer
 		charge.press()
 	if is_falling:
 		charge.cancel()  # a fall loses the charge (a roll or a dash: start_dash)
@@ -185,7 +183,7 @@ func _update_attack(delta: float, fresh: bool = true) -> void:
 	if charge.is_charging():
 		_attack_buffer = 0.0
 		# Winding up toward the closest enemy; with none in sight, the way he walks.
-		var target := get_aim_target(SKILL_AIM_RANGE)
+		var target := get_aim_target(tuning().skill_aim_range)
 		if target:
 			facing = global_position.direction_to(target.global_position)
 		elif _move_direction != Vector2.ZERO:
@@ -205,7 +203,7 @@ func _update_attack(delta: float, fresh: bool = true) -> void:
 func _unleash(weapon: WeaponDef, charged: ChargedAttackDef) -> void:
 	if is_dead or is_falling:
 		return
-	var aim := get_aim_direction(SKILL_AIM_RANGE)
+	var aim := get_aim_direction(tuning().skill_aim_range)
 	facing = aim
 	_aim_hold = AIM_HOLD_TIME
 	_attack_cooldown = get_attack_cooldown(weapon)
@@ -297,12 +295,12 @@ func _auto_aim_range() -> float:
 	if weapon == null:
 		return 0.0
 	if weapon.kind == WeaponDef.Kind.MELEE:
-		return radius + weapon.reach + MELEE_AIM_ASSIST
+		return radius + weapon.reach + tuning().melee_aim_assist
 	return weapon.reach
 
 
 func use_skill(index: int) -> void:
-	var aim := get_aim_direction(SKILL_AIM_RANGE)
+	var aim := get_aim_direction(tuning().skill_aim_range)
 	if skills.try_use(index, self, aim):
 		charge.cancel()  # a skill (the roll first) loses the charge
 		facing = aim
@@ -381,29 +379,36 @@ func _pickup_feedback(item: ItemDef, sound: AudioStream) -> void:
 	Vfx.sparkles(world, global_position, item.color)
 
 
+## Uses `item` from the bag: what that means is the item's own (ItemDef.use_from_bag(): a potion
+## is drunk, a tome read, gear worn).
 func use_item(item: ItemDef) -> void:
 	if is_dead or not inventory.items.has(item):
 		return
-	if item is ConsumableDef:
-		inventory.remove(item)
-		item.use(self, get_aim_direction(SKILL_AIM_RANGE))
-		Events.log_message(tr("Used %s") % tr(item.display_name), item.color)
-		consumable_used.emit(item)
-	elif item is SkillTomeDef:
-		inventory.remove(item)
-		learn_skill((item as SkillTomeDef).skill)
-	elif item is EquipmentDef:
-		# One of a stack: it frees no place, and what is worn now needs one.
-		if not inventory.fits_after_taking(item, equipment.get_item((item as EquipmentDef).slot)):
-			Events.log_message(inventory.full_text(equipment.get_item((item as EquipmentDef).slot)), Palette.DANGER)
-			Events.bag_full.emit(equipment.get_item((item as EquipmentDef).slot))
-			return
-		inventory.remove(item)
-		var previous := equipment.equip(item)
-		if previous:
-			inventory.add(previous)
-		Sfx.play_ui(Sfx.bank.equip)
-		Events.log_message(tr("Equipped %s") % tr(item.display_name), item.color)
+	item.use_from_bag(self)
+
+
+## Drinks, throws or reads `item` (a consumable taken from the bag or the belt), toward the
+## closest enemy.
+func consume(item: ConsumableDef) -> void:
+	item.use(self, get_aim_direction(tuning().skill_aim_range))
+	Events.log_message(tr("Used %s") % tr(item.display_name), item.color)
+	consumable_used.emit(item)
+
+
+## Wears `item`, from the bag, what was worn in its slot going back to the bag (EquipmentDef).
+func wear_from_bag(item: EquipmentDef) -> void:
+	# One of a stack: it frees no place, and what is worn now needs one.
+	var worn := equipment.get_item(item.slot)
+	if not inventory.fits_after_taking(item, worn):
+		Events.log_message(inventory.full_text(worn), Palette.DANGER)
+		Events.bag_full.emit(worn)
+		return
+	inventory.remove(item)
+	var previous := equipment.equip(item)
+	if previous:
+		inventory.add(previous)
+	Sfx.play_ui(Sfx.bank.equip)
+	Events.log_message(tr("Equipped %s") % tr(item.display_name), item.color)
 
 
 func unequip(slot: EquipmentDef.Slot) -> void:
@@ -475,9 +480,7 @@ func use_belt(index: int) -> void:
 	if is_dead or belt.item_at(index) == null:
 		return
 	var item := belt.take(index)
-	item.use(self, get_aim_direction(SKILL_AIM_RANGE))
-	Events.log_message(tr("Used %s") % tr(item.display_name), item.color)
-	consumable_used.emit(item)
+	consume(item)
 
 
 ## Belt slot 1 (the quick item key).
@@ -640,7 +643,7 @@ func take_fall(share: float) -> void:
 	take_hit(hit)
 	if not is_dead:
 		killed_by = ""
-		_invulnerable_time = FALL_INVULNERABILITY
+		_invulnerable_time = tuning().fall_invulnerability
 
 
 ## On his feet again after a fall that took him somewhere else (the Deeps, and back up).
@@ -683,7 +686,7 @@ func _on_damaged(hit: HitInfo, damage: int) -> void:
 		(hit.source as Monster).on_hit_player(self)
 	if hit.is_tick:
 		return
-	_invulnerable_time = HIT_INVULNERABILITY
+	_invulnerable_time = tuning().hit_invulnerability
 	if damage > 0 and world.rng.randf() < 0.6:
 		world.add_splat(global_position + Vector2(0, 3), VfxElementDef.named(&"blood").mark, 0.35, hit.knockback.normalized())
 	HitStop.freeze(0.08)

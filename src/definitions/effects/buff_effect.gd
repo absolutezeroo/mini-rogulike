@@ -1,12 +1,12 @@
 class_name BuffEffect
 extends Effect
 ## Temporarily adds stats to the user.
+## Its `element` (Effect.element): what the blessing is made of (Holy Shield: holy): the sigil takes
+## its ramp.
 
 @export var bonuses: StatBlock
 @export var duration: float = 6.0
 @export var color: Color = Color(1.0, 0.4, 0.3)
-## What the blessing is made of (Holy Shield: holy): the sigil takes its ramp.
-@export var element: VfxElementDef
 ## Played on the user instead of the sigil, following them (Holy Shield's ring of light rising
 ## into a halo). Drawn at its own size, behind the user's body: it rises around them and never
 ## covers them (docs/vfx.md 2b).

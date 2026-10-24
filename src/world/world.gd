@@ -34,6 +34,10 @@ var theme: DungeonTheme
 var player: Player
 var depth := 1
 var rng := RandomNumberGenerator.new()
+## The floor's combat dice: damage variance and crits (Combat.make_hit). Seeded from the floor's
+## own seed when it is built, apart from `rng`, so the fights are the same for the same seed and
+## inputs (a daily run, a balance measure) and a hit never shifts what the floor rolls next.
+var combat_rng := RandomNumberGenerator.new()
 ## Difficulty of the run (set by the game before building floors).
 var difficulty: DifficultyDef:
 	set(value):
@@ -74,7 +78,11 @@ var next_routes: Array[FloorRoute] = []
 ## The way the hero took to this floor (null: none to choose, or the first floor).
 var route: FloorRoute
 ## The run's rules from the Tree of Souls and its oath (RunBoons), set by the Game.
-var boons := RunBoons.new()
+var boons := RunBoons.new():
+	set(value):
+		boons = value
+		if rules:
+			rules.boons = value  # the floor's drops and gold ask its rules (FloorRules.boons)
 
 ## Debug: the next floor built is this biome. Used once.
 var forced_biome: BiomeDef
@@ -188,6 +196,7 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 	route = taken
 	floor_id += 1
 	depth = new_depth
+	combat_rng.seed = hash("%d-combat" % rng.seed)
 	opened_chests.clear()
 	bought.clear()
 	sealed_cells.clear()
@@ -215,13 +224,11 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 		curse = taken.curse
 		floor_event = taken.floor_event
 	elif boss == null and depth > 1:
-		var curse_chance := difficulty.curse_chance if difficulty else 0.0
-		if rng.randf() < curse_chance:
-			curse = ContentDB.pick_from(content.curses, depth, rng) as CurseDef
-		if curse == null and rng.randf() < content.dungeon.floor_event_chance:
-			floor_event = FloorRoute.pick_event(content, depth, rng, tuning)
+		var rolled := FloorRoute.roll_twist(content, depth, rng, difficulty, tuning)
+		curse = rolled.curse
+		floor_event = rolled.floor_event
 		# The Dawn Knell's omen (remote settings) on every normal floor, after the usual rolls.
-		var omen := DailyRun.twist(content, tuning.omen) if tuning else null
+		var omen := FloorRoute.omen_of(content, tuning)
 		if omen and not hidden_def and not bottom:
 			curse = omen as CurseDef
 			floor_event = omen as FloorEventDef
@@ -245,9 +252,8 @@ func build_floor(new_depth: int, content: ContentDB, taken: FloorRoute = null) -
 	forced_map = null
 	theme = biome.theme if biome else null
 	rules = FloorRules.make(content.dungeon, difficulty, floor_event, depth, curse)
-	_light_tint = rules.light()
-	if floor_event:
-		_light_tint *= floor_event.ambient_tint
+	rules.boons = boons
+	_light_tint = rules.ambient_light()
 	_view.show_map(map, theme)
 	relight()
 	_view.mist.bind_light(lights)
@@ -366,9 +372,9 @@ func spawn_monster(def: MonsterDef, at: Vector2) -> Monster:
 ## (DungeonConfig.consumable_carry_cap): then this returns null.
 func spawn_loot(item: ItemDef, at: Vector2, quality: float = 1.0) -> ItemPickup:
 	if item is ConsumableDef and player and player.carried_count(item) >= config().consumable_carry_cap:
-		spawn_gold(at, maxi(2, roundi(item.value * 0.3)))
+		spawn_gold(at, maxi(config().consumable_gold_min, roundi(item.value * config().consumable_gold_share)))
 		return null
-	return spawn_item(roll_item(item, quality * rules.loot_quality() * boons.loot_quality_scale), at)
+	return spawn_item(roll_item(item, rules.drop_quality(quality)), at)
 
 
 ## `item`, or a better rolled copy of it if it is equipment.
@@ -378,10 +384,10 @@ func roll_item(item: ItemDef, quality: float = 1.0) -> ItemDef:
 
 ## Coins on the floor, split in a few piles that fly to the hero when close.
 func spawn_gold(at: Vector2, amount: int) -> void:
-	amount = roundi(rules.gold(amount) * boons.gold_scale)
+	amount = rules.floor_gold(amount)
 	if amount <= 0:
 		return
-	var piles := clampi(ceili(amount / 4.0), 1, 6)
+	var piles := clampi(ceili(amount / config().gold_per_pile), 1, config().gold_max_piles)
 	for i in piles:
 		var share := floori(float(amount) / piles) + (1 if i < amount % piles else 0)
 		if share <= 0:
@@ -579,7 +585,7 @@ func roll_boss_rank(boss: Monster) -> void:
 		make_ranked(boss, forced)
 		return
 	for rank in config().rare_ranks:
-		if rank and rng.randf() < rank.boss_chance * rules.difficulty.elite_chance:
+		if rank and rng.randf() < rules.boss_rank_chance(rank):
 			make_ranked(boss, rank)
 			return
 
@@ -848,7 +854,7 @@ func drop_trophy(at: Vector2) -> void:
 	for i in 20:
 		var item := pick_random_item() as EquipmentDef
 		if item:
-			spawn_item(LootRoller.roll(item, depth, rules.loot_quality() * boons.loot_quality_scale, config(), _content.item_affixes, rng, ItemRarity.MAGIC), at)
+			spawn_item(LootRoller.roll(item, depth, rules.drop_quality(), config(), _content.item_affixes, rng, ItemRarity.MAGIC), at)
 			return
 
 
@@ -1134,7 +1140,7 @@ func _update_activity() -> void:
 			continue
 		var awake := monster.target != null or monster.is_boss() or monster.is_falling \
 			or view.has_point(monster.global_position) \
-			or (hero != Vector2.INF and monster.global_position.distance_to(hero) <= monster.detect_radius() * 1.6 + 64.0)
+			or (hero != Vector2.INF and monster.global_position.distance_to(hero) <= monster.chase_detect_radius() + 64.0)
 		monster.set_awake(awake)
 		if awake:
 			awake_monsters.append(monster)

@@ -22,7 +22,11 @@ the ones below are those worth spelling out, or where this project chose somethi
   no node: Godot checks a lambda's captured objects before running it and prints "Lambda capture
   at index 0 was freed" for a freed one, even when the lambda starts with `is_instance_valid()`.
   Capture a `weakref()` and `get_ref()` it inside (see `Effect.apply_all()`), or connect a method
-  of the node itself (its connections go with it).
+  of the node itself (its connections go with it), or a method bound to weak references
+  (`EncounterOutcome._spawn_monsters`, `WeakPointTrait._on_bite_landed`).
+- **Never `await` on a shared resource** (a Def is shared by every node using it): the coroutine
+  outlives the node and its floor (a floor out of the tree while the hero is at the Threshold).
+  Time it on the node instead (`Trap.start_volley()` for an arrow trap's volley).
 - **No GDScript warnings.** The editor's warnings stay at zero (`tools/lint/gd_warnings.py`, see
   [testing.md](testing.md)). Fix a warning rather than silence it; the project's warning settings
   are left as Godot ships them.
@@ -55,7 +59,12 @@ the ones below are those worth spelling out, or where this project chose somethi
 - **One input path.** Touch controls only press input actions, so keyboard, gamepad and touch share
   the same code.
 - **Ask, don't recompute.** A floor's difficulty (difficulty x depth x event x curse) comes from its
-  `FloorRules`; healing from hits and kills goes through `Actor.sustain_heal()` and its budget.
+  `FloorRules`, the run's boons on drops and gold too (`drop_quality()`, `floor_gold()`); healing
+  from hits and kills goes through `Actor.sustain_heal()` and its budget; rarity odds from
+  `LootRoller.rarity_weights()` (what is told is what is rolled).
+- **Ask the kind, don't test it.** No `if x is SomeEffect / elif ...` chain: add a virtual to the
+  base (`Effect.dressed_for_skill()`, `ItemDef.use_from_bag()`, `Actor._draws_ward_on_body()`)
+  and override it, so a new kind brings its own answer. Never `get("property")` by name either.
 - **Small pieces.** Prefer a new `Effect`, `Passive`, `MonsterTrait` or `HazardDef` subclass to a new
   branch in `Actor`, `Monster` or `World`. Those three are already the biggest scripts.
 

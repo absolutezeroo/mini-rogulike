@@ -59,11 +59,6 @@ func lean_toward(target: Node2D, share: float, height: float = 0.0) -> void:
 	_lean_height = height
 
 
-## How far the view leans right now (pixels).
-func lean_offset() -> Vector2:
-	return _lean
-
-
 ## Where the kick has the view right now (pixels).
 func kick_offset() -> Vector2:
 	return _kick

@@ -317,10 +317,6 @@ func release_pose() -> void:
 	body.speed_scale = 1.0
 
 
-func is_holding_pose() -> bool:
-	return _held
-
-
 ## A boss waking up in its arena ("intro" animation, if it has one).
 func play_intro() -> void:
 	if _dead or body.sprite_frames == null or _animation_for(&"intro") == &"":

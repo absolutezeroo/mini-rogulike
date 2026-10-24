@@ -2,8 +2,6 @@ extends State
 ## Wanders around slowly until the monster notices a target. Bumping into something, it stops
 ## and picks another way.
 
-const WANDER_SPEED := 0.35
-
 var _timer := 0.0
 
 
@@ -35,6 +33,6 @@ func physics_update(delta: float) -> void:
 			for attempt in 4:
 				var way := Vector2.from_angle(randf() * TAU)
 				if actor.has_clear_walk(actor.global_position + way * 48.0):
-					actor.move_direction = way * WANDER_SPEED
+					actor.move_direction = way * actor.def.wander_speed
 					actor.facing = way
 					break

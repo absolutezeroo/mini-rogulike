@@ -13,6 +13,9 @@ var difficulty: DifficultyDef
 var event: FloorEventDef
 ## Null on most floors.
 var curse: CurseDef
+## The run's boons (the Tree of Souls, an oath): what they add to drops and gold. Never null;
+## the World keeps it its own (World.boons).
+var boons := RunBoons.new()
 
 static var _neutral := DifficultyDef.new()
 
@@ -107,6 +110,24 @@ func monster_count_scale() -> float:
 	return event.monster_count if event else 1.0
 
 
+## Monsters a room starts with at most (DungeonConfig.max_monsters_per_room), the difficulty's
+## extra ones on top.
+func max_monsters_per_room() -> int:
+	return config.max_monsters_per_room + difficulty.extra_monsters
+
+
+## Monsters per ambush wave: the dungeon's, one more every DungeonConfig.ambush_depths_per_extra
+## floors.
+func ambush_wave_size() -> int:
+	return config.ambush_wave_size + floori(depth / config.ambush_depths_per_extra)
+
+
+## Chance for a boss to come at a rare rank (`rank`'s own boss chance, times the difficulty's
+## taste for elites: World.roll_boss_rank()).
+func boss_rank_chance(rank: MonsterRankDef) -> float:
+	return rank.boss_chance * difficulty.elite_chance
+
+
 # --- Rewards -----------------------------------------------------------------
 
 ## Multiplies drop chances.
@@ -114,14 +135,29 @@ func loot_chance() -> float:
 	return difficulty.loot_chance
 
 
-## Multiplies the quality of what drops (see LootRoller).
+## Multiplies the quality of what drops (see LootRoller): the floor's own, before the run's
+## boons (drop_quality() has them).
 func loot_quality() -> float:
 	return (event.loot_quality if event else 1.0) * (curse.loot_quality if curse else 1.0) * (difficulty.loot_quality if difficulty else 1.0)
 
 
-## Gold actually dropped for `amount`.
+## The quality something of `quality` drops at on this floor (a crate 1, a boss
+## DungeonConfig.boss_loot_quality...): the floor's loot quality, then the run's boons' (the
+## Tree of Souls, an oath: RunBoons.loot_quality_scale). What every drop is rolled with, and what
+## an encounter's odds are told with.
+func drop_quality(quality: float = 1.0) -> float:
+	return quality * loot_quality() * boons.loot_quality_scale
+
+
+## Gold the floor itself gives for `amount` (its event, its curse), before the run's boons.
 func gold(amount: float) -> int:
 	return roundi(amount * (event.gold if event else 1.0) * (curse.gold if curse else 1.0))
+
+
+## Gold that actually drops for `amount`: the floor's (gold()), then the run's boons' share
+## (RunBoons.gold_scale). What a pile on the floor holds, and what an encounter says it gives.
+func floor_gold(amount: float) -> int:
+	return roundi(gold(amount) * boons.gold_scale)
 
 
 func shop_prices() -> float:
@@ -138,6 +174,14 @@ func light() -> Color:
 	if curse:
 		color *= curse.tint
 	return Color(color, 1.0)
+
+
+## The floor's light tint (World): light(), then the event's ambient tint.
+func ambient_light() -> Color:
+	var color := light()
+	if event:
+		color *= event.ambient_tint
+	return color
 
 
 ## Body temperature change per second everywhere on the floor (see BodyTemperature).

@@ -1,6 +1,9 @@
 class_name DamageAreaEffect
 extends Effect
 ## Hits every enemy inside a circle, centred on the user or pushed forward along the aim.
+## Its `element` (Effect.element): what it is made of (data/vfx/elements/): without a sheet, the
+## element's nova (Frost Nova's ring of crystals); a sheet is painted in the element's ramp; an
+## explosion takes its colors (Quake: earth, not fire). Its hits flash in its language.
 
 @export var radius: float = 80.0
 ## Damage = flat_damage + user's skill power (power boosted by skill power) x multiplier.
@@ -10,10 +13,6 @@ extends Effect
 @export var offset: float = 0.0
 @export var knockback: float = 220.0
 @export var color: Color = Color(1.0, 0.8, 0.3)
-## What it is made of (data/vfx/elements/): without a sheet, the element's nova (Frost Nova's
-## ring of crystals); a sheet is painted in the element's ramp; an explosion takes its colors
-## (Quake: earth, not fire). Its hits flash in its language.
-@export var element: VfxElementDef
 ## Statuses left on the enemies hit (burn, slow...).
 @export var status: OnHitStatus
 ## A blast (its element's burst, a ripple, screen shake) instead of a simple ring.
@@ -56,7 +55,7 @@ var look_element: VfxElementDef
 ## one of its own element (Frost Nova, Ground Slam) stays itself and the first other rides it (a
 ## few of its pieces inside). Only the look: the data stays as written, the hits as they were.
 func dressed_in(carried: Array[VfxElementDef]) -> DamageAreaEffect:
-	var copy := duplicate() as DamageAreaEffect
+	var copy := copied() as DamageAreaEffect
 	var others: Array[VfxElementDef] = []
 	for other in carried:
 		if other and other != element:
@@ -65,6 +64,44 @@ func dressed_in(carried: Array[VfxElementDef]) -> DamageAreaEffect:
 		return copy
 	copy.look_element = others[0]
 	copy.second_element = others[1] if element == null and others.size() > 1 else null
+	return copy
+
+
+## A weapon's skill: Cleave's arc, a nova, drawn in what the weapon carries.
+func dressed_for_skill(carried: Array[VfxElementDef]) -> Effect:
+	return dressed_in(carried)
+
+
+func _shed(second: VfxElementDef) -> void:
+	second_element = second
+
+
+func copied() -> Effect:
+	var copy := super.copied() as DamageAreaEffect
+	copy.look_element = look_element
+	copy.second_element = second_element
+	return copy
+
+
+func telegraph_kind() -> Telegraph:
+	return Telegraph.AREA
+
+
+func ai_reach() -> float:
+	return offset + radius
+
+
+func warning_reach() -> float:
+	return absf(offset) + radius
+
+
+func hit_status() -> OnHitStatus:
+	return status
+
+
+func with_hit_status(new_status: OnHitStatus) -> Effect:
+	var copy := copied() as DamageAreaEffect
+	copy.status = new_status
 	return copy
 
 

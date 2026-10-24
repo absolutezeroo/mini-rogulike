@@ -32,6 +32,17 @@ extends MonsterDef
 ## trap's). It is the price of standing in its face: telegraphed, rolled through by a player who
 ## watches, taken every time by one who doesn't.
 @export_range(0.0, 3.0, 0.05) var shockwave_power: float = 0.0
+## Seconds before another shockwave can come, whatever the streak.
+@export_range(0.0, 10.0, 0.1) var shockwave_cooldown: float = 3.0
+## The dungeon's small blast it deals at least (FloorRules.dungeon_damage: this base, plus this
+## per floor, times the floor's damage), and without a floor's rules.
+@export var shockwave_base_damage: float = 4.0
+@export var shockwave_damage_per_depth: float = 0.6
+@export var shockwave_fallback_damage: int = 6
+## Seconds of warning before the shockwave lands: the one its roar into a phase throws, and the
+## one answering a streak of hits.
+@export_range(0.05, 2.0, 0.05) var roar_shockwave_fuse: float = 0.35
+@export_range(0.05, 2.0, 0.05) var streak_shockwave_fuse: float = 0.45
 ## Seconds it can't be hurt while it roars into a new phase.
 @export var phase_roar_time: float = 1.2
 ## A boss too big for the screen (the Maw): the view leans this share of the way toward its

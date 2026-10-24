@@ -30,17 +30,16 @@ static func offer(content: ContentDB, depth: int, difficulty: DifficultyDef, off
 	var worlds: Array = act.biomes.filter(func(b: BiomeDef) -> bool: return b != null and b.min_depth <= depth)
 	if worlds.is_empty():
 		return result
-	var curse_chance := difficulty.curse_chance if difficulty else 0.0
-	var omen := DailyRun.twist(content, tuning.omen) if tuning else null
+	var curse_chance := curse_chance_of(difficulty)
+	var omen := omen_of(content, tuning)
 	for i in config.route_count:
 		var route := FloorRoute.new()
 		# A different world for each way while there are some left.
 		var left: Array = worlds.filter(func(b: BiomeDef) -> bool: return not result.any(func(r: FloorRoute) -> bool: return r.biome == b))
 		route.biome = ContentDB.pick_from(left if not left.is_empty() else worlds, depth, rng) as BiomeDef
-		if rng.randf() < curse_chance:
-			route.curse = ContentDB.pick_from(content.curses, depth, rng) as CurseDef
-		if route.curse == null and rng.randf() < config.floor_event_chance:
-			route.floor_event = pick_event(content, depth, rng, tuning)
+		var rolled := roll_twist(content, depth, rng, difficulty, tuning)
+		route.curse = rolled.curse
+		route.floor_event = rolled.floor_event
 		# The second way is often the bold one: a twist if it rolled none.
 		if i > 0 and route.is_plain() and rng.randf() < config.route_twist_chance:
 			var curse_share := curse_chance / maxf(curse_chance + config.floor_event_chance, 0.01)
@@ -53,6 +52,28 @@ static func offer(content: ContentDB, depth: int, difficulty: DifficultyDef, off
 			route.floor_event = omen as FloorEventDef
 		result.append(route)
 	return result
+
+
+## The twist of a floor at `depth`, rolled on `rng`: a curse with the difficulty's chance, else
+## maybe an event (DungeonConfig.floor_event_chance). The one roll for a way down (offer()) and a
+## floor rolling its own (World.build_floor()). A route holding only the twist (no world).
+static func roll_twist(content: ContentDB, depth: int, rng: RandomNumberGenerator, difficulty: DifficultyDef, tuning: RemoteTuning = null) -> FloorRoute:
+	var twist_only := FloorRoute.new()
+	if rng.randf() < curse_chance_of(difficulty):
+		twist_only.curse = ContentDB.pick_from(content.curses, depth, rng) as CurseDef
+	if twist_only.curse == null and rng.randf() < content.dungeon.floor_event_chance:
+		twist_only.floor_event = pick_event(content, depth, rng, tuning)
+	return twist_only
+
+
+## Chance for a floor to be cursed on this difficulty (none without one).
+static func curse_chance_of(difficulty: DifficultyDef) -> float:
+	return difficulty.curse_chance if difficulty else 0.0
+
+
+## The Dawn Knell's omen (the remote settings' twist on every normal floor), or null.
+static func omen_of(content: ContentDB, tuning: RemoteTuning) -> ContentDef:
+	return DailyRun.twist(content, tuning.omen) if tuning else null
 
 
 ## A floor event for a floor at `depth`, by spawn weight, a running remote event's one boosted

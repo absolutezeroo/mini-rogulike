@@ -17,6 +17,11 @@ var launcher_cell := Vector2i.ZERO
 var launcher_direction := Vector2.ZERO
 
 var _timer := 0.0
+## Shots of a volley still to come (TrapDef.volley_shot(): an arrow trap's arrows), the seconds
+## to the next, and between two.
+var _volley_left := 0
+var _volley_timer := 0.0
+var _volley_interval := 0.0
 var _hit_this_time: Array[Actor] = []
 var _anim_time := 0.0
 
@@ -53,8 +58,22 @@ func get_launcher_position() -> Vector2:
 	return world.map.cell_to_world(launcher_cell) + launcher_direction * (world.map.tile_size * 0.5 + 8.0)
 
 
+## `count` more shots, one every `interval` seconds (TrapDef.volley_shot()), on the trap's own
+## physics clock: they stop with it (freed, or its floor out of the tree).
+func start_volley(count: int, interval: float) -> void:
+	_volley_left = maxi(count, 0)
+	_volley_interval = interval
+	_volley_timer = interval
+
+
 func _physics_process(delta: float) -> void:
 	_anim_time += delta
+	if _volley_left > 0:
+		_volley_timer -= delta
+		if _volley_timer <= 0.0:
+			_volley_left -= 1
+			_volley_timer = _volley_interval
+			def.volley_shot(self)
 	match phase:
 		Phase.IDLE:
 			if def.trigger == TrapDef.Trigger.STEP:

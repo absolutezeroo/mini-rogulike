@@ -1,6 +1,8 @@
 class_name ProjectileEffect
 extends Effect
 ## Fires one or more projectiles along the aim direction.
+## Its `element` (Effect.element): what it is made of (data/vfx/elements/): without a texture, the
+## shot is the element's own projectile; it lands and hits in the element's language (docs/vfx.md).
 
 ## Damage = flat_damage + user's skill power (power boosted by skill power) x multiplier.
 @export var damage_multiplier: float = 1.0
@@ -16,9 +18,6 @@ extends Effect
 ## Greater than 0: the projectile explodes on impact and hits everything around.
 @export var explosion_radius: float = 0.0
 @export var color: Color = Color(1.0, 0.5, 0.2)
-## What it is made of (data/vfx/elements/): without a texture, the shot is the element's own
-## projectile; it lands and hits in the element's language (docs/vfx.md).
-@export var element: VfxElementDef
 ## Sprite (or frames in a row) of the projectile. Without one (and no element), a glowing dot.
 @export var texture: Texture2D
 ## Frames in a row of `texture` (0 = square frames).
@@ -89,7 +88,7 @@ func apply(user: Actor, aim: Vector2) -> void:
 ## shard) and the first other element rides its back. `lands`: its hits land in that element
 ## (a charged attack); else the hit's own rules decide (a rune's roll). The data stays as written.
 func dressed_in(carried: Array[VfxElementDef], lands: bool) -> ProjectileEffect:
-	var copy := duplicate() as ProjectileEffect
+	var copy := copied() as ProjectileEffect
 	var others: Array[VfxElementDef] = []
 	for other in carried:
 		if other and other != element:
@@ -99,4 +98,43 @@ func dressed_in(carried: Array[VfxElementDef], lands: bool) -> ProjectileEffect:
 	copy.look_element = others[0]
 	copy.second_element = others[1] if element == null and others.size() > 1 else null
 	copy.lands_in_look = lands and element == null
+	return copy
+
+
+## A weapon's skill: its shots flying in what the weapon carries, landing as their rules say.
+func dressed_for_skill(carried: Array[VfxElementDef]) -> Effect:
+	return dressed_in(carried, false)
+
+
+## A charged attack: a thing (the heavy arrow, the stars) flies in the element without being made
+## of it and lands in it; a magic shot stays itself (the Frost Staff's shard) and another element
+## rides it.
+func dressed_for_charge(first: VfxElementDef, second: VfxElementDef) -> Effect:
+	var carried: Array[VfxElementDef] = [first, second]
+	return dressed_in(carried, true)
+
+
+func copied() -> Effect:
+	var copy := super.copied() as ProjectileEffect
+	copy.look_element = look_element
+	copy.second_element = second_element
+	copy.lands_in_look = lands_in_look
+	return copy
+
+
+func telegraph_kind() -> Telegraph:
+	return Telegraph.SHOT
+
+
+func ai_reach() -> float:
+	return max_distance
+
+
+func hit_status() -> OnHitStatus:
+	return status
+
+
+func with_hit_status(new_status: OnHitStatus) -> Effect:
+	var copy := copied() as ProjectileEffect
+	copy.status = new_status
 	return copy

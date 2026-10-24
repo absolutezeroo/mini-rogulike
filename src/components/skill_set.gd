@@ -1,8 +1,7 @@
 class_name SkillSet
 extends RefCounted
-## The skills of an actor and their cooldowns. A slot may be empty (null).
-
-const MAX_COOLDOWN_REDUCTION := 0.5
+## The skills of an actor and their cooldowns. A slot may be empty (null). Cooldown reduction
+## counts up to CombatRulesDef.max_cooldown_reduction.
 
 var skills: Array[SkillDef] = []
 var _cooldowns := PackedFloat32Array()
@@ -55,12 +54,10 @@ func reset_cooldown(skill: SkillDef) -> void:
 func try_use(index: int, user: Actor, aim: Vector2) -> bool:
 	if not is_ready(index):
 		return false
-	var reduction := clampf(user.get_stats().cooldown_reduction, 0.0, MAX_COOLDOWN_REDUCTION)
+	var reduction := clampf(user.get_stats().cooldown_reduction, 0.0, Combat.RULES.max_cooldown_reduction)
 	_durations[index] = skills[index].cooldown * (1.0 - reduction)
 	_cooldowns[index] = DebugCheats.cooldown(user, _durations[index])  # the debug panel's No cooldowns
-	var outer := Actor.heal_source  # balance tools: a skill's own heal is credited to it (Actor.healed)
-	Actor.heal_source = StringName("skill:%s" % skills[index].id)
-	skills[index].activate(user, aim)
-	Actor.heal_source = outer
+	# Its hits and heals are credited to it (Actor.healed, HitInfo.via), delayed ones too.
+	Actor.with_source(StringName("skill:%s" % skills[index].id), skills[index].activate.bind(user, aim))
 	user.perks.on_skill_used(user, skills[index])
 	return true

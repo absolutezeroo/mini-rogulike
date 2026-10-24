@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 186,
+  "next_id": 190,
   "tags": [
     "pc",
     "test",
@@ -2758,6 +2758,66 @@
       ],
       "created_at": 1792809057,
       "updated_at": 1792809057
+    },
+    {
+      "id": "task_186",
+      "title": "Audit : cœur du gameplay (chiffres en données, polymorphisme…)",
+      "description": "Fait le 24/10 d'après l'audit du cœur (core.md) et la partie FloorRules / chiffres en dur de world.md. Chiffres déplacés en données, mêmes valeurs : CombatRulesDef (data/combat/combat_rules.tres : critique x1,75, variance 15 %, poids de l'armure 1, plafond de recharge 50 %, poussée des explosions retardées 260), PlayerDef (invulnérabilité 0,6 s / 1 s après une chute, recharge au changement d'arme 1,5 s, portée de visée 520, aide au corps à corps 70, mémoire d'attaque 0,3 s), BossDef (onde de choc : recharge 3 s, 4 + 0,6 par étage, 6 sans règles, mèches 0,35 / 0,45), MonsterDef (vue en poursuite x1,6, abandon après 4 s, errance 35 %), DungeonConfig (embuscades : +1 tous les 3 étages, 0,25 s, pause 1 s, 90 px ; potion au-delà du plafond = 30 % de sa valeur en or, 2 au moins ; tas d'or de 4, 6 au plus ; boss classé +25 % de qualité par affixe), ArrowTrapDef (rayon et couleur des flèches). FloorRules partout : boss_rank_chance, max_monsters_per_room, ambush_wave_size, ambient_light, drop_quality / floor_gold (les bonus de la partie, RunBoons, dans les règles) ; RunState.bonus_souls_worth ; un seul tireur de malédiction/événement (FloorRoute.roll_twist). Correctifs : la source d'un effet retardé (Actor.with_source) suit le délai (stats et outils d'équilibrage) ; la volée du piège à flèches sur l'horloge du piège (plus d'await sur une ressource partagée) ; deux lambdas sans nœud capturé ; dés de combat par étage (World.combat_rng, graine de l'étage, à part de World.rng : défis du jour identiques) ; les chances affichées d'une rencontre et son or comptent maintenant les bonus de la partie (avant : écart avec le vrai tirage) ; un sort du Gardien sans nom dompté garde ses éléments. Doublons : LootRoller.rarity_weights (roll, rencontre, outils), Combat.break_props, Projectile._make_hit. Polymorphisme : virtuelles d'Effect (habillage compétence/charge, télégraphe, portée, statut), ItemDef.use_from_bag, BossBrain (phases, onde de choc, intro), Actor._draws_ward_on_body. Code mort retiré (is_holding_pose, lean_offset, close_now, get_ending, node_of), commentaires replacés. Events.*_requested documentés comme l'exception (demande au Game, jamais à l'UI). Tests : tests/suites/core_tests.gd. Équilibrage : comparaison rapide avant/après dans docs/balance-log.md (refactor, sans changement). À relire / jouer : rien ne devrait changer au jeu, sauf les coups critiques et la variance tirés sur les dés de l'étage.",
+      "status": "review",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "qualité",
+        "données",
+        "combat"
+      ],
+      "created_at": 1792816208,
+      "updated_at": 1792816208
+    },
+    {
+      "id": "task_187",
+      "title": "Scinder davantage Player / Monster / Actor (suite de l'audit du cœur)",
+      "description": "Reporté de l'audit du cœur (24/10) : player.gd (~770 lignes) → PlayerControls (saisie, attaque, charge, visée), PlayerPack (actions du sac, ceinture, worse_gear), PlayerSave ; monster.gd → MonsterDrops (_on_died : butin, runes, or, loot_origin) et MonsterSteering (has_clear_walk, _walk_is_clear, _keep_spacing, _avoid_holes, blocage) ; actor.gd → draw_ward en WardVfx (src/vfx) ; actor_rig.gd → GearLook (arme au repos, aura). BossBrain est déjà sorti.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "qualité"
+      ],
+      "created_at": 1792816208,
+      "updated_at": 1792816208
+    },
+    {
+      "id": "task_188",
+      "title": "Audit : chiffres de réglage restant dans le code (hors cœur)",
+      "description": "Laissés par l'audit du cœur (24/10), hors de son périmètre ou à trancher : game.gd (secousse d'écran damage/max_hp x5, create_timer(1.2), assombrissement 0,55 et fractions du réveil couplées à boss_arena.gd rise_time x0,4/0,5/0,6), boss_arena.gd (piliers > 3,5, piques 0,08, +90 px), dungeon_generator.gd (salle de départ 7x7, best_distance 12, salles cachées 11, boucle du second escalier écrite deux fois), floor_populator.gd (salles calmes >= 7, lampes < 5, grappes de props 1-3, ±8 px), hidden_passage.gd (décalages), ambience.gd, les ~12 forces de secousse d'écran, world.gd:244 (floor_size/rooms lus sur la difficulté avant que FloorRules n'existe), world.gd essais de trophée (20). Les distances d'interaction (pact_room, secret_room, marchand, forge) sont restées des constantes d'interface.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "qualité",
+        "données"
+      ],
+      "created_at": 1792816208,
+      "updated_at": 1792816208
+    },
+    {
+      "id": "task_189",
+      "title": "Audit du cœur : points restants (dictionnaires-structs, get() par nom, perfs)",
+      "description": "Reste de core.md (24/10) : M7 trait_state / StatusSet._slows / Belt.slots / _walk_checks en classes typées ; M8 Passive.look_element et PerkSet (get(\"passives\"), get(\"id\")) par nom ; L2 Combat.spec_from_weapon et melee_strike testent `attacker is Player`, StatusSet source &\"hit\" ; L3 Monster._noticed écrit Profile.mark_seen ; L4 Player appelle Monster.on_hit_player ; PerkSet garde ses 4 sauvegardes de heal_source à la main (boucle chaude, sans lambda) ; perk_offer_requested porte des textes d'interface depuis une Def ; src/vfx/telegraph_view.gd et src/ui/codex/attack_preview.gd testent encore le type d'Effect (passer par Effect.telegraph_kind()) ; perfs P1-P6 (allocations par image, queue_redraw sans changement, espacement O(n²), rayon de vue chaque image, get_image() GPU) ; encounter_outcome colle des propositions traduites ; weak_point_trait mesure le temps en Time.get_ticks_msec().",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "qualité",
+        "perf"
+      ],
+      "created_at": 1792816208,
+      "updated_at": 1792816208
     }
   ]
 }
