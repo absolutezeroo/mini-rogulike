@@ -3,6 +3,9 @@ extends Node2D
 ## A few coins on the floor. They hop out, then fly to the hero once they are close enough.
 ## Checked by distance every frame (no physics): there are only a few at a time.
 
+## Picked up by the hero (the World keeps it for the floor's save: FloorLedger).
+signal collected(pickup: GoldPickup)
+
 const TEXTURE: Texture2D = preload("res://assets/items/gold_coin.png")
 const MAGNET_DISTANCE := 90.0
 const PICKUP_DISTANCE := 14.0
@@ -55,6 +58,7 @@ func _physics_process(delta: float) -> void:
 
 func _collect(player: Player) -> void:
 	player.add_gold(amount)
+	collected.emit(self)
 	Sfx.play_world(Sfx.bank.coin, global_position, -6.0)
 	queue_free()
 

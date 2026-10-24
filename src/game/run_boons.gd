@@ -22,6 +22,8 @@ static func build(content: ContentDB, sworn: OathDef = null) -> RunBoons:
 		var level := Profile.level_of(upgrade)
 		if level <= 0 or upgrade.kind != UpgradeDef.Kind.RULES:
 			continue
+		# Flat, whatever the level (as max_hp_scale in ShrineUpgrades): a trade-off bought once
+		# (Blood Pact has one level; the unit tests keep it so). The others grow with the level.
 		boons.healing_scale *= upgrade.healing_scale
 		boons.heal_on_clear += upgrade.heal_on_clear * level
 		boons.shop_price_scale *= pow(upgrade.shop_price_scale, level)

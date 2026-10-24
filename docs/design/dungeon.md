@@ -44,22 +44,9 @@
   seal stays broken. The floor's own monsters slain stay slain too (`"slain"`): the floor puts
   them down in an order its seed decides (`Monster.floor_index`), so the rebuilt floor leaves
   those numbers out (a number that comes out as another kind of monster stays, rather than the
-  wrong one going; the hidden floor numbers its own as well). **What a resumed floor keeps**
-  (`World.spent_data()`, saved when a floor begins and when the app is put away):
-  - the floor's own monsters still standing come back where the seed put them, as it rolled them
-    (rank and affixes), and a hurt one with the **share of its Health** it had left (`"wounded"`;
-    of the Health its floor gives it, at least 1);
-  - **what came later** and still stands (a summoner's calls, a trapped chest's or an
-    encounter's monsters, a campfire's waves, what a slain one split into) comes back **where it
-    stood**, with its rank, its affixes, its share of Health and whether it was called in (no
-    reward) (`"later"`, by its file and id: a kind the game no longer has is skipped);
-  - not an **ambush's waves under way**: an ambush quit mid-fight starts over when the hero
-    walks in again; a **cleared ambush stays cleared** (`"ambush"`: no second fight, no second
-    reward), its chest there again unless it was opened;
-  - not what stands in a **warden's arena** while he lives (the fight starts over, the warden at
-    full Health, his adds gone), nor statuses (a burn, a chill: seconds long, they are not
-    saved), nor where the floor's own monsters had wandered to.
-  No more running past everything: a floor takes a couple of
+  wrong one going); a hurt one comes back with its share of Health, and the monsters that came
+  later and still stand come back where they stood. The rest of
+  what the seed lays is kept the same way (see progression.md, "Saving and resuming"). No more running past everything: a floor takes a couple of
   minutes, a run about half an hour. Floors are 72x72 cells with up to 15 rooms on Pilgrim, and
   bigger the harder the run (see Difficulty); boss floors keep that size.
 - **Biomes** (`data/biomes/`, `BiomeDef`): every floor is one world from end to end, picked among

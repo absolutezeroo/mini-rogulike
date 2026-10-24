@@ -98,6 +98,18 @@ func _break() -> void:
 	queue_free()
 
 
+## Gone without a sound, nothing dropped (a resumed floor: it was broken before quitting). Its
+## cells are free again.
+func take_away() -> void:
+	if is_broken:
+		return
+	is_broken = true
+	collision_layer = 0
+	for cell in cells():
+		world.set_cell_blocked(cell, false)
+	queue_free()
+
+
 func _explode() -> void:
 	var at := global_position
 	var damage := def.explosion_damage + world.depth

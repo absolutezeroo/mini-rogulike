@@ -114,7 +114,8 @@ one).
 
 **Read the output, not only the exit code.** Engine errors printed while a test runs (`ERROR:`,
 `SCRIPT ERROR:`) don't fail the run today. Known ones (2026-10-22): `Parse JSON failed` twice (the
-damaged-save test, on purpose), plus the leak warnings at exit. Any other is a bug, even if
+damaged-save test, on purpose), `WARNING: Run save: ...` lines (the unit and game suites' damaged and
+too-new run saves, on purpose: SaveTests, `_test_save_rules`), plus the leak warnings at exit. Any other is a bug, even if
 every check passed (`Lambda capture at index 0 was freed`, seen in the game suite until then, was
 one: see docs/conventions.md, "Lambdas that run later").
 

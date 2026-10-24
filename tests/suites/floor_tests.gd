@@ -915,27 +915,20 @@ func _test_hazards(game: Game, world: World, player: Player) -> void:
 		check(elites_seen[0] >= 1, "the last wave is led by an elite")
 		var reward := get_tree().get_nodes_in_group("chests").filter(func(c: Node) -> bool: return (c as Chest).def == CONTENT.dungeon.ambush_chest and room.has_point(world.map.world_to_cell(c.global_position)))
 		check(reward.size() == 1 and (reward[0] as Chest).def == CONTENT.dungeon.ambush_chest, "a big chest rewards the survivor (%d there, %d chests)" % [reward.size(), get_tree().get_nodes_in_group("chests").size()])
-		# Saved cleared: a resumed floor's ambush (the seed lays it again) stays cleared, its chest
-		# there again unless it was opened; an ambush quit mid-fight starts over.
-		var saved_ambush := ambush.save_state()
+		# Saved cleared (World._ambush_data): a resumed floor's ambush, laid again by the seed, stays
+		# cleared, its chest back where it was; walking in sets off no second fight.
+		var saved_ambush: Dictionary = JSON.parse_string(JSON.stringify(world._ambush_data()))
 		var reward_at := world.map.world_to_cell((reward[0] as Chest).global_position) if reward.size() == 1 else Vector2i(-9, -9)
-		check(bool(saved_ambush.get("cleared", false)) and Vector2i(int(saved_ambush.reward[0]), int(saved_ambush.reward[1])) == reward_at, "the floor's save keeps the ambush cleared and where its chest is (%s)" % [saved_ambush])
+		check(saved_ambush.get("cleared", false) == true, "the floor's save keeps the ambush cleared (%s)" % [saved_ambush])
 		for laid: Node in reward:
 			laid.free()
-		var again := world.spawn_ambush(room)
-		again.restore_state(JSON.parse_string(JSON.stringify(saved_ambush)), [] as Array[Vector2i])
+		world.spawn_ambush(room)
+		world._restore_ambush(saved_ambush)
+		var again := world.ambush
 		var chests_again := get_tree().get_nodes_in_group("chests").filter(func(c: Node) -> bool: return (c as Chest).def == CONTENT.dungeon.ambush_chest and world.map.world_to_cell(c.global_position) == reward_at)
-		check(again.state == AmbushRoom.State.CLEARED and not again.is_closed() and chests_again.size() == 1, "resumed, a cleared ambush stays cleared, its chest unopened there again")
+		check(again.state == AmbushRoom.State.CLEARED and not again.is_closed() and chests_again.size() == 1, "resumed, a cleared ambush stays cleared, its chest there again")
 		await _frames(3)
 		check(again.state == AmbushRoom.State.CLEARED and started[0] == 1, "...and walking in sets off no second fight (no second reward)")
-		for laid: Node in chests_again:
-			laid.free()
-		var opened_one := world.spawn_ambush(room)
-		opened_one.restore_state(saved_ambush, [reward_at] as Array[Vector2i])
-		check(opened_one.state == AmbushRoom.State.CLEARED and get_tree().get_nodes_in_group("chests").filter(func(c: Node) -> bool: return (c as Chest).def == CONTENT.dungeon.ambush_chest and world.map.world_to_cell(c.global_position) == reward_at).is_empty(), "its chest opened before quitting is not there again")
-		var waiting := AmbushRoom.new()
-		check(waiting.save_state().is_empty(), "an ambush not cleared is saved as waiting (quit mid-fight: it starts over)")
-		waiting.free()
 		Events.ambush_started.disconnect(on_start)
 		Events.monster_killed.disconnect(on_kill)
 

@@ -15,6 +15,10 @@ enum State { WAITING, FIGHTING, CLEARED }
 var state := State.WAITING
 var room: Rect2i
 var waves_left := 0
+## Where its reward chest was put down when it was cleared (DungeonMap.NO_CELL: not yet, or
+## none): saved with the floor, so a resumed floor puts the chest back there, wherever the hero
+## stands (World.spent_data() "ambush").
+var reward_cell := DungeonMap.NO_CELL
 
 var _world: World
 var _gates: RoomGates
@@ -23,8 +27,6 @@ var _wave: Array[Monster] = []
 var _spawn_timer := 0.0
 var _pause_timer := 0.0
 var _elite_in_wave := false
-## Where its reward chest went once cleared (-1, -1: not yet). Saved with the floor (save_state).
-var reward_cell := Vector2i(-1, -1)
 
 
 func setup(world: World, ambush_room: Rect2i) -> void:
@@ -179,25 +181,13 @@ func holds(monster: Monster) -> bool:
 	return state == State.FIGHTING and _wave.has(monster)
 
 
-## For the floor's save (World.spent_data()): cleared or not, and where its reward chest went.
-## An ambush quit in the middle of its fight is saved as waiting: it starts over.
-func save_state() -> Dictionary:
-	if state != State.CLEARED:
-		return {}
-	return { "cleared": true, "reward": [reward_cell.x, reward_cell.y] }
-
-
-## A resumed floor: an ambush cleared before quitting stays cleared (no waves, the exits open)
-## and its reward chest is there again unless it was opened (`opened`: the floor's opened chests).
-func restore_state(saved: Dictionary, opened: Array[Vector2i]) -> void:
-	if not bool(saved.get("cleared", false)):
+## A resumed floor: it was cleared before quitting. It stays quiet, its chest back where it was
+## put down (`cell`; NO_CELL: none). Whether the chest was opened is the floor's chests' business.
+func restore_cleared(cell: Vector2i) -> void:
+	if state != State.WAITING:
 		return
 	state = State.CLEARED
-	waves_left = 0
-	var cell: Variant = saved.get("reward")
-	if not (cell is Array and (cell as Array).size() == 2):
-		return
-	reward_cell = Vector2i(int(cell[0]), int(cell[1]))
 	var chest_def := _world.config().ambush_chest
-	if chest_def and not opened.has(reward_cell):
-		_world.spawn_chest(chest_def, reward_cell, false)
+	if chest_def and cell != DungeonMap.NO_CELL and _world.map.is_floor(cell):
+		reward_cell = cell
+		_world.spawn_chest(chest_def, cell, false)

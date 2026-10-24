@@ -1,14 +1,106 @@
 class_name RunSave
 ## The run in progress, kept on disk (user://run.json) so it survives the app being closed:
 ## a phone call, the system killing it in the background... Saved when a floor begins and when
-## the app goes to the background. Resuming starts a fresh floor at the saved depth, with the hero
-## exactly as saved. Erased when the hero dies.
+## the app goes to the background. Resuming builds the floor again from its seed at the saved
+## depth, with the hero exactly as saved and what was used up on the floor kept used up
+## (World.spent_data(), "floor").
 ##
 ## Content (items, perks, skills) is saved by resource path: renaming a .tres breaks old saves
 ## of runs in progress (only those, never the profile).
+##
+## Robustness: a save from an older version is migrated (_migrate()), not thrown away; one from a
+## newer game is refused. A damaged or hand-edited file never crashes the game: every field the
+## game reads is checked against SHAPE first, and a field of the wrong kind is dropped (and
+## logged), so its default is used. The floor's block carries a stamp of the build that wrote it
+## (floor_stamp()): after a game update the floor may come out otherwise from the same seed, and
+## its cell-keyed data (chests, holes, cracks) would land on the wrong things, so floor_of() drops
+## it: the hero and the run come back, the floor is laid fresh.
 
 const PATH := "user://run.json"
-const VERSION := 1
+## 2: the floor's stamp, the things laid on it used up (FloorLedger), the merchant's stock, the
+## ambush, the last boss. 1: the first saves.
+const VERSION := 2
+## The oldest version _migrate() still reads.
+const OLDEST_VERSION := 1
+## Bump it when a change makes a floor come out otherwise from the same seed (the generator, the
+## order things are laid in, the pools they are drawn from) without a new game version: saved
+## floors are then laid fresh (floor_of()).
+const FLOOR_FORMAT := 1
+
+## What a field may hold: "number" (int or float, as JSON reads it), "bool" (or a number),
+## "string", "dict", "array", "any"; a Dictionary: a dictionary whose listed keys are checked
+## ("*": every value); [shape]: an array whose entries of another shape are dropped.
+const SHAPE := {
+	"version": "number",
+	"depth": "number",
+	"kills": "number",
+	"bosses_slain": "number",
+	"has_won": "bool",
+	"souls_awarded": "number",
+	"run_gold": "number",
+	"history_recorded": "bool",
+	"bosses": "array",
+	"rerolls": "number",
+	"banishes": "number",
+	"banished": "array",
+	"daily_day": "number",
+	"daily_official": "bool",
+	"seed": "number",
+	"time": "number",
+	"splits": ["number"],
+	"finish_time": "number",
+	"routes": { "*": "number" },
+	"hidden_floor": "bool",
+	"hidden_done": "bool",
+	"finale_open": "bool",
+	"finale": "bool",
+	"ending_due": "bool",
+	"keeper": "dict",
+	"secrets_found": "number",
+	"bonus_souls": "number",
+	"telemetry": "dict",
+	"world_stats": "dict",
+	"marks": "dict",
+	"met_floors": "array",
+	"difficulty": "string",
+	"ascension": "number",
+	"remote": "dict",
+	"last_boss": "string",
+	"boss_slain": "bool",
+	"floors_without_forge": "number",
+	"player": {
+		"level": "number",
+		"xp": "number",
+		"hp": "number",
+		"gold": "number",
+		"base_stats": { "*": "number" },
+		"equipment": "dict",
+		"inventory": "array",
+		"belt": "array",
+		"perks": [{ "stacks": "number", "memory": "dict" }],
+	},
+	"offers": [{ "rarity": "number", "count": "number", "on_demand": "bool", "cards": "array" }],
+	"kept_stock": [{ "price": "number" }],
+	"floor": {
+		"stamp": "string",
+		"chests": "array",
+		"bought": "array",
+		"secrets": "array",
+		"pact": "number",
+		"fragment": "bool",
+		"seal_kills": "number",
+		"sealed": "array",
+		"collapsed": "array",
+		"slain": "array",
+		"spent": "dict",
+		"merchant": "dict",
+		"ambush": "dict",
+		# The floor's hurt monsters, [floor_index, id, Health share], and those that came later
+		# (World.spent_data()); optional: a save without them restores them whole / not at all.
+		"wounded": ["array"],
+		"later": [{ "def": "string", "id": "string", "at": "array", "health": "number", "rank": "string", "affixes": "array", "summoned": "bool" }],
+	},
+}
 
 ## Empty = nothing is read or written.
 static var path := PATH
@@ -25,19 +117,102 @@ static func write(data: Dictionary) -> void:
 	SafeFile.write_json(path, data)
 
 
-## The saved run, or an empty Dictionary if there is none (or it is damaged or too old).
+## The saved run, or an empty Dictionary if there is none (or it can't be read: not a run, from a
+## newer game, the hero damaged). Older versions come migrated, damaged fields dropped.
 static func read() -> Dictionary:
 	if not exists():
 		return {}
-	var data: Variant = SafeFile.read_json(path)
-	if not data is Dictionary or int(data.get("version", 0)) != VERSION:
+	return parse(SafeFile.read_json(path))
+
+
+## read()'s checks on data read from a save file: {} if it can't be a run, else the run migrated to
+## VERSION with its damaged fields dropped (each one logged).
+static func parse(data: Variant) -> Dictionary:
+	if not data is Dictionary:
+		if data != null:
+			push_warning("Run save: not a run, ignored.")
 		return {}
-	# A hand-edited or damaged file must not crash the game: check the shapes we rely on.
-	for key: String in ["player", "bosses", "offers"]:
-		var expected := TYPE_DICTIONARY if key == "player" else TYPE_ARRAY
-		if data.has(key) and typeof(data[key]) != expected:
-			return {}
+	var version: Variant = (data as Dictionary).get("version", 0)
+	if not (version is float or version is int) or int(version) < OLDEST_VERSION or int(version) > VERSION:
+		push_warning("Run save: version %s can't be read (%d to %d), ignored." % [version, OLDEST_VERSION, VERSION])
+		return {}
+	if (data as Dictionary).has("player") and not (data as Dictionary).player is Dictionary:
+		push_warning("Run save: the hero is damaged, the run is ignored.")
+		return {}
+	var clean := sanitized(data, SHAPE, "") as Dictionary
+	return _migrate(clean)
+
+
+## `value` as `shape` allows (see SHAPE); what doesn't fit is dropped and logged. Null when
+## `value` itself doesn't fit.
+static func sanitized(value: Variant, shape: Variant, where: String) -> Variant:
+	if shape is Dictionary:
+		if not value is Dictionary:
+			return null
+		var result := {}
+		for key: Variant in value:
+			var key_shape: Variant = shape.get(str(key), shape.get("*", "any"))
+			var kept: Variant = sanitized(value[key], key_shape, "%s/%s" % [where, key])
+			if kept == null and value[key] != null:
+				push_warning("Run save: dropped the damaged field %s/%s." % [where, key])
+				continue
+			result[key] = kept
+		return result
+	if shape is Array:
+		if not value is Array:
+			return null
+		var entries: Array = []
+		for entry: Variant in value:
+			var kept: Variant = sanitized(entry, shape[0], where + "[]")
+			if kept == null:
+				push_warning("Run save: dropped a damaged entry of %s." % where)
+				continue
+			entries.append(kept)
+		return entries
+	match str(shape):
+		"number":
+			return value if value is float or value is int else null
+		"bool":
+			return value if value is bool or value is float or value is int else null
+		"string":
+			return value if value is String or value is StringName else null
+		"dict":
+			return value if value is Dictionary else null
+		"array":
+			return value if value is Array else null
+	return value
+
+
+## An older save brought up to VERSION, field by field (each step one version up).
+static func _migrate(data: Dictionary) -> Dictionary:
+	var version := int(data.get("version", OLDEST_VERSION))
+	if version < 2:
+		# Version 1 had no floor stamp: floor_of() lays its floor fresh (the generator may have
+		# changed with the update that brought version 2), the hero and the run are kept whole.
+		version = 2
+	data["version"] = version
 	return data
+
+
+## The build a floor's save comes from: the game's version and FLOOR_FORMAT.
+static func floor_stamp() -> String:
+	return "%s/%d" % [ProjectSettings.get_setting("application/config/version", ""), FLOOR_FORMAT]
+
+
+## The saved floor's block (World.restore_spent()) if this build lays the floor as it was: {}
+## when there is none, or when its stamp is another build's (see floor_outdated()).
+static func floor_of(saved: Dictionary) -> Dictionary:
+	var floor_data: Variant = saved.get("floor", {})
+	if not floor_data is Dictionary or floor_outdated(saved):
+		return {}
+	return floor_data
+
+
+## The saved floor was written by another build: it is laid fresh (floor_of()). The Game says so.
+static func floor_outdated(saved: Dictionary) -> bool:
+	var floor_data: Variant = saved.get("floor")
+	return floor_data is Dictionary and not (floor_data as Dictionary).is_empty() \
+		and str((floor_data as Dictionary).get("stamp", "")) != floor_stamp()
 
 
 static func erase() -> void:

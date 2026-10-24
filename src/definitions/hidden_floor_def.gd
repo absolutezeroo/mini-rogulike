@@ -79,7 +79,9 @@ func as_act() -> ActDef:
 	return act
 
 
-## Fills the rooms before the arena with its monsters (not the start room, not the arena).
+## Fills the rooms before the arena with its monsters (not the start room, not the arena). Each
+## gets its number in the seed's order (Monster.floor_index), as a normal floor's: slain before
+## quitting, they stay slain when the run is picked up again.
 func populate(world: World) -> void:
 	var map := world.map
 	var rng := world.rng

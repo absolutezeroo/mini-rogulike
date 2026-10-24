@@ -457,9 +457,20 @@ func run() -> void:
 	game.world.seal.add_kill()
 	game.world.seal.break_now()
 	game._save_run()
+	var logged: Array[String] = []
+	var on_log := func(text: String, _color: Color) -> void: logged.append(text)
+	Events.message_logged.connect(on_log)
+	var hero_on_floor: Array[bool] = []
+	var on_reset := func() -> void: hero_on_floor.append(game.world.player != null)
+	game.world.map_reset.connect(on_reset)
 	game.resume_run(RunSave.read())
 	await _frames(5)
+	Events.message_logged.disconnect(on_log)
+	game.world.map_reset.disconnect(on_reset)
+	check(not hero_on_floor.is_empty() and not hero_on_floor[0], "while a run's first floor is laid, the last hero isn't on it")
 	check(not game.world.seal.is_sealed(), "a seal broken before quitting stays broken")
+	check(not logged.any(func(text: String) -> bool: return text.begins_with("The seal shatters")) and not game.world.get_node("Effects").get_children().any(func(n: Node) -> bool: return n is GuideWisp), "...quietly: no fanfare, no guiding light again (%s)" % [logged])
+	check(game.world.player == game.player, "the floor's hero is the new one")
 
 	# A second bot run on the fresh character at higher depths, mortal this time.
 	# Monsters must be able to hurt a player who just stands there.
@@ -475,6 +486,10 @@ func run() -> void:
 	await _bot_play(game, 60 * 20)
 	print("bot (depth 4, mortal): hp %d/%d, dead=%s" % [game.player.hp, game.player.get_max_hp(), game.player.is_dead])
 	await floor_suite._test_slain_stay_dead(game)
+	# Put away and picked up again: what the floor's seed laid stays used up (SaveTests).
+	var saves := SaveTests.new()
+	add_child(saves)
+	await saves.run_game(game)
 	await combat._test_threshold_lost(game)
 	await floor_suite._test_abyss_death(game)
 	# Keyboards, mice and gamepads: the HUD, the panels, the layouts (PcTests).
