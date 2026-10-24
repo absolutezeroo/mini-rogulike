@@ -59,6 +59,14 @@ class StatValues:
 	var values := {}
 
 
+## The game's live config as the server has it (the remote settings: RemoteConfig).
+class ConfigValues:
+	extends RefCounted
+	var status: BoardBackend.Status = BoardBackend.Status.UNAVAILABLE
+	## Key -> value, both texts as the server keeps them (validated by RemoteConfig, never here).
+	var values := {}
+
+
 ## There is a server to talk to (an access key).
 func is_configured() -> bool:
 	return false
@@ -106,6 +114,11 @@ func fetch_world_stats() -> StatValues:
 ## The identified player's own totals of the world counters.
 func fetch_my_stats() -> StatValues:
 	return StatValues.new()
+
+
+## The game's live config (the remote settings), read **without any player**: no id goes with it.
+func fetch_config() -> ConfigValues:
+	return ConfigValues.new()
 
 
 ## Shows the player under `pseudonym` on every board.

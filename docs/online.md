@@ -11,7 +11,8 @@ they protect against.
 
 **The rule: no Talo call at all before the player's choice.** Until the player answers "Publish my
 scores" (or turns it on in Options) and/or accepts the statistics, or sends a message from **Send
-feedback** (below), the game makes no request, not even to read a board, and makes no id. The tests check it (`LeaderboardTests`, `PrivacyTests`:
+feedback** (below), the game makes no request, not even to read a board or the remote settings,
+and makes no id. The tests check it (`LeaderboardTests`, `PrivacyTests`:
 the fake server counts its calls).
 
 ## How it is built
@@ -85,7 +86,8 @@ What is left: **only the key file**. For reference, the whole setup:
    (`read:players` to identify the device's player, `write:players` to set its name),
    **Leaderboards: read and write** (`read:leaderboards`, `write:leaderboards`), **Events: write**
    (`write:events`, the gameplay statistics). Nothing else is needed (done; the key also has Game
-   Stats, Game Feedback and Game Config scopes for later features).
+   Stats, Game Feedback and Game Config scopes; **Game Config: read** is used by the remote
+   settings).
 3. **Display name** (recommended): *Game settings* > **Display name prop key** = `name`. The
    pseudonym is a player prop called `name`: with this set, a renamed player shows the new name on
    every entry. Without it the game falls back on the name copied into each entry.
@@ -186,6 +188,83 @@ bugs. Built so that the game never depends on it:
 
 Every event also carries `v` (the game's version), `run` (a random id per run) and `depth`.
 
+## Reading the statistics (tools/stats)
+
+Talo's dashboard charts one event at a time; the questions that matter (which weapon wins, which
+boss blocks, do players drink too late) need the runs put together. `tools/stats/` is a dev tool
+(Python 3, standard library only, nothing in the game) that reads a **data export** and makes one
+self-contained HTML page, in French, readable on a phone:
+
+```
+python3 tools/stats/build_dashboard.py ~/Downloads/export-<game>-<date>.zip -o stats.html
+python3 tools/stats/build_dashboard.py exports/ --since 2026-11-01 --json stats.json -o stats.html
+python3 tools/stats/build_dashboard.py prod.zip --include-dev --dev-export with_dev.zip -o stats.html
+python3 -m unittest discover tools/stats      # its tests
+```
+
+- **How the events leave Talo.** Only through the dashboard's export: Talo's admin API (the
+  admin key we used for the world counters) has routes for players, leaderboards, game stats,
+  live config and channels, and **none that reads events or starts an export** (checked in
+  TaloDev/backend: `src/routes/admin/*`, `AdminAPIKeyScope`); the export route
+  (`POST /games/:id/data-exports`) takes a logged-in dashboard user, an admin with a confirmed
+  email, and the ZIP is **mailed** (attached, or a download link). The game's own key can only
+  write events. So the export is a step done by hand (below), and the tool reads its ZIP.
+- **The export's format** (backend `dataExportProcessor.ts`): `events-1.csv` (then `-2`... per
+  100,000 rows) with `id, name, playerAlias.id, playerAlias.service, playerAlias.identifier,
+  playerAlias.player.id, createdAt, updatedAt` and a `props.<key>` column per prop key the game
+  ever sent. **No dev column**: the export holds dev data or not depending on the dashboard's
+  "Dev data" switch when it is made. To look at dev runs, make a second export with dev data on
+  and pass it as `--dev-export` (its events missing from the normal one are the dev ones), or name
+  the dev devices with `--dev-player <device id>` (Options > Privacy shows it).
+- **Talo's export bug.** A cell is filled with the first prop whose key the column name *ends
+  with*, so `props.skills` holds the run's `kills` (the game sends its props sorted, `kills`
+  first), and a `boss` row shows its boss under `props.potions_boss`. The tool keeps only each
+  event's catalog fields (`data/online/telemetry.tres`), drops a cell equal to a shorter key's
+  value, and rebuilds the skills from `skill.<id>.uses`/`.dmg` (the skills used, not those held).
+  Renaming the `skills` prop in the game would avoid it (roadmap card).
+- **What the tool counts**: runs as distinct `run` ids with their latest `run_end` (above),
+  abandoned runs apart (never in a win rate), events sent twice counted once (same name, player,
+  time and props). Every rate shows its sample and a 95% Wilson interval; rows under
+  `--min-sample` finished runs (default 10) are grey and never ranked above the others; build
+  combinations need `--min-combo` runs (5). The build is the one the run *ended* with
+  (survivorship: deep runs gather more perks and relics).
+- **The page**: overview (runs, players, win rate, abandons), difficulty and ascension, depth
+  reached and the death rate of each floor (boss floors marked), deaths by cause, killer and act,
+  the bosses (fights, win rate, time, damage and hits taken, potions, phase reached at death),
+  weapons, their rarity and element, head, body and both, runes, skills (results and use),
+  perks and relics (offered, picked, pick rate, banished, results), awakened families, oaths,
+  pacts, the best combinations (weapon + a skill, + armor, + a relic, + every skill), potions
+  (drunk per run, in boss fights, the Health when drunk, left unused at death), the roll (rolls a
+  minute, dodge rate, win rate by dodge rate, by act), damage by element and source, time per
+  floor, the economy (gold, purchases, souls), devices. Filters (version, difficulty, dev data)
+  are computed beforehand for every combination and embedded; the page needs no network, works
+  light and dark, and holds no player id (it can be shared; the export can't).
+- **`--json`** writes the same numbers for scripts (the `game-balancer`: docs/balance.md).
+- **Tests**: `tools/stats/test_stats.py` on `fixtures/edge_events.csv` (quoting, the export bug,
+  a resumed run, a boss's next form, a batch sent twice) and on a synthetic export made by
+  `fixtures/make_fixture.py` (fixed seed, the catalog's events, written the way Talo writes them:
+  props must come back as sent). `python3 tools/stats/fixtures/make_fixture.py demo.zip` makes
+  one to try the page.
+
+### Sortir les données de Talo (à faire par Clayton)
+
+1. Sur [dashboard.trytalo.com](https://dashboard.trytalo.com), choisir le jeu, puis le menu
+   **Services** > **Export** (« Export your data »; adresse directe `dashboard.trytalo.com/exports`).
+   Il faut être administrateur du jeu, avec une adresse email confirmée.
+2. En haut de la page, l'interrupteur **Dev data** : le laisser **désactivé** (« not enabled »)
+   pour n'avoir que les vrais joueurs.
+3. Sous *Create data export*, cocher **Events** (c'est tout ce que l'outil lit; *Players* et
+   *Player aliases* ne servent pas). Cliquer **Create**.
+4. Talo envoie un email quand l'export est prêt (un ZIP en pièce jointe, ou un lien de
+   téléchargement). Le nombre d'exports par mois dépend de l'offre Talo.
+5. Garder le ZIP **hors du dépôt** (il contient les identifiants des appareils : jamais dans git),
+   puis lancer :
+   `python3 tools/stats/build_dashboard.py chemin/vers/export-....zip -o stats.html`
+   et ouvrir `stats.html` (sur l'ordinateur ou le téléphone). Le ZIP peut être supprimé ensuite.
+6. Pour voir aussi ses propres parties de test : refaire un export avec **Dev data** activé et
+   ajouter `--include-dev --dev-export chemin/vers/export_dev.zip` (la page aura un interrupteur
+   « Données dev »).
+
 ## World counters (the Well's Toll)
 
 Numbers every player adds to, kept by Talo as **global game stats** (`/v1/game-stats`): the
@@ -253,6 +332,90 @@ Smoke test (23 October 2026, `_tool/world_stats_smoke.gd`, dev data): a test pla
 in the world's value), the list read back (every counter at 0), the player's own totals read, an
 unknown stat and a change past the max refused (400).
 
+## Remote settings (Talo game config)
+
+A few values the game takes from Talo's **game config** (the game's live config: key/value
+texts), so a balance hotfix, a weekend event, the Dawn Knell's omen, a message of the day or a
+kill switch needs no update. **The game's own data stays the default**: no network, no key, no
+online choice, no value or a bad one, and the game is exactly as its data makes it.
+
+- **`RemoteConfig`** (autoload, `src/autoload/remote_config.gd`) reads `GET /v1/game-config`
+  (`TaloBackend.fetch_config()`, the key's `read:gameConfig` scope) a few seconds after the start,
+  when an online choice is made, and on the title screen when the last read is older than
+  `refresh_seconds` (900; Talo itself caches the config 10 minutes). The read carries **no
+  player** (no `X-Talo-Alias`), and like the world counters it is made only once the player turned
+  an online feature on (published scores or accepted statistics): before that, no call at all.
+- **The allow-list is data**: `data/online/remote_config.tres` (`RemoteConfigDef`, one
+  `RemoteKeyDef` per key: its Talo key, its kind, its bounds, the hook it acts on, its purpose). A
+  key not listed, a value of the wrong form, **out of its bounds** (ignored, never clamped: a typo
+  of 15 for 1.5 must not become 2), an id that isn't one of the game's curses or floor events, a
+  text too long: ignored, listed in `RemoteConfig.ignored` (the debug panel) and printed in debug
+  builds. An empty value means "unset". Nothing from the server is ever a path, a resource or
+  code: each key reaches one fixed hook (`RemoteKeyDef.Hook`) the game reads.
+- **Safe points**: what is read goes into `latest`; the game uses `active`, copied from it only at
+  the **title screen** (`RemoteConfig.at_title()`) and when a **run starts or is resumed**
+  (`RemoteTuning.run_starting()` from `Game._begin_run()`), never in the middle of a run. A run's
+  values are then fixed in its `RemoteTuning` (`RunState.tuning`) and **saved with it**: a run
+  resumed after a change keeps the values it began with. The kill switches are the exception
+  (below).
+- **How a value reaches the game**: the multipliers go onto the run's own copy of its
+  `DifficultyDef` (`RemoteTuning.apply_to()`, like an ascension level: `monster_hp` and `boss_hp`,
+  `monster_damage`, `souls`), so `FloorRules` and `RunState.souls()` scale with them where they
+  read the difficulty; nothing multiplies them by hand. The omen and an event's boosted floor
+  event are read by `FloorRoute.offer()` and `World.build_floor()` from the run's tuning.
+  (The game's classes ask through `RemoteTuning`'s static hooks, which the autoload fills: naming
+  the autoload from `World` or `RunState` makes a load cycle that breaks the World's subclasses.)
+- **The version gate**: `min_version` / `max_version` make the whole config apply to those game
+  versions only (`application/config/version`, compared part by part: 0.10.0 after 0.9.2). Outside
+  them, every key is ignored, the kill switches too. Empty: every version.
+- **The cache**: the last good read (the allow-list's keys only) in `user://remote_config.json`;
+  it applies from the next start, offline too. Nothing personal is in it.
+
+### The keys
+
+| Key | Kind, bounds | What it does (default: the game unchanged) |
+|---|---|---|
+| `enemy_health_easy`, `_normal`, `_hard`, `_nightmare` | number 0.5 to 2 (1) | multiplies every monster's and boss's Health in runs of that difficulty |
+| `enemy_damage_easy`, `_normal`, `_hard`, `_nightmare` | number 0.5 to 2 (1) | multiplies everything that hurts the hero (monsters, traps, the cold) in runs of that difficulty |
+| `souls_multiplier` | number 0.5 to 3 (1) | multiplies the souls every run gives |
+| `daily_omen` | a curse or floor event id (`frostbound`, `ashen_breath`, `lanternless`, `blood_moon`, `darkness`, `haunted`, `market_day`, `swarm`, `treasure_vault`) | the Dawn Knell of the day `daily_omen_date` names puts it on **every normal floor** (not the first, not the wardens'; both ways down). Told in the Dawn Knell's card and in the log |
+| `daily_omen_date` | date, `2026-10-31` (UTC) | the day the omen is for; any other day is untouched (no date: no omen) |
+| `event_name_en`, `event_name_fr` | text, 40 characters | the event's name on the title screen (English is the fallback); no name: no event |
+| `event_ends` | date (`2026-10-26`: the end of that UTC day) or moment (`2026-10-26T22:00:00Z`) | when the event ends; no end: no event |
+| `event_souls` | number 1 to 3 (1) | the event's souls bonus (runs started during it; on top of `souls_multiplier`) |
+| `event_floor_event` | a floor event id | made more likely among the floor events during the event |
+| `event_floor_weight` | number 1 to 10 (1) | how much more likely (multiplies its spawn weight) |
+| `motd_en`, `motd_fr` | text, 120 characters | a message of the day on the title screen, in the tagline's place (English is the fallback) |
+| `scores_off` | true / false | **kill switch**: no score queued or sent (applies at once, mid-run too) |
+| `statistics_off` | true / false | **kill switch**: no gameplay statistics nor world counters counted, queued or sent (applies at once) |
+| `min_version`, `max_version` | version, `0.3.0` | the game versions the config is for |
+
+**In Clayton's Talo game** the 23 keys were created on 24 October 2026 with the admin API
+(`PATCH /admin/v1/game-config`, scope `write:gameConfig`) with neutral values: numbers `1`, flags
+`false`, the rest empty. The game then behaves exactly as without them.
+
+### Changing a value (the dashboard)
+
+On [dashboard.trytalo.com](https://dashboard.trytalo.com): the game > **Game config** (Talo calls
+it the live config) > edit the key's value > save. The game reads it within about 10 minutes (Talo's
+cache) the next time it starts or shows the title, and applies it at the title or the next run's
+start. Give values exactly in the forms above (a decimal point, not a comma: `1.25`). Check it took:
+the debug panel's **Remote** tab in an editor build (it lists what was ignored and why). To go
+back, put the neutral value back (`1`, `false`, empty).
+
+### Running a weekend event
+
+1. Set `event_name_en` and `event_name_fr` (in the Well's voice: "Night of Souls" / "La Nuit des
+   Âmes"), `event_ends` (Sunday's date: the end of that UTC day), `event_souls` (`1.5` = +50%),
+   and if you want `event_floor_event` (`blood_moon`) with `event_floor_weight` (`4`).
+2. Optionally `motd_en` / `motd_fr` to say it on the title.
+3. The title shows the event's plaque under Credits (its name, the bonus, the floor event, the
+   time left); every run **started** before the end gets it (a run keeps it to its end).
+4. Nothing to undo: past `event_ends` it stops by itself. Empty the name afterwards to tidy up.
+
+To start it at a set time, Talo can **schedule** a config change (the dashboard's scheduled changes,
+or `POST /admin/v1/game-config/scheduled-changes` with `{changes: [{key, value, applyAt}]}`); set
+the name that way and the event begins when the name appears.
 ## Player feedback
 
 **Send feedback** (the pause menu's button, and **Feedback** beside Credits on the title screen;
@@ -323,8 +486,10 @@ see a message arrive; that player can then be deleted.
 
 Leaderboards: a random id made on the device, the pseudonym, the scores and their run summary.
 Statistics: the events above, linked to the same id; with them, the player's shares of the world
-counters (their totals per counter, and Talo's snapshot of each update). Feedback: only the
-messages the player sends, with what they left ticked, linked to the same id. No email, no account, no hardware device id
+counters (their totals per counter, and Talo's snapshot of each update). The remote settings'
+read sends no id (Talo sees the device's IP address, as with any request), only once an online
+feature is on. Feedback: only the messages the player sends, with what they left ticked, linked
+to the same id. No email, no account, no hardware device id
 (the id is random, never `OS.get_unique_id()`), no location. Both are off until chosen and can be
 turned off in Options > Privacy, which also shows the id and prepares a deletion request. The
 policy is `docs/privacy.html` (FR and EN) and, short, in the game (`data/online/privacy.tres`);
@@ -353,6 +518,16 @@ counting the player, one update per counter at a run's end and the cap, the queu
 the file) sent once when the network is back, endings and offerings, withdrawing and deleting,
 reads cached and hidden offline; the title's line (French, grouped, turning, hidden before a
 choice) and the Toll page (filled, offline with Try again, no choice).
+`RemoteConfigTests` (unit and title suites, `FakeBoardBackend.config`): the allow-list's data,
+the game's own values offline, before a choice and without a key, out-of-bounds values, unknown
+keys and ids ignored (not clamped), values applied only at safe points, a run keeping its values
+(saved, resumed after a change), `FloorRules` scaling with them, the version gate, both kill
+switches (applied mid-run, lifted), the omen on that day's Dawn Knell only (every way down, the
+rest of the offer unchanged), an event (its bonus, its boosted floor event, its end), the file;
+the title's event plaque and message of the day in French, the English fallback, nothing before a
+choice. The real config was read on 24 October 2026 with the game key (`GET /v1/game-config`, 23
+keys, all neutral; through `TaloBackend.fetch_config()` too: 13 valid values, the empty ones unset,
+nothing ignored).
 `FeedbackTests` (unit and title suites, `FakeBoardBackend`'s feedback): the data, nothing taken
 without an online service (Send off, the form says why), the queue kept offline and in its file
 and sent once when the network is back, a refused message dropped, the game info only when ticked

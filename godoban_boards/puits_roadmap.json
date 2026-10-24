@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 163,
+  "next_id": 171,
   "tags": [
     "pc",
     "test",
@@ -2001,8 +2001,8 @@
     {
       "id": "task_137",
       "title": "Tableau de bord des statistiques",
-      "description": "Lire les données Talo (graphes du tableau de bord Talo, export CSV) et en faire un tableau de bord du jeu : taux de choix et de victoire par arme/armure/sort/perk/relique, meilleures combinaisons, où et contre quoi on meurt, boss bloquants, potions et esquive. Sert aussi aux passes d'équilibrage (avec les bots).",
-      "status": "todo",
+      "description": "Fait : outil de dev tools/stats/ (Python 3, sans dépendance, rien dans le jeu). build_dashboard.py lit l'export Talo (ZIP envoyé par mail, dossier ou CSV) et fait UNE page HTML autonome, en français, lisible sur téléphone, clair/sombre, avec filtres version / difficulté / données dev : vue d'ensemble (parties, joueurs, victoire avec intervalle à 95 %, abandons), difficultés et ascensions, profondeur et taux de mort par étage, morts par cause, tueur et acte, boss (combats, victoire, durée, dégâts et coups subis, potions, phase à la mort), armes / rareté / élément / tête / corps / runes / compétences / dons / reliques / familles / serments / pactes (taux de choix pris/proposé, victoire, écart, profondeur, confiance), meilleures combinaisons (arme + compétence, + armure, + relique), potions (bues, santé en buvant, restantes à la mort), roulade et esquive, dégâts par élément et source, temps par étage, économie, appareils. Une partie = un id de partie avec sa dernière fin (jamais de somme); les abandons hors des taux de victoire; les petits échantillons en gris, jamais classés devant. --json pour le game-balancer (docs/balance.md). 25 tests (python3 -m unittest discover tools/stats) sur un faux export généré (fixtures/make_fixture.py, graine fixe, écrit comme Talo l'écrit).\nPas d'API : aucune route admin de Talo ne lit les événements ni ne lance un export (vérifié dans le code de Talo). À FAIRE PAR CLAYTON : dashboard.trytalo.com > Services > Export, « Dev data » désactivé, cocher Events, Create; le ZIP arrive par mail; puis python3 tools/stats/build_dashboard.py chemin/export-....zip -o stats.html et ouvrir la page (étapes : docs/online.md « Sortir les données de Talo »). Garder le ZIP hors du dépôt (identifiants d'appareils). Trouvé en route : un bug de l'export Talo met la valeur de kills dans la colonne skills (l'outil le contourne, carte à part). Non vérifié : un vrai export Talo (seul un faux export a été lu).",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_5",
       "due_date": null,
@@ -2011,7 +2011,7 @@
         "équilibrage"
       ],
       "created_at": 1792768111,
-      "updated_at": 1792768111
+      "updated_at": 1792799748
     },
     {
       "id": "task_138",
@@ -2043,13 +2043,13 @@
         "données"
       ],
       "created_at": 1792768111,
-      "updated_at": 1792802215
+      "updated_at": 1792802331
     },
     {
       "id": "task_140",
       "title": "Réglages à distance (Talo Game Config)",
-      "description": "Validé. Ajuster des chiffres d'équilibrage, lancer un événement du week-end ou changer le modificateur du Défi du jour sans mise à jour. Valeurs par défaut dans les données du jeu, la config distante ne fait que les remplacer (bornées).",
-      "status": "todo",
+      "description": "Fait (à valider). Réglages lus dans la « Game config » de Talo (GET /v1/game-config, sans identifiant de joueur, seulement après un choix en ligne), vérifiés contre une liste blanche en données (data/online/remote_config.tres) : clé inconnue, valeur hors bornes ou id inconnu ignorés. Appliqués seulement à l'écran titre et au début d'une partie (une partie garde ses valeurs, sauvegardées avec elle), avec une porte de versions (min_version / max_version). Clés : multiplicateurs de Vie et de dégâts des ennemis par difficulté (via FloorRules), multiplicateur d'âmes, présage du Glas de l'Aube pour une date (malédiction ou événement d'étage), événement limité (nom FR/EN, fin, bonus d'âmes, événement d'étage favorisé), message du jour FR/EN sur l'écran titre, interrupteurs d'urgence classements / statistiques. Les 23 clés sont créées dans Talo avec des valeurs neutres. Onglet « Remote » du panneau debug pour simuler une valeur. Politique 1.2 (lecture des réglages : IP vue par Talo). Docs : online.md, balance.md, privacy-ops.md.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -2058,7 +2058,7 @@
         "équilibrage"
       ],
       "created_at": 1792768111,
-      "updated_at": 1792768111
+      "updated_at": 1792800929
     },
     {
       "id": "task_141",
@@ -2341,6 +2341,130 @@
     },
     {
       "id": "task_159",
+      "title": "Statistiques : lire le premier vrai export Talo",
+      "description": "Non vérifié par task_137 : l'outil n'a lu qu'un faux export (même format que le code de Talo). Au premier export de Clayton, lancer build_dashboard.py dessus, vérifier les colonnes (props.*), le bug skills/kills, l'ordre des props, le nombre de parties (ids distincts) contre le tableau de bord Talo, et l'allure de la page sur son téléphone.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "données",
+        "en ligne",
+        "tests"
+      ],
+      "created_at": 1792799748,
+      "updated_at": 1792799748
+    },
+    {
+      "id": "task_160",
+      "title": "Renommer la prop « skills » du run_end",
+      "description": "L'export de données de Talo remplit chaque colonne avec la première prop dont la clé TERMINE le nom de colonne (dataExportProcessor.transformColumn, column.endsWith(prop.key)) : props.skills reçoit la valeur de kills (les props sont envoyées triées, kills avant skills). L'outil tools/stats reconstruit les compétences depuis skill.<id>.uses/.dmg (les compétences utilisées, pas celles tenues à la fin). Renommer la prop (par ex. « loadout ») dans RunTelemetry et telemetry.tres, et l'accepter dans tools/stats (talo_export.DEFAULT_CATALOG). Aucune autre clé ne termine une autre aujourd'hui (src_out.weapon et weapon : sauvé par l'ordre trié); garder la règle pour les nouvelles props.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "données",
+        "en ligne"
+      ],
+      "created_at": 1792799748,
+      "updated_at": 1792799748
+    },
+    {
+      "id": "task_161",
+      "title": "Signaler à Talo le bug des colonnes de l'export",
+      "description": "TaloDev/backend, src/lib/queues/data-exports/dataExportProcessor.ts, transformColumn() : find(prop => column.endsWith(prop.key)) devrait comparer column === 'props.' + prop.key. Effet : une colonne reçoit la valeur d'une clé plus courte (props.skills <- kills, props.potions_boss <- boss, props.weapon_rarity <- rarity). Ouvrir une issue (ou une PR) chez Talo.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "données",
+        "en ligne",
+        "bug"
+      ],
+      "created_at": 1792799748,
+      "updated_at": 1792799748
+    },
+    {
+      "id": "task_162",
+      "title": "Automatiser l'export des statistiques",
+      "description": "Aujourd'hui l'export se fait à la main (tableau de bord Talo, ZIP par mail) : l'API admin de Talo n'a ni lecture des événements ni création d'export. Si Talo ajoute une route admin (événements ou data-exports avec une clé admin), faire récupérer l'export par tools/stats (clé hors du dépôt) et régénérer la page d'un coup. Autre piste sans API : une intégration Talo (Services > Integrations) ou l'auto-hébergement de Talo (accès direct à ClickHouse).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "données",
+        "en ligne",
+        "idée"
+      ],
+      "created_at": 1792799748,
+      "updated_at": 1792799748
+    },
+    {
+      "id": "task_163",
+      "title": "Statistiques : taux de choix des armes et compétences",
+      "description": "Les dons et reliques ont un taux de choix (perk_offered / perk_picked); les armes et compétences n'ont que l'état à la fin de la partie (biais de survie). Idée : un événement quand une arme ou une compétence est trouvée / prise / laissée (avec la profondeur), pour savoir ce que les joueurs prennent vraiment. Touche RunTelemetry et telemetry.tres (donc la politique de confidentialité si un champ nouveau sort).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "données",
+        "en ligne",
+        "idée"
+      ],
+      "created_at": 1792799748,
+      "updated_at": 1792799748
+    },
+    {
+      "id": "task_164",
+      "title": "Réglages à distance : vérifier sur téléphone et dans le tableau de bord",
+      "description": "Non vérifié : la plaque d'événement et le message du jour sur un vrai téléphone (lisibilité, coupures de lignes FR), le libellé exact de la page « Game config » du tableau de bord Talo, le délai réel (cache Talo 10 min) entre un changement et le jeu, et une vraie partie sous présage (malédiction sur tous les étages du Glas : trop dur ?).",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "playtest"
+      ],
+      "created_at": 1792800929,
+      "updated_at": 1792800929
+    },
+    {
+      "id": "task_165",
+      "title": "Réglages à distance : tester un événement planifié",
+      "description": "Talo peut planifier un changement de config (scheduled changes). Essayer un vrai week-end : nom posé à l'heure dite, fin automatique, message du jour, puis tout remis à neutre.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "test"
+      ],
+      "created_at": 1792800929,
+      "updated_at": 1792800929
+    },
+    {
+      "id": "task_166",
+      "title": "Présage du jour : l'annoncer sur le bouton du Glas et dans le classement",
+      "description": "Idée : quand un présage est posé, le montrer aussi sur le bouton du Glas de l'Aube (écran titre) et en tête du classement du jour, pour que les joueurs comparent leurs scores sous le même présage.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "idée",
+        "en ligne"
+      ],
+      "created_at": 1792800929,
+      "updated_at": 1792800929
+    },
+    {
+      "id": "task_167",
       "title": "Créer les catégories d'avis dans Talo (bug, idea, other)",
       "description": "Tableau de bord Talo > Feedback > Categories : créer bug (Bug), idea (Idea), other (Other), toutes avec « Anonymised » activé. L'API admin de Talo n'a pas de route pour ça. Tant qu'elles n'existent pas, les messages attendent sur les appareils (Talo répond 404). Ensuite relancer le smoke test (_tool/feedback_smoke.gd) ou envoyer un avis depuis l'éditeur, vérifier qu'il apparaît (données de dev), puis supprimer le joueur de test « feedback-smoke-test ».",
       "status": "todo",
@@ -2351,11 +2475,11 @@
         "en ligne",
         "release"
       ],
-      "created_at": 1792802215,
-      "updated_at": 1792802215
+      "created_at": 1792802331,
+      "updated_at": 1792802331
     },
     {
-      "id": "task_160",
+      "id": "task_168",
       "title": "Avis : tester le formulaire sur téléphone (clavier virtuel)",
       "description": "Non vérifié : sur Android, le clavier virtuel peut couvrir une partie du formulaire « Donner ton avis » (le champ est en haut, ça devrait passer). Vérifier aussi la saisie, le compteur, et la note de remerciement en jeu.",
       "status": "backlog",
@@ -2367,11 +2491,11 @@
         "playtest",
         "ui"
       ],
-      "created_at": 1792802215,
-      "updated_at": 1792802215
+      "created_at": 1792802331,
+      "updated_at": 1792802331
     },
     {
-      "id": "task_161",
+      "id": "task_169",
       "title": "Avis à la manette seule : pas de saisie possible",
       "description": "Idée : à la manette sans clavier (PC), on ne peut pas écrire le message (pareil pour le pseudonyme). Un petit clavier à l'écran navigable à la manette, ou le clavier de Steam (Big Picture, Steam Deck).",
       "status": "backlog",
@@ -2383,11 +2507,11 @@
         "pc",
         "ui"
       ],
-      "created_at": 1792802215,
-      "updated_at": 1792802215
+      "created_at": 1792802331,
+      "updated_at": 1792802331
     },
     {
-      "id": "task_162",
+      "id": "task_170",
       "title": "Avis : journal du jeu sur Android",
       "description": "Godot n'écrit pas de fichier journal sur Android par défaut : les avis envoyés depuis un téléphone n'ont pas les dernières lignes du journal. Idée : activer debug/file_logging sur Android (taille limitée), ou garder les dernières erreurs en mémoire.",
       "status": "backlog",
@@ -2399,8 +2523,8 @@
         "android",
         "debug"
       ],
-      "created_at": 1792802215,
-      "updated_at": 1792802215
+      "created_at": 1792802331,
+      "updated_at": 1792802331
     }
   ]
 }

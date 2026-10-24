@@ -153,6 +153,25 @@ static func _stat_values(answer: Dictionary, key: String, pick: Callable) -> Boa
 	return result
 
 
+## GET /v1/game-config (the key's read:gameConfig scope): the game's live config, {config: [{key,
+## value}]}. Sent without the player's headers: reading the settings identifies no one.
+func fetch_config() -> BoardBackend.ConfigValues:
+	var answer := await _request(HTTPClient.METHOD_GET, "/v1/game-config", null, true)
+	var result := BoardBackend.ConfigValues.new()
+	result.status = answer.status
+	if answer.status != Status.OK:
+		return result
+	var list: Variant = (answer.body as Dictionary).get("config") if answer.body is Dictionary else null
+	if not list is Array:
+		result.status = Status.REJECTED
+		return result
+	for item: Variant in list:
+		if item is Dictionary and (item as Dictionary).get("key") is String:
+			var value: Variant = (item as Dictionary).get("value")
+			result.values[str((item as Dictionary).key)] = str(value) if value != null else ""
+	return result
+
+
 func identify(device_id: String) -> Status:
 	var answer := await _request(HTTPClient.METHOD_GET, "/v1/players/identify?service=%s&identifier=%s" % [SERVICE, device_id.uri_encode()])
 	if answer.status != Status.OK:
@@ -253,8 +272,9 @@ static func _entry(data: Dictionary) -> BoardBackend.Entry:
 	return entry
 
 
-## One request: {status, code, body (parsed JSON or null)}.
-func _request(method: HTTPClient.Method, path: String, body: Variant = null) -> Dictionary:
+## One request: {status, code, body (parsed JSON or null)}. `anonymous`: without the identified
+## player's headers (the remote settings' read).
+func _request(method: HTTPClient.Method, path: String, body: Variant = null, anonymous: bool = false) -> Dictionary:
 	var http := HTTPRequest.new()
 	http.timeout = TIMEOUT
 	http.accept_gzip = true
@@ -268,7 +288,7 @@ func _request(method: HTTPClient.Method, path: String, body: Variant = null) -> 
 		"X-Talo-Dev-Build: %s" % ("1" if OS.is_debug_build() else "0"),
 		"X-Talo-Include-Dev-Data: %s" % ("1" if OS.is_debug_build() else "0"),
 	])
-	if _alias_id > 0:
+	if _alias_id > 0 and not anonymous:
 		headers.append("X-Talo-Alias: %d" % _alias_id)
 		headers.append("X-Talo-Player: %s" % _player_id)
 	var error := http.request(_url + path, headers, method, JSON.stringify(body) if body != null else "")

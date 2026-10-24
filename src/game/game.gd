@@ -241,7 +241,9 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	var day := DailyRun.today() if daily and saved.is_empty() else -1
 	if day >= 0:
 		world.rng.seed = DailyRun.seed_of(day)  # the same bosses all day
+	RemoteTuning.run_starting()  # (a safe point: the remote settings read meanwhile apply now, then wait)
 	run = RunState.create(content, saved, world.rng, day)
+	world.tuning = run.tuning
 	if day >= 0:
 		run.daily_official = not Profile.daily_played(day)
 		if run.daily_official:
@@ -287,6 +289,7 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	interactor.player = player
 	hud.bind_player(player)
 	tutorial.bind(player, world, hud)
+	_announce_remote(saved.is_empty())
 	if show_act_cards:
 		# Start on black: the first act's card, then the floor fades in.
 		_fade.color.a = 1.0
@@ -382,6 +385,18 @@ func _setup_interactor() -> void:
 ## False if nothing is in reach.
 func interact() -> bool:
 	return interactor.interact()
+
+
+## A new run says in the log what the remote settings put on it (RemoteConfig): a running event,
+## the Dawn Knell's omen.
+func _announce_remote(new_run: bool) -> void:
+	if not new_run:
+		return
+	if not run.tuning.event_name.is_empty():
+		Events.log_message(tr("The Well's event: %s") % run.tuning.event_name, Palette.GOLD)
+	var omen := DailyRun.twist(content, run.tuning.omen)
+	if omen:
+		Events.log_message(tr("Today's omen: %s") % tr(omen.display_name), omen.color)
 
 
 ## The daily run's weapon and relic (the same for everyone that day).
@@ -683,7 +698,7 @@ func _enter_floor(resumed: bool = false) -> void:
 	if run.leads_to_finale():
 		world.next_routes = [content.dungeon.finale.route()] as Array[FloorRoute]  # one way: down
 	else:
-		world.next_routes = FloorRoute.offer(content, depth + 1, difficulty, run.route_seed(depth + 1))
+		world.next_routes = FloorRoute.offer(content, depth + 1, difficulty, run.route_seed(depth + 1), run.tuning)
 	world.build_floor(depth, content, _route_to(depth))
 	world.place_player(player)
 	if DebugCheats.reveal_maps:
@@ -765,7 +780,7 @@ func _announce_floor() -> void:
 func _route_to(floor_depth: int) -> FloorRoute:
 	if not run.routes.has(floor_depth):
 		return null
-	var offered := FloorRoute.offer(content, floor_depth, difficulty, run.route_seed(floor_depth))
+	var offered := FloorRoute.offer(content, floor_depth, difficulty, run.route_seed(floor_depth), run.tuning)
 	var index: int = run.routes[floor_depth]
 	return offered[index] if index >= 0 and index < offered.size() else null
 

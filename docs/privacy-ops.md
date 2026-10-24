@@ -50,6 +50,18 @@ legal advice.** Where the report was unsure, the safer choice was taken and is m
   version **2** (policy 1.1): players who accepted version 1 are asked again. The player's totals
   go with the player (deletion, the 730-day purge); the world's sums are anonymous and stay.
 
+- **The remote settings** ([online.md](online.md#remote-settings-talo-game-config)): reading Talo's
+  game config is a request like any other, so Talo sees the device's IP address. Decision (24
+  October 2026): the game reads it **only once the player turned an online feature on** (published
+  scores or accepted statistics), like the world counters' read, so a player who chose neither
+  still makes no call at all; the read carries **no player id** (no alias header: Talo's
+  `GET /v1/game-config` needs none), stores nothing on Talo's side, and only allow-listed values
+  are kept on the device (`user://remote_config.json`, nothing personal). Basis: legitimate
+  interest (GDPR 6(1)(f): keeping the game fair and working without an update); no device
+  storage is read for it, so LIL art. 82 doesn't apply. Not consent-based, so **no new consent
+  version**; the policy says it (version **1.2**, in-game section "Game settings from the server",
+  docs/privacy.html section 2). If the read ever had to carry the player's alias (per-player
+  config), that would need its own basis: ask again.
 - **Player feedback** ([online.md](online.md#player-feedback)): a message the player writes and
   sends from **Send feedback**, with the game's details unless unticked and the pseudonym only if
   ticked, linked to the device's random id (made then if there was none). **No consent question
@@ -60,7 +72,7 @@ legal advice.** Where the report was unsure, the safer choice was taken and is m
   it is strictly necessary to a feature expressly requested (LIL art. 82 exemption, the CNIL's
   "fonctionnalité demandée expressément"), like publishing scores. `consent_version` stays **2**:
   it guards what is collected *on consent* (the statistics), and nothing new is collected on that
-  basis. The policy says it (version **1.2**, 24 October 2026: a "Feedback" section in the game's
+  basis. The policy says it (version **1.3**, 24 October 2026: a "Feedback" section in the game's
   short policy and section 5 of `docs/privacy.html`, both languages; "Changes" now says the game
   asks again for what needs consent). Not age-gated (not consent-based; the game is 13+). Talo
   keeps the messages until the player is deleted (a request, or the 730-day purge: they cascade);
@@ -110,6 +122,10 @@ write** (player feedback). Then, on [dashboard.trytalo.com](https://dashboard.tr
    (default 90 days when turned on). Deleting a player also deletes its aliases, leaderboard
    entries, events and stats.
 3. Display name prop key = `name`, profanity filter on (already in [online.md](online.md)).
+4. **Data exports** (Services > Export, to read the statistics: online.md "Reading the
+   statistics"): the ZIP holds every event with the player's ids (the device id). Keep it on your
+   own computer, never in git (`.gitignore` ignores `export-*.zip`), and delete it once the page
+   is made. The page `tools/stats/build_dashboard.py` makes holds only totals, no player id.
 
 The exact menu labels could not be checked from here (the dashboard needs a login, and its docs
 page was unreachable): look in the game's **Settings** for "Data retention" / "Purge players", and

@@ -2,7 +2,8 @@ class_name DailyDialog
 extends RpgDialog
 ## "The Dawn Knell", the daily run (DailyRun) explained before it starts: a line of lore, the
 ## day's weapon and relic, the rules (same floors for everyone, first try counts, how the score
-## is made), your scores, and Toll the knell / Back. Before the day's official toll, the first
+## is made), the day's omen when the remote settings give one (DailyRun.omen()), your scores, and
+## Toll the knell / Back. Before the day's official toll, the first
 ## time, it asks the name the online leaderboards will show (PseudonymDialog,
 ## Leaderboards.needs_name()).
 
@@ -74,6 +75,12 @@ func open(content: ContentDB, day: int) -> void:
 		tr("Score: 1 per kill, 30 per floor, 150 per boss, 1000 for a win, 1 per 5 gold."),
 	]:
 		body.add_child(UiSkin.label("- " + rule, Fonts.BODY, UiSkin.TEXT, true))
+	# The day's omen, when the remote settings give one (DailyRun.omen()).
+	var omen := DailyRun.omen(content, day)
+	if omen:
+		var omen_line := UiSkin.label("- " + tr("Today's omen: %s, on every floor but the first and the wardens'.") % tr(omen.display_name), Fonts.BODY, omen.color.lerp(Color.WHITE, 0.3), true)
+		omen_line.name = "OmenLine"
+		body.add_child(omen_line)
 	var scores := PackedStringArray()
 	scores.append(tr("Today: %d points") % Profile.daily_score if played else tr("Today's knell awaits you"))
 	if Profile.daily_best > 0:

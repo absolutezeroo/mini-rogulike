@@ -39,6 +39,26 @@ static func relic(content: ContentDB, day: int) -> PerkDef:
 	return _pick(choices, day, 2) as PerkDef
 
 
+## The day's omen, set from afar (RemoteConfig.omen_for(): the remote settings' daily_omen for that
+## date): the curse or floor event every normal floor of that Dawn Knell carries. Null on other
+## days, which roll their floors as usual.
+static func omen(content: ContentDB, day: int) -> ContentDef:
+	return twist(content, RemoteTuning.omen_of_day(day))
+
+
+## The curse or floor event of id `id` (null: none, or unknown).
+static func twist(content: ContentDB, id: StringName) -> ContentDef:
+	if id == &"":
+		return null
+	for curse in content.curses:
+		if curse and curse.id == id:
+			return curse
+	for event in content.floor_events:
+		if event and event.id == id:
+			return event
+	return null
+
+
 static func _pick(choices: Array, day: int, salt: int) -> Variant:
 	if choices.is_empty():
 		return null
