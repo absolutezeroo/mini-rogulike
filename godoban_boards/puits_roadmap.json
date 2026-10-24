@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 233,
+  "next_id": 234,
   "tags": [
     "pc",
     "test",
@@ -3470,6 +3470,22 @@
       ],
       "created_at": 1792828483,
       "updated_at": 1792828483
+    },
+    {
+      "id": "task_233",
+      "title": "Classements : pseudo + numéro (Clayton#4821)",
+      "description": "N'importe qui pouvait prendre le pseudo d'un autre. Désormais chaque nom affiché porte un numéro à 4 chiffres après un # (PlayerName.tag_of : SHA-256 salé de l'identifiant en ligne de l'appareil, l'alias Talo), le même pour toujours sur cet appareil. Calculé à l'affichage depuis l'identifiant de chaque entrée : les anciennes entrées en ont un aussi, et taper « #4821 » ne copie le numéro de personne (le # est refusé dans un pseudo et retiré des noms venus du serveur). Affiché sur chaque ligne des classements, « Ta place » (sur deux lignes dans la colonne étroite), « Tu apparais sous le nom… », la question du pseudo (aperçu sous le champ), Options > Confidentialité, la demande de suppression et la signature des avis. Pas sur le Gardien Sans Nom (local). Pseudo par défaut : « Soul » (Soul#4821). Tests : même nom sur deux appareils, même appareil après redémarrage, # refusé, anciennes entrées, mise en page FR/EN 2340x1080, 2548x1296, 1280x720. À vérifier en jeu : l'aspect sur le vrai téléphone.",
+      "status": "review",
+      "priority": "high",
+      "epic_id": "epic_80",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "records",
+        "ui"
+      ],
+      "created_at": 1792849955,
+      "updated_at": 1792849955
     }
   ]
 }

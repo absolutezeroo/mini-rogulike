@@ -18,8 +18,9 @@ signal closed
 
 ## The right column's width.
 const SIDE_WIDTH := 430.0
-## Rank, name, score columns.
-const RANK_WIDTH := 64.0
+## Rank, name, score columns. The name column holds the longest name with its tag
+## ("Clayton#4821": name_max letters, "#" and four digits) at 1280x720 (LeaderboardTests).
+const RANK_WIDTH := 56.0
 const SCORE_WIDTH := 150.0
 ## The first three ranks' colors (gold, silver, bronze).
 const PODIUM: Array[Color] = [Palette.GOLD, Color(0.82, 0.86, 0.92), Color(0.86, 0.58, 0.36)]
@@ -208,7 +209,7 @@ func _show_mine(view: Leaderboards.View, loading := false) -> void:
 	_mine_text.text = text
 	if view.mine and view.mine.rank > Leaderboards.config.top_count:
 		for entry in view.around:
-			_around.add_child(_row(entry, entry.alias_id == view.mine.alias_id))
+			_around.add_child(_row(entry, entry.alias_id == view.mine.alias_id, true))
 
 
 ## A build without a server: no name, no periods, no place to show; only why.
@@ -221,7 +222,7 @@ func _show_online(on: bool) -> void:
 
 func _show_name() -> void:
 	if _name_text:
-		_name_text.text = tr("You appear as %s") % Leaderboards.display_name() if Leaderboards.shown else tr("You don't appear in the leaderboards")
+		_name_text.text = tr("You appear as %s") % Leaderboards.tagged_name() if Leaderboards.shown else tr("You don't appear in the leaderboards")
 		_change_name.text = tr("Change name") if Leaderboards.shown else tr("Publish my scores")
 
 
@@ -466,10 +467,21 @@ func _heading_row() -> HBoxContainer:
 	return row
 
 
-## A line of the board; the player's own stands out.
-func _row(entry: BoardBackend.Entry, mine: bool) -> Control:
+## A line of the board, the name with its tag (BoardBackend.Entry.shown_name()); the player's
+## own stands out. `compact`: the narrow column's (the player's place), on two lines, the name and
+## its tag alone on the first so they read whole there too.
+func _row(entry: BoardBackend.Entry, mine: bool, compact: bool = false) -> Control:
 	var color := MINE_COLOR if mine else (PODIUM[entry.rank - 1] if entry.rank >= 1 and entry.rank <= PODIUM.size() else UiSkin.TEXT)
-	var row := _columns_row(str(entry.rank) if entry.rank > 0 else "-", PlayerName.readable(entry.name, Leaderboards.config), _board.format_score(entry.score), color)
+	var rank := str(entry.rank) if entry.rank > 0 else "-"
+	var row: Control
+	if compact:
+		var lines := VBoxContainer.new()
+		lines.add_theme_constant_override("separation", 0)
+		lines.add_child(_name_label(entry.shown_name(Leaderboards.config), color))
+		lines.add_child(_columns_row(rank, "", _board.format_score(entry.score), color))
+		row = lines
+	else:
+		row = _columns_row(rank, entry.shown_name(Leaderboards.config), _board.format_score(entry.score), color)
 	if not mine:
 		return row
 	var box := PanelContainer.new()
@@ -483,6 +495,18 @@ func _row(entry: BoardBackend.Entry, mine: bool) -> Control:
 	return box
 
 
+## A player's name and tag, as a row's "Name" (cut with an ellipsis only past what any name
+## takes: the tests check the longest fits).
+func _name_label(who: String, color: Color) -> Label:
+	var name_label := UiSkin.label(who, Fonts.BODY, color)
+	name_label.name = "Name"
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_label.clip_text = true
+	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	name_label.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED  # (a player's name)
+	return name_label
+
+
 func _columns_row(rank: String, who: String, score: String, color: Color) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
@@ -490,12 +514,7 @@ func _columns_row(rank: String, who: String, score: String, color: Color) -> HBo
 	rank_label.custom_minimum_size.x = RANK_WIDTH
 	rank_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	row.add_child(rank_label)
-	var name_label := UiSkin.label(who, Fonts.BODY, color)
-	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	name_label.clip_text = true
-	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	name_label.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED  # (a player's name)
-	row.add_child(name_label)
+	row.add_child(_name_label(who, color))
 	var score_label := UiSkin.label(score, Fonts.BODY, color)
 	score_label.custom_minimum_size.x = SCORE_WIDTH
 	score_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT

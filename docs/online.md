@@ -61,6 +61,53 @@ the fake server counts its calls).
   A score that could not be sent before its day ended is dropped: sent the next day, Talo would
   count it on the new day.
 
+## Names and tags
+
+On the boards a name is **the pseudonym and a tag**, Discord-style: "Clayton#4821". The tag
+stops anyone from taking someone else's name: two players may both be "Clayton", but each has
+their own four digits, and nobody can type them (decided by Clayton, 24 October 2026).
+
+- **What the tag is**: `PlayerName.tag_of(identifier)`, four digits (0000 to 9999) from the
+  SHA-256 of a fixed salt (`PlayerName.TAG_SALT`) and the player's **online id**, the alias
+  identifier Talo keeps for the player (the device's random id, `OnlineSession.device_id`). Not
+  Godot's `hash()`, which an engine version may change; never change the salt or `TAG_DIGITS`
+  (every player's tag would change). The same device keeps the same tag for good (across restarts
+  and versions; a "Delete my online data" makes a new id, so a new tag). Four digits of a hash
+  can't give the id back, and the id is already public in Talo's answers (`playerAlias.identifier`
+  on every entry): the tag leaks nothing new. The raw id is never shown on a board (only in
+  Options > Privacy, for a deletion request).
+- **Where it lives**: nowhere on the server. It is **worked out where a name is shown**, from each
+  entry's alias identifier (`BoardBackend.Entry.identifier`, read by `TaloBackend._entry()`;
+  `Entry.tag()`, `Entry.shown_name()`), so entries sent before the tags get one too, and a tag can
+  never be forged by typing it: the player prop `name` and each entry's `name` prop stay the bare
+  pseudonym, and the dashboard's **Display name prop key** stays `name` (the dashboard shows names
+  without tags: fine). An entry with no identifier (none seen from Talo) takes its tag from its
+  alias id instead.
+- **The player's own tag** (`Leaderboards.tag()`, `tagged_name()`) uses the same function on the
+  device's id, the one Talo has as the alias identifier, so it matches the tag on the player's
+  entries. Before the player chose to publish, the question already shows it: the id the device
+  will take is drawn in memory (`OnlineSession.preview_device()`), never written nor sent, and
+  `device()` adopts it when a feature is turned on, so the tag shown before the choice is the one
+  kept.
+- **No `#` in a name**: `PlayerName.problem()` refuses it (`Problem.TAG_SIGN`, "No # in a name:
+  the game adds your number after it."); a name read from the server has its `#` taken out
+  (`PlayerName.readable()`) before its own tag is added, so an old or forged "Clayton#4821" shows
+  "Clayton4821#0377".
+- **Shown**: every row of a board and the player's place (the narrow column's rows on two lines,
+  the name and tag alone on the first, so the longest name and its tag, 16 + 5 characters, read
+  whole: LeaderboardTests at 2340x1080, 2548x1296 and 1280x720, English and French), the page's
+  "You appear as Clayton#4821", the question (under the field), Options > Privacy, the deletion
+  request's e-mail and the feedback's signature (its `name` prop carries the tag: the feedback is
+  anonymised, the tag says which Clayton wrote, only when the player signs). **Not** on the
+  Nameless Keeper's boss bar or codex: he is the player's own former hero, shown only on this
+  device, so his title is the name alone (design/monsters.md).
+- **The default name** is now "Soul" (`LeaderboardsConfig.default_name`), "Soul#4821" with its
+  tag; before the tags it was "Soul" and four digits of Godot's hash of the id (a player who kept
+  that name keeps it).
+- **Collisions**: 10,000 tags, so two players under one name may, rarely, share a tag too (one
+  chance in 10,000 per pair of same-named players). Not a security: a moderation case for the
+  dashboard, like any name.
+
 ## The shared session
 
 Six autoloads talk to Talo or keep an online choice: `Leaderboards`, `Privacy`, `Telemetry`,
@@ -576,7 +623,11 @@ what to do in Talo's dashboard and the Play Console: [privacy-ops.md](privacy-op
 
 `LeaderboardTests` (unit and title suites) run on `FakeBoardBackend`, never the network: nothing
 is queued, sent or read before the player chose to publish, the data
-is valid, the pseudonym filter, an official daily attempt is queued once with its score and props,
+is valid, the pseudonym filter, the tags (a fixed id's tag worked out outside the game, the same
+name on two devices with two tags, one device's tag before the choice, after it and across a
+restart, an entry from before the tags or without an identifier, a typed "#" refused and taken
+out, the longest name and tag fitting every row and the question in English and French on three
+screens), an official daily attempt is queued once with its score and props,
 practice and debug runs and impossible runs are not, the queue and the device id survive a
 restart, the queue empties when the network is back (and a past day's score is dropped), opting
 out sends nothing, no key means offline; the page's unavailable, offline (Retry) and filled

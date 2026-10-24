@@ -124,7 +124,7 @@ func submit(category: StringName, text: String, details: Dictionary, signed: boo
 	var props := FeedbackInfo.clean(details)
 	props.erase(TaloBackend.NAME_PROP)
 	if signed and not Leaderboards.pseudonym.is_empty():
-		props[TaloBackend.NAME_PROP] = Leaderboards.pseudonym
+		props[TaloBackend.NAME_PROP] = PlayerName.tagged(Leaderboards.pseudonym, Leaderboards.tag())  # (its tag: which Clayton wrote, the message's sender being hidden)
 	store.push({ "category": def.internal_name, "comment": text.strip_edges(), "props": props, "at": OnlineSession.now() })
 	last_at = OnlineSession.now()
 	save_state()

@@ -263,7 +263,7 @@ func _test_delete() -> void:
 	check(not id.is_empty() and not OnlineSession.player_id.is_empty(), "identified: a device id and its server player")
 	Telemetry._enqueue({ "name": &"boss", "props": { "boss": "golem" }, "timestamp": 3 })
 	var request := Privacy.deletion_request()
-	check(request.id == id and request.player == OnlineSession.player_id and request.name == "Kagari" and str(request.body).contains(id), "the deletion request names the online id, the server's player and the pseudonym")
+	check(request.id == id and request.player == OnlineSession.player_id and request.name == "Kagari#%s" % PlayerName.tag_of(id) and str(request.body).contains(id), "the deletion request names the online id, the server's player and the pseudonym with its tag (%s)" % request.name)
 	check(str(request.mailto).is_empty() == PrivacyDef.is_placeholder(Privacy.def.contact_email), "no email can be sent to a placeholder address")
 	Privacy.forget_online()
 	check(OnlineSession.device_id.is_empty() and OnlineSession.player_id.is_empty() and Leaderboards.pseudonym.is_empty() and not Leaderboards.shown, "deleted: the id, the player and the name forgotten, the leaderboards off")

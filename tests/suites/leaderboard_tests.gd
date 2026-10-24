@@ -3,7 +3,13 @@ extends TestSuite
 ## The online leaderboards (Leaderboards, design/progression.md "Online leaderboards"), with a
 ## fake server in memory (FakeBoardBackend): never the network. run_unit(): the boards' data,
 ## the pseudonym filter, what is queued and sent (and what never is), the queue kept across a
-## restart. run_title(): the Leaderboards page, with and without a server.
+## restart, the tags ("Clayton#4821"). run_title(): the Leaderboards page, with and without a
+## server, and the longest name with its tag fitting its rows.
+
+## The tag of the id "abc", worked out once outside the game (Python's hashlib: the salted id's
+## SHA-256, its first 12 hex digits modulo 10000): every player's tag would change if tag_of()
+## ever gave another.
+const FIXED_TAG := "2882"
 
 var _fake: FakeBoardBackend
 
@@ -15,12 +21,14 @@ func run_unit() -> void:
 	await _test_queue()
 	await _test_run_end_event()
 	await _test_load_board()
+	await _test_tags()
 	_restore()
 
 
 func run_title() -> void:
 	await _test_page_unavailable()
 	await _test_page_with_server()
+	await _test_tag_layout()
 	_restore()
 
 
@@ -107,8 +115,23 @@ func _test_pseudonyms() -> void:
 	check(PlayerName.problem("pd 42", config) == PlayerName.Problem.REFUSED and PlayerName.problem("Spidey", config) == ok, "a short word only as a whole word")
 	check(PlayerName.tidy("  Le   Rônin ") == "Le Rônin", "spaces tidied")
 	check(PlayerName.readable("名前", config) == "??" and PlayerName.readable("x".repeat(40), config).length() == config.name_max, "a name from the server is drawn safely")
-	var default := PlayerName.default_for("abc", config)
-	check(PlayerName.problem(default, config) == ok and default == PlayerName.default_for("abc", config), "the default name passes and stays the same (%s)" % default)
+	var default := PlayerName.default_for(config)
+	check(PlayerName.problem(default, config) == ok, "the default name passes (%s)" % default)
+	# The tags: four digits from the online id, the same for the same id, the "#" the game's only.
+	var tag := PlayerName.tag_of("3f9a0c1d2e4b5a6978c0d1e2f3a4b5c6")
+	check(tag.length() == PlayerName.TAG_DIGITS and tag.is_valid_int() and tag == PlayerName.tag_of("3f9a0c1d2e4b5a6978c0d1e2f3a4b5c6"), "a tag is four digits, the same for the same id (%s)" % tag)
+	check(PlayerName.tag_of("3f9a0c1d2e4b5a6978c0d1e2f3a4b5c7") != tag and PlayerName.tag_of("").is_empty(), "another id, another tag; no id, no tag")
+	# A fixed id's tag, written here: a change to the hash would re-tag every player.
+	check(PlayerName.tag_of("abc") == FIXED_TAG, "the tag's hash never changes (abc: %s)" % PlayerName.tag_of("abc"))
+	var tags := {}
+	for i in 200:
+		tags[PlayerName.tag_of("device-%d" % i)] = true
+	check(tags.size() >= 190, "tags spread over 0000-9999 (%d different of 200)" % tags.size())
+	check(PlayerName.problem("Clayton#4821", config) == PlayerName.Problem.TAG_SIGN and PlayerName.problem("#Cla", config) == PlayerName.Problem.TAG_SIGN, "a # is refused in a name (the game adds the tag)")
+	check(not PlayerName.explain(PlayerName.Problem.TAG_SIGN, config).is_empty(), "...and the player is told why")
+	check(PlayerName.readable("Clayton#4821", config) == "Clayton4821" and PlayerName.readable("##", config) == "?", "a # in a name from the server is taken out (no tag of its own)")
+	check(PlayerName.tagged("Clayton", "4821") == "Clayton#4821" and PlayerName.tagged("Clayton", "") == "Clayton", "a name and its tag")
+	check(Fonts.MAIN.has_char(PlayerName.TAG_SIGN.unicode_at(0)), "the font draws the #")
 
 
 func _test_summary_checks() -> void:
@@ -281,6 +304,56 @@ func _test_load_board() -> void:
 	check(offline.status == BoardBackend.Status.OFFLINE, "no network: the page is told so")
 
 
+## The tags on the boards: the same name on two devices, two tags; one device keeps its tag
+## (before the choice, after it, across a restart); an entry from before the tags gets one from
+## its alias; a typed "#4821" fakes nobody's.
+func _test_tags() -> void:
+	var fake := _use_fake(false)
+	var board := _daily()
+	var preview := Leaderboards.tag()
+	check(preview.length() == 4 and OnlineSession.device_id.is_empty(), "before the choice the question can show the tag, and no id is kept (%s)" % preview)
+	check(Leaderboards.tag() == preview and Leaderboards.tagged_name() == "%s#%s" % [Leaderboards.display_name(), preview], "...always the same one")
+	Leaderboards.set_shown(true)
+	check(Leaderboards.tag() == preview and PlayerName.tag_of(OnlineSession.device_id) == preview, "published, the device's id is the one the tag came from: the tag stays")
+	check(Leaderboards.set_pseudonym("Clayton") == PlayerName.Problem.NONE, "the first device is Clayton")
+	Leaderboards.record(_summary())
+	await Leaderboards.flush()
+	var first_tag := Leaderboards.tag()
+	var first_alias := fake.alias_id()
+	var sent_name := str(fake.sent.back().props.get("name", "#")) if not fake.sent.is_empty() else "#"
+	check(fake.names.get(first_alias) == "Clayton" and sent_name == "Clayton", "the name goes without its tag (the tag is worked out where it is shown)")
+	# A restart: the same device, the same tag.
+	var session_file := "user://test_online_tags_%d.json" % OS.get_process_id()
+	OnlineSession.path = session_file
+	OnlineSession.save_state()
+	OnlineSession.load_state()
+	check(Leaderboards.tag() == first_tag, "the same device keeps its tag across a restart (%s)" % Leaderboards.tag())
+	OnlineSession.path = ""
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(session_file))
+	# A second device on the same server, under the same name.
+	Leaderboards.use_for_tests(fake)
+	Leaderboards.set_shown(true)
+	Leaderboards.set_pseudonym("Clayton")
+	var second := _summary()
+	second.kills = 60
+	second.score = second.expected_daily_score()
+	Leaderboards.record(second)
+	await Leaderboards.flush()
+	var second_tag := Leaderboards.tag()
+	check(second_tag != first_tag and fake.alias_id() != first_alias, "the same name on two devices: two tags (%s, %s)" % [first_tag, second_tag])
+	# An entry from before the tags typing someone's tag in its name, one without an identifier.
+	var lines: Array = fake.boards[board.talo_name][board.period_key()]
+	lines.append({ "alias": 777001, "name": "Clayton#%s" % first_tag, "score": 1.0, "props": { "name": "Clayton#%s" % first_tag } })
+	fake.identifiers[777001] = "an-old-device"
+	lines.append({ "alias": 777002, "name": "Ancien", "score": 0.5, "props": { "name": "Ancien" } })
+	var view: Leaderboards.View = await Leaderboards.load_board(board)
+	var shown := view.top.map(func(e: BoardBackend.Entry) -> String: return e.shown_name(Leaderboards.config))
+	check(shown.has("Clayton#%s" % first_tag) and shown.has("Clayton#%s" % second_tag), "the board shows both Claytons, each with its tag (%s)" % [shown])
+	check(view.mine != null and view.mine.shown_name(Leaderboards.config) == Leaderboards.tagged_name(), "the player's own line shows the tag the player is told (%s)" % (view.mine.shown_name(Leaderboards.config) if view.mine else "none"))
+	check(shown.has("Clayton%s#%s" % [first_tag, PlayerName.tag_of("an-old-device")]) and shown.count("Clayton#%s" % first_tag) == 1, "a name typed with someone's tag shows its own, after the # taken out")
+	check(shown.has("Ancien#%s" % PlayerName.tag_of("alias:777002")), "an entry without an identifier still gets a tag, from its alias")
+
+
 func _test_page_unavailable() -> void:
 	Leaderboards.use_for_tests()
 	var title: TitleScreen = load("res://src/ui/title/title_screen.tscn").instantiate()
@@ -345,5 +418,60 @@ func _test_page_with_server() -> void:
 	await _frames(3)
 	check(list.get_child_count() > 0 and not (page.get_node("%RetryButton") as Control).visible, "Retry loads it")
 	page.close()
+	title.queue_free()
+	await _frames(2)
+
+
+## The longest name a player may have, with its tag, reads whole in every row (the top, the
+## player's place) and in the question, in English and French, on a phone (2340x1080, 2548x1296)
+## and a 1280x720 window.
+func _test_tag_layout() -> void:
+	var fake := _use_fake()
+	var board := _daily()
+	var longest := "W".repeat(Leaderboards.config.name_max)
+	fake.fill(board, board.period_key(), 58, 9000.0, 10.0, PackedStringArray([longest, "M".repeat(Leaderboards.config.name_max)]))
+	Leaderboards.set_pseudonym(longest)
+	Leaderboards.record(_summary())  # (past the top: the player's place and the lines around it)
+	await Leaderboards.flush()
+	var before := get_tree().root.size
+	var title: TitleScreen = load("res://src/ui/title/title_screen.tscn").instantiate()
+	add_child(title)
+	await _frames(2)
+	var page := title.leaderboards
+	for language: String in ["en", "fr"]:
+		Settings.language = language
+		Settings.apply()
+		for screen: Vector2i in [Vector2i(2340, 1080), Vector2i(2548, 1296), Vector2i(1280, 720)]:
+			get_tree().root.size = screen
+			(title.get_node("%LeaderboardsButton") as Button).pressed.emit()
+			await _frames(4)
+			var cut: Array[String] = []
+			var rows := 0
+			for list_name in ["TopList", "AroundList"]:
+				for row: Node in (page.get_node("%" + list_name) as Control).get_children():
+					var label := row.find_child("Name", true, false) as Label
+					rows += 1
+					if label == null:
+						cut.append("a row without its name")
+					elif not label.text.contains("#") or Fonts.width(label.text, Fonts.BODY) > label.size.x + 0.5:
+						cut.append("%s %.0f/%.0f" % [label.text, Fonts.width(label.text, Fonts.BODY), label.size.x])
+			check(rows > Leaderboards.config.top_count and cut.is_empty(), "%s %s: the longest name and its tag read whole in every row (%d rows): %s" % [language, screen, rows, cut.slice(0, 3)])
+			var view_rect := Rect2(Vector2.ZERO, get_viewport().get_visible_rect().size).grow(1.0)
+			var name_text := page.get_node("%NameText") as Label
+			check(name_text.text.contains("#" + Leaderboards.tag()) and view_rect.encloses(name_text.get_global_rect()), "%s %s: the page says the name with its tag, on screen" % [language, screen])
+			page.name_dialog.open()
+			await _frames(3)
+			var preview := page.name_dialog.get_node("%NamePreview") as Label
+			var dialog_rect := (page.name_dialog.get_node("%ConfirmButton") as Control).get_global_rect().merge(preview.get_global_rect())
+			check(preview.text.contains(Leaderboards.tagged_name()) and view_rect.encloses(dialog_rect), "%s %s: the question shows the name with its tag, and fits (%s)" % [language, screen, preview.text])
+			(page.name_dialog.get_node("%NameEdit") as LineEdit).text = "Clay#1"
+			(page.name_dialog.get_node("%ConfirmButton") as Button).pressed.emit()
+			check(page.name_dialog.visible and (page.name_dialog.get_node("%NameError") as Label).text == PlayerName.explain(PlayerName.Problem.TAG_SIGN, Leaderboards.config), "%s %s: a # typed is refused, saying why" % [language, screen])
+			page.name_dialog.cancel()
+			page.close()
+			await _frames(1)
+	Settings.language = "en"
+	Settings.apply()
+	get_tree().root.size = before
 	title.queue_free()
 	await _frames(2)

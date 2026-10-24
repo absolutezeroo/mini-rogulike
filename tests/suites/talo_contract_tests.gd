@@ -184,6 +184,8 @@ func _test_boards() -> void:
 	check(page.status == BoardBackend.Status.OK and page.total == 3 and not page.last_page and page.entries.size() == 3, "a board's page read: its count and its lines")
 	check(page.entries[0].rank == 1 and page.entries[0].alias_id == 7 and page.entries[0].score == 900.0, "a line: its rank from 1, its player, its score")
 	check(page.entries[0].name == "Kagari" and page.entries[1].name == "Sera" and page.entries[2].name == "Copy", "a line's name: Talo's display name, or the entry's own copy when Talo shows the device id or nothing")
+	check(page.entries[0].identifier == "dev" and page.entries[1].identifier == "x" and page.entries[0].tag() == PlayerName.tag_of("dev"), "a line's player: its alias's identifier (the device id), its tag from it")
+	check(page.entries[0].shown_name(Leaderboards.config) == "Kagari#" + PlayerName.tag_of("dev") and page.entries[1].shown_name(Leaderboards.config) == "Sera#" + PlayerName.tag_of("x"), "a line drawn: the name with its tag")
 	var url := str(talo.requests.back().url)
 	check(url.contains("withDeleted=1") and url.contains("propKey=%s&propValue=20390" % TaloBackend.LeaderboardsScript.period_prop(board)), "a past day is asked with the archived entries, by its period prop (%s)" % url)
 	var mine := await talo.fetch_mine(board, "20390", true)

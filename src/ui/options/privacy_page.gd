@@ -60,7 +60,7 @@ func build(options: Control) -> void:
 ## The online choices as Leaderboards and Privacy have them.
 func refresh() -> void:
 	if _boards_name:
-		_boards_name.text = Leaderboards.display_name()
+		_boards_name.text = Leaderboards.tagged_name()
 		_boards_show.set_pressed_no_signal(Leaderboards.shown)
 	if _analytics:
 		_analytics.set_pressed_no_signal(Privacy.analytics_allowed())

@@ -40,6 +40,11 @@ var fake_now := -1
 var legacy_path := LEGACY_PATH
 ## The services that registered (their _ready()): the tests reset and start them all.
 var services: Array[Node] = []
+## The id this device will take when a feature is turned on, drawn early so the pseudonym's
+## question can show the player's tag before the choice (Leaderboards.tag()): in memory only,
+## never written nor sent until device() adopts it (the rule "no id before the choice" is about
+## what is kept and sent). Forgotten with the player.
+var _pending_id := ""
 
 ## Its file (versioned, atomic).
 var store: PersistedQueue
@@ -131,6 +136,7 @@ func use_all_for_tests(fake: BoardBackend = null) -> void:
 func reset() -> void:
 	device_id = ""
 	player_id = ""
+	_pending_id = ""
 	_forget_identity()
 	store.reset()
 
@@ -181,12 +187,24 @@ func online_chosen() -> bool:
 
 # --- The player ------------------------------------------------------------------------
 
-## The device's id, made the first time (and kept in the file).
+## The device's id, made the first time (and kept in the file): the one preview_device() showed,
+## if it drew one.
 func device() -> String:
 	if device_id.is_empty():
-		device_id = Crypto.new().generate_random_bytes(16).hex_encode()
+		device_id = preview_device()
+		_pending_id = ""
 		save_state()
 	return device_id
+
+
+## The device's id, or the one it will take (drawn now, kept in memory only: nothing is written
+## nor sent). The player's tag before the choice comes from it, and stays the same after.
+func preview_device() -> String:
+	if not device_id.is_empty():
+		return device_id
+	if _pending_id.is_empty():
+		_pending_id = Crypto.new().generate_random_bytes(16).hex_encode()
+	return _pending_id
 
 
 ## The device's player on the server, made the first time. One identify at a time: a caller
@@ -231,6 +249,7 @@ func is_identified() -> bool:
 func forget() -> void:
 	device_id = ""
 	player_id = ""
+	_pending_id = ""
 	_forget_identity()
 	if backend:
 		backend.forget()
@@ -262,6 +281,7 @@ func save_state() -> void:
 func load_state() -> void:
 	device_id = ""
 	player_id = ""
+	_pending_id = ""
 	var data := store.read()
 	if data.is_empty() and not legacy_path.is_empty():
 		var old: Variant = SafeFile.read_json(legacy_path)

@@ -274,6 +274,9 @@ there instead; ringing the bell frees him (Tôma and the Maw wait again).
   wind-up.
 - **Name**: "The Nameless Keeper" / « Le Gardien Sans Nom » on the boss bar, followed by who he
   was (`BossDef.title_on_bar`): the pseudonym, else "Who You Were" / « Celui que tu étais ».
+  The pseudonym **without its tag** (the leaderboards' "#4821", docs/online.md "Names and tags"):
+  the tag tells players apart on a board others read, and he is the player's own former hero,
+  met only on this device; the snapshot keeps the name alone.
   He fights to the Maw's track (Fight, `fight_ii`: the very last fight).
 - **Story** (`data/story/chronicles/nameless_keeper.tres`): he says almost nothing. "Stand." as
   he wakes ("Again." once slain), "At last." as he falls; three chapters told before his fights

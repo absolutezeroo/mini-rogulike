@@ -244,7 +244,7 @@ The rules and their reasons: [../privacy-ops.md](../privacy-ops.md). On screen:
   characters are written; a text field (a phone opens its keyboard; the field's hint follows the
   kind); a refusal line (too short, too long, wait N seconds, no online service: Send is then
   off); **Include game info** (on; the line under it says what it adds, the run too in a run, or
-  that only the words go); **Sign with my pseudonym: <name>** (off; only when the player has one);
+  that only the words go); **Sign with my pseudonym: <name>#<tag>** (off; only when the player has one);
   a plain line saying where it goes and that it is linked to the device's random ID; **Privacy
   policy**, **Cancel**, **Send**. Sent, the form closes and a note at the top thanks the player in
   the Well's voice ("Thank you. Your words rise out of the Well to those who watch over it."),

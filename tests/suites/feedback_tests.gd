@@ -151,7 +151,7 @@ func _test_signed() -> void:
 	var dialog := _form("A thought from the deep.")
 	var signing := dialog.get_node("%SignSwitch") as CheckButton
 	check(signing.visible and not signing.button_pressed, "feedback: with a pseudonym, signing is offered, unticked")
-	check(signing.text.contains("Ashen"), "feedback: the switch names the pseudonym")
+	check(signing.text.contains("Ashen#" + Leaderboards.tag()), "feedback: the switch names the pseudonym with its tag (%s)" % signing.text)
 	dialog.send()
 	await _frames(3)
 	check(fake.feedback.size() == 1 and not (fake.feedback[0].props as Dictionary).has(TaloBackend.NAME_PROP), "feedback: unsigned, no pseudonym goes")
@@ -161,7 +161,7 @@ func _test_signed() -> void:
 	(dialog.get_node("%SignSwitch") as CheckButton).button_pressed = true
 	dialog.send()
 	await _frames(3)
-	check(fake.feedback.size() == 2 and str((fake.feedback[1].props as Dictionary).get(TaloBackend.NAME_PROP, "")) == "Ashen", "feedback: signed, the pseudonym goes")
+	check(fake.feedback.size() == 2 and str((fake.feedback[1].props as Dictionary).get(TaloBackend.NAME_PROP, "")) == "Ashen#" + PlayerName.tag_of(OnlineSession.device_id), "feedback: signed, the pseudonym goes with its tag (which Ashen wrote)")
 	Leaderboards.pseudonym = ""
 	dialog.open()
 	check(not (dialog.get_node("%SignSwitch") as CheckButton).visible, "feedback: without a pseudonym, no signing")

@@ -16,6 +16,9 @@ var sent: Array[Dictionary] = []
 var boards := {}
 ## alias id -> name (set_pseudonym()).
 var names := {}
+## alias id -> its identifier (the device id it was identified with; the tags come from it, as
+## from Talo's `playerAlias.identifier`). An alias missing here has none (an entry without one).
+var identifiers := {}
 ## Seconds each answer takes (the page's loading state in a screenshot).
 var delay := 0.0
 ## Every call made to the server (none may be made before the player chose: Privacy's rule).
@@ -123,6 +126,7 @@ func identify(device_id: String) -> Status:
 	if refuse_identify:
 		return Status.REJECTED
 	_alias = absi(hash(device_id)) % 100000 + 1
+	identifiers[_alias] = device_id
 	return Status.OK
 
 
@@ -182,7 +186,8 @@ func fetch_mine(board: LeaderboardDef, period_key: String, _past: bool) -> Board
 
 
 ## `count` other players on `board` for `period_key`, scores falling from `best` (screenshots,
-## tests). `names_from`: their names, in turn.
+## tests). `names_from`: their names, in turn. Each is its own device (an identifier of its own:
+## its own tag).
 func fill(board: LeaderboardDef, period_key: String, count: int, best: float, step: float, names_from: PackedStringArray) -> void:
 	var list := _list(board, period_key)
 	for i in count:
@@ -190,6 +195,7 @@ func fill(board: LeaderboardDef, period_key: String, count: int, best: float, st
 		if i >= names_from.size():
 			alias_name += " %d" % (int(i / float(names_from.size())) + 1)
 		list.append({ "alias": 900000 + i, "name": alias_name, "score": best - i * step, "props": {} })
+		identifiers[900000 + i] = "fake-device-%d" % i
 
 
 ## Every feedback message received: {category, comment, props, alias}.
@@ -233,6 +239,7 @@ func _ranked(board: LeaderboardDef, period_key: String) -> Array[BoardBackend.En
 		var entry := BoardBackend.Entry.new()
 		entry.rank = i + 1
 		entry.alias_id = line.alias
+		entry.identifier = str(identifiers.get(line.alias, ""))
 		entry.name = names.get(line.alias, line.name)
 		entry.score = line.score
 		entry.props = line.props

@@ -66,7 +66,7 @@ func open() -> void:
 	var named := not Leaderboards.pseudonym.is_empty()
 	_sign.visible = named
 	if named:
-		_sign.text = tr("Sign with my pseudonym: %s") % Leaderboards.pseudonym
+		_sign.text = tr("Sign with my pseudonym: %s") % PlayerName.tagged(Leaderboards.pseudonym, Leaderboards.tag())
 	_info_text.text = _info_words()
 	_pick(Feedback.config.categories[0].id if not Feedback.config.categories.is_empty() else &"")
 	_problem.text = ""

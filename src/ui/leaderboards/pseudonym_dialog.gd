@@ -7,8 +7,10 @@ extends RpgDialog
 ## Leaderboards page opens or the Dawn Knell's official toll begins (Leaderboards.needs_name()),
 ## and from the Options (Change, or the page's button). Typing takes a keyboard (on a phone, its
 ## own); with a gamepad the name can be kept as it is.
-## Reachable as %NameEdit, %NameError, %ConfirmButton (publish), %DeclineButton, %PolicyButton,
-## %PolicyPanel.
+## Under the field, the name as every player will see it, with the player's tag ("You will appear
+## as Clayton#4821": docs/online.md "Names and tags"), following what is typed.
+## Reachable as %NameEdit, %NamePreview, %NameError, %ConfirmButton (publish), %DeclineButton,
+## %PolicyButton, %PolicyPanel.
 
 const MenuNavScript := preload("res://src/autoload/menu_nav.gd")  # its static helpers are called on the script, not the autoload
 
@@ -20,6 +22,7 @@ const WIDTH := 700.0
 var policy: PrivacyPolicyPanel
 
 var _edit: LineEdit
+var _preview: Label
 var _error: Label
 
 
@@ -40,6 +43,7 @@ func open() -> void:
 	_edit.text = Leaderboards.display_name()
 	_edit.max_length = Leaderboards.config.name_max
 	_error.text = ""
+	_show_preview()
 	show()
 	if not InputDevice.uses_buttons():
 		_edit.grab_focus.call_deferred()
@@ -62,9 +66,15 @@ func _build() -> void:
 	_edit.add_theme_font_size_override("font_size", Fonts.BODY)
 	_edit.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_DEFAULT
 	_edit.text_submitted.connect(func(_text: String) -> void: _confirm())
-	_edit.text_changed.connect(func(_text: String) -> void: _error.text = "")
+	_edit.text_changed.connect(func(_text: String) -> void:
+		_error.text = ""
+		_show_preview())
 	body.add_child(_edit)
 	MenuWindow.expose(_edit, "NameEdit", self)
+	_preview = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
+	_preview.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED  # (holds a player's name; tr() in _show_preview())
+	body.add_child(_preview)
+	MenuWindow.expose(_preview, "NamePreview", self)
 	_error = UiSkin.label("", Fonts.BODY, UiSkin.BAD, true)
 	body.add_child(_error)
 	MenuWindow.expose(_error, "NameError", self)
@@ -86,6 +96,14 @@ func _build() -> void:
 	buttons.add_child(confirm)
 	MenuWindow.expose(confirm, "ConfirmButton", self)
 	MenuNavScript.set_first(self, link)
+
+
+## The name being typed as the boards will show it, with this device's tag (the default name's
+## while the field is empty).
+func _show_preview() -> void:
+	var typed := PlayerName.tidy(_edit.text).replace(PlayerName.TAG_SIGN, "")
+	var shown := typed if not typed.is_empty() else PlayerName.default_for(Leaderboards.config)
+	_preview.text = tr("You will appear as %s. The number after the # comes from this device and never changes.") % PlayerName.tagged(shown, Leaderboards.tag())
 
 
 ## Publish: the name set (a refused one says why and the dialog stays), sending turned on.

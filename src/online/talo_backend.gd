@@ -266,6 +266,7 @@ static func _entry(data: Dictionary) -> BoardBackend.Entry:
 	var alias: Variant = data.get("playerAlias", {})
 	if alias is Dictionary:
 		entry.alias_id = int((alias as Dictionary).get("id", 0))
+		entry.identifier = str((alias as Dictionary).get("identifier", ""))
 		var shown := str((alias as Dictionary).get("displayName", ""))
 		# No display name prop key in the dashboard: Talo shows the device id; the entry's own
 		# copy of the name then.

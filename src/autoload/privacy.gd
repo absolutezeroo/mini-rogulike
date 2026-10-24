@@ -156,7 +156,8 @@ func _answer(answer: Answer, choice: String) -> void:
 func deletion_request() -> Dictionary:
 	var device := OnlineSession.device_id
 	var player := OnlineSession.player_id
-	var shown_name := Leaderboards.pseudonym if not Leaderboards.pseudonym.is_empty() else (Leaderboards.display_name() if not device.is_empty() else "")
+	# The name with its tag as the boards show it (the tag only once the device has its id).
+	var shown_name := Leaderboards.tagged_name() if not device.is_empty() else Leaderboards.pseudonym
 	var body := "Please delete the data of this player of Le Puits des Âmes (GDPR art. 17).\n\nOnline ID (alias identifier): %s\nTalo player ID: %s\nPseudonym: %s\n" % [
 		device if not device.is_empty() else "-", player if not player.is_empty() else "-", shown_name if not shown_name.is_empty() else "-"]
 	var mailto := ""

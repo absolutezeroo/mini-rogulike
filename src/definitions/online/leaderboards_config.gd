@@ -24,7 +24,7 @@ extends Resource
 @export_group("Pseudonym")
 @export var name_min := 3
 @export var name_max := 16
-## The name before the player picks one: this, a space and four digits of the device's id.
+## The name before the player picks one (shown with the player's tag like any name: "Soul#4821").
 @export var default_name := "Soul"
 ## Refused in a name, whatever the case, accents or digits standing for letters (0 for o...).
 ## Words of `short_word` letters or fewer only as a whole word ("ass" in "Assassin" is fine).

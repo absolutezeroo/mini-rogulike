@@ -1,10 +1,23 @@
 class_name PlayerName
 ## The pseudonym shown on the online leaderboards: a simple filter (length, the letters the
-## game's font draws, a list of words refused, LeaderboardsConfig), and making any name read from
-## the server safe to draw. Not a moderator: Talo's own profanity filter and the dashboard (hide
-## or delete an entry, docs/online.md) do the rest.
+## game's font draws, a list of words refused, LeaderboardsConfig), making any name read from
+## the server safe to draw, and the **tag**: four digits after a "#" ("Clayton#4821",
+## docs/online.md "Names and tags"), derived from the player's online id, so two players may share
+## a name but nobody can show up as someone else. Not a moderator: Talo's own profanity filter and
+## the dashboard (hide or delete an entry, docs/online.md) do the rest.
 
-enum Problem { NONE, TOO_SHORT, TOO_LONG, BAD_CHARACTERS, NO_LETTER, REFUSED }
+## TAG_SIGN: a "#" typed in a name (the game adds the tag itself, so no name may fake one).
+enum Problem { NONE, TOO_SHORT, TOO_LONG, BAD_CHARACTERS, NO_LETTER, REFUSED, TAG_SIGN }
+
+## Between the name and its tag. Never allowed in a name (problem()), stripped from one read from
+## the server (readable()): only the game writes it, after the name.
+const TAG_SIGN := "#"
+## Digits of a tag: 0000 to 9999.
+const TAG_DIGITS := 4
+## Mixed into the id before hashing, so a tag is this game's own number (not the first digits of
+## some other hash of the same id). **Never change it, nor TAG_DIGITS**: every player's tag would
+## change, like renaming an id.
+const TAG_SALT := "puits-des-ames/tag/1:"
 
 ## The letters the font draws besides ASCII ones (tools/i18n/add_glyphs.py): French and its
 ## neighbours'.
@@ -33,6 +46,8 @@ static func tidy(text: String) -> String:
 ## What is wrong with `text` as a pseudonym (Problem.NONE: it can be used; tidy() it first).
 static func problem(text: String, config: LeaderboardsConfig) -> Problem:
 	var name := tidy(text)
+	if name.contains(TAG_SIGN):
+		return Problem.TAG_SIGN
 	if name.length() < config.name_min:
 		return Problem.TOO_SHORT
 	if name.length() > config.name_max:
@@ -64,6 +79,8 @@ static func explain(issue: Problem, config: LeaderboardsConfig) -> String:
 			return TranslationServer.tr("At least one letter.")
 		Problem.REFUSED:
 			return TranslationServer.tr("This name is not allowed. Choose another.")
+		Problem.TAG_SIGN:
+			return TranslationServer.tr("No # in a name: the game adds your number after it.")
 	return ""
 
 
@@ -94,21 +111,40 @@ static func is_refused(text: String, config: LeaderboardsConfig) -> bool:
 	return false
 
 
-## A name read from the server, safe to draw: unknown letters as "?", cut to the longest a name
-## may be (another client, or the dashboard, may have sent anything).
+## A name read from the server, safe to draw: unknown letters as "?", a "#" taken out (a name
+## sent by another client, or from before the tags, must not show a tag of its own: the real one
+## is added after it), cut to the longest a name may be (another client, or the dashboard, may
+## have sent anything).
 static func readable(text: String, config: LeaderboardsConfig) -> String:
 	var result := ""
-	for c in tidy(text):
+	for c in tidy(text.replace(TAG_SIGN, "")):
 		result += c if _is_letter(c) or _is_digit(c) or SIGNS.contains(c) else "?"
 	if result.length() > config.name_max:
 		result = result.substr(0, config.name_max)
 	return result if not result.is_empty() else "?"
 
 
-## The name a device has before its player picks one: "Soul 4821".
-static func default_for(device_id: String, config: LeaderboardsConfig) -> String:
-	var digits := str(absi(hash(device_id)) % 10000).pad_zeros(4)
-	return "%s %s" % [config.default_name, digits]
+## The name a player has before picking one: "Soul" (shown "Soul#4821": the tag tells the
+## Souls apart).
+static func default_for(config: LeaderboardsConfig) -> String:
+	return config.default_name
+
+
+## The tag of the player whose online id is `identifier` (Talo's alias identifier: the device's
+## random id, OnlineSession.device_id): "4821", always the same for the same id, on every device
+## and every version (SHA-256, not Godot's hash(), which may change between engine versions).
+## Four digits of a hash can't give the id back. "" for no id.
+static func tag_of(identifier: String) -> String:
+	if identifier.is_empty():
+		return ""
+	var digest := (TAG_SALT + identifier).sha256_text()
+	var number := digest.substr(0, 12).hex_to_int() % int(pow(10, TAG_DIGITS))
+	return str(number).pad_zeros(TAG_DIGITS)
+
+
+## `name` and its tag as every player sees them: "Clayton#4821" (just the name without a tag).
+static func tagged(name: String, tag: String) -> String:
+	return name if tag.is_empty() else "%s%s%s" % [name, TAG_SIGN, tag]
 
 
 static func _is_letter(c: String) -> bool:

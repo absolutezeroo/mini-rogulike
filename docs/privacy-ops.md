@@ -38,6 +38,11 @@ legal advice.** Where the report was unsure, the safer choice was taken and is m
   reading a board (the key ships in the game). The game only sets `name` (the public pseudonym),
   never sends `META_` props (Talo copies those into the player's props), and puts the run summary
   only in events.
+- **The name tags** ("Clayton#4821", [online.md](online.md#names-and-tags)): four digits worked
+  out on the device from the player's random id, which Talo already shows on every entry
+  (`playerAlias.identifier`). Nothing new is collected or sent for them, except in a **signed**
+  feedback message, whose `name` prop now carries the tag (the player ticks "Sign with my
+  pseudonym", which shows it). No change to the policy nor to `consent_version` (24 October 2026).
 - **Debug runs, tests** send nothing.
 - **The world counters** (the Well's Toll, [online.md](online.md#world-counters-the-wells-toll)):
   each run's share is sent with the player's alias, and Talo keeps the player's own total per

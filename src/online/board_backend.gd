@@ -28,7 +28,22 @@ class Entry:
 	var score := 0.0
 	## The server's id for the player's alias (the page finds the player's own line by it).
 	var alias_id := 0
+	## The alias's identifier on the server: the player's device id (OnlineSession.device_id),
+	## public in Talo's answer. The tag comes from it ("" when the server gave none).
+	var identifier := ""
 	var props := {}
+
+	## The player's tag (PlayerName.tag_of()), from their alias's identifier, so an entry from
+	## before the tags gets one too and nobody can type someone else's: the device's id, the same
+	## as the player's own tag (Leaderboards.tag()). Without an identifier, from the alias id.
+	func tag() -> String:
+		if not identifier.is_empty():
+			return PlayerName.tag_of(identifier)
+		return PlayerName.tag_of("alias:%d" % alias_id) if alias_id > 0 else ""
+
+	## The line's name as it is drawn: made safe (PlayerName.readable()), with its tag.
+	func shown_name(config: LeaderboardsConfig) -> String:
+		return PlayerName.tagged(PlayerName.readable(name, config), tag())
 
 
 ## A page of a board, or the player's own entry (`entries` empty: none).

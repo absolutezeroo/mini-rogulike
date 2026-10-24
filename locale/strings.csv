@@ -240,6 +240,7 @@ At most %d characters.,At most %d characters.,Au plus %d caractères.
 "Only letters, digits, spaces and - _ . '","Only letters, digits, spaces and - _ . '","Seulement des lettres, des chiffres, des espaces et - _ . '"
 At least one letter.,At least one letter.,Au moins une lettre.
 This name is not allowed. Choose another.,This name is not allowed. Choose another.,Ce nom n'est pas permis. Choisis-en un autre.
+No # in a name: the game adds your number after it.,No # in a name: the game adds your number after it.,Pas de # dans un nom : le jeu ajoute ton numéro après.
 New,New,Nouveau
 Tap to skip,Tap to skip,Touche pour passer
 Press {ui_accept} to skip,Press {ui_accept} to skip,Appuie sur {ui_accept} pour passer
@@ -569,6 +570,7 @@ Publish your scores online?,Publish your scores online?,Publier tes scores en li
 "If you publish, your Dawn Knell scores, a summary of each run and this pseudonym are sent to the game's online service (Talo) and shown to every player. Nothing is sent before you choose. You can stop at any time in Options > Privacy.","If you publish, your Dawn Knell scores, a summary of each run and this pseudonym are sent to the game's online service (Talo) and shown to every player. Nothing is sent before you choose. You can stop at any time in Options > Privacy.","Si tu publies, tes scores du Glas de l'Aube, un résumé de chaque partie et ce pseudonyme sont envoyés au service en ligne du jeu (Talo) et montrés à tous les joueurs. Rien n'est envoyé avant ton choix. Tu peux arrêter à tout moment dans Options > Confidentialité."
 "Pseudonym: %d to %d letters, digits, spaces and - _ . ' Never your real name.","Pseudonym: %d to %d letters, digits, spaces and - _ . ' Never your real name.","Pseudonyme : %d à %d lettres, chiffres, espaces et - _ . ' Jamais ton vrai nom."
 Don't publish,Don't publish,Ne pas publier
+You will appear as %s. The number after the # comes from this device and never changes.,You will appear as %s. The number after the # comes from this device and never changes.,Tu apparaîtras sous le nom %s. Le numéro après le # vient de cet appareil et ne change jamais.
 Gamepad: %s,Gamepad: %s,Manette : %s
 Gamepad,Gamepad,Manette
 Keyboard and mouse,Keyboard and mouse,Clavier et souris

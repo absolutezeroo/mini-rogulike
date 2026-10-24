@@ -54,9 +54,6 @@ var last_rejection := ""
 ## Places on the boards the server gave as scores were sent this session: "board/period" -> rank.
 var last_ranks := {}
 
-## Seeds the default name before the device has an id (never saved).
-var _session_seed := str(randi())
-
 
 ## What the page shows for one board and period.
 class View:
@@ -122,13 +119,26 @@ func needs_name() -> bool:
 	return is_available() and not name_chosen
 
 
-## The name on the boards: the one picked, or a default ("Soul 4821": from the device's id once
-## there is one; before, from a number of this session, so asking makes no id).
+## The name on the boards: the one picked, or the default ("Soul"). Without its tag: this is
+## what is sent (the player's `name` prop and each entry's), the tag being added where it is shown.
 func display_name() -> String:
 	if not pseudonym.is_empty():
 		return pseudonym
-	var device := OnlineSession.device_id
-	return PlayerName.default_for(device if not device.is_empty() else _session_seed, config)
+	return PlayerName.default_for(config)
+
+
+## The player's tag ("4821"; docs/online.md "Names and tags"): from the device's online id, the
+## one Talo keeps as the alias's identifier, so it is the tag every other player sees on this
+## player's entries. Before the device has an id, from the one it will take
+## (OnlineSession.preview_device(): drawn in memory, nothing written or sent), so the question
+## already shows it.
+func tag() -> String:
+	return PlayerName.tag_of(OnlineSession.preview_device())
+
+
+## The name as everyone sees it: "Clayton#4821".
+func tagged_name() -> String:
+	return PlayerName.tagged(display_name(), tag())
 
 
 ## Sets the pseudonym (tidied) if it passes PlayerName.problem(); returns the problem otherwise.
@@ -159,7 +169,7 @@ func keep_default_name() -> void:
 func set_shown(on: bool) -> void:
 	shown = on
 	if on:
-		OnlineSession.device()  # (the default name then comes from this device's id, and stays)
+		OnlineSession.device()  # (the tag shown in the question then stays this device's)
 	else:
 		queue.clear()
 	name_chosen = true

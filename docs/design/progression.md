@@ -119,9 +119,16 @@ the boards aren't even read.
   through the same question). Published, the player is an anonymous player made on the device (a
   random id, nothing else) shown under a **pseudonym**, changed in Options > Privacy. 3 to 16
   characters among the font's letters (accents too), digits, spaces and `- _ . '`, at least one
-  letter, no refused word (`LeaderboardsConfig.banned_words`, read without case, accents or digits
-  for letters). The default offered: "Soul" and four digits. Turned off, nothing is ever sent nor
-  read and what waited is dropped.
+  letter, no `#`, no refused word (`LeaderboardsConfig.banned_words`, read without case, accents
+  or digits for letters). The default offered: "Soul". Turned off, nothing is ever sent nor read
+  and what waited is dropped.
+- **The tag** ("Clayton#4821"): every name shown to players carries four digits after a `#`,
+  worked out from the player's anonymous online id, so two players may share a name but nobody
+  can pass for another: the same on that device for good, typed by no one (a `#` is refused in a
+  name). Shown on every row of the boards, the player's place, the page's "You appear as
+  Clayton#4821", the question ("You will appear as..." under the field, following what is typed),
+  Options > Privacy and the feedback's signature. How it is made:
+  [../online.md](../online.md#names-and-tags).
 - **Prepared, not shown yet** (data only, `submits` and `shown` off): the deepest floor and the
   fastest win on each of Pilgrim, Keeper and Martyr, the highest Nightmare ascension won, and La
   Veille's nights (when that mode exists).
