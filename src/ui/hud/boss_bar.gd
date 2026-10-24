@@ -29,7 +29,7 @@ func show_boss(boss: Monster) -> void:
 		# A rare boss: its rank's color, its affixes after its name.
 		_name.add_theme_color_override("font_color", monster.rank_color())
 		if not monster.affixes.is_empty():
-			_name.text += "  (%s)" % monster.affix_names()
+			_name.text = tr("{name}  ({affixes})").format({ "name": _name.text, "affixes": monster.affix_names() })
 	else:
 		_name.remove_theme_color_override("font_color")
 	if def and def.title_on_bar and not def.title.is_empty():

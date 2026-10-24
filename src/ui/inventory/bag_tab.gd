@@ -54,7 +54,7 @@ func _draw() -> void:
 		var tint := UiSkin.GOLD if button_pressed else (UiSkin.DIM if dim else UiSkin.TEXT)
 		draw_texture_rect(category.icon, ItemSlot.centered_icon(category.icon, area.grow(-8), 0.9), false, tint)
 	if count > 0:
-		var color := UiParts.BAD if full else (UiSkin.GOLD if button_pressed else UiSkin.TEXT)
+		var color := UiSkin.BAD if full else (UiSkin.GOLD if button_pressed else UiSkin.TEXT)
 		Fonts.draw(self, Vector2(size.x - 4, size.y - 4), str(count), Fonts.SMALL, color, 1.0)
 	if fresh:
 		ItemSlot.draw_fresh(self, Vector2(size.x - 6, 6))

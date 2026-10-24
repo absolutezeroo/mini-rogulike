@@ -1,13 +1,13 @@
 class_name AbyssHud
-extends Control
-## The Deeps on screen (see Abyss): their name and rule across the screen when the hero lands,
+extends HudEventCard
+## The Deeps on screen (see Abyss): their name and rule across the screen when the hero lands
+## (HudEventCard),
 ## then at the top the way out's name and the seconds left for the dawn's gift, and an arrow of
 ## light circling the hero, pointing toward the Dawn Breach while it is out of sight (a phone
 ## screen is small and the Deeps are dark; by the hero it is never under a thumb or a button). Built in code; the Hud shows it while the hero
 ## is down there (not while the Threshold has him).
 
 const PANEL_COLOR := Color(0.06, 0.02, 0.03, 0.72)
-const CARD_TIME := 2.6
 ## The arrow circles the hero this far from him (screen pixels).
 const ARROW_RADIUS := 84.0
 ## The door counts as in sight this far inside the screen's edges (pixels).
@@ -17,54 +17,27 @@ const ARROW_PX := 3.0
 
 var abyss: Abyss
 
-var _banner: PanelContainer
 var _door_label: Label
 var _gift_label: Label
-var _card: VBoxContainer
-var _title: Label
-var _rule: Label
-var _card_tween: Tween
-var _card_on := false
 var _arrow: Arrow
 var _last_second := -1
 
 
 func _ready() -> void:
-	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	mouse_filter = MOUSE_FILTER_IGNORE
+	_init_card_hud(Color(0.06, 0.01, 0.02))
 	_arrow = Arrow.new()
 	_arrow.name = "AbyssArrow"
 	_arrow.hud = self
 	_arrow.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	_arrow.mouse_filter = MOUSE_FILTER_IGNORE
 	add_child(_arrow)
-	_build_banner()
-	_build_card()
+	_build_door_banner()
+	_build_card("AbyssCard")
 	hide()
 
 
-func _build_banner() -> void:
-	_banner = PanelContainer.new()
-	_banner.name = "AbyssBanner"
-	_banner.mouse_filter = MOUSE_FILTER_IGNORE
-	var style := StyleBoxFlat.new()
-	style.bg_color = PANEL_COLOR
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(6)
-	style.content_margin_left = 22
-	style.content_margin_right = 22
-	style.content_margin_top = 2
-	style.content_margin_bottom = 4
-	_banner.add_theme_stylebox_override("panel", style)
-	_banner.set_anchors_and_offsets_preset(PRESET_CENTER_TOP)
-	_banner.grow_horizontal = GROW_DIRECTION_BOTH
-	_banner.offset_top = 10.0
-	add_child(_banner)
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 28)
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.mouse_filter = MOUSE_FILTER_IGNORE
-	_banner.add_child(row)
+func _build_door_banner() -> void:
+	var row := _build_banner("AbyssBanner", PANEL_COLOR)
 	_door_label = _label(Fonts.BODY)
 	_door_label.name = "AbyssDoorName"
 	row.add_child(_door_label)
@@ -74,74 +47,19 @@ func _build_banner() -> void:
 	row.add_child(_gift_label)
 
 
-func _build_card() -> void:
-	_card = VBoxContainer.new()
-	_card.name = "AbyssCard"
-	_card.mouse_filter = MOUSE_FILTER_IGNORE
-	_card.set_anchors_and_offsets_preset(PRESET_CENTER_TOP)
-	_card.grow_horizontal = GROW_DIRECTION_BOTH
-	_card.offset_left = -420.0
-	_card.offset_right = 420.0
-	_card.offset_top = 104.0
-	_card.add_theme_constant_override("separation", 2)
-	add_child(_card)
-	_title = _label(Fonts.HUGE)
-	_card.add_child(_title)
-	_rule = _label(Fonts.TITLE)
-	_rule.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_card.add_child(_rule)
-	_card.modulate.a = 0.0
-
-
-func _label(font_size: int) -> Label:
-	var label := Label.new()
-	label.mouse_filter = MOUSE_FILTER_IGNORE
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", font_size)
-	label.add_theme_color_override("font_outline_color", Color(0.06, 0.01, 0.02))
-	label.add_theme_constant_override("outline_size", Fonts.outline_size(font_size))
-	return label
-
-
 ## He landed: the name and rule across the screen, the way out's name at the top.
 func open(def: AbyssDef) -> void:
-	(_banner.get_theme_stylebox("panel") as StyleBoxFlat).border_color = Color(def.color, 0.8)
-	_title.add_theme_color_override("font_color", def.color)
-	_title.text = tr(def.display_name)
-	_rule.text = tr("Find the Dawn Breach. The demons will not wait.")
+	set_banner_color(def.color)
 	_door_label.text = tr(def.door_name)
 	_door_label.add_theme_color_override("font_color", def.return_veil_color)
 	_last_second = -1
 	_refresh_gift()
-	show()
-	if _card_tween:
-		_card_tween.kill()
-	_card.modulate.a = 0.0
-	_card_on = true
-	_card_tween = create_tween()
-	_card_tween.tween_property(_card, "modulate:a", 1.0, 0.35)
-	_card_tween.tween_interval(CARD_TIME)
-	_card_tween.tween_property(_card, "modulate:a", 0.0, 0.6)
-	_card_tween.tween_callback(func() -> void: _card_on = false)
-
-
-func close() -> void:
-	if _card_tween:
-		_card_tween.kill()
-	_card.modulate.a = 0.0
-	_card_on = false
-	hide()
+	_show_card(tr(def.display_name), tr("Find the Dawn Breach. The demons will not wait."), def.color)
 
 
 ## The top panel (the tutorial points at it).
 func banner() -> Control:
 	return _banner
-
-
-## The name and rule are on screen (hints wait for them).
-func is_card_showing() -> bool:
-	return visible and _card_on
 
 
 ## Where the door is on screen (the canvas' coordinates), or INF when there is none to point at.

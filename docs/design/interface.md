@@ -4,7 +4,8 @@
 
 Every scrolling list (codex, shrine, bag, shop) scrolls by dragging a finger over it, from
 anywhere in it, cards and buttons included, with a bit of momentum (`TouchScroll`, added to each
-`ScrollContainer` by the `TouchScrolling` autoload); a drag never presses a button, a tap does.
+`ScrollContainer` by the `TouchScrolling` autoload, or at once by `TouchScroll.attach()`: one
+helper a list whichever comes first); a drag never presses a button, a tap does.
 A drag that starts on a slider or a scroll bar stays the slider's, however far the finger wanders
 up or down (a control can ask the same with the group `TouchScroll.KEEPS_DRAG`), and a list behind
 the menu on top (the title's, under the Options) takes no drag.
@@ -111,12 +112,22 @@ shows to the device in hand.
 - **Someone speaking** (`DialogueBox`, `src/ui/dialogue/`; presentation.md, "The Vigil-Keeper
   and the keepers"): a face, a name, words typed letter by letter. A tap or a click on it, Enter,
   Space or a gamepad's A write the page out, then go on; a touch and the click the screen makes of
-  it count once (`TAP_GAP_FRAMES`). Paged (the shrine's `DialogueScreen`, a menu of its own: the
+  it count once (`TapGate`, below). Paged (the shrine's `DialogueScreen`, a menu of its own: the
   box holds the focus, a tap anywhere goes on, Back closes it, the focus comes back to her), the
   "more" sign is a bobbing gold arrow on touch, the accept key's cap on keys and pads. Stacked (the
   end screen) it types everything by itself and never holds the buttons: accept is its own only
   while it writes. The Vigil-Keeper on the title screen is a button like the others (the arrows
   reach her; Enter or A on her opens her words).
+- **"Tap or press to continue"** (`TapGate`, `src/ui/common/tap_gate.gd`): the one way every
+  screen that waits for a press reads it: the act and curse cards, a fragment of the past, a
+  cinematic, the story and someone speaking. A press is a touch, a mouse click (never the wheel:
+  scrolling over a card skips nothing), a key (not its repeat) or a gamepad button (the story and
+  someone speaking take only accept: Enter, Space, A; the story attack too). One finger is one
+  press: the phone sends the touch and a click made of it (the project emulates both ways), the
+  first is taken and its twin a few frames later swallowed, the finger's release too, even after
+  the screen closed itself, so the tap that closes a fragment never reaches the attack button
+  under it. A grace after opening (the fragment's quarter of a second, the curse card's sigil)
+  keeps the thumb that opened it from closing it (`TapTests`).
 - **The Controls page** (Options > Controls): what does what on the device in use, read-only: each
   control of `input_prompts.tres` with every key and mouse button (caps), the gamepad's buttons in
   its family's names, or how it is done by touch. Picking up another device turns the page.
@@ -388,6 +399,31 @@ most phones (1080 lines), x2 on 1440.
 - A wrapped line never splits a stat from its number (the HUD's info line uses unbreakable
   spaces).
 
+## Shared pieces (one way to build each)
+
+Every window is built from the same pieces in `src/ui/common/`, so they look and behave alike:
+
+- **The board**: `OrnateBoard`, the wood with its gold ornate border, under both `RpgWindow`
+  (full screen) and `RpgDialog` (centred). `RpgWindow`'s header is `header_left`, a spacer,
+  `header_right`, Back's key and `close_button`: windows add to its parts, never reach into the
+  row by index (`MenuWindow` gives `header_left` the room for a line of text).
+- **Tabs**: `TabRow`, for the options, the codex, the bag (its `BagTab`s), the debug panel and
+  the leaderboards (the boards and the Toll; the periods are a second row, not menu tabs): toggle
+  buttons of one size (136x44 at least), the one shown pressed, a click when another is picked,
+  the tab keys' cap before them, the group `menu_tabs` (Q / E, LB / RB).
+- **The item card**: `ItemCard`, the bag's and the merchant's: slot, name in its rarity, type,
+  details, the comparison with what is worn in green and red lines.
+- **Small helpers**: `UiParts.button()` (built on `MenuWindow.button()`, the one button
+  factory), `UiParts.stat_rows()` (the bag's stats, the end of a run), `UiParts.bullet()` (a
+  dash, then a wrapped line: never "- " glued to a sentence), `ExposedNodes` (a panel's built
+  nodes reachable as %Name once it is built), `OptionRows` (the options' rows; `PrivacyPage` and
+  `ControlsPage` are pages of their own), `HudEventCard` (the Threshold's and the Deeps' name and
+  rule across the screen and their banner).
+- **Colors**: `UiSkin` names the interface's colors once: `TEXT`, `GOLD` (= `Palette.GOLD`),
+  `DIM`, `GOOD`, `BAD` and the dim `backdrop()` behind windows; no panel keeps its own copy (a
+  unit check). Scenes (`.tscn`) still write the gold as its value.
+- **"Tap or press to continue"**: `TapGate` (Devices, above).
+
 ## Bag, forge and the other in-run screens
 
 The bag, the forge, the shop, encounters, perk choices, the pause menu and the end of a run are drawn in the game's RPG skin (`UiSkin`, `src/ui/common/`): a wooden
@@ -402,8 +438,10 @@ stones lit in their runes' colors. The selected slot pulses gold.
   world, his weapon slung on his back with its elements, his armor with its rarity's trim and its
   affixes' marks, idling at 4 screen pixels per art pixel, 20x22 art pixels); the bag in the middle, one compartment at a time (its tab), and under it
   **Dismantle the worse (n)** (the tab's worse gear); the picked item's card on the right (name in its rarity,
-  type, every line of its details, its rune sockets, for gear in the bag "Dismantle value: 12
-  gold") with its actions' buttons. Dismantle the worse opens a confirmation (`RpgDialog`): how
+  type, every line of its details, for gear in the bag how it compares with what is worn, as at
+  the merchant: a gold heading, each change in green or red (`ItemCard`, shared with the shop),
+  its rune sockets, for gear in the bag "Dismantle value: 12
+  gold") with its actions' buttons. Dismantle the worse opens a confirmation (`DismantleWorseDialog`, an `RpgDialog`): how
   many and the gold, their slots, "what you wear, potions, runes, tomes and keys are never
   touched", Dismantle: +n gold / Keep them. Gold won flies as coins to the counter (`GoldBurst`)
   with the coin sound.

@@ -6,12 +6,16 @@ extends Node
 ## a slider (a volume...), a scroll bar or a control in the group KEEPS_DRAG stays that
 ## control's, however far the finger wanders up or down: the list never takes it. A list behind
 ## the menu on top (MenuNav) takes no drag at all.
-## Add it with TouchScroll.attach(scroll).
+## Every ScrollContainer gets one as it enters the tree (the TouchScrolling autoload); a list
+## built in code may take it at once with TouchScroll.attach(scroll). Either way a list has one
+## helper: attach() is the one path, and a second call returns the first helper.
 
 const DRAG_START := 12.0  ## pixels before a touch becomes a drag
 const FRICTION := 5.0
 ## Controls that keep a drag started on them for themselves (besides sliders and scroll bars).
 const KEEPS_DRAG := &"keeps_drag"
+## Set on a list once it has (or is about to get) its helper: the autoload skips it then.
+const META := &"touch_scroll"
 
 var scroll: ScrollContainer
 
@@ -23,10 +27,23 @@ var _velocity := Vector2.ZERO
 
 
 static func attach(container: ScrollContainer) -> TouchScroll:
+	var existing := of(container)
+	if existing:
+		return existing
+	container.set_meta(META, true)
+	container.follow_focus = true  # a button focused off the list's edge scrolls into sight
 	var helper := TouchScroll.new()
 	helper.scroll = container
 	container.add_child(helper)
 	return helper
+
+
+## The list's helper, or null.
+static func of(container: ScrollContainer) -> TouchScroll:
+	for child in container.get_children():
+		if child is TouchScroll:
+			return child
+	return null
 
 
 func _input(event: InputEvent) -> void:

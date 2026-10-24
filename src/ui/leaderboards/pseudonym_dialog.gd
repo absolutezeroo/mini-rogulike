@@ -32,7 +32,7 @@ func _ready() -> void:
 	_build()
 	policy = PrivacyPolicyPanel.new()
 	add_child(policy)
-	_own(policy, "PolicyPanel")
+	MenuWindow.expose(policy, "PolicyPanel", self)
 
 
 ## Shows it with the current name.
@@ -64,27 +64,27 @@ func _build() -> void:
 	_edit.text_submitted.connect(func(_text: String) -> void: _confirm())
 	_edit.text_changed.connect(func(_text: String) -> void: _error.text = "")
 	body.add_child(_edit)
-	_own(_edit, "NameEdit")
-	_error = UiSkin.label("", Fonts.BODY, MenuWindow.BAD, true)
+	MenuWindow.expose(_edit, "NameEdit", self)
+	_error = UiSkin.label("", Fonts.BODY, UiSkin.BAD, true)
 	body.add_child(_error)
-	_own(_error, "NameError")
+	MenuWindow.expose(_error, "NameError", self)
 	var link := UiParts.button(tr("Privacy policy"), func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		policy.open(), Vector2(260, 44), Fonts.BODY)
 	link.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	body.add_child(link)
-	_own(link, "PolicyButton")
+	MenuWindow.expose(link, "PolicyButton", self)
 	var buttons := HBoxContainer.new()
 	buttons.add_theme_constant_override("separation", 14)
 	body.add_child(buttons)
 	var decline := UiParts.button(tr("Don't publish"), _decline, Vector2(0, 56), Fonts.BODY)
 	decline.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	buttons.add_child(decline)
-	_own(decline, "DeclineButton")
+	MenuWindow.expose(decline, "DeclineButton", self)
 	var confirm := UiParts.button(tr("Publish my scores"), _confirm, Vector2(0, 56), Fonts.BODY)
 	confirm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	buttons.add_child(confirm)
-	_own(confirm, "ConfirmButton")
+	MenuWindow.expose(confirm, "ConfirmButton", self)
 	MenuNavScript.set_first(self, link)
 
 
@@ -125,8 +125,3 @@ func _close() -> void:
 	hide()
 	finished.emit()
 
-
-func _own(node: Node, node_name: String) -> void:
-	node.name = node_name
-	node.owner = self
-	node.unique_name_in_owner = true

@@ -5,7 +5,7 @@ extends Button
 ## the player taps this when the fight allows (Game.open_offers()).
 
 const SIZE := 76.0
-const GOLD := Color(1.0, 0.82, 0.4)
+const GOLD := Palette.GOLD
 
 ## Choices waiting (0: hidden).
 var count := 0:

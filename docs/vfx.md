@@ -381,6 +381,15 @@ Screenshot it in the game at 1540x720 (the debug panel, or a probe scene in `_to
 - [ ] An enemy's version is told apart from the hero's at a glance.
 - [ ] One dominant hue.
 
+The small effects drawn in code keep the same rules (a unit check reads them,
+`VfxTests._test_grid_rule_breaks`): a footprint is a sole of whole cells in four directions,
+dithering away; an emote stands at 2x, pops one whole step (4x) for two frames, rises by art
+pixels and dithers out (`dither_fade`); a damage number starts on an art pixel, rises by art
+pixels and fades in three cuts (text has no dither); an arena's cell warning is a telegraph
+(`TelegraphView.DANGER`, a crisp rim an art pixel thick, an on/off blink, the fill thickening in
+steps); a splat dithers away and its shine is an opaque lighter step; a plain beam (a mender's)
+goes down the ramp of its color (`VfxElementDef.or_color`) and dithers out.
+
 ## 8. Where each element stands
 
 Frost is the reference kit, done in full. The foundation (grid helpers, ramps, palette swap,

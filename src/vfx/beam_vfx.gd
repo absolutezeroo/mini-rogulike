@@ -1,7 +1,8 @@
 class_name BeamVfx
 extends Node2D
 ## A beam between two points, in art pixels. Plain (a mender healing an ally...): a thin beam
-## of light thinning out as it fades. With an element (chain lightning: storm): a jagged fork
+## of light in the ramp of its color (VfxElementDef.or_color), thinning out and going down the
+## ramp, dithering away (never an alpha fade). With an element (chain lightning: storm): a jagged fork
 ## on the grid that flickers like the storm's sheets: it strikes, goes off but for its
 ## afterglow, strikes again along a new path, then breaks into segments going down the ramp.
 
@@ -25,7 +26,7 @@ var _strikes := 0
 
 static func create(from: Vector2, to: Vector2, color: Color, of_element: VfxElementDef = null) -> BeamVfx:
 	var vfx := BeamVfx.new()
-	vfx.position = PixelDraw.snap(from) if of_element else from
+	vfx.position = PixelDraw.snap(from)
 	vfx._to = to - vfx.position
 	vfx._color = color
 	vfx.element = of_element
@@ -78,12 +79,18 @@ func _draw() -> void:
 		_draw_fork()
 		return
 	var t := _age / LIFETIME
+	var look := VfxElementDef.or_color(null, _color)
+	var color := look.shade(t)  # core first, then down its ramp
+	var origin := PixelDraw.cell_of(position)
 	var steps := maxi(int(_to.length() / 4.0), 1)
 	for i in steps + 1:
-		var at := (_to * float(i) / steps).snapped(Vector2(2, 2))
-		var wobble := Vector2(0, roundf(sin(i * 0.9 + _age * 30.0) * 1.0) * 2.0)
-		var size := 4.0 if t < 0.5 else 2.0
-		draw_rect(Rect2(at + wobble - Vector2.ONE * size * 0.5, Vector2.ONE * size), Color(_color, 0.85 * (1.0 - t)))
+		var wobble := Vector2(0, roundf(sin(i * 0.9 + _age * 30.0)) * PixelDraw.PX)
+		var at := PixelDraw.snap(_to * float(i) / steps + wobble)
+		var size := PixelDraw.PX * (2.0 if t < 0.5 else 1.0)
+		var corner := PixelDraw.snap(at - Vector2.ONE * size * 0.5)
+		# Whole for its first half, then dithering out.
+		if PixelDraw.dither(origin + PixelDraw.cell_of(corner), clampf((1.0 - t) * 2.0, 0.0, 1.0)):
+			draw_rect(Rect2(corner, Vector2.ONE * size), color)
 
 
 func _draw_fork() -> void:

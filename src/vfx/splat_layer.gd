@@ -1,7 +1,8 @@
 class_name SplatLayer
 extends Node2D
 ## What fights leave on the floor: blood, slime, ink... A pixel blob with a few drops, in the
-## monster's MonsterDef.splat_color, that stays a while then fades. One layer per floor draws
+## monster's MonsterDef.splat_color, that stays a while then dithers away art pixel by art pixel
+## (never an alpha fade: docs/vfx.md), its wet shine a light step of its color drawn whole. One layer per floor draws
 ## them all (World.add_splat); the oldest go first past MAX_SPLATS.
 ## Also the chips a monster leaves when it dies (bone, armor, leaves... ImpactMaterialDef):
 ## flung out in a short hop, then they stay for the whole floor (`add_debris`).
@@ -16,7 +17,8 @@ const MAX_CHIPS := 400
 ## Seconds a chip flies before it lands.
 const CHIP_FLIGHT := 0.3
 
-## Each: {rows: Array of Rect2, color: Color, shine: Array of Rect2, born: float}
+## Each: {rows: Array of Rect2, color: Color, light: Color (its shine), shine: Array of Rect2,
+## born: float}
 var _splats: Array[Dictionary] = []
 ## Each: {from: Vector2, to: Vector2, size: Vector2, color: Color, height: float, born: float}
 var _chips: Array[Dictionary] = []
@@ -49,7 +51,9 @@ func add(at: Vector2, color: Color, size: float, direction: Vector2, rng: Random
 	if size >= 0.6:
 		var spot := at + Vector2(-radius * 0.3, -radius * 0.35)
 		shine.append(Rect2(spot.snapped(Vector2(PIXEL, PIXEL)), Vector2(PIXEL * 2.0, PIXEL)))
-	_splats.append({rows = _rows(cells), color = color, shine = shine, born = _time})
+	# The shine: one lighter step of the splat's own color, as opaque as the splat (computed once:
+	# a splat's color is the monster's, not an element's ramp).
+	_splats.append({rows = _rows(cells), color = color, light = Color(color.lightened(0.35), color.a), shine = shine, born = _time})
 	splats_made += 1
 	if _splats.size() > MAX_SPLATS:
 		_splats.pop_front()
@@ -141,17 +145,33 @@ func _process(delta: float) -> void:
 		queue_redraw()
 
 
+## `rect` (whole art pixels) drawn cell by cell, the cells the dither keeps at `amount`.
+func _dithered(rect: Rect2, color: Color, amount: float) -> void:
+	var first := PixelDraw.cell_of(rect.position)
+	var cells := Vector2i((rect.size / PIXEL).round())
+	for y in cells.y:
+		for x in cells.x:
+			var cell := first + Vector2i(x, y)
+			if PixelDraw.dither(cell, amount):
+				PixelDraw.cell(self, cell, color)
+
+
 func _draw() -> void:
 	for splat in _splats:
 		var age := _time - float(splat.born)
 		var fade := clampf((LIFE - age) / FADE, 0.0, 1.0)
 		var color: Color = splat.color
-		color.a *= fade
+		if fade >= 1.0:
+			for row: Rect2 in splat.rows:
+				draw_rect(row, color)
+			for spot: Rect2 in splat.shine:
+				draw_rect(spot, splat.light)
+			continue
+		# Going: each art pixel there or gone (ordered dithering), fewer at each redraw.
 		for row: Rect2 in splat.rows:
-			draw_rect(row, color)
-		var shine := Color(color.lightened(0.35), color.a * 0.6)
+			_dithered(row, color, fade)
 		for spot: Rect2 in splat.shine:
-			draw_rect(spot, shine)
+			_dithered(spot, splat.light, fade)
 	for chip in _chips:
 		var t := clampf((_time - float(chip.born)) / CHIP_FLIGHT, 0.0, 1.0)
 		var at: Vector2 = (chip.from as Vector2).lerp(chip.to, t) + Vector2(0, -sin(t * PI) * float(chip.height))

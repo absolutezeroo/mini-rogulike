@@ -51,7 +51,7 @@ func _ready() -> void:
 	_build()
 	policy = PrivacyPolicyPanel.new()
 	add_child(policy)
-	_own(policy, "PolicyPanel")
+	MenuWindow.expose(policy, "PolicyPanel", self)
 	policy.closed.connect(func() -> void:
 		if InputDevice.uses_buttons():
 			(get_node("%PolicyButton") as Button).grab_focus())
@@ -195,7 +195,7 @@ func _build() -> void:
 			Sfx.play_ui(Sfx.bank.ui_click)
 			_pick(def.id))
 		kinds.add_child(kind)
-		_own(kind, "Kind_%s" % def.id)
+		MenuWindow.expose(kind, "Kind_%s" % def.id, self)
 		_kinds.append(kind)
 	# How much is written, beside the kinds (a line of its own would push the form past a 720-line
 	# screen).
@@ -204,7 +204,7 @@ func _build() -> void:
 	_counter.custom_minimum_size.x = Fonts.width("0000 / 0000", Fonts.BODY)
 	_counter.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	kinds.add_child(_counter)
-	_own(_counter, "Counter")
+	MenuWindow.expose(_counter, "Counter", self)
 	_text = TextEdit.new()
 	_text.custom_minimum_size = Vector2(0, TEXT_HEIGHT)
 	_text.add_theme_font_size_override("font_size", Fonts.BODY)
@@ -213,14 +213,14 @@ func _build() -> void:
 	_text.set_meta(SoftKeyboard.MAX_META, Feedback.config.max_length)  # (over the phone's keyboard: SoftKeyboard)
 	_text.text_changed.connect(_on_text_changed)
 	body.add_child(_text)
-	_own(_text, "Text")
-	_problem = UiSkin.label("", Fonts.BODY, MenuWindow.BAD, true)
+	MenuWindow.expose(_text, "Text", self)
+	_problem = UiSkin.label("", Fonts.BODY, UiSkin.BAD, true)
 	body.add_child(_problem)
-	_own(_problem, "Problem")
+	MenuWindow.expose(_problem, "Problem", self)
 	_info = _switch(tr("Include game info"), "InfoSwitch")
 	_info_text = UiSkin.label("", Fonts.BODY, UiSkin.DIM, true)
 	body.add_child(_info_text)
-	_own(_info_text, "InfoText")
+	MenuWindow.expose(_info_text, "InfoText", self)
 	_info.toggled.connect(func(_on: bool) -> void: _info_text.text = _info_words())
 	_sign = _switch("", "SignSwitch")
 	body.add_child(UiSkin.label(tr("Sent to Talo (the game's online service), linked to this device's random ID; your name only if you sign. More in the privacy policy."), Fonts.BODY, UiSkin.DIM, true))
@@ -232,15 +232,15 @@ func _build() -> void:
 		policy.open(), Vector2(0, 52), Fonts.BODY)
 	link.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	buttons.add_child(link)
-	_own(link, "PolicyButton")
+	MenuWindow.expose(link, "PolicyButton", self)
 	var cancel := UiParts.button(tr("Cancel"), back, Vector2(0, 52), Fonts.BODY)
 	cancel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	buttons.add_child(cancel)
-	_own(cancel, "CancelButton")
+	MenuWindow.expose(cancel, "CancelButton", self)
 	_send = UiParts.button(tr("Send"), func() -> void: send(), Vector2(0, 52), Fonts.BODY)
 	_send.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	buttons.add_child(_send)
-	_own(_send, "SendButton")
+	MenuWindow.expose(_send, "SendButton", self)
 	if not _kinds.is_empty():
 		MenuNavScript.set_first(self, _kinds[0])
 
@@ -254,7 +254,7 @@ func _switch(words: String, node_name: String) -> CheckButton:
 	MenuWindow.style_switch(check)
 	check.toggled.connect(func(_on: bool) -> void: Sfx.play_ui(Sfx.bank.ui_click))
 	body.add_child(check)
-	_own(check, node_name)
+	MenuWindow.expose(check, node_name, self)
 	return check
 
 
@@ -293,7 +293,7 @@ func _refresh() -> void:
 	var length := _text.text.strip_edges().length()
 	var limit := Feedback.config.max_length
 	_counter.text = "%d / %d" % [length, limit]
-	_counter.add_theme_color_override("font_color", MenuWindow.BAD if length >= limit else UiSkin.DIM)
+	_counter.add_theme_color_override("font_color", UiSkin.BAD if length >= limit else UiSkin.DIM)
 	_send.disabled = not Feedback.is_available()
 	if not Feedback.is_available() and visible:
 		_problem.text = explain(FeedbackScript.Result.UNAVAILABLE)
@@ -303,8 +303,3 @@ func _close() -> void:
 	hide()
 	finished.emit()
 
-
-func _own(node: Node, node_name: String) -> void:
-	node.name = node_name
-	node.owner = self
-	node.unique_name_in_owner = true

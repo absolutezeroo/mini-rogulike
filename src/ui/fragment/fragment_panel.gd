@@ -18,8 +18,9 @@ var _place: Label
 var _lines: VBoxContainer
 var _kept: Label
 var _close: Button
-var _named: Array[Node] = []
-var _opened_at := 0
+## Built nodes reachable as %Name once the panel is built.
+var _named := ExposedNodes.new()
+var _gate := TapGate.new(TapGate.Keys.ANY, OPEN_GRACE_FRAMES)
 
 
 func _ready() -> void:
@@ -46,7 +47,7 @@ func open(fragment: FragmentDef, boss: BossDef, first_time: bool = false) -> voi
 	if boss:
 		var boss_name := tr(boss.display_name)
 		_kept.text = tr("A new page for its chronicle: %s.") % boss_name if first_time else tr("From its chronicle: %s.") % boss_name
-	_opened_at = Engine.get_process_frames()
+	_gate.open()
 	show()
 
 
@@ -69,13 +70,14 @@ func board_rect() -> Rect2:
 
 
 ## Any tap, click or key closes it (not in its first moments: the tap that opened it).
+## (TapGate: never the wheel; the touch and the click made of it are one press, and the twin
+## that comes after the panel closed is swallowed too, so it never presses a HUD button.)
 func _input(event: InputEvent) -> void:
-	if not visible or Engine.get_process_frames() - _opened_at < OPEN_GRACE_FRAMES:
+	var read := _gate.read(event, visible)
+	if read == TapGate.IGNORE:
 		return
-	var press: bool = (event is InputEventMouseButton and event.pressed) or (event is InputEventScreenTouch and event.pressed) \
-		or (event is InputEventKey and event.pressed and not event.is_echo()) or (event is InputEventJoypadButton and event.pressed)
-	if press:
-		get_viewport().set_input_as_handled()
+	get_viewport().set_input_as_handled()
+	if read == TapGate.TAKE:
 		close()
 
 
@@ -121,6 +123,5 @@ func _build() -> void:
 	PromptGlyph.badge(_close, &"ui_cancel", PromptGlyph.Place.INSIDE)
 	_dialog.body.add_child(_close)
 	for node: Node in [_source, _place, _lines, _kept, _close]:
-		_named.append(node)
-		node.owner = self
-		node.unique_name_in_owner = true
+		_named.add(node)
+	_named.expose_to(self)

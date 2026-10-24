@@ -24,10 +24,7 @@ const PORTRAIT := 76.0
 ## A breath between two stacked lines (seconds).
 const LINE_PAUSE := 0.35
 const OPEN_GRACE := 0.25
-## One tap is often seen twice (the touch and the mouse click the screen makes of it): presses
-## this close together count once.
-const TAP_GAP_FRAMES := 6
-const ACCENT := Color(1.0, 0.82, 0.4)
+const ACCENT := Palette.GOLD
 
 var mode: Mode = Mode.PAGED
 ## Typing speed when the speaker gives none.
@@ -41,7 +38,9 @@ var _letters := 0.0
 var _pause := 0.0
 var _age := 0.0
 var _done := true
-var _last_tap := -100
+## Taps, clicks and accept, read the one way (TapGate: a touch and its click are one tap, the
+## wheel is none).
+var _gate := TapGate.new(TapGate.Keys.ACCEPT)
 
 var _portrait: PixelPortrait
 var _portrait_frame: PanelContainer
@@ -177,15 +176,13 @@ func shown_text() -> String:
 	return "\n".join(parts)
 
 
-## A tap, a click, Enter or A (seen twice in a few frames: once). See advance().
-func tap() -> bool:
-	var now := Engine.get_process_frames()
-	if now - _last_tap < TAP_GAP_FRAMES:
-		return true
-	var took := advance()
-	if took:
-		_last_tap = now
-	return took
+## A tap, a click, Enter or A seen by the box or by its screen (DialogueScreen's backdrop):
+## true when it was the box's (the caller marks it handled). See advance().
+func press(event: InputEvent) -> bool:
+	var read := _gate.read(event, not _pages.is_empty() and not (mode == Mode.STACKED and _done))
+	if read == TapGate.TAKE:
+		advance()
+	return read != TapGate.IGNORE
 
 
 ## Writes the page (STACKED: everything) out, else goes on to the next page,
@@ -271,24 +268,19 @@ func _set_more(shown: bool) -> void:
 
 ## Taps and clicks on the box.
 func _gui_input(event: InputEvent) -> void:
-	var tapped := (event is InputEventMouseButton and (event as InputEventMouseButton).pressed \
-		and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT) \
-		or (event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed)
-	if tapped and tap():
+	if (event is InputEventScreenTouch or event is InputEventMouseButton) and press(event):
 		accept_event()
 
 
 ## Accept (Enter, Space, A) while it speaks: PAGED, always (it is what is on top); STACKED, only
 ## while it writes (then accept is the buttons' again). Only when its menu is the one on top.
 func _input(event: InputEvent) -> void:
-	if not is_visible_in_tree() or not event.is_action_pressed(&"ui_accept") or event.is_echo():
-		return
-	if mode == Mode.STACKED and _done:
+	if not is_visible_in_tree() or not (event is InputEventKey or event is InputEventJoypadButton):
 		return
 	var top := MenuNav.top_menu()
 	if top != null and not top.is_ancestor_of(self):
 		return
-	if tap():
+	if press(event):
 		get_viewport().set_input_as_handled()
 
 

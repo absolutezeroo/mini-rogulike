@@ -64,8 +64,7 @@ func _feats() -> bool:
 func check_achievements() -> void:
 	for achievement in AchievementDef.unlock_reached(content.achievements):
 		Events.achievement_unlocked.emit(achievement)
-	for quest in QuestBoard.claim_finished(content.quests):
-		Events.quest_completed.emit(quest)
+	QuestBoard.pay_finished(content.quests)
 
 
 ## The run ended (a death, a win; souls given): tells it to whoever keeps scores

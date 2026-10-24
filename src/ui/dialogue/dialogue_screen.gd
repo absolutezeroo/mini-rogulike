@@ -24,7 +24,7 @@ func _ready() -> void:
 	hide()
 	_dim = ColorRect.new()
 	_dim.name = "Dim"
-	_dim.color = Color(0.03, 0.02, 0.05, 0.45)
+	_dim.color = UiSkin.backdrop(0.45)
 	_dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_dim.gui_input.connect(_on_dim_input)
 	add_child(_dim)
@@ -63,9 +63,5 @@ func _place() -> void:
 
 
 func _on_dim_input(event: InputEvent) -> void:
-	var tapped := (event is InputEventMouseButton and (event as InputEventMouseButton).pressed \
-		and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT) \
-		or (event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed)
-	if tapped:
-		box.tap()
+	if (event is InputEventScreenTouch or event is InputEventMouseButton) and box.press(event):
 		_dim.accept_event()

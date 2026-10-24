@@ -147,13 +147,10 @@ func _refresh() -> void:
 	else:
 		_weapon_title.text = tr(_weapon.display_name)
 		_weapon_title.add_theme_color_override("font_color", _weapon.rarity_color())
-		var parts := PackedStringArray()
-		if _weapon == worn:
-			parts.append(tr("Worn"))
-		if _weapon is WeaponDef:
-			parts.append(tr("%d damage") % (_weapon as WeaponDef).damage)
-		parts.append((tr("%d rune sockets") if _weapon.socket_count() > 1 else tr("%d rune socket")) % _weapon.socket_count())
-		_weapon_details.text = "  -  ".join(parts)
+		# Whole lines: "Worn  -  12 damage  -  2 rune sockets" (French puts them its own way).
+		var sockets := (tr("%d rune sockets") if _weapon.socket_count() > 1 else tr("%d rune socket")) % _weapon.socket_count()
+		var details := tr("{damage} damage  -  {sockets}").format({ "damage": (_weapon as WeaponDef).damage, "sockets": sockets }) if _weapon is WeaponDef else sockets
+		_weapon_details.text = tr("Worn  -  {details}").format({ "details": details }) if _weapon == worn else details
 		for i in _weapon.socket_count():
 			_sockets.add_child(_socket_slot(i))
 		_refresh_action()
@@ -195,7 +192,7 @@ func _fill_runes() -> void:
 	if _rune:
 		_rune_name.text = tr(_rune.display_name)
 		_rune_name.add_theme_color_override("font_color", _rune.rarity_color())
-		_rune_text.text = "%s  -  %s" % [_rune.get_type_label(), tr(_rune.description)]
+		_rune_text.text = tr("{type}  -  {description}").format({ "type": _rune.get_type_label(), "description": tr(_rune.description) })
 	elif count == 0:
 		_rune_name.text = tr("No runes in your bag")
 		_rune_name.add_theme_color_override("font_color", UiSkin.GOLD)

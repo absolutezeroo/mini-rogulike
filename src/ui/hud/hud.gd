@@ -100,6 +100,8 @@ func _ready() -> void:
 	Events.quest_completed.connect(func(quest: Dictionary) -> void:
 		var done := tr("Daily quest done: %s  (+%d souls)") if (quest.def as QuestDef).period == QuestDef.Period.DAILY else tr("Weekly quest done: %s  (+%d souls)")
 		toast(done % [QuestBoard.text(quest), quest.reward]))
+	# An ambush springs: its banner (the HUD listens itself: gameplay only tells, Events).
+	Events.ambush_started.connect(func(_room: AmbushRoom) -> void: show_banner(tr("Ambush!"), Palette.DANGER))
 	# A cinematic (a warden's story) takes the screen: the HUD steps aside until it is over.
 	Events.cinematic_started.connect(func() -> void: visible = false)
 	Events.cinematic_finished.connect(func() -> void: visible = true)
@@ -466,12 +468,17 @@ func _refresh_info() -> void:
 	var stats := _player.get_stats()
 	var weapon := _player.get_weapon()
 	var difficulty := _player.world.difficulty if _player.world else null
-	var line := (tr(difficulty.display_name) + "   " if difficulty else "") + tr("Depth %d   Damage %d   Armor %d   %s") % [
-		_player.world.depth if _player.world else 1,
-		_player.get_power(),
-		stats.defense,
-		tr(weapon.display_name) if weapon else tr("Bare hands"),
-	]
+	# One sentence each, with or without the difficulty in front (never glued pieces).
+	var facts := {
+		"difficulty": tr(difficulty.display_name) if difficulty else "",
+		"depth": _player.world.depth if _player.world else 1,
+		"damage": _player.get_power(),
+		"armor": stats.defense,
+		"weapon": tr(weapon.display_name) if weapon else tr("Bare hands"),
+	}
+	var template := tr("{difficulty}   Depth {depth}   Damage {damage}   Armor {armor}   {weapon}") if difficulty \
+		else tr("Depth {depth}   Damage {damage}   Armor {armor}   {weapon}")
+	var line := template.format(facts)
 	# When the line wraps, a stat keeps its number ("Armor" never ends a line, its 0 on the next).
 	_info_label.text = _word_and_number.sub(line, "$1\u00a0$2", true)
 
@@ -540,7 +547,7 @@ func set_souls(count: int, pulse: bool = false) -> void:
 ## Big centered text that fades out (floor names, boss names, a warden's last words...). A text
 ## too wide at Fonts.HUGE (a sentence: wider than BANNER_WIDTH or the screen) comes at TITLE,
 ## across the screen (banner_room()), and wraps to a second line if it is wider still.
-func show_banner(text: String, color: Color = Color(1, 0.82, 0.4)) -> void:
+func show_banner(text: String, color: Color = Palette.GOLD) -> void:
 	_yield_toast()
 	_depth_banner.text = text
 	var font_size := Fonts.HUGE
@@ -591,7 +598,7 @@ func show_split(depth: int, seconds: float, ahead: float) -> void:
 	var text := tr("Floor %d  %s") % [depth, TimeText.of(seconds, 1)]
 	var color := Color(1, 1, 1, 0.85)
 	if not is_nan(ahead):
-		text += "  " + TimeText.delta(ahead)
+		text = tr("Floor {floor}  {time}  {delta}").format({ "floor": depth, "time": TimeText.of(seconds, 1), "delta": TimeText.delta(ahead) })
 		color = Palette.HEAL if ahead <= 0.0 else Palette.DANGER
 	label.text = text
 	label.add_theme_color_override("font_color", color)

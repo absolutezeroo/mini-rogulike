@@ -432,7 +432,7 @@ func _sideways_gap(a: Rect2, b: Rect2, direction: Vector2) -> float:
 class FocusFrame:
 	extends Control
 
-	const GOLD := Color(1.0, 0.82, 0.4)
+	const GOLD := Palette.GOLD
 	const LIGHT := Color(1.0, 0.95, 0.75)
 	const DARK := Color(0.12, 0.07, 0.05)
 	const PIXEL := 2.0

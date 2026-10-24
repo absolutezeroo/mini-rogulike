@@ -6,7 +6,7 @@ extends VBoxContainer
 ## say when it breaks (with its cost) and when it is kept. Listens to Events only.
 
 const KEEP_SHOWN := 4.0
-const HOLDING := Color(1.0, 0.82, 0.4)
+const HOLDING := Palette.GOLD
 
 ## Where the toasts and the banner go.
 var hud: Hud
@@ -71,7 +71,7 @@ func _on_started(pact: PactRoom) -> void:
 func _on_broken(pact: PactRoom) -> void:
 	_refresh()
 	if hud:
-		hud.show_banner(tr("Pact broken"), UiParts.BAD)
+		hud.show_banner(tr("Pact broken"), UiSkin.BAD)
 		hud.toast(tr("-%d max Health for the rest of the run") % pact.hp_lost)
 
 
@@ -104,10 +104,10 @@ func _refresh() -> void:
 	match _pact.outcome:
 		PactRoom.Outcome.KEPT:
 			text = tr("Pact kept")
-			color = UiParts.GOOD
+			color = UiSkin.GOOD
 		PactRoom.Outcome.BROKEN:
 			text = tr("Broken: -%d max Health") % _pact.hp_lost
-			color = UiParts.BAD
+			color = UiSkin.BAD
 		_:
 			text = _pact.rule.status_text() if _pact.rule else ""
 	if _state.text != text:

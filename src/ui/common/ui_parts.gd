@@ -1,21 +1,29 @@
 class_name UiParts
 ## Small pieces shared by the in-run panels (shop, encounters, pause, end of run, perk choice),
-## on top of UiSkin: buttons, a touch-friendly scroll, emptying a container, good / bad colors.
-
-## A gain, a loss (comparisons, encounter outcomes).
-const GOOD := Color(0.45, 1.0, 0.4)
-const BAD := Color(1.0, 0.4, 0.32)
+## on top of UiSkin (whose colors they use: UiSkin.GOOD / BAD): buttons, a touch-friendly scroll,
+## emptying a container.
 
 
-## A plain button (the game's default look); keys and gamepads reach it (MenuNav).
+## A plain button (the game's default look: MenuWindow.button, the one factory) doing `action`;
+## keys and gamepads reach it (MenuNav).
 static func button(words: String, action: Callable, min_size := Vector2(0, 52), font_size := Fonts.BODY) -> Button:
-	var result := Button.new()
-	result.text = words
+	var result := MenuWindow.button(words, font_size, min_size.y)
 	result.custom_minimum_size = min_size
-	result.add_theme_font_size_override("font_size", font_size)
 	if action.is_valid():
 		result.pressed.connect(action)
 	return result
+
+
+## Fills a two-column GridContainer with stat lines: [name, value] or [name, value, color]
+## (the name dim on the left, the value right-aligned). What was in it goes.
+static func stat_rows(grid: GridContainer, rows: Array) -> void:
+	clear(grid)
+	for row: Array in rows:
+		grid.add_child(UiSkin.label(str(row[0]), Fonts.BODY, UiSkin.DIM))
+		var value := UiSkin.label(str(row[1]), Fonts.BODY, row[2] if row.size() > 2 else UiSkin.TEXT)
+		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		grid.add_child(value)
 
 
 ## A list that scrolls one way, with drag-to-scroll for phones (TouchScroll).
@@ -27,6 +35,20 @@ static func scroll(vertical := true) -> ScrollContainer:
 		result.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	TouchScroll.attach(result)
 	return result
+
+
+## A line of a list: a dash, then the words wrapped beside it (the dash is layout, never glued
+## to a translated sentence).
+static func bullet(words: String, color: Color) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	var dash := UiSkin.label("-", Fonts.BODY, color)
+	dash.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	row.add_child(dash)
+	var label := UiSkin.label(words, Fonts.BODY, color, true)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(label)
+	return row
 
 
 ## Frees everything in `container` (out of the tree at once, so counts are right).

@@ -39,10 +39,9 @@ var _depth_label: Label
 var _monster_label: Label
 var _god_button: Button
 var _status: Label
-## The tab buttons and their pages, in order.
-var _tabs: Array[Button] = []
+## The tabs and their pages, in order.
+var _tabs: TabRow
 var _pages: Array[Control] = []
-var _tab_group := ButtonGroup.new()
 ## Called on every refresh: each toggle and step button sets its own text and pressed state.
 var _refreshers: Array[Callable] = []
 ## The same for the Gallery's room shapes (made again for each biome).
@@ -92,7 +91,7 @@ func _init() -> void:
 
 func open(game: Game) -> void:
 	_game = game
-	if _tabs.is_empty():
+	if _tabs == null:
 		# Built on first use: the curses, events and monsters come from the game's content.
 		_build_tabs()
 	_bind_views()
@@ -118,7 +117,12 @@ func tab_index() -> int:
 func show_tab(index: int) -> void:
 	for i in _pages.size():
 		_pages[i].visible = i == index
-		_tabs[i].set_pressed_no_signal(i == index)
+	_tabs.select(index)
+
+
+## How many tabs (tests).
+func tab_count() -> int:
+	return _tabs.buttons.size() if _tabs else 0
 
 
 # --- Tabs ---------------------------------------------------------------------------------
@@ -126,7 +130,9 @@ func show_tab(index: int) -> void:
 ## The tabs in the window's header, beside Close (the pages get the height); what an action did
 ## under the pages.
 func _build_tabs() -> void:
-	var row := header_right
+	_tabs = TabRow.new()
+	header_right.add_child(_tabs)
+	_tabs.picked.connect(show_tab)
 	var pages := Control.new()
 	pages.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_child(pages)
@@ -137,20 +143,7 @@ func _build_tabs() -> void:
 		["Gallery", _build_gallery], ["Tools", _build_tools], ["Remote", _build_remote],
 	]
 	for entry: Array in builders:
-		var index := _tabs.size()
-		var tab := Button.new()
-		tab.text = entry[0]
-		tab.name = "%sTab" % entry[0]
-		tab.toggle_mode = true
-		tab.button_group = _tab_group
-		tab.custom_minimum_size = Vector2(140, 44)
-		tab.add_theme_font_size_override("font_size", Fonts.BODY)
-		tab.add_to_group(MenuNav.TABS)
-		tab.pressed.connect(func() -> void:
-			Sfx.play_ui(Sfx.bank.ui_click)
-			show_tab(index))
-		row.add_child(tab)
-		_tabs.append(tab)
+		_tabs.add_tab(entry[0], "%sTab" % entry[0])  # (a dev tool: English only)
 		var scroll := UiParts.scroll()
 		scroll.name = "%sPage" % entry[0]
 		scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -161,8 +154,6 @@ func _build_tabs() -> void:
 		scroll.add_child(column)
 		_pages.append(scroll)
 		(entry[1] as Callable).call(column)
-	row.add_child(PromptGlyph.make(&"menu_tabs"))
-	row.move_child(row.get_child(row.get_child_count() - 1), 0)  # the tab keys' cap before the tabs
 	show_tab(0)
 
 

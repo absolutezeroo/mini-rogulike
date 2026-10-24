@@ -7,31 +7,18 @@ extends RpgWindow
 
 ## Souls (kept between runs): the same pale blue as on the HUD.
 const SOULS := Color(0.65, 0.95, 1.0)
-## A line that helps the hero / makes the run harder.
-const GOOD := Color(0.45, 1.0, 0.4)
-const BAD := Color(1.0, 0.4, 0.32)
 
 const SWITCH_SIZE := Vector2i(60, 30)
-
-## The header's Close button.
-var close_button: Button
-## Left of the header, on the Close button's line (a sentence, a hint...).
-var header_left: HBoxContainer
 
 static var _switches := {}
 
 
 func _init(title_text: String = "") -> void:
 	super._init(title_text)
-	# RpgWindow's header: [spacer][header_right][Back's glyph][Close].
-	var header := header_right.get_parent()
-	close_button = header.get_child(header.get_child_count() - 1) as Button
-	header_left = HBoxContainer.new()
+	# A line of text left of the header takes the room (RpgWindow's spacer gives it up).
 	header_left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header_left.add_theme_constant_override("separation", 12)
-	header.add_child(header_left)
-	header.move_child(header_left, 0)
-	(header.get_child(1) as Control).size_flags_horizontal = Control.SIZE_FILL  # the spacer
+	_spacer.size_flags_horizontal = Control.SIZE_FILL
+	header_left.show()
 
 
 ## Makes `node` reachable as %`node_name` from `scene_owner` (tests, other scripts): nodes built

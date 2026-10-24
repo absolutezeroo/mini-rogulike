@@ -314,7 +314,7 @@ func _draw() -> void:
 		while y < size.y:
 			draw_line(Vector2(0, y), Vector2(size.x, y), GRID_COLOR)
 			y += step
-	draw_rect(Rect2(Vector2.ZERO, size), Color(1, 0.82, 0.4, 0.35), false, 2.0)
+	draw_rect(Rect2(Vector2.ZERO, size), Color(Palette.GOLD, 0.35), false, 2.0)
 
 
 func _draw_overlay() -> void:

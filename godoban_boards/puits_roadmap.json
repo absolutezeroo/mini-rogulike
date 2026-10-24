@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 207,
+  "next_id": 215,
   "tags": [
     "pc",
     "test",
@@ -2989,6 +2989,129 @@
     },
     {
       "id": "task_201",
+      "title": "Audit : règles de l'interface",
+      "description": "Audit indépendant de src/ui et src/vfx (24/10), corrigé :\n- L'interface ne pilote plus le jeu : les quêtes finies sont payées par le jeu (QuestBoard.pay_finished, avec Events.quest_completed : pendant la partie et à l'arrivée sur l'écran titre), le Codex ne fait qu'afficher ; le serment et l'arme de départ passent par Profile.select_oath / select_start_weapon, et ouvrir « Au bord du Puits » ne change plus rien (un serment que l'arbre n'ouvre plus reste enregistré, lu comme « Sans serment »).\n- Un seul « toucher / appuyer pour continuer » (TapGate) pour les cartes d'acte et de malédiction, le fragment, la cinématique, l'histoire et les dialogues : la molette ne passe plus rien, un toucher et le clic qu'il émule comptent une fois, et le toucher qui ferme un panneau n'atteint plus le bouton d'attaque dessous.\n- Un seul TouchScroll par liste (TouchScroll.attach, seul chemin).\n- Textes en phrases entières (HUD, barre de boss, forge, codex, Glas de l'Aube, journal, routes), FR rempli ; la ligne « Histoires des boss » et la confirmation « Abandonner » suivent l'appareil ; couleurs or/bon/mauvais/voile d'une seule source (UiSkin, or = Palette.GOLD).\n- Composants partagés : TabRow (options, codex, sac, debug, classements), HudEventCard (Seuil / Profondeurs), OrnateBoard (RpgWindow et RpgDialog), en-tête de RpgWindow sans recherche par index, ExposedNodes, ItemCard (sac et marchand : comparaison en vert / rouge dans le sac aussi), UiParts.stat_rows / bullet, OptionRows et PrivacyPage, DismantleWorseDialog.\n- VFX sur la grille : empreintes en cellules 4 directions tramées, émote x2 / x4 tramée, nombres de dégâts sur la grille en 3 paliers, avertissement de cases au rouge des télégraphes (clignotement net), taches tramées, rayon simple dans sa rampe.\n- Code mort retiré, pause sans lecture du texte, StatBar.fill_color redessine.\nCaptures avant / après (FR 2340x1080) dans le scratchpad de la session (audit_ui_fix). À vérifier en jeu sur téléphone : le toucher qui ferme un fragment, le rendu des nouveaux VFX en mouvement.",
+      "status": "review",
+      "priority": "high",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "qualité",
+        "vfx"
+      ],
+      "created_at": 1792814956,
+      "updated_at": 1792818511
+    },
+    {
+      "id": "task_202",
+      "title": "Audit UI : Game présentateur → annonces écoutées par le HUD",
+      "description": "Suite de l'audit (world.md 2.2, reporté) : Game appelle encore le HUD ~90 fois (bannières d'acte, d'événement, de malédiction, de salle signature, de boss ; toast de l'exploit d'un gardien). Seule l'embuscade est passée à un écouteur du HUD. À faire : un RunAnnouncer ou des signaux Events écoutés par le HUD, un GameDebug pour les points d'entrée de debug, une seule fonction _transition() pour le bloc copié 5 fois. Reporté pour ne pas croiser le chantier sauvegarde / reprise sur game.gd.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "qualité"
+      ],
+      "created_at": 1792818511,
+      "updated_at": 1792818511
+    },
+    {
+      "id": "task_203",
+      "title": "Audit UI : performances de l'interface et des VFX sur téléphone",
+      "description": "Points perf de l'audit src/ui+vfx laissés pour plus tard : flèche des Profondeurs (961 cellules x 5 tests par image : masques précalculés), ItemSlot._process sur les panneaux cachés (set_process selon sélection / reflet), SplatLayer redessinée entière tant qu'un éclat vole (éclats sur un nœud à part), HUD qui interroge tout à chaque image (ceinture, arme, température, pact_line add_theme_color_override), allocations dans _draw (SoulNodeButton, PixelDraw.bit, StatusFx), queue_redraw inutiles (SwingVfx, BlastVfx, fond du titre à 60 fps), TouchScroll._process sur toutes les listes.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "perf",
+        "ui",
+        "vfx"
+      ],
+      "created_at": 1792818511,
+      "updated_at": 1792818511
+    },
+    {
+      "id": "task_204",
+      "title": "Audit UI : formes lisses restantes dans l'interface",
+      "description": "action_button.gd (cercle et camembert de recharge lisses en 32 pas) et curse_card.gd (sceau en draw_circle / draw_arc / draw_line) dessinent hors de la grille de pixels, contrairement à la barre d'action. Les passer en PixelDraw (anneaux et disques en pas, recharge par rangée de pixels).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "visuel"
+      ],
+      "created_at": 1792818511,
+      "updated_at": 1792818511
+    },
+    {
+      "id": "task_205",
+      "title": "Audit UI : couleurs littérales restantes et or écrit dans les scènes",
+      "description": "Les doublons nommés (or, bon, mauvais, voile) sont réglés (UiSkin, test unitaire). Restent ~90 Color(...) en ligne dans src/ui et src/vfx (item_slot, soul_node_button, action_button, menu_window, codex_rows...) et l'or écrit en valeur dans hud.tscn, title_screen.tscn, act_card.tscn, curse_card.tscn, perk_card.tscn. À nommer dans UiSkin (INK, couleurs des boutons ronds) quand on y touche.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "qualité"
+      ],
+      "created_at": 1792818511,
+      "updated_at": 1792818511
+    },
+    {
+      "id": "task_206",
+      "title": "Audit UI : découpes restantes (forge, butin, debug, titre, HUD)",
+      "description": "La carte d'objet (ItemCard) sert au sac et au marchand ; la forge et l'invite de butin la refont encore. À faire si utile : ItemCard dans la forge et LootPrompt, debug_panel.gd (968 lignes) en pages par onglet, title_screen._ready (88 lignes) découpé, la file des toasts / bannières du HUD en HudMessages, les onglets du Codex en pages (reconstruction par onglet). Choisir aussi une règle unique RpgDialog : hériter ou composer (5 dialogues héritent, 10 composent).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "qualité"
+      ],
+      "created_at": 1792818511,
+      "updated_at": 1792818511
+    },
+    {
+      "id": "task_207",
+      "title": "Audit UI : petits risques restants (minimap, classements, textes hors UI)",
+      "description": "Minimap.bind_world ne se déconnecte jamais de l'ancien monde (sûr tant qu'un seul World vit par Game) ; LeaderboardsPanel : await load_board() qui reprend après la libération du panneau ; AscensionDef colle « %s +%d » dans un display_name ; RunState.place_name_key() renvoie un texte déjà traduit (traduit deux fois). Hors du périmètre UI de l'audit, à reprendre avec le chantier concerné.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "bug",
+        "qualité"
+      ],
+      "created_at": 1792818511,
+      "updated_at": 1792818511
+    },
+    {
+      "id": "task_208",
+      "title": "Vérifier sur téléphone : un toucher = une action (TapGate)",
+      "description": "Les tests poussent le toucher et le clic émulé à la main ; à vérifier sur un vrai téléphone Android : fermer un fragment, passer une carte d'acte ou une cinématique, avancer un dialogue ne déclenche jamais le bouton d'attaque ni une deuxième page, et la molette d'une souris sur PC ne passe plus les cartes.",
+      "status": "todo",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "playtest",
+        "android",
+        "ui"
+      ],
+      "created_at": 1792818511,
+      "updated_at": 1792818511
+    },
+    {
+      "id": "task_209",
       "title": "Gardien Sans Nom : restes (codex assombri, pas de Céleste, pose de lancer)",
       "description": "Demandé par Clayton (restes de task_120). Fait (24/10) :\n- Codex : son portrait sur sa page et dans l'aperçu des attaques est l'ombre du combat (même shader du corps : pallor 0,7, liseré pâle, lanterne en main ; MonsterTrait.dress_look()), plus le héros normal.\n- Bestiaire : plus de section Céleste pour une espèce qui ne peut jamais l'être (Bestiary.can_be_celestial(), tiré des règles qui tirent les rangs rares : BossDef.rolls_rank() dans BossArena) : ni le Gardien (as_written), ni Tôma ni la Gueule (combat à deux formes), ni les démons des Profondeurs (élites simples au plus). Gardée si un Céleste a quand même été trouvé (vieille partie).\n- Pose de lancer : il ne tremble plus en pose d'attaque (le héros n'a pas d'animation « cast ») : NamelessKeeperDef.cast_pose « idle » tenue le temps de l'annonce (ActorRig.play_cast : une pose en boucle tenue pour la durée), lanterne levée au-dessus de la tête et sa lueur qui grossit en trois pas, la dernière vive (ShadeTrait « Casting » : cast_lantern_offset 5,-20, cast_glow_size 10). Le coup de son arme garde l'élan de son arme.\nTests : unit (Céleste possible ou non, rolls_rank, pose de chaque sort, lueur par pas, dessin du codex), game (en combat : pose tenue + lanterne levée, jamais la pose d'attaque en lançant). Captures FR de sa page faites. À juger en jeu : la pose de lancer se lit-elle bien sur le téléphone ?",
       "status": "review",
@@ -3004,7 +3127,7 @@
       "updated_at": 1792816004
     },
     {
-      "id": "task_202",
+      "id": "task_210",
       "title": "Gardien Sans Nom à l'arc : combats longs pour le bot kite",
       "description": "Mesure du 24/10 (task_171) : contre un Gardien à l'arc, le bot kite (Espadon) gagne en 95-115 s, au-dessus de la cible de 100 s : il recule à 100 de vitesse pour garder 170 px et le bot au corps à corps le poursuit. Levier : ranged_keep_distance (170). À voir avec un vrai joueur avant de toucher.",
       "status": "backlog",
@@ -3019,7 +3142,7 @@
       "updated_at": 1792816004
     },
     {
-      "id": "task_203",
+      "id": "task_211",
       "title": "Outils d'équilibrage : drapeaux « heal share » sur des combats presque sans dégâts",
       "description": "Vu le 24/10 : au fond du Puits, le build attendu de l'acte IV déclenche « heal share > 25 % » quand le bot kite ne prend presque rien (la rune Sangsue soigne 30-100 points sur 30-200 encaissés), contre Tôma aussi. La cible devrait sans doute ignorer les combats où les dégâts encaissés sont faibles (ex. < 30 % de la Vie).",
       "status": "backlog",
@@ -3034,7 +3157,7 @@
       "updated_at": 1792816004
     },
     {
-      "id": "task_204",
+      "id": "task_212",
       "title": "Codex : l'attaque de base du Gardien Sans Nom affiche le katana du modèle",
       "description": "Vu sur les captures du 24/10 : sur sa page, son attaque de base est « Katana : 5 Dégâts » (l'arme et les chiffres du modèle nameless_keeper.tres), alors qu'en combat il porte l'arme du héros qu'il a été (son coup pèse 16 avant l'étage). Afficher l'arme du Gardien qui attend (Profile.keeper) ou un texte qui dit « l'arme que tu portais ».",
       "status": "backlog",
@@ -3050,7 +3173,7 @@
       "updated_at": 1792816004
     },
     {
-      "id": "task_205",
+      "id": "task_213",
       "title": "Suite balance : échecs non marqués « KNOWN » (contenu hors acte, degenerate_skills_a3)",
       "description": "Vus le 24/10 dans --only=balance, déjà là avant : « content: unlisted » (master_toma, nameless_effigy, nameless_keeper : dans aucun acte, alors qu'ils sont dans le fond du Puits / l'étage caché) et « degenerate DPS 2,52x (cible 2,5x) » pour degenerate_skills_a3. Le premier est un faux positif de l'outil (BalanceContent.unlisted ne connaît pas FinaleDef/HiddenFloorDef) ; le second est à mesurer.",
       "status": "backlog",
@@ -3065,7 +3188,7 @@
       "updated_at": 1792816004
     },
     {
-      "id": "task_206",
+      "id": "task_214",
       "title": "Économie étage 1 : relance et forge chères (suite balance)",
       "description": "Vu le 24/10 dans --only=balance, une fois BalanceLab.renew réparé (il plantait sur run.seed, les mesures « renew » ne tiraient plus leur étage) : « economy: reroll » 45 % de l'or de l'étage 1 en Veilleur (cible <= 35 %) et « economy: forge » 113 % (cible <= 60 %). Sans doute l'état réel caché par l'erreur de l'outil : à mesurer (--mode=economy) et trancher (prix ou cible).",
       "status": "backlog",

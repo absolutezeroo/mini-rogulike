@@ -7,6 +7,8 @@ const SettingsScript := preload("res://src/autoload/settings.gd")
 
 func run() -> void:
 	await _test_title_screen()
+	await _test_quests_paid_by_gameplay()
+	await _test_stat_bar_color()
 	await _test_touch_scroll()
 	await _test_slider_drag()
 	await _test_resume_button()
@@ -46,6 +48,11 @@ func run() -> void:
 	add_child(keyboard)
 	await keyboard.run_title()
 	keyboard.free()
+	# "Tap or press to continue" on every screen that waits for it (TapTests).
+	var taps := TapTests.new()
+	add_child(taps)
+	await taps.run_title()
+	taps.free()
 	# The Vigil-Keeper at the shrine (DialogueTests).
 	var dialogue := DialogueTests.new()
 	add_child(dialogue)
@@ -105,6 +112,63 @@ func _test_resume_button() -> void:
 	await get_tree().process_frame
 
 
+## A bar's color set alone (the HUD's temperature blinking) shows at once, without a new value.
+func _test_stat_bar_color() -> void:
+	var bar := StatBar.new()
+	bar.size = Vector2(120, 20)
+	add_child(bar)
+	bar.set_values(5, 10)
+	await _frames(2)
+	var draws := [0]
+	bar.draw.connect(func() -> void: draws[0] += 1)
+	bar.set_values(5, 10)
+	await _frames(2)
+	var still: int = draws[0]
+	bar.fill_color = Color(0.2, 0.6, 1.0)
+	await _frames(2)
+	check(still == 0 and draws[0] == 1, "a stat bar redraws when only its color changes (%d, %d)" % [still, draws[0]])
+	bar.queue_free()
+
+
+## A quest finished in a run that ended before it was paid (a crash, an old save) is paid by
+## gameplay, once, with its Events.quest_completed, when the title screen comes up; looking at
+## the codex's Quests tab pays nothing (it used to pay there, silently, and only there).
+func _test_quests_paid_by_gameplay() -> void:
+	Profile.reset()
+	var quest: Dictionary = QuestBoard.current(CONTENT.quests, QuestDef.Period.DAILY)[0]
+	var def: QuestDef = quest.def
+	if def.best:
+		Profile.raise_stat(def.stat, quest.target)
+	else:
+		Profile.add_stat(def.stat, quest.target)
+	var souls := Profile.souls
+	var told: Array[Dictionary] = []
+	var listen := func(done: Dictionary) -> void: told.append(done)
+	Events.quest_completed.connect(listen)
+	var codex: CodexPanel = (load("res://src/ui/codex/codex_panel.tscn") as PackedScene).instantiate()
+	add_child(codex)
+	codex.open(CONTENT, CodexPanel.Tab.QUESTS)
+	await _frames(2)
+	check(Profile.souls == souls and not QuestBoard.is_claimed(quest) and told.is_empty(), "the codex's Quests tab only shows quests: it pays nothing")
+	codex.queue_free()
+	var title: TitleScreen = load("res://src/ui/title/title_screen.tscn").instantiate()
+	add_child(title)
+	await _frames(2)
+	var paid := told.filter(func(q: Dictionary) -> bool: return q.def == def)
+	check(QuestBoard.is_claimed(quest) and Profile.souls >= souls + int(quest.reward) and paid.size() == 1, "a quest finished and never looked at is paid when the title comes up, and told (Events.quest_completed)")
+	var souls_paid := Profile.souls
+	title.queue_free()
+	await _frames(1)
+	var again: TitleScreen = load("res://src/ui/title/title_screen.tscn").instantiate()
+	add_child(again)
+	await _frames(2)
+	check(told.filter(func(q: Dictionary) -> bool: return q.def == def).size() == 1 and Profile.souls == souls_paid, "...once only")
+	again.queue_free()
+	Events.quest_completed.disconnect(listen)
+	Profile.reset()
+	await _frames(1)
+
+
 ## Dragging over a list scrolls it, even when the drag starts on a card or a button, and a
 ## drag doesn't press the button.
 func _test_touch_scroll() -> void:
@@ -132,6 +196,14 @@ func _test_touch_scroll() -> void:
 	gone.free()
 	await _frames(2)
 	check(gone_ref.get_ref() == null and layer.get_child_count() == 1, "a list freed at once is let go quietly")
+	# A list built with its helper already (UiParts.scroll, TouchScroll.attach) gets no second
+	# one from the autoload (two used to read every event and frame twice).
+	var built := UiParts.scroll()
+	TouchScroll.attach(built)
+	layer.add_child(built)
+	await _frames(3)
+	check(built.get_children().filter(func(n: Node) -> bool: return n is TouchScroll).size() == 1 and built.follow_focus, "one drag-to-scroll per list, however it was attached")
+	built.free()
 	var at := Vector2(200, 250)
 	_mouse(at, true)
 	for i in 6:
@@ -338,6 +410,15 @@ func _test_title_screen() -> void:
 	oaths.open(CONTENT)
 	await _frames(1)
 	check(Game.picked_weapon(CONTENT) == null and weapon_row.get_child_count() == level_one.size() and (weapon_row.get_child(0) as ItemSlot).selected, "a weapon the level no longer offers: the usual one, shown picked")
+	# Opening the panel shows the choice and never changes it: a saved oath the tree no longer
+	# opens (a reset tree) and a weapon the Armory no longer offers stay saved, read as none.
+	var locked_oath: OathDef = order.filter(func(o: OathDef) -> bool: return o.id != &"colossus")[0]
+	Profile.oath = locked_oath.id
+	var weapon_saved := Profile.starting_weapon
+	oaths.open(CONTENT)
+	await _frames(1)
+	check(Profile.oath == locked_oath.id and Profile.starting_weapon == weapon_saved, "opening the oath panel changes nothing saved")
+	check(Game.sworn_oath(CONTENT) == null and _texts(oath_cards.get_child(0)).has("Sworn"), "...and a saved oath no longer open shows as Unsworn")
 	oaths.hide()
 	Profile.levels = saved_levels
 	Profile.oath = &""
@@ -406,6 +487,7 @@ func _test_title_screen() -> void:
 	check((codex.get_node("%QuestsTab") as Button).button_pressed and quest_text.contains("Daily quests") and quest_text.contains("Weekly quests") and quest_text.contains("souls"), "the quests tab: daily and weekly quests and their souls")
 	check(_find_all(list, func(n: Node) -> bool: return n is StatBar).size() == QuestBoard.DAILY_COUNT + QuestBoard.WEEKLY_COUNT, "a progress bar per quest")
 	check((codex.get_node("%Help") as Label).text.contains("Shrine"), "the quests tab says what souls are for")
+	check(codex.get_node("%QuestsTab").get_parent() is TabRow and title.leaderboards.get_node("%TollTab").get_parent() is TabRow, "the codex's and the leaderboards' tabs are TabRows, like every window's")
 	codex.show_tab(CodexPanel.Tab.ACHIEVEMENTS)
 	await _frames(1)
 	check(list.get_child_count() == CONTENT.achievements.size() and not (codex.get_node("%QuestsTab") as Button).button_pressed, "the achievements are listed")
@@ -428,6 +510,8 @@ func _test_title_screen() -> void:
 	(codex.get_node("%BestiaryTab") as Button).pressed.emit()
 	await _frames(1)
 	check(codex.bestiary_cards().size() == entries.size(), "a tab button shows its tab")
+	var lists := title.find_children("*", "ScrollContainer", true, false)
+	check(not lists.is_empty() and lists.all(func(l: Node) -> bool: return l.get_children().filter(func(n: Node) -> bool: return n is TouchScroll).size() == 1), "every list of the title screen and its panels has one drag-to-scroll, no more")
 	var off_grid := _off_grid_texts(title)
 	check(off_grid.is_empty(), "every text of the title screen and its panels is on the font's grid (Fonts.SIZES, a one-pixel outline): %s" % ", ".join(off_grid.slice(0, 6)))
 	title.queue_free()
@@ -509,6 +593,14 @@ func _test_options_tabs(options: OptionsPanel) -> void:
 	if Leaderboards.is_available():
 		(where[OptionsPanel.Tab.PRIVACY] as Array).append_array(["BoardsNameButton", "BoardsShowCheck", "AnalyticsCheck", "DeleteDataButton"])
 	check(OptionsPanel.Tab.size() == 5 and options.current_tab() == OptionsPanel.Tab.GAMEPLAY, "options: five tabs, opening on Gameplay")
+	check(options.get_node("%GameplayTab").get_parent() is TabRow, "options: the tabs are a TabRow, like every window's")
+	# Boss stories' line names a control: it follows the device in hand.
+	var story_note := options.get_node("%StoriesNote") as Label
+	check(story_note.text.contains("A tap skips it"), "options: on touch, a tap skips a story (%s)" % story_note.text)
+	InputDevice.use(InputDevice.Kind.KEYBOARD)
+	check(not story_note.text.contains("tap") and story_note.text.contains("skips it"), "options: with keys, the line names the key instead, as soon as the device changes (%s)" % story_note.text)
+	InputDevice.use(InputDevice.Kind.TOUCH)
+	check(story_note.text.contains("A tap skips it"), "options: and back to touch")
 	var pages: Array[Control] = []
 	for tab: int in OptionsPanel.Tab.values():
 		var tab_name: String = OptionsPanel.TAB_NAMES[tab]

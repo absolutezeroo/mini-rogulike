@@ -109,7 +109,11 @@ src/
   ui/                  Title screen and shrine, story, act cards, HUD and minimap, touch controls, the action
                        bar and mouse controls, prompts (Prompts, PromptGlyph), inventory (its tabs, BagTab, and
                        actions/: BagAction), perk choice, pause
-                       menu, options (and its Controls page), end of run
+                       menu, options (OptionRows; its Controls and Privacy pages), end of run;
+                       common/: the shared pieces (OrnateBoard under RpgWindow / RpgDialog, TabRow,
+                       ItemCard, TapGate, UiParts, UiSkin's colors: design/interface.md "Shared
+                       pieces"). UI listens to Events and never drives gameplay: a quest is paid by
+                       QuestBoard.pay_finished(), an oath sworn through Profile.select_oath()
   game/                Game: main scene, floor flow, pauses; RunState (the run: depth, kills, bosses,
                        difficulty), RunRecords (stats, bestiary, achievements, history), OfferQueue
                        (perk choices waiting), GameMenus (the panels), ShrineUpgrades, RunSave (on disk),

@@ -98,7 +98,7 @@ func _draw() -> void:
 				continue
 			var lit := parent.is_owned() and node.is_owned()
 			var open := parent.is_owned() and not node.is_shut()
-			var color := UiSkin.GOLD if lit else (Color(1, 0.95, 0.85, 0.55) if open else Color(0, 0, 0, 0.45))
+			var color := UiSkin.GOLD if lit else (Color(UiSkin.TEXT, 0.55) if open else Color(0, 0, 0, 0.45))
 			draw_line(center_of(parent), center_of(node), color, 4.0 if lit else 3.0, true)
 	# A fork: a little "or" between its two sides.
 	for node in tree.nodes:

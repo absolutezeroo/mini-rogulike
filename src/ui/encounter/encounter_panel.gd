@@ -29,7 +29,8 @@ var _choices: HBoxContainer
 var _leave_row: HBoxContainer
 var _leave: Button
 var _leave_note: Label
-var _named: Array[Node] = []
+## Built nodes reachable as %Name once the panel is built.
+var _named := ExposedNodes.new()
 
 
 func _ready() -> void:
@@ -92,7 +93,7 @@ func _choose(index: int) -> void:
 	var choice := _encounter.def.choices[index]
 	var paid := choice.gold_cost > 0 or choice.max_hp_cost > 0.0
 	_result.text = outcome.summary(_player, paid)
-	_result.add_theme_color_override("font_color", UiParts.BAD if outcome.is_bad() else UiParts.GOOD)
+	_result.add_theme_color_override("font_color", UiSkin.BAD if outcome.is_bad() else UiSkin.GOOD)
 	_result.show()
 	UiParts.clear(_choices)
 	_buttons.clear()
@@ -111,7 +112,7 @@ func _choice_card(choice: EncounterChoice, index: int, depth: int) -> Control:
 	var column := card.column as VBoxContainer
 	(card.title as Label).add_theme_font_size_override("font_size", Fonts.BODY)
 	var reason := choice.cannot_afford_reason(_player, depth)
-	var cost := UiSkin.label(choice.cost_text(_player, depth), Fonts.BODY, UiSkin.GOLD if reason.is_empty() else UiParts.BAD, true)
+	var cost := UiSkin.label(choice.cost_text(_player, depth), Fonts.BODY, UiSkin.GOLD if reason.is_empty() else UiSkin.BAD, true)
 	column.add_child(cost)
 	var chances := choice.chances()
 	var paid := choice.gold_cost > 0 or choice.max_hp_cost > 0.0
@@ -126,7 +127,7 @@ func _choice_card(choice: EncounterChoice, index: int, depth: int) -> Control:
 			odds.custom_minimum_size.x = 48
 			odds.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 			row.add_child(odds)
-		var words := UiSkin.label(outcome.summary(_player, paid), Fonts.BODY, UiParts.BAD if outcome.is_bad() else UiParts.GOOD, true)
+		var words := UiSkin.label(outcome.summary(_player, paid), Fonts.BODY, UiSkin.BAD if outcome.is_bad() else UiSkin.GOOD, true)
 		row.add_child(words)
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -144,7 +145,7 @@ func _build() -> void:
 	_dialog = RpgDialog.new("", WIDTH, 0.8)
 	add_child(_dialog)
 	_dialog.title_label.name = "Title"
-	_own(_dialog.title_label)
+	_named.add(_dialog.title_label)
 	var top := HBoxContainer.new()
 	top.add_theme_constant_override("separation", 16)
 	_dialog.body.add_child(top)
@@ -154,7 +155,7 @@ func _build() -> void:
 	_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_icon.name = "Icon"
-	_own(_icon)
+	_named.add(_icon)
 	top.add_child(_icon)
 	var words := VBoxContainer.new()
 	words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -162,28 +163,28 @@ func _build() -> void:
 	top.add_child(words)
 	_text = UiParts.text("", Fonts.BODY, UiSkin.TEXT, WIDTH - 160)
 	_text.name = "Text"
-	_own(_text)
+	_named.add(_text)
 	words.add_child(_text)
 	_speech = UiParts.text("", Fonts.BODY, UiSkin.GOLD, WIDTH - 160)
 	_speech.name = "Speech"
 	_speech.hide()
-	_own(_speech)
+	_named.add(_speech)
 	words.add_child(_speech)
 	_niche = UiParts.text("", Fonts.BODY, UiSkin.DIM, WIDTH - 160)
 	_niche.name = "Niche"
 	_niche.hide()
-	_own(_niche)
+	_named.add(_niche)
 	words.add_child(_niche)
-	_result = UiParts.text("", Fonts.BODY, UiParts.GOOD, WIDTH - 160)
+	_result = UiParts.text("", Fonts.BODY, UiSkin.GOOD, WIDTH - 160)
 	_result.name = "Result"
-	_own(_result)
+	_named.add(_result)
 	words.add_child(_result)
 
 	_choices = HBoxContainer.new()
 	_choices.name = "Choices"
 	_choices.alignment = BoxContainer.ALIGNMENT_CENTER
 	_choices.add_theme_constant_override("separation", 14)
-	_own(_choices)
+	_named.add(_choices)
 	_dialog.body.add_child(_choices)
 
 	_leave_row = HBoxContainer.new()
@@ -192,16 +193,10 @@ func _build() -> void:
 	_dialog.body.add_child(_leave_row)
 	_leave = UiParts.button(tr("Leave"), close, Vector2(200, 52), Fonts.BODY)
 	_leave.name = "LeaveButton"
-	_own(_leave)
+	_named.add(_leave)
 	_leave_row.add_child(_leave)
 	PromptGlyph.badge(_leave, &"ui_cancel", PromptGlyph.Place.INSIDE)  # Back leaves too
 	_leave_note = UiSkin.label(tr("Nothing happens. You can come back later."), Fonts.BODY, UiSkin.DIM)
 	_leave_row.add_child(_leave_note)
-	for node in _named:
-		node.owner = self
-		node.unique_name_in_owner = true
+	_named.expose_to(self)
 
-
-## Reachable as %Name from the panel (tests, other scripts), once built.
-func _own(node: Node) -> void:
-	_named.append(node)
