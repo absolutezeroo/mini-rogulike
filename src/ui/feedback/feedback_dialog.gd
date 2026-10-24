@@ -214,7 +214,7 @@ func _build() -> void:
 	_text.text_changed.connect(_on_text_changed)
 	body.add_child(_text)
 	_own(_text, "Text")
-	_problem = UiSkin.label("", Fonts.BODY, MenuWindow.BAD, true)
+	_problem = UiSkin.label("", Fonts.BODY, UiSkin.BAD, true)
 	body.add_child(_problem)
 	_own(_problem, "Problem")
 	_info = _switch(tr("Include game info"), "InfoSwitch")
@@ -293,7 +293,7 @@ func _refresh() -> void:
 	var length := _text.text.strip_edges().length()
 	var limit := Feedback.config.max_length
 	_counter.text = "%d / %d" % [length, limit]
-	_counter.add_theme_color_override("font_color", MenuWindow.BAD if length >= limit else UiSkin.DIM)
+	_counter.add_theme_color_override("font_color", UiSkin.BAD if length >= limit else UiSkin.DIM)
 	_send.disabled = not Feedback.is_available()
 	if not Feedback.is_available() and visible:
 		_problem.text = explain(FeedbackScript.Result.UNAVAILABLE)

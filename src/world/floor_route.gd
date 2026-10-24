@@ -97,5 +97,5 @@ func summary() -> String:
 	if curse:
 		return tr("%s (cursed: %s)") % [title(), tr(curse.display_name)]
 	if floor_event:
-		return "%s (%s)" % [title(), tr(floor_event.display_name)]
+		return tr("{route} ({event})").format({ "route": title(), "event": tr(floor_event.display_name) })
 	return title()

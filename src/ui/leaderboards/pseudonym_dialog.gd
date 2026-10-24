@@ -65,7 +65,7 @@ func _build() -> void:
 	_edit.text_changed.connect(func(_text: String) -> void: _error.text = "")
 	body.add_child(_edit)
 	_own(_edit, "NameEdit")
-	_error = UiSkin.label("", Fonts.BODY, MenuWindow.BAD, true)
+	_error = UiSkin.label("", Fonts.BODY, UiSkin.BAD, true)
 	body.add_child(_error)
 	_own(_error, "NameError")
 	var link := UiParts.button(tr("Privacy policy"), func() -> void:

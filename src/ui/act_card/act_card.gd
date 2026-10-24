@@ -9,6 +9,7 @@ const FADE_TIME := 0.4
 const HOLD_TIME := 2.4
 
 var _skip := false
+var _gate := TapGate.new()
 
 @onready var _subtitle: Label = %Subtitle
 @onready var _title: Label = %Title
@@ -41,10 +42,11 @@ func play(act: ActDef) -> void:
 	finished.emit()
 
 
+## Any tap, click, key or button skips it (TapGate: never the wheel, one finger once).
 func _input(event: InputEvent) -> void:
-	if not visible:
+	var read := _gate.read(event, visible)
+	if read == TapGate.IGNORE:
 		return
-	var tapped := (event is InputEventMouseButton or event is InputEventKey or event is InputEventJoypadButton) and event.is_pressed()
-	if tapped:
+	get_viewport().set_input_as_handled()
+	if read == TapGate.TAKE:
 		_skip = true
-		get_viewport().set_input_as_handled()

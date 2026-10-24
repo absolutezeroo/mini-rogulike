@@ -183,7 +183,7 @@ func _fill_stock() -> void:
 		slot.selected = _pick == Pick.STOCK and _pick_index == i
 		slot.pressed.connect(_on_slot.bind(func() -> void: select_stock(i)))
 		var affordable: bool = _player.gold >= entry.price
-		_for_sale.add_child(_cell(slot, tr("%d gold") % entry.price, UiSkin.GOLD if affordable else UiParts.BAD))
+		_for_sale.add_child(_cell(slot, tr("%d gold") % entry.price, UiSkin.GOLD if affordable else UiSkin.BAD))
 	if _merchant.stock.is_empty():
 		var empty := UiSkin.label(tr("Sold out!"), Fonts.BODY, UiSkin.DIM)
 		empty.custom_minimum_size.x = STOCK_SLOT * 2
@@ -268,7 +268,7 @@ func _refresh_buy(entry: Dictionary) -> void:
 	_price.text = tr("Price: %d gold") % price
 	var fits := _player.can_store(entry.item)
 	_buy.disabled = _player.gold < price or not fits
-	_price.add_theme_color_override("font_color", UiSkin.GOLD if _player.gold >= price else UiParts.BAD)
+	_price.add_theme_color_override("font_color", UiSkin.GOLD if _player.gold >= price else UiSkin.BAD)
 	if not fits:
 		_buy.text = tr("{room}: sell something first").format({ "room": _player.inventory.full_text(entry.item) })
 	elif _player.gold < price:
@@ -295,7 +295,7 @@ func _fill_compare(item: ItemDef) -> void:
 		if changes.is_empty():
 			_compare.add_child(UiSkin.label(tr("the same stats"), Fonts.BODY, UiSkin.DIM))
 		for change in changes:
-			_compare.add_child(UiSkin.label(change.text, Fonts.BODY, UiParts.GOOD if change.good else UiParts.BAD))
+			_compare.add_child(UiSkin.label(change.text, Fonts.BODY, UiSkin.GOOD if change.good else UiSkin.BAD))
 	elif item is ConsumableDef and _pick == Pick.STOCK:
 		var carried := _player.carried_count(item)
 		_compare_title.text = tr("You carry %d. It goes on your belt if there is room.") % carried if carried > 0 \

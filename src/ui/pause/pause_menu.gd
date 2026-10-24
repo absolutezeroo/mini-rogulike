@@ -33,17 +33,21 @@ var _named: Array[Node] = []
 @onready var _options: OptionsPanel = %OptionsPanel
 @onready var _codex: CodexPanel = %CodexPanel
 var _confirm: Button
+## Give up was tapped once: the next tap ends the run (anything else, or closing, disarms it).
+var _armed := false
 
 
 func _ready() -> void:
 	hide()
 	_build()
 	_confirm = %AbandonButton
+	_abandon_note = %AbandonButtonNote
+	InputDevice.changed.connect(_say_abandon)
 
 
 func open() -> void:
-	_confirm.text = tr(ABANDON_TEXT)
-	_abandon_note.text = tr(ABANDON_NOTE)
+	_armed = false
+	_say_abandon()
 	_options.hide()
 	_codex.hide()
 	feedback.hide()
@@ -89,7 +93,6 @@ func _build() -> void:
 	var give_up := _row(tr(ABANDON_TEXT), "AbandonButton", tr(ABANDON_NOTE), _on_abandon)
 	for state in ["font_color", "font_hover_color", "font_pressed_color"]:
 		give_up.add_theme_color_override(state, Color(0.55, 0.06, 0.06))
-	_abandon_note = _dialog.body.get_child(_dialog.body.get_child_count() - 1).get_child(1) as Label
 
 	# What the two currencies are for.
 	var money: Dictionary = RpgWindow.section(tr("Gold and souls"))
@@ -109,11 +112,24 @@ func _build() -> void:
 
 func _on_abandon() -> void:
 	Sfx.play_ui(Sfx.bank.ui_click)
-	if _confirm.text == tr(ABANDON_TEXT):
-		_confirm.text = Prompts.pick(CONFIRM_TEXT, CONFIRM_TEXT_BUTTONS)
-		_abandon_note.text = Prompts.pick(CONFIRM_NOTE, CONFIRM_NOTE_BUTTONS)
+	if not _armed:
+		_armed = true
+		_say_abandon()
 	else:
 		abandon_requested.emit()
+
+
+## Give up's words: plain, or (armed) "Really?" in the device's words, following the device.
+func _say_abandon() -> void:
+	if _confirm == null:
+		return
+	_confirm.text = Prompts.pick(CONFIRM_TEXT, CONFIRM_TEXT_BUTTONS) if _armed else tr(ABANDON_TEXT)
+	_abandon_note.text = Prompts.pick(CONFIRM_NOTE, CONFIRM_NOTE_BUTTONS) if _armed else tr(ABANDON_NOTE)
+
+
+## Whether Give up waits for its second tap (tests).
+func is_armed() -> bool:
+	return _armed
 
 
 ## A button and what it does, beside it.
@@ -127,5 +143,7 @@ func _row(text: String, node_name: String, note: String, action: Callable) -> Bu
 	_named.append(button)
 	var words := UiParts.text(note, Fonts.BODY, UiSkin.DIM, NOTE_WIDTH)
 	words.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	words.name = node_name + "Note"
 	row.add_child(words)
+	_named.append(words)
 	return button

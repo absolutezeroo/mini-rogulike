@@ -92,8 +92,8 @@ func show_tab(tab: int) -> void:
 # --- Quests ---------------------------------------------------------------------
 
 func _fill_quests() -> void:
-	# Quests finished during the last run but not paid yet (an old save, a crash): pay them now.
-	QuestBoard.claim_finished(_content.quests)
+	# Only shows them: finished quests are paid by gameplay (QuestBoard.pay_finished, from the
+	# run's records and when the title screen comes up), never by looking at this tab.
 	var done := 0
 	var total := 0
 	var columns := HBoxContainer.new()
@@ -382,7 +382,7 @@ func _record_name(key: String) -> String:
 	var label_name := tr(difficulty.display_name) if difficulty else parts[0].capitalize()
 	for part in parts.slice(1):
 		if part.begins_with("a") and part.substr(1).is_valid_int():
-			label_name += " +%s" % part.substr(1)
+			label_name = tr("{difficulty} +{level}").format({ "difficulty": label_name, "level": part.substr(1) })
 	return label_name
 
 

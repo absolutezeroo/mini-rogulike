@@ -180,6 +180,23 @@ func select_ascension(level: int) -> void:
 	changed.emit()
 
 
+## The player swears `sworn` for the next runs (null: unsworn). Only a player's choice calls it:
+## a saved oath the tree no longer opens is kept and read as none (Game.sworn_oath), never
+## erased behind the player's back.
+func select_oath(sworn: OathDef) -> void:
+	oath = sworn.id if sworn else &""
+	save_profile()
+	changed.emit()
+
+
+## The player picks the Armory weapon to start with (null: the usual one). Like select_oath, a
+## pick the Armory no longer offers is kept and read as none (Game.picked_weapon).
+func select_start_weapon(weapon: WeaponDef) -> void:
+	starting_weapon = weapon.id if weapon else &""
+	save_profile()
+	changed.emit()
+
+
 func select_difficulty(def: DifficultyDef) -> void:
 	difficulty = def.id
 	save_profile()

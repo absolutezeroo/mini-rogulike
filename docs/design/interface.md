@@ -4,7 +4,8 @@
 
 Every scrolling list (codex, shrine, bag, shop) scrolls by dragging a finger over it, from
 anywhere in it, cards and buttons included, with a bit of momentum (`TouchScroll`, added to each
-`ScrollContainer` by the `TouchScrolling` autoload); a drag never presses a button, a tap does.
+`ScrollContainer` by the `TouchScrolling` autoload, or at once by `TouchScroll.attach()`: one
+helper a list whichever comes first); a drag never presses a button, a tap does.
 A drag that starts on a slider or a scroll bar stays the slider's, however far the finger wanders
 up or down (a control can ask the same with the group `TouchScroll.KEEPS_DRAG`), and a list behind
 the menu on top (the title's, under the Options) takes no drag.
@@ -111,12 +112,22 @@ shows to the device in hand.
 - **Someone speaking** (`DialogueBox`, `src/ui/dialogue/`; presentation.md, "The Vigil-Keeper
   and the keepers"): a face, a name, words typed letter by letter. A tap or a click on it, Enter,
   Space or a gamepad's A write the page out, then go on; a touch and the click the screen makes of
-  it count once (`TAP_GAP_FRAMES`). Paged (the shrine's `DialogueScreen`, a menu of its own: the
+  it count once (`TapGate`, below). Paged (the shrine's `DialogueScreen`, a menu of its own: the
   box holds the focus, a tap anywhere goes on, Back closes it, the focus comes back to her), the
   "more" sign is a bobbing gold arrow on touch, the accept key's cap on keys and pads. Stacked (the
   end screen) it types everything by itself and never holds the buttons: accept is its own only
   while it writes. The Vigil-Keeper on the title screen is a button like the others (the arrows
   reach her; Enter or A on her opens her words).
+- **"Tap or press to continue"** (`TapGate`, `src/ui/common/tap_gate.gd`): the one way every
+  screen that waits for a press reads it: the act and curse cards, a fragment of the past, a
+  cinematic, the story and someone speaking. A press is a touch, a mouse click (never the wheel:
+  scrolling over a card skips nothing), a key (not its repeat) or a gamepad button (the story and
+  someone speaking take only accept: Enter, Space, A; the story attack too). One finger is one
+  press: the phone sends the touch and a click made of it (the project emulates both ways), the
+  first is taken and its twin a few frames later swallowed, the finger's release too, even after
+  the screen closed itself, so the tap that closes a fragment never reaches the attack button
+  under it. A grace after opening (the fragment's quarter of a second, the curse card's sigil)
+  keeps the thumb that opened it from closing it (`TapTests`).
 - **The Controls page** (Options > Controls): what does what on the device in use, read-only: each
   control of `input_prompts.tres` with every key and mouse button (caps), the gamepad's buttons in
   its family's names, or how it is done by touch. Picking up another device turns the page.

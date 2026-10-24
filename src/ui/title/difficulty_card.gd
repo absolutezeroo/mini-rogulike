@@ -46,7 +46,7 @@ func show_difficulty(def: DifficultyDef, unlocked: bool, selected: bool, referen
 	_name.text = tr(def.display_name)
 	_name.add_theme_color_override("font_color", def.color)
 	_tag.text = tr("Your last choice") if _selected else (tr("Locked") if not unlocked else "")
-	_tag.add_theme_color_override("font_color", UiSkin.GOLD if _selected else MenuWindow.BAD)
+	_tag.add_theme_color_override("font_color", UiSkin.GOLD if _selected else UiSkin.BAD)
 	_tag.visible = not _tag.text.is_empty()
 	_description.text = tr(def.description)
 	for child in _effects.get_children():
@@ -55,13 +55,13 @@ func show_difficulty(def: DifficultyDef, unlocked: bool, selected: bool, referen
 	for effect: Array in effects(def, reference):
 		var color: Color = UiSkin.TEXT
 		if effect[1] > 0:
-			color = MenuWindow.GOOD
+			color = UiSkin.GOOD
 		elif effect[1] < 0:
-			color = MenuWindow.BAD
+			color = UiSkin.BAD
 		_effects.add_child(UiSkin.label(effect[0], Fonts.SMALL, color, true))  # fine print: a long list
 	_souls.text = tr("Souls earned x%s") % number(def.souls)
 	# Fewer souls is a cost, more a reward: said in the same red and green as the rest.
-	_souls.add_theme_color_override("font_color", MenuWindow.BAD if def.souls < 0.99 else (MenuWindow.GOOD if def.souls > 1.01 else MenuWindow.SOULS))
+	_souls.add_theme_color_override("font_color", UiSkin.BAD if def.souls < 0.99 else (UiSkin.GOOD if def.souls > 1.01 else MenuWindow.SOULS))
 	if not unlocked:
 		var by := tr(def.unlocked_by.display_name) if def.unlocked_by else "?"
 		_footer.text = tr("To unlock: win a run on %s.") % by

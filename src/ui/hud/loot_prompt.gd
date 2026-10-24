@@ -162,7 +162,7 @@ func _show_last() -> void:
 	_type.text = item.get_type_label()
 	var room := player.can_store(item) or _fits_by_equipping(item)
 	_take.text = tr("Take") if room else tr("Open the bag")
-	_compare.text = _compare_line(item) if room else "[color=#%s]%s[/color]" % [UiParts.BAD.to_html(false), player.inventory.full_text(item)]
+	_compare.text = _compare_line(item) if room else "[color=#%s]%s[/color]" % [UiSkin.BAD.to_html(false), player.inventory.full_text(item)]
 
 
 ## "+3 damage, -1 armor": the first changes against what is worn, green or red.
@@ -172,10 +172,10 @@ func _compare_line(item: ItemDef) -> String:
 		return ""
 	var worn := player.equipment.get_item(gear.slot)
 	if worn == null:
-		return "[color=#%s]%s[/color]" % [UiParts.GOOD.to_html(false), tr("Nothing worn there yet.")]
+		return "[color=#%s]%s[/color]" % [UiSkin.GOOD.to_html(false), tr("Nothing worn there yet.")]
 	var parts := PackedStringArray()
 	for change in ItemCompare.lines(gear, worn).slice(0, 3):
-		parts.append("[color=#%s]%s[/color]" % [(UiParts.GOOD if change.good else UiParts.BAD).to_html(false), change.text])
+		parts.append("[color=#%s]%s[/color]" % [(UiSkin.GOOD if change.good else UiSkin.BAD).to_html(false), change.text])
 	return ", ".join(parts) if not parts.is_empty() else tr("The same as what you wear.")
 
 

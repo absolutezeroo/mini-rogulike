@@ -189,6 +189,10 @@ weapon in plain text, every gain in green, every cost in red, so the price of an
 glance. Every oath has at least one of each (a unit check).
 
 Not in the daily run (everyone starts the same). The run keeps its oath in the save (`RunState.oath`).
+The choice changes only by the player's taps (`Profile.select_oath()`, `select_start_weapon()`):
+opening the panel changes nothing, and a saved oath the tree no longer opens (a reset tree), or a
+weapon the Armory no longer offers, stays saved and reads as none (`Game.sworn_oath()`,
+`Game.picked_weapon()`), shown as Unsworn or the usual weapon.
 
 **The pace of the tree** (measured: `tools/balance` economy mode, table "economy_campaign"): a
 full tree (the dearer side of each fork) is a campaign of about 47 runs on Keeper (8765 souls), every source
@@ -211,7 +215,10 @@ UTC). "Slay 60 monsters", "Open 4 chests", "Reach floor 6 in one run", "Go throu
 floor", "Defeat 5 bosses", "Win a run"... They count what you do in any run during that day
 or week (`Profile.period_stat`), pay their souls as soon as they're done (a toast in the game:
 5-18 for a daily quest, 30-70 for a weekly one, more for a harder goal)
-and show on the title screen (**Quests**, also a tab of the Codex) with the time left.
+and show on the title screen (**Quests**, also a tab of the Codex) with the time left. Paying is
+gameplay's (`QuestBoard.pay_finished()`, which emits `Events.quest_completed`): during a run (the
+run's records), and when the title screen comes up for one finished in a run that ended before
+paying it (a crash, an old save). The Codex only shows them: looking at its tab pays nothing.
 
 ## Codex: bestiary, achievements, runs
 

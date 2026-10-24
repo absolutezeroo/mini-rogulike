@@ -22,7 +22,7 @@ const SIDE_WIDTH := 430.0
 const RANK_WIDTH := 64.0
 const SCORE_WIDTH := 150.0
 ## The first three ranks' colors (gold, silver, bronze).
-const PODIUM: Array[Color] = [Color(1.0, 0.82, 0.4), Color(0.82, 0.86, 0.92), Color(0.86, 0.58, 0.36)]
+const PODIUM: Array[Color] = [Palette.GOLD, Color(0.82, 0.86, 0.92), Color(0.86, 0.58, 0.36)]
 ## The player's own line.
 const MINE_COLOR := Color(0.65, 0.95, 1.0)
 ## open()'s id for the Well's Toll tab.

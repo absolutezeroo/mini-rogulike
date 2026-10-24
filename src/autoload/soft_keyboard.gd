@@ -30,7 +30,7 @@ const MARGIN := 16
 const GAP := 8
 const OK_SIZE := Vector2(200, 52)
 ## Behind the bar: the game, almost hidden.
-const BACKDROP := Color(0.03, 0.02, 0.05, 0.94)
+const BACKDROP := Color(UiSkin.BACKDROP, 0.94)
 ## The caret drawn in the mirrored words.
 const CARET := "|"
 ## Metadata a field may carry: its name over the bar, a hint under it, its length limit.

@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 186,
+  "next_id": 187,
   "tags": [
     "pc",
     "test",
@@ -2758,6 +2758,22 @@
       ],
       "created_at": 1792809057,
       "updated_at": 1792809057
+    },
+    {
+      "id": "task_186",
+      "title": "Audit : règles de l'interface",
+      "description": "Audit indépendant de src/ui et src/vfx (24/10). En cours : l'interface ne pilote plus le jeu (quêtes payées par le jeu, serment jamais effacé à l'ouverture), un seul « toucher / appuyer pour continuer » (TapGate), un seul TouchScroll par liste, textes en phrases entières, couleurs d'une seule source, composants partagés, règles de la grille des VFX, code mort.",
+      "status": "in_progress",
+      "priority": "high",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "ui",
+        "qualité",
+        "vfx"
+      ],
+      "created_at": 1792814956,
+      "updated_at": 1792814956
     }
   ]
 }

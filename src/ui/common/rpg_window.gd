@@ -23,7 +23,7 @@ func _init(title_text: String = "") -> void:
 	add_to_group(MenuNav.GROUP)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var dim := ColorRect.new()
-	dim.color = Color(0.03, 0.02, 0.05, 0.72)
+	dim.color = UiSkin.backdrop(0.72)
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(dim)
 

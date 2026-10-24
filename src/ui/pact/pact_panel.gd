@@ -114,12 +114,12 @@ func _build() -> void:
 	_own(_seal_note)
 	rule_card.add_child(_seal_note)
 	var kept_card := _card(cards, tr("Kept"))
-	_reward = UiSkin.label("", Fonts.BODY, UiParts.GOOD, true)
+	_reward = UiSkin.label("", Fonts.BODY, UiSkin.GOOD, true)
 	_reward.name = "Reward"
 	_own(_reward)
 	kept_card.add_child(_reward)
 	var broken_card := _card(cards, tr("Broken"))
-	_cost = UiSkin.label("", Fonts.BODY, UiParts.BAD, true)
+	_cost = UiSkin.label("", Fonts.BODY, UiSkin.BAD, true)
 	_cost.name = "Cost"
 	_own(_cost)
 	broken_card.add_child(_cost)

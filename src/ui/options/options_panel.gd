@@ -604,11 +604,14 @@ func _build_loot(section: VBoxContainer) -> void:
 ## Boss stories: its name, three buttons (one stays pressed), what the picked one does. A tap
 ## skips a story anyway.
 func _build_stories(section: VBoxContainer) -> void:
-	_story_modes = _choice(section, tr("Boss stories"), Prompts.pick("Before a warden's fight. A tap skips it.", "Before a warden's fight. {ui_accept} skips it."), [  # i18n
+	_story_modes = _choice(section, tr("Boss stories"), _story_note_text(), [
 		[Settings.STORIES_FULL, tr("Full"), "StoriesFull"],
 		[Settings.STORIES_SHORT, tr("Short"), "StoriesShort"],
 		[Settings.STORIES_OFF, tr("Off"), "StoriesOff"],
-	])
+	], "StoriesNote")
+	# It names a control: its words follow the device in hand (design/interface.md, Devices).
+	if not InputDevice.changed.is_connected(_say_story_note):
+		InputDevice.changed.connect(_say_story_note)
 	_story_help = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
 	section.add_child(_story_help)
 
@@ -639,11 +642,14 @@ func _build_languages(section: VBoxContainer) -> void:
 ## A choice of a few: its name and what it does (`title` empty: only that line), then a row of
 ## toggle buttons sharing the column's width, one per [value, text, node name] of `entries`.
 ## Returns value -> button (the caller keeps the one in use pressed).
-func _choice(section: VBoxContainer, title: String, helper: String, entries: Array) -> Dictionary:
+func _choice(section: VBoxContainer, title: String, helper: String, entries: Array, note_name := "") -> Dictionary:
 	if title.is_empty():
 		section.add_child(UiSkin.label(helper, Fonts.BODY, UiSkin.DIM, true))
 	else:
-		section.add_child(_words(title, helper))
+		var words := _words(title, helper)
+		section.add_child(words)
+		if not note_name.is_empty():
+			MenuWindow.expose(words.get_node(^"Note"), note_name, self)  # its words change later
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	section.add_child(row)
@@ -680,6 +686,7 @@ func _section(column: VBoxContainer, heading: String) -> VBoxContainer:
 
 
 ## The option's name, and below it what it does.
+## A setting's name over what it does (the helper line is the child "Note").
 func _words(title: String, helper: String) -> VBoxContainer:
 	var words := VBoxContainer.new()
 	words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -687,8 +694,21 @@ func _words(title: String, helper: String) -> VBoxContainer:
 	# Both wrap: a long name in French (beside three buttons) must not push the window past a
 	# 1280-wide screen.
 	words.add_child(UiSkin.label(title, Fonts.BODY, UiSkin.TEXT, true))
-	words.add_child(UiSkin.label(helper, Fonts.BODY, UiSkin.DIM, true))
+	var note := UiSkin.label(helper, Fonts.BODY, UiSkin.DIM, true)
+	note.name = "Note"
+	words.add_child(note)
 	return words
+
+
+## Boss stories' line: how a story is skipped, in the device's words.
+func _story_note_text() -> String:
+	return Prompts.pick("Before a warden's fight. A tap skips it.", "Before a warden's fight. {ui_accept} skips it.")  # i18n
+
+
+func _say_story_note() -> void:
+	var note := get_node_or_null("%StoriesNote") as Label
+	if note:
+		note.text = _story_note_text()
 
 
 ## A slider: its name and what it does, the slider, its value. `step`: what a key or a gamepad

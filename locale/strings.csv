@@ -202,6 +202,7 @@ Cursed: %s. %s,Cursed: %s. %s,Maudit : %s. %s
 Depth %d. Something vast waits in the dark...,Depth %d. Something vast waits in the dark...,Étage %d. Quelque chose d'immense t'attend dans le noir...
 Depth %d. The stairs are sealed: slay %d monsters to open them.,Depth %d. The stairs are sealed: slay %d monsters to open them.,Étage %d. Les escaliers sont scellés : abats %d monstres pour les ouvrir.
 Depth %d. Find the stairs!,Depth %d. Find the stairs!,Étage %d. Trouve les escaliers !
+"{name}, {title}","{name}, {title}","{name}, {title}"
 +%d reroll for the perk choices.,+%d reroll for the perk choices.,+%d relance pour les choix d'atouts.
 Victory Achieved,Victory Achieved,Victoire Acquise
 %s falls. The way down lies open.,%s falls. The way down lies open.,%s s'effondre. La voie des profondeurs s'ouvre.
@@ -277,6 +278,7 @@ Runs: %d     Wins: %d     Deepest floor: %d,Runs: %d     Wins: %d     Deepest fl
 No descent finished yet. The Well is waiting.,No descent finished yet. The Well is waiting.,Aucune descente achevée. Le Puits t'attend.
 Fastest wins:   %s,Fastest wins:   %s,Victoires les plus rapides :   %s
 Fastest to the Well's Bottom:   %s,Fastest to the Well's Bottom:   %s,"Au Fond du Puits, les plus rapides :   %s"
+{difficulty} +{level},{difficulty} +{level},{difficulty} +{level}
 Nothing heard yet.,Nothing heard yet.,Rien entendu encore.
 Still unheard: %d,Still unheard: %d,Encore à entendre : %d
 Words kept: %d of %d,Words kept: %d of %d,Paroles gardées : %d sur %d
@@ -413,12 +415,13 @@ Only your words and their kind are sent.,Only your words and their kind are sent
 Gold %d,Gold %d,Or %d
 Worn: %s,Worn: %s,Porté : %s
 No weapon to work on,No weapon to work on,Aucune arme à travailler
-Worn,Worn,Équipée
-%d damage,%d damage,%d Dégâts
 %d rune sockets,%d rune sockets,%d emplacements de rune
 %d rune socket,%d rune socket,%d emplacement de rune
+{damage} damage  -  {sockets},{damage} damage  -  {sockets},{damage} Dégâts  -  {sockets}
+Worn  -  {details},Worn  -  {details},Équipée  -  {details}
 Pick a socket to take its rune out,Pick a socket to take its rune out,Choisis un emplacement pour en retirer la rune
 Take out %s  (%d gold),Take out %s  (%d gold),Retirer %s  (%d or)
+{type}  -  {description},{type}  -  {description},{type}  -  {description}
 No runes in your bag,No runes in your bag,Aucune rune dans ton sac
 "Elites, bosses and chests drop them.","Elites, bosses and chests drop them.","Les élites, les boss et les coffres en lâchent."
 Pick a rune,Pick a rune,Choisis une rune
@@ -447,6 +450,7 @@ Title screen,Title screen,Écran titre
 "Keep going: endless floors, harder and harder. Your win is already counted.","Keep going: endless floors, harder and harder. Your win is already counted.","Continuer : des étages sans fin, de plus en plus durs. Ta victoire est déjà comptée."
 Find the Dawn Breach. The demons will not wait.,Find the Dawn Breach. The demons will not wait.,Trouve la Brèche de l'Aube. Les démons n'attendront pas.
 Dawn's gift: %d s,Dawn's gift: %d s,Présent de l'aube : %d s
+{name}  ({affixes}),{name}  ({affixes}),{name}  ({affixes})
 {name}  ({title}),{name}  ({title}),{name}  ({title})
 Achievement: %s  (+%d souls),Achievement: %s  (+%d souls),Succès : %s  (+%d âmes)
 "Bestiary: %s, %s  (+%d souls)","Bestiary: %s, %s  (+%d souls)","Bestiaire : %s, %s  (+%d âmes)"
@@ -460,11 +464,13 @@ Stairs open,Stairs open,Escaliers ouverts
 The stairs are open,The stairs are open,Les escaliers sont ouverts
 Cold,Cold,Froid
 Hot,Hot,Chaud
-Depth %d   Damage %d   Armor %d   %s,Depth %d   Damage %d   Armor %d   %s,Étage %d   Dégâts %d   Armure %d   %s
 Bare hands,Bare hands,Mains nues
+{difficulty}   Depth {depth}   Damage {damage}   Armor {armor}   {weapon},{difficulty}   Depth {depth}   Damage {damage}   Armor {armor}   {weapon},{difficulty}   Étage {depth}   Dégâts {damage}   Armure {armor}   {weapon}
+Depth {depth}   Damage {damage}   Armor {armor}   {weapon},Depth {depth}   Damage {damage}   Armor {armor}   {weapon},Étage {depth}   Dégâts {damage}   Armure {armor}   {weapon}
 %s awakens,%s awakens,%s s'éveille
 %s awakens: %s,%s awakens: %s,%s s'éveille : %s
 Floor %d  %s,Floor %d  %s,Étage %d  %s
+Floor {floor}  {time}  {delta},Floor {floor}  {time}  {delta},Étage {floor}  {time}  {delta}
 Depth %d,Depth %d,Étage %d
 Take,Take,Prendre
 {room}: {item} stays on the ground. Dismantle or drop something in the bag.,{room}: {item} stays on the ground. Dismantle or drop something in the bag.,{room} : {item} reste au sol. Démantèle ou jette quelque chose dans le sac.
@@ -501,6 +507,7 @@ Dismantle value: %d gold,Dismantle value: %d gold,Démantèlement : %d or
 The runes set in it break with it (counted in the gold).,The runes set in it break with it (counted in the gold).,Les runes serties se brisent avec (comptées dans l'or).
 Pick an item,Pick an item,Choisis un objet
 Choose a slot to see what it does.,Choose a slot to see what it does.,Choisis un emplacement pour voir ce qu'il fait.
+{heading} {changes},{heading} {changes},{heading} {changes}
 the same stats,the same stats,les mêmes statistiques
 Runes,Runes,Runes
 An empty socket: a forge sets runes in it.,An empty socket: a forge sets runes in it.,Un emplacement vide : une forge peut y sertir une rune.
@@ -897,6 +904,7 @@ Now: %d starting weapons   >   Next: +%d weapons: %s,Now: %d starting weapons   
 The depths,The depths,Les profondeurs
 %s - better loot,%s - better loot,%s - meilleur butin
 %s (cursed: %s),%s (cursed: %s),%s (maudit : %s)
+{route} ({event}),{route} ({event}),{route} ({event})
 The pact is sworn. Walk in: the door seals behind you.,The pact is sworn. Walk in: the door seals behind you.,Le pacte est scellé. Entre : la porte se refermera derrière toi.
 -%d max Health,-%d max Health,-%d Vie max
 The pact is broken: %d max Health lost for the rest of the run.,The pact is broken: %d max Health lost for the rest of the run.,Le pacte est rompu : %d de Vie max perdus pour le reste de la partie.

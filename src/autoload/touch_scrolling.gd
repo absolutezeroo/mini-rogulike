@@ -6,9 +6,8 @@ extends Node
 
 func _ready() -> void:
 	get_tree().node_added.connect(func(node: Node) -> void:
-		if node is ScrollContainer and not node.has_meta(&"touch_scroll"):
-			node.set_meta(&"touch_scroll", true)
-			(node as ScrollContainer).follow_focus = true
+		if node is ScrollContainer and not node.has_meta(TouchScroll.META):
+			node.set_meta(TouchScroll.META, true)  # claimed: entering the tree again adds none
 			# (a weak reference: a list freed before the deferred call, built and dropped in the
 			# same frame, would make the call fail with an engine error)
 			_attach.call_deferred(weakref(node)))

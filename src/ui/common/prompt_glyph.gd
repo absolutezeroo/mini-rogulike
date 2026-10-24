@@ -14,8 +14,8 @@ const PIXEL := 2.0
 const RIM := Color(0.93, 0.86, 0.72)
 const FACE := Color(0.13, 0.09, 0.1, 0.94)
 const KEY_EDGE := Color(0.5, 0.4, 0.3)
-const WORDS := Color(1.0, 0.95, 0.85)
-const MOUSE_LIT := Color(1.0, 0.82, 0.4)
+const WORDS := UiSkin.TEXT
+const MOUSE_LIT := Palette.GOLD
 
 ## The input action (or a prompt of input_prompts.tres: "move", "menu_tabs").
 @export var action: StringName:

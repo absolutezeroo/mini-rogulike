@@ -81,6 +81,17 @@ static func claim_finished(quests: Array[QuestDef]) -> Array[Dictionary]:
 	return paid
 
 
+## Pays every finished quest not paid yet and tells it (Events.quest_completed: the HUD's toast,
+## the records). The one way gameplay pays quests: during a run (RunRecords) and when the title
+## screen comes up (a quest finished in a run that ended before it was paid: a crash, an old
+## save). Screens only read quests; drawing a list never pays.
+static func pay_finished(quests: Array[QuestDef]) -> Array[Dictionary]:
+	var paid := claim_finished(quests)
+	for quest in paid:
+		Events.quest_completed.emit(quest)
+	return paid
+
+
 ## "5h 12m", "2d 4h".
 static func time_text(seconds: int) -> String:
 	if seconds >= DAY:

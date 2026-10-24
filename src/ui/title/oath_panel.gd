@@ -22,6 +22,8 @@ var _weapon_text: Label
 ## "Armory level 2: 5 weapons. More in the Tree of Souls."
 var _armory_text: Label
 var _start: Button
+## The oath shown as sworn: the saved one while the tree still opens it, else none.
+var _sworn: OathDef
 
 
 func _ready() -> void:
@@ -66,25 +68,24 @@ static func usual_weapon(content: ContentDB) -> WeaponDef:
 
 
 func open(content: ContentDB) -> void:
+	# Only shows the choice: a saved oath the tree no longer opens reads as Unsworn
+	# (Game.sworn_oath) but stays saved; only the player's taps change it (Profile.select_*).
 	_content = content
-	var open_oaths := content.soul_tree.open_oaths()
-	if Profile.oath != &"" and not open_oaths.any(func(o: OathDef) -> bool: return o.id == Profile.oath):
-		Profile.oath = &""
 	_fill_cards()
 	_fill_weapons()
 	show()
 
 
+## The player tapped an oath's card (null: Unsworn).
 func choose_oath(oath: OathDef) -> void:
-	Profile.oath = oath.id if oath else &""
-	Profile.save_profile()
+	Profile.select_oath(oath)
 	_fill_cards()
 	_fill_weapons()
 
 
+## The player tapped a weapon's slot (null: the usual one).
 func choose_weapon(weapon: WeaponDef) -> void:
-	Profile.starting_weapon = weapon.id if weapon else &""
-	Profile.save_profile()
+	Profile.select_start_weapon(weapon)
 	_fill_weapons()
 
 
@@ -94,6 +95,7 @@ func start() -> void:
 
 
 func _fill_cards() -> void:
+	_sworn = Game.sworn_oath(_content)
 	UiParts.clear(_cards)
 	_cards.add_child(_card(null, true))
 	for oath in _content.soul_tree.oaths():
@@ -102,7 +104,7 @@ func _fill_cards() -> void:
 
 
 func _card(oath: OathDef, is_open: bool) -> Control:
-	var chosen := (oath == null and Profile.oath == &"") or (oath != null and Profile.oath == oath.id)
+	var chosen := oath == _sworn
 	var card := Button.new()
 	card.custom_minimum_size = CARD_SIZE
 	card.disabled = not is_open
@@ -142,9 +144,9 @@ func _card(oath: OathDef, is_open: bool) -> Control:
 	for line: Array in lines:
 		var color: Color = UiSkin.TEXT
 		if line[1] > 0:
-			color = MenuWindow.GOOD
+			color = UiSkin.GOOD
 		elif line[1] < 0:
-			color = MenuWindow.BAD
+			color = UiSkin.BAD
 		var words := UiSkin.label(line[0], Fonts.SMALL, color if is_open else Color(color, 0.55), true)  # fine print: five cards abreast
 		words.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		column.add_child(words)

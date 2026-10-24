@@ -14,6 +14,7 @@ var curse: CurseDef
 
 var _time := 0.0
 var _skip := false
+var _gate := TapGate.new()
 var _color := Color.WHITE
 
 @onready var _header: Label = %Header
@@ -115,10 +116,12 @@ func _draw() -> void:
 	draw_circle(center, 6.0, Color(0.05, 0.02, 0.08, 1.0))
 
 
+## Any tap, click, key or button skips it, once it has been up a moment (TapGate: never the
+## wheel, one finger once).
 func _input(event: InputEvent) -> void:
-	if not visible or _time < 0.8:
+	var read := _gate.read(event, visible and _time >= 0.8)
+	if read == TapGate.IGNORE:
 		return
-	var tapped := (event is InputEventMouseButton or event is InputEventKey or event is InputEventJoypadButton) and event.is_pressed()
-	if tapped:
+	get_viewport().set_input_as_handled()
+	if read == TapGate.TAKE:
 		_skip = true
-		get_viewport().set_input_as_handled()

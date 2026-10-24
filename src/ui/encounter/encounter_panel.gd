@@ -92,7 +92,7 @@ func _choose(index: int) -> void:
 	var choice := _encounter.def.choices[index]
 	var paid := choice.gold_cost > 0 or choice.max_hp_cost > 0.0
 	_result.text = outcome.summary(_player, paid)
-	_result.add_theme_color_override("font_color", UiParts.BAD if outcome.is_bad() else UiParts.GOOD)
+	_result.add_theme_color_override("font_color", UiSkin.BAD if outcome.is_bad() else UiSkin.GOOD)
 	_result.show()
 	UiParts.clear(_choices)
 	_buttons.clear()
@@ -111,7 +111,7 @@ func _choice_card(choice: EncounterChoice, index: int, depth: int) -> Control:
 	var column := card.column as VBoxContainer
 	(card.title as Label).add_theme_font_size_override("font_size", Fonts.BODY)
 	var reason := choice.cannot_afford_reason(_player, depth)
-	var cost := UiSkin.label(choice.cost_text(_player, depth), Fonts.BODY, UiSkin.GOLD if reason.is_empty() else UiParts.BAD, true)
+	var cost := UiSkin.label(choice.cost_text(_player, depth), Fonts.BODY, UiSkin.GOLD if reason.is_empty() else UiSkin.BAD, true)
 	column.add_child(cost)
 	var chances := choice.chances()
 	var paid := choice.gold_cost > 0 or choice.max_hp_cost > 0.0
@@ -126,7 +126,7 @@ func _choice_card(choice: EncounterChoice, index: int, depth: int) -> Control:
 			odds.custom_minimum_size.x = 48
 			odds.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 			row.add_child(odds)
-		var words := UiSkin.label(outcome.summary(_player, paid), Fonts.BODY, UiParts.BAD if outcome.is_bad() else UiParts.GOOD, true)
+		var words := UiSkin.label(outcome.summary(_player, paid), Fonts.BODY, UiSkin.BAD if outcome.is_bad() else UiSkin.GOOD, true)
 		row.add_child(words)
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -174,7 +174,7 @@ func _build() -> void:
 	_niche.hide()
 	_own(_niche)
 	words.add_child(_niche)
-	_result = UiParts.text("", Fonts.BODY, UiParts.GOOD, WIDTH - 160)
+	_result = UiParts.text("", Fonts.BODY, UiSkin.GOOD, WIDTH - 160)
 	_result.name = "Result"
 	_own(_result)
 	words.add_child(_result)

@@ -95,6 +95,7 @@ func _ready() -> void:
 	_build_keeper()
 	_place_scene.call_deferred()
 	AchievementDef.unlock_reached(content.achievements)  # goals reached by older saves
+	QuestBoard.pay_finished(content.quests)  # finished in a run that ended before paying them
 	_build_daily_button()
 	_build_shrine_badge()
 	var plaque_style := MenuWindow.strip_style().duplicate() as StyleBoxTexture

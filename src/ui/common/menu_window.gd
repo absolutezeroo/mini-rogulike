@@ -8,8 +8,6 @@ extends RpgWindow
 ## Souls (kept between runs): the same pale blue as on the HUD.
 const SOULS := Color(0.65, 0.95, 1.0)
 ## A line that helps the hero / makes the run harder.
-const GOOD := Color(0.45, 1.0, 0.4)
-const BAD := Color(1.0, 0.4, 0.32)
 
 const SWITCH_SIZE := Vector2i(60, 30)
 

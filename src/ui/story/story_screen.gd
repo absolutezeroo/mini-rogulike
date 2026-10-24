@@ -13,6 +13,8 @@ static var next_scene := ""
 
 var page := -1
 var _typing: Tween
+## Taps, clicks, accept and attack, read the one way (TapGate). Back (ui_cancel) is read apart.
+var _gate := TapGate.new(TapGate.Keys.ACCEPT)
 
 @onready var _text: Label = %Text
 @onready var _hint: Label = %Hint
@@ -20,6 +22,7 @@ var _typing: Tween
 
 
 func _ready() -> void:
+	_gate.accept_actions = [&"ui_accept", &"attack"]
 	get_tree().paused = false
 	if content.sounds:
 		Sfx.bank = content.sounds
@@ -77,10 +80,14 @@ func finish() -> void:
 	Loader.go(next_scene if not next_scene.is_empty() else TITLE_SCENE)
 
 
-## Taps arrive as mouse clicks (touch emulates the mouse).
+## Taps and clicks (TapGate: the wheel turns no page, a touch and its click are one tap).
 func _gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.is_pressed() and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT:
+	if not (event is InputEventScreenTouch or event is InputEventMouseButton):
+		return
+	var read := _gate.read(event)
+	if read != TapGate.IGNORE:
 		accept_event()
+	if read == TapGate.TAKE:
 		advance()
 
 
@@ -91,9 +98,11 @@ func _notification(what: int) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_accept") or event.is_action_pressed("attack"):
+	var read := _gate.read(event) if event is InputEventKey or event is InputEventJoypadButton else TapGate.IGNORE
+	if read != TapGate.IGNORE:
 		get_viewport().set_input_as_handled()
-		advance()
+		if read == TapGate.TAKE:
+			advance()
 	elif event.is_action_pressed("ui_cancel"):
 		# Escape or a gamepad's B: like Skip.
 		get_viewport().set_input_as_handled()

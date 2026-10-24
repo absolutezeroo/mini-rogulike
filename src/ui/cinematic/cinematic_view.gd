@@ -14,8 +14,6 @@ const TEXT_MARGIN := Vector2(40, 18)
 const TEXT_MAX_WIDTH := 1000.0
 ## The bottom bar's height follows its text at this speed (UI pixels a second).
 const GROW_SPEED := 900.0
-## Two taps this few frames apart are one (a click also comes as an emulated touch).
-const TAP_GAP_FRAMES := 3
 const BAR_COLOR := Color(0.02, 0.012, 0.03)
 
 var _top: ColorRect
@@ -37,7 +35,9 @@ var _bar_height := 0.0
 var _bottom_height := 0.0
 var _bars_tween: Tween
 var _text_tween: Tween
-var _last_tap := -100
+## Taps, clicks, keys and buttons, read the one way (TapGate: the wheel skips nothing, one finger
+## is one tap).
+var _gate := TapGate.new()
 
 
 func _init() -> void:
@@ -219,30 +219,26 @@ func _text_width() -> float:
 	return minf(TEXT_MAX_WIDTH, maxf(size.x - TEXT_MARGIN.x * 2.0, 200.0))
 
 
+## Touches and clicks on the view (it covers the screen).
 func _gui_input(event: InputEvent) -> void:
-	if _is_press(event):
+	if not (event is InputEventScreenTouch or event is InputEventMouseButton):
+		return
+	var read := _gate.read(event)
+	if read != TapGate.IGNORE:
 		accept_event()
-		_tap()
+	if read == TapGate.TAKE:
+		tapped.emit()
 
 
+## Keys and gamepad buttons, wherever the focus is.
 func _input(event: InputEvent) -> void:
-	if not visible:
+	if not (event is InputEventKey or event is InputEventJoypadButton):
 		return
-	if (event is InputEventKey and event.pressed and not event.is_echo()) or (event is InputEventJoypadButton and event.pressed):
+	var read := _gate.read(event, visible)
+	if read != TapGate.IGNORE:
 		get_viewport().set_input_as_handled()
-		_tap()
-
-
-static func _is_press(event: InputEvent) -> bool:
-	return (event is InputEventScreenTouch and event.pressed) or (event is InputEventMouseButton and event.pressed)
-
-
-func _tap() -> void:
-	var now := Engine.get_process_frames()
-	if now - _last_tap < TAP_GAP_FRAMES:
-		return
-	_last_tap = now
-	tapped.emit()
+	if read == TapGate.TAKE:
+		tapped.emit()
 
 
 func _build() -> void:

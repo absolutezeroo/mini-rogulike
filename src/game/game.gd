@@ -859,7 +859,7 @@ func _on_boss_started(boss: Monster) -> void:
 	if meeting.last_told != boss.get_instance_id():
 		hud.show_banner(tr(boss.display_name), Palette.DANGER)  # (a cinematic already named it)
 	if def and not def.title.is_empty():
-		Events.log_message("%s, %s" % [tr(boss.display_name), tr(def.title)], Palette.DANGER)
+		Events.log_message(tr("{name}, {title}").format({ "name": tr(boss.display_name), "title": tr(def.title) }), Palette.DANGER)
 	if def and player:
 		player.camera.lean_toward(boss, def.camera_lean, boss.head_height * 0.45)
 	Sfx.play_music(Soundtrack.boss_music(def, _fight_act(), Sfx.bank))

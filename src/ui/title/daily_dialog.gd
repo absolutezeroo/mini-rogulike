@@ -75,17 +75,19 @@ func open(content: ContentDB, day: int) -> void:
 		tr("Only the first toll counts; the next ones today are practice."),
 		tr("Score: 1 per kill, 30 per floor, 150 per boss, 1000 for a win, 1 per 5 gold."),
 	]:
-		body.add_child(UiSkin.label("- " + rule, Fonts.BODY, UiSkin.TEXT, true))
+		body.add_child(UiParts.bullet(rule, UiSkin.TEXT))
 	# The day's omen, when the remote settings give one (DailyRun.omen()).
 	var omen := DailyRun.omen(content, day)
 	if omen:
-		var omen_line := UiSkin.label("- " + tr("Today's omen: %s, on every floor but the first and the wardens'.") % tr(omen.display_name), Fonts.BODY, omen.color.lerp(Color.WHITE, 0.3), true)
+		var omen_line := UiParts.bullet(tr("Today's omen: %s, on every floor but the first and the wardens'.") % tr(omen.display_name), omen.color.lerp(Color.WHITE, 0.3))
 		omen_line.name = "OmenLine"
 		body.add_child(omen_line)
 	# A running event's bonus stays out of it (RemoteConfig.tuning(): the same race for everyone).
 	var event := RemoteConfig.event_info()
 	if not event.is_empty():
-		var event_line := UiSkin.label("- " + tr("The Well's event (%s) stays out of the Dawn Knell: the same descent for all.") % str(event.name), Fonts.BODY, UiSkin.DIM, true)
+		# (The event's name is written by hand in the remote settings, in the players' language,
+		# as the title's plaque shows it: never translated. docs/online.md "Remote settings".)
+		var event_line := UiParts.bullet(tr("The Well's event (%s) stays out of the Dawn Knell: the same descent for all.") % str(event.name), UiSkin.DIM)
 		event_line.name = "EventLine"
 		body.add_child(event_line)
 	var scores := PackedStringArray()

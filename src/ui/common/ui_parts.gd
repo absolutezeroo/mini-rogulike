@@ -1,10 +1,7 @@
 class_name UiParts
 ## Small pieces shared by the in-run panels (shop, encounters, pause, end of run, perk choice),
-## on top of UiSkin: buttons, a touch-friendly scroll, emptying a container, good / bad colors.
-
-## A gain, a loss (comparisons, encounter outcomes).
-const GOOD := Color(0.45, 1.0, 0.4)
-const BAD := Color(1.0, 0.4, 0.32)
+## on top of UiSkin (whose colors they use: UiSkin.GOOD / BAD): buttons, a touch-friendly scroll,
+## emptying a container.
 
 
 ## A plain button (the game's default look); keys and gamepads reach it (MenuNav).
@@ -27,6 +24,20 @@ static func scroll(vertical := true) -> ScrollContainer:
 		result.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	TouchScroll.attach(result)
 	return result
+
+
+## A line of a list: a dash, then the words wrapped beside it (the dash is layout, never glued
+## to a translated sentence).
+static func bullet(words: String, color: Color) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	var dash := UiSkin.label("-", Fonts.BODY, color)
+	dash.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	row.add_child(dash)
+	var label := UiSkin.label(words, Fonts.BODY, color, true)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(label)
+	return row
 
 
 ## Frees everything in `container` (out of the tree at once, so counts are right).

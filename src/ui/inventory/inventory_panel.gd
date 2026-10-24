@@ -314,7 +314,7 @@ func _update_tabs(grouped: Array[Dictionary]) -> void:
 		"tab": tr(CATEGORIES.categories[_category].display_name),
 		"used": inventory.places_used_in(_category), "places": inventory.capacity_of(_category) })
 	var over := inventory.over_capacity(_category) > 0
-	_category_name.add_theme_color_override("font_color", UiParts.BAD if over or inventory.is_compartment_full(_category) else UiSkin.GOLD)
+	_category_name.add_theme_color_override("font_color", UiSkin.BAD if over or inventory.is_compartment_full(_category) else UiSkin.GOLD)
 	_over_note.visible = over
 
 
@@ -442,7 +442,8 @@ func _compare_text(item: ItemDef) -> String:
 	if worn == equipment:
 		return ""
 	var changes := ItemCompare.lines(equipment, worn).map(func(change: Dictionary) -> String: return change.text)
-	return "\n\n%s %s" % [ItemCompare.heading(equipment, worn), ", ".join(changes) if not changes.is_empty() else tr("the same stats")]
+	var compared := tr("{heading} {changes}").format({ "heading": ItemCompare.heading(equipment, worn), "changes": ", ".join(changes) if not changes.is_empty() else tr("the same stats") })
+	return "\n\n" + compared  # (a blank line: layout, not words)
 
 
 ## A weapon's rune sockets, as slots (set at a forge).
@@ -754,7 +755,7 @@ func _build_bag(columns: HBoxContainer) -> void:
 	_own(_category_name)
 	naming.add_child(_category_name)
 	naming.add_child(PromptGlyph.make(&"menu_next_tab"))
-	_over_note = UiSkin.label(tr("More than it has room for: make room before anything new goes in."), Fonts.BODY, UiParts.BAD, true)
+	_over_note = UiSkin.label(tr("More than it has room for: make room before anything new goes in."), Fonts.BODY, UiSkin.BAD, true)
 	_over_note.name = "OverNote"
 	_over_note.custom_minimum_size.x = BAG_COLUMNS * (BAG_SLOT + 6) - 2
 	_over_note.hide()
