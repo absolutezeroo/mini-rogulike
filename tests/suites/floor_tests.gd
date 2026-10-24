@@ -479,7 +479,7 @@ func _test_abyss_death(game: Game) -> void:
 	_killing_blow(player, demon)
 	check(player.is_dead and player.world == game.abyss.depths, "slain in the Deeps (no second life): dead, down there")
 	check(player.killed_by == demon.display_name, "of what slew him (%s)" % player.killed_by)
-	await get_tree().create_timer(1.5).timeout
+	await _until(func() -> bool: return game.game_over_panel.visible)  # (the end screen comes a moment after the blow, under the hit stop)
 	check(game.game_over_panel.visible and not RunSave.exists(), "the run ends")
 	game.start_run()
 	await _frames(5)
@@ -2122,12 +2122,15 @@ func _test_pacts(game: Game) -> void:
 	panel.close()
 	await _frames(2)
 	check(not get_tree().paused and pact.is_open_offer() and pact.is_closed(), "leaving changes nothing")
-	player.global_position = pact.front() + Vector2(pact.outward) * 200.0
-	await _frames(2)
+	# (Away on free floor: 200 px straight out may be a wall or a prop, and a hero put down in it
+	# is pushed out of it, or held there, rather than taken back to the door.)
+	player.global_position = world.nearest_free_point(pact.front() + Vector2(pact.outward) * 200.0)
+	await _stand_still(world, player)
 	check(not interact.visible, "walking away hides the Interact button")
 	player.global_position = pact.front()
 	await _frames(3)
-	check(await _tap_interact(game) and panel.visible, "coming back, Interact asks again")
+	var came_back := await _tap_interact(game)
+	check(came_back and panel.visible, "coming back, Interact asks again (button %s: %s, %d px from the door, on the floor %s, deeps %s, menu %s)" % [came_back, interact.caption, roundi(player.global_position.distance_to(pact.front())), player.world == world, game.abyss.is_open(), game.is_menu_open()])
 
 	# Kept: the door opens, seals behind the hero, the waves come; a relic at the end.
 	panel.swear()

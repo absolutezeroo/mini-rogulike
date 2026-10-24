@@ -224,7 +224,8 @@ func _test_boss_fight(game: Game) -> void:
 	check(Profile.victories == 1 and Profile.souls > 0, "a victory is recorded with its souls")
 	var won_at := game.run.finish_time
 	check(won_at > 0.0 and game.run.splits.size() == game.depth and is_equal_approx(game.run.splits.back(), won_at), "the win's time is the last split")
-	check(is_equal_approx(Profile.best_time(game.run.record_key()), won_at), "a first win is the record")
+	# (Records are kept in whole milliseconds, Profile.record_time(): a run's time is in 60ths.)
+	check(roundi(Profile.best_time(game.run.record_key()) * 1000.0) == roundi(won_at * 1000.0), "a first win is the record (%.3f s for %.3f s)" % [Profile.best_time(game.run.record_key()), won_at])
 	var summary := game.game_over_panel.shown_text()
 	check(summary.contains("Time\n" + TimeText.of(won_at)) and summary.contains("New record!"), "the victory screen gives the time: %s" % summary)
 	(game.game_over_panel.get_node("%ContinueButton") as Button).pressed.emit()

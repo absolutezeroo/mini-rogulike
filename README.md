@@ -33,8 +33,9 @@ Tests run headless from the project root:
 
 ```
 godot --headless --import                                                         # once, on a fresh clone
-godot --headless --fixed-fps 60 res://tests/run_tests.tscn -- --only=unit,title   # fast, about 30 s
-godot --headless --fixed-fps 60 res://tests/run_tests.tscn                        # everything, a few minutes
+godot --headless --fixed-fps 60 res://tests/run_tests.tscn -- --only=unit,title   # fast, about 1.5 min
+python3 tools/run_tests.py                                                        # everything, in parallel (3 to 4 min on 2 CPUs)
+godot --headless --fixed-fps 60 res://tests/run_tests.tscn                        # everything in one process (about 5 min)
 ```
 
 The exit code is the number of failed checks. Building the Android app: [docs/android.md](docs/android.md).

@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 222,
+  "next_id": 226,
   "tags": [
     "pc",
     "test",
@@ -3308,6 +3308,66 @@
       ],
       "created_at": 1792823411,
       "updated_at": 1792823411
+    },
+    {
+      "id": "task_222",
+      "title": "Audit : tests plus rapides et isolés",
+      "description": "Audit infra du 24/10, points 3, 4 (isolation), 5, 6, 15, 16 (tests). Fait :\n- Mesure : le lanceur chronomètre chaque test (--timings : tableau du plus lent au plus rapide) ; un test bloqué 15 min échoue et arrête son processus.\n- Découpage : chaque suite donne ses tests (TestSuite.test_cases()) ; la suite game est passée d'une seule coroutine sur un seul Game à 69 tests indépendants, chacun sur un Game neuf (unit : 66 tests, title : 16, tutorial : 1). Un test se lance seul (--test=game.pacts, motifs avec *), --list les nomme ; vérifié : chacun des 68 tests de game d'alors passe seul, chacun dans son processus (game.perf est venu ensuite avec main).\n- Parallèle : python3 tools/run_tests.py lance un processus Godot par CPU (--jobs), chacun sur sa part (--shard=i/n, équilibrée sur tests/timings.json), avec son propre dossier user:// (XDG_DATA_HOME vers un dossier temporaire neuf : config/custom_user_dir_name intact), fusionne les FAIL (avec leur test), les comptes et les temps ; code de sortie = échecs (+1 par processus planté). La commande godot simple marche toujours.\n- Graines : --seed=N (affichée au début) ; chaque test tire ses nombres et les graines de ses parties (Game.seed_runs()) de la graine et de son nom : un échec se rejoue seul (vérifié sur trois échecs ci-dessous).\n- Attentes : les create_timer(1.5) après un coup fatal (ralentis par l'arrêt sur image) remplacés par _until(l'écran de fin visible).\n- Isolation : avant chaque test, profil, réglages, couche en ligne (verrous et minuteurs déjà remis à zéro par task_186), appareil tactile, touches relâchées, pause, triches, sauvegarde de partie remis comme au départ.\n- Moins de travail : les plafonds de LevelTests vérifiés sur les étages déjà construits (18 constructions en moins). Construire un étage sans Game mesuré : ~5 % de gagné seulement (World.build_floor ~0,7 s fait tout le coût), donc pas fait.\n- Tests fragiles trouvés et corrigés (préparation, jamais l'assertion) : le tutoriel ratait 3 vérifications à chaque fois qu'il passait après la suite game dans le même processus (état laissé) ; le record d'une victoire comparé à la seconde alors qu'il est gardé en millisecondes (2 parties sur 3) ; la Mère des couvées sur un étage déjà plein (max_alive) ; le héros éloigné de la porte du pacte posé dans un mur. Le reste des tests du jeu après la partie du bot tournait avec Armure 999 (héros du bot) : gardé explicitement (_on_sturdy_game) ; les morts au piège des armes chargées le montraient.\n- Vérifications : même nombre de vérifications écrites ; les comptes par test égaux à l'ancien découpage (game 2 472-2 492 selon les étages et le résumé de fin de partie, qui varient d'une partie à l'autre) ; « textes sur la grille » vérifié à la fin de pc, bag, story et dialogue (au lieu d'une fois à la fin) : +3. Aucune vérification n'a changé de sens.\nTemps sur cette machine (2 CPU partagés avec d'autres agents) : avant, une seule commande : 314 s et 342 s (269 s de CPU), 3 échecs du tutoriel ; après : run_tests.py 170 s, 205 s, 254 s (3 passes de suite, 0 échec, ~320 s de CPU), la commande simple 309 s (0 échec). Le gain grandit avec les CPU (le plus long test fait ~25 s).\nDocs : testing.md (« Fast: in parallel, a test alone, a seed, the timings »), AGENTS.md, CLAUDE.md, README, architecture.md.",
+      "status": "review",
+      "priority": "high",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "tests",
+        "qualité",
+        "perf"
+      ],
+      "created_at": 1792825538,
+      "updated_at": 1792825538
+    },
+    {
+      "id": "task_223",
+      "title": "Tests : _test_biomes construit deux fois le même étage",
+      "description": "Vu en découpant les tests (24/10) : FloorTests._test_biomes fait « for attempt in 2 » mais construit chaque fois first_depth(a) + 1, avec la même graine de partie : le deuxième étage est le même que le premier (au tiroir de la forge près). Le test croit vérifier deux étages par biome et en vérifie un. Faire varier la profondeur (+ attempt, comme LevelTests) ; le nombre de vérifications ne change pas, leur portée oui.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "tests"
+      ],
+      "created_at": 1792825538,
+      "updated_at": 1792825538
+    },
+    {
+      "id": "task_224",
+      "title": "Tests : héros posé dans un mur puis replacé qui ne bouge pas (pacte)",
+      "description": "Vu en découpant les tests (24/10, graine 684213, game.pacts) : le héros posé à 200 px tout droit devant la porte du pacte (dans un mur ou un accessoire) puis replacé devant la porte par global_position restait à 199 px de la porte trois images plus tard. Corrigé côté test (un point libre, _stand_still), mais à comprendre côté jeu : quelque chose (le décoinçage, la caméra, le SubWorld ?) remet le héros où il était. Rejouer : --test=game.pacts --seed=684213 avec l'ancien placement.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "tests",
+        "bug"
+      ],
+      "created_at": 1792825538,
+      "updated_at": 1792825538
+    },
+    {
+      "id": "task_225",
+      "title": "Tests : une partie de bot plus légère (Game neuf par test = ~1 s)",
+      "description": "Suite de l'audit des tests (24/10) : chaque test du jeu commence sur un Game neuf (~1 s, dont la construction d'un étage ~0,7 s) : ~70 s de CPU sur les ~330. Pistes : réutiliser un Game par processus avec start_run() (gagne ~0,3 s par test seulement), ou des tests qui n'ont pas besoin du premier étage (ceux qui appellent tout de suite start_run ou debug.enter_floor). La vraie dépense est World.build_floor() (le chantier perf).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "tests",
+        "perf"
+      ],
+      "created_at": 1792825538,
+      "updated_at": 1792825538
     }
   ]
 }

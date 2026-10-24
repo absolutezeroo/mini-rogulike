@@ -19,9 +19,52 @@ the first run.
 From the project root:
 
 ```
-godot --headless --fixed-fps 60 res://tests/run_tests.tscn                       # everything, a few minutes
-godot --headless --fixed-fps 60 res://tests/run_tests.tscn -- --only=unit,title  # fast, about 30 s
+python3 tools/run_tests.py                                                       # everything, in parallel: 3 to 4 min on 2 CPUs
+godot --headless --fixed-fps 60 res://tests/run_tests.tscn -- --only=unit,title  # fast, about 1.5 min
+godot --headless --fixed-fps 60 res://tests/run_tests.tscn                       # everything in one process: about 5 min
 ```
+
+### Fast: in parallel, a test alone, a seed, the timings
+
+Every suite is cut into **tests** (`TestSuite.test_cases()`), each run alone by the runner after
+the shared state is put back (`_reset()` in `tests/run_tests.gd`: the profile, the settings as the
+runner set them, the online layer, the touch device, no key held, no pause, no cheat, no run
+save). A game test begins on a fresh `Game` (`GameTests._new_game()`: its first run on floor 1, no
+act cards, the statistics accepted on a fake server; the floors' and weapons' tests on a hero of
+Armor 999, `_on_sturdy_game()`). So any test runs alone, in any company, in any process. Names:
+`unit.generation`, `game.pacts`, `title.pc`, `tutorial` (`--list` prints them all).
+
+- **In parallel:** `python3 tools/run_tests.py [--jobs N] [--only=...] [--test=...] [--seed N]
+  [--timings]` starts N Godot processes (default: one per CPU), each on its share
+  (`--shard=i/N`), and merges what they print: every `FAIL:` with the test it came from, the
+  checks per suite, the slowest tests, `N checks, M failed`, the wall and CPU time. Exit code =
+  failed checks, plus one for a process that crashed or hung. Each process has its **own user
+  folder**: `XDG_DATA_HOME` points at a new temporary folder (Linux; `config/custom_user_dir_name`
+  stays as it is), so no process reads another's files, nor the real game's: the plain command
+  reads and writes the user folder that every worktree and the game share. Every process's whole
+  output stays in the log folder printed at the end: read it for engine errors (below).
+- **Shares:** `--shard=i/n` (0-based) takes the i-th of n shares, balanced on each test's last time
+  in `tests/timings.json` (the longest first, each to the lightest share; an unknown test counts
+  5 s). `python3 tools/run_tests.py --save-timings` writes it again after a run: do it when tests
+  are added or grow.
+- **A test alone:** `--test=game.pacts,unit.generation` (full names, a suite's name, or a pattern
+  with `*`: `--test='game.*abyss*'`), with the godot command or the Python one.
+- **Seeds:** the run's seed is printed first (`Seed 1234`); `--seed=1234` plays it again. Each test
+  seeds the global random numbers and its runs' worlds (`Game.seed_runs()`, every new run takes
+  the next seed instead of a random one) from the seed and its own name, so a test plays the same
+  floors whatever runs before it or beside it. A failure is replayed with
+  `--seed=<the run's> --test=<its test>` (what the physics and the frame order do is the same
+  run to run headless; anything that reads the clock is not).
+- **Timings:** `--timings` prints every test's time at the end, slowest first. A test stuck for
+  15 minutes (a coroutine that never resumes) fails and stops its process (`TEST_TIMEOUT`).
+
+Where the time goes (2026-10-24, 2 CPUs shared with other work): a floor build is about 0.7 s
+(generator, dresser, populator, nav grid, walls, ceiling: `World.build_floor()`; the rest of
+`Game._enter_floor()` adds about 5%, so building floors without a Game gains little), a fresh
+Game about 1 s. The slowest tests are the floor sweeps (`game.levels`, `game.pacts`,
+`game.bodies_fit`, `game.biomes`, `unit.secret_rooms`, `unit.generation`), the title screen,
+`game.saves` and the tutorial. A new test that builds floors in a loop shares its floors with
+the checks that need the same ones (`LevelTests._note_ceiling()`) rather than build them again.
 
 The suites (`tests/suites/`, each a `TestSuite`):
 - **unit**: the rules, the content database, 100 generated maps (and their walls), 40 boss arenas,
@@ -31,8 +74,9 @@ The suites (`tests/suites/`, each a `TestSuite`):
   services share and their start-up in a release build in many orders (`OnlineSessionTests`),
   Talo's answers as `TaloBackend` reads them (`TaloContractTests`, a transport in memory). No
   game running: fast. A test that needs the release-only paths sets `OnlineSession.release_mode`;
-  one that needs its own `user://` file names it per process (`OS.get_process_id()`): every
-  worktree and parallel run shares one user folder.
+  one that needs its own `user://` file names it per process (`OS.get_process_id()`): with the
+  plain godot command, every worktree and every run shares one user folder (tools/run_tests.py
+  gives each process its own).
 - **title**: the title screen and its panels (the Leaderboards page with and without a server, the
   statistics' questions, Options > Privacy, the policy and the credits, the world counters' line
   and the Well's Toll page, the remote settings' event plaque and message of the day; the feedback
@@ -41,8 +85,9 @@ The suites (`tests/suites/`, each a `TestSuite`):
   No suite ever reaches the network: the runner gives `Leaderboards` an offline backend first,
   and `Privacy`, `Telemetry`, `WorldStats`, `RemoteConfig` and `Feedback` no file (docs/online.md, Tests). The game suite plays its run with
   the statistics accepted on a fake server and checks what its end sends.
-- **game**: a bot plays the real game (kills, level ups and perk choices, stairs, death and
-  restart, saving and resuming), then on that same game: **combat** (projectiles, perks, skills,
+- **game** (`GameTests`, about 70 tests, each on a fresh Game): a bot plays the real game (kills,
+  level ups and perk choices, stairs, death and restart: `game.run`; saving and resuming, a
+  mortal run deeper), then **combat** (projectiles, perks, skills,
   monsters and their traits, difficulty, weapons), **floor** (props, hazards, chests, ambushes,
   encounters, pact doors, the merchant, loot, curses, biomes, act cards, the belt; on 12 more
   floors, no body put down inside a wall or a prop), **boss** (a full boss fight
@@ -134,6 +179,11 @@ one: see docs/conventions.md, "Lambdas that run later").
 **The same run twice is not the same run:** floors, loot and fights are random, so a check that
 fails once and passes on a rerun is a flaky test, a bug to find (below), never a retry. The game
 and tutorial suites were hunted for them on 2026-10-22 (one game run in three failed before).
+Cutting the game suite into tests (2026-10-24) showed three more, each fixed in its setup: the
+tutorial failed 3 checks whenever it ran after the game suite in one process (state left over,
+now put back before every test), a boss win's record was compared to the second while records
+keep milliseconds (two runs in three), and the Brood Mother's brood check needed a floor with
+room for it (`SummonEffect.max_alive`). Replay one with its seed (above).
 
 ### No GDScript warnings
 
@@ -157,8 +207,11 @@ docs/conventions.md, "No GDScript warnings".
 
 ## Writing a check
 
-Each suite extends `TestSuite` (`tests/support/test_suite.gd`); its `run()` calls `_test_*`
-functions. Inside, `check(condition, "what should be true")` counts a check and prints the message
+Each suite extends `TestSuite` (`tests/support/test_suite.gd`); its `test_cases()` lists its
+tests ([name, Callable]; a suite of one piece keeps `run()`), and `before_cases()` /
+`after_cases()` set up and put back what they share. A new game test is one more entry in
+`GameTests.test_cases()` (`_on_game(...)`): it must hold alone, on a fresh Game, so set up what it
+needs (never count on a test before it). Inside, `check(condition, "what should be true")` counts a check and prints the message
 when it fails, so write the message as the rule ("projectiles stop on walls"). Game suites get the
 real `Game` scene and wait with `await _frames(n)`; helpers find open cells, clear monsters, count
 things on the floor and let a bot play (`_bot_play`). The runner sets English, empty save paths and
@@ -189,8 +242,10 @@ now and then is a bug, in the test's setup or in the game. Make the setup sure, 
   knockback, or a deferred freeze one physics step later, moves him).
 - **Time:** `_frames(n)` waits n physics steps, one a frame (1/60 s) with `--fixed-fps 60`; a hit
   stop or a slow motion scales what happens in a step, not how many there are. Wait for something
-  with a generous timeout (`_until_deeps()`, `_until_trial()`, a loop that breaks when it is so)
-  rather than a guess of frames that a slower step would miss.
+  with a generous timeout (`_until(condition, seconds)`, `_until_deeps()`, `_until_trial()`)
+  rather than a guess of frames that a slower step would miss, and never a timer
+  (`create_timer(1.5)` after a killing blow waited a different number of steps under the hit
+  stop's slow motion: the end screen is waited for with `_until()` now).
 - **Counting the floor:** `_floor_things()` and `_things_diff()`, not `get_child_count()`: passing
   effects (dust, sparks, a column of light) stand among the floor's entities and come and go, and
   the bodies of monsters slain a moment ago go when their death has played.

@@ -5,59 +5,34 @@ extends TestSuite
 ## The Settings autoload's script, for its static functions.
 const SettingsScript := preload("res://src/autoload/settings.gd")
 
-func run() -> void:
-	await _test_title_screen()
-	await _test_quests_paid_by_gameplay()
-	await _test_stat_bar_color()
-	await _test_touch_scroll()
-	await _test_slider_drag()
-	await _test_resume_button()
-	await _test_cards_fit_when_shown_late()
-	# The title's panels with keys and a gamepad, and their layouts (PcTests).
-	var pc := PcTests.new()
-	add_child(pc)
-	await pc.run_title()
-	pc.free()
-	# The Leaderboards page, with and without a server (LeaderboardTests).
-	var boards := LeaderboardTests.new()
-	add_child(boards)
-	await boards.run_title()
-	boards.free()
-	# The privacy questions, Options > Privacy, the policy and the credits (PrivacyTests).
-	var privacy := PrivacyTests.new()
-	add_child(privacy)
-	await privacy.run_title()
-	privacy.free()
-	# The world counters' line on the title and the Well's Toll page (WorldStatsTests).
-	var world_stats := WorldStatsTests.new()
-	add_child(world_stats)
-	await world_stats.run_title()
-	world_stats.free()
-	# The remote settings' event plaque and message of the day (RemoteConfigTests).
-	var remote := RemoteConfigTests.new()
-	add_child(remote)
-	await remote.run_title()
-	remote.free()
-	# The feedback form on the title and in the pause menu (FeedbackTests).
-	var feedback := FeedbackTests.new()
-	add_child(feedback)
-	await feedback.run_title()
-	feedback.free()
-	# Typing on a phone: the bar over the keyboard, the scale kept (SoftKeyboardTests).
-	var keyboard := SoftKeyboardTests.new()
-	add_child(keyboard)
-	await keyboard.run_title()
-	keyboard.free()
-	# "Tap or press to continue" on every screen that waits for it (TapTests).
-	var taps := TapTests.new()
-	add_child(taps)
-	await taps.run_title()
-	taps.free()
-	# The Vigil-Keeper at the shrine (DialogueTests).
-	var dialogue := DialogueTests.new()
-	add_child(dialogue)
-	await dialogue.run_title()
-	dialogue.free()
+
+## Each part alone (tests/run_tests.gd runs them one by one, timed: --test=title.<name>).
+func test_cases() -> Array:
+	return [
+		["title_screen", _test_title_screen],
+		["quests_paid_by_gameplay", _test_quests_paid_by_gameplay],
+		["stat_bar_color", _test_stat_bar_color],
+		["touch_scroll", _test_touch_scroll],
+		["slider_drag", _test_slider_drag],
+		["resume_button", _test_resume_button],
+		["cards_fit_when_shown_late", _test_cards_fit_when_shown_late],
+		["pc", func() -> void: await _part(PcTests.new(), func(suite: PcTests) -> void: await suite.run_title())],
+		["leaderboard", func() -> void: await _part(LeaderboardTests.new(), func(suite: LeaderboardTests) -> void: await suite.run_title())],
+		["privacy", func() -> void: await _part(PrivacyTests.new(), func(suite: PrivacyTests) -> void: await suite.run_title())],
+		["world_stats", func() -> void: await _part(WorldStatsTests.new(), func(suite: WorldStatsTests) -> void: await suite.run_title())],
+		["remote_config", func() -> void: await _part(RemoteConfigTests.new(), func(suite: RemoteConfigTests) -> void: await suite.run_title())],
+		["feedback", func() -> void: await _part(FeedbackTests.new(), func(suite: FeedbackTests) -> void: await suite.run_title())],
+		["soft_keyboard", func() -> void: await _part(SoftKeyboardTests.new(), func(suite: SoftKeyboardTests) -> void: await suite.run_title())],
+		["tap", func() -> void: await _part(TapTests.new(), func(suite: TapTests) -> void: await suite.run_title())],
+		["dialogue", func() -> void: await _part(DialogueTests.new(), func(suite: DialogueTests) -> void: await suite.run_title())],
+	]
+
+
+## A borrowed suite's part: `suite` in the tree while `body` runs on it, then freed.
+func _part(suite: TestSuite, body: Callable) -> void:
+	add_child(suite)
+	await body.call(suite)
+	suite.free()
 
 
 ## A run in progress: the Resume button sits in the column like the others, its floor on a line

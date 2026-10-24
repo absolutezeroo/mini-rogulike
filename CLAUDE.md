@@ -11,4 +11,7 @@
 - Every task updates the roadmap (`godoban_boards/puits_roadmap.json`, AGENTS.md "The roadmap"):
   cards moved, new todos added. Brief subagents to do it, and check it when merging their work.
 - The `game` and `tutorial` suites print a lot: when you only need the verdict, filter the output
-  (`... 2>&1 | grep -E 'FAIL|ERROR|checks'`).
+  (`... 2>&1 | grep -E 'FAIL|ERROR|checks'`). `python3 tools/run_tests.py` prints only the
+  verdict (failures with their test, checks, the slowest tests); its per-process logs, for the
+  engine errors, are in the folder it names. Agents testing at the same time: use it (or
+  `--test=`), it gives each process its own user folder.

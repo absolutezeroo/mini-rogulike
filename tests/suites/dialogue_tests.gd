@@ -703,7 +703,7 @@ func _test_death_told(game: Game) -> void:
 	player.perks.clear()
 	_killing_blow(player, skeleton)
 	check(player.is_dead and player.killer_def != null and player.killer_def.id == &"skeleton" and player.death_cause == &"monster", "the hero knows what killed him, and how")
-	await get_tree().create_timer(1.5).timeout
+	await _until(func() -> bool: return game.game_over_panel.visible)  # (the end screen comes a moment after the blow, under the hit stop)
 	var facts := game.end_facts
 	check(facts != null and facts.killer_id == &"skeleton" and facts.cause == &"monster" and facts.depth == game.depth and facts.level == player.level, "the run's facts are read as he falls")
 	check(Profile.history[0].get("killer") == "skeleton" and Profile.deaths_to(&"skeleton") >= 2, "the history and the deaths by killer keep it")
@@ -728,7 +728,7 @@ func _test_death_told(game: Game) -> void:
 	spikes.is_secondary = true
 	spikes.cause = &"trap"
 	player.take_hit(spikes)
-	await get_tree().create_timer(1.5).timeout
+	await _until(func() -> bool: return game.game_over_panel.visible)  # (the end screen comes a moment after the blow, under the hit stop)
 	check(game.end_facts != null and game.end_facts.cause == &"trap" and game.end_facts.killer_id == &"", "a trap: no monster, the stone")
 	check(panel.shown_text().contains(tr(_dialogue("vigil_tale").line(&"trap").lines[0]).get_slice("{", 0).left(20)), "told as the stone's teeth")
 	# Nothing for her to say: a line of the story, as before.

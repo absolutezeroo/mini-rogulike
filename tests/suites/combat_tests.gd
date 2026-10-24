@@ -1513,7 +1513,8 @@ func _test_monster_behaviours(game: Game) -> void:
 			dropped += (node as GoldPickup).amount
 	check(dropped + player.gold - (60 - stolen) > stolen, "slaying it gives the gold back, and more (%d)" % dropped)
 
-	# Brood Mother lays spiders.
+	# Brood Mother lays spiders (on a floor with room for them: SummonEffect.max_alive).
+	await _clear_monsters(world)
 	var mother := world.spawn_monster(load("res://data/monsters/brood_mother.tres"), world.map.cell_to_world(_open_cell_near(world, player.global_position, 2)))
 	mother.dormant = true
 	await _frames(2)
@@ -1925,5 +1926,5 @@ func _test_threshold_lost(game: Game) -> void:
 		check(player.killed_by == cause, "of what slew him (%s)" % player.killed_by)
 		check(player.world == world and world.is_inside_tree() and player.global_position == fell_at, "where he fell (%s: %s, fell at %s)" % [how, player.global_position, fell_at])
 		check(game.threshold.limbo == null and world.process_mode != Node.PROCESS_MODE_DISABLED, "the limbo is gone, the floor runs")
-		await get_tree().create_timer(1.5).timeout
+		await _until(func() -> bool: return game.game_over_panel.visible)  # (the end screen comes a moment after the blow, under the hit stop)
 		check(game.game_over_panel.visible and not RunSave.exists(), "the run ends")

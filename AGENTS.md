@@ -8,10 +8,14 @@ for a system before changing it.
 
 - Godot: `godot`, or a downloaded `Godot_v4.7-stable_linux.x86_64` (how to get it: docs/testing.md).
   If `.godot/` is missing, run `godot --headless --import` first.
-- Fast tests, after every change to src/, data/ or tests/ (about 30 s):
+- Fast tests, after every change to src/, data/ or tests/ (about 1.5 min):
   `godot --headless --fixed-fps 60 res://tests/run_tests.tscn -- --only=unit,title`
-- Full tests before calling a feature done (a few minutes; suites unit, title, game, tutorial):
-  `godot --headless --fixed-fps 60 res://tests/run_tests.tscn`
+- Full tests before calling a feature done (suites unit, title, game, tutorial), in parallel, one
+  process per CPU, each with its own user folder (3 to 4 min on 2 CPUs):
+  `python3 tools/run_tests.py` (or in one process, about 5 min:
+  `godot --headless --fixed-fps 60 res://tests/run_tests.tscn`)
+- One test, again: `... -- --test=game.pacts --seed=N` (the seed is printed first; `--list`
+  names the tests, `--timings` times them; docs/testing.md "Fast").
 - Exit code = failed checks; failures print as `FAIL: ...`. Engine `ERROR:` / `SCRIPT ERROR:` lines
   don't fail the run, so read the output: docs/testing.md lists the known ones, anything else is a bug.
 - Translations: `python3 tools/i18n/extract.py` after adding texts, then fill the French in

@@ -133,7 +133,9 @@ src/
 tests/               Headless tests: run_tests (the runner; suites unit, title, game, tutorial, and balance:
                      opt-in), suites/ (the suites and the helpers they borrow: combat, floor, boss, the
                      online services...), support/ (TestSuite: checks, scene helpers, the bot;
-                     FakeBoardBackend: a Talo server in memory)
+                     FakeBoardBackend: a Talo server in memory), timings.json (each test's last time: the
+                     shares are balanced on it)
+tools/run_tests.py   The tests in parallel processes, each on its share with its own user folder (docs/testing.md)
 online/              talo.cfg.example: the form of talo.cfg, the leaderboards' access key (never committed:
                      docs/online.md)
 locale/              strings.csv: every player text, English (the key) and French (see Languages)

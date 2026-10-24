@@ -1,99 +1,198 @@
 class_name GameTests
 extends TestSuite
-## The real game, played: sets the game up, a bot plays, then runs the other game suites on it
-## (CombatTests, FloorTests, SecretTests, BossTests, StoryTests, FinaleTests).
+## The real game, played, in tests that each begin on a fresh Game (test_cases(): the runner runs any
+## of them alone, `--test=game.<name>`, or shares them between processes): a bot plays a run
+## (kills, level ups, stairs, the bag, death and restart), the daily run, saving and resuming, a
+## mortal run deeper, then the other game suites' parts (CombatTests, FloorTests, LevelTests,
+## SecretTests, BossTests, FinaleTests, CoreTests, DebugTests, SaveTests, PcTests, BagTests,
+## StoryTests, DialogueTests). Every Game is set up the same way (_new_game()): no merchant,
+## encounter, ambush, curse or special floor popping up (they have their own tests), no act
+## cards, the gameplay statistics accepted on a fake server.
+
+## The helper suites the tests borrow from (made before the first test, freed with this suite).
+var combat: CombatTests
+var floor_suite: FloorTests
+var boss: BossTests
+var secrets: SecretTests
+var finale: FinaleTests
+var levels: LevelTests
+## The gameplay statistics accepted on a fake server, in every test (the run's end is checked).
+var privacy: PrivacyTests
+## The content's chances as they were (the game suite turns them off, before_cases()).
+var _kept_chances := {}
+var _curse_chances := {}
+## The suites borrowed for one test (_borrow()), freed with its game.
+var _borrowed: Array[Node] = []
 
 
-func run() -> void:
-	# The other game suites play on the same game, one after the other.
-	var combat := CombatTests.new()
-	var floor_suite := FloorTests.new()
-	var boss := BossTests.new()
-	var secrets := SecretTests.new()
-	var finale := FinaleTests.new()
-	var levels := LevelTests.new()
-	for suite: Node in [combat, floor_suite, boss, secrets, finale, levels]:
+func test_cases() -> Array:
+	return [
+		["spawn", _on_game(_test_spawn)],
+		["projectiles", _on_game(func(game: Game) -> void: await combat._test_projectiles(game.world, game.player))],
+		["perks", _on_game(func(game: Game) -> void: await combat._test_perks_in_game(game, game.world, game.player))],
+		["threshold", _on_game(func(game: Game) -> void: await combat._test_threshold(game, game.world, game.player))],
+		["synergies", _on_game(func(game: Game) -> void: await combat._test_synergies_in_game(game, game.world, game.player))],
+		["sustain", _on_game(func(game: Game) -> void: await combat._test_sustain_in_game(game.world, game.player))],
+		["world_objects", _on_game(func(game: Game) -> void: await floor_suite._test_world_objects(game, game.world, game.player))],
+		["hazards", _on_game(func(game: Game) -> void: await floor_suite._test_hazards(game, game.world, game.player))],
+		["abyss", _on_game(func(game: Game) -> void: await floor_suite._test_abyss(game, game.world, game.player))],
+		["abyss_rules", _on_game(func(game: Game) -> void: await floor_suite._test_abyss_rules(game, game.world, game.player))],
+		["forge", _on_game(func(game: Game) -> void: await floor_suite._test_forge(game, game.world, game.player))],
+		["feel", _on_game(func(game: Game) -> void: await floor_suite._test_feel(game, game.world, game.player))],
+		["screen_pass", _on_game(func(game: Game) -> void: await floor_suite._test_screen_pass(game, game.world, game.player))],
+		["skills", _on_game(func(game: Game) -> void: await combat._test_skills(game, game.world, game.player))],
+		["bestiary", _on_game(func(game: Game) -> void: await combat._test_bestiary(game.world, game.player))],
+		["difficulty", _on_game(func(game: Game) -> void: await combat._test_difficulty_in_game(game, game.world, game.player))],
+		["perf", _on_game(func(game: Game) -> void: await (_borrow(PerfTests.new()) as PerfTests).run_in_game(game.world, game.player))],
+		["animations", _on_game(_test_animations)],
+		["armor_look", _on_game(_test_armor_look)],
+		["inventory_screen", _on_game(_test_inventory_screen)],
+		["touch_controls", _on_game(_test_touch_controls)],
+		["run_timer", _on_game(_test_run_timer)],
+		["run", _on_game(_test_run)],
+		["ambience", _on_sturdy_game(func(game: Game) -> void: await floor_suite._test_ambience(game))],
+		["act_card", _on_sturdy_game(func(game: Game) -> void: await floor_suite._test_act_card(game))],
+		["souls", _on_sturdy_game(func(game: Game) -> void: await floor_suite._test_souls(game))],
+		["comfort", _on_sturdy_game(func(game: Game) -> void: await floor_suite._test_comfort(game))],
+		["loot_and_gold", _on_sturdy_game(func(game: Game) -> void: await floor_suite._test_loot_and_gold(game))],
+		["bag_room", _on_sturdy_game(func(game: Game) -> void: await floor_suite._test_bag_room(game))],
+		["weapon_kits", _on_sturdy_game(func(game: Game) -> void: await combat._test_weapon_kits(game))],
+		["charged_attacks", _on_sturdy_game(func(game: Game) -> void: await combat._test_charged_attacks(game))],
+		["four_directions", _on_sturdy_game(func(game: Game) -> void: await combat._test_four_directions(game))],
+		["own_effects", _on_sturdy_game(func(game: Game) -> void: await combat._test_own_effects(game))],
+		["elemental_attacks", _on_sturdy_game(func(game: Game) -> void: await combat._test_elemental_attacks(game))],
+		["encounters", _on_sturdy_game(func(game: Game) -> void: await floor_suite._test_encounters(game))],
+		["pacts", _on_sturdy_game(func(game: Game) -> void: await floor_suite._test_pacts(game))],
+		["variety", _on_sturdy_game(func(game: Game) -> void: await floor_suite._test_variety(game))],
+		["floor_size", _on_sturdy_game(func(game: Game) -> void: await floor_suite._test_floor_size(game))],
+		["routes", _on_sturdy_game(func(game: Game) -> void: await floor_suite._test_routes(game))],
+		["soul_tree_run", _on_sturdy_game(func(game: Game) -> void: await floor_suite._test_soul_tree_run(game))],
+		["status_looks", _on_sturdy_game(func(game: Game) -> void: await floor_suite._test_status_looks(game))],
+		["biomes", _on_sturdy_game(func(game: Game) -> void: await floor_suite._test_biomes(game))],
+		["levels", _on_sturdy_game(func(game: Game) -> void: await levels.run_game(game))],
+		["details", _on_sturdy_game(func(game: Game) -> void: await floor_suite._test_details(game))],
+		["belt_and_balance", _on_sturdy_game(func(game: Game) -> void: await floor_suite._test_belt_and_balance(game))],
+		["monster_behaviours", _on_sturdy_game(func(game: Game) -> void: await combat._test_monster_behaviours(game))],
+		["ai_movement", _on_sturdy_game(func(game: Game) -> void: await combat._test_ai_movement(game))],
+		["climate", _on_sturdy_game(func(game: Game) -> void: await floor_suite._test_climate(game))],
+		["spacing", _on_sturdy_game(func(game: Game) -> void: await floor_suite._test_spacing(game))],
+		["review_fixes", _on_sturdy_game(func(game: Game) -> void: await combat._test_review_fixes(game))],
+		["core", _on_sturdy_game(func(game: Game) -> void: await (_borrow(CoreTests.new()) as CoreTests).run_game(game))],
+		["debug_panel", _on_sturdy_game(_test_debug_tools)],
+		["secret_rooms", _on_sturdy_game(func(game: Game) -> void: await secrets._test_secret_rooms(game))],
+		["hidden_floor", _on_sturdy_game(func(game: Game) -> void: await secrets._test_hidden_floor(game))],
+		["boss_fight", _on_sturdy_game(func(game: Game) -> void: await boss._test_boss_fight(game))],
+		["bodies_fit", _on_sturdy_game(func(game: Game) -> void: await floor_suite._test_bodies_fit(game))],
+		["daily_run", _on_game(_test_daily_run)],
+		["finale", _on_game(func(game: Game) -> void: await finale._test_finale(game))],
+		["finale_story", _on_game(func(game: Game) -> void: await finale._test_finale_story(game))],
+		["nameless_keeper", _on_game(func(game: Game) -> void: await finale._test_nameless_keeper(game))],
+		["save_and_resume", _on_game(_test_save_and_resume)],
+		["mortal_run", _on_game(_test_mortal_run)],
+		["saves", _on_game(func(game: Game) -> void: await (_borrow(SaveTests.new()) as SaveTests).run_game(game))],
+		["threshold_lost", _on_game(func(game: Game) -> void: await combat._test_threshold_lost(game))],
+		["abyss_death", _on_game(func(game: Game) -> void: await floor_suite._test_abyss_death(game))],
+		["pc", _on_game(func(game: Game) -> void: await (_borrow(PcTests.new()) as PcTests).run_game(game), true)],
+		["bag", _on_game(func(game: Game) -> void: await (_borrow(BagTests.new()) as BagTests).run_bag_game(game), true)],
+		["story", _on_game(func(game: Game) -> void: await (_borrow(StoryTests.new()) as StoryTests).run_game(game), true)],
+		["dialogue", _on_game(func(game: Game) -> void: await (_borrow(DialogueTests.new()) as DialogueTests).run_game(game), true)],
+	]
+
+
+func before_cases() -> void:
+	combat = CombatTests.new()
+	floor_suite = FloorTests.new()
+	boss = BossTests.new()
+	secrets = SecretTests.new()
+	finale = FinaleTests.new()
+	levels = LevelTests.new()
+	privacy = PrivacyTests.new()
+	for suite: Node in [combat, floor_suite, boss, secrets, finale, levels, privacy]:
 		add_child(suite)
 	# No merchant, encounter, ambush or special floor popping up in the middle of other tests (they have their own).
-	var merchant_chance := CONTENT.dungeon.merchant_chance
-	var encounters_max := CONTENT.dungeon.encounters_max
-	var ambush_chance := CONTENT.dungeon.ambush_chance
-	var event_chance := CONTENT.dungeon.floor_event_chance
-	var pact_chance := CONTENT.dungeon.pact_chance
-	CONTENT.dungeon.ambush_chance = 0.0
-	CONTENT.dungeon.floor_event_chance = 0.0
-	CONTENT.dungeon.pact_chance = 0.0
+	var dungeon := CONTENT.dungeon
+	for key: String in ["merchant_chance", "encounters_max", "ambush_chance", "floor_event_chance", "pact_chance"]:
+		_kept_chances[key] = dungeon.get(key)
+		dungeon.set(key, 0)
 	# No curses either (they have their own test).
-	var curse_chances := {}
 	for difficulty in CONTENT.difficulties:
-		curse_chances[difficulty] = difficulty.curse_chance
+		_curse_chances[difficulty] = difficulty.curse_chance
 		difficulty.curse_chance = 0.0
-	CONTENT.dungeon.merchant_chance = 0.0
-	CONTENT.dungeon.encounters_max = 0
-	# The gameplay statistics accepted, on a fake server: the bot's run is followed (PrivacyTests).
-	var privacy := PrivacyTests.new()
-	add_child(privacy)
+
+
+func after_cases() -> void:
+	for key: String in _kept_chances:
+		CONTENT.dungeon.set(key, _kept_chances[key])
+	for difficulty: DifficultyDef in _curse_chances:
+		difficulty.curse_chance = _curse_chances[difficulty]
+	await _frames(2)
+
+
+## A test on a fresh Game: made as every game test's (_new_game()), `body` played on it, then
+## freed with the suites it borrowed. `texts_on_grid`: afterwards, every text of the HUD and the
+## in-run panels it opened is on the font's grid.
+func _on_game(body: Callable, texts_on_grid: bool = false) -> Callable:
+	return func() -> void:
+		var game := await _new_game()
+		await body.call(game)
+		if texts_on_grid and is_instance_valid(game):
+			var off_grid := _off_grid_texts(game)
+			check(off_grid.is_empty(), "every text of the HUD and the in-run panels is on the font's grid (Fonts.SIZES, a one-pixel outline): %s" % ", ".join(off_grid.slice(0, 6)))
+		await _drop_game(game)
+
+
+## A test on a fresh Game whose hero shrugs off the floor's blows (Armor 999): the floors' and
+## the weapons' tests, which a stray blow, a trap or a fire must not end (they ran after a
+## god-mode bot run when the suite was one game, and some of them need it).
+func _on_sturdy_game(body: Callable) -> Callable:
+	return _on_game(func(game: Game) -> void:
+		game.player.base_stats.defense = 999
+		game.player.invalidate_stats()
+		await body.call(game))
+
+
+## The game every game test begins on: a new Game (its first run on floor 1), no act cards (tested
+## on their own, see _test_act_card), the gameplay statistics accepted on a fake server.
+func _new_game() -> Game:
 	privacy.consent_on_fake()
 	var game := GAME_SCENE.instantiate() as Game
-	game.show_act_cards = false  # tested on their own (see _test_act_card)
+	game.show_act_cards = false
 	add_child(game)
 	await _frames(5)
+	return game
+
+
+## `suite` in the tree for the test going on (freed with its game).
+func _borrow(suite: TestSuite) -> TestSuite:
+	add_child(suite)
+	_borrowed.append(suite)
+	return suite
+
+
+func _drop_game(game: Game) -> void:
+	_set_move(Vector2.ZERO)
+	if is_instance_valid(game):
+		game.queue_free()
+	for suite in _borrowed:
+		if is_instance_valid(suite):
+			suite.queue_free()
+	_borrowed.clear()
+	await _frames(2)
+
+
+## The first run: the hero on the floor, monsters, a weapon.
+func _test_spawn(game: Game) -> void:
 	var world: World = game.world
 	var player: Player = game.player
 	check(player != null and player.world == world, "player spawned in world")
 	check(world.monster_count() > 0, "monsters spawned (%d)" % world.monster_count())
 	check(player.get_weapon() != null, "player starts with a weapon")
 
-	await combat._test_projectiles(world, player)
-	await combat._test_perks_in_game(game, world, player)
-	await combat._test_threshold(game, world, player)
-	await combat._test_synergies_in_game(game, world, player)
-	await combat._test_sustain_in_game(world, player)
-	await floor_suite._test_world_objects(game, world, player)
-	await floor_suite._test_hazards(game, world, player)
-	await floor_suite._test_abyss(game, world, player)
-	await floor_suite._test_abyss_rules(game, world, player)
-	await floor_suite._test_forge(game, world, player)
-	await floor_suite._test_feel(game, world, player)
-	await floor_suite._test_screen_pass(game, world, player)
-	await combat._test_skills(game, world, player)
-	await combat._test_bestiary(world, player)
-	await combat._test_difficulty_in_game(game, world, player)
-	var perf := PerfTests.new()  # the performance shortcuts, on this floor (PerfTests)
-	add_child(perf)
-	await perf.run_in_game(world, player)
-	perf.queue_free()
 
-	var kills := [0]
-	var depth_changes := [0]
-	Events.monster_killed.connect(func(_m: Monster) -> void: kills[0] += 1)
-	Events.depth_changed.connect(func(_d: int) -> void: depth_changes[0] += 1)
-
-	# Every consumable must work without errors.
-	player.hp = 10
-	for item in CONTENT.items:
-		if item is ConsumableDef:
-			player.inventory.add(item)
-			player.use_item(item)
-	check(player.hp > 10, "potions heal")
-	await _frames(30)
-
-	# Equip / unequip / drop round trip.
-	var bow: WeaponDef = load("res://data/items/weapons/magic_wand.tres")
-	check(player.pick_up(bow), "pick up a bow")
-	player.use_item(bow)
-	check(player.get_weapon() == bow, "bow equipped")
-	check(player.inventory.items.size() > 0, "old weapon went to the bag")
-	player.unequip(EquipmentDef.Slot.WEAPON)
-	check(player.get_weapon() == null, "weapon unequipped")
-	player.use_item(load("res://data/items/weapons/katana.tres"))
-	check(player.get_weapon() != null, "re-equipped a weapon")
-	var count := player.inventory.items.size()
-	player.drop_item(bow)
-	check(player.inventory.items.size() == count - 1, "dropped item left the bag")
-	await _frames(5)
-
-	# Animations: frame-by-frame attack in the aimed direction, weapon in hand synced with the body.
+## Animations: frame-by-frame attack in the aimed direction, weapon in hand synced with the body.
+func _test_animations(game: Game) -> void:
+	var world: World = game.world
+	var player: Player = game.player
 	var rig := player.rig
 	check(rig != null and rig.visible, "player has a visible rig")
 	player._invulnerable_time = 2.0  # a monster's hit would play the hurt animation
@@ -124,7 +223,11 @@ func run() -> void:
 	player.use_item(load("res://data/items/weapons/katana.tres"))
 	await _frames(30)
 
-	# Armor is drawn on the hero (paper doll), frame by frame with the body.
+
+## Armor is drawn on the hero (paper doll), frame by frame with the body.
+func _test_armor_look(game: Game) -> void:
+	var player: Player = game.player
+	var rig := player.rig
 	for armor_id in ["leather_cap", "iron_helm", "leather_armor", "chain_mail", "plate_armor", "shadow_cloak"]:
 		var worn: ArmorDef = load("res://data/items/armors/%s.tres" % armor_id)
 		check(worn.wear_frames != null, "%s has a worn look" % armor_id)
@@ -152,7 +255,10 @@ func run() -> void:
 	player.equipment.unequip(EquipmentDef.Slot.BODY)
 	check(not rig.helmet.visible and not rig.body_armor.visible, "removed armor disappears")
 
-	# Inventory screen opens, lists items, uses them, pauses, and closes.
+
+## The inventory screen opens, lists items, uses them, pauses, and closes.
+func _test_inventory_screen(game: Game) -> void:
+	var player: Player = game.player
 	var cap: ItemDef = load("res://data/items/armors/leather_cap.tres")
 	while not player.inventory.can_add(cap):
 		player.inventory.items.pop_back()  # (loot picked up on the way may have filled it)
@@ -178,7 +284,9 @@ func run() -> void:
 	await _frames(2)
 	check(not get_tree().paused, "closing the inventory resumes the game")
 
-	# Touch controls feed the same input actions as keyboard and gamepad.
+
+## Touch controls feed the same input actions as keyboard and gamepad.
+func _test_touch_controls(game: Game) -> void:
 	var screen := get_viewport().get_visible_rect().size
 	_touch(0, Vector2(200, screen.y - 200), true)
 	_drag(0, Vector2(290, screen.y - 200))
@@ -218,7 +326,44 @@ func run() -> void:
 	game.inventory_panel.close()
 	await _frames(2)
 
-	await _test_run_timer(game)
+
+## A run played: every consumable and the gear's round trip, a bot hunting for a while (god
+## mode), the sealed stairs, the bag's new marks of the run, death and what it records (with the
+## run's own potions, blows and kills), then restarts: shrine upgrades, difficulties, Nightmare +9,
+## the debug panel's cheats gone.
+func _test_run(game: Game) -> void:
+	var world: World = game.world
+	var player: Player = game.player
+	var kills := [0]
+	var depth_changes := [0]
+	var on_kill := func(_m: Monster) -> void: kills[0] += 1
+	var on_depth := func(_d: int) -> void: depth_changes[0] += 1
+	Events.monster_killed.connect(on_kill)
+	Events.depth_changed.connect(on_depth)
+	var debug_tools := _borrow(DebugTests.new()) as DebugTests
+	# Every consumable must work without errors.
+	player.hp = 10
+	for item in CONTENT.items:
+		if item is ConsumableDef:
+			player.inventory.add(item)
+			player.use_item(item)
+	check(player.hp > 10, "potions heal")
+	await _frames(30)
+
+	# Equip / unequip / drop round trip.
+	var bow: WeaponDef = load("res://data/items/weapons/magic_wand.tres")
+	check(player.pick_up(bow), "pick up a bow")
+	player.use_item(bow)
+	check(player.get_weapon() == bow, "bow equipped")
+	check(player.inventory.items.size() > 0, "old weapon went to the bag")
+	player.unequip(EquipmentDef.Slot.WEAPON)
+	check(player.get_weapon() == null, "weapon unequipped")
+	player.use_item(load("res://data/items/weapons/katana.tres"))
+	check(player.get_weapon() != null, "re-equipped a weapon")
+	var count := player.inventory.items.size()
+	player.drop_item(bow)
+	check(player.inventory.items.size() == count - 1, "dropped item left the bag")
+	await _frames(5)
 
 	# Play: hunt monsters for a while (god mode so the run lasts).
 	player.base_stats.defense = 999
@@ -242,48 +387,6 @@ func run() -> void:
 	check(depth_changes[0] >= 1, "depth_changed emitted")
 	check(world.monster_count() > 0, "new floor populated")
 	check(not get_tree().paused and game._fade.color.a < 0.05, "the fade clears on the new floor")
-	await floor_suite._test_ambience(game)
-	await floor_suite._test_act_card(game)
-	await floor_suite._test_souls(game)
-	await floor_suite._test_comfort(game)
-	await floor_suite._test_loot_and_gold(game)
-	await floor_suite._test_bag_room(game)
-	await combat._test_weapon_kits(game)
-	await combat._test_charged_attacks(game)
-	await combat._test_four_directions(game)
-	await combat._test_own_effects(game)
-	await combat._test_elemental_attacks(game)
-	await floor_suite._test_encounters(game)
-	await floor_suite._test_pacts(game)
-	await floor_suite._test_variety(game)
-	await floor_suite._test_floor_size(game)
-	await floor_suite._test_routes(game)
-	await floor_suite._test_soul_tree_run(game)
-	await floor_suite._test_status_looks(game)
-	await floor_suite._test_biomes(game)
-	await levels.run_game(game)
-	await floor_suite._test_details(game)
-	await floor_suite._test_belt_and_balance(game)
-	await combat._test_monster_behaviours(game)
-	await combat._test_ai_movement(game)
-	await floor_suite._test_climate(game)
-	await floor_suite._test_spacing(game)
-	await combat._test_review_fixes(game)
-	var core := CoreTests.new()
-	add_child(core)
-	await core.run_game(game)
-	core.free()
-	await floor_suite._test_debug_panel(game)
-	var debug_tools := DebugTests.new()
-	add_child(debug_tools)
-	await debug_tools.run_game(game)
-
-	await secrets._test_secret_rooms(game)
-	await secrets._test_hidden_floor(game)
-	await boss._test_boss_fight(game)
-
-	await floor_suite._test_bodies_fit(game)  # (it builds other floors: the run ends right after)
-
 	# The bag's new marks and its tab belong to the run: seen now, a rune is new in the next one.
 	var rune: RuneDef = load("res://data/runes/ember.tres")
 	var bag_panel := game.inventory_panel
@@ -313,8 +416,7 @@ func run() -> void:
 	player.take_hit(hit)
 	check(player.is_dead, "player can die")
 	check(not game.threshold.is_open(), "no second life, no Threshold")
-	await get_tree().create_timer(1.5).timeout
-	check(game.game_over_panel.visible, "game over screen shown")
+	check(await _until(func() -> bool: return game.game_over_panel.visible), "game over screen shown")
 	privacy.game_summary(player)  # what the run's end sent (and the tests' usual again)
 	check(not RunSave.exists(), "dying ends the saved run")
 	check(not Profile.history.is_empty() and not str(Profile.history[0].cause).is_empty(), "the run goes to the history, with what ended it")
@@ -373,8 +475,12 @@ func run() -> void:
 	check(CONTENT.unlocked_items.has(load("res://data/items/weapons/templar_sword.tres")), "Templar's Vow unlocks the Templar Sword")
 	Profile.reset()
 	check(game.depth == 1, "restart goes back to depth 1")
+	Events.monster_killed.disconnect(on_kill)
+	Events.depth_changed.disconnect(on_depth)
 
-	# The daily run: the same floors, weapon and relic all day; the first attempt counts.
+
+## The daily run: the same floors, weapon and relic all day; the first attempt counts.
+func _test_daily_run(game: Game) -> void:
 	var day := DailyRun.today()
 	game.start_run(true)
 	await _frames(3)
@@ -400,14 +506,9 @@ func run() -> void:
 	check(not game.run.is_daily(), "Play starts a normal run")
 	Profile.reset()
 
-	# The bottom of the Well, once a run was won: Tôma, the Maw, an ending.
-	await finale._test_finale(game)
-	await finale._test_finale_story(game)
-	await finale._test_nameless_keeper(game)
-	game.start_run()
-	await _frames(3)
 
-	# The run in progress is saved, and picked up again as it was.
+## The run in progress is saved, and picked up again as it was.
+func _test_save_and_resume(game: Game) -> void:
 	check(RunSave.exists(), "the run in progress is saved")
 	var hero: Player = game.player
 	var wand: ItemDef = load("res://data/items/weapons/magic_wand.tres")
@@ -476,7 +577,9 @@ func run() -> void:
 	check(not logged.any(func(text: String) -> bool: return text.begins_with("The seal shatters")) and not game.world.get_node("Effects").get_children().any(func(n: Node) -> bool: return n is GuideWisp), "...quietly: no fanfare, no guiding light again (%s)" % [logged])
 	check(game.world.player == game.player, "the floor's hero is the new one")
 
-	# A second bot run on the fresh character at higher depths, mortal this time.
+
+## A second bot run on a fresh character at higher depths, mortal this time; the slain stay dead.
+func _test_mortal_run(game: Game) -> void:
 	# Monsters must be able to hurt a player who just stands there.
 	var victim: Player = game.player
 	var hp_before := victim.hp
@@ -490,39 +593,12 @@ func run() -> void:
 	await _bot_play(game, 60 * 20)
 	print("bot (depth 4, mortal): hp %d/%d, dead=%s" % [game.player.hp, game.player.get_max_hp(), game.player.is_dead])
 	await floor_suite._test_slain_stay_dead(game)
-	# Put away and picked up again: what the floor's seed laid stays used up (SaveTests).
-	var saves := SaveTests.new()
-	add_child(saves)
-	await saves.run_game(game)
-	await combat._test_threshold_lost(game)
-	await floor_suite._test_abyss_death(game)
-	# Keyboards, mice and gamepads: the HUD, the panels, the layouts (PcTests).
-	var pc := PcTests.new()
-	add_child(pc)
-	await pc.run_game(game)
-	# The bag's tabs and quick actions on every device (BagTests).
-	var bag_suite := BagTests.new()
-	add_child(bag_suite)
-	await bag_suite.run_bag_game(game)
-	# The wardens' stories, on a fresh run (StoryTests).
-	var story := StoryTests.new()
-	add_child(story)
-	await story.run_game(game)
-	# The Vigil-Keeper tells a real death; the keepers' panels (DialogueTests).
-	var dialogue := DialogueTests.new()
-	add_child(dialogue)
-	await dialogue.run_game(game)
-	var off_grid := _off_grid_texts(game)
-	check(off_grid.is_empty(), "every text of the HUD and the in-run panels is on the font's grid (Fonts.SIZES, a one-pixel outline): %s" % ", ".join(off_grid.slice(0, 6)))
-	game.queue_free()
-	CONTENT.dungeon.merchant_chance = merchant_chance
-	CONTENT.dungeon.encounters_max = encounters_max
-	CONTENT.dungeon.ambush_chance = ambush_chance
-	CONTENT.dungeon.floor_event_chance = event_chance
-	CONTENT.dungeon.pact_chance = pact_chance
-	for difficulty in curse_chances:
-		difficulty.curse_chance = curse_chances[difficulty]
-	await _frames(2)
+
+
+## The debug panel (FloorTests' part leaves its god mode on: DebugTests asks for a clean slate).
+func _test_debug_tools(game: Game) -> void:
+	await floor_suite._test_debug_panel(game)
+	await (_borrow(DebugTests.new()) as DebugTests).run_game(game)
 
 
 ## The run's clock: counts in play and in the bag, not in the pause menu; on the HUD.

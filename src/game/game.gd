@@ -25,6 +25,9 @@ const FADE_TIME := 0.3
 static var resume_requested := false
 ## Set by the title screen's Daily button: today's daily run (DailyRun) instead of a normal one.
 static var daily_requested := false
+## The tests' seeds (the test runner's --seed, seed_runs()): each new run's world takes the next
+## one instead of a random seed, so a failed test plays the same floors again. Null in the game.
+static var _run_seeds: RandomNumberGenerator = null
 
 @export var content: ContentDB
 ## Title cards on black (a new act, a curse). Tests turn them off to save time.
@@ -205,6 +208,16 @@ func _connect_events() -> void:
 
 # --- Runs --------------------------------------------------------------------
 
+## The tests: every run from now on seeded from `value` (the runner gives each test its own),
+## or random again (the game's way) with a negative value.
+static func seed_runs(value: int) -> void:
+	if value < 0:
+		_run_seeds = null
+		return
+	_run_seeds = RandomNumberGenerator.new()
+	_run_seeds.seed = value
+
+
 ## `daily`: today's daily run (DailyRun) instead of a normal one.
 func start_run(daily: bool = false) -> void:
 	_begin_run({}, daily)
@@ -235,7 +248,10 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 		player.queue_free()
 	world.player = null  # (the new floor is built before the new hero is placed: nobody on it)
 
-	world.rng.randomize()
+	if _run_seeds:
+		world.rng.seed = _run_seeds.randi()
+	else:
+		world.rng.randomize()
 	var day := DailyRun.today() if daily and saved.is_empty() else -1
 	if day >= 0:
 		world.rng.seed = DailyRun.seed_of(day)  # the same bosses all day

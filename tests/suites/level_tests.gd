@@ -4,6 +4,10 @@ extends TestSuite
 ## the shapes' geometry and every biome's generated floors (run_unit), then built floors in the
 ## game: what stands where, the ceiling over the hero, the minimap (run_game).
 
+## Each biome's ceilings on the floors run_game() built (_note_ceiling()): BiomeDef -> pieces,
+## kinds, pieces off the grid. Read by _test_ceilings(), which so builds none of them again.
+var _ceilings_seen := {}
+
 
 func run_unit() -> void:
 	_test_shape_geometry()
@@ -139,6 +143,7 @@ func _test_shaped_floors() -> void:
 ## in, pillars stand, nothing else (prop, trap, chest, monster) inside rock, a chasm or a pool,
 ## every open cell reachable; the minimap draws the rooms' shapes.
 func run_game(game: Game) -> void:
+	_ceilings_seen.clear()
 	var depth_before := game.depth
 	var dungeon := CONTENT.dungeon
 	var seen_features := {}
@@ -160,6 +165,7 @@ func run_game(game: Game) -> void:
 				seen_pillars += world.map.pillars.size()
 				if not minimap_checked:
 					minimap_checked = _check_minimap(world)
+				_note_ceiling(world, biome)  # (_test_ceilings() checks them: built once for both)
 	# And floors made only of shaped rooms (chasms, pools, pillars, rings: each on every floor).
 	var mixed: BiomeDef = dungeon.acts[0].biomes[0].duplicate()
 	var every: Array[RoomShapeDef] = []
@@ -248,22 +254,15 @@ func _test_ceilings(game: Game) -> void:
 	var bare: Array[String] = []
 	var off_grid: Array[String] = []
 	var kinds := {}
+	# Every biome's two floors, as run_game() built them (_note_ceiling()).
 	for a in dungeon.acts.size():
 		for biome in dungeon.acts[a].biomes:
 			check(biome.ceiling != null and biome.ceiling.atlas != null and not biome.ceiling.pieces.is_empty(), "%s: something hangs over its rooms" % biome.id)
-			var pieces := 0
-			for attempt in 2:
-				game.world.overrides.biome = biome
-				await game.debug.enter_floor(dungeon.first_depth(a) + 1 + attempt)
-				var ceiling := game.world.ceiling
-				if ceiling == null:
-					continue
-				pieces += ceiling.laid.size()
-				for one in ceiling.laid:
-					kinds[one.def.where] = true
-					for target in one.targets:
-						if fmod(target.position.x, 2.0) != 0.0 or fmod(target.position.y, 2.0) != 0.0 or fmod(absf(target.size.x), 2.0) != 0.0:
-							off_grid.append("%s %s" % [biome.id, target])
+			var seen: Dictionary = _ceilings_seen.get(biome, {})
+			var pieces: int = seen.get("pieces", 0)
+			for where: int in seen.get("kinds", {}):
+				kinds[where] = true
+			off_grid.append_array(seen.get("off_grid", []))
 			if pieces < 6:
 				bare.append("%s (%d)" % [biome.id, pieces])
 	check(bare.is_empty(), "every biome's floors have a ceiling, a good few pieces on two floors (too few: %s)" % ", ".join(bare))
@@ -316,6 +315,21 @@ func _test_ceilings(game: Game) -> void:
 	world = game.world
 	var over_arena := world.ceiling.laid.filter(func(one: CeilingLayer.Laid) -> bool: return world.map.boss_room.has_point(world.map.world_to_cell(one.under))) if world.ceiling else []
 	check(over_arena.is_empty(), "nothing hangs over a boss arena")
+
+
+## What hangs over `world`'s floor of `biome`, noted for _test_ceilings(): its pieces, their
+## kinds, those off the art's grid (drawn at 2x).
+func _note_ceiling(world: World, biome: BiomeDef) -> void:
+	var seen: Dictionary = _ceilings_seen.get_or_add(biome, { "pieces": 0, "kinds": {}, "off_grid": [] })
+	var ceiling := world.ceiling
+	if ceiling == null:
+		return
+	seen.pieces += ceiling.laid.size()
+	for one in ceiling.laid:
+		seen.kinds[one.def.where] = true
+		for target in one.targets:
+			if fmod(target.position.x, 2.0) != 0.0 or fmod(target.position.y, 2.0) != 0.0 or fmod(absf(target.size.x), 2.0) != 0.0:
+				seen.off_grid.append("%s %s" % [biome.id, target])
 
 
 ## The floor's monsters as they were placed (before the physics moved them): none inside

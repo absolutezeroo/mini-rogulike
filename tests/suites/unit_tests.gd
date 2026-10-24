@@ -6,143 +6,84 @@ const SettingsScript := preload("res://src/autoload/settings.gd")  # its static 
 
 const PLAYER: PackedScene = preload("res://src/entities/player/player.tscn")
 
-func run() -> void:
-	_test_stat_block()
-	_test_combat_rules()
-	_test_content()
-	_test_sprite_frames_whole()
-	_test_attack_preview_fans()
-	_test_biome_content()
-	_test_quests()
-	_test_generation()
-	_test_secret_rooms()
-	_test_hidden_floor()
-	_test_finale()
-	_test_stairs_seal()
-	_test_save_rules()
-	_test_inventory_and_equipment()
-	_test_bag_stacks_and_dismantle()
-	_test_perks()
-	_test_sustain()
-	_test_synergies()
-	_test_family_themes()
-	_test_bestiary()
-	_test_monster_ranks()
-	_test_arenas()
-	_test_lighting()
-	_test_runes()
-	_test_item_levels()
-	_test_routes()
-	_test_pacts()
-	_test_soul_tree()
-	_test_armory_levels()
-	_test_tree_reset_runs()
-	_test_loader()
-	_test_export_presets()
-	_test_pilgrim_costs()
-	_test_bosses()
-	_test_boss_slows()
-	_test_nameless_keeper()
-	_test_profile()
-	_test_soul_economy()
-	_test_run_time()
-	_test_floor_size()
-	_test_plateau_mist()
-	_test_languages()
-	_test_threshold()
-	_test_abyss()
-	_test_text_grid()
-	_test_charged_attacks()
-	_test_blows_in_four_directions()
-	# The performance shortcuts give the plain ways' answers (PerfTests).
-	var perf := PerfTests.new()
-	add_child(perf)
-	perf.run_unit()
-	perf.free()
-	var sound := SoundTests.new()
-	sound.run()
-	sound.free()
-	var vfx := VfxTests.new()
-	vfx.run()
-	vfx.free()
-	# The floors' identity: room shapes, ceilings, signature rooms (LevelTests).
-	var levels := LevelTests.new()
-	add_child(levels)
-	levels.run_unit()
-	levels.free()
-	# The same seed lays the same floor, every kind of floor (FloorDeterminismTests).
-	var determinism := FloorDeterminismTests.new()
-	add_child(determinism)
-	await determinism.run_unit()
-	determinism.free()
-	# The debug panel's cheats and gallery (DebugTests).
-	var debug_tools := DebugTests.new()
-	add_child(debug_tools)
-	debug_tools.run_unit()
-	debug_tools.free()
-	# The online leaderboards, on a fake server (LeaderboardTests).
-	var boards := LeaderboardTests.new()
-	add_child(boards)
-	await boards.run_unit()
-	boards.free()
-	# The privacy choices, the gameplay statistics and the credits (PrivacyTests).
-	var privacy := PrivacyTests.new()
-	add_child(privacy)
-	await privacy.run_unit()
-	privacy.free()
-	# The world counters, the Well's Toll (WorldStatsTests).
-	var world_stats := WorldStatsTests.new()
-	add_child(world_stats)
-	await world_stats.run_unit()
-	world_stats.free()
-	# The remote settings (RemoteConfigTests).
-	var remote := RemoteConfigTests.new()
-	add_child(remote)
-	await remote.run_unit()
-	remote.free()
-	# Player feedback (FeedbackTests).
-	var feedback := FeedbackTests.new()
-	add_child(feedback)
-	await feedback.run_unit()
-	feedback.free()
-	# What the online services share: the session, the file and queue helper, the start-up in
-	# any order (OnlineSessionTests); Talo's answers as TaloBackend reads them (TaloContractTests).
-	var session := OnlineSessionTests.new()
-	add_child(session)
-	await session.run_unit()
-	session.free()
-	var talo := TaloContractTests.new()
-	add_child(talo)
-	await talo.run_unit()
-	talo.free()
-	var gear := GearLookTests.new()
-	add_child(gear)
-	gear.run()
-	gear.free()
-	var story := StoryTests.new()
-	add_child(story)
-	await story.run_unit()
-	story.free()
-	# Keyboards, mice and gamepads (PcTests).
-	var pc := PcTests.new()
-	add_child(pc)
-	await pc.run_unit()
-	pc.free()
-	# The bag's tabs and actions (BagTests).
-	var bag_suite := BagTests.new()
-	add_child(bag_suite)
-	bag_suite.run_bag_unit()
-	bag_suite.free()
-	# The Vigil-Keeper and the keepers: lines, tales, advice, memory, the box (DialogueTests).
-	var dialogue := DialogueTests.new()
-	add_child(dialogue)
-	await dialogue.run_unit()
-	dialogue.free()
-	# The gameplay's core after its audit: numbers in data, FloorRules, one twist roller (CoreTests).
-	var core := CoreTests.new()
-	add_child(core)
-	core.run_unit()
-	core.free()
+
+## Each part alone (tests/run_tests.gd runs them one by one, timed: --test=unit.<name>).
+func test_cases() -> Array:
+	return [
+		["stat_block", _test_stat_block],
+		["combat_rules", _test_combat_rules],
+		["content", _test_content],
+		["sprite_frames_whole", _test_sprite_frames_whole],
+		["attack_preview_fans", _test_attack_preview_fans],
+		["biome_content", _test_biome_content],
+		["quests", _test_quests],
+		["generation", _test_generation],
+		["secret_rooms", _test_secret_rooms],
+		["hidden_floor", _test_hidden_floor],
+		["finale", _test_finale],
+		["stairs_seal", _test_stairs_seal],
+		["save_rules", _test_save_rules],
+		["inventory_and_equipment", _test_inventory_and_equipment],
+		["bag_stacks_and_dismantle", _test_bag_stacks_and_dismantle],
+		["perks", _test_perks],
+		["sustain", _test_sustain],
+		["synergies", _test_synergies],
+		["family_themes", _test_family_themes],
+		["bestiary", _test_bestiary],
+		["monster_ranks", _test_monster_ranks],
+		["arenas", _test_arenas],
+		["lighting", _test_lighting],
+		["runes", _test_runes],
+		["item_levels", _test_item_levels],
+		["routes", _test_routes],
+		["pacts", _test_pacts],
+		["soul_tree", _test_soul_tree],
+		["armory_levels", _test_armory_levels],
+		["tree_reset_runs", _test_tree_reset_runs],
+		["loader", _test_loader],
+		["export_presets", _test_export_presets],
+		["pilgrim_costs", _test_pilgrim_costs],
+		["bosses", _test_bosses],
+		["boss_slows", _test_boss_slows],
+		["nameless_keeper", _test_nameless_keeper],
+		["profile", _test_profile],
+		["soul_economy", _test_soul_economy],
+		["run_time", _test_run_time],
+		["floor_size", _test_floor_size],
+		["plateau_mist", _test_plateau_mist],
+		["languages", _test_languages],
+		["threshold", _test_threshold],
+		["abyss", _test_abyss],
+		["text_grid", _test_text_grid],
+		["charged_attacks", _test_charged_attacks],
+		["blows_in_four_directions", _test_blows_in_four_directions],
+		["perf", func() -> void: await _part(PerfTests.new(), func(suite: PerfTests) -> void: suite.run_unit())],
+		["sound", func() -> void: await _part(SoundTests.new(), func(suite: SoundTests) -> void: suite.run())],
+		["vfx", func() -> void: await _part(VfxTests.new(), func(suite: VfxTests) -> void: suite.run())],
+		["level", func() -> void: await _part(LevelTests.new(), func(suite: LevelTests) -> void: suite.run_unit())],
+		["floor_determinism", func() -> void: await _part(FloorDeterminismTests.new(), func(suite: FloorDeterminismTests) -> void: await suite.run_unit())],
+		["debug", func() -> void: await _part(DebugTests.new(), func(suite: DebugTests) -> void: suite.run_unit())],
+		["leaderboard", func() -> void: await _part(LeaderboardTests.new(), func(suite: LeaderboardTests) -> void: await suite.run_unit())],
+		["privacy", func() -> void: await _part(PrivacyTests.new(), func(suite: PrivacyTests) -> void: await suite.run_unit())],
+		["world_stats", func() -> void: await _part(WorldStatsTests.new(), func(suite: WorldStatsTests) -> void: await suite.run_unit())],
+		["remote_config", func() -> void: await _part(RemoteConfigTests.new(), func(suite: RemoteConfigTests) -> void: await suite.run_unit())],
+		["feedback", func() -> void: await _part(FeedbackTests.new(), func(suite: FeedbackTests) -> void: await suite.run_unit())],
+		["online_session", func() -> void: await _part(OnlineSessionTests.new(), func(suite: OnlineSessionTests) -> void: await suite.run_unit())],
+		["talo_contract", func() -> void: await _part(TaloContractTests.new(), func(suite: TaloContractTests) -> void: await suite.run_unit())],
+		["gear_look", func() -> void: await _part(GearLookTests.new(), func(suite: GearLookTests) -> void: suite.run())],
+		["story", func() -> void: await _part(StoryTests.new(), func(suite: StoryTests) -> void: await suite.run_unit())],
+		["pc", func() -> void: await _part(PcTests.new(), func(suite: PcTests) -> void: await suite.run_unit())],
+		["bag", func() -> void: await _part(BagTests.new(), func(suite: BagTests) -> void: suite.run_bag_unit())],
+		["dialogue", func() -> void: await _part(DialogueTests.new(), func(suite: DialogueTests) -> void: await suite.run_unit())],
+		["core", func() -> void: await _part(CoreTests.new(), func(suite: CoreTests) -> void: suite.run_unit())],
+	]
+
+
+## A borrowed suite's part: `suite` in the tree while `body` runs on it, then freed.
+func _part(suite: TestSuite, body: Callable) -> void:
+	add_child(suite)
+	await body.call(suite)
+	suite.free()
 
 
 ## Text keeps whole pixels (Fonts, docs/design/interface.md "Text"): the font (Pixel Operator 8) is

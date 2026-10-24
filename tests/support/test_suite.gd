@@ -16,6 +16,23 @@ func _init() -> void:
 	GAME_SCENE = load("res://src/game/game.tscn")
 
 
+## The suite's tests, in order: [name, Callable] pairs, each run alone by the runner (--test,
+## --shard; tests/run_tests.gd), timed, after the shared state is put back (_reset() there). A
+## suite of one piece keeps this: its run() as one test named after the suite.
+func test_cases() -> Array:
+	return [["", Callable(self, &"run")]]
+
+
+## Before the suite's first test (in this process) and after its last: what its tests share
+## (a game suite's content tweaks). The runner awaits them.
+func before_cases() -> void:
+	pass
+
+
+func after_cases() -> void:
+	pass
+
+
 func check(condition: bool, message: String) -> void:
 	checks += 1
 	if not condition:
@@ -419,6 +436,17 @@ func _tap_offers(game: Game) -> bool:
 func _frames(count: int) -> void:
 	for i in count:
 		await get_tree().physics_frame
+
+
+## Waits until `condition` holds, `seconds` at most (in physics steps, as _frames()). True if it
+## came. For what happens "a moment later" (an end screen after a killing blow, under the hit
+## stop's slow motion): a fixed wait guesses how long the moment lasts.
+func _until(condition: Callable, seconds: float = 4.0) -> bool:
+	for i in int(seconds * 60.0):
+		if condition.call():
+			return true
+		await _frames(1)
+	return condition.call()
 
 
 # --- The Threshold (second lives) --------------------------------------------
