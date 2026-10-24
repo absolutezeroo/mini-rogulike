@@ -96,6 +96,10 @@ The game's key needs these scopes (already set): Players read/write, Leaderboard
    (default 90 days when turned on). Deleting a player also deletes its aliases, leaderboard
    entries, events and stats.
 3. Display name prop key = `name`, profanity filter on (already in [online.md](online.md)).
+4. **Data exports** (Services > Export, to read the statistics: online.md "Reading the
+   statistics"): the ZIP holds every event with the player's ids (the device id). Keep it on your
+   own computer, never in git (`.gitignore` ignores `export-*.zip`), and delete it once the page
+   is made. The page `tools/stats/build_dashboard.py` makes holds only totals, no player id.
 
 The exact menu labels could not be checked from here (the dashboard needs a login, and its docs
 page was unreachable): look in the game's **Settings** for "Data retention" / "Purge players", and
