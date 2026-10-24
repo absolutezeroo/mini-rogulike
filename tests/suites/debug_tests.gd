@@ -243,13 +243,20 @@ func _test_invisible(game: Game) -> void:
 	var monster := world.spawn_monster(skeleton, player.global_position + (lane[1] as Vector2) * 60.0)
 	check(world.has_line_of_sight(monster.global_position, player.global_position) and monster.global_position.distance_to(player.global_position) < monster.detect_radius(),
 		"set up: the monster stands in the hero's sight, within its reach")
-	var hp := player.hp
+	# Its blows on the hero, counted (not his Health: a blow cast before, by a monster of the last
+	# test cleared since, may still land; slime rain did, with --seed=77).
+	var struck := [0]
+	var count_blow := func(actor: Actor, hit: HitInfo, _damage: int) -> void:
+		if actor == player and hit.source == monster:
+			struck[0] += 1
+	Events.actor_damaged.connect(count_blow)
 	await _frames(90)
-	check(monster.target == null and player.hp == hp, "invisible: a monster in sight never notices the hero")
+	check(monster.target == null and struck[0] == 0, "invisible: a monster in sight never notices the hero")
 	monster.target = player  # an ambush, a chest, a camp's watch send it after him
 	monster.take_hit(Combat.make_secondary_hit(player, 1))  # and so does a blow
 	await _frames(30)
-	check(monster.target == null and player.hp == hp, "invisible: sent after him or struck, it forgets him")
+	check(monster.target == null and struck[0] == 0, "invisible: sent after him or struck, it forgets him")
+	Events.actor_damaged.disconnect(count_blow)
 	DebugCheats.set_invisible(false)
 	await _frames(60)
 	check(monster.target == player, "visible again: it notices him")
