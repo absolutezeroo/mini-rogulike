@@ -236,6 +236,7 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	if player:
 		player.get_parent().remove_child(player)
 		player.queue_free()
+	world.player = null  # (the new floor is built before the new hero is placed: nobody on it)
 
 	world.rng.randomize()
 	var day := DailyRun.today() if daily and saved.is_empty() else -1
@@ -253,10 +254,13 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	world.clear_floor()  # the last run's merchant must not pass its locked stock on
 	world.floors_without_forge = int(saved.get("floors_without_forge", 0))
 	world.kept_stock.clear()
-	for saved_entry: Dictionary in saved.get("kept_stock", []):
-		var item := LootRoller.from_data(saved_entry.get("item"))
+	var saved_stock: Variant = saved.get("kept_stock", [])
+	for saved_entry: Variant in saved_stock if saved_stock is Array else []:
+		if not saved_entry is Dictionary:
+			continue
+		var item := LootRoller.from_data((saved_entry as Dictionary).get("item"))
 		if item:
-			world.kept_stock.append({ "item": item, "price": int(saved_entry.get("price", 1)), "locked": true })
+			world.kept_stock.append({ "item": item, "price": int((saved_entry as Dictionary).get("price", 1)), "locked": true })
 	player = PLAYER_SCENE.instantiate() as Player
 	player.setup(content.player)
 	player.died.connect(_on_player_died)
@@ -277,7 +281,9 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 	else:
 		player.load_state(saved.get("player", {}))
 		offers.load_data(saved.get("offers", []))
-		world.restore_spent(saved.get("floor", {}))  # chests opened, stock bought before quitting
+		# Chests opened, stock bought, items taken... before quitting; nothing if another build
+		# saved it (the same seed may lay another floor: it is laid fresh, said below).
+		world.restore_spent(RunSave.floor_of(saved))
 	# The tree's run rules and the oath's (gold, loot, the merchant, heals, crits, the minimap).
 	world.boons = RunBoons.build(content, run.oath) if not run.is_daily() else RunBoons.new()
 	player.healing_scale = world.boons.healing_scale
@@ -302,6 +308,8 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 		create_tween().tween_property(_fade, "color:a", 0.0, FADE_TIME * 1.5)
 	else:
 		_enter_floor(not saved.is_empty())
+	if RunSave.floor_outdated(saved):
+		hud.toast(tr("The Well has shifted since you left: this floor is laid anew."))
 	tutorial.cue(&"run_start")
 	if run.ending_due:
 		# Won at the bottom, the ending not chosen yet: the souls were given at the win, and the

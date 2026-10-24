@@ -89,7 +89,8 @@ src/
   dungeon/             Map data, generator (its rooms' shapes: RoomPlan; its secret rooms: SecretRoomPlan), drawing
   world/               World (owns the current floor), FloorRules (how hard and rewarding it is),
                        NavGrid (pathfinding), FogOfWar (what the hero has seen), WallBuilder,
-                       FloorPopulator, FragmentPlacer, BossArena (and its Storyteller), AmbushRoom, RoomGates, PitLayer, SecretRoom; PocketWorld
+                       FloorPopulator, FloorLedger (what the hero used up of what the seed laid, for the
+                       save), FragmentPlacer, BossArena (and its Storyteller), AmbushRoom, RoomGates, PitLayer, SecretRoom; PocketWorld
                        (a World built beside the floor for a while) > ThresholdWorld (the limbo of a second
                        life's trial), AbyssWorld (the Deeps a fall takes the hero to);
                        dressing/ (FloorDresser: a floor in its biome, RoomSpace); RoomFeatures (the shaped

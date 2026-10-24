@@ -5,6 +5,9 @@ extends Area2D
 ## shows it with a Take button while the hero stands on it (Events.loot_offered, LootPrompt).
 ## Its rarity shows on the floor (LootShine; a rim and a glint on the icon), a rune its element.
 
+## Picked up by the hero (the World keeps it for the floor's save: FloorLedger).
+signal taken(pickup: ItemPickup)
+
 const PICKUP_RADIUS := 14.0
 
 var item: ItemDef
@@ -67,6 +70,7 @@ func take(player: Player) -> bool:
 		return false
 	_taken = true
 	_left()
+	taken.emit(self)
 	queue_free()
 	return true
 

@@ -41,9 +41,10 @@ enum Kind {
 @export var perk: PerkDef
 
 @export_group("Run rules")
-## Multiplies the hero's starting max Health (RULES).
+## Multiplies the hero's starting max Health (RULES). Once, whatever the level: an upgrade that
+## sets it has one level.
 @export var max_hp_scale: float = 1.0
-## Multiplies every heal the hero gets.
+## Multiplies every heal the hero gets. Once, whatever the level, like max_hp_scale.
 @export var healing_scale: float = 1.0
 ## Share of max Health healed when a floor's stairs open (or its boss falls), per level.
 @export_range(0.0, 0.5) var heal_on_clear: float = 0.0

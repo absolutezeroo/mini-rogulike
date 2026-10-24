@@ -5,6 +5,8 @@ extends RefCounted
 
 ## The end of a record key for the runs won at the bottom of the Well (record_key()).
 const BOTTOM_RECORD := "bottom"
+## The saved `last_boss` when it was the Nameless Keeper (made at the run's start, no file).
+const KEEPER_BOSS := "keeper"
 
 var depth := 1
 var kills := 0
@@ -21,7 +23,9 @@ var souls_awarded := 0
 var run_gold := 0
 ## Already in the profile's history (a won run is recorded once, when it ends).
 var history_recorded := false
-## The boss of the last cleared boss floor (its relic, in endless mode). Not saved.
+## The boss of the last cleared boss floor (its relic, in endless mode: a run won, put away and
+## picked up again before "Continue" still gets it). Saved (KEEPER_BOSS: the Nameless Keeper,
+## made again from `keeper`).
 var last_boss: BossDef
 ## Perk choices: rerolls (three new cards) and banishes left, and the perks banished for the run.
 var rerolls := 0
@@ -164,9 +168,10 @@ static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGener
 	run.finish_time = float(saved.get("finish_time", -1.0))
 	if saved.has("oath"):
 		run.oath = RunSave.load_ref(saved["oath"]) as OathDef
-	var taken: Dictionary = saved.get("routes", {})
-	for key: Variant in taken:
-		run.routes[int(key)] = int(taken[key])
+	var taken: Variant = saved.get("routes", {})
+	if taken is Dictionary:
+		for key: Variant in taken:
+			run.routes[int(str(key))] = int(taken[key])
 	for split_time: Variant in saved.get("splits", []):
 		run.splits.append(float(split_time))
 	if saved.has("rerolls"):
@@ -186,6 +191,11 @@ static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGener
 		for act in content.dungeon.acts:
 			var choices := act.all_bosses()
 			run.bosses.append(choices[rng.randi_range(0, choices.size() - 1)] if not choices.is_empty() else null)
+	var saved_last: Variant = saved.get("last_boss", "")
+	if str(saved_last) == KEEPER_BOSS:
+		run.last_boss = run.keeper_boss
+	else:
+		run.last_boss = RunSave.load_ref(saved_last) as BossDef
 	return run
 
 
@@ -256,6 +266,7 @@ func to_data() -> Dictionary:
 		"difficulty": String(difficulty.id),
 		"ascension": difficulty.ascension,
 		"remote": tuning.to_data(),
+		"last_boss": KEEPER_BOSS if last_boss and last_boss == keeper_boss else RunSave.ref(last_boss),
 	}
 
 
@@ -388,7 +399,7 @@ func place_name_key(content: ContentDB) -> String:
 	if finale and content.dungeon.finale:
 		return content.dungeon.finale.title
 	var act := content.dungeon.act_for_depth(depth)
-	return act.title if act else tr("Dungeon")
+	return act.title if act else "Dungeon"  # i18n
 
 
 ## The run's numbers for the end-of-run screen, as [label, value] pairs (Difficulty, Reached,
@@ -416,16 +427,3 @@ func summary_rows(content: ContentDB, level: int, time_note: String = "") -> Arr
 		rows.append([tr("Daily score"), "%d  %s" % [DailyRun.score(self), note]])
 	return rows
 
-
-## "Keeper - The Well's Maw, depth 3, level 5 / 42 monsters slain, 1 boss" (+ the daily score).
-func summary(content: ContentDB, level: int) -> String:
-	var text := tr("%s - %s, depth %d, level %d\n%d monsters slain, %d bosses") % [
-		tr(difficulty.display_name), place_name(content), depth, level, kills, bosses_slain]
-	text += "\n" + tr("Time %s") % TimeText.of(run_time())
-	var record := Profile.best_time(record_key())
-	if record > 0.0 and finish_time < 0.0:
-		text += "   " + tr("(record %s)") % TimeText.of(record)
-	if is_daily():
-		var note := tr("(best %d)") % Profile.daily_best if daily_official else tr("(practice)")
-		text += "\n" + tr("Daily score %d") % DailyRun.score(self) + "  " + note
-	return text

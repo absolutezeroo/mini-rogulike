@@ -18,6 +18,10 @@ const MIN_SPAWN_DISTANCE := 90.0
 var state := State.WAITING
 var room: Rect2i
 var waves_left := 0
+## Where its reward chest was put down when it was cleared (DungeonMap.NO_CELL: not yet, or
+## none): saved with the floor, so a resumed floor puts the chest back there, wherever the hero
+## stands (World.spent_data() "ambush").
+var reward_cell := DungeonMap.NO_CELL
 
 var _world: World
 var _gates: RoomGates
@@ -169,6 +173,19 @@ func _finish() -> void:
 	var chest_def := _world.config().ambush_chest
 	if chest_def:
 		var cell := _reward_cell()
+		reward_cell = cell
 		Vfx.magic(_world, _world.map.cell_to_world(cell), Palette.GOLD)
 		_world.spawn_chest(chest_def, cell, false)
 	Events.ambush_cleared.emit(self)
+
+
+## A resumed floor: it was cleared before quitting. It stays quiet, its chest back where it was
+## put down (`cell`; NO_CELL: none). Whether the chest was opened is the floor's chests' business.
+func restore_cleared(cell: Vector2i) -> void:
+	if state != State.WAITING:
+		return
+	state = State.CLEARED
+	var chest_def := _world.config().ambush_chest
+	if chest_def and cell != DungeonMap.NO_CELL and _world.map.is_floor(cell):
+		reward_cell = cell
+		_world.spawn_chest(chest_def, cell, false)
