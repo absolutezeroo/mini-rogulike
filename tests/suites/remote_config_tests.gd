@@ -131,6 +131,7 @@ func _test_data() -> void:
 	var moment: Dictionary = RemoteConfigScript.parse_date("2026-10-31T18:30:00Z")
 	check(day.day_only and int(day.at) == 1793404800 and not moment.day_only and int(moment.at) == 1793404800 + 18 * 3600 + 30 * 60, "dates read as UTC, a day or a moment")
 	check(RemoteConfigScript.parse_date("31/10/2026") == null and RemoteConfigScript.parse_date("2026-13-01") == null, "a date in another form is refused")
+	check(RemoteConfigScript.parse_date("2026-02-29") == null and RemoteConfigScript.parse_date("2026-04-31") == null and RemoteConfigScript.parse_date("2028-02-29") != null, "a day past its month's end is refused, a leap day taken (no engine error)")
 
 
 func _test_offline_defaults() -> void:

@@ -395,10 +395,18 @@ static func parse_date(text: String) -> Variant:
 	var hour := 0 if day_only else found.get_string(4).to_int()
 	var minute := 0 if day_only else found.get_string(5).to_int()
 	var second := found.get_string(6).to_int() if not found.get_string(6).is_empty() else 0
-	if month < 1 or month > 12 or day < 1 or day > 31 or hour > 23 or minute > 59 or second > 59:
-		return null
-	var at := Time.get_unix_time_from_datetime_dict({ "year": found.get_string(1).to_int(), "month": month, "day": day, "hour": hour, "minute": minute, "second": second })
+	var year := found.get_string(1).to_int()
+	if month < 1 or month > 12 or day < 1 or day > _days_in(year, month) or hour > 23 or minute > 59 or second > 59:
+		return null  # (a day past its month's end, 2026-02-31: Time would print an error)
+	var at := Time.get_unix_time_from_datetime_dict({ "year": year, "month": month, "day": day, "hour": hour, "minute": minute, "second": second })
 	return { "at": at, "day_only": day_only }
+
+
+## How many days month `month` (1-12) of `year` has.
+static func _days_in(year: int, month: int) -> int:
+	if month == 2:
+		return 29 if (year % 4 == 0 and year % 100 != 0) or year % 400 == 0 else 28
+	return 30 if month in [4, 6, 9, 11] else 31
 
 
 ## The game's version is inside the config's min_version / max_version (each optional).
