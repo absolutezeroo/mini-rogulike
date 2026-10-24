@@ -280,7 +280,15 @@ The choice is kept in the profile (`Profile.ending`, the last one chosen; "" bef
 counted (`ending_bell`, `ending_keeper`: `AchievementDef.Stat.ENDING_BELL` and `ENDING_KEEPER`,
 after the others), not on Pilgrim (like every feat). Then the victory screen takes the ending's
 title and tells it (three short lines), with the run's numbers and souls as usual; Keep going
-leads on to endless mode. Both endings lead to the same game today (docs/lore.md, section 9).
+leads on to endless mode.
+
+The endings shape the next runs (`EndingDef.keeper_change`): **take his place** keeps the hero as
+the **Nameless Keeper** (`Profile.keeper`, a snapshot of him: monsters.md, "The Nameless
+Keeper"), who waits at the bottom of the next runs instead of Tôma and the Maw, the last fight;
+beating him frees him and the choice comes again (its lines told for him: `keeper_hint`,
+`keeper_text`, `FinaleDef.keeper_choice_lore`). One waits at a time: taking his place again puts
+this hero there instead. **Ring the bell** frees the one waiting: the bottom is Tôma's and the
+Maw's again. The codex keeps the Keepers freed (his page). Pilgrim's endings count the same.
 
 ## Run timer (speedruns)
 

@@ -12,6 +12,8 @@ const WIDTH := 980.0
 const CARD_WIDTH := 420.0
 
 var _finale: FinaleDef
+## The last fight was against the Nameless Keeper: the lines that fit it (EndingDef.hint_for()).
+var _after_keeper := false
 var _dialog: RpgDialog
 var _lore: Label
 var _cards: HBoxContainer
@@ -25,11 +27,14 @@ func _ready() -> void:
 	_build()
 
 
-func open(finale: FinaleDef) -> void:
+## `after_keeper`: the one who fell was the Nameless Keeper (FinaleDef.keeper), not the Maw.
+func open(finale: FinaleDef, after_keeper: bool = false) -> void:
 	_finale = finale
+	_after_keeper = after_keeper
 	_dialog.set_title(tr(finale.choice_title), finale.color)
-	_lore.text = tr(finale.choice_lore)
-	_lore.visible = not finale.choice_lore.is_empty()
+	var lore := finale.choice_lore_for(after_keeper)
+	_lore.text = tr(lore)
+	_lore.visible = not lore.is_empty()
 	UiParts.clear(_cards)
 	_buttons.clear()
 	for ending in finale.endings:
@@ -64,7 +69,7 @@ func _add_card(ending: EndingDef) -> void:
 	_cards.add_child(box)
 	var column := card.column as VBoxContainer
 	column.add_theme_constant_override("separation", 12)
-	var hint := UiParts.text(tr(ending.hint), Fonts.BODY, UiSkin.TEXT, CARD_WIDTH - 40)
+	var hint := UiParts.text(tr(ending.hint_for(_after_keeper)), Fonts.BODY, UiSkin.TEXT, CARD_WIDTH - 40)
 	hint.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(hint)
 	var button := UiParts.button(tr(ending.choice), choose.bind(index), Vector2(CARD_WIDTH - 40, 64), Fonts.BODY)

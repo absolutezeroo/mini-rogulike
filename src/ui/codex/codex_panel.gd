@@ -133,8 +133,8 @@ func bestiary_entries() -> Array[MonsterDef]:
 	if hidden_def and hidden_def.boss and not result.has(hidden_def.boss):
 		result.append(hidden_def.boss)
 	var finale := _content.dungeon.finale
-	if finale and finale.boss:
-		for form in finale.boss.forms():
+	if finale:
+		for form in finale.all_bosses():
 			if not result.has(form):
 				result.append(form)
 	return result
@@ -239,12 +239,13 @@ func _fill_hidden(rules: BestiaryRules, placed: Dictionary) -> void:
 		_fill_secret(rules, placed, hidden_def.subtitle, hidden_def.title, [hidden_def.boss] as Array[MonsterDef])
 
 
-## The bottom of the Well's forms, last: "???" until met (its name too), each its own card.
+## The bottom of the Well's forms, last (the Nameless Keeper after them): "???" until met (its
+## name too), each its own card.
 func _fill_finale(rules: BestiaryRules, placed: Dictionary) -> void:
 	var finale := _content.dungeon.finale
 	if finale and finale.boss:
 		var forms: Array[MonsterDef] = []
-		forms.assign(finale.boss.forms())
+		forms.assign(finale.all_bosses())
 		_fill_secret(rules, placed, finale.subtitle, finale.title, forms)
 
 

@@ -46,9 +46,8 @@ static func places(content: ContentDB) -> Dictionary:
 	var finale := config.finale
 	if finale:
 		map["%s floor" % finale.title] = floor_music(finale.biome.theme) if finale.biome else null
-		if finale.boss:
-			for form in finale.boss.forms():
-				map["%s: %s" % [finale.title, form.display_name]] = boss_music(form, null, bank)
+		for form in finale.all_bosses():
+			map["%s: %s" % [finale.title, form.display_name]] = boss_music(form, null, bank)
 		for ending in finale.endings:
 			map["Ending: %s" % ending.choice] = ending.music if ending.music else (bank.victory_music if bank else null)
 	if config.abyss:

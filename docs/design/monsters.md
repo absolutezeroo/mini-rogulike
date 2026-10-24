@@ -123,6 +123,7 @@ with its portrait). A `BossDef` is a `MonsterDef` plus:
 | 12 | Gilded Hoarder | crushing leaps, storms of gold coins, calls its thieves (Gold Racoons) when half dead |
 | 6 (hidden) | The Nameless Effigy | twin cold blades, dashes, wailing rings, calls the dead; only on the hidden floor |
 | bottom (after a first win) | Master Tôma, then the Maw | the hero's own blade and lantern; then a jaw that must open to be hurt |
+| bottom (after "take his place") | The Nameless Keeper | your former hero: his weapon, armor, skills and relics, then the lantern; the last fight |
 
 **The Nameless Effigy** / *Le Gisant Sans Nom*, "He Who Does Not Rest" / *Celui qui ne repose
 pas* (`data/monsters/bosses/nameless_effigy.tres`): the boss of the hidden floor between Act II
@@ -203,6 +204,66 @@ met, each with its chronicle (`data/story/chronicles/master_toma.tres`, `the_maw
 5b): their deeds are Tôma slain without a single roll (`StandingDeed`) and the Maw slain by a run
 it never bit (`MarkDeed` "bitten": a bite that hurts the hero marks the run, `WeakPointTrait.
 bite_mark`). Numbers: docs/balance-log.md.
+
+## The Nameless Keeper
+
+**Le Gardien Sans Nom / The Nameless Keeper** (`data/monsters/bosses/nameless_keeper.tres`, a
+`NamelessKeeperDef`; `FinaleDef.keeper`). A run that ends in "take his place" (progression.md,
+"The two endings") leaves its hero at the bottom of the Well: the profile keeps a **snapshot**
+of him (`Profile.keeper`, `KeeperSnapshot`) and the next runs meet him there **instead of Tôma
+and the Maw**. His fall is the last fight: no form rises after him, it wins the run, and the
+choice of an ending comes again. One waits at a time: taking his place again puts the new hero
+there instead; ringing the bell frees him (Tôma and the Maw wait again).
+
+- **The snapshot** (taken as the ending is chosen, `EndingDef.keeper_change` TAKE; versioned,
+  by content ids, JSON in the profile): every piece worn (its id, rarity, affixes, runes, item
+  level), the skills beyond the roll (his weapon's, a tome's), his perks and relics with their
+  levels, his level, Health, power and Armor, the run's difficulty and ascension, the date, the
+  pseudonym he played under (if he chose one on the leaderboards). Reading it back skips what the
+  game no longer has (a removed weapon: the keeper's katana in its place). A run copies it when
+  it begins (`RunState.keeper`, saved with the run: a run never changes course); a Dawn Knell
+  never meets him (the same race for everyone).
+- **The boss** (`NamelessKeeperDef.build()`, a copy of the template per snapshot):
+  - his **weapon** (its rarity, affixes, runes: they work as on the hero, `WornGearTrait`), his
+    **armor** worn and shown (`MonsterDef.shows_gear`: his weapon at rest on his back, the
+    trims), a ranged weapon kept at range (`ranged_keep_distance` 170);
+  - his **blow** weighs `blow_power` 16 before the floor's rules, whatever the weapon (its
+    damage plus his attack; +1 per rarity step above Common): Tôma's katana and attack;
+  - his **skills**: the hero's (up to 3, the weapon's first) made a boss': a cast with a warning
+    by kind (a dive 0.75 s, a circle 0.8 s, shots 0.65 s, anything else 0.5 s, before the phases'
+    wind-ups), at 60% of their power (`skill_power` -0.4), the cooldowns x1.6, a dive's band 20 at most and never slowing, a slow 2 s at
+    most and two things that slow at most (his weapon counts), heals left out (a boss never
+    heals itself); dressed in his weapon's elements;
+  - his **relics**: of his perks, only those that make sense on him (`kept_perks`: Ignite,
+    Burning Thorns, Bloodrage, Echo, Kindling, Hydra's Quiver), 1 level each (`PerkTrait`);
+    plain stats (Strength, Vitality) and the hero's own tricks stay with the hero;
+  - his **Health**: 2200 base x his level's (2% a level from level 15, 0.8x-1.3x), then the floor
+    as any boss (depth 12, the difficulty and ascension: FloorRules): 10237 at the bottom on
+    Keeper (Tôma 6019, Tôma + the Maw 12038). Armor 5, speed 100. Measured: docs/balance-log.md.
+- **Phases** (three): from full, his weapon's skills; at two thirds "HE KNOWS YOUR STEPS" (all
+  his skills, +2 attack, faster wind-ups and cooldowns x0.85, shockwave after 7 hits); at one
+  third "THE LANTERN GUTTERS" (the lantern turned too, Tôma's `toma_lantern`: the violet flame
+  under the hero; x0.75, +3 attack, shockwave after 5).
+- **His look** (`ShadeTrait`): the hero's own frames and armor layers, worn to a shade (the rig's
+  pallor 0.7 toward an ash violet, as the Threshold's spectres: face and colors gone, the shape
+  left; a pale rim of one art pixel round it, so the dark body reads on the dark floor), a small lantern in his hand (5x7 art pixels, `assets/characters/bosses/
+  nameless_keeper/lantern.png`) with a spirit glow and a light of 4. He stands above the arena's
+  middle, where the seal is (`arena_anchor` 0.5, 0.42). Portrait: the hero facing down, faceless,
+  his lantern lit.
+- **Name**: "The Nameless Keeper" / « Le Gardien Sans Nom » on the boss bar, followed by who he
+  was (`BossDef.title_on_bar`): the pseudonym, else "Who You Were" / « Celui que tu étais ».
+  He fights to the Maw's track (Fight, `fight_ii`: the very last fight).
+- **Story** (`data/story/chronicles/nameless_keeper.tres`): he says almost nothing. "Stand." as
+  he wakes ("Again." once slain), "At last." as he falls; three chapters told before his fights
+  (the second names Tôma, so it waits for the keeper's reveal). No fragments and no deed: his past
+  is the hero's own run. His page in the codex keeps the **Keepers freed** (`Profile.
+  keepers_freed`, the last 20: his weapon, level, the day), under his chronicle. After his fall
+  the choice speaks of him (`FinaleDef.keeper_choice_lore`, `EndingDef.keeper_hint` /
+  `keeper_text`).
+- **Rewards**: as the Maw's (320 XP, 3 relic choices when the hero keeps going, 3 rolls of loot,
+  30 soul wisps). Never at a rare rank (`BossDef.as_written`: he is the hero as he was, not a
+  Legendary kind). The codex lists him after the Maw. The gameplay statistics' boss event names him
+  `nameless_keeper` (the usual boss event, Events.boss_started).
 
 ## Dragons
 

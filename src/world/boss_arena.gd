@@ -39,7 +39,7 @@ func setup(world: World, boss_def: BossDef, plan: ArenaDef = null) -> void:
 
 	_forms = boss_def.forms().size()
 	boss = _spawn_form(boss_def)
-	if boss_def.next_boss == null:
+	if boss_def.next_boss == null and not boss_def.as_written:
 		world.roll_boss_rank(boss)  # (a fight of several forms stays as written)
 	_place_pillars()
 

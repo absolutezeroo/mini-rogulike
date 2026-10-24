@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 172,
+  "next_id": 176,
   "tags": [
     "pc",
     "test",
@@ -1720,7 +1720,7 @@
     {
       "id": "task_119",
       "title": "Test « salles signature » instable : monstres sur une dalle fissurée / dans un mur sans collision",
-      "description": "Le test level_tests « signature rooms as built » a échoué une fois (pyre_circle : shaman « stuck », ground false). Sonde sur 40 étages forcés avec le Cercle du Bûcher : 2 cas, toujours après 2 images (jamais au moment de l'apparition) :\n- un shaman qui a marché sur une case de sol qui s'effrite (fissure pas encore effondrée) : le test le compte comme « coincé » alors que c'est normal → le test devrait ignorer les fissures (seulement les vrais trous).\n- un dragon dont le centre est dans une case de MUR (couloir, room=-1) sans collision (body_fits vrai) : possible vrai bug (mur sans collision, fissure de salle secrète ou porte ?) à examiner.\nPas lié au correctif du décor (le décor n'a pas de collision).\n\nFait (à valider). Cause : des monstres apparaissaient l'un dans l'autre (FloorPopulator ne gardait pas les corps d'une salle à distance : vus à 2 px l'un de l'autre). Le moteur physique les écarte violemment à la première image (jusqu'à 20 px en une image), assez pour en pousser un dans une caisse ou contre/dans un mur : le « monstre coincé » du test. Correctif du jeu : chaque monstre d'une salle est placé à l'écart des corps déjà posés (et un élite grandi aussi). Le test compte maintenant une dalle fissurée comme du sol tant qu'elle ne s'est pas effondrée (règle de CrumblingFloor), et un nouveau contrôle vérifie qu'aucun monstre n'apparaît dans un autre. Sonde (_tool/probe_rooms) : avant 3 cas sur 342 étages, après 0 sur 228.",
+      "description": "Le test level_tests « signature rooms as built » a échoué une fois (pyre_circle : shaman « stuck », ground false). Sonde sur 40 étages forcés avec le Cercle du Bûcher : 2 cas, toujours après 2 images (jamais au moment de l'apparition) :\n- un shaman qui a marché sur une case de sol qui s'effrite (fissure pas encore effondrée) : le test le compte comme « coincé » alors que c'est normal → le test devrait ignorer les fissures (seulement les vrais trous).\n- un dragon dont le centre est dans une case de MUR (couloir, room=-1) sans collision (body_fits vrai) : possible vrai bug (mur sans collision, fissure de salle secrète ou porte ?) à examiner.\nPas lié au correctif du décor (le décor n'a pas de collision).\n\nFait (à valider). Cause : des monstres apparaissaient l'un dans l'autre (FloorPopulator ne gardait pas les corps d'une salle à distance : vus à 2 px l'un de l'autre). Le moteur physique les écarte violemment à la première image (jusqu'à 20 px en une image), assez pour en pousser un dans une caisse ou contre/dans un mur : le « monstre coincé » du test. Correctif du jeu : chaque monstre d'une salle est placé à l'écart des corps déjà posés (et un élite grandi aussi). Le test compte maintenant une dalle fissurée comme du sol tant qu'elle ne s'est pas effondrée (règle de CrumblingFloor), et un nouveau contrôle vérifie qu'aucun monstre n'apparaît dans un autre. Sonde (_tool/probe_rooms) : avant 3 cas sur 342 étages, après 0 sur 228. Suite game après les correctifs : 5 passages sans aucun échec (24/10).",
       "status": "review",
       "priority": "medium",
       "epic_id": "epic_5",
@@ -1731,13 +1731,13 @@
         "niveaux"
       ],
       "created_at": 1792758222,
-      "updated_at": 1792804164
+      "updated_at": 1792804954
     },
     {
       "id": "task_120",
       "title": "Prendre sa place : ton ancien héros devient le boss final",
-      "description": "Choisi par Clayton (priorité de la fin « Prendre sa place »).\n\nQuand une partie se termine par « Prendre sa place », le héros devient le Gardien Sans Nom. À la partie SUIVANTE, au fond du Puits, ce n'est plus Tôma qui attend : c'est lui, avec l'arme, les compétences et les reliques de cette partie gagnante. « Prendre sa place » devient littéral : chaque victoire de ce type crée le boss final de la suivante. Pour se libérer, il faut se battre soi-même, puis choisir à nouveau : sonner la cloche ou prendre sa place.\n\nÀ prévoir :\n- Profil : garder un « instantané » du héros gagnant (arme et rang, compétences, reliques/perks, niveau, élément) au moment du choix.\n- Un BossDef data-driven « le Gardien Sans Nom » construit depuis l'instantané (stats mises à l'échelle de la difficulté, IA qui utilise ses vraies compétences et son arme, phases).\n- Le combat final remplace Tôma ET la Gueule tant qu'un Gardien Sans Nom attend : on se bat contre son ancien héros, et c'est le dernier combat (décidé par Clayton : pas de Gueule après). Un seul à la fois : le suivant remplace le précédent.\n- Visuel : le sprite du héros assombri, sans visage, la lanterne ; son nom effacé.\n- Cinématique et lignes (skill lore) : il ne dit presque rien, il « attend de te voir debout » comme Tôma.\n- Bestiaire / chroniques : une entrée qui garde la trace de chaque gardien vaincu (arme, nombre de nuits ?).\n- Tests : l'instantané survit à la sauvegarde ; le boss reprend l'arme et les compétences ; sonner la cloche le libère.",
-      "status": "todo",
+      "description": "Choisi par Clayton (priorité de la fin « Prendre sa place »).\n\nQuand une partie se termine par « Prendre sa place », le héros devient le Gardien Sans Nom. À la partie SUIVANTE, au fond du Puits, ce n'est plus Tôma qui attend : c'est lui, avec l'arme, les compétences et les reliques de cette partie gagnante. « Prendre sa place » devient littéral : chaque victoire de ce type crée le boss final de la suivante. Pour se libérer, il faut se battre soi-même, puis choisir à nouveau : sonner la cloche ou prendre sa place.\n\nÀ prévoir :\n- Profil : garder un « instantané » du héros gagnant (arme et rang, compétences, reliques/perks, niveau, élément) au moment du choix.\n- Un BossDef data-driven « le Gardien Sans Nom » construit depuis l'instantané (stats mises à l'échelle de la difficulté, IA qui utilise ses vraies compétences et son arme, phases).\n- Le combat final remplace Tôma ET la Gueule tant qu'un Gardien Sans Nom attend : on se bat contre son ancien héros, et c'est le dernier combat (décidé par Clayton : pas de Gueule après). Un seul à la fois : le suivant remplace le précédent.\n- Visuel : le sprite du héros assombri, sans visage, la lanterne ; son nom effacé.\n- Cinématique et lignes (skill lore) : il ne dit presque rien, il « attend de te voir debout » comme Tôma.\n- Bestiaire / chroniques : une entrée qui garde la trace de chaque gardien vaincu (arme, nombre de nuits ?).\n- Tests : l'instantané survit à la sauvegarde ; le boss reprend l'arme et les compétences ; sonner la cloche le libère.\n\n--- Fait (en review, à tester en jeu) ---\n- Instantané du héros au choix « Prendre sa place » (Profile.keeper, KeeperSnapshot, versionné, par ids, JSON) : arme (rareté, affixes, runes, niveau d'objet), armures, compétences hors roulade, atouts/reliques avec niveaux, niveau, Vie/puissance/Armure, difficulté + ascension, date, pseudonyme (s'il en a choisi un). Les ids disparus sont ignorés (arme disparue : le katana du gardien). « Sonner la cloche » le libère (Tôma + la Gueule reviennent). Un seul à la fois : un nouveau « Prendre sa place » le remplace.\n- La partie copie l'instantané à son début (RunState.keeper, sauvegardé avec elle) ; jamais en Glas de l'Aube (course commune).\n- Boss data-driven : data/monsters/bosses/nameless_keeper.tres (NamelessKeeperDef). build() en fait un boss : l'arme du héros, ses armures portées et visibles (WornGearTrait, affixes et runes actifs), ses compétences transformées en compétences de boss (télégraphe par type : ruée 0,75 s, cercle 0,8 s, tirs 0,65 s ; recharges x1,6 ; puissance 60 % ; bande de ruée 20 max ; ralentissements 2 s / 2 sources max ; pas de soins), reliques gardées seulement si elles ont du sens (Embrasement, Épines, Rage sanguinaire, Écho, Attisement, Carquois de l'Hydre ; niveau 1), Vie 2200 x niveau (0,8-1,3), coup = 16 avant l'étage (comme Tôma). Jamais de rang rare.\n- 3 phases : « IL CONNAÎT TES PAS » (toutes ses compétences), « LA LANTERNE VACILLE » (+ la lanterne de Tôma).\n- Visuel : sprite et couches d'armure du héros, assombris (pallor), sans visage, liseré pâle, petite lanterne en main avec lueur et lumière ; portrait généré. Barre de boss : « Le Gardien Sans Nom  (pseudo) » ou « (Celui que tu étais) ». Musique : celle de la Gueule.\n- Fond du Puits : il remplace Tôma ET la Gueule, sa chute gagne la partie, pas de Gueule, le choix revient (textes adaptés). Le codex le liste après la Gueule ; sa page (Chronique) garde les « Gardiens libérés » (arme, niveau, date).\n- Chronique courte (3 chapitres, « Debout. », « Encore. », dernières paroles « Enfin. »), FR + EN ; lore.md §9 passé en « décidé/construit ».\n- Debug : bouton « Nameless Keeper » (Lieux) qui descend au Gardien fait du héros actuel (sans toucher au profil).\n- Télémétrie : l'événement boss existant le nomme nameless_keeper.\n- Équilibrage mesuré (balance-log 2026-10-24) : 10237 Vie au fond en Veilleur (Tôma 6019, Tôma+Gueule 12038). Bot kite (build attendu acte IV) : gagne contre katana/marteau en 87-96 s ; face_tank perd toujours.\n- Tests : KeeperTests (unitaire) + FinaleTests._test_nameless_keeper (jeu).",
+      "status": "review",
       "priority": "high",
       "epic_id": "epic_1",
       "due_date": null,
@@ -1748,7 +1748,7 @@
         "idée"
       ],
       "created_at": 1792758694,
-      "updated_at": 1792758974
+      "updated_at": 1792803743
     },
     {
       "id": "task_121",
@@ -2126,7 +2126,7 @@
     {
       "id": "task_149",
       "title": "Test instable : « No AI » (debug_tests)",
-      "description": "Vu une fois sur trois passages de la suite game (23/10), avec l'échec connu des salles signatures : « No AI: a monster and a boss beside the hero stand still... » et « ...throws no shockwave » (la Vie du héros a bougé pendant les deux secondes : piège ou danger près de lui ?). Repassé sans échec. À stabiliser (placer le héros loin des dangers, comme _quiet_point).\n\nFait (à valider). Causes, trouvées par une sonde (_tool/probe_noai, 100 étages et places) : 1) un vrai bug : World.find_open_point_near() mettait un corps (le boss, rayon 26) sur la case libre la plus proche sans vérifier qu'il y tenait ni qu'il n'était pas dans un autre corps (le héros) ; la physique le poussait au départ (« il a bougé »). Corrigé : le repli cherche une case où le corps tient, à l'écart des corps vivants, et les essais au hasard évitent aussi les corps. 2) le test se plaçait n'importe où : un piège ou des sables mouvants près du héros le blessaient ou poussaient le squelette. Le test se met maintenant sur un point calme (_quiet_point). Sonde : avant 9 échecs sur 60, après 0 sur 100.",
+      "description": "Vu une fois sur trois passages de la suite game (23/10), avec l'échec connu des salles signatures : « No AI: a monster and a boss beside the hero stand still... » et « ...throws no shockwave » (la Vie du héros a bougé pendant les deux secondes : piège ou danger près de lui ?). Repassé sans échec. À stabiliser (placer le héros loin des dangers, comme _quiet_point).\n\nFait (à valider). Causes, trouvées par une sonde (_tool/probe_noai, 100 étages et places) : 1) un vrai bug : World.find_open_point_near() mettait un corps (le boss, rayon 26) sur la case libre la plus proche sans vérifier qu'il y tenait ni qu'il n'était pas dans un autre corps (le héros) ; la physique le poussait au départ (« il a bougé »). Corrigé : le repli cherche une case où le corps tient, à l'écart des corps vivants, et les essais au hasard évitent aussi les corps. 2) le test se plaçait n'importe où : un piège ou des sables mouvants près du héros le blessaient ou poussaient le squelette. Le test se met maintenant sur un point calme (_quiet_point). Sonde : avant 9 échecs sur 60, après 0 sur 100. Suite game après les correctifs : 5 passages sans aucun échec (24/10).",
       "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
@@ -2136,7 +2136,7 @@
         "bug"
       ],
       "created_at": 1792771708,
-      "updated_at": 1792804164
+      "updated_at": 1792804954
     },
     {
       "id": "task_142",
@@ -2245,7 +2245,7 @@
         "données"
       ],
       "created_at": 1792778210,
-      "updated_at": 1792804164
+      "updated_at": 1792804954
     },
     {
       "id": "task_153",
@@ -2311,7 +2311,7 @@
     {
       "id": "task_157",
       "title": "Test instable : passage de la suite game en cascade (« room » sur Nil)",
-      "description": "Vu une fois sur quatre passages (23/10, branche options en onglets, sans lien avec elle) : « SCRIPT ERROR: Invalid access to property or key 'room' on a base object of type 'Nil' » puis 13 échecs de level_tests (bougies d'un autre biome, cases murées, salles façonnées/signatures coupées) et de monstres (corps brûlant, voleur). Le passage suivant : 0 échec. Peut-être lié à task_119 (salles signatures). À reproduire (graine) et corriger. Vus aussi, une fois chacun, après la fusion du Tribut du Puits : « the shader knows where the hero is, first of all » (level_tests) et « nor through walls » (combat_tests, has_clear_walk), avec « shaped rooms as built » (task_119) au passage d'avant ; le passage suivant : 0 échec.\n\nFait en partie (à valider). La cascade s'explique : l'erreur « room sur Nil » est celle de floor_tests _test_pacts (game.world.pact.room quand l'étage refait n'a plus de porte de pacte). Le test s'arrêtait là sans rien remettre : pact_chance resté à 1.0, héros invincible, xp à -1000000. Les tests suivants voyaient alors une porte de pacte à chaque étage : les bougies du pacte « d'un autre biome », sa salle scellée « murée », les salles façonnées et signatures « coupées », etc. Correctif du test : l'étage est refait avec la disette de forge qu'il avait au départ (floors_without_forge, pas celle du dernier étage de la boucle : la forge peut prendre la seule salle possible du pacte), un contrôle dit clairement si la porte manque, et le test remet tout en place avant de sortir. Sonde _tool/probe_pact (120 graines, partie neuve) : avec l'ancienne disette, 1 étage refait sur 120 n'avait plus la même porte (une autre salle) ; avec la bonne, 0. La porte absente du tout (l'erreur) est la forme rare du même écart : pas reproduite telle quelle. Les autres échecs isolés (« the shader knows where the hero is », « nor through walls ») peuvent venir des monstres apparus l'un dans l'autre ou contre le héros (corrigé, task_119 / task_149) : pas revus sur les passages de la suite game depuis.",
+      "description": "Vu une fois sur quatre passages (23/10, branche options en onglets, sans lien avec elle) : « SCRIPT ERROR: Invalid access to property or key 'room' on a base object of type 'Nil' » puis 13 échecs de level_tests (bougies d'un autre biome, cases murées, salles façonnées/signatures coupées) et de monstres (corps brûlant, voleur). Le passage suivant : 0 échec. Peut-être lié à task_119 (salles signatures). À reproduire (graine) et corriger. Vus aussi, une fois chacun, après la fusion du Tribut du Puits : « the shader knows where the hero is, first of all » (level_tests) et « nor through walls » (combat_tests, has_clear_walk), avec « shaped rooms as built » (task_119) au passage d'avant ; le passage suivant : 0 échec.\n\nFait en partie (à valider). La cascade s'explique : l'erreur « room sur Nil » est celle de floor_tests _test_pacts (game.world.pact.room quand l'étage refait n'a plus de porte de pacte). Le test s'arrêtait là sans rien remettre : pact_chance resté à 1.0, héros invincible, xp à -1000000. Les tests suivants voyaient alors une porte de pacte à chaque étage : les bougies du pacte « d'un autre biome », sa salle scellée « murée », les salles façonnées et signatures « coupées », etc. Correctif du test : l'étage est refait avec la disette de forge qu'il avait au départ (floors_without_forge, pas celle du dernier étage de la boucle : la forge peut prendre la seule salle possible du pacte), un contrôle dit clairement si la porte manque, et le test remet tout en place avant de sortir. Sonde _tool/probe_pact (120 graines, partie neuve) : avec l'ancienne disette, 1 étage refait sur 120 n'avait plus la même porte (une autre salle) ; avec la bonne, 0. La porte absente du tout (l'erreur) est la forme rare du même écart : pas reproduite telle quelle. Les autres échecs isolés (« the shader knows where the hero is », « nor through walls ») peuvent venir des monstres apparus l'un dans l'autre ou contre le héros (corrigé, task_119 / task_149) : pas revus sur les passages de la suite game depuis. Suite game après les correctifs : 5 passages sans aucun échec (24/10).",
       "status": "review",
       "priority": "medium",
       "epic_id": "epic_5",
@@ -2322,7 +2322,7 @@
         "niveaux"
       ],
       "created_at": 1792779390,
-      "updated_at": 1792804164
+      "updated_at": 1792804954
     },
     {
       "id": "task_158",
@@ -2368,7 +2368,7 @@
         "en ligne"
       ],
       "created_at": 1792799748,
-      "updated_at": 1792804164
+      "updated_at": 1792804954
     },
     {
       "id": "task_161",
@@ -2528,6 +2528,71 @@
     },
     {
       "id": "task_171",
+      "title": "Gardien Sans Nom : mesurer un Gardien à distance (arc, baguette)",
+      "description": "Le bot « kite » des outils d'équilibrage (build attendu acte IV, Espadon) reste hors de portée des tirs d'un Gardien à arc ou à baguette et ne s'approche jamais : impasse, pas un combat (timeouts dans _tool/keeper_probe). Il faut soit un comportement de bot qui ferme la distance contre un boss qui tire, soit un build à distance, puis mesurer ces Gardiens et ajuster ranged_keep_distance / shot_cast_time.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "équilibrage",
+        "boss",
+        "test"
+      ],
+      "created_at": 1792803743,
+      "updated_at": 1792803743
+    },
+    {
+      "id": "task_172",
+      "title": "Gardien Sans Nom : à tester en jeu (lisibilité, sensation)",
+      "description": "Non vérifié en headless : la silhouette sombre + liseré pâle se lit-elle bien sur le sol du Fond (captures FR faites), la lanterne en main dans les 4 directions, les télégraphes des compétences de héros devenues compétences de boss (pas d'animation « cast » sur le sprite du héros : il tremble en pose d'attaque), le katana-kite qui ne prend que 3-4 coups (peut-être trop facile ?).",
+      "status": "backlog",
+      "priority": "high",
+      "epic_id": "epic_2",
+      "due_date": null,
+      "tags": [
+        "playtest",
+        "boss",
+        "équilibrage"
+      ],
+      "created_at": 1792803743,
+      "updated_at": 1792803743
+    },
+    {
+      "id": "task_173",
+      "title": "Gardien Sans Nom : vraie passe d'art (ombre sans visage)",
+      "description": "Aujourd'hui : pallor du shader de corps + liseré + une lanterne 5x7 générée, portrait généré depuis la planche du héros. Une vraie passe (shader « ombre » qui efface le visage dans les 4 directions, braises/âmes qui s'échappent, lanterne animée, animation de réveil « intro ») rendrait la rencontre plus forte.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_3",
+      "due_date": null,
+      "tags": [
+        "visuel",
+        "vfx",
+        "boss",
+        "idée"
+      ],
+      "created_at": 1792803743,
+      "updated_at": 1792803743
+    },
+    {
+      "id": "task_174",
+      "title": "Gardien Sans Nom : à confirmer par Clayton (règles choisies)",
+      "description": "Choix faits pendant task_120, à valider : (1) jamais de Gardien en Glas de l'Aube (course identique pour tous) ; (2) « Sonner la cloche » libère le Gardien, Tôma et la Gueule reviennent (lu comme : le temps du Puits est faux, la nuit revient) ; (3) une partie débutée avant qu'il n'attende garde Tôma ; (4) ses reliques limitées à une liste (pas Force/Vitalité) au niveau 1 ; (5) sa Vie suit le niveau du héros (0,8-1,3x), pas la difficulté de la partie d'origine (c'est celle de la partie en cours qui compte).",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_1",
+      "due_date": null,
+      "tags": [
+        "fin",
+        "boss",
+        "lore"
+      ],
+      "created_at": 1792803743,
+      "updated_at": 1792803743
+    },
+    {
+      "id": "task_175",
       "title": "Vérifier en jeu : apparitions sans chevauchement",
       "description": "Les monstres d'une salle et ceux posés par find_open_point_near (invocations, scissions, coffres piégés, rencontres, camps) ne naissent plus dans un autre corps (task_119, task_149). À regarder en jeu : une invocation au milieu d'un groupe serré, un scindé dans un couloir étroit, un coffre piégé au contact du héros : chacun apparaît un peu plus loin au lieu d'être projeté. Non vérifiable en tests headless (le ressenti).",
       "status": "backlog",
@@ -2538,8 +2603,8 @@
         "tests",
         "niveaux"
       ],
-      "created_at": 1792804164,
-      "updated_at": 1792804164
+      "created_at": 1792804954,
+      "updated_at": 1792804954
     }
   ]
 }

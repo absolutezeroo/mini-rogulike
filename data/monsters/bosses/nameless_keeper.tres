@@ -1,0 +1,164 @@
+[gd_resource type="Resource" script_class="NamelessKeeperDef" format=3]
+
+[ext_resource type="AudioStream" path="res://data/audio/death.tres" id="1_death"]
+[ext_resource type="SpriteFrames" path="res://data/visuals/hero.tres" id="2_frames"]
+[ext_resource type="AudioStream" path="res://data/audio/hit_heavy.tres" id="3_hurt"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/nameless_keeper/portrait.png" id="4_portrait"]
+[ext_resource type="Script" path="res://src/definitions/boss_phase.gd" id="5_phase"]
+[ext_resource type="Script" path="res://src/definitions/stat_block.gd" id="6_stats"]
+[ext_resource type="Script" path="res://src/definitions/skill_def.gd" id="7_skill"]
+[ext_resource type="Resource" path="res://data/skills/boss/toma_lantern.tres" id="8_lantern"]
+[ext_resource type="Script" path="res://src/definitions/nameless_keeper_def.gd" id="9_keeper"]
+[ext_resource type="Resource" path="res://data/items/weapons/katana.tres" id="10_katana"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/monster_trait.gd" id="11_trait"]
+[ext_resource type="Script" path="res://src/definitions/monster_traits/shade_trait.gd" id="12_shade"]
+[ext_resource type="Texture2D" path="res://assets/characters/bosses/nameless_keeper/lantern.png" id="13_lantern_art"]
+[ext_resource type="Resource" path="res://data/vfx/elements/spirit.tres" id="14_spirit"]
+[ext_resource type="Script" path="res://src/definitions/perk_def.gd" id="15_perk"]
+[ext_resource type="Resource" path="res://data/perks/common/ignite.tres" id="16_ignite"]
+[ext_resource type="Resource" path="res://data/perks/common/thorns.tres" id="17_thorns"]
+[ext_resource type="Resource" path="res://data/perks/common/bloodrage.tres" id="18_bloodrage"]
+[ext_resource type="Resource" path="res://data/perks/common/echo.tres" id="19_echo"]
+[ext_resource type="Resource" path="res://data/perks/common/kindling.tres" id="20_kindling"]
+[ext_resource type="Resource" path="res://data/perks/relics/multishot.tres" id="21_multishot"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_entry.gd" id="22_entry"]
+[ext_resource type="Script" path="res://src/definitions/loot/loot_table.gd" id="23_table"]
+[ext_resource type="Resource" path="res://data/items/consumables/greater_health_potion.tres" id="24_potion"]
+[ext_resource type="Resource" path="res://data/items/armors/plate_armor.tres" id="25_plate"]
+[ext_resource type="Resource" path="res://data/items/tomes/tome_healing.tres" id="26_tome"]
+[ext_resource type="Resource" path="res://data/story/chronicles/nameless_keeper.tres" id="90_chronicle"]
+[ext_resource type="Resource" path="res://data/materials/flesh.tres" id="99_material"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/fight_ii.ogg" id="snd_fight_ii"]
+
+[sub_resource type="Resource" id="Resource_shade"]
+script = ExtResource("12_shade")
+pallor = 0.7
+color = Color(0.24, 0.21, 0.3, 1)
+rim = Color(0.72, 0.78, 0.95, 1)
+lantern = ExtResource("13_lantern_art")
+lantern_offset = Vector2(6, -6)
+glow_element = ExtResource("14_spirit")
+glow_size = 6.0
+light_level = 4
+
+[sub_resource type="Resource" id="Resource_steps_stats"]
+script = ExtResource("6_stats")
+attack = 2
+move_speed = 15.0
+
+[sub_resource type="Resource" id="Resource_steps"]
+script = ExtResource("5_phase")
+hp_ratio = 0.66
+message = "HE KNOWS YOUR STEPS"
+bonuses = SubResource("Resource_steps_stats")
+windup_multiplier = 0.85
+tint = Color(0.9, 0.88, 1, 1)
+cooldown_multiplier = 0.85
+shockwave_after_hits = 7
+
+[sub_resource type="Resource" id="Resource_gutters_stats"]
+script = ExtResource("6_stats")
+attack = 3
+move_speed = 25.0
+
+[sub_resource type="Resource" id="Resource_gutters"]
+script = ExtResource("5_phase")
+hp_ratio = 0.33
+message = "THE LANTERN GUTTERS"
+bonuses = SubResource("Resource_gutters_stats")
+skills = Array[ExtResource("7_skill")]([ExtResource("8_lantern")])
+windup_multiplier = 0.75
+tint = Color(0.82, 0.8, 1, 1)
+cooldown_multiplier = 0.75
+shockwave_after_hits = 5
+
+[sub_resource type="Resource" id="Resource_potion"]
+script = ExtResource("22_entry")
+item = ExtResource("24_potion")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_plate"]
+script = ExtResource("22_entry")
+item = ExtResource("25_plate")
+weight = 2
+
+[sub_resource type="Resource" id="Resource_tome"]
+script = ExtResource("22_entry")
+item = ExtResource("26_tome")
+weight = 1
+
+[sub_resource type="Resource" id="Resource_loot"]
+script = ExtResource("23_table")
+drop_chance = 1.0
+rolls = 3
+entries = Array[ExtResource("22_entry")]([SubResource("Resource_potion"), SubResource("Resource_plate"), SubResource("Resource_tome")])
+
+[sub_resource type="Resource" id="Resource_stats"]
+script = ExtResource("6_stats")
+max_hp = 2200
+attack = 3
+defense = 5
+move_speed = 100.0
+crit_chance = 0.1
+skill_power = -0.4
+
+[resource]
+script = ExtResource("9_keeper")
+reference_level = 15
+health_per_level = 0.02
+health_scale_min = 0.8
+health_scale_max = 1.3
+blow_power = 16
+power_per_rarity = 1
+ranged_keep_distance = 170.0
+max_skills = 3
+dive_cast_time = 0.75
+area_cast_time = 0.8
+shot_cast_time = 0.65
+other_cast_time = 0.5
+cooldown_scale = 1.6
+dive_width_max = 20.0
+keeps_heals = false
+max_slow_seconds = 2.0
+max_slow_sources = 2
+kept_perks = Array[ExtResource("15_perk")]([ExtResource("16_ignite"), ExtResource("17_thorns"), ExtResource("18_bloodrage"), ExtResource("19_echo"), ExtResource("20_kindling"), ExtResource("21_multishot")])
+max_perk_stacks = 1
+records_title = "Keepers freed"
+record_line = "{weapon}, level {level}  -  {date}"
+chronicle = ExtResource("90_chronicle")
+material = ExtResource("99_material")
+title = "Who You Were"
+portrait = ExtResource("4_portrait")
+phases = Array[ExtResource("5_phase")]([SubResource("Resource_steps"), SubResource("Resource_gutters")])
+shockwave_after_hits = 8
+shockwave_power = 1.0
+relic_choices = 3
+soul_wisps = 30
+title_on_bar = true
+as_written = true
+arena_anchor = Vector2(0.5, 0.42)
+body_stays = true
+stats = SubResource("Resource_stats")
+weapon = ExtResource("10_katana")
+radius = 12.0
+frames = ExtResource("2_frames")
+frames_offset = Vector2(0, -10)
+head_height = 34.0
+knockback_resistance = 0.95
+shows_gear = true
+traits = Array[ExtResource("11_trait")]([SubResource("Resource_shade")])
+detect_radius = 900.0
+attack_windup = 0.5
+attack_recovery = 0.4
+hurt_sound = ExtResource("3_hurt")
+death_sound = ExtResource("1_death")
+xp_reward = 320
+loot = SubResource("Resource_loot")
+id = &"nameless_keeper"
+display_name = "The Nameless Keeper"
+description = "The hero who took the keeper's place, worn to a shade by the Well. He fights with what you carried down: your blade, your arts, your relics. Beat him to free him."
+icon = ExtResource("4_portrait")
+glyph = "K"
+color = Color(0.72, 0.78, 0.95, 1)
+spawn_weight = 0
+music = ExtResource("snd_fight_ii")

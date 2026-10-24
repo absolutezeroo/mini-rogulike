@@ -239,6 +239,10 @@ func _test_finale(game: Game) -> void:
 	await _frames(3)
 	var ending := finale.endings[1]
 	check(Profile.ending == ending.id, "the ending chosen is kept in the profile")
+	# Taking his place: the hero becomes the Nameless Keeper, waiting at the bottom of the next runs.
+	var weapon_id := String((player.get_weapon() as EquipmentDef).base_item.id if (player.get_weapon() as EquipmentDef).is_rolled() else player.get_weapon().id)
+	check(ending.keeper_change == EndingDef.KeeperChange.TAKE and KeeperSnapshot.is_valid(Profile.keeper) and str(Profile.keeper.gear[0].id) == weapon_id and int(Profile.keeper.level) == player.level, "taking his place: this hero is kept as the Nameless Keeper (his %s, level %d)" % [weapon_id, player.level])
+	check(Profile.keepers_freed.is_empty(), "(no Keeper was beaten: Tôma and the Maw were)")
 	check(Profile.stat_value(ending.stat) == 1 and Profile.is_achieved(&"he_who_keeps_watch"), "its achievement is earned")
 	check(not Profile.is_achieved(&"the_last_knell"), "not the other one")
 	var shown := game.game_over_panel.shown_text()
@@ -254,6 +258,7 @@ func _test_finale(game: Game) -> void:
 	game.menus.ending.choose(0)
 	await _frames(3)
 	check(Profile.ending == finale.endings[0].id and Profile.is_achieved(&"the_last_knell"), "the other ending, its achievement")
+	check(Profile.keeper.is_empty(), "ringing the bell frees the Nameless Keeper waiting: Tôma and the Maw wait again")
 	check(game.game_over_panel.visible, "then the victory screen")
 	var souls_again := (game.game_over_panel.get_node("%SoulsEarned") as Label).text
 	check(souls_again == souls_shown, "with the souls the run gave at its win, not +0 (%s, at the win %s)" % [souls_again, souls_shown])
@@ -475,3 +480,126 @@ func _close_offers(game: Game) -> void:
 	for i in 4:
 		if game.perk_panel.visible:
 			game.perk_panel.choose(0)
+
+
+## The Nameless Keeper (a hero who took the keeper's place waits in the profile): the bottom of
+## the next run is his, not Tôma's; he carries that hero's bow, armor, skills and relics, a shade
+## with a lantern, his name and who he was on the boss bar; he fights a sturdy hero without
+## one-shotting him; his fall is the last (no Maw), the codex keeps it, the choice comes again and
+## taking his place puts this hero there instead. The debug panel's way down to him.
+func _test_nameless_keeper(game: Game) -> void:
+	var finale := CONTENT.dungeon.finale
+	var total := CONTENT.dungeon.total_floors()
+	var fixtures := KeeperTests.new()
+	add_child(fixtures)
+	Profile.reset()
+	Profile.wins = { "easy": 1 }
+	var former := fixtures.hero("res://data/items/weapons/bow.tres", "res://data/items/tomes/tome_frost.tres")
+	var snapshot := KeeperSnapshot.take(former, game.run, "Ash")
+	var late_hp := former.get_max_hp()
+	former.queue_free()
+	Profile.take_keeper(snapshot)
+	game.start_run()
+	await _frames(3)
+	check(game.run.meets_keeper() and game.run.keeper == Profile.keeper, "a run begun with a Nameless Keeper waiting goes down to him")
+	game.depth = total
+	game.run.finale = true
+	game._enter_floor()
+	await _frames(3)
+	var world: World = game.world
+	var arena := world.arena
+	var keeper := arena.boss
+	var player: Player = game.player
+	check(keeper.def is NamelessKeeperDef and keeper.def.id == &"nameless_keeper" and keeper.dormant, "at the bottom of the Well, he waits instead of Tôma")
+	check(keeper.rank == null and keeper.affixes.is_empty(), "as he was: never at a rare rank (no Legendary Keeper)")
+	check(world.get_node("Entities").get_children().all(func(n: Node) -> bool: return not (n is Monster and ((n as Monster).def == finale.boss or (n as Monster).def == finale.boss.next_boss))), "neither Tôma nor the Maw is there")
+	var bow := keeper.get_weapon() as EquipmentDef
+	check(bow != null and bow.id == &"bow" and bow.rarity == ItemRarity.RARE and bow.runes.size() == 1, "he carries the hero's bow, its rarity and rune")
+	var helm := keeper.equipment.get_item(EquipmentDef.Slot.HEAD)
+	var mail := keeper.equipment.get_item(EquipmentDef.Slot.BODY)
+	check(helm != null and helm.base_item != null and helm.base_item.id == &"iron_helm" and mail != null and mail.id == &"chain_mail", "and wears his helm and mail")
+	var ids := snapshot.skills as Array
+	var own := keeper.skills.skills.filter(func(s: SkillDef) -> bool: return s != null and ids.has(String(s.id)))
+	check(own.size() >= 1 and own.all(func(s: SkillDef) -> bool: return s.cast_time > 0.0), "he uses the hero's skills, warned (%s)" % ", ".join(own.map(func(s: SkillDef) -> String: return String(s.id))))
+	check(keeper.perks.stacks_of(_find_perk("ignite")) == finale.keeper.max_perk_stacks and keeper.perks.stacks_of(_find_perk("multishot")) == 1 and keeper.perks.stacks_of(_find_perk("strength")) == 0, "his relics that make sense on him: Ignite, Hydra's Quiver")
+	check(keeper.rig.pallor >= 0.5 and keeper.rig.visual.get_node_or_null("Lantern") is Sprite2D and keeper.rig.carries_weapon and keeper.rig.helmet.visible, "a shade of the hero: darkened, faceless, his lantern in hand, his gear on him")
+	check(keeper.get_children().any(func(n: Node) -> bool: return n is LightSource or n is GlowHalo), "his lantern lights the dark")
+	# He wakes, named.
+	player.invincible = true
+	player.global_position = world.map.cell_to_world(world.map.boss_room.get_center() + Vector2i(0, 6))
+	await _frames(3)
+	check(arena.is_started and not keeper.dormant, "walking in wakes him")
+	var bar_name := (game.hud.get_node("%BossName") as Label).text
+	check(bar_name == "%s  (%s)" % [finale.keeper.display_name, "Ash"], "his name on the boss bar, and who he was (%s)" % bar_name)
+	# He fights a sturdy hero: he hurts, never in one blow what a late hero has.
+	var max_hp := _sturdy(player)
+	var hits: Array[int] = []
+	var last := [player.hp]
+	var on_health := func(current: int, _maximum: int) -> void:
+		if current < int(last[0]):
+			hits.append(int(last[0]) - current)
+		last[0] = current
+	player.health_changed.connect(on_health)
+	var cast := false
+	for i in 60 * 10:
+		_close_offers(game)
+		if player.global_position.distance_to(keeper.global_position) > 140.0:
+			player.global_position = keeper.global_position + Vector2(0, 90)
+		cast = cast or keeper.casting_index >= 0
+		await _frames(1)
+	player.health_changed.disconnect(on_health)
+	var biggest: int = hits.max() if not hits.is_empty() else 0
+	check(not hits.is_empty() and cast, "he fights: his bow and his skills hurt the hero (%d hits)" % hits.size())
+	check(biggest * 3 < late_hp, "no blow of his takes a third of the hero he was (%d of %d Health)" % [biggest, late_hp])
+	_steady(player, max_hp)
+	# His fall is the last: no Maw, the run won, the choice again.
+	var finish := HitInfo.new()
+	finish.amount = 999999
+	finish.source = player
+	keeper.take_hit(finish)
+	await _frames(3)
+	check(keeper.is_dead and not arena.is_rising and game.has_won and game.run.ending_due, "his fall wins the run: no Maw rises after him")
+	check(Profile.keepers_freed.size() == 1 and str(Profile.keepers_freed[0].gear[0].id) == "bow", "the codex keeps the Keeper freed")
+	var lines := finale.keeper.records(CONTENT)
+	check(lines.size() == 1 and lines[0].contains(bow.display_name), "his page lists him: %s" % (lines[0] if not lines.is_empty() else ""))
+	await _wait(game, Game.ENDING_DELAY + 0.3)
+	var panel := game.menus.ending
+	var lore := panel.find_child("Lore", true, false) as Label
+	check(panel.visible and panel.buttons().size() == 2 and lore != null and lore.text == finale.keeper_choice_lore, "beating himself frees him: the choice comes again, told for him")
+	panel.buttons()[1].pressed.emit()
+	await _frames(3)
+	check(KeeperSnapshot.is_valid(Profile.keeper) and str(Profile.keeper.gear[0].id) != "bow" and str(Profile.keeper.pseudonym) != "Ash", "taking his place again: this hero waits now, in place of the other")
+	check(game.game_over_panel.shown_text().contains(finale.endings[1].keeper_text.get_slice("\n", 0)), "the victory screen tells it for him")
+	(game.game_over_panel.get_node("%ContinueButton") as Button).pressed.emit()
+	await _frames(3)
+	_close_offers(game)
+	# The debug panel's way down: to him (made from the hero as he is), or to Tôma.
+	var debug := game.menus.debug
+	if debug:
+		var waiting := Profile.keeper.duplicate(true)
+		game.open_debug()
+		await _frames(2)
+		var button := debug.find_children("*", "Button", true, false).filter(func(b: Button) -> bool: return b.text == "Nameless Keeper")
+		check(button.size() == 1, "the debug panel has a way down to the Nameless Keeper")
+		if button.size() == 1:
+			(button[0] as Button).pressed.emit()
+			for i in 60:
+				await _frames(1)
+				if not game._transitioning:
+					break
+			_close_offers(game)
+			var made := game.world.arena.boss if game.world.arena else null
+			check(made != null and made.def is NamelessKeeperDef and made.get_weapon().id == game.player.get_weapon().id, "it takes the hero down to himself as the Keeper")
+			check(Profile.keeper == waiting, "without touching the one waiting in the profile")
+		await game.debug_enter_finale()
+		check(game.world.arena.boss.def == finale.boss, "the Well's bottom, as before: Tôma")
+		DebugCheats.reset()
+	fixtures.queue_free()
+	Profile.reset()
+
+
+func _find_perk(id: String) -> PerkDef:
+	for perk in CONTENT.perks:
+		if perk.id == StringName(id):
+			return perk
+	return null

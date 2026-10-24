@@ -149,7 +149,7 @@ func _home() -> String:
 	if hidden_def and hidden_def.boss == _monster:
 		return tr(hidden_def.title)
 	var finale := _content.dungeon.finale
-	if finale and finale.boss and finale.boss.forms().any(func(form: BossDef) -> bool: return form == _monster):
+	if finale and finale.all_bosses().any(func(form: BossDef) -> bool: return form == _monster):
 		return tr(finale.title)
 	if _content.abyss_monsters().has(_monster):
 		return tr(_content.dungeon.abyss.display_name)

@@ -395,6 +395,7 @@ func run() -> void:
 	# The bottom of the Well, once a run was won: Tôma, the Maw, an ending.
 	await finale._test_finale(game)
 	await finale._test_finale_story(game)
+	await finale._test_nameless_keeper(game)
 	game.start_run()
 	await _frames(3)
 

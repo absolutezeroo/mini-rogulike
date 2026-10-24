@@ -727,6 +727,11 @@ func _free_souls() -> void:
 		world.spawn_vfx(SoulWisp.create(global_position + Vector2(randf_range(-8.0, 8.0), -radius), world.player))
 
 
+## Its gear shows as the hero's does (MonsterDef.shows_gear: the Nameless Keeper).
+func _shows_gear() -> bool:
+	return def != null and def.shows_gear
+
+
 ## Glows red while winding up an attack, so the player sees it coming.
 func _body_modulate() -> Color:
 	if is_dead and not free_on_death:

@@ -1045,8 +1045,8 @@ func _all_monsters() -> Array[MonsterDef]:
 	var others: Array[MonsterDef] = CONTENT.abyss_monsters()
 	if CONTENT.dungeon.hidden_floor and CONTENT.dungeon.hidden_floor.boss:
 		others.append(CONTENT.dungeon.hidden_floor.boss)
-	if CONTENT.dungeon.finale and CONTENT.dungeon.finale.boss:
-		for form in CONTENT.dungeon.finale.boss.forms():
+	if CONTENT.dungeon.finale:
+		for form in CONTENT.dungeon.finale.all_bosses():
 			others.append(form)
 	for monster in others:
 		if not result.has(monster):

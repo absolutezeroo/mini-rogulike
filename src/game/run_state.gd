@@ -58,6 +58,12 @@ var finale := false
 ## The last form fell and the run is won, but no ending was chosen yet (the app was put away
 ## meanwhile): the choice comes back first when the run is picked up. Saved.
 var ending_due := false
+## The Nameless Keeper waiting at the bottom of this run's Well (KeeperSnapshot data, copied from
+## Profile.keeper when the run began: a run doesn't change course midway; {} = Tôma and the
+## Maw). Never in a daily run (the same race for everyone). Saved.
+var keeper := {}
+## The boss made of `keeper` (FinaleDef.keeper's build()), null without one. Not saved: made again.
+var keeper_boss: NamelessKeeperDef
 ## Secret rooms opened this run (SecretRoom), for the end of the run.
 var secrets_found := 0
 ## Souls earned on top of the usual ones (the hidden floor's boss), before the difficulty's
@@ -115,6 +121,12 @@ static func create(content: ContentDB, saved: Dictionary, rng: RandomNumberGener
 	run.finale_open = bool(saved.get("finale_open", finale_def != null and finale_def.is_open()))
 	run.finale = bool(saved.get("finale", false))
 	run.ending_due = bool(saved.get("ending_due", false))
+	if saved.is_empty():
+		if run.finale_open and run.daily_day < 0 and KeeperSnapshot.is_valid(Profile.keeper):
+			run.keeper = Profile.keeper.duplicate(true)
+	elif KeeperSnapshot.is_valid(saved.get("keeper")):
+		run.keeper = saved["keeper"]
+	run.build_keeper(content)
 	run.secrets_found = int(saved.get("secrets_found", 0))
 	run.bonus_souls = int(saved.get("bonus_souls", 0))
 	var saved_marks: Variant = saved.get("marks", {})
@@ -232,6 +244,7 @@ func to_data() -> Dictionary:
 		"finale_open": finale_open,
 		"finale": finale,
 		"ending_due": ending_due,
+		"keeper": keeper,
 		"secrets_found": secrets_found,
 		"bonus_souls": bonus_souls,
 		"telemetry": telemetry,
@@ -256,8 +269,29 @@ func wins_with(boss: BossDef) -> bool:
 	if has_won or not config.is_final_floor(depth):
 		return false
 	if goes_to_bottom():
-		return finale and boss == config.finale.final_boss()
+		return finale and boss == bottom_boss().last_form()
 	return not finale
+
+
+## Makes the Nameless Keeper of `keeper` (none without a snapshot, or a finale without him).
+func build_keeper(content: ContentDB) -> void:
+	var finale_def := content.dungeon.finale
+	keeper_boss = null
+	if KeeperSnapshot.is_valid(keeper) and finale_def and finale_def.keeper:
+		keeper_boss = finale_def.keeper.build(KeeperSnapshot.new(keeper), content)
+
+
+## Who waits at the bottom of the Well this run: the Nameless Keeper if one waits (his fall is
+## the last), else the finale's boss (Tôma, the Maw rising after him).
+func bottom_boss() -> BossDef:
+	if keeper_boss:
+		return keeper_boss
+	return config.finale.boss if config.finale else null
+
+
+## The fight at the bottom is against the Nameless Keeper this run.
+func meets_keeper() -> bool:
+	return keeper_boss != null
 
 
 ## The split a floor's end is counted under: the bottom of the Well after the last act's.

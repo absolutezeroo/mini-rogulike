@@ -15,3 +15,8 @@ Far above, Kagari wakes. The knell carries until dawn."
 stat = "ending_bell"
 color = Color(1, 0.86, 0.45, 1)
 music = ExtResource("snd_credit_theme")
+keeper_change = 2
+keeper_hint = "Seal the Maw. The one you were finds rest."
+keeper_text = "You ring the bell, and the Well closes.
+The shade sets down its lantern and is gone, like breath on cold stone.
+Far above, Kagari wakes. The knell carries until dawn."

@@ -1,0 +1,56 @@
+[gd_resource type="Resource" script_class="BossChronicleDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/story/boss_chronicle_def.gd" id="1_bosschronicl"]
+[ext_resource type="Script" path="res://src/definitions/story/chronicle_chapter.gd" id="2_chroniclecha"]
+[ext_resource type="Resource" path="res://data/story/conditions/keeper_named.tres" id="3_keepernamed"]
+[ext_resource type="Script" path="res://src/definitions/story/progress_condition.gd" id="4_progresscond"]
+[ext_resource type="Script" path="res://src/definitions/story/waking_line.gd" id="5_wakingline"]
+[ext_resource type="Script" path="res://src/definitions/story/conditions/slain_condition.gd" id="6_slaincondit"]
+
+[sub_resource type="Resource" id="Resource_waits"]
+script = ExtResource("2_chroniclecha")
+id = &"the_one_who_waits"
+title = "The One Who Waits"
+lines = PackedStringArray("At the bottom of the Well a lantern burns before the seal. The one who holds it has no face.", "He rises the way you rise. He holds the blade the way you hold it.")
+slain = 0
+
+[sub_resource type="Resource" id="Resource_taken"]
+script = ExtResource("2_chroniclecha")
+id = &"the_place_taken"
+title = "The Place Taken"
+lines = PackedStringArray("One night you knelt where Tôma knelt, and he climbed toward the light. The Well kept your guard and let your name go.", "Below, no one came to take the lantern from your hand.")
+slain = 1
+conditions = Array[ExtResource("4_progresscond")]([ExtResource("3_keepernamed")])
+
+[sub_resource type="Resource" id="Resource_holds"]
+script = ExtResource("2_chroniclecha")
+id = &"the_seal_holds"
+title = "The Seal Holds"
+lines = PackedStringArray("Night after night the Maw leans on the seal, and night after night he holds.", "He does not wait to win. He waits for someone to stand in his place, so that he may rest.")
+slain = 2
+
+[sub_resource type="Resource" id="Resource_stand"]
+script = ExtResource("5_wakingline")
+id = &"stand"
+line = "Stand."
+
+[sub_resource type="Resource" id="Resource_slain_once"]
+script = ExtResource("6_slaincondit")
+count = 1
+
+[sub_resource type="Resource" id="Resource_again"]
+script = ExtResource("5_wakingline")
+id = &"again"
+line = "Again."
+conditions = Array[ExtResource("4_progresscond")]([SubResource("Resource_slain_once")])
+
+[sub_resource type="Resource" id="Resource_at_last"]
+script = ExtResource("5_wakingline")
+id = &"at_last"
+line = "At last."
+
+[resource]
+script = ExtResource("1_bosschronicl")
+chapters = Array[ExtResource("2_chroniclecha")]([SubResource("Resource_waits"), SubResource("Resource_taken"), SubResource("Resource_holds")])
+waking_lines = Array[ExtResource("5_wakingline")]([SubResource("Resource_stand"), SubResource("Resource_again")])
+last_words = Array[ExtResource("5_wakingline")]([SubResource("Resource_at_last")])

@@ -251,6 +251,7 @@ how busy and percussive, its key, its shape over time). To listen to and swap fr
 | Bottom of the Well (the floor) | Lost Village (`lost_village`) | the title's: Kagari, what Tôma lost, waiting under everything; it comes back when the mask crumbles |
 | Master Tôma | End Theme 2 (`end_theme_2`) | steady, solemn and low, never shouting: a teacher's calm |
 | The Maw | Fight (2025) (`fight_ii`) | the fastest, densest track of the pack, kept for the very last fight |
+| The Nameless Keeper | Fight (2025) (`fight_ii`) | the Maw's: when he waits, his is the very last fight |
 | Ending: ring the bell | Credit Theme (`credit_theme`) | the only up-tempo major piece kept: Kagari wakes |
 | Ending: take his place | Lost Village (`lost_village`) | the music doesn't move: he stays, and loses the village |
 | A run won (first ending) | Ascension (`ascension`) | gentle and rising: the souls going home |

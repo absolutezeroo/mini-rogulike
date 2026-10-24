@@ -374,7 +374,13 @@ bottom of the Well"; the canon in docs/lore.md, section 7, step 7).
   bottom: picked up there (the fight starts over from Tôma, like any boss floor). Won but the app
   put away before the choice (`RunState.ending_due`): picked up on the endless floor, the choice
   first.
-- **Debug**: the debug panel's "The Well's bottom" goes there at once.
+- **The Nameless Keeper**: while one waits (`Profile.keeper`, the hero of a run that ended in
+  "take his place"; copied into `RunState.keeper` when a run begins, saved with it, never in a
+  daily run), he is the bottom's boss instead of Tôma and the Maw (`RunState.bottom_boss()`,
+  `World.finale_boss`), and his fall alone wins the run (monsters.md, "The Nameless Keeper").
+- **Debug**: the debug panel's "The Well's bottom" goes there at once (Tôma and the Maw);
+  "Nameless Keeper" too, with the Keeper made from the hero as he is (a snapshot of this run,
+  never written to the profile).
 
 ## Boss arenas
 

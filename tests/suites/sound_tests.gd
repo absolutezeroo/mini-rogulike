@@ -199,6 +199,8 @@ func _test_music_map() -> void:
 	var form_tracks := forms.map(func(form: BossDef) -> AudioStream: return Soundtrack.boss_music(form, null, bank))
 	check(form_tracks[0] != form_tracks[1], "music: Tôma and the Maw fight to different tracks")
 	check(form_tracks[0] != bank.boss_music and form_tracks[1] != bank.boss_music, "music: neither is the generic boss theme")
+	var keeper_track := Soundtrack.boss_music(finale.keeper, null, bank) if finale.keeper else null
+	check(keeper_track != null and keeper_track != bank.boss_music and keeper_track == form_tracks[1], "music: the Nameless Keeper, the last fight when he waits, fights to the Maw's track (the last fight's)")
 	var hidden_boss := config.hidden_floor.boss
 	check(hidden_boss.music != null, "music: the hidden floor's warden has its own")
 	for ending in finale.endings:

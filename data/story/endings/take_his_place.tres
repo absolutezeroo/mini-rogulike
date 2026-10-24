@@ -15,3 +15,8 @@ Below, a lantern keeps watch. No one will know who holds it."
 stat = "ending_keeper"
 color = Color(0.78, 0.66, 1, 1)
 music = ExtResource("snd_lost_village")
+keeper_change = 1
+keeper_hint = "Take the lantern from him: nameless, down here, in your turn."
+keeper_text = "You take the lantern from the hand that was yours, and the Well forgets your face.
+The one you were climbs toward the light, and does not look back.
+Below, a lantern keeps watch. No one will know who holds it."

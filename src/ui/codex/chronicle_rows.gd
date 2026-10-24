@@ -35,6 +35,12 @@ static func fill(column: VBoxContainer, boss: BossDef, content: ContentDB, read:
 		var where := _where(boss, content)
 		for fragment in fragments:
 			column.add_child(_fragment(fragment, boss, where, read))
+	# What it keeps of its own (the Nameless Keeper: the Keepers freed, with their weapon and day).
+	var records := boss.records(content)
+	if not boss.records_heading().is_empty() and not records.is_empty():
+		column.add_child(_heading(TranslationServer.tr(boss.records_heading())))
+		for line in records:
+			column.add_child(UiSkin.label(line, Fonts.BODY, UiSkin.TEXT, true))
 
 
 static func _chapter(chapter: ChronicleChapter, boss: BossDef) -> Control:
