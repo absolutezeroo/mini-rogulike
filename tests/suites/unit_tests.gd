@@ -65,6 +65,11 @@ func run() -> void:
 	add_child(levels)
 	levels.run_unit()
 	levels.free()
+	# The same seed lays the same floor, every kind of floor (FloorDeterminismTests).
+	var determinism := FloorDeterminismTests.new()
+	add_child(determinism)
+	await determinism.run_unit()
+	determinism.free()
 	# The debug panel's cheats and gallery (DebugTests).
 	var debug_tools := DebugTests.new()
 	add_child(debug_tools)
