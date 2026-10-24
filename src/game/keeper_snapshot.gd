@@ -49,6 +49,8 @@ static func take(player: Player, run: RunState, known_as: String = "") -> Dictio
 		"gear": worn,
 		"skills": skill_ids,
 		"perks": perk_list,
+		# The aura he wore (the Wardrobe's, for the look alone): he wears it below too.
+		"aura": String(player.aura.def.id) if player.aura and is_instance_valid(player.aura) and player.aura.def else "",
 	}
 
 
@@ -82,6 +84,13 @@ func date() -> int:
 
 func pseudonym() -> String:
 	return str(data.get("pseudonym", ""))
+
+
+## The aura he wore (null: none, or one the game no longer has). Whether the profile still has
+## it open doesn't matter: he wore it.
+func aura(content: ContentDB) -> AuraDef:
+	var id := StringName(str(data.get("aura", "")))
+	return content.get_cosmetic(id) as AuraDef if not id.is_empty() and content else null
 
 
 ## The run's difficulty (DifficultyDef id) and ascension level.

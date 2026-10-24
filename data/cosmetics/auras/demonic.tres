@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="AuraDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/cosmetics/aura_def.gd" id="1"]
+[ext_resource type="Script" path="res://src/definitions/cosmetics/win_unlock.gd" id="2"]
+[ext_resource type="Resource" path="res://data/vfx/elements/blood.tres" id="3"]
+[ext_resource type="Resource" path="res://data/vfx/elements/shadow.tres" id="4"]
+[ext_resource type="Resource" path="res://data/vfx/elements/fire.tres" id="5"]
+
+[sub_resource type="Resource" id="unlock"]
+script = ExtResource("2")
+difficulty = &"nightmare"
+
+[resource]
+script = ExtResource("1")
+id = &"aura_demonic"
+display_name = "Brand of the Pit"
+description = "What waits at the bottom marks those who walked out of its Nightmare."
+unlock = SubResource("unlock")
+order = 2
+element = ExtResource("3")
+accent = ExtResource("4")
+mote_element = ExtResource("5")
+bright_shade = 0.66
+glow_shade = 1.0
+dim_shade = 1.0
+deep_shade = 0.33
+spark_shade = 0.25
+mote_shades = PackedFloat32Array(0.25, 0.5, 0.75)
+halo_inner_shade = 0.66
+halo_outer_shade = 1.0
+ground = 2
+radius = 24.0
+squash = 0.42
+density = 0.65
+breath = 1.6
+emissive = true
+light_reach = 40.0
+halo_inner = 17.0
+halo_outer = 23.0
+halo_squash = 1.4
+halo_inner_density = 0.3
+halo_outer_density = 0.2
+halo_flicker = true
+motes = 10
+mote_motion = 0
+mote_speed = 18.0
+mote_life = 1.2
+mote_sway = 1.0

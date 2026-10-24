@@ -13,6 +13,7 @@ Known,Known,Connu
 Hunted,Hunted,Traqué
 Mastered,Mastered,Maîtrisé
 ENRAGED!,ENRAGED!,ENRAGÉ !
+{difficulty} +{level},{difficulty} +{level},{difficulty} +{level}
 Between the Acts,Between the Acts,Entre les Actes
 Slay an elite %s,Slay an elite %s,Élite à abattre : %s
 Push a %s into a hole,Push a %s into a hole,%s : à pousser dans un trou
@@ -40,6 +41,8 @@ SK,SK,CP
 %+d%% skill damage,%+d%% skill damage,%+d %% de Dégâts des compétences
 skills recharge %d%% faster,skills recharge %d%% faster,compétences rechargées %d %% plus vite
 The Threshold,The Threshold,Le Seuil
+Win a descent.,Win a descent.,Gagne une descente.
+Win a descent on {difficulty}.,Win a descent on {difficulty}.,Gagne une descente en {difficulty}.
 Burns (%d every 0.5 s),Burns (%d every 0.5 s),"Brûle (%d toutes les 0,5 s)"
 Poisons (%d per second),Poisons (%d per second),Empoisonne (%d par seconde)
 Slows %d%%,Slows %d%%,Ralentit de %d %%
@@ -273,7 +276,6 @@ Runs: %d     Wins: %d     Deepest floor: %d,Runs: %d     Wins: %d     Deepest fl
 No descent finished yet. The Well is waiting.,No descent finished yet. The Well is waiting.,Aucune descente achevée. Le Puits t'attend.
 Fastest wins:   %s,Fastest wins:   %s,Victoires les plus rapides :   %s
 Fastest to the Well's Bottom:   %s,Fastest to the Well's Bottom:   %s,"Au Fond du Puits, les plus rapides :   %s"
-{difficulty} +{level},{difficulty} +{level},{difficulty} +{level}
 Nothing heard yet.,Nothing heard yet.,Rien entendu encore.
 Still unheard: %d,Still unheard: %d,Encore à entendre : %d
 Words kept: %d of %d,Words kept: %d of %d,Paroles gardées : %d sur %d
@@ -845,6 +847,7 @@ or,or,ou
 Resume the descent,Resume the descent,Reprendre la descente
 "Floor %d, level %d","Floor %d, level %d","Étage %d, niveau %d"
 Feedback,Feedback,Avis
+Wardrobe,Wardrobe,Garde-robe
 +%d%% souls each run,+%d%% souls each run,+%d%% d'âmes par partie
 More floors with: %s,More floors with: %s,Plus d'étages avec : %s
 %d days left,%d days left,Encore %d jours
@@ -900,6 +903,11 @@ Level 1 gives: pick your starting weapon among %d: %s,Level 1 gives: pick your s
 Now: %d starting weapons  (maxed),Now: %d starting weapons  (maxed),Actuel : %d armes de départ  (au maximum)
 Now: %d starting weapons   >   Next: +%d weapons: %s,Now: %d starting weapons   >   Next: +%d weapons: %s,Actuel : %d armes de départ   >   Suivant : +%d armes : %s
 %s (locked),%s (locked),%s (à débloquer)
+Auras,Auras,Auras
+No aura,No aura,Aucune aura
+Locked: %s,Locked: %s,Verrouillée : %s
+Worn,Worn,Portée
+Wear,Wear,Porter
 The depths,The depths,Les profondeurs
 %s - better loot,%s - better loot,%s - meilleur butin
 %s (cursed: %s),%s (cursed: %s),%s (maudit : %s)
@@ -1074,6 +1082,12 @@ The Sunken Stacks,The Sunken Stacks,Les Rayonnages Engloutis
 The Collapsed Throne Hall,The Collapsed Throne Hall,La Salle du Trône Effondrée
 "Water drips from the stone overhead, as if the Well itself were weeping.","Water drips from the stone overhead, as if the Well itself were weeping.","L'eau goutte de la pierre, là-haut, comme si le Puits lui-même pleurait."
 The Weeping Hollow,The Weeping Hollow,Le Creux qui Pleure
+Shroud of the Deep,Shroud of the Deep,Linceul des Profondeurs
+The dark of the lower floors clings to those who keep coming back.,The dark of the lower floors clings to those who keep coming back.,L'ombre des étages d'en bas colle à ceux qui reviennent sans cesse.
+Brand of the Pit,Brand of the Pit,Marque de l'Abîme
+What waits at the bottom marks those who walked out of its Nightmare.,What waits at the bottom marks those who walked out of its Nightmare.,Ce qui attend au fond marque ceux qui sont sortis de son Cauchemar.
+Dawn's Grace,Dawn's Grace,Grâce de l'Aube
+"The light the Well swallowed, given back to one who came up again.","The light the Well swallowed, given back to one who came up again.","La lumière que le Puits a avalée, rendue à qui en est remonté."
 Game design and development.,Game design and development.,Conception et développement du jeu.
 "Characters, monsters, tiles, items, effects and sound effects.","Characters, monsters, tiles, items, effects and sound effects.","Personnages, monstres, décors, objets, effets et bruitages."
 "Weapon attack sheets composed from the pack's sprites, some tiles and effects drawn for the game in its palette.","Weapon attack sheets composed from the pack's sprites, some tiles and effects drawn for the game in its palette.","Planches d'attaque des armes composées à partir des sprites du pack, quelques décors et effets dessinés pour le jeu dans sa palette."

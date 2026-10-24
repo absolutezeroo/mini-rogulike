@@ -274,6 +274,8 @@ step its value ("Damage x5"), and both stay pressed while on.
   story again (its cinematic, `GameDebug.boss_story()`; nothing with Boss stories off).
   **Fragment**: pick any fragment of the past (with its warden) and place it beside the hero.
   **Pact door**: one button per pact: seals a dead-end room of this floor behind its door.
+  **Aura**: **Next aura** puts each aura on the hero in turn (locked or not, then none), for
+  this run's look only: not a debug run, the Wardrobe's choice unchanged.
 - **Hero**: the cheats, kept across floors until the run ends (`DebugCheats`): god mode (nothing
   hurts), **Invisible** (monsters never notice him, and forget him if they had), **No
   cooldowns** (skills and the roll ready again at once), and three steps: **Damage** dealt

@@ -25,6 +25,7 @@ func test_cases() -> Array:
 		["soft_keyboard", func() -> void: await _part(SoftKeyboardTests.new(), func(suite: SoftKeyboardTests) -> void: await suite.run_title())],
 		["tap", func() -> void: await _part(TapTests.new(), func(suite: TapTests) -> void: await suite.run_title())],
 		["dialogue", func() -> void: await _part(DialogueTests.new(), func(suite: DialogueTests) -> void: await suite.run_title())],
+		["wardrobe", func() -> void: await _part(CosmeticTests.new(), func(suite: CosmeticTests) -> void: await suite.run_title())],
 	]
 
 

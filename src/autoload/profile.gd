@@ -57,6 +57,8 @@ var best_splits := {}
 ## with (the Armory node; WeaponDef id, "" = the usual one).
 var oath: StringName = &""
 var starting_weapon: StringName = &""
+## What the hero wears for the look alone (Wardrobe): slot name ("aura") -> CosmeticDef id.
+var worn := {}
 ## Runs finished since the Tree of Souls was last reset (SoulTreeDef.reset_runs earns the next
 ## reset). A save from before this rule starts with a reset earned (RESET_EARNED).
 var runs_since_reset := 0
@@ -260,9 +262,9 @@ func free_keeper() -> void:
 ## played under and the day he was freed.
 func record_keeper_freed(snapshot: Dictionary) -> void:
 	var gear: Array = []
-	var worn: Variant = snapshot.get("gear", [])
-	if worn is Array and not (worn as Array).is_empty():
-		gear.append((worn as Array)[0])  # (his weapon: taken first, KeeperSnapshot.take())
+	var his_gear: Variant = snapshot.get("gear", [])
+	if his_gear is Array and not (his_gear as Array).is_empty():
+		gear.append((his_gear as Array)[0])  # (his weapon: taken first, KeeperSnapshot.take())
 	keepers_freed.push_front({
 		"version": int(snapshot.get("version", KeeperSnapshot.VERSION)),
 		"gear": gear,
@@ -567,6 +569,7 @@ func reset() -> void:
 	best_splits = {}
 	oath = &""
 	starting_weapon = &""
+	worn = {}
 	runs_since_reset = 0
 	ending = &""
 	keeper = {}
@@ -600,7 +603,7 @@ func save_profile() -> void:
 		"daily_day": daily_day, "daily_score": daily_score, "daily_best": daily_best, "daily_streak": daily_streak,
 		"hints_seen": hints_seen,
 		"best_times": best_times, "best_splits": best_splits,
-		"oath": String(oath), "starting_weapon": String(starting_weapon),
+		"oath": String(oath), "starting_weapon": String(starting_weapon), "worn": worn,
 		"runs_since_reset": runs_since_reset,
 		"ending": String(ending),
 		"keeper": keeper, "keepers_freed": keepers_freed,
@@ -644,6 +647,11 @@ func load_profile() -> void:
 	best_times = _ints(data.get("best_times", {}))
 	oath = StringName(data.get("oath", ""))
 	starting_weapon = StringName(data.get("starting_weapon", ""))
+	worn = {}
+	var saved_worn: Variant = data.get("worn", {})
+	if saved_worn is Dictionary:
+		for slot: Variant in saved_worn:
+			worn[str(slot)] = str(saved_worn[slot])
 	runs_since_reset = int(data.get("runs_since_reset", RESET_EARNED))
 	ending = StringName(data.get("ending", ""))
 	# A snapshot of a version this game can't read (or a damaged one) waits no more.

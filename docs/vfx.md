@@ -773,3 +773,33 @@ Checked for each element (fire, frost, storm, poison) on a katana, an axe, a lan
 Hammer and the Bow, plus plain steel (`CombatTests._test_elemental_attacks`); shots and the
 weapon's skills with a rune in `_test_rune_shots` (shots, and the non-shot skills: Cleave, Arrow
 Rain, Frost Nova, Dash Strike).
+
+## 12. Auras
+
+A cosmetic the hero wears (`AuraDef`, `AuraVfx`, design/progression.md "The Wardrobe"): three
+parts, each on its rule.
+
+- **The glow on the ground** (`aura_ground.gdshader`, drawing in `aura_ground.gdshaderinc`): an
+  oval at the feet on the **GROUND** layer (under every body and every telegraph), per art pixel
+  of the world's grid, its time stepped (10 fps), a pixel wider on the breath; sparse by ordered
+  dithering (`density` 0.7 at most: the floor and a telegraph read through it). Its pattern is
+  data (`AuraDef.Ground`): RAYS (a ring, a dithered glow, eight rays turning), POOL (a pool of
+  dark, its edge crawling: written without the emissive mark), EMBERS (a smouldering core, a ring
+  of embers each flaring on its own beat, sparks leaping off). A glowing one lights itself
+  (`VfxLayer.light_up`, in the first of its colors that shines).
+- **The halo** behind the body (`glow_halo.gdshader`: two flat bands of added light, a tall oval,
+  breathing or flickering), seen round his sides and over his head, never over him
+  (`VfxLayer.on_body`, behind).
+- **The motes**: whole art pixels drawn by hand at 12 fps (no redraw in between), rising or
+  sinking at his sides, behind him, dithered out as they end.
+- **Colors** are steps of element ramps, picked in the data (`bright_shade`, `glow_shade`,
+  `dim_shade`, `deep_shade` of the accent, `spark_shade` of the motes' element): a ramp runs from
+  its core to its edge, bright to dark for light, dark to light for the shadow. The demonic aura
+  keeps to dark crimson and the shadow's purple, away from the danger red of telegraphs and
+  warning rims (checked: `CosmeticTests`).
+- **Fewer effects**: the glow alone, still (no halo, no motes, nothing processed).
+- **Out of a floor** (the title's hero, the Wardrobe's preview: `wear_on_sprite`) it stands
+  beside the sprite at a floor's scale under it, its glow blended as a picture
+  (`aura_ground_ui.gdshader`): written with blending off, it showed through the windows opened
+  over the title's transparent viewport.
+

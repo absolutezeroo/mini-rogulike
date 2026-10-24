@@ -42,6 +42,10 @@ var daily_dialog: DailyDialog
 var leaderboards: LeaderboardsPanel
 ## The credits (CreditsPanel), from the button under Leaderboards.
 var credits: CreditsPanel
+## The Wardrobe (WardrobePanel), from its button under Credits.
+var wardrobe: WardrobePanel
+## The aura the hero by the Well wears (the Wardrobe's), or null.
+var hero_aura: AuraVfx
 ## "Send feedback" (FeedbackDialog), from the button beside Credits.
 var feedback: FeedbackDialog
 ## The gameplay statistics' questions (age, then consent).
@@ -139,6 +143,7 @@ func _ready() -> void:
 		play())
 	_build_leaderboards()
 	_build_credits()
+	_build_wardrobe()
 	_build_consent()
 	_build_world_line()
 	_build_remote_notes()
@@ -248,7 +253,10 @@ func _refresh_keeper() -> void:
 ## The hero and the souls where the Well is drawn.
 func _place_scene() -> void:
 	var backdrop: TitleBackdrop = %Backdrop
+	var moved := backdrop.hero_spot() - _hero.position
 	_hero.position = backdrop.hero_spot()
+	if hero_aura and is_instance_valid(hero_aura):
+		hero_aura.position += moved
 	if keeper:
 		keeper.position = (backdrop.keeper_spot() - keeper.feet()).round()
 	var wisps: CPUParticles2D = %Wisps
@@ -346,6 +354,35 @@ func _build_credits() -> void:
 	credits.closed.connect(func() -> void:
 		if InputDevice.uses_buttons():
 			button.grab_focus())
+
+
+## "Wardrobe" under Credits and Feedback, its page over the screen; the hero by the Well wears
+## what is worn there.
+func _build_wardrobe() -> void:
+	wardrobe = WardrobePanel.new()
+	wardrobe.name = "WardrobePanel"
+	add_child(wardrobe)
+	var button := MenuWindow.button(tr("Wardrobe"), Fonts.BODY, 44)
+	button.size_flags_horizontal = Control.SIZE_FILL
+	(%RecordsPlaque as Control).get_parent().add_child(button)
+	MenuWindow.expose(button, "WardrobeButton", self)
+	button.pressed.connect(func() -> void:
+		Sfx.play_ui(Sfx.bank.ui_open)
+		wardrobe.open_with(content))
+	wardrobe.closed.connect(func() -> void:
+		dress_hero()
+		if InputDevice.uses_buttons():
+			button.grab_focus())
+	dress_hero()
+
+
+## The hero by the Well in the aura worn (none: none).
+func dress_hero() -> void:
+	if hero_aura and is_instance_valid(hero_aura):
+		hero_aura.queue_free()
+	hero_aura = AuraVfx.make(Wardrobe.aura(content), 30.0, 12.0)
+	if hero_aura:
+		hero_aura.wear_on_sprite(_hero, WardrobePanel.feet_of(content.player.frames, Vector2.ZERO))
 
 
 ## The gameplay statistics' questions, asked once the title has shown (Privacy.should_ask()).
@@ -592,6 +629,8 @@ func back() -> bool:
 		feedback.back()
 	elif credits and credits.visible:
 		credits.back()
+	elif wardrobe and wardrobe.visible:
+		wardrobe.back()
 	elif leaderboards and leaderboards.visible:
 		leaderboards.back()
 	elif options.visible:

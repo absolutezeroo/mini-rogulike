@@ -68,6 +68,7 @@ func test_cases() -> Array:
 		["world_stats", func() -> void: await _part(WorldStatsTests.new(), func(suite: WorldStatsTests) -> void: await suite.run_unit())],
 		["remote_config", func() -> void: await _part(RemoteConfigTests.new(), func(suite: RemoteConfigTests) -> void: await suite.run_unit())],
 		["feedback", func() -> void: await _part(FeedbackTests.new(), func(suite: FeedbackTests) -> void: await suite.run_unit())],
+		["cosmetics", func() -> void: await _part(CosmeticTests.new(), func(suite: CosmeticTests) -> void: await suite.run_unit())],
 		["online_session", func() -> void: await _part(OnlineSessionTests.new(), func(suite: OnlineSessionTests) -> void: await suite.run_unit())],
 		["talo_contract", func() -> void: await _part(TaloContractTests.new(), func(suite: TaloContractTests) -> void: await suite.run_unit())],
 		["gear_look", func() -> void: await _part(GearLookTests.new(), func(suite: GearLookTests) -> void: suite.run())],

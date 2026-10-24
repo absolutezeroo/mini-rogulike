@@ -66,6 +66,8 @@ var _give_label: Label
 
 # The World tab's Encounter and Fragment rows.
 var _encounter_index := 0
+## The aura the "Next aura" button put on (-1: none).
+var _aura_index := -1
 var _fragment_index := 0
 ## Every fragment of the past, with its warden: [FragmentDef, BossDef].
 var _fragment_list: Array[Array] = []
@@ -261,6 +263,10 @@ func _build_hero(page: VBoxContainer) -> void:
 	body_row.add_child(_button("Level up", func() -> void: _act(func() -> void:
 		_game.player.gain_xp(_game.player.xp_to_next_level() - _game.player.xp), "Level up")))
 	body_row.add_child(_button("Kill hero", _kill_hero))
+	# Every aura on the hero in turn, locked or not, for this run's look only (not a debug run:
+	# it changes nothing, and the Wardrobe's choice stays as it was).
+	var looks := _row(page, "Aura")
+	looks.add_child(_button("Next aura", _next_aura))
 	var heat := _row(page, "Temperature")
 	heat.add_child(_button("Freezing", func() -> void: _act(func() -> void: _game.player.temperature.value = -90.0, "Cold")))
 	heat.add_child(_button("Burning", func() -> void: _act(func() -> void: _game.player.temperature.value = 90.0, "Hot")))
@@ -536,6 +542,15 @@ func _go(depth: int, curse: CurseDef = null, event: FloorEventDef = null, plain:
 
 ## Runs `action` and says it happened (the panel stays open). Whatever the panel does to the run
 ## makes it a debug run (DebugCheats.mark_run()): only the views (the Tools tab) don't.
+## The next aura of the game on the hero (after the last: none).
+func _next_aura() -> void:
+	var auras := _game_content().cosmetics_of(CosmeticDef.Slot.AURA)
+	_aura_index = _aura_index + 1 if _aura_index + 1 < auras.size() else -1
+	var aura: AuraDef = auras[_aura_index] as AuraDef if _aura_index >= 0 else null
+	_game.player.wear_aura(aura)
+	_status.text = "Aura: %s" % (aura.display_name if aura else "none")
+
+
 func _act(action: Callable, message: String) -> void:
 	DebugCheats.mark_run()
 	action.call()

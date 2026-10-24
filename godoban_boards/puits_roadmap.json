@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 235,
+  "next_id": 237,
   "tags": [
     "pc",
     "test",
@@ -3500,6 +3500,37 @@
       ],
       "created_at": 1792851103,
       "updated_at": 1792851103,
+      "due_date": null
+    },
+    {
+      "id": "task_235",
+      "title": "Auras cosmétiques et Garde-robe",
+      "description": "Fait (24/10). Trois auras pour le style seulement, en shader sur la grille des pixels : Grâce de l'Aube (divine : anneau et rayons de lumière, étincelles qui montent ; une descente gagnée), Linceul des Profondeurs (sombre : flaque d'ombre au bord mouvant, volutes qui tombent ; gagnée en Veilleur), Marque de l'Abîme (démoniaque : braises autour d'un cœur sombre, halo qui vacille ; gagnée en Cauchemar). Chacune : lueur au sol (couche sol, sous les avertissements), halo derrière le héros, quelques particules ; « effets réduits » : la lueur seule. Garde-robe sur l'écran titre (aperçu qui tourne, Porter / Portée / ce qui la débloque), le héros du titre la porte, le Gardien Sans Nom garde celle de ton héros, bouton « Next aura » dans le menu de débug. Tout en données (data/cosmetics/, CosmeticDef / AuraDef / CosmeticUnlock). À voir sur le S23 : lisibilité en combat, couleurs.",
+      "status": "review",
+      "priority": "medium",
+      "epic_id": "epic_3",
+      "tags": [
+        "vfx",
+        "ui",
+        "visuel"
+      ],
+      "created_at": 1792857515,
+      "updated_at": 1792857515,
+      "due_date": null
+    },
+    {
+      "id": "task_236",
+      "title": "Garde-robe : d'autres cosmétiques (cape, ailes, compagnon)",
+      "description": "Idée de Clayton. Le système est prêt (CosmeticDef.Slot). Cape et ailes : nouvelle couche dans ActorRig, demandent des sprites dans les 4 directions pour chaque animation (dessin : script, Aspire/Aseprite ou artiste). Compagnon : voir sa carte. Déblocages en données (CosmeticUnlock).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "tags": [
+        "idée",
+        "visuel"
+      ],
+      "created_at": 1792857515,
+      "updated_at": 1792857515,
       "due_date": null
     }
   ]

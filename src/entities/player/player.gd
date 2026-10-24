@@ -45,6 +45,8 @@ const STEP_INTERVAL := 0.3
 ## PlayerDef's own defaults, for a hero not set up yet (tuning()).
 static var _defaults := PlayerDef.new()
 
+## His aura (wear_aura()), or null.
+var aura: AuraVfx
 ## Physics frame of the last damage taken (-1: none). For the bestiary challenges.
 var last_hurt_frame := -1
 var def: PlayerDef
@@ -83,6 +85,16 @@ var charge_vfx: ChargeVfx
 func _ready() -> void:
 	super._ready()
 	charge_vfx = ChargeVfx.attach(self)
+
+
+## The aura he wears (the Wardrobe, AuraDef; null: none), for the look alone: at his feet, behind
+## him (AuraVfx). Worn again replaces the one before.
+func wear_aura(def_worn: AuraDef) -> void:
+	if aura and is_instance_valid(aura):
+		aura.queue_free()
+	aura = AuraVfx.make(def_worn, head_height - 4.0, radius)
+	if aura:
+		aura.wear_on(self, Vector2(0, _feet_y()))
 
 
 func _notification(what: int) -> void:
@@ -406,6 +418,8 @@ func _on_died(killer: Actor) -> void:
 		killer_def = (who as Monster).def
 		killer_was_elite = (who as Monster).is_elite()
 	Events.log_message(tr("Your soul slips into the Well."), Palette.DANGER)
+	if aura and is_instance_valid(aura):
+		aura.hide()  # (the soul gone, its light with it)
 	camera.shake(1.0)
 	Vfx.death(world, global_position, def.color)
 

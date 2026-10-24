@@ -44,6 +44,8 @@ extends Resource
 @export var achievements: Array[AchievementDef] = []
 ## Daily and weekly quests (QuestBoard draws a few of each from the date).
 @export var quests: Array[QuestDef] = []
+## What the hero wears for the look alone (the Wardrobe: auras...), in its order.
+@export var cosmetics: Array[CosmeticDef] = []
 ## Springs, altars, spirits and statues met in rooms.
 @export var encounters: Array[EncounterDef] = []
 ## Random bonuses on found equipment (Magic, Rare and Epic items).
@@ -172,3 +174,22 @@ static func _pick(pool: Array, depth: int, rng: RandomNumberGenerator, boost: Di
 			candidates.append(def)
 			weights.append(roundi(def.spawn_weight * float(boost.get(String(def.id), 1.0))) if not boost.is_empty() else def.spawn_weight)
 	return RandomUtils.pick_weighted(candidates, weights, rng)
+
+
+## The cosmetics of `slot`, in their Wardrobe order.
+func cosmetics_of(slot: CosmeticDef.Slot) -> Array[CosmeticDef]:
+	var result: Array[CosmeticDef] = []
+	for cosmetic in cosmetics:
+		if cosmetic and cosmetic.slot == slot:
+			result.append(cosmetic)
+	result.sort_custom(func(a: CosmeticDef, b: CosmeticDef) -> bool: return a.order < b.order)
+	return result
+
+
+## The cosmetic called `id`, or null.
+func get_cosmetic(id: StringName) -> CosmeticDef:
+	for cosmetic in cosmetics:
+		if cosmetic and cosmetic.id == id:
+			return cosmetic
+	return null
+

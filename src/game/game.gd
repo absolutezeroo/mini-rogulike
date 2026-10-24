@@ -276,6 +276,7 @@ func _begin_run(saved: Dictionary, daily: bool = false) -> void:
 			world.kept_stock.append({ "item": item, "price": int((saved_entry as Dictionary).get("price", 1)), "locked": true })
 	player = PLAYER_SCENE.instantiate() as Player
 	player.setup(content.player)
+	player.wear_aura(Wardrobe.aura(content))  # (the Wardrobe's: for the look alone)
 	player.died.connect(_on_player_died)
 	# A level up opens nothing: its choice waits behind the HUD's perk button.
 	player.leveled_up.connect(func(level: int) -> void:

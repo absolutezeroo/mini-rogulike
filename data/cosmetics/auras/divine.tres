@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="AuraDef" format=3]
+
+[ext_resource type="Script" path="res://src/definitions/cosmetics/aura_def.gd" id="1"]
+[ext_resource type="Script" path="res://src/definitions/cosmetics/win_unlock.gd" id="2"]
+[ext_resource type="Resource" path="res://data/vfx/elements/holy.tres" id="3"]
+
+[sub_resource type="Resource" id="unlock"]
+script = ExtResource("2")
+difficulty = &""
+
+[resource]
+script = ExtResource("1")
+id = &"aura_divine"
+display_name = "Dawn's Grace"
+description = "The light the Well swallowed, given back to one who came up again."
+unlock = SubResource("unlock")
+order = 0
+element = ExtResource("3")
+bright_shade = 0.25
+glow_shade = 0.25
+dim_shade = 0.5
+deep_shade = 0.5
+spark_shade = 0.0
+mote_shades = PackedFloat32Array(0, 0, 0.25)
+halo_inner_shade = 0.25
+halo_outer_shade = 0.5
+ground = 0
+radius = 24.0
+squash = 0.42
+density = 0.5
+breath = 2.4
+emissive = true
+light_reach = 48.0
+halo_inner = 17.0
+halo_outer = 23.0
+halo_squash = 1.35
+halo_inner_density = 0.28
+halo_outer_density = 0.14
+halo_flicker = false
+motes = 8
+mote_motion = 0
+mote_speed = 12.0
+mote_life = 1.8
+mote_sway = 1.5

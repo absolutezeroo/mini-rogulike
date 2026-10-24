@@ -291,6 +291,31 @@ gameplay's (`QuestBoard.pay_finished()`, which emits `Events.quest_completed`): 
 run's records), and when the title screen comes up for one finished in a run that ended before
 paying it (a crash, an old save). The Codex only shows them: looking at its tab pays nothing.
 
+## The Wardrobe
+
+What the hero wears for the look alone: no number of the game changes with it. For now, auras
+(`AuraDef`, drawn by `AuraVfx`: docs/vfx.md "Auras"); a new kind is a new `CosmeticDef.Slot`
+and a subclass of `CosmeticDef`.
+
+- **Data**: `data/cosmetics/` (one resource each), listed in `content_db.tres` > Cosmetics. Each
+  has its id, name, words, Wardrobe order and what opens it (`unlock`, a `CosmeticUnlock`
+  subclass: `WinUnlock` = a won descent, on a difficulty or any one). A new kind of condition is
+  a new subclass. The unlock is asked of the profile each time (never stored), so changing it
+  in the data applies to every profile.
+- **The three auras**: **Dawn's Grace** (divine: a ring of light, rays turning, sparks rising;
+  any won descent), **Shroud of the Deep** (dark: a pool of dark with a crawling edge, wisps
+  sinking; won on Keeper), **Brand of the Pit** (demonic: embers flaring round a smouldering
+  core, the halo flickering, embers flying; won on Nightmare).
+- **The profile** keeps only what is worn per slot (`Profile.worn`, `"aura"` -> id). `Wardrobe`
+  reads it: one locked since (the data changed) or gone from the game is worn as nothing,
+  without touching the profile. A locked one can't be worn.
+- **Where it shows**: the hero in every run (`Player.wear_aura()`, at the run's start), the hero
+  by the Well on the title, the Wardrobe's preview, and the Nameless Keeper made from a hero
+  (his snapshot keeps the aura's id, `AuraTrait`). The debug panel's **Next aura** puts each on
+  the hero in turn for the run, locked or not (not a debug run: nothing changes).
+- **The Wardrobe** (title screen, under Credits and Feedback): left, the hero wearing what is
+  worn, turning round; right, a row per aura and "No aura": Wear, Worn, or (dimmed) what opens it.
+
 ## Codex: bestiary, achievements, runs
 
 Five tabs: Quests, Bestiary, Achievements, Runs and **Voices** (what the Vigil-Keeper and the

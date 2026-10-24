@@ -143,6 +143,11 @@ func build(snapshot: KeeperSnapshot, content: ContentDB) -> NamelessKeeperDef:
 				relics.perks.append(perk)
 	if not relics.perks.is_empty():
 		keeper.traits.append(relics)
+	var aura := snapshot.aura(content)
+	if aura:
+		var worn := AuraTrait.new()
+		worn.aura = aura
+		keeper.traits.append(worn)
 	return keeper
 
 
