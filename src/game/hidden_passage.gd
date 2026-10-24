@@ -91,5 +91,5 @@ func _reward() -> void:
 	if def.chest:
 		var cell := world.map.world_to_cell(world.nearest_free_point(world.map.cell_to_world(world.map.boss_room.get_center() + Vector2i(0, -3))))
 		world.spawn_chest(def.chest, cell, false)
-	Events.log_message(tr("The hidden floor gives up its hoard: +%d souls.") % roundi(def.bonus_souls * run.difficulty.souls), def.color)
+	Events.log_message(tr("The hidden floor gives up its hoard: +%d souls.") % run.bonus_souls_worth(def.bonus_souls), def.color)
 	game.hud.set_souls(game.run_souls(), true)

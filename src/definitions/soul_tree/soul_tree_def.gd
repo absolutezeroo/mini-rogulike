@@ -28,13 +28,6 @@ extends Resource
 @export_range(1, 12) var reset_min_depth: int = 2
 
 
-func node_of(upgrade: UpgradeDef) -> SoulNodeDef:
-	for node in nodes:
-		if node and node.upgrade == upgrade:
-			return node
-	return null
-
-
 func find(id: StringName) -> SoulNodeDef:
 	for node in nodes:
 		if node and node.id() == id:

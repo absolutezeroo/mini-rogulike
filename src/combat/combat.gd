@@ -1,19 +1,35 @@
 class_name Combat
 ## Shared combat rules. Every damage number in the game goes through here.
 
-const CRIT_MULTIPLIER := 1.75
-const DAMAGE_VARIANCE := 0.15
+## The core numbers: crit, variance, armor, the cooldown cap (data/combat/combat_rules.tres).
+const RULES: CombatRulesDef = preload("res://data/combat/combat_rules.tres")
+## How far a prop is reached past its middle (crates, pots: a blow touching their side breaks them).
+const PROP_REACH := Prop.SIZE * 0.4
+
+## Rolls outside any floor (a hit with no world: tools, a few tests).
+static var _loose := RandomNumberGenerator.new()
 
 
-static func make_hit(base_amount: int, crit_chance: float, source: Actor) -> HitInfo:
+## A hit of about `base_amount` (the variance), maybe a critical one. Its rolls come from the
+## floor's combat dice (World.combat_rng: the same seed, the same fight), `rng` when given (a shot
+## whose shooter is gone), else from loose dice.
+static func make_hit(base_amount: int, crit_chance: float, source: Actor, rng: RandomNumberGenerator = null) -> HitInfo:
+	var dice := rng if rng else dice_of(source)
 	var hit := HitInfo.new()
 	hit.source = source
-	var amount := float(base_amount) * randf_range(1.0 - DAMAGE_VARIANCE, 1.0 + DAMAGE_VARIANCE)
-	if randf() < crit_chance:
+	var amount := float(base_amount) * dice.randf_range(1.0 - RULES.damage_variance, 1.0 + RULES.damage_variance)
+	if dice.randf() < crit_chance:
 		hit.is_crit = true
-		amount *= CRIT_MULTIPLIER + (source.crit_damage_bonus if source else 0.0)
+		amount *= RULES.crit_multiplier + (source.crit_damage_bonus if source else 0.0)
 	hit.amount = maxi(1, roundi(amount))
 	return hit
+
+
+## The dice an actor's hits roll with: its floor's (World.combat_rng), else loose ones.
+static func dice_of(source: Actor) -> RandomNumberGenerator:
+	if source and is_instance_valid(source) and source.world and is_instance_valid(source.world):
+		return source.world.combat_rng
+	return _loose
 
 
 static func make_hit_from(attacker: Actor, base_amount: int) -> HitInfo:
@@ -36,18 +52,15 @@ static func make_tick(source: Actor, amount: int) -> HitInfo:
 	return hit
 
 
-## Armor with diminishing returns: a hit of A against D armor deals A x A / (A + ARMOR_WEIGHT x D).
-## Against a hit much bigger than the armor it is close to removing D points (35 vs 5: 30.6);
-## against a hit about the armor's size it halves it (20 vs 20: 10); it never makes a hit
-## harmless (20 vs 36: 7, where "D points off" gave 1). At least 1. Negative armor (a curse)
-## adds its points instead.
-const ARMOR_WEIGHT := 1.0
-
-
+## Armor with diminishing returns: a hit of A against D armor deals A x A / (A + W x D), W being
+## CombatRulesDef.armor_weight (1). Against a hit much bigger than the armor it is close to
+## removing D points (35 vs 5: 30.6); against a hit about the armor's size it halves it (20 vs 20:
+## 10); it never makes a hit harmless (20 vs 36: 7, where "D points off" gave 1). At least 1.
+## Negative armor (a curse) adds its points instead.
 static func mitigate(amount: int, defense: int) -> int:
 	if defense <= 0 or amount <= 0:
 		return maxi(1, amount - defense)
-	return maxi(1, roundi(float(amount) * amount / (amount + ARMOR_WEIGHT * defense)))
+	return maxi(1, roundi(float(amount) * amount / (amount + RULES.armor_weight * defense)))
 
 
 ## The smallest hit that deals at least `damage` through `defense` armor (mitigate's inverse).
@@ -87,10 +100,9 @@ static func melee_strike(attacker: Actor, blow: Blow, weapon: WeaponDef) -> void
 		target.take_hit(hit)
 
 	# Crates, pots, barrels in the arc break too.
-	for prop in world.get_breakable_props():
-		var to_prop := prop.global_position - attacker.global_position
-		if to_prop.length() <= reach + Prop.SIZE * 0.4 and blow.in_arc(prop.global_position, half_arc + 0.3):
-			prop.take_hit(make_hit_from(attacker, attacker.get_power()))
+	var from := attacker.global_position
+	break_props(world, attacker, func(prop: Prop) -> bool:
+		return prop.global_position.distance_to(from) <= reach + PROP_REACH and blow.in_arc(prop.global_position, half_arc + 0.3))
 
 
 ## Hits every enemy of the attacker inside a circle. `secondary`: see HitInfo.is_secondary.
@@ -107,12 +119,8 @@ static func damage_blow_area(world: World, attacker: Actor, blow: Blow, offset: 
 	for target in world.get_hostiles(attacker.faction):
 		var center := blow.origin + blow.toward(target.global_position) * offset
 		_hit_in_circle(attacker, target, center, radius, base_amount, knockback, false, status, element)
-	for prop in world.get_breakable_props():
-		var center := blow.origin + blow.toward(prop.global_position) * offset
-		if prop.global_position.distance_to(center) <= radius + Prop.SIZE * 0.4:
-			var hit := HitInfo.new()
-			hit.source = attacker
-			prop.take_hit(hit)
+	break_props(world, attacker, func(prop: Prop) -> bool:
+		return prop.global_position.distance_to(blow.origin + blow.toward(prop.global_position) * offset) <= radius + PROP_REACH)
 
 
 static func _hit_in_circle(attacker: Actor, target: Actor, center: Vector2, radius: float, base_amount: int, knockback: float, secondary: bool, status: OnHitStatus, element: VfxElementDef) -> void:
@@ -141,12 +149,8 @@ static func damage_segment(world: World, attacker: Actor, from: Vector2, to: Vec
 		hit.status = status
 		hit.element = element
 		target.take_hit(hit)
-	for prop in world.get_breakable_props():
-		var closest := Geometry2D.get_closest_point_to_segment(prop.global_position, from, to)
-		if closest.distance_to(prop.global_position) <= width + Prop.SIZE * 0.4:
-			var hit := HitInfo.new()
-			hit.source = attacker
-			prop.take_hit(hit)
+	break_props(world, attacker, func(prop: Prop) -> bool:
+		return Geometry2D.get_closest_point_to_segment(prop.global_position, from, to).distance_to(prop.global_position) <= width + PROP_REACH)
 
 
 ## A thrust `distance` long along `blow` without moving (the lance's long thrust), stopping short
@@ -165,13 +169,10 @@ static func damage_blow_segment(world: World, attacker: Actor, blow: Blow, dista
 		hit.status = status
 		hit.element = element
 		target.take_hit(hit)
-	for prop in world.get_breakable_props():
+	break_props(world, attacker, func(prop: Prop) -> bool:
 		var direction := blow.toward(prop.global_position)
 		var to := blow.origin + direction * clear_length(world, blow.origin, direction, distance, attacker.radius)
-		if Geometry2D.get_closest_point_to_segment(prop.global_position, blow.origin, to).distance_to(prop.global_position) <= width + Prop.SIZE * 0.4:
-			var hit := HitInfo.new()
-			hit.source = attacker
-			prop.take_hit(hit)
+		return Geometry2D.get_closest_point_to_segment(prop.global_position, blow.origin, to).distance_to(prop.global_position) <= width + PROP_REACH)
 
 
 ## How far from `from` along `direction` (up to `distance`) before a wall, keeping `margin` off it.
@@ -185,8 +186,15 @@ static func clear_length(world: World, from: Vector2, direction: Vector2, distan
 
 ## Breaks the props inside a circle.
 static func hit_props(world: World, source: Actor, center: Vector2, radius: float) -> void:
+	break_props(world, source, func(prop: Prop) -> bool: return prop.global_position.distance_to(center) <= radius + PROP_REACH)
+
+
+## Strikes every breakable prop for which `reached` (Prop -> bool) says yes, once, in `source`'s
+## name. A prop counts blows, not damage (Prop.take_hit), so the hit carries none: every blow,
+## a weapon's swing as a blast's, breaks it the same.
+static func break_props(world: World, source: Actor, reached: Callable) -> void:
 	for prop in world.get_breakable_props():
-		if prop.global_position.distance_to(center) <= radius + Prop.SIZE * 0.4:
+		if reached.call(prop):
 			var hit := HitInfo.new()
 			hit.source = source
 			prop.take_hit(hit)
@@ -243,6 +251,7 @@ static func shockwave(world: World, source: Actor, radius: float, amount: int, k
 static func delayed_blast(world: World, center: Vector2, radius: float, amount: int, fuse: float, fx: Texture2D = null, status: OnHitStatus = null, element: VfxElementDef = null) -> void:
 	world.spawn_vfx(RingVfx.create(center, radius, Color(1.0, 0.3, 0.2, 0.8)))
 	var floor_id := world.floor_id
+	var via := Actor.heal_source  # who set it off: its hits are credited to it (HitInfo.via)
 	var world_ref: WeakRef = weakref(world)  # (the timer outlives a freed world: see Effect.apply_all())
 	world.get_tree().create_timer(fuse, false).timeout.connect(func() -> void:
 		var home := world_ref.get_ref() as World
@@ -258,7 +267,8 @@ static func delayed_blast(world: World, center: Vector2, radius: float, amount: 
 			Sfx.play_at(Sfx.bank.explosion, center, -4.0)
 		else:
 			Vfx.explosion(home, center, radius)
-		blast(home, center, radius, amount, 260.0, null, status))
+		Actor.with_source(via, func() -> void:
+			blast(home, center, radius, amount, RULES.delayed_blast_knockback, null, status)))
 
 
 static func spec_from_weapon(attacker: Actor, weapon: WeaponDef) -> ProjectileSpec:

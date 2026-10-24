@@ -19,7 +19,6 @@ extends Effect
 @export_range(0.1, 1.0) var jump_falloff: float = 0.7
 @export var knockback: float = 120.0
 @export var status: OnHitStatus
-@export var element: VfxElementDef
 
 
 func apply(user: Actor, aim: Vector2) -> void:
@@ -96,3 +95,13 @@ func _nearest(user: Actor, from: Vector2, skip: Array[Actor]) -> Actor:
 			best = enemy
 			best_distance = distance
 	return best
+
+
+func hit_status() -> OnHitStatus:
+	return status
+
+
+func with_hit_status(new_status: OnHitStatus) -> Effect:
+	var copy := copied() as ChainLightningEffect
+	copy.status = new_status
+	return copy

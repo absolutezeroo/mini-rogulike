@@ -1,6 +1,10 @@
 class_name DashEffect
 extends Effect
 ## Quick burst of movement.
+## Its `element` (Effect.element): what the user turns into for the dash (data/vfx/elements/): it
+## vanishes in its element's impact, leaves its pieces along the way (Shadow Step: smoke drawn back
+## in; Blink: pale flames) and appears in its impact again. Empty: a plain dash (the roll's own
+## afterimages say it).
 
 enum Direction {
 	## Where the user is moving, or along the aim when standing still (a roll).
@@ -15,10 +19,6 @@ enum Direction {
 @export var distance: float = 150.0
 @export var duration: float = 0.16
 @export var invulnerable: bool = true
-## What the user turns into for the dash (data/vfx/elements/): it vanishes in its element's impact,
-## leaves its pieces along the way (Shadow Step: smoke drawn back in; Blink: pale flames) and
-## appears in its impact again. Empty: a plain dash (the roll's own afterimages say it).
-@export var element: VfxElementDef
 
 
 func apply(user: Actor, aim: Vector2) -> void:

@@ -76,6 +76,32 @@ too), not a Keeper's doing. Fixed on the way: `BalanceLab.renew` read `run.seed`
 `run_seed`): a script error on every renewed measure (marginal, compound, packs), whose floor then
 kept the last seed instead of its own.
 
+## 2026-10-24 - Core audit: numbers moved to data (refactor, no change)
+
+**Changed (no number):** the core combat numbers left the code for data with the same values:
+`data/combat/combat_rules.tres` (`CombatRulesDef`: crit x1.75, variance ±15%, armor weight 1,
+cooldown cap 50%, a delayed blast's push 260), the hero's feel on `PlayerDef` (i-frames 0.6 s, 1 s
+after a fall, swap cooldown 1.5 s, aim range 520, melee assist 70, attack buffer 0.3 s), the
+bosses' shockwave on `BossDef` (cooldown 3 s, 4 + 0.6 per floor, fuses 0.35 / 0.45), chase and
+wander on `MonsterDef` (sight x1.6, gives up after 4 s, wanders at 35%), ambushes, overflow
+potions, gold piles and ranked bosses' loot on `DungeonConfig`. Every floor number goes through
+`FloorRules` (the run's boons included) and one twist roller; `tests/suites/core_tests.gd`
+compares the new answers with the old formulas over every depth, difficulty, event and curse.
+Two fixes that only show in the numbers told: an encounter's odds and gold now count the run's
+boons (the roll always did), and delayed effects are credited to their source in the statistics
+and these tools' heal breakdowns. One that changes the draws, not the odds: crits and variance
+roll on the floor's own dice (`World.combat_rng`, from the floor's seed) instead of the engine's
+global ones.
+
+**Measured** (`--mode=all --quick --no-cache`, seeds 1 and 2, before and after): the model and
+economy reports are **identical** (every static number the same). The engine measures moved by
+the new dice only, within the seed noise (seed 1 against seed 2 before differs as much): act I
+gauntlet a win both times (lowest Health 38% / 58% before, 65% / 65% after; 53.0 / 50.7 s before,
+54.6 / 58.1 s after); King Slime fights the same verdicts (baseline and face-tank losses, kite
+wins). One flag crossed its line on seed 1 only: the lifesteal build's heal share against King
+Slime (kite) 54% (target <= 50%; seed 2: 41%, before 18-24%), healing 25 of 46 taken: less taken
+in that fight, the same Leech healing; noise of one fight, to watch on the next full run.
+
 ## 2026-10-24 - The Nameless Keeper (new last fight, measured against Tôma)
 
 **What changed:** after "take his place", the next runs' bottom of the Well is the Nameless

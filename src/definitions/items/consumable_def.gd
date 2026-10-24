@@ -10,9 +10,13 @@ func get_type_label() -> String:
 	return tr("Consumable")
 
 
+## Taken from the bag and used (Player.consume()).
+func use_from_bag(player: Player) -> void:
+	player.inventory.remove(self)
+	player.consume(self)
+
+
 func use(user: Actor, aim: Vector2) -> void:
 	Sfx.play_at(sound, user.global_position)
-	var outer := Actor.heal_source  # balance tools: a potion's heal is credited to it (Actor.healed)
-	Actor.heal_source = StringName("item:%s" % id)
-	Effect.apply_all(effects, user, aim)
-	Actor.heal_source = outer
+	# Its heals and hits are credited to it (Actor.healed, HitInfo.via), delayed ones too.
+	Actor.with_source(StringName("item:%s" % id), func() -> void: Effect.apply_all(effects, user, aim))

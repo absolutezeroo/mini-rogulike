@@ -48,18 +48,27 @@ func apply(player: Player, at: Vector2) -> void:
 		Gift.RELIC:
 			Events.perk_offer_requested.emit(PerkDef.Rarity.RARE, tr("Relic"), tr("Choose a relic"))
 	if monsters > 0:
-		(func() -> void:
-			for i in monsters:
-				var def := world.pick_monster()
-				if def == null:
-					return
-				var monster := world.spawn_monster(def, world.find_open_point_near(at, 60.0, World.room_for(def)))
-				if elite_monsters:
-					world.make_elite(monster)
-				monster.target = player
-				Vfx.puff(world, monster.global_position)
-		).call_deferred()
+		# Next frame (not while the encounter's panel is answered). Weak references: the hero or
+		# the floor may be gone by then (conventions.md, "Lambdas that run later").
+		_spawn_monsters.call_deferred(weakref(world), weakref(player), at)
 	Effect.apply_all(effects, player, Vector2.DOWN)
+
+
+## The monsters it calls, around `at`, going for the hero.
+func _spawn_monsters(world_ref: WeakRef, player_ref: WeakRef, at: Vector2) -> void:
+	var world := world_ref.get_ref() as World
+	var player := player_ref.get_ref() as Player
+	if world == null or player == null:
+		return
+	for i in monsters:
+		var def := world.pick_monster()
+		if def == null:
+			return
+		var monster := world.spawn_monster(def, world.find_open_point_near(at, 60.0, World.room_for(def)))
+		if elite_monsters:
+			world.make_elite(monster)
+		monster.target = player
+		Vfx.puff(world, monster.global_position)
 
 
 ## Bad for the hero (hurt, monsters, or nothing for what was paid): shown in red before choosing.
@@ -80,7 +89,7 @@ func summary(player: Player, paid: bool = false) -> String:
 	if damage_ratio > 0.0:
 		parts.append(tr("hurts you: you lose %d health") % roundi(max_hp * damage_ratio))
 	if gold > 0:
-		parts.append(tr("%d gold") % (player.world.rules.gold(gold) if player.world and player.world.rules else gold))
+		parts.append(tr("%d gold") % (player.world.rules.floor_gold(gold) if player.world and player.world.rules else gold))
 	if item_quality > 0.0:
 		parts.append(_item_words(player))
 	match gift:
@@ -110,11 +119,7 @@ func _item_words(player: Player) -> String:
 	var world := player.world
 	if world == null:
 		return tr("a piece of equipment")
-	var config := world.config()
-	var quality := item_quality * (world.rules.loot_quality() if world.rules else 1.0)
-	var levels := world.depth - 1
-	var magic := (config.magic_weight + config.magic_weight_per_depth * levels) * quality
-	var rare := (config.rare_weight + config.rare_weight_per_depth * levels) * quality
-	var epic := (config.epic_weight + config.epic_weight_per_depth * levels) * quality
-	var total := config.common_weight + magic + rare + epic
-	return tr("a piece of equipment (%d%% chance it is Rare or Epic)") % roundi((rare + epic) / total * 100.0)
+	# The quality the item is really rolled with (World.spawn_loot: the floor's and the run's
+	# boons'), and the roll's own odds.
+	var quality := world.rules.drop_quality(item_quality) if world.rules else item_quality
+	return tr("a piece of equipment (%d%% chance it is Rare or Epic)") % roundi(LootRoller.rare_or_better_chance(world.depth, quality, world.config()) * 100.0)

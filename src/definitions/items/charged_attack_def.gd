@@ -76,20 +76,6 @@ func describe() -> String:
 	return tr("Hold: {name}. {text}").format({ "name": tr(display_name), "text": tr(description) })
 
 
+## One effect dressed (Effect.dressed_for_charge: each kind knows how it gathers the element).
 static func _dress(effect: Effect, first: VfxElementDef, second: VfxElementDef) -> Effect:
-	if effect == null:
-		return null
-	if effect is ProjectileEffect:
-		# A thing (the heavy arrow, the stars) flies in the element without being made of it and
-		# lands in it; a magic shot stays itself (the Frost Staff's shard) and another element
-		# rides it.
-		var carried: Array[VfxElementDef] = [first, second]
-		return (effect as ProjectileEffect).dressed_in(carried, true)
-	var copy := effect.duplicate() as Effect
-	if not (&"element" in copy):
-		return copy
-	var own := copy.get(&"element") as VfxElementDef
-	copy.set(&"element", first)
-	if &"second_element" in copy:
-		copy.set(&"second_element", second if second else (own if own != first else null))
-	return copy
+	return effect.dressed_for_charge(first, second) if effect else null

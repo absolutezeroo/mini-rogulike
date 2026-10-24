@@ -181,11 +181,6 @@ func open_now(monster: Monster) -> void:
 	_set_stage(monster, Stage.OPENING)
 
 
-## Closes now (tests).
-func close_now(monster: Monster) -> void:
-	_set_stage(monster, Stage.CLOSING)
-
-
 func update(monster: Monster, delta: float) -> void:
 	var state := monster.trait_state(self)
 	if lit_from_within:
@@ -299,14 +294,21 @@ func _try_bite(monster: Monster) -> void:
 	var bite := GroundStrike.create(monster.world, monster, mouth, bite_radius, bite_windup * monster.get_telegraph_scale(), damage, bite_knockback, bite_element)
 	bite.shake = 0.5
 	bite.sound = bite_sound if bite_sound else monster.def.hurt_sound
-	bite.landed.connect(func() -> void:
-		if is_instance_valid(hero) and hero.last_hurt_frame == Engine.get_physics_frames() and not bite_mark.is_empty():
-			Events.run_marked.emit(bite_mark)  # (hurt by the bite this very frame)
-		if is_instance_valid(monster) and bite_element and bite_element.claw:
-			monster.world.spawn_vfx(SheetVfx.play(bite_element.claw, mouth + Vector2(0, -20), Vector2.DOWN, bite_element)))
+	# A method with weak references, not a lambda holding them (conventions.md).
+	bite.landed.connect(_on_bite_landed.bind(weakref(hero), weakref(monster), mouth))
 	monster.world.spawn_vfx(bite)
 	state.bite = bite
 	state.bite_cooldown = bite_cooldown + bite_windup
+
+
+## The bite lands: a hero hurt by it this very frame marks the run; the claw shows on the mouth.
+func _on_bite_landed(hero_ref: WeakRef, monster_ref: WeakRef, mouth: Vector2) -> void:
+	var hero := hero_ref.get_ref() as Player
+	var monster := monster_ref.get_ref() as Monster
+	if hero and hero.last_hurt_frame == Engine.get_physics_frames() and not bite_mark.is_empty():
+		Events.run_marked.emit(bite_mark)
+	if monster and bite_element and bite_element.claw:
+		monster.world.spawn_vfx(SheetVfx.play(bite_element.claw, mouth + Vector2(0, -20), Vector2.DOWN, bite_element))
 
 
 func steer(monster: Monster, direction: Vector2) -> Vector2:

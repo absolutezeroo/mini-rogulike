@@ -200,8 +200,8 @@ func _kite(target: Monster) -> void:
 	var distance := to_target.length()
 	# A boss answers a streak of hits with a shockwave: with no roll ready to get through it,
 	# hold the last hit until the streak runs out (what a player learns after one blast).
-	var hold_fire := target.is_boss() and target._shockwave_after > 0 and target._streak_time > 0.0 \
-		and target._hit_streak >= target._shockwave_after - 1 and not player.skills.is_ready(0)
+	var hold_fire := target.brain != null and target.brain.shockwave_after > 0 and target.brain.streak_time > 0.0 \
+		and target.brain.hit_streak >= target.brain.shockwave_after - 1 and not player.skills.is_ready(0)
 	var in_reach := distance <= _attack_reach(target) and not hold_fire
 	var threat := _threat()
 	if threat.danger:
@@ -264,12 +264,13 @@ func _threat() -> Dictionary:
 					away += (off.normalized() if off.length() > 0.1 else direction) * 1.5
 					sideways = false
 		# A boss' shockwave ring (it answers too many hits in a row, and roars into a phase):
-		# the cooldown is set to 3 s when the ring appears, the blast follows 0.35-0.45 s later.
-		if monster.is_boss() and monster._shockwave_cooldown > 2.5:
-			var ring := (monster.def as BossDef).shockwave_radius + monster.radius + player.radius + 20.0
+		# the cooldown is set (BossDef.shockwave_cooldown, 3 s) when the ring appears, the blast
+		# follows its fuse (0.35-0.45 s) later.
+		if monster.brain and monster.brain.shockwave_cooldown > monster.brain.def.shockwave_cooldown - 0.5:
+			var ring := monster.brain.def.shockwave_radius + monster.radius + player.radius + 20.0
 			if distance < ring and _noticed("ring%d" % monster.get_instance_id()):
 				away += direction * 2.0
-				urgent = urgent or monster._shockwave_cooldown <= 2.75
+				urgent = urgent or monster.brain.shockwave_cooldown <= monster.brain.def.shockwave_cooldown - 0.25
 				sideways = false
 			continue
 		if reaction > 0.0 and monster.is_boss():
@@ -543,7 +544,7 @@ func _use_skills(distance: float, target: Actor) -> void:
 ## A skill that carries the hero (Iaido Dash, a charge) is used only when it lands him on solid
 ## ground: a player sees the hole behind the boss before dashing through it.
 func _lands_safe(skill: SkillDef) -> bool:
-	var aim := player.get_aim_direction(Player.SKILL_AIM_RANGE)
+	var aim := player.get_aim_direction(player.tuning().skill_aim_range)
 	var here := player.global_position
 	for effect in skill.effects:
 		var length := 0.0

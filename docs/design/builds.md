@@ -116,7 +116,7 @@ Swapping weapons swaps buttons 2 and 3 (new skills start on a short cooldown, so
 cooldowns); the roll and the learned spell stay.
 
 Skill damage uses **skill power** (`power x (1 + skill_power)`), and cooldowns shrink with
-**cooldown reduction** (50% max, `SkillSet.MAX_COOLDOWN_REDUCTION`): the Arcane Focus perk, the
+**cooldown reduction** (50% max, `CombatRulesDef.max_cooldown_reduction` in `data/combat/combat_rules.tres`): the Arcane Focus perk, the
 Sage's Codex relic and the of Haste affix push a caster build; the Shadow Cloak gives some cooldown
 reduction. **Echoes** (a skill ready again at once: the Echo perk, 15% a level; Echo runes and of
 Echoes, 12% each) count together and stop at **45%** (`DungeonConfig.skill_echo_max_chance`): the

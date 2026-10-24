@@ -2,6 +2,9 @@ class_name DashStrikeEffect
 extends Effect
 ## Dashes along the aim and cuts every enemy on the way (stops at walls). Without `moves`, the
 ## user stays put and the cut runs out along the aim (a lance's long thrust).
+## Its `element` (Effect.element): what it is made of (data/vfx/elements/): the element's pieces are
+## left along the path (Glacial Dive: ice crystals that grow behind it and shatter), a sheet takes
+## its ramp.
 
 @export var distance: float = 160.0
 @export var duration: float = 0.14
@@ -17,9 +20,6 @@ extends Effect
 ## Slash sheet drawn along the path.
 @export var fx: Texture2D
 @export var fx_tint: Color = Color.WHITE
-## What it is made of (data/vfx/elements/): the element's pieces are left along the path
-## (Glacial Dive: ice crystals that grow behind it and shatter), a sheet takes its ramp.
-@export var element: VfxElementDef
 ## The user dashes along the cut (off: a thrust that reaches out, the user standing still).
 @export var moves: bool = true
 ## A thrust from where the user stands (`moves` off) struck in the body's four directions, like
@@ -42,7 +42,7 @@ var look_element: VfxElementDef
 ## plain cut (Dash Strike, Piercing Thrust) is drawn in the first, the second adding its bits;
 ## one of its own element stays itself, the first other shedding its bits. Only the look.
 func dressed_in(carried: Array[VfxElementDef]) -> DashStrikeEffect:
-	var copy := duplicate() as DashStrikeEffect
+	var copy := copied() as DashStrikeEffect
 	var others: Array[VfxElementDef] = []
 	for other in carried:
 		if other and other != element:
@@ -51,6 +51,50 @@ func dressed_in(carried: Array[VfxElementDef]) -> DashStrikeEffect:
 		return copy
 	copy.look_element = others[0]
 	copy.second_element = (others[1] if others.size() > 1 else null) if element == null else others[0]
+	return copy
+
+
+## A weapon's skill: Dash Strike's cut drawn in what the weapon carries.
+func dressed_for_skill(carried: Array[VfxElementDef]) -> Effect:
+	return dressed_in(carried)
+
+
+## The Keeper's dive: narrowed to a band his body could cross (`dive_width_max`) and never
+## slowing; dressed in the elements he carries. Always a copy.
+func as_boss_skill(carried: Array[VfxElementDef], dive_width_max: float) -> Effect:
+	var dive := dressed_in(carried)
+	dive.width = minf(dive.width, dive_width_max)
+	if dive.status and dive.status.slow > 0.0:
+		dive.status = null
+	return dive
+
+
+func _shed(second: VfxElementDef) -> void:
+	second_element = second
+
+
+func copied() -> Effect:
+	var copy := super.copied() as DashStrikeEffect
+	copy.look_element = look_element
+	copy.second_element = second_element
+	return copy
+
+
+func telegraph_kind() -> Telegraph:
+	return Telegraph.DIVE
+
+
+func ai_reach() -> float:
+	return distance
+
+
+func hit_status() -> OnHitStatus:
+	return status
+
+
+func with_hit_status(new_status: OnHitStatus) -> Effect:
+	var copy := copied() as DashStrikeEffect
+	copy.status = new_status
 	return copy
 
 

@@ -88,6 +88,15 @@ The suites (`tests/suites/`, each a `TestSuite`):
   lamps, her box at every size in French), its game part in the game suite (a real death told on
   the end screen, a trap's, the fallback line, the merchant's and the spirit's lines, the end
   screen in French at 1280x720 and the phones' sizes).
+- The gameplay's core (`core_tests.gd`, `CoreTests`): its unit part in the unit suite (the numbers
+  moved from code to data kept their values: combat rules, the hero's feel, the bosses' shockwave,
+  chase and wander, ambushes, drops; FloorRules' answers equal the old hand-made products over
+  every depth, difficulty, event and curse; the one twist roller and the ways down roll as before
+  on the same numbers; the loot odds told are the odds rolled; each effect kind dresses itself;
+  the same dice give the same hits), its game part in the game suite (a delayed heal and a
+  delayed blast credited to what set them off; the floor's combat dice, apart from its own
+  rolls; an encounter's gold and odds with the run's boons; an arrow trap's volley stopping out
+  of the tree).
 - The floors' identity (`level_tests.gd`, `LevelTests`): its unit part in the unit suite (the
   room shapes' geometry; 20 floors a biome at every difficulty's size: one piece, solid walls,
   start, stairs, hearts and cracks on open ground, every listed shape used, a signature room now
