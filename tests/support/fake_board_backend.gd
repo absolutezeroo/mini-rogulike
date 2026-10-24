@@ -110,9 +110,18 @@ func send_events(list: Array[Dictionary]) -> Status:
 	return Status.OK
 
 
+## identify() calls received (one at a time for every service: OnlineSession.identity()).
+var identifies := 0
+## identify() is refused (a bad key, a captive portal's page): REJECTED.
+var refuse_identify := false
+
+
 func identify(device_id: String) -> Status:
+	identifies += 1
 	if not await _answers():
 		return Status.OFFLINE
+	if refuse_identify:
+		return Status.REJECTED
 	_alias = absi(hash(device_id)) % 100000 + 1
 	return Status.OK
 

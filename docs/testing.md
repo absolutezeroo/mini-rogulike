@@ -27,8 +27,12 @@ The suites (`tests/suites/`, each a `TestSuite`):
 - **unit**: the rules, the content database, 100 generated maps (and their walls), 40 boss arenas,
   inventory, equipment, perks, bosses, the profile, the online leaderboards' queue and filter
   (`LeaderboardTests`, on `FakeBoardBackend`: a server in memory), the privacy rules, the gameplay
-  statistics and the credits' data (`PrivacyTests`), the world counters (`WorldStatsTests`), the remote settings (`RemoteConfigTests`), player feedback (`FeedbackTests`). No
-  game running: fast.
+  statistics and the credits' data (`PrivacyTests`), the world counters (`WorldStatsTests`), the remote settings (`RemoteConfigTests`), player feedback (`FeedbackTests`), what the online
+  services share and their start-up in a release build in many orders (`OnlineSessionTests`),
+  Talo's answers as `TaloBackend` reads them (`TaloContractTests`, a transport in memory). No
+  game running: fast. A test that needs the release-only paths sets `OnlineSession.release_mode`;
+  one that needs its own `user://` file names it per process (`OS.get_process_id()`): every
+  worktree and parallel run shares one user folder.
 - **title**: the title screen and its panels (the Leaderboards page with and without a server, the
   statistics' questions, Options > Privacy, the policy and the credits, the world counters' line
   and the Well's Toll page, the remote settings' event plaque and message of the day; the feedback

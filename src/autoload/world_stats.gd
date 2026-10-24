@@ -17,8 +17,8 @@ extends Node
 ## counts the save had but that never went (the app killed) go at its end. The app put in the
 ## background (maybe killed there) leaves the unsent part as a draft in the file: dropped when the
 ## app comes back, queued at the next launch otherwise. The queue is sent with **one update per counter** (Talo's PUT, its
-## maxChange and rate limits respected: never one call per kill), through the leaderboards' server
-## and player (Leaderboards: same device id). Without network it waits in its own file,
+## maxChange and rate limits respected: never one call per kill), through the OnlineSession's server
+## and player (same device id as the leaderboards). Without network it waits in its own file,
 ## user://world_stats.json, and is tried again every retry_seconds, at the next run's end and when
 ## the app comes back.
 ##
@@ -43,9 +43,15 @@ const VERSION := 1
 ## How many runs' sent shares the file remembers (a run left then resumed; older keys are dropped).
 const KEPT_RUNS := 8
 
-## Empty = nothing is read or written (tests).
-var path := PATH
 var config: WorldStatsDef
+## Its file, the flush latch and the retry timer (the queue is a dictionary of its own).
+var store := PersistedQueue.new(PATH, VERSION)
+## The file's path. Empty = nothing is read or written (tests).
+var path: String:
+	get:
+		return store.path
+	set(value):
+		store.path = value
 ## The run going on (or a run left unfinished): counted, not queued yet. Internal name -> amount.
 var pending := {}
 ## Waiting to be sent: internal name -> amount (runs played offline add up).
@@ -66,21 +72,36 @@ var mine := {}
 var read_at := 0
 var read_status: BoardBackend.Status = BoardBackend.Status.UNAVAILABLE
 ## A debug build sends nothing (its updates would count in the world's numbers on Talo). The
-## tests turn it on, on a fake server.
+## tests turn it on, on a fake server (or run the release path: OnlineSession.release_mode).
 var debug_builds_send := false
 
 var _player: Player
 ## The deepest floor of the run reached so far (a floor is counted once, not when a run resumes).
 var _depth := 1
-var _flushing := false
+## A read of the world's numbers is on its way, and which (reset() makes it stale).
 var _reading := false
-var _retry: Timer
+var _read_generation := 0
+## Read from the file, waiting for settle() to know whether the consent still lets it go.
+var _left_over := {}
+
+
+func _init() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(store)
+	store.retry_due.connect(flush)
+	boot()
+
+
+## Its data and file, read (no other service is asked: OnlineSession, "start-up order"). What
+## depends on the consent waits for settle().
+func boot() -> void:
+	config = load(DEFS) as WorldStatsDef
+	_read_file()
 
 
 func _ready() -> void:
-	process_mode = Node.PROCESS_MODE_ALWAYS
-	config = load(DEFS) as WorldStatsDef
-	load_state()
+	OnlineSession.register(self)
+	settle()
 	Events.run_started.connect(_on_run_started)
 	Events.run_ended.connect(_on_run_ended)
 	Events.run_saving.connect(_on_run_saving)
@@ -92,10 +113,6 @@ func _ready() -> void:
 	Events.souls_offered.connect(_on_souls_offered)
 	Privacy.changed.connect(_on_choices_changed)
 	Leaderboards.changed.connect(_on_choices_changed)
-	_retry = Timer.new()
-	_retry.one_shot = true
-	_retry.timeout.connect(flush)
-	add_child(_retry)
 
 
 ## The tests: no file, nothing counted or read, debug builds kept silent.
@@ -105,7 +122,12 @@ func use_for_tests() -> void:
 	reset()
 
 
+## Everything forgotten (not the file), the flush, the read and the retry stopped.
 func reset() -> void:
+	store.reset()
+	_reading = false
+	_read_generation += 1
+	_left_over.clear()
 	pending.clear()
 	queue.clear()
 	run_key = ""
@@ -121,15 +143,14 @@ func reset() -> void:
 
 
 ## The player's shares may be counted and sent now: the statistics accepted, a server, a release
-## build (or the tests'), not stopped by the remote kill switch (RemoteConfig.statistics_off()).
+## build (or the tests'), not stopped by the remote kill switch (OnlineSession.statistics_allowed()).
 func may_send() -> bool:
-	return Privacy.analytics_allowed() and Leaderboards.is_available() and (debug_builds_send or not OS.is_debug_build()) \
-		and not RemoteConfig.statistics_off()
+	return OnlineSession.statistics_allowed(debug_builds_send)
 
 
 ## The world's numbers may be read: a server, and the player turned an online feature on.
 func may_read() -> bool:
-	return Leaderboards.is_available() and (Leaderboards.shown or Privacy.analytics_allowed())
+	return OnlineSession.online_chosen()
 
 
 ## The world's number for `def` (-1: not known: not read, offline, or not allowed).
@@ -352,12 +373,15 @@ func forget() -> void:
 # --- The server -------------------------------------------------------------------------
 
 ## Sends what waits: one update per counter (a share past its max change goes in parts). Without
-## network, tries again in retry_seconds; a counter the server refuses is dropped (not resent).
+## network (or with a refused identity), tries again in retry_seconds, backing off; a counter the
+## server refuses is dropped (not resent).
 func flush() -> void:
-	if _flushing or queue.is_empty() or not may_send():
+	if store.is_busy() or queue.is_empty() or not may_send():
 		return
-	_flushing = true
-	var status := await Leaderboards.identity()
+	var token := store.begin_flush()
+	var status := await OnlineSession.identity()
+	if not store.still(token):
+		return  # (reset meanwhile: the tests' next one)
 	for internal_name: String in queue.keys():
 		if status != BoardBackend.Status.OK or not may_send():
 			break
@@ -368,7 +392,9 @@ func flush() -> void:
 		while int(queue.get(internal_name, 0)) > 0:
 			var part := mini(int(queue[internal_name]), def.max_change)
 			@warning_ignore("redundant_await")  # a coroutine in TaloBackend; the offline BoardBackend answers at once
-			status = await Leaderboards.backend.add_to_stat(internal_name, part)
+			status = await OnlineSession.backend.add_to_stat(internal_name, part)
+			if not store.still(token):
+				return
 			if status == BoardBackend.Status.OFFLINE or status == BoardBackend.Status.UNAVAILABLE or not queue.has(internal_name):
 				break
 			if status == BoardBackend.Status.REJECTED:
@@ -382,10 +408,12 @@ func flush() -> void:
 		if int(queue.get(internal_name, 0)) <= 0:
 			queue.erase(internal_name)
 	save_state()
-	_flushing = false
+	store.end_flush(token)
 	changed.emit()
-	if status != BoardBackend.Status.OK and not queue.is_empty() and _retry:
-		_retry.start(config.retry_seconds)
+	if status != BoardBackend.Status.OK and not queue.is_empty():
+		store.retry_later(config.retry_seconds, OnlineSession.max_backoff())
+	elif status == BoardBackend.Status.OK:
+		store.succeeded()
 
 
 ## Reads the world's numbers (and the player's own share, with consent), unless they were read less
@@ -393,13 +421,16 @@ func flush() -> void:
 func refresh(force: bool = false) -> void:
 	if _reading or not may_read():
 		return
-	var now := int(Time.get_unix_time_from_system())
+	var now := OnlineSession.now()
 	if not force and read_at > 0 and now - read_at < config.refresh_seconds:
 		return
 	_reading = true
+	var generation := _read_generation
 	await flush()
 	@warning_ignore("redundant_await")  # a coroutine in TaloBackend; the offline BoardBackend answers at once
-	var read := await Leaderboards.backend.fetch_world_stats()
+	var read := await OnlineSession.backend.fetch_world_stats()
+	if generation != _read_generation:
+		return  # (reset meanwhile)
 	if not may_read():
 		_reading = false
 		return
@@ -410,9 +441,11 @@ func refresh(force: bool = false) -> void:
 			if read.values.has(def.internal_name):
 				world[def.internal_name] = float(read.values[def.internal_name])
 		read_at = now
-		if may_send() and await Leaderboards.identity() == BoardBackend.Status.OK:
+		if may_send() and await OnlineSession.identity() == BoardBackend.Status.OK:
 			@warning_ignore("redundant_await")  # a coroutine in TaloBackend; the offline BoardBackend answers at once
-			var own := await Leaderboards.backend.fetch_my_stats()
+			var own := await OnlineSession.backend.fetch_my_stats()
+			if generation != _read_generation:
+				return
 			if own.status == BoardBackend.Status.OK:
 				for internal_name: String in own.values:
 					# (the server's answer may be a little older than what was just sent)
@@ -428,28 +461,31 @@ func _notification(what: int) -> void:
 			save_state()  # (the queue, and a run's draft if the app is killed in the background)
 		NOTIFICATION_APPLICATION_RESUMED, NOTIFICATION_APPLICATION_FOCUS_IN:
 			_drop_draft()
-			if not queue.is_empty() and _retry and _retry.is_stopped():
+			if not queue.is_empty() and not store.is_retrying():
 				flush()
 
 
 # --- The file ------------------------------------------------------------------
 
+## Writes the file (only if it changed: an alt-tab writes nothing new).
 func save_state() -> void:
-	if path.is_empty():
-		return
-	SafeFile.write_json(path, { "version": VERSION, "queue": queue, "mine": mine, "sent": sent, "draft": draft })
+	store.write({ "queue": queue, "mine": mine, "sent": sent, "draft": draft })
 
 
-## Reads the file. A draft left there (the app killed in the background mid-run) joins the queue
-## and counts as sent for its run; an older file's `pending` (a run left unfinished) joins it too.
+## Reads the file, then settles it with the consent (settle()).
 func load_state() -> void:
+	_read_file()
+	settle()
+
+
+## Reads the file. A draft left there (the app killed in the background mid-run) counts as sent for
+## its run and waits in `_left_over` with an older file's `pending` (a run left unfinished) for
+## settle(). Asks no other service (start-up order).
+func _read_file() -> void:
 	reset()
-	if path.is_empty():
+	var saved := store.read()
+	if saved.is_empty():
 		return
-	var data: Variant = SafeFile.read_json(path)
-	if not data is Dictionary:
-		return
-	var saved: Dictionary = data
 	_read_amounts(saved.get("queue"), queue)
 	_read_amounts(saved.get("mine"), mine, true)
 	var saved_sent: Variant = saved.get("sent")
@@ -458,17 +494,24 @@ func load_state() -> void:
 			var done := {}
 			_read_amounts((saved_sent as Dictionary)[key], done)
 			sent[str(key)] = done
-	var left_over := {}
-	_read_amounts(saved.get("pending"), left_over)  # (an older file's)
+	_read_amounts(saved.get("pending"), _left_over)  # (an older file's)
 	var saved_draft: Variant = saved.get("draft")
 	if saved_draft is Dictionary and not (saved_draft as Dictionary).is_empty():
 		var parts: Dictionary = saved_draft
-		_read_amounts(parts.get("counts"), left_over)
+		_read_amounts(parts.get("counts"), _left_over)
 		var counts := {}
 		_read_amounts(parts.get("run_counts"), counts)
 		var key: Variant = parts.get("run")
 		if key is String and not (key as String).is_empty():
 			_mark_sent(key, counts)
+
+
+## What the file left waits for the consent (every service started: OnlineSession, "start-up
+## order"): allowed, a killed run's draft joins the queue; withdrawn meanwhile (or switched off
+## remotely), nothing goes.
+func settle() -> void:
+	var left_over := _left_over.duplicate()
+	_left_over.clear()
 	if not may_send():
 		queue.clear()  # (the consent was withdrawn meanwhile: nothing goes)
 		return

@@ -33,18 +33,11 @@ func _ready() -> void:
 	# The checks read English texts, whatever the machine's (or the saved) language.
 	Settings.language = "en"
 	Settings.apply()
-	# The online leaderboards: no file, no server (never the network; LeaderboardTests uses a fake).
-	Leaderboards.use_for_tests()
-	# The player's privacy choices and the gameplay statistics: no file, no question on the title
-	# screen, nothing queued (PrivacyTests turns them on with a fake server).
-	Privacy.use_for_tests()
-	Telemetry.use_for_tests()
-	# The world counters: no file, nothing counted, read or sent (WorldStatsTests uses a fake).
-	WorldStats.use_for_tests()
-	# The remote settings: no file, nothing read, the game's own values (RemoteConfigTests uses a fake).
-	RemoteConfig.use_for_tests()
-	# Player feedback: no file, nothing waiting (FeedbackTests uses a fake server).
-	Feedback.use_for_tests()
+	# The online layer (OnlineSession and every service: the leaderboards, the privacy choices, the
+	# gameplay statistics, the world counters, the remote settings, the feedback): no file, no
+	# server (never the network; their suites use a fake), no question on the title screen,
+	# nothing queued, no timer running, the game's own values.
+	OnlineSession.use_all_for_tests()
 	# The suites play the phone's game (touch controls, "Tap" texts) unless a test picks a
 	# keyboard or a gamepad (the pc tests); a test that sends a key puts touch back after it.
 	InputDevice.use(InputDevice.Kind.TOUCH)
@@ -90,7 +83,7 @@ func _only() -> PackedStringArray:
 ## The suites the game suite borrows from compile too (a parse error in one would otherwise
 ## only show as a script error, with 0 failed).
 func _helpers_compile() -> bool:
-	for path in ["res://tests/suites/floor_tests.gd", "res://tests/suites/combat_tests.gd", "res://tests/suites/boss_tests.gd", "res://tests/suites/secret_tests.gd", "res://tests/suites/story_tests.gd", "res://tests/suites/finale_tests.gd", "res://tests/suites/pc_tests.gd", "res://tests/suites/bag_tests.gd", "res://tests/suites/dialogue_tests.gd", "res://tests/suites/level_tests.gd", "res://tests/suites/debug_tests.gd", "res://tests/suites/leaderboard_tests.gd", "res://tests/suites/privacy_tests.gd", "res://tests/suites/world_stats_tests.gd", "res://tests/suites/remote_config_tests.gd", "res://tests/suites/feedback_tests.gd", "res://tests/suites/soft_keyboard_tests.gd", "res://tests/suites/keeper_tests.gd", "res://tests/suites/core_tests.gd"]:
+	for path in ["res://tests/suites/floor_tests.gd", "res://tests/suites/combat_tests.gd", "res://tests/suites/boss_tests.gd", "res://tests/suites/secret_tests.gd", "res://tests/suites/story_tests.gd", "res://tests/suites/finale_tests.gd", "res://tests/suites/pc_tests.gd", "res://tests/suites/bag_tests.gd", "res://tests/suites/dialogue_tests.gd", "res://tests/suites/level_tests.gd", "res://tests/suites/debug_tests.gd", "res://tests/suites/leaderboard_tests.gd", "res://tests/suites/privacy_tests.gd", "res://tests/suites/world_stats_tests.gd", "res://tests/suites/remote_config_tests.gd", "res://tests/suites/feedback_tests.gd", "res://tests/suites/online_session_tests.gd", "res://tests/suites/talo_contract_tests.gd","res://tests/suites/soft_keyboard_tests.gd", "res://tests/suites/keeper_tests.gd", "res://tests/suites/core_tests.gd"]:
 		var helper := load(path) as GDScript
 		if helper == null or not helper.can_instantiate():
 			printerr("FAIL: %s doesn't compile" % path)

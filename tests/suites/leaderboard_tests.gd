@@ -140,7 +140,7 @@ func _test_queue() -> void:
 	check(Leaderboards.record(_summary()) == 0 and Leaderboards.queue.is_empty(), "undecided: an official Dawn Knell is not queued")
 	await Leaderboards.flush()
 	var unread: Leaderboards.View = await Leaderboards.load_board(_daily())
-	check(undecided.calls == 0 and unread.status == BoardBackend.Status.UNAVAILABLE and Leaderboards.device_id.is_empty(), "undecided: the server is never called, not even to read a board, and no id is made (%d calls)" % undecided.calls)
+	check(undecided.calls == 0 and unread.status == BoardBackend.Status.UNAVAILABLE and OnlineSession.device_id.is_empty(), "undecided: the server is never called, not even to read a board, and no id is made (%d calls)" % undecided.calls)
 	var fake := _use_fake()
 	fake.online = false
 	var board := _daily()
@@ -172,15 +172,22 @@ func _test_queue() -> void:
 	check(Leaderboards.record(impossible) == 0 and not Leaderboards.last_rejection.is_empty(), "an impossible run is never queued (%s)" % Leaderboards.last_rejection)
 	check(Leaderboards.queue.size() == 1, "...and the queue still holds one score")
 
-	# A restart: the queue and the device's id are read back from the file.
+	# A restart: the queue and the device's id are read back from their files (the device's id
+	# is the OnlineSession's).
 	var file := "user://test_leaderboards_%d.json" % OS.get_process_id()
+	var session_file := "user://test_online_%d.json" % OS.get_process_id()
 	Leaderboards.path = file
+	OnlineSession.path = session_file
 	Leaderboards.save_state()
-	var device := Leaderboards.device_id
+	OnlineSession.save_state()
+	var device := OnlineSession.device_id
 	Leaderboards.load_state()
-	check(Leaderboards.queue.size() == 1 and Leaderboards.device_id == device and not device.is_empty(), "the queue and the device's id survive a restart")
+	OnlineSession.load_state()
+	check(Leaderboards.queue.size() == 1 and OnlineSession.device_id == device and not device.is_empty(), "the queue and the device's id survive a restart")
 	Leaderboards.path = ""
+	OnlineSession.path = ""
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(file))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(session_file))
 
 	# The network is back: sent once, the queue empties, the default name goes with it.
 	fake.online = true
