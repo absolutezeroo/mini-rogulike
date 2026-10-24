@@ -343,7 +343,8 @@ with a finger (`TouchScroll`); `CodexRows` builds their rows, with a tick box fo
   give the hidden floor away. "What the Walls Keep": find 5 secret rooms (25 souls).
 - **Runs**: the fastest wins, then the last 20 runs: how each ended (victory, or the floor and
   what slew you), when, the difficulty, how far (floor N of 12), how long, level, weapon, kills
-  and the souls earned.
+  and the souls earned, each fact its name over its value (a value wraps between words, never
+  inside one).
 
 ## The two endings
 

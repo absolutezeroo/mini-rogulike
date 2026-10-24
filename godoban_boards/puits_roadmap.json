@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 234,
+  "next_id": 235,
   "tags": [
     "pc",
     "test",
@@ -3486,6 +3486,21 @@
       ],
       "created_at": 1792849955,
       "updated_at": 1792849955
+    },
+    {
+      "id": "task_234",
+      "title": "Codex : historique des parties, valeurs coupées en plein mot",
+      "description": "« Difficulté Veille/ur », « 23 oct.,/19:41 », « +7/âmes » se coupaient et les valeurs tombaient sous la ligne de leur nom. Chaque info est maintenant son nom au-dessus de sa valeur, qui ne se coupe qu'entre deux mots. Vérifié en FR/EN (test) et en capture 2340x1080 et 2548x1296. À revoir sur le S23.",
+      "status": "review",
+      "priority": "medium",
+      "epic_id": "epic_3",
+      "tags": [
+        "ui",
+        "bug"
+      ],
+      "created_at": 1792851103,
+      "updated_at": 1792851103,
+      "due_date": null
     }
   ]
 }

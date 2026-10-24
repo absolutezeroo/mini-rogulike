@@ -68,8 +68,27 @@ static func fact(name: String, value: String, value_color: Color = UiSkin.TEXT) 
 	var label := UiSkin.label(name, Fonts.BODY, UiSkin.DIM)
 	label.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	line.add_child(label)
-	line.add_child(UiSkin.label(value, Fonts.BODY, value_color, true))  # wraps rather than overflows
+	line.add_child(_value_label(value, value_color))
 	return line
+
+
+## A fact of a past run: its name over its value, so the value has the column's whole width and
+## lines up with its name whatever its length ("Difficulty" over "Keeper").
+static func stacked_fact(name: String, value: String, value_color: Color = UiSkin.TEXT) -> VBoxContainer:
+	var cell := VBoxContainer.new()
+	cell.add_theme_constant_override("separation", 0)
+	cell.add_child(UiSkin.label(name, Fonts.BODY, UiSkin.DIM))
+	cell.add_child(_value_label(value, value_color))
+	return cell
+
+
+## A fact's value: wraps between words only (never inside one: "Veille" / "ur"), top-aligned
+## with its name.
+static func _value_label(value: String, value_color: Color) -> Label:
+	var label := UiSkin.label(value, Fonts.BODY, value_color, true)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	label.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	return label
 
 
 ## An icon at a whole-pixel scale.
@@ -178,23 +197,24 @@ static func run_row(entry: Dictionary, content: ContentDB) -> Control:
 	elif not won:
 		how = TranslationServer.tr("Slain by %s") % (cause if not cause.is_empty() else "?")
 	ending.add_child(UiSkin.label(how, Fonts.BODY, UiSkin.TEXT, true))
-	# Three columns of facts, the same widths on every row so they line up.
+	# Three columns of facts (each its name over its value), the same widths on every row so they
+	# line up.
 	var facts := GridContainer.new()
 	facts.columns = 3
 	facts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	facts.add_theme_constant_override("h_separation", 20)
-	facts.add_theme_constant_override("v_separation", 2)
+	facts.add_theme_constant_override("v_separation", 6)
 	row.add_child(facts)
 	var bosses := int(entry.get("bosses", 0))
 	var cells := [
-		fact(TranslationServer.tr("Difficulty"), TranslationServer.tr(str(entry.get("difficulty", "?")))),
-		fact(TranslationServer.tr("Reached"), depth_text(depth, content)),
-		fact(TranslationServer.tr("Time"), TimeText.of(int(entry.duration) / 1000.0, 0) if entry.has("duration") else "-"),
-		fact(TranslationServer.tr("When"), date_text(int(entry.get("time", 0)))),
-		fact(TranslationServer.tr("Slain"), (TranslationServer.tr("%d monsters, %d boss") if bosses == 1 else TranslationServer.tr("%d monsters, %d bosses")) % [int(entry.get("kills", 0)), bosses]),
-		fact(TranslationServer.tr("Earned"), souls(int(entry.get("souls", 0))), SOUL),
-		fact(TranslationServer.tr("Hero level"), str(int(entry.get("level", 1)))),
-		fact(TranslationServer.tr("Weapon"), TranslationServer.tr(str(entry.get("weapon", "?")))),
+		stacked_fact(TranslationServer.tr("Difficulty"), TranslationServer.tr(str(entry.get("difficulty", "?")))),
+		stacked_fact(TranslationServer.tr("Reached"), depth_text(depth, content)),
+		stacked_fact(TranslationServer.tr("Time"), TimeText.of(int(entry.duration) / 1000.0, 0) if entry.has("duration") else "-"),
+		stacked_fact(TranslationServer.tr("When"), date_text(int(entry.get("time", 0)))),
+		stacked_fact(TranslationServer.tr("Slain"), (TranslationServer.tr("%d monsters, %d boss") if bosses == 1 else TranslationServer.tr("%d monsters, %d bosses")) % [int(entry.get("kills", 0)), bosses]),
+		stacked_fact(TranslationServer.tr("Earned"), souls(int(entry.get("souls", 0))), SOUL),
+		stacked_fact(TranslationServer.tr("Hero level"), str(int(entry.get("level", 1)))),
+		stacked_fact(TranslationServer.tr("Weapon"), TranslationServer.tr(str(entry.get("weapon", "?")))),
 	]
 	for i in cells.size():
 		(cells[i] as Control).custom_minimum_size.x = RUN_COLUMNS[i % RUN_COLUMNS.size()]

@@ -473,6 +473,19 @@ func _test_title_screen() -> void:
 	check(list.get_child_count() == 1, "the last runs are listed")
 	var run_text := " ".join(_texts(list))
 	check(run_text.contains("Died on floor 3") and run_text.contains("Slain by Skeleton") and run_text.contains("10:00"), "a run says how far it went, how it ended, how long it took")
+	# Each fact its name over its value; a value wraps between words, never inside one.
+	var split_words: Array[String] = []
+	for language in ["fr", "en"]:
+		TranslationServer.set_locale(language)
+		codex.show_tab(CodexPanel.Tab.RUNS)
+		await _frames(2)
+		for label: Label in _find_all(list, func(n: Node) -> bool: return n is Label):
+			if label.visible and label.get_line_count() > label.text.split(" ", false).size():
+				split_words.append("%s: %s" % [language, label.text])
+	TranslationServer.set_locale("en")
+	codex.show_tab(CodexPanel.Tab.RUNS)
+	await _frames(1)
+	check(split_words.is_empty(), "no fact of a run is cut inside a word (%s)" % ", ".join(split_words))
 	var records := codex.get_node("%Records") as Label
 	check(not records.visible, "no win, no record")
 	Profile.best_times = { "normal": 1930450, "hard/a3/bottom": 3062100, "normal/bottom": 2400000 }
