@@ -176,16 +176,16 @@ Trade,Trade,Marchander
 {affix} {monster},{affix} {monster},{monster} {affix}
 Fell!,Fell!,Tombé !
 Learned %s!,Learned %s!,Appris : %s !
-Equipped %s,Equipped %s,Équipé : %s
-Picked up %s,Picked up %s,Ramassé : %s
-Used %s,Used %s,Utilisé : %s
-Dismantled %s: +%d gold,Dismantled %s: +%d gold,"Démantèlement : %s, +%d or"
-Dismantled %d pieces of gear: +%d gold,Dismantled %d pieces of gear: +%d gold,%d pièces d'équipement démantelées : +%d or
 Level up! You are now level %d,Level up! You are now level %d,Niveau supérieur ! Tu es maintenant niveau %d
 LEVEL UP,LEVEL UP,NIVEAU SUPÉRIEUR
 You fell into a hole!,You fell into a hole!,Tu es tombé dans un trou !
 giving up,giving up,l'abandon
 Your soul slips into the Well.,Your soul slips into the Well.,Ton âme glisse dans le Puits.
+Equipped %s,Equipped %s,Équipé : %s
+Picked up %s,Picked up %s,Ramassé : %s
+Used %s,Used %s,Utilisé : %s
+Dismantled %s: +%d gold,Dismantled %s: +%d gold,"Démantèlement : %s, +%d or"
+Dismantled %d pieces of gear: +%d gold,Dismantled %d pieces of gear: +%d gold,%d pièces d'équipement démantelées : +%d or
 You fall into the Deeps. Find the Dawn Breach to climb back up.,You fall into the Deeps. Find the Dawn Breach to climb back up.,Tu chois dans les Tréfonds. Trouve la Brèche de l'Aube pour remonter.
 The light takes you back up.,The light takes you back up.,La lumière te ramène là-haut.
 Out before the dark closed in: the dawn leaves you a gift.,Out before the dark closed in: the dawn leaves you a gift.,Sorti avant que l'ombre ne se referme : l'aube te laisse un présent.
