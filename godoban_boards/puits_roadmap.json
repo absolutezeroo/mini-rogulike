@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 192,
+  "next_id": 198,
   "tags": [
     "pc",
     "test",
@@ -2761,6 +2761,98 @@
     },
     {
       "id": "task_186",
+      "title": "Audit : services en ligne (ordre de démarrage, code partagé)",
+      "description": "Audit infra du 24/10, points 1, 2, 4, 6, 7, 8, 9, 11, 12, 14 (services en ligne). Fait :\n- Bug de démarrage (version release) : WorldStats lisait le coupe-circuit de RemoteConfig avant que RemoteConfig ait lu ses données (erreur de script à chaque lancement d'un joueur ayant accepté les statistiques, et la part d'une partie tuée en arrière-plan perdue). Chaque service lit maintenant ses données et son fichier dans _init() sans appeler les autres ; ce qui dépend d'un autre service se fait dans settle() depuis _ready(). L'ordre de project.godot ne compte plus.\n- Nouvel autoload OnlineSession (le premier des services en ligne) : le serveur, l'id de l'appareil et son joueur Talo (fichier user://online.json, repris une fois de leaderboards.json v2), un seul identify à la fois pour tous les services, un identify refusé retenu 60 s puis retenté par tous pareil, toutes les règles de consentement au même endroit, une seule horloge (fake_now) et release_mode (les chemins « build release » testables).\n- Nouvel outil PersistedQueue (src/online/) utilisé par les 7 services : fichier versionné écrit atomiquement (version lue : un fichier plus récent n'est pas cru, un plus ancien est migré ; une écriture identique est sautée, un alt-tab n'écrit plus rien), file bornée, un envoi à la fois avec un jeton qu'un reset rend périmé, nouvel essai avec attente doublée jusqu'à 8 fois retry_seconds (data/online/online_session.tres). En lancement de tests, aucun fichier réel n'est lu.\n- TaloBackend : réponses non JSON (portail captif) lues sans erreur moteur, transport remplaçable pour les tests.\n- RemoteConfig : un présage gardé dans le fichier ne charge plus tout ContentDB au démarrage (vérifié au premier point sûr).\n- Tests : OnlineSessionTests (démarrage des 7 autoloads en build release dans 14 ordres x 8 états, identify unique, refus, reset complet, migration, ids paresseux) et TaloContractTests (statuts, JSON, identify, règle 404 du feedback, stats, config, noms, en-têtes, clé) ; noms de fichiers de test uniques par processus ; reset complet des verrous et minuteurs.\n- Docs : online.md (« The shared session », taille du backend, portées de la clé), architecture.md (les 18 autoloads, l'ordre de démarrage, les tests), testing.md, progression.md (nouvel essai).\nÀ vérifier par Clayton : un build release sur téléphone démarre sans erreur avec les statistiques acceptées, garde son id en ligne (migration), et envoie après un retour du réseau.",
+      "status": "review",
+      "priority": "high",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "bug",
+        "qualité",
+        "tests"
+      ],
+      "created_at": 1792815800,
+      "updated_at": 1792815800
+    },
+    {
+      "id": "task_187",
+      "title": "Services en ligne : derniers réglages en dur vers les données",
+      "description": "Reporté de l'audit infra (24/10, point 1.4) : Leaderboards.START_DELAY (3 s), Feedback.START_DELAY (5 s), WorldStats.KEPT_RUNS (8) et TaloBackend.TIMEOUT (15 s) sont encore des constantes. Les passer dans OnlineSessionDef ou les défs de chaque service (RemoteConfig a déjà start_delay en données).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "données"
+      ],
+      "created_at": 1792815800,
+      "updated_at": 1792815800
+    },
+    {
+      "id": "task_188",
+      "title": "Statistiques : ne suivre la partie (RunTelemetry) qu'avec le consentement",
+      "description": "Reporté de l'audit infra (24/10, point 1.4) : un RunTelemetry est créé et branché sur ~20 signaux à chaque partie, même sans consentement ni clé ; ses comptes vont dans run.json pour rien. Le créer seulement si Telemetry.is_active() (ou quand le consentement arrive en cours de partie). Un peu de CPU en moins par coup sur téléphone.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "perf"
+      ],
+      "created_at": 1792815800,
+      "updated_at": 1792815800
+    },
+    {
+      "id": "task_189",
+      "title": "Statistiques : la file pleine jette d'abord les événements autres que run_end",
+      "description": "Reporté de l'audit infra (24/10, point 2.3) : Telemetry.max_queue (120) jette le plus ancien ; après quelques parties hors ligne, les run_end les plus anciens partent sans bruit. Jeter d'abord les événements de détail (boss, perk, achat, pacte).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "données"
+      ],
+      "created_at": 1792815800,
+      "updated_at": 1792815800
+    },
+    {
+      "id": "task_190",
+      "title": "Sonde Talo réelle versionnée (tools/online/talo_smoke.gd)",
+      "description": "Reporté de l'audit infra (24/10, point 3.5) : online.md cite des sondes _tool/world_stats_smoke.gd et _tool/feedback_smoke.gd qui ne sont pas dans le dépôt (_tool/ est ignoré). Versionner une sonde qui lit la clé depuis l'environnement, n'écrit que des données de dev, et appelle chaque point d'accès (identify, entrée, events, stats, config, feedback). TaloContractTests couvre déjà la lecture des réponses avec des réponses en mémoire.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "tests"
+      ],
+      "created_at": 1792815800,
+      "updated_at": 1792815800
+    },
+    {
+      "id": "task_191",
+      "title": "SafeFile.read_json : lire sans erreur moteur un fichier abîmé",
+      "description": "Vu en faisant l'audit des services en ligne (24/10) : SafeFile.read_json() utilise JSON.parse_string(), qui écrit « Parse JSON failed » dans le journal pour un fichier abîmé (les deux erreurs connues du test de sauvegarde abîmée). TaloBackend.parse_body() montre la façon silencieuse (JSON.new().parse()). Hors du périmètre de cette tâche (SafeFile sert aussi la sauvegarde de partie).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "sauvegarde",
+        "qualité"
+      ],
+      "created_at": 1792815800,
+      "updated_at": 1792815800
+    },
+    {
+      "id": "task_192",
       "title": "Gardien Sans Nom : restes (codex assombri, pas de Céleste, pose de lancer)",
       "description": "Demandé par Clayton (restes de task_120). Fait (24/10) :\n- Codex : son portrait sur sa page et dans l'aperçu des attaques est l'ombre du combat (même shader du corps : pallor 0,7, liseré pâle, lanterne en main ; MonsterTrait.dress_look()), plus le héros normal.\n- Bestiaire : plus de section Céleste pour une espèce qui ne peut jamais l'être (Bestiary.can_be_celestial(), tiré des règles qui tirent les rangs rares : BossDef.rolls_rank() dans BossArena) : ni le Gardien (as_written), ni Tôma ni la Gueule (combat à deux formes), ni les démons des Profondeurs (élites simples au plus). Gardée si un Céleste a quand même été trouvé (vieille partie).\n- Pose de lancer : il ne tremble plus en pose d'attaque (le héros n'a pas d'animation « cast ») : NamelessKeeperDef.cast_pose « idle » tenue le temps de l'annonce (ActorRig.play_cast : une pose en boucle tenue pour la durée), lanterne levée au-dessus de la tête et sa lueur qui grossit en trois pas, la dernière vive (ShadeTrait « Casting » : cast_lantern_offset 5,-20, cast_glow_size 10). Le coup de son arme garde l'élan de son arme.\nTests : unit (Céleste possible ou non, rolls_rank, pose de chaque sort, lueur par pas, dessin du codex), game (en combat : pose tenue + lanterne levée, jamais la pose d'attaque en lançant). Captures FR de sa page faites. À juger en jeu : la pose de lancer se lit-elle bien sur le téléphone ?",
       "status": "review",
@@ -2776,7 +2868,7 @@
       "updated_at": 1792816004
     },
     {
-      "id": "task_187",
+      "id": "task_193",
       "title": "Gardien Sans Nom à l'arc : combats longs pour le bot kite",
       "description": "Mesure du 24/10 (task_171) : contre un Gardien à l'arc, le bot kite (Espadon) gagne en 95-115 s, au-dessus de la cible de 100 s : il recule à 100 de vitesse pour garder 170 px et le bot au corps à corps le poursuit. Levier : ranged_keep_distance (170). À voir avec un vrai joueur avant de toucher.",
       "status": "backlog",
@@ -2791,7 +2883,7 @@
       "updated_at": 1792816004
     },
     {
-      "id": "task_188",
+      "id": "task_194",
       "title": "Outils d'équilibrage : drapeaux « heal share » sur des combats presque sans dégâts",
       "description": "Vu le 24/10 : au fond du Puits, le build attendu de l'acte IV déclenche « heal share > 25 % » quand le bot kite ne prend presque rien (la rune Sangsue soigne 30-100 points sur 30-200 encaissés), contre Tôma aussi. La cible devrait sans doute ignorer les combats où les dégâts encaissés sont faibles (ex. < 30 % de la Vie).",
       "status": "backlog",
@@ -2806,7 +2898,7 @@
       "updated_at": 1792816004
     },
     {
-      "id": "task_189",
+      "id": "task_195",
       "title": "Codex : l'attaque de base du Gardien Sans Nom affiche le katana du modèle",
       "description": "Vu sur les captures du 24/10 : sur sa page, son attaque de base est « Katana : 5 Dégâts » (l'arme et les chiffres du modèle nameless_keeper.tres), alors qu'en combat il porte l'arme du héros qu'il a été (son coup pèse 16 avant l'étage). Afficher l'arme du Gardien qui attend (Profile.keeper) ou un texte qui dit « l'arme que tu portais ».",
       "status": "backlog",
@@ -2822,7 +2914,7 @@
       "updated_at": 1792816004
     },
     {
-      "id": "task_190",
+      "id": "task_196",
       "title": "Suite balance : échecs non marqués « KNOWN » (contenu hors acte, degenerate_skills_a3)",
       "description": "Vus le 24/10 dans --only=balance, déjà là avant : « content: unlisted » (master_toma, nameless_effigy, nameless_keeper : dans aucun acte, alors qu'ils sont dans le fond du Puits / l'étage caché) et « degenerate DPS 2,52x (cible 2,5x) » pour degenerate_skills_a3. Le premier est un faux positif de l'outil (BalanceContent.unlisted ne connaît pas FinaleDef/HiddenFloorDef) ; le second est à mesurer.",
       "status": "backlog",
@@ -2837,7 +2929,7 @@
       "updated_at": 1792816004
     },
     {
-      "id": "task_191",
+      "id": "task_197",
       "title": "Économie étage 1 : relance et forge chères (suite balance)",
       "description": "Vu le 24/10 dans --only=balance, une fois BalanceLab.renew réparé (il plantait sur run.seed, les mesures « renew » ne tiraient plus leur étage) : « economy: reroll » 45 % de l'or de l'étage 1 en Veilleur (cible <= 35 %) et « economy: forge » 113 % (cible <= 60 %). Sans doute l'état réel caché par l'erreur de l'outil : à mesurer (--mode=economy) et trancher (prix ou cible).",
       "status": "backlog",

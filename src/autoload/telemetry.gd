@@ -1,15 +1,15 @@
 extends Node
 ## The gameplay statistics (autoload "Telemetry"; docs/online.md "Gameplay statistics"): with the
-## player's consent only (Privacy.analytics_allowed()), the summary of each run that ends and the
-## events of its boss fights, perk choices, purchases and pacts go to Talo's events, to balance
-## the game and find its bugs. The list of events and of their fields is data
-## (data/online/telemetry.tres, TelemetryDef).
+## player's consent only (OnlineSession.statistics_allowed(): Privacy.analytics_allowed(), a
+## server, the kill switch), the summary of each run that ends and the events of its boss fights,
+## perk choices, purchases and pacts go to Talo's events, to balance the game and find its bugs.
+## The list of events and of their fields is data (data/online/telemetry.tres, TelemetryDef).
 ##
 ## A RunTelemetry follows each run from Events.run_started; its counts are kept in the run's save
 ## (Events.run_saving: RunState.telemetry) and taken back when the run is resumed, so the run's
 ## end covers the whole run. At Events.run_ended its events are queued, if the player consented
-## and the run is not a debug run, then sent in batches through the leaderboards' server
-## (Leaderboards: same device id, same player). A run left without ending (Events.run_left: quit
+## and the run is not a debug run, then sent in batches through the OnlineSession (same device id,
+## same player as the leaderboards). A run left without ending (Events.run_left: quit
 ## to the title, the app closed) sends its run_end too, result "abandoned" and quit 1, under the
 ## same run id as its later end if it is resumed: the dashboard keeps each run id's latest
 ## run_end. The app put in the background (maybe killed there) leaves that end as a draft in the
@@ -17,17 +17,25 @@ extends Node
 ## The queue waits in its own file, user://telemetry.json, bounded (TelemetryDef.max_queue), while
 ## there is no network, and goes when the network is back, at a run's end, or when the app goes
 ## to the background. Refusing or withdrawing drops what waited. The game never depends on it:
-## it only listens. The tests give it no file (and Leaderboards an offline or fake server).
+## it only listens. The tests give it no file (and the session an offline or fake server).
 
 const PATH := "user://telemetry.json"
 const DEFS := "res://data/online/telemetry.tres"
 const VERSION := 1
 
-## Empty = nothing is read or written (tests).
-var path := PATH
 var config: TelemetryDef
-## Events waiting to be sent, oldest first: {name, props, timestamp}.
-var queue: Array[Dictionary] = []
+## Its file, the events waiting (`queue`), the flush latch and the retry timer.
+var store := PersistedQueue.new(PATH, VERSION)
+## The file's path. Empty = nothing is read or written (tests).
+var path: String:
+	get:
+		return store.path
+	set(value):
+		store.path = value
+## Events waiting to be sent, oldest first: {name, props, timestamp} (store.items).
+var queue: Array[Dictionary]:
+	get:
+		return store.items
 ## The run being followed (null between runs).
 var tracker: RunTelemetry
 ## The last run's end event as queued (props after sanitize()), for the tests.
@@ -36,22 +44,27 @@ var last_summary := {}
 ## its "abandoned" end, sanitized (queued at the next launch; dropped when the app comes back).
 var draft: Array[Dictionary] = []
 
-var _flushing := false
-var _retry: Timer
+
+func _init() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(store)
+	store.retry_due.connect(flush)
+	boot()
+
+
+## Its data and file, read (no other service is asked: OnlineSession, "start-up order").
+func boot() -> void:
+	config = load(DEFS) as TelemetryDef
+	store.max_items = config.max_queue
+	load_state()
 
 
 func _ready() -> void:
-	process_mode = Node.PROCESS_MODE_ALWAYS
-	config = load(DEFS) as TelemetryDef
-	load_state()
+	OnlineSession.register(self)
 	Events.run_started.connect(_on_run_started)
 	Events.run_ended.connect(record)
 	Events.run_saving.connect(_on_run_saving)
 	Events.run_left.connect(_on_run_left)
-	_retry = Timer.new()
-	_retry.one_shot = true
-	_retry.timeout.connect(flush)
-	add_child(_retry)
 
 
 ## The tests: no file, nothing waiting, no run followed.
@@ -60,8 +73,9 @@ func use_for_tests() -> void:
 	reset()
 
 
+## Everything forgotten (not the file), the flush and the retry stopped.
 func reset() -> void:
-	queue.clear()
+	store.reset()
 	draft.clear()
 	last_summary = {}
 	if tracker:
@@ -69,15 +83,15 @@ func reset() -> void:
 	tracker = null
 
 
-## Unix time in milliseconds (Talo's events' timestamp; Privacy's test clock when set).
+## Unix time in milliseconds (Talo's events' timestamp; the session's test clock when set).
 func now_ms() -> int:
-	return Privacy.now() * 1000 if Privacy.fake_now >= 0 else int(Time.get_unix_time_from_system() * 1000.0)
+	return OnlineSession.now_ms()
 
 
-## The statistics may be collected and sent now (consent, a server, not stopped by the remote
-## kill switch: RemoteConfig.statistics_off()).
+## The statistics may be collected and sent now (OnlineSession.statistics_allowed(): consent, a
+## server, not stopped by the remote kill switch).
 func is_active() -> bool:
-	return Privacy.analytics_allowed() and Leaderboards.is_available() and not RemoteConfig.statistics_off()
+	return OnlineSession.statistics_allowed()
 
 
 func _on_run_started(run: RunState, player: Player) -> void:
@@ -160,7 +174,7 @@ func _enqueue(event: Dictionary) -> bool:
 		return false
 	if item.name == "run_end":
 		last_summary = item.props
-	_push(item)
+	store.push(item)
 	return true
 
 
@@ -175,13 +189,6 @@ func _prepared(event: Dictionary) -> Dictionary:
 	return { "name": String(def.name), "props": config.sanitize(def, props), "timestamp": int(event.timestamp) }
 
 
-## Into the queue, the oldest dropped past max_queue.
-func _push(item: Dictionary) -> void:
-	queue.append(item)
-	while queue.size() > config.max_queue:
-		queue.pop_front()
-
-
 ## Everything waiting dropped (consent refused or withdrawn, "delete my online data").
 func drop_queue() -> void:
 	queue.clear()
@@ -191,18 +198,25 @@ func drop_queue() -> void:
 	save_state()
 
 
-## Sends what waits, a batch at a time; without network, tries again in config.retry_seconds.
-## Only with consent. A batch the server refuses for good is dropped.
+## Sends what waits, a batch at a time; without network (or a refused identity), tries again in
+## config.retry_seconds, backing off. Only with consent. A batch the server refuses for good is
+## dropped.
 func flush() -> void:
-	if _flushing or queue.is_empty() or not is_active():
+	if store.is_busy() or queue.is_empty() or not is_active():
 		return
-	_flushing = true
-	var status := await Leaderboards.identity()
+	var token := store.begin_flush()
+	var status := await OnlineSession.identity()
+	if not store.still(token):
+		return  # (reset meanwhile: the tests' next one)
+	if status == BoardBackend.Status.REJECTED:
+		status = BoardBackend.Status.OFFLINE  # (a refused identity is tried again later, by every service alike)
 	while status == BoardBackend.Status.OK and not queue.is_empty() and is_active():
 		var batch: Array[Dictionary] = []
 		batch.assign(queue.slice(0, config.batch_size))
 		@warning_ignore("redundant_await")  # a coroutine in TaloBackend; the offline BoardBackend answers at once
-		status = await Leaderboards.backend.send_events(batch)
+		status = await OnlineSession.backend.send_events(batch)
+		if not store.still(token):
+			return
 		if status == BoardBackend.Status.OFFLINE or status == BoardBackend.Status.UNAVAILABLE:
 			break
 		# OK or refused for good: these are done (the queue may have changed meanwhile).
@@ -211,15 +225,18 @@ func flush() -> void:
 		if status != BoardBackend.Status.OK:
 			status = BoardBackend.Status.OK  # (a refused batch doesn't stop the next one)
 	save_state()
-	_flushing = false
-	if status == BoardBackend.Status.OFFLINE and not queue.is_empty() and _retry:
-		_retry.start(config.retry_seconds)
+	store.end_flush(token)
+	if status == BoardBackend.Status.OFFLINE and not queue.is_empty():
+		store.retry_later(config.retry_seconds, OnlineSession.max_backoff())
+	elif status == BoardBackend.Status.OK:
+		store.succeeded()
 
 
 func _notification(what: int) -> void:
 	match what:
 		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_CLOSE_REQUEST:
-			# To the background (or closing): what waits is kept, and sent if it can be.
+			# To the background (or closing): what waits is kept (written only if it changed), and
+			# sent if it can be.
 			save_state()
 			flush()
 		NOTIFICATION_APPLICATION_RESUMED, NOTIFICATION_APPLICATION_FOCUS_IN:
@@ -230,27 +247,23 @@ func _notification(what: int) -> void:
 # --- The file ------------------------------------------------------------------
 
 func save_state() -> void:
-	if path.is_empty():
-		return
-	SafeFile.write_json(path, { "version": VERSION, "queue": queue, "draft": draft })
+	store.write({ "queue": queue, "draft": draft })
 
 
 ## Reads the file; a draft left there (the app killed in the background mid-run) joins the queue.
 func load_state() -> void:
 	queue.clear()
 	draft.clear()
-	if path.is_empty():
-		return
-	var data: Variant = SafeFile.read_json(path)
-	if not data is Dictionary:
+	var data := store.read()
+	if data.is_empty():
 		return
 	var left_over := false
 	for key in ["queue", "draft"]:
-		var saved: Variant = (data as Dictionary).get(key, [])
+		var saved: Variant = data.get(key, [])
 		if saved is Array:
 			for item: Variant in saved:
 				if item is Dictionary and (item as Dictionary).has_all(["name", "props", "timestamp"]):
-					_push(item)
+					store.push(item)
 					left_over = left_over or key == "draft"
 	if left_over:
 		save_state()

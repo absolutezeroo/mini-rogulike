@@ -36,9 +36,15 @@ const CONTENT := "res://data/content_db.tres"
 const VERSION := 1
 const DAY := 86400
 
-## Empty = nothing is read or written (tests).
-var path := PATH
 var config: RemoteConfigDef
+## Its file (the last good read), the one-read-at-a-time latch and the start timer.
+var store := PersistedQueue.new(PATH, VERSION)
+## The file's path. Empty = nothing is read or written (tests).
+var path: String:
+	get:
+		return store.path
+	set(value):
+		store.path = value
 ## The last good read: key -> value text, the allow-list's keys only (kept in the file).
 var fetched := {}
 ## When it was read (Unix seconds; 0: never).
@@ -59,35 +65,48 @@ var ignored := PackedStringArray()
 var status: BoardBackend.Status = BoardBackend.Status.UNAVAILABLE
 ## A run is going on (begin_run() until at_title()): what is read waits.
 var in_run := false
-## The tests' clock (Unix seconds; -1: the real one) and game version ("": the project's).
-var fake_now := -1
+## The tests' game version ("": the project's). (The clock is OnlineSession.fake_now.)
 var game_version := ""
 ## No printing (the tests).
 var quiet := false
 
-var _fetching := false
 var _read_this_session := false
 ## Keys the server has that the allow-list doesn't (ignored; never saved).
 var _unknown: PackedStringArray = []
 var _content: ContentDB
-var _start: Timer
+## While the file is read at start-up, a curse or event id is only checked for its form: the
+## content (ContentDB, the whole game's data) loads later, at the first safe point that needs it.
+var _defer_ids := false
+## Some CONTENT_ID values in `latest`/`active` are not checked against the content yet.
+var _ids_unchecked := false
+
+
+func _init() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(store)
+	store.retry_due.connect(fetch)
+	boot()
+
+
+## Its data and file, read (no other service is asked: OnlineSession, "start-up order"; nor the
+## content: _defer_ids).
+func boot() -> void:
+	config = load(DEFS) as RemoteConfigDef
+	_defer_ids = true
+	load_state()
+	_defer_ids = false
 
 
 func _ready() -> void:
-	process_mode = Node.PROCESS_MODE_ALWAYS
-	config = load(DEFS) as RemoteConfigDef
-	load_state()
+	OnlineSession.register(self)
+	_print_ignored()  # (what the file had that this version ignores, now that the build is known)
 	# The game asks through RemoteTuning's hooks (no load cycle from World and RunState to here).
 	RemoteTuning.for_run_hook = tuning
 	RemoteTuning.omen_hook = omen_for
 	RemoteTuning.run_starting_hook = begin_run
 	Privacy.changed.connect(_on_choices_changed)
 	Leaderboards.changed.connect(_on_choices_changed)
-	_start = Timer.new()
-	_start.one_shot = true
-	_start.timeout.connect(fetch)
-	add_child(_start)
-	_start.start(maxf(config.start_delay, 0.05))
+	store.start_in(config.start_delay)
 
 
 ## The tests: no file, nothing read, the game's own values.
@@ -97,7 +116,11 @@ func use_for_tests() -> void:
 	reset()
 
 
+## Everything forgotten (not the file), the read in flight and the start timer stopped, the real
+## clock back (OnlineSession.fake_now).
 func reset() -> void:
+	store.reset()
+	_ids_unchecked = false
 	fetched.clear()
 	fetched_at = 0
 	simulated.clear()
@@ -107,22 +130,21 @@ func reset() -> void:
 	ignored.clear()
 	status = BoardBackend.Status.UNAVAILABLE
 	in_run = false
-	fake_now = -1
+	OnlineSession.fake_now = -1
 	game_version = ""
 	_read_this_session = false
 	_unknown.clear()
-	if _start:
-		_start.stop()
 
 
+## Now, in Unix seconds (OnlineSession.now(): the tests' clock if set).
 func now() -> int:
-	return fake_now if fake_now >= 0 else int(Time.get_unix_time_from_system())
+	return OnlineSession.now()
 
 
 ## The config may be read: a server, and the player turned an online feature on (before that
-## choice the game makes no call at all).
+## choice the game makes no call at all: OnlineSession.online_chosen()).
 func may_fetch() -> bool:
-	return Leaderboards.is_available() and (Leaderboards.shown or Privacy.analytics_allowed())
+	return OnlineSession.online_chosen()
 
 
 # --- Safe points ----------------------------------------------------------------------------
@@ -141,8 +163,10 @@ func begin_run() -> void:
 	in_run = true
 
 
-## Takes the last read as the game's values (a safe point).
+## Takes the last read as the game's values (a safe point). Ids read from the file at start-up
+## are checked against the content now (_check_ids()).
 func apply() -> void:
+	_check_ids()
 	active = latest.duplicate()
 	applied.emit()
 
@@ -230,6 +254,7 @@ func shown_value(def: RemoteKeyDef, values: Dictionary) -> String:
 
 
 func _value(hook: RemoteKeyDef.Hook, difficulty_id: StringName = &"") -> Variant:
+	_check_ids()
 	for def in config.for_hook(hook):
 		if (def.difficulty == &"" or def.difficulty == difficulty_id) and active.has(def.key):
 			return active[def.key]
@@ -257,6 +282,8 @@ func _text(hook: RemoteKeyDef.Hook) -> String:
 
 
 func _switch(hook: RemoteKeyDef.Hook) -> bool:
+	if config == null:
+		return false  # (never before its data is read; kept safe for any start-up order)
 	for def in config.for_hook(hook):
 		if bool(latest.get(def.key, false)):
 			return true
@@ -268,14 +295,15 @@ func _switch(hook: RemoteKeyDef.Hook) -> bool:
 ## Reads the config (unless read less than refresh_seconds ago this session; `force`: anyway).
 ## Offline, refused, no key, no choice: the values kept stay.
 func fetch(force: bool = false) -> void:
-	if _fetching or not may_fetch():
+	if store.is_busy() or not may_fetch():
 		return
 	if not force and _read_this_session and now() - fetched_at < config.refresh_seconds:
 		return
-	_fetching = true
+	var token := store.begin_flush()
 	@warning_ignore("redundant_await")  # a coroutine in TaloBackend; the offline BoardBackend answers at once
-	var read := await Leaderboards.backend.fetch_config()
-	_fetching = false
+	var read := await OnlineSession.backend.fetch_config()
+	if not store.end_flush(token):
+		return  # (reset meanwhile: the tests' next one)
 	status = read.status
 	if read.status != BoardBackend.Status.OK or not may_fetch():
 		return
@@ -304,7 +332,7 @@ func fetch(force: bool = false) -> void:
 ## Debug builds: `text` as if the server had it for `key` ("" forgets the simulated value). It
 ## applies at the next safe point, like a real one.
 func simulate(key: String, text: String) -> void:
-	if not OS.is_debug_build():
+	if OnlineSession.release_mode:
 		return
 	if text.is_empty():
 		simulated.erase(key)
@@ -320,13 +348,14 @@ func clear_simulations() -> void:
 	received.emit()
 
 
-## Checks every value read (and simulated) against the allow-list into `latest`.
+## Checks every value read (and simulated, in a debug build) against the allow-list into `latest`.
 func check() -> void:
 	ignored.clear()
+	_ids_unchecked = false
 	for key in _unknown:
 		ignored.append("%s: not on the allow-list" % key)
 	var raw := fetched.duplicate()
-	if OS.is_debug_build():
+	if not simulated.is_empty() and not OnlineSession.release_mode:
 		raw.merge(simulated, true)
 	var values := {}
 	for key: String in raw:
@@ -347,7 +376,13 @@ func check() -> void:
 		ignored.append("everything: the config is for game versions %s to %s, this is %s" % [
 			str(raw.get("min_version", "-")), str(raw.get("max_version", "-")), _game_version()])
 	latest = {} if gated else values
-	if OS.is_debug_build() and not quiet:
+	if not _defer_ids:
+		_print_ignored()
+
+
+## Debug builds: what the last check ignored, printed (not the tests: `quiet`).
+func _print_ignored() -> void:
+	if not OnlineSession.release_mode and not quiet:
 		for line in ignored:
 			print("RemoteConfig: ignored %s" % line)
 
@@ -378,6 +413,12 @@ func parse(def: RemoteKeyDef, text: String) -> Variant:
 			return clean
 		RemoteKeyDef.Kind.CONTENT_ID:
 			var id := StringName(text.to_lower())
+			if _defer_ids and _content == null:
+				# (start-up: its form only; the content checks it at the first safe point)
+				if RegEx.create_from_string("^[a-z0-9_]+$").search(String(id)):
+					_ids_unchecked = true
+					return id
+				return null
 			if _content_ids(def.pool).has(id):
 				return id
 		RemoteKeyDef.Kind.DATE:
@@ -468,6 +509,18 @@ func _kind_name(def: RemoteKeyDef) -> String:
 	return "version (0.3.0)"
 
 
+## Ids taken from the file at start-up only for their form: checked against the content now, the
+## first time a value is asked for or applied (loading the content then, not while the autoloads
+## start). What was in use stays in use, less the ids the game doesn't have.
+func _check_ids() -> void:
+	if not _ids_unchecked:
+		return
+	var was_active := active == latest
+	check()
+	if was_active:
+		active = latest.duplicate()
+
+
 ## The ids a CONTENT_ID of `pool` may name (the game's own content).
 func _content_ids(pool: RemoteKeyDef.Pool) -> Array[StringName]:
 	if _content == null:
@@ -492,9 +545,7 @@ func _on_choices_changed() -> void:
 # --- The file ------------------------------------------------------------------------------
 
 func save_state() -> void:
-	if path.is_empty():
-		return
-	SafeFile.write_json(path, { "version": VERSION, "fetched_at": fetched_at, "values": fetched })
+	store.write({ "fetched_at": fetched_at, "values": fetched })
 
 
 ## The last good read back (a restart offline keeps its values), checked again (this version's
@@ -502,13 +553,12 @@ func save_state() -> void:
 func load_state() -> void:
 	fetched.clear()
 	fetched_at = 0
-	if not path.is_empty():
-		var data: Variant = SafeFile.read_json(path)
-		if data is Dictionary and (data as Dictionary).get("values") is Dictionary:
-			fetched_at = int((data as Dictionary).get("fetched_at", 0))
-			var values: Dictionary = (data as Dictionary).values
-			for key: Variant in values:
-				if config.find(str(key)) and values[key] is String:
-					fetched[str(key)] = values[key]
+	var data := store.read()
+	if data.get("values") is Dictionary:
+		fetched_at = int(data.get("fetched_at", 0))
+		var values: Dictionary = data.values
+		for key: Variant in values:
+			if config.find(str(key)) and values[key] is String:
+				fetched[str(key)] = values[key]
 	check()
 	active = latest.duplicate()

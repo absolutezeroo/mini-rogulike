@@ -26,9 +26,15 @@ const SECONDS_PER_DAY := 86400
 ## The statistics' answer.
 enum Answer { NONE, GRANTED, REFUSED }
 
-## Empty = nothing is read or written (tests).
-var path := PATH
 var def: PrivacyDef
+## Its file (versioned, atomic).
+var store := PersistedQueue.new(PATH, VERSION)
+## The file's path. Empty = nothing is read or written (tests).
+var path: String:
+	get:
+		return store.path
+	set(value):
+		store.path = value
 ## The age question was answered, and how ("old enough" = at least def.age_threshold).
 var age_answered := false
 var old_enough := false
@@ -40,20 +46,29 @@ var answered_version := 0
 var history: Array[Dictionary] = []
 ## The title screen asks the questions the first time it shows (off in the tests, but in theirs).
 var ask_on_title := true
-## A fixed clock for the tests (Unix seconds; -1: the real one).
-var fake_now := -1
 
 
-func _ready() -> void:
+func _init() -> void:
+	add_child(store)
+	boot()
+
+
+## Its data and file, read (no other service is asked: OnlineSession, "start-up order").
+func boot() -> void:
 	def = load(DEFS) as PrivacyDef
 	load_state()
 
 
-## The tests: no file, no question on the title screen, every choice forgotten.
+func _ready() -> void:
+	OnlineSession.register(self)
+
+
+## The tests: no file, no question on the title screen, every choice forgotten, the real clock
+## (OnlineSession.fake_now).
 func use_for_tests() -> void:
 	path = ""
 	ask_on_title = false
-	fake_now = -1
+	OnlineSession.fake_now = -1
 	reset()
 
 
@@ -66,22 +81,23 @@ func reset() -> void:
 	history.clear()
 
 
-## Now, in Unix seconds (the tests' clock if set).
+## Now, in Unix seconds (the online layer's one clock: OnlineSession.now(), the tests' if set).
 func now() -> int:
-	return fake_now if fake_now >= 0 else int(Time.get_unix_time_from_system())
+	return OnlineSession.now()
 
 
 ## The statistics may be collected and sent: accepted, for this consent version, by a player old
-## enough.
+## enough. (The services ask OnlineSession.statistics_allowed(), which adds the server, the build
+## and the kill switch.)
 func analytics_allowed() -> bool:
-	return analytics == Answer.GRANTED and old_enough and answered_version == def.consent_version
+	return def != null and analytics == Answer.GRANTED and old_enough and answered_version == def.consent_version
 
 
 ## The questions should be asked now (the title screen, once it shows): there is a server, the
 ## player isn't known to be too young, and the statistics were never answered, were refused more
 ## than reask_days ago, or were accepted for an older consent version.
 func should_ask() -> bool:
-	if not Leaderboards.is_available():
+	if not OnlineSession.is_available():
 		return false
 	if age_answered and not old_enough:
 		return false
@@ -138,8 +154,8 @@ func _answer(answer: Answer, choice: String) -> void:
 ## What "Delete my online data" asks for, before it forgets: {id, player, name, email, mailto}
 ## (`mailto` empty while the contact address is still a placeholder).
 func deletion_request() -> Dictionary:
-	var device := Leaderboards.device_id
-	var player := Leaderboards.player_id
+	var device := OnlineSession.device_id
+	var player := OnlineSession.player_id
 	var shown_name := Leaderboards.pseudonym if not Leaderboards.pseudonym.is_empty() else (Leaderboards.display_name() if not device.is_empty() else "")
 	var body := "Please delete the data of this player of Le Puits des Âmes (GDPR art. 17).\n\nOnline ID (alias identifier): %s\nTalo player ID: %s\nPseudonym: %s\n" % [
 		device if not device.is_empty() else "-", player if not player.is_empty() else "-", shown_name if not shown_name.is_empty() else "-"]
@@ -153,6 +169,7 @@ func deletion_request() -> Dictionary:
 ## player id, the pseudonym and every queue forgotten. A new random id is made only if the player
 ## turns a feature on again, so this device is no longer linked to the old record.
 func forget_online() -> void:
+	OnlineSession.forget()
 	Leaderboards.forget()
 	Telemetry.drop_queue()
 	WorldStats.forget()
@@ -165,10 +182,7 @@ func forget_online() -> void:
 # --- The file ------------------------------------------------------------------
 
 func save_state() -> void:
-	if path.is_empty():
-		return
-	SafeFile.write_json(path, {
-		"version": VERSION,
+	store.write({
 		"age_answered": age_answered,
 		"old_enough": old_enough,
 		"analytics": ["none", "granted", "refused"][analytics],
@@ -180,10 +194,8 @@ func save_state() -> void:
 
 func load_state() -> void:
 	reset()
-	if path.is_empty():
-		return
-	var data: Variant = SafeFile.read_json(path)
-	if not data is Dictionary:
+	var data := store.read()  # (a newer game's file is not read: every choice off, asked again)
+	if data.is_empty():
 		return
 	age_answered = bool(data.get("age_answered", false))
 	old_enough = bool(data.get("old_enough", false))

@@ -25,8 +25,12 @@ the fake server counts its calls).
   (`set_auto_accept_quit(false)`), opens a websocket at start, writes a `settings.cfg` into
   `res://` on first run (read-only in an export), prints `push_error`s on every failed request
   (noise in the tests and on a phone without network) and keeps its own replay queue. Ours is
-  under 200 lines (the service around it, ~370), works the same on Android and Windows (Godot's own TLS and CA list), and fails
-  quietly.
+  about 330 lines for every endpoint the game uses (each service around it, 200 to 500), works the
+  same on Android and Windows (Godot's own TLS and CA list), and fails quietly (a body that isn't
+  JSON, a captive portal's page, is read as nothing without an engine error).
+- **`OnlineSession`** (autoload, `src/autoload/online_session.gd`): what every online service
+  shares, below in [The shared session](#the-shared-session): the backend, the device's player,
+  the consent gates, the clock.
 - **`Leaderboards`** (autoload, `src/autoload/leaderboards.gd`): listens for `Events.run_ended`
   (a `RunSummary` made by `RunRecords.report_end()` when the Game gives the souls: a death, or a
   win), queues the scores the boards take, sends them, retries every `retry_seconds` while there
@@ -44,16 +48,62 @@ the fake server counts its calls).
   or normal runs), a difficulty and ascension filter, `submits` (scores are sent to it) and `shown`
   (a tab on the page). Adding a board: a file there, its line in `leaderboards.tres`, the same
   board in the dashboard (below).
-- **Its own file**: `user://leaderboards.json` holds the device's random id (shown in Options >
-  Privacy, for a deletion request), the Talo player id it became, the pseudonym, "Publish my
-  scores online" (off until chosen; a file from before, version 1, is asked again) and the queue.
-  Never the player's save or the Profile.
+- **Its own file**: `user://leaderboards.json` (version 3) holds the pseudonym, "Publish my scores
+  online" (off until chosen; a file from before, version 1, is asked again) and the queue. The
+  device's random id (shown in Options > Privacy, for a deletion request) and the Talo player id
+  it became are the session's, in `user://online.json` (until version 2 they were in
+  `leaderboards.json`: the session takes them from there once). Never the player's save or the
+  Profile.
 - **Periods.** Each daily (weekly) entry carries its day (week) as a prop, `day` = the UTC day
   number of `DailyRun.today()` (`week` = `QuestBoard.week_index()`); the page asks Talo for one
   day's entries (`propKey=day&propValue=<day>`, archived ones with `withDeleted=1` for
   yesterday). The board itself refreshes daily, so "one entry per player" means one per day.
   A score that could not be sent before its day ended is dropped: sent the next day, Talo would
   count it on the new day.
+
+## The shared session
+
+Six autoloads talk to Talo or keep an online choice: `Leaderboards`, `Privacy`, `Telemetry`,
+`WorldStats`, `RemoteConfig`, `Feedback`. What they share is written once:
+
+- **`OnlineSession`** (autoload, listed first of them in `project.godot`): the backend (`TaloBackend`
+  with a key, the offline `BoardBackend` without), the device's random id and its Talo player
+  (`user://online.json`), and `identity()`: **one identify at a time for every service** (a
+  service asking while one is on its way waits for that answer). A refused identify (a bad key, a
+  captive portal's page instead of Talo's answer) is answered again without a call for
+  `refused_identity_seconds`, and every service treats it as "no network": its queue waits and it
+  tries again later. The **consent gates** live here and nowhere else: `scores_allowed()` (published,
+  not switched off), `scores_published()`, `statistics_allowed(debug_builds)` (the statistics'
+  consent, a server, the kill switch, and for the world counters a release build), and
+  `online_chosen()` (either feature on: what reads the server without the player's data). Also the
+  one **clock** (`now()`, `fake_now` for the tests) and `release_mode` (what only a release build
+  does; the tests turn it on to run those paths). Its numbers are data:
+  `data/online/online_session.tres` (`OnlineSessionDef`).
+- **`PersistedQueue`** (`src/online/persisted_queue.gd`), one per service as a child: its file,
+  versioned and written atomically (`SafeFile`), a write that would change nothing skipped (an
+  alt-tab writes no file); a missing, damaged or **newer** file read as empty (a downgraded game
+  trusts nothing it doesn't know: every choice off, asked again), an older one migrated by the
+  service; a bounded list (the oldest dropped); one flush at a time with a token a reset makes
+  stale (a flush started before a test's reset never writes over the next test); the retry timer,
+  waiting the service's `retry_seconds`, then twice that after each failure in a row, up to
+  `max_backoff` times. In a test launch every online file starts with no path, so the player's
+  real files are never read or written while the autoloads start.
+- **Start-up order.** Godot makes every autoload (their `_init()`) before any `_ready()`. Each
+  online service reads its data and its file in `_init()` (`boot()`) and asks no other service
+  there; from the first `_ready()` on, any may ask any other, whatever their order. What needs
+  another service at start-up (WorldStats dropping a killed run's share that the consent no
+  longer allows) is in `settle()`, from `_ready()`. (Before this, WorldStats asked RemoteConfig's
+  kill switch before RemoteConfig had read its data: a script error at every launch of a release
+  build with the statistics accepted, and the share of a run killed in the background lost.)
+- **RemoteConfig at start-up** checks a stored curse or event id for its form only; the content
+  (`content_db.tres`, the whole game's data) is loaded at the first safe point that needs it, not
+  while the splash shows.
+- **Files and versions**: `online.json` 1, `leaderboards.json` 3 (2: the id moved out; 1: asked
+  again), `privacy.json`, `telemetry.json`, `world_stats.json`, `remote_config.json`,
+  `feedback.json` 1. Each version is read: a newer file is not trusted, an older one migrated.
+- **The tests** reset the whole layer with `OnlineSession.use_all_for_tests(fake)` (every service's
+  `use_for_tests()`: no file, no timer, no flush in flight); a suite's `Leaderboards.use_for_tests(fake)`
+  puts the session on its fake server.
 
 ## The boards in Clayton's Talo game
 
@@ -85,9 +135,9 @@ What is left: **only the key file**. For reference, the whole setup:
 2. **Access key**: *API keys* > create a key with only these scopes: **Players: read and write**
    (`read:players` to identify the device's player, `write:players` to set its name),
    **Leaderboards: read and write** (`read:leaderboards`, `write:leaderboards`), **Events: write**
-   (`write:events`, the gameplay statistics). Nothing else is needed (done; the key also has Game
-   Stats, Game Feedback and Game Config scopes; **Game Config: read** is used by the remote
-   settings).
+   (`write:events`, the gameplay statistics), **Game Stats: read and write** (the world counters),
+   **Game Feedback: write** (the players' messages) and **Game Config: read** (the remote
+   settings). Nothing else (done).
 3. **Display name** (recommended): *Game settings* > **Display name prop key** = `name`. The
    pseudonym is a player prop called `name`: with this set, a renamed player shows the new name on
    every entry. Without it the game falls back on the name copied into each entry.
@@ -106,7 +156,8 @@ What is left: **only the key file**. For reference, the whole setup:
    leaderboards are unavailable, nothing fails.
 
 The key ships inside the game, like every client key: anyone can dig it out of an APK. Its scopes
-are what limits the harm (no deleting, no reading saves), which is why it has only those four.
+are what limits the harm (no deleting, no reading saves), which is why it has only the scopes
+listed in step 2.
 
 Builds from the editor (debug builds) send `X-Talo-Dev-Build: 1`: their players and entries are
 **development data**, kept apart (orange) in the dashboard and hidden from release builds; debug
@@ -143,8 +194,8 @@ bugs. Built so that the game never depends on it:
   it was fired; else status, trap, fall..., the weapon or a monster).
 - **`Telemetry`** (autoload, `src/autoload/telemetry.gd`) makes a tracker per run; at
   `Events.run_ended` it queues the run's events (if consented, never for a debug run), keeps only
-  the fields the catalog lists, and sends them in batches through the leaderboards' server
-  (`Leaderboards.identity()`, `BoardBackend.send_events()`: `POST /v1/events` with the
+  the fields the catalog lists, and sends them in batches through the session's server
+  (`OnlineSession.identity()`, `BoardBackend.send_events()`: `POST /v1/events` with the
   `X-Talo-Alias` header; the same device id, so one player on Talo). Queue in
   `user://telemetry.json` (at most `max_queue` events, the oldest dropped), retried every
   `retry_seconds` without network, sent at a run's end and when the app goes to the background.
@@ -310,7 +361,7 @@ turns every `title_line_seconds`, from `title_min_count`) and on the Leaderboard
   `X-Talo-Dev-Build` says (`stat.incrementGlobalValue()` in `src/routes/api/game-stat/put.ts`; only
   the dashboard's view recalculates without dev players): an editor run would show in every
   player's numbers. `WorldStats.debug_builds_send` is off (the tests turn it on for their fake
-  server). Never from a debug run (`DebugCheats.debug_run`, `RunSummary.debug`), nor the tests.
+  server, or run the release path itself with `OnlineSession.release_mode`). Never from a debug run (`DebugCheats.debug_run`, `RunSummary.debug`), nor the tests.
 - **The counters are data**: `data/online/world_stats.tres` (`WorldStatsDef`, `WorldStatDef`):
   Talo's internal name, the name on the page and the title line (`{count}`), what feeds it
   (`Feed`), the ending for an ENDING feed, `max_change`, on or off.
@@ -454,7 +505,7 @@ dashboard.
   (`min_seconds_between`, kept in the file so a restart doesn't reset it) and that the build has a
   key; then queues it and sends it: `POST /v1/game-feedback/categories/{internalName}`
   `{comment, props}` with the `X-Talo-Alias` header (`BoardBackend.send_feedback()`), as the
-  device's player (`Leaderboards.identity()`: the leaderboards' random id, made then if there was
+  device's player (`OnlineSession.identity()`: the leaderboards' random id, made then if there was
   none, which publishes nothing). Queue in `user://feedback.json` (at most `max_queue`, the oldest
   dropped), tried again every `retry_seconds` without network, when the app comes back and at the
   next launch. A message the server refuses for good (400: a prop) is dropped; a **404** (its
@@ -562,5 +613,14 @@ typing at the limit), the device's id made without publishing anything, deleting
 log's folders hidden; the title's button, the form in French at 2340x1080, 2548x1296 and 1280x720,
 the thank-you note (French, fading by itself), and the pause menu's button reached with a
 gamepad's D-pad, A to open, B to close. The pc tests check the form fits every screen in French.
+`OnlineSessionTests` (unit, `FakeBoardBackend`): the file helper (versions, migration, skipped
+writes, the bound, the latch, the backoff), one identify for four services at once, a refused
+identity tried again by every service, a reset stopping every flush and timer, the device's id
+taken from a version 2 leaderboards file, the remote settings' ids checked only when first needed,
+the release-only paths, and the **start-up of the seven online autoloads in a release build** in
+14 orders (each one first, each one last, others not made yet) for every mix of consent, key and
+kill switch. `TaloContractTests` (unit, a transport in memory under `TaloBackend._send()`): the
+status rule, non-JSON bodies, identify's parsing, the feedback's 404, the stats' and config's
+lists, a line's name, the headers, the period's query, the key's file.
 A real call to Talo can only be checked by hand (a probe under `_tool/`, with the key): done on
 23 October 2026 (an identify and a `run_end` event as dev data).

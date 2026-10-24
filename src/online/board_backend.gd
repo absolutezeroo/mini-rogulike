@@ -1,7 +1,8 @@
 class_name BoardBackend
 extends Node
-## Where the online leaderboards (and the gameplay statistics: Telemetry) live, as the
-## Leaderboards autoload sees it. This base is the
+## Where the online leaderboards (and the gameplay statistics, the world counters, the remote
+## settings and the feedback) live, as the OnlineSession autoload holds it for every online
+## service. This base is the
 ## offline one: no server, every call answers UNAVAILABLE at once. The game uses it when no
 ## access key was built in (docs/online.md) and the tests always do (or a fake one,
 ## tests/support/fake_board_backend.gd); TaloBackend talks to Talo.
